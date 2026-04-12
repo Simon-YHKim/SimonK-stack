@@ -90,26 +90,14 @@ if [ -f "$REPO_DIR/scripts/session-start-instincts.sh" ] && [ ! -f ~/.claude/ses
 fi
 
 # ---- Global CLAUDE.md ----
-if [ ! -f ~/.claude/CLAUDE.md ]; then
-  log "Creating ~/.claude/CLAUDE.md with instincts auto-load block"
-  if [ "$DRY" != "--dry" ]; then
-    cat > ~/.claude/CLAUDE.md <<'EOF'
-# CLAUDE.md — Global
+if [ ! -f ~/.claude/CLAUDE.md ] && [ -f "$REPO_DIR/templates/CLAUDE.md" ]; then
+  log "Installing ~/.claude/CLAUDE.md from template"
+  run cp "$REPO_DIR/templates/CLAUDE.md" ~/.claude/CLAUDE.md
+fi
 
-## Instincts (auto-loaded)
-- See ~/.claude/instincts/mistakes-learned.md
-- See ~/.claude/instincts/project-patterns.md
-- See ~/.claude/instincts/korean-context.md
-- See ~/.claude/instincts/tool-quirks.md
-
-## Boris Cherny Principles
-1. Plan 모드 기본
-2. 병렬은 worktree 격리
-3. 검증 루프 = 도구 제공
-4. --dangerously-skip-permissions 금지
-5. CLAUDE.md 팀 체크인
-EOF
-  fi
+# ---- Skills INDEX ----
+if [ -f "$REPO_DIR/.claude/skills/INDEX.md" ] && [ ! -f ~/.claude/skills/INDEX.md ]; then
+  run cp "$REPO_DIR/.claude/skills/INDEX.md" ~/.claude/skills/INDEX.md
 fi
 
 log "✅ Install complete"

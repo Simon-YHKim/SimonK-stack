@@ -15,13 +15,33 @@
 
 ## 설치
 
+### ☁️ Claude Code 웹 (권장 — 자동)
+
+1. https://claude.ai/code 접속
+2. 이 레포 열기 (default branch `main`)
+3. 세션 시작 시 `.claude/hooks/session-start.sh` 가 자동 실행
+4. 30초~1분 뒤 56개 skill 준비 완료
+
+**PC 변경 무관** — 어느 PC에서 Claude Code 웹을 열든 동일한 환경이 재구성됩니다. 집→회사→카페 모두 동일.
+
+자세한 가이드: [docs/MORNING-START.md](docs/MORNING-START.md)
+
+### 💻 로컬 CLI / 데스크탑 (수동)
+
 ```bash
 git clone https://github.com/learner-thepoorman/Gstack-Ultraplan-superpowers.git
 cd Gstack-Ultraplan-superpowers
 ./scripts/install.sh
 ```
 
-자세한 단계·요구사항은 [docs/INSTALL.md](docs/INSTALL.md)
+요구사항: `git`, `bun`, `node ≥ 20`. 자세한 단계는 [docs/INSTALL.md](docs/INSTALL.md)
+
+### 🔁 강제 재설치 (모든 환경)
+
+```bash
+rm ~/.claude/.simon-stack-installed
+bash <repo>/.claude/hooks/session-start.sh
+```
 
 ## Skill 카테고리
 
