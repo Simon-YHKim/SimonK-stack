@@ -56,7 +56,9 @@ https://claude.ai/code → `learner-thepoorman/Gstack-Ultraplan-superpowers` 열
 
 ## §3. Claude Code 웹 / 다른 레포 / Bootstrap 모드
 
-**전제**: 이 simon-stack 레포 (또는 당신의 fork) 가 **public** 이어야 합니다. Claude Code 웹 sandbox 가 `git clone https://github.com/<public-repo>` 을 auth 없이 수행할 수 있기 때문.
+**상태**: ✅ **이 레포가 public 으로 전환돼 즉시 사용 가능** (2026-04-13 검증됨)
+
+Claude Code 웹 sandbox 가 `git clone -b main https://github.com/Learner-thepoorman/Gstack-Ultraplan-superpowers` 을 auth 없이 성공.
 
 ### 설치
 
