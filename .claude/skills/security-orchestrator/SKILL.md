@@ -1,6 +1,6 @@
 ---
 name: security-orchestrator
-description: 보안 감사 요청 시 security-checklist + authz-designer + paid-api-guard + /cso + /codex 를 순차 호출하는 상위 오케스트레이터. Meta-skill that sequentially runs security-checklist, authz-designer, paid-api-guard, /cso, and /codex challenge. 트리거 키워드 — 보안 감사, 보안 점검, 전체 보안, full security audit, 종합 보안, comprehensive security, 배포 전 보안, 출시 전 감사.
+description: Sequentially runs the full 5-stage security audit (security-checklist → authz-designer → paid-api-guard → /cso comprehensive → /codex challenge) and produces a consolidated SUMMARY report with issues sorted by severity. Use this skill PROACTIVELY whenever the user says things like "보안 점검", "보안 감사", "배포 전 보안", "전체 보안 확인", "comprehensive security review", "security audit", "production readiness security check", "check for vulnerabilities"—even without explicit framing. Use ONLY for whole-stack audits. For narrower scopes, delegate to the specific skill: RLS only → security-checklist, RBAC design → authz-designer, payment API → paid-api-guard, infrastructure → /cso.
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 version: 1.0.0
 author: simon

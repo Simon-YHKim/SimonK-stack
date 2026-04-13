@@ -1,6 +1,6 @@
 ---
 name: nextjs-optimizer
-description: Next.js 프로젝트 5대 영역 성능 최적화 — 이미지·렌더링 전략·코드 분할·스크립트 로딩·데이터 캐싱. Next.js performance optimization across images, render strategy, code splitting, script loading, and data caching. 트리거 키워드 — Next.js 최적화, Next 성능, Core Web Vitals, 번들 최적화, ISR, SSG, SSR, next/image, 렌더링 전략, 페이지 속도.
+description: Audits and optimizes Next.js (13+ App Router) projects across 5 performance areas — images (next/image, CLS prevention), render strategy (SSG/ISR/SSR/CSR per-page labeling), code splitting (dynamic imports, bundle < 200KB), script loading (next/script strategies), and data caching (unstable_cache + revalidateTag). Use this skill whenever the user says things like "Next.js 최적화", "Core Web Vitals 개선", "번들 너무 커", "LCP 개선", "optimize Next app", "improve bundle size", "Lighthouse score bad", "slow page load"—and package.json contains "next". Do NOT trigger for Next.js tutorials, project setup, or non-Next.js React apps. Produces an actionable audit with specific file paths and replacement snippets.
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 version: 1.0.0
 author: simon
@@ -92,7 +92,7 @@ GA · Clarity · Meta Pixel · 광고 SDK · Crisp · Intercom:
 import Script from 'next/script';
 
 <Script
-  src="https://www.googletagmanager.com/gtag/js?id=G-XXX"
+  src="https://www.googletagmanager.com/gtag/js?id=G-12345"
   strategy="afterInteractive"  // 또는 'lazyOnload'
 />
 ```

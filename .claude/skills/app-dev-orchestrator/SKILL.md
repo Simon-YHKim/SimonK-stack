@@ -1,8 +1,8 @@
 ---
 name: app-dev-orchestrator
-description: 새 앱 개발 시작 시 자동 발동되는 21단계 마스터 오케스트레이터. Master orchestrator for new app development, pipelines 21 stages from ideation to release. 트리거 키워드 — 새 앱 개발, 신규 프로젝트 시작, 앱 기획, new app, start project, build from scratch, 처음부터 만들기, 앱 만들고 싶어, MVP 시작. Gstack + simon-stack 전체 스킬을 조합해 office-hours → research → plan → design → implement → security → ship → deploy → retro 전 과정을 지휘한다.
+description: Use when the user asks to build a new app from scratch—"새 앱 만들자", "MVP 기획", "scaffold a new project", "처음부터 만들어줘", "let's build X"—and delegate the 21-stage pipeline (office-hours → research → plan → design → TDD → security → ship → deploy → retro → instincts) to Gstack and simon-stack skills. Produces a populated repo with CLAUDE.md, tests, security audit, and a first deploy. Do NOT use for bug fixes, refactors, or improving existing code—delegate to simon-tdd, investigate, or refactor instead.
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 1.0.0
+version: 1.1.0
 author: simon
 ---
 
@@ -22,7 +22,7 @@ author: simon
 
 ### 단계 0. 인터뷰 (사용자 질문)
 
-진행 전에 반드시 확인:
+진행 전에 아래 6가지를 먼저 명확하게 잡아둔다. 이 중 하나라도 불분명하면 뒤의 플래닝이 공중에 뜬다:
 1. **플랫폼**: 웹 / React Native / CLI / 하이브리드 / 데스크탑?
 2. **타깃 사용자**: 누구? 얼마나 많나?
 3. **GitHub 레포**: 기존 재사용 / 신규 생성? 비공개/공개?
@@ -32,7 +32,7 @@ author: simon
 
 답변을 `docs/kickoff-<YYYY-MM-DD>.md` 에 저장.
 
-### 단계 1. `/office-hours` — YC 6문 강제
+### 단계 1. `/office-hours` — YC 6문 forcing questions
 
 > Gstack `/office-hours` 스킬 호출. 6가지 forcing question 으로 demand·상태quo·구체성·wedge·관찰·future-fit 검증.
 
@@ -137,10 +137,10 @@ author: simon
 모든 단계에서 다음 원칙을 준수한다:
 
 1. **Plan 모드 기본**: 세션 시작은 Plan 모드. 실행 전 사용자 승인.
-2. **병렬은 worktree**: 병렬 Claude 실행 시 반드시 `simon-worktree` 활용.
+2. **병렬은 worktree**: 병렬 Claude 실행은 `simon-worktree` 로 격리해야 브랜치 충돌 없이 작업 병렬화가 가능하다.
 3. **CLAUDE.md 팀 체크인**: 프로젝트 `CLAUDE.md` 는 git 에 포함, PR 마다 갱신.
 4. **검증 루프 = 도구 제공**: Claude 에게 서버 시작 방법·브라우저 URL·테스트 실행 명령을 명시적으로 알려줄 것.
-5. **`--dangerously-skip-permissions` 금지**: `/permissions` allowlist 사용.
+5. **Permission allowlist 우선**: `--dangerously-skip-permissions` 는 쓰지 말고 `/permissions` 로 allowlist 를 관리 — 한 번의 사고가 전체 세션을 돌릴 가치보다 크다.
 6. **최신 모델**: Opus 4.6 자동 사용.
 7. **슬래시 명령어 = 스킬**: Gstack `/ship` 도 `ship` 스킬과 동일 개념으로 취급.
 

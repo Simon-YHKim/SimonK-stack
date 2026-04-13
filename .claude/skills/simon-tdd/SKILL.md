@@ -1,6 +1,6 @@
 ---
 name: simon-tdd
-description: RED-GREEN-REFACTOR 사이클 강제 + Claude 검증 도구 제공 원칙. Enforces strict TDD cycle with verification-loop-first principle from Boris Cherny. 트리거 키워드 — TDD, 테스트 주도, 구현 시작, 기능 구현, red green refactor, 테스트 먼저, test first, 테스트 작성, 회귀 테스트.
+description: Enforces the RED → GREEN → REFACTOR cycle for new features, bug fixes, and regression tests, plus embeds the Boris Cherny verification-loop principle (Claude must be able to verify its own work via server/test/browser commands, not ask the user to check manually). Use this skill PROACTIVELY whenever the user says things like "이 기능 구현해줘", "이거 만들어줘", "버그 고쳐줘", "let's add X", "implement Y", "build a function that does Z", "fix this bug"—EVEN IF they don't mention testing. The skill produces a failing test first, then minimal implementation, then refactor, with an atomic commit per cycle.
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 version: 1.0.0
 author: simon

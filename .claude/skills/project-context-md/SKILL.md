@@ -1,6 +1,6 @@
 ---
-name: project-claude-md
-description: 프로젝트 루트에 CLAUDE.md 템플릿을 생성·갱신한다. Creates or updates project-level CLAUDE.md with verification tools, stack conventions, and instincts links. 트리거 키워드 — CLAUDE.md 만들어줘, 프로젝트 문서, Claude Code 설정, 프로젝트 컨텍스트, stack 정리, 검증 도구 명시.
+name: project-context-md
+description: Creates or updates the project-root CLAUDE.md file that Claude Code reads at session start. CLAUDE.md should list the verification tools Claude can use autonomously (dev server command, test command, browser URLs, DB access, lint/typecheck) — this realizes the Boris Cherny "verification loop" principle and is often the single most impactful file a project can add for Claude Code productivity. Use this skill whenever the user says things like "CLAUDE.md 만들어줘", "프로젝트 컨텍스트 정리", "Claude Code 설정", "검증 도구 명시", "project claude md", "bootstrap claude code for this repo", "onboard claude to this codebase"—or when entering a new repo that lacks CLAUDE.md. Also run as step 11 of app-dev-orchestrator.
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 version: 1.0.0
 author: simon
@@ -25,7 +25,7 @@ author: simon
 test -f CLAUDE.md && echo "EXISTS" || echo "MISSING"
 ```
 
-존재 시: 섹션 단위 merge (destructive 덮어쓰기 금지)
+존재 시: 섹션 단위 merge. 기존 내용을 보존해야 팀원이 써둔 컨텍스트를 날리지 않는다.
 부재 시: 신규 생성
 
 ### 2. 프로젝트 컨텍스트 수집
@@ -118,7 +118,7 @@ src/
 
 ## 보안
 - \`.env\` 절대 커밋 금지
-- API 키 하드코딩 금지
+- API 키는 코드에 하드코딩하지 말고 env var 경유 — 레포 public 전환·실수 push 한 번이면 누출
 - RLS 필수 (\`security-checklist\` 참조)
 - 결제 API 는 \`paid-api-guard\` 참조
 

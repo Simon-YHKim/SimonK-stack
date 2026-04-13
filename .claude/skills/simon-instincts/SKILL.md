@@ -1,6 +1,6 @@
 ---
 name: simon-instincts
-description: Claude 실수·패턴·한국어 컨텍스트·도구 함정을 누적 학습하는 시스템. Cumulative learning system for Claude's mistakes, project patterns, Korean context, and tool quirks. 트리거 키워드 — instincts, 학습 저장, 반복 실수 방지, 패턴 기록, Claude가 또 틀렸어, 이거 저번에도 그랬어, 같은 실수 반복, 학습.
+description: Cumulative learning system: records Claude's mistakes, per-project conventions, Korean-market context, and tool quirks in 4 markdown files under ~/.claude/instincts/ that auto-load at every session start. Use this skill PROACTIVELY whenever the user says things like "이거 저번에도 그랬어", "또 틀렸어", "반복이네", "같은 실수 반복", "이건 기록해줘", "learned this", "don't forget this pattern", "save this for next time"—the moment a user flags a repeated mistake, immediately append a new entry. Also trigger when discovering new project conventions, Korean API quirks, or CLI footguns worth remembering. Files: mistakes-learned.md, project-patterns.md, korean-context.md, tool-quirks.md.
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 version: 1.0.0
 author: simon

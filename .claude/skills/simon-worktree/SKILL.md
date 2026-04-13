@@ -1,6 +1,6 @@
 ---
 name: simon-worktree
-description: 병렬 Claude 세션용 git worktree 격리. 동일 브랜치 병렬 작업 방지. Git worktree isolation for parallel Claude sessions — prevents conflicts and shared state leaks. 트리거 키워드 — 병렬 작업, 여러 기능 동시, git worktree, parallel agent, 동시 개발, 멀티 세션, 병렬 Claude.
+description: Sets up git worktree isolation so multiple Claude Code sessions can work on the same repo in parallel without conflicts. Use this skill whenever the user says things like "병렬 작업", "동시에 두 기능 개발", "parallel agents", "multiple Claude sessions", "worktree 만들어줘", "split work across branches", "run two tasks in parallel"—or before starting a second long-running task while another is already in progress. Prevents the classic "two sessions on the same branch" deadlock. Teaches naming convention (repo-feature dirs, feat/fix branches), .env handling (symlink or per-worktree copy), and cleanup (git worktree remove + branch delete).
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 version: 1.0.0
 author: simon
@@ -8,7 +8,7 @@ author: simon
 
 # Simon Worktree
 
-Superpowers `using-git-worktrees` + Boris Cherny 병렬 세션 권고를 융합. 병렬 Claude 세션은 **반드시** worktree 로 격리한다.
+Superpowers `using-git-worktrees` + Boris Cherny 병렬 세션 권고를 융합. 병렬 Claude 세션은 worktree 로 격리하지 않으면 동일 브랜치를 두 세션이 동시에 쓰면서 커밋 충돌·빌드 꼬임이 발생한다. 한 번이라도 겪으면 정리 비용이 격리 비용보다 훨씬 커진다.
 
 ## When to use
 
@@ -46,7 +46,7 @@ cd ../<repo-name>-<feature>
 **`.env` 취급**:
 - 실키 하드코딩 금지, 각 worktree 마다 `.env` 재복사
 - 또는 심볼릭 링크: `ln -sf ../myapp/.env .env` (레포가 같은 부모 디렉토리일 때)
-- `.env` 는 항상 `.gitignore` (재확인 필수)
+- `.env` 는 `.gitignore` 에 이미 들어있어야 한다 (새 worktree 에서도 재확인). 한 worktree 에만 커밋되면 전체 히스토리에 유출됨.
 - 여러 worktree 에서 다른 DB 사용 시 `DATABASE_URL` 값 다르게
 
 **`node_modules` / `dist`**:

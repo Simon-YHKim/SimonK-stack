@@ -1,6 +1,6 @@
 ---
 name: security-checklist
-description: 웹앱 4대 보안 감사 — RLS, 구독상태 변경, 이중 Rate Limit, 예산 한도. Web app security audit covering Row Level Security, subscription state tampering, dual rate limiting, budget caps. 트리거 키워드 — 보안 점검, 보안 감사, security audit, RLS 확인, 권한 감사, rate limit 점검, 예산 한도, 남용 방지, Supabase 보안, API 남용.
+description: Use when the user asks for a security audit of a web app—"RLS 확인", "Supabase 보안", "rate limit 점검", "예산 한도", "구독 상태 변조 방지", "check RLS policies", "rate limiting audit", "API cost cap"—and run adversarial tests across the four pillars: Row Level Security, subscription/role tampering, dual-layer rate limiting (user + IP), and budget caps (provider/app/user). Produces a checklist + 5 adversarial SQL queries per pillar ready for a regression suite.
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 version: 1.0.0
 author: simon

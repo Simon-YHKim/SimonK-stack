@@ -34,7 +34,7 @@
   `simon-instincts` (누적 학습)
 - **Tools**: `nextjs-optimizer` (Next.js 5대 최적화),
   `stitch-design-flow` (Stitch 프롬프트 생성기),
-  `project-claude-md` (프로젝트별 CLAUDE.md 템플릿)
+  `project-context-md` (프로젝트별 CLAUDE.md 템플릿)
 - **Instincts**: 4 seed 파일 (`mistakes-learned`, `project-patterns`,
   `korean-context`, `tool-quirks`)
 - **Templates**: `templates/CLAUDE.md` (글로벌 CLAUDE.md, Boris 원칙 + skill 맵)

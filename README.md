@@ -75,7 +75,7 @@ cd /path/to/target-repo
 ### 🧰 Tools
 - **nextjs-optimizer** — Next.js 5대 성능 영역 (이미지·렌더링·분할·스크립트·캐싱)
 - **stitch-design-flow** — Google Stitch 웹 UI용 프롬프트 생성기
-- **project-claude-md** — 프로젝트별 CLAUDE.md 템플릿 생성
+- **project-context-md** — 프로젝트별 CLAUDE.md 템플릿 생성
 
 ### 📝 일반 개발 (original)
 - **commit** · **review** · **debug** · **refactor** · **test-gen** · **explain**

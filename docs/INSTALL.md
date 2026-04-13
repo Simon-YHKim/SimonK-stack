@@ -64,7 +64,7 @@ cd Gstack-Ultraplan-superpowers
   - Orchestrators: `app-dev-orchestrator`, `security-orchestrator`
   - Security: `security-checklist`, `authz-designer`, `paid-api-guard`
   - Method: `simon-tdd`, `simon-worktree`, `simon-research`, `simon-instincts`
-  - Tools: `nextjs-optimizer`, `stitch-design-flow`, `project-claude-md`
+  - Tools: `nextjs-optimizer`, `stitch-design-flow`, `project-context-md`
 
 자세한 카테고리 맵: `.claude/skills/INDEX.md`
 

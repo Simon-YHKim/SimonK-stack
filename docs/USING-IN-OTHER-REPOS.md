@@ -141,7 +141,7 @@ target 레포에 복사되는 것:
 │   │   ├── simon-research/
 │   │   ├── nextjs-optimizer/
 │   │   ├── stitch-design-flow/
-│   │   ├── project-claude-md/
+│   │   ├── project-context-md/
 │   │   └── (기존 6: commit, review, debug, refactor, test-gen, explain)
 │   ├── instincts/                ← 4 seed 파일
 │   └── CLAUDE.md.template        ← 글로벌 CLAUDE.md 템플릿

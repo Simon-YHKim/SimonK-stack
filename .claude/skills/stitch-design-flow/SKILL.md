@@ -1,121 +1,105 @@
 ---
 name: stitch-design-flow
-description: Google Stitch 웹 UI용 프롬프트 생성기. DESIGN.md를 읽고 3개 시안 프롬프트를 출력한다. Prompt generator for Google Stitch (stitch.withgoogle.com) — produces 3 mockup prompts from DESIGN.md for manual paste-in. 트리거 키워드 — 디자인 시안, UI 목업, Stitch, wireframe, 와이어프레임, UI 초안, mockup, 디자인 프롬프트.
+description: Google Stitch (stitch.withgoogle.com) 용 디자인 프롬프트 생성기. DESIGN.md 를 읽고 Safe/Bold/Wild 3가지 방향의 붙여넣기 가능한 프롬프트를 출력한다. Use this skill proactively whenever the user says things like "디자인 시안 만들어줘", "UI 초안", "Stitch 프롬프트", "와이어프레임 프롬프트 써줘", "목업 프롬프트", "design mockup prompts", "UI prompt for Stitch"—even without mentioning Stitch by name, if they want AI-generated UI mockups for a product defined in DESIGN.md. This skill produces text only (no API calls, no MCP, no image generation). The user pastes the prompts into Stitch web UI manually. Do NOT trigger for live design feedback, HTML generation, or visual QA (use /design-review, /design-html, /design-shotgun instead).
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 1.0.0
+version: 1.1.0
 author: simon
 ---
 
 # Stitch Design Flow
 
-Google Stitch(stitch.withgoogle.com) 에 붙여넣을 프롬프트를 생성하는 텍스트 워크플로. **MCP 없음** — 사용자가 Stitch 웹 UI 에서 수동으로 프롬프트를 실행한다.
+**Pure text prompt generator.** No API, no MCP, no image generation. The skill's entire job is turning a product's DESIGN.md into 3 strategically-different prompts that the user pastes into https://stitch.withgoogle.com manually.
 
-## When to use
+## Why three directions
 
-- `app-dev-orchestrator` 단계 5
-- `DESIGN.md` 가 확정된 후 첫 시안 생성
-- 디자인 방향 비교가 필요할 때
+Generating one prompt gives one answer. Generating three strategically different prompts forces the user (and the model) to compare tradeoffs. The "Safe / Bold / Wild" axis is deliberately pessimistic → optimistic → experimental so the user sees the full range before committing.
+
+| Variant | Strategy | Reference aesthetics |
+|---|---|---|
+| **A — Safe** | Industry conventions, proven patterns, low risk | Stripe, Linear, Vercel |
+| **B — Bold** | Differentiated personality, strong visual voice | Figma, Notion, Arc |
+| **C — Wild** | Experimental, hi-risk / hi-reward | Raycast, Rauno Freiberg, Framer showcases |
 
 ## Workflow
 
-### 1. DESIGN.md 읽기
+### 1. Locate DESIGN.md
+
+Run `test -f DESIGN.md` at repo root. If missing, stop and request `/design-consultation` first — this skill cannot invent brand directions; it only translates an existing DESIGN.md into prompts.
+
+### 2. Extract the six brand inputs
+
+Parse from DESIGN.md:
+- Product name + one-line pitch
+- Target audience
+- Tone keywords (modern / playful / minimal / editorial / brutalist / glassmorphism / neumorphic / ...)
+- Color palette (primary / secondary / accent / neutral, hex)
+- Typography (display / body / mono fonts)
+- Key screens (usually 3: e.g. landing / dashboard / detail)
+
+If anything is missing, ask the user inline — don't guess.
+
+### 3. Generate three prompts
+
+For **each** key screen, produce three variants (A/B/C). Use the template in `references/prompt-template.md`. For industry-specific flourishes see `references/prompt-recipes.md` (SaaS, 커머스, 부동산, 블로그, 핀테크, 교육, 모빌리티, AI 제품, 커뮤니티, 헬스케어).
+
+Alternatively, let the bundled script do the parsing + output for you:
 
 ```bash
-test -f DESIGN.md && cat DESIGN.md || echo "DESIGN.md 없음 — /design-consultation 먼저"
+bash scripts/generate-prompts.sh DESIGN.md
 ```
 
-없으면 `/design-consultation` 실행 요청.
+The script reads DESIGN.md, extracts the six inputs, and writes `docs/design/stitch-prompts-<YYYY-MM-DD>.md` with A/B/C × N screens. If DESIGN.md is non-standard and parsing fails, fall back to manual template application.
 
-### 2. 브랜드 요소 추출
+### 4. Constraint defaults
 
-DESIGN.md 에서 다음을 파싱:
-- 제품명·한 줄 설명
-- 타깃 사용자
-- 톤 (modern / playful / minimal / editorial / brutalist / glassmorphism / neumorphic)
-- 컬러 팔레트 (primary / secondary / accent / neutral)
-- 타이포 (display / body / mono)
-- 핵심 화면 3개 (예: 랜딩·대시보드·상세)
+Every prompt inherits these unless the user overrides:
+- Mobile-first, 375px viewport baseline
+- WCAG AA contrast ratios
+- Korean + English copy when the target market is Korean (한/영 병기)
+- No stock photography — illustrations or abstract shapes only
+- Max 3 typography weights per screen
 
-### 3. 프롬프트 3종 생성
+### 5. Output location
 
-각 시안은 **같은 화면**을 다른 방향으로:
+Save prompts to `docs/design/stitch-prompts-<YYYY-MM-DD>.md` and print them to the chat. Users must paste **one prompt at a time** into Stitch — batching prompts in a single paste confuses Stitch's parser.
 
-**시안 A — Safe/Convention**: 업계 관용, 검증된 패턴
-**시안 B — Bold/Differentiator**: 차별화, 강한 개성
-**시안 C — Wild/Experimental**: 실험적, 하이 리스크 하이 리워드
-
-프롬프트 템플릿:
+After Stitch produces images, ask the user to save results as:
 ```
-Design a {화면 이름} for {제품명}, {한 줄 설명}.
-
-Target users: {타깃}
-Tone: {톤 A / B / C 변형}
-Primary color: {hex}
-Secondary color: {hex}
-Typography: {display font} for headings, {body font} for body
-
-Key elements to include:
-- {요소 1}
-- {요소 2}
-- {요소 3}
-
-Constraints:
-- Mobile-first, 375px viewport
-- WCAG AA contrast
-- Korean + English copy (한/영 병기)
-
-Style reference: {A: Stripe/Linear / B: Figma/Notion / C: Arc/Raycast}
+docs/design/stitch-output-A-<screen>.png
+docs/design/stitch-output-B-<screen>.png
+docs/design/stitch-output-C-<screen>.png
 ```
 
-### 4. 출력
+### 6. Next step
 
-`docs/design/stitch-prompts-<YYYY-MM-DD>.md` 에 3개 프롬프트를 저장하고, 사용자에게 출력.
+Once images are saved, hand off to `/design-shotgun` (variant exploration), `/design-review` (visual QA), or `/design-html` (HTML/CSS conversion). This skill's job ends at prompts.
 
-```
-[시안 A — Safe]
-<프롬프트 전문>
+## Absolutely no API or MCP
 
-[시안 B — Bold]
-<프롬프트 전문>
-
-[시안 C — Wild]
-<프롬프트 전문>
-```
-
-### 5. 사용자 안내
-
-> 위 3개 프롬프트를 각각 https://stitch.withgoogle.com 에 붙여넣어 이미지를 생성하고,
-> 결과물을 `docs/design/stitch-output-A.png` (B/C) 로 저장해주세요.
-> 완료 후 `/design-shotgun` 을 실행하면 변형 탐색으로 이어집니다.
-
-### 6. 다음 단계 연결
-
-사용자가 이미지를 저장한 뒤:
-- `/design-shotgun` — 변형 탐색
-- `/design-review` — 시각 QA
-- `/design-html` — production HTML/CSS 변환
+Earlier attempts considered a Stitch MCP server. **There is no such thing.** Stitch is a web UI only — no public API, no MCP, no CLI. If a user pastes a Stitch "API key" into the conversation, do not store it, do not write it to `.env`, do not call any endpoint with it. Ask the user to rotate it and proceed with the text-only workflow. The same applies to any variant like "stitch-mcp", "stitch-sdk", "figma-to-stitch" — all out of scope.
 
 ## Checklist
 
-- [ ] DESIGN.md 존재 확인 (없으면 `/design-consultation` 먼저)
-- [ ] 브랜드 요소 6개 파싱 (제품명·타깃·톤·컬러·폰트·화면)
-- [ ] A/B/C 3개 변형 생성
-- [ ] 각 프롬프트 한/영 병기 제약 포함
-- [ ] `docs/design/stitch-prompts-<date>.md` 저장
-- [ ] 사용자에게 수동 실행 가이드 제공
+- [ ] DESIGN.md exists (or `/design-consultation` run first)
+- [ ] All six brand inputs parsed successfully
+- [ ] Three variants A / B / C produced for each key screen
+- [ ] Constraint defaults applied (mobile-first, WCAG AA, bilingual)
+- [ ] Output saved to `docs/design/stitch-prompts-<date>.md`
+- [ ] User guided to paste one prompt at a time into Stitch web UI
+- [ ] No API calls, no MCP registration, no secret storage
 
-## Anti-patterns
+## Common mistakes and corrections
 
-- ❌ DESIGN.md 없이 프롬프트 생성 (근거 없는 디자인)
-- ❌ 3개 시안이 비슷함 (탐색 가치 없음) — A/B/C 명확한 방향 차이 필수
-- ❌ Stitch API 키 요청 또는 하드코딩 (MCP 없음. 수동 웹 UI 만 사용)
-- ❌ 결과 저장 경로 미지정
-- ❌ 한국어 서비스인데 영어 일색 프롬프트
+- **Generating prompts without DESIGN.md** — produces generic designs with no brand alignment. Stop and run `/design-consultation` first; DESIGN.md is the source of truth, not an optional nicety.
+- **A / B / C variants too similar** — if the three prompts read as paraphrases, the comparison is worthless. Deliberately stretch: A leans on Stripe-like conservative conventions, B picks a strong visual voice, C pushes experimental territory. If you can't tell them apart at a glance, rewrite.
+- **Monolingual prompts for Korean products** — AI mockup tools default to English stock copy, which looks broken for Korean services. Every constraint block must list Korean copy requirements when the target is Korean.
+- **Batching prompts in one paste** — Stitch processes one prompt at a time. Concatenated prompts produce mangled output. Tell the user to paste one variant, wait for output, then next.
+- **Missing save path** — images without a stable filename can't be fed to `/design-shotgun` later. Always specify `docs/design/stitch-output-<variant>-<screen>.png`.
 
 ## Related skills
 
-- `/design-consultation` — DESIGN.md 생성 (선행 필수)
-- `/design-shotgun` — 변형 탐색 (후속)
-- `/design-review` — 시각 QA
-- `/design-html` — HTML/CSS 변환
-- `app-dev-orchestrator` — 단계 5
+- `/design-consultation` — **Upstream**. Produces the DESIGN.md this skill consumes. If DESIGN.md is missing or thin, run this first.
+- `/design-shotgun` — **Downstream**. Takes Stitch-generated images and explores variants / collects feedback. Run after you have 3+ mockups saved.
+- `/design-review` — **Parallel**. Visual QA for live sites. Different role — use when production UI already exists.
+- `/design-html` — **Downstream**. Turns an approved mockup into production HTML/CSS. Usually the step after `/design-shotgun`.
+- `app-dev-orchestrator` — Step 5 of the 21-stage pipeline calls this skill.

@@ -1,6 +1,6 @@
 ---
 name: authz-designer
-description: RBAC/ABAC/ReBAC 인가 모델 설계 및 IDOR·권한 상승 감사. Authorization model designer covering RBAC, ABAC, ReBAC with audit checklist for IDOR and privilege escalation. 트리거 키워드 — 권한 시스템, RBAC, ABAC, ReBAC, authorization, 인가, IDOR, 권한 상승, 역할 설계, 멤버십, 접근 제어, 권한 감사.
+description: Use when the user asks to design or audit an authorization system—"권한 시스템 설계", "RBAC 넣어줘", "ReBAC", "IDOR 점검", "role-based access", "multi-tenant permissions", "share feature like Notion", "team workspace permissions"—and produces the right model (RBAC / ABAC / ReBAC / hybrid) plus DDL for authz_roles, authz_role_assignments, authz_policies, authz_audit_log. Also audits existing code for IDOR and privilege-escalation bugs.
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 version: 1.0.0
 author: simon

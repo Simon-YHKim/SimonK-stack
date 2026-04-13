@@ -44,7 +44,7 @@
 - `security-orchestrator` — 보안 5단계 순차 실행
 - `security-checklist`, `authz-designer`, `paid-api-guard` — 보안 상세
 - `simon-tdd`, `simon-worktree`, `simon-research`, `simon-instincts` — 방법론
-- `nextjs-optimizer`, `stitch-design-flow`, `project-claude-md` — 도구
+- `nextjs-optimizer`, `stitch-design-flow`, `project-context-md` — 도구
 
 ### 3. 유틸리티
 - `commit`, `review`, `debug`, `refactor`, `test-gen`, `explain` — 일반 개발

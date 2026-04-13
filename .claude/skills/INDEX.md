@@ -40,7 +40,7 @@
 | `simon-tdd` | RED-GREEN-REFACTOR 강제 + 검증 루프 |
 | `simon-worktree` | 병렬 세션 git worktree 격리 |
 | `nextjs-optimizer` | Next.js 5대 영역 성능 최적화 |
-| `project-claude-md` | 프로젝트 CLAUDE.md 생성 |
+| `project-context-md` | 프로젝트 CLAUDE.md 생성 |
 | `claude-api` | Claude API / Anthropic SDK 빌드 |
 
 ## 🔍 Review / QA
