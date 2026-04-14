@@ -1008,6 +1008,129 @@ simon-stack 의 13 개 skill 은 **작업 방식**을 강제하지만, 실제 **
 | `test-gen` | "테스트 작성", "unit tests", "add test coverage" | 골든 패스 + 엣지 케이스 + 에러 경로 테스트 |
 
 ---
+## 🛡️ Meta + Session 관리 skill 2 개 (v1.2.0 new)
+
+v1.2.0 에서 추가된 skill 2 개 — skill 제작 도구 벤더링 + 컨텍스트 고갈 대응.
+
+### 14. `skill-gen-agent`
+
+**역할**: repo 내부에서 skill 을 만들고, 검증하고, 리팩토링하고, 테스트할 수 있는 도구 묶음. `github.com/Learner-thepoorman/Skill-Agent` 를 벤더링.
+
+**구조**:
+```
+skill-gen-agent/
+├── SKILL.md                       ← 269 줄 (<500 OK)
+├── scripts/
+│   ├── validate_skill.py          ← 필수. 모든 skill 수정 후 실행
+│   ├── test_skill.py              ← evals/cases.json dry-run 하네스
+│   ├── refactor_skill.py          ← voice-ratio + reference-leak 탐지
+│   ├── version_log.py             ← semver bump + CHANGELOG
+│   ├── install_skill.py           ← 검증 후 ~/.claude/skills/ 로 복사
+│   └── tests/run_all.py           ← 24-check 통합 테스트
+├── references/                    ← anatomy, best-practices, design-principles,
+│                                    interview, refactor-playbook, testing, i18n, quickstart
+├── templates/                     ← SKILL.md.tmpl, script.py.tmpl, reference.md.tmpl, cases.json.tmpl
+└── evals/cases.json
+```
+
+**주요 사용**:
+```bash
+# 1. Skill 검증 (이 레포에서 skill 수정 후 반드시 실행)
+python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py .claude/skills/<name>
+
+# 2. JSON test case dry-run
+python3 .claude/skills/skill-gen-agent/scripts/test_skill.py \
+  .claude/skills/<name> --cases .claude/skills/<name>/evals/cases.json --dry-run
+
+# 3. 전체 통합 테스트 (24 checks)
+python3 .claude/skills/skill-gen-agent/scripts/tests/run_all.py
+```
+
+**validator 가 잡는 것들**: kebab-case 이름, 64 자 초과, reserved word (`claude`/`anthropic`), 잘못된 semver, description 점수 < 0.6, 500 줄 초과, TODO/FIXME/XXX 마커, 깨진 상대 링크, Windows 경로, 중첩 references/, 긴 reference 파일 TOC 누락.
+
+---
+
+### 15. `context-guardian`
+
+**역할**: Claude Code 세션이 context window 한도에 도달해 응답이 느려지거나 끊기는 문제를 3 단계 (Prevention / Monitoring / Recovery) 로 대응.
+
+**구조**:
+```
+context-guardian/
+├── SKILL.md                       ← 200 줄
+├── scripts/
+│   ├── install-rules.sh           ← Prevention: CLAUDE.md 규칙 + .claudeignore
+│   ├── update-context-log.sh      ← Monitoring: 실측 한도 JSON 관리
+│   └── create-recovery.sh         ← Recovery: SESSION_RECOVERY.md 생성
+├── references/templates.md        ← 4 산출물 템플릿 + TOC
+└── evals/cases.json               ← 4 test cases
+```
+
+**3 mode 알고리즘**:
+
+```
+Mode 1. Prevention (install-rules.sh)
+  1. CLAUDE.md 에 "<!-- context-guardian-rules:v1 -->" 블록 append
+     (idempotent: 마커 있으면 skip)
+  2. .claudeignore 생성 (없을 때만) — node_modules/.next/dist/.git/lock 등
+  3. .gitignore 업데이트 안내 (SESSION_RECOVERY.md, context_limit_log.json)
+
+Mode 2. Monitoring (update-context-log.sh)
+  --load              → 현재 effective_limit 출력
+  --record --model X --measured N → history append + 현재 측정값 갱신
+  --check <tokens>    → 80% / 90% 임계치 경고
+
+  context_limit_log.json 스키마:
+    {
+      "model": "claude-opus-4-6",
+      "measured_limit": 200000,
+      "safety_margin": 0.8,
+      "effective_limit": 160000,
+      "history": [...]
+    }
+
+  ★ 한도 하드코딩 금지 — 모델 업데이트 시 stale 되지 않도록 측정값 기반
+
+Mode 3. Recovery (create-recovery.sh)
+  1. git 상태 수집 (브랜치, 커밋, status, diff-stat)
+  2. .env.example 에서 env var 이름만 추출 (값은 절대 포함 ❌)
+  3. SESSION_RECOVERY.md 생성 + 수동 필드 템플릿 (완료/미완료 작업)
+  4. 시크릿 패턴 (sk-, sk_live_, pk_live_, AKIA, ghp_, xox[bps]-) grep
+     → 발견 시 abort + 경고
+  5. 다음 세션 시작 프롬프트 (복사용) 포함
+```
+
+**`/checkpoint` 와의 관계**:
+
+| | `/checkpoint` (Gstack) | `context-guardian` |
+|---|---|---|
+| 목적 | 일반 작업 스냅샷 | 컨텍스트 고갈 **예방** + **복구** |
+| 트리거 | 명시적 저장 요청 | 80% 임박 · 세션 끊긴 후 |
+| 산출물 | Git + 결정 로그 | CLAUDE.md 규칙 + .claudeignore + SESSION_RECOVERY.md + context_limit_log.json |
+
+**상호보완적** — 같이 사용 가능. `/checkpoint` 로 중간 저장, `context-guardian` 으로 고갈 방지 + 세션 연속성.
+
+---
+
+### 🔄 이 레포 자체에 자동 적용 (v1.2.0)
+
+v1.2.0 에서 이 레포 (simon-stack development workspace) 자체에 context-guardian prevention mode 를 **사전 설치**했습니다. Claude Code 로 이 레포를 열면 자동으로 보호 규칙이 활성화됩니다.
+
+| 파일 | 역할 |
+|---|---|
+| `CLAUDE.md` (신규, repo root) | 이 레포 특화 작업 맥락 + 검증 도구 목록 + 금기 경로 + Context Guardian Rules 블록 (마커 포함) |
+| `.claudeignore` (신규) | `.claude/skills/gstack/` (12 MB / 450 files 차단) · `.claude.bak-*` · 세션 state 파일 · 표준 (node_modules, .next, build, ...) |
+| `.gitignore` 확장 | `SESSION_RECOVERY.md`, `context_limit_log.json`, `CLAUDE.md.bak-*` 제외 |
+| `.claude/hooks/session-start.sh` 개선 | **self-healing**: 세션 시작 시 CLAUDE.md 의 `<!-- context-guardian-rules:v1 -->` 마커 존재 확인, 없으면 `install-rules.sh` 자동 재실행 |
+
+**이 레포 특이 규칙** (CLAUDE.md 에 문서화):
+- Tool call 마다 55+ skill description 이 system-reminder 로 반복되어 컨텍스트가 빠르게 쌓임
+- 따라서: Bash 호출 최소화 (하나의 Bash 에 배치), `python3 <<PY ... PY` heredoc 으로 다중 파일 생성, Write tool 이 Bash 보다 reminder 적음, 불필요한 Read 금지
+
+**drift 방지**: 사용자가 실수로 `CLAUDE.md` 를 삭제해도 다음 세션 시작 시 hook 이 자동 감지 + 복구.
+
+---
+
 ## ⚙️ 작동 원리: SessionStart Hook
 
 Claude Code 웹 환경은 매 세션마다 VM 이 새로 시작되고 `~/.claude/` 가 초기화됩니다. 그래서 skill 을 매번 재설치해야 하는데, 이걸 자동화하는 게 **SessionStart hook** 입니다.
