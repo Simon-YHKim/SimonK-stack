@@ -1,4 +1,4 @@
-# Gstack-Ultraplan-Superpowers
+# SimonK-Stack
 
 > Claude Code 가 "새 앱 만들자", "보안 점검", "TDD 시작", "이거 또 틀렸어" 같은 말을 알아듣고
 > **자동으로 올바른 작업 절차를 따르게** 만드는 55개 skill 묶음.
