@@ -1,0 +1,26 @@
+{
+  "skill": "smart-suggest",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "suggest-mode-ambiguous",
+      "prompt": "이 프로젝트에 새 기능 추가하고 싶어",
+      "assertions": [
+        { "id": "recommends-skill", "text": "The agent recommends simon-tdd as the primary skill for feature implementation." },
+        { "id": "explains-why", "text": "The agent explains why simon-tdd is recommended (TDD cycle for new features)." },
+        { "id": "offers-alternative", "text": "The agent offers an alternative skill if the request might be interpreted differently." },
+        { "id": "waits-for-choice", "text": "The agent waits for the user to choose before executing." }
+      ]
+    },
+    {
+      "id": "auto-mode-activation",
+      "prompt": "알아서 해줘. 자동으로 스킬 골라서 진행해.",
+      "assertions": [
+        { "id": "asks-permission", "text": "The agent asks for blanket auto-execution permission exactly once." },
+        { "id": "confirms-scope", "text": "The agent clarifies which types of actions it will auto-execute." },
+        { "id": "enables-auto", "text": "After user confirms, the agent switches to AUTO mode and announces it." },
+        { "id": "shows-deactivation", "text": "The agent tells the user how to return to manual mode." }
+      ]
+    }
+  ]
+}
