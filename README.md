@@ -1,4 +1,4 @@
-# Gstack-Ultraplan-Superpowers
+# SimonK-Stack
 
 > **한 줄 요약**: Claude Code 의 AI 어시스턴트가 "새 앱 만들자", "보안 점검해줘", "TDD 시작", "이거 또 틀렸어" 같은 말을 알아듣고 **자동으로 올바른 작업 절차를 따르게** 만드는 skill 묶음입니다.
 
