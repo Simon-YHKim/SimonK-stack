@@ -1,0 +1,33 @@
+{
+  "skill": "simon-design-first",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "korean-landing-request",
+      "prompt": "우리 제품 소개 랜딩페이지 만들어줘",
+      "assertions": [
+        { "id": "blocks-direct-code", "text": "The agent does NOT immediately write HTML/CSS code." },
+        { "id": "asks-diagnosis", "text": "The agent asks diagnostic questions about audience, purpose, and tone before proceeding." },
+        { "id": "recommends-references-with-urls", "text": "The agent provides 3-5 reference websites with clickable URLs." },
+        { "id": "offers-font-choices", "text": "The agent offers font options with Google Fonts preview URLs." }
+      ]
+    },
+    {
+      "id": "english-ui-request",
+      "prompt": "design a UI for my developer tool",
+      "assertions": [
+        { "id": "triggers-workflow", "text": "The agent triggers the simon-design-first workflow instead of jumping to design." },
+        { "id": "asks-target-audience", "text": "The agent asks who the target audience is." },
+        { "id": "provides-dev-tool-references", "text": "The agent recommends relevant developer tool references like Linear, Vercel, Raycast with URLs." }
+      ]
+    },
+    {
+      "id": "escape-hatch",
+      "prompt": "레퍼런스 스킵하고 바로 만들어줘",
+      "assertions": [
+        { "id": "allows-skip", "text": "The agent allows skipping the reference step when explicitly requested." },
+        { "id": "warns-about-ai-slop", "text": "The agent warns that skipping may result in AI slop that user might dislike later." }
+      ]
+    }
+  ]
+}

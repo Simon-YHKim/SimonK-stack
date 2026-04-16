@@ -62,6 +62,43 @@
 4. **구현 단계** → `simon-tdd` + `simon-worktree`
 5. **리서치** → `simon-research` → 플래닝 skill
 6. **반복 실수** → `simon-instincts` 즉시 기록
+7. **디자인 작업** → 반드시 `simon-design-first` 먼저 (아래 워크플로 참조)
+
+---
+
+## 디자인 작업 워크플로 (필수)
+
+디자인 요청 (`/design-consultation`, `/design-html`, "디자인 만들어줘", "UI 만들어줘", "랜딩페이지" 등)을 받으면
+**절대 바로 코드를 작성하지 않는다**. 다음 순서를 지킨다:
+
+### 1. 진단 먼저
+- 누가 볼 사이트인가? (개발자 / 일반 사용자 / 기업 / 투자자)
+- 목적은? (제품 소개 / 판매 / 문서 / 포트폴리오)
+- 톤·분위기는? (프로페셔널 / 친근 / 프리미엄 / 실험적)
+
+### 2. 레퍼런스 추천 (반드시 접속 가능한 URL 포함)
+- 유사 제품·톤 사이트 3-5개를 URL과 함께 제시
+- 탐색용: https://dribbble.com · https://www.awwwards.com · https://www.lapa.ninja · https://21st.dev
+
+### 3. 폰트 선택권
+- Google Fonts 미리보기 URL 포함 (https://fonts.google.com/specimen/<name>)
+- 한국어: **Pretendard** 기본, 제목용 대안 제시
+- AI는 추천만, 사용자가 선택
+
+### 4. 사용자 방향 확정
+- "이 느낌으로 갈까요?" 또는 "다른 레퍼런스 보여줄까요?" 확인
+- 사용자가 "알아서 해" 또는 갈피 못 잡을 때만 AI 단독 진행
+
+### AI Slop 방지 3원칙
+1. **불필요한 것 제거** — 이모지 아이콘, 장식, 과잉 요소 금지
+2. **모노톤 색상** — 전체 UI 색상 3개 이내 (accent + text + bg)
+3. **레퍼런스에서 착안** — 확정된 방향 유지
+
+### 금지 폰트·색상
+- **Inter** (AI 생성 티 남) → 한국어 **Pretendard**, 영문 대안 산세리프
+- **pure black/gray** → tinted neutrals (약간 violet/blue tint)
+- **4색 이상 multi-color**
+- **bounce/elastic easing**
 
 ---
 
