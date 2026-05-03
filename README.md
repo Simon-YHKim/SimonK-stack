@@ -1,9 +1,9 @@
 # SimonK-Stack
 
-> Claude Code 가 "새 앱 만들자", "보안 점검", "TDD 시작", "이거 또 틀렸어" 같은 말을 알아듣고
-> **자동으로 올바른 작업 절차를 따르게** 만드는 55개 skill 묶음.
+> Claude Code 가 "새 앱 만들자", "보안 점검", "버그 고쳐줘", "이거 또 틀렸어" 같은 말을 알아듣고
+> **자동으로 올바른 작업 절차를 따르게** 만드는 60개 skill 묶음.
 
-**[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![validator](https://img.shields.io/badge/skill--validator-20%2F20%20PASS-brightgreen)]() [![cases](https://img.shields.io/badge/JSON%20cases-14%2F14%20PASS-brightgreen)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
+**[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![validator](https://img.shields.io/badge/skill--validator-24%2F24%20PASS-brightgreen)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
 
 ---
 
@@ -25,9 +25,10 @@
 
 **문제**: AI 코딩 어시스턴트는 큰 작업을 시키면 매번 다른 순서로 일하고, 같은 실수를 반복합니다.
 
-**해결**: 55개 skill (작업 매뉴얼)을 미리 준비해 Claude Code 가 **일관된 절차**를 따르게 합니다.
+**해결**: 60개 skill (작업 매뉴얼)을 미리 준비해 Claude Code 가 **일관된 절차**를 따르게 합니다.
 
 - `"새 앱 만들자"` → `app-dev-orchestrator` 발동 → 21단계 파이프라인
+- `"기능 구현해줘"` → `dev-orchestrator` 발동 → 7단계 (진단→TDD→코드품질→리뷰→커밋)
 - `"보안 점검"` → `security-orchestrator` 발동 → 5단계 적대적 감사
 - `"이거 또 틀렸어"` → `simon-instincts` 발동 → 실수 기록, 다음 세션에서 자동 회피
 
@@ -35,7 +36,7 @@
 
 | 계층 | 개수 | 역할 |
 |---|---|---|
-| **simon-stack** | 20 | 방법론 + 오케스트레이션 (TDD, 보안, 리서치, 학습) |
+| **simon-stack** | 24 | 방법론 + 오케스트레이션 + 보안 + 학습 |
 | **Gstack** | 36 | 실행 파이프라인 (ship, QA, deploy, review) |
 
 ---
@@ -45,14 +46,14 @@
 ### 방법 1: Claude Code 웹 (제일 쉬움)
 
 1. https://claude.ai/code 접속
-2. 이 레포 열기
+2. `Simon-YHKim/SimonK-stack` 레포 열기
 3. 첫 세션 시작 시 자동 설정 (~30초)
 
 ### 방법 2: 로컬 CLI / 데스크탑
 
 ```bash
-git clone https://github.com/learner-thepoorman/Gstack-Ultraplan-superpowers.git
-cd Gstack-Ultraplan-superpowers
+git clone https://github.com/Simon-YHKim/SimonK-stack.git
+cd SimonK-stack
 ./scripts/install.sh
 ```
 
@@ -60,7 +61,7 @@ cd Gstack-Ultraplan-superpowers
 
 ```bash
 cd /path/to/your-project
-/path/to/Gstack-Ultraplan-superpowers/scripts/setup-repo.sh .
+/path/to/SimonK-stack/scripts/setup-repo.sh .
 git add .claude/ && git commit -m "chore(claude): add simon-stack"
 ```
 
@@ -77,6 +78,15 @@ git add .claude/ && git commit -m "chore(claude): add simon-stack"
 Claude: [app-dev-orchestrator 발동]
   → 인터뷰 → /office-hours → simon-research → /plan-ceo-review
   → 디자인 → TDD 구현 → 보안 감사 → 배포 → 회고
+```
+
+### 일상 개발 (기능 추가 / 버그 수정 / 리팩토링)
+```
+나: "유저 프로필에 아바타 업로드 기능 추가해줘"
+
+Claude: [dev-orchestrator 발동]
+  → 진단 → 구조 점검 (code-health-guard) → TDD (simon-tdd Guard)
+  → 시나리오 테스트 → 코드 품질 재점검 → pre-merge cleanup → 커밋
 ```
 
 ### 보안 감사
@@ -101,11 +111,12 @@ Claude: [simon-instincts 발동]
 
 ## Skill 카탈로그
 
-### Simon-stack — Orchestrators (2)
+### Simon-stack — Orchestrators (3)
 
 | Skill | 트리거 | 역할 |
 |---|---|---|
 | `app-dev-orchestrator` | "새 앱 만들자", "MVP 기획" | 21단계 앱 개발 파이프라인 |
+| `dev-orchestrator` | "기능 구현해줘", "버그 고쳐줘", "리팩토링" | 7단계 일상 개발 파이프라인 |
 | `security-orchestrator` | "보안 점검", "security audit" | 5단계 보안 감사 → 통합 리포트 |
 
 ### Simon-stack — Security (3)
@@ -116,19 +127,22 @@ Claude: [simon-instincts 발동]
 | `authz-designer` | "권한 시스템 설계", "RBAC" | RBAC/ABAC/ReBAC 선택 + DDL + IDOR 감사 |
 | `paid-api-guard` | "Stripe 연동", "결제 API 보안" | 유료 API 6층 방어 체크리스트 |
 
-### Simon-stack — Method (4)
+### Simon-stack — Method (5)
 
 | Skill | 트리거 | 역할 |
 |---|---|---|
-| `simon-tdd` | "이 기능 구현해줘", "버그 고쳐줘" | RED→GREEN→REFACTOR + 검증 루프 |
+| `simon-tdd` | "이 기능 구현해줘", "버그 고쳐줘" | RED→GREEN→REFACTOR + Guard Mode |
 | `simon-worktree` | "병렬 작업", "parallel agents" | git worktree 격리 |
 | `simon-research` | "리서치 해줘", "기술 비교" | 외부 리서치 의무화 → dated 문서 |
 | `simon-instincts` | "이거 또 틀렸어", "기록해둬" | 실수 누적 → 4파일 자동 로드 |
+| `agent-delegate` | "에이전트 위임", "작업 분할" | Fan-out/Pipeline/Supervisor 패턴 위임 |
 
-### Simon-stack — Tools (3)
+### Simon-stack — Tools (5)
 
 | Skill | 트리거 | 역할 |
 |---|---|---|
+| `code-health-guard` | "코드 구조 점검", "spaghetti check" | 아키텍처 검증 + 순환 의존 스캔 |
+| `simon-design-first` | "디자인 만들어줘", "랜딩페이지" | AI slop 방지 + 레퍼런스 기반 디자인 프록시 |
 | `nextjs-optimizer` | "Next.js 최적화", "LCP 개선" | 5대 성능 영역 감사 |
 | `stitch-design-flow` | "디자인 시안", "Stitch 프롬프트" | DESIGN.md → Safe/Bold/Wild 프롬프트 |
 | `project-context-md` | "CLAUDE.md 만들어줘" | 프로젝트 CLAUDE.md 생성/갱신 |
@@ -169,6 +183,25 @@ Claude: [simon-instincts 발동]
 
 ## 작동 원리
 
+### Orchestrator 체계
+
+```
+사용자 요청
+  │
+  ├─ "새 앱 만들자"                → app-dev-orchestrator    (21단계)
+  ├─ "보안 점검"                  → security-orchestrator    (5단계)
+  ├─ "디자인 만들어줘"              → simon-design-first
+  └─ "기능 구현 / 버그 / 리팩토링"   → dev-orchestrator       (7단계)
+       │
+       ├─ 1. 진단 (코드 읽기, 의도 이해)
+       ├─ 2. code-health-guard (구조 점검)
+       ├─ 3. simon-tdd (TDD Guard Mode)
+       ├─ 4. test-gen (Scenario Planning, 복잡할 때만)
+       ├─ 5. code-health-guard (사후 점검)
+       ├─ 6. review (Pre-Merge Cleanup)
+       └─ 7. commit (Conventional Commits)
+```
+
 ### SessionStart Hook
 
 ```
@@ -192,10 +225,10 @@ Claude: [simon-instincts 발동]
 
 4파일: `mistakes-learned.md` · `project-patterns.md` · `korean-context.md` · `tool-quirks.md`
 
-### 토큰 최적화 구조 (v1.3)
+### 토큰 최적화 구조
 
 ```
-skills-src/     ← 배포용 16개 skill (Claude Code 미로딩)
+skills-src/     ← 배포용 20개 skill (Claude Code 미로딩)
 .claude/skills/ ← 개발용 4개만 (commit, review, skill-gen-agent, context-guardian)
 ```
 
@@ -208,8 +241,12 @@ skills-src/     ← 배포용 16개 skill (Claude Code 미로딩)
 ## 프로젝트 구조
 
 ```
-skills-src/                  ← 배포용 skill 소스 (16개)
+skills-src/                  ← 배포용 skill 소스 (20개)
 ├── app-dev-orchestrator/
+├── dev-orchestrator/        ← NEW: 일상 개발 7단계
+├── agent-delegate/          ← NEW: 에이전트 위임 패턴
+├── code-health-guard/       ← NEW: 아키텍처 검증
+├── simon-design-first/      ← NEW: AI slop 방지 디자인 프록시
 ├── simon-tdd/
 ├── security-orchestrator/
 └── ...
@@ -240,11 +277,10 @@ templates/                   ← CLAUDE.md, bootstrap-*.sh
 
 | 테스트 | 결과 | 도구 |
 |---|---|---|
-| Static validation | **20/20 PASS** | `validate_skill.py` |
-| JSON dry-run | **12/12 PASS** | `test_skill.py --dry-run` |
-| Trigger probe | **13/13 PASS** | description 키워드 매칭 |
-| Runtime smoke | **24/24 PASS** | Script 실행 + Bash 문법 + JSON 파싱 |
-| **총합** | **69/69** | |
+| Static validation | **24/24 PASS** | `validate_skill.py` |
+| Bash syntax check | **PASS** | `bash -n` |
+| YAML frontmatter | **PASS** | `python3 yaml.safe_load` |
+| JSON cases parse | **PASS** | `json.load` |
 
 재현:
 ```bash
@@ -280,12 +316,12 @@ done
 
 **Q. 업데이트는?**
 ```bash
-cd Gstack-Ultraplan-superpowers && git pull && ./scripts/install.sh
+cd SimonK-stack && git pull && ./scripts/install.sh
 ```
 
 **Q. 제거하려면?**
 ```bash
-rm -rf ~/.claude/skills/{app-dev-orchestrator,security-orchestrator,...}
+rm -rf ~/.claude/skills/{app-dev-orchestrator,dev-orchestrator,security-orchestrator,...}
 rm ~/.claude/.simon-stack-installed
 ```
 
