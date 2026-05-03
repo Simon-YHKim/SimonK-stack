@@ -5,15 +5,15 @@
 ## One-shot 설치
 
 ```bash
-git clone https://github.com/learner-thepoorman/Gstack-Ultraplan-superpowers.git
-cd Gstack-Ultraplan-superpowers
+git clone https://github.com/Simon-YHKim/SimonK-stack.git
+cd SimonK-stack
 ./scripts/install.sh
 ```
 
 설치되는 것:
 - `~/.claude/skills/gstack/` — Gstack 풀 트리 (36 skill + bin/scripts/lib + bun deps)
 - `~/.claude/skills/<gstack-skill>/` — 36개 Gstack skill 개별 노출
-- `~/.claude/skills/<simon-stack>/` — 13개 simon-stack skill (app-dev-orchestrator, security-*, simon-*, 등)
+- `~/.claude/skills/<simon-stack>/` — 24개 simon-stack skill
 - `~/.claude/instincts/` — 4개 seed 파일 (mistakes·patterns·korean·quirks)
 - `~/.claude/session-start-instincts.sh` — SessionStart hook 스크립트
 - `~/.claude/CLAUDE.md` — 글로벌 지침 (instincts auto-load + Boris 원칙)
@@ -53,6 +53,7 @@ cd Gstack-Ultraplan-superpowers
 
 3. **트리거 테스트**:
    - "새 앱 만들고 싶어" → `app-dev-orchestrator` 발동
+   - "기능 구현해줘" → `dev-orchestrator`
    - "보안 점검" → `security-orchestrator`
    - "권한 시스템 설계" → `authz-designer`
    - "TDD 시작" → `simon-tdd`
@@ -60,11 +61,13 @@ cd Gstack-Ultraplan-superpowers
 ## 구성
 
 - **Gstack** (garrytan/gstack): 실행 파이프라인 36개. `/ship`, `/qa`, `/cso`, `/retro`, ...
-- **simon-stack** (이 레포): 방법론·보안·학습 13개
-  - Orchestrators: `app-dev-orchestrator`, `security-orchestrator`
+- **simon-stack** (이 레포): 방법론·보안·학습 24개
+  - Orchestrators: `app-dev-orchestrator`, `dev-orchestrator`, `security-orchestrator`
   - Security: `security-checklist`, `authz-designer`, `paid-api-guard`
-  - Method: `simon-tdd`, `simon-worktree`, `simon-research`, `simon-instincts`
-  - Tools: `nextjs-optimizer`, `stitch-design-flow`, `project-context-md`
+  - Method: `simon-tdd`, `simon-worktree`, `simon-research`, `simon-instincts`, `agent-delegate`
+  - Tools: `code-health-guard`, `simon-design-first`, `nextjs-optimizer`, `stitch-design-flow`, `project-context-md`
+  - Meta: `skill-gen-agent`, `context-guardian`
+  - General Dev: `commit`, `debug`, `explain`, `refactor`, `review`, `test-gen`
 
 자세한 카테고리 맵: `.claude/skills/INDEX.md`
 
@@ -82,4 +85,3 @@ ls ~/.claude.bak-*  # 설치 시 자동 백업됨
 - [Gstack](https://github.com/garrytan/gstack) — 실행 파이프라인 원본
 - [Superpowers](https://github.com/obra/superpowers) — TDD·worktree 철학 원본
 - [everything-claude-code](https://github.com/affaan-m/everything-claude-code) — instincts·research-first 원본
-- [UltraPlan](https://code.claude.com/docs/en/ultraplan) — Claude Code 대형 플래닝

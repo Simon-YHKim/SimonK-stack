@@ -7,16 +7,16 @@
 
 ## 목차
 
-1. [Orchestrators (2)](#orchestrators--상위-지휘-2개)
+1. [Orchestrators (3)](#orchestrators--상위-지휘-3개)
 2. [Security (3)](#security--보안-3개)
-3. [Method (4)](#method--방법론-4개)
-4. [Tools (3)](#tools--특수-목적-3개)
+3. [Method (5)](#method--방법론-5개)
+4. [Tools (5)](#tools--특수-목적-5개)
 5. [Meta + Session (2)](#meta--session-2개)
 6. [General Dev (6)](#general-dev-6개)
 
 ---
 
-## Orchestrators — 상위 지휘 (2개)
+## Orchestrators — 상위 지휘 (3개)
 
 ### 1. `app-dev-orchestrator`
 
@@ -28,31 +28,52 @@
  1. /office-hours — YC forcing questions
  2. simon-research — 경쟁 제품 3개 비교
  3. /plan-ceo-review — 10-star 스코프
- 4. /design-consultation — DESIGN.md
- 5. stitch-design-flow — Safe/Bold/Wild 프롬프트
- 6. /design-shotgun — 변형 탐색
- 7. UltraPlan — 대형 플래닝
- 8. authz-designer — RBAC/ABAC/ReBAC
- 9. paid-api-guard — API 설계 리뷰
-10. /plan-eng-review → /autoplan — 플랜 잠금
-11. 레포·.env·.gitignore·gitleaks hook
-12. simon-worktree — 병렬 격리
-13. simon-tdd — RED-GREEN-REFACTOR
-14. /design-review → /design-html
-15. /qa — QA + 버그 수정
-16. security-orchestrator — 보안 5단 감사
-17. /benchmark — Core Web Vitals
-18. /review → /ship — PR
-19. /land-and-deploy → /canary
-20. /document-release → /retro
-21. simon-instincts → /checkpoint
+ 4. simon-design-first — AI slop 방지 디자인 진단
+ 5. /design-consultation — DESIGN.md
+ 6. stitch-design-flow — Safe/Bold/Wild 프롬프트
+ 7. /design-shotgun — 변형 탐색
+ 8. UltraPlan — 대형 플래닝
+ 9. authz-designer — RBAC/ABAC/ReBAC
+10. paid-api-guard — API 설계 리뷰
+11. /plan-eng-review → /autoplan — 플랜 잠금
+12. 레포·.env·.gitignore·gitleaks hook
+13. simon-worktree — 병렬 격리
+14. simon-tdd — RED-GREEN-REFACTOR (Guard Mode)
+15. code-health-guard — 아키텍처 검증
+16. /design-review → /design-html
+17. /qa — QA + 버그 수정
+18. security-orchestrator — 보안 5단 감사
+19. /benchmark — Core Web Vitals
+20. /review → /ship — PR
+21. /land-and-deploy → /canary
+22. /document-release → /retro
+23. simon-instincts → /checkpoint
 ```
 
 핵심: 이 skill 은 스스로 코드를 쓰지 않음. 각 단계는 다른 skill 호출만 함.
 
 ---
 
-### 2. `security-orchestrator`
+### 2. `dev-orchestrator`
+
+**역할**: 일상 개발 작업 (기능 추가, 버그 수정, 리팩토링) 전 과정 자동화. 7단계 파이프라인.
+
+**알고리즘 (7단계)**:
+```
+1. 진단 — 코드 읽기, 요청 분석 (기능/버그/리팩토링 분류)
+2. code-health-guard (proactive) — 파일 위치, import 방향, 함수 크기
+3. simon-tdd (Guard Mode) — RED→GREEN→REFACTOR, source-test 동기화 강제
+4. test-gen (Scenario Planning) — 복잡 변경 시 7카테고리 시나리오
+5. code-health-guard (reactive) — 순환 의존, 중복, naming 재점검
+6. review (Pre-Merge Cleanup) — unused import, dead code, 주석 코드 제거
+7. commit — Conventional Commits
+```
+
+**축약 모드**: 단순 변경 (1파일, 1함수)은 단계 4·5 skip, 단계 6은 unused import만.
+
+---
+
+### 3. `security-orchestrator`
 
 **역할**: 5단계 적대적 보안 감사 → 통합 SUMMARY 리포트.
 
@@ -71,7 +92,7 @@ Step 5. /codex challenge       → 적대적 리뷰
 
 ## Security — 보안 (3개)
 
-### 3. `security-checklist`
+### 4. `security-checklist`
 
 **역할**: 웹 앱 4대 보안 구조 적대적 감사. 각 영역 5개 공격 시나리오 + SQL drop-in.
 
@@ -83,7 +104,7 @@ Step 5. /codex challenge       → 적대적 리뷰
 
 ---
 
-### 4. `authz-designer`
+### 5. `authz-designer`
 
 **역할**: 프로젝트에 맞는 권한 모델 선택 + DDL 템플릿 + IDOR 감사.
 
@@ -97,7 +118,7 @@ Step 5. /codex challenge       → 적대적 리뷰
 
 ---
 
-### 5. `paid-api-guard`
+### 6. `paid-api-guard`
 
 **역할**: 유료 API 6층 방어 (결제·SMS·지도·이메일).
 
@@ -112,9 +133,9 @@ Step 5. /codex challenge       → 적대적 리뷰
 
 ---
 
-## Method — 방법론 (4개)
+## Method — 방법론 (5개)
 
-### 6. `simon-tdd`
+### 7. `simon-tdd`
 
 **역할**: RED → GREEN → REFACTOR 사이클 강제 + Boris Cherny 검증 루프.
 
@@ -125,11 +146,14 @@ REFACTOR: 동작 보존 구조 개선 → 매 리팩토링마다 테스트
 COMMIT:   git add -p → git commit
 ```
 
+**Guard Mode**: source 파일 변경 시 대응 test 파일 변경이 없으면 BLOCKER.
+`bash skills-src/simon-tdd/scripts/tdd-guard-check.sh`
+
 검증 도구 제공 원칙: CLAUDE.md에 서버/테스트/브라우저/DB 접근 명시 필수.
 
 ---
 
-### 7. `simon-worktree`
+### 8. `simon-worktree`
 
 **역할**: 병렬 Claude 세션을 `git worktree`로 격리.
 
@@ -143,7 +167,7 @@ COMMIT:   git add -p → git commit
 
 ---
 
-### 8. `simon-research`
+### 9. `simon-research`
 
 **역할**: 플래닝 전 외부 리서치 의무화. 출처 없는 주장 금지.
 
@@ -159,7 +183,7 @@ COMMIT:   git add -p → git commit
 
 ---
 
-### 9. `simon-instincts`
+### 10. `simon-instincts`
 
 **역할**: Claude 실수를 4개 md 파일에 누적. 세션 시작 시 자동 로드.
 
@@ -174,9 +198,63 @@ COMMIT:   git add -p → git commit
 
 ---
 
-## Tools — 특수 목적 (3개)
+### 11. `agent-delegate`
 
-### 10. `nextjs-optimizer`
+**역할**: 작업을 sub-agent에 위임하는 3가지 패턴 제공.
+
+| 패턴 | 용도 |
+|---|---|
+| **Fan-out** | 독립 작업 N개 병렬 (파일별 리팩토링, 테스트 카테고리별 생성) |
+| **Pipeline** | 순차 체인 (리서치 → 설계 → 구현 → 검증) |
+| **Supervisor** | 장기 작업 감독 (CI 모니터링, 점진적 마이그레이션) |
+
+**핵심 원칙**: file path만 전달 (content 복사 금지), output contract 명시, round-trip 없이 완료.
+
+---
+
+## Tools — 특수 목적 (5개)
+
+### 12. `code-health-guard`
+
+**역할**: 코드 아키텍처 품질 검증. Proactive (코딩 전) + Reactive (코딩 후).
+
+**Proactive 체크리스트**:
+- File placement: decision tree로 올바른 위치 결정
+- Naming convention: 파일/변수/타입 일관성
+- Import direction: 상위 레이어가 하위만 의존
+- Function size: > 40 lines → 분리 후보
+
+**Reactive 스캔** (스크립트):
+- `check-circular-deps.sh` — 순환 의존 감지 (madge)
+- Dead export / unused import 검출
+- Large file flagging (> 300 lines)
+
+---
+
+### 13. `simon-design-first`
+
+**역할**: 디자인 작업의 진입 게이트. AI가 바로 HTML/CSS를 쓰는 것을 차단.
+
+**워크플로**:
+```
+1. 진단 (청중/목적/톤 파악)
+2. 레퍼런스 URL 3-5개 수집
+3. 폰트 옵션 + Google Fonts 링크 제시
+4. 사용자 방향 선택 확인
+5. → /design-consultation, /design-html, /design-shotgun 등에 위임
+```
+
+**AI Trope Detection** (Impeccable 기반):
+| 트랩 | 금지 패턴 |
+|---|---|
+| Font Mono-culture | 무조건 Inter/Geist/DM Sans 사용 |
+| Pure Black | `#000000` 배경/텍스트 |
+| Emoji Icons | 실제 아이콘 대신 이모지 |
+| Multi-color | 3색 이상 메인 팔레트 |
+
+---
+
+### 14. `nextjs-optimizer`
 
 **역할**: Next.js 13+ App Router 5대 성능 영역 감사.
 
@@ -192,7 +270,7 @@ Core Web Vitals 목표: LCP < 2.5s / CLS < 0.1 / INP < 200ms
 
 ---
 
-### 11. `stitch-design-flow`
+### 15. `stitch-design-flow`
 
 **역할**: Google Stitch용 디자인 프롬프트 생성기. API 없음, 순수 텍스트.
 
@@ -205,7 +283,7 @@ Core Web Vitals 목표: LCP < 2.5s / CLS < 0.1 / INP < 200ms
 
 ---
 
-### 12. `project-context-md`
+### 16. `project-context-md`
 
 **역할**: 프로젝트 CLAUDE.md 생성/갱신. Boris Cherny 검증 루프의 핵심.
 
@@ -215,7 +293,7 @@ Core Web Vitals 목표: LCP < 2.5s / CLS < 0.1 / INP < 200ms
 
 ## Meta + Session (2개)
 
-### 13. `skill-gen-agent`
+### 17. `skill-gen-agent`
 
 **역할**: Skill 생성·검증·리팩토링·테스트 도구 묶음.
 
@@ -235,7 +313,7 @@ validator 검사: kebab-case, 64자, reserved word, semver, description 점수, 
 
 ---
 
-### 14. `context-guardian`
+### 18. `context-guardian`
 
 **역할**: 컨텍스트 고갈 3단계 대응.
 
