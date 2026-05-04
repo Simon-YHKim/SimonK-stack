@@ -49,11 +49,48 @@ for link in "${LINKS[@]}"; do
   fi
 done
 
-# Stale: pages not updated in > 90 days (mtime check)
+# Stale: pages not updated in > 90 days.
+# Prefer git log (semantic update time) over mtime (which resets on clone/pull).
+# Fallback order: frontmatter `last_updated:` → git log last commit date → mtime.
 STALE=()
+NOW_EPOCH=$(date +%s)
+THRESHOLD_DAYS=90
+HAS_GIT=0
+git rev-parse --git-dir > /dev/null 2>&1 && HAS_GIT=1
+
 while IFS= read -r f; do
-  STALE+=("$f")
-done < <(find . -name "*.md" -mtime +90 -not -name "lint-report-*" 2>/dev/null | sed 's|^\./||')
+  last_date=""
+
+  # 1. Frontmatter last_updated: YYYY-MM-DD
+  if [ -f "$f" ]; then
+    last_date=$(head -20 "$f" 2>/dev/null \
+      | grep -E '^last_updated:' \
+      | head -1 \
+      | sed 's/last_updated:[[:space:]]*//; s/["'"'"']//g' \
+      | tr -d '[:space:]' || true)
+  fi
+
+  # 2. git log fallback
+  if [ -z "$last_date" ] && [ "$HAS_GIT" = "1" ]; then
+    last_date=$(git log -1 --format=%cs -- "$f" 2>/dev/null || true)
+  fi
+
+  # 3. mtime fallback (only if no git history yet — fresh files)
+  if [ -z "$last_date" ]; then
+    last_date=$(date -r "$f" +%Y-%m-%d 2>/dev/null || true)
+  fi
+
+  [ -z "$last_date" ] && continue
+
+  # Compute age in days (portable across GNU/BSD date)
+  last_epoch=$(date -d "$last_date" +%s 2>/dev/null || date -j -f "%Y-%m-%d" "$last_date" +%s 2>/dev/null || echo "")
+  [ -z "$last_epoch" ] && continue
+
+  age_days=$(( (NOW_EPOCH - last_epoch) / 86400 ))
+  if [ "$age_days" -gt "$THRESHOLD_DAYS" ]; then
+    STALE+=("$f (${age_days}d, last=$last_date)")
+  fi
+done < <(find . -name "*.md" -not -name "lint-report-*" 2>/dev/null | sed 's|^\./||')
 
 {
   echo "# Lint Report — $DATE"
