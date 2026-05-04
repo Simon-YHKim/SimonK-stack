@@ -120,6 +120,19 @@ if [ -f "$REPO_DIR/scripts/session-start-instincts.sh" ] && [ ! -f ~/.claude/ses
   chmod +x ~/.claude/session-start-instincts.sh
 fi
 
+# --- 6b. LLM Wiki auto-bootstrap ---
+# If llm-wiki-builder skill exists, auto-init the wiki repo so it's always ready.
+# Idempotent: wiki-init.sh skips if already cloned, just pulls latest.
+WIKI_INIT="$REPO_DIR/skills-src/llm-wiki-builder/scripts/wiki-init.sh"
+if [ -f "$WIKI_INIT" ]; then
+  log "Bootstrapping LLM Wiki..."
+  if bash "$WIKI_INIT" >>"$LOG_FILE" 2>&1; then
+    log "LLM Wiki ready"
+  else
+    log "WARN: wiki-init failed (non-fatal, may need SIMON_WIKI_REPO set)"
+  fi
+fi
+
 
 # --- Context Guardian self-healing (repo-local) ---
 # Ensure CLAUDE.md has the Context Guardian Rules block. If the marker is

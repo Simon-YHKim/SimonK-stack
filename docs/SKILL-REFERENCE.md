@@ -8,17 +8,19 @@
 ## 목차
 
 1. [Orchestrators (3)](#orchestrators--상위-지휘-3개)
-2. [Security (3)](#security--보안-3개)
-3. [Method (5)](#method--방법론-5개)
-4. [Tools (5)](#tools--특수-목적-5개)
-5. [Meta + Session (2)](#meta--session-2개)
-6. [General Dev (6)](#general-dev-6개)
+2. [Meta (2)](#meta--기반-원칙-2개)
+3. [Security (3)](#security--보안-3개)
+4. [Method (5)](#method--방법론-5개)
+5. [Knowledge (1)](#knowledge--지식-관리-1개)
+6. [Tools (5)](#tools--특수-목적-5개)
+7. [Session (2)](#session--세션-관리-2개)
+8. [General Dev (6)](#general-dev-6개)
 
 ---
 
 ## Orchestrators — 상위 지휘 (3개)
 
-### 1. `app-dev-orchestrator`
+### `app-dev-orchestrator`
 
 **역할**: 제로베이스 앱 개발 전 과정 자동화. 21단계 파이프라인.
 
@@ -54,7 +56,7 @@
 
 ---
 
-### 2. `dev-orchestrator`
+### `dev-orchestrator`
 
 **역할**: 일상 개발 작업 (기능 추가, 버그 수정, 리팩토링) 전 과정 자동화. 7단계 파이프라인.
 
@@ -73,7 +75,7 @@
 
 ---
 
-### 3. `security-orchestrator`
+### `security-orchestrator`
 
 **역할**: 5단계 적대적 보안 감사 → 통합 SUMMARY 리포트.
 
@@ -90,9 +92,42 @@ Step 5. /codex challenge       → 적대적 리뷰
 
 ---
 
+## Meta — 기반 원칙 (2개)
+
+### `karpathy-guidelines`
+
+**역할**: 모든 코딩 작업의 base behavioral layer. Andrej Karpathy 4원칙 강제.
+
+| 원칙 | 핵심 | 자가 검증 |
+|---|---|---|
+| **Think Before Coding** | 가정 명시, 모호하면 질문, 트레이드오프 제시 | "50% 미만 확신이면 물어라" |
+| **Simplicity First** | 투기 기능 금지, 200줄→50줄 재작성 테스트 | "시니어가 오버엔지니어링이라 할까?" |
+| **Surgical Changes** | 인접 코드 개선 금지, 기존 스타일 유지 | "모든 diff 라인이 요청과 연결되는가?" |
+| **Goal-Driven Execution** | 명령형→선언형 변환, test-first 목표 | "자동 검증 방법이 있는가?" |
+
+다른 orchestrator (app-dev-orchestrator, dev-orchestrator, simon-tdd) 에서 base 참조.
+출처: [Karpathy 트윗](https://x.com/karpathy/status/2015883857489522876) + [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills)
+
+---
+
+### `simon-instincts`
+
+**역할**: Claude 실수를 4개 md 파일에 누적. 세션 시작 시 자동 로드.
+
+| 파일 | 내용 | 예시 |
+|---|---|---|
+| `mistakes-learned.md` | Claude 실수 | grep -c exit 1 함정 |
+| `project-patterns.md` | 프로젝트별 관용 | WORDGE는 Drizzle |
+| `korean-context.md` | 한국 시장 특이사항 | 토스 웹훅 헤더 |
+| `tool-quirks.md` | CLI 함정 | git clone default branch |
+
+각 entry: `### YYYY-MM-DD — <제목>` + 증상/원인/예방책/출처 4필드.
+
+---
+
 ## Security — 보안 (3개)
 
-### 4. `security-checklist`
+### `security-checklist`
 
 **역할**: 웹 앱 4대 보안 구조 적대적 감사. 각 영역 5개 공격 시나리오 + SQL drop-in.
 
@@ -104,7 +139,7 @@ Step 5. /codex challenge       → 적대적 리뷰
 
 ---
 
-### 5. `authz-designer`
+### `authz-designer`
 
 **역할**: 프로젝트에 맞는 권한 모델 선택 + DDL 템플릿 + IDOR 감사.
 
@@ -118,7 +153,7 @@ Step 5. /codex challenge       → 적대적 리뷰
 
 ---
 
-### 6. `paid-api-guard`
+### `paid-api-guard`
 
 **역할**: 유료 API 6층 방어 (결제·SMS·지도·이메일).
 
@@ -135,7 +170,7 @@ Step 5. /codex challenge       → 적대적 리뷰
 
 ## Method — 방법론 (5개)
 
-### 7. `simon-tdd`
+### `simon-tdd`
 
 **역할**: RED → GREEN → REFACTOR 사이클 강제 + Boris Cherny 검증 루프.
 
@@ -153,7 +188,7 @@ COMMIT:   git add -p → git commit
 
 ---
 
-### 8. `simon-worktree`
+### `simon-worktree`
 
 **역할**: 병렬 Claude 세션을 `git worktree`로 격리.
 
@@ -167,7 +202,7 @@ COMMIT:   git add -p → git commit
 
 ---
 
-### 9. `simon-research`
+### `simon-research`
 
 **역할**: 플래닝 전 외부 리서치 의무화. 출처 없는 주장 금지.
 
@@ -183,22 +218,7 @@ COMMIT:   git add -p → git commit
 
 ---
 
-### 10. `simon-instincts`
-
-**역할**: Claude 실수를 4개 md 파일에 누적. 세션 시작 시 자동 로드.
-
-| 파일 | 내용 | 예시 |
-|---|---|---|
-| `mistakes-learned.md` | Claude 실수 | grep -c exit 1 함정 |
-| `project-patterns.md` | 프로젝트별 관용 | WORDGE는 Drizzle |
-| `korean-context.md` | 한국 시장 특이사항 | 토스 웹훅 헤더 |
-| `tool-quirks.md` | CLI 함정 | git clone default branch |
-
-각 entry: `### YYYY-MM-DD — <제목>` + 증상/원인/예방책/출처 4필드.
-
----
-
-### 11. `agent-delegate`
+### `agent-delegate`
 
 **역할**: 작업을 sub-agent에 위임하는 3가지 패턴 제공.
 
@@ -212,9 +232,39 @@ COMMIT:   git add -p → git commit
 
 ---
 
+## Knowledge — 지식 관리 (1개)
+
+### `llm-wiki-builder`
+
+**역할**: Karpathy [llm-wiki 패턴](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) 구현. RAG 대신 LLM이 영속 wiki를 유지보수.
+
+**3계층 아키텍처**:
+```
+~/.claude/wiki/Simon-LLM-Wiki/
+├── raw/       ← 불변 원본 (사람이 큐레이션)
+├── wiki/      ← LLM 소유 (entities, concepts, sources, index.md, log.md)
+└── CLAUDE.md  ← schema (wiki 규약)
+```
+
+**3개 연산**:
+
+| 연산 | 스크립트 | 동작 |
+|---|---|---|
+| **Ingest** | `ingest.sh` | 소스 → raw/ 에 stage → LLM이 wiki 페이지 작성 → log.md append |
+| **Query** | `query.sh` | index.md 검색 → 답변 + 인용 → 답변도 wiki에 file back |
+| **Lint** | `lint.sh` | orphan/broken-link/stale-page 감지 → report |
+
+**Helper scripts**: `wiki-init.sh` (clone+bootstrap), `log-append.sh` (parseable log entry)
+
+**자동화**: SessionStart hook이 매 세션 wiki를 자동 clone or pull. `simon-research` 결과가 자동으로 wiki에 누적.
+
+Wiki 레포: `Simon-YHKim/Simon-LLM-Wiki` (기본, `SIMON_WIKI_REPO` 환경변수로 override)
+
+---
+
 ## Tools — 특수 목적 (5개)
 
-### 12. `code-health-guard`
+### `code-health-guard`
 
 **역할**: 코드 아키텍처 품질 검증. Proactive (코딩 전) + Reactive (코딩 후).
 
@@ -231,7 +281,7 @@ COMMIT:   git add -p → git commit
 
 ---
 
-### 13. `simon-design-first`
+### `simon-design-first`
 
 **역할**: 디자인 작업의 진입 게이트. AI가 바로 HTML/CSS를 쓰는 것을 차단.
 
@@ -254,7 +304,7 @@ COMMIT:   git add -p → git commit
 
 ---
 
-### 14. `nextjs-optimizer`
+### `nextjs-optimizer`
 
 **역할**: Next.js 13+ App Router 5대 성능 영역 감사.
 
@@ -270,7 +320,7 @@ Core Web Vitals 목표: LCP < 2.5s / CLS < 0.1 / INP < 200ms
 
 ---
 
-### 15. `stitch-design-flow`
+### `stitch-design-flow`
 
 **역할**: Google Stitch용 디자인 프롬프트 생성기. API 없음, 순수 텍스트.
 
@@ -283,7 +333,7 @@ Core Web Vitals 목표: LCP < 2.5s / CLS < 0.1 / INP < 200ms
 
 ---
 
-### 16. `project-context-md`
+### `project-context-md`
 
 **역할**: 프로젝트 CLAUDE.md 생성/갱신. Boris Cherny 검증 루프의 핵심.
 
@@ -291,9 +341,9 @@ Core Web Vitals 목표: LCP < 2.5s / CLS < 0.1 / INP < 200ms
 
 ---
 
-## Meta + Session (2개)
+## Session — 세션 관리 (2개)
 
-### 17. `skill-gen-agent`
+### `skill-gen-agent`
 
 **역할**: Skill 생성·검증·리팩토링·테스트 도구 묶음.
 
@@ -313,7 +363,7 @@ validator 검사: kebab-case, 64자, reserved word, semver, description 점수, 
 
 ---
 
-### 18. `context-guardian`
+### `context-guardian`
 
 **역할**: 컨텍스트 고갈 3단계 대응.
 
