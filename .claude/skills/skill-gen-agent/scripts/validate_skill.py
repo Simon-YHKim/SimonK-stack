@@ -250,6 +250,26 @@ def validate(skill_path: Path) -> Report:
         report.add("error", "E002", f"Frontmatter: {e}", file="SKILL.md")
         return report
 
+    # Strict YAML validation — catches escape bugs that the minimal parser
+    # silently tolerates. Claude Code uses PyYAML-grade strict parsing when
+    # loading skill frontmatter; anything that fails here will be loaded
+    # only partially (truncated at the first stray unescaped quote).
+    try:
+        import yaml  # type: ignore
+        try:
+            raw_fm = text.split("---", 2)[1] if text.startswith("---") else ""
+            yaml.safe_load(raw_fm)
+        except yaml.YAMLError as e:  # type: ignore[attr-defined]
+            report.add(
+                "error",
+                "E013",
+                f"Strict YAML parse failed (Claude Code load risk — quotes likely unescaped in description): {e}",
+                file="SKILL.md",
+            )
+    except ImportError:
+        # PyYAML not installed — skip. Minimal parser already ran.
+        pass
+
     # Required fields
     for required in ("name", "description", "version"):
         if required not in fm or not str(fm[required]).strip():

@@ -36,6 +36,11 @@ if [ -f "$MARKER" ] && [ "$(cat "$MARKER" 2>/dev/null)" = "$CURRENT_SHA" ]; then
   log "Already installed at $CURRENT_SHA, skipping bootstrap"
 
   # --- Mandatory update checks (LLM acts on these BEFORE first user turn) ---
+  # Dual delivery: stdout for hook-visible LLMs + ~/.claude/.update-pending
+  # file-based fallback for environments where hook stdout is not piped into
+  # LLM context.
+  PENDING_FILE="$HOME/.claude/.update-pending"
+  rm -f "$PENDING_FILE"
   ANY_UPGRADE=0
   emit_header() {
     if [ "$ANY_UPGRADE" = "0" ]; then
@@ -43,8 +48,18 @@ if [ -f "$MARKER" ] && [ "$(cat "$MARKER" 2>/dev/null)" = "$CURRENT_SHA" ]; then
       log "============================================================"
       log "[UPGRADE_AVAILABLE] Per CLAUDE.md 'Session start policy',"
       log "the LLM MUST address these BEFORE the first user-facing turn:"
+      {
+        echo "# [UPGRADE_AVAILABLE] $(date -Iseconds)"
+        echo ""
+        echo "Hook detected pending updates. Per CLAUDE.md 'Session start policy',"
+        echo "the LLM must handle these BEFORE the first user-facing turn."
+        echo ""
+      } > "$PENDING_FILE"
       ANY_UPGRADE=1
     fi
+  }
+  append_pending() {
+    [ -f "$PENDING_FILE" ] && printf '%s\n' "$1" >> "$PENDING_FILE"
   }
 
   # 1) SimonK-stack — auto-pull when safe (clean tree, on main, ff-only)
@@ -58,15 +73,18 @@ if [ -f "$MARKER" ] && [ "$(cat "$MARKER" 2>/dev/null)" = "$CURRENT_SHA" ]; then
         if (cd "$REPO_DIR" && git pull --ff-only --quiet origin main 2>/dev/null); then
           emit_header
           log "  - SimonK-stack: auto-pulled $BEHIND commit(s) from origin/main ✓"
+          append_pending "- SimonK-stack: auto-pulled $BEHIND commit(s) ✓ (no action needed)"
         else
           emit_header
           log "  - SimonK-stack: $BEHIND behind, auto-pull failed → cd $REPO_DIR && git pull"
+          append_pending "- SimonK-stack: auto-pull FAILED, $BEHIND behind → cd $REPO_DIR && git pull"
         fi
       else
         emit_header
         log "  - SimonK-stack: $BEHIND commit(s) behind origin/main"
         log "    (branch=$CUR_BRANCH, dirty=$DIRTY — auto-pull skipped for safety)"
         log "    → manually: cd $REPO_DIR && git pull --ff-only origin main"
+        append_pending "- SimonK-stack: $BEHIND behind, SKIPPED (branch=$CUR_BRANCH, dirty=$DIRTY) → manual pull needed"
       fi
     fi
   fi
@@ -80,6 +98,7 @@ if [ -f "$MARKER" ] && [ "$(cat "$MARKER" 2>/dev/null)" = "$CURRENT_SHA" ]; then
           emit_header
           log "  - gstack upstream: $GBEHIND commit(s) behind ($GPATH)"
           log "    → run \`/gstack-upgrade\` to apply"
+          append_pending "- gstack upstream: $GBEHIND behind → run /gstack-upgrade"
         fi
       fi
       break
@@ -97,14 +116,17 @@ if [ -f "$MARKER" ] && [ "$(cat "$MARKER" 2>/dev/null)" = "$CURRENT_SHA" ]; then
         if (cd "$WIKI_DIR" && git pull --ff-only --quiet origin main 2>/dev/null); then
           emit_header
           log "  - Simon-LLM-Wiki: auto-pulled $WBEHIND commit(s) ✓ — re-read LESSONS_LEARNED.md"
+          append_pending "- Simon-LLM-Wiki: auto-pulled $WBEHIND ✓ → re-read $WIKI_DIR/LESSONS_LEARNED.md"
         else
           emit_header
           log "  - Simon-LLM-Wiki: $WBEHIND behind, auto-pull failed → cd $WIKI_DIR && git pull"
+          append_pending "- Simon-LLM-Wiki: auto-pull FAILED, $WBEHIND behind → cd $WIKI_DIR && git pull"
         fi
       else
         emit_header
         log "  - Simon-LLM-Wiki: $WBEHIND commit(s) behind (branch=$WBRANCH, dirty=$WDIRTY)"
         log "    → manually: cd $WIKI_DIR && git pull"
+        append_pending "- Simon-LLM-Wiki: $WBEHIND behind, SKIPPED (branch=$WBRANCH, dirty=$WDIRTY)"
       fi
     fi
   fi
@@ -112,6 +134,8 @@ if [ -f "$MARKER" ] && [ "$(cat "$MARKER" 2>/dev/null)" = "$CURRENT_SHA" ]; then
   if [ "$ANY_UPGRADE" = "1" ]; then
     log "============================================================"
     log ""
+    log "[fallback] Pending state also written to: $PENDING_FILE"
+    log "  → LLM 가 stdout 못 봤다면 \`cat $PENDING_FILE\` 로 확인 가능"
   fi
 
   exit 0

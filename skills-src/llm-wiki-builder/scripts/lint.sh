@@ -4,13 +4,18 @@
 # Usage: bash lint.sh
 #
 # Output: wiki/lint-report-<date>.md (and stdout summary)
+#
+# Path-aware: handles [[slug]], [[dir/slug]], [[../path/slug]], [[slug|alias]],
+# [[slug#section]] forms. Also scans LESSONS_LEARNED.md and README.md at the
+# wiki repo root in addition to wiki/.
 
 set -euo pipefail
 
 WIKI_BASE="${SIMON_WIKI_DIR:-$HOME/.claude/wiki}"
 WIKI_REPO="${SIMON_WIKI_REPO:-https://github.com/Simon-YHKim/Simon-LLM-Wiki.git}"
 REPO_NAME="$(basename "$WIKI_REPO" .git)"
-WIKI_DIR="$WIKI_BASE/$REPO_NAME/wiki"
+WIKI_ROOT="$WIKI_BASE/$REPO_NAME"
+WIKI_DIR="$WIKI_ROOT/wiki"
 
 if [ ! -d "$WIKI_DIR" ]; then
   echo "Error: $WIKI_DIR not found. Run wiki-init.sh first." >&2
@@ -20,38 +25,89 @@ fi
 DATE="$(date +%Y-%m-%d)"
 REPORT="$WIKI_DIR/lint-report-$DATE.md"
 
-cd "$WIKI_DIR"
+cd "$WIKI_ROOT"
 
-# Collect all wiki page slugs (basename without .md)
-mapfile -t PAGES < <(find . -name "*.md" -not -name "lint-report-*" | sed 's|^\./||; s|\.md$||')
+# Collect all wiki pages. Include wiki/ tree + root-level LESSONS_LEARNED/README.
+# Each entry stored as relative path (with .md stripped) so we can render orphans usefully.
+mapfile -t PAGES < <({
+  find wiki -name "*.md" -not -name "lint-report-*" 2>/dev/null | sed 's|\.md$||'
+  for f in LESSONS_LEARNED.md README.md CLAUDE.md; do
+    [ -f "$f" ] && echo "${f%.md}"
+  done
+} | sort -u)
 
-# Find all [[wiki-link]] references
-mapfile -t LINKS < <(grep -rho '\[\[[^]]*\]\]' . 2>/dev/null | sed 's|\[\[||; s|\]\]||' | sort -u || true)
-
-# Orphan pages: pages with no inbound [[link]]
-ORPHANS=()
+# Index pages by basename (for path-prefixed link lookup)
+declare -A BASENAME_TO_PAGE
 for page in "${PAGES[@]}"; do
-  slug="$(basename "$page")"
-  case "$slug" in
-    index|log) continue ;;
+  base="${page##*/}"
+  BASENAME_TO_PAGE["$base"]="$page"
+done
+
+# Collect all [[link]] references with their source page.
+# Normalize each link: strip alias (|alias), strip anchor (#section), strip leading ../ or ./,
+# extract the basename.
+declare -a LINKS_RAW
+mapfile -t LINKS_RAW < <(
+  grep -rho '\[\[[^]]*\]\]' wiki LESSONS_LEARNED.md README.md CLAUDE.md 2>/dev/null \
+    | sed 's|\[\[||; s|\]\]||' \
+    | sort -u || true
+)
+
+# Determine resolution status of each link.
+BROKEN=()
+RESOLVED_SLUGS=()  # for orphan inverse lookup
+for raw in "${LINKS_RAW[@]}"; do
+  link="$raw"
+  # strip alias and anchor
+  link="${link%%|*}"
+  link="${link%%#*}"
+  link="${link%/}"
+  # strip ./ or ../ prefixes (relative-from-page)
+  while [[ "$link" == ../* ]] || [[ "$link" == ./* ]]; do
+    link="${link#../}"
+    link="${link#./}"
+  done
+  # basename for the lookup
+  basename_only="${link##*/}"
+  # Try: exact path match first
+  found=""
+  for p in "${PAGES[@]}"; do
+    if [[ "$p" == "$link" ]] || [[ "$p" == */"$link" ]]; then
+      found="$p"; break
+    fi
+  done
+  # Fallback: basename match
+  if [ -z "$found" ] && [ -n "${BASENAME_TO_PAGE[$basename_only]:-}" ]; then
+    found="${BASENAME_TO_PAGE[$basename_only]}"
+  fi
+  if [ -n "$found" ]; then
+    RESOLVED_SLUGS+=("$found")
+  else
+    BROKEN+=("$raw")
+  fi
+done
+
+# Orphan pages: pages whose basename is not resolved by any link
+ORPHANS=()
+# Dedup resolved
+declare -A IS_RESOLVED
+for s in "${RESOLVED_SLUGS[@]:-}"; do
+  IS_RESOLVED["$s"]=1
+  # also mark by basename for tolerance
+  IS_RESOLVED["${s##*/}"]=1
+done
+for page in "${PAGES[@]}"; do
+  base="${page##*/}"
+  # skip catalog pages
+  case "$base" in
+    index|log|README|CLAUDE|LESSONS_LEARNED) continue ;;
   esac
-  if ! grep -qrh "\[\[$slug\]\]" . 2>/dev/null; then
+  if [ -z "${IS_RESOLVED[$page]:-}" ] && [ -z "${IS_RESOLVED[$base]:-}" ]; then
     ORPHANS+=("$page")
   fi
 done
 
-# Broken links: [[X]] referenced but no page X.md exists
-BROKEN=()
-PAGE_BASENAMES=$(printf '%s\n' "${PAGES[@]}" | xargs -n1 basename 2>/dev/null | sort -u)
-for link in "${LINKS[@]}"; do
-  if ! echo "$PAGE_BASENAMES" | grep -qx "$link"; then
-    BROKEN+=("$link")
-  fi
-done
-
-# Stale: pages not updated in > 90 days.
-# Prefer git log (semantic update time) over mtime (which resets on clone/pull).
-# Fallback order: frontmatter `last_updated:` → git log last commit date → mtime.
+# Stale: pages not updated in > 90 days. (Frontmatter last_updated > git log > mtime)
 STALE=()
 NOW_EPOCH=$(date +%s)
 THRESHOLD_DAYS=90
@@ -60,8 +116,6 @@ git rev-parse --git-dir > /dev/null 2>&1 && HAS_GIT=1
 
 while IFS= read -r f; do
   last_date=""
-
-  # 1. Frontmatter last_updated: YYYY-MM-DD
   if [ -f "$f" ]; then
     last_date=$(head -20 "$f" 2>/dev/null \
       | grep -E '^last_updated:' \
@@ -69,40 +123,55 @@ while IFS= read -r f; do
       | sed 's/last_updated:[[:space:]]*//; s/["'"'"']//g' \
       | tr -d '[:space:]' || true)
   fi
-
-  # 2. git log fallback
   if [ -z "$last_date" ] && [ "$HAS_GIT" = "1" ]; then
     last_date=$(git log -1 --format=%cs -- "$f" 2>/dev/null || true)
   fi
-
-  # 3. mtime fallback (only if no git history yet — fresh files)
   if [ -z "$last_date" ]; then
     last_date=$(date -r "$f" +%Y-%m-%d 2>/dev/null || true)
   fi
-
   [ -z "$last_date" ] && continue
-
-  # Compute age in days (portable across GNU/BSD date)
   last_epoch=$(date -d "$last_date" +%s 2>/dev/null || date -j -f "%Y-%m-%d" "$last_date" +%s 2>/dev/null || echo "")
   [ -z "$last_epoch" ] && continue
-
   age_days=$(( (NOW_EPOCH - last_epoch) / 86400 ))
   if [ "$age_days" -gt "$THRESHOLD_DAYS" ]; then
     STALE+=("$f (${age_days}d, last=$last_date)")
   fi
-done < <(find . -name "*.md" -not -name "lint-report-*" 2>/dev/null | sed 's|^\./||')
+done < <(find wiki -name "*.md" -not -name "lint-report-*" 2>/dev/null)
+
+# M/T code consistency
+M_GAPS=()
+prev=0
+for n in $(grep -oE '^## M-[0-9]{3}' wiki/concepts/recurring-mistakes.md 2>/dev/null | grep -oE '[0-9]+' | sort -n); do
+  n_int=$((10#$n))
+  if [ "$prev" -gt 0 ] && [ $((n_int - prev)) -gt 1 ]; then
+    M_GAPS+=("gap: M-$(printf '%03d' $prev) → M-$(printf '%03d' $n_int)")
+  fi
+  prev=$n_int
+done
+
+T_GAPS=()
+prev=0
+for n in $(grep -oE 'T-[0-9]{3}' LESSONS_LEARNED.md 2>/dev/null | grep -oE '[0-9]+' | sort -u -n); do
+  n_int=$((10#$n))
+  if [ "$prev" -gt 0 ] && [ $((n_int - prev)) -gt 1 ]; then
+    T_GAPS+=("gap: T-$(printf '%03d' $prev) → T-$(printf '%03d' $n_int)")
+  fi
+  prev=$n_int
+done
 
 {
   echo "# Lint Report — $DATE"
   echo ""
-  echo "Generated by \`llm-wiki-builder/scripts/lint.sh\`"
+  echo "Generated by \`llm-wiki-builder/scripts/lint.sh\` (path-aware v2)"
   echo ""
   echo "## Summary"
-  echo "- Pages scanned: ${#PAGES[@]}"
-  echo "- Cross-links found: ${#LINKS[@]}"
+  echo "- Pages scanned: ${#PAGES[@]} (wiki/ + root LESSONS_LEARNED/README/CLAUDE)"
+  echo "- Cross-links found: ${#LINKS_RAW[@]}"
   echo "- Orphan pages: ${#ORPHANS[@]}"
   echo "- Broken links: ${#BROKEN[@]}"
   echo "- Stale pages (>90d): ${#STALE[@]}"
+  echo "- M-code gaps: ${#M_GAPS[@]}"
+  echo "- T-code gaps: ${#T_GAPS[@]}"
   echo ""
   if [ ${#ORPHANS[@]} -gt 0 ]; then
     echo "## Orphan Pages (no inbound links)"
@@ -111,7 +180,7 @@ done < <(find . -name "*.md" -not -name "lint-report-*" 2>/dev/null | sed 's|^\.
   fi
   if [ ${#BROKEN[@]} -gt 0 ]; then
     echo "## Broken Cross-Links"
-    printf -- '- [[%s]] — referenced but no page exists\n' "${BROKEN[@]}"
+    printf -- '- [[%s]] — referenced but no page resolves\n' "${BROKEN[@]}"
     echo ""
   fi
   if [ ${#STALE[@]} -gt 0 ]; then
@@ -119,10 +188,17 @@ done < <(find . -name "*.md" -not -name "lint-report-*" 2>/dev/null | sed 's|^\.
     printf -- '- %s\n' "${STALE[@]}"
     echo ""
   fi
+  if [ ${#M_GAPS[@]} -gt 0 ] || [ ${#T_GAPS[@]} -gt 0 ]; then
+    echo "## Code Numbering Gaps"
+    [ ${#M_GAPS[@]} -gt 0 ] && printf -- '- M: %s\n' "${M_GAPS[@]}"
+    [ ${#T_GAPS[@]} -gt 0 ] && printf -- '- T: %s\n' "${T_GAPS[@]}"
+    echo ""
+  fi
   echo "## Suggested Actions"
   echo "- Review orphans: link from related entity/concept pages or delete if obsolete"
   echo "- Fix broken links: create missing pages or correct typos"
   echo "- Refresh stale pages: check if newer sources contradict old claims"
+  echo "- Fill M/T gaps: investigate whether the code was deliberately skipped"
   echo ""
   echo "## Notes"
   echo "Contradiction detection requires LLM analysis (not implemented in this script)."
@@ -130,4 +206,4 @@ done < <(find . -name "*.md" -not -name "lint-report-*" 2>/dev/null | sed 's|^\.
 } > "$REPORT"
 
 echo "[lint] Report written: $REPORT"
-echo "[lint] Orphans=${#ORPHANS[@]} Broken=${#BROKEN[@]} Stale=${#STALE[@]}"
+echo "[lint] Orphans=${#ORPHANS[@]} Broken=${#BROKEN[@]} Stale=${#STALE[@]} M-gaps=${#M_GAPS[@]} T-gaps=${#T_GAPS[@]}"

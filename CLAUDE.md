@@ -220,6 +220,18 @@ cd ~/SimonK-stack 2>/dev/null
 
 `.claude/hooks/session-start.sh` 가 세션 시작 직후 SimonK-stack / gstack 업스트림 / Simon-LLM-Wiki 의 origin 에 새 커밋이 있는지 fetch + ahead-count 체크합니다.
 
+### 세션 시작 시 — LLM 의 **첫 번째 동작** (예외 없음)
+
+세션 시작 시 SessionStart hook 출력이 LLM 컨텍스트에 안 들어오는 환경 (Claude Code 의 일부 모드, 또는 hook stdout 이 system message 로 안 가는 경우) 도 대비해 **file-based fallback** 을 운영합니다.
+
+**LLM 은 첫 응답 _전_ 다음 한 줄을 실행해야 합니다**:
+
+```bash
+[ -f ~/.claude/.update-pending ] && cat ~/.claude/.update-pending && rm ~/.claude/.update-pending
+```
+
+파일이 비어 있으면 silent — 정상. 파일이 있으면 그 내용을 보고 아래 정책대로 처리.
+
 ### 자동 처리 vs 수동 처리
 
 `session-start.sh` 가 다음을 _자동_ 으로 합니다 (안전 조건 = clean tree + on main):
