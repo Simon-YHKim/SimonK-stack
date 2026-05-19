@@ -213,3 +213,34 @@ cd ~/SimonK-stack 2>/dev/null
 ```
 
 `session-start.sh` 가 이 체크를 매 세션 시작에 1회 실행 권장 (옵션 — 후속 작업).
+
+## 🚀 세션 시작 정책 (필수)
+
+**SimonK Stack 을 사용하는 모든 세션의 첫 동작은 업데이트 확인.**
+
+`.claude/hooks/session-start.sh` 가 세션 시작 직후 SimonK-stack / gstack 업스트림 / Simon-LLM-Wiki 의 origin 에 새 커밋이 있는지 fetch + ahead-count 체크합니다.
+
+### `[UPGRADE_AVAILABLE]` 가 출력되면 — LLM 의 첫 동작 (필수)
+
+사용자에게 어떤 응답을 하기 _전에_ 다음 중 하나를 수행합니다:
+
+1. **gstack 또는 SimonK-stack 업데이트 감지** → `/gstack-upgrade` 호출
+   - 이 스킬이 install type 을 자동 감지 (global-git / local-git / vendored)
+   - upstream pull + SimonK-stack 의 vendored 31개 스킬 sync 까지 한 번에 수행
+   - `GSTACK_AUTO_UPGRADE=1` 또는 `gstack-config set auto_upgrade true` 면 사용자 확인 없이 진행
+2. **SimonK-stack만 업데이트** (gstack 은 최신, 레포만 뒤짐) → `cd ~/SimonK-stack && git pull --ff-only origin main`
+3. **Simon-LLM-Wiki만 업데이트** → `cd ~/.claude/wiki/Simon-LLM-Wiki && git pull --ff-only origin main`
+
+업데이트 결과를 1줄로 보고 후, 원래 사용자 요청 처리로 진행합니다.
+
+### `[UPGRADE_AVAILABLE]` 가 없으면
+
+별다른 보고 없이 사용자 요청 즉시 처리. 매번 "최신입니다" 같은 narration 금지 (T-003 — 토큰 효율).
+
+### 정책 예외
+
+- 사용자가 _명시적으로_ "업데이트 하지 마", "그대로 가자" 라고 한 세션: skip
+- working tree dirty / non-main branch: `git pull --ff-only` 가 자동 실패 → 사용자에게 한 줄 보고 후 수동 처리 요청
+- `/gstack-upgrade` "Never ask again" 상태: 스킬 자체가 update check 비활성화
+
+**이 정책의 의도**: vendoring 이 안정성을 위한 _명시적 sync 게이트_ 라는 설계를 살리되, 게이트가 자동으로 _트리거_ 되도록 해서 stale 상태를 방지.
