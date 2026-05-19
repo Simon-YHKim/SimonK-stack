@@ -177,6 +177,31 @@ cd SimonK-stack && ./scripts/install.sh
 
 ---
 
+## 🔁 3-Hook 자동화 — 사용자 명시 0 으로 wiki 누적
+
+매 세션의 흐름이 **자동**으로 다음 3 단계를 거칩니다. 사용자가 "wiki 갱신해줘" 같은 신호를 줄 필요 없음.
+
+| Hook | 시점 | 동작 | 비용 |
+|---|---|---|---|
+| **SessionStart** | 세션 시작 | bootstrap (skills 설치 + instincts seed) → SimonK / gstack / wiki origin 의 ahead-count 자동 fetch → 안전하면 (clean+main+ff-only) `git pull` 자동 → `[UPGRADE_AVAILABLE]` 박스 + `~/.claude/.update-pending` fallback marker 이중 출력 | 0 토큰 |
+| **UserPromptSubmit** | 매 사용자 발화 _직후, LLM 응답 직전_ | wiki 의 _5초 인덱스 + 최근 3 log + M/T 코드 totals + 행동 규칙_ 을 system context 에 inject | ~466 토큰 / 발화 |
+| **Stop** | LLM 응답 종료 | wiki repo 가 dirty 면 `git add + commit + push` 자동 (branch=main + md/json 위주 필터 안전 가드) | 0 토큰 |
+
+**효과**: LLM 이 _발화 0번째부터_ wiki 인지 상태. 새 mistake / 시행착오 발견 시 _자발적으로_ Edit/Write 로 wiki 에 append. Stop 이 그 변경을 _자동으로 영속화_. 결과적으로 "그냥 작업하면 알아서 누적".
+
+**Opt-out**: `.claude/settings.json` 의 해당 hook 블록 제거 또는 `SIMON_HOOK_SILENT=1` 환경변수.
+
+**다른 프로젝트에서 사용 시점**:
+| 시점 | 보장 |
+|---|---|
+| 처음 install 하는 세션 | 70% — install 자체 + 스킬 발동만. hook 은 _다음 세션부터_ |
+| 그 다음 세션 | 100% — 3-hook 모두 자동 |
+| _SimonK-stack 자체_ 에서 시작한 세션 | 100% — 0번째 발화부터 |
+
+다른 프로젝트에 영구 적용: `bash scripts/setup-repo.sh /path/to/your-project`
+
+---
+
 ## 🚀 세션 시작 정책
 
 매 세션의 **첫 동작은 업데이트 확인**. `session-start.sh` 가 SimonK-stack / gstack upstream / Simon-LLM-Wiki 의 origin ahead-count 를 fetch + 체크합니다.
@@ -265,10 +290,12 @@ SimonK Stack 은 [Simon-LLM-Wiki](https://github.com/Simon-YHKim/Simon-LLM-Wiki)
 |---|---|
 | Native skills (SimonK) | **53/53 PASS** (validator 0 errors / 0 warnings) |
 | Vendored skills (Gstack) | **31 vendored** (원본 형식 유지, 기능 정상) |
-| 전체 validator | **89/89 PASS** |
-| Bash syntax | **18/18 PASS** |
+| 전체 validator (lenient + **strict YAML E013**) | **89/89 PASS** |
+| SKILL.md description quotation 무결성 | **89/89** (M-010 패밀리 14 + M-012 21 자동 fix 후) |
+| Bash syntax (hooks + scripts) | **all PASS** |
 | Orchestrator chain | **모든 참조 존재 확인** |
 | `voice-lint.sh` (`human-voice-guard`) | **CI-ready, exit 1 on tell** |
+| `lint.sh` (path-aware v2, llm-wiki-builder) | **orphans 0 / broken 0 (literal 제외) / M·T gap 0** |
 
 ---
 
