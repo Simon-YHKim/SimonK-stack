@@ -1,0 +1,14 @@
+[
+  {
+    "name": "trigger_korean_release_notes",
+    "input": "이번 패치 노트 만들어줘. v1.3.0 → v1.4.0 인데 GitHub랑 Play Store 둘 다 필요해.",
+    "expected_skill": "release-notes",
+    "must_contain": ["CHANGELOG", "사용자", "store", "어투"]
+  },
+  {
+    "name": "trigger_english_app_store_copy",
+    "input": "Need to write the 'what's new' for the App Store. Just shipped 12 commits.",
+    "expected_skill": "release-notes",
+    "must_contain": ["dev", "user", "500", "human-voice"]
+  }
+]

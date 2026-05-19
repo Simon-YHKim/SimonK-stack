@@ -1,0 +1,14 @@
+[
+  {
+    "name": "trigger_korean_viral",
+    "input": "내 앱 출시했는데 어떻게 바이럴 시키지? 인스타랑 커뮤니티 홍보 둘 다 해보고 싶어.",
+    "expected_skill": "viral-launch",
+    "must_contain": ["인스타", "커뮤니티", "in-app", "timeline"]
+  },
+  {
+    "name": "trigger_english_launch_day",
+    "input": "Launch day is next Tuesday. Need a viral playbook — Reddit, Product Hunt, in-app share. Give me actual post drafts.",
+    "expected_skill": "viral-launch",
+    "must_contain": ["channel", "draft", "K-factor", "timeline"]
+  }
+]

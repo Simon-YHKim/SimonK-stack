@@ -34,6 +34,18 @@ CURRENT_SHA=$(cd "$REPO_DIR" && git rev-parse HEAD 2>/dev/null || echo unknown)
 
 if [ -f "$MARKER" ] && [ "$(cat "$MARKER" 2>/dev/null)" = "$CURRENT_SHA" ]; then
   log "Already installed at $CURRENT_SHA, skipping bootstrap"
+  # --- Quick update checks (non-blocking) ---
+  # Stack repo behind?
+  if (cd "$REPO_DIR" && git fetch --quiet origin 2>/dev/null) && \
+     [ "$(cd "$REPO_DIR" && git rev-list HEAD..origin/main --count 2>/dev/null || echo 0)" -gt 0 ]; then
+    log "INFO: simonk-stack origin has new commits — consider /gstack-upgrade"
+  fi
+  # Wiki behind?
+  WIKI_DIR=~/.claude/wiki/Simon-LLM-Wiki
+  if [ -d "$WIKI_DIR/.git" ] && (cd "$WIKI_DIR" && git fetch --quiet origin 2>/dev/null) && \
+     [ "$(cd "$WIKI_DIR" && git rev-list HEAD..origin/main --count 2>/dev/null || echo 0)" -gt 0 ]; then
+    log "INFO: Simon-LLM-Wiki origin has new commits — cd $WIKI_DIR && git pull"
+  fi
   exit 0
 fi
 
