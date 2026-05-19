@@ -2,7 +2,9 @@
 
 > 서비스 기획부터 개발, 수익화, 그로스, Exit까지 — Claude Code가 **자동으로 올바른 절차를 따르게** 만드는 skill 라이브러리.
 
-**[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![validator](https://img.shields.io/badge/skill--validator-85%20skills-brightgreen)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
+**[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![validator](https://img.shields.io/badge/skill--validator-89%20skills-brightgreen)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
+
+🔗 **자매 레포**: [Simon-LLM-Wiki](https://github.com/Simon-YHKim/Simon-LLM-Wiki) — 세션 간 학습 누적 wiki (필수 연동)
 
 ---
 
@@ -10,14 +12,18 @@
 
 **문제**: AI 코딩 어시스턴트는 큰 작업을 시키면 매번 다른 순서로 일하고, 같은 실수를 반복합니다.
 
-**해결**: 48개 skill (작업 매뉴얼)을 미리 준비해 Claude Code가 **일관된 절차**를 따르게 합니다.
+**해결**: 53개 skill (작업 매뉴얼)을 미리 준비해 Claude Code가 **일관된 절차**를 따르게 합니다. 더해 [Simon-LLM-Wiki](https://github.com/Simon-YHKim/Simon-LLM-Wiki) 가 세션 간 _학습 누적_ 을 담당합니다 — 매 세션 처음부터 다시 추론하지 않습니다.
 
 ```
-"새 앱 만들자"        → app-dev-orchestrator  → 21단계 파이프라인
-"PMF 분석해줘"        → pmf-analyzer          → 3 case 시나리오 예측
-"결제 붙여줘"          → payment-integrator    → Stripe/PortOne + 웹훅 + 테스트
+"새 앱 만들자"        → app-dev-orchestrator    → 21단계 파이프라인
+"PMF 분석해줘"        → pmf-analyzer            → 3 case 시나리오 예측
+"결제 붙여줘"          → payment-integrator      → Stripe/PortOne + 웹훅 + 테스트
 "수익화 테스트 돌려줘"  → revenue-scenario-tester → 7 전문 에이전트, 80+ 시나리오
-"exit 전략 세워줘"     → exit-strategy-planner → IPO/M&A 로드맵
+"이번 패치 노트"       → release-notes           → 개발자 vs 사용자 어조 분리 산출
+"바이럴 시키자"        → viral-launch            → 4채널 (인앱/인스타/커뮤니티/입소문) 플레이북
+"AI 어투 빼줘"         → human-voice-guard       → LLM tell 검출 + 사람 어투로 리라이팅
+"스택 정해줘"          → tech-preference-tracker → 누적 선호 매트릭스 기반 일관성 권고
+"exit 전략 세워줘"     → exit-strategy-planner   → IPO/M&A 로드맵
 ```
 
 ---
@@ -70,6 +76,7 @@ cd SimonK-stack && ./scripts/install.sh
 | `app-platform-selector` | "하이브리드 vs 네이티브", "PWA" | Hybrid/PWA/Native 판단 + 웹 래퍼 리젝 방지 전략 |
 | `db-selector` | "DB 뭐 쓰지", "데이터베이스 선택" | 사전 카탈로그 기반 DB 추천 (Supabase/Neon/Planet 등) |
 | `deploy-configurator` | "배포 설정", "CI/CD" | Cloudflare/Vercel/Fly.io + GitHub Actions + 모니터링 |
+| `tech-preference-tracker` | "스택 정해줘", "이전이랑 일관성 있게" | 누적 선호 매트릭스 → 25+ 레포 일관성 권고 + drift 감지 |
 
 ### Monetization & Payment — 수익화/결제
 
@@ -99,6 +106,14 @@ cd SimonK-stack && ./scripts/install.sh
 | `tag-manager-integrator` | "GTM 세팅", "전환 추적" | GTM/gtag 이벤트 추적 + 분석 리포트 + 최적화 제안 |
 | `growth-engine` | "마케팅 도구", "푸시 알림" | 이메일/푸시/어트리뷰션/A-B/피처플래그 통합 세팅 |
 | `store-launcher` | "스토어 출시", "ASO" | Play Store/App Store 리스팅 최적화 + 정책 준수 |
+
+### Launch & Communication — 런칭/공지/어조
+
+| Skill | 트리거 | 역할 |
+|---|---|---|
+| `release-notes` | "패치 노트", "스토어 업데이트 내용" | 개발자용(README/CHANGELOG) + 사용자용(스토어/배너) **분리** 산출 |
+| `viral-launch` | "바이럴 어떻게", "런칭 플랜" | 4채널 (인앱 공유 / 인스타 / 커뮤니티 / 입소문) 즉시 복붙 산출물 |
+| `human-voice-guard` | "AI 티 나는데", "자연스럽게" | LLM tell 카탈로그 검출 + STYLE.md 생성으로 회귀 방지 + `voice-lint.sh` |
 
 ### Quality & Testing — 품질/검증
 
@@ -158,7 +173,43 @@ cd SimonK-stack && ./scripts/install.sh
 | **리서치·DX** | `investigate` `browse` `learn` `devex-review` |
 | **기타** | `checkpoint` `pair-agent` `setup-browser-cookies` `open-gstack-browser` `connect-chrome` `gstack-upgrade` `session-start-hook` |
 
-**총 85개 skill** — 전부 `skills-src/`에 내장, 외부 clone 불필요.
+**총 89개 skill** — 전부 `skills-src/`에 내장, 외부 clone 불필요.
+
+---
+
+## 🚀 세션 시작 정책
+
+매 세션의 **첫 동작은 업데이트 확인**. `session-start.sh` 가 SimonK-stack / gstack upstream / Simon-LLM-Wiki 의 origin ahead-count 를 fetch + 체크합니다.
+
+```
+============================================================
+[UPGRADE_AVAILABLE] Per CLAUDE.md 'Session start policy',
+the LLM MUST address these BEFORE the first user-facing turn:
+  - SimonK-stack: 3 commit(s) behind origin/main
+    → run `/gstack-upgrade` (it will also pull this repo if needed)
+  - gstack upstream: 2 commit(s) behind (/root/.claude/skills/gstack)
+    → run `/gstack-upgrade` to apply
+  - Simon-LLM-Wiki: 1 commit(s) behind
+    → cd ~/.claude/wiki/Simon-LLM-Wiki && git pull
+============================================================
+```
+
+업데이트 없으면 silent — narration 비용 0. 자세한 정책은 [`CLAUDE.md § 🚀 세션 시작 정책`](CLAUDE.md).
+
+---
+
+## 📖 Simon-LLM-Wiki 통합
+
+SimonK Stack 은 [Simon-LLM-Wiki](https://github.com/Simon-YHKim/Simon-LLM-Wiki) 와 _짝_ 으로 동작합니다.
+
+| | Instincts (`~/.claude/instincts/`) | Simon-LLM-Wiki |
+|---|---|---|
+| 도메인 | 코딩 실수, 도구 quirks | 사용자 메타 인지, 작업 성향, 누적 결론 |
+| 위치 | 로컬 4 md 파일 | git repo (Obsidian-호환) |
+| 누적 | append-only mistakes | M-xxx (mistakes), T-xxx (trials) |
+| 진입점 | seed 4 파일 | `LESSONS_LEARNED.md` (5분 onboarding) |
+
+매 세션 wiki 의 `LESSONS_LEARNED.md` 를 _먼저_ 읽고 사용자 요청 처리. 세션 종료 시 새 발견을 wiki 에 append. 자세한 절차는 [`CLAUDE.md § 📖 Wiki 참고 (필수)`](CLAUDE.md).
 
 ---
 
@@ -195,11 +246,12 @@ cd SimonK-stack && ./scripts/install.sh
 
 ```
 세션 시작 → .claude/hooks/session-start.sh 실행
-  ├─ 실행 도구 설치 (첫 실행만, ~30초)
-  ├─ 48개 skill → ~/.claude/skills/ 복사
-  ├─ Instincts 4파일 seed (세션 간 학습)
-  ├─ LLM Wiki 자동 bootstrap
-  └─ marker 기록 (재실행 시 <1초)
+  ├─ 첫 실행: 실행 도구 설치 + 89개 skill → ~/.claude/skills/ 복사 + Instincts seed (~30초)
+  ├─ 재실행 (marker 존재):
+  │   ├─ SimonK-stack ahead-count 체크 → 있으면 [UPGRADE_AVAILABLE] 출력
+  │   ├─ gstack upstream ahead-count 체크 → 있으면 출력
+  │   └─ Simon-LLM-Wiki ahead-count 체크 → 있으면 출력
+  └─ LLM 은 [UPGRADE_AVAILABLE] 박스 감지 시 첫 동작으로 /gstack-upgrade 또는 pull
 ```
 
 ---
@@ -208,18 +260,19 @@ cd SimonK-stack && ./scripts/install.sh
 
 | 테스트 | 결과 |
 |---|---|
-| Native skills (SimonK) | **49/49 PASS** |
-| Vendored skills (Gstack) | **36 vendored** (원본 형식 유지, 기능 정상) |
+| Native skills (SimonK) | **53/53 PASS** (validator 0 errors / 0 warnings) |
+| Vendored skills (Gstack) | **31 vendored** (원본 형식 유지, 기능 정상) |
+| 전체 validator | **89/89 PASS** |
 | Bash syntax | **18/18 PASS** |
 | Orchestrator chain | **모든 참조 존재 확인** |
-| Trigger conflict | **2건 (의도적 핸드오프)** |
+| `voice-lint.sh` (`human-voice-guard`) | **CI-ready, exit 1 on tell** |
 
 ---
 
 ## FAQ
 
 **Q. 총 몇 개 skill?**
-49개 (전략+개발+수익화+보안+분석) + 36개 실행 도구 = **85개**. 전부 `skills-src/`에 내장.
+53개 (SimonK 자체) + 31개 Gstack vendored 실행 도구 + 5개 base (commit/review/debug/explain/test-gen) = **89개**. 전부 `skills-src/` 또는 `.claude/skills/` 에 내장.
 
 **Q. 다른 repo에서 쓰려면?**
 `scripts/setup-repo.sh /path/to/target` → 상세: [docs/USING-IN-OTHER-REPOS.md](docs/USING-IN-OTHER-REPOS.md)
