@@ -214,6 +214,24 @@ cd ~/SimonK-stack 2>/dev/null
 
 `session-start.sh` 가 이 체크를 매 세션 시작에 1회 실행 권장 (옵션 — 후속 작업).
 
+## 🔁 Hook 자동화 매트릭스
+
+세 종류의 hook 이 사용자 명시 없이 wiki 누적·반영을 _자동_ 으로 처리합니다.
+
+| Hook | 시점 | 동작 |
+|---|---|---|
+| **SessionStart** | 세션 시작 | bootstrap (skills 설치, instincts seed) + update 감지 (SimonK / gstack / wiki) + auto-pull (clean+main+ff) + `~/.claude/.update-pending` fallback |
+| **UserPromptSubmit** | 매 사용자 발화 전 | wiki 의 5초 인덱스 + 최근 3 log + M/T totals 를 _system context_ 에 inject. LLM 자발성 보강 — _사용자가 언급 안 해도_ wiki 인지 상태 |
+| **Stop** | LLM 응답 종료 시 | wiki/instincts repo 가 dirty 면 자동 commit + push (branch=main + md/json 변경 위주 필터). LLM 이 _수정만 하면 영속화_ 자동 |
+
+**효과**: A (Stop hook) 가 _영속화 누락_ 을 막고, C (UserPromptSubmit hook) 가 _LLM 의 wiki 인지_ 를 매 발화 강제. 사용자 발화에 "wiki", "오답노트" 같은 키워드가 없어도 _LLM 이 스스로_ M-xxx / T-xxx append 할 가능성 ↑.
+
+**비용**:
+- UserPromptSubmit: 매 발화 ~300-500 토큰 (인덱스 + 최근 log 만 inject — 컴팩트하게 유지)
+- Stop: 0 토큰 (bash 만)
+
+**Opt-out**: `.claude/settings.json` 에서 해당 hook 블록 제거.
+
 ## 🚀 세션 시작 정책 (필수)
 
 **SimonK Stack 을 사용하는 모든 세션의 첫 동작은 업데이트 확인.**
