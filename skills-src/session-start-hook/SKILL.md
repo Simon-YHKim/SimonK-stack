@@ -1,7 +1,7 @@
 ---
 name: session-start-hook
 version: 1.0.0
-description: Creating and developing startup hooks for Claude Code on the web. Use when the user wants to set up a repository for Claude Code on the web, create a SessionStart hook to ensure their project can run tests and linters during web sessions.
+description: "Use when the user wants to set up a SessionStart hook for Claude Code on the web — triggers \"SessionStart hook 만들어줘\", \"web 세션 환경 세팅\", \"세션 시작 시 자동 설치\", \"hook 추가해줘\", \"create startup hook\", \"setup web session\", \"hook for cloud claude code\", \"bootstrap on session start\". Creates SessionStart hooks that install dependencies and run initial setup so tests/linters work in remote Claude Code sessions. Produces .claude/hooks/session-start.sh with idempotent install logic, marker-based short-circuit, and environment-aware bootstrap (handles both web and local execution)."
 ---
 
 # Startup Hook Skill for Claude Code on the web

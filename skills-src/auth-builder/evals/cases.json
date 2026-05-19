@@ -1,0 +1,14 @@
+[
+  {
+    "name": "trigger_korean_social_login",
+    "input": "카카오 로그인이랑 Apple 로그인 추가해줘. Supabase로 가고 싶어.",
+    "expected_skill": "auth-builder",
+    "must_contain": ["Supabase", "social", "Kakao", "Apple"]
+  },
+  {
+    "name": "trigger_english_passkey",
+    "input": "Implement signup with Passkey + email magic link, plus role-based access.",
+    "expected_skill": "auth-builder",
+    "must_contain": ["Passkey", "role-based", "session", "provider"]
+  }
+]

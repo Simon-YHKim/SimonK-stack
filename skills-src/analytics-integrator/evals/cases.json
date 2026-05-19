@@ -1,0 +1,14 @@
+[
+  {
+    "name": "trigger_korean_ga4",
+    "input": "GA4 연동해줘. 이벤트 추적이랑 퍼널 분석도 같이.",
+    "expected_skill": "analytics-integrator",
+    "must_contain": ["GA4", "event", "taxonomy", "consent"]
+  },
+  {
+    "name": "trigger_english_posthog",
+    "input": "Add PostHog and Clarity to track user behavior, with GDPR consent banner.",
+    "expected_skill": "analytics-integrator",
+    "must_contain": ["PostHog", "Clarity", "consent", "funnel"]
+  }
+]

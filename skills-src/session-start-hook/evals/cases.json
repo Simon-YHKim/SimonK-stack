@@ -1,0 +1,14 @@
+[
+  {
+    "name": "trigger_korean_web_session",
+    "input": "Claude Code on the web 쓰는데 매 세션마다 의존성 설치되게 SessionStart hook 만들어줘.",
+    "expected_skill": "session-start-hook",
+    "must_contain": ["SessionStart", "session-start.sh", "idempotent", "bootstrap"]
+  },
+  {
+    "name": "trigger_english_hook_setup",
+    "input": "Set up a startup hook so tests and linters work on every cloud session.",
+    "expected_skill": "session-start-hook",
+    "must_contain": ["hook", "marker", "install", "environment"]
+  }
+]
