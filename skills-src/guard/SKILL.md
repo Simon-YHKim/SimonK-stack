@@ -1,7 +1,7 @@
 ---
 name: guard
 version: 0.1.0
-description: "Use when asked to \. Produces combined safety guardrails (destructive warnings + edit scope lock)."guard mode\", \"full safety\", \"lock it down\", or \"maximum safety\". (gstack). Full safety mode: destructive command warnings + directory-scoped edits. Combines /careful (warns before rm -rf, DROP TABLE, force-push, etc.) with /freeze (blocks edits outside a specified directory). Use for maximum safety when touching prod or debugging live systems"
+description: "Use when asked to: \"guard mode\", \"full safety\", \"lock it down\", or \"maximum safety\". (gstack). Full safety mode: destructive command warnings + directory-scoped edits. Combines /careful (warns before rm -rf, DROP TABLE, force-push, etc.) with /freeze (blocks edits outside a specified directory). Use for maximum safety when touching prod or debugging live systems. Produces combined safety guardrails (destructive warnings + edit scope lock)."
 allowed-tools:
   - Bash
   - Read

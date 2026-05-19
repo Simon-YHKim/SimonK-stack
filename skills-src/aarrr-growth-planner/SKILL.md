@@ -1,6 +1,6 @@
 ---
 name: aarrr-growth-planner
-description: "Use when the user wants to plan growth strategy or generate ideas using the AARRR framework—triggers "AARRR 분석", "그로스 전략", "퍼널 설계", "유저 획득 전략", "리텐션 개선", "growth framework", "pirate metrics", "funnel strategy". Produces an AARRR analysis (Acquisition→Activation→Retention→Referral→Revenue) with specific tactics per stage, KPIs, and experiment backlog prioritized by ICE score."
+description: "Use when the user wants to plan growth strategy or generate ideas using the AARRR framework—triggers \"AARRR 분석\", \"그로스 전략\", \"퍼널 설계\", \"유저 획득 전략\", \"리텐션 개선\", \"growth framework\", \"pirate metrics\", \"funnel strategy\". Produces an AARRR analysis (Acquisition→Activation→Retention→Referral→Revenue) with specific tactics per stage, KPIs, and experiment backlog prioritized by ICE score."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

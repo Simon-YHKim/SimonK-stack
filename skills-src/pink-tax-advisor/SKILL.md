@@ -1,6 +1,6 @@
 ---
 name: pink-tax-advisor
-description: "Use when the user explicitly asks for aggressive revenue maximization or pricing psychology—triggers "수익 극대화", "가격 전략 심화", "pink tax 연구", "세그먼트별 가격", "심리적 가격", "maximize revenue", "pricing psychology", "willingness to pay". Produces segment-based pricing analysis, psychological pricing tactics, value metric optimization, and ethical boundary guidelines. Only activates on explicit user request for aggressive monetization."
+description: "Use when the user explicitly asks for aggressive revenue maximization or pricing psychology—triggers \"수익 극대화\", \"가격 전략 심화\", \"pink tax 연구\", \"세그먼트별 가격\", \"심리적 가격\", \"maximize revenue\", \"pricing psychology\", \"willingness to pay\". Produces segment-based pricing analysis, psychological pricing tactics, value metric optimization, and ethical boundary guidelines. Only activates on explicit user request for aggressive monetization."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

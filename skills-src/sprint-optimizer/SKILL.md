@@ -1,6 +1,6 @@
 ---
 name: sprint-optimizer
-description: "Use when the user wants to run sprint planning with multiple options—triggers "스프린트 모드", "3가지 방안", "케이스 비교", "best case 추천", "반복 고도화", "sprint mode", "compare options", "iterate on best case". Produces 3-case analysis (Conservative/Balanced/Aggressive), recommends Best case, and offers iterative refinement loop with user-agreed depth of iteration."
+description: "Use when the user wants to run sprint planning with multiple options—triggers \"스프린트 모드\", \"3가지 방안\", \"케이스 비교\", \"best case 추천\", \"반복 고도화\", \"sprint mode\", \"compare options\", \"iterate on best case\". Produces 3-case analysis (Conservative/Balanced/Aggressive), recommends Best case, and offers iterative refinement loop with user-agreed depth of iteration."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

@@ -1,6 +1,6 @@
 ---
 name: ad-monetization
-description: "Use when the user asks to implement advertising in their app or site—triggers "광고 붙여줘", "AdMob 연동", "AdSense 세팅", "보상형 광고", "ad placement", "implement ads", "monetize with ads", "banner ad", "interstitial". Produces ad SDK integration (AdMob/AdSense/Carbon), placement strategy (non-intrusive positions), A/B testing for ad formats, AdBlock fallback, and policy compliance checks (Google Ad Policy)."
+description: "Use when the user asks to implement advertising in their app or site—triggers \"광고 붙여줘\", \"AdMob 연동\", \"AdSense 세팅\", \"보상형 광고\", \"ad placement\", \"implement ads\", \"monetize with ads\", \"banner ad\", \"interstitial\". Produces ad SDK integration (AdMob/AdSense/Carbon), placement strategy (non-intrusive positions), A/B testing for ad formats, AdBlock fallback, and policy compliance checks (Google Ad Policy)."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

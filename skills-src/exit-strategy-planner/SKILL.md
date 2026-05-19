@@ -1,6 +1,6 @@
 ---
 name: exit-strategy-planner
-description: "Use when the user wants to plan long-term business exit strategy—triggers "exit 전략", "상장 준비", "M&A 전략", "IPO 로드맵", "투자 유치", "exit plan", "IPO roadmap", "acquisition strategy", "Series A preparation". Produces exit strategy selection (IPO/M&A/SPAC/Secondary), stage-by-stage roadmap (Seed→Series A→B→C→Exit), key metrics per stage, and case studies (Coupang NASDAQ, Korean startup exits)."
+description: "Use when the user wants to plan long-term business exit strategy—triggers \"exit 전략\", \"상장 준비\", \"M&A 전략\", \"IPO 로드맵\", \"투자 유치\", \"exit plan\", \"IPO roadmap\", \"acquisition strategy\", \"Series A preparation\". Produces exit strategy selection (IPO/M&A/SPAC/Secondary), stage-by-stage roadmap (Seed→Series A→B→C→Exit), key metrics per stage, and case studies (Coupang NASDAQ, Korean startup exits)."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

@@ -1,6 +1,6 @@
 ---
 name: payment-integrator
-description: "Use when the user asks to implement payment or subscription—triggers "결제 붙여줘", "구독 시스템 만들어줘", "Stripe 연동", "PortOne 세팅", "인앱결제", "implement payments", "add subscription", "billing system". Produces payment integration code (Stripe/PortOne/RevenueCat), webhook handlers, subscription state machine, receipt verification, and sandbox test suite. Covers card, 간편결제, in-app purchase, and crypto payments."
+description: "Use when the user asks to implement payment or subscription—triggers \"결제 붙여줘\", \"구독 시스템 만들어줘\", \"Stripe 연동\", \"PortOne 세팅\", \"인앱결제\", \"implement payments\", \"add subscription\", \"billing system\". Produces payment integration code (Stripe/PortOne/RevenueCat), webhook handlers, subscription state machine, receipt verification, and sandbox test suite. Covers card, 간편결제, in-app purchase, and crypto payments."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

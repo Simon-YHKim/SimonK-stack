@@ -1,6 +1,6 @@
 ---
 name: stack-architect
-description: "Use when the user needs to decide on technical architecture—triggers "프론트만 필요해?", "백엔드 필요해?", "API 뭐 쓰지", "규모에 맞는 배포", "tech stack 정해줘", "architecture decision", "do I need a backend", "what API do I need". Produces a tech stack decision (frontend-only vs fullstack), API selection (REST/GraphQL/tRPC), scale-matched deployment plan, and stability roadmap to production-ready service."
+description: "Use when the user needs to decide on technical architecture—triggers \"프론트만 필요해?\", \"백엔드 필요해?\", \"API 뭐 쓰지\", \"규모에 맞는 배포\", \"tech stack 정해줘\", \"architecture decision\", \"do I need a backend\", \"what API do I need\". Produces a tech stack decision (frontend-only vs fullstack), API selection (REST/GraphQL/tRPC), scale-matched deployment plan, and stability roadmap to production-ready service."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

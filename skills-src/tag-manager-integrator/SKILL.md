@@ -1,6 +1,6 @@
 ---
 name: tag-manager-integrator
-description: "Use when the user wants to set up event tracking via Google Tag Manager or similar—triggers "GTM 세팅", "gtag 설치", "태그 관리자", "이벤트 추적 설정", "전환 추적", "setup GTM", "tag manager", "conversion tracking", "event tracking setup". Produces GTM/gtag configuration, event taxonomy aligned with analytics-integrator, conversion tracking for ads, and periodic analysis reports with optimization suggestions."
+description: "Use when the user wants to set up event tracking via Google Tag Manager or similar—triggers \"GTM 세팅\", \"gtag 설치\", \"태그 관리자\", \"이벤트 추적 설정\", \"전환 추적\", \"setup GTM\", \"tag manager\", \"conversion tracking\", \"event tracking setup\". Produces GTM/gtag configuration, event taxonomy aligned with analytics-integrator, conversion tracking for ads, and periodic analysis reports with optimization suggestions."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

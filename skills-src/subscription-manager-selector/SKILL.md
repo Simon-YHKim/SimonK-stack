@@ -1,6 +1,6 @@
 ---
 name: subscription-manager-selector
-description: "Use when the user needs to choose a subscription management platform—triggers "구독 관리 서비스", "RevenueCat vs Stripe", "구독 플랫폼 비교", "subscription management", "billing platform", "which subscription service". Produces comparison of subscription management services (RevenueCat/Stripe Billing/Chargebee/Paddle/Lemon Squeezy), recommendation based on platform and scale, and integration guide for the selected service."
+description: "Use when the user needs to choose a subscription management platform—triggers \"구독 관리 서비스\", \"RevenueCat vs Stripe\", \"구독 플랫폼 비교\", \"subscription management\", \"billing platform\", \"which subscription service\". Produces comparison of subscription management services (RevenueCat/Stripe Billing/Chargebee/Paddle/Lemon Squeezy), recommendation based on platform and scale, and integration guide for the selected service."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

@@ -1,6 +1,6 @@
 ---
 name: pmf-analyzer
-description: "Use when the user wants to analyze or predict Product-Market Fit—triggers "PMF 분석", "제품 시장 적합성", "활성 사용자 예측", "PMF 리포트", "시장성 분석", "product market fit", "analyze PMF", "user projection". Produces 3-case PMF projection (Optimistic/Base/Pessimistic) with active user ratio prediction, Sean Ellis test simulation, retention curve modeling, and optional periodic reporting mode for post-launch tracking."
+description: "Use when the user wants to analyze or predict Product-Market Fit—triggers \"PMF 분석\", \"제품 시장 적합성\", \"활성 사용자 예측\", \"PMF 리포트\", \"시장성 분석\", \"product market fit\", \"analyze PMF\", \"user projection\". Produces 3-case PMF projection (Optimistic/Base/Pessimistic) with active user ratio prediction, Sean Ellis test simulation, retention curve modeling, and optional periodic reporting mode for post-launch tracking."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

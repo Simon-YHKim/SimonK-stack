@@ -1,6 +1,6 @@
 ---
 name: analytics-integrator
-description: "Use when the user asks to set up analytics, tracking, or user behavior analysis—triggers "분석 도구 세팅", "GA4 연동", "이벤트 추적", "PostHog 설치", "퍼널 분석", "setup analytics", "track user behavior", "add Clarity", "event taxonomy". Produces analytics stack setup (GA4/PostHog/Mixpanel + Clarity/Hotjar), event taxonomy document, consent management (GDPR/개인정보보호법), and funnel/retention tracking configuration."
+description: "Use when the user asks to set up analytics, tracking, or user behavior analysis—triggers \"분석 도구 세팅\", \"GA4 연동\", \"이벤트 추적\", \"PostHog 설치\", \"퍼널 분석\", \"setup analytics\", \"track user behavior\", \"add Clarity\", \"event taxonomy\". Produces analytics stack setup (GA4/PostHog/Mixpanel + Clarity/Hotjar), event taxonomy document, consent management (GDPR/개인정보보호법), and funnel/retention tracking configuration."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

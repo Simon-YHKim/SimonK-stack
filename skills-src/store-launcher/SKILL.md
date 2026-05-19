@@ -1,6 +1,6 @@
 ---
 name: store-launcher
-description: "Use when the user asks to publish or launch an app to app stores—triggers "스토어 출시", "Play Store 등록", "App Store 심사", "앱 배포", "publish to store", "app listing", "ASO", "store submission". Produces store listing optimization (title/description/keywords/screenshots), policy compliance pre-check (Google/Apple guidelines), submission automation, and ASO (App Store Optimization) strategy."
+description: "Use when the user asks to publish or launch an app to app stores—triggers \"스토어 출시\", \"Play Store 등록\", \"App Store 심사\", \"앱 배포\", \"publish to store\", \"app listing\", \"ASO\", \"store submission\". Produces store listing optimization (title/description/keywords/screenshots), policy compliance pre-check (Google/Apple guidelines), submission automation, and ASO (App Store Optimization) strategy."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

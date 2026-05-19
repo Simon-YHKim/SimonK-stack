@@ -1,6 +1,6 @@
 ---
 name: monetization-planner
-description: "Use when the user asks to design a revenue model, pricing strategy, or tier structure—triggers "수익 모델 설계", "가격 정하자", "무료/유료 나누자", "pricing strategy", "freemium vs subscription", "how to monetize". Produces MONETIZATION.md with model selection (freemium/subscription/usage/hybrid), tier structure (Free/Pro/Team/Enterprise), free-vs-paid boundary decisions, and Korea-specific considerations (구독 피로, 간편결제 선호, 전자상거래법)."
+description: "Use when the user asks to design a revenue model, pricing strategy, or tier structure—triggers \"수익 모델 설계\", \"가격 정하자\", \"무료/유료 나누자\", \"pricing strategy\", \"freemium vs subscription\", \"how to monetize\". Produces MONETIZATION.md with model selection (freemium/subscription/usage/hybrid), tier structure (Free/Pro/Team/Enterprise), free-vs-paid boundary decisions, and Korea-specific considerations (구독 피로, 간편결제 선호, 전자상거래법)."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

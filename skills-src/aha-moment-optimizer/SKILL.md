@@ -1,6 +1,6 @@
 ---
 name: aha-moment-optimizer
-description: "Use when the user wants to find or optimize their product Aha Moment—triggers "아하 모먼트 찾아줘", "핵심 가치 경험 포인트", "온보딩 최적화", "TTFV 줄이기", "activation 개선", "find aha moment", "optimize onboarding", "time to value". Produces Aha Moment hypothesis generation, experiment design (A/B test plan), data verification framework, and iterative improvement cycle (hypothesis→experiment→data→refine)."
+description: "Use when the user wants to find or optimize their product Aha Moment—triggers \"아하 모먼트 찾아줘\", \"핵심 가치 경험 포인트\", \"온보딩 최적화\", \"TTFV 줄이기\", \"activation 개선\", \"find aha moment\", \"optimize onboarding\", \"time to value\". Produces Aha Moment hypothesis generation, experiment design (A/B test plan), data verification framework, and iterative improvement cycle (hypothesis→experiment→data→refine)."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

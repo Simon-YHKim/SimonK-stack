@@ -1,7 +1,7 @@
 ---
 name: unfreeze
 version: 0.1.0
-description: "Use when you want to widen edit scope without ending the session. Use when asked to \. Produces removal of the freeze boundary, allowing edits to all directories."unfreeze\", \"unlock edits\", \"remove freeze\", or \"allow all edits\". (gstack). Clear the freeze boundary set by /freeze, allowing edits to all directories again"
+description: "Use when you want to widen edit scope without ending the session. Use when asked to: \"unfreeze\", \"unlock edits\", \"remove freeze\", or \"allow all edits\". (gstack). Clear the freeze boundary set by /freeze, allowing edits to all directories again. Produces removal of the freeze boundary, allowing edits to all directories."
 allowed-tools:
   - Bash
   - Read

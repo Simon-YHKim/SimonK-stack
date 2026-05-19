@@ -1,6 +1,6 @@
 ---
 name: app-platform-selector
-description: "Use when the user needs to decide between hybrid app, PWA, or native development—triggers "하이브리드 앱 좋을까", "PWA vs 네이티브", "앱 플랫폼 선택", "웹앱으로 할까", "React Native vs Flutter", "hybrid or native", "should I build a PWA", "app wrapper rejection". Produces platform decision (Hybrid/PWA/Native) with pros-cons analysis, store approval strategy for web-wrapped apps, and technology recommendation (React Native/Flutter/Expo/Capacitor)."
+description: "Use when the user needs to decide between hybrid app, PWA, or native development—triggers \"하이브리드 앱 좋을까\", \"PWA vs 네이티브\", \"앱 플랫폼 선택\", \"웹앱으로 할까\", \"React Native vs Flutter\", \"hybrid or native\", \"should I build a PWA\", \"app wrapper rejection\". Produces platform decision (Hybrid/PWA/Native) with pros-cons analysis, store approval strategy for web-wrapped apps, and technology recommendation (React Native/Flutter/Expo/Capacitor)."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

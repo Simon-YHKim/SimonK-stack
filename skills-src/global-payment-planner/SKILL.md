@@ -1,6 +1,6 @@
 ---
 name: global-payment-planner
-description: "Use when the user needs to handle payments across multiple countries—triggers "글로벌 결제", "해외 결제", "국가별 규제", "다국가 결제", "cross-border payment", "international billing", "payment compliance", "multi-currency". Produces country-specific payment regulation summary, optimal PG combination per region, tax/VAT handling strategy, currency conversion approach, and compliance checklist per jurisdiction."
+description: "Use when the user needs to handle payments across multiple countries—triggers \"글로벌 결제\", \"해외 결제\", \"국가별 규제\", \"다국가 결제\", \"cross-border payment\", \"international billing\", \"payment compliance\", \"multi-currency\". Produces country-specific payment regulation summary, optimal PG combination per region, tax/VAT handling strategy, currency conversion approach, and compliance checklist per jurisdiction."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

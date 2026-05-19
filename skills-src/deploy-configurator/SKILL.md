@@ -1,6 +1,6 @@
 ---
 name: deploy-configurator
-description: "Use when the user asks to set up deployment, hosting, or CI/CD—triggers "배포 설정", "Vercel 세팅", "Cloudflare 배포", "CI/CD 만들어줘", "Docker 배포", "setup hosting", "deploy to production", "configure CI". Produces deployment configuration for selected platform (Cloudflare/Vercel/Fly.io/Railway), CI/CD pipeline (GitHub Actions), custom domain + SSL, environment variable management, and monitoring/alerting setup."
+description: "Use when the user asks to set up deployment, hosting, or CI/CD—triggers \"배포 설정\", \"Vercel 세팅\", \"Cloudflare 배포\", \"CI/CD 만들어줘\", \"Docker 배포\", \"setup hosting\", \"deploy to production\", \"configure CI\". Produces deployment configuration for selected platform (Cloudflare/Vercel/Fly.io/Railway), CI/CD pipeline (GitHub Actions), custom domain + SSL, environment variable management, and monitoring/alerting setup."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

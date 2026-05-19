@@ -1,6 +1,6 @@
 ---
 name: db-selector
-description: "Use when the user needs to choose a database or data storage solution—triggers "DB 뭐 쓰지", "데이터베이스 선택", "Supabase vs Firebase", "PostgreSQL vs MongoDB", "DB 필요해?", "choose database", "which DB", "data storage". Produces database selection based on pre-cataloged service list, scale/requirements matching, migration guide, and cost projection."
+description: "Use when the user needs to choose a database or data storage solution—triggers \"DB 뭐 쓰지\", \"데이터베이스 선택\", \"Supabase vs Firebase\", \"PostgreSQL vs MongoDB\", \"DB 필요해?\", \"choose database\", \"which DB\", \"data storage\". Produces database selection based on pre-cataloged service list, scale/requirements matching, migration guide, and cost projection."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

@@ -1,6 +1,6 @@
 ---
 name: growth-engine
-description: "Use when the user asks to set up marketing tools, growth infrastructure, or user engagement systems—triggers "마케팅 도구 세팅", "푸시 알림 구현", "이메일 시스템", "A/B 테스트", "어트리뷰션", "setup growth tools", "add push notifications", "email marketing", "feature flags". Produces growth stack setup (email via Resend/SendGrid, push via OneSignal/FCM, attribution via Branch, A/B via GrowthBook/PostHog), lifecycle email sequences, and retention automation."
+description: "Use when the user asks to set up marketing tools, growth infrastructure, or user engagement systems—triggers \"마케팅 도구 세팅\", \"푸시 알림 구현\", \"이메일 시스템\", \"A/B 테스트\", \"어트리뷰션\", \"setup growth tools\", \"add push notifications\", \"email marketing\", \"feature flags\". Produces growth stack setup (email via Resend/SendGrid, push via OneSignal/FCM, attribution via Branch, A/B via GrowthBook/PostHog), lifecycle email sequences, and retention automation."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

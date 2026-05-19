@@ -1,6 +1,6 @@
 ---
 name: consistency-guard
-description: "Use when the user needs to maintain data or UI consistency across a service—triggers "일관성 유지", "데이터 스키마 검증", "JSON 일관성", "config 관리", "design token", "consistency check", "schema validation", "maintain uniformity". Produces a JSON-schema-based consistency framework that determines which parts of the service need strict consistency (API contracts, design tokens, config) vs flexible parts, with automated validation rules."
+description: "Use when the user needs to maintain data or UI consistency across a service—triggers \"일관성 유지\", \"데이터 스키마 검증\", \"JSON 일관성\", \"config 관리\", \"design token\", \"consistency check\", \"schema validation\", \"maintain uniformity\". Produces a JSON-schema-based consistency framework that determines which parts of the service need strict consistency (API contracts, design tokens, config) vs flexible parts, with automated validation rules."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack

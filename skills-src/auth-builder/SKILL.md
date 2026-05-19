@@ -1,6 +1,6 @@
 ---
 name: auth-builder
-description: "Use when the user asks to implement authentication, signup, login, or user management—triggers "로그인 만들어줘", "회원가입 구현", "OAuth 연동", "소셜 로그인", "Passkey 추가", "본인인증", "implement auth", "add login", "user management". Produces auth system with provider selection (Supabase/Clerk/NextAuth), social login (Google/Apple/Kakao/Naver), session management, role-based access, and Korea CI/DI verification."
+description: "Use when the user asks to implement authentication, signup, login, or user management—triggers \"로그인 만들어줘\", \"회원가입 구현\", \"OAuth 연동\", \"소셜 로그인\", \"Passkey 추가\", \"본인인증\", \"implement auth\", \"add login\", \"user management\". Produces auth system with provider selection (Supabase/Clerk/NextAuth), social login (Google/Apple/Kakao/Naver), session management, role-based access, and Korea CI/DI verification."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack
