@@ -185,14 +185,17 @@ cd SimonK-stack && ./scripts/install.sh
 ============================================================
 [UPGRADE_AVAILABLE] Per CLAUDE.md 'Session start policy',
 the LLM MUST address these BEFORE the first user-facing turn:
-  - SimonK-stack: 3 commit(s) behind origin/main
-    → run `/gstack-upgrade` (it will also pull this repo if needed)
+  - SimonK-stack: auto-pulled 3 commit(s) from origin/main ✓
   - gstack upstream: 2 commit(s) behind (/root/.claude/skills/gstack)
     → run `/gstack-upgrade` to apply
-  - Simon-LLM-Wiki: 1 commit(s) behind
-    → cd ~/.claude/wiki/Simon-LLM-Wiki && git pull
+  - Simon-LLM-Wiki: auto-pulled 1 commit(s) ✓ — re-read LESSONS_LEARNED.md
 ============================================================
 ```
+
+분담:
+- **session-start.sh 가 자동 처리** — SimonK-stack / Simon-LLM-Wiki 의 `git pull --ff-only` (clean tree + on main 일 때만)
+- **LLM 이 처리** — gstack upstream 업데이트 시 `/gstack-upgrade` 호출
+- **사용자에게 1줄 보고** — auto-pull skipped (dirty / non-main / ff 불가) 항목
 
 업데이트 없으면 silent — narration 비용 0. 자세한 정책은 [`CLAUDE.md § 🚀 세션 시작 정책`](CLAUDE.md).
 

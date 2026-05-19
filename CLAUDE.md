@@ -220,18 +220,27 @@ cd ~/SimonK-stack 2>/dev/null
 
 `.claude/hooks/session-start.sh` 가 세션 시작 직후 SimonK-stack / gstack 업스트림 / Simon-LLM-Wiki 의 origin 에 새 커밋이 있는지 fetch + ahead-count 체크합니다.
 
-### `[UPGRADE_AVAILABLE]` 가 출력되면 — LLM 의 첫 동작 (필수)
+### 자동 처리 vs 수동 처리
 
-사용자에게 어떤 응답을 하기 _전에_ 다음 중 하나를 수행합니다:
+`session-start.sh` 가 다음을 _자동_ 으로 합니다 (안전 조건 = clean tree + on main):
+- **SimonK-stack auto-pull** — origin/main ahead 이고 안전하면 `git pull --ff-only` 즉시 실행
+- **Simon-LLM-Wiki auto-pull** — 같음
 
-1. **gstack 또는 SimonK-stack 업데이트 감지** → `/gstack-upgrade` 호출
-   - 이 스킬이 install type 을 자동 감지 (global-git / local-git / vendored)
-   - upstream pull + SimonK-stack 의 vendored 31개 스킬 sync 까지 한 번에 수행
-   - `GSTACK_AUTO_UPGRADE=1` 또는 `gstack-config set auto_upgrade true` 면 사용자 확인 없이 진행
-2. **SimonK-stack만 업데이트** (gstack 은 최신, 레포만 뒤짐) → `cd ~/SimonK-stack && git pull --ff-only origin main`
-3. **Simon-LLM-Wiki만 업데이트** → `cd ~/.claude/wiki/Simon-LLM-Wiki && git pull --ff-only origin main`
+LLM 이 직접 처리할 것:
+- **gstack upstream 업데이트** → `/gstack-upgrade` 호출 (gstack 의 _자체 upgrade_ 스킬)
+  - install type 자동 감지 (global-git / local-git / vendored)
+  - gstack 본체 + 로컬 vendored gstack 카피 sync
+  - ⚠️ **이 스킬은 SimonK-stack 자체는 pull 안 함** (gstack 의 책임 도메인이 아님). SimonK-stack pull 은 위의 session-start.sh auto-pull 이 담당.
+  - `GSTACK_AUTO_UPGRADE=1` 또는 `gstack-config set auto_upgrade true` 면 사용자 확인 없이 진행
 
-업데이트 결과를 1줄로 보고 후, 원래 사용자 요청 처리로 진행합니다.
+### `[UPGRADE_AVAILABLE]` 가 출력되면 — LLM 의 첫 동작
+
+박스 내용을 _읽고_ 다음을 수행:
+1. **`auto-pulled ✓` 표시가 있는 항목** — 이미 처리됨. 단, Simon-LLM-Wiki auto-pull 시 LESSONS_LEARNED.md 재독.
+2. **gstack 항목이 있으면** → `/gstack-upgrade` 호출.
+3. **`auto-pull skipped` / `failed` 항목이 있으면** → 사용자에게 1줄 보고 (dirty / 다른 브랜치 / ff 불가 사유 안내).
+
+이후 원래 사용자 요청 처리.
 
 ### `[UPGRADE_AVAILABLE]` 가 없으면
 

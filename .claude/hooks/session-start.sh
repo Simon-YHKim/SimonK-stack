@@ -47,14 +47,27 @@ if [ -f "$MARKER" ] && [ "$(cat "$MARKER" 2>/dev/null)" = "$CURRENT_SHA" ]; then
     fi
   }
 
-  # 1) SimonK-stack
+  # 1) SimonK-stack — auto-pull when safe (clean tree, on main, ff-only)
   if (cd "$REPO_DIR" && git fetch --quiet origin 2>/dev/null); then
     BEHIND=$(cd "$REPO_DIR" && git rev-list HEAD..origin/main --count 2>/dev/null || echo 0)
     if [ "$BEHIND" -gt 0 ]; then
-      emit_header
-      log "  - SimonK-stack: $BEHIND commit(s) behind origin/main"
-      log "    → run \`/gstack-upgrade\` (it will also pull this repo if needed)"
-      log "    → or manually: cd $REPO_DIR && git pull --ff-only origin main"
+      CUR_BRANCH=$(cd "$REPO_DIR" && git branch --show-current 2>/dev/null || echo "?")
+      DIRTY=$(cd "$REPO_DIR" && git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+      if [ "$CUR_BRANCH" = "main" ] && [ "$DIRTY" = "0" ]; then
+        # Safe auto-pull
+        if (cd "$REPO_DIR" && git pull --ff-only --quiet origin main 2>/dev/null); then
+          emit_header
+          log "  - SimonK-stack: auto-pulled $BEHIND commit(s) from origin/main ✓"
+        else
+          emit_header
+          log "  - SimonK-stack: $BEHIND behind, auto-pull failed → cd $REPO_DIR && git pull"
+        fi
+      else
+        emit_header
+        log "  - SimonK-stack: $BEHIND commit(s) behind origin/main"
+        log "    (branch=$CUR_BRANCH, dirty=$DIRTY — auto-pull skipped for safety)"
+        log "    → manually: cd $REPO_DIR && git pull --ff-only origin main"
+      fi
     fi
   fi
 
@@ -73,14 +86,26 @@ if [ -f "$MARKER" ] && [ "$(cat "$MARKER" 2>/dev/null)" = "$CURRENT_SHA" ]; then
     fi
   done
 
-  # 3) Simon-LLM-Wiki (knowledge base)
+  # 3) Simon-LLM-Wiki — auto-pull when safe
   WIKI_DIR=~/.claude/wiki/Simon-LLM-Wiki
   if [ -d "$WIKI_DIR/.git" ] && (cd "$WIKI_DIR" && git fetch --quiet origin 2>/dev/null); then
     WBEHIND=$(cd "$WIKI_DIR" && git rev-list HEAD..origin/main --count 2>/dev/null || echo 0)
     if [ "$WBEHIND" -gt 0 ]; then
-      emit_header
-      log "  - Simon-LLM-Wiki: $WBEHIND commit(s) behind"
-      log "    → cd $WIKI_DIR && git pull"
+      WBRANCH=$(cd "$WIKI_DIR" && git branch --show-current 2>/dev/null || echo "?")
+      WDIRTY=$(cd "$WIKI_DIR" && git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+      if [ "$WBRANCH" = "main" ] && [ "$WDIRTY" = "0" ]; then
+        if (cd "$WIKI_DIR" && git pull --ff-only --quiet origin main 2>/dev/null); then
+          emit_header
+          log "  - Simon-LLM-Wiki: auto-pulled $WBEHIND commit(s) ✓ — re-read LESSONS_LEARNED.md"
+        else
+          emit_header
+          log "  - Simon-LLM-Wiki: $WBEHIND behind, auto-pull failed → cd $WIKI_DIR && git pull"
+        fi
+      else
+        emit_header
+        log "  - Simon-LLM-Wiki: $WBEHIND commit(s) behind (branch=$WBRANCH, dirty=$WDIRTY)"
+        log "    → manually: cd $WIKI_DIR && git pull"
+      fi
     fi
   fi
 
