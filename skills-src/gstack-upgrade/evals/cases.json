@@ -1,0 +1,14 @@
+[
+  {
+    "name": "trigger_korean_upgrade",
+    "input": "gstack 업데이트 최신으로 올려줘.",
+    "expected_skill": "gstack-upgrade",
+    "must_contain": ["upgrade", "version", "changelog", "install"]
+  },
+  {
+    "name": "trigger_english_voice",
+    "input": "Upgrade the tools to the latest version.",
+    "expected_skill": "gstack-upgrade",
+    "must_contain": ["upgrade", "global", "vendored", "what's new"]
+  }
+]

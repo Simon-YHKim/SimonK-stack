@@ -34,6 +34,61 @@ CURRENT_SHA=$(cd "$REPO_DIR" && git rev-parse HEAD 2>/dev/null || echo unknown)
 
 if [ -f "$MARKER" ] && [ "$(cat "$MARKER" 2>/dev/null)" = "$CURRENT_SHA" ]; then
   log "Already installed at $CURRENT_SHA, skipping bootstrap"
+
+  # --- Mandatory update checks (LLM acts on these BEFORE first user turn) ---
+  ANY_UPGRADE=0
+  emit_header() {
+    if [ "$ANY_UPGRADE" = "0" ]; then
+      log ""
+      log "============================================================"
+      log "[UPGRADE_AVAILABLE] Per CLAUDE.md 'Session start policy',"
+      log "the LLM MUST address these BEFORE the first user-facing turn:"
+      ANY_UPGRADE=1
+    fi
+  }
+
+  # 1) SimonK-stack
+  if (cd "$REPO_DIR" && git fetch --quiet origin 2>/dev/null); then
+    BEHIND=$(cd "$REPO_DIR" && git rev-list HEAD..origin/main --count 2>/dev/null || echo 0)
+    if [ "$BEHIND" -gt 0 ]; then
+      emit_header
+      log "  - SimonK-stack: $BEHIND commit(s) behind origin/main"
+      log "    → run \`/gstack-upgrade\` (it will also pull this repo if needed)"
+      log "    → or manually: cd $REPO_DIR && git pull --ff-only origin main"
+    fi
+  fi
+
+  # 2) gstack upstream (live clone)
+  for GPATH in "$HOME/.claude/skills/gstack" "$HOME/.gstack/repos/gstack"; do
+    if [ -d "$GPATH/.git" ]; then
+      if (cd "$GPATH" && git fetch --quiet origin 2>/dev/null); then
+        GBEHIND=$(cd "$GPATH" && git rev-list HEAD..origin/main --count 2>/dev/null || echo 0)
+        if [ "$GBEHIND" -gt 0 ]; then
+          emit_header
+          log "  - gstack upstream: $GBEHIND commit(s) behind ($GPATH)"
+          log "    → run \`/gstack-upgrade\` to apply"
+        fi
+      fi
+      break
+    fi
+  done
+
+  # 3) Simon-LLM-Wiki (knowledge base)
+  WIKI_DIR=~/.claude/wiki/Simon-LLM-Wiki
+  if [ -d "$WIKI_DIR/.git" ] && (cd "$WIKI_DIR" && git fetch --quiet origin 2>/dev/null); then
+    WBEHIND=$(cd "$WIKI_DIR" && git rev-list HEAD..origin/main --count 2>/dev/null || echo 0)
+    if [ "$WBEHIND" -gt 0 ]; then
+      emit_header
+      log "  - Simon-LLM-Wiki: $WBEHIND commit(s) behind"
+      log "    → cd $WIKI_DIR && git pull"
+    fi
+  fi
+
+  if [ "$ANY_UPGRADE" = "1" ]; then
+    log "============================================================"
+    log ""
+  fi
+
   exit 0
 fi
 

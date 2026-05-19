@@ -1,0 +1,14 @@
+[
+  {
+    "name": "trigger_korean_de_ai",
+    "input": "이 릴리즈 노트 AI 티 너무 나는데 자연스럽게 고쳐줘. 사람이 쓴 것처럼.",
+    "expected_skill": "human-voice-guard",
+    "must_contain": ["LLM tell", "STYLE.md", "rewrite", "어투"]
+  },
+  {
+    "name": "trigger_english_voice_audit",
+    "input": "Run a voice audit on README.md — too much 'leverage' and 'robust' and em-dashes everywhere.",
+    "expected_skill": "human-voice-guard",
+    "must_contain": ["audit", "STYLE.md", "rewrite", "em-dash"]
+  }
+]

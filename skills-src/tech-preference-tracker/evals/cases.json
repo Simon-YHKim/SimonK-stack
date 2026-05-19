@@ -1,0 +1,14 @@
+[
+  {
+    "name": "trigger_korean_new_project",
+    "input": "새 프로젝트 시작하려는데 스택 뭐로 할까? 이전 프로젝트들이랑 일관성 있게 하고 싶어.",
+    "expected_skill": "tech-preference-tracker",
+    "must_contain": ["matrix", "preference", "일관성", "wiki"]
+  },
+  {
+    "name": "trigger_english_drift_audit",
+    "input": "Audit my 25 repos and tell me which ones drifted from my usual stack.",
+    "expected_skill": "tech-preference-tracker",
+    "must_contain": ["drift", "audit", "matrix", "report"]
+  }
+]

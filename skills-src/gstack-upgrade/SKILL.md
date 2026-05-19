@@ -1,7 +1,7 @@
 ---
 name: gstack-upgrade
 version: 1.1.0
-description: "Use when asked to \. Produces an upgraded gstack installation with changelog."upgrade gstack\", \"update gstack\", or \"get latest version\". Voice triggers (speech-to-text aliases): \"upgrade the tools\", \"update the tools\", \"gee stack upgrade\", \"g stack upgrade\". Upgrade gstack to the latest version. Detects global vs vendored install, runs the upgrade, and shows what's new"
+description: "Use when asked to \"upgrade gstack\", \"update gstack\", or \"get latest version\". Voice triggers (speech-to-text aliases): \"upgrade the tools\", \"update the tools\", \"gee stack upgrade\", \"g stack upgrade\". Upgrades gstack to the latest version — detects global vs vendored install, runs the upgrade, and shows what's new. Produces an upgraded gstack installation with changelog summary."
 allowed-tools:
   - Bash
   - Read
