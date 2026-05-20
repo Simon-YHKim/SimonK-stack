@@ -3,6 +3,31 @@
 모든 중요한 변경은 이 파일에 기록합니다.
 형식: [Keep a Changelog](https://keepachangelog.com/), 버전: [SemVer](https://semver.org/).
 
+## [1.4.0] — 2026-05-21
+
+### Added — Session management + output format skills
+- **`session-context-tracker`** — 매 응답 후 세션 5선택지 (continue / rewind / clear / compact / subagent) 자가 점검 skill.
+  - rewind 우선 원칙, proactive compact 힌트, subagent 위임 판정 질문
+  - `evals/cases.json` 3 cases (rewind / proactive compact / subagent 판정)
+- **`html-default-output`** — 사람이 읽을 산출물을 기본 HTML 로 생성하는 skill.
+  - HTML vs 마크다운 판단 기준, 일회용 에디터 패턴 (슬라이더·드래그·copy-as-prompt)
+  - `evals/cases.json` 3 cases (spec as HTML / one-off editor / keep markdown)
+
+### Changed
+- **`context-guardian`** 1.0.0 → 1.1.0 — Proactive Compact 모드 추가 (4번째 모드).
+  - auto-compaction(95%) 전에 70/80 % 임계치에서 선제 압축
+  - 도메인 힌트 생성기 — "집중 / 제외" 두 줄로 `/compact` 힌트 자동 생성
+- **`agent-delegate`** 1.0.0 → 1.1.0 — Step 0 위임 판정 질문 추가.
+  - "이 작업의 중간 출력물을 나중에 또 볼 일이 있나?" 한 줄로 위임 여부 선판정
+- **CLAUDE.md** — Skill Routing 표 추가, 신규 skill 2개 등록
+
+### Docs
+- **README.md** — Skill 카탈로그에 신규 2 skill 등록, skill 수 89 → 91 갱신
+
+### 출처
+- Simon-LLM-Wiki ingest (2026-05-21): Anthropic 세션 관리 가이드 + Thariq/Karpathy HTML 출력 논의.
+  관련 wiki 코드 — M-012 (5선택지 미사용), M-013 (산출물 마크다운), T-011/T-012 (영상 흡수 결정).
+
 ## [1.3.0] — 2026-04-16
 
 ### Changed — Token optimization + README rewrite

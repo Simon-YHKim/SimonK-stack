@@ -2,7 +2,7 @@
 
 > 서비스 기획부터 개발, 수익화, 그로스, Exit까지 — Claude Code가 **자동으로 올바른 절차를 따르게** 만드는 skill 라이브러리.
 
-**[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![validator](https://img.shields.io/badge/skill--validator-89%20skills-brightgreen)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
+**[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![validator](https://img.shields.io/badge/skill--validator-91%20skills-brightgreen)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
 
 🔗 **자매 레포**: [Simon-LLM-Wiki](https://github.com/Simon-YHKim/Simon-LLM-Wiki) — 세션 간 학습 누적 wiki (필수 연동)
 
@@ -12,7 +12,7 @@
 
 **문제**: AI 코딩 어시스턴트는 큰 작업을 시키면 매번 다른 순서로 일하고, 같은 실수를 반복합니다.
 
-**해결**: 53개 skill (작업 매뉴얼)을 미리 준비해 Claude Code가 **일관된 절차**를 따르게 합니다. 더해 [Simon-LLM-Wiki](https://github.com/Simon-YHKim/Simon-LLM-Wiki) 가 세션 간 _학습 누적_ 을 담당합니다 — 매 세션 처음부터 다시 추론하지 않습니다.
+**해결**: 55개 skill (작업 매뉴얼)을 미리 준비해 Claude Code가 **일관된 절차**를 따르게 합니다. 더해 [Simon-LLM-Wiki](https://github.com/Simon-YHKim/Simon-LLM-Wiki) 가 세션 간 _학습 누적_ 을 담당합니다 — 매 세션 처음부터 다시 추론하지 않습니다.
 
 ```
 "새 앱 만들자"        → app-dev-orchestrator    → 21단계 파이프라인
@@ -48,7 +48,7 @@ cd SimonK-stack && ./scripts/install.sh
 
 ---
 
-## Skill 카탈로그 — 48개
+## Skill 카탈로그 — 50개
 
 ### Orchestrators — 작업 자동 파이프라인
 
@@ -149,7 +149,9 @@ cd SimonK-stack && ./scripts/install.sh
 | Skill | 트리거 | 역할 |
 |---|---|---|
 | `skill-gen-agent` | "스킬 만들어줘" | Skill 생성·검증·테스트 7단계 도구 |
-| `context-guardian` | "세션 복구" | 컨텍스트 고갈 예방/모니터링/복구 |
+| `context-guardian` | "세션 복구" | 컨텍스트 고갈 예방/모니터링/proactive-compact/복구 |
+| `session-context-tracker` | "세션 관리", "rewind 할까" | 매 응답 후 5선택지 자가 점검 (continue/rewind/clear/compact/subagent) |
+| `html-default-output` | "HTML로 만들어줘", "스펙 정리해줘" | 사람이 읽을 산출물을 기본 HTML 로 + 일회용 에디터 후보 식별 |
 | `commit` | "커밋해줘" | Conventional Commits |
 | `debug` | "버그 고쳐줘" | 근본 원인 진단 + 수정 |
 | `explain` | "이 코드 설명해줘" | entry point, 데이터 플로우 |
@@ -173,7 +175,7 @@ cd SimonK-stack && ./scripts/install.sh
 | **리서치·DX** | `investigate` `browse` `learn` `devex-review` |
 | **기타** | `checkpoint` `pair-agent` `setup-browser-cookies` `open-gstack-browser` `connect-chrome` `gstack-upgrade` `session-start-hook` |
 
-**총 89개 skill** — 전부 `skills-src/`에 내장, 외부 clone 불필요.
+**총 91개 skill** — 전부 `skills-src/`에 내장, 외부 clone 불필요.
 
 ---
 
@@ -274,7 +276,7 @@ SimonK Stack 은 [Simon-LLM-Wiki](https://github.com/Simon-YHKim/Simon-LLM-Wiki)
 
 ```
 세션 시작 → .claude/hooks/session-start.sh 실행
-  ├─ 첫 실행: 실행 도구 설치 + 89개 skill → ~/.claude/skills/ 복사 + Instincts seed (~30초)
+  ├─ 첫 실행: 실행 도구 설치 + 91개 skill → ~/.claude/skills/ 복사 + Instincts seed (~30초)
   ├─ 재실행 (marker 존재):
   │   ├─ SimonK-stack ahead-count 체크 → 있으면 [UPGRADE_AVAILABLE] 출력
   │   ├─ gstack upstream ahead-count 체크 → 있으면 출력
@@ -288,10 +290,10 @@ SimonK Stack 은 [Simon-LLM-Wiki](https://github.com/Simon-YHKim/Simon-LLM-Wiki)
 
 | 테스트 | 결과 |
 |---|---|
-| Native skills (SimonK) | **53/53 PASS** (validator 0 errors / 0 warnings) |
+| Native skills (SimonK) | **55/55 PASS** (validator 0 errors / 0 warnings) |
 | Vendored skills (Gstack) | **31 vendored** (원본 형식 유지, 기능 정상) |
-| 전체 validator (lenient + **strict YAML E013**) | **89/89 PASS** |
-| SKILL.md description quotation 무결성 | **89/89** (M-010 패밀리 14 + M-012 21 자동 fix 후) |
+| 전체 validator (lenient + **strict YAML E013**) | **91/91 PASS** |
+| SKILL.md description quotation 무결성 | **91/91** (M-010 패밀리 자동 fix 후) |
 | Bash syntax (hooks + scripts) | **all PASS** |
 | Orchestrator chain | **모든 참조 존재 확인** |
 | `voice-lint.sh` (`human-voice-guard`) | **CI-ready, exit 1 on tell** |
@@ -302,7 +304,7 @@ SimonK Stack 은 [Simon-LLM-Wiki](https://github.com/Simon-YHKim/Simon-LLM-Wiki)
 ## FAQ
 
 **Q. 총 몇 개 skill?**
-53개 (SimonK 자체) + 31개 Gstack vendored 실행 도구 + 5개 base (commit/review/debug/explain/test-gen) = **89개**. 전부 `skills-src/` 또는 `.claude/skills/` 에 내장.
+55개 (SimonK 자체) + 31개 Gstack vendored 실행 도구 + 5개 base (commit/review/debug/explain/test-gen) = **91개**. 전부 `skills-src/` 또는 `.claude/skills/` 에 내장.
 
 **Q. 다른 repo에서 쓰려면?**
 `scripts/setup-repo.sh /path/to/target` → 상세: [docs/USING-IN-OTHER-REPOS.md](docs/USING-IN-OTHER-REPOS.md)
