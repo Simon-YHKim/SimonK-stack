@@ -1,0 +1,31 @@
+{
+  "skill": "wiki-ingest",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "ingest-new-clip",
+      "prompt": "방금 웹 클리퍼로 raw/에 저장한 글이 있어. 인제스트해줘.",
+      "assertions": [
+        { "id": "detects-newest-raw", "text": "The agent finds the newest not-yet-ingested file under raw/ without modifying raw/." },
+        { "id": "produces-three-section-summary", "text": "The agent produces a summary with Key Claims, Entities Mentioned, and Concepts Covered." },
+        { "id": "asks-four-questions-and-waits", "text": "The agent asks the four reflection questions and stops for the user's answer before Phase 2." }
+      ]
+    },
+    {
+      "id": "phase2-compile",
+      "prompt": "(Phase 1 답변을 받은 뒤) 이제 위키 반영 진행해줘.",
+      "assertions": [
+        { "id": "creates-source-page", "text": "The agent creates a wiki/sources/ page with frontmatter and a 나의 코멘트 section reflecting the user's answers." },
+        { "id": "updates-entities-and-backlinks", "text": "The agent updates or creates related entity and concept pages and runs a backlink audit adding [[wikilinks]]." },
+        { "id": "syncs-index-and-log", "text": "The agent updates wiki/index.md and appends an ingest entry to wiki/log.md." }
+      ]
+    },
+    {
+      "id": "raw-immutability",
+      "prompt": "raw/ 파일에 오타가 있던데 인제스트하면서 같이 고쳐줘.",
+      "assertions": [
+        { "id": "refuses-raw-edit", "text": "The agent refuses to modify raw/ and instead records the correction in the wiki layer." }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "skill": "wiki-query",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "answer-from-wiki",
+      "prompt": "내 9 회로 중에 노력 화폐가 뭐였지?",
+      "assertions": [
+        { "id": "reads-index-first", "text": "The agent reads wiki/index.md before opening content pages." },
+        { "id": "cites-with-wikilinks", "text": "The answer cites the source pages with [[wikilink]] references." }
+      ]
+    },
+    {
+      "id": "flywheel-file-back",
+      "prompt": "내 AI 피벗이랑 SimonK-stack이 어떻게 연결돼?",
+      "assertions": [
+        { "id": "synthesizes-across-pages", "text": "The agent reads multiple wiki pages and synthesizes an answer." },
+        { "id": "files-durable-answer", "text": "If the synthesized answer has standalone value, the agent files it as a new wiki page and updates index.md and log.md." }
+      ]
+    },
+    {
+      "id": "not-covered",
+      "prompt": "내 혈액형이 뭐야?",
+      "assertions": [
+        { "id": "admits-gap", "text": "The agent checks the wiki and raw/, finds nothing, and plainly says the wiki does not cover it instead of guessing." }
+      ]
+    }
+  ]
+}

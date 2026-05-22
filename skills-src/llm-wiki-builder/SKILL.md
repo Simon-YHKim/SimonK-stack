@@ -1,6 +1,6 @@
 ---
 name: llm-wiki-builder
-description: "Use when the user asks to build, ingest into, query, or maintain a personal LLM-maintained knowledge wiki—triggers \"wiki에 추가해줘\", \"리서치 누적\", \"지식베이스 만들어줘\", \"이 자료 정리해서 wiki에\", \"ingest this\", \"build a knowledge base\", \"add to wiki\". Produces a 3-layer Karpathy llm-wiki pattern: raw sources (immutable) + LLM-owned markdown wiki + schema file. Implements Ingest/Query/Lint operations with index.md catalog and log.md chronological journal. Default wiki repo: Simon-YHKim/Simon-LLM-Wiki (override via SIMON_WIKI_REPO env). Persistent knowledge that compounds across sessions—anti-RAG."
+description: "Use when the user asks to build, ingest into, query, or maintain a personal LLM-maintained knowledge wiki—triggers \"wiki에 추가해줘\", \"리서치 누적\", \"지식베이스 만들어줘\", \"이 자료 정리해서 wiki에\", \"ingest this\", \"build a knowledge base\", \"add to wiki\". Produces a 3-layer Karpathy llm-wiki pattern: raw sources (immutable) + LLM-owned markdown wiki + schema file. Implements Ingest/Query/Lint operations with index.md catalog and log.md chronological journal. Default wiki repo: Simon-YHKim/Simon-LLM-Wiki (override via SIMON_WIKI_REPO env). Persistent knowledge that compounds across sessions—anti-RAG. DEPRECATED 2026-05-23: superseded by wiki-ingest/wiki-query/wiki-lint for SimonKWiki v2."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack
