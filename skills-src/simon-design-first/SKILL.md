@@ -45,7 +45,14 @@ author: simon-stack
 - https://dribbble.com
 - https://www.awwwards.com
 - https://www.lapa.ninja
-- https://21st.dev (UI 구성요소)
+- https://21st.dev (UI 구성요소 + AI 에이전트 호환)
+- https://uxsnaps.com (실제 앱 UI/UX 분석, 한국 멘탈 헬스 앱 케이스 포함)
+- https://styles.refero.design (URL → DESIGN.md 자동 추출)
+- https://transitions.dev (CSS 트랜지션 즉시 복붙)
+- https://pencil.dev (IDE 캔버스 → 코드)
+- https://fontofweb.com (AI 폰트/디자인 영감 피드)
+
+상세 카탈로그 + DESIGN.md 6단계 워크플로우: [references/design-md-workflow.md](references/design-md-workflow.md)
 
 ### Step 3. 폰트 선택권
 
@@ -74,6 +81,8 @@ Google Fonts 미리보기 URL 포함한 후보 3-5개 + AI 추천 1개.
 | Bouncy/elastic easing | ease-out 또는 cubic-bezier(0.16, 1, 0.3, 1) |
 
 상세 detection list와 anti-pattern 갤러리: [references/design-chapters.md](references/design-chapters.md)
+
+**자동 검수 옵션** — 코드 작성 후 `impeccable.style` 에 URL 제출 → 24 AI slop 패턴 자동 탐지 + UX 평가. 상세: [references/design-md-workflow.md § Part 4](references/design-md-workflow.md)
 
 ### Step 4. 사용자 방향 확정
 
