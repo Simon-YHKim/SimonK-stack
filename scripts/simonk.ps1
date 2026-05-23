@@ -47,6 +47,6 @@ function global:simonK {
     }
 }
 
-# Convenience alias (case-insensitive variations)
-Set-Alias -Name simonk -Value simonK -Scope Global -Force -ErrorAction SilentlyContinue
-Set-Alias -Name SimonK -Value simonK -Scope Global -Force -ErrorAction SilentlyContinue
+# PowerShell function/command lookup is case-insensitive — `simonK`, `simonk`, `SIMONK`
+# all resolve to the function above. No aliases needed; aliases here would create a
+# circular self-reference because alias names collapse to the same case-insensitive key.
