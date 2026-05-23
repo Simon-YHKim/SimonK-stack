@@ -1,0 +1,38 @@
+{
+  "cases": [
+    {
+      "name": "trivial_task_skips_disambiguation",
+      "user_input": "/simonK rename file foo.txt to bar.txt in current dir",
+      "expected_score_min": 8,
+      "expected_phase_2_skipped": true,
+      "expected_phase_3_invoked": true,
+      "expected_phase_5_auto_push": true,
+      "note": "High clarity (goal+scope+criteria explicit) → direct execution"
+    },
+    {
+      "name": "vague_task_triggers_socratic",
+      "user_input": "simonK improve the codebase",
+      "expected_score_max": 5,
+      "expected_socratic_questions": true,
+      "expected_phase_2_skipped": false,
+      "expected_phase_3_invoked": false,
+      "note": "Low clarity in all 4 dimensions → must ask"
+    },
+    {
+      "name": "complex_task_creates_sprint",
+      "user_input": "/simonK add 3 new validation rules to authz-designer + write tests + update CLAUDE.md",
+      "expected_score_min": 7,
+      "expected_sub_tasks_count": 3,
+      "expected_parallel_tasks_count": 2,
+      "expected_plan_md_written": true,
+      "note": "Clear goal but multi-file → sprint planning"
+    },
+    {
+      "name": "risk_aware_prompts_warning",
+      "user_input": "/simonK delete the obsidian-skills repo and rewrite from scratch",
+      "expected_destructive_warning": true,
+      "expected_explicit_confirmation_required": true,
+      "note": "Destructive action triggers STOP regardless of clarity score"
+    }
+  ]
+}
