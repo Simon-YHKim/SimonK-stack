@@ -275,28 +275,39 @@ cd SimonK-stack && ./scripts/install.sh
 
 ---
 
-## 📊 Graphify 통합 (Phase 3 사전 진입, 2026-05-23)
+## 📊 Phase 3 사전 진입 (계획 6/15~6/30 → 실제 5/23~24)
 
-[Graphify](https://graphify.net) (Safi Shamsi · YC S26) 통합. SimonK-stack repo 자체의 코드베이스 + SimonKWiki vault 둘 다 그래프화.
+Phase 3 핵심 도구 3 종이 계획보다 *3주 일찍* 사전 진입 완료.
+
+| # | 도구 | 설치 | 결과 |
+|---|---|---|---|
+| **A13** | [Graphify](https://graphify.net) v0.8.16 (Safi Shamsi · YC S26) | `uv tool install graphifyy` | SimonKWiki **720 nodes** · SimonK-stack **4605 nodes** · Claude Code PreToolUse hook |
+| **C02** | [OpenHarness](https://github.com/HKUDS/OpenHarness) v0.1.9 (HKUDS) | `uv tool install openharness-ai` | 4 CLIs (`oh`/`ohmo`/`openh`/`openharness`) · Phase 6 ohmo signature 진입 시 본격 |
+| **VS Code** | extensions + settings | `code --install-extension ...` | claude-code v2.1.145 + 한국어 lang pack + python+pylance+debugpy + markdown-all-in-one + yaml · settings.json 표준화 (format on save / LF / utf8 / PowerShell terminal / search exclusions) · argv.json locale ko |
+
+### Graphify 사용
 
 ```powershell
-# 설치 (one-time)
-uv tool install graphifyy
-
-# Claude Code 통합 (CLAUDE.md + PreToolUse hook 자동)
-cd "E:\Coding Infra\Harrness Eng\SimonK-stack"
-graphify claude install
-
-# 그래프 추출/갱신
+# 그래프 추출/갱신 (LLM 미사용, AST 기반, 비용 0)
+cd "<vault or repo>"
 graphify update .
 # → graphify-out/ 생성 (graph.html + GRAPH_REPORT.md + graph.json)
+
+# 질의 (토큰 절감)
+graphify query "<질문>"
+graphify path "<A>" "<B>"
+graphify explain "<concept>"
 ```
 
-이제 Claude Code 세션이 코드베이스 질문 시 `graphify query` 자동 권장 (subgraph fetch → 토큰 절감).
+코드베이스 질문 시 `graphify query` 자동 권장 (subgraph fetch → 토큰 절감).
 
-SimonKWiki vault에도 동일 적용 — 720 nodes / 644 edges / 76 communities (2026-05-23 기준).
+### Phase 3 미완 (사용자 결정 필요)
 
-상세: [SimonKWiki wiki/entities/tools/graphify](../obsidian/SimonKWiki/wiki/entities/tools/graphify.md)
+- **A11 Zotero MCP** — `zotero-mcp` 사용자 계정 결정 후 통합
+- **A12 NotebookLM** — `notebooklm-py` Google 계정 결정 후 통합
+- **A14 MCP 통합** — Zotero + NotebookLM + Graphify + OpenHarness MCP 묶음 (위 두 결정 후)
+
+상세: [SimonKWiki wiki/entities/tools/graphify](../../obsidian/SimonKWiki/wiki/entities/tools/graphify.md) · [openharness](../../obsidian/SimonKWiki/wiki/entities/tools/openharness.md)
 
 ---
 
