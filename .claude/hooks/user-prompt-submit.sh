@@ -18,8 +18,13 @@ cat >/dev/null 2>&1 || true
 WIKI=""
 PROJ_PARENT=""
 [ -n "${CLAUDE_PROJECT_DIR:-}" ] && PROJ_PARENT=$(dirname "$CLAUDE_PROJECT_DIR")
+WIKI_LESSONS=""
 for candidate in \
   "${SIMON_WIKI_DIR:-}" \
+  "${SIMON_WIKI_DIR:-}/SimonKWiki" \
+  "$PROJ_PARENT/SimonKWiki" \
+  "$HOME/.claude/wiki/SimonKWiki" \
+  "$HOME/SimonKWiki" \
   "${SIMON_WIKI_DIR:-}/Simon-LLM-Wiki" \
   "$PROJ_PARENT/Simon-LLM-Wiki" \
   "$HOME/.claude/wiki/Simon-LLM-Wiki" \
@@ -27,15 +32,29 @@ for candidate in \
   "/home/user/Simon-LLM-Wiki" \
   "/root/Simon-LLM-Wiki"; do
   [ -z "$candidate" ] && continue
-  if [ -d "$candidate" ] && [ -f "$candidate/LESSONS_LEARNED.md" ]; then
-    WIKI="$candidate"; break
+  if [ -d "$candidate" ]; then
+    # LESSONS_LEARNED.md: prefer SimonKWiki nested location, fall back to legacy top-level
+    for lp in "$candidate/wiki/protocols/llm-wiki/LESSONS_LEARNED.md" "$candidate/LESSONS_LEARNED.md"; do
+      if [ -f "$lp" ]; then
+        WIKI="$candidate"; WIKI_LESSONS="$lp"; break 2
+      fi
+    done
   fi
 done
 [ -n "$WIKI" ] || exit 0
 
-LESSONS="$WIKI/LESSONS_LEARNED.md"
-LOG="$WIKI/wiki/log.md"
-M_FILE="$WIKI/wiki/concepts/recurring-mistakes.md"
+LESSONS="$WIKI_LESSONS"
+# log.md + recurring-mistakes.md: prefer SimonKWiki nested path
+if [ -f "$WIKI/wiki/protocols/llm-wiki/log.md" ]; then
+  LOG="$WIKI/wiki/protocols/llm-wiki/log.md"
+else
+  LOG="$WIKI/wiki/log.md"
+fi
+if [ -f "$WIKI/wiki/protocols/llm-wiki/concepts/recurring-mistakes.md" ]; then
+  M_FILE="$WIKI/wiki/protocols/llm-wiki/concepts/recurring-mistakes.md"
+else
+  M_FILE="$WIKI/wiki/concepts/recurring-mistakes.md"
+fi
 
 # Only emit if wiki actually has content (avoid noise in fresh setups)
 [ -f "$LESSONS" ] || exit 0

@@ -3,7 +3,15 @@
 > Human-editable task queue. Claude reads this at session start via `.harness/wiki/INDEX.md` entry point.
 > Dynamic state lives in `state.json`; narrative context lives here.
 
-## Current sprint: v1.3 — Harness+Wiki + Anti-Slop + Codex
+## 2026-05-23 Status Update — v1.3 sprint COMPLETED · 다음 스프린트 미정
+
+본 plan 본문은 v1.3 스프린트 (2026-04-15~16) 기록. **모든 phase 완료** (state.json `status: completed`). 그 이후로 88 skills source + 4 .claude/skills, 92/92 validation PASS, wiki-ingest/wiki-query/wiki-lint 신규 (`d328426`), 3-hook automation 매트릭스 정착 (SessionStart auto-pull, UserPromptSubmit wiki-inject, Stop auto-commit). 다음 스프린트 (v1.4 등) 정의 시 본 섹션 위에 새로 헤더 추가.
+
+**Vault 통합 (2026-05-23)**: SimonKWiki = 단일 정본 (이전 `Simon-LLM-Wiki` 로컬 folder + `SimonK-Vault` 폐기 후보 흡수). GitHub repo `Simon-YHKim/Simon-LLM-Wiki` private 전환 후 SimonKWiki 백업 원격. 훅 3개 SimonKWiki 경로 인지하도록 갱신 (`feat(consolidation)` 커밋).
+
+---
+
+## Past sprint: v1.3 — Harness+Wiki + Anti-Slop + Codex (완료)
 
 Goal: adopt the Harness + LLM Wiki pattern (decisions/concepts/agents separation) into SimonK-stack itself, then package it as a reusable skill, alongside anti-AI-slop design principles and Codex-driven adversarial review.
 

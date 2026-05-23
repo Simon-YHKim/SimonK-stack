@@ -1,42 +1,36 @@
 {
   "$schema": "./wiki/concepts/state-json-schema.md",
   "project": "SimonK-stack",
-  "version": "1.3.0-dev",
+  "version": "1.3.x-postrelease",
   "sprint": {
     "id": "v1.3",
     "name": "Harness+Wiki + Anti-Slop Design + Codex Review",
-    "status": "in_progress",
+    "status": "completed",
     "started": "2026-04-15",
+    "completed": "2026-04-16",
     "phases": {
-      "A_harness_scaffold": "in_progress",
-      "B_new_skills": "pending",
-      "C_existing_skill_updates": "pending",
-      "D_validate_commit_push": "pending"
+      "A_harness_scaffold": "completed",
+      "B_new_skills": "completed",
+      "C_existing_skill_updates": "completed",
+      "D_validate_commit_push": "completed"
     }
   },
   "counters": {
-    "skills_total": 20,
-    "skills_target_v1_3": 23,
+    "skills_total": 92,
+    "skills_src": 88,
+    "claude_skills": 4,
     "decisions": 4,
     "concepts": 5,
     "agents": 3
   },
-  "pending_tasks": [
-    "B-1: create .claude/skills/harness-wiki-setup/ skill",
-    "B-2: create .claude/skills/design-anti-slop/ skill (fetch Impeccable + Supernova refs)",
-    "B-3: create .claude/skills/codex-review/ wrapper skill",
-    "C-1: wire harness-wiki-setup + design-anti-slop into app-dev-orchestrator stages",
-    "C-2: add codex-review reference to review + simon-tdd skills",
-    "C-3: update .claude/skills/INDEX.md with new categories",
-    "D-1: validator 23/23 PASS + JSON cases dry-run for new skills",
-    "D-2: CHANGELOG v1.3.0 + README skill count update (20 -> 23)"
-  ],
+  "pending_tasks": [],
   "notes": {
-    "unpushed_commits": "1915901 (rename migration) blocked by HTTP 503",
     "context_guardian_marker": "CLAUDE.md must preserve <!-- context-guardian-rules:v1 -->",
     "forbidden_paths": [
       ".claude/skills/gstack/",
       ".claude.bak-*/"
-    ]
+    ],
+    "last_updated": "2026-05-23",
+    "last_update_reason": "Vault consolidation - refreshed state after v1.3 sprint completion. Hook migration: SimonKWiki = canonical vault path; GitHub repo Simon-LLM-Wiki kept (now PRIVATE). 92/92 skill validation PASS."
   }
 }

@@ -105,9 +105,19 @@ if [ -f "$MARKER" ] && [ "$(cat "$MARKER" 2>/dev/null)" = "$CURRENT_SHA" ]; then
     fi
   done
 
-  # 3) Simon-LLM-Wiki — auto-pull when safe
-  WIKI_DIR=~/.claude/wiki/Simon-LLM-Wiki
-  if [ -d "$WIKI_DIR/.git" ] && (cd "$WIKI_DIR" && git fetch --quiet origin 2>/dev/null); then
+  # 3) Wiki (SimonKWiki primary 2026-05-23+, Simon-LLM-Wiki legacy repo name) — auto-pull when safe
+  WIKI_DIR=""
+  WIKI_PROJ_PARENT=$(dirname "$REPO_DIR" 2>/dev/null)
+  for _wcand in \
+    "${SIMON_WIKI_DIR:-}" \
+    "$HOME/.claude/wiki/SimonKWiki" \
+    "$HOME/.claude/wiki/Simon-LLM-Wiki" \
+    "$WIKI_PROJ_PARENT/SimonKWiki" \
+    "$WIKI_PROJ_PARENT/Simon-LLM-Wiki"; do
+    [ -z "$_wcand" ] && continue
+    if [ -d "$_wcand/.git" ]; then WIKI_DIR="$_wcand"; break; fi
+  done
+  if [ -n "$WIKI_DIR" ] && (cd "$WIKI_DIR" && git fetch --quiet origin 2>/dev/null); then
     WBEHIND=$(cd "$WIKI_DIR" && git rev-list HEAD..origin/main --count 2>/dev/null || echo 0)
     if [ "$WBEHIND" -gt 0 ]; then
       WBRANCH=$(cd "$WIKI_DIR" && git branch --show-current 2>/dev/null || echo "?")

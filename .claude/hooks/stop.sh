@@ -17,6 +17,10 @@ PROJ_PARENT=""
 [ -n "${CLAUDE_PROJECT_DIR:-}" ] && PROJ_PARENT=$(dirname "$CLAUDE_PROJECT_DIR")
 for candidate in \
   "${SIMON_WIKI_DIR:-}" \
+  "${SIMON_WIKI_DIR:-}/SimonKWiki" \
+  "$PROJ_PARENT/SimonKWiki" \
+  "$HOME/.claude/wiki/SimonKWiki" \
+  "$HOME/SimonKWiki" \
   "${SIMON_WIKI_DIR:-}/Simon-LLM-Wiki" \
   "$PROJ_PARENT/Simon-LLM-Wiki" \
   "$HOME/.claude/wiki/Simon-LLM-Wiki" \
