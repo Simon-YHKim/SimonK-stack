@@ -292,3 +292,59 @@ LLM 이 직접 처리할 것:
 - `/gstack-upgrade` "Never ask again" 상태: 스킬 자체가 update check 비활성화
 
 **이 정책의 의도**: vendoring 이 안정성을 위한 _명시적 sync 게이트_ 라는 설계를 살리되, 게이트가 자동으로 _트리거_ 되도록 해서 stale 상태를 방지.
+
+---
+
+## 🤖 simonk 통합 자율 하네스 (2026-05-23 추가)
+
+`simonk` 는 OMC·OMO·OpenHarness 3 철학을 종합한 **단일 자율 실행 진입점**. Claude Code Task tool 기반 self-contained (외부 plugin 의존 X).
+
+### 사용
+
+```powershell
+# PowerShell (어디서든)
+simonK "task description"            # non-interactive, /simonK 호출 자동
+simonK                                # interactive, claude 열림
+
+# Claude Code 슬래시 (interactive session)
+/simonK <task>
+```
+
+대소문자 무관 (alias `simonk`, `SimonK` 모두 작동).
+
+### 6-Phase 실행 흐름
+
+```
+Phase 1: Ambiguity Score (4 차원 0-10) — score<6 면 Socratic Q&A 3-5문항
+Phase 2: Sprint Plan (.simonk/plan.md, trivial 작업은 skip)
+Phase 3: Parallel Task tool delegation (general-purpose / Explore / Plan)
+Phase 4: Verification (validate_skill.py, wiki-lint, bash -n, 등 작업별)
+Phase 5: Persistence (commit + push, Full Auto 모든 repo, PR 자동 X)
+Phase 6: Final Report (구조화된 요약)
+```
+
+전체 protocol: `skills-src/simonk/SKILL.md` + `skills-src/simonk/references/orchestration-protocol.md`.
+
+### Auto-push 정책: **Full Auto**
+
+사용자 명시 확인 없이 모든 repo (private + public) 자동 push. 단 (1) PR 생성·머지 자동 X, (2) 파괴적 작업 (`rm -rf`, force push, DB drop) STOP, (3) .env / credentials 노출 STOP.
+
+### Entry point 영속화
+
+`scripts/install-simonk-profile.ps1` 가 PowerShell profile 에 `simonk.ps1` dot-source 박음 (idempotent). `SIMONK_PROJECT_DIR=E:\Coding Infra` 환경변수 user-scope 영속 설정.
+
+### 통합 외부 reference
+
+- **OMC (`external/oh-my-claudecode/`)**: 정식 Claude Code plugin install 시 (`/plugin marketplace add Yeachan-Heo/oh-my-claudecode`) Team Mode + 19 agents + 32 skills 활성. simonk 가 더 강력한 multi-agent 필요시 권장.
+- **OMO (`external/oh-my-openagent/`)**: model-agnostic 작업 시 reference (OpenCode 환경 위주, Claude Code 호환).
+- **OpenHarness (`external/OpenHarness/`)**: Phase 6 폐쇄망 운영 시 (Python 표준 라이브러리, `pip install openharness-ai` 또는 `omc` npm CLI 이미 설치됨 - v4.14.1).
+- **anthropics/skills**: 공식 카탈로그, cherry-pick vendoring 가능.
+
+### Claude Code Native Team Mode 활성
+
+`~/.claude/settings.json` 에 `"env": { "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1" }` 자동 박힘 (`scripts/install-simonk-profile.ps1` 의 사이드 효과). OMC 정식 install 후 `/team N:role "task"` 사용 가능.
+
+### Windows 제약
+
+- `omc team` CLI mode (tmux 워커) 는 `winget install psmux` 필요 (선택사항).
+- `simonK <task>` 본체는 tmux 없이 작동.
