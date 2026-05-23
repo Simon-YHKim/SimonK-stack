@@ -111,6 +111,24 @@ cd SimonK-stack && ./scripts/install.sh
 
 ---
 
+## 🎯 빠른 시작 — Curated 15개
+
+처음 보는 사람은 **`simonK <목표>` 한 줄**로 시작. 그 외 메인 15개 큐레이션은 → [docs/CURATED-SKILLS.md](docs/CURATED-SKILLS.md)
+
+| 우선순위 | Skill (호출) |
+|---|---|
+| ★ 통합 진입 | `simonK <task>` |
+| ★ 파이프라인 | `app-dev-orchestrator` · `dev-orchestrator` · `security-orchestrator` |
+| ★ 방법론 base | `karpathy-guidelines` · `simon-tdd` · `simon-worktree` · `simon-instincts` |
+| ★ 5/30 출시 | `payment-integrator` · `human-voice-guard` · `release-notes` · `viral-launch` |
+| ★ 리서치/디자인 | `simon-research` · `simon-design-first` |
+| ★ wiki 운영 | `wiki-ingest` · `wiki-query` · `wiki-lint` |
+| ★ 일상 | `commit` |
+
+나머지 83개 (도메인 특화 + Gstack 36 vendored + kepano 5 vendored)는 [전체 카탈로그](#skill-카탈로그--98개) 또는 [docs/CURATED-SKILLS.md § 도메인 특화](docs/CURATED-SKILLS.md#도메인-특화--별도-카탈로그-격하-83개).
+
+---
+
 ## Skill 카탈로그 — 98개
 
 ### 0. simonK 통합 자율 하네스 (★ NEW)
