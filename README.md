@@ -1,10 +1,10 @@
 # SimonK-Stack
 
-> 서비스 기획부터 개발, 수익화, 그로스, Exit까지 — Claude Code가 **자동으로 올바른 절차를 따르게** 만드는 skill 라이브러리.
+> 서비스 기획부터 개발, 수익화, 그로스, Exit까지 — Claude Code가 **자동으로 올바른 절차를 따르게** 만드는 skill 라이브러리 + **simonK 통합 자율 하네스**.
 
-**[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![validator](https://img.shields.io/badge/skill--validator-89%20skills-brightgreen)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
+**[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![validator](https://img.shields.io/badge/skill--validator-98%20skills-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
 
-🔗 **자매 레포**: [Simon-LLM-Wiki](https://github.com/Simon-YHKim/Simon-LLM-Wiki) — 세션 간 학습 누적 wiki (필수 연동)
+🔗 **자매 레포**: [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (PRIVATE) — 세션 간 학습 누적 wiki
 
 ---
 
@@ -12,7 +12,7 @@
 
 **문제**: AI 코딩 어시스턴트는 큰 작업을 시키면 매번 다른 순서로 일하고, 같은 실수를 반복합니다.
 
-**해결**: 53개 skill (작업 매뉴얼)을 미리 준비해 Claude Code가 **일관된 절차**를 따르게 합니다. 더해 [Simon-LLM-Wiki](https://github.com/Simon-YHKim/Simon-LLM-Wiki) 가 세션 간 _학습 누적_ 을 담당합니다 — 매 세션 처음부터 다시 추론하지 않습니다.
+**해결**: 98개 skill (작업 매뉴얼) + **simonK 통합 자율 하네스** (단일 진입점 → 6-phase 자율 실행). 더해 [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) 가 세션 간 _학습 누적_ 을 담당합니다 — 매 세션 처음부터 다시 추론하지 않습니다.
 
 ```
 "새 앱 만들자"        → app-dev-orchestrator    → 21단계 파이프라인
@@ -24,7 +24,55 @@
 "AI 어투 빼줘"         → human-voice-guard       → LLM tell 검출 + 사람 어투로 리라이팅
 "스택 정해줘"          → tech-preference-tracker → 누적 선호 매트릭스 기반 일관성 권고
 "exit 전략 세워줘"     → exit-strategy-planner   → IPO/M&A 로드맵
+
+simonK <목표>          → 통합 자율 하네스         → Ambiguity check → Sprint plan
+                                                  → 병렬 Task agents → Verify → Full Auto push
 ```
+
+---
+
+## 🤖 simonK 통합 자율 하네스 (★ v2 핵심)
+
+**단일 진입점 — 어디서든 호출 가능:**
+
+```powershell
+# PowerShell — profile 영속화 (어떤 폴더에서든)
+simonK <task>
+
+# Claude Code 인터랙티브 세션 내 — 슬래시
+/simonK <task>
+```
+
+둘 다 동일 `skills-src/simonk/SKILL.md` 실행. **case-insensitive** (`simonk`, `SIMONK`, `SimonK` 모두 동일).
+
+### 6-Phase 자율 흐름
+
+| Phase | 작업 | 사용자 입력? |
+|---|---|---|
+| **1** Ambiguity Score | 4 차원 (Goal/Scope/Success/Risk) 0-10 평가 | score<6 면 Socratic 3-5 Q&A 1회 |
+| **2** Sprint Plan | `≤5` sub-task 분해 + dependency 그래프 → `.simonk/plan.md` | default proceed |
+| **3** Parallel Execution | 독립 sub-task → Task tool 병렬 호출 (general-purpose / Explore / Plan agents) | none |
+| **4** Verification | 작업별 검증 (`validate_skill.py` / `wiki-lint` / `bash -n` / test) | none (2회 실패 시 보고) |
+| **5** Persistence | `git add -A && commit && push` 양쪽 repo (Full Auto) | none |
+| **6** Final Report | 작업·검증·git status·다음 step 구조화 보고 | none |
+
+### Auto-push 정책 (Full Auto, 사용자 합의)
+
+- ✅ 모든 repo (private + public) 자동 commit + push
+- ❌ **PR 생성·머지** 절대 자동 X — 글로벌 CLAUDE.md 정책
+- ❌ **파괴적 작업** (`rm -rf`, `git reset --hard`, force push to main of multi-collab, DB drop) STOP
+- ❌ **.env / credentials 노출·수정** 즉시 STOP
+
+### 진입점 설치 (one-time)
+
+```powershell
+cd "E:\Coding Infra\Harrness Eng\SimonK-stack"
+.\scripts\install-simonk-profile.ps1
+# → $PROFILE.CurrentUserAllHosts 에 simonk.ps1 dot-source 박힘
+# → $env:SIMONK_PROJECT_DIR 영속 (User scope)
+```
+
+상세 6-phase 명세: [skills-src/simonk/SKILL.md](skills-src/simonk/SKILL.md)
 
 ---
 
@@ -48,7 +96,28 @@ cd SimonK-stack && ./scripts/install.sh
 
 ---
 
-## Skill 카탈로그 — 48개
+## 🔁 자동 업데이트 — 어떤 출처가 자동 최신화되나
+
+세션 시작 시 `.claude/hooks/session-start.sh`가 출처별로 다른 정책 적용:
+
+| 출처 | 메커니즘 | 자동? |
+|---|---|---|
+| **SimonK-stack 자체** (`Simon-YHKim/SimonK-stack`) | session-start hook `git fetch + pull --ff-only` (clean+main 일 때만) | ✅ 자동 |
+| **SimonKWiki** (`Simon-YHKim/SimonKWiki`, PRIVATE) | 동일 메커니즘 | ✅ 자동 |
+| **Gstack upstream** (`garrytan/gstack`) | hook이 ahead-count 검출 → LLM에게 `/gstack-upgrade` 호출 권장 | 🟡 반자동 |
+| **kepano/obsidian-skills** (defuddle / json-canvas / obsidian-bases / obsidian-cli / obsidian-markdown) | vendored snapshot — 수동 갱신 필요 | ❌ 수동 |
+| **external/** (OMC · OMO · OpenHarness · open-cowork · anthropics-skills) | shallow clone, reference 전용 | ❌ 수동 (OMC는 `/plugin install` 후 marketplace 자동 update 옵션) |
+| **Graphify** (Safi Shamsi · YC S26) | `uv tool upgrade graphifyy` 수동 | ❌ 수동 |
+
+---
+
+## Skill 카탈로그 — 98개
+
+### 0. simonK 통합 자율 하네스 (★ NEW)
+
+| Skill | 트리거 | 역할 |
+|---|---|---|
+| `simonk` | `simonK <task>`, `/simonK`, "ultrawork", "ulw", "한 번에 끝내줘", "팀으로 진행해", "자율로 끝까지", "스프린트 시작" | 6-phase 자율 실행 — Ambiguity → Plan → 병렬 Task → Verify → Full Auto push → Report |
 
 ### Orchestrators — 작업 자동 파이프라인
 
@@ -140,9 +209,22 @@ cd SimonK-stack && ./scripts/install.sh
 | Skill | 트리거 | 역할 |
 |---|---|---|
 | `llm-wiki-builder` | "wiki에 추가해줘" | Karpathy llm-wiki 패턴: 영속 Ingest/Query/Lint wiki |
+| `wiki-ingest` | "인제스트해줘", "위키에 정리해줘" | raw/ 새 자료 → wiki/ 컴파일 (SimonKWiki v2 전용) |
+| `wiki-query` | wiki 답할 만한 질문 | index.md 우선 검색 → wikilink 인용 답변 |
+| `wiki-lint` | "wiki 점검", "wiki 린트" | 8-체크 정합성 보고 (자동 적용 X, 제안만) |
 | `nextjs-optimizer` | "Next.js 최적화" | 5대 성능 영역 감사 (이미지/렌더링/번들/캐싱) |
 | `stitch-design-flow` | "Stitch 프롬프트" | DESIGN.md → Safe/Bold/Wild 프롬프트 |
 | `project-context-md` | "CLAUDE.md 만들어줘" | 프로젝트 CLAUDE.md 생성/갱신 (검증 루프 핵심) |
+
+### Obsidian Tools (kepano-vendored 2026-05-23)
+
+| Skill | 출처 | 역할 |
+|---|---|---|
+| `defuddle` | kepano/obsidian-skills | Web → clean markdown (WebFetch 대체, 토큰 절감) |
+| `json-canvas` | kepano/obsidian-skills | Obsidian Canvas (.canvas) 파일 생성/읽기 |
+| `obsidian-bases` | kepano/obsidian-skills | Obsidian Bases (.base) 데이터베이스 뷰 |
+| `obsidian-cli` | kepano/obsidian-skills | Obsidian CLI 자동화 (cron lint 기반) |
+| `obsidian-markdown` | kepano/obsidian-skills | Obsidian-format markdown 정합성 |
 
 ### Session & General — 세션관리/범용
 
@@ -159,7 +241,7 @@ cd SimonK-stack && ./scripts/install.sh
 
 ---
 
-### Execution Pipeline — 실행 파이프라인 (vendored)
+### Execution Pipeline — 실행 파이프라인 (Gstack vendored)
 
 [Gstack](https://github.com/garrytan/gstack) 기반 36개 실행 도구가 `skills-src/`에 내장되어 있습니다 (원본 형식 유지):
 
@@ -173,7 +255,7 @@ cd SimonK-stack && ./scripts/install.sh
 | **리서치·DX** | `investigate` `browse` `learn` `devex-review` |
 | **기타** | `checkpoint` `pair-agent` `setup-browser-cookies` `open-gstack-browser` `connect-chrome` `gstack-upgrade` `session-start-hook` |
 
-**총 89개 skill** — 전부 `skills-src/`에 내장, 외부 clone 불필요.
+**총 98개 skill** — 전부 `skills-src/` 또는 `.claude/skills/`에 내장, 외부 clone 불필요.
 
 ---
 
@@ -183,7 +265,7 @@ cd SimonK-stack && ./scripts/install.sh
 
 | Hook | 시점 | 동작 | 비용 |
 |---|---|---|---|
-| **SessionStart** | 세션 시작 | bootstrap (skills 설치 + instincts seed) → SimonK / gstack / wiki origin 의 ahead-count 자동 fetch → 안전하면 (clean+main+ff-only) `git pull` 자동 → `[UPGRADE_AVAILABLE]` 박스 + `~/.claude/.update-pending` fallback marker 이중 출력 | 0 토큰 |
+| **SessionStart** | 세션 시작 | bootstrap (skills 설치 + instincts seed) → SimonK / gstack / SimonKWiki origin 의 ahead-count 자동 fetch → 안전하면 (clean+main+ff-only) `git pull` 자동 → `[UPGRADE_AVAILABLE]` 박스 + `~/.claude/.update-pending` fallback marker 이중 출력 | 0 토큰 |
 | **UserPromptSubmit** | 매 사용자 발화 _직후, LLM 응답 직전_ | wiki 의 _5초 인덱스 + 최근 3 log + M/T 코드 totals + 행동 규칙_ 을 system context 에 inject | ~466 토큰 / 발화 |
 | **Stop** | LLM 응답 종료 | wiki repo 가 dirty 면 `git add + commit + push` 자동 (branch=main + md/json 위주 필터 안전 가드) | 0 토큰 |
 
@@ -191,53 +273,45 @@ cd SimonK-stack && ./scripts/install.sh
 
 **Opt-out**: `.claude/settings.json` 의 해당 hook 블록 제거 또는 `SIMON_HOOK_SILENT=1` 환경변수.
 
-**다른 프로젝트에서 사용 시점**:
-| 시점 | 보장 |
-|---|---|
-| 처음 install 하는 세션 | 70% — install 자체 + 스킬 발동만. hook 은 _다음 세션부터_ |
-| 그 다음 세션 | 100% — 3-hook 모두 자동 |
-| _SimonK-stack 자체_ 에서 시작한 세션 | 100% — 0번째 발화부터 |
+---
 
-다른 프로젝트에 영구 적용: `bash scripts/setup-repo.sh /path/to/your-project`
+## 📊 Graphify 통합 (Phase 3 사전 진입, 2026-05-23)
+
+[Graphify](https://graphify.net) (Safi Shamsi · YC S26) 통합. SimonK-stack repo 자체의 코드베이스 + SimonKWiki vault 둘 다 그래프화.
+
+```powershell
+# 설치 (one-time)
+uv tool install graphifyy
+
+# Claude Code 통합 (CLAUDE.md + PreToolUse hook 자동)
+cd "E:\Coding Infra\Harrness Eng\SimonK-stack"
+graphify claude install
+
+# 그래프 추출/갱신
+graphify update .
+# → graphify-out/ 생성 (graph.html + GRAPH_REPORT.md + graph.json)
+```
+
+이제 Claude Code 세션이 코드베이스 질문 시 `graphify query` 자동 권장 (subgraph fetch → 토큰 절감).
+
+SimonKWiki vault에도 동일 적용 — 720 nodes / 644 edges / 76 communities (2026-05-23 기준).
+
+상세: [SimonKWiki wiki/entities/tools/graphify](../obsidian/SimonKWiki/wiki/entities/tools/graphify.md)
 
 ---
 
-## 🚀 세션 시작 정책
+## 📖 SimonKWiki 통합
 
-매 세션의 **첫 동작은 업데이트 확인**. `session-start.sh` 가 SimonK-stack / gstack upstream / Simon-LLM-Wiki 의 origin ahead-count 를 fetch + 체크합니다.
+SimonK Stack 은 [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (PRIVATE) 와 _짝_ 으로 동작합니다.
 
-```
-============================================================
-[UPGRADE_AVAILABLE] Per CLAUDE.md 'Session start policy',
-the LLM MUST address these BEFORE the first user-facing turn:
-  - SimonK-stack: auto-pulled 3 commit(s) from origin/main ✓
-  - gstack upstream: 2 commit(s) behind (/root/.claude/skills/gstack)
-    → run `/gstack-upgrade` to apply
-  - Simon-LLM-Wiki: auto-pulled 1 commit(s) ✓ — re-read LESSONS_LEARNED.md
-============================================================
-```
-
-분담:
-- **session-start.sh 가 자동 처리** — SimonK-stack / Simon-LLM-Wiki 의 `git pull --ff-only` (clean tree + on main 일 때만)
-- **LLM 이 처리** — gstack upstream 업데이트 시 `/gstack-upgrade` 호출
-- **사용자에게 1줄 보고** — auto-pull skipped (dirty / non-main / ff 불가) 항목
-
-업데이트 없으면 silent — narration 비용 0. 자세한 정책은 [`CLAUDE.md § 🚀 세션 시작 정책`](CLAUDE.md).
-
----
-
-## 📖 Simon-LLM-Wiki 통합
-
-SimonK Stack 은 [Simon-LLM-Wiki](https://github.com/Simon-YHKim/Simon-LLM-Wiki) 와 _짝_ 으로 동작합니다.
-
-| | Instincts (`~/.claude/instincts/`) | Simon-LLM-Wiki |
+| | Instincts (`~/.claude/instincts/`) | SimonKWiki |
 |---|---|---|
-| 도메인 | 코딩 실수, 도구 quirks | 사용자 메타 인지, 작업 성향, 누적 결론 |
-| 위치 | 로컬 4 md 파일 | git repo (Obsidian-호환) |
-| 누적 | append-only mistakes | M-xxx (mistakes), T-xxx (trials) |
-| 진입점 | seed 4 파일 | `LESSONS_LEARNED.md` (5분 onboarding) |
+| 도메인 | 코딩 실수, 도구 quirks | 사용자 메타 인지, 작업 성향, 누적 결론, 인생 호 (arcs) |
+| 위치 | 로컬 4 md 파일 | git repo (Obsidian-호환, Karpathy 모델 raw/+wiki/+Output/) |
+| 누적 | append-only mistakes | M-xxx (mistakes), T-xxx (trials) + 7 카테고리 (concepts/entities/events/arcs/projects/protocols/assessments) |
+| 진입점 | seed 4 파일 | `wiki/index.md` + `LESSONS_LEARNED.md` |
 
-매 세션 wiki 의 `LESSONS_LEARNED.md` 를 _먼저_ 읽고 사용자 요청 처리. 세션 종료 시 새 발견을 wiki 에 append. 자세한 절차는 [`CLAUDE.md § 📖 Wiki 참고 (필수)`](CLAUDE.md).
+매 세션 wiki 의 `index.md` + 최근 `log.md`를 _먼저_ 읽고 사용자 요청 처리. 세션 종료 시 새 발견을 wiki 에 append. 자세한 절차는 [`CLAUDE.md § 📖 Wiki 참고 (필수)`](CLAUDE.md).
 
 ---
 
@@ -246,40 +320,38 @@ SimonK Stack 은 [Simon-LLM-Wiki](https://github.com/Simon-YHKim/Simon-LLM-Wiki)
 ### 서비스 개발 전체 흐름
 
 ```
-아이디어
+사용자 → simonK <목표>
   │
-  ├─ aarrr-growth-planner      ← AARRR 프레임워크
-  ├─ pmf-analyzer               ← 3 case PMF 예측
-  ├─ aha-moment-optimizer       ← 아하 모먼트 발굴
+  ├─ Phase 1: Ambiguity score (0-10 × 4 dim)
+  │   └─ score<6 → AskUserQuestion 3-5문항 (1회)
   │
-  ├─ stack-architect            ← 프론트/백/API/배포 결정
-  │   ├─ app-platform-selector  ← Hybrid/PWA/Native
-  │   ├─ db-selector            ← DB 선택
-  │   └─ deploy-configurator   ← CI/CD + 호스팅
+  ├─ Phase 2: Sprint plan (.simonk/plan.md)
   │
-  ├─ monetization-planner       ← 수익 모델 설계
-  │   ├─ payment-integrator     ← 결제 구현
-  │   ├─ global-payment-planner ← 글로벌 규제
-  │   └─ revenue-scenario-tester ← 80+ 시나리오 검증
+  ├─ Phase 3: 병렬 Task agents
+  │   ├─ aarrr-growth-planner      ← AARRR 프레임워크
+  │   ├─ pmf-analyzer               ← 3 case PMF 예측
+  │   ├─ aha-moment-optimizer       ← 아하 모먼트 발굴
+  │   │
+  │   ├─ stack-architect            ← 프론트/백/API/배포 결정
+  │   │   ├─ app-platform-selector
+  │   │   ├─ db-selector
+  │   │   └─ deploy-configurator
+  │   │
+  │   ├─ monetization-planner       ← 수익 모델 설계
+  │   │   ├─ payment-integrator
+  │   │   ├─ global-payment-planner
+  │   │   └─ revenue-scenario-tester
+  │   │
+  │   ├─ analytics-integrator
+  │   │   └─ tag-manager-integrator
+  │   │
+  │   ├─ growth-engine → store-launcher → pmf-analyzer (리포팅)
+  │   │
+  │   └─ exit-strategy-planner
   │
-  ├─ analytics-integrator       ← 분석 도구
-  │   └─ tag-manager-integrator ← 이벤트 추적
-  │
-  ├─ growth-engine → store-launcher → pmf-analyzer (리포팅)
-  │
-  └─ exit-strategy-planner      ← IPO/M&A/Exit
-```
-
-### SessionStart Hook
-
-```
-세션 시작 → .claude/hooks/session-start.sh 실행
-  ├─ 첫 실행: 실행 도구 설치 + 89개 skill → ~/.claude/skills/ 복사 + Instincts seed (~30초)
-  ├─ 재실행 (marker 존재):
-  │   ├─ SimonK-stack ahead-count 체크 → 있으면 [UPGRADE_AVAILABLE] 출력
-  │   ├─ gstack upstream ahead-count 체크 → 있으면 출력
-  │   └─ Simon-LLM-Wiki ahead-count 체크 → 있으면 출력
-  └─ LLM 은 [UPGRADE_AVAILABLE] 박스 감지 시 첫 동작으로 /gstack-upgrade 또는 pull
+  ├─ Phase 4: Verification (validate_skill.py / wiki-lint / test)
+  ├─ Phase 5: Full Auto push (양쪽 repo)
+  └─ Phase 6: Final report
 ```
 
 ---
@@ -288,21 +360,29 @@ SimonK Stack 은 [Simon-LLM-Wiki](https://github.com/Simon-YHKim/Simon-LLM-Wiki)
 
 | 테스트 | 결과 |
 |---|---|
-| Native skills (SimonK) | **53/53 PASS** (validator 0 errors / 0 warnings) |
-| Vendored skills (Gstack) | **31 vendored** (원본 형식 유지, 기능 정상) |
-| 전체 validator (lenient + **strict YAML E013**) | **89/89 PASS** |
-| SKILL.md description quotation 무결성 | **89/89** (M-010 패밀리 14 + M-012 21 자동 fix 후) |
+| Native skills (SimonK) | **62/62 PASS** (validator 0 errors / 0 warnings) |
+| Vendored skills (Gstack + kepano) | **36 + 5 vendored** (원본 형식 유지, 기능 정상) |
+| 전체 validator (lenient + **strict YAML E013**) | **98/98 PASS** |
+| simonk 통합 자율 하네스 | **0 errors / 0 warnings · score 0.80** |
+| SKILL.md description quotation 무결성 | **98/98** |
 | Bash syntax (hooks + scripts) | **all PASS** |
+| PowerShell scripts (simonk.ps1 + install-simonk-profile.ps1) | **all PASS** (Get-Command + parse check) |
 | Orchestrator chain | **모든 참조 존재 확인** |
 | `voice-lint.sh` (`human-voice-guard`) | **CI-ready, exit 1 on tell** |
 | `lint.sh` (path-aware v2, llm-wiki-builder) | **orphans 0 / broken 0 (literal 제외) / M·T gap 0** |
+| Graphify 그래프 (SimonKWiki) | **720 nodes · 644 edges · 76 communities** |
 
 ---
 
 ## FAQ
 
 **Q. 총 몇 개 skill?**
-53개 (SimonK 자체) + 31개 Gstack vendored 실행 도구 + 5개 base (commit/review/debug/explain/test-gen) = **89개**. 전부 `skills-src/` 또는 `.claude/skills/` 에 내장.
+98개 = SimonK native 57 + Gstack vendored 36 + kepano vendored 5 + 신규 simonk 통합 하네스 1. 전부 `skills-src/` 또는 `.claude/skills/` 에 내장.
+
+**Q. simonK 와 다른 skill 차이?**
+- 일반 skill = *단일 도메인 작업 매뉴얼* (예: payment-integrator = 결제만)
+- **simonK = 통합 자율 하네스** (목표만 받고 — Ambiguity catch → Plan → 병렬 Task → Verify → push 전체 흐름)
+- simonK 가 적절한 일반 skill 들을 Task agent로 위임
 
 **Q. 다른 repo에서 쓰려면?**
 `scripts/setup-repo.sh /path/to/target` → 상세: [docs/USING-IN-OTHER-REPOS.md](docs/USING-IN-OTHER-REPOS.md)
@@ -311,9 +391,10 @@ SimonK Stack 은 [Simon-LLM-Wiki](https://github.com/Simon-YHKim/Simon-LLM-Wiki)
 네. 모든 skill에 한/영 트리거 병기.
 
 **Q. 업데이트는?**
-```bash
-cd SimonK-stack && git pull && ./scripts/install.sh
-```
+- SimonK-stack 자체: SessionStart hook이 `git pull --ff-only` 자동 (clean+main 일 때만)
+- kepano vendored 5개: 수동 갱신 — 원본 https://github.com/kepano/obsidian-skills 정기 확인
+- Graphify: `uv tool upgrade graphifyy`
+- 출처별 자세한 정책은 위 [🔁 자동 업데이트](#-자동-업데이트--어떤-출처가-자동-최신화되나) 표 참조
 
 ---
 
@@ -322,12 +403,14 @@ cd SimonK-stack && git pull && ./scripts/install.sh
 | 출처 | 기여 |
 |---|---|
 | [Gstack](https://github.com/garrytan/gstack) — garrytan | 실행 파이프라인 36 skill |
+| [kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) | Obsidian 운영 5 skill (defuddle / json-canvas / obsidian-bases / obsidian-cli / obsidian-markdown) |
 | [Karpathy](https://x.com/karpathy) | 4원칙 (코딩 가이드라인) + llm-wiki 패턴 |
 | [Superpowers](https://github.com/obra/superpowers) — obra | TDD, worktree, 검증 루프 |
 | [everything-claude-code](https://github.com/affaan-m/everything-claude-code) | Instincts 학습, research-first |
 | [Skill-Agent](https://github.com/Simon-YHKim/Skill-Gen-Agent) | validate_skill.py 검증 도구 |
 | [Impeccable](https://github.com/pbakaus/impeccable) | AI Slop 방지 디자인 원칙 |
 | [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) | Karpathy 4원칙 정제 |
+| [Graphify](https://graphify.net) — Safi Shamsi (YC S26) | 지식 그래프 추출·시각화 (Phase 3 통합) |
 
 ## 라이선스
 

@@ -15,6 +15,12 @@
 .simon-stack-src/
 ~/.simon-stack-src/
 
+# Graphify auto-generated output (regenerable via `graphify update .`)
+graphify-out/
+
+# simonk sprint cache (plan.md and log.md committed, transient cache ignored)
+.simonk/cache/
+
 # Install-time backups of ~/.claude
 .claude.bak-*/
 
