@@ -164,7 +164,7 @@ Three Phase 3 core tools entered *3 weeks early*:
 | [Skill-Agent](https://github.com/Simon-YHKim/Skill-Gen-Agent) | validate_skill.py |
 | [Impeccable](https://github.com/pbakaus/impeccable) | AI Slop prevention design principles |
 | [Graphify](https://graphify.net) — Safi Shamsi (YC S26) | Knowledge graph extraction/visualization (Phase 3 integration) |
-| [TradingAgents](https://github.com/TauricResearch/TradingAgents) — UCLA TauricResearch | Multi-agent reference for Phase 4-6 Max Capa Agent |
+| [TradingAgents](https://github.com/TauricResearch/TradingAgents) — UCLA TauricResearch | Multi-agent reference for Phase 4-6 closed-network signature agent |
 
 ## License
 

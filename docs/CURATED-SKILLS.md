@@ -87,7 +87,7 @@
 
 | Skill | 언제 |
 |---|---|
-| **`simon-ohmo`** ⏳ | `/simon-ohmo` · "personal agent" · "Max Capa Agent v1.0" — *Phase 6 (27Y Q1) 본격 활성*. 현재 placeholder. 호출 시 진입 5조건 점검 + simonK 대체 권장. 본격 SKILL.md 본문: `wiki/protocols/simon-ohmo-architecture.md` 참조 |
+| **`simon-ohmo`** ⏳ | `/simon-ohmo` · "personal agent" · "폐쇄망 운영" — *Phase 6 (27Y Q1) 본격 활성*. 현재 placeholder. 호출 시 진입 5조건 점검 + simonK 대체 권장. 본격 SKILL.md 본문: `wiki/protocols/simon-ohmo-architecture.md` 참조 |
 
 ---
 
@@ -135,7 +135,7 @@ Stage 2 메인에서 격하된 도메인별 skill (필요 시 명시 호출):
 명확한 작업 → 메인 18개 중 직접 호출
 도메인 특화 → 격하 82개 중 호출
 완전 새로운 작업 → skill-gen-agent (새 skill 작성)
-Phase 6 진입 후 → simon-ohmo (Max Capa Agent v1.0)
+Phase 6 진입 후 → simon-ohmo (closed-network signature agent)
 ```
 
 ---
@@ -157,7 +157,7 @@ Phase 6 진입 후 → simon-ohmo (Max Capa Agent v1.0)
 | **v0.2** | 2026-05-25 sprint v14 | **메인 18 (+gcloud-helper · +simon-ohmo placeholder · +기존 15)** + 격하 82 + v2 사용 흐름 (simonK 자동 통합 명시) |
 | v1.0 | 6/15~6/30 Stage 2 정식 | 실사용 데이터 1주+ 누적 후 재선별 |
 | v2.0 | 11/22 Phase 5 ROI 회고 | 6개월 데이터 재선별 + 글로벌 노출 |
-| v3.0 | 27Y Q1 Phase 6 | Simon-ohmo 본격 + 사내 양성 24명 시범 |
+| v3.0 | 27Y Q1 Phase 6 | Simon-ohmo 본격 + 사내 양성 그룹 시범 |
 
 ---
 

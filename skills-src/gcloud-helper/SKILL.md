@@ -119,10 +119,10 @@ simonk-gcloud-check
 - Google Drive 동기 (gsutil)
 - Calendar API · Sheets API · Docs API
 
-### Phase 4 (7월~9월) — Max Capa R&D 클라우드
+### Phase 4 (7월~9월) — R&D 클라우드 단계
 
 - **Vertex AI** (Gemini Pro Code Assist, custom model) — ADC 필수
-- **BigQuery** (사내 로그 분석) — `bq query` + ADC
+- **BigQuery** (도메인 로그 분석) — `bq query` + ADC
 - **GCS** (모델 artifact 저장) — `gsutil cp`
 
 ### Phase 6 (27Y Q1~) — Simon-ohmo
