@@ -333,16 +333,20 @@ Phase 6: Final Report (구조화된 요약)
 
 `scripts/install-simonk-profile.ps1` 가 PowerShell profile 에 `simonk.ps1` dot-source 박음 (idempotent). `SIMONK_PROJECT_DIR=E:\Coding Infra` 환경변수 user-scope 영속 설정.
 
-### 통합 외부 reference
+### 통합 외부 reference (Sprint v22-EXT: vendored, 2026-05-25)
 
-- **OMC (`external/oh-my-claudecode/`)**: 정식 Claude Code plugin install 시 (`/plugin marketplace add Yeachan-Heo/oh-my-claudecode`) Team Mode + 19 agents + 32 skills 활성. simonk 가 더 강력한 multi-agent 필요시 권장.
-- **OMO (`external/oh-my-openagent/`)**: model-agnostic 작업 시 reference (OpenCode 환경 위주, Claude Code 호환).
-- **OpenHarness (`external/OpenHarness/`)**: Phase 6 폐쇄망 운영 시 (Python 표준 라이브러리, `pip install openharness-ai` 또는 `omc` npm CLI 이미 설치됨 - v4.14.1).
-- **anthropics/skills**: 공식 카탈로그, cherry-pick vendoring 가능.
+3 외부 repo 가 **`external/` 안 vendor 됨** (shallow clone + `.git` 제거). SimonK-stack clone 시 즉시 사용 가능, upstream sync 는 수동 (별도 sprint). `.claudeignore` 로 토큰 보호 (110 MB / 8500 files).
+
+- **OMC (`external/oh-my-claudecode/`, 49 MB)** — upstream: [Yeachan-Heo/oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode). Team Mode + 19 agents + 32 skills. simonk 가 더 강력한 multi-agent 필요시 trigger. Vendored 후에도 정식 plugin install 권장 (`/plugin marketplace add Yeachan-Heo/oh-my-claudecode`) — vendor 는 reference + offline fallback.
+- **OMO (`external/oh-my-openagent/`, 48 MB)** — upstream: [code-yeongyu/oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) (formerly oh-my-opencode). Model-agnostic agent orchestrator (Claude/GPT/Kimi/GLM/Gemini/Minimax 단일 interface). OpenCode 환경 위주, Claude Code 호환 일부.
+- **OpenHarness (`external/OpenHarness/`, 13 MB)** — upstream: [HKUDS/OpenHarness](https://github.com/HKUDS/OpenHarness). Open Agent Harness + 내장 personal agent (Ohmo). Tool-use, skills, memory, multi-agent coordination 핵심 인프라. Phase 6 폐쇄망 운영 또는 simon-ohmo skill 통합 시 활용. `pip install openharness-ai` 보조.
+- **anthropics/skills**: 공식 카탈로그, cherry-pick vendoring 가능 (별도).
+
+**Wiki 연동**: [[wiki/entities/tools/omc]] · [[wiki/entities/tools/omo]] · [[wiki/entities/tools/openharness]] (SimonKWiki PRIVATE) 에 활성화·사용법·simonK 통합 시나리오 명시.
 
 ### Claude Code Native Team Mode 활성
 
-`~/.claude/settings.json` 에 `"env": { "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1" }` 자동 박힘 (`scripts/install-simonk-profile.ps1` 의 사이드 효과). OMC 정식 install 후 `/team N:role "task"` 사용 가능.
+`~/.claude/settings.json` 에 `"env": { "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1" }` 자동 박힘 (`scripts/install-simonk-profile.ps1` 의 사이드 효과). OMC vendor `external/oh-my-claudecode/` 가 reference로 즉시 가용, 정식 plugin install 후 `/team N:role "task"` 사용 가능.
 
 ### Windows 제약
 

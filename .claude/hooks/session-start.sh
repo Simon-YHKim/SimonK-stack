@@ -249,6 +249,45 @@ if [ -f "$WIKI_INIT" ]; then
   fi
 fi
 
+# --- 7. External vendored repos activation (sprint v22-EXT) ---
+# 3 vendored repos in external/: oh-my-claudecode, oh-my-openagent, OpenHarness.
+# Idempotent: marker file tracks setup. Best-effort install (non-fatal).
+EXT_DIR="$REPO_DIR/external"
+EXT_MARKER=~/.claude/.simon-stack-external-installed
+
+if [ -d "$EXT_DIR" ] && [ ! -f "$EXT_MARKER" ]; then
+  log "External vendor setup (3 repos, best-effort)..."
+
+  for r in oh-my-claudecode oh-my-openagent; do
+    if [ -d "$EXT_DIR/$r" ] && [ ! -d "$EXT_DIR/$r/node_modules" ]; then
+      if command -v bun >/dev/null 2>&1; then
+        log "  - $r: bun install"
+        (cd "$EXT_DIR/$r" && bun install >>"$LOG_FILE" 2>&1) || log "  - $r: bun install failed (non-fatal)"
+      elif command -v npm >/dev/null 2>&1; then
+        log "  - $r: npm install"
+        (cd "$EXT_DIR/$r" && npm install --no-audit --no-fund >>"$LOG_FILE" 2>&1) || log "  - $r: npm install failed (non-fatal)"
+      else
+        log "  - $r: skip (bun/npm not found, dist/ pre-built usable)"
+      fi
+    fi
+  done
+
+  if [ -d "$EXT_DIR/OpenHarness" ] && [ -f "$EXT_DIR/OpenHarness/pyproject.toml" ]; then
+    PIPCMD=""
+    command -v pip >/dev/null 2>&1 && PIPCMD=pip
+    [ -z "$PIPCMD" ] && command -v pip3 >/dev/null 2>&1 && PIPCMD=pip3
+    if [ -n "$PIPCMD" ]; then
+      log "  - OpenHarness: $PIPCMD install -e"
+      $PIPCMD install -e "$EXT_DIR/OpenHarness" --quiet >>"$LOG_FILE" 2>&1 || log "  - OpenHarness: pip install failed (non-fatal)"
+    else
+      log "  - OpenHarness: skip (pip not found)"
+    fi
+  fi
+
+  touch "$EXT_MARKER"
+  log "External vendor setup complete"
+fi
+
 
 # --- Context Guardian self-healing (repo-local) ---
 # Ensure CLAUDE.md has the Context Guardian Rules block. If the marker is

@@ -7,6 +7,9 @@
 # Why these entries:
 # - .claude/skills/gstack/ is 12 MB / 450 files of upstream Gstack.
 #   Scanning it wastes context. It is managed by SessionStart hook, not edited here.
+# - external/ — 3 vendored upstream repos (OMC 49M + OMO 48M + OpenHarness 13M = 110M).
+#   Vendored .git-stripped clones, NOT manually edited. Auto-activated by session-start.sh.
+#   Token-safe entries: each repo's wiki/entities/tools/ page documents usage.
 # - .claude.bak-* are install backups, not working files.
 # - /tmp/simon-stack-*.log are hook logs (outside repo, but defensive).
 # - Standard entries (node_modules, .next, etc.) follow .gitignore conventions.
@@ -14,6 +17,9 @@
 
 # --- simon-stack specific ---
 .claude/skills/gstack/
+external/oh-my-claudecode/
+external/oh-my-openagent/
+external/OpenHarness/
 .claude.bak-*/
 /tmp/simon-stack-*.log
 SESSION_RECOVERY.md

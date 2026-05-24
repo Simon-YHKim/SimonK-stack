@@ -100,6 +100,47 @@ if [ -f "$REPO_DIR/.claude/skills/INDEX.md" ] && [ ! -f ~/.claude/skills/INDEX.m
   run cp "$REPO_DIR/.claude/skills/INDEX.md" ~/.claude/skills/INDEX.md
 fi
 
+# ---- External vendored repos (sprint v22-EXT) ----
+# external/oh-my-claudecode/ (49M), oh-my-openagent/ (48M), OpenHarness/ (13M)
+# Vendored at clone time, .git stripped. Setup is best-effort (non-fatal).
+EXT_DIR="$REPO_DIR/external"
+EXT_MARKER=~/.claude/.simon-stack-external-installed
+
+if [ -d "$EXT_DIR" ] && [ ! -f "$EXT_MARKER" ]; then
+  log "External vendor setup (best-effort, non-fatal)..."
+
+  # OMC + OMO: npm/bun pkg with dist/ pre-built. Install deps only if bun present.
+  for r in oh-my-claudecode oh-my-openagent; do
+    if [ -d "$EXT_DIR/$r" ] && [ ! -d "$EXT_DIR/$r/node_modules" ]; then
+      if command -v bun >/dev/null 2>&1; then
+        log "  - $r: bun install"
+        (cd "$EXT_DIR/$r" && bun install >/dev/null 2>&1) || log "  - $r: bun install failed (continuing)"
+      elif command -v npm >/dev/null 2>&1; then
+        log "  - $r: npm install --no-audit --no-fund"
+        (cd "$EXT_DIR/$r" && npm install --no-audit --no-fund >/dev/null 2>&1) || log "  - $r: npm install failed (continuing)"
+      else
+        log "  - $r: skip deps (bun/npm not found — dist/ pre-built will still work)"
+      fi
+    fi
+  done
+
+  # OpenHarness: Python pkg. pip install -e if pip available.
+  if [ -d "$EXT_DIR/OpenHarness" ] && [ -f "$EXT_DIR/OpenHarness/pyproject.toml" ]; then
+    if command -v pip >/dev/null 2>&1; then
+      log "  - OpenHarness: pip install -e (editable)"
+      pip install -e "$EXT_DIR/OpenHarness" --quiet 2>&1 | tail -3 || log "  - OpenHarness: pip install failed (continuing)"
+    elif command -v pip3 >/dev/null 2>&1; then
+      log "  - OpenHarness: pip3 install -e (editable)"
+      pip3 install -e "$EXT_DIR/OpenHarness" --quiet 2>&1 | tail -3 || log "  - OpenHarness: pip3 install failed (continuing)"
+    else
+      log "  - OpenHarness: skip (pip not found — pyproject.toml accessible for manual install)"
+    fi
+  fi
+
+  touch "$EXT_MARKER"
+  log "External vendor setup complete (marker: $EXT_MARKER)"
+fi
+
 log "✅ Install complete"
 log ""
 log "Next steps:"
