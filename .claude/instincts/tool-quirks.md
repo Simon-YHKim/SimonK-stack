@@ -68,6 +68,15 @@
 - 한국어 폰트 렌더링: 이미지 비교 테스트 시 OS 기본 폰트 차이로 false-negative
 - `waitForSelector` 보다 `waitForLoadState('networkidle')` 선호
 
+## NotebookLM CLI (notebooklm-py)
+
+- **`notebooklm doctor` false-positive**: `storage_state.json` 의 SID cookie 존재만 검사. cookie 가 stale 이어도 ✓ pass. 진짜 검증은 `notebooklm list` Title 컬럼 ("Warning: Authentication expired..." vs 실제 워크스페이스 제목).
+- **`notebooklm login` press-ENTER 트랩**: 브라우저 OAuth 완료 후 **터미널로 돌아가 ENTER 키 1회 누르지 않으면 `storage_state.json` 미저장**. Chromium 내장 `Network/Cookies` SQLite 만 갱신, CLI 가 읽는 storage_state 는 그대로 stale. "Authentication saved to ..." 메시지 확인 필수.
+- **Windows Chrome/Edge app-bound encryption (v127+)**: `notebooklm login --browser-cookies chrome` 또는 `edge` 가 "Could not decrypt" 로 실패. rookiepy 우회 불가. Firefox/Brave 가 fallback. 없으면 `--fresh` + 수동 OAuth + 터미널 ENTER 정공법.
+- **`--fresh` 부작용**: `browser_profile/` 청소 후 Playwright 로 새 세션 만들려 함. `pip install "notebooklm-py[browser]"` + `playwright install chromium` 선설치 안 됐으면 cleanup 직후 "Playwright not installed" 종료 (storage_state.json 자체는 별도 파일이라 보존).
+- **stale lock 잔재**: 비정상 종료 시 `~/.notebooklm/profiles/default/.storage_state.json.lock`, `.rotate.lock` 0-byte 파일 잔재 가능. 다음 login 차단 가능성. `Remove-Item ...lock -Force` 로 정리.
+- **`notebooklm delete` 는 `-n` 필수**: positional 인자 거부. `notebooklm delete -n <id> --yes` (use 는 positional OK — 일관성 X).
+
 ---
 
 ## 템플릿
