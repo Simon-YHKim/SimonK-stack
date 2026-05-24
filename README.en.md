@@ -166,6 +166,42 @@ Three Phase 3 core tools entered *3 weeks early*:
 | [Graphify](https://graphify.net) — Safi Shamsi (YC S26) | Knowledge graph extraction/visualization (Phase 3 integration) |
 | [TradingAgents](https://github.com/TauricResearch/TradingAgents) — UCLA TauricResearch | Multi-agent reference for Phase 4-6 closed-network signature agent |
 
+## Show HN draft (Stage 3 사전, 11월~)
+
+> **2026 Stage 3 글로벌 노출 사전 draft** — 사용자 본인이 *11월 6개월 ROI 회고 후* 실제 post 결정.
+
+### Title candidates
+
+1. *"SimonK-stack: 6-month case study of a single Korean engineer running 100 Claude Code skills + autonomous harness"*
+2. *"Show HN: I built a personal AI OS with 100 skills, MCP integration, and a closed-network signature agent roadmap"*
+3. *"Show HN: simonK — autonomous 6-phase harness for Claude Code (one-command → Plan + parallel Task agents + auto-push)"*
+
+### Pitch (140 chars)
+
+> Korean dev's 6-month single-user case study: 100 curated Claude Code skills + simonK autonomous harness + MCP integration (Zotero/NotebookLM/Graphify/OpenHarness) + closed-network signature agent roadmap (27Y Q1+).
+
+### Core proof points
+
+- **Real production use** — not a demo. Used daily for Android app launch (5/30), AI career pivot, Korean wiki accumulation.
+- **Open source MIT** — fork friendly, vendoring documented.
+- **Sister repo SimonKWiki** (private) — 6 months Karpathy-model wiki + 17 NotebookLM workspaces + 926-article external blog mirror = real knowledge base, not a toy.
+- **Autonomous harness** — 6-phase (Ambiguity → Plan → parallel Task → Verify → Push → Report) with Boundary Check (security audit auto-detection).
+- **3-layer auto-update** — SessionStart hook + Wiki-Lint cron + Graphify PreToolUse — system gets *better while you're not looking*.
+
+### Anti-pitch (Korean wisdom)
+
+> "이건 *내 운영체제*다. 누가 써도 자유. 본인 워크플로우 맞게 fork → 큐레이션 권장."
+
+= *not a product, a personal OS share*. Authentic > polished.
+
+### Posting checklist (Stage 3)
+
+- [ ] Stage 2 (6/15~6/30) 메인 18 큐레이션 6개월 실사용 데이터 누적 완료
+- [ ] 본인 Android app 5/30 출시 + 6개월 metric (downloads · revenue · churn)
+- [ ] CSO audit 완료 (PII + 사내 식별 reference 완전 마스킹 확인)
+- [ ] Korean → English 핵심 docs 번역
+- [ ] r/ClaudeAI · HN Show HN · GeekNews 동시 post
+
 ## License
 
 [MIT](LICENSE). Commercial use, modification, distribution free.
