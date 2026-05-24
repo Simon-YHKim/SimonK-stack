@@ -190,16 +190,25 @@ def main():
         '',
     ]
 
-    # Top tags 별 sample 3개 (wikilink 로 graph 연결)
+    # Top tags 별 sample 3개 (link 형식: nested-bracket filename 은 markdown link fallback)
+    def safe_link(cat, stem, disp):
+        """filename 에 [ ] | # 가 있으면 markdown link (Obsidian wikilink 처리 X), 아니면 wikilink."""
+        path = f'../../raw/clipped/blog-42morrow/{cat}/{stem}'
+        if any(ch in stem for ch in '[]|#'):
+            # markdown link — Obsidian 0.13+ 가 graph edge 형성. path URL-encode.
+            from urllib.parse import quote
+            encoded = quote(path + '.md', safe='/')
+            return f'[{disp}]({encoded})'
+        return f'[[{path}|{disp}]]'
+
     for t, c in sorted(tag_count.items(), key=lambda x: -x[1])[:8]:
         lines.append(f'### {t} ({c} 글)')
         for cat, title, fname in tag_to_posts[t][:3]:
             stem = os.path.splitext(fname)[0]
             disp = title[:60] + ('...' if len(title) > 60 else '')
-            # alias 로 짧게 표시 + 실제 raw 파일 wikilink
-            lines.append(f'- [[../../raw/clipped/blog-42morrow/{cat}/{stem}|{disp}]]')
+            lines.append(f'- {safe_link(cat, stem, disp)}')
         if len(tag_to_posts[t]) > 3:
-            lines.append(f'- ... 외 {len(tag_to_posts[t]) - 3} 글 — 전체 wikilink 는 [[blog-42morrow-full-index]] 참조')
+            lines.append(f'- ... 외 {len(tag_to_posts[t]) - 3} 글 — 전체 link 는 [[blog-42morrow-full-index]] 참조')
         lines.append('')
 
     lines += [
@@ -212,6 +221,7 @@ def main():
         '## 관련',
         '',
         '- [[blog-42morrow-full-index]] — 942 글 전체 wikilink 인덱스 (graph hub, 자동 생성)',
+        '- [[blog-42morrow-papers]] — raw/clipped/papers/ 6 글 인덱스 (script 외부, manual)',
         '- [[../entities/tools/blog-42morrow]] — 블로그 자체 entity 페이지',
         '- [[ai-model-benchmarks]] — 모델 매트릭스 (LLM/Benchmark 태그 연결)',
         '- [[multi-agent-dispatch]] — Agent 태그 패턴 적용',
@@ -260,6 +270,7 @@ def main():
     posts_by_cat = defaultdict(list)
     for cat, title, tags, fname in posts:
         posts_by_cat[cat].append((title, tags, fname))
+    from urllib.parse import quote
     for cat in sorted(posts_by_cat.keys(), key=lambda c: -len(posts_by_cat[c])):
         idx_lines.append(f'## {cat} ({len(posts_by_cat[cat])} 글)')
         idx_lines.append('')
@@ -267,7 +278,14 @@ def main():
             stem = os.path.splitext(fname)[0]
             disp = title[:80] + ('...' if len(title) > 80 else '')
             tag_str = ' · '.join(tags[:3])
-            idx_lines.append(f'- [[../../raw/clipped/blog-42morrow/{cat}/{stem}|{disp}]] — `{tag_str}`')
+            path = f'../../raw/clipped/blog-42morrow/{cat}/{stem}'
+            # nested-bracket filename 은 markdown link fallback (Obsidian wikilink 처리 X)
+            if any(ch in stem for ch in '[]|#'):
+                encoded = quote(path + '.md', safe='/')
+                link = f'[{disp}]({encoded})'
+            else:
+                link = f'[[{path}|{disp}]]'
+            idx_lines.append(f'- {link} — `{tag_str}`')
         idx_lines.append('')
 
     idx_content = '\n'.join(idx_lines) + '\n'
