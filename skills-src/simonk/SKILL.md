@@ -24,6 +24,39 @@ version: 1.0.0
 - 단 **파괴적 작업** (`rm -rf`, `git reset --hard`, force push to main of multi-collab repo, DB drop) 은 사용자 확인 필수
 - 단 **.env / credentials 수정·노출** 은 즉시 STOP
 
+## 1.5 Boundary Check (필수 매 호출) — 2026-05-25 추가
+
+작업 *진행 전* 다음 detection (silent if clean):
+
+| Risk | 검출 패턴 | 처리 |
+|---|---|---|
+| **HIGH** | 사내 프로젝트명 (Max Capa Agent · 사내 시그니처 · 사내 양성 그룹 등) — *PUBLIC repo write 시* | STOP + 사용자 confirm |
+| **HIGH** | API key 패턴 (`sk-ant-api\S{10,}` · `sk-proj-\S{10,}` · `AIza\S{30,}` · `ghp_\S{30,}`) | 즉시 STOP + 마스킹 |
+| **HIGH** | `.env` / `credentials` / `*.kdbx` 수정 시도 | 즉시 STOP |
+| MEDIUM | 사내 인물명 · 사내 수치 (MTBF · CapEx · 양성 인원) · 사내 라인 위치 | 마스킹 권장 + 진행 |
+| MEDIUM | 본인 PII (이름·거주지·진단 결과) — *PUBLIC repo write 시* | 사용자 alert + 진행 (default 보존) |
+| LOW | 일반 도메인 명칭 (Apple · Google · Tesla 등) | 진행 (log만) |
+
+### Detection 시 흐름
+
+```
+1. write target identify (PUBLIC repo vs PRIVATE wiki vs system local)
+2. content scan (위 패턴)
+3. HIGH 검출 → 작업 일시 정지 + 사용자 confirm 후 진행/마스킹/SKIP
+4. MEDIUM 검출 → 권장 옵션 1-2 제시, 사용자 default 보존 가능
+5. LOW → 자동 진행
+```
+
+### 마스킹 매핑 reference
+
+PUBLIC repo 작성 시 사용자 합의 generic 명칭:
+- `Max Capa Agent v0/v1.0` → `closed-network signature agent`
+- `사내 양성 24명` → `사내 양성 그룹` (수치 제거)
+- `LG 폐쇄망` → `on-prem`
+- `사내 라인 X MTBF` → `<task>` 일반화
+
+실제 매핑 정본: SimonKWiki PRIVATE `wiki/entities/orgs/internal-projects-catalog.md`
+
 ## 2. Phase 1 — Ambiguity Score Check (필수 첫 단계)
 
 작업 입력을 받자마자 4 차원 0-10 평가 (LLM 내부 평가, tool call 없이 fast):
