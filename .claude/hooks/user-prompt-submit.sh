@@ -9,8 +9,18 @@
 
 set -uo pipefail
 
-# Read & ignore stdin (UserPromptSubmit JSON with the user_prompt etc.)
-cat >/dev/null 2>&1 || true
+# Read stdin (UserPromptSubmit JSON) — preserve for trigger word detection.
+PROMPT_JSON=$(cat 2>/dev/null || echo "")
+USER_PROMPT=""
+if [ -n "$PROMPT_JSON" ]; then
+  # Try jq first (cleaner), fallback to grep+sed
+  if command -v jq >/dev/null 2>&1; then
+    USER_PROMPT=$(echo "$PROMPT_JSON" | jq -r '.user_prompt // .prompt // ""' 2>/dev/null || echo "")
+  fi
+  if [ -z "$USER_PROMPT" ]; then
+    USER_PROMPT=$(echo "$PROMPT_JSON" | grep -oE '"(user_prompt|prompt)"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*:[[:space:]]*"//; s/"$//')
+  fi
+fi
 
 # Locate wiki. Try (in order): env override, SimonK sibling, standard home,
 # container default, /home/user fallback. Hook may run under different UIDs
@@ -92,6 +102,24 @@ fi
   echo "1. 사용자 발화에서 _반복되는 mistake_ 또는 _시행착오 + 결론_ 감지 시 wiki 즉시 append (Edit/Write tool)."
   echo "2. M/T code 번호는 연속. 다음 빈 번호 사용."
   echo "3. 응답 끝에 별도 commit 안 해도 됨 — Stop hook 이 자동 처리."
+
+  # Multi-terminal dispatch trigger (sprint v23 Phase B, 2026-05-25)
+  if [ -n "$USER_PROMPT" ]; then
+    TRIGGERS=("병렬로" "다중 터미널" "병렬 터미널" "multi-terminal" "parallel terminals" "team mode" "모델 자동 배치" "best model dispatch" "여러 창에서" "동시에 진행")
+    MATCHED=""
+    for t in "${TRIGGERS[@]}"; do
+      if echo "$USER_PROMPT" | grep -qF "$t" 2>/dev/null; then
+        MATCHED="$t"; break
+      fi
+    done
+    if [ -n "$MATCHED" ]; then
+      echo ""
+      echo "### 🔔 Multi-terminal dispatch trigger 감지: '$MATCHED'"
+      echo "→ 'multi-terminal-dispatcher' skill 호출 권장."
+      echo "→ 흐름: model-router (task → best LLM 매핑) → scripts/multi-terminal-launch.ps1 (Windows Terminal tabs) → 결과 merge."
+      echo "→ Source of truth: wiki/concepts/ai-model-benchmarks.md + multi-agent-dispatch.md."
+    fi
+  fi
 } 2>/dev/null
 
 exit 0

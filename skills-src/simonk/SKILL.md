@@ -120,6 +120,13 @@ agent_type 선택 가이드:
 
 **Git worktree 병렬** (선택, advanced): 큰 refactor면 `simon-worktree` 스킬 호출.
 
+**Multi-terminal dispatch (v23 Phase B, 2026-05-25 추가)**: 사용자 trigger ('병렬로', '다중 터미널', 'team mode') 감지 시 또는 N>3 independent tasks 인 경우:
+1. `model-router` skill 호출 → 각 task type 별 best LLM 매핑 ([[wiki/concepts/ai-model-benchmarks]] source)
+2. `scripts/multi-terminal-launch.ps1 -ConfigPath dispatch.json` 으로 Windows Terminal tabs 동시 launch
+3. Cost estimate 사용자 confirm (>$5 threshold) + 파괴적 keyword detect (rm -rf 등) STOP
+4. 각 terminal complete 후 orchestrator merge → 사용자 1 보고
+상세: [[multi-terminal-dispatcher]] skill SKILL.md + [[wiki/concepts/multi-agent-dispatch]] pattern.
+
 ## 5. Phase 4 — Verification
 
 작업 종류별 검증:
