@@ -190,12 +190,15 @@ def main():
         '',
     ]
 
-    # Top tags 별 sample 3개 (link 형식: nested-bracket filename 은 markdown link fallback)
+    # Top tags 별 sample 3개 (link 형식: special char filename 은 markdown link fallback)
     def safe_link(cat, stem, disp):
-        """filename 에 [ ] | # 가 있으면 markdown link (Obsidian wikilink 처리 X), 아니면 wikilink."""
+        """Obsidian wikilink 처리 못 하는 special char (nested bracket, trailing space, nbsp 등) 면 markdown link."""
         path = f'../../raw/clipped/blog-42morrow/{cat}/{stem}'
-        if any(ch in stem for ch in '[]|#'):
-            # markdown link — Obsidian 0.13+ 가 graph edge 형성. path URL-encode.
+        # wikilink 깨지는 패턴: [ ] | # · trailing whitespace · nbsp(\xa0) · tab/CR/LF
+        if (any(ch in stem for ch in '[]|#')
+                or stem != stem.strip()
+                or '\xa0' in stem
+                or any(c in stem for c in '\t\r\n')):
             from urllib.parse import quote
             encoded = quote(path + '.md', safe='/')
             return f'[{disp}]({encoded})'
@@ -279,8 +282,11 @@ def main():
             disp = title[:80] + ('...' if len(title) > 80 else '')
             tag_str = ' · '.join(tags[:3])
             path = f'../../raw/clipped/blog-42morrow/{cat}/{stem}'
-            # nested-bracket filename 은 markdown link fallback (Obsidian wikilink 처리 X)
-            if any(ch in stem for ch in '[]|#'):
+            # special char (nested bracket, trailing whitespace, nbsp, control char) → markdown link fallback
+            if (any(ch in stem for ch in '[]|#')
+                    or stem != stem.strip()
+                    or '\xa0' in stem
+                    or any(c in stem for c in '\t\r\n')):
                 encoded = quote(path + '.md', safe='/')
                 link = f'[{disp}]({encoded})'
             else:
