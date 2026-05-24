@@ -29,6 +29,13 @@ except ImportError as e:
     print("Install: pip install --user requests beautifulsoup4 lxml html2text")
     sys.exit(1)
 
+# Windows PowerShell CP949 console에서 한국어 + 특수문자 print 안전 처리
+try:
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+except Exception:
+    pass
+
 BASE = "https://42morrow.tistory.com"
 OUT_DIR = r"E:\Coding Infra\obsidian\SimonKWiki\raw\clipped\blog-42morrow"
 
