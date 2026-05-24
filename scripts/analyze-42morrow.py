@@ -21,6 +21,7 @@ except Exception:
 VAULT = os.environ.get('SIMON_WIKI_DIR', r'E:\Coding Infra\obsidian\SimonKWiki')
 RAW_DIR = os.path.join(VAULT, 'raw', 'clipped', 'blog-42morrow')
 OUT_PAGE = os.path.join(VAULT, 'wiki', 'concepts', 'blog-42morrow-curated.md')
+OUT_INDEX = os.path.join(VAULT, 'wiki', 'concepts', 'blog-42morrow-full-index.md')
 
 # 기술 영역 태그 — 키워드 매핑 (제목에서 keyword 매칭 시 해당 태그 부여)
 TAGS = {
@@ -189,15 +190,16 @@ def main():
         '',
     ]
 
-    # Top tags 별 sample 3개
+    # Top tags 별 sample 3개 (wikilink 로 graph 연결)
     for t, c in sorted(tag_count.items(), key=lambda x: -x[1])[:8]:
         lines.append(f'### {t} ({c} 글)')
         for cat, title, fname in tag_to_posts[t][:3]:
-            # title 너무 길면 truncate
-            disp = title[:80] + ('...' if len(title) > 80 else '')
-            lines.append(f'- `{cat}/` {disp}')
+            stem = os.path.splitext(fname)[0]
+            disp = title[:60] + ('...' if len(title) > 60 else '')
+            # alias 로 짧게 표시 + 실제 raw 파일 wikilink
+            lines.append(f'- [[../../raw/clipped/blog-42morrow/{cat}/{stem}|{disp}]]')
         if len(tag_to_posts[t]) > 3:
-            lines.append(f'- ... 외 {len(tag_to_posts[t]) - 3} 글')
+            lines.append(f'- ... 외 {len(tag_to_posts[t]) - 3} 글 — 전체 wikilink 는 [[blog-42morrow-full-index]] 참조')
         lines.append('')
 
     lines += [
@@ -209,6 +211,7 @@ def main():
         '',
         '## 관련',
         '',
+        '- [[blog-42morrow-full-index]] — 942 글 전체 wikilink 인덱스 (graph hub, 자동 생성)',
         '- [[../entities/tools/blog-42morrow]] — 블로그 자체 entity 페이지',
         '- [[ai-model-benchmarks]] — 모델 매트릭스 (LLM/Benchmark 태그 연결)',
         '- [[multi-agent-dispatch]] — Agent 태그 패턴 적용',
@@ -229,6 +232,49 @@ def main():
     with open(OUT_PAGE, 'w', encoding='utf-8') as f:
         f.write(content)
     print(f"\n[done] {OUT_PAGE} ({len(content)} chars)")
+
+    # === Full index page (graph hub) — 942 글 전체 wikilink ===
+    idx_lines = [
+        '---',
+        'title: "blog-42morrow — 942 글 전체 wikilink 인덱스 (graph hub)"',
+        'category: concepts',
+        'type: graph-hub',
+        'created: 2026-05-25',
+        f'last-updated: {datetime.now().strftime("%Y-%m-%d")}',
+        'status: refined',
+        'source: "raw/clipped/blog-42morrow/ (940+ 글)"',
+        'auto-generated: scripts/analyze-42morrow.py',
+        'tags: [catalog, blog, 42morrow, graph-hub, auto-generated]',
+        'related:',
+        '  - "[[blog-42morrow-curated]]"',
+        '  - "[[../entities/tools/blog-42morrow]]"',
+        '---',
+        '',
+        '# blog-42morrow — 942 글 전체 wikilink 인덱스',
+        '',
+        '> **목적**: 942 raw 글을 Obsidian graph 의 단일 hub 로 묶기. 사람용 카탈로그는 [[blog-42morrow-curated]].',
+        f'> **자동 생성** — `python scripts/analyze-42morrow.py` 재실행 시 갱신. 총 {total} 글.',
+        '',
+    ]
+    # 카테고리 별 sub-section
+    posts_by_cat = defaultdict(list)
+    for cat, title, tags, fname in posts:
+        posts_by_cat[cat].append((title, tags, fname))
+    for cat in sorted(posts_by_cat.keys(), key=lambda c: -len(posts_by_cat[c])):
+        idx_lines.append(f'## {cat} ({len(posts_by_cat[cat])} 글)')
+        idx_lines.append('')
+        for title, tags, fname in sorted(posts_by_cat[cat], key=lambda x: x[2]):
+            stem = os.path.splitext(fname)[0]
+            disp = title[:80] + ('...' if len(title) > 80 else '')
+            tag_str = ' · '.join(tags[:3])
+            idx_lines.append(f'- [[../../raw/clipped/blog-42morrow/{cat}/{stem}|{disp}]] — `{tag_str}`')
+        idx_lines.append('')
+
+    idx_content = '\n'.join(idx_lines) + '\n'
+    with open(OUT_INDEX, 'w', encoding='utf-8') as f:
+        f.write(idx_content)
+    print(f"[done] {OUT_INDEX} ({len(idx_content)} chars, {total} wikilinks)")
+
     return 0
 
 
