@@ -21,6 +21,11 @@ graphify-out/
 # simonk sprint cache (plan.md and log.md committed, transient cache ignored)
 .simonk/cache/
 
+# KeePassXC vault safety (실수 방지 가드 — vault 자체는 E:\Coding Infra root에 보관, repo 외부)
+*.kdbx
+*.kdb
+*.kdbx.lock
+
 # Install-time backups of ~/.claude
 .claude.bak-*/
 
