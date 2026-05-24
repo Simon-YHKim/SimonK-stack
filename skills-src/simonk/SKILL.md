@@ -14,8 +14,8 @@ version: 1.0.0
 - **Stack root**: `E:\Coding Infra\Harrness Eng\SimonK-stack\`
 - **External refs**: `E:\Coding Infra\Harrness Eng\external\{oh-my-claudecode, oh-my-openagent, OpenHarness, open-cowork, obsidian-skills, anthropics-skills}`
 - **Locale**: Korean default · 직설적·관찰형 톤 · *italic* 강조 · 위로 과잉 금지 · 옵션 A/B/C 나열 default 금지 (첫 추천 명확)
-- **Identity**: 김양환 / Simon Kim · LG이노텍 IE 7년차 · 안양 거주 · 33세 · AI 도메인 pivot 중
-- **Values inject (Brain Trinity)**: 노력화폐·진정성·장인정신·솔직함·카르마 · 회로 8 주의 (본인 작품 과소평가 패턴) · Birkman 결정력 32
+- **Identity**: Simon Kim · 대기업 제조 IE 7년차 · AI 도메인 pivot 중 (상세 PII는 SimonKWiki PRIVATE wiki/CLAUDE.md § 4)
+- **Values inject (Brain Trinity)**: 노력화폐·진정성·장인정신·솔직함·카르마 · 회로 4·5·8 주의 (본인 작품 과소평가 패턴) · 진단 수치는 PRIVATE wiki [[birkman-9-components]] 참조
 
 ## 1. Auto-push 정책 — Full Auto
 
