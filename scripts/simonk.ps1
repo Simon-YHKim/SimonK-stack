@@ -1,4 +1,4 @@
-# simonk.ps1 — PowerShell entry point for the simonK unified harness
+﻿# simonk.ps1 — PowerShell entry point for the simonK unified harness
 #
 # Sourced from $PROFILE (one-time install via scripts/install-simonk-profile.ps1).
 # Defines a global `simonK` function callable from any PowerShell session.
@@ -9,6 +9,15 @@
 #
 # Project root default: E:\Coding Infra (overridable via $env:SIMONK_PROJECT_DIR)
 # Wiki vault default: $env:SIMON_WIKI_DIR (set during 2026-05-23 vault consolidation)
+#
+# Auto helpers (silent if OK, 안내만 출력):
+#   - gcloud-bootstrap : Google Cloud SDK 인증 + project + ADC 자동 진단·inject
+#                        (사용자 인터랙션 = 첫 1회 `gcloud auth login` browser OAuth만)
+
+# Load helper functions (silent dot-source)
+$_simonkScriptDir = $PSScriptRoot
+$_gcloudBootstrap = Join-Path $_simonkScriptDir 'gcloud-bootstrap.ps1'
+if (Test-Path $_gcloudBootstrap) { . $_gcloudBootstrap }
 
 function global:simonK {
     [CmdletBinding()]
@@ -31,6 +40,11 @@ function global:simonK {
         return
     }
 
+    # Auto: gcloud 인증 진단 + ADC + project 자동 inject (silent if OK)
+    if (Get-Command Invoke-GcloudBootstrap -ErrorAction SilentlyContinue) {
+        Invoke-GcloudBootstrap -Silent | Out-Null
+    }
+
     Push-Location $projectDir
     try {
         if (-not $task) {
@@ -45,6 +59,11 @@ function global:simonK {
     } finally {
         Pop-Location
     }
+}
+
+# Expose Invoke-GcloudBootstrap as a global helper (수동 호출용)
+if (Get-Command Invoke-GcloudBootstrap -ErrorAction SilentlyContinue) {
+    Set-Item function:global:simonk-gcloud-check (Get-Command Invoke-GcloudBootstrap).ScriptBlock
 }
 
 # PowerShell function/command lookup is case-insensitive — `simonK`, `simonk`, `SIMONK`
