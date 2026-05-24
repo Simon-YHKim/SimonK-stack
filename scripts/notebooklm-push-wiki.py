@@ -38,6 +38,7 @@ CORE_CATEGORIES = {
     "projects": "★ 진행 중 (ai-pivot · current-pivot · android-app-launch · simonk-stack)",
     "protocols": "★ Operations v1 + Blueprint v1.0 + MCP integration",
     "assessments": "Birkman + MBTI + 자기인식 도구 로드맵",
+    "sources": "ChatGPT/외부 자료 인용 1차 사료",
 }
 
 def find_md_files(category):
