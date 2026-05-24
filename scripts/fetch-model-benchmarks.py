@@ -93,16 +93,43 @@ def fetch(url: str, timeout: int = 30) -> str | None:
 def parse_lmarena(html: str) -> dict:
     """LM Arena leaderboard 파싱.
 
-    TODO: 실제 HTML 구조 분석 후 구현. lmarena.ai 는 SPA — JSON endpoint
-    있을 수 있음 (/api/leaderboard). 우선 placeholder.
+    lmarena.ai 는 Next.js SPA. JSON endpoint 시도:
+    - /api/leaderboard (직접)
+    - _next/data/<build-id>/leaderboard.json (Next.js static data)
     """
-    return {
+    out = {
         'source': 'lmarena',
         'fetched_at': datetime.utcnow().isoformat(),
-        'status': 'TODO: parser 미구현 — HTML SPA 구조 분석 필요',
-        'raw_length': len(html) if html else 0,
         'models': [],
     }
+    # 1) Try direct JSON endpoint
+    json_url = 'https://lmarena.ai/api/leaderboard'
+    json_html = fetch(json_url)
+    if json_html:
+        try:
+            data = json.loads(json_html)
+            # JSON 구조 추정: {"models": [{"name": "...", "arena_score": 1548, ...}, ...]}
+            if isinstance(data, dict) and 'models' in data:
+                for m in data['models'][:30]:
+                    out['models'].append({
+                        'name': m.get('name') or m.get('model'),
+                        'arena_elo': m.get('arena_score') or m.get('elo'),
+                        'category': m.get('category'),
+                    })
+                out['status'] = f"parsed {len(out['models'])} models from /api/leaderboard JSON"
+                return out
+        except (json.JSONDecodeError, KeyError, TypeError):
+            pass
+    # 2) Fallback: parse HTML for model+score patterns (rough regex)
+    if html:
+        # Pattern: 'model_name' followed by 4-digit score
+        matches = re.findall(r'"name"\s*:\s*"([^"]+)"[^}]*?"(?:arena_score|elo|score)"\s*:\s*(\d{3,5})', html)
+        for name, score in matches[:30]:
+            out['models'].append({'name': name, 'arena_elo': int(score)})
+        out['status'] = f"parsed {len(out['models'])} models (HTML regex fallback)"
+    else:
+        out['status'] = 'fetch failed (both JSON endpoint + HTML)'
+    return out
 
 
 def parse_vellum(html: str) -> dict:

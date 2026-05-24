@@ -168,8 +168,10 @@ simonk Phase 2 (Sprint plan) 에서 4 task split → multi-terminal-dispatcher �
 
 ## 9. Roadmap
 
-- v0.1 (현재): Windows Terminal launcher + PowerShell job + 매뉴얼 cost estimate
-- v0.2: psmux 자동 setup + cost estimate 정확도 향상 (실제 token count)
-- v0.3: Claude in Chrome / Windows-MCP 자동 통합 (computer-use)
-- v0.4: VS Code tasks 자동 생성 + Cursor pane 호환
-- v1.0: 결과 자동 merge + 모순 detection + 사용자 가이드
+- ✅ **v0.1** (2026-05-25, 현재): Windows Terminal launcher + PowerShell job + 매뉴얼 cost estimate + price table (11 모델) + safety guard
+- 📋 **v0.2** (next sprint): psmux auto-setup script + cost estimate 정확도 향상 (anthropic-tokenizer-py 통합) + result merge 자동화 (각 terminal stdout collect → orchestrator markdown report)
+- 📋 **v0.3**: Claude in Chrome / Windows-MCP 자동 통합 (computer-use). LLM 이 terminal launch 자체를 click + type 으로 (Bash 우회)
+- 📋 **v0.4**: VS Code tasks.json 자동 생성 (`.vscode/tasks.json` 안 dispatch task) + Cursor multi-pane wiring (Cursor Composer API 또는 keybinding)
+- 📋 **v0.5**: model 간 결과 모순 자동 detection (LLM diff) + 사용자 1줄 보고
+- 📋 **v1.0**: 결과 자동 merge + 모순 detection + 사용자 가이드 + 통합 cost tracker (월별 누적)
+- 📋 **v1.1**: Antigravity CLI launcher 옵션 추가 (Gemini CLI deprecation 후, Background orchestration native 활용)
