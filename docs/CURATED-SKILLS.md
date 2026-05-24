@@ -1,8 +1,10 @@
-# Curated Skills — Stage 2 메인 노출 15개
+# Curated Skills — Stage 2 메인 노출 18개 (v0.2 갱신)
 
-> SimonK-stack 98 skill 중 *실제 사용 빈도 + 핵심 가치* 기반으로 선별한 메인 15개. SystemBlueprint v05 §6 Stage 2 (6/15~6/30) 큐레이션 계획의 사전 진입판.
+> SimonK-stack 100 skill 중 *실제 사용 빈도 + 핵심 가치* 기반으로 선별한 메인 18개. SystemBlueprint v05 §6 Stage 2 (6/15~6/30) 큐레이션 계획의 사전 진입판.
 
-나머지 83개는 *실험중·도메인 특화* 폴더로 격하 — 본 카탈로그에서 찾지 못한 작업이면 [전체 카탈로그](../README.md#skill-카탈로그--98개) 참조.
+**v0.2 갱신 (2026-05-25)**: gcloud-helper · simon-ohmo placeholder 추가 (sprint v13 신규 skill 통합).
+
+나머지 82개는 *실험중·도메인 특화* 폴더로 격하 — 본 카탈로그에서 찾지 못한 작업이면 [전체 카탈로그](../README.md#skill-카탈로그--98개) 참조.
 
 ---
 
@@ -63,6 +65,14 @@
 
 ---
 
+## 5.5 인프라 자동화 (1, NEW v0.2)
+
+| Skill | 언제 |
+|---|---|
+| **`gcloud-helper`** | `simonK <task>` 호출 시 *자동* (silent) — gcloud auth + project + ADC 자동 진단/inject. 명시 호출 `/gcloud` 또는 `simonk-gcloud-check` |
+
+---
+
 ## 6. SimonKWiki 운영 (3)
 
 | Skill | 언제 |
@@ -70,6 +80,14 @@
 | **`wiki-ingest`** | "인제스트해줘" · raw/에 새 자료 박을 때 — 3섹션 요약 → 4질문 → wiki 반영 |
 | **`wiki-query`** | wiki 답할 만한 질문 — index.md 우선 + wikilink 인용 |
 | **`wiki-lint`** | "wiki 점검" — 8-체크 정합 (자동 적용 X, 제안만) |
+
+---
+
+## 7. Phase 6 시그니처 (1 placeholder, NEW v0.2)
+
+| Skill | 언제 |
+|---|---|
+| **`simon-ohmo`** ⏳ | `/simon-ohmo` · "personal agent" · "Max Capa Agent v1.0" — *Phase 6 (27Y Q1) 본격 활성*. 현재 placeholder. 호출 시 진입 5조건 점검 + simonK 대체 권장. 본격 SKILL.md 본문: `wiki/protocols/simon-ohmo-architecture.md` 참조 |
 
 ---
 
@@ -108,10 +126,16 @@ Stage 2 메인에서 격하된 도메인별 skill (필요 시 명시 호출):
 ## 사용 흐름 (Stage 2 추천)
 
 ```
-일반 작업 → simonK <목표>           ★ 90% 흐름
-명확한 작업 → 메인 15개 중 직접 호출
-도메인 특화 → 격하 83개 중 호출
+일반 작업 → simonK <목표>                                                  ★ 90% 흐름
+  ↓ simonK 6-Phase 자동:
+  ├─ gcloud-helper silent check (자동, 무관)
+  ├─ Zotero MCP / NotebookLM / Graphify 자동 가용 (Phase 3 진입)
+  └─ 6-Phase: Ambiguity → Plan → 병렬 Task → Verify → Push → Report
+
+명확한 작업 → 메인 18개 중 직접 호출
+도메인 특화 → 격하 82개 중 호출
 완전 새로운 작업 → skill-gen-agent (새 skill 작성)
+Phase 6 진입 후 → simon-ohmo (Max Capa Agent v1.0)
 ```
 
 ---
@@ -119,10 +143,22 @@ Stage 2 메인에서 격하된 도메인별 skill (필요 시 명시 호출):
 ## 다음 (Stage 3 진입 시, 11월~)
 
 - 6개월 실사용 데이터 분석 → 실제 호출 빈도 기반 재선별
-- 글로벌 영어 README 풀 작성
-- HackerNews Show HN · r/ClaudeAI 노출
-- 27Y Q1 Simon-ohmo 시그니처 발표 시 통합
+- ✅ 글로벌 영어 README 풀 작성 (`README.en.md`, sprint v9)
+- HackerNews Show HN · r/ClaudeAI 노출 (사용자 본인 영역)
+- 27Y Q1 Simon-ohmo 시그니처 발표 시 통합 (`simon-ohmo` skill 본격 활성)
 
 ---
 
-*2026-05-25 작성 (Phase 3 사전 진입판) — Stage 2 정식 발행은 6/15~6/30. 본 docs는 v0.1, 실사용 데이터 누적 후 v1.0.*
+## 변화 history
+
+| Version | 날짜 | 변화 |
+|---|---|---|
+| v0.1 | 2026-05-25 sprint v6 | 초안, 메인 15개 + 격하 83 |
+| **v0.2** | 2026-05-25 sprint v14 | **메인 18 (+gcloud-helper · +simon-ohmo placeholder · +기존 15)** + 격하 82 + v2 사용 흐름 (simonK 자동 통합 명시) |
+| v1.0 | 6/15~6/30 Stage 2 정식 | 실사용 데이터 1주+ 누적 후 재선별 |
+| v2.0 | 11/22 Phase 5 ROI 회고 | 6개월 데이터 재선별 + 글로벌 노출 |
+| v3.0 | 27Y Q1 Phase 6 | Simon-ohmo 본격 + 사내 양성 24명 시범 |
+
+---
+
+*2026-05-25 v0.2 — Phase 3 사전 진입판. Stage 2 정식 발행 6/15~6/30. 본 docs는 v0.2, 실사용 데이터 누적 후 v1.0.*
