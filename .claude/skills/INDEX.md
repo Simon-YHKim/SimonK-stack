@@ -11,6 +11,8 @@
 | `app-dev-orchestrator` | 신규 앱 21단계 마스터 파이프라인 |
 | `security-orchestrator` | 보안 감사 5단계 순차 실행 |
 | `autoplan` (Gstack) | CEO/Design/Eng/DX 리뷰 자동 파이프라인 |
+| `model-router` | task type → best LLM 모델 자동 매핑 (2026-05 매트릭스, sprint v23 Phase A) |
+| `simonk` | 단일 자율 진입점 (6-phase + Boundary Check + multi-agent dispatch sprint v23 Phase B) |
 
 
 ## 🧪 Meta — skill 제작·검증
