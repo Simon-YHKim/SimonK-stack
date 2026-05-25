@@ -2,7 +2,7 @@
 
 > A skill library that makes Claude Code **follow the right procedure automatically** — from product planning to development, monetization, growth, and exit. Plus **simonK unified autonomous harness**.
 
-**[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![validator](https://img.shields.io/badge/skill--validator-98%20skills-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
+**[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![validator](https://img.shields.io/badge/skill--validator-105%20skills-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
 
 🇰🇷 **한국어 README**: [README.md](README.md) (full version)
 
@@ -12,7 +12,13 @@
 
 **Problem**: AI coding assistants work in a different order every time you give them a large task, and they repeat the same mistakes.
 
-**Solution**: 98 skills (work manuals) + **simonK unified autonomous harness** (single entry point → 6-phase autonomous execution). Combined with [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (private) for cross-session learning accumulation — no more re-reasoning from scratch every session.
+**Solution**: **105 skills** (work manuals, validated 2026-05-25 with 0 errors / 0 warnings) + **simonK unified autonomous harness** (single entry point → 6-phase autonomous execution). Combined with [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (private) for cross-session learning accumulation — no more re-reasoning from scratch every session.
+
+**Sprint v34 (2026-05-25)** — 5 external vendor integrations (user-level live clone + auto-update each session):
+- [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) · [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) · [OpenHarness](https://github.com/HKUDS/OpenHarness) — existing (sprint v22-EXT)
+- [open-cowork](https://github.com/OpenCoworkAI/open-cowork) · [design.md](https://github.com/google-labs-code/design.md) — new (sprint v34)
+
+Location: `~/.simon-stack/vendor/<repo>/` — `.claude/hooks/session-start.sh` §7b runs `git pull --ff-only` (safety conditions) every session.
 
 ```
 "build a new app"      → app-dev-orchestrator    → 21-stage pipeline

@@ -289,6 +289,49 @@ if [ -d "$EXT_DIR" ] && [ ! -f "$EXT_MARKER" ]; then
 fi
 
 
+# --- 7b. User-level vendor (~/.simon-stack/vendor/) auto-pull each session ---
+# Sprint v34: live clone (.git preserved) of 5 vendor repos for "직접 설치 + 실행 시 update".
+# Layout independent from repo-local external/ (sprint v22-EXT legacy).
+# Safety: only fetch+pull when clean + ff-only. Non-fatal on any failure.
+VENDOR_DIR="$HOME/.simon-stack/vendor"
+mkdir -p "$VENDOR_DIR" 2>/dev/null || true
+
+# Repo list: name|url (one per line)
+VENDOR_LIST="oh-my-claudecode|https://github.com/Yeachan-Heo/oh-my-claudecode
+oh-my-openagent|https://github.com/code-yeongyu/oh-my-openagent
+OpenHarness|https://github.com/HKUDS/OpenHarness
+open-cowork|https://github.com/OpenCoworkAI/open-cowork
+design.md|https://github.com/google-labs-code/design.md"
+
+VENDOR_PULLED=0
+VENDOR_BEHIND=0
+echo "$VENDOR_LIST" | while IFS='|' read -r vname vurl; do
+  [ -z "$vname" ] && continue
+  VTARGET="$VENDOR_DIR/$vname"
+  if [ ! -d "$VTARGET/.git" ]; then
+    log "[vendor] $vname: fresh clone from $vurl"
+    git clone --depth 1 "$vurl" "$VTARGET" >>"$LOG_FILE" 2>&1 \
+      || log "[vendor] $vname: clone failed (non-fatal)"
+  else
+    if (cd "$VTARGET" && git fetch --quiet origin 2>/dev/null); then
+      VBEHIND_N=$(cd "$VTARGET" && git rev-list HEAD..@{u} --count 2>/dev/null || echo 0)
+      if [ "$VBEHIND_N" -gt 0 ]; then
+        VDIRTY_N=$(cd "$VTARGET" && git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+        if [ "$VDIRTY_N" = "0" ]; then
+          if (cd "$VTARGET" && git pull --ff-only --quiet 2>/dev/null); then
+            log "[vendor] $vname: auto-pulled $VBEHIND_N commit(s) ✓"
+          else
+            log "[vendor] $vname: $VBEHIND_N behind, auto-pull failed (manual update)"
+          fi
+        else
+          log "[vendor] $vname: $VBEHIND_N behind, dirty — skipped"
+        fi
+      fi
+    fi
+  fi
+done
+
+
 # --- Context Guardian self-healing (repo-local) ---
 # Ensure CLAUDE.md has the Context Guardian Rules block. If the marker is
 # missing (e.g. user deleted CLAUDE.md), re-run install-rules.sh from the

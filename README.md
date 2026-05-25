@@ -2,9 +2,9 @@
 
 > 서비스 기획부터 개발, 수익화, 그로스, Exit까지 — Claude Code가 **자동으로 올바른 절차를 따르게** 만드는 skill 라이브러리 + **simonK 통합 자율 하네스**.
 
-**[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![validator](https://img.shields.io/badge/skill--validator-98%20skills-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
+**[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![validator](https://img.shields.io/badge/skill--validator-105%20skills-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
 
-🔗 **자매 레포**: [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (PRIVATE) — 세션 간 학습 누적 wiki
+🌐 **English README**: [README.en.md](README.en.md) · 🔗 **자매 레포**: [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (PRIVATE) — 세션 간 학습 누적 wiki
 
 ---
 
@@ -12,7 +12,13 @@
 
 **문제**: AI 코딩 어시스턴트는 큰 작업을 시키면 매번 다른 순서로 일하고, 같은 실수를 반복합니다.
 
-**해결**: 98개 skill (작업 매뉴얼) + **simonK 통합 자율 하네스** (단일 진입점 → 6-phase 자율 실행). 더해 [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) 가 세션 간 _학습 누적_ 을 담당합니다 — 매 세션 처음부터 다시 추론하지 않습니다.
+**해결**: **105개 skill** (작업 매뉴얼, 2026-05-25 기준 0 errors / 0 warnings 검증 통과) + **simonK 통합 자율 하네스** (단일 진입점 → 6-phase 자율 실행). 더해 [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) 가 세션 간 _학습 누적_ 을 담당합니다 — 매 세션 처음부터 다시 추론하지 않습니다.
+
+**Sprint v34 (2026-05-25)** — 5 외부 vendor 통합 (user-level live clone + 매 세션 auto-update):
+- [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) · [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) · [OpenHarness](https://github.com/HKUDS/OpenHarness) — 기존 (sprint v22-EXT)
+- [open-cowork](https://github.com/OpenCoworkAI/open-cowork) · [design.md](https://github.com/google-labs-code/design.md) — 신규 (sprint v34)
+
+위치: `~/.simon-stack/vendor/<repo>/` — `.claude/hooks/session-start.sh` §7b 가 매 세션 `git pull --ff-only` (안전 조건).
 
 ```
 "새 앱 만들자"        → app-dev-orchestrator    → 21단계 파이프라인

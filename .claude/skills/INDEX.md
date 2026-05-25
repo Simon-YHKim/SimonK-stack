@@ -2,7 +2,9 @@
 
 이 환경에 설치된 모든 skill 의 카테고리별 맵. 세션 시작 시 참고용.
 
-**총 51개** skill (Gstack 36 + simon-stack 13 + 기타 2).
+**총 105개** skill (skills-src/ + .claude/skills/ 합산, 2026-05-25 sprint v34 기준 — Gstack 36 vendored + native 60 + meta 9).
+
+> **검증**: `python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py <path>` — 2026-05-25 일괄 검증 결과 **Errors=0 / Warnings=0** (105/105 통과).
 
 ## 🧭 Orchestrators (상위 지휘)
 
