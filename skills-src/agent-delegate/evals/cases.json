@@ -1,6 +1,6 @@
 {
   "skill": "agent-delegate",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "cases": [
     {
       "id": "korean-parallel-task",

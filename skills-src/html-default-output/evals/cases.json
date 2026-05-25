@@ -1,0 +1,32 @@
+{
+  "skill": "html-default-output",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "korean-spec-as-html",
+      "prompt": "새 결제 기능 스펙 정리해줘. 디자인 옵션도 여러 개 비교하고 싶어",
+      "assertions": [
+        { "id": "picks-html", "text": "The agent produces the spec as HTML by default rather than long markdown." },
+        { "id": "grid-comparison", "text": "The agent uses a grid/side-by-side layout for the design options with trade-off labels." },
+        { "id": "states-cost", "text": "The agent notes the cost trade-off (more tokens, noisier git diff)." }
+      ]
+    },
+    {
+      "id": "english-one-off-editor",
+      "prompt": "I have 30 backlog tickets to re-prioritize into Now/Next/Later/Cut",
+      "assertions": [
+        { "id": "detects-editor-candidate", "text": "The agent recognizes this as a one-off interactive editor candidate (classify/sort task)." },
+        { "id": "ai-pre-sort", "text": "The agent has the AI pre-sort the tickets so the editor opens in a recommended state, not blank." },
+        { "id": "copy-back-button", "text": "The agent includes a copy-as-markdown retrieval button so the result feeds back to the AI." }
+      ]
+    },
+    {
+      "id": "korean-keep-markdown",
+      "prompt": "커밋 메시지랑 이 짧은 코드 수정 설명 좀 적어줘",
+      "assertions": [
+        { "id": "keeps-markdown", "text": "The agent keeps commit messages and short code-tracked content as markdown, not HTML." },
+        { "id": "explains-why", "text": "The agent explains HTML would create git diff noise for version-tracked content." }
+      ]
+    }
+  ]
+}

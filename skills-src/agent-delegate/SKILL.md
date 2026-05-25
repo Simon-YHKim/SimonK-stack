@@ -2,7 +2,7 @@
 name: agent-delegate
 description: "Use when the user asks to delegate work to sub-agents, parallelize tasks, save tokens via agent splitting—triggers \"에이전트 위임\", \"sub-task\", \"delegate to agent\", \"parallel agents\", \"작업 분할\", \"token 절약\", \"멀티 에이전트\", \"agent 병렬화\". Produces a delegation plan with task decomposition, context envelope (file paths only, no content), output contracts (exact return format), and pattern selection (Fan-out / Pipeline / Supervisor). Minimizes round-trips and per-agent context. Used by app-dev-orchestrator, simon-worktree, and any multi-step work that benefits from parallelization."
 allowed-tools: Read, Write, Edit, Grep, Glob
-version: 1.0.0
+version: 1.1.0
 author: simon-stack
 ---
 
@@ -16,6 +16,21 @@ Sub-agent 위임으로 작업을 쪼개고 토큰을 절약하는 메타 skill.
 2. **Context envelope 최소화** — file path 전달, file content는 sub-agent가 읽음
 3. **Output contract 명시** — sub-agent가 어떤 포맷으로 반환할지 사전 정의
 4. **No round-trips** — sub-agent가 추가 질문 없이 끝낼 수 있게 specification 충분히
+
+## Step 0. 위임 판정 (먼저 한 줄로 거른다)
+
+분해·envelope·contract 를 설계하기 _전에_, 이 작업을 애초에 위임할지부터 한 질문으로 판정한다:
+
+> **"이 작업의 중간 출력물을 나중에 또 볼 일이 있나?"**
+
+- "아니, 결론만 알면 돼" → **위임 (subagent)**. 중간 과정이 메인 컨텍스트에 남을 이유 없음.
+  - 예: 스펙 검증(통과/실패만), 타 레포 읽고 요약, 깃허브 보고 문서 작성
+- "응, 과정을 다 봐야 해" → **메인에서 직접**. 위임하면 오히려 손해.
+  - 예: 지금 보고 있는 코드 리팩토링
+
+이 한 줄을 매 작업마다 던지는 습관이 메인 세션 컨텍스트를 가볍게 유지한다. (출처: Anthropic 세션 관리 가이드 — `session-context-tracker` skill 과 공유.)
+
+판정 결과가 "위임" 이면 아래 4단계로 진행한다.
 
 ## Delegation Protocol (4단계)
 
@@ -146,6 +161,7 @@ Supervisor Agent: 요청 분류
 
 ## Related skills
 
+- `session-context-tracker` — 5선택지 중 subagent 가 맞는지 판단. 이 skill 의 Step 0 판정 질문과 동일 출처
 - `simon-worktree` — git worktree로 sessions 분리
 - `context-guardian` — 각 agent의 context 보호
 - `simon-research` — 리서치 작업을 fan-out으로 병렬화 가능
