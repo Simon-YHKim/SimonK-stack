@@ -39,12 +39,14 @@
 - **보안·품질**: `/cso`, `/codex`, `/careful`, `/guard`, `/freeze`, `/unfreeze`
 - **리서치**: `/investigate`, `/browse`, `/learn`, `/devex-review`
 
-### 2. simon-stack (13개) — 통합 오케스트레이션
-- `app-dev-orchestrator` — 신규 앱 21단계 마스터 파이프라인
-- `security-orchestrator` — 보안 5단계 순차 실행
-- `security-checklist`, `authz-designer`, `paid-api-guard` — 보안 상세
-- `simon-tdd`, `simon-worktree`, `simon-research`, `simon-instincts` — 방법론
-- `nextjs-optimizer`, `stitch-design-flow`, `project-context-md` — 도구
+### 2. simon-stack (100+개) — 통합 오케스트레이션
+- **Orchestrator**: `app-dev-orchestrator` (21단계 신규 앱), `security-orchestrator` (5단계 보안), `dev-orchestrator` (일반 구현 7단계), `simonk` (6-phase 자율 하네스), `phase4-game-orchestrator` (게임 트랙, Q3 2026)
+- **방법론**: `simon-tdd`, `simon-worktree`, `simon-research`, `simon-instincts`, `simon-design-first`, `karpathy-guidelines`
+- **보안**: `security-checklist`, `authz-designer`, `paid-api-guard`
+- **그로스·수익화**: `pmf-analyzer`, `aarrr-growth-planner`, `monetization-planner`, `revenue-scenario-tester`, `growth-engine`, `viral-launch`, `aha-moment-optimizer`
+- **도구·헬퍼**: `nextjs-optimizer`, `model-router`, `multi-terminal-dispatcher`, `stitch-design-flow`, `gcloud-helper`, `keepass-helper`, `defuddle`, `llm-wiki-builder`, `project-context-md`, `consistency-guard`, `code-health-guard`, `human-voice-guard`
+
+> 정확한 카운트와 전체 카테고리: `~/.claude/skills/INDEX.md` (sprint마다 변동)
 
 ### 3. 유틸리티
 - `commit`, `review`, `debug`, `refactor`, `test-gen`, `explain` — 일반 개발
