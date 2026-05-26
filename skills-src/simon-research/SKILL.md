@@ -1,6 +1,6 @@
 ---
 name: simon-research
-description: Research-first principle — mandatory external-source investigation (official docs, competitive products, recent engineering blogs) BEFORE any major planning or architecture decision. Use this skill whenever the user says things like "리서치 해줘", "조사 해줘", "기술 비교", "레퍼런스 수집", "Supabase vs Firebase", "research this stack", "competitive analysis", "find examples of X"—or before running /plan-ceo-review, /ultraplan, or app-dev-orchestrator. Produces a dated research doc (docs/research/<date>-<topic>.md) with citations, competitive comparison table (3+ products), and recommendations. Rejects unsourced claims, stale blogs (>1 year), and AI-summary articles as primary sources.
+description: Research-first principle — mandatory external-source investigation (official docs, competitive products, recent engineering blogs) BEFORE any major planning or architecture decision. Use this skill whenever the user says things like "리서치 해줘", "조사 해줘", "기술 비교", "레퍼런스 수집", "Supabase vs Firebase", "research this stack", "competitive analysis", "find examples of X"—or before running /plan-ceo-review, /ultraplan, app-dev-orchestrator, dev-orchestrator, or security-orchestrator. Produces a dated research doc (docs/research/<date>-<topic>.md) with citations, competitive comparison table (3+ products), and recommendations. Rejects unsourced claims, stale blogs (>1 year), and AI-summary articles as primary sources.
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon
