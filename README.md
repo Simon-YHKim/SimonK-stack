@@ -12,7 +12,7 @@
 
 **문제**: AI 코딩 어시스턴트는 큰 작업을 시키면 매번 다른 순서로 일하고, 같은 실수를 반복합니다.
 
-**해결**: **107개 skill** (작업 매뉴얼, 2026-05-25 기준 0 errors / 0 warnings 검증 통과 — PR #8 신규 session-context-tracker + html-default-output 포함) + **simonK 통합 자율 하네스** (단일 진입점 → 6-phase 자율 실행). 더해 [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) 가 세션 간 _학습 누적_ 을 담당합니다 — 매 세션 처음부터 다시 추론하지 않습니다.
+**해결**: **107개 skill** (작업 매뉴얼, 2026-05-27 기준 `validate_skill.py` 0 errors / 56 minor warnings — description score 등 비차단 — PR #8 신규 `session-context-tracker` + `html-default-output` 포함) + **simonK 통합 자율 하네스** (단일 진입점 → 6-phase 자율 실행). 더해 [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) 가 세션 간 _학습 누적_ 을 담당합니다 — 매 세션 처음부터 다시 추론하지 않습니다.
 
 **Sprint v34 (2026-05-25)** — 5 외부 vendor 통합 (user-level live clone + 매 세션 auto-update):
 - [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) · [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) · [OpenHarness](https://github.com/HKUDS/OpenHarness) — 기존 (sprint v22-EXT)

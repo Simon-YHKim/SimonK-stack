@@ -210,7 +210,8 @@ CHANGED_SET=""
 if [ -n "$PREV_SHA" ] && [ "$PREV_SHA" != "$CURRENT_SHA" ]; then
   if (cd "$REPO_DIR" && git cat-file -e "${PREV_SHA}^{commit}" 2>/dev/null); then
     CHANGED_FILES=$(cd "$REPO_DIR" && git diff --name-only "$PREV_SHA" "$CURRENT_SHA" -- 'skills-src/' '.claude/skills/' 2>/dev/null || true)
-    CHANGED_SET=" $(echo "$CHANGED_FILES" | sed -E 's|^(skills-src|\.claude/skills)/([^/]+)/.*|\2|' | grep -v '^$' | sort -u | tr '\n' ' ')"
+    # NOTE: use '#' as sed separator to avoid clash with ERE alternation '|'.
+    CHANGED_SET=" $(echo "$CHANGED_FILES" | sed -E 's#^(skills-src|\.claude/skills)/([^/]+)/.*#\2#' | grep -v '^$' | sort -u | tr '\n' ' ')"
     [ -n "$(echo "$CHANGED_SET" | tr -d ' ')" ] && \
       log "  changed skills since $PREV_SHA → $CHANGED_SET"
   else
