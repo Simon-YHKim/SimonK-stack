@@ -194,20 +194,61 @@ if [ -d ~/.claude/skills/gstack ]; then
 fi
 
 # --- 3. simon-stack skills from this repo ---
-# Source: skills-src/ (distributable) + .claude/skills/ (dev-essential)
+# Source: skills-src/ (distributable) + .claude/skills/ (dev-essential).
+#
+# Update policy (fixes stale-global problem):
+#   - new skill → always copy
+#   - existing skill → keep, UNLESS:
+#       (a) $SIMON_STACK_FORCE_SYNC=1   (manual full overwrite)
+#       (b) SKILL changed in git diff between previously-installed SHA
+#           and $CURRENT_SHA   (selective auto-update)
 log "Copying simon-stack skills..."
-count=0
+
+# Compute changed-skill set since previous install (for selective overwrite).
+PREV_SHA=$(cat "$MARKER" 2>/dev/null || echo "")
+CHANGED_SET=""
+if [ -n "$PREV_SHA" ] && [ "$PREV_SHA" != "$CURRENT_SHA" ]; then
+  if (cd "$REPO_DIR" && git cat-file -e "${PREV_SHA}^{commit}" 2>/dev/null); then
+    CHANGED_FILES=$(cd "$REPO_DIR" && git diff --name-only "$PREV_SHA" "$CURRENT_SHA" -- 'skills-src/' '.claude/skills/' 2>/dev/null || true)
+    CHANGED_SET=" $(echo "$CHANGED_FILES" | sed -E 's|^(skills-src|\.claude/skills)/([^/]+)/.*|\2|' | grep -v '^$' | sort -u | tr '\n' ' ')"
+    [ -n "$(echo "$CHANGED_SET" | tr -d ' ')" ] && \
+      log "  changed skills since $PREV_SHA → $CHANGED_SET"
+  else
+    log "  (prev SHA $PREV_SHA not in local git history — selective diff skipped; use SIMON_STACK_FORCE_SYNC=1 to force overwrite)"
+  fi
+fi
+
+count_new=0
+count_updated=0
+count_skipped=0
 for src_dir in "$REPO_DIR"/skills-src "$REPO_DIR"/.claude/skills; do
   [ -d "$src_dir" ] || continue
   for d in "$src_dir"/*/; do
     name=$(basename "$d")
     [ -f "$d/SKILL.md" ] || continue
-    [ -e ~/.claude/skills/"$name" ] && continue
-    cp -r "$d" ~/.claude/skills/"$name"
-    count=$((count + 1))
+
+    FORCE_THIS=0
+    if [ "${SIMON_STACK_FORCE_SYNC:-0}" = "1" ]; then
+      FORCE_THIS=1
+    elif [ -n "$CHANGED_SET" ] && echo "$CHANGED_SET" | grep -q " $name "; then
+      FORCE_THIS=1
+    fi
+
+    if [ -e ~/.claude/skills/"$name" ]; then
+      if [ "$FORCE_THIS" = "1" ]; then
+        rm -rf ~/.claude/skills/"$name"
+        cp -r "$d" ~/.claude/skills/"$name"
+        count_updated=$((count_updated + 1))
+      else
+        count_skipped=$((count_skipped + 1))
+      fi
+    else
+      cp -r "$d" ~/.claude/skills/"$name"
+      count_new=$((count_new + 1))
+    fi
   done
 done
-log "Copied $count simon-stack skills"
+log "Skills: new=$count_new updated=$count_updated skipped=$count_skipped"
 
 # INDEX.md at skill root
 if [ -f "$REPO_DIR/.claude/skills/INDEX.md" ] && [ ! -f ~/.claude/skills/INDEX.md ]; then
