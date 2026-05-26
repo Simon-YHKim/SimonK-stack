@@ -1,6 +1,6 @@
 ---
 name: phase4-game-orchestrator
-description: "Use when the user invokes \"게임 만들자\", \"미니게임\", \"바이브코딩\", \"Godot\", \"Phaser\", \"Three.js\", \"ComfyUI 이미지\", \"Suno BGM\", or \"/phase4-game\". Phase 4 (Q3 2026 게임 트랙) orchestrator placeholder. Produces (1) Godot 게임 scaffold + asset list, (2) 42morrow 바이브코딩 시리즈 reference 추천, (3) ComfyUI 이미지 + Suno BGM 자동 생성 파이프라인 sketch, (4) Play Store ASO sketch (안드 출시 후 release notes 톤 유지). Do NOT use before Phase 4 (7월). 현재 placeholder, Phase 4 진입 시 본격 작성."
+description: "Use when the user invokes \"게임 만들자\", \"미니게임\", \"바이브코딩\", \"Godot\", \"Phaser\", \"Three.js\", \"ComfyUI 이미지\", \"Suno BGM\", or \"/phase4-game-orchestrator\". Phase 4 (Q3 2026 게임 트랙) orchestrator placeholder. Produces (1) Godot 게임 scaffold + asset list, (2) 42morrow 바이브코딩 시리즈 reference 추천, (3) ComfyUI 이미지 + Suno BGM 자동 생성 파이프라인 sketch, (4) Play Store ASO sketch (안드 출시 후 release notes 톤 유지). Do NOT use before Phase 4 (7월). 현재 placeholder, Phase 4 진입 시 본격 작성."
 allowed-tools: Read, Bash, Write
 version: 0.1.0
 author: simon-stack
@@ -15,7 +15,7 @@ author: simon-stack
 - `게임 만들자`, `미니게임`, `바이브코딩`
 - `Godot`, `Phaser`, `Three.js`, `Unity`
 - `ComfyUI 이미지`, `Suno BGM`
-- `/phase4-game`
+- `/phase4-game-orchestrator`
 
 ## Phase 4 진입 전 점검
 
@@ -78,7 +78,7 @@ project_name/
 ## 현재 placeholder 동작
 
 ```
-사용자: /phase4-game "스틱맨 게임 만들고 싶어"
+사용자: /phase4-game-orchestrator "스틱맨 게임 만들고 싶어"
 → 본 skill 응답:
 
   ## Phase 4 진입 전 상태

@@ -1,6 +1,6 @@
 ---
 name: simon-ohmo
-description: "Use when the user invokes \"simon-ohmo\", \"/ohmo\", \"personal agent\", \"self.md agent\", \"closed-network agent\", \"폐쇄망 운영\", or \"시그니처 작품 활성\". Phase 6 (27Y Q1+) placeholder. Produces (1) status check (5 entry conditions: OpenHarness ✓ / Ollama model / self.md / v0 prototype / on-prem GPU), (2) prerequisite verification, (3) deferral notice with checklist. Do NOT use as production agent yet — use simonK for current autonomous work."
+description: "Use when the user invokes \"simon-ohmo\", \"/simon-ohmo\", \"personal agent\", \"self.md agent\", \"closed-network agent\", \"폐쇄망 운영\", or \"시그니처 작품 활성\". Phase 6 (27Y Q1+) placeholder. Produces (1) status check (5 entry conditions: OpenHarness ✓ / Ollama model / self.md / v0 prototype / on-prem GPU), (2) prerequisite verification, (3) deferral notice with checklist. Do NOT use as production agent yet — use simonK for current autonomous work."
 allowed-tools: Read, Bash
 version: 0.1.1
 author: simon-stack
@@ -13,7 +13,7 @@ author: simon-stack
 ## 발동 조건
 
 다음 트리거 중 하나로 호출됨:
-- `simon-ohmo`, `/ohmo`
+- `simon-ohmo`, `/simon-ohmo`
 - "personal agent", "self.md agent", "closed-network agent"
 - "폐쇄망 운영", "시그니처 작품 활성"
 
