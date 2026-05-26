@@ -12,7 +12,7 @@
 
 **Problem**: AI coding assistants work in a different order every time you give them a large task, and they repeat the same mistakes.
 
-**Solution**: **107 skills** (work manuals, validated 2026-05-25 with 0 errors / 0 warnings — incl. PR #8 new session-context-tracker + html-default-output) + **simonK unified autonomous harness** (single entry point → 6-phase autonomous execution). Combined with [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (private) for cross-session learning accumulation — no more re-reasoning from scratch every session.
+**Solution**: **107 skills** (work manuals, `validate_skill.py` reports 0 errors / 56 minor warnings — description score, non-blocking — as of 2026-05-27; incl. PR #8 new `session-context-tracker` + `html-default-output`) + **simonK unified autonomous harness** (single entry point → 6-phase autonomous execution). Combined with [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (private) for cross-session learning accumulation — no more re-reasoning from scratch every session.
 
 **Sprint v34 (2026-05-25)** — 5 external vendor integrations (user-level live clone + auto-update each session):
 - [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) · [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) · [OpenHarness](https://github.com/HKUDS/OpenHarness) — existing (sprint v22-EXT)
