@@ -122,4 +122,5 @@ canceled ──[resubscribe]──→ active
 - `paid-api-guard` — 결제 보안 6층 방어 (기존 skill과 연계)
 - `auth-builder` — 유료 tier에 따른 권한 분리
 - `revenue-scenario-tester` — Payment Agent + Subscription Agent 검증
+- `subscription-manager-selector` — 구독 결제·관리 도구 (Lemon Squeezy / RevenueCat / Adapty) 선택
 

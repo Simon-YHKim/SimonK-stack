@@ -89,3 +89,10 @@ Trigger phrases: "시나리오 테스트", "E2E 시나리오", "edge case 뽑아
 - 🚫 `assert True` or tests with no assertions
 - 🚫 Sleeping in tests to "wait for" async behavior — use proper sync primitives
 - 🚫 Tests that only pass when run in a specific order
+
+## Related skills
+
+- `simon-tdd` — RED 단계에서 Scenario Planning Mode 호출 (시나리오 매트릭스 생성)
+- `dev-orchestrator` — 단계 4 (시나리오 확장 — 복잡 기능에서만) 진입점
+- `code-health-guard` — 시나리오 구현 후 reactive scan
+- `app-dev-orchestrator` — 단계 13.5 에서 같이 호출 (Scenario Planning Mode + code-health-guard 병렬)

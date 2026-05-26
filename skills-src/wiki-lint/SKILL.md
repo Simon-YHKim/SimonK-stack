@@ -58,3 +58,9 @@ The user decides what to fix.
   warnings.
 - **Loud findings, quiet when clean.** If the wiki is healthy, say so in one line
   rather than padding the report.
+
+## Related skills
+
+- `wiki-ingest` — 새 source 추가 직후 lint 권장
+- `wiki-query` — lint 통과 후 조회 안전성 확보
+- `llm-wiki-builder` — wiki 초기 구조 + 운영 패턴
