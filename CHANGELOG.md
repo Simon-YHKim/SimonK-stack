@@ -3,22 +3,57 @@
 모든 중요한 변경은 이 파일에 기록합니다.
 형식: [Keep a Changelog](https://keepachangelog.com/), 버전: [SemVer](https://semver.org/).
 
-## [Unreleased]
+## [1.4.0] — 2026-05-27
 
-### Fixed — Bug-hunt sweep (2026-05-27)
-- `scripts/install.sh`: 수동 install 시 `skills-src/` 90+ 스킬 누락 (이전엔 `.claude/skills/` 만 sync). **B1**
-- `scripts/install.sh` + `.claude/hooks/session-start.sh`: "existing → skip" 정책으로 글로벌이 영구 stale → `git pull` 가 절대 반영 안 되던 문제. install.sh `--force` flag. session-start.sh SHA-aware 선택적 overwrite (installed-SHA ↔ current-SHA git diff 기반 changed-skill set 만 force overwrite) + `SIMON_STACK_FORCE_SYNC=1` env override. **B2**
-- 5 SKILL.md self-reference 슬래시 alias 가 실재 슬래시 명령 (folder/frontmatter `name`)과 불일치 → 정확한 이름으로 변경:
-  - `/ohmo` → `/simon-ohmo`
-  - `/phase4-game` → `/phase4-game-orchestrator`
-  - `/session-export` → `/session-context-export`
-  - `/keepass` → `/keepass-helper`
-  - `/gcloud` → `/gcloud-helper` (`docs/CURATED-SKILLS.md` 포함)
-- `templates/CLAUDE.md`: simon-stack 섹션이 "13개"라고 표기 (실제 100+) → Orchestrator / 방법론 / 보안 / 그로스·수익화 / 도구·헬퍼 카테고리로 재정리.
-- `docs/USING-IN-OTHER-REPOS.md`: stale 카운트 (24개, 28+, 55+, 60+) → 100+ 통일.
+Sprint D — 전체 스킬 chain audit, Wiki 정합성, 설치 ease, 100% functional perfection.
+
+PR 머지: SimonK-stack #9 #10 #11 #12 #13 + SimonKWiki #4 + 2nd-B #18.
+
+### Fixed — Install & hook critical
+- **B1** `scripts/install.sh`: 수동 install 시 `skills-src/` 90+ 스킬 누락 (이전엔 `.claude/skills/` 만 sync). (#9)
+- **B2** `scripts/install.sh` + `.claude/hooks/session-start.sh`: "existing → skip" 정책으로 글로벌 영구 stale → `git pull` 가 반영 안 되던 문제. install.sh `--force` flag. session-start.sh SHA-aware 선택적 overwrite (installed-SHA ↔ current-SHA git diff 로 changed-skill set 만 force overwrite) + `SIMON_STACK_FORCE_SYNC=1` env. (#9)
+- **B2-bis** `.claude/hooks/session-start.sh`: SHA-diff sed 명령이 separator `|` 와 ERE alternation `|` 충돌 → CHANGED_SET 추출 silently fail → B2 fix 가 사실상 작동 안 함. separator `#` 으로 교체. (#10)
+- **C1** `connect-chrome` 폴더가 `open-gstack-browser` 와 동일 `name:` field → Claude Code dedupe → zombie. install/hook 의 sync loop 에 명시적 skip. Gstack auto-generated SKILL.md 라 직접 수정 금지. (#13)
+
+### Fixed — Skill chain orchestration
+- 5 SKILL.md self-reference 슬래시 alias 가 frontmatter `name` 과 불일치 → 정확한 이름으로 변경: `/ohmo` → `/simon-ohmo`, `/phase4-game` → `/phase4-game-orchestrator`, `/session-export` → `/session-context-export`, `/keepass` → `/keepass-helper`, `/gcloud` → `/gcloud-helper` (`docs/CURATED-SKILLS.md` 포함). (#9)
+- `simon-design-first` Step 5: 4 → 7 design skill 전체 chain 으로 확장. `/plan-design-review` + `/design-review` 가 위임 분기에서 빠져있던 문제 해결. (#11)
+- `app-dev-orchestrator` 단계 3.5 (`simon-design-first` proxy) 신규 — description 이 명시한 "mandatory proxy before /design-consultation 등" 계약을 본문 chain 에 반영. (#11)
+- `simon-design-first` Step 5.5: 5 시나리오 decision matrix (zero-to-one / existing refactor / live polish / variant only / external Stitch only) — chain bloat 방지 + LLM 가지치기 가능. (#12)
+- `simon-research` description: orchestrator coverage 를 `app-dev-orchestrator` 에서 `dev-orchestrator` + `security-orchestrator` 까지 확장. (#13)
+- `payment-integrator` Related Skills: `subscription-manager-selector` back-ref 추가 (asymmetric link graph 해소). (#13)
+- `test-gen` Related skills trailer 추가 (canonical 4-skill cross-ref). (#13)
+- `wiki-ingest` / `wiki-query` / `wiki-lint`: bidirectional cross-refs 추가 (3 skill 이 같은 vault 다루는데 서로 무링크였음). (#13)
+
+### Fixed — Docs / Wiki
+- `templates/CLAUDE.md`: simon-stack "13개" 표기 → "100+개" + 카테고리 재정리 (Orchestrator / 방법론 / 보안 / 그로스·수익화 / 도구·헬퍼). (#9)
+- `docs/USING-IN-OTHER-REPOS.md`: stale 카운트 (24개 / 28+ / 55+ / 60+) → 100+ 통일. (#9)
+- `README.md` / `README.en.md`: "0 errors / 0 warnings" → "0 errors / 56 minor warnings" (실측, description score 등 비차단). (#10)
+- `docs/INSTALL.md`: 36 Gstack / 24 simon-stack → 38+ / 100+ + `~/.claude/.simon-stack-installed` marker 안내 추가. (#13 follow-up)
+- **SimonKWiki PR #4**: `wiki/entities/tools/getdesign-md.md` 의 broken `[[design-consultation]]` / `[[design-shotgun]]` / `[[simon-design-first]]` → backtick (skill names, not wiki pages). `wiki/index.md`: last-updated 2026-05-25 → 2026-05-27, 페이지 카운트 메인 89→129, total 115→155.
+
+### Fixed — Downstream (2nd-B repo, PR #18)
+- `.claude/settings.json`: inline-bash hook → `templates/bootstrap-session-start.sh` 정식 위임 형식.
+- `.claude/hooks/session-start.sh` (신규): bootstrap script + `SIMON_STACK_REPO` default 를 `Simon-YHKim/SimonK-stack` 로 명시 (transferred URL redirect 의존 제거).
+- `CLAUDE.md`: ghost slash commands `/context-save` / `/context-restore` → `/checkpoint` + `/context-guardian`.
 
 ### Added
-- `scripts/install.sh`: `--force`, `--no-backup`, `--help` flag 추가. install 후 `~/.claude/.simon-stack-installed` 에 SHA 기록 (session-start.sh 의 selective-update 로직 입력).
+- `scripts/install.sh`: `--force`, `--no-backup`, `--help` flags. install 후 `~/.claude/.simon-stack-installed` 에 SHA 기록.
+- `.claude/hooks/session-start.sh`: SHA-aware selective overwrite + `SIMON_STACK_FORCE_SYNC=1` env var.
+- 2nd-B 같은 다운스트림 repo 의 정식 bootstrap hook 패턴 (templates/bootstrap-session-start.sh + bootstrap-settings.json) 검증·문서화.
+
+### Verified
+- 108 SKILL.md 모두 `validate_skill.py` 0 errors (56 minor warnings — W013 long ref no-TOC 33 / W009 path resolve 15 / W006/W007/W004 8 — 모두 비차단, cosmetic).
+- 106 unique invocable skills (connect-chrome dedupe 후).
+- 6 orchestrator chain + 7 design skill chain + 6 chain category 전수 audit (Planning / Implementation / Security / Ship & Deploy / Growth & Monetization / Korean & Helper / Wiki & Memory) — chain integrity strong.
+- Wiki health: lint-report v4 후 mostly-healthy (E3→E0 after fix, W2 user-judgment 잔존).
+- End-to-end: 2nd-B bootstrap hook → `~/.simon-stack-src` clone → upstream session-start.sh delegate → global `~/.claude/skills` sync 정상 동작.
+
+### Follow-ups
+- gstack upstream 99 commits behind (`~/.claude/skills/gstack/` 38 modified files) → 사용자 직접 `/gstack-upgrade` 호출 권장 (destructive 변경 위험 — 자동 처리 안 함).
+- W009 false-positive 다수 (`scripts/X.ps1` 가 repo-root 기준인데 validate_skill.py 가 skill-folder 기준 resolve) → upstream Skill-Agent (`Learner-thepoorman/Skill-Agent`) PR 별도.
+- W013 (reference 파일 > 400 lines + no `## Contents`) → 33 references TOC 추가 별도 작업.
+- Windows-native `install.ps1` (bash 의존 제거) — 다른 머신용 nice-to-have.
 
 ## [1.3.0] — 2026-04-16
 
