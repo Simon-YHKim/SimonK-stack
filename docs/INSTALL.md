@@ -10,13 +10,14 @@ cd SimonK-stack
 ./scripts/install.sh
 ```
 
-설치되는 것:
-- `~/.claude/skills/gstack/` — Gstack 풀 트리 (36 skill + bin/scripts/lib + bun deps)
-- `~/.claude/skills/<gstack-skill>/` — 36개 Gstack skill 개별 노출
-- `~/.claude/skills/<simon-stack>/` — 24개 simon-stack skill
-- `~/.claude/instincts/` — 4개 seed 파일 (mistakes·patterns·korean·quirks)
+설치되는 것 (2026-05-27 기준):
+- `~/.claude/skills/gstack/` — Gstack 풀 트리 (38+ skill + bin/scripts/lib + bun deps, garrytan/gstack upstream)
+- `~/.claude/skills/<gstack-skill>/` — 38+ Gstack skill 개별 노출
+- `~/.claude/skills/<simon-stack>/` — 100+ simon-stack skill (skills-src/ + .claude/skills/, connect-chrome zombie auto-skip)
+- `~/.claude/instincts/` — 4 seed 파일 (mistakes / patterns / korean / quirks)
 - `~/.claude/session-start-instincts.sh` — SessionStart hook 스크립트
-- `~/.claude/CLAUDE.md` — 글로벌 지침 (instincts auto-load + Boris 원칙)
+- `~/.claude/CLAUDE.md` — 글로벌 지침 (instincts auto-load + Boris 원칙 + 100+ skill 카테고리 맵)
+- `~/.claude/.simon-stack-installed` — installed SHA marker (session-start.sh selective-update logic 입력)
 
 **기존 파일은 덮어쓰지 않음** — `cp -n` 로직. 재실행 안전.
 
