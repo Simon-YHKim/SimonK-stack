@@ -66,3 +66,10 @@ A **two-phase** flow. Phase 2 starts only after the user answers Phase 1's quest
 - **Update beats create.** Prefer merging into an existing page over spawning a
   near-duplicate (staleness defense).
 - **Every operation is logged.** No silent wiki changes.
+
+## Related skills
+
+- `wiki-query` — ingest 한 source 를 다시 조회·답변 추출 (Knowledge Flywheel)
+- `wiki-lint` — ingest 후 정합성 점검 (broken `[[wikilinks]]`, orphan, stale claims)
+- `llm-wiki-builder` — 새 wiki 초기화 (3-layer Karpathy raw/wiki/Output 패턴)
+- `simon-instincts` — 코딩 도메인 학습 (Wiki = 사용자 메타 인지, instincts = 코딩 실수)

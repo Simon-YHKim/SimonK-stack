@@ -46,3 +46,9 @@ new page, so the wiki compounds with use.
   bloats the wiki and accelerates staleness.
 - **Never invent.** If the wiki and `raw/` do not answer it, say the wiki does
   not cover it yet.
+
+## Related skills
+
+- `wiki-ingest` — 새 source 를 raw → wiki 로 ingest (조회 전 단계)
+- `wiki-lint` — query 결과 신뢰성 검증 전 wiki 정합성 점검
+- `llm-wiki-builder` — wiki 초기 구조 + 운영 패턴
