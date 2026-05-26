@@ -2,114 +2,169 @@
 # simon-stack installer — sets up Gstack + simon-stack skills globally.
 #
 # Usage:
-#   ./scripts/install.sh         # full install
-#   ./scripts/install.sh --dry   # show what would happen
+#   ./scripts/install.sh                # install (skip existing skills)
+#   ./scripts/install.sh --dry          # show what would happen
+#   ./scripts/install.sh --force        # overwrite existing skills (for updates)
+#   ./scripts/install.sh --no-backup    # skip ~/.claude backup
+#   ./scripts/install.sh --help         # this help
 #
-# Idempotent: re-running is safe. Existing files are NOT overwritten.
+# Idempotent. After `git pull`, run with --force to apply skill updates.
 
 set -euo pipefail
 
-DRY=${1:-}
+DRY=""
+FORCE=""
+NO_BACKUP=""
+for arg in "$@"; do
+  case "$arg" in
+    --dry|--dry-run) DRY="--dry" ;;
+    --force) FORCE="1" ;;
+    --no-backup) NO_BACKUP="1" ;;
+    -h|--help)
+      sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
+      exit 0 ;;
+    *) echo "ERROR: Unknown arg: $arg (try --help)" >&2 ; exit 1 ;;
+  esac
+done
+
 log() { echo "[simon-stack] $*"; }
 run() { [ "$DRY" = "--dry" ] && echo "  + $*" || "$@"; }
 
-log "Starting install..."
+MODE_DESC="install"
+[ "$DRY" = "--dry" ] && MODE_DESC="$MODE_DESC dry-run"
+[ "$FORCE" = "1" ]   && MODE_DESC="$MODE_DESC force"
+[ "$NO_BACKUP" = "1" ] && MODE_DESC="$MODE_DESC no-backup"
+log "Starting ($MODE_DESC)..."
 
 # ---- Prereqs ----
 command -v git >/dev/null  || { echo "ERROR: git required"; exit 1; }
 command -v bun >/dev/null  || log "WARN: bun not found — Gstack runtime will be skipped"
 command -v node >/dev/null || log "WARN: node not found"
 
-# ---- Backup ----
-if [ -d ~/.claude ]; then
+# ---- Backup (opt-out via --no-backup) ----
+if [ -z "$NO_BACKUP" ] && [ -d ~/.claude ]; then
   BACKUP=~/.claude.bak-$(date +%Y%m%d-%H%M%S)
-  log "Backing up ~/.claude → $BACKUP"
+  log "Backing up ~/.claude → $BACKUP (skip with --no-backup)"
   run cp -a ~/.claude "$BACKUP"
 fi
 
 # ---- Directories ----
 run mkdir -p ~/.claude/skills ~/.claude/instincts
 
-# ---- Install Gstack ----
+# ---- Install Gstack runtime (optional, for browse/qa) ----
 if [ ! -d ~/.claude/skills/gstack ]; then
-  log "Cloning Gstack..."
+  log "Cloning Gstack runtime..."
   TMP=$(mktemp -d)
-  run git clone --depth 1 https://github.com/garrytan/gstack "$TMP/gstack-src"
-  run cp -a "$TMP/gstack-src" ~/.claude/skills/gstack
-  run rm -rf "$TMP"
+  if run git clone --depth 1 https://github.com/garrytan/gstack "$TMP/gstack-src"; then
+    run cp -a "$TMP/gstack-src" ~/.claude/skills/gstack
+    run rm -rf "$TMP"
 
-  if command -v bun >/dev/null; then
-    log "Installing Gstack dependencies..."
-    run bash -c "cd ~/.claude/skills/gstack && bun install"
+    if command -v bun >/dev/null; then
+      log "Installing Gstack dependencies..."
+      run bash -c "cd ~/.claude/skills/gstack && bun install"
+    fi
+
+    log "Linking individual Gstack skills..."
+    g_linked=0
+    for d in ~/.claude/skills/gstack/*/; do
+      name=$(basename "$d")
+      [ -f "$d/SKILL.md" ] || continue
+      if [ -e ~/.claude/skills/"$name" ]; then
+        [ "$FORCE" = "1" ] || continue
+        run rm -rf ~/.claude/skills/"$name"
+      fi
+      run cp -r "$d" ~/.claude/skills/"$name"
+      g_linked=$((g_linked + 1))
+    done
+    log "  Gstack skills linked: $g_linked"
+  else
+    log "WARN: Gstack clone failed (non-fatal — simon-stack skills will still install)"
+    run rm -rf "$TMP"
   fi
-
-  # Also expose individual Gstack skills at ~/.claude/skills/<name>/
-  log "Linking individual Gstack skills..."
-  for d in ~/.claude/skills/gstack/*/; do
-    name=$(basename "$d")
-    # skip non-skill dirs
-    [ -f "$d/SKILL.md" ] || continue
-    [ -e ~/.claude/skills/"$name" ] && continue
-    run cp -r "$d" ~/.claude/skills/"$name"
-  done
 else
-  log "Gstack already installed, skipping"
+  log "Gstack already present at ~/.claude/skills/gstack/"
 fi
 
-# ---- Install simon-stack skills ----
+# ---- Install simon-stack skills (skills-src/ + .claude/skills/) ----
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-log "Installing simon-stack skills from $REPO_DIR/.claude/skills/"
-for d in "$REPO_DIR"/.claude/skills/*/; do
-  name=$(basename "$d")
-  [ -f "$d/SKILL.md" ] || continue
-  if [ -e ~/.claude/skills/"$name" ]; then
-    log "  skip (exists): $name"
-    continue
-  fi
-  run cp -r "$d" ~/.claude/skills/"$name"
-  log "  installed: $name"
+log "Installing simon-stack skills from $REPO_DIR/{skills-src,.claude/skills}/"
+
+installed=0
+updated=0
+skipped=0
+for src_dir in "$REPO_DIR"/skills-src "$REPO_DIR"/.claude/skills; do
+  [ -d "$src_dir" ] || continue
+  for d in "$src_dir"/*/; do
+    name=$(basename "$d")
+    [ -f "$d/SKILL.md" ] || continue
+
+    if [ -e ~/.claude/skills/"$name" ]; then
+      if [ "$FORCE" = "1" ]; then
+        run rm -rf ~/.claude/skills/"$name"
+        run cp -r "$d" ~/.claude/skills/"$name"
+        updated=$((updated + 1))
+      else
+        skipped=$((skipped + 1))
+      fi
+    else
+      run cp -r "$d" ~/.claude/skills/"$name"
+      installed=$((installed + 1))
+    fi
+  done
 done
+log "  simon-stack: installed=$installed updated=$updated skipped=$skipped"
+if [ "$skipped" -gt 0 ] && [ "$FORCE" != "1" ]; then
+  log "  ($skipped skills already present — use --force to update them)"
+fi
 
 # ---- Instincts seed ----
 for f in mistakes-learned.md project-patterns.md korean-context.md tool-quirks.md; do
-  if [ ! -f ~/.claude/instincts/"$f" ]; then
-    if [ -f "$REPO_DIR/.claude/instincts/$f" ]; then
+  if [ -f "$REPO_DIR/.claude/instincts/$f" ]; then
+    if [ ! -f ~/.claude/instincts/"$f" ] || [ "$FORCE" = "1" ]; then
       run cp "$REPO_DIR/.claude/instincts/$f" ~/.claude/instincts/"$f"
       log "  seeded instincts: $f"
     fi
   fi
 done
 
-# ---- SessionStart hook ----
-if [ -f "$REPO_DIR/scripts/session-start-instincts.sh" ] && [ ! -f ~/.claude/session-start-instincts.sh ]; then
-  run cp "$REPO_DIR/scripts/session-start-instincts.sh" ~/.claude/session-start-instincts.sh
-  run chmod +x ~/.claude/session-start-instincts.sh
-  log "SessionStart hook installed"
-  log "ACTION REQUIRED: add to ~/.claude/settings.json hooks.SessionStart:"
-  log "  { \"matcher\": \"\", \"hooks\": [{ \"type\": \"command\", \"command\": \"~/.claude/session-start-instincts.sh\" }] }"
+# ---- User-level SessionStart hook (rich instincts summary) ----
+if [ -f "$REPO_DIR/scripts/session-start-instincts.sh" ]; then
+  if [ ! -f ~/.claude/session-start-instincts.sh ] || [ "$FORCE" = "1" ]; then
+    run cp "$REPO_DIR/scripts/session-start-instincts.sh" ~/.claude/session-start-instincts.sh
+    run chmod +x ~/.claude/session-start-instincts.sh
+    log "SessionStart hook installed at ~/.claude/session-start-instincts.sh"
+    log "  To activate: add to ~/.claude/settings.json hooks.SessionStart:"
+    log '    { "matcher": "", "hooks": [{ "type": "command", "command": "~/.claude/session-start-instincts.sh" }] }'
+  fi
 fi
 
 # ---- Global CLAUDE.md ----
-if [ ! -f ~/.claude/CLAUDE.md ] && [ -f "$REPO_DIR/templates/CLAUDE.md" ]; then
-  log "Installing ~/.claude/CLAUDE.md from template"
-  run cp "$REPO_DIR/templates/CLAUDE.md" ~/.claude/CLAUDE.md
+if [ -f "$REPO_DIR/templates/CLAUDE.md" ]; then
+  if [ ! -f ~/.claude/CLAUDE.md ]; then
+    log "Installing ~/.claude/CLAUDE.md from template"
+    run cp "$REPO_DIR/templates/CLAUDE.md" ~/.claude/CLAUDE.md
+  elif [ "$FORCE" = "1" ]; then
+    BACKUP_CLAUDE=~/.claude/CLAUDE.md.bak-$(date +%Y%m%d-%H%M%S)
+    log "Backing up ~/.claude/CLAUDE.md → $BACKUP_CLAUDE (--force)"
+    run cp ~/.claude/CLAUDE.md "$BACKUP_CLAUDE"
+    run cp "$REPO_DIR/templates/CLAUDE.md" ~/.claude/CLAUDE.md
+  fi
 fi
 
 # ---- Skills INDEX ----
-if [ -f "$REPO_DIR/.claude/skills/INDEX.md" ] && [ ! -f ~/.claude/skills/INDEX.md ]; then
-  run cp "$REPO_DIR/.claude/skills/INDEX.md" ~/.claude/skills/INDEX.md
+if [ -f "$REPO_DIR/.claude/skills/INDEX.md" ]; then
+  if [ ! -f ~/.claude/skills/INDEX.md ] || [ "$FORCE" = "1" ]; then
+    run cp "$REPO_DIR/.claude/skills/INDEX.md" ~/.claude/skills/INDEX.md
+  fi
 fi
 
 # ---- External vendored repos (sprint v22-EXT) ----
-# external/oh-my-claudecode/ (49M), oh-my-openagent/ (48M), OpenHarness/ (13M)
-# Vendored at clone time, .git stripped. Setup is best-effort (non-fatal).
 EXT_DIR="$REPO_DIR/external"
 EXT_MARKER=~/.claude/.simon-stack-external-installed
 
-if [ -d "$EXT_DIR" ] && [ ! -f "$EXT_MARKER" ]; then
+if [ -d "$EXT_DIR" ] && { [ ! -f "$EXT_MARKER" ] || [ "$FORCE" = "1" ]; }; then
   log "External vendor setup (best-effort, non-fatal)..."
 
-  # OMC + OMO: npm/bun pkg with dist/ pre-built. Install deps only if bun present.
   for r in oh-my-claudecode oh-my-openagent; do
     if [ -d "$EXT_DIR/$r" ] && [ ! -d "$EXT_DIR/$r/node_modules" ]; then
       if command -v bun >/dev/null 2>&1; then
@@ -124,7 +179,6 @@ if [ -d "$EXT_DIR" ] && [ ! -f "$EXT_MARKER" ]; then
     fi
   done
 
-  # OpenHarness: Python pkg. pip install -e if pip available.
   if [ -d "$EXT_DIR/OpenHarness" ] && [ -f "$EXT_DIR/OpenHarness/pyproject.toml" ]; then
     if command -v pip >/dev/null 2>&1; then
       log "  - OpenHarness: pip install -e (editable)"
@@ -137,8 +191,15 @@ if [ -d "$EXT_DIR" ] && [ ! -f "$EXT_MARKER" ]; then
     fi
   fi
 
-  touch "$EXT_MARKER"
+  run touch "$EXT_MARKER"
   log "External vendor setup complete (marker: $EXT_MARKER)"
+fi
+
+# ---- Record installed SHA for session-start.sh selective-update logic ----
+if [ "$DRY" != "--dry" ]; then
+  CURRENT_SHA=$(cd "$REPO_DIR" && git rev-parse HEAD 2>/dev/null || echo unknown)
+  echo "$CURRENT_SHA" > ~/.claude/.simon-stack-installed
+  log "Recorded installed SHA: $CURRENT_SHA"
 fi
 
 log "✅ Install complete"
@@ -147,3 +208,5 @@ log "Next steps:"
 log "  1. Restart Claude Code to load new skills"
 log "  2. Try: '새 앱 만들고 싶어' → app-dev-orchestrator should trigger"
 log "  3. Read: ~/.claude/skills/INDEX.md for the full skill map"
+log ""
+log "After future \`git pull\`, run: ./scripts/install.sh --force"

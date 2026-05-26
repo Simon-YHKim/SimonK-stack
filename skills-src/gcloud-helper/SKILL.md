@@ -1,6 +1,6 @@
 ---
 name: gcloud-helper
-description: "Use when the user invokes \"gcloud\", \"/gcloud\", \"gcloud auth\", \"ADC\", \"BigQuery 인증\", \"Vertex AI 인증\", or \"simonk-gcloud-check\". Produces auth status diagnosis + ghost project auto-fix + env vars inject (GOOGLE_CLOUD_PROJECT + GOOGLE_APPLICATION_CREDENTIALS) + browser OAuth one-liner if needed. Auto-called by simonK harness silent if OK."
+description: "Use when the user invokes \"gcloud\", \"/gcloud-helper\", \"gcloud auth\", \"ADC\", \"BigQuery 인증\", \"Vertex AI 인증\", or \"simonk-gcloud-check\". Produces auth status diagnosis + ghost project auto-fix + env vars inject (GOOGLE_CLOUD_PROJECT + GOOGLE_APPLICATION_CREDENTIALS) + browser OAuth one-liner if needed. Auto-called by simonK harness silent if OK."
 allowed-tools: Read, Bash
 version: 1.0.0
 author: simon-stack
@@ -13,7 +13,7 @@ Google Cloud SDK 자동 진단 + 인증 안내 + 환경 자동 inject. simonK Po
 ## 발동 조건
 
 다음 트리거 중 하나로 호출:
-- `gcloud`, `google cloud`, `/gcloud`
+- `gcloud`, `google cloud`, `/gcloud-helper`
 - "gcloud auth", "ADC", "Application Default Credentials"
 - "BigQuery 인증", "Vertex AI 인증"
 - "구글 클라우드 설정", "gcloud 자동 설정"
@@ -107,7 +107,7 @@ simonk-gcloud-check
 
 - ❌ SimonK-stack은 *비밀번호 절대 저장 X*
 - ❌ Google ID/PW 직접 받기 X (OAuth2 정책)
-- ✅ gcloud 표준 credentials 위치 (`~/.config/gcloud/`)
+- ✅ gcloud 표준 credentials 위치 (`~/.config/gcloud-helper/`)
 - ✅ ADC 표준 위치 (`%APPDATA%\gcloud\application_default_credentials.json`)
 - ✅ 환경변수는 *현재 session*만 (영구 set X — 보안)
 
@@ -142,5 +142,5 @@ simonk-gcloud-check
 
 - `scripts/gcloud-bootstrap.ps1` — base script
 - `scripts/simonk.ps1` — 자동 통합
-- `SimonKWiki/wiki/entities/tools/gcloud.md` — wiki 도구 페이지
+- `SimonKWiki/wiki/entities/tools/gcloud-helper.md` — wiki 도구 페이지
 - `SimonKWiki/wiki/protocols/operations-manual.md § 4` — 운영 SOP

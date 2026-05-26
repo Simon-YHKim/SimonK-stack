@@ -69,7 +69,7 @@
 
 | Skill | 언제 |
 |---|---|
-| **`gcloud-helper`** | `simonK <task>` 호출 시 *자동* (silent) — gcloud auth + project + ADC 자동 진단/inject. 명시 호출 `/gcloud` 또는 `simonk-gcloud-check` |
+| **`gcloud-helper`** | `simonK <task>` 호출 시 *자동* (silent) — gcloud auth + project + ADC 자동 진단/inject. 명시 호출 `/gcloud-helper` 또는 `simonk-gcloud-check` |
 
 ---
 

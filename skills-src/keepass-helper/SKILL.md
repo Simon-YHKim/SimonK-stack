@@ -1,6 +1,6 @@
 ---
 name: keepass-helper
-description: "Use when the user invokes \"keepass\", \"keepassxc\", \"keepass-inject\", \"/keepass\", \"API 키 자동 inject\", \"vault 키\", or \"simonk-keepass-inject\". Produces (1) KeePassXC vault status check (path + CLI presence), (2) one-time master password prompt + auto inject for all known entries (Zotero/Anthropic/OpenAI/Gemini/GitHub), (3) env var diagnosis (which set/missing), (4) SecureString persistence option for repeat-sessions. Master password lives in current session memory only — never saved to disk or env."
+description: "Use when the user invokes \"keepass\", \"keepassxc\", \"keepass-inject\", \"/keepass-helper\", \"API 키 자동 inject\", \"vault 키\", or \"simonk-keepass-inject\". Produces (1) KeePassXC vault status check (path + CLI presence), (2) one-time master password prompt + auto inject for all known entries (Zotero/Anthropic/OpenAI/Gemini/GitHub), (3) env var diagnosis (which set/missing), (4) SecureString persistence option for repeat-sessions. Master password lives in current session memory only — never saved to disk or env."
 allowed-tools: Read, Bash
 version: 1.0.0
 author: simon-stack
@@ -13,7 +13,7 @@ KeePassXC vault에서 API key 자동 inject. **첫 1회 master password 입력**
 ## 발동 조건
 
 다음 트리거 중 하나로 호출:
-- `keepass`, `keepassxc`, `keepass-inject`, `/keepass`
+- `keepass`, `keepassxc`, `keepass-inject`, `/keepass-helper`
 - "API 키 자동 inject", "vault 키 가져와"
 - `simonk-keepass-inject` (PowerShell helper)
 

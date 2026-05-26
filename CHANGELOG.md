@@ -3,6 +3,23 @@
 모든 중요한 변경은 이 파일에 기록합니다.
 형식: [Keep a Changelog](https://keepachangelog.com/), 버전: [SemVer](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed — Bug-hunt sweep (2026-05-27)
+- `scripts/install.sh`: 수동 install 시 `skills-src/` 90+ 스킬 누락 (이전엔 `.claude/skills/` 만 sync). **B1**
+- `scripts/install.sh` + `.claude/hooks/session-start.sh`: "existing → skip" 정책으로 글로벌이 영구 stale → `git pull` 가 절대 반영 안 되던 문제. install.sh `--force` flag. session-start.sh SHA-aware 선택적 overwrite (installed-SHA ↔ current-SHA git diff 기반 changed-skill set 만 force overwrite) + `SIMON_STACK_FORCE_SYNC=1` env override. **B2**
+- 5 SKILL.md self-reference 슬래시 alias 가 실재 슬래시 명령 (folder/frontmatter `name`)과 불일치 → 정확한 이름으로 변경:
+  - `/ohmo` → `/simon-ohmo`
+  - `/phase4-game` → `/phase4-game-orchestrator`
+  - `/session-export` → `/session-context-export`
+  - `/keepass` → `/keepass-helper`
+  - `/gcloud` → `/gcloud-helper` (`docs/CURATED-SKILLS.md` 포함)
+- `templates/CLAUDE.md`: simon-stack 섹션이 "13개"라고 표기 (실제 100+) → Orchestrator / 방법론 / 보안 / 그로스·수익화 / 도구·헬퍼 카테고리로 재정리.
+- `docs/USING-IN-OTHER-REPOS.md`: stale 카운트 (24개, 28+, 55+, 60+) → 100+ 통일.
+
+### Added
+- `scripts/install.sh`: `--force`, `--no-backup`, `--help` flag 추가. install 후 `~/.claude/.simon-stack-installed` 에 SHA 기록 (session-start.sh 의 selective-update 로직 입력).
+
 ## [1.3.0] — 2026-04-16
 
 ### Changed — Token optimization + README rewrite
