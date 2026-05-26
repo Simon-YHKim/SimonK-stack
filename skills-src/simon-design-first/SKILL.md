@@ -104,13 +104,36 @@ Google Fonts 미리보기 URL 포함한 후보 3-5개 + AI 추천 1개.
 - [ ] Semantic HTML (`<button>`, `<nav>`, `<main>`, alt text)
 - [ ] Reduced-motion 대응 (`prefers-reduced-motion`)
 
-### Step 5. 하위 skill 위임
+### Step 5. 하위 skill 위임 — 디자인 라이프사이클 7 skill 전체 chain
 
-방향 확정 후 실제 작업은 하위 skill에 위임:
-- 디자인 시스템 정의 → `/design-consultation`
-- Stitch 프롬프트 생성 → `stitch-design-flow`
-- HTML 코드 생성 → `/design-html`
-- 변형 탐색 → `/design-shotgun`
+방향 확정 후, 사용자가 어떤 단계 (plan / 디자인 결정 / 시안 / 코드 / 폴리시)에 있느냐에 따라 분기:
+
+**A. 플랜 / 디자인 결정 단계** (코드 작성 전)
+- 디자인 시스템 정의·DESIGN.md 산출 → `/design-consultation`
+- 플랜 모드에서 시안 평가 → `/plan-design-review` (0~10점 + "10점이 되려면" feedback)
+- AI 변형 탐색·비교 보드·피드백 수렴 → `/design-shotgun`
+
+**B. 외부 시안 도구**
+- Google Stitch / 시각 AI 도구용 프롬프트 생성 → `stitch-design-flow`
+
+**C. 코드 생성 단계**
+- production HTML/CSS 변환 (Pretext-native, 30KB 무의존) → `/design-html`
+
+**D. 라이브 사이트 폴리시 단계** (코드 배포 후)
+- 시각 QA — spacing/hierarchy/AI slop 탐지 + 원자 commit 자동 폴리시 → `/design-review`
+
+→ 전체 디자인 라이프사이클 **7 skill** (simon-design-first 본인 + 위 6개) 가 빠짐없이 chain 통과. 어느 한 단계에서 진입하든 simon-design-first 가 entry · 나머지 위임은 단계별로.
+
+**호출 순서 권장 예시** (zero-to-one 디자인):
+```
+simon-design-first (진단·레퍼런스·방향)
+  → /design-consultation (DESIGN.md)
+  → /plan-design-review (계획 검토)
+  → /design-shotgun (변형 탐색)        ← 사용자 비교·피드백
+  → stitch-design-flow (외부 시안)     ← 선택적
+  → /design-html (production 코드)
+  → /design-review (배포 후 폴리시)
+```
 
 ## AI Slop 방지 3원칙 (실행 시 반드시 적용)
 

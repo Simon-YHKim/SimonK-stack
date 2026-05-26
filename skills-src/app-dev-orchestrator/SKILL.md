@@ -44,6 +44,12 @@ author: simon
 
 > Gstack `/plan-ceo-review` (SCOPE EXPANSION / SELECTIVE / HOLD 모드 중 선택). 문제 재정의·야망 확장.
 
+### 단계 3.5. `simon-design-first` — 디자인 프록시 (필수)
+
+> simon-stack `simon-design-first` 호출. 진단 (audience / purpose / tone) → 3-5 reference URL → 폰트 선택권 → 방향 확정 → AI Trope detection. **이 단계 없이 디자인 단계 (4-6, 14) 진입 금지** — simon-design-first 의 description 이 명시한 "mandatory proxy" 계약.
+>
+> simon-design-first Step 5 의 위임 chain 이 곧 단계 4-6 + 단계 14 의 디자인 sub-skill 호출 시퀀스 (design-consultation → plan-design-review → design-shotgun → stitch-design-flow → design-html → design-review). 아래 단계 4-6, 14 는 그 분기를 명시적으로 풀어 쓴 것.
+
 ### 단계 4. `/design-consultation` — DESIGN.md 생성
 
 > Gstack `/design-consultation`. 제품 톤·타이포·컬러·레이아웃·스페이싱·모션 시스템. `DESIGN.md` 산출.
