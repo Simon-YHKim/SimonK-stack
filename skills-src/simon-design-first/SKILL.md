@@ -135,6 +135,23 @@ simon-design-first (진단·레퍼런스·방향)
   → /design-review (배포 후 폴리시)
 ```
 
+### Step 5.5. 시나리오별 chain 가지치기 (chain bloat 방지)
+
+시나리오마다 필수 chain 이 다르다. 모든 7 skill 을 매번 다 돌리지 말고 시나리오로 가지치기:
+
+| 시나리오 | 필수 chain | 선택 chain | Skip |
+|---|---|---|---|
+| **Zero-to-one** (새 디자인) | simon-design-first → /design-consultation → /plan-design-review → /design-html → /design-review | /design-shotgun, stitch-design-flow | — |
+| **Existing 페이지 refactor** (이미 존재) | simon-design-first → **/plan-design-review (기존 페이지 0-10 audit)** → /design-consultation (필요 시 DESIGN.md 갱신) → /design-html → /design-review | /design-shotgun | stitch-design-flow |
+| **라이브 사이트 폴리시** (배포 후 작은 fix) | simon-design-first → /design-review | — | /design-consultation, /plan-design-review, /design-shotgun, stitch-design-flow, /design-html |
+| **변형 탐색 only** (방향 미정) | simon-design-first → /design-shotgun | (선택 후 시나리오 1 or 2 로 전환) | 나머지 |
+| **외부 시안 도구만** (Stitch 사용) | simon-design-first → stitch-design-flow → /design-html | /design-review | /plan-design-review, /design-shotgun |
+
+**핵심 원칙 2가지**:
+
+1. **plan-design-review 는 코드 작성 전 plan 평가뿐 아니라 *기존 페이지 사전 audit* 으로도 활용** — refactor 시나리오에서 진입점. 0-10 점수가 "10점이 되려면" 사양으로 변환되어 design-consultation / design-html 입력이 됨.
+2. **design-html 산출 후엔 자동 design-review 폴리시 단계** — design-html 의 description 은 upstream (plan-design-review, design-shotgun) 만 명시하지만, simon-design-first 가 hub 로서 후속 design-review 를 강제. 이 단계 없이는 AI slop 잔존 위험.
+
 ## AI Slop 방지 3원칙 (실행 시 반드시 적용)
 
 하위 skill로 넘길 때 이 원칙을 명시적으로 전달:
