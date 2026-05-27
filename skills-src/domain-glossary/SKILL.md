@@ -68,7 +68,7 @@ Reference: `references/CONTEXT-FORMAT.md` (this skill's bundled spec).
 
 ### Lazy creation
 
-Do **not** scaffold an empty CONTEXT.md. Create it lazily the first time a domain term needs resolving — typically during a `/grill-me` or `/grill-with-docs` session, or when you notice the same concept being called three different things in the codebase.
+Do **not** scaffold an empty CONTEXT.md. Create it lazily the first time a domain term needs resolving — typically during a `/grill-me` session, or when you notice the same concept being called three different things in the codebase.
 
 ### Triggers to add a term
 
@@ -92,7 +92,7 @@ Do **not** scaffold an empty CONTEXT.md. Create it lazily the first time a domai
 
 ## Composition with simon-stack
 
-- **`/grill-me` and `grill-with-docs`** — during interview, when a term is resolved, update CONTEXT.md inline (same turn). Don't batch.
+- **`/grill-me`** — during interview, when a term is resolved, update CONTEXT.md inline (same turn). Don't batch.
 - **`simon-research`** — when research surfaces an industry-standard term (e.g., "idempotency key" from Stripe docs), promote it to CONTEXT.md if the project uses it.
 - **`autoplan`, `app-dev-orchestrator`** — planning phase should *read* CONTEXT.md first if it exists, and the planning output should use those exact terms.
 - **`refactor`** — when renaming variables/files, check CONTEXT.md first; if the new name disagrees, surface the conflict to the user.

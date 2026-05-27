@@ -132,6 +132,6 @@ _Avoid_: parent cascade, cascading creation
 
 ## Maintenance
 
-- Update inline during `/grill-me` or `/grill-with-docs` — don't batch
+- Update inline during `/grill-me` — don't batch
 - During `/refactor` rename: if the new name disagrees with CONTEXT.md, fix one or the other (don't let them drift)
 - During code review: flag any new module name that introduces a synonym for an existing term

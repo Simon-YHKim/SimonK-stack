@@ -122,6 +122,6 @@
 
 ## 재설치
 
-이 환경은 `github.com/learner-thepoorman/Gstack-Ultraplan-superpowers` 의
+이 환경은 `github.com/Simon-YHKim/SimonK-stack` 의
 `.claude/hooks/session-start.sh` 에 의해 매 세션 자동 bootstrap 된다.
 수동 재설치: `cd <repo> && ./scripts/install.sh`
