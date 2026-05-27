@@ -17,6 +17,7 @@
 | `model-router` | task type → best LLM 모델 자동 매핑 (2026-05 매트릭스, sprint v23 Phase A) |
 | `multi-terminal-dispatcher` | model-router + Windows Terminal/psmux/VS Code tasks 병렬 launcher (sprint v23 Phase B) |
 | `simonk` | 단일 자율 진입점 (6-phase + Boundary Check + multi-agent dispatch sprint v23 Phase B) |
+| `stack-update` | SimonK Stack 전체 holistic 최신화 — 본체+Wiki+gstack+5 vendored+skill 재설치 위임 |
 
 
 ## 🧪 Meta — skill 제작·검증
@@ -135,7 +136,13 @@
 | `pair-agent` (Gstack) | 원격 에이전트 페어링 |
 | `setup-browser-cookies` (Gstack) | 브라우저 쿠키 가져오기 |
 | `open-gstack-browser` (Gstack) | GStack Browser 실행 |
-| `gstack-upgrade` (Gstack) | Gstack 버전 업데이트 |
+| `gstack-upgrade` (Gstack) | Gstack 버전 업데이트 (gstack-only) |
+| `stack-update` | **전체 SimonK Stack holistic 최신화** — SimonK-stack + Wiki + gstack + 5 vendored + skill 재설치 |
+| `omc-upgrade` | vendored oh-my-claudecode 단독 최신화 |
+| `omo-upgrade` | vendored oh-my-openagent 단독 최신화 |
+| `openharness-upgrade` | vendored OpenHarness 단독 최신화 |
+| `opencowork-upgrade` | vendored open-cowork 단독 최신화 |
+| `designmd-upgrade` | vendored design.md 단독 최신화 |
 | `gstack` (Gstack 메타) | Gstack 전체 진입점 |
 
 ---

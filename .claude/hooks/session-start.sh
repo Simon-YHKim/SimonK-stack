@@ -262,6 +262,17 @@ if [ -f "$REPO_DIR/.claude/skills/INDEX.md" ] && [ ! -f ~/.claude/skills/INDEX.m
   cp "$REPO_DIR/.claude/skills/INDEX.md" ~/.claude/skills/INDEX.md
 fi
 
+# Shared scripts referenced by skills (e.g. upgrade-vendor.sh used by
+# stack-update + 5 vendor-upgrade siblings). Skill bodies use the absolute
+# path ~/.claude/scripts/<name> so they resolve regardless of CWD.
+mkdir -p ~/.claude/scripts
+for s in upgrade-vendor.sh; do
+  if [ -f "$REPO_DIR/scripts/$s" ] && [ ! -f ~/.claude/scripts/"$s" ]; then
+    cp "$REPO_DIR/scripts/$s" ~/.claude/scripts/"$s"
+    chmod +x ~/.claude/scripts/"$s"
+  fi
+done
+
 # --- 4. Instincts seeds ---
 log "Seeding instincts..."
 for f in mistakes-learned.md project-patterns.md korean-context.md tool-quirks.md; do
