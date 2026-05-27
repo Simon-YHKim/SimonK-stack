@@ -185,12 +185,16 @@ if [ -d "$EXT_DIR" ] && { [ ! -f "$EXT_MARKER" ] || [ "$FORCE" = "1" ]; }; then
   done
 
   if [ -d "$EXT_DIR/OpenHarness" ] && [ -f "$EXT_DIR/OpenHarness/pyproject.toml" ]; then
+    # --ignore-installed pyjwt: skip uninstall of the debian-shipped PyJWT
+    # which lacks a RECORD file. Without this, the install aborts with
+    # "Cannot uninstall PyJWT ... RECORD file not found" on debian-based
+    # container images (the default Claude Code remote runtime).
     if command -v pip >/dev/null 2>&1; then
-      log "  - OpenHarness: pip install -e (editable)"
-      pip install -e "$EXT_DIR/OpenHarness" --quiet 2>&1 | tail -3 || log "  - OpenHarness: pip install failed (continuing)"
+      log "  - OpenHarness: pip install -e (--ignore-installed pyjwt)"
+      pip install -e "$EXT_DIR/OpenHarness" --ignore-installed pyjwt --quiet 2>&1 | tail -3 || log "  - OpenHarness: pip install failed (continuing)"
     elif command -v pip3 >/dev/null 2>&1; then
-      log "  - OpenHarness: pip3 install -e (editable)"
-      pip3 install -e "$EXT_DIR/OpenHarness" --quiet 2>&1 | tail -3 || log "  - OpenHarness: pip3 install failed (continuing)"
+      log "  - OpenHarness: pip3 install -e (--ignore-installed pyjwt)"
+      pip3 install -e "$EXT_DIR/OpenHarness" --ignore-installed pyjwt --quiet 2>&1 | tail -3 || log "  - OpenHarness: pip3 install failed (continuing)"
     else
       log "  - OpenHarness: skip (pip not found — pyproject.toml accessible for manual install)"
     fi

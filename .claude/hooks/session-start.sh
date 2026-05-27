@@ -325,8 +325,14 @@ if [ -d "$EXT_DIR" ] && [ ! -f "$EXT_MARKER" ]; then
     command -v pip >/dev/null 2>&1 && PIPCMD=pip
     [ -z "$PIPCMD" ] && command -v pip3 >/dev/null 2>&1 && PIPCMD=pip3
     if [ -n "$PIPCMD" ]; then
-      log "  - OpenHarness: $PIPCMD install -e"
-      $PIPCMD install -e "$EXT_DIR/OpenHarness" --quiet >>"$LOG_FILE" 2>&1 || log "  - OpenHarness: pip install failed (non-fatal)"
+      log "  - OpenHarness: $PIPCMD install -e (--ignore-installed pyjwt)"
+      # --ignore-installed pyjwt: skip uninstall of the debian-shipped PyJWT
+      # which lacks a RECORD file. Without this, the install aborts with
+      # "Cannot uninstall PyJWT ... RECORD file not found" on debian-based
+      # container images (the default Claude Code remote runtime).
+      if ! $PIPCMD install -e "$EXT_DIR/OpenHarness" --ignore-installed pyjwt --quiet >>"$LOG_FILE" 2>&1; then
+        log "  - OpenHarness: install failed (see $LOG_FILE)"
+      fi
     else
       log "  - OpenHarness: skip (pip not found)"
     fi
