@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Korean trigger — 핸드오프 해줘",
+    "user_input": "핸드오프 해줘",
+    "expected_skill": "simon-handoff"
+  },
+  {
+    "name": "Korean trigger — 다음 세션 준비",
+    "user_input": "다음 세션 준비해줘",
+    "expected_skill": "simon-handoff"
+  },
+  {
+    "name": "Slash command",
+    "user_input": "/simon-handoff",
+    "expected_skill": "simon-handoff"
+  },
+  {
+    "name": "Short slash command",
+    "user_input": "/handoff",
+    "expected_skill": "simon-handoff"
+  },
+  {
+    "name": "English trigger",
+    "user_input": "session handoff please",
+    "expected_skill": "simon-handoff"
+  },
+  {
+    "name": "Negative — checkpoint should NOT route here",
+    "user_input": "save my current context",
+    "expected_skill": "checkpoint"
+  }
+]
