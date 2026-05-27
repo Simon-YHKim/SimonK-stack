@@ -206,7 +206,7 @@ fi
 
 # ---- Record installed SHA for session-start.sh selective-update logic ----
 if [ "$DRY" != "--dry" ]; then
-  CURRENT_SHA=$(cd "$REPO_DIR" && git rev-parse HEAD 2>/dev/null || echo unknown)
+  CURRENT_SHA=$(cd "$REPO_DIR" && git rev-parse --verify HEAD 2>/dev/null) || CURRENT_SHA=unknown
   echo "$CURRENT_SHA" > ~/.claude/.simon-stack-installed
   log "Recorded installed SHA: $CURRENT_SHA"
 fi

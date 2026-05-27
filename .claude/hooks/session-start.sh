@@ -30,7 +30,7 @@ log "Starting. repo=$REPO_DIR remote=${CLAUDE_CODE_REMOTE:-false}"
 # --- Short-circuit if already installed ---
 # We use a marker file that embeds the commit SHA that installed.
 MARKER=~/.claude/.simon-stack-installed
-CURRENT_SHA=$(cd "$REPO_DIR" && git rev-parse HEAD 2>/dev/null || echo unknown)
+CURRENT_SHA=$(cd "$REPO_DIR" && git rev-parse --verify HEAD 2>/dev/null) || CURRENT_SHA=unknown
 
 if [ -f "$MARKER" ] && [ "$(cat "$MARKER" 2>/dev/null)" = "$CURRENT_SHA" ]; then
   log "Already installed at $CURRENT_SHA, skipping bootstrap"
