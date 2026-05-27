@@ -70,6 +70,8 @@
 8. **계획 스트레스 테스트** → `grill-me` (1-Q-at-a-time 인터뷰, `office-hours`/`plan-ceo-review` 와 보완)
 9. **익숙하지 않은 코드 영역** → `/zoom-out` (한 layer 위 맵) → `/explain` (드릴다운)
 10. **세션 토큰 폭주** → `/caveman` 토글 (응답 75% 압축, 보안 경고는 자동 해제)
+11. **"전체 최신화" / "stack 다 받아"** → `/stack-update` (SimonK-stack 본체 + Wiki + gstack + 5 vendored + skill 재설치를 한 번에)
+12. **특정 외부 stack 만 최신화** → `/omc-upgrade`, `/omo-upgrade`, `/openharness-upgrade`, `/opencowork-upgrade`, `/designmd-upgrade`
 
 ---
 

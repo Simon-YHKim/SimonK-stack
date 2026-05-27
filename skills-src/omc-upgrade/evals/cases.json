@@ -1,0 +1,17 @@
+[
+  {
+    "name": "trigger by ko alias",
+    "user_input": "OMC \ucd5c\uc2e0\ud654",
+    "expected_skill": "omc-upgrade"
+  },
+  {
+    "name": "trigger by slash command",
+    "user_input": "/omc-upgrade",
+    "expected_skill": "omc-upgrade"
+  },
+  {
+    "name": "trigger by en alias",
+    "user_input": "upgrade omc",
+    "expected_skill": "omc-upgrade"
+  }
+]

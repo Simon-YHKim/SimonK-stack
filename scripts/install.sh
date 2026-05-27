@@ -163,6 +163,20 @@ if [ -f "$REPO_DIR/.claude/skills/INDEX.md" ]; then
   fi
 fi
 
+# ---- Shared scripts used by skills (stack-update + 5 vendor-upgrade) ----
+# These scripts are referenced from SKILL.md by absolute path ~/.claude/scripts/
+# so they remain reachable regardless of CWD or whether simon-stack is
+# vendored / bootstrapped / locally installed.
+run mkdir -p ~/.claude/scripts
+for s in upgrade-vendor.sh; do
+  if [ -f "$REPO_DIR/scripts/$s" ]; then
+    if [ ! -f ~/.claude/scripts/"$s" ] || [ "$FORCE" = "1" ]; then
+      run cp "$REPO_DIR/scripts/$s" ~/.claude/scripts/"$s"
+      run chmod +x ~/.claude/scripts/"$s"
+    fi
+  fi
+done
+
 # ---- External vendored repos (sprint v22-EXT) ----
 EXT_DIR="$REPO_DIR/external"
 EXT_MARKER=~/.claude/.simon-stack-external-installed

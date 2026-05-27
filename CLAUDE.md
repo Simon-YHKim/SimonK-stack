@@ -266,11 +266,17 @@ cd ~/SimonK-stack 2>/dev/null
 - **Simon-LLM-Wiki auto-pull** — 같음
 
 LLM 이 직접 처리할 것:
-- **gstack upstream 업데이트** → `/gstack-upgrade` 호출 (gstack 의 _자체 upgrade_ 스킬)
+- **사용자가 "최신화" / "stack update" 같은 holistic 요청** → `/stack-update` 호출
+  - SimonK-stack 본체 + Wiki + gstack + 5 vendored stacks + skill 재설치를 한 번에 처리
+  - 각 단계는 단일 entry point 의 sibling skill (예: `/gstack-upgrade`, `/omc-upgrade`) 위임
+- **gstack 만** 업데이트 명시 요청 → `/gstack-upgrade` (gstack 단독)
   - install type 자동 감지 (global-git / local-git / vendored)
   - gstack 본체 + 로컬 vendored gstack 카피 sync
   - ⚠️ **이 스킬은 SimonK-stack 자체는 pull 안 함** (gstack 의 책임 도메인이 아님). SimonK-stack pull 은 위의 session-start.sh auto-pull 이 담당.
   - `GSTACK_AUTO_UPGRADE=1` 또는 `gstack-config set auto_upgrade true` 면 사용자 확인 없이 진행
+- **특정 외부 stack** 만 업데이트 요청 → 해당 sibling skill 호출
+  - `/omc-upgrade` (oh-my-claudecode), `/omo-upgrade` (oh-my-openagent)
+  - `/openharness-upgrade`, `/opencowork-upgrade`, `/designmd-upgrade`
 
 ### `[UPGRADE_AVAILABLE]` 가 출력되면 — LLM 의 첫 동작
 
@@ -278,6 +284,7 @@ LLM 이 직접 처리할 것:
 1. **`auto-pulled ✓` 표시가 있는 항목** — 이미 처리됨. 단, Simon-LLM-Wiki auto-pull 시 LESSONS_LEARNED.md 재독.
 2. **gstack 항목이 있으면** → `/gstack-upgrade` 호출.
 3. **`auto-pull skipped` / `failed` 항목이 있으면** → 사용자에게 1줄 보고 (dirty / 다른 브랜치 / ff 불가 사유 안내).
+4. **사용자가 명시적으로 "전체 최신화" / "stack update" 류 요청을 추가로 한 경우** → `/stack-update` 호출 (auto-pull 결과는 step 1 에서 이미 흡수됨).
 
 이후 원래 사용자 요청 처리.
 

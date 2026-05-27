@@ -1,0 +1,17 @@
+[
+  {
+    "name": "trigger by ko alias",
+    "user_input": "OMO \ucd5c\uc2e0\ud654",
+    "expected_skill": "omo-upgrade"
+  },
+  {
+    "name": "trigger by slash command",
+    "user_input": "/omo-upgrade",
+    "expected_skill": "omo-upgrade"
+  },
+  {
+    "name": "trigger by en alias",
+    "user_input": "upgrade omo",
+    "expected_skill": "omo-upgrade"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Korean holistic trigger",
+    "user_input": "SimonK stack 최신화",
+    "expected_skill": "stack-update"
+  },
+  {
+    "name": "slash command",
+    "user_input": "/stack-update",
+    "expected_skill": "stack-update"
+  },
+  {
+    "name": "English holistic trigger",
+    "user_input": "update the stack",
+    "expected_skill": "stack-update"
+  },
+  {
+    "name": "gstack-only request should NOT trigger this",
+    "user_input": "upgrade gstack",
+    "expected_skill": "gstack-upgrade"
+  }
+]

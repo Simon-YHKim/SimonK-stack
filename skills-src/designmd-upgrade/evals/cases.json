@@ -1,0 +1,17 @@
+[
+  {
+    "name": "trigger by ko alias",
+    "user_input": "design.md \ucd5c\uc2e0\ud654",
+    "expected_skill": "designmd-upgrade"
+  },
+  {
+    "name": "trigger by slash command",
+    "user_input": "/designmd-upgrade",
+    "expected_skill": "designmd-upgrade"
+  },
+  {
+    "name": "trigger by en alias",
+    "user_input": "upgrade design.md",
+    "expected_skill": "designmd-upgrade"
+  }
+]

@@ -146,13 +146,27 @@ for src_dir in "$REPO_DIR"/skills-src "$REPO_DIR"/.claude/skills; do
   done
 done
 
-# --- INDEX + instincts ---
+# --- INDEX + instincts + shared scripts ---
 [ -f "$REPO_DIR/.claude/skills/INDEX.md" ] && [ ! -f ~/.claude/skills/INDEX.md ] && \
   cp "$REPO_DIR/.claude/skills/INDEX.md" ~/.claude/skills/INDEX.md
 
 for f in mistakes-learned.md project-patterns.md korean-context.md tool-quirks.md; do
   [ -f "$REPO_DIR/.claude/instincts/$f" ] && [ ! -f ~/.claude/instincts/"$f" ] && \
     cp "$REPO_DIR/.claude/instincts/$f" ~/.claude/instincts/"$f"
+done
+
+# Shared scripts (upgrade-vendor.sh etc.) so SKILL.md absolute-path refs work.
+mkdir -p ~/.claude/scripts
+for s in upgrade-vendor.sh; do
+  # Vendor mode keeps scripts in target's .claude/scripts/; fall back to
+  # repo-level scripts/ for the standalone install case.
+  for src in "$REPO_DIR/.claude/scripts/$s" "$REPO_DIR/scripts/$s"; do
+    if [ -f "$src" ] && [ ! -f ~/.claude/scripts/"$s" ]; then
+      cp "$src" ~/.claude/scripts/"$s"
+      chmod +x ~/.claude/scripts/"$s"
+      break
+    fi
+  done
 done
 
 # --- Global CLAUDE.md ---
@@ -200,6 +214,17 @@ HOOK_EOF
   if [ -f "$SIMON_STACK_DIR/templates/CLAUDE.md" ] && [ ! -f .claude/CLAUDE.md.template ]; then
     cp "$SIMON_STACK_DIR/templates/CLAUDE.md" .claude/CLAUDE.md.template
   fi
+
+  # 6. Shared scripts used by skills (upgrade-vendor.sh + future siblings).
+  #    Placed in .claude/scripts/ so SKILL.md absolute-path references work
+  #    in the target repo as well as in user HOME after install.
+  mkdir -p .claude/scripts
+  for s in upgrade-vendor.sh; do
+    if [ -f "$SIMON_STACK_DIR/scripts/$s" ] && [ ! -f ".claude/scripts/$s" ]; then
+      cp "$SIMON_STACK_DIR/scripts/$s" ".claude/scripts/$s"
+      chmod +x ".claude/scripts/$s"
+    fi
+  done
 
 # =============================================================================
 # MODE: BOOTSTRAP
