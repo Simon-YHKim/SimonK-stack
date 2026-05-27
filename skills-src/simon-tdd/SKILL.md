@@ -19,6 +19,12 @@ Superpowers `test-driven-development` 스킬의 핵심을 추출·강제하는 T
 
 ## Workflow — RED → GREEN → REFACTOR
 
+### Pre-RED: 스펙 모호하면 `/grill-me` 먼저
+
+RED 는 *구체적인 실패 테스트* 를 요구한다. 사용자가 준 스펙에 미해결 분기 (scope, edge cases, error handling) 가 남아 있으면 테스트도 모호해진다. 모호함 감지 시 `/grill-me` 로 1-Q-at-a-time 인터뷰 진행해서 결정 트리 닫고 RED 진입.
+
+판단 기준: "이 테스트의 assertion 을 *지금* 한 줄로 쓸 수 있는가?" 답이 No 면 grill 먼저.
+
 ### RED: 실패하는 테스트 먼저
 
 1. 요구사항을 **observable behavior** 로 표현 (구현 세부 아님)

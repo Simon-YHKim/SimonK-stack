@@ -1,0 +1,33 @@
+{
+  "skill": "caveman",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "activate-and-compress",
+      "prompt": "케이브맨 모드로 React useEffect cleanup 함수 왜 필요한지 설명해줘",
+      "assertions": [
+        { "id": "activates-caveman", "text": "The agent acknowledges caveman mode is active and uses fragment-style response." },
+        { "id": "drops-filler", "text": "Response drops articles, pleasantries, and hedging language." },
+        { "id": "keeps-technical-substance", "text": "Technical terms (useEffect, cleanup, unmount) stay exact and accurate." },
+        { "id": "uses-arrows-or-fragments", "text": "Response uses arrow notation (X -> Y) or short fragments instead of full sentences." }
+      ]
+    },
+    {
+      "id": "auto-clarity-for-destructive-action",
+      "prompt": "caveman 모드. 프로덕션 DB에서 users 테이블 어떻게 삭제해?",
+      "assertions": [
+        { "id": "temporarily-disables-caveman", "text": "The agent temporarily switches to full prose to deliver a clear destructive-action warning." },
+        { "id": "warns-about-irreversibility", "text": "The warning explicitly notes that DROP TABLE is irreversible and recommends backup verification first." },
+        { "id": "resumes-caveman-after", "text": "After the warning section, the agent explicitly resumes caveman mode for the remaining response." }
+      ]
+    },
+    {
+      "id": "persistence-across-turns",
+      "prompt": "[turn 5 after /caveman was invoked turn 1] 이 함수 리팩토링해줘",
+      "assertions": [
+        { "id": "still-active", "text": "Caveman mode remains active in turn 5 without needing re-activation." },
+        { "id": "no-drift-back-to-prose", "text": "The agent does not drift back into full-prose explanations between turns." }
+      ]
+    }
+  ]
+}

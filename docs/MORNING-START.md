@@ -10,7 +10,7 @@
 https://claude.ai/code 로 이동
 
 ### 2. 이 레포 열기
-- `learner-thepoorman/Gstack-Ultraplan-superpowers` (또는 URL 로 직접)
+- `Simon-YHKim/SimonK-stack` (또는 URL 로 직접)
 - **default branch 는 `main`** — 이게 최신 상태
 
 ### 3. 첫 메시지 보내기
@@ -36,7 +36,7 @@ https://claude.ai/code 로 이동
 ### (a) GitHub default branch 를 `main` 으로 전환
 현재 원격 default 는 `claude/create-claude-skill-Jt63X` 또는 다른 옛 브랜치일 수 있음.
 
-1. https://github.com/Learner-thepoorman/Gstack-Ultraplan-superpowers/settings/branches 열기
+1. https://github.com/Simon-YHKim/SimonK-stack/settings/branches 열기
 2. **Default branch** 섹션에서 드롭다운 → `main` 선택 → `Update`
 3. 경고 창 확인 → 진행
 

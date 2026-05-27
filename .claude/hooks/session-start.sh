@@ -30,7 +30,7 @@ log "Starting. repo=$REPO_DIR remote=${CLAUDE_CODE_REMOTE:-false}"
 # --- Short-circuit if already installed ---
 # We use a marker file that embeds the commit SHA that installed.
 MARKER=~/.claude/.simon-stack-installed
-CURRENT_SHA=$(cd "$REPO_DIR" && git rev-parse HEAD 2>/dev/null || echo unknown)
+CURRENT_SHA=$(cd "$REPO_DIR" && git rev-parse --verify HEAD 2>/dev/null) || CURRENT_SHA=unknown
 
 if [ -f "$MARKER" ] && [ "$(cat "$MARKER" 2>/dev/null)" = "$CURRENT_SHA" ]; then
   log "Already installed at $CURRENT_SHA, skipping bootstrap"
@@ -211,9 +211,10 @@ if [ -n "$PREV_SHA" ] && [ "$PREV_SHA" != "$CURRENT_SHA" ]; then
   if (cd "$REPO_DIR" && git cat-file -e "${PREV_SHA}^{commit}" 2>/dev/null); then
     CHANGED_FILES=$(cd "$REPO_DIR" && git diff --name-only "$PREV_SHA" "$CURRENT_SHA" -- 'skills-src/' '.claude/skills/' 2>/dev/null || true)
     # NOTE: use '#' as sed separator to avoid clash with ERE alternation '|'.
-    CHANGED_SET=" $(echo "$CHANGED_FILES" | sed -E 's#^(skills-src|\.claude/skills)/([^/]+)/.*#\2#' | grep -v '^$' | sort -u | tr '\n' ' ')"
-    [ -n "$(echo "$CHANGED_SET" | tr -d ' ')" ] && \
+    CHANGED_SET=" $(echo "$CHANGED_FILES" | sed -E 's#^(skills-src|\.claude/skills)/([^/]+)/.*#\2#' | { grep -v '^$' || true; } | sort -u | tr '\n' ' ')"
+    if [ -n "$(echo "$CHANGED_SET" | tr -d ' ')" ]; then
       log "  changed skills since $PREV_SHA → $CHANGED_SET"
+    fi
   else
     log "  (prev SHA $PREV_SHA not in local git history — selective diff skipped; use SIMON_STACK_FORCE_SYNC=1 to force overwrite)"
   fi
@@ -324,8 +325,14 @@ if [ -d "$EXT_DIR" ] && [ ! -f "$EXT_MARKER" ]; then
     command -v pip >/dev/null 2>&1 && PIPCMD=pip
     [ -z "$PIPCMD" ] && command -v pip3 >/dev/null 2>&1 && PIPCMD=pip3
     if [ -n "$PIPCMD" ]; then
-      log "  - OpenHarness: $PIPCMD install -e"
-      $PIPCMD install -e "$EXT_DIR/OpenHarness" --quiet >>"$LOG_FILE" 2>&1 || log "  - OpenHarness: pip install failed (non-fatal)"
+      log "  - OpenHarness: $PIPCMD install -e (--ignore-installed pyjwt)"
+      # --ignore-installed pyjwt: skip uninstall of the debian-shipped PyJWT
+      # which lacks a RECORD file. Without this, the install aborts with
+      # "Cannot uninstall PyJWT ... RECORD file not found" on debian-based
+      # container images (the default Claude Code remote runtime).
+      if ! $PIPCMD install -e "$EXT_DIR/OpenHarness" --ignore-installed pyjwt --quiet >>"$LOG_FILE" 2>&1; then
+        log "  - OpenHarness: install failed (see $LOG_FILE)"
+      fi
     else
       log "  - OpenHarness: skip (pip not found)"
     fi

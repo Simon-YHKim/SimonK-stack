@@ -42,6 +42,8 @@
 | `plan-eng-review` (Gstack) | 엔지니어링 플랜 락다운 |
 | `plan-design-review` (Gstack) | 디자인 플랜 리뷰 |
 | `plan-devex-review` (Gstack) | 개발자 경험 플랜 리뷰 |
+| `grill-me` | 1-Q-at-a-time 인터뷰 — 사용자 계획의 결정 트리 청소 (simon-tdd RED 전) |
+| `domain-glossary` | 프로젝트 `CONTEXT.md` 도메인 용어집 — instincts·CLAUDE.md·ADR 와 분리된 layer |
 
 ## 🎨 Design
 
@@ -105,6 +107,7 @@
 |---|---|
 | `investigate` (Gstack) | root cause 체계적 조사 (4단계) |
 | `debug` (local) | 일반 디버깅 |
+| `zoom-out` | 한 layer 위에서 모듈 맵 — `/explain` 의 escalation (manual-only) |
 
 ## 📚 Learning / Memory
 
@@ -128,6 +131,7 @@
 | `update-config` | settings.json 구성 |
 | `keybindings-help` | 키바인딩 커스터마이징 |
 | `session-start-hook` | 세션 시작 hook 관리 |
+| `caveman` | 응답 75% 토큰 압축 모드 — 긴 세션 시 토글 |
 | `pair-agent` (Gstack) | 원격 에이전트 페어링 |
 | `setup-browser-cookies` (Gstack) | 브라우저 쿠키 가져오기 |
 | `open-gstack-browser` (Gstack) | GStack Browser 실행 |

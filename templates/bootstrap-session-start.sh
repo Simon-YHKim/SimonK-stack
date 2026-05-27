@@ -2,11 +2,11 @@
 # simon-stack bootstrap — drop-in SessionStart hook for ANY Claude Code repo.
 #
 # What it does:
-#   1. Clones or updates github.com/Learner-thepoorman/Gstack-Ultraplan-superpowers
+#   1. Clones or updates github.com/Simon-YHKim/SimonK-stack
 #      into ~/.simon-stack-src (cached between hook invocations in the same session)
 #   2. Delegates to that repo's .claude/hooks/session-start.sh which installs:
 #      - Gstack runtime (~/.claude/skills/gstack/)
-#      - 36 Gstack skills + 13 simon-stack skills
+#      - 36 Gstack skills + 100+ simon-stack skills
 #      - instincts seed files + global CLAUDE.md template
 #
 # Usage:
@@ -22,7 +22,7 @@ set -euo pipefail
 # --- Optional async mode (disabled by default for determinism) ---
 # echo '{"async": true, "asyncTimeout": 300000}'
 
-SIMON_STACK_REPO="${SIMON_STACK_REPO:-https://github.com/Learner-thepoorman/Gstack-Ultraplan-superpowers}"
+SIMON_STACK_REPO="${SIMON_STACK_REPO:-https://github.com/Simon-YHKim/SimonK-stack}"
 SIMON_STACK_REF="${SIMON_STACK_REF:-main}"
 SIMON_STACK_DIR="${SIMON_STACK_DIR:-$HOME/.simon-stack-src}"
 

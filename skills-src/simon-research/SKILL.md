@@ -165,3 +165,4 @@ Karpathy llm-wiki 패턴: research 결과는 chat history에 사라지지 않고
 - `app-dev-orchestrator` — 단계 2
 - `llm-wiki-builder` — research 결과를 영속 wiki 에 file back (Karpathy llm-wiki 패턴)
 - `karpathy-guidelines` — 원칙 1 (Think Before Coding) 의 research 단계 적용
+- `domain-glossary` — 리서치에서 발견한 산업 표준 용어 (예: Stripe "idempotency key", DDD "bounded context") 를 프로젝트 `CONTEXT.md` 로 promote. Research → glossary 흐름은 동일 세션에서 inline 진행 권장.

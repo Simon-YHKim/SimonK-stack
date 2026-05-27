@@ -1,6 +1,16 @@
 ---
 name: wiki-query
-description: Use when the user asks a question that the SimonKWiki personal wiki could answer — about Simon's self-analysis, circuits, projects, relationships, career, events, assessments, or any topic the wiki covers. Also triggers on "위키에서 찾아줘", "wiki에 물어봐", "wiki에서 찾아봐", "query the wiki", "ask the wiki". Reads wiki/index.md first to locate relevant pages, reads those pages, answers with [[wikilink]] citations, falls back to raw/ only when the wiki is insufficient, and when the answer has standalone value files it back as a new wiki page (the Knowledge Flywheel: every question enriches the wiki), then updates wiki/index.md and wiki/log.md. For the SimonKWiki v2 vault.
+description: >
+  Use when the user asks a question that the SimonKWiki personal wiki could
+  answer — about Simon's self-analysis, circuits, projects, relationships,
+  career, events, assessments, or any topic the wiki covers. Also triggers
+  on "위키에서 찾아줘", "wiki에 물어봐", "wiki에서 찾아봐", "query the wiki",
+  "ask the wiki". Reads wiki/index.md first to locate relevant pages, reads
+  those pages, answers with [[wikilink]] citations, falls back to raw/ only
+  when the wiki is insufficient, and when the answer has standalone value
+  files it back as a new wiki page (the Knowledge Flywheel — every question
+  enriches the wiki), then updates wiki/index.md and wiki/log.md. For the
+  SimonKWiki v2 vault.
 version: 0.1.0
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 compatibility:

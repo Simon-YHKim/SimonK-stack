@@ -42,6 +42,8 @@
 ### 2. simon-stack (100+개) — 통합 오케스트레이션
 - **Orchestrator**: `app-dev-orchestrator` (21단계 신규 앱), `security-orchestrator` (5단계 보안), `dev-orchestrator` (일반 구현 7단계), `simonk` (6-phase 자율 하네스), `phase4-game-orchestrator` (게임 트랙, Q3 2026)
 - **방법론**: `simon-tdd`, `simon-worktree`, `simon-research`, `simon-instincts`, `simon-design-first`, `karpathy-guidelines`
+- **플래닝·인터뷰**: `grill-me` (1-Q-at-a-time interview, simon-tdd 전), `domain-glossary` (프로젝트 `CONTEXT.md` 용어집 — instincts/CLAUDE.md 와 별도 layer)
+- **분석·관점**: `zoom-out` (한 layer 위에서 모듈 맵), `caveman` (응답 75% 토큰 압축 — 긴 세션 시)
 - **보안**: `security-checklist`, `authz-designer`, `paid-api-guard`
 - **그로스·수익화**: `pmf-analyzer`, `aarrr-growth-planner`, `monetization-planner`, `revenue-scenario-tester`, `growth-engine`, `viral-launch`, `aha-moment-optimizer`
 - **도구·헬퍼**: `nextjs-optimizer`, `model-router`, `multi-terminal-dispatcher`, `stitch-design-flow`, `gcloud-helper`, `keepass-helper`, `defuddle`, `llm-wiki-builder`, `project-context-md`, `consistency-guard`, `code-health-guard`, `human-voice-guard`
@@ -61,10 +63,13 @@
 1. **새 앱 개발** → `app-dev-orchestrator` (다른 플래닝 skill 은 내부에서 호출)
 2. **보안 점검** → `security-orchestrator` (4개 skill 순차 실행)
 3. **권한 설계** → `authz-designer`
-4. **구현 단계** → `simon-tdd` + `simon-worktree`
-5. **리서치** → `simon-research` → 플래닝 skill
+4. **구현 단계** → `simon-tdd` + `simon-worktree` (스펙 모호하면 `grill-me` 먼저)
+5. **리서치** → `simon-research` → 플래닝 skill (산업 표준 용어 발견 시 `domain-glossary` 로 `CONTEXT.md` promote)
 6. **반복 실수** → `simon-instincts` 즉시 기록
 7. **디자인 작업** → 반드시 `simon-design-first` 먼저 (아래 워크플로 참조)
+8. **계획 스트레스 테스트** → `grill-me` (1-Q-at-a-time 인터뷰, `office-hours`/`plan-ceo-review` 와 보완)
+9. **익숙하지 않은 코드 영역** → `/zoom-out` (한 layer 위 맵) → `/explain` (드릴다운)
+10. **세션 토큰 폭주** → `/caveman` 토글 (응답 75% 압축, 보안 경고는 자동 해제)
 
 ---
 
@@ -117,6 +122,6 @@
 
 ## 재설치
 
-이 환경은 `github.com/learner-thepoorman/Gstack-Ultraplan-superpowers` 의
+이 환경은 `github.com/Simon-YHKim/SimonK-stack` 의
 `.claude/hooks/session-start.sh` 에 의해 매 세션 자동 bootstrap 된다.
 수동 재설치: `cd <repo> && ./scripts/install.sh`

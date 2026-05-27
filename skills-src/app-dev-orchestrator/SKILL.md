@@ -32,6 +32,8 @@ author: simon
 
 답변을 `docs/kickoff-<YYYY-MM-DD>.md` 에 저장.
 
+**모호함 탐지 시 grill-me 우선 호출**: 위 6개 중 2개 이상이 명확하지 않거나 사용자가 직관에 의존해 답할 때, `/grill-me` 로 결정 트리 1-Q-at-a-time 인터뷰 후 단계 1 진입. office-hours 가 *전략적* forcing 이라면 grill-me 는 *실행 직전* 의 ambiguity 청소 — 두 단계는 보완 관계.
+
 ### 단계 1. `/office-hours` — YC 6문 forcing questions
 
 > Gstack `/office-hours` 스킬 호출. 6가지 forcing question 으로 demand·상태quo·구체성·wedge·관찰·future-fit 검증.
@@ -39,6 +41,10 @@ author: simon
 ### 단계 2. `simon-research` — 외부 리서치 선행
 
 > `simon-research` 호출. 공식 문서·경쟁 제품 3개·레퍼런스 구현·기술 비교 → `docs/research/<date>-<topic>.md`.
+
+### 단계 2.5. `domain-glossary` — 프로젝트 용어집 초안
+
+> simon-stack `domain-glossary` 호출. 리서치에서 등장한 산업 용어 (Stripe "idempotency key", DDD "bounded context", 한국 결제 "PG 사" 등) 와 사용자 인터뷰 (단계 0) 에서 나온 프로젝트 고유 용어를 모아 프로젝트 루트 `CONTEXT.md` 초안 생성. 이후 단계 3-10 의 모든 플래닝·디자인 문서는 이 용어집을 사용. lazy 원칙: 5개 미만이면 건너뛰고 단계 13 (TDD) 진입 후 자연스럽게 누적.
 
 ### 단계 3. `/plan-ceo-review` — 10-star 스코프
 
