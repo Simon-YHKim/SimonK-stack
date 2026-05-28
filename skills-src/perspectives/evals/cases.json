@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Korean trigger — 관점 검증",
+    "user_input": "관점 검증해줘",
+    "expected_skill": "perspectives"
+  },
+  {
+    "name": "Korean trigger — blind spot",
+    "user_input": "내가 놓친 시각 찾아줘",
+    "expected_skill": "perspectives"
+  },
+  {
+    "name": "Slash command base",
+    "user_input": "/perspectives",
+    "expected_skill": "perspectives"
+  },
+  {
+    "name": "Recall mode",
+    "user_input": "/perspectives recall",
+    "expected_skill": "perspectives"
+  },
+  {
+    "name": "Focus mode",
+    "user_input": "/perspectives focus user",
+    "expected_skill": "perspectives"
+  },
+  {
+    "name": "English trigger",
+    "user_input": "critical review of this session",
+    "expected_skill": "perspectives"
+  },
+  {
+    "name": "Negative — code review routes to /code-review or /codex",
+    "user_input": "review this diff",
+    "expected_skill": "code-review"
+  },
+  {
+    "name": "Negative — plan stress test routes to grill-me",
+    "user_input": "이 계획 깨봐",
+    "expected_skill": "grill-me"
+  }
+]

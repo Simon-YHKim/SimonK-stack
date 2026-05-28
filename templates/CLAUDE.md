@@ -74,6 +74,7 @@
 12. **특정 외부 stack 만 최신화** → `/omc-upgrade`, `/omo-upgrade`, `/openharness-upgrade`, `/opencowork-upgrade`, `/designmd-upgrade`
 13. **세션 끝 / 다른 세션 인수인계** → `/simon-handoff` (git-persistent + main 머지까지 자동, `/checkpoint` 는 ephemeral 이라 cross-session 핸드오프 불가)
 14. **프로젝트 시작 시 founder 4-file 세팅** → `/founder-context` (me.md / vision.md / design.md / workingstyle.md 한 번에 생성, wiki·instincts·simon-design-first 와 양방향 import)
+15. **세션 끝 / 결정 후 blind-spot 감사** → `/perspectives` (Core 5 + 세션 특화 stakeholder 으로 AI 가 안 본 관점 명시화, perspectives.md 누적, SessionStart 자동 알림)
 
 ---
 

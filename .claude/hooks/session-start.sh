@@ -27,6 +27,20 @@ log() { echo "$LOG_PREFIX $*" | tee -a "$LOG_FILE"; }
 
 log "Starting. repo=$REPO_DIR remote=${CLAUDE_CODE_REMOTE:-false}"
 
+# --- Perspectives hint (every session, before marker-skip branch) ---
+# When perspectives.md exists at the repo root, surface a banner so the LLM
+# knows to read accumulated blind-spot analysis from prior sessions. Zero
+# cost when the file doesn't exist; one extra Read when it does. Fires on
+# every session including already-installed ones — that's the point.
+if [ -f "$REPO_DIR/perspectives.md" ]; then
+  echo ""
+  echo "============================================================"
+  echo "[perspectives] perspectives.md detected in this repo."
+  echo "[perspectives] Read it for accumulated blind-spot analysis"
+  echo "[perspectives] from prior sessions before making decisions."
+  echo "============================================================"
+fi
+
 # --- Short-circuit if already installed ---
 # We use a marker file that embeds the commit SHA that installed.
 MARKER=~/.claude/.simon-stack-installed
