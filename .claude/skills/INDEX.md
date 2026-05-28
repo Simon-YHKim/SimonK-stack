@@ -46,6 +46,7 @@
 | `plan-devex-review` (Gstack) | 개발자 경험 플랜 리뷰 |
 | `grill-me` | 1-Q-at-a-time 인터뷰 — 사용자 계획의 결정 트리 청소 (simon-tdd RED 전) |
 | `domain-glossary` | 프로젝트 `CONTEXT.md` 도메인 용어집 — instincts·CLAUDE.md·ADR 와 분리된 layer |
+| `founder-context` | **4-file 패턴**: me.md / vision.md / design.md / workingstyle.md 를 프로젝트 루트에 한 번에 생성. wiki·instincts·simon-design-first 와 import 동기화 |
 
 ## 🎨 Design
 

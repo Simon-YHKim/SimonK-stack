@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Korean full bootstrap trigger",
+    "user_input": "4 파일 만들어",
+    "expected_skill": "founder-context"
+  },
+  {
+    "name": "Korean project context trigger",
+    "user_input": "프로젝트 컨텍스트 세팅해줘",
+    "expected_skill": "founder-context"
+  },
+  {
+    "name": "Slash command",
+    "user_input": "/founder-context",
+    "expected_skill": "founder-context"
+  },
+  {
+    "name": "Alternative slash command",
+    "user_input": "/personal-bootstrap",
+    "expected_skill": "founder-context"
+  },
+  {
+    "name": "Single-file mode",
+    "user_input": "/founder-context vision",
+    "expected_skill": "founder-context"
+  },
+  {
+    "name": "English trigger",
+    "user_input": "bootstrap project foundation",
+    "expected_skill": "founder-context"
+  },
+  {
+    "name": "Negative — CLAUDE.md request routes to project-context-md",
+    "user_input": "CLAUDE.md 만들어줘",
+    "expected_skill": "project-context-md"
+  },
+  {
+    "name": "Negative — design review routes to simon-design-first not here",
+    "user_input": "랜딩페이지 디자인 만들어줘",
+    "expected_skill": "simon-design-first"
+  }
+]

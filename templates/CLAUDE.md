@@ -73,6 +73,7 @@
 11. **"전체 최신화" / "stack 다 받아"** → `/stack-update` (SimonK-stack 본체 + Wiki + gstack + 5 vendored + skill 재설치를 한 번에)
 12. **특정 외부 stack 만 최신화** → `/omc-upgrade`, `/omo-upgrade`, `/openharness-upgrade`, `/opencowork-upgrade`, `/designmd-upgrade`
 13. **세션 끝 / 다른 세션 인수인계** → `/simon-handoff` (git-persistent + main 머지까지 자동, `/checkpoint` 는 ephemeral 이라 cross-session 핸드오프 불가)
+14. **프로젝트 시작 시 founder 4-file 세팅** → `/founder-context` (me.md / vision.md / design.md / workingstyle.md 한 번에 생성, wiki·instincts·simon-design-first 와 양방향 import)
 
 ---
 
