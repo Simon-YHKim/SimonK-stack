@@ -181,6 +181,14 @@ agent_type 선택 가이드:
 - <follow-up 2>
 ```
 
+**자동 보고서 (default ON)**: Phase 6 텍스트 요약 직후 `/simonk-report` 를
+자동 호출해 `.simonk/reports/<TS>.html` 생성 + `SendUserFile` 로 첨부 전송.
+사용자가 모바일에서도 보고서를 받을 수 있게 함. 끄려면:
+- 한 세션만: `SIMONK_REPORT=off simonK "..."`
+- 영구: 프로젝트 `.envrc` 또는 shell profile 에 `SIMONK_REPORT=off`
+
+자세한 보고서 schema 와 anti-pattern: [`skills-src/simonk-report/SKILL.md`](../simonk-report/SKILL.md)
+
 ## 8. When NOT to use simonk
 
 - Trivial single edit / typo fix → just do it directly

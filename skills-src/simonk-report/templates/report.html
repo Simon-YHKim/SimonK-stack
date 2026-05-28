@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>simonK Report — {{TASK_TITLE}}</title>
+<style>
+  :root {
+    --bg: #0F0E1A;
+    --bg-elev: #1A1828;
+    --text: #E8E6F0;
+    --text-dim: #9690AE;
+    --accent: #7B68EE;
+    --border: #2A2740;
+    --ok: #5BBC73;
+    --warn: #E0A458;
+    --err: #D67B7B;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 16px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  .container { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; font-weight: 600; }
+  h2 { font-size: 1.05rem; margin: 32px 0 12px; font-weight: 600; color: var(--accent); letter-spacing: 0.02em; }
+  h3 { font-size: 0.95rem; margin: 18px 0 8px; font-weight: 600; color: var(--text-dim); }
+  .meta { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 24px; }
+  .meta span + span::before { content: " · "; margin: 0 6px; color: var(--border); }
+  .summary { background: var(--bg-elev); border-left: 3px solid var(--accent); padding: 16px 20px; border-radius: 4px; margin-bottom: 8px; }
+  .summary ul { margin: 0; padding-left: 20px; }
+  .summary li { margin: 6px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 16px; font-size: 0.9rem; }
+  th { text-align: left; padding: 8px 10px; background: var(--bg-elev); color: var(--text-dim); font-weight: 500; border-bottom: 1px solid var(--border); }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .phase-card { background: var(--bg-elev); padding: 14px 16px; border-radius: 4px; margin-bottom: 10px; }
+  .phase-card .label { color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .phase-card .title { font-weight: 600; margin: 4px 0 6px; }
+  .phase-card .body { font-size: 0.92rem; color: var(--text); }
+  code, pre { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.85rem; background: var(--bg-elev); padding: 1px 6px; border-radius: 3px; }
+  pre { padding: 12px 14px; overflow-x: auto; line-height: 1.5; }
+  .ok { color: var(--ok); }
+  .warn { color: var(--warn); }
+  .err { color: var(--err); }
+  .badge { display: inline-block; padding: 2px 8px; font-size: 0.78rem; border-radius: 10px; background: var(--bg-elev); color: var(--text-dim); border: 1px solid var(--border); }
+  .badge.ok { background: rgba(91,188,115,0.12); color: var(--ok); border-color: rgba(91,188,115,0.3); }
+  .badge.warn { background: rgba(224,164,88,0.12); color: var(--warn); border-color: rgba(224,164,88,0.3); }
+  .badge.err { background: rgba(214,123,123,0.12); color: var(--err); border-color: rgba(214,123,123,0.3); }
+  details { margin: 12px 0; }
+  details summary { cursor: pointer; color: var(--text-dim); font-size: 0.9rem; padding: 6px 0; }
+  details summary:hover { color: var(--text); }
+  details[open] summary { color: var(--accent); margin-bottom: 8px; }
+  .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.8rem; text-align: center; }
+  .footer a { color: var(--text-dim); }
+  @media (max-width: 600px) {
+    body { padding: 16px 12px; font-size: 14px; }
+    h1 { font-size: 1.3rem; }
+    table { font-size: 0.82rem; }
+    th, td { padding: 6px 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>{{TASK_TITLE}}</h1>
+  <div class="meta">
+    <span>{{TIMESTAMP_LOCAL}}</span>
+    <span>{{DURATION}}</span>
+    <span>{{REPO_NAME}} · <code>{{BRANCH}}</code></span>
+  </div>
+
+  <div class="summary">
+    <ul>
+      {{#EXEC_SUMMARY_BULLETS}}
+      <li>{{.}}</li>
+      {{/EXEC_SUMMARY_BULLETS}}
+    </ul>
+  </div>
+
+  {{#HAS_DECISIONS}}
+  <h2>◆ Decisions Log</h2>
+  <table>
+    <thead><tr><th>When</th><th>Decision</th><th>Reasoning</th></tr></thead>
+    <tbody>
+      {{#DECISIONS}}
+      <tr><td><code>{{phase}}</code></td><td>{{decision}}</td><td>{{reasoning}}</td></tr>
+      {{/DECISIONS}}
+    </tbody>
+  </table>
+  {{/HAS_DECISIONS}}
+
+  {{#HAS_PHASES}}
+  <h2>▸ Phase Trace</h2>
+  {{#PHASES}}
+  <div class="phase-card">
+    <div class="label">Phase {{n}} · {{duration}}</div>
+    <div class="title">{{name}}</div>
+    <div class="body">{{body}}</div>
+  </div>
+  {{/PHASES}}
+  {{/HAS_PHASES}}
+
+  {{#HAS_DIFF}}
+  <h2>● Diff Summary</h2>
+  <table>
+    <thead><tr><th>Area</th><th>Files</th><th class="num">+</th><th class="num">−</th></tr></thead>
+    <tbody>
+      {{#DIFF_GROUPS}}
+      <tr><td>{{area}}</td><td>{{files}}</td><td class="num ok">+{{added}}</td><td class="num err">−{{removed}}</td></tr>
+      {{/DIFF_GROUPS}}
+    </tbody>
+  </table>
+
+  <h3>Commits</h3>
+  <pre>{{COMMITS}}</pre>
+  {{/HAS_DIFF}}
+
+  {{#HAS_VERIFICATION}}
+  <h2>◆ Verification</h2>
+  <table>
+    <thead><tr><th>Check</th><th>Result</th><th>Details</th></tr></thead>
+    <tbody>
+      {{#VERIFICATIONS}}
+      <tr><td><code>{{check}}</code></td><td><span class="badge {{status_class}}">{{status}}</span></td><td>{{details}}</td></tr>
+      {{/VERIFICATIONS}}
+    </tbody>
+  </table>
+  {{/HAS_VERIFICATION}}
+
+  {{#HAS_PERSPECTIVES}}
+  <h2>● Perspectives Audit</h2>
+  <p style="color:var(--text-dim); font-size:0.9rem; margin-bottom:12px;">From <code>/perspectives</code> run during this session.</p>
+  <table>
+    <thead><tr><th>Stakeholder</th><th>Missed</th><th>Severity</th></tr></thead>
+    <tbody>
+      {{#PERSPECTIVES}}
+      <tr><td>{{stakeholder}}</td><td>{{missed}}</td><td><span class="badge {{sev_class}}">{{severity}}</span></td></tr>
+      {{/PERSPECTIVES}}
+    </tbody>
+  </table>
+  {{/HAS_PERSPECTIVES}}
+
+  {{#HAS_NEXTUP}}
+  <h2>▸ Next-up</h2>
+  <ul>
+    {{#NEXTUP}}
+    <li><strong>{{label}}</strong> — {{desc}}</li>
+    {{/NEXTUP}}
+  </ul>
+  {{/HAS_NEXTUP}}
+
+  <details>
+    <summary>Appendix — raw commit log + file list</summary>
+    <h3>Commit log</h3>
+    <pre>{{RAW_COMMIT_LOG}}</pre>
+    <h3>Files touched</h3>
+    <pre>{{RAW_FILE_LIST}}</pre>
+  </details>
+
+  <div class="footer">
+    Generated by <code>/simonk-report</code> · simonk-stack
+  </div>
+
+</div>
+</body>
+</html>
