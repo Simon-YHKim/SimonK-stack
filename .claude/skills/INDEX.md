@@ -17,6 +17,7 @@
 | `model-router` | task type → best LLM 모델 자동 매핑 (2026-05 매트릭스, sprint v23 Phase A) |
 | `multi-terminal-dispatcher` | model-router + Windows Terminal/psmux/VS Code tasks 병렬 launcher (sprint v23 Phase B) |
 | `simonk` | 단일 자율 진입점 (6-phase + Boundary Check + multi-agent dispatch sprint v23 Phase B) |
+| `simonk-report` | simonK Phase 6 자동 호출 — `.simonk/reports/<TS>.html` 생성 + SendUserFile 자동 첨부. 명시 `/simonk-report` 도 가능 |
 | `stack-update` | SimonK Stack 전체 holistic 최신화 — 본체+Wiki+gstack+5 vendored+skill 재설치 위임 |
 
 
