@@ -121,6 +121,7 @@ Office     & Design               & Platform & Compl.   & Revenue  & Memory   De
 |---|---|
 | `/simon-handoff` | docs/HANDOFF.md prepend + main 머지까지 자동. 다음 세션이 `git pull` 한 번에 복원 |
 | `/perspectives` | 세션 blind-spot 감사 — Core 5 (User/Business/Technical/Security/Future-self) + 세션 특화 N stakeholder, perspectives.md 누적 |
+| `/simonk-report` | simonK Phase 6 자동 호출 — `.simonk/reports/<TS>.html` 자체 완결 보고서 + SendUserFile 로 모바일 첨부. 단독 `/simonk-report` 호출도 가능 |
 | `/simon-instincts` | `~/.claude/instincts/` 에 cross-project 실수·관용·도구 함정 append |
 | `/llm-wiki-builder` | SimonKWiki 페이지 작성 (T-xxx 결정, M-xxx 실수, entities) |
 | `/wiki-query` | 위키 인덱스 검색 + [[wikilink]] 인용 답변. 새 결론은 wiki 페이지로 환원 |
