@@ -33,6 +33,7 @@
 | `context-guardian` | 컨텍스트 고갈 예방 + 실측 한도 관리 + 세션 복구 (3 mode: prevention / monitoring / recovery) |
 | `/checkpoint` (Gstack) | 일반 작업 스냅샷 저장·재개 (in-session, ephemeral OK) |
 | `simon-handoff` | **세션 간 git-persistent 핸드오프** — docs/HANDOFF.md prepend + PR auto-merge to main. 다른 세션이 `git pull` 한 번으로 복원 |
+| `perspectives` | **세션 blind-spot 감사** — Core 5 (User/Business/Technical/Security/Future-self) + 세션 특화 N stakeholder. perspectives.md 누적 append + SessionStart hook 자동 알림 |
 
 ## 📋 Planning (플래닝)
 
