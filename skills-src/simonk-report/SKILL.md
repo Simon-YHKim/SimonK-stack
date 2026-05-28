@@ -145,6 +145,20 @@ Tinted neutral palette (per CLAUDE.md design rules):
 - Code blocks: monospace with `#1A1828` background
 - No JavaScript
 
+## Optional — VLM quality self-check (SenseNova pattern)
+
+`SIMONK_REPORT_VLM=on` 환경 변수가 켜져 있으면, HTML 생성 직후 자체 평가 단계 1회 추가:
+
+1. headless browser (chromium) 로 HTML 렌더 → 스크린샷 PNG
+2. vision model 에게 5 항목 평가: readability / hierarchy clarity / color usage / overflow issues / mobile layout
+3. 평균 점수 < 7/10 이면 LLM 이 자동 1회 수정 시도 후 재평가
+4. 결과를 report 의 footer 에 `<!-- VLM score: X.Y/10 -->` 주석으로 기록
+
+**비용**: vision 모델 호출 1-2회 ($0.01-0.05). default OFF — 사용자 opt-in.
+**활용 시점**: 중요한 보고서 (외부 공유용) 일 때만 권장. 일상 sprint 는 OFF.
+
+차용 출처: OpenSenseNova/SenseNova-Skills (VLM quality scoring 87+ layouts).
+
 ## Anti-patterns (do NOT do)
 
 - ❌ External CSS / fonts / images. The HTML must open offline.

@@ -1,8 +1,8 @@
 # SimonK-Stack
 
-> **Claude 를 1인 회사로 만드는 skill 라이브러리.** 120+ 개 skill 이 8 개 부서로 나뉘어 있고, `simonK` 가 CEO 사무실에서 자율 진행. 사용자 = 창업자.
+> **Claude 를 1인 회사로 만드는 skill 라이브러리.** 132+ 개 skill 이 8 개 부서로 나뉘어 있고, `simonK` 가 CEO 사무실에서 자율 진행. 사용자 = 창업자.
 
-[![skills](https://img.shields.io/badge/skills-120%2B-brightgreen)]() [![validator](https://img.shields.io/badge/validator-0_errors-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
+[![skills](https://img.shields.io/badge/skills-132%2B-brightgreen)]() [![validator](https://img.shields.io/badge/validator-0_errors-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
 
 **Site**: [simonk-stack.pages.dev](https://simonk-stack.pages.dev) · **English**: [README.en.md](README.en.md) · **자매 레포**: [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (PRIVATE) — 세션 간 학습 누적
 
@@ -56,6 +56,8 @@ Office     & Design               & Platform & Compl.   & Revenue  & Memory   De
 | `/design-html` (gstack) | HTML 시안 생성 |
 | `/design-review` (gstack) | 실제 사이트 시각 감사 |
 | `/stitch-design-flow` | Google Stitch 용 Safe/Bold/Wild 프롬프트 3 종 생성 |
+| `/design-system-page` | design.md → design-system.html + A4 brand-book PDF 자동 생성 |
+| `/slides` | zero-dep HTML 슬라이드 (16:9, 3 preview → 선택) — 발표·피치덱 |
 
 ### 3. Engineering (개발) — 구현·테스트·디버깅
 
@@ -69,6 +71,7 @@ Office     & Design               & Platform & Compl.   & Revenue  & Memory   De
 | `/refactor` | 구조 개선 |
 | `/explain` | 모듈·시스템 walkthrough (entry points, data flow, invariants) |
 | `/simon-worktree` | 병렬 작업 시 git worktree 격리 |
+| `/vercel-react` · `/vue-best-practices` · `/building-native-ui` · `/remotion-best-practices` · `/scientific-paper` | 도메인별 best practices (React/Vue/RN/Remotion video/학술논문) |
 
 ### 4. DevEx & Platform (플랫폼) — 인프라·툴체인·배포
 
@@ -139,6 +142,10 @@ Office     & Design               & Platform & Compl.   & Revenue  & Memory   De
 |---|---|
 | `/skill-gen-agent` | 새 skill 작성 시 7-단계 검증 파이프라인 (description 점수·네이밍·길이) |
 | `/skillify` | 외부 패턴을 simonkstack skill 로 흡수 |
+| `/find-skill` | 외부 awesome-claude-skills (26k★) + 내부 INDEX 자동 검색 |
+| `/office-docs` | Docx / Xlsx / Pptx / PDF 사무 문서 (Anthropic Big Four) |
+| `/web-publisher` | 웹사이트 자동 로그인·폼·업로드 (browse + auth) |
+| `/notebooklm-import` | YouTube 자막 + PDF + 웹 → SimonKWiki 페이지 |
 | `/gstack-upgrade` | gstack 자체 업그레이드 (install type 자동 감지) |
 | `/omc-upgrade` / `/omo-upgrade` / `/openharness-upgrade` / `/opencowork-upgrade` / `/designmd-upgrade` | 각 vendored 외부 stack 단독 최신화 |
 | `/update-config` | settings.json·hooks·permissions 관리 |
@@ -182,7 +189,7 @@ git clone https://github.com/Simon-YHKim/SimonK-stack.git ~/SimonK-stack
 cd ~/SimonK-stack && ./scripts/install.sh
 ```
 
-global `~/.claude/skills/` 에 120+ skill + shared scripts + instincts 배포. SessionStart hook 은 settings.json 에 수동 등록.
+global `~/.claude/skills/` 에 132+ skill + shared scripts + instincts 배포. SessionStart hook 은 settings.json 에 수동 등록.
 
 ### B. Vendor mode — "이 target repo 안에 통째로"
 
@@ -247,7 +254,7 @@ skills-src/<name>/
 
 | 문서 | 내용 |
 |---|---|
-| [`.claude/skills/INDEX.md`](.claude/skills/INDEX.md) | 120+ skill 카탈로그 (이 README 의 부서 표보다 자세) |
+| [`.claude/skills/INDEX.md`](.claude/skills/INDEX.md) | 132+ skill 카탈로그 (이 README 의 부서 표보다 자세) |
 | [`CLAUDE.md`](CLAUDE.md) | 이 레포에서 작업할 때의 Claude 지침 (검증 도구, 컨벤션, 금기) |
 | [`CHANGELOG.md`](CHANGELOG.md) | Keep a Changelog 형식 |
 | [`docs/INSTALL.md`](docs/INSTALL.md) | 설치 상세 |
@@ -262,7 +269,7 @@ skills-src/<name>/
 # 단일 skill 검증
 python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py skills-src/<name>
 
-# 전체 repo 검증 (120+ skill sweep)
+# 전체 repo 검증 (132+ skill sweep)
 for d in skills-src/*/ .claude/skills/*/; do
   [ -f "${d}SKILL.md" ] || continue
   python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py "${d%/}" 2>&1 | grep Result

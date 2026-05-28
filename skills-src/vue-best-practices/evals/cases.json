@@ -1,0 +1,17 @@
+[
+  {
+    "name": "trigger ko 1",
+    "user_input": "Vue \ucd5c\uc801\ud654",
+    "expected_skill": "vue-best-practices"
+  },
+  {
+    "name": "trigger slash",
+    "user_input": "/vue-best-practices",
+    "expected_skill": "vue-best-practices"
+  },
+  {
+    "name": "trigger en 1",
+    "user_input": "vue best practices",
+    "expected_skill": "vue-best-practices"
+  }
+]

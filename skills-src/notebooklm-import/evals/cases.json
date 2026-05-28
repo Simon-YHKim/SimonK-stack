@@ -1,0 +1,17 @@
+[
+  {
+    "name": "trigger ko 1",
+    "user_input": "\ube44\ub514\uc624 \uc790\ub9c9 \uac00\uc838\uc640",
+    "expected_skill": "notebooklm-import"
+  },
+  {
+    "name": "trigger slash",
+    "user_input": "/notebooklm-import",
+    "expected_skill": "notebooklm-import"
+  },
+  {
+    "name": "trigger en 1",
+    "user_input": "import video transcripts",
+    "expected_skill": "notebooklm-import"
+  }
+]

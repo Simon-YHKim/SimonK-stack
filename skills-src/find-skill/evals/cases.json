@@ -1,0 +1,17 @@
+[
+  {
+    "name": "trigger ko 1",
+    "user_input": "\uc2a4\ud0ac \ucc3e\uc544",
+    "expected_skill": "find-skill"
+  },
+  {
+    "name": "trigger slash",
+    "user_input": "/find-skill",
+    "expected_skill": "find-skill"
+  },
+  {
+    "name": "trigger en 1",
+    "user_input": "find a skill",
+    "expected_skill": "find-skill"
+  }
+]

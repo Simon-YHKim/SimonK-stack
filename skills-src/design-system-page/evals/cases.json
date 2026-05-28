@@ -1,0 +1,17 @@
+[
+  {
+    "name": "trigger ko 1",
+    "user_input": "\ub514\uc790\uc778 \uc2dc\uc2a4\ud15c \ub9cc\ub4e4\uc5b4",
+    "expected_skill": "design-system-page"
+  },
+  {
+    "name": "trigger slash",
+    "user_input": "/design-system-page",
+    "expected_skill": "design-system-page"
+  },
+  {
+    "name": "trigger en 1",
+    "user_input": "design system page",
+    "expected_skill": "design-system-page"
+  }
+]

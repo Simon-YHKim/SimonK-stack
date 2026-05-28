@@ -2,7 +2,7 @@
 
 > A skill library that makes Claude Code **follow the right procedure automatically** — from product planning to development, monetization, growth, and exit. Plus **simonK unified autonomous harness**.
 
-**[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![validator](https://img.shields.io/badge/skill--validator-107%20skills-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
+**[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![validator](https://img.shields.io/badge/skill--validator-132%20skills-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
 
 🇰🇷 **한국어 README**: [README.md](README.md) (full version)
 
@@ -12,7 +12,7 @@
 
 **Problem**: AI coding assistants work in a different order every time you give them a large task, and they repeat the same mistakes.
 
-**Solution**: **107 skills** (work manuals, `validate_skill.py` reports 0 errors / 56 minor warnings — description score, non-blocking — as of 2026-05-27; incl. PR #8 new `session-context-tracker` + `html-default-output`) + **simonK unified autonomous harness** (single entry point → 6-phase autonomous execution). Combined with [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (private) for cross-session learning accumulation — no more re-reasoning from scratch every session.
+**Solution**: **132 skills** (work manuals, `validate_skill.py` reports 0 errors / 0 warnings as of 2026-05-28; sprint v36 added 11 absorbed from `zarazhangrui/frontend-slides`, `robonuggets/{design-system,html-it}`, `OpenSenseNova/SenseNova-Skills`, and the Claude Skills 2026 slide deck) + **simonK unified autonomous harness** (single entry point → 6-phase autonomous execution). Combined with [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (private) for cross-session learning accumulation — no more re-reasoning from scratch every session.
 
 **Sprint v34 (2026-05-25)** — 5 external vendor integrations (user-level live clone + auto-update each session):
 - [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) · [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) · [OpenHarness](https://github.com/HKUDS/OpenHarness) — existing (sprint v22-EXT)
@@ -120,7 +120,23 @@ For first-time users, **`simonK <goal>` is the single entry point**. The rest of
 | ★ Wiki ops | `wiki-ingest` · `wiki-query` · `wiki-lint` |
 | ★ Daily | `commit` |
 
-The remaining 83 (domain-specific + 36 Gstack vendored + 5 kepano vendored) → see [docs/CURATED-SKILLS.md](docs/CURATED-SKILLS.md) or [full catalog](README.md#skill-카탈로그--98개) (Korean).
+The remaining 108 (domain-specific + 36 Gstack vendored + 5 kepano vendored + 11 new from sprint v36) → see [docs/CURATED-SKILLS.md](docs/CURATED-SKILLS.md) or [full catalog](README.md#skill-카탈로그--98개) (Korean).
+
+### Sprint v36 (2026-05-28) — 11 absorbed skills + 3 existing-skill boosts
+
+External catalog absorption. Sources: `zarazhangrui/frontend-slides`, `robonuggets/{design-system, html-it}`, `OpenSenseNova/SenseNova-Skills`, Claude Skills 2026 slide deck.
+
+| Department | New skills |
+|---|---|
+| Product & Design | `/slides` (zero-dep HTML 16:9, 3-preview pattern) · `/design-system-page` (design.md → design-system.html + A4 PDF) |
+| Engineering | `/vercel-react` · `/vue-best-practices` · `/building-native-ui` · `/remotion-best-practices` · `/scientific-paper` (LaTeX + BibTeX) |
+| Knowledge & Memory | `/notebooklm-import` (YouTube transcripts + PDF + web → SimonKWiki) |
+| Skill DevOps / Utils | `/find-skill` (search awesome-claude-skills 26k★ + internal INDEX) · `/office-docs` (Docx/Xlsx/Pptx/PDF Big Four) · `/web-publisher` (auto login + form fill + upload) |
+
+Existing-skill boosts:
+- `html-default-output` — 4-level complexity (L1 Static / L2 Visual / L3 Interactive / L4 Throwaway) from `robonuggets/html-it`
+- `simonk` — Phase 1.4 Doctor Check (env health: git/network/disk/auth) before Boundary Check
+- `simonk-report` — Optional VLM self-check (`SIMONK_REPORT_VLM=on`, default OFF, ~$0.05 per use)
 
 ---
 

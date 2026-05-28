@@ -1,0 +1,17 @@
+[
+  {
+    "name": "trigger ko 1",
+    "user_input": "\uc6f9\uc0ac\uc774\ud2b8\uc5d0 \uc62c\ub824",
+    "expected_skill": "web-publisher"
+  },
+  {
+    "name": "trigger slash",
+    "user_input": "/web-publisher",
+    "expected_skill": "web-publisher"
+  },
+  {
+    "name": "trigger en 1",
+    "user_input": "publish to website",
+    "expected_skill": "web-publisher"
+  }
+]

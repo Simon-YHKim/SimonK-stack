@@ -1,0 +1,17 @@
+[
+  {
+    "name": "trigger ko 1",
+    "user_input": "Remotion \ube44\ub514\uc624",
+    "expected_skill": "remotion-best-practices"
+  },
+  {
+    "name": "trigger slash",
+    "user_input": "/remotion-best-practices",
+    "expected_skill": "remotion-best-practices"
+  },
+  {
+    "name": "trigger en 1",
+    "user_input": "remotion video",
+    "expected_skill": "remotion-best-practices"
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "trigger ko 1",
+    "user_input": "\uc2ac\ub77c\uc774\ub4dc \ub9cc\ub4e4\uc5b4",
+    "expected_skill": "slides"
+  },
+  {
+    "name": "trigger slash",
+    "user_input": "/slides",
+    "expected_skill": "slides"
+  },
+  {
+    "name": "trigger en 1",
+    "user_input": "pitch deck",
+    "expected_skill": "slides"
+  }
+]

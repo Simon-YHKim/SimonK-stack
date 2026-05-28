@@ -1,0 +1,17 @@
+[
+  {
+    "name": "trigger ko 1",
+    "user_input": "React Native \ub9cc\ub4e4\uc5b4",
+    "expected_skill": "building-native-ui"
+  },
+  {
+    "name": "trigger slash",
+    "user_input": "/building-native-ui",
+    "expected_skill": "building-native-ui"
+  },
+  {
+    "name": "trigger en 1",
+    "user_input": "react native",
+    "expected_skill": "building-native-ui"
+  }
+]
