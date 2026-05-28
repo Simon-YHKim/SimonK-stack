@@ -59,12 +59,19 @@
 | `design-shotgun` (Gstack) | 디자인 변형 탐색 |
 | `design-review` (Gstack) | 시각 QA, AI slop 탐지 |
 | `design-html` (Gstack) | production HTML/CSS 변환 |
+| `design-system-page` | design.md → design-system.html + A4 brand-book PDF 자동 생성 |
+| `slides` | zero-dep HTML 슬라이드 (16:9, 3 preview → 선택) — frontend-slides 패턴 |
 
 ## 🛠️ Implementation
 
 | Skill | 역할 |
 |---|---|
 | `simon-tdd` | RED-GREEN-REFACTOR 강제 + 검증 루프 |
+| `vercel-react` | React (Next.js + Vercel) 안정성·성능 best practices |
+| `vue-best-practices` | Vue 3 Composition API + Pinia 표준 |
+| `building-native-ui` | React Native + Expo (FlashList, Reanimated, EAS) |
+| `remotion-best-practices` | 프로그래밍 비디오 (TypeScript + React) |
+| `scientific-paper` | LaTeX 논문 + BibTeX + matplotlib/plotly 시각화 |
 | `simon-worktree` | 병렬 세션 git worktree 격리 |
 | `nextjs-optimizer` | Next.js 5대 영역 성능 최적화 |
 | `project-context-md` | 프로젝트 CLAUDE.md 생성 |
@@ -122,6 +129,7 @@
 | `learn` (Gstack) | 프로젝트 학습 관리 |
 | `retro` (Gstack) | 주간 엔지니어링 회고 |
 | `checkpoint` (Gstack) | 상태 스냅샷·재개 |
+| `notebooklm-import` | YouTube 자막 + PDF + 웹 → SimonKWiki 페이지로 변환·통합 |
 
 ## 🧰 Utilities
 
@@ -132,6 +140,9 @@
 | `explain` (local) | 코드 설명 |
 | `test-gen` (local) | 테스트 생성 |
 | `simplify` | 코드 단순화 |
+| `find-skill` | 외부 awesome-claude-skills (26k★) + 내부 INDEX 자동 검색 |
+| `office-docs` | Docx / Xlsx / Pptx / PDF 사무 문서 (Anthropic Big Four) |
+| `web-publisher` | 웹사이트 자동 로그인·폼 작성·업로드 (browse + auth) |
 | `loop` | 주기 작업 실행 |
 | `update-config` | settings.json 구성 |
 | `keybindings-help` | 키바인딩 커스터마이징 |

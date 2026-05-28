@@ -32,6 +32,25 @@ author: simon-stack
 | 리포트·리서치 | SVG 다이어그램 + 발표자료급 레이아웃 |
 | 커스텀 에디터 | 드래그·정렬 후 "copy as markdown" 회수 |
 
+## 4-Level 복잡도 분류 (Thariq Shihipar / html-it 패턴)
+
+HTML 산출물의 적절한 수준을 결정. LLM 이 자동 판단:
+
+| Level | 형태 | 예시 | 추가 비용 |
+|---|---|---|---|
+| **L1 Static doc** | 마크다운을 HTML 형식으로 (목차·앵커·코드 하이라이트) | 스펙·계획·보고서 | 거의 0 |
+| **L2 Visual artifact** | SVG·표·diagram·dashboard | 비교 매트릭스·diff 시각화·timeline | 중 |
+| **L3 Interactive** | 슬라이더·토글·필터 + export-as-prompt | 프롬프트 튜닝·A/B 비교·파라미터 sweep | 높음 |
+| **L4 Throwaway tool** | 미니앱 (칸반·설정 편집기·체크리스트) | 30분 작업을 위한 30분 도구 (아래 § 일회용 에디터 패턴) | 매우 높음 |
+
+판단 흐름:
+1. **사람이 _읽기만_ 하나** → L1
+2. **데이터·관계 비교가 핵심**인가 → L2 (SVG/table)
+3. **값을 _조작_ 해야 결정 가능**한가 → L3 (slider/toggle)
+4. **작업 자체가 도구 만들기**인가 → L4 (mini-app)
+
+L3+ 일 때는 반드시 "copy as prompt / markdown" 회수 패턴 포함 — 도구가 끝나도 출력이 회수 가능.
+
 ## HTML vs 마크다운 판단
 
 산출물을 만들기 전에 먼저 분류한다.

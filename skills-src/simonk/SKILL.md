@@ -24,6 +24,20 @@ version: 1.0.0
 - 단 **파괴적 작업** (`rm -rf`, `git reset --hard`, force push to main of multi-collab repo, DB drop) 은 사용자 확인 필수
 - 단 **.env / credentials 수정·노출** 은 즉시 STOP
 
+## 1.4 Doctor Check (필수 매 호출) — 2026-05-28 추가 (SenseNova pattern)
+
+작업 진행 전 환경 health check (silent if clean, < 1 초):
+
+| 검출 | 명령 | 처리 |
+|---|---|---|
+| **Git config dirty** | `git -C $REPO_DIR status -s` | dirty 면 사용자 alert (auto-push 위험) |
+| **Network** | `curl -sf -m 3 https://github.com > /dev/null` | 실패 시 push/clone 작업 skip + log |
+| **Disk** | `df --output=avail $HOME \| tail -1` | <500MB 면 warn (vendored clone 위험) |
+| **gcloud auth** (선택) | `gcloud-helper` skill 위임 | ghost project 면 auto-fix |
+| **Node/Python** (선택) | 작업 종류에 따라 `node -v` / `python3 -V` | 부재면 skill 매핑 변경 |
+
+기존 `gcloud-helper` skill 과 통합 — Doctor 가 Phase 0 에서 silent 호출. 차용 출처: OpenSenseNova/SenseNova-Skills.
+
 ## 1.5 Boundary Check (필수 매 호출) — 2026-05-25 추가
 
 작업 *진행 전* 다음 detection (silent if clean):

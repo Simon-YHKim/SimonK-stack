@@ -1,0 +1,17 @@
+[
+  {
+    "name": "trigger ko 1",
+    "user_input": "\ub17c\ubb38 \uc791\uc131",
+    "expected_skill": "scientific-paper"
+  },
+  {
+    "name": "trigger slash",
+    "user_input": "/scientific-paper",
+    "expected_skill": "scientific-paper"
+  },
+  {
+    "name": "trigger en 1",
+    "user_input": "scientific paper",
+    "expected_skill": "scientific-paper"
+  }
+]

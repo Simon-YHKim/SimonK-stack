@@ -1,0 +1,17 @@
+[
+  {
+    "name": "trigger ko 1",
+    "user_input": "\uc6cc\ub4dc \ubb38\uc11c \ub9cc\ub4e4\uc5b4",
+    "expected_skill": "office-docs"
+  },
+  {
+    "name": "trigger slash",
+    "user_input": "/office-docs",
+    "expected_skill": "office-docs"
+  },
+  {
+    "name": "trigger en 1",
+    "user_input": "create docx",
+    "expected_skill": "office-docs"
+  }
+]
