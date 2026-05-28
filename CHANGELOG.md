@@ -3,6 +3,51 @@
 모든 중요한 변경은 이 파일에 기록합니다.
 형식: [Keep a Changelog](https://keepachangelog.com/), 버전: [SemVer](https://semver.org/).
 
+## [1.5.0] — 2026-05-28
+
+Sprint v36 — 외부 카탈로그 흡수. 11 신규 skill + 3 기존 skill 보강. validator 132/132 pass / 0 fail.
+
+PR 머지: SimonK-stack #22.
+
+### Added — 11 new skills
+
+차용 출처: `zarazhangrui/frontend-slides`, `robonuggets/{design-system, html-it}`, `OpenSenseNova/SenseNova-Skills`, Claude Skills 2026 slide deck.
+
+Engineering domain (5):
+- `/vercel-react` — Next.js + Vercel best practices (Server vs Client Components, Edge runtime, ISR/SSR/SSG, hydration debugging)
+- `/vue-best-practices` — Vue 3 Composition API + Pinia state management
+- `/building-native-ui` — React Native + Expo (expo-router, FlashList, Reanimated, EAS)
+- `/remotion-best-practices` — programmatic video (TypeScript + React composition/sequences)
+- `/scientific-paper` — LaTeX + BibTeX + matplotlib/plotly + IEEE/ACM/Nature format (renamed from `claude-scientific` due to reserved-word rule)
+
+Product & Design (2):
+- `/slides` — zero-dep HTML 16:9 slides, 3 visual preview → pick pattern
+- `/design-system-page` — design.md → design-system.html + A4 brand-book PDF
+
+Knowledge & Memory (1):
+- `/notebooklm-import` — YouTube transcripts + PDF + web → SimonKWiki pages
+
+Skill DevOps / utilities (3):
+- `/find-skill` — search awesome-claude-skills (26k★) + internal INDEX
+- `/office-docs` — Docx/Xlsx/Pptx/PDF generation (Anthropic Big Four)
+- `/web-publisher` — automated login + form fill + upload (browse + auth)
+
+### Changed — 3 existing-skill boosts (no new skills)
+
+- `html-default-output` — 4-level complexity classification 추가 (L1 Static / L2 Visual / L3 Interactive / L4 Throwaway tool). 차용 출처 `robonuggets/html-it`.
+- `simonk` — Phase 1.4 Doctor Check 추가 (env health: git/network/disk/auth) — Boundary Check 직전, 기존 `gcloud-helper` skill 통합. 차용 출처 OpenSenseNova SenseNova-Skills.
+- `simonk-report` — Optional VLM 품질 자체 검증 (chromium screenshot → vision 5-axis 점수 → <7/10 시 1회 auto-fix). opt-in `SIMONK_REPORT_VLM=on` env. default OFF, ~$0.05/회.
+
+### Changed — catalog
+
+- `.claude/skills/INDEX.md`: 8 신규 entry 를 Design / Implementation / Learning&Memory / Utilities 섹션에 추가
+- `README.md`: 8 부서 표에 신규 skill 매핑 (Product&Design +2, Engineering +1 row, Knowledge&Memory +1, Skill DevOps +4), badge 120+ → 132+
+- `README.en.md`: badge 107 → 132, sprint v36 absorption section 추가
+
+### Notes
+
+- 사용자가 본 흡수 결정에서 14 항목 전부 도입을 선택 (assistant 의 4 항목 권장과 반대). 토큰 비용 + 정체성 drift 우려는 commit body 에 기록. 실제 사용 빈도를 다음 세션부터 모니터링; 저사용 skill 은 향후 polish sprint 의 deprecation 후보.
+
 ## [1.4.0] — 2026-05-27
 
 Sprint D — 전체 스킬 chain audit, Wiki 정합성, 설치 ease, 100% functional perfection.
