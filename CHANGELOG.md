@@ -3,6 +3,20 @@
 모든 중요한 변경은 이 파일에 기록합니다.
 형식: [Keep a Changelog](https://keepachangelog.com/), 버전: [SemVer](https://semver.org/).
 
+## [1.6.0] — 2026-06-07
+
+Sprint v37 — 디자인 시스템 영속화. 1 신규 skill. validator 130/130 pass / 0 error.
+
+### Added — 1 new skill
+
+차용·종합 출처: `anthropics/claude-code` frontend-design skill + `Dammyjay93/interface-design` 플러그인.
+
+Product & Design (1):
+- `/design-system-keeper` — 디자인 시스템을 세션 너머 영속·강제. 6 방향(Precision/Warmth/Sophistication/Boldness/Utility/Data) 선택 → `.design-system/system.md` 토큰 캡처·자동로드 → 기존 코드서 토큰 extract → 컴포넌트 drift audit. frontend-design의 distinctiveness(비-제네릭 방향성·분위기)와 interface-design의 persistence(system.md·audit)를 통합하고, Simon의 anti-slop 규칙(≤3색·no-gradient·Pretendard, 2nd-B DESIGN.md)과 조화(충돌 시 프로젝트 규칙 우선). `references/direction-and-aesthetics.md` 포함, `evals/cases.json` 3 케이스.
+
+### Note
+- simon-design-first(인테이크)·consistency-guard(데이터 일관성)·design-system-page(1회성 카탈로그)와 중복 회피 — design-system-keeper는 영속 system.md + audit 루프 담당.
+
 ## [1.5.0] — 2026-05-28
 
 Sprint v36 — 외부 카탈로그 흡수. 11 신규 skill + 3 기존 skill 보강. validator 132/132 pass / 0 fail.

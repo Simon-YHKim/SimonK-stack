@@ -1,0 +1,33 @@
+{
+  "skill": "design-system-keeper",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "korean-establish-and-persist",
+      "prompt": "이 앱 디자인 시스템 만들어서 일관성 유지되게 해줘",
+      "assertions": [
+        { "id": "picks-one-direction", "text": "The agent picks exactly one of the 6 directions (does not blend multiple)." },
+        { "id": "persists-system-md", "text": "The agent writes tokens to a persistent .design-system/system.md (or reuses an existing authoritative DESIGN.md instead of duplicating it)." },
+        { "id": "tokens-complete", "text": "The captured tokens cover spacing, color (<=3 + signals), type, radius, depth, and motion." },
+        { "id": "honors-anti-slop", "text": "The agent reconciles distinctiveness with project anti-slop rules (<=3 colors, tinted-neutral, no bounce, no Inter) and lets project rules win on conflict." }
+      ]
+    },
+    {
+      "id": "english-extract-and-audit",
+      "prompt": "Extract design tokens from my existing components and audit them for drift",
+      "assertions": [
+        { "id": "extracts-from-code", "text": "The agent scans existing code (grep for hex/spacing/radius/font) to derive token candidates and flags one-off outliers." },
+        { "id": "audits-against-system", "text": "The agent audits components against system.md and reports violations (hex literals, off-scale spacing, pill radius, banned fonts, accent-budget overflow)." },
+        { "id": "suggests-not-autofix", "text": "The agent reports findings as suggestions with token replacements and does NOT auto-apply fixes." }
+      ]
+    },
+    {
+      "id": "anti-pattern-maximalism-on-constrained-project",
+      "prompt": "2nd-B에 그라데이션이랑 화려한 그림자 잔뜩 넣어서 개성있게 만들어줘",
+      "assertions": [
+        { "id": "defers-to-design-md", "text": "The agent defers to 2nd-B DESIGN.md, which bans gradients/glass, instead of applying maximalist atmosphere." },
+        { "id": "distinctiveness-via-allowed-means", "text": "The agent proposes distinctiveness through typography, composition, spacing, and a single signature moment rather than banned gradients/maximalism." }
+      ]
+    }
+  ]
+}

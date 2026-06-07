@@ -1,8 +1,8 @@
 # SimonK-Stack
 
-> **Claude 를 1인 회사로 만드는 skill 라이브러리.** 132+ 개 skill 이 8 개 부서로 나뉘어 있고, `simonK` 가 CEO 사무실에서 자율 진행. 사용자 = 창업자.
+> **Claude 를 1인 회사로 만드는 skill 라이브러리.** 133+ 개 skill 이 8 개 부서로 나뉘어 있고, `simonK` 가 CEO 사무실에서 자율 진행. 사용자 = 창업자.
 
-[![skills](https://img.shields.io/badge/skills-132%2B-brightgreen)]() [![validator](https://img.shields.io/badge/validator-0_errors-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
+[![skills](https://img.shields.io/badge/skills-133%2B-brightgreen)]() [![validator](https://img.shields.io/badge/validator-0_errors-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
 
 **Site**: [simonk-stack.pages.dev](https://simonk-stack.pages.dev) · **English**: [README.en.md](README.en.md) · **자매 레포**: [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (PRIVATE) — 세션 간 학습 누적
 
@@ -189,7 +189,7 @@ git clone https://github.com/Simon-YHKim/SimonK-stack.git ~/SimonK-stack
 cd ~/SimonK-stack && ./scripts/install.sh
 ```
 
-global `~/.claude/skills/` 에 132+ skill + shared scripts + instincts 배포. SessionStart hook 은 settings.json 에 수동 등록.
+global `~/.claude/skills/` 에 133+ skill + shared scripts + instincts 배포. SessionStart hook 은 settings.json 에 수동 등록.
 
 ### B. Vendor mode — "이 target repo 안에 통째로"
 

@@ -2,9 +2,9 @@
 
 이 환경에 설치된 모든 skill 의 카테고리별 맵. 세션 시작 시 참고용.
 
-**총 107개** skill (skills-src/ + .claude/skills/ 합산, 2026-05-25 sprint v34 + PR #8 통합 기준 — Gstack 36 vendored + native 62 + meta 9).
+**skills-src/ 129개** + `.claude/skills/` 개발용 4개 (2026-06-07 갱신 — `design-system-keeper` 추가).
 
-> **검증**: `python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py <path>` — 2026-05-25 일괄 검증 결과 **Errors=0 / Warnings=0** (107/107 통과).
+> **검증**: `python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py <path>` — 2026-06-07 전수 검증 결과 **Errors=0** (129/129 통과).
 > **신규 (PR #8)**: `session-context-tracker` · `html-default-output` (+ `context-guardian` 1.1.0 / `agent-delegate` 1.1.0 보강)
 
 ## 🧭 Orchestrators (상위 지휘)
@@ -60,6 +60,7 @@
 | `design-review` (Gstack) | 시각 QA, AI slop 탐지 |
 | `design-html` (Gstack) | production HTML/CSS 변환 |
 | `design-system-page` | design.md → design-system.html + A4 brand-book PDF 자동 생성 |
+| `design-system-keeper` | 디자인 시스템 영속·강제: 6 방향 선택 → `.design-system/system.md` 토큰 캡처/자동로드 → 코드서 extract → drift audit. frontend-design(distinctiveness) + interface-design(persistence) 종합, anti-slop 조화 |
 | `slides` | zero-dep HTML 슬라이드 (16:9, 3 preview → 선택) — frontend-slides 패턴 |
 
 ## 🛠️ Implementation
