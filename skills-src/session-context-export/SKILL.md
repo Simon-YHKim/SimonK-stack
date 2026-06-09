@@ -59,10 +59,10 @@ phases-progress:
 ### 2. 양쪽 repo 최근 commits
 
 ```bash
-cd "E:/Coding Infra/Harrness Eng/SimonK-stack"
+cd "C:/Coding/Harrness Eng/SimonK-stack"
 git log --oneline -10
 
-cd "E:/Coding Infra/obsidian/SimonKWiki"
+cd "C:/Coding/obsidian/SimonKWiki"
 git log --oneline -10
 ```
 

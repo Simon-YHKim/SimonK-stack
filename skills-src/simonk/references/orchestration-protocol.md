@@ -158,7 +158,7 @@ If user types `/simonK <task>` inside Claude Code:
 - Execute simonK protocol directly with task = `<task>`
 
 If user types `simonK <task>` in PowerShell:
-- PowerShell function dispatches `claude -p "/simonK <task>"` in `E:\Coding Infra` dir
+- PowerShell function dispatches `claude -p "/simonK <task>"` in `C:\Coding` dir
 - Same protocol executes
 
-If no task ("simonK" alone): open interactive Claude Code in `E:\Coding Infra`.
+If no task ("simonK" alone): open interactive Claude Code in `C:\Coding`.

@@ -47,8 +47,8 @@ if (Test-Path '$simonkPath') {
 # Set SIMONK_PROJECT_DIR (user scope) if not already set
 $existingEnv = [Environment]::GetEnvironmentVariable('SIMONK_PROJECT_DIR', 'User')
 if (-not $existingEnv) {
-    [Environment]::SetEnvironmentVariable('SIMONK_PROJECT_DIR', 'E:\Coding Infra', 'User')
-    Write-Host "[install] set SIMONK_PROJECT_DIR=E:\Coding Infra (User scope)" -ForegroundColor Green
+    [Environment]::SetEnvironmentVariable('SIMONK_PROJECT_DIR', 'C:\Coding', 'User')
+    Write-Host "[install] set SIMONK_PROJECT_DIR=C:\Coding (User scope)" -ForegroundColor Green
 } else {
     Write-Host "[install] SIMONK_PROJECT_DIR already set: $existingEnv" -ForegroundColor DarkGray
 }

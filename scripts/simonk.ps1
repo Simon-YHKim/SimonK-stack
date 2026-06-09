@@ -5,9 +5,9 @@
 #
 # Usage:
 #   simonK <task description>     → non-interactive: launches `claude -p "/simonK <task>"`
-#   simonK                        → interactive: opens `claude` in E:\Coding Infra
+#   simonK                        → interactive: opens `claude` in C:\Coding
 #
-# Project root default: E:\Coding Infra (overridable via $env:SIMONK_PROJECT_DIR)
+# Project root default: C:\Coding (overridable via $env:SIMONK_PROJECT_DIR)
 # Wiki vault default: $env:SIMON_WIKI_DIR (set during 2026-05-23 vault consolidation)
 #
 # Auto helpers (silent if OK, 안내만 출력):
@@ -27,7 +27,7 @@ function global:simonK {
     )
 
     $task = if ($TaskArgs) { ($TaskArgs -join ' ').Trim() } else { '' }
-    $projectDir = if ($env:SIMONK_PROJECT_DIR) { $env:SIMONK_PROJECT_DIR } else { 'E:\Coding Infra' }
+    $projectDir = if ($env:SIMONK_PROJECT_DIR) { $env:SIMONK_PROJECT_DIR } else { 'C:\Coding' }
 
     if (-not (Test-Path $projectDir)) {
         Write-Host "[simonK] project dir not found: $projectDir" -ForegroundColor Red

@@ -41,7 +41,7 @@ try:
 except Exception:
     pass
 
-WIKI_DIR = os.environ.get('SIMON_WIKI_DIR', r'E:\Coding Infra\obsidian\SimonKWiki')
+WIKI_DIR = os.environ.get('SIMON_WIKI_DIR', r'C:\Coding\obsidian\SimonKWiki')
 WIKI_PAGE = os.path.join(WIKI_DIR, 'wiki', 'concepts', 'ai-model-benchmarks.md')
 CACHE_DIR = os.path.join(os.path.dirname(__file__), '..', '.simonk')
 CACHE_FILE = os.path.join(CACHE_DIR, 'benchmarks-cache.json')

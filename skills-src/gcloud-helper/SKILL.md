@@ -82,7 +82,7 @@ simonK 호출 시 silent 자동 — 사용자는 *모름*. 단 BigQuery / Vertex
 
 ```powershell
 # 진단만 (출력)
-. "E:\Coding Infra\Harrness Eng\SimonK-stack\scripts\gcloud-bootstrap.ps1"
+. "C:\Coding\Harrness Eng\SimonK-stack\scripts\gcloud-bootstrap.ps1"
 Invoke-GcloudBootstrap
 
 # 자동 + silent (인증 OK 시 출력 없음)

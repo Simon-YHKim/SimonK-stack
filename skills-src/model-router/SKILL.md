@@ -10,7 +10,7 @@ version: 0.1.0
 
 ## 0. 운영 컨텍스트
 
-- **Source of truth**: `E:\Coding Infra\obsidian\SimonKWiki\wiki\concepts\ai-model-benchmarks.md`
+- **Source of truth**: `C:\Coding\obsidian\SimonKWiki\wiki\concepts\ai-model-benchmarks.md`
 - **갱신 cadence**: 주 1회 cron (`scripts/fetch-model-benchmarks.py`)
 - **API key 가용**: Anthropic primary (Claude Opus 4.7 / Sonnet 4.6 / Haiku 4.5). 외부 (OpenAI / Google / xAI / DeepSeek / GLM) 는 사용자 key 확보 시 활성.
 

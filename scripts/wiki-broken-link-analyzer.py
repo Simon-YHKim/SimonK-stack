@@ -24,7 +24,7 @@ try:
 except Exception:
     pass
 
-WIKI = r"E:\Coding Infra\obsidian\SimonKWiki"
+WIKI = r"C:\Coding\obsidian\SimonKWiki"
 V1_TO_V2_PATTERNS = {
     # known v1 prefix → v2 slug (사용자 정정 가능)
     "self-001": "three-simons", "self-002": "9-circuits", "self-003": "birkman-9-components",

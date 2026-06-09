@@ -1,6 +1,6 @@
 ---
 name: simonk
-description: "Use when the user invokes the `simonK` keyword, `/simonK <task>` slash, or runs `simonK <task>` from PowerShell. Triggers autonomous team-based execution for any non-trivial task in Simon Kim's environment (E:\\Coding Infra). Trigger phrases: 'simonK', '/simonK', 'ultrawork', 'ulw', '한 번에 끝내줘', '팀으로 진행해', '자율로 끝까지', '스프린트 시작'. Use for tasks requiring planning + parallel subagent delegation + verification + git persistence. Produces: (1) early ambiguity score check with Socratic Q&A if score<6, (2) sprint plan written to .simonk/plan.md, (3) parallel Task-tool delegation across sub-agents, (4) test/lint verification, (5) conventional commits + auto-push under Full-Auto policy (all repos, PRs always require explicit OK), (6) structured final report with task summary + verification evidence + git status."
+description: "Use when the user invokes the `simonK` keyword, `/simonK <task>` slash, or runs `simonK <task>` from PowerShell. Triggers autonomous team-based execution for any non-trivial task in Simon Kim's environment (C:\\Coding). Trigger phrases: 'simonK', '/simonK', 'ultrawork', 'ulw', '한 번에 끝내줘', '팀으로 진행해', '자율로 끝까지', '스프린트 시작'. Use for tasks requiring planning + parallel subagent delegation + verification + git persistence. Produces: (1) early ambiguity score check with Socratic Q&A if score<6, (2) sprint plan written to .simonk/plan.md, (3) parallel Task-tool delegation across sub-agents, (4) test/lint verification, (5) conventional commits + auto-push under Full-Auto policy (all repos, PRs always require explicit OK), (6) structured final report with task summary + verification evidence + git status."
 version: 1.0.0
 ---
 
@@ -10,9 +10,9 @@ version: 1.0.0
 
 ## 0. 운영 컨텍스트 (매 호출 시 inject)
 
-- **Wiki vault**: `E:\Coding Infra\obsidian\SimonKWiki\` (env `$SIMON_WIKI_DIR`)
-- **Stack root**: `E:\Coding Infra\Harrness Eng\SimonK-stack\`
-- **External refs**: `E:\Coding Infra\Harrness Eng\external\{oh-my-claudecode, oh-my-openagent, OpenHarness, open-cowork, obsidian-skills, anthropics-skills}`
+- **Wiki vault**: `C:\Coding\obsidian\SimonKWiki\` (env `$SIMON_WIKI_DIR`)
+- **Stack root**: `C:\Coding\Harrness Eng\SimonK-stack\`
+- **External refs**: `C:\Coding\Harrness Eng\SimonK-stack\external\{oh-my-claudecode, oh-my-openagent, OpenHarness, open-cowork, obsidian-skills, anthropics-skills}`
 - **Locale**: Korean default · 직설적·관찰형 톤 · *italic* 강조 · 위로 과잉 금지 · 옵션 A/B/C 나열 default 금지 (첫 추천 명확)
 - **Identity**: Simon Kim · 대기업 제조 IE 7년차 · AI 도메인 pivot 중 (상세 PII는 SimonKWiki PRIVATE wiki/CLAUDE.md § 4)
 - **Values inject (Brain Trinity)**: 노력화폐·진정성·장인정신·솔직함·카르마 · 회로 4·5·8 주의 (본인 작품 과소평가 패턴) · 진단 수치는 PRIVATE wiki [[birkman-9-components]] 참조

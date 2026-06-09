@@ -4,7 +4,7 @@ blog-42morrow-mirror.py — AI 탐구노트 (42morrow.tistory.com) 910 글 풀 �
     python scripts/blog-42morrow-mirror.py [--category <name>] [--limit N]
 
 출력:
-    E:/Coding Infra/obsidian/SimonKWiki/raw/clipped/blog-42morrow/<category>/<slug>.md
+    C:/Coding/obsidian/SimonKWiki/raw/clipped/blog-42morrow/<category>/<slug>.md
 
 전제:
     uv pip install --system requests beautifulsoup4 lxml html2text
@@ -37,7 +37,7 @@ except Exception:
     pass
 
 BASE = "https://42morrow.tistory.com"
-OUT_DIR = r"E:\Coding Infra\obsidian\SimonKWiki\raw\clipped\blog-42morrow"
+OUT_DIR = r"C:\Coding\obsidian\SimonKWiki\raw\clipped\blog-42morrow"
 
 # 카테고리: (URL path, max page count from earlier WebFetch)
 CATEGORIES = {

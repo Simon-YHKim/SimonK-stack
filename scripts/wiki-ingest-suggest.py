@@ -107,7 +107,7 @@ def score_category(text: str) -> dict:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--source', default=r'E:\Coding Infra\obsidian\SimonKWiki\raw\clipped',
+    parser.add_argument('--source', default=r'C:\Coding\obsidian\SimonKWiki\raw\clipped',
                         help='raw 자료 위치 (default: raw/clipped/)')
     parser.add_argument('--limit', type=int, default=50,
                         help='최대 분석 파일 수 (default: 50)')

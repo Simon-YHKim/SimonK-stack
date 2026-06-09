@@ -23,7 +23,7 @@ KeePassXC vault에서 API key 자동 inject. **첫 1회 master password 입력**
 
 ```powershell
 # 직접 호출
-. "E:\Coding Infra\Harrness Eng\SimonK-stack\scripts\keepass-inject.ps1"
+. "C:\Coding\Harrness Eng\SimonK-stack\scripts\keepass-inject.ps1"
 Invoke-KeepassInject
 
 # 또는 alias
@@ -78,7 +78,7 @@ Invoke-KeepassInject -Entry "Zotero API Key"   # ZOTERO_API_KEY만
 
 ## Default vault 위치
 
-`E:\Coding Infra\암호.kdbx`
+`C:\Coding\암호.kdbx`
 
 다른 vault 사용 시:
 ```powershell

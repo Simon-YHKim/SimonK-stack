@@ -15,7 +15,7 @@
 #   - keepassxc-cli stdin pipe 통해 1회 사용 후 즉시 release
 #   - 환경변수는 *current process scope* (자식 process 상속, 새 session에는 X)
 #
-# Default vault: E:\Coding Infra\암호.kdbx
+# Default vault: C:\Coding\암호.kdbx
 # Override: $env:SIMONK_KEEPASS_VAULT
 
 [CmdletBinding()]
@@ -27,7 +27,7 @@ param(
 function Get-SimonKeepassVault {
     if ($VaultPath) { return $VaultPath }
     if ($env:SIMONK_KEEPASS_VAULT) { return $env:SIMONK_KEEPASS_VAULT }
-    return 'E:\Coding Infra\암호.kdbx'
+    return 'C:\Coding\암호.kdbx'
 }
 
 function Test-KeepassXcCli {

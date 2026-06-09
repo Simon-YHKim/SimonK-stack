@@ -18,7 +18,7 @@ try:
 except Exception:
     pass
 
-VAULT = os.environ.get('SIMON_WIKI_DIR', r'E:\Coding Infra\obsidian\SimonKWiki')
+VAULT = os.environ.get('SIMON_WIKI_DIR', r'C:\Coding\obsidian\SimonKWiki')
 RAW_DIR = os.path.join(VAULT, 'raw', 'clipped', 'blog-42morrow')
 OUT_PAGE = os.path.join(VAULT, 'wiki', 'concepts', 'blog-42morrow-curated.md')
 OUT_INDEX = os.path.join(VAULT, 'wiki', 'concepts', 'blog-42morrow-full-index.md')

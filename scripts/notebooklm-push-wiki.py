@@ -25,7 +25,7 @@ try:
 except Exception:
     pass
 
-WIKI = r"E:\Coding Infra\obsidian\SimonKWiki\wiki"
+WIKI = r"C:\Coding\obsidian\SimonKWiki\wiki"
 DEFAULT_WORKSPACE = "7d9750db"  # SimonKWiki
 
 # 핵심 카테고리 우선순위 (Phase 별)

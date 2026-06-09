@@ -340,7 +340,7 @@ Phase 6: Final Report (구조화된 요약)
 
 ### Entry point 영속화
 
-`scripts/install-simonk-profile.ps1` 가 PowerShell profile 에 `simonk.ps1` dot-source 박음 (idempotent). `SIMONK_PROJECT_DIR=E:\Coding Infra` 환경변수 user-scope 영속 설정.
+`scripts/install-simonk-profile.ps1` 가 PowerShell profile 에 `simonk.ps1` dot-source 박음 (idempotent). `SIMONK_PROJECT_DIR=C:\Coding` 환경변수 user-scope 영속 설정.
 
 ### 통합 외부 reference (Sprint v22-EXT: vendored, 2026-05-25)
 
