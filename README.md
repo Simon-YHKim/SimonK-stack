@@ -1,8 +1,8 @@
 # SimonK-Stack
 
-> **Claude 를 1인 회사로 만드는 skill 라이브러리.** 133+ 개 skill 이 8 개 부서로 나뉘어 있고, `simonK` 가 CEO 사무실에서 자율 진행. 사용자 = 창업자.
+> **Claude 를 1인 회사로 만드는 skill 라이브러리.** 132 개 skill 이 8 개 부서로 나뉘어 있고, `simonK` 가 CEO 사무실에서 자율 진행. 사용자 = 창업자.
 
-[![skills](https://img.shields.io/badge/skills-133%2B-brightgreen)]() [![validator](https://img.shields.io/badge/validator-0_errors-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
+[![skills](https://img.shields.io/badge/skills-132-brightgreen)]() [![validator](https://img.shields.io/badge/validator-0_errors-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
 
 **Site**: [simonk-stack.pages.dev](https://simonk-stack.pages.dev) · **English**: [README.en.md](README.en.md) · **자매 레포**: [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (PRIVATE) — 세션 간 학습 누적
 
@@ -189,7 +189,7 @@ git clone https://github.com/Simon-YHKim/SimonK-stack.git ~/SimonK-stack
 cd ~/SimonK-stack && ./scripts/install.sh
 ```
 
-global `~/.claude/skills/` 에 133+ skill + shared scripts + instincts 배포. SessionStart hook 은 settings.json 에 수동 등록.
+global `~/.claude/skills/` 에 132 skill + shared scripts + instincts 배포. SessionStart hook 은 settings.json 에 수동 등록.
 
 ### B. Vendor mode — "이 target repo 안에 통째로"
 
@@ -254,7 +254,7 @@ skills-src/<name>/
 
 | 문서 | 내용 |
 |---|---|
-| [`.claude/skills/INDEX.md`](.claude/skills/INDEX.md) | 132+ skill 카탈로그 (이 README 의 부서 표보다 자세) |
+| [`.claude/skills/INDEX.md`](.claude/skills/INDEX.md) | 132 skill 카탈로그 (이 README 의 부서 표보다 자세) |
 | [`CLAUDE.md`](CLAUDE.md) | 이 레포에서 작업할 때의 Claude 지침 (검증 도구, 컨벤션, 금기) |
 | [`CHANGELOG.md`](CHANGELOG.md) | Keep a Changelog 형식 |
 | [`docs/INSTALL.md`](docs/INSTALL.md) | 설치 상세 |
@@ -269,7 +269,7 @@ skills-src/<name>/
 # 단일 skill 검증
 python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py skills-src/<name>
 
-# 전체 repo 검증 (132+ skill sweep)
+# 전체 repo 검증 (132 skill sweep)
 for d in skills-src/*/ .claude/skills/*/; do
   [ -f "${d}SKILL.md" ] || continue
   python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py "${d%/}" 2>&1 | grep Result

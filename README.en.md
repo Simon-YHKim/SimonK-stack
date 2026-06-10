@@ -153,7 +153,7 @@ Three Phase 3 core tools entered *3 weeks early*:
 ### MCP integrations (active 2026-05-25)
 
 - **A11 Zotero MCP** ✓ Connected (`zotero-mcp --transport stdio`)
-- **A12 NotebookLM** ✓ login (`/notebooklm` slash + CLI)
+- **A12 NotebookLM** ✓ login (`/notebooklm-import` slash + CLI)
 - **A14 MCP integration bundle** — A11+A12+A13+C02 working together at Phase 3 full entry
 
 ---
