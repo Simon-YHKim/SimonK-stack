@@ -266,8 +266,9 @@ for src_dir in "$REPO_DIR"/skills-src "$REPO_DIR"/.claude/skills; do
 done
 log "Skills: new=$count_new updated=$count_updated skipped=$count_skipped"
 
-# INDEX.md at skill root
-if [ -f "$REPO_DIR/.claude/skills/INDEX.md" ] && [ ! -f ~/.claude/skills/INDEX.md ]; then
+# INDEX.md at skill root — overwrite home copy whenever repo version differs
+if [ -f "$REPO_DIR/.claude/skills/INDEX.md" ] && \
+   ! cmp -s "$REPO_DIR/.claude/skills/INDEX.md" ~/.claude/skills/INDEX.md; then
   cp "$REPO_DIR/.claude/skills/INDEX.md" ~/.claude/skills/INDEX.md
 fi
 
