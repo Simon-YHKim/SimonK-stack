@@ -1,0 +1,8 @@
+.git/
+.claude/
+.harness/
+graphify-out/
+external/
+site/
+node_modules/
+*.zip

@@ -364,4 +364,11 @@ Phase 6: Final Report (구조화된 요약)
 
 ## graphify
 
-(graphify-out 미생성 — 재생성 전까지 비활성)
+지식 그래프가 `graphify-out/`에 생성돼 있다 (2026-06-11 재생성, graphify 0.8.36, gitignored).
+
+- **코드베이스/문서 구조 질문** → grep 전에 `graphify query "<질문>"` 먼저 (scoped subgraph, 토큰 절감).
+- **광역 아키텍처 맥락** → `graphify-out/GRAPH_REPORT.md` (god nodes + communities).
+- **파일 변경 후** → `graphify update .` (AST 기반, LLM/토큰 비용 0).
+- 시각화: `graphify-out/graph.html` (D3 force-directed).
+- 제외 규칙: `.graphifyignore` (external/ vendored 레포·site/ 제외).
+- PreToolUse hook(`.claude/settings.json`)이 grep류 명령 시 graphify 사용을 자동 권장 — `graphify-out/graph.json` 존재 시에만 발화.
