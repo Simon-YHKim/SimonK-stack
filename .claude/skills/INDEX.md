@@ -2,7 +2,7 @@
 
 이 환경에 설치된 모든 skill 의 카테고리별 맵. 세션 시작 시 참고용.
 
-**skills-src/ 129개** + `.claude/skills/` 개발용 4개 (2026-06-07 갱신 — `design-system-keeper` 추가).
+**skills-src/ 128개** + `.claude/skills/` 개발용 4개 = **총 132개** (2026-06-10 갱신 — 누락 44개 카테고리 표 등재, `connect-chrome` zombie 제거).
 
 > **검증**: `python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py <path>` — 2026-06-07 전수 검증 결과 **Errors=0** (129/129 통과).
 > **신규 (PR #8)**: `session-context-tracker` · `html-default-output` (+ `context-guardian` 1.1.0 / `agent-delegate` 1.1.0 보강)
@@ -19,6 +19,9 @@
 | `simonk` | 단일 자율 진입점 (6-phase + Boundary Check + multi-agent dispatch sprint v23 Phase B) |
 | `simonk-report` | simonK Phase 6 자동 호출 — `.simonk/reports/<TS>.html` 생성 + SendUserFile 자동 첨부. 명시 `/simonk-report` 도 가능 |
 | `stack-update` | SimonK Stack 전체 holistic 최신화 — 본체+Wiki+gstack+5 vendored+skill 재설치 위임 |
+| `dev-orchestrator` | 일반 구현 7단계 파이프라인 (진단 → 구조 점검 → TDD → 시나리오 → 스캔 → 정리 → 커밋) |
+| `phase4-game-orchestrator` | 게임 트랙 (Q3 2026) orchestrator placeholder — Godot/Phaser/Three.js · ComfyUI · Suno |
+| `simon-ohmo` | OpenHarness Ohmo personal agent — Phase 6 (27Y Q1+) placeholder, 폐쇄망 운영 |
 
 
 ## 🧪 Meta — skill 제작·검증
@@ -35,6 +38,7 @@
 | `/checkpoint` (Gstack) | 일반 작업 스냅샷 저장·재개 (in-session, ephemeral OK) |
 | `simon-handoff` | **세션 간 git-persistent 핸드오프** — docs/HANDOFF.md prepend + PR auto-merge to main. 다른 세션이 `git pull` 한 번으로 복원 |
 | `perspectives` | **세션 blind-spot 감사** — Core 5 (User/Business/Technical/Security/Future-self) + 세션 특화 N stakeholder. perspectives.md 누적 append + SessionStart hook 자동 알림 |
+| `session-context-export` | 세션 종료 핸드오프 — sprint state snapshot (`.simonk/session-<TS>`) export |
 
 ## 📋 Planning (플래닝)
 
@@ -49,6 +53,11 @@
 | `grill-me` | 1-Q-at-a-time 인터뷰 — 사용자 계획의 결정 트리 청소 (simon-tdd RED 전) |
 | `domain-glossary` | 프로젝트 `CONTEXT.md` 도메인 용어집 — instincts·CLAUDE.md·ADR 와 분리된 layer |
 | `founder-context` | **4-file 패턴**: me.md / vision.md / design.md / workingstyle.md 를 프로젝트 루트에 한 번에 생성. wiki·instincts·simon-design-first 와 import 동기화 |
+| `stack-architect` | 기술 아키텍처 결정 — 프론트/백엔드/API/배포를 규모에 맞게 매칭 |
+| `sprint-optimizer` | 스프린트 3안 비교 → best case 추천 → 반복 고도화 |
+| `app-platform-selector` | Hybrid / PWA / Native 플랫폼 결정 + 스토어 승인 전략 |
+| `db-selector` | DB·스토리지 선택 (Supabase/Firebase/PostgreSQL …) + 비용 추정 |
+| `tech-preference-tracker` | 언어·프레임워크 선택을 이전 프로젝트 결정과 일관되게 유지 |
 
 ## 🎨 Design
 
@@ -62,6 +71,7 @@
 | `design-system-page` | design.md → design-system.html + A4 brand-book PDF 자동 생성 |
 | `design-system-keeper` | 디자인 시스템 영속·강제: 6 방향 선택 → `.design-system/system.md` 토큰 캡처/자동로드 → 코드서 extract → drift audit. frontend-design(distinctiveness) + interface-design(persistence) 종합, anti-slop 조화 |
 | `slides` | zero-dep HTML 슬라이드 (16:9, 3 preview → 선택) — frontend-slides 패턴 |
+| `simon-design-first` | UI 코드 전 강제 진단 (audience/purpose/tone) + 레퍼런스 3-5 + 폰트 선택지 — AI slop 방지 게이트 |
 
 ## 🛠️ Implementation
 
@@ -76,7 +86,9 @@
 | `simon-worktree` | 병렬 세션 git worktree 격리 |
 | `nextjs-optimizer` | Next.js 5대 영역 성능 최적화 |
 | `project-context-md` | 프로젝트 CLAUDE.md 생성 |
-| `claude-api` | Claude API / Anthropic SDK 빌드 |
+| `claude-api` (built-in/runtime) | Claude API / Anthropic SDK 빌드 |
+| `auth-builder` | 인증·회원가입·소셜로그인 (Supabase/Clerk/NextAuth + Kakao/Naver + 한국 CI/DI) |
+| `karpathy-guidelines` | 코딩 4원칙 강제 — Think Before Coding · surgical only 등 |
 
 ## 🔍 Review / QA
 
@@ -91,6 +103,9 @@
 | `benchmark` (Gstack) | Core Web Vitals 성능 측정 |
 | `devex-review` (Gstack) | 개발자 경험 실측 |
 | `browse` (Gstack) | 헤드리스 브라우저 검증 |
+| `code-health-guard` | 스파게티 방지 — 파일 배치·레이어 방향·순환의존(madge)·dead export 스캔 |
+| `consistency-guard` | JSON-schema 기반 데이터·UI 일관성 검증 (API contract · design token · config) |
+| `human-voice-guard` | LLM 어투 탐지·교정 — 사람 목소리로 재작성 |
 
 ## 🔒 Security
 
@@ -103,6 +118,7 @@
 | `careful` (Gstack) | 파괴적 명령 가드 |
 | `guard` (Gstack) | 디렉토리 freeze + careful 통합 |
 | `freeze` / `unfreeze` (Gstack) | 편집 범위 제한 |
+| `keepass-helper` | KeePassXC vault 시크릿 관리 — one-time inject, 키 노출 방지 |
 
 ## 🚀 Ship & Deploy
 
@@ -113,6 +129,29 @@
 | `canary` (Gstack) | 배포 후 라이브 모니터링 |
 | `setup-deploy` (Gstack) | 배포 플랫폼 설정 |
 | `document-release` (Gstack) | 배포 후 문서 갱신 |
+| `deploy-configurator` | 배포 플랫폼 선택 (Cloudflare/Vercel/Fly.io/Railway) + CI/CD + 도메인 + env |
+| `release-notes` | 릴리즈 노트·패치 노트·스토어 업데이트 공지 작성 |
+
+## 📈 Growth & Revenue (그로스·수익화)
+
+| Skill | 역할 |
+|---|---|
+| `pmf-analyzer` | 3-case PMF 예측 (낙관/보통/비관) + Sean Ellis 시뮬레이션 |
+| `aarrr-growth-planner` | AARRR 퍼널 전략 + 단계별 KPI + ICE 실험 백로그 |
+| `aha-moment-optimizer` | Aha Moment 가설·실험 설계 — TTFV 단축 |
+| `analytics-integrator` | GA4/PostHog/Clarity 분석 스택 + 이벤트 택소노미 + consent 관리 |
+| `tag-manager-integrator` | GTM/gtag 이벤트·전환 추적 세팅 |
+| `growth-engine` | 이메일(Resend)·푸시(OneSignal/FCM)·어트리뷰션·A/B 그로스 인프라 |
+| `viral-launch` | 채널별 바이럴 런칭 플레이북 (인스타·한국 커뮤니티·in-app share) |
+| `monetization-planner` | 수익 모델 설계 (구독/광고/거래/freemium) |
+| `payment-integrator` | Stripe / PortOne / RevenueCat / 인앱결제 통합 |
+| `global-payment-planner` | 국가별 결제 규제·PG 조합·세금/VAT 전략 |
+| `subscription-manager-selector` | 구독 관리 플랫폼 비교·선택 (RevenueCat vs Stripe …) |
+| `revenue-scenario-tester` | 80+ 결제 시나리오 통합 테스트 (7 specialized agents) |
+| `ad-monetization` | 광고 SDK (AdMob/AdSense) 통합 + 배치 전략 + 정책 준수 |
+| `pink-tax-advisor` | 공격적 수익 극대화·가격 심리 전략 (명시 요청 시에만) |
+| `store-launcher` | Play Store / App Store 등록 + ASO |
+| `exit-strategy-planner` | IPO / M&A / SPAC exit 로드맵 + 단계별 KPI |
 
 ## 🐛 Debug
 
@@ -131,6 +170,14 @@
 | `retro` (Gstack) | 주간 엔지니어링 회고 |
 | `checkpoint` (Gstack) | 상태 스냅샷·재개 |
 | `notebooklm-import` | YouTube 자막 + PDF + 웹 → SimonKWiki 페이지로 변환·통합 |
+| `llm-wiki-builder` | SimonKWiki 페이지 작성·인제스트·유지 (T-xxx / M-xxx / entities) |
+| `wiki-query` | 위키 인덱스 검색 + [[wikilink]] 인용 답변 |
+| `wiki-lint` | 위키 무결성·건강검진 |
+| `wiki-ingest` | raw 소스 자료 → 위키 컴파일 |
+| `obsidian-markdown` | Obsidian Flavored Markdown (wikilink·callout·properties) 작성·편집 |
+| `obsidian-bases` | Obsidian Bases (.base) 뷰·필터·포뮬러 |
+| `obsidian-cli` | Obsidian CLI 로 노트·태스크·플러그인 제어 |
+| `json-canvas` | JSON Canvas (.canvas) 노드·엣지·마인드맵 작성 |
 
 ## 🧰 Utilities
 
@@ -140,13 +187,15 @@
 | `refactor` (local) | 구조 개선 |
 | `explain` (local) | 코드 설명 |
 | `test-gen` (local) | 테스트 생성 |
-| `simplify` | 코드 단순화 |
+| `simplify` (built-in/runtime) | 코드 단순화 |
 | `find-skill` | 외부 awesome-claude-skills (26k★) + 내부 INDEX 자동 검색 |
 | `office-docs` | Docx / Xlsx / Pptx / PDF 사무 문서 (Anthropic Big Four) |
 | `web-publisher` | 웹사이트 자동 로그인·폼 작성·업로드 (browse + auth) |
-| `loop` | 주기 작업 실행 |
-| `update-config` | settings.json 구성 |
-| `keybindings-help` | 키바인딩 커스터마이징 |
+| `defuddle` | 웹페이지 → 클린 마크다운 추출 (Defuddle CLI, WebFetch 대체) |
+| `gcloud-helper` | gcloud 인증 진단 + ghost project 자동 수정 + env vars inject |
+| `loop` (built-in/runtime) | 주기 작업 실행 |
+| `update-config` (built-in/runtime) | settings.json 구성 |
+| `keybindings-help` (built-in/runtime) | 키바인딩 커스터마이징 |
 | `session-start-hook` | 세션 시작 hook 관리 |
 | `caveman` | 응답 75% 토큰 압축 모드 — 긴 세션 시 토글 |
 | `pair-agent` (Gstack) | 원격 에이전트 페어링 |
@@ -159,7 +208,7 @@
 | `openharness-upgrade` | vendored OpenHarness 단독 최신화 |
 | `opencowork-upgrade` | vendored open-cowork 단독 최신화 |
 | `designmd-upgrade` | vendored design.md 단독 최신화 |
-| `gstack` (Gstack 메타) | Gstack 전체 진입점 |
+| `gstack` (Gstack 메타, built-in/runtime) | Gstack 전체 진입점 |
 
 ---
 
