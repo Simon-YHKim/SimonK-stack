@@ -98,11 +98,6 @@ for src_dir in "$REPO_DIR"/skills-src "$REPO_DIR"/.claude/skills; do
     name=$(basename "$d")
     [ -f "$d/SKILL.md" ] || continue
 
-    # Skip connect-chrome — duplicate name field (open-gstack-browser).
-    # Gstack auto-generated SKILL.md uses alias-via-duplicate-name pattern
-    # which Claude Code's skill loader dedupes. The folder is a zombie.
-    [ "$name" = "connect-chrome" ] && continue
-
     if [ -e ~/.claude/skills/"$name" ]; then
       if [ "$FORCE" = "1" ]; then
         run rm -rf ~/.claude/skills/"$name"
