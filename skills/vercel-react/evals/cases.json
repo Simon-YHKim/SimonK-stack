@@ -1,0 +1,17 @@
+[
+  {
+    "name": "trigger ko 1",
+    "user_input": "React \ucd5c\uc801\ud654",
+    "expected_skill": "vercel-react"
+  },
+  {
+    "name": "trigger slash",
+    "user_input": "/vercel-react",
+    "expected_skill": "vercel-react"
+  },
+  {
+    "name": "trigger en 1",
+    "user_input": "react best practices",
+    "expected_skill": "vercel-react"
+  }
+]

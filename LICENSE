@@ -1,0 +1,38 @@
+MIT License
+
+Copyright (c) 2026 simon-stack contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## Third-party components
+
+This repository references but does not vendor the following upstream projects.
+Each is governed by its own license:
+
+- **Gstack** — https://github.com/garrytan/gstack (cloned at session start by
+  the bootstrap hook; see that repo for its license)
+- **Superpowers** — https://github.com/obra/superpowers (concepts referenced
+  in simon-tdd / simon-worktree; no code vendored)
+- **everything-claude-code** — https://github.com/affaan-m/everything-claude-code
+  (concepts referenced in simon-instincts / simon-research; no code vendored)
+
+The simon-stack skills, install scripts, hooks, templates, and documentation
+in this repository are original works released under the MIT license above.

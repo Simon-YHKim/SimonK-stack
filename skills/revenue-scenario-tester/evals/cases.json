@@ -1,0 +1,14 @@
+[
+  {
+    "name": "trigger_korean_subscription_test",
+    "input": "구독 결제 시나리오 전부 돌려서 테스트해줘. 한국 결제 규제도 같이 확인.",
+    "expected_skill": "revenue-scenario-tester",
+    "must_contain": ["scenario", "subscription", "KR-Compliance", "PASS/FAIL"]
+  },
+  {
+    "name": "trigger_english_billing_qa",
+    "input": "Run revenue QA — payment, subscription, ad, and store flows. Auto-fix failures if possible.",
+    "expected_skill": "revenue-scenario-tester",
+    "must_contain": ["agents", "scenarios", "auto-fix", "report"]
+  }
+]

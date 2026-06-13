@@ -1,0 +1,36 @@
+{
+  "skill": "test-gen",
+  "version": "1.1.0",
+  "cases": [
+    {
+      "id": "unit-test-pure-function",
+      "prompt": "Write tests for this function: function add(a, b) { return a + b }",
+      "assertions": [
+        { "id": "covers-happy-path", "text": "Includes test for normal positive integer addition." },
+        { "id": "covers-edge-cases", "text": "Includes tests for zero, negative numbers, decimals, and type edge cases (NaN, Infinity)." },
+        { "id": "deterministic", "text": "Tests are deterministic, no time/random/network." },
+        { "id": "matches-style", "text": "Test file matches the project's existing test framework and style." }
+      ]
+    },
+    {
+      "id": "exhaustive-payment-scenarios",
+      "prompt": "결제 체크아웃 플로우의 종합적인 시나리오 테스트 작성해줘",
+      "assertions": [
+        { "id": "uses-7-categories", "text": "The agent uses the 7 scenario categories (Happy/Sad/Bad/Race/Boundary/Permission/State) from references/scenario-matrix.md." },
+        { "id": "covers-happy", "text": "Includes successful payment flow." },
+        { "id": "covers-sad-bad", "text": "Includes payment failure (insufficient funds, expired card) and adversarial inputs (negative amount, SQL injection)." },
+        { "id": "covers-race", "text": "Includes idempotency / duplicate charge prevention." },
+        { "id": "covers-state", "text": "Includes cart→checkout→payment→confirmation state transitions and blocks invalid transitions." }
+      ]
+    },
+    {
+      "id": "integration-with-tdd",
+      "prompt": "이 새 기능 구현 전에 어떤 시나리오 테스트가 필요한지 미리 뽑아줘",
+      "assertions": [
+        { "id": "produces-matrix", "text": "The agent produces a scenario matrix (input × state × permission)." },
+        { "id": "prioritizes-tier-1", "text": "The agent identifies Tier 1 (Critical) scenarios that must be written first." },
+        { "id": "maps-test-levels", "text": "The agent maps each scenario to appropriate test level (Unit/Integration/E2E)." }
+      ]
+    }
+  ]
+}
