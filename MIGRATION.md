@@ -1,15 +1,14 @@
-# SimonK-stack — 모놀리식 → 플러그인 전환 (진행 중)
+# SimonK-stack — 모놀리식 → 플러그인 전환 (완료)
 
-이 레포는 전환기 동안 **두 형태를 동시에** 보유합니다.
+부트스트랩 설치가 **5-플러그인 suite 기반**으로 전환되었습니다.
 
-## 신규: SimonKStack 플러그인 (canonical)
-- `.claude-plugin/plugin.json` + `skills/` (빌드 도메인 스킬 + `/skstack` 오케스트레이터)
-- 설치: `/plugin marketplace add Simon-YHKim/SimonK-stack` → `/plugin install simonk-stack`
-- SimonK 플러그인 스위트의 빌드 도메인. 짝 플러그인: SimonKCore / SimonKDesign / SimonKMarket / SimonKAIHub (각 별도 레포).
+## 설치 소스 (scripts/install.sh)
+- **주 소스**: 5-플러그인 — 이 레포 `skills/`(SimonKStack) + `SimonKCore`/`SimonKDesign`/`SimonKMarket`/`SimonKAIHub`(install.sh가 `~/.simon-stack/plugins/`로 클론·풀 후 각 `skills/` 수집). 약 171 스킬.
+- **폴백**: 플러그인 클론이 모두 실패(오프라인 등)할 때만 레거시 `skills-src/` 사용 → 사용자가 스킬 없이 남지 않음.
+- **안전장치**: `~/.claude` 백업(`~/.claude.bak-*`), idempotent, 그리고 `SIMONK_SKILLS_TARGET=<temp>`로 ~/.claude 무접촉 로컬 테스트(TEST_MODE).
 
-## 레거시: 모놀리식 부트스트랩 (여전히 활성)
-- `skills-src/` + `scripts/install.sh` + `external/` — session-start 부트스트랩(`.simon-stack-src`)이 사용.
-- **이번 전환에서 건드리지 않음** — 기존 환경 무손상.
+## 레거시 (폴백 전용)
+`skills-src/`(129) + 모놀리식 구조는 더 이상 주 설치 소스가 아니라 **오프라인 폴백 + 이력 보존용**으로만 유지. 플러그인 경로가 충분히 안정화되면 제거 가능.
 
-## 남은 컷오버 (TODO)
-부트스트랩을 5개 플러그인 기반으로 완전 전환(install.sh가 플러그인 마켓플레이스/clone 사용)은 라이브 세션 검증이 필요해 별도로 진행한다. 그때까지 레거시 부트스트랩을 유지한다.
+## 검증
+`SIMONK_SKILLS_TARGET=/tmp/t SIMONK_PLUGIN_CACHE=/tmp/c bash scripts/install.sh --force --no-backup` → 5 소스에서 171 스킬 수집, ~/.claude 무변경 확인됨.
