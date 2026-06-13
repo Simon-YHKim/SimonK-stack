@@ -1,0 +1,20 @@
+{
+  "skill": "security-checklist",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "rls-supabase",
+      "prompt": "Supabase 프로젝트에 RLS 정책 제대로 걸려있는지 확인해줘",
+      "assertions": [
+        {
+          "id": "covers-4-pillars",
+          "text": "The agent audits all 4 pillars: RLS, subscription state, dual rate-limit, budget caps — not just RLS."
+        },
+        {
+          "id": "runs-adversarial-tests",
+          "text": "The agent references or runs the 5 adversarial SQL tests from scripts/rls-adversarial-tests.sql."
+        }
+      ]
+    }
+  ]
+}

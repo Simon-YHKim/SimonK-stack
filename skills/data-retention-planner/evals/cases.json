@@ -1,0 +1,26 @@
+[
+  {
+    "name": "trigger_korean_retention_policy",
+    "input": "데이터 보존정책이랑 삭제 주기 좀 짜줘. 탈퇴하면 언제 지우는지도.",
+    "expected_skill": "data-retention-planner",
+    "must_contain": ["retention-classes.json", "soft", "grace", "purge"]
+  },
+  {
+    "name": "trigger_english_ttl_purge",
+    "input": "Set up a TTL purge job for expired sessions and analytics events, with an audit log.",
+    "expected_skill": "data-retention-planner",
+    "must_contain": ["cron", "append-only", "purge_audit_log", "fail"]
+  },
+  {
+    "name": "trigger_legal_retention",
+    "input": "결제 거래기록은 법정 보존기간이 있어서 함부로 지우면 안 되는데 파기 정책 어떻게 분리해?",
+    "expected_skill": "data-retention-planner",
+    "must_contain": ["legal_txn", "legalHold", "전자상거래법", "PIPA"]
+  },
+  {
+    "name": "trigger_backup_expiry",
+    "input": "운영 DB 에서 지운 데이터가 백업에 그대로 남아있는데 백업 만료를 보존정책에 맞춰야 해.",
+    "expected_skill": "data-retention-planner",
+    "must_contain": ["backup", "retention", "grace"]
+  }
+]

@@ -1,0 +1,39 @@
+{
+  "baseCurrency": "USD",
+  "targetCurrencies": ["USD", "EUR", "GBP", "JPY", "KRW"],
+  "products": [
+    {
+      "id": "com.example.app.pro.monthly",
+      "type": "auto_renewable",
+      "refName": "Pro Monthly",
+      "group": "pro",
+      "period": "P1M",
+      "rank": 2,
+      "trial": "P1W",
+      "basePrice": 4.99,
+      "upgradesTo": ["com.example.app.pro.yearly"]
+    },
+    {
+      "id": "com.example.app.pro.yearly",
+      "type": "auto_renewable",
+      "refName": "Pro Yearly",
+      "group": "pro",
+      "period": "P1Y",
+      "rank": 1,
+      "trial": "P1W",
+      "basePrice": 49.99
+    },
+    {
+      "id": "com.example.app.remove_ads",
+      "type": "non_consumable",
+      "refName": "Remove Ads",
+      "basePrice": 2.99
+    },
+    {
+      "id": "com.example.app.coins_500",
+      "type": "consumable",
+      "refName": "500 Coins",
+      "basePrice": 0.99
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "skill": "simon-tdd",
+  "version": "1.1.0",
+  "cases": [
+    {
+      "id": "add-feature",
+      "prompt": "유저 프로필에 bio 필드 추가하는 기능 구현해줘",
+      "assertions": [
+        { "id": "writes-failing-test-first", "text": "The agent writes a failing test first (RED) before any implementation." },
+        { "id": "verifies-test-fails", "text": "The agent runs the test and confirms it fails before moving on." },
+        { "id": "minimal-green", "text": "The agent writes minimal code to pass (GREEN), then refactors (REFACTOR)." },
+        { "id": "atomic-commits", "text": "The agent makes atomic commits per cycle (feat: or test:)." }
+      ]
+    },
+    {
+      "id": "blocks-code-without-test",
+      "prompt": "utils/format.ts 파일에 새 함수 추가만 해줘. 테스트는 나중에 할게.",
+      "assertions": [
+        { "id": "refuses-without-test", "text": "The agent refuses to commit source-only changes and explains the TDD Guard rule." },
+        { "id": "offers-guard-script", "text": "The agent references skills-src/simon-tdd/scripts/tdd-guard-check.sh as the enforcement mechanism." },
+        { "id": "insists-test-first", "text": "The agent insists on writing the test first, following RED → GREEN → REFACTOR cycle." }
+      ]
+    }
+  ]
+}

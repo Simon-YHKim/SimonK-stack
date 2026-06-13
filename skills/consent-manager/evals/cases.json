@@ -1,0 +1,20 @@
+[
+  {
+    "name": "trigger_korean_cookie_banner",
+    "input": "쿠키 배너랑 동의 관리 붙여줘. GDPR 동의도 받아야 해.",
+    "expected_skill": "consent-manager",
+    "must_contain": ["category", "gate", "GPC", "ledger"]
+  },
+  {
+    "name": "trigger_english_consent_gate",
+    "input": "Add a consent gate so GA4 and AdMob only load after the user agrees, and respect GPC.",
+    "expected_skill": "consent-manager",
+    "must_contain": ["fail-closed", "GPC", "advertising", "append-only"]
+  },
+  {
+    "name": "trigger_minor_consent",
+    "input": "추적 동의 받을 때 미성년자면 보호자 동의 경로로 넘겨야 해 (COPPA).",
+    "expected_skill": "consent-manager",
+    "must_contain": ["auth-builder", "guardian", "COPPA", "PIPA"]
+  }
+]
