@@ -10,6 +10,14 @@ author: simon-stack
 
 결제/구독 시스템을 실제 코드로 구현하는 skill.
 
+## Safety (secrets + test mode)
+
+결제는 돈과 시크릿이 동시에 걸린 작업이라 기본값을 보수적으로 잡는다.
+
+- **기본은 TEST/sandbox 키**: Stripe `sk_test_…`, PortOne 테스트 PG, RevenueCat sandbox 등 항상 테스트/샌드박스 키로 먼저 구현·검증한다. LIVE 키는 명시 요청 전까지 쓰지 않는다.
+- **시크릿 하드코딩 금지** (CLAUDE.md §5): API 키·webhook secret·PG 자격증명을 코드/설정에 절대 박지 않는다. `.env` 또는 환경변수로만 관리하고, `.env`는 `.gitignore`에 반드시 포함. 시크릿은 절대 하드코딩 금지. (deploy-configurator와 동일 원칙)
+- **LIVE 전환은 사용자 확인 필수** (CLAUDE.md §6 파괴적·§11 비용 확인): LIVE/production 결제 키를 배선하거나 실제 과금(real charge)을 켜기 전에는 **반드시 사용자에게 명시적으로 확인**받는다. 자동 승인 모드(Auto Mode)에서도 비용 발생·credentials 수정은 예외로 항상 재확인.
+
 ## 발동 조건
 
 - "결제 붙여줘", "구독 시스템 만들어줘", "Stripe 연동"
@@ -114,6 +122,7 @@ canceled ──[resubscribe]──→ active
 - [ ] 환불 로직 (전액/부분)
 - [ ] Dunning (결제 실패 시 재시도 로직)
 - [ ] 한국 법규: 자동갱신 고지, 청약철회
+- [ ] 기본 TEST/sandbox 키로 구현·검증, 시크릿은 `.env`(+`.gitignore`)·LIVE 키 배선 전 사용자 확인
 - [ ] revenue-scenario-tester 통과
 
 ## Related Skills

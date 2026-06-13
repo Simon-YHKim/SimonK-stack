@@ -3,7 +3,7 @@
 **curated simon-stack** skill 세트의 카테고리별 맵. 세션 시작 시 참고용.
 이 표는 simon-stack 큐레이션 셋(skills-src + 개발용 dev skill)을 매핑한다. gstack 홈 설치본(`~/.claude/skills/gstack/` 및 약 21개 gstack 홈 skill — `skillify`, `spec`, `scrape`, `diagram`, `make-pdf`, `ios-*` 등)은 여기에 카탈로그하지 않으며, 전체 목록은 `/gstack` 진입점으로 조회한다. 일부 자주 쓰는 gstack 홈 skill 은 아래 카테고리 표에 `(Gstack)` 표기로 교차 등재돼 있고, 나머지는 부록(맨 아래 "Gstack 홈 설치본" 표) 참고.
 
-**skills-src/ 133개** + `.claude/skills/` 개발용 4개 = **총 137개** (simon-stack 큐레이션 셋 기준 — 약 21개 gstack 홈 skill 은 이 137 카운트에서 제외). (2026-06-13 cycle-2 갱신 — 빈 스텁 11종 실내용 채움 + 다양성 신규 5종 등재: `i18n-localizer`·`accessibility-audit`·`persona-simulation`·`inclusive-ux`·`offline-first`. preamble rescope, gstack 홈 skill 부록, `agent-delegate` 등재.)
+**skills-src/ 134개** + `.claude/skills/` 개발용 4개 = **총 138개** (simon-stack 큐레이션 셋 기준 — 약 21개 gstack 홈 skill 은 이 137 카운트에서 제외). (2026-06-13 cycle-2 갱신 — 빈 스텁 11종 실내용 채움 + 다양성 신규 5종 등재: `i18n-localizer`·`accessibility-audit`·`persona-simulation`·`inclusive-ux`·`offline-first`. preamble rescope, gstack 홈 skill 부록, `agent-delegate` 등재.)
 
 > **검증**: `python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py <path>` (Windows는 `PYTHONIOENCODING=utf-8` 또는 검증기 UTF-8 패치 필요). **2026-06-13 재검증**: simon-stack 스킬 전부 통과(`wiki-query` E013 수정). 검증기 cp949 크래시·E008 "Todo-list" 오탐 수정(SimonK-stack `4aacecd`). Gstack 스킬은 긴 커맨드-doc 포맷이라 E007/E008 평가 제외.
 > **신규 (PR #8)**: `session-context-tracker` · `html-default-output` (+ `context-guardian` 1.1.0 / `agent-delegate` 1.1.0 보강)
@@ -18,6 +18,7 @@
 | `model-router` | task type → best LLM 모델 자동 매핑 (2026-05 매트릭스, sprint v23 Phase A) |
 | `multi-terminal-dispatcher` | model-router + Windows Terminal/psmux/VS Code tasks 병렬 launcher (sprint v23 Phase B) |
 | `agent-delegate` | sub-agent 위임 플랜 — task 분해 + context envelope(파일 경로만) + output contract + 패턴(Fan-out/Pipeline/Supervisor). app-dev-orchestrator·simon-worktree 가 사용 |
+| `ai-debate` | 다관점 AI 토론 — 중요·비가역·충돌 결정을 패널→별도심판→합의/타이브레이크→`DECISIONS.md` 기록. PROTOCOL §35.1 트리거 필수(라우팅이 강제) |
 | `simonk` | 단일 자율 진입점 (6-phase + Boundary Check + multi-agent dispatch sprint v23 Phase B) |
 | `simonk-report` | simonK Phase 6 자동 호출 — `.simonk/reports/<TS>.html` 생성 + SendUserFile 자동 첨부. 명시 `/simonk-report` 도 가능 |
 | `stack-update` | SimonK Stack 전체 holistic 최신화 — 본체+Wiki+gstack+5 vendored+skill 재설치 위임 |

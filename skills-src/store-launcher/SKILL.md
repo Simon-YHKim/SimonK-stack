@@ -10,6 +10,10 @@ author: simon-stack
 
 앱/서비스를 스토어에 출시하는 전 과정을 관리하는 skill.
 
+## Safety (irreversible submission)
+
+production/review-track 스토어 제출은 **되돌릴 수 없는** 작업이다 (심사 큐 진입·공개 노출). `eas submit`, `fastlane supply`, Play Developer API submit 등 실제 제출을 실행하기 전에는 **반드시 사용자에게 명시적으로 확인**받는다. 가능하면 먼저 dry-run / internal(클로즈드) 트랙으로 검증한 뒤 프로덕션 트랙으로 올린다. (CLAUDE.md §6 파괴적 작업 확인)
+
 ## 발동 조건
 
 - "스토어 출시해줘", "Play Store 등록", "App Store 심사 준비"
