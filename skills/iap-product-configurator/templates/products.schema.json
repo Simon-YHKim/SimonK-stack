@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IAP product manifest",
+  "description": "Single source of truth for App Store Connect + Play Console product configuration. Feed to scripts/iap-build.mjs.",
+  "type": "object",
+  "required": ["baseCurrency", "products"],
+  "properties": {
+    "baseCurrency": {
+      "type": "string",
+      "description": "Currency the basePrice values are expressed in. Must have a price-point ladder (USD/EUR/GBP/JPY/KRW).",
+      "enum": ["USD", "EUR", "GBP", "JPY", "KRW"]
+    },
+    "targetCurrencies": {
+      "type": "array",
+      "description": "Currencies to expand prices into. Omit to expand all known currencies.",
+      "items": { "type": "string" }
+    },
+    "fx": {
+      "type": "object",
+      "description": "Optional FX overrides vs USD (e.g. {\"KRW\": 1370}). Static on purpose — store pricing is set, not live-FX. Revisit quarterly.",
+      "additionalProperties": { "type": "number" }
+    },
+    "products": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "basePrice"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Permanent, global, lowercase reverse-dns product ID. NEVER reuse a deleted ID. Max 100 chars (Play).",
+            "pattern": "^[a-z0-9]+([._][a-z0-9]+)*$"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["consumable", "non_consumable", "auto_renewable", "non_renewing"]
+          },
+          "refName": {
+            "type": "string",
+            "description": "Internal reference name shown in App Store Connect. Not user-facing."
+          },
+          "basePrice": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Price in baseCurrency. Snapped to the nearest legal price point per currency."
+          },
+          "group": {
+            "type": "string",
+            "description": "Subscription group ID. Required for auto_renewable. All tiers of one offering share one group so the OS treats switches as upgrade/downgrade, not new subscriptions."
+          },
+          "period": {
+            "type": "string",
+            "enum": ["P1W", "P1M", "P2M", "P3M", "P6M", "P1Y"],
+            "description": "ISO-8601 billing period. Required for auto_renewable."
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Tier rank within the group. 1 = highest. Lower number = higher tier. Controls upgrade (prorated, immediate) vs downgrade (defers to renewal)."
+          },
+          "trial": {
+            "type": "string",
+            "enum": ["P1W", "P1M", "P2M", "P3M", "P6M", "P1Y"],
+            "description": "Optional free-trial / intro-offer period."
+          },
+          "upgradesTo": {
+            "type": "array",
+            "description": "IDs in the SAME group with a higher tier (lower rank) this product can upgrade into. Validated by iap-build.mjs.",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

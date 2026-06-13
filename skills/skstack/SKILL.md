@@ -47,7 +47,10 @@ allowed-tools:
 | 의도 | 파이프라인 |
 |---|---|
 | 새 앱 (제로부터, 제대로) | `app-dev-orchestrator` (내부 21단계: 기획→설계→TDD→보안→배포) |
-| 단순 정적 페이지·동아리 페이지 (라이트) | **인라인 한 파일 HTML 직접 생성** + 로컬 미리보기. app-dev-orchestrator **건너뜀**. (전용 `simple-static-site` 생성 스킬은 round-4 예정) |
+| 단순 정적 페이지·동아리 페이지 (라이트) | `simple-static-site`(한 파일 HTML 생성+로컬 미리보기+무계정 공유). app-dev-orchestrator **건너뜀** |
+| 기능 스펙 작성 | `spec`(인터뷰→spec.md) → dev-orchestrator 0단계로 핸드오프 |
+| 컴플라이언스·프라이버시 | `consent-manager`·`data-flow-mapper`·`store-privacy-disclosure`·`data-retention-planner`·`minor-consent-compliance`(미성년 C10) |
+| 인앱결제 상품구성 | `iap-product-configurator`(스토어 콘솔 IAP) — payment-integrator(코드)와 store-launcher(리스팅) 사이 |
 | 기능·버그·리팩터 | `dev-orchestrator` → `simon-tdd` → `debug`/`refactor` → `code-health-guard` |
 | 플랫폼·DB 선택 | `app-platform-selector` → `db-selector` |
 | 인증·권한 | `auth-builder` → `authz-designer` |

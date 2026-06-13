@@ -1,0 +1,32 @@
+[
+  {
+    "name": "trigger ko 1",
+    "user_input": "한 파일 사이트 만들어줘",
+    "expected_skill": "simple-static-site"
+  },
+  {
+    "name": "trigger ko 2",
+    "user_input": "동아리 페이지 한 장 만들어",
+    "expected_skill": "simple-static-site"
+  },
+  {
+    "name": "trigger ko 3",
+    "user_input": "정적 페이지 만들어 줘",
+    "expected_skill": "simple-static-site"
+  },
+  {
+    "name": "trigger slash",
+    "user_input": "/simple-static-site",
+    "expected_skill": "simple-static-site"
+  },
+  {
+    "name": "trigger en 1",
+    "user_input": "make me a one file site",
+    "expected_skill": "simple-static-site"
+  },
+  {
+    "name": "trigger en 2",
+    "user_input": "single page static landing for my club",
+    "expected_skill": "simple-static-site"
+  }
+]
