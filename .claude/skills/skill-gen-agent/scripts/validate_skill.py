@@ -30,7 +30,7 @@ from typing import Any
 
 SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+(?:-[\w.]+)?(?:\+[\w.]+)?$")
 KEBAB_RE = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
-TODO_RE = re.compile(r"\b(TODO|FIXME|XXX|<placeholder>)\b", re.IGNORECASE)
+TODO_RE = re.compile(r"(?<![\w-])(?:TODO|FIXME|XXX)(?![\w-])|<placeholder>", re.IGNORECASE)
 MD_LINK_RE = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 BODY_SOFT_LIMIT = 400
 BODY_HARD_LIMIT = 500
@@ -442,6 +442,13 @@ def validate(skill_path: Path) -> Report:
 
 
 def main(argv: list[str] | None = None) -> int:
+    # Windows terminals default to cp949/cp1252 and raise UnicodeEncodeError
+    # on report text containing em-dashes and other non-latin glyphs.
+    for _stream in (sys.stdout, sys.stderr):
+        try:
+            _stream.reconfigure(encoding="utf-8")  # type: ignore[union-attr]
+        except (AttributeError, ValueError):
+            pass
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("skill_path", type=Path, help="path to skill directory")
     p.add_argument("--format", choices=("human", "json"), default="human")
