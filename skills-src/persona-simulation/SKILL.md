@@ -30,7 +30,7 @@ author: simon-stack
 발동:
 - "페르소나 시뮬", "다양성 검증", "유아부터 90대 다 돌려봐", "이 온보딩 누가 막히나"
 - 대형 UX 사이클 종료 직후, 중대 화면 변경 후 (분기 1회 정기 점검)
-- `app-dev-orchestrator` QA 단계 / `dev-orchestrator` 시나리오 단계에서 호출
+- `app-dev-orchestrator` 단계 15.5 diversity-gate(D-16) / `dev-orchestrator` 시나리오 단계에서 호출
 
 쓰지 말 것 (경계):
 - 디자인 **방향 선택** → `simon-design-first` (인테이크 인터뷰)

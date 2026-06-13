@@ -29,7 +29,7 @@ author: simon-stack
 - 앱을 2개국어 이상 지원해야 할 때 ("여러 나라 지원", "다국어")
 - RTL(아랍어·히브리어) 레이아웃이 필요할 때
 - 날짜·숫자·통화를 로케일별로 포맷해야 할 때
-- `app-dev-orchestrator` 의 i18n 단계로 자동 호출될 때
+- `app-dev-orchestrator` 단계 15.5 diversity-gate(D-16)에서 호출될 때
 
 **안 쓸 때 (다른 곳으로)**
 - 문자열 1~2개 단발 번역 → 그냥 인라인 처리
@@ -352,7 +352,7 @@ node -e "console.log(new Intl.NumberFormat('de-DE',{style:'currency',currency:'E
 
 ## app-dev-orchestrator 연동
 
-이 skill 은 `app-dev-orchestrator` 의 i18n 단계로 호출된다. 디자인 단계 *이후*, ship 단계 *이전*에 배치:
+이 skill 은 `app-dev-orchestrator` 단계 15.5 diversity-gate(D-16)에서 호출된다. 디자인·QA *이후*, ship 단계 *이전*에 배치:
 1. 스택 감지(precheck) → 라이브러리 선택(1)
 2. 프레임워크 셋업(2) — 라우팅·provider·dir
 3. 번역 파일 구조 확정(5) — 키 네이밍 합의

@@ -32,8 +32,6 @@ author: simon
 
 답변을 `docs/kickoff-<YYYY-MM-DD>.md` 에 저장.
 
-**모호함 탐지 시 grill-me 우선 호출**: 위 6개 중 2개 이상이 명확하지 않거나 사용자가 직관에 의존해 답할 때, `/grill-me` 로 결정 트리 1-Q-at-a-time 인터뷰 후 단계 1 진입. office-hours 가 *전략적* forcing 이라면 grill-me 는 *실행 직전* 의 ambiguity 청소 — 두 단계는 보완 관계.
-
 ### 단계 1. `/office-hours` — YC 6문 forcing questions
 
 > Gstack `/office-hours` 스킬 호출. 6가지 forcing question 으로 demand·상태quo·구체성·wedge·관찰·future-fit 검증.
@@ -41,10 +39,6 @@ author: simon
 ### 단계 2. `simon-research` — 외부 리서치 선행
 
 > `simon-research` 호출. 공식 문서·경쟁 제품 3개·레퍼런스 구현·기술 비교 → `docs/research/<date>-<topic>.md`.
-
-### 단계 2.5. `domain-glossary` — 프로젝트 용어집 초안
-
-> simon-stack `domain-glossary` 호출. 리서치에서 등장한 산업 용어 (Stripe "idempotency key", DDD "bounded context", 한국 결제 "PG 사" 등) 와 사용자 인터뷰 (단계 0) 에서 나온 프로젝트 고유 용어를 모아 프로젝트 루트 `CONTEXT.md` 초안 생성. 이후 단계 3-10 의 모든 플래닝·디자인 문서는 이 용어집을 사용. lazy 원칙: 5개 미만이면 건너뛰고 단계 13 (TDD) 진입 후 자연스럽게 누적.
 
 ### 단계 3. `/plan-ceo-review` — 10-star 스코프
 
@@ -114,6 +108,14 @@ author: simon
 ### 단계 15. `/qa` — QA 및 버그 수정
 
 > Gstack `/qa` 표준 모드. 자동 테스트 + 버그 발견 시 원자적 커밋으로 수정.
+
+### 단계 15.5. diversity-gate — 다양성 커버리지 게이트 (D-16, PROTOCOL §35)
+> 실행은 **무조건**, 어떤 스킬이 fire 되는지는 단계 0 kickoff 프로필로 **결정론적 선택**. 감사 발견("다양성은 reachable하나 guaranteed 아님")을 구조적으로 닫는다.
+- **매핑**(프로필 → 스킬): 글로벌·멀티로케일·스토어배포 → `i18n-localizer` · 소비자 UI(비-CLI·비-내부툴) → `accessibility-audit` + `persona-simulation` · 고령·저문해·저시력 타깃 → `inclusive-ux` · 저소득·SEA·저사양·메터드 → `offline-first`.
+- **fail-loud**: 모호하면 기본 **INCLUDE**. public·store-bound 태그면 consumer-UI 서브셋(a11y + persona-sim) **강제**.
+- **게이트**: `persona-simulation` P0 블로커(실 코호트) + a11y critical/serious axe 위반만 **ship hard-block**(테스트 실패·RLS 홀과 동급). P2/P3 = ship-with-debt 로그.
+- **기록**: `docs/diversity-gate-<date>.md`에 INCLUDED/EXCLUDED + 각 결정의 프로필 근거값(silent skip → 기록된 결정으로 전환).
+- 비싼 precheck(`offline-first`=build+Lighthouse, `accessibility-audit`=라이브서버+headless)는 비-consumer·고대역폭 프로필서 **기본 EXCLUDE**(미발화). 선택된 스킬들은 `agent-delegate` Fan-out 병렬. 소수의견 에스컬레이션: 실 miss 1건 관측 시 a11y+persona-sim 무조건화(D-16).
 
 ### 단계 16. 보안 4단 감사
 
@@ -194,5 +196,6 @@ author: simon
 ## Related skills
 
 - **Gstack 파이프라인**: `/office-hours`, `/plan-ceo-review`, `/plan-eng-review`, `/autoplan`, `/design-consultation`, `/design-shotgun`, `/design-review`, `/design-html`, `/qa`, `/cso`, `/benchmark`, `/review`, `/ship`, `/land-and-deploy`, `/canary`, `/document-release`, `/retro`, `/checkpoint`, `/codex`
-- **simon-stack**: `simon-research`, `simon-tdd`, `simon-worktree`, `simon-instincts`, `simon-design-first`, `security-checklist`, `authz-designer`, `paid-api-guard`, `stitch-design-flow`, `code-health-guard`, `agent-delegate`
+- **simon-stack**: `simon-research`, `simon-tdd`, `simon-worktree`, `simon-instincts`, `simon-design-first`, `security-checklist`, `authz-designer`, `paid-api-guard`, `stitch-design-flow`, `code-health-guard`, `agent-delegate`, `ai-debate`
+- **diversity-gate (단계 15.5)**: `i18n-localizer`, `accessibility-audit`, `persona-simulation`, `inclusive-ux`, `offline-first`
 - **유틸리티**: `/careful`, `/guard`, `/freeze`, `/unfreeze`
