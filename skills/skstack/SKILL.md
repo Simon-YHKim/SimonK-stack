@@ -83,3 +83,4 @@ allowed-tools:
 ## 완료 기준
 **출시 전 게이트**: `persona-validate`(SimonKCore)로 엔지니어링 전문가(Staff·Security·SRE·접근성)+대상 사용자 패널 검증 → 치명 리스크(보안·데이터손실) 반영. (Core 미설치 시 인라인 self-check — 보안 체크리스트+테스트 통과+전문가 렌즈 1개 자기검토로 대체, degrade 일관.)
 기능이 동작하고(검증 완료) 게이트를 통과했으며 사용자가 확인했을 때 완료. 미진하면 3번 루프로.
+**완료 후**: `completion-report`(Core)로 HTML 보고서 생성 — 사용자 언어 + 현지시간 로케일 형식(KR: `[YYYY-MM-DD / HH:MM:SS KST]`) + 표·차트·이미지.
