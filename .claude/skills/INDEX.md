@@ -3,7 +3,7 @@
 **curated simon-stack** skill 세트의 카테고리별 맵. 세션 시작 시 참고용.
 이 표는 simon-stack 큐레이션 셋(skills-src + 개발용 dev skill)을 매핑한다. gstack 홈 설치본(`~/.claude/skills/gstack/` 및 약 21개 gstack 홈 skill — `skillify`, `spec`, `scrape`, `diagram`, `make-pdf`, `ios-*` 등)은 여기에 카탈로그하지 않으며, 전체 목록은 `/gstack` 진입점으로 조회한다. 일부 자주 쓰는 gstack 홈 skill 은 아래 카테고리 표에 `(Gstack)` 표기로 교차 등재돼 있고, 나머지는 부록(맨 아래 "Gstack 홈 설치본" 표) 참고.
 
-**skills-src/ 128개** + `.claude/skills/` 개발용 4개 = **총 132개** (simon-stack 큐레이션 셋 기준 — 약 21개 gstack 홈 skill 은 이 132 카운트에서 제외). (2026-06-13 갱신 — preamble rescope, gstack 홈 skill 부록 등재, `agent-delegate` 카테고리 표 등재. `simon-handoff` 은 Session/Context 표에 이미 등재됨.)
+**skills-src/ 133개** + `.claude/skills/` 개발용 4개 = **총 137개** (simon-stack 큐레이션 셋 기준 — 약 21개 gstack 홈 skill 은 이 137 카운트에서 제외). (2026-06-13 cycle-2 갱신 — 빈 스텁 11종 실내용 채움 + 다양성 신규 5종 등재: `i18n-localizer`·`accessibility-audit`·`persona-simulation`·`inclusive-ux`·`offline-first`. preamble rescope, gstack 홈 skill 부록, `agent-delegate` 등재.)
 
 > **검증**: `python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py <path>` (Windows는 `PYTHONIOENCODING=utf-8` 또는 검증기 UTF-8 패치 필요). **2026-06-13 재검증**: simon-stack 스킬 전부 통과(`wiki-query` E013 수정). 검증기 cp949 크래시·E008 "Todo-list" 오탐 수정(SimonK-stack `4aacecd`). Gstack 스킬은 긴 커맨드-doc 포맷이라 E007/E008 평가 제외.
 > **신규 (PR #8)**: `session-context-tracker` · `html-default-output` (+ `context-guardian` 1.1.0 / `agent-delegate` 1.1.0 보강)
@@ -74,6 +74,7 @@
 | `design-system-keeper` | 디자인 시스템 영속·강제: 6 방향 선택 → `.design-system/system.md` 토큰 캡처/자동로드 → 코드서 extract → drift audit. frontend-design(distinctiveness) + interface-design(persistence) 종합, anti-slop 조화 |
 | `slides` | zero-dep HTML 슬라이드 (16:9, 3 preview → 선택) — frontend-slides 패턴 |
 | `simon-design-first` | UI 코드 전 강제 진단 (audience/purpose/tone) + 레퍼런스 3-5 + 폰트 선택지 — AI slop 방지 게이트 |
+| `inclusive-ux` | 고령·저문해·저시력 포용 UX — dynamic-type/폰트스케일 + 읽기수준 ≤6학년 + 큰 타깃(≥48px)·점진공개 + 보호자 온보딩 |
 
 ## 🛠️ Implementation
 
@@ -91,6 +92,8 @@
 | `claude-api` (built-in/runtime) | Claude API / Anthropic SDK 빌드 |
 | `auth-builder` | 인증·회원가입·소셜로그인 (Supabase/Clerk/NextAuth + Kakao/Naver + 한국 CI/DI) |
 | `karpathy-guidelines` | 코딩 4원칙 강제 — Think Before Coding · surgical only 등 |
+| `i18n-localizer` | 국제화/현지화 — next-intl/react-i18next/expo-localization + ICU(복수/성별) + RTL + Intl 포맷 + 로케일 QA |
+| `offline-first` | 오프라인 우선/저대역폭 — service worker·Workbox/Expo SQLite 캐시 + 낙관적 UI·백그라운드 sync + payload 예산 + Save-Data |
 
 ## 🔍 Review / QA
 
@@ -108,6 +111,8 @@
 | `code-health-guard` | 스파게티 방지 — 파일 배치·레이어 방향·순환의존(madge)·dead export 스캔 |
 | `consistency-guard` | JSON-schema 기반 데이터·UI 일관성 검증 (API contract · design token · config) |
 | `human-voice-guard` | LLM 어투 탐지·교정 — 사람 목소리로 재작성 |
+| `accessibility-audit` | 접근성 감사 — axe-core/Lighthouse + WCAG 2.2 AA(대비·44px·포커스·ARIA) + 스크린리더(NVDA/VoiceOver/TalkBack) 점검 리포트 |
+| `persona-simulation` | 다양성 페르소나 시뮬 — 연령(유아~90대)·직업·소득·문화 4축으로 실제 화면 코드 워크스루 → 막힘/이탈/불신 빈도×심각 리포트 (§26.2/§27.9 재사용형) |
 
 ## 🔒 Security
 
