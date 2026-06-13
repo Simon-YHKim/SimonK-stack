@@ -8,7 +8,7 @@ author: simon-stack
 
 # gcloud-helper
 
-Google Cloud SDK 자동 진단 + 인증 안내 + 환경 자동 inject. simonK PowerShell 하네스가 *자동 호출* (silent if OK). 사용자 인터랙션 = **첫 1회 brwoser OAuth만**.
+Google Cloud SDK 자동 진단 + 인증 안내 + 환경 자동 inject. simonK PowerShell 하네스가 *자동 호출* (silent if OK). 사용자 인터랙션 = **첫 1회 browser OAuth만**.
 
 ## 발동 조건
 
@@ -42,7 +42,7 @@ gcloud auth list --filter=status:ACTIVE --format="value(account)"
 
 **인증 없음** → 사용자에게 1줄 안내 (자동 browser 호출 X — noise 방지):
 ```
-gcloud auth login                               # 1회 brwoser OAuth (사용자가 Google 로그인 + 권한 승인)
+gcloud auth login                               # 1회 browser OAuth (사용자가 Google 로그인 + 권한 승인)
 gcloud auth application-default login           # ADC (Python 라이브러리용)
 ```
 
@@ -82,7 +82,7 @@ simonK 호출 시 silent 자동 — 사용자는 *모름*. 단 BigQuery / Vertex
 
 ```powershell
 # 진단만 (출력)
-. "C:\Coding\Harrness Eng\SimonK-stack\scripts\gcloud-bootstrap.ps1"
+. "E:\Coding Infra\Harrness Eng\SimonK-stack\scripts\gcloud-bootstrap.ps1"
 Invoke-GcloudBootstrap
 
 # 자동 + silent (인증 OK 시 출력 없음)
@@ -107,7 +107,7 @@ simonk-gcloud-check
 
 - ❌ SimonK-stack은 *비밀번호 절대 저장 X*
 - ❌ Google ID/PW 직접 받기 X (OAuth2 정책)
-- ✅ gcloud 표준 credentials 위치 (`~/.config/gcloud-helper/`)
+- ✅ gcloud 표준 credentials 위치 (`~/.config/gcloud/`)
 - ✅ ADC 표준 위치 (`%APPDATA%\gcloud\application_default_credentials.json`)
 - ✅ 환경변수는 *현재 session*만 (영구 set X — 보안)
 

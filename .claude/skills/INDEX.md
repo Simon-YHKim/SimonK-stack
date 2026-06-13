@@ -1,10 +1,11 @@
 # Skill Index
 
-이 환경에 설치된 모든 skill 의 카테고리별 맵. 세션 시작 시 참고용.
+**curated simon-stack** skill 세트의 카테고리별 맵. 세션 시작 시 참고용.
+이 표는 simon-stack 큐레이션 셋(skills-src + 개발용 dev skill)을 매핑한다. gstack 홈 설치본(`~/.claude/skills/gstack/` 및 약 21개 gstack 홈 skill — `skillify`, `spec`, `scrape`, `diagram`, `make-pdf`, `ios-*` 등)은 여기에 카탈로그하지 않으며, 전체 목록은 `/gstack` 진입점으로 조회한다. 일부 자주 쓰는 gstack 홈 skill 은 아래 카테고리 표에 `(Gstack)` 표기로 교차 등재돼 있고, 나머지는 부록(맨 아래 "Gstack 홈 설치본" 표) 참고.
 
-**skills-src/ 128개** + `.claude/skills/` 개발용 4개 = **총 132개** (2026-06-10 갱신 — 누락 44개 카테고리 표 등재, `connect-chrome` zombie 제거).
+**skills-src/ 128개** + `.claude/skills/` 개발용 4개 = **총 132개** (simon-stack 큐레이션 셋 기준 — 약 21개 gstack 홈 skill 은 이 132 카운트에서 제외). (2026-06-13 갱신 — preamble rescope, gstack 홈 skill 부록 등재, `agent-delegate` 카테고리 표 등재. `simon-handoff` 은 Session/Context 표에 이미 등재됨.)
 
-> **검증**: `python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py <path>` — 2026-06-07 전수 검증 결과 **Errors=0** (129/129 통과).
+> **검증**: `python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py <path>` (Windows는 `PYTHONIOENCODING=utf-8` 또는 검증기 UTF-8 패치 필요). **2026-06-13 재검증**: simon-stack 스킬 전부 통과(`wiki-query` E013 수정). 검증기 cp949 크래시·E008 "Todo-list" 오탐 수정(SimonK-stack `4aacecd`). Gstack 스킬은 긴 커맨드-doc 포맷이라 E007/E008 평가 제외.
 > **신규 (PR #8)**: `session-context-tracker` · `html-default-output` (+ `context-guardian` 1.1.0 / `agent-delegate` 1.1.0 보강)
 
 ## 🧭 Orchestrators (상위 지휘)
@@ -16,6 +17,7 @@
 | `autoplan` (Gstack) | CEO/Design/Eng/DX 리뷰 자동 파이프라인 |
 | `model-router` | task type → best LLM 모델 자동 매핑 (2026-05 매트릭스, sprint v23 Phase A) |
 | `multi-terminal-dispatcher` | model-router + Windows Terminal/psmux/VS Code tasks 병렬 launcher (sprint v23 Phase B) |
+| `agent-delegate` | sub-agent 위임 플랜 — task 분해 + context envelope(파일 경로만) + output contract + 패턴(Fan-out/Pipeline/Supervisor). app-dev-orchestrator·simon-worktree 가 사용 |
 | `simonk` | 단일 자율 진입점 (6-phase + Boundary Check + multi-agent dispatch sprint v23 Phase B) |
 | `simonk-report` | simonK Phase 6 자동 호출 — `.simonk/reports/<TS>.html` 생성 + SendUserFile 자동 첨부. 명시 `/simonk-report` 도 가능 |
 | `stack-update` | SimonK Stack 전체 holistic 최신화 — 본체+Wiki+gstack+5 vendored+skill 재설치 위임 |
@@ -209,6 +211,34 @@
 | `opencowork-upgrade` | vendored open-cowork 단독 최신화 |
 | `designmd-upgrade` | vendored design.md 단독 최신화 |
 | `gstack` (Gstack 메타, built-in/runtime) | Gstack 전체 진입점 |
+
+---
+
+## 부록 — Gstack 홈 설치본 (이 132 카운트 제외)
+
+> 아래는 **gstack 홈 설치본**(`~/.claude/skills/`)에 함께 깔리는 gstack skill 로, simon-stack 큐레이션 셋이 아니다 (위 132 카운트에 미포함). 전체 목록·진입점은 `/gstack` 로 조회. 여기 등재는 가시성 용도이며, **gstack skill 자체는 SimonK-stack 에서 수정하지 않는다** (upstream garrytan/gstack 책임 도메인).
+
+| Skill | 역할 |
+|---|---|
+| `_gstack-command` (Gstack) | gstack 내부 커맨드 디스패처 |
+| `benchmark-models` (Gstack) | gstack skill 크로스-모델 벤치마크 |
+| `context-save` (Gstack) | 작업 컨텍스트 저장 |
+| `context-restore` (Gstack) | `/context-save` 로 저장한 컨텍스트 복원 |
+| `diagram` (Gstack) | 영문 설명 → diagram triplet (source + `.excalidraw` + 렌더) |
+| `document-generate` (Gstack) | 기능·모듈·프로젝트 문서 신규 생성 |
+| `landing-report` (Gstack) | workspace-aware ship 큐 대시보드 (read-only) |
+| `make-pdf` (Gstack) | PDF 생성 |
+| `plan-tune` (Gstack) | 플랜 튜닝 |
+| `scrape` (Gstack) | 웹 스크레이핑 |
+| `setup-gbrain` (Gstack) | gbrain 셋업 |
+| `sync-gbrain` (Gstack) | gbrain 동기화 |
+| `skillify` (Gstack) | skill 화 (OMC 계열) |
+| `spec` (Gstack) | 스펙 생성 |
+| `ios-clean` (Gstack) | iOS DebugBridge SPM + `#if DEBUG` 배선 제거 |
+| `ios-fix` (Gstack) | 자율 iOS 버그 수정 |
+| `ios-qa` (Gstack) | SwiftUI 앱 실기기 QA |
+| `ios-sync` (Gstack) | iOS 디버그 브리지 upstream 템플릿 동기화 |
+| `ios-design-review` (Gstack) | iOS 앱 실기기 시각 디자인 감사 |
 
 ---
 

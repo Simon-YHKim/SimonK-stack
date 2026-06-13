@@ -16,6 +16,17 @@ Checks performed:
     - All `references/*.md` and `scripts/*` files linked from SKILL.md exist
     - No broken relative markdown links
     - `version` is valid semver
+    - Body is not a content-free stub (W014): warns when the body merely
+      echoes the frontmatter description, has no code/lists, and is below a
+      word threshold once headings and the description echo are stripped.
+
+gstack-format exemption: the body-length checks E007/E008 are calibrated for
+simon-stack short skills and DO NOT meaningfully apply to gstack long-doc
+skills (review/qa/ship/office-hours/design-html/careful and friends), which
+intentionally ship multi-hundred-line procedural bodies. Those skills live in
+the gstack home install and are out of scope for this validator; do not "fix"
+an E007 by gutting a gstack skill. W014 (stub detection) is the opposite
+concern — it targets skills whose body is too thin to be real.
 """
 from __future__ import annotations
 
@@ -47,6 +58,15 @@ WINDOWS_PATH_RE = re.compile(
     r"[`\"']([a-zA-Z0-9_.-]+(?:\\[a-zA-Z0-9_.-]+)+)[`\"']"
 )
 LONG_REF_LINES = 100
+# Stub detection (W014). A body is "stub-like" when it has no real procedural
+# content — no fenced code block, and once headings + the verbatim description
+# echo are stripped the remaining unique prose is below this many words.
+STUB_MIN_WORDS = 40
+# Length of the description "core" window we look for echoed verbatim in body.
+STUB_ECHO_WINDOW = 60
+FENCE_RE = re.compile(r"(?m)^\s*(```|~~~)")
+HEADING_RE = re.compile(r"(?m)^#{1,6}.*$")
+LIST_ITEM_RE = re.compile(r"(?m)^\s*(?:[-*+]\s+|\d+\.\s+)")
 
 
 @dataclass
@@ -234,6 +254,75 @@ def score_description(desc: str) -> tuple[float, list[str]]:
     return score, reasons
 
 
+def detect_stub(desc: str, body: str) -> tuple[bool, str]:
+    """Heuristic: is the SKILL.md body a content-free stub?
+
+    Returns (is_stub, reason). The known stub signature (auto-generated from a
+    slide deck) is: a "## What it does" section that reproduces the frontmatter
+    description verbatim, an identical "## Operational notes" boilerplate
+    ("차용 출처 slide deck"), no fenced code block, and no list items beyond the
+    trigger-phrase echo. We flag a body when it has NO code block AND either
+    (a) the description core is echoed verbatim in the body, or (b) the unique
+    prose word-count (after stripping headings and the echoed description) is
+    below STUB_MIN_WORDS.
+    """
+    if not body.strip():
+        return False, ""  # E007/empty handled elsewhere; nothing to echo-check
+
+    has_code = bool(FENCE_RE.search(body))
+    if has_code:
+        # A real fenced example (SQL, config, command) means it is not a stub.
+        return False, ""
+
+    def _norm(s: str) -> str:
+        return re.sub(r"\s+", " ", s).strip().lower()
+
+    body_norm = _norm(body)
+    desc_norm = _norm(desc)
+
+    # (a) Verbatim echo: focus on the "Produces ..." core of the description
+    # (the part after the trigger clause) and check whether a substantial
+    # window of it appears verbatim in the body — the "## What it does" dupe.
+    echoed = False
+    if desc_norm:
+        m = re.search(r"\bproduces\b(.*)", desc_norm)
+        core = (m.group(1) if m else desc_norm).strip()
+        window = core[:STUB_ECHO_WINDOW]
+        if window and window in body_norm:
+            echoed = True
+
+    # (b) Thin body: strip headings, then strip any line that is itself a
+    # verbatim chunk of the description (trigger echoes), then count words.
+    no_head = HEADING_RE.sub("", body)
+    unique_lines = []
+    for ln in no_head.splitlines():
+        ln_norm = _norm(ln)
+        if not ln_norm:
+            continue
+        # Drop lines wholly contained in the description (trigger/desc echo).
+        if ln_norm and desc_norm and ln_norm in desc_norm:
+            continue
+        unique_lines.append(ln)
+    unique_text = "\n".join(unique_lines)
+    # Word count = latin word tokens + CJK characters (each CJK char ~ a word).
+    latin_words = re.findall(r"[A-Za-z]{2,}", unique_text)
+    cjk_chars = re.findall(r"[぀-ヿ㐀-鿿가-힯]",
+                           unique_text)
+    word_count = len(latin_words) + len(cjk_chars)
+    thin = word_count < STUB_MIN_WORDS
+
+    if echoed:
+        return True, (
+            "body duplicates the frontmatter description verbatim "
+            "(content-free stub) and has no fenced code block")
+    if thin:
+        return True, (
+            f"body has only ~{word_count} unique words "
+            f"(< {STUB_MIN_WORDS}) after stripping headings and the "
+            f"description echo, and no fenced code block")
+    return False, ""
+
+
 def validate(skill_path: Path) -> Report:
     report = Report(skill_path=str(skill_path))
     skill_md = skill_path / "SKILL.md"
@@ -397,6 +486,15 @@ def validate(skill_path: Path) -> Report:
     if "## " not in body:
         report.add("warning", "W010",
                    "SKILL.md body has no H2 sections", file="SKILL.md")
+
+    # Content-free stub detection (warning, not error — must not break CI)
+    is_stub, stub_reason = detect_stub(desc, body)
+    if is_stub:
+        report.add("warning", "W014",
+                   f"SKILL.md body looks like a content-free stub: "
+                   f"{stub_reason}; write real procedural content "
+                   f"(steps, code, decision tables)",
+                   file="SKILL.md")
 
     # Reference-file checks: nesting depth and TOC for long files
     refs_dir = skill_path / "references"

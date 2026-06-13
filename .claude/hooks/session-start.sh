@@ -122,10 +122,13 @@ if [ -f "$MARKER" ] && [ "$(cat "$MARKER" 2>/dev/null)" = "$CURRENT_SHA" ]; then
   # 3) Wiki (SimonKWiki primary 2026-05-23+, Simon-LLM-Wiki legacy repo name) — auto-pull when safe
   WIKI_DIR=""
   WIKI_PROJ_PARENT=$(dirname "$REPO_DIR" 2>/dev/null)
+  WIKI_PROJ_GP=$(dirname "$WIKI_PROJ_PARENT" 2>/dev/null)
   for _wcand in \
     "${SIMON_WIKI_DIR:-}" \
     "$HOME/.claude/wiki/SimonKWiki" \
     "$HOME/.claude/wiki/Simon-LLM-Wiki" \
+    "$WIKI_PROJ_GP/obsidian/SimonKWiki" \
+    "$WIKI_PROJ_PARENT/obsidian/SimonKWiki" \
     "$WIKI_PROJ_PARENT/SimonKWiki" \
     "$WIKI_PROJ_PARENT/Simon-LLM-Wiki"; do
     [ -z "$_wcand" ] && continue

@@ -66,8 +66,8 @@ Triggered by `/founder-context` with no argument, "4 파일 만들어",
 1. **Inventory existing files at the project root.** For each of the
    four, record present / missing.
 2. **Inventory available SimonK Stack assets** for seeding:
-   - `~/.claude/wiki/SimonKWiki/wiki/protocols/llm-wiki/entities/simon-yhkim.md` (or `Simon-LLM-Wiki` legacy)
-   - `~/.claude/wiki/SimonKWiki/wiki/protocols/llm-wiki/LESSONS_LEARNED.md`
+   - `E:/Coding Infra/obsidian/SimonKWiki/wiki/protocols/llm-wiki/entities/simon-yhkim.md`
+   - `E:/Coding Infra/obsidian/SimonKWiki/wiki/protocols/llm-wiki/LESSONS_LEARNED.md`
    - `~/.claude/instincts/project-patterns.md`
 3. **For each of the four (in order: me → vision → design → workingstyle):**
    - If the file already exists at the project root, ASK whether to skip / update / overwrite. Default: skip.

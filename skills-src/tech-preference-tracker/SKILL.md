@@ -1,6 +1,6 @@
 ---
 name: tech-preference-tracker
-description: "Use when the user is choosing a programming language, framework, or platform AND wants the decision to be consistent with prior projects—triggers \"이 프로젝트 뭐로 할까\", \"언어 뭐 쓰지\", \"플랫폼 정해줘\", \"이전 프로젝트랑 일관성 있게\", \"성능 좋고 업데이트 쉬운\", \"choose stack\", \"consistent tech stack\", \"language for performance and updates\", \"what should I use\". Different from app-platform-selector (hybrid vs native) and db-selector (which DB): this tracks the USER'S CUMULATIVE PREFERENCES across all their projects (lang/runtime/framework/deploy target/state lib/test lib/lint) and recommends choices that maximize update-ease and cross-project transfer. Reads ~/.claude/wiki/Simon-LLM-Wiki/wiki/entities/simon-yhkim.md tech matrix, lints new project for drift, and updates the matrix when the user deliberately changes preference."
+description: "Use when the user is choosing a programming language, framework, or platform AND wants the decision to be consistent with prior projects—triggers \"이 프로젝트 뭐로 할까\", \"언어 뭐 쓰지\", \"플랫폼 정해줘\", \"이전 프로젝트랑 일관성 있게\", \"성능 좋고 업데이트 쉬운\", \"choose stack\", \"consistent tech stack\", \"language for performance and updates\", \"what should I use\". Different from app-platform-selector (hybrid vs native) and db-selector (which DB): this tracks the USER'S CUMULATIVE PREFERENCES across all their projects (lang/runtime/framework/deploy target/state lib/test lib/lint) and recommends choices that maximize update-ease and cross-project transfer. Reads E:/Coding Infra/obsidian/SimonKWiki/wiki/protocols/llm-wiki/entities/simon-yhkim.md tech matrix, lints new project for drift, and updates the matrix when the user deliberately changes preference."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 version: 1.0.0
 author: simon-stack
@@ -36,7 +36,7 @@ author: simon-stack
 
 ## Preference Matrix
 
-`~/.claude/wiki/Simon-LLM-Wiki/wiki/entities/simon-yhkim.md` 의 `## Tech Preferences` 섹션에서 읽어오기.
+`E:/Coding Infra/obsidian/SimonKWiki/wiki/protocols/llm-wiki/entities/simon-yhkim.md` 의 `## Tech Preferences` 섹션에서 읽어오기.
 없으면 빈 매트릭스로 시작.
 
 ```yaml
@@ -70,7 +70,7 @@ ci: github-actions
 ### 1. Audit 모드 (새 프로젝트 시작 전)
 ```bash
 # 이 skill 이 자동 수행
-- Read wiki/entities/simon-yhkim.md § Tech Preferences
+- Read wiki/protocols/llm-wiki/entities/simon-yhkim.md § Tech Preferences
 - 새 프로젝트 요구사항 vs 매트릭스 매칭
 - 권고 + 차이점 explain
 ```
@@ -130,7 +130,7 @@ ci: github-actions
 
 ## Wiki 연동
 
-- 읽기: `wiki/entities/simon-yhkim.md § Tech Preferences`
+- 읽기: `wiki/protocols/llm-wiki/entities/simon-yhkim.md § Tech Preferences`
 - 쓰기: 사용자 승인 후 같은 섹션 update + `wiki/log.md` entry
 - 새 mistake (예: "또 새 framework 시도해서 시간 낭비") → `wiki/concepts/recurring-mistakes.md` 새 mistake 항목
 

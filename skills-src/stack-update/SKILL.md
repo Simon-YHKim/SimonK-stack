@@ -68,6 +68,8 @@ for cand in \
   "${SIMON_WIKI_DIR:-}" \
   "$HOME/.claude/wiki/SimonKWiki" \
   "$HOME/SimonKWiki" \
+  "E:/Coding Infra/obsidian/SimonKWiki" \
+  */obsidian/SimonKWiki \
   "$HOME/.claude/wiki/Simon-LLM-Wiki" \
   "$HOME/Simon-LLM-Wiki"; do
   [ -d "$cand/.git" ] && WIKI="$cand" && break
