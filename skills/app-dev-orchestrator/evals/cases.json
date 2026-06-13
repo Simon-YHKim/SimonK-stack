@@ -1,0 +1,48 @@
+{
+  "skill": "app-dev-orchestrator",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "korean-new-app",
+      "prompt": "새로운 한국 부동산 매물 검색 앱 만들고 싶어. 타깃은 2030대, 서울 중심. 어떻게 시작할까?",
+      "assertions": [
+        {
+          "id": "asks-interview-questions",
+          "text": "The agent runs the stage-0 interview covering platform, target users, GitHub repo, budget, external APIs, and deadline."
+        },
+        {
+          "id": "mentions-21-stages",
+          "text": "The agent references the 21-stage pipeline or names at least 5 of: office-hours, research, plan, design, TDD, security, ship, deploy, retro, instincts."
+        },
+        {
+          "id": "delegates-not-implements",
+          "text": "The agent delegates to other skills instead of implementing everything itself."
+        }
+      ]
+    },
+    {
+      "id": "english-mvp",
+      "prompt": "Help me scaffold a new MVP for a Stripe-powered subscription SaaS targeting developer tool users. Web first, then iOS.",
+      "assertions": [
+        {
+          "id": "asks-interview-questions",
+          "text": "The agent runs the stage-0 interview."
+        },
+        {
+          "id": "flags-paid-api",
+          "text": "The agent flags the Stripe integration as a paid API concern to handle in stage 16 (security audit)."
+        }
+      ]
+    },
+    {
+      "id": "negative-bug-fix",
+      "prompt": "이 버그 고쳐줘: Login button 누르면 아무것도 안 일어남",
+      "assertions": [
+        {
+          "id": "does-not-trigger",
+          "text": "The skill does NOT trigger. A bug fix is not a zero-to-one situation; the agent should use simon-tdd or investigate instead."
+        }
+      ]
+    }
+  ]
+}

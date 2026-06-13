@@ -1,0 +1,76 @@
+<!--
+  web-snippet.html — 웹(Vercel/Next/정적) 분석·광고 스니펫.
+
+  중요 (I1 동의 게이트):
+    이 스니펫을 <head> 에 무조건 박지 말 것. 동의(granted) 후 동적으로 주입해야 한다.
+    아래 injectAnalytics() / injectAds() 를 consent-manager 의 granted 콜백에서 호출.
+
+  중요 (I2 fail-open):
+    측정/광고 ID 는 런타임에 주입. 누락이면 함수가 조용히 return (앱 영향 0).
+
+  중요: ID 하드코딩 금지. data-* 속성이나 전역 config 로 주입.
+-->
+<script>
+(function () {
+  // env 로 주입된 config (예: window.__ANALYTICS_CONFIG__ = { ga4, clarity, adsensePub }).
+  var CFG = (window.__ANALYTICS_CONFIG__ || {});
+
+  // ── GA4 gtag (consent 후 호출) ─────────────────────
+  window.injectAnalytics = function () {
+    try {
+      if (!CFG.ga4 || !/^G-[A-Z0-9]{10}$/.test(CFG.ga4)) return; // fail-open
+      if (window.__ga4Loaded) return;
+      window.__ga4Loaded = true;
+
+      var s = document.createElement("script");
+      s.async = true;
+      s.src = "https://www.googletagmanager.com/gtag/js?id=" + CFG.ga4;
+      s.onerror = function () { /* 로드 실패 무시 */ };
+      document.head.appendChild(s);
+
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { window.dataLayer.push(arguments); };
+      window.gtag("js", new Date());
+      // 기본은 denied 로 시작 (Consent Mode v2), granted 콜백에서 update.
+      window.gtag("consent", "default", { analytics_storage: "denied", ad_storage: "denied" });
+      window.gtag("consent", "update", { analytics_storage: "granted" });
+      window.gtag("config", CFG.ga4, { anonymize_ip: true });
+
+      // ── MS Clarity (분석 동의에 함께 묶음) ──
+      if (CFG.clarity && /^[a-z0-9]{10}$/.test(CFG.clarity) && !window.__clarityLoaded) {
+        window.__clarityLoaded = true;
+        (function (c, l, a, r, i, t, y) {
+          c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
+          t = l.createElement(r); t.async = 1;
+          t.src = "https://www.clarity.ms/tag/" + i;
+          t.onerror = function () {}; // fail-open
+          y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+        })(window, document, "clarity", "script", CFG.clarity);
+      }
+    } catch (e) { /* fail-open: 무엇이 터져도 페이지는 산다 */ }
+  };
+
+  // ── AdSense (광고 동의 후 호출) ────────────────────
+  window.injectAds = function () {
+    try {
+      if (!CFG.adsensePub || !/^ca-pub-\d{16}$/.test(CFG.adsensePub)) return; // fail-open
+      if (window.__adsenseLoaded) return;
+      window.__adsenseLoaded = true;
+
+      var a = document.createElement("script");
+      a.async = true;
+      a.crossOrigin = "anonymous";
+      a.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" + CFG.adsensePub;
+      a.onerror = function () {}; // AdBlock/로드 실패 → fail-open
+      document.head.appendChild(a);
+    } catch (e) { /* fail-open */ }
+  };
+})();
+</script>
+
+<!--
+  Next.js 사용 시: <head> 직접 삽입 대신 next/script 권장.
+    import Script from "next/script";
+    <Script id="ga4" strategy="afterInteractive" />  // consent 후 mount
+  ID 는 process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID 등에서 window.__ANALYTICS_CONFIG__ 로 주입.
+-->

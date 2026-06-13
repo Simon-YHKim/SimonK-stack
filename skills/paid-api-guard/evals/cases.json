@@ -1,0 +1,24 @@
+{
+  "skill": "paid-api-guard",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "stripe-integration",
+      "prompt": "Stripe 결제 연동하는데 보안 체크리스트 줘",
+      "assertions": [
+        {
+          "id": "covers-6-layers",
+          "text": "The agent covers all 6 layers: network boundary, signing/idempotency, abuse detection, payment hardening, key-leak response, observability."
+        },
+        {
+          "id": "mentions-webhook-raw-body",
+          "text": "The agent explicitly warns that webhook signature must be verified on the raw body, not parsed JSON."
+        },
+        {
+          "id": "mentions-server-amount-recalc",
+          "text": "The agent mentions server-side amount recalculation (never trust client amount)."
+        }
+      ]
+    }
+  ]
+}

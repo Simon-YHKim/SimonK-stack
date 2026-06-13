@@ -1,0 +1,71 @@
+{
+  "$comment": "Age-tier + guardian-consent policy. Versioned: bump policyVersion (date string) on any legal change so the audit export can flag STALE_POLICY_VERSION. Thresholds differ by region (KO PIPA 22-2 = under 14, US COPPA = under 13). The age gate / blocking is auth-builder's job; this file is the source of truth for which consent a tier requires.",
+  "policyVersion": "2026-06-01",
+  "regions": {
+    "KR": {
+      "law": "PIPA + 정보통신망법 §22-2",
+      "tiers": [
+        {
+          "tier": "under_14",
+          "minAge": 0,
+          "maxAge": 13,
+          "guardianConsentRequired": true,
+          "selfConsentAllowed": false,
+          "defaults": { "advertising": false, "personalizedAnalytics": false }
+        },
+        {
+          "tier": "minor_14_17",
+          "minAge": 14,
+          "maxAge": 17,
+          "guardianConsentRequired": false,
+          "selfConsentAllowed": true,
+          "defaults": { "advertising": false, "personalizedAnalytics": false }
+        },
+        {
+          "tier": "adult",
+          "minAge": 18,
+          "maxAge": 200,
+          "guardianConsentRequired": false,
+          "selfConsentAllowed": true,
+          "defaults": { "advertising": true, "personalizedAnalytics": true }
+        }
+      ]
+    },
+    "US": {
+      "law": "COPPA",
+      "tiers": [
+        {
+          "tier": "under_14",
+          "minAge": 0,
+          "maxAge": 12,
+          "guardianConsentRequired": true,
+          "selfConsentAllowed": false,
+          "defaults": { "advertising": false, "personalizedAnalytics": false }
+        },
+        {
+          "tier": "minor_14_17",
+          "minAge": 13,
+          "maxAge": 17,
+          "guardianConsentRequired": false,
+          "selfConsentAllowed": true,
+          "defaults": { "advertising": false, "personalizedAnalytics": false }
+        },
+        {
+          "tier": "adult",
+          "minAge": 18,
+          "maxAge": 200,
+          "guardianConsentRequired": false,
+          "selfConsentAllowed": true,
+          "defaults": { "advertising": true, "personalizedAnalytics": true }
+        }
+      ]
+    }
+  },
+  "verification": {
+    "$comment": "Required verification strength keyed to data sensitivity. 'basic' = profile only. 'sensitive' = location/contacts/payment/biometric → must reach a strong step.",
+    "basic": { "minStep": 1, "acceptedMethods": ["email_double_optin"] },
+    "sensitive": { "minStep": 2, "acceptedMethods": ["pass_guardian", "card_auth", "signed_form_reviewed"] },
+    "tokenTtlHours": 72,
+    "tokenSingleUse": true
+  }
+}

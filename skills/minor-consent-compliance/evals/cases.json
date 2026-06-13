@@ -1,0 +1,26 @@
+[
+  {
+    "name": "trigger_korean_guardian_consent",
+    "input": "만 14세 미만 가입 시 보호자 동의 받는 경로 만들어줘. PIPA 22조의2 맞춰서.",
+    "expected_skill": "minor-consent-compliance",
+    "must_contain": ["verifiable parental consent", "guardian", "PIPA", "fail-closed"]
+  },
+  {
+    "name": "trigger_english_under14_coppa",
+    "input": "We need verifiable parental consent for under-14 users with a COPPA audit trail.",
+    "expected_skill": "minor-consent-compliance",
+    "must_contain": ["COPPA", "audit", "append-only", "ledger"]
+  },
+  {
+    "name": "trigger_age_gate_consent_handoff",
+    "input": "연령 게이트에서 미성년 판별되면 보호자 동의 경로로 넘겨. 차단은 auth-builder가 하고.",
+    "expected_skill": "minor-consent-compliance",
+    "must_contain": ["auth-builder", "consent-manager", "handoff", "guardian"]
+  },
+  {
+    "name": "boundary_does_not_own_blocking",
+    "input": "미성년 동의 경로랑 감사 export 만들어줘. 차단 로직은 여기서 또 만들지 말고.",
+    "expected_skill": "minor-consent-compliance",
+    "must_contain": ["auth-builder", "export", "audit", "double opt-in"]
+  }
+]

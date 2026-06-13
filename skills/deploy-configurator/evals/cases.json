@@ -1,0 +1,14 @@
+[
+  {
+    "name": "trigger_korean_vercel",
+    "input": "Vercel로 배포 세팅하고 GitHub Actions CI도 같이 구성해줘.",
+    "expected_skill": "deploy-configurator",
+    "must_contain": ["Vercel", "CI/CD", "GitHub Actions", "env"]
+  },
+  {
+    "name": "trigger_english_cloudflare",
+    "input": "Configure Cloudflare Pages deploy with custom domain, SSL, and env var management.",
+    "expected_skill": "deploy-configurator",
+    "must_contain": ["Cloudflare", "domain", "SSL", "environment"]
+  }
+]

@@ -1,0 +1,31 @@
+{
+  "lmarena": {
+    "source": "lmarena",
+    "fetched_at": "2026-06-07T12:07:09.305225",
+    "models": [],
+    "status": "parsed 0 models (HTML regex fallback)"
+  },
+  "vellum": {
+    "source": "vellum",
+    "fetched_at": "2026-06-07T12:07:12.196311",
+    "status": "TODO: parser 미구현",
+    "raw_length": 235719,
+    "models": []
+  },
+  "llm-stats": {
+    "source": "llm-stats",
+    "status": "TODO",
+    "models": []
+  },
+  "aider": {
+    "source": "aider",
+    "status": "TODO",
+    "models": []
+  },
+  "swebench": {
+    "source": "swebench",
+    "fetched_at": "2026-06-07T12:07:20.108826",
+    "models": [],
+    "status": "parsed 0 models (rough regex)"
+  }
+}

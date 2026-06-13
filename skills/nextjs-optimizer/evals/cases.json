@@ -1,0 +1,24 @@
+{
+  "skill": "nextjs-optimizer",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "lcp-audit",
+      "prompt": "Next.js 사이트 LCP 느려. 2.5초 넘어. 원인 찾아서 고쳐줘",
+      "assertions": [
+        {
+          "id": "checks-img-tags",
+          "text": "The agent checks for raw <img> tags and recommends next/image with priority + sizes + width/height."
+        },
+        {
+          "id": "checks-render-strategy",
+          "text": "The agent asks about render strategy (SSG/ISR/SSR/CSR) for the slow page."
+        },
+        {
+          "id": "checks-bundle-size",
+          "text": "The agent checks initial bundle size and suggests dynamic imports for heavy components."
+        }
+      ]
+    }
+  ]
+}

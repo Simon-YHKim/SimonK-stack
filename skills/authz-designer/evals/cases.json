@@ -1,0 +1,20 @@
+{
+  "skill": "authz-designer",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "notion-like-sharing",
+      "prompt": "우리 앱에 Notion 처럼 문서 공유 기능 넣으려고 하는데 권한 시스템 어떻게 설계해?",
+      "assertions": [
+        {
+          "id": "picks-rebac",
+          "text": "The agent recommends ReBAC (relationship-based) because the use case is document-sharing with a permission graph."
+        },
+        {
+          "id": "provides-ddl",
+          "text": "The agent provides DDL templates for authz_roles, authz_role_assignments, authz_policies, authz_audit_log."
+        }
+      ]
+    }
+  ]
+}

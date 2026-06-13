@@ -1,0 +1,14 @@
+[
+  {
+    "name": "trigger_korean_portone",
+    "input": "PortOne으로 카드 결제랑 카카오페이 간편결제 붙여줘. 구독도 가능하게.",
+    "expected_skill": "payment-integrator",
+    "must_contain": ["PortOne", "subscription", "webhook", "간편결제"]
+  },
+  {
+    "name": "trigger_english_stripe",
+    "input": "Implement Stripe subscription with webhook handlers and receipt verification.",
+    "expected_skill": "payment-integrator",
+    "must_contain": ["Stripe", "webhook", "subscription", "state machine"]
+  }
+]
