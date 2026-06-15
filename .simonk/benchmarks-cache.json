@@ -1,15 +1,15 @@
 {
   "lmarena": {
     "source": "lmarena",
-    "fetched_at": "2026-06-07T12:07:09.305225",
+    "fetched_at": "2026-06-14T12:00:35.374070",
     "models": [],
     "status": "parsed 0 models (HTML regex fallback)"
   },
   "vellum": {
     "source": "vellum",
-    "fetched_at": "2026-06-07T12:07:12.196311",
+    "fetched_at": "2026-06-14T12:00:38.238176",
     "status": "TODO: parser 미구현",
-    "raw_length": 235719,
+    "raw_length": 239033,
     "models": []
   },
   "llm-stats": {
@@ -24,7 +24,7 @@
   },
   "swebench": {
     "source": "swebench",
-    "fetched_at": "2026-06-07T12:07:20.108826",
+    "fetched_at": "2026-06-14T12:00:47.456680",
     "models": [],
     "status": "parsed 0 models (rough regex)"
   }
