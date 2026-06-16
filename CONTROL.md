@@ -1,10 +1,10 @@
 ---
 owner: claude
 note: "이 파일은 Claude(오케스트레이터)만 작성한다. 나머지 AI는 매 사이클 맨 앞에서 읽기만 한다."
-state: paused
+state: running
 pause_reason: "2026-06-16 Simon 지시: UI 완성 전까지 AI 허브 가동 중단, 잠시 휴식. Claude 디렉터 /loop 정지, 3 데몬(codex/grok/AG) 종료. watchdog는 paused라 자동재시작 안 함(§auto-restart는 running일 때만). 재개는 Simon이 UI 작업 후 'running' 복원 + 디렉터 루프 재가동."
-resume_reason: ""
-updated: 2026-06-16 KST
+resume_reason: "2026-06-17 Simon 지시: state running 복원. UI 작업 사이클 재개. 2nd-B 세계관 정본(북극성/7별/L1-L5/두뇌 0-3) Phase 0 글로사리 락 푸시/CI/머지 진행. 원격 오더 파이프라인 LIVE 유지."
+updated: 2026-06-17 KST
 ---
 
 # CONTROL.md — 런-스테이트 세마포어 (always-checked)
@@ -45,3 +45,5 @@ updated: 2026-06-16 KST
 - 2026-06-07 07:59 KST | RESUME | Simon "허브 구동" 지시 → state=running 복원. 4-AI 재가동(activate 프롬프트 재배포) | claude
 - 2026-06-08 23:24 KST | PAUSE | Simon "다른 AI 가동 중단 + 인프라 이전 준비". 회고 인터뷰 수집 후 정지. 외장하드 이전/타 랩탑 클론 예정. 재개는 새 환경에서 Claude가 경로 확인 후 | claude
 - 2026-06-15 03:25 KST | RESUME | Simon "정상 가동 시키자" → state=running 복원. Claude 라이브 ScheduleWakeup 루프가 §33 ORDERS 폴러+분배자 인계(hub-daemon no PID). 원격 오더 파이프라인 LIVE. AG=agy-pty ConPTY 헤드리스 부활 | claude
+- 2026-06-16 ~ KST | PAUSE | Simon "UI 완성 전까지 AI 허브 가동 중단" → state=paused. (frontmatter pause_reason 참조)
+- 2026-06-17 05:21 KST | RESUME | Simon "CONTROL state running으로 수정" 지시 → state=running 복원. 2nd-B Phase 0(세계관 정본 글로사리: 북극성=Soul Core / 7 자기이해 별 / L1-L5 가치 사다리 / 두뇌 0-3 다리 모델) CONTEXT.md 락 + worldview-naming 테스트 핀 → 푸시/CI/머지 사이클 진행. 원격 오더 파이프라인 LIVE 유지. | claude
