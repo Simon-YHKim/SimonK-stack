@@ -1,0 +1,34 @@
+{
+  "skill": "stack-architect",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-need-backend",
+      "prompt": "이 서비스 백엔드 필요해? 프론트만으로 될까?",
+      "assertions": [
+        {
+          "id": "frontend-vs-fullstack",
+          "text": "Decides frontend-only vs fullstack using the backend decision tree (shared data, auth/payment, AI, realtime)."
+        },
+        {
+          "id": "api-selection",
+          "text": "Recommends an API style (REST/GraphQL/tRPC/gRPC/BaaS) matched to the use case."
+        }
+      ]
+    },
+    {
+      "id": "en-tech-stack",
+      "prompt": "Decide the tech stack and deployment for my app at launch scale.",
+      "assertions": [
+        {
+          "id": "scale-matched-deploy",
+          "text": "Produces a scale-matched deployment plan with platform and estimated monthly cost."
+        },
+        {
+          "id": "architecture-md",
+          "text": "Outputs an ARCHITECTURE.md with the chosen stack and a stability roadmap to production."
+        }
+      ]
+    }
+  ]
+}

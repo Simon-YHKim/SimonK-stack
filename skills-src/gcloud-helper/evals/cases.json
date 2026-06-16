@@ -1,0 +1,23 @@
+{
+  "skill": "gcloud-helper",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "gcloud-auth-en",
+      "prompt": "Check my gcloud auth and ADC setup, something is off with BigQuery.",
+      "assertions": [
+        { "id": "auth-diagnosis", "text": "Diagnoses gcloud auth status and detects misconfiguration" },
+        { "id": "env-inject", "text": "Injects environment variables GOOGLE_CLOUD_PROJECT and GOOGLE_APPLICATION_CREDENTIALS" },
+        { "id": "oauth-oneliner", "text": "Provides a browser OAuth one-liner if re-authentication is needed" }
+      ]
+    },
+    {
+      "id": "vertex-auth-ko",
+      "prompt": "Vertex AI 인증이 안 돼. gcloud 인증 상태 좀 봐줘.",
+      "assertions": [
+        { "id": "ghost-project-fix", "text": "Auto-fixes the ghost project issue as part of diagnosis" },
+        { "id": "silent-if-ok", "text": "Stays silent when auth is already OK (auto-called by the simonK harness)" }
+      ]
+    }
+  ]
+}

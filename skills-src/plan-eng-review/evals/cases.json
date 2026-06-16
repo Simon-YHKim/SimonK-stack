@@ -1,0 +1,31 @@
+{
+  "skill": "plan-eng-review",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "architecture-review-en",
+      "prompt": "review the architecture of this plan before I start coding",
+      "assertions": [
+        { "id": "locks-execution-plan", "text": "Locks in the execution plan covering architecture, data flow, diagrams, edge cases, test coverage, and performance" },
+        { "id": "interactive-opinionated", "text": "Walks through issues interactively with opinionated recommendations" },
+        { "id": "before-implementation", "text": "Catches architecture issues before implementation begins" }
+      ]
+    },
+    {
+      "id": "lock-in-plan-ko",
+      "prompt": "엔지니어링 리뷰해서 이 계획 확정짓자",
+      "assertions": [
+        { "id": "edge-cases-and-tests", "text": "Surfaces edge cases and test coverage gaps as part of locking the plan" },
+        { "id": "data-flow-diagrams", "text": "Examines data flow and produces or requests diagrams for the architecture" }
+      ]
+    },
+    {
+      "id": "technical-review-voice",
+      "prompt": "technical review of the plan, eng manager mode",
+      "assertions": [
+        { "id": "matches-voice-trigger", "text": "Treats this as the eng plan review trigger and runs the interactive eng-manager review" },
+        { "id": "performance-consideration", "text": "Considers performance implications (e.g. N+1 / latency) when reviewing the architecture" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "skill": "aarrr-growth-planner",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-aarrr-funnel",
+      "prompt": "우리 앱 AARRR 분석해서 그로스 전략 세워줘. 퍼널 설계가 필요해.",
+      "assertions": [
+        { "id": "five-stages", "text": "Covers all five AARRR stages: Acquisition, Activation, Retention, Referral, Revenue, with tactics per stage." },
+        { "id": "ice-backlog", "text": "Produces an experiment backlog prioritized by ICE score (Impact x Confidence x Ease)." },
+        { "id": "growth-plan-file", "text": "Writes a GROWTH-PLAN.md with current state vs target per stage and a KPI dashboard design." }
+      ]
+    },
+    {
+      "id": "en-retention-improve",
+      "prompt": "Use the pirate metrics framework to improve our retention and design a viral referral loop.",
+      "assertions": [
+        { "id": "retention-benchmarks", "text": "Gives Retention benchmarks like D1/D7/D30 healthy levels and habit-loop tactics." },
+        { "id": "k-factor", "text": "Addresses Referral with K-factor (viral coefficient) and double-sided referral rewards." },
+        { "id": "weekly-agenda", "text": "Includes a weekly growth meeting agenda template in the output." }
+      ]
+    }
+  ]
+}

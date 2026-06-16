@@ -1,0 +1,23 @@
+{
+  "skill": "i18n-localizer",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "i18n-setup-ko",
+      "prompt": "앱 다국어 지원 붙여줘. i18n 세팅하고 RTL(아랍어 미러링)도 같이.",
+      "assertions": [
+        { "id": "framework-setup", "text": "Produces a framework i18n setup using next-intl v4 / react-i18next / expo-localization with real code" },
+        { "id": "icu-format", "text": "Uses ICU message format for plurals, gender, and select" },
+        { "id": "rtl-mirroring", "text": "Implements RTL via CSS logical properties plus dir attribute and a mirroring checklist for Arabic/Hebrew" }
+      ]
+    },
+    {
+      "id": "add-languages-en",
+      "prompt": "Set up internationalization with locale routing and a translation workflow for my app.",
+      "assertions": [
+        { "id": "intl-formatting", "text": "Sets up locale-aware Intl.* formatting for date, number, and currency" },
+        { "id": "translation-structure", "text": "Defines a translation-file structure with key naming rules and a per-locale QA checklist (DE/FI overflow, CJK line-break, pseudo-localization)" }
+      ]
+    }
+  ]
+}

@@ -1,17 +1,38 @@
-[
-  {
-    "name": "trigger ko 1",
-    "user_input": "\uc2a4\ud0ac \ucc3e\uc544",
-    "expected_skill": "find-skill"
-  },
-  {
-    "name": "trigger slash",
-    "user_input": "/find-skill",
-    "expected_skill": "find-skill"
-  },
-  {
-    "name": "trigger en 1",
-    "user_input": "find a skill",
-    "expected_skill": "find-skill"
-  }
-]
+{
+  "skill": "find-skill",
+  "version": "1.1.0",
+  "cases": [
+    {
+      "id": "korean-find-email-skill",
+      "prompt": "이메일 자동으로 보내는 스킬 있어?",
+      "assertions": [
+        {
+          "id": "keyword-expand",
+          "text": "Expands the request into Korean + English keywords (email/이메일/mail/smtp/notification) for searching"
+        },
+        {
+          "id": "grep-local-index",
+          "text": "Greps the local simon-stack INDEX.md first (offline) before surfacing external skills"
+        },
+        {
+          "id": "ranked-with-invocation",
+          "text": "Returns a ranked recommendation list where each item gives name, why-it-matched, and how-to-invoke"
+        }
+      ]
+    },
+    {
+      "id": "english-search-skills",
+      "prompt": "Is there a skill for merging PDFs?",
+      "assertions": [
+        {
+          "id": "dual-catalog",
+          "text": "Searches both catalogs: local INDEX.md via Grep and the external awesome-claude-skills README via WebFetch with a filtered prompt"
+        },
+        {
+          "id": "prefer-local",
+          "text": "Prefers an installed local skill (+2 ranking bonus) and only surfaces external skills when no local equivalent exists"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "skill": "land-and-deploy",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "merge-and-verify-en",
+      "prompt": "land it and verify production is healthy",
+      "assertions": [
+        { "id": "merges-pr", "text": "Merges the open PR after /ship created it" },
+        { "id": "waits-ci-deploy", "text": "Waits for CI to pass and the deploy to complete before declaring success" },
+        { "id": "canary-health-check", "text": "Verifies production health via canary checks rather than assuming the deploy worked" }
+      ]
+    },
+    {
+      "id": "deploy-to-production-ko",
+      "prompt": "이거 머지하고 배포까지 해줘",
+      "assertions": [
+        { "id": "takes-over-after-ship", "text": "Takes over the land-and-deploy workflow after the PR exists, not creating a new PR" },
+        { "id": "production-verification", "text": "Confirms production is actually serving the new code via health/canary verification before reporting done" }
+      ]
+    },
+    {
+      "id": "ship-it-to-production",
+      "prompt": "ship it to production",
+      "assertions": [
+        { "id": "branch-grounded", "text": "Uses the current branch reported by the preamble (BRANCH) when reasoning about what to merge" },
+        { "id": "no-silent-failure", "text": "Does not normalize a partial or failed deploy as success; reports any CI or deploy failure explicitly" }
+      ]
+    }
+  ]
+}

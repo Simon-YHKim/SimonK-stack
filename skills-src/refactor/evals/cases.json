@@ -1,0 +1,38 @@
+{
+  "skill": "refactor",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-cleanup",
+      "prompt": "이 함수 좀 정리해줘, 동작은 그대로 두고 리팩토링만",
+      "assertions": [
+        {
+          "id": "behavior-preserving",
+          "text": "Makes structural improvements that preserve behavior, adding no new features."
+        },
+        {
+          "id": "safety-net-tests",
+          "text": "Establishes a test safety net first (runs existing tests or adds characterization tests before refactoring)."
+        }
+      ]
+    },
+    {
+      "id": "en-extract-function",
+      "prompt": "Refactor this module and extract that big block into its own function.",
+      "assertions": [
+        {
+          "id": "small-steps",
+          "text": "Makes small behavior-preserving steps (extract/rename/inline) and verifies tests after each."
+        },
+        {
+          "id": "no-scope-creep",
+          "text": "Stays within the requested scope and avoids while-I'm-here scope creep."
+        },
+        {
+          "id": "verify-tests-pass",
+          "text": "Confirms all tests still pass and the public API is unchanged or callers updated."
+        }
+      ]
+    }
+  ]
+}

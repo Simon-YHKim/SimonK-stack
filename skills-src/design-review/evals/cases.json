@@ -1,0 +1,30 @@
+{
+  "skill": "design-review",
+  "version": "2.0.0",
+  "cases": [
+    {
+      "id": "visual-qa-en",
+      "prompt": "Audit the design of my live site and tell me if it looks good.",
+      "assertions": [
+        { "id": "finds-issues", "text": "Finds visual inconsistency, spacing issues, hierarchy problems, AI slop patterns, and slow interactions" },
+        { "id": "fixes-in-source", "text": "Iteratively fixes the issues in source code rather than only reporting them" },
+        { "id": "before-after-screenshots", "text": "Commits each fix atomically and re-verifies with before/after screenshots" }
+      ]
+    },
+    {
+      "id": "design-polish-ko",
+      "prompt": "사이트 디자인 폴리시 좀 해줘. 간격이랑 위계가 어색해 보여.",
+      "assertions": [
+        { "id": "designers-eye", "text": "Applies a designer's-eye QA pass targeting spacing and visual hierarchy" },
+        { "id": "atomic-commits", "text": "Fixes issues atomically with verification" }
+      ]
+    },
+    {
+      "id": "plan-mode-redirect",
+      "prompt": "I want a design review before I implement anything.",
+      "assertions": [
+        { "id": "points-to-plan-design-review", "text": "For pre-implementation review, points the user to /plan-design-review instead" }
+      ]
+    }
+  ]
+}

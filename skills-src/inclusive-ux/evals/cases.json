@@ -1,0 +1,24 @@
+{
+  "skill": "inclusive-ux",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "senior-ux-ko",
+      "prompt": "고령 사용자도 쓸 수 있는 시니어 앱 UX 설계해줘. 큰 글씨랑 저시력 지원 포함해서.",
+      "assertions": [
+        { "id": "dynamic-type", "text": "Supports OS dynamic-type / font-scaling (iOS Dynamic Type, Android sp, web rem+zoom)" },
+        { "id": "large-targets", "text": "Specifies large-target, high-contrast senior layouts (>=48px, no time pressure)" },
+        { "id": "checklist-and-patterns", "text": "Produces an inclusive-UX checklist plus concrete component patterns" }
+      ]
+    },
+    {
+      "id": "low-literacy-en",
+      "prompt": "Audit this UI for elderly and low-literacy users.",
+      "assertions": [
+        { "id": "reading-level", "text": "Reduces reading level to grade 6 or below in plain language" },
+        { "id": "progressive-disclosure", "text": "Uses progressive disclosure for low cognitive load and error-tolerant flows" },
+        { "id": "complements-wcag", "text": "Focuses on age and literacy rather than WCAG checkbox compliance (which accessibility-audit covers)" }
+      ]
+    }
+  ]
+}

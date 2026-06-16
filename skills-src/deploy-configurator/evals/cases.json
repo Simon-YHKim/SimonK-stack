@@ -1,14 +1,42 @@
-[
-  {
-    "name": "trigger_korean_vercel",
-    "input": "Vercel로 배포 세팅하고 GitHub Actions CI도 같이 구성해줘.",
-    "expected_skill": "deploy-configurator",
-    "must_contain": ["Vercel", "CI/CD", "GitHub Actions", "env"]
-  },
-  {
-    "name": "trigger_english_cloudflare",
-    "input": "Configure Cloudflare Pages deploy with custom domain, SSL, and env var management.",
-    "expected_skill": "deploy-configurator",
-    "must_contain": ["Cloudflare", "domain", "SSL", "environment"]
-  }
-]
+{
+  "skill": "deploy-configurator",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "korean-vercel-cicd",
+      "prompt": "Next.js 앱 Vercel에 배포 설정하고 GitHub Actions CI/CD도 만들어줘.",
+      "assertions": [
+        {
+          "id": "vercel-platform",
+          "text": "Selects Vercel for the Next.js/SSR app per the platform decision tree"
+        },
+        {
+          "id": "github-actions-pipeline",
+          "text": "Produces a .github/workflows deploy.yml with a test job (lint/typecheck/test) and a main-only deploy job"
+        },
+        {
+          "id": "preview-on-pr",
+          "text": "Configures automatic preview deploy on PR and production deploy on main push"
+        }
+      ]
+    },
+    {
+      "id": "english-cloudflare-workers",
+      "prompt": "Set up deployment for my API on Cloudflare Workers with environment variables and error monitoring.",
+      "assertions": [
+        {
+          "id": "cloudflare-workers",
+          "text": "Targets Cloudflare Workers (serverless) for the API per the platform tree"
+        },
+        {
+          "id": "env-secret-handling",
+          "text": "Manages env vars via platform UI / GitHub Secrets and keeps .env in .gitignore (no hardcoded secrets)"
+        },
+        {
+          "id": "sentry-monitoring",
+          "text": "Wires Sentry (or equivalent) for runtime error tracking"
+        }
+      ]
+    }
+  ]
+}

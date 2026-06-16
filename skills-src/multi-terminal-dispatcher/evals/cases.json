@@ -1,25 +1,42 @@
 {
+  "skill": "multi-terminal-dispatcher",
+  "version": "0.1.0",
   "cases": [
     {
-      "name": "trigger_korean",
-      "description": "한국어 trigger word 인식",
-      "prompt": "이거 병렬로 진행해줘 — 3개 task 동시에",
-      "expected_keywords": ["multi-terminal", "병렬", "dispatch", "model-router"],
-      "expected_min_matches": 2
+      "id": "korean-parallel-terminals",
+      "prompt": "이 작업들 여러 창에서 병렬로 진행해줘.",
+      "assertions": [
+        {
+          "id": "split-and-route",
+          "text": "Splits the work into N independent tasks and calls model-router for per-task LLM assignment"
+        },
+        {
+          "id": "dispatch-plan-table",
+          "text": "Shows a dispatch plan table (Task ID, Type, Model, Terminal, cost estimate) before launching"
+        },
+        {
+          "id": "launch-terminals",
+          "text": "Launches each task in its own terminal (e.g. Windows Terminal tabs via wt.exe) and reports launched terminal IDs"
+        }
+      ]
     },
     {
-      "name": "trigger_english",
-      "description": "영어 trigger",
-      "prompt": "Run these 3 tasks in parallel terminals with best model for each",
-      "expected_keywords": ["multi-terminal", "parallel", "model-router", "Windows Terminal"],
-      "expected_min_matches": 2
-    },
-    {
-      "name": "cost_estimate",
-      "description": "비용 추정 출력",
-      "prompt": "이 sprint 5 task 병렬로 — 비용 미리 알려줘",
-      "expected_keywords": ["cost", "estimate", "$", "Total"],
-      "expected_min_matches": 2
+      "id": "english-multi-terminal-dispatch",
+      "prompt": "Dispatch these 4 subtasks across multiple terminals with the best model for each.",
+      "assertions": [
+        {
+          "id": "per-task-model",
+          "text": "Assigns a primary + fallback model per task type via model-router"
+        },
+        {
+          "id": "cost-confirm-guard",
+          "text": "Estimates cost and confirms with the user when total exceeds $5; runs destructive ops single-terminal only"
+        },
+        {
+          "id": "merged-report",
+          "text": "Produces a merged result report after all terminals complete"
+        }
+      ]
     }
   ]
 }

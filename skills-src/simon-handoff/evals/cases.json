@@ -1,32 +1,38 @@
-[
-  {
-    "name": "Korean trigger — 핸드오프 해줘",
-    "user_input": "핸드오프 해줘",
-    "expected_skill": "simon-handoff"
-  },
-  {
-    "name": "Korean trigger — 다음 세션 준비",
-    "user_input": "다음 세션 준비해줘",
-    "expected_skill": "simon-handoff"
-  },
-  {
-    "name": "Slash command",
-    "user_input": "/simon-handoff",
-    "expected_skill": "simon-handoff"
-  },
-  {
-    "name": "Short slash command",
-    "user_input": "/handoff",
-    "expected_skill": "simon-handoff"
-  },
-  {
-    "name": "English trigger",
-    "user_input": "session handoff please",
-    "expected_skill": "simon-handoff"
-  },
-  {
-    "name": "Negative — checkpoint should NOT route here",
-    "user_input": "save my current context",
-    "expected_skill": "checkpoint"
-  }
-]
+{
+  "skill": "simon-handoff",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-handoff",
+      "prompt": "다음 세션 준비해줘. 핸드오프 만들어줘.",
+      "assertions": [
+        {
+          "id": "docs-handoff-md",
+          "text": "Writes docs/HANDOFF.md inside the repo on disk (not /root, /tmp, or ~/.gstack paths)"
+        },
+        {
+          "id": "merge-to-main",
+          "text": "Merges the handoff to main (commit+push alone is insufficient for next session's git pull)"
+        },
+        {
+          "id": "wake-command",
+          "text": "Outputs the exact shell command the next session pastes to resume at full context"
+        }
+      ]
+    },
+    {
+      "id": "en-session-handoff",
+      "prompt": "session handoff please",
+      "assertions": [
+        {
+          "id": "two-invariants",
+          "text": "Satisfies both invariants: file lives in the repo, and it gets merged to main"
+        },
+        {
+          "id": "fallback-urls",
+          "text": "Provides fallback URLs (PR URL, raw URL, branch checkout) if merge cannot complete"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "skill": "pair-agent",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "share-browser-en",
+      "prompt": "let another agent use my browser, generate a pairing key",
+      "assertions": [
+        { "id": "generates-setup-key", "text": "Generates a setup key with one command" },
+        { "id": "prints-connection-instructions", "text": "Prints connection instructions the remote agent can follow (works with OpenClaw, Hermes, Codex, Cursor, or any HTTP-capable agent)" }
+      ]
+    },
+    {
+      "id": "remote-browser-access-ko",
+      "prompt": "원격 에이전트한테 내 브라우저 접근 권한 줘",
+      "assertions": [
+        { "id": "scoped-access", "text": "Gives the remote agent its own tab with scoped access (read+write by default, admin only on request)" },
+        { "id": "produces-key-and-instructions", "text": "Produces a setup key plus instructions for the remote agent to connect" }
+      ]
+    },
+    {
+      "id": "connect-agent-voice",
+      "prompt": "connect agent to share my browser",
+      "assertions": [
+        { "id": "matches-voice-alias", "text": "Treats this as the pair-agent voice trigger and starts the pairing flow" },
+        { "id": "default-read-write", "text": "Defaults the paired agent to read+write scope rather than admin" }
+      ]
+    }
+  ]
+}

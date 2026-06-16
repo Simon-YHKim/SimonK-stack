@@ -1,17 +1,38 @@
-[
-  {
-    "name": "trigger ko 1",
-    "user_input": "Remotion \ube44\ub514\uc624",
-    "expected_skill": "remotion-best-practices"
-  },
-  {
-    "name": "trigger slash",
-    "user_input": "/remotion-best-practices",
-    "expected_skill": "remotion-best-practices"
-  },
-  {
-    "name": "trigger en 1",
-    "user_input": "remotion video",
-    "expected_skill": "remotion-best-practices"
-  }
-]
+{
+  "skill": "remotion-best-practices",
+  "version": "2.0.0",
+  "cases": [
+    {
+      "id": "ko-data-video",
+      "prompt": "데이터 기반 비디오 코드로 만들어줘. JSON props 받아서 차트 애니메이션 영상 렌더링.",
+      "assertions": [
+        {
+          "id": "frame-driven",
+          "text": "Uses frame-driven animation via useCurrentFrame + interpolate + spring inside Composition/Sequence"
+        },
+        {
+          "id": "calculate-metadata",
+          "text": "Drives data-driven compositions through props and calculateMetadata"
+        },
+        {
+          "id": "deterministic",
+          "text": "Warns against Math.random()/Date.now() and enforces deterministic renders (seeded random)"
+        }
+      ]
+    },
+    {
+      "id": "en-render-mp4",
+      "prompt": "render mp4 from react with Remotion and automate it server-side",
+      "assertions": [
+        {
+          "id": "render-media",
+          "text": "Renders server-side via renderMedia (@remotion/renderer) or scaled renderMediaOnLambda (@remotion/lambda)"
+        },
+        {
+          "id": "verify-output",
+          "text": "Verifies output with npx remotion studio / npx remotion render targeting Remotion v4"
+        }
+      ]
+    }
+  ]
+}

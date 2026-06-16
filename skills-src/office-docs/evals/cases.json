@@ -1,17 +1,38 @@
-[
-  {
-    "name": "trigger ko 1",
-    "user_input": "\uc6cc\ub4dc \ubb38\uc11c \ub9cc\ub4e4\uc5b4",
-    "expected_skill": "office-docs"
-  },
-  {
-    "name": "trigger slash",
-    "user_input": "/office-docs",
-    "expected_skill": "office-docs"
-  },
-  {
-    "name": "trigger en 1",
-    "user_input": "create docx",
-    "expected_skill": "office-docs"
-  }
-]
+{
+  "skill": "office-docs",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "korean-excel-multisheet",
+      "prompt": "UPH 분석 데이터를 수식 들어간 멀티시트 엑셀로 만들어줘.",
+      "assertions": [
+        {
+          "id": "openpyxl-xlsx",
+          "text": "Generates a real .xlsx via openpyxl with multi-sheet and actual formula strings (e.g. =ROUND, cross-sheet refs)"
+        },
+        {
+          "id": "install-prereq",
+          "text": "Installs the prerequisite libs first (pip install python-docx openpyxl python-pptx weasyprint)"
+        },
+        {
+          "id": "verify-output",
+          "text": "Verifies the output file exists, is non-empty, and round-trips by reopening it"
+        }
+      ]
+    },
+    {
+      "id": "english-docx-report",
+      "prompt": "Create a Word report from this summary, then export it to PDF.",
+      "assertions": [
+        {
+          "id": "python-docx",
+          "text": "Builds the .docx via python-docx (from docx import Document), not the wrong 'docx' package"
+        },
+        {
+          "id": "pdf-or-fallback",
+          "text": "Produces the PDF via weasyprint, or falls back to LibreOffice headless / make-pdf when Windows GTK is missing, stating which step was blocked"
+        }
+      ]
+    }
+  ]
+}

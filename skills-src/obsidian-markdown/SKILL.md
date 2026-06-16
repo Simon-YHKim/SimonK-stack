@@ -1,6 +1,12 @@
 ---
 name: obsidian-markdown
-description: Create and edit Obsidian Flavored Markdown with wikilinks, embeds, callouts, properties, and other Obsidian-specific syntax. Use when working with .md files in Obsidian, or when the user mentions wikilinks, callouts, frontmatter, tags, embeds, or Obsidian notes.
+description: >-
+  Use when working with .md files in Obsidian, or when the user mentions
+  wikilinks, callouts, frontmatter, tags, embeds, or Obsidian notes. Triggers
+  on "wikilink", "callout", "Obsidian note", "위키링크", "옵시디언 마크다운". Creates
+  and edits Obsidian Flavored Markdown, producing valid Obsidian-specific
+  syntax — wikilinks, embeds, callouts, properties, and comments — on top of
+  CommonMark and GFM.
 version: 1.0.0
 ---
 

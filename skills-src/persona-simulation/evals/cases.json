@@ -1,0 +1,31 @@
+{
+  "skill": "persona-simulation",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "diversity-audit-ko",
+      "prompt": "유아부터 90대까지 페르소나 시뮬 돌려서 우리 온보딩 누가 막히는지 봐줘",
+      "assertions": [
+        { "id": "precheck-screen-code", "text": "Requires real screen code to exist and stops to ask for the path if none is found (no code = opinion piece)" },
+        { "id": "four-axis-matrix", "text": "Builds a 4-axis persona matrix (age band, job/situation, income, culture/country) with corner cases" },
+        { "id": "file-line-findings", "text": "Walks first-run + core loop and flags blocker/dropout/distrust/confusion grounded in file:line code citations" }
+      ]
+    },
+    {
+      "id": "who-gets-stuck-en",
+      "prompt": "run a persona simulation diversity audit on these screens and tell me who gets stuck",
+      "assertions": [
+        { "id": "first-run-and-core-loop", "text": "Forces each persona through both the first-run path and the core loop, not all features" },
+        { "id": "frequency-severity-ranking", "text": "Aggregates findings by frequency (affected personas) x severity (P0..P3) to prioritize" }
+      ]
+    },
+    {
+      "id": "code-grounded-report",
+      "prompt": "페르소나 검증 결과를 코드 근거 리포트로 만들어줘",
+      "assertions": [
+        { "id": "html-report", "text": "Produces a self-contained HTML findings report (3 colors max, no slop) with the persona matrix and prioritized findings" },
+        { "id": "routing-and-queue-block", "text": "Includes per-AI routing suggestions and a machine-readable queue block for the findings" }
+      ]
+    }
+  ]
+}

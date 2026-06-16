@@ -1,0 +1,24 @@
+{
+  "skill": "db-selector",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-db-choice",
+      "prompt": "DB 뭐 쓰지? Supabase vs Firebase 중에 골라줘. 우리 데이터 어떻게 저장하지?",
+      "assertions": [
+        { "id": "catalog-based", "text": "Selects from the pre-cataloged service list across SQL, NoSQL/document, and special-purpose stores (Supabase, Firestore, Neon, Redis, etc.)." },
+        { "id": "decision-tree", "text": "Uses the data-characteristics decision tree to match requirements to a concrete database." },
+        { "id": "cost-projection", "text": "Gives a scale-based recommendation with a monthly cost projection." }
+      ]
+    },
+    {
+      "id": "en-choose-database",
+      "prompt": "Which database should I choose for a serverless app that needs branching, PostgreSQL vs MongoDB?",
+      "assertions": [
+        { "id": "serverless-branching", "text": "Maps the serverless + branching requirement to options like Neon or PlanetScale." },
+        { "id": "free-tier-aware", "text": "References free-tier limits and suitable scale per service from the catalog." },
+        { "id": "migration-guide", "text": "Produces a database selection plus a migration guide as the output." }
+      ]
+    }
+  ]
+}

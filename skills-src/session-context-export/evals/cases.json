@@ -1,0 +1,38 @@
+{
+  "skill": "session-context-export",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "ko-session-end",
+      "prompt": "세션 종료할게, 다음 세션 hand-off 준비해줘",
+      "assertions": [
+        {
+          "id": "snapshot-file",
+          "text": "Produces a sprint state snapshot at .simonk/session-<timestamp>.md."
+        },
+        {
+          "id": "both-repo-commits",
+          "text": "Includes recent commits from both repos via git log --oneline -10 (SimonK-stack and SimonKWiki)."
+        },
+        {
+          "id": "reentry-prompt",
+          "text": "Generates a re-entry prompt template for the next session's first message."
+        }
+      ]
+    },
+    {
+      "id": "en-context-export",
+      "prompt": "Do a context export for hand-off before I run out of context.",
+      "assertions": [
+        {
+          "id": "pending-tasks",
+          "text": "Lists pending tasks split into user-only items and autonomous-next-session items."
+        },
+        {
+          "id": "no-secrets",
+          "text": "Never exports API keys or credentials, only session UUID and recent work paths."
+        }
+      ]
+    }
+  ]
+}

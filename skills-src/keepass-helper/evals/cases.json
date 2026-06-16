@@ -1,0 +1,31 @@
+{
+  "skill": "keepass-helper",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "inject-all-known-entries-ko",
+      "prompt": "vault에서 API 키 자동 inject 해줘",
+      "assertions": [
+        { "id": "checks-vault-status", "text": "Checks KeePassXC vault status (path + keepassxc-cli presence) before injecting" },
+        { "id": "one-time-master-prompt", "text": "Prompts for the master password once and injects all known entries into the current session" },
+        { "id": "lists-mapped-env-vars", "text": "Reports which env vars were set, mapping entries like Zotero/Anthropic/OpenAI/Gemini/GitHub PAT to ZOTERO_API_KEY, ANTHROPIC_API_KEY, etc." }
+      ]
+    },
+    {
+      "id": "keepass-inject-trigger-en",
+      "prompt": "Run keepass-inject to load my vault keys into this PowerShell session",
+      "assertions": [
+        { "id": "invoke-keepass-inject", "text": "Sources scripts/keepass-inject.ps1 and runs Invoke-KeepassInject" },
+        { "id": "session-scope-only", "text": "Notes the master password lives in session memory only (SecureString), never saved to disk/registry/env, and must be re-run each new session" }
+      ]
+    },
+    {
+      "id": "single-entry-inject",
+      "prompt": "Zotero API Key만 inject 해줘",
+      "assertions": [
+        { "id": "single-entry-flag", "text": "Uses Invoke-KeepassInject -Entry \"Zotero API Key\" to inject only ZOTERO_API_KEY" },
+        { "id": "stdin-pipe-security", "text": "Passes the master password via keepassxc-cli stdin pipe rather than a CLI argument" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "skill": "freeze",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "lock-edits-en",
+      "prompt": "Freeze edits so I only touch the src/billing folder this session.",
+      "assertions": [
+        { "id": "scoped-boundary", "text": "Restricts file edits to the specified directory for the session" },
+        { "id": "blocks-outside", "text": "Blocks Edit and Write outside the allowed path via the PreToolUse freeze check" }
+      ]
+    },
+    {
+      "id": "restrict-edits-ko",
+      "prompt": "이 폴더만 수정하게 잠가줘. 다른 코드 건드리지 않게.",
+      "assertions": [
+        { "id": "edit-boundary", "text": "Produces a session-scoped edit boundary restriction" },
+        { "id": "prevents-unrelated-fixes", "text": "Prevents accidentally editing unrelated code outside the chosen module" }
+      ]
+    }
+  ]
+}

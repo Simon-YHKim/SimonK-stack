@@ -1,0 +1,31 @@
+{
+  "skill": "obsidian-bases",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "create-task-tracker-base-en",
+      "prompt": "Create an Obsidian base with a table view of all my task notes filtered by status",
+      "assertions": [
+        { "id": "writes-base-file", "text": "Creates a .base file containing valid YAML in the vault" },
+        { "id": "filters-by-tag-or-property", "text": "Adds filters (e.g. file.hasTag(\"task\") or status comparison) to scope which notes appear" },
+        { "id": "table-view-with-order", "text": "Defines a table view with an order list of properties to display" }
+      ]
+    },
+    {
+      "id": "reading-list-cards-ko",
+      "prompt": ".base 파일로 독서 목록 카드 뷰 만들어줘",
+      "assertions": [
+        { "id": "cards-view", "text": "Configures a cards view for the reading list" },
+        { "id": "formula-for-status", "text": "Defines a formula (e.g. status_icon or reading_time) and references it as formula.X in the view" }
+      ]
+    },
+    {
+      "id": "days-until-due-formula",
+      "prompt": "add a formula column showing days until each task is due",
+      "assertions": [
+        { "id": "duration-days-access", "text": "Computes days via (date(due) - today()).days, accessing the Duration's .days field rather than dividing" },
+        { "id": "null-guard", "text": "Guards the formula with if() so notes without a due date don't error" }
+      ]
+    }
+  ]
+}

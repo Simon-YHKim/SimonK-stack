@@ -1,14 +1,38 @@
-[
-  {
-    "name": "trigger_korean_upgrade",
-    "input": "gstack 업데이트 최신으로 올려줘.",
-    "expected_skill": "gstack-upgrade",
-    "must_contain": ["upgrade", "version", "changelog", "install"]
-  },
-  {
-    "name": "trigger_english_voice",
-    "input": "Upgrade the tools to the latest version.",
-    "expected_skill": "gstack-upgrade",
-    "must_contain": ["upgrade", "global", "vendored", "what's new"]
-  }
-]
+{
+  "skill": "gstack-upgrade",
+  "version": "1.1.0",
+  "cases": [
+    {
+      "id": "english-upgrade-gstack",
+      "prompt": "upgrade gstack to the latest version",
+      "assertions": [
+        {
+          "id": "detect-install-type",
+          "text": "Detects the install type (global-git / local-git / vendored) and the gstack install directory"
+        },
+        {
+          "id": "run-upgrade",
+          "text": "Runs the upgrade (git fetch + reset to origin/main + ./setup for git installs, or fresh clone for vendored) and saves the old VERSION"
+        },
+        {
+          "id": "show-whats-new",
+          "text": "Summarizes CHANGELOG entries between old and new version as What's New bullets"
+        }
+      ]
+    },
+    {
+      "id": "korean-update-tools",
+      "prompt": "gstack 업데이트해줘.",
+      "assertions": [
+        {
+          "id": "auto-vs-ask",
+          "text": "Checks auto_upgrade config and either auto-upgrades or asks the user via AskUserQuestion before upgrading"
+        },
+        {
+          "id": "vendored-copy-sync",
+          "text": "Handles a local vendored copy (sync from primary, or remove under team mode) and clears the update-check cache markers"
+        }
+      ]
+    }
+  ]
+}

@@ -1,17 +1,38 @@
-[
-  {
-    "name": "trigger ko 1",
-    "user_input": "\uc6f9\uc0ac\uc774\ud2b8\uc5d0 \uc62c\ub824",
-    "expected_skill": "web-publisher"
-  },
-  {
-    "name": "trigger slash",
-    "user_input": "/web-publisher",
-    "expected_skill": "web-publisher"
-  },
-  {
-    "name": "trigger en 1",
-    "user_input": "publish to website",
-    "expected_skill": "web-publisher"
-  }
-]
+{
+  "skill": "web-publisher",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "ko-auto-publish",
+      "prompt": "내가 로그인하는 웹사이트에 자동 로그인 후 글 자동 발행되게 해줘. 폼 자동 작성까지.",
+      "assertions": [
+        {
+          "id": "site-schema-json",
+          "text": "Creates a reusable per-site form-schema JSON under .web-publisher/ (url, selectors, fields, files, submit, confirm)"
+        },
+        {
+          "id": "browse-daemon",
+          "text": "Drives the gstack browse headless Chromium with cookies loaded via setup-browser-cookies"
+        },
+        {
+          "id": "no-hardcoded-secrets",
+          "text": "Never hardcodes credentials; secrets are injected at run time via keepass-helper/env vars"
+        }
+      ]
+    },
+    {
+      "id": "en-publish-website",
+      "prompt": "automate the upload — fill the form and submit, publish to website",
+      "assertions": [
+        {
+          "id": "verify-success-signal",
+          "text": "Navigates, fills, uploads, submits, then verifies a success signal (pass/fail)"
+        },
+        {
+          "id": "confirm-before-public",
+          "text": "Stops for user confirm before submit when the publish creates public content or costs money"
+        }
+      ]
+    }
+  ]
+}

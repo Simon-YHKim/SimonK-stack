@@ -1,0 +1,31 @@
+{
+  "skill": "office-hours",
+  "version": "2.0.0",
+  "cases": [
+    {
+      "id": "is-this-worth-building-en",
+      "prompt": "I have an idea for an app, is this worth building? help me think it through before I write any code",
+      "assertions": [
+        { "id": "forcing-questions", "text": "Drives a brainstorm via YC-style forcing questions (Startup mode) or a design-thinking brainstorm (Builder mode)" },
+        { "id": "before-code", "text": "Works through the idea and design decisions before any implementation" },
+        { "id": "design-doc-output", "text": "Produces a design doc capturing the thinking" }
+      ]
+    },
+    {
+      "id": "brainstorm-idea-ko",
+      "prompt": "아이디어 있어, 이거 같이 brainstorm 해줄래?",
+      "assertions": [
+        { "id": "pushes-to-user-job", "text": "Pushes toward the real user and the job to be done rather than jumping to features" },
+        { "id": "produces-design-doc", "text": "Ends with a design doc rather than ad-hoc chat" }
+      ]
+    },
+    {
+      "id": "think-bigger-scope",
+      "prompt": "help me think through whether this product is ambitious enough",
+      "assertions": [
+        { "id": "challenges-premise", "text": "Challenges premises and explores the 10-star version of the product" },
+        { "id": "user-sovereignty", "text": "Presents expansion recommendations as choices for the user to decide, not unilateral decisions" }
+      ]
+    }
+  ]
+}

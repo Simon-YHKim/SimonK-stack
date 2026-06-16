@@ -1,14 +1,32 @@
-[
-  {
-    "name": "trigger_korean_social_login",
-    "input": "카카오 로그인이랑 Apple 로그인 추가해줘. Supabase로 가고 싶어.",
-    "expected_skill": "auth-builder",
-    "must_contain": ["Supabase", "social", "Kakao", "Apple"]
-  },
-  {
-    "name": "trigger_english_passkey",
-    "input": "Implement signup with Passkey + email magic link, plus role-based access.",
-    "expected_skill": "auth-builder",
-    "must_contain": ["Passkey", "role-based", "session", "provider"]
-  }
-]
+{
+  "skill": "auth-builder",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "korean-social-login-supabase",
+      "prompt": "카카오 로그인이랑 Apple 로그인 추가해줘. Supabase로 가고 싶어.",
+      "assertions": [
+        { "id": "picks-supabase-provider", "text": "Selects Supabase Auth as the provider per the provider decision tree" },
+        { "id": "kakao-apple-oauth", "text": "Implements the Kakao and Apple social-login OAuth callback flow (provider_user_id lookup in auth_providers)" },
+        { "id": "schema-tables", "text": "Produces the users / auth_providers / sessions schema for account linking" }
+      ]
+    },
+    {
+      "id": "english-passkey-rbac",
+      "prompt": "Implement signup with Passkey + email magic link, plus role-based access.",
+      "assertions": [
+        { "id": "passkey-webauthn", "text": "Implements Passkey (WebAuthn) and Magic Link email auth methods" },
+        { "id": "rbac-tiers", "text": "Sets up role-based access with the free / pro / team_admin / enterprise tiers" },
+        { "id": "security-essentials", "text": "Includes session management plus security essentials like CSRF token, rate limiting, and Argon2id hashing" }
+      ]
+    },
+    {
+      "id": "korea-identity-verification",
+      "prompt": "결제 전에 한국 본인인증(PASS/NICE) 붙여줘. 14세 미만은 막아야 해.",
+      "assertions": [
+        { "id": "ci-di-pass", "text": "Wires Korea CI/DI verification via PASS or NICE 본인인증" },
+        { "id": "under-14-block", "text": "Blocks under-14 users and enforces one-account-per-person at the verification gate" }
+      ]
+    }
+  ]
+}

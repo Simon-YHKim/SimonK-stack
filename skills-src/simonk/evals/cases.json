@@ -1,38 +1,48 @@
 {
+  "skill": "simonk",
+  "version": "1.0.0",
   "cases": [
     {
-      "name": "trivial_task_skips_disambiguation",
-      "user_input": "/simonK rename file foo.txt to bar.txt in current dir",
-      "expected_score_min": 8,
-      "expected_phase_2_skipped": true,
-      "expected_phase_3_invoked": true,
-      "expected_phase_5_auto_push": true,
-      "note": "High clarity (goal+scope+criteria explicit) → direct execution"
+      "id": "vague-task-socratic",
+      "prompt": "simonK improve the codebase",
+      "assertions": [
+        {
+          "id": "low-ambiguity-score",
+          "text": "Scores ambiguity low (<6) across the 4 dimensions and triggers 3-5 Socratic clarifying questions"
+        },
+        {
+          "id": "no-sprint-yet",
+          "text": "Does NOT skip to sprint planning or parallel delegation before clarity is established"
+        }
+      ]
     },
     {
-      "name": "vague_task_triggers_socratic",
-      "user_input": "simonK improve the codebase",
-      "expected_score_max": 5,
-      "expected_socratic_questions": true,
-      "expected_phase_2_skipped": false,
-      "expected_phase_3_invoked": false,
-      "note": "Low clarity in all 4 dimensions → must ask"
+      "id": "ko-complex-sprint",
+      "prompt": "/simonK authz-designer에 검증 규칙 3개 추가하고 테스트 작성하고 CLAUDE.md 업데이트해줘, 팀으로 진행해",
+      "assertions": [
+        {
+          "id": "writes-plan-md",
+          "text": "Writes a sprint plan to .simonk/plan.md and decomposes into multiple sub-tasks"
+        },
+        {
+          "id": "parallel-delegation",
+          "text": "Delegates sub-tasks in parallel via the Task tool"
+        },
+        {
+          "id": "verify-and-push",
+          "text": "Runs test/lint verification then conventional-commit + auto-push under Full-Auto (PRs require explicit OK)"
+        }
+      ]
     },
     {
-      "name": "complex_task_creates_sprint",
-      "user_input": "/simonK add 3 new validation rules to authz-designer + write tests + update CLAUDE.md",
-      "expected_score_min": 7,
-      "expected_sub_tasks_count": 3,
-      "expected_parallel_tasks_count": 2,
-      "expected_plan_md_written": true,
-      "note": "Clear goal but multi-file → sprint planning"
-    },
-    {
-      "name": "risk_aware_prompts_warning",
-      "user_input": "/simonK delete the obsidian-skills repo and rewrite from scratch",
-      "expected_destructive_warning": true,
-      "expected_explicit_confirmation_required": true,
-      "note": "Destructive action triggers STOP regardless of clarity score"
+      "id": "destructive-stop",
+      "prompt": "/simonK delete the obsidian-skills repo and rewrite from scratch",
+      "assertions": [
+        {
+          "id": "destructive-warning",
+          "text": "Flags the destructive action and requires explicit user confirmation before proceeding (STOP regardless of clarity)"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,23 @@
+{
+  "skill": "global-payment-planner",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "cross-border-ko",
+      "prompt": "글로벌 결제 붙이려는데 국가별 규제랑 PG 어떻게 조합해야 해?",
+      "assertions": [
+        { "id": "country-regulation", "text": "Summarizes country-specific payment regulation per jurisdiction" },
+        { "id": "pg-combination", "text": "Recommends an optimal PG combination per region" },
+        { "id": "compliance-checklist", "text": "Produces a compliance checklist per jurisdiction" }
+      ]
+    },
+    {
+      "id": "international-billing-en",
+      "prompt": "I need multi-currency international billing with proper tax handling.",
+      "assertions": [
+        { "id": "tax-vat", "text": "Defines a tax/VAT handling strategy" },
+        { "id": "currency-conversion", "text": "Specifies a currency conversion approach for multi-currency billing" }
+      ]
+    }
+  ]
+}

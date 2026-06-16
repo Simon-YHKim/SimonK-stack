@@ -1,0 +1,24 @@
+{
+  "skill": "accessibility-audit",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "ko-a11y-check",
+      "prompt": "이 사이트 접근성 점검해줘. WCAG 맞춰주고 키보드 네비게이션도 확인해줘.",
+      "assertions": [
+        { "id": "axe-lighthouse", "text": "Runs axe-core (npx @axe-core/cli) and Lighthouse accessibility scans against the target URL." },
+        { "id": "manual-wcag", "text": "Performs WCAG 2.2 AA manual checks automated tools miss: contrast 4.5:1/3:1, target size 24px, focus-visible, keyboard nav." },
+        { "id": "report-output", "text": "Produces a WCAG 2.2 AA report (a11y-report.html) grouping violations by severity with file:selector and before to after fixes." }
+      ]
+    },
+    {
+      "id": "en-screenreader",
+      "prompt": "Run an a11y audit on our login page, the focus ring isn't visible and screen reader users are stuck.",
+      "assertions": [
+        { "id": "focus-visible", "text": "Flags the missing focus indicator as SC 2.4.7 and recommends :focus-visible instead of outline:none." },
+        { "id": "sr-and-keyboard", "text": "Includes screen-reader sanity checks (NVDA/VoiceOver/TalkBack) and a manual keyboard-only flow test." },
+        { "id": "automated-not-enough", "text": "Notes automated tools catch only ~30-40 percent so manual gates are required before passing." }
+      ]
+    }
+  ]
+}

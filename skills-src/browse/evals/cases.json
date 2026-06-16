@@ -1,0 +1,24 @@
+{
+  "skill": "browse",
+  "version": "1.1.0",
+  "cases": [
+    {
+      "id": "en-screenshot",
+      "prompt": "Open the site in the browser, test the signup flow, and take a screenshot as evidence.",
+      "assertions": [
+        { "id": "headless-browser", "text": "Uses the fast headless browse daemon to navigate the URL and interact with elements." },
+        { "id": "verify-state", "text": "Verifies page state through the flow and asserts element states rather than guessing." },
+        { "id": "annotated-evidence", "text": "Produces annotated screenshots and element states as bug/QA evidence." }
+      ]
+    },
+    {
+      "id": "ko-dogfood",
+      "prompt": "배포한 사이트 직접 열어서 폼 제출 잘 되는지 도그푸딩하고 스크린샷 찍어줘.",
+      "assertions": [
+        { "id": "test-form", "text": "Tests the form/upload flow on the live site and diffs before/after the action." },
+        { "id": "responsive-dialogs", "text": "Can check responsive layouts and handle dialogs as part of dogfooding." },
+        { "id": "evidence-output", "text": "Returns visual evidence (screenshots) of whether the action worked." }
+      ]
+    }
+  ]
+}

@@ -1,14 +1,38 @@
-[
-  {
-    "name": "trigger_korean_de_ai",
-    "input": "이 릴리즈 노트 AI 티 너무 나는데 자연스럽게 고쳐줘. 사람이 쓴 것처럼.",
-    "expected_skill": "human-voice-guard",
-    "must_contain": ["LLM tell", "STYLE.md", "rewrite", "어투"]
-  },
-  {
-    "name": "trigger_english_voice_audit",
-    "input": "Run a voice audit on README.md — too much 'leverage' and 'robust' and em-dashes everywhere.",
-    "expected_skill": "human-voice-guard",
-    "must_contain": ["audit", "STYLE.md", "rewrite", "em-dash"]
-  }
-]
+{
+  "skill": "human-voice-guard",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "korean-de-ai-rewrite",
+      "prompt": "이 릴리즈 노트 AI 티 나는데 자연스럽게 고쳐줘.",
+      "assertions": [
+        {
+          "id": "detect-korean-tells",
+          "text": "Detects Korean LLM tells (과도한 공손체 '~을 도와드립니다', 3-bullet 증후군, closing 의식, em-dash 폭주, 이모지 도배)"
+        },
+        {
+          "id": "diff-tagged-by-reason",
+          "text": "Produces a rewrite with each change tagged by reason (per-finding: 파일/줄, 패턴, 원문, 제안)"
+        },
+        {
+          "id": "writes-style-md",
+          "text": "Generates/updates a project-level STYLE.md so subsequent text stays consistent"
+        }
+      ]
+    },
+    {
+      "id": "english-sound-less-robotic",
+      "prompt": "De-AI this blog intro so it sounds less robotic.",
+      "assertions": [
+        {
+          "id": "detect-english-tells",
+          "text": "Flags English LLM tells (leverage, robust, seamless, delve, 'In conclusion', 'I hope this helps!', em-dash overflow)"
+        },
+        {
+          "id": "persona-channel",
+          "text": "Anchors the rewrite to a concrete persona/channel tone rather than a vague 'natural' goal"
+        }
+      ]
+    }
+  ]
+}

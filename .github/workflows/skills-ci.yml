@@ -1,0 +1,13 @@
+name: skills-ci
+on:
+  push: { branches: [ main ] }
+  pull_request:
+jobs:
+  skills-quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Skills quality gate (lint + evals + description score, both roots)
+        run: python3 .github/skill-ci/run_ci.py

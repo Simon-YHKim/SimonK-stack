@@ -1,0 +1,34 @@
+{
+  "skill": "setup-browser-cookies",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-import-cookies",
+      "prompt": "내 브라우저 쿠키 가져와서 로그인된 상태로 만들어줘",
+      "assertions": [
+        {
+          "id": "import-from-chromium",
+          "text": "Imports cookies from the real Chromium browser into the headless browse session."
+        },
+        {
+          "id": "domain-picker",
+          "text": "Opens an interactive picker UI to select which cookie domains to import."
+        }
+      ]
+    },
+    {
+      "id": "en-authenticate-browser",
+      "prompt": "Authenticate the browser so I can QA the logged-in pages.",
+      "assertions": [
+        {
+          "id": "authenticated-session",
+          "text": "Produces an authenticated browser session via imported cookies."
+        },
+        {
+          "id": "before-auth-qa",
+          "text": "Positions this step before QA-testing authenticated pages."
+        }
+      ]
+    }
+  ]
+}

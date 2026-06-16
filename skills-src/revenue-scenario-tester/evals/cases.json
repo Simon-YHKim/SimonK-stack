@@ -1,14 +1,38 @@
-[
-  {
-    "name": "trigger_korean_subscription_test",
-    "input": "구독 결제 시나리오 전부 돌려서 테스트해줘. 한국 결제 규제도 같이 확인.",
-    "expected_skill": "revenue-scenario-tester",
-    "must_contain": ["scenario", "subscription", "KR-Compliance", "PASS/FAIL"]
-  },
-  {
-    "name": "trigger_english_billing_qa",
-    "input": "Run revenue QA — payment, subscription, ad, and store flows. Auto-fix failures if possible.",
-    "expected_skill": "revenue-scenario-tester",
-    "must_contain": ["agents", "scenarios", "auto-fix", "report"]
-  }
-]
+{
+  "skill": "revenue-scenario-tester",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-subscription-test",
+      "prompt": "구독 결제 시나리오 전부 돌려서 테스트해줘. 한국 결제 규제도 같이 확인.",
+      "assertions": [
+        {
+          "id": "seven-agents",
+          "text": "Runs 7 specialized agents (Payment/Subscription/Ad/Analytics/Store/Security/KR-Compliance)"
+        },
+        {
+          "id": "scenario-categories",
+          "text": "Covers scenario categories Happy/Sad/Bad/Race/Boundary/Permission/State (80+ scenarios)"
+        },
+        {
+          "id": "pass-fail-report",
+          "text": "Generates a revenue-test-report with PASS/FAIL per scenario"
+        }
+      ]
+    },
+    {
+      "id": "en-billing-qa",
+      "prompt": "Run revenue QA — payment, subscription, ad, and store flows. Auto-fix failures if possible.",
+      "assertions": [
+        {
+          "id": "auto-fix-loop",
+          "text": "Includes an auto-fix loop that attempts to fix failing scenarios"
+        },
+        {
+          "id": "adversarial",
+          "text": "Adversarially verifies every money-related path across the specialized agents"
+        }
+      ]
+    }
+  ]
+}

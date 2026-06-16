@@ -1,0 +1,24 @@
+{
+  "skill": "aha-moment-optimizer",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-find-aha",
+      "prompt": "우리 서비스 아하 모먼트 찾아줘. 온보딩 최적화하고 TTFV 줄이고 싶어.",
+      "assertions": [
+        { "id": "hypothesis-cycle", "text": "Runs the hypothesis to experiment to data to refine cycle, generating a hypothesis in the 'within N days do action M times -> D30 retention X percent' form." },
+        { "id": "ttfv-tactics", "text": "Gives TTFV reduction tactics like fewer onboarding steps, default/sample data, progress indicator, immediate reward." },
+        { "id": "aha-file", "text": "Writes docs/growth/aha-moment-<date>.md with ranked hypotheses and an experiment backlog." }
+      ]
+    },
+    {
+      "id": "en-activation",
+      "prompt": "Help me find our product's aha moment and design an A/B test to verify it.",
+      "assertions": [
+        { "id": "experiment-design", "text": "Designs an A/B experiment with Control vs Treatment variants, metrics (D7 retention, activation), sample size, and duration." },
+        { "id": "famous-examples", "text": "References known aha-moment examples like Facebook 7 friends in 10 days or Slack 2000 messages to frame the hypothesis." },
+        { "id": "causation", "text": "Distinguishes correlation from causation and uses the A/B test to validate the threshold." }
+      ]
+    }
+  ]
+}

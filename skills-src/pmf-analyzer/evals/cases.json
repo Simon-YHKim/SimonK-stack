@@ -1,14 +1,38 @@
-[
-  {
-    "name": "trigger_korean_pmf",
-    "input": "출시 한 달 됐는데 PMF 분석 좀 해줘. 활성 사용자 예측이랑 Sean Ellis 점수도.",
-    "expected_skill": "pmf-analyzer",
-    "must_contain": ["PMF", "Sean Ellis", "Optimistic", "retention"]
-  },
-  {
-    "name": "trigger_english_projection",
-    "input": "Project user activity for the next 6 months — give me optimistic/base/pessimistic cases.",
-    "expected_skill": "pmf-analyzer",
-    "must_contain": ["Optimistic", "Pessimistic", "projection", "active"]
-  }
-]
+{
+  "skill": "pmf-analyzer",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-pmf-projection",
+      "prompt": "출시 한 달 됐는데 PMF 분석 좀 해줘. 활성 사용자 예측이랑 Sean Ellis 점수도.",
+      "assertions": [
+        {
+          "id": "three-case",
+          "text": "Produces a 3-case projection (Optimistic / Base / Pessimistic) with active user ratio prediction"
+        },
+        {
+          "id": "sean-ellis",
+          "text": "Simulates the Sean Ellis test with the 40% very-disappointed PMF threshold"
+        },
+        {
+          "id": "retention",
+          "text": "Models a retention curve / cites D30 retention signal"
+        }
+      ]
+    },
+    {
+      "id": "en-user-projection",
+      "prompt": "Project user activity for the next 6 months — give me optimistic/base/pessimistic cases.",
+      "assertions": [
+        {
+          "id": "three-scenarios",
+          "text": "Returns Optimistic, Base, and Pessimistic scenario projections of active users"
+        },
+        {
+          "id": "viral-coefficient",
+          "text": "References quantitative PMF signals such as viral coefficient K or DAU/MAU stickiness"
+        }
+      ]
+    }
+  ]
+}

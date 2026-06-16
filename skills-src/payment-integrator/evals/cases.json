@@ -1,14 +1,42 @@
-[
-  {
-    "name": "trigger_korean_portone",
-    "input": "PortOne으로 카드 결제랑 카카오페이 간편결제 붙여줘. 구독도 가능하게.",
-    "expected_skill": "payment-integrator",
-    "must_contain": ["PortOne", "subscription", "webhook", "간편결제"]
-  },
-  {
-    "name": "trigger_english_stripe",
-    "input": "Implement Stripe subscription with webhook handlers and receipt verification.",
-    "expected_skill": "payment-integrator",
-    "must_contain": ["Stripe", "webhook", "subscription", "state machine"]
-  }
-]
+{
+  "skill": "payment-integrator",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "korean-portone-subscription",
+      "prompt": "한국 웹 서비스에 PortOne으로 간편결제 구독 시스템 붙여줘.",
+      "assertions": [
+        {
+          "id": "portone-provider",
+          "text": "Selects PortOne (Toss/Kakao/Naver 간편결제) for the Korea web target per the provider decision tree"
+        },
+        {
+          "id": "subscription-state-machine",
+          "text": "Implements the subscriptions/payments schema and the trialing → active → past_due → canceled state machine"
+        },
+        {
+          "id": "korea-legal",
+          "text": "Covers Korea specifics: 자동갱신 7일 전 고지, 현금영수증, 청약철회"
+        }
+      ]
+    },
+    {
+      "id": "english-stripe-webhooks",
+      "prompt": "Implement Stripe subscriptions with webhook handlers.",
+      "assertions": [
+        {
+          "id": "stripe-webhook-events",
+          "text": "Handles the required webhook events (subscription created/updated/deleted, invoice.payment_failed, dispute.created)"
+        },
+        {
+          "id": "signature-idempotency",
+          "text": "Enforces HMAC signature verification on raw body and idempotency to prevent duplicate processing"
+        },
+        {
+          "id": "test-keys-default",
+          "text": "Defaults to TEST/sandbox keys (sk_test_, 4242 test card), keeps secrets in .env, and requires user confirmation before LIVE keys"
+        }
+      ]
+    }
+  ]
+}

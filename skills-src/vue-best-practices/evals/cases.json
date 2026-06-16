@@ -1,17 +1,38 @@
-[
-  {
-    "name": "trigger ko 1",
-    "user_input": "Vue \ucd5c\uc801\ud654",
-    "expected_skill": "vue-best-practices"
-  },
-  {
-    "name": "trigger slash",
-    "user_input": "/vue-best-practices",
-    "expected_skill": "vue-best-practices"
-  },
-  {
-    "name": "trigger en 1",
-    "user_input": "vue best practices",
-    "expected_skill": "vue-best-practices"
-  }
-]
+{
+  "skill": "vue-best-practices",
+  "version": "2.0.0",
+  "cases": [
+    {
+      "id": "ko-reactivity-pinia",
+      "prompt": "Vue 반응성 깨졌어. Pinia 상태관리도 정리하고 컴포넌트 최적화해줘.",
+      "assertions": [
+        {
+          "id": "reactivity-catalog",
+          "text": "Diagnoses against the reactivity-loss anti-pattern catalog (destructure / plain assignment)"
+        },
+        {
+          "id": "pinia-setup-store",
+          "text": "Structures Pinia as a setup-store and applies ref vs reactive vs shallowRef decisions"
+        },
+        {
+          "id": "script-setup",
+          "text": "Enforces <script setup> with typed defineProps/defineModel/defineEmits"
+        }
+      ]
+    },
+    {
+      "id": "en-vue-best-practices",
+      "prompt": "vue composition api best practices — clean up my components",
+      "assertions": [
+        {
+          "id": "composable-extraction",
+          "text": "Extracts composables and applies performance fixes (v-memo, shallowRef, defineAsyncComponent)"
+        },
+        {
+          "id": "verify-vue-tsc",
+          "text": "Verifies via vue-tsc + vite build, targeting Vue 3.5.x"
+        }
+      ]
+    }
+  ]
+}
