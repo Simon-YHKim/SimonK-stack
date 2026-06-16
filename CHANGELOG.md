@@ -3,6 +3,13 @@
 모든 중요한 변경은 이 파일에 기록합니다.
 형식: [Keep a Changelog](https://keepachangelog.com/), 버전: [SemVer](https://semver.org/).
 
+## [1.7.0] — 2026-06-16
+
+Sprint v38 — HTML 완료 보고 표준. 137 skill 일괄 적용. validator 0 error.
+
+### Added
+- **HTML completion-report standard appended to all 137 skills (skills-src + dev)** — every skill emits a self-contained HTML report with progressive-disclosure `[자세히]` buttons on completion. 단순 한눈 요약 + 직관적 inline-SVG 차트/이미지, 각 항목은 `[자세히]` 버튼 뒤 progressive disclosure.
+
 ## [1.6.0] — 2026-06-07
 
 Sprint v37 — 디자인 시스템 영속화. 1 신규 skill. validator 130/130 pass / 0 error.

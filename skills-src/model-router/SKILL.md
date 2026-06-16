@@ -146,3 +146,10 @@ JSON format (`--format json` 또는 simonk integration):
 - v0.3: 사용자 API key 자동 detect (KeePassXC 읽기)
 - v0.4: 작업 history 기반 학습 (어떤 task 에서 어떤 모델이 실제 잘 했는지 누적)
 - v1.0: 벤치마크 → 매핑 자동 재계산 (수동 매트릭스 → 가중치 기반 알고리즘)
+
+## 완료 보고 (HTML) — 표준
+작업을 끝내면 **HTML 완료 보고서**를 생성한다 (SimonKCore `completion-report` 표준).
+- 첫 화면은 **심플 요약**(한눈 카드 한 줄) + 직관 그래픽/차트(인라인 SVG)·이미지.
+- 각 항목 옆 **[자세히] 버튼**(`<details>`)을 펼치면 상세 — 처음부터 쏟지 않는다(progressive disclosure).
+- 자체완결 1파일(인라인 CSS/SVG, 무JS) · 사용자 언어 · 현지시간 스탬프.
+- Core 있으면 `completion-report` 호출, 없으면 동일 형식으로 인라인 생성.

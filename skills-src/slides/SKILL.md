@@ -305,3 +305,10 @@ html,body{height:100%;background:var(--bg);
 - 브라우저 미탐지 → 자동 PDF 생략, "Ctrl+P → 가로 → 배경그래픽 ON → PDF 저장" 안내.
 - Pretendard CDN 차단(오프라인) → `font-family` 를 `system-ui` 폴백으로 두고 한 줄 고지.
 - 분량 초과(슬라이드 30장↑) → 섹션을 덱 2개로 분할 제안.
+
+## 완료 보고 (HTML) — 표준
+작업을 끝내면 **HTML 완료 보고서**를 생성한다 (SimonKCore `completion-report` 표준).
+- 첫 화면은 **심플 요약**(한눈 카드 한 줄) + 직관 그래픽/차트(인라인 SVG)·이미지.
+- 각 항목 옆 **[자세히] 버튼**(`<details>`)을 펼치면 상세 — 처음부터 쏟지 않는다(progressive disclosure).
+- 자체완결 1파일(인라인 CSS/SVG, 무JS) · 사용자 언어 · 현지시간 스탬프.
+- Core 있으면 `completion-report` 호출, 없으면 동일 형식으로 인라인 생성.
