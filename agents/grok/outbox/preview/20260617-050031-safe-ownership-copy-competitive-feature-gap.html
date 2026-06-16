@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Grok 권고 · 진실형 소유권 카피 + 경쟁 feature-gap · 2026-06-17</title>
+<style>
+:root { --bg:#10131a; --text:#e8eaef; --accent:#9ab0d4; --muted:#8b919c; --card:#181c24; }
+* { box-sizing:border-box; }
+body { margin:0; padding:32px 16px; background:var(--bg); color:var(--text); font-family:"Pretendard",system-ui,sans-serif; line-height:1.65; }
+.wrap { max-width:860px; margin:0 auto; }
+h1 { font-size:1.35rem; font-weight:600; margin:0 0 6px; }
+.meta { color:var(--muted); font-size:0.82rem; margin-bottom:28px; }
+h2 { font-size:1rem; font-weight:600; margin:24px 0 10px; padding-bottom:6px; border-bottom:1px solid #252a34; }
+.card { background:var(--card); border-radius:6px; padding:14px 16px; margin:10px 0; }
+.grid { display:grid; gap:10px; }
+@media(min-width:640px){ .grid-2 { grid-template-columns:1fr 1fr; } }
+.tag { display:inline-block; font-size:0.72rem; padding:2px 7px; border-radius:3px; background:#222833; color:var(--accent); margin-right:6px; }
+.safe { color:#a8c9a0; }
+.avoid { color:#d4a0a0; }
+table { width:100%; border-collapse:collapse; font-size:0.88rem; }
+th,td { text-align:left; padding:8px 10px; border-bottom:1px solid #252a34; vertical-align:top; }
+th { color:var(--muted); font-weight:500; }
+.copy { font-family:ui-monospace,monospace; font-size:0.82rem; background:#12151c; padding:8px 10px; border-radius:4px; margin:6px 0; }
+.rank { font-weight:600; color:var(--accent); }
+.note { font-size:0.8rem; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>진실형 로컬소유권 카피 + 경쟁 feature-gap (week-1)</h1>
+<p class="meta">[2026-06-17 / 05:00:31 KST] · Grok advisory · CONTROL paused · T1 recap 없음 · ref: stop-t1-do-feature-gap</p>
+
+<section>
+<h2>핵심 결론</h2>
+<div class="card">
+<ul>
+<li>소유권 카피는 <strong>절대주장(no cloud/device only)</strong>보다 <strong>통제·이식·선택</strong> 언어가 안전하고 신뢰에 유리함 (Codex truth-guard 정합).</li>
+<li>week-1 리텐션 gap 1순위: <span class="rank">#1 이식성·삭제·opt-in 가시화</span> → Reflect "your data is always yours" + export.</li>
+<li>2순위: <span class="rank">#2 비강제 temporal micro-hint</span> → Day One On This Day의 저압 버전.</li>
+<li>3순위: <span class="rank">#3 사유+해제 가능 연결 제안</span> → Reflect backlinks / Mem auto-link.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2>X·시장 신호 (재현 가능 패턴)</h2>
+<div class="grid grid-2">
+<div class="card"><span class="tag">미니멀리즘</span><p>"No cloud means your words stay on your device" — 공감 높음, <strong>제품 진실 불일치 시 역효과</strong>.</p></div>
+<div class="card"><span class="tag">Reflect</span><p>"Your data is always yours to take wherever you want" + Markdown/HTML export.</p></div>
+<div class="card"><span class="tag">Day One</span><p>On This Day — 과거 같은 날 기록 회상 = 습관 루프.</p></div>
+<div class="card"><span class="tag">KR</span><p>구독 피로 + 가치 재평가 — 소유·보내기·해지 명시가 안심 요소.</p></div>
+</div>
+</section>
+
+<section>
+<h2>SAFE vs AVOID 카피 매트릭스</h2>
+<table>
+<thead><tr><th class="safe">SAFE (진실 가능 시)</th><th class="avoid">AVOID</th></tr></thead>
+<tbody>
+<tr><td>당신의 기록입니다 / Your records</td><td>클라우드에 안 올라갑니다 / no cloud</td></tr>
+<tr><td>보내기·삭제 가능 (기능 있을 때)</td><td>이 기기에만 / device only</td></tr>
+<tr><td>AI는 켤 때만 (opt-in 실제)</td><td>계정 없이 영구 보관</td></tr>
+<tr><td>동의는 설정에서 변경</td><td>permanent vault / forever</td></tr>
+</tbody>
+</table>
+<h2>권장 1줄 카피</h2>
+<div class="copy">KO 저장 직후: 저장됐어요. 당신의 기록이에요. 설정에서보내기·삭제를 할 수 있어요.</div>
+<div class="copy">EN post-save: Saved. Your record. Export or delete anytime in Settings.</div>
+<div class="copy">KO AI 근처: AI는 켜기 전까지 기록을 읽지 않아요. (opt-in 게이트 일치 시)</div>
+</section>
+
+<section>
+<h2>빌드 후보 랭킹 (impact × effort)</h2>
+<table>
+<thead><tr><th>순위</th><th>gap</th><th>최소 형태</th></tr></thead>
+<tbody>
+<tr><td class="rank">1</td><td>이식성·통제 가시화</td><td>첫 저장 토스트 + Records export 링크</td></tr>
+<tr><td class="rank">2</td><td>temporal micro-hint</td><td>비슷한 주제 N일 전 (dismiss+사유, streak 없음)</td></tr>
+<tr><td class="rank">3</td><td>연결 제안</td><td>1개 링크 제안 + 나중에 + 해제</td></tr>
+</tbody>
+</table>
+<p class="note">advisory only — 코드·머지 없음. §35 토론 입력 권장.</p>
+</section>
+
+<section>
+<h2>§35 5-렌즈 요약</h2>
+<div class="card">
+<ol>
+<li>KR: 소유·보내기·삭제 &gt; 절대주장형 로컬</li>
+<li>Plain: 구체 동사(보내기/삭제/선택)</li>
+<li>Anti-lock-in: export 증거로 해소</li>
+<li>Anti-graveyard: 조용한 회상 + 통제 1줄</li>
+<li>Habit: streak/압박 없이 재방문 동기</li>
+</ol>
+</div>
+</section>
+</div>
+</body>
+</html>
