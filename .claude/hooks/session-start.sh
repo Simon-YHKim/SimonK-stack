@@ -158,6 +158,32 @@ if [ -f "$MARKER" ] && [ "$(cat "$MARKER" 2>/dev/null)" = "$CURRENT_SHA" ]; then
     fi
   fi
 
+  # 4) Stale machine-specific path refs after a coding-root move (e.g. C:\Coding
+  #    -> "C:\Coding Infra"). Env vars don't travel with git, so a move silently
+  #    breaks this very bootstrap. Compare against where THIS repo actually
+  #    lives. Advisory only — scripts/heal-coding-paths.ps1 does the real,
+  #    idempotent repair (env vars + SimonK scheduled tasks).
+  _norm() { printf '%s' "${1:-}" | tr '\\' '/' 2>/dev/null | sed 's#/*$##'; }
+  REPO_SLASH=$(_norm "$REPO_DIR")
+  CODING_ROOT=$(dirname "$(dirname "$REPO_SLASH")" 2>/dev/null)
+  PATHS_STALE=""
+  if [ -n "${SIMON_STACK_DIR:-}" ] && [ "$(_norm "$SIMON_STACK_DIR")" != "$REPO_SLASH" ]; then
+    PATHS_STALE="$PATHS_STALE SIMON_STACK_DIR"
+  fi
+  if [ -n "${SIMONK_PROJECT_DIR:-}" ] && [ "$(_norm "$SIMONK_PROJECT_DIR")" != "$CODING_ROOT" ]; then
+    PATHS_STALE="$PATHS_STALE SIMONK_PROJECT_DIR"
+  fi
+  if [ -n "${SIMON_WIKI_DIR:-}" ] && [ "$(_norm "$SIMON_WIKI_DIR")" != "$CODING_ROOT/obsidian/SimonKWiki" ]; then
+    PATHS_STALE="$PATHS_STALE SIMON_WIKI_DIR"
+  fi
+  if [ -n "$PATHS_STALE" ]; then
+    emit_header
+    log "  - [PATHS_STALE] env var(s) point at an old coding root:$PATHS_STALE"
+    log "    this repo root: $CODING_ROOT"
+    log "    → one-shot fix: powershell -NoProfile -ExecutionPolicy Bypass -File \"$REPO_DIR/scripts/heal-coding-paths.ps1\""
+    append_pending "- [PATHS_STALE]$PATHS_STALE point at old root → run: powershell -File $REPO_DIR/scripts/heal-coding-paths.ps1"
+  fi
+
   if [ "$ANY_UPGRADE" = "1" ]; then
     log "============================================================"
     log ""
