@@ -260,6 +260,20 @@ if [ -d "$EXT_DIR" ] && { [ ! -f "$EXT_MARKER" ] || [ "$FORCE" = "1" ]; }; then
   log "External vendor setup complete (marker: $EXT_MARKER)"
 fi
 
+# ---- Windows: heal machine-specific path refs (env vars + scheduled tasks) ----
+# After a drive/folder move (e.g. C:\Coding -> "C:\Coding Infra") the User env
+# vars + SimonK scheduled tasks still point at the OLD root because they don't
+# travel with git. heal-coding-paths.ps1 repoints them to wherever this repo now
+# lives. Idempotent no-op when already healthy; best-effort + non-fatal; only
+# runs on Windows (skipped when powershell.exe is absent).
+HEAL_PS="$REPO_DIR/scripts/heal-coding-paths.ps1"
+if [ -f "$HEAL_PS" ] && command -v powershell.exe >/dev/null 2>&1; then
+  HEAL_WIN="$(cygpath -w "$HEAL_PS" 2>/dev/null || echo "$HEAL_PS")"
+  log "Healing Windows path refs (env vars + scheduled tasks)..."
+  run powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$HEAL_WIN" 2>&1 | sed 's/^/  /' \
+    || log "  (heal step non-fatal failure — run manually: scripts/heal-coding-paths.ps1)"
+fi
+
 # ---- Record installed SHA for session-start.sh selective-update logic ----
 if [ "$DRY" != "--dry" ]; then
   CURRENT_SHA=$(cd "$REPO_DIR" && git rev-parse --verify HEAD 2>/dev/null) || CURRENT_SHA=unknown
