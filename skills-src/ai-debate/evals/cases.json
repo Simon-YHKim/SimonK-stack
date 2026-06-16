@@ -1,0 +1,24 @@
+{
+  "skill": "ai-debate",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "ko-architecture-debate",
+      "prompt": "DB 스택 선택이 비가역적이라 AI들끼리 토론 붙여서 결정하자. 다관점으로 합의 보자.",
+      "assertions": [
+        { "id": "divergent-panel", "text": "Frames one sharp question and spawns N independent positions arguing distinct stances (proponent, skeptic, alt, user-interest), not identical copies." },
+        { "id": "separate-judge", "text": "Uses a separate judge that authored none of the positions (proposer != judge) and says why the losers lost." },
+        { "id": "decision-record", "text": "Records a D-code entry to DECISIONS.md with positions, judge rationale, verdict, and a preserved minority view." }
+      ]
+    },
+    {
+      "id": "en-contested-decision",
+      "prompt": "This naming decision is contested and irreversible — debate this and get multiple positions before we merge.",
+      "assertions": [
+        { "id": "cross-examination", "text": "Runs adversarial cross-examination where each position rebuts the others' strongest point and surfaces hidden shared assumptions." },
+        { "id": "resolve-or-tiebreak", "text": "Resolves by consensus or a Claude tiebreak with written rationale, escalating safety-rail decisions to Simon." },
+        { "id": "gate-link", "text": "Links the D-code from the gated artifact (PR/merge/spec) so the merge gate can verify the debate record exists." }
+      ]
+    }
+  ]
+}

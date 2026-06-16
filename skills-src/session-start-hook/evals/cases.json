@@ -1,14 +1,38 @@
-[
-  {
-    "name": "trigger_korean_web_session",
-    "input": "Claude Code on the web 쓰는데 매 세션마다 의존성 설치되게 SessionStart hook 만들어줘.",
-    "expected_skill": "session-start-hook",
-    "must_contain": ["SessionStart", "session-start.sh", "idempotent", "bootstrap"]
-  },
-  {
-    "name": "trigger_english_hook_setup",
-    "input": "Set up a startup hook so tests and linters work on every cloud session.",
-    "expected_skill": "session-start-hook",
-    "must_contain": ["hook", "marker", "install", "environment"]
-  }
-]
+{
+  "skill": "session-start-hook",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-web-session-deps",
+      "prompt": "Claude Code on the web 쓰는데 매 세션마다 의존성 설치되게 SessionStart hook 만들어줘.",
+      "assertions": [
+        {
+          "id": "creates-hook-file",
+          "text": "Creates .claude/hooks/session-start.sh with idempotent install logic"
+        },
+        {
+          "id": "marker-shortcircuit",
+          "text": "Uses a marker-based short-circuit so repeat runs skip already-done install"
+        },
+        {
+          "id": "env-aware",
+          "text": "Bootstrap is environment-aware (handles both web and local execution)"
+        }
+      ]
+    },
+    {
+      "id": "en-startup-hook",
+      "prompt": "Set up a startup hook so tests and linters work on every cloud session.",
+      "assertions": [
+        {
+          "id": "install-deps",
+          "text": "Installs dependencies so tests/linters run in remote Claude Code sessions"
+        },
+        {
+          "id": "sessionstart-event",
+          "text": "Wires the SessionStart hook event consuming the stdin JSON (source/cwd)"
+        }
+      ]
+    }
+  ]
+}

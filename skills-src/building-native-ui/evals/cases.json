@@ -1,17 +1,56 @@
-[
-  {
-    "name": "trigger ko 1",
-    "user_input": "React Native \ub9cc\ub4e4\uc5b4",
-    "expected_skill": "building-native-ui"
-  },
-  {
-    "name": "trigger slash",
-    "user_input": "/building-native-ui",
-    "expected_skill": "building-native-ui"
-  },
-  {
-    "name": "trigger en 1",
-    "user_input": "react native",
-    "expected_skill": "building-native-ui"
-  }
-]
+{
+  "skill": "building-native-ui",
+  "version": "2.0.0",
+  "cases": [
+    {
+      "id": "korean-flashlist-migration",
+      "prompt": "FlatList 스크롤이 끊겨. FlashList로 바꿔줘.",
+      "assertions": [
+        {
+          "id": "flashlist-v2",
+          "text": "Migrates the list to FlashList v2 and removes estimatedItemSize (v2 auto-measures)"
+        },
+        {
+          "id": "new-arch-required",
+          "text": "Notes that FlashList v2 requires New Architecture (newArchEnabled: true)"
+        },
+        {
+          "id": "expo-image-recyclingkey",
+          "text": "Uses expo-image with recyclingKey for list thumbnails to avoid ghosting"
+        }
+      ]
+    },
+    {
+      "id": "english-hermes-build-fix",
+      "prompt": "My EAS Android build fails with Hermes 'Invalid expression encountered'. How do I fix it?",
+      "assertions": [
+        {
+          "id": "package-exports-flag",
+          "text": "Sets config.resolver.unstable_enablePackageExports = false in metro.config.js"
+        },
+        {
+          "id": "local-export-precheck",
+          "text": "Recommends verifying locally with npx expo export before burning EAS credits"
+        }
+      ]
+    },
+    {
+      "id": "reanimated4-worklets-gesture",
+      "prompt": "Reanimated 4로 스와이프 제스처 애니메이션 만들어줘.",
+      "assertions": [
+        {
+          "id": "worklets-plugin",
+          "text": "Uses react-native-worklets/plugin (not reanimated/plugin) placed last in babel.config.js"
+        },
+        {
+          "id": "scheduleonrn-api",
+          "text": "Uses the R4 scheduleOnRN API instead of runOnJS for the JS-thread callback"
+        },
+        {
+          "id": "smooth-easing",
+          "text": "Uses withTiming/withSpring smooth easing and avoids bounce/elastic easing"
+        }
+      ]
+    }
+  ]
+}

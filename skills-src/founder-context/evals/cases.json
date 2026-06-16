@@ -1,42 +1,38 @@
-[
-  {
-    "name": "Korean full bootstrap trigger",
-    "user_input": "4 파일 만들어",
-    "expected_skill": "founder-context"
-  },
-  {
-    "name": "Korean project context trigger",
-    "user_input": "프로젝트 컨텍스트 세팅해줘",
-    "expected_skill": "founder-context"
-  },
-  {
-    "name": "Slash command",
-    "user_input": "/founder-context",
-    "expected_skill": "founder-context"
-  },
-  {
-    "name": "Alternative slash command",
-    "user_input": "/personal-bootstrap",
-    "expected_skill": "founder-context"
-  },
-  {
-    "name": "Single-file mode",
-    "user_input": "/founder-context vision",
-    "expected_skill": "founder-context"
-  },
-  {
-    "name": "English trigger",
-    "user_input": "bootstrap project foundation",
-    "expected_skill": "founder-context"
-  },
-  {
-    "name": "Negative — CLAUDE.md request routes to project-context-md",
-    "user_input": "CLAUDE.md 만들어줘",
-    "expected_skill": "project-context-md"
-  },
-  {
-    "name": "Negative — design review routes to simon-design-first not here",
-    "user_input": "랜딩페이지 디자인 만들어줘",
-    "expected_skill": "simon-design-first"
-  }
-]
+{
+  "skill": "founder-context",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "korean-full-bootstrap",
+      "prompt": "프로젝트 컨텍스트 세팅해줘. 4 파일 만들어줘.",
+      "assertions": [
+        {
+          "id": "four-files-root",
+          "text": "Creates me.md, vision.md, design.md, workingstyle.md at the project root (not in .claude/ or docs/)"
+        },
+        {
+          "id": "per-file-interview",
+          "text": "Runs the per-file grilling interview (3-4 questions each, one at a time) rather than 14 questions at once"
+        },
+        {
+          "id": "annotate-imports",
+          "text": "Annotates any seeded content with '> Imported from <source>' and surfaces sync suggestions without auto-executing"
+        }
+      ]
+    },
+    {
+      "id": "english-single-file-vision",
+      "prompt": "Refresh just my vision.md, the project direction changed.",
+      "assertions": [
+        {
+          "id": "single-file-mode",
+          "text": "Runs single-file mode for vision.md only and skips the other three files"
+        },
+        {
+          "id": "vision-questions",
+          "text": "Asks the vision.md questions (one-liner, first target user, 3-month success metric, out-of-scope)"
+        }
+      ]
+    }
+  ]
+}

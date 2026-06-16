@@ -1,17 +1,38 @@
-[
-  {
-    "name": "trigger ko 1",
-    "user_input": "\ub514\uc790\uc778 \uc2dc\uc2a4\ud15c \ub9cc\ub4e4\uc5b4",
-    "expected_skill": "design-system-page"
-  },
-  {
-    "name": "trigger slash",
-    "user_input": "/design-system-page",
-    "expected_skill": "design-system-page"
-  },
-  {
-    "name": "trigger en 1",
-    "user_input": "design system page",
-    "expected_skill": "design-system-page"
-  }
-]
+{
+  "skill": "design-system-page",
+  "version": "1.1.0",
+  "cases": [
+    {
+      "id": "korean-brand-book",
+      "prompt": "design.md 토큰으로 디자인 시스템 페이지 만들고 A4 브랜드 북 PDF로 뽑아줘.",
+      "assertions": [
+        {
+          "id": "extract-tokens",
+          "text": "Reads design.md and extracts color/type/spacing tokens, filling missing spacing/radius/shadow with the default ramp and flagging them"
+        },
+        {
+          "id": "self-contained-html",
+          "text": "Writes a self-contained design-system.html (inline CSS + inline SVG, Google Fonts/Pretendard CDN, zero build)"
+        },
+        {
+          "id": "headless-pdf",
+          "text": "Renders the A4 brand-book PDF via headless chromium --print-to-pdf"
+        }
+      ]
+    },
+    {
+      "id": "english-style-guide-html",
+      "prompt": "Generate a style guide HTML catalog from our DESIGN.md.",
+      "assertions": [
+        {
+          "id": "catalog-sections",
+          "text": "Builds catalog sections: palette swatches, type scale, spacing/radius/shadow, component gallery, icon grid, do/don't"
+        },
+        {
+          "id": "no-source-stop",
+          "text": "If no design.md/DESIGN.md source exists, stops and routes to simon-design-first instead of inventing tokens"
+        }
+      ]
+    }
+  ]
+}

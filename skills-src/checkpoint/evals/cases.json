@@ -1,0 +1,24 @@
+{
+  "skill": "checkpoint",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "en-save-progress",
+      "prompt": "Checkpoint my progress before I take a break, save where I left off.",
+      "assertions": [
+        { "id": "captures-state", "text": "Captures git state, decisions made, and remaining work into a checkpoint artifact." },
+        { "id": "resumable", "text": "Saves the checkpoint so a later session can resume exactly where work left off, even across workspace handoffs." },
+        { "id": "checkpoint-file", "text": "Writes the checkpoint to the project's checkpoints directory so Context Recovery can surface it." }
+      ]
+    },
+    {
+      "id": "ko-resume",
+      "prompt": "어디까지 했지? 이전 체크포인트 불러와서 이어서 작업할래.",
+      "assertions": [
+        { "id": "loads-latest", "text": "Loads the latest checkpoint (LATEST_CHECKPOINT) to recover decisions, plan, and progress." },
+        { "id": "welcome-back", "text": "Gives a short welcome-back briefing on the branch, last session, and where work stopped." },
+        { "id": "resume-flow", "text": "Resumes the remaining work from the saved state rather than starting fresh." }
+      ]
+    }
+  ]
+}

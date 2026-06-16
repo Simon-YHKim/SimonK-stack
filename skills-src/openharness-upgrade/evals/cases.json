@@ -1,17 +1,34 @@
-[
-  {
-    "name": "trigger by ko alias",
-    "user_input": "OpenHarness \ucd5c\uc2e0\ud654",
-    "expected_skill": "openharness-upgrade"
-  },
-  {
-    "name": "trigger by slash command",
-    "user_input": "/openharness-upgrade",
-    "expected_skill": "openharness-upgrade"
-  },
-  {
-    "name": "trigger by en alias",
-    "user_input": "upgrade openharness",
-    "expected_skill": "openharness-upgrade"
-  }
-]
+{
+  "skill": "openharness-upgrade",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "korean-openharness-update",
+      "prompt": "오픈하네스 업데이트해줘.",
+      "assertions": [
+        {
+          "id": "wraps-upgrade-vendor",
+          "text": "Invokes upgrade-vendor.sh OpenHarness to clone-if-missing or ff-only pull the vendored stack"
+        },
+        {
+          "id": "relay-exit-codes",
+          "text": "Relays the one-line summary and maps exit codes (0 up-to-date/pulled, 2 fetch failed, 3 unsafe)"
+        }
+      ]
+    },
+    {
+      "id": "english-update-openharness",
+      "prompt": "update openharness",
+      "assertions": [
+        {
+          "id": "upstream-hkuds",
+          "text": "Targets the HKUDS/OpenHarness upstream at ~/.simon-stack/vendor/OpenHarness/"
+        },
+        {
+          "id": "safe-skip",
+          "text": "Stops without forcing the pull when the tree is dirty or on a non-default branch, summarizing the safety reason"
+        }
+      ]
+    }
+  ]
+}

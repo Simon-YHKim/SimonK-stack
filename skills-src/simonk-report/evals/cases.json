@@ -1,42 +1,38 @@
-[
-  {
-    "name": "Korean trigger — 리포트 만들어줘",
-    "user_input": "리포트 만들어줘",
-    "expected_skill": "simonk-report"
-  },
-  {
-    "name": "Korean trigger — 보고서 작성",
-    "user_input": "이번 작업 보고서 작성해줘",
-    "expected_skill": "simonk-report"
-  },
-  {
-    "name": "Slash command",
-    "user_input": "/simonk-report",
-    "expected_skill": "simonk-report"
-  },
-  {
-    "name": "English trigger",
-    "user_input": "generate session report",
-    "expected_skill": "simonk-report"
-  },
-  {
-    "name": "Executive briefing variant",
-    "user_input": "executive briefing for this sprint",
-    "expected_skill": "simonk-report"
-  },
-  {
-    "name": "Negative — landing-report routes elsewhere",
-    "user_input": "랜딩페이지 리포트",
-    "expected_skill": "landing-report"
-  },
-  {
-    "name": "Negative — release-notes is different",
-    "user_input": "이번 릴리스 노트 써줘",
-    "expected_skill": "release-notes"
-  },
-  {
-    "name": "Negative — generic HTML output routes to html-default-output",
-    "user_input": "HTML로 만들어줘",
-    "expected_skill": "html-default-output"
-  }
-]
+{
+  "skill": "simonk-report",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-html-report",
+      "prompt": "이번 작업 보고서 작성해줘. html 보고서로.",
+      "assertions": [
+        {
+          "id": "self-contained-html",
+          "text": "Produces a single self-contained HTML at .simonk/reports/YYYY-MM-DD-HHMM.html with inline CSS and no external deps"
+        },
+        {
+          "id": "report-sections",
+          "text": "Covers executive summary, decisions log, phase trace, diff summary, verification, and next-up backlog"
+        },
+        {
+          "id": "send-proactive",
+          "text": "Sends the file proactively via SendUserFile so the user receives it on mobile"
+        }
+      ]
+    },
+    {
+      "id": "en-session-report",
+      "prompt": "generate session report",
+      "assertions": [
+        {
+          "id": "fixed-schema",
+          "text": "Renders the simonk-session-specific fixed schema (phase-by-phase trace, diffs, verifications)"
+        },
+        {
+          "id": "accumulates",
+          "text": "Accumulates the report under .simonk/reports/ as a sprint log"
+        }
+      ]
+    }
+  ]
+}

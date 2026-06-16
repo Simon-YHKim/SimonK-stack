@@ -1,17 +1,38 @@
-[
-  {
-    "name": "trigger ko 1",
-    "user_input": "\ub17c\ubb38 \uc791\uc131",
-    "expected_skill": "scientific-paper"
-  },
-  {
-    "name": "trigger slash",
-    "user_input": "/scientific-paper",
-    "expected_skill": "scientific-paper"
-  },
-  {
-    "name": "trigger en 1",
-    "user_input": "scientific paper",
-    "expected_skill": "scientific-paper"
-  }
-]
+{
+  "skill": "scientific-paper",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-ieee-latex",
+      "prompt": "논문 작성 도와줘. IEEE 양식 LaTeX로, 수식이랑 BibTeX 인용까지.",
+      "assertions": [
+        {
+          "id": "doc-class",
+          "text": "Sets up a document class (e.g. IEEEtran) with sectioning and amsmath/amssymb math"
+        },
+        {
+          "id": "bibtex-workflow",
+          "text": "Establishes a BibTeX or biblatex+biber citation workflow"
+        },
+        {
+          "id": "latexmk-build",
+          "text": "Provides a reproducible latexmk build"
+        }
+      ]
+    },
+    {
+      "id": "en-arxiv-submission",
+      "prompt": "Get my paper ready for an arXiv submission with vector figures.",
+      "assertions": [
+        {
+          "id": "vector-figures",
+          "text": "Exports vector figures from matplotlib/plotly as PDF/SVG"
+        },
+        {
+          "id": "arxiv-tarball",
+          "text": "Produces an arXiv-ready tarball"
+        }
+      ]
+    }
+  ]
+}

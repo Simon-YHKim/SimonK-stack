@@ -1,0 +1,23 @@
+{
+  "skill": "document-release",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "update-docs-en",
+      "prompt": "We just shipped. Update the docs to match what changed.",
+      "assertions": [
+        { "id": "cross-references-diff", "text": "Reads all project docs and cross-references the diff to find what changed" },
+        { "id": "updates-core-docs", "text": "Updates README/ARCHITECTURE/CONTRIBUTING/CLAUDE.md to match what shipped" },
+        { "id": "changelog-and-version", "text": "Polishes CHANGELOG voice, cleans up TODOs, and optionally bumps VERSION" }
+      ]
+    },
+    {
+      "id": "sync-docs-ko",
+      "prompt": "PR 머지했으니까 문서 동기화 좀 해줘.",
+      "assertions": [
+        { "id": "post-ship", "text": "Performs a post-ship documentation update reflecting the merged changes" },
+        { "id": "changelog-polish", "text": "Polishes the CHANGELOG and cleans up stale TODOs" }
+      ]
+    }
+  ]
+}

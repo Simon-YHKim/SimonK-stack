@@ -1,17 +1,34 @@
-[
-  {
-    "name": "trigger by ko alias",
-    "user_input": "OpenCowork \ucd5c\uc2e0\ud654",
-    "expected_skill": "opencowork-upgrade"
-  },
-  {
-    "name": "trigger by slash command",
-    "user_input": "/opencowork-upgrade",
-    "expected_skill": "opencowork-upgrade"
-  },
-  {
-    "name": "trigger by en alias",
-    "user_input": "upgrade open-cowork",
-    "expected_skill": "opencowork-upgrade"
-  }
-]
+{
+  "skill": "opencowork-upgrade",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "korean-opencowork-update",
+      "prompt": "오픈코워크 업데이트해줘.",
+      "assertions": [
+        {
+          "id": "wraps-upgrade-vendor",
+          "text": "Invokes upgrade-vendor.sh open-cowork to clone-if-missing or ff-only pull the vendored stack"
+        },
+        {
+          "id": "relay-exit-codes",
+          "text": "Relays the one-line summary and maps exit codes (0 up-to-date/pulled, 2 fetch failed, 3 unsafe)"
+        }
+      ]
+    },
+    {
+      "id": "english-update-opencowork",
+      "prompt": "upgrade open-cowork",
+      "assertions": [
+        {
+          "id": "upstream-opencoworkai",
+          "text": "Targets the OpenCoworkAI/open-cowork upstream at ~/.simon-stack/vendor/open-cowork/"
+        },
+        {
+          "id": "safe-skip",
+          "text": "Stops without forcing the pull when the tree is dirty or on a non-default branch, summarizing the safety reason"
+        }
+      ]
+    }
+  ]
+}

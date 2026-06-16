@@ -1,0 +1,24 @@
+{
+  "skill": "app-platform-selector",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-hybrid-vs-native",
+      "prompt": "하이브리드 앱 좋을까 아니면 네이티브? 앱 플랫폼 선택 도와줘.",
+      "assertions": [
+        { "id": "decision-matrix", "text": "Walks the decision matrix/tree across PWA, Hybrid, Cross-platform, and Native on dev speed, performance, store approval, and solo-dev fit." },
+        { "id": "platform-decision", "text": "Produces a clear platform decision with pros-cons rather than listing options without a recommendation." },
+        { "id": "tech-recommendation", "text": "Recommends a concrete tech stack (React Native/Expo, Flutter, Capacitor) matched to the situation." }
+      ]
+    },
+    {
+      "id": "en-pwa-store",
+      "prompt": "Can I build a PWA and still get it approved on the App Store, or will it get rejected as a web wrapper?",
+      "assertions": [
+        { "id": "rejection-strategy", "text": "Explains Apple 4.2 Minimum Functionality rejection and a web-wrapper approval strategy (native features, offline mode, deep interaction)." },
+        { "id": "absolute-no", "text": "Warns against guaranteed-reject patterns like a single WKWebView that only loads a URL." },
+        { "id": "store-approval", "text": "Gives a store approval strategy for web-wrapped apps as part of the output." }
+      ]
+    }
+  ]
+}

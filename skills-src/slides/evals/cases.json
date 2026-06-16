@@ -1,17 +1,38 @@
-[
-  {
-    "name": "trigger ko 1",
-    "user_input": "\uc2ac\ub77c\uc774\ub4dc \ub9cc\ub4e4\uc5b4",
-    "expected_skill": "slides"
-  },
-  {
-    "name": "trigger slash",
-    "user_input": "/slides",
-    "expected_skill": "slides"
-  },
-  {
-    "name": "trigger en 1",
-    "user_input": "pitch deck",
-    "expected_skill": "slides"
-  }
-]
+{
+  "skill": "slides",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-pitch-deck",
+      "prompt": "피치덱 만들어줘. 발표자료 슬라이드로.",
+      "assertions": [
+        {
+          "id": "single-html-deck",
+          "text": "Produces a zero-dependency 16:9 single HTML file deck (embedded CSS+JS, no build, no reveal.js)"
+        },
+        {
+          "id": "three-style-preview",
+          "text": "Uses the 3-visual-style-preview-then-pick flow before rendering the full deck"
+        },
+        {
+          "id": "keyboard-nav",
+          "text": "Includes keyboard nav (arrows/space/F/Esc) and print-to-PDF via CSS @page landscape"
+        }
+      ]
+    },
+    {
+      "id": "en-html-slides",
+      "prompt": "build me html slides / a slide deck",
+      "assertions": [
+        {
+          "id": "anti-slop",
+          "text": "Applies anti-slop rules: no emoji bullets, monotone tinted-neutral palette, max 3 colors"
+        },
+        {
+          "id": "pretendard",
+          "text": "Uses Pretendard for Korean text and density caps"
+        }
+      ]
+    }
+  ]
+}

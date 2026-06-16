@@ -1,0 +1,38 @@
+{
+  "skill": "commit",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-commit",
+      "prompt": "변경사항 커밋해줘",
+      "assertions": [
+        {
+          "id": "inspect-state",
+          "text": "Inspects git state (git status, git diff, git log --oneline -10) before committing."
+        },
+        {
+          "id": "conventional-commits",
+          "text": "Produces a Conventional Commits message in type(scope): subject form with an optional why-focused body."
+        },
+        {
+          "id": "no-add-all",
+          "text": "Stages specific files by name rather than git add -A, and never commits .env or credentials."
+        }
+      ]
+    },
+    {
+      "id": "en-make-commit",
+      "prompt": "Stage and commit this change with a good message.",
+      "assertions": [
+        {
+          "id": "type-classification",
+          "text": "Classifies the change into a commit type (feat/fix/docs/refactor/test/chore/perf/style)."
+        },
+        {
+          "id": "verify-after",
+          "text": "Runs git status after committing to confirm success and does not push unless asked."
+        }
+      ]
+    }
+  ]
+}

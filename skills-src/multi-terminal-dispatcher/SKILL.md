@@ -1,6 +1,14 @@
 ---
 name: multi-terminal-dispatcher
-description: "Use when the user wants to run multiple tasks in parallel across separate terminal windows/tabs, OR when simonk dispatches a sprint with N independent subtasks. Trigger phrases: '병렬로 진행', '다중 터미널', '병렬 터미널', 'multi-terminal', 'parallel terminals', 'team mode', '모델 자동 배치', 'best model dispatch', '여러 창에서', '동시에 진행'. Calls model-router for per-task LLM assignment (wiki ai-model-benchmarks source of truth), then launches each task in its own terminal (Windows Terminal tab / psmux pane / VS Code task / separate PowerShell window). Produces: (1) per-task model + terminal assignment table, (2) cost estimate (task × model = $X), (3) launched terminal IDs for user observation, (4) merged result report after all terminals complete. Safety: destructive ops single-terminal only, user confirms cost > $5."
+description: >-
+  Use when the user wants to run multiple tasks in parallel across separate
+  terminal windows/tabs, OR when simonk dispatches a sprint with N independent
+  subtasks. Triggers on "병렬로 진행", "다중 터미널", "multi-terminal", "parallel
+  terminals", "team mode", "best model dispatch", "여러 창에서". Calls model-router
+  for per-task LLM assignment, then launches each task in its own terminal.
+  Produces a per-task model + terminal assignment table, a cost estimate,
+  launched terminal IDs, and a merged result report after all terminals
+  complete. Safety: destructive ops single-terminal only, confirm cost > $5.
 version: 0.1.0
 ---
 

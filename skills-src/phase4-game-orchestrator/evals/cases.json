@@ -1,0 +1,22 @@
+{
+  "skill": "phase4-game-orchestrator",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "make-a-game-ko",
+      "prompt": "스틱맨 게임 만들자, 미니게임",
+      "assertions": [
+        { "id": "placeholder-status", "text": "Reports it is a Phase 4 (Q3 2026) placeholder and that full work is recommended after Phase 4 entry (July)" },
+        { "id": "offers-interim-actions", "text": "Offers interim actions like fetching the matching 42morrow 바이브코딩 reference, checking godot --version, or ComfyUI availability" }
+      ]
+    },
+    {
+      "id": "godot-scaffold-en",
+      "prompt": "scaffold a Godot game with ComfyUI images and Suno BGM",
+      "assertions": [
+        { "id": "scaffold-and-pipeline-sketch", "text": "Describes the planned Godot scaffold (scenes/scripts/assets) and ComfyUI image + Suno BGM pipeline sketch" },
+        { "id": "phase-gate", "text": "Notes it should not be used before Phase 4 and checks the Phase 4 entry conditions" }
+      ]
+    }
+  ]
+}

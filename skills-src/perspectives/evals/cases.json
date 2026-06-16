@@ -1,42 +1,48 @@
-[
-  {
-    "name": "Korean trigger — 관점 검증",
-    "user_input": "관점 검증해줘",
-    "expected_skill": "perspectives"
-  },
-  {
-    "name": "Korean trigger — blind spot",
-    "user_input": "내가 놓친 시각 찾아줘",
-    "expected_skill": "perspectives"
-  },
-  {
-    "name": "Slash command base",
-    "user_input": "/perspectives",
-    "expected_skill": "perspectives"
-  },
-  {
-    "name": "Recall mode",
-    "user_input": "/perspectives recall",
-    "expected_skill": "perspectives"
-  },
-  {
-    "name": "Focus mode",
-    "user_input": "/perspectives focus user",
-    "expected_skill": "perspectives"
-  },
-  {
-    "name": "English trigger",
-    "user_input": "critical review of this session",
-    "expected_skill": "perspectives"
-  },
-  {
-    "name": "Negative — code review routes to /code-review or /codex",
-    "user_input": "review this diff",
-    "expected_skill": "code-review"
-  },
-  {
-    "name": "Negative — plan stress test routes to grill-me",
-    "user_input": "이 계획 깨봐",
-    "expected_skill": "grill-me"
-  }
-]
+{
+  "skill": "perspectives",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-blind-spot-audit",
+      "prompt": "이번 세션에서 내가 놓친 시각 찾아줘",
+      "assertions": [
+        {
+          "id": "core5-audit",
+          "text": "Runs the Core 5 stakeholder audit (User, Business, Technical, Security, Future-self) plus 1-3 session-specific stakeholders"
+        },
+        {
+          "id": "append-md",
+          "text": "Appends one session-block to perspectives.md at the project root rather than overwriting prior blocks"
+        },
+        {
+          "id": "actionable-gaps",
+          "text": "Surfaces 1-3 actionable blind spots for this or the next session"
+        }
+      ]
+    },
+    {
+      "id": "en-critical-review",
+      "prompt": "critical review of this session — what stakeholder did we forget?",
+      "assertions": [
+        {
+          "id": "missing-stakeholder",
+          "text": "Focuses on the missing stakeholder / un-considered persona rather than code defects"
+        },
+        {
+          "id": "session-as-input",
+          "text": "Treats the session itself (what was decided, built, skipped) as the input"
+        }
+      ]
+    },
+    {
+      "id": "slash-recall",
+      "prompt": "/perspectives recall",
+      "assertions": [
+        {
+          "id": "reads-prior-blocks",
+          "text": "Reads back prior accumulated perspectives.md blocks instead of running a fresh audit"
+        }
+      ]
+    }
+  ]
+}

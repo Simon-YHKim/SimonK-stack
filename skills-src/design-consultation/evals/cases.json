@@ -1,0 +1,30 @@
+{
+  "skill": "design-consultation",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "create-design-md-en",
+      "prompt": "Help me set up a design system and create a DESIGN.md for my new app.",
+      "assertions": [
+        { "id": "writes-design-md", "text": "Creates a DESIGN.md as the project's design source of truth" },
+        { "id": "proposes-system", "text": "Proposes a complete design system covering aesthetic, typography, color, layout, spacing, and motion" },
+        { "id": "preview-pages", "text": "Generates font and color preview pages for the proposed system" }
+      ]
+    },
+    {
+      "id": "brand-guidelines-ko",
+      "prompt": "새 프로젝트 브랜드 가이드라인이랑 디자인 시스템 잡아줘.",
+      "assertions": [
+        { "id": "researches-landscape", "text": "Understands the product and researches the competitive design landscape before proposing" },
+        { "id": "design-md-output", "text": "Produces DESIGN.md capturing the design decisions" }
+      ]
+    },
+    {
+      "id": "existing-site-redirect",
+      "prompt": "We already have a live site. Can you design a system based on what it already looks like?",
+      "assertions": [
+        { "id": "suggests-plan-design-review", "text": "For an existing site, points the user toward /plan-design-review to infer the system rather than starting fresh" }
+      ]
+    }
+  ]
+}

@@ -1,17 +1,34 @@
-[
-  {
-    "name": "trigger by ko alias",
-    "user_input": "OMC \ucd5c\uc2e0\ud654",
-    "expected_skill": "omc-upgrade"
-  },
-  {
-    "name": "trigger by slash command",
-    "user_input": "/omc-upgrade",
-    "expected_skill": "omc-upgrade"
-  },
-  {
-    "name": "trigger by en alias",
-    "user_input": "upgrade omc",
-    "expected_skill": "omc-upgrade"
-  }
-]
+{
+  "skill": "omc-upgrade",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "korean-omc-update",
+      "prompt": "OMC 최신화해줘.",
+      "assertions": [
+        {
+          "id": "wraps-upgrade-vendor",
+          "text": "Invokes upgrade-vendor.sh oh-my-claudecode to clone-if-missing or ff-only pull the vendored stack"
+        },
+        {
+          "id": "relay-exit-codes",
+          "text": "Relays the one-line summary and maps exit codes (0 up-to-date/pulled, 2 fetch failed, 3 unsafe)"
+        }
+      ]
+    },
+    {
+      "id": "english-update-oh-my-claudecode",
+      "prompt": "update oh-my-claudecode",
+      "assertions": [
+        {
+          "id": "upstream-yeachan",
+          "text": "Targets the Yeachan-Heo/oh-my-claudecode upstream at ~/.simon-stack/vendor/oh-my-claudecode/"
+        },
+        {
+          "id": "safe-skip",
+          "text": "Skips without forcing the pull when the tree is dirty or on a non-default branch, summarizing the safety reason"
+        }
+      ]
+    }
+  ]
+}

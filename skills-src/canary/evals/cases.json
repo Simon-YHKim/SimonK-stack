@@ -1,0 +1,24 @@
+{
+  "skill": "canary",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "en-post-deploy",
+      "prompt": "We just deployed — run a canary and watch production for console errors and regressions.",
+      "assertions": [
+        { "id": "watch-live", "text": "Watches the live app via the browse daemon for console errors, performance regressions, and page failures." },
+        { "id": "compare-baseline", "text": "Takes periodic screenshots and compares against pre-deploy baselines to detect anomalies." },
+        { "id": "health-report", "text": "Produces a post-deploy health report with anomaly alerts." }
+      ]
+    },
+    {
+      "id": "ko-monitor-deploy",
+      "prompt": "배포 후 프로덕션 모니터링해줘. 이상 생기면 알려주는 canary 돌려.",
+      "assertions": [
+        { "id": "periodic-shots", "text": "Captures periodic screenshots of the live app and checks for console errors." },
+        { "id": "anomaly-alert", "text": "Alerts on anomalies when the live app deviates from the pre-deploy baseline." },
+        { "id": "report-output", "text": "Outputs a post-deploy canary health report rather than a one-off check." }
+      ]
+    }
+  ]
+}

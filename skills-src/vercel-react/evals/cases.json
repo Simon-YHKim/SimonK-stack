@@ -1,17 +1,38 @@
-[
-  {
-    "name": "trigger ko 1",
-    "user_input": "React \ucd5c\uc801\ud654",
-    "expected_skill": "vercel-react"
-  },
-  {
-    "name": "trigger slash",
-    "user_input": "/vercel-react",
-    "expected_skill": "vercel-react"
-  },
-  {
-    "name": "trigger en 1",
-    "user_input": "react best practices",
-    "expected_skill": "vercel-react"
-  }
-]
+{
+  "skill": "vercel-react",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "ko-server-client-boundary",
+      "prompt": "Next.js App Router 앱인데 use client 남발해서 하이드레이션 에러나. 서버 컴포넌트 경계 잡아줘.",
+      "assertions": [
+        {
+          "id": "boundary-table",
+          "text": "Produces a Server/Client boundary decision table and a precheck grep for boundary smells"
+        },
+        {
+          "id": "fix-hydration",
+          "text": "Addresses the hydration mismatch by moving 'use client' down the tree"
+        }
+      ]
+    },
+    {
+      "id": "en-data-fetching-caching",
+      "prompt": "App Router data fetching and caching with streaming — what are the Next.js best practices?",
+      "assertions": [
+        {
+          "id": "caching-patterns",
+          "text": "Gives data-fetching + caching patterns (fetch revalidate, use cache, cacheLife/cacheTag)"
+        },
+        {
+          "id": "suspense-streaming",
+          "text": "Shows Suspense streaming and Server Action snippets plus edge-vs-node runtime guidance"
+        },
+        {
+          "id": "verify-build",
+          "text": "Verifies via next build / Lighthouse"
+        }
+      ]
+    }
+  ]
+}

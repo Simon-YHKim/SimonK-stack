@@ -1,17 +1,34 @@
-[
-  {
-    "name": "trigger by ko alias",
-    "user_input": "design.md \ucd5c\uc2e0\ud654",
-    "expected_skill": "designmd-upgrade"
-  },
-  {
-    "name": "trigger by slash command",
-    "user_input": "/designmd-upgrade",
-    "expected_skill": "designmd-upgrade"
-  },
-  {
-    "name": "trigger by en alias",
-    "user_input": "upgrade design.md",
-    "expected_skill": "designmd-upgrade"
-  }
-]
+{
+  "skill": "designmd-upgrade",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "korean-designmd-update",
+      "prompt": "design.md 최신화해줘.",
+      "assertions": [
+        {
+          "id": "wraps-upgrade-vendor",
+          "text": "Invokes upgrade-vendor.sh design.md to fetch and ff-only pull the vendored design.md stack"
+        },
+        {
+          "id": "relay-summary",
+          "text": "Relays the script's one-line summary and maps exit codes (0 up-to-date/pulled, 3 unsafe)"
+        }
+      ]
+    },
+    {
+      "id": "english-is-up-to-date",
+      "prompt": "Is design.md up to date?",
+      "assertions": [
+        {
+          "id": "fetch-and-count",
+          "text": "Runs the vendor upgrade check (git fetch + count commits behind upstream google-labs-code/design.md)"
+        },
+        {
+          "id": "safe-skip-dirty",
+          "text": "Stops without forcing the pull when the tree is dirty or on a non-default branch, summarizing the reason"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "skill": "store-launcher",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-store-submission",
+      "prompt": "Play Store랑 App Store에 앱 출시 준비해줘",
+      "assertions": [
+        {
+          "id": "listing-optimization",
+          "text": "Produces store listing optimization (title/description/keywords/screenshots) and ASO strategy."
+        },
+        {
+          "id": "policy-precheck",
+          "text": "Runs a policy compliance pre-check against Google Play and Apple guidelines (e.g., 4.2 minimum functionality, Data Safety)."
+        },
+        {
+          "id": "submission-confirmation",
+          "text": "Requires explicit user confirmation before any irreversible production/review-track submission."
+        }
+      ]
+    },
+    {
+      "id": "en-publish-app",
+      "prompt": "Publish my app to the store and optimize the listing for ASO.",
+      "assertions": [
+        {
+          "id": "checklist",
+          "text": "Walks the launch checklist (icon, screenshots, privacy policy URL, content rating) per store."
+        },
+        {
+          "id": "rejection-prevention",
+          "text": "Flags common rejection reasons to avoid before submitting."
+        }
+      ]
+    }
+  ]
+}

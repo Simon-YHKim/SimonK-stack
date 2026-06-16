@@ -1,0 +1,23 @@
+{
+  "skill": "exit-strategy-planner",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ipo-roadmap-ko",
+      "prompt": "우리 스타트업 exit 전략 세워줘. IPO 로드맵이랑 상장 준비 어떻게 해야 해?",
+      "assertions": [
+        { "id": "exit-selection", "text": "Produces an exit strategy selection across IPO/M&A/SPAC/Secondary" },
+        { "id": "stage-roadmap", "text": "Lays out a stage-by-stage roadmap from Seed to Series A/B/C to Exit with key metrics per stage" },
+        { "id": "case-studies", "text": "Includes case studies such as Coupang's NASDAQ listing and Korean startup exits" }
+      ]
+    },
+    {
+      "id": "acquisition-strategy-en",
+      "prompt": "Help me plan an acquisition strategy and Series A preparation.",
+      "assertions": [
+        { "id": "per-stage-metrics", "text": "Identifies the key metrics required at each funding stage" },
+        { "id": "exit-options", "text": "Compares acquisition against other exit paths (IPO/SPAC/Secondary)" }
+      ]
+    }
+  ]
+}

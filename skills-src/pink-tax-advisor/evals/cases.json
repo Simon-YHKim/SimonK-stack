@@ -1,0 +1,23 @@
+{
+  "skill": "pink-tax-advisor",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "maximize-revenue-ko",
+      "prompt": "수익 극대화 해줘, 세그먼트별 차등 가격이랑 심리적 가격까지 깊게",
+      "assertions": [
+        { "id": "segment-price-discrimination", "text": "Produces segment-based price discrimination analysis (scale, urgency, expertise, region/PPP, timing)" },
+        { "id": "psychological-tactics", "text": "Covers psychological pricing tactics like charm pricing, anchoring, decoy effect, loss aversion, and bundling" },
+        { "id": "ethical-boundaries", "text": "States ethical boundary guidelines and notes the user makes the final call" }
+      ]
+    },
+    {
+      "id": "pricing-psychology-en",
+      "prompt": "give me an aggressive pricing psychology and willingness-to-pay analysis to maximize revenue",
+      "assertions": [
+        { "id": "value-metric-optimization", "text": "Analyzes value-metric optimization (per-seat vs usage vs feature vs outcome pricing)" },
+        { "id": "explicit-request-only", "text": "Activates only because the user explicitly asked for aggressive monetization, not auto-triggered" }
+      ]
+    }
+  ]
+}

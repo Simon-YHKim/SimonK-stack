@@ -1,22 +1,40 @@
-[
-  {
-    "name": "Korean holistic trigger",
-    "user_input": "SimonK stack 최신화",
-    "expected_skill": "stack-update"
-  },
-  {
-    "name": "slash command",
-    "user_input": "/stack-update",
-    "expected_skill": "stack-update"
-  },
-  {
-    "name": "English holistic trigger",
-    "user_input": "update the stack",
-    "expected_skill": "stack-update"
-  },
-  {
-    "name": "gstack-only request should NOT trigger this",
-    "user_input": "upgrade gstack",
-    "expected_skill": "gstack-upgrade"
-  }
-]
+{
+  "skill": "stack-update",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-full-refresh",
+      "prompt": "SimonK stack 전체 최신화해줘",
+      "assertions": [
+        {
+          "id": "five-concerns",
+          "text": "Orchestrates the five concerns in order: SimonK-stack pull, wiki pull, /gstack-upgrade, five vendored /*-upgrade siblings, scripts/install.sh --force"
+        },
+        {
+          "id": "per-step-summary",
+          "text": "Prints a per-step summary with commits-pulled counts and a final state report"
+        }
+      ]
+    },
+    {
+      "id": "en-update-stack",
+      "prompt": "update the stack — refresh everything",
+      "assertions": [
+        {
+          "id": "holistic-not-gstack-only",
+          "text": "Treats this as a holistic refresh (more than just gstack), best-effort per step"
+        }
+      ]
+    },
+    {
+      "id": "gstack-only-routes-away",
+      "prompt": "upgrade gstack",
+      "assertions": [
+        {
+          "id": "defers-to-gstack-upgrade",
+          "text": "A gstack-only request routes to /gstack-upgrade, not this holistic skill"
+        }
+      ]
+    }
+  ]
+}

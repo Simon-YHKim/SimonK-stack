@@ -1,14 +1,38 @@
-[
-  {
-    "name": "trigger_korean_viral",
-    "input": "내 앱 출시했는데 어떻게 바이럴 시키지? 인스타랑 커뮤니티 홍보 둘 다 해보고 싶어.",
-    "expected_skill": "viral-launch",
-    "must_contain": ["인스타", "커뮤니티", "in-app", "timeline"]
-  },
-  {
-    "name": "trigger_english_launch_day",
-    "input": "Launch day is next Tuesday. Need a viral playbook — Reddit, Product Hunt, in-app share. Give me actual post drafts.",
-    "expected_skill": "viral-launch",
-    "must_contain": ["channel", "draft", "K-factor", "timeline"]
-  }
-]
+{
+  "skill": "viral-launch",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-viral-playbook",
+      "prompt": "내 앱 출시했는데 어떻게 바이럴 시키지? 인스타랑 커뮤니티 홍보 둘 다 해보고 싶어.",
+      "assertions": [
+        {
+          "id": "channel-by-channel",
+          "text": "Produces a channel-by-channel playbook: in-app share mechanics, Instagram post sequence, Korean community threads"
+        },
+        {
+          "id": "concrete-artifacts",
+          "text": "Each tactic ships a concrete artifact (post draft, screenshot spec, share-button copy), not abstract advice"
+        },
+        {
+          "id": "launch-timeline",
+          "text": "Includes a launch-day timeline and word-of-mouth seed list"
+        }
+      ]
+    },
+    {
+      "id": "en-launch-day",
+      "prompt": "Launch day is next Tuesday. Need a viral playbook — Reddit, Product Hunt, in-app share. Give me actual post drafts.",
+      "assertions": [
+        {
+          "id": "k-factor-mechanics",
+          "text": "Designs in-app share mechanics tied to K-factor"
+        },
+        {
+          "id": "copy-paste-drafts",
+          "text": "Delivers copy-paste-ready community/post drafts rather than framework analysis"
+        }
+      ]
+    }
+  ]
+}

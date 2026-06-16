@@ -1,0 +1,30 @@
+{
+  "skill": "obsidian-cli",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "search-vault-en",
+      "prompt": "search my Obsidian vault for notes mentioning 'retro'",
+      "assertions": [
+        { "id": "uses-search-command", "text": "Runs the obsidian CLI search command (e.g. obsidian search query=\"retro\")" },
+        { "id": "requires-running-obsidian", "text": "Relies on a running Obsidian instance to execute the command and returns its output" }
+      ]
+    },
+    {
+      "id": "create-note-ko",
+      "prompt": "옵시디언에 '회의록' 노트 만들어줘",
+      "assertions": [
+        { "id": "uses-create-command", "text": "Runs obsidian create with name= and content= parameters" },
+        { "id": "silent-flag-option", "text": "Can use the silent flag to avoid opening the file, and quotes values containing spaces" }
+      ]
+    },
+    {
+      "id": "reload-plugin-debug",
+      "prompt": "reload my plugin and check for errors after my code change",
+      "assertions": [
+        { "id": "plugin-reload", "text": "Runs obsidian plugin:reload id=<plugin> to pick up the code change" },
+        { "id": "dev-errors-check", "text": "Runs obsidian dev:errors and fixes-then-repeats if errors appear" }
+      ]
+    }
+  ]
+}

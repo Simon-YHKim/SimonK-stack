@@ -1,0 +1,31 @@
+{
+  "skill": "offline-first",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "low-bandwidth-architecture-ko",
+      "prompt": "신흥시장 저대역폭 2G/3G 사용자를 위해 오프라인 우선 아키텍처 짜줘",
+      "assertions": [
+        { "id": "precheck-measure", "text": "Runs a precheck to measure current bundle/image weight rather than guessing" },
+        { "id": "payload-budget-table", "text": "Fixes a network-class payload budget table (initial JS/image/route caps per Slow-2G/3G/4G)" },
+        { "id": "cache-strategy", "text": "Picks per-resource cache strategies (Workbox precache/StaleWhileRevalidate/BackgroundSync) or Expo SQLite + TanStack Query persist" }
+      ]
+    },
+    {
+      "id": "save-data-adaptive-en",
+      "prompt": "make my web app save data on metered connections with offline support",
+      "assertions": [
+        { "id": "save-data-feature-detect", "text": "Adds Save-Data / NetworkInformation handling with feature-detection and a conservative fallback for non-Chromium browsers" },
+        { "id": "optimistic-ui-bg-sync", "text": "Implements optimistic UI plus background sync so offline writes are queued and flushed on reconnect" }
+      ]
+    },
+    {
+      "id": "low-end-device-test-matrix",
+      "prompt": "내 앱이 저사양 안드로이드에서 너무 느려, 데이터 절약하고 graceful degradation 적용해줘",
+      "assertions": [
+        { "id": "graceful-degradation-banners", "text": "Adds explicit online / sync-pending / offline state banners instead of failing silently" },
+        { "id": "test-matrix-and-image-strategy", "text": "Provides a low-end device test matrix (CPU throttle, Slow 3G, 2GB RAM) and a responsive AVIF/WebP lazy image strategy" }
+      ]
+    }
+  ]
+}

@@ -1,39 +1,31 @@
 {
+  "skill": "model-router",
+  "version": "0.1.0",
   "cases": [
     {
-      "name": "code_fix_basic",
-      "description": "버그 수정 task — Claude Sonnet 4.6 추천 expected",
+      "id": "code-fix-basic",
       "prompt": "이 Python 코드의 race condition 버그 어떤 모델로 고쳐야 할까?",
-      "expected_keywords": ["CODE_FIX", "Sonnet 4.6", "claude-sonnet-4-6", "SWE-bench"],
-      "expected_min_matches": 3
+      "assertions": [
+        { "id": "classify-code-fix", "text": "Classifies the task as CODE_FIX" },
+        { "id": "recommend-sonnet", "text": "Recommends Claude Sonnet 4.6 (claude-sonnet-4-6) as primary with API ID" },
+        { "id": "swebench-rationale", "text": "Backs the recommendation with a SWE-bench benchmark rationale" }
+      ]
     },
     {
-      "name": "research_long_context",
-      "description": "장기 reasoning + 1M context — Opus 4.7 [1M] 추천 expected",
+      "id": "research-long-context",
       "prompt": "이 1000 페이지 문서 전체 읽고 X 주제 조사 요약해줘",
-      "expected_keywords": ["RESEARCH", "Opus 4.7", "1M", "claude-opus-4-7"],
-      "expected_min_matches": 3
+      "assertions": [
+        { "id": "classify-research", "text": "Classifies the task as RESEARCH" },
+        { "id": "recommend-opus-1m", "text": "Recommends Claude Opus 4.7 [1M] (claude-opus-4-7) as the primary long-context model" }
+      ]
     },
     {
-      "name": "computer_use_browser",
-      "description": "브라우저 자동화 — GPT-5.4 (OSWorld 1위) 추천 expected",
-      "prompt": "브라우저 열어서 X 사이트에서 데이터 자동으로 긁어오는 모델 추천",
-      "expected_keywords": ["COMPUTER_USE", "GPT-5.4", "OSWorld"],
-      "expected_min_matches": 2
-    },
-    {
-      "name": "korean_doc_writing",
-      "description": "한국어 기술 문서 작성 — Sonnet 4.6 또는 GLM-5",
-      "prompt": "한국어로 기술 보고서 작성할 베스트 모델은?",
-      "expected_keywords": ["KOREAN_DOC", "Sonnet 4.6", "GLM-5"],
-      "expected_min_matches": 2
-    },
-    {
-      "name": "bulk_light_tagging",
-      "description": "대량 단순 태깅 — 가성비 모델 Gemini 3.5 Flash 또는 Haiku",
-      "prompt": "10000개 글 단순 태깅해야 하는데 가장 싸고 빠른 모델",
-      "expected_keywords": ["BULK_LIGHT", "Gemini 3.5 Flash", "Haiku"],
-      "expected_min_matches": 2
+      "id": "computer-use-browser",
+      "prompt": "Best model to open a browser and scrape data from a site automatically?",
+      "assertions": [
+        { "id": "classify-computer-use", "text": "Classifies the task as COMPUTER_USE" },
+        { "id": "recommend-gpt54", "text": "Recommends GPT-5.4 as primary, citing OSWorld benchmark strength" }
+      ]
     }
   ]
 }

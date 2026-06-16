@@ -1,17 +1,38 @@
-[
-  {
-    "name": "trigger ko 1",
-    "user_input": "\ube44\ub514\uc624 \uc790\ub9c9 \uac00\uc838\uc640",
-    "expected_skill": "notebooklm-import"
-  },
-  {
-    "name": "trigger slash",
-    "user_input": "/notebooklm-import",
-    "expected_skill": "notebooklm-import"
-  },
-  {
-    "name": "trigger en 1",
-    "user_input": "import video transcripts",
-    "expected_skill": "notebooklm-import"
-  }
-]
+{
+  "skill": "notebooklm-import",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "korean-youtube-transcript",
+      "prompt": "이 유튜브 영상 자막 가져와서 위키에 정리해줘.",
+      "assertions": [
+        {
+          "id": "ytdlp-skip-download",
+          "text": "Extracts subtitles with yt-dlp using --skip-download (ko,en preferred), never downloading the video body"
+        },
+        {
+          "id": "dedupe-timecodes",
+          "text": "Strips timecodes/indices and de-dupes rolled-up auto-sub lines (awk '!seen[$0]++')"
+        },
+        {
+          "id": "raw-frontmatter-handoff",
+          "text": "Writes a new raw/transcripts file with frontmatter (source_url, source_type, captured, ingested:false) and hands off to wiki-ingest"
+        }
+      ]
+    },
+    {
+      "id": "english-pdf-to-kb",
+      "prompt": "Import this PDF paper into my knowledge base.",
+      "assertions": [
+        {
+          "id": "pdf-text-extract",
+          "text": "Extracts PDF text via pdftotext -layout, falling back to pypdf/pdfplumber, and reports if a scanned PDF needs OCR"
+        },
+        {
+          "id": "raw-immutable-add",
+          "text": "Adds a new file under raw/documents only (raw/ stays immutable) and leaves wiki/ compilation to wiki-ingest"
+        }
+      ]
+    }
+  ]
+}

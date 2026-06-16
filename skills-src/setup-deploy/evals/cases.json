@@ -1,0 +1,34 @@
+{
+  "skill": "setup-deploy",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-configure-deploy",
+      "prompt": "배포 설정 좀 잡아줘, land-and-deploy 쓰게",
+      "assertions": [
+        {
+          "id": "detect-platform",
+          "text": "Detects the deploy platform (Fly.io/Render/Vercel/Netlify/Heroku/GitHub Actions/custom), production URL, and health-check endpoint."
+        },
+        {
+          "id": "write-to-claudemd",
+          "text": "Writes the deployment configuration to CLAUDE.md so future deploys are automatic."
+        }
+      ]
+    },
+    {
+      "id": "en-setup-deploy",
+      "prompt": "Set up land-and-deploy config for this repo.",
+      "assertions": [
+        {
+          "id": "deploy-status-commands",
+          "text": "Captures deploy status commands and health-check endpoints for /land-and-deploy."
+        },
+        {
+          "id": "persisted-config",
+          "text": "Persists the detected settings so subsequent deploys require no reconfiguration."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "skill": "investigate",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "debug-error-en",
+      "prompt": "Investigate this 500 error, it was working yesterday. Find the root cause.",
+      "assertions": [
+        { "id": "four-phases", "text": "Runs the four phases: investigate, analyze, hypothesize, implement" },
+        { "id": "iron-law", "text": "Enforces the Iron Law: no fixes without a confirmed root cause" },
+        { "id": "root-cause", "text": "Performs systematic root cause analysis before proposing a fix" }
+      ]
+    },
+    {
+      "id": "fix-bug-ko",
+      "prompt": "이 버그 왜 생기는지 디버깅해줘. 갑자기 안 돼.",
+      "assertions": [
+        { "id": "no-fix-without-cause", "text": "Does not patch symptoms; investigates until the root cause is identified" },
+        { "id": "hypothesize-phase", "text": "Forms and tests a hypothesis before implementing the fix" }
+      ]
+    }
+  ]
+}

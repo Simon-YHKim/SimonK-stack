@@ -1,0 +1,34 @@
+{
+  "skill": "review",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-review",
+      "prompt": "이 코드 리뷰해줘",
+      "assertions": [
+        {
+          "id": "scope-and-context",
+          "text": "Identifies the review scope via git diff and reads the modified files in context, not just the hunks."
+        },
+        {
+          "id": "severity-grouped",
+          "text": "Reports findings grouped by severity (Blocking / Should fix / Nit) with file:line citations and concrete fixes."
+        }
+      ]
+    },
+    {
+      "id": "en-code-review",
+      "prompt": "Code review my diff and check correctness and security.",
+      "assertions": [
+        {
+          "id": "checklist",
+          "text": "Evaluates against the review checklist: correctness, security, maintainability, testing, performance."
+        },
+        {
+          "id": "actionable-fixes",
+          "text": "Gives specific, actionable fix suggestions citing file_path:line_number rather than vague feedback."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "skill": "open-gstack-browser",
+  "version": "0.2.0",
+  "cases": [
+    {
+      "id": "open-browser-en",
+      "prompt": "open the gstack browser so I can watch what you do",
+      "assertions": [
+        { "id": "launches-controlled-chromium", "text": "Launches a visible, AI-controlled Chromium window with the sidebar extension baked in" },
+        { "id": "live-activity-feed", "text": "Surfaces a live activity feed / chat in the sidebar so each action is visible in real time" }
+      ]
+    },
+    {
+      "id": "launch-chrome-ko",
+      "prompt": "크롬 띄워서 실제 브라우저 연결해줘",
+      "assertions": [
+        { "id": "real-browser-window", "text": "Opens a real controlled browser window rather than a headless session" },
+        { "id": "anti-bot-stealth", "text": "Uses the built-in anti-bot stealth so the controlled browser is less likely to be flagged" }
+      ]
+    },
+    {
+      "id": "show-me-the-browser-voice",
+      "prompt": "show me the browser",
+      "assertions": [
+        { "id": "matches-voice-trigger", "text": "Treats this speech-to-text alias as a request to launch the GStack browser" },
+        { "id": "sidebar-feed-output", "text": "Produces a controlled Chromium window whose sidebar shows the live feed" }
+      ]
+    }
+  ]
+}

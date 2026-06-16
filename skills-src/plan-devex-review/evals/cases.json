@@ -1,0 +1,31 @@
+{
+  "skill": "plan-devex-review",
+  "version": "2.0.0",
+  "cases": [
+    {
+      "id": "devex-review-en",
+      "prompt": "do a developer experience review of my API design plan",
+      "assertions": [
+        { "id": "explores-personas-and-benchmarks", "text": "Explores developer personas and benchmarks the plan against competitors" },
+        { "id": "magical-moments-and-friction", "text": "Designs magical moments and traces friction points before scoring" },
+        { "id": "three-modes", "text": "Frames the review across DX EXPANSION, DX POLISH, or DX TRIAGE modes" }
+      ]
+    },
+    {
+      "id": "onboarding-review-ko",
+      "prompt": "우리 SDK 온보딩 DX 리뷰해줘",
+      "assertions": [
+        { "id": "developer-facing-scope", "text": "Treats it as a developer-facing product (API/CLI/SDK/docs) DX review" },
+        { "id": "friction-trace", "text": "Traces onboarding friction points and recommends fixes interactively" }
+      ]
+    },
+    {
+      "id": "api-design-review-voice",
+      "prompt": "API design review for our new public endpoints",
+      "assertions": [
+        { "id": "matches-voice-trigger", "text": "Treats this as the devex review trigger and runs the interactive DX flow" },
+        { "id": "competitor-benchmark", "text": "Benchmarks the API ergonomics against comparable developer products before scoring" }
+      ]
+    }
+  ]
+}

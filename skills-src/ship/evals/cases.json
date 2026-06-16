@@ -1,0 +1,38 @@
+{
+  "skill": "ship",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-ship-it",
+      "prompt": "이거 배포하자, PR 만들고 push 해줘",
+      "assertions": [
+        {
+          "id": "merge-base-test",
+          "text": "Detects and merges the base branch, then runs tests before shipping."
+        },
+        {
+          "id": "version-changelog",
+          "text": "Bumps VERSION and updates CHANGELOG before committing."
+        },
+        {
+          "id": "push-and-pr",
+          "text": "Commits, pushes, and creates a PR rather than pushing to main directly."
+        }
+      ]
+    },
+    {
+      "id": "en-ready-to-ship",
+      "prompt": "The feature is ready, ship it and create a PR.",
+      "assertions": [
+        {
+          "id": "review-diff",
+          "text": "Reviews the diff as part of the ship workflow."
+        },
+        {
+          "id": "full-ship-flow",
+          "text": "Runs the full ship flow: tests, VERSION bump, CHANGELOG update, commit, push, PR creation."
+        }
+      ]
+    }
+  ]
+}

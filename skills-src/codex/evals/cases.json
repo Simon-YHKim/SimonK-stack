@@ -1,0 +1,24 @@
+{
+  "skill": "codex",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "en-codex-review",
+      "prompt": "Get a codex review on my diff — I want an independent second opinion with a pass/fail gate.",
+      "assertions": [
+        { "id": "review-mode", "text": "Uses the codex review mode to run an independent diff review with a pass/fail gate." },
+        { "id": "codex-cli", "text": "Wraps the OpenAI Codex CLI rather than reviewing inline as Claude." },
+        { "id": "review-output", "text": "Produces an independent code review result the user can act on." }
+      ]
+    },
+    {
+      "id": "ko-codex-challenge",
+      "prompt": "코덱스한테 이 코드 깨보라고 시켜줘. 적대적으로 챌린지 돌려.",
+      "assertions": [
+        { "id": "challenge-mode", "text": "Runs the adversarial challenge mode that actively tries to break the code." },
+        { "id": "second-opinion", "text": "Acts as the independent '200 IQ developer' second opinion separate from Claude's own view." },
+        { "id": "challenge-results", "text": "Produces adversarial challenge results showing what it could break." }
+      ]
+    }
+  ]
+}
