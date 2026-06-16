@@ -194,3 +194,10 @@ Proactive Compact 모드는 스크립트가 아닌 _판단 모드_ 이므로 통
 - **`simon-worktree`** — 병렬 세션 사용 시 각 worktree 에서 context-guardian 독립 관리 (worktree 마다 자기 `SESSION_RECOVERY.md`).
 - **`/retro`** (Gstack) — 주간 회고 시 `context_limit_log.json` history 리뷰로 패턴 파악.
 - **`app-dev-orchestrator`** — 21 단계 파이프라인 실행 시 각 단계 사이에 prevention 모드 자동 실행 권장.
+
+## 완료 보고 (HTML) — 표준
+작업을 끝내면 **HTML 완료 보고서**를 생성한다 (SimonKCore `completion-report` 표준).
+- 첫 화면은 **심플 요약**(한눈 카드 한 줄) + 직관 그래픽/차트(인라인 SVG)·이미지.
+- 각 항목 옆 **[자세히] 버튼**(`<details>`)을 펼치면 상세 — 처음부터 쏟지 않는다(progressive disclosure).
+- 자체완결 1파일(인라인 CSS/SVG, 무JS) · 사용자 언어 · 현지시간 스탬프.
+- Core 있으면 `completion-report` 호출, 없으면 동일 형식으로 인라인 생성.
