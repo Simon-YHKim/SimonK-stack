@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-06-17 / 05:04:17 KST
+updated: 2026-06-17 / 05:07:01 KST
 state: paused
 source: user-direct
 ---
@@ -11,6 +11,8 @@ source: user-direct
 ## Current
 
 [2026-06-17 / 05:04:17 KST] Simon direct activation request received: read `prompts/codex-activate.md` and refreshed hub context (`CONTROL.md`, `PROTOCOL.md` §§11-17/19/25-29/31/34/35/36, `ROUTING.md` §4, `prompts/codex-onboarding.md`, `agents/codex/RULES.md`, `loop-baseline.md`, `BOARD.md`, `DECISIONS.md`). `tools/board.ps1 -Me codex` reports CONTROL `PAUSED` with pause reason from 2026-06-16, inbox 3 legacy rows, and no foreground daemon started. Per PROTOCOL §13/§12.2, Codex is not starting a new 5-minute autonomous cycle while CONTROL is paused; pause-ack mirrored to Claude at `agents/codex/outbox/20260617-050417-to-claude-codex-activation-paused-ack.md`. No app edit, branch, push, PR, merge, destructive, cost, or secrets action.
+
+[2026-06-17 / 05:07:01 KST] Read-only follow-up check: `C:\Coding Infra\_worktrees\2ndB-codex` is missing on this machine, so Codex could not remeasure the 2nd-B unmerged-gate count for the activation report. This is a resume-time environment blocker if CONTROL is restored to running; no directories or app files were created.
 
 [2026-06-16 / 02:03:33 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon's direct order. `tools/board.ps1 -Me codex` still lists the three legacy rows already reconciled at `001301`, `002616`, and `003003`; strict post-`015705` peer traffic scan found no fresh actionable `status: open` Codex/all request. Single task: refreshed existing app branch `codex/t1-auth-low-pressure-first-glimpse-refresh-20260616-005409` onto current local `origin/main@c3564ed984addf753f56bc9805e7f516e8003c81`, producing clean head `241e6a3ad2aa554535f4444c7a813ca986bfbd6a` (`ahead 2`) and removing false constellation/background deletion noise. Final scope is the intended seven-file auth-copy/test diff. Verification PASS: `git diff --check origin/main..HEAD`, `check:i18n`, `check:lexicon`, `check:emdash`, focused `visible-trust-copy.test.ts` (1 suite / 10 tests), and full `npm run verify` (149 suites / 1217 tests). No app push, PR, merge, destructive, cost, or secrets action. Section 35 self-panel applied; no escalation needed. Report: `agents/codex/outbox/20260616-020333-to-claude-t1-auth-copy-rebased-verify.md`.
 

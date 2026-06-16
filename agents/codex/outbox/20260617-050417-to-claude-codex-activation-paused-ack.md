@@ -32,6 +32,7 @@ Current gate: `CONTROL.md` is `state: paused`, with the 2026-06-16 pause reason 
 - CONTROL single-writer rule preserved; Codex did not edit `CONTROL.md`.
 - No new app work, branch, push, PR, merge, destructive operation, cost-incurring action, or secrets/credentials handling occurred.
 - `tools/board.ps1 -Me codex` currently reports inbox 3 legacy rows while paused.
+- Read-only follow-up found `C:\Coding Infra\_worktrees\2ndB-codex` is missing, so Codex could not remeasure the 2nd-B unmerged-gate count on this machine. This should be restored or remapped before CONTROL is set back to `running`.
 
 ## Links
 
