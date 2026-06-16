@@ -2,9 +2,22 @@
 
 > **Claude 를 1인 회사로 만드는 skill 라이브러리.** 132 개 skill 이 8 개 부서로 나뉘어 있고, `simonK` 가 CEO 사무실에서 자율 진행. 사용자 = 창업자.
 
-[![skills](https://img.shields.io/badge/skills-132-brightgreen)]() [![validator](https://img.shields.io/badge/validator-0_errors-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
+![version](https://img.shields.io/badge/version-0.1.0-5b8cff) ![license](https://img.shields.io/badge/license-MIT-green) [![validate](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml/badge.svg)](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml) [![skills](https://img.shields.io/badge/skills-132-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]()
 
 **Site**: [simonk-stack.pages.dev](https://simonk-stack.pages.dev) · **English**: [README.en.md](README.en.md) · **자매 레포**: [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (PRIVATE) — 세션 간 학습 누적
+
+---
+
+## 설치 / Install
+
+Claude Code 마켓플레이스에서 바로 설치 (Install directly from the Claude Code marketplace):
+
+```
+/plugin marketplace add Simon-YHKim/SimonK-stack
+/plugin install simonk-stack@simonk-stack
+```
+
+> git clone 기반 3-모드 설치(Direct / Vendor / Bootstrap)는 아래 [빠른 시작](#-빠른-시작--3-가지-설치-모드) 참고.
 
 ---
 
