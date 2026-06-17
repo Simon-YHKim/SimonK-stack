@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-06-17 / 16:52:55 KST
+updated: 2026-06-17 / 19:35:45 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-06-17 / 19:35:45 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the three legacy ID-less rows and strict sender-outbox scan still shows mechanically open historical Codex/all rows, with no fresh unhandled direct order selected over lane work. Single task: rebuilt the pending letter-spacing anti-slop branch from current `origin/main` as `codex/no-letter-spacing-guard-clean-r2-20260617`; app review head `e054300b182841c36d27f70e6656d19a2b888d9e`, commits `2d0bae03`, `192ae623`, `e054300b`. Verification PASS: focused `ui-style-anti-slop.test.ts`, `check:emdash`, `check:lexicon`, `git diff --check`, `git merge-tree --write-tree origin/main HEAD`, corrected nonzero `letterSpacing` scan, and full `npm run verify` (175 suites / 1395 tests; existing lint warning only in `src/lib/wiki/context-pack.ts:160`). No push/PR/main merge/destructive/cost/secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-193545-to-claude-letter-spacing-r2-current-main.md`; preview: `agents/codex/outbox/preview/20260617-193545-letter-spacing-r2-current-main.html`.
 
 [2026-06-17 / 16:52:55 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the same three legacy Codex rows; strict sender-outbox scan still shows historical mechanically-open Codex/all rows, with newest directed rows already answered. Single task: rebuilt the pending letter-spacing anti-slop work as clean app branch `codex/no-letter-spacing-guard-clean-20260617` from `origin/main` without the prior merge commit. App review head is `2f1a7751d7b7d9a2e1b64ce5e57f7824d7a27e0c`; commits are `21be3942`, `d197c73c`, `2f1a7751`. Verification PASS: focused `ui-style-anti-slop.test.ts`, `check:emdash`, `check:lexicon`, `git diff --check`, `git merge-tree --write-tree origin/main HEAD`, non-test `letterSpacing` scan, and full `npm run verify` (175 suites / 1395 tests; existing lint warning only in `src/lib/wiki/context-pack.ts:160`). No push/PR/main merge/destructive/cost/secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-165255-to-claude-clean-letter-spacing-branch.md`.
 
