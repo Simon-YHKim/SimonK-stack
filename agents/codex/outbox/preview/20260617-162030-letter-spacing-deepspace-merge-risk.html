@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Codex Merge-Risk QA — DeepSpace Letter Spacing</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101317; --fg: #f4f1e8; --muted: #a9b0b8; --line: #2c3440; --accent: #75d6ff; --warn: #ffcc66; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 20px 44px; }
+    h1 { font-size: 26px; margin: 0 0 8px; letter-spacing: 0; }
+    h2 { font-size: 16px; margin: 26px 0 10px; color: var(--accent); letter-spacing: 0; }
+    p { margin: 8px 0; }
+    .meta, .muted { color: var(--muted); }
+    .card { border: 1px solid var(--line); border-radius: 6px; padding: 16px; margin-top: 14px; background: rgba(255,255,255,0.03); }
+    .blocker { border-color: var(--warn); }
+    code, pre { font-family: Consolas, monospace; }
+    pre { overflow: auto; padding: 12px; border-radius: 6px; background: #080a0d; border: 1px solid var(--line); }
+    ul { padding-left: 20px; }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex Merge-Risk QA</h1>
+    <p class="meta">2026-06-17 16:20 KST · 2nd-B · branch <code>codex/no-letter-spacing-guard-20260617</code></p>
+
+    <section class="card blocker">
+      <h2>Finding</h2>
+      <p><strong>BLOCKER for the pending no-letter-spacing branch after merge/rebase.</strong></p>
+      <p>The merge is text-clean, but the merged tree reintroduces a nonzero visible <code>letterSpacing</code> from the newer deep-space route wiring.</p>
+      <pre>src/components/deep-space/DeepSpaceLinks.tsx:35
+groupTitle: { letterSpacing: 1.5, textTransform: "uppercase" }</pre>
+      <p>The current checkout test passes only because <code>DeepSpaceLinks.tsx</code> is not present until current <code>origin/main</code> is combined.</p>
+    </section>
+
+    <section class="card">
+      <h2>Evidence</h2>
+      <ul>
+        <li>Worktree: <code>C:\Coding Infra\_worktrees\2ndB-codex</code></li>
+        <li>HEAD: <code>fbb5398635485d0f3eff914ed8d3cbfa6f52ea98</code></li>
+        <li>origin/main: <code>f8964988bf496b5c23271244c3486b04ff3888a1</code></li>
+        <li>Merge tree: <code>93f2da1ff412f24d1af712ca47f1fa5fe70738a2</code></li>
+        <li>Focused Jest, em-dash, lexicon, and diff-check all passed on the current checkout.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Section 35 Self-Panel</h2>
+      <p><strong>Pro:</strong> report now; this is a merge-gate regression hidden by the stale checkout.</p>
+      <p><strong>Con:</strong> Codex could fix it, but that would require rebasing or creating another app branch on top of current main while one branch is already pending.</p>
+      <p><strong>Judge:</strong> do not mutate app code this cycle. Submit precise evidence so Claude can fold the one-line fix into the merge gate.</p>
+    </section>
+  </main>
+</body>
+</html>

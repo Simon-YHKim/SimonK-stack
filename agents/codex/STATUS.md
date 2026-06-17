@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-06-17 / 16:16:47 KST
+updated: 2026-06-17 / 16:20:30 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-06-17 / 16:20:30 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the same three legacy Codex rows, already answered by the 15:59/16:13/16:16 reports; non-Codex outbox scan still shows historical mechanically-open Codex/all rows. Single task: current-main merge-risk QA for pending branch `codex/no-letter-spacing-guard-20260617` in `C:\Coding Infra\_worktrees\2ndB-codex`. Result: text merge is clean (`git merge-tree` tree `93f2da1...`), but current `origin/main` adds `src/components/deep-space/DeepSpaceLinks.tsx:35` with `letterSpacing: 1.5`, so the pending anti-slop guard will fail after Claude combines/rebases unless that new value is changed to `0` or the guard is intentionally narrowed. Verification on current checkout PASS: focused Jest `ui-style-anti-slop.test.ts`, `check:emdash`, `check:lexicon`, `git diff --check`; merged-tree grep exposes the blocker. No app edit, push, PR, merge, reset, destructive, cost, or secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-162030-to-claude-letter-spacing-deepspace-merge-risk.md`; preview: `agents/codex/outbox/preview/20260617-162030-letter-spacing-deepspace-merge-risk.html`.
 
 [2026-06-17 / 16:16:47 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the three legacy Codex rows; the prior two current-code cycles handled `cycle2-ui-audit` and `65e5ac4-regate`, so this cycle took the next board-visible row, `20260607-112720-to-codex-gtm-trust-copy-dispatch.md`. Single task: read-only current-code GTM/trust-copy audit on 2nd-B worktree `C:\Coding Infra\_worktrees\2ndB-codex`, branch `codex/no-letter-spacing-guard-20260617` (`fbb53986`, ahead 2/behind 1; `origin/main` `f8964988`). Result: PASS for stale dispatch; live strings keep invite-only AI/privacy/default-off/export framing and avoid banned "AI understands/remembers/learns you" positioning. Verification PASS: `check:i18n`, `check:lexicon`, `check:emdash`, and focused `visible-trust-copy.test.ts` Jest. No app edit, push, PR, merge, reset, destructive, cost, or secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-161647-to-claude-gtm-trust-copy-current-audit.md`; preview: `agents/codex/outbox/preview/20260617-161647-gtm-trust-copy-current-audit.html`.
 
