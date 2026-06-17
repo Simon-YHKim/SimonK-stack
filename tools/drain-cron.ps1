@@ -27,11 +27,15 @@ $mode = if ($state -eq 'running') { '-Execute' } else { '' }
 
 $argList = @('-NoProfile','-File', $drain)
 if ($mode) { $argList += $mode }
-$out = & "C:\Program Files\WindowsApps\Microsoft.PowerShell_7.6.3.0_x64__8wekyb3d8bbwe\pwsh.exe" @argList 2>&1 | Out-String
+# pwsh 경로를 현재 호스트에서 동적 해석 — 버전 박힌 절대경로 하드코딩 금지(PS 업데이트 시 무음 실패 방지)
+$pwshExe = (Get-Process -Id $PID).Path
+if (-not $pwshExe -or -not (Test-Path $pwshExe)) { $pwshExe = Join-Path $PSHOME 'pwsh.exe' }
+if (-not (Test-Path $pwshExe)) { $pwshExe = 'pwsh' }
+$out = & $pwshExe @argList 2>&1 | Out-String
 $out | Add-Content $log
 
-# 사람이 읽을 최신 요약 (open-reports가 픽업)
-$summaryLines = $out -split "`n" | Where-Object { $_ -match 'deleted|DROP  :|REVIEW:|완료:' }
+# 사람이 읽을 최신 요약 (open-reports가 픽업) — 실패/스킵도 표면화
+$summaryLines = $out -split "`n" | Where-Object { $_ -match 'deleted|FAILED|SKIP|DROP  :|REVIEW:|완료:' }
 $md  = @()
 $md += "# Branch Drain — 최신 실행 ($ts KST)"
 $md += ''

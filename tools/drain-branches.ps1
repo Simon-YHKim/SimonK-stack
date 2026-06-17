@@ -118,15 +118,23 @@ $review | Format-Table Name, Ahead, Behind, Date, Author -AutoSize | Out-String 
 
 if ($Execute) {
   Write-Host "== 폐기 실행 (origin --delete) ==" -ForegroundColor Red
-  $ok = 0; $fail = 0
+  $ok = 0; $fail = 0; $skip = 0
   foreach ($d in $drop) {
+    # 2차 가드(방어 심층): 분류 단계에서 빠졌더라도 보호 브랜치는 절대 삭제 금지.
+    # gh-pages(라이브 사이트)/main 등이 enumeration 필터를 우회해도 여기서 차단.
+    if ($Protected -contains $d.Name) {
+      $skip++; Write-Host "  ! SKIP protected $($d.Name)" -ForegroundColor Yellow; continue
+    }
     try {
-      git push origin --delete $d.Name 2>&1 | Out-Null
+      $res = git push origin --delete $d.Name 2>&1
       if ($LASTEXITCODE -eq 0) { $ok++; Write-Host "  - deleted $($d.Name)" }
-      else { $fail++; Write-Host "  ! FAILED  $($d.Name)" -ForegroundColor Red }
+      else {
+        $fail++; Write-Host "  ! FAILED  $($d.Name): $res" -ForegroundColor Red
+        "FAILED $($d.Name): $res" | Add-Content $ledgerCsv.Replace('.csv','-failures.log')
+      }
     } catch { $fail++; Write-Host "  ! ERROR   $($d.Name): $_" -ForegroundColor Red }
   }
-  Write-Host ("== 완료: deleted=$ok failed=$fail. 복원은 $restorePs ==") -ForegroundColor Cyan
+  Write-Host ("== 완료: deleted=$ok failed=$fail skipped=$skip. 복원은 $restorePs ==") -ForegroundColor Cyan
 } else {
   Write-Host "== DRY-RUN: 삭제 안 함. 실제 폐기는 -Execute. 아래 DROP 후보 ==" -ForegroundColor Yellow
   $drop | Format-Table Name, Ahead, Behind, Date, Reason -AutoSize | Out-String | Write-Host
