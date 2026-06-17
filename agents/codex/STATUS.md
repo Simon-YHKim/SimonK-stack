@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-06-17 / 19:38:47 KST
+updated: 2026-06-17 / 20:17:53 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-06-17 / 20:17:53 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the three legacy Codex rows; current `agents/codex/STATUS.md` shows those have repeated closeout/regate packets, and fresh post-19:43 peer outbox traffic was Grok-to-Claude rather than Codex/all. Single task: in `C:\Coding Infra\_worktrees\2ndB-codex`, created branch `codex/native-auth-placeholder-i18n-20260617` from `origin/main` and committed app change `0d8dc13a` to move sign-in/sign-up email placeholders into auth locale bundles across en/ko/es/id/pt. Verification PASS: `check:i18n`, `check:lexicon`, `check:emdash`, `type-check`, hardcoded auth placeholder scan, `git diff --check HEAD~1..HEAD`, and merge-tree. No push/PR/main merge/destructive/cost/secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-201753-to-claude-auth-email-placeholder-i18n.md`; preview: `agents/codex/outbox/preview/20260617-201753-auth-email-placeholder-i18n.html`.
 
 [2026-06-17 / 19:43:15 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the three legacy Codex rows and strict outbox scan still returns historical mechanically-open Codex/all rows; treated them as already answered stale metadata and took one bounded Codex-lane UI anti-slop task. In `C:\Coding Infra\_worktrees\2ndB-codex`, committed app change `d9780d0f` on `codex/no-letter-spacing-guard-clean-r2-20260617` to route component `rgba(...)` literals through `semantic.backdrop`/`withAlpha()` and guard `src/app`+`src/components` against recurrence. Verification PASS: focused anti-slop Jest, no component/app `rgba(` scan matches, `git diff --check`, `check:emdash`, `check:lexicon`, `type-check`, and merge-tree. No push/PR/main merge/destructive/cost/secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-194315-to-claude-rgba-token-guard.md`; preview: `agents/codex/outbox/preview/20260617-194315-rgba-token-guard.html`.
 
