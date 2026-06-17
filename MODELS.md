@@ -11,10 +11,10 @@
 
 | AI | CLI | 최고모델 | effort 최대 | 선택/플래그 |
 |---|---|---|---|---|
-| **Claude** | `claude` | `claude-fable-5` | `max` | `/model fable` → `/effort max` (영속: env `CLAUDE_CODE_EFFORT_LEVEL=max`) |
-| **Codex** | `codex` | `gpt-5.5` | `xhigh` | `-m gpt-5.5 -c model_reasoning_effort="xhigh"` |
+| **Claude** | `claude` | `claude-opus-4-8` (Default 권장) | `max` | `--model opus` 또는 `/model` → Default (recommended) → `/effort max` (영속: env `CLAUDE_CODE_EFFORT_LEVEL=max`) |
+| **Codex** | `codex` | `gpt-5.5` | `medium` (Simon 핀) | `-m gpt-5.5 -c model_reasoning_effort="medium"` |
 | **Grok** | `grok` | `grok-build` | `high` | `-m grok-build` + env `GROK_MODEL=grok-build` (grok-4.3 not in this CLI build) |
-| **Antigravity** | `agy`/`gemini` | `gemini-3.1-pro-preview` | `high`(=max) | `-m gemini-3.1-pro-preview` / agy `"Gemini 3.1 Pro (High)"` |
+| **Antigravity** | `agy` (gemini sunset 06-18) | `gemini-3.1-pro-preview` | `high`(=max) | 인-윈도우 agy `"Gemini 3.1 Pro (High)"` / 데몬 헤드리스 `node tools/agy-pty/agy-headless.js` |
 
 ---
 
@@ -24,8 +24,8 @@
 
 | AI | primary | 소진 시 fallback | 근거(검증 2026-06-15) |
 |---|---|---|---|
-| **Claude** | `claude-fable-5` @ max | `claude-opus-4-8` @ xhigh | Fable 5 안전분류기/한도시 Opus 4.8. 인터랙티브는 정액이라 사실상 무한 |
-| **Codex** | `gpt-5.5` @ xhigh | `gpt-5.5` @ **high** | Codex CLI가 노출하는 OpenAI 모델은 gpt-5.5뿐 → **같은 모델·낮은 effort**로 호출당 소비 절감. 진짜 저가 모델 id 생기면 교체 |
+| **Claude** | `claude-opus-4-8` @ max (Default 권장) | `claude-sonnet-4-6` @ high | fable 미사용(2026-06-17 Simon) → Opus 4.8가 기본. 인터랙티브는 정액이라 사실상 무한 |
+| **Codex** | `gpt-5.5` @ medium (Simon 핀) | `gpt-5.5` @ **low** | Codex CLI가 노출하는 OpenAI 모델은 gpt-5.5뿐 → **같은 모델·낮은 effort**로 호출당 소비 절감. 진짜 저가 모델 id 생기면 교체 |
 | **Grok** | `grok-build` @ high | `grok-composer-2.5-fast` @ high | `grok models`가 노출하는 유일한 대체(=CLI 기본). 호출 검증됨 |
 | **Antigravity** | `gemini-3.1-pro-preview` @ high | `gemini-2.5-flash` @ high | FLASHOK 프로브로 호출 검증. ⚠ `gemini-3.5-flash`는 404(미존재)라 **금지** |
 
@@ -39,13 +39,13 @@
 
 ## AI별 근거·주의 (검증됨)
 
-### Claude — `claude-fable-5` @ max
-- Fable 5(2026-06-09)는 Anthropic 최강 공개 모델. Opus 4.8를 코딩·장기 에이전트에서 상회. effort 척도 `low|medium|high|xhigh|max`, **max = 토큰 상한 없음**.
-- **주의**: Fable 5 안전 분류기가 보안/생물 콘텐츠에서 Opus 4.8로 자동 폴백. `max`의 세션 간 영속은 env `CLAUDE_CODE_EFFORT_LEVEL=max`로만 가능. 인터랙티브 Claude Code는 정액(토큰 미과금).
-- **폴백**: `claude-opus-4-8` @ `xhigh`.
+### Claude — `claude-opus-4-8` @ max (Default 권장)
+- **2026-06-17 변경(Simon)**: fable이 현재 **사용 불가** → **Default (recommended) = Opus 4.8**를 기본으로 핀. Claude Code에서 `--model opus` 또는 `/model` → Default (recommended) 선택 후 `/effort max`. effort 척도 `low|medium|high|xhigh|max`, **max = 토큰 상한 없음**.
+- **주의**: `max`의 세션 간 영속은 env `CLAUDE_CODE_EFFORT_LEVEL=max`로만 가능. 인터랙티브 Claude Code는 정액(토큰 미과금). **fable 재가용 시에만 재핀**.
+- **폴백**: `claude-sonnet-4-6` @ `high`.
 
-### Codex — `gpt-5.5` @ xhigh
-- GPT-5.5(2026-04-23) = OpenAI 최신 프런티어, Codex CLI 기본. **`gpt-5.5-codex` 변종 없음 → `-m gpt-5.5`**. `xhigh`가 최대 reasoning.
+### Codex — `gpt-5.5` @ medium (Simon 핀, 2026-06-17)
+- GPT-5.5(2026-04-23) = OpenAI 최신 프런티어, Codex CLI 기본. **`gpt-5.5-codex` 변종 없음 → `-m gpt-5.5`**. `xhigh`가 최대지만 **Simon이 `medium`으로 핀**(Pro Lite 프리미엄 풀 소비를 줄여 한도 도달 지연). 폴백 `low`.
 - **주의**: 검증자 교정 — GPT-5.5 SWE-bench Verified ~82.6%(Claude Opus 4.8 88.6%보다 낮음). 그러나 *Codex 레인에서 쓸 수 있는 최고 OpenAI 모델*. gpt-5.6 루머(공식 id 미정) 주시.
 
 ### Grok — `grok-build` @ high
@@ -54,7 +54,9 @@
 
 ### Antigravity — `gemini-3.1-pro-preview` @ high(=max)
 - Gemini 3.1 Pro(2026-02-19) = Google 종합 1위(SWE-bench Verified 80.6%, ARC-AGI-2 77.1%, 16개 중 13개 벤치 선두). **thinkingLevel HIGH가 최대이자 3.1 Pro 기본값**.
-- **주의**: Gemini CLI는 **2026-06-18 폐기 → agy(Antigravity CLI)로 이관**. agy 모델 라벨 `"Gemini 3.1 Pro (High)"`의 `(High)`가 최대 thinking(agy 기본은 `Gemini 3.5 Flash (High)`이라 override 필요). Gemini 3.5 Flash가 일부 에이전트-코딩 벤치에서 3.1 Pro를 더 낮은 비용에 상회(방어가능한 대안).
+- **주의**: Gemini CLI는 **2026-06-18 폐기 → agy(Antigravity CLI)로 이관**. agy 모델 라벨 `"Gemini 3.1 Pro (High)"`의 `(High)`가 최대 thinking(agy 기본은 `Gemini 3.5 Flash (High)`이라 override 필요).
+- **데몬 헤드리스 수정 (2026-06-17)**: `agy -p`/`gemini -p`는 stdout 리다이렉트 시 ~0바이트만 뱉어 **AG 좌석이 조용히 no-op**(exit 0·빈 transcript·STATUS 수시간 stale)됐다. hub-daemon.ps1 AG 레인을 **ConPTY 래퍼 `tools/agy-pty/agy-headless.js`로 교체**(node + node-pty 필요, `npm install` 1회). 인-윈도우 agy(실제 터미널)는 정상이므로 데몬 대신 인-윈도우로 돌려도 됨.
+- Gemini 3.5 Flash가 일부 에이전트-코딩 벤치에서 3.1 Pro를 더 낮은 비용에 상회(방어가능한 대안).
 
 ---
 

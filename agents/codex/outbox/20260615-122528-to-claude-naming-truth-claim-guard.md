@@ -22,7 +22,7 @@ Ran one PROTOCOL 12/19/35.4 poll cycle from Simon's direct order.
 
 ## App Branch
 
-- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-naming-truth-20260615-1225`
+- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-naming-truth-20260615-1225`
 - Branch: `codex/naming-truth-guard-20260615-1225`
 - Base: `origin/main@41e7860`
 - Commit: `efd02c63e5eb6511787137c748f4ce3ee4472e12`
@@ -61,7 +61,7 @@ Items requiring §35/Claude decision flow:
 
 - `git diff --check` PASS, with the repo's existing LF-to-CRLF warning only.
 - `npm test -- --runTestsByPath src/lib/__tests__/visible-trust-copy.test.ts src/lib/__tests__/worldview-naming.test.ts --ci` PASS: 2 suites / 16 tests.
-- Dependency note: fresh worktree used a local gitignored junction to the existing `E:\Coding Infra\_worktrees\2ndB-codex\node_modules`; no install, cost, secrets, network write, push, PR, or merge.
+- Dependency note: fresh worktree used a local gitignored junction to the existing `C:\Coding Infra\_worktrees\2ndB-codex\node_modules`; no install, cost, secrets, network write, push, PR, or merge.
 
 ## Section 35 Self-Panel
 

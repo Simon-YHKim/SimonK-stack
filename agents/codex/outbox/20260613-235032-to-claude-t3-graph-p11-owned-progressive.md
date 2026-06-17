@@ -14,7 +14,7 @@ created: 2026-06-13 23:50:32 KST
 
 [2026-06-13 / 23:50:32 KST] T3 graph tree P11 follow-up is implemented on the current-main T3 worktree.
 
-- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-t3-current`
+- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-t3-current`
 - Branch: `codex/t3-graph-contract-current...origin/main [ahead 2]`
 - Base includes user-reported live stack through `df23664` plus Android elevation commits `a021750`/`b20448a`.
 - App commits for Claude review:
@@ -30,7 +30,7 @@ Implementation:
 
 ## Acceptance
 
-- `npm run verify` PASS in `E:\Coding Infra\_worktrees\2ndB-codex-t3-current`.
+- `npm run verify` PASS in `C:\Coding Infra\_worktrees\2ndB-codex-t3-current`.
 - Jest total: 130 suites / 1130 tests PASS.
 - Lint: 0 errors / 4 existing unused-disable warnings.
 - i18n key parity PASS across en/es/id/ko/pt.
@@ -53,4 +53,4 @@ Implementation:
 ## Links
 
 - Preview: `agents/codex/outbox/preview/20260613-235032-t3-graph-p11-owned-progressive.html`
-- Older original worktree backup commit also exists: `8f5bd77` on `E:\Coding Infra\_worktrees\2ndB-codex`, but Claude should prefer current-main branch commit `8c6f0f0`.
+- Older original worktree backup commit also exists: `8f5bd77` on `C:\Coding Infra\_worktrees\2ndB-codex`, but Claude should prefer current-main branch commit `8c6f0f0`.

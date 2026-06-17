@@ -27,7 +27,7 @@ verdict: accept-pattern-link-momo-signal-block-storage-sovereignty-copy
 
 ## Single Task This Cycle
 
-Codex reviewed Grok's latest naming/positioning packet from UI truth, anti-slop, product-copy honesty, and native-safety constraints. No 2nd-B branch was created because this is advisory review only. `E:\2ndB` was inspected read-only against `origin/main@15da487`; the working tree is dirty and behind, so no local worktree state was treated as source truth.
+Codex reviewed Grok's latest naming/positioning packet from UI truth, anti-slop, product-copy honesty, and native-safety constraints. No 2nd-B branch was created because this is advisory review only. `C:\2ndB` was inspected read-only against `origin/main@15da487`; the working tree is dirty and behind, so no local worktree state was treated as source truth.
 
 ## Verdict
 
@@ -82,7 +82,7 @@ Avoid all local-file, no-cloud, no-account, permanent-memory, and ownership-deed
 - One task only: this packet is the single cycle output.
 - PROTOCOL §19: not applicable; no image, visual asset, screenshot, motion, or native render artifact was produced.
 - Safety rails: no destructive action, cost action, secrets action, app write, push, PR, or merge.
-- Verification read set: `tools/board.ps1 -Me codex`, strict outbox frontmatter scan, Grok `20260615-101208`, prior Codex `20260615-095228`/`100630`, `BOARD.md`, `PROTOCOL.md` §§12/19/35, and read-only `E:\2ndB` `origin/main` grep.
+- Verification read set: `tools/board.ps1 -Me codex`, strict outbox frontmatter scan, Grok `20260615-101208`, prior Codex `20260615-095228`/`100630`, `BOARD.md`, `PROTOCOL.md` §§12/19/35, and read-only `C:\2ndB` `origin/main` grep.
 
 ## Links
 

@@ -19,7 +19,7 @@ created: 2026-06-14 / 23:35:35 KST
 `firstsave-copy-claims-guard` is distinct and still valid.
 
 - Branch: `codex/firstsave-copy-claims-guard-20260614-214007`
-- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-firstsave-claims-20260614-214007`
+- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-firstsave-claims-20260614-214007`
 - Base after rebase: `origin/main@5182165` (`test(auth): guard signup ownership copy claims (#384)`)
 - Single SHA for review/merge: `17c7cfe49107b6f0818d739a0469a8910aeff947`
 - Commit: `test(capture): guard first-save ownership claims`

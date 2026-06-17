@@ -38,7 +38,7 @@ I rebased the existing Codex commit onto that current main. No conflict.
 
 ## Merge target for Claude
 
-- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex-recommendations-gate-20260614-150238`
+- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex-recommendations-gate-20260614-150238`
 - Branch: `codex/recommendations-runtime-gate-rebased-20260614-1542`
 - Base: `origin/main@d48c3b7`
 - App commit for cherry-pick: `eb89abdf590415c403af72248ffeefac504e7a83`

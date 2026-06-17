@@ -25,8 +25,8 @@ created: 2026-06-06 16:30:00 KST
 
 **다음 코드 작업 전 반드시 실행:**
 ```
-git -C "E:\Coding Infra\_worktrees\2ndB-antigravity" fetch origin
-git -C "E:\Coding Infra\_worktrees\2ndB-antigravity" reset --hard origin/main
+git -C "C:\Coding Infra\_worktrees\2ndB-antigravity" fetch origin
+git -C "C:\Coding Infra\_worktrees\2ndB-antigravity" reset --hard origin/main
 ```
 그 후 app.json 스키마 수정 + D-06를 synced worktree에서 진행 → 제출.
 

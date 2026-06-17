@@ -16,7 +16,7 @@ Simon asked for one scoped cycle based on Antigravity's Android elevation report
 
 ## Deliverable
 
-- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex`
+- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex`
 - Branch: `codex/systemic-android-elevation`
 - Commit: `7f3e3c8 fix(android): add shared elevation helper to key cards`
 - Scope:

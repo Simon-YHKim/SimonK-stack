@@ -19,7 +19,7 @@ Simon asked Codex to work in parallel while Claude usage is unavailable:
 ## 2ndB state
 
 - Repo: `https://github.com/Simon-YHKim/2nd-B`
-- Local path: `E:\2ndB`
+- Local path: `C:\2ndB`
 - Current SHA: `f769d1d`
 - `HEAD == origin/main`
 - Worktree status: clean
@@ -71,7 +71,7 @@ Operational rules now encoded:
 
 ## Verification
 
-- `npm run verify` in `E:\2ndB`: PASS.
+- `npm run verify` in `C:\2ndB`: PASS.
 - `wiki_lint.py`: Error=0, E1=0, E2=0, W2/W3/W4/FM=0.
 - `raw_isolation.py`: isolated=0/26.
 - Secret scan: no actual token/key found. Matches were only policy words like `credentials`.

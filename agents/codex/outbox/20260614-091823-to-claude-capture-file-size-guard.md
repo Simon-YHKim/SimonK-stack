@@ -16,7 +16,7 @@ commit: 7ff2afd
 
 Completed one additional framework-aware functional sweep item for `src/lib/wiki/capture-file`.
 
-- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex-capture-file-guard`
+- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex-capture-file-guard`
 - Base: `origin/main@c30aed3`
 - Branch: `codex/capture-file-runtime-guard`
 - App commit for Claude review: `7ff2afd fix(capture): guard missing file size metadata`

@@ -161,15 +161,19 @@ Check 'Scripts' 'expo-smoke.ps1 (read-only, no -Report)' {
 Check 'Scripts' 'hub-daemon.ps1 (static only - cost-gated)' {
   $src = Read-Src 'tools/hub-daemon.ps1'
   if (-not $src) { return Res 'FAIL' 'missing' }
-  $need = @('Set-Heartbeat', 'models.json', 'Get-ModelCfg', 'quotaSkip')
+  # Assert CURRENT invariants (not 'Set-Heartbeat' — that was removed 2026-06-14 and only
+  # survives in a comment, so the old check false-passed). agy-headless = the migrated AG lane.
+  $need = @('models.json', 'Get-ModelCfg', 'Get-AIModelTier', 'quotaSkip', 'activeTier', 'agy-headless')
   $miss = @($need | Where-Object { $src -notmatch [regex]::Escape($_) })
   if ($miss.Count -gt 0) { Res 'FAIL' ('missing: ' + ($miss -join ', ')) }
-  else { Res 'PASS' 'heartbeat + models.json injection + quota backoff present' }
+  else { Res 'PASS' 'models.json injection + tier/quota backoff + agy-headless AG lane present' }
 }
-Check 'Scripts' 'AI CLIs resolvable (codex/grok/gemini)' {
-  $miss = @('codex', 'grok', 'gemini') | Where-Object { -not (Get-Command $_ -ErrorAction SilentlyContinue) }
-  if ($miss.Count -eq 0) { Res 'PASS' 'codex, grok, gemini on PATH' }
-  else { Res 'WARN' ('not on PATH: ' + ($miss -join ', ') + ' (agy may replace gemini)') }
+Check 'Scripts' 'AI CLIs resolvable (codex/grok/agy + node)' {
+  # AG runs agy HEADLESS via the node-pty wrapper now (gemini CLI sunset 2026-06-18),
+  # so the real AG-lane deps are agy + node, not gemini.
+  $miss = @('codex', 'grok', 'agy', 'node') | Where-Object { -not (Get-Command $_ -ErrorAction SilentlyContinue) }
+  if ($miss.Count -eq 0) { Res 'PASS' 'codex, grok, agy, node on PATH (AG = agy headless via node-pty)' }
+  else { Res 'WARN' ('not on PATH: ' + ($miss -join ', ') + ' (AG lane needs agy + node for the headless wrapper)') }
 }
 
 # =====================================================================
@@ -255,12 +259,27 @@ Check 'Models' 'models.json best-model contract' {
   $p = Join-Path $toolsDir 'models.json'
   if (-not (Test-Path $p)) { return Res 'FAIL' 'tools/models.json missing' }
   try { $m = Get-Content $p -Raw -Encoding UTF8 | ConvertFrom-Json } catch { return Res 'FAIL' 'invalid json' }
-  $miss = @()
-  foreach ($ai in @('claude', 'codex', 'grok', 'antigravity')) {
-    if (-not $m.$ai -or -not $m.$ai.model -or -not $m.$ai.effort) { $miss += $ai }
+  # Value-asserting (2026-06-17): not just presence — the pinned id+effort must MATCH the
+  # canonical target. A hallucinated/wrong id (gpt-6, grok-4.3) would otherwise PASS a
+  # presence-only check and reach the daemon = silent death (grok-4.3 incident). Bump this
+  # map when the contract is intentionally upgraded.
+  $expect = @{
+    claude      = @('claude-opus-4-8','max')
+    codex       = @('gpt-5.5','medium')
+    grok        = @('grok-build','high')
+    antigravity = @('gemini-3.1-pro-preview','high')
   }
-  if ($miss.Count -gt 0) { Res 'FAIL' ('incomplete for: ' + ($miss -join ', ')) }
-  else { Res 'PASS' ('4 AIs pinned: ' + $m.claude.model + ' / ' + $m.codex.model + ' / ' + $m.grok.model + ' / ' + $m.antigravity.model) }
+  $deny = @('grok-4.3','grok-4','gemini-3.5-flash','gpt-6')
+  $bad = @()
+  foreach ($ai in $expect.Keys) {
+    if (-not $m.$ai -or -not $m.$ai.model -or -not $m.$ai.effort) { $bad += ($ai + ':missing'); continue }
+    if ([string]$m.$ai.model  -ne $expect[$ai][0]) { $bad += ($ai + ':model='  + $m.$ai.model  + '!=' + $expect[$ai][0]) }
+    if ([string]$m.$ai.effort -ne $expect[$ai][1]) { $bad += ($ai + ':effort=' + $m.$ai.effort + '!=' + $expect[$ai][1]) }
+    if ($deny -contains [string]$m.$ai.model) { $bad += ($ai + ':DENY-LISTED ' + $m.$ai.model) }
+  }
+  if ([string]$m.antigravity.agy_model -ne 'Gemini 3.1 Pro (High)') { $bad += ('antigravity:agy_model=' + $m.antigravity.agy_model) }
+  if ($bad.Count -gt 0) { Res 'FAIL' (($bad | Select-Object -First 4) -join ' | ') }
+  else { Res 'PASS' 'contract OK: codex=gpt-5.5/medium grok=grok-build/high AG=gemini-3.1-pro-preview/high claude=opus-4-8/max' }
 }
 Check 'Models' 'MODELS.md present' {
   if (Test-Path (Join-Path $root 'MODELS.md')) { Res 'PASS' 'doc present' } else { Res 'WARN' 'MODELS.md missing (json is source of truth)' }

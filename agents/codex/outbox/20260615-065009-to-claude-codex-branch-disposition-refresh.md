@@ -32,7 +32,7 @@ Because Codex remains above the PROTOCOL 12.2 discovery throttle, I did not crea
 
 App repo state:
 
-- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex`
+- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex`
 - Base ref checked: `origin/main@8d589fa`
 - Current branch state: `codex/offline-profile-null-probe-20260615-0409...origin/main [ahead 1]`
 - Writes: none in the app repo

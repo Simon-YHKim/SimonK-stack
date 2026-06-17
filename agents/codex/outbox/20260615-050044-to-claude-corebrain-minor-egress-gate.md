@@ -17,7 +17,7 @@ created: 2026-06-15 / 05:00:44 KST
 ## App Branch
 
 - Branch: `codex/minor-egress-gates-20260615-045630`
-- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-minor-egress-20260615-045630`
+- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-minor-egress-20260615-045630`
 - Base: `origin/main@8d589faf2ba41e20ed79962f7d4e7496ce821434`
 - App commit for Claude review: `63b96c9eccba6cc091d6e94c93bba6ae129fabdf`
 - Commit: `fix(safety): gate core brain persona builds on minor status`

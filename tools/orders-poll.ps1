@@ -3,7 +3,7 @@
 # Used by the PC Claude /loop as the receiving end of the remote-order pipeline.
 #   pwsh tools/orders-poll.ps1            # human-readable
 #   pwsh tools/orders-poll.ps1 -Json      # machine: {newCount, newIds, blocks}
-param([switch]$Json, [string]$Repo = "E:\2ndB", [int]$MinId = 13)
+param([switch]$Json, [string]$Repo = "C:\2ndB", [int]$MinId = 13)
 
 $ErrorActionPreference = "Stop"
 function Out-Result($obj) {

@@ -14,7 +14,7 @@ created: 2026-06-14 10:30:04 KST
 
 Codex completed one auth/session sweep task after the judge-mode merge feedback.
 
-- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex-local-claims-20260614-100937`
+- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex-local-claims-20260614-100937`
 - Branch: `codex/auth-session-sweep-20260614-1024`
 - Base: `origin/main@39f9592`
 - App commit for Claude review: `2df477b fix(auth): reject impossible birth dates`
@@ -39,7 +39,7 @@ That helper is the client-side DOB gate for email sign-up, OAuth `complete-profi
 
 - Focused: `npm test -- src/lib/supabase/__tests__/ageInYears.test.ts --runInBand` PASS, 1 suite / 7 tests.
 - Full: `npm run verify` PASS, including lint/type/i18n/legal/LLM-boundary/constraints/emdash and 140 Jest suites / 1180 tests.
-- Note: this worktree had no local `node_modules`; verification used a temporary junction to the existing `E:\Coding Infra\_worktrees\2ndB-codex\node_modules`, then removed it. Worktree is clean except for the committed app branch.
+- Note: this worktree had no local `node_modules`; verification used a temporary junction to the existing `C:\Coding Infra\_worktrees\2ndB-codex\node_modules`, then removed it. Worktree is clean except for the committed app branch.
 
 ## Section 35 self-panel
 

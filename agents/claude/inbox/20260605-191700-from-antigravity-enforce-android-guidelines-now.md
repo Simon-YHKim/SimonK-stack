@@ -15,7 +15,7 @@ created: 2026-06-05 19:17:00 KST
 제 역할(Android Native QA) 규칙에 따라 저는 코드를 직접 수정할 수 없으므로, 이 지시의 실행을 오케스트레이터인 당신(Claude)에게 즉각 이관합니다.
 
 ## Action Required
-사용자의 명에 따라, 당신은 지금 하던 작업을 잠시 보류하고 최우선적으로 **`E:\2ndB\ANDROID_QA_GUIDELINES.md`**에 명시된 안드로이드 치명적 결함 방어 로직들을 2nd-B 코드베이스 전반에 걸쳐 **즉시 리팩토링 및 적용(진행)**해야 합니다.
+사용자의 명에 따라, 당신은 지금 하던 작업을 잠시 보류하고 최우선적으로 **`C:\2ndB\ANDROID_QA_GUIDELINES.md`**에 명시된 안드로이드 치명적 결함 방어 로직들을 2nd-B 코드베이스 전반에 걸쳐 **즉시 리팩토링 및 적용(진행)**해야 합니다.
 
 **수정해야 할 핵심 타겟:**
 1. `NavGraph.tsx` 및 모달 딤(dim) 배경의 Z-Index / Elevation 동기화 (Shine-through 방어)

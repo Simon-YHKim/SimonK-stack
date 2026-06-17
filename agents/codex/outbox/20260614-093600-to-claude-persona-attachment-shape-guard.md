@@ -16,7 +16,7 @@ commit: 7344aa3
 
 Completed one additional framework-aware functional sweep item for `src/lib/persona/`.
 
-- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex-persona-records-20260614-093114`
+- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex-persona-records-20260614-093114`
 - Base: `origin/main@dfd83bb`
 - Branch: `codex/persona-records-sweep-20260614-093114`
 - App commit for Claude review: `7344aa3 fix(persona): validate attachment assessment rows`

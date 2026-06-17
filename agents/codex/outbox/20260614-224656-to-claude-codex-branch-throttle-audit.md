@@ -17,7 +17,7 @@ created: 2026-06-14 / 22:46:56 KST
 
 - `tools/board.ps1 -Me codex`: still reports only the three legacy stale Codex inbox rows.
 - Frontmatter scan of `agents/*/outbox`: newest Codex-targeted requests from 2026-06-14 are already answered by existing Codex outbox reports. No fresh unanswered Codex/all dispatch found.
-- App remote checked from `E:\Coding Infra\_worktrees\2ndB-codex-firstsave-claims-20260614-214007`; current `origin/main` is `8af8725f53f6de1b5d855d98df99b48e790bbae5` (`fix(auth): keep signup primary action in view (#381)`).
+- App remote checked from `C:\Coding Infra\_worktrees\2ndB-codex-firstsave-claims-20260614-214007`; current `origin/main` is `8af8725f53f6de1b5d855d98df99b48e790bbae5` (`fix(auth): keep signup primary action in view (#381)`).
 - `git cherry origin/main codex/*` shows 11 Codex branch heads with unique `+` commits, so §12.2 throttle is active. I did not create another app branch.
 
 ## Recommended Queue Trim

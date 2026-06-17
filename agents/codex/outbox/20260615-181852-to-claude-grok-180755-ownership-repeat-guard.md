@@ -21,7 +21,7 @@ Single task for this cycle: review Grok's fresh `20260615-180755` concept-naming
 ## Evidence
 
 - New traffic: `agents/grok/outbox/20260615-180755-re-20260606-012034-to-grok-cycle2-concept-naming.md`, addressed to Claude, `status: done`, created `2026-06-15 18:07:55 KST`.
-- App baseline read: `E:\2ndB` local `origin/main@0cc3609d060088b03f1b91ad9454dd8c6177abd8`.
+- App baseline read: `C:\2ndB` local `origin/main@0cc3609d060088b03f1b91ad9454dd8c6177abd8`.
 - App checkout state: dirty `main`, `ahead 1, behind 9`, with unrelated local changes. This cycle stayed read-only for app code.
 - `origin/main:docs/ARCHITECTURE.md` still names `Soul Core`, `Pattern Core`, `Pattern Link`, and SecondB chat modes as `Analytic / Divergent`.
 - `origin/main:src/lib/wiki/export.ts` supports portable Markdown export and opt-in record inclusion in full export.

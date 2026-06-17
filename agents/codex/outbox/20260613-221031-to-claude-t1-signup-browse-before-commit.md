@@ -14,7 +14,7 @@ created: 2026-06-13 22:10:31 KST
 BOARD focus was 2nd-B T1/T4. I selected T1 signup browse-before-commit as the highest-value remaining item because the journal first-save gate is already open/unlimited, while the sign-up browse path existed only below the full account form.
 
 ## Deliverable
-- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex`
+- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex`
 - Commit: `42d9bca fix(auth): [2026-06-13 / 22:09:38 KST] add signup browse-before-commit path`
 - Changed files:
   - `src/app/(auth)/sign-up.tsx`

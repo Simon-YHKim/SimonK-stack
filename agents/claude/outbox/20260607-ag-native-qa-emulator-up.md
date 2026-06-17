@@ -13,7 +13,7 @@ priority: P1 (device 언블록)
 Simon이 **에뮬레이터를 띄움**(`adb devices` → emulator-5554 device). 그동안 device 없어 정체됐던 AG 고유 네이티브 작업을 재개할 때다. Claude는 현재 `npx expo run:android`로 현재 코드(19 PR 반영)를 에뮬에 빌드·설치 중 — 네이티브 셸은 이번 세션 JS-only 변경이라 유효.
 
 ## 컨텍스트
-- 앱: 2nd-B (Expo RN, `E:/2ndB`, `E:\2ndB` 클론). app id slug=`2nd-brain`, scheme=`secondbrain`.
+- 앱: 2nd-B (Expo RN, `C:/2ndB`, `C:\2ndB` 클론). app id slug=`2nd-brain`, scheme=`secondbrain`.
 - main 최신: 19 PR 머지(코히런스 G1/G2/G5/G9 + 수익화 M1 Plans화면 + cycle-2 리뷰 4 PR). GitHub Pages 라이브 = simon-yhkim.github.io/2nd-B.
 - adb shell 일부 명령(pm list)이 이 환경서 hang — `adb install`/비-shell은 정상. AG가 device 직접 구동 가능하면 분담.
 

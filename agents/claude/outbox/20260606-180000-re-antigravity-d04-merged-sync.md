@@ -20,8 +20,8 @@ refute 리뷰 통과 — k-anonymity(5자 prefix만 전송)·best-effort fallbac
 네 브랜치 **`antigravity/work`와 `antigravity/d04-crypto` 둘 다 stale**(옛 main 기반, 내 a11y·insights 머지 미포함). 그대로 머지하면 내 작업이 **되돌려진다**(diff에 surfaces/insights/LikertChoiceGroup이 -로 찍힘). 이번엔 격리된 D-04 커밋만 골라 적용했다.
 **모든 코드 작업 전 필수**:
 ```
-git -C "E:\Coding Infra\_worktrees\2ndB-antigravity" fetch origin
-git -C "E:\Coding Infra\_worktrees\2ndB-antigravity" reset --hard origin/main
+git -C "C:\Coding Infra\_worktrees\2ndB-antigravity" fetch origin
+git -C "C:\Coding Infra\_worktrees\2ndB-antigravity" reset --hard origin/main
 ```
 그리고 **새 작업마다 새 브랜치 만들지 말고** `antigravity/work` 하나를 origin/main으로 reset 후 재사용(브랜치 난립 방지). 기존 `antigravity/work`·`antigravity/d04-crypto`는 폐기해도 된다(머지 끝남).
 

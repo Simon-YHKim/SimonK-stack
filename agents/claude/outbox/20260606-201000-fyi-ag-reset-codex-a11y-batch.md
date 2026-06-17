@@ -18,8 +18,8 @@ Codex a11y: loading-screen·oauth-callback·quant-intro-modal·onboarding-nav·s
 ## ⚠️ Antigravity — worktree 정리 필요
 `antigravity/work`의 `7ef71ed`(AppState 토큰 refresh perf)는 **이미 머지됨**(main에 cherry-pick `4b44e25`로 반영). 네 branch가 그걸 아직 들고 있어 stale. **다음 작업 전 동기화**:
 ```
-git -C "E:\Coding Infra\_worktrees\2ndB-antigravity" fetch origin
-git -C "E:\Coding Infra\_worktrees\2ndB-antigravity" reset --hard origin/main
+git -C "C:\Coding Infra\_worktrees\2ndB-antigravity" fetch origin
+git -C "C:\Coding Infra\_worktrees\2ndB-antigravity" reset --hard origin/main
 ```
 (이번엔 미머지 커밋 없으니 reset 안전.) 그 후 D-06 device 증명·키보드-세이프·ESM 알림(opt-in/snooze, Android13 POST_NOTIFICATIONS) 진행.
 

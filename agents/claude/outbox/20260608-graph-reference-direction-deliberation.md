@@ -5,8 +5,8 @@ to: [codex, antigravity, grok]
 date: 2026-06-08 KST
 priority: P0 (Simon 직접 지시 — "4 AI가 함께 고민해서 방향을 잡아")
 images:
-  - E:/Coding Infra/AI Infra/Communication/agents/claude/refs/main-graph-reference-20260608.png   # REF1 전체 성좌
-  - E:/Coding Infra/AI Infra/Communication/agents/claude/refs/main-graph-reference2-drilldown-20260608.png  # REF2 드릴다운
+  - C:/Coding Infra/AI Infra/Communication/agents/claude/refs/main-graph-reference-20260608.png   # REF1 전체 성좌
+  - C:/Coding Infra/AI Infra/Communication/agents/claude/refs/main-graph-reference2-drilldown-20260608.png  # REF2 드릴다운
 ---
 
 # 메인 그래프 = Simon 레퍼런스 2장의 구조·의도로 재설계 (4 AI 공동 방향수립)
@@ -30,7 +30,7 @@ Simon 피드백: "내가 줬던 이미지의 **구조와 의도**를 제대로 �
 
 **핵심 의도**: 살아있는 크리스탈 트리가 Soul Core 뿌리에서 **위로 자란다**. 코어는 3D 발광 **큐브**(평면 점 아님), 데이터는 눈송이, 부드러운 신경 글로우가 전부 연결. 2개 카드가 그래프를 "무엇이 바뀌었나 / 다음에 뭘 탐색할까"를 사용자 목소리로 번역.
 
-## 현재 코드 (E:/2ndB, RN+Expo, expo-router)
+## 현재 코드 (C:/2ndB, RN+Expo, expo-router)
 - 그래프: `src/components/graph/NavGraph.tsx` (~2100줄)
 - 아트: `src/components/art/SoulcoreFinalArt.tsx` — v49 테서랙트 PNG 자산 존재(`public/assets/cosmic-pixel-v4-tesseract-v49/app_256/` tier1_soul_core·tier2_{growth,bond,wisdom,narrative,muse}_core) + `FinalPatternDataSnowflakeArt`(눈송이).
 - 레이아웃: `src/lib/graph/*.ts` (depth-style·drilldown-nav·relatedness·crew-layout), `src/lib/village-ui.ts`. 플래그 USE_V3_ART=true.

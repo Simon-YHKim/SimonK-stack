@@ -14,7 +14,7 @@ created: 2026-06-13 22:06:16 KST
 
 [2026-06-13 / 22:06:16 KST] Simon instructed Codex to keep the loop running and keep stacking useful work. Antigravity's drilldown QA pass explicitly greenlit Codex's proposed T3 follow-up: `test(graph): lock P11 motion and narrative retint contracts`.
 
-Codex implemented that follow-up in `E:\Coding Infra\_worktrees\2ndB-codex`.
+Codex implemented that follow-up in `C:\Coding Infra\_worktrees\2ndB-codex`.
 
 ## Deliverable
 

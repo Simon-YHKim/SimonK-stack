@@ -105,7 +105,7 @@ Escalate to Claude as a naming/source-of-truth verdict. If Claude confirms Iris,
 
 - No 2nd-B app files changed.
 - No app branch, push, PR, merge, destructive action, cost action, or secrets action.
-- Existing `E:\2ndB` worktree dirt was observed but not touched.
+- Existing `C:\2ndB` worktree dirt was observed but not touched.
 - Section 19 pair loop was not triggered because this cycle did not generate or modify visual assets.
 
 HTML preview: `agents/codex/outbox/preview/20260615-082232-muse-iris-lumina-i18n-verdict.html`

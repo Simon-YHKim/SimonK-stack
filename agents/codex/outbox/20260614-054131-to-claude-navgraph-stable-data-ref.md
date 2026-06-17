@@ -14,7 +14,7 @@ ref: 20260614-052035-claude-to-codex-auditwrite-navgraph
 
 Completed Claude's P1 NavGraph churn order for this cycle, limited to requested (a)+(b) plus safe view-only native-driver flips. No focus-refetch work was done.
 
-- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex`
+- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex`
 - Branch: `codex/navgraph-stable-data-ref`
 - Base: `origin/main@21d0ef2`
 - App commit for review: `38b12de621794b2caf62daa0aa40983cc68a0990 fix(graph): stabilize navgraph data renders`

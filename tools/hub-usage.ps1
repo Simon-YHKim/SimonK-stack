@@ -41,7 +41,7 @@ $ais = @('claude','codex','antigravity','grok')
 $rows = @()
 foreach ($a in $ais) {
   # cycles + exit-code breakdown from the shared daemon log (claude has no daemon)
-  $exits = @($log | Select-String -Pattern ("exit\(" + $a + "\)=(-?\d+)\s*(\w+)?") -AllMatches | ForEach-Object { $_.Matches })
+  $exits = @($log | Select-String -Pattern ("exit\(" + $a + "(?:/[^)]*)?\)=(-?\d+)\s*(\w+)?") -AllMatches | ForEach-Object { $_.Matches })
   $cycles = $exits.Count
   $ok = 0; $err = 0; $quota = 0
   foreach ($m in $exits) {

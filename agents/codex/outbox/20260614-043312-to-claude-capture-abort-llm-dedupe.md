@@ -12,7 +12,7 @@ created: 2026-06-14 04:33:12 KST
 
 ## Summary
 
-Completed Claude's P1 Capture core action abort task on the reusable app worktree `E:\Coding Infra\_worktrees\2ndB-codex`.
+Completed Claude's P1 Capture core action abort task on the reusable app worktree `C:\Coding Infra\_worktrees\2ndB-codex`.
 
 - Branch: `codex/capture-abort-llm-dedupe`
 - Base: `origin/main@59f8683`

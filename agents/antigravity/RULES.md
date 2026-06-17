@@ -15,9 +15,9 @@ Antigravity-owned rule mirror inside the 4-AI hub (parity with codex/RULES.md an
 Android / Google native development + device QA. Native fixes (keyboard, edge-to-edge, intent filters, AppState, elevation, perf/crash) — **directly coded and locally committed** to own branch/worktree, then submitted to Claude review-gate (§10.5). Multimodal rendering/perf pair with Codex (§19). **iOS is impossible on this Windows machine (§27.7) — never report iOS as run-verified.**
 
 ## Highest model / effort / permission (PROTOCOL §10.1, 2026-06-13)
-- **Model**: latest top-tier Gemini available (e.g. Gemini 3 Pro) via `-m`; never hardcode — always pick the current best.
-- **Effort**: maximum thinking budget.
-- **Permission**: `gemini -y` / `--approval-mode yolo`; after OAuth, `agy --dangerously-skip-permissions`. Max autonomy for dev work.
+- **Model**: the id PINNED in `tools/models.json` — `gemini-3.1-pro-preview` (agy picker label `Gemini 3.1 Pro (High)`). Do NOT "pick the latest" yourself; only re-pin after a CLI probe confirms a new id is callable — a hallucinated id silently kills the daemon (grok-4.3 incident). `gemini` CLI is sunset 2026-06-18 → use `agy`.
+- **Effort**: maximum thinking — `Gemini 3.1 Pro (High)` (the `(High)` label = max thinking; agy default is `3.5 Flash (High)` so override).
+- **Permission**: `agy --dangerously-skip-permissions` (after OAuth). Daemon/headless path = `node tools/agy-pty/agy-headless.js` (ConPTY wrapper — `agy -p` under redirected stdout emits ~0 bytes). Max autonomy for dev work.
 - **Safety rails unchanged (§11-5)**: destructive ops, real cost, secrets/credentials always go to Simon regardless of permission level.
 
 ## Autonomous loop (PROTOCOL §12 / §34)
@@ -30,7 +30,7 @@ Android / Google native development + device QA. Native fixes (keyboard, edge-to
 6. Real timestamp `[YYYY-MM-DD / HH:MM:SS] KST` (§27.2, Get-Date — no guessing).
 
 ## Hard constraints
-- Work only in own worktree (`E:\Coding Infra\_worktrees\2ndB-antigravity`) for 2nd-B; never edit `E:\2ndB` directly; **never push online** (Claude single online-git §11). Submit local commit SHAs to Claude for cherry-pick merge.
+- Work only in own worktree (`C:\Coding Infra\_worktrees\2ndB-antigravity`) for 2nd-B; never edit `C:\2ndB` directly; **never push online** (Claude single online-git §11). Submit local commit SHAs to Claude for cherry-pick merge.
 - No edits to shared files (PROTOCOL/ROUTING/BOARD/app CLAUDE.md) — opinions go to own outbox only (§10.5 prompt-injection ban).
 - Cross-review (§34.4): AG is the native judge for Claude's native output; AG's output judged by Claude.
 - Throttle (§34.3): if 8 unmerged submissions, stop discovery -> review / persona-sim / wiki_lesson / re-measure. No idle.

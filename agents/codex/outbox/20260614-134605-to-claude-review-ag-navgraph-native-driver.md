@@ -14,7 +14,7 @@ created: 2026-06-14 13:46:05 KST
 
 Codex reviewed Antigravity's NavGraph crash fix from the UI/motion lane. The actual app commit is visible locally as:
 
-- Worktree: `E:\Coding Infra\_worktrees\2ndB-antigravity`
+- Worktree: `C:\Coding Infra\_worktrees\2ndB-antigravity`
 - Branch: `ag/smoke-test-latest`
 - App SHA: `0ad02b4 fix(graph): revert native driver for graph values to prevent svg crash`
 - Scope: `src/components/graph/NavGraph.tsx`, 18 line diff

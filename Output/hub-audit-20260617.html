@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 허브 감사 리포트 — 2026-06-17</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" rel="stylesheet">
+<style>
+  :root{
+    --bg:#16161c; --panel:#1d1d26; --panel2:#23232e; --line:#2f2f3c;
+    --tx:#e6e6ee; --mut:#9a9aac; --acc:#8b8bf0;
+    --p0:#ff6b6b; --p1:#ff9f5a; --p2:#ffd166; --p3:#7aa2f7; --ok:#5ecb8f;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--tx);font-family:'Pretendard',system-ui,sans-serif;line-height:1.6;font-size:15px}
+  .wrap{max-width:980px;margin:0 auto;padding:48px 28px 80px}
+  h1{font-size:27px;font-weight:700;letter-spacing:-.02em;margin:0 0 6px}
+  .sub{color:var(--mut);font-size:14px;margin-bottom:32px}
+  h2{font-size:19px;font-weight:650;margin:40px 0 14px;letter-spacing:-.01em}
+  .verdict{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--p1);border-radius:10px;padding:18px 20px;margin-bottom:8px}
+  .verdict b{color:var(--p1)}
+  .grid{display:grid;gap:11px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:15px 17px}
+  .card.fixed{border-left:3px solid var(--ok)}
+  .head{display:flex;align-items:center;gap:10px;margin-bottom:5px}
+  .tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;letter-spacing:.02em;flex-shrink:0}
+  .t-p0{background:rgba(255,107,107,.16);color:var(--p0)}
+  .t-p1{background:rgba(255,159,90,.16);color:var(--p1)}
+  .t-p2{background:rgba(255,209,102,.15);color:var(--p2)}
+  .t-p3{background:rgba(122,162,247,.15);color:var(--p3)}
+  .t-ok{background:rgba(94,203,143,.16);color:var(--ok)}
+  .title{font-weight:600;font-size:15px}
+  .body{color:var(--mut);font-size:13.5px;margin-top:3px}
+  .body b{color:var(--tx);font-weight:600}
+  .lane{font-size:11px;color:var(--mut);opacity:.8}
+  ul.fp{list-style:none;padding:0;margin:0}
+  ul.fp li{padding:8px 0;border-bottom:1px solid var(--line);color:var(--mut);font-size:13.5px}
+  ul.fp li:last-child{border:0}
+  ul.fp s{color:var(--p3)}
+  .ok-row{display:flex;gap:9px;flex-wrap:wrap}
+  .chip{background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:5px 13px;font-size:13px;color:var(--ok)}
+  .meta{color:var(--mut);font-size:12.5px;margin-top:40px;border-top:1px solid var(--line);padding-top:16px}
+  code{background:var(--panel2);padding:1px 5px;border-radius:4px;font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI 허브 감사 리포트</h1>
+  <div class="sub">2026-06-17 · 10차원 병렬 멀티에이전트 감사(50 agents) + 발견별 adversarial verify + 완전성 비평 + Claude 직접 ground-truth 교차검증</div>
+
+  <div class="verdict">
+    질문 "더 이상의 문제 없어?" 에 대한 답: <b>아니오 — 실재 문제 다수.</b> 단 대부분은 <b>"바퀴는 도는데 동력이 안 걸리는"</b> 운영 문제이지, 데이터 유실·보안 사고 같은 즉시 장애는 아님. 브랜치 적체는 해소됐으나 자율 루프 4좌석 중 2개(Codex·Antigravity)가 사실상 비생산.
+  </div>
+
+  <h2>P1 — 운영 코어 (실측·검증 완료)</h2>
+  <div class="grid">
+    <div class="card">
+      <div class="head"><span class="tag t-p1">P1</span><span class="title">Codex 좌석 만성 quota 무력화</span></div>
+      <div class="body"><b>fallback이 의미 없음</b> — primary(gpt-5.5)와 fallback(gpt-5.5@low)이 같은 OpenAI 풀이라 폴백해도 즉시 재소진. 06-17 하루 <b>SKIP 21사이클</b>, strike 1→2→3로 80분 백오프. <code>codex drain (43 open orders remain)</code>이 10회 내내 불변 = 백로그 정체의 근본원인. <span class="lane">[logs-errors · verify REAL]</span></div>
+    </div>
+    <div class="card">
+      <div class="head"><span class="tag t-p1">P1</span><span class="title">Antigravity 좌석 16시간 무산출</span></div>
+      <div class="body">데몬이 AG를 폴링해 <code>exit=0</code>이지만 마지막 실커밋·STATUS·outbox가 <b>06-17 06:15 이후 0건</b>. agy 헤드리스가 phantom-success 가드(24자 임계)를 아슬하게 넘겨 통과하나 실내용 없음. <b>37 오더 적체</b>, 네이티브/에뮬 QA 레인 공석. <span class="lane">[four-ai-seats + daemon · verify REAL]</span></div>
+    </div>
+    <div class="card">
+      <div class="head"><span class="tag t-p1">P1</span><span class="title">허브 백업 부재 (단일 장애점)</span></div>
+      <div class="body">허브 레포 <b>remote 전무</b> + H: 드라이브 부재(과거 미러 오프라인) + 백업 bundle 0개. <b>1930커밋이 단일 디스크에만</b> 존재. 게다가 <b>1548라인 미커밋</b>(outbox→_archive 아카이브 작업 중단). 디스크 사고 시 전량 유실. <span class="lane">[git-health · verify REAL]</span></div>
+    </div>
+    <div class="card fixed">
+      <div class="head"><span class="tag t-ok">FIXED</span><span class="title">drain 도구 무인삭제 안전결함 — 이번 세션에 하드닝</span></div>
+      <div class="body">critic이 내가 만든 drain 도구의 위험을 적발: gh-pages(라이브 사이트) 보호가 <b>단일 필터 한 줄</b>, drain-cron이 <b>버전 박힌 pwsh 절대경로</b> 하드코딩(PS 업뎃 시 무음 실패), push 실패 stderr 폐기. → <b>커밋 <code>d440350</code>: 삭제루프 protected 2차 가드 + pwsh 경로 동적해석+폴백 + stderr 보존</b>으로 수정 완료. <span class="lane">[branch-sprawl + critic]</span></div>
+    </div>
+  </div>
+
+  <h2>P2 — 안정성·위생</h2>
+  <div class="grid">
+    <div class="card">
+      <div class="head"><span class="tag t-p2">P2</span><span class="title">모델 자동갱신 자동화 죽음</span></div>
+      <div class="body"><code>HubModelBenchmarkRefresh</code> 예약작업 <b>미등록</b>, <code>models-refresh.log</code>가 06-15 09:00 FAIL(grok no-JSON) 후 2.5일째 정지·무알림. 단 models.json 정본은 오늘 수동 갱신돼 데이터는 fresh. <span class="lane">[scheduled + logs · verify PARTIAL]</span></div>
+    </div>
+    <div class="card">
+      <div class="head"><span class="tag t-p2">P2</span><span class="title">orphan worktree husk 1.74GB</span></div>
+      <div class="body"><code>_worktrees/ds-nav-stage2</code>·<code>ds-theme-stage3</code>가 git 등록 해제됐으나 node_modules 롱패스로 폴더만 잔존(husk). 디스크 여유 충분(302GB)이라 급하지 않으나 정리 시 ~1.74GB 회수. <span class="lane">[disk-bloat]</span></div>
+    </div>
+  </div>
+
+  <h2>P3 — 정합성·문서 (다수, 비차단)</h2>
+  <div class="grid">
+    <div class="card"><div class="head"><span class="tag t-p3">P3</span><span class="title">claude inbox 72건 — 52건이 watchdog 자기증식</span></div><div class="body">'인박스 깊다'를 감지해 또 인박스에 알림을 쌓는 패턴. 실 에이전트 메시지 20건이 매몰. watchdog 노트를 별도 채널로 분리 + 디바운스 필요.</div></div>
+    <div class="card"><div class="head"><span class="tag t-p3">P3</span><span class="title">CONTROL.md pause_reason 잔존 → board가 paused 사유 오표시</span></div><div class="body">state=running인데 옛 "가동 중단" pause_reason이 남아 board.ps1이 모순 표시. running 복원 시 pause_reason 비우기.</div></div>
+    <div class="card"><div class="head"><span class="tag t-p3">P3</span><span class="title">claude outbox _archive 부재 (180개 누적)</span></div><div class="body">피어 3종(codex 593·grok 420·AG 148 아카이브)과 달리 claude만 12일치 활성 누적. board 스캔 비용↑.</div></div>
+    <div class="card"><div class="head"><span class="tag t-p3">P3</span><span class="title">문서 정합: CLAUDE.md §19 "PROTOCOL §A" dangling + grok 헤더 2분/5분 모순</span></div><div class="body">§A는 PROTOCOL에 부재(→§33), grok autonomous-loop-rules 헤더(2분) vs 본문·정본(5분) 충돌. BOARD/BACKLOG last-updated도 미갱신.</div></div>
+    <div class="card"><div class="head"><span class="tag t-p3">P3</span><span class="title">2nd-B 로컬 클론 93 behind + dirty + stash 7</span></div><div class="body">ahead-1은 docs 커밋이라 코드 손실 없음. 빌드/QA는 origin/main worktree에서 하고 C:\2ndB는 --ff-only 동기화 권고.</div></div>
+  </div>
+
+  <h2>위양성 — adversarial verify가 걸러냄 (감사 신뢰도 근거)</h2>
+  <ul class="fp">
+    <li><s>데몬 헤드리스 고아 프로세스</s> → 실제는 VS Code 대화형 터미널의 5분 자율 세션(정상). 부모체인 추적으로 반박.</li>
+    <li><s>exit=0 QUOTA 로깅 결함</s> → 이미 06-17 false-positive 픽스 적용됨(banner는 exit0 인정이 의도). 권고대로 바꾸면 픽스 되돌림.</li>
+    <li><s>monitor.ps1 busy-loop</s> → Start-Sleep 5s 존재, tight-loop 아닌 무거운 렌더 비용(P4로 강등).</li>
+    <li><s>HubBranchDrain 결과코드 267011 = 실패</s> → SCHED_S_TASK_HAS_NOT_RUN(정상 미실행), 첫 발화 내일 05:00.</li>
+    <li><s>stash@{0} gc 유실 위험</s> → base af7c5f5는 main 포함 다수 브랜치에 reachable(gc 대상 아님).</li>
+  </ul>
+
+  <h2>검증된 양호 항목</h2>
+  <div class="ok-row">
+    <span class="chip">보안: 시크릿 노출 0</span>
+    <span class="chip">.env gitignore 정상</span>
+    <span class="chip">데몬 3레인 정상 cycle</span>
+    <span class="chip">좀비 프로세스 없음</span>
+    <span class="chip">디스크 302GB 여유</span>
+    <span class="chip">드레인 엔진 핵심로직 정상</span>
+    <span class="chip">models.json 유효·MODELS.md 일치</span>
+    <span class="chip">3좌석(codex/grok/claude) 라이브</span>
+  </div>
+
+  <div class="meta">
+    감사 방법: 10차원(git·daemon·scheduled·4-AI·config·disk·logs·security·inbox·branch) 병렬 finder → 발견별 적대적 verify → 완전성 비평 + Claude framework-aware 최종 교차검증. 일부 verify는 서버 rate-limit으로 실패(finder 결과는 완전). 원본 결과 JSON: <code>tasks/w63s3elk2.output</code> · 하드닝 커밋 <code>d440350</code>.
+  </div>
+</div>
+</body>
+</html>

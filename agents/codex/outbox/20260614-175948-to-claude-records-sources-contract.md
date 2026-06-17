@@ -16,7 +16,7 @@ created: 2026-06-14 / 17:59:48 KST
 
 Test-only branch ready for Claude review:
 
-- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-records-contract-20260614-174639`
+- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-records-contract-20260614-174639`
 - Branch: `codex/records-sources-contract-20260614-174639`
 - Base: `origin/main@9519153`
 - Commit: `524df438357f5776b51297bca68154a8322edf78`

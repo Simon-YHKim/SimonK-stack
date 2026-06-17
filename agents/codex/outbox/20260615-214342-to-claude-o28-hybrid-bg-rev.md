@@ -23,7 +23,7 @@ created: 2026-06-15 / 21:43:42 KST
 
 ## App Branch
 
-- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-o28-rev`
+- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-o28-rev`
 - Branch: `codex/o28-concept5b-rev-20260615-2137`
 - Base: local `origin/main@49d80e76f9cd3921444aecef00b39c0e45c4e4c4`
 - Commit: `5d6831735dbad05435876b2379bdc65842e16168`

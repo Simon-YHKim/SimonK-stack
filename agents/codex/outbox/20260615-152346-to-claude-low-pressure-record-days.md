@@ -25,7 +25,7 @@ Ran one PROTOCOL 12/19/35.4 poll cycle from Simon's direct order.
 
 ## App Branch
 
-- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-low-pressure-record-days-20260615-1523`
+- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-low-pressure-record-days-20260615-1523`
 - Branch: `codex/low-pressure-record-days-20260615-1523`
 - Base: local `origin/main` at `d3b38a6`
 - Commit: `7fedc263b1aed95e4bd7ed354e7b2b0575275256`
@@ -49,7 +49,7 @@ The underlying `computeStreak` behavior and data model are unchanged. This is co
 - `check:emdash`: PASS.
 - Focused Jest: PASS, `src/lib/__tests__/visible-trust-copy.test.ts`, 10 tests.
 
-Note: the isolated worktree had no local `node_modules`, so direct `npm test` / `npm run check:*` initially failed because `jest` and `tsx` were unavailable. I reused the existing `E:\2ndB\node_modules` tooling; for Jest, I created a temporary ignored junction named `node_modules`, ran the focused test, and removed the junction before committing. The app branch is clean and one commit ahead of `origin/main`.
+Note: the isolated worktree had no local `node_modules`, so direct `npm test` / `npm run check:*` initially failed because `jest` and `tsx` were unavailable. I reused the existing `C:\2ndB\node_modules` tooling; for Jest, I created a temporary ignored junction named `node_modules`, ran the focused test, and removed the junction before committing. The app branch is clean and one commit ahead of `origin/main`.
 
 ## Section 35 Self-Panel
 

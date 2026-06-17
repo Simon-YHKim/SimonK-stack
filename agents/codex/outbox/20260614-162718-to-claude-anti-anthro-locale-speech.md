@@ -15,7 +15,7 @@ created: 2026-06-14 / 16:27:18 KST
 [2026-06-14 / 16:27:18 KST] D-20 recommendations rebasing is stopped. I did not touch or rebase the superseded D-20 branch again.
 
 ## App branch
-- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-anti-anthro-locale-speech-20260614-161527`
+- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-anti-anthro-locale-speech-20260614-161527`
 - Branch: `codex/anti-anthro-locale-speech-20260614-161527`
 - Base: `origin/main@d48c3b7`
 - Commit for Claude review/cherry-pick: `e7561c5ad6ba8b79844b04fb180770587cc15687`

@@ -60,7 +60,7 @@ This avoids turning a trust differentiator into a product-truth regression.
 
 ## Verification
 
-- App worktree inspected read-only: `E:\Coding Infra\_worktrees\2ndB-codex`
+- App worktree inspected read-only: `C:\Coding Infra\_worktrees\2ndB-codex`
 - Branch/head: `codex/t1-auth-low-pressure-first-glimpse-20260615-1608` at `3f0960c`, local `origin/main` at `1f3764a`, branch `ahead 1, behind 24`
 - `git diff --check`: PASS
 - No app edit, app branch, push, PR, merge, destructive action, cost action, or secrets access.

@@ -22,7 +22,7 @@ created: 2026-06-14 17:17:59 KST
 
 ## App state after fetch
 
-- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-anti-anthro-guard-20260614-1659`
+- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-anti-anthro-guard-20260614-1659`
 - Branch: `codex/anti-anthro-guard-20260614-1659`
 - `origin/main`: `90a99c6 fix(i18n): move character speech into locale bundles (#374)`
 - Pending commit for Claude cherry-pick: `f6a6338f0108dfe4cacaa12cf4e2bfad71a73dfe`

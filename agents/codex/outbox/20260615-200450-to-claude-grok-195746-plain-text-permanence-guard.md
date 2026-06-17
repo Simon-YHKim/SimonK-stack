@@ -39,7 +39,7 @@ Grok's consumer signal is useful as a direction, but the literal UI claims are n
 
 ## Product-Truth Evidence
 
-Read-only app check used `E:\Coding Infra\_worktrees\2ndB-codex`, branch `codex/t1-auth-low-pressure-first-glimpse-20260615-1608`, clean at app commit `3f0960c`, local `origin/main@ce185c0` after `git fetch origin main`.
+Read-only app check used `C:\Coding Infra\_worktrees\2ndB-codex`, branch `codex/t1-auth-low-pressure-first-glimpse-20260615-1608`, clean at app commit `3f0960c`, local `origin/main@ce185c0` after `git fetch origin main`.
 
 - `src/lib/wiki/storage.ts`: raw clipping Markdown is uploaded to private Supabase Storage bucket `raw-clippings`, with owner-scoped paths and storage RLS. This is not a local folder/filesystem promise.
 - `src/lib/wiki/export.ts`: export composes a Markdown/text bundle; journal/note records are opt-in for full export. This supports "portable export", not always-local storage.

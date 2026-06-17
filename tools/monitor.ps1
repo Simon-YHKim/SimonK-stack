@@ -121,7 +121,7 @@ function Render {
               ForEach-Object { $_.Matches } | ForEach-Object { $_.Value } | Select-Object -Unique)
       $cycles['claude'] = $rs.Count
     } else {
-      $cycles[$a] = @($dlogFull | Select-String -Pattern ("exit\(" + $a + "\)")).Count
+      $cycles[$a] = @($dlogFull | Select-String -Pattern ("exit\(" + $a + "(?:/|\))")).Count
     }
   }
   if($dlogLines.Count -gt 0){
@@ -142,7 +142,7 @@ function Render {
   $emuProc = 0; $adbProc = 0
   try { $emuProc = @(Get-Process -Name 'qemu-system-x86_64','emulator' -ErrorAction SilentlyContinue).Count } catch {}
   try { $adbProc = @(Get-Process -Name 'adb' -ErrorAction SilentlyContinue).Count } catch {}
-  $appdir = "E:\2ndB"
+  $appdir = "C:\2ndB"
   $headStr = ""
   if(Test-Path $appdir){
     $ahead = git -C $appdir rev-parse --short HEAD 2>$null
@@ -238,7 +238,7 @@ function Render {
         $lastPoll = -1; $lastExit = -1; $lastExitCode = 0; $lastTimeout = -1
         for($i=0;$i -lt $dlogLines.Count;$i++){
           if($dlogLines[$i] -match ("->\s+" + $a + "\s+poll")){ $lastPoll = $i }
-          if($dlogLines[$i] -match ("exit\(" + $a + "\)=(-?\d+)")){ $lastExit = $i; $lastExitCode = [int]$matches[1] }
+          if($dlogLines[$i] -match ("exit\(" + $a + "(?:/[^)]*)?\)=(-?\d+)")){ $lastExit = $i; $lastExitCode = [int]$matches[1] }
           if($dlogLines[$i] -match ("TIMEOUT\(" + $a + "\)")){ $lastTimeout = $i }
         }
         # A non-zero last exit (bad model id, untrusted folder, CLI error) means the daemon is

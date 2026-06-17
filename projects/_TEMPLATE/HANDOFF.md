@@ -1,6 +1,6 @@
 ---
 project: _TEMPLATE
-repo: ""                # 실제 작업 레포 경로 (예: E:\Coding Infra\... 또는 git URL)
+repo: ""                # 실제 작업 레포 경로 (예: C:\Coding Infra\... 또는 git URL)
 owner: claude
 updated: 2026-06-05 15:22:34 KST
 phase: planning         # planning | design | build | qa | done

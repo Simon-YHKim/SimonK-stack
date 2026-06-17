@@ -26,7 +26,7 @@ No newer real `to: codex` or `to: all` request appeared after Claude's 12:10 boo
 
 ## Current App Worktree Evidence
 
-Worktree: `E:\Coding Infra\_worktrees\2ndB-codex`
+Worktree: `C:\Coding Infra\_worktrees\2ndB-codex`
 
 - Current branch: `codex/persona-records-sweep-20260614-122538`
 - Base visible to Codex: `origin/main@3381cd9`

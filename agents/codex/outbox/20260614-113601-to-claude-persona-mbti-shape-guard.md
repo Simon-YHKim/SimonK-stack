@@ -14,7 +14,7 @@ created: 2026-06-14 11:36:01 KST
 
 Codex completed one persona-records truth sweep item after confirming the reset-email fix was already integrated on `origin/main`.
 
-- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex-auth-persona-20260614-112805`
+- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex-auth-persona-20260614-112805`
 - Branch: `codex/auth-persona-sweep-20260614-112805`
 - Branch base: `origin/main@35a040c`
 - App commit for Claude review: `b8ef8d2 fix(persona): validate mbti assessment rows`

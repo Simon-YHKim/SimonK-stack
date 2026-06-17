@@ -16,7 +16,7 @@ Simon asked for a clean worktree off `origin/main` to sweep the same bug class a
 
 ## Deliverable
 
-- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex-nativeimports`
+- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex-nativeimports`
 - Branch: `codex/native-import-safety`
 - Commit: `f1769af fix(native): lazy-load optional Expo modules`
 - Files changed: 4

@@ -1,0 +1,19 @@
+﻿<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Hub Usage</title><style>
+:root{--bg:#16161c;--card:#1d1d25;--line:#2c2c38;--tx:#e7e7ee;--mut:#a0a0b2}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Pretendard,system-ui,sans-serif;padding:28px 18px}
+.wrap{max-width:1000px;margin:0 auto}h1{font-size:20px;margin:0 0 2px}.sub{color:var(--mut);font-size:12.5px;margin-bottom:18px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{border:1px solid var(--line);padding:8px 10px;text-align:left}
+th{color:var(--mut);background:#20202a;font-weight:600}.mono{font-family:ui-monospace,Consolas,monospace;font-size:12px}.mut{color:var(--mut)}
+.note{color:var(--mut);font-size:12px;margin-top:14px;line-height:1.6}
+</style></head><body><div class="wrap">
+<h1>AI Hub Usage</h1><div class="sub">2026-06-15 22:52:44 KST 쨌 ?쒕룞 湲곗?(援щ룆 CLI??per-token 怨쇨툑 ?놁쓬)</div>
+<table><tr><th>AI</th><th>Model (effort)</th><th>Cycles</th><th>OK</th><th>Err</th><th>Quota</th><th>Commits</th><th>Reports</th><th>Last active</th><th>State</th></tr>
+<tr><td><b>claude</b></td><td class='mono'>claude-fable-5 (max)</td><td>0</td><td style='color:#5bbf8a'>0</td><td>0</td><td style='color:#e0b24a'>0</td><td>218</td><td>175</td><td class='mut'>06-15 22:32</td><td style='color:#8b8bf0'>interactive</td></tr>
+<tr><td><b>codex</b></td><td class='mono'>gpt-5.5 (xhigh)</td><td>125</td><td style='color:#5bbf8a'>124</td><td style='color:#c98b8b'>1</td><td style='color:#e0b24a'>0</td><td>542</td><td>879</td><td class='mut'>06-15 21:45</td><td style='color:#e0b24a'>quota-backoff (1 left)</td></tr>
+<tr><td><b>antigravity</b></td><td class='mono'>gemini-3.1-pro-preview (high)</td><td>68</td><td style='color:#5bbf8a'>12</td><td style='color:#c98b8b'>42</td><td style='color:#e0b24a'>14</td><td>41</td><td>188</td><td class='mut'>06-15 01:09</td><td style='color:#e0b24a'>quota-backoff (4 left)</td></tr>
+<tr><td><b>grok</b></td><td class='mono'>grok-build (high)</td><td>165</td><td style='color:#5bbf8a'>153</td><td style='color:#c98b8b'>12</td><td style='color:#e0b24a'>0</td><td>588</td><td>637</td><td class='mut'>06-15 22:03</td><td style='color:#5bbf8a'>active</td></tr>
+</table>
+<div class="note">Cycles = ?곕が ?ъ씠???꾨즺 ??exit). OK/Err/Quota = ?ъ씠??寃곌낵. Commits = ?덈툕 git??媛?AI ?뺤껜?깆쑝濡??쒕뵫??而ㅻ컠. Reports = outbox ?곗텧臾??? Claude???곕が ?녿뒗 ?명꽣?숉떚釉?<br>
+Tokens 誘명몴?? codex/grok/gemini??援щ룆 CLI + Claude ?명꽣?숉떚釉뚮씪 per-token 誘멸낵湲댟룸??몄텧. ?쒕룞?됱? Cycles/Commits/Reports濡?蹂몃떎. (Anthropic 6/15 ?ㅻ뱶由ъ뒪留?metered.)</div>
+</div></body></html>

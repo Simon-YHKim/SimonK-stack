@@ -28,8 +28,8 @@ This file records user-directed operating rules for Codex inside the 4-AI commun
    - route UI/UX, a11y, i18n, visual proof, and code-level presentation fixes back to Codex
 5. Do not wait silently when Codex has no direct inbox item. Send useful FYI, review, blocker, or request messages through `agents/codex/outbox/`.
 6. Continue to follow higher-priority hub rules:
-   - no direct edits to `E:\2ndB`
-   - work only in `E:\Coding Infra\_worktrees\2ndB-codex`
+   - no direct edits to `C:\2ndB`
+   - work only in `C:\Coding Infra\_worktrees\2ndB-codex`
    - do not push online
    - submit local commits to Claude for review, verification, and merge
    - obey destructive/cost/security approval boundaries
@@ -44,7 +44,7 @@ Codex treats the latest user-provided `AGENTS.md` operating profile and follow-u
 4. Use the 4-AI communication hub for visibility; do not work silently.
 5. Record direct user-driven work in Codex STATUS and outbox when it affects the shared project.
 6. Keep Codex's lane focused on image, UI/UX, frontend presentation, accessibility, copy, feedback states, and implementation quality.
-7. Work only in `E:\Coding Infra\_worktrees\2ndB-codex` for 2nd-B code; never directly edit `E:\2ndB`, never push online, and submit local commits to Claude.
+7. Work only in `C:\Coding Infra\_worktrees\2ndB-codex` for 2nd-B code; never directly edit `C:\2ndB`, never push online, and submit local commits to Claude.
 8. Keep visible loop notifications and submissions timestamped as `[YYYY-MM-DD / HH:MM:SS]`.
 9. Actively request or provide feedback to Claude, Antigravity, and Grok when their lanes can unblock Codex UI/UX decisions.
 
@@ -54,7 +54,7 @@ Codex will treat the user's latest instruction as an active session rule: keep w
 
 ## Reconfirmation (2026-06-07 01:03:08 KST)
 
-Simon provided the `AGENTS.md` operating profile again and explicitly asked to set it as rules. Codex confirms this file is the active Codex-owned rule mirror for those instructions. Hub-specific constraints still apply for 2nd-B work: edit only `E:\Coding Infra\_worktrees\2ndB-codex`, never edit `E:\2ndB` directly, never push online, and submit local commits to Claude for review and merge.
+Simon provided the `AGENTS.md` operating profile again and explicitly asked to set it as rules. Codex confirms this file is the active Codex-owned rule mirror for those instructions. Hub-specific constraints still apply for 2nd-B work: edit only `C:\Coding Infra\_worktrees\2ndB-codex`, never edit `C:\2ndB` directly, never push online, and submit local commits to Claude for review and merge.
 
 ## 머지 적격성 강제 (2026-06-14, PROTOCOL §241) — CRITICAL
 
@@ -66,7 +66,7 @@ Simon provided the `AGENTS.md` operating profile again and explicitly asked to s
 ## §34 Sync (2026-06-13) — wiki / measured loop / max model-effort-permission
 
 - **Sync header**: Source of truth = `PROTOCOL.md`; on conflict PROTOCOL wins. last-sync: 2026-06-13. Re-read PROTOCOL §12.1a, §34, this file on first cycle after compaction/session swap (§34.5).
-- **Highest model / effort / permission (§10.1, 2026-06-13; pinned via `MODELS.md`/`tools/models.json` 2026-06-14)**: always the current best Codex model + max reasoning effort — 정본 `MODELS.md`. As of 2026-06-14 = `-m gpt-5.5 -c model_reasoning_effort="xhigh"` (no `gpt-5.5-codex` variant; xhigh = max). 일일 `model-benchmark-refresh` 스케줄이 갱신. `-s danger-full-access` (or `--full-auto`). Safety rails §11-5 (destructive / real-cost / secrets) still always confirm with Simon regardless of permission level.
+- **Model / effort / permission (§10.1; pinned via `MODELS.md`/`tools/models.json`)**: use the id+effort PINNED in `tools/models.json` — `-m gpt-5.5 -c model_reasoning_effort="medium"` (**Simon 핀 2026-06-17**, xhigh→medium to cut Pro Lite premium-pool burn; no `gpt-5.5-codex` variant). 폴백 `low`. Do NOT self-escalate effort. `-s danger-full-access` (or `--full-auto`). Safety rails §11-5 (destructive / real-cost / secrets) still always confirm with Simon regardless of permission level.
 - **Measured loop (§12.1a / §34.2)** — Codex golden set: in worktree run `npm run verify` (or lint + type-check) + lexicon scan + visual regression (screenshot diff). baseline first -> one change -> re-measure -> merge only on measured gain; log failed attempts to hub `loop-baseline.md`.
 - **Cross-judge (§34.4)**: Codex is the UI/UX/visual judge for Claude's UI output (rubric §20); Codex's own output is judged by Claude. No self-review (§24.1).
 - **Wiki contribution (§34.1)**: on a reusable UI/UX/design lesson, write `type: wiki_lesson` (to: claude) in outbox (1-line summary + 3 key points + source + linked project). At cycle 0 read relevant SimonKWiki design/UX pages (read-only).

@@ -39,7 +39,7 @@ Block or gate before implementation:
 
 ## Evidence From Current App Truth
 
-Checked `E:\2ndB` read-only:
+Checked `C:\2ndB` read-only:
 
 - `HEAD` = `origin/main` = `034295e`.
 - Existing unrelated local modifications are present in the worktree; Codex did not touch them.

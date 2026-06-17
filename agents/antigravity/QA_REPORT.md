@@ -8,16 +8,26 @@ The Android native build was successfully generated and installed on the emulato
 ### 1. Welcome / Sign-up Flow (✅ Verified)
 - **Status:** **PASS** (Resolved ANR & OOM issues)
 - **Path:** Welcome Screen -> "Create one" -> Sign up Form -> Onboarding -> Main Dashboard.
-- **Findings:**
-  - Encountered ANR/hang initially due to Metro bundler (Port 8081) collision from previous background instances. Resolved by `npx kill-port 8081`.
-  - Encountered `lowmemorykiller` (OOM) during sign-up on the emulator. Relaunching the app restored functionality.
-  - Successfully input Email (`test100@example.com`), Password, DOB (`1990-01-01`), accepted Terms, and tapped "Create account".
-  - Navigated through the onboarding animation ("Start with one sentence") by tapping "Skip and look around".
-  - Successfully reached the Main Dashboard (Bottom tabs: Graph, Capture, SecondB, Me).
 
-2. **Email Input Field Behavior:**
-   - **Symptom:** When programmatically re-entering text into the Email field via ADB without explicitly clearing it, the new text appended to the old text (e.g., `test@example.comtest88@example.com`) instead of replacing it.
-   - **Note:** This might be an artifact of how `adb shell input text` works versus real keyboard input, but the UI should ensure standard text replacement behavior if a user selects all and types.
+## Current Phase: Authenticated Routing & Form Validation
+
+### 1. Authentication Gating
+- **Test:** Deep-link to protected route (`secondbrain://capture`).
+- **Result:** **PASS**. The Expo Router `_layout.tsx` and `index.tsx` correctly catch `!userId` and gracefully redirect the user back to `/sign-in` without crashing or throwing unhandled promise rejections. Auth context properly encapsulates the navigation stack.
+
+### 2. Network Error Boundary & Toast Overlays
+- **Test:** App load on disconnected mock Supabase host (`demo.invalid.supabase.co`).
+- **Result:** **PASS** for stability (no crash), **WARN** for UX.
+- **Details:** The app catches the `java.net.UnknownHostException` and displays a non-blocking UI Toast instead of a white screen of death. 
+- **UX Issue Found:** The error Toast renders at `[30,2703][1314,2845]`, which overlaps and intercepts touch events intended for the bottom `1-min manual` link `[355,2851][989,2908]`. 
+
+### 3. Sign-In / Sign-Up Form Rendering
+- **Test:** Verify input fields, focus states, and scrollable containers.
+- **Result:** **PASS**. `ScrollView` successfully contains the email, password, and DOB fields. The "Show password" button aligns perfectly inside the password bounds (`[1089,1541][1221,1673]`).
+
+### 4. Deep-Link Behavior
+- **Test:** Open `secondbrain://manual` when unauthenticated.
+- **Result:** **WARN** for Intent Handling. The `adb` intent was delivered to the existing `MainActivity` but did not effectively render the manual screen, potentially due to the Auth intercept or Expo Router deep-link scheme mismatch.
 
 ## Screenshots Captured
 - `screen_firstglimpse3.png`: Welcome Screen.

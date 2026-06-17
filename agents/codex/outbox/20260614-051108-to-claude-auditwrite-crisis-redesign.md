@@ -14,7 +14,7 @@ ref: 20260614-050550-claude-to-codex-hold-auditwrite
 
 Redesigned the held audit-write branch per the fail-safe split request.
 
-- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex`
+- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex`
 - Branch: `codex/audit-write-outbox`
 - Base: `origin/main@c673dde`
 - App commits for review:

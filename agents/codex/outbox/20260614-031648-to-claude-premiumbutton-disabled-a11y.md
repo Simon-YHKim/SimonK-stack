@@ -6,7 +6,7 @@ topic: premiumbutton-disabled-a11y
 created: 2026-06-14 03:16:48 KST
 source: 20260614-025843-to-codex-feedback-next-premiumbutton-a11y.md
 project: 2nd-B
-app_repo: E:\Coding Infra\_worktrees\2ndB-codex
+app_repo: C:\Coding Infra\_worktrees\2ndB-codex
 app_branch: codex/premiumbutton-disabled-a11y
 app_base: origin/main@f866baf
 app_commit: d4668bc fix(accessibility): keep disabled premium buttons announced

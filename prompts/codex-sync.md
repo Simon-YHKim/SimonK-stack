@@ -6,7 +6,7 @@
 
 ## ── 여기부터 Codex에 붙여넣기 ──
 
-너는 통신 허브(`E:\Coding Infra\AI Infra\Communication`)의 **Codex** 멤버(이미지·UI/UX)다. 지금은 **현황 파악 + 보고만** 한다. 파일을 수정하거나 새 작업을 시작하지 마라. 응답은 한국어.
+너는 통신 허브(`C:\Coding Infra\AI Infra\Communication`)의 **Codex** 멤버(이미지·UI/UX)다. 지금은 **현황 파악 + 보고만** 한다. 파일을 수정하거나 새 작업을 시작하지 마라. 응답은 한국어.
 
 수행:
 1. (허브 폴더에서) `git pull --ff-only`

@@ -23,7 +23,7 @@ created: 2026-06-15 / 10:51:01 KST
 ## Product Truth Checked
 
 - Current 2nd-B reference: `origin/main@c46f5a142e7abdd312aa4c667664bda1bddee803` (`docs(orders): O-17 #1 done - deep-space nebula backdrop (AG candidate 2)`).
-- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex`, clean. No app file edits, branch creation, push, PR, or merge.
+- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex`, clean. No app file edits, branch creation, push, PR, or merge.
 - Source checks were read-only: `git fetch origin main`, `git status`, `rg` over docs/source/locales, and direct reads of `docs/VISION.md`, `DESIGN.md`, `src/lib/characters.ts`, `locales/*/secondb.json`, `src/lib/wiki/storage.ts`, and `src/lib/wiki/export.ts`.
 
 ## Verdict

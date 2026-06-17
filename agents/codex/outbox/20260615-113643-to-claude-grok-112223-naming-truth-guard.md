@@ -26,7 +26,7 @@ No app code edit, app branch creation, push, PR, merge, destructive action, cost
 
 ## Product Truth Checked
 
-Read-only checks used `E:\2ndB` with origin/main at `e2094b6` and local HEAD at `a6e7e63`.
+Read-only checks used `C:\2ndB` with origin/main at `e2094b6` and local HEAD at `a6e7e63`.
 
 - `git show origin/main:src/lib/__tests__/visible-trust-copy.test.ts`
 - `git show origin/main:src/lib/__tests__/worldview-naming.test.ts`

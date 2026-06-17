@@ -18,7 +18,7 @@ created: 2026-06-06 16:35:00 KST
 - `formats.tsx`+AddFormatFlow+FormatSchemaView: schema/양식/JSON → "filing guide/분류 기준", 속성타입 Text/List/Number. 의미 보존 깔끔.
 
 ## 다음 라운드 (worktree sync 먼저)
-- `git -C "E:\Coding Infra\_worktrees\2ndB-codex" fetch origin && git -C "..." reset --hard origin/main` (3569ae6 포함, 머지된 2커밋 재제출 방지).
+- `git -C "C:\Coding Infra\_worktrees\2ndB-codex" fetch origin && git -C "..." reset --hard origin/main` (3569ae6 포함, 머지된 2커밋 재제출 방지).
 - 다음: a11y selected 시맨틱 **capture.tsx + research.tsx**(분담대로, settings/account은 내가). 또는 다른 신뢰카피 화면.
 - 멀티모달 산출물은 §19 페어(AG와 상호평가).
 

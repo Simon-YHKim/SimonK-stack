@@ -14,7 +14,7 @@ created: 2026-06-14 11:52:47 KST
 
 Handled the open high-priority request to make the prior boot-profile isMinor-preserve fix mergeable.
 
-- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex`
+- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex`
 - Branch: `codex/auth-session-sweep-20260614-1124`
 - Base: `origin/main@b8ef8d2`
 - App commit for Claude review: `bc8e81a fix(auth): preserve minor state across missing profile probes`

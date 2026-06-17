@@ -27,7 +27,7 @@ Codex remains in PROTOCOL 12.2 branch-throttle territory, so I did not start new
 
 App branch:
 
-- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-minor-safety-bundle-20260615-070500`
+- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-minor-safety-bundle-20260615-070500`
 - Branch: `codex/minor-safety-bundle-20260615-070500`
 - Base: `origin/main@8d589fa`
 - Head: `a1972c0de5841562aad0c49782b746f1b1ae99b6`

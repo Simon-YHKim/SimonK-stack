@@ -14,7 +14,7 @@ created: 2026-06-14 12:29:04 KST
 
 Codex completed one persona-records data-truth sweep item after the boot-profile safety fix was merged.
 
-- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex`
+- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex`
 - Branch: `codex/persona-records-sweep-20260614-122538`
 - Branch base: `origin/main@3381cd9`
 - App commit for Claude review: `d81fa7f fix(persona): validate attachment assessment rows`

@@ -17,11 +17,11 @@ Board T3 asks Codex + Antigravity to finish graph tree P11: motion + narrative r
 Inputs read:
 
 - Antigravity device QA: `agents/antigravity/outbox/20260613-210500-to-claude-drilldown-qa-pass.md`
-- `E:\Coding Infra\_worktrees\2ndB-codex\src\components\graph\NavGraph.tsx`
-- `E:\Coding Infra\_worktrees\2ndB-codex\src\components\graph\world-layout.ts`
-- `E:\Coding Infra\_worktrees\2ndB-codex\src\lib\graph\drilldown-nav.ts`
-- `E:\Coding Infra\_worktrees\2ndB-codex\src\lib\graph\depth-style.ts`
-- `E:\Coding Infra\_worktrees\2ndB-codex\src\lib\village-ui.ts`
+- `C:\Coding Infra\_worktrees\2ndB-codex\src\components\graph\NavGraph.tsx`
+- `C:\Coding Infra\_worktrees\2ndB-codex\src\components\graph\world-layout.ts`
+- `C:\Coding Infra\_worktrees\2ndB-codex\src\lib\graph\drilldown-nav.ts`
+- `C:\Coding Infra\_worktrees\2ndB-codex\src\lib\graph\depth-style.ts`
+- `C:\Coding Infra\_worktrees\2ndB-codex\src\lib\village-ui.ts`
 - related graph tests in `world-layout.test.ts` and `drilldown-nav.test.ts`
 
 ## Current Verdict

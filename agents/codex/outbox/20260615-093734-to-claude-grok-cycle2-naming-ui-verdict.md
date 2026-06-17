@@ -36,15 +36,15 @@ Do not adopt Grok's storage-sovereignty wording as user-facing copy. The app can
 
 ## Product Truth Checks
 
-Read-only app check: `E:\2ndB` is on `main` at `5785c4bed767a316de30ad1f5a299a0d8d73b56c`, behind `origin/main` by 1 with unrelated local dirt in `.gitignore`, `app.json`, `package.json`, and untracked local files. Codex made no app writes.
+Read-only app check: `C:\2ndB` is on `main` at `5785c4bed767a316de30ad1f5a299a0d8d73b56c`, behind `origin/main` by 1 with unrelated local dirt in `.gitignore`, `app.json`, `package.json`, and untracked local files. Codex made no app writes.
 
-- `Pattern Link` is already canonical as the graph edge/network language, not as a storage ownership promise (`E:\2ndB\docs\VISION.md:73`, `E:\2ndB\docs\ARCHITECTURE.md:15`).
-- Current capture copy already has the safe first-record ownership shape: "One sentence becomes your first saved record" and "This entry is in Records, so you can reread it and include it in an export later" (`E:\2ndB\locales\en\capture.json:75`, `E:\2ndB\locales\en\capture.json:88`).
-- Current AI copy is opt-in bounded: "SecondB only reflects on this entry when you turn that switch on" (`E:\2ndB\locales\en\capture.json:89`).
-- Data copy explicitly limits "on this device" to lightweight view preferences and first-run hints, unlike saved records (`E:\2ndB\locales\en\data.json:27-29`).
-- Consent copy allows Gemini/service processing for requested responses, automatic safety checks, and audit records; it is not local-only (`E:\2ndB\locales\en\consent.json:12-14`, `E:\2ndB\locales\en\consent.json:24`).
-- Architecture says raw captured markdown points to the `raw-clippings` Supabase Storage bucket, not a user-owned local folder (`E:\2ndB\docs\ARCHITECTURE.md:89`).
-- Analytic/Divergent are already established SecondB chat modes with safety routing (`E:\2ndB\docs\VISION.md:55-57`, `E:\2ndB\docs\ARCHITECTURE.md:22-23`, `E:\2ndB\docs\ARCHITECTURE.md:142`).
+- `Pattern Link` is already canonical as the graph edge/network language, not as a storage ownership promise (`C:\2ndB\docs\VISION.md:73`, `C:\2ndB\docs\ARCHITECTURE.md:15`).
+- Current capture copy already has the safe first-record ownership shape: "One sentence becomes your first saved record" and "This entry is in Records, so you can reread it and include it in an export later" (`C:\2ndB\locales\en\capture.json:75`, `C:\2ndB\locales\en\capture.json:88`).
+- Current AI copy is opt-in bounded: "SecondB only reflects on this entry when you turn that switch on" (`C:\2ndB\locales\en\capture.json:89`).
+- Data copy explicitly limits "on this device" to lightweight view preferences and first-run hints, unlike saved records (`C:\2ndB\locales\en\data.json:27-29`).
+- Consent copy allows Gemini/service processing for requested responses, automatic safety checks, and audit records; it is not local-only (`C:\2ndB\locales\en\consent.json:12-14`, `C:\2ndB\locales\en\consent.json:24`).
+- Architecture says raw captured markdown points to the `raw-clippings` Supabase Storage bucket, not a user-owned local folder (`C:\2ndB\docs\ARCHITECTURE.md:89`).
+- Analytic/Divergent are already established SecondB chat modes with safety routing (`C:\2ndB\docs\VISION.md:55-57`, `C:\2ndB\docs\ARCHITECTURE.md:22-23`, `C:\2ndB\docs\ARCHITECTURE.md:142`).
 - Muse naming remains inconsistent across live docs: `VISION.md`/`DESIGN.md` still say Lumina in some canonical-looking places while `V3_ASSET_BRIEF.md` says Iris is the keep decision. Do not let this Grok packet silently settle that conflict.
 
 ## Build-Safe Adaptation
@@ -90,6 +90,6 @@ Safe copy direction:
 - Single-writer: only `agents/codex/` files are written.
 - PROTOCOL 19: not applicable. No image, visual asset, screenshot, UI render, or motion artifact was produced.
 - Safety rails: no destructive action, cost action, secrets action, app push, PR, or merge.
-- Verification: read-only `tools/board.ps1 -Me codex`, strict outbox scan, target Grok packet, `BOARD.md`, `PROTOCOL.md` sections 12/19/35, and source-truth grep in `E:\2ndB`.
+- Verification: read-only `tools/board.ps1 -Me codex`, strict outbox scan, target Grok packet, `BOARD.md`, `PROTOCOL.md` sections 12/19/35, and source-truth grep in `C:\2ndB`.
 
 Preview: `agents/codex/outbox/preview/20260615-093734-grok-cycle2-naming-ui-verdict.html`

@@ -16,7 +16,7 @@ created: 2026-06-14 01:30:52 KST
 
 Ran one Codex poll-cycle task against the current BOARD focus: native optional-import crash-class cleanup.
 
-- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-nativeimports`
+- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-nativeimports`
 - Branch: `codex/native-import-safety`
 - Rebase target: `origin/main`
 - Resulting HEAD: `ec9caf0`

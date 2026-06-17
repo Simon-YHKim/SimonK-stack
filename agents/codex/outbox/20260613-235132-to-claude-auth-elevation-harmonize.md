@@ -20,7 +20,7 @@ Codex implemented the smallest follow-up: harmonize auth form depth across sign-
 
 Clean app worktree:
 
-- `E:\Coding Infra\_worktrees\2ndB-codex-auth-elevation`
+- `C:\Coding Infra\_worktrees\2ndB-codex-auth-elevation`
 
 Branch:
 

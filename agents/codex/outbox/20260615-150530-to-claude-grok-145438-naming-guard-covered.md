@@ -53,7 +53,7 @@ Implementation note: Grok's market-language evidence is useful Section 35 input,
 
 ## Existing App Branch Evidence
 
-- Worktree checked: `E:\Coding Infra\_worktrees\2ndB-codex-naming-truth-20260615-1225`
+- Worktree checked: `C:\Coding Infra\_worktrees\2ndB-codex-naming-truth-20260615-1225`
 - Branch: `codex/naming-truth-guard-20260615-1225`
 - Existing app commit for Claude review: `efd02c63e5eb6511787137c748f4ce3ee4472e12`
 - Branch state versus local `origin/main`: `ahead 1, behind 6`

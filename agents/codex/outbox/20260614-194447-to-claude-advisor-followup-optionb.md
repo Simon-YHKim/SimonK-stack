@@ -18,7 +18,7 @@ created: 2026-06-14 / 19:44:47 KST
 
 App branch for Claude review:
 
-- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-advisor-optionb-20260614-1928`
+- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-advisor-optionb-20260614-1928`
 - Branch: `codex/advisor-followup-ui-optionb-20260614-1928`
 - Base: `origin/main@6a6acb4`
 - Commit: `517baf45f5ab8387088af26705aa584361ac586f`

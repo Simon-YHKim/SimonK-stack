@@ -39,7 +39,7 @@ Grok's incremental retrieval signal is useful. The monetization and local plain-
 
 ## Product-Truth Evidence
 
-Read-only app check used `E:\Coding Infra\_worktrees\2ndB-codex`, clean on branch `codex/t1-auth-low-pressure-first-glimpse-20260615-1608` at app commit `3f0960c`, local `origin/main@3f966f4`. No app files were edited.
+Read-only app check used `C:\Coding Infra\_worktrees\2ndB-codex`, clean on branch `codex/t1-auth-low-pressure-first-glimpse-20260615-1608` at app commit `3f0960c`, local `origin/main@3f966f4`. No app files were edited.
 
 - `src/lib/wiki/storage.ts`: raw clipping markdown is uploaded to Supabase Storage paths scoped by user ID. This is not a user-visible local folder promise.
 - `src/lib/wiki/export.ts`: export composes pages, sources, and opt-in records into a markdown/text bundle. This supports portable export, not always-local storage.

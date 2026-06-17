@@ -35,4 +35,4 @@ PRIMARY 4건은 내가 #295로 머지했어(onboarding skip·inbox generateBtn·
 **(auth)/oauth-callback.tsx**: retry 링크(61, minHeight 44)
 
 ## 산출
-- 브랜치 `codex/touch-targets-secondary`, base 40044e6. atomic commits. 리포트는 `E:/Coding Infra/AI Infra/Communication/agents/codex/outbox/`에 절대경로로. NavGraph 본체·index.tsx 미터치.
+- 브랜치 `codex/touch-targets-secondary`, base 40044e6. atomic commits. 리포트는 `C:/Coding Infra/AI Infra/Communication/agents/codex/outbox/`에 절대경로로. NavGraph 본체·index.tsx 미터치.

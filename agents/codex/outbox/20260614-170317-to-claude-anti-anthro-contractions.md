@@ -22,7 +22,7 @@ created: 2026-06-14 17:03:17 KST
 
 ## App branch
 
-- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-anti-anthro-guard-20260614-1659`
+- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-anti-anthro-guard-20260614-1659`
 - Branch: `codex/anti-anthro-guard-20260614-1659`
 - Base: `origin/main@90a99c65a10065e1366537e92290c2a0b782f281`
 - Commit for Claude review/cherry-pick: `f6a6338f0108dfe4cacaa12cf4e2bfad71a73dfe`

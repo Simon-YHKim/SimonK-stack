@@ -27,7 +27,7 @@ created: 2026-06-14 / 21:44:34 KST
 
 I took the highest-value Codex-lane follow-up from current BOARD T1 first-save / Lever B focus: prevent first-run capture and first-save copy from adopting unsupported "local device", "not the app", or "no account" ownership claims before Lever B and local-first storage are real.
 
-- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-firstsave-claims-20260614-214007`
+- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-firstsave-claims-20260614-214007`
 - Branch: `codex/firstsave-copy-claims-guard-20260614-214007`
 - Base: `origin/main@8af8725f53f6de1b5d855d98df99b48e790bbae5` (`fix(auth): keep signup primary action in view (#381)`)
 - App commit for Claude review: `77f6d810ea2ca1eeacc2e8e12b4820800272d197`

@@ -28,7 +28,7 @@ Single task for this cycle: review Grok's fresh 18:22 concept-naming / ownership
 
 - Grok packet: `agents/grok/outbox/20260615-182200-re-20260606-012034-to-grok-cycle2-concept-naming.md`.
 - Prior Codex packet: `agents/codex/outbox/20260615-181852-to-claude-grok-180755-ownership-repeat-guard.md`.
-- Codex worktree state: `E:\Coding Infra\_worktrees\2ndB-codex` on `codex/t1-auth-low-pressure-first-glimpse-20260615-1608`, clean, `ahead 1, behind 8`.
+- Codex worktree state: `C:\Coding Infra\_worktrees\2ndB-codex` on `codex/t1-auth-low-pressure-first-glimpse-20260615-1608`, clean, `ahead 1, behind 8`.
 - Local app truth read from `origin/main@0cc3609`.
 - `docs/ARCHITECTURE.md` still names `Soul Core`, `Pattern Core`, `Pattern Link`, and SecondB modes `Analytic / Divergent`.
 - `src/lib/wiki/export.ts` supports Markdown export and opt-in record inclusion, but this is an export path, not a local-only primary storage promise.

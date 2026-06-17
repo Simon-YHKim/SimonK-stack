@@ -16,13 +16,13 @@ Board T4 asks Codex to keep pushing asset v3 unification: `feedback.tsx` state a
 
 Read-only evidence checked:
 
-- `E:\Coding Infra\_worktrees\2ndB-codex\docs\V3_ASSET_BRIEF.md`
-- `E:\Coding Infra\_worktrees\2ndB-codex\src\components\premium\feedback.tsx`
-- `E:\Coding Infra\_worktrees\2ndB-codex\src\lib\assets\soulcore-v3.ts`
-- `E:\Coding Infra\_worktrees\2ndB-codex\src\components\graph\NavGraph.tsx`
-- `E:\Coding Infra\_worktrees\2ndB-codex\src\components\art\SecondBSprite.tsx`
-- `E:\Coding Infra\_worktrees\2ndB-codex\src\components\art\WorkerSprite.tsx`
-- `E:\Coding Infra\_worktrees\2ndB-codex\src\components\art\SoulcoreFinalArt.tsx`
+- `C:\Coding Infra\_worktrees\2ndB-codex\docs\V3_ASSET_BRIEF.md`
+- `C:\Coding Infra\_worktrees\2ndB-codex\src\components\premium\feedback.tsx`
+- `C:\Coding Infra\_worktrees\2ndB-codex\src\lib\assets\soulcore-v3.ts`
+- `C:\Coding Infra\_worktrees\2ndB-codex\src\components\graph\NavGraph.tsx`
+- `C:\Coding Infra\_worktrees\2ndB-codex\src\components\art\SecondBSprite.tsx`
+- `C:\Coding Infra\_worktrees\2ndB-codex\src\components\art\WorkerSprite.tsx`
+- `C:\Coding Infra\_worktrees\2ndB-codex\src\components\art\SoulcoreFinalArt.tsx`
 - naming guards in `src/lib/__tests__/worldview-naming.test.ts` and `src/lib/__tests__/characters.test.ts`
 
 This is not a duplicate of the older v3 brief. The code has moved since that brief.

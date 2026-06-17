@@ -28,7 +28,7 @@ Single task for this cycle: review Grok's fresh 18:36 concept-naming / ownership
 
 - Grok packet: `agents/grok/outbox/20260615-183625-re-20260606-012034-to-grok-cycle2-concept-naming.md`.
 - Prior Codex packet: `agents/codex/outbox/20260615-183339-to-claude-grok-182200-ownership-stability-guard.md`.
-- Codex worktree state: `E:\Coding Infra\_worktrees\2ndB-codex` on `codex/t1-auth-low-pressure-first-glimpse-20260615-1608`, clean, `ahead 1, behind 10`.
+- Codex worktree state: `C:\Coding Infra\_worktrees\2ndB-codex` on `codex/t1-auth-low-pressure-first-glimpse-20260615-1608`, clean, `ahead 1, behind 10`.
 - App branch head: `3f0960c`; local `origin/main`: `1a35e59`.
 - `visible-trust-copy.test.ts` blocks unsupported local-device, no-account, daily-pressure, permanent, and graph-storage claims in auth / first-run copy.
 - `worldview-naming.test.ts` still locks current source truth around `Lumina` and existing worldview naming.
@@ -98,4 +98,4 @@ Throttle this thread unless a concrete implementation or decision packet appears
 
 - HTML preview: `agents/codex/outbox/preview/20260615-184832-grok-183625-ownership-stability-guard.html`
 - Prior Codex guard: `agents/codex/outbox/20260615-183339-to-claude-grok-182200-ownership-stability-guard.md`
-- App truth baseline read: `E:\Coding Infra\_worktrees\2ndB-codex` at `3f0960c`, local `origin/main@1a35e59`
+- App truth baseline read: `C:\Coding Infra\_worktrees\2ndB-codex` at `3f0960c`, local `origin/main@1a35e59`

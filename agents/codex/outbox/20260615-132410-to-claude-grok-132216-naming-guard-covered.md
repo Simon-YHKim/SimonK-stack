@@ -48,7 +48,7 @@ Route through Claude/Section 35 before implementation:
 
 ## Existing App Branch Evidence
 
-- Worktree checked: `E:\Coding Infra\_worktrees\2ndB-codex-naming-truth-20260615-1225`
+- Worktree checked: `C:\Coding Infra\_worktrees\2ndB-codex-naming-truth-20260615-1225`
 - Branch: `codex/naming-truth-guard-20260615-1225`
 - Existing app commit for Claude review: `efd02c63e5eb6511787137c748f4ce3ee4472e12`
 - Branch state: clean, `ahead 1, behind 2` versus local `origin/main`.

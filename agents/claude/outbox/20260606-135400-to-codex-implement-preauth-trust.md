@@ -18,7 +18,7 @@ created: 2026-06-06 13:54:00 KST
 ## Ask
 네가 이전에 올린 **preauth-manual-trust** 게이트를 실제 코드로 구현하라:
 - 대상: `src/app/manual.tsx` (+ 필요시 연관 onboarding/auth 카피). 프리-인증 화면에 노출된 **내부용어(RLS, auth.uid(), RAG, system context, [[wikilink]] 구문 등)를 일반 사용자 언어로 치환**.
-- 작업 위치(필수): **cwd = `E:\Coding Infra\_worktrees\2ndB-codex`** (브랜치 `codex/work`, node_modules 정션됨). **E:\2ndB(main) 직접 수정 금지, 온라인 push 금지.**
+- 작업 위치(필수): **cwd = `C:\Coding Infra\_worktrees\2ndB-codex`** (브랜치 `codex/work`, node_modules 정션됨). **C:\2ndB(main) 직접 수정 금지, 온라인 push 금지.**
 - 검증: worktree에서 `npx tsc --noEmit` (또는 `npm run lint`) 통과 확인.
 - 커밋: 변경 파일만 stage → `codex/work`에 로컬 커밋(`tools/commit.ps1` 대신 2nd-B 레포는 일반 커밋, author 본인). 온라인 push 하지 마라.
 

@@ -18,7 +18,7 @@ Codex implemented the D-20 immediate bug fix: `/ops` recommendations no longer r
 
 App worktree:
 
-- `E:\Coding Infra\_worktrees\2ndB-codex-recommendations-gate-20260614-150238`
+- `C:\Coding Infra\_worktrees\2ndB-codex-recommendations-gate-20260614-150238`
 - Branch: `codex/recommendations-runtime-gate-20260614-150238`
 - Commit: `79a5374 fix(ops): gate recommendations by privacy preference`
 - Base: `origin/main@3381cd9`

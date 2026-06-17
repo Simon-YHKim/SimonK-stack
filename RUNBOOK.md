@@ -7,7 +7,7 @@ last-sync: 2026-06-14
 # RUNBOOK.md — 허브 장애 복구 룩업 (FAIL 신호 → 명령)
 
 > **목적**: 무인 운용 중 `hub-health.ps1`/`monitor.ps1`가 뱉는 FAIL 신호를, 사람이 PROTOCOL을 다시 읽지 않고도 **즉시 복구 명령**으로 바꾼다.
-> **사용**: 모든 경로는 `E:\Coding Infra\AI Infra\Communication` 기준. PowerShell에서 실행.
+> **사용**: 모든 경로는 `C:\Coding Infra\AI Infra\Communication` 기준. PowerShell에서 실행.
 > **원칙**: 파괴적(`reset --hard`·force-push·대량삭제)·실비용·secrets 명령은 **항상 Simon 확인**(PROTOCOL §11-5) — 아래 ⚠ 표기.
 
 ## 0. 첫 진단 (무엇이 깨졌나)
@@ -68,6 +68,6 @@ Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" |
 **증상**: 안드로이드 에뮬 콘솔 `Cannot connect to Expo CLI` / `10.0.2.2:8081` / `Error: undefined`. 앱버그 아님 = 에뮬이 PC Metro(8081)에 못 붙음. (Reanimated `Reduced motion` 경고는 무관 — 에뮬 '동작 줄이기' OFF 권고.)
 **해결 = 매 네이티브/에뮬 QA 사이클 시작 전 pre-QA 보장 스크립트 실행(수동 1회성 adb reverse 금지)**:
 ```
-pwsh -File E:\2ndB\scripts\pre-emulator-qa.ps1 -StartMetro
+pwsh -File C:\2ndB\scripts\pre-emulator-qa.ps1 -StartMetro
 ```
 스크립트가 4조건 보장(exit 0이면 OK): ①adb 해석(PATH 또는 `%LOCALAPPDATA%\Android\Sdk\platform-tools`) ②에뮬 `device` 인식(`adb devices`) ③Metro `packager-status:running`@8081(없고 `-StartMetro`면 `npx expo start` 자동기동) ④`adb reverse tcp:8081 tcp:8081`(에뮬 재시작·Metro 재시작 시 소실되므로 멱등 재설정). **함정**: Metro `/status`는 Content-Type 없어 PS `Invoke-WebRequest`가 Content를 byte[]로 줌 → 문자열 match 전 `[Text.Encoding]::ASCII.GetString()` 디코딩 필수(스크립트 반영됨). exit 2=adb없음·3=에뮬없음(부팅)·4=Metro없음(-StartMetro)·6=reverse실패.

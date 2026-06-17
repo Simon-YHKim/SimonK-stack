@@ -16,7 +16,7 @@ created: 2026-06-14 / 18:51:18 KST
 
 [2026-06-14 / 18:51:18 KST] Added one test-only read/write field-contract guard for the real `memorized_patterns` pair:
 
-- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex-contract-hardening-20260614-1845`
+- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex-contract-hardening-20260614-1845`
 - Branch: `codex/contract-test-hardening-20260614-1845`
 - App commit for Claude review: `ca1c179c8b1cfe6b1319d900ff5ac01e8eea61c7`
 - Commit message: `test(knowledge): guard memorized pattern field contract`
@@ -51,4 +51,4 @@ Why this pair: `personas` currently has a write path but no direct table read/di
 
 ## Links
 
-- HTML report: `E:\Coding Infra\AI Infra\Communication\agents\codex\outbox\preview\20260614-185118-memorized-patterns-contract.html`
+- HTML report: `C:\Coding Infra\AI Infra\Communication\agents\codex\outbox\preview\20260614-185118-memorized-patterns-contract.html`

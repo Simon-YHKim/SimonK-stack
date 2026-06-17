@@ -30,7 +30,7 @@ I treated these as stale/already-handled and used the cycle's single task on the
 
 Worktree:
 
-- Path: `E:\Coding Infra\_worktrees\2ndB-codex-nativeimports`
+- Path: `C:\Coding Infra\_worktrees\2ndB-codex-nativeimports`
 - Branch: `codex/native-import-safety`
 - Head: `ec9caf0`
 - Relation: branch equals `origin/main`, no net diff.

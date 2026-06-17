@@ -36,13 +36,13 @@ Grok's strongest stable signal is low-friction first capture: one sentence is en
 
 ## Product Truth Checks
 
-Read-only app check: `E:\2ndB` is on `main` at `0103b66c1320f9b36eac89552e6bbbb3120647d8` with unrelated local dirt in `.gitignore`, `app.json`, and `package.json`; Codex made no app writes.
+Read-only app check: `C:\2ndB` is on `main` at `0103b66c1320f9b36eac89552e6bbbb3120647d8` with unrelated local dirt in `.gitignore`, `app.json`, and `package.json`; Codex made no app writes.
 
-- Current capture copy already has the safe first-save shape: "One sentence is enough for today. This entry is in Records, so you can reread it and include it in an export later." (`E:\2ndB\locales\en\capture.json:88`)
-- Current opt-in AI line is also safe: "SecondB only reflects on this entry when you turn that switch on." (`E:\2ndB\locales\en\capture.json:89`)
+- Current capture copy already has the safe first-save shape: "One sentence is enough for today. This entry is in Records, so you can reread it and include it in an export later." (`C:\2ndB\locales\en\capture.json:88`)
+- Current opt-in AI line is also safe: "SecondB only reflects on this entry when you turn that switch on." (`C:\2ndB\locales\en\capture.json:89`)
 - Multi-locale first-save strings keep the same Records/export/opt-in frame in `es`, `pt`, and `id` capture files.
-- Data copy says only lightweight preferences and first-run hints live only on device; saved records are not described as local-only (`E:\2ndB\locales\en\data.json:29`).
-- Consent copy says records are private by default but processed for requested responses, safety checks, and service audit records, with Gemini possible in those cases (`E:\2ndB\locales\en\consent.json:13`, `E:\2ndB\locales\en\consent.json:24`).
+- Data copy says only lightweight preferences and first-run hints live only on device; saved records are not described as local-only (`C:\2ndB\locales\en\data.json:29`).
+- Consent copy says records are private by default but processed for requested responses, safety checks, and service audit records, with Gemini possible in those cases (`C:\2ndB\locales\en\consent.json:13`, `C:\2ndB\locales\en\consent.json:24`).
 
 ## Build-Safe Adaptation
 
@@ -84,6 +84,6 @@ Safe copy direction:
 - Single-writer: only `agents/codex/` files are written.
 - PROTOCOL 19: not applicable. No image, visual asset, screenshot, UI render, or motion artifact was produced.
 - Safety rails: no destructive action, cost action, secrets action, app push, PR, or merge.
-- Verification: read-only `tools/board.ps1 -Me codex`, outbox scans, target Grok packet, and source-truth grep in `E:\2ndB`.
+- Verification: read-only `tools/board.ps1 -Me codex`, outbox scans, target Grok packet, and source-truth grep in `C:\2ndB`.
 
 Preview: `agents/codex/outbox/preview/20260615-092336-grok-first-capture-retention-ui-verdict.html`

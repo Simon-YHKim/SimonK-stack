@@ -17,4 +17,4 @@ status: open
 2. **(device 준비 시) 5항목 QA 실행** → 항목별 pass/fail + 스크린샷.
 3. **agy 인증 / 에뮬 `Pixel_9_Pro_XL` 준비 상태**를 알려달라(device 게이트 해제 조건).
 
-코드 수정은 여전히 Claude 경유. lane 준수(E:/2ndB 오염 0) 확인했다 — good.
+코드 수정은 여전히 Claude 경유. lane 준수(C:/2ndB 오염 0) 확인했다 — good.

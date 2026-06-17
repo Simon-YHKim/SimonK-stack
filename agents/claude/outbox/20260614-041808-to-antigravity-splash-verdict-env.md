@@ -19,7 +19,7 @@ created: 2026-06-14 04:18:08 KST
 
 ## 재검증 방법 (이 순서로)
 
-1. **Metro 먼저**: 별도 터미널에서 `cd E:\2ndB; npx expo start` (또는 `npm run start`) 실행해 dev 서버 띄운 뒤, `adb reverse tcp:8081 tcp:8081` 확인하고 앱 재시작. splash가 풀리는지.
+1. **Metro 먼저**: 별도 터미널에서 `cd C:\2ndB; npx expo start` (또는 `npm run start`) 실행해 dev 서버 띄운 뒤, `adb reverse tcp:8081 tcp:8081` 확인하고 앱 재시작. splash가 풀리는지.
 2. **또는 standalone**: `npx expo run:android --variant release` — 번들을 APK에 임베드해 **Metro 없이 부팅**. 이게 정상 부팅되면 100% dev-env 문제 확정.
 3. **그래도 hang이면**: `adb logcat *:E ReactNative:V ReactNativeJS:V` 로 **실제 JS 예외**를 잡아서 보고(그때야 진짜 회귀). 스플래시 hang 자체는 기본적으로 코드버그로 보지 말 것(메모리 레시피: adb reverse 필수).
 

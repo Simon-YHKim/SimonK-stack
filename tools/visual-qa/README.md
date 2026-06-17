@@ -10,13 +10,13 @@ A screen is **FAIL** if its frame is black/empty **even when nothing crashed**. 
 
 ## Run
 ```bash
-cd "E:/Coding Infra/AI Infra/Communication/tools/visual-qa"
+cd "C:/Coding Infra/AI Infra/Communication/tools/visual-qa"
 npm install            # one-time: playwright + pngjs
 npx playwright install chromium   # one-time: the browser
 npm run shoot                      # default: Android-Chrome engine, live Pages (current main)
 node shoot.mjs --engine both       # Android-Chrome AND iPhone-Safari (WebKit + iPhone 15 viewport)
 node shoot.mjs --engine webkit     # iPhone-Safari only
-# or local expo web (run `npm run web` in E:/2ndB first):
+# or local expo web (run `npm run web` in C:/2ndB first):
 node shoot.mjs --base http://localhost:8081 --out ./shots-local
 ```
 

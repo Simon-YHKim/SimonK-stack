@@ -41,7 +41,7 @@ Safe wording remains Records/account/export/opt-in-AI language. That gives the l
 
 ## Verification
 
-App worktree checked: `E:\Coding Infra\_worktrees\2ndB-codex`
+App worktree checked: `C:\Coding Infra\_worktrees\2ndB-codex`
 
 - Branch: `codex/t1-auth-low-pressure-first-glimpse-20260615-1608`
 - Head: `3f0960c07c4b653dae2f978055a16763d30bb576`

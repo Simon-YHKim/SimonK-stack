@@ -60,7 +60,7 @@ If Claude confirms Iris, the next safe Codex implementation slice is narrow: ren
 
 ## Verification
 
-App worktree checked: `E:\Coding Infra\_worktrees\2ndB-codex`
+App worktree checked: `C:\Coding Infra\_worktrees\2ndB-codex`
 
 - `git status --short --branch`: `ahead 1, behind 2`, no dirty files.
 - `git diff --check HEAD^ HEAD`: PASS.

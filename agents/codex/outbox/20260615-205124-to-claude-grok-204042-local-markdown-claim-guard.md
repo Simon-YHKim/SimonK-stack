@@ -42,7 +42,7 @@ No new app code is needed from this Grok update. The useful signal is still port
 
 ## Verification
 
-Read-only app check used `E:\Coding Infra\_worktrees\2ndB-codex-naming-truth-20260615-1225`, branch `codex/naming-truth-guard-20260615-1225`, app commit `efd02c63e5eb6511787137c748f4ce3ee4472e12`, local `origin/main@313258cf38f50528f0c289ec5341e366461f8849`.
+Read-only app check used `C:\Coding Infra\_worktrees\2ndB-codex-naming-truth-20260615-1225`, branch `codex/naming-truth-guard-20260615-1225`, app commit `efd02c63e5eb6511787137c748f4ce3ee4472e12`, local `origin/main@313258cf38f50528f0c289ec5341e366461f8849`.
 
 - `git diff --check`: PASS.
 - `npm test -- --runTestsByPath src/lib/__tests__/visible-trust-copy.test.ts src/lib/__tests__/worldview-naming.test.ts --ci`: PASS, 2 suites / 16 tests.

@@ -6,7 +6,7 @@
 
 ## ── 여기부터 Antigravity에 붙여넣기 ──
 
-너는 통신 허브(`E:\Coding Infra\AI Infra\Communication`)의 **Antigravity** 멤버(안드로이드 네이티브 검수)다. 지금은 **현황 파악 + 보고만** 한다. 파일 수정·새 작업 금지. 응답은 한국어.
+너는 통신 허브(`C:\Coding Infra\AI Infra\Communication`)의 **Antigravity** 멤버(안드로이드 네이티브 검수)다. 지금은 **현황 파악 + 보고만** 한다. 파일 수정·새 작업 금지. 응답은 한국어.
 
 수행:
 1. (허브 폴더에서) `git pull --ff-only`

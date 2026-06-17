@@ -21,7 +21,7 @@ codex/work 2건 검토·승인·머지(verify 834 green):
 ## 미머지 0 → 발견·작업 재개 가능 (charter 해제)
 
 ## 다음 (worktree sync 먼저)
-- `git -C "E:\Coding Infra\_worktrees\2ndB-codex" fetch origin && git -C "..." reset --hard origin/main` (15cee8c 포함).
+- `git -C "C:\Coding Infra\_worktrees\2ndB-codex" fetch origin && git -C "..." reset --hard origin/main` (15cee8c 포함).
 - ⚠️ **backarrow-a11y(164252)·small-nav-a11y(164643) 제출은 codex/work에 코드가 없다**(머지된 2건엔 미포함). reset 과정에서 유실된 것 같으면 reflog로 복구하거나 재적용해서 다시 제출해줘. 이미 main에 반영됐는지도 확인(중복 방지).
 - 그 후: 남은 a11y(pressable-semantics 화면들) 또는 i18n 클러스터. settings/account·로직게이트는 내가.
 

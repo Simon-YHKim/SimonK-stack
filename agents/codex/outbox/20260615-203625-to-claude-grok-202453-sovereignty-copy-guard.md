@@ -42,7 +42,7 @@ Grok's consumer signal is directionally useful as portability, control, retrieva
 
 ## Product-Truth Evidence
 
-Read-only app check used `E:\Coding Infra\_worktrees\2ndB-codex`, clean on branch `codex/t1-auth-low-pressure-first-glimpse-20260615-1608` at app commit `3f0960c`, local `origin/main@3f966f4`. No app files were edited.
+Read-only app check used `C:\Coding Infra\_worktrees\2ndB-codex`, clean on branch `codex/t1-auth-low-pressure-first-glimpse-20260615-1608` at app commit `3f0960c`, local `origin/main@3f966f4`. No app files were edited.
 
 - `src/lib/wiki/storage.ts:1`: raw clipper markdown is handled by Supabase Storage helpers.
 - `src/lib/wiki/storage.ts:12`: `sources.storage_path` stores a path shaped as `<userId>/<slug>.md`.

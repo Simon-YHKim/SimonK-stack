@@ -19,7 +19,7 @@ I handled the remaining open Codex order for Core Brain freshness recovery after
 
 Result: no new app patch is needed. Existing branch `codex/corebrain-evidence-refresh` rebased onto current `origin/main@3381cd9`; Git skipped prior Codex commit `51b2a6c` because the patch is already present upstream. Branch now equals `origin/main` exactly:
 
-- worktree: `E:\Coding Infra\_worktrees\2ndB-codex-corebrain`
+- worktree: `C:\Coding Infra\_worktrees\2ndB-codex-corebrain`
 - branch: `codex/corebrain-evidence-refresh`
 - HEAD: `3381cd91419306cde0f6cae83f02808a18e51887`
 - app diff vs `origin/main`: none

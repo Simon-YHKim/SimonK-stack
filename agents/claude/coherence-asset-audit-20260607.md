@@ -177,7 +177,7 @@
 
 ##### assets
 
-분석 완료. E:/2ndB(main, RN+Expo) 에셋 일관성(§26.1) 점검 결과. 모든 근거는 실제 파일·줄 기준이며, 활성 import/require 경로는 전부 실존 확인(깨진 import 없음). 핵심은 같은 5(실제 6)캐릭터가 **세 가지 네이밍 체계**로 갈라져 있고, public/assets에 죽은 버전 팩이 대량 잔존한다는 점.
+분석 완료. C:/2ndB(main, RN+Expo) 에셋 일관성(§26.1) 점검 결과. 모든 근거는 실제 파일·줄 기준이며, 활성 import/require 경로는 전부 실존 확인(깨진 import 없음). 핵심은 같은 5(실제 6)캐릭터가 **세 가지 네이밍 체계**로 갈라져 있고, public/assets에 죽은 버전 팩이 대량 잔존한다는 점.
 
 ---
 
@@ -248,9 +248,9 @@ src·app.json·metro.config.js 전수 grep 결과 아래 팩은 참조 0. Expo �
 
 ##### FIX-MAP
 
-# 통합 수정 맵 — 3관점 coherence 감사 종합 (E:\2ndB, main)
+# 통합 수정 맵 — 3관점 coherence 감사 종합 (C:\2ndB, main)
 
-3개 감사(naming·copy-voice·assets)를 교차 대조해 중복을 합치고, 의존성·위험도·담당을 붙인 실행 맵입니다. **담당 표기**: S=Simon(사용자 결정) · Cx=Codex(기계적 코드/로케일 편집) · C=Claude(온라인 git·라우트 리네임 PR·통합) · AG=Antigravity(네이티브/APK 검증·에셋 삭제 후 require 검증). 레포 루트 = `E:\2ndB`, 경로는 루트 기준.
+3개 감사(naming·copy-voice·assets)를 교차 대조해 중복을 합치고, 의존성·위험도·담당을 붙인 실행 맵입니다. **담당 표기**: S=Simon(사용자 결정) · Cx=Codex(기계적 코드/로케일 편집) · C=Claude(온라인 git·라우트 리네임 PR·통합) · AG=Antigravity(네이티브/APK 검증·에셋 삭제 후 require 검증). 레포 루트 = `C:\2ndB`, 경로는 루트 기준.
 
 ---
 

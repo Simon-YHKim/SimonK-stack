@@ -1,0 +1,122 @@
+[
+  {
+    "Class": "REVIEW",
+    "Name": "feat/deep-space-nav-stage2",
+    "Ahead": 1,
+    "Behind": 4,
+    "Date": "2026-06-17",
+    "Author": "Simon Kim",
+    "Sha": "d9abe64b93b2c19311fa6ea96fb264f0d0ba33fe",
+    "Reason": "live: 4 behind / 1 ahead -> review"
+  },
+  {
+    "Class": "REVIEW",
+    "Name": "handoff/20260616-1850",
+    "Ahead": 1,
+    "Behind": 43,
+    "Date": "2026-06-16",
+    "Author": "Claude",
+    "Sha": "9a42c4f0e417a6b7ec2fa9483b8ea16384765d1e",
+    "Reason": "live: 43 behind / 1 ahead -> review"
+  },
+  {
+    "Class": "REVIEW",
+    "Name": "claude/iden-ui",
+    "Ahead": 1,
+    "Behind": 44,
+    "Date": "2026-06-16",
+    "Author": "Claude",
+    "Sha": "f96be28edd9a7bb1325d01f9a948c0345f6674bb",
+    "Reason": "live: 44 behind / 1 ahead -> review"
+  },
+  {
+    "Class": "REVIEW",
+    "Name": "handoff/20260616-1135",
+    "Ahead": 1,
+    "Behind": 63,
+    "Date": "2026-06-16",
+    "Author": "Claude",
+    "Sha": "d1b37d8c6dcfc9d9123c42c2602a644ff15ea22c",
+    "Reason": "live: 63 behind / 1 ahead -> review"
+  },
+  {
+    "Class": "REVIEW",
+    "Name": "wip/deep-space-20260616",
+    "Ahead": 2,
+    "Behind": 92,
+    "Date": "2026-06-16",
+    "Author": "Simon-YHKim",
+    "Sha": "083df8cb08585a7ab0536b14e21683ad065b6e3f",
+    "Reason": "live: 92 behind / 2 ahead -> review"
+  },
+  {
+    "Class": "REVIEW",
+    "Name": "feat/o21-landing-live",
+    "Ahead": 1,
+    "Behind": 101,
+    "Date": "2026-06-15",
+    "Author": "Claude",
+    "Sha": "21a73efb2db48460bd32a832e29e314a3301376a",
+    "Reason": "live: 101 behind / 1 ahead -> review"
+  },
+  {
+    "Class": "REVIEW",
+    "Name": "feat/art20-export-account",
+    "Ahead": 3,
+    "Behind": 135,
+    "Date": "2026-06-14",
+    "Author": "Simon-YHKim",
+    "Sha": "367454d2c140edfcea96d10476f1c84ecd2150e0",
+    "Reason": "live: 135 behind / 3 ahead -> review"
+  },
+  {
+    "Class": "REVIEW",
+    "Name": "codex/soul-core-multimodal-pilot-20260610",
+    "Ahead": 54,
+    "Behind": 282,
+    "Date": "2026-06-10",
+    "Author": "Simon Kim",
+    "Sha": "7c9db8a1b61099f320fa55c93732ebda16024844",
+    "Reason": "live: 282 behind / 54 ahead -> review"
+  },
+  {
+    "Class": "REVIEW",
+    "Name": "codex/core-label-tail-cleanup",
+    "Ahead": 9,
+    "Behind": 370,
+    "Date": "2026-06-08",
+    "Author": "Codex",
+    "Sha": "3df2d617ab4a0745f2a71fbdd82beb8df1baeabb",
+    "Reason": "live: 370 behind / 9 ahead -> review"
+  },
+  {
+    "Class": "REVIEW",
+    "Name": "codex/pending-pre3153de4-a11y-stack",
+    "Ahead": 8,
+    "Behind": 606,
+    "Date": "2026-06-06",
+    "Author": "Codex",
+    "Sha": "5a5a6a66e6aab42ba7bd0510d1fe526f4e4fbdd8",
+    "Reason": "live: 606 behind / 8 ahead -> review"
+  },
+  {
+    "Class": "REVIEW",
+    "Name": "claude/cycle-1-phase6-screens",
+    "Ahead": 13,
+    "Behind": 614,
+    "Date": "2026-06-05",
+    "Author": "Simon-YHKim",
+    "Sha": "497d103e9db3d157626dc252cad25553b8719075",
+    "Reason": "live: 614 behind / 13 ahead -> review"
+  },
+  {
+    "Class": "REVIEW",
+    "Name": "claude/loving-davinci-QpZyJ",
+    "Ahead": 14,
+    "Behind": 835,
+    "Date": "2026-05-25",
+    "Author": "Claude",
+    "Sha": "36fcc556f130bb5550bef8a37da1c7ba9a4a9b2f",
+    "Reason": "live: 835 behind / 14 ahead -> review"
+  }
+]

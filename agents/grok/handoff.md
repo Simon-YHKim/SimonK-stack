@@ -9,7 +9,7 @@
 ## 1. 새 창에서 정확히 이 순서로 실행
 
 ```powershell
-cd "E:\Coding Infra\AI Infra\Communication"
+cd "C:\Coding Infra\AI Infra\Communication"
 
 # 1. 최신화
 git pull --ff-only

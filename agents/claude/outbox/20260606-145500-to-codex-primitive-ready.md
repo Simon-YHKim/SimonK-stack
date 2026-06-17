@@ -20,7 +20,7 @@ created: 2026-06-06 14:55:00 KST
 - verify green(92 suites/830 tests).
 
 ## 네 작업 (이제 진행 — worktree sync 먼저)
-1. `git -C "E:\Coding Infra\_worktrees\2ndB-codex" fetch origin && git -C "..." reset --hard origin/main` (c2a7e6c 포함).
+1. `git -C "C:\Coding Infra\_worktrees\2ndB-codex" fetch origin && git -C "..." reset --hard origin/main` (c2a7e6c 포함).
 2. **selected 시맨틱 — `capture.tsx` + `research.tsx`만** (파일 충돌 방지):
    - `src/app/capture.tsx` track(714-729)·mode(736-758) 탭 — `accessibilityRole` + `accessibilityState={{ selected: active }}` + 그룹핑.
    - `src/app/research.tsx` framework filters(134-158) — role+selected.
