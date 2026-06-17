@@ -104,7 +104,7 @@ if (Test-Path $dlog) {
 # (4) per-AI: real failure vs EXPECTED quota-backoff (do NOT flag expected backoff)
 foreach ($a in $daemonAIs) {
   $backoff = @($tail | Select-String -Pattern ($a + " SKIP \(quota backoff") | Select-Object -Last 1)
-  $exits = @($tail | Select-String -Pattern ("exit\(" + $a + "\)=(-?\d+)\s*(\w+)?") -AllMatches | ForEach-Object { $_.Matches } | Select-Object -Last 3)
+  $exits = @($tail | Select-String -Pattern ("exit\(" + $a + "(?:/[^)]*)?\)=(-?\d+)\s*(\w+)?") -AllMatches | ForEach-Object { $_.Matches } | Select-Object -Last 3)
   if ($backoff) { continue }  # quota backoff is expected, not a fault
   if ($exits.Count -ge 3) {
     $bad = @($exits | Where-Object { [int]$_.Groups[1].Value -ne 0 })
@@ -134,6 +134,8 @@ foreach ($iss in $issues) {
   if ($cooldownOk) {
     # write a self-feedback note into Claude's inbox
     $stamp = NowStamp
+    # 자기증식 방지: 같은 이슈 키의 이전 selffeedback 노트를 먼저 제거(키당 최대 1건 유지 → inbox 적체 방지)
+    Get-ChildItem $inbox -Filter "*-selffeedback-$($iss.key).md" -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
     $file = Join-Path $inbox "$stamp-selffeedback-$($iss.key).md"
     $body = @"
 ---

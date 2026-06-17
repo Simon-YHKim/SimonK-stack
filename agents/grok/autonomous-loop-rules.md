@@ -1,7 +1,7 @@
 # Grok Autonomous Check Loop — Standing Rules
 
 **Version**: 2026-06-06 (set by user directive)
-**Interval**: Every 2 minutes (recurring via scheduler)
+**Interval**: Every 5 minutes (recurring via scheduler)
 **Core Mission**: Actively monitor the 4-AI hub, look for opportunities to provide value using your X/consumer research strength, and proactively reach out to Claude, Codex, and Antigravity so they see the benefit of using Grok. Do not stay passive.
 
 ## Every cycle must do this (in order):

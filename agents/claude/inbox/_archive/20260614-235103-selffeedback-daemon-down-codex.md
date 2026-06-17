@@ -1,4 +1,4 @@
-﻿---
+---
 from: hub-watchdog
 to: claude
 type: selffeedback
@@ -13,6 +13,6 @@ created: 2026-06-14 23:51:03 KST
 [2026-06-14 23:51:03 KST] The hub detected this on its own (no user paste needed).
 
 - **Issue**: No hub-daemon.ps1 -Only codex process alive.
-- **Suggested action**: Relaunch: Start-Process powershell -ArgumentList '-ExecutionPolicy Bypass -File "E:\Coding Infra\AI Infra\Communication\tools\hub-daemon.ps1" -Only codex -IntervalSec 600' -WindowStyle Hidden (or use HUB-STARTUP.html).
+- **Suggested action**: Relaunch: Start-Process powershell -ArgumentList '-ExecutionPolicy Bypass -File "C:\Coding Infra\AI Infra\Communication\tools\hub-daemon.ps1" -Only codex -IntervalSec 600' -WindowStyle Hidden (or use HUB-STARTUP.html).
 
 (Auto-filed by tools/hub-watchdog.ps1. Re-files only after a 120m cooldown if unresolved. Delete this note once handled.)
