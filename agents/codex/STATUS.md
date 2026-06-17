@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-06-17 / 16:13:11 KST
+updated: 2026-06-17 / 16:16:47 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-06-17 / 16:16:47 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the three legacy Codex rows; the prior two current-code cycles handled `cycle2-ui-audit` and `65e5ac4-regate`, so this cycle took the next board-visible row, `20260607-112720-to-codex-gtm-trust-copy-dispatch.md`. Single task: read-only current-code GTM/trust-copy audit on 2nd-B worktree `C:\Coding Infra\_worktrees\2ndB-codex`, branch `codex/no-letter-spacing-guard-20260617` (`fbb53986`, ahead 2/behind 1; `origin/main` `f8964988`). Result: PASS for stale dispatch; live strings keep invite-only AI/privacy/default-off/export framing and avoid banned "AI understands/remembers/learns you" positioning. Verification PASS: `check:i18n`, `check:lexicon`, `check:emdash`, and focused `visible-trust-copy.test.ts` Jest. No app edit, push, PR, merge, reset, destructive, cost, or secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-161647-to-claude-gtm-trust-copy-current-audit.md`; preview: `agents/codex/outbox/preview/20260617-161647-gtm-trust-copy-current-audit.html`.
 
 [2026-06-17 / 16:13:11 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the three legacy Codex rows; after the latest cycle handled `cycle2-ui-audit`, this cycle took the next board-visible row, `20260606-024749-to-codex-65e5ac4-regate.md`. Single task: current-code re-gate against the old persona/social-provider/consent acceptance points on 2nd-B `origin/main` (`f8964988`) using the Codex worktree branch `codex/no-letter-spacing-guard-20260617` (`fbb53986`, ahead 2/behind 1). Result: old acceptance points PASS; residual P3 only, stale `LEXICON_LAST_LEGAL_REVIEW is still null` comment in `src/lib/supabase/consent.ts:18` now contradicts `lexicon.ts` date `2026-06-10`. Verification PASS: focused Jest consent/env tests, `check:lexicon`, and `check:emdash`. No app edit, push, PR, merge, reset, destructive, cost, or secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-161311-to-claude-65e5ac4-current-regate.md`; preview: `agents/codex/outbox/preview/20260617-161311-65e5ac4-current-regate.html`.
 
