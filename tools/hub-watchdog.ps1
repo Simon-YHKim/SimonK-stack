@@ -39,7 +39,7 @@ function Read-SharedLog([string]$path, [int]$tail = 0) {
 # ---- gather facts ----
 $log = Read-SharedLog $dlog
 $tail = if ($log.Count -gt 200) { $log[($log.Count - 200)..($log.Count - 1)] } else { $log }
-$daemonAIs = @('codex','grok','antigravity')
+$daemonAIs = @('codex','antigravity')  # grok removed 2026-06-18: request-only per ROUTING §4 (auto-loop produced ~96 hub commits / 0 live merges in AI-value eval; near-zero marginal value). Launch grok manually only when a specific decision needs consumer/X signal.
 $aliveAIs = @()
 try {
   Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" -ErrorAction SilentlyContinue |
