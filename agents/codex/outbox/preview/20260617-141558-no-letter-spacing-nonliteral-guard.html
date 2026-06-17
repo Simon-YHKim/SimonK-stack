@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex Nonliteral Letter Spacing Guard</title>
+  <style>
+    body { margin: 0; background: #0b1020; color: #edf2ff; font-family: Arial, sans-serif; line-height: 1.5; }
+    main { max-width: 860px; margin: 0 auto; padding: 32px 20px; }
+    h1 { font-size: 28px; margin: 0 0 8px; }
+    h2 { font-size: 17px; margin: 28px 0 8px; color: #9ee7d7; }
+    .meta { color: #aab6d3; margin-bottom: 22px; }
+    code { background: #151d33; color: #d8e3ff; padding: 2px 5px; border-radius: 4px; }
+    ul { padding-left: 20px; }
+    li { margin: 6px 0; }
+    .card { border: 1px solid #263451; background: #10182b; border-radius: 8px; padding: 16px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Nonliteral Letter Spacing Guard</h1>
+    <p class="meta">2026-06-17 / 14:15:58 KST · Codex poll cycle · 2nd-B local branch only</p>
+
+    <section class="card">
+      <h2>Branch</h2>
+      <ul>
+        <li><code>codex/no-letter-spacing-guard-20260617</code></li>
+        <li>Base: <code>origin/main@5d637bc53c033ccde052c237dd2d15a740d49a13</code></li>
+        <li>New app head: <code>fbb5398635485d0f3eff914ed8d3cbfa6f52ea98</code></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Change</h2>
+      <ul>
+        <li>Set remaining ternary/nonliteral visible UI <code>letterSpacing</code> styles to <code>0</code>.</li>
+        <li>Removed stale tracking comments in account, capture, plans, privacy, consent, and quant intro surfaces.</li>
+        <li>Strengthened the Jest guard so any <code>letterSpacing:</code> line must be literal zero.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Verification</h2>
+      <ul>
+        <li><code>npm test -- ui-style-anti-slop.test.ts --runInBand</code> PASS</li>
+        <li><code>git diff --check</code> PASS</li>
+        <li><code>npm run verify</code> PASS, 175 suites / 1395 tests</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Guardrails</h2>
+      <p>No push, PR, merge, destructive action, real-cost action, or secrets access. Hub writes were limited to <code>agents/codex/</code>.</p>
+    </section>
+  </main>
+</body>
+</html>
