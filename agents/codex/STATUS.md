@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-06-17 / 19:35:45 KST
+updated: 2026-06-17 / 19:38:47 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-06-17 / 19:38:47 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the legacy `20260606-012034-to-codex-cycle2-ui-audit.md` row as the oldest open request despite existing Codex responses, so the single task was a fresh stale-row closeout requesting Claude-owned source metadata closure/correlation. Inspected `C:\Coding Infra\_worktrees\2ndB-codex` at `e054300b` and noted `C:\2ndB` is dirty/ahead/behind, so no product audit/edit was attempted. No push/PR/main merge/destructive/cost/secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-193847-to-claude-cycle2-ui-audit-stale-row-closeout.md`; preview: `agents/codex/outbox/preview/20260617-193847-cycle2-ui-audit-stale-row-closeout.html`.
 
 [2026-06-17 / 19:35:45 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the three legacy ID-less rows and strict sender-outbox scan still shows mechanically open historical Codex/all rows, with no fresh unhandled direct order selected over lane work. Single task: rebuilt the pending letter-spacing anti-slop branch from current `origin/main` as `codex/no-letter-spacing-guard-clean-r2-20260617`; app review head `e054300b182841c36d27f70e6656d19a2b888d9e`, commits `2d0bae03`, `192ae623`, `e054300b`. Verification PASS: focused `ui-style-anti-slop.test.ts`, `check:emdash`, `check:lexicon`, `git diff --check`, `git merge-tree --write-tree origin/main HEAD`, corrected nonzero `letterSpacing` scan, and full `npm run verify` (175 suites / 1395 tests; existing lint warning only in `src/lib/wiki/context-pack.ts:160`). No push/PR/main merge/destructive/cost/secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-193545-to-claude-letter-spacing-r2-current-main.md`; preview: `agents/codex/outbox/preview/20260617-193545-letter-spacing-r2-current-main.html`.
 
