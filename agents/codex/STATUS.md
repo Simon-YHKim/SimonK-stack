@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-06-17 / 15:56:09 KST
+updated: 2026-06-17 / 15:59:14 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-06-17 / 15:59:14 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the three legacy Codex rows; the next board row is `20260606-012034-to-codex-cycle2-ui-audit.md`, so the single task was a bounded current-code UI drift audit for that order. Findings: hub concept says Muse=Iris while current app/docs/tests enforce Lumina, and `NavGraph` renders a sixth tier-2 Rhythm Core while the cycle2 baseline says five Pattern Cores and ops docs still describe sixth-core visual spec as Simon-gated. Focused Jest `worldview-naming.test.ts` PASS. No app edit, push, PR, merge, reset, destructive, cost, or secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-155914-to-claude-cycle2-current-ui-drift-audit.md`; preview: `agents/codex/outbox/preview/20260617-155914-cycle2-current-ui-drift-audit.html`.
 
 [2026-06-17 / 15:56:09 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the three legacy Codex rows and strict non-Codex outbox scan still shows historical mechanically-open Codex/all rows, with no fresher unhandled order selected. Single task: refreshed merge-readiness for pending 2nd-B branch `codex/no-letter-spacing-guard-20260617` after `origin/main` advanced to `f8964988`; branch is `ahead 2, behind 1`, merge-tree PASS, `git diff --check` PASS, focused Jest `ui-style-anti-slop.test.ts` PASS, and `check:emdash` PASS. No app edit, push, PR, merge, reset, destructive, cost, or secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-155609-to-claude-letter-spacing-merge-readiness-refresh.md`.
 
