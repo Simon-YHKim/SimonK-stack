@@ -79,7 +79,7 @@ function Get-ModelCfg([string]$ai,[string]$key,[string]$default){
 # fallback_model is defined -> caller then just backs off (no model to switch to).
 function Get-AIModelTier([string]$ai,[string]$tier){
   $defModel = switch($ai){ 'codex' {'gpt-5.5'} 'grok' {'grok-build'} 'antigravity' {'gemini-3.1-pro-preview'} default {''} }
-  $defEff   = switch($ai){ 'codex' {'xhigh'} 'grok' {'high'} 'antigravity' {'high'} default {'high'} }
+  $defEff   = switch($ai){ 'codex' {'medium'} 'grok' {'high'} 'antigravity' {'high'} default {'high'} }
   if($tier -eq 'fallback'){
     $fm = Get-ModelCfg $ai 'fallback_model' ''
     if(-not $fm){ return [pscustomobject]@{ Model=''; Effort=''; Has=$false } }
@@ -142,6 +142,45 @@ function Count-OpenOrders([string]$ai){
   return $n
 }
 
+# Reroute on backoff (audit 2026-06-17): when an AI is PARKED (quota or hard-fail backoff) yet has
+# OPEN orders it cannot serve, those orders rot in the queue (the codex shared-pool-quota / AG dead-
+# headless symptom). File a deduped request to the AI's reroute_to lane (models.json) so a healthy
+# AI / Claude picks them up instead. Self-replacing (one note per parked AI) + 1h cooldown = no spam.
+$script:lastReroute = @{}
+function Reroute-Orders([string]$ai,[string]$reason){
+  $target = Get-ModelCfg $ai 'reroute_to' ''
+  if(-not $target -or $target -eq $ai){ return }
+  $open = 0; try { $open = Count-OpenOrders $ai } catch {}
+  if($open -le 0){ return }   # nothing to reroute
+  $nowE = [int][double]::Parse((Get-Date -UFormat %s))
+  if($script:lastReroute[$ai] -and ($nowE - [int]$script:lastReroute[$ai]) -lt 3600){ return }  # 1h cooldown
+  $script:lastReroute[$ai] = $nowE
+  $inbox = Join-Path $root "agents\$target\inbox"
+  if(-not (Test-Path $inbox)){ New-Item -ItemType Directory -Force $inbox | Out-Null }
+  Get-ChildItem $inbox -Filter "*-reroute-$ai.md" -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
+  $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+  $body = @"
+---
+from: hub-daemon
+to: $target
+type: request
+priority: high
+status: open
+id: $stamp-reroute-$ai
+created: $(Now) KST
+---
+
+# [reroute] $ai 백오프 ($reason) — open orders $open 건 인계 요청
+
+[$(Now) KST] $ai 레인이 $reason 로 파킹됨. $ai 앞 OPEN 오더 $open 건이 처리되지 못하고 적체 중.
+$target 가 대신 처리하거나 재배정 판단 바람: agents/*/outbox 에서 (to: $ai 또는 all) + (type: request) + (status: open) 스캔.
+
+(hub-daemon 자동 reroute. $ai 파킹 동안 시간당 최대 1회, 같은 ai 노트는 자기교체. $ai 복귀 시 자동 중단.)
+"@
+  try { [System.IO.File]::WriteAllText((Join-Path $inbox "$stamp-reroute-$ai.md"), $body, $utf8) } catch {}
+  Log "$ai parked with $open open orders ($reason) -> reroute notice filed to $target inbox"
+}
+
 function Invoke-AI([string]$ai,[string]$tier='primary'){
   # Single-line, NO embedded double-quotes: PS 5.1 mangles native-exe arguments
   # that contain " or span lines (this broke grok+codex in the first test).
@@ -151,7 +190,7 @@ function Invoke-AI([string]$ai,[string]$tier='primary'){
     'grok'        { "grok lane = market/X/consumer-signal advisory; written advisory text only, no code." }
     'antigravity' { "antigravity lane = native/emulator QA; report findings only, no push." }
   }
-  $prompt = "You are $ai in the 4-AI hub (root: $root). Run ONE autonomous poll cycle (PROTOCOL 12/19/35.4). Step 1: read your inbox with tools/board.ps1 -Me $ai and scan agents/*/outbox for OPEN requests addressed to $ai or all. Step 2: if an open order exists do the next one, otherwise autonomously do the single most valuable task in your lane per BOARD.md current focus. Step 3 constraints: single-writer (write only agents/$ai/ in the hub), NEVER push 2nd-B, no destructive/cost/secrets actions (escalate to Claude via outbox), apply section 35 self-panel, ONE task only this cycle. Step 4: commit hub output via tools/commit.ps1 -As $ai -Message <conventional msg> -Files <your files> (quote paths containing spaces), then refresh agents/$ai/STATUS.md with a fresh updated stamp and one activity line. Timestamps via Get-Date KST. $lane"
+  $prompt = "You are $ai in the 4-AI hub (root: $root). Run ONE autonomous poll cycle (PROTOCOL 12/19/35.4). Step 1: read your inbox with tools/board.ps1 -Me $ai and scan agents/*/outbox for OPEN requests addressed to $ai or all. Step 2: if an open order exists do the next one, otherwise autonomously do the single most valuable task in your lane per BOARD.md current focus. Step 3 constraints: single-writer (write only agents/$ai/ in the hub), NEVER push 2nd-B, no destructive/cost/secrets actions (escalate to Claude via outbox), apply section 35 self-panel, ONE task only this cycle. Step 4 (REPORT - PROTOCOL section 16, REQUIRED every cycle): write a SELF-CONTAINED HTML report of this cycle to agents/$ai/outbox/preview/<yyyyMMdd-HHmmss>-<slug>.html - ALL human-readable text (title, body, captions, table headers, button labels) in KOREAN, dark theme, <=3 colors, no emoji/ornament (anti-slop); reference its path in your outbox .md under a '## Links' section. Do NOT run start/Invoke-Item/auto-open - you are a HEADLESS daemon and it cannot surface a browser; the user opens reports via tools/open-reports.ps1. Step 5: commit BOTH the .md and the .html via tools/commit.ps1 -As $ai -Message <conventional msg> -Files <your files> (quote paths containing spaces), then refresh agents/$ai/STATUS.md with a fresh updated stamp and one activity line. Timestamps via Get-Date KST. $lane"
   $liveDir = Join-Path $root "tools\live"
   if(-not (Test-Path $liveDir)){ New-Item -ItemType Directory -Force $liveDir | Out-Null }
   $live = Join-Path $liveDir ($ai + ".log")
@@ -161,21 +200,30 @@ function Invoke-AI([string]$ai,[string]$tier='primary'){
   $mt    = Get-AIModelTier $ai $tier
   $model = $mt.Model
   $eff   = $mt.Effort
+  # Antigravity migrated OFF the deprecated gemini CLI (sunset 2026-06-18) to agy run
+  # HEADLESS via the ConPTY wrapper (tools/agy-pty/agy-headless.js). `agy -p` emits ~0
+  # bytes under redirected stdout, which SILENTLY no-op'd the AG seat (exit 0, empty
+  # transcript, STATUS stale for hours). The wrapper gives agy a pseudo-terminal and
+  # extracts the answer. AGY_MODEL takes the agy picker LABEL ("Gemini 3.1 Pro (High)"),
+  # not the gemini model id. Needs node + node-pty installed (tools/agy-pty/node_modules).
+  # See agy-pty/README.md.
+  $agyHeadless = Join-Path $PSScriptRoot "agy-pty\agy-headless.js"
+  $agyModel    = Get-ModelCfg 'antigravity' 'agy_model' 'Gemini 3.1 Pro (High)'
 
   # P0 timeout guard: run the CLI inside a background job bounded by Wait-Job -Timeout. A hung
   # CLI (codex stdin-EOF hang, network stall) previously blocked the whole sequential loop
   # forever; now it is killed after $PerAITimeoutSec and the loop continues.
   $sb = {
-    param($ai,$root,$prompt,$model,$eff)
+    param($ai,$root,$prompt,$model,$eff,$agyHeadless,$agyModel)
     $o = ""
     switch($ai){
       'codex'       { $o = ("" | codex exec -s danger-full-access --skip-git-repo-check -C $root -m $model -c "model_reasoning_effort=$eff" $prompt) 2>&1 | Out-String }
       'grok'        { $env:GROK_MODEL = $model; $env:GROK_REASONING_EFFORT = $eff; $o = (grok -m $model -p $prompt) 2>&1 | Out-String }
-      'antigravity' { $env:GEMINI_CLI_TRUST_WORKSPACE = 'true'; $o = (gemini -m $model -p $prompt -y) 2>&1 | Out-String }
+      'antigravity' { $env:AGY_CWD = $root; $env:AGY_MODEL = $agyModel; $o = (node $agyHeadless $prompt) 2>&1 | Out-String }
     }
     [pscustomobject]@{ Out = $o; Code = $LASTEXITCODE }
   }
-  $job = Start-Job -ScriptBlock $sb -ArgumentList $ai,$root,$prompt,$model,$eff
+  $job = Start-Job -ScriptBlock $sb -ArgumentList $ai,$root,$prompt,$model,$eff,$agyHeadless,$agyModel
   $fin = Wait-Job $job -Timeout $PerAITimeoutSec
   if(-not $fin){
     Stop-Job $job -ErrorAction SilentlyContinue
@@ -191,7 +239,22 @@ function Invoke-AI([string]$ai,[string]$tier='primary'){
   $out  = if($obj){ [string]$obj.Out } else { ($rcv | Out-String) }
   $code = if($obj){ [int]$obj.Code } else { 0 }
   # Detect quota/rate-limit exhaustion so the caller can back off instead of re-spawning.
-  $quota = ($out -match 'QUOTA_EXHAUSTED|RESOURCE_EXHAUSTED|TerminalQuotaError|exhausted your capacity|usage limit|rate.?limit|"code":\s*429|429 ')
+  # §quota-false-positive fix (2026-06-17): the loose terms (bare "rate limit"/"429") were matched
+  # against the WHOLE transcript regardless of exit code, so a SUCCESSFUL exit-0 cycle that merely
+  # built rate-limit UI / discussed throttling got false-flagged QUOTA and backed off after success.
+  # Now: a real exhaustion BANNER counts even on exit 0 (codex prints the banner then exits 0);
+  # loose terms count only when the CLI actually failed ($code -ne 0).
+  $quotaBanner = ($out -match 'hit your usage limit|TerminalQuotaError|RESOURCE_EXHAUSTED|QUOTA_EXHAUSTED|exhausted your capacity')
+  $quotaLoose  = ($out -match 'usage limit|rate.?limit|"code":\s*429|429 ')
+  $quota = [bool]($quotaBanner -or ($code -ne 0 -and $quotaLoose))
+  # Phantom-success guard (2026-06-17): a clean exit 0 with an essentially EMPTY transcript is not
+  # real work (the AG seat's old silent no-op: gemini/agy -p emitted ~0 bytes yet exited 0). Force a
+  # failure so the hard-fail backoff + LOUD log fire instead of recording a fake success.
+  $bodyLen = ($out -replace '\s','').Length
+  if($code -eq 0 -and -not $quota -and $bodyLen -lt 24){
+    Log "cycle $ai exit 0 but EMPTY transcript ($bodyLen chars) -> NO-OP failure (dead lane / broken CLI / headless wrapper produced nothing)"
+    $code = -1
+  }
   Log "cycle exit($ai/$tier=$model)=$code$(if($quota){' QUOTA'})"
   # Keep the last ~45 non-empty lines (the AI's closing summary = its "what I just did")
   # as a live transcript -- written UTF-8 (Korean-safe) so feed.ps1 can show it like a chat message.
@@ -269,6 +332,7 @@ while($true){
         $skip = [Math]::Min(48, [Math]::Pow(2, $quotaStrikes[$ai]))
         $quotaSkip[$ai] = [int]$skip
         Log "cycle $cycle $ai QUOTA strike $($quotaStrikes[$ai]) -> backing off $([int]$skip) cycles (~$([int]($skip*$IntervalSec/60))m)"
+        Reroute-Orders $ai 'quota'
         break
       } else {
         $quotaStrikes[$ai] = 0
@@ -280,6 +344,7 @@ while($true){
             $skip = [Math]::Min(36, [Math]::Pow(2, $failStrikes[$ai] - 3))
             $failSkip[$ai] = [int]$skip
             Log "cycle $cycle $ai HARD-FAIL x$($failStrikes[$ai]) (exit $(if($res){$res.Code}else{'spawn'})) -> backing off $([int]$skip) cycles. FIX CONFIG (models.json / CLI auth / GEMINI_CLI_TRUST_WORKSPACE) then restart daemon."
+            Reroute-Orders $ai 'hard-fail'
           } else {
             Log "cycle $cycle $ai fail strike $($failStrikes[$ai]) (exit $(if($res){$res.Code}else{'spawn'}))"
           }
