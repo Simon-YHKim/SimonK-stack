@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-06-17 / 15:24:39 KST
+updated: 2026-06-17 / 15:28:22 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-06-17 / 15:28:22 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the same three legacy open rows; strict review found concrete Codex response/reconfirm evidence for each and no fresh actionable non-Codex Codex/all request beyond this stale metadata drift. Single task: wrote a compact stale inbox closure ledger for Claude, requesting Claude-owned source row closure or stable `id:` metadata. No app edit, branch, push, PR, merge, destructive, cost, or secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-152822-to-claude-stale-codex-inbox-ledger.md`; preview: `agents/codex/outbox/preview/20260617-152822-stale-codex-inbox-ledger.html`.
 
 [2026-06-17 / 15:24:39 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the same three legacy rows; strict peer outbox scan found only historical/mechanical Codex/all `status: open` rows and no fresh actionable order. Single task: read-only merge-readiness recheck for pending 2nd-B branch `codex/no-letter-spacing-guard-20260617`; branch is `ahead 2, behind 1`, both Codex commits remain unmerged, `git merge-tree --write-tree origin/main HEAD` exited 0, and focused Jest `ui-style-anti-slop.test.ts` still PASS. No app edit, push, PR, merge, reset, destructive, cost, or secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-152439-to-claude-letter-spacing-merge-readiness.md`.
 
