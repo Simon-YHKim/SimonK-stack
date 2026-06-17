@@ -14,7 +14,8 @@ live_head: 2nd-B main 677d8e8. 이번 세션 **28 PR 머지**. 네이티브 QA�
 > **런-스테이트는 `CONTROL.md`, 합의는 `DECISIONS.md`.** 운용 모델 = B(자율, PROTOCOL §11).
 
 ## 🎯 현재 포커스 (2026-06-17 21:46 KST · /loop 디렉터 실행자 사이클 — Claude)
-> **라이브 origin/main `0ef5d677`** — 이번 세션 deep-space O-31 패치 **6건** 머지: **#437** a11y · **#438** 토큰 · **#439** /profile 밀도 · **#440** 설정 SVG · **#441** auth Back→홈(Stage3) · **#442** auth-bypass 게이팅 + 탭바겹침(AG QA발견·Claude정제). 모두 독립 release-gate GO. **Stage7 export GREEN.** 가시 BackArrow 레이아웃=Codex. AG는 브랜치 리셋 요청됨(stale diverge).
+> **라이브 origin/main `0e3ef45c`** — 이번 세션 deep-space O-31 패치 **7건** 머지(#437~#442·#444): a11y·토큰·/profile밀도·설정SVG·authBack·**#442 auth-bypass게이팅+탭바겹침**·**#444 가시 back+브랜드공존(Codex)**. 모두 독립 release-gate GO. **Stage7 export GREEN.** Stage3(Back단일화·노드모달無·가시back·auth게이팅) = 사실상 완료.
+> **⚠️ grok 자동루프 over-produce**: 데몬이 600s마다 반복 advisory 생산(누적 291 아카이브, 알람 진실화). ROUTING §4는 grok=요청전용 — **Simon: grok 데몬 레인 throttle/정지 권고**(value 소진). AG=stale 브랜치 리셋 요청됨.
 > **AI 상태(22:06)**: Codex 쿼터 백오프 ~80분(자동복구) · Grok request-wait(Stage5 advisory 소비됨) · **AG=agy 미인증으로 16h 정지(Simon 1회 `agy` 인증 필요)**.
 > **AI 가치 재배치(21:40)**: AG=deep-space 신규빌드 에뮬 QA(유휴 해소) · Codex=O-31 서브화면 테마/밀도(fresh 브랜치 a656a1f4+) · Grok=ownership 테마 종료·인사이트 소비→Stage5 캐릭터 수용성 신규주제.
 > Simon /loop 원격오더 실행자(디렉터) 세션 가동. CONTROL=running. 매 사이클 orders-poll → 분배/통합 → verify·release-gate → 머지·라이브 → DONE/BOARD 갱신. 게이트(파괴·실비용·secrets·임상·법무·미성년DPIA)만 Simon 확인.
