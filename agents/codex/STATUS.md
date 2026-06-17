@@ -1,14 +1,24 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-06-17 / 05:07:01 KST
-state: paused
+updated: 2026-06-17 / 14:00:56 KST
+state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
 ## Current
+
+[2026-06-17 / 14:00:56 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still shows the three legacy ID-less rows already reconciled; strict frontmatter scan found no fresh actionable Codex/all order. Single task: restored missing Codex 2nd-B worktree at `C:\Coding Infra\_worktrees\2ndB-codex` on local branch `codex/poll-cycle-20260617-worktree-ready` from `origin/main@c838d86becd80943ec42d5c8bf6c69d6a9f44ecc`; clean, no app diff, no push/PR/merge/destructive/cost/secrets action. Section 35 self-panel applied; no escalation needed. Report: `agents/codex/outbox/20260617-140056-to-claude-codex-worktree-restored.md`.
+
+[2026-06-17 / 05:47:16 KST] 5분 주기 루프 추가 점검: `control`, `board`, `decisions` 확인 결과 상태는 그대로(`running`, inbox 3 legacy open, DECISIONS는 open 항목 유지)이며 신규 `status: open` Codex/all 요청은 없음. `C:\\Coding Infra\\_worktrees\\2ndB-codex`는 여전히 없음이라 코드 수정/테스트 단계 미수행. 다음 주기 대기 예정.
+
+[2026-06-17 / 07:43:13 KST] 사용자 직접 실행 명령(`codex --yolo ...`) 재시도 결과, codex CLI는 stdin non-terminal로 인해 즉시 실행 실패(`Error: stdin is not a terminal`)하여 자동 내부 loop를 포착해서 띄우지 못함. 대신 현재 `CONTROL/BOARD/DECISIONS` 재확인한 결과는 동일: `RUNNING`, legacy open 3건, 신규 Codex/all 요청 없음, `2ndB-codex` 워크트리 미존재로 코드 수정 미수행. 루프 정리 상태 유지.
+
+[2026-06-17 / 05:41:30 KST] 5분 1회차 대기 후 재점검: `tools/board.ps1 -Me codex` 결과가 동일. 인박스는 3개의 legacy open(2026-06-06)만 남고 신선한 요청 없음. 워크트리(`C:\\Coding Infra\\_worktrees\\2ndB-codex`) 미존재로 앱 변경은 계속 보류. 이번 주기 역시 코드 수정 없이 루프 정리 상태 유지. 다음 5분 주기 대기 예정.
+
+[2026-06-17 / 05:36:16 KST] Activated Codex loop cycle per `prompts/codex-activate.md` while keeping to no background daemon. CONTROL state is `running` (user-direct 2026-06-17). `tools/board.ps1 -Me codex` shows 3 legacy open inbox rows (2026-06-06) and no fresh actionable `status: open` Codex/all request in this environment. `DECISIONS.md` still has open items but none are `external`/`safety` blockers for Codex lane. `C:\\Coding Infra\\_worktrees\\2ndB-codex` is still missing, so no app-side 변경/검증 could be performed this cycle. Logged `state: running`, recorded cycle outcome in outbox, and prepared next 5분 poll cadence with no immediate code action.
 
 [2026-06-17 / 05:04:17 KST] Simon direct activation request received: read `prompts/codex-activate.md` and refreshed hub context (`CONTROL.md`, `PROTOCOL.md` §§11-17/19/25-29/31/34/35/36, `ROUTING.md` §4, `prompts/codex-onboarding.md`, `agents/codex/RULES.md`, `loop-baseline.md`, `BOARD.md`, `DECISIONS.md`). `tools/board.ps1 -Me codex` reports CONTROL `PAUSED` with pause reason from 2026-06-16, inbox 3 legacy rows, and no foreground daemon started. Per PROTOCOL §13/§12.2, Codex is not starting a new 5-minute autonomous cycle while CONTROL is paused; pause-ack mirrored to Claude at `agents/codex/outbox/20260617-050417-to-claude-codex-activation-paused-ack.md`. No app edit, branch, push, PR, merge, destructive, cost, or secrets action.
 
