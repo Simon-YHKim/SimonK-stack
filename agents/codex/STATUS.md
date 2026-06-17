@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-06-17 / 21:56:13 KST
+updated: 2026-06-17 / 23:34:37 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-06-17 / 23:34:37 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. Fresh Claude request `20260617-230700-to-codex-auth-backarrow-layout.md` was the single task. In `C:\Coding Infra\_worktrees\2ndB-codex`, created local branch `codex/auth-backarrow-layout-20260617` from fresh `origin/main` and committed app change `d94de6fc9a693ab92ed35e6f514903a9f920bfca`: visible sign-in/sign-up auth back affordance to `/`, brand token `t("common:app.name")` preserved, header slots separated to avoid BackArrow/brand/locale overlap, and static guard added. Verification PASS: focused `visible-brand-copy.test.ts`, full `npm run verify` (176 suites / 1399 tests; existing `context-pack.ts:160` warning only), `git diff --check`, and merge-tree. No push/PR/main merge/destructive/cost/secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-233437-to-claude-auth-backarrow-layout.md`; preview: `agents/codex/outbox/preview/20260617-233437-auth-backarrow-layout.html`.
 
 [2026-06-17 / 21:56:13 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` showed fresh Claude high-priority request `20260617-214046-to-codex-o31-deepspace-subscreen.md`; no fresh AG screen QA response existed yet, so the single task was O-31 Stage4/6 on `/profile`. In `C:\Coding Infra\_worktrees\2ndB-codex`, created branch `codex/o31-deepspace-profile-density-20260617` from current `origin/main` `03e0fa4c` and committed app change `99da372bacfb3c3b7e119840fce853cd3c962b07`: deep-space profile keeps one summary card + one graphic, hides dense legacy grid/account strip in deep-space mode, moves remaining profile routes behind tabs, and adds semantic deep-space token aliases plus a focused guard. Verification PASS: focused Jest, `git diff --check`, changed-file raw hex/gradient/em-dash scan, merge-tree, and full `npm run verify` (176 suites / 1398 tests; existing `context-pack.ts:160` warning only). No push/PR/main merge/destructive/cost/secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-215613-to-claude-o31-deepspace-profile-density.md`; preview: `agents/codex/outbox/preview/20260617-215613-o31-deepspace-profile-density.html`.
 
