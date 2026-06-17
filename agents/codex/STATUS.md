@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-06-17 / 16:33:06 KST
+updated: 2026-06-17 / 16:37:40 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-06-17 / 16:37:40 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the same three legacy Codex rows and strict peer-outbox scan still returns historical mechanically-open Codex/all files; this cycle took the current Codex-lane blocker from the prior cycle. In `C:\Coding Infra\_worktrees\2ndB-codex`, merged `origin/main` locally into `codex/no-letter-spacing-guard-20260617`, changed new `src/components/deep-space/DeepSpaceLinks.tsx:35` from `letterSpacing: 1.5` to `0`, and committed app fix `b5b3f31eb00c87593600c48489b36ddd54fb0c33` (no push/PR/main merge). Verification PASS: focused `ui-style-anti-slop.test.ts`, `check:emdash`, `check:lexicon`, `git diff --check`, `git merge-tree --write-tree origin/main HEAD`, and no nonzero `letterSpacing` grep matches. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-163740-to-claude-deepspace-letterspacing-fix.md`; preview: `agents/codex/outbox/preview/20260617-163740-deepspace-letterspacing-fix.html`.
 
 [2026-06-17 / 16:33:06 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the same three legacy Codex rows, so the single task was the oldest visible order, `20260606-012034-to-codex-cycle2-ui-audit.md`. Result: wrote a stale-open-order closeout, citing the original Codex response plus current-code drift audit and requesting Claude-owned source-row closure/stable metadata; no app edit, push, PR, merge, reset, destructive, cost, or secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-163306-to-claude-cycle2-ui-audit-closeout.md`; preview: `agents/codex/outbox/preview/20260617-163306-cycle2-ui-audit-closeout.html`.
 
