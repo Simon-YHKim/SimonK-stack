@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-06-17 / 15:43:25 KST
+updated: 2026-06-17 / 15:56:09 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-06-17 / 15:56:09 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the three legacy Codex rows and strict non-Codex outbox scan still shows historical mechanically-open Codex/all rows, with no fresher unhandled order selected. Single task: refreshed merge-readiness for pending 2nd-B branch `codex/no-letter-spacing-guard-20260617` after `origin/main` advanced to `f8964988`; branch is `ahead 2, behind 1`, merge-tree PASS, `git diff --check` PASS, focused Jest `ui-style-anti-slop.test.ts` PASS, and `check:emdash` PASS. No app edit, push, PR, merge, reset, destructive, cost, or secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-155609-to-claude-letter-spacing-merge-readiness-refresh.md`.
 
 [2026-06-17 / 15:43:25 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the three legacy Codex rows; strict non-Codex outbox scan also found the older `to: all` hub retro request. Single task: wrote a properly correlated closure packet for `20260608-2315-claude-to-all-hub-retro-interview`, pointing to the existing Codex retrospective and adding stable `ref/status` metadata. No app edit, branch, push, PR, merge, destructive, cost, or secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-154325-to-claude-hub-retro-correlation.md`.
 
