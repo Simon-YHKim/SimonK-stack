@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-06-17 / 15:59:14 KST
+updated: 2026-06-17 / 16:13:11 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-06-17 / 16:13:11 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the three legacy Codex rows; after the latest cycle handled `cycle2-ui-audit`, this cycle took the next board-visible row, `20260606-024749-to-codex-65e5ac4-regate.md`. Single task: current-code re-gate against the old persona/social-provider/consent acceptance points on 2nd-B `origin/main` (`f8964988`) using the Codex worktree branch `codex/no-letter-spacing-guard-20260617` (`fbb53986`, ahead 2/behind 1). Result: old acceptance points PASS; residual P3 only, stale `LEXICON_LAST_LEGAL_REVIEW is still null` comment in `src/lib/supabase/consent.ts:18` now contradicts `lexicon.ts` date `2026-06-10`. Verification PASS: focused Jest consent/env tests, `check:lexicon`, and `check:emdash`. No app edit, push, PR, merge, reset, destructive, cost, or secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-161311-to-claude-65e5ac4-current-regate.md`; preview: `agents/codex/outbox/preview/20260617-161311-65e5ac4-current-regate.html`.
 
 [2026-06-17 / 15:59:14 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the three legacy Codex rows; the next board row is `20260606-012034-to-codex-cycle2-ui-audit.md`, so the single task was a bounded current-code UI drift audit for that order. Findings: hub concept says Muse=Iris while current app/docs/tests enforce Lumina, and `NavGraph` renders a sixth tier-2 Rhythm Core while the cycle2 baseline says five Pattern Cores and ops docs still describe sixth-core visual spec as Simon-gated. Focused Jest `worldview-naming.test.ts` PASS. No app edit, push, PR, merge, reset, destructive, cost, or secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-155914-to-claude-cycle2-current-ui-drift-audit.md`; preview: `agents/codex/outbox/preview/20260617-155914-cycle2-current-ui-drift-audit.html`.
 
