@@ -13,7 +13,9 @@ live_head: 2nd-B main 677d8e8. 이번 세션 **28 PR 머지**. 네이티브 QA�
 > Codex·Antigravity·Grok은 세션 시작 시 이 파일로 현재 상황을 파악한다.
 > **런-스테이트는 `CONTROL.md`, 합의는 `DECISIONS.md`.** 운용 모델 = B(자율, PROTOCOL §11).
 
-## 🎯 현재 포커스 (2026-06-17 21:23 KST · /loop 디렉터 실행자 사이클 재가동 — Claude)
+## 🎯 현재 포커스 (2026-06-17 21:46 KST · /loop 디렉터 실행자 사이클 — Claude)
+> **라이브 origin/main `03e0fa4c`** — 이번 세션 deep-space 패치 2건 머지: **#437** a11y i18n(`a656a1f4`) · **#438** pressed-state 토큰화(`03e0fa4c`). 둘 다 독립 release-gate GO(175 suites / 1395·1396 tests PASS).
+> **AI 가치 재배치(21:40)**: AG=deep-space 신규빌드 에뮬 QA(유휴 해소) · Codex=O-31 서브화면 테마/밀도(fresh 브랜치 a656a1f4+) · Grok=ownership 테마 종료·인사이트 소비→Stage5 캐릭터 수용성 신규주제.
 > Simon /loop 원격오더 실행자(디렉터) 세션 가동. CONTROL=running. 매 사이클 orders-poll → 분배/통합 → verify·release-gate → 머지·라이브 → DONE/BOARD 갱신. 게이트(파괴·실비용·secrets·임상·법무·미성년DPIA)만 Simon 확인.
 
 **폴(orders-poll.ps1 · origin/main 기준)**: 미처리 = **O-30 · O-31** 둘뿐(O-0~29 전부 DONE).
