@@ -2,7 +2,7 @@
 agent: grok
 role: X/social consumer-signal advisor
 owner: grok
-updated: 2026-06-17 23:21:11 KST
+updated: 2026-06-17 23:23:20 KST
 state: active
 pause_ack: CONTROL running (Simon 2026-06-17 05:36 resume)
 ---
