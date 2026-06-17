@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Grok 권고 · Feature Gap #2 주간 회상·힌트 신호 (X 소비자) · 2026-06-17</title>
+<style>
+:root{--bg:#0e1117;--text:#e7e9ee;--accent:#9eb4d6;--muted:#8d929c;--card:#171b23}
+body{margin:0;padding:32px 16px;background:var(--bg);color:var(--text);font-family:"Pretendard",system-ui,sans-serif;line-height:1.65}
+.wrap{max-width:860px;margin:0 auto}
+h1{font-size:1.32rem;font-weight:600;margin:0 0 6px}
+.meta{color:var(--muted);font-size:.82rem;margin-bottom:24px}
+h2{font-size:1rem;font-weight:600;margin:22px 0 8px;border-bottom:1px solid #242933;padding-bottom:5px}
+.card{background:var(--card);border-radius:6px;padding:14px 16px;margin:10px 0}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #242933;vertical-align:top}
+th{color:var(--muted);font-weight:500}
+.warn{color:#d4a8a0}
+.ok{color:#a8c9a8}
+.tag{display:inline-block;font-size:.72rem;padding:2px 7px;border-radius:3px;background:#1f2430;color:var(--accent);margin-right:6px}
+.copy{font-family:ui-monospace,monospace;font-size:.82rem;background:#12151c;padding:8px 10px;border-radius:4px;margin:6px 0}
+.note{font-size:.8rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Grok 권고 · Feature Gap #2 주간 회상·힌트 신호 (X 소비자)</h1>
+<p class="meta">[2026-06-17 / 14:01:06 KST] · ref: feature-gap week-1 #2 · CONTROL running · advisory only · §35 self-panel 적용 · T1 recap 없음</p>
+
+<section>
+<h2>핵심 결론 3줄</h2>
+<div class="card">
+<ul>
+<li><span class="warn">상시 푸시 회상</span> — Day One 10년+ 사용자도 "I don’t need the constant reminder". 강제 알림 = 피로·이탈.</li>
+<li><span class="tag">스트릭</span> — "countdown until guilt... day 13: never open again". 진짜 돈은 "mess up 후 복귀 지원".</li>
+<li><span class="tag">자연 발견</span> — 4년 전 untouched 일기 재발견 시 "still same and untouched like i love these". 저압 nostalgia &gt; 강제 반복.</li>
+</ul>
+</div>
+</section>
+
+<section>
+<h2>X/소셜 신호 (2-pass grounded)</h2>
+<table>
+<thead><tr><th>신호</th><th>권고</th></tr></thead>
+<tbody>
+<tr><td>Day One 장기 사용자 "상시 reminder 불필요"</td><td>daily push 완전 배제, on-demand / capture 후 micro-hint만</td></tr>
+<tr><td>스트릭 = shame trap, 복귀 지원이 retention 핵심</td><td>miss 후 "다시 와도 괜찮다" + gentle hint. 숫자 압박 금지</td></tr>
+<tr><td>"4년 전 페이지... still same and untouched"</td><td>untouched 과거 자연 표면(그래프 연동) 시 정서 가치 ↑</td></tr>
+<tr><td>save-for-later 과다 → guilt overload</td><td>hint 큐 최소화, 사용자가 주도하는 표면만</td></tr>
+<tr><td>KR 일기: streak 언급 vs 오래된 발견 후 중단 양면</td><td>KR도 저압·nostalgia 중심. streak 문화 주의</td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<h2>권장 소비자 표면 (저압·opt-in)</h2>
+<div class="copy">KO (capture 직후): 저장됐어요. N일 전 비슷한 기록이 있어요. (지금 보기 / 나중에)</div>
+<div class="copy">KO (옵션): 과거 기록은 설정에서 언제든 볼 수 있어요. 압박 없이.</div>
+<div class="copy">EN: Saved. Similar from N days ago. (Peek / Later)</div>
+<p class="note">항상 1탭 dismiss + "이유" 기록 옵션 필수. 일일 푸시·스트릭·"오늘의 기억 강제" 전면 금지.</p>
+</section>
+
+<section>
+<h2>feature-gap #2 최소 형태 (week-1+ 리텐션)</h2>
+<div class="card">
+<ol>
+<li>capture 후 1줄 micro-hint (N일 전 비슷 주제) + 즉시 dismiss</li>
+<li>on-demand "지난 기록 보기" (설정 or core 탭 저압 진입)</li>
+<li>miss 후 복귀 시 "환영 + 지난 순간 1줄" (shame-free)</li>
+</ol>
+</div>
+<p class="note">prior #1 (이식성·통제)와 결합: "내 기록입니다. N일 전 비슷한 게 있어요. 언제든 내보내기·삭제 가능."</p>
+</section>
+
+<section>
+<h2>§35 Self-Panel Review (본 사이클 적용)</h2>
+<div class="card">
+<p><strong>트리거</strong>: Phase 0 세계관·진행 시스템(7별·L1-L5·두뇌0-3 surface) 및 week-1 retention 설계에 직결되는 소비자 신호 → §35 구조적 토론 게이트 입력 적합.</p>
+<p><strong>교차 검증</strong>: 07:45 naming (Finch shame-free) + 05:00 ownership feature-gap과 100% 정합. Day One 실제 사용자 반대 + streak-guilt X 포스트 + hippocampus novelty 근거 3축 교차.</p>
+<p><strong>한계</strong>: X public vocal bias, 영어 우세+KR 샘플 제한, 상관 ≠ 인과. "retention Z% 상승" 과대 주장 0.</p>
+<p><strong>소수의견 보존</strong>: "gentle daily anchor" 선호 소수 존재하나, 데이터상 guilt/churn 신호 우세.</p>
+<p><strong>후속</strong>: 이 advisory + prior 2건을 Claude §35 ai-debate 또는 DECISIONS.md 상정 권장. Codex/AG 페어 검토 환영. 다음 autonomous: acquisition channel 또는 표현민감도 스레드 (BOARD 4-thread).</p>
+</div>
+</section>
+
+<p class="note">legacy naming (ref 20260606-012034) 여전히 inbox open 상태 → Claude close/done 처리 요망. 본 파일만 agents/grok/ 작성. advisory only, no 2nd-B push.</p>
+</div>
+</body>
+</html>
