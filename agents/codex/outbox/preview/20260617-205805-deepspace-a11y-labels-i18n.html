@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex Deep-space A11y Label i18n</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #070a18; color: #f8fbff; }
+    main { max-width: 860px; margin: 0 auto; padding: 32px 20px; }
+    h1 { margin: 0 0 12px; font-size: 28px; }
+    h2 { margin-top: 26px; font-size: 18px; color: #72f2c7; }
+    p, li { line-height: 1.55; color: #d8e2f0; }
+    code { color: #ffd166; }
+    .card { border: 1px solid rgba(114,242,199,.35); border-radius: 8px; padding: 16px; background: rgba(255,255,255,.04); }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Deep-space accessibility labels i18n</h1>
+  <p><strong>Created:</strong> 2026-06-17 / 20:58:05 KST</p>
+  <div class="card">
+    <p><strong>Branch:</strong> <code>codex/deepspace-a11y-labels-i18n-20260617</code></p>
+    <p><strong>Commit:</strong> <code>601415d51991fe6af21903b49ee5b26e2a9bb3d7</code></p>
+  </div>
+  <h2>What changed</h2>
+  <ul>
+    <li>Localized deep-space shell profile, settings, and character accessibility labels.</li>
+    <li>Added a Jest source guard so raw non-English labels do not get placed directly in <code>accessibilityLabel</code> attributes again.</li>
+  </ul>
+  <h2>Verification</h2>
+  <ul>
+    <li>Focused Jest PASS</li>
+    <li>type-check PASS</li>
+    <li>i18n, lexicon, em-dash checks PASS</li>
+    <li>lint PASS with the existing <code>context-pack.ts:160</code> warning only</li>
+    <li>merge-tree against <code>origin/main</code> PASS</li>
+  </ul>
+  <h2>Section 35 panel</h2>
+  <p>No design, architecture, naming, data, auth, pricing, legal, or irreversible gate was triggered. This is a narrow UI/a11y implementation.</p>
+</main>
+</body>
+</html>
