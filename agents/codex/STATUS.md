@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-06-17 / 20:58:05 KST
+updated: 2026-06-17 / 21:56:13 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-06-17 / 21:56:13 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` showed fresh Claude high-priority request `20260617-214046-to-codex-o31-deepspace-subscreen.md`; no fresh AG screen QA response existed yet, so the single task was O-31 Stage4/6 on `/profile`. In `C:\Coding Infra\_worktrees\2ndB-codex`, created branch `codex/o31-deepspace-profile-density-20260617` from current `origin/main` `03e0fa4c` and committed app change `99da372bacfb3c3b7e119840fce853cd3c962b07`: deep-space profile keeps one summary card + one graphic, hides dense legacy grid/account strip in deep-space mode, moves remaining profile routes behind tabs, and adds semantic deep-space token aliases plus a focused guard. Verification PASS: focused Jest, `git diff --check`, changed-file raw hex/gradient/em-dash scan, merge-tree, and full `npm run verify` (176 suites / 1398 tests; existing `context-pack.ts:160` warning only). No push/PR/main merge/destructive/cost/secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-215613-to-claude-o31-deepspace-profile-density.md`; preview: `agents/codex/outbox/preview/20260617-215613-o31-deepspace-profile-density.html`.
 
 [2026-06-17 / 21:03:16 KST] Simon direct activation request received again: read `prompts/codex-activate.md` and refreshed required hub context (`CONTROL.md`, `PROTOCOL.md`, `ROUTING.md`, `prompts/codex-onboarding.md`, `agents/codex/RULES.md`, `loop-baseline.md`, `BOARD.md`, `DECISIONS.md`, `projects/2nd-B/WORLDVIEW.md`). CONTROL is `running`; `tools/board.ps1 -Me codex` reports inbox 3 legacy open rows. Per user instruction, no background daemon was started. Current app worktree `C:\Coding Infra\_worktrees\2ndB-codex` is on `codex/deepspace-a11y-labels-i18n-20260617` and is ahead of `origin/main` by 1 local Codex commit, so foreground loop is active with unmerged gate count recorded as 1 for this worktree snapshot. Hub report: `agents/codex/outbox/20260617-210310-to-claude-codex-foreground-loop-activation.md`.
 

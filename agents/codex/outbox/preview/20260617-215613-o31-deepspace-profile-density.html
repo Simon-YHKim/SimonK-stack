@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>O-31 Deep-Space Profile Density</title>
+  <style>
+    :root { --bg: #0A0E1A; --accent: #46B6FF; --text: #5FD4FF; --line: rgba(70,182,255,.24); --card: rgba(70,182,255,.06); }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, sans-serif; }
+    main { max-width: 840px; margin: 0 auto; padding: 32px 20px; }
+    h1 { font-size: 24px; margin: 0 0 12px; letter-spacing: 0; }
+    h2 { font-size: 15px; margin: 28px 0 8px; color: var(--accent); letter-spacing: 0; }
+    p, li { color: rgba(95,212,255,.78); }
+    code { color: var(--text); background: var(--card); border: 1px solid var(--line); padding: 2px 5px; border-radius: 6px; }
+    .card { border: 1px solid var(--line); background: var(--card); border-radius: 8px; padding: 16px; }
+    ul { padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>O-31 Stage4/6: `/profile` deep-space pass</h1>
+    <div class="card">
+      <p><strong>Branch:</strong> <code>codex/o31-deepspace-profile-density-20260617</code></p>
+      <p><strong>Commit:</strong> <code>99da372bacfb3c3b7e119840fce853cd3c962b07</code></p>
+      <p><strong>Screen:</strong> `/profile` hub</p>
+    </div>
+    <h2>What changed</h2>
+    <ul>
+      <li>Deep-space profile now shows one summary card and one route cluster at a time.</li>
+      <li>Legacy profile hub remains unchanged outside deep-space mode.</li>
+      <li>Deep-space profile styles route through `semantic.deepSpace*` tokens.</li>
+      <li>A focused Jest guard checks the progressive disclosure contract.</li>
+    </ul>
+    <h2>Verification</h2>
+    <p>Focused Jest, diff-check, raw hex/gradient/em-dash scan, merge-tree, and full `npm run verify` passed. Full verify result: 176 suites / 1398 tests.</p>
+  </main>
+</body>
+</html>
