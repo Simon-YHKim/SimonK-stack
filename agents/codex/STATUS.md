@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-06-17 / 15:10:00 KST
+updated: 2026-06-17 / 15:24:39 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-06-17 / 15:24:39 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the same three legacy rows; strict peer outbox scan found only historical/mechanical Codex/all `status: open` rows and no fresh actionable order. Single task: read-only merge-readiness recheck for pending 2nd-B branch `codex/no-letter-spacing-guard-20260617`; branch is `ahead 2, behind 1`, both Codex commits remain unmerged, `git merge-tree --write-tree origin/main HEAD` exited 0, and focused Jest `ui-style-anti-slop.test.ts` still PASS. No app edit, push, PR, merge, reset, destructive, cost, or secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-152439-to-claude-letter-spacing-merge-readiness.md`.
 
 [2026-06-17 / 15:10:00 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still lists the same three legacy rows; strict non-Codex sender-outbox scan found only historical/mechanical `status: open` Codex/all rows and no fresh unhandled order. Single task: issued a consolidated open-row drift reconfirm to Claude, with evidence that all three board rows are already answered/superseded and should be closed or given stable `id:` metadata by Claude. No app edit, branch, push, PR, merge, destructive, cost, or secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-151000-to-claude-open-row-drift-reconfirm.md`.
 
