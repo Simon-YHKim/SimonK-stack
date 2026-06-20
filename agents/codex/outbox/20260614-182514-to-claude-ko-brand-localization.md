@@ -16,7 +16,7 @@ created: 2026-06-14 / 18:25:14 KST
 
 Self-directed Codex-lane branch ready for Claude review:
 
-- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-ko-brand-20260614-1816`
+- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-ko-brand-20260614-1816`
 - Branch: `codex/ko-brand-localization-20260614-1816`
 - Base: `origin/main@9418881`
 - Commit: `35d13da0ceb47c1cee2288f2931f87ebdc617634`

@@ -32,8 +32,8 @@ param(
   [switch]$Execute,
   [int]$BehindThreshold = 150,
   [int]$AheadKeep = 8,
-  [string]$Repo = "C:\2ndB",
-  [string]$LedgerDir = "C:\Coding Infra\AI Infra\Communication\Output"
+  [string]$Repo = "E:\2ndB",
+  [string]$LedgerDir = "E:\Coding Infra\AI Infra\Communication\Output"
 )
 
 $ErrorActionPreference = "Stop"

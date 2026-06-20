@@ -17,13 +17,13 @@
 # Usage:
 #   powershell tools/release-gate.ps1                 # gate the default 2nd-B repo, human output
 #   powershell tools/release-gate.ps1 -Json           # machine-readable verdict
-#   powershell tools/release-gate.ps1 -Repo "C:\2ndB" -VerifyCmd "npm run verify"
+#   powershell tools/release-gate.ps1 -Repo "E:\2ndB" -VerifyCmd "npm run verify"
 #   powershell tools/release-gate.ps1 -SkipVerify     # SHA/clean checks only (fast pre-flight)
 #
 # Exit code: 0 = GO, 1 = NO-GO. Log: tools/release-gate.log (append-only, gitignored).
 
 param(
-  [string]$Repo = "C:\2ndB",
+  [string]$Repo = "E:\2ndB",
   [string]$VerifyCmd = "npm run verify",
   [switch]$SkipVerify,
   [switch]$Json

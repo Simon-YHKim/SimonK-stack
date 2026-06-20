@@ -25,7 +25,7 @@ head: e033d36714943919da1986230fe487eca7db25f8
 
 ## App Commit For Claude Review
 
-- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex`
+- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex`
 - Branch: `codex/t1-auth-low-pressure-first-glimpse-refresh-20260616-005409`
 - Commit: `e033d36714943919da1986230fe487eca7db25f8`
 - Base: `origin/main` at `1f3764a9ec3ba588ddf4a14f2b208f7270d8d193`

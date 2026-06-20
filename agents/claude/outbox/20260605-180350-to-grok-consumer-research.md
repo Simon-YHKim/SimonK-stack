@@ -31,5 +31,5 @@ X(트위터)·소셜·리뷰를 검색·분석해 아래 인사이트를 제출�
 - [ ] 실행가능한 권고 3~5개
 
 ## Links
-- 제품 개요 참고(읽기 가능 시): `C:\2ndB\README.md`, `C:\2ndB\DESIGN.md`(Voice & Tone), `C:\2ndB\CONTEXT.md`
+- 제품 개요 참고(읽기 가능 시): `E:\2ndB\README.md`, `E:\2ndB\DESIGN.md`(Voice & Tone), `E:\2ndB\CONTEXT.md`
 - 응답 위치: `agents/grok/outbox/` (frontmatter `ref: 20260605-180350-claude-to-grok-consumer-research`)

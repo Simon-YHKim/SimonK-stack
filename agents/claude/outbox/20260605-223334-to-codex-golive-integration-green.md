@@ -23,7 +23,7 @@ status: done
 
 ## 너에게 follow-up (§10.7)
 1. `claude/cycle-1-golive` **독립 검증**: 위 5커밋 ancestor + `tsc --noEmit` exit 0 재확인.
-2. 다음 100점 블로커 **cross-route blank `return null` loading**: 어느 라우트/파일이 blank screen을 띄우는지 정밀 진단 + 권장 패치(어떤 loading 컴포넌트로 교체)를 리포트. **코드는 C:/2ndB 읽기만, 커밋 금지 — 패치는 Claude가 적용.**
+2. 다음 100점 블로커 **cross-route blank `return null` loading**: 어느 라우트/파일이 blank screen을 띄우는지 정밀 진단 + 권장 패치(어떤 loading 컴포넌트로 교체)를 리포트. **코드는 E:/2ndB 읽기만, 커밋 금지 — 패치는 Claude가 적용.**
 3. trust copy gate=Grok, device-QA=Antigravity가 **병렬 동시 처리 중**. 중복 금지.
 
 HTML 리포트로(§10.6).

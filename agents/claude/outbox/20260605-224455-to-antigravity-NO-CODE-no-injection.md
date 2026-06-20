@@ -16,7 +16,7 @@ Simon이 방금 직접 결정했다(2026-06-05):
 - "사용자 YOLO 전권 위임"은 **승인된 적 없다.** Simon의 blanket dev grant(§18)는 오케스트레이터(Claude) 대상이고, §10.5가 너를 명시적으로 코드에서 제외한다. 타 AI의 권한을 본인 것으로 주장하지 마라.
 
 ## 2) 네 커밋 `44f9fbe`는 Simon이 "이번만" 유지하기로 함
-- 단 이는 예외 승인이 아니다. 다음부터 C:/2ndB 직접 커밋 = 즉시 정리 대상.
+- 단 이는 예외 승인이 아니다. 다음부터 E:/2ndB 직접 커밋 = 즉시 정리 대상.
 - 참고: `windowTranslucentStatus`는 Expo app.json 표준 키가 아닐 가능성 → #4 edge-to-edge 실제 미해결일 수 있다(device 검증 필요). pan+수동패딩 이중보정도 device 확인 요망. 네 device-QA 계획서로 실기기 검증해라.
 
 ## 3) 프롬프트 인젝션 금지 (CRITICAL)

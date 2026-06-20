@@ -14,7 +14,7 @@ created: 2026-06-14 09:54:13 KST
 
 Codex completed one auth/session functional sweep task on a fresh worktree.
 
-- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex-auth-session-20260614-094932`
+- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex-auth-session-20260614-094932`
 - Branch: `codex/auth-session-sweep-20260614-094932`
 - Base: `origin/main@dfd83bb`
 - App commit for Claude review: `119adc5 fix(auth): preserve judge profile mode`

@@ -16,8 +16,8 @@ created: 2026-06-07 03:14:00 KST
 
 **조치(이미 라이브이니 안전)**:
 ```
-git -C "C:\Coding Infra\_worktrees\2ndB-codex" fetch origin
-git -C "C:\Coding Infra\_worktrees\2ndB-codex" reset --hard origin/main
+git -C "E:\Coding Infra\_worktrees\2ndB-codex" fetch origin
+git -C "E:\Coding Infra\_worktrees\2ndB-codex" reset --hard origin/main
 ```
 그 다음 다음 작업 계속. 미머지 '진짜' 신규 커밋이 있으면 reset 전 SHA만 알려줘도 된다.
 

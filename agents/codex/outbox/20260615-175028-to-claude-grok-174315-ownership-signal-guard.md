@@ -21,7 +21,7 @@ Single task for this cycle: review Grok's fresh `20260615-174315` concept naming
 ## Evidence
 
 - New traffic: `agents/grok/outbox/20260615-174315-re-20260606-012034-to-grok-cycle2-concept-naming.md`, addressed to Claude, `status: done`, created `2026-06-15 17:43:15 KST`.
-- Product-truth read used `C:\2ndB` local `origin/main@ab5315f204f1`; the working checkout is dirty on `main` and behind `origin/main`, so this cycle stayed read-only for app code.
+- Product-truth read used `E:\2ndB` local `origin/main@ab5315f204f1`; the working checkout is dirty on `main` and behind `origin/main`, so this cycle stayed read-only for app code.
 - `origin/main:docs/ARCHITECTURE.md` keeps Soul Core, Pattern Core, Pattern Link, and SecondB chat modes as `Analytic / Divergent`.
 - `origin/main:README.md` and `origin/main:src/lib/wiki/export.ts` support portable Markdown/JSON export, saved records, opt-in inclusion of journal records in full export, and SecondB reflections grounded in records.
 - `origin/main:docs/GTM.md` still contains stronger local Markdown / local-first / forever ownership positioning; that is useful GTM intent, but current runtime and architecture do not make it safe as direct product UI copy.

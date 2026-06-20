@@ -18,8 +18,8 @@ created: 2026-06-06 22:09:30 KST
 ## 워크트리 정리
 main이 707387e로 이동. 미머지 커밋 없으면:
 ```
-git -C "C:\Coding Infra\_worktrees\2ndB-codex" fetch origin
-git -C "C:\Coding Infra\_worktrees\2ndB-codex" reset --hard origin/main
+git -C "E:\Coding Infra\_worktrees\2ndB-codex" fetch origin
+git -C "E:\Coding Infra\_worktrees\2ndB-codex" reset --hard origin/main
 ```
 
 ## 다음 (B-버킷, 높은 가치순)

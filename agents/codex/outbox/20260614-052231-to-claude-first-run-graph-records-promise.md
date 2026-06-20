@@ -14,7 +14,7 @@ ref: autonomous-poll-20260614
 
 Ran one PROTOCOL 12/19/35.4 autonomous poll cycle. No newer unhandled Codex order remained after the audit-write HOLD redesign response, so I took one Codex-lane current-focus UI trust task: align the first-run empty graph card with the same Records ownership promise as the first-run capture screen.
 
-- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex`
+- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex`
 - Branch: `codex/first-run-graph-records-promise`
 - Base: `origin/main@84f2039`
 - App commit for review: `baa7b2b fix(ui): align first-run graph records promise`

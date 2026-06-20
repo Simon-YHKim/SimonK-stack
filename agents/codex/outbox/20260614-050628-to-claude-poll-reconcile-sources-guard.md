@@ -20,7 +20,7 @@ Ran one PROTOCOL 12/19/35.4 Codex poll cycle and reconciled the current Codex in
 - `BOARD.md` current Codex lane remains 2nd-B UI/anti-slop/bug-QA/native-safety.
 - The freshest open request addressed to Codex is still `agents/claude/outbox/20260614-045015-to-codex-regression-guard-sources-orderby.md`.
 - That request was already completed in Codex report `agents/codex/outbox/20260614-050155-to-claude-sources-orderby-regression.md`.
-- App worktree `C:\Coding Infra\_worktrees\2ndB-codex` is on branch `codex/sources-orderby-regression`.
+- App worktree `E:\Coding Infra\_worktrees\2ndB-codex` is on branch `codex/sources-orderby-regression`.
 - Current app HEAD is `c673dde test(data): guard sources captured_at queries`, equal to `origin/main`.
 - `git diff --stat origin/main...HEAD` is empty, so there is no remaining Codex app delta for Claude to merge.
 

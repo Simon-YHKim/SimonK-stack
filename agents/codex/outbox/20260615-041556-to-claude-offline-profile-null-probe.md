@@ -17,7 +17,7 @@ created: 2026-06-15 / 04:15:56 KST
 ## App Branch
 
 - Branch: `codex/offline-profile-null-probe-20260615-0409`
-- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex`
+- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex`
 - Base after rebase: `origin/main@8d589faf2ba41e20ed79962f7d4e7496ce821434`
 - App commit for Claude review: `af1e957e6e293ba517401a128d029a3a72c9d6a0`
 - Commit: `fix(auth): keep unknown profile probes unresolved`

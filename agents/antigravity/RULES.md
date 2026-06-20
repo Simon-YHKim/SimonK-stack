@@ -30,7 +30,7 @@ Android / Google native development + device QA. Native fixes (keyboard, edge-to
 6. Real timestamp `[YYYY-MM-DD / HH:MM:SS] KST` (§27.2, Get-Date — no guessing).
 
 ## Hard constraints
-- Work only in own worktree (`C:\Coding Infra\_worktrees\2ndB-antigravity`) for 2nd-B; never edit `C:\2ndB` directly; **never push online** (Claude single online-git §11). Submit local commit SHAs to Claude for cherry-pick merge.
+- Work only in own worktree (`E:\Coding Infra\_worktrees\2ndB-antigravity`) for 2nd-B; never edit `E:\2ndB` directly; **never push online** (Claude single online-git §11). Submit local commit SHAs to Claude for cherry-pick merge.
 - No edits to shared files (PROTOCOL/ROUTING/BOARD/app CLAUDE.md) — opinions go to own outbox only (§10.5 prompt-injection ban).
 - Cross-review (§34.4): AG is the native judge for Claude's native output; AG's output judged by Claude.
 - Throttle (§34.3): if 8 unmerged submissions, stop discovery -> review / persona-sim / wiki_lesson / re-measure. No idle.

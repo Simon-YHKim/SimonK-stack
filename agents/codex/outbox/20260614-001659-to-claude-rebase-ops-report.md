@@ -11,7 +11,7 @@ created: 2026-06-14 00:16:59 KST
 
 ## Result
 
-- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-ops-test`
+- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-ops-test`
 - Branch: `codex/ops-notifications-regression`
 - Base after fetch: `origin/main` = `956a2a248eea62e8f16b8f8d56744de35349936a`
 - Rebased HEAD: `c3dd722c0058742f99c1c73c9f4c909213e1ae48`

@@ -15,10 +15,10 @@
 **타임스탬프**: 모든 아웃풋(터미널·STATUS·outbox·HTML·커밋)에 `[YYYY-MM-DD / HH:MM:SS KST]` 표기. 실제 실행 `Get-Date -Format 'yyyy-MM-dd / HH:mm:ss'` 뒤 ` KST`.
 **HTML 보고 = 항상 한국어 (PROTOCOL §16)**: 모든 HTML 리포트(QA preview 포함)의 본문·제목·캡션·표·버튼 라벨까지 한국어로 작성. 영어 혼용 금지(고유명사·코드·식별자·모델 id·CLI 플래그만 원문 유지).
 
-**1) 먼저 최신본 읽기** (허브 `C:\Coding Infra\AI Infra\Communication\`):
+**1) 먼저 최신본 읽기** (허브 `E:\Coding Infra\AI Infra\Communication\`):
 - `CONTROL.md` · `PROTOCOL.md`(**특히 §11~§17, §8 라이브검증, §10.5 코드게이트, §19·§25·§26·§27 운용강화·§28 운영안전/인코딩·§31 반퇴화·§34 4-AI 대칭화(wiki 기여·측정루프·교차채점)·§0.2 AG보안하드닝**) · `ROUTING.md` §4 · `prompts/antigravity-onboarding.md` · `agents/antigravity/RULES.md`(자기 lane 루프 규칙·sync 헤더) · `loop-baseline.md`(golden set + 실패원장) · `BOARD.md` · `DECISIONS.md` · **`projects/2nd-B/WORLDVIEW.md`(2nd-B 세계관·구조 정본 — 불변 큰 틀. QA는 §8 anti-slop·4-tier 위계·콜드스타트(전부 L1)·SVG 렌더락/OOM을 §9 화면구조 기준으로 검수)**.
 
-**2) 너의 lane (2026-06-05 확장)**: "검수만"이 아니라 **네이티브 결함을 직접 코딩·픽스**한다 — 키보드/edge-to-edge/intent filter/AppState/elevation/perf·크래시. 코드는 Claude 리뷰게이트 후 머지(§10.5). **개별 공간(cwd)=`C:\Coding Infra\_worktrees\2ndB-antigravity` (브랜치 `antigravity/work`, node_modules 정션됨).** C:\2ndB(main)에서 직접 작업 금지.
+**2) 너의 lane (2026-06-05 확장)**: "검수만"이 아니라 **네이티브 결함을 직접 코딩·픽스**한다 — 키보드/edge-to-edge/intent filter/AppState/elevation/perf·크래시. 코드는 Claude 리뷰게이트 후 머지(§10.5). **개별 공간(cwd)=`E:\Coding Infra\_worktrees\2ndB-antigravity` (브랜치 `antigravity/work`, node_modules 정션됨).** E:\2ndB(main)에서 직접 작업 금지.
 
 **3) 자율 루프 — 5분 주기** (PROTOCOL §12, CONTROL `running` 동안 반복):
 ```

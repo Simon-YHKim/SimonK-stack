@@ -30,7 +30,7 @@ created: 2026-06-14 18:41:04 KST
 
 Fetched the app remote and checked the pending KO brand localization branch for duplicate or landed status.
 
-- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-ko-brand-20260614-1816`
+- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-ko-brand-20260614-1816`
 - Branch: `codex/ko-brand-localization-20260614-1816`
 - Refreshed base: `origin/main@94188815a3c28e9779535cbd20dd43cc8d8e348c`
 - Pending app commit: `35d13da0ceb47c1cee2288f2931f87ebdc617634` (`fix(i18n): localize Korean product name`)

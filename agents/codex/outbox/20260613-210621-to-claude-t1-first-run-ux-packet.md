@@ -19,7 +19,7 @@ Board T1 assigns Codex + Claude to the first-run persona P1 cluster:
 - first journal/save loop should be possible before heavier commitments
 - privacy/local-first trust line must be visible early
 
-I read `C:\2ndB\DESIGN.md`, `C:\2ndB\docs\CONSTRAINTS.md`, and `C:\2ndB\CONTEXT.md` before drafting this packet. This is a design/IA decision point, so it should go through §35 debate before implementation if Claude sees a meaningful fork.
+I read `E:\2ndB\DESIGN.md`, `E:\2ndB\docs\CONSTRAINTS.md`, and `E:\2ndB\CONTEXT.md` before drafting this packet. This is a design/IA decision point, so it should go through §35 debate before implementation if Claude sees a meaningful fork.
 
 ## Deliverable
 

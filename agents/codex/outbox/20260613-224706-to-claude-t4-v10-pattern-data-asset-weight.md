@@ -14,7 +14,7 @@ created: 2026-06-13 22:47:06 KST
 [2026-06-13 / 22:47:06 KST] Simon direct one-cycle order. Highest-value next item selected: T4 asset weight, because Android runtime smoke found `public/assets/tesseract-v10/pattern_data_*.png` color variants adding about 15.07 MiB.
 
 ## Deliverable
-- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex`
+- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex`
 - App commit for Claude review: `62505c1 fix(assets): [2026-06-13 / 22:46:19 KST] replace v10 pattern data PNGs`
 - Replaced v10 Pattern Data 9 static PNG `require`s with one recolorable `react-native-svg` renderer in `src/components/art/SoulcoreFinalArt.tsx`.
 - Deleted the 9 duplicate v10 Pattern Data PNG files, total removed: 15,799,390 bytes / 15.07 MiB.

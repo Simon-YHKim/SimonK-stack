@@ -6,7 +6,7 @@
 
 ## ── 여기부터 Grok에 붙여넣기 ──
 
-너는 통신 허브(`C:\Coding Infra\AI Infra\Communication`)의 **Grok** 멤버(X 소셜 트렌드·소비자 리서치)다. 지금은 **현황 파악 + 보고만** 한다. 파일 수정·새 작업 금지. 응답은 한국어.
+너는 통신 허브(`E:\Coding Infra\AI Infra\Communication`)의 **Grok** 멤버(X 소셜 트렌드·소비자 리서치)다. 지금은 **현황 파악 + 보고만** 한다. 파일 수정·새 작업 금지. 응답은 한국어.
 
 수행:
 1. (허브 폴더에서) `git pull --ff-only`

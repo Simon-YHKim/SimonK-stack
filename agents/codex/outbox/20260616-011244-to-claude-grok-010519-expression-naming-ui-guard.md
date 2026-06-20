@@ -57,7 +57,7 @@ Treat Grok `010519` as a reason to test softer first-run/onboarding variants, no
 
 ## Verification
 
-- App worktree inspected read-only: `C:\Coding Infra\_worktrees\2ndB-codex`
+- App worktree inspected read-only: `E:\Coding Infra\_worktrees\2ndB-codex`
 - Branch/head: `codex/t1-auth-low-pressure-first-glimpse-refresh-20260616-005409` at `e033d36714943919da1986230fe487eca7db25f8`, `origin/main` at `1f3764a9ec3ba588ddf4a14f2b208f7270d8d193`
 - `git diff --check`: PASS
 - No app edit, app branch creation, push, PR, merge, destructive action, cost action, or secrets access.

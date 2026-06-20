@@ -132,7 +132,7 @@
     </div>
     <div class="cmdrow"><pre class="cmd" id="c-emu">cd "$env:LOCALAPPDATA\Android\Sdk\emulator"; .\emulator.exe -avd Pixel_9_Pro_XL -netdelay none -netspeed full</pre><button class="copy" data-t="c-emu">복사</button></div>
     <p class="mini" style="margin-top:10px;color:var(--ps)">QA 전 매 사이클 · dev서버 연결 4조건 보장(adb reverse 8081 · Metro 기동 · 에뮬 인식). <code>exit 0</code>=OK. 1회성 <code>adb reverse</code> 금지 — 에뮬/Metro 재시작 시 소실(O-26 · RUNBOOK §7). <code>"Cannot connect to Expo CLI"</code> 차단.</p>
-    <div class="cmdrow" style="margin-top:7px"><pre class="cmd" id="c-preqa">pwsh -File "C:\2ndB\scripts\pre-emulator-qa.ps1" -StartMetro</pre><button class="copy" data-t="c-preqa">복사</button></div>
+    <div class="cmdrow" style="margin-top:7px"><pre class="cmd" id="c-preqa">pwsh -File "E:\2ndB\scripts\pre-emulator-qa.ps1" -StartMetro</pre><button class="copy" data-t="c-preqa">복사</button></div>
   </div>
 
   <!-- 2 LOOP -->
@@ -144,13 +144,13 @@
     </div>
 
     <p class="mini" style="margin:2px 0 7px;color:var(--ps)">모드 A · 백그라운드 데몬 — codex·grok·AG 3개 숨김창, 10분 주기</p>
-    <div class="cmdrow"><pre class="cmd" id="c-daemon">$file = "C:\Coding Infra\AI Infra\Communication\tools\hub-daemon.ps1"
+    <div class="cmdrow"><pre class="cmd" id="c-daemon">$file = "E:\Coding Infra\AI Infra\Communication\tools\hub-daemon.ps1"
 'codex','grok','antigravity' | ForEach-Object {
   Start-Process powershell -ArgumentList "-ExecutionPolicy Bypass -File `"$file`" -Only $_ -IntervalSec 600" -WindowStyle Hidden
 }
 Write-Host "[hub] 3 daemons launched (codex, grok, antigravity) @ 10min"</pre><button class="copy" data-t="c-daemon">복사</button></div>
     <p class="mini">한 AI만 / 출력 보며 디버깅: <code>-Only</code> 변경 · <code>-MaxTasksPerCycle 2</code>로 백로그 드레인</p>
-    <div class="cmdrow" style="margin-top:7px"><pre class="cmd" id="c-daemon1">powershell -ExecutionPolicy Bypass -File "C:\Coding Infra\AI Infra\Communication\tools\hub-daemon.ps1" -Only codex -IntervalSec 600</pre><button class="copy" data-t="c-daemon1">복사</button></div>
+    <div class="cmdrow" style="margin-top:7px"><pre class="cmd" id="c-daemon1">powershell -ExecutionPolicy Bypass -File "E:\Coding Infra\AI Infra\Communication\tools\hub-daemon.ps1" -Only codex -IntervalSec 600</pre><button class="copy" data-t="c-daemon1">복사</button></div>
   </div>
 
   <p class="mini" style="margin:14px 4px 10px;font-size:12px;color:var(--muted)"><b style="color:var(--text)">모드 B · 인-윈도우 루프</b> — 데몬 없이, <b>띄워둔 각 AI 창</b>에 아래를 붙여넣으면 그 창에서 5분 주기 자율 동작(activate 규칙을 직접 읽음). Claude는 <b>4단계 /loop</b>가 곧 인-윈도우 루프. 각 AI는 <b style="color:var(--text)">최고모델·최대 effort</b>로 실행(데몬이 spawn 시 자동주입) — 정본 <code style="font-family:var(--mono);font-size:11px">MODELS.md</code>: Claude <code style="font-family:var(--mono);font-size:11px">fable-5 @max</code> · <code style="font-family:var(--mono);font-size:11px">codex -m gpt-5.5 (xhigh)</code> · <code style="font-family:var(--mono);font-size:11px">grok -m grok-build (high)</code> · agy <code style="font-family:var(--mono);font-size:11px">"Gemini 3.1 Pro (High)"</code>.</p>
@@ -161,7 +161,7 @@ Write-Host "[hub] 3 daemons launched (codex, grok, antigravity) @ 10min"</pre><b
         <div class="meta"><h3>Codex 루프</h3><p class="desc">이미지·UI/UX + 테스트저자</p></div>
         <span class="tgt" title="Codex 창에 붙여넣기"><span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="20" y2="12"/><polyline points="14 6 20 12 14 18"/></svg></span><span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 7 3 12 8 17"/><polyline points="16 7 21 12 16 17"/></svg></span></span>
       </div>
-      <div class="cmdrow"><pre class="cmd" id="c-incodex">너는 4-AI 허브의 Codex(이미지·UI/UX)다. C:\Coding Infra\AI Infra\Communication\prompts\codex-activate.md 를 읽고 그대로 자율 루프(5분 주기)로 동작해. 한국어, 자동승인 -s danger-full-access. 백그라운드 데몬은 띄우지 마.</pre><button class="copy" data-t="c-incodex">복사</button></div>
+      <div class="cmdrow"><pre class="cmd" id="c-incodex">너는 4-AI 허브의 Codex(이미지·UI/UX)다. E:\Coding Infra\AI Infra\Communication\prompts\codex-activate.md 를 읽고 그대로 자율 루프(5분 주기)로 동작해. 한국어, 자동승인 -s danger-full-access. 백그라운드 데몬은 띄우지 마.</pre><button class="copy" data-t="c-incodex">복사</button></div>
     </div>
     <div class="card" style="margin:0">
       <div class="top">
@@ -169,7 +169,7 @@ Write-Host "[hub] 3 daemons launched (codex, grok, antigravity) @ 10min"</pre><b
         <div class="meta"><h3>Grok 루프</h3><p class="desc">시장 advisory + 허브 와치독</p></div>
         <span class="tgt" title="Grok 창에 붙여넣기"><span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="20" y2="12"/><polyline points="14 6 20 12 14 18"/></svg></span><span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5.5" y1="5.5" x2="18.5" y2="18.5"/><line x1="18.5" y1="5.5" x2="5.5" y2="18.5"/></svg></span></span>
       </div>
-      <div class="cmdrow"><pre class="cmd" id="c-ingrok">너는 4-AI 허브의 Grok(시장·소비자 advisory)다. C:\Coding Infra\AI Infra\Communication\prompts\grok-activate.md 를 읽고 그대로 자율 루프(5분 주기)로 동작해. 한국어. 백그라운드 데몬은 띄우지 마.</pre><button class="copy" data-t="c-ingrok">복사</button></div>
+      <div class="cmdrow"><pre class="cmd" id="c-ingrok">너는 4-AI 허브의 Grok(시장·소비자 advisory)다. E:\Coding Infra\AI Infra\Communication\prompts\grok-activate.md 를 읽고 그대로 자율 루프(5분 주기)로 동작해. 한국어. 백그라운드 데몬은 띄우지 마.</pre><button class="copy" data-t="c-ingrok">복사</button></div>
     </div>
     <div class="card" style="margin:0">
       <div class="top">
@@ -177,7 +177,7 @@ Write-Host "[hub] 3 daemons launched (codex, grok, antigravity) @ 10min"</pre><b
         <div class="meta"><h3>Antigravity 루프</h3><p class="desc">네이티브 QA + 전레포 감사</p></div>
         <span class="tgt" title="Antigravity 창에 붙여넣기"><span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="20" y2="12"/><polyline points="14 6 20 12 14 18"/></svg></span><span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3.2c.5 4.5 3.8 7.8 8.3 8.3-4.5.5-7.8 3.8-8.3 8.3-.5-4.5-3.8-7.8-8.3-8.3C8.2 11 11.5 7.7 12 3.2z"/></svg></span></span>
       </div>
-      <div class="cmdrow"><pre class="cmd" id="c-inag">너는 4-AI 허브의 Antigravity(네이티브·에뮬 QA)다. C:\Coding Infra\AI Infra\Communication\prompts\antigravity-activate.md 를 읽고 그대로 자율 루프(5분 주기)로 동작해. 한국어. 백그라운드 데몬은 띄우지 마.</pre><button class="copy" data-t="c-inag">복사</button></div>
+      <div class="cmdrow"><pre class="cmd" id="c-inag">너는 4-AI 허브의 Antigravity(네이티브·에뮬 QA)다. E:\Coding Infra\AI Infra\Communication\prompts\antigravity-activate.md 를 읽고 그대로 자율 루프(5분 주기)로 동작해. 한국어. 백그라운드 데몬은 띄우지 마.</pre><button class="copy" data-t="c-inag">복사</button></div>
     </div>
   </div>
 
@@ -189,7 +189,7 @@ Write-Host "[hub] 3 daemons launched (codex, grok, antigravity) @ 10min"</pre><b
       <p class="desc">state · <b>cyc</b>(누적 사이클) · <b>pend&gt;CL</b>(미처리 ≥3 RED) · 에뮬 · 데몬 · 커밋.</p></div>
       <span class="tgt" title="PowerShell에 붙여넣기"><span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="20" y2="12"/><polyline points="14 6 20 12 14 18"/></svg></span><span class="pill ps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><polyline points="6.5 9.5 9.5 12 6.5 14.5"/><line x1="11.5" y1="14.5" x2="15.5" y2="14.5"/></svg></span></span>
     </div>
-    <div class="cmdrow"><pre class="cmd" id="c-mon">powershell -ExecutionPolicy Bypass -File "C:\Coding Infra\AI Infra\Communication\tools\monitor.ps1"</pre><button class="copy" data-t="c-mon">복사</button></div>
+    <div class="cmdrow"><pre class="cmd" id="c-mon">powershell -ExecutionPolicy Bypass -File "E:\Coding Infra\AI Infra\Communication\tools\monitor.ps1"</pre><button class="copy" data-t="c-mon">복사</button></div>
   </div>
 
   <!-- 4 CLAUDE -->
@@ -210,7 +210,7 @@ Write-Host "[hub] 3 daemons launched (codex, grok, antigravity) @ 10min"</pre><b
       <div class="meta"><h3>허브 셀프테스트 (hub-health)</h3><p class="desc">스크립트 구문·commit 가드·상태파일·<b>models.json 최고모델</b>·git/UTF-8·데몬 생존을 read-only 검증. PASS/WARN/FAIL.</p></div>
       <span class="tgt" title="PowerShell"><span class="pill ps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><polyline points="6.5 9.5 9.5 12 6.5 14.5"/><line x1="11.5" y1="14.5" x2="15.5" y2="14.5"/></svg></span></span>
     </div>
-    <div class="cmdrow"><pre class="cmd" id="c-health">powershell -ExecutionPolicy Bypass -File "C:\Coding Infra\AI Infra\Communication\tools\hub-health.ps1"</pre><button class="copy" data-t="c-health">복사</button></div>
+    <div class="cmdrow"><pre class="cmd" id="c-health">powershell -ExecutionPolicy Bypass -File "E:\Coding Infra\AI Infra\Communication\tools\hub-health.ps1"</pre><button class="copy" data-t="c-health">복사</button></div>
     <p class="mini">깊은 검사(commit 가드 실거동, 임시repo): <code>-Deep</code> · 머신출력: <code>-Json</code></p>
   </div>
 
@@ -222,7 +222,7 @@ Write-Host "[hub] 3 daemons launched (codex, grok, antigravity) @ 10min"</pre><b
         <div class="meta"><h3>채팅 피드</h3><p class="desc">각 AI 최신 transcript를 대화 흐름으로.</p></div>
         <span class="tgt" title="PowerShell"><span class="pill ps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><polyline points="6.5 9.5 9.5 12 6.5 14.5"/><line x1="11.5" y1="14.5" x2="15.5" y2="14.5"/></svg></span></span>
       </div>
-      <div class="cmdrow"><pre class="cmd" id="c-feed">powershell -ExecutionPolicy Bypass -File "C:\Coding Infra\AI Infra\Communication\tools\feed.ps1"</pre><button class="copy" data-t="c-feed">복사</button></div>
+      <div class="cmdrow"><pre class="cmd" id="c-feed">powershell -ExecutionPolicy Bypass -File "E:\Coding Infra\AI Infra\Communication\tools\feed.ps1"</pre><button class="copy" data-t="c-feed">복사</button></div>
     </div>
     <div class="card">
       <div class="top">
@@ -230,7 +230,7 @@ Write-Host "[hub] 3 daemons launched (codex, grok, antigravity) @ 10min"</pre><b
         <div class="meta"><h3>AI usage 모니터</h3><p class="desc">AI별 <b>모델·사이클·OK/Err/Quota·커밋·산출물·상태</b>. 구독 CLI라 토큰 미과금 → 활동량 기준. <code>-Html</code> 리포트.</p></div>
         <span class="tgt" title="PowerShell"><span class="pill ps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><polyline points="6.5 9.5 9.5 12 6.5 14.5"/><line x1="11.5" y1="14.5" x2="15.5" y2="14.5"/></svg></span></span>
       </div>
-      <div class="cmdrow"><pre class="cmd" id="c-usage">powershell -ExecutionPolicy Bypass -File "C:\Coding Infra\AI Infra\Communication\tools\hub-usage.ps1" -Html</pre><button class="copy" data-t="c-usage">복사</button></div>
+      <div class="cmdrow"><pre class="cmd" id="c-usage">powershell -ExecutionPolicy Bypass -File "E:\Coding Infra\AI Infra\Communication\tools\hub-usage.ps1" -Html</pre><button class="copy" data-t="c-usage">복사</button></div>
     </div>
     <div class="card">
       <div class="top">
@@ -238,7 +238,7 @@ Write-Host "[hub] 3 daemons launched (codex, grok, antigravity) @ 10min"</pre><b
         <div class="meta"><h3>자기피드백 (watchdog)</h3><p class="desc">데몬 다운·행·연속실패·백로그를 감지해 <b>Claude inbox에 자동 보고</b>(붙여넣기 불요). <b>10분마다 자동</b> — 예약작업 <code>HubWatchdog</code>. quota-backoff 같은 정상 상태는 제외.</p></div>
         <span class="tgt" title="PowerShell"><span class="pill ps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><polyline points="6.5 9.5 9.5 12 6.5 14.5"/><line x1="11.5" y1="14.5" x2="15.5" y2="14.5"/></svg></span></span>
       </div>
-      <div class="cmdrow"><pre class="cmd" id="c-watchdog">powershell -ExecutionPolicy Bypass -File "C:\Coding Infra\AI Infra\Communication\tools\hub-watchdog.ps1"</pre><button class="copy" data-t="c-watchdog">복사</button></div>
+      <div class="cmdrow"><pre class="cmd" id="c-watchdog">powershell -ExecutionPolicy Bypass -File "E:\Coding Infra\AI Infra\Communication\tools\hub-watchdog.ps1"</pre><button class="copy" data-t="c-watchdog">복사</button></div>
     </div>
     <div class="card">
       <div class="top">
@@ -246,7 +246,7 @@ Write-Host "[hub] 3 daemons launched (codex, grok, antigravity) @ 10min"</pre><b
         <div class="meta"><h3>크래시 스캔</h3><p class="desc">logcat FATAL/ANR/Hermes 즉시 판정.</p></div>
         <span class="tgt" title="PowerShell"><span class="pill ps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><polyline points="6.5 9.5 9.5 12 6.5 14.5"/><line x1="11.5" y1="14.5" x2="15.5" y2="14.5"/></svg></span></span>
       </div>
-      <div class="cmdrow"><pre class="cmd" id="c-smoke">powershell -ExecutionPolicy Bypass -File "C:\Coding Infra\AI Infra\Communication\tools\expo-smoke.ps1"</pre><button class="copy" data-t="c-smoke">복사</button></div>
+      <div class="cmdrow"><pre class="cmd" id="c-smoke">powershell -ExecutionPolicy Bypass -File "E:\Coding Infra\AI Infra\Communication\tools\expo-smoke.ps1"</pre><button class="copy" data-t="c-smoke">복사</button></div>
     </div>
     <div class="card">
       <div class="top">
@@ -254,7 +254,7 @@ Write-Host "[hub] 3 daemons launched (codex, grok, antigravity) @ 10min"</pre><b
         <div class="meta"><h3>위키 교훈 수집</h3><p class="desc">outbox <code style="font-size:11px">wiki_lesson</code> 다이제스트.</p></div>
         <span class="tgt" title="PowerShell"><span class="pill ps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><polyline points="6.5 9.5 9.5 12 6.5 14.5"/><line x1="11.5" y1="14.5" x2="15.5" y2="14.5"/></svg></span></span>
       </div>
-      <div class="cmdrow"><pre class="cmd" id="c-wiki">powershell -ExecutionPolicy Bypass -File "C:\Coding Infra\AI Infra\Communication\tools\wiki-ingest.ps1"</pre><button class="copy" data-t="c-wiki">복사</button></div>
+      <div class="cmdrow"><pre class="cmd" id="c-wiki">powershell -ExecutionPolicy Bypass -File "E:\Coding Infra\AI Infra\Communication\tools\wiki-ingest.ps1"</pre><button class="copy" data-t="c-wiki">복사</button></div>
     </div>
     <div class="card k-ok">
       <div class="top">
@@ -270,7 +270,7 @@ Write-Host "[hub] 3 daemons launched (codex, grok, antigravity) @ 10min"</pre><b
         <div class="meta"><h3>릴리즈 게이트</h3><p class="desc">2nd-B 머지 전 <b>GO/NO-GO</b> + 롤백 SHA 기록(§8).</p></div>
         <span class="tgt" title="PowerShell"><span class="pill ps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><polyline points="6.5 9.5 9.5 12 6.5 14.5"/><line x1="11.5" y1="14.5" x2="15.5" y2="14.5"/></svg></span></span>
       </div>
-      <div class="cmdrow"><pre class="cmd" id="c-relgate">powershell -ExecutionPolicy Bypass -File "C:\Coding Infra\AI Infra\Communication\tools\release-gate.ps1"</pre><button class="copy" data-t="c-relgate">복사</button></div>
+      <div class="cmdrow"><pre class="cmd" id="c-relgate">powershell -ExecutionPolicy Bypass -File "E:\Coding Infra\AI Infra\Communication\tools\release-gate.ps1"</pre><button class="copy" data-t="c-relgate">복사</button></div>
     </div>
     <div class="card">
       <div class="top">
@@ -278,7 +278,7 @@ Write-Host "[hub] 3 daemons launched (codex, grok, antigravity) @ 10min"</pre><b
         <div class="meta"><h3>원격 오더 폴 (orders-poll)</h3><p class="desc">2nd-B <code style="font-size:11px">ORDERS.md ## OPEN</code>의 미처리 <b>O-13+</b> 오더를 git fetch 후 추출. <b>/loop가 매 사이클 호출하는 수신단</b>(O-13+ 파이프라인). <code>-Json</code>=머신용 <code style="font-size:11px">{newCount,newIds,blocks}</code>.</p></div>
         <span class="tgt" title="PowerShell"><span class="pill ps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><polyline points="6.5 9.5 9.5 12 6.5 14.5"/><line x1="11.5" y1="14.5" x2="15.5" y2="14.5"/></svg></span></span>
       </div>
-      <div class="cmdrow"><pre class="cmd" id="c-orders">powershell -ExecutionPolicy Bypass -File "C:\Coding Infra\AI Infra\Communication\tools\orders-poll.ps1"</pre><button class="copy" data-t="c-orders">복사</button></div>
+      <div class="cmdrow"><pre class="cmd" id="c-orders">powershell -ExecutionPolicy Bypass -File "E:\Coding Infra\AI Infra\Communication\tools\orders-poll.ps1"</pre><button class="copy" data-t="c-orders">복사</button></div>
     </div>
   </div>
 
@@ -295,7 +295,7 @@ Write-Host "[hub] 3 daemons launched (codex, grok, antigravity) @ 10min"</pre><b
   <footer>
     원격오더 = Simon 폰 → 2nd-B <code>ORDERS.md ## OPEN</code>(O-13+) → PC Claude /loop 폴·분배·<code>## DONE</code> 회신(§33, 데몬 없이 라이브 루프가 인계) · 머지게이트 = Claude · 정본 <code>PROTOCOL.md</code> · 장애복구 <code>RUNBOOK.md</code>(에뮬 dev서버 §7) · 역할 <code>ROUTING.md</code> · 합의 <code>DECISIONS.md</code> · 모델정본 <code>models.json</code><br>
     미성년 = enablement(§36, 제한 아님) · 좌석증설 전 용량게이트(§31.8) · 코어레인 독립반론(§35.6, Claude 최종권 불변)<br>
-    <code>C:\Coding Infra\AI Infra\Communication\HUB-STARTUP.html</code> · 업데이트 2026-06-15
+    <code>E:\Coding Infra\AI Infra\Communication\HUB-STARTUP.html</code> · 업데이트 2026-06-15
   </footer>
 </div>
 

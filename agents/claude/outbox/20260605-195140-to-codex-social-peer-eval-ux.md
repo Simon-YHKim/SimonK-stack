@@ -16,7 +16,7 @@ created: 2026-06-05 19:51:40 KST
 **과학적 근거(deep-research 검증됨, `projects/2nd-B/accurate-person-model-structure.html` 참조)**: 자기보고는 평가적·도덕적·외현 특성에서 가장 부정확(SOKA, Vazire 2010). 타인 평가가 그 사각지대를 메우고 증분타당도를 줌(Connelly & Ones 메타 N=44,178). 즉 이 기능은 "정확한 자기파악"의 과학적 핵심. **사용자 확인 게이트 = 잠정 제시+검증 원칙과 일치(verdict 방지).**
 
 ## Ask (네 lane: UI/UX·카피·플로우 — 코드 미수정, 스펙만)
-`C:\2ndB`(DESIGN.md·CONTEXT.md·persona.tsx·기존 5-tier 월드뷰)를 읽고, peer-eval social 기능의 **UX 스펙 + 카피**를 설계해 제출하라:
+`E:\2ndB`(DESIGN.md·CONTEXT.md·persona.tsx·기존 5-tier 월드뷰)를 읽고, peer-eval social 기능의 **UX 스펙 + 카피**를 설계해 제출하라:
 
 1. **친구 연결 플로우**: privacy-first 초대·수락(동의 기반). 누가 누구를 평가할 수 있는지. (코드 구현은 Claude — 너는 화면·상태·카피)
 2. **동료평가 제출 UX**: A가 B에 대해 무엇을 어떻게 남기나 — 구조화(예: 관찰된 강점/특성 선택 + 척도) + 자유서술("느낀점", "내가 보는 당신"). **건설적·비-toxic 프레이밍**(harsh·익명 공격 방지), DESIGN.md voice·금지 lexicon 준수.

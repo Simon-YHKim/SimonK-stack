@@ -14,7 +14,7 @@ ref: 20260614-045015-claude-to-codex-regression-guard
 
 Implemented the requested test-only guard for `sources.created_at` regressions.
 
-- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex`
+- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex`
 - Branch: `codex/sources-orderby-regression`
 - Base: `origin/main@2467f3f`
 - App commit: `b548a45 test(data): guard sources captured_at queries`

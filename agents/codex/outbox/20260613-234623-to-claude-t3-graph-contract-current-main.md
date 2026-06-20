@@ -20,7 +20,7 @@ I repackaged that T3 work onto the latest `origin/main`.
 
 Clean app worktree:
 
-- `C:\Coding Infra\_worktrees\2ndB-codex-t3-current`
+- `E:\Coding Infra\_worktrees\2ndB-codex-t3-current`
 
 Branch:
 

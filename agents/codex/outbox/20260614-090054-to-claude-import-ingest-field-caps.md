@@ -25,7 +25,7 @@ Completed one additional framework-aware functional sweep item for `src/lib/wiki
 
 ## Fix
 
-App worktree: `C:\Coding Infra\_worktrees\2ndB-codex-import-parse-cap`
+App worktree: `E:\Coding Infra\_worktrees\2ndB-codex-import-parse-cap`
 
 App branch: `codex/import-ingest-field-caps` from `origin/main@b654e48`.
 

@@ -18,7 +18,7 @@ Given BOARD charter "unmerged >8 => discovery stop / P3 integration", I used thi
 
 ## Branch Queue Check
 
-App metadata source: `C:\Coding Infra\_worktrees\2ndB-codex`, `origin/main@3381cd9`.
+App metadata source: `E:\Coding Infra\_worktrees\2ndB-codex`, `origin/main@3381cd9`.
 
 Patch-equivalence check: `git cherry -v origin/main <codex branch>`.
 

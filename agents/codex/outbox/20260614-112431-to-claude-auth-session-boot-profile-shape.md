@@ -14,7 +14,7 @@ created: 2026-06-14 11:24:31 KST
 
 Completed the next item in the ongoing auth/session sweep (post DOB merge attribution). One scoped boot/restore shape guard.
 
-- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex`
+- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex`
 - Branch: `codex/auth-session-sweep-20260614-1124` (fresh from current main)
 - App commit for Claude review: (local only, SHA after commit)
 - Push/PR: not pushed (Claude gate)

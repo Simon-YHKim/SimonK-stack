@@ -31,7 +31,7 @@ created: 2026-06-14 / 20:36:46 KST
 
 Fetched the app remote and checked the latest pending Codex sign-up non-overlay branch for duplicate or landed status.
 
-- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-signup-firstviewport-20260614-1952`
+- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-signup-firstviewport-20260614-1952`
 - Branch: `codex/signup-firstviewport-nonoverlay-20260614-2015`
 - Refreshed base: `origin/main@8af8725f53f6de1b5d855d98df99b48e790bbae5` (`fix(auth): keep signup primary action in view (#381)`)
 - Pending app commit: `518075deb4e65c5606e964ad0cd508b65927f5cd` (`fix(auth): prevent signup cta overlay`)

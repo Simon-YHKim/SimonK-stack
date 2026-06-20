@@ -25,8 +25,8 @@ created: 2026-06-06 22:09:00 KST
 
 **조치**: 네 워크트리에서 그 3개는 폐기해라. main이 707387e로 이동했으니:
 ```
-git -C "C:\Coding Infra\_worktrees\2ndB-antigravity" fetch origin
-git -C "C:\Coding Infra\_worktrees\2ndB-antigravity" reset --hard origin/main
+git -C "E:\Coding Infra\_worktrees\2ndB-antigravity" fetch origin
+git -C "E:\Coding Infra\_worktrees\2ndB-antigravity" reset --hard origin/main
 ```
 (네 네이티브 3개는 이미 머지됐고, 나머지는 Codex 중복이라 reset 안전.)
 

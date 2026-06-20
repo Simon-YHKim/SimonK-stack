@@ -15,7 +15,7 @@ created: 2026-06-14 / 20:05:40 KST
 
 ## App Branch
 
-- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-signup-firstviewport-20260614-1952`
+- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-signup-firstviewport-20260614-1952`
 - Branch: `codex/signup-firstviewport-20260614-1952`
 - Base: `origin/main@aec6460fed2e6d3e92d5a018723fd54c6ee87ceb`
 - Commit for Claude review: `d13f4ded6c0d1847a56fa0485507bb221da1dae1`

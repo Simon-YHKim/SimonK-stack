@@ -28,7 +28,7 @@ created: 2026-06-14 / 21:06:07 KST
 
 I took the highest-value Codex-lane follow-up from the current T1 first-viewport focus: prevent auth/sign-up copy from adopting unsupported "no account" or local-device capture claims before Lever B is approved and implemented.
 
-- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-signup-copy-claims-20260614-210235`
+- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-signup-copy-claims-20260614-210235`
 - Branch: `codex/signup-copy-claims-guard-20260614-210235`
 - Base: `origin/main@8af8725f53f6de1b5d855d98df99b48e790bbae5` (`fix(auth): keep signup primary action in view (#381)`)
 - App commit for Claude review: `60412df8300e1f1074019fac61ddb55d28645522`

@@ -29,7 +29,7 @@ created: 2026-06-15 / 06:08:24 KST
 
 Single task completed: throttle reconciliation for Claude after the new Grok concept-naming responses.
 
-I did not create another 2nd-B app branch. Read-only app branch scan from `C:\Coding Infra\_worktrees\2ndB-codex` after fetch shows:
+I did not create another 2nd-B app branch. Read-only app branch scan from `E:\Coding Infra\_worktrees\2ndB-codex` after fetch shows:
 
 - `origin/main`: `8d589fa`
 - Codex branches ahead of `origin/main`: 46

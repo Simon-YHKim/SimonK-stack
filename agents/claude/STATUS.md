@@ -1,17 +1,16 @@
 ---
 agent: claude
 role: orchestrator + coding + online-git + merge-gate
-updated: 2026-06-17 21:32:07 KST
+updated: 2026-06-15 08:27:00 KST
 state: running
 ---
 
 # Claude — STATUS
 
-[2026-06-17 / 21:32:07 KST] [Claude] 실행자 /loop 재가동 — 원격 오더 파이프라인(ORDERS.md §33) 폴러 + 분배자 + 머지게이트. CONTROL=running.
+[2026-06-15 / 08:27:00 KST] [Claude] 실행자 /loop 가동 — 원격 오더 파이프라인(ORDERS.md §33) 폴러+분배자. CONTROL=running.
 
-- **폴(orders-poll · origin/main)**: 미처리 = **O-30 · O-31** (O-0~29 DONE).
-- **O-31 (P0 · deep-space 단일 본체화)**: origin/main `f6489ba2`에 Stage1·2·4 머지(#434 라우트연결 / #435 / #436 deep-space default). 잔여 = Stage3(Back 단일화) · 5(캐릭터 포팅) · 6(정보밀도) · 7(verify/persona-sim).
-- **통합 진행**: Codex deep-space 머지후보 2건 — `a11y-labels-i18n 601415d5` **release-gate(full verify) 실행 중**(codex 워크트리 · bj9efa3cy) → GO 시 origin/main 머지·라이브. `token-spacing 7dc0e8ab`는 동일파일(DeepSpaceShell) 충돌 회피 위해 순차 처리.
-- **O-30**: 워크트리(codex/antigravity/ds-nav/ds-theme) 복원 + Codex 포그라운드 5분 루프(tty-block 해소) = 사실상 완료. 분배로그 정리 후 DONE 이동.
-- **백로그(모니터 알람 codex40/AG11/grok90)**: 대부분 06-05~06-06 stale legacy + Grok advisory(읽기성 인사이트). 실 미처리 = 오늘밤 Codex 패치 2건뿐. stale 배치 아카이브 예정.
-- **게이트(Simon 확인)**: 파괴 · 비용 · secrets · 임상 · 법무 · 미성년 DPIA. `DPIA-2ndB-minors-draft.md` · 수익화 M1~M5 = 미접촉(설계만).
+- **원격 오더**: O-13 ✅(landing hero→nav 상태전환) · O-14 ✅(반응형 fitScale + 메뉴 2ndb IA + SPA 화면작동 3-state) · O-15 진행(허브 자가점검).
+- **O-15 자가점검(이번)**: #3 `.watchdog-state.json` BOM 제거 + hub-watchdog no-BOM 쓰기 → **hub-health FAIL=0** / #1 hub-daemon.ps1 lane(-Only) mutex dup-guard / #2 commit.ps1 STATUS 64KB 캡(codex 118KB→절단 directed) / #5 이 STATUS 현행화. INCIDENTS 5건 + RUNBOOK §6 룩업.
+- **2nd-B main**: 4749c96 (O-13/14 done 회신). 기능/UX/a11y QA 클린, #386·#387 머지.
+- **AI 좌석**: codex·grok active · AG=agy-pty 헤드리스 부활(인증 화면 QA는 테스트계정 게이트 대기).
+- **게이트(Simon)**: 파괴 · 비용 · secrets · 임상 · 법무.

@@ -16,7 +16,7 @@ created: 2026-06-06 20:18:00 KST
 파괴/입력 화면이 소프트 키보드에 가려 CTA·입력이 안 보이는 문제(파괴UX 게이트). verify(lint/type/jest)로는 레이아웃 회귀를 못 잡아 **device 검증 필요** → Android 네이티브인 네가 적임.
 
 ## Ask (synced worktree에서)
-1. 먼저 `git -C "C:\Coding Infra\_worktrees\2ndB-antigravity" fetch origin && git -C "..." reset --hard origin/main`.
+1. 먼저 `git -C "E:\Coding Infra\_worktrees\2ndB-antigravity" fetch origin && git -C "..." reset --hard origin/main`.
 2. 대상 화면(입력+CTA 키보드 가림 위험): `src/app/settings.tsx`·`account.tsx`·`audit.tsx`·`support.tsx`·`data.tsx`·`(auth)/sign-in.tsx`·`complete-profile.tsx` 등.
    - `ScrollView` → `KeyboardAvoidingView`(behavior iOS=padding, Android=undefined/height) 래핑 + `keyboardShouldPersistTaps="handled"`.
    - 키보드 올라와도 입력·CTA가 보이는지 **에뮬(Pixel_9_Pro_XL)에서 캡처**로 증명.

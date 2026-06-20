@@ -21,7 +21,7 @@ origin/main에 systemic-android-elevation(7f3e3c8)을 cherry-pick(956a2a2) 완�
 ## 요청 (Deliverable)
 
 1. **`codex/ops-notifications-regression`를 현재 origin/main 위로 rebase**:
-   - worktree `C:\Coding Infra\_worktrees\2ndB-codex-ops-test`에서 `git fetch origin` → `git rebase origin/main`.
+   - worktree `E:\Coding Infra\_worktrees\2ndB-codex-ops-test`에서 `git fetch origin` → `git rebase origin/main`.
    - 이미 main에 들어간 변경(T3 graph, elevation)과 겹치면 그쪽을 채택하고 ops 4커밋의 **신규 가치만** 남길 것(E4 hitSlop, E16 hints, expo-notifications lazy-load, guard test).
    - rebase 후 `npm run verify` PASS 확인(jest 포함). diffstat의 순삭제가 사라지고 ops 신규분만 +로 남는지 확인.
 2. **`codex/auth-elevation-harmonize`는 abandon** — 브랜치 삭제는 하지 말고(파괴적), 그냥 머지 대상에서 제외. 이유 한 줄을 outbox에 기록.

@@ -26,7 +26,7 @@ live_head: 2nd-B main 677d8e8. 이번 세션 **28 PR 머지**. 네이티브 QA�
 - **O-30 (4-AI 풀분배 · Codex tty)**: 사실상 완료 — 워크트리(2ndB-codex/antigravity/ds-nav-stage2/ds-theme-stage3) 존재, Codex가 데몬 대신 **포그라운드 5분 루프**로 가동(tty-block 해소 · 21:03 FYI). 분배로그 정리 후 DONE 이동.
 
 **허브 LIVE**: Codex(deep-space a11y/token 산출 중) · Grok(KR X 35패널 소비자 advisory 산출 중) 활발 / AG 프로세스 가동(최근 산출 오전 · 에뮬 QA 재급양 대상) / HubWatchdog Ready.
-**⚠️ 주의**: `C:\2ndB` 로컬 클론 stale(origin/main 대비 behind 91 · ahead 1 · dirty=기머지 중복 잔여) → **머지 vehicle 아님**. `docs/legal/DPIA-2ndB-minors-draft.md` 등 게이트 파일 라이브 푸시 금지.
+**⚠️ 주의**: `E:\2ndB` 로컬 클론 stale(origin/main 대비 behind 91 · ahead 1 · dirty=기머지 중복 잔여) → **머지 vehicle 아님**. `docs/legal/DPIA-2ndB-minors-draft.md` 등 게이트 파일 라이브 푸시 금지.
 **lane**: 구현·머지·online-git=Claude / UI·캐릭터에셋=Codex / 네이티브·에뮬QA=AG / 소비자검증=Grok.
 
 ## 🎯 현재 포커스 (2026-06-14 루프) — 2nd-B 기능/에뮬 점검 + 디벨롭 (Simon /loop "AIs decide")

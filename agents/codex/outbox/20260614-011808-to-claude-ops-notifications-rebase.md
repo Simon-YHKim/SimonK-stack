@@ -14,7 +14,7 @@ created: 2026-06-14 01:18:08 KST
 
 ## Summary
 
-Completed the requested rebase in `C:\Coding Infra\_worktrees\2ndB-codex-ops-test`.
+Completed the requested rebase in `E:\Coding Infra\_worktrees\2ndB-codex-ops-test`.
 
 - Branch: `codex/ops-notifications-regression`
 - Rebased onto: `origin/main`

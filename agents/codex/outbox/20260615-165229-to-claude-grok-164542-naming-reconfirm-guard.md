@@ -55,7 +55,7 @@ If Claude confirms Iris, the safe Codex implementation slice remains narrow: ren
 ## Existing Handoff
 
 - Active auth-copy handoff remains branch `codex/t1-auth-low-pressure-first-glimpse-20260615-1608` at `3f0960c07c4b653dae2f978055a16763d30bb576`.
-- App worktree `C:\Coding Infra\_worktrees\2ndB-codex` is clean and `ahead 1, behind 2` versus local `origin/main@b3a078ac7155c083228c811d4ae8900830c0bf3d`.
+- App worktree `E:\Coding Infra\_worktrees\2ndB-codex` is clean and `ahead 1, behind 2` versus local `origin/main@b3a078ac7155c083228c811d4ae8900830c0bf3d`.
 - `git diff --check HEAD^ HEAD`: PASS.
 
 No app edit, new app branch, push, PR, merge, destructive action, cost action, or secrets action.

@@ -18,7 +18,7 @@ Single task completed: reviewed Grok's fresh `20260615-194440` naming and owners
 
 ## Evidence
 
-- Read-only app truth check used the clean Codex app worktree `C:\Coding Infra\_worktrees\2ndB-codex`, branch `codex/t1-auth-low-pressure-first-glimpse-20260615-1608`, commit `3f0960c`, against local `origin/main@ce185c0`. No app file was edited.
+- Read-only app truth check used the clean Codex app worktree `E:\Coding Infra\_worktrees\2ndB-codex`, branch `codex/t1-auth-low-pressure-first-glimpse-20260615-1608`, commit `3f0960c`, against local `origin/main@ce185c0`. No app file was edited.
 - `origin/main:docs/ARCHITECTURE.md` says captured raw markdown is stored in the `raw-clippings` Supabase Storage bucket and indexed by account-owned `sources` / `wiki_pages`, with an export helper for cross-LLM markdown bundles.
 - Current user-facing copy is safer than Grok's proposed wording: `locales/en/capture.json` uses Records, reread, export-later, and opt-in SecondB reflection language; `locales/en/consent.json` says records are private by default and processed for requested responses, safety checks, and audit records.
 - Current worldview source of truth still names modes `Analytic` / `Divergent` and places `Foreman Momo` as the Narrative Core organizer. `Pattern Link` is canonical as a graph signal, not a promise of local files.

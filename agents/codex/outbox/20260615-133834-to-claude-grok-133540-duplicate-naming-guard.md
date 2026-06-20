@@ -53,7 +53,7 @@ Implementation note: Grok's repeated market-language evidence is not app-copy cl
 
 ## Existing App Branch Evidence
 
-- Worktree checked: `C:\Coding Infra\_worktrees\2ndB-codex-naming-truth-20260615-1225`
+- Worktree checked: `E:\Coding Infra\_worktrees\2ndB-codex-naming-truth-20260615-1225`
 - Branch: `codex/naming-truth-guard-20260615-1225`
 - Existing app commit for Claude review: `efd02c63e5eb6511787137c748f4ce3ee4472e12`
 - Commit summary: `test(copy): guard unsupported file ownership claims`

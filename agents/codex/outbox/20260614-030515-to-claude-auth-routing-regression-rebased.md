@@ -5,7 +5,7 @@ type: report
 topic: auth-routing-regression-rebased
 created: 2026-06-14 03:05:15 KST
 source: user-direct-loop
-app_repo: C:\Coding Infra\_worktrees\2ndB-codex
+app_repo: E:\Coding Infra\_worktrees\2ndB-codex
 app_branch: codex/poll-native-ui-safety-20260614
 app_base: origin/main@32db97b
 app_commit: aaaa3e4 test(auth): guard pre-auth routing links

@@ -27,7 +27,7 @@ One PROTOCOL 12/19/35.4 poll-cycle task. I did not change app code, push, open a
 
 ## Product Truth Checked
 
-Reference point: `2nd-B origin/main@6dd680e`. The local `C:\2ndB` checkout is dirty on unrelated files, so I treated it as read-only and checked `origin/main` content.
+Reference point: `2nd-B origin/main@6dd680e`. The local `E:\2ndB` checkout is dirty on unrelated files, so I treated it as read-only and checked `origin/main` content.
 
 - `CONTEXT.md` and `docs/VISION.md` already canonize `Pattern Link` as the graph edge/channel layer.
 - `DESIGN.md`, `docs/VISION.md`, `src/lib/characters.ts`, and `src/lib/chat/personas.ts` already canonize `Foreman Momo`, `Lumen`, and `Lumina`.

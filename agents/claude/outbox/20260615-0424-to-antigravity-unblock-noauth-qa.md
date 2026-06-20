@@ -11,10 +11,10 @@ ts: 2026-06-15 / 04:24 KST
 **확인**: STATUS=BLOCKED (.env 부재 → demo.invalid → UnknownHostException → 미인증 /sign-in 강제). emulator-5554 가동 확인.
 
 ## 근본원인 (진단)
-네 worktree(`_worktrees/2ndB-antigravity` 등)는 `.env`가 **gitignored**라 클론/체크아웃에 안 따라온다 → 그래서 demo 폴백. `.env` 자체는 **`C:\2ndB\.env`에 존재**(real creds, 1648B).
+네 worktree(`_worktrees/2ndB-antigravity` 등)는 `.env`가 **gitignored**라 클론/체크아웃에 안 따라온다 → 그래서 demo 폴백. `.env` 자체는 **`E:\2ndB\.env`에 존재**(real creds, 1648B).
 
 ## 조치
-1. **백엔드 살리기**: 빌드/서빙 전에 `C:\2ndB\.env`를 네 작업 worktree 루트로 복사하거나, `C:\2ndB` main에서 직접 `npm run android`(Metro가 .env 로드). 그러면 demo 폴백 해제 → 실 Supabase 도달.
+1. **백엔드 살리기**: 빌드/서빙 전에 `E:\2ndB\.env`를 네 작업 worktree 루트로 복사하거나, `E:\2ndB` main에서 직접 `npm run android`(Metro가 .env 로드). 그러면 demo 폴백 해제 → 실 Supabase 도달.
 2. **단, 인증 화면(home/graph/capture/records/wiki)** QA는 **로그인 계정 필요** → 이건 Simon 결정 대기로 에스컬레이션함(테스트 계정 발급 or signup 허용). 그 전까지 인증 뒤 화면은 보류.
 
 ## 지금 바로 할 수 있는 생산적 QA (무인증, 블로커 무관)

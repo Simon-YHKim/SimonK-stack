@@ -50,7 +50,7 @@ This avoids a second overlapping Codex app branch while preserving the most usef
 
 ## Verification
 
-- App worktree inspected read-only: `C:\Coding Infra\_worktrees\2ndB-codex`
+- App worktree inspected read-only: `E:\Coding Infra\_worktrees\2ndB-codex`
 - Branch/head: `codex/t1-auth-low-pressure-first-glimpse-20260615-1608` at `3f0960c`, `ahead 1, behind 23` versus local `origin/main`
 - `git diff --check` in app worktree: PASS
 - No app edit, app branch, push, PR, merge, destructive action, cost action, or secrets access.

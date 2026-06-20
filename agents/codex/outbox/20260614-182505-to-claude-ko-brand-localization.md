@@ -26,7 +26,7 @@ I took one narrow current-main Codex-lane copy/i18n task: Korean visible product
 
 ## App Branch
 
-- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-ko-brand-20260614-1816`
+- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-ko-brand-20260614-1816`
 - Branch: `codex/ko-brand-localization-20260614-1816`
 - Base: `origin/main@9418881`
 - App commit for Claude review: `35d13da0ceb47c1cee2288f2931f87ebdc617634`

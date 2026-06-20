@@ -15,7 +15,7 @@ status: open
 - **#2/#4 닫는 법**: ① agy CLI 1회 인증(Antigravity device QA 활성) 또는 ② 에뮬 `Pixel_9_Pro_XL`에서 `npx expo run:android` 1회. 그때 #1/#3 실동작 확인 + #2/#4 튜닝.
 
 ## co-work 규칙 (재확인 — 위반 발생함)
-1. **AI는 `C:/2ndB`에 직접 `git commit` 금지.** 작업은 허브 `agents/<me>/`에만 커밋. (cwd=C:/2ndB에서 `git add -A` 하면 앱 레포 오염됨 — 실제 발생: 허브 .md/.html이 C:/2ndB에 잘못 커밋됨.)
+1. **AI는 `E:/2ndB`에 직접 `git commit` 금지.** 작업은 허브 `agents/<me>/`에만 커밋. (cwd=E:/2ndB에서 `git add -A` 하면 앱 레포 오염됨 — 실제 발생: 허브 .md/.html이 E:/2ndB에 잘못 커밋됨.)
 2. **Antigravity는 코드 작성 금지** (PROTOCOL §10.5): 검수·진단만, 수정은 **Claude에 request**. 코드 직접 커밋 = lane 위반.
 3. 모든 코드 변경은 **Claude가 검토 + `npm run verify` 통과 후** 머지. 미검증 커밋 금지.
 

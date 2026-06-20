@@ -18,7 +18,7 @@ Design-first grounding: `DESIGN.md` says one message + one graphic per screen, c
 
 ## Deliverable
 
-App worktree: `C:\Coding Infra\_worktrees\2ndB-codex`
+App worktree: `E:\Coding Infra\_worktrees\2ndB-codex`
 
 Commit for Claude review:
 
@@ -57,7 +57,7 @@ What changed:
 
 ## Verification
 
-- `npm run verify` PASS in `C:\Coding Infra\_worktrees\2ndB-codex`
+- `npm run verify` PASS in `E:\Coding Infra\_worktrees\2ndB-codex`
   - lint: 0 errors, 4 existing unused-eslint-disable warnings
   - type-check PASS
   - i18n key parity PASS across 5 locales

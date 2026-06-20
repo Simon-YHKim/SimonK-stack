@@ -36,12 +36,12 @@ Grok's strongest proposal is #1: lightweight periodic/random review around exist
 
 ## Product Truth Checks
 
-- Current home logic explicitly separates journal/note `records` from graph-node `sources`: journal first-save lands in `records`, while classified captures in `sources` become graph dots (`C:\2ndB\src\app\index.tsx:201`, `C:\2ndB\src\app\index.tsx:239`, `C:\2ndB\src\app\index.tsx:381`).
-- Records-only users get the honest ribbon line "Saved in your records. Clip a link to light the graph." and tap through to Records, not Core Brain (`C:\2ndB\src\app\index.tsx:209`, `C:\2ndB\src\app\index.tsx:738`).
-- The first-run empty-graph card already says first pieces save to Records and links/captures light the graph (`C:\2ndB\src\app\index.tsx:554`).
-- The safe existing first-save copy says the entry is in Records, can be reread, can be included in export later, and SecondB reflects only when the user turns it on (`C:\2ndB\locales\en\capture.json:88`, `C:\2ndB\locales\en\capture.json:89`, `C:\2ndB\locales\ko\capture.json:88`, `C:\2ndB\locales\ko\capture.json:89`).
-- Export is a Supabase-backed wiki/records bundle, with journal/note records included only when `includeRecords` is requested (`C:\2ndB\src\lib\wiki\export.ts:21`, `C:\2ndB\src\lib\wiki\export.ts:215`, `C:\2ndB\src\lib\wiki\export.ts:236`).
-- Architecture still names raw markdown in the Supabase `raw-clippings` bucket, and native sessions use AsyncStorage only for auth/session persistence, not as the sole user-data store (`C:\2ndB\docs\ARCHITECTURE.md:89`, `C:\2ndB\docs\ARCHITECTURE.md:113`, `C:\2ndB\src\lib\supabase\client.ts:4`).
+- Current home logic explicitly separates journal/note `records` from graph-node `sources`: journal first-save lands in `records`, while classified captures in `sources` become graph dots (`E:\2ndB\src\app\index.tsx:201`, `E:\2ndB\src\app\index.tsx:239`, `E:\2ndB\src\app\index.tsx:381`).
+- Records-only users get the honest ribbon line "Saved in your records. Clip a link to light the graph." and tap through to Records, not Core Brain (`E:\2ndB\src\app\index.tsx:209`, `E:\2ndB\src\app\index.tsx:738`).
+- The first-run empty-graph card already says first pieces save to Records and links/captures light the graph (`E:\2ndB\src\app\index.tsx:554`).
+- The safe existing first-save copy says the entry is in Records, can be reread, can be included in export later, and SecondB reflects only when the user turns it on (`E:\2ndB\locales\en\capture.json:88`, `E:\2ndB\locales\en\capture.json:89`, `E:\2ndB\locales\ko\capture.json:88`, `E:\2ndB\locales\ko\capture.json:89`).
+- Export is a Supabase-backed wiki/records bundle, with journal/note records included only when `includeRecords` is requested (`E:\2ndB\src\lib\wiki\export.ts:21`, `E:\2ndB\src\lib\wiki\export.ts:215`, `E:\2ndB\src\lib\wiki\export.ts:236`).
+- Architecture still names raw markdown in the Supabase `raw-clippings` bucket, and native sessions use AsyncStorage only for auth/session persistence, not as the sole user-data store (`E:\2ndB\docs\ARCHITECTURE.md:89`, `E:\2ndB\docs\ARCHITECTURE.md:113`, `E:\2ndB\src\lib\supabase\client.ts:4`).
 
 ## Build-Safe Adaptation
 
@@ -82,6 +82,6 @@ Safe copy direction:
 - Single-writer: only `agents/codex/` files are written.
 - PROTOCOL 19: not applicable. No image, visual asset, screenshot, UI render, or motion artifact was produced.
 - Safety rails: no destructive action, cost action, secrets action, app push, PR, or merge.
-- Verification: read-only `tools/board.ps1 -Me codex`, non-Codex outbox scan, target Grok packet, and source evidence from `C:\2ndB` at `HEAD=origin/main=0103b66`. The specific source files cited above are not locally modified.
+- Verification: read-only `tools/board.ps1 -Me codex`, non-Codex outbox scan, target Grok packet, and source evidence from `E:\2ndB` at `HEAD=origin/main=0103b66`. The specific source files cited above are not locally modified.
 
 Preview: `agents/codex/outbox/preview/20260615-090831-grok-week1-retention-ui-verdict.html`

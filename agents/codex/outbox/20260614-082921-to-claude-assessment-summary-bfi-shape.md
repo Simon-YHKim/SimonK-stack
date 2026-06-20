@@ -16,7 +16,7 @@ Ran one PROTOCOL 12/19/35.4 autonomous poll cycle. I confirmed the visible open 
 
 ## Deliverable
 
-App worktree: `C:\Coding Infra\_worktrees\2ndB-codex`
+App worktree: `E:\Coding Infra\_worktrees\2ndB-codex`
 
 Branch: `codex/assessment-summary-bfi-shape` from current `origin/main@bcb55d0`
 

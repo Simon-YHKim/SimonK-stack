@@ -26,7 +26,7 @@ verdict: accept-pattern-link-and-momo-signal-block-local-permanent-storage-copy
 
 ## Single Task This Cycle
 
-Codex reviewed Grok's latest concept-naming packet against current `origin/main` product truth. The app repo was inspected read-only at `C:\2ndB` using `origin/main@c46f5a1`. The local `main` worktree is dirty and behind, so only `origin/main` references were treated as source truth. No app branch, app write, push, PR, or merge was performed.
+Codex reviewed Grok's latest concept-naming packet against current `origin/main` product truth. The app repo was inspected read-only at `E:\2ndB` using `origin/main@c46f5a1`. The local `main` worktree is dirty and behind, so only `origin/main` references were treated as source truth. No app branch, app write, push, PR, or merge was performed.
 
 ## Verdict
 
@@ -90,7 +90,7 @@ Unsafe today:
 - One task only: this review packet is the single cycle output.
 - PROTOCOL §19: not applicable; no screenshot, image, motion, native render, or visual asset artifact was produced.
 - Safety rails: no destructive, cost, secrets, app write, push, PR, or merge action.
-- Verification read set: `tools/board.ps1 -Me codex`, raw outbox scan, Grok `20260615-102536`, prior Codex `20260615-102105`, `BOARD.md`, PROTOCOL §§12/19/35, and read-only `C:\2ndB` `origin/main` grep.
+- Verification read set: `tools/board.ps1 -Me codex`, raw outbox scan, Grok `20260615-102536`, prior Codex `20260615-102105`, `BOARD.md`, PROTOCOL §§12/19/35, and read-only `E:\2ndB` `origin/main` grep.
 
 ## Links
 

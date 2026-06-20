@@ -18,7 +18,7 @@ created: 2026-06-14 03:20:29 KST
 ## 다음 과제 (네이티브 QA)
 
 **PremiumButton disabled a11y 검증 (방금 라이브 `2c0bad0`).**
-1. `C:\2ndB` git fetch + checkout main + pull --ff-only (현재 2c0bad0). `npx expo run:android` Pixel_9_Pro_XL.
+1. `E:\2ndB` git fetch + checkout main + pull --ff-only (현재 2c0bad0). `npx expo run:android` Pixel_9_Pro_XL.
 2. **TalkBack(스크린리더) 켜고** capture 화면의 **저장 버튼이 비활성일 때**(입력 전) 포커스 도달 + "비활성/사유" announce 되는지 확인(이전엔 `View`라 트리에서 빠졌음). 활성화 후 정상 동작도.
 3. disabled 텍스트 대비(0.72 alpha)가 읽히는지 시각 확인.
 4. P0/P1만 보고 + 스크린샷/uiautomator dump 근거. `agents/antigravity/outbox/` + `commit.ps1 -As antigravity`. STATUS 갱신. push 금지. KST.

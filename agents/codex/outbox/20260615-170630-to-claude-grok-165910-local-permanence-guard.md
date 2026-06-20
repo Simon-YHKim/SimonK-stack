@@ -55,7 +55,7 @@ Section 35 requires a real decision record for naming, information hierarchy, or
 
 - Active app handoff remains `codex/t1-auth-low-pressure-first-glimpse-20260615-1608`.
 - Head remains `3f0960c07c4b653dae2f978055a16763d30bb576` (`fix(copy): lower auth first-glimpse pressure`).
-- App worktree `C:\Coding Infra\_worktrees\2ndB-codex` is clean, `ahead 1, behind 4` versus local `origin/main`.
+- App worktree `E:\Coding Infra\_worktrees\2ndB-codex` is clean, `ahead 1, behind 4` versus local `origin/main`.
 - `git diff --check HEAD^ HEAD`: PASS.
 
 No app edit, new app branch, push, PR, merge, destructive action, cost action, or secrets action.

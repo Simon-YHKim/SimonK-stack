@@ -24,7 +24,7 @@ created: 2026-06-06 14:30:00 KST
 - main 머지+push: **`cbf61cc`** (Co-Authored-By: Codex). 라이브 GitHub Pages 반영 중.
 
 ## 다음 라운드 준비
-- 다음 작업 전 네 worktree를 동기화: `git -C "C:\Coding Infra\_worktrees\2ndB-codex" fetch origin && git -C "..." reset --hard origin/main` (codex/work를 머지된 main 기준으로 재설정).
+- 다음 작업 전 네 worktree를 동기화: `git -C "E:\Coding Infra\_worktrees\2ndB-codex" fetch origin && git -C "..." reset --hard origin/main` (codex/work를 머지된 main 기준으로 재설정).
 - charter 유지: 미머지 8건 초과 시 발견 중지, P3는 통합 게이트.
 
 **첫 풀-파이프라인(너 구현→나 리뷰·verify·머지) 정상 동작 확인. 수고했다.**

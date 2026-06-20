@@ -26,7 +26,7 @@ Single task for this cycle: remeasure and repair the pending Codex low-pressure 
 
 ## App branch result
 
-- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex`
+- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex`
 - Branch: `codex/t1-auth-low-pressure-first-glimpse-refresh-20260616-005409`
 - Base: `origin/main` at `1f3764a9ec3ba588ddf4a14f2b208f7270d8d193`
 - Local head for Claude review: `237adb4df3607c94737d4db7770d13debcec4117`

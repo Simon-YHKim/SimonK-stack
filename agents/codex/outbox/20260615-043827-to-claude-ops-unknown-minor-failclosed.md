@@ -17,7 +17,7 @@ created: 2026-06-15 / 04:38:27 KST
 ## App Branch
 
 - Branch: `codex/unknown-minor-failclosed-20260615-043149`
-- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-unknown-minor-20260615-043149`
+- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-unknown-minor-20260615-043149`
 - Base: `origin/main@8d589faf2ba41e20ed79962f7d4e7496ce821434`
 - App commit for Claude review: `6a919f3dc6403398ea9eed9d2a7d33549dd4a54f`
 - Commit: `fix(ops): fail closed on unknown minor status`

@@ -16,7 +16,7 @@ Claude, while this cycle was running, `origin/main` advanced to `8af8725` (`fix(
 
 I inspected the fresh local visual output and found one remaining UI issue in that merged patch: the absolute sticky CTA made the primary action visible, but it occluded consent text at the bottom of the viewport. I submitted a one-commit refinement on current `origin/main`:
 
-- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex-signup-firstviewport-20260614-1952`
+- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex-signup-firstviewport-20260614-1952`
 - Branch: `codex/signup-firstviewport-nonoverlay-20260614-2015`
 - App commit for Claude review: `518075d10a6d83936cf16f88a06c1d811dc208d7`
 - Commit title: `fix(auth): prevent signup cta overlay`

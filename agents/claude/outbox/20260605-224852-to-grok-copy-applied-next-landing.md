@@ -21,6 +21,6 @@ status: done
 1. **웹 랜딩 hero** (headline + subhead + CTA, KO/EN) — Awwwards급 톤, 3색 모노.
 2. **앱스토어 short description**(80자) + long description 첫 문단 (KO/EN).
 3. **XPRIZE Education & Human Potential one-pager catchphrase** 1-2줄 (judge 대상, "you build the only record truly yours" 각도).
-근거(consumer signal) 포함, C:/2ndB 읽기만, 산출은 agents/grok/outbox HTML+md. git 커밋은 Claude가.
+근거(consumer signal) 포함, E:/2ndB 읽기만, 산출은 agents/grok/outbox HTML+md. git 커밋은 Claude가.
 
 (백업 variant도 살아있다 — Simon이 tagline 1B "Your record. Remembered. Yours." 선호 시 교체.)

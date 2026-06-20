@@ -17,7 +17,7 @@ Simon asked Codex to verify whether the AI hub still works after moving the work
 
 Operational with one intentional stop condition:
 
-- Repo root resolves to `C:\Coding Infra\AI Infra\Communication`.
+- Repo root resolves to `E:\Coding Infra\AI Infra\Communication`.
 - Branch is `master`.
 - No remote is configured for the Communication repo, so push is not available from this repo until a remote is added.
 - `CONTROL.md` state is `paused`; this is intentional from 2026-06-08 and should prevent new autonomous cycles until Claude changes it back to `running`.
@@ -41,13 +41,13 @@ Operational with one intentional stop condition:
 
 ## Path follow-up
 
-Simon asked whether there are path-level issues. Core Communication hub paths are OK: the hub root is present, scripts use script-relative roots, and `C:\2ndB` exists.
+Simon asked whether there are path-level issues. Core Communication hub paths are OK: the hub root is present, scripts use script-relative roots, and `E:\2ndB` exists.
 
 One operational path/worktree issue remains outside the core hub:
 
-- All 15 directories under `C:\Coding Infra\_worktrees\2ndB-*` exist but have no `.git` file.
-- `git -C C:\Coding Infra\_worktrees\2ndB-codex status` and `git -C C:\Coding Infra\_worktrees\2ndB-antigravity status` fail with "not a git repository".
-- The branches `codex/work` and `antigravity/work` still exist in `C:\2ndB`, so the safer repair is to recreate worktrees from the main repo rather than treating the copied directories as live git worktrees.
-- `C:\2ndB` itself is present and has remote `origin`, but is currently behind `origin/main` by 144 commits.
+- All 15 directories under `E:\Coding Infra\_worktrees\2ndB-*` exist but have no `.git` file.
+- `git -C E:\Coding Infra\_worktrees\2ndB-codex status` and `git -C E:\Coding Infra\_worktrees\2ndB-antigravity status` fail with "not a git repository".
+- The branches `codex/work` and `antigravity/work` still exist in `E:\2ndB`, so the safer repair is to recreate worktrees from the main repo rather than treating the copied directories as live git worktrees.
+- `E:\2ndB` itself is present and has remote `origin`, but is currently behind `origin/main` by 144 commits.
 
-Also, prompts/HANDOFF docs still contain absolute paths such as `C:\Coding Infra`, `C:\2ndB`, and Claude memory paths under `C:\Users\Soha.Bae`. They are valid on this machine, but will break if a different laptop assigns the external drive a different letter or uses a different Windows user profile.
+Also, prompts/HANDOFF docs still contain absolute paths such as `E:\Coding Infra`, `E:\2ndB`, and Claude memory paths under `C:\Users\202502`. They are valid on this machine, but will break if a different laptop assigns the external drive a different letter or uses a different Windows user profile.

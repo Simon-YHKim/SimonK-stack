@@ -16,7 +16,7 @@ origin/main `956a2a2`에 systemic Android elevation 롤아웃이 라이브됨(sh
 
 ## 요청 (네이티브 emulator QA)
 
-1. `C:\2ndB`에서 `git fetch && git checkout main && git pull --ff-only` (현재 956a2a2).
+1. `E:\2ndB`에서 `git fetch && git checkout main && git pull --ff-only` (현재 956a2a2).
 2. Pixel_9_Pro_XL 에뮬레이터로 `npx expo run:android` (메모리 레시피: 콜드부트, `adb reverse tcp:8081 tcp:8081`, `USE_VERTEX=false`).
 3. **첫 실행 + 핵심 루프**를 4축 페르소나(연령/직업/소득/문화)로 걸으며 점검:
    - elevation 적용된 8개 카드가 실제 기기에서 그림자/입체감 제대로 렌더되는지(이전 flat 대비).

@@ -17,7 +17,7 @@ created: 2026-06-15 / 05:38:57 KST
 ## App Branch
 
 - Branch: `codex/secondb-chat-minor-gate-20260615-053421`
-- Worktree: `C:\Coding Infra\_worktrees\2ndB-codex-secondb-chat-minor-20260615-053421`
+- Worktree: `E:\Coding Infra\_worktrees\2ndB-codex-secondb-chat-minor-20260615-053421`
 - Base: `origin/main@8d589faf2ba41e20ed79962f7d4e7496ce821434`
 - App commit for Claude review: `11d4ceb9ffbab3607bd411ebc1d214499280627d`
 - Commit: `fix(chat): gate SecondB on resolved minor status`
@@ -44,7 +44,7 @@ created: 2026-06-15 / 05:38:57 KST
 - `npm run check:emdash`: PASS.
 - `git diff --check -- src/app/secondb.tsx src/lib/chat/conversation.ts src/lib/chat/__tests__/conversation.test.ts src/lib/__tests__/secondb-chat-minor-gate.test.ts`: PASS.
 - `npm run verify`: PASS, 149 suites / 1209 tests.
-- Dependency note: the fresh worktree uses an ignored `node_modules` junction to `C:\2ndB\node_modules` only for local script resolution; it is not tracked.
+- Dependency note: the fresh worktree uses an ignored `node_modules` junction to `E:\2ndB\node_modules` only for local script resolution; it is not tracked.
 
 ## Section 35 Self-Panel
 

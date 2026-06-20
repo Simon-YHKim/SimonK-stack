@@ -42,7 +42,7 @@ No app code should be changed from this Grok update as-is. The consumer signal i
 
 ## App Truth Check
 
-Read-only app check used `C:\Coding Infra\_worktrees\2ndB-codex`, branch `codex/t1-auth-low-pressure-first-glimpse-20260615-1608`, app commit `3f0960c07c4b653dae2f978055a16763d30bb576`, local `origin/main@49d80e76f9cd`.
+Read-only app check used `E:\Coding Infra\_worktrees\2ndB-codex`, branch `codex/t1-auth-low-pressure-first-glimpse-20260615-1608`, app commit `3f0960c07c4b653dae2f978055a16763d30bb576`, local `origin/main@49d80e76f9cd`.
 
 - `git status --short --branch`: clean branch, `ahead 1, behind 21`.
 - `rg` found `local Markdown` only in `docs/GTM.md`, not in shipped locale/app copy.

@@ -25,7 +25,7 @@ created: 2026-06-14 06:44:07 KST
 No fresh unhandled order existed, so I took one Codex-lane task from current BOARD focus T1 P1: first journal save gate / comfort / privacy framing.
 
 App worktree:
-- Path: `C:\Coding Infra\_worktrees\2ndB-codex`
+- Path: `E:\Coding Infra\_worktrees\2ndB-codex`
 - Branch: `codex/t1-first-journal-save-comfort`
 - Base: `origin/main@3c14bbf`
 - App commit for Claude review: `13c6b6f fix(capture): clarify journal save ownership`

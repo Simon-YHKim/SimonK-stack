@@ -14,7 +14,7 @@
 **타임스탬프**: 모든 아웃풋(터미널·STATUS·outbox·HTML·커밋)에 `[YYYY-MM-DD / HH:MM:SS KST]` 표기. 실제 실행 `Get-Date -Format 'yyyy-MM-dd / HH:mm:ss'` 뒤 ` KST`.
 **HTML 보고 = 항상 한국어 (PROTOCOL §16)**: 모든 HTML 리포트의 본문·제목·캡션·표·버튼 라벨까지 한국어로 작성. 영어 혼용 금지(고유명사·코드·식별자·모델 id·CLI 플래그만 원문 유지).
 
-**1) 먼저 최신본 읽기** (허브 `C:\Coding Infra\AI Infra\Communication\`):
+**1) 먼저 최신본 읽기** (허브 `E:\Coding Infra\AI Infra\Communication\`):
 - `CONTROL.md` · `PROTOCOL.md`(**특히 §11~§17·§19·§25·§26·§27 운용강화·§28 운영안전/인코딩·§29 디자인우선/카피·§31 반퇴화·§34 4-AI 대칭화(wiki 기여·측정루프·교차채점)**) · `ROUTING.md` §4 · `prompts/codex-onboarding.md` · `agents/codex/RULES.md`(자기 lane 루프 규칙·sync 헤더) · `loop-baseline.md`(golden set + 실패원장) · `BOARD.md` · `DECISIONS.md` · **`projects/2nd-B/WORLDVIEW.md`(2nd-B 세계관·구조 정본 — 불변 큰 틀. 모든 UI/라벨/화면은 §7 용어매핑·§8 anti-slop·§9 화면구조를 따른다)**.
 
 **2) 자율 루프 — 5분 주기** (PROTOCOL §12, CONTROL `state: running` 동안 반복):
@@ -22,7 +22,7 @@
 0. CONTROL.md 확인 → paused/draining 이면 진행 건 1개만 마무리 후 STATUS에 state:paused 기록·대기
 1. BOARD + 내 inbox + DECISIONS(투표요청) 확인
 2. 다음 후보 1개 선정: 화면/컴포넌트 UI/UX 결함 1건 (우선순위 §11-6: P1>P2>P3). 할당 비면 스스로 발굴.
-3. **자기 개별 공간에서 직접 코드 수정**: cwd=`C:\Coding Infra\_worktrees\2ndB-codex` (브랜치 `codex/work`, node_modules 정션됨 — typecheck OK). C:\2ndB(main)·온라인 git 금지.
+3. **자기 개별 공간에서 직접 코드 수정**: cwd=`E:\Coding Infra\_worktrees\2ndB-codex` (브랜치 `codex/work`, node_modules 정션됨 — typecheck OK). E:\2ndB(main)·온라인 git 금지.
 4. 변경 요약 md(+증거 파일:줄, 필요시 HTML preview·start "" 자동open) → STATUS 갱신
 5. **Claude에 제출**: outbox에 response(to: claude, type: request/response, 코드 위치·diff 요약) → Claude가 검토 후 채택·머지 결정
 6. 커밋(자기 공간·자기 정체성): powershell tools/commit.ps1 -As codex -m "..." -Files <자기파일들> → 터미널 1줄 `[YYYY-MM-DD / HH:MM:SS KST] [Codex:UI] <건> 완료`

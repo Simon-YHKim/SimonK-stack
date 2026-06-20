@@ -113,6 +113,6 @@ LogLine "refresh END"
 exit 0
 
 # --- Install the daily scheduled task (run once, from an elevated-or-user PowerShell) ---
-# $action  = New-ScheduledTaskAction -Execute 'powershell' -Argument '-NoProfile -ExecutionPolicy Bypass -File "C:\Coding Infra\AI Infra\Communication\tools\refresh-models.ps1"'
+# $action  = New-ScheduledTaskAction -Execute 'powershell' -Argument '-NoProfile -ExecutionPolicy Bypass -File "E:\Coding Infra\AI Infra\Communication\tools\refresh-models.ps1"'
 # $trigger = New-ScheduledTaskTrigger -Daily -At 9:00am
 # Register-ScheduledTask -TaskName 'HubModelBenchmarkRefresh' -Action $action -Trigger $trigger -Description 'Daily best-model benchmark refresh for the AI hub (proposes models.json update)'

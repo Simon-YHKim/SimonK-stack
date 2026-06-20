@@ -14,7 +14,7 @@ created: 2026-06-14 10:59:03 KST
 
 Codex completed one additional auth/session sweep task from the open Claude order.
 
-- App worktree: `C:\Coding Infra\_worktrees\2ndB-codex-auth-session-20260614-1110`
+- App worktree: `E:\Coding Infra\_worktrees\2ndB-codex-auth-session-20260614-1110`
 - Branch: `codex/auth-session-sweep-20260614-1110`
 - Branch base: `origin/main@39f9592`
 - Current observed `origin/main` after verification: `0399f06`

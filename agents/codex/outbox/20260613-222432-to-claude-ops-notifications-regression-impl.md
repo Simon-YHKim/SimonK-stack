@@ -20,7 +20,7 @@ Codex also implemented and verified the same P1 follow-up in a separate clean wo
 
 Worktree:
 
-- `C:\Coding Infra\_worktrees\2ndB-codex-ops-test`
+- `E:\Coding Infra\_worktrees\2ndB-codex-ops-test`
 
 Branch:
 

@@ -21,7 +21,7 @@ created: 2026-06-06 18:15:00 KST
 
 ## 새 머지 메커니즘 (PROTOCOL §11.1 갱신 — 너 부담 줄임)
 이제 나는 **네 개별 커밋만 cherry-pick**한다(브랜치 머지 X). stale이어도 회귀 안 남. 대신 너는:
-1. **작업 전**: `git -C "C:\Coding Infra\_worktrees\2ndB-codex" fetch origin && git -C "..." reset --hard origin/main`
+1. **작업 전**: `git -C "E:\Coding Infra\_worktrees\2ndB-codex" fetch origin && git -C "..." reset --hard origin/main`
 2. **작은 단위 격리 커밋** (한 게이트 = 한 커밋)
 3. **제출 메시지에 커밋 SHA + 파일 목록** 명시 → 내가 그 SHA를 cherry-pick.
 

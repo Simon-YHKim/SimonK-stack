@@ -15,12 +15,12 @@ related: PROTOCOL.md §12.1a, §18.0
 
 | 시스템 | 베이스라인 명령 | 무엇을 잰다 |
 |---|---|---|
-| **2nd-B** (`C:\2ndB`) | `npm run verify` | lint + typecheck + jest (suites/tests/통과) |
+| **2nd-B** (`E:\2ndB`) | `npm run verify` | lint + typecheck + jest (suites/tests/통과) |
 | 2nd-B (UI/회귀) | `npm run web` + 스크린샷 / `npx expo run:android`(에뮬) + CDP `scrollWidth` | 가로스크롤·렌더·E2E 흐름 (정적 green ≠ E2E 통과) |
 | 2nd-B (제약) | constraints / i18n / lexicon 스캔 | 금지어·번역누락·하드코딩 |
 | 2nd-B (페르소나 UX §27.9) | `persona-cluster-sim` 워크플로 (12 페르소나, scriptPath 재실행) | 막힘/이탈/불신/오해 빈도·심각 — 개선 후 재실행해 감소 측정 |
-| **SimonKWiki** (`C:\Coding Infra\obsidian\SimonKWiki`) | `wiki_lint.py` + `raw_isolation.py` | 깨진 링크·frontmatter·index 정합성 / raw 격리 |
-| **Hub** (`C:\Coding Infra\AI Infra\Communication`) | `tools\board.ps1 -Me claude` | 메시지 frontmatter·status·cycle counter 정합성 |
+| **SimonKWiki** (`E:\Coding Infra\obsidian\SimonKWiki`) | `wiki_lint.py` + `raw_isolation.py` | 깨진 링크·frontmatter·index 정합성 / raw 격리 |
+| **Hub** (`E:\Coding Infra\AI Infra\Communication`) | `tools\board.ps1 -Me claude` | 메시지 frontmatter·status·cycle counter 정합성 |
 | **Grok 리서치** (lane golden set §34.2) | `agents/grok/golden-set.md` 고정 질문셋 Q1–Q7 + 고정 소스 2-pass | 신호 재현성(2회 동일 결론)·유효 인사이트 N=5 채택 카운트·실패 lead는 §4 원장 |
 | **Skill Stack** (`~/.claude/skills`) | `validate_skill.py` 전수 (`PYTHONIOENCODING=utf-8`) | simon-stack 0-error / Gstack는 E007 긴-doc 포맷 제외 |
 
@@ -30,7 +30,7 @@ related: PROTOCOL.md §12.1a, §18.0
 - **SimonKWiki `wiki_lint.py`**: Error=0 (E1=0, E2=0, W2/W3/W4/FM=0). `raw_isolation.py`: isolated=0/26. HEAD `53043ed`.
 - **Hub**: CONTROL `state=paused` (의도), 1216 commits, dirty=0.
 
-- **페르소나 UX baseline (2026-06-13, wf persona-cluster-sim, 12 페르소나)**: P1 막힘/이탈 테마 4종 = ① 가입 게이트 과중(9/12) ② 핵심 효용 불명확·은유 과잉(12/12) ③ 접근성 픽셀-다크 기본(6/12) ④ 첫 journal 게이트(4/12). 개선 머지 후 동일 워크플로 재실행 → 이 빈도가 감소해야 개선 인정. 큐: `agents/claude/PROPOSAL_QUEUE.md` E1~E8. 리포트: `C:\Coding Infra\2ndB-페르소나시뮬-findings.html`.
+- **페르소나 UX baseline (2026-06-13, wf persona-cluster-sim, 12 페르소나)**: P1 막힘/이탈 테마 4종 = ① 가입 게이트 과중(9/12) ② 핵심 효용 불명확·은유 과잉(12/12) ③ 접근성 픽셀-다크 기본(6/12) ④ 첫 journal 게이트(4/12). 개선 머지 후 동일 워크플로 재실행 → 이 빈도가 감소해야 개선 인정. 큐: `agents/claude/PROPOSAL_QUEUE.md` E1~E8. 리포트: `E:\Coding Infra\2ndB-페르소나시뮬-findings.html`.
 
 - **Skill Stack baseline (2026-06-13)**: 153 설치 스킬 중 simon-stack 전부 통과(`wiki-query` E013=YAML 콜론-공백 수정 후). 검증기 `validate_skill.py`의 cp949 크래시 + E008 "Todo-list" 오탐 수정 → SimonK-stack `4aacecd` 푸시. 잔여 51 = Gstack/벤더드(E007 긴-doc 포맷 41 + 벤더드 실결함·검증기 false-pos 10, 수정금지 영역). 재측정: `for d in ...; validate_skill.py $d`.
 

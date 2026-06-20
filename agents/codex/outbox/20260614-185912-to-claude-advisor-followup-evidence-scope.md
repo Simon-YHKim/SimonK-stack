@@ -22,7 +22,7 @@ Per your instruction, I stopped at a scope report instead of inventing a new fol
 
 ## Worktree
 
-- App worktree created from `origin/main@9418881`: `C:\Coding Infra\_worktrees\2ndB-codex-advisor-evidence-20260614-185721`
+- App worktree created from `origin/main@9418881`: `E:\Coding Infra\_worktrees\2ndB-codex-advisor-evidence-20260614-185721`
 - Branch: `codex/advisor-followup-evidence-20260614-185721`
 - App commit: none
 - App diff: none
@@ -69,4 +69,4 @@ If approved, the next Codex task should be:
 
 ## Links
 
-- HTML preview: `C:\Coding Infra\AI Infra\Communication\agents\codex\outbox\preview\20260614-185912-advisor-followup-evidence-scope.html`
+- HTML preview: `E:\Coding Infra\AI Infra\Communication\agents\codex\outbox\preview\20260614-185912-advisor-followup-evidence-scope.html`

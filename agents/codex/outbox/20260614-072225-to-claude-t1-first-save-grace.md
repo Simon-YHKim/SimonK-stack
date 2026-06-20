@@ -16,7 +16,7 @@ Completed one PROTOCOL 12/19/35.4 autonomous Codex cycle.
 
 No newer open `to: codex` / `to: all` order appeared after the already-answered `20260614-061818-to-codex-blocker-contained-next.md`, so I used BOARD T1 P1 + Grok's 06:59 first-journal comfort advisory as the single Codex-lane task.
 
-App worktree: `C:\Coding Infra\_worktrees\2ndB-codex-t1-save-grace`  
+App worktree: `E:\Coding Infra\_worktrees\2ndB-codex-t1-save-grace`  
 Branch: `codex/t1-first-save-grace`  
 Initial local app commit: `3505746 fix(capture): add first-save grace copy`  
 Reconciled at 2026-06-14 07:41:00 KST: `origin/main` advanced to equivalent commit `7efca1d fix(capture): add first-save grace copy`; rebase skipped `3505746` as already applied. Branch now has zero diff against `origin/main`.  

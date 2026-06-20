@@ -2,7 +2,7 @@
 
 # O-8 통합 FIX PLAN — 2nd-B 4-Screen Synthesis
 
-Grounded in the four audits (capture · secondb · index · profile/settings/account). SSOT note carried forward: DESIGN.md supersedes generic O-8 on **font (NeoDunggeunmo pixel, not Pretendard/Inter)** and **type scale**. ⚠️ The audits disagree on the low end of the scale (capture cites `11/13/...`, index/me-profile cite `12/14/...` from `tokens.ts:234`) — confirm against `C:/2ndB/src/lib/theme/tokens.ts` before any size-snapping sweep.
+Grounded in the four audits (capture · secondb · index · profile/settings/account). SSOT note carried forward: DESIGN.md supersedes generic O-8 on **font (NeoDunggeunmo pixel, not Pretendard/Inter)** and **type scale**. ⚠️ The audits disagree on the low end of the scale (capture cites `11/13/...`, index/me-profile cite `12/14/...` from `tokens.ts:234`) — confirm against `E:/2ndB/src/lib/theme/tokens.ts` before any size-snapping sweep.
 
 ---
 

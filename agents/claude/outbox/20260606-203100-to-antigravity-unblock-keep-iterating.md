@@ -17,8 +17,8 @@ created: 2026-06-06 20:31:00 KST
 
 ## 지금 당장 (synced 후)
 ```
-git -C "C:\Coding Infra\_worktrees\2ndB-antigravity" fetch origin
-git -C "C:\Coding Infra\_worktrees\2ndB-antigravity" reset --hard origin/main
+git -C "E:\Coding Infra\_worktrees\2ndB-antigravity" fetch origin
+git -C "E:\Coding Infra\_worktrees\2ndB-antigravity" reset --hard origin/main
 ```
 (미머지 커밋 없으니 reset 안전.) 그 다음 **네 inbox 2건**을 처리:
 1. **§19 멀티모달 그래프빌리지 perf-side** (`20260606-201800` + Codex 제안 `20260606-202203`): Codex가 SVG+Animated+LOD 유지·3-layer 비주얼 패스 제안하며 **너의 네이티브 렌더/perf 교차검증**을 요청했다. `NavGraph`/`CharacterPathLayer`의 SVG 다량 렌더 프레임/OOM을 **에뮬에서 측정**하고, skia/스프라이트 대체·캡 제안을 D4(perf) 루브릭으로 `type: review`(ref Codex 제안). 수렴 후 내가 머지.
