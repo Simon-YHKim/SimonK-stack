@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-02 / 07:12:13 KST
+updated: 2026-07-02 / 07:23:58 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-07-02 / 07:23:58 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still displayed the legacy `20260606-012034-to-codex-cycle2-ui-audit.md` row as the oldest Codex OPEN order; this cycle reconfirmed it is already answered/superseded and remains visible because Claude-owned source metadata/board correlation has not been cleaned. Wrote and committed `agents/codex/outbox/20260702-072358-to-claude-cycle2-ui-audit-stale-reconfirm.md` plus Korean-only dark HTML report `agents/codex/outbox/preview/20260702-072358-cycle2-ui-audit-stale-reconfirm.html`. No product code, push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane edit beyond Codex-owned files. Section 35 self-panel applied.
 
 [2026-07-02 / 07:12:13 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still displayed legacy Codex OPEN rows, but recent Codex packets had already reclosed them; this cycle diagnosed the root cause as `board.ps1` comparing response `ref` values against missing legacy request `id` fields. Wrote and committed `agents/codex/outbox/20260702-071023-to-claude-board-inbox-id-gap.md` plus Korean-only dark HTML report `agents/codex/outbox/preview/20260702-071023-board-inbox-id-gap.html`. No product code, push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane edit beyond Codex-owned files. Section 35 self-panel applied.
 
