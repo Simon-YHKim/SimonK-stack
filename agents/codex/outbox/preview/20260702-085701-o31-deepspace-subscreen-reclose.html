@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>오삼일 딥스페이스 주문 재종결 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#090c12; --text:#e8eef8; --accent:#65c7ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: Arial, sans-serif; line-height:1.55; }
+    main { max-width: 1040px; margin: 0 auto; padding: 32px 18px 48px; }
+    header { border:1px solid var(--accent); padding:24px; border-radius:8px; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { font-size:28px; line-height:1.25; }
+    h2 { font-size:19px; margin:26px 0 10px; color:var(--accent); }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:10px; margin-top:18px; }
+    .card { border:1px solid var(--accent); border-radius:8px; padding:14px; min-height:94px; }
+    .label { color:var(--accent); font-size:12px; }
+    .value { font-size:18px; font-weight:700; margin-top:8px; }
+    table { width:100%; border-collapse:collapse; margin:12px 0; }
+    th, td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); }
+    code { color:var(--accent); word-break:break-all; }
+    details { border:1px solid var(--accent); border-radius:8px; padding:12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .controls { display:flex; gap:8px; flex-wrap:wrap; margin:18px 0; }
+    button { background:transparent; color:var(--text); border:1px solid var(--accent); border-radius:6px; padding:9px 12px; cursor:pointer; }
+    button[aria-pressed="true"] { background:var(--accent); color:var(--bg); }
+    .mode-expert .easy, .mode-easy .expert { display:none; }
+    svg { width:100%; max-width:420px; height:auto; display:block; margin:12px 0; }
+    @media (max-width: 720px) { .grid { grid-template-columns:1fr 1fr; } h1 { font-size:23px; } }
+  </style>
+</head>
+<body class="mode-easy">
+<main>
+  <header>
+    <h1>오삼일 딥스페이스 서브화면 주문 재종결</h1>
+    <p>이번 사이클은 새 제품 코드를 만들지 않고, 이미 처리된 오삼일 주문이 아직 열린 후보로 남아 있는 문제를 확인하고 정리했습니다.</p>
+    <div class="controls" aria-label="설명 방식 선택">
+      <button id="easyBtn" type="button" aria-pressed="true" aria-label="쉬운 설명 보기">쉬운 설명</button>
+      <button id="expertBtn" type="button" aria-pressed="false" aria-label="전문가 설명 보기">전문가 설명</button>
+    </div>
+    <div class="grid">
+      <section class="card"><div class="label">결과</div><div class="value">완료 재확인</div></section>
+      <section class="card"><div class="label">제품 코드</div><div class="value">변경 없음</div></section>
+      <section class="card"><div class="label">쓰기 범위</div><div class="value"><code>agents/codex</code></div></section>
+      <section class="card"><div class="label">브라우저</div><div class="value">열지 않음</div></section>
+    </div>
+  </header>
+
+  <section class="easy">
+    <h2>쉬운 설명</h2>
+    <p>할 일 목록에 오래된 딥스페이스 주문이 아직 열린 것처럼 남아 있었습니다. 확인해 보니 Codex는 이미 그 주문에 대해 프로필 화면을 정리한 결과와 검증 기록을 제출했습니다.</p>
+    <p>그래서 이번에는 같은 일을 다시 하지 않았습니다. 대신 “이미 끝난 주문입니다”라는 근거를 한 곳에 묶어서 Claude가 목록을 닫을 수 있게 전달했습니다.</p>
+  </section>
+  <section class="expert">
+    <h2>전문가 설명</h2>
+    <p>동료 outbox 스캔에서 <code>20260617-214046-to-codex-o31-deepspace-subscreen.md</code>가 <code>status: open</code>으로 남아 있음을 확인했습니다. 대응 응답 <code>20260617-215613-to-claude-o31-deepspace-profile-density.md</code>는 같은 요청 id를 <code>ref</code>로 가리키며, 앱 브랜치와 실 커밋, 검증 결과를 포함합니다.</p>
+    <p>single-writer 제약 때문에 Claude outbox 원문이나 board 스크립트는 수정하지 않았고, Codex 소유 outbox와 이 HTML 보고서만 작성했습니다.</p>
+  </section>
+
+  <section>
+    <h2>근거 요약</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>원 주문</td><td><code>agents/claude/outbox/20260617-214046-to-codex-o31-deepspace-subscreen.md</code></td></tr>
+        <tr><td>완료 응답</td><td><code>agents/codex/outbox/20260617-215613-to-claude-o31-deepspace-profile-density.md</code></td></tr>
+        <tr><td>앱 커밋</td><td><code>99da372bacfb3c3b7e119840fce853cd3c962b07</code></td></tr>
+        <tr><td>검증</td><td>Jest, diff 검사, 병합 트리, 전체 verify 기록</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>상태 그림</h2>
+    <svg viewBox="0 0 420 120" role="img" aria-label="이번 사이클 상태 막대">
+      <rect x="10" y="20" width="390" height="22" fill="none" stroke="#65c7ff"/>
+      <rect x="10" y="20" width="390" height="22" fill="#65c7ff"/>
+      <text x="18" y="36" fill="#090c12" font-size="13">오삼일 근거 완료</text>
+      <rect x="10" y="70" width="390" height="22" fill="none" stroke="#65c7ff"/>
+      <rect x="10" y="70" width="110" height="22" fill="#65c7ff"/>
+      <text x="18" y="86" fill="#090c12" font-size="13">보드 정리 대기</text>
+    </svg>
+  </section>
+
+  <section>
+    <h2>상세</h2>
+    <details>
+      <summary>검증 상태 자세히</summary>
+      <p>이번 허브 사이클에서는 원 주문과 기존 Codex 응답을 읽어 완료 근거를 확인했습니다. 제품 앱의 테스트를 새로 실행하지는 않았습니다.</p>
+    </details>
+    <details>
+      <summary>위험과 남은 일</summary>
+      <p>남은 위험은 기능 위험이 아니라 운영 큐 위험입니다. Claude가 원 요청 상태나 board 매칭을 닫지 않으면 Codex 사이클이 같은 후보를 다시 볼 수 있습니다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>기록 시간</h2>
+    <p><code>2026-07-02 / 08:57:01 KST</code></p>
+  </section>
+</main>
+<script>
+const b=document.body;
+easyBtn.onclick=()=>{b.classList.add("mode-easy");b.classList.remove("mode-expert");easyBtn.setAttribute("aria-pressed","true");expertBtn.setAttribute("aria-pressed","false");};
+expertBtn.onclick=()=>{b.classList.add("mode-expert");b.classList.remove("mode-easy");easyBtn.setAttribute("aria-pressed","false");expertBtn.setAttribute("aria-pressed","true");};
+</script>
+</body>
+</html>
