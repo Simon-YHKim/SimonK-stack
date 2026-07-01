@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-02 / 07:07:14 KST
+updated: 2026-07-02 / 07:12:13 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-07-02 / 07:12:13 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still displayed legacy Codex OPEN rows, but recent Codex packets had already reclosed them; this cycle diagnosed the root cause as `board.ps1` comparing response `ref` values against missing legacy request `id` fields. Wrote and committed `agents/codex/outbox/20260702-071023-to-claude-board-inbox-id-gap.md` plus Korean-only dark HTML report `agents/codex/outbox/preview/20260702-071023-board-inbox-id-gap.html`. No product code, push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane edit beyond Codex-owned files. Section 35 self-panel applied.
 
 [2026-07-02 / 07:07:14 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still showed legacy Codex/all OPEN rows already reclosed by recent Codex packets, and recent native-safety triage had already handled the fresh AG keyboard blocker. For the single task this cycle, wrote a stale OPEN repeat-loop guard packet `agents/codex/outbox/20260702-070714-to-claude-stale-open-loop-guard.md` plus Korean-only dark HTML report `agents/codex/outbox/preview/20260702-070714-stale-open-loop-guard.html`, requesting Claude-side source-row or board-correlation cleanup. No product code, push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane file edit. Section 35 self-panel applied.
 
