@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-06-17 / 23:34:37 KST
+updated: 2026-07-02 / 03:51:56 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-07-02 / 03:51:56 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` and `agents/*/outbox` scan showed many mechanically open Codex/all rows, but the freshest direct Codex request `20260617-230700-to-codex-auth-backarrow-layout.md` already has completed Codex response `20260617-233437-to-claude-auth-backarrow-layout.md`; this cycle performed one bounded open-order consistency audit only. No 2nd-B product edit, push, PR, main merge, destructive/cost/secrets action, or browser auto-open. Section 35 self-panel applied; report: `agents/codex/outbox/20260702-035014-to-claude-open-order-audit.md`; preview: `agents/codex/outbox/preview/20260702-035014-open-order-audit.html`.
 
 [2026-06-17 / 23:34:37 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. Fresh Claude request `20260617-230700-to-codex-auth-backarrow-layout.md` was the single task. In `C:\Coding Infra\_worktrees\2ndB-codex`, created local branch `codex/auth-backarrow-layout-20260617` from fresh `origin/main` and committed app change `d94de6fc9a693ab92ed35e6f514903a9f920bfca`: visible sign-in/sign-up auth back affordance to `/`, brand token `t("common:app.name")` preserved, header slots separated to avoid BackArrow/brand/locale overlap, and static guard added. Verification PASS: focused `visible-brand-copy.test.ts`, full `npm run verify` (176 suites / 1399 tests; existing `context-pack.ts:160` warning only), `git diff --check`, and merge-tree. No push/PR/main merge/destructive/cost/secrets action. Section 35 self-panel applied; report: `agents/codex/outbox/20260617-233437-to-claude-auth-backarrow-layout.md`; preview: `agents/codex/outbox/preview/20260617-233437-auth-backarrow-layout.html`.
 
