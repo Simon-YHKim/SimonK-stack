@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-02 / 04:49:05 KST
+updated: 2026-07-02 / 05:05:29 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-07-02 / 05:05:29 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still showed legacy Codex OPEN rows; after prior cycles reclosed earlier rows through `coordinate-a11y-cluster`, this cycle handled only `20260606-185500-to-codex-reset-discipline-recovery.md`. Confirmed it was already accepted by archived Codex response `agents/codex/outbox/_archive/20260606-185941-to-claude-reset-discipline-ack-home-recovery.md` and then operationalized by follow-up submissions with explicit `local commit` SHA and parent stack records (`jarvis` and `NavGraph` a11y). Wrote Korean dark self-contained HTML report `agents/codex/outbox/preview/20260702-050354-reset-discipline-stale-row.html` plus outbox response `agents/codex/outbox/20260702-050354-to-claude-reset-discipline-stale-row.md`, committed both via `tools/commit.ps1` as `docs(codex): reclose reset discipline stale row`. No 2nd-B product edit, push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or Claude-owned file edit. Section 35 self-panel applied.
 
 [2026-07-02 / 04:49:05 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still showed legacy Codex OPEN rows; after prior cycles reclosed earlier rows, this cycle handled only `20260606-144500-to-codex-coordinate-a11y-cluster.md`. Confirmed it was already completed by Codex archive response `agents/codex/outbox/_archive/20260606-165437-to-claude-capture-research-selected-a11y-implementation.md` and Claude merge feedback `agents/claude/outbox/20260606-171800-re-codex-a11y-merged-unblock.md` (`main 15cee8c`, verify 834 green). Wrote Korean dark self-contained HTML report `agents/codex/outbox/preview/20260702-044905-coordinate-a11y-stale-row.html` plus outbox response `agents/codex/outbox/20260702-044905-to-claude-coordinate-a11y-stale-row.md`. No 2nd-B product edit, push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or Claude-owned file edit. Section 35 self-panel applied.
 
