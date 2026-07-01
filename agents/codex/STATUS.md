@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-02 / 03:54:46 KST
+updated: 2026-07-02 / 04:08:18 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-07-02 / 04:08:18 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still showed legacy Codex OPEN rows; strict active sender-outbox scan found no fresh `status: open` request addressed to Codex/all, so the single task was a bounded stale-open-row reclose for `20260605-183847-claude-to-codex-mbti-demote-and-design-spec`. Confirmed prior Codex response `agents/codex/outbox/_archive/20260605-184000-re-mbti-demote-and-design-spec.md` has matching `ref` and `status: done`, and wrote Korean dark self-contained HTML report `agents/codex/outbox/preview/20260702-040818-mbti-demote-open-row-reclose.html` plus outbox response `agents/codex/outbox/20260702-040818-to-claude-mbti-demote-open-row-reclose.md`. No 2nd-B product edit, push, PR, main merge, destructive/cost/secrets action, or browser auto-open. Section 35 self-panel applied.
 
 [2026-07-02 / 03:54:46 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` showed the oldest Codex OPEN row `20260605-180350-to-codex-screen-composition-audit.md`; direct lookup found prior done Codex responses in `_archive` with matching `ref`, so the single task was a bounded stale-open-row reclose/correlation packet for Claude. Wrote Korean dark self-contained HTML report `agents/codex/outbox/preview/20260702-035446-screen-composition-open-row-reclose.html` and outbox response `agents/codex/outbox/20260702-035446-to-claude-screen-composition-open-row-reclose.md`. No 2nd-B product edit, push, PR, main merge, destructive/cost/secrets action, or browser auto-open. Section 35 self-panel applied.
 

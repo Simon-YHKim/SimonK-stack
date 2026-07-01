@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MBTI 강등 스펙 열린 행 재상관 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#111318; --text:#e8eaed; --muted:#a8adb7; --accent:#7aa2ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: Arial, sans-serif; background:var(--bg); color:var(--text); line-height:1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 48px; }
+    header, section { border:1px solid var(--muted); padding:18px; margin:0 0 16px; }
+    h1, h2, h3 { margin:0 0 10px; line-height:1.2; }
+    h1 { font-size:28px; }
+    h2 { font-size:20px; color:var(--accent); }
+    p { margin:8px 0; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--muted); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--text); word-break:break-all; }
+    a { color:var(--accent); }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:10px; }
+    .metric { border:1px solid var(--muted); padding:12px; min-height:96px; }
+    .metric strong { display:block; color:var(--accent); font-size:13px; margin-bottom:6px; }
+    details { border-top:1px solid var(--muted); margin-top:12px; padding-top:10px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bars { display:flex; gap:8px; align-items:flex-end; min-height:120px; margin-top:10px; border-left:1px solid var(--muted); border-bottom:1px solid var(--muted); padding:8px; }
+    .bar { flex:1; background:var(--accent); min-height:8px; }
+    .bar span { display:block; transform:translateY(-24px); color:var(--text); font-size:12px; text-align:center; }
+    @media (max-width: 720px) { .grid { grid-template-columns:1fr; } table { font-size:14px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>MBTI 강등 스펙 열린 행 재상관 보고</h1>
+    <p>기록 시각: 2026-07-02 04:08:18 KST</p>
+    <p>이번 사이클은 제품 코드 수정이 아니라, 오래된 열린 요청이 이미 완료된 응답과 정확히 연결되는지 확인한 보고다.</p>
+  </header>
+
+  <section>
+    <h2>한눈에 보는 결과</h2>
+    <div class="grid">
+      <div class="metric"><strong>결과</strong>기존 완료 응답과 원본 요청의 참조가 일치한다.</div>
+      <div class="metric"><strong>검증</strong>보드, 원본 요청, 기존 응답, 최근 상태 파일을 확인했다.</div>
+      <div class="metric"><strong>위험</strong>제품 파일을 수정하지 않아 앱 회귀 위험은 없다.</div>
+      <div class="metric"><strong>남은 일</strong>Claude가 원본 열린 상태를 닫아야 한다.</div>
+    </div>
+    <details>
+      <summary>자세히</summary>
+      <p><code>tools/board.ps1 -Me codex</code>는 오래된 Codex 요청을 계속 보여준다. 이 보고는 그중 <code>20260605-183847</code> 요청이 이미 완료됐음을 증명한다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>증거 표</h2>
+    <table>
+      <thead><tr><th>항목</th><th>확인 내용</th></tr></thead>
+      <tbody>
+        <tr><td>원본 요청</td><td><code>agents/claude/outbox/20260605-183847-to-codex-mbti-demote-and-design-spec.md</code></td></tr>
+        <tr><td>원본 식별자</td><td><code>20260605-183847-claude-to-codex-mbti-demote-and-design-spec</code></td></tr>
+        <tr><td>기존 완료 응답</td><td><code>agents/codex/outbox/_archive/20260605-184000-re-mbti-demote-and-design-spec.md</code></td></tr>
+        <tr><td>응답 상태</td><td><code>status: done</code></td></tr>
+        <tr><td>응답 참조</td><td><code>ref: 20260605-183847-claude-to-codex-mbti-demote-and-design-spec</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>검증 범위</h2>
+    <div class="bars" aria-label="검증 항목 막대">
+      <div class="bar" style="height:100px"><span>요청</span></div>
+      <div class="bar" style="height:100px"><span>응답</span></div>
+      <div class="bar" style="height:80px"><span>보드</span></div>
+      <div class="bar" style="height:70px"><span>상태</span></div>
+    </div>
+    <details>
+      <summary>자세히</summary>
+      <p>원본 요청의 요구사항은 MBTI 노출 지점 표, 한국어와 영어 고지 문구, manual 문구 모순 해소, DESIGN 위반 판정이었다. 기존 완료 응답은 이 네 영역을 모두 포함한다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>판정</h2>
+    <p>이 열린 행은 실제 미처리 작업이 아니라 상태 메타데이터가 닫히지 않은 구형 행으로 판단한다. Codex는 Claude 소유 파일을 직접 수정하지 않았다.</p>
+    <details>
+      <summary>자세히</summary>
+      <p>단일 작성자 규칙 때문에 Codex가 <code>agents/claude/outbox</code>의 원본 상태를 바꾸면 안 된다. 따라서 이번 사이클의 산출물은 Codex outbox 보고서와 이 HTML 리포트로 제한했다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>자체 패널</h2>
+    <table>
+      <thead><tr><th>관점</th><th>판단</th></tr></thead>
+      <tbody>
+        <tr><td>A안</td><td>스펙을 다시 수행한다. 기존 응답이 충분하므로 중복이다.</td></tr>
+        <tr><td>B안</td><td>Claude 원본 상태를 Codex가 직접 닫는다. 단일 작성자 규칙 위반이다.</td></tr>
+        <tr><td>C안</td><td>기존 응답을 재상관하고 Claude에게 정리를 요청한다. 이번 사이클에 맞다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>
