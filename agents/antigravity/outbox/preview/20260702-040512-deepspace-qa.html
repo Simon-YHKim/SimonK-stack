@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>에뮬레이터 QA 리포트 (O-31)</title>
+    <style>
+        body {
+            background-color: #0f0f0f;
+            color: #e0e0e0;
+            font-family: sans-serif;
+            margin: 2rem;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #00bcd4;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 0.5rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 0.5rem;
+            text-align: left;
+        }
+        th {
+            background-color: #1a1a1a;
+            color: #00bcd4;
+        }
+        button {
+            background-color: #1a1a1a;
+            color: #00bcd4;
+            border: 1px solid #00bcd4;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #00bcd4;
+            color: #0f0f0f;
+        }
+        .pass { color: #e0e0e0; }
+        .fail { color: #00bcd4; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>O-31 딥스페이스 본체 에뮬레이터 검수 리포트</h1>
+    <p>빌드: origin/main a656a1f4 (EXPO_PUBLIC_UI=deep-space)</p>
+    <p>환경: emulator-5554 (Android)</p>
+
+    <h2>1. 스테이지 2 라우트 진입 검증</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>분류</th>
+                <th>경로</th>
+                <th>상태</th>
+                <th>비고</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>캡처</td>
+                <td>/formats, /import, /inbox, /manual</td>
+                <td class="pass">통과</td>
+                <td>정상 진입</td>
+            </tr>
+            <tr>
+                <td>프로필</td>
+                <td>/core-brain, /persona, /insights, /big-five, /mbti, /attachment, /trinity, /audit, /interview</td>
+                <td class="fail">실패</td>
+                <td>/interview 진입 시 크래시 발생</td>
+            </tr>
+            <tr>
+                <td>마을/그래프</td>
+                <td>/records, /wiki</td>
+                <td class="pass">통과</td>
+                <td>정상 진입</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>2. 스테이지 3 뒤로가기 단일화</h2>
+    <p>결과: 통과. 모든 화면에서 뒤로가기 액션이 별자리 홈으로 정상 라우팅됨. 노드 위 모달 잔존 없음.</p>
+
+    <h2>3. 스테이지 4 테마 검증</h2>
+    <p>결과: 실패. /audit 화면에서 구형 모노톤 잔존 확인. 딥스페이스 시안 테마 적용 누락.</p>
+
+    <h2>4. 접근성 검증</h2>
+    <p>결과: 통과. 스크린리더 로케일 정상 작동.</p>
+
+    <h2>5. 코어 흐름 검증</h2>
+    <p>결과: 통과. 캡처 저장, 페르소나, 챗봇 상호작용 정상 작동.</p>
+
+    <h2>6. 성능 및 안정성</h2>
+    <p>결과: 주의. 저사양 에뮬레이터에서 /insights 진입 시 프레임 저하 관찰됨.</p>
+
+    <h2>7. 조치 사항</h2>
+    <p>네이티브 크래시 및 테마 누락 발견. 코드 수정 및 코덱스 디자인 재라우팅 필요.</p>
+
+    <button type="button">리포트 닫기</button>
+</body>
+</html>
