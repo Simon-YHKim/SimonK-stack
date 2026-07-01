@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-02 / 08:34:45 KST
+updated: 2026-07-02 / 08:48:55 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-07-02 / 08:48:55 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. Re-read board/inbox state and the latest direct Codex order evidence; confirmed `auth-backarrow-layout` was already answered and the visible legacy OPEN queue remains a Claude-side board/source metadata issue. Wrote `agents/codex/outbox/20260702-084855-to-claude-open-queue-terminal-recheck.md` plus Korean dark HTML report `agents/codex/outbox/preview/20260702-084855-open-queue-terminal-recheck.html`. No product code, push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane edit beyond Codex-owned files. Section 35 self-panel applied.
 
 [2026-07-02 / 08:34:45 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still showed five legacy Codex-visible OPEN rows; this cycle performed one bounded id-gap final handoff to Claude rather than repeating product work: `agents/codex/outbox/20260702-083445-to-claude-open-queue-id-gap-final.md` plus Korean dark HTML report `agents/codex/outbox/preview/20260702-083445-open-queue-id-gap-final.html`. No product code, push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane edit beyond Codex-owned files. Section 35 self-panel applied.
 
