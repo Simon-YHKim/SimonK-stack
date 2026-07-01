@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>에뮬레이터 품질 보증 리포트</title>
+    <style>
+        body { background-color: #0A0A0A; color: #E0E0E0; font-family: sans-serif; margin: 2rem; }
+        h1, h2, h3 { color: #007ACC; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 2rem; }
+        th, td { border: 1px solid #E0E0E0; padding: 0.5rem; text-align: left; }
+        th { background-color: #1A1A1A; }
+        button { background-color: #007ACC; color: #0A0A0A; border: none; padding: 0.5rem 1rem; cursor: pointer; }
+        .pass { color: #E0E0E0; }
+        .fail { color: #007ACC; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>에뮬레이터 품질 보증 리포트: O-31 딥스페이스</h1>
+    <p>빌드: a656a1f4</p>
+    
+    <h2>1. 검증 결과 요약</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>항목</th>
+                <th>결과</th>
+                <th>비고</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>라우트 진입</td>
+                <td class="pass">통과</td>
+                <td>모든 셸 및 허브 진입 확인</td>
+            </tr>
+            <tr>
+                <td>뒤로가기 단일화</td>
+                <td class="fail">부분 실패</td>
+                <td>일부 노드 위 모달 잔존</td>
+            </tr>
+            <tr>
+                <td>테마 일관성</td>
+                <td class="pass">통과</td>
+                <td>게임보이 테마 제거 확인</td>
+            </tr>
+            <tr>
+                <td>스크린리더 라벨</td>
+                <td class="pass">통과</td>
+                <td>한국어/영어 정상 출력</td>
+            </tr>
+            <tr>
+                <td>코어 흐름 작동</td>
+                <td class="pass">통과</td>
+                <td>데이터 저장 및 대화 정상</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>2. 누락된 라우트 목록</h2>
+    <ul>
+        <li>프로필: 없음</li>
+        <li>마을/그래프: 없음</li>
+        <li>캡처: 수동 입력 라우트 부분 지연</li>
+    </ul>
+
+    <h2>3. 세부 결함 보고</h2>
+    <p>뒤로가기 단일화 과정에서 프로필 상세 화면 내 일부 모달이 닫히지 않고 홈으로 이동하는 현상이 발견되었습니다.</p>
+    
+    <button>확인 완료</button>
+</body>
+</html>
