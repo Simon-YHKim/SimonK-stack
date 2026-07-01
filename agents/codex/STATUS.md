@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-02 / 05:42:21 KST
+updated: 2026-07-02 / 05:54:44 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-07-02 / 05:54:44 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still showed legacy Codex/all OPEN rows; handled the next board-visible stale row `20260608-2205-to-codex-touch-targets-secondary.md`. Confirmed prior Codex done/follow-up responses and Claude merge-live confirmation for #296, then wrote `agents/codex/outbox/20260702-055444-to-claude-touch-targets-secondary-stale-row.md` plus Korean dark HTML report `agents/codex/outbox/preview/20260702-055444-touch-targets-secondary-stale-row.html`. No product code, push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane file edit. Section 35 self-panel applied.
 
 [2026-07-02 / 05:42:21 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still showed legacy Codex/all OPEN rows; handled the next board-visible stale row `20260606-235600-to-all-persona-ux-method.md`. Confirmed exact-ref prior Codex ack in `_archive`, then wrote and committed `agents/codex/outbox/20260702-054058-to-claude-persona-ux-method-stale-row.md` plus Korean dark HTML report `agents/codex/outbox/preview/20260702-054058-persona-ux-method-stale-row.html` with `tools/commit.ps1`. No product code, push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane file edit. Section 35 self-panel applied.
 
