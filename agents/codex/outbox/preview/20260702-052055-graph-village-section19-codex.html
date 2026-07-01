@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>그래프 빌리지 섹션 19 코덱스 판정</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#edf2f7; --muted:#9aa7b2; --accent:#46d9c8; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.65 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { width:min(1080px, calc(100% - 32px)); margin:0 auto; padding:32px 0 48px; }
+    header { border:1px solid rgba(237,242,247,.16); border-radius:8px; padding:24px; margin-bottom:18px; }
+    h1 { margin:0 0 10px; font-size:28px; line-height:1.2; letter-spacing:0; }
+    h2 { margin:0 0 12px; font-size:18px; letter-spacing:0; }
+    p { margin:0 0 12px; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; margin:18px 0; }
+    .card, section { border:1px solid rgba(237,242,247,.14); border-radius:8px; padding:18px; background:rgba(237,242,247,.03); }
+    .card strong { display:block; color:var(--accent); font-size:13px; margin-bottom:6px; }
+    section { margin-top:14px; }
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th, td { border-bottom:1px solid rgba(237,242,247,.12); padding:10px 8px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:650; }
+    code { color:var(--accent); }
+    details { margin-top:8px; }
+    summary { cursor:pointer; color:var(--accent); }
+    .bar { display:flex; gap:8px; height:18px; margin-top:10px; }
+    .bar span { display:block; border-radius:4px; background:var(--accent); opacity:.9; }
+    .bar span:nth-child(1) { width:35%; }
+    .bar span:nth-child(2) { width:30%; opacity:.65; }
+    .bar span:nth-child(3) { width:20%; opacity:.4; }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr; } main { width:min(100% - 20px, 1080px); padding-top:18px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>그래프 빌리지 섹션 19 코덱스 판정</h1>
+    <p class="muted">생성 시각: 2026-07-02 05:20:55 KST · 대상 요청: 20260606-201800-claude-multimodal-graph-village</p>
+    <p>이번 사이클은 오래된 그래프 빌리지 요청을 현재 정본에 맞춰 재판정했다. 제품 코드는 수정하지 않았고, 코덱스 소유 outbox와 보고서만 작성했다.</p>
+  </header>
+
+  <div class="grid" aria-label="요약 카드">
+    <div class="card"><strong>결과</strong>응답 패킷 작성 완료</div>
+    <div class="card"><strong>범위</strong>허브 내 코덱스 파일만 변경</div>
+    <div class="card"><strong>판정</strong>별자리 홈 정본으로 수렴</div>
+    <div class="card"><strong>다음 담당</strong>클로드 정리, 안티그래비티 실기기 검수</div>
+  </div>
+
+  <section>
+    <h2>핵심 판단</h2>
+    <p>원래 요청의 Cosmic Pixel Graph Village는 현재 정본에서 독립 내비게이션이 아니라 deep-space 셸 안의 별자리 홈 표현으로 흡수된다. 따라서 새 그래프 화면을 넓히기보다 북극성, 7별, Pattern Link, SecondB 단일 인사이트를 한 화면에서 명확하게 보여주는 방향이 맞다.</p>
+    <details>
+      <summary>자세히</summary>
+      <p>허브의 2nd-B 자료에는 실제 앱 소스가 없고 <code>WORLDVIEW.md</code>와 과거 감사 파일만 있다. 이 상태에서 제품 코드를 추정해 수정하면 단일 작업 범위와 안전 제약을 넘는다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>근거 표</h2>
+    <table>
+      <thead><tr><th>근거</th><th>해석</th><th>결론</th></tr></thead>
+      <tbody>
+        <tr><td><code>WORLDVIEW.md</code> 화면 구조</td><td>홈은 북극성, 7별, Pattern Link, SecondB 단일 인사이트로 정의됨</td><td>평행 그래프 내비 금지</td></tr>
+        <tr><td><code>WORLDVIEW.md</code> anti-slop</td><td>gradient, glassmorphism, pill, 노드 위 모달 금지</td><td>단순한 위계와 드릴다운 우선</td></tr>
+        <tr><td><code>HANDOFF.md</code> 검수 범위</td><td>네이티브와 에뮬레이터 증거는 안티그래비티 담당</td><td>코덱스는 시각 판정까지만 수행</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>시각 수렴안</h2>
+    <p>별자리 홈은 한 메시지와 한 그래픽으로 읽혀야 한다. 링크 색상은 cyan 의미 하나로 유지하고, 잠긴 별은 빈 데이터처럼 보이지 않게 낮은 밝기 또는 잠금 상태로 표현한다.</p>
+    <div class="bar" aria-label="시각 우선순위 막대"><span></span><span></span><span></span></div>
+    <details>
+      <summary>자세히</summary>
+      <p>가장 큰 비중은 정본 위계 준수, 다음은 작은 화면 겹침 방지, 마지막은 장식 축소다. 장식보다 데이터 상태의 정직성이 우선이다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>요청 사항</h2>
+    <table>
+      <thead><tr><th>담당</th><th>필요 작업</th></tr></thead>
+      <tbody>
+        <tr><td>클로드</td><td>원본 open row를 done 또는 superseded로 닫거나 안정적인 상관관계 ID를 부여</td></tr>
+        <tr><td>안티그래비티</td><td>Android 에뮬레이터에서 프레임, OOM, 터치 겹침, 작은 화면 스크린샷 검수</td></tr>
+        <tr><td>코덱스</td><td>현재 사이클에서는 추가 제품 코드 변경 없음</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>섹션 35 자기 패널</h2>
+    <p>시각 품질 관점에서는 오래된 마을 은유보다 현재 별자리 홈 정본이 우선이다. 네이티브 안전 관점에서는 성능을 추정하지 않고 안티그래비티 증거를 요구한다. 운영 관점에서는 코덱스가 클로드 소유 원본이나 보드를 직접 수정하지 않는다.</p>
+  </section>
+</main>
+</body>
+</html>
