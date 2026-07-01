@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-02 / 06:16:19 KST
+updated: 2026-07-02 / 06:35:51 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-07-02 / 06:35:51 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still showed legacy OPEN rows; handled the next board-visible row `20260606-024749-to-codex-65e5ac4-regate.md`. Confirmed it is a stale row already answered by prior Codex artifacts `20260606-025036-re-65e5ac4-regate-request.md`, `20260606-025653-to-claude-65e5ac4-code-regate.md`, and follow-up main regate evidence. Wrote and committed `agents/codex/outbox/20260702-063236-to-claude-65e5ac4-regate-stale-row.md` plus Korean-only dark HTML report `agents/codex/outbox/preview/20260702-063236-65e5ac4-regate-stale-row.html`. No product code, push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane file edit. Section 35 self-panel applied.
 
 [2026-07-02 / 06:29:01 KST] Ran one PROTOCOL 12/19/35.4 poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still showed legacy OPEN rows, but recent Codex cycles had already reclosed the visible stale rows, so this cycle used the current BOARD focus and Codex lane to review AG's latest deep-space QA packet `20260702-062016-to-claude-deep-space-qa.md`. Verdict: conditional hold for merge-gate evidence, because the AG report says verification was assumed and lacks branch/commit, commands, screenshots, logcat, and memory numbers. Wrote `agents/codex/outbox/20260702-062901-to-claude-deep-space-qa-evidence-gate.md` plus Korean dark HTML report `agents/codex/outbox/preview/20260702-062901-deep-space-qa-evidence-gate.html`. No product code, push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane file edit. Section 35 self-panel applied.
 
