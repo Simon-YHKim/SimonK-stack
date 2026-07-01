@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 열린 행 잔여 재조정</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e8edf2; --accent:#7cc7ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Noto Sans KR", sans-serif; line-height:1.55; }
+    main { width:min(1040px, calc(100% - 32px)); margin:0 auto; padding:40px 0 56px; }
+    header, .card, details, table { border:1px solid rgb(124 199 255 / .36); border-radius:8px; }
+    header { padding:24px; }
+    h1 { margin:0 0 10px; font-size:28px; letter-spacing:0; }
+    h2 { margin:30px 0 12px; font-size:18px; letter-spacing:0; }
+    p { margin:8px 0; }
+    .subtle { opacity:.72; }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; margin-top:18px; }
+    .card { padding:16px; min-height:112px; }
+    .card strong { display:block; color:var(--accent); font-size:14px; margin-bottom:8px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; overflow:hidden; }
+    th, td { text-align:left; padding:12px; border-bottom:1px solid rgb(124 199 255 / .22); vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); overflow-wrap:anywhere; }
+    details { padding:12px 14px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:12px; background:rgb(232 237 242 / .14); border-radius:999px; overflow:hidden; margin-top:8px; }
+    .fill { height:100%; width:100%; background:var(--accent); }
+    .actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:18px; }
+    button { background:transparent; color:var(--text); border:1px solid var(--accent); border-radius:6px; padding:8px 12px; cursor:pointer; }
+    button[aria-pressed="true"] { background:var(--accent); color:var(--bg); }
+    .mode-expert .easy, .mode-easy .expert { display:none; }
+    @media (max-width: 760px) { .grid { grid-template-columns:1fr; } main { width:min(100% - 20px, 1040px); padding-top:24px; } }
+  </style>
+</head>
+<body class="mode-easy">
+<main>
+  <header>
+    <p class="subtle">코덱스 폴 사이클 보고서 · 2026-07-02 06:47:52 KST</p>
+    <h1>코덱스 열린 행 잔여 재조정</h1>
+    <p class="easy">상태판에 열린 일처럼 보이는 항목 5개를 다시 확인했습니다. 모두 최근에 이미 답을 남긴 오래된 행이었습니다.</p>
+    <p class="expert">이번 사이클은 `tools/board.ps1 -Me codex`가 계속 노출하는 Codex 대상 잔여 행을 하나의 reconciliation 작업으로 처리했습니다. 원 요청 수정 권한은 Claude에게 있으므로 Codex는 자기 outbox에 증거 패킷만 남겼습니다.</p>
+    <div class="actions" aria-label="보기 설정">
+      <button type="button" id="easy" aria-pressed="true" aria-label="쉬운 설명 보기">쉬운 설명</button>
+      <button type="button" id="expert" aria-pressed="false" aria-label="전문가 설명 보기">전문가 설명</button>
+    </div>
+  </header>
+
+  <section class="grid" aria-label="요약 카드">
+    <div class="card"><strong>결과</strong><span>새 열린 작업 없음</span></div>
+    <div class="card"><strong>검증</strong><span>원 요청 5개와 기존 응답 대조</span></div>
+    <div class="card"><strong>위험</strong><span>반복 폴링으로 인한 중복 보고</span></div>
+    <div class="card"><strong>다음</strong><span>Claude가 원 행 또는 계산 규칙 정리</span></div>
+  </section>
+
+  <section>
+    <h2>판정</h2>
+    <p class="easy">앱을 새로 고치거나 코드를 바꾸지 않았습니다. 이번 일은 상태판에 남은 오래된 표시를 정리하기 위한 보고입니다.</p>
+    <p class="expert">Codex는 single-writer 제약 때문에 `agents/codex/`만 작성했습니다. `BOARD.md`, `tools/board.ps1`, Claude outbox 원문은 수정하지 않았고, 처리 근거와 후속 요청만 남겼습니다.</p>
+    <div class="bar" aria-label="잔여 행 판정 확신도"><div class="fill"></div></div>
+  </section>
+
+  <section>
+    <h2>잔여 행 표</h2>
+    <table>
+      <thead><tr><th>열린 행</th><th>판정</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td><code>cycle2-ui-audit</code></td><td>이미 재종결</td><td><code>20260702-050744-to-claude-cycle2-ui-audit-reclose.md</code></td></tr>
+        <tr><td><code>65e5ac4-regate</code></td><td>이미 재종결</td><td><code>20260702-063236-to-claude-65e5ac4-regate-stale-row.md</code></td></tr>
+        <tr><td><code>bbucket-worklist</code></td><td>이미 재종결</td><td><code>20260702-053740-to-claude-bbucket-worklist-stale-row.md</code></td></tr>
+        <tr><td><code>pause</code></td><td>현재 running으로 대체</td><td><code>20260702-061146-to-claude-pause-open-row-reconcile.md</code></td></tr>
+        <tr><td><code>gtm-trust-copy</code></td><td>이미 재종결</td><td><code>20260702-061445-to-claude-gtm-trust-copy-reclose.md</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>자세히</h2>
+    <details>
+      <summary>검증한 내용</summary>
+      <p>`BOARD.md`, `CONTROL.md`, `PROTOCOL.md`, 상태판 출력, 원 요청 5개, 최근 코덱스 상태 파일, 코덱스 outbox와 archive의 기존 응답을 확인했습니다.</p>
+    </details>
+    <details>
+      <summary>하지 않은 일</summary>
+      <p>2nd-B 제품 코드 수정, push, PR, merge, 브라우저 자동 열기, 비용 작업, 파괴적 작업, 시크릿 접근은 하지 않았습니다.</p>
+    </details>
+    <details>
+      <summary>다음 권장 조치</summary>
+      <p>Claude가 원 요청의 열린 상태를 닫거나, 상태판 계산 규칙이 나중에 작성된 재종결 응답을 인식하도록 정리하면 됩니다.</p>
+    </details>
+  </section>
+</main>
+<script>
+  const b=document.body, set=(k,v)=>{b.classList.toggle(k,v)};
+  easy.onclick=()=>{set('mode-easy',1);set('mode-expert',0);easy.ariaPressed='true';expert.ariaPressed='false'};
+  expert.onclick=()=>{set('mode-expert',1);set('mode-easy',0);expert.ariaPressed='true';easy.ariaPressed='false'};
+</script>
+</body>
+</html>
