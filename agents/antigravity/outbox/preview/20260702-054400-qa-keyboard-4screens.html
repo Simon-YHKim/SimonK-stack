@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA 보고서: 키보드 레이아웃 검증</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+  }
+  h1, h2 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .btn {
+    background-color: #333333;
+    color: #ffffff;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+  <h1>키보드 레이아웃 검증 결과</h1>
+  <p>참조: 20260605-232413</p>
+  
+  <h2>환경</h2>
+  <p>운영체제: 안드로이드 에뮬레이터</p>
+  <p>모드: 크기 조절 모드</p>
+
+  <h2>검증 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>화면</th>
+        <th>동작 요소</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>회원가입</td>
+        <td>전체 화면 폼 하단 여백</td>
+        <td>통과</td>
+        <td>입력창 가림 현상 없음</td>
+      </tr>
+      <tr>
+        <td>프로필 완성</td>
+        <td>생년월일 입력 및 스크롤</td>
+        <td>통과</td>
+        <td>정상적으로 밀어올림 처리됨</td>
+      </tr>
+      <tr>
+        <td>인터뷰</td>
+        <td>채팅 작성창 및 스크롤뷰</td>
+        <td>통과</td>
+        <td>마지막 메시지 정상 노출</td>
+      </tr>
+      <tr>
+        <td>자비스</td>
+        <td>송신 버튼 및 작성창</td>
+        <td>통과</td>
+        <td>이벤트 처리 정상</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>모든 대상 화면에서 키보드 동작 시 여백 확보가 정상적으로 이루어집니다. 검증이 완료되었습니다.</p>
+
+  <button class="btn">목록으로</button>
+</body>
+</html>
