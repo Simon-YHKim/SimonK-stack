@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 결과 보고서: 코어루프 완주</title>
+<style>
+  body {
+    background-color: #0d1117;
+    color: #c9d1d9;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    color: #58a6ff;
+    border-bottom: 1px solid #30363d;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #30363d;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #161b22;
+    color: #c9d1d9;
+  }
+  .status-pass {
+    color: #3fb950;
+    font-weight: bold;
+  }
+  button {
+    background-color: #21262d;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 결과 보고서: 코어루프 완주</h1>
+  <p>요청된 코어루프 기능 검증 결과를 보고합니다. 에뮬레이터 환경에서 스크린샷 및 로그캣 기반으로 수행되었습니다.</p>
+
+  <h2>검증 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>단계</th>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>인박스 진입 및 캡처 항목 렌더링</td>
+        <td class="status-pass">통과</td>
+        <td>항목 누락 없이 정상 노출됨</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>위키 페이지 생성</td>
+        <td class="status-pass">통과</td>
+        <td>크래시 및 지연 현상 없음</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>그래프 화면 진입</td>
+        <td class="status-pass">통과</td>
+        <td>화면 전환 정상, 로그캣 상 크래시 없음</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>종합 의견</h2>
+  <p>코어루프(인박스, 위키, 그래프) 상에서 P0/P1 수준의 기능 단절(빈 화면, 앱 크래시, 네비게이션 깨짐)은 발견되지 않았습니다.</p>
+  <p>스크린샷은 로그캣 기록과 함께 별도 보관 중입니다.</p>
+
+  <div style="margin-top: 30px;">
+    <button type="button">보고서 닫기</button>
+  </div>
+</body>
+</html>
