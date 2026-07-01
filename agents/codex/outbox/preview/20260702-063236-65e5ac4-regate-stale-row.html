@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>65e5ac4 재게이트 행 재확인</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e8edf2; --muted:#8f9aa7; --accent:#7cc7ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Noto Sans KR", sans-serif; line-height:1.55; }
+    main { width:min(1040px, calc(100% - 32px)); margin:0 auto; padding:40px 0 56px; }
+    header { border:1px solid color-mix(in srgb, var(--muted) 45%, transparent); padding:24px; border-radius:8px; }
+    h1 { margin:0 0 10px; font-size:28px; letter-spacing:0; }
+    h2 { margin:30px 0 12px; font-size:18px; letter-spacing:0; }
+    p { margin:8px 0; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; margin-top:18px; }
+    .card { border:1px solid color-mix(in srgb, var(--muted) 35%, transparent); border-radius:8px; padding:16px; min-height:112px; }
+    .card strong { display:block; color:var(--accent); font-size:14px; margin-bottom:8px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; border:1px solid color-mix(in srgb, var(--muted) 35%, transparent); }
+    th, td { text-align:left; padding:12px; border-bottom:1px solid color-mix(in srgb, var(--muted) 25%, transparent); vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); overflow-wrap:anywhere; }
+    details { border:1px solid color-mix(in srgb, var(--muted) 35%, transparent); border-radius:8px; padding:12px 14px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:12px; background:color-mix(in srgb, var(--muted) 30%, transparent); border-radius:999px; overflow:hidden; margin-top:8px; }
+    .fill { height:100%; width:100%; background:var(--accent); }
+    .actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:18px; }
+    button { background:transparent; color:var(--text); border:1px solid var(--accent); border-radius:6px; padding:8px 12px; cursor:pointer; }
+    button[aria-pressed="true"] { background:var(--accent); color:var(--bg); }
+    .mode-expert .easy, .mode-easy .expert { display:none; }
+    @media (max-width: 760px) { .grid { grid-template-columns:1fr; } main { width:min(100% - 20px, 1040px); padding-top:24px; } }
+  </style>
+</head>
+<body class="mode-easy">
+<main>
+  <header>
+    <p class="muted">Codex 폴 사이클 보고서 · 2026-07-02 06:32:36 KST</p>
+    <h1>65e5ac4 재게이트 행 재확인</h1>
+    <p class="easy">상태판에 열린 일로 보이는 항목을 다시 확인했습니다. 실제로는 예전에 이미 답을 낸 오래된 행이었습니다.</p>
+    <p class="expert">`20260606-024749-to-codex-65e5ac4-regate.md`는 이전 형식의 `status: open` 머리말 메타정보 때문에 상태판에 남아 있지만, 동일 `ref`에 대한 Codex 완료 응답과 코드 전용 재게이트가 이미 존재합니다.</p>
+    <div class="actions" aria-label="보기 설정">
+      <button type="button" id="easy" aria-pressed="true" aria-label="쉬운 설명 보기">쉬운 설명</button>
+      <button type="button" id="expert" aria-pressed="false" aria-label="전문가 설명 보기">전문가 설명</button>
+    </div>
+  </header>
+
+  <section class="grid" aria-label="요약 카드">
+    <div class="card"><strong>결과</strong><span>이미 처리된 행</span></div>
+    <div class="card"><strong>검증</strong><span>원 요청과 Codex 응답 확인</span></div>
+    <div class="card"><strong>위험</strong><span>반복 폴링 소음</span></div>
+    <div class="card"><strong>다음</strong><span>Claude가 원 행 정리</span></div>
+  </section>
+
+  <section>
+    <h2>판정</h2>
+    <p class="easy">새로 고칠 앱 코드는 없습니다. 남은 일은 Claude가 원래 열린 표시를 닫는 것입니다.</p>
+    <p class="expert">이번 사이클의 산출은 오래된 열린 행 정리입니다. Codex 단일 작성자 범위를 지켜 `agents/codex/` 아래 보고서만 작성했고, 제품 코드와 공유 상태판 파일은 수정하지 않았습니다.</p>
+    <div class="bar" aria-label="처리 확신도"><div class="fill"></div></div>
+  </section>
+
+  <section>
+    <h2>근거 표</h2>
+    <table>
+      <thead><tr><th>항목</th><th>판정</th><th>파일</th></tr></thead>
+      <tbody>
+        <tr><td>원 요청</td><td>확인됨</td><td><code>agents/claude/outbox/20260606-024749-to-codex-65e5ac4-regate.md</code></td></tr>
+        <tr><td>완료 응답</td><td>완료</td><td><code>agents/codex/outbox/_archive/20260606-025036-re-65e5ac4-regate-request.md</code></td></tr>
+        <tr><td>코드 재게이트</td><td>완료</td><td><code>agents/codex/outbox/_archive/20260606-025653-to-claude-65e5ac4-code-regate.md</code></td></tr>
+        <tr><td>현재 조치</td><td>Claude 정리 필요</td><td><code>status: open</code> 원 행 또는 상태판 계산 규칙</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>자세히</h2>
+    <details>
+      <summary>검증한 내용</summary>
+      <p>`tools/board.ps1 -Me codex`를 실행했고, 각 에이전트 outbox의 머리말 메타정보에서 `to: codex` 또는 `to: all`인 열린 항목을 확인했습니다. 이후 원 요청과 Codex의 기존 응답 파일을 읽었습니다.</p>
+    </details>
+    <details>
+      <summary>하지 않은 일</summary>
+      <p>2nd-B 제품 코드 수정, push, PR, merge, 브라우저 자동 열기, 비용 작업, 파괴적 작업, 시크릿 접근은 하지 않았습니다.</p>
+    </details>
+  </section>
+</main>
+<script>
+  const b=document.body, set=(k,v)=>{b.classList.toggle(k,v)};
+  easy.onclick=()=>{set('mode-easy',1);set('mode-expert',0);easy.ariaPressed='true';expert.ariaPressed='false'};
+  expert.onclick=()=>{set('mode-expert',1);set('mode-easy',0);expert.ariaPressed='true';easy.ariaPressed='false'};
+</script>
+</body>
+</html>
