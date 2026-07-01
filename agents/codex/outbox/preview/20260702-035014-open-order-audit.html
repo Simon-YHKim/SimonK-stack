@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 열린 주문 정합성 감사</title>
+  <style>
+    :root { --bg: #080b12; --text: #e8edf7; --accent: #7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    header { border: 1px solid var(--accent); border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 10px; font-size: 18px; color: var(--accent); letter-spacing: 0; }
+    p { margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid rgba(125, 211, 252, .45); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { border: 1px solid rgba(125, 211, 252, .45); border-radius: 8px; padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+    .card { border: 1px solid rgba(125, 211, 252, .45); border-radius: 8px; padding: 14px; min-height: 108px; }
+    .label { color: var(--accent); font-size: 13px; }
+    .value { font-size: 22px; font-weight: 800; margin-top: 8px; }
+    ul { padding-left: 20px; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } h1 { font-size: 24px; } }
+    @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 열린 주문 정합성 감사</h1>
+      <p>기록 시각: 2026-07-02 / 03:50:14 KST</p>
+      <p>이번 사이클은 제품 코드 변경 없이, Codex에게 남아 있는 열린 주문이 실제 미처리인지 확인한 단일 작업이다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약 카드">
+      <div class="card"><div class="label">수행 작업</div><div class="value">감사 1건</div></div>
+      <div class="card"><div class="label">제품 변경</div><div class="value">없음</div></div>
+      <div class="card"><div class="label">쓰기 범위</div><div class="value">Codex 폴더</div></div>
+      <div class="card"><div class="label">위험 행동</div><div class="value">없음</div></div>
+    </section>
+
+    <h2>판정</h2>
+    <p>최신 직접 요청인 <code>auth-backarrow-layout</code>은 이미 Codex가 응답했고, STATUS에도 처리 기록이 있다. 남아 있는 다수의 <code>status: open</code> 항목은 실제 새 작업이라기보다 원본 요청 상태가 닫히지 않은 정합성 문제로 보는 것이 타당하다.</p>
+
+    <details open>
+      <summary>확인한 근거</summary>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>보드 명령</td><td><code>tools/board.ps1 -Me codex</code> 실행</td></tr>
+          <tr><td>최신 요청</td><td><code>20260617-230700-to-codex-auth-backarrow-layout.md</code></td></tr>
+          <tr><td>완료 응답</td><td><code>20260617-233437-to-claude-auth-backarrow-layout.md</code></td></tr>
+          <tr><td>상태 파일</td><td><code>agents/codex/STATUS.md</code>에 완료 기록 존재</td></tr>
+          <tr><td>권한 제약</td><td>Claude outbox 원본 상태는 Codex가 수정하지 않음</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>권장 후속 조치</summary>
+      <ul>
+        <li>Claude가 이미 처리된 원본 요청의 상태를 닫는다.</li>
+        <li>오래된 요청에 안정적인 <code>id</code>를 부여하고 Codex 응답의 <code>ref</code>와 연결한다.</li>
+        <li>현재 BOARD 포커스에 맞지 않는 구형 전체 공지는 보관 또는 대체 상태로 정리한다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Section 35 자기 패널</summary>
+      <p>입장 A는 가장 오래된 열린 요청을 제품 코드 작업으로 다시 수행하는 것이다. 이는 중복 작업과 thrashing 위험이 커서 기각했다.</p>
+      <p>입장 B는 최신 요청부터 응답 여부를 대조하고, 남은 열린 상태를 원본 상태 드리프트로 보고하는 것이다. single-writer 제약을 지키면서 다음 사이클 잡음을 줄이므로 채택했다.</p>
+    </details>
+
+    <h2>안전 확인</h2>
+    <p>push, PR, main merge, 2nd-B 제품 변경, 파괴적 작업, 비용 발생, secret 접근은 수행하지 않았다. 브라우저 자동 열기도 실행하지 않았다.</p>
+  </main>
+</body>
+</html>
