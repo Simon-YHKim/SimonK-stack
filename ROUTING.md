@@ -41,6 +41,14 @@
 
 ---
 
+## 1.6 MoA 교차검증 레인 (Fugu 통합, 2026-07-02 — 정본 `ROUTING-MOA.md`)
+> Sakana Fugu(Mixture-of-Agents)의 decompose→delegate→**verify→synthesize**를 실행 레이어에 반영. `ai-debate`(결정용 MoA)의 실행판. 상세·트리거표=`ROUTING-MOA.md`, 스킬 반영=`model-router §9`.
+- **고위험 산출물만**(머지 diff·스키마·보안·수학·비가역) → 작성자와 **다른 seat**가 크로스체크 1회. 일상 산출물 제외(쿼터 보호).
+- 검증 매핑: 코드/스키마→Gemini(long-context 감사) · 수학/실시간 외부사실→Grok · UI→Codex+persona-sim.
+- **종합**: BOARD가 파편 결과를 rationale와 함께 병합(소수의견 보존). **고정 능력레인 유지 + 동적 태스크라우팅**(Fugu의 불투명성은 미채택 — BOARD/DECISIONS 투명성 유지).
+
+---
+
 ## 2. 라우팅 표 (경계 넘는 작업 → 담당에게 request)
 
 | 일이 생김 | 담당 | 요청 방향 |

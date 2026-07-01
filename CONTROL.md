@@ -1,10 +1,10 @@
 ---
 owner: claude
 note: "이 파일은 Claude(오케스트레이터)만 작성한다. 나머지 AI는 매 사이클 맨 앞에서 읽기만 한다."
-state: paused
-pause_reason: "2026-06-18 Simon /goal: 데몬 정지 + 커밋 정리 + AI 가치 평가/개선. Claude가 CONTROL=paused로 데몬 정지(watchdog 자동재시작 차단) 후 커밋 정리·AI 평가/개선 수행. 재개는 완료 후 Simon 지시."
-resume_reason: "2026-06-17 Simon 지시: state running 복원. UI 작업 사이클 재개. 2nd-B 세계관 정본(북극성/7별/L1-L5/두뇌 0-3) Phase 0 글로사리 락 푸시/CI/머지 진행. 원격 오더 파이프라인 LIVE 유지. Simon 직접 재확인 2026-06-17 05:36 KST: state=running 명시 유지."
-updated: 2026-06-18 00:11 KST
+state: running
+pause_reason: "2026-06-18 Simon /goal: 데몬 정지 + 커밋 정리 + AI 가치 평가/개선. (2026-07-02 재개됨 — resume_reason 참조.)"
+resume_reason: "2026-07-02 03:47 KST Simon /goal '남은 4개 진행' 승인 → 재개. 정리(INFRA-MAP 정본·13스킬 재배정 배포·SimonKStack repo 신설) + 외부지식 통합(dashboard-review·semantic-recall·model-router MoA·ROUTING-MOA §1.6 흡수) 완료. run-state=running 복원, BOARD/STATUS 정렬. 원격 오더 파이프라인 LIVE 유지."
+updated: 2026-07-02 03:47 KST
 ---
 
 # CONTROL.md — 런-스테이트 세마포어 (always-checked)
