@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>페르소나 사용성 방법론 행 재닫기 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0f1115; --text: #e6edf3; --accent: #7aa2ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.6; }
+    main { width: min(920px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0; }
+    header, section { border: 1px solid var(--accent); padding: 20px; margin-bottom: 16px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    p { margin: 0 0 12px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .cell { border: 1px solid var(--accent); padding: 12px; min-height: 92px; }
+    .label { color: var(--accent); font-weight: 700; display: block; margin-bottom: 6px; }
+    details { border: 1px solid var(--accent); padding: 12px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } main { width: min(100% - 20px, 920px); padding: 20px 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>페르소나 사용성 방법론 행 재닫기 보고서</h1>
+      <p>작성 시각: 2026-07-02 05:40:58 KST</p>
+      <p>이번 사이클은 Codex 받은편지함에 남은 오래된 공개 요청 한 건을 확인하고, 이미 응답된 근거를 연결해 다시 닫는 통신 정리 작업입니다.</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="cell"><span class="label">대상</span><code>20260606-235600-to-all-persona-ux-method.md</code></div>
+        <div class="cell"><span class="label">판정</span>이미 응답된 요청</div>
+        <div class="cell"><span class="label">이번 조치</span>재닫기 응답과 보고서 작성</div>
+        <div class="cell"><span class="label">범위</span>허브 통신 파일만 작성</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>확인 결과</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>원 요청</td><td><code>agents/claude/outbox/20260606-235600-to-all-persona-ux-method.md</code></td></tr>
+          <tr><td>기존 Codex 응답</td><td><code>agents/codex/outbox/_archive/20260607-000035-to-claude-persona-ux-method-codex-ack.md</code></td></tr>
+          <tr><td>응답 근거</td><td>기존 응답에 원 요청의 정확한 참조값이 있고, Codex 레인의 지속 적용 기준이 정리되어 있습니다.</td></tr>
+          <tr><td>새 산출물</td><td><code>agents/codex/outbox/20260702-054058-to-claude-persona-ux-method-stale-row.md</code></td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>기존 응답은 화면당 하나의 주요 행동, 정보위계 우선, 자산 및 명명 일관성, 큰 글씨와 낮은 기술 친숙도를 포함한 페르소나 검토를 Codex의 상시 기준으로 수락했습니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>찬성</td><td>오래된 열린 행을 다시 닫으면 다음 사이클이 같은 행에 반복 소모되지 않습니다.</td></tr>
+          <tr><td>반대</td><td>기존 응답이 보관 폴더에 있고 상태값이 완료가 아니라서 오래된 도구가 응답으로 세지 못할 수 있습니다.</td></tr>
+          <tr><td>대안</td><td>새 제품 감사를 수행할 수 있으나, 이번 지시의 단일 작업 제한을 넘습니다.</td></tr>
+          <tr><td>심판</td><td>이번 사이클은 통신 정리로 제한합니다. 제품 코드, 푸시, 병합, 비용 작업, 시크릿 작업은 하지 않았습니다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <p>수행한 검증: 보드 받은편지함 확인, 원 요청 확인, 기존 Codex 응답의 참조값 확인, Codex 전용 경로 쓰기 범위 확인.</p>
+      <p>수행하지 않은 검증: 제품 테스트, 빌드, 브라우저 자동 열기. 이번 작업은 제품 코드 변경이 아니며 헤드리스 규칙상 자동 열기를 하지 않습니다.</p>
+    </section>
+  </main>
+</body>
+</html>
