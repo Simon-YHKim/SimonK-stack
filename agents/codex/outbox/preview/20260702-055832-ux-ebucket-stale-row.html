@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 폴 사이클 보고서</title>
+  <style>
+    :root{--bg:#0f1115;--text:#e6e8ee;--accent:#6ea8fe}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Malgun Gothic",sans-serif;line-height:1.55}
+    main{max-width:1040px;margin:0 auto;padding:32px 18px 48px}
+    h1,h2,h3,p{margin-top:0}
+    h1{font-size:28px;line-height:1.2;margin-bottom:10px}
+    h2{font-size:18px;margin:0 0 12px}
+    h3{font-size:15px;margin:0 0 8px}
+    .muted{opacity:.72}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:22px 0}
+    .card,details{border:1px solid color-mix(in srgb,var(--text) 18%,transparent);border-radius:8px;padding:16px;background:color-mix(in srgb,var(--bg) 88%,var(--text) 12%)}
+    .card strong{display:block;color:var(--accent);font-size:13px;margin-bottom:6px}
+    table{width:100%;border-collapse:collapse;margin:8px 0 14px}
+    th,td{border-bottom:1px solid color-mix(in srgb,var(--text) 18%,transparent);padding:10px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent);word-break:break-all}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    .bars{display:grid;gap:8px;margin-top:8px}
+    .bar{display:grid;grid-template-columns:120px 1fr 44px;gap:10px;align-items:center}
+    .track{height:10px;border:1px solid color-mix(in srgb,var(--text) 20%,transparent);border-radius:999px;overflow:hidden}
+    .fill{height:100%;background:var(--accent)}
+    @media (max-width:760px){.grid{grid-template-columns:1fr 1fr}.bar{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>코덱스 폴 사이클 보고서</h1>
+    <p class="muted">작성 시각: 2026-07-02 05:58:32 KST. 이번 사이클은 보드에 남은 오래된 UX E버킷 요청 한 건을 증거 기반으로 재폐쇄하는 데 사용했다.</p>
+  </header>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><strong>선택 작업</strong>UX E버킷 오래된 열린 행 재폐쇄</div>
+    <div class="card"><strong>결과</strong>새 구현 없이 큐 정리 보고 완료</div>
+    <div class="card"><strong>검증</strong>원 요청과 과거 대응 6건 대조</div>
+    <div class="card"><strong>위험</strong>제품 코드 변경 없음</div>
+  </section>
+
+  <section class="card">
+    <h2>판정</h2>
+    <p><code>20260607-001100-to-codex-ux-ebucket.md</code>는 현재도 열린 상태로 보이지만, 실제로는 Codex가 이미 여러 조각으로 응답한 오래된 행이다. 이번 사이클에서는 이 항목을 새 작업으로 재개하지 않고, 보드 노이즈를 줄이기 위한 재폐쇄 보고로 처리했다.</p>
+  </section>
+
+  <section class="card">
+    <h2>대응 범위</h2>
+    <div class="bars" aria-label="처리 범위 막대">
+      <div class="bar"><span>E2 카피</span><div class="track"><div class="fill" style="width:100%"></div></div><span>완료</span></div>
+      <div class="bar"><span>E3 접근성</span><div class="track"><div class="fill" style="width:100%"></div></div><span>완료</span></div>
+      <div class="bar"><span>E7 선택지</span><div class="track"><div class="fill" style="width:100%"></div></div><span>완료</span></div>
+      <div class="bar"><span>E5 발견성</span><div class="track"><div class="fill" style="width:100%"></div></div><span>완료</span></div>
+      <div class="bar"><span>E1 점진공개</span><div class="track"><div class="fill" style="width:100%"></div></div><span>완료</span></div>
+      <div class="bar"><span>E9 자산</span><div class="track"><div class="fill" style="width:100%"></div></div><span>완료</span></div>
+    </div>
+  </section>
+
+  <details>
+    <summary>증거 자세히</summary>
+    <table>
+      <thead><tr><th>항목</th><th>근거 파일</th><th>확인 내용</th></tr></thead>
+      <tbody>
+        <tr><td>원 요청</td><td><code>agents/claude/outbox/20260607-001100-to-codex-ux-ebucket.md</code></td><td>프런트매터는 열린 상태지만 오래된 outbox 요청이다.</td></tr>
+        <tr><td>E2</td><td><code>agents/codex/outbox/_archive/20260607-002620-to-claude-capture-mode-copy.md</code></td><td>캡처 모드 카피 직접화와 검증 결과가 있다.</td></tr>
+        <tr><td>E3</td><td><code>agents/codex/outbox/_archive/20260607-003341-to-claude-auth-hero-a11y.md</code></td><td>인증 화면 이미지 접근성 라벨 대응이 있다.</td></tr>
+        <tr><td>E7</td><td><code>agents/codex/outbox/_archive/20260607-004138-to-claude-likert-accessibility.md</code></td><td>평가 선택지 터치 영역과 스크린리더 대응이 있다.</td></tr>
+        <tr><td>E5</td><td><code>agents/codex/outbox/_archive/20260607-005004-to-claude-wiki-export-discoverability.md</code></td><td>위키 내보내기 주요 액션 승격 대응이 있다.</td></tr>
+        <tr><td>E1</td><td><code>agents/codex/outbox/_archive/20260607-010308-to-claude-capture-progressive-modes.md</code></td><td>캡처 모드 점진 공개 대응과 검증 결과가 있다.</td></tr>
+        <tr><td>E9</td><td><code>agents/codex/outbox/_archive/20260607-011851-to-claude-tier-icons-asset-map.md</code></td><td>티어 아이콘 자산 매핑 대응과 검증 결과가 있다.</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <details>
+    <summary>자기 패널 자세히</summary>
+    <table>
+      <thead><tr><th>입장</th><th>판단</th></tr></thead>
+      <tbody>
+        <tr><td>수용</td><td>제품 코드를 건드리지 않고 큐 노이즈를 줄이는 단일 작업으로 적합하다.</td></tr>
+        <tr><td>기각</td><td>오래된 E버킷을 새 구현 과제로 다시 여는 것은 중복 작업이다.</td></tr>
+        <tr><td>게이트 확인</td><td>설계, 아키텍처, 네이밍, 스키마, 수익화, 삭제, 비밀값, 푸시, 병합 결정은 없었다.</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <details>
+    <summary>가드레일 자세히</summary>
+    <p>2nd-B 제품 코드는 수정하지 않았다. 브라우저 자동 열기, 서버 시작, 푸시, 풀 리퀘스트, 병합, 파괴적 작업, 비용 발생 작업, 비밀값 취급도 하지 않았다. 쓰기 범위는 <code>agents/codex/</code> 아래로 제한했다.</p>
+  </details>
+</main>
+</body>
+</html>
