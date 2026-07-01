@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 폴 사이클 보고서</title>
+  <style>
+    :root { --bg:#101216; --text:#eef1f5; --muted:#9aa3ad; --accent:#6fb6ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { width:min(980px, calc(100% - 32px)); margin:0 auto; padding:32px 0 48px; }
+    header { border:1px solid var(--muted); padding:20px; border-radius:6px; }
+    h1, h2, h3 { margin:0 0 12px; font-weight:700; }
+    h1 { font-size:26px; }
+    h2 { font-size:18px; margin-top:28px; color:var(--accent); }
+    p { margin:8px 0; }
+    .meta { color:var(--muted); font-size:14px; }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; margin-top:16px; }
+    .box { border:1px solid var(--muted); border-radius:6px; padding:12px; min-height:88px; }
+    .label { color:var(--muted); font-size:13px; }
+    .value { margin-top:6px; font-size:16px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--muted); padding:10px; vertical-align:top; text-align:left; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--text); }
+    details { border:1px solid var(--muted); border-radius:6px; padding:10px 12px; margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { width:100%; height:14px; border:1px solid var(--muted); border-radius:8px; overflow:hidden; margin-top:8px; }
+    .fill { width:100%; height:100%; background:var(--accent); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } }
+    @media (max-width:520px) { .grid { grid-template-columns:1fr; } main { width:min(100% - 20px, 980px); } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 폴 사이클 보고서</h1>
+      <p class="meta">생성 시각: 2026-07-02 / 08:34:45 KST</p>
+      <p>이번 사이클은 보드에 반복 표시되는 코덱스 legacy OPEN 큐를 다시 확인하고, 코덱스 쓰기 권한 밖의 정리 작업을 Claude에게 이관한 단일 작업입니다.</p>
+      <div class="grid">
+        <div class="box"><div class="label">결과</div><div class="value">이관 완료</div></div>
+        <div class="box"><div class="label">검증</div><div class="value">보드 실행</div></div>
+        <div class="box"><div class="label">위험</div><div class="value">반복 큐 소음</div></div>
+        <div class="box"><div class="label">남은 작업</div><div class="value">Claude 정리</div></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <p><code>tools/board.ps1 -Me codex</code>는 아직 오래된 OPEN 요청 5건을 표시합니다. 그러나 가장 오래된 <code>cycle2-ui-audit</code> 요청은 이미 여러 차례 응답과 재종결 증거가 남아 있습니다.</p>
+      <p>직접 원인은 오래된 Claude 요청 일부에 <code>id:</code> 값이 없어, 보드가 응답 <code>ref</code>와 원 요청을 안정적으로 연결하지 못하는 점입니다.</p>
+      <div class="bar" aria-label="이번 사이클 수행률"><div class="fill"></div></div>
+    </section>
+
+    <section>
+      <h2>확인 표</h2>
+      <table>
+        <thead><tr><th>항목</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>공식 인박스</td><td>legacy OPEN 5건이 계속 표시됨</td></tr>
+          <tr><td>새 요청 여부</td><td>현재 코덱스가 새로 수행할 fresh 요청은 확인되지 않음</td></tr>
+          <tr><td>권한 경계</td><td>코덱스는 <code>agents/codex/</code> 아래만 작성</td></tr>
+          <tr><td>금지 작업</td><td>push, PR, merge, 브라우저 자동 열기, 서버 시작, 비용 작업, 파괴 작업, 시크릿 작업 없음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자기 패널</h2>
+      <details open>
+        <summary>자세히</summary>
+        <table>
+          <thead><tr><th>관점</th><th>판정</th></tr></thead>
+          <tbody>
+            <tr><td>찬성</td><td>공식 보드에 OPEN으로 보이는 행은 기록하고 응답해야 합니다.</td></tr>
+            <tr><td>반대</td><td>같은 stale 행을 반복 재종결하면 코덱스 레인의 실제 가치 작업이 막힙니다.</td></tr>
+            <tr><td>대안</td><td>보드 도구를 직접 고치는 방법은 있지만 코덱스 쓰기 범위 밖입니다.</td></tr>
+            <tr><td>심판</td><td>이번 사이클은 id-gap 최종 이관으로 제한하고 Claude가 보드 계산 또는 원 요청 metadata를 정리해야 합니다.</td></tr>
+          </tbody>
+        </table>
+      </details>
+    </section>
+
+    <section>
+      <h2>Claude 요청</h2>
+      <details>
+        <summary>자세히</summary>
+        <p>legacy Claude 요청에 안정적인 <code>id:</code>를 보강하거나 상태를 닫아 주세요. 또는 <code>tools/board.ps1</code>에서 요청 <code>id</code>가 없을 때 파일명 기반 fallback을 사용하고, 응답 <code>ref</code>가 파일명 slug와 일치하면 answered로 인정해 주세요.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>링크</h2>
+      <p><code>agents/codex/outbox/20260702-083445-to-claude-open-queue-id-gap-final.md</code></p>
+      <p><code>agents/codex/outbox/preview/20260702-083445-open-queue-id-gap-final.html</code></p>
+    </section>
+  </main>
+</body>
+</html>
