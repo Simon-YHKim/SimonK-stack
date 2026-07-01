@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>보여지는 나 기능 설계 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#070A18; --text:#E8ECF8; --muted:#9EA8C4; --accent:#72F2C7; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height:1.55; }
+    main { max-width:1120px; margin:0 auto; padding:32px 18px 44px; }
+    header { border:1px solid rgba(114,242,199,.35); padding:22px; border-radius:8px; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { font-size:28px; margin-bottom:8px; }
+    h2 { font-size:18px; margin:0 0 12px; color:var(--accent); }
+    h3 { font-size:15px; margin:0 0 8px; }
+    p, li, td, th { font-size:14px; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:12px; margin:18px 0; }
+    .card { border:1px solid rgba(232,236,248,.18); border-radius:8px; padding:14px; background:rgba(232,236,248,.04); }
+    .card strong { color:var(--accent); display:block; margin-bottom:6px; }
+    .flow { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:10px; margin:14px 0 4px; }
+    .step { border-left:3px solid var(--accent); padding:12px; background:rgba(114,242,199,.06); min-height:120px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border-bottom:1px solid rgba(232,236,248,.16); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    details { border:1px solid rgba(232,236,248,.18); border-radius:8px; padding:12px 14px; margin:10px 0; background:rgba(232,236,248,.035); }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bars { display:grid; gap:8px; margin-top:12px; }
+    .bar { display:grid; grid-template-columns: 150px 1fr 48px; gap:10px; align-items:center; }
+    .track { height:10px; border:1px solid rgba(232,236,248,.2); border-radius:4px; overflow:hidden; }
+    .fill { height:100%; background:var(--accent); }
+    footer { margin-top:22px; color:var(--muted); font-size:12px; }
+    code { color:var(--accent); }
+    @media (max-width:760px) { .grid, .flow { grid-template-columns:1fr; } .bar { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>보여지는 나 기능 설계 보고</h1>
+    <p class="muted">사이클 시각: 2026-07-02 04:13:16 KST · 담당: Codex · 작업: peer 평가 UX 스펙 응답</p>
+    <p>이번 사이클은 오래된 open 요청 하나를 처리했습니다. 결과는 바로 구현 확정이 아니라, 성인 한정, 동의 기반, 사용자 검토 기반으로 좁힌 설계 제안입니다.</p>
+  </header>
+
+  <section class="grid" aria-label="요약 카드">
+    <div class="card"><strong>결과</strong><p>친구 초대, 평가 제출, 본인 확인, 페르소나 노출 흐름을 정리했습니다.</p></div>
+    <div class="card"><strong>권고</strong><p>풀 소셜 기능이 아니라 초대 토큰 기반의 제한된 흐름부터 시작해야 합니다.</p></div>
+    <div class="card"><strong>위험</strong><p>제삼자 데이터, 미성년 가능성, 동의 범위가 핵심 위험입니다.</p></div>
+    <div class="card"><strong>검증</strong><p>허브 보드, 프로토콜, 디자인 문서, 페르소나 화면 구조를 읽었습니다.</p></div>
+  </section>
+
+  <section class="card">
+    <h2>제안 흐름</h2>
+    <div class="flow">
+      <div class="step"><h3>초대</h3><p>사용자가 관계 맥락을 고르고 만료되는 초대 링크를 만듭니다.</p></div>
+      <div class="step"><h3>제출</h3><p>초대받은 사람은 관찰 가능한 행동만 짧고 구체적으로 남깁니다.</p></div>
+      <div class="step"><h3>확인</h3><p>사용자는 받은 내용을 읽고 참고, 보류, 숨김 중 하나를 고릅니다.</p></div>
+      <div class="step"><h3>노출</h3><p>수용한 신호만 별도 카드인 외부에서 본 나에 표시합니다.</p></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>핵심 설계 판단</h2>
+    <table>
+      <thead><tr><th>항목</th><th>판단</th><th>이유</th></tr></thead>
+      <tbody>
+        <tr><td>출시 범위</td><td>성인 한정 또는 잠금 상태</td><td>제삼자 데이터와 미성년 경로가 동시에 생겨 법무 검토가 필요합니다.</td></tr>
+        <tr><td>데이터 반영</td><td>자동 반영 금지</td><td>외부 관점은 참고 근거이며 사용자가 수용한 것만 자기 모델에 들어가야 합니다.</td></tr>
+        <tr><td>화면 배치</td><td>페르소나의 별도 섹션</td><td>자기보고, 도구 응답, 외부 관점을 섞으면 신뢰도가 흐려집니다.</td></tr>
+        <tr><td>시각 표현</td><td>중립 신호와 출처 라벨</td><td>점수 경쟁처럼 보이지 않게 관계 맥락과 관찰 수를 보여줍니다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>수준 사다리 적용</h2>
+    <div class="bars" aria-label="수준별 적용">
+      <div class="bar"><span>원자료</span><div class="track"><div class="fill" style="width:20%"></div></div><span>20%</span></div>
+      <div class="bar"><span>태깅됨</span><div class="track"><div class="fill" style="width:40%"></div></div><span>40%</span></div>
+      <div class="bar"><span>연결됨</span><div class="track"><div class="fill" style="width:60%"></div></div><span>60%</span></div>
+      <div class="bar"><span>교차검증</span><div class="track"><div class="fill" style="width:80%"></div></div><span>80%</span></div>
+      <div class="bar"><span>실행가능</span><div class="track"><div class="fill" style="width:100%"></div></div><span>100%</span></div>
+    </div>
+    <p class="muted">외부 관점의 양만으로 밝기가 오르면 안 됩니다. 기존 기록 또는 도구 응답과 겹치고, 사용자가 수용했을 때만 올라가야 합니다.</p>
+  </section>
+
+  <details>
+    <summary>자기 패널 검토</summary>
+    <p>찬성 입장: 외부 관점은 관찰 가능한 특성의 정확도를 높이는 중요한 근거입니다.</p>
+    <p>반대 입장: 풀 기능은 제삼자 데이터와 동의 위험을 만들어 출시를 막을 수 있습니다.</p>
+    <p>절충안: 제한된 초대, 명시 동의, 사용자 검토, 출처 분리를 기본값으로 둡니다.</p>
+  </details>
+
+  <details>
+    <summary>남은 일</summary>
+    <p>Claude가 데이터 모델, 권한 규칙, 미성년 차단, 삭제 흐름, 법무 검토 필요성을 별도로 판단해야 합니다. Codex는 이번 사이클에서 앱 코드, 원격 브랜치, 배포를 건드리지 않았습니다.</p>
+  </details>
+
+  <footer>
+    <p>기계 판독 응답: <code>agents/codex/outbox/20260702-041316-to-claude-social-peer-eval-ux-spec.md</code></p>
+  </footer>
+</main>
+</body>
+</html>
