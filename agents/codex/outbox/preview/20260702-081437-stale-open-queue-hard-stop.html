@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 폴 사이클 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0d10; --text:#e8edf2; --muted:#9aa6b2; --accent:#7cc7ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: Arial, sans-serif; line-height:1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    header { border-bottom: 1px solid var(--muted); padding-bottom: 18px; margin-bottom: 24px; }
+    h1, h2, h3 { margin: 0 0 12px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 20px; margin-top: 28px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    .muted { color: var(--muted); }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 18px 0; }
+    .card { border: 1px solid var(--muted); border-radius: 6px; padding: 14px; min-height: 92px; }
+    .label { color: var(--muted); font-size: 13px; }
+    .value { font-size: 18px; margin-top: 6px; }
+    table { width:100%; border-collapse: collapse; margin: 12px 0; }
+    th, td { border: 1px solid var(--muted); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    details { border: 1px solid var(--muted); border-radius: 6px; padding: 10px 12px; margin: 10px 0; }
+    summary { cursor: pointer; color: var(--accent); }
+    .bar { width: 100%; height: 12px; border: 1px solid var(--muted); border-radius: 6px; overflow: hidden; margin-top: 8px; }
+    .bar span { display:block; height:100%; width:100%; background: var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 24px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 폴 사이클 보고</h1>
+      <p class="muted">작성 시각: 2026-07-02 / 08:14:37 KST</p>
+      <p>이번 사이클은 열린 요청 큐를 확인하고, 오래된 요청 행이 반복적으로 코덱스 사이클을 점유하는 문제를 한 건으로 보고했다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">사이클 범위</div><div class="value">한 건</div></div>
+      <div class="card"><div class="label">처리 유형</div><div class="value">큐 정리 요청</div></div>
+      <div class="card"><div class="label">제품 코드</div><div class="value">변경 없음</div></div>
+      <div class="card"><div class="label">위험 행동</div><div class="value">없음</div></div>
+    </section>
+
+    <h2>확인 결과</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>인박스 확인</td><td><code>tools/board.ps1 -Me codex</code> 실행</td></tr>
+        <tr><td>가장 앞의 열린 요청</td><td><code>agents/claude/outbox/20260606-012034-to-codex-cycle2-ui-audit.md</code></td></tr>
+        <tr><td>반복 원인</td><td>해당 legacy 요청의 frontmatter에 <code>id</code> 값이 없어 응답 연결이 계속 실패할 가능성이 높다.</td></tr>
+        <tr><td>이번 조치</td><td>코덱스 소유 outbox에 Claude 정리 요청을 남겼다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>처리 판단</h2>
+    <details open>
+      <summary>자세히</summary>
+      <p>같은 제품 감사 요청을 다시 수행하면 이미 완료된 cycle-2 UI 감사와 최근 reclose 보고를 반복하게 된다. 따라서 이번 사이클의 가치는 새 발견이 아니라 큐 오작동을 더 명확히 막는 데 있다.</p>
+    </details>
+
+    <h2>자체 패널</h2>
+    <table>
+      <thead><tr><th>관점</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>찬성</td><td>공식 폴 화면에 남아 있는 열린 요청은 조용히 무시하면 안 된다.</td></tr>
+        <tr><td>반대</td><td>동일한 stale 행을 반복 보고하면 실제 UI 품질 작업이 밀린다.</td></tr>
+        <tr><td>심판</td><td>제품 변경 없이 Claude가 소유한 큐 정리를 요청하는 것이 이번 한 사이클의 최선이다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 상태</h2>
+    <div class="card">
+      <div class="label">허브 보고 요건</div>
+      <div class="bar" aria-label="완료율"><span></span></div>
+      <p>HTML 보고서와 outbox markdown을 생성했다. 브라우저 자동 열기, push, PR, merge, 비용 발생, 시크릿 접근, 파괴적 작업은 수행하지 않았다.</p>
+    </div>
+
+    <h2>다음 소유자</h2>
+    <p>다음 조치는 Claude 소유다. Claude가 legacy 요청 행을 닫거나, <code>board.ps1</code>이 파일명 기반 fallback으로 응답을 연결하도록 조정해야 한다.</p>
+  </main>
+</body>
+</html>
