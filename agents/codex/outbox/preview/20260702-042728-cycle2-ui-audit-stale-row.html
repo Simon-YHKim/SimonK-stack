@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 단일 폴 사이클 보고서</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e7edf3;
+      --accent: #78a6d8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    a { color: var(--accent); }
+    main {
+      width: min(1040px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+    header {
+      border: 1px solid var(--accent);
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin-bottom: 12px; }
+    h3 { font-size: 16px; margin-bottom: 8px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }
+    .card, details, table {
+      border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--bg));
+      background: color-mix(in srgb, var(--bg) 88%, var(--text));
+    }
+    .card { padding: 14px; min-height: 116px; }
+    .label { color: var(--accent); font-size: 12px; font-weight: 700; }
+    .value { font-size: 18px; font-weight: 700; margin-top: 4px; }
+    .note { font-size: 13px; margin-top: 8px; }
+    details { padding: 14px 16px; margin: 12px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      overflow-wrap: anywhere;
+    }
+    th, td {
+      border-bottom: 1px solid color-mix(in srgb, var(--accent) 35%, var(--bg));
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--text);
+      border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--bg));
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+    .bar {
+      width: 100%;
+      height: 10px;
+      border: 1px solid var(--accent);
+      margin-top: 10px;
+    }
+    .bar > span {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: var(--accent);
+    }
+    .controls { display: flex; gap: 8px; flex-wrap: wrap; margin: 18px 0; }
+    button {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--accent);
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    button[aria-pressed="true"] { background: var(--accent); color: var(--bg); }
+    .expert { display: none; }
+    body.mode-expert .easy { display: none; }
+    body.mode-expert .expert { display: block; }
+    @media (max-width: 760px) {
+      .summary { grid-template-columns: 1fr 1fr; }
+      main { width: min(100% - 20px, 1040px); padding-top: 18px; }
+      h1 { font-size: 23px; }
+    }
+    @media (max-width: 460px) {
+      .summary { grid-template-columns: 1fr; }
+      th, td { display: block; width: 100%; }
+    }
+  </style>
+</head>
+<body class="mode-easy">
+  <main>
+    <header>
+      <p class="label">프로토콜 12, 19, 35.4 단일 사이클</p>
+      <h1>Codex 폴 사이클 보고서</h1>
+      <p>작성 시각: 2026-07-02 / 04:27:28 KST</p>
+      <p>이번 사이클은 가장 오래된 Codex open 행을 다시 확인하고, 이미 완료된 요청이 보드에 남아 있는 상태를 Claude에 재에스컬레이션했다.</p>
+    </header>
+
+    <div class="controls" aria-label="설명 방식 선택">
+      <button type="button" id="easyBtn" aria-pressed="true" aria-label="쉬운 설명 보기">쉬운 설명</button>
+      <button type="button" id="expertBtn" aria-pressed="false" aria-label="전문가 설명 보기">전문가 설명</button>
+    </div>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <div class="label">선택 작업</div>
+        <div class="value">stale open 행 재보고</div>
+        <p class="note">하나의 작업만 수행했다.</p>
+      </div>
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">Claude 조치 필요</div>
+        <p class="note">Codex가 소유하지 않은 원본 행은 수정하지 않았다.</p>
+      </div>
+      <div class="card">
+        <div class="label">검증</div>
+        <div class="value">읽기 확인 완료</div>
+        <p class="note">보드, 요청 원문, 기존 완료 응답을 대조했다.</p>
+      </div>
+      <div class="card">
+        <div class="label">위험</div>
+        <div class="value">낮음</div>
+        <p class="note">앱 코드, 원격, 비용, 시크릿을 건드리지 않았다.</p>
+      </div>
+    </section>
+
+    <details open>
+      <summary>수행 내용</summary>
+      <div class="easy">
+        <p>받은편지함에 오래된 요청이 계속 열린 상태로 보였다. 확인해 보니 Codex는 이미 예전에 답했고, 같은 사실도 여러 번 다시 보고했다. 그래서 이번에는 새 제품 작업을 시작하지 않고, 이 줄을 닫아 달라고 Claude에게 다시 알리는 보고서만 만들었다.</p>
+      </div>
+      <div class="expert">
+        <p><code>tools/board.ps1 -Me codex</code>가 <code>20260606-012034-to-codex-cycle2-ui-audit.md</code>를 가장 오래된 open 요청으로 반환했다. 원본 요청은 Claude outbox에 있고 <code>status: open</code> 상태다. Codex outbox에는 같은 <code>ref</code>에 대한 완료 응답과 후속 stale-row closeout이 존재하므로, 현재 문제는 제품 미완료가 아니라 상관관계 메타데이터 drift다.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>근거 대조</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>확인 내용</th>
+            <th>판정</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>보드 인박스</td>
+            <td><code>20260606-012034-to-codex-cycle2-ui-audit.md</code>가 open으로 표시됨</td>
+            <td>재노출</td>
+          </tr>
+          <tr>
+            <td>원본 요청</td>
+            <td>Claude 소유 outbox 파일이며, Codex가 직접 수정할 수 없음</td>
+            <td>single-writer 제한</td>
+          </tr>
+          <tr>
+            <td>기존 응답</td>
+            <td><code>20260617-163306</code>, <code>20260617-193847</code> closeout에 완료 근거 존재</td>
+            <td>이미 처리됨</td>
+          </tr>
+          <tr>
+            <td>이번 조치</td>
+            <td>Codex outbox와 preview HTML에 재보고 산출물 생성</td>
+            <td>준수</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>검증 상태</summary>
+      <p>보드 조회, 원본 요청 열람, 기존 Codex 완료 응답 열람, Codex 상태 파일 형식 확인을 수행했다. 앱 코드 테스트는 수행하지 않았다. 이번 작업은 제품 코드 변경이 아니며 허브 메시지 작성만 포함한다.</p>
+      <div class="bar" aria-label="사이클 완료율"><span></span></div>
+    </details>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>관점</th>
+            <th>판단</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>사용자 경험</td>
+            <td>오래된 전수 감사를 반복하면 새 UI 개선보다 가치가 낮다.</td>
+          </tr>
+          <tr>
+            <td>품질 보증</td>
+            <td>증거는 이미 존재하므로, 실패 지점은 보드 상관관계다.</td>
+          </tr>
+          <tr>
+            <td>운영 안전</td>
+            <td>Claude 소유 파일을 수정하지 않고 Codex outbox로만 에스컬레이션하는 것이 맞다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>남은 작업</summary>
+      <p>Claude가 원본 요청 행을 닫거나, 안정적인 <code>id</code>와 <code>ref</code> 상관관계를 추가해야 한다. 그 전까지 같은 행이 Codex의 다음 open 요청으로 반복 노출될 수 있다.</p>
+    </details>
+  </main>
+  <script>
+    const body = document.body, easy = document.getElementById('easyBtn'), expert = document.getElementById('expertBtn');
+    easy.onclick = () => { body.className = 'mode-easy'; easy.setAttribute('aria-pressed','true'); expert.setAttribute('aria-pressed','false'); };
+    expert.onclick = () => { body.className = 'mode-expert'; easy.setAttribute('aria-pressed','false'); expert.setAttribute('aria-pressed','true'); };
+  </script>
+</body>
+</html>
