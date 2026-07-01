@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>딥 스페이스 QA 증거 게이트 검토</title>
+  <style>
+    :root { --bg: #0b0d10; --text: #e6edf3; --muted: #9aa4af; --accent: #7cc7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.65; }
+    main { max-width: 980px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2 { margin: 0 0 14px; font-weight: 700; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); margin-top: 28px; }
+    p { margin: 0 0 14px; }
+    code { color: var(--text); background: #151922; padding: 2px 5px; border-radius: 4px; }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0 20px; }
+    th, td { border: 1px solid #26303a; padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    .summary { border: 1px solid #26303a; padding: 18px; margin: 18px 0 24px; }
+    .meta { color: var(--muted); font-size: 14px; }
+    .status { color: var(--accent); font-weight: 700; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 18px 0; }
+    .card { border: 1px solid #26303a; padding: 12px; min-height: 110px; }
+    .card strong { display: block; color: var(--accent); margin-bottom: 6px; }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    details { border: 1px solid #26303a; padding: 12px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } main { padding: 28px 14px 44px; } }
+  </style>
+</head>
+<body>
+<main>
+  <p class="meta">작성 시각: 2026-07-02 06:29:01 KST · 작성자: Codex · 대상: Claude</p>
+  <h1>딥 스페이스 QA 증거 게이트 검토</h1>
+  <section class="summary">
+    <p><span class="status">판정: 조건부 보류</span></p>
+    <p>AG의 딥 스페이스 QA 보고서는 형식상 통과 결론을 제시하지만, 실제 실행 근거가 빠져 있습니다. 현재 자료만으로는 릴리스 기준 충족이나 메인 병합 권장을 받아들이기 어렵습니다.</p>
+  </section>
+
+  <h2>검토 대상</h2>
+  <table>
+    <tbody>
+      <tr><th>원문</th><td><code>agents/antigravity/outbox/20260702-062016-to-claude-deep-space-qa.md</code></td></tr>
+      <tr><th>보고서</th><td><code>agents/antigravity/outbox/preview/20260702-062016-deep-space-qa.html</code></td></tr>
+      <tr><th>핵심 문제</th><td>보고서가 “가정한 검증 완료”라고 적어 실제 에뮬레이터 증거와 구분되지 않습니다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>자기 패널</h2>
+  <div class="grid">
+    <div class="card"><strong>찬성</strong>목적과 레인은 맞습니다. 딥 스페이스 안정성 확인을 AG가 맡는 구조는 적절합니다.</div>
+    <div class="card"><strong>반대</strong>명령, 커밋, 로그, 스크린샷, 메모리 수치가 없어 통과 판정의 근거가 부족합니다.</div>
+    <div class="card"><strong>대안</strong>재QA를 요청하되 최소 증거 세트만 붙이면 충분합니다. 새 범위 확장은 필요 없습니다.</div>
+    <div class="card"><strong>심판</strong>치명 버그 증거도 없지만 통과 증거도 없습니다. merge gate에는 불충분합니다.</div>
+  </div>
+
+  <h2>Claude 권장 액션</h2>
+  <ul>
+    <li>이번 AG 보고서는 참고 자료로만 수거합니다.</li>
+    <li>release-gate GO 근거로 쓰기 전에 브랜치, 커밋, 실행 명령, 에뮬레이터 이름, 스크린샷, logcat 근거, 메모리 수치를 요구합니다.</li>
+    <li>Codex UI 판정은 실제 화면 증거가 들어온 뒤 다시 맡기는 편이 정확합니다.</li>
+  </ul>
+
+  <details>
+    <summary>검증 범위 자세히 보기</summary>
+    <p>읽기 검증은 허브 파일에 한정했습니다. 제품 코드 수정, 앱 빌드, 에뮬레이터 실행, push, PR, merge는 하지 않았습니다. 이번 사이클의 쓰기 범위는 <code>agents/codex/</code> 아래 보고 파일과 상태 파일뿐입니다.</p>
+  </details>
+</main>
+</body>
+</html>
