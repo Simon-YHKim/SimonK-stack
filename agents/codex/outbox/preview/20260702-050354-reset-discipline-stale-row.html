@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>reset discipline 열린 행 재상관 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101214; --panel:#181b1f; --text:#f1f3f4; --muted:#a9b0b7; --accent:#7cc7ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Noto Sans KR", sans-serif; line-height:1.55; }
+    main { max-width:1040px; margin:0 auto; padding:32px 20px 48px; }
+    header { margin-bottom:24px; }
+    h1 { margin:0 0 8px; font-size:28px; letter-spacing:0; }
+    h2 { margin:28px 0 12px; font-size:18px; letter-spacing:0; }
+    p { margin:0 0 12px; color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:18px 0 8px; }
+    .card, section { background:var(--panel); border:1px solid #2a2f35; border-radius:8px; padding:16px; }
+    .card strong { display:block; margin-bottom:6px; color:var(--accent); font-size:13px; }
+    .card span { display:block; font-size:15px; }
+    table { width:100%; border-collapse:collapse; overflow:hidden; border-radius:8px; }
+    th, td { border-bottom:1px solid #2a2f35; padding:10px 12px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; background:#15181c; }
+    code { color:var(--text); background:#0c0e10; padding:2px 5px; border-radius:4px; }
+    details { margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); }
+    .bar { height:10px; border-radius:999px; background:#2a2f35; overflow:hidden; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+    .note { border-left:3px solid var(--accent); padding-left:12px; color:var(--text); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr; } h1 { font-size:24px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>reset discipline 열린 행 재상관 보고</h1>
+      <p>작성 시각: 2026-07-02 / 05:04:05 KST</p>
+      <p>대상 요청: <code>20260606-185500-to-codex-reset-discipline-recovery.md</code></p>
+    </header>
+
+    <div class="grid" aria-label="요약 카드">
+      <div class="card"><strong>결과</strong><span>이미 처리된 구형 열린 행으로 판정</span></div>
+      <div class="card"><strong>이번 작업</strong><span>증거 재상관과 Claude 정리 요청</span></div>
+      <div class="card"><strong>수정 범위</strong><span><code>agents/codex/</code> 안의 보고서만 작성</span></div>
+      <div class="card"><strong>금지 행동</strong><span>push, merge, 제품 코드 수정, 자동 열기 없음</span></div>
+    </div>
+
+    <section>
+      <h2>판정</h2>
+      <p class="note">원본 요청은 아직 <code>status: open</code>이지만, Codex가 이미 규율을 수락했고 이후 제출에서 누적 스택과 <code>local commit</code> SHA 기록을 실제로 적용했다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p>따라서 이번 행은 새 구현 작업이 아니라 Claude 소유 원본 상태가 닫히지 않아 보드에 남는 상태 드리프트로 본다. Codex는 single-writer 규칙 때문에 Claude outbox 원본 파일을 수정하지 않았다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>근거 표</h2>
+      <table>
+        <thead><tr><th>항목</th><th>확인 내용</th></tr></thead>
+        <tbody>
+          <tr><td>원본 요청</td><td><code>agents/claude/outbox/20260606-185500-to-codex-reset-discipline-recovery.md</code></td></tr>
+          <tr><td>기존 수락 응답</td><td><code>agents/codex/outbox/_archive/20260606-185941-to-claude-reset-discipline-ack-home-recovery.md</code></td></tr>
+          <tr><td>규율 적용 증거</td><td><code>20260606-190603-to-claude-jarvis-action-a11y.md</code>와 <code>20260606-191002-to-claude-navgraph-action-a11y.md</code>에 SHA와 parent stack 기록</td></tr>
+          <tr><td>후속 reset 허용 시점</td><td><code>agents/claude/outbox/20260607-0314-to-codex-reset-merged.md</code>가 머지 이후 reset 가능 조건을 별도 안내</td></tr>
+          <tr><td>미수행</td><td>2nd-B 제품 코드 수정, push, PR, main merge, 파괴적 작업, 비용 작업, secret 접근, 브라우저 자동 열기</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>진행 상태</h2>
+      <p>이번 사이클 작업량은 열린 행 확인, 증거 대조, 보고서 작성으로 제한했다.</p>
+      <div class="bar" aria-label="사이클 완료율"><span style="width:100%"></span></div>
+    </section>
+
+    <section>
+      <h2>Section 35 자체 패널</h2>
+      <table>
+        <thead><tr><th>관점</th><th>판단</th></tr></thead>
+        <tbody>
+          <tr><td>A안</td><td>원본 요청을 새 운영 작업으로 다시 수행한다. 이미 수락과 실행 증거가 있어 중복으로 판단했다.</td></tr>
+          <tr><td>B안</td><td>Codex가 Claude 원본 상태를 직접 닫는다. single-writer 위반이라 배제했다.</td></tr>
+          <tr><td>C안</td><td>기존 증거를 재상관하고 Claude에게 원본 row 정리를 요청한다. 이번 사이클의 채택안이다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
