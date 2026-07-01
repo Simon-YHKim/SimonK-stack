@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>키보드 네이티브 안전 점검 보고서</title>
+  <style>
+    :root { --bg:#0b0d12; --text:#e8edf2; --accent:#56b8ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 48px; }
+    header { border:1px solid var(--accent); padding:22px; margin-bottom:18px; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { font-size:28px; line-height:1.2; }
+    h2 { font-size:20px; margin:24px 0 10px; color:var(--accent); }
+    h3 { font-size:16px; margin:14px 0 8px; }
+    .summary { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:16px 0 0; }
+    .card, details { border:1px solid var(--accent); padding:14px; }
+    .label { color:var(--accent); font-size:13px; margin-bottom:6px; }
+    table { width:100%; border-collapse:collapse; margin:10px 0; }
+    th, td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    .tabs { display:flex; gap:8px; margin:18px 0; flex-wrap:wrap; }
+    button { background:transparent; color:var(--text); border:1px solid var(--accent); padding:8px 12px; cursor:pointer; }
+    button[aria-pressed="true"] { background:var(--accent); color:var(--bg); }
+    .bar { width:100%; height:12px; border:1px solid var(--accent); margin:8px 0; }
+    .fill { height:100%; background:var(--accent); }
+    .muted { opacity:.78; }
+    @media (max-width:760px){ .summary{grid-template-columns:1fr;} h1{font-size:24px;} main{padding:20px 12px 36px;} }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>키보드 4화면 네이티브 안전 점검 보고서</h1>
+      <p>이번 사이클은 제품 코드를 수정하지 않고, AG의 키보드 검증 차단 보고를 Codex의 화면 품질, 반복 퇴화 방지, 네이티브 안전 기준으로 판정했다.</p>
+      <div class="summary">
+        <div class="card"><div class="label">결과</div><strong>이관 필요</strong></div>
+        <div class="card"><div class="label">검증 상태</div><strong>증거 부족</strong></div>
+        <div class="card"><div class="label">위험</div><strong>키보드 가림 회귀</strong></div>
+        <div class="card"><div class="label">범위</div><strong>보고서 한 건</strong></div>
+      </div>
+    </header>
+
+    <div class="tabs" aria-label="보기 전환">
+      <button type="button" aria-pressed="true" data-target="easy">쉬운 설명</button>
+      <button type="button" aria-pressed="false" data-target="expert">전문가 설명</button>
+    </div>
+
+    <section id="easy">
+      <h2>쉬운 설명</h2>
+      <p>AG는 지금 화면을 직접 열어 사진을 찍고 확인할 수 없다고 보고했다. 그래서 이 문제를 고쳤다고 처리하면 안 된다. 키보드가 뜰 때 입력칸이나 버튼이 가려지는지는 실제 화면 증거가 있어야 한다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p>Codex는 이번에 코드를 고치지 않았다. 대신 어떤 증거가 있어야 안전하게 닫을 수 있는지 정리했다. Claude가 수정 담당이나 검증 담당을 다시 배정해야 한다.</p>
+      </details>
+    </section>
+
+    <section id="expert" hidden>
+      <h2>전문가 설명</h2>
+      <p>AG 산출물은 구현 완료 보고가 아니라 차단 이관이다. 따라서 병합 관문에서는 해결 증거로 취급하면 안 되며, 키보드가 열린 상태의 화면 범위, 초점 이동, 닫기 동작, 하단 탭 충돌 여부가 화면별로 필요하다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p>이번 Codex 작업은 단일 작성자 제약을 유지하기 위해 허브의 <code>agents/codex/</code> 아래 보고서만 작성했다. 2nd-B 제품 코드, push, PR, merge, 서버 실행, 브라우저 자동 열기는 수행하지 않았다.</p>
+      </details>
+    </section>
+
+    <h2>판정 표</h2>
+    <table>
+      <thead><tr><th>항목</th><th>판정</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>AG 차단 보고</td><td>유효</td><td>헤드리스 환경과 단일 작성자 제약으로 실제 기기 증명이 불가하다고 명시했다.</td></tr>
+        <tr><td>Codex 처리</td><td>보고서만 작성</td><td>레인 제약상 제품 코드 수정 대신 수락 기준 목록을 남겼다.</td></tr>
+        <tr><td>Claude 다음 행동</td><td>재배정 필요</td><td>GUI 접근 가능한 검증 주체 또는 Claude가 수정과 증거 수집을 맡아야 한다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>증거 기준</h2>
+    <div class="card">
+      <div class="label">현재 충족도</div>
+      <div class="bar" aria-label="증거 충족도 25퍼센트"><div class="fill" style="width:25%"></div></div>
+      <p class="muted">요청과 차단 보고는 확인됐지만, 화면 캡처와 입력 전후 비교 증거가 없다.</p>
+    </div>
+
+    <h2>필수 체크리스트</h2>
+    <table>
+      <thead><tr><th>번호</th><th>확인할 내용</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>네 화면 각각에서 키보드 열린 상태와 닫힌 상태를 캡처한다.</td></tr>
+        <tr><td>2</td><td>입력 필드, 제출 버튼, 하단 탭이 키보드에 가려지지 않는지 확인한다.</td></tr>
+        <tr><td>3</td><td>스크롤이 필요한 화면은 마지막 입력 필드까지 도달 가능한지 확인한다.</td></tr>
+        <tr><td>4</td><td>Android 뒤로 동작 또는 키보드 닫기 뒤 초점 위치가 예측 가능한지 확인한다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>35절 자기 패널</h2>
+    <table>
+      <thead><tr><th>관점</th><th>판단</th></tr></thead>
+      <tbody>
+        <tr><td>찬성</td><td>증거 없는 통과를 막는 것이 네이티브 안전 레인에 맞다.</td></tr>
+        <tr><td>반대</td><td>직접 코드를 고치면 빠를 수 있지만 이번 사이클 제약을 넘는다.</td></tr>
+        <tr><td>대안</td><td>레거시 열린 행을 다시 처리할 수 있으나 이미 잔여 조정이 끝났다.</td></tr>
+        <tr><td>심판</td><td>한 건의 분류 보고서로 닫고 Claude 재배정을 요청한다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>기록</h2>
+    <p>작성 시각: 2026-07-02 / 06:52:23 KST</p>
+    <p>연결 문서: <code>agents/codex/outbox/20260702-065223-to-claude-keyboard-native-safety-triage.md</code></p>
+  </main>
+  <script>
+    document.querySelectorAll('button[data-target]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        document.querySelectorAll('button[data-target]').forEach(function(b){ b.setAttribute('aria-pressed', String(b===btn)); });
+        document.querySelectorAll('#easy,#expert').forEach(function(s){ s.hidden = s.id !== btn.dataset.target; });
+      });
+    });
+  </script>
+</body>
+</html>
