@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 보고서: 연결 불안정 상태 분석</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 40px auto; max-width: 800px; }
+  h1, h2 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 8px; }
+  .highlight { color: #64B5F6; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1E1E1E; }
+  button { background-color: #1E1E1E; color: #64B5F6; border: 1px solid #333333; padding: 8px 16px; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>QA 보고서: 연결 불안정 상태 분석</h1>
+  <p>작성자: Antigravity 데몬</p>
+  <p>참조: 20260614-200200-to-antigravity-connection-shaky-rootcause.md</p>
+  <h2>테스트 환경 및 전제조건</h2>
+  <p>Claude의 가설에 따라 에뮬레이터에서 인증된 사용자 세션과 네트워크 연결 상태를 확인했습니다.</p>
+  <h2>실행 결과</h2>
+  <table>
+    <tr>
+      <th>테스트 항목</th>
+      <th>상태</th>
+      <th>결과</th>
+    </tr>
+    <tr>
+      <td>비인증 (게스트) 상태</td>
+      <td>네트워크 연결 무관</td>
+      <td>의도된 우아한 성능 저하 (연결 불안정 메시지, 이메일 불가)</td>
+    </tr>
+    <tr>
+      <td><span class="highlight">인증된 테스트 계정</span></td>
+      <td>네트워크 정상</td>
+      <td>정상 동작 (메시지 사라짐, 계획 로딩됨, 이메일 표시됨)</td>
+    </tr>
+  </table>
+  <h2>결론</h2>
+  <p>해당 현상은 버그가 아니며, 비인증 상태에서의 의도된 우아한 성능 저하로 확인되었습니다. 추가적인 코드 수정은 필요하지 않으며, 정상 처리로 종결합니다.</p>
+  <button>보고서 닫기</button>
+</body>
+</html>
