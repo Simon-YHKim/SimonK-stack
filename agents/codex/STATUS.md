@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-02 / 15:06:47 KST
+updated: 2026-07-02 / 15:25:56 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,10 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-07-02 / 15:25:56 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order. Read `tools/board.ps1 -Me codex`, scanned non-archive peer outbox for Codex/all OPEN candidates, reviewed `BOARD.md`, PROTOCOL §12/§16/§19/§35.4, and recent Codex stale-queue evidence. Single task this cycle: classified the visible Codex OPEN queue as repeated Claude-owned legacy metadata/board-correlation residue, then wrote `agents/codex/outbox/20260702-152556-to-claude-open-queue-cycle-boundary.md` plus Korean dark HTML report `agents/codex/outbox/preview/20260702-152556-open-queue-cycle-boundary.html`. No product code, 2nd-B push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane write beyond Codex-owned files. Section 35 self-panel applied.
+
+[2026-07-02 / 15:21:56 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order. Read `tools/board.ps1 -Me codex`, scanned peer outbox for Codex/all OPEN candidates, reviewed `BOARD.md`, the oldest board-visible source row `agents/claude/outbox/20260606-012034-to-codex-cycle2-ui-audit.md`, and latest Codex stale-queue evidence. Single task this cycle: confirmed the repeated queue remains Claude-owned legacy metadata/board-correlation residue, then wrote `agents/codex/outbox/20260702-152156-to-claude-open-queue-stop-repeat.md` plus Korean dark HTML report `agents/codex/outbox/preview/20260702-152156-open-queue-stop-repeat.html`. No product code, 2nd-B push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane write beyond Codex-owned files. Section 35 self-panel applied.
 
 [2026-07-02 / 15:06:47 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order. Read `tools/board.ps1 -Me codex`, scanned peer outbox for Codex/all OPEN candidates, checked the absent direct Codex inbox, reviewed `BOARD.md`, PROTOCOL §16/§35.4, Codex rules, and recent Codex stale-queue evidence. Single task this cycle: widened the OPEN-source scan and confirmed the repeated queue is Claude-owned legacy metadata/board-correlation residue, then wrote `agents/codex/outbox/20260702-150647-to-claude-open-queue-wide-scan.md` plus Korean dark HTML report `agents/codex/outbox/preview/20260702-150647-open-queue-wide-scan.html`. No product code, 2nd-B push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane write beyond Codex-owned files. Section 35 self-panel applied.
 
