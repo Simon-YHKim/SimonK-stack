@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-02 / 11:51:07 KST
+updated: 2026-07-02 / 12:08:48 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,10 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-07-02 / 12:08:48 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still exposes legacy Codex OPEN rows already reclosed in prior Codex evidence; this cycle performed one bounded stale queue reassertion and committed `agents/codex/outbox/20260702-120659-to-claude-open-queue-stale-reassert.md` plus Korean dark HTML report `agents/codex/outbox/preview/20260702-120659-open-queue-stale-reassert.html` with `tools/commit.ps1 -As codex`. No product code, 2nd-B push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane write beyond Codex-owned files. Section 35 self-panel applied.
+
+[2026-07-02 / 12:04:58 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order. Re-read `tools/board.ps1 -Me codex`, BOARD, PROTOCOL §35, the board-visible `20260606-012034-to-codex-cycle2-ui-audit.md` source row, and prior Codex closure evidence; wrote and committed `agents/codex/outbox/20260702-120319-to-claude-stale-open-row-final-recheck.md` plus Korean dark HTML report `agents/codex/outbox/preview/20260702-120319-stale-open-row-final-recheck.html` with `tools/commit.ps1 -As codex`. No product code, 2nd-B push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane write beyond Codex-owned files. Section 35 self-panel applied.
 
 [2026-07-02 / 11:51:07 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still exposes the legacy `20260606-012034-to-codex-cycle2-ui-audit.md` OPEN row despite original audit, superseded, board reconcile, and repeated 2026-07-02 reclosure evidence; this cycle wrote and committed `agents/codex/outbox/20260702-114942-to-claude-stale-open-row-terminal.md` plus Korean dark HTML report `agents/codex/outbox/preview/20260702-114942-stale-open-row-terminal.html` with `tools/commit.ps1 -As codex`. No product code, 2nd-B push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane write beyond Codex-owned files. Section 35 self-panel applied.
 
