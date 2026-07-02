@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 폴 사이클 보고서</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --text: #f2f4f5;
+      --muted: #9aa3a9;
+      --accent: #7cc7b2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(1040px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 48px;
+    }
+    header {
+      border: 1px solid var(--muted);
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin-bottom: 10px; }
+    h3 { font-size: 15px; margin-bottom: 8px; }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 18px 0;
+    }
+    .card {
+      border: 1px solid var(--muted);
+      padding: 14px;
+      min-height: 112px;
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .value { font-size: 18px; color: var(--accent); font-weight: 700; }
+    section {
+      border-top: 1px solid var(--muted);
+      padding-top: 18px;
+      margin-top: 22px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+    }
+    th, td {
+      border: 1px solid var(--muted);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    details {
+      border: 1px solid var(--muted);
+      padding: 12px 14px;
+      margin: 10px 0;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--text);
+      border: 1px solid var(--muted);
+      padding: 1px 4px;
+    }
+    .bar {
+      width: 100%;
+      height: 14px;
+      border: 1px solid var(--muted);
+      margin-top: 8px;
+    }
+    .fill {
+      height: 100%;
+      width: 100%;
+      background: var(--accent);
+    }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 23px; }
+      th, td { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 단일 폴 사이클 보고서</h1>
+      <p class="muted">작성 시각: 2026-07-02 18:25:01 KST</p>
+      <p>이번 사이클은 Codex 인박스와 동료 outbox의 OPEN 요청을 확인하고, 새 제품 작업을 시작할 근거가 있는지 판정하는 데 한정했다.</p>
+      <div class="grid" aria-label="요약 카드">
+        <div class="card"><span class="label">사이클 범위</span><div class="value">한 건</div><p class="muted">PROTOCOL 12/19/35.4 기준</p></div>
+        <div class="card"><span class="label">제품 코드 변경</span><div class="value">없음</div><p class="muted">2nd-B 파일은 수정하지 않음</p></div>
+        <div class="card"><span class="label">작성 범위</span><div class="value">Codex 폴더</div><p class="muted">single-writer 준수</p></div>
+        <div class="card"><span class="label">최종 판정</span><div class="value">신규 주문 없음</div><p class="muted">반복 OPEN 잔여로 분류</p></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>확인 결과</h2>
+      <table>
+        <thead>
+          <tr><th>확인 항목</th><th>결과</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>tools/board.ps1 -Me codex</code></td><td>오래된 OPEN 요청 4건이 계속 표시됨</td><td>새 주문으로 보지 않음</td></tr>
+          <tr><td><code>CONTROL.md</code></td><td>상태는 running</td><td>사이클 수행 가능</td></tr>
+          <tr><td>동료 outbox 스캔</td><td>이번 사이클에 새 Codex 대상 제품 주문은 확인되지 않음</td><td>대기열 잔여로 판단</td></tr>
+          <tr><td>최근 Codex 보고</td><td>같은 큐 잔여를 여러 차례 재확인함</td><td>반복 구현 금지</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>단일 작업</h2>
+      <p>이번에 수행한 단일 작업은 OPEN 큐의 현재성을 판정하는 것이다. 제품 화면, 네이티브 실행, 브랜치 push, PR 생성, merge는 하지 않았다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p>보드에 보이는 항목은 2026년 6월 초 요청으로, 최근 Codex outbox에서 이미 응답 또는 재종결 근거가 반복 제출된 흐름과 일치한다. single-writer 규칙 때문에 Codex는 Claude 소유 원본 요청 파일이나 board 스크립트를 수정하지 않았다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>의견</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>진행 찬성</td><td>OPEN 표시가 남아 있으므로 최소한 재확인과 보고는 필요하다.</td></tr>
+          <tr><td>진행 반대</td><td>이미 처리된 오래된 요청을 다시 제품 작업으로 열면 stale 기준의 중복 작업이 된다.</td></tr>
+          <tr><td>안전 관점</td><td>Codex가 쓸 수 있는 범위는 <code>agents/codex/</code>뿐이므로 원본 큐 정리는 Claude에게 남겨야 한다.</td></tr>
+          <tr><td>결론</td><td>Codex-owned 보고서만 작성하고 새 제품 구현은 시작하지 않는다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>가드레일 상태</h2>
+      <div class="grid">
+        <div class="card"><span class="label">쓰기 경계</span><div class="value">통과</div><div class="bar"><div class="fill"></div></div></div>
+        <div class="card"><span class="label">파괴 작업</span><div class="value">없음</div><div class="bar"><div class="fill"></div></div></div>
+        <div class="card"><span class="label">비용 작업</span><div class="value">없음</div><div class="bar"><div class="fill"></div></div></div>
+        <div class="card"><span class="label">브라우저 자동 열기</span><div class="value">없음</div><div class="bar"><div class="fill"></div></div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>산출물</h2>
+      <p>기계 판독 보고서: <code>agents/codex/outbox/20260702-182501-to-claude-open-queue-current-boundary.md</code></p>
+      <p>사람용 보고서: <code>agents/codex/outbox/preview/20260702-182501-open-queue-current-boundary.html</code></p>
+    </section>
+  </main>
+</body>
+</html>
