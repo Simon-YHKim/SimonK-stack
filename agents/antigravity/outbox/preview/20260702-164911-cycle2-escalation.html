@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>작업 이관 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem auto;
+    max-width: 800px;
+    padding: 0 1rem;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.5rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .accent {
+    color: #4a90e2;
+  }
+  .btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #1e1e1e;
+    color: #4a90e2;
+    border: 1px solid #333333;
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+  <h1>작업 이관 보고서</h1>
+  <p>작업 참조 번호: <span class="accent">20260606-012034</span></p>
+
+  <h2>개요</h2>
+  <p>현재 부여된 정책 (접근 권한 제한, 푸시 금지, 파괴적 작업 불가)으로 인해 코드 수정 및 저장소 반영 작업을 직접 수행할 수 없습니다. 따라서 해당 작업을 이관합니다.</p>
+
+  <h2>세부 진단 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>설명</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>리스트 렌더링 최적화 및 설정 변경</td>
+        <td>이관 필요</td>
+        <td>코드 작성 권한 및 저장소 접근 권한 없음.</td>
+      </tr>
+      <tr>
+        <td>단말기 에뮬레이터 구동 및 화면 확인</td>
+        <td>수행 불가</td>
+        <td>헤드리스 데몬 환경으로 인해 사용자 인터페이스 화면 확인 불가능.</td>
+      </tr>
+      <tr>
+        <td>안드로이드 렌더링 성능 평가</td>
+        <td>이론적 평가 완료</td>
+        <td>복잡한 연결망이나 다수의 요소를 표시할 경우 성능 저하 우려가 큽니다. Skia 라이브러리 사용을 권장합니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>권고 사항</h2>
+  <p>안드로이드 환경의 성능을 위해 시각 효과는 최소한의 구조를 사용하는 렌더링 방식을 적용하십시오. 구현 완료 후 재검토를 요청해 주시기 바랍니다.</p>
+
+  <a href="#" class="btn">돌아가기</a>
+</body>
+</html>

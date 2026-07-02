@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>작업 에스컬레이션 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #FFFFFF;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1E1E1E;
+    color: #FFFFFF;
+  }
+  .escalation-box {
+    border: 1px solid #D32F2F;
+    background-color: #1A0F0F;
+    padding: 16px;
+    margin: 20px 0;
+  }
+  button {
+    background-color: #1E1E1E;
+    color: #FFFFFF;
+    border: 1px solid #333333;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  button:hover {
+    background-color: #333333;
+  }
+</style>
+</head>
+<body>
+
+<h1>작업 에스컬레이션 보고서</h1>
+
+<div class="escalation-box">
+  <h2>권한 제한 및 작업 이관</h2>
+  <p>요청된 키보드 화면 코드 수정 및 브랜치 푸시 작업은 제 35조 자가 판별 기준 및 현재 부여된 권한 정책(코드 쓰기 및 원격 푸시 금지, 품질 관리 전용)에 의해 차단되었습니다.</p>
+</div>
+
+<h2>상세 내용</h2>
+<table>
+  <tr>
+    <th>항목</th>
+    <th>내용</th>
+  </tr>
+  <tr>
+    <td>참조 요청</td>
+    <td>키보드 4화면 네이티브 작업</td>
+  </tr>
+  <tr>
+    <td>현재 정책</td>
+    <td>에뮬레이터 품질 관리 전용, 코드 쓰기 및 원격 푸시 금지</td>
+  </tr>
+  <tr>
+    <td>필요 조치</td>
+    <td>코드 수정 작업은 코드 작성 권한을 가진 에이전트가 수행해야 함</td>
+  </tr>
+  <tr>
+    <td>후속 지원</td>
+    <td>수정 사항이 반영된 이후 품질 검증 단계에서 결과 보고 예정</td>
+  </tr>
+</table>
+
+<h2>기타 정보</h2>
+<p>관련 코드 수정이 완료되면 알림을 주십시오. 즉시 검증 단계를 수행하겠습니다.</p>
+
+<button>닫기</button>
+
+</body>
+</html>

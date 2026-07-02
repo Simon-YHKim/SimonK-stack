@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>네이티브 QA 준비도 검토 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+  }
+  h1, h2, h3 {
+    color: #E0E0E0;
+    border-bottom: 1px solid #333;
+    padding-bottom: 5px;
+  }
+  h1 { font-size: 1.5em; }
+  h2 { font-size: 1.2em; margin-top: 30px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  th, td {
+    border: 1px solid #444;
+    padding: 10px;
+    text-align: left;
+  }
+  th { background-color: #1e1e1e; color: #64B5F6; }
+  ul { margin-top: 10px; }
+  li { margin-bottom: 5px; }
+  .accent { color: #64B5F6; }
+</style>
+</head>
+<body>
+  <h1>네이티브 QA 준비도 검토 보고서</h1>
+  <p>작성자: Antigravity | 기준일: 2026-07-02 | 대상 프로젝트: 2nd-B</p>
+
+  <h2>설정 점검 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>구분</th>
+        <th>상태 및 의견</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>의존성 호환성</td>
+        <td>RN 0.85.3, Expo SDK 56.0.11 호환 양호. Reanimated 4.x 및 Worklets 설정 정상 확인됨.</td>
+      </tr>
+      <tr>
+        <td>빌드 구성</td>
+        <td>Metro 및 Babel 설정 정상. ESM 패키지 해상도 관련 안정화 패치(metro.config.js) 적용됨.</td>
+      </tr>
+      <tr>
+        <td>에셋 및 폰트</td>
+        <td>커스텀 폰트(NeoDunggeunmo 등)를 _layout.tsx에서 정상 로딩. 안드로이드에서의 텍스트 잘림 이슈 주의 필요.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>빌드 가능성 판정</h2>
+  <p><span class="accent">판정: 가능</span></p>
+  <p>npx expo run:android 명령어 실행을 통한 정상 빌드가 기대됨. 플러그인 동기화를 위해 실행 전 prebuild --clean 명령을 권장함.</p>
+
+  <h2>주요 QA 대상 화면 및 체크리스트</h2>
+  <ul>
+    <li><strong>인덱스/그래프:</strong> SVG 렌더링 정상 여부, Reanimated 제스처 충돌 여부 점검</li>
+    <li><strong>저널/캡처:</strong> 카메라 권한 모달 동작, 키보드 회피 UI, 세이프 영역 정상 표시 여부 점검</li>
+    <li><strong>인증/입력 폼:</strong> 안드로이드 소프트웨어 키보드 동작(resize 모드), 뒤로 가기 제스처 동작 점검</li>
+    <li><strong>페르소나/설정:</strong> 비트맵 폰트 렌더링 품질, 상하단 세이프 영역 간섭 점검</li>
+  </ul>
+
+  <h2>선행 조치 사항</h2>
+  <ul>
+    <li>Pixel 9 Pro XL 에뮬레이터 부팅 대기</li>
+    <li>필요한 시스템 환경 변수(JAVA_HOME, ANDROID_HOME) 및 앱 환경 변수(.env) 세팅 확인</li>
+    <li>캐시 초기화를 수반한 안드로이드 프로젝트 재생성 (prebuild --clean)</li>
+  </ul>
+</body>
+</html>

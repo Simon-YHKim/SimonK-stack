@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>에뮬레이터 QA 검증 리포트</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #E0E0E0;
+            font-family: sans-serif;
+            margin: 40px auto;
+            max-width: 800px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #E0E0E0;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #1E1E1E;
+        }
+        a, button {
+            color: #4CAF50;
+            text-decoration: none;
+            background: none;
+            border: 1px solid #4CAF50;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+        .container {
+            padding: 20px;
+        }
+        .status-pass {
+            color: #4CAF50;
+        }
+        .status-fail {
+            color: #E0E0E0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>네이티브 에뮬레이터 QA 검증 리포트</h1>
+        <p>생성 일시: 2026-07-02 05:30:00 KST</p>
+        <p>대상 브랜치: main</p>
+
+        <h2>1. 홈 화면 블랙 스크린 검증</h2>
+        <p>이전 캡처에서 발견된 검은색 화면의 원인을 분석했습니다.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>항목</th>
+                    <th>상태</th>
+                    <th>상세 내용</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Skia 렌더링</td>
+                    <td class="status-fail">실패</td>
+                    <td>단순 캡처 타이밍 오류가 아님. Skia AGTM 파싱 실패로 인해 홈 화면의 그래프 및 아트 영역이 렌더링되지 않음. 수정이 필요한 심각도 1 버그.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>2. 연결 불안정 및 로딩 지연 검증</h2>
+        <p>게스트 모드와 인증된 모드에서의 백엔드 연결 상태를 대조 확인했습니다.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>조건</th>
+                    <th>상태</th>
+                    <th>관찰 결과</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>게스트 및 네트워크 제한</td>
+                    <td class="status-pass">정상</td>
+                    <td>예상된 우아한 기능 저하 확인.</td>
+                </tr>
+                <tr>
+                    <td>인증 완료 및 네트워크 정상</td>
+                    <td class="status-pass">정상</td>
+                    <td>연결 불안정 메시지 미발생. 정상 로딩 및 이메일 표시 확인됨. 해당 건은 버그 아님.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>3. 화면 내용 판단</h2>
+        <p>화면 내 텍스트, 레이아웃, 터치 영역 등 전반적인 사용자 경험 척도를 평가했습니다.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>화면</th>
+                    <th>상태</th>
+                    <th>비고</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>캡처 화면</td>
+                    <td class="status-pass">정상</td>
+                    <td>입력 폼 정상 작동, 기본 버튼 터치 가능.</td>
+                </tr>
+                <tr>
+                    <td>페르소나 화면</td>
+                    <td class="status-pass">정상</td>
+                    <td>명도 대비 확인 완료, 계층 구조 명확함.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="margin-top: 30px;">
+            <button>리포트 닫기</button>
+        </div>
+    </div>
+</body>
+</html>

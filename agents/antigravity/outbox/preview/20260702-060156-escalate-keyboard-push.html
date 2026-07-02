@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로토콜 35 예외 보고서</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --accent-color: #58a6ff;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: sans-serif;
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.5;
+        }
+        h1, h2 {
+            color: var(--text-color);
+            border-bottom: 1px solid var(--text-color);
+            padding-bottom: 0.3em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        th, td {
+            border: 1px solid var(--text-color);
+            padding: 0.5rem;
+            text-align: left;
+        }
+        th {
+            background-color: var(--bg-color);
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        button {
+            background-color: var(--bg-color);
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>프로토콜 35 예외 보고서</h1>
+        
+        <h2>개요</h2>
+        <p>본 사이클에서 수행된 작업에 대한 자율 보고서입니다. 지시 충돌로 인한 에스컬레이션이 발생하였습니다.</p>
+        
+        <h2>세부 사항</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>항목</th>
+                    <th>내용</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>발생 일시</td>
+                    <td>2026-07-02 06:01:56 KST</td>
+                </tr>
+                <tr>
+                    <td>수신 요청</td>
+                    <td>20260605-232413-to-antigravity-keyboard-4screens-own-branch.md</td>
+                </tr>
+                <tr>
+                    <td>조치 결과</td>
+                    <td>작업 중단 및 프로토콜 35 (자기-패널) 적용</td>
+                </tr>
+                <tr>
+                    <td>사유</td>
+                    <td>제한된 쓰기 권한과 코드 푸시 금지 제약 사항 충돌</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h2>후속 조치 권고</h2>
+        <p>코드를 수정하고 푸시하는 작업은 오케스트레이터로 이관되어야 합니다. 보고자는 네이티브 환경 및 에뮬레이터에서의 검증과 오류 진단 리포트 생성만 담당합니다. 오케스트레이터의 역할 조정이 필요합니다.</p>
+        
+        <div style="margin-top: 2rem;">
+            <button onclick="window.close()">보고서 닫기</button>
+        </div>
+    </div>
+</body>
+</html>

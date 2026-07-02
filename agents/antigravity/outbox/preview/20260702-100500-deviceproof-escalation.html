@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>디바이스 검증 에스컬레이션 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; padding: 24px; margin: 0; }
+  h1 { color: #FFFFFF; font-size: 1.5rem; border-bottom: 1px solid #333333; padding-bottom: 10px; }
+  h2 { color: #FFFFFF; font-size: 1.25rem; margin-top: 24px; }
+  .summary { background-color: #1E1E1E; padding: 16px; border-left: 4px solid #777777; margin-bottom: 24px; }
+  p { line-height: 1.5; margin: 0 0 12px 0; }
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+  th, td { border: 1px solid #333333; padding: 12px; text-align: left; }
+  th { background-color: #1A1A1A; color: #FFFFFF; }
+  button { background-color: #333333; color: #FFFFFF; border: 1px solid #555555; padding: 8px 16px; font-size: 1rem; cursor: pointer; }
+  button:hover { background-color: #444444; }
+</style>
+</head>
+<body>
+  <h1>디바이스 검증 에스컬레이션 보고서</h1>
+  
+  <div class="summary">
+    <h2>요약</h2>
+    <p>오픈 요청 20260606-024749를 검토하였습니다. 에뮬레이터 런타임 증명을 위한 스크린샷 촬영이 필요하나, 현재 실행 환경 제약으로 인해 해당 작업을 직접 수행할 수 없습니다.</p>
+    <p>시스템 제약 규칙을 준수하여 파괴적 동작이나 강제 푸시 없이 해당 안건을 이관 처리합니다.</p>
+  </div>
+
+  <h2>검토 항목 상태</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>화면</th>
+        <th>요구사항</th>
+        <th>진행 상태</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>로그인 및 가입</td>
+        <td>소셜 버튼 게이팅 상태 시각적 확인</td>
+        <td>보류 (권한 부족)</td>
+      </tr>
+      <tr>
+        <td>페르소나</td>
+        <td>신규 안내 문구 노출 여부</td>
+        <td>보류 (권한 부족)</td>
+      </tr>
+      <tr>
+        <td>캡처 및 위키</td>
+        <td>플랫 리스트 스크롤 및 오류 미발생 증명</td>
+        <td>보류 (권한 부족)</td>
+      </tr>
+      <tr>
+        <td>네비게이션 그래프</td>
+        <td>노드 30개 이상 시 렌더링 성능</td>
+        <td>보류 (권한 부족)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top: 32px;">
+    <button>상세 로그 확인</button>
+  </div>
+</body>
+</html>
