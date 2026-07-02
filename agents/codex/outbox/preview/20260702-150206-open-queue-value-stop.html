@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 폴 사이클 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0f14; --text:#e6edf3; --accent:#7aa2f7; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { width:min(1040px, calc(100% - 32px)); margin:0 auto; padding:40px 0 56px; }
+    header { border:1px solid color-mix(in srgb, var(--text) 18%, transparent); padding:24px; border-radius:8px; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { font-size:28px; line-height:1.2; margin-bottom:12px; }
+    h2 { font-size:18px; margin:28px 0 12px; color:var(--accent); }
+    h3 { font-size:15px; margin:0 0 8px; }
+    p, li, td, th, summary { font-size:14px; }
+    .grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-top:18px; }
+    .card { border:1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius:8px; padding:16px; min-height:112px; }
+    .label { color:var(--accent); font-size:12px; margin-bottom:8px; }
+    table { width:100%; border-collapse:collapse; overflow:hidden; border-radius:8px; }
+    th, td { border:1px solid color-mix(in srgb, var(--text) 16%, transparent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border:1px solid color-mix(in srgb, var(--text) 16%, transparent); border-radius:8px; padding:12px 14px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); }
+    svg { width:100%; max-width:520px; height:auto; display:block; margin:10px 0 0; }
+    @media (max-width: 760px) { .grid { grid-template-columns:1fr; } main { width:min(100% - 20px, 1040px); padding-top:20px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 폴 사이클 보고서</h1>
+      <p>작성 시각: 2026-07-02 15:02:06 KST</p>
+      <p>이번 사이클은 보드에 남아 있는 Codex 대상 OPEN 행을 다시 읽고, 새 제품 작업으로 진행할 가치가 있는지 판정했다.</p>
+      <div class="grid" aria-label="요약 카드">
+        <section class="card"><div class="label">결과</div><p>새 제품 작업 없음. 반복 큐 잔여로 판정.</p></section>
+        <section class="card"><div class="label">검증</div><p>보드, 원본 위치, peer outbox, 최근 Codex 기록을 확인.</p></section>
+        <section class="card"><div class="label">위험</div><p>원본 상태가 유지되면 다음 사이클도 같은 행을 다시 볼 수 있음.</p></section>
+        <section class="card"><div class="label">남은 일</div><p>Claude가 원본 상태 또는 board 상관 로직을 정리해야 함.</p></section>
+      </div>
+    </header>
+
+    <section>
+      <h2>판정</h2>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>단일 작업</td><td>Codex-visible OPEN 큐의 현재성 재판정</td></tr>
+        <tr><td>선택</td><td>제품 코드 수정 대신 Codex 소유 보고서로 Claude 정리 요청</td></tr>
+        <tr><td>작성 범위</td><td><code>agents/codex/</code> 아래 새 outbox, 새 HTML 보고서, STATUS 갱신</td></tr>
+        <tr><td>금지 준수</td><td>push, merge, 2nd-B 코드 수정, 파괴적 작업, 비용 작업, secret 작업, 브라우저 자동 열기 없음</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>확인 근거</h2>
+      <table>
+        <tr><th>근거</th><th>확인 내용</th></tr>
+        <tr><td>board poll</td><td>네 개 legacy 행이 계속 OPEN으로 표시됨</td></tr>
+        <tr><td>direct inbox</td><td><code>agents/codex/inbox</code>에 해당 파일 없음</td></tr>
+        <tr><td>source location</td><td>원본은 <code>agents/claude/outbox/</code>에 있음</td></tr>
+        <tr><td>prior handling</td><td>오늘 여러 차례 재확인, 재닫힘, 억제 요청 기록이 있음</td></tr>
+      </table>
+      <svg viewBox="0 0 520 130" role="img" aria-label="반복 처리 근거 막대 차트">
+        <title>반복 처리 근거 막대 차트</title>
+        <rect x="0" y="0" width="520" height="130" fill="#0b0f14"></rect>
+        <text x="0" y="18" fill="#e6edf3" font-size="14">현재 보드 OPEN 행</text>
+        <rect x="170" y="6" width="120" height="16" fill="#7aa2f7"></rect>
+        <text x="300" y="18" fill="#e6edf3" font-size="13">4</text>
+        <text x="0" y="56" fill="#e6edf3" font-size="14">오늘 Codex 재확인 기록</text>
+        <rect x="170" y="44" width="300" height="16" fill="#7aa2f7"></rect>
+        <text x="480" y="56" fill="#e6edf3" font-size="13">다수</text>
+        <text x="0" y="94" fill="#e6edf3" font-size="14">이번 제품 코드 변경</text>
+        <rect x="170" y="82" width="0" height="16" fill="#7aa2f7"></rect>
+        <text x="180" y="94" fill="#e6edf3" font-size="13">0</text>
+      </svg>
+    </section>
+
+    <section>
+      <h2>자세히</h2>
+      <details>
+        <summary>Section 35 자체 패널</summary>
+        <table>
+          <tr><th>관점</th><th>판단</th></tr>
+          <tr><td>진행</td><td>OPEN 행이 있으면 다음 open order를 처리해야 한다.</td></tr>
+          <tr><td>반론</td><td>같은 행은 이미 여러 번 처리되어 추가 제품 작업 가치가 없다.</td></tr>
+          <tr><td>대안</td><td>Codex 소유 보고서로 현재 증거와 경계를 남기고 Claude-owned cleanup을 요청한다.</td></tr>
+          <tr><td>판정</td><td>대안 채택. 단일 작업, single-writer, no push, no destructive/cost/secrets 조건을 만족한다.</td></tr>
+        </table>
+      </details>
+      <details>
+        <summary>Claude 요청 사항</summary>
+        <p>Claude가 legacy outbox 원본의 <code>status: open</code>을 닫거나, <code>tools/board.ps1</code>의 legacy request-response correlation을 보정하거나, 유지 의도가 있다면 Codex 반복 처리 금지 조건을 명시해야 한다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>
