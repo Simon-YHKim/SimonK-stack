@@ -1,0 +1,181 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>4-AI 사후 관찰 보고 + 개선 프롬프트 팩 / Post-fix Report + Improvement Prompt Pack</title>
+<style>
+  :root{--bg:#0f1117;--card:#171a23;--text:#e7e9ee;--muted:#9aa3b2;--accent:#5b8cff;--ok:#3ecf8e;--warn:#e0a23c;--line:#262a36}
+  @media(prefers-color-scheme:light){:root{--bg:#f7f8fb;--card:#fff;--text:#1b1f2a;--muted:#5b6470;--line:#e6e9f0}}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 Pretendard,system-ui,-apple-system,"Segoe UI",sans-serif}
+  .wrap{max-width:920px;margin:0 auto;padding:20px}
+  h1{font-size:22px;margin:0 0 4px}h2{font-size:14px;margin:26px 0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .meta{color:var(--muted);font-size:14px}.time{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:600}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin:12px 0}
+  .bar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 0;margin-bottom:8px;display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+  .grp{display:flex;gap:6px;align-items:center}.grp>.lbl{font-size:12px;color:var(--muted)}
+  .bar button{cursor:pointer;padding:5px 12px;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:999px;font:600 13px/1 inherit}
+  .bar button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+  .item{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.item .name{font-weight:600}.item .art{color:var(--muted);font-size:13px;margin-left:auto;font-variant-numeric:tabular-nums}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600}
+  .b-ok{background:rgba(62,207,142,.15);color:var(--ok)}.b-part{background:rgba(224,162,60,.15);color:var(--warn)}.b-wait{background:rgba(154,163,178,.15);color:var(--muted)}
+  details{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
+  details>summary{cursor:pointer;list-style:none;display:inline-block;padding:4px 12px;border:1px solid var(--line);border-radius:999px;font-size:13px;font-weight:600;color:var(--accent);user-select:none}
+  details>summary::-webkit-details-marker{display:none}
+  details>summary:hover{border-color:var(--accent)}
+  .detail{margin-top:10px;font-size:14px}.detail b.why{color:var(--accent)}
+  table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-weight:600}
+  code{font-family:Consolas,monospace;font-size:12.5px;background:rgba(128,140,160,.12);padding:1px 5px;border-radius:4px}
+  ul{margin:6px 0;padding-left:18px}
+  .foot{color:var(--muted);font-size:12px;margin-top:28px;border-top:1px solid var(--line);padding-top:12px}
+  /* prompt pack */
+  .pr{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0}
+  .pr .head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  .pr .head .t{font-weight:700}.pr .head .why{color:var(--muted);font-size:13px}
+  .pr pre{margin:8px 0 0;padding:12px;background:rgba(128,140,160,.08);border:1px solid var(--line);border-radius:8px;font:12.5px/1.55 Consolas,monospace;white-space:pre-wrap;word-break:break-word;overflow-x:auto}
+  .cpy{cursor:pointer;margin-left:auto;padding:4px 14px;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:999px;font:600 12.5px/1 inherit}
+  .cpy:hover{background:var(--accent);color:#fff}
+  body:not(.lang-en) .en{display:none}body.lang-en .ko{display:none}
+  body:not(.mode-expert) .expert{display:none}body.mode-expert .easy{display:none}
+</style></head>
+<body class="lang-ko mode-easy"><div class="wrap">
+
+  <div class="bar">
+    <div class="grp" role="group" aria-label="언어 선택 / Language"><span class="lbl ko">언어</span><span class="lbl en">Language</span>
+      <button data-lang="ko" aria-pressed="true" onclick="setLang('ko')">한국어</button>
+      <button data-lang="en" aria-pressed="false" onclick="setLang('en')">English</button></div>
+    <div class="grp" role="group" aria-label="설명 수준 / Explanation mode"><span class="lbl ko">설명</span><span class="lbl en">Mode</span>
+      <button data-mode="easy" aria-pressed="true" onclick="setMode('easy')"><span class="ko">쉬운 설명</span><span class="en">Simple</span></button>
+      <button data-mode="expert" aria-pressed="false" onclick="setMode('expert')"><span class="ko">전문가</span><span class="en">Expert</span></button></div>
+  </div>
+
+  <h1><span class="ko">4-AI 사후 관찰 보고 + 개선 프롬프트 팩</span><span class="en">4-AI Post-fix Report + Improvement Prompt Pack</span></h1>
+  <div class="meta">comm-hub · <span class="time">2026-07-03 05:25 KST</span> · <span class="ko">테스트 05:15 마감 후 25분 라이브 관찰</span><span class="en">25-min live observation after the 05:15 test wrap</span></div>
+
+  <div class="card">
+    <span class="ko"><b>한눈 요약</b> — 수리한 것들이 실제로 작동하는지 25분간 지켜봤다. <b>커밋 스팸 0건</b>(데몬 5사이클), <b>AG 연속 exit 0</b>(재기동 후 2사이클), <b>끝난 오더 재투입 소멸</b>, 원격 채널 클린. 양 레인 모두 최신 픽스가 탑재된 프로세스로 교체 완료. 남은 개선거리 <b>6건은 아래 "프롬프트 팩"</b>으로 만들어뒀다 — 카드의 복사 버튼을 눌러 새 Claude 세션에 붙여넣으면 그대로 실행된다.</span>
+    <span class="en"><b>At a glance</b> — Watched the fixes run live for 25 minutes: <b>zero spam commits</b> (5 daemon cycles), <b>AG exit 0 twice in a row</b> post-restart, <b>no more re-dispatch of finished orders</b>, remote channel clean. Both lanes now run processes carrying every fix. The <b>6 remaining improvements are packaged below as paste-ready prompts</b> — hit Copy and paste into a Claude session to execute.</span>
+  </div>
+
+  <h2><span class="ko">실증 지표 (05:00–05:22 라이브)</span><span class="en">Verified metrics (05:00–05:22 live)</span></h2>
+  <div class="card">
+    <svg viewBox="0 0 720 150" width="100%" role="img" aria-label="Spam commits per cycle: before about 1.6, after 0. AG cycle exits: before fail, after 2 consecutive OK.">
+      <line x1="20" y1="112" x2="700" y2="112" stroke="var(--line)"/>
+      <rect x="90"  y="32" width="46" height="80" fill="var(--muted)"/><text x="113" y="26" fill="var(--text)" font-size="13" text-anchor="middle" font-weight="600">~1.6</text>
+      <rect x="156" y="110" width="46" height="2" fill="var(--ok)"/><text x="179" y="102" fill="var(--ok)" font-size="14" text-anchor="middle" font-weight="700">0</text>
+      <text x="146" y="132" fill="var(--muted)" font-size="12" text-anchor="middle"><tspan class="ko">스팸 커밋/사이클 (전→후)</tspan><tspan class="en">spam commits/cycle (before→after)</tspan></text>
+      <rect x="420" y="32" width="46" height="80" fill="var(--muted)"/><text x="443" y="26" fill="var(--text)" font-size="13" text-anchor="middle" font-weight="600">exit 1</text>
+      <rect x="486" y="72" width="46" height="40" fill="var(--ok)"/><text x="509" y="64" fill="var(--ok)" font-size="13" text-anchor="middle" font-weight="700">exit 0 ×2</text>
+      <text x="476" y="132" fill="var(--muted)" font-size="12" text-anchor="middle"><tspan class="ko">AG 실사이클 결과 (전→후)</tspan><tspan class="en">AG cycle result (before→after)</tspan></text>
+    </svg>
+    <details><summary><span class="ko">자세히 ▸</span><span class="en">Details ▸</span></summary><div class="detail">
+      <div class="easy ko"><b class="why">무엇이 증명됐나:</b> ① 테스트 마감 후 데몬이 5번 돌았는데 저장소에 잡음 커밋이 하나도 없다 — "할 일 없으면 아무것도 쓰지 마라" 규칙이 자리잡음. ② AG는 재기동 후 두 번 연속 정상 종료 — 이전엔 진짜 일만 시키면 죽었다. ③ 이미 답변된 오더에 AI를 또 투입하던 낭비가 사라짐. ④ 원격 오더함은 빈 큐(0~31 전부 완료 인식). 다만 AG가 "진짜 일을 커밋까지" 완주하는 장면은 아직 안 나왔다(큐가 비어 있어서) — 그래서 아래 프롬프트 1번이 그 실증용이다.</div>
+      <div class="easy en"><b class="why">What got proven:</b> ① 5 daemon cycles after the test, zero noise commits — the "write nothing when idle" rule holds. ② AG exited clean twice in a row post-restart — previously it died on any real task. ③ The waste of re-dispatching answered orders is gone. ④ Remote order queue is empty (0–31 all recognized done). What's not yet proven: AG finishing a REAL task through to commit (queue was empty) — prompt #1 below exists to prove exactly that.</div>
+      <div class="expert ko"><b class="why">계측:</b> git log 4d926b0b..HEAD = 0 커밋(codex c19-t2/c20, AG c1/c2 — 이전 베이스라인은 사이클당 ~1.6 스팸 커밋). AG 신 데몬(05:08:37 START, AGY_TIMEOUT_MS=900000·TRIES=2 주입) c1 exit 0(78s)·c2 exit 0(76s) — 단 양쪽 다 no-op라 실작업 완주는 P1 프롬프트로 실증 예정. codex 레인 재기동(PID 31772)으로 ref-인지 Count-OpenOrders 메모리 탑재(구 프로세스는 status-only 구코드였음 — c19-t2가 마지막 낭비 재스폰). orders-poll: openIds=∅·done 0–31·heartbeat 기록. watchdog은 AG 재기동을 자가 감지·기록(감시망 생존 증거).</div>
+      <div class="expert en"><b class="why">Measurements:</b> git log 4d926b0b..HEAD = 0 commits (codex c19-t2/c20, AG c1/c2 — prior baseline ~1.6 spam commits/cycle). New AG daemon (START 05:08:37, AGY_TIMEOUT_MS=900000·TRIES=2 injected): c1 exit 0 (78s), c2 exit 0 (76s) — both no-ops, so real-task completion is what prompt P1 proves. Codex lane restarted (PID 31772) to load the ref-aware Count-OpenOrders (the old process ran status-only code — c19-t2 was its last wasted re-spawn). orders-poll: openIds=∅, done 0–31, heartbeat written. The watchdog self-detected and logged the AG restart (proof the net is alive).</div>
+    </div></details>
+  </div>
+
+  <h2><span class="ko">테스트 스코어 요약</span><span class="en">Test score recap</span></h2>
+  <div class="card">
+    <table>
+      <tr><th></th><th>Codex</th><th>Grok</th><th>Antigravity</th></tr>
+      <tr><td><span class="ko">왕복</span><span class="en">Round-trip</span></td><td>6m14s</td><td><b>1m27s</b></td><td>4m52s</td></tr>
+      <tr><td><span class="ko">산출 품질</span><span class="en">Quality</span></td><td><span class="badge b-ok"><span class="ko">a11y 실결함 2</span><span class="en">2 real a11y finds</span></span></td><td><span class="badge b-ok"><span class="ko">실링크 신호</span><span class="en">real-link signals</span></span></td><td><span class="badge b-ok"><span class="ko">진짜 모순 2</span><span class="en">2 real contradictions</span></span></td></tr>
+      <tr><td><span class="ko">계약·커밋</span><span class="en">Contract·commit</span></td><td><span class="badge b-ok"><span class="ko">완벽</span><span class="en">perfect</span></span></td><td><span class="badge b-part"><span class="ko">분량 초과</span><span class="en">over length</span></span></td><td><span class="badge b-part"><span class="ko">키 2 누락·커밋 회수</span><span class="en">2 keys missing·salvaged</span></span></td></tr>
+    </table>
+    <div class="meta" style="margin-top:8px"><span class="ko">발견 6건 중 P1 2건(agy 90초 킬·ref-blind 카운터) 당일 수리, MoA 자기검증 금지 명문화. 상세: <code>Output/test-4ai-20260703.html</code></span><span class="en">Of 6 findings, both P1s (agy 90s kill · ref-blind counter) fixed same-day; MoA self-verify ban codified. Details: <code>Output/test-4ai-20260703.html</code></span></div>
+  </div>
+
+  <h2><span class="ko">개선 프롬프트 팩 — 복사해서 붙여넣으면 실행됩니다</span><span class="en">Improvement prompt pack — copy &amp; paste to execute</span></h2>
+  <div class="meta" style="margin-bottom:8px"><span class="ko">우선순위순. 각 프롬프트는 자체완결이라 새 Claude Code 세션(허브 컨텍스트)에 그대로 붙여넣으면 된다.</span><span class="en">Priority order. Each prompt is self-contained — paste as-is into a Claude Code session with hub context.</span></div>
+
+  <div class="pr">
+    <div class="head"><span class="badge b-part">P1</span><span class="t"><span class="ko">AG 실작업 커밋-완주 실증</span><span class="en">Prove AG completes real work through commit</span></span><button class="cpy" onclick="cp('p1',this)"><span class="ko">복사</span><span class="en">Copy</span></button></div>
+    <div class="head"><span class="why"><span class="ko">타임아웃 픽스(900초)의 마지막 실증 — 테스트 때는 큐가 비어 no-op만 관찰됨.</span><span class="en">Final proof of the 900s timeout fix — the test only observed no-ops afterward.</span></span></div>
+    <pre id="p1">허브(C:\Coding Infra\AI Infra\Communication)에서 AG 좌석의 타임아웃 픽스(AGY_TIMEOUT_MS=900000, TRIES=2)를 실작업으로 최종 실증해줘.
+1) AG 레인에 맞는 실작업 오더 1건을 정식 outbox request로 발주 (예: PROTOCOL.md와 RUNBOOK.md 간 모순 감사, 또는 에뮬 가동 상태면 2nd-B 스모크 QA)
+2) 상시 데몬을 기다리지 말고 원샷 처리: powershell -ExecutionPolicy Bypass -File tools/hub-daemon.ps1 -Only antigravity -MaxCycles 1  (상시 AG 데몬과 mutex 충돌하면 그 데몬의 다음 사이클을 대기)
+3) 채점: 응답 md 생성 + frontmatter 9키(id/from/to/type/ref/project/priority/status/created) 완전 준수 + tools/commit.ps1 -As antigravity 정체성 커밋까지 완주, 고아 파일 0
+4) 실패하면 tools/live/antigravity.log에서 원인 분석 → INCIDENTS.md에 원장 기록 후 수리</pre>
+  </div>
+
+  <div class="pr">
+    <div class="head"><span class="badge b-part">P2</span><span class="t"><span class="ko">좌석 frontmatter 계약 준수 강화</span><span class="en">Enforce the frontmatter contract in seat prompts</span></span><button class="cpy" onclick="cp('p2',this)"><span class="ko">복사</span><span class="en">Copy</span></button></div>
+    <div class="head"><span class="why"><span class="ko">AG 응답에서 created/project 누락 — hub-health WARN 9건과 같은 계열.</span><span class="en">AG's response missed created/project — same class as the 9 hub-health WARNs.</span></span></div>
+    <pre id="p2">허브 tools/hub-daemon.ps1의 Invoke-AI 프롬프트(Step 4 부근)에 응답 frontmatter 필수 템플릿을 명시해줘:
+id/from/to/type/ref/project/priority/status/created 9키를 실제 예시 블록으로 박고, "누락 시 hub-health WARN으로 집계된다"를 한 줄 추가.
+같은 템플릿을 prompts/*-activate.md와 *-onboarding.md에도 동기화(PROTOCOL §34.5 sync 규칙).
+검증: 파스 체크 후 데몬 재기동, 다음 좌석 응답에서 9키 준수 + hub-health의 post-contract WARN 수치가 늘지 않는 것 확인. 완료 후 commit.ps1 -As claude 커밋 + push.</pre>
+  </div>
+
+  <div class="pr">
+    <div class="head"><span class="badge b-part">P2</span><span class="t"><span class="ko">긴급 오더 원샷 디스패처 헬퍼</span><span class="en">One-shot dispatcher for urgent orders</span></span><button class="cpy" onclick="cp('p3',this)"><span class="ko">복사</span><span class="en">Copy</span></button></div>
+    <div class="head"><span class="why"><span class="ko">테스트 실측: 원샷 grok 87초 vs 케이던스 대기 codex 6분14초.</span><span class="en">Measured: one-shot grok 87s vs cadence-waiting codex 6m14s.</span></span></div>
+    <pre id="p3">허브에 긴급 오더용 헬퍼 tools/dispatch-oneshot.ps1을 만들어줘.
+사용법: dispatch-oneshot.ps1 -To codex|grok|antigravity -Slug &lt;제목슬러그&gt; -BodyFile &lt;내용md경로&gt;
+동작: ① agents/claude/outbox에 frontmatter 9키 계약을 준수한 request md 생성(실시각 Get-Date) ② commit.ps1 -As claude로 커밋 ③ 해당 레인 원샷 스폰(-Only &lt;ai&gt; -MaxCycles 1; 상시 데몬 mutex 충돌 시 "상시 데몬이 다음 사이클에 처리" 안내 출력) ④ 응답 파일 폴링(최대 15분) 후 경로와 소요시간 출력.
+제약: ASCII 소스(PS5.1 cp949 함정), [IO.File] no-BOM 쓰기, 파스 체크 후 RUNBOOK에 사용법 1줄 추가, commit.ps1 -As claude 커밋 + push.</pre>
+  </div>
+
+  <div class="pr">
+    <div class="head"><span class="badge b-part">P3</span><span class="t"><span class="ko">grok 출력 분량 가드</span><span class="en">Grok output-length guard</span></span><button class="cpy" onclick="cp('p4',this)"><span class="ko">복사</span><span class="en">Copy</span></button></div>
+    <div class="head"><span class="why"><span class="ko">지시 "10줄 이내"를 48줄로 초과 — over-delivery 성향 관찰됨.</span><span class="en">Delivered 48 lines against a 10-line cap — over-delivery tendency.</span></span></div>
+    <pre id="p4">grok 좌석의 over-delivery 교정: agents/grok/RULES.md와 prompts/grok-activate.md에 다음 규칙을 추가해줘 —
+"요청에 분량 제한이 명시되면 outbox md는 절대 초과 금지. 넘치는 상세는 preview HTML에만 담고 md에는 링크만."
+검증: 다음 grok 오더에 '8줄 이내' 제한을 걸어 준수 확인. 완료 후 commit.ps1 -As claude 커밋 + push. (§34.5 sync 헤더 갱신 포함)</pre>
+  </div>
+
+  <div class="pr">
+    <div class="head"><span class="badge b-part">P3</span><span class="t"><span class="ko">hub-health WARN 9건 소거</span><span class="en">Clear the 9 hub-health WARNs</span></span><button class="cpy" onclick="cp('p5',this)"><span class="ko">복사</span><span class="en">Copy</span></button></div>
+    <div class="head"><span class="why"><span class="ko">06-15 계약 이후 작성됐는데 malformed인 메시지 9건 — 유일하게 남은 비-PASS.</span><span class="en">9 post-contract malformed messages — the only non-PASS left.</span></span></div>
+    <pre id="p5">허브 hub-health의 'outbox frontmatter contract' WARN 9건을 소거해줘:
+① tools/hub-health.ps1의 해당 체크와 동일 기준으로 9건 파일 목록 추출(파일명 날짜 20260615 이후 + 키 누락)
+② 각 파일 frontmatter에 누락 키만 보충(본문 불변, UTF-8 no-BOM)
+③ 발신 좌석별 원인 1줄 분류(어느 좌석이 상습인지)
+④ hub-health 재실행으로 WARN=0 확인 → commit.ps1 -As claude 커밋 + push.</pre>
+  </div>
+
+  <div class="pr">
+    <div class="head"><span class="badge b-ok">RUN</span><span class="t"><span class="ko">원격 디렉터 /loop 재가동 (외출 전 실행)</span><span class="en">Restart the remote director /loop (before going out)</span></span><button class="cpy" onclick="cp('p6',this)"><span class="ko">복사</span><span class="en">Copy</span></button></div>
+    <div class="head"><span class="why"><span class="ko">개선이 아니라 운용 스위치 — 이걸 켜야 폰 오더가 소비된다(안 켜면 watchdog이 30분 내 알림).</span><span class="en">Not a fix — the operating switch. Phone orders are consumed only while this runs (watchdog alerts within 30 min otherwise).</span></span></div>
+    <pre id="p6">/loop 원격 오더 디렉터 세션 시작. 매 사이클:
+① powershell -ExecutionPolicy Bypass -File "C:\Coding Infra\AI Infra\Communication\tools\orders-poll.ps1" -Json -Heartbeat 로 폴링
+② newCount>0이면 orders-poll.ps1 -Ack <번호>로 픽업 기록 후 수행 — 레인 분배는 ROUTING.md, 고위험 산출물은 ROUTING-MOA §3 교차검증, 게이트(파괴·실비용·secrets·안전임상·법무)만 나에게 확인
+③ 완료 시 2nd-B ORDERS.md ## DONE에 [YYYY-MM-DD / HH:MM:SS KST] 피드백 append + commit/push (verify green 확인 후)
+④ 오더 없으면 조용히 다음 틱 대기. BOARD/CONTROL 정합 유지, 사이클 산출은 HTML 보고.</pre>
+  </div>
+
+  <div class="pr">
+    <div class="head"><span class="badge b-wait"><span class="ko">결정</span><span class="en">DECIDE</span></span><span class="t"><span class="ko">hub-role-additions 좌석 재배치 (Simon 결정 대기)</span><span class="en">hub-role-additions seat redesign (awaiting Simon)</span></span><button class="cpy" onclick="cp('p7',this)"><span class="ko">복사</span><span class="en">Copy</span></button></div>
+    <div class="head"><span class="why"><span class="ko">06-14 분석의 권고 1안 = Claude 코어레인 독립심판+전레포 감사관(비용 0). 승인하면 아래를 붙여넣기.</span><span class="en">The 06-14 analysis recommends option #1 (0-cost). Paste below to approve &amp; apply.</span></span></div>
+    <pre id="p7">Output/hub-role-additions-20260614.html의 권고 1안(코어레인 독립심판 + 전레포 감사관 듀티)을 승인한다. 적용해줘:
+ROUTING.md §1.5에 듀티 추가(§34.4 separate-judge와 정합, 최종 판정·머지권은 Claude 불변 명시), PROTOCOL 관련 절 포인터 갱신, DECISIONS.md에 D-코드로 결정 기록(근거=해당 HTML), 각 좌석 activate/RULES 동기화(§34.5). 완료 후 commit.ps1 -As claude 커밋 + push + 완료보고 HTML.</pre>
+  </div>
+
+  <h2><span class="ko">상태</span><span class="en">Status</span></h2>
+  <div class="card"><div class="detail">
+    <div class="ko"><ul>
+      <li>레인: AG PID 27936(신 래퍼 env) · codex PID 31772(ref-인지 카운터) — 모든 픽스 탑재 프로세스로 교체 완료.</li>
+      <li>원격 채널: OPEN 빈 큐 · done 0–31 · 하트비트 기록 · watchdog 감시 중.</li>
+      <li>push: 허브 master == origin (이 보고서 커밋 포함). Simon 결정 대기 1건(위 마지막 카드).</li>
+    </ul></div>
+    <div class="en"><ul>
+      <li>Lanes: AG PID 27936 (new wrapper env) · codex PID 31772 (ref-aware counter) — every fix now lives in the running processes.</li>
+      <li>Remote channel: OPEN empty · done 0–31 · heartbeat written · watchdog on duty.</li>
+      <li>Push: hub master == origin (including this report). One decision pending for Simon (last card above).</li>
+    </ul></div>
+  </div></div>
+
+  <div class="foot">
+    <span class="ko">생성 <span class="time">2026-07-03 05:25:52 KST</span> · SimonK completion-report 표준 · 연계: <code>test-4ai-20260703.html</code>(테스트 상세) · <code>hub-audit-20260703-v2.html</code>(감사 v2) · INCIDENTS 07-03</span>
+    <span class="en">Generated <span class="time">2026-07-03 05:25:52 KST</span> · SimonK completion-report standard · see also: <code>test-4ai-20260703.html</code> · <code>hub-audit-20260703-v2.html</code> · INCIDENTS 07-03</span><br>
+    [4-AI 사후 관찰 + 개선 프롬프트 팩 / 26.07.03 / 05:25:52] #ai-hub #post-fix #prompt-pack
+  </div>
+</div>
+<script>
+  function mark(g,v){document.querySelectorAll('[data-'+g+']').forEach(function(x){x.setAttribute('aria-pressed',String(x.getAttribute('data-'+g)===v));});}
+  function setLang(l){var b=document.body;b.classList.toggle('lang-en',l==='en');b.classList.toggle('lang-ko',l==='ko');mark('lang',l);}
+  function setMode(m){var b=document.body;b.classList.toggle('mode-expert',m==='expert');b.classList.toggle('mode-easy',m==='easy');mark('mode',m);}
+  function cp(id,btn){var t=document.getElementById(id).innerText;var done=function(){var o=btn.innerHTML;btn.textContent='✓';setTimeout(function(){btn.innerHTML=o;},1400);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done);}
+    else{var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done();}finally{document.body.removeChild(ta);}}}
+</script>
+</body></html>
