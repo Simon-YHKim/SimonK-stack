@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>보드 오픈 큐 검증 보고서</title>
+  <style>
+    :root { --bg:#111318; --text:#f2f2f2; --accent:#7cc7ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:960px; margin:0 auto; padding:32px 20px 48px; }
+    header { border:1px solid var(--accent); padding:22px; border-radius:6px; }
+    h1, h2 { margin:0 0 12px; }
+    h1 { font-size:28px; }
+    h2 { font-size:19px; margin-top:28px; color:var(--accent); }
+    p { margin:8px 0; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin-top:16px; }
+    .card { border:1px solid var(--accent); border-radius:6px; padding:14px; }
+    .num { font-size:30px; font-weight:700; color:var(--accent); }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); }
+    code { color:var(--accent); }
+    details { border:1px solid var(--accent); border-radius:6px; padding:12px; margin-top:12px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { margin:18px 0; }
+    svg { width:100%; max-width:620px; height:auto; display:block; }
+    a { color:var(--accent); }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>보드 오픈 큐 검증 보고서</h1>
+    <p>작성 시각: 2026-07-02 13:34:30 KST</p>
+    <p>이번 사이클은 파일명 fallback 적용 시 Codex OPEN 큐가 얼마나 줄어드는지 검증했다.</p>
+    <div class="grid">
+      <section class="card"><div class="num">4</div><p>현재 Codex OPEN 행</p></section>
+      <section class="card"><div class="num">1</div><p>fallback 적용 후 남는 행</p></section>
+      <section class="card"><div class="num">3</div><p>억제되는 중복 행</p></section>
+    </div>
+  </header>
+
+  <section>
+    <h2>결론</h2>
+    <p><code>tools/board.ps1</code>에서 요청 <code>id</code>가 비어 있으면 파일명에서 확장자를 뺀 값을 fallback id로 쓰는 변경은 유효하다. 현재 반복되는 Codex OPEN 4건 중 3건을 제거한다.</p>
+    <p>남는 <code>20260607-0740-to-all-pause.md</code>는 과거 방송 행이라 fallback만으로 닫히지 않는다. Claude가 원본 상태를 닫거나 별도 종료 조건을 추가해야 한다.</p>
+  </section>
+
+  <section>
+    <h2>검증 수치</h2>
+    <div class="bar" aria-label="오픈 큐 감소 막대 차트">
+      <svg viewBox="0 0 620 140" role="img">
+        <title>오픈 큐 감소</title>
+        <rect x="0" y="0" width="620" height="140" fill="#111318"></rect>
+        <text x="0" y="24" fill="#f2f2f2" font-size="16">현재</text>
+        <rect x="90" y="10" width="400" height="24" fill="#7cc7ff"></rect>
+        <text x="505" y="29" fill="#f2f2f2" font-size="16">4</text>
+        <text x="0" y="74" fill="#f2f2f2" font-size="16">적용 후</text>
+        <rect x="90" y="60" width="100" height="24" fill="#7cc7ff"></rect>
+        <text x="205" y="79" fill="#f2f2f2" font-size="16">1</text>
+        <text x="0" y="124" fill="#f2f2f2" font-size="16">억제</text>
+        <rect x="90" y="110" width="300" height="24" fill="#7cc7ff"></rect>
+        <text x="405" y="129" fill="#f2f2f2" font-size="16">3</text>
+      </svg>
+    </div>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>현재 Codex OPEN 행</td><td>4</td></tr>
+        <tr><td>파일명 fallback 적용 후</td><td>1</td></tr>
+        <tr><td>억제되는 중복 행</td><td>3</td></tr>
+        <tr><td>남는 행</td><td><code>20260607-0740-to-all-pause.md</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>상세</h2>
+    <details open>
+      <summary>억제되는 행</summary>
+      <ul>
+        <li><code>20260606-012034-to-codex-cycle2-ui-audit.md</code></li>
+        <li><code>20260606-024749-to-codex-65e5ac4-regate.md</code></li>
+        <li><code>20260607-112720-to-codex-gtm-trust-copy-dispatch.md</code></li>
+      </ul>
+    </details>
+    <details>
+      <summary>남는 행 처리</summary>
+      <p><code>pause</code> 방송은 현재 running 상태와 맞지 않는 오래된 행이다. 원본 frontmatter를 닫거나, 보드 로직에서 과거 pause 방송을 종료된 행으로 분류하는 처리가 필요하다.</p>
+    </details>
+    <details>
+      <summary>검증 범위</summary>
+      <p>읽은 파일은 <code>BOARD.md</code>, <code>tools/board.ps1</code>, <code>tools/commit.ps1</code>, <code>agents/codex/RULES.md</code>, <code>agents/codex/STATUS.md</code>, 직전 Codex 권고, 그리고 <code>auth-backarrow-layout</code> 요청과 응답이다.</p>
+      <p>수행하지 않은 작업: 제품 코드 수정, 2nd-B push, PR, merge, 파괴적 작업, 비용 발생 작업, secret 작업, 서버 시작, 브라우저 자동 열기.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>자체 패널</h2>
+    <table>
+      <thead><tr><th>관점</th><th>판단</th></tr></thead>
+      <tbody>
+        <tr><td>실행 관점</td><td>fallback id는 반복 OPEN 큐의 대부분을 줄여 다음 Codex poll cycle 낭비를 줄인다.</td></tr>
+        <tr><td>반대 관점</td><td>fallback만 적용하면 pause 방송 1건이 남아 완전 해결로 오인될 수 있다.</td></tr>
+        <tr><td>대안 관점</td><td>Claude가 모든 원본 상태를 개별 수정할 수도 있으나, fallback은 구조적 재발 방지에 더 가깝다.</td></tr>
+        <tr><td>판정</td><td>파일명 fallback 적용과 pause 원본 상태 정리를 분리하는 2단계가 가장 작고 안전하다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>
