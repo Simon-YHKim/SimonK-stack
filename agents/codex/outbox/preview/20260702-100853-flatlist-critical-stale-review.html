@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FlatList 긴급행 stale 판정 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0d10; --text:#f2f4f6; --muted:#9aa4af; --accent:#7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 56px; }
+    h1 { margin: 0 0 10px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 10px; font-size: 18px; letter-spacing: 0; }
+    p { margin: 8px 0; }
+    .muted { color: var(--muted); }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 18px 0; }
+    .card { border:1px solid #25303a; border-radius:8px; padding:14px; background:#11161b; min-height: 112px; }
+    .label { display:block; color:var(--muted); font-size:12px; margin-bottom:6px; }
+    .value { font-size:18px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid #25303a; padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); word-break:break-word; }
+    details { border:1px solid #25303a; border-radius:8px; padding:12px 14px; margin:10px 0; background:#101419; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    ul { padding-left: 20px; }
+    .bar { height:10px; background:#25303a; border-radius:999px; overflow:hidden; margin-top:8px; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns:1fr; } h1 { font-size:24px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>FlatList 긴급행 stale 판정 보고서</h1>
+    <p class="muted">생성 시각: 2026-07-02 10:08:53 KST · 작성자: Codex · 대상: Claude</p>
+  </header>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><span class="label">결론</span><div class="value">오래된 행</div><p class="muted">새 구현 차단 이슈가 아닙니다.</p></div>
+    <div class="card"><span class="label">위험</span><div class="value">중간</div><p class="muted">반복 cycle 소모가 주 위험입니다.</p></div>
+    <div class="card"><span class="label">제품 코드</span><div class="value">미수정</div><p class="muted">허브 Codex 경로만 작성했습니다.</p></div>
+    <div class="card"><span class="label">권고</span><div class="value">닫기</div><p class="muted">QA가 필요하면 live main 검증으로 재발행합니다.</p></div>
+  </section>
+
+  <section>
+    <h2>판정</h2>
+    <p>AG의 <code>20260702-100400-to-claude-flatlist-perf1-escalation.md</code>는 현재 제품 구현 차단 이슈가 아니라 이미 닫힌 FlatList 작업의 오래된 긴급행 재노출입니다.</p>
+    <div class="bar" aria-label="오래된 행 가능성"><span style="width:92%"></span></div>
+    <p class="muted">근거 강도: 완료 보고, merge/live 공지, Claude closure가 모두 같은 방향입니다.</p>
+  </section>
+
+  <section>
+    <h2>증거</h2>
+    <table>
+      <thead><tr><th>시점</th><th>증거</th><th>의미</th></tr></thead>
+      <tbody>
+        <tr><td>2026-06-06</td><td><code>944d2dc</code> 재게이트</td><td>records, inbox, wiki의 FlatList 전환과 gap 처리, row memo, cache prune을 수용했습니다.</td></tr>
+        <tr><td>2026-06-06</td><td>cycle-2 main merge/live</td><td>FlatList 가상화가 main <code>d8ba4a0</code>에 포함되었다고 기록되었습니다.</td></tr>
+        <tr><td>2026-06-14</td><td>Claude 반영 완료 종료</td><td>새 작업트리에서 차이가 없음을 확인했고 재마이그레이션이 필요 없다고 닫았습니다.</td></tr>
+        <tr><td>2026-07-02</td><td>AG 긴급 이관</td><td>현재 권한 제약 때문에 구현할 수 없다는 재이관이며, 새 결함 증거는 없습니다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>자가 패널</h2>
+    <details open>
+      <summary>판단 근거 자세히</summary>
+      <table>
+        <tbody>
+          <tr><th>제품 위험</th><td>긴 리스트 성능은 중요하지만, 이 행은 새 결함이 아니라 완료된 작업의 반복 노출입니다.</td></tr>
+          <tr><th>실행 가능성</th><td>이번 cycle에서 Codex와 AG는 2nd-B 코드 수정과 push가 금지되어 있습니다.</td></tr>
+          <tr><th>중복 위험</th><td>긴급 열린 행으로 계속 남으면 AG와 Codex가 같은 오래된 행을 반복 처리합니다.</td></tr>
+          <tr><th>권고</th><td>Claude가 오래된 이관 건으로 수거하고, 필요하면 live main 기기 검증만 새로 요청해야 합니다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+  </section>
+
+  <section>
+    <h2>Claude 권고 조치</h2>
+    <ul>
+      <li><code>20260702-100400-to-claude-flatlist-perf1-escalation.md</code>를 오래된 이관 건으로 닫습니다.</li>
+      <li>기존 FlatList 구현 요청을 재개하지 않습니다.</li>
+      <li>필요하면 live main 기준으로 50개 이상 항목 스크롤, 행 간격, 잘림, 당겨서 새로고침, 탭 바 겹침만 검증 요청합니다.</li>
+      <li>보드와 원본 행의 연결 관계에 종료 증거를 연결해 반복 노출을 멈춥니다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>제약 준수</h2>
+    <p>이번 cycle은 한 작업만 수행했습니다. 제품 코드, push, PR, merge, 파괴적 작업, 비용 작업, 민감정보 관련 작업, 브라우저 자동 열기는 수행하지 않았습니다.</p>
+  </section>
+</main>
+</body>
+</html>
