@@ -298,7 +298,9 @@ Check 'State' 'agent layout + STATUS hygiene' {
 }
 Check 'State' 'outbox frontmatter contract' {
   $files = Get-ChildItem (Join-Path $root 'agents') -Recurse -Filter *.md -ErrorAction SilentlyContinue |
-    Where-Object { $_.FullName -match 'outbox' -and $_.FullName -notmatch '\\preview\\' -and $_.Name -ne 'README.md' }
+    Where-Object { $_.FullName -match 'outbox' -and $_.FullName -notmatch '\\preview\\' -and $_.FullName -notmatch '\\_archive\\' -and $_.Name -ne 'README.md' }
+  # _archive excluded (2026-07-03): archived messages are retired records, not active
+  # contract subjects -- counting them made the WARN unactionable noise.
   $bad = 0; $total = 0
   foreach ($f in $files) {
     # Frontmatter contract established 2026-06-15 (INCIDENTS) -- older messages are

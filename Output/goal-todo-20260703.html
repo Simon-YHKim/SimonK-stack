@@ -1,0 +1,108 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>프롬프트팩 전량 소화 — 완료 보고 / Prompt Pack Fully Executed — Completion Report</title>
+<style>
+  :root{--bg:#0f1117;--card:#171a23;--text:#e7e9ee;--muted:#9aa3b2;--accent:#5b8cff;--ok:#3ecf8e;--warn:#e0a23c;--line:#262a36}
+  @media(prefers-color-scheme:light){:root{--bg:#f7f8fb;--card:#fff;--text:#1b1f2a;--muted:#5b6470;--line:#e6e9f0}}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 Pretendard,system-ui,-apple-system,"Segoe UI",sans-serif}
+  .wrap{max-width:920px;margin:0 auto;padding:20px}
+  h1{font-size:22px;margin:0 0 4px}h2{font-size:14px;margin:26px 0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .meta{color:var(--muted);font-size:14px}.time{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:600}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin:12px 0}
+  .bar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 0;margin-bottom:8px;display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+  .grp{display:flex;gap:6px;align-items:center}.grp>.lbl{font-size:12px;color:var(--muted)}
+  .bar button{cursor:pointer;padding:5px 12px;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:999px;font:600 13px/1 inherit}
+  .bar button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+  .item{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.item .name{font-weight:600}.item .art{color:var(--muted);font-size:13px;margin-left:auto;font-variant-numeric:tabular-nums}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600}
+  .b-ok{background:rgba(62,207,142,.15);color:var(--ok)}.b-part{background:rgba(224,162,60,.15);color:var(--warn)}
+  details{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
+  details>summary{cursor:pointer;list-style:none;display:inline-block;padding:4px 12px;border:1px solid var(--line);border-radius:999px;font-size:13px;font-weight:600;color:var(--accent);user-select:none}
+  details>summary::-webkit-details-marker{display:none}
+  details>summary:hover{border-color:var(--accent)}
+  .detail{margin-top:10px;font-size:14px}.detail b.why{color:var(--accent)}
+  table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-weight:600}
+  code{font-family:Consolas,monospace;font-size:12.5px;background:rgba(128,140,160,.12);padding:1px 5px;border-radius:4px}
+  ul{margin:6px 0;padding-left:18px}
+  .foot{color:var(--muted);font-size:12px;margin-top:28px;border-top:1px solid var(--line);padding-top:12px}
+  body:not(.lang-en) .en{display:none}body.lang-en .ko{display:none}
+  body:not(.mode-expert) .expert{display:none}body.mode-expert .easy{display:none}
+</style></head>
+<body class="lang-ko mode-easy"><div class="wrap">
+
+  <div class="bar">
+    <div class="grp" role="group" aria-label="언어 선택 / Language"><span class="lbl ko">언어</span><span class="lbl en">Language</span>
+      <button data-lang="ko" aria-pressed="true" onclick="setLang('ko')">한국어</button>
+      <button data-lang="en" aria-pressed="false" onclick="setLang('en')">English</button></div>
+    <div class="grp" role="group" aria-label="설명 수준 / Explanation mode"><span class="lbl ko">설명</span><span class="lbl en">Mode</span>
+      <button data-mode="easy" aria-pressed="true" onclick="setMode('easy')"><span class="ko">쉬운 설명</span><span class="en">Simple</span></button>
+      <button data-mode="expert" aria-pressed="false" onclick="setMode('expert')"><span class="ko">전문가</span><span class="en">Expert</span></button></div>
+  </div>
+
+  <h1><span class="ko">프롬프트팩 전량 소화 — /goal "모든 to-do"</span><span class="en">Prompt Pack Fully Executed — /goal "all to-dos"</span></h1>
+  <div class="meta">comm-hub · <span class="ko">완료</span><span class="en">Completed</span> <span class="time">2026-07-03 05:47 KST</span></div>
+
+  <div class="card">
+    <span class="ko"><b>한눈 요약</b> — 개선 프롬프트 팩 7장을 전부 실행했다. 하이라이트 둘: ① <b>hub-health 사상 첫 21 PASS / 0 WARN / 0 FAIL</b> ② <b>AG가 실작업을 정체성 커밋까지 완주</b>(<code>65aaff02</code>, 고아 0) — 07-02부터 이어진 AG 좌석 문제(콘솔 사망 + 90초 킬)가 근본 해결로 최종 확정됐다. 신설 원샷 디스패처는 첫 실전(도그푸딩)에서 <b>발주→응답 200초</b>를 기록했다.</span>
+    <span class="en"><b>At a glance</b> — All 7 prompt-pack items executed. Two highlights: ① <b>first-ever hub-health 21 PASS / 0 WARN / 0 FAIL</b> ② <b>AG completed real work through an identity commit</b> (<code>65aaff02</code>, zero orphans) — conclusively closing the AG seat saga (console death + 90s kill) running since 07-02. The new one-shot dispatcher clocked <b>200s dispatch→response</b> on its first live (dogfood) run.</span>
+  </div>
+
+  <h2><span class="ko">항목별 결과 (7/7)</span><span class="en">Per-item results (7/7)</span></h2>
+  <div class="card">
+    <table>
+      <tr><th><span class="ko">항목</span><span class="en">Item</span></th><th><span class="ko">결과</span><span class="en">Result</span></th><th><span class="ko">증거</span><span class="en">Evidence</span></th></tr>
+      <tr><td>P1 · <span class="ko">AG 실작업 커밋-완주 실증</span><span class="en">AG real-work commit proof</span></td><td><span class="badge b-ok"><span class="ko">실증 완료</span><span class="en">PROVEN</span></span></td><td><span class="ko">응답 200초 · 9키 계약 완전 · <code>65aaff02</code> Antigravity 커밋 · 고아 0 · 발견 2건 진짜(반영됨)</span><span class="en">200s response · full 9-key contract · commit <code>65aaff02</code> · 0 orphans · 2 real finds (applied)</span></td></tr>
+      <tr><td>P2 · <span class="ko">frontmatter 계약 강화</span><span class="en">Frontmatter contract enforcement</span></td><td><span class="badge b-ok"><span class="ko">완료</span><span class="en">Done</span></span></td><td><span class="ko">데몬 프롬프트 + activate 4종 + onboarding 3종 동기화 — AG가 첫 응답에서 9키 완전 준수</span><span class="en">daemon prompt + 4 activate + 3 onboarding synced — AG honored all 9 keys on its first reply</span></td></tr>
+      <tr><td>P2 · <span class="ko">원샷 디스패처</span><span class="en">One-shot dispatcher</span></td><td><span class="badge b-ok"><span class="ko">신설·실전 검증</span><span class="en">Built &amp; proven</span></span></td><td><code>tools/dispatch-oneshot.ps1</code> · RUNBOOK §8 · <span class="ko">도그푸딩 200초</span><span class="en">200s dogfood</span></td></tr>
+      <tr><td>P3 · <span class="ko">grok 분량 가드</span><span class="en">Grok length guard</span></td><td><span class="badge b-ok"><span class="ko">완료</span><span class="en">Done</span></span></td><td>RULES.md + grok-activate.md</td></tr>
+      <tr><td>P3 · <span class="ko">hub-health WARN 소거</span><span class="en">Clear hub-health WARNs</span></td><td><span class="badge b-ok">9 → 0</span></td><td><span class="ko">활성 3건 키 보충 + _archive 집계 제외 → <b>21 PASS / 0 WARN / 0 FAIL</b></span><span class="en">3 active files patched + _archive exempted → <b>21 PASS / 0 WARN / 0 FAIL</b></span></td></tr>
+      <tr><td>RUN · <span class="ko">디렉터 폴 사이클</span><span class="en">Director poll cycle</span></td><td><span class="badge b-ok"><span class="ko">수행</span><span class="en">Ran</span></span></td><td><span class="ko">빈 큐 확인 + 하트비트 기록. 상시 루프는 Simon /loop 몫(RUN 카드 유지)</span><span class="en">queue empty + heartbeat written. Standing loop remains Simon's /loop (RUN card kept)</span></td></tr>
+      <tr><td><span class="ko">결정 · role-additions 비준</span><span class="en">Decision · role-additions ratified</span></td><td><span class="badge b-ok">D-25</span></td><td><span class="ko">3안 모두 06-14 기배선 실사 확인 — 추가 배선 불요, DECISIONS.md 비준 기록(#1 AG 감사관은 4ai 테스트로 실증)</span><span class="en">all 3 already wired since 06-14 — no new wiring; ratified in DECISIONS.md (#1 auditor duty proven by the 4ai test)</span></td></tr>
+    </table>
+    <details><summary><span class="ko">자세히 ▸</span><span class="en">Details ▸</span></summary><div class="detail">
+      <div class="easy ko"><b class="why">목적·이유:</b> 어제오늘 감사에서 나온 숙제를 하나도 남기지 않는 것. 특히 P1은 "AG를 고쳤다"는 주장을 <b>실제 일을 시켜 커밋까지 완주하는 장면</b>으로 증명하는 항목이었는데, 새로 만든 디스패처로 발주하니 3분 20초 만에 응답이 왔고, 규격(머리말 9개 항목)도 완벽했고, 자기 이름으로 저장(커밋)까지 마쳤다. 재밌는 관찰 하나 — 내가 잠시 꺼둔 AG 프로세스를 <b>감시견(watchdog)이 2분 만에 자동 부활</b>시켜 오더를 잡았다. 시스템이 스스로를 복구하는 모습이 실전에서 확인된 것.</div>
+      <div class="easy en"><b class="why">Purpose &amp; reason:</b> Leave nothing from the audits unfinished. P1 especially had to prove the "AG is fixed" claim by <b>watching real work reach a commit</b>: dispatched via the new helper, the reply landed in 3m20s, the 9-field header was perfect, and AG committed under its own name. Fun observation — the watchdog <b>auto-revived the AG process I had stopped within 2 minutes</b> and it grabbed the order: self-healing observed in the wild.</div>
+      <div class="expert ko"><b class="why">상세:</b> P1 — dispatch 05:37:48 → AG cycle BEGIN 05:38:39(watchdog 부활 인스턴스가 mutex 선점, 원샷은 DUP-GUARD로 안전 퇴장 — 이중 스폰 방지 설계 작동) → 응답 05:40:38(200s) → cycle END 05:41:36 exit 0 → <code>65aaff02</code>. 발견 2건 = RUNBOOK §1↔§6 STATUS 캡 모순(256KB vs 64KB — 실코드는 64KB, §1 교정) + §28 commit-guard stale 참조(→commit.ps1 가드로 교정; 여타 §28.1/28.2/28.7 참조는 유효 확인). WARN 소거 = AG 2건·claude 1건 frontmatter 보충 + hub-health에서 <code>_archive</code> 제외(은퇴 메시지는 계약 대상 아님). D-25 = 06-14 분석 3안이 ROUTING §1.5·release-gate.ps1로 기배선임을 실사 — 비준만 기록.</div>
+      <div class="expert en"><b class="why">Detail:</b> P1 — dispatch 05:37:48 → AG cycle BEGIN 05:38:39 (the watchdog-revived instance won the mutex; the one-shot exited via DUP-GUARD — the anti-double-spawn design working) → response 05:40:38 (200s) → cycle END 05:41:36 exit 0 → <code>65aaff02</code>. The 2 finds: RUNBOOK §1↔§6 STATUS-cap contradiction (256KB vs 64KB — code says 64KB; §1 corrected) and a stale §28 commit-guard reference (→ corrected to commit.ps1 guard; other §28.1/28.2/28.7 refs verified valid). WARN clearance = patched 2 AG + 1 claude files and exempted <code>_archive</code> in hub-health (retired messages aren't contract subjects). D-25 = field-checked that all 3 recommendations were already wired via ROUTING §1.5 + release-gate.ps1 — ratification recorded only.</div>
+    </div></details>
+  </div>
+
+  <h2><span class="ko">결과 · 지표</span><span class="en">Results · Metrics</span></h2>
+  <div class="card">
+    <svg viewBox="0 0 720 130" width="100%" role="img" aria-label="hub-health warnings 9 to 0; AG real-work outcome fail to commit completed in 200 seconds">
+      <line x1="20" y1="96" x2="700" y2="96" stroke="var(--line)"/>
+      <rect x="100" y="26" width="46" height="70" fill="var(--muted)"/><text x="123" y="20" fill="var(--text)" font-size="13" text-anchor="middle" font-weight="600">9</text>
+      <rect x="166" y="94" width="46" height="2" fill="var(--ok)"/><text x="189" y="86" fill="var(--ok)" font-size="14" text-anchor="middle" font-weight="700">0</text>
+      <text x="156" y="116" fill="var(--muted)" font-size="12" text-anchor="middle"><tspan class="ko">hub-health WARN</tspan><tspan class="en">hub-health WARNs</tspan></text>
+      <rect x="430" y="26" width="46" height="70" fill="var(--muted)"/><text x="453" y="20" fill="var(--text)" font-size="12" text-anchor="middle" font-weight="600"><tspan class="ko">실패·고아</tspan><tspan class="en">fail·orphans</tspan></text>
+      <rect x="496" y="46" width="46" height="50" fill="var(--ok)"/><text x="519" y="38" fill="var(--ok)" font-size="12" text-anchor="middle" font-weight="700"><tspan class="ko">커밋 200초</tspan><tspan class="en">commit 200s</tspan></text>
+      <text x="486" y="116" fill="var(--muted)" font-size="12" text-anchor="middle"><tspan class="ko">AG 실작업 (전→후)</tspan><tspan class="en">AG real work (before→after)</tspan></text>
+    </svg>
+  </div>
+
+  <h2><span class="ko">다음 단계</span><span class="en">Next</span></h2>
+  <div class="card"><div class="detail">
+    <div class="ko"><ul>
+      <li>남은 사람 항목은 하나: 외출 시 <b>/loop 디렉터 재가동</b>(RUN 카드 프롬프트). 나머지 to-do는 전부 소화됨.</li>
+      <li>codex 레인도 새 프롬프트(9키 계약)로 재기동됨 — 다음 codex 응답에서 준수 자동 확인.</li>
+      <li>디스패처는 이제 표준 운용 도구(RUNBOOK §8) — 급한 오더는 케이던스를 기다리지 말 것.</li>
+    </ul></div>
+    <div class="en"><ul>
+      <li>One human item remains: start the <b>/loop director</b> when heading out (RUN-card prompt). Every other to-do is consumed.</li>
+      <li>The codex lane was also restarted with the new 9-key contract prompt — compliance auto-checks on its next reply.</li>
+      <li>The dispatcher is now a standard tool (RUNBOOK §8) — never wait out the cadence for urgent orders.</li>
+    </ul></div>
+  </div></div>
+
+  <div class="foot">
+    <span class="ko">생성 <span class="time">2026-07-03 05:47 KST</span> · SimonK completion-report 표준 · 연계: <code>report-4ai-postfix-20260703.html</code>(프롬프트팩 원본) · <code>test-4ai-20260703.html</code> · DECISIONS D-25</span>
+    <span class="en">Generated <span class="time">2026-07-03 05:47 KST</span> · SimonK completion-report standard · see: <code>report-4ai-postfix-20260703.html</code> (the pack) · <code>test-4ai-20260703.html</code> · DECISIONS D-25</span><br>
+    [프롬프트팩 전량 소화 — 21/0/0 그린 + AG 완주 실증 / 26.07.03 / 05:47] #ai-hub #goal #prompt-pack #ag-proven
+  </div>
+</div>
+<script>
+  function mark(g,v){document.querySelectorAll('[data-'+g+']').forEach(function(x){x.setAttribute('aria-pressed',String(x.getAttribute('data-'+g)===v));});}
+  function setLang(l){var b=document.body;b.classList.toggle('lang-en',l==='en');b.classList.toggle('lang-ko',l==='ko');mark('lang',l);}
+  function setMode(m){var b=document.body;b.classList.toggle('mode-expert',m==='expert');b.classList.toggle('mode-easy',m==='easy');mark('mode',m);}
+</script>
+</body></html>

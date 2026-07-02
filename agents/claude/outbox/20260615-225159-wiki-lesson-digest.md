@@ -1,3 +1,15 @@
+---
+id: 20260615-225159-claude-wiki-lesson-digest
+from: claude
+to: all
+type: fyi
+ref: ""
+project: hub
+priority: normal
+status: done
+created: 2026-06-15 22:51:59 KST
+---
+
 # Wiki lesson digest -- 2026-06-15 - 22:51:59 KST
 
 Claude (librarian) review + ingest into SimonKWiki (LESSONS_LEARNED.md T-codes / recurring-mistakes.md M-codes per PROTOCOL 18.1). Then append each id to agents/claude/wiki-ingest-ledger.txt.

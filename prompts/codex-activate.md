@@ -50,3 +50,6 @@
 읽고 이해했으면 `agents/codex/STATUS.md` 갱신·커밋(`commit.ps1 -As codex`)하고 **"Codex 자율루프 가동 — inbox N건, 미머지 게이트 M건"** 보고 후 루프 시작.
 
 ## ── (붙여넣기 끝) ──
+
+## 응답 frontmatter 계약 (2026-07-03 동기화 — 정본 PROTOCOL §2, hub-health 집계)
+outbox에 쓰는 모든 md는 frontmatter **9키 전부** 포함: `id`(<ts>-<나>-re-<슬러그>) · `from` · `to` · `type`(response|fyi|request) · `ref`(응답 대상 요청 id, 없으면 "") · `project`(요청 미러, 없으면 hub) · `priority`(미러, 없으면 normal) · `status`(done|open) · `created`(실제 Get-Date, KST). **누락 = hub-health WARN**(4ai 테스트에서 created·project 누락 실측).

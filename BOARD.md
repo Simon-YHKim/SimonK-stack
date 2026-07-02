@@ -24,7 +24,9 @@ live_head: 2nd-B 라이브 상태는 2nd-B 레포(github.com/Simon-YHKim/2nd-B m
 - **라우팅 정합**: grok 데몬 기본레인 제외(§4 요청전용) · AG 레인 "직접 코딩+QA, 푸시는 Claude 게이트"로 §1↔§4↔데몬 일치 · MoA 교차검증 런타임 훅(데몬 프롬프트, ROUTING-MOA §5).
 - **문서**: PROTOCOL 3-AI→4-AI·gemini sunset 과거형·§33 현행화, README 재작성, STATUS running 동기화, CONTROL 변경로그 소급, 레거시 `Legacy-` 정리(EMERGENCY_ANDROID·루트 inbox·AG QA 잔해 83파일·prompts sync 3종·Output 9종 등).
 
-**남은 것 / 게이트**: 원격 오더 디렉터 세션은 Simon /loop 재가동 시 부활 · hub-role-additions 좌석 재배치(Simon 결정).
+**남은 것 / 게이트**: 원격 오더 디렉터 세션은 Simon /loop 재가동 시 부활(프롬프트 = report-4ai-postfix RUN 카드).
+
+**프롬프트팩 전량 소화 (2026-07-03 05:45 — Simon /goal "모든 to-do")**: frontmatter 9키 계약을 데몬+프롬프트 7종에 배선 · grok 분량 가드 · `tools/dispatch-oneshot.ps1` 신설(RUNBOOK §8) · hub-health WARN 9→0(활성 3건 키 보충 + _archive 집계 제외) · **D-25 비준**(hub-role-additions 3안 — 06-14 기배선 확인, AG 감사관 듀티는 4ai 테스트로 실증) · AG 실작업 커밋-완주 실증 진행 중(agfix-doc-audit 오더, 신규 타임아웃 하에 첫 실작업).
 
 **4-AI 라운드트립 테스트 (2026-07-03 05:15 — 3/3 응답 수집, 문제 6건 발견·4건 즉시 수정)**:
 - 왕복: Grok 87초(옵트인 원샷) · AG 4분52초(drain 21초 픽업, 단 래퍼 킬로 미커밋→회수) · Codex 6분14초(사이클 정렬 지연 포함). 품질: AG가 진짜 문서모순 2건 발견(§0 푸시 문구·3.5-flash 자기모순 — 반영됨), Codex a11y 실발견 2건(v2 리포트 반영됨), Grok 실링크 포함 시장신호(정직).

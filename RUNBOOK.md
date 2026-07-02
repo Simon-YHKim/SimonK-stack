@@ -25,7 +25,7 @@ powershell -ExecutionPolicy Bypass -File tools\monitor.ps1             # 실시�
 | **daemon-log stale (mtime > N분)** | 데몬 hang 또는 죽음 (단, 로그 mtime만으론 hang 구분 불가) | `tools\hub-daemon.ps1` 살아있는 PID 확인(아래 §2) → 없으면 재기동(HUB-STARTUP 모드 A) |
 | **commit guard 구문 FAIL** | `commit.ps1`/`hub-daemon.ps1` 등 스크립트 PowerShell 구문 깨짐 | `powershell -NoProfile -Command "[void][ScriptBlock]::Create((Get-Content tools\<file>.ps1 -Raw))"` 로 파싱 검증 → Edit 수정 |
 | **상태파일 U+FFFD / cp949 손상** | `Out-File`/`Set-Content` 라운드트립으로 한글 깨짐 (§28.1) | `git checkout HEAD~1 -- <file>` 로 복구 → 이후 **Edit/Write로만** 갱신 |
-| **STATUS.md size FAIL (>256KB)** | append 무한증식 (§28 commit guard) | 내용 잘라내기 → `.gitignore`된 `*.log`로 회전. 상태 보드는 작게 유지 |
+| **STATUS.md size FAIL (>64KB · 일반 md는 256KB)** | append 무한증식 (commit.ps1 SIZE 가드 — 2026-07-03 AG 감사가 §1↔§6 캡 모순 발견·교정) | 내용 잘라내기 → `.gitignore`된 `*.log`로 회전. 상태 보드는 작게 유지 |
 | **pend ≥ 3 (RED, monitor)** | Claude 머지 백로그 적체 — 미처리 outbox ≥3 | Claude 머지 sweep(§34.3 cherry-pick) 또는 charter throttle(미머지 8↑ 발견중지) |
 | **CONTROL.state 불명/혼선** | STATUS=paused vs CONTROL=running 불일치 | `CONTROL.md`가 런-스테이트 **정본**. STATUS는 요약일 뿐 → CONTROL 기준으로 행동 |
 | **release-gate NO-GO** | 2nd-B verify FAIL / tree dirty / rollback SHA 없음 | 머지 **금지**. `tools\release-gate.ps1` reasons 확인 → 원인 수정 후 재실행. ⚠ 절대 NO-GO 우회 머지 금지(#222 교훈) |
@@ -74,3 +74,10 @@ Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" |
 pwsh -File C:\2ndB\scripts\pre-emulator-qa.ps1 -StartMetro
 ```
 스크립트가 4조건 보장(exit 0이면 OK): ①adb 해석(PATH 또는 `%LOCALAPPDATA%\Android\Sdk\platform-tools`) ②에뮬 `device` 인식(`adb devices`) ③Metro `packager-status:running`@8081(없고 `-StartMetro`면 `npx expo start` 자동기동) ④`adb reverse tcp:8081 tcp:8081`(에뮬 재시작·Metro 재시작 시 소실되므로 멱등 재설정). **함정**: Metro `/status`는 Content-Type 없어 PS `Invoke-WebRequest`가 Content를 byte[]로 줌 → 문자열 match 전 `[Text.Encoding]::ASCII.GetString()` 디코딩 필수(스크립트 반영됨). exit 2=adb없음·3=에뮬없음(부팅)·4=Metro없음(-StartMetro)·6=reverse실패.
+
+## 8. 긴급 오더 원샷 디스패치 (2026-07-03 신설)
+케이던스(10분)를 기다릴 수 없는 오더는:
+```
+powershell -ExecutionPolicy Bypass -File tools\dispatch-oneshot.ps1 -To codex|grok|antigravity -Slug <슬러그> -BodyFile <내용md>
+```
+request 생성→커밋→원샷 스폰(상시 데몬 가동 중이면 이중 스폰 안 하고 안내)→응답 폴링(기본 15분). 실측 근거: 원샷 grok 87초 vs 케이던스 대기 codex 6분14초 (4ai 테스트).

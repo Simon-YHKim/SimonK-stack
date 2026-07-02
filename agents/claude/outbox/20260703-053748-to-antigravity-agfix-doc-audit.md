@@ -6,7 +6,8 @@ type: request
 ref: ""
 project: hub
 priority: high
-status: open
+status: done
+closed: 2026-07-03 05:45 KST by claude (P1 proof collected: 9-key frontmatter + identity commit 65aaff02 + zero orphans)
 created: 2026-07-03 05:37:48 KST
 ---
 

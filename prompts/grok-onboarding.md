@@ -63,3 +63,6 @@
 허브 읽고 inbox 확인했으면 `agents/grok/STATUS.md`를 `idle`→ 루프 시작으로 갱신·커밋하고 "Grok 온보딩 완료, inbox N건" 보고.
 
 ## ── (붙여넣기 끝) ──
+
+## 응답 frontmatter 계약 (2026-07-03 동기화 — 정본 PROTOCOL §2, hub-health 집계)
+outbox에 쓰는 모든 md는 frontmatter **9키 전부** 포함: `id`(<ts>-<나>-re-<슬러그>) · `from` · `to` · `type`(response|fyi|request) · `ref`(응답 대상 요청 id, 없으면 "") · `project`(요청 미러, 없으면 hub) · `priority`(미러, 없으면 normal) · `status`(done|open) · `created`(실제 Get-Date, KST). **누락 = hub-health WARN**(4ai 테스트에서 created·project 누락 실측).
