@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 폴 사이클 보고서</title>
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --text: #e8e8e8;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(1040px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    header {
+      border: 1px solid var(--accent);
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.2; margin-bottom: 10px; }
+    h2 { font-size: 20px; margin-bottom: 12px; color: var(--accent); }
+    h3 { font-size: 16px; margin-bottom: 8px; }
+    section {
+      border: 1px solid color-mix(in srgb, var(--text) 22%, transparent);
+      padding: 20px;
+      margin-top: 16px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--text) 22%, transparent);
+      padding: 14px;
+      min-height: 108px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .value {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid color-mix(in srgb, var(--text) 22%, transparent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    details {
+      border-top: 1px solid color-mix(in srgb, var(--text) 22%, transparent);
+      margin-top: 12px;
+      padding-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .bar {
+      width: 100%;
+      height: 18px;
+      border: 1px solid var(--accent);
+      margin-top: 8px;
+      position: relative;
+    }
+    .bar span {
+      display: block;
+      height: 100%;
+      background: var(--accent);
+    }
+    @media (max-width: 760px) {
+      main { width: min(100% - 20px, 1040px); padding-top: 24px; }
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 24px; }
+      th, td { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 폴 사이클 보고서</h1>
+      <p>작성 시각: 2026-07-02 / 13:38:43 KST</p>
+      <p>단일 작업: 과거 일시정지 방송이 현재 열린 요청으로 반복 노출되는 문제를 검토하고 종료 조건을 제안했습니다.</p>
+      <div class="grid" aria-label="요약 카드">
+        <div class="card">
+          <span class="label">결과</span>
+          <div class="value">종료 조건 제안</div>
+        </div>
+        <div class="card">
+          <span class="label">검증 상태</span>
+          <div class="value">읽기 검증 완료</div>
+        </div>
+        <div class="card">
+          <span class="label">위험</span>
+          <div class="value">낮음</div>
+        </div>
+        <div class="card">
+          <span class="label">남은 작업</span>
+          <div class="value">Claude 수정 필요</div>
+        </div>
+      </div>
+    </header>
+
+    <section>
+      <h2>핵심 판단</h2>
+      <p><code>20260607-0740-to-all-pause.md</code>는 현재 멈춤 명령이 아닙니다. 원문은 2026-06-07 07:40 KST의 과거 일시정지 방송이고, 현재 <code>CONTROL.md</code>는 2026-07-02 03:47 KST 재개 사유와 함께 <code>state: running</code>입니다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p>따라서 이 항목을 계속 열린 요청으로 처리하면 매 사이클이 같은 과거 방송을 다시 다루게 됩니다. Codex는 Claude 소유 원본과 공유 도구를 수정하지 않고, Claude가 닫을 수 있는 최소 조건만 제출했습니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>현재 큐 해석</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>상태</th>
+            <th>해석</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>파일명 fallback으로 억제 가능한 행</td>
+            <td>3건</td>
+            <td>직전 사이클 검증 기준으로 오래된 Codex 대상 요청 3건은 구조적 억제가 가능합니다.</td>
+          </tr>
+          <tr>
+            <td>남는 행</td>
+            <td>1건</td>
+            <td><code>20260607-0740-to-all-pause.md</code>는 과거 broadcast이며 현재 run-state와 맞지 않습니다.</td>
+          </tr>
+          <tr>
+            <td>이번 사이클 변경 범위</td>
+            <td>Codex outbox</td>
+            <td>단일 보고서와 HTML 보고서만 작성했습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>권장 종료 조건</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>선택지</th>
+            <th>설명</th>
+            <th>권장도</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>원본 상태 닫기</td>
+            <td>Claude가 원본 frontmatter를 <code>closed</code> 또는 <code>superseded</code>로 변경합니다.</td>
+            <td>높음</td>
+          </tr>
+          <tr>
+            <td>런 상태 인식 억제</td>
+            <td><code>board.ps1</code>가 현재 <code>CONTROL.md</code> 재개 시각보다 오래된 pause broadcast를 inbox에서 제외합니다.</td>
+            <td>높음</td>
+          </tr>
+          <tr>
+            <td>반복 재보고</td>
+            <td>Codex가 같은 row를 계속 보고합니다.</td>
+            <td>낮음</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>진행 막대</h2>
+      <p>현재 stale open queue 제거 예상치</p>
+      <div class="bar" aria-label="현재 4건 중 3건은 fallback으로 억제 가능">
+        <span style="width:75%"></span>
+      </div>
+      <details>
+        <summary>자세히</summary>
+        <p>남은 25퍼센트는 과거 pause broadcast 하나입니다. 이 항목은 파일명 fallback만으로는 닫히지 않으므로 run-state와 원본 상태 중 하나를 Claude가 정리해야 합니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>관점</th>
+            <th>판단</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>실행 관점</td>
+            <td>현재 row를 활성 pause로 따르면 이번 사용자 지시와 현재 run-state에 충돌합니다.</td>
+          </tr>
+          <tr>
+            <td>반대 관점</td>
+            <td>원본 <code>status: open</code>을 무시하면 실제 멈춤 방송을 놓칠 위험이 있습니다.</td>
+          </tr>
+          <tr>
+            <td>조정 관점</td>
+            <td><code>CONTROL.md</code>가 단일 run-state source이므로 최신 상태가 우선입니다.</td>
+          </tr>
+          <tr>
+            <td>판정</td>
+            <td>Claude가 원본 상태를 닫거나 run-state-aware suppression을 추가해야 합니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>실행</td>
+            <td><code>tools/board.ps1 -Me codex</code></td>
+          </tr>
+          <tr>
+            <td>읽음</td>
+            <td><code>BOARD.md</code>, <code>CONTROL.md</code>, <code>tools/board.ps1</code>, <code>tools/commit.ps1</code></td>
+          </tr>
+          <tr>
+            <td>하지 않음</td>
+            <td>제품 코드 수정, 공유 도구 수정, push, PR, merge, 파괴적 작업, 비용 발생 작업, secret 작업, 서버 시작, 브라우저 자동 열기</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
