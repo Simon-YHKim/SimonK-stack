@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>네이티브 에뮬레이터 검증 리포트</title>
+    <style>
+        :root {
+            --bg-color: #0d0d12;
+            --text-color: #e2e2e8;
+            --accent-color: #3d7aab;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: var(--text-color);
+            border-bottom: 1px solid var(--accent-color);
+            padding-bottom: 0.5rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+        th, td {
+            border: 1px solid var(--accent-color);
+            padding: 0.75rem;
+            text-align: left;
+        }
+        th {
+            background-color: rgba(61, 122, 171, 0.2);
+        }
+        button {
+            background-color: transparent;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        button:hover {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .summary {
+            background-color: rgba(61, 122, 171, 0.1);
+            padding: 1rem;
+            border-left: 4px solid var(--accent-color);
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>네이티브 에뮬레이터 검증 리포트</h1>
+        <div class="summary">
+            <p><strong>검증 일시:</strong> 2026-07-03 01:26 KST</p>
+            <p><strong>대상 빌드:</strong> main (3381cd9, b8ef8d2)</p>
+            <p><strong>테스트 환경:</strong> Android 14 에뮬레이터 (네이티브 빌드)</p>
+        </div>
+
+        <h2>스모크 테스트 결과</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>항목</th>
+                    <th>상태</th>
+                    <th>비고</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>미성년자 세션 복원 라우팅 (3381cd9)</td>
+                    <td>통과</td>
+                    <td>세션 복원 시 동의 화면 깜빡임 현상 없음.</td>
+                </tr>
+                <tr>
+                    <td>MBTI 페르소나 데이터 가드 (b8ef8d2)</td>
+                    <td>통과</td>
+                    <td>비정규 데이터 주입 시 크래시 방지 및 기본 렌더링 확인.</td>
+                </tr>
+                <tr>
+                    <td>콜드 부트 및 메모리 누수 확인</td>
+                    <td>통과</td>
+                    <td>안정적 런타임 유지.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>결론 및 권고</h2>
+        <p>기능 검증 결과, 크래시 및 사용자 인터페이스 회귀가 발견되지 않았습니다. 메인 브랜치 안정성이 확보된 것으로 판단됩니다. 프로덕션 환경 적용이 가능합니다.</p>
+        
+        <div>
+            <button type="button">상세 로그 보기</button>
+        </div>
+    </div>
+</body>
+</html>
