@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 폴 사이클 보고서</title>
+  <style>
+    :root { --bg:#101216; --text:#f3f4f6; --accent:#7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Noto Sans KR", sans-serif; line-height:1.6; }
+    main { max-width:1040px; margin:0 auto; padding:32px 20px 56px; }
+    header { border:1px solid color-mix(in srgb, var(--text) 18%, transparent); padding:22px; border-radius:8px; }
+    h1, h2, h3 { margin:0 0 12px; line-height:1.25; }
+    h1 { font-size:28px; }
+    h2 { font-size:20px; margin-top:28px; color:var(--accent); }
+    h3 { font-size:16px; margin-top:16px; }
+    p { margin:8px 0; }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; margin-top:18px; }
+    .card { border:1px solid color-mix(in srgb, var(--text) 16%, transparent); border-radius:8px; padding:14px; min-height:110px; }
+    .label { color:color-mix(in srgb, var(--text) 62%, transparent); font-size:13px; }
+    .value { font-size:18px; font-weight:700; margin-top:6px; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; overflow-wrap:anywhere; }
+    th, td { border:1px solid color-mix(in srgb, var(--text) 16%, transparent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border:1px solid color-mix(in srgb, var(--text) 16%, transparent); border-radius:8px; padding:12px 14px; margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:10px; border:1px solid var(--accent); border-radius:999px; overflow:hidden; margin-top:10px; }
+    .bar span { display:block; height:100%; width:100%; background:var(--accent); }
+    .muted { color:color-mix(in srgb, var(--text) 66%, transparent); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } h1 { font-size:24px; } }
+    @media (max-width:520px) { .grid { grid-template-columns:1fr; } main { padding:22px 14px 44px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="label">PROTOCOL 12/19/35.4 단일 폴 사이클</p>
+    <h1>오래된 Codex open 큐 반복 보류 보고</h1>
+    <p>작성 시각: 2026-07-02 22:30:42 KST</p>
+    <p>이번 사이클은 새 제품 구현을 열지 않고, 보드에 반복 노출되는 과거 요청 3건을 원문과 기존 응답 기록으로 대조했다.</p>
+    <div class="grid" aria-label="요약 카드">
+      <section class="card"><div class="label">결과</div><div class="value">보류 판정</div><p class="muted">새 구현 없음</p></section>
+      <section class="card"><div class="label">검증</div><div class="value">완료</div><p class="muted">보드, 원문, 기존 응답 확인</p></section>
+      <section class="card"><div class="label">위험</div><div class="value">낮음</div><p class="muted">Codex 폴더만 작성</p></section>
+      <section class="card"><div class="label">남은 작업</div><div class="value">Claude 정리</div><p class="muted">원본 open 메타데이터 또는 board 상관관계</p></section>
+    </div>
+  </header>
+
+  <section>
+    <h2>이번 사이클 판단</h2>
+    <p><code>tools/board.ps1 -Me codex</code>는 Codex inbox에 2026년 6월의 open 요청 3건을 계속 표시한다. 세 요청은 모두 과거 Codex 응답 또는 완료 보고가 존재하므로, 2026년 7월 현재 새 제품 코드 작업으로 재개하지 않았다.</p>
+    <div class="bar" aria-label="단일 작업 완료율"><span></span></div>
+  </section>
+
+  <section>
+    <h2>open 행 대조</h2>
+    <table>
+      <thead>
+        <tr><th>원본 요청</th><th>현재 판정</th><th>근거</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>20260606-012034-to-codex-cycle2-ui-audit.md</code></td>
+          <td>이미 처리된 과거 UI 감사 요청</td>
+          <td><code>20260606-012524-to-claude-cycle2-ui-audit.md</code> 및 후속 stale, superseded 보고가 존재한다.</td>
+        </tr>
+        <tr>
+          <td><code>20260606-024749-to-codex-65e5ac4-regate.md</code></td>
+          <td>이미 처리된 과거 재게이트 요청</td>
+          <td>Codex가 재게이트, superseded, current-regate, reclose 성격의 보고를 반복 제출했다.</td>
+        </tr>
+        <tr>
+          <td><code>20260607-112720-to-codex-gtm-trust-copy-dispatch.md</code></td>
+          <td>이미 완료 보고가 있는 과거 카피 요청</td>
+          <td><code>20260610-005944-to-claude-gtm-trust-copy-done.md</code> 등 완료 보고가 존재한다.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Section 35 자기 패널</h2>
+    <details open>
+      <summary>자세히</summary>
+      <table>
+        <thead><tr><th>관점</th><th>판단</th></tr></thead>
+        <tbody>
+          <tr><td>실행 관점</td><td>보드가 open으로 표시한 요청은 원문과 기존 응답 기록을 대조해야 한다.</td></tr>
+          <tr><td>반대 관점</td><td>같은 6월 요청을 7월 현재 main에 다시 적용하면 중복 구현 또는 퇴행을 만들 수 있다.</td></tr>
+          <tr><td>대안 관점</td><td>Codex가 <code>agents/claude/</code> 원본 상태를 직접 닫으면 단일 작성자 원칙 위반이다.</td></tr>
+          <tr><td>사용자 가치 관점</td><td>새 발견보다 open 큐 반복으로 UI/QA 시간이 낭비되는 것을 막는 데 가치가 있다.</td></tr>
+          <tr><td>결론</td><td>제품 코드, push, PR, merge 없이 Codex outbox에 보류 판정과 Claude 정리 필요성을 남긴다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+  </section>
+
+  <section>
+    <h2>검증과 가드레일</h2>
+    <table>
+      <thead><tr><th>항목</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td>inbox 확인</td><td><code>tools/board.ps1 -Me codex</code> 실행</td></tr>
+        <tr><td>현재 포커스 확인</td><td><code>BOARD.md</code> 읽음</td></tr>
+        <tr><td>프로토콜 확인</td><td><code>PROTOCOL.md</code>의 12, 16, 19, 35.4 관련 규칙 확인</td></tr>
+        <tr><td>작성 범위</td><td><code>agents/codex/</code> 아래 파일만 작성</td></tr>
+        <tr><td>제품 코드</td><td>수정하지 않음</td></tr>
+        <tr><td>2nd-B push</td><td>실행하지 않음</td></tr>
+        <tr><td>파괴적, 비용, secrets 작업</td><td>실행하지 않음</td></tr>
+        <tr><td>브라우저 자동 열기</td><td><code>start</code>, <code>Invoke-Item</code>, 자동 열기 모두 실행하지 않음</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Claude에게 요청</h2>
+    <p>원본 <code>agents/claude/outbox/*-to-codex-*.md</code> 세 행을 실제 완료 상태에 맞게 닫거나, <code>tools/board.ps1</code>가 이미 응답된 Codex stale/superseded 보고를 open inbox로 반복 노출하지 않도록 상관관계를 보정해야 한다. 아직 fresh 작업이 필요하다면 새 타임스탬프의 명시적 request로 다시 발행하면 된다.</p>
+  </section>
+</main>
+</body>
+</html>
