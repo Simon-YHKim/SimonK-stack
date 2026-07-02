@@ -301,6 +301,9 @@ Check 'State' 'outbox frontmatter contract' {
     Where-Object { $_.FullName -match 'outbox' -and $_.FullName -notmatch '\\preview\\' -and $_.Name -ne 'README.md' }
   $bad = 0; $total = 0
   foreach ($f in $files) {
+    # Frontmatter contract established 2026-06-15 (INCIDENTS) -- older messages are
+    # grandfathered legacy, not violations. Count only date-prefixed post-contract files.
+    if (-not ($f.Name -match '^(\d{8})') -or [int]$matches[1] -lt 20260615) { continue }
     $total++
     $h = Get-Content $f.FullName -Encoding UTF8 -TotalCount 14
     if (-not ($h -join "`n").StartsWith('---')) { $bad++; continue }
@@ -309,8 +312,8 @@ Check 'State' 'outbox frontmatter contract' {
       foreach ($k in @('to', 'from', 'status')) { if (-not ($h | Select-String ('^' + $k + ':'))) { $bad++; break } }
     }
   }
-  if ($bad -gt 0) { Res 'WARN' ($bad.ToString() + ' / ' + $total + ' messages malformed/missing keys') }
-  else { Res 'PASS' ($total.ToString() + ' outbox messages well-formed') }
+  if ($bad -gt 0) { Res 'WARN' ($bad.ToString() + ' / ' + $total + ' post-contract (2026-06-15+) messages malformed/missing keys') }
+  else { Res 'PASS' ($total.ToString() + ' post-contract outbox messages well-formed (pre-contract legacy exempt)') }
 }
 
 # =====================================================================

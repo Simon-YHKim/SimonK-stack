@@ -116,6 +116,19 @@ if ($As -ne "claude") {
 $SizeLimitBytes = 256 * 1024   # 256 KB threshold for committed .md files
 $StatusLimitBytes = 64 * 1024  # O-15 #2: tighter cap for STATUS.md (rotate old detail to a gitignored *.log)
 $TextExtForEnc  = @(".md", ".json", ".ps1", ".sh")
+# SECRET GUARD (2026-07-03, BACKLOG last guard piece): block staged text that looks like a
+# real credential. PROTOCOL 7: secrets go by path/reference only, never inline. Patterns are
+# deliberately tight (length-bounded) to avoid flagging placeholders like sk-xxx.
+$SecretExt = @(".md", ".json", ".ps1", ".sh", ".txt", ".yml", ".yaml", ".js", ".ts", ".html")
+$SecretPatterns = [ordered]@{
+  'openai/anthropic-style key' = 'sk-[A-Za-z0-9_-]{20,}'
+  'aws access key'             = 'AKIA[0-9A-Z]{16}'
+  'github token'               = '(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{22,}'
+  'slack token'                = 'xox[baprs]-[A-Za-z0-9-]{10,}'
+  'private key block'          = '-----BEGIN [A-Z ]*PRIVATE KEY-----'
+  'google api key'             = 'AIza[0-9A-Za-z_-]{35}'
+  'jwt (3-part)'               = 'eyJ[A-Za-z0-9_-]{15,}\.eyJ[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{10,}'
+}
 
 function Get-StagedFiles {
   # Files actually about to be committed = current staged index.
@@ -176,6 +189,19 @@ if (-not $Force) {
           $problems += "  [SIZE] ${rel}: ${kb} KB exceeds $([int]($cap/1KB)) KB$extra"
         }
       }
+
+      # (c) SECRET guard for text files (PROTOCOL 7: no plaintext credentials in the hub)
+      if ($SecretExt -contains $ext) {
+        try {
+          $txt = [System.IO.File]::ReadAllText($abs)
+          foreach ($sp in $SecretPatterns.GetEnumerator()) {
+            if ($txt -match $sp.Value) {
+              $problems += "  [SECRET] ${rel}: matches '$($sp.Key)' pattern"
+              break
+            }
+          }
+        } catch {}
+      }
     }
 
     if ($problems.Count -gt 0) {
@@ -186,6 +212,7 @@ if (-not $Force) {
       Write-Host "조치:" -ForegroundColor Yellow
       Write-Host "  [ENC]  cp949/Out-File 손상 가능성. 해당 파일을 Edit/Write로 UTF-8(no BOM) 재저장하세요." -ForegroundColor Yellow
       Write-Host "  [SIZE] STATUS.md 등은 작게 유지. 내용을 잘라내거나 .gitignore된 *.log 로 회전하세요." -ForegroundColor Yellow
+      Write-Host "  [SECRET] real key/token = NEVER commit. Remove it and reference by path (PROTOCOL 7); rotate the key if exposed. Use -Force ONLY for a confirmed false positive." -ForegroundColor Yellow
       Write-Host "  정당한 대용량/예외 파일이면 -Force (별칭 -SkipGuard) 로 가드를 건너뛸 수 있습니다." -ForegroundColor Yellow
       exit 1
     }

@@ -24,11 +24,14 @@ related: PROTOCOL.md §12.1a, §18.0
 | **Grok 리서치** (lane golden set §34.2) | `agents/grok/golden-set.md` 고정 질문셋 Q1–Q7 + 고정 소스 2-pass | 신호 재현성(2회 동일 결론)·유효 인사이트 N=5 채택 카운트·실패 lead는 §4 원장 |
 | **Skill Stack** (`~/.claude/skills`) | `validate_skill.py` 전수 (`PYTHONIOENCODING=utf-8`) | simon-stack 0-error / Gstack는 E007 긴-doc 포맷 제외 |
 
-## 2. 현재 베이스라인 (2026-06-13 측정, Codex 세션)
+## 2. 현재 베이스라인 (2026-07-03 재측정 — Claude 허브감사 사이클)
 
-- **2nd-B `npm run verify`**: 129 suites / **1125 tests PASS**. lint = 0 errors / 4 existing unused-eslint-disable warnings. HEAD `f769d1d` (#367) == origin/main.
-- **SimonKWiki `wiki_lint.py`**: Error=0 (E1=0, E2=0, W2/W3/W4/FM=0). `raw_isolation.py`: isolated=0/26. HEAD `53043ed`.
-- **Hub**: CONTROL `state=paused` (의도), 1216 commits, dirty=0.
+- **2nd-B `npm run verify`**: **293 suites / 2198 tests PASS** (exit 0 별도 확인). HEAD `e0c73d4d` == origin/main. (직전 06-13: 129/1125 — 3주간 +164 suites / +1073 tests.)
+- **SimonKWiki `wiki_lint.py`**: Error=0 (E1=0, E2=0), Warning=2(W1 기존보존). (`raw_isolation.py` 미재측정 — 06-13 값 0/26 유지.)
+- **Hub**: CONTROL `state=running`, hub-health **20 PASS / 1 WARN(구형 frontmatter 유예) / 0 FAIL**, master==origin(comm-hub), stale open 0, 데몬 codex+AG 레인 exit 0.
+
+<!-- 직전 baseline (2026-06-13, Codex 세션): 2nd-B 129/1125 f769d1d · wiki Error=0 · Hub paused/1216commits -->
+
 
 - **페르소나 UX baseline (2026-06-13, wf persona-cluster-sim, 12 페르소나)**: P1 막힘/이탈 테마 4종 = ① 가입 게이트 과중(9/12) ② 핵심 효용 불명확·은유 과잉(12/12) ③ 접근성 픽셀-다크 기본(6/12) ④ 첫 journal 게이트(4/12). 개선 머지 후 동일 워크플로 재실행 → 이 빈도가 감소해야 개선 인정. 큐: `agents/claude/PROPOSAL_QUEUE.md` E1~E8. 리포트: `C:\Coding Infra\2ndB-페르소나시뮬-findings.html`.
 

@@ -70,7 +70,7 @@
 <body>
 <div class="wrap">
 
-  <div class="status"><span class="dot"></span> 원격 오더 파이프라인 LIVE — 4-AI 허브 정상 가동</div>
+  <div class="status"><span class="dot"></span> 원격 오더 채널 — 실시간 상태는 허브 CONTROL/BOARD 정본 (문서 최종 점검 2026-07-03: 감시망 신설, 큐 클린)</div>
   <h1>핸드폰에서 4-AI 허브에 지시하기</h1>
   <p class="sub">Simon이 밖에서 모바일로 지시 → PC의 Claude 오케스트레이터가 받아 codex·grok·antigravity에 분배·수행 → 결과 회신. 2026-06-15 셋업.</p>
 
@@ -78,6 +78,7 @@
   <div class="panel diag">
     <p style="margin-bottom:8px">채널 설계(<b>2nd-B 레포의 <code>ORDERS.md</code></b>, PROTOCOL §33)는 이미 있었는데, <b>그 파일을 읽던 허브 데몬이 죽어 있었다</b>(no PID, CONTROL=paused). 그래서 네가 핸드폰으로 남긴 오더를 <b>아무도 폴링하지 않아</b> 실행이 안 됐다.</p>
     <p style="margin:0">고친 것 → ① <b>CONTROL.md = running</b> 복원(대기 중이던 codex/grok/AG 깨움) · ② <b>PC의 Claude <code>/loop</code> 세션이 데몬 대신 ORDERS 폴러+분배자 인계</b> · ③ AG는 <code>agy-pty</code> ConPTY 래퍼로 헤드리스 부활(Gemini CLI 6/18 폐기 대비).</p>
+    <p style="margin:8px 0 0"><b>[2026-07-03 현행화]</b> 소비자(/loop 세션)가 죽으면 채널도 조용히 죽는 구조였고 실제로 06-21~07-03 <b>12일 무소비 사고</b>가 있었다. 이제 ① hub-watchdog(10분)이 "오더 대기 + 소비자 하트비트 30분↑"이면 <code>orders-unconsumed</code> 알림을 자동 기록하고 ② 디렉터 루프는 <code>tools/orders-poll.ps1 -Json -Heartbeat</code>로 폴링 + 픽업 시 <code>-Ack 번호</code> 기록한다. 완료 오더 원문은 <code>ORDERS-ARCHIVE.md</code>로 이동(파일 경량화).</p>
   </div>
 
   <h2><span class="n">02</span>핸드폰 세션에 붙여넣을 프롬프트 (디렉터 모드)</h2>
@@ -109,7 +110,7 @@
 - 완료기준: <PC가 무엇을 보여주면 끝인가, 1~2줄>
 
 5. git add ORDERS.md && git commit -m "chore(orders): O-<번호> <제목>" && git push origin main
-6. push 성공 시 정확히 한 줄만 출력: "✅ O-<번호> 전송 — PC Claude가 다음 폴(≤10분)에 픽업. 결과는 ORDERS.md ## DONE." 실패하면 에러를 그대로 보여줘라.
+6. push 성공 시 정확히 한 줄만 출력: "✅ O-<번호> 전송 — PC 디렉터 /loop가 픽업(픽업이 없으면 watchdog이 30분 내 orders-unconsumed 알림). 결과는 ORDERS.md ## DONE." 실패하면 에러를 그대로 보여줘라.
 
 [게이트] 파괴/실비용(결제·API폭증)/secrets/안전임상/법무 성격이면 "- 게이트:"에 명시 — PC가 수행 전 Simon에게 확인한다.
 
