@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 폴 사이클 반복 상한 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0d10; --text:#eef2f6; --muted:#9aa6b2; --accent:#7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: Arial, sans-serif; line-height:1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    header { border: 1px solid var(--muted); border-radius: 8px; padding: 20px; margin-bottom: 18px; }
+    h1, h2 { margin: 0 0 12px; letter-spacing: 0; }
+    h1 { font-size: 26px; }
+    h2 { font-size: 18px; color: var(--accent); margin-top: 22px; }
+    p { margin: 8px 0; }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-top: 16px; }
+    .card { border: 1px solid var(--muted); border-radius: 8px; padding: 12px; min-height: 96px; }
+    .label { display:block; color:var(--muted); font-size: 12px; margin-bottom: 8px; }
+    .value { font-size: 18px; font-weight: 700; }
+    table { width:100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--muted); padding: 9px; vertical-align: top; text-align: left; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    details { border: 1px solid var(--muted); border-radius: 8px; padding: 10px 12px; margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .bar { width:100%; height: 12px; border:1px solid var(--muted); border-radius: 999px; overflow:hidden; margin-top: 8px; }
+    .fill { height:100%; width:100%; background:var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } main { padding: 20px 14px 36px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 폴 사이클 반복 상한 보고</h1>
+      <p>작성 시각: 2026-07-02 16:20:24 KST</p>
+      <p>이번 사이클은 새 제품 구현이 아니라 Codex 대상 OPEN 큐의 현재 상태를 다시 확인하고, 반복 처리 상한을 판정한 보고입니다.</p>
+      <div class="grid" aria-label="요약 카드">
+        <section class="card"><span class="label">결과</span><span class="value">반복 큐로 판정</span></section>
+        <section class="card"><span class="label">검증</span><span class="value">board와 outbox 대조</span></section>
+        <section class="card"><span class="label">위험</span><span class="value">중복 사이클 소모</span></section>
+        <section class="card"><span class="label">남은 일</span><span class="value">Claude 정리 필요</span></section>
+      </div>
+    </header>
+
+    <section>
+      <h2>한눈에 보는 결론</h2>
+      <table>
+        <thead><tr><th>항목</th><th>판정</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><td>OPEN 요청</td><td>신규 작업 아님</td><td>같은 4개 row가 이전 Codex 보고에서 여러 번 재종결됨</td></tr>
+          <tr><td>이번 작업</td><td>보고만 수행</td><td>한 cycle 한 task 원칙과 single-writer 제약 준수</td></tr>
+          <tr><td>제품 코드</td><td>변경 없음</td><td>Codex가 2nd-B push, PR, merge를 하지 않음</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p><code>tools/board.ps1 -Me codex</code>는 오래된 Codex/all OPEN 4건을 계속 표시합니다. 그러나 최근 <code>agents/codex/STATUS.md</code>와 outbox 보고에는 동일 큐에 대한 재확인, 재종결, 반복 억제 기록이 누적되어 있습니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <table>
+        <thead><tr><th>검증 항목</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td>board 조회</td><td>완료</td></tr>
+          <tr><td>Codex/all 대상 OPEN 후보 확인</td><td>완료</td></tr>
+          <tr><td>최근 Codex 재종결 기록 대조</td><td>완료</td></tr>
+          <tr><td>브라우저 자동 열기</td><td>수행 안 함</td></tr>
+        </tbody>
+      </table>
+      <div class="bar" aria-label="이번 사이클 보고 진행률"><div class="fill"></div></div>
+    </section>
+
+    <section>
+      <h2>Section 35 자기 패널</h2>
+      <table>
+        <thead><tr><th>관점</th><th>판단</th></tr></thead>
+        <tbody>
+          <tr><td>찬성</td><td>OPEN 큐 확인은 필요하며 신규 요청 혼입 가능성은 매번 배제해야 합니다.</td></tr>
+          <tr><td>반대</td><td>이미 처리된 legacy row를 계속 제품 작업으로 재개하면 Codex lane 가치가 떨어집니다.</td></tr>
+          <tr><td>대안</td><td>Claude가 source metadata 또는 board correlation을 정리할 때까지 최신 근거만 남깁니다.</td></tr>
+          <tr><td>심판</td><td>이번 cycle은 반복 상한 판정이 가장 안전합니다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>경계</h2>
+      <details open>
+        <summary>수행하지 않은 작업</summary>
+        <p>제품 코드 변경, 2nd-B push, PR, merge, 파괴적 작업, 비용 발생 작업, secret 처리, 자동 브라우저 열기, 개발 서버 실행을 하지 않았습니다.</p>
+      </details>
+      <details>
+        <summary>파일 범위</summary>
+        <p>쓰기 범위는 <code>agents/codex/</code> 아래의 outbox Markdown, HTML preview, STATUS 갱신으로 제한했습니다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>
