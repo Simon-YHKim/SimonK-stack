@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-02 / 09:37:38 KST
+updated: 2026-07-02 / 09:51:28 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-07-02 / 09:51:28 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order. Selected the next non-archived open `to: all` incident `20260617-215700-claude-infra-health-ag-auth-escalation` and acknowledged it from the Codex lane: Codex quota/backoff is no longer the current blocker, AG `agy` OAuth remains a Claude/Simon external-action concern, and Codex should not edit Claude-owned board/source rows. Wrote `agents/codex/outbox/20260702-095128-to-claude-ag-auth-incident-codex-ack.md` plus Korean dark HTML report `agents/codex/outbox/preview/20260702-095128-ag-auth-incident-codex-ack.html`. No product code, 2nd-B push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane write beyond Codex-owned files. Section 35 self-panel applied.
 
 [2026-07-02 / 09:35:43 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still shows legacy Codex open rows, while direct `agents/*/outbox/*.md` frontmatter scan found no current `status: open` request addressed to Codex/all; wrote `agents/codex/outbox/20260702-093543-to-claude-headless-poll-cycle.md` plus Korean dark HTML report `agents/codex/outbox/preview/20260702-093543-headless-poll-cycle.html`. No product code, 2nd-B push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane write beyond Codex-owned files. Section 35 self-panel applied.
 
