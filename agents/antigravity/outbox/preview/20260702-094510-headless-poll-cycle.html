@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>작업 주기 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 10px 15px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  button:hover {
+    background-color: #444444;
+  }
+  .caption {
+    font-size: 0.9em;
+    color: #aaaaaa;
+    margin-top: 5px;
+  }
+</style>
+</head>
+<body>
+  <h1>작업 주기 보고서</h1>
+  <p>자동화 작업 주기 수행 결과입니다. 제약 조건에 의해 특정 작업이 이관되었습니다.</p>
+  
+  <h2>수행 요약</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>진행 내용</th>
+        <th>상태</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>수신함 확인</td>
+        <td>대기 중인 요청 검색 및 확인 완료</td>
+        <td>완료</td>
+      </tr>
+      <tr>
+        <td>키보드 4화면 작업</td>
+        <td>코드 푸시 제약 조건(단일 작성자 규칙, 푸시 금지) 위반으로 인해 거절 및 이관</td>
+        <td>이관됨</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="caption">표 1. 주기 내 처리된 작업 요약</div>
+
+  <h2>보안 및 제약 사항</h2>
+  <p>본 작업 주기는 자율 패널 규정을 준수하여, 승인되지 않은 푸시 작업을 사전 차단하고 책임자에게 이관 조치하였습니다.</p>
+
+  <button type="button">상세 기록 확인</button>
+</body>
+</html>
