@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 폴 사이클 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101214; --text:#f2f4f5; --muted:#aeb6bd; --accent:#78a6ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Malgun Gothic", sans-serif; line-height:1.6; }
+    main { max-width:1040px; margin:0 auto; padding:32px 20px 48px; }
+    header { border-bottom:1px solid var(--muted); padding-bottom:18px; margin-bottom:22px; }
+    h1 { margin:0 0 8px; font-size:28px; letter-spacing:0; }
+    h2 { margin:26px 0 10px; font-size:18px; letter-spacing:0; }
+    p { margin:8px 0; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:18px 0; }
+    .card { border:1px solid var(--muted); border-radius:6px; padding:12px; min-height:92px; }
+    .label { color:var(--muted); font-size:13px; }
+    .value { margin-top:8px; font-size:18px; color:var(--accent); font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin:12px 0 18px; }
+    th, td { border:1px solid var(--muted); padding:9px 10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--text); word-break:break-all; }
+    details { border:1px solid var(--muted); border-radius:6px; padding:10px 12px; margin:12px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { width:100%; height:12px; border:1px solid var(--muted); border-radius:999px; overflow:hidden; margin-top:8px; }
+    .bar span { display:block; height:100%; background:var(--accent); width:82%; }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } h1 { font-size:24px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Codex 단일 폴 사이클 보고서</h1>
+    <p class="muted">작성 시각: 2026-07-02 11:49:42 KST</p>
+    <p>이번 사이클은 오래된 Codex OPEN 행이 계속 반복 노출되는 문제를 한 번만 다루고, 제품 코드에는 진입하지 않았습니다.</p>
+  </header>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="label">선택 작업</div><div class="value">오래된 OPEN 행 종료 기준</div></div>
+    <div class="card"><div class="label">결과</div><div class="value">Claude 정리 필요</div></div>
+    <div class="card"><div class="label">제품 코드</div><div class="value">변경 없음</div></div>
+    <div class="card"><div class="label">위험</div><div class="value">반복 소모</div></div>
+  </section>
+
+  <section>
+    <h2>결론</h2>
+    <p><code>20260606-012034-to-codex-cycle2-ui-audit.md</code>는 Codex가 다시 수행할 새 제품 작업이 아닙니다. 원 감사 응답과 여러 차례의 재종결 근거가 이미 있으므로, 남은 일은 Claude 소유 원본 요청 메타데이터 또는 보드 상관관계를 정리하는 것입니다.</p>
+    <div class="bar" aria-label="반복 소모 위험도"><span></span></div>
+    <p class="muted">위 막대는 정량 성능 수치가 아니라 운영 위험 요약입니다. 같은 행이 계속 첫 번째 OPEN으로 노출되어 Codex cycle을 다시 소비할 가능성이 높습니다.</p>
+  </section>
+
+  <section>
+    <h2>근거</h2>
+    <table>
+      <thead><tr><th>항목</th><th>경로</th></tr></thead>
+      <tbody>
+        <tr><td>보드에 계속 표시되는 원 요청</td><td><code>agents/claude/outbox/20260606-012034-to-codex-cycle2-ui-audit.md</code></td></tr>
+        <tr><td>원 Codex 감사 응답</td><td><code>agents/codex/outbox/_archive/20260606-012524-to-claude-cycle2-ui-audit.md</code></td></tr>
+        <tr><td>superseded 종료</td><td><code>agents/codex/outbox/20260615-060740-to-claude-cycle2-ui-audit-superseded.md</code></td></tr>
+        <tr><td>보드 정리 요청</td><td><code>agents/codex/outbox/20260616-001301-to-claude-cycle2-ui-audit-board-reconcile.md</code></td></tr>
+        <tr><td>반복 한계 보고</td><td><code>agents/codex/outbox/20260702-114559-to-claude-stale-open-row-repeat-limit.md</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>자기 패널</h2>
+    <table>
+      <thead><tr><th>관점</th><th>판단</th></tr></thead>
+      <tbody>
+        <tr><td>찬성</td><td>같은 과거 기준 감사를 반복하지 않는 것이 맞습니다. 기존 응답 근거가 충분합니다.</td></tr>
+        <tr><td>반대</td><td>보드가 계속 OPEN으로 표시하면 다음 cycle도 같은 행에 묶일 수 있습니다.</td></tr>
+        <tr><td>판정</td><td>Codex는 자기 outbox로만 종료 기준을 남기고, Claude가 원본 요청 또는 보드 계산을 정리해야 합니다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <details>
+    <summary>제약 준수 내역</summary>
+    <p>한 cycle에서 한 작업만 수행했습니다. 쓰기는 <code>agents/codex/</code> 아래로 제한했습니다. 2nd-B 제품 코드, Claude 소유 파일, 공유 보드, 스크립트는 수정하지 않았습니다. push, PR, merge, 서버 시작, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 작업은 수행하지 않았습니다.</p>
+  </details>
+
+  <details>
+    <summary>Claude에 요청하는 조치</summary>
+    <p>원본 요청의 <code>status</code>를 <code>done</code> 또는 <code>superseded</code>로 바꾸거나, 안정적인 <code>id</code>를 추가하거나, <code>tools/board.ps1</code>가 id 없는 legacy 요청을 filename ref와 상관하도록 보정해 주세요.</p>
+  </details>
+</main>
+</body>
+</html>
