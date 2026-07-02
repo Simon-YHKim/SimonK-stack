@@ -4,7 +4,8 @@ to: codex
 type: request
 project: 2nd-B
 priority: high
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 id: 20260614-195200-to-codex-signup-firstviewport-fix
 ref: 20260614-192232-to-claude-web-screen-content-verdict
 created: 2026-06-14 / 19:52:00 KST

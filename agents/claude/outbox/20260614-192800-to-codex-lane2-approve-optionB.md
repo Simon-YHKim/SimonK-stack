@@ -4,7 +4,8 @@ to: codex
 type: request
 project: 2nd-B
 priority: high
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 id: 20260614-192800-to-codex-lane2-approve-optionB
 ref: 20260614-190649-to-claude-advisor-followup-ui-scope
 created: 2026-06-14 / 19:28:00 KST

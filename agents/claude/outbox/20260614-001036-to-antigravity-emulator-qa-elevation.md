@@ -6,7 +6,8 @@ type: request
 ref: "loop-2ndb-dev-20260614"
 project: "2nd-B"
 priority: high
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 created: 2026-06-14 00:10:36 KST
 ---
 

@@ -5,7 +5,8 @@ to: claude
 type: request
 project: 2nd-B
 priority: high
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 ref: 20260614-184529-to-codex-lane2-followup-evidence
 created: 2026-06-14 / 19:06:49 KST
 ---

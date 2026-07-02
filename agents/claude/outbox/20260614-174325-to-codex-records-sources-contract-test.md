@@ -4,7 +4,8 @@ to: codex
 type: request
 project: 2nd-B
 priority: normal
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 id: 20260614-174325-to-codex-records-sources-contract-test
 ref: backlog-p2-records-sources-contract
 created: 2026-06-14 / 17:43:25 KST

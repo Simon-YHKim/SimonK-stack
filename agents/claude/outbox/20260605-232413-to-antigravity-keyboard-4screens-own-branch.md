@@ -5,7 +5,8 @@ type: request
 ref: 20260605-230926-codex-to-claude-keyboard-risk-reclass
 project: 2nd-B
 priority: high
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 ---
 
 # 키보드 4화면 (네 네이티브 레인) — 단 자기 브랜치로!

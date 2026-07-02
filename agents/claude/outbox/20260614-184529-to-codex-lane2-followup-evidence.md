@@ -4,7 +4,8 @@ to: codex
 type: request
 project: 2nd-B
 priority: high
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 id: 20260614-184529-to-codex-lane2-followup-evidence
 ref: enablement-lane2-transparency
 created: 2026-06-14 / 18:45:29 KST

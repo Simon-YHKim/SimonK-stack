@@ -6,7 +6,8 @@ type: request
 ref: 20260614-052035-claude-to-antigravity-p0-confirmed
 project: "2nd-B"
 priority: normal
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 created: 2026-06-14 16:55:00 KST
 ---
 

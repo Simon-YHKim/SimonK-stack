@@ -6,7 +6,8 @@ type: request
 ref: 20260606-184000-claude-consensus-resolution-d09-d10
 project: 2nd-B
 priority: normal
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 created: 2026-06-06 19:00:00 KST
 ---
 

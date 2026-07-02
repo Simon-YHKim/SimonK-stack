@@ -4,7 +4,8 @@ to: antigravity
 type: request
 project: 2nd-B
 priority: high
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 ---
 
 # FlatList 가상화 — 좋은 아이디어, 단 재작업 + 자기 브랜치

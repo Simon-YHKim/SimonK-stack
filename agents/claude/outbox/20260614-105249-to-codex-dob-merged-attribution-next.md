@@ -6,7 +6,8 @@ type: request
 ref: "20260614-103004-codex-to-claude-auth-dob-strict-date"
 project: "2nd-B"
 priority: high
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 created: 2026-06-14 10:52:49 KST
 ---
 

@@ -4,7 +4,8 @@ to: codex
 type: request
 project: 2nd-B
 priority: high
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 id: 20260614-191907-to-codex-web-screen-content-verdict
 ref: visual-qa-pixel-judgment
 created: 2026-06-14 / 19:19:07 KST

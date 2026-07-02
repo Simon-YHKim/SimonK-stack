@@ -6,7 +6,8 @@ type: request
 ref: "QA_REPORT_20260614_3"
 project: "2nd-B"
 priority: normal
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 created: 2026-06-14 05:20:35 KST
 ---
 

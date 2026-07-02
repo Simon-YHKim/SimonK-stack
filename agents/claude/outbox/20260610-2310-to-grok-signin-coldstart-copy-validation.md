@@ -5,7 +5,8 @@ to: grok
 type: request
 project: "projects/2nd-B/"
 priority: normal
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 created: 2026-06-10 23:10 KST
 ---
 

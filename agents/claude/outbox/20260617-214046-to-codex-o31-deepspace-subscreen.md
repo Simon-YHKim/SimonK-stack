@@ -5,7 +5,8 @@ to: codex
 type: request
 project: 2nd-B
 priority: high
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 created: 2026-06-17 / 21:40:46 KST
 ---
 

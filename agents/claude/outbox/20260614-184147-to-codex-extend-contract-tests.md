@@ -4,7 +4,8 @@ to: codex
 type: request
 project: 2nd-B
 priority: normal
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 id: 20260614-184147-to-codex-extend-contract-tests
 ref: backlog-contract-test-hardening
 created: 2026-06-14 / 18:41:47 KST

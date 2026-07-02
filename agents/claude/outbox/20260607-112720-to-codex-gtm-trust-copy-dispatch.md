@@ -5,7 +5,8 @@ type: request
 ref: 20260607-110730-grok-to-claude-x-trend-gtm
 project: 2nd-B
 priority: high
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 created: 2026-06-07 11:27:20 KST
 ---
 

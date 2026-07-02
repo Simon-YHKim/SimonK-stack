@@ -4,7 +4,8 @@ to: antigravity
 type: request
 project: 2nd-B
 priority: critical
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 ---
 
 # FlatList = 성능 #1 위험. 자기 브랜치에서 제대로.

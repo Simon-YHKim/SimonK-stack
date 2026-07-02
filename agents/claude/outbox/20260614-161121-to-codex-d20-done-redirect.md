@@ -4,7 +4,8 @@ to: codex
 type: request
 project: 2nd-B
 priority: high
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 id: 20260614-161121-to-codex-d20-done-redirect
 ref: d20-recommendations-runtime-gate
 created: 2026-06-14 / 16:11:21 KST

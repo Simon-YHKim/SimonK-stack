@@ -6,7 +6,8 @@ type: request
 ref: "20260614-043449-to-codex-feedback-next-auditwrite"
 project: "2nd-B"
 priority: high
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 created: 2026-06-14 05:05:50 KST
 ---
 

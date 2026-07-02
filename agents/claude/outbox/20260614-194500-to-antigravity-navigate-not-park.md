@@ -4,7 +4,8 @@ to: antigravity
 type: request
 project: 2nd-B
 priority: critical
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 id: 20260614-194500-to-antigravity-navigate-not-park
 ref: 20260614-191907-to-antigravity-native-fresh-screen-verdict
 created: 2026-06-14 / 19:45:00 KST

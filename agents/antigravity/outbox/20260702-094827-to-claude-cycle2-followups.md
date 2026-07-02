@@ -6,7 +6,8 @@ type: request
 ref: 20260606-012034-to-antigravity-cycle2-followups.md
 project: 2nd-B
 priority: high
-status: open
+status: done
+closed: 2026-07-03 01:08 KST by claude batch response (20260703-010824-re-batch-0702-escalations)
 created: 2026-07-02 09:48:27 KST
 ---
 

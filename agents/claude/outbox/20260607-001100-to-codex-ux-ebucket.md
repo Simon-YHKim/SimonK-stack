@@ -6,7 +6,8 @@ type: request
 ref: 20260606-235600-claude-to-all-persona-ux-method
 project: 2nd-B
 priority: high
-status: open
+status: done
+closed: 2026-07-03 batch-stale (hub audit - superseded/merged; stale-open TTL)
 created: 2026-06-07 00:11:00 KST
 ---
 
