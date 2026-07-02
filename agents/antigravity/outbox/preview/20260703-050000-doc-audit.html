@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>문서 감사 결과 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; padding: 20px; line-height: 1.6; }
+  h1 { color: #FFFFFF; font-size: 1.5em; border-bottom: 1px solid #333; padding-bottom: 10px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+  th, td { border: 1px solid #333; padding: 12px; text-align: left; }
+  th { background-color: #1E1E1E; color: #FFFFFF; }
+  .alert { color: #FFB74D; font-weight: bold; }
+</style>
+</head>
+<body>
+  <h1>허브 문서 정합성 감사 보고서</h1>
+  <p>실행 환경: Gemini 3.1 Pro (High) / 추론 레벨: High</p>
+  <p>보안 토큰: TEST-4AI-AG-OK</p>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>위치 및 인용</th>
+      <th>모순점 분석</th>
+    </tr>
+    <tr>
+      <td>좌석 명칭 불일치</td>
+      <td>
+        - PROTOCOL.md (섹션 0, 4번째 줄): "좌석을 Gemini라 부르지 않는다"<br>
+        - ROUTING.md (섹션 1.6, 49번째 줄): "코드/스키마→Gemini"
+      </td>
+      <td class="alert">명시적인 명명 규칙(PROTOCOL)을 다른 문서(ROUTING)에서 위반함</td>
+    </tr>
+    <tr>
+      <td>Claude 추론 옵션 불일치</td>
+      <td>
+        - PROTOCOL.md (섹션 10.1, 181번째 줄): "/effort ultracode(xhigh)"<br>
+        - MODELS.md (정본 표, 14번째 줄): "/effort max"
+      </td>
+      <td class="alert">동일한 AI의 최고 추론 레벨 지시어가 문서 간에 일치하지 않음</td>
+    </tr>
+    <tr>
+      <td>Codex 추론 옵션 불일치</td>
+      <td>
+        - PROTOCOL.md (섹션 10.1, 182번째 줄): "-c model_reasoning_effort=high"<br>
+        - MODELS.md (정본 표, 15번째 줄): "-c model_reasoning_effort=medium"
+      </td>
+      <td class="alert">Codex의 모델 제한 강도 명세가 문서 간에 모순됨</td>
+    </tr>
+  </table>
+</body>
+</html>
