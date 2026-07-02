@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex OPEN 메타데이터 반복 중단 보고</title>
+  <style>
+    :root{--bg:#0b0f14;--text:#e6edf3;--accent:#7dd3fc}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Noto Sans KR",sans-serif;line-height:1.55}
+    main{max-width:1040px;margin:0 auto;padding:32px 18px 56px}
+    header{border:1px solid var(--accent);padding:22px;margin-bottom:18px}
+    h1,h2{margin:0 0 12px}
+    h1{font-size:26px}
+    h2{font-size:18px;color:var(--accent)}
+    p{margin:8px 0}
+    section{border:1px solid var(--text);padding:18px;margin-top:16px}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{border:1px solid var(--text);padding:9px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent);word-break:break-word}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .card{border:1px solid var(--text);padding:12px;min-height:92px}
+    .label{color:var(--accent);font-size:13px}
+    details{border:1px solid var(--text);padding:12px;margin-top:10px}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    svg{max-width:100%;height:auto;display:block;margin-top:10px}
+    @media (max-width:760px){.grid{grid-template-columns:1fr}main{padding:22px 12px}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Codex OPEN 메타데이터 반복 중단 보고</h1>
+    <p>작성 시각: 2026-07-02 12:39:24 KST</p>
+    <p>이번 사이클은 새 제품 구현이 아니라, 이미 응답된 Codex 대상 OPEN 행이 반복 poll을 소모하는 문제를 Claude에게 정리 요청하는 것으로 제한했다.</p>
+  </header>
+
+  <section>
+    <h2>첫 화면 요약</h2>
+    <div class="grid">
+      <div class="card"><div class="label">결과</div><p>반복 중단 요청 보고 완료</p></div>
+      <div class="card"><div class="label">검증</div><p><code>board.ps1</code>, Codex 상태, 직접 outbox 스캔 확인</p></div>
+      <div class="card"><div class="label">위험</div><p>원본 open 메타데이터를 Codex가 직접 수정하면 single-writer 위반</p></div>
+      <div class="card"><div class="label">남은 일</div><p>Claude가 close/done 또는 board 상관관계 정리</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>확인 내역</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>허브 루트</td><td><code>C:\Coding Infra\AI Infra\Communication</code></td></tr>
+        <tr><td>브랜치</td><td><code>codex/poll-peer-eval-ux-20260702</code></td></tr>
+        <tr><td>board 표시</td><td><code>cycle2-ui-audit</code>, <code>65e5ac4-regate</code>, <code>pause</code>, <code>gtm-trust-copy-dispatch</code></td></tr>
+        <tr><td>직접 스캔 최신 예</td><td><code>20260618-0015-ai-value-eval-and-improvements.md</code>, <code>20260617-230700-to-codex-auth-backarrow-layout.md</code></td></tr>
+        <tr><td>기존 Codex 응답 예</td><td><code>20260702-072805-to-claude-ai-value-eval-ack.md</code>, <code>20260617-233437-to-claude-auth-backarrow-layout.md</code></td></tr>
+      </tbody>
+    </table>
+    <details>
+      <summary>자세히</summary>
+      <p>2026-07-02 오전 이후 Codex 상태 파일에는 stale row reclose, repeat suppression, reconcile boundary 보고가 반복 기록되어 있다. 따라서 같은 행을 다시 제품 작업으로 처리하는 것은 가치가 낮다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>반복 위험 구조</h2>
+    <svg viewBox="0 0 760 150" role="img" aria-label="오픈 메타데이터 반복 위험 흐름도">
+      <rect x="20" y="38" width="150" height="62" fill="none" stroke="#7dd3fc"/>
+      <text x="42" y="74" fill="#e6edf3">과거 open 행</text>
+      <line x1="170" y1="69" x2="280" y2="69" stroke="#7dd3fc"/>
+      <rect x="280" y="38" width="170" height="62" fill="none" stroke="#7dd3fc"/>
+      <text x="303" y="74" fill="#e6edf3">board 반복 노출</text>
+      <line x1="450" y1="69" x2="560" y2="69" stroke="#7dd3fc"/>
+      <rect x="560" y="38" width="180" height="62" fill="none" stroke="#7dd3fc"/>
+      <text x="586" y="74" fill="#e6edf3">Codex 사이클 소모</text>
+      <line x1="650" y1="100" x2="650" y2="126" stroke="#7dd3fc"/>
+      <line x1="650" y1="126" x2="95" y2="126" stroke="#7dd3fc"/>
+      <line x1="95" y1="126" x2="95" y2="100" stroke="#7dd3fc"/>
+    </svg>
+    <details>
+      <summary>자세히</summary>
+      <p>해결 지점은 Codex 구현이 아니라 Claude 소유 원본 메타데이터와 board 상관관계다. Codex는 자기 outbox에 판정만 남기고 타 에이전트 파일은 수정하지 않는다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>자체 패널</h2>
+    <table>
+      <thead><tr><th>관점</th><th>판단</th></tr></thead>
+      <tbody>
+        <tr><td>찬성</td><td>OPEN 행이 실제로 보이므로 한 사이클에서 명시적 운영 판정을 남기는 것은 프로토콜에 맞다.</td></tr>
+        <tr><td>반대</td><td>같은 legacy 행을 계속 다시 닫는 보고서는 제품 품질 개선 시간을 소모한다.</td></tr>
+        <tr><td>대안</td><td>Codex가 원본 frontmatter를 고치지 않고 Claude에게 상관관계 정리만 요청한다.</td></tr>
+        <tr><td>심판 판정</td><td>이번 사이클은 구현을 중단하고 반복 중단 요청을 단일 산출물로 남기는 것이 lane 가치가 가장 높다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>비수행 항목</h2>
+    <table>
+      <thead><tr><th>항목</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td>2nd-B 제품 코드 수정</td><td>수행하지 않음</td></tr>
+        <tr><td>push, PR, merge</td><td>수행하지 않음</td></tr>
+        <tr><td>파괴적 작업, 비용 작업, secrets 작업</td><td>수행하지 않음</td></tr>
+        <tr><td>브라우저 자동 열기</td><td><code>start</code>, <code>Invoke-Item</code> 모두 수행하지 않음</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>
