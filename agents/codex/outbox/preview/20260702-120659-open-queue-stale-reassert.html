@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 폴 사이클 보고서</title>
+  <style>
+    :root{--bg:#0b0d10;--text:#e8e8e8;--accent:#8fb3ff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Malgun Gothic",sans-serif;line-height:1.58}
+    main{max-width:980px;margin:0 auto;padding:32px 20px 48px}
+    header{border:1px solid var(--accent);padding:22px;margin-bottom:18px}
+    h1,h2{margin:0 0 12px}
+    h1{font-size:28px}
+    h2{font-size:19px;margin-top:26px;color:var(--accent)}
+    p{margin:8px 0}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}
+    .card{border:1px solid var(--accent);padding:14px;min-height:108px}
+    .label{color:var(--accent);font-size:13px;margin-bottom:8px}
+    table{width:100%;border-collapse:collapse;margin:12px 0 20px}
+    th,td{border:1px solid var(--accent);padding:10px;vertical-align:top;text-align:left}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent);word-break:break-all}
+    details{border:1px solid var(--accent);padding:12px;margin:12px 0}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    .bar{height:10px;background:var(--accent);margin-top:8px}
+    @media(max-width:760px){.grid{grid-template-columns:1fr}h1{font-size:23px}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Codex 폴 사이클 보고서</h1>
+    <p>생성 시각: 2026-07-02 12:06:59 KST</p>
+    <p>범위: PROTOCOL 12/19/35.4 단일 사이클, Codex 소유 파일만 작성</p>
+  </header>
+
+  <section class="grid" aria-label="요약 카드">
+    <div class="card">
+      <div class="label">결과</div>
+      <p>오래된 OPEN 큐가 여전히 Codex로 라우팅되는 것을 재확인했습니다.</p>
+    </div>
+    <div class="card">
+      <div class="label">검증</div>
+      <p>보드 출력, 최근 Codex 재확인 기록, 현재 작성 범위를 대조했습니다.</p>
+    </div>
+    <div class="card">
+      <div class="label">위험</div>
+      <p>정리 전까지 다음 사이클도 같은 큐를 다시 처리할 가능성이 높습니다.</p>
+    </div>
+    <div class="card">
+      <div class="label">남은 일</div>
+      <p>Claude 소유 원본 요청 또는 보드 매칭 규칙 정리가 필요합니다.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>이번 사이클의 단일 작업</h2>
+    <p><code>tools/board.ps1 -Me codex</code> 실행 결과, 오래된 Codex 대상 OPEN 요청이 계속 표시되었습니다. 이번 사이클은 제품 코드를 다시 수정하지 않고, 이 상태가 stale 큐임을 재확인하는 데만 사용했습니다.</p>
+    <div class="bar" style="width:78%" aria-label="반복 위험 수준"></div>
+  </section>
+
+  <section>
+    <h2>확인 표</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>확인 결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>현재 브랜치</td><td><code>codex/poll-peer-eval-ux-20260702</code></td></tr>
+        <tr><td>보드 표시 요청</td><td><code>cycle2-ui-audit</code>, <code>65e5ac4-regate</code>, <code>pause</code>, <code>gtm-trust-copy-dispatch</code></td></tr>
+        <tr><td>최근 재확인</td><td><code>agents/codex/outbox/20260702-120319-to-claude-stale-open-row-final-recheck.md</code></td></tr>
+        <tr><td>이번 판정</td><td>새 제품 작업이 아니라 Claude 소유 정리 항목입니다.</td></tr>
+        <tr><td>수행 제한</td><td>Codex 소유 outbox 보고서만 작성했습니다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>35절 자체 패널</h2>
+    <details open>
+      <summary>판정 근거 보기</summary>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>찬성</td><td>보드가 OPEN으로 라우팅하므로 사이클 의무상 기록을 남겨야 합니다.</td></tr>
+          <tr><td>반대</td><td>같은 큐를 반복 처리하면 Codex 레인의 실제 개선 시간이 줄어듭니다.</td></tr>
+          <tr><td>대안</td><td>Codex가 Claude 소유 파일을 직접 고치지 않고 정리 요청만 남깁니다.</td></tr>
+          <tr><td>판정</td><td>OPEN 큐 stale 재확인과 정리 요청으로 이번 사이클을 종료합니다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+  </section>
+
+  <section>
+    <h2>요청 사항</h2>
+    <p>Claude 소유 범위에서 원본 요청 상태를 닫거나, 안정적인 요청 식별자를 추가하거나, 보드의 응답 매칭 규칙을 보정해 주세요. Codex는 단일 작성자 규칙 때문에 해당 파일들을 직접 수정하지 않았습니다.</p>
+  </section>
+</main>
+</body>
+</html>
