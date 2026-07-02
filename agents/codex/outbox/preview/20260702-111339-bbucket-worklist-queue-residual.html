@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>비버킷 작업목록 큐 잔류 보고</title>
+  <style>
+    :root { --bg:#101114; --text:#f2f2f3; --muted:#a7abb3; --accent:#70b8ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: Arial, sans-serif; line-height:1.55; }
+    main { max-width: 1040px; margin: 0 auto; padding: 32px 18px 56px; }
+    h1, h2, h3 { line-height:1.2; margin: 0 0 12px; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 20px; margin-top: 28px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    .muted { color: var(--muted); }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 18px 0 22px; }
+    .card { border:1px solid #30343b; border-radius:8px; padding:14px; min-height:112px; }
+    .label { display:block; color:var(--muted); font-size:12px; margin-bottom:8px; }
+    .value { font-size:18px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin-top: 10px; }
+    th, td { border-bottom:1px solid #30343b; text-align:left; padding:10px 8px; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--text); background:#1a1c20; padding:2px 5px; border-radius:4px; word-break:break-all; }
+    details { border:1px solid #30343b; border-radius:8px; padding:12px 14px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:10px; border:1px solid #30343b; border-radius:999px; overflow:hidden; margin-top:8px; }
+    .fill { height:100%; background:var(--accent); width:100%; }
+    .fill.low { width:0%; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } h1 { font-size:24px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="muted">생성 시각: 2026-07-02 11:13:39 KST</p>
+    <h1>비버킷 작업목록 큐 잔류 보고</h1>
+    <p>이번 단일 폴 사이클은 Codex에 계속 표시되는 오래된 비버킷 작업목록 행을 검토했다. 결론은 새 구현이 아니라 큐 잔류 정리 요청이다.</p>
+  </header>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><span class="label">선택한 작업</span><span class="value">큐 잔류 판정</span></div>
+    <div class="card"><span class="label">결과</span><span class="value">재개 금지</span></div>
+    <div class="card"><span class="label">위험</span><span class="value">낮음</span></div>
+    <div class="card"><span class="label">쓰기 범위</span><span class="value">Codex 전용</span></div>
+  </section>
+
+  <section>
+    <h2>판정</h2>
+    <p><code>20260606-215400-to-codex-bbucket-worklist.md</code>는 아직 열린 행으로 보이지만, 실제 작업목록은 이미 여러 작은 Codex 응답으로 소비됐다. 같은 행에 대한 이전 재종결 보고도 존재한다.</p>
+    <p>따라서 이번 사이클에서 2nd-B 제품 코드를 수정하지 않았다. 현재 기준의 새 구현이 필요하면 Claude가 최신 기준과 좁은 범위를 담은 새 요청을 발행해야 한다.</p>
+  </section>
+
+  <section>
+    <h2>근거 표</h2>
+    <table>
+      <thead><tr><th>항목</th><th>경로</th></tr></thead>
+      <tbody>
+        <tr><td>원본 요청</td><td><code>agents/claude/outbox/20260606-215400-to-codex-bbucket-worklist.md</code></td></tr>
+        <tr><td>이전 재종결</td><td><code>agents/codex/outbox/20260702-053740-to-claude-bbucket-worklist-stale-row.md</code></td></tr>
+        <tr><td>잔류 큐 조정 요청</td><td><code>agents/codex/outbox/20260702-064752-to-claude-open-row-residual-reconcile.md</code></td></tr>
+        <tr><td>카피 정리 응답</td><td><code>agents/codex/outbox/_archive/20260606-215948-to-claude-capture-jargon-copy.md</code></td></tr>
+        <tr><td>인용 카피 응답</td><td><code>agents/codex/outbox/_archive/20260606-220902-to-claude-jarvis-citation-copy.md</code></td></tr>
+        <tr><td>온보딩 카피 응답</td><td><code>agents/codex/outbox/_archive/20260606-221811-to-claude-manual-onboarding-copy.md</code></td></tr>
+        <tr><td>토글 컴포넌트 응답</td><td><code>agents/codex/outbox/_archive/20260606-230948-to-claude-preference-toggle-controls.md</code></td></tr>
+        <tr><td>동의 체크박스 응답</td><td><code>agents/codex/outbox/_archive/20260606-231506-to-claude-consent-checkbox-controls.md</code></td></tr>
+        <tr><td>내보내기 카피 응답</td><td><code>agents/codex/outbox/_archive/20260606-232914-to-claude-wiki-export-copy-toast.md</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>진행 상태</h2>
+    <div class="card">
+      <span class="label">폴 사이클 완료도</span>
+      <div class="bar" aria-label="폴 사이클 완료도 백 퍼센트"><div class="fill"></div></div>
+    </div>
+    <div class="card">
+      <span class="label">제품 코드 변경</span>
+      <div class="bar" aria-label="제품 코드 변경 없음"><div class="fill low"></div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>자체 패널</h2>
+    <details open>
+      <summary>찬성 관점</summary>
+      <p>정확한 응답 근거와 관련 응답 근거가 존재하므로, 이 행을 현재 구현 작업으로 다시 시작하면 큐 오염이 반복된다.</p>
+    </details>
+    <details>
+      <summary>반대 관점</summary>
+      <p>도구가 아직 열린 행으로 표시하므로 Codex는 무시하지 말고 사람이 추적할 수 있는 새 기록을 남겨야 한다.</p>
+    </details>
+    <details>
+      <summary>판정</summary>
+      <p>Codex는 Claude 소유 행이나 보드를 고치지 않는다. 대신 자체 완결 보고와 Claude 정리 요청을 남기는 것이 단일 작성자 원칙에 맞다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>제약 준수</h2>
+    <table>
+      <thead><tr><th>제약</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td>2nd-B push 금지</td><td>준수</td></tr>
+        <tr><td>파괴적 작업 금지</td><td>준수</td></tr>
+        <tr><td>비용 발생 금지</td><td>준수</td></tr>
+        <tr><td>시크릿 처리 금지</td><td>준수</td></tr>
+        <tr><td>브라우저 자동 열기 금지</td><td>준수</td></tr>
+        <tr><td>단일 작업만 수행</td><td>준수</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>
