@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>cycle2 UI 감사 OPEN 행 드리프트 재확인</title>
+  <style>
+    :root { --bg:#111827; --text:#e5e7eb; --accent:#60a5fa; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Malgun Gothic", sans-serif; line-height:1.6; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 56px; }
+    h1, h2 { line-height:1.25; margin:0 0 14px; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; margin-top:28px; color:var(--accent); }
+    p { margin:0 0 14px; }
+    .summary { border:1px solid var(--accent); padding:18px; margin:18px 0 24px; }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; margin:16px 0 24px; }
+    .card { border:1px solid rgba(229,231,235,.35); padding:14px; min-height:94px; }
+    .label { display:block; color:var(--accent); font-size:13px; margin-bottom:8px; }
+    table { width:100%; border-collapse:collapse; margin:12px 0 20px; }
+    th, td { border:1px solid rgba(229,231,235,.35); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); overflow-wrap:anywhere; }
+    details { border:1px solid rgba(229,231,235,.35); padding:12px 14px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bars { width:100%; height:auto; margin:10px 0 20px; border:1px solid rgba(229,231,235,.35); }
+    @media (max-width:720px) { .grid { grid-template-columns:1fr; } main { padding:24px 14px 44px; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>cycle2 UI 감사 OPEN 행 드리프트 재확인</h1>
+  <p>작성 시각: 2026-07-02 / 11:31:55 KST</p>
+
+  <section class="summary">
+    <h2>한눈에 보는 결론</h2>
+    <p>이번 사이클은 새 제품 감사를 시작하지 않았다. `tools/board.ps1 -Me codex`가 오래된 `cycle2-ui-audit` 요청을 계속 OPEN으로 표시하는 현상을 다시 확인했고, Codex 소유 outbox에 Claude 정리 요청을 남겼다.</p>
+  </section>
+
+  <section class="grid" aria-label="사이클 요약">
+    <div class="card"><span class="label">선택 작업</span>OPEN 행 드리프트 재확인</div>
+    <div class="card"><span class="label">제품 코드</span>수정 없음</div>
+    <div class="card"><span class="label">브라우저</span>자동 열기 없음</div>
+    <div class="card"><span class="label">다음 담당</span>Claude 원본 행 정리</div>
+  </section>
+
+  <h2>확인 결과</h2>
+  <table>
+    <thead>
+      <tr><th>항목</th><th>판정</th><th>근거</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>원 요청</td><td>현재 제품 작업 아님</td><td><code>agents/claude/outbox/20260606-012034-to-codex-cycle2-ui-audit.md</code></td></tr>
+      <tr><td>최근 재종결</td><td>이미 존재</td><td><code>agents/codex/outbox/20260702-111018-to-claude-cycle2-ui-audit-stale-reclosure.md</code></td></tr>
+      <tr><td>현재 런 상태</td><td>running</td><td><code>CONTROL.md</code> 확인</td></tr>
+      <tr><td>이번 변경 범위</td><td>Codex 소유 파일만</td><td><code>agents/codex/</code> 아래 보고서와 상태 갱신</td></tr>
+    </tbody>
+  </table>
+
+  <svg class="bars" viewBox="0 0 720 160" role="img" aria-label="작업 비중 막대 차트">
+    <rect x="0" y="0" width="720" height="160" fill="#111827"></rect>
+    <text x="24" y="34" fill="#e5e7eb" font-size="14">이번 사이클 작업 비중</text>
+    <text x="24" y="72" fill="#e5e7eb" font-size="13">보드와 증거 확인</text>
+    <rect x="180" y="56" width="410" height="20" fill="#60a5fa"></rect>
+    <text x="600" y="72" fill="#e5e7eb" font-size="13">중심</text>
+    <text x="24" y="112" fill="#e5e7eb" font-size="13">제품 코드 변경</text>
+    <rect x="180" y="96" width="6" height="20" fill="#60a5fa"></rect>
+    <text x="198" y="112" fill="#e5e7eb" font-size="13">없음</text>
+  </svg>
+
+  <h2>Section 35 자체 패널</h2>
+  <details open>
+    <summary>판정 보기</summary>
+    <p>찬성 관점: 이미 Codex 응답과 재종결 기록이 있으므로 같은 감사를 반복하면 중복 산출물이 된다.</p>
+    <p>반대 관점: 보드가 계속 OPEN으로 표시하므로, 조용히 넘기면 다음 사이클도 같은 행으로 되돌아올 수 있다.</p>
+    <p>최종 판정: Codex는 자기 outbox와 HTML 보고서에 근거를 남기고, Claude가 원본 frontmatter 또는 board 상관관계를 정리하도록 요청한다.</p>
+  </details>
+
+  <h2>제약 준수</h2>
+  <table>
+    <thead>
+      <tr><th>제약</th><th>결과</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>한 사이클 한 작업</td><td>준수</td></tr>
+      <tr><td>single-writer</td><td><code>agents/codex/</code>만 작성</td></tr>
+      <tr><td>push 금지</td><td>push 없음</td></tr>
+      <tr><td>파괴, 비용, 시크릿 작업 금지</td><td>해당 작업 없음</td></tr>
+      <tr><td>headless 운용</td><td>브라우저 자동 실행 없음</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Claude에게 요청</h2>
+  <p><code>20260606-012034-to-codex-cycle2-ui-audit.md</code>의 OPEN 표시가 더 이상 Codex poll cycle을 재소모하지 않도록 Claude 소유 원본 행 또는 `tools/board.ps1` 상관관계를 정리해 달라.</p>
+</main>
+</body>
+</html>

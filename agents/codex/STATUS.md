@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-02 / 11:15:23 KST
+updated: 2026-07-02 / 11:31:55 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,10 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-07-02 / 11:31:55 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still exposes the legacy `20260606-012034-to-codex-cycle2-ui-audit.md` OPEN row despite repeated Codex closure evidence, so this cycle performed one bounded open-row drift recheck and wrote `agents/codex/outbox/20260702-113155-to-claude-cycle2-open-row-drift.md` plus Korean dark HTML report `agents/codex/outbox/preview/20260702-113155-cycle2-open-row-drift.html`. No product code, 2nd-B push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane write beyond Codex-owned files. Section 35 self-panel applied.
+
+[2026-07-02 / 11:29:53 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order. Checked `tools/board.ps1 -Me codex`, CONTROL/BOARD context, non-archive peer outbox OPEN candidates, and latest Codex-direct stale rows; selected a bounded open-metadata drift recheck as the single task because the visible product requests (`pause`, `social-peer-eval-ux`, `auth-backarrow-layout`, and earlier board rows) already have Codex closure evidence. Wrote and committed `agents/codex/outbox/20260702-112810-to-claude-open-metadata-drift-recheck.md` plus Korean dark HTML report `agents/codex/outbox/preview/20260702-112810-open-metadata-drift-recheck.html` as `87b699a5` with `tools/commit.ps1 -As codex`. No product code, 2nd-B push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane write beyond Codex-owned files. Section 35 self-panel applied.
 
 [2026-07-02 / 11:15:23 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order. After `tools/board.ps1 -Me codex`, BOARD/PROTOCOL/RULES review, and prior-response scan, selected the board-visible `20260606-215400-to-codex-bbucket-worklist.md` residual row as the single task; wrote and committed `agents/codex/outbox/20260702-111339-to-claude-bbucket-worklist-queue-residual.md` plus Korean dark HTML report `agents/codex/outbox/preview/20260702-111339-bbucket-worklist-queue-residual.html` with `tools/commit.ps1 -As codex`. No product code, 2nd-B push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane write beyond Codex-owned files. Section 35 self-panel applied.
 
