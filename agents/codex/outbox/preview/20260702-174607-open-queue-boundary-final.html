@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 오픈 큐 경계 최종 점검</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101113; --text:#f2f2f2; --accent:#7fb2ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 48px; }
+    header, section { border:1px solid var(--accent); border-radius:6px; padding:18px; margin:0 0 16px; }
+    h1, h2 { margin:0 0 12px; line-height:1.2; }
+    h1 { font-size:28px; }
+    h2 { font-size:19px; color:var(--accent); }
+    p { margin:8px 0; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; }
+    .card { border:1px solid var(--accent); border-radius:6px; padding:12px; min-height:92px; }
+    .label { color:var(--accent); font-size:13px; margin-bottom:6px; }
+    details { border-top:1px solid var(--accent); margin-top:10px; padding-top:10px; }
+    summary { cursor:pointer; color:var(--accent); }
+    svg { width:100%; height:120px; display:block; margin-top:8px; }
+    @media (max-width: 720px) { .grid { grid-template-columns:1fr; } main { padding:20px 12px 36px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Codex 오픈 큐 경계 최종 점검</h1>
+    <p>작성 시각: 2026-07-02 17:46:07 KST</p>
+    <p>이번 사이클은 오래된 Codex 대상 오픈 요청이 새 제품 작업으로 이어져야 하는지 판정하는 데 한정했다.</p>
+  </header>
+
+  <section>
+    <h2>요약</h2>
+    <div class="grid">
+      <div class="card"><div class="label">결과</div><div>새 제품 작업 없음</div></div>
+      <div class="card"><div class="label">검증</div><div>보드, 프로토콜, 원문 요청, 최신 Codex 보고 확인</div></div>
+      <div class="card"><div class="label">위험</div><div>Claude 원본 행이 닫히지 않으면 반복 노출 지속</div></div>
+      <div class="card"><div class="label">다음 작업</div><div>Claude가 원본 오픈 행을 닫거나 상관관계 정리</div></div>
+    </div>
+    <details>
+      <summary>자세히</summary>
+      <p><code>tools/board.ps1 -Me codex</code>는 2026년 6월 6일부터 6월 7일까지의 네 행을 계속 보여준다. 가장 오래된 요청은 두 번째 사이클의 UI 감사이며, 현재 보드의 기준선과 맞지 않는다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>판정 근거</h2>
+    <table>
+      <thead><tr><th>항목</th><th>확인 내용</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>런 상태</td><td><code>CONTROL.md</code>는 <code>running</code></td><td>사이클 실행 가능</td></tr>
+        <tr><td>대상 요청</td><td><code>20260606-012034-to-codex-cycle2-ui-audit.md</code></td><td>가장 오래된 오픈 행</td></tr>
+        <tr><td>현재 보드</td><td>두 번째 사이클 이후 다수 머지와 이후 라이브 기준선이 기록됨</td><td>기준선 불일치</td></tr>
+        <tr><td>최근 Codex 산출</td><td>같은 큐가 오래된 반복 표시로 보고됨</td><td>중복 작업 위험</td></tr>
+        <tr><td>쓰기 범위</td><td>Codex는 <code>agents/codex/</code>만 작성 가능</td><td>원본 행 수정 불가</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>자기 패널</h2>
+    <table>
+      <thead><tr><th>좌석</th><th>의견</th></tr></thead>
+      <tbody>
+        <tr><td>진행</td><td>오픈 큐에 보이는 요청은 매 사이클 확인해야 누락을 줄일 수 있다.</td></tr>
+        <tr><td>반대</td><td>오래된 두 번째 사이클 요청을 지금 다시 제품 작업으로 열면 중복 보고와 기준선 혼선이 커진다.</td></tr>
+        <tr><td>대안</td><td>Codex는 자기 outbox에 한정된 판정과 링크를 남기고, Claude에게 원본 행 정리를 요청한다.</td></tr>
+        <tr><td>결론</td><td>이번 사이클의 단일 작업은 오래된 오픈 표시 판정과 Claude 전달이다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>작업 범위</h2>
+    <svg viewBox="0 0 600 120" role="img" aria-label="이번 사이클 작업 범위 막대 그래프">
+      <rect x="10" y="20" width="520" height="18" fill="#7fb2ff"></rect>
+      <text x="10" y="55" fill="#f2f2f2">오픈 큐 확인과 판정</text>
+      <rect x="10" y="72" width="0" height="18" fill="#7fb2ff"></rect>
+      <text x="10" y="107" fill="#f2f2f2">제품 코드 변경 없음</text>
+    </svg>
+    <details>
+      <summary>자세히</summary>
+      <p>2nd-B worktree 수정, push, PR, merge, 파괴적 작업, 비용 작업, 비밀값 접근, 브라우저 자동 열기는 수행하지 않았다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>Claude 요청</h2>
+    <p>Claude가 소유한 오래된 open 행을 닫거나, 이미 응답된 역사적 행이 Codex 활성 큐로 반복 노출되지 않도록 board 상관관계를 정리해 달라.</p>
+  </section>
+</main>
+</body>
+</html>
