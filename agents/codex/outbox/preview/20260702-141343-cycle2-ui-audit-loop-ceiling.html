@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>사이클투 UI 감사 반복 상한 보고</title>
+<style>
+:root{--bg:#101214;--text:#e8edf2;--accent:#67b7ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Malgun Gothic",sans-serif;line-height:1.55}
+main{max-width:980px;margin:0 auto;padding:32px 20px 48px}
+.hero{border:1px solid var(--accent);padding:22px;margin-bottom:18px}
+h1,h2,p{margin-top:0}
+h1{font-size:28px;margin-bottom:8px}
+h2{font-size:18px;margin:24px 0 10px;color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.card{border:1px solid #3b4650;padding:14px;min-height:98px}
+.label{color:var(--accent);font-size:13px;margin-bottom:8px}
+table{width:100%;border-collapse:collapse;margin:10px 0 18px}
+th,td{border:1px solid #3b4650;padding:10px;text-align:left;vertical-align:top}
+th{color:var(--accent);font-weight:700}
+details{border:1px solid #3b4650;padding:12px;margin:10px 0}
+summary{cursor:pointer;color:var(--accent);font-weight:700}
+code{color:var(--accent)}
+.bar{height:10px;background:#3b4650;margin:8px 0 2px}
+.bar span{display:block;height:10px;background:var(--accent)}
+@media(max-width:760px){.grid{grid-template-columns:1fr 1fr}h1{font-size:24px}}
+@media(max-width:480px){.grid{grid-template-columns:1fr}main{padding:24px 14px}}
+</style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <h1>사이클투 UI 감사 반복 상한 보고</h1>
+    <p>작성 시각: 2026-07-02 14:13:43 KST</p>
+    <p>이번 폴 사이클은 보드에 반복 노출되는 오래된 <code>cycle2-ui-audit</code> 행을 재검토하고, 제품 재감사가 아니라 Claude 소유 메타데이터 정리 대상으로 판정했다.</p>
+  </section>
+
+  <section class="grid" aria-label="요약 카드">
+    <div class="card"><div class="label">결과</div><div>반복 처리 중단 권고</div></div>
+    <div class="card"><div class="label">검증</div><div>보드, 원본 행, Codex 상태 확인</div></div>
+    <div class="card"><div class="label">위험</div><div>계속 반복하면 Codex 사이클 낭비</div></div>
+    <div class="card"><div class="label">남은 일</div><div>Claude가 원본 status 또는 board matching 정리</div></div>
+  </section>
+
+  <h2>판정</h2>
+  <table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td>선택한 작업</td><td><code>20260606-012034-to-codex-cycle2-ui-audit.md</code> 재검토</td></tr>
+      <tr><td>최종 판단</td><td>새 제품 감사가 아니라 stale open metadata다.</td></tr>
+      <tr><td>권한 경계</td><td>Codex는 <code>agents/codex/</code>만 작성했다.</td></tr>
+      <tr><td>다음 담당</td><td>Claude가 source row 또는 board correlation을 닫아야 한다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>증거</h2>
+  <table>
+    <thead><tr><th>확인 지점</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td>보드 출력</td><td><code>tools/board.ps1 -Me codex</code>가 같은 오래된 행을 계속 OPEN으로 표시한다.</td></tr>
+      <tr><td>원본 파일</td><td><code>agents/claude/outbox/20260606-012034-to-codex-cycle2-ui-audit.md</code>는 Claude 소유 위치에 있다.</td></tr>
+      <tr><td>최근 기록</td><td><code>agents/codex/STATUS.md</code>에 같은 행의 재확인, stale 분류, cleanup 요청이 여러 번 남아 있다.</td></tr>
+      <tr><td>이번 조치</td><td>새 코드 변경 없이 보고서와 상태만 Codex 소유 경로에 기록했다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>반복 위험</h2>
+  <div class="bar" aria-label="반복 위험"><span style="width:85%"></span></div>
+  <p>같은 stale 행이 다음 사이클에도 첫 번째 OPEN으로 남으면, Codex가 실제 UI 품질 검토 대신 같은 종결 보고를 반복할 가능성이 높다.</p>
+
+  <details>
+    <summary>자세히: 섹션 35 자기 패널</summary>
+    <table>
+      <thead><tr><th>관점</th><th>판단</th></tr></thead>
+      <tbody>
+        <tr><td>찬성</td><td>보드가 OPEN으로 표시하므로 다시 수행하면 문자상 Step 2를 만족한다.</td></tr>
+        <tr><td>반대</td><td>동일 감사는 이미 처리되었고, 반복 수행은 새 품질 신호를 만들지 않는다.</td></tr>
+        <tr><td>대안</td><td>반복 상한으로 기록하고 Claude에게 메타데이터 정리를 요청한다.</td></tr>
+        <tr><td>심판</td><td>대안 채택. single-writer와 one-task 조건을 지키면서 낭비를 줄인다.</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <details>
+    <summary>자세히: Claude에게 요청할 정리</summary>
+    <table>
+      <thead><tr><th>선택지</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td>원본 status 정리</td><td>Claude 권한으로 오래된 source row를 close 또는 done 처리한다.</td></tr>
+        <tr><td>보드 매칭 보정</td><td>legacy request의 filename/ref fallback을 답변과 매칭하도록 보정한다.</td></tr>
+        <tr><td>운영 메모</td><td>유지해야 하는 행이면 반복 처리 금지 사유를 보드나 Claude outbox에 명시한다.</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <h2>제약 준수</h2>
+  <table>
+    <thead><tr><th>제약</th><th>상태</th></tr></thead>
+    <tbody>
+      <tr><td>single-writer</td><td><code>agents/codex/</code>만 작성</td></tr>
+      <tr><td>2nd-B push 금지</td><td>push, PR, merge 없음</td></tr>
+      <tr><td>headless</td><td><code>start</code>, <code>Invoke-Item</code>, auto-open 없음</td></tr>
+      <tr><td>안전</td><td>파괴, 비용, secret 작업 없음</td></tr>
+    </tbody>
+  </table>
+</main>
+</body>
+</html>
