@@ -27,8 +27,10 @@ $mode = if ($state -eq 'running') { '-Execute' } else { '' }
 
 $argList = @('-NoProfile','-File', $drain)
 if ($mode) { $argList += $mode }
-# pwsh 경로를 현재 호스트에서 동적 해석 — 버전 박힌 절대경로 하드코딩 금지(PS 업데이트 시 무음 실패 방지)
-$pwshExe = (Get-Process -Id $PID).Path
+# 진짜 pwsh를 먼저 찾는다 — 현재 호스트 전파 방식은 PS5.1(powershell.exe)로 호출되면
+# 한글 리터럴이 많은 드레인 엔진을 cp949로 파싱해 조용히 깨뜨렸다(2026-07-03 감사).
+$pwshExe = (Get-Command pwsh -ErrorAction SilentlyContinue).Source
+if (-not $pwshExe) { $pwshExe = (Get-Process -Id $PID).Path }
 if (-not $pwshExe -or -not (Test-Path $pwshExe)) { $pwshExe = Join-Path $PSHOME 'pwsh.exe' }
 if (-not (Test-Path $pwshExe)) { $pwshExe = 'pwsh' }
 $out = & $pwshExe @argList 2>&1 | Out-String

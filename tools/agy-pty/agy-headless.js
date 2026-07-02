@@ -88,8 +88,13 @@ function attempt() {
     if (process.env.AGY_MODEL) args.push('--model', process.env.AGY_MODEL);
     let term;
     try {
+      // AGY_USE_CONPTY=0 -> winpty backend. ConPTY needs the parent to have a Win32
+      // console; under PowerShell Start-Job (no console host) it dies with
+      // "AttachConsole failed" (observed 2026-07-02, AG seat hard-fail). winpty
+      // spawns its own hidden console agent, so it works console-less.
+      const useConpty = process.env.AGY_USE_CONPTY !== '0';
       term = pty.spawn(AGY_BIN, args, {
-        name: 'xterm-256color', cols: 120, rows: 40, cwd, env: process.env,
+        name: 'xterm-256color', cols: 120, rows: 40, cwd, env: process.env, useConpty,
       });
     } catch (e) {
       return resolve({ answer: '', raw: '', err: e.message });

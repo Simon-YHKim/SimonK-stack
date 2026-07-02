@@ -125,7 +125,10 @@ function Render {
     }
   }
   if($dlogLines.Count -gt 0){
-    $dlast = $dlogLines[-1]
+    # Last REAL line: the split keeps a trailing empty element after the final newline,
+    # so [-1] was always "" and the timestamp regex never matched (DAEMON row never green).
+    $dlast = @($dlogLines | Where-Object { $_ -match '^\[' }) | Select-Object -Last 1
+    if(-not $dlast){ $dlast = "" }
     $dts = ""; if($dlast -match '^\[([^\]]+) KST\]'){ $dts = $matches[1] }
     $dage = if($dts){ Get-Age $dts } else { "?" }
     $dmsg = ($dlast -replace '^\[[^\]]*\]\s*','').Trim()

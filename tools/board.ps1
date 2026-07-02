@@ -93,7 +93,9 @@ function Get-AgeString {
 }
 
 # --- auth / external blockers ---
-$blockers = $msgs | Where-Object { $_.Type -eq "blocker" }
+# Only OPEN, unanswered blockers: resolved ones (status done/closed/...) displayed forever
+# as "Simon action needed" trained readers to ignore the section (2026-07-03 audit fix).
+$blockers = $msgs | Where-Object { $_.Type -eq "blocker" -and ($closedStatus -notcontains $_.Status) -and ($answered -notcontains $_.Id) }
 if ($blockers) {
   Write-Host "`n[AUTH / EXTERNAL BLOCKERS] (Simon action needed)" -ForegroundColor Magenta
   $blockers | Format-Table From,Status,File -AutoSize
@@ -140,6 +142,19 @@ if ($Me) {
                     From, Priority, Type, File |
       Format-Table -AutoSize
   } else { Write-Host "(empty)" }
+
+  # --- physical inbox files (watchdog selffeedback / daemon reroute notes) ---
+  # hub-watchdog + hub-daemon drop files into agents/<me>/inbox/ (not outbox), so the
+  # outbox-only scan above never surfaced them (2026-07-03 audit: notes invisible for weeks).
+  $inboxDir = Join-Path $root "agents\$Me\inbox"
+  if (Test-Path $inboxDir) {
+    $inboxFiles = Get-ChildItem $inboxDir -Filter *.md -File -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending
+    if ($inboxFiles) {
+      Write-Host "`n[INBOX FILES] (agents/$Me/inbox - watchdog/daemon drops; delete or act, they self-replace)" -ForegroundColor Yellow
+      $inboxFiles | Select-Object -First 10 | ForEach-Object { Write-Host ("  {0}  {1}" -f $_.LastWriteTime.ToString('MM-dd HH:mm'), $_.Name) }
+      if ($inboxFiles.Count -gt 10) { Write-Host ("  ... and {0} more" -f ($inboxFiles.Count - 10)) }
+    }
+  }
 }
 
 # --- recent HTML reports (browser previews) ---

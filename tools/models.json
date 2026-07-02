@@ -3,19 +3,19 @@
     "purpose": "Single source of truth for the highest-benchmark model + max reasoning effort each hub AI must use, PLUS the verified fallback model each AI switches to when its primary hits usage/quota exhaustion. hub-daemon.ps1 reads this to build spawn flags and to auto-switch model on QUOTA (see fallback_model/fallback_effort + MODELS.md 'usage-exhaustion fallback'). Refreshed daily by the model-benchmark-refresh schedule.",
     "fallback_contract": "On a 429/QUOTA_EXHAUSTED/TerminalQuotaError from an AI's primary model, the daemon retries the SAME cycle once with fallback_model@fallback_effort, then sticks with the fallback for ~6 cycles before re-probing primary. fallback_model MUST be a real model id callable by that CLI (a hallucinated id silently kills the daemon, cf. the grok-4.3 incident) - all fallbacks below were probe-verified 2026-06-15.",
     "generated": "2026-06-14",
-    "last_checked": "2026-06-17",
+    "last_checked": "2026-07-03",
     "method": "hub-upgrade-research workflow (parallel per-provider web search + adversarial cross-verify)",
     "next_refresh": "daily ~09:00 KST cloud schedule"
   },
   "claude": {
     "provider": "Anthropic",
-    "model": "claude-opus-4-8",
+    "model": "claude-fable-5",
     "effort": "max",
-    "cli_select": "Default (recommended) = Opus 4.8  (claude --model opus ; or /model -> Default (recommended) ; then /effort max)",
-    "fallback_model": "claude-sonnet-4-6",
-    "fallback_effort": "high",
-    "benchmark_basis": "Claude Opus 4.8 = the DEFAULT (recommended) model and the most capable one usable on this account. CHANGED 2026-06-17 (Simon): Fable 5 is currently UNAVAILABLE here, so Opus 4.8 is pinned as primary (not fable). Effort scale low|medium|high|xhigh|max; max = no token-spend cap.",
-    "caveat": "Select via Claude Code 'Default (recommended)' (currently Opus 4.8) or `claude --model opus`; persist max only via env CLAUDE_CODE_EFFORT_LEVEL=max. Interactive Claude Code is flat-rate (not per-token metered). Re-pin to claude-fable-5 ONLY if/when fable becomes available again."
+    "cli_select": "/model -> Fable 5 (or claude --model fable) ; then /effort max (persist: env CLAUDE_CODE_EFFORT_LEVEL=max)",
+    "fallback_model": "claude-opus-4-8",
+    "fallback_effort": "max",
+    "benchmark_basis": "Claude Fable 5 (Claude 5 family, Mythos-class tier above Opus) = the most capable model usable on this account. RE-PINNED 2026-07-03: fable became AVAILABLE again and Simon set /model Fable 5 as his default (this session verified running claude-fable-5). Effort scale low|medium|high|xhigh|max; max = no token-spend cap.",
+    "caveat": "Persist max effort via env CLAUDE_CODE_EFFORT_LEVEL=max. Interactive Claude Code is flat-rate (not per-token metered). Fallback = claude-opus-4-8 @ max (previous pin, verified in daily use 06-17..07-03). If fable becomes unavailable again, re-pin opus-4-8 as primary (sonnet-4-6@high as its fallback)."
   },
   "codex": {
     "provider": "OpenAI",

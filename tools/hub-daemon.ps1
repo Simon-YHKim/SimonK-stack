@@ -31,7 +31,9 @@ $daemonLog = Join-Path $root "tools\hub-daemon.log"
 
 function Now { Get-Date -Format 'yyyy-MM-dd HH:mm:ss' }
 function Log([string]$m){
-  $line = "[$(Now) KST] $m"
+  # Lane label: two lane daemons (-Only codex / -Only antigravity) interleave in ONE log
+  # with independent cycle counters -- unlabeled lines made forensics guesswork.
+  $line = "[$(Now) KST] [$(if($script:laneKey){$script:laneKey}else{'?'})] $m"
   Write-Host $line
   # Shared append: open with FileShare.ReadWrite so monitor/feed/hub-health can read the
   # log WHILE we write it. Add-Content's default sharing locked readers out mid-append,
@@ -97,7 +99,10 @@ function Get-AIModelTier([string]$ai,[string]$tier){
 #   - git last-commit-by-author  (Get-GitLastByAuthor in monitor.ps1)
 # and the daemon only runs cycles while CONTROL.state == running (gate in the loop).
 
-if($Only.Count -gt 0){ $AIs = $Only } else { $AIs = @('codex','grok'); if($IncludeAG){ $AIs += 'antigravity' } }
+# Default lane = codex only (2026-07-03): grok is REQUEST-ONLY per ROUTING section 4 --
+# a looped grok over-produced ~291 unconsumed advisories (06-17 incident). Run grok via
+# -Only grok (or pass it explicitly) only while a directed request is queued for it.
+if($Only.Count -gt 0){ $AIs = $Only } else { $AIs = @('codex'); if($IncludeAG){ $AIs += 'antigravity' } }
 
 # Quota backoff state: when an AI's CLI returns a 429/quota-exhausted error (e.g. the gemini
 # AG seat hits TerminalQuotaError with an 8h reset), stop hammering it every cycle. Each
@@ -190,7 +195,7 @@ function Invoke-AI([string]$ai,[string]$tier='primary'){
     'grok'        { "grok lane = market/X/consumer-signal advisory; written advisory text only, no code." }
     'antigravity' { "antigravity lane = native/emulator QA; report findings only, no push." }
   }
-  $prompt = "You are $ai in the 4-AI hub (root: $root). Run ONE autonomous poll cycle (PROTOCOL 12/19/35.4). Step 1: read your inbox with tools/board.ps1 -Me $ai and scan agents/*/outbox for OPEN requests addressed to $ai or all. Step 2: if an open order exists do the next one, otherwise autonomously do the single most valuable task in your lane per BOARD.md current focus. Step 3 constraints: single-writer (write only agents/$ai/ in the hub), NEVER push 2nd-B, no destructive/cost/secrets actions (escalate to Claude via outbox), apply section 35 self-panel, ONE task only this cycle. Step 4 (REPORT - PROTOCOL section 16, REQUIRED every cycle): write a SELF-CONTAINED HTML report of this cycle to agents/$ai/outbox/preview/<yyyyMMdd-HHmmss>-<slug>.html - ALL human-readable text (title, body, captions, table headers, button labels) in KOREAN, dark theme, <=3 colors, no emoji/ornament (anti-slop); reference its path in your outbox .md under a '## Links' section. Do NOT run start/Invoke-Item/auto-open - you are a HEADLESS daemon and it cannot surface a browser; the user opens reports via tools/open-reports.ps1. Step 5: commit BOTH the .md and the .html via tools/commit.ps1 -As $ai -Message <conventional msg> -Files <your files> (quote paths containing spaces), then refresh agents/$ai/STATUS.md with a fresh updated stamp and one activity line. Timestamps via Get-Date KST. $lane"
+  $prompt = "You are $ai in the 4-AI hub (root: $root). Run ONE autonomous poll cycle (PROTOCOL 12/19/35.4). Step 1: read your inbox with tools/board.ps1 -Me $ai and scan agents/*/outbox for OPEN requests addressed to $ai or all. Step 2: if an open order exists do the next one, otherwise autonomously do the single most valuable task in your lane per BOARD.md current focus. Step 3 constraints: single-writer (write only agents/$ai/ in the hub), NEVER push 2nd-B, no destructive/cost/secrets actions (escalate to Claude via outbox), apply section 35 self-panel, ONE task only this cycle. Step 4 (REPORT - PROTOCOL section 16, only for cycles that did REAL NEW work - see NO-OP RULE at the end): write a SELF-CONTAINED HTML report of this cycle to agents/$ai/outbox/preview/<yyyyMMdd-HHmmss>-<slug>.html - ALL human-readable text (title, body, captions, table headers, button labels) in KOREAN, dark theme, <=3 colors, no emoji/ornament (anti-slop); reference its path in your outbox .md under a '## Links' section. Do NOT run start/Invoke-Item/auto-open - you are a HEADLESS daemon and it cannot surface a browser; the user opens reports via tools/open-reports.ps1. Step 5: commit BOTH the .md and the .html via tools/commit.ps1 -As $ai -Message <conventional msg> -Files <your files> (quote paths containing spaces), then refresh agents/$ai/STATUS.md with a fresh updated stamp and one activity line. Timestamps via Get-Date KST. NO-OP RULE (2026-07-03): if there is NO actionable open order AND no genuinely new lane task (queue unchanged since your previous cycle), write NOTHING this cycle - no report, no commit, no STATUS touch; end quietly (the daemon log is the record; repeated stale-queue-hold reports are FORBIDDEN, cf. 2026-07-02 incident with dozens of identical hold commits). HUB GIT RULE: the hub repo stays on branch master - NEVER git checkout/switch/branch inside the hub repo (commit.ps1 blocks non-master commits; 2nd-B work runs in separate worktrees, never in the hub tree). MOA CROSS-VERIFY (ROUTING-MOA.md section 3): if your deliverable this cycle is HIGH-RISK (merge diff, schema change, security-sensitive code, math/quant result, live external-fact claim) also file ONE verify request in your outbox to the mapped verifier seat (code/schema -> antigravity, math/external-facts -> grok, UI -> codex; if the verifier would be you -> claude) and add a line verify: requested to your deliverable frontmatter. $lane"
   $liveDir = Join-Path $root "tools\live"
   if(-not (Test-Path $liveDir)){ New-Item -ItemType Directory -Force $liveDir | Out-Null }
   $live = Join-Path $liveDir ($ai + ".log")
@@ -219,9 +224,11 @@ function Invoke-AI([string]$ai,[string]$tier='primary'){
     switch($ai){
       'codex'       { $o = ("" | codex exec -s danger-full-access --skip-git-repo-check -C $root -m $model -c "model_reasoning_effort=$eff" $prompt) 2>&1 | Out-String }
       'grok'        { $env:GROK_MODEL = $model; $env:GROK_REASONING_EFFORT = $eff; $o = (grok -m $model -p $prompt) 2>&1 | Out-String }
-      'antigravity' { $env:AGY_CWD = $root; $env:AGY_MODEL = $agyModel; $o = (node $agyHeadless $prompt) 2>&1 | Out-String }
+      'antigravity' { $env:AGY_CWD = $root; $env:AGY_MODEL = $agyModel; $env:AGY_USE_CONPTY = '0'; $o = (node $agyHeadless $prompt) 2>&1 | Out-String }
     }
-    [pscustomobject]@{ Out = $o; Code = $LASTEXITCODE }
+    # $LASTEXITCODE can be $null if the CLI never launched (spawn failure) -- report -1,
+    # not a silent success (a null coerced to 0 made dead lanes look healthy).
+    [pscustomobject]@{ Out = $o; Code = $(if($null -ne $LASTEXITCODE){ $LASTEXITCODE } else { -1 }) }
   }
   $job = Start-Job -ScriptBlock $sb -ArgumentList $ai,$root,$prompt,$model,$eff,$agyHeadless,$agyModel
   $fin = Wait-Job $job -Timeout $PerAITimeoutSec
@@ -237,7 +244,10 @@ function Invoke-AI([string]$ai,[string]$tier='primary'){
   # Job results are deserialized, so match by property name (not [pscustomobject] type).
   $obj  = $rcv | Where-Object { $_ -and ($_.PSObject.Properties.Name -contains 'Out') } | Select-Object -Last 1
   $out  = if($obj){ [string]$obj.Out } else { ($rcv | Out-String) }
-  $code = if($obj){ [int]$obj.Code } else { 0 }
+  # No result object = the job scriptblock itself crashed (binding/serialization/terminating
+  # error). That is a FAILURE (-1), not exit 0 -- a 0 here bypassed the hard-fail backoff and
+  # reset failStrikes while the lane was completely dead.
+  $code = if($obj){ [int]$obj.Code } else { -1 }
   # Detect quota/rate-limit exhaustion so the caller can back off instead of re-spawning.
   # §quota-false-positive fix (2026-06-17): the loose terms (bare "rate limit"/"429") were matched
   # against the WHOLE transcript regardless of exit code, so a SUCCESSFUL exit-0 cycle that merely
@@ -264,12 +274,15 @@ function Invoke-AI([string]$ai,[string]$tier='primary'){
 }
 
 # CONTROL.md run-state (§13): the daemon must not spawn AIs while the hub is paused/draining.
+# FAIL-CLOSED (2026-07-03): a missing/unparseable semaphore now means PAUSED, not running --
+# CONTROL is a safety stop; corruption must not silently restart the hub.
 function Get-ControlState {
   $cf = Join-Path $root "CONTROL.md"
-  if(-not (Test-Path -LiteralPath $cf)){ return 'running' }   # no semaphore -> assume running
-  $h = Get-Content -LiteralPath $cf -Encoding UTF8 -TotalCount 12
+  if(-not (Test-Path -LiteralPath $cf)){ Log "CONTROL.md MISSING -> treating as paused (fail-closed)"; return 'paused' }
+  $h = Get-Content -LiteralPath $cf -Encoding UTF8 -TotalCount 30
   foreach($l in $h){ if($l -match '^\s*state:\s*"?(\w+)'){ return $matches[1].ToLower() } }
-  return 'running'
+  Log "CONTROL.md has no state: line in first 30 lines -> treating as paused (fail-closed)"
+  return 'paused'
 }
 
 Log "hub-daemon START interval=${IntervalSec}s AIs=$($AIs -join ',') maxTasks=$MaxTasksPerCycle timeout=${PerAITimeoutSec}s maxCycles=$MaxCycles"
@@ -296,7 +309,7 @@ while($true){
     # Hard-failure backoff: stop hammering an AI that is failing every cycle (bad config).
     if($failSkip[$ai] -gt 0){
       $failSkip[$ai]--
-      Log "cycle $cycle -> $ai SKIP (hard-failure backoff, $($failSkip[$ai]) cycles left -- fix models.json / CLI auth / trusted-folder then restart)"
+      Log "cycle $cycle -> $ai SKIP (hard-failure backoff, $($failSkip[$ai]) cycles left -- check tools/live/$ai.log for the real error: AG=ConPTY/console (AGY_USE_CONPTY), model id, CLI auth, trusted-folder; fix then restart)"
       continue
     }
     # Model-switch re-probe: if this AI is on its fallback model, count down the window; when it
@@ -343,7 +356,7 @@ while($true){
           if($failStrikes[$ai] -ge 4){
             $skip = [Math]::Min(36, [Math]::Pow(2, $failStrikes[$ai] - 3))
             $failSkip[$ai] = [int]$skip
-            Log "cycle $cycle $ai HARD-FAIL x$($failStrikes[$ai]) (exit $(if($res){$res.Code}else{'spawn'})) -> backing off $([int]$skip) cycles. FIX CONFIG (models.json / CLI auth / GEMINI_CLI_TRUST_WORKSPACE) then restart daemon."
+            Log "cycle $cycle $ai HARD-FAIL x$($failStrikes[$ai]) (exit $(if($res){$res.Code}else{'spawn'})) -> backing off $([int]$skip) cycles. Check tools/live/$ai.log for the REAL error (AG: ConPTY 'AttachConsole failed' under jobs -> AGY_USE_CONPTY=0; also model id / CLI auth / trusted-folder), fix, then restart daemon."
             Reroute-Orders $ai 'hard-fail'
           } else {
             Log "cycle $cycle $ai fail strike $($failStrikes[$ai]) (exit $(if($res){$res.Code}else{'spawn'}))"
@@ -361,6 +374,26 @@ while($true){
       }
     }
   }
+  # BRANCH SELF-HEAL (2026-07-03): a spawned CLI once left HEAD on a stray branch; commits
+  # then missed master and HubBackup (which pushes master) silently backed up nothing for a
+  # day. If HEAD drifted off master and master is a pure ancestor, ff master forward and
+  # drop the stray branch; otherwise log LOUD for Claude to repair (never force anything).
+  try {
+    $curB = (git -C $root rev-parse --abbrev-ref HEAD 2>$null)
+    if($curB -and $curB -ne 'master'){
+      git -C $root merge-base --is-ancestor master $curB 2>$null
+      $ffable = ($LASTEXITCODE -eq 0)
+      $dirty = @(git -C $root status --porcelain 2>$null).Count -gt 0
+      if($ffable -and -not $dirty){
+        git -C $root checkout master 2>&1 | Out-Null
+        git -C $root merge --ff-only $curB 2>&1 | Out-Null
+        git -C $root branch -d $curB 2>&1 | Out-Null
+        Log "BRANCH-HEAL: HEAD was on stray '$curB' -> ff-merged into master, branch deleted"
+      } else {
+        Log "BRANCH-ALERT: HEAD on '$curB' (dirty=$dirty ffable=$ffable) -> Claude repair needed (hub stays on master, PROTOCOL 5)"
+      }
+    }
+  } catch { Log "BRANCH-HEAL check failed: $($_.Exception.Message)" }
   Log "cycle $cycle END"
   if($MaxCycles -gt 0 -and $cycle -ge $MaxCycles){ Log "reached MaxCycles=$MaxCycles, stopping"; break }
   Start-Sleep -Seconds $IntervalSec

@@ -1,7 +1,8 @@
 # refresh-models.ps1 -- Daily benchmark refresh for the hub's best-model config.
 # Researches the current highest-benchmark model + max effort per provider via a
-# web-capable headless AI (gemini -> grok fallback), then PROPOSES an update to
-# tools/models.json. It does NOT overwrite the live source of truth: a wrong/
+# web-capable headless AI (grok is the effective primary since the gemini CLI sunset
+# 2026-06-18; the gemini branch below self-skips and is kept as harmless legacy),
+# then PROPOSES an update to tools/models.json. It does NOT overwrite the live source of truth: a wrong/
 # hallucinated model id would break every daemon spawn, so application is gated.
 # Output: tools/models.proposed.json + a log line + an inbox note to Claude, who
 # (or Simon) reviews and applies. Subscription CLIs => no token cost.
@@ -95,7 +96,8 @@ $proposal = [pscustomobject]@{
   claude   = $parsed.claude; codex = $parsed.codex; grok = $parsed.grok; antigravity = $parsed.antigravity
   changes  = $changes
 }
-$proposal | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $PSScriptRoot 'models.proposed.json') -Encoding UTF8
+# [IO.File] no-BOM write: PS5.1 Set-Content -Encoding UTF8 adds a BOM (hub-health FAIL class)
+[System.IO.File]::WriteAllText((Join-Path $PSScriptRoot 'models.proposed.json'), ($proposal | ConvertTo-Json -Depth 6), [System.Text.UTF8Encoding]::new($false))
 
 if ($changes.Count -eq 0) {
   LogLine "refresh OK: no change vs current models.json (still current). proposal written."
@@ -105,14 +107,16 @@ if ($changes.Count -eq 0) {
   $inbox = Join-Path $root 'agents/claude/inbox'
   if (Test-Path $inbox) {
     $note = Join-Path $inbox ((Get-Date -Format 'yyyyMMdd-HHmmss') + '-from-refresh-models-benchmark-change.md')
-    $body = "---`nfrom: refresh-models`nto: claude`ntype: request`nproject: hub`npriority: normal`ncreated: $stamp KST`n---`n`n## 일일 벤치마크 갱신 - 모델 변동 제안 ($used)`n`ntools/models.proposed.json 에 변동 " + $changes.Count + "건:`n`n- " + ($changes -join "`n- ") + "`n`n검토 후 sane하면 tools/models.json 에 반영 + MODELS.md last_checked 갱신 + commit.ps1 -As claude. 잘못된/환각 모델 id면 무시.`n"
-    try { Set-Content $note $body -Encoding UTF8 } catch {}
+    $body = "---`nfrom: refresh-models`nto: claude`ntype: request`nstatus: open`nproject: hub`npriority: normal`ncreated: $stamp KST`n---`n`n## 일일 벤치마크 갱신 - 모델 변동 제안 ($used)`n`ntools/models.proposed.json 에 변동 " + $changes.Count + "건:`n`n- " + ($changes -join "`n- ") + "`n`n검토 후 sane하면 tools/models.json 에 반영 + MODELS.md last_checked 갱신 + commit.ps1 -As claude. 잘못된/환각 모델 id면 무시.`n"
+    try { [System.IO.File]::WriteAllText($note, $body, [System.Text.UTF8Encoding]::new($false)) } catch {}
   }
 }
 LogLine "refresh END"
 exit 0
 
-# --- Install the daily scheduled task (run once, from an elevated-or-user PowerShell) ---
-# $action  = New-ScheduledTaskAction -Execute 'powershell' -Argument '-NoProfile -ExecutionPolicy Bypass -File "C:\Coding Infra\AI Infra\Communication\tools\refresh-models.ps1"'
+# --- Install the daily scheduled task (run once, from a user PowerShell) ---
+# NOTE: launch via PWSH (this file contains Korean literals; powershell.exe 5.1 parses
+# no-BOM UTF-8 sources as cp949 and mojibakes them). Registered 2026-07-03 hub audit.
+# $action  = New-ScheduledTaskAction -Execute 'pwsh' -Argument '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "C:\Coding Infra\AI Infra\Communication\tools\refresh-models.ps1"'
 # $trigger = New-ScheduledTaskTrigger -Daily -At 9:00am
 # Register-ScheduledTask -TaskName 'HubModelBenchmarkRefresh' -Action $action -Trigger $trigger -Description 'Daily best-model benchmark refresh for the AI hub (proposes models.json update)'

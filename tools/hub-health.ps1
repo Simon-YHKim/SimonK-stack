@@ -221,7 +221,7 @@ if ($Deep) {
       $rc = $LASTEXITCODE
       $after = (git rev-list --count HEAD 2>$null); if (-not $after) { $after = 0 }
       Pop-Location; Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
-      if ($rc -ne 0 -and $after -eq $before) { Res 'PASS' 'codex blocked from agents/claude/ (exit ' + $rc + ', no commit)' }
+      if ($rc -ne 0 -and $after -eq $before) { Res 'PASS' ('codex blocked from agents/claude/ (exit ' + $rc + ', no commit)') }
       else { Res 'FAIL' ('guard did not block: rc=' + $rc + ' commits ' + $before + '->' + $after) }
     } catch { try { Pop-Location } catch {}; Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue; Res 'WARN' ('temp-repo test skipped: ' + $_.Exception.Message) }
   }
@@ -264,7 +264,7 @@ Check 'Models' 'models.json best-model contract' {
   # presence-only check and reach the daemon = silent death (grok-4.3 incident). Bump this
   # map when the contract is intentionally upgraded.
   $expect = @{
-    claude      = @('claude-opus-4-8','max')
+    claude      = @('claude-fable-5','max')   # re-pinned 2026-07-03: fable available again (was opus-4-8 while fable was down)
     codex       = @('gpt-5.5','medium')
     grok        = @('grok-build','high')
     antigravity = @('gemini-3.1-pro-preview','high')
@@ -279,7 +279,7 @@ Check 'Models' 'models.json best-model contract' {
   }
   if ([string]$m.antigravity.agy_model -ne 'Gemini 3.1 Pro (High)') { $bad += ('antigravity:agy_model=' + $m.antigravity.agy_model) }
   if ($bad.Count -gt 0) { Res 'FAIL' (($bad | Select-Object -First 4) -join ' | ') }
-  else { Res 'PASS' 'contract OK: codex=gpt-5.5/medium grok=grok-build/high AG=gemini-3.1-pro-preview/high claude=opus-4-8/max' }
+  else { Res 'PASS' 'contract OK: codex=gpt-5.5/medium grok=grok-build/high AG=gemini-3.1-pro-preview/high claude=fable-5/max' }
 }
 Check 'Models' 'MODELS.md present' {
   if (Test-Path (Join-Path $root 'MODELS.md')) { Res 'PASS' 'doc present' } else { Res 'WARN' 'MODELS.md missing (json is source of truth)' }

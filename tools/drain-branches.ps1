@@ -44,6 +44,7 @@ $Protected = @('main','master','gh-pages','HEAD')
 
 Write-Host "== fetch --all --prune ==" -ForegroundColor Cyan
 git fetch --all --prune --quiet
+if ($LASTEXITCODE -ne 0) { throw "git fetch failed - aborting drain (stale refs would misclassify branches)" }
 
 # 1) 미머지 원격 브랜치 열거
 $raw = git for-each-ref refs/remotes/origin --format='%(refname:short)' --no-merged origin/main
@@ -53,6 +54,7 @@ $branches = $raw | Where-Object {
 }
 
 $rows = foreach ($ref in $branches) {
+  try {
   $name   = $ref -replace '^origin/',''
   $sha    = (git rev-parse $ref).Trim()
   $ahead  = [int](git rev-list --count "origin/main..$ref")
@@ -61,9 +63,12 @@ $rows = foreach ($ref in $branches) {
   $author = (git log -1 --format='%an' $ref).Trim()
 
   # cherry: 이 브랜치의 커밋들이 patch-id 기준으로 이미 main에 있는지. '+' = 미머지, '-' = 이미 머지됨.
+  # FAIL CLOSED (2026-07-03): cherry가 에러로 빈 출력을 내면 notInMain=0으로 오인돼
+  # 미머지 브랜치가 'already-in-main'으로 DROP(삭제)될 수 있었다. 실패 시 REVIEW로 강등.
   $cherry = git cherry origin/main $ref 2>$null
-  $notInMain = @($cherry | Where-Object { $_ -match '^\+' }).Count
-  $allMerged = ($ahead -gt 0) -and ($notInMain -eq 0)   # 모든 패치가 이미 main에 → stale ref
+  $cherryOk = ($LASTEXITCODE -eq 0)
+  $notInMain = if ($cherryOk) { @($cherry | Where-Object { $_ -match '^\+' }).Count } else { -1 }
+  $allMerged = $cherryOk -and ($ahead -gt 0) -and ($notInMain -eq 0)   # 모든 패치가 이미 main에 → stale ref
 
   $isBackup = $name -match '-backup(-|$)'
   $drop = $allMerged -or $isBackup -or (($behind -gt $BehindThreshold) -and ($ahead -lt $AheadKeep))
@@ -80,7 +85,13 @@ $rows = foreach ($ref in $branches) {
     Date    = $date
     Author  = $author
     Sha     = $sha
-    Reason  = $reason
+    Reason  = $(if ($cherryOk) { $reason } else { "$reason (cherry FAILED - patch-id unknown)" })
+  }
+  } catch {
+    # 동시 에이전트가 열거~조회 사이에 ref를 지우면 rev-parse가 비고 .Trim()이 터진다(EAP=Stop).
+    # 한 브랜치 레이스가 전체 분류를 죽이지 않게 스킵.
+    Write-Host "skip $ref (vanished mid-run: $($_.Exception.Message))" -ForegroundColor Yellow
+    continue
   }
 }
 

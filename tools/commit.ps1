@@ -32,6 +32,21 @@ $id = $identities[$As]
 $root = Split-Path $PSScriptRoot -Parent
 Set-Location $root
 
+# ----------------------------------------------------------------------------
+# BRANCH GUARD (2026-07-03): the hub is a SINGLE-BRANCH repo (master). A spawned
+# CLI once ran `git checkout -b codex/...` in this shared tree; every seat's
+# commits then landed off-master for a day and HubBackup (which pushes master)
+# silently backed up nothing. Refuse to commit anywhere but master. -Force does
+# NOT bypass this. Repair: git checkout master; git merge --ff-only <branch>.
+# ----------------------------------------------------------------------------
+$curBranch = (git rev-parse --abbrev-ref HEAD 2>$null)
+if ($curBranch -and $curBranch -ne 'master') {
+  Write-Host "[commit] BRANCH GUARD: hub HEAD is on '$curBranch' but must be 'master' (PROTOCOL 5)." -ForegroundColor Red
+  Write-Host "  Never create/switch branches in the hub repo (worktrees are for 2nd-B only)." -ForegroundColor Yellow
+  Write-Host "  Repair: git checkout master; git merge --ff-only $curBranch; git branch -d $curBranch; then retry." -ForegroundColor Yellow
+  exit 1
+}
+
 # Concurrent-writer safety: the hub .git index is shared by Claude + the codex/grok/AG
 # daemons. Retry git ops that fail on a transient index.lock (commit.ps1 had none, so
 # colliding autonomous commits silently failed).
@@ -58,7 +73,13 @@ $hubMutex = New-Object System.Threading.Mutex($false, "Global\hub-git-commit")
 try { [void]$hubMutex.WaitOne(20000) } catch [System.Threading.AbandonedMutexException] { }  # prior holder died -> we own it
 
 if ($Files.Count -gt 0) {
-  foreach ($f in $Files) { [void](Invoke-GitRetry @('add','--',$f)) }
+  foreach ($f in $Files) {
+    if (-not (Invoke-GitRetry @('add','--',$f))) {
+      try { $hubMutex.ReleaseMutex() } catch {}
+      Write-Host "[commit] abort: failed to stage '$f' (fail closed - partial staging would commit a wrong set)" -ForegroundColor Red
+      exit 1
+    }
+  }
 }
 
 # ----------------------------------------------------------------------------
@@ -69,6 +90,11 @@ if ($Files.Count -gt 0) {
 # ----------------------------------------------------------------------------
 if ($As -ne "claude") {
   $stagedAll = git diff --cached --name-only --diff-filter=ACMRD
+  if ($LASTEXITCODE -ne 0) {
+    try { $hubMutex.ReleaseMutex() } catch {}
+    Write-Host "[commit] abort: staged-file enumeration failed - lane guard cannot verify (fail closed)" -ForegroundColor Red
+    exit 1
+  }
   $offlane = @($stagedAll | Where-Object { $_ -and ($_ -notmatch "^agents/$As/") })
   if ($offlane.Count -gt 0) {
     try { $hubMutex.ReleaseMutex() } catch {}
@@ -119,6 +145,11 @@ function Test-FileEncoding([string]$path) {
 
 if (-not $Force) {
   $staged = Get-StagedFiles
+  if ($LASTEXITCODE -ne 0) {
+    try { $hubMutex.ReleaseMutex() } catch {}
+    Write-Host "[commit] abort: staged-file enumeration failed - encoding/size guard cannot verify (fail closed)" -ForegroundColor Red
+    exit 1
+  }
   if ($staged.Count -gt 0) {
     $problems = @()
     foreach ($rel in $staged) {

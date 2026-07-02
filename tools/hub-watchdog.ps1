@@ -7,10 +7,10 @@
 # same standing issue is not re-filed every run -- it re-files only if it persists past a cooldown
 # or newly (re)appears, and auto-clears the note-marker when the issue resolves.
 #
-# Run standalone, from a schedule, or once per daemon cycle (hub-daemon calls it -- see -FromDaemon):
+# Run standalone or from the HubWatchdog scheduled task (10min):
 #   powershell -ExecutionPolicy Bypass -File tools/hub-watchdog.ps1            # check + file new issues
 #   powershell -ExecutionPolicy Bypass -File tools/hub-watchdog.ps1 -Quiet     # no console, just file
-param([switch]$Quiet, [switch]$FromDaemon, [switch]$NoAutoRestart, [int]$StaleMin = 35, [int]$CooldownMin = 120)
+param([switch]$Quiet, [switch]$NoAutoRestart, [int]$StaleMin = 35, [int]$CooldownMin = 120)
 
 $utf8 = [System.Text.UTF8Encoding]::new($false)
 [Console]::OutputEncoding = $utf8; $OutputEncoding = $utf8
@@ -42,12 +42,11 @@ $tail = if ($log.Count -gt 200) { $log[($log.Count - 200)..($log.Count - 1)] } e
 $daemonAIs = @('codex','antigravity')  # grok removed 2026-06-18: request-only per ROUTING §4 (auto-loop produced ~96 hub commits / 0 live merges in AI-value eval; near-zero marginal value). Launch grok manually only when a specific decision needs consumer/X signal.
 $aliveAIs = @()
 try {
-  Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" -ErrorAction SilentlyContinue |
+  Get-CimInstance Win32_Process -Filter "Name='powershell.exe' OR Name='pwsh.exe'" -ErrorAction SilentlyContinue |
     Where-Object { $_.CommandLine -match 'hub-daemon\.ps1' } |
     ForEach-Object { if ($_.CommandLine -match '-Only\s+(\w+)') { $aliveAIs += $matches[1] } }
 } catch {}
 $aliveAIs = @($aliveAIs | Select-Object -Unique)
-$emails = @{ codex='codex@2nd-b.ai'; antigravity='antigravity@2nd-b.ai'; grok='grok@2nd-b.ai' }
 
 $issues = @()   # each: @{ key; title; detail; action }
 
@@ -87,7 +86,7 @@ if (-not $NoAutoRestart) {
 # (2) daemon process not running. Auto-restarted lanes get an informational note instead of an alarm.
 foreach ($a in $daemonAIs) {
   if ($restarted -contains $a) {
-    $issues += @{ key="daemon-restarted-$a"; title="Daemon '$a' was down -- auto-restarted"; detail="hub-watchdog found no '$a' daemon and relaunched it (hub is running, drain mode)."; action="No action needed. If '$a' keeps needing restarts, tail hub-daemon.log to find why it dies." }
+    $issues += @{ key="daemon-restarted-$a"; title="Daemon '$a' was down -- auto-restarted"; detail="hub-watchdog found no '$a' daemon and relaunched it (hub state=running)."; action="No action needed. If '$a' keeps needing restarts, tail hub-daemon.log to find why it dies." }
   } elseif ($aliveAIs -notcontains $a) {
     $issues += @{ key="daemon-down-$a"; title="Daemon '$a' is not running"; detail="No hub-daemon.ps1 -Only $a process alive (auto-restart skipped: hub paused or -NoAutoRestart)."; action="If intended, ignore. Else set CONTROL state=running, or relaunch via HUB-STARTUP.html." }
   }
@@ -122,10 +121,40 @@ if ($claudeInboxOpen.Count -ge 12) {
   $issues += @{ key='claude-inbox-deep'; title="Claude inbox is deep ($($claudeInboxOpen.Count) items)"; detail='Many unprocessed items addressed to Claude.'; action='Run tools/board.ps1 -Me claude and clear/triage; archive resolved items.' }
 }
 
+# (6) REMOTE ORDERS channel unconsumed (2026-07-03 audit: 12-day outage went undetected).
+# The channel's consumer is an interactive Claude /loop session (SPOF) that dies silently with
+# the session. Detect: orders waiting (newCount>0) while the CONSUMER heartbeat (written only
+# by orders-poll -Heartbeat, i.e. the director loop) is missing/old -> tell Claude+Simon.
+try {
+  $pollOut = powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $toolsDir 'orders-poll.ps1') -Json 2>$null
+  $poll = $null; try { $poll = $pollOut | ConvertFrom-Json } catch {}
+  if ($poll -and $poll.error) {
+    $issues += @{ key='orders-channel-error'; title='Remote ORDERS channel broken'; detail="orders-poll error: $($poll.error)"; action='Check C:\2ndB clone + network; run tools/orders-poll.ps1 manually.' }
+  } elseif ($poll -and [int]$poll.newCount -gt 0) {
+    $hb = Join-Path $toolsDir 'orders-poll-heartbeat.txt'
+    $hbAgeMin = if (Test-Path $hb) { ((Get-Date) - (Get-Item $hb).LastWriteTime).TotalMinutes } else { [double]::MaxValue }
+    if ($hbAgeMin -gt 30) {
+      $hbTxt = if (Test-Path $hb) { "consumer heartbeat {0:n0}m old" -f $hbAgeMin } else { 'no consumer heartbeat file (no director /loop has ever polled with -Heartbeat)' }
+      $issues += @{ key='orders-unconsumed'; title="Simon's remote order(s) waiting with NO consumer (O-$($poll.newIds -join ', O-'))"; detail="ORDERS.md has $($poll.newCount) unconsumed order(s); $hbTxt. The remote-order pipeline is effectively DOWN."; action='Start the Claude /loop director session (HUB-STARTUP.html remote-orders card) or handle the order directly, then have the loop poll with -Heartbeat.' }
+    }
+  }
+} catch {}
+
+# (7) hub HEAD off master (BRANCH-ALERT): commits are landing on a stray branch; HubBackup
+# pushes master only, so off-master work is NOT backed up (2026-07-02 incident, 206 commits).
+try {
+  $curBranch = (git -C $root rev-parse --abbrev-ref HEAD 2>$null)
+  if ($curBranch -and $curBranch -ne 'master') {
+    $issues += @{ key='hub-head-off-master'; title="Hub HEAD is on '$curBranch' (must be master)"; detail='A CLI checked out a branch in the shared hub tree. Commits are missing master and the off-machine backup.'; action='git checkout master; git merge --ff-only <branch>; git branch -d <branch>. The daemon BRANCH-HEAL also repairs this when the tree is clean.' }
+  }
+} catch {}
+
 # ---- dedup against state ----
 $state = @{}
 if (Test-Path $stateFile) { try { (Get-Content $stateFile -Raw | ConvertFrom-Json).PSObject.Properties | ForEach-Object { $state[$_.Name] = $_.Value } } catch {} }
-$nowEpoch = [int][double]::Parse((Get-Date -UFormat %s))
+# DateTimeOffset: PS5.1's `-UFormat %s` is LOCAL-time epoch while pwsh's is UTC -- a 9h skew
+# on this KST box corrupted the cooldown ledger depending on which host last wrote it.
+$nowEpoch = [DateTimeOffset]::Now.ToUnixTimeSeconds()
 $activeKeys = @($issues | ForEach-Object { $_.key })
 $filed = @()
 foreach ($iss in $issues) {
