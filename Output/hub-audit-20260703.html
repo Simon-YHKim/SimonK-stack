@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>허브 전수 감사·정비 리포트 — 2026-07-03</title>
+<style>
+  :root{
+    --bg:#0f1016; --panel:#15171f; --line:#232633;
+    --text:#dcdee8; --muted:#8b8fa3; --accent:#8b93ff;
+    --ok:#4ade80; --warn:#fbbf24; --bad:#f87171; --mono:'Cascadia Code','Consolas',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Pretendard','Malgun Gothic',system-ui,sans-serif;font-size:14px;line-height:1.55;padding:36px 20px 80px}
+  .wrap{max-width:1060px;margin:0 auto}
+  h1{font-size:21px;font-weight:700;letter-spacing:-.3px}
+  h2{font-size:15px;font-weight:700;margin:34px 0 10px;color:var(--accent)}
+  .sub{color:var(--muted);font-size:12.5px;margin-top:4px}
+  .strip{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 6px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 16px;min-width:118px}
+  .stat b{display:block;font-size:19px;font-family:var(--mono);font-weight:600}
+  .stat span{font-size:11.5px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:12.8px}
+  th{, text-align:left}
+  th,td{padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+  th{color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.4px;background:rgba(255,255,255,.02)}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-family:var(--mono)}
+  .chip{display:inline-block;padding:1.5px 8px;border-radius:20px;font-size:10.5px;font-weight:700;letter-spacing:.3px;vertical-align:1px}
+  .p0{background:rgba(248,113,113,.14);color:var(--bad)}
+  .p1{background:rgba(251,191,36,.13);color:var(--warn)}
+  .p2{background:rgba(139,147,255,.13);color:var(--accent)}
+  .ok{background:rgba(74,222,128,.12);color:var(--ok)}
+  .hold{background:rgba(139,143,163,.15);color:var(--muted)}
+  .dim td{opacity:.52}
+  code{font-family:var(--mono);font-size:11.8px;background:rgba(255,255,255,.05);padding:1px 5px;border-radius:4px}
+  .note{color:var(--muted);font-size:12px;margin-top:8px}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:760px){.cols{grid-template-columns:1fr}}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:13px 15px}
+  .box h3{font-size:12.5px;margin-bottom:7px;color:var(--text)}
+  .box ul{list-style:none}
+  .box li{padding:3px 0;font-size:12.5px;border-bottom:1px dashed var(--line)}
+  .box li:last-child{border-bottom:none}
+  .tbl-scroll{overflow-x:auto}
+  .foot{margin-top:40px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:11.5px;font-family:var(--mono)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>허브 전수 감사·정비 리포트</h1>
+<div class="sub">2026-07-03 01:37 KST · Claude(오케스트레이터) · 10-agent 감사 워크플로 + 통합 정비 · 대상: <code>AI Infra/Communication</code>(comm-hub) + GitHub 리포 전수</div>
+
+<div class="strip">
+  <div class="stat"><b>20 / 0</b><span>hub-health PASS / FAIL</span></div>
+  <div class="stat"><b>89 → 0</b><span>stale open 오더</span></div>
+  <div class="stat"><b>206</b><span>구출된 off-master 커밋</span></div>
+  <div class="stat"><b>13일</b><span>백업 공백 (복구됨)</span></div>
+  <div class="stat"><b>12일</b><span>원격오더 무소비 (감시망 신설)</span></div>
+  <div class="stat"><b>6 / 6</b><span>로드맵 적용 검증</span></div>
+</div>
+
+<h2>1. 발견 → 조치 (심각도순)</h2>
+<div class="tbl-scroll">
+<table>
+<tr><th style="width:52px">등급</th><th style="width:30%">발견</th><th>근본 원인</th><th>조치</th><th style="width:64px">상태</th></tr>
+<tr><td><span class="chip p0">P0</span></td><td>원격 오더 채널 <b>12일 무소비</b> — Simon이 폰에서 오더를 넣어도 아무도 픽업 안 함 (마지막 DONE 06-21)</td><td>소비자 = 인터랙티브 /loop 세션(SPOF). 세션 종료와 함께 조용히 사망, 감시 장치 전무. "LIVE" 배지는 하드코딩된 허위</td><td>watchdog <code>orders-unconsumed</code> 감시 신설(10분 주기, 오더 대기+하트비트 30분↑ → inbox 알림 — <b>배포 20분 만에 실발화 O-31 감지</b>) + orders-poll <code>-Heartbeat</code>(소비자 생존 신호)·<code>-Ack</code>(픽업 원장)·에러 표면화</td><td><span class="chip ok">FIXED</span></td></tr>
+<tr><td><span class="chip p1">P1</span></td><td>codex <b>브랜치 HEAD 하이재킹</b> — 07-02 04:13부터 공유 트리가 codex 브랜치, 전 좌석 커밋 206개가 master 밖 적재</td><td>데몬 codex spawn(danger-full-access)에 브랜치 가드 전무. HubBackup은 master만 푸시 → 백업 21h 공백</td><td>master ff-머지 복구 + <b>3중 가드</b>: commit.ps1 BRANCH GUARD(non-master 거부) · 데몬 BRANCH-HEAL(사이클말 자동 복귀) · watchdog 알림 + PROTOCOL §5 명문화</td><td><span class="chip ok">FIXED</span></td></tr>
+<tr><td><span class="chip p1">P1</span></td><td><b>HubBackup 13일 무음 실패</b> — 06-20부터 매일 non-ff 거부, 아무도 몰랐음</td><td>origin에 이관기 스냅샷 커밋(6e52329e)만 있어 로컬과 분기. backup log에 거부 힌트가 쌓였지만 무열람</td><td><code>-s ours</code> 병합(13일 더 새로운 로컬 정본 유지, force 없이 히스토리 결합) → push 재개, origin=local=<code>34c5155f</code></td><td><span class="chip ok">FIXED</span></td></tr>
+<tr><td><span class="chip p1">P1</span></td><td><b>AG 좌석 하드페일 무한 백오프</b> + 백오프 힌트가 오진 유도("auth/trusted-folder 고쳐라")</td><td>진범 = node-pty <b>ConPTY가 Start-Job(콘솔 없는 호스트)에서 사망</b>(AttachConsole failed). auth는 멀쩡했음</td><td><code>AGY_USE_CONPTY=0</code>(winpty) 추가 → Start-Job 재현 테스트 PONG 검증 → 재기동 후 <b>cycle exit 0 실증</b>. 백오프 메시지에 실원인 명시</td><td><span class="chip ok">FIXED</span></td></tr>
+<tr><td><span class="chip p1">P1</span></td><td><b>stale open 89건 적체</b> → codex "stale queue hold" 공회전 커밋 스팸(수십 개) + AG가 한 달 묵은 오더 재수행·반복 escalation</td><td>dispatch를 닫는 주체 부재(single-writer상 수신자는 발신자 파일을 못 닫음) + 데몬 프롬프트가 매 사이클 보고·커밋 강제</td><td>84건 batch-stale + 5건 응답 클로즈 → <b>0건</b>. PROTOCOL §3 <b>stale-open TTL(14일)</b> + §5 <b>no-op 무커밋 규칙</b> 신설 — AG가 재기동 첫 사이클에서 규칙 적용 실증("조용히 종료")</td><td><span class="chip ok">FIXED</span></td></tr>
+<tr><td><span class="chip p1">P1</span></td><td>모델 리프레시 파이프라인 사망 — 예약작업 부재·마지막(유일) 실행 06-15 실패·gemini 경로 사멸</td><td>이관 중 태스크 유실 + PS5.1 cp949 인코딩 함정 + gemini CLI sunset</td><td><code>HubModelBenchmarkRefresh</code> 재등록(09:00, pwsh 런처) + no-BOM 쓰기 교정 + grok 주경로화</td><td><span class="chip ok">FIXED</span></td></tr>
+<tr><td><span class="chip p1">P1</span></td><td>models.json이 opus-4-8 핀 유지 — "fable 재가용 시 재핀" 조건이 충족됐는데 방치</td><td>fable-5 재가용(Simon이 오늘 /model 기본 설정) 미반영</td><td>claude=<code>claude-fable-5</code>@max 재핀(폴백 opus-4-8@max), MODELS.md·hub-health 계약 동기 갱신 — 계약 체크 green</td><td><span class="chip ok">FIXED</span></td></tr>
+<tr><td><span class="chip p2">P2</span></td><td>grok 3중 모순: ROUTING §4 "요청전용" vs 데몬 기본레인 포함 vs §34.6 — 과거 over-produce 291건 사고 재발 위험</td><td>문서-런타임 드리프트</td><td>데몬 기본레인 = codex만(grok은 <code>-Only grok</code> 옵트인), ROUTING §4를 §34.6 정의로 재작성, HUB-STARTUP 런처에서 grok 제거</td><td><span class="chip ok">FIXED</span></td></tr>
+<tr><td><span class="chip p2">P2</span></td><td>도구 결함 다발: monitor 마지막줄 버그(DAEMON row 영원히 non-green) · board 블로커 필터 부재(해결된 게 영구 표시) · watchdog 노트 무표면(inbox를 아무도 안 읽음) · drain cherry fail-open(<b>미머지 브랜치 오삭제 위험</b>) · commit 가드 fail-open · epoch 9h 스큐</td><td>개별 스크립트 버그 (10-agent 정적 감사로 발굴)</td><td>전부 수정: monitor 실라인 필터 · board 블로커 필터+<b>[INBOX FILES] 섹션 신설</b> · drain fail-closed+per-branch try/catch · commit fail-closed · DateTimeOffset epoch · 데몬 가짜 exit-0 폴백 → -1 · CONTROL fail-closed(paused) · 레인 로그 라벨</td><td><span class="chip ok">FIXED</span></td></tr>
+<tr><td><span class="chip p2">P2</span></td><td>문서 스테일 광범위: PROTOCOL 제목 "3-AI" · STATUS paused(06-13) · §33 "허브 non-pushable" 거짓 · gemini sunset 미래형 4곳 · 깨진 경로 참조 3건 · CONTROL 변경로그 2건 누락</td><td>3주간 문서-현실 드리프트</td><td>4-AI 동기화 · STATUS running 재작성 · §33 현행화(comm-hub 존재+SPOF 명문화) · sunset 과거형+확정 경로 · 경로 교정 · 변경로그 소급 · README 재작성 · RUNBOOK 4행 추가</td><td><span class="chip ok">FIXED</span></td></tr>
+</table>
+</div>
+
+<h2>2. 트랜스크립트 4종 + Sakana Fugu — 적용 검증 (로드맵 §4 대비)</h2>
+<div class="tbl-scroll">
+<table>
+<tr><th>출처</th><th>핵심 요구</th><th>우리 시스템 적용 상태</th><th style="width:70px">판정</th></tr>
+<tr><td>Neo4j Context Graph (KR)</td><td>타입 있는 관계 그래프 메모리 · 동적 서브그래프 주입 · reasoning trace 출처 추적 · 시간/권한 메타데이터</td><td>SPEC-3 Supabase 라이브: <code>persona_entity/relation/reasoning_trace</code> + RLS + <code>persona_recall/persona_neighborhood</code>(=동적 서브그래프). 위키 L4(typed 그래프)는 의도적 부분 채택</td><td><span class="chip ok">적용</span></td></tr>
+<tr><td>Claude Second Brain Levels</td><td>L1-L5 성숙도 · CLAUDE.md 라우터 · 고통 없으면 레벨업 금지 · 이기종 아키텍처 · 에버그린 게이트</td><td>INFRA-MAP §3에 L1-L5 모델 정본화 · §22 브레인 내비게이션 · L3 의미검색=semantic-recall(2283청크) 가동 · L5 상시 인제스트는 의도적 보류(게이트 원칙)</td><td><span class="chip ok">적용</span></td></tr>
+<tr><td>Dashboard UI 3 Flaws</td><td>데이터가 형태를 결정(chip/badge) · 숫자 우측정렬 · 비활성 dim · invisible UI 명시 설계 · 데이터 기반 색</td><td><code>dashboard-review</code> 스킬로 상시화(SimonKDesign). 이 리포트 자체가 원칙 적용본(chip·우측정렬·dim·데이터 색)</td><td><span class="chip ok">적용</span></td></tr>
+<tr><td>Google OKF Release</td><td>index.md 매니페스트 · YAML frontmatter · 1문서 1개념 · 내비게이션 프로토콜 문서화 · git 추적 브레인 · "OKF는 최적화지 필수 아님"</td><td>SimonKWiki가 이미 동형(Karpathy 모델·index·frontmatter·git) · 내비 규칙=INFRA-MAP/CLAUDE §22 · OKF 포맷 자체는 캘리브레이션 권고대로 미채택(표준화 대기)</td><td><span class="chip ok">적용</span></td></tr>
+<tr><td>Sakana Fugu (06-22 정식) + Conductor + AB-MCTS</td><td>decompose→delegate→verify→synthesize · 위임 게이트(직접 vs 팀) · 컨텍스트 봉투 · planner-executor-verifier</td><td>ROUTING-MOA(§1.6) + <b>hub-daemon 런타임 verify 훅 배선(07-03 — 잔여 갭이었던 "데몬 런타임 적용" 완료)</b> + 위임게이트·컨텍스트봉투 §1.6 반영. ai-debate=결정 레이어 MoA 기존 가동</td><td><span class="chip ok">적용</span></td></tr>
+<tr class="dim"><td>Sakana AB-MCTS wider-vs-deeper</td><td>후보 넓히기 vs 깊이 파기 적응 배분, 결과 로그 기반 라우팅 학습</td><td>미채택 — 우리 규모(4좌석·구독 CLI)에서 과설계. 필요 시 model-router 후속 후보</td><td><span class="chip hold">보류</span></td></tr>
+<tr class="dim"><td>Sakana CoffeeBench</td><td>장기 지평 상시 벤치마크</td><td>loop-baseline 골든셋이 근접 유사체 — §2 수치 06-13 동결이라 재측정 필요(펀치리스트)</td><td><span class="chip hold">부분</span></td></tr>
+</table>
+</div>
+
+<h2>3. 원격 작업 준비도 (Before → After)</h2>
+<div class="cols">
+  <div class="box"><h3>Before (감사 시점)</h3><ul>
+    <li>오더 채널: 12일 무소비, 감시 0, "LIVE" 허위 배지</li>
+    <li>오프머신 백업: 06-20부터 무음 거부 (분기)</li>
+    <li>orders-poll: 에러가 "NO NEW ORDERS"로 위장</li>
+    <li>O-31이 매 폴마다 영구 신규로 재등장 (dedup 결함)</li>
+    <li>watchdog 노트: inbox에 쌓이나 아무도 안 읽음</li>
+  </ul></div>
+  <div class="box"><h3>After</h3><ul>
+    <li>watchdog 10분 주기 채널 감시 — 배포 20분 만에 O-31 실감지</li>
+    <li>백업 화해·재개: origin = local = <code>34c5155f</code></li>
+    <li>에러 표면화 + fetch 경고 + exit 1 (loop가 알람 가능)</li>
+    <li><code>-Ack</code> 픽업 원장 + <code>-Heartbeat</code> 소비자 생존 신호</li>
+    <li>board.ps1 [INBOX FILES] 섹션 — 세션 시작 시 노트 표면화</li>
+  </ul></div>
+</div>
+<p class="note">잔여 사실: 채널 소비자는 여전히 인터랙티브 /loop 세션(구독 정액 유지를 위한 의도된 구조). 세션이 죽으면 이제 <b>감시망이 알려준다</b> — 죽는 것 자체를 막지는 않음. ORDERS.md 파일 위생(완료 블록 OPEN→DONE 물리 이동, 217KB 비대)은 2nd-B 레포 작업이라 다음 사이클로.</p>
+
+<h2>4. 레거시 정리 (Legacy- 컨벤션 — 삭제는 Simon 최종)</h2>
+<div class="cols">
+  <div class="box"><h3>허브 내부 (git mv, 히스토리 보존)</h3><ul>
+    <li><code>Legacy-EMERGENCY_ANDROID.md</code> — 06-05 일회성 경고장(전 항목 해결됨)</li>
+    <li><code>Legacy-inbox/</code> — 프로토콜 위반 루트 inbox(오배달 1건)</li>
+    <li><code>Legacy-grok-cycle-ts.txt / -kst.txt</code> — 죽은 grok 루프 상태파일</li>
+    <li><code>agents/antigravity/Legacy-qa-debris-20260614/</code> — QA 잔해 83파일(~36MB: png 53·logcat 6종·xml 17·py·diff·리포트 4)</li>
+    <li><code>agents/antigravity/Legacy-CONTROL-blocked-note.md</code> — 루트 CONTROL과 혼동되던 이름</li>
+    <li><code>prompts/Legacy-*-sync.md</code> 3종 — board.ps1로 대체된 구세대</li>
+    <li><code>Output/Legacy-*</code> 9종 — 소비 완료 일회성 리포트(구 감사·usage 스냅샷·마스코트 브리핑 등)</li>
+    <li>gitignore+untrack: drain 삼중세트(일일 누적 CSV/ps1/JSON)·grok 루프 로그</li>
+  </ul></div>
+  <div class="box"><h3>GitHub 리포 (rename, 리다이렉트 유지)</h3><ul>
+    <li><code>Legacy-Text-battle</code> — Resonance("LLM Text Battle")가 완전 대체</li>
+    <li><code>Legacy-Skill-Gen-Agent</code> — 스택 <code>skill-gen-agent</code> 스킬로 흡수</li>
+    <li>유지: <code>2ndB-proto-rev2</code>(rev2 파리티 활성 레퍼런스, 07-01 push) · <code>Pixy</code>(캐노니컬 스킬 홈 — 단 repo/Skill_Pixy/설치본 3중 사본 정리 후보) · <code>Story-Skill</code>(고유 기능, 게임트랙 Q3) · <code>agent-hub-lite</code>(템플릿)</li>
+    <li>기존 Legacy- 9종(06-20 배치)은 그대로</li>
+  </ul></div>
+</div>
+
+<h2>5. 남은 것 (펀치리스트)</h2>
+<div class="tbl-scroll">
+<table>
+<tr><th style="width:56px">우선</th><th>항목</th><th>비고</th></tr>
+<tr><td><span class="chip p2">P2</span></td><td>ORDERS.md 파일 위생 — 완료 블록 OPEN→DONE 물리 이동 + 프리앰블 중복 제거 (217KB)</td><td>2nd-B 레포 커밋 필요 — 다음 오더 사이클에서</td></tr>
+<tr><td><span class="chip p2">P2</span></td><td>O-31 실상태 판정 — DONE 명시 없이 진행 중(스테이지 일부 잔여). 지금은 -Ack로 재등장만 억제</td><td>Simon 확인 후 DONE 이동 or 잔여 스테이지 재개</td></tr>
+<tr><td><span class="chip p2">P2</span></td><td>loop-baseline §2 골든셋 재측정 (06-13 수치로 동결 — 3주 괴리)</td><td>다음 자율 사이클 0단계</td></tr>
+<tr><td><span class="chip p2">P2</span></td><td>Pixy 스킬 3중 사본 정리 (GitHub repo / 루트 Skill_Pixy / 설치본) — 1스킬=1홈</td><td>INFRA-MAP 규칙 적용</td></tr>
+<tr class="dim"><td><span class="chip hold">P3</span></td><td>commit.ps1 staged secret-scan (BACKLOG 잔여)</td><td>가드 마지막 조각</td></tr>
+<tr class="dim"><td><span class="chip hold">P3</span></td><td>outbox frontmatter malformed 232건 (구형 메시지) — 비차단 WARN</td><td>신규는 contract 준수 중</td></tr>
+<tr class="dim"><td><span class="chip hold">P3</span></td><td>hub-role-additions-20260614 좌석 재배치 제안 — Simon 결정 대기 지속</td><td>Output/hub-role-additions-20260614.html</td></tr>
+</table>
+</div>
+
+<div class="foot">
+검증: hub-health 20 PASS / 1 WARN / 0 FAIL · AG cycle exit 0 (winpty) · no-op 규칙 AG 실증 · orders-unconsumed 실발화 · origin=local 34c5155f<br>
+커밋: 7cadb833 Legacy renames · e5109ec5 tools fixes · a1e7dbe3 batch-close · 8ff80a59 docs sync · 34c5155f origin reconcile (+ 선행 housekeeping 2)<br>
+[허브 전수 감사·정비 / 26.07.03 / 01:37:29] #ai-hub #audit #legacy-cleanup #remote-orders #fugu-moa
+</div>
+
+</div>
+</body>
+</html>

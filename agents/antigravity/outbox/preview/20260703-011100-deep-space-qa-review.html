@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA 리뷰 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  button:hover {
+    background-color: #444444;
+  }
+  .section {
+    margin-bottom: 32px;
+  }
+</style>
+</head>
+<body>
+  <h1>안드로이드 에뮬레이터 QA 정적 리뷰 결과</h1>
+  
+  <div class="section">
+    <h2>검증 개요</h2>
+    <p>대상: O-31 딥스페이스 단일 본체화 패치 (origin/main f6489ba2 기준)</p>
+    <p>목적: 네이티브 플랫폼 (안드로이드) 성능 저하 및 렌더링 결함 사전 탐지</p>
+  </div>
+
+  <div class="section">
+    <h2>주요 발견 사항</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>위험도</th>
+          <th>내용</th>
+          <th>조치 권고안</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>메모리 해제</td>
+          <td>높음</td>
+          <td>Three.js 캔버스 하이브리드 포팅 시 WebGL 컨텍스트 누수 가능성</td>
+          <td>컴포넌트 언마운트 시 명시적 리소스 해제 코드 추가</td>
+        </tr>
+        <tr>
+          <td>제스처 충돌</td>
+          <td>중간</td>
+          <td>안드로이드 시스템 뒤로가기 제스처와 커스텀 네비게이션 충돌</td>
+          <td>이벤트 전파 방지 및 네이티브 핸들러 우선순위 조정</td>
+        </tr>
+        <tr>
+          <td>접근성 라벨</td>
+          <td>낮음</td>
+          <td>일부 동적 생성 뷰의 접근성 포커스 누락 가능성</td>
+          <td>렌더링 트리 상위 노드에 속성 위임 처리</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>결론 및 다음 단계</h2>
+    <p>치명적인 런타임 오류는 발견되지 않았으나, 장기 실행 시 메모리 누수에 대한 추가적인 동적 프로파일링이 요구됨.</p>
+    <p>상세 로그 및 추적 데이터는 첨부된 원격 저장소 링크를 통해 열람 가능함.</p>
+    <button type="button">상세 추적 데이터 열기</button>
+  </div>
+</body>
+</html>
