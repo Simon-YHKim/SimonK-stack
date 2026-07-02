@@ -3,7 +3,7 @@
 **Problem.** `agy -p "<prompt>"` only renders its answer when attached to a real
 terminal. When the hub daemon spawns it with redirected stdout (to capture the
 reply), agy emits ~0 useful bytes — it has no stdout/log/json output contract.
-This silently killed the Antigravity (Gemini) hub seat headless.
+This silently killed the Antigravity hub seat headless.
 
 **Fix.** `agy-headless.js` spawns agy inside a **node-pty pseudo-terminal
 (ConPTY)**, lets it render, strips the TUI chrome, and prints the clean answer to

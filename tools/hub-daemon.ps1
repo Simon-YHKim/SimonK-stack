@@ -20,7 +20,7 @@ param(
   [int]$MaxCycles = 0,             # 0 = run forever
   [int]$MaxTasksPerCycle = 1,      # anti-idle: drain up to N OPEN orders per cycle before sleeping
   [int]$PerAITimeoutSec = 1200,    # hard ceiling per CLI call; a hung CLI is killed + skipped (P0: hung CLI stalled the whole sequential loop forever)
-  [switch]$IncludeAG,              # add antigravity (gemini seat) to the default codex,grok loop
+  [switch]$IncludeAG,              # add antigravity (agy seat) to the default codex,grok loop
   [string[]]$Only = @()            # run ONLY these AIs (e.g. -Only antigravity for a separate slow AG loop)
 )
 $ErrorActionPreference = 'Continue'

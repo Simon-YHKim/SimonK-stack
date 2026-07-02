@@ -19,7 +19,7 @@
 - **코딩(2026-06-06 확장)**: UI/UX 결함을 **자기 개별 공간에서 직접 코드 수정**한다(발견만 아님). 완료분을 Claude에 제출 → Claude 최종 보완 → 머지(§11). Simon이 Codex 성능 인정.
 - 산출물: 수정된 코드(자기 공간) + 변경 요약(md), UI 스펙, 에셋 경로, 디자인 토큰.
 
-### 🟩 Antigravity(Gemini) — 안드로이드 네이티브 개발 + 검수
+### 🟩 Antigravity(agy) — 안드로이드 네이티브 개발 + 검수
 - **네이티브 개발(직접 코딩, 2026-06-05 Simon)**: 네이티브 픽스(키보드·edge-to-edge·intent filter·AppState·elevation)를 직접 코딩 — 단 **커밋·푸시는 Claude 게이트**(§10.5): 2nd-B는 자기 워크트리/패치(diff)로 산출해 제출, 허브에서는 `agents/antigravity/`만 쓴다. 데몬 헤드리스 모드에서는 QA·진단·패치 제안 중심.
 - **네이티브 검증**: Android 네이티브 빌드 검증, Gradle/매니페스트/권한 점검, 네이티브 모듈.
 - **디바이스 QA**: 실기기/에뮬 동작 검수, 크래시·ANR·성능(프레임·메모리) 점검, 회귀 확인. **PASS 판정은 픽셀/스크린샷 증거 필수**("가정한 검증" 금지 — 07-02 팬텀 QA 사례).
@@ -35,7 +35,7 @@
 
 ## 1.5 추가 듀티 (2026-06-14 허브 역할분석 — PROTOCOL §31.8/§35.6/§36)
 > 새 AI 없이 기존 좌석의 미사용 역량을 깨운다(§31.8 용량게이트). SPOF=Claude에 더 안 쌓는다.
-- **🟩 Gemini 좌석 (agy-native 헤드리스 차단 동안)**: 에뮬 가동 시 네이티브 QA는 유지하되, 헤드리스 텍스트 역량을 **long-context 전레포 감사관 + 코어레인 독립 반론 검토관**(§35.6 advisory — 최종 판정·머지권은 Claude 불변)으로 재배치. Supabase RLS/IDOR·schema↔type 드리프트·DECISIONS 원장 freshness 감사 포함.
+- **🟩 Antigravity 좌석 (long-context 병행 듀티)**: 네이티브 QA(주력)에 더해 헤드리스 텍스트 역량을 **long-context 전레포 감사관 + 코어레인 독립 반론 검토관**(§35.6 advisory — 최종 판정·머지권은 Claude 불변)으로 병행 배치. (원래 agy 헤드리스 차단 동안의 대체 듀티였으나 07-03 winpty 픽스로 헤드리스 복구 — 듀티는 병행 유지.) Supabase RLS/IDOR·schema↔type 드리프트·DECISIONS 원장 freshness 감사 포함.
 - **🟪 Grok**: 시장 advisory + **허브 와치독** — 매 사이클 `hub-health.ps1 -Json` 읽고 임계 breach 시 `type: incident`(→Simon+Claude, §15) + **벤더 free→metered 절벽 와처**(주1회). read-only envelope 유지(코드·git 없음).
 - **🟨 Codex**: UI/UX + **독립 테스트-저자**(Claude 머지 safety/data diff에 failing-first 테스트 저술) + **consent/미성년 `verify:safety` 불변식 저술**(§36) + **release scribe**(CHANGELOG/store copy). ⚠ 과적재 주의 — release-readiness 확인은 Gemini/자동.
 - **🟦 Claude**: 제품 LLM 런타임-비용 거버너(§31.6 COST 렌즈, enforcement=hook) + 미성년 enablement 오케스트레이션(§36) + 독립 릴리즈게이트(`tools/release-gate.ps1`) 운용. 신규 노동은 기계적/facilitation으로 최소화.

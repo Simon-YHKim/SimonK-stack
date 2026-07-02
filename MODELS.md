@@ -60,6 +60,25 @@
 
 ---
 
+## 작업별 권장 모델·effort 매트릭스 (dispatch 가이드, 2026-07-03)
+
+> **용도**: 오케스트레이터(Claude)가 헤드리스 spawn·인-윈도우 세션에 작업을 배정할 때의 조정 기준. **데몬 레인 기본값은 위 정본 표(항상-최고) 유지** — 이 매트릭스는 상황별 다운시프트/업시프트 가이드다. 모든 id는 프로브 검증된 것만(환각 id 금지 원칙 동일).
+> **원칙**: ① Claude 인터랙티브=정액이라 effort는 비용이 아니라 **속도↔정밀 트레이드오프** ② Codex effort는 **premium pool 실소비**(Simon medium 핀 존중) ③ 비가역 판단(머지·스키마·보안)은 최고 지능, 기계 반복은 저비용(Fugu cheap-worker 응용) ④ verify는 작성자와 다른 seat(ROUTING-MOA §3).
+
+| 작업 유형 | Claude (`claude`) | Codex (`codex`) | Grok (`grok`) | Antigravity (`agy`) |
+|---|---|---|---|---|
+| 아키텍처·비가역 결정·머지 게이트·보안 | **fable-5 @ max** (정본) | — (Claude 소관) | — | — |
+| 일상 구현·리팩토링 | fable-5 @ high (빠른 턴어라운드) | gpt-5.5 @ **medium** (Simon 핀) | — | — |
+| 심층 리뷰·테스트 저술·MoA verify | fable-5 @ max | gpt-5.5 @ high (**고위험 diff 단건만**, pool 여유 시) | grok-build @ high (실시간 사실·정량 crosscheck) | Gemini 3.1 Pro (High) (코드/스키마 long-context 감사) |
+| 에뮬/디바이스 QA 판정 | — | — | — | **Gemini 3.1 Pro (High)** (픽셀 판정·크래시 진단) |
+| 반복 스모크·캡처 루프·상태보고 | sonnet-4-6 @ medium (서브에이전트) | gpt-5.5 @ **low** (호출당 소비 최소) | grok-composer-2.5-fast (고속·저쿼터) | gemini-2.5-flash @ high (agentic 반복에 빠름) |
+| 대량 기계 스윕(rename·포맷·보일러플레이트) | opus-4-8 fast mode 또는 sonnet-4-6 @ medium | gpt-5.5 @ low | composer-2.5-fast | gemini-2.5-flash |
+| 리서치(외부사실·트렌드) | fable-5 @ high + /deep-research | — | **grok-build @ high** (X 실시간 해자) | 3.1 Pro (High) (grounding·긴 문서) |
+| 요약·짧은 Q&A | fable-5 @ high | gpt-5.5 @ low | composer-2.5-fast | gemini-2.5-flash |
+
+- **금지/주의**: codex `xhigh`는 premium pool 절벽 위험 — Simon 명시 승인 시에만. `gemini-3.5-flash`(404)·`grok-4.3`(미노출) 등 미검증 id 금지. AG 헤드리스는 항상 `AGY_USE_CONPTY=0`.
+- **워크플로 서브에이전트**(Claude 하네스 내부): finder류 effort low~medium, 적대적 verify·judge만 high↑ — Workflow effort 옵션으로 지정.
+
 ## 갱신 절차 (일일 로컬 예약작업 — 제안+게이트)
 
 - **예약작업** `HubModelBenchmarkRefresh` (Windows Scheduled Task, 매일 09:00 KST) → `tools/refresh-models.ps1` 실행.

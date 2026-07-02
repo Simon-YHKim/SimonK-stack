@@ -7,7 +7,7 @@ status: active
 sync: "Source of truth = PROTOCOL.md. On conflict, PROTOCOL wins. last-sync: 2026-06-13"
 ---
 
-# Antigravity (Gemini) Operating Rules
+# Antigravity (agy) Operating Rules
 
 Antigravity-owned rule mirror inside the 4-AI hub (parity with codex/RULES.md and grok/autonomous-loop-rules.md). Global protocol stays Claude-owned; this file restates AG-specific rules and must be re-synced when PROTOCOL changes (PROTOCOL §34.5).
 

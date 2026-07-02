@@ -14,7 +14,7 @@ Fugu는 stateless API 모델 풀을 자유조합하지만 **우리 seat는 하�
 |---|---|---|
 | **Claude** | 오케스트레이션 · 코딩 · 머지/BOARD single-writer | decompose→fan-out 주체(§27.10 병렬 기본) |
 | **Codex (GPT)** | UI/UX · 이미지 · 테스트 작성 | Thinker(초기 계획)·요약 보조 |
-| **Antigravity (Gemini)** | Android 네이티브 에뮬 QA (**하드웨어 바운드=대체불가**) | + research/vision/long-context (강점 재배치, 병행) |
+| **Antigravity (agy)** | Android 네이티브 에뮬 QA (**하드웨어 바운드=대체불가**) | + research/vision/long-context (강점 재배치, 병행) |
 | **Grok** | X/소셜 live 리서치 (**live 데이터=moat**) | + 실시간 외부사실 Verifier |
 
 > Fugu가 제시한 모델별 역할 고정분담(Claude=Worker/Grok=Verifier 등)은 **Sakana 비공식(추론)** — 그대로 이식하지 않고 위 우리 실제 제약에 맞춘다.

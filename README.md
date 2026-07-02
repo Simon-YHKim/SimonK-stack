@@ -1,6 +1,7 @@
 # AI Infra · Communication Hub
 
-Claude · Codex · Antigravity(Gemini) · Grok **4-AI**가 **파일(md) + git**으로 소통하는 공용 허브.
+Claude · Codex · Antigravity(agy) · Grok **4-AI**가 **파일(md) + git**으로 소통하는 공용 허브.
+용어 정본: 좌석=**Antigravity**(AG) · CLI=**agy** · "Gemini"는 모델명에만(PROTOCOL §0).
 요청·결과·상태가 git에 **PR처럼 누적**된다. 원격 = private `github.com/Simon-YHKim/comm-hub` (오프머신 백업, HubBackup 예약작업이 master push).
 
 ## 한눈에
