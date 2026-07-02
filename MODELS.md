@@ -3,7 +3,7 @@
 > **목적**: 4-AI 허브의 모든 AI가 **항상 가장 높은 벤치마크 모델 + 최대 reasoning effort**를 쓰도록 강제한다.
 > **기계 판독 정본 = `tools/models.json`** (hub-daemon.ps1이 읽어 spawn 플래그를 만든다). 이 문서는 사람용 요약.
 > **갱신**: `model-benchmark-refresh` 일일 cloud schedule이 제공사별 최신 최고모델을 재조사해 둘 다 갱신한다(§ 갱신 절차).
-> **마지막 점검**: 2026-06-14 (hub-upgrade-research workflow — 제공사별 병렬 웹검색 + 적대적 교차검증).
+> **마지막 점검**: 2026-06-14 (hub-upgrade-research workflow — 제공사별 병렬 웹검색 + 적대적 교차검증) · **2026-07-03 Claude fable-5 재핀**(재가용 확인, 세션 실구동 검증).
 
 ---
 
@@ -11,7 +11,7 @@
 
 | AI | CLI | 최고모델 | effort 최대 | 선택/플래그 |
 |---|---|---|---|---|
-| **Claude** | `claude` | `claude-opus-4-8` (Default 권장) | `max` | `--model opus` 또는 `/model` → Default (recommended) → `/effort max` (영속: env `CLAUDE_CODE_EFFORT_LEVEL=max`) |
+| **Claude** | `claude` | `claude-fable-5` (2026-07-03 재핀) | `max` | `--model fable` 또는 `/model` → Fable 5 → `/effort max` (영속: env `CLAUDE_CODE_EFFORT_LEVEL=max`) |
 | **Codex** | `codex` | `gpt-5.5` | `medium` (Simon 핀) | `-m gpt-5.5 -c model_reasoning_effort="medium"` |
 | **Grok** | `grok` | `grok-build` | `high` | `-m grok-build` + env `GROK_MODEL=grok-build` (grok-4.3 not in this CLI build) |
 | **Antigravity** | `agy` (gemini sunset 06-18) | `gemini-3.1-pro-preview` | `high`(=max) | 인-윈도우 agy `"Gemini 3.1 Pro (High)"` / 데몬 헤드리스 `node tools/agy-pty/agy-headless.js` |
@@ -24,7 +24,7 @@
 
 | AI | primary | 소진 시 fallback | 근거(검증 2026-06-15) |
 |---|---|---|---|
-| **Claude** | `claude-opus-4-8` @ max (Default 권장) | `claude-sonnet-4-6` @ high | fable 미사용(2026-06-17 Simon) → Opus 4.8가 기본. 인터랙티브는 정액이라 사실상 무한 |
+| **Claude** | `claude-fable-5` @ max (2026-07-03 재핀) | `claude-opus-4-8` @ max | fable 재가용 + Simon이 /model Fable 5 기본 설정(세션 검증). opus는 06-17~07-03 실사용 검증된 직전 핀. 인터랙티브는 정액이라 사실상 무한 |
 | **Codex** | `gpt-5.5` @ medium (Simon 핀) | `gpt-5.5` @ **low** | Codex CLI가 노출하는 OpenAI 모델은 gpt-5.5뿐 → **같은 모델·낮은 effort**로 호출당 소비 절감. 진짜 저가 모델 id 생기면 교체 |
 | **Grok** | `grok-build` @ high | `grok-composer-2.5-fast` @ high | `grok models`가 노출하는 유일한 대체(=CLI 기본). 호출 검증됨 |
 | **Antigravity** | `gemini-3.1-pro-preview` @ high | `gemini-2.5-flash` @ high | FLASHOK 프로브로 호출 검증. ⚠ `gemini-3.5-flash`는 404(미존재)라 **금지** |
@@ -39,10 +39,10 @@
 
 ## AI별 근거·주의 (검증됨)
 
-### Claude — `claude-opus-4-8` @ max (Default 권장)
-- **2026-06-17 변경(Simon)**: fable이 현재 **사용 불가** → **Default (recommended) = Opus 4.8**를 기본으로 핀. Claude Code에서 `--model opus` 또는 `/model` → Default (recommended) 선택 후 `/effort max`. effort 척도 `low|medium|high|xhigh|max`, **max = 토큰 상한 없음**.
-- **주의**: `max`의 세션 간 영속은 env `CLAUDE_CODE_EFFORT_LEVEL=max`로만 가능. 인터랙티브 Claude Code는 정액(토큰 미과금). **fable 재가용 시에만 재핀**.
-- **폴백**: `claude-sonnet-4-6` @ `high`.
+### Claude — `claude-fable-5` @ max (2026-07-03 재핀)
+- **2026-07-03 변경**: fable **재가용** 확인(Simon이 `/model` → Fable 5를 기본으로 저장, 세션이 `claude-fable-5`로 실구동 검증) → 06-17의 "fable 재가용 시에만 재핀" 조건 충족으로 재핀. Fable 5 = Claude 5 패밀리, Opus 위 Mythos급 티어.
+- **주의**: `max`의 세션 간 영속은 env `CLAUDE_CODE_EFFORT_LEVEL=max`로만 가능. 인터랙티브 Claude Code는 정액(토큰 미과금). fable이 다시 불가해지면 opus-4-8로 롤백 핀(그 폴백은 sonnet-4-6@high).
+- **폴백**: `claude-opus-4-8` @ `max` (직전 핀, 06-17~07-03 실사용 검증).
 
 ### Codex — `gpt-5.5` @ medium (Simon 핀, 2026-06-17)
 - GPT-5.5(2026-04-23) = OpenAI 최신 프런티어, Codex CLI 기본. **`gpt-5.5-codex` 변종 없음 → `-m gpt-5.5`**. `xhigh`가 최대지만 **Simon이 `medium`으로 핀**(Pro Lite 프리미엄 풀 소비를 줄여 한도 도달 지연). 폴백 `low`.

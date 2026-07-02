@@ -1,8 +1,8 @@
 ---
 owner: claude
 note: "이 파일은 Claude만 작성한다. 다른 AI는 의견을 자기 outbox(type: consensus_vote)로 제출하고, Claude가 여기에 종합한다."
-last-updated: 2026-06-14 KST
-last-sync: 2026-06-14
+last-updated: 2026-07-03 KST
+last-sync: 2026-07-03
 ---
 
 # DECISIONS.md — 합의 원장 (Consensus Ledger)

@@ -30,6 +30,9 @@ powershell -ExecutionPolicy Bypass -File tools\monitor.ps1             # 실시�
 | **CONTROL.state 불명/혼선** | STATUS=paused vs CONTROL=running 불일치 | `CONTROL.md`가 런-스테이트 **정본**. STATUS는 요약일 뿐 → CONTROL 기준으로 행동 |
 | **release-gate NO-GO** | 2nd-B verify FAIL / tree dirty / rollback SHA 없음 | 머지 **금지**. `tools\release-gate.ps1` reasons 확인 → 원인 수정 후 재실행. ⚠ 절대 NO-GO 우회 머지 금지(#222 교훈) |
 | **leaderless (Claude 행 죽음 + CONTROL=running)** | 오케스트레이터 세션 종료인데 게이트가 살아있다고 표시 | §2 데몬 정지 → Claude 재기동 → CONTROL 재확인. 와치독(Grok)이 `incident` 올리면 우선 처리 |
+| **BRANCH-ALERT / hub HEAD ≠ master** (데몬 로그·watchdog `hub-head-off-master`) | CLI가 공유 허브 트리에 브랜치 생성 — 커밋이 master 밖에 쌓이고 HubBackup 백업 누락 (07-02 사고: 206커밋) | `git checkout master` → `git merge --ff-only <브랜치>` → `git branch -d <브랜치>`. 더티면 먼저 수습. commit.ps1이 non-master 커밋 차단, 데몬 BRANCH-HEAL이 clean 트리 자동 복구 |
+| **orders-unconsumed** (watchdog 노트) | 원격 오더 대기 중인데 소비자(/loop 디렉터 세션) 죽음 — 하트비트 30분↑ (06-21~07-03 12일 무소비 사고) | Claude /loop 디렉터 세션 재기동 또는 오더 직접 처리. 루프는 `orders-poll.ps1 -Json -Heartbeat` 폴링 + `-Ack <id>` 픽업 기록 |
+| **AG 하드페일 + live 로그 `AttachConsole failed`** | node-pty ConPTY가 콘솔 없는 호스트(Start-Job)에서 사망 | 데몬은 `AGY_USE_CONPTY=0`(winpty)로 스폰(07-03 픽스). 재현 테스트: `node tools/agy-pty/agy-headless.js "ping"`을 Start-Job 안에서 실행 |
 
 ## 2. 데몬 생존 / 정지 (자주 쓰는 것)
 ```

@@ -34,13 +34,13 @@
 
 ### Hub autonomy charter (Claude)
 - `[ ]` **No merge-gate backpressure** — §12.2 "8 unmerged" is prose-only. Before discovery, count AI's open outbox items; if ≥8, skip discovery + dispatch throttle-redirect; cap worktrees/AI. `hub-daemon.ps1`. (M)
-- `[ ]` **AG lane = gemini text seat, not native** — `agy -p` confirmed non-functional headless (2026-06-14). Either add `agy` branch w/ gemini fallback, OR relabel AG lane honestly in all 3 §19 configs. STATUS already corrected. (S→M)
+- `[x]` **AG lane headless** — RESOLVED: agy-pty ConPTY wrapper (2026-06-17) + `AGY_USE_CONPTY=0` winpty fix for console-less hosts (2026-07-03, PONG-verified under Start-Job). The 06-14 "agy -p non-functional" premise is obsolete.
 
 ### Skills/stack hygiene (Claude)
 - `[ ]` **§21 routing misses dominant workflows + 3 configs out of sync** — add native-UI/store-submit/LLM-feature/deploy routing rows; re-sync CLAUDE/AGENTS/GEMINI verbatim (§18). (M)
-- `[ ]` **Config drift — AGENTS.md/GEMINI.md have no §18; cross-file "§18" pointers break** — renumber ports to canonical scheme; port PreToolUse/HAS_ROUTING content; heading-diff guard. (M)
+- `[x]` **Config drift — AGENTS.md/GEMINI.md §18** — done (see line "3 root config §17/§18 정렬" below; both entries were the same work).
 - `[ ]` **cp949 crash half-fixed** — set `PYTHONUTF8=1` at session start; patch doc one-liners to `encoding='utf-8'`. (S)
-- `[ ]` **Hub guardrails prose-only** — extend commit.ps1 (the choke point): reject staged paths outside `agents/<As>/` unless claude; secret-scan staged; flag staged-count vs -Files divergence (de-facto add -A). (M)
+- `[~]` **Hub guardrails prose-only** — LANE GUARD (agents/<As>/ 밖 거부) + encoding/size guard + BRANCH GUARD(2026-07-03) landed in commit.ps1; remaining: staged secret-scan. (S)
 
 ---
 

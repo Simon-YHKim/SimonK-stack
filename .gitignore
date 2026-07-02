@@ -22,3 +22,12 @@ desktop.ini
 tools/models.proposed.json
 tools/models.proposed.raw.txt
 tools/models-refresh.log
+
+# 기계 반복산출 — HubBranchDrain 일일 아카이브 (로컬 보관, 추적은 branch-drain-latest.md만)
+Output/branch-drain-ledger-*.csv
+Output/branch-drain-restore-*.ps1
+Output/branch-review-queue-*.json
+
+# 원격 오더 소비자 로컬 상태 (하트비트·픽업 원장)
+tools/orders-poll-heartbeat.txt
+tools/orders-ack.json

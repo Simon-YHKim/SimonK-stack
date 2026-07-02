@@ -1,7 +1,7 @@
-# PROTOCOL.md — 3-AI 공용 통신 프로토콜
+# PROTOCOL.md — 4-AI 공용 통신 프로토콜
 
-> **목적**: Claude · Codex · Antigravity(Gemini) 세 AI가 같은 머신·레포에서 동시에 일하면서, **파일(md) + git**만으로 충돌 없이 요청·결과·상태를 주고받는다. 모든 메시지는 git에 PR처럼 누적된다.
-> **이 파일은 세 AI 모두의 운영 원칙(헌법)이다. 세션 시작 시 반드시 읽는다.**
+> **목적**: Claude · Codex · Antigravity(Gemini) · Grok 네 AI가 같은 머신·레포에서 동시에 일하면서, **파일(md) + git**만으로 충돌 없이 요청·결과·상태를 주고받는다. 모든 메시지는 git에 PR처럼 누적된다.
+> **이 파일은 네 AI 모두의 운영 원칙(헌법)이다. 세션 시작 시 반드시 읽는다.**
 
 ---
 
@@ -23,7 +23,7 @@
 - **오케스트레이션 원칙**: 멀티모달=Codex+AG 페어(§19), 리서치=Grok+Claude /deep-research(§27.8), 안전·로직=Claude, 네이티브 device=AG. 약점이 드러나는 작업은 그 lane에 주지 않는다(예: iOS 실측을 AG에 X, 코드 머지를 Codex에 X).
 
 ### 0.2 데이터해자 도메인 라우팅 & 출처 리스크 (deep-research 2026-06-07, `research/ai-coding-tools-2026-digest.md`)
-> 도구 선택은 **벤치 숫자가 아니라 "데이터해자→도메인 적합성"**으로. 검증 결론: capability(도구·통합·소유 사실)는 신뢰, 순위·점유·% 숫자는 거의 기각 — **기능은 믿되 숫자는 불신**(1~3%p로 도구 고르지 말 것, 벤치마크는 오염·정체).
+> 도구 선택은 **벤치 숫자가 아니라 "데이터해자→도메인 적합성"**으로. 검증 결론: capability(도구·통합·소유 사실)는 신뢰, 순위·점유·% 숫자는 거의 기각 — **기능은 믿되 숫자는 불신**(1~3%p로 도구 고르지 말 것, 벤치마크는 오염·정체). (다이제스트 실위치: 허브 상위 `../research/ai-coding-tools-2026-digest.md`.)
 - **도메인별 1순위(데이터해자 경로)**: 안드로이드·GCP·웹최신 grounding·지도·영상 멀티모달 = **Gemini/AG**(자사스택 도구) · **X·소셜 실시간 트렌드 = Grok**(X firehose 사내독점, 진짜 배타적) · GitHub·MS/Azure 엔터프라이즈 = GPT/Codex · **사내 데이터 연동·RAG·장기 코딩루프 = Claude**(MCP 중립성) · 밤샘 대형 자율(마이그레이션·대량변환) = Codex.
 - **Antigravity 보안 하드닝 (CRITICAL, 구체화)**: AG는 ①기본 터미널 자동실행 → 프롬프트 인젝션 RCE ②`.agent` 룰이 `~/.gemini/antigravity/mcp_config.json` 오염 → uninstall 생존 영속 백도어 위험. **대응: Auto-Execute off · 신뢰 레포만 · IDE 대신 Gemini CLI로 컨텍스트만 · 권한/자동실행 경계 준수**(§10.1). AG 산출 코드는 Claude 리뷰게이트 필수(§10.5).
 - **출처 리스크 → CI 강제**: 코드 출력 GPL 오염 책임=개발자(Copilot 판례) → CI에 **라이선스/중복 스캐너**. 프롬프트 보관=증거개시 대상 → 보존·익명화. Grok 'less filtered' → 사용자 대면엔 모더레이션 레이어. (2nd-B `npm run verify`에 라이선스 스캐너 추가는 §31.6 코드리뷰 후보.)
@@ -32,11 +32,12 @@
 ---
 
 ## 1. 황금 규칙 — Single-Writer (충돌 방지의 핵심)
-> **각 AI는 자기 소유 파일에만 쓴다. 남의 파일은 읽기만 한다.** 이것만 지키면 세 AI가 동시에 커밋해도 git 병합 충돌이 나지 않는다.
+> **각 AI는 자기 소유 파일에만 쓴다. 남의 파일은 읽기만 한다.** 이것만 지키면 네 AI가 동시에 커밋해도 git 병합 충돌이 나지 않는다.
 
 | 파일/폴더 | 작성자(쓰기) | 나머지(읽기) |
 |---|---|---|
-| `BOARD.md` | **Claude만** | Codex·Antigravity |
+| `BOARD.md` | **Claude만** | Codex·Antigravity·Grok |
+| `agents/<ai>/inbox/` | **자동화 도구**(hub-watchdog·hub-daemon reroute·refresh-models)의 drop 채널 + 수신 AI 본인(처리·삭제) | 모두 |
 | `agents/claude/**` | Claude만 | 모두 |
 | `agents/codex/**` | Codex만 | 모두 |
 | `agents/antigravity/**` | Antigravity만 | 모두 |
@@ -64,8 +65,8 @@ agents/<from>/outbox/<YYYYMMDD-HHMMSS>-to-<to>-<slug>.md
 ```yaml
 ---
 id: 20260605-152234-claude-to-codex-login-screen-ui
-from: claude            # claude | codex | antigravity
-to: codex               # claude | codex | antigravity | all
+from: claude            # claude | codex | antigravity | grok
+to: codex               # claude | codex | antigravity | grok | all
 type: request           # request | response | fyi | blocker
 ref: ""                 # (응답일 때) 답하는 요청의 id
 project: ""             # projects/<name> 중 하나 (해당 시)
@@ -87,6 +88,10 @@ created: 2026-06-05 15:22:34 KST
 "내 받은편지함"은 별도 폴더가 아니라 **쿼리**다:
 > `agents/*/outbox/` 안의 메시지 중 `to == 나` 이고, 아직 내가 `ref`로 응답하지 않은 것.
 
+**예외 — 물리 inbox 채널 (2026-07-03 명문화)**: 자동화 도구(hub-watchdog selffeedback·hub-daemon reroute·refresh-models 제안)는 사람/AI 세션이 아니므로 outbox 흐름 대신 `agents/<수신자>/inbox/`에 파일을 직접 drop한다(§1 표). 수신 AI는 `board.ps1 -Me <나>`의 [INBOX FILES] 섹션으로 확인하고, 처리 후 파일을 삭제한다(도구 노트는 키당 자기교체라 적체되지 않음).
+
+**stale-open TTL (2026-07-03)**: `status: open`인 request가 **14일 이상** 미응답이면 오케스트레이터(Claude)가 유지보수 배치로 `status: done` + `closed: batch-stale` 표기해 닫을 수 있다(발신자 불문 — 커밋 메시지에 배치임을 명시). 좌석은 batch-stale로 닫힌 오더를 재개하지 않는다. 이유: 2026-07-02 사고 — 6월 초 stale open 89건이 codex/AG 자율 루프를 한 달 묵은 작업 재수행·반복 escalation으로 오작동시킴.
+
 세션 시작 루틴:
 1. `git pull --ff-only` (최신화)
 2. `BOARD.md` 읽기 (현재 전체 상태)
@@ -107,6 +112,8 @@ created: 2026-06-05 15:22:34 KST
 
 ## 5. git 규칙 (동시 작업 안전)
 - 커밋 단위는 작게, **Conventional Commits**: `feat(comm): request codex — login UI`, `chore(comm): codex status update`, `docs(comm): response — native QA pass`.
+- **허브 레포 = master 단일 브랜치.** 어떤 AI도 허브 레포에서 `git checkout`/`switch`/`branch` 금지(2nd-B 작업은 별도 워크트리에서). `commit.ps1`이 non-master 커밋을 차단하고, 데몬이 사이클마다 BRANCH-HEAL로 복구한다. (2026-07-02 사고: codex spawn이 공유 트리에 브랜치를 만들어 206커밋이 master 밖에 쌓이고 오프머신 백업이 하루 중단.)
+- **no-op 사이클 = 무커밋.** 실질 신규 작업(코드·발견·응답)이 없는 자율 사이클은 리포트·STATUS·커밋을 만들지 않는다(데몬 로그가 기록). 동일 상태 반복 보고("stale queue hold" 류) 금지.
 - **항상 `pull --ff-only` 후 작업·push.** `--no-ff` 머지/`reset --hard`/force-push **금지**.
 - 충돌이 났다면 = single-writer 규칙을 누군가 어긴 것. 멈추고 사용자에게 보고.
 - 커밋 트레일러는 각 AI 식별: `Co-Authored-By: <agent>`.
@@ -172,8 +179,8 @@ created: 2026-06-05 15:22:34 KST
 |---|---|---|---|
 | Claude | Fable 5 / Opus 4.8 (1M) — `/model` 최상위 | `/effort` ultracode(xhigh) · ultrathink | `bypassPermissions` (대화형) |
 | Codex | 최신 최상위(예: GPT-5-Codex) — `/model` 또는 `-m` | `-c model_reasoning_effort="high"` | `-s danger-full-access` (또는 `--full-auto`) |
-| Gemini(Antigravity) | 최신 최상위 Gemini(예: Gemini 3 Pro) — `-m` | 최대 thinking budget | `-y` / `--approval-mode yolo` |
-| Antigravity(agy) | 최상위 모델(IDE 설정) | 최대 | `--dangerously-skip-permissions` (1회 OAuth 후) |
+| Antigravity(agy) | `Gemini 3.1 Pro (High)` (models.json `agy_model`) | 최대(High) | `--dangerously-skip-permissions` (1회 OAuth 후) · 데몬 헤드리스=`tools/agy-pty/agy-headless.js`(+`AGY_USE_CONPTY=0`) |
+| ~~Gemini CLI~~ | (2026-06-18 sunset — agy로 이관 완료, §28.4) | — | — |
 | Grok | 최신 최상위(예: Grok 4) — `--model` | 최대 reasoning | `--always-approve` |
 
 - **모델은 시점마다 변동** → 하드코딩하지 말고 **항상 각 CLI의 최신·최상위 모델을 선택**(전역 CLAUDE.md "최신·최강 기본"). 위 예시는 2026-06 기준.
@@ -258,6 +265,7 @@ created: 2026-06-05 15:22:34 KST
 6. 터미널 1줄 출력(§16) → 다음 후보 탐색 준비 → 1로
 ```
 - **사이클 간 케이던스 = 5분(정본)**: 한 사이클 종료 후 약 5분 대기(`Start-Sleep 300`) 뒤 0단계로(코딩 3-AI; Grok=요청기반 §12.3). **5분은 폴링 케이던스(과열 방지)이지 idle이 아니다** — 사이클 *내부*엔 유휴 금지(§25.5·§27.4), 사이클 *간*에만 대기. 보고가 쌓이면 즉시 재진입 가능. (CONTROL은 상태 신호일 뿐, cadence 정본은 여기.)
+- **케이던스 계층 (운영값 명문화, 2026-07-03)**: 인-윈도우 자율 루프 = **5분**(위 정본) · 백그라운드 데몬(`hub-daemon.ps1`) 기본 = **600s(10분)**(Simon 06-16 "모든 루프 10분", 스폰 비용 고려) · Claude 오케스트레이터 self-wake = **2분**(§33, 루트 CLAUDE.md §19). 셋은 용도가 달라 병립하는 의도된 값이다 — 문서 간 수치 불일치가 아님.
 - **무인 지속 vs iteration 상한**: §12.2의 iteration 상한(기본 20) 도달 시 STATUS flush 후 **activate 재투입 또는 스케줄 wakeup으로 재개** — 이것이 무인 지속의 실제 메커니즘(§27.1).
 
 ### 12.1a 측정 기반 루프 규칙 (2026-06-13)
@@ -348,7 +356,7 @@ created: 2026-06-05 15:22:34 KST
   | Grok | Grok | grok@2nd-b.ai |
 - **2nd-B(GitHub)**: 온라인 커밋은 Claude만(Simon 계정 경유). 기여 AI는 **표준 Co-Authored-By 트레일러**로 명시:
   ```
-  Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
+  Co-Authored-By: Claude <현행 모델 — models.json 정본> <noreply@anthropic.com>
   Co-Authored-By: Codex <codex@2nd-b.ai>
   Co-Authored-By: Antigravity <antigravity@2nd-b.ai>
   Co-Authored-By: Grok <grok@2nd-b.ai>
@@ -517,7 +525,7 @@ created: 2026-06-05 15:22:34 KST
 **28.4 헤드리스 AI 스폰**
 - 헤드리스 스폰 시 **긴 한글 프롬프트는 CLI 인자 금지**(word-split 깨짐) → **UTF-8 파일/stdin**으로 전달. 레시피: `codex exec -s danger-full-access -C <gitrepo>`(self-commit엔 danger-full-access + git 레포 내부 필수), `gemini -p "..." -y`, `grok -p`. 구독 인증이라 비용 0.
 - **⚠️ codex 헤드리스 caveat (non-git dir + stdin EOF)**: **non-git 디렉터리에서 codex를 비대화형으로 스폰**할 때는 ① `--skip-git-repo-check`를 반드시 붙이고(git 레포 밖이면 codex가 거부) ② **프롬프트를 파일에서 파이프로 먹여 stdin이 EOF에 도달**하게 한다 — 프롬프트를 bare CLI 인자로 주면 codex가 stdin을 계속 읽으며 **멈춘다(hang)**. 정본 레시피: `Get-Content $pf -Raw | codex exec -s danger-full-access --skip-git-repo-check -` (마지막 `-` = stdin에서 읽기). git 레포 내부에서 self-commit이 필요하면 `--skip-git-repo-check` 대신 `-C <gitrepo>`(위 줄).
-- **⚠️ Gemini CLI 무료 폐기 2026-06-18(Google)**: 그 날까지 `gemini -p -y` 헤드리스 현행 유지, **이후 Antigravity 헤드리스 경로는 대안 필요**(인터랙티브 gemini / `agy` 인증 후 / 또는 라우팅 변경). Anthropic 변경(§28.7)과는 **별개 벤더 이슈**.
+- **Gemini CLI sunset 완료(2026-06-18)** → AG 헤드리스 경로 **확정**: `tools/agy-pty/agy-headless.js`(node-pty). 인-윈도우는 `agy --dangerously-skip-permissions`. **콘솔 없는 호스트(Start-Job·서비스)에서는 `AGY_USE_CONPTY=0`(winpty 백엔드) 필수** — ConPTY는 부모 콘솔이 없으면 `AttachConsole failed`로 죽는다(2026-07-02 AG 좌석 하드페일 원인, 07-03 픽스·검증).
 
 **28.5 병렬 호출 cancel 트랩**
 - 도구 하네스는 **exit-code-aware** — 병렬 형제 호출 중 하나가 non-zero exit면 나머지 호출 + Write가 취소된다. **read-only 명령만 병렬 batch**. winget·git·python 등 비표준 exit 명령은 **단독 격리**하거나 끝에 `exit 0`. 복잡한 python은 임시 `.py` 파일로.
@@ -597,15 +605,16 @@ created: 2026-06-05 15:22:34 KST
 ---
 
 ## §33. Simon 원격 오더 채널 (ORDERS.md, 외출 중 비동기 지시)
-- **채널**: 2nd-B GitHub 레포 루트 **`ORDERS.md`** (허브는 로컬·non-pushable이므로 GitHub가 양쪽 공유 매체). Simon이 모바일 AI로 `## OPEN`에 오더 추가→push.
-- **Claude 동작**: 2분 자율 루프가 **매 틱 `git fetch origin` 후 ORDERS.md 읽음** → OPEN에 새 오더 있으면 수행 → 결과/PR/커밋 + `[YYYY-MM-DD / HH:MM:SS KST]` 를 `## DONE`에 append + 해당 블록을 OPEN→DONE 이동 → commit+push. 충돌 회피: ORDERS.md 편집 전 `git fetch`+ff.
+- **채널**: 2nd-B GitHub 레포 루트 **`ORDERS.md`**. (허브도 원격 `comm-hub`를 보유하지만, Simon 모바일 접근성·기존 워크플로 때문에 2nd-B ORDERS.md 채널을 유지한다.) Simon이 모바일 AI로 `## OPEN`에 오더 추가→push.
+- **Claude 동작**: 2분 자율 루프가 **매 틱 `tools/orders-poll.ps1 -Json -Heartbeat`로 읽음**(`-Heartbeat`=소비자 하트비트, watchdog이 이걸로 채널 생존 감시) → OPEN에 새 오더 있으면 `-Ack <id>`로 픽업 기록 후 수행 → 결과/PR/커밋 + `[YYYY-MM-DD / HH:MM:SS KST]` 를 `## DONE`에 append + 해당 블록을 OPEN→DONE 이동 → commit+push. 충돌 회피: ORDERS.md 편집 전 `git fetch`+ff.
+- **⚠ 소비자 = 살아있는 Claude /loop 세션(SPOF)**: 세션이 끝나면 채널이 조용히 죽는다(2026-06-21~07-03 12일 무소비 사고). 감시망: `hub-watchdog`이 10분마다 "오더 대기 + 하트비트 30분↑" 시 `orders-unconsumed` 노트를 Claude inbox에 자동 기록. 세션 재개 시 board.ps1 [INBOX FILES]에서 확인.
 - **게이트 동일**: 파괴·실비용·secrets·안전임상·법무 오더는 수행 전 확인(ORDERS DONE에 "확인 필요" 표기). 그 외 dev 오더는 무확인 수행.
 - **라운드트립**: Simon(모바일 AI)이 DONE 피드백 읽고 다음 오더. Claude는 모호하면 DONE에 질문 남김.
 
 ---
 
 ## 34. 4-AI 대칭화 — wiki 기여 · 측정루프 전파 · 머지우회 · 교차채점 (CRITICAL, 2026-06-13 Simon)
-> 진단(`AI-Hub-보완점-진단.html`): wiki·측정루프가 Claude에 편중돼 비-Claude AI가 잘 못 쓴다. **다른 AI들도 wiki에 기여하고, golden set으로 측정하며, Claude 머지 병목에 질식하지 않게** 대칭화한다. (안전레일 §11-5·머지게이트 §10.5·single-writer §1은 불변 — 쓰기는 여전히 lane 소유자/Claude.)
+> 진단(`C:\Coding Infra\Legacy-AI-Hub-보완점-진단.html` — 07-02 Legacy- 이관): wiki·측정루프가 Claude에 편중돼 비-Claude AI가 잘 못 쓴다. **다른 AI들도 wiki에 기여하고, golden set으로 측정하며, Claude 머지 병목에 질식하지 않게** 대칭화한다. (안전레일 §11-5·머지게이트 §10.5·single-writer §1은 불변 — 쓰기는 여전히 lane 소유자/Claude.)
 
 **34.1 wiki 기여 경로 (Claude 독점 완화 — G1)**
 - 모든 AI는 교훈·재사용가치 발견 시 `type: wiki_lesson`(to: claude) 메시지를 **자기 outbox**에 쓴다 — 한 줄 요약·핵심 3·출처/작성일·연결 프로젝트(§18.0 intake 2-of-3 충족분만). Claude(라이브러리언)가 배치로 위키에 ingest(쓰기·raw 불변·index/log 갱신은 §18대로 Claude 단독).
@@ -635,10 +644,10 @@ created: 2026-06-05 15:22:34 KST
 
 **34.6 Grok 루프 정합 (모순 해소 — G5)**
 - 단일 정의: Grok = **요청기반 advisory + 5분 모니터링 루프**(가치 신호 발견 시 능동 fyi). 자율 *발의*(코딩·결정)는 보류, *모니터링·리서치*는 능동. §34.2 golden set 충족 유효 인사이트 **N건(기본 5) 채택 시** 자율 트렌드 루프로 승격(§14 합의). `agents/grok/autonomous-loop-rules.md`와 본 절·§12.3을 일치시킨다.
-- **간격 정합 (모순 봉합, 정본=5분)**: 과거 §12.3은 30분, grok rules 헤더는 2분, 본 절 sync는 5분으로 **3중 모순**이었다 → **5분이 정본**(§12.1 표준 케이던스와 일치). §12.3을 5분으로 교정 완료. **`agents/grok/autonomous-loop-rules.md`의 rules 헤더(2분 표기)도 반드시 5분으로 맞춰야** 한다(§34.5 sync 헤더 규칙 적용 — 정본=PROTOCOL, 충돌 시 PROTOCOL 우선).
+- **간격 정합 (모순 봉합, 정본=5분)**: 과거 §12.3은 30분, grok rules 헤더는 2분, 본 절 sync는 5분으로 **3중 모순**이었다 → **5분이 정본**(§12.1 표준 케이던스와 일치). §12.3 및 `agents/grok/autonomous-loop-rules.md` 헤더 모두 5분으로 교정 **완료**(2026-06 교정, 07-03 감사 확인).
 
-**34.7 Antigravity 자립 + 헤드리스 대안 (G4·G7)**
-- AG도 `agents/antigravity/RULES.md` + loop 규칙을 보유(Codex·Grok과 대칭). 헤드리스 경로: **Gemini CLI 무료 폐기(2026-06-18, §28.4) 대비** — ① 인터랙티브 Gemini ② `agy`(OAuth 후 `--dangerously-skip-permissions`) ③ 불가 시 AG lane 일부를 Claude·Codex로 재라우팅. 각 AI는 STATUS에 현재 헤드리스 실행 수단을 명시한다.
+**34.7 Antigravity 자립 + 헤드리스 경로 (G4·G7 — 2026-07-03 확정)**
+- AG도 `agents/antigravity/RULES.md` + loop 규칙을 보유(Codex·Grok과 대칭). 헤드리스 경로 **확정**(Gemini CLI는 2026-06-18 sunset 완료, §28.4): 데몬 = `tools/agy-pty/agy-headless.js` + `AGY_USE_CONPTY=0`(콘솔 없는 호스트 필수) / 인-윈도우 = `agy --dangerously-skip-permissions`. 불가 시 AG lane은 models.json `reroute_to`로 재라우팅. 각 AI는 STATUS에 현재 헤드리스 실행 수단을 명시한다.
 
 **34.8 자립성 원칙 (Claude 단일의존 완화 — G6)**
 - Claude 부재 시에도 비-Claude AI는 **발견·드래프트·리뷰·wiki_lesson·페르소나 의견을 자기 outbox 큐에 계속 적재**(외장기억 §27.1)하고, Claude 재가동 시 일괄 통합·머지된다. 통합·온라인git·합의 타이브레이크만 Claude 의존(불변), 나머지 생산은 멈추지 않는다.

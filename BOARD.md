@@ -1,10 +1,9 @@
 ---
 owner: claude
 note: "이 파일은 Claude(오케스트레이터)만 작성한다. Codex·Antigravity·Grok은 읽기 전용."
-last-updated: 2026-06-17 21:23:35 KST
-run_mode: RUNNING (Simon 2분 자율루프 + ORDERS.md 원격오더 채널 + 라이브 머지루프. /goal "완벽한 앱·사이클 유지")
-live_head_now: 2nd-B main **3381cd9** (r32 11:57 KST·verify 142/1188 PASS·boot-profile 미성년 consent 안전 P2 라이브; §241 실SHA강제 즉효; AG 데몬다운)  ‖ prev **9f14e2f** (라이브 200·번들 de33298f). **04:0x~04:49 그래프 사이클**: Simon 레퍼런스 2장 **둘 다 구현·라이브**. #250(snowflake 데이터노드+proximity 링크+Touch!2카드, Codex)·#251(AG 진단 AnimatedLine 드라이버 크래시 수정)·**#252 드릴다운 네비(ref2: 코어 탭→포커스 뷰+코어 데이터 부각+캐릭터/데이터 인사이트 카드+백 3경로, Codex 구현·Claude 리뷰, native driver는 View만 SVG는 JS유지)**·**#253 Codex anti-slop(테마토큰 #FFFFFF→semantic.text·#05070F→cosmic.space950 + README 브랜드코히런스 가드확장)**. **#254 AG 프라이버시 하드닝 통합**(app.json allowBackup=false — 민감 psychology 데이터 adb backup 차단; AG a06466e가 antigravity/work에만 있던 것 → main 통합완료, **AG: 이제 머지됨**). ORDERS DONE 갱신(O-2 완료·드릴다운 자율DEV 완료)·**O-3 그린라이트 대기**. AG=드릴다운 device QA 진행. 가용 AI기여(Codex 클린업·AG 백업) 전부 통합. 다음=AG QA회신/Simon 피드백 시 그래프 반복 다듬기(thrashing 회피로 대기).
-live_head: 2nd-B main 677d8e8. 이번 세션 **28 PR 머지**. 네이티브 QA발: #241 Save버튼 탭바가림·#240 2ndB→SecondB·#242 EN브랜드정규화+privacy정직카피·#237 PF-I DOB마스크 + AG#235 + Codex#238/#243(카피코히런스 tail+회귀가드). **전 AI 기여 통합 완료**(AG·Codex). **15화면 네이티브 투어=앱 견고**, 실버그 전부 수정·에뮬검증. 위양성 다수 debunk(Stack.Screen·저대비CTA·#돈중복). 잔여: interview 40대+(콘텐츠)·KO 2nd-B→두번째뇌(Codex)·게이트(안전임상/법무/D-09실결제=Simon): #216~#234(코히런스+M1+cycle2리뷰) + **네이티브 QA발 6**: #235(AG predictive/back) #236(.env.bak제거) #237(PF-I DOB마스크) #238(Codex 구체라벨) #239(test_*.js ignore) #240(2ndB→SecondB 브랜드, 에뮬검증). 인시던트0(전PR CI green별도확인; stray 2건 즉시제거·실시크릿0). **Android 에뮬레이터 네이티브 실행 성공**(콜드부트복구·gradle8.13빌드·adb reverse, 빌드막힘 메모리 outdated). **10화면 네이티브 투어=앱 견고**(브랜드버그1 수정·검증, 리뷰 위양성 실증debunk). 리포트 `agents/claude/native-qa-emulator-20260607.md`. 결정 D-09~D-15. 게이트=안전임상/법무/D-09실결제=Simon. 잔여=풀인터랙티브QA(adb폼)·#49 SceneHero·Codex레인
+last-updated: 2026-07-03 01:35 KST
+run_mode: RUNNING (CONTROL.md 정본 — 2026-07-02 재개, 07-03 감사·정비 완료. 데몬=codex+AG 레인, grok=요청전용, 원격오더 채널=watchdog 감시)
+live_head: 2nd-B 라이브 상태는 2nd-B 레포(github.com/Simon-YHKim/2nd-B main)와 ORDERS.md가 정본 — BOARD frontmatter에 SHA 복제 금지(06-17 스냅샷이 16일 stale로 남던 관행 폐기, 2026-07-03).
 ---
 
 # BOARD.md — 마스터 상태판 (always-latest)
@@ -13,7 +12,23 @@ live_head: 2nd-B main 677d8e8. 이번 세션 **28 PR 머지**. 네이티브 QA�
 > Codex·Antigravity·Grok은 세션 시작 시 이 파일로 현재 상황을 파악한다.
 > **런-스테이트는 `CONTROL.md`, 합의는 `DECISIONS.md`.** 운용 모델 = B(자율, PROTOCOL §11).
 
-## 🎯 현재 포커스 (2026-06-17 21:46 KST · /loop 디렉터 실행자 사이클 — Claude)
+## 🎯 현재 포커스 (2026-07-03 — 허브 전수 감사·정비 사이클, Claude)
+> **허브 재정비 완료.** Simon 지시(트랜스크립트 4종+Fugu 적용 확인·레거시 정리·라우팅·원격·에러·머지)에 따른 전수 감사 — 10-agent 워크플로 + Claude 통합. 상세 `Output/hub-audit-20260703.html`.
+
+**고쳐진 것 (r1, 2026-07-03)**:
+- **git**: codex 브랜치 하이재킹 복구(206커밋 master ff-머지, stray 삭제) + **3중 브랜치 가드**(commit.ps1 non-master 차단 · 데몬 BRANCH-HEAL · watchdog 알림). 오프머신 백업(HubBackup→comm-hub) 정상화.
+- **오더 위생**: stale open 89→0 (84 batch-stale + 5 응답 클로즈, PROTOCOL §3 TTL 신설). codex "stale queue hold" 공회전·커밋 스팸 근절(no-op 무커밋 규칙).
+- **AG 좌석 부활**: 하드페일 진범 = ConPTY가 Start-Job(콘솔 없음)에서 사망 — `AGY_USE_CONPTY=0`(winpty) 픽스, Start-Job 재현 테스트 PONG 검증. (agy 인증 유효 확인.)
+- **모델**: claude `claude-fable-5`@max 재핀(재가용) · HubModelBenchmarkRefresh 예약작업 재등록(09:00, pwsh 런처).
+- **원격 오더 채널**: 06-21 이후 **12일 무소비 발견**(소비자=/loop 세션 SPOF) → watchdog `orders-unconsumed` 감시 + 소비자 하트비트(`-Heartbeat`) + 픽업 원장(`-Ack`) 도입.
+- **라우팅 정합**: grok 데몬 기본레인 제외(§4 요청전용) · AG 레인 "직접 코딩+QA, 푸시는 Claude 게이트"로 §1↔§4↔데몬 일치 · MoA 교차검증 런타임 훅(데몬 프롬프트, ROUTING-MOA §5).
+- **문서**: PROTOCOL 3-AI→4-AI·gemini sunset 과거형·§33 현행화, README 재작성, STATUS running 동기화, CONTROL 변경로그 소급, 레거시 `Legacy-` 정리(EMERGENCY_ANDROID·루트 inbox·AG QA 잔해 83파일·prompts sync 3종·Output 9종 등).
+
+**남은 것 / 게이트**: AG 데몬 레인 재기동 후 실사이클 확인 · 원격 오더 디렉터 세션은 Simon /loop 재가동 시 부활 · ORDERS.md 파일 위생(완료 블록 OPEN→DONE 이동, 2nd-B 레포 작업) · Codex staged secret-scan(BACKLOG).
+
+---
+
+## 이전 포커스 아카이브 (2026-06-17 21:46 KST · /loop 디렉터 실행자 사이클 — Claude)
 > **라이브 origin/main `0e3ef45c`** — 이번 세션 deep-space O-31 패치 **7건** 머지(#437~#442·#444): a11y·토큰·/profile밀도·설정SVG·authBack·**#442 auth-bypass게이팅+탭바겹침**·**#444 가시 back+브랜드공존(Codex)**. 모두 독립 release-gate GO. **Stage7 export GREEN.** Stage3(Back단일화·노드모달無·가시back·auth게이팅) = 사실상 완료.
 > **⚠️ grok 자동루프 over-produce**: 데몬이 600s마다 반복 advisory 생산(누적 291 아카이브, 알람 진실화). ROUTING §4는 grok=요청전용 — **Simon: grok 데몬 레인 throttle/정지 권고**(value 소진). AG=stale 브랜치 리셋 요청됨.
 > **AI 상태(22:06)**: Codex 쿼터 백오프 ~80분(자동복구) · Grok request-wait(Stage5 advisory 소비됨) · **AG=agy 미인증으로 16h 정지(Simon 1회 `agy` 인증 필요)**.
@@ -29,7 +44,7 @@ live_head: 2nd-B main 677d8e8. 이번 세션 **28 PR 머지**. 네이티브 QA�
 **⚠️ 주의**: `C:\2ndB` 로컬 클론 stale(origin/main 대비 behind 91 · ahead 1 · dirty=기머지 중복 잔여) → **머지 vehicle 아님**. `docs/legal/DPIA-2ndB-minors-draft.md` 등 게이트 파일 라이브 푸시 금지.
 **lane**: 구현·머지·online-git=Claude / UI·캐릭터에셋=Codex / 네이티브·에뮬QA=AG / 소비자검증=Grok.
 
-## 🎯 현재 포커스 (2026-06-14 루프) — 2nd-B 기능/에뮬 점검 + 디벨롭 (Simon /loop "AIs decide")
+## 이전 포커스 아카이브 (2026-06-14 루프) — 2nd-B 기능/에뮬 점검 + 디벨롭 (Simon /loop "AIs decide")
 > 허브 가동(CONTROL running, §34/§35·라우팅·가드). 각 AI 자기 레인 directed. **디자인·아키텍처·네이밍 결정 = §35 `ai-debate` 경유**(혼자 결정 X). **UI = design-first**. **머지·온라인git·iOS = Claude 단독**(§11).
 
 **🧭 2nd-B 세계관 정본 정렬 (2026-06-17 · D-24 · `projects/2nd-B/WORLDVIEW.md`)**: 모든 2nd-B 디벨롭은 **불변 큰 틀**에 정렬 — 북극성+북두칠성7별(역할/액션/지식=목표트리 강등, 지금의나=별1, 소울코어=종합)·**L1~L5 단일 사다리(밝기=품질=신뢰도)**·두뇌0-3 다리·propose→ratify·용어매핑(내부 키/슬러그 동결·표시 라벨만)·C-code 하드제약. 단계 **0**(2nd-B `CONTEXT.md` 글로사리 3블록 락 + `worldview-naming.test.ts`, DOCS-ONLY)→**A**(7렌즈 재구조+ECR-S→별5+결정론 밝기함수)→**B**(경량 신뢰도 정지규칙+LLM/도구 분리 계약테스트+C3/C9 배선)→**C**(최소 시연루프: 밝기②+propose-ratify⑤). lane: 구현·머지=**Claude** / UI·라벨·신규화면=**Codex**(anti-slop) / 네이티브·콜드스타트(전부 L1)·SVG OOM QA=**AG** / XPRIZE 프레이밍·임상어휘 advisory=**Grok**. **완벽해질 때까지 반복 개선.**

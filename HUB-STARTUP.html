@@ -143,17 +143,17 @@
       <p class="desc"><b>A</b> 백그라운드 데몬(창 없이 자동) · <b>B</b> 띄운 AI 창에서 직접 루프(데몬 OFF, 창만 보기).</p></div>
     </div>
 
-    <p class="mini" style="margin:2px 0 7px;color:var(--ps)">모드 A · 백그라운드 데몬 — codex·grok·AG 3개 숨김창, 10분 주기</p>
+    <p class="mini" style="margin:2px 0 7px;color:var(--ps)">모드 A · 백그라운드 데몬 — codex·AG 2개 숨김창, 10분 주기 (grok=요청전용 ROUTING §4, directed request 있을 때만 -Only grok 추가)</p>
     <div class="cmdrow"><pre class="cmd" id="c-daemon">$file = "C:\Coding Infra\AI Infra\Communication\tools\hub-daemon.ps1"
-'codex','grok','antigravity' | ForEach-Object {
+'codex','antigravity' | ForEach-Object {
   Start-Process powershell -ArgumentList "-ExecutionPolicy Bypass -File `"$file`" -Only $_ -IntervalSec 600" -WindowStyle Hidden
 }
-Write-Host "[hub] 3 daemons launched (codex, grok, antigravity) @ 10min"</pre><button class="copy" data-t="c-daemon">복사</button></div>
+Write-Host "[hub] 2 daemons launched (codex, antigravity) @ 10min -- grok is request-only"</pre><button class="copy" data-t="c-daemon">복사</button></div>
     <p class="mini">한 AI만 / 출력 보며 디버깅: <code>-Only</code> 변경 · <code>-MaxTasksPerCycle 2</code>로 백로그 드레인</p>
     <div class="cmdrow" style="margin-top:7px"><pre class="cmd" id="c-daemon1">powershell -ExecutionPolicy Bypass -File "C:\Coding Infra\AI Infra\Communication\tools\hub-daemon.ps1" -Only codex -IntervalSec 600</pre><button class="copy" data-t="c-daemon1">복사</button></div>
   </div>
 
-  <p class="mini" style="margin:14px 4px 10px;font-size:12px;color:var(--muted)"><b style="color:var(--text)">모드 B · 인-윈도우 루프</b> — 데몬 없이, <b>띄워둔 각 AI 창</b>에 아래를 붙여넣으면 그 창에서 5분 주기 자율 동작(activate 규칙을 직접 읽음). Claude는 <b>4단계 /loop</b>가 곧 인-윈도우 루프. 각 AI는 <b style="color:var(--text)">최고모델·최대 effort</b>로 실행(데몬이 spawn 시 자동주입) — 정본 <code style="font-family:var(--mono);font-size:11px">MODELS.md</code>: Claude <code style="font-family:var(--mono);font-size:11px">fable-5 @max</code> · <code style="font-family:var(--mono);font-size:11px">codex -m gpt-5.5 (xhigh)</code> · <code style="font-family:var(--mono);font-size:11px">grok -m grok-build (high)</code> · agy <code style="font-family:var(--mono);font-size:11px">"Gemini 3.1 Pro (High)"</code>.</p>
+  <p class="mini" style="margin:14px 4px 10px;font-size:12px;color:var(--muted)"><b style="color:var(--text)">모드 B · 인-윈도우 루프</b> — 데몬 없이, <b>띄워둔 각 AI 창</b>에 아래를 붙여넣으면 그 창에서 5분 주기 자율 동작(activate 규칙을 직접 읽음). Claude는 <b>4단계 /loop</b>가 곧 인-윈도우 루프. 각 AI는 <b style="color:var(--text)">최고모델·최대 effort</b>로 실행(데몬이 spawn 시 자동주입) — 정본 <code style="font-family:var(--mono);font-size:11px">MODELS.md</code>(값 복제 금지 — 항상 그 파일 확인): Claude <code style="font-family:var(--mono);font-size:11px">fable-5 @max</code> · <code style="font-family:var(--mono);font-size:11px">codex -m gpt-5.5 (medium, Simon 핀)</code> · <code style="font-family:var(--mono);font-size:11px">grok -m grok-build (high)</code> · agy <code style="font-family:var(--mono);font-size:11px">"Gemini 3.1 Pro (High)"</code>.</p>
   <div class="grid grid3">
     <div class="card" style="margin:0">
       <div class="top">
