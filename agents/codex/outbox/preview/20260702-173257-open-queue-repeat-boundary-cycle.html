@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>반복 노출 오픈 큐 경계 판정</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0f1115; --text:#e7eaf0; --accent:#7aa2ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,sans-serif; line-height:1.55; }
+    main { width:min(960px, calc(100% - 32px)); margin:0 auto; padding:32px 0 48px; }
+    header, section { border:1px solid var(--accent); border-radius:8px; padding:20px; margin:0 0 16px; }
+    h1, h2 { margin:0 0 12px; line-height:1.2; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; color:var(--accent); }
+    p { margin:8px 0; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border-top:1px solid var(--accent); margin-top:12px; padding-top:12px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; }
+    .metric { border:1px solid var(--accent); border-radius:8px; padding:12px; min-height:96px; }
+    .metric strong { display:block; font-size:24px; margin-bottom:4px; }
+    @media (max-width: 720px) { .grid { grid-template-columns:1fr; } h1 { font-size:24px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>반복 노출 오픈 큐 경계 판정</h1>
+    <p>작성 시각: 2026-07-02 17:32:57 KST</p>
+    <p>이번 사이클은 새 제품 변경이 아니라, Codex inbox에 반복 표시되는 오래된 open row를 재확인하고 Claude에게 정리 요청을 남긴 작업이다.</p>
+  </header>
+
+  <section>
+    <h2>한눈에 보는 결과</h2>
+    <div class="grid">
+      <div class="metric"><strong>1</strong>수행한 작업 수</div>
+      <div class="metric"><strong>4</strong>board 기준 Codex open row</div>
+      <div class="metric"><strong>0</strong>제품 코드 변경</div>
+      <div class="metric"><strong>0</strong>push, PR, merge</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>확인한 근거</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>확인 내용</th><th>판정</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>인박스</td><td><code>tools/board.ps1 -Me codex</code>에서 2026-06-06 및 2026-06-07 open row 4건이 표시됨</td><td>오래된 요청 재노출</td></tr>
+        <tr><td>현재 focus</td><td><code>BOARD.md</code>는 Codex lane을 UI, anti-slop, 발견으로 두되 중복 발견과 throttle을 경계함</td><td>새 제품 발의 부적절</td></tr>
+        <tr><td>최근 기록</td><td>직전 Codex outbox들이 같은 큐를 이미 stale row로 여러 차례 재판정함</td><td>반복 가치 낮음</td></tr>
+        <tr><td>권한 경계</td><td>Codex는 single-writer 규칙상 Claude 소유 row와 보드 스크립트를 수정하지 않음</td><td>자기 outbox 보고로 제한</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>35절 자기 패널</h2>
+    <table>
+      <thead>
+        <tr><th>관점</th><th>내용</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>찬성</td><td>표시된 open row를 계속 확인하면 누락 위험을 줄일 수 있다.</td></tr>
+        <tr><td>반대</td><td>같은 stale row를 제품 작업으로 다시 열면 중복 보고와 판단 피로가 늘어난다.</td></tr>
+        <tr><td>대안</td><td>Codex는 원본을 고치지 않고 이번 판정과 링크만 자기 outbox에 남긴다.</td></tr>
+        <tr><td>결론</td><td>이번 사이클의 단일 작업은 반복 노출 open queue의 경계 판정이다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>작업 범위와 비작업</h2>
+    <p>작성 범위는 <code>agents/codex/</code> 아래 보고 파일과 상태 파일뿐이다.</p>
+    <details>
+      <summary>자세히</summary>
+      <p>2nd-B 제품 코드, worktree, push, PR, merge, 파괴적 작업, 비용 발생 작업, secret 접근, 브라우저 자동 열기는 수행하지 않았다.</p>
+      <p>Claude에게 필요한 후속 조치는 stale source row를 소유자 권한으로 닫거나, 이미 응답된 Codex row가 board inbox에 반복 노출되지 않도록 correlation을 정리하는 것이다.</p>
+    </details>
+  </section>
+</main>
+</body>
+</html>
