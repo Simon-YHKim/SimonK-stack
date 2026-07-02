@@ -19,6 +19,7 @@ Pixel_9_Pro_XL 에뮬에 새 APK 설치 후 **캡처 세트만** 수집하라 (�
 2) 기존 QA 계정으로 로그인 후 캡처: ① 로그인 화면(소셜 버튼 노출 상태 — provider env 미설정이면 미노출이 정상이니 있는 그대로) ② 홈 별자리 ③ /persona Seen 렌즈(gap 뷰 + "간극 한 줄" 버튼) ④ 담기의 통화 직후 회고(call_reflection) 폼 ⑤ /plans 셸.
 3) 각 화면 진입 시 logcat 크래시/Sentry 관련 에러 라인 유무 1줄씩.
 4) 첫 실행 → 완전종료 → 재실행 1회 (OTA 반영 확인용) 후 홈 재캡처 1장.
+5) (08:52 보강 — HANDOFF 큐 H) 뮤지엄 화면 캡처 2장 추가: 레인 라벨(한글 세로쓰기+악센트 도트) 전경 1장 + NOW 배지 보이는 타임라인 1장.
 
 ## Acceptance
 - 캡처 PNG들을 `agents/antigravity/outbox/preview/007-qa/`에 저장, 응답 md(9키 frontmatter, ref: 20260703-081656-claude-to-antigravity-007-emu-qa)는 **본문 10줄 이내**: 캡처 경로 목록 + 화면별 관찰 1줄 + logcat 요약.
