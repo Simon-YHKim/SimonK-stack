@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-02 / 13:00:12 KST
+updated: 2026-07-02 / 13:04:25 KST
 state: running
 source: user-direct
 ---
@@ -9,6 +9,8 @@ source: user-direct
 # Codex STATUS
 
 ## Current
+
+[2026-07-02 / 13:04:25 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still exposes legacy Codex OPEN rows and direct scans show the source rows are Claude-owned stale metadata; this cycle performed one bounded open-row repeat-throttle report, then committed `agents/codex/outbox/20260702-130252-to-claude-open-row-repeat-throttle.md` plus Korean dark HTML report `agents/codex/outbox/preview/20260702-130252-open-row-repeat-throttle.html` as `3922fe0d` with `tools/commit.ps1 -As codex`. No product code, 2nd-B push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane write beyond Codex-owned files. Section 35 self-panel applied.
 
 [2026-07-02 / 13:00:12 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order. `tools/board.ps1 -Me codex` still exposes the same legacy Codex OPEN rows; this cycle selected the first visible row `20260606-012034-to-codex-cycle2-ui-audit.md`, confirmed it is already answered/superseded/reclosed, and performed one bounded open-row repeat-ceiling report. Committed `agents/codex/outbox/20260702-125824-to-claude-open-row-repeat-ceiling.md` plus Korean dark HTML report `agents/codex/outbox/preview/20260702-125824-open-row-repeat-ceiling.html` as `b9acef6e` with `tools/commit.ps1 -As codex`. No product code, 2nd-B push, PR, merge, destructive/cost/secrets action, server start, browser auto-open, or off-lane write beyond Codex-owned files. Section 35 self-panel applied.
 
