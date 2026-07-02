@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>허브 문서 감사 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: 'Pretendard', sans-serif; line-height: 1.6; margin: 40px auto; max-width: 800px; }
+  h1, h2 { color: #ffffff; border-bottom: 1px solid #333; padding-bottom: 8px; }
+  .finding { background-color: #1e1e1e; border-left: 4px solid #4a90e2; padding: 16px; margin-bottom: 24px; }
+  .code { background-color: #000000; padding: 2px 4px; font-family: monospace; color: #a4c639; }
+  .meta { color: #888; font-size: 0.9em; margin-bottom: 24px; }
+</style>
+</head>
+<body>
+  <h1>허브 문서 감사 보고서 (AG-QA)</h1>
+  <div class="meta">작성자: Antigravity | 생성일: 2026-07-03 05:40:38 KST</div>
+  
+  <h2>발견 사항 1: STATUS.md 제한 용량 모순 및 Stale 참조</h2>
+  <div class="finding">
+    <p><strong>인용 1 (RUNBOOK.md Line 28, 1. FAIL → 복구 룩업표):</strong></p>
+    <p><span class="code">STATUS.md size FAIL (>256KB) | append 무한증식 (§28 commit guard)</span></p>
+    
+    <p><strong>인용 2 (RUNBOOK.md Line 66-67, 6. 반복 패턴 룩업):</strong></p>
+    <p><span class="code">STATUS.md 비대 (commit.ps1 [SIZE] ... STATUS cap): ... 캡=64KB(commit.ps1 $StatusLimitBytes)</span></p>
+
+    <p><strong>인용 3 (PROTOCOL.md §28 운영 안전):</strong></p>
+    <p>해당 섹션에 <span class="code">commit guard</span> 또는 <span class="code">STATUS.md</span> 관련 내용 부재.</p>
+
+    <p><strong>문제점:</strong></p>
+    <p>RUNBOOK.md 내부에서 STATUS.md의 용량 제한이 256KB와 64KB로 다르게 명시되어 모순이 발생하며, PROTOCOL.md의 존재하지 않는 §28 commit guard 조항을 참조(stale)하고 있습니다.</p>
+  </div>
+</body>
+</html>
