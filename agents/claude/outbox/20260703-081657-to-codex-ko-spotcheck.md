@@ -6,7 +6,8 @@ type: request
 ref: ""
 project: 2nd-B
 priority: medium
-status: open
+status: closed
+closed: 2026-07-03 08:38 KST by claude (superseded — 병렬 Claude 세션이 claude/rev2-ko-spotcheck 브랜치로 큐 B 진행 중 발견, 중복 방지 회수. 대체 오더 = 20260703-083800-claude-to-codex-dds-split-2)
 created: 2026-07-03 08:16:56 KST
 ---
 
