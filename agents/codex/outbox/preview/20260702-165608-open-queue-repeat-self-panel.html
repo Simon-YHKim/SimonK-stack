@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 폴 사이클 보고서</title>
+  <style>
+    :root { --bg:#0d1117; --text:#e6edf3; --accent:#7dd3fc; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { width:min(980px, calc(100% - 32px)); margin:0 auto; padding:40px 0 56px; }
+    header { border:1px solid var(--accent); padding:24px; margin-bottom:20px; }
+    h1, h2 { margin:0 0 12px; }
+    h1 { font-size:28px; }
+    h2 { font-size:19px; color:var(--accent); }
+    p { margin:0 0 12px; }
+    section { border:1px solid rgba(125,211,252,.45); padding:18px; margin:16px 0; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid rgba(125,211,252,.35); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border:1px solid rgba(125,211,252,.35); padding:12px; margin-top:12px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; }
+    .card { border:1px solid rgba(125,211,252,.35); padding:14px; min-height:92px; }
+    .label { color:var(--accent); font-size:13px; margin-bottom:6px; }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } }
+    @media (max-width:520px) { .grid { grid-template-columns:1fr; } main { width:min(100% - 20px, 980px); padding-top:20px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>코덱스 폴 사이클 보고서</h1>
+    <p>작성 시각: 2026-07-02 16:56:08 KST</p>
+    <p>범위: 프로토콜 12, 19, 35.4 단일 무화면 사이클</p>
+  </header>
+
+  <section>
+    <h2>한눈에 보기</h2>
+    <div class="grid">
+      <div class="card"><div class="label">작업 수</div><div>하나</div></div>
+      <div class="card"><div class="label">판정</div><div>제품 작업 재개 안 함</div></div>
+      <div class="card"><div class="label">쓰기 범위</div><div>코덱스 소유 파일만</div></div>
+      <div class="card"><div class="label">원격 반영</div><div>푸시 없음</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>결과</h2>
+    <p>이번 사이클은 코덱스 받은편지함을 읽고, 코덱스 또는 전체 대상 열린 요청을 다시 확인한 뒤, 오래된 열린 행을 새 제품 작업으로 다시 열지 않는 판정을 남겼다.</p>
+    <p>보드에는 네 개의 열린 행이 계속 보이지만, 원본은 클로드 소유 outbox의 오래된 메타데이터이거나 이미 재개 상태와 맞지 않는 과거 일시정지 방송이다.</p>
+    <details>
+      <summary>자세히</summary>
+      <p>직전 보고서와 오늘 여러 코덱스 보고서가 같은 행을 이미 재종결 또는 반복 억제 대상으로 분류했다. 따라서 이번 사이클에서 2nd-B 제품 코드 수정, 푸시, 풀 리퀘스트, 머지는 수행하지 않았다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>근거</h2>
+    <table>
+      <thead><tr><th>확인 항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>보드 조회</td><td><code>tools/board.ps1 -Me codex</code>가 오래된 네 행을 계속 표시했다.</td></tr>
+        <tr><td>받은편지함</td><td><code>agents/codex/inbox</code>에는 대응되는 실제 파일이 없었다.</td></tr>
+        <tr><td>원본 위치</td><td>보이는 행은 <code>agents/claude/outbox</code>의 원본 요청에서 계산된다.</td></tr>
+        <tr><td>최근 증거</td><td>오늘 코덱스가 같은 큐를 여러 차례 재종결, 반복 억제, 보드 정리 요청으로 보고했다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>자기 패널</h2>
+    <table>
+      <thead><tr><th>관점</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>찬성</td><td>열린 행은 매 사이클 확인해야 새 요청 누락을 막을 수 있다.</td></tr>
+        <tr><td>반대</td><td>오래된 제품 감사를 다시 열면 중복 작업과 머지 소음이 늘어난다.</td></tr>
+        <tr><td>대안</td><td>보드 계산식을 직접 고칠 수 있지만, 현재 단일 작성자 범위를 벗어난다.</td></tr>
+        <tr><td>결정</td><td>이번 사이클은 코덱스 소유 보고서와 미리보기만 남기고, 클로드에게 원본 정리를 요청한다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>제약 준수</h2>
+    <p>제품 코드 수정, 2nd-B 푸시, 풀 리퀘스트, 머지, 파괴적 작업, 비용 발생 작업, 시크릿 처리, 서버 시작, 브라우저 자동 열기는 수행하지 않았다.</p>
+  </section>
+</main>
+</body>
+</html>
