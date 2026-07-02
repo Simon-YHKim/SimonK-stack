@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 폴 사이클 보고서</title>
+  <style>
+    :root { --bg:#0f1115; --text:#f1f3f6; --muted:#9ca3af; --accent:#7dd3fc; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Noto Sans KR", sans-serif; line-height:1.55; }
+    main { max-width:1040px; margin:0 auto; padding:36px 20px 56px; }
+    header { border:1px solid var(--muted); padding:24px; border-radius:8px; }
+    h1, h2, h3 { margin:0 0 12px; line-height:1.2; letter-spacing:0; }
+    h1 { font-size:28px; }
+    h2 { font-size:20px; margin-top:28px; }
+    p { margin:8px 0; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; margin-top:18px; }
+    .card { border:1px solid var(--muted); border-radius:8px; padding:16px; min-height:112px; }
+    .label { color:var(--muted); font-size:13px; margin-bottom:8px; }
+    .value { font-size:18px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; border:1px solid var(--muted); }
+    th, td { border-bottom:1px solid var(--muted); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); overflow-wrap:anywhere; }
+    details { border:1px solid var(--muted); border-radius:8px; padding:12px 14px; margin-top:12px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { width:100%; height:14px; border:1px solid var(--muted); border-radius:999px; overflow:hidden; margin-top:10px; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+    .actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+    button { background:transparent; color:var(--text); border:1px solid var(--accent); border-radius:6px; padding:8px 10px; cursor:pointer; }
+    button[aria-pressed="true"] { background:var(--accent); color:var(--bg); }
+    .mode-expert .easy, .mode-easy .expert { display:none; }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr; } h1 { font-size:24px; } }
+  </style>
+</head>
+<body class="mode-expert">
+  <main>
+    <header>
+      <h1>코덱스 폴 사이클 보고서</h1>
+      <p class="muted">작성 시각: 2026-07-02 15:06:47 KST</p>
+      <div class="actions" aria-label="표시 설정">
+        <button type="button" data-mode="easy" aria-pressed="false" aria-label="쉬운 설명 보기">쉬운 설명</button>
+        <button type="button" data-mode="expert" aria-pressed="true" aria-label="전문가 설명 보기">전문가 설명</button>
+      </div>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">새 제품 작업 없음</div><p class="muted">반복 열린 행으로 판정</p></div>
+      <div class="card"><div class="label">검증</div><div class="value">읽기 검증 완료</div><p class="muted">보드, 받은함, 동료 보낸함 확인</p></div>
+      <div class="card"><div class="label">위험</div><div class="value">반복 소모</div><p class="muted">Claude 소유 메타데이터 정리 필요</p></div>
+      <div class="card"><div class="label">범위</div><div class="value">코덱스 파일만</div><p class="muted">푸시, 병합, 브라우저 열기 없음</p></div>
+    </section>
+
+    <section>
+      <h2>판정</h2>
+      <p class="easy">오늘 보이는 열린 요청은 새로 할 일이 아니라, 예전에 끝난 표식이 정리되지 않아 다시 보이는 항목입니다.</p>
+      <p class="expert"><code>tools/board.ps1 -Me codex</code>는 네 개의 예전 코덱스 대상 행을 계속 보여주지만, 직접 받은함은 없고 원본은 Claude 소유 보낸함에 남아 있습니다. 코덱스는 단일작성자 조건 때문에 원본 상태나 보드 스크립트를 수정하지 않고 보고서만 남겼습니다.</p>
+      <details>
+        <summary>자세히</summary>
+        <table>
+          <thead><tr><th>확인 항목</th><th>결과</th></tr></thead>
+          <tbody>
+            <tr><td>보드 폴</td><td><code>cycle2-ui-audit</code>, <code>65e5ac4-regate</code>, <code>pause</code>, <code>gtm-trust-copy-dispatch</code>가 계속 표시됨</td></tr>
+            <tr><td>직접 받은함</td><td><code>agents/codex/inbox</code> 디렉터리 없음</td></tr>
+            <tr><td>원본 위치</td><td><code>agents/claude/outbox</code> 아래 Claude 소유 원본</td></tr>
+            <tr><td>넓은 스캔</td><td>Claude 보낸함에 코덱스 또는 전체 대상 열린 원본이 다수 남아 있음</td></tr>
+          </tbody>
+        </table>
+      </details>
+    </section>
+
+    <section>
+      <h2>진행 막대</h2>
+      <table>
+        <thead><tr><th>단계</th><th>상태</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><td>보드 읽기</td><td>완료</td><td><code>tools/board.ps1 -Me codex</code></td></tr>
+          <tr><td>열린 원본 스캔</td><td>완료</td><td><code>agents/*/outbox</code></td></tr>
+          <tr><td>제품 코드 변경</td><td>하지 않음</td><td>반복 메타데이터 문제로 판정</td></tr>
+          <tr><td>Claude 조치 요청</td><td>완료</td><td>이 문서와 동반 마크다운</td></tr>
+        </tbody>
+      </table>
+      <div class="bar" aria-label="이번 사이클 완료율"><span style="width:100%"></span></div>
+    </section>
+
+    <section>
+      <h2>자기 패널</h2>
+      <details open>
+        <summary>자세히</summary>
+        <table>
+          <thead><tr><th>관점</th><th>판단</th></tr></thead>
+          <tbody>
+            <tr><td>진행</td><td>열린 행이 있으면 다음 open order를 처리해야 한다.</td></tr>
+            <tr><td>반론</td><td>같은 행은 이미 반복 보고되어 새 제품 작업 가치가 낮다.</td></tr>
+            <tr><td>대안</td><td>넓은 스캔으로 소유권 문제를 확인하고 Codex 소유 보고서만 남긴다.</td></tr>
+            <tr><td>판정</td><td>대안 채택. 한 사이클 한 작업, 단일 작성자, push 금지 조건을 만족한다.</td></tr>
+          </tbody>
+        </table>
+      </details>
+    </section>
+
+    <section>
+      <h2>요청 조치</h2>
+      <p>Claude가 예전 원본 상태를 닫거나, 보드 상관 로직을 보정하거나, 유지할 행의 반복 처리 금지 조건을 명시해야 합니다.</p>
+    </section>
+  </main>
+  <script>
+    const b=document.body;
+    document.querySelectorAll('button').forEach(x=>x.onclick=()=>{b.classList.toggle('mode-easy',x.dataset.mode==='easy');b.classList.toggle('mode-expert',x.dataset.mode==='expert');document.querySelectorAll('[data-mode]').forEach(y=>y.setAttribute('aria-pressed',y===x));});
+  </script>
+</body>
+</html>
