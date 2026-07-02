@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex Stage5 캐릭터 제약 수신 보고</title>
+  <style>
+    :root { --bg:#0b0d10; --text:#e8edf2; --accent:#65d7ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.6 system-ui, -apple-system, Segoe UI, sans-serif; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 48px; }
+    header { border:1px solid color-mix(in srgb, var(--text) 26%, transparent); border-radius:8px; padding:22px; }
+    h1 { margin:0 0 8px; font-size:24px; letter-spacing:0; }
+    h2 { margin:28px 0 10px; font-size:18px; letter-spacing:0; }
+    p { margin:8px 0; }
+    .muted { color:color-mix(in srgb, var(--text) 66%, transparent); }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; margin-top:18px; }
+    .card { border:1px solid color-mix(in srgb, var(--text) 22%, transparent); border-radius:8px; padding:14px; min-height:108px; }
+    .label { color:color-mix(in srgb, var(--text) 66%, transparent); font-size:12px; margin-bottom:8px; }
+    .value { font-size:16px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; overflow:hidden; border-radius:8px; }
+    th, td { border:1px solid color-mix(in srgb, var(--text) 22%, transparent); padding:10px; vertical-align:top; text-align:left; }
+    th { color:var(--accent); font-weight:650; }
+    code { color:var(--accent); font-family:ui-monospace, SFMono-Regular, Consolas, monospace; font-size:0.95em; }
+    details { border:1px solid color-mix(in srgb, var(--text) 22%, transparent); border-radius:8px; padding:12px 14px; margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); }
+    .bars { display:grid; gap:8px; margin-top:12px; }
+    .bar { display:grid; grid-template-columns:150px 1fr; gap:10px; align-items:center; }
+    .track { height:10px; background:color-mix(in srgb, var(--text) 14%, transparent); border-radius:999px; overflow:hidden; }
+    .fill { height:100%; background:var(--accent); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr; } .bar { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex Stage5 캐릭터 제약 수신 보고</h1>
+      <p class="muted">작성 시각: 2026-07-02 09:13:18 KST</p>
+      <p>이번 단일 폴 사이클은 O-31 Stage5 캐릭터 신호를 Codex UI 및 anti-slop 레인 기준으로 수신 확인하고, 다음 구현 때 지켜야 할 제약을 정리했다.</p>
+      <div class="grid">
+        <section class="card"><div class="label">사이클</div><div class="value">PROTOCOL 12/19/35.4 1회</div></section>
+        <section class="card"><div class="label">단일 작업</div><div class="value">Stage5 캐릭터 제약 수신 확인</div></section>
+        <section class="card"><div class="label">쓰기 범위</div><div class="value">agents/codex 전용</div></section>
+        <section class="card"><div class="label">제품 코드</div><div class="value">변경 없음</div></section>
+      </div>
+    </header>
+
+    <section>
+      <h2>판정 요약</h2>
+      <table>
+        <thead><tr><th>항목</th><th>결론</th><th>이유</th></tr></thead>
+        <tbody>
+          <tr><td>주문 후보</td><td><code>20260617-220605</code></td><td>Codex 에셋 및 화면 레인에 직접 영향을 주는 Stage5 캐릭터 제약이다.</td></tr>
+          <tr><td>처리 방식</td><td>수신 확인</td><td>이미 Claude가 소비한 결정 입력이므로 중복 구현 대신 guardrail로 기록했다.</td></tr>
+          <tr><td>후속 작업</td><td>Claude 게이트 대기</td><td>구현, 머지, 온라인 git은 Codex 권한 밖이다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>적용 제약</h2>
+      <table>
+        <thead><tr><th>제약</th><th>Codex 적용 기준</th></tr></thead>
+        <tbody>
+          <tr><td>캐릭터 역할</td><td>친구나 대화 상대가 아니라 조용한 관찰자와 기록 신호로 다룬다.</td></tr>
+          <tr><td>눈과 색상</td><td>청록색 눈과 빛은 감정 표현이 아니라 주의 상태 신호로 제한한다.</td></tr>
+          <tr><td>모션</td><td>홈과 코어 플로우는 저모션 또는 정적 표식을 기본으로 한다.</td></tr>
+          <tr><td>카피</td><td>선제 안부, 과잉 의인화, 자동 기억 과장 표현을 금지한다.</td></tr>
+          <tr><td>밀도</td><td>캐릭터가 데이터, 별자리, 기록보다 앞에 서지 않게 한다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>위험 축소</h2>
+      <div class="bars" aria-label="위험 축소 막대">
+        <div class="bar"><span>의인화 과잉</span><div class="track"><div class="fill" style="width:82%"></div></div></div>
+        <div class="bar"><span>정보 위계 침범</span><div class="track"><div class="fill" style="width:74%"></div></div></div>
+        <div class="bar"><span>중복 구현</span><div class="track"><div class="fill" style="width:88%"></div></div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>자세히</h2>
+      <details>
+        <summary>읽은 근거</summary>
+        <p><code>tools/board.ps1 -Me codex</code>, <code>BOARD.md</code>, <code>PROTOCOL.md</code> 관련 절, Claude outbox의 Stage5 결정 입력 및 주변 최신 open 후보를 확인했다.</p>
+      </details>
+      <details>
+        <summary>수행하지 않은 작업</summary>
+        <p>제품 코드 수정, 2nd-B push, PR, merge, 파괴적 작업, 비용 발생 작업, 시크릿 처리, 서버 시작, 브라우저 자동 열기는 하지 않았다.</p>
+      </details>
+      <details>
+        <summary>Section 35 self-panel</summary>
+        <p>채택 관점은 Codex UI 레인과 직접 관련된다는 점이다. 반론은 이미 Claude가 소비한 입력이라 중복 구현 위험이 있다는 점이다. 최종 판정은 구현 없이 수신 확인과 적용 기준 정리까지만 하는 것이다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>
