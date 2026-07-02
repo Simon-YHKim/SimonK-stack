@@ -19,9 +19,9 @@
   details{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
   details>summary{cursor:pointer;list-style:none;display:inline-block;padding:4px 12px;border:1px solid var(--line);border-radius:999px;font-size:13px;font-weight:600;color:var(--accent);user-select:none}
   details>summary::-webkit-details-marker{display:none}
-  body.lang-ko details>summary::before{content:"자세히 ▸ "}body.lang-ko details[open]>summary::before{content:"닫기 ▾ "}
-  body.lang-en details>summary::before{content:"Details ▸ "}body.lang-en details[open]>summary::before{content:"Close ▾ "}
   details>summary:hover{border-color:var(--accent)}
+  /* a11y (codex test4ai review): summary carries REAL text now, not CSS ::before content
+     (pseudo-content is unreliable for screen readers). */
   .detail{margin-top:10px;font-size:14px}.detail b.why{color:var(--accent)}
   table{width:100%;border-collapse:collapse;font-size:13.5px}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-weight:600}
   td.num{text-align:right;font-variant-numeric:tabular-nums}
@@ -35,10 +35,10 @@
 <body class="lang-ko mode-easy"><div class="wrap">
 
   <div class="bar">
-    <div class="grp"><span class="lbl ko">언어</span><span class="lbl en">Language</span>
+    <div class="grp" role="group" aria-label="언어 선택 / Language"><span class="lbl ko">언어</span><span class="lbl en">Language</span>
       <button data-lang="ko" aria-pressed="true" onclick="setLang('ko')">한국어</button>
       <button data-lang="en" aria-pressed="false" onclick="setLang('en')">English</button></div>
-    <div class="grp"><span class="lbl ko">설명</span><span class="lbl en">Mode</span>
+    <div class="grp" role="group" aria-label="설명 수준 / Explanation mode"><span class="lbl ko">설명</span><span class="lbl en">Mode</span>
       <button data-mode="easy" aria-pressed="true" onclick="setMode('easy')"><span class="ko">쉬운 설명</span><span class="en">Simple</span></button>
       <button data-mode="expert" aria-pressed="false" onclick="setMode('expert')"><span class="ko">전문가</span><span class="en">Expert</span></button></div>
   </div>
@@ -54,7 +54,7 @@
 
   <div class="card">
     <div class="item"><span class="name"><span class="ko">용어 통일 — Antigravity / agy / Gemini</span><span class="en">Terminology unification — Antigravity / agy / Gemini</span></span><span class="badge b-ok"><span class="ko">완료</span><span class="en">Done</span></span><span class="art">PROTOCOL §0 · 15+ docs</span></div>
-    <details><summary></summary><div class="detail">
+    <details><summary><span class="ko">자세히 ▸</span><span class="en">Details ▸</span></summary><div class="detail">
       <div class="easy ko"><b class="why">목적·이유:</b> 같은 AI를 어떤 문서는 "Gemini", 어떤 문서는 "Antigravity"라고 불러 헷갈렸다. 이제 규칙은 하나 — <b>일하는 자리(좌석) 이름은 Antigravity(줄여서 AG), 실행 프로그램은 agy, "Gemini"는 그 안에서 도는 두뇌(모델) 이름일 때만</b> 쓴다. 예전에 "Gemini"라고 썼던 이유는 6월 초 그 자리가 실제로 gemini라는 프로그램으로 돌았기 때문인데, 그 프로그램이 6월 18일 서비스 종료돼 이제 맞지 않는 표현이었다.</div>
       <div class="easy en"><b class="why">Purpose &amp; reason:</b> The same AI was called "Gemini" in some docs and "Antigravity" in others. One rule now — <b>the seat is Antigravity (AG), the CLI is agy, and "Gemini" is used only for the model</b> running inside. The old "Gemini" label existed because that seat literally ran the gemini CLI in early June; that CLI was sunset on Jun 18, so the label was stale.</div>
       <div class="expert ko"><b class="why">목적:</b> 좌석/CLI/모델 3계층 명명 정합. <b class="why">이유:</b> "Antigravity(Gemini)" 병기는 gemini CLI 시절 관례로, sunset(06-18) 후 오독 유발(예: 하드페일 백오프 힌트가 "auth" 오진). <b>정본 = PROTOCOL §0 용어 블록</b>: 좌석=Antigravity(AG) · CLI=agy · 모델명=Gemini 3.1 Pro. 스윕 범위 = 살아있는 문서만(PROTOCOL·ROUTING·ROUTING-MOA·README·AG RULES·onboarding 프롬프트·agy-pty README·hub-daemon 주석·INFRA-MAP·루트 CLAUDE/AGENTS/GEMINI §18 — 3파일 동기화 규칙 준수). 과거 outbox/아카이브는 히스토리라 불변. GEMINI.md 파일명은 설정 이식본 관례로 유지(agy가 읽는 경로 호환).</div>
@@ -76,7 +76,7 @@
       <tr><td><span class="ko">리서치(외부사실·트렌드)</span><span class="en">Research (live facts / trends)</span></td><td>fable-5 @ high + /deep-research</td><td class="num">—</td><td><b>grok-build @ high</b><span class="ko"> (X 해자)</span><span class="en"> (X moat)</span></td><td>3.1 Pro (High)<span class="ko"> — grounding·긴 문서</span><span class="en"> — grounding / long docs</span></td></tr>
       <tr><td><span class="ko">요약·짧은 Q&amp;A</span><span class="en">Summaries / short Q&amp;A</span></td><td>fable-5 @ high</td><td>gpt-5.5 @ low</td><td>composer-2.5-fast</td><td>gemini-2.5-flash</td></tr>
     </table></div>
-    <details><summary></summary><div class="detail">
+    <details><summary><span class="ko">자세히 ▸</span><span class="en">Details ▸</span></summary><div class="detail">
       <div class="easy ko"><b class="why">목적·이유:</b> 지금까지는 "각 AI는 항상 최고 모델·최대 추론"이라는 규칙 하나만 있었다. 그런데 작업마다 성격이 다르다 — 되돌릴 수 없는 결정(머지·보안)은 가장 똑똑한 세팅이 맞지만, 단순 반복 작업에 그걸 쓰면 <b>Codex는 유료 사용량이 빨리 닳고, 다른 AI도 느려질 뿐 이득이 없다</b>. 그래서 "언제 최고를 쓰고 언제 가볍게 가는지" 표를 만들었다. 핵심 4원칙: ① Claude는 정액제라 강도를 올려도 돈이 더 안 든다(대신 느려짐) ② Codex는 강도가 곧 요금이니 Simon이 정한 medium을 기본으로 ③ 되돌릴 수 없는 판단 = 최고 지능, 기계적 반복 = 가벼운 모델 ④ 검증은 만든 AI가 아닌 다른 AI가 한다. 자동 시스템(데몬)의 기본값은 기존 "항상-최고" 그대로 두고, 이 표는 내가 일을 나눠줄 때 쓰는 조정 기준이다.</div>
       <div class="easy en"><b class="why">Purpose &amp; reason:</b> Until now there was one rule: "every AI always runs its best model at max effort." But tasks differ — irreversible decisions (merges, security) deserve the smartest setting, while using it for grunt work just <b>burns Codex's paid quota and slows everyone down for nothing</b>. This table says when to go max and when to go light. Four principles: ① Claude is flat-rate, so effort costs time not money ② Codex effort is literally billing — Simon's medium pin is the default ③ irreversible judgment = top intelligence, mechanical repetition = cheap model ④ verification is done by a different AI than the author. The daemon's defaults stay "always-best"; this matrix guides how I dispatch.</div>
       <div class="expert ko"><b class="why">목적:</b> 단일 정본(항상-최고)에 <b>작업축 dispatch 가이드</b>를 추가(MODELS.md §매트릭스, 데몬 정본은 불변). <b class="why">이유:</b> 좌석별 비용 모델이 비대칭 — Claude 인터랙티브=정액(effort=속도↔정밀), Codex=premium pool 실소비(xhigh 절벽 사고 이력 → Simon medium 핀), Grok/agy=구독 쿼터. Fugu의 cheap-worker 통찰을 좌석 제약에 맞게 적용. 전 모델 id는 프로브 검증분만(grok-4.3·gemini-3.5-flash 등 환각/404 id 금지 원칙 유지). Codex xhigh는 Simon 명시 승인 게이트. AG 헤드리스는 항상 <code>AGY_USE_CONPTY=0</code>. 워크플로 서브에이전트는 finder=low~medium, verify/judge=high↑. verify 좌석 매핑은 ROUTING-MOA §3(코드/스키마→AG, 수학/실시간→Grok, UI→Codex).</div>
@@ -86,7 +86,7 @@
 
   <div class="card">
     <div class="item"><span class="name"><span class="ko">허브 감사 r1 — 구조 결함 5종 수리</span><span class="en">Hub audit r1 — five structural faults fixed</span></span><span class="badge b-ok"><span class="ko">완료</span><span class="en">Done</span></span><span class="art">INCIDENTS 07-03 ×5</span></div>
-    <details><summary></summary><div class="detail">
+    <details><summary><span class="ko">자세히 ▸</span><span class="en">Details ▸</span></summary><div class="detail">
       <div class="easy ko"><b class="why">목적·이유:</b> 허브가 겉으로는 도는 것처럼 보였지만 속은 아니었다. ① 한 AI가 실수로 작업 공간의 "다른 갈래(브랜치)"로 이사 가서 206개의 저장 기록이 백업 안 되는 곳에 쌓였고 ② 매일 밤 GitHub로 올리는 백업이 6월 20일부터 조용히 실패 중이었고 ③ Antigravity 좌석은 "콘솔 없는 환경"이라는 기술적 이유로 죽어 있었는데 엉뚱하게 로그인 문제로 오진돼 있었고 ④ 6월 초의 끝난 요청 89개가 "미처리"로 남아 AI들이 한 달 지난 일을 반복했고 ⑤ 핸드폰 원격 지시 채널은 12일간 아무도 안 읽고 있었다. 전부 고치고, 재발 방지 장치(가드 3중·감시망·자동복구)까지 심었다.</div>
       <div class="easy en"><b class="why">Purpose &amp; reason:</b> The hub looked alive but wasn't. ① An AI accidentally moved the shared workspace onto a side branch, piling 206 commits where backups couldn't see them ② the nightly GitHub backup had been silently failing since Jun 20 ③ the Antigravity seat was dead for a technical reason (no console) but misdiagnosed as a login issue ④ 89 finished requests from early June still said "open," so AIs kept redoing month-old work ⑤ the phone remote-order channel had gone unread for 12 days. All fixed, with triple guards, a watchdog net, and self-healing added so it can't quietly happen again.</div>
       <div class="expert ko"><b class="why">목적:</b> 런타임-문서-원격 3면 정합 복구. <b class="why">이유·조치:</b> ① codex spawn(danger-full-access)의 공유트리 <code>checkout -b</code> → 206커밋 off-master: ff 복구 + commit.ps1 BRANCH GUARD + 데몬 BRANCH-HEAL + watchdog 알림 ② origin에 이관기 스냅샷(6e52329e)만 존재해 분기 → HubBackup 매일 non-ff 거부: <code>-s ours</code> 병합(로컬 13일 최신 유지, force 無)으로 화해 ③ AG 하드페일 진범 = node-pty ConPTY가 Start-Job에서 AttachConsole 실패: <code>AGY_USE_CONPTY=0</code>(winpty) — Start-Job 재현 PONG 검증, 재기동 cycle exit 0 ④ stale open 89→0 + PROTOCOL §3 TTL(14일)·§5 no-op 무커밋(AG가 첫 사이클에서 자발 적용) ⑤ 원격: watchdog <code>orders-unconsumed</code>(배포 20분 만에 실발화) + <code>-Heartbeat</code>/<code>-Ack</code>. 부수: fable-5 재핀, HubModelBenchmarkRefresh 재등록, grok 요청전용 정합, 도구 결함 10건(fail-open 류) 수정.</div>
@@ -96,7 +96,7 @@
 
   <div class="card">
     <div class="item"><span class="name"><span class="ko">펀치리스트 r2 — O-31 판정 · ORDERS 위생 · 기준점 · 가드</span><span class="en">Punch list r2 — O-31 verdict · ORDERS hygiene · baseline · guards</span></span><span class="badge b-ok"><span class="ko">완료</span><span class="en">Done</span></span><span class="art">2nd-B e0c73d4d · hub 73d1938a</span></div>
-    <details><summary></summary><div class="detail">
+    <details><summary><span class="ko">자세히 ▸</span><span class="en">Details ▸</span></summary><div class="detail">
       <div class="easy ko"><b class="why">목적·이유:</b> 감사에서 나온 숙제를 끝냈다. ① 마지막 남은 큰 오더(O-31: 딥스페이스 화면을 앱의 본체로)는 이미 목표가 달성돼 있어서(빌드 설정까지 딥스페이스로 전환 확인) "완료"로 판정하고 기록 ② 오더 게시판 파일이 220KB로 비대해져 끝난 오더 원문을 보관용 파일로 옮겨 가볍게 ③ "지금 시스템이 얼마나 건강한가" 기준점을 3주 만에 다시 측정 — 테스트가 1125개에서 <b>2198개로 늘었고 전부 통과</b> ④ 실수로 비밀키를 저장소에 올리는 걸 막는 자동 검사를 추가 ⑤ Pixy(픽셀아트 도구)는 사본 3개가 알고 보니 같은 원본의 복사본이라, 뒤처진 설치본만 최신으로 갱신.</div>
       <div class="easy en"><b class="why">Purpose &amp; reason:</b> Cleared the audit's homework. ① The last big order (O-31: make deep-space the app's main body) turned out already achieved (even the build config is switched), so it was ruled done and recorded ② the order board file had bloated to 220KB — finished order bodies moved to an archive file ③ re-measured the "how healthy is the system" baseline after 3 weeks: tests grew from 1,125 to <b>2,198, all passing</b> ④ added an automatic check that blocks accidentally committing secret keys ⑤ Pixy's three copies turned out to be clones of one original — only the stale installed copy needed updating.</div>
       <div class="expert ko"><b class="why">목적:</b> 감사 잔여 소거. <b class="why">이유·상세:</b> ① O-31 — eas.json <code>EXPO_PUBLIC_UI=deep-space</code> 컷오버 + Stage1-4·6 머지 확인, Stage5(Three.js 캐릭터)는 rev2 파리티 트랙 승계(#713 [ota]) → DONE 판정 엔트리 ② ORDERS.md 222→138KB(19오더 원문 → ORDERS-ARCHIVE.md), ORDERS_REMOTE.md=Legacy-(06-15 단일화로 대체). 교훈: 템플릿 예시에 실번호(O-32) 금지 — 폴러가 팬텀 오더로 픽업(즉시 수정) ③ loop-baseline §2: verify 293 suites/2198 tests·wiki_lint Error=0 ④ commit.ps1 secret-scan 7패턴(자기매칭-safe 검증, 신규 줄 ASCII 원칙 — PS5.1 cp949 더블바이트가 구조문자 삼킴) ⑤ Pixy = repo-클론 패턴(gstack 동형): GitHub=정본, 설치본 0.24.1→0.40.0 ff-pull(로컬수정 stash 보존). +hub-health frontmatter 06-15 이전 유예(WARN 232→9 정직화), inbox 처리완료 32건 정리.</div>
@@ -106,7 +106,7 @@
 
   <div class="card">
     <div class="item"><span class="name"><span class="ko">GitHub 리포 Legacy- 정리</span><span class="en">GitHub repo Legacy- cleanup</span></span><span class="badge b-ok"><span class="ko">완료</span><span class="en">Done</span></span><span class="art">2 renamed · 3 kept</span></div>
-    <details><summary></summary><div class="detail">
+    <details><summary><span class="ko">자세히 ▸</span><span class="en">Details ▸</span></summary><div class="detail">
       <div class="easy ko"><b class="why">목적·이유:</b> 기능이 겹쳐 헷갈리는 옛 저장소에 "Legacy-" 이름표를 붙여 나중에 지우기 쉽게 했다. 실제로 겹치는 2개만 바꿨다 — Text-battle(후속작 Resonance가 대체), Skill-Gen-Agent(스킬 모음집에 흡수). 나머지 후보 3개는 아직 살아있는 이유가 있어 유지: 2ndB-proto-rev2(지금 진행 중인 새 UI 작업의 참고 원본), Pixy(픽셀아트 도구의 원본 저장소), Story-Skill(게임 스토리용 — 겹치는 게 없음).</div>
       <div class="easy en"><b class="why">Purpose &amp; reason:</b> Tagged genuinely-overlapping old repos with "Legacy-" so they're easy to delete later. Only 2 truly overlapped — Text-battle (replaced by Resonance) and Skill-Gen-Agent (absorbed into the skill stack). Three candidates stay for good reasons: 2ndB-proto-rev2 (live reference for the ongoing UI work), Pixy (the pixel-art tool's canonical home), Story-Skill (unique function).</div>
       <div class="expert ko"><b class="why">목적:</b> 기능 중복 리포만 Legacy- 컨벤션 적용(rename=리다이렉트 유지, 삭제는 Simon 최종). <b class="why">판정 근거:</b> Legacy-Text-battle(Resonance="LLM Text Battle" 완전 대체) · Legacy-Skill-Gen-Agent(스택 skill-gen-agent 스킬로 흡수). 유지 — 2ndB-proto-rev2: 07-01에도 push된 rev2 파리티 활성 레퍼런스(마이그레이션 완료 후 Legacy 후보) · Pixy: repo-클론 패턴의 정본 upstream(1홈 위반 아님) · Story-Skill: 스택 미흡수·고유 기능(게임트랙 Q3). 허브 내부 Legacy-도 별도 수행(EMERGENCY_ANDROID·루트 inbox·AG QA 잔해 83파일·sync 프롬프트 3종·Output 구리포트 9종·ORDERS_REMOTE).</div>
@@ -134,7 +134,7 @@
       <text x="335" y="20" fill="var(--muted)" font-size="11" text-anchor="middle"><tspan class="ko">전 → 후</tspan><tspan class="en">before → after</tspan></text>
       <text x="565" y="20" fill="var(--muted)" font-size="11" text-anchor="middle">06-13 → 07-03</text>
     </svg>
-    <details><summary></summary><div class="detail">
+    <details><summary><span class="ko">자세히 ▸</span><span class="en">Details ▸</span></summary><div class="detail">
       <div class="easy ko">막대가 말하는 것: 밀린 오더와 가짜 경고는 <b>0 근처로</b>, 테스트는 3주 만에 <b>2배 가까이 늘었는데 전부 통과</b>. 그 외 — 백업 공백 13일 → 0(동기화 확인), 원격 채널 무소비 12일 → 감시망이 30분 안에 알림, 허브 셀프테스트 20개 전부 통과.</div>
       <div class="easy en">What the bars say: stale orders and false warnings are <b>near zero</b>, tests nearly <b>doubled in 3 weeks with everything passing</b>. Also — backup gap 13 days → 0 (sync verified), remote channel 12 dead days → watchdog now alerts within 30 minutes, all 20 hub self-tests pass.</div>
       <div class="expert ko">hub-health 20 PASS/1 WARN(신규분 9건)/0 FAIL · master==origin(comm-hub) 검증 <code>git ls-remote</code> 일치 · orders-poll: openIds=∅, done 0–31, heartbeat 기록 · AG cycle exit 0(winpty) · verify exit 0 별도 확인(293/2198) · 데몬 2레인 재기동 후 정상 사이클. WARN 9건 = 06-15 계약 이후 malformed frontmatter — 각 좌석 다음 사이클 교정 대상.</div>

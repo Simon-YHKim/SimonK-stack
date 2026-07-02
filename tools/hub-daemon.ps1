@@ -127,24 +127,35 @@ $PrimaryReprobeAfter = 6   # ~1h at the default 10min interval
 
 # Count OPEN request orders addressed to this AI (lightweight frontmatter scan). Used to decide
 # whether a drain (extra task this cycle) is warranted -- no open orders => no busywork.
+# REF-AWARE (2026-07-03 4ai roundtrip test): an already-ANSWERED request is not open work.
+# Single-writer means the recipient cannot flip the sender's `status:` field, so the raw
+# status-only count kept re-triggering drain on answered orders (codex re-poll observed live,
+# and the June stale-89 pile was the chronic form). A request counts as open only if NO
+# response message references its id (or filename) in `ref:`.
 function Count-OpenOrders([string]$ai){
-  $n = 0
+  $answered = New-Object 'System.Collections.Generic.HashSet[string]'
+  $opens = @()
   Get-ChildItem (Join-Path $root "agents") -Directory -ErrorAction SilentlyContinue | ForEach-Object {
     $obx = Join-Path $_.FullName "outbox"
     if(Test-Path $obx){
       Get-ChildItem $obx -Filter *.md -File -ErrorAction SilentlyContinue | ForEach-Object {
-        $h = Get-Content $_.FullName -Encoding UTF8 -TotalCount 12
-        $to=""; $ty=""; $stt=""
+        $h = Get-Content $_.FullName -Encoding UTF8 -TotalCount 14
+        $to=""; $ty=""; $stt=""; $id=""; $ref=""
         foreach($l in $h){
           if($l -match '^to:\s*"?(.*?)"?\s*$'){ $to=$matches[1] }
           elseif($l -match '^type:\s*"?(.*?)"?\s*$'){ $ty=$matches[1] }
           elseif($l -match '^status:\s*"?(.*?)"?\s*$'){ $stt=$matches[1] }
+          elseif($l -match '^id:\s*"?(.*?)"?\s*$'){ $id=$matches[1].Trim() }
+          elseif($l -match '^ref:\s*"?(.*?)"?\s*$'){ $ref=$matches[1].Trim() }
         }
-        if(($to -eq $ai -or $to -eq 'all') -and $ty -eq 'request' -and $stt -eq 'open'){ $n++ }
+        if($ty -eq 'response' -and $ref){ [void]$answered.Add($ref) }
+        if(($to -eq $ai -or $to -eq 'all') -and $ty -eq 'request' -and $stt -eq 'open'){
+          $opens += [pscustomobject]@{ Id=$id; File=$_.BaseName }
+        }
       }
     }
   }
-  return $n
+  return @($opens | Where-Object { -not (($_.Id -and $answered.Contains($_.Id)) -or $answered.Contains($_.File)) }).Count
 }
 
 # Reroute on backoff (audit 2026-06-17): when an AI is PARKED (quota or hard-fail backoff) yet has
@@ -224,7 +235,14 @@ function Invoke-AI([string]$ai,[string]$tier='primary'){
     switch($ai){
       'codex'       { $o = ("" | codex exec -s danger-full-access --skip-git-repo-check -C $root -m $model -c "model_reasoning_effort=$eff" $prompt) 2>&1 | Out-String }
       'grok'        { $env:GROK_MODEL = $model; $env:GROK_REASONING_EFFORT = $eff; $o = (grok -m $model -p $prompt) 2>&1 | Out-String }
-      'antigravity' { $env:AGY_CWD = $root; $env:AGY_MODEL = $agyModel; $env:AGY_USE_CONPTY = '0'; $o = (node $agyHeadless $prompt) 2>&1 | Out-String }
+      'antigravity' {
+        $env:AGY_CWD = $root; $env:AGY_MODEL = $agyModel; $env:AGY_USE_CONPTY = '0'
+        # Real tasks take minutes: the wrapper's old 90s per-attempt kill murdered agy
+        # MID-TASK, the retry re-ran the task (duplicate outputs), then AGY_EMPTY exit 1
+        # (2026-07-03 4ai roundtrip test). 15min/attempt x2 tries fits PerAITimeoutSec.
+        $env:AGY_TIMEOUT_MS = '900000'; $env:AGY_TRIES = '2'
+        $o = (node $agyHeadless $prompt) 2>&1 | Out-String
+      }
     }
     # $LASTEXITCODE can be $null if the CLI never launched (spawn failure) -- report -1,
     # not a silent success (a null coerced to 0 made dead lanes look healthy).

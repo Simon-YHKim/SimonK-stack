@@ -15,9 +15,13 @@
 //   env AGY_BIN         full path to agy.exe (else resolved via `where agy`)
 //   env AGY_MODEL       optional model id passed as --model
 //   env AGY_CWD         working dir (default: process.cwd())
-//   env AGY_TIMEOUT_MS  per-attempt hard kill (default 180000)
+//   env AGY_TIMEOUT_MS  per-attempt hard kill (default 300000 = 5min; raised 2026-07-03 --
+//                       the old 90s killed agy MID-TASK on any real work, then the retry
+//                       re-ran the same task producing duplicate side-effect files, then
+//                       AGY_EMPTY exit 1. The hub daemon injects 900000.)
 //   env AGY_SETTLE_MS   idle time after last output before reading (default 2500)
-//   env AGY_TRIES       max attempts on empty answer (default 3)
+//   env AGY_TRIES       max attempts on empty answer (default 3; daemon injects 2 --
+//                       retries re-run REAL WORK, so side-effect duplication must be bounded)
 //   env AGY_RAW_DUMP    if set, write last raw PTY capture to this file (debug)
 
 const fs = require('fs');
@@ -37,7 +41,7 @@ if (!prompt) {
   process.exit(2);
 }
 
-const TIMEOUT_MS = parseInt(process.env.AGY_TIMEOUT_MS || '90000', 10);
+const TIMEOUT_MS = parseInt(process.env.AGY_TIMEOUT_MS || '300000', 10);
 const MAX_TRIES = parseInt(process.env.AGY_TRIES || '3', 10);
 const cwd = process.env.AGY_CWD || process.cwd();
 

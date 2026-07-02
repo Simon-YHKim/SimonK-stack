@@ -1,0 +1,133 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>4-AI 체제 라운드트립 테스트 — 완료 보고 / 4-AI Round-trip Test — Completion Report</title>
+<style>
+  :root{--bg:#0f1117;--card:#171a23;--text:#e7e9ee;--muted:#9aa3b2;--accent:#5b8cff;--ok:#3ecf8e;--warn:#e0a23c;--line:#262a36}
+  @media(prefers-color-scheme:light){:root{--bg:#f7f8fb;--card:#fff;--text:#1b1f2a;--muted:#5b6470;--line:#e6e9f0}}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 Pretendard,system-ui,-apple-system,"Segoe UI",sans-serif}
+  .wrap{max-width:920px;margin:0 auto;padding:20px}
+  h1{font-size:22px;margin:0 0 4px}h2{font-size:14px;margin:26px 0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .meta{color:var(--muted);font-size:14px}.time{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:600}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin:12px 0}
+  .bar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 0;margin-bottom:8px;display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+  .grp{display:flex;gap:6px;align-items:center}.grp>.lbl{font-size:12px;color:var(--muted)}
+  .bar button{cursor:pointer;padding:5px 12px;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:999px;font:600 13px/1 inherit}
+  .bar button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+  .item{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.item .name{font-weight:600}.item .art{color:var(--muted);font-size:13px;margin-left:auto;font-variant-numeric:tabular-nums}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600}
+  .b-ok{background:rgba(62,207,142,.15);color:var(--ok)}.b-part{background:rgba(224,162,60,.15);color:var(--warn)}.b-wait{background:rgba(154,163,178,.15);color:var(--muted)}
+  details{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
+  details>summary{cursor:pointer;list-style:none;display:inline-block;padding:4px 12px;border:1px solid var(--line);border-radius:999px;font-size:13px;font-weight:600;color:var(--accent);user-select:none}
+  details>summary::-webkit-details-marker{display:none}
+  details>summary:hover{border-color:var(--accent)}
+  .detail{margin-top:10px;font-size:14px}.detail b.why{color:var(--accent)}
+  table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-weight:600}
+  .tblwrap{overflow-x:auto}
+  code{font-family:Consolas,monospace;font-size:12.5px;background:rgba(128,140,160,.12);padding:1px 5px;border-radius:4px}
+  ul{margin:6px 0;padding-left:18px}
+  .foot{color:var(--muted);font-size:12px;margin-top:28px;border-top:1px solid var(--line);padding-top:12px}
+  body:not(.lang-en) .en{display:none}body.lang-en .ko{display:none}
+  body:not(.mode-expert) .expert{display:none}body.mode-expert .easy{display:none}
+</style></head>
+<body class="lang-ko mode-easy"><div class="wrap">
+
+  <div class="bar">
+    <div class="grp" role="group" aria-label="언어 선택 / Language"><span class="lbl ko">언어</span><span class="lbl en">Language</span>
+      <button data-lang="ko" aria-pressed="true" onclick="setLang('ko')">한국어</button>
+      <button data-lang="en" aria-pressed="false" onclick="setLang('en')">English</button></div>
+    <div class="grp" role="group" aria-label="설명 수준 / Explanation mode"><span class="lbl ko">설명</span><span class="lbl en">Mode</span>
+      <button data-mode="easy" aria-pressed="true" onclick="setMode('easy')"><span class="ko">쉬운 설명</span><span class="en">Simple</span></button>
+      <button data-mode="expert" aria-pressed="false" onclick="setMode('expert')"><span class="ko">전문가</span><span class="en">Expert</span></button></div>
+  </div>
+
+  <h1><span class="ko">4-AI 체제 라운드트립 테스트</span><span class="en">4-AI Round-trip System Test</span></h1>
+  <div class="meta">comm-hub · <span class="ko">완료</span><span class="en">Completed</span> <span class="time">2026-07-03 05:15 KST</span> · <span class="ko">발주 04:57:19 → 3/3 응답 수집 05:03:27</span><span class="en">dispatched 04:57:19 → 3/3 responses by 05:03:27</span></div>
+  <div class="card">
+    <span class="ko"><b>한눈 요약</b> — 세 좌석(Codex·Grok·Antigravity)에 실작업을 정식 프로토콜로 발주해 전 구간(가시성→픽업→수행→응답→커밋)을 검증했다. <b>3/3 응답 수집, 내용 품질은 전원 실사용급</b>(AG가 진짜 문서 모순 2건, Codex가 진짜 접근성 결함 2건 발견). 문제는 <b>6건 발견, 그중 4건 즉시 수정</b> — 특히 AG를 몰래 죽여온 90초 타임아웃(P1)과, 끝난 오더를 계속 다시 여는 카운터 결함(P1)이 라이브로 재현·수리됐다.</span>
+    <span class="en"><b>At a glance</b> — Real tasks were dispatched to all three seats (Codex·Grok·Antigravity) through the formal protocol, exercising the full path (visibility→pickup→work→response→commit). <b>3/3 responses collected, all production-grade</b> (AG found 2 real doc contradictions, Codex 2 real accessibility defects). <b>6 problems found, 4 fixed on the spot</b> — notably the 90-second timeout silently killing AG mid-task (P1) and the counter defect that kept reopening finished orders (P1), both reproduced live and repaired.</span>
+  </div>
+
+  <h2><span class="ko">스코어카드</span><span class="en">Scorecard</span></h2>
+  <div class="card"><div class="tblwrap">
+    <table>
+      <tr><th><span class="ko">항목</span><span class="en">Check</span></th><th>Codex</th><th>Grok</th><th>Antigravity</th></tr>
+      <tr><td><span class="ko">오더 가시성 (board.ps1)</span><span class="en">Order visibility</span></td><td><span class="badge b-ok">PASS</span></td><td><span class="badge b-ok">PASS</span></td><td><span class="badge b-ok">PASS</span></td></tr>
+      <tr><td><span class="ko">왕복 시간 (발주→응답)</span><span class="en">Round-trip (dispatch→response)</span></td><td class="num">6m 14s</td><td class="num"><b>1m 27s</b></td><td class="num">4m 52s</td></tr>
+      <tr><td><span class="ko">frontmatter 계약</span><span class="en">Frontmatter contract</span></td><td><span class="badge b-ok">PASS</span></td><td><span class="badge b-ok">PASS</span></td><td><span class="badge b-part"><span class="ko">부분</span><span class="en">partial</span></span> <span class="ko">created·project 누락</span><span class="en">missing created·project</span></td></tr>
+      <tr><td><span class="ko">정체성 커밋 (자기 이름)</span><span class="en">Identity commit</span></td><td><span class="badge b-ok">PASS</span> ba8f9809</td><td><span class="badge b-ok">PASS</span> 06be7186</td><td><span class="badge b-part">FAIL→<span class="ko">회수</span><span class="en">salvaged</span></span></td></tr>
+      <tr><td><span class="ko">모델·effort 주입</span><span class="en">Model/effort injection</span></td><td><span class="badge b-ok">PASS</span> <span class="ko">배너 medium 실증</span><span class="en">banner proves medium</span></td><td><span class="badge b-ok">PASS</span> grok-build</td><td><span class="badge b-ok">PASS</span> 3.1 Pro (High)</td></tr>
+      <tr><td><span class="ko">내용 품질</span><span class="en">Output quality</span></td><td><span class="badge b-ok"><span class="ko">실발견 2</span><span class="en">2 real finds</span></span></td><td><span class="badge b-ok"><span class="ko">실링크·정직</span><span class="en">real links, honest</span></span></td><td><span class="badge b-ok"><span class="ko">진짜 모순 2</span><span class="en">2 real contradictions</span></span></td></tr>
+      <tr><td><span class="ko">지시 준수 (분량 등)</span><span class="en">Instruction compliance</span></td><td><span class="badge b-ok">PASS</span></td><td><span class="badge b-part"><span class="ko">분량 위반</span><span class="en">length violated</span></span> 10→48<span class="ko">줄</span><span class="en">ln</span></td><td><span class="badge b-ok">PASS</span></td></tr>
+      <tr><td>single-writer</td><td><span class="badge b-ok">PASS</span></td><td><span class="badge b-ok">PASS</span></td><td><span class="badge b-ok">PASS</span></td></tr>
+    </table>
+  </div>
+  <svg viewBox="0 0 720 120" width="100%" role="img" aria-label="Round-trip latency: grok 87 seconds, antigravity 292 seconds, codex 374 seconds" style="margin-top:10px">
+    <line x1="90" y1="20" x2="90" y2="100" stroke="var(--line)"/>
+    <text x="82" y="38" fill="var(--muted)" font-size="12" text-anchor="end">Grok</text>
+    <rect x="92" y="28" width="130" height="14" rx="3" fill="var(--ok)"/><text x="230" y="39" fill="var(--text)" font-size="12">1m27s</text>
+    <text x="82" y="66" fill="var(--muted)" font-size="12" text-anchor="end">AG</text>
+    <rect x="92" y="56" width="437" height="14" rx="3" fill="var(--accent)"/><text x="537" y="67" fill="var(--text)" font-size="12">4m52s</text>
+    <text x="82" y="94" fill="var(--muted)" font-size="12" text-anchor="end">Codex</text>
+    <rect x="92" y="84" width="560" height="14" rx="3" fill="var(--muted)"/><text x="600" y="112" fill="var(--muted)" font-size="11" text-anchor="middle"><tspan class="ko">6m14s (10분 사이클 정렬 지연 포함)</tspan><tspan class="en">6m14s (incl. 10-min cycle alignment)</tspan></text>
+  </svg></div>
+
+  <h2><span class="ko">발견 문제 → 조치</span><span class="en">Problems found → Actions</span></h2>
+
+  <div class="card">
+    <div class="item"><span class="name"><span class="ko">P1 ×2 — 라이브 재현 후 즉시 수리</span><span class="en">P1 ×2 — reproduced live, fixed on the spot</span></span><span class="badge b-ok"><span class="ko">수정됨</span><span class="en">Fixed</span></span><span class="art">agy-headless.js · hub-daemon.ps1</span></div>
+    <details><summary><span class="ko">자세히 ▸</span><span class="en">Details ▸</span></summary><div class="detail">
+      <div class="easy ko"><b class="why">목적·이유:</b> 테스트의 진짜 목적이 이것 — 평소엔 안 보이던 결함을 실작업으로 끌어내는 것. ① <b>AG 조기 사망</b>: AG를 감싸는 래퍼가 "90초 안에 답 없으면 죽인다"로 설정돼 있어서, 몇 분 걸리는 진짜 일을 시키면 <b>일하는 중에 죽이고, 재시도로 같은 일을 또 시키고, 결국 실패 처리</b>했다. 그동안 AG가 "할 일 없음" 같은 짧은 답만 성공했던 이유다. 90초→5분(허브에선 15분)으로 올리고 재기동. ② <b>끝난 오더 다시 열기</b>: 규칙상 답변자는 원본 요청의 상태를 못 바꾸는데, 카운터가 상태만 보고 "아직 열려있네?"라며 <b>이미 답변된 오더에 AI를 또 투입</b>했다(과금 낭비). 답변 존재 여부를 확인하도록 고쳤다.</div>
+      <div class="easy en"><b class="why">Purpose &amp; reason:</b> This is what the test was for — flushing out defects invisible in idle operation. ① <b>AG premature death</b>: AG's wrapper killed it after 90 seconds, so any real multi-minute task got <b>killed mid-work, retried (duplicating the work), then marked failed</b> — which is why only AG's short "nothing to do" replies ever succeeded. Raised to 5 min (15 min in the hub) and restarted. ② <b>Reopening finished orders</b>: responders can't flip the sender's status field, and the counter only looked at status — so it <b>kept re-dispatching AIs onto already-answered orders</b> (wasted quota). It now checks whether a response exists.</div>
+      <div class="expert ko"><b class="why">상세:</b> ① <code>AGY_TIMEOUT_MS</code> 기본 90000(주석은 180000으로 코드와 불일치) → attempt당 하드킬 → 재시도 부수효과 중복(preview 2개 증거) → AGY_EMPTY exit 1. 기본 300000 + 데몬 주입 900000·TRIES=2(PerAITimeoutSec 1200s 이내). ② <code>Count-OpenOrders</code>가 status-only(ref-blind) → codex task 2/2 재스폰 라이브 관찰. ref-인지형 재작성(response의 ref가 가리키는 id/파일명 제외) — 6월 stale-89 만성화와 같은 뿌리, TTL(만성)+ref-인지(급성) 이중 방어 완성. INCIDENTS 07-03 2건 원장 기록.</div>
+      <div class="expert en"><b class="why">Detail:</b> ① <code>AGY_TIMEOUT_MS</code> defaulted to 90000 (comment claimed 180000) → per-attempt hard kill → retry duplicated side-effects (2 preview files as evidence) → AGY_EMPTY exit 1. Now 300000 default + daemon injects 900000 with TRIES=2 (within PerAITimeoutSec 1200s). ② <code>Count-OpenOrders</code> was status-only (ref-blind) → codex task 2/2 re-spawn observed live. Rewritten ref-aware (excludes requests whose id/filename a response refs) — same root as June's stale-89; TTL (chronic) + ref-aware (acute) now form the double defense. Both ledgered in INCIDENTS 07-03.</div>
+    </div></details>
+  </div>
+
+  <div class="card">
+    <div class="item"><span class="name"><span class="ko">P2 ×3 — 룰 모호·계약 위반·자기인지 오류</span><span class="en">P2 ×3 — rule ambiguity, contract slips, self-perception errors</span></span><span class="badge b-part"><span class="ko">1 수정·2 관찰</span><span class="en">1 fixed · 2 tracked</span></span><span class="art">ROUTING-MOA §3</span></div>
+    <details><summary><span class="ko">자세히 ▸</span><span class="en">Details ▸</span></summary><div class="detail">
+      <div class="easy ko"><b class="why">목적·이유:</b> ① Grok이 "실시간 사실"이라는 고위험 산출물을 내고도 "그 분야 검증 담당이 나니까 검증 생략"이라고 스스로 판정했다 — 규칙의 빈틈. <b>"자기가 만든 건 자기가 검증 못 한다"를 명문화</b>했다(이 경우 Claude에게 넘김). ② AI들의 "나 이런 설정으로 돌고 있어요" 자기보고가 2/3 틀렸다(Codex는 medium인데 high라고, Grok은 build인데 4.3이라고). 다행히 실제 설정은 시작 배너로 실증해 정상 확인 — <b>교훈: 자기보고 말고 배너/로그를 믿는다</b>. ③ AG 응답에 필수 머리말 2개 누락 — 다음 사이클 교정 대상으로 추적.</div>
+      <div class="easy en"><b class="why">Purpose &amp; reason:</b> ① Grok produced high-risk output (live facts) and self-ruled "I'm the verifier for this domain, skip verification" — a rule gap. Now codified: <b>you can't verify your own output</b> (it escalates to Claude). ② Two of three self-reports about their own settings were wrong (Codex claimed high while running medium; Grok claimed 4.3 while spawned as build). The actual injection was proven correct via the startup banner — <b>lesson: trust banners/logs, not self-reports</b>. ③ AG's response missed 2 required header fields — tracked for next-cycle correction.</div>
+      <div class="expert ko"><b class="why">상세:</b> ① ROUTING-MOA §3에 "작성자=도메인 verifier → Claude로 verify 발행, 검증 불가면 낮은-신뢰 표기 소비" 명문화. Grok live-fact는 타 좌석이 검증 수단이 없다는 구조적 한계도 기록(X 접근이 Grok 독점). ② codex 배너 <code>reasoning effort: medium</code> 직접 캡처로 Simon 핀 적용 실증 — premium pool 우려 해소. self-report 불일치는 관찰 기록. ③ AG 누락 키 = created/project — hub-health post-contract WARN 9건과 같은 계열, 데몬 프롬프트의 계약 문구는 존재하므로 준수율 이슈.</div>
+      <div class="expert en"><b class="why">Detail:</b> ① ROUTING-MOA §3 now states: author==domain-verifier → file verify to Claude; if unverifiable, consume with an explicit low-confidence tag. Also recorded the structural limit: no other seat can verify Grok's live-X claims (X access is Grok-exclusive). ② Direct banner capture <code>reasoning effort: medium</code> proves Simon's pin applies — premium-pool worry resolved; self-report mismatches logged. ③ AG's missing keys = created/project — same class as hub-health's 9 post-contract WARNs; the daemon prompt already states the contract, so it's a compliance issue.</div>
+    </div></details>
+  </div>
+
+  <div class="card">
+    <div class="item"><span class="name"><span class="ko">수확 — 테스트 산출물이 실제로 유용했다</span><span class="en">Harvest — the test outputs were genuinely useful</span></span><span class="badge b-ok"><span class="ko">반영됨</span><span class="en">Applied</span></span><span class="art">PROTOCOL·MODELS·v2 report</span></div>
+    <details><summary><span class="ko">자세히 ▸</span><span class="en">Details ▸</span></summary><div class="detail">
+      <div class="easy ko"><b class="why">목적·이유:</b> 더미 과제가 아니라 실작업을 시킨 보람 — 결과물이 전부 실사용됐다. AG가 찾은 문서 모순 2건(규칙서의 "직접 푸시" 표현이 다른 조항과 충돌 / 모델 문서의 금지-추천 자기모순)을 바로 고쳤고, Codex가 찾은 접근성 결함 2건(스크린리더가 못 읽는 버튼 라벨)을 v2 보고서에 반영했고, Grok의 시장 신호("캡처가 귀찮으면 세컨드브레인은 실패한다", 로컬 소유 선호)는 2nd-B 방향성과 일치하는 실링크 근거였다.</div>
+      <div class="easy en"><b class="why">Purpose &amp; reason:</b> Assigning real work paid off — every output got used. AG's 2 doc contradictions (a "push directly" phrase clashing with another clause / a ban-vs-recommend self-contradiction in the model doc) were fixed; Codex's 2 accessibility defects (labels screen readers can't read) were applied to the v2 report; Grok's market signals ("second brain fails if capture has friction", local-ownership preference) came with real links and match 2nd-B's direction.</div>
+      <div class="expert ko"><b class="why">상세:</b> AG: PROTOCOL §0 "직접 코딩·푸시"→"직접 코딩·로컬 커밋"(§10.5 정합) + MODELS.md 3.5-flash 모순 줄 폐기·교정 — long-context 감사관 듀티(§1.5) 실증. Codex: 빈 <code>&lt;summary&gt;</code>+::before 라벨(스크린리더 미독) → 실텍스트 치환, 토글 그룹 role/aria-label — v2 리포트 커밋. Grok: KR/EN 신호 3건+실링크, friction-aware 평가 — T1(humble local/ownership) 신호와 정합, advisory로 보관.</div>
+      <div class="expert en"><b class="why">Detail:</b> AG: PROTOCOL §0 "code &amp; push directly"→"code &amp; commit locally" (aligns with §10.5) + retired the contradictory 3.5-flash line in MODELS.md — validating the §1.5 long-context auditor duty. Codex: empty <code>&lt;summary&gt;</code> + ::before labels (unread by screen readers) → real text, plus role/aria-label on toggle groups — committed to the v2 report. Grok: 3 KR/EN signals with real links, friction-aware assessment — consistent with the T1 (humble-local/ownership) thesis; kept as advisory.</div>
+    </div></details>
+  </div>
+
+  <h2><span class="ko">다음 단계</span><span class="en">Next</span></h2>
+  <div class="card"><div class="detail">
+    <div class="ko"><ul>
+      <li>AG 재기동 후 다음 실작업 사이클에서 <b>커밋까지 완주</b>하는지 확인(래퍼 타임아웃 픽스의 실증) — watchdog이 자동 감시 중.</li>
+      <li>frontmatter 준수율: AG·grok의 다음 응답에서 계약 키 완전 준수 확인(hub-health WARN 추이로 측정).</li>
+      <li>Grok live-fact의 외부 검증 불가능성 — X 접근이 Grok 독점이라 구조적. 소비 시 "낮은-신뢰 advisory" 태그 유지.</li>
+      <li>Codex 왕복의 절반이 사이클 정렬 대기(10분 케이던스) — 급한 오더는 <code>-Only codex -MaxCycles 1</code> 원샷 스폰이 정답(Grok 87초가 증명).</li>
+    </ul></div>
+    <div class="en"><ul>
+      <li>Confirm AG completes commit on its next real-work cycle (proof of the wrapper-timeout fix) — watchdog is monitoring.</li>
+      <li>Frontmatter compliance: verify AG/Grok fully honor the contract next response (tracked via hub-health WARN trend).</li>
+      <li>Grok live facts remain externally unverifiable (X access is Grok-exclusive) — keep the low-confidence advisory tag on consumption.</li>
+      <li>Half of Codex's round-trip was cycle-alignment wait (10-min cadence) — for urgent orders, one-shot <code>-Only codex -MaxCycles 1</code> is the answer (Grok's 87s proves it).</li>
+    </ul></div>
+  </div></div>
+
+  <div class="foot">
+    <span class="ko">생성 <span class="time">2026-07-03 05:15 KST</span> · SimonK completion-report 표준 · 테스트 원문: agents/claude/outbox/20260703-045612-* (3건, closed) · 응답: codex ba8f9809 · grok 06be7186 · AG(회수)</span>
+    <span class="en">Generated <span class="time">2026-07-03 05:15 KST</span> · SimonK completion-report standard · orders: agents/claude/outbox/20260703-045612-* (3, closed) · responses: codex ba8f9809 · grok 06be7186 · AG (salvaged)</span><br>
+    [4-AI 라운드트립 테스트 — 3/3 수집·문제 6건·수정 4건 / 26.07.03 / 05:15] #ai-hub #4ai-test #roundtrip #moa
+  </div>
+</div>
+<script>
+  function mark(g,v){document.querySelectorAll('[data-'+g+']').forEach(function(x){x.setAttribute('aria-pressed',String(x.getAttribute('data-'+g)===v));});}
+  function setLang(l){var b=document.body;b.classList.toggle('lang-en',l==='en');b.classList.toggle('lang-ko',l==='ko');mark('lang',l);}
+  function setMode(m){var b=document.body;b.classList.toggle('mode-expert',m==='expert');b.classList.toggle('mode-easy',m==='easy');mark('mode',m);}
+</script>
+</body></html>

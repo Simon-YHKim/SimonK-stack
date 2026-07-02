@@ -56,7 +56,7 @@
 - Gemini 3.1 Pro(2026-02-19) = Google 종합 1위(SWE-bench Verified 80.6%, ARC-AGI-2 77.1%, 16개 중 13개 벤치 선두). **thinkingLevel HIGH가 최대이자 3.1 Pro 기본값**.
 - **주의**: Gemini CLI는 **2026-06-18 폐기 → agy(Antigravity CLI)로 이관**. agy 모델 라벨 `"Gemini 3.1 Pro (High)"`의 `(High)`가 최대 thinking(agy 기본은 `Gemini 3.5 Flash (High)`이라 override 필요).
 - **데몬 헤드리스 수정 (2026-06-17)**: `agy -p`/`gemini -p`는 stdout 리다이렉트 시 ~0바이트만 뱉어 **AG 좌석이 조용히 no-op**(exit 0·빈 transcript·STATUS 수시간 stale)됐다. hub-daemon.ps1 AG 레인을 **ConPTY 래퍼 `tools/agy-pty/agy-headless.js`로 교체**(node + node-pty 필요, `npm install` 1회). 인-윈도우 agy(실제 터미널)는 정상이므로 데몬 대신 인-윈도우로 돌려도 됨.
-- Gemini 3.5 Flash가 일부 에이전트-코딩 벤치에서 3.1 Pro를 더 낮은 비용에 상회(방어가능한 대안).
+- (교정 2026-07-03 — AG 감사가 자기모순 발견) 구버전의 "Gemini 3.5 Flash 벤치 우위(방어가능 대안)" 문장은 **폴백 표의 '3.5-flash = 404 미존재·금지'와 모순**이라 폐기. 이 CLI에서 실검증된 저비용 대안은 `gemini-2.5-flash`뿐.
 
 ---
 
