@@ -4,13 +4,13 @@ to: claude
 type: selffeedback
 priority: high
 status: open
-id: 20260618-001836-selffeedback-control-paused
-created: 2026-06-18 00:18:36 KST
+id: 20260702-032835-selffeedback-control-paused
+created: 2026-07-02 03:28:35 KST
 ---
 
 # [self-feedback] Hub CONTROL is paused
 
-[2026-06-18 00:18:36 KST] The hub detected this on its own (no user paste needed).
+[2026-07-02 03:28:35 KST] The hub detected this on its own (no user paste needed).
 
 - **Issue**: CONTROL.md state=paused -- daemons will skip work cycles.
 - **Suggested action**: If unintended, set CONTROL state=running. If intended (migration/maintenance), ignore.

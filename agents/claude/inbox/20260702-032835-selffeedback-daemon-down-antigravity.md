@@ -4,13 +4,13 @@ to: claude
 type: selffeedback
 priority: high
 status: open
-id: 20260618-001836-selffeedback-daemon-down-antigravity
-created: 2026-06-18 00:18:36 KST
+id: 20260702-032835-selffeedback-daemon-down-antigravity
+created: 2026-07-02 03:28:35 KST
 ---
 
 # [self-feedback] Daemon 'antigravity' is not running
 
-[2026-06-18 00:18:36 KST] The hub detected this on its own (no user paste needed).
+[2026-07-02 03:28:35 KST] The hub detected this on its own (no user paste needed).
 
 - **Issue**: No hub-daemon.ps1 -Only antigravity process alive (auto-restart skipped: hub paused or -NoAutoRestart).
 - **Suggested action**: If intended, ignore. Else set CONTROL state=running, or relaunch via HUB-STARTUP.html.
