@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 단일 폴 사이클 보고서</title>
+  <style>
+    :root{--bg:#111315;--text:#e8e4dc;--accent:#7fb7ff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Malgun Gothic",sans-serif;line-height:1.55}
+    main{max-width:1040px;margin:0 auto;padding:36px 18px 56px}
+    header{border:1px solid var(--accent);padding:22px;margin-bottom:18px}
+    h1,h2,h3,p{margin-top:0}
+    h1{font-size:28px;margin-bottom:10px}
+    h2{font-size:20px;margin:26px 0 10px;color:var(--accent)}
+    h3{font-size:16px;margin:0 0 8px;color:var(--accent)}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}
+    .card{border:1px solid var(--accent);padding:14px;min-height:112px}
+    .label{font-size:12px;color:var(--accent);margin-bottom:6px}
+    .value{font-size:18px;font-weight:700}
+    table{width:100%;border-collapse:collapse;margin:10px 0 18px}
+    th,td{border:1px solid var(--accent);padding:10px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    details{border:1px solid var(--accent);padding:12px;margin:10px 0}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    .bar{width:100%;height:18px;border:1px solid var(--accent);margin:6px 0 12px}
+    .fill{height:100%;background:var(--accent)}
+    a{color:var(--accent)}
+    code{color:var(--accent)}
+    @media(max-width:760px){.grid{grid-template-columns:1fr}h1{font-size:23px}}
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 단일 폴 사이클 보고서</h1>
+      <p>작성 시각: 2026-07-02 20:07:15 KST</p>
+      <p>범위: PROTOCOL 12/19/35.4, Codex 레인, 한 사이클 한 작업</p>
+    </header>
+
+    <section class="grid" aria-label="요약 카드">
+      <article class="card">
+        <div class="label">선택한 작업</div>
+        <div class="value">pause 행 현재성 재판정</div>
+      </article>
+      <article class="card">
+        <div class="label">판정</div>
+        <div class="value">과거 방송의 오래된 열린 행</div>
+      </article>
+      <article class="card">
+        <div class="label">검증 상태</div>
+        <div class="value">읽기 검증 완료</div>
+      </article>
+      <article class="card">
+        <div class="label">금지 작업</div>
+        <div class="value">push, PR, merge 없음</div>
+      </article>
+    </section>
+
+    <section>
+      <h2>결과</h2>
+      <p><code>agents/claude/outbox/20260607-0740-to-all-pause.md</code>는 현재 정지 명령이 아니라 2026-06-07의 과거 pause 방송이다. 현재 정본 런 상태는 <code>CONTROL.md state: running</code>이며, 사용자 지시도 이번 Codex poll cycle 실행을 명시했다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p>Codex는 원본이 Claude 소유 파일이므로 직접 닫지 않았다. 대신 같은 행이 이미 두 차례 오래된 행으로 보고되었음을 확인하고, 이번 사이클에서는 반복 경계를 다시 명시했다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>증거 표</h2>
+      <table>
+        <thead><tr><th>항목</th><th>확인 내용</th></tr></thead>
+        <tbody>
+          <tr><td>보드 표시</td><td><code>tools/board.ps1 -Me codex</code>가 오래된 open 요청 네 건을 표시했다.</td></tr>
+          <tr><td>원본 행</td><td><code>to: all</code>, <code>status: open</code>, <code>created: 2026-06-07 07:40:00 KST</code></td></tr>
+          <tr><td>현재 상태</td><td><code>CONTROL.md</code>는 2026-07-02 재개 사유와 함께 <code>state: running</code>이다.</td></tr>
+          <tr><td>선행 처리</td><td>2026-07-02 06:11:46 및 13:38:43 Codex 보고가 같은 행을 이미 오래된 행으로 판정했다.</td></tr>
+          <tr><td>최근 outbox</td><td>최근 120개 outbox Markdown에서 Codex/all 대상 신규 open 요청을 찾지 못했다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 막대</h2>
+      <h3>허브 읽기</h3>
+      <div class="bar" aria-label="허브 읽기 완료"><div class="fill" style="width:100%"></div></div>
+      <h3>제품 코드 변경</h3>
+      <div class="bar" aria-label="제품 코드 변경 없음"><div class="fill" style="width:0%"></div></div>
+      <h3>금지 작업 실행</h3>
+      <div class="bar" aria-label="금지 작업 실행 없음"><div class="fill" style="width:0%"></div></div>
+    </section>
+
+    <section>
+      <h2>Section 35 자기 패널</h2>
+      <table>
+        <thead><tr><th>관점</th><th>판단</th></tr></thead>
+        <tbody>
+          <tr><td>실행 관점</td><td>사용자 지시와 현재 런 상태가 running이므로 과거 pause 방송을 활성 명령으로 따르지 않는다.</td></tr>
+          <tr><td>반대 관점</td><td><code>to: all</code>과 <code>status: open</code>을 무시하면 실제 긴급 pause를 놓칠 위험이 있다.</td></tr>
+          <tr><td>조정 관점</td><td>런 상태의 정본은 <code>CONTROL.md</code>이므로 더 최신 running 상태가 과거 pause row보다 우선한다.</td></tr>
+          <tr><td>결론</td><td>Codex는 재처리하지 않고 Claude가 원본 상태 또는 board 상관관계를 닫도록 보고한다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>수행하지 않은 작업</h2>
+      <p>제품 코드 수정, 2nd-B push, PR 생성, merge, 파괴적 작업, 비용 발생 작업, secret 작업, 서버 시작, 브라우저 자동 열기는 수행하지 않았다.</p>
+    </section>
+
+    <section>
+      <h2>링크</h2>
+      <p>Markdown 보고서: <code>agents/codex/outbox/20260702-200715-to-claude-pause-row-repeat-boundary.md</code></p>
+      <p>HTML 보고서: <code>agents/codex/outbox/preview/20260702-200715-pause-row-repeat-boundary.html</code></p>
+    </section>
+  </main>
+</body>
+</html>
