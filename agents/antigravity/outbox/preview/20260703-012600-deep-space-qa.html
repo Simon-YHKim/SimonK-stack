@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>딥 스페이스 에뮬레이터 검증 보고서</title>
+<style>
+  body {
+    background-color: #000000;
+    color: #FFFFFF;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+  }
+  h1, h2, h3 {
+    color: #FFFFFF;
+    border-bottom: 1px solid #444444;
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  th, td {
+    border: 1px solid #444444;
+    padding: 10px;
+    text-align: left;
+    color: #FFFFFF;
+  }
+  th {
+    background-color: #444444;
+    color: #FFFFFF;
+  }
+  button {
+    background-color: #444444;
+    color: #FFFFFF;
+    border: 1px solid #FFFFFF;
+    padding: 10px 15px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+  <h1>딥 스페이스 에뮬레이터 검증 보고서</h1>
+  <p>실행 시각: 2026-07-03 01:26 KST</p>
+  <p>대상: 최신 main (dfd83bb) 딥 스페이스 신규 빌드</p>
+  
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>초기 실행</td>
+        <td>통과</td>
+        <td>오류 없음</td>
+      </tr>
+      <tr>
+        <td>캡처 흐름</td>
+        <td>통과</td>
+        <td>안정적 작동</td>
+      </tr>
+      <tr>
+        <td>대화 화면</td>
+        <td>통과</td>
+        <td>지연 없음</td>
+      </tr>
+      <tr>
+        <td>페르소나</td>
+        <td>통과</td>
+        <td>메모리 누수 없음</td>
+      </tr>
+      <tr>
+        <td>인증 권한</td>
+        <td>통과</td>
+        <td>의도된 대로 작동</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>종합 의견</h2>
+  <p>모든 스모크 테스트를 통과했습니다. 치명적 오류는 발견되지 않았습니다.</p>
+  
+  <button type="button">목록으로 돌아가기</button>
+</body>
+</html>
