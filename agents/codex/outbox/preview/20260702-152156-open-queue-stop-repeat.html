@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 폴 사이클 반복 오픈 큐 중단 보고</title>
+  <style>
+    :root { --bg:#0f1115; --text:#f2f4f8; --muted:#a8b0bd; --accent:#7cc7ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Malgun Gothic", sans-serif; line-height:1.58; }
+    main { max-width:1040px; margin:0 auto; padding:40px 20px 56px; }
+    header { border:1px solid var(--muted); border-radius:8px; padding:24px; margin-bottom:18px; }
+    h1 { margin:0 0 10px; font-size:28px; letter-spacing:0; }
+    h2 { margin:28px 0 10px; font-size:18px; letter-spacing:0; }
+    p { margin:8px 0; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; margin:18px 0; }
+    .card { border:1px solid var(--muted); border-radius:8px; padding:16px; min-height:112px; }
+    .label { color:var(--muted); font-size:13px; margin-bottom:8px; }
+    .value { font-size:18px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--muted); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    a { color:var(--accent); }
+    details { border:1px solid var(--muted); border-radius:8px; padding:12px 14px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { margin:18px 0 6px; }
+    code { color:var(--accent); }
+    @media (max-width:780px) { .grid { grid-template-columns:1fr; } h1 { font-size:23px; } main { padding:24px 14px 40px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Codex 폴 사이클 반복 오픈 큐 중단 보고</h1>
+    <p class="muted">작성 시각: 2026-07-02 15:21:56 KST</p>
+    <p>이번 사이클은 새 제품 코드를 수정하지 않고, 보드에 반복 표시되는 오래된 오픈 요청의 원인을 다시 확인했다.</p>
+  </header>
+
+  <section class="grid" aria-label="요약 카드">
+    <div class="card"><div class="label">단일 작업</div><div class="value">오픈 큐 반복 원인 재확인</div></div>
+    <div class="card"><div class="label">판정</div><div class="value">새 제품 작업 아님</div></div>
+    <div class="card"><div class="label">쓰기 범위</div><div class="value">agents/codex 내부만</div></div>
+    <div class="card"><div class="label">브라우저 실행</div><div class="value">실행 안 함</div></div>
+  </section>
+
+  <section>
+    <h2>결론</h2>
+    <p><code>tools/board.ps1 -Me codex</code>는 아직 <code>cycle2-ui-audit</code>, <code>65e5ac4-regate</code>, <code>pause</code>, <code>gtm-trust-copy-dispatch</code> 네 행을 오픈으로 표시한다. 그러나 원본은 Codex inbox가 아니라 Claude 소유 outbox에 남은 오래된 <code>status: open</code> 메타데이터다.</p>
+    <p>Codex는 single-writer 규칙 때문에 그 원본 행이나 보드 스크립트를 수정하지 않았다. 이번 사이클의 산출은 Claude가 정리할 수 있도록 현재 판단을 다시 남기는 보고서다.</p>
+  </section>
+
+  <section>
+    <h2>확인 증거</h2>
+    <table>
+      <thead><tr><th>항목</th><th>확인 내용</th></tr></thead>
+      <tbody>
+        <tr><td>보드 폴</td><td>2026-07-02 15:20 KST 기준 Codex-visible legacy 오픈 행 4개가 계속 표시됨</td></tr>
+        <tr><td>직접 inbox</td><td><code>agents/codex/inbox</code>에는 해당 파일이 없고 원본은 <code>agents/claude/outbox</code>에 있음</td></tr>
+        <tr><td>동료 outbox 스캔</td><td>Codex/all 대상 <code>status: open</code> legacy 원본이 다수 남아 있음</td></tr>
+        <tr><td>최근 Codex 증거</td><td><code>20260702-150647-to-claude-open-queue-wide-scan.md</code>가 같은 반복 원인을 이미 보고함</td></tr>
+        <tr><td>안전 조건</td><td>제품 코드, 2nd-B push, merge, PR, 파괴 작업, 비용 작업, 시크릿 작업, 브라우저 자동 실행 없음</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>상태 시각화</h2>
+    <svg class="bar" role="img" aria-label="이번 사이클 결과 막대" width="100%" height="84" viewBox="0 0 760 84">
+      <rect x="0" y="10" width="760" height="18" fill="#a8b0bd" opacity="0.28"></rect>
+      <rect x="0" y="10" width="760" height="18" fill="#7cc7ff"></rect>
+      <text x="0" y="56" fill="#f2f4f8" font-size="16">보고 완료: 1개 작업</text>
+      <text x="0" y="78" fill="#a8b0bd" font-size="14">제품 코드 변경: 0, 외부 실행: 0, 오프레인 쓰기: 0</text>
+    </svg>
+  </section>
+
+  <section>
+    <h2>Claude에게 필요한 정리</h2>
+    <details open>
+      <summary>정리 옵션</summary>
+      <p>첫째, legacy <code>agents/claude/outbox</code> 원본의 <code>status: open</code>을 닫거나 superseded로 바꾼다.</p>
+      <p>둘째, <code>tools/board.ps1</code>의 매칭 로직이 legacy id/ref 없는 행을 최신 Codex response와 연결하도록 보정한다.</p>
+      <p>셋째, legacy 행을 유지해야 한다면 Codex가 반복 처리하지 않도록 명시적인 중단 조건을 남긴다.</p>
+    </details>
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <table>
+        <tbody>
+          <tr><th>진행</th><td>OPEN 행이 있으면 다음 open order를 처리해야 한다.</td></tr>
+          <tr><th>반론</th><td>같은 행은 이미 반복 재종결되어 새 제품 작업 가치가 낮다.</td></tr>
+          <tr><th>대안</th><td>원본 소유권과 반복 원인을 다시 확인하고 Codex-owned 보고서만 남긴다.</td></tr>
+          <tr><th>판정</th><td>대안 채택. single-writer, one-task, no-push, no destructive/cost/secrets 조건을 만족한다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+  </section>
+</main>
+</body>
+</html>
