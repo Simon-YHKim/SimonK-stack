@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>에뮬레이터 QA 보고서 (0.0.7)</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+  h1, h2 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1E1E1E; }
+  img { max-width: 100%; height: auto; border: 1px solid #333333; }
+  pre { background-color: #1E1E1E; padding: 1rem; overflow-x: auto; }
+</style>
+</head>
+<body>
+  <h1>에뮬레이터 QA 보고서 (버전 0.0.7)</h1>
+  <p>실행 시 즉각적인 충돌 발생으로 인해 요구된 화면 캡처가 불가능했습니다.</p>
+  
+  <h2>테스트 정보</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>내용</th>
+    </tr>
+    <tr>
+      <td>대상 APK</td>
+      <td>KyVG5SVbIIsf_atsmFfJ2bV0bHre34M0HQdCeYKdD4s.apk</td>
+    </tr>
+    <tr>
+      <td>기기 환경</td>
+      <td>Pixel 9 Pro XL 에뮬레이터 (x86_64)</td>
+    </tr>
+  </table>
+
+  <h2>로그 요약</h2>
+  <pre>FATAL EXCEPTION: main
+com.facebook.soloader.B: couldn't find DSO to load: libreactnative.so
+Native lib dir: /data/app/~~.../com.simonk.secondbrain-.../lib/arm64</pre>
+  <p>원인: x86_64 아키텍처용 libreactnative.so 파일이 누락되어 있으며, arm64 라이브러리만 포함되어 있습니다.</p>
+
+  <h2>수집된 화면</h2>
+  <table>
+    <tr>
+      <th>화면 설명</th>
+      <th>캡처 파일명</th>
+    </tr>
+    <tr>
+      <td>앱 충돌 다이얼로그</td>
+      <td>00_crash.png</td>
+    </tr>
+    <tr>
+      <td>런처 (충돌 전/후)</td>
+      <td>01_login.png</td>
+    </tr>
+  </table>
+</body>
+</html>
