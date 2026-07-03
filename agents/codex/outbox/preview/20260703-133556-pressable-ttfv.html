@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서: TTFV Pressable 변환</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e7eef7; --accent:#6fc7ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.6 system-ui,-apple-system,Segoe UI,sans-serif; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 48px; }
+    header { border:1px solid var(--accent); padding:22px; border-radius:8px; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { font-size:24px; line-height:1.25; margin-bottom:10px; }
+    h2 { font-size:17px; margin:28px 0 10px; color:var(--accent); }
+    h3 { font-size:15px; margin:0 0 8px; color:var(--accent); }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:10px; margin-top:16px; }
+    .card { border:1px solid var(--accent); border-radius:8px; padding:14px; min-height:94px; }
+    .label { color:var(--accent); font-size:12px; display:block; margin-bottom:6px; }
+    .value { font-size:18px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--accent); padding:9px 10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border:1px solid var(--accent); border-radius:8px; padding:12px 14px; margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:14px; border:1px solid var(--accent); border-radius:8px; overflow:hidden; margin-top:8px; }
+    .fill { height:100%; width:100%; background:var(--accent); }
+    .muted { opacity:.78; }
+    @media (max-width:720px){ .grid { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>TTFV 화면 Pressable 함수형 스타일 변환 보고서</h1>
+      <p class="muted">이번 사이클은 2nd-B <code>codex/pressable-sweep-g</code> 브랜치에서 TTFV 첫날 자기이해 화면의 버튼 그룹 하나만 처리했다. 허브에는 Codex outbox 산출물만 기록했다.</p>
+      <div class="grid">
+        <section class="card"><span class="label">결과</span><div class="value">완료</div></section>
+        <section class="card"><span class="label">변환 수</span><div class="value">4곳</div></section>
+        <section class="card"><span class="label">검증</span><div class="value">EXIT=0</div></section>
+        <section class="card"><span class="label">커밋</span><div class="value">92500c2b</div></section>
+      </div>
+    </header>
+
+    <h2>변경 요약</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td>대상 파일</td><td><code>src/screens/deepspace/onboarding/TTFVScreen.tsx</code></td><td>수정</td></tr>
+        <tr><td>변환 방식</td><td>버튼 시각 요소는 바깥 <code>View</code>에 두고, <code>Pressable</code>은 고정 스타일 터치 표면과 <code>android_ripple</code>만 담당하도록 분리</td><td>완료</td></tr>
+        <tr><td>범위</td><td>제안 단계 2개 버튼, 승인 후 단계 2개 버튼</td><td>완료</td></tr>
+        <tr><td>보류</td><td>새 보류 없음. 기존 pressed opacity는 Fabric 회피 목적상 ripple 피드백으로 대체</td><td>없음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 상태</h2>
+    <div class="bar" aria-label="검증 통과율"><div class="fill"></div></div>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td><code>git diff --check</code></td><td>통과</td><td>공백 오류 없음</td></tr>
+        <tr><td><code>npm run verify</code></td><td>통과, EXIT=0</td><td>295개 테스트 스위트, 2212개 테스트 통과</td></tr>
+        <tr><td>푸시</td><td>하지 않음</td><td>Claude 머지 게이트 규칙 준수</td></tr>
+      </tbody>
+    </table>
+
+    <h2>세부 내용</h2>
+    <details>
+      <summary>쉬운 설명</summary>
+      <p>일부 버튼은 최신 Android 렌더링 경로에서 눌림 스타일이 제대로 반영되지 않을 수 있다. 그래서 버튼의 겉모습은 안정적인 바깥 상자에 맡기고, 실제 누르는 영역은 단순하게 만들어 터치와 접근성만 담당하게 했다.</p>
+    </details>
+    <details>
+      <summary>전문가 설명</summary>
+      <p><code>Pressable</code>의 함수형 <code>style</code>을 제거하고, 재사용 가능한 <code>ActionButton</code>을 추가했다. 컨테이너 <code>View</code>가 primary 또는 secondary 스타일을 유지하고, 내부 <code>Pressable</code>은 plain style 배열 없이 <code>styles.buttonPressable</code>과 <code>android_ripple</code>만 사용한다.</p>
+    </details>
+    <details>
+      <summary>위험과 롤백</summary>
+      <p>위험은 낮다. 시각 피드백은 opacity 기반 pressed 상태에서 Android ripple로 바뀌었다. 문제가 있으면 커밋 <code>92500c2b</code>만 되돌리면 된다.</p>
+    </details>
+
+    <h2>기록</h2>
+    <table>
+      <tbody>
+        <tr><th>보고 시각</th><td>2026-07-03 13:35:56 KST</td></tr>
+        <tr><th>브랜치</th><td><code>codex/pressable-sweep-g</code></td></tr>
+        <tr><th>로컬 커밋</th><td><code>92500c2b fix: remove function pressable styles in ttfv</code></td></tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>
