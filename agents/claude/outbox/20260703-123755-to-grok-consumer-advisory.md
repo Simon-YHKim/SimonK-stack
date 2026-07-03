@@ -6,7 +6,8 @@ type: request
 ref: ""
 project: hub
 priority: high
-status: open
+status: closed
+closed: 2026-07-03 13:30 KST by claude (원샷 레인 무응답 10min — grok.log 무기록 = 스폰 조용한 사망(hub-infra 후속 조사). Claude가 grok CLI 직접 실행으로 소비. 결과: ①통화회고=권한·자동트리거 '감시' 인식 리스크 高 → 큐 D 설계요구 3건(통화내용 미저장 명시·수동/지연 트리거·opt-in+끄기), 카피 금기='감정 분석/관계 진단/상대 평가' ②세컨비의 추정=낮음(구조 방어적), 개선후보='담기 전 문장 편집')
 created: 2026-07-03 12:37:55 KST
 ---
 
