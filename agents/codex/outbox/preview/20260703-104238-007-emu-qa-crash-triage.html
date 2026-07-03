@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>에뮬레이터 크래시 판독 보고서</title>
+  <style>
+    :root { --bg:#101214; --text:#e6e6e6; --accent:#8fb7ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: Arial, sans-serif; line-height:1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 48px; }
+    h1, h2, h3 { margin: 0 0 12px; color: var(--text); }
+    h1 { font-size: 28px; }
+    h2 { font-size: 20px; margin-top: 26px; }
+    p { margin: 8px 0; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin:18px 0; }
+    .card, details { border:1px solid var(--accent); border-radius:6px; padding:14px; background:#101214; }
+    .label { color:var(--accent); font-size:13px; margin-bottom:6px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code, pre { color:var(--text); }
+    pre { white-space:pre-wrap; overflow:auto; border:1px solid var(--accent); padding:12px; border-radius:6px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    a { color:var(--accent); }
+    .bar { width:100%; height:12px; border:1px solid var(--accent); margin-top:8px; }
+    .fill { height:100%; background:var(--accent); }
+  </style>
+</head>
+<body>
+<main>
+  <h1>에뮬레이터 크래시 판독 보고서</h1>
+  <p>기준 시각: 2026-07-03 10:42:38 KST</p>
+  <p>대상: Antigravity의 0.0.7 에뮬레이터 품질 보증 산출물</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card">
+      <div class="label">판정</div>
+      <p>앱 화면 품질 보증 불가</p>
+      <div class="bar" aria-label="차단 수준"><div class="fill" style="width:100%"></div></div>
+    </div>
+    <div class="card">
+      <div class="label">근거</div>
+      <p>런처 화면과 시스템 크래시 대화상자만 확인됨</p>
+    </div>
+    <div class="card">
+      <div class="label">가능성이 큰 원인</div>
+      <p>네이티브 라이브러리의 장치 구조 불일치</p>
+    </div>
+    <div class="card">
+      <div class="label">이번 사이클 변경</div>
+      <p>제품 코드 변경 없음</p>
+    </div>
+  </section>
+
+  <h2>결과</h2>
+  <table>
+    <thead>
+      <tr><th>항목</th><th>판독</th><th>근거</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>화면 진입</td>
+        <td>실패</td>
+        <td>크래시 대화상자와 홈 화면만 존재함</td>
+      </tr>
+      <tr>
+        <td>사용자 화면 검수</td>
+        <td>보류</td>
+        <td>소셜 버튼, Seen gap, 통화 회고, plans 화면에 도달하지 못함</td>
+      </tr>
+      <tr>
+        <td>로그 원인</td>
+        <td>부분 확인</td>
+        <td>AG 보고서의 상세 네이티브 오류 문구는 제공 로그에서 직접 검색되지 않음</td>
+      </tr>
+      <tr>
+        <td>패키징 단서</td>
+        <td>강함</td>
+        <td>APK 안에는 arm64-v8a 라이브러리만 있고, 로그에는 x86_64 네이티브 로딩 문맥이 보임</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <details open>
+    <summary>자세히: 확인한 파일</summary>
+    <table>
+      <thead><tr><th>파일</th><th>확인 내용</th></tr></thead>
+      <tbody>
+        <tr><td><code>00_crash.png</code></td><td>시스템 대화상자에 앱이 계속 중지된다는 문구가 표시됨</td></tr>
+        <tr><td><code>01_login.png</code></td><td>앱 내부 로그인 화면이 아니라 Android 홈 화면임</td></tr>
+        <tr><td><code>02_relaunch.png</code></td><td>재실행 후에도 앱 내부 화면 캡처가 없음</td></tr>
+        <tr><td><code>01_login_logs.txt</code>, <code>02_relaunch_logs.txt</code></td><td>앱 크래시 대화상자와 프로세스 종료 기록이 있음</td></tr>
+        <tr><td><code>agents/antigravity/app.apk</code></td><td><code>lib/arm64-v8a/libreactnative.so</code> 포함, x86_64 라이브러리는 확인되지 않음</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <details>
+    <summary>자세히: 로그에서 직접 확인한 핵심 줄</summary>
+    <pre>ActivityManager: Showing crash dialog for package com.simonk.secondbrain
+WindowManager: Application Error: com.simonk.secondbrain
+ActivityManager: Killing com.simonk.secondbrain: crash</pre>
+  </details>
+
+  <details>
+    <summary>자세히: 다음 처리 제안</summary>
+    <p>첫째, 현재 APK를 같은 구조의 arm64 장치 또는 arm64 에뮬레이터에서 다시 실행한다.</p>
+    <p>둘째, x86_64 에뮬레이터가 표준 검증 대상이면 x86_64 네이티브 라이브러리를 포함한 빌드를 만든다.</p>
+    <p>셋째, 재빌드 후 동일한 007-emu-qa 화면 캡처 세트를 다시 요청한다.</p>
+  </details>
+
+  <h2>자체 패널</h2>
+  <table>
+    <thead><tr><th>관점</th><th>판정</th></tr></thead>
+    <tbody>
+      <tr><td>품질 보증</td><td>앱 화면 전 단계에서 차단되므로 UI 결론을 내리지 않는다.</td></tr>
+      <tr><td>네이티브 안전</td><td>크래시 재현 근거는 충분하나 상세 원인 문자열은 보강 로그가 필요하다.</td></tr>
+      <tr><td>운영 위생</td><td>새 AG 산출물에 대한 신규 판독이므로 반복 보류 보고가 아니다.</td></tr>
+    </tbody>
+  </table>
+</main>
+</body>
+</html>
