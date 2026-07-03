@@ -6,7 +6,8 @@ type: request
 ref: ""
 project: 2nd-B
 priority: medium
-status: open
+status: closed
+closed: 2026-07-03 12:50 KST by claude (superseded — grok은 요청전용 레인이라 데몬 미픽업 4h. dispatch-oneshot(slug: consumer-advisory)로 동일 Ask 재배달)
 created: 2026-07-03 08:16:56 KST
 ---
 
