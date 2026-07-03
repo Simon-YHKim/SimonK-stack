@@ -75,7 +75,13 @@ Also collect, from the conversation context:
 ### Step 2 — Prepend to docs/HANDOFF.md
 
 If the file exists, **prepend** the new "Latest" block at the top — never
-delete prior sections. If absent, create with just the new block.
+delete prior sections. **Before prepending, demote the previous top block's
+`## Latest — <date>` heading to a plain `## <date>` header** (strip the
+`Latest — ` prefix only — leave the block's body untouched). Exactly one
+section — the newest — ever carries the `## Latest` marker. Skip this and the
+marker accumulates one-per-session until the log's "newest on top" rule
+silently breaks (real defect found 2026-07-03: 31 `## Latest` markers, recency
+inverted). If absent, create with just the new block.
 
 Template:
 
@@ -245,9 +251,11 @@ handoff with merged main as the success gate**.
 - If the repo lacks `docs/`, create it. Don't reroute to a different
   path — `docs/HANDOFF.md` is the canonical, predictable location every
   future session can probe.
-- Prior `## Latest — <date>` blocks are valuable history; renaming the
-  oldest to `## Sprint 0 (historic)` after ~10 sessions keeps the file
-  scannable while preserving accumulation.
+- Prior handoff blocks are valuable history — keep their bodies intact, but
+  they carry a plain `## <date>` heading, **not** `## Latest`; only the single
+  newest block is `## Latest` (it is demoted on each prepend — Step 2).
+  Renaming the oldest to `## Sprint 0 (historic)` after ~10 sessions keeps the
+  file scannable while preserving accumulation.
 
 ## 완료 보고 (HTML) — 표준
 작업을 끝내면 **HTML 완료 보고서**를 생성한다 (SimonKCore `completion-report` 표준).
