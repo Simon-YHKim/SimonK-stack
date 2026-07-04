@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>프레서블 스윕 G 허브독 보고</title>
+  <style>
+    :root { --bg: #101216; --fg: #e6edf3; --accent: #7fb7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.6; }
+    main { max-width: 880px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1 { margin: 0 0 18px; font-size: 28px; font-weight: 700; }
+    h2 { margin: 34px 0 12px; font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--accent); padding: 10px 12px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: Consolas, monospace; }
+    .note { border: 1px solid var(--accent); padding: 14px 16px; margin-top: 18px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>프레서블 스윕 G 허브독 보고</h1>
+    <p>이번 사이클은 Claude의 공개 요청 <code>20260703-131500-claude-to-codex-dds2-merged-next-pressable</code>의 후속 화면군 하나만 처리했다.</p>
+
+    <h2>작업 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>대상 파일</td>
+          <td><code>src/screens/deepspace/DeepSpaceHubDockScreen.tsx</code></td>
+        </tr>
+        <tr>
+          <td>변환 수</td>
+          <td>함수형 <code>Pressable</code> 스타일 5곳</td>
+        </tr>
+        <tr>
+          <td>변환 방식</td>
+          <td>컨테이너 시각 스타일은 바깥 <code>View</code>로 옮기고, <code>Pressable</code>은 히트타깃과 접근성, 안드로이드 리플만 담당하도록 정리했다.</td>
+        </tr>
+        <tr>
+          <td>제품 커밋</td>
+          <td><code>f26da0ae fix(ui): sweep hub dock pressable styles</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <p><code>npm run verify; EXIT=0</code>으로 확인했다. 테스트는 295개 스위트와 2212개 테스트가 통과했다. 기존 린트 경고 56건은 그대로 남아 있다.</p>
+
+    <h2>자체 패널</h2>
+    <div class="note">
+      <p>이번 변경은 기존 패턴과 같은 범위의 UI 안전 수정이다. 푸시하지 않았고, 허브 쓰기는 <code>agents/codex/</code> 보고 파일로 제한했다.</p>
+      <p>보류 목록은 28곳이며 다음 사이클에서 별도 화면군 단위로 계속 처리해야 한다.</p>
+    </div>
+  </main>
+</body>
+</html>
