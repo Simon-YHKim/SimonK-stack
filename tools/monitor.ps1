@@ -145,7 +145,7 @@ function Render {
   $emuProc = 0; $adbProc = 0
   try { $emuProc = @(Get-Process -Name 'qemu-system-x86_64','emulator' -ErrorAction SilentlyContinue).Count } catch {}
   try { $adbProc = @(Get-Process -Name 'adb' -ErrorAction SilentlyContinue).Count } catch {}
-  $appdir = "C:\2ndB"
+  $appdir = "E:\2ndB"
   $headStr = ""
   if(Test-Path $appdir){
     $ahead = git -C $appdir rev-parse --short HEAD 2>$null

@@ -9,7 +9,7 @@
 # a passing mention ("next: O-32") would silently consume O-32. Real fix = ORDERS.md hygiene:
 # DONE entries should carry explicit "### [O-N" headers. The -Ack ledger fixes the reverse
 # failure (an in-progress order like O-31 reappearing as NEW every poll forever).
-param([switch]$Json, [string]$Repo = "C:\2ndB", [int]$MinId = 13, [int[]]$Ack = @(), [switch]$Heartbeat)
+param([switch]$Json, [string]$Repo = "E:\2ndB", [int]$MinId = 13, [int[]]$Ack = @(), [switch]$Heartbeat)
 
 $ErrorActionPreference = "Stop"
 $ackFile = Join-Path $PSScriptRoot 'orders-ack.json'

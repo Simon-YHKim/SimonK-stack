@@ -129,7 +129,7 @@ try {
   $pollOut = powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $toolsDir 'orders-poll.ps1') -Json 2>$null
   $poll = $null; try { $poll = $pollOut | ConvertFrom-Json } catch {}
   if ($poll -and $poll.error) {
-    $issues += @{ key='orders-channel-error'; title='Remote ORDERS channel broken'; detail="orders-poll error: $($poll.error)"; action='Check C:\2ndB clone + network; run tools/orders-poll.ps1 manually.' }
+    $issues += @{ key='orders-channel-error'; title='Remote ORDERS channel broken'; detail="orders-poll error: $($poll.error)"; action='Check E:\2ndB clone + network; run tools/orders-poll.ps1 manually.' }
   } elseif ($poll -and [int]$poll.newCount -gt 0) {
     $hb = Join-Path $toolsDir 'orders-poll-heartbeat.txt'
     $hbAgeMin = if (Test-Path $hb) { ((Get-Date) - (Get-Item $hb).LastWriteTime).TotalMinutes } else { [double]::MaxValue }

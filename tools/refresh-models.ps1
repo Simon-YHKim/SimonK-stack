@@ -117,6 +117,6 @@ exit 0
 # --- Install the daily scheduled task (run once, from a user PowerShell) ---
 # NOTE: launch via PWSH (this file contains Korean literals; powershell.exe 5.1 parses
 # no-BOM UTF-8 sources as cp949 and mojibakes them). Registered 2026-07-03 hub audit.
-# $action  = New-ScheduledTaskAction -Execute 'pwsh' -Argument '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "C:\Coding Infra\AI Infra\Communication\tools\refresh-models.ps1"'
+# $action  = New-ScheduledTaskAction -Execute 'pwsh' -Argument '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "E:\Coding Infra\AI Infra\Communication\tools\refresh-models.ps1"'
 # $trigger = New-ScheduledTaskTrigger -Daily -At 9:00am
 # Register-ScheduledTask -TaskName 'HubModelBenchmarkRefresh' -Action $action -Trigger $trigger -Description 'Daily best-model benchmark refresh for the AI hub (proposes models.json update)'

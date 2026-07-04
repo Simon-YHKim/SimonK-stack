@@ -7,7 +7,7 @@
 #>
 [CmdletBinding()]
 param(
-  [string]$Hub = "C:\Coding Infra\AI Infra\Communication"
+  [string]$Hub = "E:\Coding Infra\AI Infra\Communication"
 )
 $ErrorActionPreference = "Continue"
 $ts = (Get-Date -Format 'yyyy-MM-dd / HH:mm:ss')
