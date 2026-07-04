@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>프레스 가능 영역 스타일 스윕 보고</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --fg: #e6edf3;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>프레스 가능 영역 스타일 스윕 보고</h1>
+    <p>이번 사이클은 클로드 요청 <code>20260703-131500-claude-to-codex-dds2-merged-next-pressable</code>에 대한 단일 작업으로 진행했다.</p>
+
+    <h2>결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>브랜치</td>
+          <td><code>codex/pressable-sweep-g</code></td>
+        </tr>
+        <tr>
+          <td>커밋</td>
+          <td><code>c539e343 fix(ui): sweep app pressable function styles</code></td>
+        </tr>
+        <tr>
+          <td>변환 수</td>
+          <td>5곳</td>
+        </tr>
+        <tr>
+          <td>남은 함수형 스타일</td>
+          <td>37곳</td>
+        </tr>
+        <tr>
+          <td>검증</td>
+          <td><code>npm run verify; EXIT=0</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>변경 범위</h2>
+    <ul>
+      <li><code>src/app/digest.tsx</code>: 검토 행의 컨테이너 시각 스타일을 바깥 보기로 옮기고 안쪽 프레스 가능 영역은 히트타깃과 접근성, 리플만 담당하게 했다.</li>
+      <li><code>src/app/onboarding.tsx</code>: 기본 버튼과 보조 버튼을 바깥 컨테이너와 안쪽 프레스 가능 영역으로 분리했다.</li>
+      <li><code>src/components/safety/CrisisRouter.tsx</code>: 전화 행과 국제 도움말 행을 같은 패턴으로 바꾸었다.</li>
+    </ul>
+
+    <h2>검증 메모</h2>
+    <p>전체 검증은 통과했다. 린트는 기존 미사용 경고 56건을 출력했고, 테스트 종료 시 열린 핸들 경고가 한 번 나왔지만 실패는 없었다. 의존성 설치 과정에서는 기존 패치 버전 경고와 감사 취약점 알림이 있었고, 코드 변경 파일에는 영향을 주지 않았다.</p>
+
+    <h2>자체 패널</h2>
+    <p>사용자 영향은 낮고, 요청된 패턴과 일치한다. 보류한 37곳은 화면군별 후속 커밋으로 처리해야 하며, 이번 사이클에서 애매한 시각 등가를 억지로 넓히지 않았다.</p>
+  </main>
+</body>
+</html>
