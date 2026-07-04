@@ -80,7 +80,13 @@ try {
     }
   }
   if ($free) {
-    Start-Process powershell -ArgumentList '-ExecutionPolicy','Bypass','-File',(Join-Path $PSScriptRoot 'hub-daemon.ps1'),'-Only',$To,'-MaxCycles','1' -WindowStyle Hidden
+    # ROOT CAUSE FIX (2026-07-04, e2e test): the ARRAY -ArgumentList form joins elements
+    # with spaces WITHOUT quoting, so the spaced daemon path ("...\Coding Infra\...")
+    # split at the space and powershell.exe died before its first log line - the exact
+    # "silent one-shot death" documented 07-03. Use the watchdog's proven single-string
+    # form with escaped quotes (hub-watchdog.ps1 line ~77).
+    $daemonScript = Join-Path $PSScriptRoot 'hub-daemon.ps1'
+    Start-Process powershell -ArgumentList "-ExecutionPolicy Bypass -File `"$daemonScript`" -Only $To -MaxCycles 1" -WindowStyle Hidden
     Write-Host "[dispatch] one-shot lane spawned (-Only $To -MaxCycles 1)" -ForegroundColor Green
   } else {
     Write-Host "[dispatch] standing $To daemon is running - it picks the order up on its next cycle (<=10min); not double-spawning" -ForegroundColor Yellow
