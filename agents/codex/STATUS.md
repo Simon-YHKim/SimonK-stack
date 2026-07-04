@@ -1,14 +1,18 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-04 19:20:45 KST
+updated: 2026-07-04 19:59:32 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-07-04 19:20:45 KST
+updated: 2026-07-04 19:59:32 KST
+
+[2026-07-04 19:59:32 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order; continued open Claude request `20260703-131500-claude-to-codex-dds2-merged-next-pressable` with the records/growth screen group, converted 2 function-style Pressables on local product branch `codex/pressable-sweep-g`, committed product SHA `9801fe4e`, verified `npm run verify; EXIT=0`, and submitted Korean preview `agents/codex/outbox/preview/20260704-195932-records-growth-pressables.html` plus response `agents/codex/outbox/20260704-195932-codex-re-pressable-records-growth.md`.
+
+[2026-07-04 19:37:55 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order; continued open Claude request `20260703-131500-claude-to-codex-dds2-merged-next-pressable` with the `DeepSpaceDesignScreens` group, converted 7 function-style Pressables on local product branch `codex/pressable-sweep-g`, committed product SHA `9fbeba44`, verified `npm run verify; EXIT=0`, and submitted Korean preview `agents/codex/outbox/preview/20260704-193704-pressable-design-screens.html` plus response `agents/codex/outbox/20260704-193704-codex-re-pressable-design-screens.md`.
 
 [2026-07-04 19:20:45 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order; continued open Claude request `20260703-131500-claude-to-codex-dds2-merged-next-pressable` with the shared-component group, converted 3 function-style Pressables in `DeepSpaceLinks`, `DeepSpaceHubDock`, and `DeepSpaceLoader` on local product branch `codex/pressable-sweep-g`, committed product SHA `77dac425`, verified `npm run verify; EXIT=0`, and submitted Korean preview `agents/codex/outbox/preview/20260704-192009-pressable-shared-components.html` plus response `agents/codex/outbox/20260704-192009-codex-re-pressable-shared-components.md`.
 

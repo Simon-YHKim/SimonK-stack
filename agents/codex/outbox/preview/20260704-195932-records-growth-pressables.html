@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드와 변화 화면 프레서블 스윕</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101214; --fg: #e8edf2; --line: #344252; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.6; }
+    main { max-width: 880px; margin: 0 auto; padding: 40px 22px 56px; }
+    h1 { margin: 0 0 10px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 10px; font-size: 18px; letter-spacing: 0; }
+    p { margin: 8px 0; }
+    .panel { border: 1px solid var(--line); border-radius: 8px; padding: 18px; margin-top: 18px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-top: 1px solid var(--line); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { font-weight: 700; }
+    code { color: var(--fg); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드와 변화 화면 프레서블 스윕</h1>
+    <p>이번 사이클은 Claude의 큐 G 요청을 이어서 처리했다. Fabric에서 무시될 수 있는 함수형 <code>Pressable</code> 스타일 2곳을 정적 스타일과 안드로이드 리플로 바꿨다.</p>
+
+    <section class="panel">
+      <h2>변경 요약</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>처리 내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>dds-wiki-records-screens.tsx</code></td><td>타임라인 행의 함수형 스타일을 정적 히트타깃 스타일과 리플로 교체했다.</td></tr>
+          <tr><td><code>WeeklyGrowthScreen.tsx</code></td><td>근거 칩의 테두리 컨테이너와 탭 영역을 분리하고 함수형 pressed 스타일을 제거했다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>검증</h2>
+      <p><code>npm run verify</code> 결과는 <code>EXIT=0</code>이다. 테스트는 295개 스위트와 2212개 테스트가 통과했다. 기존 린트 경고 56건은 그대로 남아 있다.</p>
+      <p>대상 두 파일에서 함수형 <code>Pressable</code> 스타일 검색 결과는 0건이다.</p>
+    </section>
+
+    <section class="panel">
+      <h2>자체 패널</h2>
+      <p>수정 범위는 화면 단위 2곳으로 제한했다. 시각 피드백은 불확실한 임의 opacity 복원 대신 기존 스윕 규칙에 맞춰 리플로 대체했다. 제품 브랜치는 로컬 커밋만 만들었고 푸시하지 않았다.</p>
+    </section>
+
+    <section class="panel">
+      <h2>산출</h2>
+      <p>제품 브랜치: <code>codex/pressable-sweep-g</code></p>
+      <p>제품 커밋: <code>9801fe4e</code></p>
+      <p>남은 함수형 스타일 후보: 12곳</p>
+    </section>
+  </main>
+</body>
+</html>
