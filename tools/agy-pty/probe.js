@@ -29,7 +29,7 @@ function run(label, { skipPerms, nudgeStdin, inheritCursor, term }) {
     try {
       t = pty.spawn(AGY, args, {
         name: term || 'xterm-256color', cols: 120, rows: 40,
-        cwd: 'C:/Coding Infra', env,
+        cwd: 'E:/Coding Infra', env,
         conptyInheritCursor: !!inheritCursor,
       });
     } catch (e) { return resolve({ label, err: e.message }); }

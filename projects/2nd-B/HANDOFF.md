@@ -1,7 +1,7 @@
 ---
 project: 2nd-B
 repo: https://github.com/Simon-YHKim/2nd-B
-clone: C:\2ndB
+clone: E:\2ndB
 app-name: 2nd-brain (v0.0.1)
 stack: Expo ~56 / React Native 0.85 (managed) · NativeWind(Tailwind) · Supabase(백엔드·계정·데이터) · Vercel(web 배포)
 default-branch: main
@@ -16,8 +16,8 @@ phase: build
 > 메인 앱 프로젝트. 실제 코드/에셋은 **github.com/Simon-YHKim/2nd-B** 에 있고(브랜치-per-작업 + PR), 이 허브는 **코디네이션 채널**이다. 메시지는 브랜치·PR·커밋·스크린샷을 **링크로** 참조한다(코드 자체를 허브에 복사하지 않음).
 
 ## 개요
-- "2nd-brain" — Expo(RN) 크로스플랫폼 앱. 로컬 클론 `C:\2ndB`(main, 클린). node_modules 설치됨.
-- 작업 시 **프로젝트 자체 컨텍스트 필독**: `C:\2ndB\CLAUDE.md` · `CONTEXT.md` · `DESIGN.md`.
+- "2nd-brain" — Expo(RN) 크로스플랫폼 앱. 로컬 클론 `E:\2ndB`(main, 클린). node_modules 설치됨.
+- 작업 시 **프로젝트 자체 컨텍스트 필독**: `E:\2ndB\CLAUDE.md` · `CONTEXT.md` · `DESIGN.md`.
 - 품질 게이트: `npm run verify` (lint+type-check+i18n+lexicon+llm-boundary+constraints+no-emdash+jest). **머지 전 반드시 통과.**
 
 ## 역할 ↔ 브랜치 매핑

@@ -31,3 +31,9 @@ Output/branch-review-queue-*.json
 # 원격 오더 소비자 로컬 상태 (하트비트·픽업 원장)
 tools/orders-poll-heartbeat.txt
 tools/orders-ack.json
+
+# 워치독 런타임 상태 (매 실행 변경 — 추적하면 트리가 영구 dirty, BRANCH-HEAL 차단)
+tools/.watchdog-state.json
+
+# 2026-07-04 백업복원 좀비 격리 (robocopy가 부활시킨 아카이브 중복 — MANIFEST.csv 참조, 검토 후 폐기)
+_restore-quarantine-*/

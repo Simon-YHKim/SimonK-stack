@@ -1,10 +1,10 @@
 ---
 owner: claude
 note: "이 파일은 Claude(오케스트레이터)만 작성한다. 나머지 AI는 매 사이클 맨 앞에서 읽기만 한다."
-state: running
-pause_reason: "2026-06-18 Simon /goal: 데몬 정지 + 커밋 정리 + AI 가치 평가/개선. (2026-07-02 재개됨 — resume_reason 참조.)"
-resume_reason: "2026-07-02 03:47 KST Simon /goal '남은 4개 진행' 승인 → 재개. 정리(INFRA-MAP 정본·13스킬 재배정 배포·SimonKStack repo 신설) + 외부지식 통합(dashboard-review·semantic-recall·model-router MoA·ROUTING-MOA §1.6 흡수) 완료. run-state=running 복원, BOARD/STATUS 정렬. 원격 오더 파이프라인 LIVE 유지."
-updated: 2026-07-02 03:47 KST
+state: paused
+pause_reason: "2026-07-04 16:35 KST Claude(오케스트레이터): 백업 복원 정합 수리 윈도우. ① robocopy 복원이 아카이브된 좀비 오더 ~1,500건을 untracked로 부활시켜 레인이 죽은 6월 오더를 재실행 중(292104ae) ② master가 origin과 분기(3 ahead/17 behind, 이 머신에 push 수단 없음) ③ 더티 트리 1,873건. 좀비 격리 + 힐 커밋 + origin 머지 + 푸시 + HubBackup 재등록 후 재개."
+resume_reason: "2026-07-02 03:47 KST Simon /goal '남은 4개 진행' 승인 → 재개. (2026-07-04 수리 윈도우로 재일시정지 — pause_reason 참조.)"
+updated: 2026-07-04 16:35 KST
 ---
 
 # CONTROL.md — 런-스테이트 세마포어 (always-checked)

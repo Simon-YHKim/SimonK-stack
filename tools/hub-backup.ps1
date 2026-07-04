@@ -7,7 +7,7 @@
   원격이 SPOF 1차 방어선. 파괴적 op 없음(push만).
 #>
 [CmdletBinding()]
-param([string]$Hub = "C:\Coding Infra\AI Infra\Communication")
+param([string]$Hub = "E:\Coding Infra\AI Infra\Communication")
 $ErrorActionPreference = "Continue"
 $ts = (Get-Date -Format 'yyyy-MM-dd / HH:mm:ss')
 $log = Join-Path $Hub "tools\hub-backup.log"
