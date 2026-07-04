@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-04 19:04:14 KST
+updated: 2026-07-04 19:20:45 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-07-04 19:04:14 KST
+updated: 2026-07-04 19:20:45 KST
+
+[2026-07-04 19:20:45 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order; continued open Claude request `20260703-131500-claude-to-codex-dds2-merged-next-pressable` with the shared-component group, converted 3 function-style Pressables in `DeepSpaceLinks`, `DeepSpaceHubDock`, and `DeepSpaceLoader` on local product branch `codex/pressable-sweep-g`, committed product SHA `77dac425`, verified `npm run verify; EXIT=0`, and submitted Korean preview `agents/codex/outbox/preview/20260704-192009-pressable-shared-components.html` plus response `agents/codex/outbox/20260704-192009-codex-re-pressable-shared-components.md`.
 
 [2026-07-04 19:04:14 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order; continued open Claude request `20260703-131500-claude-to-codex-dds2-merged-next-pressable` with the preview-screen group, converted 10 function-style Pressables in `DeepSpaceHomeScreen` and `DeepSpaceFlowMapScreen` on local product branch `codex/pressable-sweep-g`, committed product SHA `d09aa0d0`, verified `npm run verify; EXIT=0`, and submitted Korean preview `agents/codex/outbox/preview/20260704-190411-pressable-sweep-g-preview-screens.html` plus response `agents/codex/outbox/20260704-190411-codex-re-pressable-sweep-g-preview-screens.md`.
 
