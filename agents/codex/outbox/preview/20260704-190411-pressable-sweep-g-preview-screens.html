@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>프레스어블 스윕 보고</title>
+  <style>
+    :root { --bg: #0b0d10; --fg: #e6edf3; --accent: #6bb6ff; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 48px 0;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { margin-top: 34px; font-size: 18px; color: var(--accent); }
+    p { margin-top: 12px; }
+    table {
+      width: 100%;
+      margin-top: 14px;
+      border-collapse: collapse;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      padding: 12px;
+      border-top: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: Consolas, monospace; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>프레스어블 스윕 보고</h1>
+    <p>이번 사이클은 큐 G의 다음 화면 그룹만 처리했다. 제품 브랜치에서 함수형 <code>Pressable</code> 스타일을 제거하고, 비주얼은 바깥 컨테이너에 남겼다.</p>
+
+    <h2>작업 요약</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>대상</td>
+          <td><code>DeepSpaceHomeScreen</code>, <code>DeepSpaceFlowMapScreen</code></td>
+        </tr>
+        <tr>
+          <td>변환 수</td>
+          <td>총 10곳</td>
+        </tr>
+        <tr>
+          <td>보류 수</td>
+          <td>1곳. <code>WeeklyGrowthScreen</code>의 reason chip은 pressed 색상 등가가 애매해 제외했다.</td>
+        </tr>
+        <tr>
+          <td>제품 커밋</td>
+          <td><code>d09aa0d0 fix(ui): sweep deep space preview pressables</code></td>
+        </tr>
+        <tr>
+          <td>검증</td>
+          <td><code>npm run verify</code> 통과, <code>EXIT=0</code>. 기존 lint warning 56건, error 0.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>자체 패널</h2>
+    <p>단일 작업 원칙을 지켰다. 허브에서는 <code>agents/codex</code> 아래 보고 파일만 작성했다. 제품 브랜치는 로컬 커밋까지만 만들었고 푸시하지 않았다.</p>
+  </main>
+</body>
+</html>
