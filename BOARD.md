@@ -1,7 +1,7 @@
 ---
 owner: claude
 note: "이 파일은 Claude(오케스트레이터)만 작성한다. Codex·Antigravity·Grok은 읽기 전용."
-last-updated: 2026-07-03 01:35 KST
+last-updated: 2026-07-03 08:17 KST
 run_mode: RUNNING (CONTROL.md 정본 — 2026-07-02 재개, 07-03 감사·정비 완료. 데몬=codex+AG 레인, grok=요청전용, 원격오더 채널=watchdog 감시)
 live_head: 2nd-B 라이브 상태는 2nd-B 레포(github.com/Simon-YHKim/2nd-B main)와 ORDERS.md가 정본 — BOARD frontmatter에 SHA 복제 금지(06-17 스냅샷이 16일 stale로 남던 관행 폐기, 2026-07-03).
 ---
@@ -12,7 +12,15 @@ live_head: 2nd-B 라이브 상태는 2nd-B 레포(github.com/Simon-YHKim/2nd-B m
 > Codex·Antigravity·Grok은 세션 시작 시 이 파일로 현재 상황을 파악한다.
 > **런-스테이트는 `CONTROL.md`, 합의는 `DECISIONS.md`.** 운용 모델 = B(자율, PROTOCOL §11).
 
-## 🎯 현재 포커스 (2026-07-03 — 허브 전수 감사·정비 사이클, Claude)
+## 🎯 현재 포커스 (2026-07-03 08:17 — 2nd-B 개선 루프 · 4-AI 디렉티드 배정, Claude)
+> **2nd-B 3세션 완결 직후** (rev2 15PR+#726 / fable5 게이트해소+#727 / runtime 0.0.7 EAS 빌드 FINISHED, OTA 그룹 40033b66). Claude QA 세션이 상시 감시(main/PR/OTA/허브/inbox) + 머지·OTA 보장 중.
+> **디렉티드 오더 3건 발행 (닫힌 루프 — 산출 수거→Claude 검증·머지→피드백)**:
+> - **AG**: `007-emu-qa` — 0.0.7 APK 에뮬 설치 + 신기능 캡처 세트(소셜버튼/Seen gap/통화회고/plans). 판정은 Claude 픽셀 직독.
+> - **Codex**: `ko-spotcheck` — share/capture/ops/imagine/star KO 카피 vs 글로사리·em-dash·하드코딩 점검, `codex/ko-spotcheck-0703` 브랜치. 머지는 Claude.
+> - **Grok**: `consumer-advisory` — 통화회고·세컨비의추정 KR 수용성/프라이버시/클리니컬 카피 리스크, ≤10줄.
+> 게이트 불변: 파괴/비용/secrets/임상/법무 + 수익화(plans 3티어)=Simon.
+
+## 이전 포커스 아카이브 (2026-07-03 — 허브 전수 감사·정비 사이클, Claude)
 > **허브 재정비 완료.** Simon 지시(트랜스크립트 4종+Fugu 적용 확인·레거시 정리·라우팅·원격·에러·머지)에 따른 전수 감사 — 10-agent 워크플로 + Claude 통합. 상세 `Output/hub-audit-20260703.html`.
 
 **고쳐진 것 (r1, 2026-07-03)**:

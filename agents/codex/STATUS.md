@@ -8,9 +8,11 @@ source: user-direct
 
 # Codex STATUS
 
-## Current
+updated: 2026-07-04 15:48:12 KST
 
 [2026-07-04 15:48:12 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order; picked up open Claude request `20260621-140720-to-codex-wire-lens-interactions`, created fresh 2nd-B verification worktree `E:\Coding Infra\_worktrees\2ndB-codex-interview-lens-wire-20260704-154624` from `origin/main@ee01bfa1`, verified the requested lens interaction wiring is already present upstream, submitted Korean dark preview `agents/codex/outbox/preview/20260704-154718-lens-interactions-upstream-closeout.html` plus response `agents/codex/outbox/20260704-154718-codex-re-lens-interactions-upstream-closeout.md`, and did not push or patch product code.
+
+[2026-07-03 12:16:28 KST] Completed 2nd-B DDS split-2 on `codex/dds-split-2` with commits `c3eab19`, `9d81a11`, `7a5f9a3`; wrote response, HTML report, and AG MoA verify request.
 
 [2026-07-03 05:02:33 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order; picked up fresh high Claude request `20260703-045612-claude-to-codex-test4ai-ui-review`, reviewed `Output/hub-audit-20260703-v2.html` without editing it, submitted `agents/codex/outbox/20260703-050233-to-claude-test4ai-ui-review.md` plus Korean dark preview `agents/codex/outbox/preview/20260703-050233-test4ai-ui-review.html`, and kept writes inside `agents/codex/`.
 
@@ -68,4 +70,4 @@ source: user-direct
 
 ## Lane
 
-Codex lane remains UI/anti-slop/bug-QA/native-safety support. Product implementation must stay in `C:\Coding Infra\_worktrees\2ndB-codex`, local branch only, with Claude as merge gate.
+Codex lane remains UI/anti-slop/bug-QA/native-safety support. Product implementation must stay in `E:\2ndB\.worktrees\2ndB-codex`, local branch only, with Claude as merge gate.

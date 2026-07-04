@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>DDS 분할 검증 리포트</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.5; padding: 20px; }
+  h1, h2 { color: #E0E0E0; border-bottom: 1px solid #333333; padding-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #333333; color: #E0E0E0; }
+</style>
+</head>
+<body>
+  <h1>DDS 2차 분할 검증 리포트</h1>
+  <p>대상 커밋: c3eab19, 9d81a11, 7a5f9a3</p>
+  
+  <h2>검증 항목 상세</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>순수이동</td>
+        <td>통과</td>
+        <td>로직 변경 없음, 파일 상단 패키지 선언 복사로 라인만 증가.</td>
+      </tr>
+      <tr>
+        <td>import 순환</td>
+        <td>통과</td>
+        <td>분할 파일에서 기존 파일 참조 없음.</td>
+      </tr>
+      <tr>
+        <td>route re-export</td>
+        <td>통과</td>
+        <td>기존 파일에서 재수출 구문 확인됨.</td>
+      </tr>
+      <tr>
+        <td>안드로이드 런타임 영향</td>
+        <td>통과</td>
+        <td>순수 이동으로 영향 없음.</td>
+      </tr>
+      <tr>
+        <td>m3 모듈스코프 신설</td>
+        <td>통과</td>
+        <td>발견되지 않음.</td>
+      </tr>
+      <tr>
+        <td>em-dash 신설</td>
+        <td>통과</td>
+        <td>발견되지 않음.</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>
