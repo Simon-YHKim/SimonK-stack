@@ -629,7 +629,7 @@ created: 2026-06-05 15:22:34 KST
 |---|---|
 | Claude | `npm run verify` + constraints + 필요 시 live/CDP scrollWidth |
 | Codex | worktree에서 `npm run verify`(또는 lint+type-check) + lexicon 스캔 + 시각 회귀(스크린샷 diff) |
-| Antigravity | `npx expo run:android` 빌드 green + 에뮬(`Pixel_9_Pro_XL`) 스모크(부팅·핵심화면) + perf(프레임/메모리) 수치 |
+| Antigravity | **디바이스 연결/인터랙티브 세션**: `npx expo run:android` 빌드 green + 에뮬(`Pixel_9_Pro_XL`) 스모크(부팅·핵심화면) + perf(프레임/메모리) 수치. **헤드리스 텍스트 사이클(데몬 레인)**: 에뮬 항목 면제 — static golden set(문서정합·스키마 드리프트·long-context 감사)으로 대체하고 "static check only" 명시(AG RULES QA-truthfulness). ※ 2026-07-04 AG 자체 감사가 발견한 §34.2↔truthfulness 모순 해소: 헤드리스는 에뮬을 돌릴 수 없으므로 에뮬 golden set을 요구하면 날조를 유도한다 |
 | Grok | 고정 리서치 질문셋(같은 키워드·소스) + 신호 재현성(2회 동일 결론) |
 - 각 AI activate·RULES에 자기 golden set을 명시한다. 점수표 정본 = 허브 `loop-baseline.md`.
 

@@ -20,7 +20,8 @@ live_head: 2nd-B 라이브 상태는 2nd-B 레포(github.com/Simon-YHKim/2nd-B m
 > - **하드닝**: 데몬 로그 어펜드 뮤텍스(torn line) · 타임아웃 시 CLI 자식트리 킬 · AG 쿼터폴백 실배선(agy_fallback_model="Gemini 3.5 Flash (High)") · commit.ps1 rename-hole+Conventional-Commits 자동접두 · dispatch-oneshot default-레인 프로브 · watchdog CONTROL fail-closed+푸시정체(#8)+grok대기큐(#9) · PS5.1 mojibake 소스 ASCII화(refresh-models 데일리 노트 깨짐 확정건).
 > - **경로 현행화**: PROTOCOL·RUNBOOK·RULES·loop-baseline C:→E: 전면 + worktree canon `E:\2ndB\.worktrees\<name>`.
 > - **🚫 SPLIT-BRAIN 가드**: SOHA/C: PC에서 허브 레인·데몬·HubBackup **재가동 금지** — 두 머신이 같은 master에 쓰면 분기 재발. SOHA PC는 이관 완료로 은퇴.
-> **남은 것**: 격리 폴더 검토 후 폐기(Simon) · 원격 오더 디렉터 /loop 세션 재가동 여부(Simon) · agy 폴백 라벨 첫 쿼터이벤트 시 실증.
+> **Simon 결정 반영(07-04 17:30)**: 격리폴더 폐기 완료(매니페스트 `Output/restore-quarantine-manifest-20260704.csv` 보존) · 디렉터 /loop 불요 · SOHA PC Legacy 처리(`tools/soha-pc-decommission.ps1`, H:백업 `-Legacy` 리네임+재복원금지 마커).
+> **E2E 실가동 테스트 (07-04 17:10~17:27, Simon 지시) — 3/3 레인 PASS**: codex 280s(헤드리스 렌더 실측 UI 리뷰 5건) · AG 480s(truthfulness 규칙 정확 인정 + §34.2 실모순 발견→패치됨) · grok 1차 무음사망→**근본원인 확정·수정**(dispatch-oneshot 배열 ArgumentList가 공백 경로 분해 = 07-03 사고 진범, watchdog-proven 인용 문자열로 픽스)→재스폰 163s 정상 응답. 전 레인 신원·lane격리·9키 frontmatter·ConvCommits 준수, 좀비 재처리 0. **신설 watchdog #9(grok-order-waiting)가 무음사망 구간에서 라이브 발화 — 설계 검증됨.** 관찰 지속: AG/grok STATUS 커밋 누락 버릇(P2)·grok self-report 모델 과장("4.3" vs 실배너 grok-build)·grok 분량 초과. 남음: agy 폴백 라벨 첫 쿼터이벤트 실증(관찰만).
 
 ## 이전 포커스 아카이브 (2026-07-03 08:17 — 2nd-B 개선 루프 · 4-AI 디렉티드 배정, Claude)
 > **2nd-B 3세션 완결 직후** (rev2 15PR+#726 / fable5 게이트해소+#727 / runtime 0.0.7 EAS 빌드 FINISHED, OTA 그룹 40033b66). Claude QA 세션이 상시 감시(main/PR/OTA/허브/inbox) + 머지·OTA 보장 중.
