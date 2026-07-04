@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>렌즈 상호작용 배선 확인</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --panel: #141b24; --text: #e6edf3; --muted: #9aa7b4; --accent: #66d9c8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 960px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1 { margin: 0 0 10px; font-size: 26px; font-weight: 700; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 18px; font-weight: 700; letter-spacing: 0; color: var(--accent); }
+    p { margin: 0 0 14px; color: var(--text); }
+    .muted { color: var(--muted); }
+    .panel { background: var(--panel); border: 1px solid rgba(102,217,200,.25); border-radius: 8px; padding: 18px; margin-top: 18px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; background: var(--panel); border: 1px solid rgba(102,217,200,.25); }
+    th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid rgba(154,167,180,.18); }
+    th { color: var(--accent); font-weight: 700; }
+    tr:last-child td { border-bottom: 0; }
+    code { color: var(--accent); font-family: Consolas, monospace; font-size: .95em; }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>렌즈 상호작용 배선 확인</h1>
+    <p class="muted">사이클 시각: 2026-07-04 15:47:18 KST · 대상 요청: <code>20260621-140720-to-codex-wire-lens-interactions</code></p>
+
+    <section class="panel">
+      <h2>결론</h2>
+      <p>현재 <code>origin/main</code>의 2nd-B는 2026-06-21 요청의 핵심 결함을 이미 반영하고 있습니다. 이번 사이클에서는 중복 제품 패치를 만들지 않고, 요청을 현재 코드 기준으로 검증해 닫는 보고만 수행했습니다.</p>
+      <p>검증 기준점은 새 작업트리 <code>E:\Coding Infra\_worktrees\2ndB-codex-interview-lens-wire-20260704-154624</code>, 브랜치 <code>codex/interview-lens-wire-20260704-154624</code>, 기준 커밋 <code>ee01bfa1</code>입니다. 푸시는 하지 않았습니다.</p>
+    </section>
+
+    <h2>확인 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>렌즈</th>
+          <th>현재 상태</th>
+          <th>근거</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>심층 인터뷰</td>
+          <td>실제 인터뷰 엔진이 딥스페이스 셸 안에서 실행됩니다.</td>
+          <td><code>src/app/interview.tsx</code>가 <code>DeepSpaceScreen</code> 안에서 동일한 <code>InterviewBody</code>를 사용하고, 답변 저장·다음 질문·재시도·종료 확인을 처리합니다.</td>
+        </tr>
+        <tr>
+          <td>보여지는 나</td>
+          <td>더미 막대 대신 실측 Big Five와 동료 집계 경로를 사용합니다.</td>
+          <td><code>SeenLensView</code>가 <code>loadLatestBfi</code>, <code>loadSeenAggregate</code>, 초대 공유 동선을 연결합니다.</td>
+        </tr>
+        <tr>
+          <td>리듬</td>
+          <td>실제 ESM 체크인 화면이 딥스페이스와 레거시에서 공유됩니다.</td>
+          <td><code>src/app/esm.tsx</code>가 컨텍스트·에너지 입력을 <code>esm_responses</code>에 저장합니다.</td>
+        </tr>
+        <tr>
+          <td>관계</td>
+          <td>실제 ECR-S 애착 검사 화면이 딥스페이스와 레거시에서 공유됩니다.</td>
+          <td><code>src/app/attachment.tsx</code>가 검사 응답 저장, 완료 후 이동, 이탈 확인을 처리합니다.</td>
+        </tr>
+        <tr>
+          <td>미래의 나</td>
+          <td>공상하기 경로가 기준 디자인의 실제 발산 화면으로 연결됩니다.</td>
+          <td><code>src/app/imagine.tsx</code>가 <code>ImagineDivergentView</code>를 딥스페이스 화면에 렌더링합니다.</td>
+        </tr>
+        <tr>
+          <td>일·성장</td>
+          <td>감사 응답 기록을 집계해 도메인 막대에 전달합니다.</td>
+          <td><code>src/app/audit.tsx</code>가 <code>records</code>의 <code>audit_response</code> 태그를 집계하고 <code>ValuesLensView</code>에 전달합니다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>35 자기 패널</h2>
+    <ul>
+      <li>제품 관점: 죽은 CTA를 다시 만들지 않는 것이 우선이며, 현재 주요 CTA는 실제 라우트나 저장 흐름으로 연결되어 있습니다.</li>
+      <li>품질 관점: 이미 업스트림에 들어간 기능을 중복 구현하면 충돌과 회귀 위험만 늘어납니다.</li>
+      <li>안전 관점: 결제, 비밀값, 파괴 작업, 푸시, 임상 판단 경로는 건드리지 않았습니다.</li>
+      <li>레인 관점: 허브 안에서는 <code>agents/codex</code>만 작성했고, 2nd-B 작업트리는 검증용으로만 사용했습니다.</li>
+    </ul>
+  </main>
+</body>
+</html>
