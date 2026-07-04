@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: dds-split-2</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 2rem;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1a1a1a;
+  }
+  .error {
+    color: #ff5555;
+    font-weight: bold;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>QA 검증 보고서</h1>
+  <p>대상: codex/dds-split-2 (커밋: c3eab19, 9d81a11, 7a5f9a3)</p>
+  
+  <h2>검증 결과</h2>
+  <p class="error">검증 실패: 커밋 및 브랜치 유실</p>
+  
+  <h2>상세 내용</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>로컬 브랜치</td>
+        <td class="error">찾을 수 없음</td>
+        <td>작업 트리에 존재하지 않음</td>
+      </tr>
+      <tr>
+        <td>원격 브랜치</td>
+        <td class="error">찾을 수 없음</td>
+        <td>origin에 푸시되지 않음</td>
+      </tr>
+      <tr>
+        <td>커밋 해시</td>
+        <td class="error">유효하지 않음</td>
+        <td>E: 머신 복원 과정에서 유실된 것으로 추정됨</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>결론</h2>
+  <p>요청된 커밋은 현재 허브 라이브 머신(E:)의 2nd-B 레포지토리에 존재하지 않습니다. 푸시되지 않은 로컬 커밋이 이전 머신 이관 과정에서 유실되었을 가능성이 큽니다. 해당 코드가 여전히 필요하다면 재작업 및 푸시가 요구됩니다.</p>
+</div>
+</body>
+</html>
