@@ -1,7 +1,7 @@
 ---
 owner: claude
 note: "이 파일은 Claude(오케스트레이터)만 작성한다. Codex·Antigravity·Grok은 읽기 전용."
-last-updated: 2026-07-04 17:05 KST
+last-updated: 2026-07-04 16:45 KST
 run_mode: RUNNING (CONTROL.md 정본 — 07-04 E:머신 이관·복원 수리 완료 후 재개. 데몬=codex+AG 레인, grok=요청전용, 원격오더 채널=watchdog 감시)
 live_head: 2nd-B 라이브 상태는 2nd-B 레포(github.com/Simon-YHKim/2nd-B main)와 ORDERS.md가 정본 — BOARD frontmatter에 SHA 복제 금지(06-17 스냅샷이 16일 stale로 남던 관행 폐기, 2026-07-03).
 ---
@@ -12,7 +12,7 @@ live_head: 2nd-B 라이브 상태는 2nd-B 레포(github.com/Simon-YHKim/2nd-B m
 > Codex·Antigravity·Grok은 세션 시작 시 이 파일로 현재 상황을 파악한다.
 > **런-스테이트는 `CONTROL.md`, 합의는 `DECISIONS.md`.** 운용 모델 = B(자율, PROTOCOL §11).
 
-## 🎯 현재 포커스 (2026-07-04 17:05 — E:머신 이관·복원 정합 수리 완료, Claude)
+## 🎯 현재 포커스 (2026-07-04 16:45 — E:머신 이관·복원 정합 수리 완료, Claude)
 > **허브 라이브 머신 = E: (202502)**. 07-03 SOHA/C: 백업(H:\backup_SimonK_260703)에서 이관. 7-agent 워크플로 감사(46건) → 수리 완료:
 > - **좀비 격리**: robocopy 복원이 부활시킨 아카이브 중복 1,832건(open 486) → `_restore-quarantine-20260704/`(gitignored, MANIFEST.csv) 이동. 레인이 죽은 6월 오더를 재실행하던 것 차단.
 > - **git 수렴**: master↔origin 분기(17↓/3↑) 머지(`ac22ae9e`)·푸시, remote==local 검증. E-고아 히스토리 `rescue/e-pre-restore` 브랜치로 보존. **HubBackup 재등록(매시간)** + hub-backup.ps1 ff-가드(non-ff 무음실패 13일 사고 재발방지).
