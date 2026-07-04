@@ -89,7 +89,11 @@ if ($Files.Count -gt 0) {
 # daemon marking shared state directly (e.g. AG editing BOARD.md). Always on.
 # ----------------------------------------------------------------------------
 if ($As -ne "claude") {
-  $stagedAll = git diff --cached --name-only --diff-filter=ACMRD
+  # --no-renames (2026-07-04): with rename detection ON, a staged `git mv <root-file>
+  # agents/<As>/x` lists only the destination path, so moving a Claude-only file into
+  # the agent's own lane slipped past the guard while deleting the root file. Force
+  # renames to surface as D(old)+A(new) so the off-lane D is caught.
+  $stagedAll = git diff --cached --no-renames --name-only --diff-filter=ACMRD
   if ($LASTEXITCODE -ne 0) {
     try { $hubMutex.ReleaseMutex() } catch {}
     Write-Host "[commit] abort: staged-file enumeration failed - lane guard cannot verify (fail closed)" -ForegroundColor Red
@@ -103,6 +107,16 @@ if ($As -ne "claude") {
     Write-Host "  Shared files are Claude-only. Unstage them; report status in your own STATUS.md/outbox instead." -ForegroundColor Yellow
     exit 1
   }
+}
+
+# ----------------------------------------------------------------------------
+# CONVENTIONAL COMMITS (PROTOCOL Sec.5, 2026-07-04): daemon lanes occasionally emit
+# non-conforming subjects (e.g. AG "QA: verify ..."). Do not hard-fail an autonomous
+# lane over a message prefix - rewrite it to a conforming chore(<seat>) subject instead.
+# ----------------------------------------------------------------------------
+if ($Message -notmatch '^(feat|fix|chore|docs|test|refactor|style|perf|ci|build|revert|merge)(\(|!|:)') {
+  $Message = "chore(" + $As + "): " + $Message
+  Write-Host "[commit] message auto-prefixed to Conventional Commits: $Message" -ForegroundColor Yellow
 }
 
 # ----------------------------------------------------------------------------

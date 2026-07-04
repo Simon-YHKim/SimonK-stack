@@ -39,6 +39,12 @@ function Log([string]$m){
   # log WHILE we write it. Add-Content's default sharing locked readers out mid-append,
   # which is what crashed the dashboards ("file in use by another process"). Retry a few
   # times in case another daemon instance is appending the same instant.
+  # Cross-process append mutex (2026-07-04): TWO lane daemons appending the same instant
+  # tore lines (orphan fragments like "axCycles=0"/"EGIN" observed 07-04 15:41) because
+  # FileMode::Append is seek-to-end-at-open, not atomic O_APPEND. A torn "cycle exit" line
+  # can hide a failure sample from the watchdog's exit-code scan. Serialize appends.
+  $lm = $null
+  try { $lm = New-Object System.Threading.Mutex($false, "Global\hubdaemonlog"); [void]$lm.WaitOne(3000) } catch {}
   for($i=0;$i -lt 4;$i++){
     try {
       $fs = [System.IO.File]::Open($daemonLog, [System.IO.FileMode]::Append, [System.IO.FileAccess]::Write, [System.IO.FileShare]::ReadWrite)
@@ -47,6 +53,26 @@ function Log([string]$m){
       break
     } catch { Start-Sleep -Milliseconds 50 }
   }
+  if($lm){ try { $lm.ReleaseMutex() } catch {}; try { $lm.Dispose() } catch {} }
+}
+
+# Kill every descendant process of THIS daemon (used on per-AI timeout). Stop-Job only
+# kills the job runspace; the native CLI child (codex/node/grok) kept running past the
+# timeout, kept working, and could later commit outside the one-writer-at-a-time
+# sequencing. Sequential design means all current descendants ARE the hung job tree.
+function Kill-JobChildren {
+  try {
+    $all = Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Select-Object ProcessId, ParentProcessId
+    $kill = New-Object System.Collections.Generic.List[int]
+    $queue = New-Object System.Collections.Generic.Queue[int]
+    $queue.Enqueue($PID)
+    while($queue.Count){
+      $p = $queue.Dequeue()
+      foreach($c in ($all | Where-Object { $_.ParentProcessId -eq $p })){ $kill.Add([int]$c.ProcessId); $queue.Enqueue([int]$c.ProcessId) }
+    }
+    foreach($k in $kill){ try { Stop-Process -Id $k -Force -ErrorAction SilentlyContinue } catch {} }
+    if($kill.Count){ Log "TIMEOUT kill: terminated $($kill.Count) orphaned child process(es) of the hung job" }
+  } catch {}
 }
 
 # ---- O-15 #1: single-instance guard per lane (-Only) -- prevents duplicate daemons.
@@ -186,12 +212,12 @@ id: $stamp-reroute-$ai
 created: $(Now) KST
 ---
 
-# [reroute] $ai 백오프 ($reason) — open orders $open 건 인계 요청
+# [reroute] $ai backoff ($reason) - $open open order(s) need a new owner
 
-[$(Now) KST] $ai 레인이 $reason 로 파킹됨. $ai 앞 OPEN 오더 $open 건이 처리되지 못하고 적체 중.
-$target 가 대신 처리하거나 재배정 판단 바람: agents/*/outbox 에서 (to: $ai 또는 all) + (type: request) + (status: open) 스캔.
+[$(Now) KST] Lane $ai is parked ($reason). $open OPEN order(s) addressed to it cannot be served and sit in the queue.
+$target : take them over or re-assign. Scan agents/*/outbox for (to: $ai or all) + (type: request) + (status: open).
 
-(hub-daemon 자동 reroute. $ai 파킹 동안 시간당 최대 1회, 같은 ai 노트는 자기교체. $ai 복귀 시 자동 중단.)
+(auto-reroute by hub-daemon; max 1/hour per parked lane, note is self-replacing, stops when $ai returns. Body is ASCII on purpose: lane daemons run under powershell.exe 5.1 which reads BOM-less UTF-8 as cp949 and mojibakes Korean literals.)
 "@
   try { [System.IO.File]::WriteAllText((Join-Path $inbox "$stamp-reroute-$ai.md"), $body, $utf8) } catch {}
   Log "$ai parked with $open open orders ($reason) -> reroute notice filed to $target inbox"
@@ -225,6 +251,15 @@ function Invoke-AI([string]$ai,[string]$tier='primary'){
   # See agy-pty/README.md.
   $agyHeadless = Join-Path $PSScriptRoot "agy-pty\agy-headless.js"
   $agyModel    = Get-ModelCfg 'antigravity' 'agy_model' 'Gemini 3.1 Pro (High)'
+  # Fallback-tier wiring (2026-07-04 audit): the quota fallback previously swapped only
+  # $model (the LOG label) while re-spawning the exhausted primary agy picker label --
+  # the fallback was cosmetic. If models.json carries agy_fallback_model, use it on the
+  # fallback tier; else keep primary and say so honestly in the log.
+  if($tier -ne 'primary'){
+    $agyFb = Get-ModelCfg 'antigravity' 'agy_fallback_model' ''
+    if($agyFb){ $agyModel = $agyFb }
+    else { Log "WARN: antigravity fallback tier requested but models.json has no agy_fallback_model picker label - re-spawning primary label '$agyModel' (likely still quota-parked)" }
+  }
 
   # P0 timeout guard: run the CLI inside a background job bounded by Wait-Job -Timeout. A hung
   # CLI (codex stdin-EOF hang, network stall) previously blocked the whole sequential loop
@@ -252,8 +287,9 @@ function Invoke-AI([string]$ai,[string]$tier='primary'){
   $fin = Wait-Job $job -Timeout $PerAITimeoutSec
   if(-not $fin){
     Stop-Job $job -ErrorAction SilentlyContinue
+    Kill-JobChildren
     Remove-Job $job -Force -ErrorAction SilentlyContinue
-    Log "cycle TIMEOUT($ai) after ${PerAITimeoutSec}s -- killed CLI, continuing"
+    Log "cycle TIMEOUT($ai) after ${PerAITimeoutSec}s -- killed CLI (incl. child process tree), continuing"
     try { [System.IO.File]::WriteAllText($live, "[$(Now) KST] $ai [$($tier):$model] (TIMEOUT ${PerAITimeoutSec}s)`n", $utf8) } catch {}
     return [pscustomobject]@{ Code = -1; Quota = $false; TimedOut = $true; Model = $model; Tier = $tier }
   }

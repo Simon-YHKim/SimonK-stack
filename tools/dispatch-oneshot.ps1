@@ -60,12 +60,26 @@ Write-Host "[dispatch] order committed: $rel" -ForegroundColor Green
 $t0 = Get-Date
 
 # One-shot spawn unless the standing lane daemon holds the mutex.
+# 2026-07-04: ALSO probe the 'default' lane mutex - a daemon launched without -Only
+# holds Global\hubdaemon_default while cycling every default-lane seat; probing only
+# hubdaemon_$To would double-spawn a second concurrent worker into the shared tree
+# (the index.lock race the sequential design exists to avoid).
 try {
-  $m = New-Object System.Threading.Mutex($false, "Global\hubdaemon_$To")
   $free = $false
+  $m = New-Object System.Threading.Mutex($false, "Global\hubdaemon_$To")
   try { $free = $m.WaitOne(0) } catch [System.Threading.AbandonedMutexException] { $free = $true }
   if ($free) {
     [void]$m.ReleaseMutex()
+    $defaultLanes = @('codex')   # keep in sync with hub-daemon.ps1 default AI set
+    if ($defaultLanes -contains $To) {
+      $md = New-Object System.Threading.Mutex($false, "Global\hubdaemon_default")
+      $dfree = $false
+      try { $dfree = $md.WaitOne(0) } catch [System.Threading.AbandonedMutexException] { $dfree = $true }
+      if ($dfree) { [void]$md.ReleaseMutex() } else { $free = $false }
+      $md.Dispose()
+    }
+  }
+  if ($free) {
     Start-Process powershell -ArgumentList '-ExecutionPolicy','Bypass','-File',(Join-Path $PSScriptRoot 'hub-daemon.ps1'),'-Only',$To,'-MaxCycles','1' -WindowStyle Hidden
     Write-Host "[dispatch] one-shot lane spawned (-Only $To -MaxCycles 1)" -ForegroundColor Green
   } else {
