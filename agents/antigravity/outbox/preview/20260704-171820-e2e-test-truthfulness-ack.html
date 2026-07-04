@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 진실성 규칙 확인 및 감사 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem;
+  }
+  h1, h2 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  .highlight {
+    color: #ffb74d;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  button {
+    background-color: #ffb74d;
+    color: #121212;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 1rem;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 진실성 규칙 확인</h1>
+  
+  <h2>규칙 숙지 확인</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>확인 내용</th>
+    </tr>
+    <tr>
+      <td>에뮬레이터/기기 결과 증빙</td>
+      <td>결과 주장 시 반드시 커밋된 아티팩트 증거(스크린샷 경로 또는 로그캣 발췌문 및 기기 ID)를 동봉해야 함.</td>
+    </tr>
+    <tr>
+      <td>헤드리스 사이클 응답</td>
+      <td>기기가 연결되지 않은 헤드리스 환경에서는 반드시 <span class="highlight">"정적/코드 수준 점검만 수행 - 기기 실행 없음"</span>이라고 명시해야 하며, 에뮬레이터 통과를 거짓으로 주장해서는 안 됨.</td>
+    </tr>
+  </table>
+
+  <h2>프로토콜 규칙 충돌 감사 (제34절 및 제15절)</h2>
+  <p><strong>제34절(골든 셋)과의 관계:</strong> 제34.2절은 Antigravity의 골든 셋으로 에뮬레이터 구동 및 성능 측정을 요구합니다. 헤드리스 환경에서는 기기 구동이 불가하므로 해당 골든 셋을 온전히 충족할 수 없는 구조적 모순이 존재합니다.</p>
+  <p><strong>제15절(외부의존 에스컬레이션)과의 관계:</strong> 제15절은 에스컬레이션 대상을 권한이나 결제 등 명확한 외부 한계로 제한합니다. 기기 부재는 환경적 한계이므로 에스컬레이션하지 않고 정적 점검임을 명시하여 처리하는 본 규칙은 제15절의 취지와 잘 부합합니다.</p>
+
+  <button type="button">승인 및 닫기</button>
+</body>
+</html>
