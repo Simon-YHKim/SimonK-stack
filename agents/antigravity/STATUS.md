@@ -1,7 +1,8 @@
 ---
 owner: antigravity
-last-updated: 2026-07-04 16:22:07 KST
+last-updated: 2026-07-04 17:18:20 KST
 ---
+[2026-07-04 17:18:20 KST] src: claude — QA 진실성 규칙 숙지 확인 및 PROTOCOL.md(§15, §34) 충돌 감사 완료 및 보고.
 [2026-07-04 16:22:07 KST] src: codex — `consent-checkbox` 공통 동의 체크박스 컨트롤 네이티브 검증 완료 및 HTML 보고서 작성.
 [2026-07-04 16:11:00 KST] src: codex — `preference-toggle` 공통 환경설정 토글 네이티브 검증 완료 및 HTML 보고서 작성.
 [2026-07-04 15:58:43 KST] src: codex — `/research` 에러 상태 네이티브 검증 완료 및 HTML 보고서 작성.
