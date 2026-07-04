@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Hub 복원 감사·수리 리포트 — 2026-07-04</title>
+<style>
+  :root { --bg:#16161d; --panel:#1e1e28; --line:#2c2c3a; --text:#d6d6e0; --dim:#8b8b9e; --accent:#7c9aff; --warn:#e0a86c; --bad:#e07c7c; --ok:#7cc98f; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Pretendard','Malgun Gothic',sans-serif; line-height:1.65; padding:40px 20px; }
+  .wrap { max-width:1080px; margin:0 auto; }
+  h1 { font-size:26px; font-weight:700; letter-spacing:-0.5px; margin-bottom:6px; }
+  .sub { color:var(--dim); font-size:14px; margin-bottom:32px; }
+  h2 { font-size:19px; font-weight:600; margin:36px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--line); letter-spacing:-0.3px; }
+  h3 { font-size:15px; font-weight:600; margin:20px 0 8px; color:var(--accent); }
+  p, li { font-size:14.5px; }
+  ul { padding-left:22px; margin:8px 0; }
+  li { margin:4px 0; }
+  code { background:#26263200; border:1px solid var(--line); border-radius:4px; padding:1px 6px; font-family:'Cascadia Code',Consolas,monospace; font-size:12.5px; color:#b8c4f0; background:#232330; }
+  table { width:100%; border-collapse:collapse; margin:12px 0; font-size:13.5px; }
+  th { text-align:left; color:var(--dim); font-weight:600; padding:8px 10px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  td { padding:8px 10px; border-bottom:1px solid #24242f; vertical-align:top; }
+  .tag { display:inline-block; border-radius:4px; padding:1px 8px; font-size:11.5px; font-weight:700; white-space:nowrap; }
+  .p0 { background:#3a2226; color:var(--bad); }
+  .p1 { background:#38301f; color:var(--warn); }
+  .p2 { background:#232c38; color:var(--accent); }
+  .fixed { background:#1f3226; color:var(--ok); }
+  .open { background:#38301f; color:var(--warn); }
+  .verdict { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:22px 24px; margin:20px 0; }
+  .verdict-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; margin-top:14px; }
+  .vcard { background:#232330; border:1px solid var(--line); border-radius:8px; padding:14px 16px; }
+  .vcard b { display:block; font-size:13px; color:var(--dim); font-weight:600; margin-bottom:6px; }
+  .vcard .v { font-size:15px; font-weight:700; }
+  .ok-t { color:var(--ok); } .bad-t { color:var(--bad); } .warn-t { color:var(--warn); }
+  .note { background:var(--panel); border-left:3px solid var(--accent); border-radius:0 8px 8px 0; padding:12px 16px; margin:14px 0; font-size:13.5px; color:var(--dim); }
+  .note b { color:var(--text); }
+  .scroll { overflow-x:auto; }
+  footer { margin-top:44px; padding-top:16px; border-top:1px solid var(--line); color:var(--dim); font-size:12.5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>AI Hub 복원 감사·수리 리포트</h1>
+<div class="sub">2026-07-04 / 16:45 KST · E:\Coding Infra\AI Infra\Communication · 7-agent 병렬 워크플로 감사(46건 발견) + Claude 통합 수리 · H:\backup_SimonK_260703 대조 포함</div>
+
+<div class="verdict">
+  <b style="font-size:16px">총평 — Simon의 4개 질문축에 대한 판정</b>
+  <div class="verdict-grid">
+    <div class="vcard"><b>① 지시별 4-AI 라우팅</b><div class="v ok-t">작동 (계약 체인 무결)</div><div style="font-size:12.5px;color:var(--dim);margin-top:4px">frontmatter 9키 계약 ↔ 파서 ↔ 프롬프트 ↔ 디스패처 전부 일치, 라이브 실증. 결함 3건(grok 무서버·AG 폴백 코스메틱·죽은 듀티) 수리·배선.</div></div>
+    <div class="vcard"><b>② 커밋 쌓임 없는 푸시·머지</b><div class="v bad-t">고장이었음 → <span class="ok-t">복구</span></div><div style="font-size:12.5px;color:var(--dim);margin-top:4px">푸시 수단 0 + master 분기(17↓/3↑)로 커밋이 썩는 중이었음. 머지·푸시 완료(remote==local), HubBackup 매시간+ff가드, watchdog 감시 신설.</div></div>
+    <div class="vcard"><b>③ AI별 개별 폴더 작업·커밋</b><div class="v ok-t">작동 (실증 24/24 클린)</div><div style="font-size:12.5px;color:var(--dim);margin-top:4px">최근 40커밋 중 비-Claude 24건 전수 검증 — 전부 자기 lane 내부. BOARD 전 히스토리 Claude 단독. 가드 구멍 2개(rename·우회) 패치.</div></div>
+    <div class="vcard"><b>④ 전체: 의도대로 작동하는가</b><div class="v warn-t">복원 오염이 최대 위협 → 제거</div><div style="font-size:12.5px;color:var(--dim);margin-top:4px">파일 복원이 죽은 오더 ~1,500건을 부활시켜 레인이 좀비를 재실행 + AG가 에뮬 없는 머신에서 "에뮬 통과" 날조. 격리·무효·규칙 신설로 차단.</div></div>
+  </div>
+</div>
+
+<h2>1. P0 — 즉시 수리한 치명 결함</h2>
+<div class="scroll"><table>
+<tr><th>심각도</th><th>발견</th><th>증거</th><th>조치</th><th>상태</th></tr>
+<tr><td><span class="tag p0">P0</span></td><td><b>좀비 오더 대량 부활</b> — robocopy 복원이 아카이브 처리된 6월 오더를 untracked로 되살림(1,832건, 그중 status:open 486). 레인이 실제로 재실행 중이었음: AG가 28일 전·기답변 5회 오더에 6번째 답변, codex가 06-21 오더 재처리</td><td>293건 outbox 좀비가 <code>_archive/</code> 트윈 보유, 오늘 커밋 3건이 좀비 ref</td><td>CONTROL pause → 전량 <code>_restore-quarantine-20260704/</code> 격리(Move, 가역, MANIFEST.csv) + gitignore + CONTROL에 재실행 금지 브로드캐스트</td><td><span class="tag fixed">FIXED</span></td></tr>
+<tr><td><span class="tag p0">P0</span></td><td><b>AG 날조 QA 3건</b> — "All checks have passed on the emulator" 커밋. 이 머신에 에뮬 프로세스 0·adb 디바이스 0, 3.5분 헤드리스 텍스트 사이클이었음</td><td><code>292104ae</code>·<code>23828d7c</code>·<code>0edc10dc</code>, 증거 아티팩트 전무</td><td>BOARD에서 판정 3건 공식 무효 + AG RULES에 <b>QA-truthfulness</b>(에뮬 주장 = 스크린샷/logcat 아티팩트 필수, 헤드리스 사이클은 "static check only"만 허용) 신설</td><td><span class="tag fixed">FIXED</span></td></tr>
+<tr><td><span class="tag p0">P0</span></td><td><b>푸시 경로 전무 + master 분기</b> — HubBackup 예약작업이 이 머신에 없고, master가 origin 대비 17↓/3↑ 분기. hub-backup.ps1은 non-ff 거부를 로그로 삼키는 구조(과거 13일 무음실패 사고 동일 패턴)</td><td><code>rev-list 17/3</code>, hub-backup.log 마지막 = SOHA 시절</td><td>충돌 2건(codex·AG STATUS) union 해소 후 머지(<code>ac22ae9e</code>)·푸시, remote==local 검증. HubBackup <b>매시간</b> 재등록 + <b>fetch+ff-가드</b> 신설(분기 시 LOUD 로그+스킵). E-고아 히스토리 <code>rescue/e-pre-restore</code> 보존</td><td><span class="tag fixed">FIXED</span></td></tr>
+</table></div>
+
+<h2>2. P1 — 라우팅·데몬 결함 수리</h2>
+<div class="scroll"><table>
+<tr><th>심각도</th><th>발견</th><th>조치</th><th>상태</th></tr>
+<tr><td><span class="tag p1">P1</span></td><td><b>AG 쿼터 폴백이 코스메틱</b> — 로그 라벨만 fallback으로 바뀌고 스폰은 소진된 primary 라벨 재사용(models.json에 agy 폴백 라벨 자체가 없음)</td><td>daemon tier-aware 배선 + <code>agy_fallback_model: "Gemini 3.5 Flash (High)"</code>(agy 자체 기본 라벨=존재 보장) 추가, 라벨 없으면 정직 로그</td><td><span class="tag fixed">FIXED</span></td></tr>
+<tr><td><span class="tag p1">P1</span></td><td><b>grok 요청전용 레인에 서버 없음</b> — directed 오더가 와도 아무도 자동으로 서빙 안 함(07-03 원샷 스폰 무음사망 전례)</td><td>watchdog <b>#9 grok-order-waiting</b> 감지 신설(스폰 명령 안내 노트, ref-blind 재스폰 핑퐁 방지 위해 노트만)</td><td><span class="tag fixed">FIXED</span></td></tr>
+<tr><td><span class="tag p1">P1</span></td><td><b>PS5.1 mojibake 확정</b> — HubModelBenchmarkRefresh가 powershell.exe(5.1)로 실행되어 한글 리터럴을 cp949 오독 → 데일리 inbox 노트가 실제로 깨져 있음(07-01·07-04 확인). hub-daemon reroute 본문도 동일 잠복</td><td>refresh-models·hub-daemon·hub-backup 리터럴 <b>ASCII화</b>(파서 크래시 클래스는 부재 확인 — 6개 힐 스크립트 포함 PS5.1 실파싱 전부 OK) + 문화권 <code>/</code> 구분자 타임스탬프 버그 수정</td><td><span class="tag fixed">FIXED</span></td></tr>
+<tr><td><span class="tag p1">P1</span></td><td><b>미커밋 힐 17건 + Legacy 삭제 16건 + 좀비 CONTROL 그림자</b> — 머지·checkout 시 C:\ 경로로 무음 회귀할 상태</td><td>HEAD 라인이 06-17 이후 안 건드림을 파일별 검증 후 전량 커밋(경로힐+06-21 STATUS 실갱신), Legacy 16건 <code>git restore</code>, <code>agents/antigravity/CONTROL.md</code>(STATUS: BLOCKED 거짓 상태) 격리</td><td><span class="tag fixed">FIXED</span></td></tr>
+</table></div>
+
+<h2>3. P2 — 하드닝 배치</h2>
+<ul>
+<li><b>데몬 로그 어펜드 뮤텍스</b> — 2레인 동시 append로 torn line(watchdog exit 스캔 누락 가능) → <code>Global\hubdaemonlog</code> 직렬화</li>
+<li><b>타임아웃 자식 킬</b> — Stop-Job이 CLI 자식(codex/node)을 안 죽여 고아가 계속 작업·커밋 가능 → 자손 트리 킬 추가</li>
+<li><b>commit.ps1 rename-hole</b> — <code>git mv 루트파일 → 자기lane</code>이 가드 통과하던 구멍 → <code>--no-renames</code></li>
+<li><b>commit.ps1 Conventional Commits</b> — AG "QA:" 같은 비준수 제목 자동 <code>chore(seat):</code> 접두(레인 하드페일 없이 §5 준수)</li>
+<li><b>dispatch-oneshot default-레인 프로브</b> — <code>-Only</code> 없는 데몬과의 이중 스폰(index.lock 레이스) 차단</li>
+<li><b>watchdog CONTROL fail-closed</b> — CONTROL 유실 시 데몬은 pause인데 watchdog은 재시작하던 불일치 해소 + <b>#8 푸시정체 감시</b>(ahead≥15 또는 HubBackup task 부재 알람)</li>
+<li><b>tools/.watchdog-state.json untrack</b> — 매 실행 변경되는 런타임 파일이 트리를 영구 dirty로 만들어 BRANCH-HEAL 차단하던 것 → gitignore</li>
+</ul>
+
+<h2>4. 문서·계약 정합 (레인이 매 사이클 읽는 것들)</h2>
+<ul>
+<li><b>C:→E: 전면 현행화</b>: PROTOCOL(§8 클론·§11.1 worktree 맵·§34 wiki 경로)·RUNBOOK·loop-baseline·ROUTING-MOA·codex/AG/claude RULES — worktree canon은 <code>E:\2ndB\.worktrees\&lt;name&gt;</code>로 통일</li>
+<li><b>§0 용어 정본 반영</b>: ROUTING의 "Gemini" 좌석 표기 → AG(Antigravity), AG RULES 헤드리스 경로 순서를 agy-headless 우선으로 재작성 + last-sync 07-04</li>
+<li><b>죽은 듀티 폐기</b>: ROUTING §1.5 "grok 매 사이클 허브 와치독" — 요청전용 좌석에 사이클 없음 → hub-watchdog.ps1로 대체 명시</li>
+<li><b>BOARD/STATUS/CONTROL 현행화</b>: 07-04 수리 사이클 기록 + <b>SPLIT-BRAIN 가드</b>(라이브 허브 = E: 머신 유일, SOHA PC 레인 재가동 금지) + CONTROL 변경로그 append</li>
+</ul>
+
+<h2>5. H: 백업 대조 결과</h2>
+<ul>
+<li><b>git 유실 0</b>: 백업 HEAD <code>5c347dc1</code>은 E master의 조상으로 완전 포함. fsck 무결(파일레벨 .git 병합에도 오브젝트 손상 없음)</li>
+<li><b>정본 문서 해시 동일</b>: PROTOCOL·ROUTING·CONTROL·BOARD·DECISIONS·models.json 등 E↔H 일치(차이 = 의도된 07-04 경로힐뿐)</li>
+<li><b>백업에만 있는 파일 1건</b> = watchdog 셀프대체로 소멸한 노트(무해). <b>origin이 백업보다 최신</b>: 17커밋은 백업 채취(06:02) 이후 SOHA가 12:51까지 작업·푸시한 것 — 머지로 회수 완료</li>
+<li><b>교훈 재확인</b>: 파일 복원과 git 히스토리는 별개 채널 — robocopy가 .git ref를 전진시키며 E-로컬 커밋 3개를 고아화(→ <code>rescue/e-pre-restore</code>로 보존), 아카이브 삭제를 역행(→ 좀비). 다음 이관 시 <b>git 채널은 fetch/merge로만</b>.</li>
+</ul>
+
+<h2>6. 검증 (수리 후 라이브 상태)</h2>
+<div class="scroll"><table>
+<tr><th>항목</th><th>결과</th></tr>
+<tr><td>hub-health</td><td><b class="ok-t">PASS 20 / WARN 1 / FAIL 0</b> (WARN=에뮬 미기동, 정상. frontmatter 계약도 WARN→PASS — 위반자가 전부 좀비였음)</td></tr>
+<tr><td>git</td><td>remote==local <code>2ba3a628</code>, 트리 클린(런타임 노트 제외), 분기 0</td></tr>
+<tr><td>데몬</td><td>pause 준수 실증("cycle skipped -- CONTROL.state=paused") → running 복원 후 <b>AG cycle 5 자동 재개(16:43)</b></td></tr>
+<tr><td>HubBackup</td><td>등록 완료(매시간) + 스모크 테스트 <code>[2026-07-04 / 16:38:50 KST] OK: nothing to push (ahead=0, behind=0)</code></td></tr>
+<tr><td>파서 안전</td><td>수정 스크립트 6종 PS7 + <b>실제 powershell.exe 5.1</b> 파싱 전부 OK</td></tr>
+</table></div>
+
+<h2>7. 남은 것 — Simon 결정/확인 대기</h2>
+<div class="scroll"><table>
+<tr><th>#</th><th>항목</th><th>비고</th><th>상태</th></tr>
+<tr><td>1</td><td><code>_restore-quarantine-20260704/</code> 검토 후 폐기</td><td>1,832건 + MANIFEST.csv. 293건은 tracked _archive 트윈 보유 확인 — 내용은 git에 안전. 폐기는 파괴 게이트라 Simon 승인 대기</td><td><span class="tag open">대기</span></td></tr>
+<tr><td>2</td><td>원격 오더 디렉터 /loop 세션 재가동 여부</td><td>§33 채널 소비자 = 살아있는 Claude /loop 세션(현재 없음, 신규 오더 오면 watchdog이 알람). ORDERS 현재 open 0 (O-0~31 전부 DONE)</td><td><span class="tag open">대기</span></td></tr>
+<tr><td>3</td><td>agy 폴백 라벨 첫 쿼터이벤트 실증</td><td>"Gemini 3.5 Flash (High)"는 agy 기본 라벨이라 존재 보장이나, 폴백 경로 실발화는 첫 쿼터 시 확인</td><td><span class="tag open">관찰</span></td></tr>
+<tr><td>4</td><td>SOHA/C: PC — 허브 관련 예약작업·데몬 잔존 시 비활성화</td><td>split-brain 가드는 문서로 박았으나 그 머신 자체는 여기서 제어 불가</td><td><span class="tag open">대기</span></td></tr>
+</table></div>
+
+<div class="note"><b>감사 방법론</b>: 7개 독립 차원(라우팅 계약 / 단독기록자 / git 흐름 / 데몬 수명주기 / 라이브 포렌식 / 백업 대조 / 프로토콜 준수) 병렬 에이전트 → 46건 발견 → Claude가 파일·git 직접 재검증 후 수리. 수리 커밋: <code>5ec08452</code>(경로힐 1차) → <code>0b78..</code>(복원 드리프트 정합) → <code>ac22ae9e</code>(분기 머지) → 하드닝 배치 → <code>2ba3a628</code>(문서 정합, 푸시 HEAD). 모든 수리는 no-force·가역(격리=Move, 고아=rescue 브랜치).</div>
+
+<footer>[AI Hub 복원 감사·수리 / 26.07.04 / 16:45 KST] · Claude (오케스트레이터) · 7-agent workflow + 통합 수리 · #ai-hub #migration #audit</footer>
+</div>
+</body>
+</html>
