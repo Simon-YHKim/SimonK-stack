@@ -26,7 +26,7 @@ updated: 2026-07-04 16:45 KST
 
 ## 현재 지시(broadcast) — Claude가 갱신
 - **▶ RUNNING (2026-07-04 E:머신 이관·복원 수리 완료)**: 데몬 = codex 레인 + AG 레인(`AGY_USE_CONPTY=0`, agy-headless) · **grok은 기본레인 제외**(ROUTING §4 요청전용, directed request 시 `-Only grok` 옵트인 — watchdog #9가 대기오더 감지) · HubWatchdog(10분)이 죽은 레인 오토리스타트 + ORDERS 채널 + 푸시정체(#8) 감시 · HubBackup(매시간)이 master→comm-hub ff-푸시.
-- **🚫 SPLIT-BRAIN 가드 (2026-07-04)**: 이 허브의 라이브 머신 = **E: (DESKTOP-Q02Q4FG / 202502)** 단 하나. 옛 SOHA/C: PC에서 레인·데몬·HubBackup 재가동 **금지** — 두 머신이 같은 comm-hub master에 쓰면 분기 재발(07-04 17↓/3↑ 사고). SOHA PC는 이관 완료로 은퇴.
+- **🚫 SPLIT-BRAIN 가드 (2026-07-04)**: 이 허브의 라이브 머신 = **E: (DESKTOP-Q02Q4FG / 202502)** 단 하나. 옛 SOHA/C: PC에서 레인·데몬·HubBackup 재가동 **금지** — 두 머신이 같은 comm-hub master에 쓰면 분기 재발(07-04 17↓/3↑ 사고). **Simon 승인(07-04): SOHA PC = 비활성화+Legacy 처리** — 실행 스크립트 `tools/soha-pc-decommission.ps1`(태스크 disable·데몬 kill·루트 -Legacy-20260704 리네임, H:백업 루트에도 복사됨). H:백업 폴더도 `backup_SimonK_260703-Legacy`로 리네임+재복원금지 마커 완료.
 - **⚠ 아카이브·격리 오더 재실행 금지 (§3 재확인)**: `outbox/_archive/` 및 `_restore-quarantine-*/`의 오더는 죽은 오더다 — 좌석은 절대 재개하지 않는다. AG의 에뮬/디바이스 QA 주장은 증거 아티팩트(스크린샷 경로/logcat) 필수(AG RULES QA-truthfulness).
 - **원격 오더 채널 (§33) — 소비자 주의**: 채널 소비자는 **살아있는 Claude /loop 디렉터 세션**이다(세션 종료=채널 정지, 06-21~07-03 12일 무소비 사고). Simon이 오더를 넣었는데 픽업이 없으면 watchdog이 `orders-unconsumed` 노트를 Claude inbox에 자동 기록한다. 디렉터 세션은 `tools/orders-poll.ps1 -Json -Heartbeat`로 폴링 + `-Ack <id>`로 픽업 기록.
 - **분배 라우팅(ROUTING.md)**: Claude=오케스트레이션·코딩·통합·git, Codex=UI/UX+구현, AG=네이티브/에뮬 QA(+패치 제안), Grok=X·소비자 리서치(요청기반). 고위험 산출물은 MoA 교차검증(ROUTING-MOA §3).
