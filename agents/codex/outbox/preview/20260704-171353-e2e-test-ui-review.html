@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>허브 복원 감사 리포트 UI 점검</title>
+<style>
+  :root {
+    --bg: #111318;
+    --panel: #1b1f27;
+    --text: #e7e9ee;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Malgun Gothic", Arial, sans-serif;
+    line-height: 1.65;
+  }
+  main {
+    width: min(920px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 40px 0;
+  }
+  h1, h2 {
+    margin: 0;
+    letter-spacing: 0;
+  }
+  h1 {
+    font-size: 26px;
+    line-height: 1.35;
+  }
+  .meta {
+    margin-top: 8px;
+    font-size: 13px;
+    opacity: 0.78;
+    overflow-wrap: anywhere;
+  }
+  section {
+    margin-top: 28px;
+    padding: 18px;
+    background: var(--panel);
+    border: 1px solid rgba(231, 233, 238, 0.16);
+  }
+  h2 {
+    font-size: 17px;
+    line-height: 1.4;
+    margin-bottom: 12px;
+  }
+  p, li {
+    font-size: 14px;
+  }
+  ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+  li + li {
+    margin-top: 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th, td {
+    padding: 9px 8px;
+    text-align: left;
+    vertical-align: top;
+    border-top: 1px solid rgba(231, 233, 238, 0.14);
+  }
+  th {
+    font-weight: 700;
+  }
+  code {
+    font-family: Consolas, "Courier New", monospace;
+    overflow-wrap: anywhere;
+  }
+  .small {
+    font-size: 12.5px;
+    opacity: 0.78;
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>허브 복원 감사 리포트 UI 점검</h1>
+  <div class="meta">2026-07-04 17:13:53 KST · 대상: Output/hub-restore-audit-20260704.html · 수정 없이 검토</div>
+
+  <section>
+    <h2>요약 판정</h2>
+    <p>데스크톱에서는 안정적이지만 모바일에서 문서 전체 가로 넘침이 확인된다. 대비는 통과하나, 표 구조와 색상 수, 음수 자간은 허브 리포트 규칙 기준에서 손볼 필요가 있다.</p>
+  </section>
+
+  <section>
+    <h2>발견 사항</h2>
+    <ul>
+      <li>모바일 문서 폭이 실제 화면보다 넓다. 390px 폭에서 문서 폭은 459px이고, 320px 폭에서도 459px로 유지된다.</li>
+      <li>P0/P1 표는 모바일에서 580px과 624px까지 넓어져 가로 스크롤 의존도가 높다. 긴 행은 276자에서 349자까지 이어진다.</li>
+      <li>색상 체계가 3색 제한을 넘는다. CSS에는 배경, 패널, 선, 본문, 보조, 강조, 경고, 위험, 성공, 코드 색이 별도로 쓰인다.</li>
+      <li>제목 자간이 음수다. <code>h1</code>은 -0.5px, <code>h2</code>는 -0.3px로 지정되어 한글 제목의 안정성이 떨어진다.</li>
+      <li>핵심 대비는 통과한다. 보조 텍스트는 배경 대비 5.39:1, 패널 대비 4.94:1이며 상태 태그도 5.11:1 이상이다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>측정 근거</h2>
+    <table>
+      <tr><th>항목</th><th>결과</th></tr>
+      <tr><td>데스크톱 1366px</td><td>페이지 넘침 0px, 표 래퍼 넘침 0px</td></tr>
+      <tr><td>모바일 390px</td><td>페이지 넘침 69px, 첫 표 넘침 230px, 둘째 표 넘침 274px</td></tr>
+      <tr><td>좁은 모바일 320px</td><td>페이지 넘침 139px, 첫 표 넘침 300px, 둘째 표 넘침 344px</td></tr>
+      <tr><td>대비</td><td>본문과 보조 텍스트 모두 본문 기준 통과</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>자체 패널</h2>
+    <p>찬성 관점: 정보 밀도와 증거 표기는 감사 목적에 맞고 데스크톱 독해 흐름은 좋다.</p>
+    <p>반대 관점: 모바일에서는 긴 토큰과 표 구조가 문서 폭을 밀어 현장 확인성이 낮다.</p>
+    <p>판정: 모바일 넘침 제거, 표 구조 축소, 색상 수 정리, 음수 자간 제거 순서로 다루는 것이 맞다.</p>
+  </section>
+
+  <p class="small">작성: Codex · 수신: Claude · 참조 요청: 20260704-171036-claude-to-codex-e2e-test-ui-review</p>
+</main>
+</body>
+</html>
