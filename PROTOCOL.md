@@ -148,7 +148,7 @@ created: 2026-06-05 15:22:34 KST
   1. 사이클 결과를 `2nd-B`에 **push**.
   2. **PR로 `main`에 merge** (force-push 금지, 항상 PR 경유, 다른 AI 브랜치와 충돌 점검 후).
   3. 머지 후 **라이브 화면**을 사용자에게 제공.
-- **라이브 화면 수단** (2nd-B = Expo ~56 / RN managed, 클론 `C:\2ndB`):
+- **라이브 화면 수단** (2nd-B = Expo ~56 / RN managed, 클론 `E:\2ndB`):
   - **빠른 UI 확인 (기본)**: `npm run web`(`expo start --web`) → 로컬 웹 → 스크린샷. 가장 빠름, 에뮬 불필요.
   - **네이티브 확인**: `npx expo run:android` → prebuild + 에뮬레이터(AVD `Pixel_9_Pro_XL`) 실행 → 스크린샷. **Antigravity(네이티브 검수) 위임 가능**, Claude가 전달.
   - **라이브 웹 (실제)**: **GitHub Pages = `simon-yhkim.github.io/2nd-B`** (Vercel 아님). 계정·DB = Supabase. PR 제목은 Conventional Commits 필수(lint 잡이 PR 제목 검증). 머지 흐름: `gh pr create --base main` → `gh pr checks <n>` green → `gh pr merge <n> --squash`(main은 PR-보호, 직접 push 불가).
@@ -238,11 +238,11 @@ created: 2026-06-05 15:22:34 KST
 
 | AI | 개별 공간 (cwd) | 브랜치 | 비고 |
 |---|---|---|---|
-| Claude | `C:\2ndB` (main) | main + `claude/*` | 메인 코더 + 유일한 실제파일/온라인git 주체 |
-| Codex | `C:\Coding Infra\_worktrees\2ndB-codex` | `codex/work` | UI/UX 코딩 |
-| Antigravity | `C:\Coding Infra\_worktrees\2ndB-antigravity` | `antigravity/work` | Android 네이티브 코딩 |
+| Claude | `E:\2ndB` (main) | main + `claude/*` | 메인 코더 + 유일한 실제파일/온라인git 주체 |
+| Codex | `E:\2ndB\.worktrees\2ndB-codex` | `codex/work` | UI/UX 코딩 (worktree는 레포 내부 `.worktrees\` — 2nd-B CLAUDE.md 정본, 2026-07-04 E:머신 현행화) |
+| Antigravity | `E:\2ndB\.worktrees\2ndB-antigravity` | `antigravity/work` | Android 네이티브 코딩 (동일 canon) |
 
-- **코딩 착수 전 필독 (CRITICAL, B-6)**: worktree에서 코딩하기 전 **`C:\2ndB`의 `CLAUDE.md`·`DESIGN.md`·`docs/CONSTRAINTS.md`(C1~C12)·`ANDROID_QA_GUIDELINES.md`·`CONTEXT.md`(lexicon)를 반드시 읽는다.** UI=DESIGN.md 토큰 경유(hex 리터럴 금지), 네이티브=ANDROID_QA 준수, LLM 경로=C1~C12 약화 금지. 미필독 시 slop·제약위반·임상어휘 유입 위험.
+- **코딩 착수 전 필독 (CRITICAL, B-6)**: worktree에서 코딩하기 전 **`E:\2ndB`의 `CLAUDE.md`·`DESIGN.md`·`docs/CONSTRAINTS.md`(C1~C12)·`ANDROID_QA_GUIDELINES.md`·`CONTEXT.md`(lexicon)를 반드시 읽는다.** UI=DESIGN.md 토큰 경유(hex 리터럴 금지), 네이티브=ANDROID_QA 준수, LLM 경로=C1~C12 약화 금지. 미필독 시 slop·제약위반·임상어휘 유입 위험.
 - **가역성 차등 (안전레일 보강, B-5)**: §11-5 3대 레일(비용·파괴·secrets) 외에도 **가역성으로 차등**한다 — 불가역·공개영향(production push·계정·외부 게시)은 합의/Simon 전 실행 보류, 가역·로컬은 자율 OK, 미검증 claim은 검증 후 진행, 사용자 개인사·심리 콘텐츠는 단독 생성 금지.
 - **흐름**: AI가 자기 worktree에서 코딩·typecheck → 자기 브랜치 **로컬 커밋** → Claude에 제출(outbox, 브랜치·변경 요약) → Claude가 자기 공간으로 가져와 **최종 보완 후 main 머지 + 온라인 push**.
 - **온라인 git = Claude 단독**(AI는 push 안 함, 로컬 커밋까지만). 레거시 `codex/*` origin 브랜치는 Claude가 가치 선별 후 정리.
@@ -367,7 +367,7 @@ created: 2026-06-05 15:22:34 KST
 ---
 
 ## 18. SimonKWiki 교훈 축적 & 참조 (Knowledge Flywheel)
-> SimonKWiki(`C:\Coding Infra\obsidian\SimonKWiki`, private GitHub `Simon-YHKim/SimonKWiki`)는 2nd-B의 **개념적 시초**이자 **교훈 저장소**다.
+> SimonKWiki(`E:\Coding Infra\obsidian\SimonKWiki`, private GitHub `Simon-YHKim/SimonKWiki`)는 2nd-B의 **개념적 시초**이자 **교훈 저장소**다.
 
 - **교훈 축적**: 4-AI 허브/2nd-B 작업에서 얻은 교훈은 위키 형식으로 누적한다 — `wiki/protocols/llm-wiki/LESSONS_LEARNED.md`(T-코드)·`concepts/recurring-mistakes.md`(M-코드). 위키 헌법(볼트 내 CLAUDE.md) 우선: raw/ 불변, frontmatter 필수, index.md·log.md 동시 갱신.
 - **18.0 Intake gate (2026-06-13)**: raw content 공유는 자동 ingest 트리거지만, "전부 저장"이 아니라 **선별→컴파일**이다. ①반복 사용 ②의사결정 영향 ③업무/프로젝트 연결 중 2개 이상이면 위키 반영, 1개 이하면 보류/로그. 5분 안에 요약·출처·관련 프로젝트를 붙일 수 없는 자료는 쌓아두지 않는다. 고객 개인정보·인사·계약 원문·credentials처럼 AI에게 넘기면 안 되는 자료는 같은 vault에 넣지 않는다.
@@ -615,7 +615,7 @@ created: 2026-06-05 15:22:34 KST
 ---
 
 ## 34. 4-AI 대칭화 — wiki 기여 · 측정루프 전파 · 머지우회 · 교차채점 (CRITICAL, 2026-06-13 Simon)
-> 진단(`C:\Coding Infra\Legacy-AI-Hub-보완점-진단.html` — 07-02 Legacy- 이관): wiki·측정루프가 Claude에 편중돼 비-Claude AI가 잘 못 쓴다. **다른 AI들도 wiki에 기여하고, golden set으로 측정하며, Claude 머지 병목에 질식하지 않게** 대칭화한다. (안전레일 §11-5·머지게이트 §10.5·single-writer §1은 불변 — 쓰기는 여전히 lane 소유자/Claude.)
+> 진단(`E:\Coding\Legacy\hub-20260615\Legacy-AI-Hub-보완점-진단.html` — 07-02 Legacy- 이관): wiki·측정루프가 Claude에 편중돼 비-Claude AI가 잘 못 쓴다. **다른 AI들도 wiki에 기여하고, golden set으로 측정하며, Claude 머지 병목에 질식하지 않게** 대칭화한다. (안전레일 §11-5·머지게이트 §10.5·single-writer §1은 불변 — 쓰기는 여전히 lane 소유자/Claude.)
 
 **34.1 wiki 기여 경로 (Claude 독점 완화 — G1)**
 - 모든 AI는 교훈·재사용가치 발견 시 `type: wiki_lesson`(to: claude) 메시지를 **자기 outbox**에 쓴다 — 한 줄 요약·핵심 3·출처/작성일·연결 프로젝트(§18.0 intake 2-of-3 충족분만). Claude(라이브러리언)가 배치로 위키에 ingest(쓰기·raw 불변·index/log 갱신은 §18대로 Claude 단독).

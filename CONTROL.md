@@ -1,10 +1,10 @@
 ---
 owner: claude
 note: "이 파일은 Claude(오케스트레이터)만 작성한다. 나머지 AI는 매 사이클 맨 앞에서 읽기만 한다."
-state: paused
-pause_reason: "2026-07-04 16:35 KST Claude(오케스트레이터): 백업 복원 정합 수리 윈도우. ① robocopy 복원이 아카이브된 좀비 오더 ~1,500건을 untracked로 부활시켜 레인이 죽은 6월 오더를 재실행 중(292104ae) ② master가 origin과 분기(3 ahead/17 behind, 이 머신에 push 수단 없음) ③ 더티 트리 1,873건. 좀비 격리 + 힐 커밋 + origin 머지 + 푸시 + HubBackup 재등록 후 재개."
-resume_reason: "2026-07-02 03:47 KST Simon /goal '남은 4개 진행' 승인 → 재개. (2026-07-04 수리 윈도우로 재일시정지 — pause_reason 참조.)"
-updated: 2026-07-04 16:35 KST
+state: running
+pause_reason: "2026-07-04 16:35 KST 수리 윈도우(복원 좀비 격리·분기 머지·HubBackup 재등록) — 17:05 완료 후 재개, resume_reason 참조."
+resume_reason: "2026-07-04 17:05 KST Claude(오케스트레이터): 수리 완료 → 재개. 좀비 1,832건 격리(_restore-quarantine-20260704), origin 머지·푸시(ac22ae9e, remote==local), HubBackup 매시간 재등록(ff-가드), 데몬 하드닝 배치, AG 날조 QA 3건 무효(BOARD), C:→E: 경로 현행화. 이 머신(E:, 202502)이 유일한 라이브 허브."
+updated: 2026-07-04 17:05 KST
 ---
 
 # CONTROL.md — 런-스테이트 세마포어 (always-checked)
@@ -25,7 +25,9 @@ updated: 2026-07-04 16:35 KST
 3. 재개: Claude가 `state: running` 복원 → 각 AI 재진입.
 
 ## 현재 지시(broadcast) — Claude가 갱신
-- **▶ RUNNING (2026-07-03 감사 후 정비 완료)**: 데몬 = codex 레인(+AG 레인 ConPTY 픽스 후 재기동, `AGY_USE_CONPTY=0`) · **grok은 기본레인 제외**(ROUTING §4 요청전용, directed request 시 `-Only grok` 옵트인) · HubWatchdog(10분)이 죽은 레인 오토리스타트 + ORDERS 채널 감시.
+- **▶ RUNNING (2026-07-04 E:머신 이관·복원 수리 완료)**: 데몬 = codex 레인 + AG 레인(`AGY_USE_CONPTY=0`, agy-headless) · **grok은 기본레인 제외**(ROUTING §4 요청전용, directed request 시 `-Only grok` 옵트인 — watchdog #9가 대기오더 감지) · HubWatchdog(10분)이 죽은 레인 오토리스타트 + ORDERS 채널 + 푸시정체(#8) 감시 · HubBackup(매시간)이 master→comm-hub ff-푸시.
+- **🚫 SPLIT-BRAIN 가드 (2026-07-04)**: 이 허브의 라이브 머신 = **E: (DESKTOP-Q02Q4FG / 202502)** 단 하나. 옛 SOHA/C: PC에서 레인·데몬·HubBackup 재가동 **금지** — 두 머신이 같은 comm-hub master에 쓰면 분기 재발(07-04 17↓/3↑ 사고). SOHA PC는 이관 완료로 은퇴.
+- **⚠ 아카이브·격리 오더 재실행 금지 (§3 재확인)**: `outbox/_archive/` 및 `_restore-quarantine-*/`의 오더는 죽은 오더다 — 좌석은 절대 재개하지 않는다. AG의 에뮬/디바이스 QA 주장은 증거 아티팩트(스크린샷 경로/logcat) 필수(AG RULES QA-truthfulness).
 - **원격 오더 채널 (§33) — 소비자 주의**: 채널 소비자는 **살아있는 Claude /loop 디렉터 세션**이다(세션 종료=채널 정지, 06-21~07-03 12일 무소비 사고). Simon이 오더를 넣었는데 픽업이 없으면 watchdog이 `orders-unconsumed` 노트를 Claude inbox에 자동 기록한다. 디렉터 세션은 `tools/orders-poll.ps1 -Json -Heartbeat`로 폴링 + `-Ack <id>`로 픽업 기록.
 - **분배 라우팅(ROUTING.md)**: Claude=오케스트레이션·코딩·통합·git, Codex=UI/UX+구현, AG=네이티브/에뮬 QA(+패치 제안), Grok=X·소비자 리서치(요청기반). 고위험 산출물은 MoA 교차검증(ROUTING-MOA §3).
 - **모델 정본**: claude=`claude-fable-5`@max(07-03 재핀) · codex=gpt-5.5@medium · grok=grok-build@high · AG=gemini-3.1-pro-preview@high. 기계본 `tools/models.json`.

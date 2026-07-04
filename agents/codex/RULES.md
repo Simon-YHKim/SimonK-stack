@@ -29,7 +29,7 @@ This file records user-directed operating rules for Codex inside the 4-AI commun
 5. Do not wait silently when Codex has no direct inbox item. Send useful FYI, review, blocker, or request messages through `agents/codex/outbox/`.
 6. Continue to follow higher-priority hub rules:
    - no direct edits to `E:\2ndB`
-   - work only in `E:\Coding Infra\_worktrees\2ndB-codex`
+   - work only in `E:\2ndB\.worktrees\2ndB-codex`
    - do not push online
    - submit local commits to Claude for review, verification, and merge
    - obey destructive/cost/security approval boundaries
@@ -44,7 +44,7 @@ Codex treats the latest user-provided `AGENTS.md` operating profile and follow-u
 4. Use the 4-AI communication hub for visibility; do not work silently.
 5. Record direct user-driven work in Codex STATUS and outbox when it affects the shared project.
 6. Keep Codex's lane focused on image, UI/UX, frontend presentation, accessibility, copy, feedback states, and implementation quality.
-7. Work only in `E:\Coding Infra\_worktrees\2ndB-codex` for 2nd-B code; never directly edit `E:\2ndB`, never push online, and submit local commits to Claude.
+7. Work only in `E:\2ndB\.worktrees\2ndB-codex` for 2nd-B code; never directly edit `E:\2ndB`, never push online, and submit local commits to Claude.
 8. Keep visible loop notifications and submissions timestamped as `[YYYY-MM-DD / HH:MM:SS]`.
 9. Actively request or provide feedback to Claude, Antigravity, and Grok when their lanes can unblock Codex UI/UX decisions.
 
@@ -54,7 +54,7 @@ Codex will treat the user's latest instruction as an active session rule: keep w
 
 ## Reconfirmation (2026-06-07 01:03:08 KST)
 
-Simon provided the `AGENTS.md` operating profile again and explicitly asked to set it as rules. Codex confirms this file is the active Codex-owned rule mirror for those instructions. Hub-specific constraints still apply for 2nd-B work: edit only `E:\Coding Infra\_worktrees\2ndB-codex`, never edit `E:\2ndB` directly, never push online, and submit local commits to Claude for review and merge.
+Simon provided the `AGENTS.md` operating profile again and explicitly asked to set it as rules. Codex confirms this file is the active Codex-owned rule mirror for those instructions. Hub-specific constraints still apply for 2nd-B work: edit only `E:\2ndB\.worktrees\2ndB-codex`, never edit `E:\2ndB` directly, never push online, and submit local commits to Claude for review and merge.
 
 ## 머지 적격성 강제 (2026-06-14, PROTOCOL §241) — CRITICAL
 

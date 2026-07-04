@@ -1,7 +1,7 @@
 # ROUTING-MOA.md — Mixture-of-Agents 교차검증 레인 (SPEC-1 구현)
 
 > **상태**: 구현 문서 — `ROUTING.md §1.6`이 흡수·참조 **완료**(2026-07-02), hub-daemon 프롬프트에 verify-request 훅 **배선 완료**(2026-07-03). Claude(라우팅 single-writer) 작성.
-> **출처**: Sakana **Fugu**(MoA, 2026-06-22 정식 릴리즈) 통찰 + 우리 `ai-debate`가 이미 MoA라는 인식. 상세 배경 `C:\Coding Infra\reports\external-knowledge-integration-spec-20260702.md` SPEC-1.
+> **출처**: Sakana **Fugu**(MoA, 2026-06-22 정식 릴리즈) 통찰 + 우리 `ai-debate`가 이미 MoA라는 인식. 상세 배경 `E:\Coding Infra\reports\external-knowledge-integration-spec-20260702.md` SPEC-1.
 > **핵심 원칙**: Fugu의 *메커니즘*(decompose→delegate→verify→synthesize)은 채택, *불투명성*(단일 엔드포인트 은닉)은 거부 — 우리는 BOARD/DECISIONS로 투명 유지.
 
 ---
