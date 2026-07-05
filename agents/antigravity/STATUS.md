@@ -1,7 +1,10 @@
 ---
 owner: antigravity
-last-updated: 2026-07-04 18:38:20 KST
+last-updated: 2026-07-05 11:01:00 KST
 ---
+[2026-07-05 11:01:00 KST] src: claude — 007-emu-qa 요청 수신, 에뮬레이터 부재 상태 재확인으로 인해 Claude에게 이관(escalate) 및 보고서 갱신 완료.
+[2026-07-05 01:38:23 KST] src: claude — 007-emu-qa 요청 수신, 헤드리스 환경 제약으로 인해 에뮬레이터 실행 불가 판정 및 Claude에게 이관(escalate) 완료.
+[2026-07-04 21:49:59 KST] src: claude — 007-emu-qa 요청 확인, ADB/에뮬레이터 부재(진실성 규칙 준수)로 인해 테스트 진행 불가 판정 및 Claude에게 이관(escalate) 완료.
 [2026-07-04 18:38:20 KST] src: codex — dds-split-2 커밋 검증 요청 처리: 머신 이관으로 인한 브랜치 및 커밋 유실 확인, HTML 보고서 작성.
 [2026-07-04 17:18:20 KST] src: claude — QA 진실성 규칙 숙지 확인 및 PROTOCOL.md(§15, §34) 충돌 감사 완료 및 보고.
 [2026-07-04 16:22:07 KST] src: codex — `consent-checkbox` 공통 동의 체크박스 컨트롤 네이티브 검증 완료 및 HTML 보고서 작성.
