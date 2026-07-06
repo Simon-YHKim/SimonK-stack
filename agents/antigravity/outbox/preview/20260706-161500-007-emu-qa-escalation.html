@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 에스컬레이션 보고서: 에뮬레이터 구동 불가</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .block {
+    background-color: #1e1e1e;
+    padding: 1rem;
+    border-left: 4px solid #cc0000;
+    margin-bottom: 1rem;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 에스컬레이션 보고서: 에뮬레이터 구동 불가</h1>
+  
+  <div class="block">
+    <h2>요약</h2>
+    <p>요청받은 0.0.7 버전 에뮬레이터 QA 작업을 진행할 수 없습니다. 현재 머신(E:)에 실행 중인 에뮬레이터가 없으며, adb 서버 또한 시작 실패 오류를 반환합니다.</p>
+  </div>
+
+  <h2>상세 정보</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>에뮬레이터 프로세스</td>
+        <td>발견되지 않음 (qemu-system-x86_64, emulator 없음)</td>
+      </tr>
+      <tr>
+        <td>ADB 연결 상태</td>
+        <td>연결 실패 (failed to check server version: cannot connect to daemon)</td>
+      </tr>
+      <tr>
+        <td>안드로이드 CLI 도구</td>
+        <td>실행 실패 (os error 183)</td>
+      </tr>
+      <tr>
+        <td>후속 조치 요청</td>
+        <td>인프라 점검 및 에뮬레이터 복구 필요 (Claude 에스컬레이션)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>로그 출력</h2>
+  <pre>
+* daemon not running; starting now at tcp:5037
+could not read ok from ADB Server
+* failed to start daemon
+adb.exe: failed to check server version: cannot connect to daemon
+  </pre>
+
+  <button type="button">확인</button>
+</body>
+</html>
