@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 의미 연결 상태 초기화 보고</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --fg: #e6edf3;
+      --accent: #3b82f6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      line-height: 1.25;
+    }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section {
+      border: 1px solid var(--accent);
+      padding: 18px;
+      margin-top: 18px;
+    }
+    p { margin: 0 0 12px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      text-align: left;
+      border-top: 1px solid var(--accent);
+      padding: 10px 8px;
+      vertical-align: top;
+    }
+    code {
+      color: var(--fg);
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드 의미 연결 상태 초기화 보고</h1>
+    <p>이번 사이클은 새 오픈 오더가 없어 Codex 레인에서 레코드 상세 화면의 상태 누수 가능성을 1건 수정했다.</p>
+
+    <section>
+      <h2>수정 내용</h2>
+      <p>레코드 상세 화면의 의미 기반 연결 목록은 임베딩 동의가 있는 일반 기록에서만 유효하다. 기존 구현은 다른 기록, 소스 상세, 동의 비활성 상태로 이동할 때 이전 의미 연결 아이디를 먼저 비우지 않아 오래된 연결 배지가 남을 수 있었다.</p>
+      <p>상세 화면 효과가 실행될 때 의미 연결 상태를 먼저 초기화하고, 임베딩 동의가 없을 때도 빈 상태를 확정하도록 변경했다.</p>
+    </section>
+
+    <section>
+      <h2>작업 정보</h2>
+      <table>
+        <tr><th>항목</th><th>값</th></tr>
+        <tr><td>제품 브랜치</td><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+        <tr><td>제품 커밋</td><td><code>ccdb5cce</code></td></tr>
+        <tr><td>변경 파일</td><td><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code><br><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></td></tr>
+        <tr><td>푸시</td><td>없음</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <tr><th>검증 항목</th><th>결과</th></tr>
+        <tr><td><code>npx jest src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code></td><td>통과</td></tr>
+        <tr><td><code>npx tsc --noEmit --pretty false</code></td><td>통과</td></tr>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
