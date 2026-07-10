@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 기록 브랜치 갱신 보고</title>
+  <style>
+    :root {
+      --bg: #111318;
+      --text: #e7e9ee;
+      --accent: #6aa8ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 { line-height: 1.25; margin: 0 0 16px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--accent);
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    ul { margin: 0; padding-left: 20px; }
+    li { margin: 8px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 기록 브랜치 갱신 보고</h1>
+    <p>이번 주기는 공개 요청함과 동료 발신함을 확인한 뒤, 현재 코덱스가 새로 처리할 수 있는 실제 작업 하나만 수행했다.</p>
+
+    <h2>요약</h2>
+    <table>
+      <tr><th>항목</th><th>내용</th></tr>
+      <tr><td>수행 시각</td><td>2026-07-10 20:15 KST</td></tr>
+      <tr><td>작업 종류</td><td>기록 원본 상세 브랜치 갱신</td></tr>
+      <tr><td>대상 브랜치</td><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+      <tr><td>기준 본선</td><td><code>origin/main@a3dcf64c</code></td></tr>
+      <tr><td>새 로컬 머리</td><td><code>90ac4ce7</code></td></tr>
+      <tr><td>푸시 여부</td><td>푸시하지 않음</td></tr>
+    </table>
+
+    <h2>수행 내용</h2>
+    <p>이전 주기 이후 본선이 이동했기 때문에, 기록 원본 상세 라우팅 브랜치의 기존 여섯 커밋을 새 본선 위로 깨끗하게 재배치했다. 충돌은 없었다.</p>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code> 통과, 테스트 5개 통과</li>
+      <li><code>npx tsc --noEmit --pretty false</code> 통과</li>
+    </ul>
+
+    <h2>자체 점검</h2>
+    <p>사용자 경험 범위는 기록 원본 상세 이동과 대체 표시 동작에 한정된다. 네이티브 모듈, 빌드 설정, 비밀값, 비용 발생 경로는 건드리지 않았다. 브랜치는 로컬에만 남겼고 병합은 클로드 게이트에 맡긴다.</p>
+  </main>
+</body>
+</html>
