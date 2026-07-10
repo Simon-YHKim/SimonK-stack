@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 그래프 정적 점검</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #d8e2ec;
+      --accent: #6aa6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      line-height: 1.25;
+    }
+    h1 {
+      font-size: 28px;
+      color: var(--accent);
+    }
+    h2 {
+      margin-top: 30px;
+      font-size: 18px;
+    }
+    p { margin: 0 0 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+    li { margin: 8px 0; }
+    .panel {
+      border: 1px solid var(--accent);
+      padding: 16px;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 그래프 정적 점검</h1>
+    <p>이번 사이클은 새 Codex 오더가 없어, Antigravity의 에뮬레이터 불가 공백을 보완하는 범위로 <code>origin/main@4dbfcfdb</code>의 기록 그래프와 기록 의미 연결 표면을 정적으로 점검했다. 제품 코드는 수정하지 않았고 푸시도 하지 않았다.</p>
+
+    <h2>판정</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+          <th>근거</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>기록 태그 그래프 모델</td>
+          <td>통과</td>
+          <td><code>buildRecordsGraph</code>는 북극성, 도메인 별, 기록 노드, 도메인 간 공유 태그 점선을 생성한다.</td>
+        </tr>
+        <tr>
+          <td>기록 의미 연결 동의</td>
+          <td>통과</td>
+          <td>기본 꺼짐, 미성년 잠금, 저장 실패 문구, 끄기 시 벡터 삭제 경로가 존재한다.</td>
+        </tr>
+        <tr>
+          <td>자동 테스트</td>
+          <td>통과</td>
+          <td>기록 그래프, 그래프 레이아웃, 임베딩 게이트, 개인정보 선호 저장 테스트가 모두 성공했다.</td>
+        </tr>
+        <tr>
+          <td>소스 기반 기록 상세 이동</td>
+          <td>주의 필요</td>
+          <td>DeepSpace 기록 목록과 그래프는 <code>sources</code> 행을 <code>src-*</code> 아이디로 섞지만, 상세 화면은 <code>records</code> 테이블만 조회한다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>발견</h2>
+    <div class="panel">
+      <p><strong>중간 위험:</strong> <code>/records</code> DeepSpace 화면에서 소스 기반 항목을 누르면 상세 화면이 정상 기록 대신 없음 상태로 떨어질 수 있다.</p>
+      <ul>
+        <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx:317-327</code>에서 <code>sources</code> 행을 <code>id: src-${id}</code> 형태의 기록처럼 만든다.</li>
+        <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx:462</code>와 <code>469</code>는 이 아이디를 그대로 <code>/record/[id]</code>로 보낸다.</li>
+        <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx:618</code>의 상세 화면은 <code>getRecordById(userId, recordId)</code>만 호출하므로 <code>sources</code> 행을 읽지 못한다.</li>
+        <li>레거시 상세 화면은 <code>origin=source</code> 분기를 갖고 있지만, DeepSpace 경로는 그 파라미터를 전달하거나 처리하지 않는다.</li>
+      </ul>
+    </div>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>npm test -- --runTestsByPath src/lib/records/__tests__/records-graph.test.ts src/lib/records/__tests__/records-graph-layout.test.ts src/lib/records/__tests__/records-embeddings.test.ts src/lib/privacy/__tests__/prefs.test.ts src/lib/supabase/__tests__/privacy.test.ts</code>: 통과, 5개 묶음 41개 테스트.</li>
+      <li><code>npm run lint -- --quiet</code>: 통과.</li>
+      <li>에뮬레이터 픽셀 판정은 수행하지 않았다. 이번 산출은 코드 정적 점검과 자동 테스트에 한정된다.</li>
+    </ul>
+
+    <h2>권장 후속</h2>
+    <p>Claude 머지 게이트에서 DeepSpace 상세 화면도 레거시처럼 <code>origin=source</code>를 처리하게 하거나, DeepSpace 목록과 그래프가 소스 항목을 열 때 원본 소스 아이디와 출처 파라미터를 함께 넘기도록 조정하는 것이 좋다.</p>
+  </main>
+</body>
+</html>
