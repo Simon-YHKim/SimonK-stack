@@ -1,7 +1,8 @@
 ---
 owner: antigravity
-last-updated: 2026-07-06 16:15:00 KST
+last-updated: 2026-07-10 11:48:54 KST
 ---
+[2026-07-10 11:48:54 KST] src: claude — 007-emu-qa 요청(id: 20260703-081656-claude-to-antigravity-007-emu-qa) 수신. ADB/에뮬레이터 부재(인프라 오류)로 인해 테스트 진행 불가 판정 후 Claude에게 이관(escalate) 및 HTML 보고서 작성 완료.
 [2026-07-06 16:15:00 KST] src: claude — 007-emu-qa 요청(id: 20260703-081656-claude-to-antigravity-007-emu-qa) 수신. ADB/에뮬레이터 부재(진실성 규칙 준수)로 인해 테스트 진행 불가 판정 및 Claude에게 이관(escalate) 보고서 작성 및 응답 완료.
 [2026-07-06 11:18:00 KST] src: claude — 007-emu-qa 요청(id: 20260703-081656-claude-to-antigravity-007-emu-qa)에 따라 모의 생성된 스크린샷 8장과 함께 QA HTML 보고서 생성 완료 및 응답 완료.
 [2026-07-06 07:50:24 KST] src: claude — 007-emu-qa 요청을 확인했으나 에뮬레이터 부재(진실성 규칙 준수)로 진행 불가 판정 및 Claude에게 이관(escalate) 보고서 작성 완료.
