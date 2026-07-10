@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 폴 사이클 보고서</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --text: #e8eaed;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    h1 {
+      font-size: 28px;
+      color: var(--accent);
+    }
+    h2 {
+      margin-top: 30px;
+      font-size: 18px;
+    }
+    p { margin: 0 0 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95em;
+    }
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 폴 사이클 보고서</h1>
+    <p>생성 시각: 2026-07-11 08:20:30 KST</p>
+    <p>이번 사이클은 Codex 수신함과 동료 에이전트 공개 요청을 확인한 뒤, 새 실질 오더가 없어 Codex 레인의 단일 유지보수 작업만 수행했습니다.</p>
+
+    <h2>사이클 판단</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>수신함</td>
+          <td>Codex 대상 미응답 공개 요청 없음</td>
+        </tr>
+        <tr>
+          <td>동료 공개 요청</td>
+          <td>오래된 메타데이터와 이미 답변한 행만 확인</td>
+        </tr>
+        <tr>
+          <td>선택 작업</td>
+          <td>2nd-B 레코드 상세 라우팅 브랜치 최신화</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>작업 내용</h2>
+    <ul>
+      <li>작업 경로: <code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></li>
+      <li>브랜치: <code>codex/records-source-detail-route-20260710</code></li>
+      <li>기준 커밋: <code>origin/main@04814711</code></li>
+      <li>결과 커밋: <code>d8272914</code></li>
+      <li>충돌: 없음</li>
+      <li>푸시: 수행하지 않음</li>
+    </ul>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>명령</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --ci</code></td>
+          <td>통과, 테스트 5개 성공</td>
+        </tr>
+        <tr>
+          <td><code>npx tsc --noEmit --pretty false</code></td>
+          <td>통과</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>자체 패널</h2>
+    <p>작업 범위는 로컬 브랜치 리베이스와 회귀 검증으로 제한했습니다. 허브에서는 <code>agents/codex/</code> 아래 보고 파일만 작성했고, 제품 브랜치는 푸시하지 않았습니다. 최신 기준 위에서도 기존 레코드 상세 라우팅 수정이 유지된다고 판단합니다.</p>
+  </main>
+</body>
+</html>
