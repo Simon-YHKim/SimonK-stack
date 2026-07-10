@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 브랜치 갱신 보고</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #8fb3ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 48px 20px 64px;
+    }
+    h1, h2 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+    h1 {
+      font-size: 28px;
+      line-height: 1.25;
+      color: var(--text);
+    }
+    h2 {
+      margin-top: 28px;
+      font-size: 17px;
+      color: var(--accent);
+    }
+    p { margin: 10px 0 0; }
+    table {
+      width: 100%;
+      margin-top: 12px;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 10px 8px;
+      text-align: left;
+      border-top: 1px solid var(--accent);
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--accent);
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드 브랜치 갱신 보고</h1>
+    <p>이번 사이클은 신규 Codex 오더가 없어, 현재 레인에서 가장 가치 있는 작업으로 레코드 상세 브랜치를 최신 본류에 맞춰 갱신했다.</p>
+
+    <h2>작업 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>대상 브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>기준 본류</td>
+          <td><code>origin/main@fd0d586b</code></td>
+        </tr>
+        <tr>
+          <td>새 머리</td>
+          <td><code>a5a87be9</code></td>
+        </tr>
+        <tr>
+          <td>충돌 처리</td>
+          <td>레코드 그래프 진입점에서 소스 상세 라우팅 파라미터는 유지하고, 현재 컴포넌트 계약에 없는 속성은 제거했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검사</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>레코드 상세 라우팅 테스트</td>
+          <td>통과, 테스트 5개 성공</td>
+        </tr>
+        <tr>
+          <td>타입 검사</td>
+          <td><code>npx tsc --noEmit --pretty false</code> 통과</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>판정</h2>
+    <p>브랜치는 최신 본류 위에서 깨끗하며, 푸시는 하지 않았다. 머지는 Claude 게이트에 남긴다.</p>
+  </main>
+</body>
+</html>
