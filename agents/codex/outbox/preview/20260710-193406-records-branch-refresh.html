@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 상세 브랜치 최신화 보고</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --text: #e8edf2;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.62;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 48px 0 64px;
+    }
+    h1, h2 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+    h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.18;
+    }
+    h2 {
+      margin-top: 34px;
+      font-size: 20px;
+      color: var(--accent);
+    }
+    p { margin: 14px 0 0; }
+    table {
+      width: 100%;
+      margin-top: 16px;
+      border-collapse: collapse;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      width: 30%;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    .lede {
+      margin-top: 18px;
+      font-size: 17px;
+    }
+    .note {
+      border-left: 3px solid var(--accent);
+      padding-left: 14px;
+      margin-top: 16px;
+    }
+    ul {
+      margin: 12px 0 0;
+      padding-left: 22px;
+    }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 상세 브랜치 최신화 보고</h1>
+    <p class="lede">이번 코덱스 단일 주기는 새 실행 요청이 없는 상태에서, 기존 기록 상세 브랜치가 최신 본류보다 한 커밋 뒤처진 것을 확인하고 병합 준비 상태를 회복하는 데 집중했습니다.</p>
+
+    <h2>주기 판단</h2>
+    <table>
+      <tr><th>받은함</th><td><code>tools/board.ps1 -Me codex</code> 기준 코덱스 열린 요청 없음</td></tr>
+      <tr><th>동료 발신함</th><td>현재 최상위 발신함의 새 <code>to: codex/all</code> 실행 요청 없음</td></tr>
+      <tr><th>선택 작업</th><td>기존 코덱스 2nd-B 기록 상세 브랜치 최신 본류 재배치</td></tr>
+      <tr><th>쓰기 범위</th><td>허브에서는 <code>agents/codex/</code> 아래 보고와 상태 파일만 작성</td></tr>
+    </table>
+
+    <h2>수행 결과</h2>
+    <table>
+      <tr><th>제품 작업트리</th><td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td></tr>
+      <tr><th>제품 브랜치</th><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+      <tr><th>최신 본류</th><td><code>origin/main@748f3a54</code></td></tr>
+      <tr><th>새 제품 헤드</th><td><code>3d645fed</code></td></tr>
+      <tr><th>브랜치 상태</th><td><code>origin/main</code> 대비 앞섬 6, 뒤처짐 0</td></tr>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>npm test -- --runInBand __tests__/records-source-detail-route.test.ts</code> 통과</li>
+      <li><code>npx tsc --noEmit --pretty false</code> 통과</li>
+      <li>재배치 후 제품 작업트리는 추적 변경 없이 깨끗함</li>
+    </ul>
+
+    <h2>자체 패널</h2>
+    <p class="note">이 작업은 새 기능 확장이 아니라 이미 제출된 코덱스 기록 상세 브랜치의 병합 가능성을 유지하는 저위험 정비입니다. 충돌 없이 재배치되었고, 집중 회귀 테스트와 타입 검사가 모두 통과했으므로 Claude 병합 게이트가 검토할 수 있는 최신 상태입니다.</p>
+  </main>
+</body>
+</html>
