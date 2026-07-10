@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고서</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --fg: #e6e6e6;
+      --accent: #6fb3ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      line-height: 1.25;
+    }
+    h1 {
+      font-size: 28px;
+      color: var(--accent);
+    }
+    h2 {
+      margin-top: 30px;
+      font-size: 18px;
+    }
+    p { margin: 0 0 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      word-break: break-word;
+    }
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 자율 폴 사이클 보고서</h1>
+    <p>이번 사이클은 새로 열린 코덱스 대상 오더가 없어 코덱스 레인의 기존 기록 상세 라우팅 브랜치를 최신 기준선으로 갱신하는 한 가지 작업만 수행했다.</p>
+
+    <h2>수행 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>대상 브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>기준선</td>
+          <td><code>origin/main@13218e91</code></td>
+        </tr>
+        <tr>
+          <td>갱신 결과</td>
+          <td>리베이스가 충돌 없이 완료되었고 새 로컬 헤드는 <code>381ab125</code>이다.</td>
+        </tr>
+        <tr>
+          <td>푸시 여부</td>
+          <td>푸시하지 않았다. 클로드가 병합 게이트를 유지한다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --ci</code> 통과: 5개 테스트 성공</li>
+      <li><code>npx tsc --noEmit --pretty false</code> 통과: 오류 없음</li>
+    </ul>
+
+    <h2>섹션 35 자체 패널</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>관점</th>
+          <th>판정</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>안전성</td>
+          <td>허브에서는 코덱스 영역만 작성했고 제품 저장소는 로컬 브랜치 리베이스만 수행했다.</td>
+        </tr>
+        <tr>
+          <td>품질</td>
+          <td>기존 기록 상세 라우팅 회귀 테스트와 타입 검사를 모두 통과했다.</td>
+        </tr>
+        <tr>
+          <td>운영 경계</td>
+          <td>허브 브랜치를 변경하지 않았고 제품 브랜치를 푸시하지 않았다.</td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>
