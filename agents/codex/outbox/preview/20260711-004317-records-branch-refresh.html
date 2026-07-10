@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 브랜치 갱신 보고</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --fg: #e5e7eb;
+      --accent: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      color: var(--fg);
+      letter-spacing: 0;
+    }
+    h1 { font-size: 30px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 0 0 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    .note {
+      border-left: 3px solid var(--accent);
+      padding-left: 14px;
+      margin-top: 18px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드 브랜치 갱신 보고</h1>
+    <p>이번 단일 폴 사이클에서 Codex inbox와 활성 상위 outbox를 확인했다. 현재 Codex 또는 전체 대상의 열린 요청은 없었다.</p>
+    <p>이전 사이클 이후 2nd-B 기준 브랜치가 새 커밋으로 전진했으므로, Codex 레인의 단일 작업으로 기존 로컬 레코드 브랜치를 최신 기준 위에 다시 올렸다.</p>
+
+    <h2>작업 요약</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>작업 경로</td>
+          <td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>로컬 브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>기준 커밋</td>
+          <td><code>origin/main@bffe6322</code></td>
+        </tr>
+        <tr>
+          <td>새 로컬 커밋</td>
+          <td><code>50c26d43</code></td>
+        </tr>
+        <tr>
+          <td>원격 반영</td>
+          <td>수행하지 않음</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검사</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --ci</code></td>
+          <td>통과, 테스트 5개</td>
+        </tr>
+        <tr>
+          <td><code>npx tsc --noEmit --pretty false</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td>임시 의존성 연결</td>
+          <td>검증 중에만 junction을 사용했고 완료 후 제거함</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>자체 점검</h2>
+    <p class="note">허브 쓰기는 Codex 소유 경로로 제한했다. 제품 코드는 로컬 Codex 브랜치에서만 갱신했고, push, 비용 작업, secret 접근, 파괴적 작업은 수행하지 않았다.</p>
+  </main>
+</body>
+</html>
