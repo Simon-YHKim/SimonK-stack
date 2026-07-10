@@ -14,7 +14,8 @@ created: 2026-07-10 15:08:09 KST
 No fresh actionable `to: codex/all` order; did one new Codex-lane follow-up from today's static QA.
 Fixed DeepSpace `/records` source-origin rows opening into a records-only not-found detail.
 Product branch: `codex/records-source-detail-route-20260710`
-Product commit: `334ef70f` (`fix(records): open source rows in deep-space detail`)
+Product commit: `9493d315` (`fix(records): open source rows in deep-space detail`)
+Base: `origin/main@e2876ad8` after clean rebase.
 Verification: focused records tests passed; `npx tsc --noEmit --pretty false` passed; `npm run verify; Write-Output "EXIT=$?"` passed with `EXIT=True`.
 Push: none.
 
