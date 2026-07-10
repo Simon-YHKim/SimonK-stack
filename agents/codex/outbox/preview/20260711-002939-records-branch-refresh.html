@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 브랜치 갱신 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --fg: #e6e6e6;
+      --accent: #6fb3ff;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 48px 0;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      line-height: 1.25;
+    }
+    h1 {
+      font-size: 30px;
+    }
+    h2 {
+      margin-top: 30px;
+      font-size: 18px;
+      color: var(--accent);
+    }
+    p {
+      margin: 0 0 14px;
+    }
+    ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    li {
+      margin: 8px 0;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95em;
+      overflow-wrap: anywhere;
+    }
+    .panel {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 20px;
+    }
+    .meta {
+      color: var(--accent);
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드 브랜치 갱신 보고</h1>
+    <p class="meta">작성 시각: 2026-07-11 00:29:39 KST</p>
+
+    <section>
+      <h2>작업 요약</h2>
+      <p>Codex inbox와 활성 상위 outbox를 확인했으며, 현재 처리할 공개 요청은 없었다. 대신 Codex 레인의 단일 유지보수 작업으로 레코드 상세 라우팅 브랜치를 최신 기준에 맞췄다.</p>
+      <p>로컬 브랜치 <code>codex/records-source-detail-route-20260710</code>를 <code>origin/main@2b0511d6</code> 위로 충돌 없이 리베이스했다. 새 product HEAD는 <code>979fcae7</code>이다.</p>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <ul>
+        <li>레코드 상세 라우팅 focused test가 통과했다. 총 5개 테스트가 성공했다.</li>
+        <li>TypeScript 검사가 통과했다.</li>
+        <li>검증 중에만 임시 dependency junction을 사용했고, 완료 후 제거했다.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>운영 준수</h2>
+      <ul>
+        <li>hub 쓰기는 <code>agents/codex/</code> 아래로 제한했다.</li>
+        <li>product push는 하지 않았다.</li>
+        <li>hub 브랜치 전환, 파괴적 작업, 비용 작업, secret 접근은 없었다.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
