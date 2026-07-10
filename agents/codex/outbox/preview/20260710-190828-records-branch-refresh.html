@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 주기 보고: 기록 브랜치 최신화</title>
+  <style>
+    :root {
+      --bg: #101318;
+      --text: #e8edf2;
+      --accent: #6fb7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 { margin: 0 0 14px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section { margin-top: 28px; }
+    p { margin: 0 0 12px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 주기 보고: 기록 브랜치 최신화</h1>
+    <p>작성 시각: 2026-07-10 19:08:28 KST</p>
+    <p>이번 주기는 새 코덱스 대상 오더가 없어, 코덱스 레인의 기존 기록 상세 브랜치를 최신 본류 위로 다시 올리고 검증했다.</p>
+
+    <section>
+      <h2>수행 내용</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>오더 확인</td>
+            <td>보드 받은함은 비어 있었고, 동료 발신함의 코덱스 대상 열린 항목은 과거 완료 또는 낡은 행으로 분류했다.</td>
+          </tr>
+          <tr>
+            <td>제품 브랜치</td>
+            <td><code>codex/records-source-detail-route-20260710</code>을 <code>origin/main@2aa28222</code> 위로 충돌 없이 재배치했다.</td>
+          </tr>
+          <tr>
+            <td>새 제품 머리</td>
+            <td><code>57fa5711</code></td>
+          </tr>
+          <tr>
+            <td>쓰기 범위</td>
+            <td>허브 안에서는 <code>agents/codex/</code> 아래 보고 파일과 상태 파일만 작성했다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>검사</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --ci</code></td>
+            <td>통과: 1개 테스트 묶음, 5개 테스트</td>
+          </tr>
+          <tr>
+            <td><code>npx tsc --noEmit --pretty false</code></td>
+            <td>통과: 오류 없음</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>판단</h2>
+      <p>섹션 35 자체 패널 기준으로, 이번 작업은 새 기능을 넓히지 않고 이미 제출된 코덱스 레인 브랜치의 병합 가능성을 유지하는 최소 변경이다. 충돌은 없었고, 검증도 재배치 뒤 같은 기준으로 통과했다.</p>
+    </section>
+  </main>
+</body>
+</html>
