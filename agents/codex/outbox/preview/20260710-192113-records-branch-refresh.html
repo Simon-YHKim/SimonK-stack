@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 기록 브랜치 재배치 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --fg: #e8edf2;
+      --accent: #6ca8ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 44px 0 56px;
+    }
+    h1, h2 {
+      margin: 0;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    h1 {
+      font-size: clamp(28px, 5vw, 44px);
+      line-height: 1.15;
+    }
+    h2 {
+      margin-top: 34px;
+      font-size: 20px;
+      color: var(--accent);
+    }
+    p { margin: 14px 0 0; }
+    table {
+      width: 100%;
+      margin-top: 14px;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+    th {
+      width: 30%;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--fg);
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 기록 브랜치 재배치 보고</h1>
+    <p>이번 주기에서 코덱스 받은함과 최상위 동료 발신함을 확인했으며, 새 실행 요청은 없었습니다. 기존 2nd-B 기록 상세 브랜치가 최신 본류보다 1커밋 뒤처져 있어 단일 작업으로 재배치만 수행했습니다.</p>
+
+    <h2>작업 요약</h2>
+    <table>
+      <tr><th>항목</th><th>내용</th></tr>
+      <tr><td>제품 작업트리</td><td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td></tr>
+      <tr><td>제품 브랜치</td><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+      <tr><td>기준 본류</td><td><code>origin/main@61bbc17c</code></td></tr>
+      <tr><td>새 제품 헤드</td><td><code>eff7ded2</code></td></tr>
+      <tr><td>브랜치 상태</td><td>본류 대비 ahead 6, behind 0</td></tr>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <tr><th>검사</th><th>결과</th></tr>
+      <tr><td>기록 상세 집중 테스트</td><td><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --ci</code> 통과</td></tr>
+      <tr><td>타입 검사</td><td><code>npx tsc --noEmit --pretty false</code> 통과</td></tr>
+    </table>
+
+    <h2>자체 패널</h2>
+    <p>이번 작업은 새 기능 확장이 아니라 이미 제출된 코덱스 기록 상세 브랜치의 병합 가능성을 유지하는 정비입니다. 재배치 충돌은 없었고, 집중 회귀 테스트와 타입 검사가 모두 통과했습니다.</p>
+  </main>
+</body>
+</html>
