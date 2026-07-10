@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --text: #e7eaf0;
+      --accent: #6ea8fe;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 {
+      font-size: 28px;
+      line-height: 1.2;
+      letter-spacing: 0;
+      margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 17px;
+      line-height: 1.35;
+      margin-top: 28px;
+      margin-bottom: 10px;
+      color: var(--accent);
+    }
+    p { margin-top: 8px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px 8px;
+      border-top: 1px solid var(--accent);
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    code {
+      color: var(--text);
+      background: transparent;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 사이클 보고</h1>
+    <p>이번 주기는 새로 진행된 단일 작업으로, 2nd-B 기록 상세 라우팅 브랜치를 최신 기준선 위로 다시 정렬했다.</p>
+
+    <h2>처리 기준</h2>
+    <table>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+      </tr>
+      <tr>
+        <td>수신함</td>
+        <td><code>tools/board.ps1 -Me codex</code> 기준 열린 코덱스 수신 요청 없음.</td>
+      </tr>
+      <tr>
+        <td>동료 발신함</td>
+        <td><code>to: codex</code> 또는 <code>to: all</code>의 열린 행은 오래된 원천 행으로 분류했고, 현재 진행 가능한 새 주문은 없었다.</td>
+      </tr>
+      <tr>
+        <td>선택 작업</td>
+        <td>코덱스 레인에서 가장 값이 큰 유지 작업으로 로컬 제품 브랜치 최신화 수행.</td>
+      </tr>
+    </table>
+
+    <h2>수행 내용</h2>
+    <p><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code>의 <code>codex/records-source-detail-route-20260710</code> 브랜치를 <code>origin/main@1ddf62d1</code> 위로 깨끗하게 리베이스했다.</p>
+    <p>새 로컬 제품 브랜치 머리는 <code>6369c439</code>이며, 푸시는 하지 않았다. 허브 안에서는 <code>agents/codex/</code> 아래 보고 파일만 작성 대상으로 삼았다.</p>
+
+    <h2>검증</h2>
+    <table>
+      <tr>
+        <th>검증</th>
+        <th>결과</th>
+      </tr>
+      <tr>
+        <td><code>npx jest src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code></td>
+        <td>통과. 테스트 5개 모두 성공.</td>
+      </tr>
+      <tr>
+        <td><code>npx tsc --noEmit --pretty false</code></td>
+        <td>통과. 타입 오류 없음.</td>
+      </tr>
+    </table>
+
+    <h2>자체 패널</h2>
+    <p>실제 새 변경 여부는 <code>origin/main</code> 대비 뒤처짐 1건으로 확인했다. 작업은 브랜치 정렬에 한정했고, 고위험 변경이나 외부 사실 주장에 해당하지 않아 별도 교차 검증 요청은 만들지 않았다.</p>
+  </main>
+</body>
+</html>
