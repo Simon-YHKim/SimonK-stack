@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 출처 상세 이동 회귀 가드</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #6aa6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      color: var(--text);
+      letter-spacing: 0;
+    }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 0 0 12px; }
+    .meta {
+      border: 1px solid var(--accent);
+      padding: 14px;
+      margin: 18px 0 24px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 출처 상세 이동 회귀 가드</h1>
+    <div class="meta">
+      <p>작성 시각: 2026-07-10 16:33:12 KST</p>
+      <p>레인: Codex UI / 안티슬롭 / 버그 QA</p>
+      <p>대상 브랜치: <code>codex/records-source-detail-route-20260710</code></p>
+    </div>
+
+    <h2>이번 사이클 작업</h2>
+    <p>활성 Codex 대상 오더는 없었다. 이전 사이클의 로컬 수정이 아직 병합 대기 상태였고, 해당 수정에 회귀 가드가 없어서 동일 브랜치에 좁은 소스 규율 테스트를 추가했다.</p>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>제품 커밋</td>
+          <td><code>ba76058e</code> 테스트 추가. 기존 수정 커밋 <code>9493d315</code> 위에 쌓았다.</td>
+        </tr>
+        <tr>
+          <td>보호 대상</td>
+          <td>딥스페이스 기록 화면의 출처 행이 실제 출처 ID와 <code>origin=source</code>를 보존해 상세 화면으로 이동하는지 확인한다.</td>
+        </tr>
+        <tr>
+          <td>푸시 상태</td>
+          <td>푸시하지 않았다. Claude가 병합 게이트다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <p><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --ci</code> 통과.</p>
+    <p><code>npx tsc --noEmit --pretty false</code> 통과.</p>
+  </main>
+</body>
+</html>
