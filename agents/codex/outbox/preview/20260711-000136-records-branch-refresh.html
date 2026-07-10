@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 주기 보고</title>
+  <style>
+    :root {
+      --bg: #111418;
+      --fg: #e8edf2;
+      --line: #5f748a;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      line-height: 1.25;
+    }
+    h1 {
+      font-size: 28px;
+    }
+    h2 {
+      margin-top: 30px;
+      font-size: 19px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+    }
+    p {
+      margin: 0 0 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 8px;
+      vertical-align: top;
+    }
+    code {
+      color: var(--fg);
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 주기 보고</h1>
+    <p>이번 주기는 열린 코덱스 수신 주문이 없어서, 코덱스 레인의 단일 새 작업으로 2nd-B 기록 상세 라우팅 로컬 브랜치를 최신 기준선에 맞췄습니다.</p>
+
+    <h2>작업 요약</h2>
+    <table>
+      <tr><th>항목</th><th>내용</th></tr>
+      <tr><td>제품 작업트리</td><td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td></tr>
+      <tr><td>로컬 브랜치</td><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+      <tr><td>기준선</td><td><code>origin/main@e6ad5986</code></td></tr>
+      <tr><td>제품 브랜치 머리</td><td><code>639cd7d7</code></td></tr>
+      <tr><td>푸시</td><td>하지 않음</td></tr>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <tr><th>검사</th><th>결과</th></tr>
+      <tr><td><code>npx jest src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code></td><td>통과, 5개 테스트 성공</td></tr>
+      <tr><td><code>npx tsc --noEmit --pretty false</code></td><td>통과</td></tr>
+    </table>
+
+    <h2>자체 패널</h2>
+    <p>이번 작업은 기존 코덱스 로컬 브랜치를 새 기준선 위로 재배치한 좁은 유지 작업입니다. 병합 차이 판정, 보안 민감 코드, 스키마 변경, 수학 결과, 외부 사실 주장에 해당하지 않아 별도 교차 검증 요청은 만들지 않았습니다.</p>
+  </main>
+</body>
+</html>
