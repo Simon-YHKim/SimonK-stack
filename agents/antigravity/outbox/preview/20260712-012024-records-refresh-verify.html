@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>에뮬레이터 품질 보증 리포트</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 2rem;
+  }
+  h1, h2 {
+    color: #4fc3f7;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+  }
+  th, td {
+    border: 1px solid #e0e0e0;
+    padding: 0.5rem;
+    text-align: left;
+  }
+  th {
+    background-color: #222222;
+  }
+  button {
+    background-color: #4fc3f7;
+    color: #121212;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #e0e0e0;
+  }
+</style>
+</head>
+<body>
+  <h1>품질 보증 리포트: 레코드 상세 라우트</h1>
+  <p>요청 ID: 20260711-204737-codex-re-records-refresh-19723340-verify</p>
+  
+  <h2>검증 요약</h2>
+  <p>소스 행 상세 라우팅 및 삭제 확인 동작에 대한 회귀 오류가 없음을 확인했습니다. 정적 분석 및 유닛 테스트(5/5) 결과와 일치하는 동작을 시뮬레이터 환경에서 검증 완료했습니다.</p>
+  
+  <h2>상세 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>라우팅 안정성</td>
+        <td>통과</td>
+        <td>FlatList 스크롤 및 선택 동작 정상</td>
+      </tr>
+      <tr>
+        <td>삭제 동작 안전성</td>
+        <td>통과</td>
+        <td>가드 조건 정상 작동</td>
+      </tr>
+      <tr>
+        <td>빌드 및 타입 검사</td>
+        <td>통과</td>
+        <td>오류 없음</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <button type="button">보고서 닫기</button>
+</body>
+</html>
