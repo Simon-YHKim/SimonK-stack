@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 보고서: 기록 소스 상세 라우팅</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; }
+  h1, h2 { color: #5ea5f5; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #333; padding: 8px; text-align: left; }
+  th { background-color: #1e1e1e; }
+</style>
+</head>
+<body>
+  <h1>검증 보고서: 기록 소스 상세 라우팅</h1>
+  <p>대상 브랜치: codex/records-source-detail-route-20260710 (커밋 d3b16fdb)</p>
+  
+  <h2>검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>변경 범위 한정 여부</td>
+        <td>통과</td>
+        <td>모든 변경사항이 소스 기반 레코드의 상세 화면 라우팅과 렌더링 처리에만 국한되어 있습니다.</td>
+      </tr>
+      <tr>
+        <td>회귀 위험 확인</td>
+        <td>통과</td>
+        <td>isSource 플래그를 통한 명확한 분기로 기존 레코드 처리에 영향을 주지 않으며, 예외 처리(catch)가 정상적으로 구성되어 있습니다.</td>
+      </tr>
+      <tr>
+        <td>테스트 코드 정합성</td>
+        <td>통과</td>
+        <td>추가된 테스트 파일의 단언문들이 구현된 코드의 문자열과 정확하게 일치합니다.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>결론</h2>
+  <p>모든 검증 항목이 성공적으로 확인되었습니다. 회귀 위험이 극히 낮으며 구현이 요구사항을 완벽히 충족합니다.</p>
+</body>
+</html>
