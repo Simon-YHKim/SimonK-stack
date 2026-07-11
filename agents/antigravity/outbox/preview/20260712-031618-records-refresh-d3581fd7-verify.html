@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+  h1, h2 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.5rem; text-align: left; }
+  th { background-color: #1e1e1e; }
+  .status { font-weight: bold; }
+  .success { color: #e0e0e0; }
+  pre { background-color: #1e1e1e; padding: 1rem; overflow-x: auto; border: 1px solid #333333; }
+</style>
+</head>
+<body>
+  <h1>검증 보고서</h1>
+  <p>요청 대상: 레코드 상세 라우팅 갱신</p>
+  <h2>검증 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>상세 내역</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>집중 테스트</td>
+        <td class="status success">성공</td>
+        <td>src/screens/deepspace/__tests__/records-source-detail-route.test.ts 5개 항목 통과</td>
+      </tr>
+      <tr>
+        <td>회귀 검사</td>
+        <td class="status success">성공</td>
+        <td>라우팅 변경 사항 유지 확인</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>실행 로그</h2>
+  <pre>PASS src/screens/deepspace/__tests__/records-source-detail-route.test.ts
+  deep-space records source detail routing
+    √ source rows keep their source id and origin for detail navigation (2 ms)
+    √ the detail screen reads sources when origin=source (1 ms)
+    √ source detail renders saved markdown body with inline fallback
+    √ semantic related state is cleared before source or consent-gated detail reads
+    √ related-record read failures do not hide the focal detail record
+
+Test Suites: 1 passed, 1 total
+Tests:       5 passed, 5 total</pre>
+</body>
+</html>
