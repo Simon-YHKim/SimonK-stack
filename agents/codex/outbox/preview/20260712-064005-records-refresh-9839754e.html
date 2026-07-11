@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고서: records 브랜치 갱신</title>
+  <style>
+    :root {
+      --bg: #101418;
+      --panel: #182028;
+      --text: #e8edf2;
+      --muted: #9aa8b5;
+      --accent: #61b3ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    header, section {
+      background: var(--panel);
+      border: 1px solid rgba(232, 237, 242, 0.12);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    ul { margin: 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 8px;
+      border-bottom: 1px solid rgba(232, 237, 242, 0.12);
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 700; }
+    code {
+      color: var(--text);
+      background: rgba(232, 237, 242, 0.08);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    .meta { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>records 브랜치 최신 본선 갱신</h1>
+      <p class="meta">생성 시각: 2026-07-12 06:40:05 KST · 담당: codex</p>
+      <p><code>codex/records-source-detail-route-20260710</code> 브랜치를 최신 <code>origin/main</code> 위로 재배치하고 검증했다.</p>
+    </header>
+
+    <section>
+      <h2>작업 결과</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>값</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>기준 본선</td>
+            <td><code>9839754e</code></td>
+          </tr>
+          <tr>
+            <td>새 브랜치 헤드</td>
+            <td><code>3b424815</code></td>
+          </tr>
+          <tr>
+            <td>본선 대비</td>
+            <td>ahead 7, behind 0</td>
+          </tr>
+          <tr>
+            <td>변경 범위</td>
+            <td>2파일, 138줄 추가, 26줄 삭제</td>
+          </tr>
+          <tr>
+            <td>작업트리 상태</td>
+            <td>기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code> 보존</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code>: 통과, 5개 테스트</li>
+        <li><code>npx tsc --noEmit --pretty false</code>: 통과</li>
+        <li>코드 변경 산출물이므로 Antigravity에 교차 검증 요청을 작성했다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>판정</h2>
+      <p>충돌 없이 최신 본선에 맞춰졌고, 현재 확인 범위에서는 records source detail 경로의 기존 의도와 타입 안정성이 유지된다. 머지와 푸시는 Claude 게이트 대상이다.</p>
+    </section>
+  </main>
+</body>
+</html>
