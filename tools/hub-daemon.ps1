@@ -282,12 +282,13 @@ function Invoke-AI([string]$ai,[string]$tier='primary'){
         # nobody can approve it. Disabling auto-update removes that elevation path entirely.
         # Also persisted as a User env var. To update agy: clear both, run agy once, re-set.
         $env:AGY_CLI_DISABLE_AUTO_UPDATE = '1'
-        # Suppress the SECOND UAC source (2026-07-11): agy ALSO ShellExecute(runas)-elevates for a
-        # privileged op (sandbox/sbox setup) despite having NO elevation manifest -- neither the
-        # auto-update disable nor Developer Mode stopped it. __COMPAT_LAYER=RUNASINVOKER forces agy +
-        # its child processes to run as the invoker (no UAC) for this headless job. Interactive
-        # launches are covered separately by the per-app HKCU AppCompatFlags RUNASINVOKER shim on agy.exe.
-        $env:__COMPAT_LAYER = 'RUNASINVOKER'
+        # Note (2026-07-11 research wf): the headless lane does NOT trigger agy's sandbox-setup UAC --
+        # `agy -p ... --dangerously-skip-permissions` skips the OS sandbox (Go pkg exebox) entirely, so
+        # exebox.escalatePrivilegeGrants (AppContainer provisioning: NetworkIsolationSetAppContainerConfig
+        # + ACL grants, admin-only) is never reached here. The INTERACTIVE UAC was fixed at its source:
+        # enableTerminalSandbox=false in ~/.gemini/antigravity-cli/settings.json. RUNASINVOKER shims do
+        # NOT suppress an explicit ShellExecute("runas") -- only manifest auto-elevation -- so they were
+        # the wrong tool for this (verified). Nothing to set for agy elevation on the headless path.
         # Real tasks take minutes: the wrapper's old 90s per-attempt kill murdered agy
         # MID-TASK, the retry re-ran the task (duplicate outputs), then AGY_EMPTY exit 1
         # (2026-07-03 4ai roundtrip test). 15min/attempt x2 tries fits PerAITimeoutSec.
