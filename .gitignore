@@ -38,6 +38,9 @@ tools/.watchdog-state.json
 # 구조화 사이클 트레이스 (2026-07-11 감사 B2: hub-daemon.log에서 재생성 가능한 로컬 파생물)
 tools/trace/
 
+# 반-퇴화 게이트 시그니처 히스토리 (2026-07-11 감사 A1: 레인별 최근 커밋 시그니처, 런타임 상태)
+agents/*/.cycle-sigs.*
+
 # 2026-07-04 백업복원 좀비 격리 (robocopy가 부활시킨 아카이브 중복 — MANIFEST.csv 참조, 검토 후 폐기)
 _restore-quarantine-*/
 
