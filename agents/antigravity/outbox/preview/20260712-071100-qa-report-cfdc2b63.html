@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 리포트</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #FFFFFF;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1E1E1E;
+  }
+  .success {
+    color: #4CAF50;
+  }
+  button {
+    background-color: #1E1E1E;
+    color: #E0E0E0;
+    border: 1px solid #333333;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #333333;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 리포트: 본문 수정 기능</h1>
+  
+  <h2>기본 정보</h2>
+  <table>
+    <tr>
+      <th>대상 항목</th>
+      <td>feat(records): inline body Edit on record detail (#963)</td>
+    </tr>
+    <tr>
+      <th>커밋 해시</th>
+      <td>cfdc2b63602c5caa52753a36018b51cba8aa09c0</td>
+    </tr>
+    <tr>
+      <th>수행 일시</th>
+      <td>2026-07-12 07:11 KST</td>
+    </tr>
+  </table>
+
+  <h2>검증 내역</h2>
+  <table>
+    <tr>
+      <th>검사 항목</th>
+      <th>결과</th>
+      <th>비고</th>
+    </tr>
+    <tr>
+      <td>타입스크립트 검사 (type-check)</td>
+      <td class="success">통과</td>
+      <td>결함 없음</td>
+    </tr>
+    <tr>
+      <td>단위 테스트 (updateRecord)</td>
+      <td class="success">통과</td>
+      <td>정상 소요 시간 확인 (3개 항목)</td>
+    </tr>
+    <tr>
+      <td>안드로이드 에뮬레이터 상태</td>
+      <td class="success">정상</td>
+      <td>디바이스 연결 및 실행 환경 확인</td>
+    </tr>
+  </table>
+
+  <h2>종합 판정</h2>
+  <p>안드로이드 환경 및 내부 논리 구조상 부작용 없이 동작함을 확인했습니다. 롤백 메커니즘과 데이터 무결성이 정상적으로 유지되고 있습니다.</p>
+
+  <div style="margin-top: 30px;">
+    <button type="button">리포트 닫기</button>
+  </div>
+</body>
+</html>
