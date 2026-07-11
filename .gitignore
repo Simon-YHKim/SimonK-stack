@@ -50,3 +50,7 @@ _restore-quarantine-*/
 *.apk
 *.aab
 *.ipa
+
+# QA 디버그 잔해 디렉터리 (2026-07-11 감사 C5: 원시 logcat 덤프·중복 리포트·스크린샷 대량.
+# ※ 큐레이션된 QA 증거(개별 스크린샷/logcat)는 AG QA-truthfulness상 보존 — "Legacy-qa-debris" 잔해만 차단).
+agents/*/Legacy-qa-debris-*/
