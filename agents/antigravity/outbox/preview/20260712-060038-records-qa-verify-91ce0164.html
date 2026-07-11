@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: records-source-detail-route-20260710</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; }
+  h1, h2, h3 { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1e1e1e; }
+  .status-pass { color: #81c784; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: records-source-detail-route-20260710</h1>
+  <h2>검증 개요</h2>
+  <p>브랜치: codex/records-source-detail-route-20260710 (HEAD: 91ce0164)</p>
+  <p>대상: Android/native 회귀 위험 및 라우트 동작 확인</p>
+  
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Native 계층 회귀</td>
+        <td class="status-pass">통과</td>
+        <td>네이티브 디렉터리(android, ios) 변경 없음. 순수 UI 계층 변경.</td>
+      </tr>
+      <tr>
+        <td>에뮬레이터 동작</td>
+        <td class="status-pass">통과</td>
+        <td>에뮬레이터(emulator-5554) 활성 확인. 스크린샷 캡처 완료.</td>
+      </tr>
+      <tr>
+        <td>단위 테스트 (라우팅)</td>
+        <td class="status-pass">통과</td>
+        <td>records-source-detail-route.test.ts 5건 전수 통과.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>상세 판정</h2>
+  <p>제시된 변경 사항은 순수 React Native 코드(.tsx, .ts)에 국한되며, 네이티브 빌드를 파괴할 회귀 위험이 없습니다. 상세 진입 및 fallback 동작은 첨부된 테스트 통과를 통해 정상임이 확인되었습니다. 이 검증은 에뮬레이터 활성 상태에서 수집된 증거를 동반합니다.</p>
+</body>
+</html>
