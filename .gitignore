@@ -41,6 +41,9 @@ tools/trace/
 # 반-퇴화 게이트 시그니처 히스토리 (2026-07-11 감사 A1: 레인별 최근 커밋 시그니처, 런타임 상태)
 agents/*/.cycle-sigs.*
 
+# 측정 기반 루프 점수 원장 (2026-07-11 감사 H3: 매 실행 변경되는 로컬 점수 히스토리)
+Output/scores.jsonl
+
 # 2026-07-04 백업복원 좀비 격리 (robocopy가 부활시킨 아카이브 중복 — MANIFEST.csv 참조, 검토 후 폐기)
 _restore-quarantine-*/
 
