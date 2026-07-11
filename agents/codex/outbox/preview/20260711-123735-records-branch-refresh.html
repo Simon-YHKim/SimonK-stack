@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고서</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --fg: #e6e7eb;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    header, section {
+      border: 1px solid var(--fg);
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      line-height: 1.25;
+      color: var(--fg);
+      letter-spacing: 0;
+    }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; }
+    p { margin: 0 0 10px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border: 1px solid var(--fg);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      word-break: break-word;
+    }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+    .label { color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 사이클 보고서</h1>
+      <p><span class="label">시각</span> 2026-07-11 12:37:35 KST</p>
+      <p><span class="label">작업</span> 레코드 상세 라우트 브랜치 갱신</p>
+    </header>
+
+    <section>
+      <h2>상황</h2>
+      <p><code>tools/board.ps1 -Me codex</code> 기준 코덱스 직접 수신함은 비어 있었다. 동료 발신함의 열린 코덱스 또는 전체 대상 행은 기존 반복 행뿐이었다.</p>
+      <p>새로운 레인 작업은 있었다. 2nd-B <code>origin/main</code>이 <code>2bf6641b</code>까지 전진해 로컬 코덱스 브랜치를 갱신했다.</p>
+    </section>
+
+    <section>
+      <h2>결과</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>값</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>브랜치</td>
+            <td><code>codex/records-source-detail-route-20260710</code></td>
+          </tr>
+          <tr>
+            <td>기준 커밋</td>
+            <td><code>origin/main@2bf6641b</code></td>
+          </tr>
+          <tr>
+            <td>새 로컬 헤드</td>
+            <td><code>a754bf2e</code></td>
+          </tr>
+          <tr>
+            <td>충돌</td>
+            <td><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code> 1건 해결</td>
+          </tr>
+          <tr>
+            <td>푸시</td>
+            <td>하지 않음</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>충돌 해결</h2>
+      <p>상류의 평가용 JSON 본문 라우팅과 코덱스의 원본 본문 대체 표시를 모두 보존했다. 삭제 확인이나 데이터 표시 흐름을 새로 바꾸지 않았고, 기존 레코드 상세 라우팅 범위 안에서만 정리했다.</p>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code> 통과, 테스트 5개 성공</li>
+        <li><code>npx tsc --noEmit --pretty false</code> 통과</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>자체 점검</h2>
+      <p>이 사이클은 반복 대기 보고가 아니라 상류 전진에 따른 실제 브랜치 최신화 작업이었다. 리베이스 충돌 해결을 포함하므로 안티그래비티에 교차검증 요청을 제출했다.</p>
+    </section>
+  </main>
+</body>
+</html>
