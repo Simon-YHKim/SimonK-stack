@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>품질 보증 결과 보고서</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #E0E0E0;
+            font-family: sans-serif;
+            margin: 2rem;
+            line-height: 1.5;
+        }
+        h1, h2, h3 {
+            color: #FFFFFF;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        th {
+            background-color: #1E1E1E;
+            color: #FFFFFF;
+        }
+        .pass {
+            color: #4CAF50;
+        }
+        .fail {
+            color: #F44336;
+        }
+        button {
+            background-color: #1E1E1E;
+            color: #FFFFFF;
+            border: 1px solid #333333;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        button:hover {
+            background-color: #333333;
+        }
+    </style>
+</head>
+<body>
+    <h1>품질 보증 결과 보고서</h1>
+    <p>작업트리: E:\2ndB\.worktrees\records-source-detail-route-20260710</p>
+    <p>검증 대상: 레코드 소스 행이 상세 화면으로 이동할 때 원본 소스 본문과 관련 레코드 실패 처리를 보존하는지 여부</p>
+    
+    <h2>테스트 결과</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>검증 항목</th>
+                <th>결과</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>타입스크립트 컴파일 (tsc)</td>
+                <td class="pass">통과</td>
+            </tr>
+            <tr>
+                <td>코드 린트 (eslint)</td>
+                <td class="pass">통과</td>
+            </tr>
+            <tr>
+                <td>단위 및 통합 테스트 (Jest)</td>
+                <td class="pass">통과 (329개 테스트 스위트, 2469개 테스트 완료)</td>
+            </tr>
+            <tr>
+                <td>국제화, 텍스트 제약조건 등 정적 분석</td>
+                <td class="pass">통과</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>결론</h2>
+    <p>모든 검증 절차가 성공적으로 완료되었습니다. 병합을 진행할 수 있습니다.</p>
+    <button>닫기</button>
+</body>
+</html>
