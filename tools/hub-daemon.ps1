@@ -272,6 +272,12 @@ function Invoke-AI([string]$ai,[string]$tier='primary'){
       'grok'        { $env:GROK_MODEL = $model; $env:GROK_REASONING_EFFORT = $eff; $o = (grok -m $model -p $prompt) 2>&1 | Out-String }
       'antigravity' {
         $env:AGY_CWD = $root; $env:AGY_MODEL = $agyModel; $env:AGY_USE_CONPTY = '0'
+        # Suppress UAC (2026-07-11): agy's auto-updater elevates via ShellExecute/runas on
+        # launch (dedicated updater at antigravity-cli-auto-updater-*.run.app + the .old
+        # binary-swap), popping a User Account Control prompt in this headless daemon where
+        # nobody can approve it. Disabling auto-update removes that elevation path entirely.
+        # Also persisted as a User env var. To update agy: clear both, run agy once, re-set.
+        $env:AGY_CLI_DISABLE_AUTO_UPDATE = '1'
         # Real tasks take minutes: the wrapper's old 90s per-attempt kill murdered agy
         # MID-TASK, the retry re-ran the task (duplicate outputs), then AGY_EMPTY exit 1
         # (2026-07-03 4ai roundtrip test). 15min/attempt x2 tries fits PerAITimeoutSec.
