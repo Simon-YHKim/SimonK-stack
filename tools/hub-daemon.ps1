@@ -315,7 +315,12 @@ function Invoke-AI([string]$ai,[string]$tier='primary'){
   # Now: a real exhaustion BANNER counts even on exit 0 (codex prints the banner then exits 0);
   # loose terms count only when the CLI actually failed ($code -ne 0).
   $quotaBanner = ($out -match 'hit your usage limit|TerminalQuotaError|RESOURCE_EXHAUSTED|QUOTA_EXHAUSTED|exhausted your capacity')
-  $quotaLoose  = ($out -match 'usage limit|rate.?limit|"code":\s*429|429 ')
+  # audit D2 (2026-07-11): the old loose terms (bare "rate.?limit" / "429 ") matched the WHOLE
+  # transcript, so a nonzero-exit crash (untrusted-folder, network) whose transcript merely QUOTES
+  # 429/rate-limit handling from the 2nd-B code it read was misrouted into ~8h quota backoff instead
+  # of the LOUD 4-strike hard-fail. Anchor on the CLI's own error framing (prefer under-detecting
+  # quota -- the hard-fail path logs the real error).
+  $quotaLoose  = ($out -match 'usage limit|"code":\s*429|429 Too Many Requests|Too Many Requests|rate limit exceeded|RateLimitError|rate_limit_exceeded')
   $quota = [bool]($quotaBanner -or ($code -ne 0 -and $quotaLoose))
   # Phantom-success guard (2026-06-17): a clean exit 0 with an essentially EMPTY transcript is not
   # real work (the AG seat's old silent no-op: gemini/agy -p emitted ~0 bytes yet exited 0). Force a
@@ -443,7 +448,11 @@ while($true){
     if($curB -and $curB -ne 'master'){
       git -C $root merge-base --is-ancestor master $curB 2>$null
       $ffable = ($LASTEXITCODE -eq 0)
-      $dirty = @(git -C $root status --porcelain 2>$null).Count -gt 0
+      # audit D3 (2026-07-11): --untracked-files=no so only TRACKED mid-write changes block the heal.
+      # Daemon-authored reroute/self-feedback notes drop UNTRACKED into agents/*/inbox and left the
+      # tree permanently dirty, which disabled this auto-repair entirely (it always fell to
+      # BRANCH-ALERT). Untracked files are untouched by checkout/ff-merge, so they must not block it.
+      $dirty = @(git -C $root status --porcelain --untracked-files=no 2>$null).Count -gt 0
       if($ffable -and -not $dirty){
         git -C $root checkout master 2>&1 | Out-Null
         git -C $root merge --ff-only $curB 2>&1 | Out-Null
