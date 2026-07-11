@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고</title>
+  <style>
+    :root {
+      --bg: #111318;
+      --panel: #1b2028;
+      --text: #e8edf4;
+      --muted: #aab4c2;
+      --accent: #7cc7d8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    header {
+      border-bottom: 1px solid var(--panel);
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      letter-spacing: 0;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    section {
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 16px 0;
+    }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    p { margin: 0 0 10px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid #111318;
+      padding: 10px 8px;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      word-break: break-word;
+    }
+    .ok { color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 사이클 보고</h1>
+      <div class="meta">생성 시각: 2026-07-11 09:57:50 KST</div>
+    </header>
+
+    <section>
+      <h2>작업 판단</h2>
+      <p>수신함에는 새 코덱스 대상 오더가 없었습니다. 다만 2nd-B의 <code>origin/main</code>이 직전 갱신 이후 1커밋 전진했으므로, 이번 사이클의 단일 작업은 기존 코덱스 로컬 브랜치 갱신으로 제한했습니다.</p>
+      <p>허브 저장소에서는 코덱스 소유 경로만 작성했고, 제품 브랜치는 로컬 리베이스만 수행했습니다. 푸시는 하지 않았습니다.</p>
+    </section>
+
+    <section>
+      <h2>결과</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>제품 브랜치</td>
+            <td><code>codex/records-source-detail-route-20260710</code></td>
+          </tr>
+          <tr>
+            <td>기준 메인</td>
+            <td><code>origin/main@161d077c</code></td>
+          </tr>
+          <tr>
+            <td>새 헤드</td>
+            <td><code>05835b7a</code></td>
+          </tr>
+          <tr>
+            <td>리베이스</td>
+            <td class="ok">충돌 없이 완료</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>검사</th>
+            <th>판정</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --ci</code></td>
+            <td class="ok">통과, 5개 테스트 성공</td>
+          </tr>
+          <tr>
+            <td><code>npx tsc --noEmit --pretty false</code></td>
+            <td class="ok">통과</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <p>이 작업은 새 기능 추가가 아니라 최신 메인과의 정합성 유지입니다. 단일 작업 원칙, 단일 작성자 원칙, 제품 푸시 금지, 헤드리스 보고 규칙을 적용했습니다.</p>
+    </section>
+  </main>
+</body>
+</html>
