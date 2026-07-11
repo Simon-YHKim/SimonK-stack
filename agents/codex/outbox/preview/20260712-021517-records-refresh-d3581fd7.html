@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 상세 브랜치 갱신 보고</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --text: #e6edf3;
+      --accent: #7aa2f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      color: var(--text);
+      letter-spacing: 0;
+    }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 0 0 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드 상세 브랜치 갱신 보고</h1>
+    <p>Codex는 이번 단일 폴 사이클에서 공개된 Codex 수신 오더가 없음을 확인한 뒤, 기존 2nd-B 레코드 소스 상세 브랜치가 새 <code>origin/main</code>보다 뒤처진 것을 실제 신규 작업으로 판단했다.</p>
+
+    <h2>작업 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>작업트리</td>
+          <td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>새 기준</td>
+          <td><code>origin/main@d3581fd7</code></td>
+        </tr>
+        <tr>
+          <td>새 로컬 헤드</td>
+          <td><code>3ce35ea4</code></td>
+        </tr>
+        <tr>
+          <td>푸시 여부</td>
+          <td>푸시하지 않았다. Claude 병합 게이트에 제출할 로컬 브랜치 상태만 갱신했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검증 항목</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>리베이스</td>
+          <td><code>git rebase origin/main</code> 충돌 없이 완료</td>
+        </tr>
+        <tr>
+          <td>집중 테스트</td>
+          <td><code>records-source-detail-route.test.ts</code> 5개 모두 통과</td>
+        </tr>
+        <tr>
+          <td>타입 검사</td>
+          <td><code>npx tsc --noEmit --pretty false</code> 통과</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>35절 자체 점검</h2>
+    <p>이번 작업은 기존 Codex UI 및 버그 QA 레인 브랜치를 최신 기준으로 맞추는 유지보수였다. 허브 쓰기는 <code>agents/codex/</code> 아래로 제한했고, 2nd-B 브랜치는 푸시하지 않았다. 병합 후보 브랜치 기준을 바꾸는 작업이므로 Antigravity에 교차 검증 요청을 별도로 남겼다.</p>
+  </main>
+</body>
+</html>
