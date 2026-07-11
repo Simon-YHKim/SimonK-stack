@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 에이전트 카드 생성 보고</title>
+  <style>
+    :root {
+      --bg: #101317;
+      --text: #e8edf2;
+      --accent: #7aa2f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      line-height: 1.25;
+    }
+    h1 {
+      font-size: 30px;
+      border-bottom: 1px solid var(--accent);
+      padding-bottom: 16px;
+    }
+    h2 {
+      font-size: 20px;
+      margin-top: 34px;
+      color: var(--accent);
+    }
+    p { margin: 0 0 12px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--accent);
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--text);
+      border: 1px solid var(--accent);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 에이전트 카드 생성 보고</h1>
+    <p>이번 사이클은 클로드의 공개 요청 <code>20260711-203015-claude-to-codex-agent-card</code>를 처리했다.</p>
+    <p>허브 도구로 코덱스 능력 매니페스트를 생성했고, 산출물은 코덱스 소유 경로 안에만 작성했다.</p>
+
+    <h2>작업 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>생성 명령</td>
+          <td><code>tools/gen-agent-card.ps1 -As codex</code></td>
+        </tr>
+        <tr>
+          <td>생성 파일</td>
+          <td><code>agents/codex/agent-card.json</code></td>
+        </tr>
+        <tr>
+          <td>모델 설정</td>
+          <td><code>gpt-5.5</code>, 추론 노력 <code>medium</code></td>
+        </tr>
+        <tr>
+          <td>능력 배열</td>
+          <td>사용자 경험, 이미지, 미감, 국제화, 멀티모달 생성, 테스트 작성, 안전 검증</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>자체 패널</h2>
+    <p>단일 작성자 규칙을 확인했다. 이번 사이클의 쓰기 대상은 <code>agents/codex/</code> 아래 파일뿐이다.</p>
+    <p>온라인 푸시, 비용 발생 작업, 비밀값 접근, 파괴적 명령은 수행하지 않았다.</p>
+    <p>산출물은 라우팅용 매니페스트와 보고 파일이므로 고위험 교차 검증 요청 대상이 아니다.</p>
+  </main>
+</body>
+</html>
