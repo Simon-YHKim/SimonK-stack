@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>코드 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 2rem;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #4caf50;
+    border-bottom: 1px solid #333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+  }
+  th, td {
+    border: 1px solid #333;
+    padding: 0.8rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #4caf50;
+  }
+  .success {
+    color: #4caf50;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+  <h1>코드 검증 보고서</h1>
+  <p>대상 브랜치: codex/records-source-detail-route-20260710</p>
+  
+  <h2>테스트 및 빌드 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검사 항목</th>
+        <th>상태</th>
+        <th>상세 내역</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Jest 테스트 수행</td>
+        <td class="success">통과</td>
+        <td>327개 테스트 스위트, 2453개 테스트 전체 통과</td>
+      </tr>
+      <tr>
+        <td>정적 타입 분석 (tsc)</td>
+        <td class="success">통과</td>
+        <td>타입 에러 없음</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>코드 리뷰 소견</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>요구 사항</th>
+        <th>확인 결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>소스 행의 raw source id와 origin 보존</td>
+        <td>RecordsTimelineRecord 매핑 과정에서 origin 파라미터가 정확하게 전달됨 확인</td>
+      </tr>
+      <tr>
+        <td>상세 화면의 source body 안정적 렌더링</td>
+        <td>fallback 및 downloadRawClipping이 sources 테이블 데이터 기반으로 정상 동작함 확인</td>
+      </tr>
+      <tr>
+        <td>안정성 조치</td>
+        <td>소스 뷰 렌더링 시 불필요한 임베딩 호출 방지 및 삭제 기능 차단 확인</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>결론: 변경 사항에 결함이 발견되지 않았으며, 통합에 적합합니다.</p>
+</body>
+</html>
