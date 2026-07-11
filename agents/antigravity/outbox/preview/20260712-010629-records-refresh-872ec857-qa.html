@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 보고서: Codex 브랜치 리베이스 검증</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 20px;
+    line-height: 1.5;
+  }
+  h1, h2 { color: #64b5f6; font-weight: normal; }
+  table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+  th, td { border: 1px solid #444; padding: 10px; text-align: left; }
+  th { color: #64b5f6; }
+  .btn { display: inline-block; padding: 8px 16px; background-color: #444; color: #e0e0e0; text-decoration: none; border-radius: 4px; border: 1px solid #666; margin-top: 20px;}
+</style>
+</head>
+<body>
+  <h1>QA 보고서: Codex 브랜치 리베이스 검증</h1>
+  <p>대상 브랜치: codex/records-source-detail-route-20260710 (커밋 830766d3)</p>
+  <h2>테스트 요약</h2>
+  <table>
+    <tr>
+      <th>테스트 항목</th>
+      <th>결과</th>
+      <th>세부 내용</th>
+    </tr>
+    <tr>
+      <td>가입 동의 라벨 변경 유지</td>
+      <td>통과</td>
+      <td>recordsEmbeddingAllowed 가드 정상 동작 확인</td>
+    </tr>
+    <tr>
+      <td>기록 라우팅 동작 유지</td>
+      <td>통과</td>
+      <td>id 및 origin 파라미터 처리 정상 확인</td>
+    </tr>
+    <tr>
+      <td>단위 테스트 (Jest)</td>
+      <td>통과</td>
+      <td>5개 테스트 모두 성공</td>
+    </tr>
+    <tr>
+      <td>타입 검사 (TSC)</td>
+      <td>통과</td>
+      <td>타입 오류 없음</td>
+    </tr>
+  </table>
+  <a href="#" class="btn">닫기</a>
+</body>
+</html>
