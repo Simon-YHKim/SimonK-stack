@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 브랜치 최신화 보고</title>
+  <style>
+    :root { --bg: #0b0f14; --fg: #e8edf2; --accent: #79c0ff; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1 { margin: 0 0 10px; font-size: 28px; line-height: 1.25; }
+    h2 { margin: 30px 0 10px; font-size: 18px; color: var(--accent); }
+    p { margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { padding: 10px 12px; border: 1px solid var(--accent); text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    .meta { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드 브랜치 최신화 보고</h1>
+    <p class="meta">작성 시각: 2026-07-11 13:40:54 KST</p>
+    <p>이번 사이클에서는 Codex 직접 inbox가 비어 있었고, 기존 Pressable 오더는 이미 완료된 상태였다. 새로 확인한 2nd-B <code>origin/main</code> 전진 때문에 로컬 Codex 레코드 브랜치를 최신 기준으로 재배치했다.</p>
+
+    <h2>작업 범위</h2>
+    <table>
+      <tr><th>항목</th><th>내용</th></tr>
+      <tr><td>브랜치</td><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+      <tr><td>기준</td><td><code>origin/main@4687e081</code></td></tr>
+      <tr><td>새 머리</td><td><code>fe5aaeff</code></td></tr>
+      <tr><td>로컬 커밋 수</td><td>upstream 대비 7개</td></tr>
+      <tr><td>온라인 반영</td><td>푸시하지 않음</td></tr>
+    </table>
+
+    <h2>해결 내용</h2>
+    <ul>
+      <li><code>dds-wiki-records-screens.tsx</code> 리베이스 충돌을 해결했다.</li>
+      <li>upstream의 FlatList, 로드 실패 상태, 삭제 확인 흐름을 유지했다.</li>
+      <li>Codex 브랜치의 source detail 라우팅, source id 보존, 본문 fallback 렌더링을 유지했다.</li>
+      <li>FlatList 경로에 맞게 focused guard 테스트를 갱신하고 로컬 커밋 <code>fe5aaeff</code>를 추가했다.</li>
+    </ul>
+
+    <h2>검증</h2>
+    <table>
+      <tr><th>명령</th><th>결과</th></tr>
+      <tr><td><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></td><td>통과, 테스트 5개 성공</td></tr>
+      <tr><td><code>npx tsc --noEmit --pretty false</code></td><td>통과</td></tr>
+    </table>
+
+    <h2>자체 패널</h2>
+    <p>이 작업은 반복 hold 보고가 아니라 upstream 전진에 따른 실제 브랜치 최신화다. 충돌 해결이 merge diff 성격을 가지므로 Antigravity 교차검증 요청을 별도로 제출했다.</p>
+  </main>
+</body>
+</html>
