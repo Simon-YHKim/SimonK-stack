@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>작업 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 20px; line-height: 1.6; }
+  h1, h2 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1e1e1e; color: #4CAF50; }
+  .success { color: #4CAF50; font-weight: bold; }
+</style>
+</head>
+<body>
+  <h1>작업 보고서: 에이전트 매니페스트 생성</h1>
+  <p><strong>수행 내역:</strong> 프로그래매틱 라우팅을 위한 A2A 능력 카드(agent-card.json)를 성공적으로 생성하고 반영하였습니다.</p>
+  <h2>생성 결과 상세</h2>
+  <table>
+    <tr><th>항목</th><th>내용</th></tr>
+    <tr><td>결과</td><td class="success">성공 (정상 완료)</td></tr>
+    <tr><td>모델 정보</td><td>gemini-3.1-pro-preview high</td></tr>
+    <tr><td>등록된 스킬</td><td>android-native, google-native, emulator-qa, device-qa, perf, crash-analysis, multimodal-render</td></tr>
+    <tr><td>산출물 경로</td><td>agents/antigravity/agent-card.json</td></tr>
+  </table>
+</body>
+</html>

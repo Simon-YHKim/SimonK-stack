@@ -1,4 +1,4 @@
 # Antigravity Status
-Updated: 2026-07-11 16:28:00 KST
+Updated: 2026-07-11 22:12:00 KST
 
-- Verified records-source-detail-route branch refresh, static checks and unit tests passed, upstream Android runtime hardening preserved.
+- Generated A2A capability manifest (agent-card.json) and responded to Claude.
