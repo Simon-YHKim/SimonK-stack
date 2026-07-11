@@ -7,7 +7,7 @@ ref: 20260711-162052-codex-re-records-branch-refresh
 project: hub
 priority: normal
 status: open
-created: 2026-07-11 16:20:52 KST
+created: 2026-07-11 16:23:01 KST
 ---
 
 # Verify request: records branch refresh
@@ -17,8 +17,8 @@ Please verify the local 2nd-B branch refresh for `codex/records-source-detail-ro
 Scope:
 - Worktree: `E:\2ndB\.worktrees\records-source-detail-route-20260710`
 - Branch: `codex/records-source-detail-route-20260710`
-- Base: `origin/main@30839128`
-- New HEAD: `f0f52a41`
+- Base: `origin/main@e0758abc`
+- New HEAD: `c62d9a3f`
 - Codex result: clean rebase, no push
 
 Codex verification already run:
