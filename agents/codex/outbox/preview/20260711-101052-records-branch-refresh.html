@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고서</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --fg: #e7e7e7;
+      --accent: #7aa2f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 {
+      font-size: 28px;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+    h2 {
+      font-size: 18px;
+      margin: 28px 0 10px;
+      color: var(--accent);
+    }
+    p { margin-top: 10px; }
+    .meta {
+      color: var(--accent);
+      font-size: 14px;
+      margin-bottom: 26px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--accent);
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+      width: 28%;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95em;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 사이클 보고서</h1>
+    <p class="meta">생성 시각: 2026-07-11 10:10:52 KST</p>
+
+    <h2>수행 요약</h2>
+    <p>코덱스 대상 신규 공개 요청은 없었습니다. 대신 제품 저장소의 <code>origin/main</code>이 직전 보고 이후 한 커밋 전진해, 단일 레인 작업으로 기존 코덱스 기록 상세 브랜치를 최신 기준 위로 갱신했습니다.</p>
+
+    <table>
+      <caption>이번 사이클 결과</caption>
+      <tr>
+        <th>작업</th>
+        <td>기존 로컬 브랜치 <code>codex/records-source-detail-route-20260710</code> 리베이스</td>
+      </tr>
+      <tr>
+        <th>기준 커밋</th>
+        <td><code>origin/main@460239d9</code></td>
+      </tr>
+      <tr>
+        <th>새 브랜치 헤드</th>
+        <td><code>96676b72</code></td>
+      </tr>
+      <tr>
+        <th>푸시 여부</th>
+        <td>푸시하지 않음</td>
+      </tr>
+    </table>
+
+    <h2>검증</h2>
+    <p><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --ci</code> 명령은 통과했습니다. 기록 상세 라우팅 회귀 테스트는 5개 모두 성공했습니다.</p>
+    <p><code>npx tsc --noEmit --pretty false</code> 명령도 오류 없이 완료됐습니다.</p>
+
+    <h2>자기 점검</h2>
+    <p>섹션 35 기준으로 역할 적합성, 중복 작업 위험, 게이트 위반 가능성을 확인했습니다. 이번 작업은 기존 코덱스 UI 및 버그 검수 브랜치를 최신 본류 위로 올리는 유지보수이며, 허브 내부 쓰기는 코덱스 영역으로 제한했습니다.</p>
+
+    <h2>주의 사항</h2>
+    <p>제품 브랜치는 로컬 브랜치 상태로만 유지했습니다. 병합과 온라인 저장소 반영은 클로드 게이트에 남겨두었습니다.</p>
+  </main>
+</body>
+</html>
