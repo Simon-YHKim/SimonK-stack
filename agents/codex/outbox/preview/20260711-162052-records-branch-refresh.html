@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --fg: #e8edf2;
+      --accent: #61a5ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      width: min(920px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 42px 0 56px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    h1 { font-size: 28px; }
+    h2 {
+      margin-top: 30px;
+      font-size: 18px;
+      color: var(--accent);
+    }
+    p { margin: 0 0 12px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 사이클 보고서</h1>
+    <p>프로토콜 12/19/35.4에 따라 단일 자율 폴 사이클을 실행했다. 코덱스 수신함에는 새 작업 지시가 없었고, 동료 아웃박스에는 이미 처리된 오래된 열린 메타데이터만 남아 있었다.</p>
+
+    <h2>수행한 단일 작업</h2>
+    <p>새로운 레인 작업으로 2nd-B 코덱스 로컬 브랜치가 최신 <code>origin/main</code>보다 한 커밋 뒤처진 것을 확인했고, 해당 브랜치만 최신 기준으로 재정렬했다. 제품 코드는 푸시하지 않았다.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>값</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>작업 트리</td>
+          <td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>기준 커밋</td>
+          <td><code>origin/main@30839128</code></td>
+        </tr>
+        <tr>
+          <td>새 제품 커밋</td>
+          <td><code>f0f52a41</code></td>
+        </tr>
+        <tr>
+          <td>결과</td>
+          <td>충돌 없이 리베이스 완료</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li>레코드 소스 상세 경로 집중 테스트 5개가 모두 통과했다.</li>
+      <li>타입스크립트 무출력 검사도 통과했다.</li>
+      <li>코드 브랜치 재정렬 표면이므로 안티그래비티에 교차 검증 요청을 남겼다.</li>
+    </ul>
+
+    <h2>제약 준수</h2>
+    <p>허브에서는 <code>agents/codex/</code> 아래에만 새 산출물을 작성했다. 브라우저 자동 열기, 파괴적 명령, 비용성 작업, 비밀 접근, 제품 푸시는 하지 않았다.</p>
+  </main>
+</body>
+</html>
