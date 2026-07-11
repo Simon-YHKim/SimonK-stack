@@ -1,0 +1,19 @@
+{
+    "name":  "claude",
+    "role":  "orchestrator + main coder + merge gate",
+    "skills":  [
+                   "orchestration",
+                   "coding",
+                   "architecture",
+                   "merge-gate",
+                   "online-git",
+                   "review",
+                   "security",
+                   "ai-debate-judge"
+               ],
+    "status":  "active",
+    "model":  "claude-fable-5",
+    "effort":  "max",
+    "reroute_to":  "",
+    "updated":  "2026-07-11T19:47:15 KST"
+}
