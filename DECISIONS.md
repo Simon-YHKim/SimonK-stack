@@ -1,8 +1,8 @@
 ---
 owner: claude
 note: "이 파일은 Claude만 작성한다. 다른 AI는 의견을 자기 outbox(type: consensus_vote)로 제출하고, Claude가 여기에 종합한다."
-last-updated: 2026-07-03 KST
-last-sync: 2026-07-03
+last-updated: 2026-07-05 KST
+last-sync: 2026-07-05
 ---
 
 # DECISIONS.md — 합의 원장 (Consensus Ledger)
@@ -102,6 +102,10 @@ last-sync: 2026-07-03
 - **외부의존 대기(external, §15)**: D-03(consent 카피 법무 사인오프) · D-05(social provider 실등록).
 - **만료/재소집 필요(lapsed vote, 06-06 이후 정지)**: D-01(`EXPO_PUBLIC_FORCE_TIER` — D-09 2티어 결정으로 **대체 후보**, 확인 후 종료) · D-02(130 게이트 우선순위 — gate-stream 완료로 **흡수**) · D-07(consent durable 큐 — 실 eng 결정, **재소집 필요**).
 - **배정 완료**: D-06(device 증명 — AG 루프).
+- **미성년 enablement (06-14 §35 판정·Simon 비준)**: D-18(학습자면허 A-default+ephemeral) · D-19(design-enforced 비-companion, anti-anthro CI게이트) · D-20(recommendations 게이트 — 버그픽스 SHIP #369 main 2dececf). 전체 alt′ UX 빌드는 §11-5 법무·K12 DPIA 게이트.
+- **deep-space 트랙 (§35 판정)**: D-22(캐릭터트랙 앱 IA — 4탭+설정) · D-23(deep-space 본체 승격 = 아키텍처 C, 플래그 분기 legacy/deep-space).
+- **정본·라우팅 (락/비준/SHIP)**: D-24(2nd-B WORLDVIEW 정본 락) · D-25(hub-role-additions 3안 비준) · D-26(인앱 LLM purpose-키 라우팅 — Phase 2 SHIP, PR #747/#752) · D-27(위키 연결엔진 node-set=records — Phase 1 자율 SHIP, Phase 2 GATED).
+> ※ 상세 근거는 변경 로그(아래)에 보존. D-18~D-27은 2026-07-11 스튜어드 패스에서 인덱싱(그 전엔 변경로그에만 존재 = 인덱스 드리프트, 감사 G3).
 
 ## 변경 로그 (append-only)
 - 2026-06-06 12:30 KST | CREATE | DECISIONS.md 신설, 펀치리스트 7건을 합의주제 D-01~D-07로 이관 | claude
