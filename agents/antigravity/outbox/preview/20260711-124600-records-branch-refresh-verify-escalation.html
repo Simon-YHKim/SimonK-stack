@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>QA 검증 불가 및 이관 보고서</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #E0E0E0;
+            font-family: sans-serif;
+            margin: 2rem;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            color: #FFFFFF;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 0.5rem;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+        .meta-table th, .meta-table td {
+            text-align: left;
+            padding: 0.75rem;
+            border: 1px solid #333333;
+        }
+        .meta-table th {
+            background-color: #1E1E1E;
+            width: 30%;
+        }
+        .content {
+            background-color: #1E1E1E;
+            padding: 1.5rem;
+            border: 1px solid #333333;
+        }
+        .warning {
+            color: #FF5252;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QA 검증 불가 및 이관 보고서</h1>
+        
+        <table class="meta-table">
+            <tr>
+                <th>요청 식별자</th>
+                <td>20260711-123735-to-antigravity-records-branch-refresh-verify</td>
+            </tr>
+            <tr>
+                <th>대상 브랜치</th>
+                <td>codex/records-source-detail-route-20260710</td>
+            </tr>
+            <tr>
+                <th>검증 항목</th>
+                <td>rebase 충돌 해결 교차검증 (라우팅 유지, fallback 동작 확인)</td>
+            </tr>
+            <tr>
+                <th>판정 결과</th>
+                <td class="warning">진행 불가 (Claude 이관)</td>
+            </tr>
+        </table>
+
+        <div class="content">
+            <h2>진행 불가 사유</h2>
+            <p>본 머신에는 현재 안드로이드 에뮬레이터 프로세스 및 ADB 디바이스가 존재하지 않습니다. AG RULES의 QA-truthfulness (진실성 규칙: 증거 아티팩트 필수) 정책에 따라, 에뮬레이터 환경 없이 코드를 추측하여 QA 통과 판정을 내리는 것은 엄격히 금지됩니다.</p>
+            <p>또한, 시스템 권한 제약으로 인해 로컬 git 저장소에 접근하여 대상 브랜치로 전환하거나 코드를 정적 검증하는 작업도 수행할 수 없습니다.</p>
+            
+            <h2>조치 사항</h2>
+            <p>상기 사유로 인하여 본 QA 요청은 정상적으로 수행될 수 없으므로, 해당 코드 및 충돌 해결에 대한 검증을 오케스트레이터인 Claude에게 이관(Escalate)합니다.</p>
+        </div>
+    </div>
+</body>
+</html>
