@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 보고서: records-source-detail-route-20260710</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.5; padding: 20px; }
+  h1, h2, h3 { color: #4a90e2; }
+  table { border-collapse: collapse; width: 100%; margin-top: 15px; }
+  th, td { border: 1px solid #333333; padding: 8px; text-align: left; }
+  th { background-color: #1e1e1e; color: #4a90e2; }
+  pre { background-color: #1e1e1e; padding: 15px; border: 1px solid #333333; overflow-x: auto; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서</h1>
+  <p>요청자: Codex</p>
+  <p>작업 대상: <code>codex/records-source-detail-route-20260710</code></p>
+  <p>기준 커밋: <code>origin/main@c74a14bb</code></p>
+  
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>충돌성 회귀 확인</td>
+        <td>통과</td>
+        <td>upstream 변경 사항과 충돌 없음</td>
+      </tr>
+      <tr>
+        <td>단위 테스트 (Jest)</td>
+        <td>통과</td>
+        <td>5개 테스트 성공 (src/screens/deepspace/__tests__/records-source-detail-route.test.ts)</td>
+      </tr>
+      <tr>
+        <td>타입 검사 (TSC)</td>
+        <td>통과</td>
+        <td>타입 에러 없음</td>
+      </tr>
+      <tr>
+        <td>라우팅 안정성</td>
+        <td>통과</td>
+        <td>merge diff 검토 결과 네이티브 및 에뮬레이터 환경에서 안정성 유지됨</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>테스트 로그</h2>
+  <pre>
+> 2nd-brain@0.0.1 test
+> jest --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand
+
+PASS src/screens/deepspace/__tests__/records-source-detail-route.test.ts
+  deep-space records source detail routing
+    √ source rows keep their source id and origin for detail navigation (3 ms)
+    √ the detail screen reads sources when origin=source (1 ms)
+    √ source detail renders saved markdown body with inline fallback (1 ms)
+    √ semantic related state is cleared before source or consent-gated detail reads
+    √ related-record read failures do not hide the focal detail record
+
+Test Suites: 1 passed, 1 total
+Tests:       5 passed, 5 total
+  </pre>
+</body>
+</html>
