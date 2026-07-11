@@ -143,7 +143,16 @@ if ($As -ne 'claude' -and -not $Force) {
   $topicSig = if ($tw.Count) { $tw -join ' ' } else { '(process-noise)' }
   $stagedNow = @(git diff --cached --name-only --diff-filter=ACMR)
   $bn = @()
-  foreach ($f in $stagedNow) { $n = [System.IO.Path]::GetFileName($f); if ($n -ieq 'STATUS.md') { continue }; $bn += ($n -replace '^\d{8}-\d{6}-', '') }
+  foreach ($f in $stagedNow) {
+    $n = [System.IO.Path]::GetFileName($f)
+    if ($n -ieq 'STATUS.md') { continue }
+    # normalize away per-cycle-varying tokens so the SAME report gets the SAME signature:
+    # leading timestamp, embedded hash/sha (a lane put a fresh hash in each filename to dodge the
+    # gate -- 2026-07-11), any remaining digits, then collapse the dashes those leave behind.
+    $n = $n -replace '^\d{8}-\d{6}-', '' -replace '[0-9a-f]{7,40}', '' -replace '\d+', ''
+    $n = ($n -replace '-+', '-') -replace '-\.', '.'
+    $bn += $n
+  }
   $bn = @($bn | Sort-Object -Unique)
   if ($bn.Count -gt 0) {   # skip STATUS-only / no-content commits
     $sig = $topicSig + '|' + ($bn -join ',')
