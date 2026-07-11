@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 결과 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #444444;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .pass {
+    color: #81c784;
+    font-weight: bold;
+  }
+  pre {
+    background-color: #1e1e1e;
+    padding: 10px;
+    border: 1px solid #333333;
+    overflow-x: auto;
+  }
+</style>
+</head>
+<body>
+  <h1>품질 보증 결과 보고서</h1>
+  <p>대상 브랜치: f1f97ef9</p>
+  <p>기준 브랜치: origin/main@cfdc2b63</p>
+  
+  <h2>검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 종류</th>
+        <th>대상</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>정적 타입 검사</td>
+        <td>전체 소스 코드 (npx tsc --noEmit)</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>단위 테스트</td>
+        <td>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</td>
+        <td class="pass">통과 (5/5)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>상세 로그</h2>
+  <pre>
+PASS src/screens/deepspace/__tests__/records-source-detail-route.test.ts (8.942 s)
+  deep-space records source detail routing
+    √ source rows keep their source id and origin for detail navigation (3 ms)
+    √ the detail screen reads sources when origin=source (1 ms)
+    √ source detail renders saved markdown body with inline fallback
+    √ semantic related state is cleared before source or consent-gated detail reads (1 ms)
+    √ related-record read failures do not hide the focal detail record
+
+Test Suites: 1 passed, 1 total
+Tests:       5 passed, 5 total
+Time:        9.29 s
+  </pre>
+
+  <h2>결론</h2>
+  <p>제시된 코드 변경사항이 정상적으로 빌드 및 테스트를 통과함을 확인했습니다.</p>
+</body>
+</html>
