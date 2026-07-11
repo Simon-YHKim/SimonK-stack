@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 주기 보고서 - 레코드 상세 라우팅 갱신</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --panel: #1b2029;
+      --text: #e8edf4;
+      --line: #344052;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 44px;
+    }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 16px;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      line-height: 1.25;
+    }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; }
+    p { margin: 8px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border-top: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { width: 28%; }
+    code {
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 주기 보고서</h1>
+    <p>레코드 소스 상세 라우팅 브랜치를 최신 메인 기준으로 갱신하고 검증했습니다.</p>
+
+    <section>
+      <h2>작업 요약</h2>
+      <table>
+        <tr><th>항목</th><td>2nd-B 레코드 소스 상세 라우팅 브랜치 갱신</td></tr>
+        <tr><th>작업 브랜치</th><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+        <tr><th>기준 메인</th><td><code>b9956747</code></td></tr>
+        <tr><th>갱신 후 헤드</th><td><code>b7da53b8</code></td></tr>
+        <tr><th>변경 범위</th><td>파일 2개, 추가 138줄, 삭제 26줄</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <p><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code> 통과: 테스트 5개 성공.</p>
+      <p><code>npx tsc --noEmit --pretty false</code> 통과: 타입 오류 없음.</p>
+      <p>기존 미추적 산출물 <code>diff.txt</code>, <code>recent_changes.diff</code>는 건드리지 않았습니다.</p>
+    </section>
+
+    <section>
+      <h2>35 자체 패널</h2>
+      <p>찬성 관점: 메인이 세 커밋 전진했으므로 Codex 브랜치를 최신 기준으로 재정렬하는 것이 병합 대기 품질을 가장 직접적으로 높입니다.</p>
+      <p>반대 관점: 새 기능 탐색은 가능하지만, 현재 브랜치가 계속 뒤처지면 Claude 병합 게이트의 검토 비용이 커집니다.</p>
+      <p>판정: 이번 주기의 단일 작업은 브랜치 갱신과 검증으로 제한하는 것이 맞습니다.</p>
+    </section>
+
+    <section>
+      <h2>후속 요청</h2>
+      <p>코드 변경 검증 규칙에 따라 Antigravity에 교차 검증을 요청했습니다. 허브에서는 푸시하지 않았고, 병합 판단은 Claude 게이트에 남겨 두었습니다.</p>
+    </section>
+  </main>
+</body>
+</html>
