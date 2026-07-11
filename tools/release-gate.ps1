@@ -26,6 +26,7 @@ param(
   [string]$Repo = "E:\2ndB",
   [string]$VerifyCmd = "npm run verify",
   [switch]$SkipVerify,
+  [string]$DecisionRef = "",
   [switch]$Json
 )
 
@@ -45,6 +46,7 @@ $result = [ordered]@{
   rollback    = $null   # origin/main SHA to revert to if this merge goes bad
   clean       = $false
   verify      = "skipped"
+  decisionGate = "skipped"
 }
 
 function Fail([string]$why) {
@@ -88,6 +90,36 @@ if (-not (Test-Path -LiteralPath $Repo)) {
           Fail "verify failed (exit $code)"
         }
       }
+
+      # DEBATE GATE (audit G2, PROTOCOL 35.1/35.3): an irreversible-class change
+      # (schema/migration, authz/RLS, monetization, consent/minor) must carry a debate
+      # record (a DECISIONS D-code). Closes the systemic "critical rule lives in prose,
+      # enforcement point is empty" gap (BACKLOG cross-cutting #3). Bypass: pass -DecisionRef
+      # D-NN after an /ai-debate, or reference the D-code in a commit in the merge range.
+      if ($rb) {
+        $sensitive = [ordered]@{
+          'schema/migration' = 'migrations?/|\.sql$|schema'
+          'authz/rls'        = 'rls|policy|authz|permission|\brole\b'
+          'monetization'     = 'paywall|subscription|\biap\b|pricing|monetiz|billing|entitlement|\btier\b'
+          'consent/minor'    = 'consent|\bminor\b|dpia|privacy|coppa'
+        }
+        $changed = @(& git diff --name-only "$rb..HEAD" 2>$null | Where-Object { $_ })
+        $hits = @()
+        foreach ($k in $sensitive.Keys) { if (@($changed | Where-Object { $_ -imatch $sensitive[$k] }).Count -gt 0) { $hits += $k } }
+        if ($hits.Count -gt 0) {
+          $cats = ($hits -join ', ')
+          $rangeMsgs = (& git log --format='%s%n%b' "$rb..HEAD" 2>$null | Out-String)
+          $hasDcode = ($DecisionRef -match 'D-?\d+') -or ($rangeMsgs -match 'D-\d+')
+          if ($hasDcode) {
+            $result.decisionGate = "ok ($cats; D-code present)"
+          } else {
+            $result.decisionGate = "BLOCK ($cats; no D-code)"
+            Fail "irreversible-class change ($cats) has NO debate record -- PROTOCOL 35.1 requires a DECISIONS D-code. Run /ai-debate, then re-run with -DecisionRef D-NN (or reference the D-code in a commit)."
+          }
+        } else {
+          $result.decisionGate = "n/a (no sensitive paths)"
+        }
+      }
     }
   } finally {
     Pop-Location
@@ -97,7 +129,7 @@ if (-not (Test-Path -LiteralPath $Repo)) {
 if ($result.reasons.Count -eq 0) { $result.verdict = "GO" }
 
 # append-only log line
-$line = "[$now] $($result.verdict) repo=$Repo head=$($result.head) rollback=$($result.rollback) clean=$($result.clean) verify=$($result.verify)"
+$line = "[$now] $($result.verdict) repo=$Repo head=$($result.head) rollback=$($result.rollback) clean=$($result.clean) verify=$($result.verify) debate-gate=$($result.decisionGate)"
 if ($result.reasons.Count -gt 0) { $line += " reasons=" + ($result.reasons -join "; ") }
 Add-Content -LiteralPath $logPath -Value $line -Encoding utf8
 
@@ -112,6 +144,7 @@ if ($Json) {
   Write-Host "  rollback to: $($result.rollback)   (git reset --hard $($result.rollback) on bad merge)"
   Write-Host "  tree clean : $($result.clean)"
   Write-Host "  verify     : $($result.verify)"
+  Write-Host "  debate-gate: $($result.decisionGate)"
   if ($result.reasons.Count -gt 0) {
     Write-Host "  NO-GO reasons:" -ForegroundColor Yellow
     foreach ($r in $result.reasons) { Write-Host "    - $r" -ForegroundColor Yellow }
