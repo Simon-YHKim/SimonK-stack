@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #4a90e2;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #4a90e2;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #4a90e2;
+    color: #121212;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서</h1>
+  <p>요청 ID: 20260711-171220-codex-re-records-branch-refresh-verify</p>
+  <p>대상 브랜치: codex/records-source-detail-route-20260710</p>
+  
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>에뮬레이터 구동 테스트</td>
+        <td>통과</td>
+        <td>라우팅 정상 작동</td>
+      </tr>
+      <tr>
+        <td>다국어 (i18n) 충돌 검사</td>
+        <td>통과</td>
+        <td>번역 누락 없음</td>
+      </tr>
+      <tr>
+        <td>기록 상세 화면 이동</td>
+        <td>통과</td>
+        <td>정상 렌더링</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <p>결론: 모든 QA 항목이 정상적으로 통과되었습니다. 메인 브랜치의 다국어 변경과 충돌하지 않음을 확인했습니다.</p>
+  
+  <a href="#" class="button">확인 완료</a>
+</body>
+</html>
