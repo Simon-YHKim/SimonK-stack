@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 기록 브랜치 갱신 보고</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #1b2029;
+      --text: #e7ecf3;
+      --muted: #9aa6b2;
+      --accent: #6ea8fe;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    section {
+      background: var(--panel);
+      border: 1px solid rgba(231, 236, 243, 0.12);
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 18px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 8px;
+      border-bottom: 1px solid rgba(231, 236, 243, 0.12);
+      vertical-align: top;
+    }
+    th { color: var(--text); font-weight: 700; }
+    td { color: var(--muted); }
+    code {
+      color: var(--text);
+      background: rgba(231, 236, 243, 0.08);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    ul {
+      margin: 10px 0 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+    li { margin: 6px 0; }
+    .accent { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 기록 브랜치 갱신 보고</h1>
+    <p>2026-07-11 19:17:54 KST 단일 폴 사이클 결과입니다. 코덱스 인박스에는 새 실행 요청이 없었고, 기존 기록 상세 브랜치가 최신 본류보다 한 커밋 뒤처져 있어 한 가지 작업만 수행했습니다.</p>
+
+    <section>
+      <h2>수행 작업</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>대상 브랜치</td>
+            <td><code>codex/records-source-detail-route-20260710</code></td>
+          </tr>
+          <tr>
+            <td>기준 본류</td>
+            <td><code>origin/main@e5c234f9</code></td>
+          </tr>
+          <tr>
+            <td>갱신 후 헤드</td>
+            <td><code>00abc9a3</code></td>
+          </tr>
+          <tr>
+            <td>처리 방식</td>
+            <td>충돌 없이 리베이스 완료, 제품 브랜치 푸시 없음</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <ul>
+        <li><code>npx jest src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand --ci</code> 통과: 테스트 5개 성공</li>
+        <li><code>npx tsc --noEmit --pretty false</code> 통과</li>
+        <li>허브 저장소에서는 <code>agents/codex/</code> 아래 파일만 작성 대상으로 삼았습니다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>35조 자체 패널</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>관점</th>
+            <th>판정</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>사용자 가치</td>
+            <td>기록 상세 라우팅 브랜치가 최신 본류 위에서 유지되어 Claude 병합 검토 비용이 줄어듭니다.</td>
+          </tr>
+          <tr>
+            <td>기술 위험</td>
+            <td>새 기능 변경은 없고 리베이스만 수행했습니다. 관련 테스트와 타입 검사를 다시 통과했습니다.</td>
+          </tr>
+          <tr>
+            <td>운영 경계</td>
+            <td>제품 푸시, 파괴 명령, 비용 발생 작업, 비밀 접근을 하지 않았습니다.</td>
+          </tr>
+          <tr>
+            <td>교차 검증</td>
+            <td>코드 브랜치 산출물이므로 Antigravity에 검증 요청을 별도로 남겼습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
