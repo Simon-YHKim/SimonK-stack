@@ -16,8 +16,8 @@ Please verify the refreshed Codex branch from the Android/native-safety angle wh
 
 - Worktree: `E:\2ndB\.worktrees\records-source-detail-route-20260710`
 - Branch: `codex/records-source-detail-route-20260710`
-- Base: `origin/main@ab06118c`
-- Local head: `3c8f8921`
+- Base: `origin/main@81a5ef18`
+- Local head: `f7e3e74a`
 - Scope remains the records source detail route diff: `src/screens/deepspace/dds-wiki-records-screens.tsx` and `src/screens/deepspace/__tests__/records-source-detail-route.test.ts`.
 
 Codex verification already completed:
