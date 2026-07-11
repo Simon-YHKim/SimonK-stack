@@ -97,6 +97,10 @@ try {
 $modelsFile = Join-Path $PSScriptRoot "models.json"
 $Models = $null
 if(Test-Path $modelsFile){ try { $Models = Get-Content $modelsFile -Raw -Encoding UTF8 | ConvertFrom-Json } catch { $Models = $null } }
+# audit F2: models.json is cached ONCE here at START. Capture its mtime so each cycle can warn if
+# an applied refresh (e.g. an effort downgrade to relieve a premium pool) changed it on disk -- the
+# running lane keeps the OLD model/effort silently until a restart otherwise.
+$modelsMtime = if(Test-Path $modelsFile){ (Get-Item $modelsFile).LastWriteTime } else { $null }
 function Get-ModelCfg([string]$ai,[string]$key,[string]$default){
   try { $v = $Models.$ai.$key; if($v){ return [string]$v } } catch {}
   return $default
@@ -364,6 +368,8 @@ while($true){
   }
   $cycle++
   Log "cycle $cycle BEGIN"
+  # audit F2: warn once per change if the applied models.json diverged from what this daemon loaded.
+  if($modelsMtime -and (Test-Path $modelsFile)){ $mt=(Get-Item $modelsFile).LastWriteTime; if($mt -gt $modelsMtime){ Log "WARN: models.json changed on disk since daemon start ($($mt.ToString('MM-dd HH:mm'))) -- lane '$laneKey' is running STALE model config; restart the daemon to apply."; $modelsMtime=$mt } }
   foreach($ai in $AIs){
     # Quota backoff: skip this AI while its backoff window is open (e.g. gemini 429 / 8h reset).
     if($quotaSkip[$ai] -gt 0){
