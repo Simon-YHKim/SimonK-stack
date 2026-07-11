@@ -44,7 +44,13 @@ $aliveAIs = @()
 try {
   Get-CimInstance Win32_Process -Filter "Name='powershell.exe' OR Name='pwsh.exe'" -ErrorAction SilentlyContinue |
     Where-Object { $_.CommandLine -match 'hub-daemon\.ps1' } |
-    ForEach-Object { if ($_.CommandLine -match '-Only\s+(\w+)') { $aliveAIs += $matches[1] } }
+    ForEach-Object {
+      if ($_.CommandLine -match '-Only\s+(\w+)') { $aliveAIs += $matches[1] }
+      # audit D1: a BARE (no -Only) daemon runs ALL default lanes. Without this branch the restart
+      # loop below would see codex/antigravity as "dead" and spawn duplicate -Only workers alongside
+      # the bare daemon (a DIFFERENT per-lane mutex, so no dedup) -> two concurrent git writers.
+      elseif ($_.CommandLine -notmatch '-Only') { $aliveAIs += $daemonAIs }
+    }
 } catch {}
 $aliveAIs = @($aliveAIs | Select-Object -Unique)
 
@@ -204,6 +210,17 @@ try {
     if ($grokOpen -gt 0) {
       $issues += @{ key='grok-order-waiting'; title="$grokOpen open request(s) addressed to grok with no server"; detail='grok is request-only (excluded from default lanes); nothing serves its queue automatically.'; action='Spawn once: powershell -ExecutionPolicy Bypass -File tools/hub-daemon.ps1 -Only grok -MaxCycles 1 (its ref-aware counter + NO-OP rule make this safe), or answer/close the request as Claude.' }
     }
+  }
+} catch {}
+
+# (10, audit F3) reroute notes rotting: a parked lane (quota/hard-fail) files *-reroute-<ai>.md into
+# claude/inbox, but models.json reroute_to=claude and claude has no autonomous lane -- so if no live
+# session consumes them the rerouted orders rot (same class as the orders-unconsumed SPOF). Alert on
+# reroute notes older than 3h so they surface even during unattended operation.
+try {
+  $rerouteOld = @(Get-ChildItem $inbox -Filter '*.md' -ErrorAction SilentlyContinue | Where-Object { $_.Name -match 'reroute' -and $_.Name -notmatch 'selffeedback' -and ((Get-Date) - $_.LastWriteTime).TotalHours -gt 3 })
+  if ($rerouteOld.Count -gt 0) {
+    $issues += @{ key='reroute-unconsumed'; title="$($rerouteOld.Count) lane-reroute note(s) unconsumed >3h"; detail='A parked lane rerouted its orders to claude/inbox but no session has consumed them (reroute_to=claude has no autonomous server). The rerouted work is stalled.'; action='Process the reroute notes in agents/claude/inbox (handle or clear the rerouted orders), or repoint reroute_to at a lane that actually runs.' }
   }
 } catch {}
 
