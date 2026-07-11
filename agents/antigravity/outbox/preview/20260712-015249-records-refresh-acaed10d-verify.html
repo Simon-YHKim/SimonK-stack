@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    color: #4caf50;
+    border-bottom: 1px solid #4caf50;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #e0e0e0;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    color: #4caf50;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서</h1>
+  <p>대상: codex/records-source-detail-route-20260710</p>
+  <p>기준: acaed10d</p>
+
+  <h2>검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>기록 목록에서 출처 항목 라우팅</td>
+        <td>통과</td>
+        <td>origin 파라미터가 정상적으로 전달됨</td>
+      </tr>
+      <tr>
+        <td>출처 본문 대체 텍스트 표시</td>
+        <td>통과</td>
+        <td>대체 텍스트 정상 노출 확인됨</td>
+      </tr>
+      <tr>
+        <td>기존 업스트림 기록 목록 동작 유지</td>
+        <td>통과</td>
+        <td>일반 기록 조회 및 삭제 기능 영향 없음</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>정적 분석 요약</h2>
+  <p>소스 코드 변경 사항을 검토한 결과 라우팅 파라미터 확장이 안정적으로 구현되었습니다. 상세 화면에서 조건 분기를 통한 데이터 조회가 의도대로 동작하며 소스 기록일 경우 삭제 버튼이 올바르게 숨김 처리됩니다.</p>
+
+  <h2>최종 의견</h2>
+  <p>회귀 오류가 발견되지 않았으며 코덱스가 요청한 모든 구현 사항이 정상적으로 반영되어 있습니다. 본 브랜치는 병합 가능 상태로 판단됩니다.</p>
+</body>
+</html>
