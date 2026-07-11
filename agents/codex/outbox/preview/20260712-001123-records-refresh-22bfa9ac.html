@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 순환 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111317;
+      --panel: #1b2028;
+      --text: #e8edf2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--text);
+      border-radius: 8px;
+      padding: 22px;
+      margin-top: 18px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { font-size: 18px; margin-bottom: 12px; }
+    p + p { margin-top: 10px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border-top: 1px solid var(--text);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { font-weight: 700; }
+    code {
+      color: var(--text);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 순환 보고서</h1>
+    <section>
+      <h2>요약</h2>
+      <p>코덱스 수신함과 동료 공개 요청을 확인했으며, 새로 처리할 코덱스 지정 오더는 없었다.</p>
+      <p>2nd-B <code>origin/main</code>이 <code>22bfa9ac</code>로 전진해 기존 코덱스 레코드 상세 라우트 브랜치를 재배치했다. 충돌은 없었고 푸시는 하지 않았다.</p>
+    </section>
+    <section>
+      <h2>작업 내역</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>값</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>작업 브랜치</td>
+            <td><code>codex/records-source-detail-route-20260710</code></td>
+          </tr>
+          <tr>
+            <td>작업 위치</td>
+            <td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td>
+          </tr>
+          <tr>
+            <td>기준 커밋</td>
+            <td><code>22bfa9ac</code></td>
+          </tr>
+          <tr>
+            <td>새 로컬 커밋</td>
+            <td><code>8c45d659</code></td>
+          </tr>
+          <tr>
+            <td>제약 준수</td>
+            <td>허브 쓰기는 <code>agents/codex/</code> 아래로 제한했고, 제품 브랜치는 로컬에만 유지했다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>검증 항목</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>npx jest src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code></td>
+            <td>통과, 테스트 5개</td>
+          </tr>
+          <tr>
+            <td><code>npx tsc --noEmit --pretty false</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td>교차 검증</td>
+            <td>제품 코드 차이를 포함하므로 앤티그래비티에 검증 요청을 발행했다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
