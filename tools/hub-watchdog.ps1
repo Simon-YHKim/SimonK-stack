@@ -138,12 +138,22 @@ try {
   $poll = $null; try { $poll = $pollOut | ConvertFrom-Json } catch {}
   if ($poll -and $poll.error) {
     $issues += @{ key='orders-channel-error'; title='Remote ORDERS channel broken'; detail="orders-poll error: $($poll.error)"; action='Check E:\2ndB clone + network; run tools/orders-poll.ps1 manually.' }
-  } elseif ($poll -and [int]$poll.newCount -gt 0) {
+  } elseif ($poll) {
     $hb = Join-Path $toolsDir 'orders-poll-heartbeat.txt'
     $hbAgeMin = if (Test-Path $hb) { ((Get-Date) - (Get-Item $hb).LastWriteTime).TotalMinutes } else { [double]::MaxValue }
-    if ($hbAgeMin -gt 30) {
+    # (6a) orders WAITING with a dead/absent consumer = the real-harm case (an idle queue with a
+    # stale heartbeat is normal session-bound-consumer behavior, NOT an outage -- do not alert on it).
+    if ([int]$poll.newCount -gt 0 -and $hbAgeMin -gt 30) {
       $hbTxt = if (Test-Path $hb) { "consumer heartbeat {0:n0}m old" -f $hbAgeMin } else { 'no consumer heartbeat file (no director /loop has ever polled with -Heartbeat)' }
       $issues += @{ key='orders-unconsumed'; title="Simon's remote order(s) waiting with NO consumer (O-$($poll.newIds -join ', O-'))"; detail="ORDERS.md has $($poll.newCount) unconsumed order(s); $hbTxt. The remote-order pipeline is effectively DOWN."; action='Start the Claude /loop director session (HUB-STARTUP.html remote-orders card) or handle the order directly, then have the loop poll with -Heartbeat.' }
+    }
+    # (6b, audit E2b) ABANDONED in-progress: an order was acked (picked up, in tools/orders-ack.json)
+    # but never reached ## DONE while the consumer heartbeat went stale -> the director died mid-task
+    # and the ack ledger now hides that order from newIds FOREVER (it never re-surfaces as NEW). This
+    # requires a genuinely-acked order, so it is not the idle-death false alarm -- real work was dropped.
+    $abandoned = @($poll.ackedIds | Where-Object { ($poll.openIds -contains $_) -and ($poll.doneIds -notcontains $_) })
+    if ($abandoned.Count -gt 0 -and $hbAgeMin -gt 30) {
+      $issues += @{ key='orders-abandoned'; title="Acked order(s) abandoned in-progress (O-$($abandoned -join ', O-'))"; detail="Picked up (ack ledger) but never moved to ## DONE, and the consumer heartbeat is $([int]$hbAgeMin)m stale -- the director died mid-task and the ack ledger now hides them from new-order detection, so they will NOT re-surface on their own."; action="Handle O-$($abandoned -join ', O-') directly, then move them to ## DONE or clear their ids from tools/orders-ack.json." }
     }
   }
 } catch {}
