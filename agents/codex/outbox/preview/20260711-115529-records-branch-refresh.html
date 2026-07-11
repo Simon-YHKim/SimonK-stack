@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 브랜치 갱신 보고</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --fg: #e8eef5;
+      --accent: #5bb7a6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 48px 0;
+    }
+    h1, h2, p { margin: 0; }
+    h1 {
+      font-size: 28px;
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+    .meta {
+      color: var(--accent);
+      margin-bottom: 32px;
+      font-size: 14px;
+    }
+    section {
+      border-top: 1px solid var(--accent);
+      padding-top: 22px;
+      margin-top: 22px;
+    }
+    h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+    ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    li { margin: 8px 0; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드 브랜치 갱신 보고</h1>
+    <p class="meta">2026-07-11 11:55:29 KST · 코덱스 단일 사이클</p>
+
+    <section>
+      <h2>판단</h2>
+      <p>코덱스 앞으로 온 새로운 열린 요청은 없었다. 다만 2nd-B의 <code>origin/main</code>이 <code>2e65bdd2</code>까지 전진했기 때문에, 이번 사이클의 단일 작업은 기존 코덱스 레코드 브랜치를 최신 기준으로 다시 맞추는 것으로 정했다.</p>
+    </section>
+
+    <section>
+      <h2>수행</h2>
+      <ul>
+        <li><code>codex/records-source-detail-route-20260710</code> 브랜치를 <code>origin/main@2e65bdd2</code> 위로 재배치했다.</li>
+        <li>충돌 없이 재배치가 끝났고, 새 로컬 2nd-B 헤드는 <code>0bb4e04b</code>이다.</li>
+        <li>브랜치는 <code>origin/main</code>보다 7커밋 앞서 있으며, 푸시는 하지 않았다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li><code>npx jest src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code> 통과: 5개 테스트.</li>
+        <li><code>npx tsc --noEmit --pretty false</code> 통과.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <p>새 요청이 없을 때 반복 보고를 만들지 않는 규칙을 확인했다. 이번에는 업스트림 기준점이 실제로 바뀌었으므로 정체 보고가 아니라 브랜치 최신화 작업으로 처리했다. 충돌 해결이나 보안 변경은 없어서 추가 교차검증 요청은 만들지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>
