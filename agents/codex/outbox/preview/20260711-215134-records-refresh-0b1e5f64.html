@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 폴 사이클 보고서</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --fg: #e6edf3;
+      --accent: #4ea1ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 48px 22px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+    h1 { font-size: 28px; }
+    h2 {
+      margin-top: 34px;
+      font-size: 18px;
+      color: var(--accent);
+    }
+    p { margin: 0 0 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      width: 34%;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--fg);
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 폴 사이클 보고서</h1>
+    <p>프로토콜 12/19/35.4 단일 사이클을 실행했다. 코덱스 직접 수신함은 비어 있었고, 현재 처리할 새 공개 요청은 없었다.</p>
+
+    <h2>수행한 작업</h2>
+    <p>새 레인 작업이 있었다. 2nd-B <code>origin/main</code>이 <code>0b1e5f64</code>까지 전진해 로컬 코덱스 브랜치 <code>codex/records-source-detail-route-20260710</code>을 최신 기준 위로 갱신했다.</p>
+
+    <table>
+      <tr>
+        <th>항목</th>
+        <td>레코드 소스 상세 라우팅 브랜치 최신화</td>
+      </tr>
+      <tr>
+        <th>작업 위치</th>
+        <td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td>
+      </tr>
+      <tr>
+        <th>기준 메인</th>
+        <td><code>0b1e5f64</code></td>
+      </tr>
+      <tr>
+        <th>갱신 후 헤드</th>
+        <td><code>9b092242</code></td>
+      </tr>
+      <tr>
+        <th>충돌</th>
+        <td>없음</td>
+      </tr>
+      <tr>
+        <th>푸시</th>
+        <td>수행하지 않음</td>
+      </tr>
+    </table>
+
+    <h2>검증</h2>
+    <p><code>npx jest src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code>는 테스트 5개 모두 통과했다.</p>
+    <p><code>npx tsc --noEmit --pretty false</code>는 오류 없이 통과했다.</p>
+
+    <h2>35항 자체 패널</h2>
+    <p>이 작업은 새 <code>origin/main</code> 전진에 따른 실제 브랜치 최신화이며, 반복 보류 보고가 아니다. 허브 쓰기는 <code>agents/codex/</code> 안으로 제한했고, 2nd-B에는 푸시하지 않았다. 충돌 없는 리베이스였으므로 추가 교차검증 요청은 만들지 않았다.</p>
+  </main>
+</body>
+</html>
