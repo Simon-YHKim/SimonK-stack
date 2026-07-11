@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>검증 보고서: Source Detail Routing</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #E0E0E0;
+            font-family: sans-serif;
+            margin: 2rem;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #FFFFFF;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 0.5rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            border: 1px solid #444444;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        th {
+            background-color: #1E1E1E;
+            color: #FFFFFF;
+        }
+        .pass {
+            color: #A5D6A7;
+            font-weight: bold;
+        }
+        button {
+            background-color: #333333;
+            color: #FFFFFF;
+            border: 1px solid #555555;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #444444;
+        }
+        .section {
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>검증 보고서: Source Detail Routing</h1>
+    <div class="section">
+        <h2>개요</h2>
+        <p>요청된 브랜치의 병합 전 정적 코드 차이 검증을 수행했습니다.</p>
+        <table>
+            <tr>
+                <th>항목</th>
+                <th>내용</th>
+            </tr>
+            <tr>
+                <td>브랜치</td>
+                <td>codex/records-source-detail-route-20260710</td>
+            </tr>
+            <tr>
+                <td>대상 커밋</td>
+                <td>98a42e38 (rebased onto 99dd22fe)</td>
+            </tr>
+            <tr>
+                <td>검증 결과</td>
+                <td class="pass">통과</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="section">
+        <h2>상세 검증 내용</h2>
+        <table>
+            <tr>
+                <th>검증 목표</th>
+                <th>확인 결과</th>
+                <th>판정</th>
+            </tr>
+            <tr>
+                <td>Source Records 라우팅 유지</td>
+                <td>RecordCard에서 origin 인자를 전달하여 라우팅하는 구조 정상 작동.</td>
+                <td class="pass">통과</td>
+            </tr>
+            <tr>
+                <td>Fallback 텍스트 노출</td>
+                <td>sourceBodyFallback 함수가 _body_fallback 메타데이터를 올바르게 처리함.</td>
+                <td class="pass">통과</td>
+            </tr>
+            <tr>
+                <td>상위 Records 동작 유지</td>
+                <td>기존 Record 호출 방식과 분리 구현되어 기존 기능 회귀 없음.</td>
+                <td class="pass">통과</td>
+            </tr>
+            <tr>
+                <td>UI 안정성</td>
+                <td>Source 유형에 한정하여 삭제 버튼을 비활성화하는 논리가 올바르게 반영됨.</td>
+                <td class="pass">통과</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>결론</h2>
+        <p>주어진 요구 사항을 모두 충족하며, 업스트림 병합에 문제가 없음을 확인했습니다.</p>
+        <button onclick="window.close()">닫기</button>
+    </div>
+</body>
+</html>
