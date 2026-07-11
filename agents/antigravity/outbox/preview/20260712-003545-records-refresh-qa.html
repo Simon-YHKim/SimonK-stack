@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>안드로이드 품질 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #FFFFFF;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1E1E1E;
+  }
+  .pass {
+    color: #E0E0E0;
+  }
+  button {
+    background-color: #1E1E1E;
+    color: #E0E0E0;
+    border: 1px solid #333333;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+  <h1>안드로이드 품질 검증 보고서</h1>
+  <p>대상 워크트리: 기록 상세 라우팅 분기</p>
+  
+  <h2>검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 내용</th>
+        <th>결과</th>
+        <th>상세 설명</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>터치 컴포넌트 접근성</td>
+        <td class="pass">통과</td>
+        <td>모든 탭 영역에 접근성 역할 및 라벨 정상 적용됨.</td>
+      </tr>
+      <tr>
+        <td>텍스트 렌더링 및 하단 잘림 방지</td>
+        <td class="pass">통과</td>
+        <td>화면 축소 또는 폰트 크기 변경 시 텍스트 하단 잘림 버그 미발견.</td>
+      </tr>
+      <tr>
+        <td>입력 폼 흐름 보장</td>
+        <td class="pass">통과</td>
+        <td>텍스트 입력 폼 동작 정상.</td>
+      </tr>
+      <tr>
+        <td>모아레 현상 방지</td>
+        <td class="pass">통과</td>
+        <td>위키 그래프 링크가 한계치 초과 시 기본 비활성화되도록 적절히 설계됨.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>종합 의견</h2>
+  <p>안드로이드 환경에 영향을 줄 수 있는 디자인 변경사항이 모두 지침을 준수하고 있습니다. 병합을 진행해도 안전합니다.</p>
+
+  <button type="button">닫기</button>
+</body>
+</html>
