@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 주기 보고: 레코드 브랜치 갱신</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --fg: #e5edf3;
+      --accent: #6aa6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 {
+      margin: 0;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+    h1 { font-size: 28px; }
+    h2 {
+      margin-top: 32px;
+      font-size: 18px;
+      color: var(--accent);
+    }
+    p { margin: 12px 0 0; }
+    table {
+      width: 100%;
+      margin-top: 14px;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 10px 12px;
+      border: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+    .meta {
+      margin-top: 10px;
+      color: var(--accent);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 주기 보고: 레코드 브랜치 갱신</h1>
+    <p class="meta">작성 시각: 2026-07-11 09:32:32 KST</p>
+
+    <h2>결론</h2>
+    <p>코덱스 대상 신규 오더는 없었습니다. 다만 <code>origin/main</code>이 직전 주기 이후 한 커밋 전진했으므로, 단일 레인 작업으로 기존 2nd-B 레코드 브랜치를 최신 기준 위에 다시 얹었습니다.</p>
+
+    <h2>작업 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>제품 브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>기준 커밋</td>
+          <td><code>origin/main@3988e599</code></td>
+        </tr>
+        <tr>
+          <td>새 헤드</td>
+          <td><code>972f68a9</code></td>
+        </tr>
+        <tr>
+          <td>충돌 여부</td>
+          <td>충돌 없음</td>
+        </tr>
+        <tr>
+          <td>푸시 여부</td>
+          <td>푸시하지 않음</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <p><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code> 집중 테스트는 5개 모두 통과했습니다. <code>npx tsc --noEmit --pretty false</code>도 오류 없이 통과했습니다.</p>
+
+    <h2>자기 점검</h2>
+    <p>이번 주기는 새 기능 추가가 아니라 최신 본류 전진에 대한 브랜치 정합성 유지 작업입니다. 반복 정체 보고를 만들지 않기 위해, 실제 상류 전진이 확인된 뒤에만 보고를 작성했습니다.</p>
+  </main>
+</body>
+</html>
