@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 소스 상세 라우트 갱신</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --fg: #e6edf3;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 48px 20px;
+    }
+    h1 {
+      margin: 0 0 14px;
+      font-size: 28px;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 30px 0 10px;
+      font-size: 18px;
+      color: var(--accent);
+      letter-spacing: 0;
+    }
+    p { margin: 0 0 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+      width: 34%;
+    }
+    code {
+      color: var(--fg);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+    li { margin: 8px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 소스 상세 라우트 갱신</h1>
+    <p>이번 사이클에는 Codex 대상 열린 오더가 없었습니다. 대신 2nd-B upstream 전진을 확인해 기존 Codex 기록 소스 상세 라우트 브랜치를 한 번 갱신했습니다.</p>
+
+    <h2>작업 요약</h2>
+    <table>
+      <tbody>
+        <tr>
+          <th>제품 워크트리</th>
+          <td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <th>대상 브랜치</th>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <th>기준 upstream</th>
+          <td><code>origin/main@bc837892</code></td>
+        </tr>
+        <tr>
+          <th>갱신 후 HEAD</th>
+          <td><code>964bc03f</code></td>
+        </tr>
+        <tr>
+          <th>충돌 여부</th>
+          <td>충돌 없이 rebase 완료</td>
+        </tr>
+        <tr>
+          <th>push 여부</th>
+          <td>수행하지 않음</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <ul>
+      <li><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code>: 5개 테스트 통과</li>
+      <li><code>npx tsc --noEmit --pretty false</code>: 통과</li>
+    </ul>
+
+    <h2>메모</h2>
+    <p>이전 사이클에서 쓰던 테스트 경로는 현재 upstream에서 존재하지 않아, 현재 기록 소스 상세 라우트 guard 파일로 검증했습니다.</p>
+  </main>
+</body>
+</html>
