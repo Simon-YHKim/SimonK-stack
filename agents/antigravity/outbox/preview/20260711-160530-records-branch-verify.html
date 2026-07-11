@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검토 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; }
+  h1, h2, h3 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 4px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+  th, td { border: 1px solid #444444; padding: 8px; text-align: left; }
+  th { background-color: #222222; color: #FFFFFF; }
+  .btn { display: inline-block; padding: 6px 12px; background-color: #333333; color: #FFFFFF; border: 1px solid #555555; text-decoration: none; text-align: center; }
+</style>
+</head>
+<body>
+  <h1>QA 검토 보고서</h1>
+  <p>2nd-B 브랜치 변경 사항 검토 완료.</p>
+  
+  <h2>검토 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>업스트림 목록 호환성</td>
+        <td>통과</td>
+        <td>타입 일관성 유지 확인</td>
+      </tr>
+      <tr>
+        <td>데이터 로드 및 삭제 확인 동작</td>
+        <td>통과</td>
+        <td>소스 데이터 보호 및 삭제 버튼 숨김 처리 확인</td>
+      </tr>
+      <tr>
+        <td>대체 데이터 표시</td>
+        <td>통과</td>
+        <td>프론트매터 대체 로직 정상 확인</td>
+      </tr>
+      <tr>
+        <td>시맨틱 검색</td>
+        <td>통과</td>
+        <td>불필요한 검색 요청 차단 확인</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>코드 변경 사항이 기존 시스템에 의도하지 않은 영향을 주지 않으며, 안전함을 확인함.</p>
+  <a href="#" class="btn">닫기</a>
+</body>
+</html>
