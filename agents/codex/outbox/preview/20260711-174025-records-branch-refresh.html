@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 브랜치 재정렬 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --fg: #e6edf3;
+      --accent: #6aa6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 48px 0;
+    }
+    h1, h2, p { margin: 0; }
+    h1 {
+      font-size: 32px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    p { margin-top: 12px; }
+    table {
+      width: 100%;
+      margin-top: 16px;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+      word-break: break-word;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--fg);
+      font-family: Consolas, "Courier New", monospace;
+      word-break: break-all;
+    }
+    ul {
+      margin: 12px 0 0;
+      padding-left: 20px;
+    }
+    li { margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 브랜치 재정렬 보고</h1>
+    <p>이번 Codex 자율 폴 사이클에서는 새로 처리할 열린 요청이 없었고, 2nd-B 기록 상세 로컬 브랜치가 최신 원격 기준보다 뒤처진 점을 확인했습니다. 단일 작업으로 브랜치를 최신 기준 위에 재정렬하고 검증했습니다.</p>
+
+    <h2>작업 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>대상 브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>원격 기준 변화</td>
+          <td><code>1b7140ff</code>에서 <code>c74a14bb</code>로 전진</td>
+        </tr>
+        <tr>
+          <td>새 제품 헤드</td>
+          <td><code>e8ca8ffb</code></td>
+        </tr>
+        <tr>
+          <td>재정렬 결과</td>
+          <td>충돌 없이 완료</td>
+        </tr>
+        <tr>
+          <td>푸시 여부</td>
+          <td>푸시하지 않음</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code> 통과, 5개 테스트 성공</li>
+      <li><code>npx tsc --noEmit --pretty false</code> 통과</li>
+    </ul>
+
+    <h2>자체 점검</h2>
+    <p>이 작업은 머지 대기 브랜치를 최신 기준에 맞추는 유지보수이며, 새 기능 발굴보다 현재 대기 산출물의 통합 가능성을 보존하는 가치가 더 큽니다. merge diff 성격이 있으므로 Antigravity에 독립 검증 요청을 함께 남겼습니다.</p>
+  </main>
+</body>
+</html>
