@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서 - 기록 갱신</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+  }
+  h1, h2 {
+    color: #4caf50;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #4caf50;
+  }
+  .success {
+    color: #4caf50;
+  }
+  button {
+    background-color: #1e1e1e;
+    color: #4caf50;
+    border: 1px solid #4caf50;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  button:hover {
+    background-color: #333333;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서</h1>
+  <p>참조 브랜치: codex/records-source-detail-route-20260710</p>
+  
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>테스트 항목</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>단위 테스트 (Jest)</td>
+        <td class="success">통과</td>
+      </tr>
+      <tr>
+        <td>타입스크립트 검증 (TSC)</td>
+        <td class="success">통과</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>세부 사항</h2>
+  <p>모든 테스트가 성공적으로 완료되었습니다. 레코드 소스 상세 라우팅 버그 수정이 기존 기능을 훼손하지 않음을 확인했습니다.</p>
+  
+  <button onclick="window.close()">닫기</button>
+</body>
+</html>
