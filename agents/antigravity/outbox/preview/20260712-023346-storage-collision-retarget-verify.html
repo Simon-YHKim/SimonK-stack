@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: 저장소 충돌 방지 라우팅</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 2rem;
+  }
+  h1, h2 {
+    color: #ffffff;
+  }
+  .accent {
+    color: #bb86fc;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 1rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #bb86fc;
+  }
+  .success {
+    color: #03dac6;
+  }
+  button {
+    background-color: #bb86fc;
+    color: #121212;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 1rem;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: 저장소 충돌 방지 라우팅</h1>
+  <p>검증 대상: <span class="accent">codex/records-source-detail-route-20260710</span></p>
+  
+  <h2>검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 영역</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 렌더링 안전성</td>
+        <td class="success">통과</td>
+        <td>웹 전용 API 또는 비호환 컴포넌트 없음</td>
+      </tr>
+      <tr>
+        <td>라우팅 파라미터 직렬화</td>
+        <td class="success">통과</td>
+        <td>원시 문자열 사용, 객체 참조 전달 없음</td>
+      </tr>
+      <tr>
+        <td>조건부 UI 렌더링</td>
+        <td class="success">통과</td>
+        <td>null 반환 처리 정상 작동 확인</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>종합 의견</h2>
+  <p>안드로이드 및 네이티브 환경에서의 실행 안정성을 저해하는 요소가 발견되지 않았습니다. 라우팅 로직 변경은 네이티브 뷰 계층에 안전하게 통합됩니다.</p>
+  <button>확인</button>
+</body>
+</html>
