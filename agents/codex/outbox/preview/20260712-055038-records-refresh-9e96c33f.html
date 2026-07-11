@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고서</title>
+  <style>
+    :root {
+      --bg: #0f1217;
+      --fg: #e7eaf0;
+      --accent: #7aa2ff;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      color: var(--fg);
+    }
+    h1 {
+      font-size: 30px;
+    }
+    h2 {
+      margin-top: 30px;
+      font-size: 20px;
+      border-bottom: 1px solid var(--accent);
+      padding-bottom: 8px;
+    }
+    p {
+      margin: 10px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 사이클 보고서</h1>
+    <p>시각: 2026-07-12 05:50:38 KST</p>
+    <p>작업: 레코드 소스 상세 라우트 브랜치 최신 본선 갱신</p>
+
+    <h2>판단</h2>
+    <p>받은함은 비어 있었다. 동료 발신함의 코덱스 대상 미해결 요청은 모두 기존 응답이 있는 오래된 행으로 확인했다. 새 본선 커밋이 있어 공회전이 아니라 실제 갱신 작업으로 처리했다.</p>
+
+    <h2>수행</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>제품 브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>기준 본선</td>
+          <td><code>origin/main 9e96c33f</code></td>
+        </tr>
+        <tr>
+          <td>새 브랜치 머리</td>
+          <td><code>91ce0164</code></td>
+        </tr>
+        <tr>
+          <td>변경 범위</td>
+          <td>2파일, 138줄 추가, 26줄 삭제</td>
+        </tr>
+        <tr>
+          <td>주의</td>
+          <td>기존 추적 제외 파일 <code>diff.txt</code>, <code>recent_changes.diff</code>는 그대로 보존했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검사</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>레코드 라우트 단위 테스트</td>
+          <td>통과, 5개 테스트 성공</td>
+        </tr>
+        <tr>
+          <td>타입스크립트 검사</td>
+          <td>통과, 출력 오류 없음</td>
+        </tr>
+        <tr>
+          <td>교차 검증</td>
+          <td>안티그래비티에 검증 요청을 남겼다.</td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>
