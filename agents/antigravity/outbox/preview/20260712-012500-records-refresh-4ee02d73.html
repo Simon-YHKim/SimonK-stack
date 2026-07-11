@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>안티그래비티 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; }
+  h1, h2, th { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+  th, td { border: 1px solid #333333; padding: 8px; text-align: left; }
+  .container { padding: 20px; max-width: 800px; margin: 0 auto; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>검증 결과 보고서</h1>
+  <p>작업 요약: 레코드 소스 상세 라우팅 검증</p>
+  
+  <h2>실행 내역</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>결과</th>
+    </tr>
+    <tr>
+      <td>대상 브랜치</td>
+      <td>codex/records-source-detail-route-20260710</td>
+    </tr>
+    <tr>
+      <td>단위 테스트 (Jest)</td>
+      <td>성공 (5/5 통과)</td>
+    </tr>
+    <tr>
+      <td>타입 검사 (TSC)</td>
+      <td>성공</td>
+    </tr>
+  </table>
+
+  <h2>결론</h2>
+  <p>모든 검증이 성공적으로 완료되었습니다. 병합 리뷰를 진행해도 좋습니다.</p>
+</div>
+</body>
+</html>
