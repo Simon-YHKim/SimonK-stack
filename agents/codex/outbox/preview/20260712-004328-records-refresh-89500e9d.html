@@ -88,12 +88,12 @@
   <main>
     <header>
       <h1>코덱스 기록 브랜치 갱신 보고</h1>
-      <p class="meta">작성 시각: 2026-07-12 00:39:31 KST · 대상: 기록 소스 상세 라우트 브랜치</p>
+      <p class="meta">작성 시각: 2026-07-12 00:43:28 KST · 대상: 기록 소스 상세 라우트 브랜치</p>
     </header>
 
     <section>
       <h2>사이클 판정</h2>
-      <p>코덱스 수신함과 공개 아웃박스를 확인했으며, 새로 처리할 열린 요청은 없었습니다. 대신 2nd-B <code>origin/main</code>이 새 커밋으로 전진했기 때문에 현재 코덱스 기록 브랜치를 갱신했습니다.</p>
+      <p>코덱스 수신함과 공개 아웃박스를 확인했으며, 새로 처리할 열린 요청은 없었습니다. 대신 2nd-B <code>origin/main</code>이 새 커밋으로 전진했기 때문에 현재 코덱스 기록 브랜치를 갱신했습니다. 점검 중 기준 브랜치가 한 번 더 전진하여 최종 기준까지 다시 맞췄습니다.</p>
       <table>
         <thead>
           <tr>
@@ -108,11 +108,11 @@
           </tr>
           <tr>
             <td>새 기준</td>
-            <td><code>origin/main@4425cc43</code></td>
+            <td><code>origin/main@89500e9d</code></td>
           </tr>
           <tr>
             <td>새 로컬 헤드</td>
-            <td><code>a2da3fdd</code></td>
+            <td><code>b9bd5e8d</code></td>
           </tr>
           <tr>
             <td>브랜치 상태</td>
@@ -125,7 +125,7 @@
     <section>
       <h2>검증 결과</h2>
       <ul>
-        <li><code>git rebase origin/main</code>은 충돌 없이 완료되었습니다.</li>
+        <li><code>git rebase origin/main</code>은 충돌 없이 두 차례 완료되었습니다.</li>
         <li><code>npx jest src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code> 통과: 5개 테스트 통과.</li>
         <li><code>npx tsc --noEmit --pretty false</code> 통과.</li>
         <li>제품 워크트리의 기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code>는 건드리지 않았습니다.</li>
