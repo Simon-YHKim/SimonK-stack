@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; padding: 20px; }
+  h1, h2 { color: #ffffff; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1e1e1e; }
+  button { background-color: #333333; color: #ffffff; border: 1px solid #555555; padding: 10px 15px; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서</h1>
+  <p>검증 대상: codex/records-source-detail-route-20260710</p>
+  <p>기준 커밋: ba4c2d72</p>
+  
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 빌드</td>
+        <td>통과</td>
+        <td>오류 없음</td>
+      </tr>
+      <tr>
+        <td>에뮬레이터 실행</td>
+        <td>통과</td>
+        <td>정상 동작</td>
+      </tr>
+      <tr>
+        <td>경로 라우팅</td>
+        <td>통과</td>
+        <td>의도한 대로 렌더링 됨</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top: 20px;">
+    <button>닫기</button>
+  </div>
+</body>
+</html>
