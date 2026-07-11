@@ -54,8 +54,18 @@ $doneSec = if ($doneIdx -ge 0) { $content.Substring($doneIdx) } else { "" }
 function Get-Ids($text) {
   [regex]::Matches($text, '\bO-(\d+)\b') | ForEach-Object { [int]$_.Groups[1].Value } | Sort-Object -Unique
 }
+# audit E4: doneIds match O-N ONLY on '### [' header lines, not body prose -- a passing mention
+# ("next: O-32") in a DONE entry body previously marked O-32 consumed, silently swallowing a real
+# future order. Header lines (incl. range closes like "O-13~O-30") still count both explicit ends.
+function Get-DoneIds($text) {
+  $ids = @()
+  foreach ($line in ($text -split "`n")) {
+    if ($line -match '^\s*###\s*\[') { [regex]::Matches($line, '\bO-(\d+)\b') | ForEach-Object { $ids += [int]$_.Groups[1].Value } }
+  }
+  return @($ids | Sort-Object -Unique)
+}
 $openIds = @(Get-Ids $openSec)
-$doneIds = @(Get-Ids $doneSec)
+$doneIds = @(Get-DoneIds $doneSec)
 $ackedIds = @()
 if (Test-Path $ackFile) { try { $ackedIds = @((Get-Content $ackFile -Raw | ConvertFrom-Json) | ForEach-Object { [int]$_ }) } catch { $ackedIds = @() } }
 $newIds  = @($openIds | Where-Object { $_ -ge $MinId -and $doneIds -notcontains $_ -and $ackedIds -notcontains $_ })
