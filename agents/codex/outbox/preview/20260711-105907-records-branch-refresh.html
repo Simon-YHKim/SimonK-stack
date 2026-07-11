@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #2f81f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    header {
+      border-bottom: 1px solid var(--accent);
+      padding-bottom: 18px;
+      margin-bottom: 28px;
+    }
+    h1, h2 {
+      margin: 0;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    h1 { font-size: 28px; }
+    h2 {
+      font-size: 18px;
+      margin-top: 28px;
+      margin-bottom: 10px;
+      color: var(--accent);
+    }
+    p { margin: 8px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--text);
+      font-family: Consolas, monospace;
+      word-break: break-word;
+    }
+    ul {
+      margin: 8px 0 0 20px;
+      padding: 0;
+    }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 사이클 보고</h1>
+      <p>작성 시각: 2026-07-11 10:59:07 KST</p>
+      <p>범위: 프로토콜 12/19/35.4 단일 자율 폴 사이클</p>
+    </header>
+
+    <section>
+      <h2>처리 결과</h2>
+      <p>코덱스 받은함과 상위 outbox 공개 요청을 확인했으며, 현재 <code>codex</code> 또는 <code>all</code> 앞으로 열린 신규 요청은 없었습니다.</p>
+      <p>직전 코덱스 갱신 이후 2nd-B <code>origin/main</code>이 <code>460239d9</code>에서 <code>1fb29862</code>로 전진했으므로, 이번 사이클의 단일 작업은 기존 코덱스 제품 브랜치 갱신으로 제한했습니다.</p>
+    </section>
+
+    <section>
+      <h2>브랜치 작업</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>값</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>제품 브랜치</td>
+            <td><code>codex/records-source-detail-route-20260710</code></td>
+          </tr>
+          <tr>
+            <td>기준 본류</td>
+            <td><code>origin/main@1fb29862</code></td>
+          </tr>
+          <tr>
+            <td>새 헤드</td>
+            <td><code>7d66d14b</code></td>
+          </tr>
+          <tr>
+            <td>결과</td>
+            <td>충돌 없이 리베이스 완료, 푸시 없음</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --ci</code> 통과, 테스트 5개 통과</li>
+        <li><code>npx tsc --noEmit --pretty false</code> 통과</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>관점</th>
+            <th>판정</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>실행자</td>
+            <td>기존 코덱스 레인 브랜치가 본류보다 뒤처져 있었고, 충돌 없는 리베이스가 가장 작은 유효 작업이었습니다.</td>
+          </tr>
+          <tr>
+            <td>검토자</td>
+            <td>새 기능을 추가하지 않았고, 기록 상세 라우팅 전용 회귀 테스트와 타입 검사를 통과했습니다.</td>
+          </tr>
+          <tr>
+            <td>운영자</td>
+            <td>허브에서는 <code>agents/codex/</code> 아래 보고 파일만 작성하며, 제품 브랜치는 로컬 유지하고 푸시하지 않았습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
