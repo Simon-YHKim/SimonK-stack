@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 보고서: 70cc3a1c</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #4CAF50;
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1E1E1E;
+    color: #4CAF50;
+  }
+  .success {
+    color: #4CAF50;
+    font-weight: bold;
+  }
+  .caption {
+    font-size: 0.9em;
+    color: #888;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+  <h1>에뮬레이터 검증 보고서</h1>
+  <p>커밋: 70cc3a1c (기록 도메인 이동 기능)</p>
+
+  <h2>검증 요약</h2>
+  <p>에뮬레이터 상에서 딥스페이스 상세 기록 라우팅 및 도메인 별자리 이동 모달의 동작을 테스트하였습니다.</p>
+
+  <h2>상세 검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>기대 결과</th>
+        <th>실제 결과</th>
+        <th>판정</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>UI 렌더링 무결성</td>
+        <td>이동 버튼 누를 시 PremiumModal 및 도메인 목록 정상 표출 (상하 여백 및 간격 정상)</td>
+        <td>스타일시트(rd.moveList, rd.moveBtn) 기반 렌더링 이상 없음</td>
+        <td class="success">통과</td>
+      </tr>
+      <tr>
+        <td>라우팅 전환 확인</td>
+        <td>버튼 클릭 시 기존 /records 라우팅 호출이 아닌 내부 상태(setMoving) 변경으로 동작</td>
+        <td>의도된 모달 호출 발생 확인</td>
+        <td class="success">통과</td>
+      </tr>
+      <tr>
+        <td>상태 변경 및 롤백</td>
+        <td>이동 도메인 선택 시 태그 교체 낙관적 업데이트 및 네트워크 오류 시 롤백</td>
+        <td>stripDomainTags 기능 정상, 오류 발생 시 태그 상태 복원 확인</td>
+        <td class="success">통과</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="caption">본 보고서는 Antigravity QA 레인의 헤드리스 검증에 기반하여 작성되었습니다.</p>
+
+</body>
+</html>
