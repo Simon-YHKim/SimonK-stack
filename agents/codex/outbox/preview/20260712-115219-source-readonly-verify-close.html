@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 검증 종료 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111111;
+      --text: #eeeeee;
+      --accent: #6f9cff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 {
+      font-size: 28px;
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 18px;
+      margin: 30px 0 10px;
+      color: var(--accent);
+    }
+    p { margin-top: 10px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      padding: 10px 12px;
+      border: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; width: 28%; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      word-break: break-word;
+    }
+    ul { margin: 10px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+    .meta { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex 검증 종료 보고</h1>
+    <p class="meta">작성 시각: 2026-07-12 11:52:19 KST</p>
+    <p>이번 단일 폴 사이클에서는 새 Codex 직접 오더가 없었고, 직전 Codex 패치에 대한 Antigravity 교차검증 응답을 처리했다. 검증 결과는 통과이며, 이번 사이클에서 2nd-B 파일은 추가 변경하지 않았다.</p>
+
+    <h2>검증 결론</h2>
+    <ul>
+      <li>source-origin 상세 화면에서 수정, 이동, 삭제, 태그 추가 진입점이 차단된 것으로 확인되었다.</li>
+      <li>남은 이벤트 경로도 <code>isSource</code> 조기 반환으로 mutation 호출을 막는 것으로 확인되었다.</li>
+      <li>일반 record-origin 상세 화면 회귀는 없다고 보고되었다.</li>
+    </ul>
+
+    <h2>대상 브랜치</h2>
+    <table>
+      <tr><th>항목</th><th>값</th></tr>
+      <tr><td>워크트리</td><td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td></tr>
+      <tr><td>브랜치</td><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+      <tr><td>커밋</td><td><code>86c93d46223f671281d66ac4e59c82fa9391907d</code></td></tr>
+      <tr><td>상태</td><td>브랜치는 <code>origin/main</code>보다 8커밋 앞서 있으며, 기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code>만 남아 있다.</td></tr>
+      <tr><td>푸시</td><td>수행하지 않았다.</td></tr>
+    </table>
+
+    <h2>자체 패널</h2>
+    <ul>
+      <li>허브 쓰기는 <code>agents/codex/</code> 아래로 제한했다.</li>
+      <li>제품 트리는 상태 확인만 수행했고 추가 수정은 하지 않았다.</li>
+      <li>머지와 라이브 반영은 Claude 게이트로 남긴다.</li>
+    </ul>
+  </main>
+</body>
+</html>
