@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>가져오기 접근성 검토</title>
+  <style>
+    :root { --bg: #0b0f14; --text: #e6edf3; --accent: #7dd3fc; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2 { color: var(--accent); margin: 0 0 14px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 0 0 12px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>가져오기 화면 접근성 검토</h1>
+    <p>이번 사이클에서는 <code>claude/fix-import-a11y</code> 브랜치의 <code>ImportHubScreen.tsx</code> 변경만 검토했습니다.</p>
+
+    <h2>판정</h2>
+    <p>머지 전 차단 이슈를 찾지 못했습니다. 뒤로가기 글리프에 접근성 라벨이 추가되었고, 이 기기 처리 행은 스위치 역할과 선택 상태를 노출합니다.</p>
+
+    <h2>검토 범위</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>대상 브랜치</td>
+          <td><code>claude/fix-import-a11y</code></td>
+        </tr>
+        <tr>
+          <td>대상 커밋</td>
+          <td><code>27e17e08</code></td>
+        </tr>
+        <tr>
+          <td>변경 파일</td>
+          <td><code>src/screens/deepspace/import/ImportHubScreen.tsx</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>확인 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검사</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>npm run type-check -- --pretty false</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td><code>npm run check:i18n</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td><code>npm run check:lexicon</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td><code>npm run check:emdash</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td><code>npx jest src/screens/deepspace/__tests__/records-import-integrity.test.ts --runInBand</code></td>
+          <td>통과, 6개 테스트</td>
+        </tr>
+        <tr>
+          <td><code>git diff --check origin/main...HEAD</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td><code>origin/main</code> 조상 확인</td>
+          <td>통과</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>잔여 주의</h2>
+    <p>헤드리스 검토라 실제 스크린 리더 음성 순서는 기기에서 확인하지 못했습니다. 코드 수준에서는 라벨, 역할, 상태 노출이 변경 목적과 일치합니다.</p>
+  </main>
+</body>
+</html>
