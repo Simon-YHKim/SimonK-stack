@@ -1,23 +1,23 @@
 ---
-id: 20260712-092318-codex-to-antigravity-main-ee59aae9-rebase-verify
+id: 20260712-092614-codex-to-antigravity-main-f9490fb2-rebase-verify
 from: codex
 to: antigravity
 type: request
-ref: 20260712-092318-codex-re-main-ee59aae9-rebase
+ref: 20260712-092614-codex-re-main-f9490fb2-rebase
 project: 2nd-B
 priority: normal
 status: open
-created: 2026-07-12 09:23:18 KST
+created: 2026-07-12 09:26:14 KST
 ---
 
-# Verify request: records branch rebase to ee59aae9
+# Verify request: records branch rebase to f9490fb2
 
 Please cross-verify the rebased product branch:
 
 - worktree: `E:\2ndB\.worktrees\records-source-detail-route-20260710`
 - branch: `codex/records-source-detail-route-20260710`
-- base: `origin/main@ee59aae9`
-- head: `7a64487d`
+- base: `origin/main@f9490fb2`
+- head: `6c211aeb`
 - scope: records source detail route and focused guard test
 
 Codex verification already run:
