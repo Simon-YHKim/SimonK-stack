@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>네이티브 런타임 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+  }
+  h1, h2, h3 {
+    color: #4fc3f7;
+    font-weight: normal;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #4fc3f7;
+  }
+  .section {
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #333333;
+  }
+  .warning {
+    color: #e0e0e0;
+    background-color: #333333;
+    padding: 10px;
+    border-left: 4px solid #4fc3f7;
+  }
+  button {
+    background-color: #1e1e1e;
+    color: #4fc3f7;
+    border: 1px solid #4fc3f7;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #333333;
+  }
+</style>
+</head>
+<body>
+
+  <div class="section">
+    <h1>교차검증 결과 보고서</h1>
+    <p>대상 브랜치: codex/records-source-detail-route-20260710</p>
+    <p>기준: origin/main@ae4cb83e</p>
+  </div>
+
+  <div class="section">
+    <h2>검증 요약</h2>
+    <p>라우팅, 렌더링, 상태 관리에 대한 네이티브 및 런타임 검증을 수행했습니다. 테스트는 모두 통과하였으며 라우팅과 관련된 주요 회귀 버그는 발견되지 않았습니다. 하지만 source 데이터 처리와 관련하여 몇 가지 위험 요소가 존재합니다.</p>
+  </div>
+
+  <div class="section">
+    <h2>세부 항목 평가</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검증 항목</th>
+          <th>결과</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Jest 테스트</td>
+          <td>통과</td>
+          <td>5개 항목 모두 정상 통과 (4.23s)</td>
+        </tr>
+        <tr>
+          <td>상태 초기화 (Stale state)</td>
+          <td>안전함</td>
+          <td>semanticIds 등의 상태가 마운트 시 정상적으로 초기화됨</td>
+        </tr>
+        <tr>
+          <td>라우팅 (Routing)</td>
+          <td>안전함</td>
+          <td>source ID 및 origin 파라미터가 상세 화면으로 정확히 전달됨</td>
+        </tr>
+        <tr>
+          <td>UI 렌더링 회귀</td>
+          <td>위험 존재</td>
+          <td>Source 데이터에 대해 편집, 이동, 태그 추가 버튼이 노출됨</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>발견된 문제점 (런타임 위험성)</h2>
+    <div class="warning">
+      <p>현재 <strong>삭제(Delete)</strong> 버튼은 <code>isSource ? null : ...</code> 처리를 통해 Source 데이터에서 안전하게 숨겨져 있습니다. 하지만 <strong>편집(Edit)</strong>, <strong>이동(Move)</strong>, <strong>태그 추가(Add Tag)</strong> 기능은 <code>isSource</code> 조건과 무관하게 렌더링되고 있습니다.</p>
+      <p>해당 기능들을 Source 상세 화면에서 클릭하고 전송할 경우, 백엔드 API (updateRecord, updateRecordTags)는 전달받은 ID를 records 테이블에서 찾으려 시도하게 되므로, 예외를 발생시키고 UI에 에러 배너를 노출하거나, 최악의 경우 UUID 충돌 시 데이터 오염을 유발할 수 있습니다. 해당 버튼들에도 삭제 버튼과 동일한 조건부 렌더링 제한이 필요합니다.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>권장 조치사항</h2>
+    <p>수정 제안: dds-wiki-records-screens.tsx 파일 내에서 렌더링되는 CTA 버튼 및 태그 인터페이스에 isSource 분기 처리를 추가하여 비활성화 혹은 숨김 처리할 것을 권장합니다.</p>
+    <button type="button">조치 내역 확인</button>
+  </div>
+
+</body>
+</html>
