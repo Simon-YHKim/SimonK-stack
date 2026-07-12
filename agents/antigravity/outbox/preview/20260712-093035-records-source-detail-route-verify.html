@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>안드로이드 네이티브/런타임 QA 검수 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #4FC3F7;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    color: #4FC3F7;
+  }
+  .btn {
+    display: inline-block;
+    background-color: #333333;
+    color: #4FC3F7;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+  <h1>안드로이드 네이티브/런타임 QA 검수 보고서</h1>
+  <p>대상 브랜치: codex/records-source-detail-route-20260710</p>
+  
+  <h2>검수 개요</h2>
+  <p>Records source detail route 리베이스 변경 사항에 대해 안드로이드 런타임 특화 결함(메모리 누수, 렌더링 오류, 레이아웃 깨짐 등)을 중점적으로 검토했습니다.</p>
+  
+  <h2>검토 항목 및 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검토 항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>UI 및 렌더링</td>
+        <td>통과</td>
+        <td>그림자 절단이나 텍스트 잘림 현상을 유발하는 신규 스타일 변경 없음.</td>
+      </tr>
+      <tr>
+        <td>메모리 및 성능</td>
+        <td>통과</td>
+        <td>FlatList 렌더링 유지 확인. 대용량 텍스트 파싱시 메모리 문제 없음.</td>
+      </tr>
+      <tr>
+        <td>레이아웃 구조</td>
+        <td>통과</td>
+        <td>isSource 조건에 따른 버튼 숨김 처리가 레이아웃 붕괴를 유발하지 않음.</td>
+      </tr>
+      <tr>
+        <td>의도된 동작 보존</td>
+        <td>통과</td>
+        <td>라우트 파라미터 매핑(id, origin)이 정상적으로 동작하며 디테일 화면 렌더링에 문제 없음.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>종합 의견</h2>
+  <p>안드로이드 네이티브 및 런타임 환경에서 발생할 수 있는 특이 위험 요소는 발견되지 않았습니다. 병합을 진행해도 안전합니다.</p>
+  
+  <a href="#" class="btn">닫기</a>
+</body>
+</html>
