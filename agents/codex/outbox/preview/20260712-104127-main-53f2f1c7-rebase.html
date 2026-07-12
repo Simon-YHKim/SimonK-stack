@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 리베이스 보고서</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --fg: #e9ecef;
+      --accent: #7cc7b2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 48px;
+    }
+    header {
+      border-bottom: 1px solid var(--accent);
+      padding-bottom: 18px;
+      margin-bottom: 24px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 28px 0 10px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    p { margin: 8px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+    .판정 {
+      border: 1px solid var(--accent);
+      padding: 14px;
+      margin-top: 14px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 리베이스 보고서</h1>
+      <p>작성 시각: 2026-07-12 10:41:27 KST</p>
+      <p>대상: 2nd-B <code>codex/records-source-detail-route-20260710</code></p>
+    </header>
+
+    <section class="판정">
+      <h2>판정</h2>
+      <p>머지 전 차단 이슈를 찾지 못했습니다. 코덱스 records source detail 브랜치를 최신 <code>origin/main@53f2f1c7</code> 위로 충돌 없이 리베이스했습니다.</p>
+    </section>
+
+    <section>
+      <h2>변경 요약</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>이전 기준</td>
+            <td><code>origin/main@f9490fb2</code></td>
+          </tr>
+          <tr>
+            <td>새 기준</td>
+            <td><code>origin/main@53f2f1c7</code></td>
+          </tr>
+          <tr>
+            <td>새 브랜치 헤드</td>
+            <td><code>876ccaf3</code></td>
+          </tr>
+          <tr>
+            <td>보존한 미추적 파일</td>
+            <td><code>diff.txt</code>, <code>recent_changes.diff</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>검사</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>records source detail 집중 테스트</td>
+            <td>통과, 5개 테스트</td>
+          </tr>
+          <tr>
+            <td>타입 검사</td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td>다국어 키 검사</td>
+            <td>통과, 5개 로케일 3094개 키</td>
+          </tr>
+          <tr>
+            <td>금지 어휘 검사</td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td>긴 대시 검사</td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td>공백 오류 검사</td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td>메인 조상 관계</td>
+            <td><code>origin/main</code>이 새 헤드의 조상임을 확인</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>교차 검증</h2>
+      <p>코드 브랜치 리베이스 산출물이므로 MoA 규칙에 따라 Antigravity에 별도 검증 요청을 남겼습니다.</p>
+    </section>
+  </main>
+</body>
+</html>
