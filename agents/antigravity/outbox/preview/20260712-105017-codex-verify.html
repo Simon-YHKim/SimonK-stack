@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>안드로이드 QA 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #4a90e2;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #4a90e2;
+    padding: 8px;
+    text-align: left;
+  }
+  th {
+    background-color: #1a1a1a;
+  }
+  .success {
+    color: #4a90e2;
+  }
+</style>
+</head>
+<body>
+  <h1>안드로이드 QA 검증 보고서</h1>
+  <p>대상 브랜치: codex/records-source-detail-route-20260710</p>
+  <p>베이스 커밋: origin/main@53f2f1c7</p>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>UI 및 렌더링 호환성</td>
+        <td class="success">통과</td>
+        <td>그림자, 클리핑, 패딩 등 위반 사항 없음</td>
+      </tr>
+      <tr>
+        <td>메모리 및 성능 지침</td>
+        <td class="success">통과</td>
+        <td>비정상적인 렌더링 반복 및 맵핑 사용 없음</td>
+      </tr>
+      <tr>
+        <td>생명주기 및 네이티브 모듈</td>
+        <td class="success">통과</td>
+        <td>안전한 정적 SVG 사용 및 메모리 누수 위험 없음</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>해당 변경사항은 안드로이드 런타임 환경에서 시스템 결함을 유발하지 않으며, 안드로이드 QA 방지 가이드라인을 완벽히 준수합니다. 특이사항이 발견되지 않아 정상 병합이 가능합니다.</p>
+</body>
+</html>
