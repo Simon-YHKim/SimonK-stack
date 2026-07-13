@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>에이전트 카드 생성 보고서</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #E0E0E0;
+            font-family: sans-serif;
+            margin: 40px auto;
+            max-width: 800px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #FFFFFF;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #1E1E1E;
+        }
+        .container {
+            padding: 20px;
+            background-color: #1A1A1A;
+            border: 1px solid #333333;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #333333;
+            color: #FFFFFF;
+            padding: 8px 16px;
+            text-decoration: none;
+            border: 1px solid #555555;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>에이전트 카드 생성 보고서</h1>
+        <p>요청된 A2A 에이전트 능력 매니페스트 생성이 완료되었습니다.</p>
+
+        <h2>작업 요약</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>항목</th>
+                    <th>상태 및 결과</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>에이전트 대상</td>
+                    <td>antigravity</td>
+                </tr>
+                <tr>
+                    <td>명령어 실행</td>
+                    <td>성공 (gen-agent-card.ps1)</td>
+                </tr>
+                <tr>
+                    <td>출력 경로</td>
+                    <td>agents/antigravity/agent-card.json</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>매니페스트 데이터 확인</h2>
+        <p>추출된 주요 스킬 배열:</p>
+        <ul>
+            <li>android-native</li>
+            <li>google-native</li>
+            <li>emulator-qa</li>
+            <li>device-qa</li>
+            <li>perf</li>
+            <li>crash-analysis</li>
+            <li>multimodal-render</li>
+        </ul>
+        <p>모델: gemini-3.1-pro-preview (상태: active)</p>
+
+        <h2>결론</h2>
+        <p>생성된 JSON 카드가 요구사항을 충족하며, 성공적으로 생성 및 커밋 대기 상태입니다.</p>
+        <a href="#" class="btn">확인</a>
+    </div>
+</body>
+</html>
