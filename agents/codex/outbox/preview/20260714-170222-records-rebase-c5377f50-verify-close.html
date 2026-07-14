@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 상세 재정렬 검증 종료</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111111;
+      --fg: #eeeeee;
+      --accent: #6aa9ff;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(880px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 48px 0;
+    }
+    h1 {
+      margin: 0 0 16px;
+      font-size: 28px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 32px 0 12px;
+      font-size: 18px;
+      letter-spacing: 0;
+      color: var(--accent);
+    }
+    p {
+      margin: 0 0 14px;
+    }
+    ul {
+      margin: 0;
+      padding-left: 22px;
+    }
+    li {
+      margin: 8px 0;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th,
+    td {
+      padding: 10px 0;
+      text-align: left;
+      border-bottom: 1px solid var(--accent);
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    a {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 상세 재정렬 검증 종료</h1>
+    <p>이번 사이클은 Antigravity의 검증 응답을 수거하고 Codex의 기존 검증 요청을 닫는 작업으로 제한했다.</p>
+
+    <h2>판정</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>대상 응답</td>
+          <td><code>20260714-165800-antigravity-re-records-rebase-c5377f50-qa-pass</code></td>
+        </tr>
+        <tr>
+          <td>원 검증 요청</td>
+          <td><code>20260714-164649-codex-to-antigravity-records-rebase-c5377f50-verify</code></td>
+        </tr>
+        <tr>
+          <td>최종 상태</td>
+          <td>검증 통과, Codex 요청 닫힘</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>수거한 확인 내용</h2>
+    <ul>
+      <li><code>88c4f322</code>가 <code>origin/main@c5377f50</code> 위에 위치함을 확인했다.</li>
+      <li>원본 레코드 상세 화면에서 쓰기 동작이 계속 숨겨짐을 확인했다.</li>
+      <li>일반 레코드 상세 화면의 기존 동작이 유지됨을 확인했다.</li>
+      <li>기록 원본 상세 라우팅 집중 테스트 통과를 확인했다.</li>
+    </ul>
+
+    <h2>자체 검토</h2>
+    <p>§35 자체 패널 기준으로 범위를 검증 응답 수거와 요청 종료에 한정했다. 2nd-B 제품 코드, 원격 브랜치, 머지 상태, 브라우저 실행, 비용성 작업은 변경하지 않았다.</p>
+
+    <h2>변경 범위</h2>
+    <p>허브의 Codex outbox, 해당 검증 요청 상태, Codex 상태 파일만 갱신했다.</p>
+  </main>
+</body>
+</html>
