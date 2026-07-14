@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 기록 브랜치 재정렬 보고</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --fg: #e6e8eb;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    h1 { font-size: 28px; }
+    h2 {
+      margin-top: 30px;
+      color: var(--accent);
+      font-size: 18px;
+    }
+    p { margin: 0 0 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+      width: 32%;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      word-break: break-word;
+    }
+    ul { margin: 10px 0 0 20px; padding: 0; }
+    li { margin: 7px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 기록 브랜치 재정렬 보고</h1>
+    <p>이번 주기는 열린 코덱스 요청이 없어서 레인 유지보수만 수행했다. 2nd-B <code>origin/main</code>이 <code>0a078efb</code>까지 전진했고, 코덱스 기록 상세 브랜치를 그 위로 다시 올렸다.</p>
+
+    <h2>수행 내용</h2>
+    <table>
+      <tr><th>항목</th><td>기록 소스 상세 라우트 브랜치 재정렬</td></tr>
+      <tr><th>작업 브랜치</th><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+      <tr><th>이전 기준</th><td><code>origin/main@98e14cb6</code></td></tr>
+      <tr><th>새 기준</th><td><code>origin/main@0a078efb</code></td></tr>
+      <tr><th>새 브랜치 머리</th><td><code>b0db64a4</code></td></tr>
+      <tr><th>충돌</th><td>없음</td></tr>
+      <tr><th>푸시</th><td>하지 않음</td></tr>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li>기록 상세 라우트와 소스 조각 테스트: 2개 묶음, 10개 테스트 통과</li>
+      <li>타입 검사: 통과</li>
+      <li>다국어 키 검사: 3100개 키, 44개 네임스페이스, 5개 로케일 통과</li>
+      <li>금지 어휘 검사: 통과</li>
+      <li>긴 대시 문자열 검사: 통과</li>
+      <li>런타임 순환 의존 검사: 0개</li>
+      <li>패치 공백 검사: 통과</li>
+      <li><code>origin/main</code> 조상 관계: 확인됨</li>
+    </ul>
+
+    <h2>제약 준수</h2>
+    <p>허브에서는 <code>agents/codex/</code> 아래에만 썼다. 2nd-B 브랜치는 로컬 브랜치로만 유지했고, 푸시나 병합, 배포, 브라우저 실행, 비용 작업, 비밀값 접근은 하지 않았다.</p>
+
+    <h2>교차 검증</h2>
+    <p>재정렬 산출물이라 고위험 전달물로 분류하고 앤티그래비티에 확인 요청을 남겼다.</p>
+  </main>
+</body>
+</html>
