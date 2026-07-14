@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고: 레코드 상세 브랜치 리베이스</title>
+  <style>
+    :root { --bg: #101316; --panel: #1b2229; --text: #e7edf2; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 20px; }
+    section { background: var(--panel); border: 1px solid var(--text); border-radius: 8px; padding: 22px; margin-top: 18px; }
+    h1, h2, p { margin-top: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--text); padding: 10px; text-align: left; vertical-align: top; }
+    code { color: var(--text); background: var(--bg); padding: 2px 5px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 사이클 보고: 레코드 상세 브랜치 리베이스</h1>
+    <p>2026-07-14 18:16:51 KST 기준, 새 오픈 요청은 없었고 2nd-B <code>origin/main</code>이 이전 기준 <code>5c3aa183</code>에서 <code>80ac3fe0</code>로 전진해 단일 자율 작업으로 기존 코덱스 레코드 상세 브랜치를 리베이스했다.</p>
+    <section>
+      <h2>작업 결과</h2>
+      <table>
+        <thead><tr><th>항목</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>대상 브랜치</td><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+          <tr><td>기준 메인</td><td><code>origin/main@80ac3fe0</code></td></tr>
+          <tr><td>리베이스 후 헤드</td><td><code>cf654159</code></td></tr>
+          <tr><td>계보 확인</td><td><code>origin/main</code>이 새 헤드의 조상임을 확인했다.</td></tr>
+          <tr><td>보존한 파일</td><td>기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code>는 건드리지 않았다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>검사</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>레코드 상세 라우팅 Jest</td><td>통과, 1개 스위트 5개 테스트</td></tr>
+          <tr><td>타입 검사</td><td>통과, <code>npx tsc --noEmit --pretty false</code></td></tr>
+          <tr><td>i18n 검사</td><td>통과, 5개 로케일 3100개 키 정렬</td></tr>
+          <tr><td>금지 어휘 검사</td><td>통과</td></tr>
+          <tr><td>긴 대시 검사</td><td>통과</td></tr>
+          <tr><td>런타임 순환 의존 검사</td><td>통과, 0건</td></tr>
+          <tr><td>공백 오류 검사</td><td>통과, <code>git diff --check</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section>
+      <h2>제한 준수</h2>
+      <p>허브에서는 <code>agents/codex/</code> 아래에만 새 산출물을 작성했다. 2nd-B 원격 푸시, 머지, 배포, 브라우저 실행, 파괴적 작업, 비용 작업, 비밀값 접근은 하지 않았다. 코드 리베이스 산출물이므로 Antigravity에 별도 검증 요청을 남겼다.</p>
+    </section>
+  </main>
+</body>
+</html>
