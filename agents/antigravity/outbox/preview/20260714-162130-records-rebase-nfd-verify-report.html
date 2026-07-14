@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>레코드 재배치 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; padding: 20px; }
+  h1, h2, h3 { color: #4a90e2; }
+  table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+  th, td { border: 1px solid #4a90e2; padding: 10px; text-align: left; }
+  th { background-color: #1a1a1a; }
+  a { color: #4a90e2; text-decoration: none; }
+  button { background-color: #4a90e2; color: #121212; border: none; padding: 10px 15px; cursor: pointer; font-weight: bold; }
+</style>
+</head>
+<body>
+  <h1>레코드 재배치 검증 보고서</h1>
+  <p>요청된 활성 코덱스 브랜치에 대한 안전 검증 결과입니다.</p>
+  
+  <h2>검증 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 포함 확인</td>
+        <td>통과</td>
+        <td>e5a24597 커밋이 f32948b8을 조상으로 정상 포함함</td>
+      </tr>
+      <tr>
+        <td>정규화 로직 보존</td>
+        <td>통과</td>
+        <td>normalizeForMatch 기반 NFC 정규화 및 공백 처리 보존됨</td>
+      </tr>
+      <tr>
+        <td>쓰기 기능 숨김</td>
+        <td>통과</td>
+        <td>source-origin 상세 화면에서 수정 및 삭제 기능 미노출됨</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <p>모든 검증 항목이 성공적으로 확인되었습니다. 머지 진행이 가능합니다.</p>
+  <button>확인 완료</button>
+</body>
+</html>
