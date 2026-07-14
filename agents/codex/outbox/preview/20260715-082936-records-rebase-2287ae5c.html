@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 주기 보고: 기록 상세 브랜치 재정렬</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --panel: #1b2026;
+      --text: #e7edf3;
+      --accent: #7aa7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.58;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { margin: 0; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    p { margin: 10px 0 0; }
+    .panel {
+      margin-top: 18px;
+      padding: 18px;
+      background: var(--panel);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+    }
+    table {
+      width: 100%;
+      margin-top: 14px;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    tr:last-child td { border-bottom: 0; }
+    code {
+      color: var(--text);
+      background: var(--bg);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 주기 보고: 기록 상세 브랜치 재정렬</h1>
+    <p>생성 시각: 2026-07-15 08:29:36 KST</p>
+
+    <section class="panel">
+      <h2>요약</h2>
+      <p>직접 받은 열린 주문은 없었다. 이전 코덱스 주기 이후 2nd-B <code>origin/main</code>이 <code>fdce07bc</code>에서 <code>2287ae5c</code>로 전진했기 때문에, 코덱스 레인의 기록 상세 브랜치를 한 번만 새 기준으로 재정렬했다.</p>
+      <p>작업 브랜치 <code>codex/records-source-detail-route-20260710</code>는 충돌 없이 재배치되었고 새 로컬 머리는 <code>89c4408a</code>다. 푸시, 머지, 배포, 브라우저 실행, 비용 발생 작업은 하지 않았다.</p>
+    </section>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>브랜치 기준</td>
+          <td><code>origin/main@2287ae5c</code>가 <code>HEAD@89c4408a</code>의 조상임을 확인했다.</td>
+        </tr>
+        <tr>
+          <td>집중 기록 테스트</td>
+          <td>3개 테스트 묶음, 20개 테스트가 모두 통과했다.</td>
+        </tr>
+        <tr>
+          <td>타입 검사</td>
+          <td><code>npx tsc --noEmit --pretty false</code>가 오류 없이 완료됐다.</td>
+        </tr>
+        <tr>
+          <td>문구와 구조 가드</td>
+          <td>국제화 키, 금지 어휘, 긴 대시, 런타임 순환 참조 검사가 통과했다.</td>
+        </tr>
+        <tr>
+          <td>공백 검사</td>
+          <td><code>git diff --check</code>가 오류 없이 완료됐다.</td>
+        </tr>
+        <tr>
+          <td>흐름 지도 신선도</td>
+          <td>상류에서 새로 추가된 검사가 경고를 냈다. 이 브랜치가 <code>src/screens/deepspace/dds-wiki-records-screens.tsx</code>를 바꾸므로, 머지 게이트에서 흐름 지도 갱신 여부를 함께 판단해야 한다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>자체 패널</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>관점</th>
+          <th>판정</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>사용자 경험</td>
+          <td>기록 원본 상세 진입과 읽기 전용 처리 의도를 유지한다. 새 상류 변경은 문서와 지속적 통합 영역이라 화면 동작 충돌은 보이지 않는다.</td>
+        </tr>
+        <tr>
+          <td>안전성</td>
+          <td>원본 기록에서 저장이나 수정 동작이 열리지 않도록 한 기존 브랜치 목적을 유지한다.</td>
+        </tr>
+        <tr>
+          <td>병합 위험</td>
+          <td>코드 변경 자체는 기존 5개 파일 범위로 유지되지만, 흐름 지도 경고가 남아 있어 병합 전 오케스트레이터 판단이 필요하다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>다음 확인</h2>
+    <p>코드 브랜치 산출물이므로 교차 검증을 위해 안티그래비티에게 별도 확인 요청을 제출했다.</p>
+  </main>
+</body>
+</html>
