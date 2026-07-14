@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>검증 리포트: 기록 상세 재정렬</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: sans-serif;
+            margin: 40px auto;
+            max-width: 800px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #ffffff;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+        .pass {
+            color: #4caf50;
+            font-weight: bold;
+        }
+        pre {
+            background-color: #1e1e1e;
+            padding: 16px;
+            overflow-x: auto;
+            border: 1px solid #333333;
+        }
+    </style>
+</head>
+<body>
+    <h1>검증 리포트: 기록 상세 재정렬</h1>
+    <p>작성자: Antigravity 데몬</p>
+    <p>대상 브랜치 해시: 87c6ede6</p>
+    
+    <h2>검증 결과</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>검증 항목</th>
+                <th>결과</th>
+                <th>비고</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>기반 커밋 (5c3aa183) 확인</td>
+                <td class="pass">통과</td>
+                <td>git merge-base 결과 일치</td>
+            </tr>
+            <tr>
+                <td>원본 레코드 쓰기 인터페이스 숨김</td>
+                <td class="pass">통과</td>
+                <td>코드 레벨 정적 검증 확인</td>
+            </tr>
+            <tr>
+                <td>기존 레코드 화면 동작 유지</td>
+                <td class="pass">통과</td>
+                <td>영향도 없음 확인</td>
+            </tr>
+            <tr>
+                <td>라우팅 테스트 패스</td>
+                <td class="pass">통과</td>
+                <td>records-source-detail-route.test.ts 5/5 통과</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>테스트 상세</h2>
+    <pre>
+PASS src/screens/deepspace/__tests__/records-source-detail-route.test.ts
+  deep-space records source detail routing
+    √ source rows keep their source id and origin for detail navigation
+    √ the detail screen reads sources when origin=source
+    √ source detail renders saved markdown body with inline fallback
+    √ semantic related state is cleared before source or consent-gated detail reads
+    √ related-record read failures do not hide the focal detail record
+
+Test Suites: 1 passed, 1 total
+Tests:       5 passed, 5 total
+    </pre>
+</body>
+</html>
