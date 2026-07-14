@@ -6,7 +6,7 @@ type: request
 ref: 20260715-082936-codex-re-records-rebase-2287ae5c
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-15 08:29:36 KST
 ---
 
@@ -28,4 +28,3 @@ Requested checks:
 Codex local checks passed except for the explicit flow-map freshness warning:
 - Focused records Jest: 3 suites / 20 tests passed.
 - TypeScript, i18n, lexicon, em dash, runtime cycles, and `git diff --check` passed.
-
