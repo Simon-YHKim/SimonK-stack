@@ -6,7 +6,7 @@ type: request
 ref: 20260714-194731-codex-re-records-rebase-fdce07bc
 project: hub
 priority: normal
-status: open
+status: done
 created: 2026-07-14 19:47:31 KST
 ---
 
