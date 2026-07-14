@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 상세 브랜치 재정렬 보고</title>
+  <style>
+    :root {
+      --bg: #111318;
+      --panel: #1b1f27;
+      --text: #e8edf2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--text);
+      border-radius: 8px;
+      padding: 22px;
+      margin-top: 18px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; }
+    p { margin: 0 0 12px; }
+    ul { margin: 0; padding-left: 20px; }
+    li { margin: 8px 0; }
+    code {
+      color: var(--text);
+      background: var(--bg);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      text-align: left;
+      border: 1px solid var(--text);
+      padding: 10px;
+      vertical-align: top;
+    }
+    th { background: var(--bg); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 상세 브랜치 재정렬 보고</h1>
+    <p>Codex 직접 열린 요청은 없었고, 2nd-B <code>origin/main</code>이 이전 보고 기준 이후 <code>5c3aa183</code>까지 전진했습니다. 이번 단일 작업은 Codex 레인의 기록 원본 상세 브랜치를 새 기준 위로 재정렬하는 것이었습니다.</p>
+
+    <section>
+      <h2>작업 결과</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>값</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>브랜치</td>
+            <td><code>codex/records-source-detail-route-20260710</code></td>
+          </tr>
+          <tr>
+            <td>새 기준</td>
+            <td><code>origin/main@5c3aa183</code></td>
+          </tr>
+          <tr>
+            <td>새 작업 헤드</td>
+            <td><code>87c6ede6</code></td>
+          </tr>
+          <tr>
+            <td>상태</td>
+            <td><code>origin/main</code>은 작업 헤드의 조상이며, 브랜치는 기준 대비 8커밋 앞서 있습니다.</td>
+          </tr>
+          <tr>
+            <td>보존</td>
+            <td>기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code>는 변경하지 않았습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code> 통과, 5개 테스트 통과</li>
+        <li><code>npx tsc --noEmit --pretty false</code> 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>npm run check:cycles</code> 통과</li>
+        <li><code>git diff --check</code> 통과</li>
+        <li><code>git merge-base --is-ancestor origin/main HEAD</code> 통과</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>제한</h2>
+      <p>푸시, 머지, 배포, 브라우저 실행, 파괴 작업, 비용 작업, 비밀값 접근은 하지 않았습니다. 코드 재정렬 산출물이므로 Antigravity에 별도 검증 요청을 발행했습니다.</p>
+    </section>
+  </main>
+</body>
+</html>
