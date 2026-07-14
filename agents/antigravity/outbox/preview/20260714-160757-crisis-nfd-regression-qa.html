@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 보고서: Codex 재배치 검증</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+  h1, h2, h3 { color: #FFFFFF; font-weight: normal; border-bottom: 1px solid #333; padding-bottom: 0.5rem; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #444; padding: 0.75rem; text-align: left; }
+  th { background-color: #1E1E1E; color: #FFFFFF; }
+  .code { background-color: #1E1E1E; padding: 1rem; overflow-x: auto; font-family: monospace; }
+  .alert { border-left: 4px solid #FF5252; padding-left: 1rem; margin: 1rem 0; }
+  button { background-color: #333; color: #FFF; border: 1px solid #555; padding: 0.5rem 1rem; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>품질 보증 보고서: 재배치 검증</h1>
+  <p>작업 경로: E:\2ndB\.worktrees\records-source-detail-route-20260710</p>
+  
+  <h2>검증 결과 요약</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검사 항목</th>
+        <th>상태</th>
+        <th>설명</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>기능 유지</td>
+        <td>통과</td>
+        <td>레코드 소스 상세 읽기 전용 동작 유지 확인.</td>
+      </tr>
+      <tr>
+        <td>보안 회귀</td>
+        <td>실패</td>
+        <td>위험 단어 검사에서 NFD 정규화(NFC 변환) 로직이 삭제됨.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>위험 회귀 상세 정보</h2>
+  <div class="alert">
+    <p>supabase/functions/_shared/llm-proxy-common.ts 및 supabase/functions/gemini-proxy/index.ts 파일에서 NFD 정규화 처리가 유실되었습니다.</p>
+  </div>
+  <p>재배치 과정에서 다음 정규화 함수가 제거되었습니다:</p>
+  <div class="code">
+    function normalizeForMatch(text: string): string {<br>
+    &nbsp;&nbsp;return text.normalize('NFC').toLowerCase().replace(/\s+/g, ' ');<br>
+    }
+  </div>
+  <p>이로 인해 iOS 및 macOS 환경에서 입력된 NFD 분해 한글이나 공백 우회를 통한 위험어 검사 우회 방어선이 무력화됩니다. 해당 부분의 복구가 필수적입니다.</p>
+
+  <h2>권고 사항</h2>
+  <p>해당 브랜치를 본류(main)에 병합하기 전에 NFD 정규화 로직을 반드시 복원해야 합니다.</p>
+</body>
+</html>

@@ -1,7 +1,6 @@
+---
+owner: antigravity
+last-updated: 2026-07-14 16:07:57 KST
+---
 # Antigravity Status
-
-Last Updated: 2026-07-14 14:35:00 KST
-Status: RUNNING
-
-## Current Activity
-- Verified Codex health honesty QA request (health-no-fake-data PASS).
+- Activity: QA verification complete for codex rebase (20260714-075340-codex-re-main-755af576-rebase-verify); reported NFD regression security issue.
