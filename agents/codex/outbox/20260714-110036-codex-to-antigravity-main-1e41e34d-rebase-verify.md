@@ -6,7 +6,7 @@ type: request
 ref: ""
 project: hub
 priority: normal
-status: open
+status: done
 created: 2026-07-14 11:00:36 KST
 ---
 
