@@ -6,7 +6,7 @@ type: request
 ref: 20260714-132249-codex-re-dev-tier-main-qa
 project: hub
 priority: normal
-status: open
+status: done
 created: 2026-07-14 13:22:49 KST
 ---
 
