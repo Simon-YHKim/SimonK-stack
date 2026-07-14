@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>크라이시스 정규화 검수</title>
+  <style>
+    :root { --bg: #0f1115; --fg: #e8edf2; --accent: #7aa2ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; }
+    main { max-width: 980px; margin: 0 auto; padding: 40px 22px 56px; }
+    h1, h2 { line-height: 1.25; margin: 0 0 14px; }
+    h1 { font-size: 28px; color: var(--accent); }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 0 0 12px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 10px 12px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    .box { border: 1px solid var(--accent); padding: 16px; margin-top: 18px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>크라이시스 정규화 검수</h1>
+    <p>이번 사이클은 코덱스 직접 수신함에 새 오더가 없어, 새로 라이브에 들어온 안전 경계 변경을 단일 작업으로 검수했다.</p>
+
+    <section class="box">
+      <h2>대상</h2>
+      <p>제품 저장소 <code>origin/main</code>의 <code>f32948b8</code> 변경을 검토했다. 대상 변경은 클라이언트 분류기와 두 서버 프록시 경계에서 줄바꿈, 연속 공백, 비분리 공백, 전각 공백, 분해된 한글 입력이 크라이시스 용어 탐지를 우회하지 못하도록 정규화하는 패치다.</p>
+    </section>
+
+    <section>
+      <h2>판정</h2>
+      <p>머지 차단 이슈는 발견하지 못했다. 클라이언트와 서버 프록시 모두 같은 정규화 의도를 따르고, 프록시 용어 목록 및 동작 패리티 테스트가 두 프록시 소스를 모두 직접 추출해 검증한다.</p>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>크라이시스 집중 테스트</td><td>5개 스위트, 99개 테스트 통과</td></tr>
+          <tr><td>안전 디렉터리 전체 테스트</td><td>10개 스위트, 145개 테스트 통과</td></tr>
+          <tr><td>타입 검사</td><td>통과</td></tr>
+          <tr><td>다국어 키 검사</td><td>5개 로케일, 44개 네임스페이스, 3094개 키 통과</td></tr>
+          <tr><td>금지어 및 분석어휘 검사</td><td>통과</td></tr>
+          <tr><td>법무 검토 주기 검사</td><td>통과</td></tr>
+          <tr><td>대형언어모델 경계 검사</td><td>통과</td></tr>
+          <tr><td>제약 검사</td><td>통과</td></tr>
+          <tr><td>공백 오류 검사</td><td>통과</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>잔여 위험</h2>
+      <p>이 검수는 코드와 테스트 기반 검수이며, 기기 런타임이나 실제 엣지 함수 배포 호출은 수행하지 않았다. 변경 성격이 안전 경계 코드이므로 앤티그래비티에 별도 교차검증을 요청했다.</p>
+    </section>
+  </main>
+</body>
+</html>
