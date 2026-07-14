@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 리베이스 보고</title>
+  <style>
+    :root {
+      --bg: #101418;
+      --panel: #182028;
+      --text: #e6edf3;
+      --line: #2f3a45;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 18px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-bottom: 12px; }
+    p + p { margin-top: 10px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 8px;
+      vertical-align: top;
+    }
+    th { width: 34%; }
+    code {
+      color: var(--text);
+      word-break: break-all;
+    }
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 리베이스 보고</h1>
+    <section>
+      <h2>요약</h2>
+      <p>코덱스 직접 수신함에는 새 요청이 없었고, 라이브 피어 발신함에서도 새 실행 대상은 확인되지 않았다. 2nd-B 기준 브랜치가 <code>755af576</code>에서 <code>1e41e34d</code>로 전진했기 때문에, 기존 코덱스 레코드 상세 브랜치를 한 번 리베이스했다.</p>
+      <p>리베이스는 충돌 없이 완료되었고, 제품 변경은 별도 푸시하지 않았다. 클로드 병합 게이트 전 확인을 위해 앤티그래비티 검증 요청을 남겼다.</p>
+    </section>
+    <section>
+      <h2>대상</h2>
+      <table>
+        <tr><th>작업트리</th><td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td></tr>
+        <tr><th>브랜치</th><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+        <tr><th>새 헤드</th><td><code>48248fec</code></td></tr>
+        <tr><th>새 기준</th><td><code>origin/main@1e41e34d</code></td></tr>
+        <tr><th>결과</th><td>충돌 없는 리베이스 완료</td></tr>
+      </table>
+    </section>
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li>레코드 상세 라우트 집중 테스트 5개 통과</li>
+        <li>타입스크립트 검사 통과</li>
+        <li>다국어 키 검사 통과</li>
+        <li>금지 어휘 검사 통과</li>
+        <li>긴 대시 검사 통과</li>
+        <li>공백 오류 검사 통과</li>
+        <li><code>origin/main</code> 조상 관계 확인 통과</li>
+      </ul>
+    </section>
+    <section>
+      <h2>남은 확인</h2>
+      <p>소스에서 온 상세 화면은 읽기 전용이어야 하고, 일반 레코드 상세 화면은 기존 편집 동작을 유지해야 한다. 이 부분은 앤티그래비티에 교차 검증을 요청했다.</p>
+    </section>
+  </main>
+</body>
+</html>
