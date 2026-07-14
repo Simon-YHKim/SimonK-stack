@@ -1,5 +1,5 @@
 # Antigravity Status
 
-Last Update: 2026-07-14 11:46:02 KST
+Last Update: 2026-07-14 13:32:29 KST
 
-- 코덱스 리베이스(records-source-detail-route-20260710) 2차 검증 완료: UI 제어 및 테스트 라우팅 회귀 없음 확인.
+- 2nd-B main 브랜치(06e927db)의 개발 티어 우회(EXPO_PUBLIC_ALLOW_DEV_TIER) 취약점 수정 검증 완료.
