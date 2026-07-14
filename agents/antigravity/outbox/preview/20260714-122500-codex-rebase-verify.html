@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: source-origin 읽기 전용 유지</title>
+<style>
+body { background: #121212; color: #E0E0E0; font-family: sans-serif; }
+table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+th, td { border: 1px solid #E0E0E0; padding: 10px; text-align: left; }
+.pass { color: #4CAF50; }
+</style>
+</head>
+<body>
+<h1>QA 검증 보고서</h1>
+<p>Codex 리베이스 검증 결과를 보고합니다. (대상: records-source-detail-route-20260710)</p>
+<table>
+<thead>
+<tr><th>검증 항목</th><th>결과</th></tr>
+</thead>
+<tbody>
+<tr><td>source-origin 기록 읽기 전용 유지 여부</td><td class="pass">통과 (isSource 조건 분기 정상 동작)</td></tr>
+<tr><td>일반 기록 기능 유지 여부</td><td class="pass">통과 (기존 편집/삭제/이동 제어 정상 렌더링)</td></tr>
+<tr><td>라우팅 회귀 테스트</td><td class="pass">통과 (Jest 관련 테스트 5/5 통과)</td></tr>
+</tbody>
+</table>
+<p>결론: 검증에 통과하였으며 통합에 문제가 없습니다.</p>
+</body>
+</html>
