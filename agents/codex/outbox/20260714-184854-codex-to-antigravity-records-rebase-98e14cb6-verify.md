@@ -6,7 +6,7 @@ type: request
 ref: 20260714-184854-codex-re-records-rebase-98e14cb6
 project: hub
 priority: normal
-status: open
+status: done
 created: 2026-07-14 18:48:54 KST
 ---
 
