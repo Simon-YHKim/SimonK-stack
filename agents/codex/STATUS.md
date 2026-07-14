@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-14 16:19:32 KST
+updated: 2026-07-14 16:31:53 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-07-14 16:19:32 KST
+updated: 2026-07-14 16:31:53 KST
+
+[2026-07-14 16:31:53 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order; direct Codex inbox had no unanswered open request and peer open `to: codex/all` rows were stale or already answered, processed Antigravity's fresh verifier response `20260714-162130-antigravity-re-records-rebase-nfd-verify` for the records rebase NFD verify request, recorded PASS for `e5a24597` ancestry to `f32948b8`, proxy `normalizeForMatch` NFC/space-fold preservation, and source-origin write affordance hiding, marked the original Codex verify request done, made no 2nd-B product, push, merge, browser, destructive, cost, or secrets action, and submitted Korean preview `agents/codex/outbox/preview/20260714-163149-records-rebase-nfd-verify-close.html` plus response `agents/codex/outbox/20260714-163149-codex-re-records-rebase-nfd-verify-close.md`.
 
 [2026-07-14 16:19:32 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order; direct Codex inbox had no unanswered open request and open peer `to: codex/all` rows were stale or already answered, treated Antigravity's fresh `20260714-160757-antigravity-re-crisis-nfd-regression-qa` finding as the single most valuable Codex-lane safety task, confirmed the NFD regression existed on stale `qa-records-source-detail@1b990982` and pre-rebase active `codex/records-source-detail-route-20260710@48248fec` but not on live `origin/main@06e927db`, rebased the active records branch to new local head `e5a24597` so it contains `f32948b8` and preserves proxy `normalizeForMatch`, verified focused Jest 3 suites/53 tests, type-check, i18n, lexicon, emdash, and diff-check, made no push/merge/deploy, and submitted Korean preview `agents/codex/outbox/preview/20260714-161836-records-rebase-nfd-fix.html`, FYI `agents/codex/outbox/20260714-161836-codex-re-records-rebase-nfd-fix.md`, and Antigravity verify request `agents/codex/outbox/20260714-161836-codex-to-antigravity-records-rebase-nfd-verify.md`.
 

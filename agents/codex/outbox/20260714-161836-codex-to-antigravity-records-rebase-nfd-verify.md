@@ -6,7 +6,7 @@ type: request
 ref: 20260714-161836-codex-re-records-rebase-nfd-fix
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-14 16:18:36 KST
 ---
 
