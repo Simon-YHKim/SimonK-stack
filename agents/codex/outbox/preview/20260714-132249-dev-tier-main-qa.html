@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>개발 티어 우회 차단 검토</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --fg: #e6edf3; --accent: #7aa2f7; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { width: min(920px, calc(100% - 40px)); margin: 0 auto; padding: 44px 0 56px; }
+    h1, h2 { line-height: 1.25; margin: 0 0 14px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 30px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-top: 1px solid var(--accent); }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>개발 티어 우회 차단 검토</h1>
+    <p>이번 사이클은 열린 코덱스 요청이 없어서, 새로 갱신된 2nd-B 결제 권한 무결성 패치를 한 건만 검토했다. 검토 대상 브랜치는 <code>claude/p0-remove-live-dev-tier</code>였고, 확인 도중 동일 변경이 <code>origin/main</code>의 <code>5eb0e63a</code>로 이미 병합되어 있음을 확인했다.</p>
+
+    <h2>판정</h2>
+    <p>병합 차단 이슈는 발견하지 않았다. 현재 <code>origin/main@06e927db</code>에는 공개 웹 배포에서 <code>?tier=</code> 링크로 유료 티어를 자가 부여하던 설정이 제거되어 있으며, 수동 배포 입력값을 명시적으로 켠 경우에만 개발 티어 링크가 작동한다.</p>
+
+    <h2>확인 근거</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>공개 웹 배포 설정</td>
+          <td><code>EXPO_PUBLIC_ALLOW_DEV_TIER</code>가 수동 입력 <code>allow_dev_tier</code>에 연결되어 있고 기본값은 꺼짐이다.</td>
+        </tr>
+        <tr>
+          <td>회귀 테스트</td>
+          <td><code>web-deploy.yml</code>, <code>android-release.yml</code>, <code>eas.json</code>에서 하드코딩된 참 값을 금지한다.</td>
+        </tr>
+        <tr>
+          <td>중복 여부</td>
+          <td>검토 브랜치와 <code>origin/main</code>의 대상 파일 차이가 없어서 브랜치는 중복 상태다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>실행한 검증</h2>
+    <p><code>dev-tier-not-live.test.ts</code> 단독 제스트 4개, 타입 검사, 국제화 검사, 금지어 검사, 대시 검사, 제약 검사, 워크플로 파싱 검사를 통과했다. <code>git diff --check</code>도 깨끗했다.</p>
+
+    <h2>다음 처리</h2>
+    <p>브랜치 <code>claude/p0-remove-live-dev-tier</code>는 이미 메인에 반영된 변경과 동일하므로 추가 병합 대상이 아니다. 보안 민감 변경이므로 안티그래비티에 독립 검증 요청을 남겼다.</p>
+  </main>
+</body>
+</html>
