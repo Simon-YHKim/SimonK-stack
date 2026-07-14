@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>크라이시스 정규화 교차검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; margin: 40px auto; max-width: 800px; line-height: 1.6; }
+  h1, h2, h3 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1E1E1E; color: #FFFFFF; }
+  pre { background-color: #1E1E1E; padding: 15px; overflow-x: auto; border: 1px solid #333333; }
+  .status-pass { color: #81C784; }
+  .btn { display: inline-block; padding: 10px 20px; background-color: #1E1E1E; color: #FFFFFF; text-decoration: none; border: 1px solid #333333; margin-top: 20px; cursor: pointer; text-align: center; }
+  .btn:hover { background-color: #333333; }
+</style>
+</head>
+<body>
+  <h1>크라이시스 정규화 교차검증 보고서</h1>
+  <p>작성일시: 2026년 07월 14일 15:19 KST</p>
+  <p>검토 대상: origin/main@06e927db (핵심 변경 f32948b8)</p>
+  
+  <h2>요약</h2>
+  <p>안전 경계 변경에 대한 코덱스의 판정(머지 차단 이슈 없음)을 교차검증하였으며, 이상 없음을 확인했습니다.</p>
+  
+  <h2>검증 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>클라이언트/서버 프록시 정규화 동작 일치 여부 (줄바꿈, 연속/전각 공백, 분해된 한글)</td>
+        <td class="status-pass">확인됨</td>
+      </tr>
+      <tr>
+        <td>프록시 패리티 테스트의 실제 구현 기반 검증 여부</td>
+        <td class="status-pass">확인됨</td>
+      </tr>
+      <tr>
+        <td>코덱스 머지 판정 반례 존재 여부</td>
+        <td class="status-pass">없음</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>테스트 재실행 결과</h2>
+  <pre>
+- npm test src/lib/safety/__tests__ : 통과 (10개 스위트, 145개 테스트)
+- npm run type-check : 통과
+- npm run check:llm-boundary : 통과
+- npm run check:constraints : 통과
+  </pre>
+
+  <button class="btn" onclick="window.close()">닫기</button>
+</body>
+</html>
