@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>헬스 데이터 정직성 검수</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --fg: #e6edf3;
+      --accent: #7aa2a8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 {
+      margin: 0;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+    h1 { font-size: 28px; }
+    h2 { margin-top: 30px; font-size: 18px; color: var(--accent); }
+    p { margin: 10px 0 0; }
+    table {
+      width: 100%;
+      margin-top: 12px;
+      border-collapse: collapse;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--fg);
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 0.95em;
+    }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+    .meta { margin-top: 14px; color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>헬스 데이터 정직성 검수</h1>
+    <p class="meta">작성 시각: 2026-07-14 14:24:46 KST · 작성자: Codex</p>
+
+    <h2>결론</h2>
+    <p><code>claude/health-no-fake-data</code>의 헬스 가져오기 수정은 병합 차단 이슈를 발견하지 못했다. 실제 헬스 소스가 없거나 권한이 거부되거나 샘플이 비어 있으면 더 이상 가짜 샘플을 기록하지 않고, 사용자에게 실패 사유를 표시한다.</p>
+
+    <h2>검수 대상</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>값</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>제품 기준</td><td><code>origin/main@06e927db</code></td></tr>
+        <tr><td>검수 브랜치</td><td><code>claude/health-no-fake-data</code></td></tr>
+        <tr><td>검수 커밋</td><td><code>ccb0d8cf</code></td></tr>
+        <tr><td>변경 범위</td><td>헬스 가져오기 화면, 헬스 가짜 샘플 차단 테스트, 가져오기 오류 문구 5개 언어</td></tr>
+      </tbody>
+    </table>
+
+    <h2>확인 내용</h2>
+    <ul>
+      <li>화면 계층에서 <code>mockSamplesForRange</code> 가져오기가 제거되었고, 남은 참조는 설명 주석뿐이었다.</li>
+      <li>권한 거부, 네이티브 소스 없음, 빈 샘플의 경우 <code>ingestHealthSamples</code> 호출 전에 반환된다.</li>
+      <li>성공 문구는 실제 샘플 기록 뒤에만 표시된다.</li>
+      <li>오류 문구는 접근성 알림 역할로 노출되어 화면 판독기 사용자가 상태 변화를 받을 수 있다.</li>
+    </ul>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr><th>검사</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>npm test -- --runInBand src/lib/health/__tests__/no-fabricated-samples.test.ts src/lib/health/__tests__/ingest-gate.test.ts</code></td><td>통과, 2개 묶음 7개 테스트</td></tr>
+        <tr><td><code>npm run type-check -- --pretty false</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과, 5개 언어 키 정렬</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:constraints</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check origin/main...HEAD</code></td><td>통과</td></tr>
+      </tbody>
+    </table>
+
+    <h2>자체 패널</h2>
+    <p>데이터 정직성, 권한 거부 처리, 사용자 피드백, 접근성, 다국어 키 정합성을 각각 점검했다. 민감한 헬스 데이터 경로이므로 교차 검증 요청을 Antigravity에 발행했다.</p>
+  </main>
+</body>
+</html>
