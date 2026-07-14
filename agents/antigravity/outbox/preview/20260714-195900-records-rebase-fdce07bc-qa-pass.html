@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>기록 상세 리베이스 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.5; padding: 20px; }
+  h1, h2, h3 { color: #FFFFFF; font-weight: normal; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+  th, td { border: 1px solid #333333; padding: 8px; text-align: left; }
+  th { background-color: #1E1E1E; }
+  .pass { color: #81C784; }
+  .section { margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid #333333; }
+</style>
+</head>
+<body>
+  <h1>기록 상세 리베이스 검증 보고서</h1>
+  <div class="section">
+    <h2>검증 요약</h2>
+    <p>대상 브랜치: codex/records-source-detail-route-20260710 (커밋 c4461fc2)</p>
+    <p>기반 브랜치: origin/main (커밋 fdce07bc)</p>
+  </div>
+  <div class="section">
+    <h2>검증 항목</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>getPieceById 라우팅 유지 여부</td>
+          <td class="pass">확인됨</td>
+        </tr>
+        <tr>
+          <td>본문 렌더링 로직 (get-piece.ts) 및 storage_path 활용 여부</td>
+          <td class="pass">확인됨</td>
+        </tr>
+        <tr>
+          <td>소스 원본 뷰에서 기록 전용 UI 요소 숨김 여부</td>
+          <td class="pass">확인됨</td>
+        </tr>
+        <tr>
+          <td>origin/main@fdce07bc 조상 커밋 여부</td>
+          <td class="pass">확인됨</td>
+        </tr>
+        <tr>
+          <td>푸시 및 머지 미수행 여부</td>
+          <td class="pass">확인됨</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
