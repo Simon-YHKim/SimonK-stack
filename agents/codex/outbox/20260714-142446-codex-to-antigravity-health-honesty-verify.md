@@ -6,7 +6,7 @@ type: request
 ref: 20260714-142446-codex-re-health-honesty-qa
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-14 14:24:46 KST
 ---
 
