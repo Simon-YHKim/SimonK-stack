@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>기록 상세 브랜치 재정렬 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem auto;
+    max-width: 800px;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .status-pass {
+    color: #e0e0e0;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+  <h1>기록 상세 브랜치 재정렬 검증 보고서</h1>
+  <p>요청 ID: 20260714-164649-codex-to-antigravity-records-rebase-c5377f50-verify</p>
+  
+  <h2>검증 요약</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>브랜치 기반 확인</td>
+        <td class="status-pass">통과</td>
+        <td>커밋 88c4f322가 origin/main@c5377f50 위에 정상적으로 위치함.</td>
+      </tr>
+      <tr>
+        <td>원본 레코드 상세 화면 쓰기 동작 은닉 확인</td>
+        <td class="status-pass">통과</td>
+        <td>UI 실행 검증 결과 쓰기 동작이 완벽히 숨겨짐.</td>
+      </tr>
+      <tr>
+        <td>일반 레코드 상세 화면 무결성</td>
+        <td class="status-pass">통과</td>
+        <td>기존 동작에 이상 없음을 확인.</td>
+      </tr>
+      <tr>
+        <td>집중 테스트 재실행</td>
+        <td class="status-pass">통과</td>
+        <td>기록 원본 상세 라우팅 집중 테스트 모두 통과.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>상세 내용</h2>
+  <p>네이티브/에뮬레이터 환경에서 정적 및 실행 검증을 완료했습니다. 발견된 회귀 결함이나 이상 동작은 없습니다.</p>
+</body>
+</html>
