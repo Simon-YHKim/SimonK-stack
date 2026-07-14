@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 결과 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 2rem;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .success {
+    color: #e0e0e0;
+  }
+  .info {
+    color: #a0a0a0;
+  }
+</style>
+</head>
+<body>
+
+<h1>검증 결과 보고서</h1>
+
+<h2>개요</h2>
+<p class="info">코드 재배치 검증 및 레코드 소스 상세 동작 확인 결과입니다.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>항목</th>
+      <th>결과</th>
+      <th>상세 내용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>작업 경로</td>
+      <td class="success">확인됨</td>
+      <td>E:\2ndB\.worktrees\records-source-detail-route-20260710</td>
+    </tr>
+    <tr>
+      <td>조상 확인</td>
+      <td class="success">확인됨</td>
+      <td>main (755af576) 커밋 내역에 포함 확인</td>
+    </tr>
+    <tr>
+      <td>동작 테스트</td>
+      <td class="success">확인됨</td>
+      <td>전체 테스트 스위트 통과, 읽기 전용 동작 보존 확인</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>상세 로그</h2>
+<p>모든 단위 테스트와 시스템 검사가 오류 없이 완료되었습니다. 코드 품질 기준을 만족합니다.</p>
+
+</body>
+</html>
