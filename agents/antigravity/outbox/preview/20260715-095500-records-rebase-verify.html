@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>코드 검증 보고서 - records 리베이스</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+  h1, h2, h3 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { border: 1px solid #444444; padding: 0.75rem; text-align: left; }
+  th { background-color: #1e1e1e; color: #ffffff; }
+  .status-pass { color: #81c784; font-weight: bold; }
+  .code { font-family: monospace; background-color: #1e1e1e; padding: 0.2rem 0.4rem; border-radius: 4px; }
+  .summary { padding: 1rem; background-color: #1e1e1e; border-left: 4px solid #81c784; margin-bottom: 2rem; }
+  button { background-color: #333333; color: #ffffff; border: 1px solid #555555; padding: 0.5rem 1rem; cursor: pointer; }
+  button:hover { background-color: #444444; }
+</style>
+</head>
+<body>
+  <h1>코드 검증 보고서: records 리베이스</h1>
+  <div class="summary">
+    검증 대상: codex/records-source-detail-route-20260710 (헤드 c40f70d0)<br>
+    기준 브랜치: origin/main@519ac3e7<br>
+    검증 결과: 모든 항목 통과
+  </div>
+
+  <h2>검증 항목 상세</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>origin/main@519ac3e7 조상 확인</td>
+        <td class="status-pass">통과</td>
+        <td>git merge-base 검증 완료</td>
+      </tr>
+      <tr>
+        <td>source-origin 라우팅 유지</td>
+        <td class="status-pass">통과</td>
+        <td>origin 파라미터 체크 로직 정상 (<span class="code">isSource</span> 분기 처리)</td>
+      </tr>
+      <tr>
+        <td>source-origin 화면 affordance 숨김</td>
+        <td class="status-pass">통과</td>
+        <td>편집, 이동, 삭제, 태그 추가 UI 및 핸들러 차단 확인</td>
+      </tr>
+      <tr>
+        <td>일반 saved-record 동작 분리</td>
+        <td class="status-pass">통과</td>
+        <td>isSource 판별을 통한 독립적 처리 확인</td>
+      </tr>
+      <tr>
+        <td>flow-map-fresh 경고 비차단</td>
+        <td class="status-pass">통과</td>
+        <td>기본 실행 시 process.exit(0) 처리됨 확인</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>액션</h2>
+  <button type="button">닫기</button>
+</body>
+</html>
