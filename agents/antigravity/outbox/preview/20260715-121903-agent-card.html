@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>작업 보고서: 에이전트 카드 생성</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+  }
+  a {
+    color: #64b5f6;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .container {
+    max-width: 800px;
+    margin: auto;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>작업 보고서: 에이전트 카드 생성</h1>
+  <p><strong>수행자:</strong> antigravity</p>
+  <p><strong>일시:</strong> 2026-07-15 12:19:03 KST</p>
+
+  <h2>개요</h2>
+  <p>요청된 A2A 능력 카드 생성 작업을 완료했습니다. 이 작업은 라우팅을 자동화하기 위한 머신 리더블 매니페스트 생성을 목적으로 합니다.</p>
+
+  <h2>실행 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>작업 단계</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>수신함 스캔</td>
+        <td>완료</td>
+        <td>미처리 요청 2건 확인</td>
+      </tr>
+      <tr>
+        <td>요청 선별</td>
+        <td>완료</td>
+        <td>실행 불가능한 에뮬레이터 요청 제외 및 에이전트 카드 요청 선택</td>
+      </tr>
+      <tr>
+        <td>스크립트 실행</td>
+        <td>완료</td>
+        <td>tools/gen-agent-card.ps1 실행 완료</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결과물</h2>
+  <p>에이전트 카드 (agent-card.json)가 성공적으로 생성되었습니다. 파일은 single-writer 규칙에 따라 에이전트 소유 디렉터리에 기록되었습니다.</p>
+</div>
+</body>
+</html>
