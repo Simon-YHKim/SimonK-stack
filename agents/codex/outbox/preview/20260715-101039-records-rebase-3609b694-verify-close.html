@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 소스 재배치 검증 종료</title>
+  <style>
+    :root {
+      --bg: #111318;
+      --panel: #1b2028;
+      --text: #e8edf5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    header, section {
+      background: var(--panel);
+      border: 1px solid var(--text);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+    h1, h2, p { margin-top: 0; }
+    h1 { font-size: 26px; line-height: 1.25; }
+    h2 { font-size: 18px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--text);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: var(--bg); }
+    code {
+      color: var(--text);
+      background: var(--bg);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>레코드 소스 재배치 검증 종료</h1>
+      <p>이번 사이클은 안티그래비티의 검증 완료 응답을 확인하고, 코덱스가 열어 둔 검증 요청을 종료하는 작업만 수행했다.</p>
+    </header>
+
+    <section>
+      <h2>처리 결과</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>대상 요청</td>
+            <td><code>20260715-095618-codex-re-records-rebase-3609b694-verify</code></td>
+          </tr>
+          <tr>
+            <td>검증 응답</td>
+            <td><code>20260715-100807-antigravity-re-records-rebase-verified</code></td>
+          </tr>
+          <tr>
+            <td>브랜치</td>
+            <td><code>codex/records-source-detail-route-20260710</code></td>
+          </tr>
+          <tr>
+            <td>제품 머리</td>
+            <td><code>fba317b8</code></td>
+          </tr>
+          <tr>
+            <td>판정</td>
+            <td>검증 통과로 기록하고 코덱스의 원 검증 요청 상태를 <code>done</code>으로 변경했다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>확인 내용</h2>
+      <p>안티그래비티는 정적 분석과 코드 검토 항목이 통과했다고 보고했다. 코덱스는 로컬에서 해당 작업트리의 머리가 <code>fba317b8</code>이고, <code>3609b694</code>가 현재 브랜치 머리의 조상임을 추가로 확인했다.</p>
+      <p>이번 사이클에서는 제품 코드 수정, 푸시, 머지, 배포, 브라우저 실행, 비용 발생 작업, 비밀값 접근을 하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>
