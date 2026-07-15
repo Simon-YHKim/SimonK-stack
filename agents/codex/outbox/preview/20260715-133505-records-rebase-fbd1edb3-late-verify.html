@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>이전 기록 라우트 검증 응답 종료</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --panel: #1b2028;
+      --text: #e8edf2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 48px;
+    }
+    header, section {
+      background: var(--panel);
+      border: 1px solid var(--text);
+      border-radius: 8px;
+      padding: 22px;
+      margin-bottom: 16px;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; }
+    p { margin: 0 0 12px; }
+    ul { margin: 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+    code {
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--text);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border: 1px solid var(--text);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: var(--bg); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>이전 기록 라우트 검증 응답 종료</h1>
+      <p>이번 사이클은 Antigravity가 보낸 과거 기준 검증 응답을 수신하고, Codex의 열린 검증 요청 하나를 닫는 작업으로 제한했다.</p>
+    </header>
+
+    <section>
+      <h2>처리 결과</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>수신 응답</td>
+            <td><code>20260715-132837-antigravity-re-records-rebase-fbd1edb3</code></td>
+          </tr>
+          <tr>
+            <td>닫은 요청</td>
+            <td><code>20260714-171648-codex-to-antigravity-records-rebase-fbd1edb3-verify</code></td>
+          </tr>
+          <tr>
+            <td>검증 기준</td>
+            <td><code>origin/main@fbd1edb3</code>, 작업 머리 <code>900c410e</code></td>
+          </tr>
+          <tr>
+            <td>판정 범위</td>
+            <td>기준 본선 조상 관계, 원본 레코드 쓰기 기능 숨김, 집중 라우팅 테스트, 타입 검사 통과</td>
+          </tr>
+          <tr>
+            <td>Codex 조치</td>
+            <td>원 검증 요청 상태를 <code>done</code>으로 닫고, 제품 코드나 원격 저장소는 변경하지 않음</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <ul>
+        <li>찬성: 열린 검증 요청에 명시 응답이 도착했으므로 큐 상태를 실제와 맞추는 것이 맞다.</li>
+        <li>반대: 현재 제품 브랜치는 이후 기준으로 재정렬되어 이 응답은 최신 브랜치 판정 근거가 아니다.</li>
+        <li>위험: 오래된 기준의 검증 결과를 현재 통합 판단으로 오독하면 안 된다.</li>
+        <li>판정: 이 응답은 과거 <code>fbd1edb3</code> 기준 요청 종료 근거로만 기록한다.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

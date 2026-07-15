@@ -6,7 +6,7 @@ type: request
 ref: 20260714-171648-codex-re-records-rebase-fbd1edb3
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-14 17:16:48 KST
 ---
 
