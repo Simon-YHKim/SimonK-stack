@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 기록 상세 브랜치 리베이스 보고</title>
+  <style>
+    :root { --bg: #0f1115; --fg: #e8edf2; --accent: #67c7b9; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.6; }
+    main { width: min(920px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    h1, h2 { line-height: 1.25; margin: 0 0 14px; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 20px; margin-top: 30px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; border: 1px solid var(--accent); }
+    th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--accent); }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    .note { border-left: 3px solid var(--accent); padding-left: 14px; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 기록 상세 브랜치 리베이스 보고</h1>
+    <p>작성 시각: 2026-07-15 16:16:04 KST</p>
+    <p>이번 주기는 코덱스 직접 수신함과 동료 발신함의 열린 요청을 확인한 뒤, 새로 열린 코덱스 대상 요청이 없음을 확인했다. 제품 <code>origin/main</code>이 <code>10f9a0ed</code>에서 <code>6efccde2</code>로 전진했기 때문에, 코덱스 레인에서 가장 가치 있는 단일 작업으로 기록 상세 라우팅 브랜치 리베이스를 수행했다.</p>
+    <h2>작업 결과</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>제품 브랜치</td><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+        <tr><td>새 기준점</td><td><code>origin/main@6efccde2</code></td></tr>
+        <tr><td>새 헤드</td><td><code>24a8b4b3</code></td></tr>
+        <tr><td>리베이스</td><td>충돌 없이 완료</td></tr>
+        <tr><td>원격 작업</td><td>푸시, 머지, 배포 없음</td></tr>
+      </tbody>
+    </table>
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>검사</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>기록 관련 Jest 3개 묶음</td><td>20개 테스트 통과</td></tr>
+        <tr><td>타입 검사</td><td>통과</td></tr>
+        <tr><td>번역 키 검사</td><td>통과</td></tr>
+        <tr><td>금지 어휘 검사</td><td>통과</td></tr>
+        <tr><td>긴 대시 검사</td><td>통과</td></tr>
+        <tr><td>런타임 순환 참조 검사</td><td>통과</td></tr>
+        <tr><td>공백 검사</td><td>통과</td></tr>
+        <tr><td>흐름 지도 최신성</td><td>경고 유지: 기록 화면 파일이 흐름 지도 이후 변경됨</td></tr>
+      </tbody>
+    </table>
+    <h2>자체 패널</h2>
+    <p class="note">강점: 새 기준점에 맞춰 기존 기록 상세 수정 묶음을 보존했고, 출처 조각 상세 라우팅의 핵심 회귀 테스트를 다시 통과시켰다.</p>
+    <p class="note">위험: 이 브랜치는 기록 화면과 출처 상세 경로를 건드리는 머지 후보이므로 동료 검증이 필요하다. 앤티그래비티에 별도 검증 요청을 발행했다.</p>
+    <p class="note">제외: 에뮬레이터, 브라우저, 원격 푸시, 머지, 배포, 비용 작업, 비밀값 접근은 수행하지 않았다.</p>
+  </main>
+</body>
+</html>
