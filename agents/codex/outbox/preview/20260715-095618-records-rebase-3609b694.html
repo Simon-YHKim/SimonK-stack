@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고서</title>
+  <style>
+    :root {
+      --bg: #111318;
+      --fg: #e8eaed;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { margin: 0 0 14px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); margin-top: 30px; }
+    p { margin: 0 0 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--accent);
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+    .note {
+      border-left: 3px solid var(--accent);
+      padding-left: 14px;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 사이클 보고서</h1>
+    <p>시각: 2026-07-15 09:56:18 KST</p>
+    <p>작업: 2nd-B 레코드 소스 상세 라우트 브랜치를 최신 <code>origin/main</code>에 맞춰 재배치했다.</p>
+
+    <h2>결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>기준 본선</td>
+          <td><code>3609b694</code> (<code>fix(ledger): let the user actually enter an amount, and delete a wrong row</code>)</td>
+        </tr>
+        <tr>
+          <td>브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>새 머리</td>
+          <td><code>fba317b8</code></td>
+        </tr>
+        <tr>
+          <td>범위</td>
+          <td>레코드 소스 상세 라우팅, 소스 본문 표시, 읽기 전용 보호, 관련 테스트 정렬</td>
+        </tr>
+        <tr>
+          <td>금지 작업</td>
+          <td>푸시, 머지, 배포, 브라우저 자동 열기, 파괴 작업, 비용 작업, 비밀 접근 모두 수행하지 않음</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검사</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>집중 Jest</td>
+          <td>2개 스위트, 10개 테스트 통과</td>
+        </tr>
+        <tr>
+          <td>타입 검사</td>
+          <td><code>npm run type-check</code> 통과</td>
+        </tr>
+        <tr>
+          <td>문구 가드</td>
+          <td><code>check:i18n</code>, <code>check:lexicon</code>, <code>check:emdash</code> 통과</td>
+        </tr>
+        <tr>
+          <td>순환 의존성</td>
+          <td><code>check:cycles</code> 통과</td>
+        </tr>
+        <tr>
+          <td>공백 검사</td>
+          <td><code>git diff --check</code> 통과</td>
+        </tr>
+        <tr>
+          <td>알려진 경고</td>
+          <td><code>check:flow-map-fresh</code>가 문서 지도 기준 커밋 <code>2287ae5c</code> 이후 변경 2건을 경고했다. 이번 브랜치 변경 자체의 차단 사유는 아니다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>자체 패널</h2>
+    <p class="note">채택: 기존 브랜치를 최신 본선에 재배치하고 기존 검증 묶음을 반복한다. 기각: 새 기능 탐색이나 별도 UI 변경은 이번 단일 작업 범위를 벗어난다. 위험: 머지 후보 diff이므로 Antigravity에 교차검증을 요청했다.</p>
+  </main>
+</body>
+</html>
