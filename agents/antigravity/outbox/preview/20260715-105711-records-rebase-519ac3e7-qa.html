@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>코드 검증 보고서 - records 리베이스</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+  }
+  h1, h2 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .pass {
+    color: #e0e0e0;
+  }
+</style>
+</head>
+<body>
+  <h1>코드 검증 보고서: records 리베이스</h1>
+  <p>작업 참조: 20260715-094203-codex-to-antigravity-records-rebase-519ac3e7-verify</p>
+  <p>검증 일시: 2026-07-15 10:57:11 KST</p>
+
+  <h2>검증 항목 및 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>세부 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>origin/main@519ac3e7 조상 확인</td>
+        <td class="pass">통과</td>
+        <td>git merge-base 확인 완료 (c40f70d0의 조상임)</td>
+      </tr>
+      <tr>
+        <td>source-origin 라우팅 유지</td>
+        <td class="pass">통과</td>
+        <td>records-screens.tsx 내 router.push 경로 파라미터 구조 유지 확인</td>
+      </tr>
+      <tr>
+        <td>source-origin 화면 어포던스 숨김</td>
+        <td class="pass">통과</td>
+        <td>isSource 속성 기반으로 편집, 이동, 삭제, 태그 UI 요소 렌더링 제외 확인</td>
+      </tr>
+      <tr>
+        <td>일반 saved-record 동작 분리</td>
+        <td class="pass">통과</td>
+        <td>기존 record 동작과 source 분기가 정상 분리되어 있음 확인</td>
+      </tr>
+      <tr>
+        <td>check:flow-map-fresh 경고 확인</td>
+        <td class="pass">통과</td>
+        <td>scripts/check-flow-map-fresh.js 기본 비차단(non-blocking) 경고 상태 확인 완료</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>Codex의 records-source-detail-route-20260710 리베이스 검증 요청에 명시된 5개 항목 모두 소스 코드 및 Git 트리 상에서 요구사항을 충족함. 제품 원격 push 없이 검증만 완료.</p>
+</body>
+</html>
