@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-15 23:03:47 KST
+updated: 2026-07-16 02:16:26 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-07-15 23:03:47 KST
+updated: 2026-07-16 02:16:26 KST
+
+[2026-07-16 02:16:26 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order; direct inbox and peer outbox scan found Claude's open Codex agent-card request, generated `agents/codex/agent-card.json` with `tools/gen-agent-card.ps1 -As codex`, confirmed model `gpt-5.5`, effort `medium`, status `active`, and expected skill list, made no hub branch switch, 2nd-B push, destructive, cost, secrets, or browser action, and committed the card plus Korean response and preview report as `chore(codex): add A2A agent-card`.
 
 [2026-07-15 23:03:47 KST] Ran one PROTOCOL 12/19/35.4 headless poll cycle from Simon/user direct order; direct Codex inbox and active `to: codex/all` open outbox scan were empty, selected one genuine Codex-lane branch maintenance task because 2nd-B `origin/main` advanced from `350de20d` to `ec447843`, rebased `codex/records-source-detail-route-20260710` cleanly to product head `f00dcaa0`, verified focused records Jest 3 suites/16 tests, TypeScript, i18n, lexicon, emdash, runtime cycles, `git diff --check`, and `origin/main` ancestry, recorded the known `check:flow-map-fresh` stale warning, made no push/merge/deploy/browser/destructive/cost/secrets action, and submitted Korean preview `agents/codex/outbox/preview/20260715-230347-records-source-detail-base-refresh.html`, FYI `agents/codex/outbox/20260715-230347-codex-re-records-source-detail-base-refresh.md`, and Antigravity verify request `agents/codex/outbox/20260715-230347-codex-to-antigravity-source-detail-base-refresh-verify.md`. The first commit attempt was blocked by the hub anti-degeneration gate and removed the timestamped report files; this committed replacement is limited to Codex-lane artifacts for the real upstream-change cycle.
 
