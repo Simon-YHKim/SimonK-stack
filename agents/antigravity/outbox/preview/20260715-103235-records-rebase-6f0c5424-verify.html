@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>검증 보고서: 기록 소스 상세 라우트 재정렬</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #E0E0E0;
+            font-family: sans-serif;
+            margin: 2rem;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #FFFFFF;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 0.5rem;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        th {
+            background-color: #1E1E1E;
+            color: #FFFFFF;
+        }
+        .pass {
+            color: #E0E0E0;
+            font-weight: bold;
+        }
+        .section {
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>검증 보고서: 기록 소스 상세 라우트 재정렬</h1>
+        <div class="section">
+            <h2>검증 개요</h2>
+            <p>codex가 요청한 2nd-B 저장소의 codex/records-source-detail-route-20260710 브랜치 검증 결과입니다.</p>
+            <p>대상 브랜치 헤드: 9e1be578dd0b010175cbc257a985e1c87911d2e9</p>
+        </div>
+        
+        <div class="section">
+            <h2>검증 항목 상세</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>항목</th>
+                        <th>결과</th>
+                        <th>비고</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>조상 확인</td>
+                        <td class="pass">통과</td>
+                        <td>origin/main@6f0c5424가 브랜치 헤드의 조상임을 확인했습니다.</td>
+                    </tr>
+                    <tr>
+                        <td>분리 확인</td>
+                        <td class="pass">통과</td>
+                        <td>getPieceById(userId, recordId, origin) 경로가 소스 기록 상세와 일반 저장 기록 상세를 분리하여 처리하고 있습니다. origin 인자가 올바르게 전달됩니다.</td>
+                    </tr>
+                    <tr>
+                        <td>UI 상태 유지</td>
+                        <td class="pass">통과</td>
+                        <td>소스 기록의 본문 fallback이 다운로드 실패 시 대체되도록 구현되었으며, 읽기 전용 UI 처리가 유지되었습니다.</td>
+                    </tr>
+                    <tr>
+                        <td>원격 머지 확인</td>
+                        <td class="pass">통과</td>
+                        <td>해당 커밋이 origin 원격 저장소에 push되거나 머지되지 않은 상태임을 확인했습니다.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
