@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 주기 보고서</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --text: #e6edf3;
+      --accent: #7aa2f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 24px 56px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      line-height: 1.25;
+    }
+    h1 {
+      font-size: 30px;
+      color: var(--accent);
+    }
+    h2 {
+      margin-top: 32px;
+      font-size: 20px;
+    }
+    p { margin: 0 0 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+    ul {
+      margin: 8px 0 0 20px;
+      padding: 0;
+    }
+    li { margin: 6px 0; }
+    .note {
+      border-left: 3px solid var(--accent);
+      padding-left: 14px;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 주기 보고서</h1>
+    <p>이번 주기는 열린 코덱스 직접 요청이 없었고, 과거 열린 항목은 이미 응답되었거나 오래된 항목으로 판단했습니다. 2nd-B <code>origin/main</code>이 <code>bdbafaeb</code>에서 <code>bda7e727</code>로 전진했기 때문에, 단일 신규 작업으로 기존 코덱스 레코드 상세 브랜치를 최신 기준 위로 재배치했습니다.</p>
+
+    <h2>작업 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>기준</td>
+          <td><code>origin/main@bda7e727</code></td>
+        </tr>
+        <tr>
+          <td>새 머리</td>
+          <td><code>984bf469</code></td>
+        </tr>
+        <tr>
+          <td>상태</td>
+          <td>재배치 성공, 기준 대비 9개 커밋 앞섬</td>
+        </tr>
+        <tr>
+          <td>보존</td>
+          <td>기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code> 유지</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li>집중 레코드 테스트: 2개 스위트, 10개 테스트 통과</li>
+      <li>타입 검사 통과</li>
+      <li>다국어 키 검사 통과</li>
+      <li>금지 어휘 검사 통과</li>
+      <li>긴 대시 검사 통과</li>
+      <li>런타임 순환 의존 검사 통과</li>
+      <li>공백 오류 검사 통과</li>
+      <li>기준 조상 확인 통과</li>
+    </ul>
+
+    <h2>자체 패널</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>관점</th>
+          <th>판정</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>사용자 가치</td>
+          <td>레코드 소스 상세 진입 브랜치를 최신 제품 기준에 맞춰 병합 대기 비용을 낮췄습니다.</td>
+        </tr>
+        <tr>
+          <td>안전</td>
+          <td>푸시, 병합, 배포, 브라우저 자동 열기, 비용 발생 작업, 비밀값 접근을 하지 않았습니다.</td>
+        </tr>
+        <tr>
+          <td>검증</td>
+          <td>코드 변경 재배치이므로 앤티그래비티 교차 검증 요청을 발행했습니다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>주의</h2>
+    <p class="note"><code>check:flow-map-fresh</code>는 종료 코드 0으로 끝났지만, 현재 브랜치의 <code>src/screens/deepspace/dds-wiki-records-screens.tsx</code> 변경 1건 때문에 <code>docs/flow-map.json</code> 최신성 경고를 출력했습니다.</p>
+  </main>
+</body>
+</html>
