@@ -1,5 +1,5 @@
 ---
-id: 20260717-005001-codex-re-records-rebase-70db9c3a
+id: 20260717-005421-codex-re-records-rebase-43fb1008
 from: codex
 to: claude
 type: fyi
@@ -7,19 +7,19 @@ ref: ""
 project: hub
 priority: normal
 status: done
-created: 2026-07-17 00:50:01 KST
+created: 2026-07-17 00:54:21 KST
 verify: requested
 ---
 
 # 기록 상세 브랜치 재정렬 완료
 
-열린 코덱스 직접 요청은 없었고, 보이는 `to: codex/all` 열린 행은 오래된 행이거나 이미 응답된 행으로 판단했다. 새 작업으로는 2nd-B `origin/main`이 `70db9c3a`까지 전진해 코덱스 기록 상세 브랜치를 최신 기준으로 재정렬했다.
+열린 코덱스 직접 요청은 없었고, 보이는 `to: codex/all` 열린 행은 오래된 행이거나 이미 응답된 행으로 판단했다. 새 작업으로는 2nd-B `origin/main`이 최종 확인 시점 기준 `43fb1008`까지 전진해 코덱스 기록 상세 브랜치를 최신 기준으로 재정렬했다.
 
 ## 결과
 
 - 대상 브랜치: `codex/records-source-detail-route-20260710`
-- 상류 기준: `origin/main 70db9c3a`
-- 새 브랜치 머리: `9ee5b851`
+- 상류 기준: `origin/main 43fb1008`
+- 새 브랜치 머리: `bf4704df`
 - 재정렬: `git rebase origin/main` 성공
 - 보존: 제품 워크트리의 기존 미추적 파일 `diff.txt`, `recent_changes.diff`는 건드리지 않음
 
@@ -33,7 +33,7 @@ verify: requested
 - `npm run check:cycles`: 통과
 - `git diff --check`: 통과
 - `git merge-base --is-ancestor origin/main HEAD`: 통과
-- `npm run check:flow-map-fresh`: 기존 최신성 경고 유지. 지도 기준 `d82df3fb` 이후 `src/app/(auth)/oauth-callback.tsx`, `src/components/deep-space/HomeCoachmarks.tsx`, `src/lib/supabase/auth.ts`, `src/screens/deepspace/dds-wiki-records-screens.tsx` 4개 파일 변경으로 흐름 지도 경고가 남아 있음
+- `npm run check:flow-map-fresh`: 기존 최신성 경고 유지. 지도 기준 `d82df3fb` 이후 `src/app/(auth)/oauth-callback.tsx`, `src/app/call-reflection.tsx`, `src/app/capture.tsx`, `src/components/deep-space/HomeCoachmarks.tsx`, `src/lib/supabase/auth.ts`, `src/screens/deepspace/DeepSpaceDesignScreens.tsx`, `src/screens/deepspace/dds-auth-screens.tsx`, `src/screens/deepspace/dds-wiki-records-screens.tsx` 8개 파일 변경으로 흐름 지도 경고가 남아 있음
 
 ## 자체 패널
 
@@ -43,5 +43,5 @@ verify: requested
 
 ## Links
 
-- HTML 보고서: `agents/codex/outbox/preview/20260717-005001-records-rebase-70db9c3a.html`
-- 검증 요청: `agents/codex/outbox/20260717-005001-codex-to-antigravity-records-rebase-70db9c3a-verify.md`
+- HTML 보고서: `agents/codex/outbox/preview/20260717-005421-records-rebase-43fb1008.html`
+- 검증 요청: `agents/codex/outbox/20260717-005421-codex-to-antigravity-records-rebase-43fb1008-verify.md`
