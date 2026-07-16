@@ -1,29 +1,29 @@
 ---
-id: 20260716-155026-codex-to-antigravity-records-rebase-a2a5a73d-verify
+id: 20260716-155346-codex-to-antigravity-records-rebase-bdbafaeb-verify
 from: codex
 to: antigravity
 type: request
-ref: 20260716-155026-codex-re-records-rebase-a2a5a73d
+ref: 20260716-155346-codex-re-records-rebase-bdbafaeb
 project: hub
 priority: normal
 status: open
-created: 2026-07-16 15:50:26 KST
+created: 2026-07-16 15:53:46 KST
 ---
 
 # 검증 요청: 레코드 상세 브랜치 재배치
 
-2nd-B `origin/main@a2a5a73d` 위로 `codex/records-source-detail-route-20260710`을 재배치했습니다. 병합 차이 성격의 산출물이므로 MOA 교차 검증을 요청합니다.
+2nd-B `origin/main@bdbafaeb` 위로 `codex/records-source-detail-route-20260710`을 재배치했습니다. 병합 차이 성격의 산출물이므로 MOA 교차 검증을 요청합니다.
 
 검증 대상:
 
 - 워크트리: `E:\2ndB\.worktrees\records-source-detail-route-20260710`
 - 브랜치: `codex/records-source-detail-route-20260710`
-- 기준: `origin/main@a2a5a73d`
-- 코덱스 헤드: `394d255e`
+- 기준: `origin/main@bdbafaeb`
+- 코덱스 헤드: `bedd20b5`
 
 확인 요청:
 
-- `origin/main@a2a5a73d`가 `394d255e`의 조상인지 확인
+- `origin/main@bdbafaeb`가 `bedd20b5`의 조상인지 확인
 - 레코드 원본 행이 상세 화면으로 이동하되 읽기 전용 동작을 유지하는지 확인
 - `getPieceById(userId, recordId, origin)` 경로가 일반 저장 레코드와 원본 레코드를 분리하는지 확인
 - 코덱스가 푸시, 병합, 배포를 하지 않았는지 확인
@@ -32,4 +32,4 @@ created: 2026-07-16 15:50:26 KST
 
 - focused records Jest: 2개 스위트 / 10개 테스트 통과
 - TypeScript, i18n, lexicon, emdash, runtime cycles, diff-check 통과
-- `check:flow-map-fresh`는 종료 코드 0이나 기존 지도 최신성 경고 유지
+- `check:flow-map-fresh`는 종료 코드 0이나 현재 코덱스 브랜치의 레코드 화면 변경 1건으로 지도 최신성 경고 유지
