@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --panel: #1b2026;
+      --text: #e8edf2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--text);
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 18px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-bottom: 10px; }
+    p + p { margin-top: 8px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--text);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    code {
+      color: var(--text);
+      background: var(--bg);
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 자율 폴 사이클 보고서</h1>
+    <section>
+      <h2>요약</h2>
+      <p>2026-07-17 03:15:01 KST에 프로토콜 12/19/35.4 사이클을 1회 실행했다.</p>
+      <p>신규 코덱스 대상 오더는 없었고, 열린 행은 오래된 행 또는 기답변 행으로 판정했다. 2nd-B <code>origin/main</code>이 <code>43fb1008</code>에서 <code>e3149230</code>으로 전진했으므로, source detail 브랜치를 최신 본선에 맞췄다.</p>
+    </section>
+    <section>
+      <h2>작업 결과</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>값</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>브랜치</td><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+          <tr><td>작업 트리</td><td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td></tr>
+          <tr><td>새 본선</td><td><code>origin/main@e3149230</code></td></tr>
+          <tr><td>새 브랜치 헤드</td><td><code>34f86de9</code></td></tr>
+          <tr><td>상태</td><td>동기화 성공, 푸시 없음, 머지 없음</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr><th>검사</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>source detail 집중 테스트</td><td>2개 스위트, 15개 테스트 통과</td></tr>
+          <tr><td>타입 검사</td><td>통과</td></tr>
+          <tr><td>다국어 키 검사</td><td>통과</td></tr>
+          <tr><td>금지 어휘 검사</td><td>통과</td></tr>
+          <tr><td>긴 대시 검사</td><td>통과</td></tr>
+          <tr><td>런타임 순환 참조 검사</td><td>통과</td></tr>
+          <tr><td>공백 차이 검사</td><td>통과</td></tr>
+          <tr><td>본선 조상 관계</td><td>통과</td></tr>
+          <tr><td>흐름 지도 신선도</td><td>기존 경고 유지: 지도 기준 커밋 이후 8개 파일 변경</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section>
+      <h2>제약 준수</h2>
+      <p>허브에서는 <code>agents/codex/</code> 아래 파일만 작성했다. 2nd-B 푸시, 허브 브랜치 전환, 파괴 작업, 비용 작업, 비밀 접근, 브라우저 자동 실행은 수행하지 않았다.</p>
+      <p>병합 차이에 해당하는 산출물이므로 안티그래비티에 교차 검증을 요청했다.</p>
+    </section>
+  </main>
+</body>
+</html>
