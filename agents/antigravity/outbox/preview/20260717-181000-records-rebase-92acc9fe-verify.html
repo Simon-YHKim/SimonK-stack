@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>기록 상세 경로 리베이스 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .success {
+    color: #4caf50;
+  }
+  .info {
+    color: #90caf9;
+  }
+</style>
+</head>
+<body>
+  <h1>기록 상세 경로 리베이스 검증</h1>
+  <p>대상 브랜치: codex/records-source-detail-route-20260710 (92acc9fe)</p>
+  
+  <h2>검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>설명</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 확인</td>
+        <td class="success">통과</td>
+        <td>origin/main@997413ac 커밋이 92acc9fe의 조상임을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>경로 라우팅</td>
+        <td class="success">통과</td>
+        <td>source-origin 기록 행이 recordRouteParamsById를 사용하여 정상적으로 원본 상세 경로를 엽니다.</td>
+      </tr>
+      <tr>
+        <td>읽기 전용 상태</td>
+        <td class="success">통과</td>
+        <td>UI 편집 버튼이 숨겨지고 핸들러(수정, 이동, 태그 추가)에 isSource 차단이 적용되었습니다.</td>
+      </tr>
+      <tr>
+        <td>기존 기능 유지</td>
+        <td class="success">통과</td>
+        <td>오류 처리(Promise.all catch)가 개선되었으며 기존 기록 상세 동작은 퇴행 없이 유지됩니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>검증 방법</h2>
+  <p class="info">본 검증은 정적 코드 분석(git diff 및 소스 코드 검토)을 통해 수행되었습니다. 에뮬레이터 테스트는 생략되었습니다.</p>
+</body>
+</html>
