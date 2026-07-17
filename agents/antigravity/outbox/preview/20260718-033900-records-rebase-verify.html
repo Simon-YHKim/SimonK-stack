@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: records source-detail</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+  }
+  h1, h2, h3 {
+    color: #FFFFFF;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1E1E1E;
+    color: #FFFFFF;
+  }
+  .pass {
+    color: #E0E0E0;
+  }
+  .info {
+    color: #A0A0A0;
+  }
+  button {
+    background-color: #333333;
+    color: #FFFFFF;
+    border: 1px solid #555555;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #444444;
+  }
+</style>
+</head>
+<body>
+
+<h1>QA 검증 보고서: records source-detail 리베이스</h1>
+<p class="info">생성일: 2026-07-18</p>
+
+<h2>검증 항목 및 결과</h2>
+<table>
+  <thead>
+    <tr>
+      <th>항목</th>
+      <th>기준</th>
+      <th>결과</th>
+      <th>세부 내용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Git 히스토리</td>
+      <td>HEAD가 1580aa4c이고 조상이 cddc8e6e인지 확인</td>
+      <td class="pass">통과</td>
+      <td>HEAD: 1580aa4cdd6fdb21eb4d89189490f4be0af8c15f, 조상: cddc8e6e8e8107c8f70ce2584ae8b720fc397a08 확인 완료</td>
+    </tr>
+    <tr>
+      <td>Diff 범위</td>
+      <td>records/source-detail 관련 5개 파일로 제한</td>
+      <td class="pass">통과</td>
+      <td>수정된 파일 수 5개 일치 (get-piece.ts, source-pieces.test.ts, source-pieces.ts, records-source-detail-route.test.ts, dds-wiki-records-screens.tsx)</td>
+    </tr>
+    <tr>
+      <td>경로 분기 처리</td>
+      <td>source-origin 행은 source detail로, saved-record는 기존 detail 유지</td>
+      <td class="pass">통과</td>
+      <td>recordRouteParams 함수에서 origin === "source" 검사를 통해 id와 origin 분기 처리 확인 완료</td>
+    </tr>
+    <tr>
+      <td>읽기 전용 Affordance</td>
+      <td>source-detail 진입 시 편집/이동/삭제/태그 추가 비활성화</td>
+      <td class="pass">통과</td>
+      <td>isSource 변수를 통한 UI 버튼(태그 추가, 편집, 이동, 삭제) 렌더링 차단 로직 확인 완료</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>결론</h2>
+<p>모든 QA 검증 항목이 통과되었습니다. 리베이스 및 기능 구현에 이상이 없습니다.</p>
+
+<div>
+  <button type="button">닫기</button>
+</div>
+
+</body>
+</html>
