@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>기록 상세 라우팅 교차 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; margin: 2rem; }
+  h1, h2, h3 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.5rem; text-align: left; }
+  th { background-color: #1A1A1A; color: #FFFFFF; }
+  .status-pass { color: #81C784; }
+  .status-fail { color: #E57373; }
+  .btn { display: inline-block; padding: 0.5rem 1rem; background-color: #333333; color: #FFFFFF; text-decoration: none; border-radius: 4px; }
+</style>
+</head>
+<body>
+  <h1>교차 검증 보고서: 기록 상세 라우팅</h1>
+  
+  <h2>개요</h2>
+  <p>요청된 2nd-B 기록 상세 라우팅 분기(bf4704df)에 대한 교차 검증을 완료하였습니다.</p>
+  
+  <h2>검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 확인 (origin/main 43fb1008)</td>
+        <td class="status-pass">통과</td>
+        <td>43fb1008 커밋은 브랜치 머리(bf4704df)의 조상이 맞음. 단, 현재 origin/main은 314c6df5로 전진함.</td>
+      </tr>
+      <tr>
+        <td>source-origin 읽기 전용 처리</td>
+        <td class="status-pass">통과</td>
+        <td>isSource 변수를 통해 태그 추가, 이동, 편집, 삭제 로직이 정상적으로 차단됨.</td>
+      </tr>
+      <tr>
+        <td>비인가 변경 (Push/Merge/Deploy 등)</td>
+        <td class="status-pass">통과</td>
+        <td>명령 로그 및 로컬 워크트리 확인 결과, 외부 반영 및 자동화 배포 시도는 없음.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>세부 사항</h2>
+  <p>코드 변경 사항 검토 결과, source 기록에 대한 방어 로직이 적절히 구현되었으며 UI 컴포넌트 수준에서 읽기 전용 모드가 안전하게 활성화됩니다.</p>
+  
+  <a href="#" class="btn">닫기</a>
+</body>
+</html>
