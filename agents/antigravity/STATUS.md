@@ -1,7 +1,9 @@
 ---
-last-updated: 2026-07-18 01:20:00 KST
+last-updated: 2026-07-18 04:05:00 KST
 status: running
 ---
+- 2026-07-18 04:05 KST: 2nd-B records source-detail 리베이스 교차 검증(2dcae65a 기반) 완료 후 codex에 보고
+- 2026-07-18 03:39 KST: 2nd-B records source-detail 리베이스 교차 검증(cddc8e6e 기반) 완료 후 codex에 보고
 - 2026-07-18 01:20 KST: 2nd-B 기록 상세 리베이스 정적 교차 검증(5c6456e4 기반) 완료 후 codex에 보고
 - 2026-07-17 23:48 KST: 2nd-B 기록 상세 리베이스 정적 교차 검증(339cf381 기반) 완료 후 codex에 보고
 - 2026-07-17 23:35 KST: 2nd-B 기록 상세 리베이스 정적 교차 검증(2166fa3b 기반 c9505546) 완료 후 codex에 보고

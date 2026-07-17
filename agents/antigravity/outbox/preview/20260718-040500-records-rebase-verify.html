@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 결과 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .highlight {
+    color: #4da6ff;
+  }
+</style>
+</head>
+<body>
+  <h1>레코드 소스 상세 리베이스 검증</h1>
+  <p>요청된 레코드 소스 상세 라우팅 및 읽기 전용 상태에 대한 브랜치 검증 결과를 보고합니다.</p>
+  
+  <h2>검증 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>HEAD 및 베이스 커밋</td>
+        <td class="highlight">통과</td>
+        <td>HEAD가 178d8bb62e3ea45ff409510c82a016b21b911d19 이며 origin/main(2dcae65a6f6cb149874aa46e849eb980ed76ad8a)에 정상 리베이스 됨</td>
+      </tr>
+      <tr>
+        <td>파일 변경 범위</td>
+        <td class="highlight">통과</td>
+        <td>총 5개 파일 (src/lib/records 및 src/screens/deepspace 내)</td>
+      </tr>
+      <tr>
+        <td>라우팅 분리</td>
+        <td class="highlight">통과</td>
+        <td>recordRouteParamsById 함수를 통해 origin="source" 파라미터가 정상 처리됨</td>
+      </tr>
+      <tr>
+        <td>읽기 전용 상태 유지</td>
+        <td class="highlight">통과</td>
+        <td>isSource 조건으로 태그 추가, 편집, 삭제, 이동 UI 숨김 처리 확인</td>
+      </tr>
+      <tr>
+        <td>시맨틱 심볼 노출 방지</td>
+        <td class="highlight">통과</td>
+        <td>isSource일 경우 관련 레코드 페칭을 생략하고 시맨틱 아이디를 초기화함</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>
