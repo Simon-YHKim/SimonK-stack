@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 상세 브랜치 재정렬 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --text: #e8e8e8;
+      --accent: #6aa7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 44px;
+    }
+    h1, h2 { line-height: 1.2; }
+    h1 { margin: 0 0 12px; font-size: 28px; }
+    h2 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    p { margin: 8px 0; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+      margin: 18px 0 24px;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--text) 22%, transparent);
+      padding: 14px;
+      border-radius: 6px;
+      min-height: 92px;
+    }
+    .label { color: var(--accent); font-size: 13px; }
+    .value { margin-top: 6px; font-weight: 700; word-break: break-word; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      background: color-mix(in srgb, var(--text) 8%, transparent);
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+    details {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { padding-left: 22px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드 상세 브랜치 재정렬 보고</h1>
+    <p>이번 사이클은 새로 들어온 실행 요청이 없어 Codex 레인의 기존 2nd-B 레코드 상세 브랜치를 최신 <code>origin/main</code> 위로 재정렬하고 검증한 작업이다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <div class="label">대상 브랜치</div>
+        <div class="value"><code>codex/records-source-detail-route-20260710</code></div>
+      </div>
+      <div class="card">
+        <div class="label">기준 커밋</div>
+        <div class="value"><code>origin/main@339cf381</code></div>
+      </div>
+      <div class="card">
+        <div class="label">새 브랜치 머리</div>
+        <div class="value"><code>2de2fc2c</code></div>
+      </div>
+      <div class="card">
+        <div class="label">검증 상태</div>
+        <div class="value">통과, 교차검증 요청 발행</div>
+      </div>
+    </section>
+
+    <h2>수행 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>재정렬</td>
+          <td><code>git rebase origin/main</code>이 충돌 없이 완료됐다.</td>
+        </tr>
+        <tr>
+          <td>조상 관계</td>
+          <td><code>origin/main</code>이 새 브랜치 머리의 조상임을 확인했다.</td>
+        </tr>
+        <tr>
+          <td>변경 범위</td>
+          <td>5개 파일, 126줄 추가, 34줄 삭제. 레코드 소스 상세 라우팅과 관련 테스트에 한정됐다.</td>
+        </tr>
+        <tr>
+          <td>금지 동작</td>
+          <td>푸시, 머지, 배포, 브라우저 자동 열기, 비용 발생, 시크릿 접근, 파괴적 작업을 하지 않았다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>명령</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>npm test -- --runTestsByPath ... --ci</code></td>
+          <td>2개 테스트 묶음, 10개 테스트 통과.</td>
+        </tr>
+        <tr>
+          <td><code>npm run verify</code></td>
+          <td>lint, type-check, i18n, lexicon, legal-review, LLM boundary, constraints, emdash, anti-anthro, mascot voice, cycles, 전체 Jest 통과. 전체 Jest는 367개 묶음, 2796개 테스트 통과.</td>
+        </tr>
+        <tr>
+          <td><code>git diff --check origin/main..HEAD</code></td>
+          <td>공백 오류 없음.</td>
+        </tr>
+        <tr>
+          <td><code>npm run check:flow-map-fresh</code></td>
+          <td>기존 경고 유지: flow-map 기준 커밋 이후 15개 파일 변경으로 지도 갱신 필요 가능성이 표시됐다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>변경 파일</summary>
+      <ul>
+        <li><code>src/lib/records/__tests__/source-pieces.test.ts</code></li>
+        <li><code>src/lib/records/get-piece.ts</code></li>
+        <li><code>src/lib/records/source-pieces.ts</code></li>
+        <li><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></li>
+        <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자체 패널 판단</summary>
+      <p>이 작업은 새 설계, 스키마, 배포, 수익화 정책 결정을 만들지 않았다. 다만 최신 <code>origin/main</code>이 commerce/paywall 경계를 포함하므로, 브랜치 재정렬 산출물은 교차검증 대상으로 분류했다.</p>
+      <p>검증 요청은 Antigravity에 발행했다. 요청 범위는 ancestry, source-origin 상세 라우팅, 읽기 전용 affordance, 저장 레코드 회귀 없음, 가능 시 네이티브 렌더링 확인이다.</p>
+    </details>
+  </main>
+</body>
+</html>
