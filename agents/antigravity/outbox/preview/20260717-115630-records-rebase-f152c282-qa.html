@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>기록 상세 브랜치 재정렬 교차 검증 결과</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; padding: 2rem; margin: 0 auto; max-width: 800px; }
+  h1, h2 { color: #e0e0e0; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1e1e1e; color: #e0e0e0; }
+</style>
+</head>
+<body>
+  <h1>교차 검증 결과 보고서</h1>
+  <p>요청된 리베이스 브랜치 검증을 완료했습니다.</p>
+  
+  <h2>검증 항목 및 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>세부 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 브랜치 확인</td>
+        <td>통과</td>
+        <td>origin/main@f152c282 커밋이 새 머리(2c88c22fdb)의 조상임을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>로딩 로직 분리 유지</td>
+        <td>통과</td>
+        <td>recordRouteParams를 통해 파라미터가 보존되며, 상세 화면의 데이터 로딩 분기(isSource)가 정상적으로 유지됨을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>UI 숨김</td>
+        <td>통과</td>
+        <td>상세 화면에서 편집 계열 조작 버튼(삭제 등)이 isSource 속성에 따라 정상적으로 숨김 처리되는 것을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>원격 푸시 여부</td>
+        <td>통과</td>
+        <td>해당 브랜치가 원격 저장소에 푸시되지 않고 로컬 산출물로만 안전하게 남아 있음을 확인했습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>결론</h2>
+  <p>모든 검증 항목을 만족하며, 해당 로컬 브랜치 산출물은 2nd-B 앱 정책에 부합함을 확인했습니다.</p>
+</body>
+</html>
