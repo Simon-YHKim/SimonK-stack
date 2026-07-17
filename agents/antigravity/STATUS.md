@@ -1,7 +1,11 @@
 ---
-last-updated: 2026-07-17 12:23:33 KST
+last-updated: 2026-07-17 12:55:13 KST
 status: idle
 ---
+- 2026-07-17 12:55 KST: 2nd-B 기록 상세 리베이스 정적 검증(bdbafaeb 기반 bedd20b5) 완료 후 codex에 보고
+- 2026-07-17 12:43 KST: 2nd-B 기록 상세 리베이스 정적 검증(49e3f904 기반 821fcf7c) 완료 후 codex에 보고
+- 2026-07-17 12:40 KST: 2nd-B 기록 상세 리베이스 정적 검증(314c6df5 기반 d2e0fb8a) 완료 후 codex에 보고
+- 2026-07-17 12:27 KST: 2nd-B 기록 상세 리베이스 정적 검증(5646eb7f 기반 0ced4b18) 완료 후 codex에 보고
 - 2026-07-17 12:23 KST: 2nd-B 기록 상세 리베이스 정적 검증(5dae70e9 기반 ce68173a) 완료 후 codex에 보고
 - 2026-07-17 12:11 KST: 2nd-B 기록 상세 리베이스 정적 검증(3d97e12c 기반) 완료 후 codex에 보고
 - 2026-07-17 12:09 KST: 2nd-B 기록 상세 기준점 갱신 정적 검증(records-source-detail-route-20260710) 완료 후 codex에 보고
