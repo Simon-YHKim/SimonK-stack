@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 상세 브랜치 재정렬 보고</title>
+  <style>
+    :root { --bg:#0b0f14; --fg:#e6edf3; --muted:#8b949e; --accent:#58a6ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font-family:Arial, "Malgun Gothic", sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 48px; }
+    h1, h2 { margin:0 0 12px; line-height:1.2; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; color:var(--accent); }
+    p { margin:0 0 14px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:20px 0; }
+    .card, details { border:1px solid var(--muted); border-radius:8px; padding:14px; background:#0f151d; }
+    .label { color:var(--muted); font-size:13px; margin-bottom:4px; }
+    .value { font-size:16px; font-weight:700; overflow-wrap:anywhere; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border-bottom:1px solid var(--muted); padding:10px 8px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--fg); background:#111923; padding:1px 4px; border-radius:4px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .muted { color:var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드 상세 브랜치 재정렬 보고</h1>
+    <p class="muted">작성 시각: 2026-07-17 21:57:20 KST</p>
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">최신 main 반영 완료</div></div>
+      <div class="card"><div class="label">기준 main</div><div class="value"><code>0bfb4c26</code></div></div>
+      <div class="card"><div class="label">브랜치 HEAD</div><div class="value"><code>44ce4390</code></div></div>
+      <div class="card"><div class="label">검증 상태</div><div class="value">통과, 교차검증 요청</div></div>
+    </section>
+
+    <section class="card">
+      <h2>수행 내용</h2>
+      <p><code>codex/records-source-detail-route-20260710</code> 브랜치를 <code>origin/main@0bfb4c26</code> 위로 재정렬했습니다. 충돌은 없었고, 기존 소스 출처 레코드 상세 라우팅과 읽기 전용 동작을 유지했습니다.</p>
+      <p>허브 저장소에서는 단일 작성자 규칙에 따라 <code>agents/codex/</code> 아래 보고 파일과 검증 요청만 작성했습니다. 2nd-B 원격 push, main merge, 배포, 브라우저 실행, 비용 발생 작업은 수행하지 않았습니다.</p>
+    </section>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <table>
+        <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><td>조상 확인</td><td>통과</td><td><code>origin/main@0bfb4c26</code>이 <code>44ce4390</code>의 조상입니다.</td></tr>
+          <tr><td>집중 테스트</td><td>통과</td><td>Jest 2개 스위트, 10개 테스트 통과</td></tr>
+          <tr><td>정적 게이트</td><td>통과</td><td>type-check, i18n, lexicon, legal-review, llm-boundary, constraints, emdash, anti-anthro, mascot-voice, cycles 통과</td></tr>
+          <tr><td>lint</td><td>통과</td><td>오류 0개, 기존 warning 57개</td></tr>
+          <tr><td>공백 검사</td><td>통과</td><td><code>git diff --check origin/main..HEAD</code></td></tr>
+          <tr><td>흐름 지도 freshness</td><td>주의</td><td>기존 경고: 지도 기준 이후 8개 파일 변경</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>변경 범위</summary>
+      <table>
+        <thead><tr><th>파일</th><th>변경 성격</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/lib/records/get-piece.ts</code></td><td>소스 상세 본문과 fallback 보존</td></tr>
+          <tr><td><code>src/lib/records/source-pieces.ts</code></td><td>원천 소스 식별 보강</td></tr>
+          <tr><td><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></td><td>소스 출처 상세를 읽기 전용으로 유지</td></tr>
+          <tr><td><code>src/lib/records/__tests__/source-pieces.test.ts</code></td><td>소스 상세 가드 테스트</td></tr>
+          <tr><td><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></td><td>상세 라우팅 회귀 테스트</td></tr>
+        </tbody>
+      </table>
+      <p class="muted">diff 통계: 5개 파일, 126줄 추가, 34줄 삭제</p>
+    </details>
+
+    <details>
+      <summary>제한과 다음 확인</summary>
+      <p>이번 사이클은 headless 정적 검증입니다. 에뮬레이터나 실제 기기 렌더링 증거는 만들지 않았습니다.</p>
+      <p>MoA 고위험 규칙에 따라 Antigravity에 교차검증 요청을 발행했습니다.</p>
+    </details>
+  </main>
+</body>
+</html>
