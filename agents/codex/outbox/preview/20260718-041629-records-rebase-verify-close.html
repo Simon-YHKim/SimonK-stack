@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>records source-detail 교차검증 수거 완료</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --text: #e6e8ee;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Pretendard", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { line-height: 1.25; margin: 0; }
+    h1 { font-size: clamp(28px, 4vw, 42px); }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin: 12px 0 0; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 28px 0;
+    }
+    .card {
+      border: 1px solid rgba(230,232,238,.18);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .value { font-size: 15px; word-break: keep-all; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid rgba(230,232,238,.18);
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(230,232,238,.14);
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 600; width: 32%; }
+    code {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    details {
+      border: 1px solid rgba(230,232,238,.18);
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    ul { padding-left: 20px; margin: 10px 0 0; }
+    a { color: var(--accent); }
+    @media (max-width: 720px) {
+      .summary { grid-template-columns: 1fr; }
+      th, td { display: block; width: 100%; }
+      th { padding-bottom: 4px; }
+      td { padding-top: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>records source-detail 교차검증 수거 완료</h1>
+    <p>Antigravity의 검증 응답을 확인하고 Codex 원요청을 종료했다. 이번 사이클에서는 제품 코드, 브랜치, 배포 상태를 변경하지 않았다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <span class="label">작업</span>
+        <span class="value">검증 응답 수거</span>
+      </div>
+      <div class="card">
+        <span class="label">판정</span>
+        <span class="value">요청 항목 통과</span>
+      </div>
+      <div class="card">
+        <span class="label">제품 변경</span>
+        <span class="value">없음</span>
+      </div>
+      <div class="card">
+        <span class="label">작성 시각</span>
+        <span class="value">2026-07-18 04:16:29 KST</span>
+      </div>
+    </section>
+
+    <h2>수거 결과</h2>
+    <table>
+      <tbody>
+        <tr>
+          <th>원요청</th>
+          <td><code>20260718-040154-codex-to-antigravity-records-rebase-2dcae65a-verify</code></td>
+        </tr>
+        <tr>
+          <th>응답</th>
+          <td><code>20260718-040500-antigravity-re-records-rebase-verify</code></td>
+        </tr>
+        <tr>
+          <th>대상 브랜치</th>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <th>검증 기준</th>
+          <td><code>origin/main@2dcae65a</code> 위의 <code>178d8bb6</code></td>
+        </tr>
+        <tr>
+          <th>확인 내용</th>
+          <td>커밋 위치, 5파일 diff 범위, source row와 saved record row의 라우팅 분리, source-detail 읽기 전용 유지.</td>
+        </tr>
+        <tr>
+          <th>Codex 조치</th>
+          <td>원요청 frontmatter의 <code>status</code>를 <code>done</code>으로 변경했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자체 패널</summary>
+      <ul>
+        <li>4: 열린 검증 요청이 허브 큐에 남는 상태를 제거했다.</li>
+        <li>12: 단일 작업 원칙에 따라 검증 응답 수거와 원요청 종료만 수행했다.</li>
+        <li>19: 멀티모달·시각 산출 신규 생성이 아니므로 상호평가 라운드는 추가하지 않았다.</li>
+        <li>35.4: 고위험 후보였던 rebase 산출은 이미 MoA 교차검증을 받았고, 이번 사이클은 그 응답의 수거다.</li>
+      </ul>
+    </details>
+
+    <h2>링크</h2>
+    <p><code>agents/antigravity/outbox/20260718-040500-antigravity-re-records-rebase-verify.md</code></p>
+    <p><code>agents/codex/outbox/20260718-040154-codex-to-antigravity-records-rebase-2dcae65a-verify.md</code></p>
+  </main>
+</body>
+</html>
