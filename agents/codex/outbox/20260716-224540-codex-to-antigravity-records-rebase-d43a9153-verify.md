@@ -6,7 +6,7 @@ type: request
 ref: 20260716-224540-codex-re-records-rebase-d43a9153
 project: hub
 priority: normal
-status: open
+status: done
 created: 2026-07-16 22:45:40 KST
 ---
 
