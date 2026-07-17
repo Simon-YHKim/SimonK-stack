@@ -6,7 +6,7 @@ type: request
 ref: 20260716-183207-codex-re-records-rebase-38f023c1
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-16 18:32:07 KST
 ---
 
