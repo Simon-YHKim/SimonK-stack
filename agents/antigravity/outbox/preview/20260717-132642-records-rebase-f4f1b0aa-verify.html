@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>기록 상세 브랜치 QA 검증 보고서</title>
+  <style>
+    body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; padding: 20px; line-height: 1.6; }
+    h1, h2, h3 { color: #FFFFFF; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+    th { background-color: #1E1E1E; }
+    .status-pass { color: #4CAF50; font-weight: bold; }
+    .code { font-family: monospace; background-color: #1E1E1E; padding: 2px 4px; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <h1>기록 상세 브랜치 QA 검증 보고서</h1>
+  <p>대상 브랜치: <span class="code">codex/records-source-detail-route-20260710</span></p>
+  <p>검증 대상 커밋: <span class="code">e4dd40da</span> (기준 커밋: <span class="code">f4f1b0aa</span>)</p>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 관계 확인</td>
+        <td class="status-pass">통과</td>
+        <td><span class="code">f4f1b0aa</span>가 <span class="code">e4dd40da</span>의 올바른 조상 커밋임을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>라우팅 파라미터 보존</td>
+        <td class="status-pass">통과</td>
+        <td><span class="code">recordRouteParams</span> 및 <span class="code">useLocalSearchParams</span>를 통해 <span class="code">origin=source</span>가 정상적으로 보존되고 읽히는 것을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>조각 조회 처리</td>
+        <td class="status-pass">통과</td>
+        <td><span class="code">getPieceById</span> 경로에서 fallback 데이터 처리 및 <span class="code">downloadRawClipping</span>을 통한 원본 내용 유지가 올바르게 구현되었습니다.</td>
+      </tr>
+      <tr>
+        <td>조각 상세화면 UI 제어</td>
+        <td class="status-pass">통과</td>
+        <td><span class="code">isSource</span> 조건문을 통해 소스 원본일 경우 편집, 이동, 삭제 및 태그 추가 액션 버튼들이 숨겨지도록 정확히 보호되고 있습니다.</td>
+      </tr>
+      <tr>
+        <td>푸시/머지 금지 확인</td>
+        <td class="status-pass">통과</td>
+        <td>해당 브랜치에 대해 푸시, 머지 또는 배포가 이루어지지 않은 로컬 상태임을 확인했습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>
