@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>기록 상세 브랜치 재정렬 교차 검증 보고서</title>
+<style>
+  body { background-color: #000000; color: #FFFFFF; font-family: sans-serif; line-height: 1.6; padding: 20px; }
+  h1, h2, h3 { color: #FFFFFF; border-bottom: 1px solid #666666; padding-bottom: 4px; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+  th, td { border: 1px solid #666666; padding: 8px; text-align: left; }
+  th { background-color: #000000; color: #FFFFFF; font-weight: bold; }
+  .pass { color: #FFFFFF; font-weight: bold; }
+  button { background-color: #000000; color: #FFFFFF; border: 1px solid #666666; padding: 8px 16px; cursor: pointer; }
+  button:hover { background-color: #666666; }
+</style>
+</head>
+<body>
+  <h1>기록 상세 브랜치 재정렬 교차 검증 보고서</h1>
+  <h2>요약</h2>
+  <p>요청된 코덱스의 브랜치 교차 검증을 완료하였습니다. 모든 검증 항목이 통과되었습니다.</p>
+  <h2>검증 상세 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>상세</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 관계 확인</td>
+        <td class="pass">통과</td>
+        <td>브랜치 HEAD가 지정된 조상을 포함함을 확인</td>
+      </tr>
+      <tr>
+        <td>정적 확인</td>
+        <td class="pass">통과</td>
+        <td>파라미터가 올바르게 전달됨을 확인</td>
+      </tr>
+      <tr>
+        <td>조각 조회 함수</td>
+        <td class="pass">통과</td>
+        <td>해당 함수 사용을 확인</td>
+      </tr>
+      <tr>
+        <td>액션 버튼 제어</td>
+        <td class="pass">통과</td>
+        <td>상세 화면에서 관련 액션이 숨겨짐을 확인</td>
+      </tr>
+      <tr>
+        <td>머지 및 푸시 여부 확인</td>
+        <td class="pass">통과</td>
+        <td>작업 트리에 변경 사항이 푸시되지 않았음을 확인</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>액션</h2>
+  <button type="button" onclick="window.close()">창 닫기</button>
+</body>
+</html>
