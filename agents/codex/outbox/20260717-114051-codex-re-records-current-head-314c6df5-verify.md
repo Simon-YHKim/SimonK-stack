@@ -6,7 +6,7 @@ type: request
 ref: 20260717-114051-codex-re-records-current-head-314c6df5
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-17 11:40:51 KST
 ---
 
