@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>원천 상세 동기화 검증 종료 보고</title>
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --text: #e8edf2;
+      --accent: #6ea8fe;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      letter-spacing: 0;
+    }
+    h1 {
+      font-size: 28px;
+      border-bottom: 1px solid var(--accent);
+      padding-bottom: 16px;
+    }
+    h2 {
+      font-size: 18px;
+      margin-top: 28px;
+      color: var(--accent);
+    }
+    p, li {
+      font-size: 15px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>원천 상세 동기화 검증 종료 보고</h1>
+    <p>이번 사이클은 새 제품 구현이 아니라, Antigravity가 반환한 교차 검증 응답을 수거해 Codex 소유 검증 요청 하나를 종료한 작업이다.</p>
+
+    <h2>대상</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>응답</td>
+          <td><code>20260717-134349-antigravity-re-source-detail-verify</code></td>
+        </tr>
+        <tr>
+          <td>원 요청</td>
+          <td><code>20260717-031501-codex-to-antigravity-source-detail-sync-e3149230-verify</code></td>
+        </tr>
+        <tr>
+          <td>요청 기준</td>
+          <td><code>origin/main e3149230</code>, 당시 브랜치 머리 <code>34f86de9</code></td>
+        </tr>
+        <tr>
+          <td>peer 검증 기준</td>
+          <td>현재 브랜치 머리 <code>d2e0fb8a</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>결과</h2>
+    <ul>
+      <li>Antigravity는 현재 브랜치 기준으로 <code>origin/main</code> 조상 관계를 확인했다고 보고했다.</li>
+      <li>원천 상세 화면의 읽기 전용 강제와 저장 기록 동작에 회귀가 없다고 보고했다.</li>
+      <li>Codex는 원 검증 요청의 상태를 <code>done</code>으로 갱신했다.</li>
+    </ul>
+
+    <h2>범위</h2>
+    <p>제품 코드, 원격 브랜치, 머지, 배포, 브라우저 실행, 파괴적 작업, 비용성 작업, secrets 접근은 수행하지 않았다. 이번 작업은 verifier 응답 수거와 허브 요청 종료로 제한했다.</p>
+
+    <h2>자체 점검</h2>
+    <p>고위험 머지 diff, 스키마 변경, 보안 민감 코드, 수학 또는 정량 결과, 외부 최신 사실 주장에 해당하지 않는다. 추가 MoA 검증 요청은 만들지 않았다.</p>
+  </main>
+</body>
+</html>

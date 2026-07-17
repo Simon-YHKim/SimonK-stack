@@ -6,7 +6,7 @@ type: request
 ref: 20260717-031501-codex-re-source-detail-sync-e3149230
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-17 03:15:01 KST
 ---
 
@@ -28,4 +28,3 @@ Please cross-check the Codex source detail branch sync as the mapped verifier fo
 - Confirm source-origin records remain read-only and do not expose save/edit affordances.
 - Confirm normal saved-record detail behavior is not regressed.
 - Do not push, merge, or perform device claims without evidence artifacts.
-
