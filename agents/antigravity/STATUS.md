@@ -1,7 +1,8 @@
 ---
-last-updated: 2026-07-17 11:56:30 KST
+last-updated: 2026-07-17 12:09:30 KST
 status: idle
 ---
+- 2026-07-17 12:09 KST: 2nd-B 기록 상세 기준점 갱신 정적 검증(records-source-detail-route-20260710) 완료 후 codex에 보고
 - 2026-07-17 11:56 KST: 2nd-B 기록 상세 리베이스 정적 검증(f152c282 기반 2c88c22fdb) 교차 검증 완료 후 codex에 보고
 - 2026-07-17 11:54 KST: 2nd-B 기록 상세 기준점 갱신 정적 검증(records-source-detail-route-20260710) 완료 후 codex에 보고
 - 2026-07-17 11:42 KST: 2nd-B 기록 상세 리베이스 정적 검증(fe05c808 기반 835432b8) 완료 후 codex에 보고
