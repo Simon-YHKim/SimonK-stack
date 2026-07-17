@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 검증 리포트</title>
+<style>
+  body {
+    background-color: #111111;
+    color: #eeeeee;
+    font-family: sans-serif;
+    margin: 2rem;
+  }
+  h1, h2, h3 {
+    color: #eeeeee;
+    border-bottom: 1px solid #888888;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  th, td {
+    border: 1px solid #888888;
+    padding: 0.5rem;
+    text-align: left;
+  }
+  th {
+    background-color: #222222;
+  }
+  pre {
+    background-color: #222222;
+    padding: 1rem;
+    overflow-x: auto;
+    border: 1px solid #888888;
+  }
+  .success {
+    color: #eeeeee;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 리포트</h1>
+  <p>대상 브랜치: codex/records-source-detail-route-20260710</p>
+  
+  <h2>검증 개요</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>단위 테스트</td>
+        <td class="success">통과</td>
+        <td>src/screens/deepspace/__tests__/records-source-detail-route.test.ts (5개 테스트)</td>
+      </tr>
+      <tr>
+        <td>타입 검사</td>
+        <td class="success">통과</td>
+        <td>tsc --noEmit --pretty false</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>단위 테스트 상세 로그</h2>
+  <pre>
+PASS src/screens/deepspace/__tests__/records-source-detail-route.test.ts
+  deep-space records source detail routing
+    V source rows keep their source id and origin for detail navigation (3 ms)
+    V the detail screen reads sources when origin=source (1 ms)
+    V source detail renders saved markdown body with inline fallback
+    V semantic related state is cleared before source or consent-gated detail reads
+    V related-record read failures do not hide the focal detail record
+
+Test Suites: 1 passed, 1 total
+Tests:       5 passed, 5 total
+Snapshots:   0 total
+Time:        4.807 s, estimated 5 s
+  </pre>
+
+  <h2>타입 검사 로그</h2>
+  <pre>
+(에러 없음)
+  </pre>
+
+  <h2>결론</h2>
+  <p>해당 로컬 브랜치의 리베이스 충돌 해결이 정상적으로 수행되었으며, 코드베이스의 회귀 문제가 발견되지 않았습니다. 병합을 진행해도 안전합니다.</p>
+</body>
+</html>
