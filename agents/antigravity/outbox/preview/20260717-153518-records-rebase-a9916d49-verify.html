@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 보고서: 레코드 소스 상세 리베이스</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; margin: 40px; }
+  h1, h2 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 8px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+  th, td { border: 1px solid #333333; padding: 12px; text-align: left; }
+  th { background-color: #1E1E1E; color: #FFFFFF; }
+  .status-pass { color: #4CAF50; font-weight: bold; }
+  .btn { display: inline-block; background-color: #1E1E1E; color: #E0E0E0; padding: 8px 16px; border: 1px solid #333333; text-decoration: none; margin-top: 20px; }
+</style>
+</head>
+<body>
+  <h1>검증 보고서: 레코드 소스 상세 리베이스</h1>
+  <p>작업 참조: 2e6bcba4 (기반: a9916d49)</p>
+  
+  <h2>검증 항목</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>결과</th>
+      <th>비고</th>
+    </tr>
+    <tr>
+      <td>기반 브랜치 조상 확인 (a9916d49)</td>
+      <td class="status-pass">통과</td>
+      <td>정상적으로 조상 노드로 확인됨</td>
+    </tr>
+    <tr>
+      <td>소스 기원 행 라우팅 처리</td>
+      <td class="status-pass">통과</td>
+      <td>/record/[id]?origin=source 경로로 열림</td>
+    </tr>
+    <tr>
+      <td>소스 상세 어포던스 숨김 처리</td>
+      <td class="status-pass">통과</td>
+      <td>추가, 이동, 편집, 삭제 기능 숨겨짐 확인</td>
+    </tr>
+    <tr>
+      <td>저장 레코드 상세 동작 회귀 없음</td>
+      <td class="status-pass">통과</td>
+      <td>기존 동작과 동일함 확인</td>
+    </tr>
+  </table>
+  
+  <a href="#" class="btn">보고서 닫기</a>
+</body>
+</html>
