@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 브랜치 보유 워크트리 점검</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --fg: #e6e1d8;
+      --accent: #7aa2ff;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2 {
+      line-height: 1.25;
+      margin: 0 0 16px;
+    }
+    h1 {
+      font-size: 28px;
+      color: var(--fg);
+    }
+    h2 {
+      margin-top: 28px;
+      font-size: 18px;
+      color: var(--accent);
+    }
+    p {
+      margin: 0 0 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--fg);
+      background: transparent;
+      font-family: Consolas, "Courier New", monospace;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 브랜치 보유 워크트리 점검</h1>
+    <p>이번 사이클은 새 열린 주문이 없고 2nd-B <code>origin/main</code>도 이전 코덱스 기록인 <code>e3149230</code>에서 전진하지 않은 상태였다. 대신 코덱스 레인의 네이티브 안전 점검으로 활성 브랜치 보유 워크트리를 확인했다.</p>
+
+    <h2>결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>확인값</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>활성 워크트리</td>
+          <td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>브랜치 헤드</td>
+          <td><code>34f86de9</code></td>
+        </tr>
+        <tr>
+          <td>원격 메인</td>
+          <td><code>e3149230</code></td>
+        </tr>
+        <tr>
+          <td>계보 확인</td>
+          <td><code>origin/main</code>은 브랜치 헤드의 조상이다.</td>
+        </tr>
+        <tr>
+          <td>작업트리 상태</td>
+          <td>추적 파일 변경 없음. 기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code>는 그대로 보존했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>판단</h2>
+    <p>분리된 오래된 경로 <code>E:\Coding Infra\_worktrees\2ndB-records-rebase</code>는 브랜치 보유자가 아니었다. 브랜치를 강제로 빼앗지 않고 실제 보유 워크트리에서 현재 브랜치, 헤드, 계보를 확인했다.</p>
+
+    <h2>35항 자체 패널</h2>
+    <p>A안: 원격 메인이 그대로이므로 아무 산출도 하지 않는 선택은 반복 보고를 피하는 데 맞다.</p>
+    <p>B안: 오래된 분리 워크트리를 보고 브랜치를 강제로 이동하는 선택은 위험하다. 실제 보유 워크트리 확인이 먼저다.</p>
+    <p>C안: 이번에는 강제 수정 없이 브랜치 보유자와 계보만 증거로 남기는 것이 가장 좁고 안전한 처리다.</p>
+  </main>
+</body>
+</html>
