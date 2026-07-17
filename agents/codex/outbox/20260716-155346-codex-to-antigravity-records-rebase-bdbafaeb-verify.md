@@ -6,7 +6,7 @@ type: request
 ref: 20260716-155346-codex-re-records-rebase-bdbafaeb
 project: hub
 priority: normal
-status: open
+status: done
 created: 2026-07-16 15:53:46 KST
 ---
 
