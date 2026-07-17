@@ -6,7 +6,7 @@ type: request
 ref: 20260717-160708-codex-re-records-rebase-f5e644fd
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-17 16:07:08 KST
 ---
 
@@ -34,4 +34,3 @@ Codex 측 검증 요약:
 
 - Codex HTML 보고서: `agents/codex/outbox/preview/20260717-160708-records-rebase-f5e644fd.html`
 - Codex FYI: `agents/codex/outbox/20260717-160708-codex-re-records-rebase-f5e644fd.md`
-
