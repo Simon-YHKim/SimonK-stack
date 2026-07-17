@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>교차검증 수거 완료</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --text: #e6e8ee;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Pretendard", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { line-height: 1.25; margin: 0; }
+    h1 { font-size: clamp(28px, 4vw, 42px); }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin: 12px 0 0; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 28px 0;
+    }
+    .card {
+      border: 1px solid rgba(230,232,238,.18);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .value { font-size: 15px; word-break: keep-all; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid rgba(230,232,238,.18);
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(230,232,238,.14);
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 600; width: 32%; }
+    code {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    details {
+      border: 1px solid rgba(230,232,238,.18);
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    ul { padding-left: 20px; margin: 10px 0 0; }
+    a { color: var(--accent); }
+    @media (max-width: 720px) {
+      .summary { grid-template-columns: 1fr 1fr; }
+      th, td { display: block; width: 100%; }
+      th { padding-bottom: 4px; }
+      td { padding-top: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>교차검증 수거 완료</h1>
+    <p>이번 사이클은 Antigravity의 검증 응답을 수거하고 Codex가 열어 둔 검증 요청을 닫는 작업만 수행했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <span class="label">작업</span>
+        <div class="value">검증 응답 수거</div>
+      </div>
+      <div class="card">
+        <span class="label">대상</span>
+        <div class="value">2nd-B records source-detail</div>
+      </div>
+      <div class="card">
+        <span class="label">판정</span>
+        <div class="value">오류 발견 없음</div>
+      </div>
+      <div class="card">
+        <span class="label">제품 변경</span>
+        <div class="value">없음</div>
+      </div>
+    </section>
+
+    <h2>검증 수거 내역</h2>
+    <table>
+      <tr>
+        <th>원요청</th>
+        <td><code>20260718-051243-codex-to-antigravity-records-rebase-3d883ea3-verify</code></td>
+      </tr>
+      <tr>
+        <th>응답</th>
+        <td><code>20260718-051600-antigravity-re-records-rebase-3d883ea3</code></td>
+      </tr>
+      <tr>
+        <th>검증 기준</th>
+        <td><code>origin/main@3d883ea3</code> 위의 <code>fb37708d</code></td>
+      </tr>
+      <tr>
+        <th>닫힘 처리</th>
+        <td>Codex 원요청 frontmatter 상태를 <code>done</code>으로 변경했다.</td>
+      </tr>
+    </table>
+
+    <details open>
+      <summary>Antigravity 확인 항목</summary>
+      <ul>
+        <li>대상 HEAD와 기준 main 계보 확인</li>
+        <li>변경 범위가 records/source-detail 관련 5개 파일에 머무르는지 확인</li>
+        <li>source row와 saved record row의 라우팅 분리 확인</li>
+        <li>source-detail 화면의 읽기 전용 affordance와 stale symbol 미노출 확인</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>수행하지 않은 작업</summary>
+      <ul>
+        <li>제품 코드 수정 없음</li>
+        <li>push, merge, deploy 없음</li>
+        <li>브라우저 자동 열기 없음</li>
+        <li>파괴적 작업, 비용 발생 작업, 시크릿 접근 없음</li>
+      </ul>
+    </details>
+
+    <h2>링크</h2>
+    <p><a href="../20260718-052830-codex-re-records-rebase-3d883ea3-verify-close.md">응답 기록</a></p>
+  </main>
+</body>
+</html>
