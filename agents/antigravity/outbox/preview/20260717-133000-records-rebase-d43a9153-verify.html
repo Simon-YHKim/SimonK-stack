@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>기록 상세 브랜치 재정렬 교차 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 40px; line-height: 1.6; }
+  h1, h2, h3 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+  th, td { border: 1px solid #333333; padding: 12px; text-align: left; }
+  th { background-color: #1e1e1e; color: #ffffff; }
+  button { background-color: #1e1e1e; color: #e0e0e0; border: 1px solid #333333; padding: 8px 16px; cursor: pointer; }
+  button:hover { background-color: #333333; }
+</style>
+</head>
+<body>
+  <h1>기록 상세 브랜치 재정렬 교차 검증 보고서</h1>
+  <p>요청된 교차 검증 작업의 결과입니다.</p>
+  
+  <h2>검증 항목 및 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 관계 확인 (origin/main d43a9153)</td>
+        <td>통과</td>
+        <td>HEAD와 조상 커밋 일치 확인 완료</td>
+      </tr>
+      <tr>
+        <td>라우팅 시 origin=source 보존 확인</td>
+        <td>통과</td>
+        <td>recordRouteParams에서 속성 보존 확인 완료</td>
+      </tr>
+      <tr>
+        <td>getPieceById 본문 및 폴백 로직 확인</td>
+        <td>통과</td>
+        <td>다운로드 실패 시 폴백 처리 정상 구현 확인</td>
+      </tr>
+      <tr>
+        <td>source-origin 전용 액션 숨김 처리 확인</td>
+        <td>통과</td>
+        <td>수정, 이동, 삭제 및 태그 추가 컴포넌트 렌더링 제외 확인</td>
+      </tr>
+      <tr>
+        <td>코덱스 푸시/머지/배포 여부 확인</td>
+        <td>통과</td>
+        <td>로컬 브랜치만 존재하며 원격 푸시 내역 없음</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>모든 정적 분석 및 깃 검증이 성공적으로 통과되었습니다. 머지 게이트 통과를 확인했습니다.</p>
+  <p><button onclick="window.close()">창 닫기</button></p>
+</body>
+</html>
