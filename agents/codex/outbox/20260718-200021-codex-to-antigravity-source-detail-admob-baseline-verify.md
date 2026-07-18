@@ -6,7 +6,7 @@ type: request
 ref: 20260718-200021-codex-re-source-detail-admob-baseline
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-18 20:00:21 KST
 ---
 
