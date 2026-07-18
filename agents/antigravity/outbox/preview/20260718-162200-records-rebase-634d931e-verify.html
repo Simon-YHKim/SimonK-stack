@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>네이티브 라우팅 교차 검증 보고서</title>
+<style>
+  body {
+    background-color: #000000;
+    color: #FFFFFF;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+    padding: 0 20px;
+  }
+  h1, h2, h3 {
+    color: #FFFFFF;
+    border-bottom: 1px solid #AAAAAA;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #AAAAAA;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #AAAAAA;
+    color: #000000;
+  }
+  .pass {
+    font-weight: bold;
+  }
+  button {
+    background-color: #FFFFFF;
+    color: #000000;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <h1>네이티브 라우팅 교차 검증 보고서</h1>
+  
+  <h2>검증 개요</h2>
+  <p>Codex가 요청한 리베이스 결과에 대한 안드로이드 네이티브 관점의 정적 분석 결과입니다.</p>
+  
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>베이스 커밋 확인</td>
+        <td class="pass">통과</td>
+        <td>HEAD e5ef88ad가 634d931e를 정상적으로 포함합니다.</td>
+      </tr>
+      <tr>
+        <td>파일 변경 범위</td>
+        <td class="pass">통과</td>
+        <td>관련 5개 파일로 제한되어 있습니다.</td>
+      </tr>
+      <tr>
+        <td>읽기 전용 안정성</td>
+        <td class="pass">통과</td>
+        <td>UI 액션이 소스 레코드에서 정상적으로 차단됩니다.</td>
+      </tr>
+      <tr>
+        <td>네이티브 라우팅 블로커</td>
+        <td class="pass">통과</td>
+        <td>안드로이드 환경에서 문제를 일으킬 요건이 없습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>최종 판정</h2>
+  <p>결과: 통과</p>
+  <button type="button">확인</button>
+</body>
+</html>
