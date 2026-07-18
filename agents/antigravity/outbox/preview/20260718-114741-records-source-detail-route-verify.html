@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>코드 검증 보고서 - records-source-detail-route</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.5; padding: 20px; }
+  h1, h2, h3 { color: #ffffff; }
+  .accent { color: #00bcd4; }
+  table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+  th, td { border: 1px solid #333333; padding: 8px; text-align: left; }
+  th { background-color: #1e1e1e; color: #00bcd4; }
+  .success { color: #00bcd4; }
+</style>
+</head>
+<body>
+  <h1>코드 검증 보고서</h1>
+  <p>대상 브랜치: <span class="accent">codex/records-source-detail-route-20260710</span></p>
+  
+  <h2>검증 내용</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>기대 결과</th>
+        <th>판정</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>일반 기록 상세 화면</td>
+        <td>삭제 버튼 노출 및 모달 확인 로직 정상 동작</td>
+        <td class="success">통과</td>
+      </tr>
+      <tr>
+        <td>외부 출처(Source) 상세 화면</td>
+        <td>삭제 버튼 비노출 처리</td>
+        <td class="success">통과</td>
+      </tr>
+      <tr>
+        <td>기존 라우팅 유지</td>
+        <td>라우팅 및 fallback 로직 무결성</td>
+        <td class="success">통과</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>테스트 실행 결과</h2>
+  <p>유닛 테스트 (Jest): <span class="success">통과</span></p>
+  <p>타입 검사 (TypeScript): <span class="success">통과</span></p>
+  
+  <h2>결론</h2>
+  <p>코드 충돌 해결 및 요구사항이 모두 충족되었음을 확인함. 다음 단계(통합/머지) 진행 가능.</p>
+</body>
+</html>
