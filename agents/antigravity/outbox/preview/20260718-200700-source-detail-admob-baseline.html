@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>source-detail AdMob 기준 교차검증 리포트</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; }
+  h1, h2, h3 { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.5rem; text-align: left; }
+  th { background-color: #1e1e1e; }
+  .status-pass { color: #a5d6a7; }
+</style>
+</head>
+<body>
+  <h1>교차검증 리포트: source-detail AdMob 기준</h1>
+  <p>요청된 브랜치 상태 및 라우팅 분리 요건에 대한 검증을 완료했습니다.</p>
+  
+  <h2>검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 확인</td>
+        <td class="status-pass">통과</td>
+        <td>origin/main@c15e1f2c 가 HEAD의 조상임을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>파일 변경 제한</td>
+        <td class="status-pass">통과</td>
+        <td>정확히 5개의 source-detail 관련 파일만 변경되었습니다.</td>
+      </tr>
+      <tr>
+        <td>라우트 분리</td>
+        <td class="status-pass">통과</td>
+        <td>source-origin과 saved-record 상세 경로가 논리적으로 분리되었습니다.</td>
+      </tr>
+      <tr>
+        <td>UI 전용 액션 제한</td>
+        <td class="status-pass">통과</td>
+        <td>source 상세 화면에서 편집/삭제 등의 액션이 노출되지 않습니다.</td>
+      </tr>
+      <tr>
+        <td>네이티브/라우팅 블로커</td>
+        <td class="status-pass">통과</td>
+        <td>5개 파일 모두 JS/TS 수준의 UI 및 라우트 변경으로, 네이티브 빌드를 방해하는 블로커가 없습니다. type-check 정상 통과.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>결론</h2>
+  <p>모든 검증을 통과했습니다. AdMob/UMP 의존성은 package.json에 정상적으로 선언되어 있으며 설치 후 타입 체크를 통과했습니다.</p>
+</body>
+</html>
