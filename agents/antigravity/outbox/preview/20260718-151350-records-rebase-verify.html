@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 보고서: records/source-detail rebase 38717c0b</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+</style>
+</head>
+<body>
+  <h1>검증 보고서: records/source-detail rebase 38717c0b</h1>
+  
+  <h2>개요</h2>
+  <p>요청된 리베이스 작업에 대한 정적 및 동적 검증을 완료했습니다.</p>
+  
+  <h2>검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>설명</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 커밋 확인</td>
+        <td>통과</td>
+        <td>2efebf4223ca183269d69a2acd15d38193c2e264가 origin/main@38717c0b를 정상적으로 포함하고 있습니다.</td>
+      </tr>
+      <tr>
+        <td>변경 파일 범위 확인</td>
+        <td>통과</td>
+        <td>변경 사항이 정확히 5개 파일로 제한되어 있습니다.</td>
+      </tr>
+      <tr>
+        <td>정적 검토 (경로)</td>
+        <td>통과</td>
+        <td>source-origin detail과 saved-record detail 라우트가 섞이지 않도록 분리되어 있습니다. (isSource 속성 확인 완료)</td>
+      </tr>
+      <tr>
+        <td>정적 검토 (UI)</td>
+        <td>통과</td>
+        <td>원본(source detail)의 삭제 및 편집 권한 기능이 올바르게 숨겨져 있습니다.</td>
+      </tr>
+      <tr>
+        <td>부작용 확인</td>
+        <td>통과</td>
+        <td>네이티브 환경 및 라우팅에서의 부작용은 발견되지 않았습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>모든 검증을 통과했습니다. 블로커 항목이 없으므로 해당 작업을 승인합니다.</p>
+</body>
+</html>
