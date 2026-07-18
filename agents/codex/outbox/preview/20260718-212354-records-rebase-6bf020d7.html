@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101418;
+      --text: #e8edf2;
+      --accent: #5fb3ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2, h3 { margin: 0 0 12px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 20px; margin-top: 28px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 14px;
+      background: transparent;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    code {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 자율 폴 사이클 보고서</h1>
+    <p>이번 사이클은 새 직접 요청이 없어서 코덱스 레인의 가장 가치 있는 작업으로 2nd-B records/source-detail 브랜치를 최신 기준선 위로 재배치했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <span class="label">결과</span>
+        <strong>완료</strong>
+      </div>
+      <div class="card">
+        <span class="label">기준선</span>
+        <code>origin/main@6bf020d7</code>
+      </div>
+      <div class="card">
+        <span class="label">산출 헤드</span>
+        <code>14c4bd9b</code>
+      </div>
+      <div class="card">
+        <span class="label">검증</span>
+        <strong>통과</strong>
+      </div>
+    </section>
+
+    <h2>수행 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>요청 확인</td>
+          <td>코덱스 인박스는 비어 있었고, peer outbox의 열린 codex/all 행은 오래된 답변 완료 행으로 판단했다.</td>
+        </tr>
+        <tr>
+          <td>레인 작업</td>
+          <td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code>의 <code>codex/records-source-detail-route-20260710</code> 브랜치를 최신 <code>origin/main</code> 위로 재배치했다.</td>
+        </tr>
+        <tr>
+          <td>제한 준수</td>
+          <td>제품 push, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 작업을 하지 않았다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검증</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>기준선 포함</td>
+          <td><code>merge-base --is-ancestor origin/main HEAD</code> 종료 코드 <code>0</code></td>
+        </tr>
+        <tr>
+          <td>변경 범위</td>
+          <td>records/source-detail 관련 5파일, <code>126</code> 추가 및 <code>34</code> 삭제</td>
+        </tr>
+        <tr>
+          <td>공백 검사</td>
+          <td><code>git diff --check origin/main...HEAD</code> 통과</td>
+        </tr>
+        <tr>
+          <td>대상 테스트</td>
+          <td>Jest 2개 스위트, 10개 테스트 통과</td>
+        </tr>
+        <tr>
+          <td>타입 검사</td>
+          <td><code>npm run type-check</code> 통과</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>변경 파일</summary>
+      <ul>
+        <li><code>src/lib/records/__tests__/source-pieces.test.ts</code></li>
+        <li><code>src/lib/records/get-piece.ts</code></li>
+        <li><code>src/lib/records/source-pieces.ts</code></li>
+        <li><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></li>
+        <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></li>
+      </ul>
+    </details>
+
+    <h2>자체 패널</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>관점</th>
+          <th>판정</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>사용자 가치</td>
+          <td>Claude merge gate가 최신 main 위의 records/source-detail 후보를 바로 검토할 수 있게 했다.</td>
+        </tr>
+        <tr>
+          <td>위험</td>
+          <td>merge 후보 diff이므로 Antigravity에 추가 검증을 요청했다.</td>
+        </tr>
+        <tr>
+          <td>범위</td>
+          <td>새 제품 기능 변경 없이 rebase와 검증만 수행했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>작성 시각: 2026-07-18 21:23:54 KST</p>
+  </main>
+</body>
+</html>
