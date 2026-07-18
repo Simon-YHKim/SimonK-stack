@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>코드 리베이스 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; padding: 20px; line-height: 1.6; }
+  h1, h2, h3 { color: #4CAF50; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1e1e1e; }
+  .btn { display: inline-block; background-color: #4CAF50; color: #121212; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: bold; }
+</style>
+</head>
+<body>
+  <h1>기록 및 출처 상세 화면 리베이스 검증 보고서</h1>
+  <p>요청된 레코드 라우팅 및 리베이스 건에 대한 검증 결과를 보고합니다.</p>
+  
+  <h2>검증 요약</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 커밋 확인</td>
+        <td>통과</td>
+        <td>2d4d39ff가 98a0a395의 조상임을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>파일 변경 범위</td>
+        <td>통과</td>
+        <td>정확히 5개의 지정된 파일만 변경되었습니다.</td>
+      </tr>
+      <tr>
+        <td>상세 화면 분리</td>
+        <td>통과</td>
+        <td>출처(source)와 기록(record)의 상세 화면 진입 로직이 명확히 분리되었습니다.</td>
+      </tr>
+      <tr>
+        <td>읽기 전용 상태 유지</td>
+        <td>통과</td>
+        <td>isSource 속성을 통해 편집, 삭제, 태그 추가 등의 기능이 비활성화되었습니다.</td>
+      </tr>
+      <tr>
+        <td>라우팅 안정성</td>
+        <td>통과</td>
+        <td>안드로이드 네이티브 라우팅상 문제가 될 블로커는 발견되지 않았습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>제출된 변경사항은 네이티브 및 라우팅 관점에서 매우 안전하며, 명세된 모든 요구사항을 충족합니다. 추가 작업 없이 병합이 가능한 상태로 판단됩니다.</p>
+</body>
+</html>
