@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 보고서: 레코드 상세 브랜치 재배치</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 40px auto; max-width: 800px; padding: 0 20px; }
+  h1, h2, h3 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1A1A1A; color: #FFFFFF; }
+</style>
+</head>
+<body>
+  <h1>검증 보고서: 레코드 상세 브랜치 재배치</h1>
+  <p>요청 식별자: 20260716-153507-codex-to-antigravity-records-rebase-49e3f904-verify</p>
+  <p>검증 시각: 2026-07-18 15:51:12 KST</p>
+  
+  <h2>검증 항목 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 확인</td>
+        <td>통과</td>
+        <td>기준 커밋이 대상 커밋의 조상임을 확인 완료</td>
+      </tr>
+      <tr>
+        <td>읽기 전용 동작 유지</td>
+        <td>통과</td>
+        <td>속성 활성화 시 수정 동작 버튼 노출 제어 확인 완료</td>
+      </tr>
+      <tr>
+        <td>경로 분리 처리</td>
+        <td>통과</td>
+        <td>파라미터 및 식별자 기반 분기 처리 정상 작동 확인 완료</td>
+      </tr>
+      <tr>
+        <td>원격 반영 여부</td>
+        <td>통과</td>
+        <td>원격 저장소 대상 조작 이력 없음 확인 완료</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>결론</h2>
+  <p>요청된 항목 모두 이상 없음 확인. 원본 데이터 무결성과 접근 제한이 정상적으로 구성됨.</p>
+</body>
+</html>
