@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 상세 브랜치 리베이스 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --text: #e7eaf0;
+      --accent: #67d4ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 { margin: 0 0 14px; line-height: 1.2; }
+    h1 { font-size: clamp(28px, 5vw, 44px); }
+    h2 { font-size: 20px; }
+    p { margin: 0 0 12px; }
+    .muted { color: var(--text); opacity: .68; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+    }
+    .card, details {
+      background: var(--bg);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .label {
+      display: block;
+      color: var(--text);
+      opacity: .68;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .value {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 15px;
+      overflow-wrap: anywhere;
+    }
+    .ok { color: var(--accent); }
+    details { margin-top: 12px; }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 650;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--accent);
+      vertical-align: top;
+    }
+    th { color: var(--text); opacity: .68; font-weight: 600; }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 520px) {
+      .grid { grid-template-columns: 1fr; }
+      main { width: min(100% - 24px, 960px); padding: 28px 0; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>레코드 상세 브랜치 리베이스 보고</h1>
+      <p class="muted">2026-07-18 19:26:29 KST · Codex 단일 폴 사이클</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <span class="label">결과</span>
+        <strong class="value ok">완료</strong>
+      </div>
+      <div class="card">
+        <span class="label">기준</span>
+        <strong class="value">origin/main@448e69e1</strong>
+      </div>
+      <div class="card">
+        <span class="label">제품 HEAD</span>
+        <strong class="value">d2764421</strong>
+      </div>
+      <div class="card">
+        <span class="label">검증</span>
+        <strong class="value ok">통과</strong>
+      </div>
+    </section>
+
+    <details open>
+      <summary>수행 내용</summary>
+      <p>신규 Codex 또는 all 대상 오더는 없었고, 2nd-B의 기존 Codex records/source-detail 브랜치가 최신 <code>origin/main</code> 대비 한 커밋 뒤처져 있었다. 단일 작업으로 <code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code>의 <code>codex/records-source-detail-route-20260710</code> 브랜치를 <code>origin/main@448e69e1</code> 위로 리베이스했다.</p>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>값</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>이전 제품 HEAD</td><td><code>98a0a395</code></td></tr>
+          <tr><td>새 제품 HEAD</td><td><code>d2764421</code></td></tr>
+          <tr><td>브랜치</td><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+          <tr><td>상태</td><td><code>origin/main</code> 대비 ahead 10, 조상 확인 종료 코드 0</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <ul>
+        <li><code>git diff --name-status origin/main...HEAD</code>: records/source-detail 관련 5파일 범위 유지</li>
+        <li><code>git diff --check origin/main...HEAD</code>: 출력 없음, 통과</li>
+        <li><code>npm test -- --ci --runInBand src/lib/records/__tests__/source-pieces.test.ts src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code>: 2개 스위트, 10개 테스트 통과</li>
+        <li>기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code>는 보존</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>변경 파일 범위</summary>
+      <table>
+        <thead>
+          <tr><th>상태</th><th>파일</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>수정</td><td><code>src/lib/records/__tests__/source-pieces.test.ts</code></td></tr>
+          <tr><td>수정</td><td><code>src/lib/records/get-piece.ts</code></td></tr>
+          <tr><td>수정</td><td><code>src/lib/records/source-pieces.ts</code></td></tr>
+          <tr><td>추가</td><td><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></td></tr>
+          <tr><td>수정</td><td><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>안전 확인</summary>
+      <p>2nd-B push, merge, deploy, 브라우저 자동 열기, 파괴 작업, 비용 발생 작업, 시크릿 접근은 수행하지 않았다. 산출물이 merge-diff 후보이므로 Antigravity에 별도 MoA 검증 요청을 남겼다.</p>
+    </details>
+  </main>
+</body>
+</html>
