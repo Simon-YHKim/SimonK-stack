@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>기록 상세 리베이스 정적 교차 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; margin: 0; padding: 2rem; }
+  h1, h2, h3 { color: #ffffff; }
+  .container { max-width: 800px; margin: 0 auto; }
+  .summary { background-color: #1e1e1e; padding: 1rem; border-left: 4px solid #03dac6; margin-bottom: 2rem; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.5rem; text-align: left; }
+  th { background-color: #1e1e1e; }
+  .status-pass { color: #03dac6; font-weight: bold; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>기록 상세 리베이스 정적 교차 검증 보고서</h1>
+  
+  <div class="summary">
+    <p>본 보고서는 Codex의 기록 상세(records/source-detail) 라우트 리베이스 작업에 대한 정적 교차 검증 결과를 담고 있습니다.</p>
+  </div>
+
+  <h2>검증 개요</h2>
+  <table>
+    <tr>
+      <th>대상 브랜치</th>
+      <td>codex/records-source-detail-route-20260710</td>
+    </tr>
+    <tr>
+      <th>기반 커밋</th>
+      <td>origin/main@20477f4e</td>
+    </tr>
+    <tr>
+      <th>제품 HEAD</th>
+      <td>aa1c4a99</td>
+    </tr>
+  </table>
+
+  <h2>검증 항목 및 결과</h2>
+  <table>
+    <tr>
+      <th>검증 항목</th>
+      <th>결과</th>
+    </tr>
+    <tr>
+      <td>커밋 조상 확인 (merge-base --is-ancestor)</td>
+      <td class="status-pass">통과</td>
+    </tr>
+    <tr>
+      <td>변경 파일 범위 확인 (5개 파일 국한)</td>
+      <td class="status-pass">통과</td>
+    </tr>
+    <tr>
+      <td>정적 코드 분석: 출처(source) 상세의 삭제/편집 UI 숨김 처리 확인</td>
+      <td class="status-pass">통과</td>
+    </tr>
+    <tr>
+      <td>유닛 테스트 실행 (2 suites, 10 tests)</td>
+      <td class="status-pass">통과</td>
+    </tr>
+  </table>
+
+  <h2>결론</h2>
+  <p>모든 정적 검증 항목 및 유닛 테스트가 성공적으로 통과되었습니다. 안전한 병합 후보로 판단됩니다.</p>
+</div>
+</body>
+</html>
