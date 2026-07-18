@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 출처 상세 브랜치 기준 갱신 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111418;
+      --panel: #1b222b;
+      --text: #e8edf2;
+      --muted: #9aa7b4;
+      --accent: #66d9c4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin: 0 0 12px; }
+    h3 { font-size: 15px; margin: 0 0 8px; color: var(--accent); }
+    p, li, td, th { font-size: 14px; }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 22px 0;
+    }
+    .card, section, details {
+      background: var(--panel);
+      border: 1px solid rgba(232, 237, 242, 0.12);
+      border-radius: 8px;
+    }
+    .card { padding: 14px; min-height: 92px; }
+    .card strong { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    .card span { display: block; font-size: 20px; color: var(--accent); overflow-wrap: anywhere; }
+    section { padding: 18px; margin: 14px 0; }
+    details { padding: 14px 18px; margin: 14px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid rgba(232, 237, 242, 0.12);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 700; }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    ul { margin: 8px 0 0 18px; padding: 0; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>레코드 출처 상세 브랜치 기준 갱신 보고</h1>
+      <p class="muted">작성 시각: 2026-07-18 20:29:39 KST · 작성자: codex · 프로젝트: 2nd-B</p>
+    </header>
+
+    <div class="grid" aria-label="요약">
+      <div class="card"><strong>작업</strong><span>재기반화</span></div>
+      <div class="card"><strong>기준</strong><span>aa27abdf</span></div>
+      <div class="card"><strong>결과</strong><span>7b56aa5d</span></div>
+      <div class="card"><strong>검증</strong><span>통과</span></div>
+    </div>
+
+    <section>
+      <h2>목적</h2>
+      <p><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code>의 <code>codex/records-source-detail-route-20260710</code> 브랜치를 최신 <code>origin/main@aa27abdf</code> 위로 올려, 기존 source-detail 분리 작업이 새 AdMob/Metro 기준을 포함하도록 맞췄다.</p>
+    </section>
+
+    <section>
+      <h2>결과</h2>
+      <table>
+        <thead><tr><th>항목</th><th>값</th></tr></thead>
+        <tbody>
+          <tr><td>제품 브랜치</td><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+          <tr><td>기준 커밋</td><td><code>origin/main@aa27abdf</code></td></tr>
+          <tr><td>결과 커밋</td><td><code>7b56aa5d</code></td></tr>
+          <tr><td>충돌</td><td>없음</td></tr>
+          <tr><td>미추적 파일</td><td><code>diff.txt</code>, <code>recent_changes.diff</code> 보존</td></tr>
+          <tr><td>금지 작업</td><td>push, merge, 배포, 브라우저 열기, 파괴적 작업, 비용 작업, secrets 접근 모두 수행하지 않음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><td>기준 포함</td><td>통과</td><td><code>git merge-base --is-ancestor origin/main HEAD</code> 종료 코드 0</td></tr>
+          <tr><td>변경 범위</td><td>통과</td><td>source-detail 관련 5개 파일만 변경</td></tr>
+          <tr><td>공백 검사</td><td>통과</td><td><code>git diff --check origin/main...HEAD</code> 출력 없음</td></tr>
+          <tr><td>대상 테스트</td><td>통과</td><td>Jest 2개 suite, 10개 test 통과</td></tr>
+          <tr><td>타입 검사</td><td>통과</td><td><code>npm run type-check</code> 통과</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>변경 파일</summary>
+      <ul>
+        <li><code>src/lib/records/__tests__/source-pieces.test.ts</code></li>
+        <li><code>src/lib/records/get-piece.ts</code></li>
+        <li><code>src/lib/records/source-pieces.ts</code></li>
+        <li><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></li>
+        <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>35항 self-panel</summary>
+      <table>
+        <thead><tr><th>관점</th><th>판단</th></tr></thead>
+        <tbody>
+          <tr><td>찬성</td><td>최신 main 기준을 포함했고 source-detail 분리 diff 범위가 기존 5개 파일로 유지됐다.</td></tr>
+          <tr><td>반대</td><td>재기반화 산출은 merge diff 성격이 있어 자기 검증만으로 닫으면 안 된다.</td></tr>
+          <tr><td>대안</td><td>Antigravity에 native 및 routing 관점의 교차검증을 요청한다.</td></tr>
+          <tr><td>판정</td><td>이번 cycle은 재기반화, 로컬 검증, 교차검증 요청까지로 제한한다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+  </main>
+</body>
+</html>
