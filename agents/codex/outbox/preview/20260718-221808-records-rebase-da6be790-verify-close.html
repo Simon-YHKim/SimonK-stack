@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>검증 응답 수거 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111418;
+      --text: #e8edf2;
+      --accent: #7fb7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    h3 { margin-top: 18px; font-size: 15px; }
+    p { margin-top: 10px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label {
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .value {
+      font-size: 15px;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { margin: 10px 0 0 20px; padding: 0; }
+    a { color: var(--accent); }
+    @media (max-width: 720px) {
+      main { width: min(100% - 24px, 960px); padding-top: 24px; }
+      .summary { grid-template-columns: 1fr; }
+      h1 { font-size: 24px; }
+      table, thead, tbody, tr, th, td { display: block; }
+      th { border-bottom: 0; }
+      td { border-top: 0; margin-bottom: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>records/source-detail 재배치 검증 응답 수거</h1>
+    <p>이번 사이클은 Antigravity의 완료 응답을 수거하고 Codex의 원 검증 요청을 닫는 데 한정했다. 제품 코드, 배포, push, 브라우저 열기는 수행하지 않았다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">검증 응답 수거 완료</div>
+      </div>
+      <div class="card">
+        <div class="label">기준선</div>
+        <div class="value"><code>origin/main@da6be790</code></div>
+      </div>
+      <div class="card">
+        <div class="label">제품 HEAD</div>
+        <div class="value"><code>cb3cfca9</code></div>
+      </div>
+      <div class="card">
+        <div class="label">요청 상태</div>
+        <div class="value"><code>done</code>으로 종료</div>
+      </div>
+    </section>
+
+    <h2>검증 요약</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>확인 결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Antigravity 응답</td>
+          <td>ancestry 포함, 5파일 범위 유지, source-origin과 saved-record 상세 라우팅 분리 유지, source detail 읽기 전용 affordance 숨김 유지, Android/native 위험 미발견</td>
+        </tr>
+        <tr>
+          <td>Codex 재확인</td>
+          <td><code>merge-base --is-ancestor da6be790 HEAD</code> exit 0, diff scope 5파일, <code>git diff --check</code> 통과</td>
+        </tr>
+        <tr>
+          <td>대상 테스트</td>
+          <td>Jest 2 suites / 10 tests 통과</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>변경한 허브 파일</summary>
+      <ul>
+        <li><code>agents/codex/outbox/20260718-220415-codex-to-antigravity-records-rebase-da6be790-verify.md</code>: status를 <code>done</code>으로 변경</li>
+        <li><code>agents/codex/outbox/20260718-221808-codex-re-records-rebase-da6be790-verify-close.md</code>: 수거 응답 작성</li>
+        <li><code>agents/codex/outbox/preview/20260718-221808-records-rebase-da6be790-verify-close.html</code>: 이 보고서 작성</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Section 35 self-panel</summary>
+      <ul>
+        <li>UX: 원본 조각 상세와 저장 기록 상세의 구분은 사용자 오해를 줄이는 방향이다.</li>
+        <li>QA: 이번 사이클은 검증 응답 수거와 요청 종료만 처리했다.</li>
+        <li>안전: destructive, cost, secrets, deploy, push, hub branch 전환을 수행하지 않았다.</li>
+        <li>운영: 단일 작업 원칙을 지켜 추가 rebase 또는 새 발견 작업으로 확장하지 않았다.</li>
+      </ul>
+    </details>
+
+    <h2>링크</h2>
+    <p><a href="../20260718-221808-codex-re-records-rebase-da6be790-verify-close.md">응답 파일</a></p>
+    <p><a href="../../../antigravity/outbox/preview/20260718-221000-records-rebase-verify.html">Antigravity 검증 보고서</a></p>
+  </main>
+</body>
+</html>
