@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>작업 보고서: 에이전트 카드 생성</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  button:hover {
+    background-color: #444444;
+  }
+</style>
+</head>
+<body>
+  <h1>작업 보고서</h1>
+  <h2>작업 개요</h2>
+  <p>에이전트 통신 매니페스트 카드 생성 및 기록 완료.</p>
+  
+  <h2>실행 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>작업 단계</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>인박스 스캔</td>
+        <td>완료</td>
+        <td>오픈 요청 식별 확인</td>
+      </tr>
+      <tr>
+        <td>매니페스트 파일 생성</td>
+        <td>완료</td>
+        <td>json 생성 스크립트 실행</td>
+      </tr>
+      <tr>
+        <td>내역 기록</td>
+        <td>대기</td>
+        <td>로컬 상태 기록 및 리포트 작성</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>산출물</h2>
+  <p>생성된 위치: agents/antigravity/agent-card.json</p>
+
+  <div>
+    <button type="button">닫기</button>
+  </div>
+</body>
+</html>
