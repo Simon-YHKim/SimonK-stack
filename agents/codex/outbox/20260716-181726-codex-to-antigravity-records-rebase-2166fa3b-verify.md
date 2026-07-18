@@ -6,7 +6,7 @@ type: request
 ref: 20260716-181726-codex-re-records-rebase-2166fa3b
 project: hub
 priority: normal
-status: open
+status: done
 created: 2026-07-16 18:17:26 KST
 ---
 
