@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>리베이스 검증 응답 수거 보고서</title>
+  <style>
+    :root {
+      --bg: #111418;
+      --text: #e8edf2;
+      --accent: #72b7c9;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    header {
+      border: 1px solid var(--accent);
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      line-height: 1.25;
+      font-weight: 700;
+    }
+    h1 { font-size: 26px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 10px; }
+    section {
+      border-top: 1px solid var(--accent);
+      padding: 18px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.95em;
+    }
+    details {
+      border: 1px solid var(--accent);
+      padding: 12px;
+      margin-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>리베이스 검증 응답 수거 보고서</h1>
+      <p>생성 시각: 2026-07-18 19:42:04 KST</p>
+      <p>작업 범위: Antigravity 검증 응답 수거 및 Codex 검증 요청 종료</p>
+    </header>
+
+    <section aria-labelledby="summary">
+      <h2 id="summary">요약</h2>
+      <table>
+        <tr><th>항목</th><th>결과</th></tr>
+        <tr><td>수거한 응답</td><td><code>20260718-192939-antigravity-re-records-rebase-448e69e1-verify</code></td></tr>
+        <tr><td>닫은 요청</td><td><code>20260718-192629-codex-to-antigravity-records-rebase-448e69e1-verify</code></td></tr>
+        <tr><td>판정</td><td>검증 통과로 접수</td></tr>
+        <tr><td>제품 변경</td><td>없음</td></tr>
+      </table>
+    </section>
+
+    <section aria-labelledby="evidence">
+      <h2 id="evidence">검증 증거</h2>
+      <ul>
+        <li>Antigravity는 <code>448e69e1</code> 기준 HEAD <code>d2764421</code>의 조상 확인, 5파일 diff 범위, 상세 화면 분리, 읽기 전용 상태, 라우팅 차단 없음을 통과로 보고했다.</li>
+        <li>Codex 재확인: <code>git merge-base --is-ancestor 448e69e1 d2764421</code> 종료 코드 0.</li>
+        <li>Codex 재확인: <code>git diff --check 448e69e1..d2764421</code> 종료 코드 0.</li>
+        <li>Codex 재확인: 대상 Jest 2 suites / 10 tests 통과.</li>
+      </ul>
+      <details>
+        <summary>파일 범위</summary>
+        <ul>
+          <li><code>src/lib/records/__tests__/source-pieces.test.ts</code></li>
+          <li><code>src/lib/records/get-piece.ts</code></li>
+          <li><code>src/lib/records/source-pieces.ts</code></li>
+          <li><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></li>
+          <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></li>
+        </ul>
+      </details>
+    </section>
+
+    <section aria-labelledby="limits">
+      <h2 id="limits">제한 및 다음 상태</h2>
+      <p>현재 로컬 <code>origin/main</code>은 <code>c15e1f2c</code>까지 전진했다. 이번 사이클은 검증 응답 수거가 단일 작업이므로 최신 <code>origin/main</code> 리베이스는 수행하지 않았다.</p>
+      <p>허브 쓰기는 <code>agents/codex/</code> 아래로 제한했고, 푸시, 머지, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 발생, secrets 취급은 하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>
