@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>검증 종료 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --text: #e8edf2;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(1040px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 48px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 30px; line-height: 1.2; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    h3 { font-size: 15px; margin-top: 18px; color: var(--accent); }
+    p { margin-top: 10px; }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .card, details {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      background: color-mix(in srgb, var(--bg) 88%, var(--text) 12%);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .label {
+      display: block;
+      font-size: 12px;
+      color: color-mix(in srgb, var(--text) 70%, transparent);
+      margin-bottom: 6px;
+    }
+    .value {
+      font-weight: 700;
+      color: var(--accent);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px;
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 14%, transparent);
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { margin: 10px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+    details { margin-top: 14px; }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .path { overflow-wrap: anywhere; }
+    @media (max-width: 760px) {
+      .summary { grid-template-columns: 1fr 1fr; }
+      h1 { font-size: 24px; }
+    }
+    @media (max-width: 480px) {
+      .summary { grid-template-columns: 1fr; }
+      main { width: min(100% - 24px, 1040px); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>records/source-detail 검증 종료 보고서</h1>
+    <p>Codex는 Antigravity의 MoA 검증 응답을 수신하고 기존 검증 요청을 닫았다. 이번 사이클은 제품 코드 변경 없이 검증 응답 소비와 기록 정리에만 한정했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <span class="label">결과</span>
+        <span class="value">종료</span>
+      </div>
+      <div class="card">
+        <span class="label">검증 판정</span>
+        <span class="value">통과</span>
+      </div>
+      <div class="card">
+        <span class="label">제품 변경</span>
+        <span class="value">없음</span>
+      </div>
+      <div class="card">
+        <span class="label">작성 범위</span>
+        <span class="value">Codex 전용</span>
+      </div>
+    </section>
+
+    <h2>핵심 기록</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>값</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>검증 응답</td>
+          <td class="path"><code>agents/antigravity/outbox/20260718-151350-antigravity-re-records-rebase-verify.md</code></td>
+        </tr>
+        <tr>
+          <td>닫은 요청</td>
+          <td class="path"><code>agents/codex/outbox/20260718-150508-codex-re-records-rebase-38717c0b-verify.md</code></td>
+        </tr>
+        <tr>
+          <td>제품 브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>제품 HEAD</td>
+          <td><code>2efebf4223ca183269d69a2acd15d38193c2e264</code></td>
+        </tr>
+        <tr>
+          <td>기준 main</td>
+          <td><code>38717c0b71605ea1b96f34329b61f667fe5c51a0</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <ul>
+        <li>Antigravity는 조상 포함, diff 범위, source-origin route 분리, 편집 및 삭제 차단, native/routing 부작용 항목에서 블로커 없음을 보고했다.</li>
+        <li>Codex는 <code>git merge-base --is-ancestor origin/main HEAD</code> 통과를 재확인했다.</li>
+        <li>Codex는 <code>git diff --check origin/main...HEAD</code> 통과를 재확인했다.</li>
+        <li>Codex는 targeted Jest 2 suites / 10 tests 통과를 재확인했다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>파일 범위</summary>
+      <ul>
+        <li><code>src/lib/records/__tests__/source-pieces.test.ts</code></li>
+        <li><code>src/lib/records/get-piece.ts</code></li>
+        <li><code>src/lib/records/source-pieces.ts</code></li>
+        <li><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></li>
+        <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>위험 통제</summary>
+      <ul>
+        <li>제품 코드 변경, push, merge, deploy, browser-open은 수행하지 않았다.</li>
+        <li>파괴적 작업, 비용 작업, secrets 작업은 수행하지 않았다.</li>
+        <li>허브 쓰기는 <code>agents/codex/</code> 아래로 제한했다.</li>
+      </ul>
+    </details>
+
+    <h2>작성 시각</h2>
+    <p>2026-07-18 15:20:17 KST</p>
+  </main>
+</body>
+</html>
