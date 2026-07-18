@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 리뷰 보고서: b4629d7c 기반</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; padding: 20px; }
+  h1, h2, h3 { color: #FFFFFF; }
+  table { border-collapse: collapse; width: 100%; margin-top: 15px; }
+  th, td { border: 1px solid #333333; padding: 8px; text-align: left; }
+  th { background-color: #1E1E1E; }
+  .btn { display: inline-block; padding: 10px 15px; background-color: #1E1E1E; color: #E0E0E0; text-decoration: none; border: 1px solid #333333; border-radius: 4px; margin-top: 15px; }
+  .highlight { color: #88CCFF; }
+</style>
+</head>
+<body>
+  <h1>QA 리뷰 보고서</h1>
+  <p>대상 브랜치: <span class="highlight">codex/records-source-detail-route-20260710</span></p>
+  <p>베이스라인: <span class="highlight">origin/main@b4629d7c</span></p>
+  
+  <h2>네이티브 라우팅 및 UI 분석 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검토 항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Expo Router 파라미터 직렬화</td>
+        <td>통과</td>
+        <td>라우팅 파라미터가 유효한 객체 형태로 전달됨 (id 및 origin).</td>
+      </tr>
+      <tr>
+        <td>배열 형태 파라미터 처리</td>
+        <td>통과</td>
+        <td>useLocalSearchParams에서 단일 문자열 및 배열 문자열을 모두 안전하게 처리함.</td>
+      </tr>
+      <tr>
+        <td>소스 기록 접근 권한 제어</td>
+        <td>통과</td>
+        <td>isSource 플래그를 활용하여 편집, 이동, 삭제 UI를 정상적으로 숨김.</td>
+      </tr>
+      <tr>
+        <td>비동기 실패 처리</td>
+        <td>통과</td>
+        <td>listRecentRecords 호출 실패 시 빈 배열로 안전하게 폴백됨.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>모바일 앱 네이티브 환경에서 라우팅 충돌이나 UI 오류가 발생할 위험은 발견되지 않았습니다. 병합을 진행해도 안전합니다.</p>
+
+  <a href="#" class="btn">창 닫기</a>
+</body>
+</html>
