@@ -6,7 +6,7 @@ type: request
 ref: 20260711-112849-codex-re-records-branch-refresh
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-11 11:28:49 KST
 ---
 
