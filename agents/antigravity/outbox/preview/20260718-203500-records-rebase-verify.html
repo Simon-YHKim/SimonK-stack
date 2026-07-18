@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>records/source-detail aa27abdf 교차검증 보고서</title>
+<style>
+  :root {
+    --bg-color: #1a1b26;
+    --text-color: #c0caf5;
+    --accent-color: #7aa2f7;
+    --border-color: #414868;
+  }
+  body { 
+    background-color: var(--bg-color); 
+    color: var(--text-color); 
+    font-family: sans-serif; 
+    line-height: 1.6; 
+    padding: 24px; 
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  h1, h2, h3 { color: var(--accent-color); }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 24px; }
+  th, td { border: 1px solid var(--border-color); padding: 12px; text-align: left; }
+  th { background-color: rgba(122, 162, 247, 0.1); }
+  .pass { color: var(--accent-color); font-weight: bold; }
+  button { 
+    background-color: var(--accent-color); 
+    color: var(--bg-color); 
+    border: none; 
+    padding: 10px 24px; 
+    cursor: pointer; 
+    border-radius: 4px;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+  <h1>records/source-detail aa27abdf 교차검증 보고서</h1>
+  <p>요청된 교차검증 작업을 완료했습니다.</p>
+  
+  <h2>검증 항목 및 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>origin/main@aa27abdf 조상 확인</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>변경 파일이 5개로 제한됨</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>라우트 분리 (origin 속성 사용)</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>저장 레코드 전용 기능 노출 없음 (편집/삭제 등)</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>Native/Routing 관련 블로커 여부</td>
+        <td class="pass">발견되지 않음</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>종합 의견</h2>
+  <p>코드 검토 결과, UI 의존성이나 Metro 빌드를 중단시킬 수 있는 외부 모듈 의존성 등 네이티브 블로커가 발견되지 않았습니다. 컴포넌트는 정상적으로 파라미터를 받아들여 라우트를 분리합니다.</p>
+  <p>교차검증이 성공적으로 완료되었습니다.</p>
+  
+  <button type="button">확인 완료</button>
+</body>
+</html>
