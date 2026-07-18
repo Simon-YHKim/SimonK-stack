@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서 - records 재기반</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --text: #e8eaed;
+      --accent: #78a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { margin-top: 28px; font-size: 20px; }
+    h3 { margin-top: 18px; font-size: 16px; }
+    p { margin-top: 10px; }
+    a { color: var(--accent); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      background: var(--bg);
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .value {
+      font-size: 15px;
+      word-break: break-word;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 9px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+    details { margin-top: 12px; }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .flow {
+      width: 100%;
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+    }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 480px) {
+      .grid { grid-template-columns: 1fr; }
+      main { width: min(100% - 20px, 980px); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex 단일 사이클 보고서: records/source-detail 재기반</h1>
+    <p>생성 시각: 2026-07-18 10:16:29 KST</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <span class="label">목적</span>
+        <span class="value">Codex records 브랜치를 최신 <code>origin/main</code> 위로 재기반</span>
+      </div>
+      <div class="card">
+        <span class="label">결과</span>
+        <span class="value">충돌 없이 완료, 새 제품 HEAD <code>4df090ff</code></span>
+      </div>
+      <div class="card">
+        <span class="label">검증</span>
+        <span class="value">공백 검사 통과, Jest 2개 스위트 10개 테스트 통과</span>
+      </div>
+      <div class="card">
+        <span class="label">제한</span>
+        <span class="value">푸시, 머지, 배포, 브라우저 오픈 없음</span>
+      </div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>작업트리</td>
+          <td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>기준</td>
+          <td><code>origin/main@6b880e8a</code></td>
+        </tr>
+        <tr>
+          <td>새 HEAD</td>
+          <td><code>4df090ff</code></td>
+        </tr>
+        <tr>
+          <td>조상성</td>
+          <td><code>ANCESTRY_EXIT=0</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>변경 범위</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>상태</th>
+          <th>파일</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>수정</td><td><code>src/lib/records/__tests__/source-pieces.test.ts</code></td></tr>
+        <tr><td>수정</td><td><code>src/lib/records/get-piece.ts</code></td></tr>
+        <tr><td>수정</td><td><code>src/lib/records/source-pieces.ts</code></td></tr>
+        <tr><td>추가</td><td><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></td></tr>
+        <tr><td>수정</td><td><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검증</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>git diff --check origin/main...HEAD</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td><code>npm test -- --ci --runTestsByPath ... --runInBand --forceExit</code></td>
+          <td>2개 스위트, 10개 테스트 통과</td>
+        </tr>
+        <tr>
+          <td>미추적 파일 보존</td>
+          <td><code>diff.txt</code>, <code>recent_changes.diff</code> 유지</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <svg class="flow" viewBox="0 0 920 160" role="img" aria-label="작업 흐름">
+      <rect x="20" y="50" width="170" height="60" fill="#0f1115" stroke="#78a6ff"/>
+      <text x="105" y="85" fill="#e8eaed" text-anchor="middle" font-size="14">큐 확인</text>
+      <line x1="190" y1="80" x2="270" y2="80" stroke="#78a6ff"/>
+      <rect x="270" y="50" width="170" height="60" fill="#0f1115" stroke="#78a6ff"/>
+      <text x="355" y="85" fill="#e8eaed" text-anchor="middle" font-size="14">기준 전진 확인</text>
+      <line x1="440" y1="80" x2="520" y2="80" stroke="#78a6ff"/>
+      <rect x="520" y="50" width="170" height="60" fill="#0f1115" stroke="#78a6ff"/>
+      <text x="605" y="85" fill="#e8eaed" text-anchor="middle" font-size="14">재기반</text>
+      <line x1="690" y1="80" x2="770" y2="80" stroke="#78a6ff"/>
+      <rect x="770" y="50" width="130" height="60" fill="#0f1115" stroke="#78a6ff"/>
+      <text x="835" y="85" fill="#e8eaed" text-anchor="middle" font-size="14">검증 요청</text>
+    </svg>
+
+    <details>
+      <summary>35항 자기 패널</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>관점</th>
+            <th>판정</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>UI 레인</td>
+            <td>변경 범위가 records/source-detail UI와 그 테스트에 유지되어 lane 적합</td>
+          </tr>
+          <tr>
+            <td>안전 레인</td>
+            <td>푸시, 머지, 배포, 비용, 시크릿, 파괴 작업 없음</td>
+          </tr>
+          <tr>
+            <td>검증 레인</td>
+            <td>머지 후보 diff이므로 Antigravity에 교차검증 요청 필요</td>
+          </tr>
+          <tr>
+            <td>반론</td>
+            <td>전체 verify는 실행하지 않았으므로 범위 밖 회귀는 Claude 머지 게이트에서 추가 확인 필요</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <h2>남은 위험</h2>
+    <p>이번 사이클은 targeted 검증만 수행했다. 전체 verify, 네이티브 런타임, 실제 머지는 Claude 게이트와 Antigravity 확인 이후 진행해야 한다.</p>
+  </main>
+</body>
+</html>
