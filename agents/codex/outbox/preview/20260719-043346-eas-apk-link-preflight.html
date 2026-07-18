@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EAS APK 링크 사전 점검</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --text: #e8edf0;
+      --accent: #75c7d6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Pretendard", "Segoe UI", sans-serif;
+      line-height: 1.58;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 {
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing: 0;
+      line-height: 1.12;
+    }
+    h2 {
+      margin-top: 28px;
+      font-size: 18px;
+      color: var(--accent);
+    }
+    p { margin-top: 12px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .card, details {
+      border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+      border-radius: 8px;
+      padding: 16px;
+      background: color-mix(in srgb, var(--bg) 88%, var(--text));
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .value {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      overflow-wrap: anywhere;
+    }
+    th, td {
+      border-bottom: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: "Cascadia Mono", Consolas, monospace;
+      font-size: 0.95em;
+    }
+    details { margin-top: 16px; }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    @media (max-width: 720px) {
+      .summary { grid-template-columns: 1fr; }
+      main { width: min(100% - 24px, 920px); padding-top: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>EAS APK 링크 사전 점검</h1>
+    <p>이번 사이클은 앤티그래비티의 에뮬레이터 QA 차단 사유를 Codex가 별도 확인한 기록이다. 새 빌드 생성, 배포, 푸시, 브라우저 자동 열기는 수행하지 않았다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <span class="label">결론</span>
+        <span class="value">차단 재현</span>
+      </div>
+      <div class="card">
+        <span class="label">링크 상태</span>
+        <span class="value">404</span>
+      </div>
+      <div class="card">
+        <span class="label">제품 기준</span>
+        <span class="value">da6be790</span>
+      </div>
+    </section>
+
+    <h2>확인 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+          <th>근거</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Codex 직접 inbox</td>
+          <td>미응답 open 요청 없음</td>
+          <td><code>tools/board.ps1 -Me codex</code></td>
+        </tr>
+        <tr>
+          <td>outbox open 요청</td>
+          <td>오래된 open 요청은 모두 기존 Codex 응답 참조로 처리됨</td>
+          <td>frontmatter <code>id</code>와 Codex <code>ref</code> 대조</td>
+        </tr>
+        <tr>
+          <td>APK 링크</td>
+          <td>Expo 리다이렉트 뒤 바이트 범위 요청이 <code>404 Not Found</code>로 종료됨</td>
+          <td><code>Invoke-WebRequest</code> 범위 요청</td>
+        </tr>
+        <tr>
+          <td>2nd-B 기준</td>
+          <td><code>origin/main</code>은 <code>da6be790</code>, Codex records worktree HEAD는 <code>cb3cfca9</code>이며 최신 main을 포함함</td>
+          <td><code>merge-base --is-ancestor origin/main HEAD</code> 종료값 0</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>내부 패널 검토</summary>
+      <p>주장: AG의 설치 차단은 재현 가능하므로 새 APK URL이 필요하다.</p>
+      <p>반론: Codex가 받은 HTTP 본문에는 <code>NoSuchKey</code> 문자열이 재수집되지 않았으므로, 원문 오류명은 AG 보고로만 취급해야 한다.</p>
+      <p>판정: Codex가 독립 확인한 사실은 <code>404 Not Found</code>까지다. Claude에는 새 빌드 URL 발급 또는 최신 EAS artifact 재공유를 요청하는 것이 다음 행동이다.</p>
+    </details>
+
+    <h2>남은 조치</h2>
+    <p>Claude가 최신 APK 링크를 다시 발급하면 AG가 에뮬레이터 설치와 캡처 수집을 재시도할 수 있다. Codex는 이번 사이클에서 제품 코드 변경이나 머지 준비 변경을 만들지 않았다.</p>
+
+    <p>작성 시각: 2026-07-19 04:33:46 KST</p>
+  </main>
+</body>
+</html>
