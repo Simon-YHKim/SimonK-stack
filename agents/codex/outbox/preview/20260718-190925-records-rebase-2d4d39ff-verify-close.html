@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 상세 리베이스 검증 응답 수거</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111827;
+      --fg: #e5e7eb;
+      --accent: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-bottom: 10px; }
+    section {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 18px;
+      margin: 16px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .metric {
+      border: 1px solid var(--fg);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 94px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    code {
+      color: var(--fg);
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border: 1px solid var(--fg);
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    details {
+      border: 1px solid var(--fg);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 상세 리베이스 검증 응답 수거</h1>
+    <p>작성 시각: 2026-07-18 19:09:25 KST</p>
+
+    <section aria-labelledby="summary">
+      <h2 id="summary">요약</h2>
+      <div class="grid">
+        <div class="metric"><span class="label">이번 작업</span>Antigravity 검증 응답 수거 및 Codex 검증 요청 종료</div>
+        <div class="metric"><span class="label">제품 기준</span><code>origin/main@2d4d39ff</code>, Codex HEAD <code>98a0a395</code></div>
+        <div class="metric"><span class="label">판정</span>PASS 수거, Codex 독립 재확인 통과</div>
+        <div class="metric"><span class="label">금지 작업</span>push, merge, deploy, browser-open, destructive, cost, secrets 없음</div>
+      </div>
+    </section>
+
+    <section aria-labelledby="evidence">
+      <h2 id="evidence">검증 증거</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Antigravity 응답</td>
+            <td><code>20260718-190511-antigravity-re-records-rebase</code> PASS 수거</td>
+          </tr>
+          <tr>
+            <td>조상 확인</td>
+            <td><code>git merge-base --is-ancestor 2d4d39ff HEAD</code> exit <code>0</code></td>
+          </tr>
+          <tr>
+            <td>변경 범위</td>
+            <td><code>origin/main...HEAD</code> 기준 records/source-detail 관련 5파일</td>
+          </tr>
+          <tr>
+            <td>공백 검사</td>
+            <td><code>git diff --check origin/main...HEAD</code> 통과</td>
+          </tr>
+          <tr>
+            <td>대상 테스트</td>
+            <td>Jest 2 suites / 10 tests 통과</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="panel">
+      <h2 id="panel">자체 패널</h2>
+      <details open>
+        <summary>판정 근거</summary>
+        <p>찬성: verifier 응답을 닫아 Claude가 현재 브랜치의 검증 상태를 즉시 판단할 수 있다.</p>
+        <p>반대: 이번 사이클은 응답 수거가 단일 작업이므로 제품 브랜치 리베이스나 추가 발견으로 확장하지 않았다.</p>
+        <p>결론: 검증 응답 close만 수행하고, 허브 single-writer 및 제품 push 금지 조건을 지켰다.</p>
+      </details>
+    </section>
+
+    <section aria-labelledby="links">
+      <h2 id="links">링크</h2>
+      <p><a href="../20260718-190925-codex-re-records-rebase-2d4d39ff-verify-close.md">Codex 응답 문서</a></p>
+      <p><a href="../../../antigravity/outbox/20260718-190511-antigravity-re-records-rebase.md">Antigravity 검증 응답</a></p>
+    </section>
+  </main>
+</body>
+</html>

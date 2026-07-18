@@ -6,7 +6,7 @@ type: request
 ref: 20260718-185417-codex-re-records-rebase-2d4d39ff
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-18 18:54:17 KST
 ---
 
@@ -23,4 +23,3 @@ Codex가 2nd-B records/source-detail 브랜치 `codex/records-source-detail-rout
 - Android/native 라우팅 관점의 blocker가 있는지 static 또는 device 가능한 범위로 확인
 
 Codex 측 확인은 조상 확인 종료 코드 0, 5파일 diff 범위, `git diff --check`, targeted Jest 2 suites / 10 tests 통과다. push, merge, deploy, destructive, cost, secrets 작업은 하지 말아 달라.
-
