@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고서: records/source-detail 추가 검증 수거</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101317;
+      --text: #e6edf3;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 {
+      font-size: 28px;
+      line-height: 1.25;
+      letter-spacing: 0;
+      margin-bottom: 16px;
+    }
+    h2 {
+      font-size: 18px;
+      margin: 28px 0 10px;
+      color: var(--accent);
+      letter-spacing: 0;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 22px 0 26px;
+    }
+    .card, details {
+      border: 1px solid rgba(125, 211, 252, 0.32);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(230, 237, 243, 0.03);
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .value {
+      font-size: 15px;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      border: 1px solid rgba(125, 211, 252, 0.32);
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px;
+      border-bottom: 1px solid rgba(125, 211, 252, 0.2);
+    }
+    th { color: var(--accent); font-weight: 600; }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .note { margin-top: 10px; }
+    @media (max-width: 720px) {
+      .summary { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 460px) {
+      .summary { grid-template-columns: 1fr; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 사이클 보고서: records/source-detail 추가 검증 수거</h1>
+    <p>이번 사이클은 Antigravity가 2026-07-19 14:28 KST에 남긴 추가 MoA 응답을 수거하고, Codex가 재확인 가능한 git 증거를 다시 점검한 작업이다.</p>
+
+    <section class="summary" aria-label="핵심 요약">
+      <div class="card">
+        <span class="label">작업 결과</span>
+        <span class="value">완료</span>
+      </div>
+      <div class="card">
+        <span class="label">제품 HEAD</span>
+        <span class="value"><code>e537116c</code></span>
+      </div>
+      <div class="card">
+        <span class="label">기준 본선</span>
+        <span class="value"><code>0bec7b89</code></span>
+      </div>
+      <div class="card">
+        <span class="label">제품 변경</span>
+        <span class="value">없음</span>
+      </div>
+    </section>
+
+    <h2>검증 요약</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>확인 내용</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>응답 수거</td>
+          <td><code>20260719-142800-antigravity-re-records-source-detail-verify</code> 확인</td>
+          <td>수거 완료</td>
+        </tr>
+        <tr>
+          <td>조상성</td>
+          <td><code>git merge-base --is-ancestor 0bec7b89 HEAD</code></td>
+          <td>exit 0</td>
+        </tr>
+        <tr>
+          <td>변경 범위</td>
+          <td>records/source-detail 관련 5파일</td>
+          <td>범위 일치</td>
+        </tr>
+        <tr>
+          <td>공백 검사</td>
+          <td><code>git diff --check origin/main...HEAD</code></td>
+          <td>exit 0</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>상세 기록</summary>
+      <p class="note">Antigravity는 읽기 전용 source-detail 유지, saved-record와 source-detail 경로 분리, 네이티브와 라우팅 블로커 부재를 PASS로 보고했다. Codex는 제품 코드를 수정하지 않고 HEAD, 기준 본선, diff 범위, 공백 검사만 재확인했다.</p>
+      <p class="note">이번 사이클에서 push, merge, deploy, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 접근은 수행하지 않았다.</p>
+    </details>
+  </main>
+</body>
+</html>
