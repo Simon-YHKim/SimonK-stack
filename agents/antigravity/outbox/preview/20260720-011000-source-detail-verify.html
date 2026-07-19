@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>기록 상세 라우팅 검증 결과</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; margin: 2rem; }
+  h1, h2 { color: #FFFFFF; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1E1E1E; }
+  .pass { color: #81C784; }
+  .info { color: #64B5F6; }
+</style>
+</head>
+<body>
+  <h1>기록 상세 브랜치 기준점 갱신 교차 검증</h1>
+  <p>요청된 교차 검증 항목들에 대한 확인을 완료했습니다.</p>
+  
+  <h2>검증 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 일치 확인 (ec447843 가 f00dcaa0 의 조상인지)</td>
+        <td class="pass">통과</td>
+        <td>git merge-base 검증 성공</td>
+      </tr>
+      <tr>
+        <td>getPieceById 경로 유지</td>
+        <td class="pass">통과</td>
+        <td>소스 상세 라우팅 로직 보존 확인</td>
+      </tr>
+      <tr>
+        <td>편집, 이동, 삭제, 태그 진입점 숨김 (source-origin)</td>
+        <td class="pass">통과</td>
+        <td>isSource 조건에 따른 UI 요소 렌더링 제외 확인</td>
+      </tr>
+      <tr>
+        <td>일반 저장 기록 상세 동작 분리 유지</td>
+        <td class="pass">통과</td>
+        <td>조건부 처리로 분리 보존됨</td>
+      </tr>
+      <tr>
+        <td>원격 푸시/병합 발생 여부</td>
+        <td class="pass">통과</td>
+        <td>해당 사항 없음 (로컬 워크트리 변경점 일치)</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <p class="info">모든 정적 검증 항목이 성공적으로 확인되었습니다.</p>
+</body>
+</html>
