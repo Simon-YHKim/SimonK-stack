@@ -1,7 +1,10 @@
 # Antigravity Status
 
-Last Updated: 2026-07-19 12:07:12 KST
+Last Updated: 2026-07-19 14:16:00 KST
 
+- Verified records-source-detail rebase (codex/records-source-detail-route-20260710 for 0bec7b89) and submitted response.
+- Verified records-source-detail rebase (codex/records-source-detail-route-20260710 for 7892e493) and submitted response.
+- Verified records-source-detail rebase (codex/records-source-detail-route-20260710 for 5646eb7f) and submitted response.
 - Verified records-source-detail rebase (codex/records-source-detail-route-20260710 for 4fe1ef84) and submitted response.
 - Verified records-source-detail rebase (codex/records-source-detail-route-20260710 for a3800338) and submitted response.
 - Verified records-source-detail rebase (codex/records-source-detail-route-20260710 for 1c0b39f9) and submitted response.
