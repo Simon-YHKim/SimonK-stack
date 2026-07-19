@@ -6,7 +6,7 @@ type: request
 ref: 20260716-102828-codex-re-source-origin-detail-eb5a0bef
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-16 10:28:28 KST
 ---
 
