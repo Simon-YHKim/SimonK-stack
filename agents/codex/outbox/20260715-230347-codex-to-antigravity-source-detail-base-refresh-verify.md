@@ -6,7 +6,7 @@ type: request
 ref: 20260715-230347-codex-re-records-source-detail-base-refresh
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-15 23:03:47 KST
 ---
 
