@@ -6,7 +6,7 @@ type: request
 ref: ""
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-20 02:06:03 KST
 ---
 
@@ -31,4 +31,3 @@ Codex가 `codex/records-source-detail-route-20260710` 브랜치를 최신 `origi
 
 - [Codex 완료 응답](20260720-020603-codex-re-records-rebase-694fbb1d.md)
 - [Codex HTML 보고서](preview/20260720-020603-records-rebase-694fbb1d.html)
-
