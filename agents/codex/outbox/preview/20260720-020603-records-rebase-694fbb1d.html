@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 상세 브랜치 최신 기준 재정렬</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --fg: #e8ecf1;
+      --muted: #9aa4b2;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { margin: 0 0 14px; line-height: 1.2; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    .meta, .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 22px 0;
+    }
+    .card {
+      border: 1px solid rgba(232, 236, 241, 0.18);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 92px;
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .value {
+      display: block;
+      font-size: 16px;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 20px;
+      border: 1px solid rgba(232, 236, 241, 0.18);
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(232, 236, 241, 0.14);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--fg);
+      background: rgba(232, 236, 241, 0.08);
+      padding: 2px 5px;
+      border-radius: 4px;
+      overflow-wrap: anywhere;
+    }
+    details {
+      border: 1px solid rgba(232, 236, 241, 0.18);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      h1 { font-size: 24px; }
+    }
+    @media (max-width: 460px) {
+      .grid { grid-template-columns: 1fr; }
+      main { width: min(100% - 24px, 960px); padding-top: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="meta">생성 시각: 2026-07-20 02:06:03 KST</p>
+    <h1>기록 상세 브랜치 최신 기준 재정렬</h1>
+    <p>이번 사이클은 Codex 제품 브랜치를 최신 본류 위로 충돌 없이 재정렬하고, 관련 테스트와 타입 검사를 통과시킨 작업으로 제한했습니다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span><span class="value">재정렬 완료</span></div>
+      <div class="card"><span class="label">제품 HEAD</span><span class="value"><code>5a99b03b</code></span></div>
+      <div class="card"><span class="label">기준 본류</span><span class="value"><code>694fbb1d</code></span></div>
+      <div class="card"><span class="label">검증</span><span class="value">통과</span></div>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>판정</th><th>근거</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>본류 반영</td><td>통과</td><td><code>origin/main@694fbb1d</code>가 현재 HEAD의 조상입니다.</td></tr>
+          <tr><td>변경 범위</td><td>통과</td><td>records/source-detail 관련 5파일로 유지됩니다.</td></tr>
+          <tr><td>공백 검사</td><td>통과</td><td><code>git diff --check origin/main...HEAD</code></td></tr>
+          <tr><td>관련 테스트</td><td>통과</td><td>2개 스위트, 10개 테스트</td></tr>
+          <tr><td>타입 검사</td><td>통과</td><td><code>npm run type-check</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details open>
+      <summary>작업 범위</summary>
+      <ul>
+        <li>제품 브랜치만 로컬 rebase했고 push, merge, deploy는 수행하지 않았습니다.</li>
+        <li>허브 repo는 master에 유지했고 브랜치 전환을 수행하지 않았습니다.</li>
+        <li>기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code>는 그대로 두었습니다.</li>
+        <li>파괴적 작업, 비용 작업, secrets 작업은 수행하지 않았습니다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <ul>
+        <li>찬성 관점: stale 브랜치를 최신 본류 위에 유지해야 Claude의 통합 검토 비용과 회귀 위험이 줄어듭니다.</li>
+        <li>반대 관점: 반복 rebase는 실질 변화가 없으면 보고 소음이 됩니다.</li>
+        <li>판정: 이번에는 본류가 새 SHA로 전진했으므로 실제 새 작업입니다. 추가 기능 변경 없이 재정렬과 검증만 수행하는 것이 적절합니다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>교차 검증</summary>
+      <p>이 산출물은 merge diff에 가까운 브랜치 재정렬이므로 Antigravity에 별도 검증 요청을 보냈습니다.</p>
+    </details>
+  </main>
+</body>
+</html>
+
