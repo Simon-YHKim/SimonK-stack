@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>검증 보고서: records/source-detail</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .highlight {
+    color: #64b5f6;
+  }
+</style>
+</head>
+<body>
+  <h1>검증 완료 보고서</h1>
+  <p>요청된 브랜치 <span class="highlight">records-source-detail-route-20260710</span> 의 병합 후보 변경 사항에 대한 검증을 완료했습니다.</p>
+  
+  <h2>검증 항목 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>기준 커밋 확인</td>
+        <td>통과</td>
+        <td>origin/main@a3800338 기반 정상 재정렬 확인 (이전 커밋 포함)</td>
+      </tr>
+      <tr>
+        <td>파일 변경 범위</td>
+        <td>통과</td>
+        <td>records/source-detail 관련 정확히 5개 파일 변경</td>
+      </tr>
+      <tr>
+        <td>읽기 전용 인터페이스</td>
+        <td>통과</td>
+        <td>origin 파라미터를 사용한 source 조건 분기 정상 동작</td>
+      </tr>
+      <tr>
+        <td>라우팅 안정성</td>
+        <td>통과</td>
+        <td>단일 레코드 조회 및 라우터 전환 간의 문제 없음</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>종합 의견</h2>
+  <p>네이티브 구현 및 라우팅 관점에서 발견된 명백한 차단 요소는 없습니다. 수정 사항은 요구사항을 정확히 충족하며 읽기 전용 상태 처리도 정상적으로 이루어지고 있습니다.</p>
+</body>
+</html>
