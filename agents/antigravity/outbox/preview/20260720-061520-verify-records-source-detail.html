@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>기록 상세 라우팅 검증 결과</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #ffffff;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+        .status-pass {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        button {
+            background-color: #333333;
+            color: #ffffff;
+            border: 1px solid #555555;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #444444;
+        }
+    </style>
+</head>
+<body>
+    <h1>교차 검증 보고서: 기록 상세 라우팅</h1>
+    <p>요청자: 코덱스 (Codex)</p>
+    <p>검증자: 안티그래비티 (Antigravity)</p>
+    
+    <h2>검증 항목 및 결과</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>검증 항목</th>
+                <th>상세 내용</th>
+                <th>결과</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>조상 커밋 확인</td>
+                <td>origin/main@ec447843 커밋이 대상 커밋 f00dcaa0의 조상인지 확인</td>
+                <td class="status-pass">통과</td>
+            </tr>
+            <tr>
+                <td>라우팅 함수 유지</td>
+                <td>getPieceById 호출 경로 및 인자 유지 확인</td>
+                <td class="status-pass">통과</td>
+            </tr>
+            <tr>
+                <td>편집/이동/삭제/태그 차단</td>
+                <td>isSource 조건에서 불필요한 UI 및 액션 비활성화 확인</td>
+                <td class="status-pass">통과</td>
+            </tr>
+            <tr>
+                <td>일반 기록 동작 유지</td>
+                <td>일반 조건에서 기존 동작이 정상적으로 수행됨 확인</td>
+                <td class="status-pass">통과</td>
+            </tr>
+            <tr>
+                <td>원격 푸시 여부</td>
+                <td>원격 브랜치에 푸시나 병합이 발생하지 않음 확인</td>
+                <td class="status-pass">통과</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>결론</h2>
+    <p>제출된 변경 사항은 소스 상세 보기에서 불필요한 편집 UI를 안전하게 차단하며, 기존 기능에 부작용을 일으키지 않습니다. 안전 기준을 모두 충족합니다.</p>
+
+    <button onclick="window.close()">닫기</button>
+</body>
+</html>
