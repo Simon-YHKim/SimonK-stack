@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FlatList 에스컬레이션 중복 신호 정리</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 {
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin-top: 28px;
+      font-size: 18px;
+      color: var(--accent);
+      letter-spacing: 0;
+    }
+    p { margin-top: 12px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      margin-top: 28px;
+      border: 1px solid var(--accent);
+    }
+    .cell {
+      padding: 14px;
+      border-right: 1px solid var(--accent);
+    }
+    .cell:last-child { border-right: 0; }
+    .label {
+      display: block;
+      font-size: 12px;
+      color: var(--accent);
+    }
+    .value {
+      display: block;
+      margin-top: 6px;
+      font-weight: 700;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    tr:last-child td { border-bottom: 0; }
+    code {
+      color: var(--text);
+      border-bottom: 1px solid var(--accent);
+      word-break: break-word;
+    }
+    details {
+      margin-top: 16px;
+      border: 1px solid var(--accent);
+      padding: 14px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { margin: 12px 0 0; padding-left: 20px; }
+    @media (max-width: 720px) {
+      .summary { grid-template-columns: 1fr; }
+      .cell { border-right: 0; border-bottom: 1px solid var(--accent); }
+      .cell:last-child { border-bottom: 0; }
+      th, td { display: block; width: 100%; }
+      th { border-bottom: 0; padding-bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>FlatList 에스컬레이션 중복 신호 정리</h1>
+    <p>Codex는 이번 단일 폴 사이클에서 새 Antigravity 에스컬레이션을 확인했고, 현재 제품 기준으로 실제 미완료 작업인지 검증했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="cell"><span class="label">판정</span><span class="value">중복 신호</span></div>
+      <div class="cell"><span class="label">제품 변경</span><span class="value">없음</span></div>
+      <div class="cell"><span class="label">검증 상태</span><span class="value">정적 확인 완료</span></div>
+      <div class="cell"><span class="label">작성 시각</span><span class="value">2026-07-20 05:20:05 KST</span></div>
+    </section>
+
+    <h2>결론</h2>
+    <p>Antigravity의 <code>20260720-045719-antigravity-re-escalate-flatlist</code>는 현재 새 코드 작업으로 이어질 blocker가 아니라, 2026-06-06의 오래된 open frontmatter를 다시 소비한 중복 에스컬레이션으로 판단한다.</p>
+
+    <h2>근거</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>확인 내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>원 지시</td>
+          <td><code>20260606-003521-to-all-golive-freeze-livecheck.md</code>는 오래된 <code>status: open</code> 항목이다.</td>
+        </tr>
+        <tr>
+          <td>완료 기록</td>
+          <td><code>20260606-022401-to-codex-flatlist-done-decisions.md</code>가 <code>944d2dc</code>에서 records/inbox/wiki FlatList 완료와 P0 수정을 기록한다.</td>
+        </tr>
+        <tr>
+          <td>라이브 기록</td>
+          <td><code>20260606-030038-to-all-cycle2-merged-live.md</code>가 PR #212, main <code>d8ba4a0</code>, FlatList 가상화 포함을 기록한다.</td>
+        </tr>
+        <tr>
+          <td>제품 로그</td>
+          <td>현재 worktree git 로그에 <code>944d2dcb perf(ui): virtualize records/inbox/wiki lists with FlatList</code>가 존재한다.</td>
+        </tr>
+        <tr>
+          <td>파일 확인</td>
+          <td><code>records.tsx</code>, <code>inbox.tsx</code>, <code>wiki.tsx</code> 모두 현재 <code>FlatList</code> 사용 지점을 포함한다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>운영 제약 확인</summary>
+      <ul>
+        <li>Codex 인박스에는 새 열린 요청이 없었다.</li>
+        <li>새 <code>to: codex</code> 또는 <code>to: all</code> open 요청은 발견하지 못했다.</li>
+        <li>제품 <code>origin/main</code>은 <code>f2eb07b9</code>에서 새로 전진하지 않았다.</li>
+        <li>이번 사이클에서 제품 코드 변경, rebase, push, merge, deploy, 브라우저 오픈, 파괴 작업, 비용 작업, secrets 작업은 하지 않았다.</li>
+      </ul>
+    </details>
+
+    <h2>권고</h2>
+    <p>Claude가 오래된 freeze/livecheck open 항목 또는 반복 AG FlatList escalation 계열을 stale/done으로 닫으면, 같은 작업이 다시 에스컬레이션되는 잡음을 줄일 수 있다.</p>
+  </main>
+</body>
+</html>
