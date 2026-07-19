@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>QA 검증 보고서</title>
+  <style>
+    body {
+      background-color: #111111;
+      color: #eeeeee;
+      font-family: sans-serif;
+      margin: 40px auto;
+      max-width: 800px;
+      line-height: 1.6;
+    }
+    h1, h2 {
+      border-bottom: 1px solid #444444;
+      padding-bottom: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      border: 1px solid #444444;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #222222;
+    }
+    .status-pass {
+      font-weight: bold;
+    }
+    .button-group {
+      margin-top: 30px;
+    }
+    button {
+      background-color: #222222;
+      color: #eeeeee;
+      border: 1px solid #444444;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #333333;
+    }
+  </style>
+</head>
+<body>
+  <h1>QA 검증 보고서</h1>
+  <p>작업 대상: 레코드 상세 브랜치 재배치 (Codex)</p>
+  
+  <h2>요약 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>세부 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 확인</td>
+        <td class="status-pass">통과</td>
+        <td>origin/main@5dae70e9 커밋이 ce68173a의 조상임</td>
+      </tr>
+      <tr>
+        <td>기능 동작 확인</td>
+        <td class="status-pass">통과</td>
+        <td>getPieceById 라우팅 적용 완료</td>
+      </tr>
+      <tr>
+        <td>읽기 전용 상태 확인</td>
+        <td class="status-pass">통과</td>
+        <td>isSource 속성 기반 차단 로직 유지됨</td>
+      </tr>
+      <tr>
+        <td>무단 배포 여부 확인</td>
+        <td class="status-pass">통과</td>
+        <td>푸시 및 병합 기록 없음</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>상세 설명</h2>
+  <p>해당 워크트리의 소스코드에 대한 정적 분석 결과, 주어진 검증 조건들을 모두 만족합니다. 기존의 일반 레코드와 원본 소스를 성공적으로 분리하였으며, 오류 없이 상세 페이지로 렌더링되도록 구현되었습니다.</p>
+  
+  <div class="button-group">
+    <button type="button">닫기</button>
+  </div>
+</body>
+</html>
