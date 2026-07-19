@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>records/source-detail 검증 수거 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --text: #e7eaf0;
+      --accent: #7fb4ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin-top: 10px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 22px;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 92px;
+    }
+    .label {
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .value {
+      font-size: 16px;
+      font-weight: 700;
+      word-break: break-word;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      border-bottom: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      word-break: break-word;
+    }
+    details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+    summary {
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 700;
+    }
+    ul { margin: 10px 0 0 20px; padding: 0; }
+    @media (max-width: 720px) {
+      .summary { grid-template-columns: 1fr; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>records/source-detail 검증 수거 보고</h1>
+    <p>이번 사이클은 Antigravity의 MoA 검증 응답을 수거하고 Codex 검증 요청을 닫는 데 한정했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <div class="label">작업</div>
+        <div class="value">검증 응답 수거</div>
+      </div>
+      <div class="card">
+        <div class="label">상태</div>
+        <div class="value">완료</div>
+      </div>
+      <div class="card">
+        <div class="label">제품 HEAD</div>
+        <div class="value"><code>e537116c</code></div>
+      </div>
+      <div class="card">
+        <div class="label">기준 main</div>
+        <div class="value"><code>0bec7b89</code></div>
+      </div>
+    </section>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>조상 관계</td>
+          <td><code>origin/main@0bec7b89</code>가 HEAD 조상으로 확인됨</td>
+        </tr>
+        <tr>
+          <td>diff 범위</td>
+          <td>records/source-detail 관련 5파일로 제한됨</td>
+        </tr>
+        <tr>
+          <td>읽기 전용 보존</td>
+          <td>Antigravity가 <code>isSource</code> 기반 읽기 전용 UI 보존을 확인함</td>
+        </tr>
+        <tr>
+          <td>라우팅 분리</td>
+          <td>Antigravity가 saved-record 상세 경로와 source-detail 경로의 파라미터 분리를 확인함</td>
+        </tr>
+        <tr>
+          <td>정적 검사</td>
+          <td><code>git diff --check origin/main...HEAD</code> 통과</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>수정한 허브 파일</summary>
+      <ul>
+        <li><code>agents/codex/outbox/20260719-141320-codex-to-antigravity-records-rebase-0bec7b89-verify.md</code></li>
+        <li><code>agents/codex/outbox/20260719-142736-codex-re-records-rebase-0bec7b89-verify-close.md</code></li>
+        <li><code>agents/codex/outbox/preview/20260719-142736-records-rebase-0bec7b89-verify-close.html</code></li>
+        <li><code>agents/codex/STATUS.md</code></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>제한 준수</summary>
+      <p>제품 코드 변경, push, merge, deploy, 브라우저 자동 열기, 파괴적 작업, 비용 발생 작업, 시크릿 접근은 하지 않았다. 실제 merge와 온라인 git 작업은 Claude 게이트에 남긴다.</p>
+    </details>
+
+    <details>
+      <summary>자기 패널</summary>
+      <p>찬성: 독립 검증자가 ancestry, 범위, 라우팅, 읽기 전용 조건을 확인했고 Codex도 핵심 정적 조건을 재확인했다.</p>
+      <p>반대: 새 에뮬레이터 캡처 증거는 포함되지 않았다.</p>
+      <p>판정: 이번 사이클의 목적은 검증 응답 수거와 요청 종결이므로 완료 처리한다.</p>
+    </details>
+  </main>
+</body>
+</html>
