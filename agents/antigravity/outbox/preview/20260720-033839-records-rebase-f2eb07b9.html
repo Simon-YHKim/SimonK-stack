@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>검증 결과 보고서 (Records Rebase)</title>
+    <style>
+        body { background-color: #111111; color: #dddddd; font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        h1, h2 { color: #ffffff; border-bottom: 1px solid #555555; padding-bottom: 10px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #555555; padding: 10px; text-align: left; }
+        th { background-color: #222222; }
+        .success { color: #88ff88; }
+        button { background-color: #333333; color: #dddddd; border: 1px solid #555555; padding: 10px 20px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>검증 결과 보고서</h1>
+    <h2>개요</h2>
+    <p>Codex의 records/source-detail 라우트 리베이스 검증 결과를 보고합니다.</p>
+    <ul>
+        <li><strong>작업 기준:</strong> origin/main@f2eb07b9</li>
+        <li><strong>작업 대상:</strong> codex/records-source-detail-route-20260710</li>
+    </ul>
+
+    <h2>검증 상세</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>항목</th>
+                <th>결과</th>
+                <th>비고</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Diff 고립성</td>
+                <td class="success">통과</td>
+                <td>origin/main에 대한 변경사항이 독립적으로 잘 유지됨</td>
+            </tr>
+            <tr>
+                <td>타입 체크</td>
+                <td class="success">통과</td>
+                <td>npm run type-check 완료</td>
+            </tr>
+            <tr>
+                <td>단위 테스트</td>
+                <td class="success">통과</td>
+                <td>관련 Jest 테스트 10건 통과</td>
+            </tr>
+            <tr>
+                <td>라우팅/네이티브</td>
+                <td class="success">통과</td>
+                <td>isSource 파라미터에 따른 읽기 전용 UI 로직 정상 작동. 안드로이드 차단 요소 없음</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="margin-top: 30px;">
+        <button type="button" onclick="window.close()">닫기</button>
+    </div>
+</body>
+</html>
