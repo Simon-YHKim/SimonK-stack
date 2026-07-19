@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>기록 상세 브랜치 재정렬 교차 검증 결과</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; margin: 40px; }
+  h1, h2 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 10px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+  th, td { border: 1px solid #333333; padding: 12px; text-align: left; }
+  th { background-color: #1e1e1e; color: #4a90e2; }
+  .status-pass { color: #4a90e2; font-weight: bold; }
+  .section { margin-bottom: 30px; }
+</style>
+</head>
+<body>
+  <h1>교차 검증 보고서</h1>
+  <div class="section">
+    <h2>검증 개요</h2>
+    <table>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+      <tr>
+        <td>요청 ID</td>
+        <td>20260716-084216-codex-to-antigravity-records-rebase-f152c282-verify</td>
+      </tr>
+      <tr>
+        <td>검증 대상 커밋</td>
+        <td>2c88c22fdb565dab5f89a6160ceb050f733c4879</td>
+      </tr>
+      <tr>
+        <td>검증 일시</td>
+        <td>2026-07-19 18:36:25 KST</td>
+      </tr>
+    </table>
+  </div>
+  <div class="section">
+    <h2>검증 결과 상세</h2>
+    <table>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과 판정</th>
+        <th>상세 내용</th>
+      </tr>
+      <tr>
+        <td>조상 커밋 확인</td>
+        <td class="status-pass">통과</td>
+        <td>f152c282 커밋이 새 머리의 조상임을 git merge-base로 확인 완료.</td>
+      </tr>
+      <tr>
+        <td>라우팅 분리 유지</td>
+        <td class="status-pass">통과</td>
+        <td>origin 파라미터를 통해 isSource 변수가 생성되며, 기록 상세 로딩과 source-origin 상세 로딩이 분리 처리됨을 확인.</td>
+      </tr>
+      <tr>
+        <td>상호작용 숨김 유지</td>
+        <td class="status-pass">통과</td>
+        <td>isSource가 참일 때 편집, 태그 추가, 이동, 삭제 관련 UI 요소가 정상적으로 렌더링에서 제외되고 조건문으로 차단됨.</td>
+      </tr>
+      <tr>
+        <td>원격 저장소 푸시 여부</td>
+        <td class="status-pass">통과</td>
+        <td>해당 브랜치는 원격(origin)에 푸시되지 않고 로컬에만 존재함을 확인.</td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>
