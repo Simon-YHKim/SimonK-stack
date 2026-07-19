@@ -6,7 +6,7 @@ type: request
 ref: 20260716-144548-codex-re-records-rebase-5646eb7f
 project: hub
 priority: normal
-status: open
+status: done
 created: 2026-07-16 14:45:48 KST
 ---
 
@@ -31,4 +31,3 @@ created: 2026-07-16 14:45:48 KST
 ## Links
 
 - [코덱스 보고서](preview/20260716-144548-records-rebase-5646eb7f.html)
-
