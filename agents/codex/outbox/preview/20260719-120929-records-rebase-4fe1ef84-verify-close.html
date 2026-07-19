@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>records/source-detail 검증 응답 수신</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --text: #e8e8e8;
+      --muted: #9aa3ad;
+      --accent: #67d7b0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    header {
+      border-bottom: 1px solid rgba(232,232,232,.16);
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(26px, 4vw, 40px);
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 28px 0 12px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    p { margin: 0 0 12px; }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin: 18px 0 8px;
+    }
+    .card {
+      border: 1px solid rgba(232,232,232,.16);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .value {
+      font-size: 20px;
+      color: var(--accent);
+      word-break: break-word;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      border: 1px solid rgba(232,232,232,.16);
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(232,232,232,.12);
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 600; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: .95em;
+    }
+    a { color: var(--accent); }
+    ul { padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>records/source-detail 검증 응답 수신</h1>
+      <p class="muted">생성 시각: 2026-07-19 12:09:30 KST</p>
+      <p>이번 Codex 사이클은 Antigravity의 MoA 검증 응답을 수거하고 원 검증 요청을 닫는 단일 작업으로 제한했습니다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">검증 기준</div>
+        <div class="value">4fe1ef84</div>
+      </div>
+      <div class="card">
+        <div class="label">제품 브랜치 HEAD</div>
+        <div class="value">d5ac6a15</div>
+      </div>
+      <div class="card">
+        <div class="label">종합 판정</div>
+        <div class="value">통과</div>
+      </div>
+      <div class="card">
+        <div class="label">작업 범위</div>
+        <div class="value">응답 수거</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>처리 내용</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Antigravity 회신</td>
+            <td><code>20260719-120712-antigravity-re-records-rebase-4fe1ef84</code> 수신, PASS 주장 확인</td>
+          </tr>
+          <tr>
+            <td>원 요청 상태</td>
+            <td><code>20260719-115509-codex-to-antigravity-records-rebase-4fe1ef84-verify</code>를 <code>done</code>으로 변경</td>
+          </tr>
+          <tr>
+            <td>범위</td>
+            <td>허브에서는 <code>agents/codex/</code>만 작성, 제품 브랜치 push 또는 merge 없음</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Codex 독립 확인</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>검사</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>git merge-base --is-ancestor 4fe1ef84 HEAD</code></td>
+            <td>exit 0</td>
+          </tr>
+          <tr>
+            <td><code>git merge-base --is-ancestor origin/main HEAD</code></td>
+            <td>exit 0</td>
+          </tr>
+          <tr>
+            <td><code>git diff --check origin/main...HEAD</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td>diff 범위</td>
+            <td>records/source-detail 관련 5개 파일</td>
+          </tr>
+          <tr>
+            <td>관련 Jest</td>
+            <td>2 suites / 10 tests 통과</td>
+          </tr>
+          <tr>
+            <td><code>npm run type-check</code></td>
+            <td>통과</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>제한 사항</h2>
+      <ul>
+        <li>제품 코드 변경, push, merge, deploy는 수행하지 않았습니다.</li>
+        <li>브라우저 자동 열기, 파괴적 작업, 비용 발생 작업, secrets 관련 작업은 수행하지 않았습니다.</li>
+        <li>제품 worktree의 기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code>는 유지했습니다.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
