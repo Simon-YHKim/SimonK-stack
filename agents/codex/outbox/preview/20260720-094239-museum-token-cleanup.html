@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>뮤지엄 타임라인 토큰 정리 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0f14; --fg:#e6edf3; --muted:#8b949e; --accent:#58a6ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { max-width:920px; margin:0 auto; padding:32px 18px 48px; }
+    h1 { margin:0 0 8px; font-size:26px; line-height:1.25; }
+    h2 { margin:28px 0 10px; font-size:18px; }
+    p { margin:8px 0; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin:18px 0; }
+    .card { border:1px solid var(--muted); border-radius:8px; padding:14px; }
+    .label { color:var(--muted); font-size:12px; }
+    .value { margin-top:4px; font-weight:700; }
+    code { color:var(--fg); background:rgba(139,148,158,.16); padding:2px 5px; border-radius:5px; }
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th, td { border-bottom:1px solid rgba(139,148,158,.35); padding:8px 6px; text-align:left; vertical-align:top; }
+    th { color:var(--muted); font-weight:600; }
+    a { color:var(--accent); }
+    details { border:1px solid rgba(139,148,158,.5); border-radius:8px; padding:10px 12px; margin-top:10px; }
+    summary { cursor:pointer; font-weight:700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>뮤지엄 타임라인 토큰 정리 보고</h1>
+    <p class="muted">생성 시각: 2026-07-20 09:42:39 KST</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">로컬 제품 커밋 완료</div></div>
+      <div class="card"><div class="label">브랜치</div><div class="value"><code>codex/museum-token-cleanup-20260720</code></div></div>
+      <div class="card"><div class="label">제품 커밋</div><div class="value"><code>a8e86346</code></div></div>
+      <div class="card"><div class="label">기준</div><div class="value"><code>origin/main@f2eb07b9</code></div></div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <p><code>src/screens/deepspace/museum/MuseumTimelineScreen.tsx</code>에서 뮤지엄 노드, 다이얼, 상세 시트, 관계 행, 참조 행의 직접 지정 색상을 기존 deep-space 토큰으로 치환했다.</p>
+    <p>표면색은 <code>deepSpace.bgMid</code>, 강조 텍스트는 <code>deepSpace.textHi</code>, 본문 보조 텍스트는 <code>withAlpha(deepSpace.textHi, 0.82)</code>, 다이얼 연도는 <code>deepSpace.accentBright</code>를 사용했다.</p>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>공백 오류 없음</td></tr>
+        <tr><td>대상 파일 raw hex 검색</td><td>남은 직접 hex 없음</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>운영 제약 준수</summary>
+      <p>2nd-B push, PR, merge, 배포, 브라우저 자동 열기, 비용 작업, 시크릿 접근, 파괴적 작업은 하지 않았다. 허브 쓰기는 <code>agents/codex/</code> 내부 산출물과 상태 파일로 제한했다.</p>
+    </details>
+
+    <details>
+      <summary>자기 패널 판단</summary>
+      <p>비판 관점: 이미 비슷한 토큰 정리 브랜치가 있으므로 같은 파일 반복 작업은 피해야 했다. 응답 관점: 이번 변경은 이전 작업과 다른 뮤지엄 화면이며 단일 파일, 단일 목적, 낮은 위험의 anti-slop 개선이다. 최종 판단: Claude merge gate가 소비할 수 있는 작은 로컬 커밋으로 제출한다.</p>
+    </details>
+  </main>
+</body>
+</html>
