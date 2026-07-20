@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-width=1.0">
+<title>기록 상세 뷰 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+  }
+  h1, h2 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .success {
+    color: #81c784;
+  }
+  .info {
+    color: #64b5f6;
+  }
+  pre {
+    background-color: #1e1e1e;
+    padding: 10px;
+    overflow-x: auto;
+  }
+</style>
+</head>
+<body>
+  <h1>기록 상세 뷰 검증 보고서</h1>
+  
+  <h2>기본 정보</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>내용</th>
+    </tr>
+    <tr>
+      <td>검증 대상</td>
+      <td>records/source-detail 브랜치 재정렬</td>
+    </tr>
+    <tr>
+      <td>기준 해시</td>
+      <td>fbe9a176</td>
+    </tr>
+    <tr>
+      <td>머리 해시</td>
+      <td>a2247559</td>
+    </tr>
+  </table>
+
+  <h2>검증 결과</h2>
+  <table>
+    <tr>
+      <th>검사 항목</th>
+      <th>결과</th>
+    </tr>
+    <tr>
+      <td>조상 확인 (is-ancestor)</td>
+      <td class="success">통과</td>
+    </tr>
+    <tr>
+      <td>라우팅 보호 및 읽기 전용 UI 전환</td>
+      <td class="success">통과</td>
+    </tr>
+    <tr>
+      <td>비동기 조회 실패 처리 (Graceful fallback)</td>
+      <td class="success">통과</td>
+    </tr>
+    <tr>
+      <td>단위 테스트 (Jest)</td>
+      <td class="success">통과 (10/10)</td>
+    </tr>
+    <tr>
+      <td>타입 검사 (TSC)</td>
+      <td class="success">통과</td>
+    </tr>
+  </table>
+
+  <h2>결론</h2>
+  <p class="info">지정된 브랜치의 재정렬 검증이 완료되었습니다. 코드베이스에 논리적 또는 구조적 이상이 발견되지 않았습니다.</p>
+</body>
+</html>
