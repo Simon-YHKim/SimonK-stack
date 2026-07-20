@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex UI 배치 머지 인덱스</title>
+  <style>
+    :root {
+      --bg: #111318;
+      --text: #e9edf2;
+      --muted: #9aa4b2;
+      --accent: #7fb4ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      letter-spacing: 0;
+    }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 20px 0 24px;
+    }
+    .metric {
+      border: 1px solid color-mix(in srgb, var(--muted) 35%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 92px;
+    }
+    .metric strong {
+      display: block;
+      color: var(--accent);
+      font-size: 24px;
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+    .metric span { color: var(--muted); font-size: 13px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid color-mix(in srgb, var(--muted) 30%, transparent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      background: color-mix(in srgb, var(--muted) 18%, transparent);
+      border-radius: 5px;
+      padding: 2px 5px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.92em;
+    }
+    details {
+      border: 1px solid color-mix(in srgb, var(--muted) 35%, transparent);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { margin: 10px 0 0 20px; padding: 0; color: var(--muted); }
+    li { margin: 6px 0; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      table { display: block; overflow-x: auto; white-space: nowrap; }
+    }
+    @media (max-width: 460px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex UI 배치 머지 인덱스</h1>
+    <p>생성 시각: 2026-07-20 13:39:00 KST. 이번 사이클은 새 제품 변경 없이, 누적된 Codex 소형 UI 제출을 Claude가 한 번에 검토하기 쉽도록 정리했다.</p>
+
+    <section class="grid" aria-label="요약 지표">
+      <div class="metric"><strong>18</strong><span>현재 main에 없는 Codex 로컬 제품 커밋</span></div>
+      <div class="metric"><strong>11</strong><span>색상·스크림·그림자 토큰 정리 커밋</span></div>
+      <div class="metric"><strong>7</strong><span>접근성 라벨 보강 커밋</span></div>
+      <div class="metric"><strong>0</strong><span>이번 사이클의 제품 코드 변경 수</span></div>
+    </section>
+
+    <h2>판정</h2>
+    <p>Codex inbox는 비어 있었고, peer outbox에서도 새 Codex/all 대상 open 요청은 없었다. 대신 미머지 제출이 §12.2 throttle 기준을 넘었으므로 새 발견을 중단하고 배치 머지 인덱스를 산출했다.</p>
+
+    <h2>배치 후보</h2>
+    <table>
+      <thead>
+        <tr><th>커밋</th><th>브랜치</th><th>범위</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>1bef3bbe</code></td><td><code>codex/rewarded-sheet-a11y-20260720</code></td><td>보상 시트 닫기 덮개 접근성 라벨</td></tr>
+        <tr><td><code>1c47b9b5</code></td><td><code>codex/coachmarks-token-cleanup-20260720</code></td><td>홈 코치마크 말풍선 색상 토큰화</td></tr>
+        <tr><td><code>a8e86346</code></td><td><code>codex/museum-token-cleanup-20260720</code></td><td>뮤지엄 타임라인 색상 토큰화</td></tr>
+        <tr><td><code>76e05f59</code></td><td><code>codex-consent-backdrop-token-20260720</code></td><td>동의 다이얼로그 배경막 토큰화</td></tr>
+        <tr><td><code>1bebeeb3</code></td><td><code>codex/notices-token-cleanup-20260720</code></td><td>위기 라우터 배경막 토큰화</td></tr>
+        <tr><td><code>603b3f1b</code></td><td><code>codex/ui-token-scan-20260720</code></td><td>승인 시트 배경막 토큰화</td></tr>
+        <tr><td><code>5a395fdb</code></td><td><code>codex/ops-sheet-a11y-20260720</code></td><td>운영 시트 배경막 접근성 라벨</td></tr>
+        <tr><td><code>3b1fd482</code></td><td><code>codex/button-token-scan-20260720</code></td><td>날짜 선택기 스크림 토큰화</td></tr>
+        <tr><td><code>6818fe29</code></td><td><code>codex/ops-sheet-backdrop-alpha-20260720</code></td><td>운영 시트 배경막 투명도 범위 정리</td></tr>
+        <tr><td><code>1de3eb74</code></td><td><code>codex/icon-token-scan-20260720</code></td><td>딥스페이스 화면 그림자 토큰화</td></tr>
+        <tr><td><code>0dcbcdb5</code></td><td><code>codex/phone-shell-shadow-token-20260720</code></td><td>폰 셸 그림자 토큰화</td></tr>
+        <tr><td><code>c63f4d2e</code></td><td><code>codex/surface-token-scan-20260720-115457</code></td><td>공유 셸 그림자 토큰화</td></tr>
+        <tr><td><code>96cfc962</code></td><td><code>codex/ratifications-hold-amber-token-20260720</code></td><td>승인 이력 hold 색상 토큰화</td></tr>
+        <tr><td><code>a52e8328</code></td><td><code>codex/completion-toast-a11y-20260720</code></td><td>완료 알림 동작 버튼 접근성 라벨</td></tr>
+        <tr><td><code>82c92d5f</code></td><td><code>codex/token-scan-20260720b</code></td><td>허브 독 탭 접근성 라벨</td></tr>
+        <tr><td><code>59440cab</code></td><td><code>codex/a11y-scan-20260720c</code></td><td>홈 코치마크 CTA 접근성 라벨</td></tr>
+        <tr><td><code>a328e6bf</code></td><td><code>codex/a11y-scan-20260720d</code></td><td>백그라운드 작업 독 상태 라벨</td></tr>
+        <tr><td><code>5e71c46c</code></td><td><code>codex/likert-choice-a11y-20260720</code></td><td>공지 이전·다음 화살표 라벨</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>검증과 제약</summary>
+      <ul>
+        <li><code>tools/board.ps1 -Me codex</code> 결과 Codex inbox는 비어 있었다.</li>
+        <li>동료 outbox 구조 스캔에서 새 Codex/all 대상 실행 가능 open 요청은 없었다.</li>
+        <li><code>E:\2ndB</code>의 <code>origin/main</code>은 <code>f2eb07b9</code>로 확인했다.</li>
+        <li>18개 커밋은 모두 현재 <code>origin/main</code>에 포함되지 않았다.</li>
+        <li>이번 사이클은 허브 <code>agents/codex/</code> 아래 보고 파일만 작성했다.</li>
+        <li>제품 코드 변경, push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 작업은 없었다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자기 패널</summary>
+      <ul>
+        <li>찬성: 누적 제출이 18건이면 새 발견보다 병목 완화가 더 크다.</li>
+        <li>반대: 각 패치가 작아 Codex가 계속 발견을 이어갈 수도 있다.</li>
+        <li>판정: throttle 규칙에 따라 이번 단일 작업은 배치 머지 인덱스 작성으로 제한하는 것이 맞다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>
