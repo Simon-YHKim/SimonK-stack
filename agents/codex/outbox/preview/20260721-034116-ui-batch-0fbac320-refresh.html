@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 UI 배치 기준선 갱신 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --fg: #e7eaee;
+      --muted: #9aa3ad;
+      --accent: #6fb7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Segoe UI", "Noto Sans KR", Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(1040px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    h1, h2 { margin: 0 0 12px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 0 0 12px; color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 20px 0 8px;
+    }
+    .card, details {
+      border: 1px solid var(--muted);
+      border-radius: 8px;
+      padding: 14px;
+      background: transparent;
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .value {
+      color: var(--fg);
+      font-size: 18px;
+      font-weight: 650;
+      overflow-wrap: anywhere;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Cascadia Mono", monospace;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--muted);
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--fg); }
+    td { color: var(--muted); }
+    summary {
+      cursor: pointer;
+      color: var(--fg);
+      font-weight: 650;
+    }
+    ul { margin: 8px 0 0 20px; padding: 0; color: var(--muted); }
+    .ok { color: var(--accent); }
+  </style>
+</head>
+<body>
+<main>
+  <h1>코덱스 UI 배치 기준선 갱신 보고</h1>
+  <p>작성 시각: 2026-07-21 03:41:16 KST</p>
+  <p>이번 단일 사이클은 열린 codex/all 요청이 없는 상태에서 2nd-B <code>origin/main</code>이 새로 전진한 것을 확인하고, 기존 Codex UI 배치 후보 18건의 최신 기준선 적합성을 재검증했다.</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><span class="label">최신 기준선</span><span class="value"><code>0fbac320</code></span></div>
+    <div class="card"><span class="label">직전 갱신 기준선</span><span class="value"><code>fcd68a67</code></span></div>
+    <div class="card"><span class="label">후보 수</span><span class="value">18건</span></div>
+    <div class="card"><span class="label">이미 포함된 후보</span><span class="value">0건</span></div>
+    <div class="card"><span class="label">직접 파일 교집합</span><span class="value">0건</span></div>
+    <div class="card"><span class="label">판정</span><span class="value ok">배치 후보 유지</span></div>
+  </section>
+
+  <h2>결과</h2>
+  <p><code>fcd68a67..origin/main</code> 전진분은 워크플로, EAS 설정, LLM 라우팅, persona/axis 추정 코드와 테스트에 국한됐다. Codex 후보는 컴포넌트와 화면의 UI 접근성 및 색상 토큰 소형 패치라 직접 파일 충돌 표면이 없다.</p>
+
+  <details open>
+    <summary>기준선 전진 파일</summary>
+    <ul>
+      <li><code>.github/workflows/android-release.yml</code></li>
+      <li><code>.github/workflows/web-deploy.yml</code></li>
+      <li><code>docs/handoff/ai_260721.md</code></li>
+      <li><code>eas.json</code></li>
+      <li><code>src/lib/audit/__tests__/axis-estimate.test.ts</code></li>
+      <li><code>src/lib/audit/axis-estimate.ts</code></li>
+      <li><code>src/lib/llm/gemini.ts</code></li>
+      <li><code>src/lib/persona/__tests__/northstar-propose.test.ts</code></li>
+      <li><code>src/lib/persona/__tests__/propose-self-model.test.ts</code></li>
+      <li><code>src/lib/persona/northstar.ts</code></li>
+      <li><code>src/lib/persona/propose-self-model.ts</code></li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>후보 포함 상태</summary>
+    <table>
+      <thead><tr><th>SHA</th><th>포함 여부</th><th>파일</th></tr></thead>
+      <tbody>
+        <tr><td><code>1bef3bbe</code></td><td>미포함</td><td><code>src/components/deepspace/RewardedSheet.tsx</code></td></tr>
+        <tr><td><code>1c47b9b5</code></td><td>미포함</td><td><code>src/components/deep-space/HomeCoachmarks.tsx</code></td></tr>
+        <tr><td><code>a8e86346</code></td><td>미포함</td><td><code>src/screens/deepspace/museum/MuseumTimelineScreen.tsx</code></td></tr>
+        <tr><td><code>76e05f59</code></td><td>미포함</td><td><code>src/components/consent/ConsentDialog.tsx</code></td></tr>
+        <tr><td><code>1bebeeb3</code></td><td>미포함</td><td><code>src/components/safety/CrisisRouter.tsx</code></td></tr>
+        <tr><td><code>603b3f1b</code></td><td>미포함</td><td><code>src/components/persona/RatifySheet.tsx</code></td></tr>
+        <tr><td><code>5a395fdb</code></td><td>미포함</td><td><code>src/components/deepspace/ops/kit.tsx</code>, <code>src/screens/deepspace/ops/screens.tsx</code></td></tr>
+        <tr><td><code>3b1fd482</code></td><td>미포함</td><td><code>src/components/m3/date-picker/DatePicker.tsx</code></td></tr>
+        <tr><td><code>6818fe29</code></td><td>미포함</td><td><code>src/components/deepspace/ops/kit.tsx</code></td></tr>
+        <tr><td><code>1de3eb74</code></td><td>미포함</td><td><code>src/components/deep-space/DeepSpaceScreen.tsx</code></td></tr>
+        <tr><td><code>0dcbcdb5</code></td><td>미포함</td><td><code>src/components/deepspace/shell/PhoneShell.tsx</code></td></tr>
+        <tr><td><code>c63f4d2e</code></td><td>미포함</td><td><code>src/components/deep-space/DeepSpaceScreen.tsx</code></td></tr>
+        <tr><td><code>96cfc962</code></td><td>미포함</td><td><code>src/app/ratifications.tsx</code></td></tr>
+        <tr><td><code>a52e8328</code></td><td>미포함</td><td><code>src/components/deepspace/CompletionToast.tsx</code></td></tr>
+        <tr><td><code>82c92d5f</code></td><td>미포함</td><td><code>src/components/deepspace/DeepSpaceHubDock.tsx</code></td></tr>
+        <tr><td><code>59440cab</code></td><td>미포함</td><td><code>src/components/deep-space/HomeCoachmarks.tsx</code></td></tr>
+        <tr><td><code>a328e6bf</code></td><td>미포함</td><td><code>src/components/deepspace/BackgroundTaskDock.tsx</code></td></tr>
+        <tr><td><code>5e71c46c</code></td><td>미포함</td><td><code>src/app/notices.tsx</code></td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <h2>자기 패널</h2>
+  <p>찬성: main이 전진했으므로 기존 배치 후보가 최신 기준선에서 여전히 유효한지 갱신해야 병합 게이트가 낭비 없이 판단할 수 있다.</p>
+  <p>반대: 직접 교집합이 없으므로 제품 리베이스나 장시간 테스트까지 실행하면 이번 단일 사이클 범위를 넘을 수 있다.</p>
+  <p>판정: 새 제품 패치를 만들지 않고 포함 여부와 직접 충돌 표면만 갱신하는 것이 현재 throttle 상태에서 가장 작은 병합 지원 작업이다.</p>
+
+  <h2>안전</h2>
+  <p>제품 코드 변경, 2nd-B push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 작업은 하지 않았다. 이 산출물은 고위험 deliverable이 아니므로 별도 MoA 검증 요청은 만들지 않았다.</p>
+</main>
+</body>
+</html>
