@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>동의 다이얼로그 배경 토큰 정리</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #46b6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 { margin: 0 0 12px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 22px 0;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      background: transparent;
+    }
+    .label {
+      display: block;
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    code {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--accent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    details { margin-top: 14px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .flow {
+      width: 100%;
+      height: auto;
+      margin-top: 10px;
+    }
+    @media (max-width: 760px) {
+      .summary { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 520px) {
+      .summary { grid-template-columns: 1fr; }
+      main { width: min(100vw - 20px, 920px); padding: 24px 0; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>동의 다이얼로그 배경 토큰 정리</h1>
+    <p>이번 단일 사이클은 새 Codex 대상 오더가 없어 2nd-B UI 토큰 위생을 개선했다. 동의 다이얼로그의 직접 배경색을 기존 의미 토큰으로 치환했고, 동작과 문구는 변경하지 않았다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><span class="label">결과</span><strong>로컬 제품 커밋 완료</strong></div>
+      <div class="card"><span class="label">범위</span><strong>파일 1개, 한 줄 변경</strong></div>
+      <div class="card"><span class="label">제품 커밋</span><code>76e05f59</code></div>
+      <div class="card"><span class="label">검증</span><strong>정적 검사 통과</strong></div>
+    </section>
+
+    <details open>
+      <summary>변경 내용</summary>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>제품 worktree</td><td><code>E:\2ndB\.worktrees\codex-consent-backdrop-token-20260720</code></td></tr>
+          <tr><td>제품 브랜치</td><td><code>codex-consent-backdrop-token-20260720</code></td></tr>
+          <tr><td>기준</td><td><code>origin/main@f2eb07b9</code></td></tr>
+          <tr><td>변경 파일</td><td><code>src/components/consent/ConsentDialog.tsx</code></td></tr>
+          <tr><td>변경 요지</td><td><code>backgroundColor: "rgba(0,0,0,0.6)"</code>를 <code>backgroundColor: semantic.backdrop</code>으로 교체</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <table>
+        <thead>
+          <tr><th>검사</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>공백 오류 없음</td></tr>
+          <tr><td>대상 파일 직접 색상 검색</td><td><code>hex</code>와 <code>rgba</code> 결과 없음</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>사이클 판단</summary>
+      <svg class="flow" viewBox="0 0 820 150" role="img" aria-label="사이클 판단 흐름">
+        <rect x="10" y="42" width="160" height="58" rx="8" fill="none" stroke="#46b6ff"/>
+        <text x="90" y="66" text-anchor="middle" fill="#e6edf3" font-size="14">오더 확인</text>
+        <text x="90" y="86" text-anchor="middle" fill="#e6edf3" font-size="12">새 요청 없음</text>
+        <path d="M170 71 H235" stroke="#46b6ff" fill="none"/>
+        <rect x="235" y="42" width="170" height="58" rx="8" fill="none" stroke="#46b6ff"/>
+        <text x="320" y="66" text-anchor="middle" fill="#e6edf3" font-size="14">레인 선택</text>
+        <text x="320" y="86" text-anchor="middle" fill="#e6edf3" font-size="12">UI 토큰 위생</text>
+        <path d="M405 71 H470" stroke="#46b6ff" fill="none"/>
+        <rect x="470" y="42" width="160" height="58" rx="8" fill="none" stroke="#46b6ff"/>
+        <text x="550" y="66" text-anchor="middle" fill="#e6edf3" font-size="14">단일 패치</text>
+        <text x="550" y="86" text-anchor="middle" fill="#e6edf3" font-size="12">동작 변경 없음</text>
+        <path d="M630 71 H695" stroke="#46b6ff" fill="none"/>
+        <rect x="695" y="42" width="115" height="58" rx="8" fill="none" stroke="#46b6ff"/>
+        <text x="752" y="66" text-anchor="middle" fill="#e6edf3" font-size="14">검증</text>
+        <text x="752" y="86" text-anchor="middle" fill="#e6edf3" font-size="12">통과</text>
+      </svg>
+      <p>§35 self-panel 결론: 직접 색상값 제거는 기존 디자인 규율과 맞고, 이미 존재하는 토큰만 사용하므로 결정 게이트나 별도 MoA 검증이 필요한 고위험 변경이 아니다.</p>
+    </details>
+
+    <details>
+      <summary>제약 준수</summary>
+      <p>2nd-B push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 발생 작업, 시크릿 접근은 하지 않았다. 허브 쓰기는 <code>agents/codex/</code> 내부 보고 파일과 상태 파일로 제한했다.</p>
+    </details>
+  </main>
+</body>
+</html>
