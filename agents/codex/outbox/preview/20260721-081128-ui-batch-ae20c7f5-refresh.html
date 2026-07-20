@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex UI 배치 기준선 갱신</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --text: #e8ecef;
+      --accent: #77b7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin: 28px 0 12px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 18px 0 8px; }
+    p, li, td, th { font-size: 14px; }
+    .meta { color: var(--accent); margin-bottom: 24px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin: 18px 0 24px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      background: var(--bg);
+    }
+    .label { font-size: 12px; color: var(--accent); }
+    .value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 8px;
+      vertical-align: top;
+      text-align: left;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      word-break: break-all;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex UI 배치 기준선 갱신</h1>
+    <p class="meta">작성 시각: 2026-07-21 08:11:28 KST · 대상 기준선: <code>origin/main@ae20c7f5</code></p>
+
+    <section aria-labelledby="summary">
+      <h2 id="summary">요약</h2>
+      <p>Codex inbox와 peer outbox 구조 스캔에서 새 Codex/all 실행 요청은 없었다. 직전 Codex 기준선 <code>8f59fd2e</code> 이후 2nd-B main이 <code>ae20c7f5</code>까지 전진했으므로, 기존 Codex UI 후보 18건의 포함 여부와 직접 파일 충돌 표면을 갱신했다.</p>
+      <div class="grid" role="list">
+        <div class="card" role="listitem"><div class="label">최신 기준선</div><div class="value">ae20c7f5</div></div>
+        <div class="card" role="listitem"><div class="label">main 전진 커밋</div><div class="value">3</div></div>
+        <div class="card" role="listitem"><div class="label">main 전진 파일</div><div class="value">12</div></div>
+        <div class="card" role="listitem"><div class="label">후보 수</div><div class="value">18</div></div>
+        <div class="card" role="listitem"><div class="label">main 포함 후보</div><div class="value">0</div></div>
+        <div class="card" role="listitem"><div class="label">직접 파일 교집합</div><div class="value">0</div></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="result">
+      <h2 id="result">판정</h2>
+      <p>기존 18개 Codex UI/a11y/token 후보는 최신 main에 아직 포함되지 않았다. <code>8f59fd2e..origin/main</code> 변경 파일 12개와 후보 고유 변경 파일 16개의 직접 교집합은 없다.</p>
+      <p>다만 이번 점검은 직접 파일 충돌 표면만 확인한다. <code>package.json</code>과 안전 평가 스크립트 변경이 있었으므로, Claude merge gate에서 실제 cherry-pick 뒤 검증 명령은 최신 스크립트 기준으로 다시 실행해야 한다.</p>
+    </section>
+
+    <details>
+      <summary>main 전진 변경 파일</summary>
+      <ul>
+        <li><code>CLAUDE.md</code></li>
+        <li><code>docs/handoff/ai_260721.md</code></li>
+        <li><code>docs/handoff/comm-to-cowork_260721.md</code></li>
+        <li><code>docs/handoff/cowork-to-comm_260721.md</code></li>
+        <li><code>docs/handoff/logic_260721.md</code></li>
+        <li><code>package.json</code></li>
+        <li><code>scripts/eval-crisis-layer-parity.ts</code></li>
+        <li><code>scripts/eval-crisis-promotion.corpus.json</code></li>
+        <li><code>scripts/eval-crisis-promotion.ts</code></li>
+        <li><code>src/lib/llm/__tests__/safety-classify-proxy.test.ts</code></li>
+        <li><code>src/lib/llm/safety.ts</code></li>
+        <li><code>src/lib/safety/lexicon.ts</code></li>
+      </ul>
+    </details>
+
+    <section aria-labelledby="candidates">
+      <h2 id="candidates">후보 상태</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>커밋</th>
+            <th>브랜치</th>
+            <th>범위</th>
+            <th>main 포함</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>1bef3bbe</code></td><td><code>codex/rewarded-sheet-a11y-20260720</code></td><td>RewardedSheet 닫기 덮개 접근성 라벨</td><td>아니오</td></tr>
+          <tr><td><code>1c47b9b5</code></td><td><code>codex/coachmarks-token-cleanup-20260720</code></td><td>HomeCoachmarks 말풍선 색상 토큰화</td><td>아니오</td></tr>
+          <tr><td><code>a8e86346</code></td><td><code>codex/museum-token-cleanup-20260720</code></td><td>MuseumTimelineScreen 색상 토큰화</td><td>아니오</td></tr>
+          <tr><td><code>76e05f59</code></td><td><code>codex-consent-backdrop-token-20260720</code></td><td>ConsentDialog 배경막 토큰화</td><td>아니오</td></tr>
+          <tr><td><code>1bebeeb3</code></td><td><code>codex/notices-token-cleanup-20260720</code></td><td>CrisisRouter 배경막 토큰화</td><td>아니오</td></tr>
+          <tr><td><code>603b3f1b</code></td><td><code>codex/ui-token-scan-20260720</code></td><td>RatifySheet 배경막 토큰화</td><td>아니오</td></tr>
+          <tr><td><code>5a395fdb</code></td><td><code>codex/ops-sheet-a11y-20260720</code></td><td>OpsPushSheet 배경막 접근성 라벨</td><td>아니오</td></tr>
+          <tr><td><code>3b1fd482</code></td><td><code>codex/button-token-scan-20260720</code></td><td>DatePicker 스크림 토큰화</td><td>아니오</td></tr>
+          <tr><td><code>6818fe29</code></td><td><code>codex/ops-sheet-backdrop-alpha-20260720</code></td><td>OpsPushSheet 배경막 투명도 범위 정리</td><td>아니오</td></tr>
+          <tr><td><code>1de3eb74</code></td><td><code>codex/icon-token-scan-20260720</code></td><td>DeepSpaceScreen 그림자 토큰화</td><td>아니오</td></tr>
+          <tr><td><code>0dcbcdb5</code></td><td><code>codex/phone-shell-shadow-token-20260720</code></td><td>PhoneShell 그림자 토큰화</td><td>아니오</td></tr>
+          <tr><td><code>c63f4d2e</code></td><td><code>codex/surface-token-scan-20260720-115457</code></td><td>DeepSpaceScreen 셸 그림자 토큰화</td><td>아니오</td></tr>
+          <tr><td><code>96cfc962</code></td><td><code>codex/ratifications-hold-amber-token-20260720</code></td><td>RatificationLogScreen hold 색상 토큰화</td><td>아니오</td></tr>
+          <tr><td><code>a52e8328</code></td><td><code>codex/completion-toast-a11y-20260720</code></td><td>CompletionToast 동작 버튼 접근성 라벨</td><td>아니오</td></tr>
+          <tr><td><code>82c92d5f</code></td><td><code>codex/token-scan-20260720b</code></td><td>DeepSpaceHubDock 탭 접근성 라벨</td><td>아니오</td></tr>
+          <tr><td><code>59440cab</code></td><td><code>codex/a11y-scan-20260720c</code></td><td>HomeCoachmarks CTA 접근성 라벨</td><td>아니오</td></tr>
+          <tr><td><code>a328e6bf</code></td><td><code>codex/a11y-scan-20260720d</code></td><td>BackgroundTaskDock 상태 접근성 라벨</td><td>아니오</td></tr>
+          <tr><td><code>5e71c46c</code></td><td><code>codex/likert-choice-a11y-20260720</code></td><td>notices pager 화살표 접근성 라벨</td><td>아니오</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>검증 명령과 안전 범위</summary>
+      <ul>
+        <li><code>tools/board.ps1 -Me codex</code>로 Codex inbox가 비어 있음을 확인했다.</li>
+        <li>peer outbox 구조 스캔으로 새 Codex/all 실행 대상 open 요청이 없음을 확인했다.</li>
+        <li><code>git -C E:\2ndB fetch origin main --prune</code>로 <code>origin/main@ae20c7f5</code>를 확인했다.</li>
+        <li><code>git merge-base --is-ancestor</code>로 18개 후보가 최신 main에 포함되지 않았음을 확인했다.</li>
+        <li>제품 코드 변경, push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 작업은 하지 않았다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>
