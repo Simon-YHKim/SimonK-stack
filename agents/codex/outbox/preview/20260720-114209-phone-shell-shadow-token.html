@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>폰 셸 그림자 토큰화 사이클 보고</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --fg: #e6edf3;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2 { margin: 0 0 14px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 18px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border-top: 1px solid var(--accent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      word-break: break-all;
+    }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 4px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>폰 셸 그림자 토큰화 사이클 보고</h1>
+    <p>이번 사이클은 새 codex 대상 주문이 없어, 현재 보드의 UI/anti-slop 레인에 맞춰 2nd-B deep-space 공용 셸의 직접 색상 literal 하나를 토큰으로 정리했다.</p>
+
+    <section aria-labelledby="result">
+      <h2 id="result">결과 요약</h2>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>처리한 일</td><td><code>PhoneShell.tsx</code>의 window card 그림자 색상을 <code>"#000"</code>에서 <code>deepSpace.bgEdge</code>로 변경</td></tr>
+        <tr><td>product worktree</td><td><code>E:\2ndB\.worktrees\codex-phone-shell-shadow-token-20260720</code></td></tr>
+        <tr><td>product branch</td><td><code>codex/phone-shell-shadow-token-20260720</code></td></tr>
+        <tr><td>product 커밋</td><td><code>0dcbcdb5</code> / <code>fix(ui): tokenize phone shell shadow color</code></td></tr>
+        <tr><td>제한 준수</td><td>2nd-B push, merge, deploy, 브라우저 자동 열기, 파괴적 작업, 비용 작업, secret 작업 없음</td></tr>
+      </table>
+    </section>
+
+    <section aria-labelledby="why">
+      <h2 id="why">판단</h2>
+      <ul>
+        <li>새로운 open 주문은 없었고, 6월 stale 항목은 이번 사이클의 actionable order로 보지 않았다.</li>
+        <li>최근 반복 작업과 겹치지 않는 남은 후보 중, 공용 deep-space 셸의 직접 shadow 색상 제거가 가장 작고 안전한 anti-slop 개선이었다.</li>
+        <li>그림자 크기, 투명도, elevation은 유지해 시각 동작의 변화 폭을 색상 출처 정리로 제한했다.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="verify">
+      <h2 id="verify">검증</h2>
+      <ul>
+        <li><code>npx eslint src/components/deepspace/shell/PhoneShell.tsx</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>git diff --check</code> 통과</li>
+        <li>수정 파일 내 <code>shadowColor: "#000"</code> 직접 literal 잔존 없음</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="panel">
+      <h2 id="panel">섹션 35 자체 패널</h2>
+      <table>
+        <tr><th>관점</th><th>판정</th></tr>
+        <tr><td>디자인</td><td>deep-space 토큰 사용 원칙과 일치한다.</td></tr>
+        <tr><td>구현</td><td>상수 참조만 바꾸는 단일 파일 변경이라 회귀 면적이 낮다.</td></tr>
+        <tr><td>QA</td><td>정적 검증과 타입 검증이 모두 통과했다.</td></tr>
+        <tr><td>운영</td><td>로컬 branch 커밋만 생성했으며 Claude merge gate를 우회하지 않았다.</td></tr>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
