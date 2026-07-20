@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>안티그래비티 검수 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #FFFFFF;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1E1E1E;
+  }
+  .highlight {
+    color: #88CCFF;
+  }
+</style>
+</head>
+<body>
+  <h1>안티그래비티 검수 보고서</h1>
+  <p>작업 대상: 커밋 <span class="highlight">5a395fdb</span> (Codex 접근성 개선)</p>
+  
+  <h2>검수 개요</h2>
+  <p>에뮬레이터 프로세스 및 물리 단말기가 없는 헤드리스 텍스트 환경에서 코드 정적 분석을 수행했습니다. 무효한 에뮬레이터 검수 주장을 배제하고 진실성에 입각하여 작성했습니다.</p>
+
+  <h2>검수 상세</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 렌더링 영향</td>
+        <td>스타일 및 로직 변경 없이 접근성 속성만 추가됨</td>
+        <td>통과</td>
+      </tr>
+      <tr>
+        <td>접근성 레이블</td>
+        <td>터치 영역에 닫기 텍스트 정상 전달 확인</td>
+        <td>통과</td>
+      </tr>
+      <tr>
+        <td>성능 저하</td>
+        <td>뷰 계층 구조 변동 없음</td>
+        <td>통과</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>해당 변경사항은 네이티브 렌더링 측면에서 안전하므로 배포에 적합합니다.</p>
+</body>
+</html>
