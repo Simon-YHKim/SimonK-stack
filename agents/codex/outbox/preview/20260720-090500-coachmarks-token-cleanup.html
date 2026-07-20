@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코치마크 색상 토큰 정리 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --text: #e8f7ff;
+      --accent: #46b6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 {
+      font-size: clamp(26px, 4vw, 40px);
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin-top: 30px;
+      font-size: 18px;
+      color: var(--accent);
+      letter-spacing: 0;
+    }
+    p { margin-top: 10px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 24px;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .value {
+      display: block;
+      font-size: 15px;
+      font-weight: 700;
+      word-break: keep-all;
+    }
+    table {
+      width: 100%;
+      margin-top: 14px;
+      border-collapse: collapse;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      border-top: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+      width: 30%;
+    }
+    details {
+      margin-top: 18px;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    ul {
+      margin: 10px 0 0;
+      padding-left: 20px;
+    }
+    @media (max-width: 760px) {
+      .summary { grid-template-columns: 1fr; }
+      th { width: 38%; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코치마크 색상 토큰 정리 보고</h1>
+    <p>이번 단일 폴 사이클에서는 새 주문이 없어 Codex UI 레인의 신규 결함 하나를 처리했다. 첫 방문 홈 코치마크의 직접 색상값을 기존 deep-space 토큰으로 치환해 디자인 계약 위반을 줄였다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <span class="label">상태</span>
+        <span class="value">제품 브랜치 로컬 커밋 완료</span>
+      </div>
+      <div class="card">
+        <span class="label">범위</span>
+        <span class="value">파일 1개, 색상 2곳</span>
+      </div>
+      <div class="card">
+        <span class="label">검증</span>
+        <span class="value">정적 검사 4개 통과</span>
+      </div>
+      <div class="card">
+        <span class="label">금지 작업</span>
+        <span class="value">푸시, 병합, 배포 없음</span>
+      </div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <table>
+      <tr>
+        <th>제품 경로</th>
+        <td><code>E:\2ndB\.worktrees\codex-coachmarks-token-cleanup-20260720</code></td>
+      </tr>
+      <tr>
+        <th>브랜치</th>
+        <td><code>codex/coachmarks-token-cleanup-20260720</code></td>
+      </tr>
+      <tr>
+        <th>기준 커밋</th>
+        <td><code>origin/main@f2eb07b9</code></td>
+      </tr>
+      <tr>
+        <th>제품 커밋</th>
+        <td><code>1c47b9b5 fix(ui): use tokens for coachmark bubble colors</code></td>
+      </tr>
+      <tr>
+        <th>수정 파일</th>
+        <td><code>src/components/deep-space/HomeCoachmarks.tsx</code></td>
+      </tr>
+    </table>
+
+    <details open>
+      <summary>변경 상세</summary>
+      <ul>
+        <li>말풍선 배경의 직접 색상값을 <code>deepSpace.bgMid</code>로 교체했다.</li>
+        <li>말풍선 본문 텍스트의 직접 색상값을 <code>deepSpace.textHi</code>로 교체했다.</li>
+        <li>문구, 레이아웃, 코치마크 단계, 저장 동작, 뒤로가기 동작은 바꾸지 않았다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>검증 결과</summary>
+      <ul>
+        <li><code>npm run type-check</code> 통과.</li>
+        <li><code>npm run check:emdash</code> 통과.</li>
+        <li><code>npm run check:lexicon</code> 통과.</li>
+        <li><code>git diff --check</code> 통과.</li>
+        <li>해당 파일의 남은 직접 hex 검색 결과 없음.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <ul>
+        <li>찬성 관점: 디자인 계약은 컴포넌트 직접 hex를 금지하므로, 토큰 치환은 작고 명확한 개선이다.</li>
+        <li>반대 관점: 색감이 미세하게 달라질 수 있으므로 시각 변경을 넓히면 안 된다.</li>
+        <li>수렴: 구조와 문구를 그대로 두고 기존 deep-space 토큰만 사용했으므로 이번 단일 작업 범위에 적합하다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>
