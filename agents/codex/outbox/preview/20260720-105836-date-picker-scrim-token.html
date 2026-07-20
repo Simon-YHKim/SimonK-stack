@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>데이트 선택기 배경 토큰화 보고서</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --fg: #e6edf3;
+      --muted: #9aa4ad;
+      --accent: #7cc7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 20px 44px;
+    }
+    h1, h2 { margin: 0 0 12px; }
+    h1 { font-size: 26px; }
+    h2 { font-size: 18px; margin-top: 26px; color: var(--accent); }
+    p { margin: 8px 0; }
+    .meta {
+      color: var(--muted);
+      margin-bottom: 22px;
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+      margin: 16px 0 20px;
+    }
+    .box {
+      border: 1px solid var(--muted);
+      padding: 14px;
+      border-radius: 6px;
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--muted);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    details {
+      border: 1px solid var(--muted);
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>데이트 선택기 배경 토큰화 보고서</h1>
+    <p class="meta">생성 시각: 2026-07-20 10:58:36 KST · 작성자: codex · 프로젝트 작업: 2nd-B 로컬 브랜치</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="box">
+        <span class="label">결과</span>
+        <strong>완료</strong>
+      </div>
+      <div class="box">
+        <span class="label">제품 커밋</span>
+        <code>3b1fd482</code>
+      </div>
+      <div class="box">
+        <span class="label">브랜치</span>
+        <code>codex/button-token-scan-20260720</code>
+      </div>
+      <div class="box">
+        <span class="label">작업 위치</span>
+        <code>E:\2ndB\.worktrees\codex-button-token-scan-20260720</code>
+      </div>
+    </section>
+
+    <h2>무엇을 바꿨나</h2>
+    <p>공용 M3 데이트 선택기 모달의 배경색에서 직접 작성된 <code>rgba(0,0,0,0.6)</code> 값을 제거하고, <code>withAlpha(m3.color.scrim, 0.6)</code>로 교체했습니다.</p>
+
+    <h2>왜 했나</h2>
+    <p>같은 시각 효과를 유지하면서 색상 출처를 M3 토큰으로 연결했습니다. 이 파일은 생년월일, 연도 선택 등 여러 입력 흐름에서 쓰이는 공용 컴포넌트라 작은 토큰 정리의 재사용 가치가 있습니다.</p>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검증 항목</th>
+          <th>결과</th>
+          <th>메모</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>파일 단위 ESLint</td>
+          <td>통과</td>
+          <td>오류 0개, 기존 미사용 import 경고 2개</td>
+        </tr>
+        <tr>
+          <td>타입체크</td>
+          <td>통과</td>
+          <td><code>npm run type-check</code></td>
+        </tr>
+        <tr>
+          <td>금지 어휘 검사</td>
+          <td>통과</td>
+          <td><code>npm run check:lexicon</code></td>
+        </tr>
+        <tr>
+          <td>대시 문자 검사</td>
+          <td>통과</td>
+          <td><code>npm run check:emdash</code></td>
+        </tr>
+        <tr>
+          <td>공백 diff 검사</td>
+          <td>통과</td>
+          <td><code>git diff --check</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자체 패널 판단</summary>
+      <p>범위: 한 파일, 한 스타일 값, 기존 토큰 조합 사용.</p>
+      <p>위험: 시각 동작 변화는 의도하지 않았고, 색상 계산 결과는 기존 검은 스크림 60퍼센트와 동일 계열입니다.</p>
+      <p>게이트: 제품 push, 머지, 배포, 브라우저 자동 열기, 비용 작업, 시크릿 작업은 수행하지 않았습니다.</p>
+    </details>
+  </main>
+</body>
+</html>
