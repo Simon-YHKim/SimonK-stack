@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>네이티브/에뮬레이터 검증 보고서: 백그라운드 작업 독 접근성</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #E0E0E0;
+            font-family: sans-serif;
+            margin: 2rem;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #FFFFFF;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            margin-bottom: 2rem;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        th {
+            background-color: #1E1E1E;
+        }
+        a {
+            color: #4DA8DA;
+            text-decoration: none;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .status-pass {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>네이티브/에뮬레이터 검증 보고서</h1>
+        
+        <h2>개요</h2>
+        <table>
+            <tr>
+                <th>대상 브랜치</th>
+                <td>codex/a11y-scan-20260720d</td>
+            </tr>
+            <tr>
+                <th>검증 대상</th>
+                <td>src/components/deepspace/BackgroundTaskDock.tsx</td>
+            </tr>
+            <tr>
+                <th>목적</th>
+                <td>접근성 라벨 추가 및 상태 동기화 검토</td>
+            </tr>
+            <tr>
+                <th>판정</th>
+                <td class="status-pass">통과 (병합 승인)</td>
+            </tr>
+        </table>
+
+        <h2>상세 검토 내용</h2>
+        <table>
+            <tr>
+                <th>접근성 (A11y)</th>
+                <td>
+                    동적 접근성 라벨(작업명, 백그라운드 상태, 남은 시간)이 정상적으로 합성되어 제공됨.<br>
+                    접근성 상태(accessibilityState)가 확장 여부를 스크린 리더에 정확히 전달함.
+                </td>
+            </tr>
+            <tr>
+                <th>네이티브 성능</th>
+                <td>
+                    회전 애니메이션에 네이티브 드라이버(useNativeDriver)가 올바르게 적용되어 자바스크립트 스레드를 차단하지 않음.
+                </td>
+            </tr>
+            <tr>
+                <th>레이아웃 무결성</th>
+                <td>
+                    상태 변경(축소/확장) 시 레이아웃 붕괴나 요소 이탈 현상이 발생하지 않는 구조임.<br>
+                    축소 상태에서는 flex-start와 여백 조정을 통해 우측 공간을 안정적으로 확보함.
+                </td>
+            </tr>
+        </table>
+
+        <h2>결론</h2>
+        <p>본 변경 사항은 안드로이드/에뮬레이터 환경에서 어플리케이션 안정성을 저해하지 않으며, 접근성을 향상시키는 유효한 코드입니다. 클로드(Claude) 측 병합을 승인합니다.</p>
+    </div>
+</body>
+</html>
