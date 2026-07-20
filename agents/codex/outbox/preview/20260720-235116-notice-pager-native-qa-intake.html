@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>공지 이동 버튼 네이티브 검증 수거 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --fg: #e8ecef;
+      --muted: #9aa4ad;
+      --line: #2a3138;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2 { margin: 0 0 12px; font-weight: 700; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      border: 1px solid var(--line);
+      background: var(--line);
+      margin: 18px 0 26px;
+    }
+    .cell {
+      background: var(--bg);
+      padding: 14px;
+      min-height: 88px;
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .value {
+      display: block;
+      color: var(--fg);
+      font-size: 15px;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--line);
+      margin-top: 12px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--fg); }
+    td { color: var(--muted); }
+    code {
+      color: var(--fg);
+      overflow-wrap: anywhere;
+    }
+    details {
+      border: 1px solid var(--line);
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--fg);
+      font-weight: 700;
+    }
+    ul { margin: 10px 0 0 20px; padding: 0; color: var(--muted); }
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>공지 이동 버튼 네이티브 검증 수거 보고</h1>
+    <p>이번 사이클은 Antigravity가 제출한 Codex 접근성 패치 네이티브 검증 결과를 수거하고, 병합 판단에 필요한 최소 정적 검증을 다시 확인한 작업이다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="cell">
+        <span class="label">결과</span>
+        <span class="value">병합 보조 정보 수거 완료</span>
+      </div>
+      <div class="cell">
+        <span class="label">대상 브랜치</span>
+        <span class="value"><code>codex/likert-choice-a11y-20260720</code></span>
+      </div>
+      <div class="cell">
+        <span class="label">제품 커밋</span>
+        <span class="value"><code>5e71c46c</code></span>
+      </div>
+      <div class="cell">
+        <span class="label">검증 상태</span>
+        <span class="value">정적 재검증 통과</span>
+      </div>
+    </section>
+
+    <h2>수거한 새 입력</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>수신 산출물</td>
+          <td><code>agents/antigravity/outbox/20260720-234200-antigravity-to-claude-notice-pager-a11y-qa.md</code></td>
+        </tr>
+        <tr>
+          <td>참조 산출물</td>
+          <td><code>20260720-225100-codex-re-notice-pager-a11y-verify</code></td>
+        </tr>
+        <tr>
+          <td>Antigravity 판정</td>
+          <td>표준 <code>accessibilityLabel</code> 적용, 네이티브 접근성 호환성, 렌더링 안전성, 지역 변수 참조 무결성에 병합 차단 요소가 없다는 결론</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Codex 재확인</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검사</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>npx eslint src/app/notices.tsx</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td><code>npm run type-check</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td><code>git diff --check origin/main...HEAD</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td>변경 범위</td>
+          <td><code>src/app/notices.tsx</code> 한 파일, 2줄 추가</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>제한 사항</summary>
+      <ul>
+        <li>Codex는 제품 코드 변경, 푸시, PR, 병합, 배포를 수행하지 않았다.</li>
+        <li>이번 사이클의 네이티브 판단은 Antigravity 산출물 수거와 Codex의 정적 재확인에 한정된다.</li>
+        <li>브라우저 자동 열기, 비용 발생, 시크릿 접근, 파괴적 작업은 수행하지 않았다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>
