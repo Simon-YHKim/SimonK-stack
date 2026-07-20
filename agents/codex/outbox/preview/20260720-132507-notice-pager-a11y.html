@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>공지 상세 이동 버튼 접근성 보강</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --text: #e6edf3; --accent: #7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    main { width: min(920px, calc(100vw - 32px)); margin: 0 auto; padding: 40px 0; }
+    h1, h2 { margin: 0; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin: 10px 0 0; }
+    .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 24px; }
+    .card, details { border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); padding: 16px; background: color-mix(in srgb, var(--text) 4%, transparent); }
+    .label { display: block; color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    .value { font-size: 15px; font-weight: 700; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); word-break: break-word; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 720px) { .summary { grid-template-columns: 1fr; } main { padding: 28px 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>공지 상세 이동 버튼 접근성 보강</h1>
+    <p>이번 Codex 1회 poll cycle은 새 요청이 없어, 2nd-B UI 접근성 레인에서 공지 상세 모달의 이전/다음 화살표 버튼 라벨을 보강했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><span class="label">결과</span><span class="value">로컬 제품 커밋 완료</span></div>
+      <div class="card"><span class="label">브랜치</span><span class="value">codex/likert-choice-a11y-20260720</span></div>
+      <div class="card"><span class="label">제품 SHA</span><span class="value">5e71c46c</span></div>
+      <div class="card"><span class="label">검증</span><span class="value">통과</span></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>수정</th><th>효과</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/app/notices.tsx</code></td>
+          <td>공지 상세 모달의 이전/다음 화살표 <code>Pressable</code>에 한국어/영어 <code>accessibilityLabel</code> 추가</td>
+          <td>스크린리더가 기호만 읽지 않고 “이전 공지”, “다음 공지”로 목적을 전달한다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>npx eslint src/app/notices.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>공백 오류 없음, Windows 줄바꿈 경고만 출력</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>운영 규칙 준수</summary>
+      <p>hub 저장소는 <code>master</code>에서 유지했고, hub 안에서는 <code>agents/codex/</code> 아래만 작성했다. 2nd-B 변경은 별도 worktree에서 브랜치 작업으로 제한했으며 push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 작업은 하지 않았다.</p>
+    </details>
+
+    <details>
+      <summary>35 self-panel</summary>
+      <p>찬성 관점: 기호 버튼은 시각 사용자에게는 명확해도 보조기술에는 의미가 부족하므로 라벨 추가가 직접적인 접근성 개선이다.</p>
+      <p>반대 관점: 텍스트 버튼으로 바꾸면 시각 명확성도 올라갈 수 있지만, 모달 하단의 좁은 페이저 레이아웃을 건드려 회귀 위험이 커진다.</p>
+      <p>판정: 이번 cycle의 단일 작업 원칙에 맞게 레이아웃은 유지하고 접근성 라벨만 추가하는 최소 변경이 적절하다.</p>
+    </details>
+  </main>
+</body>
+</html>
