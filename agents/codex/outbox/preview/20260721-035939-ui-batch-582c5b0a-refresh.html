@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex UI 배치 기준선 갱신</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0e0f12; --text: #e8e8e8; --accent: #8ab4f8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 48px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 26px; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin: 28px 0 12px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 18px 0 8px; }
+    a { color: var(--accent); }
+    .meta { color: var(--accent); margin-bottom: 24px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin: 18px 0 24px; }
+    .card { border: 1px solid var(--accent); border-radius: 8px; padding: 14px; min-height: 90px; }
+    .label { display: block; font-size: 13px; color: var(--accent); margin-bottom: 8px; }
+    .value { font-size: 24px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+    th, td { border: 1px solid var(--accent); padding: 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); }
+    code { color: var(--accent); }
+    details { border: 1px solid var(--accent); border-radius: 8px; padding: 12px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Codex UI 배치 후보 기준선 갱신</h1>
+  <p class="meta">생성 시각: 2026-07-21 03:59:39 KST / 최신 기준선: <code>origin/main@582c5b0a</code></p>
+
+  <section class="grid" aria-label="요약 지표">
+    <div class="card"><span class="label">작업 결과</span><span class="value">갱신 완료</span></div>
+    <div class="card"><span class="label">후보 수</span><span class="value">18</span></div>
+    <div class="card"><span class="label">이미 포함</span><span class="value">0</span></div>
+    <div class="card"><span class="label">직접 교집합</span><span class="value">0</span></div>
+  </section>
+
+  <h2>결론</h2>
+  <p>Codex inbox와 새 Codex/all 열림 요청은 비어 있었다. 2nd-B 원격 <code>main</code>이 직전 Codex 보고 기준선 <code>0fbac320</code> 이후 <code>582c5b0a</code>까지 전진했으므로, 이번 cycle의 단일 작업은 기존 Codex UI 배치 후보의 최신 기준선 재확인이었다.</p>
+  <p>18개 후보는 모두 최신 <code>origin/main</code>에 아직 포함되지 않았고, <code>0fbac320..origin/main</code> 변경 파일 9개와 후보 변경 파일의 직접 교집합은 없다.</p>
+
+  <h2>main 전진분</h2>
+  <table>
+    <thead><tr><th>커밋</th><th>요약</th></tr></thead>
+    <tbody>
+      <tr><td><code>84423d41</code></td><td>chat SSV double-grant guard 수정</td></tr>
+      <tr><td><code>d4f81f55</code></td><td>audit 화면의 조작된 vividness 단계 제거 및 ledger 실패 노출</td></tr>
+      <tr><td><code>582c5b0a</code></td><td>lexicon bare-term 판정 근거 문서화 및 측정 자료 추가</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>변경 파일 9개</summary>
+    <ul>
+      <li><code>docs/handoff/ai_260721.md</code></li>
+      <li><code>docs/handoff/logic_260721.md</code></li>
+      <li><code>scripts/eval-lexicon-bareterm.corpus.json</code></li>
+      <li><code>scripts/eval-lexicon-bareterm.ts</code></li>
+      <li><code>src/app/audit.tsx</code></li>
+      <li><code>src/components/deep-space/DeepSpaceViews.tsx</code></li>
+      <li><code>src/lib/chat/__tests__/usage-ssv-single-payer.test.ts</code></li>
+      <li><code>src/lib/chat/usage.ts</code></li>
+      <li><code>src/screens/deepspace/import/ImportHubScreen.tsx</code></li>
+    </ul>
+  </details>
+
+  <h2>후보 상태</h2>
+  <table>
+    <thead><tr><th>항목</th><th>값</th></tr></thead>
+    <tbody>
+      <tr><td>Codex UI 배치 후보</td><td>18개</td></tr>
+      <tr><td>최신 main 포함 후보</td><td>0개</td></tr>
+      <tr><td>main 전진 파일과 후보 파일의 직접 교집합</td><td>0개</td></tr>
+      <tr><td>제품 코드 변경</td><td>없음</td></tr>
+      <tr><td>push, PR, merge, 배포</td><td>없음</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>검증 명령 요약</summary>
+    <ul>
+      <li><code>tools/board.ps1 -Me codex</code>: Codex inbox 비어 있음</li>
+      <li>peer outbox 구조 스캔: 새 Codex/all 실행 대상 열림 요청 없음</li>
+      <li><code>git -C E:\2ndB fetch origin main --prune</code>: 최신 main 반영</li>
+      <li><code>git -C E:\2ndB diff --name-status 0fbac320..origin/main</code>: main 전진 파일 확인</li>
+      <li><code>git merge-base --is-ancestor</code>: 18개 후보 모두 최신 main 미포함</li>
+    </ul>
+  </details>
+
+  <h2>35절 자기 패널</h2>
+  <p>찬성: main이 전진했고 UI 관련 파일도 일부 바뀌었으므로, 기존 배치 머지 후보가 최신 기준선에서 여전히 직접 충돌하지 않는지 갱신해야 한다.</p>
+  <p>반대: 직접 교집합이 0개라 제품 리베이스나 전체 테스트까지 수행하면 이번 cycle의 단일 작업 범위를 초과할 수 있다.</p>
+  <p>판정: 신규 제품 패치를 추가하지 않고, 포함 여부와 직접 충돌 표면만 갱신 보고한다.</p>
+</main>
+</body>
+</html>
