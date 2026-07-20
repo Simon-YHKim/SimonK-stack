@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>위기 안내 배경 토큰 정리 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1117;
+      --text: #e5e7eb;
+      --accent: #46b6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 44px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 {
+      font-size: 28px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin-top: 28px;
+      font-size: 17px;
+      color: var(--accent);
+      letter-spacing: 0;
+    }
+    p { margin-top: 10px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 22px;
+    }
+    .card, details {
+      border: 1px solid rgba(70, 182, 255, 0.34);
+      background: rgba(70, 182, 255, 0.06);
+      border-radius: 8px;
+    }
+    .card { padding: 14px; }
+    .label {
+      display: block;
+      color: rgba(229, 231, 235, 0.72);
+      font-size: 12px;
+    }
+    .value {
+      display: block;
+      margin-top: 6px;
+      font-size: 14px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      margin-top: 12px;
+      border-collapse: collapse;
+      border: 1px solid rgba(70, 182, 255, 0.34);
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(70, 182, 255, 0.22);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      background: rgba(229, 231, 235, 0.08);
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+    details {
+      margin-top: 14px;
+      padding: 12px 14px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    @media (max-width: 760px) {
+      .summary { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 520px) {
+      .summary { grid-template-columns: 1fr; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>위기 안내 배경 토큰 정리 보고</h1>
+    <p>이번 단일 자율 사이클에서는 새 Codex 요청이 없어, Codex 레인의 작은 UI 규율 개선 한 건만 수행했다. 위기 안내 모달의 직접 배경 색상값을 기존 의미 토큰으로 교체했고 안전 동작은 변경하지 않았다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><span class="label">제품 기준</span><span class="value">origin/main@f2eb07b9</span></div>
+      <div class="card"><span class="label">제품 커밋</span><span class="value">1bebeeb3</span></div>
+      <div class="card"><span class="label">변경 범위</span><span class="value">파일 1개, 한 줄</span></div>
+      <div class="card"><span class="label">검증 상태</span><span class="value">통과</span></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>내용</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>작업 파일</td><td><code>src/components/safety/CrisisRouter.tsx</code></td></tr>
+        <tr><td>기존 값</td><td><code>backgroundColor: "rgba(0,0,0,0.6)"</code></td></tr>
+        <tr><td>변경 값</td><td><code>backgroundColor: semantic.backdrop</code></td></tr>
+        <tr><td>제품 브랜치</td><td><code>codex/notices-token-cleanup-20260720</code></td></tr>
+        <tr><td>제품 작업트리</td><td><code>E:\2ndB\.worktrees\codex-notices-token-cleanup-20260720</code></td></tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <ul>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>git diff --check</code> 통과</li>
+        <li>대상 파일 직접 색상 검색 결과 없음</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>35항 자기 패널</summary>
+      <ul>
+        <li>찬성 관점: 이미 같은 값을 제공하는 <code>semantic.backdrop</code>을 쓰면 디자인 토큰 규율에 맞고 후속 팔레트 변경에도 일관된다.</li>
+        <li>반대 관점: 위기 안내 표면은 안전 관련 화면이므로 시각, 문구, 닫기 정책, 전화 연결을 넓게 바꾸면 안 된다.</li>
+        <li>수렴 판단: 한 줄 토큰 치환만 적용했고 핫라인 번호, 안전 문구, 비배경 탭 닫기 금지, 명시 닫기 동작은 그대로 유지했다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>제약 준수</summary>
+      <ul>
+        <li>허브 쓰기는 <code>agents/codex/</code> 내부 보고와 상태 갱신으로 제한했다.</li>
+        <li>2nd-B 원격 push, PR, main merge, 배포, 브라우저 자동 열기는 하지 않았다.</li>
+        <li>파괴적 작업, 비용 발생 작업, 시크릿 접근 작업은 하지 않았다.</li>
+        <li>위기 라우팅 로직과 외부 사실 주장을 바꾸지 않아 추가 MoA 검증 요청은 만들지 않았다.</li>
+      </ul>
+    </details>
+
+    <h2>기록 시각</h2>
+    <p>2026-07-20 10:12:19 KST</p>
+  </main>
+</body>
+</html>
