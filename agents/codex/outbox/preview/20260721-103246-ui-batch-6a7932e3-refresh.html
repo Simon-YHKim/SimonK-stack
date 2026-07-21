@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 기준선 갱신 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101214; --text: #e8edf2; --muted: #9aa6b2; --accent: #6fb7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { width: min(980px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin: 28px 0 10px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 18px 0 8px; }
+    p, li { color: var(--text); }
+    .muted { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 22px 0; }
+    .card { border: 1px solid var(--muted); border-radius: 8px; padding: 14px; min-height: 92px; }
+    .label { color: var(--muted); font-size: 12px; }
+    .value { display: block; margin-top: 8px; font-size: 22px; font-weight: 700; color: var(--accent); overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0 4px; }
+    th, td { border-bottom: 1px solid var(--muted); padding: 9px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    details { border: 1px solid var(--muted); border-radius: 8px; padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+    .check { color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } main { width: min(100% - 20px, 980px); padding-top: 28px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex UI 배치 후보 기준선 갱신</h1>
+    <p class="muted">작성 시각: 2026-07-21 10:32:46 KST. 이번 단일 poll cycle은 새 제품 패치 없이 병합 지원 큐 상태만 갱신했다.</p>
+
+    <section class="grid" aria-label="핵심 지표">
+      <div class="card"><span class="label">최신 기준선</span><span class="value">6a7932e3</span></div>
+      <div class="card"><span class="label">main 전진 커밋</span><span class="value">1개</span></div>
+      <div class="card"><span class="label">직접 파일 교집합</span><span class="value">0개</span></div>
+      <div class="card"><span class="label">후보 미포함</span><span class="value">18개</span></div>
+    </section>
+
+    <h2>결론</h2>
+    <p>Codex inbox와 Codex/all 대상 peer outbox에는 새 실행 요청이 없었다. 대신 2nd-B <code>origin/main</code>이 직전 Codex 기준선 <code>d56893f6</code>에서 <code>6a7932e3</code>로 전진했으므로, 기존 Codex UI 후보 18건의 포함 여부와 직접 충돌 표면을 다시 확인했다.</p>
+    <p class="check">판정: 18개 후보는 최신 main에 아직 포함되지 않았고, 이번 main 전진 파일과 후보 파일의 직접 교집합은 없다.</p>
+
+    <h2>변경 범위</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>값</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>직전 기준선</td><td><code>d56893f6</code></td></tr>
+        <tr><td>최신 기준선</td><td><code>6a7932e3</code></td></tr>
+        <tr><td>main 전진 변경</td><td><code>docs/handoff/hub_260721.md</code> 1개 파일, 38줄 추가</td></tr>
+        <tr><td>전진 내용</td><td>Android v0.1.0 APK cut 완료와 Antigravity QA brief 기록</td></tr>
+        <tr><td>Codex 후보 파일</td><td>고유 16개 제품 UI, 접근성, 토큰 파일</td></tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 내역</summary>
+      <ul>
+        <li><code>tools/board.ps1 -Me codex</code>: Codex inbox 비어 있음</li>
+        <li>peer outbox 구조 스캔: Codex/all 대상 새 open 요청 없음</li>
+        <li><code>git -C E:\2ndB fetch origin main</code>: <code>origin/main@6a7932e3</code> 확인</li>
+        <li><code>git -C E:\2ndB diff --name-status d56893f6..origin/main</code>: 변경 파일 1개 확인</li>
+        <li>18개 후보 각각 <code>merge-base --is-ancestor</code>: 모두 미포함</li>
+        <li>main 전진 파일과 후보 파일 직접 교집합: 0개</li>
+        <li><code>git -C E:\2ndB diff --check d56893f6..origin/main</code>: 통과</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>35절 자기 패널</summary>
+      <h3>찬성</h3>
+      <p>main이 새 handoff 커밋으로 전진했으므로 Claude merge gate가 보는 Codex 후보 기준선도 최신 SHA로 맞춰야 한다.</p>
+      <h3>반대</h3>
+      <p>이번 전진분은 제품 코드가 아니라 handoff 문서 1개라 의미론적 UI 충돌 가능성은 낮고, 반복 갱신의 실익이 작을 수 있다.</p>
+      <h3>판정</h3>
+      <p>queue가 직전 cycle 이후 실제로 변했으므로 NO-OP가 아니라 단일 병합 지원 갱신으로 처리한다. 신규 패치, 리베이스, push, PR은 하지 않는다.</p>
+    </details>
+
+    <h2>안전 확인</h2>
+    <p>제품 코드 변경, 2nd-B push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 작업은 하지 않았다. 이 산출물은 병합 지원 큐 갱신이며 고위험 deliverable이 아니므로 별도 MoA verify 요청은 만들지 않았다.</p>
+  </main>
+</body>
+</html>
