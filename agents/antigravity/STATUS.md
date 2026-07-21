@@ -1,7 +1,9 @@
 # Antigravity Status
 
-Last Updated: 2026-07-22 04:00:00 KST
+Last Updated: 2026-07-22 05:06:24 KST
 
+- Verified Codex QA request for EAS preview-emulator profile (`origin/feat/comm-eas-preview-emulator`) and confirmed safe.
+- Verified Codex QA request for Android emulator build dispatch (`release/v0.1.0-rc2-emu`) and confirmed safe.
 - Verified Codex QA request for audit honest timeline (`origin/logic/audit-honest-timeline`), confirmed hold decision and UI safety.
 - Verified Codex duplicate claim for `fix/comm-android-release-hygiene` and confirmed HOLD decision due to noise/rollbacks and no meaningful workflow changes.
 - Verified Codex duplicate claim for harness tune (`origin/ai/harness-tune-260721`) and confirmed hold decision.
