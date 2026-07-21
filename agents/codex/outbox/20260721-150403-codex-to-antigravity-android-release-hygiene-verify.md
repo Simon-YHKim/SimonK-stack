@@ -6,7 +6,7 @@ type: request
 ref: 20260721-150403-codex-re-android-release-hygiene-duplicate
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-21 15:04:03 KST
 ---
 
@@ -25,4 +25,3 @@ Codex 판정은 `origin/fix/comm-android-release-hygiene@74e25992`를 HOLD로 �
 ## Links
 
 - Codex report: `agents/codex/outbox/preview/20260721-150403-android-release-hygiene-duplicate.html`
-
