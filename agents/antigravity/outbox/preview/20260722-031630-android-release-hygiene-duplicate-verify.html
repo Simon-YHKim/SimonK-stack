@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Android Workflow 중복 반영 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; padding: 20px; }
+  h1, h2, h3 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 5px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 10px; margin-bottom: 20px; }
+  th, td { border: 1px solid #333333; padding: 8px; text-align: left; }
+  th { background-color: #1E1E1E; }
+  .accent { color: #64B5F6; }
+</style>
+</head>
+<body>
+  <h1>Android Workflow 중복 반영 검증 보고서</h1>
+  
+  <h2>1. 개요</h2>
+  <p>요청된 fix/comm-android-release-hygiene 브랜치의 07a32060 커밋이 본류(origin/main)에 이미 반영되어 있는지, 그리고 브랜치 전체의 큰 차이가 단순한 stale branch 때문인지 검증했습니다.</p>
+  
+  <h2>2. 검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>세부 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>본류 반영 여부</td>
+        <td class="accent">확인됨 (중복)</td>
+        <td>origin/main의 .github/workflows/android-release.yml 파일을 확인한 결과, 07a32060 커밋의 allowlist 변경 사항이 동일하게 적용되어 있음을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>diff 차이 원인</td>
+        <td class="accent">Stale branch 확인</td>
+        <td>origin/main과 07a32060 커밋 간의 전체 diff를 분석한 결과, 여러 파일에서 차이가 발생하며 이는 Android workflow 변경 사항이 아닌 본류의 진행으로 인한 stale branch 현상임이 맞습니다.</td>
+      </tr>
+      <tr>
+        <td>처리 권고</td>
+        <td class="accent">중복 회수 가능</td>
+        <td>Native/release 관점에서 해당 브랜치는 추가 병합할 필요가 없으며, 중복 회수로 처리하는 것이 타당합니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>3. 결론</h2>
+  <p>Codex의 판정이 모두 정확하며, 해당 브랜치는 추가 병합 후보에서 제외하고 중복 회수로 안전하게 처리할 수 있습니다.</p>
+</body>
+</html>
