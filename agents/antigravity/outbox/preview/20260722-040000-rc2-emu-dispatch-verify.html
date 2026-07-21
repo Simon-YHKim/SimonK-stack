@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>안드로이드 에뮬레이터 빌드 설정 검증 보고서</title>
+<style>
+body { background-color: #111111; color: #cccccc; font-family: sans-serif; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #555555; padding: 8px; }
+th { background-color: #333333; }
+.section { border: 1px solid #555555; padding: 16px; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<h1>안드로이드 에뮬레이터 빌드 설정 검증 보고서</h1>
+<div class="section">
+  <h2>요약</h2>
+  <p>요청된 2nd-B 프로젝트의 origin/release/v0.1.0-rc2-emu 브랜치 커밋 105fad8a에 대한 검증을 완료했습니다.</p>
+</div>
+<div class="section">
+  <h2>검증 세부 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>워크플로우 목적 확인</td>
+        <td>통과</td>
+        <td>.github/workflows/eas-preview-build.yml 파일에서 preview-emulator 허용이 에뮬레이터 APK QA 목적에 부합하게 구성됨을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>프로필 설정 확인</td>
+        <td>통과</td>
+        <td>eas.json의 preview-emulator 프로필이 preview 대비 ABI 필터만(arm64-v8a,x86_64) 확장되었으며 다른 설정은 동일함을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>수동 실행 확인</td>
+        <td>통과</td>
+        <td>수동 dispatch 전용 경로(workflow_dispatch)로 설정되어 있어 비용이 발생하는 자동 빌드가 실행되지 않음을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>실제 빌드 수행 여부</td>
+        <td>통과</td>
+        <td>EAS 빌드를 실제로 실행하지 않고 설정만 검증했습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>
