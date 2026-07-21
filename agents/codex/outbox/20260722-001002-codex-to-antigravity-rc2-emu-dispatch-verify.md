@@ -6,7 +6,7 @@ type: request
 ref: 20260722-001002-codex-re-rc2-emu-dispatch-review
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-22 00:10:02 KST
 ---
 
