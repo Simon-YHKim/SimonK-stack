@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>안드로이드 릴리스 워크플로우 중복 검토</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101214; --fg:#e8edf2; --muted:#91a0ae; --accent:#6fb7ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height:1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1 { margin: 0 0 12px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 10px; font-size: 18px; }
+    p { margin: 8px 0; }
+    .lead { color: var(--muted); }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 22px 0; }
+    .card { border:1px solid var(--muted); border-radius:8px; padding:14px; min-height:92px; }
+    .label { color:var(--muted); font-size:12px; }
+    .value { margin-top:8px; font-size:18px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { border-bottom:1px solid var(--muted); padding:10px 8px; text-align:left; vertical-align:top; }
+    th { color:var(--muted); font-weight:600; }
+    code { color:var(--accent); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .verdict { border-left:4px solid var(--accent); padding:12px 14px; margin:20px 0; background:#15191d; }
+    @media (max-width:760px){ .grid{ grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>안드로이드 릴리스 워크플로우 중복 검토</h1>
+    <p class="lead">프로토콜 12/19/35.4 단일 사이클 결과입니다. 열린 Codex 요청은 없었고, 새로 전진한 원격 브랜치 한 건을 native-safety 관점에서 검토했습니다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">대상</div><div class="value"><code>origin/fix/comm-android-release-hygiene</code></div></div>
+      <div class="card"><div class="label">검토 커밋</div><div class="value"><code>74e25992</code></div></div>
+      <div class="card"><div class="label">기준</div><div class="value"><code>origin/main@2735afdc</code></div></div>
+      <div class="card"><div class="label">판정</div><div class="value">보류</div></div>
+    </section>
+
+    <div class="verdict">
+      <strong>결론:</strong> Android workflow 자체는 현재 <code>origin/main</code>과 동일하므로 새 머지 후보가 아닙니다. 브랜치 전체 diff에는 문서, 썸네일, 화면 파일의 stale noise가 남아 있어 이 브랜치를 그대로 병합하면 안 됩니다.
+    </div>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead><tr><th>검사</th><th>결과</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>Codex inbox</td><td>열린 요청 없음</td><td><code>tools/board.ps1 -Me codex</code> 결과 empty</td></tr>
+        <tr><td>이전 검토 조상성</td><td>통과</td><td><code>07a32060</code>은 <code>74e25992</code>의 조상</td></tr>
+        <tr><td>워크플로우 동일성</td><td>통과</td><td><code>origin/main..origin/fix/... -- .github/workflows/android-release.yml</code> 차이 없음</td></tr>
+        <tr><td>핵심 guard</td><td>통과</td><td>dispatch 전용 concurrency, ads flag, release/tag allowlist 확인</td></tr>
+        <tr><td>공백 검사</td><td>통과</td><td><code>git diff --check</code> 통과</td></tr>
+        <tr><td>merge-tree</td><td>통과</td><td>충돌 출력 없음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>섹션 35 자기 패널</h2>
+    <table>
+      <thead><tr><th>관점</th><th>판단</th></tr></thead>
+      <tbody>
+        <tr><td>찬성</td><td>workflow guard 방향은 안전합니다. moving branch dispatch 차단과 dispatch별 concurrency 분리는 릴리스 게이트 드리프트를 줄입니다.</td></tr>
+        <tr><td>반대</td><td>브랜치 전체를 머지하면 이미 main에 반영된 workflow 외 stale 파일 변경이 섞입니다.</td></tr>
+        <tr><td>대안</td><td>Claude가 이 브랜치는 닫고, 필요하면 이미 main에 있는 <code>7c19d27d</code>만 정본으로 취급하는 편이 맞습니다.</td></tr>
+        <tr><td>판정</td><td>중복 보류. 추가 product code 작업, push, PR, 배포, 브라우저 open은 하지 않았습니다.</td></tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>
