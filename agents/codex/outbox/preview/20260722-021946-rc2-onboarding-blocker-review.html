@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>rc2 온보딩 블로커 검수</title>
+  <style>
+    :root{--bg:#0b1220;--text:#e6edf3;--accent:#58a6ff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font:15px/1.65 system-ui,-apple-system,Segoe UI,sans-serif}
+    main{max-width:980px;margin:0 auto;padding:32px 18px 48px}
+    h1,h2{line-height:1.25;margin:0 0 12px}
+    h1{font-size:28px}
+    h2{font-size:18px;margin-top:28px}
+    p{margin:8px 0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:18px 0}
+    .card{border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);border-radius:8px;padding:14px;background:color-mix(in srgb,var(--bg) 88%,var(--accent))}
+    .label{font-size:12px;color:var(--accent);margin-bottom:4px}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);padding:9px 10px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent);font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+    details{border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);border-radius:8px;padding:12px;margin:12px 0}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    ul{padding-left:20px}
+  </style>
+</head>
+<body>
+<main>
+  <h1>rc2 온보딩 블로커 검수</h1>
+  <p>Codex 단일 사이클 검수 보고서. 2nd-B <code>origin/main</code>의 새 커밋 <code>a5506d3c</code>에 추가된 rc2 에뮬레이터 QA 산출을 확인했다.</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="label">판정</div><strong>보류 권고</strong><br>신규 사용자 홈 진입 블로커 후보가 재현 증거와 함께 기록됨</div>
+    <div class="card"><div class="label">범위</div><strong>문서와 픽셀 QA</strong><br>제품 코드 변경 없음, 2nd-B push 없음</div>
+    <div class="card"><div class="label">검증</div><strong>통과</strong><br>스크린샷 직접 확인, 정적 검사, Jest, 공백 검사</div>
+    <div class="card"><div class="label">교차검증</div><strong>요청</strong><br>릴리스 전 UI 블로커 후보라 Claude 확인 요청</div>
+  </section>
+
+  <h2>핵심 결론</h2>
+  <table>
+    <thead><tr><th>항목</th><th>Codex 재판정</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>로그인 화면</td><td>정상 렌더</td><td><code>03-emu-first.png</code>에서 로고, 입력 필드, 소셜 버튼, 약관 링크 확인</td></tr>
+      <tr><td>온보딩 렌더</td><td>정상 렌더</td><td><code>05-post-login.png</code>에서 첫 슬라이드와 하단 다음 버튼 확인</td></tr>
+      <tr><td>최종 버튼</td><td>블로커 후보</td><td><code>09-getstarted.png</code>의 <code>Get started</code> 단계 이후 홈 증거가 없고, <code>11-relaunch.png</code>에서 첫 슬라이드로 복귀</td></tr>
+      <tr><td>광고 게이트</td><td>완전 실증 보류</td><td>홈 미도달로 rewarded 트리거까지 가지 못함. 도달 범위에서 광고 UI는 보이지 않음</td></tr>
+    </tbody>
+  </table>
+
+  <h2>원인 후보</h2>
+  <p>현재 증거만으로 단일 원인을 확정하지 않았다. 코드 경로상 최종 버튼은 <code>src/app/onboarding.tsx</code>에서 <code>markOnboardingComplete()</code> 후 <code>router.replace("/")</code>를 호출한다. 재실행 시 첫 슬라이드로 돌아온 점은 다음 후보를 우선순위로 남긴다.</p>
+  <ul>
+    <li>최종 <code>MdButton</code>의 <code>onPress</code>가 Android 런타임에서 발화하지 않았을 가능성</li>
+    <li><code>AsyncStorage</code> 저장 실패 또는 저장 전 라우터 전환 경쟁으로 완료 플래그가 유지되지 않았을 가능성</li>
+    <li>홈 진입 직후 <code>DeepSpaceShell</code>이 완료 플래그를 다시 false로 읽어 온보딩으로 되돌렸을 가능성</li>
+  </ul>
+
+  <h2>검증 기록</h2>
+  <table>
+    <thead><tr><th>검증</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td>2nd-B worktree</td><td><code>E:\2ndB\.worktrees\codex-review-rc2-qa-main-20260722</code> 생성, <code>origin/main@a5506d3c</code></td></tr>
+      <tr><td>이전 기준 포함</td><td><code>c87bff24</code>가 <code>a5506d3c</code>의 ancestor임을 확인</td></tr>
+      <tr><td>스크린샷 확인</td><td><code>03</code>, <code>05</code>, <code>09</code>, <code>11</code> 네 장 직접 판독</td></tr>
+      <tr><td>Jest</td><td><code>src/lib/onboarding/__tests__/state.test.ts</code> 7개 통과</td></tr>
+      <tr><td>정적 검사</td><td><code>src/app/onboarding.tsx</code>, <code>src/lib/onboarding/state.ts</code>, <code>src/components/m3/MdButton.tsx</code> 통과</td></tr>
+      <tr><td>공백 검사</td><td><code>c87bff24..a5506d3c</code> 공백 오류 없음</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>섹션 35 자체 패널</summary>
+    <p><strong>역할:</strong> Codex는 UI, 군더더기 방지, 버그 QA 담당이므로 신규 패치 생산보다 릴리스 QA 증거의 정직성 검수가 우선이다.</p>
+    <p><strong>반대 관점:</strong> QA 계정 상태나 x86 에뮬 환경 특이성일 수 있으므로 제품 버그로 단정하면 안 된다.</p>
+    <p><strong>결론:</strong> 블로커 후보는 충분히 중대하지만 원인 미확정이다. 릴리스 판단 전 실기 arm64 또는 다른 계정으로 재현 확인이 필요하다.</p>
+  </details>
+</main>
+</body>
+</html>
