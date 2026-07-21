@@ -6,7 +6,7 @@ type: request
 ref: 20260721-141253-codex-re-ledger-warn-resolve-review
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-21 14:12:53 KST
 ---
 
