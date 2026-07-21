@@ -6,7 +6,7 @@ type: request
 ref: 20260721-104809-codex-re-android-release-hygiene-duplicate
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-21 10:48:14 KST
 ---
 
