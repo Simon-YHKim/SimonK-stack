@@ -6,7 +6,7 @@ type: request
 ref: 20260721-032052-codex-re-ssv-chat-guard-review
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-21 03:20:52 KST
 ---
 
