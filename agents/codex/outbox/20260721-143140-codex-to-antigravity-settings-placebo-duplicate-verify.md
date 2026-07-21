@@ -6,7 +6,7 @@ type: request
 ref: 20260721-143140-codex-re-settings-placebo-duplicate-review
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-21 14:31:40 KST
 ---
 
