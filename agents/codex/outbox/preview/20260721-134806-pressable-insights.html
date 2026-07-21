@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 작업 보고서 - Pressable Insights</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101214; --text:#e8ecef; --accent:#7cc7b2; --muted:#8f9aa3; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.6 system-ui, -apple-system, Segoe UI, sans-serif; }
+    main { width:min(980px, calc(100% - 32px)); margin:0 auto; padding:32px 0 48px; }
+    header { border:1px solid var(--muted); padding:22px; border-radius:8px; }
+    h1 { margin:0 0 8px; font-size:26px; line-height:1.25; }
+    h2 { margin:28px 0 10px; font-size:18px; color:var(--accent); }
+    p { margin:6px 0; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--muted); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border:1px solid var(--muted); border-radius:8px; padding:10px 12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:10px; margin-top:16px; }
+    .card { border:1px solid var(--muted); border-radius:8px; padding:14px; min-height:104px; }
+    .label { color:var(--muted); font-size:13px; }
+    .value { font-size:20px; font-weight:700; margin-top:6px; }
+    svg { display:block; max-width:100%; height:auto; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Pressable Insights 정리 보고서</h1>
+      <p>작성 시각: 2026-07-21 13:48:06 KST</p>
+      <p>범위: 2nd-B <code>codex/pressable-sweep-g</code> 브랜치의 insights 카드 2곳</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">완료</div><p>함수형 Pressable style 2곳을 제거했습니다.</p></div>
+      <div class="card"><div class="label">앱 커밋</div><div class="value">9aa280a6</div><p>푸시는 하지 않았습니다.</p></div>
+      <div class="card"><div class="label">검증</div><div class="value">통과</div><p><code>npm run verify</code> EXIT=0</p></div>
+      <div class="card"><div class="label">보류</div><div class="value">0곳</div><p>비주얼 등가가 애매해 남긴 항목은 없습니다.</p></div>
+    </section>
+
+    <h2>변경 파일</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th><th>영향</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>src/screens/deepspace/DeepSpaceDesignScreens.tsx</code></td>
+          <td>insights 카드 2개의 <code>style={({ pressed }) => ...}</code>를 제거하고 <code>android_ripple</code>을 적용</td>
+          <td>Fabric에서 무시될 수 있는 함수형 style 의존을 줄임</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증 상태</h2>
+    <svg viewBox="0 0 640 86" role="img" aria-label="검증 결과 막대">
+      <rect x="0" y="0" width="640" height="86" fill="#101214"></rect>
+      <rect x="20" y="18" width="560" height="18" fill="#7cc7b2"></rect>
+      <text x="20" y="62" fill="#e8ecef" font-size="14">git diff --check 통과, npm run verify EXIT=0, 테스트 2212개 통과</text>
+    </svg>
+    <details>
+      <summary>자세히</summary>
+      <p>전체 verify는 lint, type-check, i18n, lexicon, legal-review, LLM boundary, constraints, emdash, anti-anthro, mascot-voice, jest를 포함했습니다.</p>
+      <p>lint는 기존 unused 경고를 출력했지만 오류는 없었습니다.</p>
+    </details>
+
+    <h2>남은 위험</h2>
+    <details>
+      <summary>자세히</summary>
+      <p>같은 파일의 discover 및 research 화면에는 아직 함수형 Pressable style 패턴이 남아 있습니다. 이번 cycle은 한 작업만 수행한다는 제한에 따라 insights 카드 2곳만 처리했습니다.</p>
+      <p>브랜치는 origin/main 대비 최신 통합 브랜치가 아닐 수 있으므로 Claude merge gate에서 rebase 또는 통합 검토가 필요합니다.</p>
+    </details>
+  </main>
+</body>
+</html>
