@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레퍼런스 UI 동기화 병합 전 검토</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0f14; --fg:#e6edf3; --muted:#8b949e; --line:#30363d; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { max-width:1040px; margin:0 auto; padding:32px 18px 48px; }
+    h1, h2, h3 { margin:0; line-height:1.25; }
+    h1 { font-size:26px; }
+    h2 { font-size:18px; margin-top:28px; padding-top:20px; border-top:1px solid var(--line); }
+    h3 { font-size:15px; margin-top:18px; }
+    p { margin:8px 0 0; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-top:18px; }
+    .card { border:1px solid var(--line); border-radius:8px; padding:14px; background:rgba(255,255,255,0.02); }
+    .label { color:var(--muted); font-size:12px; }
+    .value { font-size:17px; font-weight:700; margin-top:4px; word-break:break-word; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { text-align:left; vertical-align:top; padding:9px 8px; border-bottom:1px solid var(--line); }
+    th { color:var(--muted); font-weight:600; }
+    code { color:var(--fg); background:rgba(255,255,255,0.04); border:1px solid var(--line); border-radius:5px; padding:1px 5px; }
+    ul { margin:8px 0 0; padding-left:20px; }
+    li { margin:4px 0; }
+    details { border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-top:10px; background:rgba(255,255,255,0.02); }
+    summary { cursor:pointer; font-weight:700; }
+    .verdict { font-size:18px; font-weight:800; margin-top:12px; }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } }
+    @media (max-width:520px) { .grid { grid-template-columns:1fr; } main { padding:22px 14px 36px; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>레퍼런스 UI 동기화 병합 전 검토</h1>
+  <p class="muted">작성 시각: 2026-07-21 10:17:39 KST · 작성자: codex · 대상: Claude 병합 게이트</p>
+  <p class="verdict">결론: 차단 이슈는 발견하지 못했지만, 최신 main 재적용과 전체 verify 재실행을 병합 조건으로 둔다.</p>
+
+  <section class="grid" aria-label="핵심 요약">
+    <div class="card"><div class="label">검토 브랜치</div><div class="value">codex/reference-ui-sync-20260721</div></div>
+    <div class="card"><div class="label">검토 커밋</div><div class="value">7ec69d39</div></div>
+    <div class="card"><div class="label">비교 기준</div><div class="value">origin/main d56893f6</div></div>
+    <div class="card"><div class="label">변경 규모</div><div class="value">8파일, +2933/-527</div></div>
+  </section>
+
+  <h2>검토 범위</h2>
+  <table>
+    <thead><tr><th>영역</th><th>확인 내용</th><th>판정</th></tr></thead>
+    <tbody>
+      <tr><td>라우트</td><td><code>/capture-full</code>이 params를 유지하며 <code>/capture</code>로 리다이렉트하는지 확인했다.</td><td>통과</td></tr>
+      <tr><td>컨트롤러</td><td><code>CaptureFlow</code>가 deep/legacy 표현만 분기하고 OCR, 파일, 음성, 안전, 저장 흐름을 한 곳에 유지하는지 확인했다.</td><td>통과</td></tr>
+      <tr><td>프레젠테이션</td><td><code>CaptureView</code>가 상태와 액션을 props로만 받고 직접 저장 부작용을 만들지 않는지 확인했다.</td><td>통과</td></tr>
+      <tr><td>쉘</td><td>390×820 기준 캔버스, 키보드 예외, back 계약, reduced motion 처리가 설계 문서와 맞는지 확인했다.</td><td>통과</td></tr>
+      <tr><td>안전</td><td>위기 라우팅, 계정 전환, submit abort, 중복 record save 방지, timeout retry 차단을 수동 확인했다.</td><td>통과, 실기 검증 필요</td></tr>
+    </tbody>
+  </table>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead><tr><th>명령</th><th>결과</th><th>메모</th></tr></thead>
+    <tbody>
+      <tr><td><code>git diff --check origin/main...HEAD</code></td><td>통과</td><td>공백 오류 없음</td></tr>
+      <tr><td><code>npm test -- --runTestsByPath src/lib/__tests__/capture-abort-contract.test.ts --runInBand</code></td><td>통과</td><td>1개 suite, 4개 test 통과</td></tr>
+      <tr><td><code>npm run type-check</code></td><td>통과</td><td><code>tsc --noEmit</code></td></tr>
+      <tr><td><code>npx eslint ...변경 파일...</code></td><td>통과</td><td>변경 파일 범위 lint</td></tr>
+      <tr><td><code>npm run check:lexicon</code></td><td>통과</td><td>금지어 검사 통과</td></tr>
+      <tr><td><code>npm run check:emdash</code></td><td>통과</td><td>locale em-dash 검사 통과</td></tr>
+      <tr><td><code>git merge-tree $(git merge-base origin/main HEAD) origin/main HEAD</code></td><td>통과</td><td>텍스트 충돌 없음</td></tr>
+      <tr><td><code>npm run verify</code></td><td>미완료</td><td>184초 제한에서 시간초과, 출력 없이 종료</td></tr>
+    </tbody>
+  </table>
+
+  <h2>주요 근거</h2>
+  <ul>
+    <li><code>src/app/capture.tsx:331</code>의 <code>acquireRecordSave</code>는 동일 payload 중복 record 생성을 막는 promise cache를 둔다.</li>
+    <li><code>src/app/capture.tsx:672</code>의 <code>captureInteractionBusy</code>는 저장, OCR, 제안, 음성 중 모드 전환을 잠근다.</li>
+    <li><code>src/app/capture.tsx:946</code>과 <code>990</code> effect는 공유 입력과 deep-link mode/tag를 draft hydration 뒤에 소비한다.</li>
+    <li><code>src/app/capture.tsx:1759</code>와 <code>1868</code>의 records 저장 경로는 crisis followup과 star-route tag 후처리를 분리한다.</li>
+    <li><code>src/app/capture.tsx:2520</code>의 deep presentation은 legacy modal chrome 없이 controlled view와 crisis overlay만 렌더한다.</li>
+    <li><code>src/components/deep-space/DeepSpaceViews.tsx:795</code>의 <code>CaptureView</code>는 부작용을 action callback으로만 위임한다.</li>
+  </ul>
+
+  <h2>남은 조건</h2>
+  <ul>
+    <li>브랜치가 최신 <code>origin/main</code>을 포함하지 않는다. Claude가 <code>d56893f6</code> 기준으로 재적용 또는 cherry-pick해야 한다.</li>
+    <li>전체 <code>npm run verify</code>는 이 환경의 184초 제한에서 완료되지 않았다. 병합 게이트에서 제한을 늘려 재실행해야 한다.</li>
+    <li>음성 녹음, 이미지 선택, 파일 선택, Android 키보드, iOS edge-swipe는 정적 검토만 했다. 실기 QA는 별도 필요하다.</li>
+    <li>변경이 대형 UI merge diff이므로 Claude에게 MoA 교차검증 요청을 별도 발행했다.</li>
+  </ul>
+
+  <details>
+    <summary>섹션 35 자체 패널</summary>
+    <p>찬성: 한 컨트롤러로 capture와 capture-full을 수렴해 draft 경쟁과 legacy chrome 중복을 줄인다.</p>
+    <p>반대: 8파일, 2933줄 추가의 대형 UI 변경이며, 전체 verify와 실기 검증이 아직 닫히지 않았다.</p>
+    <p>판정: Codex 단독 머지는 금지하고 Claude 병합 게이트에서 최신 main 재적용, 전체 verify, 네이티브 QA를 조건으로 진행한다.</p>
+  </details>
+</main>
+</body>
+</html>
