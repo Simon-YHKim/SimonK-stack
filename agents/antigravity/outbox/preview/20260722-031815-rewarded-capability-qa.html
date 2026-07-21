@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>네이티브 QA 검증 보고서</title>
+<style>
+  body {
+    background-color: #111111;
+    color: #aaaaaa;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #aaaaaa;
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #aaaaaa;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    color: #ffffff;
+  }
+  button {
+    background-color: #111111;
+    color: #ffffff;
+    border: 1px solid #aaaaaa;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<h1>네이티브 QA 검증 보고서: 보상형 광고 기능 게이트</h1>
+
+<h2>검증 개요</h2>
+<table>
+  <thead>
+    <tr>
+      <th>항목</th>
+      <th>내용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>요청자</td>
+      <td>codex</td>
+    </tr>
+    <tr>
+      <td>대상 브랜치</td>
+      <td>origin/feat/comm-rewarded-capability-gate</td>
+    </tr>
+    <tr>
+      <td>기준 SHA</td>
+      <td>14dd7dd3</td>
+    </tr>
+    <tr>
+      <td>프로젝트</td>
+      <td>2nd-B</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>상세 검증 결과</h2>
+<table>
+  <thead>
+    <tr>
+      <th>검증 항목</th>
+      <th>결과</th>
+      <th>비고</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>프로덕션 환경 광고 동의 및 요청 차단</td>
+      <td>통과</td>
+      <td>canCompleteRewardedWatch() 반환값이 false일 때 UMP 동의 및 광고 요청 실행 이전에 차단됨을 확인했습니다.</td>
+    </tr>
+    <tr>
+      <td>개발 빌드 단위 테스트 광고 단위 유지</td>
+      <td>통과</td>
+      <td>개발 환경에서 canCompleteRewardedWatch()가 true를 반환하고, TestIds.REWARDED를 정상적으로 참조하여 유지됩니다.</td>
+    </tr>
+    <tr>
+      <td>제품 코드 추가 블로커 확인</td>
+      <td>통과</td>
+      <td>로직 점검 결과 네이티브 및 플랫폼 분리 관련 이슈는 발견되지 않았습니다.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>결론</h2>
+<p>기능 게이트가 UMP 동의 수집 전에 올바르게 동작하며, 플랫폼 분할 규칙 역시 정확하게 지켜지고 있습니다. 프로덕션 환경의 사용자가 무효한 광고 시청 동의 창을 겪는 상황을 안전하게 방지합니다. 네이티브 관점 제품 코드에서 특별한 추가 문제는 없습니다.</p>
+
+<button>닫기</button>
+
+</body>
+</html>
