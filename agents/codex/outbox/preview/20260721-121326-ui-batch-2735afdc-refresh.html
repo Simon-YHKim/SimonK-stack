@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 병합 지원 기준선 갱신</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101214; --fg: #e8ecef; --ac: #79b8ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 20px 48px; }
+    h1, h2 { margin: 0 0 14px; letter-spacing: 0; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 18px; color: var(--ac); }
+    section { border-top: 1px solid var(--ac); padding: 22px 0; }
+    .lead { margin: 0 0 22px; font-size: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .card { border: 1px solid var(--ac); border-radius: 8px; padding: 14px; min-height: 92px; }
+    .label { display: block; color: var(--ac); font-size: 13px; margin-bottom: 8px; }
+    .value { display: block; font-size: 22px; font-weight: 700; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--ac); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--ac); font-weight: 700; }
+    code { color: var(--fg); overflow-wrap: anywhere; }
+    ul { padding-left: 20px; margin: 10px 0 0; }
+    li { margin: 6px 0; }
+    @media (max-width: 760px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } h1 { font-size: 24px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex 병합 지원 기준선 갱신</h1>
+    <p class="lead">이번 사이클은 새 제품 패치를 만들지 않고, 기존 Codex UI 배치 후보 18건이 최신 2nd-B main 전진분과 직접 충돌하는지 확인했다.</p>
+
+    <section aria-labelledby="summary">
+      <h2 id="summary">요약</h2>
+      <div class="grid">
+        <div class="card"><span class="label">최신 기준선</span><span class="value"><code>2735afdc</code></span></div>
+        <div class="card"><span class="label">main 전진 파일</span><span class="value">1개</span></div>
+        <div class="card"><span class="label">후보 포함 수</span><span class="value">0개</span></div>
+        <div class="card"><span class="label">직접 교집합</span><span class="value">0개</span></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="result">
+      <h2 id="result">판정</h2>
+      <p>직전 Codex 기준선 <code>c8a82ec1</code> 이후 원격 main은 <code>2735afdc</code>로 1커밋 전진했다. 변경 파일은 <code>docs/handoff/hub_260721.md</code> 하나이며, Android v0.1.0 rc2 APK 빌드 결과와 cowork 회신을 기록한 문서-only 변경이다.</p>
+      <p>18개 Codex UI, 접근성, 토큰 후보는 모두 최신 main에 아직 포함되지 않았고, 후보 고유 변경 파일 16개와 main 전진 파일 사이의 직접 교집합은 없다.</p>
+    </section>
+
+    <section aria-labelledby="checks">
+      <h2 id="checks">검증</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Codex inbox</td><td><code>tools/board.ps1 -Me codex</code> 기준 비어 있음</td></tr>
+          <tr><td>peer outbox</td><td>새 Codex/all 실행 대상 없음, 과거 stale/already answered 메타만 존재</td></tr>
+          <tr><td>최신 main</td><td><code>origin/main@2735afdc</code> 확인</td></tr>
+          <tr><td>main 전진 diff</td><td><code>docs/handoff/hub_260721.md</code> 1파일</td></tr>
+          <tr><td>후보 포함 여부</td><td>18개 모두 <code>origin/main</code> 미포함</td></tr>
+          <tr><td>공백 검사</td><td><code>git diff --check c8a82ec1..origin/main</code> 통과</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="panel">
+      <h2 id="panel">35절 자기 패널</h2>
+      <ul>
+        <li>찬성: main이 실제 전진했으므로 Claude merge gate가 보는 후보 기준선을 최신 SHA로 맞추는 편이 낫다.</li>
+        <li>반대: 변경 파일이 handoff 문서 하나라 제품 UI 충돌 가능성은 낮고, 반복 기준선 갱신의 실익이 작을 수 있다.</li>
+        <li>판정: queue가 실제로 변했으므로 단일 병합 지원 갱신으로 처리한다. 신규 패치, 리베이스, push, PR은 하지 않는다.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="safety">
+      <h2 id="safety">안전 범위</h2>
+      <p>제품 코드 변경, 2nd-B push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 작업은 하지 않았다. 직접 머지 diff나 스키마 변경 산출물이 아니므로 MoA verify 요청은 만들지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>
