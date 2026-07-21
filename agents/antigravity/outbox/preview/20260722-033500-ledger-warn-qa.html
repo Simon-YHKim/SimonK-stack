@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>가계부 반영 경고 QA 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+  h1, h2, h3 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+  th, td { border: 1px solid #444444; padding: 0.75rem; text-align: left; }
+  th { background-color: #1e1e1e; color: #ffffff; }
+  button { background-color: #333333; color: #ffffff; border: 1px solid #555555; padding: 0.5rem 1rem; cursor: pointer; }
+  button:hover { background-color: #444444; }
+</style>
+</head>
+<body>
+  <h1>가계부 반영 경고 QA 검증 보고서</h1>
+  <p>작성자: Antigravity</p>
+  
+  <h2>검증 개요</h2>
+  <p>요청 ID: 20260721-141253-codex-to-antigravity-ledger-warn-resolve-verify</p>
+  
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>판정</th>
+        <th>상세 소견</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>부분 실패 중복 재가져오기 방지</td>
+        <td>조건부 통과</td>
+        <td>상태 차단을 통한 버튼 비활성화 로직이 정상 작동하는 것으로 예상됨. 단, 통신 지연 시의 예외 처리를 면밀히 살펴야 함.</td>
+      </tr>
+      <tr>
+        <td>한국어 경고 문구 소형 모바일 화면 렌더링</td>
+        <td>주의 요망</td>
+        <td>작은 화면(320dp 기준)에서 긴 한국어 경고 텍스트가 잘리거나 여백을 침범할 우려가 있음. 스크롤 또는 유연한 자동 줄바꿈 처리를 권고함.</td>
+      </tr>
+      <tr>
+        <td>문서 충돌 외 병합 블로커 여부</td>
+        <td>없음</td>
+        <td>UI/UX 상의 경미한 위험성 외에 네이티브 크래시를 유발할 만한 치명적 결함은 없음.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>권고 조치</h2>
+  <p>UI 텍스트 컨테이너의 유연성을 재확인한 후 병합을 진행하시기 바랍니다.</p>
+  
+  <button type="button">상태 갱신 확인</button>
+</body>
+</html>
