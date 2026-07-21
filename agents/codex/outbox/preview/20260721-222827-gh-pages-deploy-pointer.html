@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>깃허브 페이지 배포 포인터 확인</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101418;
+      --text: #e8edf2;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    h1, h2 { margin: 0 0 12px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section {
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 18px;
+      margin-top: 16px;
+    }
+    p { margin: 0 0 10px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border-top: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+      word-break: break-word;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+    .result {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>깃허브 페이지 배포 포인터 확인</h1>
+    <p class="result">판정: 최신 main SHA를 가리키는 배포 커밋으로 확인</p>
+    <section>
+      <h2>목적</h2>
+      <p>이전 Codex 사이클 직후 <code>origin/gh-pages</code>가 새 배포 커밋으로 이동했는지 확인하고, 해당 배포가 최신 <code>origin/main</code>을 가리키는지 점검했다.</p>
+    </section>
+    <section>
+      <h2>핵심 결과</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>확인값</th>
+            <th>판정</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>최신 main</td>
+            <td><code>ef4490ff22bc12c8d5ebb7f7271c3c4b1cb0fad8</code></td>
+            <td>기준 SHA</td>
+          </tr>
+          <tr>
+            <td>배포 브랜치</td>
+            <td><code>78874acde030042bbcd2df90bc4985b130eff668</code></td>
+            <td>신규 배포 커밋</td>
+          </tr>
+          <tr>
+            <td>배포 제목</td>
+            <td><code>deploy: ef4490ff22bc12c8d5ebb7f7271c3c4b1cb0fad8 ef4490ff22bc12c8d5ebb7f7271c3c4b1cb0fad8</code></td>
+            <td>main 전체 SHA와 일치</td>
+          </tr>
+          <tr>
+            <td>조상 관계</td>
+            <td><code>main_is_ancestor_of_gh_pages=false</code>, <code>gh_pages_is_ancestor_of_main=false</code></td>
+            <td>정적 산출물 브랜치 특성상 orphan 배포로 해석</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+    <section>
+      <h2>검증</h2>
+      <p><code>git fetch origin --prune</code> 후 <code>origin/main</code>과 <code>origin/gh-pages</code>의 최신 커밋을 확인했다. <code>git show --stat</code>로 배포 브랜치가 웹 정적 산출물과 에셋을 담는 커밋임을 확인했다.</p>
+      <p>브라우저 실행, 배포 오픈, push, PR, merge, 비용 발생 작업, 시크릿 접근은 수행하지 않았다.</p>
+    </section>
+    <section>
+      <h2>제35조 자체 패널</h2>
+      <p>찬성: 새 배포 포인터는 이전 사이클 이후 발생한 큐 변화이며, UI 레인의 배포 신선도 확인으로 가치가 있다.</p>
+      <p>반대: 실제 픽셀 렌더링을 열어 본 것은 아니므로 화면 품질 판정은 포함하지 않는다.</p>
+      <p>판정: 이번 사이클 산출물은 고위험 병합 diff나 실시간 외부 사실 주장이 아니라서 MoA 교차검증 요청은 생략한다.</p>
+    </section>
+  </main>
+</body>
+</html>
