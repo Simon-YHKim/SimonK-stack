@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex UI 배치 기준선 갱신</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --muted: #8b949e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin-top: 10px; }
+    .meta { color: var(--muted); margin-top: 8px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 24px;
+    }
+    .card {
+      border: 1px solid var(--muted);
+      padding: 14px;
+      min-height: 92px;
+    }
+    .label { color: var(--muted); font-size: 13px; }
+    .value { display: block; margin-top: 8px; font-size: 20px; font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--muted);
+      padding: 9px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 600; }
+    code {
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.95em;
+    }
+    details {
+      border: 1px solid var(--muted);
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+    summary { cursor: pointer; font-weight: 700; }
+    ul { margin: 10px 0 0 20px; padding: 0; }
+    @media (max-width: 760px) {
+      .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex UI 배치 기준선 갱신</h1>
+    <p class="meta">작성 시각: 2026-07-21 11:03:01 KST · 대상: 2nd-B · 사이클: PROTOCOL 12/19/35.4</p>
+    <p>이번 사이클은 Codex inbox가 비어 있고 새 실행 오더가 없는 상태에서, 2nd-B <code>origin/main</code>이 직전 Codex 기준선 <code>6a7932e3</code>에서 <code>c8a82ec1</code>로 전진한 것을 확인해 기존 Codex UI 후보 18건의 병합 표면만 다시 점검했다.</p>
+
+    <section class="summary" aria-label="핵심 지표">
+      <div class="card">
+        <span class="label">최신 기준선</span>
+        <span class="value"><code>c8a82ec1</code></span>
+      </div>
+      <div class="card">
+        <span class="label">main 전진 파일</span>
+        <span class="value">1개</span>
+      </div>
+      <div class="card">
+        <span class="label">후보 포함</span>
+        <span class="value">0 / 18</span>
+      </div>
+      <div class="card">
+        <span class="label">직접 파일 충돌</span>
+        <span class="value">0개</span>
+      </div>
+    </section>
+
+    <h2>결론</h2>
+    <p>새 main 전진분은 <code>.gitignore</code> 1파일이며, 기존 Codex UI·접근성·토큰 후보 18건의 변경 파일 16개와 직접 겹치지 않는다. 후보 18개는 모두 최신 <code>origin/main</code>에 아직 포함되지 않았다.</p>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Codex inbox</td>
+          <td><code>tools/board.ps1 -Me codex</code> 기준 비어 있음</td>
+        </tr>
+        <tr>
+          <td>peer outbox</td>
+          <td>새 Codex/all 실행 대상 open 요청 없음, 과거 stale 메타만 존재</td>
+        </tr>
+        <tr>
+          <td>원격 기준선</td>
+          <td><code>git -C E:\2ndB fetch origin main --prune</code> 후 <code>origin/main@c8a82ec1</code></td>
+        </tr>
+        <tr>
+          <td>main 전진 범위</td>
+          <td><code>6a7932e3..origin/main</code> 변경 파일은 <code>.gitignore</code> 1개</td>
+        </tr>
+        <tr>
+          <td>공백 검증</td>
+          <td><code>git diff --check 6a7932e3..origin/main</code> 출력 없이 통과</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>35절 자기 패널</summary>
+      <p>찬성: main이 보안성 gitignore 커밋으로 실제 전진했으므로 Claude merge gate가 보는 Codex 후보 기준선을 최신 SHA로 맞추는 것이 유효하다.</p>
+      <p>반대: 변경 파일이 <code>.gitignore</code> 하나라 제품 UI 충돌 가능성은 낮고, 반복 기준선 갱신의 가치가 제한적일 수 있다.</p>
+      <p>판정: queue가 직전 cycle 이후 실제로 변했으므로 NO-OP가 아니다. 신규 제품 패치, 리베이스, push, PR 없이 단일 병합 지원 갱신만 수행한다.</p>
+    </details>
+
+    <h2>안전</h2>
+    <ul>
+      <li>제품 코드 변경 없음</li>
+      <li>2nd-B push, PR, merge, 배포 없음</li>
+      <li>브라우저 자동 열기 없음</li>
+      <li>파괴적 작업, 비용 작업, 시크릿 작업 없음</li>
+      <li>고위험 deliverable이 아니므로 MoA verify 요청 없음</li>
+    </ul>
+  </main>
+</body>
+</html>
