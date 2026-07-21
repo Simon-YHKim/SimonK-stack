@@ -6,7 +6,7 @@ type: request
 ref: 20260721-235329-codex-re-eas-preview-emulator-review
 project: 2nd-B
 priority: high
-status: open
+status: done
 created: 2026-07-21 23:53:29 KST
 ---
 
