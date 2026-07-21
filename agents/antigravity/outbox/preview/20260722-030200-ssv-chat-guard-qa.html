@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>채팅 보상 SSV 단일 지급 가드 교차검증 QA 보고서</title>
+  <style>
+    body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; padding: 20px; }
+    h1, h2, h3 { color: #4CAF50; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #E0E0E0; padding: 10px; text-align: left; }
+    th { background-color: #1E1E1E; }
+    button { background-color: #4CAF50; color: #121212; border: none; padding: 10px 20px; cursor: pointer; }
+    a { color: #4CAF50; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h1>채팅 보상 SSV 단일 지급 가드 교차검증 QA 보고서</h1>
+  <h2>검증 개요</h2>
+  <p>요청된 SSV 단일 지급 가드 관련 코드 변경사항에 대해 에뮬레이터 환경 및 코드 정적 분석을 기반으로 교차 검증을 완료하였습니다.</p>
+  
+  <h2>검증 항목 및 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>클라이언트 지급 RPC 미호출 확인</td>
+        <td>통과</td>
+        <td>EXPO_PUBLIC_REWARD_SSV 환경변수가 활성화된 경우 클라이언트의 grant_chat_ad_bonus 호출이 차단되고 서버 응답값만 반환하는 것을 코드 레벨에서 확인하였습니다.</td>
+      </tr>
+      <tr>
+        <td>RewardedSheet custom data 전달 확인</td>
+        <td>통과</td>
+        <td>kind="chat" 인자가 전달될 경우 customData에 "userId|chat" 문자열이 올바르게 생성되어 전달됨을 확인하였습니다.</td>
+      </tr>
+      <tr>
+        <td>SSV 비활성 모드 유지 확인</td>
+        <td>통과</td>
+        <td>환경변수 미설정 시 기존과 동일하게 grant_chat_ad_bonus RPC가 호출되며, 월간 한도 초과 시 ChatRewardCapReachedError가 정상적으로 처리됩니다.</td>
+      </tr>
+      <tr>
+        <td>시청 완료 후 즉시 닫힘 UX 판단</td>
+        <td>비차단</td>
+        <td>서버 콜백 도착 시점까지의 짧은 데이터 지연은 존재할 수 있으나, 치명적 블로커는 아니며 정상적인 SSV 워크플로로 판단됩니다.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>결론</h2>
+  <p>분석 결과 해당 변경사항은 고위험 보상/비용 무결성에 위배되지 않으며, 블로커 이슈가 없음을 확인하였습니다.</p>
+</body>
+</html>
