@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>안드로이드 에뮬레이터 빌드 분기 검토</title>
+  <style>
+    :root { color-scheme: dark; --bg:#111315; --text:#e6e6e6; --muted:#9aa0a6; --accent:#6fd08c; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2 { margin: 0 0 12px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 26px; }
+    p { margin: 8px 0; }
+    .muted { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 18px 0 22px; }
+    .card { border: 1px solid #303438; border-radius: 8px; padding: 14px; min-height: 92px; }
+    .label { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .value { font-size: 17px; font-weight: 700; color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-bottom: 1px solid #303438; padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; }
+    code { color: var(--text); background: #1a1d20; padding: 2px 5px; border-radius: 4px; }
+    details { border: 1px solid #303438; border-radius: 8px; padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+    .ok { color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } main { padding: 24px 14px 36px; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>안드로이드 에뮬레이터 빌드 분기 검토</h1>
+  <p class="muted">작성 시각: 2026-07-22 00:10:02 KST · 검토자: Codex · 대상: 2nd-B</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="label">판정</div><div class="value">통합 가능</div></div>
+    <div class="card"><div class="label">대상 브랜치</div><div class="value"><code>release/v0.1.0-rc2-emu</code></div></div>
+    <div class="card"><div class="label">대상 커밋</div><div class="value"><code>105fad8a</code></div></div>
+    <div class="card"><div class="label">기준 커밋</div><div class="value"><code>c87bff24</code></div></div>
+  </section>
+
+  <h2>결론</h2>
+  <p>차단 이슈는 발견하지 못했습니다. 변경은 수동 실행 워크플로우의 프로필 선택지와 shell 허용 목록에 <code>preview-emulator</code>를 추가하는 1파일 변경이며, 기존 <code>preview</code>와 <code>production</code> 동작을 넓게 바꾸지 않습니다.</p>
+  <p>비용이 드는 실제 EAS 빌드는 실행하지 않았습니다. 네이티브 빌드 설정에 닿는 변경이므로 Antigravity에 교차 검증을 요청했습니다.</p>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>변경 범위</td><td class="ok">통과</td><td><code>.github/workflows/eas-preview-build.yml</code> 1파일, 2줄 추가와 1줄 수정</td></tr>
+      <tr><td>프로필 정합성</td><td class="ok">통과</td><td><code>preview</code>와 <code>preview-emulator</code>는 ABI 필터만 다르고 둘 다 APK 빌드</td></tr>
+      <tr><td>수동 실행 제한</td><td class="ok">통과</td><td><code>push</code> 또는 <code>pull_request</code> 트리거 없음</td></tr>
+      <tr><td>권한 범위</td><td class="ok">통과</td><td>워크플로우 권한은 <code>contents: read</code></td></tr>
+      <tr><td>충돌 가능성</td><td class="ok">통과</td><td><code>origin/main</code>은 대상 브랜치의 조상이고 merge-tree 출력에 충돌 없음</td></tr>
+      <tr><td>공백 검사</td><td class="ok">통과</td><td><code>git diff --check</code> 통과</td></tr>
+      <tr><td>워크플로우 린터</td><td>미실행</td><td>로컬에 <code>actionlint</code>가 없음</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>자기 패널 검토</summary>
+    <ul>
+      <li>찬성 관점: QA 전용 에뮬레이터 APK를 기존 EAS 경로에서 선택 가능하게 만들어 Antigravity 디바이스 검증 대기열을 줄입니다.</li>
+      <li>반대 관점: 워크플로우 설명 문구가 아직 <code>preview</code>와 <code>production</code>만 설명해 사용자가 선택지 의미를 바로 파악하기 어렵습니다.</li>
+      <li>판정: 문구 미세 개선은 후속 가능하지만, 실행 안전성 차단 사유는 아닙니다. 실제 빌드 실행은 비용이므로 수행하지 않았습니다.</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>검증 명령 요약</summary>
+    <ul>
+      <li><code>git diff origin/main..origin/release/v0.1.0-rc2-emu</code></li>
+      <li><code>git diff --check origin/main..origin/release/v0.1.0-rc2-emu</code></li>
+      <li><code>git merge-tree origin/main origin/release/v0.1.0-rc2-emu</code></li>
+      <li><code>node</code> 기반 <code>eas.json</code> 프로필 비교</li>
+      <li>워크플로우 텍스트 조건 검사</li>
+    </ul>
+  </details>
+</main>
+</body>
+</html>
