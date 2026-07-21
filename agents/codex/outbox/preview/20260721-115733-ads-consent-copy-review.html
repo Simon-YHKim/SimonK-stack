@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>광고 동의 문구 검토 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101419; --panel:#18212b; --text:#e7edf3; --accent:#7cc7d9; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.55 system-ui, -apple-system, Segoe UI, sans-serif; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 56px; }
+    h1, h2 { margin:0 0 14px; line-height:1.2; }
+    h1 { font-size:26px; }
+    h2 { font-size:18px; margin-top:26px; color:var(--accent); }
+    p { margin:8px 0; }
+    code { color:var(--accent); }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:18px 0 24px; }
+    .card, details { background:var(--panel); border:1px solid rgba(124,199,217,.22); border-radius:8px; padding:14px; }
+    .k { color:var(--accent); font-size:12px; }
+    .v { font-size:20px; font-weight:700; margin-top:4px; }
+    table { width:100%; border-collapse:collapse; background:var(--panel); border-radius:8px; overflow:hidden; }
+    th, td { text-align:left; vertical-align:top; padding:10px 12px; border-bottom:1px solid rgba(124,199,217,.18); }
+    th { color:var(--accent); font-weight:700; }
+    tr:last-child td { border-bottom:0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .status { border-left:4px solid var(--accent); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>광고 동의 문구 검토 보고</h1>
+  <p>작성 시각: 2026-07-21 11:57:33 KST</p>
+  <p>대상: <code>E:\2ndB\.worktrees\comm-importhub-summary</code>의 <code>origin/fix/comm-ads-consent-copy</code></p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="k">판정</div><div class="v">보류</div></div>
+    <div class="card"><div class="k">주요 이슈</div><div class="v">1건</div></div>
+    <div class="card"><div class="k">변경 파일</div><div class="v">35개</div></div>
+    <div class="card"><div class="k">검증</div><div class="v">통과</div></div>
+  </section>
+
+  <section class="card status">
+    <h2>결론</h2>
+    <p>광고 동의 라벨을 플랫폼 중립으로 바꾸는 방향은 맞지만, Google 광고 식별자 전달 설명이 토글을 켠 뒤에만 보인다. 사용자는 켜기 전에 데이터 전달 조건을 읽지 못하므로 동의 화면으로는 보류가 맞다.</p>
+  </section>
+
+  <h2>발견</h2>
+  <table>
+    <thead><tr><th>위치</th><th>문제</th><th>수정 방향</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>src/screens/deepspace/DeepSpaceDesignScreens.tsx:856</code></td>
+        <td><code>adsOn</code>이 참일 때만 “광고 시청 시 광고 식별 데이터가 Google에 전달” 문구가 표시된다. 꺼진 상태에서는 “꺼짐”만 보여서 사용자가 켜기 전에 결과를 알 수 없다.</td>
+        <td>토글 주변 고정 설명이나 꺼진 상태 문구에도 동일한 데이터 전달 설명을 넣어, 누르기 전에 읽히게 한다. 스위치 접근성 라벨도 현재 값만이 아니라 결과 설명을 포함하는지 확인한다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>검증</h2>
+  <table>
+    <thead><tr><th>항목</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td><code>git diff --check origin/main...origin/fix/comm-ads-consent-copy</code></td><td>통과</td></tr>
+      <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+      <tr><td><code>npx eslint src/screens/deepspace/DeepSpaceDesignScreens.tsx</code></td><td>오류 0개, 기존 unused 경고 40개</td></tr>
+      <tr><td><code>npx jest src/lib/ads/__tests__/policy.test.ts src/lib/ads/__tests__/rewarded.test.ts src/lib/ads/__tests__/platform-split.test.ts --runInBand</code></td><td>3개 스위트, 30개 테스트 통과</td></tr>
+      <tr><td>flow debugger 썸네일 참조 검사</td><td>참조 74개, 파일 74개, 누락 0개</td></tr>
+      <tr><td>merge-tree 충돌 스캔</td><td>충돌 표식 없음</td></tr>
+    </tbody>
+  </table>
+
+  <details open>
+    <summary>35절 자기 패널</summary>
+    <p>찬성: 기존 “웹 광고” 라벨은 네이티브 rewarded ads까지 포괄하지 못하므로 플랫폼 중립 라벨은 필요하다.</p>
+    <p>반대: 데이터 전달 문구가 켠 뒤에만 나타나면 고지의 핵심 시점이 늦다.</p>
+    <p>판정: 머지 전 문구 노출 위치를 조정해야 한다. 제품 코드는 수정하지 않고 Claude merge gate에 보류 요청을 남긴다.</p>
+  </details>
+
+  <h2>안전</h2>
+  <p>제품 코드 변경, push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 작업은 하지 않았다. privacy copy 성격상 Claude 검증 요청을 별도 파일로 남겼다.</p>
+</main>
+</body>
+</html>
