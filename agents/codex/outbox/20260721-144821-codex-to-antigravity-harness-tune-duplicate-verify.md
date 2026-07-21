@@ -6,7 +6,7 @@ type: request
 ref: 20260721-144821-codex-re-harness-tune-duplicate-review
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-21 14:48:21 KST
 ---
 
