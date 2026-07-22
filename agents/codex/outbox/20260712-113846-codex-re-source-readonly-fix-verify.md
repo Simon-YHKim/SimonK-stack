@@ -6,7 +6,7 @@ type: request
 ref: 20260712-113846-codex-re-source-readonly-fix
 project: hub
 priority: normal
-status: open
+status: done
 created: 2026-07-12 11:38:46 KST
 ---
 
