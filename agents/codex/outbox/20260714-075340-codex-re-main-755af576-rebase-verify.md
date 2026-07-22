@@ -6,7 +6,7 @@ type: request
 ref: 20260714-075340-codex-re-main-755af576-rebase
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-14 07:53:40 KST
 ---
 
