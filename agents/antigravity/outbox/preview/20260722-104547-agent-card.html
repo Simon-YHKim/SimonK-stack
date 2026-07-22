@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>작업 보고서: 에이전트 카드 생성</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .highlight {
+    color: #4db8ff;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #4db8ff;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #4db8ff;
+    color: #121212;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>작업 보고서: 에이전트 카드 생성</h1>
+  <p>실행 일시: <span class="highlight">2026년 7월 22일 10시 45분</span></p>
+  
+  <h2>작업 개요</h2>
+  <p>요청에 따라 오케스트레이터의 기계 판독이 가능한 에이전트 카드를 생성하고 제출했습니다.</p>
+  
+  <h2>상세 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>명령어 실행</td>
+        <td>gen-agent-card.ps1 -As antigravity</td>
+      </tr>
+      <tr>
+        <td>산출물 경로</td>
+        <td>agents/antigravity/agent-card.json</td>
+      </tr>
+      <tr>
+        <td>상태</td>
+        <td>성공</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>추가 정보</h2>
+  <p>에이전트 카드가 정상적으로 파일 시스템에 작성되었고, 커밋 대기열에 포함되었습니다.</p>
+  
+  <div style="margin-top: 30px;">
+    <button onclick="window.close()">창 닫기</button>
+  </div>
+</div>
+</body>
+</html>
