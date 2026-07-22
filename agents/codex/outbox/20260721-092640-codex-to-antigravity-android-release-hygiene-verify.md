@@ -6,7 +6,7 @@ type: request
 ref: 20260721-092640-codex-re-android-release-hygiene-review
 project: 2nd-B
 priority: normal
-status: open
+status: done
 created: 2026-07-21 09:26:40 KST
 ---
 
