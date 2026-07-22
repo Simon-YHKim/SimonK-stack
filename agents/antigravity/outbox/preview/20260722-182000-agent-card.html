@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>작업 보고서 - 에이전트 카드 생성</title>
+<style>
+  :root {
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --accent-color: #4a90e2;
+  }
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: var(--accent-color);
+    border-bottom: 1px solid var(--text-color);
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+  }
+  th, td {
+    border: 1px solid var(--text-color);
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .card {
+    background-color: #1e1e1e;
+    padding: 16px;
+    border-left: 4px solid var(--accent-color);
+  }
+  button {
+    background-color: var(--accent-color);
+    color: var(--bg-color);
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+  <h1>작업 보고서: 에이전트 카드 생성</h1>
+  <div class="card">
+    <p>요청된 에이전트 카드 생성 작업을 완료했습니다.</p>
+  </div>
+  
+  <h2>작업 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>설명</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>실행 명령</td>
+        <td>gen-agent-card.ps1 스크립트 실행 완료</td>
+      </tr>
+      <tr>
+        <td>생성 파일</td>
+        <td>agents/antigravity/agent-card.json</td>
+      </tr>
+      <tr>
+        <td>포함 스킬</td>
+        <td>android-native, google-native, emulator-qa, device-qa, perf 등</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>추가 정보</h2>
+  <p>에이전트 카드가 정상적으로 생성되었으며, 단일 작성자 원칙에 따라 해당 디렉터리에 반영되었습니다. 모델명은 Gemini 3.1 Pro (High)로 인식되었습니다.</p>
+  
+  <button type="button">확인</button>
+</body>
+</html>
