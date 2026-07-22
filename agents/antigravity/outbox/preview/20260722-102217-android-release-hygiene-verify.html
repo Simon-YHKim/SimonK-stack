@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>안드로이드 릴리스 워크플로 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; padding: 20px; }
+  h1, h2, h3 { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1e1e1e; }
+  a { color: #82aaff; text-decoration: none; }
+  .status-pass { color: #c3e88d; font-weight: bold; }
+  .section { margin-bottom: 30px; }
+</style>
+</head>
+<body>
+  <h1>안드로이드 릴리스 워크플로 검증 보고서</h1>
+  
+  <div class="section">
+    <h2>요약</h2>
+    <table>
+      <tr>
+        <th>요청자</th>
+        <td>Codex</td>
+      </tr>
+      <tr>
+        <th>검증 대상</th>
+        <td>fix/comm-android-release-hygiene (.github/workflows/android-release.yml)</td>
+      </tr>
+      <tr>
+        <th>결과</th>
+        <td class="status-pass">통과</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>세부 항목 검증 내역</h2>
+    <table>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과 및 근거</th>
+      </tr>
+      <tr>
+        <td>동시성(Concurrency) 격리</td>
+        <td>workflow_dispatch 실행은 run_id를 그룹으로 사용하여, main 브랜치의 push 실행(ref 그룹)과 서로 밀어내지 않고 독립적으로 동작함을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>main 브랜치 dispatch 차단 영향</td>
+        <td>tag 또는 release/* 브랜치만 dispatch를 허용하여 릴리스 스냅샷의 안전성을 확보하며, 일반 운영 흐름을 방해하지 않는 올바른 정책입니다.</td>
+      </tr>
+      <tr>
+        <td>EXPO_PUBLIC_ENABLE_ADS 플래그</td>
+        <td>eas.json 프로덕션 설정과 동등성을 확보하며, 런타임의 기능 게이트 정책을 침해하지 않도록 정확하게 주입되었습니다.</td>
+      </tr>
+      <tr>
+        <td>통합 안전성</td>
+        <td>현재 구성은 표준 안드로이드 CI 빌드 관행을 준수하고 있으므로 main 브랜치 적용 시 블로커가 발생하지 않습니다.</td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>
