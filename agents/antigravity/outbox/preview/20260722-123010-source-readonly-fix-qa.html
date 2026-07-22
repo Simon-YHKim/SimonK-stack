@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: 소스 읽기 전용 픽스</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #FFFFFF;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 10px;
+  }
+  .success {
+    color: #4CAF50;
+    font-weight: bold;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: 소스 읽기 전용 픽스</h1>
+  <p>작업 참조: 20260712-113846-codex-re-source-readonly-fix-verify</p>
+  
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>UI 노출 차단</td>
+        <td class="success">통과</td>
+        <td>origin=source 조건 시 태그 추가, 편집, 이동, 삭제 버튼 렌더링되지 않음 확인.</td>
+      </tr>
+      <tr>
+        <td>이벤트 경로 차단</td>
+        <td class="success">통과</td>
+        <td>내부 함수(submitTag, moveTo, startEdit, submitEdit)에서 isSource 가드 적용됨 확인.</td>
+      </tr>
+      <tr>
+        <td>회귀 테스트</td>
+        <td class="success">통과</td>
+        <td>일반 origin=record 동작에 영향 없음 확인.</td>
+      </tr>
+      <tr>
+        <td>자동화 테스트 (verify)</td>
+        <td class="success">통과</td>
+        <td>총 387개 테스트 스위트, 2993개 테스트 모두 통과 확인.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>코드 및 런타임 제약이 요구사항과 정확히 일치하며 안전합니다.</p>
+</body>
+</html>
