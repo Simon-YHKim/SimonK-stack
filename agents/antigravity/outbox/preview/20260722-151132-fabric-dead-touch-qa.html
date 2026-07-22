@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: 온보딩 Fabric 터치 무응답 픽스</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #FFFFFF;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 10px;
+  }
+  .success {
+    color: #4CAF50;
+    font-weight: bold;
+  }
+  .warning {
+    color: #FFC107;
+    font-weight: bold;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: 온보딩 Fabric 터치 무응답 픽스</h1>
+  <p>작업 참조: commit 7726e9c3 (fix(onboarding): convert Get started to a #680-safe bare Pressable)</p>
+  
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>UI 구조 및 접근성</td>
+        <td class="success">통과 (정적 리뷰)</td>
+        <td>MdButton 의존성을 제거하고 View와 Pressable 조합으로 대체됨. 접근성 라벨 및 힌트가 올바르게 보존됨.</td>
+      </tr>
+      <tr>
+        <td>Fabric #680 회피</td>
+        <td class="success">통과 (정적 리뷰)</td>
+        <td>버그 원인인 Pressable 내부 함수 렌더링(function-as-children) 패턴을 제거하고 단순 텍스트 노드로 교체하여 안드로이드 Fabric 아키텍처 터치 무시 현상을 방지함.</td>
+      </tr>
+      <tr>
+        <td>스타일 및 시각적 일치</td>
+        <td class="success">통과 (정적 리뷰)</td>
+        <td>accent 색상 배경, onAccent 텍스트, 둥근 모서리(9999), 52px 최소 높이 등 기존 MdButton과 시각적 및 터치 피드백(android_ripple)이 동일하게 설정됨.</td>
+      </tr>
+      <tr>
+        <td>에뮬레이터 통합 테스트</td>
+        <td class="warning">차단됨 (헤드리스 환경)</td>
+        <td>현재 머신에 에뮬레이터 프로세스 및 adb 디바이스가 없어 라이브 터치 확인 불가. 정적 리뷰상 로직은 안전함.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>코드 수준에서 문제 원인인 컴포넌트 패턴이 완전히 제거되었으며 렌더링 트리가 안전하게 구성되었습니다. 실제 디바이스 테스트가 에뮬레이터 환경에서 추가로 진행되어야 하나, 정적 리뷰 기준으로는 배포 가능한 상태입니다.</p>
+</body>
+</html>
