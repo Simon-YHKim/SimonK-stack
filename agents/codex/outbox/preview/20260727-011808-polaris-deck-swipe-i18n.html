@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>북극성 카드 안내 문구 다국어화 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.58;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { margin: 0; letter-spacing: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { margin-top: 30px; font-size: 18px; color: var(--accent); }
+    p { margin: 10px 0 0; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 24px;
+    }
+    .card, details {
+      border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      background: color-mix(in srgb, var(--text) 4%, transparent);
+    }
+    .label { color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    .value { font-weight: 700; overflow-wrap: anywhere; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px;
+      border-bottom: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    @media (max-width: 760px) {
+      .summary { grid-template-columns: 1fr; }
+      main { width: min(100% - 24px, 920px); padding-top: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>북극성 카드 안내 문구 다국어화 보고</h1>
+    <p>이번 Codex 단일 poll cycle은 열린 오더가 없어 2nd-B UI anti-slop 레인에서 한 가지 새 작업만 수행했다. 북극성 카드 덱의 스와이프 안내 문구를 기존 다국어 키로 연결해 영어 고정 노출을 제거했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">범위</div><div class="value">앱 파일 1개</div></div>
+      <div class="card"><div class="label">앱 커밋</div><div class="value"><code>8f0f02eb</code></div></div>
+      <div class="card"><div class="label">검증</div><div class="value">통과</div></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>내용</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>대상 파일</td><td><code>src/components/deep-space/PolarisDeck.tsx</code></td></tr>
+        <tr><td>이전 동작</td><td>카드 덱 힌트가 한국어와 영어 분기로만 표시되어 스페인어, 포르투갈어, 인도네시아어 사용자는 영어 문구를 보았다.</td></tr>
+        <tr><td>수정 동작</td><td>이미 모든 shipped locale에 존재하는 <code>core-brain:swipeCards</code>를 사용한다.</td></tr>
+        <tr><td>브랜치</td><td><code>codex/cycle-260727-011610</code></td></tr>
+        <tr><td>베이스</td><td><code>origin/main 911c67b2</code></td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr><th>명령</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>npx eslint src/components/deep-space/PolarisDeck.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과, 5개 locale 3226개 키 정합</td></tr>
+        <tr><td><code>npm test -- --runTestsByPath src/components/deep-space/__tests__/polaris-deck.test.ts --runInBand</code></td><td>통과, 4개 테스트</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과, CRLF 경고만 확인</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <ul>
+        <li>찬성: 북극성 덱은 사용자가 실제로 넘겨 보는 핵심 카드 표면이고, 이미 준비된 5개 locale 키를 재사용하므로 위험이 낮다.</li>
+        <li>반대: 문구 의미가 기존 영어의 "탐색"보다 "카드 살펴보기"에 가깝지만, 카드 덱 안내로는 더 구체적이다.</li>
+        <li>판정: 새 키를 늘리지 않고 한 파일에서 영어 고정 노출을 제거하는 것이 이번 단일 작업 원칙에 맞다.</li>
+      </ul>
+    </details>
+
+    <h2>제한 준수</h2>
+    <p>2nd-B push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 접근은 하지 않았다. 허브 쓰기는 <code>agents/codex/</code> 아래로 제한했다.</p>
+    <p>작성 시각: 2026-07-27 01:18:08 KST</p>
+  </main>
+</body>
+</html>
