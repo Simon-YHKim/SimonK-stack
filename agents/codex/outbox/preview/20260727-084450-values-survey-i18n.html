@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>가치 자기보고 다국어 카피 정리 보고</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --fg: #e8ecef;
+      --accent: #7cc7b2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-bottom: 12px; color: var(--accent); }
+    section {
+      border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 18px;
+      background: color-mix(in srgb, var(--fg) 4%, transparent);
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--fg) 16%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 104px;
+    }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 8px; }
+    .value { font-size: 17px; font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid color-mix(in srgb, var(--fg) 14%, transparent);
+      padding: 10px 8px;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--fg);
+      background: color-mix(in srgb, var(--fg) 8%, transparent);
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); }
+    @media (max-width: 760px) {
+      .summary { grid-template-columns: 1fr; }
+      main { width: min(100% - 24px, 980px); padding-top: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>가치 자기보고 화면 다국어 카피 정리</h1>
+    <p>2026-07-27 08:44:50 KST 기준 Codex 단일 사이클 결과입니다.</p>
+
+    <div class="summary" aria-label="요약">
+      <div class="card">
+        <div class="label">대상</div>
+        <div class="value">2nd-B 가치 자기보고 화면</div>
+      </div>
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">브랜치 커밋 완료</div>
+      </div>
+      <div class="card">
+        <div class="label">검증</div>
+        <div class="value">린트·타입·문구 검사 통과</div>
+      </div>
+      <div class="card">
+        <div class="label">제한</div>
+        <div class="value">푸시·병합·배포 없음</div>
+      </div>
+    </div>
+
+    <section>
+      <h2>작업 내용</h2>
+      <p><code>src/app/values.tsx</code>의 가치 자기보고 화면에서 한국어·영어 이분기로 묶여 있던 주변 화면 카피를 표시용 언어 테이블로 분리했습니다. 지원 표시 언어는 영어, 한국어, 스페인어, 포르투갈어, 인도네시아어입니다.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>변경</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>표시 언어</td>
+            <td><code>displayLocaleFor</code>를 추가해 앱 언어에서 표시용 언어를 고릅니다.</td>
+          </tr>
+          <tr>
+            <td>평가 계약</td>
+            <td><code>QuantIntroModal</code>, <code>QuantPager</code>, <code>LikertChoiceGroup</code>의 기존 영어·한국어 계약은 유지했습니다.</td>
+          </tr>
+          <tr>
+            <td>저장 데이터</td>
+            <td>문항 원문과 점수 계산은 기존 영어·한국어 평가 소스를 유지했습니다.</td>
+          </tr>
+          <tr>
+            <td>사용자 카피</td>
+            <td>로딩, 소개, 출처, 안내문, 저장 실패, 저장 완료, 종료 확인, 버튼 라벨, 척도 라벨을 표시 언어별로 분리했습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>산출물</h2>
+      <ul>
+        <li>작업 브랜치: <code>codex/cycle-260727-084211</code></li>
+        <li>앱 커밋: <code>cf55c9da</code></li>
+        <li>작업 경로: <code>E:\2ndB\.worktrees\codex-cycle-260727-084211</code></li>
+        <li>수정 파일: <code>src/app/values.tsx</code></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>검증</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npx eslint src/app/values.tsx</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>공백 오류 없음. 줄끝 변환 경고만 확인했습니다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 검토</h2>
+      <details open>
+        <summary>35항 자체 패널 요약</summary>
+        <ul>
+          <li>반대 관점: 문항 자체는 아직 영어·한국어만 남아 있어 완전한 설문 현지화는 아닙니다.</li>
+          <li>판단: 평가 문항과 저장 계약은 기존 검증 소스에 묶여 있으므로 이번 사이클에서는 주변 UI 카피만 분리하는 것이 더 안전합니다.</li>
+          <li>위험: 비영어권 사용자는 문항 본문 일부를 영어로 볼 수 있습니다. 다만 로딩·설명·버튼·오류·완료·종료 흐름은 해당 언어로 읽힙니다.</li>
+          <li>제한 준수: 허브에서는 <code>agents/codex/</code>만 작성했고, 2nd-B는 브랜치 커밋만 만들었으며 push, 병합, 배포, 비용 작업은 하지 않았습니다.</li>
+        </ul>
+      </details>
+    </section>
+  </main>
+</body>
+</html>
