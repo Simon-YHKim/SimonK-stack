@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 보고서: 다국어 지원 3건</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; padding: 20px; }
+  h1, h2, h3 { color: #FFFFFF; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+  th, td { border: 1px solid #333333; padding: 8px; text-align: left; }
+  th { background-color: #1E1E1E; }
+  .pass { color: #81C784; }
+</style>
+</head>
+<body>
+  <h1>정적 QA 보고서: 다국어 지원 변경사항 3건</h1>
+  <p>최근 Codex가 제출한 다국어 처리 브랜치 3건에 대하여 네이티브 렌더링 회귀 및 구조적 문제를 검토하였습니다.</p>
+  
+  <h2>검토 대상</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>브랜치</th>
+        <th>파일</th>
+        <th>판정</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>codex-import-inbox-i18n-260726</td>
+        <td>dds-import-inbox-screens.tsx</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>codex/ui-audit-260726-2230</td>
+        <td>SbNavBar.tsx</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>codex/loading-screen-i18n-260726-2255</td>
+        <td>LoadingScreen.tsx</td>
+        <td class="pass">통과</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>상세 내용</h2>
+  <p>세 건 모두 기존 렌더링 계층 구조(Fabric)를 유지하면서 문자열 리터럴을 로케일 키로 치환한 작업입니다. 애니메이션 트리, 데이터 힌트 속성, RTL 레이아웃 등 네이티브 성능에 부정적인 영향을 미치는 계층 변동이나 메모리 누수 요인이 발견되지 않았습니다. 단일 텍스트 치환이므로 렌더링 블로커는 없습니다.</p>
+
+  <h2>섹션 35 자율 판단</h2>
+  <p>위험도 낮음. 기존 로직을 훼손하지 않는 단순 텍스트 교체 작업이므로 무결성을 유지합니다.</p>
+</body>
+</html>
