@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>리즈닝 자동 실행 문구 정리 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101216; --text: #e8edf2; --muted: #9aa6b2; --accent: #78b7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2 { margin: 0 0 12px; font-weight: 750; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 14px; color: var(--text); }
+    .muted { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 22px 0; }
+    .card { border: 1px solid rgba(120,183,255,.35); border-radius: 8px; padding: 14px; background: rgba(255,255,255,.03); }
+    .label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .value { font-size: 14px; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 24px; }
+    th, td { border-bottom: 1px solid rgba(154,166,178,.28); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 650; }
+    code { color: var(--text); background: rgba(255,255,255,.06); padding: 2px 5px; border-radius: 4px; }
+    details { border: 1px solid rgba(154,166,178,.24); border-radius: 8px; padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 650; }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>리즈닝 자동 실행 문구 정리 보고</h1>
+    <p class="muted">작성 시각: 2026-07-27 02:22:24 KST</p>
+    <div class="grid" aria-label="요약">
+      <section class="card"><span class="label">결과</span><span class="value">완료</span></section>
+      <section class="card"><span class="label">앱 커밋</span><span class="value"><code>c09a41c3</code></span></section>
+      <section class="card"><span class="label">브랜치</span><span class="value"><code>codex/cycle-260727-021750</code></span></section>
+      <section class="card"><span class="label">검증</span><span class="value">통과</span></section>
+    </div>
+
+    <h2>변경 내용</h2>
+    <p><code>/reasoning</code> 화면의 자동 리즈닝 안내 카드에 남아 있던 한국어/영어 직접 분기 문구를 <code>deepspace</code> i18n 키로 이동했습니다. 영어, 한국어, 스페인어, 포르투갈어, 인도네시아어 번역 키를 같은 구조로 추가해 shipped locale에서 영어 fallback이 생기지 않게 했습니다.</p>
+
+    <table>
+      <thead>
+        <tr><th>항목</th><th>내용</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>작업 위치</td><td><code>E:\2ndB\.worktrees\codex-cycle-260727-021750</code></td></tr>
+        <tr><td>수정 파일</td><td><code>src/app/reasoning.tsx</code>, <code>locales/*/deepspace.json</code></td></tr>
+        <tr><td>범위 제한</td><td>자동 리즈닝 카드 제목, 한도 소진 안내, 기본 설명, 주간 한도 안내만 변경</td></tr>
+        <tr><td>푸시 여부</td><td>푸시, PR, 머지, 배포 모두 수행하지 않음</td></tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <ul>
+        <li><code>node -e JSON.parse(...)</code> 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npx eslint src/app/reasoning.tsx</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>git diff --check</code> 치명 오류 없음, CRLF 변환 경고만 표시</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자체 패널 판정</summary>
+      <ul>
+        <li>찬성 관점: 사용자 노출 문구를 i18n 체계로 옮겨 다국어 화면 품질을 올림</li>
+        <li>반대 관점: 한 화면 안의 다른 문구 분기는 아직 남아 있어 전체 정리는 아님</li>
+        <li>판정: 단일 cycle 범위에서는 자동 리즈닝 카드만 처리하는 것이 가장 낮은 위험의 진전</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>
