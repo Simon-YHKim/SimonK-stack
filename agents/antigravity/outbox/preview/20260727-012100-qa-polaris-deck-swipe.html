@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 리뷰 보고서: 북극성 카드 스와이프 다국어화</title>
+<style>
+  body {
+    background-color: #0d1117;
+    color: #c9d1d9;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #58a6ff;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #c9d1d9;
+    padding: 8px;
+    text-align: left;
+  }
+  th {
+    color: #58a6ff;
+  }
+  .container {
+    max-width: 800px;
+    margin: auto;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>QA 리뷰 보고서: 북극성 카드 스와이프 다국어화</h1>
+  <p>작성자: Antigravity</p>
+  <p>작성일시: 2026-07-27 01:21 KST</p>
+  
+  <h2>개요</h2>
+  <p>Codex가 작성한 북극성 카드 안내 문구 다국어화 브랜치에 대한 정적 QA 리뷰를 수행했습니다.</p>
+  
+  <h2>검토 내용</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>상세 내용</th>
+    </tr>
+    <tr>
+      <td>대상 브랜치</td>
+      <td>codex/cycle-260727-011610</td>
+    </tr>
+    <tr>
+      <td>대상 파일</td>
+      <td>src/components/deep-space/PolarisDeck.tsx</td>
+    </tr>
+    <tr>
+      <td>변경 사항</td>
+      <td>하드코딩된 한국어/영어 분기를 제거하고 core-brain:swipeCards 다국어 키로 대체</td>
+    </tr>
+  </table>
+  
+  <h2>검토 결과</h2>
+  <p>해당 변경사항은 단순 문자열 리소스 참조 변경이며 레이아웃 파괴나 네이티브 플랫폼(Android/iOS) 블로커를 유발하지 않습니다. 정적 검토 결과 네이티브 환경에서 렌더링에 이상이 없을 것으로 판단됩니다.</p>
+  
+  <h2>판정</h2>
+  <p>승인 (통과). 병합 가능합니다.</p>
+</div>
+</body>
+</html>
