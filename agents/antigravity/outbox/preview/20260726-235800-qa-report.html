@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 검증 리포트: records-source-detail-route</title>
+<style>
+  body { background-color: #111111; color: #EEEEEE; font-family: sans-serif; line-height: 1.6; padding: 20px; }
+  h1, h2, h3 { color: #EEEEEE; border-bottom: 1px solid #444444; padding-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #444444; padding: 10px; text-align: left; }
+  th { background-color: #222222; }
+  .pass { color: #DDDDDD; font-weight: bold; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 리포트</h1>
+  <p>대상 브랜치: codex/records-source-detail-route-20260710</p>
+  
+  <h2>기대 동작 검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>기대 동작 항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Assessment JSON Payload 라우팅 유지</td>
+        <td class="pass">통과</td>
+        <td>라우팅 정보 유지됨</td>
+      </tr>
+      <tr>
+        <td>Codex Source Detail Body Fallback 유지</td>
+        <td class="pass">통과</td>
+        <td>인라인 폴백 정상</td>
+      </tr>
+      <tr>
+        <td>관련 레코드 Fallback 동작 무결성</td>
+        <td class="pass">통과</td>
+        <td>의미론적 연관 상태 클리어 정상</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>테스트 실행 로그</h2>
+  <pre>PASS src/screens/deepspace/__tests__/records-source-detail-route.test.ts (5.954 s)</pre>
+</body>
+</html>
