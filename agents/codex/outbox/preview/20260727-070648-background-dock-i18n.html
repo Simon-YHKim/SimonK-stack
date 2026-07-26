@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백그라운드 작업 표시줄 다국어화 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --text: #e8edf2; --accent: #73d0ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { width: min(980px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 48px; }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: clamp(24px, 4vw, 38px); line-height: 1.2; }
+    h2 { font-size: 18px; margin-bottom: 12px; }
+    .lead { margin-top: 12px; color: color-mix(in srgb, var(--text) 72%, var(--bg)); max-width: 760px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 24px 0; }
+    .card, details { border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--bg)); background: color-mix(in srgb, var(--text) 6%, var(--bg)); border-radius: 8px; padding: 14px; }
+    .label { color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    .value { font-weight: 700; word-break: break-word; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { text-align: left; border-bottom: 1px solid color-mix(in srgb, var(--accent) 18%, var(--bg)); padding: 8px 6px; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); word-break: break-all; }
+    .ok { color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>백그라운드 작업 표시줄 다국어화 보고</h1>
+    <p class="lead">이번 Codex poll cycle은 열린 요청이 없어, 2nd-B UI/i18n anti-slop 레인에서 한 가지 신규 작업만 수행했다. 백그라운드 작업 표시줄의 KO/EN 고정 문구를 배송 언어 5종에 맞춘 로컬 카피 테이블로 바꿨다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">앱 브랜치</div><div class="value"><code>codex/cycle-260727-070524</code></div></div>
+      <div class="card"><div class="label">앱 커밋</div><div class="value"><code>2e1fed86</code></div></div>
+      <div class="card"><div class="label">허브 작업</div><div class="value">보고만 기록</div></div>
+    </section>
+
+    <details open>
+      <summary>변경 내용</summary>
+      <table>
+        <thead><tr><th>항목</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td>대상 파일</td><td><code>E:\2ndB\.worktrees\codex-cycle-260727-070524\src\components\deepspace\BackgroundTaskDock.tsx</code></td></tr>
+          <tr><td>문제</td><td>백그라운드 작업 표시줄의 상태 보조문구와 접근성 라벨이 한국어와 영어 분기만 제공했다.</td></tr>
+          <tr><td>수정</td><td>영어, 한국어, 스페인어, 포르투갈어, 인도네시아어용 카피 테이블과 언어 해석 함수를 추가했다.</td></tr>
+          <tr><td>제약</td><td>2nd-B main push, PR 생성, 배포, 브라우저 자동 열기, 비용 작업, 시크릿 작업은 하지 않았다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details open>
+      <summary>검증</summary>
+      <table>
+        <thead><tr><th>검사</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><code>npx eslint src/components/deepspace/BackgroundTaskDock.tsx</code></td><td class="ok">통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td class="ok">통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td class="ok">통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td class="ok">통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td class="ok">통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td class="ok">통과, CRLF 경고만 표시</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>35조 자체 패널</summary>
+      <table>
+        <thead><tr><th>관점</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>찬성</td><td>배송 언어 사용자는 백그라운드 작업 상태와 접근성 라벨을 자기 언어로 받는다.</td></tr>
+          <tr><td>반대</td><td>작은 컴포넌트에 로컬 카피 테이블이 늘어난다.</td></tr>
+          <tr><td>대안</td><td>공용 locale JSON 키 추가는 가능하지만, 이번 변경은 단일 컴포넌트 문구라 키 증가보다 국소 수정이 낫다.</td></tr>
+          <tr><td>판정</td><td>위험이 낮고 검증이 통과했으므로 Claude 리뷰 대기 브랜치로 제출한다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+  </main>
+</body>
+</html>
