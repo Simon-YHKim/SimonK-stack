@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>애착 화면 다국어 표시 정리 보고</title>
+  <style>
+    :root {
+      --bg: #111318;
+      --text: #f1f3f5;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main { width: min(980px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0; }
+    h1, h2 { margin: 0 0 12px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 22px 0; }
+    .card { border: 1px solid var(--accent); border-radius: 8px; padding: 14px; }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    .value { font-size: 16px; font-weight: 700; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { border: 1px solid var(--accent); border-radius: 8px; padding: 12px 14px; margin: 12px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } main { padding: 28px 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>애착 화면 다국어 표시 정리 보고</h1>
+    <p>이번 단일 폴 사이클에서는 신규 처리 대상 오더가 없어, Codex 레인의 UI 다국어 정리 작업 한 건을 수행했다. 대상은 2nd-B 애착 스타일 화면의 표시 언어 분기다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">앱 커밋</div><div class="value"><code>ecf6da49</code></div></div>
+      <div class="card"><div class="label">변경 파일</div><div class="value"><code>src/app/attachment.tsx</code></div></div>
+      <div class="card"><div class="label">검증</div><div class="value">통과</div></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>내용</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>표시 언어</td><td>애착 화면의 표시용 언어를 영어, 한국어, 스페인어, 포르투갈어, 인도네시아어로 판별하도록 분리했다.</td></tr>
+        <tr><td>척도 라벨</td><td>1점부터 7점까지의 선택 라벨을 다섯 언어 로컬 표로 확장했다.</td></tr>
+        <tr><td>결과 문구</td><td>현재 스타일, 저장 요약, 토픽, 첫 세컨비 이동 라벨을 표시 언어에 맞게 구성했다.</td></tr>
+        <tr><td>보수적 유지</td><td>저장 스키마와 점수 계산 로직은 변경하지 않았다. 기록 로케일 타입은 기존 영어/한국어 경계를 유지했다.</td></tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <ul>
+        <li><code>npx eslint src/app/attachment.tsx</code> 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>git diff --check</code> 공백 오류 없음, 줄끝 경고만 표시</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>35절 자체 패널</summary>
+      <ul>
+        <li>찬성 관점: 이미 다섯 언어의 애착 네임스페이스가 있으므로, 화면 일부만 영어로 남는 어색함을 줄이는 가치가 있다.</li>
+        <li>반대 관점: ECR-S 문항 본문은 여전히 영어/한국어 데이터에 묶여 있어 완전한 문항 다국어화는 아니다.</li>
+        <li>판정: 이번 사이클 범위에서는 표시 라벨과 결과 문구 정리가 가장 작은 유효 개선이다. 문항 본문 확장은 별도 데이터 모델 변경으로 분리해야 한다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>제한 준수</summary>
+      <ul>
+        <li>2nd-B push, PR, merge, 배포 없음</li>
+        <li>파괴적 작업, 비용 작업, 시크릿 작업 없음</li>
+        <li>허브 브랜치 전환 없음</li>
+        <li>허브 쓰기는 <code>agents/codex/</code> 아래로 제한</li>
+        <li>고위험 산출물이 아니므로 MoA 검증 요청 없음</li>
+      </ul>
+    </details>
+
+    <p>작성 시각: 2026-07-27 08:11:39 KST</p>
+  </main>
+</body>
+</html>
