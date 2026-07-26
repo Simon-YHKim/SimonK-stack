@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>홈 코치마크 색상 토큰화 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #46b6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Pretendard, "Noto Sans KR", system-ui, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { margin: 0; line-height: 1.25; }
+    h1 { font-size: clamp(24px, 5vw, 38px); }
+    h2 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    p { margin: 10px 0 0; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .card, details {
+      border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      background: color-mix(in srgb, var(--text) 4%, transparent);
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    code {
+      color: var(--text);
+      overflow-wrap: anywhere;
+      font-family: "Roboto Mono", Consolas, monospace;
+      font-size: 13px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      border-top: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>홈 코치마크 색상 토큰화 보고</h1>
+    <p>열린 Codex 오더가 없어, Codex 레인의 자율 UI 정합 작업으로 홈 코치마크의 컴포넌트 내부 raw color를 기존 deep-space 토큰으로 교체했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span>완료</div>
+      <div class="card"><span class="label">앱 브랜치</span><code>codex/homecoachmarks-token-260726</code></div>
+      <div class="card"><span class="label">앱 커밋</span><code>01b724f9</code></div>
+      <div class="card"><span class="label">기준</span><code>origin/main 505ac8f0</code></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>변경</th><th>이유</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/components/deep-space/HomeCoachmarks.tsx</code></td>
+          <td><code>#0B1120</code>을 <code>deepSpace.bgMid</code>로, <code>#EAF2FF</code>를 <code>deepSpace.textHi</code>로 교체</td>
+          <td>컴포넌트 내부 색상 literal을 줄이고, DESIGN의 토큰 경유 원칙에 맞춤</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>명령</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>대상 파일 raw hex 재스캔</td><td><code>rg "#[0-9A-Fa-f]{3,8}" src/components/deep-space/HomeCoachmarks.tsx</code></td><td>0건</td></tr>
+        <tr><td>파일 단위 린트</td><td><code>npx eslint src/components/deep-space/HomeCoachmarks.tsx</code></td><td>통과</td></tr>
+        <tr><td>타입 검사</td><td><code>npm run type-check</code></td><td>통과</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자기 패널 점검</summary>
+      <p>찬성: 작은 변경으로 토큰 계약 위반 후보를 줄였다. 반대: 전체 raw color 부채를 모두 해결한 것은 아니다. 판정: 이번 사이클의 단일 작업으로는 한 컴포넌트의 확정 가능한 위반만 고치는 것이 적절하다.</p>
+    </details>
+
+    <h2>제약 확인</h2>
+    <p>2nd-B push, PR, merge, 배포, 비용 작업, 시크릿 접근, 파괴적 작업은 수행하지 않았다. 허브에서는 <code>agents/codex/</code>만 작성했다.</p>
+  </main>
+</body>
+</html>
