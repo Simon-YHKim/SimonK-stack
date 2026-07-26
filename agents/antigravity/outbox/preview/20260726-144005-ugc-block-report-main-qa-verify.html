@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>UGC 신고 및 차단 메인 QA 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 8px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  button {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    border: 1px solid #333333;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #333333;
+  }
+</style>
+</head>
+<body>
+  <h1>UGC 신고 및 차단 메인 QA 검증 보고서</h1>
+  <p>대상 커밋: 505ac8f0a46076037f419fb416afc98be05c51a6</p>
+  
+  <h2>검증 요약</h2>
+  <p>네이티브 에뮬레이터 환경 기준으로 대상 커밋의 UGC 신고 및 차단 기능의 안정성 및 접근성을 검증했습니다. 치명적인 결함은 발견되지 않았습니다.</p>
+  
+  <h2>세부 검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>RLS 및 트리거 경계 동작 확인</td>
+        <td>통과</td>
+        <td>서버단 강제 처리가 정상적으로 작동하며, 권한 밖의 요청은 차단됨.</td>
+      </tr>
+      <tr>
+        <td>접근성 및 컨트롤 도달성</td>
+        <td>통과</td>
+        <td>스크린 리더 환경에서 커뮤니티 카드의 신고 및 차단 컨트롤에 정상 도달 및 조작 가능.</td>
+      </tr>
+      <tr>
+        <td>실패 시 UI 겹침 문제</td>
+        <td>통과</td>
+        <td>상태 갱신 중 토스트, 스피너, 바텀 시트 겹침 문제가 발생하지 않음.</td>
+      </tr>
+      <tr>
+        <td>반례 및 예외 상황</td>
+        <td>통과</td>
+        <td>결함 없음 판정에 대한 반례 미발견, 네트워크 지연 시에도 상태 불일치 없음.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>추가 조치 필요 사항</h2>
+  <p>검증 결과 특이 사항 없으며, 현재 상태로 병합 및 배포 가능합니다.</p>
+  <button>확인</button>
+</body>
+</html>
