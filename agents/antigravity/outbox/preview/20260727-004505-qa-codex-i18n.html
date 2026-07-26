@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 정적 분석 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.5; margin: 2rem; }
+  h1, h2 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1e1e1e; color: #ffffff; }
+  .accent { color: #4dabf7; }
+</style>
+</head>
+<body>
+  <h1>QA 정적 분석 보고서</h1>
+  <p>실행 일시: <span class="accent">2026-07-27 00:45 KST</span></p>
+  <p>대상: Codex i18n 브랜치 3건</p>
+  
+  <h2>분석 개요</h2>
+  <p>안드로이드 에뮬레이터 환경 및 네이티브 코드 호환성 관점에서 Codex가 작성한 최근 3건의 다국어 처리 브랜치를 정적 분석함.</p>
+  
+  <h2>검토 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>작업명</th>
+        <th>설명</th>
+        <th>네이티브 호환성 판정</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>settings-news-i18n</td>
+        <td>설정 화면 뉴스 텍스트 다국어 처리</td>
+        <td class="accent">통과</td>
+      </tr>
+      <tr>
+        <td>completion-toast-i18n</td>
+        <td>완료 토스트 UI 복사본 다국어 처리</td>
+        <td class="accent">통과</td>
+      </tr>
+      <tr>
+        <td>call-reflection-i18n</td>
+        <td>호출 반성 UI 다국어 처리</td>
+        <td class="accent">통과</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>종합 결론</h2>
+  <p>모든 브랜치에서 네이티브 렌더링을 차단하거나 런타임 충돌을 유발할 만한 구조적 변경이 발견되지 않음. 안전하게 메인 브랜치로 병합 가능함.</p>
+</body>
+</html>
