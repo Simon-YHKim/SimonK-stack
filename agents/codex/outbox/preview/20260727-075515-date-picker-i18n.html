@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>날짜 선택기 다국어 라벨 사이클 보고</title>
+  <style>
+    :root {
+      --bg: #101418;
+      --fg: #e6edf3;
+      --muted: #8fa3b4;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; letter-spacing: 0; }
+    h2 { font-size: 18px; margin-bottom: 12px; }
+    .lead { color: var(--muted); margin-top: 8px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+    }
+    .card, details {
+      border: 1px solid color-mix(in srgb, var(--muted) 35%, transparent);
+      border-radius: 8px;
+      padding: 16px;
+      background: color-mix(in srgb, var(--fg) 4%, transparent);
+    }
+    .label { color: var(--muted); font-size: 13px; }
+    .value { margin-top: 6px; font-weight: 700; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid color-mix(in srgb, var(--muted) 28%, transparent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 700; }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>날짜 선택기 다국어 라벨 사이클 보고</h1>
+    <p class="lead">2026-07-27 07:55:15 KST 기준, Codex가 수행한 단일 자율 폴 사이클 결과입니다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <p class="label">결과</p>
+        <p class="value">완료</p>
+      </div>
+      <div class="card">
+        <p class="label">앱 브랜치</p>
+        <p class="value"><code>codex/cycle-260727-075141</code></p>
+      </div>
+      <div class="card">
+        <p class="label">앱 커밋</p>
+        <p class="value"><code>b6382c86</code></p>
+      </div>
+      <div class="card">
+        <p class="label">검증 상태</p>
+        <p class="value">통과</p>
+      </div>
+    </section>
+
+    <details open>
+      <summary>수행 내용</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>요청 확인</td>
+            <td><code>tools/board.ps1 -Me codex</code>에서 codex inbox는 비어 있었고, peer outbox의 최신 OPEN 후보는 이미 처리된 <code>agent-card</code> 요청으로 확인했습니다.</td>
+          </tr>
+          <tr>
+            <td>작업 선택</td>
+            <td>BOARD의 codex 레인에 맞춰 공용 <code>DatePicker</code>의 shipped locale 5종 라벨 미완성을 단일 anti-slop 작업으로 선택했습니다.</td>
+          </tr>
+          <tr>
+            <td>변경 파일</td>
+            <td><code>src/components/m3/date-picker/DatePicker.tsx</code></td>
+          </tr>
+          <tr>
+            <td>변경 요약</td>
+            <td>월 이름, 요일 머리글, 이전 달, 다음 달, 연도 선택 접근성 힌트를 <code>en</code>, <code>ko</code>, <code>es</code>, <code>pt</code>, <code>id</code> 로컬 라벨 팩에서 가져오게 했습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>검증</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>명령</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>npx eslint src/components/m3/date-picker/DatePicker.tsx</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td><code>npm run check:i18n</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td><code>npm run check:lexicon</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td><code>npm run type-check</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td><code>npm run check:emdash</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td><code>git diff --check</code></td>
+            <td>CRLF 경고만 표시, 공백 오류 없음</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>제약 준수</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>제약</th>
+            <th>상태</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>허브 single-writer</td>
+            <td><code>agents/codex/</code> 아래에만 보고 파일을 작성했습니다.</td>
+          </tr>
+          <tr>
+            <td>2nd-B push 금지</td>
+            <td>로컬 브랜치 커밋만 생성했고 push, PR, merge, 배포는 하지 않았습니다.</td>
+          </tr>
+          <tr>
+            <td>파괴, 비용, 시크릿</td>
+            <td>해당 작업 없음</td>
+          </tr>
+          <tr>
+            <td>35 self-panel</td>
+            <td>찬성: shipped locale 사용자가 영어 달력 라벨을 보지 않게 됩니다. 반대: locale JSON 대신 컴포넌트 로컬 팩이 커집니다. 판정: 공용 달력 원시 라벨 19개를 JSON에 확장하는 것보다 한 파일 변경이 작아 이번 사이클에 적합합니다.</td>
+          </tr>
+          <tr>
+            <td>MoA 검증</td>
+            <td>고위험 산출물이 아니므로 별도 verify 요청은 만들지 않았습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+  </main>
+</body>
+</html>
