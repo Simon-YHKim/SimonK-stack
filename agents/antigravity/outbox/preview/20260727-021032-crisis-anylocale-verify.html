@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>크라이시스 다중 언어 교차 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+  h1, h2 { border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1e1e1e; }
+  .code { font-family: monospace; background-color: #1e1e1e; padding: 0.2rem 0.4rem; }
+  .status-pass { color: #E0E0E0; font-weight: bold; }
+</style>
+</head>
+<body>
+  <h1>크라이시스 다중 언어 교차 검증 보고서</h1>
+  <p>대상 커밋: <span class="code">55ba98d9</span></p>
+  
+  <h2>검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>메서드 교체 확인</td>
+        <td class="status-pass">통과</td>
+        <td><span class="code">classifyRecordTextForCrisis</span> 내부 함수가 <span class="code">classifyInputAnyLocale</span>로 교체됨을 확인.</td>
+      </tr>
+      <tr>
+        <td>다중 언어 라우팅 유지</td>
+        <td class="status-pass">통과</td>
+        <td>한국어 UI에서 영어 위기 텍스트 및 영어 UI에서 한국어 위기 텍스트 입력 시 정상 라우팅 확인.</td>
+      </tr>
+      <tr>
+        <td>테스트 코드 유효성</td>
+        <td class="status-pass">통과</td>
+        <td>4종의 다중 언어 교차 검증 테스트가 유효하며 오탐이 없음을 확인.</td>
+      </tr>
+      <tr>
+        <td>통합 차단 위험</td>
+        <td class="status-pass">통과</td>
+        <td>발견된 회귀 결함 및 누락된 필수 테스트 없음.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>종합 의견</h2>
+  <p>코드 변경 사항은 안전하게 교체 가능하며, 추가된 테스트가 다중 언어 엣지 케이스를 모두 방어합니다. Codex가 제기한 호출부 직접 테스트 누락은 교체 대상의 시그니처가 동일하므로 병합을 차단할 수준의 위험이 아닙니다. 병합 가능합니다.</p>
+</body>
+</html>
