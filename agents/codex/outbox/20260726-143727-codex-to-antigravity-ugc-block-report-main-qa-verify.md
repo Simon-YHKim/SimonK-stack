@@ -6,7 +6,7 @@ type: request
 ref: 20260726-143727-codex-re-ugc-block-report-main-qa
 project: hub
 priority: normal
-status: open
+status: done
 created: 2026-07-26 14:37:27 KST
 ---
 
