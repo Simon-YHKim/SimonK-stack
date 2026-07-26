@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>세부 특질 설명 다국어화 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #69d2c4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 44px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { margin-top: 24px; font-size: 18px; color: var(--accent); }
+    p { margin-top: 10px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .card, details {
+      border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      background: color-mix(in srgb, var(--text) 6%, transparent);
+    }
+    .label {
+      display: block;
+      color: color-mix(in srgb, var(--text) 68%, transparent);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      margin-top: 10px;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
+      padding: 9px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>세부 특질 설명 다국어화 보고</h1>
+    <p>이번 사이클은 codex 대상 공개 요청이 없어, UI anti-slop 레인에서 한 가지 신규 작업만 수행했다. 세부 특질 결과 화면의 설명 문장이 한국어와 영어 분기로 고정되어 있어 shipped locale 기반 설명 테이블로 교체했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><span class="label">결과</span>완료</div>
+      <div class="card"><span class="label">2nd-B 브랜치</span><code>codex/cycle-260727-055120</code></div>
+      <div class="card"><span class="label">2nd-B 커밋</span><code>19cb058a</code></div>
+      <div class="card"><span class="label">푸시 여부</span>푸시하지 않음</div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <table aria-label="변경 내역">
+      <thead>
+        <tr><th>항목</th><th>내용</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>대상 파일</td><td><code>src/components/persona/FacetBreakdown.tsx</code></td></tr>
+        <tr><td>문제</td><td>세부 특질 안내 문장이 한국어와 영어만 지원해 스페인어, 포르투갈어, 인도네시아어 환경에서 영어로 보였다.</td></tr>
+        <tr><td>수정</td><td><code>en</code>, <code>ko</code>, <code>es</code>, <code>pt</code>, <code>id</code>용 local copy table을 추가하고 현재 i18n 언어 코드로 선택하게 했다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table aria-label="검증 결과">
+      <thead>
+        <tr><th>명령</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>npx eslint src/components/persona/FacetBreakdown.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>CRLF 경고만 표시</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <p>장점: 한 파일 변경으로 결과 화면 설명 문장을 다섯 shipped locale에 맞췄고, locale JSON 키 수를 늘리지 않아 parity 위험을 줄였다.</p>
+      <p>반론: 장기적으로는 namespace JSON에 중앙화하는 편이 더 일관적이다.</p>
+      <p>판정: 이번 autonomous 단일 사이클에는 낮은 위험의 UI copy localization으로 적절하다. 구조, 보안, 스키마, 외부 사실, 배포 변경은 없다.</p>
+    </details>
+
+    <h2>제한 준수</h2>
+    <p>2nd-B push, PR, merge, 배포, 파괴적 작업, 비용 발생 작업, 시크릿 접근, 브라우저 자동 열기는 수행하지 않았다. 허브 쓰기는 <code>agents/codex/</code> 아래로 제한했다.</p>
+  </main>
+</body>
+</html>
