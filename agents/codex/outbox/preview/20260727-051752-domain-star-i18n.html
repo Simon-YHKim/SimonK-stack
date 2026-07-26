@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>도메인 별 렌즈 다국어 표면 정리</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101419;
+      --panel: #1b222b;
+      --text: #e8eef4;
+      --muted: #9daab7;
+      --accent: #6fb7d8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 44px;
+    }
+    header, section {
+      background: var(--panel);
+      border: 1px solid rgba(111, 183, 216, 0.22);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 0 0 16px;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      line-height: 1.25;
+    }
+    h1 { font-size: 24px; }
+    h2 { font-size: 17px; color: var(--accent); }
+    p { margin: 8px 0; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .metric {
+      border: 1px solid rgba(232, 238, 244, 0.12);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 78px;
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .value {
+      display: block;
+      font-size: 16px;
+      font-weight: 700;
+      word-break: break-word;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid rgba(232, 238, 244, 0.12);
+      padding: 9px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      background: rgba(232, 238, 244, 0.08);
+      border-radius: 4px;
+      padding: 1px 4px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.95em;
+    }
+    details {
+      border-top: 1px solid rgba(232, 238, 244, 0.12);
+      margin-top: 12px;
+      padding-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { padding-left: 20px; margin: 8px 0 0; }
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>도메인 별 렌즈 다국어 표면 정리</h1>
+      <p>이번 Codex 단일 사이클은 새 open 요청이 없어 2nd-B UI/i18n 레인의 자율 작업으로 진행했다. 도메인 별 렌즈의 헤더 캡션과 두 개의 행동 버튼이 한국어와 영어에만 고정되어 있던 문제를 shipped locale 5종 표면으로 정리했다.</p>
+      <div class="grid" aria-label="요약 지표">
+        <div class="metric"><span class="label">상태</span><span class="value">완료</span></div>
+        <div class="metric"><span class="label">앱 브랜치</span><span class="value">codex/cycle-260727-051504</span></div>
+        <div class="metric"><span class="label">앱 커밋</span><span class="value">0578c212</span></div>
+        <div class="metric"><span class="label">변경 파일</span><span class="value">1개</span></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>파일</th>
+            <th>작업</th>
+            <th>효과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/app/star/[domain].tsx</code></td>
+            <td>도메인 헤더 캡션과 기본/보조 CTA 라벨을 <code>en</code>, <code>ko</code>, <code>es</code>, <code>pt</code>, <code>id</code> 로컬 테이블에서 고르게 했다.</td>
+            <td>스페인어, 포르투갈어, 인도네시아어 사용자가 별 렌즈에 들어갔을 때 버튼과 캡션이 영어로 남지 않는다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>명령</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npx eslint 'src/app/star/[domain].tsx'</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과, 5개 locale 3226개 키 정렬 확인</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과, 금지 어휘 없음</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과, locale 문자열 em dash 없음</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과, 줄끝 경고만 확인</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 점검</h2>
+      <details open>
+        <summary>프로토콜 준수</summary>
+        <ul>
+          <li>허브 쓰기는 <code>agents/codex/</code> 아래 보고 파일로 제한했다.</li>
+          <li>2nd-B 작업은 <code>origin/main</code> 기준 새 worktree에서만 수행했다.</li>
+          <li>앱 변경은 로컬 커밋까지만 만들었고 push, PR, merge, deploy는 하지 않았다.</li>
+          <li>파괴적 작업, 비용 발생 작업, 시크릿 접근, 브라우저 자동 열기를 하지 않았다.</li>
+          <li>고위험 산출물이 아니므로 MoA 추가 검증 요청은 만들지 않았다.</li>
+        </ul>
+      </details>
+      <details>
+        <summary>남은 위험</summary>
+        <p>이번 변경은 표시 문자열 선택 로직에 국한된다. 실제 모바일 렌더 캡처는 수행하지 않았으므로, 긴 포르투갈어와 인도네시아어 라벨의 버튼 폭은 Claude 병합 전 필요하면 기기 화면에서 추가 확인하면 된다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>기록</h2>
+      <p>생성 시각: 2026-07-27 05:17:52 KST</p>
+      <p>기준 커밋: <code>origin/main 69b0c58f</code></p>
+    </section>
+  </main>
+</body>
+</html>
