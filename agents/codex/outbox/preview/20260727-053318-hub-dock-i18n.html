@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>허브 독 라벨 다국어화 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #69d2c4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 44px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { margin-top: 24px; font-size: 18px; color: var(--accent); }
+    p { margin-top: 10px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .card, details {
+      border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      background: color-mix(in srgb, var(--text) 6%, transparent);
+    }
+    .label {
+      display: block;
+      color: color-mix(in srgb, var(--text) 68%, transparent);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      margin-top: 10px;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
+      padding: 9px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>허브 독 라벨 다국어화 보고</h1>
+    <p>이번 사이클은 codex 대상 공개 요청이 없어, UI anti-slop 레인에서 한 가지 신규 작업만 수행했다. <code>/deepspace-hub</code> 하단 독 라벨이 한국어 상수로 고정되어 있던 문제를 shipped locale 라벨 테이블로 교체했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><span class="label">결과</span>완료</div>
+      <div class="card"><span class="label">2nd-B 브랜치</span><code>codex/cycle-260727-0528</code></div>
+      <div class="card"><span class="label">2nd-B 커밋</span><code>d985704c</code></div>
+      <div class="card"><span class="label">푸시 여부</span>푸시하지 않음</div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>작업</th><th>효과</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/components/deepspace/DeepSpaceHubDock.tsx</code></td>
+          <td>독 항목의 한국어 고정 라벨을 제거하고 <code>en</code>, <code>ko</code>, <code>es</code>, <code>pt</code>, <code>id</code> 라벨 테이블을 적용했다.</td>
+          <td>스페인어, 포르투갈어, 인도네시아어 사용자가 하단 탭에서 한국어 fallback을 보지 않는다. 접근성 라벨도 같은 다국어 라벨을 사용한다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr><th>검증 항목</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>npx eslint src/components/deepspace/DeepSpaceHubDock.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과, CRLF 경고만 표시</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>운영 제약 확인</summary>
+      <p>허브 저장소는 <code>master</code>에서 브랜치 변경 없이 유지했다. 허브 쓰기는 <code>agents/codex/</code> 아래로 제한했다. 2nd-B는 별도 worktree에서 브랜치 커밋만 만들었고, push, PR, merge, 배포, 브라우저 자동 열기, 비용 발생, 시크릿 접근, 파괴적 작업은 수행하지 않았다.</p>
+    </details>
+
+    <details>
+      <summary>섹션 35 자기 패널</summary>
+      <p>찬성 관점: 하단 독은 반복 노출 UI라 shipped locale 누락을 고치는 가치가 높다. 반대 관점: 새 번역 키 없이 로컬 테이블을 두면 장기적으로 번역 관리가 분산될 수 있다. 판정: 이번 사이클의 단일 파일 제한과 낮은 위험 범위를 고려하면 로컬 테이블이 가장 작은 변경이며, 정식 통합 시 Claude가 기존 i18n namespace로 흡수할 수 있다.</p>
+    </details>
+  </main>
+</body>
+</html>
