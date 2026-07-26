@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>북극성 글로우 브랜치 검증 보고</title>
+  <style>
+    :root { --bg: #0b0f14; --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    main { width: min(980px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 48px; }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin: 28px 0 12px; }
+    h3 { font-size: 15px; margin-bottom: 8px; }
+    p, li, td, th { font-size: 14px; }
+    .muted { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 20px 0; }
+    .card { border: 1px solid var(--muted); border-radius: 8px; padding: 14px; min-height: 96px; }
+    .card strong { display: block; color: var(--accent); font-size: 13px; margin-bottom: 8px; }
+    table { width: 100%; border-collapse: collapse; border: 1px solid var(--muted); border-radius: 8px; overflow: hidden; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--muted); text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    tr:last-child td { border-bottom: 0; }
+    code { color: var(--text); background: transparent; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; }
+    details { border: 1px solid var(--muted); border-radius: 8px; padding: 12px 14px; margin-top: 10px; }
+    summary { color: var(--accent); cursor: pointer; font-weight: 700; }
+    ul { margin: 8px 0 0 18px; padding: 0; }
+    .flow { margin: 18px 0; border: 1px solid var(--muted); border-radius: 8px; padding: 10px; }
+    svg { display: block; width: 100%; height: auto; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>북극성 글로우 브랜치 검증 보고</h1>
+  <p class="muted">작성 시각: 2026-07-26 14:22:03 KST · 대상: <code>codex/polaris-glow-260726</code></p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><strong>결론</strong><p>검증 통과, 리베이스 보류</p></div>
+    <div class="card"><strong>대상 커밋</strong><p><code>6fd255fa</code></p></div>
+    <div class="card"><strong>변경 범위</strong><p>7개 파일, 174 추가, 308 삭제</p></div>
+    <div class="card"><strong>최신 기준</strong><p><code>origin/main</code> <code>3c4f784a</code></p></div>
+  </section>
+
+  <h2>작업 범위</h2>
+  <p>열린 Codex 요청은 없었고, 마지막 STATUS 이후 미보고 Codex UI 브랜치가 발견되어 이번 사이클의 단일 작업으로 검증했다. 브랜치는 북극성 첫 페이지 밀도 축소, 홈 별자리 노드의 bounded solid layer 전환, reasoning 화면 하단 실행 버튼의 목록 가림 방지를 다룬다.</p>
+
+  <div class="flow" aria-label="검증 흐름">
+    <svg viewBox="0 0 900 170" role="img" aria-labelledby="flow-title flow-desc">
+      <title id="flow-title">검증 흐름</title>
+      <desc id="flow-desc">브랜치 발견부터 리베이스 보류 판정까지의 단계</desc>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="#58a6ff"></path>
+        </marker>
+      </defs>
+      <g fill="none" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow)">
+        <path d="M155 85 H275"></path>
+        <path d="M430 85 H550"></path>
+        <path d="M705 85 H825"></path>
+      </g>
+      <g fill="#0b0f14" stroke="#8b949e" stroke-width="2">
+        <rect x="20" y="45" width="135" height="80" rx="8"></rect>
+        <rect x="285" y="45" width="145" height="80" rx="8"></rect>
+        <rect x="560" y="45" width="145" height="80" rx="8"></rect>
+        <rect x="715" y="45" width="165" height="80" rx="8"></rect>
+      </g>
+      <g fill="#e6edf3" font-size="15" font-family="system-ui, sans-serif" text-anchor="middle">
+        <text x="87" y="78">브랜치 발견</text>
+        <text x="87" y="101">미보고 산출</text>
+        <text x="357" y="78">정적 검토</text>
+        <text x="357" y="101">범위 확인</text>
+        <text x="632" y="78">검증 실행</text>
+        <text x="632" y="101">테스트 통과</text>
+        <text x="797" y="78">리베이스 보류</text>
+        <text x="797" y="101">Claude 검증 요청</text>
+      </g>
+    </svg>
+  </div>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr><th>항목</th><th>결과</th><th>근거</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>대상 테스트</td><td>통과</td><td><code>polaris-deck</code>, <code>constellation-home-m3</code>, <code>auto-intro-and-orbit</code> 3개 스위트 16개 테스트 통과</td></tr>
+      <tr><td>타입 검사</td><td>통과</td><td><code>npm run type-check</code></td></tr>
+      <tr><td>파일 린트</td><td>통과</td><td>변경 파일 대상 <code>npx eslint</code></td></tr>
+      <tr><td>정책 가드</td><td>통과</td><td><code>check:lexicon</code>, <code>check:emdash</code>, <code>check:constraints</code></td></tr>
+      <tr><td>공백 검사</td><td>통과</td><td><code>git diff --check origin/main...HEAD</code></td></tr>
+      <tr><td>병합 충돌</td><td>통과</td><td><code>git merge-tree --write-tree origin/main HEAD</code>가 트리 해시를 반환</td></tr>
+    </tbody>
+  </table>
+
+  <h2>판정</h2>
+  <p>브랜치 내용은 design contract의 한 화면 한 메시지 원칙, 북극성 우선 시각 계층, Android overflow 및 하단 가림 방지 관점에서 타당하다. 다만 현재 브랜치는 <code>origin/main</code>보다 5커밋 뒤이며, Play Data safety 계정 삭제 페이지와 최근 QA 문서 커밋을 포함하지 않는다. 따라서 바로 머지하지 말고 Claude가 최신 기준으로 리베이스 또는 체리픽한 뒤 시각 캡처와 전체 verify를 다시 실행해야 한다.</p>
+
+  <details>
+    <summary>섹션 35 자체 패널</summary>
+    <ul>
+      <li>찬성: 첫 북극성 페이지에서 Big Five, 강점, confidence dot, export를 제거해 첫 화면 밀도를 낮춘다.</li>
+      <li>반대: 정적 테스트는 실제 Android 렌더 캡처를 대체하지 못한다.</li>
+      <li>판정: 정적 검증은 통과로 기록하되, 최신 main 기준 리베이스와 캡처 검증 전에는 merge-safe로 부르지 않는다.</li>
+    </ul>
+  </details>
+
+  <h2>남은 위험</h2>
+  <table>
+    <thead>
+      <tr><th>위험</th><th>처리</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>기준선 낡음</td><td><code>origin/main..HEAD</code>가 아니라 <code>origin/main...HEAD</code> 검토 기준으로 기록했고, Claude 검증 요청을 발행했다.</td></tr>
+      <tr><td>시각 캡처 부재</td><td>헤드리스 사이클에서 브라우저 또는 에뮬레이터를 열지 않았으므로 실제 픽셀 판정은 후속 게이트로 남긴다.</td></tr>
+    </tbody>
+  </table>
+</main>
+</body>
+</html>
