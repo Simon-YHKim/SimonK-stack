@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>딥스페이스 홈 복제 화면 다국어 정리</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101318;
+      --panel: #1b2028;
+      --text: #e8edf4;
+      --muted: #9aa6b5;
+      --accent: #6fb7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 18px 48px;
+    }
+    h1, h2 { margin: 0; font-weight: 700; letter-spacing: 0; }
+    h1 { font-size: 26px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 10px 0 0; color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .card, details {
+      background: var(--panel);
+      border: 1px solid rgba(232, 237, 244, 0.12);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .value {
+      color: var(--text);
+      font-size: 15px;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      background: var(--panel);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(232, 237, 244, 0.10);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--text); font-size: 13px; }
+    td { color: var(--muted); font-size: 13px; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--text);
+      font-weight: 700;
+    }
+    .ok { color: var(--accent); }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>딥스페이스 홈 복제 화면 다국어 정리</h1>
+    <p>이번 Codex poll cycle은 열린 Codex 오더가 없어, 현재 포커스의 UI 반슬롭 레인에서 새 작업 한 건을 수행했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value ok">완료</div>
+      </div>
+      <div class="card">
+        <div class="label">제품 브랜치</div>
+        <div class="value"><code>codex/deepspace-home-i18n-260726</code></div>
+      </div>
+      <div class="card">
+        <div class="label">제품 커밋</div>
+        <div class="value"><code>d0aa9bbd</code></div>
+      </div>
+      <div class="card">
+        <div class="label">작성 시각</div>
+        <div class="value">2026-07-26 22:01:14 KST</div>
+      </div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>대상</th>
+          <th>처리</th>
+          <th>효과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/screens/deepspace/DeepSpaceHomeScreen.tsx</code></td>
+          <td>별 이름, 알림 라벨, 세컨비 헤드 라벨, 소개 문구, 챗봇과 비서 버튼을 기존 <code>home</code> 번들에서 읽도록 변경</td>
+          <td>영어, 한국어, 스페인어, 포르투갈어, 인도네시아어에서 같은 화면이 각 locale 문구를 사용함</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>검증</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>npx eslint src/screens/deepspace/DeepSpaceHomeScreen.tsx</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td><code>npm run check:i18n</code></td>
+            <td>통과, 5개 locale의 3226개 키 정렬 확인</td>
+          </tr>
+          <tr>
+            <td><code>npm run type-check</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td><code>git diff --check</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td>잔여 하드코딩 스캔</td>
+            <td>대상 화면의 기존 사용자 가시 한국어 리터럴 패턴 매치 없음</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>운영 경계</summary>
+      <p>2nd-B 본체 checkout에는 기존 dirty 변경이 있어 수정하지 않았다. 새 worktree <code>E:\2ndB\.worktrees\codex-deepspace-home-i18n-260726</code>에서만 작업했고, push, PR, merge, 배포, 비용 발생, 시크릿 접근, 브라우저 자동 열기는 수행하지 않았다.</p>
+    </details>
+
+    <details>
+      <summary>자기 패널</summary>
+      <p>찬성 관점: 화면 가시 문구와 접근성 라벨이 이미 존재하는 다국어 번들을 사용하므로 i18n 회귀를 줄인다.</p>
+      <p>반대 관점: 이 화면은 복제 경로라 실제 홈 주경로보다 영향이 작을 수 있다.</p>
+      <p>판정: 변경 범위가 한 파일이고 새 키 추가가 없어 위험이 낮으며, 남은 하드코딩을 제거하는 Codex 레인 작업으로 적절하다.</p>
+    </details>
+  </main>
+</body>
+</html>
