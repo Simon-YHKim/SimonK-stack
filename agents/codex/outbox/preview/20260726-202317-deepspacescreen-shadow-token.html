@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>딥스페이스 공통 쉘 그림자 토큰화 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #dee3e8;
+      --muted: #8b9298;
+      --accent: #86cfff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 40px;
+    }
+    h1, h2 { margin: 0; line-height: 1.2; }
+    h1 { font-size: 26px; letter-spacing: 0; }
+    h2 { font-size: 17px; margin-top: 28px; }
+    p { margin: 10px 0 0; color: var(--text); }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .card, details {
+      border: 1px solid var(--muted);
+      border-radius: 8px;
+      padding: 14px;
+      background: transparent;
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .value { color: var(--accent); font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid var(--muted);
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid var(--muted);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>딥스페이스 공통 쉘 그림자 토큰화 보고</h1>
+    <p class="muted">생성 시각: 2026-07-26 20:23:17 KST</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span><span class="value">완료</span></div>
+      <div class="card"><span class="label">앱 브랜치</span><span class="value">codex/deepspacescreen-shadow-token-260726</span></div>
+      <div class="card"><span class="label">앱 커밋</span><span class="value">f3523eea</span></div>
+      <div class="card"><span class="label">푸시</span><span class="value">하지 않음</span></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <p><code>src/components/deep-space/DeepSpaceScreen.tsx</code>의 공통 딥스페이스 쉘에서 하드코딩된 그림자 색상 <code>#000000</code> 두 곳을 기존 <code>m3.color.scrim</code> 토큰으로 교체했다.</p>
+
+    <table aria-label="검증 결과">
+      <thead>
+        <tr><th>항목</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>대상 리터럴 스캔</td><td><code>shadowColor: "#000000"</code> 잔여 0건</td></tr>
+        <tr><td>대상 파일 린트</td><td><code>npx eslint src/components/deep-space/DeepSpaceScreen.tsx</code> 통과</td></tr>
+        <tr><td>타입 검사</td><td><code>npm run type-check</code> 통과</td></tr>
+        <tr><td>공백 검사</td><td><code>git diff --check</code> 통과</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <p>찬성: rev2 공통 쉘의 색상 원천을 토큰으로 통일해 향후 테마 변경과 색상 감사 비용을 줄인다.</p>
+      <p>반대: 실제 색상 값은 동일하므로 사용자 체감 변화는 없다.</p>
+      <p>판정: 한 파일 두 줄 변경이고 검증이 녹색이라 Codex 레인의 작은 anti-slop 작업으로 적합하다.</p>
+    </details>
+
+    <h2>제약 준수</h2>
+    <p>2nd-B 브랜치에서만 앱 코드를 커밋했고 push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 작업은 하지 않았다. 허브에는 <code>agents/codex/</code> 아래 보고 파일만 작성했다.</p>
+  </main>
+</body>
+</html>
