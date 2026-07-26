@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>가치 자기보고 화면 문구 정리 보고</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --text: #e8edf2;
+      --accent: #65d6c5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    header {
+      border: 1px solid var(--accent);
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin-bottom: 10px; color: var(--accent); }
+    section {
+      border: 1px solid var(--text);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border-top: 1px solid var(--text);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      word-break: break-all;
+    }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>가치 자기보고 화면 문구 정리 보고</h1>
+      <p>이번 사이클은 새 open order가 없어 Codex 레인의 UI 반슬롭 작업으로, 2nd-B 가치 자기보고 화면의 고정 EN/KO 제목 분기를 기존 번역 키 재사용 방식으로 줄였다.</p>
+    </header>
+
+    <section>
+      <h2>결과 요약</h2>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>대상</td><td><code>src/app/values.tsx</code></td></tr>
+        <tr><td>브랜치</td><td><code>codex/cycle-260727-013121</code></td></tr>
+        <tr><td>커밋</td><td><code>70aa8263</code></td></tr>
+        <tr><td>작업트리</td><td><code>E:\2ndB\.worktrees\codex-cycle-260727-013121</code></td></tr>
+        <tr><td>푸시 여부</td><td>푸시하지 않음. Claude 머지 게이트 제출용 로컬 브랜치만 생성.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <ul>
+        <li>가치 자기보고 화면의 intro 제목, 화면 상단 caption, 저장 record topic, SecondB handoff 라벨을 기존 <code>home:ds.axisCheck.values.headline</code> 번역으로 통일했다.</li>
+        <li>로딩 문구를 기존 <code>common:states.loading</code> 번역으로 교체했다.</li>
+        <li>새 locale 파일이나 새 번역 키를 추가하지 않아 i18n 키 parity 위험을 만들지 않았다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <tr><th>검증</th><th>결과</th></tr>
+        <tr><td><code>npx eslint src/app/values.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과. 5개 locale, 44개 namespace, 3226개 키 정렬 확인.</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npx jest src/app/__tests__/survey-back-guard.test.ts --runInBand</code></td><td>통과. 36개 테스트 통과.</td></tr>
+        <tr><td><code>git diff --check</code></td><td>치명 오류 없음. CRLF 변환 경고만 표시.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <ul>
+        <li>범위: 한 사이클 한 작업, 화면 파일 1개만 수정했다.</li>
+        <li>안전: 파괴적 작업, 비용 발생 작업, 시크릿 접근, 배포, PR, push를 하지 않았다.</li>
+        <li>위험: survey item 본문은 현재 원 코드 구조상 EN/KO 데이터만 제공한다. 이번 변경은 기존 번역 키를 재사용할 수 있는 제목과 상태 문구로 제한했다.</li>
+        <li>교차검증: 고위험 변경에 해당하지 않아 MoA 검증 요청은 만들지 않았다.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
