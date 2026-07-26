@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>동기 자기보고 다국어화 보고</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e8edf2;
+      --accent: #73d2c6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    header, section, details {
+      border: 1px solid var(--accent);
+      padding: 18px;
+      margin: 14px 0;
+    }
+    h1, h2, h3, p { margin: 0 0 10px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>동기 자기보고 다국어화 보고</h1>
+      <p>생성 시각: 2026-07-27 03:13:15 KST</p>
+      <p>작업 브랜치: <code>codex/cycle-260727-030958</code></p>
+      <p>앱 커밋: <code>7a677ce9</code></p>
+    </header>
+
+    <section>
+      <h2>결과</h2>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>처리한 작업</td><td><code>/motivation</code> 자기보고 화면의 저장, 안내, 종료 확인, 척도 문구를 i18n 키로 이동</td></tr>
+        <tr><td>수정 파일</td><td><code>src/app/motivation.tsx</code>, <code>locales/en|ko|es|pt|id/home.json</code></td></tr>
+        <tr><td>효과</td><td>스페인어, 포르투갈어, 인도네시아어 사용자가 동기 설문 흐름에서 영어 기본 문구를 덜 보게 됨</td></tr>
+        <tr><td>금지 작업</td><td>푸시, 병합, 배포, 비용 발생, 시크릿 접근 없음</td></tr>
+      </table>
+    </section>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <ul>
+        <li>JSON 파싱: 통과</li>
+        <li><code>npx eslint src/app/motivation.tsx</code>: 통과</li>
+        <li><code>npm run check:i18n</code>: 통과, 5개 locale 키 정렬</li>
+        <li><code>npm run type-check</code>: 통과</li>
+        <li><code>npm run check:lexicon</code>: 통과</li>
+        <li><code>npm run check:emdash</code>: 통과</li>
+        <li><code>git diff --check</code>: 공백 오류 없음, CRLF 경고만 확인</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>35번 자기 패널</summary>
+      <table>
+        <tr><th>관점</th><th>판단</th></tr>
+        <tr><td>찬성</td><td>이미 같은 패턴으로 값과 강점 화면이 정리되어 있어 동기 화면까지 맞추는 것이 일관적임</td></tr>
+        <tr><td>반대</td><td>설문 문항 본문 자체는 아직 영어와 한국어만 있어 완전한 다국어화는 아님</td></tr>
+        <tr><td>판정</td><td>이번 사이클의 한 작업 범위로는 공통 안내와 제어 문구만 옮기는 것이 가장 작고 안전함</td></tr>
+      </table>
+    </details>
+
+    <section>
+      <h2>남은 위험</h2>
+      <p>문항 본문과 저장된 record locale 값은 기존처럼 영어 또는 한국어 경로를 유지한다. 완전한 ES/PT/ID 설문 문항 번역은 별도 작업으로 분리하는 것이 맞다.</p>
+    </section>
+  </main>
+</body>
+</html>
