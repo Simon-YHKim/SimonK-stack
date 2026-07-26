@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>로딩 문구 다국어화 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #10131a;
+      --fg: #eef3f8;
+      --muted: #93a4b8;
+      --accent: #67d7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { margin: 0; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { color: var(--muted); margin: 8px 0 0; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .card {
+      border: 1px solid rgba(103, 215, 255, 0.24);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(255,255,255,0.03);
+    }
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    .value {
+      color: var(--fg);
+      font-size: 15px;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid rgba(103, 215, 255, 0.22);
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid rgba(103, 215, 255, 0.16);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 600; }
+    td { color: var(--fg); }
+    code { color: var(--accent); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    details {
+      margin-top: 14px;
+      border: 1px solid rgba(103, 215, 255, 0.18);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    summary { cursor: pointer; color: var(--accent); }
+    ul { margin: 10px 0 0; padding-left: 18px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>로딩 문구 다국어화 보고</h1>
+    <p>이번 Codex poll cycle은 새 open 요청이 없어 2nd-B UI anti-slop 레인에서 한 가지 새 작업만 수행했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">앱 브랜치</div><div class="value"><code>codex/loading-screen-i18n-260726-2255</code></div></div>
+      <div class="card"><div class="label">앱 커밋</div><div class="value"><code>80530135</code></div></div>
+      <div class="card"><div class="label">기준</div><div class="value"><code>origin/main ace55df4</code></div></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>변경</th><th>의도</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/components/ui/LoadingScreen.tsx</code></td>
+          <td>타입라이터 로딩 문구를 <code>en</code>, <code>ko</code>, <code>es</code>, <code>pt</code>, <code>id</code>별 메시지 세트로 분리하고 현재 i18n 언어에 맞춰 선택하도록 변경했다.</td>
+          <td>영어·스페인어·포르투갈어·인도네시아어 사용자가 시작 화면에서 한국어 로딩 문구를 보는 문제를 줄였다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>npx eslint src/components/ui/LoadingScreen.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm test -- --runTestsByPath src/lib/__tests__/signup-confirm-wall.test.ts --ci</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과, CRLF 경고만 있음</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자체 패널 검토</summary>
+      <ul>
+        <li>찬성 관점: 첫 진입 화면의 언어 불일치를 줄여 judge 및 해외 beta locale의 첫인상을 개선한다.</li>
+        <li>반대 관점: locale JSON에 넣지 않아 번역 리소스 관리 일관성은 완전하지 않다.</li>
+        <li>판정: 컨텍스트 가드의 파일 수 제한을 우선해 한 파일 패치로 수렴했다. 후속으로 전체 로딩 문구를 namespace로 승격할 수 있다.</li>
+      </ul>
+    </details>
+
+    <h2>안전</h2>
+    <p>2nd-B push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 발생 작업, secrets 접근은 수행하지 않았다.</p>
+  </main>
+</body>
+</html>
