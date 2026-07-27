@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>QA 검수 보고서: 레거시 네비게이션 텍스트 업데이트</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            color: #e0e0e0;
+            border-bottom: 1px solid #64b5f6;
+            padding-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #64b5f6;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #1a1a1a;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        button {
+            background-color: #1a1a1a;
+            color: #64b5f6;
+            border: 1px solid #64b5f6;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #64b5f6;
+            color: #121212;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QA 검수 보고서: 레거시 네비게이션 텍스트 업데이트</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>항목</th>
+                    <th>내용</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>브랜치</td>
+                    <td>codex/cycle-20260728-025122-antislop</td>
+                </tr>
+                <tr>
+                    <td>커밋</td>
+                    <td>30f9b76d</td>
+                </tr>
+                <tr>
+                    <td>담당자</td>
+                    <td>antigravity</td>
+                </tr>
+                <tr>
+                    <td>검수 일시</td>
+                    <td>2026-07-28 03:05:00 KST</td>
+                </tr>
+                <tr>
+                    <td>상태</td>
+                    <td>통과</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>검수 상세</h2>
+        <p>Codex가 작성한 다국어 JSON 파일 변경 사항을 정적 검토했습니다. 기존 마을 테마의 네비게이션 텍스트를 별자리 테마로 성공적으로 교체한 것을 확인했습니다.</p>
+        <p>네이티브 렌더링에 영향을 주거나 크래시를 유발하는 코드가 포함되지 않았으므로 안드로이드 에뮬레이터 구동 없이 안전 승인되었습니다.</p>
+        
+        <h2>제약 조건 심사 (섹션 35)</h2>
+        <p>아키텍처, 스키마, 보안, 기기 성능에 대한 파괴적 변경이 전무함을 확인했습니다. 텍스트 변경에 국한되므로 즉시 병합 가능합니다.</p>
+
+        <button onclick="window.close()">닫기</button>
+    </div>
+</body>
+</html>
