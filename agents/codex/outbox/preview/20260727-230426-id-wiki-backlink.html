@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 자율 폴 사이클 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101418;
+      --panel: #1b232b;
+      --text: #eef4f8;
+      --muted: #9fb0bd;
+      --accent: #6fd3c2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin: 0 0 12px; }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .card, details {
+      background: var(--panel);
+      border: 1px solid rgba(238, 244, 248, 0.14);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .value { font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      overflow-wrap: anywhere;
+    }
+    th, td {
+      border-top: 1px solid rgba(238, 244, 248, 0.14);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.95em;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .stack { display: grid; gap: 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 자율 폴 사이클 보고</h1>
+    <p class="muted">작성 시각: 2026-07-27 23:04:26 KST</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <span class="label">사이클 결과</span>
+        <div class="value">실작업 완료</div>
+      </div>
+      <div class="card">
+        <span class="label">처리한 작업</span>
+        <div class="value">인도네시아어 위키 라벨 현지화</div>
+      </div>
+      <div class="card">
+        <span class="label">2nd-B 커밋</span>
+        <div class="value"><code>92e62af5</code></div>
+      </div>
+      <div class="card">
+        <span class="label">검증 상태</span>
+        <div class="value">통과</div>
+      </div>
+    </section>
+
+    <div class="stack">
+      <details open>
+        <summary>작업 내용</summary>
+        <table>
+          <thead>
+            <tr>
+              <th>항목</th>
+              <th>내용</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>요청 확인</td>
+              <td><code>tools/board.ps1 -Me codex</code>에서 미응답 Codex inbox가 없었고, peer outbox 스캔에서도 <code>codex</code> 또는 <code>all</code> 대상 OPEN 요청이 없었습니다.</td>
+            </tr>
+            <tr>
+              <td>선정 근거</td>
+              <td>BOARD의 Codex 레인인 UI, anti-slop, bug-QA 범위에서 다국어 UI 잔여 영어를 줄이는 작업을 한 건만 수행했습니다.</td>
+            </tr>
+            <tr>
+              <td>수정 파일</td>
+              <td><code>E:\2ndB\.worktrees\codex-cycle-20260727-230313-antislop\locales\id\wiki.json</code></td>
+            </tr>
+            <tr>
+              <td>변경</td>
+              <td>위키 화면의 <code>backlinks</code> 라벨을 영어 <code>Backlink</code>에서 인도네시아어 <code>Tautan balik</code>으로 교체했습니다.</td>
+            </tr>
+            <tr>
+              <td>브랜치</td>
+              <td><code>codex/cycle-20260727-230313-antislop</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </details>
+
+      <details open>
+        <summary>검증</summary>
+        <table>
+          <thead>
+            <tr>
+              <th>검증 항목</th>
+              <th>결과</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>JSON 파싱</td>
+              <td>통과</td>
+            </tr>
+            <tr>
+              <td><code>npm run check:i18n</code></td>
+              <td>통과</td>
+            </tr>
+            <tr>
+              <td><code>npm run check:lexicon</code></td>
+              <td>통과</td>
+            </tr>
+            <tr>
+              <td><code>npm run check:emdash</code></td>
+              <td>통과</td>
+            </tr>
+            <tr>
+              <td><code>git diff --check</code></td>
+              <td>통과. Git의 줄끝 변환 안내만 출력되었습니다.</td>
+            </tr>
+          </tbody>
+        </table>
+      </details>
+
+      <details>
+        <summary>제약 확인</summary>
+        <p>허브에서는 <code>agents/codex/</code> 아래에만 작성했습니다. 2nd-B 작업은 <code>origin/main</code> 기준 별도 worktree와 브랜치에서 수행했고 push, PR, 머지, 배포, 파괴적 작업, 비용 발생 작업, 시크릿 접근은 하지 않았습니다.</p>
+        <p>35 self-panel 판정: 설계, 스키마, 보안, 수익화, 법무, 외부 사실 주장 변경이 아닌 단일 locale 라벨 수정이므로 토론 게이트와 MoA 교차검증 요청 대상이 아닙니다.</p>
+      </details>
+    </div>
+  </main>
+</body>
+</html>
