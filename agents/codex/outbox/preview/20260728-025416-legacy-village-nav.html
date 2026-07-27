@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레거시 마을 내비게이션 카피 정리</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101418;
+      --fg: #f2f6f8;
+      --accent: #5cc8d7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 30px; line-height: 1.25; }
+    h2 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    p { margin-top: 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 14px;
+    }
+    .label {
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--fg);
+      overflow-wrap: anywhere;
+    }
+    summary { cursor: pointer; color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레거시 마을 내비게이션 카피 정리</h1>
+    <p>이번 사이클은 Codex 대상 열린 요청이 없어 2nd-B UI/안티슬롭 레인에서 단일 작업을 수행했다. deep-space 별자리 정본과 맞지 않는 접근성 및 내비게이션 힌트의 “마을” 표현을 별자리 표현으로 교체했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <p>로컬 커밋 생성 완료</p>
+      </div>
+      <div class="card">
+        <div class="label">커밋</div>
+        <p><code>30f9b76d</code></p>
+      </div>
+      <div class="card">
+        <div class="label">변경 범위</div>
+        <p>5개 locale 파일, 6개 키</p>
+      </div>
+      <div class="card">
+        <div class="label">검증</div>
+        <p>필수 경량 검증 통과</p>
+      </div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>기준</td>
+          <td><code>origin/main 69b0c58f</code></td>
+        </tr>
+        <tr>
+          <td>브랜치</td>
+          <td><code>codex/cycle-20260728-025122-antislop</code></td>
+        </tr>
+        <tr>
+          <td>워크트리</td>
+          <td><code>E:\2ndB\.worktrees\codex-cycle-20260728-025122-antislop</code></td>
+        </tr>
+        <tr>
+          <td>수정 파일</td>
+          <td><code>locales/en/common.json</code>, <code>locales/ko/common.json</code>, <code>locales/es/common.json</code>, <code>locales/pt/common.json</code>, <code>locales/id/common.json</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>검증 상세</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>검증</th>
+            <th>상태</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>JSON 파싱</td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과, 줄끝 경고만 있음</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <p>아키텍처, 스키마, 보안, 법무, 임상, 가격, 배포, 비가역 작업에 해당하지 않는 낮은 위험의 UI 카피 정리로 판단했다. 다만 영어 원본 키 이름에 village가 남아 있으므로, 이번 사이클에서는 사용자 가시 문구만 정본 방향에 맞추고 키 이름 변경은 범위에서 제외했다.</p>
+    </details>
+
+    <h2>남은 위험</h2>
+    <p>코드 키 이름은 호환성을 위해 그대로 두었다. 키 이름까지 정리하려면 별도 리팩터링과 호출부 확인이 필요하다.</p>
+  </main>
+</body>
+</html>
