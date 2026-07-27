@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>주간 성장 화면 배지 수정 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101316; --text:#e8edf2; --muted:#94a3ad; --accent:#70d6c9; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; line-height:1.55; }
+    main { max-width:920px; margin:0 auto; padding:32px 20px 48px; }
+    header { border:1px solid var(--muted); border-radius:8px; padding:22px; }
+    h1 { margin:0 0 10px; font-size:24px; letter-spacing:0; }
+    h2 { margin:28px 0 10px; font-size:17px; color:var(--accent); letter-spacing:0; }
+    p { margin:8px 0; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; border:1px solid var(--muted); }
+    th, td { padding:10px; border-bottom:1px solid var(--muted); text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); word-break:break-all; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-top:14px; }
+    .card { border:1px solid var(--muted); border-radius:8px; padding:14px; min-height:88px; }
+    .label { color:var(--muted); font-size:12px; }
+    .value { font-size:18px; margin-top:6px; }
+    details { border:1px solid var(--muted); border-radius:8px; padding:12px 14px; margin-top:12px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>주간 성장 화면 배지 수정 보고</h1>
+      <p>Codex 단일 자율 폴 사이클에서 열린 요청이 없어, Codex 레인의 UI anti-slop 작업으로 주간 성장 화면의 장식용 sparkle 문자를 고정 텍스트 배지로 교체했다.</p>
+      <p class="muted">생성 시각: 2026-07-27 12:50:23 KST</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">작업 범위</div><div class="value">UI 한 화면</div></div>
+      <div class="card"><div class="label">앱 커밋</div><div class="value"><code>7ba9c2c9</code></div></div>
+      <div class="card"><div class="label">브랜치</div><div class="value"><code>codex/cycle-20260727-124924-growth-badge</code></div></div>
+      <div class="card"><div class="label">푸시 여부</div><div class="value">푸시 안 함</div></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>수정</th><th>효과</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/screens/deepspace/growth/WeeklyGrowthScreen.tsx</code></td>
+          <td>꿈으로 이어지는 행의 장식용 sparkle 문자를 <code>GO</code> 텍스트 배지로 교체하고, 행 자체에 버튼 역할과 접근성 이름을 부여했다.</td>
+          <td>폰트별 기호 렌더링 흔들림과 스크린리더의 불필요한 장식 낭독을 줄였다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr><th>검사</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>npx eslint src/screens/deepspace/growth/WeeklyGrowthScreen.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>공백 오류 없음, 기존 줄끝 경고만 표시</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>운영 제약 확인</summary>
+      <p>허브 저장소는 <code>master</code>에서 유지했고, 허브 쓰기는 <code>agents/codex/</code> 아래 보고 파일과 상태 파일로 제한했다. 2nd-B는 별도 worktree에서 로컬 브랜치와 로컬 커밋만 만들었으며 push, PR, merge, 배포, 비용 작업, 시크릿 작업, 브라우저 자동 열기는 하지 않았다.</p>
+    </details>
+  </main>
+</body>
+</html>
