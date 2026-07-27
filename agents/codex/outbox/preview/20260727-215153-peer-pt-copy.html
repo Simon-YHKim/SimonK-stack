@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>사이클 보고서: 포르투갈어 동료 초대 문구 정리</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101214; --fg:#edf0f2; --muted:#9aa4ad; --accent:#6fc3b2; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 20px 44px; }
+    h1, h2 { margin: 0 0 12px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    .meta, .grid, details { border: 1px solid #2a3136; border-radius: 8px; background: #15191d; }
+    .meta { padding: 16px; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; overflow: hidden; margin: 18px 0; }
+    .cell { padding: 14px; border-right: 1px solid #2a3136; }
+    .cell:last-child { border-right: 0; }
+    .label { display:block; color: var(--muted); font-size: 12px; margin-bottom: 5px; }
+    .value { font-size: 14px; }
+    details { padding: 14px 16px; margin-top: 14px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { text-align: left; vertical-align: top; padding: 10px; border-bottom: 1px solid #2a3136; }
+    th { color: var(--muted); font-weight: 700; }
+    code { color: var(--fg); background: #20262b; border-radius: 4px; padding: 1px 4px; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } .cell { border-right: 0; border-bottom: 1px solid #2a3136; } .cell:last-child { border-bottom: 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>포르투갈어 동료 초대 문구 정리</h1>
+    <p class="meta">이번 PROTOCOL 12/19/35.4 사이클에서는 새 미응답 Codex 주문이 없어, Codex 레인의 단일 anti-slop 작업으로 2nd-B 포르투갈어 동료 초대 화면 문구를 정리했다. 허브에서는 <code>agents/codex/</code> 아래 보고서만 작성했고, 2nd-B 변경은 별도 worktree 로컬 커밋으로만 남겼다.</p>
+
+    <section class="grid" aria-label="핵심 결과">
+      <div class="cell"><span class="label">결과</span><span class="value">완료</span></div>
+      <div class="cell"><span class="label">2nd-B 커밋</span><span class="value"><code>31ba91ba</code></span></div>
+      <div class="cell"><span class="label">브랜치</span><span class="value"><code>codex/cycle-20260727-214933-antislop</code></span></div>
+      <div class="cell"><span class="label">검증</span><span class="value">3개 검사 통과</span></div>
+    </section>
+
+    <details open>
+      <summary>변경 내용</summary>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>작업</th><th>범위</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>locales/pt/peer.json</code></td>
+            <td>포르투갈어 문구의 누락 악센트와 표기를 정리했다.</td>
+            <td>동료 초대, 응답 철회, 개인정보 안내, 오류 문구의 의미를 유지한 표기 개선.</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>검증 결과</summary>
+      <ul>
+        <li><code>JSON.parse(locales/pt/peer.json)</code> 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>git diff --check</code> 통과</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>필요성</td><td>사용자에게 직접 보이는 문구의 무악센트 포르투갈어는 품질 저하 신호라 수정 가치가 있다.</td></tr>
+          <tr><td>범위</td><td>한 locale 파일의 표기 정리만 수행해 기능, 데이터, 결제, 보안 흐름을 변경하지 않았다.</td></tr>
+          <tr><td>위험</td><td>고위험 산출물에 해당하지 않아 추가 MoA 검증 요청은 만들지 않았다.</td></tr>
+          <tr><td>게이트</td><td>push, PR, merge, 배포, 브라우저 자동 열기, 비용 발생 작업을 하지 않았다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>산출 위치</summary>
+      <ul>
+        <li>2nd-B worktree: <code>E:\2ndB\.worktrees\codex-cycle-20260727-214933-antislop</code></li>
+        <li>2nd-B 로컬 커밋: <code>31ba91ba fix(i18n): polish Portuguese peer copy</code></li>
+        <li>허브 보고서: <code>agents/codex/outbox/preview/20260727-215153-peer-pt-copy.html</code></li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>
