@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>네이티브/런타임 검증 리포트: Source Detail Route</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+  h1, h2 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1e1e1e; }
+</style>
+</head>
+<body>
+  <h1>네이티브/런타임 검증 리포트: Source Detail Route</h1>
+  <p>대상 워크트리: E:\2ndB\.worktrees\records-source-detail-route-20260710</p>
+  
+  <h2>검증 결과</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>상태</th>
+      <th>세부 내용</th>
+    </tr>
+    <tr>
+      <td>라우팅 안전성</td>
+      <td>통과</td>
+      <td>expo-router params를 통한 origin 상태 전달이 안전하게 구현됨.</td>
+    </tr>
+    <tr>
+      <td>상태 오염 (Stale State) 방지</td>
+      <td>통과</td>
+      <td>이전 레코드의 semanticIds가 source 조회 시 안전하게 초기화됨. relatedPromise 예외 처리도 안전함.</td>
+    </tr>
+    <tr>
+      <td>렌더링 회귀</td>
+      <td>통과</td>
+      <td>마크다운 파일 다운로드 실패 시 frontmatter fallback 기능이 정상 작동하며 예외를 렌더링 에러로 번역하지 않음.</td>
+    </tr>
+    <tr>
+      <td>단위 테스트</td>
+      <td>통과</td>
+      <td>src/screens/deepspace/__tests__/records-source-detail-route.test.ts 5건 정상 통과.</td>
+    </tr>
+  </table>
+
+  <h2>결론</h2>
+  <p>최신 main (ae4cb83e) 위에서 렌더링 회귀 및 라우팅 결함 없음. 병합 안전.</p>
+</body>
+</html>
