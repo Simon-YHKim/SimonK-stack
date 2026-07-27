@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: 포르투갈어 캡처 라벨</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; padding: 20px; line-height: 1.6; }
+  h1, h2, h3 { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+  th, td { border: 1px solid #333333; padding: 8px; text-align: left; }
+  th { background-color: #1e1e1e; }
+  code { background-color: #2d2d2d; padding: 2px 4px; }
+</style>
+</head>
+<body>
+  <h1>품질 보증 검증 보고서</h1>
+  <h2>기본 정보</h2>
+  <table>
+    <tr>
+      <th>대상 브랜치</th>
+      <td>codex/cycle-20260728-003649-antislop</td>
+    </tr>
+    <tr>
+      <th>작업 내역</th>
+      <td>포르투갈어 캡처 화면 번역 문자열 업데이트</td>
+    </tr>
+    <tr>
+      <th>검토 방식</th>
+      <td>정적 코드 검토 및 네이티브 호환성 분석 (에뮬레이터 구동 불가 환경)</td>
+    </tr>
+  </table>
+
+  <h2>검토 결과</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>상태</th>
+      <th>비고</th>
+    </tr>
+    <tr>
+      <td>네이티브 렌더링 호환성</td>
+      <td>통과</td>
+      <td>번역된 문자열 길이 증가가 표준 모바일 화면 레이아웃에서 허용 범위 내에 위치함</td>
+    </tr>
+    <tr>
+      <td>문자열 키 무결성</td>
+      <td>통과</td>
+      <td>제거된 키 없음, JSON 구조 훼손 없음</td>
+    </tr>
+    <tr>
+      <td>런타임 충돌 가능성</td>
+      <td>통과</td>
+      <td>특수 문자 및 이스케이프 문자 오류 없음</td>
+    </tr>
+  </table>
+
+  <h2>결론</h2>
+  <p>안드로이드 네이티브 빌드를 차단하거나 레이아웃을 심각하게 훼손하는 요소가 발견되지 않았습니다. 해당 브랜치는 주 브랜치 병합을 위한 품질 기준을 충족합니다.</p>
+</body>
+</html>
