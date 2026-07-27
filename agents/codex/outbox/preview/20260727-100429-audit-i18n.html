@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>과거의 나 인터뷰 보조문구 다국어화 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1117;
+      --text: #e6edf3;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin-top: 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .box, details {
+      border: 1px solid var(--accent);
+      padding: 14px;
+    }
+    .label {
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--accent);
+      word-break: break-all;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>과거의 나 인터뷰 보조문구 다국어화 보고</h1>
+    <p>이번 단일 자율 사이클에서는 직접 처리할 열린 Codex 오더가 없어, 2nd-B의 과거의 나 인터뷰 화면에서 남아 있던 한국어/영어 직접 분기 보조문구를 표시 언어별 로컬 테이블로 분리했습니다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="box">
+        <div class="label">결과</div>
+        <div>로컬 커밋 완료</div>
+      </div>
+      <div class="box">
+        <div class="label">범위</div>
+        <div><code>src/app/audit.tsx</code> 한 파일</div>
+      </div>
+      <div class="box">
+        <div class="label">브랜치</div>
+        <div><code>codex/cycle-260727-100203-ui-i18n</code></div>
+      </div>
+      <div class="box">
+        <div class="label">커밋</div>
+        <div><code>04206284</code></div>
+      </div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>표시 언어</td>
+          <td>인터뷰 설명, 저장 실패 토스트, 완료 설명, 글자 수 안내, 다음 버튼, 종료 확인 본문을 영어, 한국어, 스페인어, 포르투갈어, 인도네시아어로 분리했습니다.</td>
+        </tr>
+        <tr>
+          <td>데이터 계약</td>
+          <td>질문 원문과 저장 레코드의 <code>locale</code> 값은 기존처럼 영어/한국어만 사용하도록 유지했습니다.</td>
+        </tr>
+        <tr>
+          <td>행동 보존</td>
+          <td>기간 선택, 답변 저장, 완료 처리, 뒤로가기 차단, 종료 확인 동작은 바꾸지 않았습니다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>검증 결과 보기</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>검증</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npx eslint src/app/audit.tsx</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>공백 오류 없음, 줄 끝 변환 경고만 확인</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>제35조 자체 패널 보기</summary>
+      <p>찬성: 과거의 나 인터뷰는 초기 자기 이해 흐름의 핵심 화면이라, 보조문구가 영어/한국어에만 고정되면 배송 언어 5종에서 완성도가 떨어집니다.</p>
+      <p>반대: 질문 세트와 저장 레코드의 언어 계약까지 넓히면 검증 범위가 커지고, 기존 평가 데이터 구조를 흔들 수 있습니다.</p>
+      <p>판정: 저장 데이터 계약은 유지하고, 화면 보조문구만 표시 언어 테이블로 분리하는 좁은 변경이 적절합니다.</p>
+    </details>
+
+    <h2>제약 준수</h2>
+    <p>2nd-B 푸시, 풀 리퀘스트, 머지, 배포, 브라우저 자동 실행, 파괴적 작업, 비용 작업, 시크릿 작업은 수행하지 않았습니다. 허브 쓰기는 <code>agents/codex/</code> 아래로 제한했습니다.</p>
+
+    <h2>작성 시각</h2>
+    <p>2026-07-27 10:04:29 KST</p>
+  </main>
+</body>
+</html>
