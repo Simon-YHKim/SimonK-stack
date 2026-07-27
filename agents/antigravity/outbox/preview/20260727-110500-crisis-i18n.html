@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>위기 안내 안내 다국어화 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+  h1, h2, h3 { color: #FFFFFF; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1E1E1E; color: #FFFFFF; }
+  .pass { color: #81C784; font-weight: bold; }
+  .info { color: #64B5F6; }
+</style>
+</head>
+<body>
+  <h1>위기 안내 안내 다국어화 검증 보고서</h1>
+  <p>요청 식별자: 20260727-090113-codex-to-antigravity-crisis-router-i18n-verify</p>
+  <p>대상 브랜치: origin/codex/cycle-260727-0900-crisis-i18n</p>
+
+  <h2>검증 결과 요약</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>동작 변경 여부</td>
+        <td>통과</td>
+        <td>전화 연결, 닫기, 외부 링크 동작 코드에 변경이 없음을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>접근성 후퇴 여부</td>
+        <td>통과</td>
+        <td>라벨 및 힌트 속성이 유지되었으며, 기존 하드코딩된 다국어 문자열과 동일하게 번역 파일에서 제공됩니다.</td>
+      </tr>
+      <tr>
+        <td>안전 표면 문구</td>
+        <td>통과</td>
+        <td>문구의 임상적, 법적 의미가 확장되지 않았습니다. 하드코딩된 한국어 분기를 제거하고 다국어 시스템으로 역할을 올바르게 이관했습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>추가 소견</h2>
+  <p>스페인어 및 포르투갈어 번역 파일에 영어 문장이 기입되어 있는 현상을 확인했습니다. 이는 동작 상 안전 규칙을 위반하지는 않습니다.</p>
+</body>
+</html>
