@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: 위기 안내 전화 문구 다국어화</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #e0e0e0;
+    border-bottom: 1px solid #4CAF50;
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #e0e0e0;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1a1a1a;
+  }
+  .status-pass {
+    color: #4CAF50;
+    font-weight: bold;
+  }
+  button {
+    background-color: #4CAF50;
+    color: #121212;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서</h1>
+  <p>대상 브랜치: codex/cycle-260727-0900-crisis-i18n (커밋 eb3b02e1)</p>
+  
+  <h2>검증 항목 및 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상세 내용</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>동작 확인</td>
+        <td>전화 연결, 닫기, 백드롭 비해제, 국제 헬프라인 링크 동작</td>
+        <td class="status-pass">통과</td>
+      </tr>
+      <tr>
+        <td>접근성</td>
+        <td>안드로이드 및 네이티브 환경에서 accessibilityLabel 및 accessibilityHint 후퇴 여부</td>
+        <td class="status-pass">통과</td>
+      </tr>
+      <tr>
+        <td>문구 검토</td>
+        <td>안전 표면 문구의 임상 및 법무 의미 유지, 한국어/영어 직접 분기 제거 확인</td>
+        <td class="status-pass">통과</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>종합 의견</h2>
+  <p>안드로이드 에뮬레이터 및 네이티브 환경에서 모든 기능이 정상 작동하며, 명세된 변경 사항 외의 부작용은 발견되지 않았습니다.</p>
+
+  <button type="button">확인 완료</button>
+</body>
+</html>
