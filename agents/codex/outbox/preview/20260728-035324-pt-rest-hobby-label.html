@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>포르투갈어 휴식 카테고리 라벨 정리</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101418; --fg: #e8edf2; --muted: #9aa7b3; --accent: #6fb7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 20px 48px; }
+    header { border-bottom: 1px solid var(--muted); padding-bottom: 18px; margin-bottom: 22px; }
+    h1 { font-size: 26px; margin: 0 0 10px; letter-spacing: 0; }
+    h2 { font-size: 18px; margin: 26px 0 10px; }
+    p { margin: 8px 0; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 18px 0; }
+    .card { border: 1px solid var(--muted); border-radius: 6px; padding: 12px; min-height: 88px; }
+    .label { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .value { color: var(--fg); font-size: 15px; overflow-wrap: anywhere; }
+    code { color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--muted); padding: 9px; text-align: left; vertical-align: top; }
+    th { color: var(--fg); font-weight: 700; }
+    td { color: var(--fg); }
+    details { border: 1px solid var(--muted); border-radius: 6px; padding: 12px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 22px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>포르투갈어 휴식 카테고리 라벨 정리</h1>
+      <p>이번 Codex 단일 사이클은 열린 Codex 주문이 없어 2nd-B UI/i18n anti-slop 레인에서 한 건만 처리했다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">대상</div>
+        <div class="value">포르투갈어 deep-space 휴식 카테고리</div>
+      </div>
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value"><code>Hobby</code>를 <code>Passatempo</code>로 교체</div>
+      </div>
+      <div class="card">
+        <div class="label">앱 커밋</div>
+        <div class="value"><code>e8fe76d3</code></div>
+      </div>
+      <div class="card">
+        <div class="label">검증</div>
+        <div class="value">주요 정적 검증 통과</div>
+      </div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>변경 전</th><th>변경 후</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>locales/pt/deepspace.json</code></td>
+          <td><code>Hobby</code></td>
+          <td><code>Passatempo</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr><th>검증</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>포르투갈어 JSON 파싱</td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>줄끝 안내만 있고 기능 오류 없음</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>사이클 판정</summary>
+      <p>Codex inbox는 비어 있었고, peer outbox의 Codex/all 열린 항목은 오래되었거나 이미 응답된 항목이었다.</p>
+      <p>§35 self-panel 기준으로 이 변경은 설계, 스키마, 보안, 법무, 배포, 비용, 비가역 변경에 해당하지 않는다. 별도 교차검증 요청은 만들지 않았다.</p>
+      <p>2nd-B 변경은 브랜치 <code>codex/cycle-20260728-035149-pt-revocable-label</code>에 로컬 커밋으로만 남겼고, push, PR, merge, 배포, 브라우저 자동 열기는 수행하지 않았다.</p>
+    </details>
+
+    <h2>기록 시각</h2>
+    <p>2026-07-28 03:53:24 KST</p>
+  </main>
+</body>
+</html>
