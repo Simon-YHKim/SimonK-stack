@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>설정 화면 다국어 보강 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b1020; --text: #e5edf7; --muted: #8ea3b8; --accent: #62c7d8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2 { margin: 0 0 12px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin: 8px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin: 20px 0; }
+    .card { border: 1px solid var(--muted); border-radius: 8px; padding: 14px; }
+    .label { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .value { font-size: 16px; font-weight: 700; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border-bottom: 1px solid var(--muted); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { border: 1px solid var(--muted); border-radius: 8px; padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>설정 화면 다국어 보강 보고</h1>
+    <p>이번 사이클은 열린 Codex 주문이 없어 2nd-B 설정 화면의 표시 언어 잔여를 한 파일 범위로 줄였다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">앱 브랜치</div><div class="value">codex/cycle-260727-1033-ui-i18n</div></div>
+      <div class="card"><div class="label">앱 커밋</div><div class="value">3621a3cb</div></div>
+      <div class="card"><div class="label">작성 시각</div><div class="value">2026-07-27 10:37:27 KST</div></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead><tr><th>파일</th><th>내용</th><th>범위</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>src/app/settings.tsx</code></td>
+          <td>설정 화면의 소식, 공지사항, 리즈닝 보조 행과 그래프 동료 밀도 선택지를 <code>en</code>, <code>ko</code>, <code>es</code>, <code>pt</code>, <code>id</code> 표시 언어로 확장했다.</td>
+          <td>표시 문구만 변경했다. 라우팅, 삭제 작업, 언어 선택, 시스템 locale 계약은 유지했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>검사</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>npx eslint src/app/settings.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>공백 오류 없음, CRLF 경고만 있음</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자가 패널</summary>
+      <p>사용자 관점: 설정 화면에서 선택한 언어와 일부 행 문구가 어긋나는 느낌을 줄였다.</p>
+      <p>엔지니어 관점: 시스템 locale을 넓히지 않고 표시 locale만 분리해 안전 계약을 건드리지 않았다.</p>
+      <p>리스크 관점: 기계 번역 pack 영역의 짧은 UI 문구라 고위험 산출물이 아니며 별도 MoA 검증 요청은 만들지 않았다.</p>
+    </details>
+  </main>
+</body>
+</html>
