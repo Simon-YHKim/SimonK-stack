@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>강점 자기보고 다국어 정리 보고</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e7edf3;
+      --accent: #6ee7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    header {
+      border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 26px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-bottom: 10px; color: var(--accent); }
+    h3 { font-size: 15px; margin-bottom: 6px; color: var(--accent); }
+    p { margin-top: 8px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .card, section, details {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      padding: 16px;
+      background: color-mix(in srgb, var(--text) 4%, transparent);
+    }
+    .card strong {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    section, details { margin-top: 14px; }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      border-top: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
+      padding: 9px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    button {
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--text);
+      padding: 9px 12px;
+      font: inherit;
+      cursor: pointer;
+    }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+      h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>강점 자기보고 화면 다국어 표시 정리</h1>
+      <p>Codex 단일 폴 사이클 보고서. 신규 주문이 없어 Codex 레인의 UI와 i18n 정리 1건을 수행했다.</p>
+      <div class="grid" aria-label="요약">
+        <div class="card"><strong>결과</strong>완료</div>
+        <div class="card"><strong>앱 커밋</strong><code>2229e1d4</code></div>
+        <div class="card"><strong>브랜치</strong><code>codex/cycle-260727-1017-ui-i18n</code></div>
+        <div class="card"><strong>기준</strong><code>origin/main 69b0c58f</code></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>작업 내용</h2>
+      <p><code>src/app/strengths.tsx</code>의 강점 자기보고 설문 안내, 로딩, 저장 실패, 완료, 종료 확인, 척도 라벨을 배송 중인 표시 언어 <code>en</code>, <code>ko</code>, <code>es</code>, <code>pt</code>, <code>id</code>에 맞게 분리했다.</p>
+      <p>문항 본문과 저장 레코드의 시스템 locale은 기존 계약대로 <code>en</code> 또는 <code>ko</code>만 사용한다. 따라서 UI 표시 보강이 저장 스키마나 평가 로직을 넓히지 않는다.</p>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead>
+          <tr><th>검증</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npx eslint src/app/strengths.tsx</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과. 줄끝 변환 경고만 확인됨</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <p>찬성: ES, PT, ID 사용자가 강점 자기보고의 공통 진행 문구를 영어로 보지 않게 되어 다국어 완성도가 올라간다.</p>
+      <p>반대: 문항 원문은 기존 EN/KO 도구 계약을 유지하므로, 표시 언어와 문항 언어가 완전히 같지는 않다.</p>
+      <p>판정: 저장 locale과 평가 문항을 넓히는 변경은 위험 범위가 커진다. 이번 사이클에서는 표시 scaffold만 고쳐 저위험 UI 정리로 제한하는 것이 맞다.</p>
+    </details>
+
+    <section>
+      <h2>운영 준수</h2>
+      <p>2nd-B push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 발생, secrets 작업은 수행하지 않았다. 허브 쓰기는 <code>agents/codex/</code> 아래로 제한했다.</p>
+      <button type="button" onclick="navigator.clipboard.writeText('agents/codex/outbox/preview/20260727-102124-strengths-i18n.html')">보고서 경로 복사</button>
+    </section>
+  </main>
+</body>
+</html>
