@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>인도네시아어 딥스페이스 라벨 정리</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0d12;
+      --text: #e7ecf3;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-bottom: 10px; color: var(--accent); }
+    section {
+      border-top: 1px solid rgba(231, 236, 243, 0.18);
+      padding-top: 22px;
+      margin-top: 22px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 18px 0 0;
+    }
+    .card {
+      border: 1px solid rgba(231, 236, 243, 0.18);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 92px;
+    }
+    .label {
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid rgba(231, 236, 243, 0.18);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    ul { padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>인도네시아어 딥스페이스 라벨 정리</h1>
+    <p>이번 Codex 단일 cycle은 열린 요청이 없는 상태에서 2nd-B의 일반 UI 카피 결함 하나를 처리했다. 딥스페이스 인도네시아어 화면에 남아 있던 영어 라벨 두 개를 현지화하고 로컬 브랜치에만 커밋했다.</p>
+
+    <div class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div>신규 작업 완료</div>
+      </div>
+      <div class="card">
+        <div class="label">변경 파일</div>
+        <div><code>locales/id/deepspace.json</code></div>
+      </div>
+      <div class="card">
+        <div class="label">2nd-B 커밋</div>
+        <div><code>65f68f4a</code></div>
+      </div>
+      <div class="card">
+        <div class="label">검증</div>
+        <div>주요 i18n 검사 통과</div>
+      </div>
+    </div>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>키</th>
+            <th>이전</th>
+            <th>이후</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>rest.category.game</code></td>
+            <td><code>Game</code></td>
+            <td><code>Permainan</code></td>
+          </tr>
+          <tr>
+            <td><code>ds.wikiRecords.edit</code></td>
+            <td><code>Edit</code></td>
+            <td><code>Ubah</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>작업 위치</h2>
+      <ul>
+        <li>워크트리: <code>E:\2ndB\.worktrees\codex-cycle-20260727-220506-antislop</code></li>
+        <li>브랜치: <code>codex/cycle-20260727-220506-antislop</code></li>
+        <li>커밋 메시지: <code>fix(i18n): localize Indonesian deepspace labels</code></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li><code>JSON.parse(locales/id/deepspace.json)</code> 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>git diff --check</code> 통과, 줄바꿈 안내만 출력</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <p>이 변경은 작은 UI/i18n 라벨 수정이며 스키마, 보안, 머지, 수치 판단, 외부 사실 주장, 고위험 UI 산출물이 아니다. MoA 검증 요청은 필요하지 않았다. 2nd-B push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 발생 작업, 시크릿 접근은 하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>
