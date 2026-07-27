@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --text: #edf0f3;
+      --accent: #7db8ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      line-height: 1.25;
+    }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section {
+      border-top: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      padding: 22px 0;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      padding: 14px;
+      border-radius: 6px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    code {
+      color: var(--accent);
+      word-break: break-all;
+    }
+    ul { padding-left: 20px; margin: 8px 0 0; }
+    li { margin: 6px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex 단일 사이클 보고서</h1>
+    <p>PROTOCOL 12/19/35.4에 따라 열린 요청을 먼저 확인했고, 요청이 없어 2nd-B UI/i18n 레인에서 새 anti-slop 작업 1건만 수행했다.</p>
+
+    <div class="summary" aria-label="요약">
+      <div class="card"><span class="label">결과</span>완료</div>
+      <div class="card"><span class="label">범위</span>스페인어 peer invite 문구 보정</div>
+      <div class="card"><span class="label">앱 커밋</span><code>1ece3ea9</code></div>
+      <div class="card"><span class="label">검증</span>JSON, i18n, lexicon, em dash 통과</div>
+    </div>
+
+    <section>
+      <h2>작업 내용</h2>
+      <p>별도 worktree <code>E:\2ndB\.worktrees\codex-cycle-20260728-010613-antislop</code>에서 브랜치 <code>codex/cycle-20260728-010613-antislop</code>를 만들었다. <code>locales/es/peer.json</code>의 스페인어 문구에서 빠진 악센트와 여는 물음표를 보정했다.</p>
+      <p>의미, 동의 범위, 데이터 처리 설명은 바꾸지 않았다.</p>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead>
+          <tr><th>검증</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>JSON 파싱</td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>공백 오류 없음, CRLF 안내만 확인</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <ul>
+        <li>설계, 아키텍처, 네이밍, 스키마, 보안, 머지, 배포, 가격, 외부 사실 주장이 아니다.</li>
+        <li>동의 의미를 바꾸지 않는 철자 품질 보정이다.</li>
+        <li>MoA 교차검증 요청은 불필요하다고 판정했다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>링크</h2>
+      <ul>
+        <li>허브 응답: <code>agents/codex/outbox/20260728-010818-codex-re-spanish-peer-copy.md</code></li>
+        <li>앱 브랜치: <code>codex/cycle-20260728-010613-antislop</code></li>
+        <li>앱 커밋: <code>1ece3ea9</code></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
