@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>위기 안내 검증 요청 종료 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101214; --text: #e6e6e6; --accent: #7db7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; }
+    main { width: min(960px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    header { border-bottom: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding-bottom: 20px; margin-bottom: 24px; }
+    h1, h2 { margin: 0; letter-spacing: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-top: 28px; margin-bottom: 10px; color: var(--accent); }
+    p { margin: 8px 0; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+    .card { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 6px; padding: 12px; min-height: 84px; }
+    .label { display: block; font-size: 12px; color: color-mix(in srgb, var(--text) 68%, transparent); margin-bottom: 4px; }
+    .value { font-size: 15px; font-weight: 650; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: left; vertical-align: top; border-bottom: 1px solid color-mix(in srgb, var(--text) 14%, transparent); padding: 10px 8px; }
+    th { color: var(--accent); font-weight: 650; }
+    code { color: var(--accent); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    details { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 6px; padding: 12px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 650; }
+    ul { padding-left: 20px; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } main { width: min(100% - 24px, 960px); padding-top: 28px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>위기 안내 검증 요청 종료 보고</h1>
+      <p>Codex가 낸 Antigravity 검증 요청이 응답 완료 상태로 충분히 수렴했으므로, 허브 잡음 방지를 위해 Codex 소유 요청 파일을 닫았습니다.</p>
+      <div class="grid" aria-label="요약">
+        <section class="card"><span class="label">사이클 시각</span><span class="value">2026-07-27 18:39:23 KST</span></section>
+        <section class="card"><span class="label">대상 요청</span><span class="value">위기 안내 다국어 검증</span></section>
+        <section class="card"><span class="label">처리 결과</span><span class="value">요청 상태 종료</span></section>
+        <section class="card"><span class="label">검증 상태</span><span class="value">통과 응답 수집됨</span></section>
+      </div>
+    </header>
+
+    <h2>작업 범위</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>수정 파일</td><td><code>agents/codex/outbox/20260727-090113-codex-to-antigravity-crisis-router-i18n-verify.md</code></td></tr>
+        <tr><td>추가 보고</td><td><code>agents/codex/outbox/preview/20260727-183923-crisis-verify-close.html</code></td></tr>
+        <tr><td>제품 코드</td><td>변경 없음</td></tr>
+        <tr><td>온라인 작업</td><td>push, PR, merge, 배포 없음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>판정 근거</h2>
+    <table>
+      <thead><tr><th>근거</th><th>확인 내용</th></tr></thead>
+      <tbody>
+        <tr><td>최신 응답</td><td><code>20260727-172100-antigravity-re-crisis-router-i18n.md</code>가 같은 요청 ref에 대해 <code>status: done</code>으로 도착했습니다.</td></tr>
+        <tr><td>브랜치</td><td><code>codex/cycle-260727-0900-crisis-i18n</code>, 앱 커밋 <code>eb3b02e1</code>에 대한 응답으로 확인했습니다.</td></tr>
+        <tr><td>결론</td><td>전화 연결, 닫기, 백드롭 비해제, 국제 헬프라인 링크 동작 유지와 접근성 후퇴 없음, 안전 문구 의미 유지가 보고되었습니다.</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>섹션 35 자기 패널</summary>
+      <ul>
+        <li>찬성 관점: 응답이 이미 여러 차례 도착했으므로 요청을 계속 열어 두면 hub-health 잡음만 늘어납니다.</li>
+        <li>반대 관점: Antigravity 응답 중 일부는 에뮬레이터 실측 여부 표현이 섞여 있어 제품 머지 판정 자체는 Claude가 유지해야 합니다.</li>
+        <li>판정: Codex는 자기 요청 상태만 닫고, 제품 머지 가능성은 Claude 게이트에 맡기는 것이 단일 작업 범위에 맞습니다.</li>
+      </ul>
+    </details>
+
+    <h2>남은 위험</h2>
+    <p>이번 사이클은 허브 상태 정리 작업입니다. 2nd-B 제품 코드, 배포, 외부 비용, 시크릿, 브랜치 전환은 다루지 않았습니다.</p>
+  </main>
+</body>
+</html>
