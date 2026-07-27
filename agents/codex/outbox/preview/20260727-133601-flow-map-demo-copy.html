@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 자율 사이클 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #111318; --text: #f2efe7; --muted: #a9b0bd; --accent: #6fd3ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Noto Sans KR", sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 36px 20px 52px; }
+    header { border: 1px solid rgba(111, 211, 255, .34); padding: 22px; border-radius: 8px; }
+    h1, h2 { margin: 0; font-weight: 700; letter-spacing: 0; }
+    h1 { font-size: 26px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 10px 0 0; }
+    .muted { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+    .card { border: 1px solid rgba(169, 176, 189, .26); border-radius: 8px; padding: 12px; min-height: 84px; }
+    .label { color: var(--muted); font-size: 12px; }
+    .value { margin-top: 6px; font-size: 15px; font-weight: 700; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; border: 1px solid rgba(169, 176, 189, .26); }
+    th, td { padding: 10px 12px; border-bottom: 1px solid rgba(169, 176, 189, .18); text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-size: 13px; }
+    code { color: var(--accent); font-family: Consolas, "Roboto Mono", monospace; font-size: .95em; }
+    details { margin-top: 12px; border: 1px solid rgba(169, 176, 189, .26); border-radius: 8px; padding: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Codex 자율 사이클 보고</h1>
+    <p class="muted">작성 시각: 2026-07-27 13:36:01 KST</p>
+    <div class="grid" aria-label="요약 지표">
+      <section class="card"><div class="label">작업</div><div class="value">화면 관계 지도 내부 문구 제거</div></section>
+      <section class="card"><div class="label">대상</div><div class="value">2nd-B UI</div></section>
+      <section class="card"><div class="label">브랜치</div><div class="value">codex/cycle-20260727-133255-anti-slop</div></section>
+      <section class="card"><div class="label">검증</div><div class="value">통과</div></section>
+    </div>
+  </header>
+
+  <h2>결과</h2>
+  <p><code>DeepSpaceFlowMapScreen</code>에서 사용자에게 보이던 내부 검증용 표현과 로딩 데모 버튼을 제거했습니다. 흐름 지도는 실제 진입, 기록, 세컨비, 지식망, 내보내기 경로 중심으로 남겼습니다.</p>
+
+  <table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td>앱 커밋</td><td><code>11e72db2 fix(ui): remove flow map demo copy</code></td></tr>
+      <tr><td>기준</td><td><code>origin/main 69b0c58f</code></td></tr>
+      <tr><td>수정 파일</td><td><code>src/screens/deepspace/DeepSpaceFlowMapScreen.tsx</code></td></tr>
+      <tr><td>금지 작업</td><td>푸시, 머지, 배포, 비용 발생, 시크릿 취급 없음</td></tr>
+    </tbody>
+  </table>
+
+  <details open>
+    <summary>변경 내역</summary>
+    <ul>
+      <li>로딩 시스템 미리보기 버튼과 임시 <code>startTask</code> 데모 코드를 제거했습니다.</li>
+      <li><code>/deepspace-home</code>, <code>/deepspace-hub</code> preview 항목을 사용자 흐름 지도에서 제외했습니다.</li>
+      <li>영어 내부 노트와 QA 설명 문장을 한국어 제품 설명으로 바꿨습니다.</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>검증</summary>
+    <ul>
+      <li><code>npx eslint src/screens/deepspace/DeepSpaceFlowMapScreen.tsx</code> 통과</li>
+      <li><code>npm run type-check</code> 통과</li>
+      <li><code>npm run check:i18n</code> 통과</li>
+      <li><code>npm run check:lexicon</code> 통과</li>
+      <li><code>npm run check:emdash</code> 통과</li>
+      <li><code>git diff --check</code> 통과, CRLF 경고만 확인</li>
+      <li>diff 시크릿 검색은 테마 <code>tokens</code> import 오탐 외 민감값 없음</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>자체 패널</summary>
+    <ul>
+      <li>찬성: 제품 화면에 내부 QA와 데모 언어가 보이면 신뢰와 완성도가 낮아 보입니다.</li>
+      <li>반대: QA 진입점은 개발 중 편리할 수 있으나, 이 화면은 사용자 흐름 지도로 남기는 편이 더 안전합니다.</li>
+      <li>판정: 한 파일 안에서 데모 노출만 제거하는 좁은 수정이 가장 낮은 위험과 높은 즉시 가치를 가집니다.</li>
+    </ul>
+  </details>
+</main>
+</body>
+</html>
