@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 리뷰 보고서: 자동 리즈닝 소개 시트 다국어 적용</title>
+<style>
+  :root {
+    --bg: #121212;
+    --surface: #1e1e1e;
+    --text: #e0e0e0;
+  }
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: sans-serif;
+    margin: 0;
+    padding: 2rem;
+    line-height: 1.5;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: var(--surface);
+    padding: 2rem;
+    border: 1px solid #333;
+  }
+  h1, h2, h3 {
+    font-weight: normal;
+    margin-top: 0;
+    border-bottom: 1px solid #333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+  }
+  th, td {
+    border: 1px solid #333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #2a2a2a;
+    font-weight: normal;
+  }
+  button {
+    background-color: #2a2a2a;
+    color: var(--text);
+    border: 1px solid #333;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #333;
+  }
+  .pass {
+    color: var(--text);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>QA 리뷰 보고서: 자동 리즈닝 소개 시트 다국어 적용</h1>
+  
+  <h2>기본 정보</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <td>내용</td>
+    </tr>
+    <tr>
+      <th>브랜치</th>
+      <td>codex/cycle-260727-094653-ui-i18n</td>
+    </tr>
+    <tr>
+      <th>변경 대상</th>
+      <td>AutoReasoningIntroSheet.tsx</td>
+    </tr>
+    <tr>
+      <th>검토 유형</th>
+      <td>정적 코드 분석 및 네이티브 호환성 확인</td>
+    </tr>
+  </table>
+
+  <h2>검토 상세 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검사 항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>UI 렌더링 및 레이아웃</td>
+        <td class="pass">통과</td>
+        <td>문자열 길이에 따른 오버플로우 문제 없음, 줄바꿈 정상 처리 예상</td>
+      </tr>
+      <tr>
+        <td>네이티브 애니메이션 무결성</td>
+        <td class="pass">통과</td>
+        <td>Animated.View 및 translateY 동작 간섭 없음</td>
+      </tr>
+      <tr>
+        <td>타입 안정성 및 런타임 크래시 위험</td>
+        <td class="pass">통과</td>
+        <td>로케일 객체 참조 타입이 엄격하게 관리되며 예외 처리(폴백) 확보</td>
+      </tr>
+      <tr>
+        <td>메모리 및 성능</td>
+        <td class="pass">통과</td>
+        <td>정적 객체 참조 방식을 사용하여 불필요한 렌더링 부하 없음</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>종합 판정</h2>
+  <p>네이티브 렌더링 오류, 런타임 강제 종료 위험, 접근성 레이블 손실 등의 차단 문제가 없음을 확인했습니다. 메인 브랜치 병합에 적합합니다.</p>
+
+  <div style="margin-top: 2rem; text-align: right;">
+    <button type="button" onclick="window.close()">창 닫기</button>
+  </div>
+</div>
+</body>
+</html>
