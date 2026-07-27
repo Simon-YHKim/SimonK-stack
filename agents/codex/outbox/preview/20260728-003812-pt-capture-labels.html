@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>포르투갈어 캡처 라벨 정리 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    h1, h2 { margin: 0 0 14px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 18px;
+      margin: 16px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border-top: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+    }
+    ul { padding-left: 20px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .summary div {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 12px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>포르투갈어 캡처 라벨 정리 보고</h1>
+    <section class="summary" aria-label="요약">
+      <div><strong>목적</strong><br>캡처 화면의 잔여 영어 라벨 제거</div>
+      <div><strong>결과</strong><br>2개 포르투갈어 라벨 수정</div>
+      <div><strong>검증</strong><br>JSON, i18n, 금칙어, 대시 검사 통과</div>
+      <div><strong>제출</strong><br>로컬 커밋 <code>52b2a60c</code></div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>파일</th>
+            <th>키</th>
+            <th>이전</th>
+            <th>이후</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>locales/pt/capture.json</code></td>
+            <td><code>modes.linkclip.label</code></td>
+            <td>Link</td>
+            <td>Ligação</td>
+          </tr>
+          <tr>
+            <td><code>locales/pt/capture.json</code></td>
+            <td><code>tags.title</code></td>
+            <td>Hashtags</td>
+            <td>Etiquetas</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <ul>
+        <li><code>node</code> JSON 파싱 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>git diff --check</code> 기능상 문제 없음, 줄끝 변환 안내만 출력</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <p>결정 관점: 동의, 개인정보, 계정삭제, 임상 안전 문구가 아니므로 고위험 교차검증 대상이 아니다.</p>
+      <p>사용자 관점: 포르투갈어 화면에서 모드와 섹션 제목이 영어로 튀는 문제를 줄인다.</p>
+      <p>운영 관점: 단일 locale JSON 파일만 바뀌었고 키 구조는 그대로라 병합 부담이 작다.</p>
+    </section>
+
+    <section>
+      <h2>경계</h2>
+      <p>2nd-B push, PR, main merge, 배포, 브라우저 자동 열기, 비용 발생 작업은 수행하지 않았다.</p>
+      <p>작성 시각: 2026-07-28 00:38:12 KST</p>
+    </section>
+  </main>
+</body>
+</html>
