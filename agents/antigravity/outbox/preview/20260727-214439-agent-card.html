@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>에이전트 카드 생성 보고서</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #ffffff;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #1e1e1e;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        button {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            border: 1px solid #333333;
+            padding: 8px 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #333333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>작업 보고서</h1>
+        <p>에이전트 카드 생성 및 저장 작업을 완료했습니다.</p>
+        
+        <h2>세부 사항</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>항목</th>
+                    <th>내용</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>작업명</td>
+                    <td>에이전트 카드 자동 생성</td>
+                </tr>
+                <tr>
+                    <td>도구</td>
+                    <td>gen-agent-card.ps1</td>
+                </tr>
+                <tr>
+                    <td>결과 파일</td>
+                    <td>agents/antigravity/agent-card.json</td>
+                </tr>
+                <tr>
+                    <td>상태</td>
+                    <td>성공 (커밋 완료)</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div>
+            <button onclick="window.close()">창 닫기</button>
+        </div>
+    </div>
+</body>
+</html>
