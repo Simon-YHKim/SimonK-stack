@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>첫 통찰 저장 기록 다국어화</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101318; --fg: #eceff4; --muted: #9aa6b2; --accent: #72d6c9; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 14px; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 20px 0 24px; }
+    .card { border: 1px solid var(--muted); padding: 14px; border-radius: 8px; min-height: 96px; }
+    .card strong { display: block; color: var(--fg); margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 22px; }
+    th, td { border-bottom: 1px solid var(--muted); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--fg); }
+    details { border: 1px solid var(--muted); border-radius: 8px; padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--fg); font-weight: 700; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>첫 통찰 저장 기록 다국어화</h1>
+    <p>이번 사이클은 신규 OPEN 오더가 없어 Codex 레인의 UI/i18n anti-slop 작업 하나만 수행했다. 첫 통찰 화면의 화면 문구는 5개 표시 언어를 지원하지만, 사용자가 승인할 때 저장되는 첫 기록 본문은 영어와 한국어만 사용하던 문제를 좁게 수정했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><strong>대상</strong><span>2nd-B 첫 통찰 온보딩 기록 저장</span></div>
+      <div class="card"><strong>브랜치</strong><span><code>codex/cycle-260727-093112-ui-i18n</code></span></div>
+      <div class="card"><strong>앱 커밋</strong><span><code>7851575a</code></span></div>
+      <div class="card"><strong>검증</strong><span>타깃 lint, type, i18n, lexicon, em dash 통과</span></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th><th>이유</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>src/screens/deepspace/onboarding/TTFVScreen.tsx</code></td>
+          <td>첫 기록 본문 생성을 en, ko, es, pt, id 표시 언어별 문구 테이블로 분리했다.</td>
+          <td>스페인어, 포르투갈어, 인도네시아어 사용자가 첫 저장 기록에서 영어 문장을 받는 어색함을 줄인다.</td>
+        </tr>
+        <tr>
+          <td><code>createRecord.locale</code></td>
+          <td>기존 안전 계약대로 시스템 locale은 <code>systemLocaleFor()</code>를 통해 en 또는 ko로 접었다.</td>
+          <td>표시 언어 확장과 LLM/안전 locale 계약을 섞지 않는다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead><tr><th>명령</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>npx eslint src/screens/deepspace/onboarding/TTFVScreen.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과, CRLF 경고만 표시</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>운용 가드 확인</summary>
+      <p>허브는 <code>master</code>에서 유지했다. 허브 쓰기는 <code>agents/codex/</code> 아래 파일로 제한했다. 2nd-B 브랜치는 로컬 커밋만 만들었고 push, PR, merge, 배포, 브라우저 열기, 비용 발생, 시크릿 접근, 파괴 작업은 하지 않았다. 변경은 단일 파일의 표시 문구 생성 경로에 한정되어 별도 MoA 검증 요청이 필요한 고위험 산출물로 보지 않았다.</p>
+    </details>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <p>찬성 관점: 첫날 사용자가 실제로 남기는 기록 언어가 현재 표시 언어와 맞아야 신뢰가 유지된다. 반대 관점: 저장 본문은 안전 분류와 연결되므로 locale 확장을 무심코 넓히면 안 된다. 판정: 본문만 표시 언어로 맞추고 시스템 locale은 기존 en 또는 ko 계약으로 유지하는 것이 가장 작은 변경이다.</p>
+    </details>
+  </main>
+</body>
+</html>
