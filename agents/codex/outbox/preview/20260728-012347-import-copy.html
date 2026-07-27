@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 폴 사이클 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --fg: #e7e9ee;
+      --muted: #8f98a8;
+      --line: #2b313b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    header, section, details {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      margin: 14px 0;
+      background: transparent;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 24px; line-height: 1.25; }
+    h2 { font-size: 17px; margin-bottom: 10px; }
+    h3 { font-size: 15px; margin: 16px 0 8px; }
+    p + p { margin-top: 8px; }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 74px;
+    }
+    .metric b {
+      display: block;
+      font-size: 18px;
+      margin-top: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border-top: 1px solid var(--line);
+      padding: 9px 6px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 600; }
+    code {
+      color: var(--fg);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 1px 5px;
+      word-break: break-all;
+    }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    summary { cursor: pointer; font-weight: 700; }
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      main { width: min(100% - 20px, 960px); padding-top: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="muted">PROTOCOL 12/19/35.4 단일 사이클</p>
+      <h1>PT/ID 가져오기 화면 카피 정리</h1>
+      <p class="muted">작성 시각: 2026-07-28 01:23:47 KST</p>
+      <div class="grid" aria-label="핵심 지표">
+        <div class="metric"><span class="muted">작업 수</span><b>1건</b></div>
+        <div class="metric"><span class="muted">앱 파일</span><b>2개</b></div>
+        <div class="metric"><span class="muted">앱 커밋</span><b>3a67a426</b></div>
+        <div class="metric"><span class="muted">검증</span><b>통과</b></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>결과</h2>
+      <p>열린 Codex/all 요청은 없었다. 원시 outbox scan에 남은 open 후보는 stale 또는 이미 답변된 항목으로 판단했고, BOARD 현재 포커스에 따라 2nd-B UI/i18n anti-slop 레인에서 새 작업 하나만 수행했다.</p>
+      <p>PT/ID 가져오기 화면에서 ASCII 하이픈 구분자와 점 세 개 생략부호를 기존 ES 화면과 같은 중점 구분자 및 단일 생략부호로 정리했다.</p>
+    </section>
+
+    <details open>
+      <summary>변경 파일</summary>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>변경 내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>locales/id/import.json</code></td><td>로딩, 부제, 입력 자리표시자, 결과 메타 구분자 정리</td></tr>
+          <tr><td><code>locales/pt/import.json</code></td><td>로딩, 부제, 입력 자리표시자, 결과 메타 구분자 정리</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>검증</summary>
+      <ul>
+        <li>JSON 파싱 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>git diff --check</code> 공백 오류 없음, CRLF 안내만 확인</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>운영 제한 준수</summary>
+      <ul>
+        <li>허브에서는 <code>agents/codex/</code> 아래 보고 파일만 작성했다.</li>
+        <li>2nd-B 작업은 <code>origin/main</code> 기준 별도 worktree와 브랜치에서만 수행했다.</li>
+        <li>push, PR, merge, 배포, 비용 발생, 파괴적 작업, 시크릿 접근은 하지 않았다.</li>
+        <li>섹션 35 자체 패널 결과, 고위험 교차검증 요청은 필요하지 않았다.</li>
+      </ul>
+    </details>
+
+    <section>
+      <h2>제출 정보</h2>
+      <p>브랜치: <code>codex/cycle-20260728-012236-import-copy</code></p>
+      <p>워크트리: <code>E:\2ndB\.worktrees\codex-cycle-20260728-012236-import-copy</code></p>
+      <p>앱 커밋: <code>3a67a426</code></p>
+    </section>
+  </main>
+</body>
+</html>
