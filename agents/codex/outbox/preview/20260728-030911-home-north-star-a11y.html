@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>홈 북극성 접근성 문구 정리 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #5cc8ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 64px;
+    }
+    header {
+      border: 1px solid var(--accent);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 26px; line-height: 1.25; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin-bottom: 12px; color: var(--accent); }
+    h3 { font-size: 16px; margin-bottom: 8px; }
+    section, details {
+      border: 1px solid color-mix(in srgb, var(--text) 28%, var(--bg));
+      padding: 18px;
+      margin-top: 16px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--text) 28%, var(--bg));
+      padding: 14px;
+      min-height: 104px;
+    }
+    .label { color: var(--accent); font-size: 13px; }
+    .value { font-size: 15px; overflow-wrap: anywhere; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid color-mix(in srgb, var(--text) 28%, var(--bg));
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      background: color-mix(in srgb, var(--text) 8%, var(--bg));
+      padding: 1px 4px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { padding-left: 20px; margin-bottom: 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>홈 북극성 접근성 문구 정리 보고</h1>
+      <p>이번 사이클은 새 요청이 없어 Codex 레인의 저위험 UI 문구 정리 1건만 수행했다. 홈 화면의 스크린리더 라벨에서 레거시 명칭인 Soul Core를 제거하고 정본 명칭인 북극성 계열 표현으로 맞췄다.</p>
+      <div class="grid" aria-label="요약">
+        <div class="card">
+          <div class="label">결과</div>
+          <div class="value">2nd-B 로컬 커밋 완료</div>
+        </div>
+        <div class="card">
+          <div class="label">커밋</div>
+          <div class="value"><code>b60aebbf</code></div>
+        </div>
+        <div class="card">
+          <div class="label">검증</div>
+          <div class="value">문자열 검사와 타입 검사 통과</div>
+        </div>
+        <div class="card">
+          <div class="label">위험도</div>
+          <div class="value">낮음, 교차검증 요청 없음</div>
+        </div>
+      </div>
+    </header>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>언어</th>
+            <th>이전 문구</th>
+            <th>변경 문구</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>영어</td><td>Soul Core brightness</td><td>North Star brightness</td></tr>
+          <tr><td>한국어</td><td>소울 코어 밝기</td><td>북극성 밝기</td></tr>
+          <tr><td>스페인어</td><td>Brillo del Soul Core</td><td>Brillo de la Estrella del Norte</td></tr>
+          <tr><td>포르투갈어</td><td>Brilho do Soul Core</td><td>Brilho da Estrela do Norte</td></tr>
+          <tr><td>인도네시아어</td><td>Kecerahan Soul Core</td><td>Kecerahan Bintang Utara</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details open>
+      <summary>작업 범위</summary>
+      <ul>
+        <li>작업트리: <code>E:\2ndB\.worktrees\codex-cycle-20260728-030732-antislop</code></li>
+        <li>브랜치: <code>codex/cycle-20260728-030732-antislop</code></li>
+        <li>기준: <code>origin/main 69b0c58f</code></li>
+        <li>변경 파일: <code>locales/en/home.json</code>, <code>locales/ko/home.json</code>, <code>locales/es/home.json</code>, <code>locales/pt/home.json</code>, <code>locales/id/home.json</code></li>
+      </ul>
+    </details>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <ul>
+        <li>변경된 JSON 파일 파싱: 통과</li>
+        <li><code>npm run check:i18n</code>: 통과</li>
+        <li><code>npm run check:lexicon</code>: 통과</li>
+        <li><code>npm run check:emdash</code>: 통과</li>
+        <li><code>npm run type-check</code>: 통과</li>
+        <li><code>git diff --check</code>: 통과, 줄끝 경고만 표시</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <ul>
+        <li>설계, 스키마, 보안, 법무, 임상, 가격, 배포, 비가역 작업에 해당하지 않는다.</li>
+        <li>내부 키 <code>soulCore</code>까지 바꾸면 호출부 리팩터링으로 범위가 커지므로 이번 사이클에서는 표시 문구만 변경했다.</li>
+        <li>교차검증은 고위험 산출물이 아니므로 요청하지 않았다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>
