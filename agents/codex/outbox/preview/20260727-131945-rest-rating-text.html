@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>휴식 별점 텍스트 개선 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --fg: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    header, section {
+      border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+      background: color-mix(in srgb, var(--fg) 4%, transparent);
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+    h1 { font-size: 26px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 10px; }
+    p:last-child { margin-bottom: 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid color-mix(in srgb, var(--muted) 35%, transparent);
+      padding: 10px 8px;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--fg);
+      background: color-mix(in srgb, var(--muted) 18%, transparent);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    details {
+      border-top: 1px solid color-mix(in srgb, var(--muted) 35%, transparent);
+      padding-top: 12px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .metric {
+      border: 1px solid color-mix(in srgb, var(--muted) 35%, transparent);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    .value {
+      color: var(--fg);
+      font-weight: 700;
+    }
+    @media (max-width: 720px) {
+      main { width: min(100% - 24px, 920px); padding: 24px 0; }
+      .grid { grid-template-columns: 1fr 1fr; }
+      th, td { display: block; width: 100%; }
+      tr { display: block; padding: 8px 0; border-bottom: 1px solid color-mix(in srgb, var(--muted) 35%, transparent); }
+      th, td { border-bottom: 0; padding: 4px 0; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>휴식 별점 텍스트 개선 보고</h1>
+      <p>이번 사이클은 열린 최신 Codex 요청이 없어, Codex 레인의 단일 자율 작업으로 휴식 화면의 별점 표시를 더 읽기 쉬운 텍스트로 바꿨다.</p>
+      <div class="grid" aria-label="요약 지표">
+        <div class="metric"><span class="label">결과</span><span class="value">완료</span></div>
+        <div class="metric"><span class="label">앱 브랜치</span><span class="value">codex/cycle-20260727-131756-rest-rating</span></div>
+        <div class="metric"><span class="label">앱 커밋</span><span class="value">268c3618</span></div>
+        <div class="metric"><span class="label">검증 상태</span><span class="value">통과</span></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>변경 내용</h2>
+      <p><code>src/app/rest.tsx</code>에서 휴식 항목의 반복 별 기호 표시를 <code>평점 n/5</code> 형식의 명시적 문구로 교체했다.</p>
+      <p><code>locales/*/deepspace.json</code>의 영어, 한국어, 스페인어, 포르투갈어, 인도네시아어에 같은 <code>ratingLabel</code> 키를 추가했다.</p>
+      <details>
+        <summary>상세 보기</summary>
+        <table>
+          <thead>
+            <tr><th>항목</th><th>내용</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>이전 표시</td><td>별 기호 반복으로 점수를 표현했다.</td></tr>
+            <tr><td>새 표시</td><td>현지화된 문장 안에 점수와 만점을 함께 표시한다.</td></tr>
+            <tr><td>범위</td><td>휴식 화면과 관련 로케일 키만 수정했다.</td></tr>
+          </tbody>
+        </table>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr><th>검증</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npx eslint src/app/rest.tsx</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>공백 오류 없음, 줄끝 경고만 확인</td></tr>
+          <tr><td>잔여 별 기호 스캔</td><td>대상 파일에서 결과 없음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자기 패널</h2>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>판단</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>찬성</td><td>장식 기호 의존을 줄이고 보조기술과 번역 표면에서 의미를 명확히 한다.</td></tr>
+          <tr><td>반대</td><td>한 줄 메타 정보가 약간 길어질 수 있다.</td></tr>
+          <tr><td>판정</td><td>점수는 데이터이므로 기호보다 명시 텍스트가 더 적합하다. 변경 범위가 작고 검증 가능해 진행했다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>제약 준수</h2>
+      <p>허브에서는 <code>agents/codex/</code> 아래 보고서만 작성했다. 2nd-B 변경은 별도 worktree와 로컬 브랜치에만 커밋했고 push, PR, merge, 배포, 비용 작업, 비밀값 작업은 하지 않았다.</p>
+      <p>작성 시각: 2026-07-27 13:19:45 KST</p>
+    </section>
+  </main>
+</body>
+</html>
