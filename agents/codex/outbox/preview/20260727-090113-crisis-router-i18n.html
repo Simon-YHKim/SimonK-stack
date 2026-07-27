@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>위기 안내 전화 문구 다국어화 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e8eef2;
+      --muted: #9aa7b2;
+      --accent: #6fd3c7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { margin: 0; line-height: 1.25; }
+    h1 { font-size: clamp(28px, 4vw, 44px); }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 10px 0 0; color: var(--muted); }
+    code { color: var(--text); }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .card {
+      border: 1px solid rgba(232, 238, 242, 0.16);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(232, 238, 242, 0.04);
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .value {
+      display: block;
+      color: var(--text);
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid rgba(232, 238, 242, 0.16);
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(232, 238, 242, 0.12);
+    }
+    th { color: var(--accent); font-weight: 700; }
+    td { color: var(--muted); }
+    details {
+      margin-top: 14px;
+      border: 1px solid rgba(232, 238, 242, 0.16);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    summary { cursor: pointer; color: var(--text); font-weight: 700; }
+    ul { margin: 10px 0 0; padding-left: 20px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>위기 안내 전화 문구 다국어화 보고</h1>
+    <p>이번 단일 폴 사이클은 새 코덱스 대상 공개 요청이 없어, 코덱스 레인의 안전 UI 다국어 정리를 한 건 수행했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <span class="label">결과</span>
+        <span class="value">완료</span>
+      </div>
+      <div class="card">
+        <span class="label">대상</span>
+        <span class="value">위기 안내 전화 영역</span>
+      </div>
+      <div class="card">
+        <span class="label">브랜치</span>
+        <span class="value">codex/cycle-260727-0900-crisis-i18n</span>
+      </div>
+      <div class="card">
+        <span class="label">검증</span>
+        <span class="value">통과, 교차검증 요청</span>
+      </div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>내용</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>제품 커밋</td><td><code>eb3b02e1</code></td></tr>
+        <tr><td>기준</td><td><code>origin/main 69b0c58f</code></td></tr>
+        <tr><td>화면 파일</td><td><code>src/components/safety/CrisisRouter.tsx</code></td></tr>
+        <tr><td>번역 파일</td><td><code>locales/en|ko|es|pt|id/safety.json</code></td></tr>
+        <tr><td>효과</td><td>접근성 라벨, 긴급 배지, 전화 힌트, 전화 보조문이 현재 언어의 안전 번역 키를 사용한다.</td></tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <ul>
+        <li><code>npx eslint src/components/safety/CrisisRouter.tsx</code> 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>git diff --check</code> 공백 오류 없음, 줄끝 경고만 확인</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>35 자체 패널</summary>
+      <p>찬성 관점: 안전 모달의 전화 행동 문구가 영어와 한국어에만 묶여 있으면 스페인어, 포르투갈어, 인도네시아어 화면에서 접근성 경험이 깨진다.</p>
+      <p>반대 관점: 위기 안내 표면은 안전 관련 화면이므로 문구 의미, 닫기 정책, 전화 연결 동작을 넓게 바꾸면 위험하다.</p>
+      <p>판정: 행동과 안전 본문은 유지하고, 이미 쓰는 <code>safety</code> 번역 체계로 네 개 보조 라벨만 옮기는 변경이 가장 작은 안전한 진전이다.</p>
+    </details>
+
+    <h2>제한 사항</h2>
+    <p>제품 브랜치는 로컬 커밋만 만들었고 푸시, 병합, 배포, 브라우저 자동 열기, 비용 작업, 비밀정보 작업은 수행하지 않았다. 안전 관련 UI라 Antigravity 교차검증을 요청했다.</p>
+  </main>
+</body>
+</html>
