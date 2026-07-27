@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 리뷰 보고서 - 프록시 변경</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.5; padding: 2rem; }
+  h1, h2, h3 { color: #E0E0E0; font-weight: normal; }
+  .accent { color: #4CAF50; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 2rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1E1E1E; }
+  button { background-color: #1E1E1E; color: #4CAF50; border: 1px solid #4CAF50; padding: 0.5rem 1rem; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>QA 리뷰 보고서</h1>
+  <h2>대상 브랜치: <span class="accent">codex/cycle-20260728-033659-antislop</span></h2>
+  <p>네이티브/에뮬레이터 호환성 및 정적 코드 검토 결과를 아래와 같이 보고합니다.</p>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+        <th>상태</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 클라이언트 영향도</td>
+        <td>Edge Function(프록시)의 내부 로직 변경으로 인해 클라이언트 앱 구동을 차단하는 네이티브 종속성이나 호환성 문제는 발견되지 않았습니다.</td>
+        <td class="accent">통과</td>
+      </tr>
+      <tr>
+        <td>코드 변경 사항 요약</td>
+        <td>
+          1. effective_subscription_tier RPC를 통한 권한 확인 로직으로 교체.<br>
+          2. Gemini 프록시의 감사 로그 기록 시점을 upstream 거절 응답 이전으로 이동 및 결과 마커 추가.<br>
+          3. 동의 기록(consent_records) 관련 철회 처리 주석 추가.
+        </td>
+        <td class="accent">확인 완료</td>
+      </tr>
+      <tr>
+        <td>교차 검증</td>
+        <td>백엔드 권한 로직 및 감사 로그 관련 보안 민감 코드가 포함되어 있어, Claude에게 교차 검증을 요청합니다.</td>
+        <td class="accent">요청됨</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <button type="button">상세 기록 보기</button>
+</body>
+</html>
