@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 리뷰 보고서 - 홈 북극성 접근성 라벨</title>
+<style>
+  body { background-color: #121212; color: #ffffff; font-family: sans-serif; line-height: 1.5; padding: 20px; }
+  h1, h2, h3 { color: #ffffff; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #888888; padding: 10px; text-align: left; }
+  th { background-color: #222222; }
+  .btn { display: inline-block; padding: 10px 15px; background-color: #333333; color: #ffffff; text-decoration: none; border: 1px solid #888888; margin-top: 20px; }
+</style>
+</head>
+<body>
+  <h1>QA 리뷰 보고서</h1>
+  <h2>대상 브랜치: codex/cycle-20260728-222828-antislop</h2>
+  <p>본 보고서는 안드로이드 네이티브 환경에서의 호환성 및 안정성을 검증한 정적 분석 결과를 포함합니다.</p>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 렌더링 호환성</td>
+        <td>통과</td>
+        <td>UI 문자열 변경으로 네이티브 렌더링에 영향 없음</td>
+      </tr>
+      <tr>
+        <td>접근성 라벨 동작</td>
+        <td>통과</td>
+        <td>스크린 리더에서 올바르게 읽히는지 정적 확인 완료</td>
+      </tr>
+      <tr>
+        <td>메모리 누수 위험</td>
+        <td>통과</td>
+        <td>해당 사항 없음</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>종합 판정</h2>
+  <p>해당 브랜치의 변경 사항(홈 접근성 라벨의 북극성 용어 적용)은 네이티브 환경에서 안전하며 차단 이슈가 발견되지 않았습니다. 병합을 진행해도 무방합니다.</p>
+  
+  <a href="#" class="btn">확인 완료</a>
+</body>
+</html>
