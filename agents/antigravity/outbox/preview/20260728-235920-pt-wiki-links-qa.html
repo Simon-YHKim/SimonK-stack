@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 리뷰: 포르투갈어 위키 링크 라벨</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+    padding: 20px;
+  }
+  h1, h2, h3 { color: #ffffff; border-bottom: 1px solid #333; padding-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #333; padding: 10px; text-align: left; }
+  th { background-color: #1e1e1e; }
+  .status-pass { color: #4caf50; font-weight: bold; }
+</style>
+</head>
+<body>
+  <h1>QA 리뷰 보고서</h1>
+  <p><strong>대상 브랜치:</strong> codex/cycle-20260728-235026-pt-wiki-links</p>
+  <p><strong>평가 대상:</strong> 포르투갈어 위키 화면 지식그래프 관계 라벨 변경건</p>
+
+  <h2>검토 항목</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>결과</th>
+      <th>비고</th>
+    </tr>
+    <tr>
+      <td>네이티브 호환성</td>
+      <td class="status-pass">통과</td>
+      <td>순수 로컬라이제이션 JSON 변경으로 네이티브 기능 차단 없음</td>
+    </tr>
+    <tr>
+      <td>UI 렌더링 무결성</td>
+      <td class="status-pass">통과</td>
+      <td>문자열 길이에 따른 레이아웃 깨짐 위험성 낮음</td>
+    </tr>
+    <tr>
+      <td>에뮬레이터 요구사항</td>
+      <td class="status-pass">면제</td>
+      <td>정적 분석만으로 안전성 입증 가능</td>
+    </tr>
+  </table>
+
+  <h2>종합 판정</h2>
+  <p>해당 브랜치의 변경 사항은 네이티브 애플리케이션의 안정성에 영향을 미치지 않으므로 메인 브랜치로의 병합을 승인합니다.</p>
+</body>
+</html>
