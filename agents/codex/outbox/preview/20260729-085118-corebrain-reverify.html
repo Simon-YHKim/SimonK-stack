@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코어브레인 북극성 후보 재검증 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101318;
+      --text: #e8edf2;
+      --accent: #6fb7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin: 28px 0 12px; color: var(--accent); }
+    h3 { font-size: 15px; margin-bottom: 6px; }
+    p { margin-top: 8px; }
+    .meta {
+      border: 1px solid var(--accent);
+      padding: 14px;
+      margin-top: 18px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .card {
+      border: 1px solid #2b3440;
+      padding: 12px;
+      min-height: 92px;
+    }
+    .label { color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #2b3440;
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      overflow-wrap: anywhere;
+    }
+    details {
+      border: 1px solid #2b3440;
+      padding: 12px;
+      margin-top: 10px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 5px 0; }
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코어브레인 북극성 후보 재검증 보고</h1>
+    <p>Codex 미머지 후보 중 우선순위 1번을 최신 본선 기준으로 다시 적용하고 검증했다.</p>
+
+    <section class="meta" aria-label="요약">
+      <p><strong>결론:</strong> 기존 후보 <code>5727fde7</code>는 최신 <code>origin/main</code> 위에서 충돌 없이 <code>31f8c752</code>로 재현됐고, 관련 검증이 통과했다. Claude가 병합 판단에 사용할 수 있는 준비 상태다.</p>
+    </section>
+
+    <section class="grid" aria-label="핵심 지표">
+      <div class="card">
+        <div class="label">기준 본선</div>
+        <div><code>9c674f4d</code></div>
+      </div>
+      <div class="card">
+        <div class="label">재현 커밋</div>
+        <div><code>31f8c752</code></div>
+      </div>
+      <div class="card">
+        <div class="label">변경 파일</div>
+        <div>3개</div>
+      </div>
+      <div class="card">
+        <div class="label">검증 상태</div>
+        <div>통과</div>
+      </div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>선택한 작업</td>
+          <td>Codex 백로그 우선 후보 <code>5727fde7</code> 재검증</td>
+        </tr>
+        <tr>
+          <td>작업 브랜치</td>
+          <td><code>codex/cycle-20260729-084958-corebrain-reverify</code></td>
+        </tr>
+        <tr>
+          <td>작업 위치</td>
+          <td><code>E:\2ndB\.worktrees\codex-cycle-20260729-084958-corebrain-reverify</code></td>
+        </tr>
+        <tr>
+          <td>변경 요지</td>
+          <td>코어브레인 화면의 표시 문자열을 레거시 소울 코어 표현에서 정본 북극성 표현으로 맞추고 회귀 테스트를 유지했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>변경 파일</h2>
+    <ul>
+      <li><code>locales/en/core-brain.json</code></li>
+      <li><code>locales/ko/core-brain.json</code></li>
+      <li><code>src/lib/__tests__/worldview-naming.test.ts</code></li>
+    </ul>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검증</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>JSON 파싱</td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td><code>npx jest src/lib/__tests__/worldview-naming.test.ts --runInBand</code></td>
+          <td>통과, 12개 테스트</td>
+        </tr>
+        <tr>
+          <td><code>npm run check:i18n</code></td>
+          <td>통과, 5개 로케일 3226개 키 정렬</td>
+        </tr>
+        <tr>
+          <td><code>npm run check:lexicon</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td><code>npm run check:emdash</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td><code>npm run type-check</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td><code>git diff --check HEAD~1..HEAD</code></td>
+          <td>통과</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>섹션 35 셀프패널</h2>
+    <details open>
+      <summary>판단 근거</summary>
+      <ul>
+        <li>사용자 경험 관점: 화면에 남은 레거시 명칭을 줄여 현재 세계관의 북극성 표현과 일치시킨다.</li>
+        <li>통합 안정성 관점: 기존 후보를 최신 본선 위에서 재현했으므로 Claude가 충돌 위험을 작게 판단할 수 있다.</li>
+        <li>안전 관점: 스키마, 인증, 보안, 비용, 외부 사실, 배포를 건드리지 않았다. 고위험 MoA 검증 요청은 필요하지 않다.</li>
+      </ul>
+    </details>
+
+    <h2>금지 행동 확인</h2>
+    <p>2nd-B push, PR 생성, 병합, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 발생 작업, 시크릿 접근 또는 출력은 수행하지 않았다.</p>
+  </main>
+</body>
+</html>
