@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 단일 사이클 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101214; --text: #e9eef2; --accent: #67d3ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { width: min(980px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 48px; }
+    header { border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent); padding: 20px; border-radius: 8px; }
+    h1, h2 { margin: 0 0 12px; letter-spacing: 0; }
+    h1 { font-size: 26px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    section { margin-top: 22px; padding-top: 18px; border-top: 1px solid color-mix(in srgb, var(--text) 18%, transparent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; vertical-align: top; padding: 9px 8px; border-bottom: 1px solid color-mix(in srgb, var(--text) 14%, transparent); }
+    th { color: var(--accent); font-weight: 700; width: 30%; }
+    code { color: var(--accent); font-family: Consolas, monospace; font-size: 0.95em; }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    li { margin: 4px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 단일 사이클 보고서</h1>
+      <p>작성 시각: 2026-07-28 18:35:30 KST</p>
+      <p>새로운 Codex 인박스 요청은 없었고, stale 후보는 재처리하지 않았습니다. 이번 사이클에서는 2nd-B Portuguese insights 화면의 잔여 i18n 용어 불일치 1건만 고쳤습니다.</p>
+    </header>
+
+    <section>
+      <h2>결과 요약</h2>
+      <table>
+        <tr><th>작업</th><td>Portuguese insights 섹션 제목의 tag 용어를 프로젝트 PT 어휘와 맞게 정리</td></tr>
+        <tr><th>변경 파일</th><td><code>locales/pt/insights.json</code></td></tr>
+        <tr><th>변경 내용</th><td><code>Tags principais</code>에서 <code>Etiquetas principais</code>로 변경</td></tr>
+        <tr><th>앱 커밋</th><td><code>8677ac49</code> <code>fix(i18n): localize Portuguese insights tags</code></td></tr>
+        <tr><th>브랜치</th><td><code>codex/cycle-20260728-183347-antislop</code></td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li>JSON parse 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>git diff --check</code> 통과, Windows 줄끝 경고만 출력</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>자가 판정</h2>
+      <p>Section 35 토론 트리거는 없었습니다. 구조, 보안, 동의, 결제, 스키마, 배포 변경이 아닌 낮은 위험도의 화면 카피 수정입니다.</p>
+      <p>MoA 교차 검증은 요청하지 않았습니다. 고위험 deliverable이 아니며 기능 로직과 데이터 경로를 변경하지 않았습니다.</p>
+    </section>
+  </main>
+</body>
+</html>
