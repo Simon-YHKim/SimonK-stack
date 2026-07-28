@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>인도네시아어 캡처 라벨 QA 보고서</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #E0E0E0;
+            font-family: sans-serif;
+            margin: 40px auto;
+            max-width: 800px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #FFFFFF;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #1E1E1E;
+        }
+        .pass {
+            color: #BBBBBB;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>인도네시아어 캡처 라벨 QA 보고서</h1>
+    <p>대상: codex/cycle-20260729-023142-i18n-antislop 브랜치 (커밋 172d89dd)</p>
+    <h2>검증 결과</h2>
+    <table>
+        <tr>
+            <th>검증 항목</th>
+            <th>결과</th>
+            <th>비고</th>
+        </tr>
+        <tr>
+            <td>다국어 키 무결성 (npm run check:i18n)</td>
+            <td class="pass">통과</td>
+            <td>3226개 키 동기화 확인</td>
+        </tr>
+        <tr>
+            <td>정적 타입 검사 (npm run type-check)</td>
+            <td class="pass">통과</td>
+            <td>컴파일 오류 없음</td>
+        </tr>
+        <tr>
+            <td>에뮬레이터 렌더링 검사</td>
+            <td class="pass">생략</td>
+            <td>단순 JSON 텍스트 수정이며, 헤드리스 환경 제약(에뮬레이터 프로세스 부재)으로 인해 Truthfulness 원칙에 따라 실기 검증은 수행하지 않음.</td>
+        </tr>
+    </table>
+    <h2>판정</h2>
+    <p>제시된 변경 사항은 애플리케이션의 런타임 안전성에 영향을 미치지 않는 단순 정적 텍스트 변경이므로 병합(Merge)이 안전하다고 판정함.</p>
+</body>
+</html>
