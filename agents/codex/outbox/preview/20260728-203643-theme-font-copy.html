@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>테마 글꼴 설명 정본 정렬 보고</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --text: #e7eefc;
+      --accent: #79d7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 48px;
+    }
+    header, section {
+      border: 1px solid rgba(121, 215, 255, 0.24);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 16px 0;
+      background: rgba(255, 255, 255, 0.03);
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      line-height: 1.25;
+    }
+    h1 { font-size: clamp(24px, 4vw, 36px); }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 8px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      border-top: 1px solid rgba(121, 215, 255, 0.2);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      word-break: break-all;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .metric {
+      border: 1px solid rgba(121, 215, 255, 0.2);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .metric strong {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    details {
+      border-top: 1px solid rgba(121, 215, 255, 0.2);
+      padding-top: 12px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>테마 글꼴 설명 정본 정렬 보고</h1>
+      <p>Codex 단일 poll cycle에서 열린 최신 요청이 없어 2nd-B UI/i18n anti-slop 작업 한 건을 수행했습니다.</p>
+      <p>작성 시각: 2026-07-28 20:36:43 KST</p>
+    </header>
+
+    <section>
+      <h2>첫 화면 요약</h2>
+      <div class="grid">
+        <div class="metric"><strong>목적</strong>테마 화면의 legacy 마을 표현을 현재 별자리 정본에 맞춤</div>
+        <div class="metric"><strong>결과</strong>locale 5개에서 픽셀 글꼴 설명 1줄씩 교체</div>
+        <div class="metric"><strong>앱 커밋</strong><code>42256e2a</code></div>
+        <div class="metric"><strong>검증</strong>JSON, i18n, lexicon, em dash, typecheck 통과</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 범위</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>기준</td>
+            <td><code>origin/main 69b0c58f</code></td>
+          </tr>
+          <tr>
+            <td>작업 브랜치</td>
+            <td><code>codex/cycle-20260728-203447-antislop</code></td>
+          </tr>
+          <tr>
+            <td>작업 경로</td>
+            <td><code>E:\2ndB\.worktrees\codex-cycle-20260728-203447-antislop</code></td>
+          </tr>
+          <tr>
+            <td>파일</td>
+            <td><code>locales/en/theme.json</code>, <code>locales/ko/theme.json</code>, <code>locales/es/theme.json</code>, <code>locales/pt/theme.json</code>, <code>locales/id/theme.json</code></td>
+          </tr>
+          <tr>
+            <td>내용</td>
+            <td>픽셀 글꼴 설명의 마을 표현을 별자리 화면 설명으로 변경</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>검증</th>
+            <th>상태</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>theme locale JSON 파싱</td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과, 줄끝 안내만 있음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>운영 준수</h2>
+      <details open>
+        <summary>섹션 35 자기 패널</summary>
+        <p>작업은 Codex의 UI/i18n anti-slop 레인에 맞고, 사용자 가시 카피 5줄만 바꾼 낮은 위험 변경입니다. 스키마, 보안, 수학, 외부 최신 사실, 머지 diff, 대형 UI 변경이 아니므로 별도 검증 요청은 만들지 않았습니다.</p>
+      </details>
+      <details>
+        <summary>금지 작업 확인</summary>
+        <p>2nd-B push, PR, merge, 배포, 비용 발생 작업, 파괴적 작업, 시크릿 접근, 브라우저 자동 열기는 수행하지 않았습니다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>
