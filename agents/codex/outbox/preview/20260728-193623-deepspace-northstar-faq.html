@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>딥스페이스 북극성 질문 정리</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #d7e7ef;
+      --accent: #62d5ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2 { margin: 0; line-height: 1.2; }
+    h1 { font-size: 28px; color: var(--accent); }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 10px 0 0; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .label { display: block; font-size: 12px; color: var(--accent); }
+    .value { display: block; margin-top: 6px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      border: 1px solid var(--accent);
+      border-radius: 5px;
+      padding: 1px 5px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+      table, tbody, tr, th, td { display: block; width: 100%; }
+      th { border-bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>딥스페이스 북극성 질문 정리</h1>
+    <p>이번 사이클은 오픈 요청이 없어 Codex 레인의 2nd-B UI 문구 정리 한 건만 수행했다. 딥스페이스 도움말 질문에서 폐기된 명칭을 제거해 현재 정본인 북극성 표기와 맞췄다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">상태</span><span class="value">완료</span></div>
+      <div class="card"><span class="label">위험도</span><span class="value">낮음</span></div>
+      <div class="card"><span class="label">2nd-B 커밋</span><span class="value">b9aa5885</span></div>
+      <div class="card"><span class="label">푸시</span><span class="value">하지 않음</span></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>파일</th>
+          <th>이전 문구</th>
+          <th>변경 문구</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>locales/en/deepspace.json</code></td>
+          <td>How does the North Star (Soul Core) brighten?</td>
+          <td>How does the North Star brighten?</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>검증</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>JSON 파싱</td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>기능 오류 없음. 윈도우 줄끝 경고만 확인.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>자기 패널</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>관점</th>
+            <th>판정</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>사용자 표면</td><td>도움말 질문에서 폐기 명칭이 사라져 정본 용어와 일치한다.</td></tr>
+          <tr><td>범위 통제</td><td>영문 로케일 한 줄만 변경했다.</td></tr>
+          <tr><td>안전</td><td>보안, 비용, 배포, 개인정보, 임상 문구 표면을 건드리지 않았다.</td></tr>
+          <tr><td>교차검증</td><td>고위험 산출물이 아니라 추가 검증 요청은 만들지 않았다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <h2>작업 위치</h2>
+    <p>워크트리: <code>E:\2ndB\.worktrees\codex-cycle-20260728-1935-deepspace-northstar-faq</code></p>
+    <p>브랜치: <code>codex/cycle-20260728-1935-deepspace-northstar-faq</code></p>
+    <p>생성 시각: 2026-07-28 19:36:23 KST</p>
+  </main>
+</body>
+</html>
