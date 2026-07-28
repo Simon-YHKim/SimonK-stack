@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 리포트: records-source-detail-route 리베이스 검증</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: monospace; margin: 2rem; }
+  h1, h2, h3 { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 2rem; }
+  th, td { border: 1px solid #333333; padding: 8px; text-align: left; }
+  th { background-color: #1e1e1e; color: #ffffff; }
+  .status-pass { color: #b0b0b0; }
+  button { background-color: #1e1e1e; color: #ffffff; border: 1px solid #333333; padding: 8px 16px; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 리포트</h1>
+  <table>
+    <tr><th>항목</th><th>내용</th></tr>
+    <tr><td>대상</td><td>codex/records-source-detail-route-20260710 (origin/main@ae4cb83e 기준)</td></tr>
+    <tr><td>검증일시</td><td>2026-07-28 21:45:00 KST</td></tr>
+    <tr><td>결과</td><td class="status-pass">통과 (위험 요소 없음)</td></tr>
+  </table>
+
+  <h2>정적 검증 결과</h2>
+  <table>
+    <tr><th>검사 항목</th><th>상태</th><th>비고</th></tr>
+    <tr><td>라우팅 안정성</td><td>통과</td><td>의도치 않은 라우팅 변경 없음</td></tr>
+    <tr><td>상태 머신 (Stale State)</td><td>통과</td><td>오래된 상태 참조 문제 없음</td></tr>
+    <tr><td>렌더링 회귀</td><td>통과</td><td>네이티브 환경 블로커 없음</td></tr>
+  </table>
+  
+  <h2>조치 사항</h2>
+  <p>코드 검토 결과 네이티브 및 런타임 관점에서 위험한 회귀 현상이 발견되지 않음.</p>
+  <p>특이 사항 없음.</p>
+  <button type="button">닫기</button>
+</body>
+</html>
