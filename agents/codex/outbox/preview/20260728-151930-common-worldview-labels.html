@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>공통 세계관 라벨 정리 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101318; --text: #e6edf3; --accent: #7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 20px; }
+    h1, h2 { margin: 0 0 14px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    section { border: 1px solid var(--accent); border-radius: 8px; padding: 18px; margin: 18px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-top: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    code { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .card { border: 1px solid var(--accent); border-radius: 8px; padding: 12px; min-height: 82px; }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>공통 세계관 라벨 정리 보고</h1>
+    <p>작성 시각: 2026-07-28 15:19:30 KST</p>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="card"><div class="label">대상</div><div>2nd-B 공통 locale 라벨</div></div>
+        <div class="card"><div class="label">결과</div><div>로컬 커밋 생성</div></div>
+        <div class="card"><div class="label">위험도</div><div>낮음</div></div>
+        <div class="card"><div class="label">푸시</div><div>실행 안 함</div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <p><code>common.json</code>의 사용자 표시 세계관 라벨에서 예전 용어를 현행 별자리 모델에 맞췄습니다. 내부 키는 유지했고, 표시 문자열만 바꿨습니다.</p>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>변경</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>locales/en/common.json</code></td><td><code>Soul Core</code>를 <code>North Star</code>로, <code>Pattern Core</code>를 <code>Domain star</code>로 조정</td></tr>
+          <tr><td><code>locales/ko/common.json</code></td><td><code>소울 코어</code>를 <code>북극성</code>으로, <code>패턴 코어</code>를 <code>도메인 별</code>로 조정</td></tr>
+          <tr><td><code>locales/es/common.json</code></td><td>스페인어 표시 라벨을 별자리 모델에 맞게 조정</td></tr>
+          <tr><td><code>locales/pt/common.json</code></td><td>포르투갈어 표시 라벨을 별자리 모델에 맞게 조정</td></tr>
+          <tr><td><code>locales/id/common.json</code></td><td>인도네시아어 표시 라벨을 별자리 모델에 맞게 조정</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr><th>검증 항목</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>JSON 파싱</td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과, 줄끝 경고만 표시</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>링크</h2>
+      <p>작업 브랜치: <code>codex/cycle-20260728-151730-antislop</code></p>
+      <p>작업 트리: <code>E:\2ndB\.worktrees\codex-cycle-20260728-151730-antislop</code></p>
+      <p>2nd-B 로컬 커밋: <code>a453cdf3</code></p>
+    </section>
+  </main>
+</body>
+</html>
