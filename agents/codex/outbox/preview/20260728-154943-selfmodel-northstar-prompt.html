@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>자기 모델 제안 프롬프트 북극성 정렬 보고</title>
+  <style>
+    :root {
+      --bg: #111318;
+      --text: #e8edf2;
+      --accent: #6fb7c8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    p { margin-top: 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 22px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(255,255,255,0.03);
+    }
+    .label { color: var(--accent); font-size: 12px; }
+    .value { margin-top: 6px; font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      background: rgba(255,255,255,0.05);
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>자기 모델 제안 프롬프트 북극성 정렬 보고</h1>
+    <p>이번 사이클은 열린 Codex 요청이 없어 2nd-B UI/i18n 레인에서 레거시 명칭 하나를 정리했다. 변경은 로컬 worktree 브랜치에만 커밋했고, push·PR·머지·배포는 수행하지 않았다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">완료</div>
+      </div>
+      <div class="card">
+        <div class="label">범위</div>
+        <div class="value">프롬프트 문구 1건</div>
+      </div>
+      <div class="card">
+        <div class="label">커밋</div>
+        <div class="value"><code>e335686c</code></div>
+      </div>
+      <div class="card">
+        <div class="label">위험도</div>
+        <div class="value">낮음</div>
+      </div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>파일</th>
+          <th>변경</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/lib/persona/propose-self-model.ts</code></td>
+          <td><code>soulCore</code> 대상 프롬프트 설명을 레거시 <code>Soul Core aggregate reading</code>에서 정본 <code>North Star aggregate reading</code>으로 정렬했다.</td>
+        </tr>
+        <tr>
+          <td><code>src/lib/persona/__tests__/propose-self-model.test.ts</code></td>
+          <td>해당 프롬프트가 <code>North Star</code>를 포함하고 <code>Soul Core</code>를 포함하지 않는 회귀 테스트를 추가했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>npm test -- --runTestsByPath src/lib/persona/__tests__/propose-self-model.test.ts --runInBand</code></td><td>통과, 9개 테스트</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과, Windows 줄끝 안내만 출력</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <p>찬성: LLM 제안 프롬프트에도 현재 세계관 명칭을 쓰면 제안 rationale이나 모델 응답이 레거시 명칭을 재생산할 가능성이 줄어든다.</p>
+      <p>반대: 내부 타입명 <code>soulCore</code>는 호환을 위해 그대로 남아 있어 완전한 명칭 개편은 아니다.</p>
+      <p>판정: 표시명과 테스트만 바꾸는 낮은 위험도의 프롬프트 정렬이다. 스키마, 보안, 외부 사실, 배포 변경이 없어 별도 MoA 검증 요청은 필요하지 않다.</p>
+    </details>
+
+    <h2>산출 경로</h2>
+    <p>Worktree: <code>E:\2ndB\.worktrees\codex-cycle-20260728-154806-propose-northstar-prompt</code></p>
+    <p>Branch: <code>codex/cycle-20260728-154806-propose-northstar-prompt</code></p>
+    <p>작성 시각: 2026-07-28 15:49:43 KST</p>
+  </main>
+</body>
+</html>
