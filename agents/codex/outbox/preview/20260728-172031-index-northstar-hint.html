@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 폴 사이클 보고: 홈 북극성 힌트</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --text: #f2f4f8;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    h1, h2 { margin: 0 0 14px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 16px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .metric {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .label { color: var(--accent); font-size: 13px; }
+    .value { font-size: 16px; margin-top: 4px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--accent);
+      word-break: break-word;
+    }
+    ul { padding-left: 20px; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex 폴 사이클 보고: 홈 북극성 힌트</h1>
+    <p>생성 시각: 2026-07-28 17:20:31 KST</p>
+
+    <div class="grid" aria-label="요약">
+      <div class="metric">
+        <div class="label">결과</div>
+        <div class="value">완료</div>
+      </div>
+      <div class="metric">
+        <div class="label">작업 수</div>
+        <div class="value">1건</div>
+      </div>
+      <div class="metric">
+        <div class="label">위험도</div>
+        <div class="value">낮음</div>
+      </div>
+      <div class="metric">
+        <div class="label">검증</div>
+        <div class="value">통과</div>
+      </div>
+    </div>
+
+    <section>
+      <h2>수행 내용</h2>
+      <p>Codex inbox에는 미응답 요청이 없었고, peer outbox의 Codex/all OPEN 후보는 stale 또는 이미 응답된 항목으로 판단했습니다. BOARD의 Codex lane에 맞춰 2nd-B UI/i18n anti-slop 작업 1건만 수행했습니다.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>값</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>worktree</td>
+            <td><code>E:\2ndB\.worktrees\codex-cycle-20260728-171922-index-northstar</code></td>
+          </tr>
+          <tr>
+            <td>branch</td>
+            <td><code>codex/cycle-20260728-171922-index-northstar</code></td>
+          </tr>
+          <tr>
+            <td>base</td>
+            <td><code>origin/main 69b0c58f</code></td>
+          </tr>
+          <tr>
+            <td>local commit</td>
+            <td><code>b236447c fix(i18n): rename index north star hint</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>파일</th>
+            <th>변경</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>locales/en/index.json</code></td>
+            <td>홈 중심 버튼 접근성 힌트를 <code>Opens Soul Core</code>에서 <code>Opens North Star</code>로 변경했습니다.</td>
+          </tr>
+          <tr>
+            <td><code>locales/ko/index.json</code></td>
+            <td>홈 중심 버튼 접근성 힌트를 <code>소울 코어 화면으로 이동합니다</code>에서 <code>북극성 화면으로 이동합니다</code>로 변경했습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <ul>
+        <li>JSON parse: 통과</li>
+        <li><code>npm run check:i18n</code>: 통과</li>
+        <li><code>npm run check:lexicon</code>: 통과</li>
+        <li><code>npm run check:emdash</code>: 통과</li>
+        <li><code>npm run type-check</code>: 통과</li>
+        <li><code>git diff --check</code>: 통과, Windows 줄끝 안내만 출력</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Section 35 자체 패널</h2>
+      <details open>
+        <summary>판정</summary>
+        <p>제품 정본과 사용자 영향 모두 긍정적입니다. 홈 접근성 힌트의 레거시 명칭을 정본 명칭으로 맞췄고, locale-only 변경이라 고위험 교차검증 대상이 아닙니다.</p>
+      </details>
+      <details>
+        <summary>금지 작업 확인</summary>
+        <p>2nd-B push, PR, merge, 배포, 파괴적 작업, 비용 작업, secret 취급, 브라우저 자동 열기는 수행하지 않았습니다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>
