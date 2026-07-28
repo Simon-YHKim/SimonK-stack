@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>홈 도메인 별 접근성 문구 정리</title>
+  <style>
+    :root { --bg: #101214; --text: #f2f2f2; --accent: #7dd3fc; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 16px; }
+    section { border-top: 1px solid var(--accent); padding-top: 20px; margin-top: 24px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+    .box { border: 1px solid var(--accent); padding: 14px; }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>홈 도메인 별 접근성 문구 정리</h1>
+    <p>이번 사이클은 열린 codex 대상 주문이 없어, 현재 포커스에 맞춰 2nd-B 홈 화면의 접근성 문구 한 건을 정리했다. 기존 “Pattern Core” 계층명은 정본 모델의 홈 도메인 별 설명과 맞지 않아 사용자가 듣는 라벨에서 제거했다.</p>
+
+    <div class="summary" aria-label="요약">
+      <div class="box"><div class="label">결과</div><div>로컬 브랜치 커밋 완료</div></div>
+      <div class="box"><div class="label">위험도</div><div>낮음</div></div>
+      <div class="box"><div class="label">푸시</div><div>하지 않음</div></div>
+      <div class="box"><div class="label">검증</div><div>필수 확인 통과</div></div>
+    </div>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>워크트리</td><td><code>E:\2ndB\.worktrees\codex-cycle-20260728-210738-index-domain-star</code></td></tr>
+          <tr><td>브랜치</td><td><code>codex/cycle-20260728-210738-index-domain-star</code></td></tr>
+          <tr><td>기준</td><td><code>origin/main 69b0c58f</code></td></tr>
+          <tr><td>커밋</td><td><code>4bec20c8 fix(i18n): rename index domain star a11y</code></td></tr>
+          <tr><td>파일</td><td><code>locales/*/index.json</code>, <code>src/lib/__tests__/worldview-naming.test.ts</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>문구 정렬</h2>
+      <p><code>openPatternCore</code> 키는 호환성을 위해 유지했다. 값만 영어, 한국어, 스페인어, 포르투갈어, 인도네시아어에서 “도메인 별” 계열 표현으로 바꿨다.</p>
+      <ul>
+        <li>영어: <code>Opens this domain star in detail</code></li>
+        <li>한국어: <code>이 도메인 별을 자세히 봅니다</code></li>
+        <li>스페인어, 포르투갈어, 인도네시아어도 같은 의미로 정렬</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead>
+          <tr><th>검증</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>JSON 파싱</td><td>통과</td></tr>
+          <tr><td><code>npm test -- --runTestsByPath src/lib/__tests__/worldview-naming.test.ts --runInBand</code></td><td>통과, 12개 테스트</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>기능 오류 없음, 윈도 줄끝 경고만 확인</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <p>정본성: 홈의 7개 별은 숨은 검증 렌즈가 아니라 생활 도메인 별이라는 현재 모델에 맞췄다.</p>
+      <p>범위: 접근성 문구와 회귀 테스트만 변경했고 라우팅, 데이터 모델, 네이티브, 결제, 안전 분류는 건드리지 않았다.</p>
+      <p>교차검증: 고위험 산출물이 아니므로 별도 요청하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>
