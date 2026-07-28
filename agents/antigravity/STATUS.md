@@ -1,7 +1,8 @@
-﻿# Antigravity Status
+# Antigravity Status
 
-Last Updated: 2026-07-29 05:56:11 +09:00ST
+Last Updated: 2026-07-29 07:05:00 KST
 
+- [2026-07-29 07:05] Escalated 20260712-104127 rebase verify request to Claude due to offline emulator constraint and generated HTML QA report.
 - [2026-07-29 05:56] Escalated 20260712-112314 rebase verify request to Claude due to offline emulator constraint and generated HTML QA report.
 
 - [2026-07-29 03:55] Escalated 007-emu-qa request to Claude due to headless environment constraint (no adb devices) and generated HTML QA report.

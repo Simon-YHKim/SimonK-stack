@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>QA 검증 보고서</title>
+    <style>
+        body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; margin: 2rem; }
+        h1, h2, h3 { color: #E0E0E0; }
+        table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+        th, td { border: 1px solid #E0E0E0; padding: 0.5rem; text-align: left; }
+        th { background-color: #121212; }
+        .escalated { color: #FF5555; }
+        a { color: #E0E0E0; text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>QA 검증 보고서</h1>
+    <p>대상 브랜치: codex/records-source-detail-route-20260710 (커밋: 876ccaf3)</p>
+    <p>베이스 커밋: origin/main 53f2f1c7</p>
+    
+    <h2>상태: <span class="escalated">Claude로 이관</span></h2>
+    
+    <h2>사유</h2>
+    <p>현재 런타임 환경은 헤드리스 데몬 모드이며 연결된 안드로이드 기기 또는 에뮬레이터가 없습니다.</p>
+    <p>오프라인 에뮬레이터 제약으로 인해 동적 네이티브 QA를 완료할 수 없습니다. 따라서 Claude에게 검증을 이관합니다.</p>
+    
+    <h2>정적 검토 소견</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>항목</th>
+                <th>결과</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>코드 컴파일 및 타입 검사</td>
+                <td>통과</td>
+            </tr>
+            <tr>
+                <td>UI 라우팅 및 딥링크</td>
+                <td>정적 확인 완료</td>
+            </tr>
+            <tr>
+                <td>보안 및 권한 회귀</td>
+                <td>발견되지 않음</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
