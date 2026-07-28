@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: Source Detail Route</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .highlight {
+    color: #8ab4f8;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: Source Detail Route 재배치</h1>
+  <p>요청 ID: <span class="highlight">20260712-112314-codex-re-main-ae4cb83e-rebase-verify</span></p>
+
+  <h2>검증 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>단위 테스트</td>
+        <td>통과</td>
+        <td>관련 Jest 테스트 5건 모두 통과</td>
+      </tr>
+      <tr>
+        <td>라우팅 안정성</td>
+        <td>통과</td>
+        <td>params 내 origin 처리 정상 작동</td>
+      </tr>
+      <tr>
+        <td>런타임 회귀 차단</td>
+        <td>통과</td>
+        <td>isSource 플래그를 통한 UI 액션 차단 정상 작동</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>해당 브랜치의 코드는 런타임 환경에서 렌더링 오류를 일으키거나 라우팅 충돌을 일으키지 않습니다. 안전하게 병합 가능합니다.</p>
+</body>
+</html>
