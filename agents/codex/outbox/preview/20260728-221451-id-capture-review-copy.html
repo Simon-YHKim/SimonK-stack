@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>인도네시아어 캡처 검토 문구 정리</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --text: #e8ecef;
+      --accent: #6bb6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-bottom: 12px; color: var(--accent); }
+    section {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 16px;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .metric {
+      border-left: 3px solid var(--accent);
+      padding: 10px 12px;
+      background: color-mix(in srgb, var(--text) 6%, transparent);
+    }
+    .label {
+      display: block;
+      font-size: 12px;
+      color: color-mix(in srgb, var(--text) 70%, transparent);
+    }
+    .value {
+      display: block;
+      margin-top: 4px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 14%, transparent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>인도네시아어 캡처 검토 문구 정리</h1>
+    <p>Codex 자율 폴링 한 사이클에서 열린 주문이 없어, 2nd-B UI/i18n anti-slop 레인 작업 한 건만 수행했다.</p>
+
+    <div class="summary" aria-label="요약">
+      <div class="metric"><span class="label">결과</span><span class="value">완료</span></div>
+      <div class="metric"><span class="label">로컬 커밋</span><span class="value"><code>383ef521</code></span></div>
+      <div class="metric"><span class="label">변경 파일</span><span class="value"><code>locales/id/capture.json</code></span></div>
+      <div class="metric"><span class="label">검증</span><span class="value">통과</span></div>
+    </div>
+
+    <section>
+      <h2>변경 내용</h2>
+      <p>인도네시아어 캡처 화면의 추출 텍스트 검토 문구에서 영어 동사 <code>Edit</code>를 현지화된 <code>Ubah</code>로 바꿨다. 의미, 키 구조, 저장 흐름은 변경하지 않았다.</p>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>이전</th><th>이후</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>검토 본문</td>
+            <td><code>Edit teks yang diekstrak, lalu setujui sebelum menyimpan.</code></td>
+            <td><code>Ubah teks yang diekstrak, lalu setujui sebelum menyimpan.</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead>
+          <tr><th>검사</th><th>상태</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>제이슨 파싱</td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>기능 오류 없음, 윈도 줄끝 경고만 확인</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <details open>
+        <summary>판정</summary>
+        <p>범위는 locale 한 줄이며, 스키마, 보안 로직, 비용, 외부 사실, 배포, 네이티브 런타임을 건드리지 않았다. 고위험 산출물이 아니므로 별도 교차검증 요청은 만들지 않았다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>작업 기준</h2>
+      <table>
+        <tbody>
+          <tr><th>워크트리</th><td><code>E:\2ndB\.worktrees\codex-cycle-20260728-221247-antislop</code></td></tr>
+          <tr><th>브랜치</th><td><code>codex/cycle-20260728-221247-antislop</code></td></tr>
+          <tr><th>기준</th><td><code>origin/main 69b0c58f</code></td></tr>
+          <tr><th>시각</th><td>2026-07-28 22:14:51 KST</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
