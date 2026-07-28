@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>동의 데이터 제어 문구 현지화 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --panel: #1b2028;
+      --text: #edf1f7;
+      --muted: #aab4c2;
+      --accent: #7cc7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2, h3 { margin: 0; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 10px 0 0; color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .card, details {
+      background: var(--panel);
+      border: 1px solid rgba(124, 199, 255, 0.25);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .value { font-size: 16px; font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Roboto Mono", monospace;
+      font-size: 0.95em;
+      word-break: break-word;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      background: var(--panel);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      border-bottom: 1px solid rgba(124, 199, 255, 0.18);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--text); }
+    td { color: var(--muted); }
+    summary { cursor: pointer; color: var(--text); font-weight: 700; }
+    details { margin-top: 12px; }
+    ul { margin: 10px 0 0; padding-left: 20px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>동의 데이터 제어 문구 현지화 보고</h1>
+    <p>Codex 단일 자율 사이클에서 2nd-B 동의 화면의 데이터 제어 문구 일부를 스페인어, 포르투갈어, 인도네시아어로 현지화했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <span class="label">작업 결과</span>
+        <div class="value">로컬 커밋 완료</div>
+      </div>
+      <div class="card">
+        <span class="label">앱 커밋</span>
+        <div class="value"><code>51e0c6be</code></div>
+      </div>
+      <div class="card">
+        <span class="label">브랜치</span>
+        <div class="value"><code>codex/cycle-20260729-002644-billing-i18n-copy</code></div>
+      </div>
+      <div class="card">
+        <span class="label">검증 상태</span>
+        <div class="value">통과</div>
+      </div>
+    </section>
+
+    <h2>변경 범위</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>파일</th>
+          <th>현지화한 화면 영역</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>locales/es/consent.json</code></td>
+          <td>외부 분석 설명, 데이터 내보내기, 개인정보 설정 카드, 계정 삭제 확인</td>
+        </tr>
+        <tr>
+          <td><code>locales/pt/consent.json</code></td>
+          <td>외부 분석 설명, 데이터 내보내기, 개인정보 설정 카드, 계정 삭제 확인</td>
+        </tr>
+        <tr>
+          <td><code>locales/id/consent.json</code></td>
+          <td>외부 분석 설명, 데이터 내보내기, 개인정보 설정 카드, 계정 삭제 확인</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <ul>
+        <li><code>node</code> JSON 파싱 검사 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>git diff --check</code>는 Windows 줄바꿈 경고만 표시</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>35 자기 패널</summary>
+      <ul>
+        <li>찬성 관점: 계정 데이터 내보내기와 삭제 같은 신뢰 표면에서 비영어 사용자가 영어를 마주치는 문제를 줄였다.</li>
+        <li>반대 관점: 같은 <code>consent.json</code>에 이전 미머지 제출과 겹치는 영역이 있어 큰 범위 번역은 충돌 위험이 있다.</li>
+        <li>대안 관점: 이번 사이클은 데이터 제어 하위 블록만 제한하고, 신뢰 배너 잔여 영어는 이전 제출 범위로 남겼다.</li>
+        <li>판정: 새 정책, 가격, 스키마, 보안 코드 변경이 아니므로 별도 교차검증 요청은 하지 않았다.</li>
+      </ul>
+    </details>
+
+    <h2>제약 준수</h2>
+    <p>허브에서는 <code>agents/codex/</code> 아래 보고 파일만 작성했다. 2nd-B는 별도 worktree에서 로컬 커밋만 만들었고 push, PR, 머지, 배포, 비용 발생 작업은 하지 않았다.</p>
+
+    <h2>작성 시각</h2>
+    <p>2026-07-29 00:30:32 KST</p>
+  </main>
+</body>
+</html>
