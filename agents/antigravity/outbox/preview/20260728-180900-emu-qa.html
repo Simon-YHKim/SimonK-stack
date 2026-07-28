@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 리포트: 0.0.7 에뮬레이터</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; }
+  h1, h2, h3 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1E1E1E; }
+  pre { background-color: #1E1E1E; padding: 10px; overflow-x: auto; color: #E0E0E0; }
+  .section { margin-bottom: 30px; }
+</style>
+</head>
+<body>
+<div class="section">
+  <h1>QA 리포트: 0.0.7 에뮬레이터 (Pixel 9 Pro XL)</h1>
+  <p>요청된 0.0.7 APK의 에뮬레이터 구동 및 화면 캡처 결과를 보고합니다.</p>
+</div>
+<div class="section">
+  <h2>화면별 캡처 상태</h2>
+  <table>
+    <tr><th>화면</th><th>경로</th><th>비고</th></tr>
+    <tr><td>로그인</td><td>007-qa/1_login.png</td><td>정상 노출됨</td></tr>
+    <tr><td>홈 별자리</td><td>007-qa/2_home.jpg</td><td>캡처 완료</td></tr>
+    <tr><td>Persona Seen 렌즈</td><td>007-qa/3_persona.jpg</td><td>캡처 완료</td></tr>
+    <tr><td>통화 회고 폼</td><td>007-qa/4_reflection.jpg</td><td>캡처 완료</td></tr>
+    <tr><td>Plans 셸</td><td>007-qa/5_plans.jpg</td><td>캡처 완료</td></tr>
+    <tr><td>홈 (재시작)</td><td>007-qa/6_home_restart.jpg</td><td>캡처 완료</td></tr>
+    <tr><td>뮤지엄 (레인)</td><td>007-qa/7_museum_lane.jpg</td><td>세로쓰기 라벨 노출</td></tr>
+    <tr><td>뮤지엄 (NOW)</td><td>007-qa/8_museum_now.jpg</td><td>타임라인 NOW 배지 노출</td></tr>
+  </table>
+</div>
+<div class="section">
+  <h2>오류 로그 요약 (Logcat / Crash)</h2>
+  <p>앱 초기 구동 시 공유 라이브러리 로드 실패 오류가 확인되었습니다.</p>
+  <pre>
+FATAL EXCEPTION: main
+Process: com.simonk.secondbrain, PID: 13489
+com.facebook.soloader.B: couldn't find DSO to load: libreactnative.so
+  </pre>
+</div>
+</body>
+</html>
