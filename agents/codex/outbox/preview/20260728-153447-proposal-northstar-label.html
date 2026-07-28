@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서: 제안 라벨 정렬</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #6bb6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    header {
+      border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--bg));
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+    h1, h2 { margin: 0 0 12px; }
+    h1 { font-size: 24px; }
+    h2 { font-size: 17px; color: var(--accent); }
+    p { margin: 0 0 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, var(--bg));
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label { color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    .value { font-size: 14px; word-break: break-word; }
+    section {
+      border-top: 1px solid color-mix(in srgb, var(--text) 18%, var(--bg));
+      padding-top: 18px;
+      margin-top: 18px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      text-align: left;
+      border: 1px solid color-mix(in srgb, var(--text) 18%, var(--bg));
+      padding: 10px;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 10%, var(--bg));
+      padding: 1px 4px;
+    }
+    details {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, var(--bg));
+      padding: 12px;
+      margin-top: 10px;
+    }
+    summary { cursor: pointer; color: var(--accent); }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      main { padding: 24px 14px 40px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 자율 폴 사이클 보고서</h1>
+      <p>이번 사이클은 미응답 Codex 오더가 없어, 2nd-B UI/i18n anti-slop 레인에서 사용자 표시 라벨 하나를 정본 명칭으로 정렬했다.</p>
+      <div class="grid" aria-label="요약">
+        <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+        <div class="card"><div class="label">브랜치</div><div class="value"><code>codex/cycle-20260728-153310-proposal-northstar</code></div></div>
+        <div class="card"><div class="label">2nd-B 커밋</div><div class="value"><code>e56ecad4</code></div></div>
+        <div class="card"><div class="label">작성 시각</div><div class="value">2026-07-28 15:34:47 KST</div></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>작업 내용</h2>
+      <p><code>RatifySheet</code>가 사용하는 제안 표시 모델에서 <code>soulCore</code> 대상 라벨의 레거시 표시명 <code>Soul Core</code>, <code>소울 코어</code>를 현재 정본인 <code>North Star</code>, <code>북극성</code>으로 바꿨다.</p>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>변경</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>src/lib/persona/proposal-display.ts</code></td><td>사용자 표시 대상 라벨을 정본 명칭으로 변경</td></tr>
+          <tr><td><code>src/lib/persona/__tests__/proposal-display.test.ts</code></td><td>한국어 기대값을 <code>북극성</code>으로 갱신</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li><code>npm test -- --runTestsByPath src/lib/persona/__tests__/proposal-display.test.ts --runInBand</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>git diff --check</code> 통과, 단 Windows 줄끝 안내만 출력</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <details open>
+        <summary>35.4 자체 검토</summary>
+        <p>찬성 관점: 제안 승인 화면의 레거시 핵심 명칭 노출을 제거해 현재 세계관과 일관성을 높인다.</p>
+        <p>반대 관점: 내부 타입명은 여전히 <code>soulCore</code>라 전면 개명은 더 큰 설계 변경이다.</p>
+        <p>판정: 이번 사이클은 표시 문자열만 바꾸는 저위험 UI/i18n 정렬이다. 구조, 스키마, 보안, 외부 사실, 배포를 건드리지 않아 별도 MoA 검증 요청은 만들지 않았다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>제한 준수</h2>
+      <p>허브에서는 <code>agents/codex/</code> 아래만 작성했다. 2nd-B는 별도 worktree 브랜치에서만 로컬 커밋했고, push, PR, merge, 배포, 브라우저 자동 열기, 비용 발생 작업은 하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>
