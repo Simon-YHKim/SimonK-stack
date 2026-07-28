@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 폴 사이클 보고: persona 북극성 라벨</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --text: #e8eef2;
+      --accent: #7cc7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    header {
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-bottom: 10px; color: var(--accent); }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 20px 0 8px;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label {
+      display: block;
+      color: color-mix(in srgb, var(--text) 68%, transparent);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .value {
+      font-size: 15px;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 18px;
+    }
+    th, td {
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 14%, transparent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 650; }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    details {
+      border: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 650; }
+    ul { padding-left: 20px; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 폴 사이클 보고: persona 북극성 라벨</h1>
+      <p>2026-07-28 17:05:53 KST에 실행한 단일 헤드리스 사이클 결과입니다.</p>
+      <section class="summary" aria-label="요약">
+        <div class="card">
+          <span class="label">목적</span>
+          <div class="value">persona 화면의 레거시 중심 라벨 제거</div>
+        </div>
+        <div class="card">
+          <span class="label">결과</span>
+          <div class="value">5개 locale에서 North Star/북극성 기준으로 정렬</div>
+        </div>
+        <div class="card">
+          <span class="label">검증</span>
+          <div class="value">JSON, i18n, lexicon, emdash, type-check 통과</div>
+        </div>
+        <div class="card">
+          <span class="label">위험도</span>
+          <div class="value">locale-only 저위험, 추가 검증 요청 없음</div>
+        </div>
+      </section>
+    </header>
+
+    <section>
+      <h2>수행 내용</h2>
+      <p>Codex inbox와 peer outbox를 확인한 결과 새로 처리할 OPEN 요청은 없었습니다. Codex lane의 단일 작업으로 2nd-B persona 라벨의 폐기된 <code>Soul Core</code> 계열 표현을 정본 <code>North Star</code> 계열 표현으로 바꿨습니다.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>값</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>worktree</td><td><code>E:\2ndB\.worktrees\codex-cycle-20260728-170452-persona-northstar</code></td></tr>
+          <tr><td>branch</td><td><code>codex/cycle-20260728-170452-persona-northstar</code></td></tr>
+          <tr><td>base</td><td><code>origin/main 69b0c58f</code></td></tr>
+          <tr><td>local commit</td><td><code>ec6c50b5 fix(i18n): rename persona north star labels</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details open>
+      <summary>변경 파일</summary>
+      <ul>
+        <li><code>locales/en/persona.json</code>: <code>Soul Core</code>를 <code>North Star</code>로 변경</li>
+        <li><code>locales/ko/persona.json</code>: <code>소울 코어 보기</code>, <code>소울 코어</code>를 <code>북극성</code> 기준으로 변경</li>
+        <li><code>locales/es/persona.json</code>: <code>Núcleo del alma</code>를 <code>Estrella del Norte</code>로 변경</li>
+        <li><code>locales/pt/persona.json</code>: <code>Núcleo da alma</code>를 <code>Estrela do Norte</code>로 변경</li>
+        <li><code>locales/id/persona.json</code>: <code>Inti Jiwa</code>를 <code>Bintang Utara</code>로 변경</li>
+      </ul>
+    </details>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>검증</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>JSON parse</td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과, Windows 줄끝 안내만 출력</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>Section 35 self-panel</summary>
+      <ul>
+        <li>제품 정본: persona 화면 라벨을 폐기된 Soul Core에서 North Star/북극성으로 맞췄습니다.</li>
+        <li>사용자 영향: 자기 모델 화면에서 세계관 명칭이 최신 정본과 일치합니다.</li>
+        <li>위험도: locale-only 변경이며 스키마, 보안, 결제, 외부 사실, 수학 결과를 다루지 않습니다.</li>
+        <li>교차 검증: 고위험 산출물이 아니므로 요청하지 않았습니다.</li>
+      </ul>
+    </details>
+
+    <section>
+      <h2>제한 준수</h2>
+      <p>2nd-B push, PR, merge, 배포, 파괴적 작업, 비용 작업, secret 취급, 브라우저 자동 열기는 수행하지 않았습니다.</p>
+    </section>
+  </main>
+</body>
+</html>
