@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 리뷰 보고서: brand-copy</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; padding: 20px; margin: 0; }
+  h1, h2, th { color: #4A90E2; font-weight: normal; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  button { background-color: #333333; color: #E0E0E0; border: 1px solid #4A90E2; padding: 8px 16px; cursor: pointer; margin-top: 20px; }
+</style>
+</head>
+<body>
+  <h1>QA 리뷰 보고서</h1>
+  <p>대상 브랜치: codex/cycle-20260728-163348-brand-copy</p>
+  
+  <h2>점검 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>설명</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 호환성</td>
+        <td>통과</td>
+        <td>단순 텍스트 변경으로 레이아웃 충돌 없음</td>
+      </tr>
+      <tr>
+        <td>접근성</td>
+        <td>통과</td>
+        <td>기존 텍스트 노드 구조 유지 확인됨</td>
+      </tr>
+      <tr>
+        <td>에뮬레이터 제약</td>
+        <td>해당없음</td>
+        <td>헤드리스 환경 제약으로 정적 코드 분석 기반 검증 완료</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>위험도 매우 낮음. 네이티브 빌드 차단 요소 없음. 병합 안전 확인됨.</p>
+  <button>확인 완료</button>
+</body>
+</html>
