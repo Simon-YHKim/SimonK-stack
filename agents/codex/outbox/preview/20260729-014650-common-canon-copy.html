@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>공통 성좌 카피 정렬 보고서</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --text: #eef1f3;
+      --accent: #6fd0c8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    h3 { margin-top: 18px; font-size: 15px; color: var(--accent); }
+    p { margin-top: 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 14px;
+      background: transparent;
+    }
+    .label {
+      display: block;
+      font-size: 12px;
+      color: var(--accent);
+    }
+    .value {
+      display: block;
+      margin-top: 6px;
+      font-size: 15px;
+      word-break: break-word;
+    }
+    table {
+      width: 100%;
+      margin-top: 14px;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: 0.95em;
+    }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 10px 0 0 20px; padding: 0; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>공통 성좌 카피 정렬 보고서</h1>
+    <p>이번 사이클은 codex 대상 새 주문이 없어, 현재 포커스의 UI·카피 반슬롭 레인에서 한 가지 저위험 i18n 결함만 처리했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span><span class="value">완료</span></div>
+      <div class="card"><span class="label">앱 커밋</span><span class="value"><code>bca7bb6b</code></span></div>
+      <div class="card"><span class="label">브랜치</span><span class="value"><code>codex/cycle-20260729-014209-common-canon-copy</code></span></div>
+      <div class="card"><span class="label">작성 시각</span><span class="value">2026-07-29 01:46:50 KST</span></div>
+    </section>
+
+    <h2>수정 내용</h2>
+    <p><code>common.json</code>의 공통 성좌·드릴다운 카피에서 폐기된 코어 계열 표현을 정본 개념인 북극성, 도메인 별, 저장한 별가루 중심 표현으로 맞췄다.</p>
+    <table>
+      <thead>
+        <tr><th>범위</th><th>변경</th><th>파일</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>공통 세계관 라벨</td>
+          <td>소울 코어와 패턴 코어 계열 값을 북극성·도메인 별 계열 값으로 교체</td>
+          <td><code>locales/en/common.json</code>, <code>locales/ko/common.json</code>, <code>locales/es/common.json</code>, <code>locales/pt/common.json</code>, <code>locales/id/common.json</code></td>
+        </tr>
+        <tr>
+          <td>성좌 드릴다운 안내</td>
+          <td>패턴 데이터·눈송이 노드 표현을 저장한 조각과 별 밝기 표현으로 정리</td>
+          <td>동일 5개 locale 파일</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>JSON 파싱</td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>공백 오류 없음, 줄바꿈 경고만 확인</td></tr>
+        <tr><td>잔여 문자열 스캔</td><td>해당 5개 파일에서 폐기된 코어 표현 없음</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자기 패널 판정</summary>
+      <ul>
+        <li>찬성 관점: 공통 locale 키에서 보이는 용어가 정본 세계관과 맞아 사용자 혼선을 줄인다.</li>
+        <li>반대 관점: 레거시 스킨이 해당 키를 함께 쓰면 옛 명칭을 기대할 가능성이 있다.</li>
+        <li>판정: 현재 정본 문서가 폐기 명칭의 신규 사용 금지를 명시하고, 변경은 표시 문자열에 한정되어 채택한다.</li>
+        <li>위험도: 낮음. 스키마, 보안, 결제, 배포, 운영 데이터 변경 없음.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>
