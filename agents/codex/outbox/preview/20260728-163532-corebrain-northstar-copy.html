@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코어브레인 북극성 문구 정렬 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#111318; --text:#f2f4f8; --muted:#aeb6c2; --accent:#8bd3ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { max-width:960px; margin:0 auto; padding:32px 20px 44px; }
+    h1 { font-size:26px; line-height:1.25; margin:0 0 18px; }
+    h2 { font-size:17px; margin:28px 0 10px; color:var(--accent); }
+    p { margin:8px 0; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin:18px 0 24px; }
+    .card { border:1px solid var(--muted); border-radius:8px; padding:14px; min-height:88px; }
+    .label { color:var(--muted); font-size:12px; }
+    .value { font-size:18px; margin-top:4px; word-break:break-word; }
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th, td { border-bottom:1px solid var(--muted); padding:9px 6px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:600; }
+    code { color:var(--accent); }
+    details { border:1px solid var(--muted); border-radius:8px; padding:10px 12px; margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코어브레인 북극성 문구 정렬 보고</h1>
+    <p>이번 사이클은 신규 오더가 없어 Codex 레인의 단일 anti-slop 작업으로 진행했다. 코어브레인 화면 번역에 남아 있던 레거시 표기인 Soul Core 계열 문구를 정본 표기인 North Star 및 북극성 계열로 정렬했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">작업 상태</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">2nd-B 기준</div><div class="value"><code>origin/main 69b0c58f</code></div></div>
+      <div class="card"><div class="label">로컬 커밋</div><div class="value"><code>6ec2f256</code></div></div>
+      <div class="card"><div class="label">위험도</div><div class="value">낮음</div></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th></tr></thead>
+      <tbody>
+        <tr><td><code>locales/en/core-brain.json</code></td><td><code>soulCoreEyebrow</code> 값을 <code>02. North Star</code>로 변경</td></tr>
+        <tr><td><code>locales/ko/core-brain.json</code></td><td><code>soulCoreEyebrow</code>와 <code>myCenter</code>를 북극성 표기로 변경</td></tr>
+        <tr><td><code>locales/es/core-brain.json</code></td><td><code>soulCoreEyebrow</code> 값을 Estrella Polar 표기로 변경</td></tr>
+        <tr><td><code>locales/pt/core-brain.json</code></td><td><code>soulCoreEyebrow</code> 값을 Estrela Polar 표기로 변경</td></tr>
+        <tr><td><code>locales/id/core-brain.json</code></td><td><code>soulCoreEyebrow</code> 값을 Bintang Utara 표기로 변경</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>JSON 파싱</td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>기능 오류 없음. Windows 줄끝 변환 안내만 표시</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>운영 제약 확인</summary>
+      <p>허브에서는 <code>agents/codex/</code> 경로만 작성했다. 2nd-B 작업은 별도 worktree 브랜치 <code>codex/cycle-20260728-163348-brand-copy</code>에서만 수행했고 push, PR, merge, 배포, 브라우저 자동 열기, 비용 발생 작업은 하지 않았다.</p>
+      <p>섹션 35 self-panel 결과: 제품 정본성, UI 용어 일관성, i18n 키 정합, 병합 위험을 점검했다. 번역 문자열 교체만 포함하므로 고위험 MoA 검증 요청은 필요하지 않다.</p>
+    </details>
+  </main>
+</body>
+</html>
