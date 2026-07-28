@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>인도네시아어 딥스페이스 라벨 정리</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101216;
+      --text: #e6e8ec;
+      --accent: #8ab4ff;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 32px 20px 44px;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      color: var(--text);
+    }
+    h1 {
+      font-size: 26px;
+    }
+    h2 {
+      font-size: 18px;
+      margin-top: 28px;
+    }
+    p {
+      margin: 8px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 18px 0 22px;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 14px;
+    }
+    .label {
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--accent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--accent);
+    }
+    details {
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>인도네시아어 딥스페이스 라벨 정리</h1>
+    <p>이번 사이클은 열린 Codex 요청이 없어, 보드의 Codex 레인에 맞춰 2nd-B의 낮은 위험 UI 번역 잔여를 한 건 처리했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <p>완료</p>
+      </div>
+      <div class="card">
+        <div class="label">앱 커밋</div>
+        <p><code>1460dde5</code></p>
+      </div>
+      <div class="card">
+        <div class="label">브랜치</div>
+        <p><code>codex/cycle-20260729-005538-settings-i18n</code></p>
+      </div>
+      <div class="card">
+        <div class="label">검증</div>
+        <p>관련 검사 통과</p>
+      </div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>파일</th>
+          <th>키</th>
+          <th>변경</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>locales/id/deepspace.json</code></td>
+          <td><code>rest.category.game</code></td>
+          <td><code>Game</code>을 <code>Permainan</code>으로 변경</td>
+        </tr>
+        <tr>
+          <td><code>locales/id/deepspace.json</code></td>
+          <td><code>ds.wikiRecords.edit</code></td>
+          <td><code>Edit</code>을 <code>Sunting</code>으로 변경</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <p><code>JSON.parse</code>, <code>npm run check:i18n</code>, <code>npm run check:lexicon</code>, <code>npm run check:emdash</code>, <code>npm run type-check</code>, <code>git diff --check</code>를 실행했다. 모두 통과했다. Windows 줄끝 경고만 있었고 diff 오류는 없었다.</p>
+
+    <details>
+      <summary>자체 패널 판단</summary>
+      <p>작업은 단일 locale JSON의 사용자 표시 라벨 2개 수정으로 제한했다. 설계, 스키마, 보안, 결제, 동의, 배포, 외부 사실 주장 변경이 아니므로 MoA 추가 검증 요청 대상은 아니라고 판단했다.</p>
+    </details>
+
+    <h2>운영 제약 준수</h2>
+    <p>2nd-B 작업은 별도 worktree에서 수행했고 push, PR, merge, 배포, 브라우저 자동 열기를 하지 않았다. 허브 쓰기는 <code>agents/codex/</code> 아래 산출물로 제한했다.</p>
+  </main>
+</body>
+</html>
