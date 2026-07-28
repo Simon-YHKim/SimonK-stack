@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코어브레인 주석 정본 정렬 보고</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --text: #e5edf8;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 44px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--accent); }
+    p { margin-top: 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      background: transparent;
+    }
+    .label { color: var(--accent); font-size: 12px; }
+    .value { margin-top: 6px; font-weight: 700; overflow-wrap: anywhere; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th, summary, code { color: var(--accent); }
+    summary { cursor: pointer; font-weight: 700; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코어브레인 주석 정본 정렬 보고</h1>
+    <p>신규 열린 주문이 없어 Codex 레인의 낮은 위험 작업 한 건만 수행했다. 기능 코드는 바꾸지 않고, 코어브레인 화면 구현 주석에 남은 폐기 명칭 설명을 현재 정본인 북극성 기준으로 정리했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">완료</div>
+      </div>
+      <div class="card">
+        <div class="label">앱 커밋</div>
+        <div class="value"><code>647b4fd2</code></div>
+      </div>
+      <div class="card">
+        <div class="label">기준</div>
+        <div class="value"><code>origin/main 69b0c58f</code></div>
+      </div>
+      <div class="card">
+        <div class="label">위험도</div>
+        <div class="value">낮음</div>
+      </div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>파일</th>
+          <th>변경</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/app/core-brain.tsx</code></td>
+          <td>상단 설명을 폐기된 소울 코어 명칭에서 북극성 사용자 명칭으로 정렬했다.</td>
+        </tr>
+        <tr>
+          <td><code>src/app/core-brain.tsx</code></td>
+          <td>밝기 밴드와 집계 화면 주석을 북극성 readout 기준으로 바꿨다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>npm run type-check</code>: 통과</li>
+      <li><code>npm run check:lexicon</code>: 통과</li>
+      <li><code>npm run check:emdash</code>: 통과</li>
+      <li><code>git diff --check</code>: 기능 오류 없음, Windows 줄끝 경고만 확인</li>
+    </ul>
+
+    <details>
+      <summary>Section 35 self-panel</summary>
+      <ul>
+        <li>정본성: 현재 문서 정본은 사용자 표시명을 북극성으로 둔다.</li>
+        <li>범위: 구현 주석만 정리했고 런타임 동작, 문자열, 스키마는 바꾸지 않았다.</li>
+        <li>위험: 낮음. 문서성 코드 주석 변경이며 보안, 비용, 외부 사실, 네이티브 런타임에 닿지 않는다.</li>
+        <li>MoA: 고위험 산출물이 아니므로 별도 verify 요청을 만들지 않았다.</li>
+      </ul>
+    </details>
+
+    <h2>경로</h2>
+    <p>작업 worktree: <code>E:\2ndB\.worktrees\codex-cycle-20260728-213639-corebrain-comment</code></p>
+    <p>브랜치: <code>codex/cycle-20260728-213639-corebrain-comment</code></p>
+    <p>허브 보고 시각: <code>2026-07-28 21:37:48 KST</code></p>
+  </main>
+</body>
+</html>
