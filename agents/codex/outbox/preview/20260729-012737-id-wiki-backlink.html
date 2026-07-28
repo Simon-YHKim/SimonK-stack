@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>인도네시아어 위키 관계 라벨 정리</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --panel: #1b2029;
+      --text: #eef1f6;
+      --muted: #aeb7c4;
+      --accent: #7aa7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    header, section, details {
+      background: var(--panel);
+      border: 1px solid rgba(238, 241, 246, 0.14);
+      border-radius: 8px;
+      padding: 22px;
+      margin: 16px 0;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 10px; }
+    h2, summary { font-size: 18px; font-weight: 700; }
+    summary { cursor: pointer; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .card {
+      border: 1px solid rgba(238, 241, 246, 0.12);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 94px;
+    }
+    .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      word-break: break-word;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border-bottom: 1px solid rgba(238, 241, 246, 0.12);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 700; }
+    .muted { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>인도네시아어 위키 관계 라벨 정리</h1>
+      <p>Codex 단일 자율 폴 사이클에서 열린 직접 요청이 없어, 2nd-B 사용자 가시 위키 화면의 잔여 영어 라벨 한 건을 정리했다.</p>
+      <div class="grid" aria-label="요약">
+        <div class="card">
+          <div class="label">결과</div>
+          <strong>완료</strong>
+        </div>
+        <div class="card">
+          <div class="label">앱 커밋</div>
+          <code>99a68ff3</code>
+        </div>
+        <div class="card">
+          <div class="label">검증</div>
+          <strong>통과</strong>
+        </div>
+        <div class="card">
+          <div class="label">위험도</div>
+          <strong>낮음</strong>
+        </div>
+      </div>
+    </header>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>파일</th>
+            <th>키</th>
+            <th>이전</th>
+            <th>변경</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>locales/id/wiki.json</code></td>
+            <td><code>backlinks</code></td>
+            <td><code>Backlink</code></td>
+            <td><code>Tautan balik</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="muted">같은 파일의 기존 <code>Tautan</code> 용례와 맞춰 위키 역방향 관계 라벨을 인도네시아어 표면으로 정리했다.</p>
+    </section>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>검증</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>JSON 파싱</td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과, Windows 줄끝 안내만 확인</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <p><strong>찬성:</strong> 비영어 사용자 표면의 영어 잔여를 줄이고, 위키 관계 라벨을 같은 화면의 인도네시아어 용어와 맞춘다.</p>
+      <p><strong>반대:</strong> 한 줄짜리 개선이라 전체 현지화 잔여를 모두 해결하지는 않는다.</p>
+      <p><strong>판정:</strong> 스키마, 보안, 비용, 외부 사실, 배포를 건드리지 않는 낮은 위험의 UI 문자열 변경이다. 고위험 산출물이 아니므로 별도 MoA 검증 요청은 만들지 않았다.</p>
+    </details>
+
+    <section>
+      <h2>작업 위치</h2>
+      <p>워크트리: <code>E:\2ndB\.worktrees\codex-cycle-20260729-012550-i18n-antislop</code></p>
+      <p>브랜치: <code>codex/cycle-20260729-012550-i18n-antislop</code></p>
+      <p>푸시, PR, 머지, 배포, 브라우저 자동 열기는 수행하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>
