@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>세컨비 역할명 북극성 정렬 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0d12;
+      --text: #e7ecf3;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    .stamp { margin-top: 8px; color: var(--accent); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .label { color: var(--accent); font-size: 13px; }
+    .value { margin-top: 4px; font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--accent);
+      word-break: break-word;
+    }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>세컨비 역할명 북극성 정렬 보고서</h1>
+    <p class="stamp">작성 시각: 2026-07-29 06:04:51 KST</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <p class="label">결과</p>
+        <p class="value">완료</p>
+      </div>
+      <div class="card">
+        <p class="label">앱 커밋</p>
+        <p class="value"><code>42b27482</code></p>
+      </div>
+      <div class="card">
+        <p class="label">위험도</p>
+        <p class="value">낮음</p>
+      </div>
+      <div class="card">
+        <p class="label">검증 상태</p>
+        <p class="value">통과</p>
+      </div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <p>열린 Codex 대상 주문은 없어, BOARD의 Codex 레인에 맞춰 2nd-B 사용자 가시 역할 문구 하나를 정리했다. 세컨비 역할 라벨의 폐기 명칭을 현재 정본인 북극성 기준으로 바꾸고 관련 회귀 테스트 기대값을 갱신했다.</p>
+
+    <table aria-label="변경 파일">
+      <thead>
+        <tr>
+          <th>파일</th>
+          <th>변경</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/lib/characters.ts</code></td>
+          <td>세컨비 역할 라벨을 북극성 길잡이로 변경</td>
+        </tr>
+        <tr>
+          <td><code>src/lib/chat/personas.ts</code></td>
+          <td>채팅 페르소나 역할 라벨과 주석을 북극성 기준으로 변경</td>
+        </tr>
+        <tr>
+          <td><code>src/lib/__tests__/characters.test.ts</code></td>
+          <td>역할명 기대값 갱신</td>
+        </tr>
+        <tr>
+          <td><code>src/lib/__tests__/worldview-naming.test.ts</code></td>
+          <td>세계관 명명 회귀 테스트 기대값 갱신</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증</summary>
+      <ul>
+        <li><code>npm test -- --runTestsByPath src/lib/__tests__/characters.test.ts src/lib/__tests__/worldview-naming.test.ts --runInBand</code>: 통과, 2개 스위트 24개 테스트</li>
+        <li><code>npm run check:lexicon</code>: 통과</li>
+        <li><code>npm run check:emdash</code>: 통과</li>
+        <li><code>npm run type-check</code>: 통과</li>
+        <li><code>git diff --check</code>: 통과, Windows 줄끝 경고만 확인</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자기 패널</summary>
+      <ul>
+        <li>찬성: 세컨비의 사용자 가시 역할이 북극성 정본과 일치한다.</li>
+        <li>반대: 시스템 힌트와 다른 레거시 잔여 문구는 별도 제출과 겹칠 수 있어 이번 사이클에서 제외했다.</li>
+        <li>판정: 표시 역할명만 바꾸는 저위험 UI 카피 수정으로 제한했다.</li>
+        <li>교차 검증: 고위험 산출물이 아니므로 별도 검증 요청을 만들지 않았다.</li>
+      </ul>
+    </details>
+
+    <h2>금지 작업 확인</h2>
+    <p>2nd-B push, PR, merge, 배포, 파괴적 작업, 비용 작업, 시크릿 처리, 브라우저 자동 열기는 수행하지 않았다.</p>
+  </main>
+</body>
+</html>
