@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>세컨비 다국어 시스템 힌트 정합 보고</title>
+  <style>
+    :root { --bg: #101216; --text: #eef1f6; --accent: #7cc7ff; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main { width: min(920px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 44px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0 24px; }
+    .card, details { border: 1px solid var(--accent); border-radius: 8px; padding: 14px; }
+    .label { color: var(--accent); font-size: 12px; }
+    .value { font-size: 15px; font-weight: 700; margin-top: 4px; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border: 1px solid var(--accent); padding: 9px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); word-break: break-word; }
+    details { margin-top: 14px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+    @media (max-width: 720px) { .summary { grid-template-columns: 1fr; } main { width: min(100% - 20px, 920px); } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>세컨비 다국어 시스템 힌트 정합 보고</h1>
+    <p>PROTOCOL 12/19/35.4 단일 poll cycle에서 새 Codex 요청은 없었고, 중복되지 않는 2nd-B UI/i18n anti-slop 작업 하나를 수행했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">앱 커밋</div><div class="value"><code>5141f203</code></div></div>
+      <div class="card"><div class="label">브랜치</div><div class="value"><code>codex/cycle-20260729-061911-secondb-systemhint-locales</code></div></div>
+      <div class="card"><div class="label">기준</div><div class="value"><code>origin/main 9c674f4d</code></div></div>
+    </section>
+
+    <details open>
+      <summary>변경 내용</summary>
+      <table>
+        <thead><tr><th>파일</th><th>변경</th></tr></thead>
+        <tbody>
+          <tr><td><code>locales/es/secondb.json</code></td><td>SecondB systemHint의 레거시 중심명을 스페인어 북극성 표현으로 교체했다.</td></tr>
+          <tr><td><code>locales/pt/secondb.json</code></td><td>SecondB systemHint의 레거시 중심명을 포르투갈어 북극성 표현으로 교체했다.</td></tr>
+          <tr><td><code>locales/id/secondb.json</code></td><td>SecondB systemHint의 레거시 중심명을 인도네시아어 북극성 표현으로 교체했다.</td></tr>
+          <tr><td><code>src/lib/__tests__/worldview-naming.test.ts</code></td><td>ES/PT/ID systemHint가 레거시 중심명을 다시 쓰지 않도록 회귀 테스트를 추가했다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details open>
+      <summary>검증</summary>
+      <ul>
+        <li>JSON 파싱: 통과</li>
+        <li><code>npm test -- --runTestsByPath src/lib/__tests__/worldview-naming.test.ts --runInBand</code>: 통과, 12개 테스트</li>
+        <li><code>npm run check:i18n</code>: 통과</li>
+        <li><code>npm run check:lexicon</code>: 통과</li>
+        <li><code>npm run check:emdash</code>: 통과</li>
+        <li><code>npm run type-check</code>: 통과</li>
+        <li><code>git diff --check</code>: 통과, Windows 줄끝 안내만 출력</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <p>제품 정합성: SecondB의 중심 역할은 현재 정본인 북극성 표현을 따라야 하므로, ES/PT/ID systemHint의 레거시 중심명은 불일치였다.</p>
+      <p>범위 통제: 이전 사이클에서 이미 다룬 EN/KO systemHint, 역할 라벨, 위키 라벨, 독백 번역은 이번 작업에서 제외했다.</p>
+      <p>위험 판단: locale 문자열과 정적 테스트만 변경했으며 스키마, 보안, 결제, 외부 사실, 수학 결과를 다루지 않았다. 별도 MoA verify 요청은 필요하지 않다.</p>
+    </details>
+
+    <details>
+      <summary>금지 작업 준수</summary>
+      <p>2nd-B push, PR, merge, 배포, 파괴적 작업, 비용 작업, secret 처리, 브라우저 자동 열기를 수행하지 않았다.</p>
+    </details>
+  </main>
+</body>
+</html>
