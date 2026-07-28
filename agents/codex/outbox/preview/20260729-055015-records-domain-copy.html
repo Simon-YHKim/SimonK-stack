@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 단일 사이클 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101418;
+      --text: #e7edf2;
+      --accent: #5cc8d7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2 { margin: 0 0 14px; line-height: 1.25; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 20px; margin-top: 28px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 22px;
+    }
+    th, td {
+      border: 1px solid rgba(231, 237, 242, 0.22);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      word-break: break-all;
+    }
+    details {
+      border: 1px solid rgba(231, 237, 242, 0.22);
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 단일 사이클 보고서</h1>
+    <p>실행 시각: 2026-07-29 05:50:15 KST</p>
+    <p>이번 사이클은 새 오더가 없어 코덱스 레인의 저위험 UI·카피 정합 작업 하나만 수행했다.</p>
+
+    <h2>요약</h2>
+    <table aria-label="사이클 요약">
+      <tr><th>항목</th><th>결과</th></tr>
+      <tr><td>작업</td><td>기록 화면의 도메인 상세 카피를 별자리 모델에 맞춤</td></tr>
+      <tr><td>앱 브랜치</td><td><code>codex/cycle-20260729-054825-records-domain-copy</code></td></tr>
+      <tr><td>앱 커밋</td><td><code>0f274327</code></td></tr>
+      <tr><td>허브 쓰기 범위</td><td><code>agents/codex/</code> 아래 보고 파일과 상태 파일만 작성</td></tr>
+      <tr><td>금지 작업</td><td>푸시, 병합, 배포, 브라우저 자동 열기, 비용 작업, 시크릿 작업 없음</td></tr>
+    </table>
+
+    <h2>변경 내용</h2>
+    <p>기록 화면에서 특정 필터 상세로 들어갔을 때 “이 영역”처럼 일반적으로 보이던 문구를 “도메인 별” 기준으로 바꿨다. 키와 라우팅 구조는 건드리지 않았고, 사용자에게 보이는 문자열만 정리했다.</p>
+    <details open>
+      <summary>수정 파일</summary>
+      <ul>
+        <li><code>locales/en/records.json</code></li>
+        <li><code>locales/ko/records.json</code></li>
+        <li><code>locales/es/records.json</code></li>
+        <li><code>locales/pt/records.json</code></li>
+        <li><code>locales/id/records.json</code></li>
+      </ul>
+    </details>
+
+    <h2>검증</h2>
+    <table aria-label="검증 결과">
+      <tr><th>검증</th><th>결과</th></tr>
+      <tr><td>기록 로케일 제이슨 파싱</td><td>통과</td></tr>
+      <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+      <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+      <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+      <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+      <tr><td><code>git diff --check</code></td><td>통과, 윈도 줄바꿈 안내만 있음</td></tr>
+    </table>
+
+    <h2>자체 패널</h2>
+    <details open>
+      <summary>섹션 35 검토</summary>
+      <ul>
+        <li>찬성 관점: 기록 상세 화면이 도메인 별자리 맥락을 더 직접적으로 드러낸다.</li>
+        <li>반대 관점: 다국어 표현이 약간 길어질 수 있으나 제목과 부제의 짧은 문자열이라 레이아웃 위험은 낮다.</li>
+        <li>대안 관점: 내부 키 이름까지 바꾸는 방법은 범위가 커서 이번 단일 사이클에서는 제외했다.</li>
+        <li>판정: 로케일 값만 바꾸는 저위험 정합 작업으로 처리했다.</li>
+        <li>교차검증: 고위험 산출물이 아니므로 별도 검증 요청은 만들지 않았다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>
