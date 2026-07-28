@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>포르투갈어 캡처 링크 라벨 정리</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --text: #e7ecef;
+      --accent: #67d4c6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    header, section, details {
+      border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 16px 0;
+      background: color-mix(in srgb, var(--text) 4%, transparent);
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2, summary { color: var(--accent); font-size: 18px; font-weight: 700; }
+    summary { cursor: pointer; }
+    ul { padding-left: 20px; margin-bottom: 0; }
+    code {
+      color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 10%, transparent);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .label {
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>포르투갈어 캡처 링크 라벨 정리</h1>
+      <p>Codex 단일 poll cycle 결과입니다. 열린 Codex 대상 주문이 없어 2nd-B UI/i18n anti-slop 레인에서 신규 작업 한 건만 수행했습니다.</p>
+      <div class="grid" aria-label="핵심 결과">
+        <div class="card"><div class="label">결과</div><div>완료</div></div>
+        <div class="card"><div class="label">위험도</div><div>낮음</div></div>
+        <div class="card"><div class="label">검증</div><div>통과</div></div>
+        <div class="card"><div class="label">푸시</div><div>수행하지 않음</div></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>작업 범위</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>작업트리</td><td><code>E:\2ndB\.worktrees\codex-cycle-20260728-215058-antislop</code></td></tr>
+          <tr><td>브랜치</td><td><code>codex/cycle-20260728-215058-antislop</code></td></tr>
+          <tr><td>기준</td><td><code>origin/main 69b0c58f</code></td></tr>
+          <tr><td>앱 커밋</td><td><code>0274ba3d</code> <code>fix(i18n): localize Portuguese capture link labels</code></td></tr>
+          <tr><td>변경 파일</td><td><code>locales/pt/capture.json</code>, <code>src/lib/__tests__/pt-capture-i18n.test.ts</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details open>
+      <summary>변경 내용</summary>
+      <p>포르투갈어 캡처 화면의 링크 모드와 링크 입력 표면에 남아 있던 영어 라벨을 <code>Ligação</code> 계열 표현으로 정리했습니다. 내부 키와 저장 동작은 바꾸지 않았습니다.</p>
+      <ul>
+        <li>캡처 히어로 부제의 링크 항목을 포르투갈어로 정리했습니다.</li>
+        <li>추가 모드 접근성 힌트의 링크 표현을 정리했습니다.</li>
+        <li>링크 모드 라벨, 입력 라벨, 감지 안내 문구를 같은 용어로 맞췄습니다.</li>
+        <li>focused Jest 테스트로 회귀를 막았습니다.</li>
+      </ul>
+    </details>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <ul>
+        <li>JSON parse: 통과</li>
+        <li><code>npm test -- --runTestsByPath src/lib/__tests__/pt-capture-i18n.test.ts --runInBand</code>: 통과</li>
+        <li><code>npm run check:i18n</code>: 통과</li>
+        <li><code>npm run check:lexicon</code>: 통과</li>
+        <li><code>npm run check:emdash</code>: 통과</li>
+        <li><code>npm run type-check</code>: 통과</li>
+        <li><code>git diff --check</code>: 기능 오류 없음, Windows 줄끝 경고만 확인</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <ul>
+        <li>정본성: 비영어 UI의 영어 잔여 라벨을 줄이는 레인 작업입니다.</li>
+        <li>범위: 포르투갈어 locale과 정적 테스트만 변경했습니다.</li>
+        <li>위험: 스키마, 보안, 비용, 외부 사실, 네이티브 런타임, 배포를 건드리지 않았습니다.</li>
+        <li>교차검증: 고위험 산출물이 아니므로 요청하지 않았습니다.</li>
+      </ul>
+    </details>
+
+    <section>
+      <h2>제한 준수</h2>
+      <p>2nd-B push, PR, merge, 배포, 파괴적 작업, 비용 작업, 시크릿 처리, 브라우저 자동 열기는 수행하지 않았습니다. 허브에서는 <code>agents/codex/</code> 아래 산출물만 작성했습니다.</p>
+    </section>
+  </main>
+</body>
+</html>
