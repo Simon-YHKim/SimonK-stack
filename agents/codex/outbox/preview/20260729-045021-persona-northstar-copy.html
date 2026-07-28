@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 자율 사이클 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --text: #e6e8eb;
+      --accent: #7cc7b2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; letter-spacing: 0; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin-top: 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .card, details {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      border-radius: 8px;
+      padding: 16px;
+      background: color-mix(in srgb, var(--bg) 88%, var(--text) 12%);
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    details { margin-top: 14px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .ok { color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 자율 사이클 보고서</h1>
+    <p>이번 사이클은 열린 Codex 대상 요청이 없어, BOARD 현재 포커스의 UI/i18n anti-slop 레인에서 새 작업 한 건만 수행했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span><span class="ok">완료</span></div>
+      <div class="card"><span class="label">앱 브랜치</span><code>codex/cycle-20260729-044855-home-northstar-copy</code></div>
+      <div class="card"><span class="label">앱 커밋</span><code>bba68b64</code></div>
+      <div class="card"><span class="label">위험도</span>낮음, UI 문구만 변경</div>
+    </section>
+
+    <h2>수행 내용</h2>
+    <p><code>origin/main</code>의 별도 worktree에서 persona 화면의 중심 별 라벨 잔여 문구를 정본 명칭인 North Star/북극성 계열로 정렬했다. push, PR, merge, 배포, 브라우저 자동 열기는 수행하지 않았다.</p>
+
+    <table aria-label="변경 파일">
+      <thead>
+        <tr><th>파일</th><th>변경</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>locales/en/persona.json</code></td><td>Open my center, Soul Core 문구를 North Star 문구로 교체</td></tr>
+        <tr><td><code>locales/ko/persona.json</code></td><td>소울 코어 보기, 소울 코어 문구를 북극성 문구로 교체</td></tr>
+        <tr><td><code>locales/es/persona.json</code></td><td>중심 및 Núcleo del alma 문구를 Estrella del Norte 문구로 교체</td></tr>
+        <tr><td><code>locales/pt/persona.json</code></td><td>중심 및 Núcleo da alma 문구를 Estrela do Norte 문구로 교체</td></tr>
+        <tr><td><code>locales/id/persona.json</code></td><td>중심 및 Inti Jiwa 문구를 Bintang Utara 문구로 교체</td></tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <table aria-label="검증">
+        <thead>
+          <tr><th>검증</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>JSON 파싱</td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과, Windows 줄끝 경고만 표시</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>35항 자체 패널</summary>
+      <p>범위는 locale 문자열 10개로 제한했다. 라우팅, 데이터 모델, 결제, 보안, 미성년자 흐름, 외부 사실 주장, 스키마 변경은 없었다. 고위험 산출물이 아니므로 MoA 교차검증 요청은 만들지 않았다.</p>
+    </details>
+
+    <p>작성 시각: 2026-07-29 04:50:21 KST</p>
+  </main>
+</body>
+</html>
