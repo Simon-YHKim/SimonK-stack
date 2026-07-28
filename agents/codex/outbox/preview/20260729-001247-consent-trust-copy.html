@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>동의 신뢰 문구 현지화 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101216;
+      --text: #e8edf2;
+      --accent: #58d5ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    h3 { margin-top: 16px; font-size: 15px; color: var(--accent); }
+    p { margin-top: 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .card, details {
+      border: 1px solid color-mix(in srgb, var(--accent) 34%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      background: color-mix(in srgb, var(--text) 6%, transparent);
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: "Roboto Mono", Consolas, monospace;
+      word-break: break-all;
+    }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>동의 신뢰 문구 현지화 보고</h1>
+    <p>Codex 단일 자율 사이클에서 2nd-B 동의 및 개인정보 화면의 상단 신뢰 배너 일부를 스페인어, 포르투갈어, 인도네시아어로 현지화했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span>앱 로컬 커밋 생성 완료</div>
+      <div class="card"><span class="label">앱 커밋</span><code>13d68930</code></div>
+      <div class="card"><span class="label">브랜치</span><code>codex/cycle-20260729-001059-consent-trust-copy</code></div>
+      <div class="card"><span class="label">위험도</span>낮음, 교차검증 요청 없음</div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>범위</th><th>의도</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>locales/es/consent.json</code></td><td><code>notice.trust*</code>, <code>privacy.trust*</code></td><td>동의 화면의 영어 신뢰 문구를 스페인어로 대체</td></tr>
+        <tr><td><code>locales/pt/consent.json</code></td><td><code>notice.trust*</code>, <code>privacy.trust*</code></td><td>동의 화면의 영어 신뢰 문구를 포르투갈어로 대체</td></tr>
+        <tr><td><code>locales/id/consent.json</code></td><td><code>notice.trust*</code>, <code>privacy.trust*</code></td><td>동의 화면의 영어 신뢰 문구를 인도네시아어로 대체</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr><th>검사</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>JSON 파싱</td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과, 줄끝 변환 경고만 표시</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <h3>찬성</h3>
+      <p>가입과 개인정보 화면의 신뢰 배너는 사용자가 데이터 처리 태도를 판단하는 상단 문구라, 영어 잔존을 줄이는 실익이 있다.</p>
+      <h3>반대</h3>
+      <p>같은 파일에는 아직 영어 문구가 더 남아 있어 완전한 현지화는 아니다. 다만 이번 사이클은 한 작업 제한이 있으므로 범위를 넓히지 않았다.</p>
+      <h3>대안</h3>
+      <p>전체 동의 파일을 한 번에 번역하는 방법이 있으나 법적 뉘앙스와 검수 범위가 커져 별도 작업으로 분리하는 편이 맞다.</p>
+      <h3>판정</h3>
+      <p>낮은 위험의 문자열 현지화로 판단해 진행했다. 보안, 스키마, 외부 사실, 머지 diff 고위험 산출물이 아니므로 MOA 교차검증 요청은 만들지 않았다.</p>
+    </details>
+
+    <h2>운영 메모</h2>
+    <p>허브 브랜치는 <code>master</code>를 유지했고, 2nd-B 온라인 push, PR, main 머지, 배포, 비용 발생, 삭제 작업은 하지 않았다.</p>
+  </main>
+</body>
+</html>
