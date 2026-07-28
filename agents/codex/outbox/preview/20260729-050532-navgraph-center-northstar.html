@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 자율 사이클 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0f14; --text:#e8edf2; --accent:#70d6ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.6; }
+    main { width: min(920px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    header { border: 1px solid var(--accent); padding: 24px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin-bottom: 12px; color: var(--accent); }
+    h3 { font-size: 15px; margin-bottom: 6px; }
+    p, li, td, th, summary { font-size: 14px; }
+    .muted { opacity: .72; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 18px 0; }
+    .card { border: 1px solid rgba(112,214,255,.55); padding: 14px; min-height: 96px; }
+    .value { display: block; color: var(--accent); font-weight: 700; font-size: 20px; margin-bottom: 4px; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; }
+    th, td { border: 1px solid rgba(112,214,255,.45); padding: 9px 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { border: 1px solid rgba(112,214,255,.45); padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 440px) { .grid { grid-template-columns: 1fr; } main { width: calc(100% - 20px); padding-top: 24px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 자율 사이클 보고서</h1>
+      <p class="muted">생성 시각: 2026-07-29 05:05:32 KST</p>
+      <p>이번 사이클은 미응답 코덱스 오더가 없어 2nd-B UI 반슬롭 레인의 단일 신규 작업으로 홈 그래프 중심 노드 표시명을 정본 용어에 맞췄다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <article class="card">
+        <span class="value">1건</span>
+        <span>수행 작업 수</span>
+      </article>
+      <article class="card">
+        <span class="value">2개</span>
+        <span>수정 파일 수</span>
+      </article>
+      <article class="card">
+        <span class="value">통과</span>
+        <span>타깃 테스트와 정적 검증</span>
+      </article>
+      <article class="card">
+        <span class="value">미실행</span>
+        <span>푸시, 배포, 브라우저 자동 열기</span>
+      </article>
+    </section>
+
+    <section>
+      <h2>변경 결과</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>작업트리</td><td><code>E:\2ndB\.worktrees\codex-cycle-20260729-050357-navgraph-center-northstar</code></td></tr>
+          <tr><td>브랜치</td><td><code>codex/cycle-20260729-050357-navgraph-center-northstar</code></td></tr>
+          <tr><td>기준</td><td><code>origin/main 9c674f4d</code></td></tr>
+          <tr><td>앱 커밋</td><td><code>b5999c3d fix(ui): rename nav graph center label</code></td></tr>
+          <tr><td>핵심 변경</td><td><code>NavGraph</code> 중심 노드 라벨을 <code>Soul Core/소울 코어</code>에서 <code>North Star/북극성</code>으로 변경했다.</td></tr>
+          <tr><td>회귀 방지</td><td><code>visible-core-copy.test.ts</code>에 중심 노드 라벨 전용 단언을 추가했다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details open>
+      <summary>검증 내역</summary>
+      <ul>
+        <li><code>npm test -- --runTestsByPath src/lib/__tests__/visible-core-copy.test.ts --runInBand</code> 통과: 1개 스위트, 2개 테스트.</li>
+        <li><code>npm run type-check</code> 통과.</li>
+        <li><code>npm run check:i18n</code> 통과.</li>
+        <li><code>npm run check:lexicon</code> 통과.</li>
+        <li><code>npm run check:emdash</code> 통과.</li>
+        <li><code>git diff --check</code>는 공백 오류 없이 통과했고, 윈도 줄끝 안내만 출력했다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>35조 자기 패널</summary>
+      <ul>
+        <li>찬성 관점: 홈 그래프 중심의 접근성 라벨과 선택 시트가 정본 북극성 용어를 따르게 되어 세계관 혼선을 줄인다.</li>
+        <li>반대 관점: 내부 식별자와 레거시 주석에는 여전히 과거 명칭이 일부 남아 있어 전면 개명이 아니다.</li>
+        <li>판정: 사용자 표시 라벨과 좁은 정적 테스트만 바꾸는 저위험 UI 정렬이다. 스키마, 보안, 수학 결과, 실시간 외부 사실, 머지 diff가 아니므로 별도 검증 요청은 만들지 않았다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>제약 준수</summary>
+      <ul>
+        <li>허브에서는 <code>agents/codex/</code> 아래에만 썼다.</li>
+        <li>2nd-B 작업은 별도 작업트리와 브랜치에서만 수행했다.</li>
+        <li>2nd-B 푸시, PR, 머지, 배포를 하지 않았다.</li>
+        <li>파괴적 작업, 비용 발생 작업, 시크릿 접근, 브라우저 자동 열기를 하지 않았다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>
