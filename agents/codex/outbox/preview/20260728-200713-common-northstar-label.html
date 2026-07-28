@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>공통 세계관 라벨 북극성 정렬 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --text: #e8edf2;
+      --accent: #7fb3ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      font-size: 28px;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+    h2 {
+      font-size: 18px;
+      margin: 28px 0 12px;
+      color: var(--accent);
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 22px 0;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 92px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .value {
+      font-size: 15px;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { padding-left: 20px; }
+    @media (max-width: 760px) {
+      .summary { grid-template-columns: 1fr; }
+      main { padding: 24px 14px 40px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>공통 세계관 라벨 북극성 정렬 보고</h1>
+    <p>Codex 단일 poll cycle에서 열린 신규 요청이 없어, 2nd-B의 사용자 표시 라벨에 남아 있던 오래된 중심 개념명을 정본 용어로 맞췄다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <span class="label">결과</span>
+        <div class="value">로컬 커밋 생성 완료</div>
+      </div>
+      <div class="card">
+        <span class="label">범위</span>
+        <div class="value">공통 i18n 라벨과 정적 회귀 테스트</div>
+      </div>
+      <div class="card">
+        <span class="label">검증</span>
+        <div class="value">focused Jest, i18n, lexicon, type, em dash, diff 검사 통과</div>
+      </div>
+      <div class="card">
+        <span class="label">배포</span>
+        <div class="value">푸시, PR, 머지, 배포 없음</div>
+      </div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>워크트리</td>
+          <td><code>E:\2ndB\.worktrees\codex-cycle-20260728-200510-antislop</code></td>
+        </tr>
+        <tr>
+          <td>브랜치</td>
+          <td><code>codex/cycle-20260728-200510-antislop</code></td>
+        </tr>
+        <tr>
+          <td>2nd-B 커밋</td>
+          <td><code>96081b85</code> <code>fix(i18n): rename common north star label</code></td>
+        </tr>
+        <tr>
+          <td>파일</td>
+          <td><code>locales/*/common.json</code>, <code>src/lib/__tests__/worldview-naming.test.ts</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>라벨 정렬</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>언어</th>
+            <th>변경 후 표시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>영어</td><td>North Star</td></tr>
+          <tr><td>한국어</td><td>북극성</td></tr>
+          <tr><td>스페인어</td><td>Estrella del Norte</td></tr>
+          <tr><td>포르투갈어</td><td>Estrela do Norte</td></tr>
+          <tr><td>인도네시아어</td><td>Bintang Utara</td></tr>
+        </tbody>
+      </table>
+      <p>데이터 키 <code>soulCore</code>는 호환성을 위해 유지했고, 사용자에게 보이는 값만 북극성 정본으로 바꿨다.</p>
+    </details>
+
+    <details>
+      <summary>검증 결과</summary>
+      <ul>
+        <li><code>npm test -- --runTestsByPath src/lib/__tests__/worldview-naming.test.ts --runInBand</code>: 통과</li>
+        <li><code>npm run check:i18n</code>: 통과</li>
+        <li><code>npm run check:lexicon</code>: 통과</li>
+        <li><code>npm run type-check</code>: 통과</li>
+        <li><code>npm run check:emdash</code>: 통과</li>
+        <li><code>git diff --check</code>: 기능 오류 없음, Windows 줄끝 경고만 확인</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <ul>
+        <li>정본성: 공통 그래프 라벨의 오래된 중심 명칭을 북극성 용어로 정렬했다.</li>
+        <li>범위 통제: 안전, 법무, 결제, 배포, 스키마를 건드리지 않았다.</li>
+        <li>사용자 영향: 중심 노드가 표시되는 표면에서 세계관 용어 혼선을 줄인다.</li>
+        <li>교차검증: 저위험 UI/i18n 라벨 변경이라 별도 MoA 검증 요청은 만들지 않았다.</li>
+      </ul>
+    </details>
+
+    <h2>작성 시각</h2>
+    <p>2026-07-28 20:07:13 KST</p>
+  </main>
+</body>
+</html>
