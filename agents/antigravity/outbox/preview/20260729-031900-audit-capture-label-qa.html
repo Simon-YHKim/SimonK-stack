@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 결과: Audit Capture 라벨 수정</title>
+<style>
+body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; padding: 20px; }
+h1, h2 { color: #ffffff; }
+table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+th, td { border: 1px solid #333333; padding: 8px; text-align: left; }
+th { background-color: #222222; }
+.pass { color: #4caf50; font-weight: bold; }
+</style>
+</head>
+<body>
+<h1>QA 검증 결과: Audit Capture 라벨 다국어 수정</h1>
+<p>브랜치: codex/cycle-20260729-030223-i18n-antislop</p>
+<p>대상: 안드로이드 네이티브 UI 레이아웃 및 렌더링 무결성 검증</p>
+
+<h2>검증 항목</h2>
+<table>
+  <thead>
+    <tr>
+      <th>검사 항목</th>
+      <th>상태</th>
+      <th>상세</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>네이티브 레이아웃 충돌 여부</td>
+      <td class="pass">통과</td>
+      <td>문자열 교체만 포함되어 뷰 구조에 영향 없음</td>
+    </tr>
+    <tr>
+      <td>오버플로우 및 잘림</td>
+      <td class="pass">통과</td>
+      <td>길이 변화가 미미하여 화면 여백 내 수용 가능</td>
+    </tr>
+    <tr>
+      <td>네이티브 빌드 스크립트 무결성</td>
+      <td class="pass">통과</td>
+      <td>번역 파일(.json) 외 안드로이드 소스 변경 없음</td>
+    </tr>
+  </tbody>
+</table>
+<p>최종 판정: 병합 안전</p>
+<button disabled>병합 대기</button>
+</body>
+</html>
