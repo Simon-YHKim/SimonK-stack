@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>세컨비 역할명 북극성 정렬 보고</title>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --text: #e8edf5;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    h1, h2 { margin: 0 0 12px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section {
+      border: 1px solid var(--accent);
+      padding: 18px;
+      margin: 16px 0;
+    }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>세컨비 역할명 북극성 정렬 보고</h1>
+    <p>작성 시각: 2026-07-28 19:51:50 KST</p>
+
+    <section>
+      <h2>결과</h2>
+      <p>오픈 요청이 없어 Codex 레인의 단일 자율 작업으로 2nd-B 캐릭터 역할 표면에 남아 있던 legacy 명칭을 정리했다.</p>
+      <ul>
+        <li>로컬 커밋: <code>df0dfa23</code> (<code>fix(ui): rename secondb character role</code>)</li>
+        <li>브랜치: <code>codex/cycle-20260728-1950-secondb-character-role</code></li>
+        <li>워크트리: <code>E:\2ndB\.worktrees\codex-cycle-20260728-1950-secondb-character-role</code></li>
+        <li>푸시, PR, 머지, 배포, 브라우저 자동 열기는 수행하지 않았다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>파일</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/lib/characters.ts</code></td>
+            <td>SecondB 역할명을 <code>North Star navigator</code>와 <code>북극성 길잡이</code>로 변경했다.</td>
+          </tr>
+          <tr>
+            <td><code>src/lib/__tests__/characters.test.ts</code></td>
+            <td>캐릭터 역할 회귀 테스트 기대값을 새 정본 명칭에 맞췄다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li><code>npm test -- --runTestsByPath src/lib/__tests__/characters.test.ts --runInBand</code>: 통과</li>
+        <li><code>npm run check:i18n</code>: 통과</li>
+        <li><code>npm run check:lexicon</code>: 통과</li>
+        <li><code>npm run type-check</code>: 통과</li>
+        <li><code>npm run check:emdash</code>: 통과</li>
+        <li><code>npm run check:mascot-voice</code>: 통과</li>
+        <li><code>git diff --check</code>: 기능 오류 없음. Windows 줄끝 경고만 확인.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <ul>
+        <li>정본성: 폐기된 <code>Soul Core</code> 역할 노출을 <code>North Star</code>와 <code>북극성</code> 기준으로 맞췄다.</li>
+        <li>범위: 캐릭터 역할 정의와 직접 테스트만 변경했다.</li>
+        <li>위험: 보안, 비용, 배포, 개인정보, 임상 문구 표면을 건드리지 않았다.</li>
+        <li>교차검증: 낮은 위험도의 UI/copy 정렬이라 별도 검증 요청을 만들지 않았다.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
