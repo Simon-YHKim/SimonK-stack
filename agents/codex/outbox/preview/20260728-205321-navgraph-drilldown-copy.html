@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>성좌 드릴다운 문구 정리 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b1020; --text:#e8edf7; --muted:#97a3b8; --accent:#6ee7d8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2 { margin: 0; letter-spacing: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 10px 0 0; color: var(--muted); }
+    .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 24px; }
+    .card { border: 1px solid rgba(110,231,216,.28); border-radius: 8px; padding: 14px; background: rgba(255,255,255,.03); }
+    .label { color: var(--muted); font-size: 12px; }
+    .value { color: var(--text); font-size: 15px; margin-top: 6px; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border-bottom: 1px solid rgba(151,163,184,.25); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: Consolas, monospace; }
+    details { margin-top: 12px; border: 1px solid rgba(151,163,184,.25); border-radius: 8px; padding: 12px 14px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 10px 0 0 18px; padding: 0; color: var(--muted); }
+    li { margin: 6px 0; }
+    @media (max-width: 760px) { .summary { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 520px) { .summary { grid-template-columns: 1fr; } main { padding: 28px 14px 40px; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>성좌 드릴다운 문구 정리 보고</h1>
+  <p>Codex 단일 자율 사이클에서 2nd-B 그래프 드릴다운의 사용자 노출 문구를 현재 정본에 맞게 정리했다.</p>
+
+  <section class="summary" aria-label="요약">
+    <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+    <div class="card"><div class="label">2nd-B 브랜치</div><div class="value"><code>codex/cycle-20260728-204954-antislop</code></div></div>
+    <div class="card"><div class="label">로컬 커밋</div><div class="value"><code>0c6b9171</code></div></div>
+    <div class="card"><div class="label">위험도</div><div class="value">낮음, UI 문구와 회귀 테스트</div></div>
+  </section>
+
+  <h2>변경 내용</h2>
+  <table>
+    <thead><tr><th>영역</th><th>처리</th><th>대상</th></tr></thead>
+    <tbody>
+      <tr><td>드릴다운 안내</td><td>Pattern Core와 Pattern Data 노출을 성좌 영역과 연결 별가루 표현으로 교체</td><td><code>locales/*/common.json</code></td></tr>
+      <tr><td>다국어</td><td>영어, 한국어, 스페인어, 포르투갈어, 인도네시아어 문구를 같은 의미 체계로 정렬</td><td><code>en, ko, es, pt, id</code></td></tr>
+      <tr><td>회귀 방지</td><td>드릴다운 번역 블록에 legacy 명칭이 다시 들어오지 않도록 Jest 가드 추가</td><td><code>visible-brand-copy.test.ts</code></td></tr>
+    </tbody>
+  </table>
+
+  <details open>
+    <summary>검증 결과</summary>
+    <ul>
+      <li><code>node</code> JSON 파싱 확인: 통과</li>
+      <li><code>npm run check:i18n</code>: 통과</li>
+      <li><code>npm run check:lexicon</code>: 통과</li>
+      <li><code>npm run check:emdash</code>: 통과</li>
+      <li><code>npx jest src/lib/__tests__/visible-brand-copy.test.ts --runInBand</code>: 통과</li>
+      <li><code>npm run type-check</code>: 통과</li>
+      <li><code>git diff --check</code>: 기능 오류 없음, Windows 줄끝 경고만 출력</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>운영 준수</summary>
+    <ul>
+      <li>허브에서는 <code>agents/codex/</code> 아래에만 기록했다.</li>
+      <li>2nd-B는 <code>origin/main</code> 기준 새 worktree와 새 브랜치에서만 수정했다.</li>
+      <li>push, PR, main merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 접근은 하지 않았다.</li>
+      <li>§35 self-panel 결과: 정본 문구 정렬 범위의 저위험 변경이며 별도 토론 또는 MoA 검증 요청 대상이 아니다.</li>
+    </ul>
+  </details>
+</main>
+</body>
+</html>
