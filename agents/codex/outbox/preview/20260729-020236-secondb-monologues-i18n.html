@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고서: 세컨비 독백 번역 정리</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --panel: #1b1f28;
+      --text: #e7eaf0;
+      --muted: #a8b0bd;
+      --accent: #67d4c0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 30px; line-height: 1.25; margin-bottom: 10px; }
+    h2 { font-size: 20px; margin: 0 0 14px; }
+    h3 { font-size: 16px; margin: 18px 0 8px; }
+    p, li, td, th { font-size: 15px; }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+    }
+    .card, section {
+      background: var(--panel);
+      border: 1px solid color-mix(in srgb, var(--muted) 25%, transparent);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .card strong {
+      display: block;
+      color: var(--accent);
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    section { margin-top: 16px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border-bottom: 1px solid color-mix(in srgb, var(--muted) 22%, transparent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 650; }
+    code {
+      color: var(--text);
+      background: color-mix(in srgb, var(--bg) 72%, var(--panel));
+      border-radius: 5px;
+      padding: 2px 5px;
+    }
+    details {
+      margin-top: 12px;
+      border-top: 1px solid color-mix(in srgb, var(--muted) 22%, transparent);
+      padding-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 650;
+    }
+    ul { padding-left: 20px; margin-bottom: 0; }
+    .flow {
+      width: 100%;
+      height: auto;
+      margin-top: 8px;
+    }
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>코덱스 사이클 보고서: 세컨비 독백 번역 정리</h1>
+  <p class="muted">작성 시각: 2026-07-29 02:02:36 KST. 허브 PROTOCOL 12/19/35.4 단일 자율 폴 사이클 보고서입니다.</p>
+
+  <div class="grid" aria-label="요약 지표">
+    <div class="card"><strong>결과</strong>완료</div>
+    <div class="card"><strong>앱 커밋</strong><code>cd221cfb</code></div>
+    <div class="card"><strong>브랜치</strong><code>codex/cycle-20260729-020014-i18n-antislop</code></div>
+    <div class="card"><strong>검증</strong>주요 검사 통과</div>
+  </div>
+
+  <section>
+    <h2>목적과 판단</h2>
+    <p>Codex 직접 수신함에는 새 미응답 요청이 없었습니다. peer outbox에는 오래된 열린 행이 남아 있었지만, DDS와 agent-card 계열은 기존 Codex 응답과 산출물로 이미 처리된 stale 항목으로 확인했습니다.</p>
+    <p>BOARD 현재 포커스의 Codex 레인에 맞춰, 2nd-B UI/i18n anti-slop에서 사용자에게 노출되는 영어 잔여 문구 하나를 이번 단일 작업으로 선택했습니다.</p>
+  </section>
+
+  <section>
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>변경</th><th>영향</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>locales/es/secondb.json</code></td><td>SecondB 캐릭터 독백 24개를 스페인어로 정리</td><td>스페인어 화면의 영어 혼입 제거</td></tr>
+        <tr><td><code>locales/pt/secondb.json</code></td><td>SecondB 캐릭터 독백 24개를 포르투갈어로 정리</td><td>포르투갈어 화면의 영어 혼입 제거</td></tr>
+        <tr><td><code>locales/id/secondb.json</code></td><td>SecondB 캐릭터 독백 24개를 인도네시아어로 정리</td><td>인도네시아어 화면의 영어 혼입 제거</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>흐름</h2>
+    <svg class="flow" viewBox="0 0 900 150" role="img" aria-label="작업 흐름도">
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L0,6 L9,3 z" fill="#67d4c0"></path>
+        </marker>
+      </defs>
+      <g fill="#1b1f28" stroke="#67d4c0" stroke-width="2">
+        <rect x="20" y="35" width="150" height="70" rx="8"></rect>
+        <rect x="255" y="35" width="150" height="70" rx="8"></rect>
+        <rect x="490" y="35" width="150" height="70" rx="8"></rect>
+        <rect x="725" y="35" width="150" height="70" rx="8"></rect>
+      </g>
+      <g stroke="#67d4c0" stroke-width="2" marker-end="url(#arrow)">
+        <line x1="170" y1="70" x2="255" y2="70"></line>
+        <line x1="405" y1="70" x2="490" y2="70"></line>
+        <line x1="640" y1="70" x2="725" y2="70"></line>
+      </g>
+      <g fill="#e7eaf0" font-size="15" text-anchor="middle">
+        <text x="95" y="65">큐 확인</text><text x="95" y="88">신규 오더 없음</text>
+        <text x="330" y="65">영어 잔여 탐색</text><text x="330" y="88">세컨비 독백 선택</text>
+        <text x="565" y="65">번역 수정</text><text x="565" y="88">3개 locale</text>
+        <text x="800" y="65">검증과 커밋</text><text x="800" y="88">로컬 앱 커밋</text>
+      </g>
+    </svg>
+  </section>
+
+  <section>
+    <h2>검증</h2>
+    <ul>
+      <li>JSON 파싱: 통과</li>
+      <li><code>npm run check:i18n</code>: 통과</li>
+      <li><code>npm run check:lexicon</code>: 통과</li>
+      <li><code>npm run check:emdash</code>: 통과</li>
+      <li><code>npm run type-check</code>: 통과</li>
+      <li><code>git diff --check</code>: 통과, Windows 줄끝 경고만 표시</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>35 자기 패널</h2>
+    <details open>
+      <summary>판정 요약</summary>
+      <p>범위는 런타임 로직이 아닌 locale 문자열 3개 파일입니다. UI/번역 품질 개선이며 스키마, 보안, 정량 결과, 외부 사실, 머지 diff에 해당하지 않아 MoA 고위험 검증 요청은 발행하지 않았습니다.</p>
+      <p>단일 작업 원칙을 지켰고, 허브에는 <code>agents/codex/</code> 아래 보고 파일만 작성했습니다. 2nd-B 브랜치는 로컬 커밋만 만들었고 push, PR, 머지, 배포는 수행하지 않았습니다.</p>
+    </details>
+  </section>
+</main>
+</body>
+</html>
