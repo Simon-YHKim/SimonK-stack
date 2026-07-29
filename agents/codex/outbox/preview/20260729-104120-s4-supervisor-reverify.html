@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>S4 감독 문서 후보 재검증</title>
+  <style>
+    :root { --bg: #101214; --text: #e6e8ea; --accent: #7cc7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 960px; margin: 0 auto; padding: 32px 20px 48px; }
+    header, section, details { border: 1px solid var(--accent); border-radius: 6px; padding: 18px; margin: 0 0 16px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    code { color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border-top: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .card { border: 1px solid var(--accent); border-radius: 6px; padding: 14px; }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>S4 감독 문서 후보 재검증</h1>
+      <p>Codex 단일 poll cycle 결과입니다. 신규 요청이 없어 직전 백로그 배치의 첫 후보 <code>a0ca7e39</code>를 재검증했습니다.</p>
+      <div class="grid" aria-label="요약">
+        <div class="card"><div class="label">결론</div><strong>중복 흡수로 닫기</strong></div>
+        <div class="card"><div class="label">대상</div><strong>문서 2개 후보</strong></div>
+        <div class="card"><div class="label">검증 상태</div><strong>충돌 원인 확인</strong></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>핵심 결과</h2>
+      <p><code>origin/codex/s4-supervisor-260719</code>의 고유 산출물은 <code>docs/SUPERVISOR.md</code>와 <code>docs/tracks/S4-log_260719.md</code>입니다. 두 파일은 이미 <code>origin/main</code>의 <code>cdb73de9</code> 커밋에 포함되어 있어 별도 머지할 필요가 없습니다.</p>
+      <p>실제 cherry-pick 검증에서는 <code>docs/tracks/S4-log_260719.md</code>가 add/add 충돌을 냈습니다. 충돌 원인은 최신 main의 완료 요약과 오래된 후보 커밋의 완료 요약 플레이스홀더가 같은 위치에 있었기 때문입니다.</p>
+    </section>
+
+    <section>
+      <h2>판정표</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>확인 내용</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>요청 큐</td><td>Codex inbox와 peer outbox에 신규 actionable OPEN 요청 없음</td><td>자율 작업 진행</td></tr>
+          <tr><td>후보 범위</td><td>고유 diff는 감독 문서와 S4 트랙 로그 2개</td><td>문서 후보</td></tr>
+          <tr><td>통합 상태</td><td><code>cdb73de9</code>가 동일 산출물을 main에 포함</td><td>이미 흡수</td></tr>
+          <tr><td>실제 적용</td><td><code>9c82c1ed</code> cherry-pick 중 add/add 충돌</td><td>별도 머지 비권장</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>검증 세부 사항</summary>
+      <p>생성 worktree: <code>E:\2ndB\.worktrees\codex-cycle-20260729-104025-s4-supervisor-reverify</code></p>
+      <p>실행한 확인: <code>git fetch origin main --prune</code>, 고유 diff 확인, <code>merge-tree</code> 확인, 실제 cherry-pick, 충돌 파일 확인, main 로그 확인, <code>git cherry-pick --abort</code> 후 clean 상태 확인.</p>
+      <p>push, PR, merge, 배포, 브라우저 자동 열기, 비용 작업, 시크릿 접근, 파괴 작업은 하지 않았습니다.</p>
+    </details>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <p>UI 관점: 이미 흡수된 문서를 다시 통합하면 사용자가 보는 품질은 개선되지 않고 백로그 소음만 늘어납니다.</p>
+      <p>통합 관점: 단순 merge-tree 결과만으로 충분하지 않았고 실제 cherry-pick이 중복 흡수 상태를 드러냈습니다.</p>
+      <p>안전 관점: 문서 중복 판정만 수행했으므로 별도 MoA 고위험 검증 요청은 필요하지 않습니다.</p>
+    </details>
+  </main>
+</body>
+</html>
