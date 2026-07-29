@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>딥스페이스 FAQ 폐기 명칭 제거 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --fg: #e8edf2;
+      --accent: #65d6c7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    header {
+      border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+      padding: 24px;
+      border-radius: 8px;
+    }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    p { margin: 0 0 12px; }
+    .meta { color: color-mix(in srgb, var(--fg) 70%, var(--bg)); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 18px 0 0;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--fg) 20%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .label {
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    section { margin-top: 28px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border-bottom: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+    details {
+      border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 12px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>딥스페이스 FAQ 폐기 명칭 제거</h1>
+      <p class="meta">생성 시각: 2026-07-29 20:53:23 KST</p>
+      <div class="grid" aria-label="요약">
+        <div class="card">
+          <div class="label">결과</div>
+          <p>완료</p>
+        </div>
+        <div class="card">
+          <div class="label">범위</div>
+          <p>영문 딥스페이스 FAQ 한 줄</p>
+        </div>
+        <div class="card">
+          <div class="label">2nd-B 커밋</div>
+          <p><code>ef90cac8</code></p>
+        </div>
+        <div class="card">
+          <div class="label">위험도</div>
+          <p>낮음</p>
+        </div>
+      </div>
+    </header>
+
+    <section>
+      <h2>수정 내용</h2>
+      <p><code>locales/en/deepspace.json</code>의 FAQ 질문에서 폐기된 보조 명칭 <code>Soul Core</code>를 제거했습니다.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>변경 전</th>
+            <th>변경 후</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>How does the North Star (Soul Core) brighten?</code></td>
+            <td><code>How does the North Star brighten?</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>판단</h2>
+      <p>프로젝트 정본은 사용자 노출 명칭을 북극성 또는 North Star로 통일합니다. 이번 변경은 새 설계 결정이 아니라 기존 정책의 잔여 문구 제거입니다.</p>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>JSON 파싱</td><td>통과</td></tr>
+          <tr><td>대상 잔여 검색</td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run verify</code></td><td>통과, 기존 경고만 있음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>운영 제한 확인</summary>
+      <p>2nd-B에서는 로컬 브랜치 커밋만 만들었고 push, PR, merge, 배포, 브라우저 자동 열기, 비용 발생 작업, secret 작업은 하지 않았습니다. 허브에서는 <code>agents/codex/</code> 아래 산출물만 작성했습니다.</p>
+    </details>
+  </main>
+</body>
+</html>
