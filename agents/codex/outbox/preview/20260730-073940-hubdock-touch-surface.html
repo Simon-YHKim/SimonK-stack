@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>허브 독 터치면 정규화 보고서</title>
+  <style>
+    :root { --bg:#111318; --text:#e8edf2; --accent:#67d7e8; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Malgun Gothic", sans-serif; line-height:1.6; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 48px; }
+    header { border:1px solid var(--accent); padding:22px; border-radius:8px; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { font-size:28px; line-height:1.25; margin-bottom:8px; }
+    h2 { font-size:18px; margin:28px 0 12px; color:var(--accent); }
+    h3 { font-size:15px; margin:0 0 8px; color:var(--accent); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-top:18px; }
+    .card { border:1px solid rgba(103,215,232,.45); border-radius:8px; padding:14px; }
+    table { width:100%; border-collapse:collapse; border:1px solid rgba(103,215,232,.45); }
+    th, td { text-align:left; vertical-align:top; padding:10px; border-bottom:1px solid rgba(103,215,232,.25); }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border:1px solid rgba(103,215,232,.35); border-radius:8px; padding:12px 14px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:10px; border:1px solid var(--accent); border-radius:999px; overflow:hidden; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+    .muted { opacity:.78; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>허브 독 데모 화면 터치면 정규화</h1>
+      <p class="muted">작성 시각: 2026-07-30 07:39:40 KST</p>
+      <div class="grid">
+        <section class="card"><h3>결과</h3><p>2nd-B 로컬 브랜치에 UI 터치면 정규화 커밋을 만들었습니다.</p></section>
+        <section class="card"><h3>브랜치</h3><p><code>codex/pressable-sweep-j</code></p></section>
+        <section class="card"><h3>커밋</h3><p><code>76486394</code></p></section>
+        <section class="card"><h3>푸시</h3><p>수행하지 않았습니다. Claude가 병합 게이트입니다.</p></section>
+      </div>
+    </header>
+
+    <h2>이번 사이클에서 한 일</h2>
+    <table>
+      <thead><tr><th>구분</th><th>내용</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td>오더 확인</td><td><code>tools/board.ps1 -Me codex</code> 기준 미응답 open 요청 없음</td><td>완료</td></tr>
+        <tr><td>자율 작업</td><td><code>DeepSpaceHubDockScreen.tsx</code>의 데모 카드와 버튼 터치면 분리</td><td>완료</td></tr>
+        <tr><td>검증</td><td>파일 ESLint와 diff check 통과, 전체 type-check는 기존 의존성 타입 누락으로 중단</td><td>부분 완료</td></tr>
+        <tr><td>위험</td><td>고위험 변경 아님. UI 데모 화면의 터치 레이어 구조 변경에 한정</td><td>낮음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>변경 요약</h2>
+    <details open>
+      <summary>핵심 변경</summary>
+      <p>시각 스타일을 가진 <code>Pressable</code>을 줄이고, 버튼과 카드의 모양은 <code>View</code>가 담당하게 했습니다. <code>Pressable</code>은 투명한 절대 위치 터치 레이어로 두어 Android Fabric 환경에서 스타일 유실로 터치면이 흔들릴 가능성을 낮췄습니다.</p>
+    </details>
+    <details>
+      <summary>수정한 표면</summary>
+      <p>담기 기본 버튼, 세컨비 보내기 원형 버튼, 점검 보류 버튼, 점검 승인 버튼, 트렌드 제안 카드 두 곳을 정규화했습니다.</p>
+    </details>
+    <details>
+      <summary>검증 근거</summary>
+      <p><code>npx eslint src/screens/deepspace/DeepSpaceHubDockScreen.tsx</code>는 통과했습니다. <code>git diff --check</code>도 통과했습니다. <code>npm run type-check</code>는 <code>madge</code>, 광고, 분석 패키지 타입 해석 문제에서 중단되었고, 이번 파일의 타입 오류는 남지 않았습니다.</p>
+    </details>
+
+    <h2>35절 자기 패널</h2>
+    <div class="grid">
+      <section class="card"><h3>찬성</h3><p>최근 반복된 Pressable 정규화 흐름과 같은 결의 작업이며, Android 터치 피드백과 hitSlop을 명시해 데모 화면의 조작 안정성을 높입니다.</p></section>
+      <section class="card"><h3>반대</h3><p>Prettier 적용으로 같은 파일 안의 기존 압축 JSX가 함께 펼쳐져 diff가 큽니다. 기능 범위는 제한적이지만 리뷰 노이즈가 늘었습니다.</p></section>
+      <section class="card"><h3>판정</h3><p>실제 동작 변경은 터치면 분리에 집중되어 있고, 파일 단위 검증이 통과했으므로 제출 가치가 있습니다. 병합 전 Claude가 diff 노이즈를 감안해 리뷰하면 됩니다.</p></section>
+    </div>
+
+    <h2>검증 상태</h2>
+    <p class="muted">완료된 검증 비율</p>
+    <div class="bar" aria-label="검증 완료 비율"><span style="width:66%"></span></div>
+  </main>
+</body>
+</html>
