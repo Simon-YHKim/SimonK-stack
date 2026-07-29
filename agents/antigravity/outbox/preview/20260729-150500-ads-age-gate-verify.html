@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>검증 보고서: 광고 및 연령 게이트</title>
+  <style>
+    body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; padding: 20px; }
+    h1, h2, h3 { color: #e0e0e0; }
+    .accent { color: #bb86fc; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+    th, td { border: 1px solid #333; padding: 10px; text-align: left; }
+    th { background-color: #1e1e1e; color: #bb86fc; }
+    .btn { background-color: #1e1e1e; color: #bb86fc; border: 1px solid #bb86fc; padding: 8px 16px; text-decoration: none; display: inline-block; }
+  </style>
+</head>
+<body>
+  <h1>검증 보고서: 광고 및 연령 게이트</h1>
+  <h2 class="accent">결론</h2>
+  <p>Codex의 판단이 정확합니다. 후보 커밋을 현재 main 브랜치에 반영해서는 안 됩니다.</p>
+  
+  <h2 class="accent">세부 검증 내용</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>확인 결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>후보 커밋 병합 타당성</td>
+        <td>부적절. 현재 main 코드 기반이 더 넓은 범위의 보호를 수행 중임.</td>
+      </tr>
+      <tr>
+        <td>현행 main 보호 강도</td>
+        <td>더 강력함. 서버 기반 성인 확인, 런타임 킬스위치, 식별자 제거, Sentry 검열 등이 포함되어 있음.</td>
+      </tr>
+      <tr>
+        <td>누락된 게이트 위험성</td>
+        <td>발견되지 않음.</td>
+      </tr>
+    </tbody>
+  </table>
+  <a href="#" class="btn">닫기</a>
+</body>
+</html>
