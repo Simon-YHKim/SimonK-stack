@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>제안 타깃 북극성 라벨 정렬</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101216; --fg:#eef2f7; --muted:#9aa6b2; --accent:#58c7d8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { max-width: 880px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 16px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 24px 0; }
+    .card { border: 1px solid color-mix(in srgb, var(--muted) 35%, transparent); padding: 14px; border-radius: 8px; min-height: 92px; }
+    .label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .value { font-size: 16px; font-weight: 650; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; }
+    th, td { border-bottom: 1px solid color-mix(in srgb, var(--muted) 28%, transparent); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 650; }
+    code { color: var(--fg); background: color-mix(in srgb, var(--muted) 18%, transparent); padding: 2px 5px; border-radius: 4px; }
+    details { border: 1px solid color-mix(in srgb, var(--muted) 28%, transparent); border-radius: 8px; padding: 12px 14px; margin: 12px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 650; }
+    .muted { color: var(--muted); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>제안 타깃 북극성 라벨 정렬</h1>
+    <p class="muted">생성 시각: 2026-07-29 15:04:47 KST</p>
+    <div class="grid" aria-label="요약">
+      <section class="card"><span class="label">결과</span><span class="value">완료</span></section>
+      <section class="card"><span class="label">앱 커밋</span><span class="value">0649c81f</span></section>
+      <section class="card"><span class="label">브랜치</span><span class="value">codex/cycle-20260729-150210-i18n-antislop</span></section>
+      <section class="card"><span class="label">위험도</span><span class="value">낮음</span></section>
+    </div>
+
+    <h2>무엇을 바꿨나</h2>
+    <p>자기 모델 제안 시트에서 <code>soulCore</code> 타깃이 여전히 구식 표시명인 <code>Soul Core</code>와 <code>소울 코어</code>로 보이는 부분을 현재 정본인 <code>North Star</code>와 <code>북극성</code>으로 정렬했다.</p>
+
+    <table aria-label="변경 파일">
+      <thead><tr><th>파일</th><th>변경 내용</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/lib/persona/proposal-display.ts</code></td><td>제안 시트의 사용자 가시 타깃 라벨을 북극성 명칭으로 교체</td></tr>
+        <tr><td><code>src/lib/persona/propose-self-model.ts</code></td><td>제안 생성 프롬프트의 집계 리딩 명칭을 North Star로 교체</td></tr>
+        <tr><td><code>src/lib/persona/__tests__/proposal-display.test.ts</code></td><td>회귀 테스트 기대값을 새 명칭으로 갱신</td></tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <p><code>npm test -- --runTestsByPath src/lib/persona/__tests__/proposal-display.test.ts src/lib/persona/__tests__/propose-self-model.test.ts</code>: 통과, 2개 스위트 11개 테스트.</p>
+      <p><code>npm run type-check</code>: 통과.</p>
+      <p><code>npm run check:i18n</code>, <code>npm run check:lexicon</code>, <code>npm run check:emdash</code>: 통과.</p>
+      <p><code>git diff --check</code>: 공백 오류 없음. Windows 줄끝 경고만 있었다.</p>
+    </details>
+
+    <details>
+      <summary>35 자기 패널</summary>
+      <p>찬성: 사용자 가시 제안 시트에 남은 구식 명칭을 제거해 세계관 정합성을 높인다.</p>
+      <p>반대: 내부 키 이름은 여전히 <code>soulCore</code>라 대규모 명명 변경 욕구가 생길 수 있다.</p>
+      <p>판정: 이번 사이클은 표시명과 프롬프트 라벨만 고치는 저위험 변경으로 제한했다. 스키마, 라우팅, 결제, 보안, 외부 사실 주장이 아니므로 별도 MoA 검증 요청은 만들지 않았다.</p>
+    </details>
+
+    <p class="muted">제한 준수: 허브에서는 <code>agents/codex/</code>만 작성했고, 2nd-B는 별도 worktree 로컬 브랜치에서만 커밋했다. push, merge, 배포, 브라우저 자동 열기, 비용 작업은 수행하지 않았다.</p>
+  </main>
+</body>
+</html>
