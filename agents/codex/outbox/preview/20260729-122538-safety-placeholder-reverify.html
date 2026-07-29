@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>안전 입력 문구 재검증 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101418;
+      --panel: #182028;
+      --text: #eef3f7;
+      --muted: #9fb0bd;
+      --accent: #66d9c8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2 { margin: 0 0 12px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .card, details {
+      background: var(--panel);
+      border: 1px solid rgba(102, 217, 200, 0.24);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .label { color: var(--muted); font-size: 13px; }
+    .value { font-size: 16px; margin-top: 4px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid rgba(238, 243, 247, 0.16);
+      padding: 10px 8px;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      background: rgba(238, 243, 247, 0.08);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    details { margin-top: 14px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>안전 입력 문구 재검증 보고서</h1>
+    <p>이번 Codex 단일 폴 사이클은 새 기능 발견을 늘리지 않고, 이전 Codex 후보 중 아직 본류에 들어오지 않은 낮은 위험 i18n 수정을 최신 <code>origin/main</code> 위에서 재검증했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">적용 가능</div>
+      </div>
+      <div class="card">
+        <div class="label">제품 커밋</div>
+        <div class="value"><code>d321c3c5</code></div>
+      </div>
+      <div class="card">
+        <div class="label">브랜치</div>
+        <div class="value"><code>codex/cycle-20260729-122343-lane-scan</code></div>
+      </div>
+      <div class="card">
+        <div class="label">검증 상태</div>
+        <div class="value">통과</div>
+      </div>
+    </section>
+
+    <details open>
+      <summary>작업 내용</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>범위</td>
+            <td><code>locales/es/safety.json</code>, <code>locales/pt/safety.json</code>, <code>locales/id/safety.json</code>의 green-zone 입력 placeholder 3개</td>
+          </tr>
+          <tr>
+            <td>변경</td>
+            <td>영어로 남아 있던 “What's on your mind?”를 각 언어의 자연스러운 입력 안내 문구로 교체</td>
+          </tr>
+          <tr>
+            <td>제외</td>
+            <td>red/yellow 안전 문구, 핫라인, 위기 라우팅, 법무성 문구는 이번 사이클에서 변경하지 않음</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details open>
+      <summary>검증</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>검증 항목</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>JSON 파싱</td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과, 5개 locale 3226키 정렬</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check HEAD~1..HEAD</code></td><td>통과</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>섹션 35 자기 패널</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>입장</th>
+            <th>판정</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>찬성</td>
+            <td>비영어 locale의 green-zone 입력창에 영어 placeholder가 노출되는 것은 제품 완성도와 현지화 신뢰를 낮춘다.</td>
+          </tr>
+          <tr>
+            <td>반대</td>
+            <td>safety namespace 전체를 손대면 안전 문구 변경으로 확장될 수 있으므로 범위를 줄여야 한다.</td>
+          </tr>
+          <tr>
+            <td>결론</td>
+            <td>위기·핫라인·yellow rephrase 문구는 유지하고, 안전 동작과 무관한 green placeholder만 재검증해 적용한다. 고위험 MoA 검증 요청은 필요하지 않다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>기록</summary>
+      <p>작성 시각: 2026-07-29 12:25:38 KST</p>
+      <p>허브 작업 영역: <code>agents/codex/</code></p>
+      <p>제품 worktree: <code>E:\2ndB\.worktrees\codex-cycle-20260729-122343-lane-scan</code></p>
+    </details>
+  </main>
+</body>
+</html>
