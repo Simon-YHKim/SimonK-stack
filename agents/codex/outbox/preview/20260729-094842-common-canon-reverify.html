@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>공통 별자리 카피 재검증 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0f14; --text:#e6edf3; --accent:#58a6ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 960px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2 { margin: 0 0 12px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); margin-top: 28px; }
+    p { margin: 8px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 18px 0 8px; }
+    .card, details { border: 1px solid var(--accent); border-radius: 8px; padding: 14px; background: var(--bg); }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>공통 별자리 카피 재검증 보고</h1>
+    <p>이번 Codex 단일 사이클은 신규 발견을 늘리지 않고, 직전 백로그 정리에서 남은 5순위 후보를 최신 기준 위에서 재검증했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <p>재검증 통과</p>
+      </div>
+      <div class="card">
+        <div class="label">앱 커밋</div>
+        <p><code>20fa83a6</code></p>
+      </div>
+      <div class="card">
+        <div class="label">기준</div>
+        <p><code>origin/main 9c674f4d</code></p>
+      </div>
+      <div class="card">
+        <div class="label">위험도</div>
+        <p>낮음. 로케일 공통 카피만 변경</p>
+      </div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <p>기존 후보 <code>bca7bb6b</code>를 새 worktree에 cherry-pick해 <code>locales/en/common.json</code>, <code>locales/ko/common.json</code>, <code>locales/es/common.json</code>, <code>locales/pt/common.json</code>, <code>locales/id/common.json</code>의 공통 별자리 표현을 정본 명칭에 맞춰 재확인했다.</p>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr><th>검증 항목</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>변경 JSON 파싱</td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check HEAD~1..HEAD</code></td><td>통과</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자체 패널 판단</summary>
+      <p>범위는 로케일 공통 카피 5파일이며 스키마, 보안, 수학, 외부 최신 사실, 라이브 배포를 건드리지 않았다. 따라서 추가 교차검증 요청은 만들지 않았다.</p>
+    </details>
+
+    <details>
+      <summary>제약 확인</summary>
+      <p>허브에서는 <code>agents/codex/</code> 아래 산출물만 작성했다. 2nd-B 작업은 별도 worktree와 브랜치에서 수행했고 push, PR, merge, 배포, 브라우저 자동 열기, 비용 발생 작업은 하지 않았다.</p>
+    </details>
+  </main>
+</body>
+</html>
