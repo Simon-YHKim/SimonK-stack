@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>최신 기준 허브 미리보기 개발 문구 제거 재검증</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101318; --fg:#e8edf2; --accent:#7aa2ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    main { width: min(960px, calc(100% - 32px)); margin: 0 auto; padding: 36px 0 48px; }
+    header { border: 1px solid var(--accent); padding: 22px; border-radius: 8px; }
+    h1 { margin: 0 0 10px; font-size: clamp(24px, 4vw, 34px); letter-spacing: 0; }
+    h2 { margin: 30px 0 12px; font-size: 18px; letter-spacing: 0; }
+    p { margin: 8px 0; }
+    code { color: var(--fg); word-break: break-all; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+    .card { border: 1px solid var(--accent); border-radius: 8px; padding: 14px; min-height: 92px; }
+    .label { color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    details { border: 1px solid var(--accent); border-radius: 8px; padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+    li { margin: 6px 0; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 520px) { main { width: min(100% - 24px, 960px); padding-top: 24px; } .grid { grid-template-columns: 1fr; } th, td { display: block; width: 100%; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>최신 기준 허브 미리보기 개발 문구 제거 재검증</h1>
+      <p>이번 사이클은 열린 Codex 직접 오더가 없어, 최신 <code>origin/main</code> 기준으로 Codex UI 레인의 기존 고신호 패치를 재기반화했습니다.</p>
+      <div class="grid" aria-label="요약 지표">
+        <div class="card"><div class="label">결과</div><strong>완료</strong><p>최신 main 기준 로컬 커밋 생성</p></div>
+        <div class="card"><div class="label">대상</div><strong>2개 파일</strong><p>화면 문구 1개, 회귀 테스트 1개</p></div>
+        <div class="card"><div class="label">검증</div><strong>통과</strong><p>전체 verify 포함</p></div>
+        <div class="card"><div class="label">위험</div><strong>낮음</strong><p>UI 문구와 테스트만 변경</p></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>작업 내용</h2>
+      <p><code>/deepspace-hub</code> 미리보기 화면에서 메시지를 보낸 뒤 사용자에게 <code>TODO</code> 개발 메모가 그대로 보이는 문제를 최신 <code>origin/main</code> 기준 브랜치에 다시 적용했습니다.</p>
+      <table>
+        <tr><th>항목</th><th>값</th></tr>
+        <tr><td>기준 커밋</td><td><code>5e0f7f36</code></td></tr>
+        <tr><td>브랜치</td><td><code>codex/cycle-20260730-034909-docs-ui-scan</code></td></tr>
+        <tr><td>워크트리</td><td><code>E:\2ndB\.worktrees\codex-cycle-20260730-034909-docs-ui-scan</code></td></tr>
+        <tr><td>앱 커밋</td><td><code>587f16df</code> <code>fix(ui): remove visible TODO from hub preview</code></td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <ul>
+        <li>대상 회귀 테스트 통과</li>
+        <li>공백 diff 검사 통과</li>
+        <li>i18n 키 검사 통과</li>
+        <li>금지어 검사 통과</li>
+        <li>em dash 검사 통과</li>
+        <li>type-check 통과</li>
+        <li>전체 verify 통과: 406개 테스트 묶음, 3159개 테스트</li>
+      </ul>
+    </section>
+
+    <details>
+      <summary>Section 35 self-panel</summary>
+      <p>사용자 가치: 실제 화면에 개발 메모가 노출되는 인상을 제거했습니다.</p>
+      <p>안전성: 화면 문구와 회귀 테스트만 바꾸었고, push, PR, merge, 배포, 비용, secret 작업은 하지 않았습니다.</p>
+      <p>중복성: 최신 main 기준 재기반화가 목적이며 새 저가치 발견을 추가하지 않았습니다.</p>
+      <p>교차검증: 저위험 UI/copy 변경이라 별도 verifier 요청은 만들지 않았습니다.</p>
+    </details>
+  </main>
+</body>
+</html>
