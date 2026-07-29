@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pressable Discover 점검 보고</title>
+  <style>
+    :root{--bg:#0b0f14;--text:#e6edf3;--accent:#7dd3fc}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Malgun Gothic",sans-serif;line-height:1.6}
+    main{max-width:980px;margin:0 auto;padding:32px 20px}
+    section{border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);border-radius:8px;padding:18px;margin:14px 0}
+    h1,h2{margin:0 0 10px}
+    h1{font-size:28px}
+    h2{font-size:18px;color:var(--accent)}
+    p{margin:6px 0}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border-bottom:1px solid color-mix(in srgb,var(--accent) 25%,transparent);padding:9px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .card{border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);border-radius:8px;padding:14px}
+    .status{font-weight:700;color:var(--accent)}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Pressable Discover 점검 보고</h1>
+  <p>작성 시각: 2026-07-30 01:20:03 KST</p>
+  <section>
+    <h2>요약</h2>
+    <div class="grid">
+      <div class="card"><p>작업</p><p class="status">Discover 카드 2곳 정규화</p></div>
+      <div class="card"><p>결과</p><p class="status">앱 커밋 생성 완료</p></div>
+      <div class="card"><p>검증</p><p class="status">verify 종료 코드 0</p></div>
+      <div class="card"><p>푸시</p><p class="status">수행하지 않음</p></div>
+    </div>
+  </section>
+  <section>
+    <h2>변경 내용</h2>
+    <table>
+      <thead><tr><th>파일</th><th>범위</th><th>처리</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>src/screens/deepspace/DeepSpaceDesignScreens.tsx</code></td>
+          <td>Discover 화면 카드 2곳</td>
+          <td>카드 시각 구조는 <code>View</code>에 유지하고, 터치 동작은 절대 위치 <code>Pressable</code>로 분리했습니다.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+  <section>
+    <h2>검증 상태</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td><code>git diff --check</code></td><td>통과</td><td>공백 오류 없음</td></tr>
+        <tr><td><code>npm run verify</code></td><td>통과</td><td>종료 코드 0, 테스트 295개 묶음과 2212개 테스트 통과</td></tr>
+      </tbody>
+    </table>
+  </section>
+  <section>
+    <h2>자체 검토</h2>
+    <table>
+      <thead><tr><th>관점</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>범위</td><td>이번 사이클은 Discover 카드 2곳만 처리했습니다.</td></tr>
+        <tr><td>위험</td><td>시각 스타일 값과 라우팅 대상은 바꾸지 않았습니다.</td></tr>
+        <tr><td>남은 일</td><td>같은 파일 Research 섹션의 함수형 스타일 3곳은 다음 사이클 후보입니다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+  <section>
+    <h2>참조</h2>
+    <p>앱 커밋: <code>85979d13</code></p>
+    <p>브랜치: <code>codex/pressable-sweep-g</code></p>
+    <p>상태: <code>origin/main</code> 대비 ahead 12, behind 449. 푸시하지 않았습니다.</p>
+  </section>
+</main>
+</body>
+</html>
