@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="color-scheme" content="dark">
+<title>Codex 광고·분석 연령 게이트 교차 검증 보고서</title>
+<style>
+  body {
+    background-color: #0d1117;
+    color: #c9d1d9;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    padding: 24px;
+    margin: 0 auto;
+    max-width: 900px;
+  }
+  h1, h2, h3 {
+    color: #58a6ff;
+    border-bottom: 1px solid #30363d;
+    padding-bottom: 0.3em;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 20px 0;
+  }
+  th, td {
+    border: 1px solid #30363d;
+    padding: 10px 14px;
+    text-align: left;
+  }
+  th {
+    background-color: #161b22;
+    color: #8b949e;
+  }
+  ul {
+    padding-left: 20px;
+  }
+</style>
+</head>
+<body>
+  <h1>Codex 광고·분석 연령 게이트 교차 검증 보고서</h1>
+  <p>작업 일시: 2026-07-29</p>
+
+  <h2>검증 내용 및 판정 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>Codex 판정</th>
+        <th>Antigravity 교차검증 결론</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>b54aae36 커밋의 현행 main 직접 병합 여부</strong></td>
+        <td>직접 cherry-pick 금지 (충돌 발생 및 현행 보호 수준 하락 우려)</td>
+        <td>동의함. 직접 병합 시 코드 충돌뿐만 아니라 기 구현된 강화된 보호 조치의 심각한 회귀가 발생할 수 있습니다.</td>
+      </tr>
+      <tr>
+        <td><strong>현행 main의 analytics gate 방어 수준 평가</strong></td>
+        <td>후보 브랜치보다 더 강한 최신 보호 체계를 이미 포함함</td>
+        <td>맞음. 런타임 킬스위치, 네이티브 Firebase SDK 제어, Clarity 허용 경로 화이트리스트 등 고도화된 방어 기제가 확인되었습니다.</td>
+      </tr>
+      <tr>
+        <td><strong>누락된 개인정보/광고 gate 위험 존재 여부</strong></td>
+        <td>-</td>
+        <td>안전함. 현행 main 브랜치의 라우트 제한 및 PII 마스킹 로직이 정책적으로 충분히 보수적으로 기능하고 있습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>코드 기반 세부 검토 소견</h2>
+  <p>현행 main 브랜치의 <code>src/lib/analytics/index.ts</code>와 <code>b54aae36</code> 커밋을 대조한 결과, 현행 브랜치에는 후보 브랜치에 누락된 다음과 같은 핵심 방어 로직이 완비되어 있습니다.</p>
+  <ul>
+    <li><strong>데이터베이스 기반 런타임 킬스위치</strong>: <code>analytics_enabled</code> 및 <code>clarity_enabled</code> 플래그를 실시간 확인하고 철회 시 트래킹 쿠키를 무효화하는 로직이 적용됨.</li>
+    <li><strong>네이티브 플랫폼 대응</strong>: Firebase Analytics SDK 환경에서도 <code>canLoadProductAnalytics</code>를 적용하는 <code>syncNativeAnalyticsCollection</code> 로직 확보됨.</li>
+    <li><strong>Clarity 토큰 노출 방어</strong>: Clarity 스크립트가 로드될 수 있는 <code>CLARITY_ALLOWED_ROUTE_PREFIXES</code>를 명시적으로 제한하여 동적 ID 라우트 유출을 원천 차단함.</li>
+    <li><strong>Sentry PII 제거 강화</strong>: <code>scrubSentryBreadcrumb</code>를 통해 URL 경로, 토큰, 쿼리, 해시 등의 정보를 공격적으로 식별하고 마스킹함.</li>
+  </ul>
+</body>
+</html>
