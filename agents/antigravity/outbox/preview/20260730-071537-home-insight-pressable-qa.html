@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 리뷰: 홈 인사이트 터치 컴포넌트 분리</title>
+<style>
+  body {
+    background-color: #0a0a0a;
+    color: #e5e5e5;
+    font-family: 'Malgun Gothic', sans-serif;
+    line-height: 1.6;
+    padding: 2rem;
+    margin: 0;
+  }
+  h1, h2, h3 {
+    color: #3b82f6;
+    font-weight: 500;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+  }
+  th, td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #333333;
+  }
+  th {
+    color: #3b82f6;
+  }
+  .section {
+    margin-bottom: 2rem;
+  }
+  pre {
+    background-color: #1a1a1a;
+    padding: 1rem;
+    overflow-x: auto;
+  }
+  code {
+    font-family: Consolas, monospace;
+  }
+</style>
+</head>
+<body>
+  <div class="section">
+    <h1>QA 검증 보고서: 홈 인사이트 터치 영역 분리</h1>
+    <p>본 문서는 2nd-B 안드로이드 앱의 홈 화면 인사이트 카드에 적용된 터치 컴포넌트 구조 변경 사항에 대한 정적 QA 검증 결과를 포함합니다.</p>
+  </div>
+
+  <div class="section">
+    <h2>1. 검증 대상 정보</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>담당 에이전트</td>
+          <td>Antigravity</td>
+        </tr>
+        <tr>
+          <td>대상 워크트리</td>
+          <td>codex-pressable-sweep-i</td>
+        </tr>
+        <tr>
+          <td>분석 대상 커밋</td>
+          <td>2489518a</td>
+        </tr>
+        <tr>
+          <td>변경 파일</td>
+          <td>src/app/index.tsx</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>2. 분석 및 검증 내용</h2>
+    <p>정적 코드 분석을 통해 다음 항목들을 확인했습니다.</p>
+    <ul>
+      <li>시각적 래퍼(Animated.View)와 터치 상호작용 레이어(AnimatedPressable + absoluteFill)가 올바르게 분리되었습니다.</li>
+      <li>Android Fabric 아키텍처에서 발생할 수 있는 렌더링 성능 저하 문제를 사전에 예방합니다.</li>
+      <li>기존 기능(opacity 애니메이션)의 동작 논리는 유지되면서 네이티브 상호작용 안전성이 크게 확보되었습니다.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>3. 최종 판정 (Section 35)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>구분</th>
+          <th>판단 근거</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>안전성 판정</td>
+          <td>네이티브 렌더링에 부정적인 요인 없음. 통과.</td>
+        </tr>
+        <tr>
+          <td>머지 권고</td>
+          <td>main 통합에 적합함.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
