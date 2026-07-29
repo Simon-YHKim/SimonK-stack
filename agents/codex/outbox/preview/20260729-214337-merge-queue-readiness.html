@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 병합 큐 준비 상태</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --panel: #1a1d21;
+      --text: #e7e9ec;
+      --muted: #a8adb5;
+      --accent: #7fc7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(1040px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 48px;
+    }
+    header, section, details {
+      background: var(--panel);
+      border: 1px solid rgba(127, 199, 255, 0.22);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 0 0 16px;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      line-height: 1.25;
+    }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    p:last-child { margin-bottom: 0; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .metric {
+      border: 1px solid rgba(231, 233, 236, 0.14);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .value {
+      color: var(--text);
+      font-size: 20px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border-bottom: 1px solid rgba(231, 233, 236, 0.14);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--text);
+      background: rgba(231, 233, 236, 0.08);
+      border-radius: 4px;
+      padding: 2px 5px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    @media (max-width: 760px) {
+      main { width: min(100% - 20px, 1040px); padding-top: 20px; }
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 22px; }
+      table, thead, tbody, tr, th, td { display: block; }
+      th { padding-bottom: 4px; }
+      td { padding-top: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 병합 큐 준비 상태</h1>
+      <p>이번 사이클은 새 코드 패치를 추가하지 않고, 이미 제출된 Codex UI/i18n 후보와 새 Antigravity QA 신호를 병합 게이트 관점으로 정리했다.</p>
+      <div class="grid" aria-label="핵심 지표">
+        <div class="metric">
+          <div class="label">사이클 시간</div>
+          <div class="value">2026-07-29 21:43:37 KST</div>
+        </div>
+        <div class="metric">
+          <div class="label">신규 열린 요청</div>
+          <div class="value">없음</div>
+        </div>
+        <div class="metric">
+          <div class="label">기준 브랜치</div>
+          <div class="value"><code>origin/main</code> <code>9c674f4d</code></div>
+        </div>
+        <div class="metric">
+          <div class="label">이번 산출</div>
+          <div class="value">큐 정리</div>
+        </div>
+      </div>
+    </header>
+
+    <section>
+      <h2>결론</h2>
+      <p>직전 Codex 패치 <code>ea5a78a4</code>는 Codex의 전체 검증과 Antigravity의 정적 QA를 모두 받았다. Claude merge-gate에서 우선 검토할 수 있는 병합 준비 후보로 보는 것이 타당하다.</p>
+    </section>
+
+    <section>
+      <h2>후보 목록</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>후보</th>
+            <th>변경 범위</th>
+            <th>검증 상태</th>
+            <th>판정</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>ea5a78a4</code></td>
+            <td>ES/PT/ID SecondB 독백 번역</td>
+            <td>Codex 전체 verify 통과, Antigravity 정적 QA 병합 권고</td>
+            <td>우선 병합 후보</td>
+          </tr>
+          <tr>
+            <td><code>13f9af9b</code></td>
+            <td>records 별 문구 정렬</td>
+            <td>Codex 보고 기준 전체 verify 통과</td>
+            <td>검토 대기</td>
+          </tr>
+          <tr>
+            <td><code>ef90cac8</code></td>
+            <td>deep-space FAQ 폐기 별칭 제거</td>
+            <td>Codex 보고 기준 전체 verify 통과</td>
+            <td>검토 대기</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>자체 패널</summary>
+      <ul>
+        <li>새 패치를 만들면 이미 보이는 미머지 잔여를 중복으로 늘릴 위험이 있다.</li>
+        <li>새로 들어온 AG QA는 같은 후보의 병합 신뢰도를 높이는 실질 신호다.</li>
+        <li>이번 산출은 병합 diff, 스키마, 보안, 정량 결과, 외부 최신 사실, 고위험 UI 변경이 아니므로 추가 MoA 검증 요청은 만들지 않았다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>
