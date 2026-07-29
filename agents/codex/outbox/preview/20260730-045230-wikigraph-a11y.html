@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>위키 그래프 접근성 보고</title>
+  <style>
+    :root{--bg:#0b0f14;--text:#e6edf3;--accent:#6ee7f9}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Malgun Gothic",sans-serif;line-height:1.65}
+    main{max-width:980px;margin:0 auto;padding:40px 20px 56px}
+    h1,h2{line-height:1.2;margin:0 0 14px}
+    h1{font-size:30px}
+    h2{font-size:18px;color:var(--accent);margin-top:28px}
+    p{margin:0 0 14px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:24px 0}
+    .card{border:1px solid var(--accent);padding:14px;min-height:104px}
+    .label{font-size:12px;color:var(--accent);margin-bottom:8px}
+    table{width:100%;border-collapse:collapse;margin:10px 0 20px}
+    th,td{border:1px solid var(--accent);padding:10px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent)}
+    details{border:1px solid var(--accent);padding:12px;margin:10px 0}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    .bar{height:10px;background:var(--text);position:relative;margin:12px 0 4px}
+    .bar span{display:block;height:100%;background:var(--accent)}
+  </style>
+</head>
+<body>
+<main>
+  <h1>위키 그래프 접근성 보고</h1>
+  <p>이번 사이클은 열린 오더가 없어 Codex 레인의 자율 작업으로 진행했다. 2nd-B 위키 그래프에서 눌러 열 수 있는 SVG 노드가 보조기술에 제목으로 노출되도록 개선했다.</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="label">결과</div><p>로컬 커밋 <code>1d571261</code> 생성</p></div>
+    <div class="card"><div class="label">범위</div><p><code>WikiGraph.tsx</code>와 정적 테스트 1개</p></div>
+    <div class="card"><div class="label">검증</div><p>대상 테스트, 파일 단위 ESLint, diff check 통과</p></div>
+    <div class="card"><div class="label">제한</div><p>전체 type-check는 기존 의존성 타입 해석 문제로 실패</p></div>
+  </section>
+
+  <h2>변경 내용</h2>
+  <table>
+    <thead><tr><th>파일</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td><code>src/components/deep-space/WikiGraph.tsx</code></td><td>각 SVG 노드에 <code>accessible</code>과 <code>accessibilityLabel={page.title}</code>을 추가했다.</td></tr>
+      <tr><td><code>src/components/deep-space/__tests__/wiki-graph-a11y.test.ts</code></td><td>노드 접근성 노출이 사라지지 않도록 정적 회귀 테스트를 추가했다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>검증 상태</h2>
+  <div class="bar" aria-label="검증 통과 3개, 제한 1개"><span style="width:75%"></span></div>
+  <table>
+    <thead><tr><th>검증</th><th>상태</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>대상 Jest</td><td>통과</td><td><code>wiki-graph-a11y.test.ts</code> 1개 테스트 통과</td></tr>
+      <tr><td>파일 단위 ESLint</td><td>통과</td><td>수정 파일 2개 오류 없음</td></tr>
+      <tr><td>diff check</td><td>통과</td><td>공백 오류 없음, 줄끝 경고만 존재</td></tr>
+      <tr><td>전체 type-check</td><td>제한</td><td><code>madge</code>, 광고, 분석 패키지 타입 해석 문제가 기존처럼 남아 있음</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>자세히</summary>
+    <p>처음에는 SVG 노드에 버튼 역할과 선택 상태를 직접 추가하려 했지만, <code>react-native-svg</code>의 native 타입이 해당 속성을 허용하지 않았다. 타입 오류를 확인한 뒤 허용되는 속성인 <code>accessible</code>과 <code>accessibilityLabel</code>만 남겼다.</p>
+    <p>이 변경은 사용자가 노드를 선택하거나 다시 눌러 페이지를 열 때, 보조기술이 최소한 페이지 제목을 읽을 수 있게 만드는 작은 접근성 개선이다.</p>
+  </details>
+
+  <h2>위험과 다음 단계</h2>
+  <p>변경은 표시 구조와 데이터 흐름을 건드리지 않는다. 다만 SVG 노드의 정확한 역할 표현은 라이브러리 타입 제한 때문에 별도 오버레이 구조가 필요할 수 있다. 이번 사이클에서는 타입 안전 범위 안에서 노출성을 개선하는 데 그쳤다.</p>
+  <p>작성 시각: 2026-07-30 04:52:30 KST</p>
+</main>
+</body>
+</html>
