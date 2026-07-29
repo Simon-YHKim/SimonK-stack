@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 폴 사이클 보고서</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: clamp(28px, 4vw, 44px); line-height: 1.15; }
+    h2 { margin-top: 32px; font-size: 22px; }
+    h3 { font-size: 17px; }
+    a, strong { color: var(--accent); }
+    code {
+      color: var(--accent);
+      word-break: break-all;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 24px 0 32px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      padding: 16px;
+      background: var(--bg);
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    details { margin: 14px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+    @media (max-width: 760px) {
+      .summary { grid-template-columns: 1fr; }
+      main { width: min(100% - 24px, 980px); padding-top: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 폴 사이클 보고서</h1>
+    <p>생성 시각: 2026-07-29 11:27:52 KST</p>
+
+    <section class="summary" aria-label="요약">
+      <article class="card">
+        <span class="label">목적</span>
+        <strong>남은 Codex 후보 재검증</strong>
+      </article>
+      <article class="card">
+        <span class="label">결과</span>
+        <strong>분리 패치 생성</strong>
+      </article>
+      <article class="card">
+        <span class="label">2nd-B 커밋</span>
+        <strong>61398270</strong>
+      </article>
+      <article class="card">
+        <span class="label">검증</span>
+        <strong>통과</strong>
+      </article>
+    </section>
+
+    <h2>핵심 결론</h2>
+    <p>원본 후보 <code>3df2d617</code> 전체는 현재 main에 직접 통합하지 않는 편이 맞습니다. 실제 cherry-pick에서 디자인 계약, 폰트 바이너리, 타이포그래피 파일이 충돌했고, 후보 안에는 현재 Deep-Space 타이포그래피를 예전 NeoDunggeunmo 중심 구조로 되돌리는 변경이 섞여 있었습니다.</p>
+    <p>성능 의도만 분리했습니다. 웹에서는 <code>Galmuri11-subset.woff2</code>를 로드하고, iOS와 Android는 기존 <code>Galmuri11-subset.ttf</code>를 유지하는 최소 패치를 로컬 worktree에 커밋했습니다.</p>
+
+    <h2>작업 표</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+          <th>판정</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>원본 후보</td>
+          <td><code>origin/codex/core-label-tail-cleanup</code>, <code>3df2d617</code></td>
+          <td>전체 통합 비권장</td>
+        </tr>
+        <tr>
+          <td>충돌</td>
+          <td><code>DESIGN.md</code>, 폰트 바이너리 2개, <code>src/theme/typography.ts</code></td>
+          <td>충돌 확인 후 중단</td>
+        </tr>
+        <tr>
+          <td>분리 변경</td>
+          <td>웹 전용 Galmuri WOFF2 로딩과 font asset 회귀 테스트</td>
+          <td>로컬 커밋 완료</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <ul>
+        <li><code>npx jest src/theme/__tests__/theme.test.ts --runInBand</code>: 통과, 12 tests</li>
+        <li><code>npm run type-check</code>: 통과</li>
+        <li><code>npx eslint src/theme/typography.ts src/theme/__tests__/theme.test.ts</code>: 통과</li>
+        <li><code>git diff --check</code>: 통과, Windows 줄끝 경고만 확인</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <p>UI 관점에서는 웹 폰트 페이로드를 줄이는 의도가 유효합니다. 다만 구 디자인 계약을 되살리는 변경까지 함께 들여오면 현재 화면 품질과 정본성이 후퇴합니다.</p>
+      <p>통합 관점에서는 바이너리 충돌과 문서 대형 충돌을 직접 병합하지 않는 판단이 더 안정적입니다. 안전 관점에서는 스키마, 보안, 개인정보, 비용, 외부 사실, 수학 결과를 건드리지 않아 고위험 검증 요청 대상이 아닙니다.</p>
+    </details>
+
+    <h2>링크</h2>
+    <ul>
+      <li>2nd-B worktree: <code>E:\2ndB\.worktrees\codex-cycle-20260729-112533-core-label-tail-reverify</code></li>
+      <li>2nd-B 커밋: <code>61398270</code></li>
+    </ul>
+  </main>
+</body>
+</html>

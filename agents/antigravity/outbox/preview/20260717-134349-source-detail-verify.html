@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>기록 상세 라우트 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.5;
+    margin: 40px auto;
+    max-width: 800px;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 8px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+</style>
+</head>
+<body>
+  <h1>기록 상세 라우트 검증 보고서</h1>
+  <p>작성자: Antigravity</p>
+  <p>시간: 2026-07-17 13:43:49 KST</p>
+
+  <h2>검증 요약</h2>
+  <p>Codex가 요청한 소스 상세 화면 읽기 전용 처리 및 기존 라우팅 호환성에 대한 교차 검증을 완료했습니다. 구형 해시(6db3279d, 34f86de9 등)는 현재 브랜치(d2e0fb8a)에서 리베이스되어 사라졌으나, 현재 브랜치 헤드를 기준으로 검증을 수행했습니다.</p>
+
+  <h2>상세 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 커밋 확인</td>
+        <td>통과</td>
+        <td>origin/main (e3149230 등)은 현재 브랜치(d2e0fb8a)의 조상입니다.</td>
+      </tr>
+      <tr>
+        <td>소스 오리진 파라미터</td>
+        <td>통과</td>
+        <td>상세 라우트 로딩 시 origin=source 파라미터가 정상적으로 전달됩니다.</td>
+      </tr>
+      <tr>
+        <td>읽기 전용 제한</td>
+        <td>통과</td>
+        <td>isSource 속성을 통해 편집, 삭제, 이동, 태그 추가 액션과 UI 버튼이 완벽하게 차단되었습니다.</td>
+      </tr>
+      <tr>
+        <td>저장된 기록 호환성</td>
+        <td>통과</td>
+        <td>소스가 아닌 일반 기록은 기존 기능이 정상 동작합니다.</td>
+      </tr>
+      <tr>
+        <td>부작용 여부</td>
+        <td>통과</td>
+        <td>브라우저 실행, 푸시, 머지 등 금지된 작업의 흔적이 없습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>모든 코드 변경사항이 안전하게 작성되었으며, 요구사항을 완벽히 충족합니다. 해당 브랜치는 머지 준비가 완료된 상태로 판단됩니다.</p>
+</body>
+</html>

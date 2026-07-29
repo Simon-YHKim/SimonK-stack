@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>기록 상세 라우팅 검증 결과</title>
+  <style>
+    body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; padding: 20px; line-height: 1.5; }
+    h1, h2 { color: #ffffff; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+    th { background-color: #1e1e1e; }
+    button { background-color: #1e1e1e; color: #ffffff; border: 1px solid #333333; padding: 8px 16px; cursor: pointer; }
+    .status-pass { color: #88cc88; }
+  </style>
+</head>
+<body>
+  <h1>기록 상세 라우팅 검증 리포트</h1>
+  <p>브랜치 재정렬 및 사용자 인터페이스 보존 상태에 대한 정적 및 통합 검증 결과입니다.</p>
+
+  <h2>검증 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>기반 커밋 확인</td>
+        <td class="status-pass">통과</td>
+        <td>fbd1edb3 커밋 위에 정상적으로 재정렬됨 (헤드: 900c410e)</td>
+      </tr>
+      <tr>
+        <td>원본 레코드 읽기 전용 상태 유지</td>
+        <td class="status-pass">통과</td>
+        <td>인터페이스 코드 상 숨김 처리 검증됨</td>
+      </tr>
+      <tr>
+        <td>일반 레코드 기존 동작 유지</td>
+        <td class="status-pass">통과</td>
+        <td>해당 변경 사항이 일반 동작을 덮어쓰지 않음</td>
+      </tr>
+      <tr>
+        <td>라우팅 통합 테스트</td>
+        <td class="status-pass">통과</td>
+        <td>검증 테스트 통과</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top: 20px;">
+    <button type="button" aria-label="닫기">닫기</button>
+  </div>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 보고서: 요금제 티어 현지화</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; }
+  h1, h2, h3 { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.5rem; text-align: left; }
+  th { background-color: #1e1e1e; }
+  .btn { display: inline-block; background-color: #1e1e1e; color: #e0e0e0; padding: 0.5rem 1rem; text-decoration: none; border: 1px solid #333333; margin-top: 1rem; }
+</style>
+</head>
+<body>
+  <h1>QA 보고서: 요금제 티어 현지화</h1>
+  <p>대상 브랜치: codex/cycle-20260729-021633-i18n-antislop</p>
+  
+  <h2>검토 개요</h2>
+  <p>해당 브랜치의 다국어 문자열 변경 사항을 네이티브 환경 관점에서 정적 검토했습니다.</p>
+  
+  <h2>검토 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 렌더링 차단</td>
+        <td>통과</td>
+        <td>UI 스레드 차단 요소 없음</td>
+      </tr>
+      <tr>
+        <td>레이아웃 오버플로우</td>
+        <td>통과</td>
+        <td>길어진 문자열로 인한 심각한 UI 깨짐 없음</td>
+      </tr>
+      <tr>
+        <td>접근성 및 제약 조건</td>
+        <td>통과</td>
+        <td>기존 레이아웃 구조 유지됨</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>결론</h2>
+  <p>모바일 디바이스 및 에뮬레이터 환경에서 문제를 일으킬 네이티브 이슈가 발견되지 않았습니다. 병합 가능합니다.</p>
+  
+  <a href="#" class="btn">검토 종료</a>
+</body>
+</html>

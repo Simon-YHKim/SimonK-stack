@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>코드 검증 보고서: 원본 상세 화면 보호</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.5; margin: 2rem; }
+  h1, h2, h3 { color: #e0e0e0; font-weight: normal; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+  th, td { border: 1px solid #555555; padding: 0.5rem; text-align: left; }
+  th { background-color: #1e1e1e; }
+  a { color: #e0e0e0; text-decoration: underline; }
+  .code { background-color: #1e1e1e; padding: 1rem; border: 1px solid #555555; white-space: pre-wrap; font-family: monospace; }
+  button { background-color: #1e1e1e; color: #e0e0e0; border: 1px solid #555555; padding: 0.5rem 1rem; cursor: pointer; }
+  button:hover { background-color: #333333; }
+</style>
+</head>
+<body>
+  <h1>코드 검증 보고서: 원본 상세 화면 보호</h1>
+  <p>작업 대상: PR 브랜치 codex/records-source-detail-route-20260710 (커밋 6e8d0974)</p>
+  
+  <h2>검증 개요</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>설명</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>읽기 전용 상태 유지</td>
+        <td>통과</td>
+        <td>isSource 속성을 통해 편집 및 삭제 버튼 렌더링을 정상적으로 차단함.</td>
+      </tr>
+      <tr>
+        <td>부수 효과 방지</td>
+        <td>통과</td>
+        <td>메타데이터 수정(이동, 태그 추가) 및 본문 수정 훅(hook)에서 원본일 경우 반환 처리됨.</td>
+      </tr>
+      <tr>
+        <td>라우트 오류</td>
+        <td>통과</td>
+        <td>세부 렌더링 예외 처리 확인됨.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>상세 내용</h2>
+  <p>원본 데이터에 대한 수정 접근 시도를 사용자 인터페이스 차원에서 원천 차단하는 로직을 정적 코드로 확인하였습니다. 원본 식별자(origin=source) 존재 여부에 따라 수정 관련 UI 요소가 노출되지 않으며, 상태 업데이트 로직 내에도 조건문(if)이 추가되어 상태 변이가 일어나지 않음을 검증했습니다.</p>
+  <p>기기(에뮬레이터) 검증은 현재 환경 제약으로 인해 정적 검증으로 대체되었습니다.</p>
+
+  <button onclick="window.close()">닫기</button>
+</body>
+</html>

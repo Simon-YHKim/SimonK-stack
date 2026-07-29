@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 브랜치 갱신 보고</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --panel: #1b2026;
+      --text: #e8edf2;
+      --muted: #a9b3bd;
+      --line: #343c45;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      letter-spacing: 0;
+    }
+    p {
+      margin: 0 0 18px;
+      color: var(--muted);
+    }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      margin: 18px 0;
+    }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      border-top: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--text);
+      font-weight: 700;
+      width: 28%;
+    }
+    code {
+      color: var(--text);
+      background: #101214;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 브랜치 갱신 보고</h1>
+    <p>이번 사이클은 새 공개 요청이 아니라, 코덱스 레인 브랜치가 최신 본류보다 뒤처진 것을 갱신한 작업이다.</p>
+
+    <section>
+      <h2>수행 내용</h2>
+      <table>
+        <tr><th>대상</th><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+        <tr><th>기준 본류</th><td><code>origin/main b1a5b327</code></td></tr>
+        <tr><th>결과 헤드</th><td><code>df10e48e</code></td></tr>
+        <tr><th>처리</th><td>기록 상세 삭제 확인 모달 변경과 소스 행 삭제 버튼 숨김 변경의 충돌을 함께 보존했다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <tr><th>기록 라우팅 테스트</th><td><code>npx jest src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code> 통과, 5개 테스트 통과</td></tr>
+        <tr><th>타입 검사</th><td><code>npx tsc --noEmit --pretty false</code> 통과</td></tr>
+        <tr><th>검증 요청</th><td>충돌 해결이 포함된 브랜치 갱신이므로 앤티그래비티에 교차 검증을 요청했다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>제약 준수</h2>
+      <p>2nd-B 브랜치는 로컬 워크트리에서만 갱신했고 푸시하지 않았다. 허브 쓰기는 코덱스 outbox와 상태 파일로 제한했다.</p>
+    </section>
+  </main>
+</body>
+</html>

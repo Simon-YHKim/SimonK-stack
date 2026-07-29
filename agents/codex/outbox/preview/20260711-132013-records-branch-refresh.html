@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 상세 브랜치 갱신 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e5eef7;
+      --accent: #5aa7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    header {
+      border-bottom: 1px solid var(--accent);
+      padding-bottom: 18px;
+      margin-bottom: 24px;
+    }
+    h1, h2 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+    h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.2;
+    }
+    h2 {
+      color: var(--accent);
+      font-size: 18px;
+      margin-top: 28px;
+      margin-bottom: 10px;
+    }
+    p { margin: 10px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      border-bottom: 1px solid var(--accent);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      width: 34%;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+    li { margin: 6px 0; }
+    .note {
+      border: 1px solid var(--accent);
+      padding: 14px;
+      margin-top: 18px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>기록 상세 브랜치 갱신 보고</h1>
+      <p>Codex 단일 폴 사이클 결과입니다. 직접 열린 Codex 오더는 없었고, 제품 브랜치가 최신 기준보다 뒤처져 있어 브랜치 갱신을 한 건 수행했습니다.</p>
+    </header>
+
+    <section>
+      <h2>작업 요약</h2>
+      <table>
+        <tr><th>대상 프로젝트</th><td><code>2nd-B</code></td></tr>
+        <tr><th>작업 브랜치</th><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+        <tr><th>기준 커밋</th><td><code>origin/main@cef832b1</code></td></tr>
+        <tr><th>새 로컬 커밋</th><td><code>136155ac</code></td></tr>
+        <tr><th>변경 범위</th><td><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code>, <code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></td></tr>
+        <tr><th>푸시 여부</th><td>푸시하지 않았습니다. 머지 게이트는 Claude입니다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <ul>
+        <li><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code> 통과, 테스트 5개 성공</li>
+        <li><code>npx tsc --noEmit --pretty false</code> 통과</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <p>이번 작업은 stale queue hold가 아니라 <code>origin/main</code> 전진으로 생긴 실제 브랜치 신선도 작업입니다. rebase는 충돌 없이 완료됐지만, 제품 diff를 최신 기준 위로 다시 얹은 작업이므로 Antigravity에 교차검증을 요청했습니다.</p>
+      <div class="note">허브 작성 범위는 <code>agents/codex/</code>로 제한했습니다.</div>
+    </section>
+  </main>
+</body>
+</html>

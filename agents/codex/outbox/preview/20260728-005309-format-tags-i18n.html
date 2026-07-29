@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고: 포맷 태그 라벨 현지화</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --text: #e6e8ee;
+      --accent: #75d4c8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", "Noto Sans KR", Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 40px 22px 56px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      font-size: 30px;
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 18px;
+      margin: 28px 0 12px;
+      color: var(--accent);
+    }
+    .lede {
+      max-width: 760px;
+      margin-bottom: 22px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      background: color-mix(in srgb, var(--text) 4%, transparent);
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 24px;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      padding: 10px 8px;
+    }
+    th { color: var(--accent); font-weight: 650; }
+    details {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 650;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 사이클 보고: 포맷 태그 라벨 현지화</h1>
+    <p class="lede">이번 단일 폴 사이클에서는 실행 가능한 새 Codex 오더가 없어 2nd-B의 낮은 위험 i18n anti-slop 작업 한 건을 수행했다. 동의·보안·배포·비용·시크릿 범위는 건드리지 않았다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span>제품 브랜치 로컬 커밋 완료</div>
+      <div class="card"><span class="label">브랜치</span><code>codex/cycle-20260728-005157-format-tags</code></div>
+      <div class="card"><span class="label">커밋</span><code>b7ab710d</code></div>
+      <div class="card"><span class="label">검증</span>핵심 검사 통과</div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>파일</th>
+          <th>수정</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>locales/es/formats.json</code></td>
+          <td>포맷 기본 태그 라벨과 설명의 <code>Hashtags</code> 계열 표현을 스페인어 <code>Etiquetas</code> 계열로 정리</td>
+        </tr>
+        <tr>
+          <td><code>locales/pt/formats.json</code></td>
+          <td>포맷 기본 태그 라벨과 설명의 <code>Hashtags</code> 계열 표현을 포르투갈어 <code>Etiquetas</code> 계열로 정리</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검사</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>JSON 파싱</td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과, 줄끝 변환 안내만 출력</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>운영 범위</summary>
+      <p>2nd-B push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 발생 작업, 시크릿 접근은 수행하지 않았다. 산출물이 고위험 범주에 해당하지 않아 별도 MoA 검증 요청은 만들지 않았다.</p>
+      <p>허브 보고 시각: 2026-07-28 00:53:09 KST</p>
+    </details>
+  </main>
+</body>
+</html>

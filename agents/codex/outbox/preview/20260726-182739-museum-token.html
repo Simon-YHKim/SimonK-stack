@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>코덱스 폴 사이클 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e8f7ff;
+      --accent: #86cfff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    header {
+      border: 1px solid color-mix(in srgb, var(--accent) 36%, transparent);
+      border-radius: 8px;
+      padding: 20px;
+      background: color-mix(in srgb, var(--accent) 7%, transparent);
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    h2 { font-size: 17px; margin-bottom: 10px; color: var(--accent); }
+    h3 { font-size: 14px; margin: 18px 0 8px; color: var(--accent); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 82px;
+    }
+    .label { display: block; font-size: 12px; color: color-mix(in srgb, var(--text) 68%, transparent); }
+    .value { display: block; margin-top: 6px; font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+    section { margin-top: 22px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    tr:last-child td { border-bottom: 0; }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    details {
+      border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; margin-bottom: 0; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 단일 폴 사이클 보고서</h1>
+      <p>새 미응답 주문이 없어 자율 UI 위생 작업 1건을 수행했고, 뮤지엄 타임라인 화면의 색상 literal을 토큰 경유로 정리했습니다.</p>
+      <div class="grid" aria-label="요약">
+        <div class="card"><span class="label">사이클 시각</span><span class="value">2026-07-26 18:27:39 KST</span></div>
+        <div class="card"><span class="label">작업 유형</span><span class="value">자율 UI 위생</span></div>
+        <div class="card"><span class="label">앱 커밋</span><span class="value"><code>60720b7e</code></span></div>
+        <div class="card"><span class="label">검증 상태</span><span class="value">통과</span></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>변경 요약</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>대상 파일</td><td><code>src/screens/deepspace/museum/MuseumTimelineScreen.tsx</code></td></tr>
+          <tr><td>변경 내용</td><td>raw hex와 rgba 색상을 <code>m3</code>, <code>deepSpace</code>, <code>withAlpha()</code> 기반 상수로 치환</td></tr>
+          <tr><td>브랜치</td><td><code>codex/museum-token-260726</code></td></tr>
+          <tr><td>작업 위치</td><td><code>E:\2ndB\.worktrees\codex-museum-token-260726</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead>
+          <tr><th>검증</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>대상 파일 raw 색상 스캔</td><td>0건</td></tr>
+          <tr><td>파일 단위 린트</td><td>통과</td></tr>
+          <tr><td>타입체크</td><td>통과</td></tr>
+          <tr><td>공백 오류 검사</td><td>통과</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>운영 제약 준수</summary>
+      <ul>
+        <li>허브 쓰기는 <code>agents/codex/</code>에만 수행했습니다.</li>
+        <li>2nd-B는 <code>origin/main</code> 기준 별도 worktree와 브랜치에서만 수정했습니다.</li>
+        <li>push, pull request, merge, 배포, 비용 발생, secrets 접근, 파괴 작업은 수행하지 않았습니다.</li>
+        <li>섹션 35 self-panel 결과, 작은 UI 위생 변경으로 판단해 별도 토론 게이트를 열지 않았습니다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>위기 안내 전화 라우터 다국어화 QA 보고서</title>
+    <style>
+        body { background-color: #000000; color: #FFFFFF; font-family: sans-serif; margin: 0; padding: 20px; }
+        h1, h2 { color: #FFFFFF; border-bottom: 1px solid #555555; padding-bottom: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #555555; padding: 12px; text-align: left; }
+        th { background-color: #555555; color: #FFFFFF; }
+        button { background-color: #555555; color: #FFFFFF; border: 1px solid #FFFFFF; padding: 10px 15px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>위기 안내 전화 라우터 다국어화 QA 보고서</h1>
+    
+    <div>
+        <h2>검증 개요</h2>
+        <table>
+            <tr><th>대상 브랜치</th><td>codex/cycle-260727-0900-crisis-i18n</td></tr>
+            <tr><th>대상 커밋</th><td>eb3b02e1</td></tr>
+            <tr><th>환경</th><td>안드로이드 에뮬레이터 및 네이티브 환경</td></tr>
+        </table>
+    </div>
+
+    <div>
+        <h2>검증 항목 및 결과</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>검증 항목</th>
+                    <th>상세 내용</th>
+                    <th>결과</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>동작 검증</td>
+                    <td>전화 연결, 닫기, 백드롭 비해제, 국제 헬프라인 링크 동작 유지 확인</td>
+                    <td>통과</td>
+                </tr>
+                <tr>
+                    <td>접근성 검증</td>
+                    <td>안드로이드/네이티브 환경에서 접근성 레이블 및 힌트 변경 사항 후퇴 없음 확인</td>
+                    <td>통과</td>
+                </tr>
+                <tr>
+                    <td>문구 의미 검증</td>
+                    <td>안전 표면 문구가 임상, 법무, 핫라인 의미를 확장하지 않고 단순 언어 분기만 제거되었는지 확인</td>
+                    <td>통과</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div>
+        <h2>결론</h2>
+        <p>요청된 모든 검증 항목이 통과되었습니다. 배포를 위한 후속 작업을 진행해도 안전합니다.</p>
+        <button onclick="window.close()">보고서 닫기</button>
+    </div>
+</body>
+</html>

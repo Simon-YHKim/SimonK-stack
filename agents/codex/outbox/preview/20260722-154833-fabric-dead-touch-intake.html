@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fabric 터치 QA 수거 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --fg: #e7e9ee;
+      --muted: #9aa3b2;
+      --accent: #6aa7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(960px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 40px 0 48px;
+    }
+    h1, h2 { margin: 0; line-height: 1.2; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    p { margin: 10px 0 0; }
+    .muted { color: var(--muted); }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .box {
+      border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 92px;
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .value { font-size: 16px; font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      overflow-wrap: anywhere;
+    }
+    th, td {
+      border-bottom: 1px solid color-mix(in srgb, var(--fg) 14%, transparent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 13px;
+    }
+    code {
+      color: var(--fg);
+      background: color-mix(in srgb, var(--fg) 8%, transparent);
+      border-radius: 4px;
+      padding: 1px 4px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.92em;
+    }
+    details {
+      margin-top: 12px;
+      border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    @media (max-width: 720px) {
+      main { width: min(100% - 24px, 960px); padding-top: 28px; }
+      .summary { grid-template-columns: 1fr; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Fabric 터치 QA 수거 보고서</h1>
+    <p class="muted">생성 시각: 2026-07-22 15:48:33 KST · 담당: Codex · 프로젝트: hub</p>
+  </header>
+
+  <section class="summary" aria-label="요약">
+    <div class="box">
+      <span class="label">이번 작업</span>
+      <div class="value">Antigravity QA 수거</div>
+      <p class="muted">새 코드 변경 없이 후속 검증 신호를 정리했다.</p>
+    </div>
+    <div class="box">
+      <span class="label">판정</span>
+      <div class="value">추가 소스 블로커 없음</div>
+      <p class="muted">Codex와 Antigravity의 정적 판단이 일치한다.</p>
+    </div>
+    <div class="box">
+      <span class="label">남은 조건</span>
+      <div class="value">실기기 탭 증거 필요</div>
+      <p class="muted">헤드리스 정적 리뷰만으로 최종 네이티브 통과는 아니다.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>검증 기준</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>확인 내용</th>
+          <th>결론</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>대상 커밋</td>
+          <td><code>7726e9c3</code> 온보딩 Get started 버튼의 Fabric dead-touch 회피 수정</td>
+          <td>기준선 유지</td>
+        </tr>
+        <tr>
+          <td>구조 변경</td>
+          <td><code>MdButton</code> 의존 대신 <code>View</code>와 일반 <code>Pressable</code> 조합 사용</td>
+          <td>소스 패턴 적합</td>
+        </tr>
+        <tr>
+          <td>시각 및 접근성</td>
+          <td>강조 색상, 최소 높이, ripple, 접근성 의도 보존</td>
+          <td>추가 회귀 없음</td>
+        </tr>
+        <tr>
+          <td>네이티브 증거</td>
+          <td>Antigravity 환경에 에뮬레이터와 adb 디바이스가 없어 실제 탭 테스트는 미실행</td>
+          <td>미충족</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>판정</h2>
+    <p>Antigravity의 정적 QA는 이전 Codex 리뷰와 같은 결론을 냈다. Android Fabric #680 계열의 무응답 원인으로 지목된 버튼 패턴은 제거되었고, 현재 소스 기준으로는 추가 UI 또는 접근성 블로커가 보이지 않는다.</p>
+    <p>다만 이번 수거는 실제 터치 증거가 아니다. 출시 차단 해제는 Claude의 기존 교차검증 요청 또는 이후 에뮬레이터 및 디바이스 실행 결과에 맡겨야 한다.</p>
+  </section>
+
+  <details>
+    <summary>참조 경로</summary>
+    <p><code>agents/antigravity/outbox/20260722-151132-antigravity-re-fabric-dead-touch-qa.md</code></p>
+    <p><code>agents/codex/outbox/20260722-144449-codex-re-onboarding-getstarted-main-qa.md</code></p>
+    <p><code>agents/codex/outbox/20260722-144449-codex-to-claude-onboarding-getstarted-main-qa-verify.md</code></p>
+  </details>
+</main>
+</body>
+</html>

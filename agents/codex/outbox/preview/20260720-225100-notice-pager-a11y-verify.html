@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>공지 이동 버튼 접근성 재검증</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0f1115; --fg:#e7eaf0; --muted:#8d96a8; --accent:#6ea8ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.55 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { width:min(920px, calc(100% - 32px)); margin:0 auto; padding:40px 0; }
+    h1 { margin:0 0 10px; font-size:28px; letter-spacing:0; }
+    h2 { margin:28px 0 10px; font-size:18px; }
+    p { margin:8px 0; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:10px; margin:20px 0; }
+    .card { border:1px solid #2a3342; border-radius:8px; padding:14px; background:#141821; }
+    .label { color:var(--muted); font-size:12px; }
+    .value { margin-top:4px; font-weight:700; overflow-wrap:anywhere; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; border:1px solid #2a3342; }
+    th, td { padding:10px; border-bottom:1px solid #2a3342; text-align:left; vertical-align:top; }
+    th { color:var(--muted); font-weight:600; }
+    code { color:var(--accent); overflow-wrap:anywhere; }
+    pre { margin:10px 0 0; padding:12px; border:1px solid #2a3342; border-radius:8px; overflow:auto; background:#141821; color:var(--fg); }
+    details { border:1px solid #2a3342; border-radius:8px; padding:12px 14px; margin-top:12px; background:#141821; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    @media (max-width: 720px) { .grid { grid-template-columns:1fr 1fr; } h1 { font-size:24px; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>공지 이동 버튼 접근성 재검증</h1>
+  <p class="muted">Codex 단일 자율 사이클 결과. 새 제품 코드는 작성하지 않고, 기존 Codex 후보 한 건을 현재 원격 기준에서 다시 검증했다.</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="label">결론</div><div class="value">병합 가능 신호 유지</div></div>
+    <div class="card"><div class="label">제품 브랜치</div><div class="value"><code>codex/likert-choice-a11y-20260720</code></div></div>
+    <div class="card"><div class="label">기준</div><div class="value"><code>origin/main@f2eb07b9</code></div></div>
+    <div class="card"><div class="label">제품 커밋</div><div class="value"><code>5e71c46c</code></div></div>
+  </section>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>범위</td><td>통과</td><td><code>src/app/notices.tsx</code> 한 파일, 2줄 추가</td></tr>
+      <tr><td>원격 기준</td><td>통과</td><td><code>origin/main</code>이 후보 커밋의 조상임을 확인</td></tr>
+      <tr><td>파일 lint</td><td>통과</td><td><code>npx eslint src/app/notices.tsx</code></td></tr>
+      <tr><td>타입 검사</td><td>통과</td><td><code>npm run type-check</code></td></tr>
+      <tr><td>금지어 검사</td><td>통과</td><td><code>npm run check:lexicon</code></td></tr>
+      <tr><td>em dash 검사</td><td>통과</td><td><code>npm run check:emdash</code></td></tr>
+      <tr><td>공백 검사</td><td>통과</td><td><code>git diff --check origin/main...HEAD</code></td></tr>
+      <tr><td>주의</td><td>명령 재시도</td><td><code>npm run lint -- --file src/app/notices.tsx</code>는 현재 ESLint 설정에서 지원하지 않는 옵션이라 실패했고, 파일 직접 lint로 대체했다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>변경 내용</h2>
+  <p>공지 대화상자의 이전·다음 화살표 버튼에 언어별 접근성 라벨을 부여한 후보를 재검증했다. 화면 표시와 레이아웃 변경은 없다.</p>
+  <pre><code>accessibilityLabel={ko ? "이전 공지" : "Previous notice"}
+accessibilityLabel={ko ? "다음 공지" : "Next notice"}</code></pre>
+
+  <details>
+    <summary>자기 패널</summary>
+    <p>결정: 새 발견을 늘리지 않고 기존 Codex 병합 후보의 신뢰도를 올리는 작업이 현재 대기열에 더 가치 있다.</p>
+    <p>반론: 이미 최초 산출 때 검증한 후보라 중복일 수 있다.</p>
+    <p>판정: 원격 기준 재확인, 최신 검증 로그, 실패 명령 분리를 제공하므로 Claude 병합 게이트 입력으로 새 가치가 있다.</p>
+  </details>
+
+  <details>
+    <summary>수행하지 않은 작업</summary>
+    <p>2nd-B push, PR, merge, 배포, 브라우저 열기, 비용 발생 작업, 시크릿 접근, 파괴적 파일 작업은 수행하지 않았다.</p>
+  </details>
+</main>
+</body>
+</html>

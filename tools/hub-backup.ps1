@@ -1,22 +1,43 @@
 <#
 .SYNOPSIS
-  허브 off-machine 백업 — 커밋된 히스토리를 private 원격(comm-hub)에 푸시.
-  감사(ai-hub-audit) P1 'remote/백업 없는 단일디스크 SPOF' 대응. 예약작업 HubBackup이 호출.
+  Hub off-machine backup - push committed history to the private remote (comm-hub).
+  Answers audit P1 'single-disk SPOF, no remote backup'. Called by the HubBackup scheduled task.
 .NOTES
-  커밋된 히스토리만 백업한다(워킹트리 미커밋분은 각 에이전트가 커밋해야 잡힘).
-  원격이 SPOF 1차 방어선. 파괴적 op 없음(push만).
+  Backs up COMMITTED history only (uncommitted working-tree changes must be committed by
+  each agent first). Remote is the first line of SPOF defense. No destructive ops (push only,
+  never force). Source kept ASCII: scheduled tasks may launch this under powershell.exe 5.1,
+  which reads BOM-less UTF-8 as cp949 and mojibakes non-ASCII literals.
+  2026-07-04: added fetch + divergence guard - a plain push used to swallow non-fast-forward
+  rejections into the log for days (restore-migration incident: 17 behind / 3 ahead, no alarm).
 #>
 [CmdletBinding()]
-param([string]$Hub = "C:\Coding Infra\AI Infra\Communication")
+param([string]$Hub = "E:\Coding Infra\AI Infra\Communication")
 $ErrorActionPreference = "Continue"
-$ts = (Get-Date -Format 'yyyy-MM-dd / HH:mm:ss')
+function Now { Get-Date -Format "yyyy-MM-dd '/' HH:mm:ss" }
 $log = Join-Path $Hub "tools\hub-backup.log"
 Set-Location $Hub
 
-# 원격이 없으면(클론 이동 등) 기록만 하고 종료
+# No remote (moved clone etc.) -> log and exit
 $hasRemote = (git remote 2>$null) -contains 'origin'
 if (-not $hasRemote) {
-  "[$ts KST] HubBackup SKIP: origin 원격 미설정 (git remote add origin <private-url> 필요)" | Add-Content $log
+  "[$(Now) KST] HubBackup SKIP: origin remote not configured (git remote add origin <private-url>)" | Add-Content $log
+  return
+}
+
+# Divergence guard: fetch first, then compare. Push only when the remote is a strict
+# ancestor (fast-forward). On divergence, log LOUD and leave reconciliation to Claude
+# (fetch + merge, never force) - see hub-watchdog check #8 which alarms on pile-up.
+git fetch origin 2>&1 | Out-Null
+$counts = (git rev-list --left-right --count origin/master...master 2>$null) -split '\s+'
+$behind = 0; $ahead = 0
+if ($counts.Count -ge 2) { $behind = [int]$counts[0]; $ahead = [int]$counts[1] }
+
+if ($ahead -eq 0) {
+  "[$(Now) KST] HubBackup OK: nothing to push (ahead=0, behind=$behind)" | Add-Content $log
+  return
+}
+if ($behind -gt 0) {
+  "[$(Now) KST] HubBackup DIVERGED: master is ahead=$ahead behind=$behind vs origin - push would be rejected non-FF. Claude must reconcile (git fetch + git merge origin/master, NEVER force), then push. NOT pushing." | Add-Content $log
   return
 }
 
@@ -24,4 +45,4 @@ $push = (git push origin master 2>&1 | Out-String).Trim()
 $localHead  = (git rev-parse --short HEAD 2>$null)
 $remoteHead = ((git ls-remote origin master 2>$null) -split '\s')[0]
 $synced = $remoteHead -and ($remoteHead -like "$((git rev-parse HEAD))*")
-"[$ts KST] HubBackup push (local=$localHead, synced=$synced): $push" | Add-Content $log
+"[$(Now) KST] HubBackup push (local=$localHead, ahead was $ahead, synced=$synced): $push" | Add-Content $log

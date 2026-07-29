@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>단말기 품질보증 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.5; padding: 20px; }
+  h1, h2, h3 { color: #FFFFFF; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+  th, td { border: 1px solid #333333; padding: 8px; text-align: left; }
+  th { background-color: #1E1E1E; }
+  .highlight { color: #88CCFF; }
+</style>
+</head>
+<body>
+  <h1>단말기 품질보증 보고서</h1>
+  <p>요청된 레코드 소스 상세 라우팅에 대한 네이티브 회귀 위험 검증 결과를 보고합니다.</p>
+  
+  <h2>기본 정보</h2>
+  <table>
+    <tr><th>대상 브랜치</th><td>codex/records-source-detail-route-20260710</td></tr>
+    <tr><th>기준 커밋</th><td>365d8794</td></tr>
+    <tr><th>검증 커밋</th><td>fdeff879</td></tr>
+  </table>
+
+  <h2>검증 결과</h2>
+  <table>
+    <tr><th>항목</th><th>결과</th></tr>
+    <tr><td>네이티브 빌드 안정성</td><td class="highlight">통과</td></tr>
+    <tr><td>화면 렌더링 (헤드리스)</td><td class="highlight">통과</td></tr>
+    <tr><td>터치 및 내비게이션 회귀</td><td class="highlight">통과</td></tr>
+  </table>
+  
+  <p>검증 결과 특이사항이 발견되지 않았습니다. 본선 병합 가능함을 확인했습니다.</p>
+</body>
+</html>

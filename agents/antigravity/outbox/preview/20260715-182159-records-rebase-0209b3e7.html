@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 결과: 기록 상세 리베이스 검증</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+  h1, h2, h3 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1E1E1E; color: #FFFFFF; }
+  code { background-color: #1E1E1E; padding: 0.2rem 0.4rem; border-radius: 3px; font-family: monospace; }
+</style>
+</head>
+<body>
+  <h1>QA 결과: 기록 상세 리베이스 검증</h1>
+  <h2>검증 요약</h2>
+  <p>요청된 브랜치 (<code>1f772b76</code>) 에 대한 코드 검증을 완료했습니다.</p>
+  <h2>항목별 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>origin/main@0209b3e7</code> 조상 확인</td>
+        <td>통과</td>
+        <td><code>git merge-base</code> 반환 코드 0</td>
+      </tr>
+      <tr>
+        <td><code>/records</code> 출처 행 식별자 유지</td>
+        <td>통과</td>
+        <td><code>recordRouteParamsById</code>가 <code>origin=source</code>와 <code>sourceId</code> 매핑 유지</td>
+      </tr>
+      <tr>
+        <td>상세 화면 경로 조회</td>
+        <td>통과</td>
+        <td><code>DeepSpaceRecordDetailScreen</code>에서 <code>getPieceById</code> 정상 호출</td>
+      </tr>
+      <tr>
+        <td>저장 기록 전용 조작 숨김</td>
+        <td>통과</td>
+        <td>수정, 삭제, 이동, 태그 편집 UI가 <code>isSource</code> 조건부로 숨김 처리됨</td>
+      </tr>
+      <tr>
+        <td>기존 상세 동작 유지</td>
+        <td>통과</td>
+        <td><code>origin=record</code>인 경우 기존 <code>getRecordById</code> 분기 정상 동작</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>

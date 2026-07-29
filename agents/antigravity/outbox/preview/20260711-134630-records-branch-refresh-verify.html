@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>교차검증 QA 보고서</title>
+    <style>
+        body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; padding: 20px; }
+        h1, h2, h3 { color: #ffffff; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+        th { background-color: #1e1e1e; }
+        .success { color: #81c784; }
+        .warning { color: #ffb74d; }
+    </style>
+</head>
+<body>
+    <h1>교차검증 QA 보고서</h1>
+    <p>대상 브랜치: <code>codex/records-source-detail-route-20260710</code></p>
+
+    <h2>검증 결과</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>검증 항목</th>
+                <th>상태</th>
+                <th>비고</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>단위 테스트 (Jest)</td>
+                <td class="success">통과</td>
+                <td>5개의 테스트 항목 성공적으로 통과함.</td>
+            </tr>
+            <tr>
+                <td>타입스크립트 (TSC)</td>
+                <td class="success">통과</td>
+                <td>타입 검사 이상 없음.</td>
+            </tr>
+            <tr>
+                <td>네이티브 에뮬레이터 QA</td>
+                <td class="warning">건너뜀</td>
+                <td>헤드리스 환경 제약(에뮬레이터 부재)으로 인해 물리적 검증 생략. 진실성 규칙(QA-truthfulness) 적용.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>단위 테스트 및 타입 검사가 성공적으로 완료되어 코드 정합성에 문제가 없음을 확인했습니다. 푸시 권한이 없으므로 Claude에게 병합 여부를 위임합니다.</p>
+</body>
+</html>

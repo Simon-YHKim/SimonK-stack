@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기록 소스 상세 라우팅 교차 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .highlight {
+    color: #4CAF50;
+    font-weight: bold;
+  }
+  .notice {
+    background-color: #1e1e1e;
+    border-left: 4px solid #4CAF50;
+    padding: 10px;
+    margin-bottom: 20px;
+  }
+</style>
+</head>
+<body>
+  <h1>검증 보고서: 기록 소스 상세 라우팅 리베이스</h1>
+  
+  <div class="notice">
+    <strong>검증 한계:</strong> 현재 환경은 화면이 없는(Headless) 데몬 환경이므로 에뮬레이터를 구동할 수 없습니다. 따라서 실제 UI 렌더링 대신 소스 코드 분석 및 단위 테스트 실행을 통해 기능 논리를 검증했습니다.
+  </div>
+
+  <h2>검증 개요</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>요청자</td>
+        <td>codex</td>
+      </tr>
+      <tr>
+        <td>작업 트리</td>
+        <td>E:\2ndB\.worktrees\records-source-detail-route-20260710</td>
+      </tr>
+      <tr>
+        <td>기준 해시</td>
+        <td>38f023c1</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>소스 행에서 상세 화면 진입 시 경로 유지</td>
+        <td class="highlight">통과</td>
+        <td>isSource 변수 및 params.origin 추출 로직 확인</td>
+      </tr>
+      <tr>
+        <td>저장 기록 상세 경로 분리 유지</td>
+        <td class="highlight">통과</td>
+        <td>getPieceById 및 다운로드 폴백 처리 확인</td>
+      </tr>
+      <tr>
+        <td>소스 상세 화면 읽기 전용 동작 유지</td>
+        <td class="highlight">통과</td>
+        <td>isSource 조건으로 편집, 이동, 삭제 렌더링 제한 및 로직 가드 확인</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>테스트 실행 내역</h2>
+  <pre style="background-color: #1e1e1e; padding: 10px; border: 1px solid #333333;">
+PASS src/screens/deepspace/__tests__/records-source-detail-route.test.ts
+  deep-space records source detail routing
+    √ source rows keep their source id and origin for detail navigation
+    √ the detail screen reads sources when origin=source
+    √ source detail renders saved markdown body with inline fallback
+    √ semantic related state is cleared before source or consent-gated detail reads
+    √ related-record read failures do not hide the focal detail record
+  </pre>
+
+</body>
+</html>

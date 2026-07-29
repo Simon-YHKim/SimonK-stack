@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>코드 리뷰 및 테스트 결과 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 40px auto; max-width: 800px; line-height: 1.6; }
+  h1, h2 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #333333; padding: 12px; text-align: left; }
+  th { background-color: #1e1e1e; color: #ffffff; }
+</style>
+</head>
+<body>
+  <h1>코드 리뷰 및 테스트 결과 보고서</h1>
+  <p>요청: codex/records-source-detail-route-20260710 브랜치 리베이스 충돌 해결 교차 검증</p>
+
+  <h2>검증 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>업스트림 평가 페이로드 라우팅 유지</td>
+        <td>통과</td>
+        <td>코드 분석 및 테스트 통과 확인</td>
+      </tr>
+      <tr>
+        <td>소스 상세 본문 대체 동작 유지</td>
+        <td>통과</td>
+        <td>코드 분석 및 테스트 통과 확인</td>
+      </tr>
+      <tr>
+        <td>기록 상세 진입 대체 동작 무결성</td>
+        <td>통과</td>
+        <td>코드 분석 및 테스트 통과 확인</td>
+      </tr>
+      <tr>
+        <td>단위 테스트 수행</td>
+        <td>통과</td>
+        <td>5개 테스트 모두 성공</td>
+      </tr>
+      <tr>
+        <td>타입스크립트 컴파일</td>
+        <td>통과</td>
+        <td>오류 없음</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>모든 기능이 정상적으로 동작하며 회귀가 발견되지 않았습니다. 메인 브랜치로 병합이 가능합니다.</p>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>허브 독 아이콘 정리 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b1020; --fg: #e8eefc; --accent: #7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, sans-serif; line-height: 1.6; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section { border: 1px solid var(--accent); border-radius: 8px; padding: 18px; margin-top: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+    .card { border: 1px solid var(--accent); border-radius: 8px; padding: 14px; min-height: 110px; }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    p { margin: 0 0 10px; }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    code { color: var(--accent); }
+    a { color: var(--accent); }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 460px) { .grid { grid-template-columns: 1fr; } main { padding: 24px 14px 36px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>허브 독 아이콘 정리 보고서</h1>
+    <p>작성 시각: 2026-07-27 13:04:52 KST</p>
+
+    <div class="grid" aria-label="요약">
+      <div class="card"><div class="label">목적</div><p>하단 허브 독의 장식 아이콘 제거</p></div>
+      <div class="card"><div class="label">결과</div><p>고정 벡터 아이콘과 탭 라벨 적용</p></div>
+      <div class="card"><div class="label">검증</div><p>린트, 타입, 문구 검사 통과</p></div>
+      <div class="card"><div class="label">상태</div><p>로컬 브랜치 커밋 완료</p></div>
+    </div>
+
+    <section>
+      <h2>작업 내용</h2>
+      <p><code>src/components/deepspace/DeepSpaceHubDock.tsx</code>에서 장식용 이모지와 문자 아이콘을 제거했다. 각 탭은 같은 크기의 <code>react-native-svg</code> 아이콘으로 렌더링되고, 스크린 리더가 읽을 수 있는 명시적 탭 라벨을 갖는다.</p>
+      <p>앱 커밋은 <code>codex/cycle-20260727-130310-antislop</code> 브랜치의 <code>3dfb81e0</code>이다.</p>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <ul>
+        <li><code>npx eslint src/components/deepspace/DeepSpaceHubDock.tsx</code>: 통과</li>
+        <li><code>npm run type-check</code>: 통과</li>
+        <li><code>npm run check:i18n</code>: 통과</li>
+        <li><code>npm run check:lexicon</code>: 통과</li>
+        <li><code>npm run check:emdash</code>: 통과</li>
+        <li><code>git diff --check</code>: 공백 오류 없음, 줄끝 경고만 있음</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>운영 제약</h2>
+      <details open>
+        <summary>확인한 제약</summary>
+        <ul>
+          <li>허브 브랜치는 <code>master</code>를 유지했다.</li>
+          <li>허브 쓰기는 <code>agents/codex/</code> 아래로 제한했다.</li>
+          <li>2nd-B 푸시, PR, 머지, 배포, 브라우저 자동 열기, 비용 작업, 시크릿 작업은 하지 않았다.</li>
+          <li>고위험 산출물이 아니므로 MoA 교차검증 요청은 생략했다.</li>
+        </ul>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

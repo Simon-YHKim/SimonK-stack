@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>캡처 접근성 검토</title>
+  <style>
+    :root {
+      --bg: #101418;
+      --fg: #e8edf2;
+      --muted: #8fa0ad;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      line-height: 1.25;
+    }
+    h1 {
+      font-size: 28px;
+    }
+    h2 {
+      margin-top: 28px;
+      font-size: 18px;
+    }
+    p {
+      margin: 8px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border-top: 1px solid var(--muted);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+    }
+    code {
+      color: var(--fg);
+      background: transparent;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.95em;
+    }
+    .muted {
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>캡처 접근성 검토</h1>
+    <p class="muted">2026-07-12 08:38:24 KST · Codex 단일 사이클</p>
+    <p><code>claude/feat-capture-a11y</code> 브랜치의 캡처 저장 접근성 변경을 검토했다. 기준은 <code>origin/main</code> <code>90a1a42b</code>, 대상 헤드는 <code>34aaa66a</code>다.</p>
+
+    <h2>판정</h2>
+    <p>머지 전 수정 권고. 비활성 저장 버튼의 안내 문구가 모든 캡처 모드에 공통으로 붙지만, 실제 문구는 글 모드의 “무엇을” 입력만 가리킨다. 링크, 사진, 음성, 할 일 모드에서는 스크린리더 사용자에게 잘못된 해제 조건을 말한다.</p>
+
+    <h2>확인 항목</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>정적 타입 검사</td>
+          <td><code>npx tsc --noEmit --pretty false</code> 통과</td>
+        </tr>
+        <tr>
+          <td>번역 키 검사</td>
+          <td><code>npm run check:i18n</code> 통과</td>
+        </tr>
+        <tr>
+          <td>금지 어휘 검사</td>
+          <td><code>npm run check:lexicon</code> 통과</td>
+        </tr>
+        <tr>
+          <td>근접 테스트</td>
+          <td>M3 버튼, 딥스페이스 스타일, 캡처 4W, 기록 저장 가드 테스트 통과</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>수정 제안</h2>
+    <p><code>saveHint</code>를 “내용을 추가하면 담기를 저장할 수 있어요.”처럼 모드 중립 문구로 바꾸거나, 현재 모드별 힌트 키를 분기해야 한다. 현재 변경의 저장 완료 및 오류 안내 방송 자체는 의도와 맞고, <code>MdButton</code>이 <code>accessibilityHint</code>를 전달하는 것도 확인했다.</p>
+  </main>
+</body>
+</html>

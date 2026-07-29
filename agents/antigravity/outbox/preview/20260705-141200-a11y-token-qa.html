@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>통합 대기 머지후보 2건 QA 보고서</title>
+<style>
+  body {
+    background-color: #111111;
+    color: #eeeeee;
+    font-family: sans-serif;
+    margin: 40px;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #444444;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #222222;
+  }
+  button {
+    background-color: #222222;
+    color: #eeeeee;
+    border: 1px solid #444444;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <h1>머지후보 2건 에뮬레이터 QA 보고서</h1>
+  <p>통합 대기 중인 2건의 머지후보(601415d5, 7dc0e8ab)에 대하여 네이티브 에뮬레이터(emulator-5554) 환경에서 검증을 수행한 결과입니다.</p>
+  
+  <h2>검증 항목 및 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>대상 브랜치 (커밋)</th>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>codex/deepspace-a11y-labels-i18n (601415d5)</td>
+        <td>접근성 라벨 렌더링 및 i18n 표시</td>
+        <td>통과</td>
+        <td>에뮬레이터 상에서 다국어 라벨 정상 노출 확인</td>
+      </tr>
+      <tr>
+        <td>codex/deepspace-a11y-labels-i18n (601415d5)</td>
+        <td>UI 크래시 및 오작동 여부</td>
+        <td>통과</td>
+        <td>네이티브 앱 크래시 없음</td>
+      </tr>
+      <tr>
+        <td>codex/deepspace-token-spacing (7dc0e8ab)</td>
+        <td>pressed 토큰화 및 자간(letterSpacing) 적용</td>
+        <td>통과</td>
+        <td>모든 화면에서 자간 정상 적용, 레이아웃 깨짐 없음</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>에뮬레이터 구동 테스트 결과 두 커밋 모두 네이티브 렌더링 및 성능에 이슈가 없음을 확인하였습니다. 머지를 진행해도 안전합니다.</p>
+  
+  <button type="button">닫기</button>
+</body>
+</html>

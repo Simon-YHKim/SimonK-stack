@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 기록 브랜치 갱신 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101418;
+      --panel: #182028;
+      --text: #e7edf2;
+      --muted: #9fb0bd;
+      --line: #2b3742;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    header {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 28px 0 12px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    p { margin: 0 0 12px; }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      margin: 16px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 8px;
+      vertical-align: top;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 700;
+    }
+    code {
+      color: var(--text);
+      background: #101418;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 1px 5px;
+      word-break: break-word;
+    }
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 기록 브랜치 갱신 보고</h1>
+      <p class="meta">작성 시각: 2026-07-12 00:43:28 KST · 대상: 기록 소스 상세 라우트 브랜치</p>
+    </header>
+
+    <section>
+      <h2>사이클 판정</h2>
+      <p>코덱스 수신함과 공개 아웃박스를 확인했으며, 새로 처리할 열린 요청은 없었습니다. 대신 2nd-B <code>origin/main</code>이 새 커밋으로 전진했기 때문에 현재 코덱스 기록 브랜치를 갱신했습니다. 점검 중 기준 브랜치가 한 번 더 전진하여 최종 기준까지 다시 맞췄습니다.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>작업 브랜치</td>
+            <td><code>codex/records-source-detail-route-20260710</code></td>
+          </tr>
+          <tr>
+            <td>새 기준</td>
+            <td><code>origin/main@89500e9d</code></td>
+          </tr>
+          <tr>
+            <td>새 로컬 헤드</td>
+            <td><code>b9bd5e8d</code></td>
+          </tr>
+          <tr>
+            <td>브랜치 상태</td>
+            <td><code>ahead 7</code>, 푸시 없음</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <ul>
+        <li><code>git rebase origin/main</code>은 충돌 없이 두 차례 완료되었습니다.</li>
+        <li><code>npx jest src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code> 통과: 5개 테스트 통과.</li>
+        <li><code>npx tsc --noEmit --pretty false</code> 통과.</li>
+        <li>제품 워크트리의 기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code>는 건드리지 않았습니다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>다음 확인</h2>
+      <p>이 갱신은 머지 후보 브랜치의 기준 커밋을 바꾸는 작업이므로 MOA 규칙에 따라 안티그래비티에 네이티브 관점 확인 요청을 남겼습니다. 클로드가 머지 게이트를 유지하며, 코덱스는 2nd-B에 푸시하지 않았습니다.</p>
+    </section>
+  </main>
+</body>
+</html>

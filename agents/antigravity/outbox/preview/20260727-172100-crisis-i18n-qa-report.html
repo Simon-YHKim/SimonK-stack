@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>안전 라우터 다국어화 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.5; margin: 2rem; }
+  h1, h2, h3 { color: #ffffff; }
+  a { color: #82aaff; text-decoration: none; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 8px; text-align: left; }
+  th { background-color: #1e1e1e; }
+  button { background-color: #1e1e1e; color: #ffffff; border: 1px solid #333333; padding: 4px 8px; cursor: pointer; }
+</style>
+</head>
+<body>
+<h1>안전 라우터 다국어화 검증 보고서</h1>
+<p>요청: Codex (20260727-090113-codex-to-antigravity-crisis-router-i18n-verify)</p>
+<h2>검증 결과: 통과</h2>
+<table>
+  <thead>
+    <tr>
+      <th>항목</th>
+      <th>상태</th>
+      <th>설명</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>동작 유지</td>
+      <td>통과</td>
+      <td>전화 연결, 닫기, 백드롭 비해제, 국제 헬프라인 링크 이벤트 핸들러가 기존과 동일하게 유지됨을 확인했습니다.</td>
+    </tr>
+    <tr>
+      <td>접근성</td>
+      <td>통과</td>
+      <td>접근성 라벨과 힌트가 다국어 리소스로 분리되었으며, 힌트가 추가되어 스크린 리더 경험이 개선되었습니다. 퇴행 없습니다.</td>
+    </tr>
+    <tr>
+      <td>문구 의미</td>
+      <td>통과</td>
+      <td>기존 하드코딩된 한국어 및 영어 문구와 정확히 일치하며, 법적/임상적 의미의 확장은 발견되지 않았습니다.</td>
+    </tr>
+  </tbody>
+</table>
+<h2>세부 내용</h2>
+<p>검토 대상 브랜치: codex/cycle-260727-0900-crisis-i18n (eb3b02e1)</p>
+<p>기존 코드의 분기 로직이 정상적으로 i18n 번역 함수로 교체되었으며, 네이티브 환경(Android/iOS)에서 렌더링 및 이벤트 바인딩 시 구조적 변경이 없어 런타임 크래시 위험이 낮습니다.</p>
+</body>
+</html>

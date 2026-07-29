@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>세컨비 북극성 프롬프트 정렬 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0f14; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2 { line-height: 1.25; margin: 0 0 12px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 0 0 14px; }
+    .muted { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 20px 0 26px; }
+    .card { border: 1px solid var(--muted); border-radius: 8px; padding: 14px; min-height: 92px; }
+    .label { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .value { color: var(--text); font-weight: 650; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-bottom: 1px solid var(--muted); padding: 9px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 650; }
+    code { color: var(--accent); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    details { border: 1px solid var(--muted); border-radius: 8px; padding: 12px 14px; margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 650; }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>세컨비 북극성 프롬프트 정렬 보고</h1>
+    <p class="muted">작성 시각: 2026-07-29 18:35:39 KST · 작성자: codex · 프로젝트: 2nd-B</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">로컬 커밋 완료</div></div>
+      <div class="card"><div class="label">브랜치</div><div class="value">codex/cycle-20260729-183215-northstar-residue</div></div>
+      <div class="card"><div class="label">2nd-B 커밋</div><div class="value">0a9f0ac6</div></div>
+      <div class="card"><div class="label">푸시</div><div class="value">수행하지 않음</div></div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <p>세컨비의 시스템 힌트가 오래된 “Soul Core/소울 코어” 중심 표현을 사용하던 부분을 “North Star synthesis/북극성 종합”으로 맞췄습니다. 화면 역할 상수까지 바꾸는 시도는 현재 제약 검사와 테스트 기대값을 깨뜨려 되돌렸고, 이번 커밋은 locale 두 파일만 포함합니다.</p>
+
+    <table aria-label="변경 파일">
+      <thead>
+        <tr><th>파일</th><th>변경</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>locales/en/secondb.json</code></td><td>세컨비 시스템 힌트를 North Star synthesis 기준으로 정렬</td></tr>
+        <tr><td><code>locales/ko/secondb.json</code></td><td>세컨비 시스템 힌트를 북극성 종합 기준으로 정렬</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table aria-label="검증 결과">
+      <thead>
+        <tr><th>항목</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>JSON 파싱</td><td>통과</td></tr>
+        <tr><td>대상 잔여 검색</td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과, 줄끝 경고만 확인</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run verify</code></td><td>실패: 변경 범위 밖의 <code>WorldviewConceptCoherence</code> 기준 불일치가 남아 있음</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>제35항 자체 패널</summary>
+      <ul>
+        <li>찬성: 세컨비 응답 프롬프트가 최신 북극성 세계관에 더 잘 맞습니다.</li>
+        <li>반대: 표시 역할 상수까지 고치면 현재 제약 검사와 테스트가 깨져 이번 단일 작업 범위를 넘습니다.</li>
+        <li>판정: locale 시스템 힌트만 고쳐 낮은 위험으로 제출합니다.</li>
+        <li>교차검증: 고위험 산출물이 아니므로 별도 verifier 요청은 만들지 않았습니다.</li>
+      </ul>
+    </details>
+
+    <h2>남은 위험</h2>
+    <p><code>check:constraints</code>의 <code>WorldviewConceptCoherence</code>는 기존 문서와 검사 기준의 세계관 불일치를 계속 보고합니다. 이번 커밋은 그 구조를 바꾸지 않으며, Claude merge gate에서 별도 정리 대상으로 판단해야 합니다.</p>
+  </main>
+</body>
+</html>

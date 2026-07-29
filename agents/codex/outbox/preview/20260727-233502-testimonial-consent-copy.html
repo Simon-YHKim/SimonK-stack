@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>테스티모니얼 동의 문구 현지화 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --fg: #e7e9ee;
+      --muted: #9aa3b2;
+      --accent: #68d391;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 48px 0;
+    }
+    h1, h2 { margin: 0 0 14px; line-height: 1.25; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 16px; }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 22px 0;
+    }
+    .box {
+      border: 1px solid var(--muted);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    code {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      word-break: break-word;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 24px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--muted);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 650; }
+    details {
+      border: 1px solid var(--muted);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 650;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>테스티모니얼 동의 문구 현지화 보고서</h1>
+    <p class="muted">작성 시각: 2026-07-27 23:35:02 KST</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="box">
+        <span class="label">결과</span>
+        <strong>완료</strong>
+      </div>
+      <div class="box">
+        <span class="label">2nd-B 커밋</span>
+        <code>adff7547</code>
+      </div>
+      <div class="box">
+        <span class="label">브랜치</span>
+        <code>codex/cycle-20260727-233236-antislop</code>
+      </div>
+      <div class="box">
+        <span class="label">검증</span>
+        <strong>통과</strong>
+      </div>
+    </section>
+
+    <section>
+      <h2>수행 내용</h2>
+      <p>Codex inbox에는 새 미응답 요청이 없었고, peer outbox의 Codex 대상 OPEN 항목은 오래된 기응답 항목으로 판단했다. 새 lane 작업으로 2nd-B의 테스티모니얼 동의 블록에서 영어로 남아 있던 ES, PT, ID 문구를 현지화했다.</p>
+      <p>수정 범위는 <code>locales/es/consent.json</code>, <code>locales/pt/consent.json</code>, <code>locales/id/consent.json</code>의 <code>testimonial</code> 블록에 한정했다.</p>
+    </section>
+
+    <section>
+      <h2>변경 요약</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>언어</th>
+            <th>수정 범위</th>
+            <th>의미 보존 기준</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>스페인어</td>
+            <td>제목, 본문, 검토자 열람, 공개 표시, 동의, 거절</td>
+            <td>팀 공유, 신뢰 검토자, 공개 표시, 사용자 통제 유지</td>
+          </tr>
+          <tr>
+            <td>포르투갈어</td>
+            <td>제목, 본문, 검토자 열람, 공개 표시, 동의, 거절</td>
+            <td>팀 공유, 신뢰 검토자, 공개 표시, 사용자 통제 유지</td>
+          </tr>
+          <tr>
+            <td>인도네시아어</td>
+            <td>제목, 본문, 검토자 열람, 공개 표시, 동의, 거절</td>
+            <td>팀 공유, 신뢰 검토자, 공개 표시, 사용자 통제 유지</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>검증 결과</summary>
+      <p><code>node</code> JSON 파싱 통과.</p>
+      <p><code>npm run check:i18n</code> 통과.</p>
+      <p><code>npm run check:lexicon</code> 통과.</p>
+      <p><code>npm run check:emdash</code> 통과.</p>
+      <p><code>git diff --check</code> 통과. Git 줄끝 경고만 표시됐다.</p>
+    </details>
+
+    <details>
+      <summary>안전 패널</summary>
+      <p>§35 자체 패널 기준, 설계·스키마·비용·시크릿·배포·파괴 작업은 없었다. 다만 동의 관련 사용자 문구이므로 MOA 교차검증 규칙에 따라 Claude 검증 요청을 별도로 남겼다.</p>
+    </details>
+  </main>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>애착 화면 채팅 진입 문구 현지화 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2 { line-height: 1.25; margin: 0 0 12px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 18px 0 22px; }
+    .card { border: 1px solid var(--accent); border-radius: 8px; padding: 12px; min-height: 92px; }
+    .label { display: block; color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    code { color: var(--accent); word-break: break-all; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 9px 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; margin: 8px 0 0; }
+    li { margin: 4px 0; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } main { padding: 24px 14px 36px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>애착 화면 채팅 진입 문구 현지화 보고</h1>
+    <p>이번 Codex 단일 사이클은 열린 요청이 없어, 2nd-B UI 현지화 품질에서 가장 작은 새 결함 하나를 처리했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span>완료</div>
+      <div class="card"><span class="label">앱 브랜치</span><code>codex/attachment-fromnode-i18n-260726</code></div>
+      <div class="card"><span class="label">앱 커밋</span><code>2520ec99</code></div>
+      <div class="card"><span class="label">허브 범위</span><code>agents/codex/</code>만 작성</div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <p><code>src/app/attachment.tsx</code>에서 첫 번째 별 저장 후 SecondB 채팅으로 넘어갈 때 쓰는 <code>fromNode</code> 값을 하드코딩된 한국어/영어 분기에서 기존 <code>home</code> 번역 키로 바꿨다.</p>
+    <p>이제 한국어, 영어뿐 아니라 스페인어, 포르투갈어, 인도네시아어 UI에서도 관계 별 이름이 각 언어의 기존 번역으로 들어간다.</p>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>npx eslint src/app/attachment.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과, 5개 locale 키 정합 확인</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+      </tbody>
+    </table>
+
+    <h2>자체 패널</h2>
+    <ul>
+      <li>UI 관점: 기존 번역 키 재사용이라 화면 문구 일관성이 좋아진다.</li>
+      <li>안전 관점: 인증, 저장, 결제, 데이터 모델을 건드리지 않았다.</li>
+      <li>검증 관점: 단일 TSX 파일 변경이며 lint, i18n, type-check가 통과했다.</li>
+      <li>토론 판단: 고위험 결정 지점이 아니므로 별도 MoA verify 요청은 만들지 않았다.</li>
+    </ul>
+
+    <h2>주의</h2>
+    <p>2nd-B 브랜치는 로컬 커밋만 만들었고 push, PR, merge, 배포는 하지 않았다. Claude가 merge gate에서 검토하면 된다.</p>
+  </main>
+</body>
+</html>

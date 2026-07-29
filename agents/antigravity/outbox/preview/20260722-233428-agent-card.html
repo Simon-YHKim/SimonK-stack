@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>에이전트 카드 생성 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; line-height: 1.6; }
+  h1, h2, h3 { color: #e0e0e0; border-bottom: 1px solid #333; padding-bottom: 0.5rem; }
+  .accent { color: #4a90e2; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { border: 1px solid #333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1e1e1e; color: #4a90e2; }
+  .container { max-width: 800px; margin: auto; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>에이전트 카드 생성 완료 보고서</h1>
+  <p>요청된 에이전트 능력 매니페스트 카드 생성이 완료되었습니다.</p>
+  <h2>실행 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>실행 도구</td>
+        <td>tools/gen-agent-card.ps1</td>
+      </tr>
+      <tr>
+        <td>출력 파일</td>
+        <td>agents/antigravity/agent-card.json</td>
+      </tr>
+      <tr>
+        <td>상태</td>
+        <td>성공</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>세부 정보</h2>
+  <p>지정된 스크립트를 사용하여 모델 속성, 스킬 목록, 활성화 상태를 포함하는 JSON 형태의 에이전트 카드를 갱신하였습니다.</p>
+</div>
+</body>
+</html>

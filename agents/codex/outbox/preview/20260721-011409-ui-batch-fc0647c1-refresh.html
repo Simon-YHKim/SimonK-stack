@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 UI 배치 후보 최신 기준선 점검</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --fg: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2 { margin: 0 0 14px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 8px 0; }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0 22px;
+    }
+    .card {
+      border: 1px solid var(--muted);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label { color: var(--muted); font-size: 13px; }
+    .value { color: var(--accent); font-size: 22px; font-weight: 700; margin-top: 6px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--muted);
+      padding: 8px 6px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--fg);
+      background: #101214;
+      border: 1px solid var(--muted);
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+    details {
+      border: 1px solid var(--muted);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+    summary { color: var(--accent); cursor: pointer; }
+    ul { padding-left: 20px; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      h1 { font-size: 23px; }
+      table { font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 UI 배치 후보 최신 기준선 점검</h1>
+    <p class="muted">작성 시각: 2026-07-21 01:14:09 KST</p>
+    <p>이번 단일 poll cycle에서는 새 codex 대상 오더가 없었고, 2nd-B <code>origin/main</code>이 <code>f2eb07b9</code>에서 <code>fc0647c1</code>로 전진한 점만 새 큐 변화로 확인했다. 신규 제품 패치는 만들지 않고, 기존 codex UI 소형 패치 18건의 최신 병합 대기 상태를 갱신했다.</p>
+
+    <section class="grid" aria-label="핵심 결과">
+      <div class="card">
+        <div class="label">최신 기준선</div>
+        <div class="value">fc0647c1</div>
+      </div>
+      <div class="card">
+        <div class="label">후보 커밋</div>
+        <div class="value">18건</div>
+      </div>
+      <div class="card">
+        <div class="label">이미 포함</div>
+        <div class="value">0건</div>
+      </div>
+      <div class="card">
+        <div class="label">파일 교집합</div>
+        <div class="value">0건</div>
+      </div>
+    </section>
+
+    <h2>판정</h2>
+    <p>18개 후보는 최신 <code>origin/main@fc0647c1</code>에 아직 포함되지 않았다. main 전진분은 문서, 법적 정적 HTML, 패키지 스크립트 영역이며 codex 후보 변경 파일과 겹치지 않는다. 따라서 Claude 배치 cherry-pick 후보 목록은 유지하되, 기준선을 <code>fc0647c1</code>로 갱신해 소비하면 된다.</p>
+
+    <h2>확인한 변경 표면</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>구분</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>main 전진</td>
+          <td><code>docs/appstore-screenshot-guide.md</code>, <code>docs/tracks/S2-log_260720.md</code>, <code>package.json</code>, <code>public/legal/*</code>, <code>scripts/build-legal-html.mjs</code>, <code>scripts/check-legal-html-fresh.ts</code></td>
+        </tr>
+        <tr>
+          <td>codex 후보</td>
+          <td>접근성 라벨, 배경막 토큰화, 그림자 토큰화, 색상 토큰화 등 UI 소형 패치 18건</td>
+        </tr>
+        <tr>
+          <td>교집합</td>
+          <td>main 전진 파일과 후보 변경 파일의 직접 교집합 없음</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>후보 커밋 목록</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>커밋</th>
+            <th>상태</th>
+            <th>변경 파일</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>1bef3bbe</code></td><td>미포함</td><td><code>src/components/deepspace/RewardedSheet.tsx</code></td></tr>
+          <tr><td><code>1c47b9b5</code></td><td>미포함</td><td><code>src/components/deep-space/HomeCoachmarks.tsx</code></td></tr>
+          <tr><td><code>a8e86346</code></td><td>미포함</td><td><code>src/screens/deepspace/museum/MuseumTimelineScreen.tsx</code></td></tr>
+          <tr><td><code>76e05f59</code></td><td>미포함</td><td><code>src/components/consent/ConsentDialog.tsx</code></td></tr>
+          <tr><td><code>1bebeeb3</code></td><td>미포함</td><td><code>src/components/safety/CrisisRouter.tsx</code></td></tr>
+          <tr><td><code>603b3f1b</code></td><td>미포함</td><td><code>src/components/persona/RatifySheet.tsx</code></td></tr>
+          <tr><td><code>5a395fdb</code></td><td>미포함</td><td><code>src/components/deepspace/ops/kit.tsx</code>, <code>src/screens/deepspace/ops/screens.tsx</code></td></tr>
+          <tr><td><code>3b1fd482</code></td><td>미포함</td><td><code>src/components/m3/date-picker/DatePicker.tsx</code></td></tr>
+          <tr><td><code>6818fe29</code></td><td>미포함</td><td><code>src/components/deepspace/ops/kit.tsx</code></td></tr>
+          <tr><td><code>1de3eb74</code></td><td>미포함</td><td><code>src/components/deep-space/DeepSpaceScreen.tsx</code></td></tr>
+          <tr><td><code>0dcbcdb5</code></td><td>미포함</td><td><code>src/components/deepspace/shell/PhoneShell.tsx</code></td></tr>
+          <tr><td><code>c63f4d2e</code></td><td>미포함</td><td><code>src/components/deep-space/DeepSpaceScreen.tsx</code></td></tr>
+          <tr><td><code>96cfc962</code></td><td>미포함</td><td><code>src/app/ratifications.tsx</code></td></tr>
+          <tr><td><code>a52e8328</code></td><td>미포함</td><td><code>src/components/deepspace/CompletionToast.tsx</code></td></tr>
+          <tr><td><code>82c92d5f</code></td><td>미포함</td><td><code>src/components/deepspace/DeepSpaceHubDock.tsx</code></td></tr>
+          <tr><td><code>59440cab</code></td><td>미포함</td><td><code>src/components/deep-space/HomeCoachmarks.tsx</code></td></tr>
+          <tr><td><code>a328e6bf</code></td><td>미포함</td><td><code>src/components/deepspace/BackgroundTaskDock.tsx</code></td></tr>
+          <tr><td><code>5e71c46c</code></td><td>미포함</td><td><code>src/app/notices.tsx</code></td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <h2>수행하지 않은 작업</h2>
+    <ul>
+      <li>제품 코드 변경 없음</li>
+      <li>2nd-B push, PR, merge, 배포 없음</li>
+      <li>브라우저 자동 열기 없음</li>
+      <li>파괴적 작업, 비용 작업, 시크릿 접근 없음</li>
+    </ul>
+  </main>
+</body>
+</html>

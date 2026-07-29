@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>채팅 보상 단일 지급 검토</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0d10; --fg: #e8edf2; --accent: #7aa2ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin: 24px 0 10px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 18px 0 8px; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 18px 0 24px; }
+    .card, details { border: 1px solid var(--accent); padding: 14px; }
+    .label { display: block; font-size: 12px; opacity: .72; }
+    .value { display: block; font-size: 18px; font-weight: 700; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 18px; }
+    th, td { border: 1px solid var(--accent); padding: 9px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>채팅 보상 단일 지급 검토</h1>
+    <p>이번 사이클은 새로 발견된 Claude 브랜치 <code>claude/comm-ssv-chat-guard</code>의 채팅 보상 중복 지급 방지 변경을 검토했다. 변경은 비용과 보상 무결성에 닿는 고위험 영역이므로 Codex 검토와 별도로 Antigravity 교차검증을 요청했다.</p>
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">판정</span><span class="value">차단 이슈 없음</span></div>
+      <div class="card"><span class="label">제품 커밋</span><span class="value">636e43d3</span></div>
+      <div class="card"><span class="label">변경 파일</span><span class="value">2개</span></div>
+      <div class="card"><span class="label">교차검증</span><span class="value">요청함</span></div>
+    </section>
+    <h2>검토 결론</h2>
+    <p><code>EXPO_PUBLIC_REWARD_SSV=true</code>일 때 클라이언트가 <code>grant_chat_ad_bonus</code>를 다시 호출하지 않고 현재 보너스만 읽어 반환하도록 한 변경은 기존 reasoning 보상 단일 지급 패턴과 일치한다. <code>RewardedSheet</code>는 채팅 보상에서 <code>userId|chat</code>을 SSV custom data로 보내고, edge function은 <code>grant_chat_ad_bonus_ssv</code>를 호출하므로 한 광고 시청이 클라이언트와 서버에서 이중 지급될 위험을 줄인다.</p>
+    <h2>검증 결과</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td>대상 Jest</td><td>통과</td><td><code>usage-ssv-single-payer.test.ts</code>, 4개 테스트</td></tr>
+        <tr><td>관련 회귀 Jest</td><td>통과</td><td>SSV wiring, chat SSV migration, conversation, 23개 테스트</td></tr>
+        <tr><td>타입 검사</td><td>통과</td><td><code>npm run type-check</code></td></tr>
+        <tr><td>정책 검사</td><td>통과</td><td>lexicon, emdash, file-scoped eslint, diff check</td></tr>
+      </tbody>
+    </table>
+    <h2>남은 위험</h2>
+    <p>실제 AdMob SSV 콜백과 Supabase service-role RPC는 로컬에서 호출하지 않았다. 따라서 최종 병합 전 Antigravity가 보상 경로의 네이티브와 서버 콜백 전제를 독립 확인해야 한다.</p>
+    <details>
+      <summary>Section 35 자기 패널</summary>
+      <h3>찬성</h3>
+      <p>중복 지급 방지 로직은 기존 reasoning 보상 단일 지급 패턴과 같은 구조이며, 클라이언트 직접 지급을 막는 방향은 비용과 보상 무결성에 유리하다.</p>
+      <h3>반대</h3>
+      <p>SSV 콜백은 비동기라 광고 시청 직후 UI가 닫히고 다음 전송에서 재조회될 때까지 사용자가 즉시 보상을 체감하지 못할 수 있다. 다만 이는 기존 주석과 호출 계약이 이미 전제한 동작이다.</p>
+      <h3>판정</h3>
+      <p>코드 차단 이슈는 없지만 고위험 변경이므로 병합 전 교차검증을 요청한다.</p>
+    </details>
+  </main>
+</body>
+</html>

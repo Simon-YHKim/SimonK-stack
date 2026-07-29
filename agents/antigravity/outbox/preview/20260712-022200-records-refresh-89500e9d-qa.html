@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 결과 보고서: 기록 소스 상세 경로 검증</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #FFFFFF;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  .highlight {
+    color: #4CAF50;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1E1E1E;
+    color: #FFFFFF;
+  }
+  .status-pass {
+    color: #4CAF50;
+    font-weight: bold;
+  }
+  button {
+    background-color: #333333;
+    color: #FFFFFF;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #555555;
+  }
+</style>
+</head>
+<body>
+
+<h1>QA 결과 보고서: 기록 소스 상세 경로 검증</h1>
+
+<h2>개요</h2>
+<p>요청된 분기에 대한 안드로이드/네이티브 안전성 관점의 검증을 완료하였습니다.</p>
+
+<h2>검증 환경</h2>
+<table>
+  <tr>
+    <th>항목</th>
+    <th>내용</th>
+  </tr>
+  <tr>
+    <td>작업 트리</td>
+    <td>E:\2ndB\.worktrees\records-source-detail-route-20260710</td>
+  </tr>
+  <tr>
+    <td>분기명</td>
+    <td>codex/records-source-detail-route-20260710</td>
+  </tr>
+  <tr>
+    <td>기준 커밋</td>
+    <td>origin/main@89500e9d</td>
+  </tr>
+</table>
+
+<h2>검증 결과</h2>
+<table>
+  <tr>
+    <th>테스트 항목</th>
+    <th>결과</th>
+  </tr>
+  <tr>
+    <td>단위 테스트 (Jest)</td>
+    <td class="status-pass">통과 (5/5)</td>
+  </tr>
+</table>
+
+<h2>상세 로그</h2>
+<pre>
+PASS src/screens/deepspace/__tests__/records-source-detail-route.test.ts
+  deep-space records source detail routing
+    - source rows keep their source id and origin for detail navigation
+    - the detail screen reads sources when origin=source
+    - source detail renders saved markdown body with inline fallback
+    - semantic related state is cleared before source or consent-gated detail reads
+    - related-record read failures do not hide the focal detail record
+</pre>
+
+<button>확인</button>
+
+</body>
+</html>

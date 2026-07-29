@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 주기 보고</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --fg: #e8edf2;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 { margin: 0 0 14px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section { border-top: 1px solid var(--accent); padding: 22px 0; }
+    p { margin: 0 0 12px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px;
+      border-top: 1px solid var(--accent);
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--fg);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 주기 보고</h1>
+    <p>시각: 2026-07-14 07:53:40 KST</p>
+    <p>결론: 신규 본류 변경을 반영해 코덱스 작업 브랜치를 재정렬했고, 검증은 통과했다.</p>
+
+    <section>
+      <h2>수행 내용</h2>
+      <p>코덱스 수신함에는 열린 요청이 없었다. 다만 2nd-B 본류가 이전 확인값에서 새 커밋으로 전진했기 때문에, 기존 코덱스 레코드 상세 브랜치를 새 본류 위로 재배치했다.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>값</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>작업 브랜치</td>
+            <td><code>codex/records-source-detail-route-20260710</code></td>
+          </tr>
+          <tr>
+            <td>작업 경로</td>
+            <td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td>
+          </tr>
+          <tr>
+            <td>새 본류</td>
+            <td><code>755af576</code></td>
+          </tr>
+          <tr>
+            <td>새 작업 머리</td>
+            <td><code>2e3b4130</code></td>
+          </tr>
+          <tr>
+            <td>상태</td>
+            <td>본류 포함 확인, 작업 브랜치는 본류보다 8개 커밋 앞섬</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>검증</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>레코드 상세 집중 시험</td>
+            <td>통과, 5개 중 5개 성공</td>
+          </tr>
+          <tr>
+            <td>타입 검사</td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td>번역 키 검사</td>
+            <td>통과, 5개 언어 3094개 키 정렬</td>
+          </tr>
+          <tr>
+            <td>금지 어휘 검사</td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td>긴 대시 검사</td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td>공백 차이 검사</td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td>본류 조상 확인</td>
+            <td>통과</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 판정</h2>
+      <p>이번 주기의 실작업은 재배치와 검증 하나로 제한했다. 제품 브랜치는 밀지 않았고, 허브 본문 수정은 코덱스 영역으로만 제한했다. 코드 머지 관련 산출물이므로 안티그래비티 검증 요청을 별도로 남겼다.</p>
+    </section>
+  </main>
+</body>
+</html>

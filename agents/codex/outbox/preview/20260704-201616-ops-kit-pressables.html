@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>옵스 키트 프레서블 스윕 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --fg: #e8edf2; --accent: #6bb7ff; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 18px;
+    }
+    p { margin: 0 0 10px; }
+    ul { margin: 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>옵스 키트 프레서블 스윕 보고</h1>
+    <p>이번 사이클은 신규 열린 코덱스 오더가 없어, 기존 코덱스 레인의 단일 가치 작업으로 프레서블 콜백 스타일 제거를 한 묶음 더 진행했다.</p>
+
+    <section>
+      <h2>작업 요약</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>대상</td>
+            <td><code>src/components/deepspace/ops/kit.tsx</code></td>
+          </tr>
+          <tr>
+            <td>변경</td>
+            <td>옵스 공유 키트의 콜백형 <code>Pressable</code> 스타일 6곳을 정적 스타일 배열과 안드로이드 리플로 교체했다.</td>
+          </tr>
+          <tr>
+            <td>제품 커밋</td>
+            <td><code>fd280ca3 fix(ui): sweep ops kit pressables</code></td>
+          </tr>
+          <tr>
+            <td>브랜치 상태</td>
+            <td><code>codex/pressable-sweep-g</code>는 <code>origin/main</code> 대비 앞섬 8, 뒤처짐 1 상태이며 푸시하지 않았다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li><code>npm run verify</code> 통과.</li>
+        <li>결과: 테스트 스위트 295개 통과, 테스트 2212개 통과.</li>
+        <li>린트는 기존 경고 56건만 남았고 오류는 없었다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>잔여 범위</h2>
+      <p>콜백형 <code>Pressable</code> 스타일 후보는 별도 공유 컴포넌트에 6곳 남았다.</p>
+      <ul>
+        <li><code>src/components/deep-space/DeepSpaceViews.tsx</code> 2곳</li>
+        <li><code>src/components/premium/surfaces.tsx</code> 1곳</li>
+        <li><code>src/components/premium/graph-bits.tsx</code> 2곳</li>
+        <li><code>src/components/m3/MdCard.tsx</code> 1곳</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>섹션 35 자체 패널</h2>
+      <ul>
+        <li>사용자 관점: 탭 피드백은 유지하되 렌더 때마다 스타일 함수를 넘기는 표면을 줄이는 쪽이 안정적이다.</li>
+        <li>엔지니어 관점: 한 파일의 공유 프리미티브만 건드려 영향 범위를 제한했다.</li>
+        <li>리스크 관점: 스키마, 보안, 외부 사실, 머지 diff가 아니므로 추가 교차검증 요청은 만들지 않았다.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

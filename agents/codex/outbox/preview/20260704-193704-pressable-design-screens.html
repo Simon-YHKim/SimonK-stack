@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>프레서블 디자인 화면 스윕 보고</title>
+  <style>
+    :root { --bg: #101214; --fg: #e6edf3; --accent: #58c7d9; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; line-height: 1.65; }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 22px 56px; }
+    h1, h2 { margin: 0; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { margin-top: 30px; font-size: 18px; color: var(--accent); }
+    p { margin: 10px 0 0; }
+    .meta { margin-top: 14px; color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 14px; }
+    th, td { border: 1px solid var(--accent); padding: 10px 12px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: Consolas, monospace; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>프레서블 디자인 화면 스윕 보고</h1>
+    <p class="meta">작성 시각: 2026-07-04 19:37:04 KST</p>
+    <p>이번 단일 사이클에서는 큐 G의 다음 묶음으로 <code>DeepSpaceDesignScreens</code> 안의 함수형 <code>Pressable</code> 스타일 7곳을 정리했습니다. 제품 브랜치 작업만 수행했고 푸시는 하지 않았습니다.</p>
+
+    <h2>작업 범위</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>대상 파일</td>
+          <td><code>src/screens/deepspace/DeepSpaceDesignScreens.tsx</code></td>
+        </tr>
+        <tr>
+          <td>변환 수</td>
+          <td>7곳</td>
+        </tr>
+        <tr>
+          <td>화면 묶음</td>
+          <td>인사이트 2곳, 디스커버 2곳, 리서치 3곳</td>
+        </tr>
+        <tr>
+          <td>제품 커밋</td>
+          <td><code>9fbeba44</code> / <code>fix(ui): sweep design screen pressables</code></td>
+        </tr>
+        <tr>
+          <td>잔여 수</td>
+          <td>현재 검색 기준 callback-style <code>Pressable</code> 18곳</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <p><code>npm run verify</code>를 실행했고 종료값은 0입니다. 테스트는 295개 묶음, 2212개 항목이 통과했습니다. 린트 경고 56건은 기존 경고로 남아 있습니다.</p>
+
+    <h2>자체 패널</h2>
+    <ul>
+      <li>가치: Fabric에서 무시될 수 있는 함수형 스타일을 한 화면 묶음 단위로 줄였습니다.</li>
+      <li>위험: 누름 상태의 투명도 효과는 안드로이드 물결 효과로 대체했으며, 시각 구조를 크게 바꾸지 않았습니다.</li>
+      <li>판정: 고위험 변경은 아니며 추가 교차검증 요청은 필요하지 않습니다.</li>
+    </ul>
+  </main>
+</body>
+</html>

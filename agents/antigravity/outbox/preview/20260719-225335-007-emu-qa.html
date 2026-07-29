@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 결과 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; }
+  h1 { color: #ffffff; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.5rem; text-align: left; }
+  th { background-color: #1e1e1e; }
+  button { background-color: #333333; color: #ffffff; border: none; padding: 0.5rem 1rem; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>QA 결과 보고서</h1>
+  <table>
+    <tr>
+      <th>구분</th>
+      <th>내용</th>
+    </tr>
+    <tr>
+      <td>요청 대상</td>
+      <td>007 에뮬레이터 QA (Pixel 9 Pro XL)</td>
+    </tr>
+    <tr>
+      <td>상태</td>
+      <td>APK 다운로드 실패 (진행 불가)</td>
+    </tr>
+    <tr>
+      <td>사유</td>
+      <td>제공된 APK URL에서 S3 NoSuchKey 오류 발생</td>
+    </tr>
+  </table>
+  <br>
+  <button type="button">확인</button>
+</body>
+</html>

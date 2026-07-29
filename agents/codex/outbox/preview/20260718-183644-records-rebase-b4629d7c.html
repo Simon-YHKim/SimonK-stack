@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 소스 상세 브랜치 최신화 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101318;
+      --panel: #1a2028;
+      --text: #e7edf4;
+      --muted: #9aa7b4;
+      --accent: #69b7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Pretendard", "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    header {
+      margin-bottom: 22px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 750;
+      letter-spacing: 0;
+    }
+    p { margin: 0 0 12px; color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 20px 0 24px;
+    }
+    .card, details {
+      background: var(--panel);
+      border: 1px solid rgba(231, 237, 244, 0.12);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .value {
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    section { margin-top: 18px; }
+    h2 {
+      font-size: 18px;
+      margin: 0 0 10px;
+      letter-spacing: 0;
+    }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+    code {
+      color: var(--accent);
+      background: rgba(105, 183, 255, 0.1);
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid rgba(231, 237, 244, 0.12);
+      padding: 9px 8px;
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 650; }
+    summary {
+      cursor: pointer;
+      color: var(--text);
+      font-weight: 700;
+    }
+    .ok { color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 480px) {
+      main { padding: 24px 14px 36px; }
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>레코드 소스 상세 브랜치 최신화 보고</h1>
+      <p>이번 Codex 자율 폴 사이클은 열린 요청이 없어, Codex 레인의 기존 2nd-B records/source-detail 작업 브랜치를 최신 <code>origin/main</code> 위로 재정렬하고 검증했다.</p>
+    </header>
+
+    <div class="grid" aria-label="핵심 결과">
+      <div class="card"><span class="label">결과</span><span class="value">rebase 완료</span></div>
+      <div class="card"><span class="label">기준</span><span class="value"><code>b4629d7c</code></span></div>
+      <div class="card"><span class="label">제품 헤드</span><span class="value"><code>fdd3e3a4</code></span></div>
+      <div class="card"><span class="label">검증</span><span class="value">통과</span></div>
+    </div>
+
+    <section class="card">
+      <h2>수행 내용</h2>
+      <ul>
+        <li>허브 요청 스캔에서 Codex 또는 all 대상의 열린 미응답 요청이 없음을 확인했다.</li>
+        <li><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code>의 <code>codex/records-source-detail-route-20260710</code> 브랜치를 <code>origin/main@b4629d7c</code> 위로 rebase했다.</li>
+        <li>제품 push, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 접근은 수행하지 않았다.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>검증 결과</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>결과</th><th>근거</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>조상성</td><td class="ok">통과</td><td><code>merge-base --is-ancestor origin/main HEAD</code> 종료 코드 0</td></tr>
+          <tr><td>diff 범위</td><td class="ok">통과</td><td>records/source-detail 관련 5개 파일 유지</td></tr>
+          <tr><td>공백 검사</td><td class="ok">통과</td><td><code>git diff --check origin/main...HEAD</code> 종료 코드 0</td></tr>
+          <tr><td>단위 테스트</td><td class="ok">통과</td><td>Jest 2개 스위트, 10개 테스트 통과</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>변경 파일</summary>
+      <ul>
+        <li><code>src/lib/records/__tests__/source-pieces.test.ts</code></li>
+        <li><code>src/lib/records/get-piece.ts</code></li>
+        <li><code>src/lib/records/source-pieces.ts</code></li>
+        <li><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></li>
+        <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <table>
+        <tbody>
+          <tr><th>레인 적합성</th><td>UI/anti-slop 레인에 맞는 records/source-detail 화면 라우팅 작업의 최신성 유지다.</td></tr>
+          <tr><th>위험</th><td>merge diff 재정렬이므로 Antigravity에 교차 검증을 요청했다.</td></tr>
+          <tr><th>제약 준수</th><td>허브에서는 <code>agents/codex/</code>만 작성하고, 제품 브랜치는 로컬 rebase만 수행했다.</td></tr>
+          <tr><th>다음 판단</th><td>Antigravity PASS 수신 후 Claude가 머지 게이트에서 최종 판단하면 된다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+  </main>
+</body>
+</html>

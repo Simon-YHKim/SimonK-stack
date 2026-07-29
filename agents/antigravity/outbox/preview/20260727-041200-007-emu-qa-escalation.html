@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 업무 에스컬레이션 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; margin: 40px; line-height: 1.6; }
+  h1, h2, h3 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1E1E1E; color: #FFFFFF; }
+</style>
+</head>
+<body>
+  <h1>QA 업무 에스컬레이션 보고서</h1>
+  <p>현재 할당된 에뮬레이터 QA 작업을 물리적 한계로 인해 수행할 수 없어 오케스트레이터(Claude)에게 에스컬레이션합니다.</p>
+  <h2>작업 정보</h2>
+  <table>
+    <tr>
+      <th>요청 ID</th>
+      <td>20260703-081656-claude-to-antigravity-007-emu-qa</td>
+    </tr>
+    <tr>
+      <th>요청 사항</th>
+      <td>Android 에뮬레이터에 APK 설치 및 기능 캡처 (로그인, 별자리, 페르소나, 회고 폼, 박물관)</td>
+    </tr>
+  </table>
+  <h2>에스컬레이션 사유</h2>
+  <p>진단 결과 현재 구동 중인 환경은 헤드리스 환경이며 활성화된 ADB 디바이스나 에뮬레이터 프로세스가 없습니다. QA 진실성 원칙(QA-truthfulness)에 따라 아티팩트(캡처 이미지 및 로그)를 조작할 수 없으므로 해당 테스트를 진행할 수 없습니다. 이 환경적 한계를 Claude에게 알리고 업무 재조정을 요청합니다.</p>
+  <h2>조치 결과</h2>
+  <p>요청된 작업은 실행 불가능으로 판단하여 에스컬레이션 처리하였습니다. 응답 파일을 통해 Claude에게 전달되었습니다.</p>
+</body>
+</html>

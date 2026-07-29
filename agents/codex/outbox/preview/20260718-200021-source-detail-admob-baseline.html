@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>소스 상세 기준 갱신 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --text: #e8edf2; --accent: #5ab0ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Noto Sans KR", sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin: 28px 0 12px; color: var(--accent); }
+    .muted { opacity: .78; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 20px 0 8px; }
+    .card, details { border: 1px solid rgba(90,176,255,.32); border-radius: 8px; padding: 14px; background: rgba(255,255,255,.03); }
+    .label { display: block; font-size: 12px; opacity: .72; margin-bottom: 5px; }
+    .value { font-size: 16px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-bottom: 1px solid rgba(90,176,255,.22); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--text); background: rgba(90,176,255,.14); padding: 2px 5px; border-radius: 4px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>소스 상세 기준 갱신 보고</h1>
+    <p class="muted">작성 시각: 2026-07-18 20:00:21 KST. 헤드리스 단일 사이클로 실행했으며 브라우저 자동 열기는 수행하지 않았다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span><span class="value">최신 기준 반영 완료</span></div>
+      <div class="card"><span class="label">제품 기준</span><span class="value"><code>origin/main@c15e1f2c</code></span></div>
+      <div class="card"><span class="label">제출 헤드</span><span class="value"><code>a93272b3</code></span></div>
+      <div class="card"><span class="label">검증 상태</span><span class="value">타깃 검증 통과</span></div>
+    </section>
+
+    <h2>수행 내용</h2>
+    <p>codex inbox와 peer outbox를 확인했으며 codex 또는 all 앞으로 열린 신규 요청은 없었다. 이전 사이클에서 AdMob/UMP release 기준 <code>c15e1f2c</code> 반영이 보류되어 있었기 때문에, 이번 단일 작업으로 source-detail UI 브랜치를 해당 기준 위로 갱신했다.</p>
+    <p>제품 워크트리는 <code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code>이고 대상 브랜치는 <code>codex/records-source-detail-route-20260710</code>이다. 충돌은 없었고 제품 push, merge, 배포, 브라우저 열기, 파괴적 작업, 비용 작업, secrets 접근은 수행하지 않았다.</p>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>기준 포함</td><td>통과</td><td><code>git merge-base --is-ancestor origin/main HEAD</code> 종료 코드 0</td></tr>
+        <tr><td>변경 범위</td><td>통과</td><td>source-detail 관련 5파일, 126줄 추가와 34줄 삭제</td></tr>
+        <tr><td>공백 검사</td><td>통과</td><td><code>git diff --check origin/main...HEAD</code> 출력 없음</td></tr>
+        <tr><td>타깃 Jest</td><td>통과</td><td>2개 스위트, 10개 테스트 통과</td></tr>
+        <tr><td>TypeScript</td><td>환경 실패</td><td><code>react-native-google-mobile-ads</code>가 현재 <code>node_modules</code>에 없어 모듈 해석 실패. lockfile에는 의존성이 존재한다.</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>변경 파일</summary>
+      <ul>
+        <li><code>src/lib/records/__tests__/source-pieces.test.ts</code></li>
+        <li><code>src/lib/records/get-piece.ts</code></li>
+        <li><code>src/lib/records/source-pieces.ts</code></li>
+        <li><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></li>
+        <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></li>
+      </ul>
+    </details>
+
+    <h2>자체 패널</h2>
+    <table>
+      <thead><tr><th>관점</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>찬성</td><td>소스 상세 분리 diff가 최신 광고 런타임 기준 위에서도 같은 범위로 유지된다.</td></tr>
+        <tr><td>반대</td><td>의존성 설치 상태 때문에 전체 타입 검증은 닫히지 않았다.</td></tr>
+        <tr><td>대안</td><td>통합 게이트에서 의존성을 설치한 뒤 전체 verify를 재실행한다.</td></tr>
+        <tr><td>판정</td><td>이번 사이클은 최신 기준 갱신, 타깃 검증, 교차검증 요청까지로 제한한다.</td></tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>

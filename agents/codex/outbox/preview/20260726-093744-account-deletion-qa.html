@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>계정 삭제 페이지 검수 보고</title>
+<style>
+:root{color-scheme:dark;--bg:#111217;--text:#ececf1;--muted:#a7a9b4;--accent:#8fb6ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,'Malgun Gothic',sans-serif;line-height:1.62}
+main{max-width:920px;margin:0 auto;padding:40px 22px 72px}
+h1{font-size:26px;margin:0 0 10px}
+h2{font-size:18px;margin:30px 0 10px;border-top:1px solid #2a2d36;padding-top:18px}
+p,li,td,th{font-size:14px}
+.muted{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:18px 0}
+.card{border:1px solid #2a2d36;padding:14px}
+.label{display:block;color:var(--muted);font-size:12px;margin-bottom:4px}
+.ok{color:var(--accent);font-weight:700}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #2a2d36;padding:9px;text-align:left;vertical-align:top}
+a{color:var(--accent)}
+code{color:var(--text);background:#1a1d25;padding:1px 4px}
+</style>
+</head>
+<body>
+<main>
+<h1>계정 삭제 페이지 검수 보고</h1>
+<p class="muted">작성 시각: 2026-07-26 09:37:44 KST · 담당: codex · 사이클: PROTOCOL 12/19/35.4</p>
+
+<div class="grid" aria-label="요약">
+  <div class="card"><span class="label">대상 커밋</span><span class="ok">3c4f784a</span></div>
+  <div class="card"><span class="label">판정</span><span class="ok">차단 이슈 없음</span></div>
+  <div class="card"><span class="label">검증 범위</span>정적 법무 페이지, 생성기, 배포 URL</div>
+  <div class="card"><span class="label">교차검증</span><span class="ok">Grok 요청</span></div>
+</div>
+
+<h2>결론</h2>
+<p>2nd-B <code>origin/main</code>이 <code>43f16199</code>에서 <code>3c4f784a</code>로 전진했고, 새 커밋은 Google Play Data safety용 계정 삭제 정보 페이지를 추가했다. Codex 관점의 단일 작업으로 페이지 내용, 생성 HTML, 기존 법무 문서 내비게이션, 배포 브랜치 포인터, 실제 공개 URL 응답을 확인했다.</p>
+<p>판정은 차단 이슈 없음이다. 페이지는 앱 이름과 운영자명을 표시하고, 앱 안 삭제 경로와 이메일 대체 요청 경로를 함께 제공하며, 삭제 데이터와 보관 데이터 및 기간을 구분한다. 공개 URL은 HTTP 200으로 응답했고 본문에 삭제 요청 이메일과 계정 삭제 문구가 포함되어 있었다.</p>
+
+<h2>검증 기준</h2>
+<p>Google Play 공식 도움말은 계정 생성이 가능한 앱에 대해 앱 안 삭제 경로와 웹 삭제 요청 리소스를 요구한다. 웹 리소스는 오류 없이 열리고, 앱 또는 개발자명을 참조하며, 계정 삭제 요청 경로가 눈에 띄고 앱 재설치 없이 요청할 수 있어야 한다.</p>
+<p>공식 기준 출처: <a href="https://support.google.com/googleplay/android-developer/answer/13327111?hl=en">Google Play 계정 삭제 요구사항 도움말</a></p>
+
+<h2>확인 결과</h2>
+<table>
+<thead><tr><th>항목</th><th>결과</th></tr></thead>
+<tbody>
+<tr><td>변경 파일</td><td><code>docs/legal/account-deletion.md</code>, <code>public/legal/account-deletion.html</code>, 기존 법무 HTML 3건, <code>scripts/build-legal-html.mjs</code></td></tr>
+<tr><td>문서 내용</td><td>한국어와 영어 모두 계정 삭제, 데이터만 삭제, 삭제 데이터, 보관 데이터와 기간을 포함한다.</td></tr>
+<tr><td>내비게이션</td><td>이용약관, 개인정보처리방침, 환불정책에 계정 삭제 링크가 추가되었고 새 페이지는 현재 위치를 표시한다.</td></tr>
+<tr><td>생성기</td><td><code>node scripts/build-legal-html.mjs</code> 실행 성공, 생성 결과는 커밋 내용과 의미 차이 없음.</td></tr>
+<tr><td>검증 명령</td><td><code>npm run check:legal-html</code>, <code>npm run check:legal-review</code>, <code>npm run check:emdash</code>, <code>git diff --check</code> 통과.</td></tr>
+<tr><td>배포 확인</td><td><code>origin/gh-pages</code>는 <code>b6fa4fa6</code>이고 제목이 <code>3c4f784a</code> 전체 SHA를 가리킨다. 공개 URL은 HTTP 200과 기대 본문을 반환했다.</td></tr>
+</tbody>
+</table>
+
+<h2>주의점</h2>
+<p>이번 검수는 정책 문구와 URL 기능의 엔지니어링 확인이다. 실제 Google Play Console 승인, 법무 적합성, 개인정보 보유기간의 관할별 충분성은 Codex가 단독 확정하지 않는다. 외부 정책 사실과 라이브 URL 상태를 포함하므로 Grok에 교차검증을 요청했다.</p>
+
+<h2>35절 자기 패널</h2>
+<p>찬성 관점: Play Data safety 제출을 막는 URL 요구조건은 출시 흐름의 실질 블로커이므로, 새 main 전진분을 Codex가 즉시 검수하는 것이 레인 가치가 있다.</p>
+<p>반대 관점: 법무 문서의 최종 적합성은 Codex의 UI 레인 단독 판정 대상이 아니며, 공개 URL 상태도 시간에 따라 변할 수 있다.</p>
+<p>결론: 차단 이슈 없음으로 보고하되, 정책과 라이브 URL 사실은 Grok 교차검증을 붙이고 최종 Play Console 입력 판단은 Claude와 Simon 게이트에 남긴다.</p>
+</main>
+</body>
+</html>

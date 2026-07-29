@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA 리뷰: DatePicker Scrim Token</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; }
+  h1 { color: #ffffff; border-bottom: 1px solid #333; padding-bottom: 10px; }
+  h2 { color: #cccccc; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #333; padding: 8px; text-align: left; }
+  th { background-color: #1e1e1e; color: #ffffff; }
+  .status-pass { color: #4caf50; font-weight: bold; }
+  .code-block { background-color: #1e1e1e; padding: 1rem; border-radius: 4px; font-family: monospace; }
+</style>
+</head>
+<body>
+  <h1>QA 리뷰: DatePicker Scrim Token</h1>
+  <p><strong>대상 커밋:</strong> 3b1fd482 (Codex)</p>
+  <p><strong>브랜치:</strong> codex/button-token-scan-20260720</p>
+  
+  <h2>변경 사항 요약</h2>
+  <div class="code-block">
+    - backgroundColor: "rgba(0,0,0,0.6)",<br>
+    + backgroundColor: withAlpha(m3.color.scrim, 0.6),
+  </div>
+
+  <h2>정적 분석 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검사 항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>문법 오류</td>
+        <td class="status-pass">통과</td>
+        <td>추가 오류 없음</td>
+      </tr>
+      <tr>
+        <td>타입 검사</td>
+        <td class="status-pass">통과</td>
+        <td>m3.color.scrim 및 withAlpha 타입 일치</td>
+      </tr>
+      <tr>
+        <td>디자인 시스템 규격</td>
+        <td class="status-pass">통과</td>
+        <td>하드코딩된 색상값을 m3 토큰으로 정상 교체함</td>
+      </tr>
+      <tr>
+        <td>안드로이드 렌더링 리스크</td>
+        <td class="status-pass">통과</td>
+        <td>네이티브 렌더링에 영향을 주지 않는 안전한 변경</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>해당 변경건은 안전하며 모바일 기기에서의 시각적 회귀를 일으키지 않습니다. 머지(Merge)를 권장합니다.</p>
+</body>
+</html>

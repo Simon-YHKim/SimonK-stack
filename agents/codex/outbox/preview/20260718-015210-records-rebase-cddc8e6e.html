@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 기록 상세 브랜치 재정렬 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --text: #e7e7e7;
+      --muted: #8b93a7;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    header {
+      border-bottom: 1px solid var(--muted);
+      padding-bottom: 18px;
+      margin-bottom: 20px;
+    }
+    h1, h2, h3 { margin: 0 0 12px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); margin-top: 26px; }
+    p { margin: 0 0 12px; }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }
+    .card {
+      border: 1px solid var(--muted);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    code {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+    }
+    th, td {
+      border: 1px solid var(--muted);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+    li { margin: 6px 0; }
+    details {
+      border: 1px solid var(--muted);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 기록 상세 브랜치 재정렬 보고</h1>
+      <p class="muted">작성 시각: 2026-07-18 01:52:10 KST</p>
+      <p>이번 사이클은 열린 신규 주문이 없었고, 2nd-B 본류가 전진한 사실이 확인되어 기존 코덱스 기록 상세 브랜치를 최신 본류 위로 재정렬하는 한 가지 작업만 수행했다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <span class="label">결과</span>
+        <strong>리베이스 성공</strong>
+        <p class="muted">충돌 없이 최신 본류 반영</p>
+      </div>
+      <div class="card">
+        <span class="label">기준 본류</span>
+        <code>origin/main@cddc8e6e</code>
+      </div>
+      <div class="card">
+        <span class="label">새 로컬 헤드</span>
+        <code>1580aa4c</code>
+      </div>
+      <div class="card">
+        <span class="label">검증</span>
+        <strong>2개 스위트, 10개 테스트 통과</strong>
+      </div>
+    </section>
+
+    <h2>작업 범위</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>값</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>제품 작업트리</td>
+          <td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>제품 브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>브랜치 상태</td>
+          <td><code>10 ahead / 0 behind</code></td>
+        </tr>
+        <tr>
+          <td>변경 규모</td>
+          <td><code>5 files changed, 126 insertions, 34 deletions</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <ul>
+        <li><code>git rebase origin/main</code>: 충돌 없이 성공</li>
+        <li><code>git diff --check origin/main...HEAD</code>: 통과</li>
+        <li><code>npm test -- --runTestsByPath src/lib/records/__tests__/source-pieces.test.ts src/screens/deepspace/__tests__/records-source-detail-route.test.ts --ci</code>: 2개 스위트와 10개 테스트 통과</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>변경 파일</summary>
+      <ul>
+        <li><code>src/lib/records/__tests__/source-pieces.test.ts</code></li>
+        <li><code>src/lib/records/get-piece.ts</code></li>
+        <li><code>src/lib/records/source-pieces.ts</code></li>
+        <li><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></li>
+        <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자기 패널 판단</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>관점</th>
+            <th>판단</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>찬성</td>
+            <td>본류가 실제로 전진했고 브랜치가 뒤처져 있었으므로, 머지 게이트 전에 충돌 위험을 줄이는 유효한 유지 작업이다.</td>
+          </tr>
+          <tr>
+            <td>반대</td>
+            <td>반복 보고가 무가치한 stale 행 처리로 변질될 수 있으므로, 본류 전진과 뒤처짐이 없으면 아무 것도 쓰지 않아야 한다.</td>
+          </tr>
+          <tr>
+            <td>판정</td>
+            <td>이번에는 본류 전진과 뒤처짐이 확인되어 실제 새 작업으로 인정한다. 범위는 기존 기록 상세 브랜치 유지에만 제한했다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <h2>교차검증</h2>
+    <p>제품 브랜치 재정렬 산출물이므로 Antigravity에 독립 검증 요청을 남겼다.</p>
+
+    <h2>제약 준수</h2>
+    <ul>
+      <li>허브에서는 <code>agents/codex/</code> 아래 파일만 작성했다.</li>
+      <li>제품 브랜치는 push, merge, deploy 없이 로컬에서만 갱신했다.</li>
+      <li>브라우저 자동 열기, 파괴적 작업, 비용 발생 작업, secret 접근은 하지 않았다.</li>
+    </ul>
+  </main>
+</body>
+</html>

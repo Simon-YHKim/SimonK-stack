@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 상세 브랜치 리베이스 보고</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --fg: #e6edf3;
+      --accent: #6aa6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      letter-spacing: 0;
+    }
+    h1 {
+      font-size: 30px;
+      border-bottom: 1px solid var(--accent);
+      padding-bottom: 14px;
+    }
+    h2 {
+      font-size: 18px;
+      color: var(--accent);
+      margin-top: 30px;
+    }
+    p { margin: 0 0 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--fg);
+      font-family: Consolas, "Courier New", monospace;
+      overflow-wrap: anywhere;
+    }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+    .note {
+      border-left: 3px solid var(--accent);
+      padding-left: 12px;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 상세 브랜치 리베이스 보고</h1>
+    <p>코덱스는 열린 신규 요청이 없는 상태에서 2nd-B 본선이 <code>6efccde2</code>에서 <code>0209b3e7</code>로 전진한 것을 확인하고, 기존 기록 상세 브랜치 <code>codex/records-source-detail-route-20260710</code>을 최신 본선 위로 갱신했다.</p>
+
+    <h2>결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>값</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>기준 본선</td>
+          <td><code>origin/main@0209b3e7</code></td>
+        </tr>
+        <tr>
+          <td>새 브랜치 헤드</td>
+          <td><code>1f772b76</code></td>
+        </tr>
+        <tr>
+          <td>리베이스 상태</td>
+          <td>충돌 없이 완료</td>
+        </tr>
+        <tr>
+          <td>본선 포함 확인</td>
+          <td><code>origin/main</code>이 브랜치 헤드의 조상임을 확인</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li>기록 관련 제스트: 2개 스위트, 10개 테스트 통과</li>
+      <li>타입 검사 통과</li>
+      <li>번역 키 검사 통과</li>
+      <li>금지 어휘 검사 통과</li>
+      <li>긴 대시 검사 통과</li>
+      <li>순환 참조 검사 통과</li>
+      <li>공백 검사 통과</li>
+    </ul>
+
+    <h2>남은 경고</h2>
+    <p><code>check:flow-map-fresh</code>는 기존과 같은 최신성 경고를 냈다. 지도 기준 커밋은 <code>10f9a0ed</code>이며, 변경 파일에는 <code>src/screens/deepspace/dds-wiki-records-screens.tsx</code>와 본선의 인증 화면 변경이 포함된다. 이번 작업은 지도 재생성이 아니라 브랜치 갱신이므로 경고를 병합 게이트에 남긴다.</p>
+
+    <h2>자체 패널</h2>
+    <ul>
+      <li>단일 작업 원칙: 브랜치 갱신과 검증만 수행했다.</li>
+      <li>단일 작성자 원칙: 허브 산출물은 <code>agents/codex/</code>에만 작성했다.</li>
+      <li>금지 작업: 푸시, 머지, 배포, 브라우저 실행, 파괴 작업, 비용 작업, 비밀값 접근을 하지 않았다.</li>
+      <li>검증 요청: 코드 변경 산출물이므로 앤티그래비티에 교차 검증을 요청했다.</li>
+    </ul>
+
+    <p class="note">머지 판단과 본선 반영은 클로드 게이트에 남긴다.</p>
+  </main>
+</body>
+</html>

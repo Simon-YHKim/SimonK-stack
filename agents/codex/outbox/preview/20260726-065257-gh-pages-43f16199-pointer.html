@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>배포 포인터 정합성 확인</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --fg: #e8ecef;
+      --muted: #9aa4ad;
+      --accent: #78b7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Segoe UI", system-ui, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { line-height: 1.25; margin: 0 0 14px; }
+    h1 { font-size: clamp(28px, 4vw, 44px); }
+    h2 { font-size: 20px; margin-top: 28px; }
+    p { margin: 0 0 14px; color: var(--fg); }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+    }
+    .card {
+      border: 1px solid rgba(232, 236, 239, 0.18);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 112px;
+    }
+    .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .value {
+      font-size: 18px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid rgba(232, 236, 239, 0.18);
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(232, 236, 239, 0.14);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--fg);
+      overflow-wrap: anywhere;
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 0.95em;
+    }
+    details {
+      border: 1px solid rgba(232, 236, 239, 0.18);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-top: 12px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .pass { color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 520px) {
+      .grid { grid-template-columns: 1fr; }
+      main { width: min(100% - 24px, 980px); padding-top: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="muted">2026-07-26 06:52:57 KST · Codex 단일 폴 사이클</p>
+    <h1>배포 포인터 정합성 확인</h1>
+    <p>Codex inbox에는 신규 직접 요청이 없었고, 오래된 open outbox 항목은 기존 stale 범주로 판단했다. 이번 사이클의 단일 실작업은 2nd-B <code>origin/gh-pages</code>가 최신 <code>origin/main</code> 전체 SHA를 정확히 가리키는지 확인하는 것이었다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">판정</div>
+        <div class="value pass">정합</div>
+      </div>
+      <div class="card">
+        <div class="label">현재 main</div>
+        <div class="value"><code>43f16199</code></div>
+      </div>
+      <div class="card">
+        <div class="label">현재 gh-pages</div>
+        <div class="value"><code>a9537bfb</code></div>
+      </div>
+      <div class="card">
+        <div class="label">제품 변경</div>
+        <div class="value">없음</div>
+      </div>
+    </section>
+
+    <h2>확인 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>값</th>
+          <th>해석</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>main 전체 SHA</td>
+          <td><code>43f16199b7ca4109ca6e1be2a7b6c40888f8045e</code></td>
+          <td>현재 배포 대상 기준선이다.</td>
+        </tr>
+        <tr>
+          <td>main 제목</td>
+          <td><code>docs(qa): rc3 retest - home reached, ads-gate PASS (5/5 no rewarded/UMP), locus partial (8th coord error disclosed)</code></td>
+          <td>직전 Codex 검수 대상과 같은 RC3 QA 문서 커밋이다.</td>
+        </tr>
+        <tr>
+          <td>gh-pages 전체 SHA</td>
+          <td><code>a9537bfb94bcd42deb430f7516b0f70a025faaf8</code></td>
+          <td>정적 배포 산출 브랜치의 현재 커밋이다.</td>
+        </tr>
+        <tr>
+          <td>gh-pages 제목</td>
+          <td><code>deploy: 43f16199b7ca4109ca6e1be2a7b6c40888f8045e 43f16199b7ca4109ca6e1be2a7b6c40888f8045e</code></td>
+          <td>제목에 현재 main 전체 SHA가 두 번 명시되어 포인터가 일치한다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>검증 범위</summary>
+      <p>실행한 확인은 <code>git fetch origin gh-pages --prune</code>, <code>git rev-parse origin/main</code>, <code>git rev-parse origin/gh-pages</code>, <code>git show -s</code>, <code>git ls-tree --name-only origin/gh-pages</code> 수준의 읽기 전용 점검이다. 2nd-B 코드 수정, push, PR, merge, 배포 실행, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 접근은 하지 않았다.</p>
+    </details>
+
+    <details>
+      <summary>35절 자기 패널</summary>
+      <p>찬성 관점: 배포 포인터가 최신 main을 정확히 가리키는지 확인하면 RC3 QA 증거가 실제 정적 산출물 흐름까지 이어졌는지 낮은 비용으로 확인할 수 있다.</p>
+      <p>반대 관점: 제품 코드 변경이 없으므로 같은 기준선에서 반복 검수하면 가치가 낮아진다.</p>
+      <p>결론: 이번에는 gh-pages가 직전 사이클 이후 새로 전진했으므로 실작업으로 인정한다. 다음 사이클에서 main과 gh-pages가 모두 그대로라면 no-op 규칙에 따라 아무것도 쓰지 않는 것이 맞다.</p>
+    </details>
+  </main>
+</body>
+</html>

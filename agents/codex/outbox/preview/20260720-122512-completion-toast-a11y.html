@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>완료 알림 접근성 라벨 보강</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --text: #e6edf3; --accent: #7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.65 system-ui, -apple-system, Segoe UI, sans-serif; }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); margin-top: 28px; }
+    p { margin: 0 0 14px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 22px 0; }
+    .card { border: 1px solid color-mix(in srgb, var(--text) 22%, transparent); padding: 14px; border-radius: 8px; min-height: 92px; }
+    .label { color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    .value { font-size: 16px; font-weight: 700; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid color-mix(in srgb, var(--text) 18%, transparent); vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    details { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 8px; padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>완료 알림 접근성 라벨 보강</h1>
+    <p>이번 Codex poll cycle은 새 open 요청이 없어 Codex UI/접근성 레인에서 한 가지 새 작업만 수행했다. 전역 완료 알림의 두 버튼에 보이는 문구와 동일한 접근성 라벨을 추가해 스크린리더와 자동화가 버튼 목적을 명확히 읽도록 했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">로컬 커밋 완료</div></div>
+      <div class="card"><div class="label">브랜치</div><div class="value">codex/completion-toast-a11y-20260720</div></div>
+      <div class="card"><div class="label">커밋</div><div class="value">a52e8328</div></div>
+      <div class="card"><div class="label">푸시</div><div class="value">하지 않음</div></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>변경</th><th>이유</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/components/deepspace/CompletionToast.tsx</code></td>
+          <td><code>결과 보기</code>와 <code>나중에</code> 버튼에 <code>accessibilityLabel</code> 추가</td>
+          <td>텍스트가 시각적으로 보이더라도 버튼 목적을 명시 라벨로 고정해 접근성 회귀와 자동화 식별 실패를 줄임</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>npm exec -- eslint src/components/deepspace/CompletionToast.tsx</code> 통과</li>
+      <li><code>npm run type-check</code> 통과</li>
+      <li><code>npm run check:lexicon</code> 통과</li>
+      <li><code>npm run check:emdash</code> 통과</li>
+      <li><code>git diff --check</code> 통과</li>
+    </ul>
+
+    <h2>제약 준수</h2>
+    <ul>
+      <li>허브에서는 <code>agents/codex/</code> 내부만 작성했다.</li>
+      <li>2nd-B는 <code>E:\2ndB\.worktrees\codex-completion-toast-a11y-20260720</code>에서만 작업했다.</li>
+      <li>push, PR, merge, 배포, 브라우저 자동 열기, 비용 작업, secrets 작업은 수행하지 않았다.</li>
+      <li>단일 작업 원칙에 따라 완료 알림 버튼 접근성 라벨 보강만 수행했다.</li>
+    </ul>
+
+    <details>
+      <summary>35 자기 패널</summary>
+      <p>찬성 관점: 완료 알림은 비동기 작업이 끝난 직후 사용자가 가장 먼저 만나는 제어면이며, 버튼 라벨이 명시되어 있으면 화면읽기와 자동화 흐름이 안정된다.</p>
+      <p>반대 관점: 보이는 텍스트와 라벨이 중복일 수 있다. 다만 두 버튼 모두 핵심 행동이고 변경 범위가 두 속성뿐이라 위험 대비 이득이 크다.</p>
+      <p>판정: 동작 변경 없이 접근성 신호만 보강하는 단일 패치로 채택했다.</p>
+    </details>
+  </main>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서 - 기록 라우팅 리베이스</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #FFFFFF;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  .section {
+    margin-bottom: 30px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1E1E1E;
+  }
+  .status-pass {
+    color: #E0E0E0;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서</h1>
+  <div class="section">
+    <h2>개요</h2>
+    <p>대상: 기록 원본과 저장된 기록의 상세 화면 분리 및 원본 상세 화면 읽기 전용 상태 유지 검증</p>
+    <p>기준: b4f5299f 기반 리베이스 헤드 27a37504</p>
+  </div>
+  <div class="section">
+    <h2>검증 항목 및 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>세부 내용</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>화면 분리 유지</td>
+          <td>origin 매개변수를 통한 원본 및 저장 기록 라우팅 분기 처리 확인</td>
+          <td class="status-pass">통과</td>
+        </tr>
+        <tr>
+          <td>읽기 전용 상태</td>
+          <td>원본 기록일 경우 태그 추가, 이동, 편집, 삭제 등의 수정 기능 비활성화 확인</td>
+          <td class="status-pass">통과</td>
+        </tr>
+        <tr>
+          <td>네이티브 호환성</td>
+          <td>동적 렌더링 블로커 및 네이티브 예외 발생 요인 없음 확인</td>
+          <td class="status-pass">통과</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="section">
+    <h2>결론</h2>
+    <p>해당 리베이스 작업은 네이티브 라우팅 관점에서 결함이 발견되지 않았습니다.</p>
+  </div>
+</body>
+</html>

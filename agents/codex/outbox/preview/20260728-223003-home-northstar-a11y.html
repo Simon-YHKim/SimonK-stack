@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>홈 북극성 접근성 라벨 정리</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0f1117; --text:#e5e7eb; --accent:#38bdf8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 16px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 20px 0; }
+    .card, details { border: 1px solid var(--accent); border-radius: 6px; padding: 14px; background: transparent; }
+    .k { color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    .v { font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; }
+    th, td { border-bottom: 1px solid var(--accent); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--text); }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>홈 북극성 접근성 라벨 정리</h1>
+    <p>이번 사이클은 열린 신규 오더가 없어, codex 레인의 단일 UI anti-slop 작업으로 홈 별자리 접근성 라벨의 폐기 명칭을 정본 명칭으로 교체했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="k">결과</div><div class="v">로컬 브랜치 커밋 완료</div></div>
+      <div class="card"><div class="k">2nd-B 커밋</div><div class="v"><code>311fb647</code></div></div>
+      <div class="card"><div class="k">위험도</div><div class="v">낮음</div></div>
+      <div class="card"><div class="k">푸시</div><div class="v">하지 않음</div></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th></tr></thead>
+      <tbody>
+        <tr><td><code>locales/en/home.json</code></td><td>접근성 라벨을 북극성 밝기 의미로 변경</td></tr>
+        <tr><td><code>locales/ko/home.json</code></td><td>접근성 라벨을 북극성 밝기 의미로 변경</td></tr>
+        <tr><td><code>locales/es/home.json</code></td><td>접근성 라벨을 북극성 밝기 의미로 변경</td></tr>
+        <tr><td><code>locales/pt/home.json</code></td><td>접근성 라벨을 북극성 밝기 의미로 변경</td></tr>
+        <tr><td><code>locales/id/home.json</code></td><td>접근성 라벨을 북극성 밝기 의미로 변경</td></tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <p>JSON 파싱, i18n 키 정합성, 금지어 검사, em dash 검사, TypeScript 타입 검사, diff 공백 검사를 통과했다. Git 줄바꿈 안내는 기능 실패가 아니며 기존 Windows 설정에 따른 경고다.</p>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <p>범위: locale 접근성 라벨 5개. 안전: 법무, 결제, 시크릿, 운영 배포, 외부 사실 주장 없음. MoA: 고위험 산출물이 아니므로 별도 검증 요청은 만들지 않았다.</p>
+    </details>
+
+    <p>작성 시각: 2026-07-28 22:30:03 KST</p>
+  </main>
+</body>
+</html>

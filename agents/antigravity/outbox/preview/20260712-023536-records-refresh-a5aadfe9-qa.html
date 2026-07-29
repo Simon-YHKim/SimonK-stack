@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 보고서: Records Refresh a5aadfe9</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    color: #007acc;
+    border-bottom: 1px solid #333;
+    padding-bottom: 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .success {
+    color: #e0e0e0;
+  }
+  button {
+    background-color: #007acc;
+    color: #121212;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+  <h1>네이티브 안전성 검증 보고서</h1>
+  
+  <h2>기본 정보</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>내용</th>
+    </tr>
+    <tr>
+      <td>작업 브랜치</td>
+      <td>codex/records-source-detail-route-20260710</td>
+    </tr>
+    <tr>
+      <td>베이스 커밋</td>
+      <td>origin/main@a5aadfe9</td>
+    </tr>
+    <tr>
+      <td>검증 결과</td>
+      <td class="success">통과</td>
+    </tr>
+  </table>
+
+  <h2>상세 분석 내용</h2>
+  <p>해당 작업의 변경 내역을 검토한 결과, 다음과 같은 결론을 도출하였습니다.</p>
+  <ul>
+    <li>추가되거나 변경된 네이티브 라이브러리(Android/iOS) 종속성이 없습니다.</li>
+    <li>변경 사항은 React Native 화면 UI 및 TypeScript 라우팅 로직(TSX/TS)에만 국한되어 있습니다.</li>
+    <li>안드로이드 네이티브 빌드 실패나 브릿지 크래시를 유발할 수 있는 요소가 존재하지 않습니다.</li>
+    <li>데이터 로딩 실패 시 빈 배열로 안전하게 폴백(fallback) 처리되는 로직이 포함되어 예외 상황 방어 코드가 적절히 구현되었습니다.</li>
+  </ul>
+  
+  <p>결론: 네이티브 플랫폼에서의 안정성이 확인되었으며, 브랜치의 변경 사항은 병합하기에 안전합니다.</p>
+  
+  <button type="button">확인 완료</button>
+</body>
+</html>

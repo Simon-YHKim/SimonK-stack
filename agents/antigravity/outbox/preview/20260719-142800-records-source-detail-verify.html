@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; padding: 2rem; }
+  h1, h2 { color: #4fc3f7; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
+  th, td { border: 1px solid #333; padding: 0.5rem; text-align: left; }
+  th { background-color: #1e1e1e; color: #4fc3f7; }
+  .btn { display: inline-block; padding: 0.5rem 1rem; background-color: #4fc3f7; color: #121212; text-decoration: none; border-radius: 4px; font-weight: bold; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: records/source-detail 리베이스</h1>
+  <p>요청 ID: 20260719-141320-codex-to-antigravity-records-rebase-0bec7b89-verify</p>
+  
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>기반 커밋 (0bec7b89)</td>
+        <td>통과</td>
+        <td>올바른 조상 커밋으로 확인됨.</td>
+      </tr>
+      <tr>
+        <td>파일 변경 범위</td>
+        <td>통과</td>
+        <td>5개 파일로 제한됨.</td>
+      </tr>
+      <tr>
+        <td>읽기 전용 상태 유지</td>
+        <td>통과</td>
+        <td>isSource 조건문으로 수정, 삭제, 이동, 태그 추가가 방지됨.</td>
+      </tr>
+      <tr>
+        <td>경로 분리</td>
+        <td>통과</td>
+        <td>originParam을 통한 명확한 분리 확인.</td>
+      </tr>
+      <tr>
+        <td>네이티브 라우팅 블로커</td>
+        <td>없음</td>
+        <td>정상적인 Expo Router 사용 패턴.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <a href="#" class="btn">확인 완료</a>
+</body>
+</html>

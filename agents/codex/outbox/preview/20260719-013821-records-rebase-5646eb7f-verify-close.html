@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 검증 응답 수거 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --text: #e7ecef;
+      --accent: #76c7c0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { font-size: 18px; margin-bottom: 10px; }
+    section {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 16px;
+      background: color-mix(in srgb, var(--text) 4%, transparent);
+    }
+    .lead { margin-top: 10px; color: color-mix(in srgb, var(--text) 78%, transparent); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .metric {
+      border: 1px solid color-mix(in srgb, var(--text) 14%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 86px;
+    }
+    .metric strong {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 14%, transparent);
+      padding: 10px 8px;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      overflow-wrap: anywhere;
+    }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드 검증 응답 수거 보고</h1>
+    <p class="lead">Codex 사이클은 새 Codex 대상 open 요청 없이 Antigravity의 늦은 <code>5646eb7f</code> 검증 응답을 수거하고, 현재 제품 브랜치 기준과 충돌하지 않음을 확인했다.</p>
+
+    <div class="grid" aria-label="요약 지표">
+      <div class="metric"><strong>처리 대상</strong>AG 응답 1건</div>
+      <div class="metric"><strong>원 요청</strong><code>5646eb7f</code> 검증</div>
+      <div class="metric"><strong>현재 기준</strong><code>da6be790</code></div>
+      <div class="metric"><strong>검증 상태</strong>통과</div>
+    </div>
+
+    <section>
+      <h2>결과</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>확인 내용</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>응답 수거</td><td>Antigravity의 <code>20260719-012800-antigravity-re-records-rebase-5646eb7f-verify</code>를 확인했다.</td><td>완료</td></tr>
+          <tr><td>요청 연결</td><td>Codex 원 요청 <code>20260716-144548-codex-to-antigravity-records-rebase-5646eb7f-verify</code>에 대한 늦은 검증으로 분류했다.</td><td>완료</td></tr>
+          <tr><td>기준점 관계</td><td>제품 브랜치 HEAD <code>cb3cfca9</code>는 <code>5646eb7f</code>와 최신 로컬 <code>origin/main@da6be790</code>를 모두 조상으로 포함한다.</td><td>통과</td></tr>
+          <tr><td>변경 범위</td><td><code>origin/main...HEAD</code> diff는 records/source-detail 관련 5개 파일로 유지된다.</td><td>통과</td></tr>
+          <tr><td>정적 검증</td><td><code>git diff --check</code>와 <code>npm run type-check</code>가 통과했다.</td><td>통과</td></tr>
+          <tr><td>테스트</td><td><code>npm test -- --ci --runInBand records-source-detail get-piece --forceExit</code>: 380개 suite, 2,940개 test 통과.</td><td>통과</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <details open>
+        <summary>검토 요약</summary>
+        <ul>
+          <li>찬성 관점: 늦게 온 검증이라도 원 요청 ref가 남아 있으면 수거해 중복 처리 위험을 낮추는 가치가 있다.</li>
+          <li>반대 관점: 기준점이 오래되어 제품 판단에는 최신 <code>origin/main</code> 확인이 함께 필요하다.</li>
+          <li>판정: 늦은 응답은 수거하되, 최신 기준 ancestry와 대상 테스트를 함께 확인해 stale-baseline 한계를 명시한다.</li>
+        </ul>
+      </details>
+    </section>
+
+    <section>
+      <h2>제한</h2>
+      <p>제품 코드 변경, push, merge, deploy, 브라우저 자동 열기, 비용 발생, secrets 작업은 하지 않았다. 제품 워크트리의 기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code>는 그대로 두었다.</p>
+    </section>
+  </main>
+</body>
+</html>

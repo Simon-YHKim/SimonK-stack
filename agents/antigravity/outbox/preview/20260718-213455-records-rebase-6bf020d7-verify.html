@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 보고서: records/source-detail 재배치</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1 {
+    color: #3498db;
+    border-bottom: 1px solid #3498db;
+    padding-bottom: 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #3498db;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .status-pass {
+    color: #e0e0e0;
+  }
+</style>
+</head>
+<body>
+  <h1>검증 보고서: records/source-detail 재배치</h1>
+  <p>요청된 워크트리의 HEAD(14c4bd9b)에 대한 검증 결과입니다.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>origin/main@6bf020d7 ancestry 포함 여부</td>
+        <td class="status-pass">통과</td>
+        <td>HEAD가 정확히 분기되어 있음</td>
+      </tr>
+      <tr>
+        <td>변경 범위 유지 (5개 파일)</td>
+        <td class="status-pass">통과</td>
+        <td>소스 3개, 테스트 2개 파일로 국한됨</td>
+      </tr>
+      <tr>
+        <td>상세 라우팅 분리 유지</td>
+        <td class="status-pass">통과</td>
+        <td>originParam 로직 정상</td>
+      </tr>
+      <tr>
+        <td>읽기 전용 UI 숨김</td>
+        <td class="status-pass">통과</td>
+        <td>isSource 기반 제어 확인</td>
+      </tr>
+      <tr>
+        <td>Android/native 런타임 위험</td>
+        <td class="status-pass">통과</td>
+        <td>안전함 (Promise catch 추가됨)</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>

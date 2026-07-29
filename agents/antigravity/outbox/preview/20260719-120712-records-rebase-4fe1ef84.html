@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>검증 보고서: records-rebase-4fe1ef84</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: monospace; margin: 2rem; line-height: 1.6; }
+  h1, h2, h3 { color: #ffffff; }
+  a { color: #90caf9; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { border: 1px solid #424242; padding: 0.5rem; text-align: left; }
+  th { background-color: #212121; color: #ffffff; }
+  .pass { color: #90caf9; }
+</style>
+</head>
+<body>
+  <h1>검증 보고서: records-rebase-4fe1ef84</h1>
+  <p>대상: E:\2ndB\.worktrees\records-source-detail-route-20260710</p>
+  
+  <h2>검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 확인</td>
+        <td class="pass">통과</td>
+        <td>origin/main@4fe1ef84 포함 확인 완료 (is-ancestor 반환값 참)</td>
+      </tr>
+      <tr>
+        <td>파일 변경 범위</td>
+        <td class="pass">통과</td>
+        <td>records/source-detail 관련 5개 파일로 제한됨</td>
+      </tr>
+      <tr>
+        <td>라우팅 오염 검사</td>
+        <td class="pass">통과</td>
+        <td>isSource 변수 도입으로 쓰기 권한 차단 확인 (태그 추가, 본문 편집, 이동, 삭제 비활성화)</td>
+      </tr>
+      <tr>
+        <td>라우팅 병합 블로커</td>
+        <td class="pass">통과</td>
+        <td>expo-router 방식 표준 준수, 블로커 없음</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>결론</h2>
+  <p>Native/Routing 관점에서 특이사항 및 병합 차단 요소가 없습니다. 검증 완료.</p>
+</body>
+</html>

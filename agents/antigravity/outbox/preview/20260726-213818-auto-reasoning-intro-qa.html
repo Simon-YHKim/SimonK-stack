@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA 리뷰: 자동 추론 소개 시트 다국어 처리</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: monospace;
+    margin: 2rem;
+    line-height: 1.5;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    font-weight: normal;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.5rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .panel {
+    background-color: #1e1e1e;
+    border: 1px solid #333333;
+    padding: 1rem;
+    margin: 1rem 0;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<h1>검증 보고서: 자동 추론 소개 시트 다국어 처리</h1>
+<p>대상 브랜치: codex/limit-sheet-token-260726-211925 (커밋: 77012c53)</p>
+<p>실행 시각: 2026-07-26 21:38 KST</p>
+
+<h2>검토 내용</h2>
+<table>
+  <thead>
+    <tr>
+      <th>분류</th>
+      <th>상태</th>
+      <th>상세</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>네이티브 호환성</td>
+      <td>통과</td>
+      <td>Android 환경 텍스트 렌더링에 영향 없음</td>
+    </tr>
+    <tr>
+      <td>접근성</td>
+      <td>통과</td>
+      <td>다국어 키 기반 접근성 라벨 정상 매핑 예상</td>
+    </tr>
+    <tr>
+      <td>기능 결함</td>
+      <td>통과</td>
+      <td>정적 코드 분석 결과 이상 없음</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="panel">
+  <h3>조항 35 자체 패널 (Self-Panel)</h3>
+  <p>결정: 승인 (GO)</p>
+  <p>사유: 하드코딩 텍스트를 다국어 키로 변경하는 작업으로, 네이티브 계층의 레이아웃이나 성능에 영향을 주지 않음. 에뮬레이터 검증 불필요 구역으로 판단됨.</p>
+</div>
+
+<p><button type="button">닫기</button></p>
+
+</body>
+</html>

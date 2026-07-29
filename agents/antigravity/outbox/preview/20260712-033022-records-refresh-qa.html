@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>레코드 소스 상세 라우팅 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2 { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1e1e1e; }
+  .pass { color: #81c784; }
+  .code { background-color: #1e1e1e; padding: 15px; border-radius: 4px; font-family: monospace; }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  button:hover { background-color: #444444; }
+</style>
+</head>
+<body>
+  <h1>레코드 소스 상세 라우팅 검증 보고서</h1>
+  <p>교차 검증 요청에 대한 테스트 결과 및 네이티브 회귀 위험 분석입니다.</p>
+
+  <h2>검증 개요</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>분석 항목</th>
+        <th>상태 결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>테스트 헤드</td>
+        <td>fdeff879</td>
+      </tr>
+      <tr>
+        <td>제스트 단위 테스트</td>
+        <td class="pass">통과 (5/5)</td>
+      </tr>
+      <tr>
+        <td>타입스크립트 검사</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>네이티브 회귀 위험</td>
+        <td class="pass">안전함</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>테스트 세부 내역</h2>
+  <div class="code">
+PASS src/screens/deepspace/__tests__/records-source-detail-route.test.ts<br>
+  deep-space records source detail routing<br>
+    - source rows keep their source id and origin for detail navigation<br>
+    - the detail screen reads sources when origin=source<br>
+    - source detail renders focal markdown body with fallback<br>
+    - semantic related state is cleared properly<br>
+    - related-record read failures do not block focal detail<br>
+  </div>
+
+  <h2>네이티브 영향 분석</h2>
+  <p>코드 변경 사항이 오직 리액트 뷰 및 단위 테스트 파일에만 집중되어 있습니다.</p>
+  <ul>
+    <li>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</li>
+    <li>src/screens/deepspace/dds-wiki-records-screens.tsx</li>
+  </ul>
+  <p>안드로이드 및 iOS 네이티브 브릿지 의존성이 전혀 변경되지 않아, 플랫폼 회귀 위험성이 없습니다.</p>
+
+  <div style="margin-top: 30px;">
+    <button>보고서 닫기</button>
+  </div>
+</body>
+</html>

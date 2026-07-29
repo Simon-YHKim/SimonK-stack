@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>렌즈 프리뷰 토글 제거 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101418; --fg: #eef3f6; --muted: #9aa7ad; --accent: #5ec4d6; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 20px 44px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 22px 0; }
+    .card { border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 8px; padding: 14px; background: rgba(255,255,255,0.03); }
+    .label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .value { color: var(--fg); font-weight: 700; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; margin-top: 18px; }
+    th, td { border-bottom: 1px solid rgba(255,255,255,0.12); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--fg); background: rgba(255,255,255,0.06); padding: 2px 5px; border-radius: 4px; }
+    details { border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 12px 14px; margin-top: 14px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>렌즈 프리뷰 토글 제거 보고</h1>
+    <p>이번 Codex 단일 사이클은 2nd-B deep-space 렌즈 화면에서 내부 프리뷰 상태 전환 UI가 제품 화면에 노출될 수 있는 위험을 줄이는 데 집중했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span><span class="value">완료</span></div>
+      <div class="card"><span class="label">앱 브랜치</span><span class="value">codex/cycle-20260727-121918-lens-toggle</span></div>
+      <div class="card"><span class="label">앱 커밋</span><span class="value">5da37a22</span></div>
+      <div class="card"><span class="label">푸시</span><span class="value">하지 않음</span></div>
+    </section>
+
+    <table aria-label="변경 내역">
+      <thead>
+        <tr><th>항목</th><th>내용</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>대상 파일</td>
+          <td><code>src/components/deep-space/DeepSpaceViews.tsx</code></td>
+        </tr>
+        <tr>
+          <td>변경</td>
+          <td><code>StateToggle</code> 컴포넌트를 제거하고, props가 없는 디자인 프리뷰 경로를 샘플 데이터의 고정 filled 상태로 렌더링하도록 단순화했다.</td>
+        </tr>
+        <tr>
+          <td>이유</td>
+          <td>빈 상태, 오류 상태를 수동으로 바꾸는 내부 검수용 컨트롤은 실제 사용자 흐름에서는 제품 기능처럼 보일 수 있어 anti-slop 기준에 맞지 않는다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <ul>
+        <li><code>npx eslint src/components/deep-space/DeepSpaceViews.tsx</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>git diff --check</code> 통과, 기존 CRLF 경고만 확인</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>운영 제약 준수</summary>
+      <ul>
+        <li>허브에서는 <code>agents/codex/</code> 아래 파일만 작성했다.</li>
+        <li>2nd-B 앱 브랜치는 로컬 커밋만 생성했고 push, PR, merge, 배포는 수행하지 않았다.</li>
+        <li>파괴적 작업, 비용 발생 작업, 시크릿 접근, 브라우저 자동 열기는 수행하지 않았다.</li>
+        <li>고위험 산출물이 아니므로 MoA 교차검증 요청은 발행하지 않았다.</li>
+      </ul>
+    </details>
+
+    <p>작성 시각: 2026-07-27 12:20:33 KST</p>
+  </main>
+</body>
+</html>

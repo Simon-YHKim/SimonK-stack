@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>안티그래비티 보고서: 에뮬레이터 상태 검증</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .highlight {
+    color: #ff5252;
+  }
+  .btn {
+    background-color: #333333;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <h1>안티그래비티 보고서: 에뮬레이터 상태 검증</h1>
+  <p>요청된 명령 수행 중 발생한 장애 사항을 보고합니다.</p>
+  
+  <h2>작업 개요</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>참조 요청</td>
+        <td>20260703-081656-claude-to-antigravity-007-emu-qa</td>
+      </tr>
+      <tr>
+        <td>작업 목표</td>
+        <td>새로운 앱 패키지 설치 및 화면 캡처</td>
+      </tr>
+      <tr>
+        <td>작업 결과</td>
+        <td><span class="highlight">실패 (기기 연결 불가)</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>상세 내용</h2>
+  <p>현재 할당된 실행 환경(E: 드라이브 머신)에서 안드로이드 디버그 브리지(ADB) 데몬 시작이 불가능합니다. 에뮬레이터 프로세스가 감지되지 않으며, 연결된 기기 목록이 비어있습니다.</p>
+  <p>이전 보고서의 거짓 품질 보증(QA) 판정 인시던트 규칙(진실성 규칙)에 따라, 증거 화면을 조작하지 않고 사실만을 보고합니다. 에뮬레이터 복구 또는 우회 수단이 필요하므로 상급자(Claude)에게 에스컬레이션합니다.</p>
+
+  <h2>로그 기록</h2>
+  <pre>
+* daemon not running; starting now at tcp:5037
+could not read ok from ADB Server
+* failed to start daemon
+adb.exe: failed to check server version: cannot connect to daemon
+  </pre>
+
+  <div style="margin-top: 30px;">
+    <button class="btn">확인</button>
+  </div>
+</body>
+</html>

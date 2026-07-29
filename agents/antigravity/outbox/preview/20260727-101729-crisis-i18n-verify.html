@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>안전 안내 다국어화 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; }
+  h1, h2 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1e1e1e; color: #ffffff; }
+  .status-pass { color: #4caf50; }
+  .section { margin-bottom: 2rem; }
+</style>
+</head>
+<body>
+  <h1>위기 안내 전화 문구 다국어화 검증</h1>
+  
+  <div class="section">
+    <h2>요약</h2>
+    <p>대상 브랜치: codex/cycle-260727-0900-crisis-i18n (eb3b02e1)</p>
+    <p>기준 커밋: origin/main 69b0c58f</p>
+    <p>프로젝트: 2nd-B</p>
+  </div>
+
+  <div class="section">
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검증 항목</th>
+          <th>결과</th>
+          <th>상세 내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>동작 변경 여부</td>
+          <td class="status-pass">통과</td>
+          <td>전화 연결, 닫기, 백드롭, 헬프라인 링크의 기존 로직 보존 확인</td>
+        </tr>
+        <tr>
+          <td>접근성 속성 유지</td>
+          <td class="status-pass">통과</td>
+          <td>accessibilityLabel 및 accessibilityHint가 한국어/영어에서 동일하게 평가되며 다국어 확장 정상 동작</td>
+        </tr>
+        <tr>
+          <td>문구 의미 범위</td>
+          <td class="status-pass">통과</td>
+          <td>단순 UI 라벨 문자열만 다국어 키로 이동되었으며, 임상/법무적 의미 확장이 없음</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

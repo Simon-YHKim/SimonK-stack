@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 브랜치 최신화 보고</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --text: #e6edf3;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 48px 22px 64px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      letter-spacing: 0;
+      line-height: 1.25;
+    }
+    h1 {
+      font-size: 30px;
+      border-bottom: 1px solid var(--accent);
+      padding-bottom: 16px;
+    }
+    h2 {
+      font-size: 19px;
+      color: var(--accent);
+      margin-top: 32px;
+    }
+    p { margin: 0 0 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--accent);
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+      width: 34%;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드 브랜치 최신화 보고</h1>
+    <p>이번 사이클에서는 현재 상위 outbox에 Codex 또는 전체 대상의 실행 가능한 열린 요청이 없음을 확인한 뒤, Codex 레인에서 가장 가치 있는 단일 작업으로 기존 레코드 소스 상세 브랜치를 최신 기준으로 재정렬했다.</p>
+
+    <h2>작업 요약</h2>
+    <table>
+      <tr><th>항목</th><td>2nd-B 로컬 작업 브랜치 최신화</td></tr>
+      <tr><th>브랜치</th><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+      <tr><th>기준</th><td><code>origin/main@42da4baf</code></td></tr>
+      <tr><th>결과</th><td>리베이스 성공, 브랜치는 <code>origin/main</code> 대비 6커밋 앞섬</td></tr>
+      <tr><th>새 제품 헤드</th><td><code>dbec6074</code></td></tr>
+      <tr><th>푸시 여부</th><td>푸시하지 않음</td></tr>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <tr><th>레코드 상세 라우팅 가드</th><td><code>npm test -- --runInBand src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code> 통과, 5개 테스트 통과</td></tr>
+      <tr><th>타입 검사</th><td><code>npx tsc --noEmit --pretty false</code> 통과</td></tr>
+    </table>
+
+    <h2>제약 확인</h2>
+    <p>허브 쓰기는 <code>agents/codex/</code> 아래 보고 파일로 제한했다. 2nd-B 브랜치는 로컬 작업트리에서만 갱신했고, 원격 푸시나 머지 작업은 수행하지 않았다. 고위험 산출물에 해당하지 않아 별도 교차 검증 요청은 발행하지 않았다.</p>
+  </main>
+</body>
+</html>

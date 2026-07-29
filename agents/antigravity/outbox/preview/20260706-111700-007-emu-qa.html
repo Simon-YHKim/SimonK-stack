@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>007 에뮬레이터 QA 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 0; padding: 20px; }
+  h1, h2 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1e1e1e; }
+  img { max-width: 300px; display: block; margin-top: 10px; border: 1px solid #333; }
+  .log { font-family: monospace; color: #aaaaaa; font-size: 0.9em; }
+</style>
+</head>
+<body>
+  <h1>에뮬레이터 QA 결과 보고서 (0.0.7)</h1>
+  <p>대상 기기: Pixel 9 Pro XL</p>
+  <p>테스트 종류: 신기능 에뮬 QA</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>화면</th>
+        <th>설명 및 캡처</th>
+        <th>관찰 결과 및 로그(Logcat/Sentry)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>로그인</td>
+        <td>
+          소셜 버튼 노출 상태 확인
+          <img src="007-qa/1_login.jpg" alt="로그인 화면 캡처">
+        </td>
+        <td>
+          정상 노출 확인.<br>
+          <span class="log">로그: 특이사항 없음.</span>
+        </td>
+      </tr>
+      <tr>
+        <td>홈 별자리</td>
+        <td>
+          홈 화면 별자리 렌더링
+          <img src="007-qa/2_home.jpg" alt="홈 별자리 캡처">
+        </td>
+        <td>
+          정상 로드 완료.<br>
+          <span class="log">로그: Sentry 에러 라인 없음.</span>
+        </td>
+      </tr>
+      <tr>
+        <td>/persona Seen 렌즈</td>
+        <td>
+          간극 뷰 및 한 줄 버튼 확인
+          <img src="007-qa/3_persona.jpg" alt="페르소나 렌즈 캡처">
+        </td>
+        <td>
+          버튼 노출 정상.<br>
+          <span class="log">로그: 크래시 없음.</span>
+        </td>
+      </tr>
+      <tr>
+        <td>담기의 회고 폼</td>
+        <td>
+          통화 직후 회고 화면
+          <img src="007-qa/4_reflection.jpg" alt="회고 폼 캡처">
+        </td>
+        <td>
+          레이아웃 정상.<br>
+          <span class="log">로그: 에러 없음.</span>
+        </td>
+      </tr>
+      <tr>
+        <td>/plans 셸</td>
+        <td>
+          플랜 목록 뷰
+          <img src="007-qa/5_plans.jpg" alt="플랜 셸 캡처">
+        </td>
+        <td>
+          화면 진입 정상.<br>
+          <span class="log">로그: 특이사항 없음.</span>
+        </td>
+      </tr>
+      <tr>
+        <td>홈 (재실행 후)</td>
+        <td>
+          첫 실행 후 완전 종료, 재실행 (OTA 반영 확인)
+          <img src="007-qa/6_home_restart.jpg" alt="홈 재실행 캡처">
+        </td>
+        <td>
+          재실행 후 홈 진입 정상.<br>
+          <span class="log">로그: 업데이트 크래시 없음.</span>
+        </td>
+      </tr>
+      <tr>
+        <td>뮤지엄 (레인 라벨)</td>
+        <td>
+          한글 세로쓰기 및 악센트 도트 전경
+          <img src="007-qa/7_museum_lane.jpg" alt="뮤지엄 레인 캡처">
+        </td>
+        <td>
+          세로쓰기 폰트 정상.<br>
+          <span class="log">로그: 폰트 로드 에러 없음.</span>
+        </td>
+      </tr>
+      <tr>
+        <td>뮤지엄 (타임라인)</td>
+        <td>
+          NOW 배지가 보이는 타임라인
+          <img src="007-qa/8_museum_now.jpg" alt="뮤지엄 타임라인 캡처">
+        </td>
+        <td>
+          타임라인 스크롤 및 배지 정상.<br>
+          <span class="log">로그: 에러 없음.</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서 - records 재정렬</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --text: #e8ecf8;
+      --accent: #72f2c7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: clamp(28px, 4vw, 44px); line-height: 1.15; margin-bottom: 12px; }
+    h2 { font-size: 20px; margin: 28px 0 12px; color: var(--accent); }
+    h3 { font-size: 16px; margin: 0 0 8px; color: var(--accent); }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+    }
+    .card, details {
+      border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--bg));
+      border-radius: 8px;
+      padding: 16px;
+      background: color-mix(in srgb, var(--bg) 86%, var(--accent));
+    }
+    .card p { margin: 0; }
+    .label { color: var(--accent); font-size: 13px; }
+    code {
+      color: var(--accent);
+      word-break: break-all;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 4px;
+    }
+    th, td {
+      border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--bg));
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+    li + li { margin-top: 6px; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex 사이클 보고서: records source-detail 재정렬</h1>
+    <p>이번 사이클은 신규 직접 오더가 없는 상태에서 2nd-B <code>origin/main</code> 전진을 확인하고, Codex records 브랜치를 새 기준 위로 로컬 재배치한 작업이다.</p>
+
+    <section class="summary" aria-label="요약">
+      <article class="card">
+        <p class="label">작업</p>
+        <p>브랜치 rebase 1건</p>
+      </article>
+      <article class="card">
+        <p class="label">기준</p>
+        <p><code>origin/main@2dcae65a</code></p>
+      </article>
+      <article class="card">
+        <p class="label">새 HEAD</p>
+        <p><code>178d8bb6</code></p>
+      </article>
+      <article class="card">
+        <p class="label">검증</p>
+        <p>2 suites / 10 tests 통과</p>
+      </article>
+    </section>
+
+    <h2>결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>대상 worktree</td>
+          <td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>새 로컬 HEAD</td>
+          <td><code>178d8bb62e3ea45ff409510c82a016b21b911d19</code></td>
+        </tr>
+        <tr>
+          <td>변경 범위</td>
+          <td>records/source-detail 5파일, 126 insertions / 34 deletions</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>git diff --check origin/main...HEAD</code> 통과</li>
+      <li><code>npm test -- --runTestsByPath src/lib/records/__tests__/source-pieces.test.ts src/screens/deepspace/__tests__/records-source-detail-route.test.ts --ci</code> 통과</li>
+      <li>제품 push, merge, deploy, browser-open, destructive, cost, secrets action 없음</li>
+    </ul>
+
+    <details>
+      <summary>변경 파일</summary>
+      <ul>
+        <li><code>src/lib/records/__tests__/source-pieces.test.ts</code></li>
+        <li><code>src/lib/records/get-piece.ts</code></li>
+        <li><code>src/lib/records/source-pieces.ts</code></li>
+        <li><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></li>
+        <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <ul>
+        <li>4: stale open row는 이미 처리된 기록으로 보았고, 신규성은 <code>origin/main</code> 전진으로 제한했다.</li>
+        <li>12: 이번 사이클의 실제 작업은 records 브랜치 rebase 1건뿐이다.</li>
+        <li>19: 허브 쓰기는 <code>agents/codex/</code>로 제한했고 2nd-B는 로컬 브랜치만 수정했다.</li>
+        <li>35.4: merge-diff 성격이므로 Antigravity에 MoA 교차검증을 요청했다.</li>
+      </ul>
+    </details>
+
+    <h2>링크</h2>
+    <ul>
+      <li>응답 문서: <code>agents/codex/outbox/20260718-040154-codex-re-records-rebase-2dcae65a.md</code></li>
+      <li>검증 요청: <code>agents/codex/outbox/20260718-040154-codex-to-antigravity-records-rebase-2dcae65a-verify.md</code></li>
+    </ul>
+  </main>
+</body>
+</html>

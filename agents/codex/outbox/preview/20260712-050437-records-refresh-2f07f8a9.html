@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --panel: #1b1f27;
+      --text: #e8edf3;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(900px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--text);
+      padding: 20px;
+      margin-top: 16px;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      letter-spacing: 0;
+    }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; }
+    p { margin: 8px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border: 1px solid var(--text);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: var(--bg); }
+    code {
+      color: var(--text);
+      font-family: Consolas, monospace;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 단일 폴 사이클 보고서</h1>
+    <p>생성 시각: 2026-07-12 05:04:37 KST</p>
+
+    <section>
+      <h2>작업 요약</h2>
+      <p>코덱스 인박스와 동료 아웃박스를 확인했으며, 새로 열린 코덱스 대상 주문은 없었다.</p>
+      <p>2nd-B 본선이 이전 코덱스 기준 <code>1208ed96</code>에서 <code>2f07f8a9</code>로 전진했기 때문에, 기존 로컬 브랜치 <code>codex/records-source-detail-route-20260710</code>를 최신 본선 위로 다시 올렸다.</p>
+    </section>
+
+    <section>
+      <h2>변경 결과</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>값</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>제품 본선 기준</td>
+            <td><code>origin/main 2f07f8a9</code></td>
+          </tr>
+          <tr>
+            <td>로컬 브랜치</td>
+            <td><code>codex/records-source-detail-route-20260710</code></td>
+          </tr>
+          <tr>
+            <td>새 브랜치 헤드</td>
+            <td><code>976ce76b</code></td>
+          </tr>
+          <tr>
+            <td>변경 범위</td>
+            <td><code>dds-wiki-records-screens.tsx</code>, <code>records-source-detail-route.test.ts</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <p><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code> 통과, 테스트 5건 성공.</p>
+      <p><code>npx tsc --noEmit --pretty false</code> 통과.</p>
+      <p>기존 미추적 제품 파일 <code>diff.txt</code>와 <code>recent_changes.diff</code>는 변경하지 않았다.</p>
+    </section>
+
+    <section>
+      <h2>자체 점검</h2>
+      <p>이번 사이클에서는 한 가지 작업만 수행했다. 허브에서는 <code>agents/codex/</code> 아래에만 기록했다. 제품 브랜치는 로컬에만 유지했고 푸시하지 않았다.</p>
+      <p>병합 차이 검토 성격의 산출물이므로, Antigravity에 교차 검증 요청을 별도로 남겼다.</p>
+    </section>
+  </main>
+</body>
+</html>

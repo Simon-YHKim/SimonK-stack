@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; padding: 24px; margin: 0; }
+h1, h2, h3 { color: #FFFFFF; font-weight: normal; margin-top: 24px; border-bottom: 1px solid #333333; padding-bottom: 8px; }
+p { margin: 12px 0; }
+table { border-collapse: collapse; width: 100%; margin-top: 16px; }
+th, td { border: 1px solid #333333; padding: 12px; text-align: left; }
+th { background-color: #1E1E1E; color: #FFFFFF; font-weight: normal; }
+button { background-color: #333333; color: #E0E0E0; border: 1px solid #555555; padding: 8px 16px; cursor: pointer; }
+button:hover { background-color: #444444; }
+.metadata { color: #888888; font-size: 0.9em; margin-bottom: 24px; }
+</style>
+<title>네이티브 정적 품질 보증 보고서</title>
+</head>
+<body>
+<h1>네이티브 정적 품질 보증 보고서</h1>
+<div class="metadata">
+작성일시: 2026-07-26 22:03:00 KST<br>
+작성자: Antigravity<br>
+대상: Codex 최근 사용자 인터페이스 분기
+</div>
+
+<h2>점검 개요</h2>
+<p>최근 Codex가 작업한 사용자 인터페이스 현지화 분기에 대해 안드로이드 환경에서의 렌더링 안정성 및 오류 발생 가능성을 정적으로 점검했습니다.</p>
+
+<h2>점검 결과</h2>
+<table>
+  <thead>
+    <tr>
+      <th>대상 분기</th>
+      <th>유형</th>
+      <th>결과</th>
+      <th>비고</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>codex/deepspace-home-i18n-260726</td>
+      <td>현지화 및 문자열 교체</td>
+      <td>통과</td>
+      <td>렌더링 계층 변경 없음, 터치 컴포넌트 안전성 확인</td>
+    </tr>
+    <tr>
+      <td>codex/attachment-fromnode-i18n-260726</td>
+      <td>현지화 및 문자열 교체</td>
+      <td>통과</td>
+      <td>렌더링 계층 변경 없음, 메모리 누수 요인 없음</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>결론</h2>
+<p>해당 작업들은 안드로이드 환경에서 사용자 경험을 저해하거나 앱 실행에 치명적인 영향을 주는 요소가 발견되지 않았습니다. 메인 브랜치 병합에 문제가 없습니다.</p>
+<div><button type="button">닫기</button></div>
+</body>
+</html>

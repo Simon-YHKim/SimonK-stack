@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>안드로이드 릴리스 워크플로 중복 검토</title>
+  <style>
+    :root { --bg:#101214; --text:#e7ecef; --muted:#9aa6ad; --accent:#7ac7a7; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height:1.55; }
+    main { max-width: 960px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2 { margin: 0 0 12px; font-weight: 700; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 8px 0; }
+    .muted { color: var(--muted); }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 20px 0 24px; }
+    .card { border:1px solid var(--muted); border-radius:8px; padding:14px; min-height:86px; }
+    .label { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
+    .value { color: var(--accent); font-size: 18px; font-weight: 700; overflow-wrap:anywhere; }
+    table { width:100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-bottom:1px solid var(--muted); padding:10px 8px; text-align:left; vertical-align:top; }
+    th { color: var(--accent); font-weight:700; }
+    code { color: var(--accent); font-family: Consolas, monospace; }
+    details { border:1px solid var(--muted); border-radius:8px; padding:12px 14px; margin: 12px 0; }
+    summary { cursor:pointer; color: var(--accent); font-weight:700; }
+    ul { padding-left: 20px; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>안드로이드 릴리스 워크플로 중복 검토</h1>
+    <p class="muted">작성 시각: 2026-07-21 10:48:09 KST · 작성자: codex</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결론</div><div class="value">중복 반영</div></div>
+      <div class="card"><div class="label">대상 커밋</div><div class="value"><code>07a32060</code></div></div>
+      <div class="card"><div class="label">현재 본류</div><div class="value"><code>6a7932e3</code></div></div>
+      <div class="card"><div class="label">검증 상태</div><div class="value">정적 통과</div></div>
+    </section>
+
+    <h2>결과</h2>
+    <p><code>fix/comm-android-release-hygiene</code>의 추가 커밋 <code>07a32060</code>은 수동 Android 진단 빌드를 태그 또는 <code>release/*</code> 브랜치에서만 허용하도록 강화한다. 그러나 최신 <code>origin/main@6a7932e3</code>의 <code>7c19d27d</code>에 같은 워크플로 내용이 이미 포함되어 있다.</p>
+    <p>따라서 이 브랜치는 Android 워크플로 병합 후보로 새로 소비할 필요가 없다. 현재 브랜치가 본류와 크게 달라 보이는 이유는 워크플로가 아니라 오래된 문서, 이미지, 안전성 평가 파일 차이 때문이다.</p>
+
+    <h2>검토 표</h2>
+    <table>
+      <thead><tr><th>항목</th><th>확인 내용</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>요청 큐</td><td><code>tools/board.ps1 -Me codex</code>와 peer outbox 구조 스캔에서 Codex/all 대상 open 요청 없음</td><td>대기 없음</td></tr>
+        <tr><td>본류 기준선</td><td><code>origin/main</code>은 직전 Codex 기준선과 같은 <code>6a7932e3</code></td><td>전진 없음</td></tr>
+        <tr><td>추가 커밋</td><td><code>69b8ae08..07a32060</code>은 <code>.github/workflows/android-release.yml</code> 1개 파일만 변경</td><td>범위 좁음</td></tr>
+        <tr><td>본류 비교</td><td>워크플로 파일은 <code>origin/main</code>과 byte-level diff 없음</td><td>중복</td></tr>
+        <tr><td>검증</td><td><code>git diff --check</code> 통과, merge-tree 출력 없음, <code>actionlint</code>는 로컬 미설치</td><td>부분 통과</td></tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>35절 자기 패널</summary>
+      <ul>
+        <li>찬성: release workflow drift guard는 native-safety와 배포 품질에 직접 연결되므로 Codex 레인에서 재확인할 가치가 있다.</li>
+        <li>반대: 브랜치 전체 diff는 본류보다 오래된 파일 차이를 많이 포함하므로, 브랜치 자체를 merge-safe로 표현하면 오해가 생긴다.</li>
+        <li>판정: 워크플로 변경은 이미 본류에 반영된 중복이다. 새 병합 요청이 아니라 중복 회수 신호로 Claude에 전달한다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>안전 기록</summary>
+      <p>제품 코드 변경, 2nd-B push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 작업은 하지 않았다.</p>
+      <p>release workflow 표면이므로 MoA 규칙에 따라 Antigravity 검증 요청을 별도 발행했다.</p>
+    </details>
+  </main>
+</body>
+</html>

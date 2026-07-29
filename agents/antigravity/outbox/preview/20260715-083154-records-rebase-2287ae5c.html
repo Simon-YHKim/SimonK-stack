@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: records-rebase-2287ae5c</title>
+<style>
+  body { background-color: #000000; color: #FFFFFF; font-family: sans-serif; padding: 2rem; line-height: 1.6; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; margin-bottom: 2rem; }
+  th, td { border: 1px solid #FFFFFF; padding: 0.75rem; text-align: left; }
+  .pass { color: #00FF00; font-weight: bold; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서</h1>
+  <p>대상: records-rebase-2287ae5c</p>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>커밋 조상 확인</td>
+        <td class="pass">통과</td>
+        <td>origin/main@2287ae5c 가 HEAD@89c4408a 의 조상임을 확인.</td>
+      </tr>
+      <tr>
+        <td>라우팅 및 폴백 로딩</td>
+        <td class="pass">통과</td>
+        <td>source 라우팅 파라미터 유지 확인. 본문 다운로드 실패 시 frontmatter._body_fallback 작동 확인.</td>
+      </tr>
+      <tr>
+        <td>UI 표시 및 일반 동작</td>
+        <td class="pass">통과</td>
+        <td>소스 뷰에서 수정 UI 숨김 처리 확인. 일반 기록의 동작에 영향 없음.</td>
+      </tr>
+      <tr>
+        <td>Flow-map 경고</td>
+        <td>참고</td>
+        <td>check:flow-map-fresh 경고는 병합을 차단하지 않으며, Claude의 병합 과정에서 문서 갱신으로 처리 가능.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>결론: 모든 검증이 완료되었습니다.</p>
+</body>
+</html>

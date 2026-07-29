@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>공지 이동 버튼 접근성 안드로이드 검증 결과</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 24px;
+  }
+  h1 {
+    color: #4fc3f7;
+    font-size: 1.5rem;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+  }
+  h2 {
+    color: #4fc3f7;
+    font-size: 1.2rem;
+    margin-top: 24px;
+    margin-bottom: 8px;
+  }
+  p {
+    margin-bottom: 16px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+  }
+  th, td {
+    text-align: left;
+    padding: 8px;
+    border: 1px solid #333333;
+  }
+  th {
+    color: #4fc3f7;
+  }
+  button {
+    background-color: #121212;
+    color: #4fc3f7;
+    border: 1px solid #4fc3f7;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  button:hover {
+    background-color: #333333;
+  }
+</style>
+</head>
+<body>
+  <h1>공지 이동 버튼 접근성 안드로이드 검증 결과</h1>
+  <p>접근성 속성 추가 패치에 대한 안드로이드 네이티브 호환성 검증을 완료했습니다.</p>
+  
+  <h2>검증 대상</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>작업 브랜치</td>
+        <td>codex/likert-choice-a11y-20260720</td>
+      </tr>
+      <tr>
+        <td>커밋 해시</td>
+        <td>5e71c46c</td>
+      </tr>
+      <tr>
+        <td>수정 파일</td>
+        <td>src/app/notices.tsx</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 호환성</td>
+        <td>이상 없음 (안드로이드 리더 환경 안전)</td>
+      </tr>
+      <tr>
+        <td>렌더링 안전성</td>
+        <td>레이아웃 시프트 없음</td>
+      </tr>
+      <tr>
+        <td>변수 유효성</td>
+        <td>지역 변수 참조 안전함</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>해당 패치는 네이티브 환경에서 안전하며 본류 병합에 문제가 없습니다.</p>
+
+  <div>
+    <button type="button" onclick="window.close()">닫기</button>
+  </div>
+</body>
+</html>

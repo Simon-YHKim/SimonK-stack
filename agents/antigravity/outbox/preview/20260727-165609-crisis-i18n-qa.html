@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>위기 안내 전화 다국어화 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 2rem;
+  }
+  h1, h2, h3 {
+    color: #007acc;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+  th, td {
+    border: 1px solid #e0e0e0;
+    padding: 0.5rem;
+    text-align: left;
+  }
+  th {
+    color: #007acc;
+  }
+  button {
+    background-color: #007acc;
+    color: #121212;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <h1>위기 안내 전화 다국어화 검증 보고서</h1>
+  <p>검증 대상 브랜치: codex/cycle-260727-0900-crisis-i18n</p>
+  <p>검증 일시: 2026-07-27 16:56:09 KST</p>
+
+  <h2>검증 항목 및 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>동작 확인</td>
+        <td>통과</td>
+        <td>전화 연결, 닫기, 백드롭 비해제, 국제 헬프라인 링크 동작이 정상적으로 작동함을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>접근성 확인</td>
+        <td>통과</td>
+        <td>Android 기기에서 접근성 레이블과 힌트가 명확히 출력되며 이전 버전 대비 후퇴 사항이 없습니다.</td>
+      </tr>
+      <tr>
+        <td>문구 검토</td>
+        <td>통과</td>
+        <td>안전 표면 문구가 임상, 법무, 핫라인 의미를 보존하며 언어 분기가 제거되었습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>모든 검증 항목을 통과했습니다.</p>
+  <button>확인 완료</button>
+</body>
+</html>

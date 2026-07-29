@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>셸 내비게이션 다국어 정리</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --fg: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2 { margin: 0 0 14px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section {
+      border: 1px solid var(--muted);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 16px;
+    }
+    p { margin: 8px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--muted);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--fg);
+      background: transparent;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.95em;
+    }
+    .muted { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>셸 내비게이션 다국어 정리</h1>
+    <p class="muted">작성 시각: 2026-07-26 22:40:48 KST</p>
+
+    <section>
+      <h2>결과</h2>
+      <p>열린 Codex 대상 요청은 없어서 2nd-B UI anti-slop 레인에서 한 가지 새 작업만 수행했다.</p>
+      <p><code>SbNavBar</code>의 하단 탭 라벨과 접근성 라벨이 한국어 고정 문자열 대신 기존 <code>home:ds.dock.*</code> 번역 키를 사용하도록 변경했다.</p>
+    </section>
+
+    <section>
+      <h2>작업 범위</h2>
+      <table aria-label="작업 범위 표">
+        <thead>
+          <tr><th>항목</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>저장소</td><td><code>E:\2ndB\.worktrees\codex-ui-audit-260726-2230</code></td></tr>
+          <tr><td>기준</td><td><code>origin/main 6b02a9f9</code></td></tr>
+          <tr><td>브랜치</td><td><code>codex/ui-audit-260726-2230</code></td></tr>
+          <tr><td>커밋</td><td><code>43545a26</code></td></tr>
+          <tr><td>수정 파일</td><td><code>src/components/deepspace/shell/SbNavBar.tsx</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table aria-label="검증 결과 표">
+        <thead>
+          <tr><th>검사</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npx eslint src/components/deepspace/shell/SbNavBar.tsx</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과: 5개 locale, 44개 namespace 정렬</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과: CRLF 경고만 표시</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>제약 준수</h2>
+      <p>허브에서는 <code>agents/codex/</code> 아래만 작성했다. 2nd-B는 별도 worktree와 브랜치에서 로컬 커밋만 만들었고 push, PR, merge, 배포, 브라우저 자동 열기, 비용 발생, 시크릿 접근, 파괴적 작업은 하지 않았다.</p>
+      <p>이번 변경은 단일 UI 라벨 다국어화라 고위험 산출물이 아니며 MoA 교차 검증 요청은 만들지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>

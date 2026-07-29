@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>한국어 집중 타이머 문구 정리 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101418;
+      --fg: #e8edf2;
+      --accent: #7fd0c8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 16px; }
+    section {
+      border: 1px solid rgba(127, 208, 200, 0.35);
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 18px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .metric {
+      border: 1px solid rgba(232, 237, 242, 0.18);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .metric strong {
+      display: block;
+      color: var(--accent);
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border-bottom: 1px solid rgba(232, 237, 242, 0.18);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--fg);
+      background: rgba(232, 237, 242, 0.08);
+      border-radius: 4px;
+      padding: 2px 5px;
+    }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>한국어 집중 타이머 문구 정리 보고서</h1>
+    <p>이번 사이클은 열린 codex 요청이 없는 상태에서 한국어 루틴 집중 화면의 잔여 영어 라벨 세 개를 현지화한 단일 작업입니다.</p>
+
+    <div class="grid" aria-label="핵심 결과">
+      <div class="metric"><strong>1개</strong><span>변경 파일</span></div>
+      <div class="metric"><strong>3개</strong><span>정리한 문구</span></div>
+      <div class="metric"><strong>통과</strong><span>검증 상태</span></div>
+      <div class="metric"><strong>로컬</strong><span>푸시 없음</span></div>
+    </div>
+
+    <section>
+      <h2>작업 내용</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>기존 문구</th><th>변경 문구</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>locales/ko/ops.json</code></td><td><code>FOCUS</code></td><td><code>집중</code></td></tr>
+          <tr><td><code>locales/ko/ops.json</code></td><td><code>BREAK</code></td><td><code>휴식</code></td></tr>
+          <tr><td><code>locales/ko/ops.json</code></td><td><code>SESSION LENGTH</code></td><td><code>세션 길이</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li><code>JSON.parse(locales/ko/ops.json)</code>: 통과</li>
+        <li><code>rg "FOCUS|BREAK|SESSION LENGTH" locales/ko/ops.json</code>: 잔여 없음</li>
+        <li><code>git diff --check</code>: 통과</li>
+        <li><code>npm run check:i18n</code>: 통과</li>
+        <li><code>npm run check:lexicon</code>: 통과</li>
+        <li><code>npm run check:emdash</code>: 통과</li>
+        <li><code>npm run type-check</code>: 통과</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>제출 정보</h2>
+      <p>2nd-B 브랜치: <code>codex/cycle-20260729-125517-i18n-antislop-scan</code></p>
+      <p>앱 커밋: <code>62b24b4a</code> <code>fix(i18n): localize Korean focus timer labels</code></p>
+      <p>허브 동작: 브라우저 열기, 푸시, 병합, 배포, 비용 작업, 시크릿 작업 없음.</p>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <p>제35항 자체 패널 기준으로 변경 범위는 낮은 위험의 표시 문구 현지화입니다. 스키마, 보안, 결제, 외부 사실 주장, 운영 배포가 없어 추가 교차 검증 요청은 만들지 않았습니다.</p>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>harness-tune 중복 검증 종료 보고</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e8edf2;
+      --accent: #6bb7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    header {
+      border: 1px solid var(--accent);
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: clamp(1.7rem, 3vw, 2.4rem); line-height: 1.25; margin-bottom: 12px; }
+    h2 { font-size: 1.15rem; color: var(--accent); margin-bottom: 12px; }
+    section {
+      border: 1px solid var(--accent);
+      padding: 20px;
+      margin-top: 16px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .metric {
+      border: 1px solid var(--accent);
+      padding: 14px;
+      min-height: 104px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: .88rem;
+      margin-bottom: 8px;
+    }
+    .value {
+      display: block;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    details {
+      border: 1px solid var(--accent);
+      padding: 14px 16px;
+      margin-top: 12px;
+    }
+    summary {
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 700;
+    }
+    ul { margin-bottom: 0; padding-left: 20px; }
+    @media (max-width: 760px) {
+      main { width: min(100% - 20px, 980px); padding-top: 22px; }
+      header, section { padding: 16px; }
+      .grid { grid-template-columns: 1fr; }
+      table, tbody, tr, th, td { display: block; width: 100%; }
+      th { border-bottom: 0; }
+      td { border-top: 0; margin-bottom: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>harness-tune 중복 검증 종료 보고</h1>
+      <p>Codex의 기존 HOLD 판정에 대한 Antigravity 교차검증 응답을 수거하고, 열려 있던 검증 요청을 닫았다.</p>
+      <div class="grid" aria-label="핵심 요약">
+        <div class="metric">
+          <span class="label">작업 결과</span>
+          <span class="value">검증 수거 완료</span>
+        </div>
+        <div class="metric">
+          <span class="label">최종 판정</span>
+          <span class="value">보류 유지</span>
+        </div>
+        <div class="metric">
+          <span class="label">제품 변경</span>
+          <span class="value">없음</span>
+        </div>
+        <div class="metric">
+          <span class="label">생성 시각</span>
+          <span class="value">2026-07-22 06:35:01 KST</span>
+        </div>
+      </div>
+    </header>
+
+    <section>
+      <h2>결론</h2>
+      <p><code>origin/ai/harness-tune-260721@e9b20f94</code>는 그대로 병합하지 않는 것이 맞다. 핵심 구조화 출력 및 인젝션 방어 가드는 이미 <code>origin/main</code>의 <code>ce7ae0ab</code>에 반영되어 있고, 남은 차이는 문서와 썸네일, 테스트 충돌 위험이 더 크다.</p>
+    </section>
+
+    <section>
+      <h2>검증 응답 요약</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>확인 내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>핵심 코드</td>
+            <td><code>NORTHSTAR_SCHEMA</code>, <code>SELF_MODEL_PROPOSAL_SCHEMA</code>, <code>&lt;UNTRUSTED&gt;</code> 가드가 main에 이미 반영됨.</td>
+          </tr>
+          <tr>
+            <td>병합 위험</td>
+            <td>브랜치 병합 시 제품 가치보다 문서, 썸네일, 테스트 충돌 위험이 큼.</td>
+          </tr>
+          <tr>
+            <td>Codex 판정</td>
+            <td>기존 <code>HOLD / stale duplicate</code> 판정, 즉 보류 및 중복 브랜치 판정이 타당함.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>수행하지 않은 작업</h2>
+      <p>2nd-B 코드 변경, push, PR, merge, deploy, 브라우저 자동 열기, 비용 발생 작업, secrets 접근은 수행하지 않았다.</p>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <details open>
+        <summary>판단 근거</summary>
+        <ul>
+          <li>화면 품질: 이미 main에 반영된 안전 가드라 새 화면 작업을 만들지 않았다.</li>
+          <li>버그 검증: Codex의 중복 판정과 Antigravity 검증이 같은 결론으로 수렴했다.</li>
+          <li>네이티브 안전: 네이티브 빌드나 디바이스 실행 없이 검증 응답 수거와 요청 종료만 수행했다.</li>
+          <li>병합 안전: 이미 요청된 교차검증 종료 처리라 추가 MoA 요청을 만들지 않았다.</li>
+        </ul>
+      </details>
+    </section>
+
+    <section>
+      <h2>경로</h2>
+      <table>
+        <tbody>
+          <tr>
+            <th>Codex 응답</th>
+            <td><code>agents/codex/outbox/20260722-063501-codex-re-harness-tune-verify-close.md</code></td>
+          </tr>
+          <tr>
+            <th>닫은 요청</th>
+            <td><code>agents/codex/outbox/20260721-144821-codex-to-antigravity-harness-tune-duplicate-verify.md</code></td>
+          </tr>
+          <tr>
+            <th>Antigravity 응답</th>
+            <td><code>agents/antigravity/outbox/20260722-062620-antigravity-re-harness-tune-duplicate-verify.md</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

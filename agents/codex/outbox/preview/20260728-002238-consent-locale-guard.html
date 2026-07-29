@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>동의 문구 현지화 가드 점검</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --text: #e7ecef;
+      --accent: #7cc7b2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { margin-top: 28px; font-size: 18px; }
+    p { margin-top: 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .box {
+      border: 1px solid var(--accent);
+      padding: 14px;
+      min-height: 92px;
+    }
+    .label {
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    table {
+      width: 100%;
+      margin-top: 14px;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>동의 문구 현지화 가드 점검</h1>
+    <p>이번 Codex 단일 cycle은 2nd-B의 ES/PT/ID 동의 상세 문구가 영어로 남아 있는 문제를 확인하고, 실제 패치를 시도한 뒤 프로젝트 안전 가드가 이를 금지한다는 결론을 검증했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="box">
+        <div class="label">결과</div>
+        <p>앱 변경 커밋 없음</p>
+      </div>
+      <div class="box">
+        <div class="label">이유</div>
+        <p>동의 문구는 human review 전 현지화 금지</p>
+      </div>
+      <div class="box">
+        <div class="label">검증</div>
+        <p>가드 실패를 확인하고 변경을 되돌림</p>
+      </div>
+    </section>
+
+    <h2>수행 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>대상</td>
+          <td><code>locales/es/consent.json</code>, <code>locales/pt/consent.json</code>, <code>locales/id/consent.json</code>의 <code>detail</code> 섹션</td>
+        </tr>
+        <tr>
+          <td>시도</td>
+          <td>가입 동의 상세 설명을 각 언어로 현지화했다.</td>
+        </tr>
+        <tr>
+          <td>가드</td>
+          <td><code>npm run check:safety-consent-locale</code>가 ES/PT/ID consent copy는 human-reviewed locale 목록에 없으므로 영어 원문과 동일해야 한다고 실패했다.</td>
+        </tr>
+        <tr>
+          <td>처리</td>
+          <td>가드 위반 변경을 앱 worktree에서 되돌렸고, 앱 커밋은 만들지 않았다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>명령</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>node JSON.parse</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td><code>npm run check:i18n</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td><code>npm run check:lexicon</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td><code>npm run check:emdash</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td><code>npm run check:safety-consent-locale</code></td>
+          <td>의도된 실패: human review 없는 consent 현지화 금지</td>
+        </tr>
+        <tr>
+          <td><code>git diff --check</code></td>
+          <td>되돌린 뒤 통과</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>섹션 35 자체 패널</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>관점</th>
+          <th>판정</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>사용자 신뢰</td>
+          <td>동의 문구를 기계 번역으로 바꾸면 법무 의미가 흔들릴 수 있으므로 그대로 둘 필요가 있다.</td>
+        </tr>
+        <tr>
+          <td>제품 품질</td>
+          <td>영어 잔존은 안티슬롭 관점의 문제지만, consent 영역은 human review 워크플로가 우선이다.</td>
+        </tr>
+        <tr>
+          <td>운영 안전</td>
+          <td>Claude가 human-reviewed locale 승인 또는 전문 번역 산출물을 연결해야 다음 변경이 가능하다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>다음 조치</h2>
+    <p>Claude에 ES/PT/ID consent 문구 human review 경로를 요청했다. 승인 전에는 Codex가 이 파일을 현지화하지 않는다.</p>
+  </main>
+</body>
+</html>

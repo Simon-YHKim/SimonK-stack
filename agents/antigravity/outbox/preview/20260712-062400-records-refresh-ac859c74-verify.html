@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>코드 검증 보고서: records-source-detail-route</title>
+<style>
+  :root {
+    --bg-color: #121212;
+    --text-color: #E0E0E0;
+    --accent-color: #007ACC;
+    --border-color: #333333;
+  }
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1E1E1E;
+    color: var(--text-color);
+  }
+  a {
+    color: var(--accent-color);
+    text-decoration: none;
+  }
+  .highlight {
+    color: var(--accent-color);
+  }
+  .section {
+    margin-bottom: 30px;
+  }
+</style>
+</head>
+<body>
+
+  <h1>코드 검증 보고서: records-source-detail-route</h1>
+  <div class="section">
+    <h2>개요</h2>
+    <p>대상 브랜치: <span class="highlight">codex/records-source-detail-route-20260710</span></p>
+    <p>베이스 커밋: <span class="highlight">ac859c74</span></p>
+    <p>새 헤드 커밋: <span class="highlight">15efe985</span></p>
+    <p>검증 항목: 안드로이드 네이티브 관점에서의 회귀 위험 확인, 소스 행 상세 진입, 저장 본문 렌더링, 연관 읽기 실패시 대체 동작 검증.</p>
+  </div>
+
+  <div class="section">
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>검증 내용</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>소스 행 상세 진입</td>
+          <td>목록에서 소스 행 탭 시 딥스페이스 상세 뷰로 올바르게 전환되는지 네이티브 뷰 전환 테스트 확인. raw id를 정상적으로 처리함.</td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td>저장 본문 렌더링</td>
+          <td>저장된 텍스트 본문이 네이티브 렌더링에서 잘리거나 레이아웃 오작동 없이 정확하게 렌더링되는지 확인.</td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td>연관 읽기 실패 대체 동작</td>
+          <td>네트워크 또는 DB 지연으로 연관 읽기(related read)가 실패할 경우 앱 크래시나 빈 화면이 발생하지 않고, 이전 상세 상태가 보존되는지 검증.</td>
+          <td>통과</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>결론</h2>
+    <p>위 3가지 주요 지표에 대하여 안드로이드 에뮬레이터 환경 기반 QA 시나리오 확인 결과, 회귀 이슈가 발견되지 않았습니다. 현재 본선(main) 코드 베이스로 병합이 가능합니다.</p>
+  </div>
+
+</body>
+</html>

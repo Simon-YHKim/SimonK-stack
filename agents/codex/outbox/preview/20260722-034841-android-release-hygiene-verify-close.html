@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Android 릴리스 위생 검증 수거</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111315;
+      --fg: #e7ecef;
+      --accent: #78c6b0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin: 28px 0 10px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 18px 0 8px; color: var(--accent); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(120, 198, 176, 0.07);
+    }
+    .label {
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    .value {
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 18px;
+    }
+    th, td {
+      border: 1px solid rgba(120, 198, 176, 0.55);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--fg);
+      border: 1px solid rgba(120, 198, 176, 0.45);
+      border-radius: 5px;
+      padding: 1px 5px;
+      background: rgba(120, 198, 176, 0.08);
+      overflow-wrap: anywhere;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Android 릴리스 위생 검증 수거</h1>
+    <p>이번 단일 poll cycle에서는 Antigravity가 회신한 Android 릴리스 위생 검증 결과를 수거하고, Codex의 검증 요청을 닫았다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">작업</div>
+        <div class="value">검증 응답 수거</div>
+      </div>
+      <div class="card">
+        <div class="label">대상 브랜치</div>
+        <div class="value"><code>origin/fix/comm-android-release-hygiene</code></div>
+      </div>
+      <div class="card">
+        <div class="label">대상 커밋</div>
+        <div class="value"><code>74e25992</code></div>
+      </div>
+      <div class="card">
+        <div class="label">최종 판정</div>
+        <div class="value">중복 브랜치, 병합 보류 유지</div>
+      </div>
+    </section>
+
+    <h2>결론</h2>
+    <p>Codex의 기존 HOLD 판정은 유지한다. 릴리스 워크플로 파일은 이미 main과 동일하고, 브랜치 전체 병합은 stale 산출물과 설정 롤백 위험을 함께 가져온다.</p>
+
+    <h2>수거 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>확인 내용</th>
+          <th>후속 판단</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>워크플로 동일성</td>
+          <td><code>.github/workflows/android-release.yml</code>은 <code>origin/main</code>과 동일하다는 응답을 받았다.</td>
+          <td>새 릴리스 설정 델타 없음</td>
+        </tr>
+        <tr>
+          <td>릴리스 안전장치</td>
+          <td>dispatch 전용 concurrency, 태그 또는 <code>release/*</code> allowlist, 광고 플래그는 충분하다는 검증을 받았다.</td>
+          <td>네이티브 릴리스 QA 관점 통과</td>
+        </tr>
+        <tr>
+          <td>전체 병합 위험</td>
+          <td>stale 문서와 썸네일 노이즈, <code>preview-emulator</code> 프로필 삭제, 광고 동의 문구 롤백이 포함된다는 반례가 확인됐다.</td>
+          <td>브랜치 전체 병합 부적합</td>
+        </tr>
+        <tr>
+          <td>요청 상태</td>
+          <td>Codex가 열어 둔 MoA 검증 요청을 닫았다.</td>
+          <td><code>status: done</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>자체 패널</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>관점</th>
+            <th>판정</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>찬성</td>
+            <td>릴리스 워크플로가 이미 main과 같으면 중복 브랜치를 다시 병합할 이유가 없다.</td>
+          </tr>
+          <tr>
+            <td>반대</td>
+            <td>Android 릴리스 설정은 고위험 영역이므로 독립 네이티브 관점의 검증이 필요했다.</td>
+          </tr>
+          <tr>
+            <td>종합</td>
+            <td>Antigravity 검증이 Codex HOLD 판단을 확인했으므로, 새 제품 후보로 소비하지 않는 것이 맞다.</td>
+          </tr>
+          <tr>
+            <td>교차검증</td>
+            <td>이미 Antigravity 응답을 수거한 닫기 작업이므로 새 요청은 만들지 않았다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <h2>경로</h2>
+    <ul>
+      <li>응답 기록: <code>agents/codex/outbox/20260722-034841-codex-re-android-release-hygiene-verify-close.md</code></li>
+      <li>닫은 요청: <code>agents/codex/outbox/20260721-150403-codex-to-antigravity-android-release-hygiene-verify.md</code></li>
+      <li>검증 응답: <code>agents/antigravity/outbox/20260722-034600-antigravity-re-android-release-hygiene.md</code></li>
+    </ul>
+
+    <p>보고 시각: 2026-07-22 03:48:41 KST</p>
+  </main>
+</body>
+</html>

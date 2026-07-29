@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>피어 초대 입력 예시 현지화 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101214; --fg: #e7edf2; --muted: #9aa6b2; --accent: #6fb6ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 20px 44px; }
+    h1 { font-size: 28px; margin: 0 0 8px; letter-spacing: 0; }
+    h2 { font-size: 18px; margin: 28px 0 10px; }
+    p { margin: 8px 0; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 18px 0; }
+    .box { border: 1px solid rgba(231,237,242,.18); border-radius: 6px; padding: 12px; min-height: 92px; }
+    .box strong { display: block; color: var(--fg); font-size: 13px; margin-bottom: 6px; }
+    .box span { color: var(--accent); font-size: 20px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-bottom: 1px solid rgba(231,237,242,.14); padding: 9px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--fg); font-weight: 700; }
+    td { color: var(--muted); }
+    code { color: var(--fg); }
+    .note { border-left: 3px solid var(--accent); padding-left: 12px; color: var(--fg); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>피어 초대 입력 예시 현지화 보고</h1>
+    <p>작성 시각: 2026-07-28 01:53:40 KST</p>
+
+    <section class="grid" aria-label="요약 지표">
+      <div class="box"><strong>작업 수</strong><span>1</span><p>이번 주기 단일 작업</p></div>
+      <div class="box"><strong>앱 커밋</strong><span>279982cb</span><p>로컬 브랜치 전용</p></div>
+      <div class="box"><strong>검증</strong><span>통과</span><p>타입과 문구 가드</p></div>
+      <div class="box"><strong>푸시</strong><span>없음</span><p>Claude 게이트 유지</p></div>
+    </section>
+
+    <h2>결과</h2>
+    <p class="note">피어 초대 화면의 별칭 입력 예시가 한국어와 영어만 분기하던 구조를 제거하고, `peer` 번역 네임스페이스의 `labelPlaceholder` 키로 이동했습니다.</p>
+
+    <h2>변경 파일</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경 내용</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/app/peer-invites.tsx</code></td><td>하드코딩된 한국어/영어 placeholder 분기를 `t("labelPlaceholder")` 호출로 교체했습니다.</td></tr>
+        <tr><td><code>locales/en/peer.json</code></td><td>영어 예시 키를 추가했습니다.</td></tr>
+        <tr><td><code>locales/ko/peer.json</code></td><td>한국어 예시 키를 추가했습니다.</td></tr>
+        <tr><td><code>locales/es/peer.json</code></td><td>스페인어 사용자를 위한 예시 키를 추가했습니다.</td></tr>
+        <tr><td><code>locales/pt/peer.json</code></td><td>포르투갈어 사용자를 위한 예시 키를 추가했습니다.</td></tr>
+        <tr><td><code>locales/id/peer.json</code></td><td>인도네시아어 사용자를 위한 예시 키를 추가했습니다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>JSON.parse</code></td><td>대상 locale 파일 5개 파싱 성공</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과: 5개 locale 키 정렬 확인</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과: 금지 어휘 없음</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과: em dash 없음</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과: TypeScript 오류 없음</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과: 공백 오류 없음. Git 줄끝 경고만 표시됨</td></tr>
+      </tbody>
+    </table>
+
+    <h2>운영 준수</h2>
+    <p>2nd-B 작업은 `E:\2ndB\.worktrees\codex-cycle-20260728-0151-antislop`에서 `origin/main` 기준 브랜치 `codex/cycle-20260728-0151-antislop`로 수행했습니다. 허브에서는 `agents/codex/` 아래에만 파일을 작성했습니다.</p>
+    <p>§35 self-panel 결과: 법무, 안전, 결제, 스키마, 보안, 외부 사실, 고위험 UI 결정에 해당하지 않는 낮은 위험 현지화 수정으로 판단했습니다. MoA 교차 검증 요청은 필요하지 않습니다.</p>
+  </main>
+</body>
+</html>

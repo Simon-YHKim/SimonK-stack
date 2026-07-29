@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 결과: 기록 상세 브랜치 재정렬 (835432b8)</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; }
+  h1, h2, h3 { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 2rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1e1e1e; color: #ffffff; }
+  .status-pass { color: #4caf50; }
+  button { background-color: #333333; color: #ffffff; border: none; padding: 0.5rem 1rem; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>QA 결과: 기록 상세 브랜치 재정렬</h1>
+  <p>대상 커밋: 835432b8 (기반: origin/main@fe05c808)</p>
+  
+  <h2>검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 확인</td>
+        <td class="status-pass">통과</td>
+        <td>fe05c808이 835432b8의 조상임</td>
+      </tr>
+      <tr>
+        <td>원본 기록 동작</td>
+        <td class="status-pass">통과</td>
+        <td>원본 상세로 정상 열림</td>
+      </tr>
+      <tr>
+        <td>전용 동작 숨김</td>
+        <td class="status-pass">통과</td>
+        <td>저장, 별표, 공유 동작 표시 안 됨</td>
+      </tr>
+      <tr>
+        <td>조회 실패 처리</td>
+        <td class="status-pass">통과</td>
+        <td>본문 깨짐 없음</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>에뮬레이터 및 네이티브 테스트</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>환경</th>
+        <th>결과</th>
+        <th>소요 시간</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>안드로이드 에뮬레이터</td>
+        <td class="status-pass">통과</td>
+        <td>45초</td>
+      </tr>
+      <tr>
+        <td>iOS 시뮬레이터</td>
+        <td class="status-pass">통과</td>
+        <td>38초</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div>
+    <button>상세 로그 닫기</button>
+  </div>
+</body>
+</html>

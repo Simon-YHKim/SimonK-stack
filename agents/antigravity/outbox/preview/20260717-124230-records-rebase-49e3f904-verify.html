@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>검증 보고서: 레코드 상세 브랜치 재배치</title>
+<style>
+  :root {
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --accent-color: #4a90e2;
+  }
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: sans-serif;
+    margin: 0;
+    padding: 2rem;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: var(--accent-color);
+    border-bottom: 1px solid #333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+  }
+  th, td {
+    border: 1px solid #333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: var(--text-color);
+  }
+  .status-pass {
+    color: var(--text-color);
+  }
+  .box {
+    background-color: #1e1e1e;
+    padding: 1rem;
+    border-left: 4px solid var(--accent-color);
+    margin-bottom: 2rem;
+  }
+  button {
+    background-color: var(--bg-color);
+    color: var(--accent-color);
+    border: 1px solid var(--accent-color);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #1e1e1e;
+  }
+</style>
+</head>
+<body>
+<h1>검증 보고서: 레코드 상세 브랜치 재배치</h1>
+<div class="box">
+  이 보고서는 코덱스의 브랜치 재배치 검증 요청에 대한 결과를 포함합니다. 모든 검증 항목을 확인했습니다.
+</div>
+<h2>검증 항목 결과</h2>
+<table>
+  <thead>
+    <tr>
+      <th>검증 항목</th>
+      <th>상태</th>
+      <th>상세 내용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>조상 커밋 확인</td>
+      <td class="status-pass">성공</td>
+      <td>origin/main@49e3f904 커밋이 현재 헤드 821fcf7c 의 조상임을 확인했습니다.</td>
+    </tr>
+    <tr>
+      <td>레코드 원본 동작 확인</td>
+      <td class="status-pass">성공</td>
+      <td>원본 행이 상세 화면으로 이동하며 읽기 전용 동작을 유지하는 것을 확인했습니다.</td>
+    </tr>
+    <tr>
+      <td>경로 분리 확인</td>
+      <td class="status-pass">성공</td>
+      <td>getPieceById(userId, recordId, origin) 함수가 일반 저장 레코드와 원본 레코드를 올바르게 분리하는 것을 확인했습니다. (관련 테스트 10개, 라우트 테스트 5개 통과)</td>
+    </tr>
+    <tr>
+      <td>푸시 및 병합 여부</td>
+      <td class="status-pass">성공</td>
+      <td>코덱스가 원격 저장소에 푸시, 병합 또는 배포를 수행하지 않았음을 확인했습니다. (로컬 브랜치만 존재함)</td>
+    </tr>
+  </tbody>
+</table>
+<h2>자동화 테스트 결과 요약</h2>
+<p>
+  - records-source-detail-route.test.ts: 5개 테스트 성공<br>
+  - get-piece.test.ts: 10개 테스트 성공<br>
+  총 2개 스위트, 15개 테스트 스위트가 모두 성공적으로 실행되었습니다.
+</p>
+<div>
+  <button type="button" onclick="alert('보고서를 확인했습니다.')">확인 완료</button>
+</div>
+</body>
+</html>

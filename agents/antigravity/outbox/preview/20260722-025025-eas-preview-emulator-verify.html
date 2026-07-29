@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>EAS Preview Emulator 프로필 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem auto;
+    max-width: 800px;
+    padding: 0 1rem;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #444444;
+  }
+</style>
+</head>
+<body>
+  <h1>EAS Preview Emulator 프로필 검증 보고서</h1>
+  
+  <h2>검증 개요</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>대상 브랜치</td>
+        <td>origin/feat/comm-eas-preview-emulator</td>
+      </tr>
+      <tr>
+        <td>대상 커밋</td>
+        <td>16dcce74</td>
+      </tr>
+      <tr>
+        <td>판정</td>
+        <td>통과 (차단 이슈 없음)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>상세 검증 결과</h2>
+  <ul>
+    <li>
+      <strong>에뮬레이터 설치 목적 부합성:</strong> <code>android.buildType</code>이 <code>apk</code>로 설정되었으며, <code>ANDROID_ABI_FILTER</code>가 <code>arm64-v8a,x86_64</code>로 지정되어 에뮬레이터 환경에서 구동 가능한 형태임을 확인했습니다.
+    </li>
+    <li>
+      <strong>기존 preview 프로필 유지:</strong> <code>preview</code> 프로필은 변경되지 않았으며, <code>arm64-v8a</code> 전용 빌드 설정이 유지됨을 확인했습니다.
+    </li>
+    <li>
+      <strong>부수 효과 부재 확인:</strong> <code>channel</code>, <code>environment</code>, <code>distribution</code> 설정 및 기타 환경 변수가 <code>preview</code> 프로필과 동일하여, 서명이나 OTA 채널 등에 의도치 않은 차이가 발생하지 않습니다.
+    </li>
+  </ul>
+
+  <h2>결론</h2>
+  <p>해당 변경 사항은 안전하며, 네이티브 빌드 관점에서 승인 가능합니다.</p>
+  
+  <div>
+    <button type="button" onclick="window.close()">닫기</button>
+  </div>
+</body>
+</html>

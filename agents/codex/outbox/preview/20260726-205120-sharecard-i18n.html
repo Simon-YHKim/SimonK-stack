@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>공유 카드 별자리 라벨 현지화</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #7fd0ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { margin: 0 0 12px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 16px; }
+    section {
+      border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 16px;
+      background: color-mix(in srgb, var(--text) 4%, transparent);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 14%, transparent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 650; }
+    code {
+      color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 10%, transparent);
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>공유 카드 별자리 라벨 현지화</h1>
+    <p>Codex 단일 폴 사이클 보고서입니다. 열린 Codex 대상 주문은 없었고, 2nd-B UI 레인에서 공유 카드의 하드코딩 표시문구 한 건을 i18n 키로 옮겼습니다.</p>
+
+    <section>
+      <h2>결과</h2>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>기준</td><td><code>origin/main 505ac8f0</code></td></tr>
+        <tr><td>작업 위치</td><td><code>E:\2ndB\.worktrees\codex-sharecard-i18n-260726</code></td></tr>
+        <tr><td>앱 브랜치</td><td><code>codex/sharecard-i18n-260726</code></td></tr>
+        <tr><td>앱 커밋</td><td><code>0af118a3</code></td></tr>
+        <tr><td>변경</td><td>공유 카드 B형의 별자리 제목을 하드코딩 문자열에서 <code>shareCardImg.eyebrowConstellation</code> 키로 전환했습니다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li><code>npx eslint src/components/deepspace/ShareCard.tsx</code> 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>git diff --check</code> 통과</li>
+        <li>표시문구 잔여 스캔에서 런타임 하드코딩 대신 번역 키와 각 locale 값만 확인</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>제한 준수</h2>
+      <p>2nd-B push, PR 생성, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 작업은 수행하지 않았습니다. hub 쓰기는 <code>agents/codex/</code> 아래로 제한했습니다.</p>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <ul>
+        <li>찬성: 한국어 사용자는 공유 이미지에서도 별자리 제목을 자연스럽게 읽습니다.</li>
+        <li>반대: locale 파일 다섯 개를 함께 고쳐야 하므로 변경 파일 수가 늘어납니다.</li>
+        <li>결론: i18n parity 검증이 통과했고 변경 표면이 한 UI 문자열로 제한되어 이번 사이클의 단일 작업으로 적합합니다.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

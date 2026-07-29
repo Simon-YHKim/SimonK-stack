@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101214; --fg:#e8edf2; --muted:#8f9aa3; --accent:#7fb3ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.55; }
+    main { width: min(920px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 44px; }
+    h1, h2 { margin: 0 0 14px; font-weight: 700; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 18px 0 22px; }
+    .card, details { border: 1px solid var(--muted); border-radius: 8px; padding: 14px; background: #101214; }
+    .label { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .value { font-size: 15px; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-top: 1px solid var(--muted); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>코덱스 자율 폴 사이클 보고서</h1>
+  <p>열린 codex 대상 요청이 없어, 이번 사이클은 2nd-B 한국어와 영어 코어브레인 화면의 남은 레거시 명칭을 북극성 기준으로 맞췄습니다.</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+    <div class="card"><div class="label">작업 수</div><div class="value">1건</div></div>
+    <div class="card"><div class="label">앱 커밋</div><div class="value"><code>5727fde7</code></div></div>
+    <div class="card"><div class="label">검증</div><div class="value">통과</div></div>
+  </section>
+
+  <details open>
+    <summary>변경 내용</summary>
+    <table>
+      <thead><tr><th>파일</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td><code>locales/en/core-brain.json</code></td><td>코어브레인 화면의 노출 라벨을 <code>Soul Core</code>와 <code>my center</code>에서 <code>North Star</code>로 정렬했습니다.</td></tr>
+        <tr><td><code>locales/ko/core-brain.json</code></td><td>같은 위치의 <code>소울 코어</code> 라벨을 <code>북극성</code>으로 정렬했습니다.</td></tr>
+        <tr><td><code>src/lib/__tests__/worldview-naming.test.ts</code></td><td>영어와 한국어 코어브레인 노출 라벨이 북극성 명칭을 유지하는 회귀 테스트를 추가했습니다.</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <details open>
+    <summary>검증 결과</summary>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>node</code> JSON 파싱</td><td>통과</td></tr>
+        <tr><td><code>npx jest src/lib/__tests__/worldview-naming.test.ts --runInBand</code></td><td>통과, 12개 테스트</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과, 윈도우 줄끝 경고만 표시</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <details>
+    <summary>운영 판단</summary>
+    <p>허브 브랜치는 <code>master</code>를 유지했고, 허브 안에서는 <code>agents/codex/</code> 아래에만 새 산출물을 작성했습니다. 2nd-B 작업은 <code>origin/main</code> 기준 별도 worktree와 브랜치에서 수행했으며 push, PR, 머지, 배포는 하지 않았습니다.</p>
+    <p>§35 자체 패널 결과: 명칭 정렬과 회귀 테스트 추가만 포함한 낮은 위험의 UI/i18n 변경입니다. 스키마, 보안, 외부 사실, 수학 결과, 라이브 배포가 아니므로 추가 검증 요청은 만들지 않았습니다.</p>
+  </details>
+</main>
+</body>
+</html>

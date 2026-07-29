@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 리뷰 보고서: IDEN 추출 다국어</title>
+<style>
+  body { background-color: #121212; color: #ffffff; font-family: sans-serif; margin: 40px; }
+  h1, h2 { color: #ffffff; border-bottom: 1px solid #4a90e2; padding-bottom: 8px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+  th, td { border: 1px solid #ffffff; padding: 10px; text-align: left; }
+  th { background-color: #4a90e2; color: #121212; }
+  a, button { color: #4a90e2; }
+  button { background-color: transparent; border: 1px solid #4a90e2; padding: 8px 16px; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>QA 리뷰 보고서</h1>
+  <p>대상 브랜치: codex/cycle-20260728-224309-antislop</p>
+  <p>작업 내용: IDEN 추출 UI 다국어 지원 (스페인어, 포르투갈어, 인도네시아어)</p>
+  
+  <h2>검토 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 렌더링 충돌</td>
+        <td>통과</td>
+        <td>단순 텍스트 매핑 변경으로 안전함</td>
+      </tr>
+      <tr>
+        <td>런타임 오류 가능성</td>
+        <td>통과</td>
+        <td>안전한 타입 매핑 확인</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>모바일 기기 및 에뮬레이터에서 렌더링을 차단하거나 오류를 유발할 네이티브 관련 위험 요소가 발견되지 않았습니다. 메인 브랜치로의 병합이 안전합니다.</p>
+  
+  <button type="button">확인 완료</button>
+</body>
+</html>

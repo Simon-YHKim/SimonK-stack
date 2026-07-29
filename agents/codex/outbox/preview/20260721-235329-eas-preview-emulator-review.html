@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>이 사이클 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101318; --text: #e8edf2; --accent: #7cc7ff; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main { width: min(980px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 48px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 26px; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin: 0 0 12px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 0 0 8px; }
+    .meta { margin-bottom: 24px; color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 20px 0 24px; }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      background: transparent;
+    }
+    .label { display: block; color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    .value { font-size: 15px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 18px; }
+    th, td { border: 1px solid var(--accent); padding: 9px 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: Consolas, "Courier New", monospace; }
+    details { margin: 12px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+    .note { border-left: 3px solid var(--accent); padding-left: 12px; margin: 14px 0; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } main { width: min(100% - 20px, 980px); } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>이 사이클 보고서</h1>
+    <p class="meta">작성 시각: 2026-07-21 23:53:29 KST · 담당: codex · 대상: 2nd-B</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">작업</span><div class="value">에뮬레이터용 미리보기 빌드 프로필 검토</div></div>
+      <div class="card"><span class="label">대상</span><div class="value"><code>origin/feat/comm-eas-preview-emulator</code></div></div>
+      <div class="card"><span class="label">판정</span><div class="value">차단 이슈 없음</div></div>
+      <div class="card"><span class="label">교차 확인</span><div class="value">Antigravity 요청</div></div>
+    </section>
+
+    <section>
+      <h2>결론</h2>
+      <p>새 EAS 프로필은 기존 <code>preview</code> 프로필을 보존하면서, QA 전용 <code>preview-emulator</code> 프로필에만 Android ABI를 <code>arm64-v8a,x86_64</code>로 넓힌 변경입니다. 에뮬레이터에서 arm64 전용 APK가 크래시하던 검증 공백을 메우는 목적과 맞고, 릴리즈용 <code>preview</code> 프로필은 그대로 유지됩니다.</p>
+      <p class="note">네이티브 빌드 설정 변경은 고위험 변경으로 분류했기 때문에, 병합 가능 의견과 별개로 Antigravity 교차 검증을 요청했습니다. EAS 빌드 실행, 배포, 푸시는 하지 않았습니다.</p>
+    </section>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>결과</th><th>근거</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>JSON 파싱</td><td>통과</td><td><code>eas.json</code>을 Node로 파싱했습니다.</td></tr>
+          <tr><td>프로필 존재</td><td>통과</td><td><code>build.preview-emulator</code>가 존재합니다.</td></tr>
+          <tr><td>Android 산출물</td><td>통과</td><td><code>android.buildType</code>은 <code>apk</code>입니다.</td></tr>
+          <tr><td>ABI 범위</td><td>통과</td><td>QA 프로필은 <code>arm64-v8a,x86_64</code>, 기존 미리보기 프로필은 <code>arm64-v8a</code>입니다.</td></tr>
+          <tr><td>복제 정합성</td><td>통과</td><td>ABI 값을 제외하면 새 프로필은 기존 미리보기 프로필과 동일합니다.</td></tr>
+          <tr><td>공백 검사</td><td>통과</td><td><code>git diff --check</code>에서 출력이 없었습니다.</td></tr>
+          <tr><td>병합 충돌</td><td>통과</td><td><code>git merge-tree</code>에서 충돌 표식이 없었습니다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>범위와 제한</summary>
+      <ul>
+        <li>변경 파일은 <code>eas.json</code> 하나입니다.</li>
+        <li>커밋은 <code>16dcce74</code>, 기준 <code>origin/main</code>은 <code>ef4490ff</code>입니다.</li>
+        <li>실제 EAS 빌드, 에뮬레이터 설치, 픽셀 검증은 수행하지 않았습니다.</li>
+        <li>공개 클라이언트 환경값은 검토했지만 보고서에 원문 키 값을 재출력하지 않았습니다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자기 패널</summary>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>판단</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>찬성</td><td>에뮬레이터 QA를 막던 ABI 불일치를 프로덕션 프로필을 건드리지 않고 해결합니다.</td></tr>
+          <tr><td>반대</td><td>빌드 설정 변경은 실제 EAS 산출물 없이는 완전 검증이 아닙니다.</td></tr>
+          <tr><td>대안</td><td>로컬 빌드만 쓰는 방법도 있으나, 재현 가능한 원격 QA 프로필을 두는 편이 반복 검증에 더 적합합니다.</td></tr>
+          <tr><td>판정</td><td>차단 이슈 없음. 실제 빌드 전 Antigravity 확인을 받는 것이 맞습니다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+  </main>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>작업 보고서: 에뮬레이터 오프라인 상태 에스컬레이션</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; }
+  h1, h2, h3 { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 2rem; }
+  th, td { border: 1px solid #333333; padding: 0.5rem; text-align: left; }
+  th { background-color: #1e1e1e; color: #ffffff; }
+  button { background-color: #333333; color: #ffffff; border: 1px solid #555555; padding: 0.5rem 1rem; cursor: pointer; }
+  .section { margin-bottom: 2rem; padding: 1rem; border: 1px solid #333333; }
+</style>
+</head>
+<body>
+  <h1>에스컬레이션 보고서</h1>
+  <div class="section">
+    <h2>작업 개요</h2>
+    <p>요청된 품질 보증 작업에 대한 진행 상태입니다.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>대상 작업</td>
+          <td>에뮬레이터 캡처</td>
+        </tr>
+        <tr>
+          <td>상태</td>
+          <td>에스컬레이션</td>
+        </tr>
+        <tr>
+          <td>사유</td>
+          <td>에뮬레이터 오프라인</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="section">
+    <h2>상세 내용</h2>
+    <p>현재 머신의 에뮬레이터가 오프라인 상태로 식별되었습니다. 헤드리스 환경 제약으로 인해 캡처를 수행할 수 없습니다. 인프라 복구가 필요합니다.</p>
+    <button>확인</button>
+  </div>
+</body>
+</html>

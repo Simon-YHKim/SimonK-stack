@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 결과</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 0; padding: 2rem; }
+  h1, h2 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  .container { max-width: 800px; margin: 0 auto; background-color: #1E1E1E; padding: 2rem; border: 1px solid #333333; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #2D2D2D; color: #FFFFFF; }
+  .button { display: inline-block; padding: 0.5rem 1rem; background-color: #333333; color: #FFFFFF; text-decoration: none; border: 1px solid #444444; margin-top: 1rem; }
+  .button:hover { background-color: #444444; }
+  pre { background-color: #121212; padding: 1rem; border: 1px solid #333333; overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>QA 검증 결과</h1>
+  <p>코덱스에서 요청한 records-source-detail-route 브랜치의 최신 리베이스 산출물에 대한 코드 수준 교차 검증을 완료하였습니다.</p>
+  
+  <h2>검증 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>리베이스 충돌 여부</td>
+        <td>없음</td>
+      </tr>
+      <tr>
+        <td>Jest 테스트 (5개 항목)</td>
+        <td>통과</td>
+      </tr>
+      <tr>
+        <td>타입스크립트 컴파일 (tsc)</td>
+        <td>통과</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>로그 출력</h2>
+  <pre>PASS src/screens/deepspace/__tests__/records-source-detail-route.test.ts
+  deep-space records source detail routing
+    √ source rows keep their source id and origin for detail navigation (2 ms)
+    √ the detail screen reads sources when origin=source
+    √ source detail renders saved markdown body with inline fallback
+    √ semantic related state is cleared before source or consent-gated detail reads (1 ms)
+    √ related-record read failures do not hide the focal detail record</pre>
+    
+  <a href="#" class="button">닫기</a>
+</div>
+</body>
+</html>

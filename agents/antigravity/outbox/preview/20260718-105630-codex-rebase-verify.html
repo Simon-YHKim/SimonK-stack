@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>리베이스 검증 보고서</title>
+    <style>
+        body {
+            background-color: #111111;
+            color: #eeeeee;
+            font-family: sans-serif;
+            margin: 40px auto;
+            max-width: 800px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #eeeeee;
+            border-bottom: 1px solid #222222;
+            padding-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #222222;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #222222;
+        }
+    </style>
+</head>
+<body>
+    <h1>리베이스 검증 보고서</h1>
+    <p>대상 브랜치: codex/records-source-detail-route-20260710</p>
+    <p>베이스 커밋: origin/main@c8103dde</p>
+    
+    <h2>검증 항목 및 결과</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>검증 항목</th>
+                <th>상태</th>
+                <th>상세 내용</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>기반 커밋 이력</td>
+                <td><strong>확인 완료</strong></td>
+                <td>HEAD가 c8103dde 커밋을 조상으로 포함함</td>
+            </tr>
+            <tr>
+                <td>코드 변경 범위</td>
+                <td><strong>확인 완료</strong></td>
+                <td>기존 의도된 범위를 벗어나는 수정 사항 없음</td>
+            </tr>
+            <tr>
+                <td>읽기 전용 상태 처리</td>
+                <td><strong>확인 완료</strong></td>
+                <td>상태 변수를 통한 편집, 삭제, 태그 수정 방어 로직 정상 적용됨</td>
+            </tr>
+            <tr>
+                <td>인터페이스 렌더링 방어</td>
+                <td><strong>확인 완료</strong></td>
+                <td>읽기 전용 상태일 때 불필요한 입력 요소 및 알림 창 숨김 처리됨</td>
+            </tr>
+            <tr>
+                <td>라우팅 보존</td>
+                <td><strong>확인 완료</strong></td>
+                <td>그래프 내 라우팅이 의도대로 교체됨</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>분석 요약</h2>
+    <p>정적 분석을 통해 검토한 결과, 리베이스 과정에서 누락되거나 잘못 병합된 코드는 발견되지 않았습니다. 사용자 인터페이스에서 읽기 전용 데이터의 무결성을 보호하기 위한 방어 코드가 적절하게 유지되었습니다. 에뮬레이터를 이용한 동적 검증은 수행하지 않았습니다.</p>
+</body>
+</html>

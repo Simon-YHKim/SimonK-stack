@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 결과 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; }
+  h1, h2 { color: #ffffff; }
+  .pass { color: #4caf50; }
+  table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+  th, td { border: 1px solid #333333; padding: 8px; text-align: left; }
+  th { background-color: #1e1e1e; }
+  button { background-color: #333333; color: #ffffff; border: 1px solid #555555; padding: 5px 10px; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 결과 보고서</h1>
+  <p>대상: records 소스 상세 라우트 브랜치 최신화</p>
+  <p>브랜치: codex/records-source-detail-route-20260710</p>
+  
+  <h2>요약</h2>
+  <p>모든 테스트가 성공적으로 통과되었습니다.</p>
+  
+  <h2>검증 상세 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검사 항목</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Diff 검토 (source id 및 origin 보존, fallback 등)</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>TypeScript 검사 (tsc --noEmit)</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>Jest 테스트 묶음 (2454개)</td>
+        <td class="pass">통과</td>
+      </tr>
+    </tbody>
+  </table>
+  <br>
+  <button onclick="window.close()">닫기</button>
+</body>
+</html>

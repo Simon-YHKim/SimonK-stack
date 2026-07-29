@@ -12,8 +12,8 @@
 
 ### Claude-autonomous (do in loop)
 - `[x]` **commit.ps1 index.lock retry** — landed (concurrent-writer safety). + **mutex + `exit 1` on failure** (retry alone still races; failed commit must not look fresh). `tools/commit.ps1`
-- `[ ]` **No per-AI-invocation timeout** — one hung CLI stalls the sequential daemon cycle forever. Wrap each CLI in `Start-Job`+`Wait-Job -Timeout`; on timeout kill + log TIMEOUT + continue. `tools/hub-daemon.ps1` Invoke-AI/loop. (S)
-- `[ ]` **Set-Heartbeat fakes freshness + violates single-writer + reverts paused** — daemon writes other AIs' STATUS, forces `state: running`, masks a `paused` hub. Fix: stop writing STATUS; age daemon-AIs by `tools/live/<ai>.log` mtime in monitor.ps1; only when CONTROL.state==running. (S)
+- `[x]` **No per-AI-invocation timeout** — LANDED 2026-06-14 (Start-Job+Wait-Job 1200s, see the pass below). — one hung CLI stalls the sequential daemon cycle forever. Wrap each CLI in `Start-Job`+`Wait-Job -Timeout`; on timeout kill + log TIMEOUT + continue. `tools/hub-daemon.ps1` Invoke-AI/loop. (S)
+- `[x]` **Set-Heartbeat fakes freshness + violates single-writer + reverts paused** — LANDED 2026-06-14 (fake Set-Heartbeat removed; monitor uses live-log mtime + PID-gated green, see the pass below). — daemon writes other AIs' STATUS, forces `state: running`, masks a `paused` hub. Fix: stop writing STATUS; age daemon-AIs by `tools/live/<ai>.log` mtime in monitor.ps1; only when CONTROL.state==running. (S)
 - `[ ]` **Crash-restart / liveness supervision** — monitor DAEMON-green is a stale-log illusion; verify a live PID + next-cycle-due, not just log mtime. (S–M)
 - `[ ]` **Destructive-action PreToolUse hook + permissions.deny** under intentional `bypassPermissions` — hard-block `rm -rf`/`reset --hard`/`push -f`/`--no-verify`/`DROP TABLE` + writes to `.env*`/`credentials*`. Encodes §6/§11-5 in the harness. (S)
 
@@ -75,7 +75,7 @@
 - `[x]` **ROUTING §1.5** 좌석 재정의 — Gemini 감사·심판 / Grok 와치독 / Codex 테스트저자·verify:safety / Claude 최소화(SPOF 회피).
 - `[x]` **HUB-STARTUP.html** 모델·effort 정확화(fable-5 max 등) + 역할 갱신 + release-gate 도구 카드 + 신규자산 푸터.
 - `[x]` **hub-daemon.ps1 P0 3종 landed**: per-AI 타임아웃(Start-Job+Wait-Job 1200s) · CONTROL.state 게이트(§13) · 가짜 Set-Heartbeat 제거(monitor가 실 live-log mtime + PID-gated green). 3 데몬 재기동 검증. 커밋됨. + HUB-STARTUP 경로-공백 launch 버그 수정.
-- `[ ]` **🔴 P1 (D-20 발견, 라이브-머지 사이클): 2nd-B `recommendations` 런타임 ungated** — `ops.tsx:104-129 runRecommend`가 pref 미참조 → 미성년 포함 전원 실행, `0038` clamp는 읽는 게이트 없어 명목적. 픽스=runRecommend에 pref 게이트 배선(미성년 default OFF=clamp 값 사용)+미성년-lock 회귀테스트+승격은 ops_push promotable 패턴. 안전강화(더 보수적)지만 미성년 consent 경로 → **Claude 리뷰 게이트+live verify 경유**(자동 데몬 X). 법무 무관·즉시 가능.
+- `[x]` **🔴 P1 (D-20 발견, 라이브-머지 사이클): 2nd-B `recommendations` 런타임 ungated** — SHIPPED 2026-06-14 (#369 미성년 게이트 배선, main 2dececf; DECISIONS RATIFY 참조). 미성년 누출은 더 이상 라이브 아님. — `ops.tsx:104-129 runRecommend`가 pref 미참조 → 미성년 포함 전원 실행, `0038` clamp는 읽는 게이트 없어 명목적. 픽스=runRecommend에 pref 게이트 배선(미성년 default OFF=clamp 값 사용)+미성년-lock 회귀테스트+승격은 ops_push promotable 패턴. 안전강화(더 보수적)지만 미성년 consent 경로 → **Claude 리뷰 게이트+live verify 경유**(자동 데몬 X). 법무 무관·즉시 가능.
 - `[x]` **/goal 빌드루프 — 2nd-B 라이브 머지 3건**(verify green + CI green 후 머지): **#369** D-20 recommendations 미성년 게이트(ungated 누출 차단, main 2dececf) · **#370** D-19 anti-anthropomorphism CI 게이트(companion 카피 차단, locales 5135 클린, a47a6e8) · **#371** long_term_memory 동의 카피 de-companion(utility 프레이밍 + 회귀 가드, bd1e4d3).
 - `[x]` **3 root config §17/§18 정렬**(AGENTS/GEMINI에 §17 외부자산 추가 + 동시작업 §17→§18, cross-file "§18" 포인터 복구).
 - `[x]` **D-19 de-personification 감사 완료**(read-only): 주장=PARTIALLY-TRUE. 깨끗(스프라이트 얼굴無·persona=거울·crisis 인간핸드오프·streak 중립) / **실 COMPANION-RISK 2** = ①SceneHero 1인칭 순찰 speech(코드임베드라 게이트 미스) ②memory 동의 카피(→#371로 수정). 게이트는 locales만 스캔 = 코드 speech 커버 갭.

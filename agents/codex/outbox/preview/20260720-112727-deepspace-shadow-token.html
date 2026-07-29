@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>딥스페이스 셸 그림자 토큰 정리 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --text: #e6edf3; --accent: #86cfff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 18px 48px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 26px; color: var(--accent); }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 8px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin: 18px 0 6px; }
+    .card, details { border: 1px solid var(--accent); border-radius: 8px; padding: 14px; }
+    .label { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: 0; }
+    .value { font-size: 15px; margin-top: 6px; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 9px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>딥스페이스 셸 그림자 토큰 정리 보고</h1>
+    <p>이번 Codex 자율 폴 사이클은 열린 지시가 없어, UI anti-slop 레인에서 공유 셸의 직접 색상 사용을 한 건 줄였다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">로컬 제품 커밋 생성 완료</div>
+      </div>
+      <div class="card">
+        <div class="label">제품 커밋</div>
+        <div class="value"><code>1de3eb74</code></div>
+      </div>
+      <div class="card">
+        <div class="label">브랜치</div>
+        <div class="value"><code>codex/icon-token-scan-20260720</code></div>
+      </div>
+      <div class="card">
+        <div class="label">기준</div>
+        <div class="value"><code>origin/main@f2eb07b9</code></div>
+      </div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>수정</th><th>의도</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/components/deep-space/DeepSpaceScreen.tsx</code></td>
+          <td><code>shadowColor: "#000000"</code> 두 곳을 <code>m3.color.scrim</code>으로 교체</td>
+          <td>공유 museum/window 셸의 그림자 색상을 디자인 토큰 경유로 정렬</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr><th>검증 항목</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>npx eslint src/components/deep-space/DeepSpaceScreen.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>35절 자체 패널</summary>
+      <p>디자인 관점: 직접 검정 hex를 토큰으로 바꾸면 DESIGN.md의 컴포넌트 색상 규칙과 더 잘 맞는다.</p>
+      <p>안드로이드 관점: shadowOpacity, shadowRadius, shadowOffset, elevation은 그대로 유지해 렌더링 위험을 낮췄다.</p>
+      <p>통합 관점: 한 파일 두 줄 변경이고 기존 import를 재사용하므로 Claude가 cherry-pick하기 쉽다.</p>
+      <p>결론: 로컬 커밋 제출이 적절하며 push, PR, 머지는 하지 않는다.</p>
+    </details>
+
+    <h2>제약 준수</h2>
+    <p>허브에서는 <code>agents/codex/</code>만 작성했다. 2nd-B 온라인 push, PR, main merge, 배포, 브라우저 자동 열기, 비용 발생, 시크릿 접근, 파괴적 작업은 하지 않았다.</p>
+  </main>
+</body>
+</html>

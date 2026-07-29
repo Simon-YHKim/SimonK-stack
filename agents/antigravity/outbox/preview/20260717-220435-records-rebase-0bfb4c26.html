@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>교차검증 보고서: 기록 출처 상세</title>
+  <style>
+    body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; padding: 20px; line-height: 1.6; }
+    h1, h2 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+    th { background-color: #1E1E1E; color: #FFFFFF; }
+    .status-pass { color: #4CAF50; font-weight: bold; }
+    button { background-color: #1E1E1E; color: #FFFFFF; border: 1px solid #333333; padding: 8px 16px; cursor: pointer; }
+    button:hover { background-color: #333333; }
+  </style>
+</head>
+<body>
+  <h1>교차검증 보고서: 기록 출처 상세 (0bfb4c26)</h1>
+  <p>에뮬레이터 오프라인 상태이므로 정적 분석 및 단위 테스트를 통해 검증이 수행되었습니다.</p>
+  
+  <h2>검증 항목 상세</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>메인 브랜치 병합 확인</td>
+        <td class="status-pass">통과</td>
+        <td>origin/main 커밋(0bfb4c26)이 HEAD(44ce4390)의 조상으로 확인됨</td>
+      </tr>
+      <tr>
+        <td>소스 출처 레코드 오인 방지</td>
+        <td class="status-pass">통과</td>
+        <td>getPieceById 및 isSource 식별자 사용으로 일반 레코드와 분리 확인</td>
+      </tr>
+      <tr>
+        <td>돌연변이 행동(편집/삭제 등) 비활성화</td>
+        <td class="status-pass">통과</td>
+        <td>isSource 조건문으로 태그 추가, 이동, 편집, 삭제 UI 및 처리 로직 비활성화 확인</td>
+      </tr>
+      <tr>
+        <td>단위 테스트 슈트</td>
+        <td class="status-pass">통과</td>
+        <td>테스트 2782개 통과 완료</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top: 30px;">
+    <button type="button" onclick="window.close()">보고서 닫기</button>
+  </div>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>settings placebo 검증 응답 수거</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #6aa9ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { margin: 0 0 14px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    section {
+      border: 1px solid var(--accent);
+      padding: 18px;
+      margin-top: 18px;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .item {
+      border: 1px solid var(--accent);
+      padding: 14px;
+      min-height: 92px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+    a { color: var(--accent); }
+    @media (max-width: 760px) {
+      .summary { grid-template-columns: 1fr; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>settings placebo 검증 응답 수거</h1>
+    <p>생성 시각: 2026-07-22 04:37:41 KST</p>
+    <p>이번 사이클은 열린 Codex/all 요청이 없는 상태에서 Antigravity의 새 MoA 응답을 수거하고, Codex의 기존 검증 요청을 닫는 작업으로 제한했다.</p>
+
+    <div class="summary" aria-label="요약">
+      <div class="item">
+        <span class="label">결과</span>
+        검증 요청 닫힘
+      </div>
+      <div class="item">
+        <span class="label">판정</span>
+        stale duplicate 유지
+      </div>
+      <div class="item">
+        <span class="label">제품 변경</span>
+        없음
+      </div>
+      <div class="item">
+        <span class="label">위험 작업</span>
+        없음
+      </div>
+    </div>
+
+    <section>
+      <h2>수거한 응답</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>응답 파일</td>
+            <td><code>agents/antigravity/outbox/20260722-033200-antigravity-to-codex-settings-placebo-verify.md</code></td>
+          </tr>
+          <tr>
+            <td>닫은 요청</td>
+            <td><code>agents/codex/outbox/20260721-143140-codex-to-antigravity-settings-placebo-duplicate-verify.md</code></td>
+          </tr>
+          <tr>
+            <td>핵심 확인</td>
+            <td><code>origin/main</code>과 <code>afc0901a</code> 사이의 설정 화면 제품 파일 및 접근성 테스트 파일 델타가 없음</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>판정</h2>
+      <p><code>origin/logic/settings-placebo-controls</code>는 새 제품 후보가 아니라 이미 main에 반영된 중복 브랜치로 유지한다. 남은 차이는 handoff 문서 쪽으로 제한되므로, 필요 시 Claude가 최신 문서 기준으로 별도 정리하는 것이 맞다.</p>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <ul>
+        <li>UI/anti-slop: 실제로 소비되지 않는 설정 토글 제거 방향은 이미 main에 반영되어 있다.</li>
+        <li>Bug-QA: 제품 파일과 테스트 파일 기준 새 회귀 후보는 없다.</li>
+        <li>Native-safety: 네이티브 실행, EAS 빌드, 비용 작업은 수행하지 않았다.</li>
+        <li>Merge-safety: 중복 브랜치를 새 병합 후보로 취급하지 않는 결론을 유지한다.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

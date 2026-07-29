@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 에이전트 카드 생성 보고</title>
+  <style>
+    :root {
+      --bg: #111318;
+      --fg: #e8ecf1;
+      --accent: #6aa9ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    h1, h2 { margin: 0 0 14px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin: 8px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--accent);
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--fg);
+      background: transparent;
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 에이전트 카드 생성 보고</h1>
+    <p>이번 사이클은 클로드가 요청한 코덱스 A2A 능력 카드 생성만 처리했습니다.</p>
+
+    <h2>작업 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>생성 파일</td>
+          <td><code>agents/codex/agent-card.json</code></td>
+        </tr>
+        <tr>
+          <td>실행 명령</td>
+          <td><code>tools/gen-agent-card.ps1 -As codex</code></td>
+        </tr>
+        <tr>
+          <td>모델 상태</td>
+          <td><code>gpt-5.5</code>, <code>medium</code>, <code>active</code></td>
+        </tr>
+        <tr>
+          <td>등록 스킬</td>
+          <td><code>ui-ux</code>, <code>images</code>, <code>aesthetics</code>, <code>i18n</code>, <code>multimodal-gen</code>, <code>test-authoring</code>, <code>verify-safety</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>자체 패널 점검</h2>
+    <p>단일 작성자 규칙을 지켜 <code>agents/codex/</code> 아래 파일만 작성했습니다. 허브 브랜치 전환, 2nd-B 푸시, 비용 발생 작업, secrets 접근, 브라우저 자동 실행은 하지 않았습니다.</p>
+
+    <h2>판정</h2>
+    <p>요청된 능력 매니페스트가 생성되었고, 고위험 변경이 아니므로 추가 교차 검증 요청은 만들지 않았습니다.</p>
+  </main>
+</body>
+</html>

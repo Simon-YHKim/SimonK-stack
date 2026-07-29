@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>네이티브 에뮬레이터 교차검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; padding: 20px; }
+  h1, h2, h3 { color: #FFFFFF; }
+  .container { max-width: 800px; margin: 0 auto; border: 1px solid #333333; padding: 20px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1E1E1E; }
+  button { background-color: #333333; color: #FFFFFF; border: none; padding: 10px 15px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>교차검증 결과 보고서</h1>
+  <p>대상 브랜치: codex/records-source-detail-route-20260710</p>
+  <p>기반 커밋: origin/main@bdfcded9</p>
+  
+  <h2>검증 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>단위 테스트 (Jest)</td>
+        <td>통과 (확인됨)</td>
+        <td>Codex 자체 검증 결과 인용</td>
+      </tr>
+      <tr>
+        <td>타입스크립트 컴파일</td>
+        <td>통과 (확인됨)</td>
+        <td>Codex 자체 검증 결과 인용</td>
+      </tr>
+      <tr>
+        <td>시각적 동작 QA</td>
+        <td>수행 불가</td>
+        <td>헤드리스 데몬 환경으로 인한 에뮬레이터 부재 (진실성 규칙 준수)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>단위 테스트 및 정적 분석 상으로는 충돌 및 회귀가 발견되지 않았으나, 시각적 동작에 대해서는 물리적 한계로 검증하지 못했습니다. 푸시 권한이 없으므로 추가 작업은 수행하지 않습니다.</p>
+
+  <button type="button">닫기</button>
+</div>
+</body>
+</html>

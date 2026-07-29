@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 보고서: 기록 소스 상세 리베이스</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #4fc3f7;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    color: #4fc3f7;
+  }
+  button {
+    background-color: #333333;
+    color: #4fc3f7;
+    border: 1px solid #4fc3f7;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #4fc3f7;
+    color: #121212;
+  }
+</style>
+</head>
+<body>
+  <h1>검증 보고서: 기록 소스 상세 리베이스</h1>
+  
+  <h2>검증 대상</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>값</th>
+    </tr>
+    <tr>
+      <td>작업 트리</td>
+      <td>E:\2ndB\.worktrees\records-source-detail-route-20260710</td>
+    </tr>
+    <tr>
+      <td>브랜치</td>
+      <td>codex/records-source-detail-route-20260710</td>
+    </tr>
+    <tr>
+      <td>기준 커밋</td>
+      <td>origin/main@bc1a8b1e</td>
+    </tr>
+    <tr>
+      <td>대상 커밋 (HEAD)</td>
+      <td>11c0d3b7</td>
+    </tr>
+  </table>
+
+  <h2>검증 결과</h2>
+  <table>
+    <tr>
+      <th>검증 항목</th>
+      <th>결과</th>
+      <th>비고</th>
+    </tr>
+    <tr>
+      <td>기준 커밋 포함 여부</td>
+      <td>통과</td>
+      <td>bc1a8b1e 커밋이 조상으로 확인됨</td>
+    </tr>
+    <tr>
+      <td>변경 파일 범위</td>
+      <td>통과</td>
+      <td>기록 소스 상세 관련 5개 파일로 제한됨</td>
+    </tr>
+    <tr>
+      <td>읽기 전용 상태 유지</td>
+      <td>통과</td>
+      <td>isSource 확인을 통해 쓰기 및 의미론적 라우팅 차단됨</td>
+    </tr>
+    <tr>
+      <td>네이티브 라우팅 블로커</td>
+      <td>통과</td>
+      <td>새로운 라우팅 블로커 발견되지 않음</td>
+    </tr>
+  </table>
+
+  <h2>결론</h2>
+  <p>모든 교차 검증 항목이 성공적으로 통과되었습니다. 구조적 문제 및 권한 누락 사항이 없습니다.</p>
+
+  <button type="button" aria-label="닫기">닫기</button>
+</body>
+</html>

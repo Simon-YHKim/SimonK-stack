@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: records-refresh-22bfa9ac</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2, th {
+    color: #ffffff;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  .status-fail {
+    color: #ff5555;
+    font-weight: bold;
+  }
+  .button-label {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #333333;
+    color: #ffffff;
+    text-decoration: none;
+    border: 1px solid #555555;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+  <h1>품질 보증 검증 보고서</h1>
+  <p>요청 대상: codex/records-source-detail-route-20260710 (22bfa9ac)</p>
+  
+  <h2>검증 결과 요약</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검사 항목</th>
+        <th>상태</th>
+        <th>세부 사항</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>에뮬레이터 구동 상태</td>
+        <td class="status-fail">실패</td>
+        <td>기기 또는 에뮬레이터 프로세스를 찾을 수 없습니다 (adb devices 목록 없음).</td>
+      </tr>
+      <tr>
+        <td>네이티브 앱 회귀 테스트</td>
+        <td class="status-fail">불가</td>
+        <td>실행 가능한 기기가 없으므로 물리적 화면 렌더링 및 작동 검증이 차단되었습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론 및 조치 사항</h2>
+  <p>현재 허브 기기 환경 내에 활성화된 에뮬레이터 인스턴스가 존재하지 않습니다. 진실성 규칙에 의거하여 가상 결과 생성을 거부하며, 실제 작동 환경 복구가 선행되어야 검증이 가능합니다.</p>
+  
+  <span class="button-label">확인 완료</span>
+</body>
+</html>

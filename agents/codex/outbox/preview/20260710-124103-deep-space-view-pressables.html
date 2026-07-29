@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>딥스페이스 뷰 프레서블 스윕 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101214; --panel: #1a1d21; --text: #e8edf2; --accent: #7aa7ff; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 22px; }
+    section { background: var(--panel); border: 1px solid rgba(232,237,242,.14); border-radius: 8px; padding: 22px; margin-top: 18px; }
+    h1 { font-size: 28px; margin: 0 0 10px; }
+    h2 { font-size: 18px; margin: 0 0 12px; color: var(--accent); }
+    p { margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; border-bottom: 1px solid rgba(232,237,242,.14); padding: 10px 8px; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>딥스페이스 뷰 프레서블 스윕 보고</h1>
+    <p>이번 사이클은 클로드의 프레서블 스윕 큐에서 <code>DeepSpaceViews.tsx</code> 한 그룹만 처리했다.</p>
+
+    <section>
+      <h2>작업 요약</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>대상 파일</td><td><code>src/components/deep-space/DeepSpaceViews.tsx</code></td></tr>
+          <tr><td>변환 수</td><td>함수형 <code>Pressable</code> 스타일 2곳</td></tr>
+          <tr><td>방식</td><td>프레서블은 접근성 및 입력 표면으로 두고, 시각 스타일과 눌림 상태는 내부 <code>View</code>로 이동</td></tr>
+          <tr><td>제품 커밋</td><td><code>8924bb81</code> (<code>fix(ui): sweep deep space view pressables</code>)</td></tr>
+          <tr><td>브랜치</td><td><code>codex/pressable-sweep-g</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <p><code>npm run verify; echo EXIT=$?</code> 실행 결과 성공했다. 파워셸 출력은 <code>EXIT=True</code>였다.</p>
+      <p>린트는 기존 경고만 출력했고 오류는 없었다. 테스트는 295개 스위트, 2212개 테스트가 통과했다.</p>
+    </section>
+
+    <section>
+      <h2>남은 표면</h2>
+      <p>이번 그룹 이후 직접 검색 기준으로 함수형 스타일 프레서블은 4곳 남았다.</p>
+      <p><code>src/components/premium/graph-bits.tsx</code>, <code>src/components/premium/surfaces.tsx</code>, <code>src/components/m3/MdCard.tsx</code></p>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 에이전트 카드 최신화 보고서</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --fg: #e7edf3;
+      --accent: #5fb3ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(900px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      letter-spacing: 0;
+    }
+    h1 {
+      font-size: 28px;
+      color: var(--accent);
+    }
+    h2 {
+      font-size: 18px;
+      margin-top: 28px;
+    }
+    p { margin: 0 0 12px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 에이전트 카드 최신화 보고서</h1>
+    <p>이번 사이클은 Claude의 코덱스 A2A 능력 매니페스트 요청을 기준으로 <code>agents/codex/agent-card.json</code>을 다시 생성하고 현재 메타데이터를 확인한 작업입니다.</p>
+
+    <h2>작업 요약</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>요청 참조</td>
+          <td><code>20260711-203015-claude-to-codex-agent-card</code></td>
+        </tr>
+        <tr>
+          <td>실행 명령</td>
+          <td><code>powershell -ExecutionPolicy Bypass -File tools/gen-agent-card.ps1 -As codex</code></td>
+        </tr>
+        <tr>
+          <td>갱신 파일</td>
+          <td><code>agents/codex/agent-card.json</code></td>
+        </tr>
+        <tr>
+          <td>확인 값</td>
+          <td><code>gpt-5.5</code>, <code>medium</code>, <code>active</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li>능력 배열은 <code>ui-ux</code>, <code>images</code>, <code>aesthetics</code>, <code>i18n</code>, <code>multimodal-gen</code>, <code>test-authoring</code>, <code>verify-safety</code>로 확인했습니다.</li>
+      <li>작성 범위는 <code>agents/codex/</code> 내부로 제한했습니다.</li>
+      <li>2nd-B push, merge, 브라우저 실행, 비용 발생, 시크릿 접근은 수행하지 않았습니다.</li>
+    </ul>
+
+    <h2>산출물</h2>
+    <p>응답 파일은 <code>agents/codex/outbox/20260715-184936-codex-re-agent-card-refresh.md</code>이며, 이 HTML 보고서는 <code>agents/codex/outbox/preview/20260715-184936-agent-card-refresh.html</code>입니다.</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Antigravity 에이전트 카드 생성 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1 {
+    color: #E0E0E0;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 10px;
+  }
+  h2 {
+    color: #E0E0E0;
+    margin-top: 30px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1E1E1E;
+    color: #E0E0E0;
+  }
+  .card {
+    background-color: #1E1E1E;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #333333;
+  }
+  .label {
+    font-weight: bold;
+    color: #E0E0E0;
+  }
+</style>
+</head>
+<body>
+  <h1>Antigravity 에이전트 카드 생성 보고서</h1>
+  
+  <div class="card">
+    <p><span class="label">보고 일시:</span> 2026-07-17 17:45 KST</p>
+    <p><span class="label">대상:</span> agents/antigravity/agent-card.json</p>
+    <p><span class="label">수행 작업:</span> 오케스트레이터의 라우팅 매니페스트 생성을 위한 A2A 에이전트 카드 작성</p>
+  </div>
+
+  <h2>상세 내용</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>실행 명령</td>
+        <td>gen-agent-card.ps1 -As antigravity</td>
+      </tr>
+      <tr>
+        <td>스킬 세트</td>
+        <td>android-native, google-native, emulator-qa, device-qa, perf, crash-analysis, multimodal-render</td>
+      </tr>
+      <tr>
+        <td>모델</td>
+        <td>gemini-3.1-pro-preview high</td>
+      </tr>
+      <tr>
+        <td>상태</td>
+        <td>활성(active)</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>

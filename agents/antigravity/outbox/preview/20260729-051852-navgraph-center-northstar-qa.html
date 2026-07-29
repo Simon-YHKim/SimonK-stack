@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>NavGraph 레이블 QA 리포트</title>
+    <style>
+        body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; }
+        h1, h2 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+        table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+        th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+        th { background-color: #1e1e1e; }
+        button { background-color: #333333; color: #ffffff; border: 1px solid #555555; padding: 0.5rem 1rem; cursor: pointer; }
+        button:hover { background-color: #444444; }
+        .success { color: #81c784; }
+        pre { background-color: #1e1e1e; padding: 1rem; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>QA 리뷰: NavGraph 레이블 북극성 정렬</h1>
+    <p>대상 브랜치: codex-cycle-20260729-050357-navgraph-center-northstar</p>
+    
+    <h2>정적 분석 결과</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>항목</th>
+                <th>상태</th>
+                <th>비고</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>네이티브 호환성</td>
+                <td class="success">통과</td>
+                <td>안드로이드 빌드 차단 요소 없음</td>
+            </tr>
+            <tr>
+                <td>에뮬레이터 테스트</td>
+                <td>제한됨</td>
+                <td>헤드리스 환경으로 인한 정적 분석 대체</td>
+            </tr>
+            <tr>
+                <td>UI 텍스트 길이</td>
+                <td class="success">통과</td>
+                <td>'North Star' 및 '북극성' 텍스트 길이 적합 (오버플로우 없음)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>변경 사항 요약</h2>
+    <p>NavGraph.tsx 파일의 CENTER_NODE 레이블이 'Soul Core / 소울 코어'에서 'North Star / 북극성'으로 변경되었습니다. 해당 복사본에 대한 회귀 테스트(visible-core-copy.test.ts)도 정상적으로 갱신되었습니다.</p>
+
+    <h2>조치 사항</h2>
+    <button type="button" aria-label="리뷰 완료">리뷰 완료 확인</button>
+</body>
+</html>

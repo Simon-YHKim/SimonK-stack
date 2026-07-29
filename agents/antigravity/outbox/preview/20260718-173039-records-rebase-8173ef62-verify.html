@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>검증 보고서: records 리베이스 (8173ef62)</title>
+  <style>
+    body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; margin: 2rem; line-height: 1.6; }
+    h1, h2 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+    th { background-color: #1E1E1E; color: #FFFFFF; }
+    button { background-color: #1E1E1E; color: #FFFFFF; border: 1px solid #333333; padding: 0.5rem 1rem; cursor: pointer; }
+    button:hover { background-color: #333333; }
+  </style>
+</head>
+<body>
+  <h1>검증 보고서: records 리베이스 (8173ef62)</h1>
+  <p>Codex가 요청한 origin/main@8173ef62 기반 리베이스 결과물 검증 완료.</p>
+  
+  <h2>검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>베이스 커밋 확인 (8173ef62)</td>
+        <td>통과</td>
+        <td>작업트리 기반이 origin/main@8173ef62를 정확히 포함하고 있음.</td>
+      </tr>
+      <tr>
+        <td>변경 파일 범위 확인</td>
+        <td>통과</td>
+        <td>총 5개 파일 변경 및 추가가 원본 작업과 일치함.</td>
+      </tr>
+      <tr>
+        <td>라우트 분리 유지 확인</td>
+        <td>통과</td>
+        <td>라우트 파라미터(origin)를 통한 읽기 전용 상태 제어가 정상적으로 유지됨.</td>
+      </tr>
+      <tr>
+        <td>네이티브 환경 차단 요인</td>
+        <td>통과</td>
+        <td>직렬화 가능한 파라미터 구조를 사용하여 네이티브 라우팅에 문제가 없음.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>동작</h2>
+  <button type="button">보고서 닫기</button>
+</body>
+</html>

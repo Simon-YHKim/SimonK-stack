@@ -89,7 +89,11 @@ if ($Files.Count -gt 0) {
 # daemon marking shared state directly (e.g. AG editing BOARD.md). Always on.
 # ----------------------------------------------------------------------------
 if ($As -ne "claude") {
-  $stagedAll = git diff --cached --name-only --diff-filter=ACMRD
+  # --no-renames (2026-07-04): with rename detection ON, a staged `git mv <root-file>
+  # agents/<As>/x` lists only the destination path, so moving a Claude-only file into
+  # the agent's own lane slipped past the guard while deleting the root file. Force
+  # renames to surface as D(old)+A(new) so the off-lane D is caught.
+  $stagedAll = git diff --cached --no-renames --name-only --diff-filter=ACMRD
   if ($LASTEXITCODE -ne 0) {
     try { $hubMutex.ReleaseMutex() } catch {}
     Write-Host "[commit] abort: staged-file enumeration failed - lane guard cannot verify (fail closed)" -ForegroundColor Red
@@ -102,6 +106,79 @@ if ($As -ne "claude") {
     foreach ($f in $offlane) { Write-Host "  off-lane: $f" -ForegroundColor Red }
     Write-Host "  Shared files are Claude-only. Unstage them; report status in your own STATUS.md/outbox instead." -ForegroundColor Yellow
     exit 1
+  }
+}
+
+# ----------------------------------------------------------------------------
+# CONVENTIONAL COMMITS (PROTOCOL Sec.5, 2026-07-04): daemon lanes occasionally emit
+# non-conforming subjects (e.g. AG "QA: verify ..."). Do not hard-fail an autonomous
+# lane over a message prefix - rewrite it to a conforming chore(<seat>) subject instead.
+# ----------------------------------------------------------------------------
+if ($Message -notmatch '^(feat|fix|chore|docs|test|refactor|style|perf|ci|build|revert|merge)(\(|!|:)') {
+  $Message = "chore(" + $As + "): " + $Message
+  Write-Host "[commit] message auto-prefixed to Conventional Commits: $Message" -ForegroundColor Yellow
+}
+
+# ----------------------------------------------------------------------------
+# ANTI-DEGENERATION GATE (2026-07-11 audit A1/A2). A lane once committed the SAME
+# semantic work every cycle (Codex "records branch refresh" x29 in 22h) -- each cycle
+# wrote a uniquely-timestamped report so git "nothing to commit" never fired and the
+# prose-only PROTOCOL 5/31 no-op rule was never enforced. This gate computes a topic+
+# fileset signature (commit subject reduced to a sorted stopword-stripped word-set, plus
+# staged file basenames with the leading timestamp + STATUS.md removed) and blocks the
+# commit once this lane's last 5 recorded signatures already contain 3 identical to it
+# (i.e. the 4th+ identical cycle). The redundant just-written outbox report is discarded
+# so the tree stays clean. STATUS-only commits and process-noise subjects are exempt.
+# claude (diverse orchestrator) and -Force bypass. Threshold is deliberately conservative
+# so real varied work is never blocked -- validated offline across 6 cases.
+# ----------------------------------------------------------------------------
+if ($As -ne 'claude' -and -not $Force) {
+  $degStop = @{}
+  foreach ($w in @('the','a','an','of','for','to','in','on','and','or','re',
+      'report','reports','update','updates','refresh','refreshed','status',
+      'verify','verified','verification','cycle','branch','chore','docs','test')) { $degStop[$w] = $true }
+  $topic = $Message -replace '^(feat|fix|chore|docs|test|refactor|style|perf|ci|build|revert|merge)(\([^)]*\))?!?:\s*', ''
+  $topic = $topic.ToLowerInvariant() -replace '[0-9a-f]{7,40}', ' ' -replace '[0-9]+', ' ' -replace '[^a-z ]', ' '
+  $tw = @($topic -split '\s+' | Where-Object { $_ -and -not $degStop.ContainsKey($_) -and $_.Length -ge 2 } | Sort-Object -Unique)
+  $topicSig = if ($tw.Count) { $tw -join ' ' } else { '(process-noise)' }
+  $stagedNow = @(git diff --cached --name-only --diff-filter=ACMR)
+  $bn = @()
+  foreach ($f in $stagedNow) {
+    $n = [System.IO.Path]::GetFileName($f)
+    if ($n -ieq 'STATUS.md') { continue }
+    # normalize away per-cycle-varying tokens so the SAME report gets the SAME signature:
+    # leading timestamp, embedded hash/sha (a lane put a fresh hash in each filename to dodge the
+    # gate -- 2026-07-11), any remaining digits, then collapse the dashes those leave behind.
+    $n = $n -replace '^\d{8}-\d{6}-', '' -replace '[0-9a-f]{7,40}', '' -replace '\d+', ''
+    $n = ($n -replace '-+', '-') -replace '-\.', '.'
+    $bn += $n
+  }
+  $bn = @($bn | Sort-Object -Unique)
+  if ($bn.Count -gt 0) {   # skip STATUS-only / no-content commits
+    $sig = $topicSig + '|' + ($bn -join ',')
+    # line-delimited history (NOT JSON: PS 5.1 @(Get-Content -Raw|ConvertFrom-Json) nests a
+    # multi-element array into a single element, which silently defeated the gate).
+    $sigFile = Join-Path $root ("agents/" + $As + "/.cycle-sigs.txt")
+    $hist = @()
+    if (Test-Path $sigFile) { $hist = @(Get-Content $sigFile -Encoding UTF8 | Where-Object { $_ -and $_.Trim() }) }
+    $recent = @($hist | Select-Object -Last 5)
+    $same = @($recent | Where-Object { $_ -eq $sig }).Count
+    if ($same -ge 3) {
+      $addedNow = @(git diff --cached --name-only --diff-filter=A)
+      git reset -q -- $stagedNow 2>&1 | Out-Null
+      foreach ($f in $addedNow) { if ($f -match ("^agents/" + [regex]::Escape($As) + "/outbox/") -and $f -match '\.(md|html)$') { $p = Join-Path $root $f; if (Test-Path -LiteralPath $p) { Remove-Item -LiteralPath $p -Force -ErrorAction SilentlyContinue } } }
+      try { $hubMutex.ReleaseMutex() } catch {}
+      Write-Host ""
+      Write-Host "[commit] NO-OP-DEGENERATE -- '$As' has already committed this same work 3x (audit A1)." -ForegroundColor Red
+      Write-Host "  signature: $sig" -ForegroundColor DarkYellow
+      Write-Host "  The redundant just-written report was discarded and NOT committed (tree kept clean)." -ForegroundColor Yellow
+      Write-Host "  Pick DIFFERENT higher-value work this cycle: a new order, a real 2nd-B fix, or end the cycle" -ForegroundColor Yellow
+      Write-Host "  quietly per PROTOCOL 5 (no-op = no commit). Re-running the identical report will keep failing." -ForegroundColor Yellow
+      exit 3
+    }
+    $hist = @($hist) + $sig
+    $hist = @($hist | Select-Object -Last 10)
+    try { [System.IO.File]::WriteAllText($sigFile, (($hist -join [char]10) + [char]10), $utf8) } catch {}
   }
 }
 

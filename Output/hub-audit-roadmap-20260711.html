@@ -1,0 +1,156 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Hub — Audit & Best-in-Class Roadmap (2026-07-11)</title><style>
+:root{--bg:#15151b;--card:#1d1d25;--card2:#20202a;--line:#2c2c38;--tx:#e7e7ee;--mut:#a0a0b2;--acc:#8b8bf0;
+--p0:#e06a6a;--p1:#e0a04a;--p2:#5bbf8a;--safe:#5bbf8a;--hot:#e0a04a;--done:#5bbf8a;--prog:#8b8bf0;--todo:#7a7a88}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Pretendard,system-ui,-apple-system,sans-serif;padding:32px 18px;line-height:1.55}
+.wrap{max-width:1120px;margin:0 auto}
+h1{font-size:23px;margin:0 0 4px;letter-spacing:-.02em}
+h2{font-size:15px;color:var(--acc);margin:34px 0 10px;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.sub{color:var(--mut);font-size:13px;margin-bottom:22px}
+.lead{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:10px;padding:16px 18px;font-size:13.5px;margin-bottom:8px}
+.lead b{color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:14px 0}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.kpi .n{font-size:26px;font-weight:800;letter-spacing:-.02em}
+.kpi .l{color:var(--mut);font-size:12px;margin-top:2px}
+table{width:100%;border-collapse:collapse;font-size:12.7px;margin-top:6px}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{color:var(--mut);background:var(--card2);font-weight:600;position:sticky;top:0}
+td.c{white-space:nowrap}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:9px;line-height:1.5}
+.p0{background:#4a2226;color:#f0b6b6}.p1{background:#4a3a1e;color:#f0d6a0}.p2{background:#22402f;color:#a6e6c4}
+.safe{background:#22402f;color:#a6e6c4}.hot{background:#4a3a1e;color:#f0d6a0}
+.st-done{color:var(--done);font-weight:700}.st-prog{color:var(--prog);font-weight:700}.st-todo{color:var(--todo)}.st-gate{color:var(--p0);font-weight:700}
+.mono{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;color:var(--mut)}
+.note{color:var(--mut);font-size:12px;margin-top:8px}
+.wave{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px 16px 12px;margin:10px 0}
+.wave h3{font-size:13.5px;margin:12px 0 6px}
+.wave.w1{border-left:3px solid var(--safe)}.wave.w2{border-left:3px solid var(--hot)}.wave.w3{border-left:3px solid var(--acc)}.wave.wg{border-left:3px solid var(--p0)}
+ul{margin:4px 0 8px;padding-left:20px}li{margin:3px 0;font-size:12.8px}
+code{background:#26263010;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:4px;font-family:ui-monospace,Consolas,monospace;font-size:11.5px}
+.foot{color:var(--mut);font-size:11.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:14px}
+</style></head><body><div class="wrap">
+
+<h1>AI Hub — Audit &amp; Best-in-Class Roadmap</h1>
+<div class="sub">2026-07-11 KST · 8-dimension multi-agent audit (16 agents, adversarially verified) + 2026 state-of-the-art gap analysis · orchestrator: Claude</div>
+
+<div class="lead">
+<b>Bottom line.</b> The hub's <b>process-safety layer is already best-in-class</b> — branch guard, lane/single-writer guard, index-lock mutex, encoding/size/secret scanners, per-AI hung-CLI timeout, ConPTY fix are all present and fail-closed. The real leverage is in three under-built layers: <b>(1) value governance</b> — a lane is <b>right now</b> in a degenerate loop (Codex: 29 near-identical "records branch refresh" commits in ~22h; the §31/§5 anti-degeneration rule is <b>prose-only, not code-enforced</b>); <b>(2) observability</b> — the tooling measures <i>activity, not value</i>, is blind to TIMEOUT cycles, and has no durable per-cycle trace; <b>(3) 2026 frontier</b> — no OpenTelemetry-GenAI structured trace, no automated eval/LLM-judge gate, no enforced fan-out budget. All fixes are additive; none requires a rip-and-replace.
+</div>
+
+<div class="grid">
+<div class="kpi"><div class="n">28</div><div class="l">verified findings (post adversarial-verify)</div></div>
+<div class="kpi"><div class="n" style="color:var(--p1)">6</div><div class="l">P1 · none P0 (1 P0 dropped: idle ≠ outage)</div></div>
+<div class="kpi"><div class="n" style="color:var(--safe)">20</div><div class="l">SAFE-ADDITIVE (zero live-path risk)</div></div>
+<div class="kpi"><div class="n" style="color:var(--done)">37%</div><div class="l">Codex lane novelty (44 wasted commits/7d)</div></div>
+</div>
+
+<h2>Theme A — Value / Anti-degeneration <span class="mono">(flagship, live now)</span></h2>
+<table>
+<tr><th>#</th><th>Finding</th><th class="c">Sev</th><th class="c">Class</th><th>Fix</th><th class="c">Status</th></tr>
+<tr><td>A1</td><td>§31/§5 anti-degeneration is <b>prose-only, not code-enforced</b> → Codex 29× "records branch refresh" / 22h (also amplified into AG via MOA cross-verify)</td><td class="c"><span class="tag p1">P1</span></td><td class="c"><span class="tag hot">HOT</span></td><td>cycle-signature dedup gate on commit path + per-AI last-cycles; semantic no-op (monitored-input changed?)</td><td class="c st-todo">WAVE 2</td></tr>
+<tr><td>A2</td><td>git no-op guard bypassable — a fresh timestamped report file makes "dirty tree" ≠ "new value"</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag hot">HOT</span></td><td>redefine no-op semantically (paired with A1)</td><td class="c st-todo">WAVE 2</td></tr>
+<tr><td>A3</td><td>No monitor surfaces low-value repeat cycles — degeneration invisible until human audit</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag safe">SAFE</span></td><td><code>tools/hub-insight.ps1</code> — novelty/churn/DEGENERATE detector (console/JSON/HTML)</td><td class="c st-done">✔ DONE</td></tr>
+</table>
+
+<h2>Theme B — Observability (measure value, not just activity)</h2>
+<table>
+<tr><th>#</th><th>Finding</th><th class="c">Sev</th><th class="c">Class</th><th>Fix</th><th class="c">Status</th></tr>
+<tr><td>B1</td><td><code>hub-usage.ps1</code> excludes TIMEOUT cycles → a lane timing out every cycle reads as idle/healthy</td><td class="c"><span class="tag p1">P1</span></td><td class="c"><span class="tag safe">SAFE</span></td><td>count <code>cycle TIMEOUT(&lt;ai&gt;)</code> + Timeout column</td><td class="c st-todo">WAVE 1</td></tr>
+<tr><td>B2</td><td>No durable per-cycle structured trace; <code>live/&lt;ai&gt;.log</code> overwritten each cycle; <code>exit=0</code> can't tell shipped-PR from no-op</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag safe">SAFE</span></td><td><b>events.jsonl</b> (OTel-GenAI keys) — the substrate B3/F1/H trace read from</td><td class="c st-todo">WAVE 1/2</td></tr>
+<tr><td>B3</td><td>No latency/p95 despite BEGIN/END timestamps present</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag safe">SAFE</span></td><td>pair BEGIN/END → avg/p95/max in hub-usage</td><td class="c st-todo">WAVE 1</td></tr>
+<tr><td>B4</td><td>No per-order lifecycle metrics (time-to-close, reroute rate, aged-past-TTL)</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag safe">SAFE</span></td><td><code>hub-orders-stats.ps1</code></td><td class="c st-todo">WAVE 3</td></tr>
+<tr><td>B5</td><td>No single operator dashboard — monitor is console-only, 3 disjoint tools</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag safe">SAFE</span></td><td><code>hub-dashboard.ps1 -Html</code> composing the read-only collectors</td><td class="c st-todo">WAVE 1</td></tr>
+<tr><td>B6</td><td><code>hub-daemon.log</code> unbounded, no rotation; every reader full-parses on a 5s loop</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag safe">SAFE</span></td><td>size-rotation (gitignored) + bounded <code>-tail</code> reads</td><td class="c st-todo">WAVE 2</td></tr>
+</table>
+
+<h2>Theme C — Security / git hygiene</h2>
+<table>
+<tr><th>#</th><th>Finding</th><th class="c">Sev</th><th class="c">Class</th><th>Fix</th><th class="c">Status</th></tr>
+<tr><td>C1</td><td>All commit guards (incl. secret scan) are <b>wrapper-only</b> — no git-layer <code>pre-commit</code> hook → a plain <code>git commit</code> bypasses everything</td><td class="c"><span class="tag p1">P1</span></td><td class="c"><span class="tag safe">SAFE</span></td><td>tracked <code>tools/githooks/pre-commit</code> + <code>core.hooksPath</code>; refactor scan into a shared function</td><td class="c st-todo">WAVE 1</td></tr>
+<tr><td>C2</td><td>Untracked 76 MB <code>.apk</code> + logcat/UI-XML/PNG dumps at repo root, <b>zero .gitignore coverage</b> (git add -A footgun → permanent bloat)</td><td class="c"><span class="tag p1">P1</span></td><td class="c"><span class="tag safe">SAFE</span></td><td>add <code>*.apk</code>/<code>logcat*</code>/<code>ui*.xml</code>/<code>crash_log</code>/preview-PNG rules</td><td class="c st-todo">WAVE 1</td></tr>
+<tr><td>C3</td><td><code>-Force</code> silently disables the <b>secret</b> scan too (positioned as a size escape-hatch)</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag safe">SAFE</span></td><td>split secret scan out of the <code>-Force</code> gate</td><td class="c st-todo">WAVE 1</td></tr>
+<tr><td>C4</td><td>AG <code>mcp_config.json</code> poisoning (uninstall-surviving backdoor) is advisory prose — no integrity check</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag safe">SAFE</span></td><td>hash-baseline assertion in <code>hub-health.ps1</code></td><td class="c st-todo">WAVE 3</td></tr>
+<tr><td>C5</td><td>Tracked <code>Legacy-qa-debris-20260614/</code> (device logcats, bloat, PII class)</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag hot">DELETE</span></td><td><code>git rm -r</code> + .gitignore</td><td class="c st-gate">GATE (delete → confirm)</td></tr>
+</table>
+
+<h2>Theme D — Reliability (daemon / watchdog)</h2>
+<div class="note">The supervised-lane machinery (Start-Job+Wait-Job 1200s kill, 4-strike park, fail-closed CONTROL) is genuinely robust — no silent-stall path found. Remaining are edge gaps:</div>
+<table>
+<tr><th>#</th><th>Finding</th><th class="c">Sev</th><th class="c">Class</th><th>Fix</th><th class="c">Status</th></tr>
+<tr><td>D1</td><td>Watchdog blind to a bare (no <code>-Only</code>) daemon → spawns duplicate <code>-Only</code> workers → concurrent git writers</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag hot">HOT</span></td><td>probe <code>Global\hubdaemon_default</code> before restart (mirror dispatch-oneshot)</td><td class="c st-todo">WAVE 2</td></tr>
+<tr><td>D2</td><td>Quota misclassification — nonzero-exit crash whose transcript merely quotes "429"/"rate limit" → up to ~8h erroneous backoff</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag hot">HOT</span></td><td>tighten <code>$quotaLoose</code> to the CLI's own error framing</td><td class="c st-todo">WAVE 2</td></tr>
+<tr><td>D3</td><td>Reroute/self-feedback notes never committed → tree permanently dirty → <b>BRANCH-HEAL auto-repair effectively disabled</b> (confirmed dirty now)</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag hot">HOT</span></td><td><code>git status --porcelain --untracked-files=no</code> in the heal gate</td><td class="c st-todo">WAVE 2</td></tr>
+<tr><td>D4</td><td>Claude orchestrator SPOF — its death-alert is filed into the inbox only a live Claude reads (circular)</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag safe">SAFE</span></td><td>out-of-band HUB-ALERT + orchestrator heartbeat-stale check</td><td class="c st-todo">WAVE 3</td></tr>
+</table>
+
+<h2>Theme E — SPOF / Remote-orders</h2>
+<table>
+<tr><th>#</th><th>Finding</th><th class="c">Sev</th><th class="c">Class</th><th>Fix</th><th class="c">Status</th></tr>
+<tr><td>E1</td><td>Orders consumer has zero durable supervision — watchdog restarts codex/AG lanes but never the orders <code>/loop</code> (BACKLOG P0 still open)</td><td class="c"><span class="tag p1">P1</span></td><td class="c"><span class="tag safe">SAFE</span></td><td><code>orders-supervisor.ps1</code> + scheduled task; escalate on newCount&gt;0 <b>OR</b> heartbeat&gt;30m</td><td class="c st-todo">WAVE 3</td></tr>
+<tr><td>E2</td><td>Watchdog alert blind unless an order is BOTH pending AND un-acked → a dead consumer with an idle queue emits <b>zero</b> signal</td><td class="c"><span class="tag p1">P1</span></td><td class="c"><span class="tag safe">SAFE</span></td><td>treat stale heartbeat as an alert on its own; re-surface abandoned-in-progress</td><td class="c st-todo">WAVE 3</td></tr>
+<tr><td>E3</td><td>Alert delivery has no out-of-band path (durably filed, but no mobile/ORDERS-banner escalation)</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag safe">SAFE</span></td><td>ORDERS.md banner + PushNotification</td><td class="c st-todo">WAVE 3</td></tr>
+<tr><td>E4</td><td><code>doneIds</code> matches any <code>O-N</code> in DONE prose → a passing mention silently consumes a future order</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag safe">SAFE</span></td><td>anchor to <code>### [O-N</code> headers only</td><td class="c st-todo">WAVE 2</td></tr>
+</table>
+
+<h2>Theme F — Routing / Cost · Theme G — Governance drift</h2>
+<table>
+<tr><th>#</th><th>Finding</th><th class="c">Sev</th><th class="c">Class</th><th>Fix</th><th class="c">Status</th></tr>
+<tr><td>F1</td><td>§28.7 budget gate + kill-switch is a paper control — no counter trips it (latent; flat-rate today)</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag safe">SAFE</span></td><td><code>budget-guard.ps1</code> → reuse CONTROL <code>state:paused reason:budget</code></td><td class="c st-todo">WAVE 3</td></tr>
+<tr><td>F2</td><td><code>models.json</code> cached once at daemon START — applied refresh runs stale with no signal</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag hot">HOT</span></td><td>stat mtime each cycle → LOUD warn (or reload)</td><td class="c st-todo">WAVE 2</td></tr>
+<tr><td>F3</td><td><code>reroute_to: claude</code> dead-ends unattended (Claude has no daemon lane)</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag safe">SAFE</span></td><td>watchdog alert on unconsumed reroute notes</td><td class="c st-todo">WAVE 3</td></tr>
+<tr><td>G1</td><td>BACKLOG self-contradiction — 3 items open <code>[ ]</code> that a later <code>[x]</code> says landed (incl. a minor-safety item)</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag safe">SAFE</span></td><td>flip to <code>[x]</code> with landing SHA</td><td class="c st-todo">WAVE 1</td></tr>
+<tr><td>G2</td><td>§35.3 mandatory-debate gate is prose-only — absent from <code>release-gate.ps1</code></td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag hot">HOT</span></td><td>release-gate: schema/authz/monetization/consent diff → require D-code</td><td class="c st-todo">WAVE 3</td></tr>
+<tr><td>G3</td><td>DECISIONS.md index drift — D-22…D-27 exist only in the changelog, missing from Open/Resolved index</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag safe">SAFE</span></td><td>add to Resolved index; bump frontmatter</td><td class="c st-todo">WAVE 1</td></tr>
+<tr><td>G4</td><td>STATUS.md ~7 days stale (narrative, not state field)</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag safe">SAFE</span></td><td>refresh, or shrink to a pure pointer</td><td class="c st-todo">WAVE 1</td></tr>
+<tr><td>G5</td><td>PROTOCOL.md 92 KB, no ToC, mixed §N/N. numbering, §35.1 un-headed</td><td class="c"><span class="tag p2">P2</span></td><td class="c"><span class="tag hot">DOC</span></td><td>ToC + normalize headings (verify no tool greps first)</td><td class="c st-gate">GATE (grep-safety)</td></tr>
+</table>
+
+<h2>Theme H — 2026 Best-in-Class gap matrix</h2>
+<table>
+<tr><th>2026 capability</th><th class="c">Hub status</th><th>Highest-value additive adoption</th><th class="c">Maps to</th></tr>
+<tr><td>OpenTelemetry-GenAI structured tracing (spans, latency, token metrics)</td><td class="c"><span class="tag p1">LACKS</span></td><td><b>events.jsonl</b> sidecar w/ <code>gen_ai.*</code> keys — the substrate everything else reads</td><td class="c">B2 / H1</td></tr>
+<tr><td>Eval / LLM-as-judge scored regression gate (Langfuse/Phoenix)</td><td class="c"><span class="tag p1">PARTIAL</span></td><td><code>eval-run.ps1</code> over the existing golden set (proposer≠judge already policy) → <code>scores.jsonl</code></td><td class="c">H3</td></tr>
+<tr><td>Cost governance / token budgeting</td><td class="c"><span class="tag p1">PARTIAL</span></td><td><code>budget-guard.ps1</code> gives the existing kill-switch a trigger</td><td class="c">F1 / H2</td></tr>
+<tr><td>A2A capability discovery (agent cards)</td><td class="c"><span class="tag p1">PARTIAL</span></td><td><code>agents/&lt;ai&gt;/agent-card.json</code> (skills array) for programmatic lane-pick</td><td class="c">H4 (trim-first)</td></tr>
+<tr><td>Durable / resumable execution (Temporal-style)</td><td class="c"><span class="tag p1">PARTIAL</span></td><td><code>.inflight.json</code> resume token (cycle-durable today; no intra-cycle resume)</td><td class="c">H5 (rare trigger)</td></tr>
+<tr><td>Memory / reflection / self-improvement</td><td class="c"><span class="tag safe">HAS (near-SOTA)</span></td><td>auto-fill the §4 failure ledger from the eval runner</td><td class="c">fold → H3</td></tr>
+</table>
+<div class="note">Sources: OpenTelemetry GenAI observability (2025/2026), A2A+MCP orchestration survey (arXiv 2601.13671), Langfuse/Arize-Phoenix eval, agent-memory architectures 2026 (Atlan/mem0).</div>
+
+<h2>Execution plan</h2>
+
+<div class="wave w1"><h3>WAVE 1 — SAFE-ADDITIVE, zero live-path risk (in progress now)</h3>
+<ul>
+<li><span class="st-done">✔ A3</span> <code>hub-insight.ps1</code> value/novelty detector — <b>shipped</b> (commit landed).</li>
+<li>C1 git <code>pre-commit</code> hook (shared guard function) · C2 <code>.gitignore</code> artifact rules · C3 secret-scan out of <code>-Force</code></li>
+<li>B1 hub-usage TIMEOUT fix (P1 correctness) · B3 p95 latency · B5 <code>hub-dashboard.ps1</code></li>
+<li>B2 events.jsonl schema + backfill from existing log (reader-side; daemon emit deferred to W2)</li>
+<li>G1 BACKLOG flip · G3 DECISIONS index · G4 STATUS refresh</li>
+</ul></div>
+
+<div class="wave w2"><h3>WAVE 2 — HOT-PATH fixes (tested in isolation, small commits)</h3>
+<ul>
+<li><b>A1/A2 cycle-signature dedup gate</b> — the flagship anti-degeneration fix (stops the Codex loop structurally)</li>
+<li>D2 quota-regex tighten · D3 BRANCH-HEAL <code>--untracked-files=no</code> · D1 watchdog bare-daemon guard</li>
+<li>F2 models.json staleness warn · B6 daemon-log rotation · B2 daemon events.jsonl emit · E4 doneIds anchor</li>
+</ul></div>
+
+<div class="wave w3"><h3>WAVE 3 — New durable-ops &amp; frontier capabilities</h3>
+<ul>
+<li>E1/E2/E3 orders-supervisor.ps1 + scheduled task + out-of-band escalation · D4 orchestrator heartbeat · F3 reroute alert</li>
+<li>F1/H2 budget-guard · H3 eval-run scored gate · G2 release-gate debate check · C4 mcp_config integrity · H4 agent-card · H5 resume token</li>
+</ul></div>
+
+<div class="wave wg"><h3>GATED — require Simon confirm (destructive / structural)</h3>
+<ul>
+<li>C5 <code>git rm</code> the tracked QA-debris dir (deletes tracked files)</li>
+<li>76 MB root <code>.apk</code> — will be .gitignored (safe); <b>moving/deleting the file</b> awaits confirm</li>
+<li>G5 PROTOCOL.md restructure (must verify no tool greps rely on <code>## N.</code> anchors first)</li>
+<li>F3 changing <code>reroute_to</code> targets on the hot path</li>
+</ul></div>
+
+<div class="foot">Read-only 8-dimension audit via Workflow <code>wf_b0a0b747-ffd</code> (16 agents, 1.43M tokens, 0 errors), each finding adversarially verified by a framework-aware second agent. Severities shown are post-verification (1 P0 dropped as idle≠outage; several P1→P2 downgrades for latent/flat-rate-insulated risks). One P0-live-incident claim was correctly refuted. Orchestrator applied a final framework-aware pass. Gates honored: destructive / real-cost / secrets / clinical / legal → Simon.</div>
+
+</div></body></html>

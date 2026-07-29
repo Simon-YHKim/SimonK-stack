@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: 레코드 재배치</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .pass {
+    color: #e0e0e0;
+    font-weight: bold;
+  }
+  button {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border: 1px solid #333333;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: 레코드 상세 재배치</h1>
+  <p>대상 커밋: 984bf469</p>
+  <p>기준 커밋: bda7e727</p>
+
+  <h2>검증 항목 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>기준 커밋 조상 확인</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>소스 출처 레코드 상세 진입 경로 유지</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>저장 레코드 전용 액션 숨김 확인</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>일반 저장 레코드 상세 동작 유지</td>
+        <td class="pass">통과</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>테스트 실행 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>테스트 스위트</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>소스 조각 테스트</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>레코드 소스 상세 라우트 테스트</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>타입 검사</td>
+        <td class="pass">통과</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <br>
+  <button>확인</button>
+</body>
+</html>

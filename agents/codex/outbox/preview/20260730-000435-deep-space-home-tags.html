@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>딥스페이스 홈 태그 현지화 보고</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    p { margin-top: 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      padding: 14px;
+      min-height: 104px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--accent);
+      word-break: break-all;
+    }
+    details {
+      border: 1px solid var(--accent);
+      padding: 12px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { margin: 10px 0 0 20px; padding: 0; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>딥스페이스 홈 태그 현지화 보고</h1>
+    <p>생성 시각: 2026-07-30 00:04:35 KST</p>
+    <div class="grid" aria-label="요약">
+      <section class="card">
+        <span class="label">목적</span>
+        <p>홈 딥스페이스 보조 화면의 영어 태그 잔여를 줄였습니다.</p>
+      </section>
+      <section class="card">
+        <span class="label">결과</span>
+        <p>한국어, 스페인어, 포르투갈어, 인도네시아어 태그 16개를 현지화했습니다.</p>
+      </section>
+      <section class="card">
+        <span class="label">커밋</span>
+        <p><code>381804c1</code><br>2nd-B 로컬 브랜치 커밋</p>
+      </section>
+      <section class="card">
+        <span class="label">검증</span>
+        <p>JSON, i18n 키, 금칙어, 긴 대시, diff 검사를 통과했습니다.</p>
+      </section>
+    </div>
+
+    <h2>수행 내용</h2>
+    <p>열린 codex 요청은 없었고, stale 또는 이미 응답된 오래된 열린 후보는 처리하지 않았습니다. BOARD의 codex 레인에 맞춰 저위험 UI/i18n anti-slop 작업 하나만 수행했습니다.</p>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>변경</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>locales/ko/home.json</code></td><td>회상, 보여지는 나, 미래의 나, 관계 화면의 태그를 한국어로 정리했습니다.</td></tr>
+        <tr><td><code>locales/es/home.json</code></td><td>같은 네 태그를 스페인어 화면에 맞는 짧은 라벨로 정리했습니다.</td></tr>
+        <tr><td><code>locales/pt/home.json</code></td><td>같은 네 태그를 포르투갈어 화면에 맞는 짧은 라벨로 정리했습니다.</td></tr>
+        <tr><td><code>locales/id/home.json</code></td><td>같은 네 태그를 인도네시아어 화면에 맞는 짧은 라벨로 정리했습니다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr><th>검사</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>JSON 파싱</td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+        <tr><td><code>npm exec -- tsx scripts/check-i18n-keys.ts</code></td><td>통과</td></tr>
+        <tr><td><code>npm exec -- tsx scripts/check-forbidden-lexicon.ts</code></td><td>통과</td></tr>
+        <tr><td><code>npm exec -- tsx scripts/check-no-emdash.ts</code></td><td>통과</td></tr>
+        <tr><td>TypeScript 검사</td><td>실행 불가: 현재 작업트리의 <code>node_modules</code>에 <code>typescript</code>와 <code>.bin</code> 실행 파일이 없습니다.</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <ul>
+        <li>찬성: 비영어 화면에 영어 태그가 노출되는 저품질 신호를 줄입니다.</li>
+        <li>반대: 짧은 태그라 일부 영어 약어를 유지하는 디자인 선택도 가능합니다.</li>
+        <li>판정: 법무, 안전, 결제, 계정 삭제 문구를 제외하고 홈 화면 태그만 고쳐 위험을 낮췄습니다.</li>
+      </ul>
+    </details>
+
+    <h2>제한 사항</h2>
+    <p>2nd-B에는 로컬 커밋만 만들었습니다. push, PR, main 머지, 배포, 비용 발생 작업, 브라우저 자동 열기는 수행하지 않았습니다.</p>
+  </main>
+</body>
+</html>

@@ -47,10 +47,11 @@
     "effort": "high",
     "spawn_flags": "in-window: agy --dangerously-skip-permissions --model \"Gemini 3.1 Pro (High)\" -i <prompt>  |  daemon (headless): node tools/agy-pty/agy-headless.js <prompt> with env AGY_MODEL=\"Gemini 3.1 Pro (High)\" (needs node + node-pty)",
     "agy_model": "Gemini 3.1 Pro (High)",
-    "fallback_model": "gemini-2.5-flash",
+    "agy_fallback_model": "Gemini 3.5 Flash (High)",
+    "fallback_model": "gemini-3.5-flash",
     "fallback_effort": "high",
     "reroute_to": "claude",
-    "fallback_basis": "gemini-2.5-flash verified callable via a FLASHOK probe 2026-06-15; the rumored gemini-3.5-flash returns 404 ModelNotFoundError so it is NOT used. Flash is the cheap fallback when 3.1 Pro hits TerminalQuotaError (8h reset).",
+    "fallback_basis": "2026-07-04 rewire: the daemon spawns AG via the agy PICKER LABEL (agy_model / agy_fallback_model), never the raw model id - the id fields here are display/log only. Fallback label 'Gemini 3.5 Flash (High)' is agy's OWN DEFAULT picker entry (see caveat), so it exists by construction. The old note 'gemini-3.5-flash returns 404' applied to the raw API/gemini-CLI namespace (probe 2026-06-15, pre-agy) - picker labels are a different namespace. Flash is the cheap fallback when 3.1 Pro hits TerminalQuotaError (8h reset). Before 07-04 the fallback was cosmetic: only the log label switched while the exhausted primary label was re-spawned.",
     "benchmark_basis": "Gemini 3.1 Pro (2026-02-19) = Google's #1 model on aggregate (SWE-bench Verified 80.6%, ARC-AGI-2 77.1%, leads 13/16 benchmarks). thinkingLevel HIGH is both the max and the default for 3.1 Pro.",
     "caveat": "Gemini CLI is DEPRECATED 2026-06-18 — AG migrated to Antigravity CLI (agy). agy's model picker label 'Gemini 3.1 Pro (High)' encodes max thinking (agy default is 'Gemini 3.5 Flash (High)', so override). DAEMON FIX 2026-06-17: hub-daemon.ps1 AG lane now spawns agy HEADLESS via tools/agy-pty/agy-headless.js (ConPTY) — plain `agy -p`/`gemini -p` emits ~0 bytes under redirected stdout and silently no-op'd the seat (exit 0, empty transcript). Requires `npm install` in tools/agy-pty (node-pty). Gemini 3.5 Flash beats 3.1 Pro on some agentic-coding benchmarks at lower cost (defensible alt)."
   }

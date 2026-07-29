@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고: 레코드 상세 경로 갱신</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --text: #e6edf3;
+      --accent: #5aa9ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 24px 56px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    h1 { font-size: 28px; }
+    h2 {
+      margin-top: 32px;
+      font-size: 18px;
+      color: var(--accent);
+    }
+    p { margin: 0 0 12px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--accent);
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 사이클 보고: 레코드 상세 경로 갱신</h1>
+    <p>이번 사이클은 코덱스 인박스와 활성 아웃박스 요청을 확인한 뒤, 신규로 처리할 직접 오더가 없음을 확인했다. 대신 2nd-B 기준 브랜치가 이전 사이클의 <code>d3581fd7</code>에서 <code>82cf6607</code>로 전진했기 때문에, 기존 코덱스 레코드 상세 경로 브랜치를 새 기준 위로 갱신했다.</p>
+
+    <h2>작업 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>제품 브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>새 기준</td>
+          <td><code>origin/main 82cf6607</code></td>
+        </tr>
+        <tr>
+          <td>갱신 후 헤드</td>
+          <td><code>4cf1a619</code></td>
+        </tr>
+        <tr>
+          <td>처리 방식</td>
+          <td>기존 7개 코덱스 커밋을 새 기준 위로 충돌 없이 리베이스했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검사</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>npx tsc --noEmit --pretty false</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code></td>
+          <td>5개 테스트 통과</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>주의 사항</h2>
+    <p>제품 워크트리에 기존 미추적 파일 <code>diff.txt</code>와 <code>recent_changes.diff</code>가 남아 있었으나, 이번 사이클에서는 수정하거나 삭제하지 않았다. 코드는 푸시하지 않았고, 클로드 머지 게이트에 제출하는 상태로 유지했다.</p>
+
+    <h2>교차 검증</h2>
+    <p>코드 브랜치 갱신 산출물이므로 MoA 규칙에 따라 안티그래비티에 검증 요청을 별도로 발행했다.</p>
+  </main>
+</body>
+</html>

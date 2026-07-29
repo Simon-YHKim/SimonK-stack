@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 기록 상세 브랜치 재정렬 보고</title>
+  <style>
+    :root {
+      --bg: #101216;
+      --fg: #e8e8e8;
+      --accent: #70a7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 22px 56px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      letter-spacing: 0;
+    }
+    h1 {
+      font-size: 30px;
+      border-bottom: 1px solid var(--accent);
+      padding-bottom: 14px;
+    }
+    h2 {
+      margin-top: 30px;
+      font-size: 20px;
+      color: var(--accent);
+    }
+    p { margin: 8px 0 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95em;
+    }
+    ul { margin: 10px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 기록 상세 브랜치 재정렬 보고</h1>
+    <p>이번 주기는 열린 코덱스 지시가 없어서, 현재 포커스에 맞춰 기록 원본 상세 브랜치를 최신 본류 위로 재정렬했다.</p>
+
+    <h2>작업 요약</h2>
+    <table>
+      <tr><th>항목</th><th>내용</th></tr>
+      <tr><td>대상 브랜치</td><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+      <tr><td>기준 본류</td><td><code>origin/main@c5377f50</code></td></tr>
+      <tr><td>새 작업 머리</td><td><code>88c4f322</code></td></tr>
+      <tr><td>범위</td><td>기존 코덱스 기록 상세 변경 8개 커밋을 최신 본류 2개 커밋 위로 재배치</td></tr>
+      <tr><td>제약 준수</td><td>허브 쓰기는 <code>agents/codex/</code>로 제한했고, 푸시와 머지는 하지 않았다.</td></tr>
+    </table>
+
+    <h2>검증 결과</h2>
+    <ul>
+      <li>기록 원본 상세 라우팅 집중 테스트 5개 통과</li>
+      <li>타입 검사 통과</li>
+      <li>다국어 키 정합성 검사 통과</li>
+      <li>금지 어휘 검사 통과</li>
+      <li>긴 대시 검사 통과</li>
+      <li>새 본류의 순환 의존성 검사 통과</li>
+      <li>공백 오류 검사 통과</li>
+    </ul>
+
+    <h2>주의 사항</h2>
+    <p>새 본류가 <code>madge</code> 개발 의존성을 추가했기 때문에, 타입 검사를 위해 로컬 의존성 설치 상태를 갱신했다. 추적 파일 변경은 없었고 기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code>는 그대로 두었다.</p>
+
+    <h2>다음 확인</h2>
+    <p>코드 브랜치 재정렬 산출물이므로 교차 검증을 앤티그래비티에 요청했다.</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>에뮬레이터 부재에 따른 QA 작업 차단 보고</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+  }
+  h1, h2 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .alert {
+    background-color: #2c0b0e;
+    color: #e0e0e0;
+    padding: 16px;
+    border-left: 4px solid #842029;
+    margin: 20px 0;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<h1>QA 에스컬레이션 보고서</h1>
+
+<div class="alert">
+  <strong>작업 차단:</strong> 현재 호스트 시스템에 실행 중인 안드로이드 에뮬레이터가 없어 요청된 QA 작업을 수행할 수 없습니다.
+</div>
+
+<h2>상세 정보</h2>
+<table>
+  <thead>
+    <tr>
+      <th>검사항목</th>
+      <th>결과</th>
+      <th>비고</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>명령어 실행</td>
+      <td>adb devices</td>
+      <td>정상 실행됨</td>
+    </tr>
+    <tr>
+      <td>디바이스 목록</td>
+      <td>비어 있음</td>
+      <td>연결된 에뮬레이터 없음</td>
+    </tr>
+    <tr>
+      <td>시스템 상태</td>
+      <td>헤드리스 구동 중</td>
+      <td>UI 렌더링 불가 환경</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>후속 조치 요청 (오케스트레이터 대상)</h2>
+<p>이 머신에는 에뮬레이터 프로세스가 실행되고 있지 않으므로 007-emu-qa 및 이전 에뮬레이터 관련 열린 요청들은 현재 백그라운드 환경에서 처리가 불가능합니다. 오케스트레이터(Claude) 또는 관리자(Simon)의 개입을 통해 에뮬레이터를 구동하거나, 해당 작업들의 상태를 취소/보류로 변경할 것을 요청합니다.</p>
+
+<div>
+  <button type="button">상태 확인 완료</button>
+</div>
+
+</body>
+</html>

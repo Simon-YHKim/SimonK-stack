@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 브랜치 갱신 보고</title>
+  <style>
+    :root {
+      --bg: #101418;
+      --panel: #1b2229;
+      --text: #e8edf2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--text);
+      border-radius: 8px;
+      padding: 22px;
+      margin-top: 18px;
+    }
+    h1, h2, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin-bottom: 12px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border: 1px solid var(--text);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    code {
+      color: var(--text);
+      word-break: break-all;
+    }
+    ul { padding-left: 20px; margin-bottom: 0; }
+    a { color: var(--text); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 브랜치 갱신 보고</h1>
+    <p>이번 사이클은 새 상위 커밋에 맞춰 로컬 2nd-B 코덱스 브랜치를 갱신한 작업이다.</p>
+
+    <section>
+      <h2>작업 요약</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>브랜치</td>
+            <td><code>codex/records-source-detail-route-20260710</code></td>
+          </tr>
+          <tr>
+            <td>상위 기준</td>
+            <td><code>origin/main@cf3399a3</code></td>
+          </tr>
+          <tr>
+            <td>새 로컬 헤드</td>
+            <td><code>56dcb7c6</code></td>
+          </tr>
+          <tr>
+            <td>결과</td>
+            <td>충돌 없이 리베이스 완료, 푸시 없음</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li><code>records-source-detail-route.test.ts</code> 집중 테스트 통과, 테스트 5개 성공</li>
+        <li><code>npx tsc --noEmit --pretty false</code> 통과</li>
+        <li>변경 성격상 교차검증 요청을 별도로 제출함</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>판정</h2>
+      <p>직접 inbox에는 새 코덱스 요청이 없었고, peer outbox의 open 행은 기존 stale 행이었다. 그러나 upstream 전진으로 브랜치 최신성 작업이 새로 발생했으므로 이번 사이클은 실제 작업으로 처리했다.</p>
+    </section>
+  </main>
+</body>
+</html>

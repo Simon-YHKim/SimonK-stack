@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>rc3 QA main 검수 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1117;
+      --text: #e6edf3;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 26px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 0 0 12px; }
+    .muted { color: rgba(230, 237, 243, 0.62); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 18px 0 24px;
+    }
+    .card {
+      border: 1px solid rgba(230, 237, 243, 0.38);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label {
+      display: block;
+      color: rgba(230, 237, 243, 0.62);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    strong { color: var(--accent); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 22px;
+    }
+    th, td {
+      border: 1px solid rgba(230, 237, 243, 0.38);
+      padding: 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+    th { color: var(--accent); font-weight: 650; }
+    code {
+      color: var(--text);
+      background: rgba(230, 237, 243, 0.12);
+      padding: 1px 5px;
+      border-radius: 5px;
+    }
+    ul { margin: 8px 0 20px; padding-left: 20px; }
+    li { margin: 6px 0; }
+    details {
+      border: 1px solid rgba(230, 237, 243, 0.38);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 650; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+<main>
+  <h1>rc3 QA main 검수 보고</h1>
+  <p class="muted">생성 시각: 2026-07-23 01:59:13 KST · 작성자: codex · 범위: 2nd-B origin/main 7726e9c3 이후 43f16199까지</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card">
+      <span class="label">결론</span>
+      <strong>차단 이슈 없음</strong>
+      <p>스크린샷 증거는 홈 도달, SecondB 응답, 한도 시 플랜 업셀을 뒷받침한다.</p>
+    </div>
+    <div class="card">
+      <span class="label">변경 범위</span>
+      <strong>문서와 증거 파일</strong>
+      <p>제품 코드는 변경되지 않았다. 문서 1개와 PNG 4개만 추가·수정됐다.</p>
+    </div>
+    <div class="card">
+      <span class="label">경고</span>
+      <strong>문서 공백 1건</strong>
+      <p><code>hub_260721.md:291</code>에 trailing whitespace가 있다.</p>
+    </div>
+    <div class="card">
+      <span class="label">제약 준수</span>
+      <strong>읽기 전용 검수</strong>
+      <p>2nd-B push, PR, merge, 배포, 브라우저 자동 열기, 비용 작업은 수행하지 않았다.</p>
+    </div>
+  </section>
+
+  <h2>검수 대상</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>기준</td>
+        <td><code>7726e9c3310c04d9eb6aa075cf248f719abcedae</code></td>
+      </tr>
+      <tr>
+        <td>현재</td>
+        <td><code>43f16199b7ca4109ca6e1be2a7b6c40888f8045e</code></td>
+      </tr>
+      <tr>
+        <td>worktree</td>
+        <td><code>E:\2ndB\.worktrees\codex-review-rc3-qa-20260723</code> · <code>codex/review-rc3-qa-20260723</code></td>
+      </tr>
+      <tr>
+        <td>파일</td>
+        <td><code>docs/handoff/hub_260721.md</code>, <code>docs/qa/rc3-260722/*.png</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>픽셀 증거 판정</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>파일</th>
+        <th>직독 결과</th>
+        <th>판정</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>r3-06-home.png</code></td>
+        <td>홈 탭과 constellation 화면, 홈 코치마크가 보인다.</td>
+        <td>홈 도달 증거로 충분하다.</td>
+      </tr>
+      <tr>
+        <td><code>r3-08-secondb.png</code></td>
+        <td>SecondB 탭 진입과 안내 모달이 보인다.</td>
+        <td>SecondB 화면 렌더 증거로 충분하다.</td>
+      </tr>
+      <tr>
+        <td><code>r3-11-chatresp.png</code></td>
+        <td>카운터 1/5, 응답 버블, 1 sources 칩이 보인다.</td>
+        <td>AI 응답과 근거 표면 증거로 충분하다.</td>
+      </tr>
+      <tr>
+        <td><code>r3-12-limit.png</code></td>
+        <td>카운터 5/5와 View plans가 보이고 rewarded CTA 또는 UMP 폼은 보이지 않는다.</td>
+        <td>광고 fail-closed 주장과 부합한다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>검증</h2>
+  <ul>
+    <li><code>git show --stat HEAD</code>로 변경 범위가 문서 1개와 이미지 4개임을 확인했다.</li>
+    <li><code>git diff --name-status 7726e9c3..origin/main</code>으로 제품 코드 변경이 없음을 확인했다.</li>
+    <li>PNG 4개의 해상도가 모두 <code>1344x2992</code>임을 확인했다.</li>
+    <li><code>git diff --check</code>는 <code>docs/handoff/hub_260721.md:291</code> trailing whitespace로 실패했다.</li>
+  </ul>
+
+  <details>
+    <summary>35절 자기 패널</summary>
+    <p>찬성 관점: 최신 main 전진분은 실제 QA 증거를 포함하므로, Codex 레인이 픽셀과 문서 주장을 대조하면 merge gate 이후의 품질 신뢰도를 높일 수 있다.</p>
+    <p>반대 관점: 제품 코드가 없는 문서 커밋이라 추가 검수 가치는 제한적이고, 단순 보고가 반복되면 no-op 규칙 취지와 충돌할 수 있다.</p>
+    <p>판정: 직전 codex 기준 이후 origin/main이 새 SHA로 전진했고 새 스크린샷 증거가 추가되었으므로, 이번 검수는 새 큐 변화에 대한 단일 실제 작업이다.</p>
+  </details>
+
+  <h2>남은 위험</h2>
+  <ul>
+    <li>문서가 자체적으로 밝힌 대로 재실행 후 온보딩 완료 저장 회귀는 이번 증거에 포함되지 않았다.</li>
+    <li>logcat 원문은 이번 커밋에 포함되지 않아, rewarded/UMP 로그 0건 주장은 스크린샷과 문서 기록 수준에서만 대조했다.</li>
+    <li>trailing whitespace는 기능 차단은 아니지만 다음 문서 정리 때 제거하는 편이 좋다.</li>
+  </ul>
+</main>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+    "name":  "grok",
+    "role":  "X/social + consumer research (request-only)",
+    "skills":  [
+                   "x-social-research",
+                   "consumer-signal",
+                   "trend-monitoring",
+                   "external-fact-verify"
+               ],
+    "status":  "quota",
+    "model":  "grok-build",
+    "effort":  "high",
+    "reroute_to":  "",
+    "updated":  "2026-07-11T23:24:41 KST"
+}

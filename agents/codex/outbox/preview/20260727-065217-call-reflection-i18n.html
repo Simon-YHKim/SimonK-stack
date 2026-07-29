@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>통화 기록 화면 문구 지역화 사이클 보고서</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e8eef2;
+      --accent: #5bd3ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; letter-spacing: 0; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    h3 { font-size: 15px; margin-bottom: 8px; }
+    p { margin-top: 10px; }
+    .lead { color: var(--accent); margin-top: 10px; font-weight: 700; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      background: var(--bg);
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 9px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    button {
+      margin-top: 14px;
+      border: 1px solid var(--accent);
+      background: var(--bg);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+    .diagram {
+      width: 100%;
+      height: auto;
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+    }
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>통화 기록 화면 문구 지역화 사이클 보고서</h1>
+    <p class="lead">Codex 단일 폴 사이클에서 실제 신규 작업 1건을 완료했습니다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">대상</span><code>src/app/call-reflection.tsx</code></div>
+      <div class="card"><span class="label">결과</span>남은 화면 문구 분기 3곳 제거</div>
+      <div class="card"><span class="label">브랜치</span><code>codex/cycle-260727-065018</code></div>
+      <div class="card"><span class="label">커밋</span><code>8f28a1b9</code></div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <p>미응답 공개 오더가 없어서 Codex 레인의 UI 반슬롭 작업으로 전환했습니다. 통화 기록 화면의 로딩 보조 설명, 원본 음성 보관 고지, 상대 고지 문구를 화면 내부 지역화 표로 분리해 지원 언어 5종에서 영어 또는 한국어 분기만 보이는 상태를 줄였습니다.</p>
+
+    <svg class="diagram" viewBox="0 0 900 170" role="img" aria-label="작업 흐름도">
+      <rect width="900" height="170" fill="#0b0f14"></rect>
+      <g fill="none" stroke="#5bd3ff" stroke-width="2">
+        <rect x="30" y="48" width="180" height="74" rx="8"></rect>
+        <rect x="260" y="48" width="180" height="74" rx="8"></rect>
+        <rect x="490" y="48" width="180" height="74" rx="8"></rect>
+        <rect x="720" y="48" width="150" height="74" rx="8"></rect>
+        <path d="M210 85h50M440 85h50M670 85h50"></path>
+      </g>
+      <g fill="#e8eef2" font-family="Arial, sans-serif" font-size="18">
+        <text x="60" y="78">보드 확인</text>
+        <text x="52" y="103">오더 없음</text>
+        <text x="291" y="78">대상 선정</text>
+        <text x="282" y="103">통화 기록 화면</text>
+        <text x="516" y="78">지역화 패치</text>
+        <text x="520" y="103">문구 3곳</text>
+        <text x="752" y="78">검증</text>
+        <text x="744" y="103">게이트 통과</text>
+      </g>
+    </svg>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <table>
+        <thead>
+          <tr><th>검증</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npx eslint src/app/call-reflection.tsx</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과, 줄끝 변환 경고만 확인</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>제약 확인</summary>
+      <p>허브 쓰기는 <code>agents/codex/</code> 아래로 제한했습니다. 2nd-B에서는 별도 worktree와 브랜치만 사용했고 push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 작업은 하지 않았습니다.</p>
+    </details>
+
+    <details>
+      <summary>자체 패널 판단</summary>
+      <p>저위험 UI 문구 지역화입니다. 스키마, 보안 경로, 결제, 법무 정책, 라이브 외부 사실, 수학 결과를 변경하지 않았으므로 별도 MoA 검증 요청은 열지 않았습니다.</p>
+    </details>
+
+    <button type="button" onclick="navigator.clipboard.writeText('agents/codex/outbox/preview/20260727-065217-call-reflection-i18n.html')">보고서 경로 복사</button>
+  </main>
+</body>
+</html>

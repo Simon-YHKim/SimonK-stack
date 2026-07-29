@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA 검증 리포트 - records/source-detail</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  td {
+    background-color: #181818;
+  }
+</style>
+</head>
+<body>
+
+<h1>QA 검증 리포트</h1>
+
+<p>본 리포트는 2nd-B 프로젝트의 records/source-detail 최신 리베이스에 대한 정적 분석 결과를 담고 있습니다.</p>
+
+<h2>검증 요약</h2>
+<table>
+  <thead>
+    <tr>
+      <th>검증 항목</th>
+      <th>상태</th>
+      <th>비고</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>HEAD 조상 확인</td>
+      <td>통과</td>
+      <td>c0584b02 가 HEAD의 조상임을 확인</td>
+    </tr>
+    <tr>
+      <td>변경 파일 범위 확인</td>
+      <td>통과</td>
+      <td>정확히 5개의 관련 파일만 수정됨</td>
+    </tr>
+    <tr>
+      <td>상세 화면 분리 유지</td>
+      <td>통과</td>
+      <td>origin === "source" 검사를 통해 로직 분리됨</td>
+    </tr>
+    <tr>
+      <td>읽기 전용 속성 유지</td>
+      <td>통과</td>
+      <td>편집, 태그, 이동, 삭제 UI가 소스 상세 화면에서 숨김 처리됨</td>
+    </tr>
+    <tr>
+      <td>네이티브 라우팅 점검</td>
+      <td>통과</td>
+      <td>라우팅 관련 블로커 요소 없음</td>
+    </tr>
+  </tbody>
+</table>
+
+</body>
+</html>

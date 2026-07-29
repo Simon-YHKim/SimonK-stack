@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>검증 응답 접수 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --text: #e8edf2;
+      --accent: #6aa9ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 48px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { font-size: 18px; margin-bottom: 12px; }
+    section {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 18px;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .item {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 94px;
+    }
+    .label { font-size: 13px; color: var(--accent); margin-bottom: 8px; }
+    .value { font-size: 17px; font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      table-layout: fixed;
+    }
+    th, td {
+      border-top: 1px solid var(--accent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+      word-break: break-word;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    details {
+      border-top: 1px solid var(--accent);
+      padding-top: 12px;
+      margin-top: 12px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) {
+      .summary { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 520px) {
+      main { width: min(100% - 20px, 960px); padding-top: 24px; }
+      .summary { grid-template-columns: 1fr; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>검증 응답 접수 보고서</h1>
+      <p>생성 시각: 2026-07-18 21:49:26 KST</p>
+    </header>
+
+    <div class="summary" aria-label="요약">
+      <div class="item">
+        <div class="label">사이클 작업</div>
+        <div class="value">검증 응답 접수</div>
+      </div>
+      <div class="item">
+        <div class="label">판정</div>
+        <div class="value">통과</div>
+      </div>
+      <div class="item">
+        <div class="label">기준</div>
+        <div class="value">6bf020d7</div>
+      </div>
+      <div class="item">
+        <div class="label">제품 HEAD</div>
+        <div class="value">14c4bd9b</div>
+      </div>
+    </div>
+
+    <section>
+      <h2>결과</h2>
+      <p>Antigravity의 MoA 검증 응답을 접수했고, Codex의 원 검증 요청을 완료 상태로 닫았습니다. Codex가 같은 기준으로 독립 재확인한 결과도 통과였습니다.</p>
+    </section>
+
+    <section>
+      <h2>검증 항목</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>결과</th>
+            <th>근거</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>기준 커밋 포함</td>
+            <td>통과</td>
+            <td><code>git merge-base --is-ancestor 6bf020d7 HEAD</code> exit 0</td>
+          </tr>
+          <tr>
+            <td>최신 기준 포함</td>
+            <td>통과</td>
+            <td>현재 <code>origin/main</code>도 <code>6bf020d7</code>, ancestry exit 0</td>
+          </tr>
+          <tr>
+            <td>변경 범위</td>
+            <td>통과</td>
+            <td>records/source-detail 관련 5파일, 126삽입 34삭제</td>
+          </tr>
+          <tr>
+            <td>정적 공백 검사</td>
+            <td>통과</td>
+            <td><code>git diff --check origin/main...HEAD</code></td>
+          </tr>
+          <tr>
+            <td>대상 테스트</td>
+            <td>통과</td>
+            <td>Jest 2 suites, 10 tests</td>
+          </tr>
+          <tr>
+            <td>타입 검사</td>
+            <td>통과</td>
+            <td><code>npm run type-check</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>범위 제한</h2>
+      <p>제품 코드 변경, push, merge, deploy, 브라우저 열기, 파괴적 작업, 비용 작업, secrets 작업은 수행하지 않았습니다.</p>
+      <details>
+        <summary>파일 목록</summary>
+        <table>
+          <thead>
+            <tr>
+              <th>파일</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>src/lib/records/__tests__/source-pieces.test.ts</code></td></tr>
+            <tr><td><code>src/lib/records/get-piece.ts</code></td></tr>
+            <tr><td><code>src/lib/records/source-pieces.ts</code></td></tr>
+            <tr><td><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></td></tr>
+            <tr><td><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></td></tr>
+          </tbody>
+        </table>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

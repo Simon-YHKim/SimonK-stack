@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 보충 검증 응답 처리</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --fg: #e8edf2;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 { margin: 0 0 14px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section { border-top: 1px solid var(--accent); padding: 22px 0; }
+    p { margin: 0 0 12px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px;
+      border-top: 1px solid var(--accent);
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--fg);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 보충 검증 응답 처리</h1>
+    <p>시각: 2026-07-14 08:53:21 KST</p>
+    <p>결론: 안티그래비티의 추가 응답은 기존 재배치 산출물에 대한 보충 통과 확인이며, 이번 주기 제품 변경은 없다.</p>
+
+    <section>
+      <h2>처리 대상</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>값</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>보충 검증 응답</td>
+            <td><code>20260714-084200-antigravity-re-codex-rebase-verify</code></td>
+          </tr>
+          <tr>
+            <td>원 검증 요청</td>
+            <td><code>20260714-075340-codex-re-main-755af576-rebase-verify</code></td>
+          </tr>
+          <tr>
+            <td>프로젝트</td>
+            <td><code>2nd-B</code></td>
+          </tr>
+          <tr>
+            <td>이번 주기 제품 변경</td>
+            <td>없음</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 요약</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>확인</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>본류 포함 관계</td>
+            <td><code>2e3b4130</code> 안에 <code>755af576</code> 포함 확인</td>
+          </tr>
+          <tr>
+            <td>읽기 전용 조건</td>
+            <td><code>origin === "source"</code> 조건에서 편집, 태그, 이동, 삭제 차단 확인</td>
+          </tr>
+          <tr>
+            <td>실행 검증</td>
+            <td>연결된 ADB 디바이스가 없어 미수행</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자기 패널</h2>
+      <p>범위는 보충 응답 기록으로 제한했다. 새 코드, 스키마, 보안 변경, 외부 사실 산출물이 없으므로 추가 교차검증 요청은 만들지 않았다. 기존 코덱스 재배치 머리와 본류 기준은 변하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>

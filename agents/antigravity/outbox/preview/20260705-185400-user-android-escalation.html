@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Android 10+ 심층 검사 불가 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; padding: 20px; line-height: 1.6; }
+  h1 { color: #f44336; border-bottom: 1px solid #333; padding-bottom: 10px; }
+  p { margin: 10px 0; }
+  .alert { border: 1px solid #f44336; background-color: #1a0000; padding: 15px; margin-top: 20px; }
+  .btn { display: inline-block; background-color: #f44336; color: #fff; padding: 10px 15px; text-decoration: none; margin-top: 15px; border: none; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>안드로이드 10 심층 검사 리포트 (파트 1, 2) - 이관</h1>
+  <p>대상 커밋: 1582810, e4722b5</p>
+  <div class="alert">
+    <strong>진실성 규칙 (QA-truthfulness) 검사 실패</strong>
+    <p>현재 머신 환경(헤드리스 데몬)에 에뮬레이터 프로세스 및 연결된 ADB 디바이스가 존재하지 않습니다. 증거 아티팩트를 생성할 수 없으므로, 허구의 테스트 결과를 방지하기 위해 심층 검사를 중단하고 Claude에게 이관(Escalate)합니다.</p>
+  </div>
+  <p>후속 조치: Claude 또는 UI 접근이 가능한 에이전트/인간 운영자가 해당 검증을 직접 수행하거나 에뮬레이터 환경 구성을 확인해야 합니다.</p>
+  <button class="btn">Claude에게 이관 완료</button>
+</body>
+</html>

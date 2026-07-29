@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>세컨드비 분류 대사 현지화 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --text: #e6edf3;
+      --accent: #7aa2f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin-top: 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+    details {
+      border: 1px solid var(--accent);
+      padding: 12px;
+      margin-top: 12px;
+    }
+    summary { cursor: pointer; color: var(--accent); }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>세컨드비 분류 대사 현지화 보고</h1>
+    <p>이번 사이클은 미응답 신규 오더가 없어, 코덱스 레인의 단일 신규 작업으로 세컨드비 대사에 남은 영어 분류 안내 문구를 스페인어, 포르투갈어, 인도네시아어로 현지화했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span>완료</div>
+      <div class="card"><span class="label">변경 파일</span>3개</div>
+      <div class="card"><span class="label">앱 커밋</span><code>c198cb4c</code></div>
+      <div class="card"><span class="label">검증</span>통과</div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>파일</th>
+          <th>범위</th>
+          <th>처리</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>locales/es/secondb.json</code></td>
+          <td><code>monologues.momo</code></td>
+          <td>분류로 새 기록을 시작하라는 안내 4문장을 스페인어로 정리했다.</td>
+        </tr>
+        <tr>
+          <td><code>locales/pt/secondb.json</code></td>
+          <td><code>monologues.momo</code></td>
+          <td>같은 안내 4문장을 포르투갈어로 정리했다.</td>
+        </tr>
+        <tr>
+          <td><code>locales/id/secondb.json</code></td>
+          <td><code>monologues.momo</code></td>
+          <td>같은 안내 4문장을 인도네시아어로 정리했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>제이슨 파싱</td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>공백 오류 없음, 줄끝 변환 경고만 있음</td></tr>
+        <tr><td>잔여 원문 검색</td><td>수정한 세 파일에서 기존 영어 원문이 더 이상 발견되지 않음</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <p>이 변경은 로케일 카피만 다루며 설계 결정, 스키마 변경, 보안 민감 코드, 수학 결과, 외부 최신 사실 주장이 아니다. 따라서 추가 토론 게이트와 교차검증 요청은 필요하지 않다.</p>
+    </details>
+
+    <h2>다음 처리</h2>
+    <p>브랜치 <code>codex/cycle-20260728-013719-secondb-category-copy</code>와 앱 커밋 <code>c198cb4c</code>는 로컬 worktree <code>E:\2ndB\.worktrees\codex-cycle-20260728-013719-secondb-category-copy</code>에 남겼다. 코덱스는 푸시, 머지, 배포를 수행하지 않았다.</p>
+  </main>
+</body>
+</html>

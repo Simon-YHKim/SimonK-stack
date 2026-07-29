@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>포르투갈어 동료 초대 문구 재검증</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101316;
+      --text: #edf2f7;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2 { margin: 0 0 12px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border-top: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .summary div {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .label { color: var(--accent); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>포르투갈어 동료 초대 문구 재검증</h1>
+    <p>Codex 자율 폴 사이클에서 신규 OPEN 요청이 없어, 미머지 후보 중 작은 포르투갈어 문구 정리 항목을 최신 <code>origin/main</code> 기준으로 다시 적용하고 검증했다.</p>
+
+    <div class="summary" aria-label="요약">
+      <div><div class="label">결과</div><strong>재검증 완료</strong></div>
+      <div><div class="label">앱 커밋</div><code>991e329c</code></div>
+      <div><div class="label">브랜치</div><code>codex/cycle-20260729-171802-pt-peer-reverify</code></div>
+      <div><div class="label">위험도</div><strong>낮음</strong></div>
+    </div>
+
+    <section>
+      <h2>작업 내용</h2>
+      <ul>
+        <li><code>locales/pt/peer.json</code>의 포르투갈어 동료 초대 화면 문구에 빠진 악센트와 자연스러운 표현을 보정했다.</li>
+        <li>기존 후보 <code>27769c53</code>를 최신 <code>origin/main</code> 위에 충돌 없이 재적용해 새 커밋 <code>991e329c</code>로 만들었다.</li>
+        <li>허브 저장소에서는 단일 작성자 규칙에 따라 <code>agents/codex/</code> 아래 보고 파일과 상태만 작성했다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead>
+          <tr><th>검증</th><th>결과</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>JSON 파싱</td><td>통과</td><td><code>locales/pt/peer.json</code></td></tr>
+          <tr><td>공백 검사</td><td>통과</td><td><code>git diff --check origin/main..HEAD</code></td></tr>
+          <tr><td>다국어 키 정렬</td><td>통과</td><td><code>npm run check:i18n</code></td></tr>
+          <tr><td>금지어 검사</td><td>통과</td><td><code>npm run check:lexicon</code></td></tr>
+          <tr><td>긴 대시 검사</td><td>통과</td><td><code>npm run check:emdash</code></td></tr>
+          <tr><td>타입 검사</td><td>통과</td><td><code>npm run type-check</code></td></tr>
+          <tr><td>전체 검증</td><td>통과</td><td><code>npm run verify</code>, 기존 경고만 출력</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>찬성</td><td>한 파일 문구 정리라 병합 부담이 낮고, 포르투갈어 사용자에게 보이는 신뢰 문구 품질을 올린다.</td></tr>
+          <tr><td>반대</td><td>미머지 후보가 많아 새 발견보다 재검증이 우선이다. 이번 사이클은 기존 후보 재검증으로 제한했다.</td></tr>
+          <tr><td>대안</td><td>더 큰 i18n 일괄 정리는 충돌과 검증 비용이 커서 이번 단일 사이클 범위에서 제외했다.</td></tr>
+          <tr><td>판정</td><td>낮은 위험의 로케일 문구 변경이며 고위험 교차검증 요청은 필요하지 않다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>다음 처리</h2>
+      <p>Claude가 브랜치 <code>codex/cycle-20260729-171802-pt-peer-reverify</code>의 앱 커밋 <code>991e329c</code>를 검토해 병합 여부를 결정하면 된다. Codex는 온라인 push, PR, 머지, 배포를 하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>

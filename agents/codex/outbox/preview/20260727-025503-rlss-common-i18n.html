@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RLSS 공용 다국어 경로 점검</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101316;
+      --fg: #e8edf2;
+      --accent: #7cc7b2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { font-size: 18px; margin-bottom: 10px; }
+    section {
+      border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 16px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label {
+      color: var(--accent);
+      font-size: 12px;
+      letter-spacing: 0;
+      margin-bottom: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      border-top: 1px solid color-mix(in srgb, var(--fg) 14%, transparent);
+      padding: 10px 8px;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 650; }
+    code {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.95em;
+    }
+    details {
+      margin-top: 12px;
+      border-top: 1px solid color-mix(in srgb, var(--fg) 14%, transparent);
+      padding-top: 12px;
+    }
+    summary { cursor: pointer; color: var(--accent); }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="label">프로토콜 12/19/35.4 단일 사이클</p>
+      <h1>RLSS 화면의 공용 동작 문구를 다국어 경로로 정리</h1>
+    </header>
+
+    <div class="grid" aria-label="요약">
+      <div class="card">
+        <p class="label">결과</p>
+        <p>2nd-B 브랜치에 로컬 커밋 생성</p>
+      </div>
+      <div class="card">
+        <p class="label">브랜치</p>
+        <p><code>codex/cycle-260727-025150</code></p>
+      </div>
+      <div class="card">
+        <p class="label">커밋</p>
+        <p><code>9e171fec</code></p>
+      </div>
+      <div class="card">
+        <p class="label">검증</p>
+        <p>대상 린트, 다국어 검사, 타입 검사 통과</p>
+      </div>
+    </div>
+
+    <section>
+      <h2>수행 내용</h2>
+      <p><code>src/app/rlss.tsx</code>에서 기존 <code>rlss</code> 번역 묶음과 함께 <code>common</code> 번역 묶음을 열도록 바꾸고, 저장 실패 안내와 종료 확인 버튼 문구를 공용 번역 키로 연결했다. 새 번역 키는 추가하지 않았다.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>변경 전</th>
+            <th>변경 후</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>저장 실패 안내</td>
+            <td>한국어와 영어 분기</td>
+            <td><code>common:errors.unknown</code></td>
+          </tr>
+          <tr>
+            <td>계속 버튼</td>
+            <td>한국어와 영어 분기</td>
+            <td><code>common:actions.continue</code></td>
+          </tr>
+          <tr>
+            <td>나가기 버튼</td>
+            <td>한국어와 영어 분기</td>
+            <td><code>common:actions.back</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>검증</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>npx eslint src/app/rlss.tsx</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td><code>npm run check:i18n</code></td>
+            <td>통과, 5개 언어 44개 묶음 정렬 확인</td>
+          </tr>
+          <tr>
+            <td><code>npm run type-check</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td><code>git diff --check</code></td>
+            <td>공백 오류 없음, 줄바꿈 경고만 확인</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <details open>
+        <summary>판정</summary>
+        <p>범위는 1개 화면의 공용 문구 경로 정리로 제한했다. 2nd-B 푸시, PR, 병합, 배포, 비용 발생, 시크릿 접근, 브라우저 자동 열기는 수행하지 않았다. 변경은 고위험 전달물이 아니므로 별도 교차 검증 요청은 만들지 않았다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: Source Detail Rebase</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; padding: 20px; line-height: 1.6; }
+  h1, h2, h3 { color: #ffffff; border-bottom: 1px solid #333; padding-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #333; padding: 10px; text-align: left; }
+  th { background-color: #1e1e1e; }
+  .status-pass { color: #88cc88; font-weight: bold; }
+  .code { font-family: monospace; background-color: #1e1e1e; padding: 2px 4px; border-radius: 3px; }
+</style>
+</head>
+<body>
+  <h1>검증 보고서: Source Detail Rebase</h1>
+  <p>요청된 PR 및 브랜치 상태에 대한 검증 결과입니다.</p>
+  
+  <h2>검증 개요</h2>
+  <table>
+    <tr><th>검증 항목</th><th>결과</th><th>상세 내용</th></tr>
+    <tr>
+      <td>HEAD 및 베이스 커밋</td>
+      <td class="status-pass">통과</td>
+      <td>HEAD는 <span class="code">6e8d0974</span>, 베이스는 <span class="code">d61c2d07</span>로 확인되었습니다.</td>
+    </tr>
+    <tr>
+      <td>변경 파일 범위</td>
+      <td class="status-pass">통과</td>
+      <td>records/source-detail 관련 파일 5개만 수정되었습니다.</td>
+    </tr>
+    <tr>
+      <td>라우팅 분리</td>
+      <td class="status-pass">통과</td>
+      <td>source-detail과 기존 record detail 라우팅 분리가 코드 상 확인되었습니다.</td>
+    </tr>
+    <tr>
+      <td>읽기 전용 상태 및 기호 제거</td>
+      <td class="status-pass">통과</td>
+      <td>수정, 삭제, 태그 기능이 source 모드에서 비활성화되며, 의미론적 데이터 기호도 숨겨집니다.</td>
+    </tr>
+  </table>
+
+  <h2>종합 의견</h2>
+  <p>제시된 기준을 모두 만족하며, 버그나 부수 효과는 발견되지 않았습니다. 승인 가능합니다.</p>
+</body>
+</html>

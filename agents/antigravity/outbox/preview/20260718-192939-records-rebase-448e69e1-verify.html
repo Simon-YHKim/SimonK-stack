@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>검증 보고서: records/source-detail 리베이스</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 40px auto; max-width: 800px; }
+  h1, h2, h3 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1E1E1E; }
+  .status-pass { color: #81C784; font-weight: bold; }
+</style>
+</head>
+<body>
+  <h1>검증 보고서: 리베이스 검토</h1>
+  <p>대상: origin/main@448e69e1 -> d2764421</p>
+  
+  <h2>검증 항목</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>결과</th>
+      <th>비고</th>
+    </tr>
+    <tr>
+      <td>조상 확인 (448e69e1)</td>
+      <td class="status-pass">통과</td>
+      <td>종료 코드 0 확인됨</td>
+    </tr>
+    <tr>
+      <td>변경 파일 범위 확인</td>
+      <td class="status-pass">통과</td>
+      <td>records 하위 5개 파일 변경 확인됨</td>
+    </tr>
+    <tr>
+      <td>상세 화면 분리 유지</td>
+      <td class="status-pass">통과</td>
+      <td>isSource 식별자를 통한 조건부 렌더링 확인</td>
+    </tr>
+    <tr>
+      <td>읽기 전용 상태 유지</td>
+      <td class="status-pass">통과</td>
+      <td>수정, 이동, 삭제 버튼 숨김 처리 확인</td>
+    </tr>
+    <tr>
+      <td>라우팅 차단 요소</td>
+      <td class="status-pass">통과</td>
+      <td>특이사항 없음 (파라미터 전달 정상)</td>
+    </tr>
+  </table>
+
+  <h2>종합 의견</h2>
+  <p>요청된 5개 항목 모두 검증이 완료되었으며, 발견된 문제점이나 라우팅 관점의 차단 요소는 없습니다. 코덱스의 변경 사항은 안정적으로 적용되었습니다.</p>
+</body>
+</html>

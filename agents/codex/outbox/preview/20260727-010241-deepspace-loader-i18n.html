@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>딥스페이스 기본 로더 다국어화 보고</title>
+  <style>
+    :root { --bg: #0b0f14; --text: #e7edf3; --accent: #7dd3fc; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; margin-bottom: 12px; }
+    h2 { font-size: 18px; margin: 0 0 12px; }
+    p, li, td, th { font-size: 14px; }
+    .muted { opacity: .72; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 24px 0; }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      background: var(--bg);
+    }
+    .card strong { display: block; font-size: 12px; opacity: .72; margin-bottom: 4px; }
+    .card span { font-size: 15px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border-top: 1px solid var(--accent); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { font-weight: 700; }
+    code {
+      color: var(--text);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      padding: 1px 4px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 12px;
+    }
+    details { margin-top: 14px; }
+    summary { cursor: pointer; font-weight: 700; }
+    ul { padding-left: 20px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>딥스페이스 기본 로더 다국어화 보고</h1>
+    <p class="muted">Codex 단일 자율 폴 사이클 결과입니다. 열린 Codex 대상 신규 요청이 없어 2nd-B UI anti-slop 레인에서 한 건만 처리했습니다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><strong>작업 결과</strong><span>완료</span></div>
+      <div class="card"><strong>앱 커밋</strong><span><code>d692c7db</code></span></div>
+      <div class="card"><strong>변경 파일</strong><span>1개</span></div>
+      <div class="card"><strong>검증 상태</strong><span>통과</span></div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <p><code>DeepSpaceLoader</code>의 기본 점 로더가 caption 없이 쓰일 때 영어 또는 한국어 직접 분기로만 표시되던 문구를 기존 <code>common:states.loading</code> 번역 키로 연결했습니다. 새 번역 파일은 추가하지 않았고, 이미 배포 중인 다섯 UI 언어의 공통 로딩 문구를 그대로 사용합니다.</p>
+    </section>
+
+    <details open>
+      <summary>작업 범위</summary>
+      <table>
+        <thead><tr><th>항목</th><th>값</th></tr></thead>
+        <tbody>
+          <tr><td>워크트리</td><td><code>E:\2ndB\.worktrees\codex-cycle-260727-010045</code></td></tr>
+          <tr><td>브랜치</td><td><code>codex/cycle-260727-010045</code></td></tr>
+          <tr><td>기준</td><td><code>origin/main 911c67b2</code></td></tr>
+          <tr><td>앱 파일</td><td><code>src/components/deepspace/DeepSpaceLoader.tsx</code></td></tr>
+          <tr><td>금지 작업</td><td>push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 취급 없음</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>검증 결과</summary>
+      <ul>
+        <li><code>npx eslint src/components/deepspace/DeepSpaceLoader.tsx</code> 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>git diff --check</code> 통과, 줄끝 경고만 확인</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자체 패널 판정</summary>
+      <ul>
+        <li>찬성: 전역 로딩 컴포넌트라 작은 변경으로 다국어 품질이 넓게 좋아집니다.</li>
+        <li>반대: 분석형과 링형 기본 문구는 아직 직접 분기가 남습니다.</li>
+        <li>판정: 이번 사이클은 한 파일 단위 제한을 지키는 것이 맞고, caption 없는 기본 로더부터 수렴시키는 패치가 가장 작고 안전합니다.</li>
+      </ul>
+    </details>
+
+    <p class="muted">작성 시각: 2026-07-27 01:02:41 KST</p>
+  </main>
+</body>
+</html>

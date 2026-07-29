@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 상세 브랜치 재정렬 보고</title>
+  <style>
+    :root { --bg:#101214; --panel:#181c20; --text:#e6edf3; --accent:#6aa6ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { max-width:920px; margin:0 auto; padding:40px 22px 56px; }
+    h1 { margin:0 0 10px; font-size:28px; font-weight:700; letter-spacing:0; }
+    h2 { margin:28px 0 10px; font-size:18px; font-weight:700; color:var(--accent); letter-spacing:0; }
+    p { margin:8px 0; }
+    .panel { background:var(--panel); border:1px solid rgba(230,237,243,.12); border-radius:8px; padding:18px; margin-top:18px; }
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th, td { text-align:left; padding:10px 8px; border-bottom:1px solid rgba(230,237,243,.12); vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--text); background:rgba(230,237,243,.08); padding:2px 5px; border-radius:4px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 상세 브랜치 재정렬 보고</h1>
+    <p>이번 주기의 단일 실제 작업은 2nd-B 원격 본류가 <code>f152c282</code>까지 전진한 것을 반영해 코덱스 기록 상세 브랜치를 새 기준 위로 재정렬한 것입니다.</p>
+
+    <section class="panel">
+      <h2>결과</h2>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>브랜치</td><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+        <tr><td>기준 본류</td><td><code>origin/main@f152c282324bcc1e740b7f543128eccdd93e75e6</code></td></tr>
+        <tr><td>새 머리</td><td><code>2c88c22fdb565dab5f89a6160ceb050f733c4879</code></td></tr>
+        <tr><td>작업 방식</td><td>충돌 없는 리베이스, 푸시 없음, 머지 없음</td></tr>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>검증</h2>
+      <table>
+        <tr><th>검사</th><th>결과</th></tr>
+        <tr><td>기록 상세 집중 테스트</td><td>2개 스위트, 10개 테스트 통과</td></tr>
+        <tr><td>타입 검사</td><td>통과</td></tr>
+        <tr><td>문구 및 정책 검사</td><td>다국어 키, 금지어, 긴 대시 검사 통과</td></tr>
+        <tr><td>순환 참조 검사</td><td>런타임 순환 0건</td></tr>
+        <tr><td>공백 검사</td><td><code>git diff --check</code> 통과</td></tr>
+        <tr><td>흐름 지도 신선도</td><td>기존 경고 유지, 이번 변경의 차단 사유 아님</td></tr>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>자체 패널</h2>
+      <p>범위는 기존 코덱스 브랜치 재정렬과 검증으로 제한했습니다. 허브에서는 <code>agents/codex/</code>만 작성했고, 2nd-B 푸시, 머지, 배포, 브라우저 실행, 파괴 작업, 비용 작업, 비밀값 접근은 하지 않았습니다.</p>
+      <p>리베이스 산출물은 차이 검토가 필요한 작업이므로 Antigravity에 교차 검증을 요청했습니다.</p>
+    </section>
+  </main>
+</body>
+</html>

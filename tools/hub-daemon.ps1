@@ -39,6 +39,12 @@ function Log([string]$m){
   # log WHILE we write it. Add-Content's default sharing locked readers out mid-append,
   # which is what crashed the dashboards ("file in use by another process"). Retry a few
   # times in case another daemon instance is appending the same instant.
+  # Cross-process append mutex (2026-07-04): TWO lane daemons appending the same instant
+  # tore lines (orphan fragments like "axCycles=0"/"EGIN" observed 07-04 15:41) because
+  # FileMode::Append is seek-to-end-at-open, not atomic O_APPEND. A torn "cycle exit" line
+  # can hide a failure sample from the watchdog's exit-code scan. Serialize appends.
+  $lm = $null
+  try { $lm = New-Object System.Threading.Mutex($false, "Global\hubdaemonlog"); [void]$lm.WaitOne(3000) } catch {}
   for($i=0;$i -lt 4;$i++){
     try {
       $fs = [System.IO.File]::Open($daemonLog, [System.IO.FileMode]::Append, [System.IO.FileAccess]::Write, [System.IO.FileShare]::ReadWrite)
@@ -47,6 +53,26 @@ function Log([string]$m){
       break
     } catch { Start-Sleep -Milliseconds 50 }
   }
+  if($lm){ try { $lm.ReleaseMutex() } catch {}; try { $lm.Dispose() } catch {} }
+}
+
+# Kill every descendant process of THIS daemon (used on per-AI timeout). Stop-Job only
+# kills the job runspace; the native CLI child (codex/node/grok) kept running past the
+# timeout, kept working, and could later commit outside the one-writer-at-a-time
+# sequencing. Sequential design means all current descendants ARE the hung job tree.
+function Kill-JobChildren {
+  try {
+    $all = Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Select-Object ProcessId, ParentProcessId
+    $kill = New-Object System.Collections.Generic.List[int]
+    $queue = New-Object System.Collections.Generic.Queue[int]
+    $queue.Enqueue($PID)
+    while($queue.Count){
+      $p = $queue.Dequeue()
+      foreach($c in ($all | Where-Object { $_.ParentProcessId -eq $p })){ $kill.Add([int]$c.ProcessId); $queue.Enqueue([int]$c.ProcessId) }
+    }
+    foreach($k in $kill){ try { Stop-Process -Id $k -Force -ErrorAction SilentlyContinue } catch {} }
+    if($kill.Count){ Log "TIMEOUT kill: terminated $($kill.Count) orphaned child process(es) of the hung job" }
+  } catch {}
 }
 
 # ---- O-15 #1: single-instance guard per lane (-Only) -- prevents duplicate daemons.
@@ -71,6 +97,10 @@ try {
 $modelsFile = Join-Path $PSScriptRoot "models.json"
 $Models = $null
 if(Test-Path $modelsFile){ try { $Models = Get-Content $modelsFile -Raw -Encoding UTF8 | ConvertFrom-Json } catch { $Models = $null } }
+# audit F2: models.json is cached ONCE here at START. Capture its mtime so each cycle can warn if
+# an applied refresh (e.g. an effort downgrade to relieve a premium pool) changed it on disk -- the
+# running lane keeps the OLD model/effort silently until a restart otherwise.
+$modelsMtime = if(Test-Path $modelsFile){ (Get-Item $modelsFile).LastWriteTime } else { $null }
 function Get-ModelCfg([string]$ai,[string]$key,[string]$default){
   try { $v = $Models.$ai.$key; if($v){ return [string]$v } } catch {}
   return $default
@@ -186,12 +216,12 @@ id: $stamp-reroute-$ai
 created: $(Now) KST
 ---
 
-# [reroute] $ai 백오프 ($reason) — open orders $open 건 인계 요청
+# [reroute] $ai backoff ($reason) - $open open order(s) need a new owner
 
-[$(Now) KST] $ai 레인이 $reason 로 파킹됨. $ai 앞 OPEN 오더 $open 건이 처리되지 못하고 적체 중.
-$target 가 대신 처리하거나 재배정 판단 바람: agents/*/outbox 에서 (to: $ai 또는 all) + (type: request) + (status: open) 스캔.
+[$(Now) KST] Lane $ai is parked ($reason). $open OPEN order(s) addressed to it cannot be served and sit in the queue.
+$target : take them over or re-assign. Scan agents/*/outbox for (to: $ai or all) + (type: request) + (status: open).
 
-(hub-daemon 자동 reroute. $ai 파킹 동안 시간당 최대 1회, 같은 ai 노트는 자기교체. $ai 복귀 시 자동 중단.)
+(auto-reroute by hub-daemon; max 1/hour per parked lane, note is self-replacing, stops when $ai returns. Body is ASCII on purpose: lane daemons run under powershell.exe 5.1 which reads BOM-less UTF-8 as cp949 and mojibakes Korean literals.)
 "@
   try { [System.IO.File]::WriteAllText((Join-Path $inbox "$stamp-reroute-$ai.md"), $body, $utf8) } catch {}
   Log "$ai parked with $open open orders ($reason) -> reroute notice filed to $target inbox"
@@ -225,6 +255,15 @@ function Invoke-AI([string]$ai,[string]$tier='primary'){
   # See agy-pty/README.md.
   $agyHeadless = Join-Path $PSScriptRoot "agy-pty\agy-headless.js"
   $agyModel    = Get-ModelCfg 'antigravity' 'agy_model' 'Gemini 3.1 Pro (High)'
+  # Fallback-tier wiring (2026-07-04 audit): the quota fallback previously swapped only
+  # $model (the LOG label) while re-spawning the exhausted primary agy picker label --
+  # the fallback was cosmetic. If models.json carries agy_fallback_model, use it on the
+  # fallback tier; else keep primary and say so honestly in the log.
+  if($tier -ne 'primary'){
+    $agyFb = Get-ModelCfg 'antigravity' 'agy_fallback_model' ''
+    if($agyFb){ $agyModel = $agyFb }
+    else { Log "WARN: antigravity fallback tier requested but models.json has no agy_fallback_model picker label - re-spawning primary label '$agyModel' (likely still quota-parked)" }
+  }
 
   # P0 timeout guard: run the CLI inside a background job bounded by Wait-Job -Timeout. A hung
   # CLI (codex stdin-EOF hang, network stall) previously blocked the whole sequential loop
@@ -237,6 +276,19 @@ function Invoke-AI([string]$ai,[string]$tier='primary'){
       'grok'        { $env:GROK_MODEL = $model; $env:GROK_REASONING_EFFORT = $eff; $o = (grok -m $model -p $prompt) 2>&1 | Out-String }
       'antigravity' {
         $env:AGY_CWD = $root; $env:AGY_MODEL = $agyModel; $env:AGY_USE_CONPTY = '0'
+        # Suppress UAC (2026-07-11): agy's auto-updater elevates via ShellExecute/runas on
+        # launch (dedicated updater at antigravity-cli-auto-updater-*.run.app + the .old
+        # binary-swap), popping a User Account Control prompt in this headless daemon where
+        # nobody can approve it. Disabling auto-update removes that elevation path entirely.
+        # Also persisted as a User env var. To update agy: clear both, run agy once, re-set.
+        $env:AGY_CLI_DISABLE_AUTO_UPDATE = '1'
+        # Note (2026-07-11 research wf): the headless lane does NOT trigger agy's sandbox-setup UAC --
+        # `agy -p ... --dangerously-skip-permissions` skips the OS sandbox (Go pkg exebox) entirely, so
+        # exebox.escalatePrivilegeGrants (AppContainer provisioning: NetworkIsolationSetAppContainerConfig
+        # + ACL grants, admin-only) is never reached here. The INTERACTIVE UAC was fixed at its source:
+        # enableTerminalSandbox=false in ~/.gemini/antigravity-cli/settings.json. RUNASINVOKER shims do
+        # NOT suppress an explicit ShellExecute("runas") -- only manifest auto-elevation -- so they were
+        # the wrong tool for this (verified). Nothing to set for agy elevation on the headless path.
         # Real tasks take minutes: the wrapper's old 90s per-attempt kill murdered agy
         # MID-TASK, the retry re-ran the task (duplicate outputs), then AGY_EMPTY exit 1
         # (2026-07-03 4ai roundtrip test). 15min/attempt x2 tries fits PerAITimeoutSec.
@@ -252,8 +304,9 @@ function Invoke-AI([string]$ai,[string]$tier='primary'){
   $fin = Wait-Job $job -Timeout $PerAITimeoutSec
   if(-not $fin){
     Stop-Job $job -ErrorAction SilentlyContinue
+    Kill-JobChildren
     Remove-Job $job -Force -ErrorAction SilentlyContinue
-    Log "cycle TIMEOUT($ai) after ${PerAITimeoutSec}s -- killed CLI, continuing"
+    Log "cycle TIMEOUT($ai) after ${PerAITimeoutSec}s -- killed CLI (incl. child process tree), continuing"
     try { [System.IO.File]::WriteAllText($live, "[$(Now) KST] $ai [$($tier):$model] (TIMEOUT ${PerAITimeoutSec}s)`n", $utf8) } catch {}
     return [pscustomobject]@{ Code = -1; Quota = $false; TimedOut = $true; Model = $model; Tier = $tier }
   }
@@ -273,7 +326,12 @@ function Invoke-AI([string]$ai,[string]$tier='primary'){
   # Now: a real exhaustion BANNER counts even on exit 0 (codex prints the banner then exits 0);
   # loose terms count only when the CLI actually failed ($code -ne 0).
   $quotaBanner = ($out -match 'hit your usage limit|TerminalQuotaError|RESOURCE_EXHAUSTED|QUOTA_EXHAUSTED|exhausted your capacity')
-  $quotaLoose  = ($out -match 'usage limit|rate.?limit|"code":\s*429|429 ')
+  # audit D2 (2026-07-11): the old loose terms (bare "rate.?limit" / "429 ") matched the WHOLE
+  # transcript, so a nonzero-exit crash (untrusted-folder, network) whose transcript merely QUOTES
+  # 429/rate-limit handling from the 2nd-B code it read was misrouted into ~8h quota backoff instead
+  # of the LOUD 4-strike hard-fail. Anchor on the CLI's own error framing (prefer under-detecting
+  # quota -- the hard-fail path logs the real error).
+  $quotaLoose  = ($out -match 'usage limit|"code":\s*429|429 Too Many Requests|Too Many Requests|rate limit exceeded|RateLimitError|rate_limit_exceeded')
   $quota = [bool]($quotaBanner -or ($code -ne 0 -and $quotaLoose))
   # Phantom-success guard (2026-06-17): a clean exit 0 with an essentially EMPTY transcript is not
   # real work (the AG seat's old silent no-op: gemini/agy -p emitted ~0 bytes yet exited 0). Force a
@@ -317,6 +375,8 @@ while($true){
   }
   $cycle++
   Log "cycle $cycle BEGIN"
+  # audit F2: warn once per change if the applied models.json diverged from what this daemon loaded.
+  if($modelsMtime -and (Test-Path $modelsFile)){ $mt=(Get-Item $modelsFile).LastWriteTime; if($mt -gt $modelsMtime){ Log "WARN: models.json changed on disk since daemon start ($($mt.ToString('MM-dd HH:mm'))) -- lane '$laneKey' is running STALE model config; restart the daemon to apply."; $modelsMtime=$mt } }
   foreach($ai in $AIs){
     # Quota backoff: skip this AI while its backoff window is open (e.g. gemini 429 / 8h reset).
     if($quotaSkip[$ai] -gt 0){
@@ -401,7 +461,11 @@ while($true){
     if($curB -and $curB -ne 'master'){
       git -C $root merge-base --is-ancestor master $curB 2>$null
       $ffable = ($LASTEXITCODE -eq 0)
-      $dirty = @(git -C $root status --porcelain 2>$null).Count -gt 0
+      # audit D3 (2026-07-11): --untracked-files=no so only TRACKED mid-write changes block the heal.
+      # Daemon-authored reroute/self-feedback notes drop UNTRACKED into agents/*/inbox and left the
+      # tree permanently dirty, which disabled this auto-repair entirely (it always fell to
+      # BRANCH-ALERT). Untracked files are untouched by checkout/ff-merge, so they must not block it.
+      $dirty = @(git -C $root status --porcelain --untracked-files=no 2>$null).Count -gt 0
       if($ffable -and -not $dirty){
         git -C $root checkout master 2>&1 | Out-Null
         git -C $root merge --ff-only $curB 2>&1 | Out-Null

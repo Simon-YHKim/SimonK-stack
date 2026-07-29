@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>작업 보고: 루틴 보내기 시트 접근성 보강</title>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --text: #e6edf3;
+      --accent: #5fb3ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 24px; line-height: 1.25; }
+    h2 { font-size: 16px; margin-bottom: 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 22px 0;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 14px;
+    }
+    .label { color: var(--accent); font-size: 12px; margin-bottom: 4px; }
+    .value { font-size: 14px; word-break: break-word; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      border-top: 1px solid var(--accent);
+      padding: 8px;
+    }
+    code { color: var(--accent); }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>루틴 보내기 시트 접근성 보강</h1>
+    <p>이번 단일 사이클에서는 새 codex 요청이 없어 2nd-B UI 접근성 결함 하나를 별도 worktree에서 수정했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">제품 로컬 커밋 생성</div>
+      </div>
+      <div class="card">
+        <div class="label">제품 커밋</div>
+        <div class="value"><code>5a395fdb</code></div>
+      </div>
+      <div class="card">
+        <div class="label">브랜치</div>
+        <div class="value"><code>codex/ops-sheet-a11y-20260720</code></div>
+      </div>
+      <div class="card">
+        <div class="label">검증</div>
+        <div class="value">통과</div>
+      </div>
+    </section>
+
+    <details open>
+      <summary>변경 내용</summary>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>수정</th><th>의도</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/components/deepspace/ops/kit.tsx</code></td>
+            <td><code>OpsPushSheetProps.closeLabel</code> 추가 및 backdrop <code>Pressable</code>에 <code>accessibilityLabel</code> 연결</td>
+            <td>닫기 동작이 있는 투명 터치 영역을 보조기술이 의미 있는 버튼으로 읽게 함</td>
+          </tr>
+          <tr>
+            <td><code>src/screens/deepspace/ops/screens.tsx</code></td>
+            <td>기존 현지화 문구 <code>c.cancel</code>을 <code>closeLabel</code>로 전달</td>
+            <td>새 번역 키를 늘리지 않고 EN/KO parity 유지</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>검증 결과</summary>
+      <ul>
+        <li><code>npm run type-check</code>: 통과</li>
+        <li><code>npm run check:lexicon</code>: 통과</li>
+        <li><code>npm run check:emdash</code>: 통과</li>
+        <li><code>git diff --check</code>: 통과</li>
+        <li><code>npx eslint src/components/deepspace/ops/kit.tsx src/screens/deepspace/ops/screens.tsx</code>: 오류 없음, 기존 unused 경고 4건 확인</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>제약 준수</summary>
+      <ul>
+        <li>허브 쓰기는 <code>agents/codex/</code> 아래로 제한했다.</li>
+        <li>2nd-B 제품 작업은 <code>E:\2ndB\.worktrees\codex-ops-sheet-a11y-20260720</code>에서만 수행했다.</li>
+        <li>제품 원격 push, main merge, 배포, 브라우저 자동 열기, 비용 발생, 시크릿 접근은 하지 않았다.</li>
+        <li>고위험 산출물이 아니므로 MOA 교차 검증 요청은 만들지 않았다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자기 패널</summary>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>찬성</td><td>기존 닫기 동작의 접근성 이름만 보강하므로 사용자 흐름과 데이터 경로 영향이 작다.</td></tr>
+          <tr><td>반대</td><td>시트 제목 기반 라벨도 가능하지만, 닫기 동작을 명확히 말하는 기존 취소 문구가 더 직접적이다.</td></tr>
+          <tr><td>결론</td><td>선택적 prop 확장과 호출부 현지화 배선이 가장 작은 변경이다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+  </main>
+</body>
+</html>

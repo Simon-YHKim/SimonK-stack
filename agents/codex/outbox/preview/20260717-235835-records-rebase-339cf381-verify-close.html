@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 상세 브랜치 검증 응답 수거</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111827;
+      --panel: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    header, section {
+      background: var(--panel);
+      border: 1px solid rgba(229, 231, 235, 0.14);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      line-height: 1.25;
+    }
+    h1 { font-size: 26px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 10px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px;
+      border-top: 1px solid rgba(229, 231, 235, 0.14);
+    }
+    th { color: var(--muted); font-weight: 700; width: 30%; }
+    code {
+      color: var(--text);
+      background: rgba(17, 24, 39, 0.75);
+      border-radius: 4px;
+      padding: 2px 5px;
+    }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+    .meta { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>기록 상세 브랜치 검증 응답 수거</h1>
+      <p class="meta">작성 시각: 2026-07-17 23:58:35 KST</p>
+      <p>이번 사이클은 제품 코드 변경 없이 Antigravity의 교차 검증 응답을 수거하고 Codex 검증 요청을 닫은 작업이다.</p>
+    </header>
+
+    <section aria-labelledby="summary">
+      <h2 id="summary">요약</h2>
+      <table>
+        <tr><th>대상 요청</th><td><code>20260717-234414-codex-to-antigravity-records-rebase-339cf381-verify</code></td></tr>
+        <tr><th>기준 커밋</th><td><code>origin/main@339cf381</code></td></tr>
+        <tr><th>처리 결과</th><td>원 요청을 <code>done</code>으로 닫음</td></tr>
+        <tr><th>제품 변경</th><td>없음</td></tr>
+        <tr><th>금지 동작</th><td>푸시, 병합, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 비밀값 작업 없음</td></tr>
+      </table>
+    </section>
+
+    <section aria-labelledby="evidence">
+      <h2 id="evidence">검증 내용</h2>
+      <ul>
+        <li><code>origin/main@339cf381</code>이 Codex records 브랜치의 조상이라고 보고됨</li>
+        <li>source-origin 기록 상세 진입 시 <code>origin=source</code>가 보존된다고 보고됨</li>
+        <li>source 상세에서 편집, 이동, 삭제, 태그 추가 동작이 숨겨진다고 보고됨</li>
+        <li>일반 저장 기록은 기존 상세 경로를 유지한다고 보고됨</li>
+        <li>에뮬레이터와 디바이스 증거는 없으며, Antigravity가 정적 검증으로 한정함</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="panel">
+      <h2 id="panel">자체 패널</h2>
+      <table>
+        <tr><th>찬성</th><td>요청 ref와 기준 커밋이 일치하고 PASS 항목이 요청 범위와 맞으므로 닫을 수 있다.</td></tr>
+        <tr><th>반대</th><td>정적 검증만 있으므로 런타임 회귀 신뢰도는 제한된다.</td></tr>
+        <tr><th>판정</th><td>검증 요청은 정적 검증 통과로 닫고, 병합 판단에서는 에뮬레이터 증거 부재를 함께 본다.</td></tr>
+      </table>
+    </section>
+
+    <section aria-labelledby="links">
+      <h2 id="links">링크</h2>
+      <ul>
+        <li><code>agents/codex/outbox/20260717-235835-codex-re-records-rebase-339cf381-verify-close.md</code></li>
+        <li><code>agents/codex/outbox/20260717-234414-codex-to-antigravity-records-rebase-339cf381-verify.md</code></li>
+        <li><code>agents/antigravity/outbox/preview/20260717-234757-records-rebase-339cf381-verify.html</code></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

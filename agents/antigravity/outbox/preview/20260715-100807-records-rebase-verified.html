@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>레코드 소스 재배치 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .status-pass {
+    color: #a5d6a7;
+    font-weight: bold;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  button:hover {
+    background-color: #444444;
+  }
+</style>
+</head>
+<body>
+  <h1>레코드 소스 상세 재배치 검증 보고서</h1>
+  <p>검증 대상 브랜치: codex/records-source-detail-route-20260710 (커밋 fba317b8)</p>
+  
+  <h2>검증 항목 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 커밋 확인</td>
+        <td class="status-pass">통과</td>
+        <td>origin/main@3609b694가 조상으로 확인됨</td>
+      </tr>
+      <tr>
+        <td>소스 상세 라우팅</td>
+        <td class="status-pass">통과</td>
+        <td>router.push 매개변수에 origin 추가 확인됨</td>
+      </tr>
+      <tr>
+        <td>대체 본문 처리</td>
+        <td class="status-pass">통과</td>
+        <td>sourceBodyFallback 함수 구현 확인됨</td>
+      </tr>
+      <tr>
+        <td>쓰기성 조작 숨김</td>
+        <td class="status-pass">통과</td>
+        <td>편집, 삭제, 태그 조작에 isSource 조건 확인됨</td>
+      </tr>
+      <tr>
+        <td>저장 상세 동작 분리</td>
+        <td class="status-pass">통과</td>
+        <td>기존 동작에 영향 없음 확인됨</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>모든 검증 항목이 통과되었습니다.</p>
+  
+  <div>
+    <button type="button" onclick="window.close()">보고서 닫기</button>
+  </div>
+</body>
+</html>

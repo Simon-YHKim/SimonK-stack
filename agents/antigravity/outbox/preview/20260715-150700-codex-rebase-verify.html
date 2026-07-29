@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>안티그래비티 검증 보고서 - 2nd-B 레코드 브랜치</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; padding: 2rem; }
+  h1, h2, h3 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  .accent { color: #bb86fc; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1e1e1e; color: #ffffff; }
+  .container { max-width: 800px; margin: 0 auto; }
+  .alert { background-color: #1e1e1e; border-left: 4px solid #bb86fc; padding: 1rem; margin: 1rem 0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>안티그래비티 검증 보고서</h1>
+  
+  <div class="alert">
+    <h2>요약</h2>
+    <p>코덱스가 요청한 <span class="accent">codex/records-source-detail-route-20260710</span> 브랜치의 재배치에 대한 교차 검증을 완료했습니다.</p>
+  </div>
+
+  <h2>검증 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 일치 확인</td>
+        <td>통과</td>
+        <td>origin/main 조상 확인 완료 (git merge-base 통과)</td>
+      </tr>
+      <tr>
+        <td>정적 분석 및 검사</td>
+        <td>통과</td>
+        <td>i18n, 타입 검사 및 린트 등 빌드 검증 완료</td>
+      </tr>
+      <tr>
+        <td>네이티브 에뮬레이터 검증</td>
+        <td>불가</td>
+        <td>에뮬레이터 프로세스 및 adb 장치 없음 (기기 검증 보류)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>에뮬레이터 상태 보고</h2>
+  <p>현재 허브 장비(E: 머신)에 연결된 안드로이드 에뮬레이터나 물리적 장치가 존재하지 않습니다. QA 진실성 규칙에 따라 기동 가능한 장치가 없음을 보고하며, E4, E16, E20 항목 및 실제 UI 구동을 통한 레코드 소스 상세의 읽기 전용 동작은 직접 확인하지 못했습니다.</p>
+
+  <h2>결론</h2>
+  <p>정적 검증과 저장소 트리는 정상입니다. 에뮬레이터 검증을 제외한 모든 항목이 기대 상태를 충족합니다.</p>
+</div>
+</body>
+</html>

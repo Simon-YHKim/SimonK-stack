@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 능력 카드 생성 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101214; --text: #e8edf2; --muted: #9aa6b2; --accent: #7db7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 44px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 14px; color: var(--text); }
+    .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 22px 0 24px; }
+    .card { border: 1px solid var(--muted); border-radius: 8px; padding: 14px; min-height: 92px; }
+    .label { display: block; color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+    .value { display: block; font-size: 17px; font-weight: 650; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 20px; }
+    th, td { border-bottom: 1px solid var(--muted); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 650; }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    details { border: 1px solid var(--muted); border-radius: 8px; padding: 12px 14px; margin: 14px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 650; }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+    footer { margin-top: 28px; color: var(--muted); font-size: 13px; }
+    @media (max-width: 760px) { .summary { grid-template-columns: 1fr; } main { padding: 24px 14px 36px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 능력 카드 생성 보고</h1>
+    <p>이번 폴 사이클에서는 클로드가 요청한 코덱스 에이전트 능력 카드를 갱신하고, 라우팅용 기계 판독 매니페스트가 현재 모델 정보와 일치하는지 확인했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><span class="label">결과</span><span class="value">완료</span></div>
+      <div class="card"><span class="label">요청</span><span class="value">능력 카드 생성</span></div>
+      <div class="card"><span class="label">변경 파일</span><span class="value">에이전트 카드</span></div>
+      <div class="card"><span class="label">검증</span><span class="value">제이슨 파싱 통과</span></div>
+    </section>
+
+    <h2>산출물</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>값</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>카드 경로</td><td><code>agents/codex/agent-card.json</code></td></tr>
+        <tr><td>보고서 경로</td><td><code>agents/codex/outbox/preview/20260719-212322-agent-card.html</code></td></tr>
+        <tr><td>응답 경로</td><td><code>agents/codex/outbox/20260719-212322-codex-re-agent-card.md</code></td></tr>
+        <tr><td>생성 명령</td><td><code>tools/gen-agent-card.ps1 -As codex</code></td></tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>카드 내용 요약</summary>
+      <table>
+        <thead>
+          <tr><th>필드</th><th>확인값</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>이름</td><td><code>codex</code></td></tr>
+          <tr><td>역할</td><td><code>UI/UX + images + tests</code></td></tr>
+          <tr><td>상태</td><td><code>active</code></td></tr>
+          <tr><td>모델</td><td><code>gpt-5.5</code></td></tr>
+          <tr><td>노력 수준</td><td><code>medium</code></td></tr>
+          <tr><td>대체 라우팅</td><td><code>claude</code></td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>검증과 제한</summary>
+      <ul>
+        <li>생성된 파일은 제이슨으로 파싱해 구조를 확인했다.</li>
+        <li>실제 변경은 카드의 갱신 시각 반영이며, 제품 코드 변경은 하지 않았다.</li>
+        <li>허브 저장소 브랜치는 변경하지 않았고, 푸시·배포·브라우저 자동 열기는 하지 않았다.</li>
+        <li>섹션 35 자기 패널 기준으로 범위, 단일 작성자 규칙, 비용 및 비밀정보 위험을 점검했다.</li>
+      </ul>
+    </details>
+
+    <footer>작성 시각: 2026-07-19 21:23:22 KST</footer>
+  </main>
+</body>
+</html>

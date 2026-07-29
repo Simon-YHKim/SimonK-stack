@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>안티그래비티 품질 보증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .section {
+    margin-bottom: 2rem;
+  }
+</style>
+</head>
+<body>
+  <h1>안티그래비티 품질 보증 보고서</h1>
+  
+  <div class="section">
+    <h2>개요</h2>
+    <table>
+      <tr>
+        <th>작업 대상</th>
+        <td>코덱스 드릴다운 뒤로가기 힌트 변경 사항</td>
+      </tr>
+      <tr>
+        <th>대상 브랜치</th>
+        <td>codex/cycle-20260729-034309-i18n-antislop</td>
+      </tr>
+      <tr>
+        <th>커밋</th>
+        <td>1e231604</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>검증 결과</h2>
+    <table>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>상세 내용</th>
+      </tr>
+      <tr>
+        <td>네이티브 호환성</td>
+        <td>통과</td>
+        <td>안드로이드 빌드를 저해하는 네이티브 모듈 변경 없음</td>
+      </tr>
+      <tr>
+        <td>런타임 안정성</td>
+        <td>통과</td>
+        <td>구조적 코드 변경이 아닌 단순 언어 파일 텍스트 수정으로 런타임 충돌 위험 없음</td>
+      </tr>
+      <tr>
+        <td>에뮬레이터 제약</td>
+        <td>참고</td>
+        <td>텍스트 데이터 수정으로 별도 에뮬레이터 구동 없이 정적 검증으로 충분함</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>35조 자체 검증 (섹션 35)</h2>
+    <p>사용자 관점: 시각적 변경이나 흐름 차단 없음.</p>
+    <p>구현 관점: 안드로이드 네이티브 스택 및 자바스크립트 엔진에 영향을 주지 않는 안전한 로컬라이제이션 업데이트.</p>
+  </div>
+
+  <div class="section">
+    <h2>결론</h2>
+    <p>본 변경 사항은 네이티브 애플리케이션 구동에 안전하며 병합 가능합니다.</p>
+  </div>
+</body>
+</html>

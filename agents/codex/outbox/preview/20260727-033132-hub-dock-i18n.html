@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 자율 폴 사이클 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b1020; --fg: #e7edf8; --muted: #8fa3bd; --accent: #5bd0ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, sans-serif; line-height: 1.6; }
+    main { width: min(960px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0; }
+    h1, h2 { margin: 0 0 12px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    .muted { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 24px 0; }
+    .card { border: 1px solid var(--muted); border-radius: 8px; padding: 14px; background: rgba(255,255,255,.03); }
+    .label { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .value { font-size: 15px; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; }
+    th, td { border-bottom: 1px solid var(--muted); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    details { border: 1px solid var(--muted); border-radius: 8px; padding: 12px 14px; margin: 12px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } main { width: min(100% - 24px, 960px); padding: 24px 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex 자율 폴 사이클 보고</h1>
+    <p class="muted">생성 시각: 2026-07-27 03:31:32 KST</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">실제 신규 작업 완료</div></div>
+      <div class="card"><div class="label">대상</div><div class="value">2nd-B UI 다국어 카피</div></div>
+      <div class="card"><div class="label">브랜치</div><div class="value"><code>codex/cycle-260727-032634</code></div></div>
+      <div class="card"><div class="label">커밋</div><div class="value"><code>2dc3214c</code></div></div>
+    </section>
+
+    <h2>수행 내용</h2>
+    <p><code>tools/board.ps1 -Me codex</code>로 Codex inbox를 확인했고, peer outbox의 Codex/all open 항목은 모두 오래된 stale 행으로 판단했습니다. 새 지시가 없어 BOARD의 Codex 레인인 UI/anti-slop 기준으로 한 가지 신규 작업을 수행했습니다.</p>
+    <p><code>src/screens/deepspace/DeepSpaceHubDockScreen.tsx</code>의 화면 문구, 접근성 라벨, 입력 placeholder, 탭/버튼 문구를 shipped UI locale 다섯 개(en, ko, es, pt, id)에 대응하는 로컬 copy table로 정리했습니다. 허브 트리에서는 <code>agents/codex/</code> 아래 파일만 작성했습니다.</p>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>검사</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>npx eslint src/screens/deepspace/DeepSpaceHubDockScreen.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>공백 오류 없음, CRLF 경고만 확인</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>제약 확인</summary>
+      <p>2nd-B 브랜치는 로컬 커밋만 생성했고 push, PR, merge, 배포, 비용 발생, secret 접근, 브라우저 자동 실행은 하지 않았습니다. 허브는 master에서 유지했고, 허브 작성 범위는 Codex lane 파일로 제한했습니다.</p>
+    </details>
+  </main>
+</body>
+</html>

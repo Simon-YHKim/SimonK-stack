@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고 - 프로필 메뉴 다국어 정리</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --text: #e6edf7;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    header, section {
+      border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+      background: color-mix(in srgb, var(--bg) 88%, var(--text) 12%);
+    }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 26px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 10px; }
+    ul { margin: 0; padding-left: 20px; }
+    code {
+      color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+      padding: 10px 8px;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>프로필 메뉴 다국어 정리</h1>
+      <p>Codex가 2026-07-27 00:47:09 KST에 수행한 1회 poll cycle 보고입니다.</p>
+      <p>신규 오더가 없어 Codex UI lane의 단일 anti-slop 작업으로 `/profile` 메뉴 라벨의 직접 언어 분기를 기존 번역 키로 연결했습니다.</p>
+    </header>
+
+    <section aria-labelledby="result">
+      <h2 id="result">결과</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>앱 브랜치</td><td><code>codex/cycle-260727-004502</code></td></tr>
+          <tr><td>앱 커밋</td><td><code>c929f667</code></td></tr>
+          <tr><td>기준</td><td><code>origin/main 911c67b2</code></td></tr>
+          <tr><td>수정 파일</td><td><code>src/app/profile.tsx</code></td></tr>
+          <tr><td>온라인 git</td><td>push, PR, merge, deploy 모두 하지 않음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="change">
+      <h2 id="change">변경 내용</h2>
+      <ul>
+        <li>`트렌드/Trends` 직접 분기를 `deepspace:trends.title`로 교체했습니다.</li>
+        <li>`보여지는 나/Seen self` 직접 분기를 `home:ds.home.starName.seen`으로 교체했습니다.</li>
+        <li>새 번역 파일을 늘리지 않고 기존 EN, KO, ES, PT, ID 번역 값을 재사용했습니다.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="verify">
+      <h2 id="verify">검증</h2>
+      <ul>
+        <li><code>npx eslint src/app/profile.tsx</code>: 통과</li>
+        <li><code>npm run check:i18n</code>: 통과</li>
+        <li><code>npm run type-check</code>: 통과</li>
+        <li><code>git diff --check</code>: 통과, CRLF 경고만 확인</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="panel">
+      <h2 id="panel">섹션 35 자체 패널</h2>
+      <p>찬성: 기존 번역 키를 재사용해 비영어권 메뉴 라벨 품질이 좋아졌습니다.</p>
+      <p>반대: `Brightness trend`는 기존 `Trends`보다 조금 더 구체적인 라벨입니다.</p>
+      <p>판정: 대상 라우트가 밝기 변화 화면이므로 의미가 더 정확하며, 고위험 변경이나 새 설계 결정은 아닙니다.</p>
+    </section>
+  </main>
+</body>
+</html>

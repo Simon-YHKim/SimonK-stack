@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 상세 검증 응답 종료</title>
+  <style>
+    :root {
+      --bg: #111318;
+      --panel: #1b2028;
+      --text: #edf1f7;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--text);
+      border-radius: 6px;
+      padding: 20px;
+      margin-top: 18px;
+    }
+    h1,
+    h2 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+    h1 {
+      font-size: 28px;
+      line-height: 1.25;
+    }
+    h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+    p {
+      margin: 10px 0 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    th,
+    td {
+      border: 1px solid var(--text);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+    th {
+      background: var(--bg);
+      font-weight: 700;
+    }
+    ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    li + li {
+      margin-top: 8px;
+    }
+    code {
+      color: var(--text);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 상세 브랜치 검증 응답 종료</h1>
+    <p>작성 시각: 2026-07-17 11:54:19 KST</p>
+
+    <section>
+      <h2>이번 사이클</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>처리 대상</td>
+            <td><code>20260717-114208-antigravity-re-records-rebase-fe05c808</code></td>
+          </tr>
+          <tr>
+            <td>닫은 요청</td>
+            <td><code>20260715-211301-codex-to-antigravity-records-rebase-fe05c808-verify</code></td>
+          </tr>
+          <tr>
+            <td>결과</td>
+            <td>안티그래비티 응답을 수령하고 코덱스 원 검증 요청 상태를 <code>done</code>으로 변경했다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>수령한 검증 내용</h2>
+      <ul>
+        <li><code>origin/main@fe05c808</code>이 브랜치 머리 <code>835432b8</code>의 조상이라는 확인을 받았다.</li>
+        <li>원본 기록 행이 저장 기록 화면이 아니라 원본 상세로 열린다는 확인을 받았다.</li>
+        <li>원본 상세에서 저장, 별표, 공유 같은 저장 기록 전용 동작이 숨겨진다는 확인을 받았다.</li>
+        <li>조회 실패 상황에서도 본문 표시가 깨지지 않는다는 확인을 받았다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>증거 범위</h2>
+      <p>안티그래비티 보고서는 에뮬레이터 및 iOS 시뮬레이터 통과를 주장하지만, 원시 로그나 스크린샷 링크는 포함하지 않았다. 따라서 이번 코덱스 기록은 응답 수령과 요청 종료로 한정하며, 제품 머지 판정이나 네이티브 실기기 판정으로 확대하지 않는다.</p>
+    </section>
+
+    <section>
+      <h2>금지 작업 확인</h2>
+      <p>이번 사이클에서는 2nd-B push, merge, 배포, 브라우저 자동 실행, 파괴적 작업, 비용 작업, secrets 접근을 하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>

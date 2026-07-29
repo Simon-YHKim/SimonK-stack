@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>페르소나 캡처 복귀 라벨 정리 보고</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #68b7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 { margin: 0; line-height: 1.2; }
+    h1 { font-size: clamp(26px, 4vw, 42px); }
+    h2 { font-size: 18px; margin-bottom: 12px; }
+    p { margin: 8px 0 0; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 28px 0;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .label {
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .value {
+      margin-top: 6px;
+      font-size: 15px;
+      overflow-wrap: anywhere;
+    }
+    details { margin-top: 12px; }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border-top: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    code {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>페르소나 캡처 복귀 라벨 정리</h1>
+    <p>이번 단일 자율 사이클은 새 지시형 오더가 없어, Codex 레인의 사용자 가시 다국어 표면 결함 한 건만 처리했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">ES, PT, ID 페르소나 화면의 캡처 복귀 버튼 라벨을 저장 동작처럼 읽히지 않게 정리했다.</div>
+      </div>
+      <div class="card">
+        <div class="label">앱 커밋</div>
+        <div class="value"><code>55204711</code></div>
+      </div>
+      <div class="card">
+        <div class="label">브랜치</div>
+        <div class="value"><code>codex/cycle-20260729-031953-i18n-antislop</code></div>
+      </div>
+      <div class="card">
+        <div class="label">검증</div>
+        <div class="value">관련 게이트 통과, full verify는 300초 제한에서 시간 초과</div>
+      </div>
+    </section>
+
+    <details open>
+      <summary>변경 내용</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>파일</th>
+            <th>이전 문구</th>
+            <th>변경 문구</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>locales/es/persona.json</code></td>
+            <td><code>Volver a guardar</code></td>
+            <td><code>Volver a Captura</code></td>
+          </tr>
+          <tr>
+            <td><code>locales/pt/persona.json</code></td>
+            <td><code>Voltar a guardar</code></td>
+            <td><code>Voltar à Captura</code></td>
+          </tr>
+          <tr>
+            <td><code>locales/id/persona.json</code></td>
+            <td><code>Kembali menyimpan</code></td>
+            <td><code>Kembali ke Tangkap</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>검증 기록</summary>
+      <p>JSON 파싱, <code>npm run check:i18n</code>, <code>npm run check:lexicon</code>, <code>npm run check:emdash</code>, <code>npm run type-check</code>, <code>git diff --check</code>를 통과했다. <code>git diff --check</code>에는 윈도우 줄끝 안내만 있었다.</p>
+      <p><code>npm run verify</code>는 300초 제한에서 완료되지 않아 시간 초과로 기록했다.</p>
+    </details>
+
+    <details>
+      <summary>자기 패널</summary>
+      <p>찬성: 영어와 한국어 정본은 캡처 화면 복귀이며, 기존 ES/PT/ID 문구는 저장 행위로 오해될 수 있었다.</p>
+      <p>반대: 한 키만 정리했으므로 다른 페르소나 locale 잔여까지 해결하지는 않는다.</p>
+      <p>판정: 사용자 가시 라벨 3개만 바꾼 낮은 위험 변경이다. 스키마, 보안, 결제, 배포, 정량 결과, 실시간 외부 사실을 건드리지 않아 추가 검증 요청은 발행하지 않았다.</p>
+    </details>
+  </main>
+</body>
+</html>

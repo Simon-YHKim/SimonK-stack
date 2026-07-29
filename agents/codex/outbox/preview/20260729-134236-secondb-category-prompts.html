@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SecondB 카테고리 안내 현지화 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --text: #e6edf3;
+      --accent: #6aa1ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2, p { margin-top: 0; }
+    h1 { font-size: clamp(28px, 5vw, 44px); line-height: 1.1; letter-spacing: 0; }
+    h2 { font-size: 18px; margin-bottom: 12px; color: var(--accent); }
+    section {
+      border-top: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      padding: 22px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px 8px;
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 14%, transparent);
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      background: color-mix(in srgb, var(--text) 10%, transparent);
+      border-radius: 6px;
+      padding: 2px 6px;
+    }
+    ul { padding-left: 20px; }
+    li + li { margin-top: 6px; }
+    details { border-top: 1px solid color-mix(in srgb, var(--text) 14%, transparent); padding-top: 14px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>SecondB 카테고리 안내 현지화 보고서</h1>
+    <p>이번 Codex 폴 사이클은 새 인박스 오더가 없어, Codex 레인의 단일 신규 작업으로 SecondB 카테고리 시작 안내의 잔여 영어 문구를 현지화했다.</p>
+
+    <div class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div>ES/PT/ID SecondB 카테고리 안내 12문장 현지화</div>
+      </div>
+      <div class="card">
+        <div class="label">앱 커밋</div>
+        <div><code>15ba1e27</code></div>
+      </div>
+      <div class="card">
+        <div class="label">검증</div>
+        <div>JSON, i18n, lexicon, emdash, type-check 통과</div>
+      </div>
+      <div class="card">
+        <div class="label">제한 준수</div>
+        <div>push, PR, merge, 배포, 브라우저 열기 없음</div>
+      </div>
+    </div>
+
+    <section>
+      <h2>변경 범위</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>파일</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>locales/es/secondb.json</code></td>
+            <td>카테고리로 새 기록을 시작하고, 언제 무슨 일이 있었는지 찾기 쉽게 하라는 안내를 스페인어로 정리했다.</td>
+          </tr>
+          <tr>
+            <td><code>locales/pt/secondb.json</code></td>
+            <td>같은 SecondB 아카이브 안내 문장을 포르투갈어로 정리했다.</td>
+          </tr>
+          <tr>
+            <td><code>locales/id/secondb.json</code></td>
+            <td>같은 SecondB 아카이브 안내 문장을 인도네시아어로 정리했다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <ul>
+        <li>변경 파일 JSON 파싱 통과</li>
+        <li>대상 영어 원문 잔여 검색 통과</li>
+        <li><code>git diff --check</code> 통과, Windows 줄끝 안내만 표시</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>섹션 35 자체 패널</h2>
+      <details open>
+        <summary>판정</summary>
+        <p>표시 문자열만 바꾸는 낮은 위험 i18n 변경이다. 결제, 권한, 미성년 라우팅, 안전 분류, 데이터 모델, 외부 호출을 건드리지 않았다. MoA 고위험 교차검증 요청은 필요하지 않다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>산출 위치</h2>
+      <p>앱 작업은 <code>E:\2ndB\.worktrees\codex-cycle-20260729-134102-secondb-category-start</code>의 브랜치 <code>codex/cycle-20260729-134102-secondb-category-start</code>에 로컬 커밋으로 남겼다. Claude merge gate용이며 온라인 push는 하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>

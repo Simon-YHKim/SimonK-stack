@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 소스 상세 브랜치 리베이스 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --fg: #e8edf2;
+      --accent: #7cc7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 18px 48px;
+    }
+    h1, h2, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin: 28px 0 10px; color: var(--accent); }
+    .lead { color: var(--accent); font-weight: 700; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      padding: 12px;
+      min-height: 92px;
+    }
+    .label { display: block; color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 18px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 9px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--fg);
+      background: var(--bg);
+      border: 1px solid var(--accent);
+      padding: 1px 4px;
+    }
+    details {
+      border: 1px solid var(--accent);
+      padding: 12px;
+      margin: 10px 0;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드 소스 상세 브랜치 리베이스 보고</h1>
+    <p class="lead">이번 사이클의 단일 실작업은 Codex 제품 브랜치를 최신 <code>origin/main</code> 위로 올리고 병합 준비 상태를 다시 검증한 것이다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <span class="label">대상 브랜치</span>
+        <code>codex/records-source-detail-route-20260710</code>
+      </div>
+      <div class="card">
+        <span class="label">새 제품 헤드</span>
+        <code>e537116c</code>
+      </div>
+      <div class="card">
+        <span class="label">포함한 기준</span>
+        <code>origin/main@0bec7b89</code>
+      </div>
+      <div class="card">
+        <span class="label">판정</span>
+        리베이스 성공, 병합 준비 검증 통과
+      </div>
+    </section>
+
+    <h2>수행 내용</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>요청 확인</td><td>Codex 직접 inbox와 peer outbox에서 Codex 또는 all 대상의 열린 요청은 없었다.</td></tr>
+        <tr><td>선택한 작업</td><td>2nd-B 레코드 소스 상세 브랜치가 최신 main보다 1커밋 뒤처져 있어 이를 단일 lane task로 처리했다.</td></tr>
+        <tr><td>제품 작업</td><td><code>git rebase origin/main</code>을 충돌 없이 완료했다.</td></tr>
+        <tr><td>금지 작업</td><td>push, merge, deploy, 브라우저 자동 열기, 파괴적 작업, 비용 발생 작업, 시크릿 접근은 하지 않았다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr><th>검증</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>기준 포함</td><td><code>origin/main</code>이 새 HEAD의 조상임을 확인했다.</td></tr>
+        <tr><td>변경 범위</td><td>records/source-detail 관련 5파일, 126줄 추가와 34줄 삭제로 유지됐다.</td></tr>
+        <tr><td>공백 검사</td><td><code>git diff --check</code> 통과.</td></tr>
+        <tr><td>관련 Jest</td><td>2개 테스트 파일, 10개 테스트 통과.</td></tr>
+        <tr><td>타입 검사</td><td><code>npm run type-check</code> 통과.</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>변경 파일</summary>
+      <ul>
+        <li><code>src/lib/records/__tests__/source-pieces.test.ts</code></li>
+        <li><code>src/lib/records/get-piece.ts</code></li>
+        <li><code>src/lib/records/source-pieces.ts</code></li>
+        <li><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></li>
+        <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자기 패널 점검</summary>
+      <ul>
+        <li>찬성 관점: 최신 main 기반으로 다시 올렸고, 기존 기능 범위와 테스트가 유지됐다.</li>
+        <li>반대 관점: 병합 준비 diff이므로 별도 시각의 검증이 필요하다.</li>
+        <li>판정: Antigravity에 교차 검증 요청을 발행하고, Codex는 제품 push와 merge를 하지 않았다.</li>
+      </ul>
+    </details>
+
+    <h2>교차 검증</h2>
+    <p>이 산출물은 병합 준비 diff에 해당하므로 Antigravity에 MoA 검증 요청을 발행했다.</p>
+    <p>작성 시각: 2026-07-19 14:13:24 KST</p>
+  </main>
+</body>
+</html>

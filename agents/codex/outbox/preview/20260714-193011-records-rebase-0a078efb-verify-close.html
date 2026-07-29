@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 리베이스 검증 종료 보고</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --text: #e6e8ee;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 40px 22px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    h1 { font-size: 28px; }
+    h2 {
+      margin-top: 30px;
+      font-size: 18px;
+      color: var(--accent);
+    }
+    p { margin: 0 0 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+    }
+    ul {
+      margin: 8px 0 0 20px;
+      padding: 0;
+    }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드 리베이스 검증 종료 보고</h1>
+    <p>이번 사이클은 코덱스가 직전 사이클에 요청한 <code>origin/main@0a078efb</code> 기준 레코드 브랜치 검증 응답을 처리했다. 제품 코드는 변경하지 않았고, 허브의 코덱스 산출물만 갱신했다.</p>
+
+    <h2>처리 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>응답</td>
+          <td><code>20260714-191953-antigravity-re-records-rebase-verify</code></td>
+        </tr>
+        <tr>
+          <td>대상</td>
+          <td><code>codex/records-source-detail-route-20260710</code>, 요청 헤드 <code>b0db64a4</code></td>
+        </tr>
+        <tr>
+          <td>판정</td>
+          <td>앤티그래비티 검증 통과. 상류 저장 동작과 소스 상세 라우팅이 모두 보존된 것으로 기록했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>확인된 내용</h2>
+    <ul>
+      <li>검증 브랜치 헤드 <code>900c410e</code>가 코덱스 산출 헤드 <code>b0db64a4</code>를 포함했다.</li>
+      <li>상류 레코드 저장 동작이 유지됐다.</li>
+      <li>코덱스의 소스 상세 라우팅 동작이 유지됐다.</li>
+      <li>코덱스는 푸시나 머지를 수행하지 않았다.</li>
+    </ul>
+
+    <h2>제약 준수</h2>
+    <p>푸시, 머지, 배포, 브라우저 실행, 비용 작업, 시크릿 접근, 파괴 작업은 수행하지 않았다. 허브 쓰기는 <code>agents/codex/</code> 아래로 제한했다.</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>계정 삭제 확인 문구 현지화 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0d10; --text: #e8edf2; --accent: #5cc8b2; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, "Malgun Gothic", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    main { max-width: 960px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--accent); }
+    p { margin: 8px 0; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+    .card { border: 1px solid var(--accent); border-radius: 8px; padding: 14px; min-height: 104px; }
+    .label { color: var(--accent); font-size: 13px; }
+    .value { display: block; margin-top: 6px; font-size: 16px; font-weight: 700; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: Consolas, monospace; word-break: break-word; }
+    details { border: 1px solid var(--accent); border-radius: 8px; padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 10px 0 0 20px; padding: 0; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } main { padding: 28px 14px 44px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>계정 삭제 확인 문구 현지화 보고</h1>
+    <p>이번 사이클은 새 Codex 수신 오더가 없어 2nd-B 최신 본문 기준으로 접근성 문구 잔여 영어를 하나 정리했다.</p>
+    <div class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span><span class="value">로컬 커밋 완료</span></div>
+      <div class="card"><span class="label">브랜치</span><span class="value"><code>codex/cycle-20260729-153031-i18n-antislop</code></span></div>
+      <div class="card"><span class="label">앱 커밋</span><span class="value"><code>35345afa</code></span></div>
+      <div class="card"><span class="label">푸시</span><span class="value">수행하지 않음</span></div>
+    </div>
+
+    <section>
+      <h2>변경 내용</h2>
+      <p>계정 삭제 최종 확인 버튼의 접근성 힌트가 스페인어, 포르투갈어, 인도네시아어 화면에서 영어로 남아 있던 부분을 각 언어로 바꿨다.</p>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>키</th><th>변경 요지</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>locales/es/consent.json</code></td><td><code>account.delete.confirmCtaHint</code></td><td>계정과 데이터 삭제 시작 안내를 스페인어로 현지화</td></tr>
+          <tr><td><code>locales/pt/consent.json</code></td><td><code>account.delete.confirmCtaHint</code></td><td>계정과 데이터 삭제 시작 안내를 포르투갈어로 현지화</td></tr>
+          <tr><td><code>locales/id/consent.json</code></td><td><code>account.delete.confirmCtaHint</code></td><td>계정과 데이터 삭제 시작 안내를 인도네시아어로 현지화</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li>JSON 파싱 확인 통과</li>
+        <li><code>git diff --check</code> 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <details open>
+        <summary>판정 근거</summary>
+        <p>찬성: 접근성 힌트의 영어 잔여를 줄여 비영어 사용자 흐름을 더 일관되게 만든다.</p>
+        <p>반대: 계정 삭제 흐름은 의미 왜곡이 있으면 위험하므로 범위를 넓히면 안 된다.</p>
+        <p>판정: 동작을 바꾸지 않고 원문 의미를 보존한 3줄 번역이라 이번 사이클의 단일 작업으로 적합하다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>제한 준수</h2>
+      <p>허브에서는 <code>agents/codex/</code> 아래만 작성했다. 2nd-B는 별도 worktree에서 브랜치 커밋만 만들었고, push, PR, merge, 배포, 브라우저 자동 열기는 하지 않았다.</p>
+      <p>작성 시각: 2026-07-29 15:32:01 KST</p>
+    </section>
+  </main>
+</body>
+</html>

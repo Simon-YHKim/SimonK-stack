@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>정적 검증 보고서: 기록 상세 브랜치 재정렬</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #E0E0E0;
+            font-family: sans-serif;
+            margin: 40px auto;
+            max-width: 800px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #FFFFFF;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            margin-bottom: 24px;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #1E1E1E;
+            color: #FFFFFF;
+        }
+        .pass {
+            color: #81C784;
+        }
+        .info {
+            color: #64B5F6;
+        }
+    </style>
+</head>
+<body>
+    <h1>정적 검증 보고서</h1>
+    <p><strong>요청:</strong> 기록 상세 브랜치 재정렬 검증 (Codex)</p>
+    <p><strong>작업 헤드:</strong> 900c410e</p>
+
+    <h2>검증 결과</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>항목</th>
+                <th>결과</th>
+                <th>상세</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>베이스 재정렬 확인</td>
+                <td class="pass">성공</td>
+                <td>900c410e 커밋이 origin/main@fbd1edb3를 조상으로 가짐을 확인했습니다.</td>
+            </tr>
+            <tr>
+                <td>타입 검사 (type-check)</td>
+                <td class="pass">성공</td>
+                <td>tsc --noEmit 명령어 통과.</td>
+            </tr>
+            <tr>
+                <td>단위 테스트 (Jest)</td>
+                <td class="pass">성공</td>
+                <td>records-source-detail-route.test.ts 5개 테스트 통과.</td>
+            </tr>
+            <tr>
+                <td>UI 기능 숨김 정적 분석</td>
+                <td class="pass">성공</td>
+                <td>isSource 분기가 정상적으로 쓰기 기능(태그 추가, 편집, 이동, 삭제) UI 컴포넌트를 숨기도록 구현되어 있습니다.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>결론</h2>
+    <p>
+        Antigravity 레인(헤드리스 상태)에서 가능한 동등한 정적 검증을 모두 수행했습니다. 코드 레벨의 오류는 발견되지 않았으며 변경 사항은 명세와 일치합니다.
+    </p>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA 리뷰 보고서: 포르투갈어 휴식 카테고리 라벨</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #ffffff;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .status-pass {
+            color: #00e676;
+            font-weight: bold;
+        }
+        button {
+            background-color: #333333;
+            color: #ffffff;
+            border: 1px solid #555555;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #444444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QA 리뷰 보고서: 포르투갈어 휴식 카테고리 라벨</h1>
+        <p>생성일시: 2026-07-28 06:22 KST</p>
+        
+        <h2>개요</h2>
+        <p>본 보고서는 Codex가 수행한 포르투갈어 딥스페이스 휴식 카테고리 라벨 수정 작업에 대한 정적 QA 결과를 담고 있습니다.</p>
+        
+        <h2>대상 작업 정보</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>항목</th>
+                    <th>상세 내용</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>작업 브랜치</td>
+                    <td>codex/cycle-20260728-035149-pt-revocable-label</td>
+                </tr>
+                <tr>
+                    <td>커밋 해시</td>
+                    <td>e8fe76d3</td>
+                </tr>
+                <tr>
+                    <td>변경 파일</td>
+                    <td>locales/pt/deepspace.json</td>
+                </tr>
+                <tr>
+                    <td>수정 내용</td>
+                    <td>Hobby 문자열을 Passatempo로 번역 수정</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>QA 점검 결과</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>점검 항목</th>
+                    <th>결과</th>
+                    <th>비고</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>네이티브 앱 빌드 충돌 여부</td>
+                    <td class="status-pass">통과</td>
+                    <td>단순 JSON 문자열 수정으로 빌드 영향 없음</td>
+                </tr>
+                <tr>
+                    <td>레이아웃 오버플로우</td>
+                    <td class="status-pass">통과</td>
+                    <td>Passatempo 문자열 길이는 허용 범위 내에 존재함</td>
+                </tr>
+                <tr>
+                    <td>i18n 스키마 검증</td>
+                    <td class="status-pass">통과</td>
+                    <td>키 누락 및 구조 변경 없음</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>섹션 35 자가 검토 결과</h2>
+        <p>본 QA 작업은 기존에 존재하는 단순 번역 문자열 수정에 대한 정적 검토이므로 보안, 성능, 비용, 스키마 등에 어떠한 부정적인 영향도 미치지 않습니다. 파괴적 작업이나 외부 의존성 변경이 포함되지 않았으며, 별도의 교차 검증(MoA) 요청은 필요하지 않습니다.</p>
+
+        <div style="margin-top: 30px; text-align: right;">
+            <button type="button">보고서 닫기</button>
+        </div>
+    </div>
+</body>
+</html>

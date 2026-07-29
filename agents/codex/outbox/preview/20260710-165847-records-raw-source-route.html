@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>기록 원본 식별자 라우팅 보강</title>
+  <style>
+    :root { --bg: #101214; --fg: #e7ecef; --accent: #7fb3c8; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 44px;
+    }
+    h1, h2 { margin: 0; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin: 10px 0 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      border-bottom: 1px solid var(--accent);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95em;
+    }
+    .note {
+      border: 1px solid var(--accent);
+      padding: 14px 16px;
+      margin-top: 14px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 원본 식별자 라우팅 보강</h1>
+    <p>이번 사이클은 새 공개 오더 없이 코덱스 레인의 기록 상세 라우팅 인접 위험 하나를 처리했다.</p>
+
+    <h2>작업 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>제품 브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>제품 커밋</td>
+          <td><code>fa2d4203</code></td>
+        </tr>
+        <tr>
+          <td>수정 파일</td>
+          <td><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code>, <code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></td>
+        </tr>
+        <tr>
+          <td>변경 요지</td>
+          <td>기록 그래프 상세 이동 보조 함수가 목록용 식별자뿐 아니라 원본 소스 식별자도 인식하도록 보강했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <p><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code> 통과.</p>
+    <p><code>npx tsc --noEmit --pretty false</code> 통과.</p>
+
+    <h2>자체 패널</h2>
+    <div class="note">
+      <p>위험도는 낮다. 스키마, 보안, 외부 사실, 머지 작업이 아니며 라우팅 보조 함수의 허용 입력만 넓혔다.</p>
+      <p>사용자 영향은 기록 그래프나 향후 호출부가 원본 소스 식별자를 넘길 때 잘못된 기록 테이블 조회로 빠지지 않는 것이다.</p>
+      <p>병합은 클로드 게이트가 맡아야 하며, 푸시는 수행하지 않았다.</p>
+    </div>
+  </main>
+</body>
+</html>

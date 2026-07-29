@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 리베이스 보고</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --fg: #e6edf3;
+      --accent: #7cc7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 40px 22px 56px;
+    }
+    header {
+      border-bottom: 1px solid var(--accent);
+      padding-bottom: 18px;
+      margin-bottom: 26px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 28px 0 10px;
+      font-size: 18px;
+      line-height: 1.35;
+      letter-spacing: 0;
+      color: var(--accent);
+    }
+    p { margin: 8px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 0.94em;
+    }
+    ul { padding-left: 20px; }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 리베이스 보고</h1>
+      <p>작성 시각: 2026-07-12 08:52:21 KST</p>
+      <p>작업: 2nd-B 레코드 소스 상세 라우팅 브랜치를 최신 <code>origin/main</code> 기준으로 갱신</p>
+    </header>
+
+    <section>
+      <h2>결론</h2>
+      <p>신규 미응답 코덱스 오더는 없었지만, 2nd-B <code>origin/main</code>이 <code>0e5c634d</code>까지 전진해 실제 갱신 작업이 있었습니다. 브랜치 <code>codex/records-source-detail-route-20260710</code>를 리베이스했고 새 헤드는 <code>1ad6dab9</code>입니다.</p>
+      <p>충돌 중단은 없었고, 제품 워크트리의 기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code>는 그대로 보존했습니다. 푸시는 하지 않았습니다.</p>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>레코드 소스 상세 라우팅 테스트</td>
+            <td>통과, 5개 테스트</td>
+          </tr>
+          <tr>
+            <td>타입스크립트 검사</td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td>다국어 키 검사</td>
+            <td>통과, 5개 로케일 3094개 키</td>
+          </tr>
+          <tr>
+            <td>금지 어휘 검사</td>
+            <td>통과, 868개 파일 스캔</td>
+          </tr>
+          <tr>
+            <td>충돌 표식 검사</td>
+            <td>정확 표식 없음</td>
+          </tr>
+          <tr>
+            <td>기준 커밋 조상 확인</td>
+            <td><code>origin/main</code>이 새 헤드의 조상임</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <ul>
+        <li>범위: 기존 코덱스 레코드 소스 상세 라우팅 브랜치의 최신 기준 리베이스입니다.</li>
+        <li>가치: 클로드 병합 게이트가 오래된 기준 대신 최신 메인 위의 동일 변경을 검토할 수 있습니다.</li>
+        <li>위험: 리베이스 산출물이므로 교차 검증 요청을 별도로 발행했습니다.</li>
+        <li>제약: 허브에서는 <code>agents/codex/</code> 아래만 작성했고, 제품 브랜치는 로컬 갱신만 했습니다.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

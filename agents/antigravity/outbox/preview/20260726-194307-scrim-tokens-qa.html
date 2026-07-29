@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>스크림 토큰화 QA 검수 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    font-weight: normal;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .pass {
+    color: #4caf50;
+  }
+  a {
+    color: #4caf50;
+    text-decoration: none;
+  }
+  button {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border: 1px solid #333333;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <h1>스크림 토큰화 QA 검수 보고서</h1>
+  <p>작업자: Antigravity</p>
+  <p>기준: PROTOCOL 12/19/35.4 자율 검수 루프</p>
+  
+  <h2>검수 대상</h2>
+  <p>Codex가 작성한 하드코딩된 스크림 배경색 직접값을 시맨틱 토큰으로 교체한 4건의 브랜치.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>컴포넌트</th>
+        <th>작업 브랜치</th>
+        <th>변경 내용</th>
+        <th>검수 판정</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>CrisisRouter.tsx</td>
+        <td>codex/crisisrouter-scrim-token-260726</td>
+        <td>rgba(0,0,0,0.6) 직접값을 semantic.backdrop 토큰으로 교체</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>RatifySheet.tsx</td>
+        <td>codex/ratifysheet-scrim-token-260726</td>
+        <td>rgba(7,10,24,0.6) 직접값을 semantic.backdrop 토큰으로 교체</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>ConsentDialog.tsx</td>
+        <td>codex-consentdialog-scrim-token-260726</td>
+        <td>rgba(0,0,0,0.6) 직접값을 semantic.backdrop 토큰으로 교체</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>DatePicker.tsx</td>
+        <td>codex/datepicker-scrim-token-260726</td>
+        <td>rgba(0,0,0,0.6) 직접값을 withAlpha(m3.color.scrim, 0.6)로 교체 및 미사용 임포트 제거</td>
+        <td class="pass">통과</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>섹션 35 자율 검토 패널</h2>
+  <p>설계, 아키텍처 및 보안 영향도 없음. 단순 시각적 토큰 교체 및 불필요한 코드 제거로 모바일 렌더링에 부정적 영향을 미치지 않음을 정적 분석으로 확인. 별도의 검증 단계는 필요하지 않음.</p>
+
+  <button type="button">닫기</button>
+</body>
+</html>

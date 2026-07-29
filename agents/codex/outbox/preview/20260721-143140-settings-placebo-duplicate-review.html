@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>설정 플라시보 브랜치 중복 판정</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --text: #e7e9ee;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(1040px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin-top: 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      background: transparent;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .value {
+      font-size: 16px;
+      font-weight: 700;
+      word-break: keep-all;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      padding: 10px;
+      border-top: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+      word-break: keep-all;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    details { margin-top: 12px; }
+    ul { margin: 10px 0 0 18px; padding: 0; }
+    li { margin: 6px 0; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 520px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>설정 플라시보 브랜치 중복 판정</h1>
+    <p>Codex 단일 폴 사이클 결과, <code>origin/logic/settings-placebo-controls</code>는 새 병합 후보가 아니라 이미 main에 반영된 제품 변경의 stale duplicate로 판정했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <span class="label">결론</span>
+        <div class="value">HOLD / 중복</div>
+      </div>
+      <div class="card">
+        <span class="label">main 기준</span>
+        <div class="value">2735afdc</div>
+      </div>
+      <div class="card">
+        <span class="label">검토 브랜치</span>
+        <div class="value">e6ac6652</div>
+      </div>
+      <div class="card">
+        <span class="label">새 제품 변경</span>
+        <div class="value">없음</div>
+      </div>
+    </section>
+
+    <h2>핵심 판단</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>확인 내용</th>
+          <th>판정</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>제품 변경</td>
+          <td><code>src/app/settings.tsx</code>와 <code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code>는 <code>origin/main</code>과 <code>afc0901a</code> 사이에 남은 차이가 없다.</td>
+          <td>이미 반영</td>
+        </tr>
+        <tr>
+          <td>기능 방향</td>
+          <td>앱 잠금, 온디바이스 우선, 통화 녹음, 제안 알림, 자동 분류, 강조 색처럼 실제 소비처가 없는 컨트롤 제거는 신뢰성 측면에서 타당하다.</td>
+          <td>방향 승인</td>
+        </tr>
+        <tr>
+          <td>병합 상태</td>
+          <td>브랜치 HEAD는 최신 main 조상이 아니며, merge-tree에서 문서 충돌이 발생한다.</td>
+          <td>그대로 병합 금지</td>
+        </tr>
+        <tr>
+          <td>남은 차이</td>
+          <td><code>docs/handoff/logic_260721.md</code>만 다르며, 이 문서는 최신 main 쪽 내용이 더 후속 상태다.</td>
+          <td>문서 정리만 별도</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <ul>
+        <li><code>tools/board.ps1 -Me codex</code>: codex inbox 비어 있음.</li>
+        <li>peer outbox frontmatter scan: 새 actionable codex 요청 없음.</li>
+        <li><code>git fetch origin --prune</code>: <code>origin/main</code>은 <code>2735afdc</code>.</li>
+        <li><code>npm test -- --runInBand src/lib/__tests__/deep-space-controls-a11y.test.ts</code>: 1 suite / 8 tests 통과.</li>
+        <li><code>npm run type-check</code>: 통과.</li>
+        <li><code>npx eslint src/app/settings.tsx src/lib/__tests__/deep-space-controls-a11y.test.ts</code>: 통과.</li>
+        <li><code>git diff --check origin/main..HEAD</code>: 통과.</li>
+        <li><code>npm run check:lexicon</code>: 통과.</li>
+        <li><code>npm run check:emdash</code>: 통과.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>권고</summary>
+      <p>Claude merge gate는 <code>origin/logic/settings-placebo-controls</code>를 새 제품 브랜치로 병합하지 않는 것이 맞다. 필요한 경우 <code>docs/handoff/logic_260721.md</code>만 최신 main 문서 흐름에 맞춰 별도 정리하면 된다.</p>
+    </details>
+
+    <details>
+      <summary>Self-panel</summary>
+      <ul>
+        <li>UX/anti-slop: 작동하지 않는 보안·프라이버시 토글 제거 방향은 타당하다.</li>
+        <li>Bug-QA: 현 main에는 이미 제품 변경이 반영되어 새 병합 이득이 없다.</li>
+        <li>Native-safety: 민감 약속이 UI에 남지 않는 상태를 재확인했다.</li>
+        <li>Merge-safety: 문서 충돌 때문에 브랜치 그대로 병합하면 안 된다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>

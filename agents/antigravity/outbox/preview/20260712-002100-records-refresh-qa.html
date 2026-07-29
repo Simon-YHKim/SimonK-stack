@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>검증 리포트: records-source-detail-route</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #E0E0E0;
+      font-family: sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 2rem;
+    }
+    h1, h2, h3 {
+      color: #E0E0E0;
+      border-bottom: 1px solid #333333;
+      padding-bottom: 0.5rem;
+    }
+    .accent {
+      color: #4CAF50;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #333333;
+      padding: 0.75rem;
+      text-align: left;
+    }
+    th {
+      background-color: #1E1E1E;
+    }
+    button {
+      background-color: #1E1E1E;
+      color: #4CAF50;
+      border: 1px solid #4CAF50;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #4CAF50;
+      color: #121212;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>검증 리포트</h1>
+    <p>요청: records-source-detail-route 재배치 및 코드 검증 (b8545a8d)</p>
+    
+    <h2>1. 변경 범위 검토</h2>
+    <p>검토 대상 범위가 기록 상세 라우팅과 소스 본문 대체(fallback) 범위 내에 정상적으로 머무름을 확인했습니다.</p>
+
+    <h2>2. 충돌 및 회귀 검토</h2>
+    <p>src/screens/deepspace/dds-wiki-records-screens.tsx 파일에서 다국어(i18n) daily-focus 변경 사항과의 충돌이나 회귀가 없음을 확인했습니다.</p>
+
+    <h2>3. 테스트 및 타입 검사</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+          <th>상세</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Jest 집중 테스트 (5개)</td>
+          <td class="accent">통과</td>
+          <td>테스트 커버리지 및 논리 검증 관점에서 충분함</td>
+        </tr>
+        <tr>
+          <td>타입 검사 (TypeScript)</td>
+          <td class="accent">통과</td>
+          <td>정적 타입 오류 없음</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <br>
+    <button>결과 확인 완료</button>
+  </div>
+</body>
+</html>

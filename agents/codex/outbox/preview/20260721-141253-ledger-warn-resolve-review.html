@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>가계부 반영 경고 계약 리뷰</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --fg: #e8edf2;
+      --accent: #7cc7b2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.58;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin: 26px 0 10px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 18px 0 8px; color: var(--accent); }
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(124, 199, 178, 0.06);
+    }
+    .label { color: var(--accent); font-size: 12px; margin-bottom: 4px; }
+    .value { font-size: 15px; font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 18px;
+    }
+    th, td {
+      border: 1px solid rgba(124, 199, 178, 0.55);
+      padding: 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--fg);
+      border: 1px solid rgba(124, 199, 178, 0.45);
+      border-radius: 5px;
+      padding: 1px 5px;
+      background: rgba(124, 199, 178, 0.08);
+    }
+    ul { padding-left: 20px; }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .verdict {
+      font-size: 20px;
+      color: var(--accent);
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>가계부 반영 경고 계약 리뷰</h1>
+    <p>이번 단일 poll cycle에서는 신규 Codex 인박스 주문이 없어, 아직 Codex가 검토하지 않은 <code>origin/logic/ledger-warn-resolve-contract</code>를 UI/bug-QA lane 작업으로 검토했다.</p>
+
+    <section class="meta" aria-label="요약">
+      <div class="card">
+        <div class="label">판정</div>
+        <div class="value">제품 코드 방향은 적합, 최신 병합은 보류</div>
+      </div>
+      <div class="card">
+        <div class="label">대상</div>
+        <div class="value"><code>d3f90780</code></div>
+      </div>
+      <div class="card">
+        <div class="label">기준선</div>
+        <div class="value"><code>origin/main@2735afdc</code></div>
+      </div>
+      <div class="card">
+        <div class="label">검증 상태</div>
+        <div class="value">타깃 테스트 통과, 병합 충돌 있음</div>
+      </div>
+    </section>
+
+    <h2>결론</h2>
+    <p class="verdict">HOLD: <code>docs/handoff/logic_260721.md</code> 충돌 해소 후 병합 가능성을 다시 확인해야 한다.</p>
+    <p>핵심 제품 변경은 사용자가 고른 가계부 항목 일부가 저장되지 않았을 때 “같은 파일 재가져오기”를 안내하지 않고, 이미 저장된 항목의 중복 위험을 분리해서 보여 주는 것이다. 이 방향은 데이터 정직성과 사용자 피해 방지 측면에서 타당하다.</p>
+
+    <h2>검토 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>확인 결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>부분 실패 처리</td>
+          <td><code>LedgerRatifyResult</code>를 상태로 보관해 <code>inserted</code>와 <code>failed</code>를 분리한다. 실패 건수가 있으면 경고가 남는다.</td>
+        </tr>
+        <tr>
+          <td>중복 방지 카피</td>
+          <td>전부 실패일 때만 재가져오기를 안내하고, 일부 성공이면 빠진 내역을 직접 추가하라고 안내한다.</td>
+        </tr>
+        <tr>
+          <td>병합 가능성</td>
+          <td><code>git merge-tree --write-tree origin/main HEAD</code>가 <code>docs/handoff/logic_260721.md</code> 충돌로 실패했다.</td>
+        </tr>
+        <tr>
+          <td>남은 위험</td>
+          <td>제품 코드 차단 이슈는 찾지 못했지만, 문서 충돌이 남아 있어 Claude merge gate에서 그대로 병합하면 안 된다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 로그 요약</summary>
+      <ul>
+        <li><code>npm test -- --runTestsByPath src/lib/import/__tests__/ledger-ratify.test.ts src/lib/records/__tests__/no-navigate-on-failed-save.test.ts --ci</code>: 2 suites, 11 tests 통과</li>
+        <li><code>npm run type-check</code>: 통과</li>
+        <li><code>npm run check:i18n</code>: 통과</li>
+        <li><code>npm run check:lexicon</code>: 통과</li>
+        <li><code>npm run check:emdash</code>: 통과</li>
+        <li><code>git diff --check origin/main...HEAD</code>: 통과</li>
+        <li><code>npx eslint src/screens/deepspace/import/ImportHubScreen.tsx src/lib/import/ledger-ratify.ts src/lib/import/__tests__/ledger-ratify.test.ts</code>: 오류 0, 기존 경고 3건</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>관점</th>
+            <th>판정</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>UI 정직성</td>
+            <td>부분 실패를 총 실패와 분리해 사용자 행동을 정확히 안내한다.</td>
+          </tr>
+          <tr>
+            <td>버그 회귀</td>
+            <td>가져오기 실패 후 허브로 돌아가 숨는 기존 회귀 테스트와 ledger-ratify 테스트가 통과했다.</td>
+          </tr>
+          <tr>
+            <td>병합 안전</td>
+            <td>최신 main 병합 충돌이 있어 병합 게이트에는 보류로 전달한다.</td>
+          </tr>
+          <tr>
+            <td>교차 검증</td>
+            <td>코드 변경 검토이므로 Antigravity에 검증 요청을 보낸다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <h2>산출 경로</h2>
+    <p>보고 시각: 2026-07-21 14:12:53 KST</p>
+    <p>작업 워크트리: <code>E:\2ndB\.worktrees\codex-review-ledger-warn-20260721</code></p>
+  </main>
+</body>
+</html>

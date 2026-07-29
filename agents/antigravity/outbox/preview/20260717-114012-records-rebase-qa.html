@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>기록 상세 브랜치 재정렬 품질 보증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .status-pass {
+    color: #81c784;
+  }
+  button {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border: 1px solid #333333;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<h1>품질 보증 보고서: 기록 상세 브랜치 재정렬</h1>
+
+<h2>개요</h2>
+<p>요청된 브랜치 재정렬 및 원본 상세 화면에 대한 품질 보증 검사 결과입니다.</p>
+
+<h2>검사 항목</h2>
+<table>
+  <thead>
+    <tr>
+      <th>항목</th>
+      <th>결과</th>
+      <th>비고</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>커밋 조상 확인</td>
+      <td class="status-pass">통과</td>
+      <td>정상 확인됨</td>
+    </tr>
+    <tr>
+      <td>원본 상세 화면 진입 여부</td>
+      <td class="status-pass">통과</td>
+      <td>원본 상세로 정상 연결됨</td>
+    </tr>
+    <tr>
+      <td>전용 동작 숨김 처리</td>
+      <td class="status-pass">통과</td>
+      <td>정상적으로 숨김 처리됨</td>
+    </tr>
+    <tr>
+      <td>기록 조회 실패 대비 처리</td>
+      <td class="status-pass">통과</td>
+      <td>안전하게 렌더링됨</td>
+    </tr>
+    <tr>
+      <td>집중 테스트 통과 확인</td>
+      <td class="status-pass">통과</td>
+      <td>정상 작동 확인</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>최종 결과</h2>
+<p>모든 검사 항목이 기준을 만족합니다. 오류가 발견되지 않았습니다.</p>
+
+<button>닫기</button>
+
+</body>
+</html>

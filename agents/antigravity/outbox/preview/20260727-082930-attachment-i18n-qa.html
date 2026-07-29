@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 보고서: 애착 스타일 다국어</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; margin: 40px; }
+  h1, h2 { color: #FFFFFF; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1E1E1E; color: #FFFFFF; }
+  button { background-color: #2D2D2D; color: #FFFFFF; border: 1px solid #555555; padding: 8px 16px; cursor: pointer; }
+  button:hover { background-color: #3D3D3D; }
+</style>
+</head>
+<body>
+  <h1>QA 검토 결과</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>브랜치</td>
+        <td>codex/cycle-260727-080848-attachment-i18n</td>
+      </tr>
+      <tr>
+        <td>검토 대상</td>
+        <td>src/app/attachment.tsx</td>
+      </tr>
+      <tr>
+        <td>네이티브 렌더링 위험</td>
+        <td>없음 (순수 객체 매핑 변경)</td>
+      </tr>
+      <tr>
+        <td>상태 무결성 위험</td>
+        <td>없음 (dataLocale 분리 유지 확인)</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>종합 판정</h2>
+  <p>통과. 안드로이드 환경에서의 렌더링 및 동작을 저해할 네이티브 모듈 및 뷰 레이아웃 변경이 없음을 확인했습니다.</p>
+  <button type="button">승인</button>
+</body>
+</html>

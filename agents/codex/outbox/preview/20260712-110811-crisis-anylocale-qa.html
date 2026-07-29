@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>위기 문구 교차 언어 안전 검수</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --fg: #e8edf0;
+      --accent: #7cc7a2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, sans-serif;
+      line-height: 1.58;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { margin: 0; letter-spacing: 0; }
+    h1 { font-size: 30px; line-height: 1.25; }
+    h2 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    p { margin: 10px 0 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      padding: 10px 12px;
+      border: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: Consolas, monospace; }
+    .result {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border: 1px solid var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>위기 문구 교차 언어 안전 검수</h1>
+    <p>이번 사이클은 새로 올라온 <code>claude/fix-crisis-anylocale</code>의 위기 안전 패치를 검토했다. 허브에는 새 Codex 직접 오더가 없었고, 기존 공개 오더는 이미 응답되었거나 오래된 항목이었다.</p>
+
+    <section>
+      <h2>검토 대상</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>브랜치</td>
+            <td><code>claude/fix-crisis-anylocale</code></td>
+          </tr>
+          <tr>
+            <td>커밋</td>
+            <td><code>55ba98d9</code></td>
+          </tr>
+          <tr>
+            <td>기준</td>
+            <td><code>origin/main@53f2f1c7</code>가 선조임을 확인</td>
+          </tr>
+          <tr>
+            <td>변경 범위</td>
+            <td>기록 저장 위기 분류 경로를 단일 언어 검사에서 교차 언어 검사로 맞추고, 분류기 테스트를 추가</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>판정</h2>
+      <div class="result">
+        병합 차단 이슈는 발견하지 못했다. 기록 저장 경로가 채팅 입력 경로와 같은 교차 언어 분류기를 쓰도록 정렬되어, 한국어 화면에서 영어 위기 문구를 쓰거나 영어 화면에서 한국어 위기 문구를 쓰는 경우를 더 잘 잡는다.
+      </div>
+      <p>다만 이 변경은 위기 안전 코드이므로 고위험 산출물로 보아 Antigravity 교차 검증을 요청했다.</p>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>명령</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>npm test -- --runTestsByPath src/lib/safety/__tests__/classifier.test.ts --runInBand</code></td>
+            <td>통과, 20개 테스트</td>
+          </tr>
+          <tr>
+            <td><code>npm test -- --runTestsByPath src/lib/llm/__tests__/gemini.test.ts src/lib/safety/__tests__/crisis-eval-baseline.test.ts src/lib/safety/__tests__/crisis-eval-corpus.test.ts src/lib/safety/__tests__/crisis-terms-proxy-parity.test.ts --runInBand</code></td>
+            <td>통과, 29개 테스트</td>
+          </tr>
+          <tr>
+            <td><code>npx tsc --noEmit --pretty false</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td><code>npm run check:i18n</code>, <code>npm run check:lexicon</code>, <code>npm run check:legal-review</code>, <code>npm run check:llm-boundary</code>, <code>npm run check:constraints</code>, <code>npm run check:emdash</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td><code>git diff --check</code></td>
+            <td>통과</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>남은 위험</h2>
+      <p>기존 테스트는 공유 분류기와 위기 경로의 일반 동작을 확인하지만, 기록 저장 함수에 대한 교차 언어 직접 테스트는 별도로 추가되어 있지 않다. 현재 패치는 같은 분류기를 호출하는 한 줄 교체라서 병합 차단으로 보지는 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>

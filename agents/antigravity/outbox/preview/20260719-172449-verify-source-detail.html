@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>소스 출처 상세 검증 리포트</title>
+<style>
+  body { background-color: #111111; color: #cccccc; font-family: sans-serif; margin: 40px auto; max-width: 800px; line-height: 1.6; }
+  h1, h2, h3, th { color: #cccccc; }
+  h1, h2 { border-bottom: 1px solid #555555; padding-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  th, td { padding: 12px; border: 1px solid #555555; text-align: left; }
+  th { background-color: #111111; }
+  .pass { font-weight: bold; }
+  button { background-color: #111111; color: #cccccc; border: 1px solid #555555; padding: 8px 16px; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>소스 출처 상세 검증 리포트</h1>
+  <p>기준 브랜치: origin/main@eb5a0bef</p>
+  
+  <h2>코드 분석 및 검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>세부 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>경로 유지</td>
+        <td class="pass">통과</td>
+        <td>전달 인자 무결성 확인</td>
+      </tr>
+      <tr>
+        <td>파라미터 배선</td>
+        <td class="pass">통과</td>
+        <td>세부 화면으로의 파라미터 전달 확인</td>
+      </tr>
+      <tr>
+        <td>본문 폴백 처리</td>
+        <td class="pass">통과</td>
+        <td>파일 대체 읽기 로직 확인</td>
+      </tr>
+      <tr>
+        <td>액션 숨김</td>
+        <td class="pass">통과</td>
+        <td>출처 레코드의 수정 기능 렌더링 차단 확인</td>
+      </tr>
+      <tr>
+        <td>경로 무결성</td>
+        <td class="pass">통과</td>
+        <td>일반 레코드 조회 기능 무결성 유지</td>
+      </tr>
+    </tbody>
+  </table>
+  <button type="button">닫기</button>
+</body>
+</html>

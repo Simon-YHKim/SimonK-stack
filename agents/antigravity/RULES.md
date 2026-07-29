@@ -4,7 +4,7 @@ owner: antigravity
 updated: 2026-06-13 KST
 source: claude (PROTOCOL §34.7 — AG self-sufficiency parity)
 status: active
-sync: "Source of truth = PROTOCOL.md. On conflict, PROTOCOL wins. last-sync: 2026-06-13"
+sync: "Source of truth = PROTOCOL.md. On conflict, PROTOCOL wins. last-sync: 2026-07-04"
 ---
 
 # Antigravity (agy) Operating Rules
@@ -27,16 +27,17 @@ Android / Google native development + device QA. Native fixes (keyboard, edge-to
 4. **Measured loop (§12.1a / §34.2)** — golden set first, one change, re-measure, merge only on measured gain, log failures to `loop-baseline.md`.
    - **AG golden set**: `npx expo run:android` build green + emulator (`Pixel_9_Pro_XL`) smoke (boots + core screens) + perf numbers (frame time / memory). adb reverse 8081, USE_VERTEX=false.
 5. Output: outbox md (machine) + HTML preview (§16) + evidence (screenshot/logcat). Commit with own identity (`tools/commit.ps1 -As antigravity`, own files only, `git add -A` forbidden §10.5).
+   - **QA TRUTHFULNESS (2026-07-04, incident 292104ae)**: any claim of emulator/device results REQUIRES committed artifact evidence in the same report - a screenshot path under `agents/antigravity/` or a logcat excerpt + device id. A headless text cycle (agy-headless daemon lane) CANNOT run an emulator; if no device is attached, say "static/code-level check only - no device run" and NEVER write "passed on the emulator". Fabricated pass verdicts are voided on BOARD and count as incidents (§15).
 6. Real timestamp `[YYYY-MM-DD / HH:MM:SS] KST` (§27.2, Get-Date — no guessing).
 
 ## Hard constraints
-- Work only in own worktree (`C:\Coding Infra\_worktrees\2ndB-antigravity`) for 2nd-B; never edit `C:\2ndB` directly; **never push online** (Claude single online-git §11). Submit local commit SHAs to Claude for cherry-pick merge.
+- Work only in own worktree (`E:\2ndB\.worktrees\2ndB-antigravity` - worktrees live INSIDE the repo per 2nd-B CLAUDE.md) for 2nd-B; never edit `E:\2ndB` main tree directly; **never push online** (Claude single online-git §11). Submit local commit SHAs to Claude for cherry-pick merge.
 - No edits to shared files (PROTOCOL/ROUTING/BOARD/app CLAUDE.md) — opinions go to own outbox only (§10.5 prompt-injection ban).
 - Cross-review (§34.4): AG is the native judge for Claude's native output; AG's output judged by Claude.
 - Throttle (§34.3): if 8 unmerged submissions, stop discovery -> review / persona-sim / wiki_lesson / re-measure. No idle.
 
 ## Headless continuity (§34.7 / §28.4)
-- Gemini CLI free tier deprecated 2026-06-18. Path order: (1) interactive Gemini, (2) `agy` after OAuth (`--dangerously-skip-permissions`), (3) reroute part of AG lane to Claude/Codex if neither works. Record current headless means in STATUS.
+- Gemini CLI is SUNSET (2026-06-18) - "Gemini" is a MODEL name only (§0 terminology canon 2026-07-03). Path order: (1) daemon/headless = `node tools/agy-pty/agy-headless.js` with `AGY_USE_CONPTY=0` (the working path since 07-03), (2) interactive `agy --dangerously-skip-permissions` for sessions needing a human window, (3) reroute part of AG lane to Claude/Codex if agy is dead. Record current headless means in STATUS.
 
 ## Wiki contribution (§34.1)
 - On a reusable native lesson/gotcha: write `type: wiki_lesson` (to: claude) in own outbox (one-line summary + 3 key points + source + linked project). Claude ingests to SimonKWiki (write stays Claude/librarian).

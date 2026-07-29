@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>가져오기 화면 다국어 정리 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0d12; --fg:#e7edf4; --ac:#7db7ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.6 system-ui,-apple-system,Segoe UI,sans-serif; }
+    main { max-width:920px; margin:0 auto; padding:32px 18px 44px; }
+    h1 { margin:0 0 10px; font-size:26px; line-height:1.25; }
+    h2 { margin:28px 0 10px; font-size:17px; color:var(--ac); }
+    p { margin:8px 0; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin:18px 0; }
+    .card { border:1px solid color-mix(in srgb, var(--ac) 35%, transparent); padding:14px; border-radius:8px; background:color-mix(in srgb, var(--fg) 5%, transparent); }
+    .label { color:var(--ac); font-size:12px; margin-bottom:4px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th,td { text-align:left; vertical-align:top; padding:9px 8px; border-bottom:1px solid color-mix(in srgb, var(--fg) 14%, transparent); }
+    th { color:var(--ac); font-weight:700; }
+    code { color:var(--ac); font-family:ui-monospace,SFMono-Regular,Consolas,monospace; }
+    details { border:1px solid color-mix(in srgb, var(--fg) 14%, transparent); border-radius:8px; padding:10px 12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--ac); font-weight:700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>가져오기 화면 다국어 정리 보고</h1>
+    <p>이번 사이클은 열린 Codex 대상 요청이 없어, 2nd-B UI 레인의 작은 다국어 누락을 하나 수정했다. 가져오기 화면의 결과 문구, 가져오기 이력 요약, 접근성 라벨이 한국어와 영어 분기에 묶여 있던 부분을 기존 번역 체계로 옮겼다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">브랜치</div><code>codex-import-inbox-i18n-260726</code></div>
+      <div class="card"><div class="label">기준</div><code>origin/main 6b02a9f9</code></div>
+      <div class="card"><div class="label">커밋</div><code>377eb706</code></div>
+      <div class="card"><div class="label">위험도</div>낮음, UI 문구와 번역 키 변경</div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead><tr><th>영역</th><th>처리</th></tr></thead>
+      <tbody>
+        <tr><td>화면 코드</td><td><code>src/screens/deepspace/dds-import-inbox-screens.tsx</code>의 결과 요약, 파일 가져오기 접근성 라벨, 철회 접근성 라벨을 <code>t()</code> 호출로 전환했다.</td></tr>
+        <tr><td>번역</td><td><code>locales/en|ko|es|id|pt/deepspace.json</code>에 <code>summaryPieces</code>, <code>resultAdded</code>, <code>resultDuplicate</code>, <code>resultFailed</code>, <code>a11yImportExportFile</code>, <code>a11yRevokeImport</code> 계열 키를 맞췄다.</td></tr>
+        <tr><td>범위 제한</td><td>가져오기 기능 로직, 건강 데이터 동의 기록, 파일 파싱, 철회 로직은 변경하지 않았다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>JSON 파싱</td><td>통과</td></tr>
+        <tr><td><code>npx eslint src/screens/deepspace/dds-import-inbox-screens.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과, 5개 언어 44개 네임스페이스 정합</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과, 줄끝 변환 경고만 있음</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자체 패널 판단</summary>
+      <p>찬성: 화면에 직접 보이는 결과 문구와 접근성 라벨이 모든 지원 언어로 확장되어, 기존 i18n 품질 기준과 맞다.</p>
+      <p>반대: 새 키를 다섯 언어에 추가하므로 번역 품질이 기계적일 수 있다. 다만 기존 KO/EN 하드 분기보다 사용자 노출 품질은 개선된다.</p>
+      <p>판정: 기능 로직을 바꾸지 않는 저위험 UI 문구 정리이며, 정합성 검사와 타입 검사를 통과했으므로 Claude 리뷰 대상으로 제출할 가치가 있다.</p>
+    </details>
+
+    <h2>주의</h2>
+    <p>2nd-B 브랜치는 로컬 커밋만 만들었고 push, PR, merge, 배포, 외부 비용, 시크릿 접근, 브라우저 자동 열기는 하지 않았다. 허브에서는 <code>agents/codex/</code> 아래에만 기록했다.</p>
+    <p>작성 시각: 2026-07-26 22:21:52 KST</p>
+  </main>
+</body>
+</html>

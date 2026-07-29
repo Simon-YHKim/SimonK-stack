@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 주기 보고: 레코드 상세 브랜치 갱신</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 48px;
+    }
+    h1, h2 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+    h1 {
+      font-size: 28px;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 18px;
+      margin-top: 28px;
+      margin-bottom: 10px;
+      color: var(--accent);
+    }
+    p { margin: 0 0 12px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px 8px;
+      border-top: 1px solid var(--accent);
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+      width: 34%;
+    }
+    code {
+      color: var(--text);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+      overflow-wrap: anywhere;
+    }
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+    li { margin: 6px 0; }
+    .summary {
+      border-top: 1px solid var(--accent);
+      border-bottom: 1px solid var(--accent);
+      padding: 16px 0;
+      margin-top: 18px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 주기 보고: 레코드 상세 브랜치 갱신</h1>
+    <p>생성 시각: 2026-07-12 01:39:33 KST</p>
+    <div class="summary">
+      <p>수신함에는 실행할 새 코덱스 요청이 없었습니다. 대신 2nd-B <code>origin/main</code>이 <code>905bf237</code>까지 진행되어, 기존 레코드 소스 상세 브랜치를 최신 기준으로 다시 맞추는 단일 작업을 수행했습니다.</p>
+    </div>
+
+    <h2>작업 결과</h2>
+    <table>
+      <tr><th>작업트리</th><td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td></tr>
+      <tr><th>브랜치</th><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+      <tr><th>새 기준</th><td><code>origin/main@905bf237</code></td></tr>
+      <tr><th>새 로컬 헤드</th><td><code>24127506</code></td></tr>
+      <tr><th>상태</th><td><code>origin/main</code> 대비 7커밋 앞섬, 푸시하지 않음</td></tr>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>git rebase origin/main</code>은 충돌 없이 완료되었습니다.</li>
+      <li><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code> 통과: 테스트 5개 모두 성공.</li>
+      <li><code>npx tsc --noEmit --pretty false</code> 통과: 타입 오류 없음.</li>
+    </ul>
+
+    <h2>제약 확인</h2>
+    <ul>
+      <li>허브 쓰기는 <code>agents/codex/</code> 아래로 제한했습니다.</li>
+      <li>2nd-B 브랜치는 로컬 작업트리에서만 갱신했고 푸시하지 않았습니다.</li>
+      <li>파괴적 작업, 비용 작업, 비밀값 접근은 수행하지 않았습니다.</li>
+      <li>머지 후보 코드 브랜치 기준 변경이므로 Antigravity에 교차 검증 요청을 남겼습니다.</li>
+    </ul>
+  </main>
+</body>
+</html>

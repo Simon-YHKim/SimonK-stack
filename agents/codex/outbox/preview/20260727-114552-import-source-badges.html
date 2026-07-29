@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>가져오기 소스 배지 정리 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --fg: #e6edf3; --accent: #7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: "Pretendard", "Segoe UI", sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    section { border: 1px solid var(--accent); border-radius: 8px; padding: 18px; margin-top: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+    .card { border: 1px solid var(--accent); border-radius: 8px; padding: 12px; min-height: 92px; }
+    .k { color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    code { color: var(--accent); font-family: "Roboto Mono", "Consolas", monospace; font-size: 0.95em; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border: 1px solid var(--accent); padding: 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    details { border: 1px solid var(--accent); border-radius: 8px; padding: 12px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } main { padding: 28px 14px 40px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>가져오기 소스 배지 정리 보고서</h1>
+    <p>이번 단일 사이클에서는 새 Codex 대상 미응답 주문이 없음을 확인한 뒤, 2nd-B 가져오기 허브의 장식 그림문자 아이콘을 디자인 계약에 맞는 텍스트 코드 배지로 교체했다.</p>
+
+    <section aria-labelledby="summary">
+      <h2 id="summary">요약</h2>
+      <div class="grid">
+        <div class="card"><div class="k">대상</div><div><code>ImportHubScreen.tsx</code></div></div>
+        <div class="card"><div class="k">제품 브랜치</div><div><code>codex/cycle-260727-114213-ui-i18n</code></div></div>
+        <div class="card"><div class="k">제품 커밋</div><div><code>e8803432</code></div></div>
+        <div class="card"><div class="k">판정</div><div>차단 이슈 없음</div></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="changes">
+      <h2 id="changes">변경 내용</h2>
+      <table>
+        <thead><tr><th>영역</th><th>이전</th><th>이후</th></tr></thead>
+        <tbody>
+          <tr><td>소스 목록</td><td>소스별 장식 그림문자</td><td><code>KA</code>, <code>TL</code>, <code>SM</code> 같은 짧은 코드 배지</td></tr>
+          <tr><td>동의 헤더</td><td>같은 장식 그림문자 재사용</td><td>동일한 코드 배지 스타일 재사용</td></tr>
+          <tr><td>정리</td><td>대상 파일의 미사용 import 경고 3개</td><td>미사용 import 제거</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="checks">
+      <h2 id="checks">검증</h2>
+      <table>
+        <thead><tr><th>명령</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><code>npx eslint src/screens/deepspace/import/ImportHubScreen.tsx</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>공백 오류 없음, 줄끝 변환 경고만 확인</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>운영 제약 확인</summary>
+      <p>2nd-B에는 로컬 브랜치와 로컬 커밋만 만들었고 push, PR, merge, 배포, 비용 작업, 비밀정보 접근, 브라우저 자동 열기는 수행하지 않았다. 허브 쓰기는 <code>agents/codex/</code> 내부 보고 파일로 제한했다.</p>
+      <p>35절 자기 패널 기준으로 이 변경은 기존 디자인 계약의 장식 그림문자 금지 준수 작업이며, 새 설계 결정이나 고위험 산출이 아니므로 추가 MoA 검증 요청은 만들지 않았다.</p>
+    </details>
+  </main>
+</body>
+</html>

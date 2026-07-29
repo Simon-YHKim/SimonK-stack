@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>안드로이드 릴리스 위생 검토</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --fg: #e7eaf0;
+      --muted: #9aa3b2;
+      --accent: #69b7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    h1, h2 { margin: 0 0 12px; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 0 0 12px; }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin: 18px 0 6px;
+    }
+    .box {
+      border: 1px solid rgba(105, 183, 255, 0.38);
+      border-radius: 6px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .label { color: var(--muted); font-size: 12px; display: block; }
+    .value { color: var(--fg); font-size: 18px; font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      border: 1px solid rgba(105, 183, 255, 0.28);
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px;
+      border-bottom: 1px solid rgba(105, 183, 255, 0.2);
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      overflow-wrap: anywhere;
+    }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+    details {
+      border: 1px solid rgba(105, 183, 255, 0.25);
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-top: 10px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>안드로이드 릴리스 위생 검토</h1>
+    <p class="muted">작성 시각: 2026-07-21 09:26:40 KST · 대상: <code>fix/comm-android-release-hygiene</code> · 커밋: <code>69b8ae08</code></p>
+
+    <section class="grid" aria-label="요약 지표">
+      <div class="box"><span class="label">판정</span><span class="value">차단 없음</span></div>
+      <div class="box"><span class="label">변경 범위</span><span class="value">워크플로 1개</span></div>
+      <div class="box"><span class="label">충돌 예측</span><span class="value">깨끗함</span></div>
+      <div class="box"><span class="label">추가 검증</span><span class="value">요청함</span></div>
+    </section>
+
+    <h2>검토 결론</h2>
+    <p>Android 진단 APK 워크플로 변경은 목적과 범위가 일치하며, main 기준 병합 트리 충돌은 없었다. 수동 릴리스 게이트가 떠밀려 취소되는 문제를 줄이고, 진단 APK가 EAS production 플래그와 더 가깝게 빌드되도록 맞춘 변경으로 판단한다.</p>
+    <p>단, 브랜치는 최신 <code>origin/main@ae20c7f5</code>를 포함하지 않는다. Claude 병합 게이트에서 최신 main 위로 cherry-pick 또는 rebase 후 최종 GitHub Actions 실행 결과를 확인해야 한다.</p>
+
+    <h2>확인 항목</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>결과</th><th>근거</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>수동 실행 동시성</td><td>통과</td><td><code>workflow_dispatch</code>는 <code>github.run_id</code> 기반 그룹을 사용해 대기 중 release-gate 빌드가 main push 진단 빌드에 밀리지 않는다.</td></tr>
+        <tr><td>main 수동 실행 차단</td><td>통과</td><td><code>workflow_dispatch</code>가 <code>main</code>에서 실행되면 명시적으로 실패한다. 고정 tag 또는 <code>release/*</code> ref를 요구한다.</td></tr>
+        <tr><td>광고 플래그 미러링</td><td>통과</td><td><code>EXPO_PUBLIC_ENABLE_ADS: "true"</code>가 Android 진단 빌드에도 들어간다. CTA 노출은 기존 capability gate에 남아 있다.</td></tr>
+        <tr><td>시크릿 노출</td><td>통과</td><td>새로 추가된 값은 public env 플래그이며, keystore나 운영 시크릿 리터럴은 추가되지 않았다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>git diff --check origin/main...HEAD</code>: 통과</li>
+      <li><code>git merge-tree --write-tree origin/main HEAD</code>: 통과</li>
+      <li>정적 패턴 검사: ref guard, per-dispatch concurrency, ads flag, keystore 리터럴 부재 확인</li>
+      <li><code>actionlint</code>: 로컬 미설치로 실행하지 못함</li>
+    </ul>
+
+    <details>
+      <summary>35절 자기 패널</summary>
+      <p>찬성: Android 릴리스 워크플로는 native-safety 표면이고, 수동 dispatch가 main drift를 만들 수 있다는 문제는 실제 릴리스 게이트 품질에 직접 영향을 준다.</p>
+      <p>반대: GitHub Actions 전용 문법은 로컬 <code>actionlint</code> 없이 완전 검증하지 못했다. 또한 브랜치가 최신 main을 포함하지 않아 병합 직전 재확인이 필요하다.</p>
+      <p>판정: 차단 이슈는 발견하지 못했다. 최신 main 위 재적용과 GitHub Actions 원격 실행 확인을 Claude 병합 게이트 조건으로 남긴다.</p>
+    </details>
+  </main>
+</body>
+</html>

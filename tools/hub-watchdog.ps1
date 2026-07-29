@@ -44,7 +44,13 @@ $aliveAIs = @()
 try {
   Get-CimInstance Win32_Process -Filter "Name='powershell.exe' OR Name='pwsh.exe'" -ErrorAction SilentlyContinue |
     Where-Object { $_.CommandLine -match 'hub-daemon\.ps1' } |
-    ForEach-Object { if ($_.CommandLine -match '-Only\s+(\w+)') { $aliveAIs += $matches[1] } }
+    ForEach-Object {
+      if ($_.CommandLine -match '-Only\s+(\w+)') { $aliveAIs += $matches[1] }
+      # audit D1: a BARE (no -Only) daemon runs ALL default lanes. Without this branch the restart
+      # loop below would see codex/antigravity as "dead" and spawn duplicate -Only workers alongside
+      # the bare daemon (a DIFFERENT per-lane mutex, so no dedup) -> two concurrent git writers.
+      elseif ($_.CommandLine -notmatch '-Only') { $aliveAIs += $daemonAIs }
+    }
 } catch {}
 $aliveAIs = @($aliveAIs | Select-Object -Unique)
 
@@ -52,11 +58,17 @@ $issues = @()   # each: @{ key; title; detail; action }
 
 # (1) RUN STATE paused unexpectedly
 $ctrl = Join-Path $root 'CONTROL.md'
+$cs = $null
 if (Test-Path $ctrl) {
   $cs = (Get-Content $ctrl -Raw)
   if ($cs -match '(?im)^\s*state\s*[:=]\s*paused') {
     $issues += @{ key='control-paused'; title='Hub CONTROL is paused'; detail='CONTROL.md state=paused -- daemons will skip work cycles.'; action='If unintended, set CONTROL state=running. If intended (migration/maintenance), ignore.' }
   }
+} else {
+  # 2026-07-04: fail CLOSED like the daemon (missing CONTROL = paused, hub-daemon reads it
+  # the same way). Previously $cs stayed undefined and the restart gate below evaluated
+  # "running", respawning daemons that then idle-skip forever - restarter/worker disagreed.
+  $issues += @{ key='control-missing'; title='CONTROL.md is MISSING'; detail='Run-state semaphore file not found; daemons treat this as paused (fail-closed) and the watchdog now does too.'; action='Restore CONTROL.md from git (git checkout -- CONTROL.md) and set the intended state.' }
 }
 
 # (1.5) AUTO-RESTART dead daemons (self-healing, 2026-06-16 Simon "놀고 있는 놈들 일하게").
@@ -68,7 +80,9 @@ if (Test-Path $ctrl) {
 # 10min) so it fires even when the daemon-driven call path is dead.
 $restarted = @()
 if (-not $NoAutoRestart) {
-  $isRunning = -not ($cs -and ($cs -match '(?im)^\s*state\s*[:=]\s*(paused|draining)'))
+  # Fail-closed (2026-07-04): restart ONLY on a positive state=running match, mirroring
+  # hub-daemon.ps1 (missing/corrupt CONTROL => treated as paused, no restart).
+  $isRunning = [bool]($cs -and ($cs -match '(?im)^\s*state\s*[:=]\s*"?running'))
   if ($isRunning) {
     $daemonScript = Join-Path $toolsDir 'hub-daemon.ps1'
     foreach ($a in $daemonAIs) {
@@ -129,13 +143,23 @@ try {
   $pollOut = powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $toolsDir 'orders-poll.ps1') -Json 2>$null
   $poll = $null; try { $poll = $pollOut | ConvertFrom-Json } catch {}
   if ($poll -and $poll.error) {
-    $issues += @{ key='orders-channel-error'; title='Remote ORDERS channel broken'; detail="orders-poll error: $($poll.error)"; action='Check C:\2ndB clone + network; run tools/orders-poll.ps1 manually.' }
-  } elseif ($poll -and [int]$poll.newCount -gt 0) {
+    $issues += @{ key='orders-channel-error'; title='Remote ORDERS channel broken'; detail="orders-poll error: $($poll.error)"; action='Check E:\2ndB clone + network; run tools/orders-poll.ps1 manually.' }
+  } elseif ($poll) {
     $hb = Join-Path $toolsDir 'orders-poll-heartbeat.txt'
     $hbAgeMin = if (Test-Path $hb) { ((Get-Date) - (Get-Item $hb).LastWriteTime).TotalMinutes } else { [double]::MaxValue }
-    if ($hbAgeMin -gt 30) {
+    # (6a) orders WAITING with a dead/absent consumer = the real-harm case (an idle queue with a
+    # stale heartbeat is normal session-bound-consumer behavior, NOT an outage -- do not alert on it).
+    if ([int]$poll.newCount -gt 0 -and $hbAgeMin -gt 30) {
       $hbTxt = if (Test-Path $hb) { "consumer heartbeat {0:n0}m old" -f $hbAgeMin } else { 'no consumer heartbeat file (no director /loop has ever polled with -Heartbeat)' }
       $issues += @{ key='orders-unconsumed'; title="Simon's remote order(s) waiting with NO consumer (O-$($poll.newIds -join ', O-'))"; detail="ORDERS.md has $($poll.newCount) unconsumed order(s); $hbTxt. The remote-order pipeline is effectively DOWN."; action='Start the Claude /loop director session (HUB-STARTUP.html remote-orders card) or handle the order directly, then have the loop poll with -Heartbeat.' }
+    }
+    # (6b, audit E2b) ABANDONED in-progress: an order was acked (picked up, in tools/orders-ack.json)
+    # but never reached ## DONE while the consumer heartbeat went stale -> the director died mid-task
+    # and the ack ledger now hides that order from newIds FOREVER (it never re-surfaces as NEW). This
+    # requires a genuinely-acked order, so it is not the idle-death false alarm -- real work was dropped.
+    $abandoned = @($poll.ackedIds | Where-Object { ($poll.openIds -contains $_) -and ($poll.doneIds -notcontains $_) })
+    if ($abandoned.Count -gt 0 -and $hbAgeMin -gt 30) {
+      $issues += @{ key='orders-abandoned'; title="Acked order(s) abandoned in-progress (O-$($abandoned -join ', O-'))"; detail="Picked up (ack ledger) but never moved to ## DONE, and the consumer heartbeat is $([int]$hbAgeMin)m stale -- the director died mid-task and the ack ledger now hides them from new-order detection, so they will NOT re-surface on their own."; action="Handle O-$($abandoned -join ', O-') directly, then move them to ## DONE or clear their ids from tools/orders-ack.json." }
     }
   }
 } catch {}
@@ -146,6 +170,57 @@ try {
   $curBranch = (git -C $root rev-parse --abbrev-ref HEAD 2>$null)
   if ($curBranch -and $curBranch -ne 'master') {
     $issues += @{ key='hub-head-off-master'; title="Hub HEAD is on '$curBranch' (must be master)"; detail='A CLI checked out a branch in the shared hub tree. Commits are missing master and the off-machine backup.'; action='git checkout master; git merge --ff-only <branch>; git branch -d <branch>. The daemon BRANCH-HEAL also repairs this when the tree is clean.' }
+  }
+} catch {}
+
+# (8) PUSH PATH health (2026-07-04 restore audit): local commits must reach origin (comm-hub).
+# Detect a dead/rotting push path: master far ahead of the origin/master ref (HubBackup dead,
+# push rejected non-FF, or divergence) or the HubBackup scheduled task missing on this machine.
+try {
+  $ahead = 0
+  $aheadRaw = git -C $root rev-list --count origin/master..master 2>$null
+  if ($aheadRaw -match '^\d+$') { $ahead = [int]$aheadRaw }
+  if ($ahead -ge 15) {
+    $issues += @{ key='push-stale'; title="Hub master is $ahead commits ahead of origin"; detail='Local hub commits are not reaching the comm-hub remote (HubBackup dead, rejected push, or divergence). They pile up locally and are not backed up off-machine.'; action='Run tools/hub-backup.ps1 manually and read tools/hub-backup.log; if the push is rejected non-fast-forward, Claude must git fetch + merge origin/master (never force), then push.' }
+  }
+  $bkTask = $null
+  try { $bkTask = Get-ScheduledTask -TaskName 'HubBackup' -ErrorAction SilentlyContinue } catch {}
+  if (-not $bkTask) {
+    $issues += @{ key='hubbackup-task-missing'; title='HubBackup scheduled task is missing on this machine'; detail='Nothing pushes hub master to origin automatically; daemon commits accumulate locally with no off-machine backup.'; action='Re-register the HubBackup task pointing at tools/hub-backup.ps1 (launch via pwsh; the script contains Korean literals that powershell.exe 5.1 mojibakes).' }
+  }
+} catch {}
+
+# (9) grok is request-only (no standing lane, ROUTING Sec.4): an OPEN request addressed to grok
+# has NO automated server - dispatch-oneshot's hidden spawn already died silently once (07-03).
+# File a note so Claude spawns `hub-daemon.ps1 -Only grok -MaxCycles 1` or handles it directly.
+# (Note only, no auto-spawn: this scan is not ref-aware, so an already-answered stale row must
+# not trigger respawn ping-pong; the note's cooldown dedupe keeps it quiet.)
+try {
+  if ($aliveAIs -notcontains 'grok') {
+    $grokOpen = 0
+    Get-ChildItem (Join-Path $root 'agents') -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+      $ob = Join-Path $_.FullName 'outbox'
+      if (Test-Path $ob) {
+        Get-ChildItem $ob -Filter *.md -File -ErrorAction SilentlyContinue | ForEach-Object {
+          $h = Get-Content $_.FullName -TotalCount 14 -ErrorAction SilentlyContinue
+          if (($h -match '^to:\s*"?grok') -and ($h -match '^type:\s*"?request') -and ($h -match '^status:\s*"?open')) { $grokOpen++ }
+        }
+      }
+    }
+    if ($grokOpen -gt 0) {
+      $issues += @{ key='grok-order-waiting'; title="$grokOpen open request(s) addressed to grok with no server"; detail='grok is request-only (excluded from default lanes); nothing serves its queue automatically.'; action='Spawn once: powershell -ExecutionPolicy Bypass -File tools/hub-daemon.ps1 -Only grok -MaxCycles 1 (its ref-aware counter + NO-OP rule make this safe), or answer/close the request as Claude.' }
+    }
+  }
+} catch {}
+
+# (10, audit F3) reroute notes rotting: a parked lane (quota/hard-fail) files *-reroute-<ai>.md into
+# claude/inbox, but models.json reroute_to=claude and claude has no autonomous lane -- so if no live
+# session consumes them the rerouted orders rot (same class as the orders-unconsumed SPOF). Alert on
+# reroute notes older than 3h so they surface even during unattended operation.
+try {
+  $rerouteOld = @(Get-ChildItem $inbox -Filter '*.md' -ErrorAction SilentlyContinue | Where-Object { $_.Name -match 'reroute' -and $_.Name -notmatch 'selffeedback' -and ((Get-Date) - $_.LastWriteTime).TotalHours -gt 3 })
+  if ($rerouteOld.Count -gt 0) {
+    $issues += @{ key='reroute-unconsumed'; title="$($rerouteOld.Count) lane-reroute note(s) unconsumed >3h"; detail='A parked lane rerouted its orders to claude/inbox but no session has consumed them (reroute_to=claude has no autonomous server). The rerouted work is stalled.'; action='Process the reroute notes in agents/claude/inbox (handle or clear the rerouted orders), or repoint reroute_to at a lane that actually runs.' }
   }
 } catch {}
 

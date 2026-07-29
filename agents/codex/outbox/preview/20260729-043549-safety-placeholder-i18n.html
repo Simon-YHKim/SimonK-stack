@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>안전 입력 문구 현지화 보고</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    header, section {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, var(--bg));
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+      background: color-mix(in srgb, var(--text) 4%, var(--bg));
+    }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 10px; }
+    ul { margin: 0; padding-left: 20px; }
+    code {
+      color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 10%, var(--bg));
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 14%, var(--bg));
+      padding: 9px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--text) 14%, var(--bg));
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .label { color: var(--accent); font-weight: 700; }
+    details { margin-top: 8px; }
+    summary { cursor: pointer; color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>안전 입력 문구 현지화 보고</h1>
+      <p>Codex 단일 poll cycle에서 새로 발견한 UI/i18n anti-slop 1건을 처리했다. 위기 안내 문구는 건드리지 않고 green-zone 입력 placeholder만 각 언어로 맞췄다.</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="card"><div class="label">작업</div><div>ES/PT/ID 안전 입력 placeholder 현지화</div></div>
+        <div class="card"><div class="label">앱 브랜치</div><div><code>codex/cycle-20260729-043418-ui-antislop</code></div></div>
+        <div class="card"><div class="label">앱 커밋</div><div><code>e3a66955</code></div></div>
+        <div class="card"><div class="label">기준</div><div><code>origin/main 9c674f4d</code></div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>변경</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>locales/es/safety.json</code></td><td>영어 placeholder를 스페인어 문구로 변경</td></tr>
+          <tr><td><code>locales/pt/safety.json</code></td><td>영어 placeholder를 포르투갈어 문구로 변경</td></tr>
+          <tr><td><code>locales/id/safety.json</code></td><td>영어 placeholder를 인도네시아어 문구로 변경</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li>JSON 파싱 통과</li>
+        <li><code>git diff --check</code> 통과, Windows 줄끝 경고만 확인</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <details open>
+        <summary>판정</summary>
+        <p>35.4 자체 패널 기준으로 단일 작업 범위, 안전성, 회귀 가능성을 점검했다. 위기 대응 red/yellow 문구와 핫라인 텍스트는 안전·법무 민감도가 있어 이번 변경에서 제외했다. 변경은 green-zone placeholder 3줄에 한정되며, 고위험 산출물 조건에는 해당하지 않아 별도 검증 요청은 발행하지 않았다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

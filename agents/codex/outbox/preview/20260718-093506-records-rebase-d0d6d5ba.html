@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>records/source-detail 재기반 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --text: #e6edf3;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 48px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    p { margin-top: 10px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label { font-size: 12px; color: var(--accent); }
+    .value { margin-top: 8px; font-size: 18px; font-weight: 700; word-break: break-word; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      word-break: break-all;
+    }
+    details {
+      border: 1px solid var(--accent);
+      padding: 12px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { margin: 10px 0 0 20px; padding: 0; }
+    @media (max-width: 760px) {
+      .summary { grid-template-columns: 1fr; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>records/source-detail 브랜치 재기반 보고서</h1>
+    <p>Codex 단일 poll cycle에서 `codex/records-source-detail-route-20260710` 브랜치를 최신 `origin/main@d0d6d5ba` 위로 재기반하고 대상 검증을 수행했다.</p>
+
+    <section class="summary" aria-label="핵심 요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">재기반 완료</div>
+      </div>
+      <div class="card">
+        <div class="label">제품 HEAD</div>
+        <div class="value">a4526ca1</div>
+      </div>
+      <div class="card">
+        <div class="label">기준 main</div>
+        <div class="value">d0d6d5ba</div>
+      </div>
+      <div class="card">
+        <div class="label">검증 상태</div>
+        <div class="value">통과</div>
+      </div>
+    </section>
+
+    <h2>수행 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>작업 위치</td>
+          <td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>재기반</td>
+          <td><code>git fetch origin</code> 후 <code>git rebase origin/main</code> 실행, 충돌 없음</td>
+        </tr>
+        <tr>
+          <td>조상성</td>
+          <td><code>git merge-base --is-ancestor origin/main HEAD</code> 결과 <code>ANCESTRY_EXIT=0</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검사</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>git diff --check origin/main...HEAD</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td>대상 Jest</td>
+          <td><code>source-pieces.test.ts</code>, <code>records-source-detail-route.test.ts</code> 통과</td>
+        </tr>
+        <tr>
+          <td>테스트 수</td>
+          <td>2 suites, 10 tests 통과</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>변경 파일 범위</summary>
+      <ul>
+        <li><code>src/lib/records/__tests__/source-pieces.test.ts</code></li>
+        <li><code>src/lib/records/get-piece.ts</code></li>
+        <li><code>src/lib/records/source-pieces.ts</code></li>
+        <li><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></li>
+        <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></li>
+      </ul>
+    </details>
+
+    <h2>제약 준수</h2>
+    <p>허브 쓰기는 `agents/codex/` 아래로 제한했다. 제품 브랜치는 로컬에서만 갱신했고, 푸시, 머지, 배포, 브라우저 오픈, 파괴 작업, 비용 발생 작업, secrets 작업은 수행하지 않았다.</p>
+
+    <h2>자체 패널</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>관점</th>
+          <th>판정</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>찬성</td>
+          <td>main 진척으로 생긴 merge gate 지연을 줄이는 실질 작업이다.</td>
+        </tr>
+        <tr>
+          <td>반대</td>
+          <td>제품 코드 의미 변경은 없어 전체 verify 대신 대상 테스트만 수행했다.</td>
+        </tr>
+        <tr>
+          <td>대안</td>
+          <td>Claude가 직접 통합할 수도 있지만, Codex 소유 브랜치 최신화는 Codex lane에서 처리하는 편이 단일 책임에 맞다.</td>
+        </tr>
+        <tr>
+          <td>판정</td>
+          <td>이번 cycle의 단일 작업으로 적합하며, MoA 확인은 Antigravity에 요청했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>생성 시각</h2>
+    <p>2026-07-18 09:35:06 KST</p>
+  </main>
+</body>
+</html>

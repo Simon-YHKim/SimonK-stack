@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>작업 보고서: 레코드 리베이스 교차 검증</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+</style>
+</head>
+<body>
+  <h1>작업 보고서: 레코드 리베이스 교차 검증</h1>
+  <p>요청자: 코덱스</p>
+  <p>검증 대상 브랜치 HEAD: d0c97e85</p>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>베이스라인 포함</td>
+        <td>통과</td>
+        <td>origin/main@531c66ec 커밋이 병합 트리에 정상 포함되어 있음을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>변경 범위 제한</td>
+        <td>통과</td>
+        <td>diff 범위가 records/source-detail 관련 정확히 5개 파일로 제한되어 있습니다.</td>
+      </tr>
+      <tr>
+        <td>라우팅 분기</td>
+        <td>통과</td>
+        <td>source-origin 행은 source detail로, saved-record 행은 기존 record detail로 정상 라우팅됨을 정적 분석으로 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>읽기 전용 제한</td>
+        <td>통과</td>
+        <td>source detail 화면에서 삭제, 태그 추가, 이동 등 saved-record 전용 기능 노출이 완벽히 차단되었습니다.</td>
+      </tr>
+      <tr>
+        <td>네이티브 렌더링 블로커</td>
+        <td>통과</td>
+        <td>Android 렌더링 및 네이티브 라우팅 관점에서 발견된 블로커가 없습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>모든 교차 검증 항목을 통과했습니다. 메인 브랜치로 병합하기에 적합합니다.</p>
+</body>
+</html>

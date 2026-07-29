@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IDEN 내보내기 다국어 행 라벨 정리</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101319;
+      --panel: #1a202b;
+      --text: #eef3f8;
+      --muted: #9aa7b4;
+      --accent: #7cc7d8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    header, section {
+      background: var(--panel);
+      border: 1px solid rgba(124, 199, 216, 0.22);
+      border-radius: 8px;
+      padding: 22px;
+      margin-bottom: 16px;
+    }
+    h1, h2 { margin: 0 0 12px; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .card {
+      border: 1px solid rgba(154, 167, 180, 0.28);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 92px;
+    }
+    .label { color: var(--muted); font-size: 12px; }
+    .value { margin-top: 6px; font-weight: 650; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid rgba(154, 167, 180, 0.22);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 650; }
+    code {
+      color: var(--text);
+      background: rgba(154, 167, 180, 0.14);
+      border-radius: 5px;
+      padding: 2px 5px;
+    }
+    details {
+      border-top: 1px solid rgba(154, 167, 180, 0.22);
+      padding-top: 12px;
+      margin-top: 12px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 650; }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>IDEN 내보내기 다국어 행 라벨 정리</h1>
+      <p>IDEN 내보내기 화면에서 ES, PT, ID 사용자에게 영어로 보이던 포함 항목 라벨, 보조문, 하단 안내문을 각 언어로 표시하도록 정리했다.</p>
+      <div class="grid" aria-label="요약">
+        <div class="card"><div class="label">결과</div><div class="value">로컬 커밋 완료</div></div>
+        <div class="card"><div class="label">2nd-B 커밋</div><div class="value"><code>ef3d1631</code></div></div>
+        <div class="card"><div class="label">위험도</div><div class="value">낮음</div></div>
+        <div class="card"><div class="label">검증</div><div class="value">통과</div></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>작업 위치</td><td><code>E:\2ndB\.worktrees\codex-cycle-20260728-224309-antislop</code></td></tr>
+          <tr><td>브랜치</td><td><code>codex/cycle-20260728-224309-antislop</code></td></tr>
+          <tr><td>기준</td><td><code>origin/main 69b0c58f</code></td></tr>
+          <tr><td>수정 파일</td><td><code>src/app/iden.tsx</code></td></tr>
+          <tr><td>수정 표면</td><td>IDEN 포함 항목 4개, 제외 안내문, 기기 서명 안내문</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>세부 설명</summary>
+        <p>기존 구현은 한국어 외 언어에서 포함 항목 행 라벨을 영어 보조 맵으로만 렌더링했다. 이번 변경은 화면 내부의 작은 복사 맵을 ES, PT, ID까지 확장해 사용자의 현재 UI 언어와 맞추었다.</p>
+        <p>내보내기 데이터 구조, 포함 제외 동작, 공유와 미리보기 흐름은 변경하지 않았다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <ul>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>git diff --check</code> 기능 오류 없음, Windows 줄끝 경고만 확인</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <p>정본성: Codex 레인의 UI 다국어 anti-slop 작업이며 현재 디자인 계약을 약화하지 않는다.</p>
+      <p>범위: 컴포넌트 내 표시 문자열 선택만 바꾸었고 스키마, 인증, 결제, LLM, 외부 사실, 배포는 건드리지 않았다.</p>
+      <p>교차 검증: 고위험 산출물이 아니므로 별도 MoA verify 요청은 만들지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>배포 포인터 정합성 확인</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --text: #e8edf2;
+      --accent: #6aa6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { line-height: 1.2; margin: 0 0 14px; }
+    h1 { font-size: clamp(28px, 4vw, 44px); }
+    h2 { font-size: 20px; margin-top: 28px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      margin: 22px 0 26px;
+    }
+    .card, details {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      border-radius: 8px;
+      padding: 16px;
+      background: color-mix(in srgb, var(--text) 4%, transparent);
+    }
+    .label { display: block; color: var(--accent); font-size: 13px; margin-bottom: 8px; }
+    code {
+      color: var(--text);
+      overflow-wrap: anywhere;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.92em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px 8px;
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 14%, transparent);
+    }
+    th { color: var(--accent); font-weight: 650; }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 650;
+    }
+    details { margin-top: 12px; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>배포 포인터 정합성 확인</h1>
+    <p>이번 사이클은 새 제품 코드를 수정하지 않고, 최신 웹 정적 배포 브랜치가 현재 본선 커밋을 정확히 가리키는지만 확인했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <span class="label">판정</span>
+        <strong>정합성 통과</strong>
+      </div>
+      <div class="card">
+        <span class="label">본선</span>
+        <code>7726e9c3310c04d9eb6aa075cf248f719abcedae</code>
+      </div>
+      <div class="card">
+        <span class="label">배포 브랜치</span>
+        <code>01ad8897d6b8db0c357a51bd1ef8f7a08341fd26</code>
+      </div>
+      <div class="card">
+        <span class="label">검증 시각</span>
+        <span>2026-07-22 15:10:10 KST</span>
+      </div>
+    </section>
+
+    <h2>핵심 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>확인값</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>본선 제목</td>
+          <td><code>fix(onboarding): convert Get started to a #680-safe bare Pressable (Fabric dead-touch) (#1128)</code></td>
+        </tr>
+        <tr>
+          <td>배포 제목</td>
+          <td><code>deploy: 7726e9c3310c04d9eb6aa075cf248f719abcedae 7726e9c3310c04d9eb6aa075cf248f719abcedae</code></td>
+        </tr>
+        <tr>
+          <td>판정 근거</td>
+          <td>배포 커밋 제목이 현재 본선 전체 SHA를 정확히 두 번 포함한다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 명령</summary>
+      <ul>
+        <li><code>git fetch origin</code></li>
+        <li><code>git rev-parse --short=8 origin/main</code></li>
+        <li><code>git log -1 --oneline origin/main</code></li>
+        <li><code>git show --no-patch --format='%H%n%ct%n%s%n%b' origin/gh-pages</code></li>
+        <li><code>git rev-list --parents -n 1 origin/gh-pages</code></li>
+        <li><code>git ls-tree --name-only origin/gh-pages</code></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>검증 한계</summary>
+      <p><code>origin/gh-pages</code>는 정적 산출 브랜치이며 이 로컬 참조에서는 부모가 없는 형태로 확인되었다. 따라서 부모 커밋 기준 전체 diff check는 수행할 수 없었고, 이번 보고서는 배포 포인터 정합성 확인으로 한정한다.</p>
+    </details>
+
+    <details>
+      <summary>섹션 35 자기 패널</summary>
+      <ul>
+        <li>관점 A: 배포 제목이 본선 전체 SHA를 정확히 포함하므로 포인터 정합성은 정상이다.</li>
+        <li>관점 B: 정적 산출 브랜치는 소스 브랜치와 계보가 달라 소스 회귀 검증으로 확대하면 안 된다.</li>
+        <li>관점 C: 부모 없는 산출 커밋의 전체 diff 품질 검증은 제한적이므로 release QA 통과로 과장하지 않는다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>

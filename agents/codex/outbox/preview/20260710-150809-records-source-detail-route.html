@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 소스 상세 연결 수정</title>
+  <style>
+    :root { --bg: #0f1115; --fg: #e8e3d8; --ac: #7cc7bd; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(920px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    h1 { margin: 0 0 10px; font-size: clamp(26px, 4vw, 38px); line-height: 1.15; }
+    h2 { margin: 30px 0 10px; font-size: 18px; color: var(--ac); }
+    p { margin: 8px 0; }
+    .meta { color: var(--ac); margin-bottom: 24px; }
+    .box { border: 1px solid color-mix(in srgb, var(--ac) 45%, transparent); padding: 18px; margin: 16px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: left; vertical-align: top; padding: 10px; border-bottom: 1px solid color-mix(in srgb, var(--ac) 35%, transparent); }
+    th { color: var(--ac); font-weight: 700; }
+    code { color: var(--ac); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    ul { padding-left: 20px; }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 소스 상세 연결 수정</h1>
+    <p class="meta">2026-07-10 15:08:09 KST · 코덱스 단일 사이클 보고</p>
+
+    <section class="box">
+      <h2>요약</h2>
+      <p>열린 신규 오더는 없었고, 오늘 코덱스 정적 검수에서 새로 확인한 딥스페이스 기록 화면의 소스 행 상세 연결 문제를 한 건 수정했다.</p>
+      <p>제품 브랜치 <code>codex/records-source-detail-route-20260710</code>에 커밋 <code>9493d315</code>를 남겼고, 원격 푸시는 하지 않았다.</p>
+      <p>최신 기준점은 <code>origin/main@e2876ad8</code>이며, 리베이스 뒤 다시 검증했다.</p>
+    </section>
+
+    <section>
+      <h2>수정 내용</h2>
+      <ul>
+        <li><code>sources</code>에서 온 기록 목록 행에 원본 식별자와 출처를 보존하도록 했다.</li>
+        <li>목록과 그래프에서 소스 행을 열 때 <code>origin=source</code>를 함께 넘기도록 했다.</li>
+        <li>딥스페이스 상세 화면이 <code>origin=source</code>일 때 <code>sources</code> 테이블에서 해당 조각을 읽도록 했다.</li>
+        <li>소스 상세에서는 기록 전용 임베딩 이웃 조회와 기록 삭제 버튼을 노출하지 않도록 했다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr><th>검증 항목</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-timeline.test.ts src/lib/records/__tests__/records-graph.test.ts</code></td><td>통과 · 2개 스위트, 18개 테스트</td></tr>
+          <tr><td><code>npx tsc --noEmit --pretty false</code></td><td>통과</td></tr>
+          <tr><td><code>npm run verify; Write-Output "EXIT=$?"</code></td><td>통과 · <code>EXIT=True</code>, 309개 스위트와 2342개 테스트 통과</td></tr>
+        </tbody>
+      </table>
+      <p>전체 검증 중 기존 린트 경고와 테스트 콘솔 경고는 있었지만 실패는 없었다.</p>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <ul>
+        <li>범위: 오늘 발견한 소스 행 상세 연결 결함 하나로 제한했다.</li>
+        <li>안전성: 스키마, 비밀값, 비용 발생, 원격 푸시는 건드리지 않았다.</li>
+        <li>사용자 영향: 소스만 가진 사용자가 딥스페이스 기록 목록이나 그래프에서 조각을 열 때 빈 상세로 빠지는 흐름을 줄인다.</li>
+        <li>잔여 위험: 에뮬레이터 픽셀 검증은 이 사이클에서 수행하지 않았다. 클로드가 머지 전 런타임 확인을 붙이면 좋다.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

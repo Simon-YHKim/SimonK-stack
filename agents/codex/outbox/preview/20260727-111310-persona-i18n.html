@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고: 페르소나 화면 다국어 정리</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e8edf2;
+      --accent: #7dd3c7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    .meta { color: var(--accent); margin-top: 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1px;
+      border: 1px solid var(--accent);
+      margin-top: 24px;
+    }
+    .cell { padding: 16px; border: 1px solid var(--accent); }
+    .label { color: var(--accent); font-size: 13px; }
+    .value { margin-top: 6px; font-weight: 700; }
+    ul { padding-left: 20px; }
+    li { margin: 8px 0; }
+    code { color: var(--accent); }
+    details {
+      border: 1px solid var(--accent);
+      padding: 14px 16px;
+      margin-top: 14px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>페르소나 화면 다국어 표시 정리</h1>
+    <p class="meta">작성 시각: 2026-07-27 11:13:10 KST</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="cell">
+        <div class="label">결과</div>
+        <div class="value">완료</div>
+      </div>
+      <div class="cell">
+        <div class="label">앱 브랜치</div>
+        <div class="value"><code>codex/cycle-260727-110844-ui-i18n</code></div>
+      </div>
+      <div class="cell">
+        <div class="label">앱 커밋</div>
+        <div class="value"><code>64a1076e</code></div>
+      </div>
+      <div class="cell">
+        <div class="label">수정 파일</div>
+        <div class="value"><code>src/app/persona.tsx</code></div>
+      </div>
+    </section>
+
+    <h2>수행 내용</h2>
+    <ul>
+      <li>열린 codex 수신함은 없었고, stale 처리 이력이 있는 오래된 open 행은 새 오더로 보지 않았다.</li>
+      <li>2nd-B <code>origin/main</code> <code>69b0c58f</code> 기준 새 worktree에서 한 화면만 수정했다.</li>
+      <li>페르소나 화면의 빈 상태, 오류, 내보내기 실패, 밝기 설명, 도구 카드, MBTI 안내, 관찰 문구, 애착 축 라벨을 표시 locale 5종으로 확장했다.</li>
+      <li>LLM 호출, 안전 분류, 데이터 저장, 프레임워크 라벨 등 기존 EN/KO system locale 계약은 유지했다.</li>
+    </ul>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>npx eslint src/app/persona.tsx</code> 통과</li>
+      <li><code>npm run type-check</code> 통과</li>
+      <li><code>npm run check:i18n</code> 통과</li>
+      <li><code>npm run check:lexicon</code> 통과</li>
+      <li><code>npm run check:emdash</code> 통과</li>
+      <li><code>git diff --check</code> 공백 오류 없음, CRLF 경고만 확인</li>
+    </ul>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <ul>
+        <li>찬성: 페르소나 진입 화면은 사용자가 자주 보는 자기 이해 허브라 ES/PT/ID에서 영어가 섞이면 신뢰가 떨어진다.</li>
+        <li>반대: trait, attachment, framework 이름 일부는 여전히 EN/KO 라이브러리 계약에 묶여 있어 전체 번역은 아니다.</li>
+        <li>판정: 이번 사이클은 한 파일 표시 문구만 줄이는 것이 범위 대비 가치가 가장 높다. 데이터 계약 확장은 별도 설계가 필요하다.</li>
+      </ul>
+    </details>
+
+    <h2>제한 준수</h2>
+    <ul>
+      <li>hub에서는 <code>agents/codex/</code> 아래 파일만 작성했다.</li>
+      <li>2nd-B push, PR, merge, 배포, 비용 발생, 시크릿 접근, 파괴적 작업은 하지 않았다.</li>
+      <li>브라우저 자동 열기 명령은 실행하지 않았다.</li>
+    </ul>
+  </main>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 리포트</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 0; padding: 24px; }
+  h1, h2, h3 { color: #FFFFFF; font-weight: 600; }
+  h1 { border-bottom: 1px solid #333333; padding-bottom: 8px; }
+  .section { margin-bottom: 24px; }
+  .status-pass { color: #A5D6A7; font-weight: bold; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  th, td { border: 1px solid #333333; padding: 12px; text-align: left; }
+  th { background-color: #1E1E1E; color: #FFFFFF; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 리포트: 기록 출처 상세 라우팅</h1>
+  <div class="section">
+    <h2>개요</h2>
+    <p>대상 브랜치: codex/records-source-detail-route-20260710 (헤드 3f85515f)</p>
+    <p>검증 항목: 정적 코드 분석 및 에뮬레이터 UI 방어 로직 검토</p>
+    <p>종합 판정: <span class="status-pass">통과</span></p>
+  </div>
+  <div class="section">
+    <h2>검증 상세</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검증 항목</th>
+          <th>결과 및 확인 내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>소스 및 기록 라우팅</td>
+          <td>origin 매개변수를 식별하여 sourceId 기반으로 라우팅 분기가 정상 동작함.</td>
+        </tr>
+        <tr>
+          <td>데이터 누락 방어</td>
+          <td>fallback 로직(sourceBodyFallback)이 반영되어 데이터 로드 실패 시 빈 화면 렌더링을 방어함.</td>
+        </tr>
+        <tr>
+          <td>의존성 오류 격리</td>
+          <td>관련 기록 페치 실패 시에도 메인 기록 상세 렌더링에 영향을 주지 않도록 예외 처리가 반영됨.</td>
+        </tr>
+        <tr>
+          <td>메모리 및 성능</td>
+          <td>React.memo와 FlatList 최적화 속성이 유지되고 있으며 불필요한 재렌더링 누수 없음.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="section">
+    <h2>결론</h2>
+    <p>네이티브 렌더링 안정성 및 오류 발생 시 UI 방어 로직이 적절히 구현되었음을 확인하였습니다. 별도 반려 사유 없음.</p>
+  </div>
+</body>
+</html>

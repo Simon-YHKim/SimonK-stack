@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 리포트: 레코드 상세 브랜치 재배치 검증</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem auto;
+    max-width: 800px;
+    padding: 0 1rem;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .pass {
+    color: #4caf50;
+    font-weight: bold;
+  }
+  .info {
+    color: #90caf9;
+  }
+  .code {
+    background-color: #1e1e1e;
+    padding: 0.2rem 0.4rem;
+    font-family: monospace;
+    font-size: 0.9em;
+  }
+</style>
+</head>
+<body>
+
+<h1>QA 검증 리포트</h1>
+<p>대상 커밋: <span class="code">c9505546</span> (브랜치: <span class="code">codex/records-source-detail-route-20260710</span>)</p>
+
+<h2>검증 항목 결과</h2>
+<table>
+  <thead>
+    <tr>
+      <th>검증 항목</th>
+      <th>결과</th>
+      <th>비고</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>기반 커밋 <span class="code">2166fa3b</span> 조상 확인</td>
+      <td class="pass">통과</td>
+      <td>머지 베이스 검증 완료 (조상 커밋 맞음)</td>
+    </tr>
+    <tr>
+      <td><span class="code">origin=source</span> 경로 진입 유지</td>
+      <td class="pass">통과</td>
+      <td><span class="code">getPieceById(userId, recordId, origin)</span> 호출 확인됨</td>
+    </tr>
+    <tr>
+      <td><span class="code">source-origin</span> 화면 내 전용 액션 미노출</td>
+      <td class="pass">통과</td>
+      <td><span class="code">isSource ? null : (...)</span> 조건부 렌더링 확인됨</td>
+    </tr>
+    <tr>
+      <td>기존 저장 레코드와의 격리</td>
+      <td class="pass">통과</td>
+      <td><span class="code">isSource = origin === 'source'</span> 로직 분리 유지</td>
+    </tr>
+    <tr>
+      <td>리모트 푸시 및 머지 미발생</td>
+      <td class="pass">통과</td>
+      <td>리모트 브랜치에 해당 커밋 미존재 확인 완료</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>상세 로그</h2>
+<p class="info">작업은 로컬 워크트리에서 검증되었으며, 모든 정책이 정상적으로 유지됨을 확인하였습니다.</p>
+
+</body>
+</html>

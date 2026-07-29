@@ -17,10 +17,15 @@ $utf8 = [System.Text.UTF8Encoding]::new($false)
 [Console]::OutputEncoding = $utf8; $OutputEncoding = $utf8
 $ErrorActionPreference = 'Continue'
 $root = Split-Path $PSScriptRoot -Parent
-$stamp = Get-Date -Format 'yyyy-MM-dd / HH:mm:ss'
+# Timestamp fixes (2026-07-04): (a) the bare / in a .NET date format is the CULTURE date
+# separator - on this ko-KR box it rendered '-', breaking the hub 'YYYY-MM-DD / HH:MM:SS KST'
+# contract; quote it as a literal. (b) stamp per call, not once at script start - START/OK/END
+# all carried the launch time while the run took minutes.
+function Now { Get-Date -Format "yyyy-MM-dd '/' HH:mm:ss" }
+$stamp = Now
 $today = Get-Date -Format 'yyyy-MM-dd'
 $log = Join-Path $PSScriptRoot 'models-refresh.log'
-function LogLine([string]$m) { $l = "[$stamp KST] $m"; Write-Host $l; try { Add-Content -LiteralPath $log -Value $l -Encoding utf8 } catch {} }
+function LogLine([string]$m) { $l = "[$(Now) KST] $m"; Write-Host $l; try { Add-Content -LiteralPath $log -Value $l -Encoding utf8 } catch {} }
 
 $prompt = "Today is $today. You have web/Google search - USE IT to confirm what is current. For a multi-AI coding hub, find the single HIGHEST-BENCHMARK model AND the exact MAX reasoning-effort setting currently available for each CLI as of today: (1) Anthropic Claude Code, (2) OpenAI Codex CLI, (3) xAI grok CLI, (4) Google gemini / Antigravity agy CLI. Output ONLY a compact JSON object, no prose, no markdown fences, with top-level keys claude, codex, grok, antigravity. Each value is an object with fields: model (exact id string the CLI accepts), effort (exact max effort flag or value), reason (one short line citing the benchmark and release date). Prefer official docs and reputable leaderboards. Begin your reply with the open brace."
 
@@ -107,7 +112,10 @@ if ($changes.Count -eq 0) {
   $inbox = Join-Path $root 'agents/claude/inbox'
   if (Test-Path $inbox) {
     $note = Join-Path $inbox ((Get-Date -Format 'yyyyMMdd-HHmmss') + '-from-refresh-models-benchmark-change.md')
-    $body = "---`nfrom: refresh-models`nto: claude`ntype: request`nstatus: open`nproject: hub`npriority: normal`ncreated: $stamp KST`n---`n`n## 일일 벤치마크 갱신 - 모델 변동 제안 ($used)`n`ntools/models.proposed.json 에 변동 " + $changes.Count + "건:`n`n- " + ($changes -join "`n- ") + "`n`n검토 후 sane하면 tools/models.json 에 반영 + MODELS.md last_checked 갱신 + commit.ps1 -As claude. 잘못된/환각 모델 id면 무시.`n"
+    # Body is ASCII on purpose (2026-07-04): the scheduled task launches this script via
+    # run-hidden.vbs -> powershell.exe 5.1, which reads BOM-less UTF-8 as cp949 and wrote
+    # the previous Korean headline as mojibake into claude's inbox (confirmed 07-01, 07-04).
+    $body = "---`nfrom: refresh-models`nto: claude`ntype: request`nstatus: open`nproject: hub`npriority: normal`ncreated: $(Now) KST`n---`n`n## Daily benchmark refresh - model change proposal ($used)`n`ntools/models.proposed.json has " + $changes.Count + " change(s):`n`n- " + ($changes -join "`n- ") + "`n`nReview; if sane, apply to tools/models.json + bump MODELS.md last_checked + commit.ps1 -As claude. Ignore hallucinated/unverified model ids (probe-verify before pinning - grok-4.3 lesson).`n"
     try { [System.IO.File]::WriteAllText($note, $body, [System.Text.UTF8Encoding]::new($false)) } catch {}
   }
 }
@@ -115,8 +123,9 @@ LogLine "refresh END"
 exit 0
 
 # --- Install the daily scheduled task (run once, from a user PowerShell) ---
-# NOTE: launch via PWSH (this file contains Korean literals; powershell.exe 5.1 parses
-# no-BOM UTF-8 sources as cp949 and mojibakes them). Registered 2026-07-03 hub audit.
-# $action  = New-ScheduledTaskAction -Execute 'pwsh' -Argument '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "C:\Coding Infra\AI Infra\Communication\tools\refresh-models.ps1"'
+# NOTE 2026-07-04: source is now ASCII-only (Korean literals removed after the actual task
+# was found running via run-hidden.vbs -> powershell.exe 5.1, which mojibaked them), so it
+# is safe under BOTH powershell.exe and pwsh. pwsh still preferred.
+# $action  = New-ScheduledTaskAction -Execute 'pwsh' -Argument '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "E:\Coding Infra\AI Infra\Communication\tools\refresh-models.ps1"'
 # $trigger = New-ScheduledTaskTrigger -Daily -At 9:00am
 # Register-ScheduledTask -TaskName 'HubModelBenchmarkRefresh' -Action $action -Trigger $trigger -Description 'Daily best-model benchmark refresh for the AI hub (proposes models.json update)'

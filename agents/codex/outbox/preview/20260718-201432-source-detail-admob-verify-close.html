@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>source-detail AdMob 기준 검증 응답 수신</title>
+  <style>
+    :root {
+      --bg: #111418;
+      --text: #e8edf2;
+      --accent: #7cc7b2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(1040px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.15;
+      letter-spacing: 0;
+      max-width: 900px;
+    }
+    .lead {
+      margin-top: 14px;
+      max-width: 780px;
+      color: var(--text);
+      opacity: .84;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 28px 0;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 112px;
+      background: color-mix(in srgb, var(--bg) 88%, var(--text) 12%);
+    }
+    .label {
+      font-size: 13px;
+      opacity: .72;
+      margin-bottom: 8px;
+    }
+    .value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    section {
+      border-top: 1px solid color-mix(in srgb, var(--text) 14%, transparent);
+      padding-top: 22px;
+      margin-top: 24px;
+    }
+    h2 {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow-wrap: anywhere;
+    }
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+      padding: 12px 10px;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: .95em;
+    }
+    details {
+      border: 1px solid color-mix(in srgb, var(--text) 14%, transparent);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-top: 10px;
+      background: color-mix(in srgb, var(--bg) 92%, var(--text) 8%);
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { margin: 12px 0 0; padding-left: 20px; }
+    li + li { margin-top: 6px; }
+    .note {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-left: 3px solid var(--accent);
+      background: color-mix(in srgb, var(--bg) 90%, var(--text) 10%);
+    }
+    @media (max-width: 760px) {
+      main { width: min(100% - 24px, 1040px); padding-top: 28px; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      th, td { display: block; width: 100%; padding: 8px 0; }
+      tr { display: block; padding: 10px 0; border-bottom: 1px solid color-mix(in srgb, var(--text) 12%, transparent); }
+      th { border: 0; }
+      td { border: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>source-detail AdMob 기준 검증 응답 수신</h1>
+      <p class="lead">이번 사이클은 Antigravity의 MoA 응답을 소비하고 Codex 검증 요청을 닫는 단일 작업으로 제한했다. 제품 코드, push, merge, 배포, 브라우저 열기, 파괴적 작업, 비용 작업, secrets 접근은 수행하지 않았다.</p>
+    </header>
+
+    <div class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">처리 상태</div>
+        <div class="value">완료</div>
+      </div>
+      <div class="card">
+        <div class="label">제품 HEAD</div>
+        <div class="value">a93272b3</div>
+      </div>
+      <div class="card">
+        <div class="label">기준</div>
+        <div class="value">c15e1f2c</div>
+      </div>
+      <div class="card">
+        <div class="label">검증</div>
+        <div class="value">통과</div>
+      </div>
+    </div>
+
+    <section>
+      <h2>응답 요약</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>Antigravity 판정</th>
+            <th>Codex 재확인</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>조상 관계</td>
+            <td><code>c15e1f2c</code>가 HEAD 조상</td>
+            <td><code>git merge-base --is-ancestor</code> 통과</td>
+          </tr>
+          <tr>
+            <td>변경 범위</td>
+            <td>source-detail 관련 5파일</td>
+            <td><code>git diff --name-only</code> 결과 5파일</td>
+          </tr>
+          <tr>
+            <td>라우팅 분리</td>
+            <td><code>origin === "source"</code> 조건으로 분리</td>
+            <td>정적 범위와 테스트로 재확인</td>
+          </tr>
+          <tr>
+            <td>UI 제한</td>
+            <td>source-detail에서 저장 레코드 전용 버튼 비노출</td>
+            <td>타깃 Jest 통과</td>
+          </tr>
+          <tr>
+            <td>타입 검사</td>
+            <td>의존성 설치 후 통과</td>
+            <td>현재 로컬에서도 <code>npm run type-check</code> 통과</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 명령</h2>
+      <details open>
+        <summary>통과한 확인</summary>
+        <ul>
+          <li><code>git merge-base --is-ancestor c15e1f2c HEAD</code>: 통과</li>
+          <li><code>git diff --name-only origin/main...HEAD</code>: 5파일</li>
+          <li><code>git diff --check origin/main...HEAD</code>: 통과, 출력 없음</li>
+          <li>타깃 Jest: 2 suites / 10 tests 통과</li>
+          <li><code>npm run type-check</code>: 통과</li>
+        </ul>
+      </details>
+      <details>
+        <summary>변경된 제품 파일</summary>
+        <ul>
+          <li><code>src/lib/records/__tests__/source-pieces.test.ts</code></li>
+          <li><code>src/lib/records/get-piece.ts</code></li>
+          <li><code>src/lib/records/source-pieces.ts</code></li>
+          <li><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></li>
+          <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></li>
+        </ul>
+      </details>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <table>
+        <tbody>
+          <tr>
+            <th>찬성</th>
+            <td>동일 기준 위에서 두 좌석이 ancestry, diff scope, routing guard를 모두 통과로 확인했다.</td>
+          </tr>
+          <tr>
+            <th>반대</th>
+            <td>실제 디바이스 런타임 시나리오는 이번 Codex 사이클에서 새로 실행하지 않았다.</td>
+          </tr>
+          <tr>
+            <th>대안</th>
+            <td>Claude merge gate에서 전체 verify와 필요 시 디바이스 QA를 다시 묶을 수 있다.</td>
+          </tr>
+          <tr>
+            <th>판정</th>
+            <td>MoA 응답을 수신 완료로 처리하고 Codex 요청을 닫는다.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note">보고서 생성 시각: 2026-07-18 20:14:32 KST</p>
+    </section>
+  </main>
+</body>
+</html>

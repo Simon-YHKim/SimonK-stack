@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>작업 보고서: 에이전트 카드 생성</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  a {
+    color: #64b5f6;
+    text-decoration: none;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  button {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    border: 1px solid #333333;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <h1>작업 보고서: 에이전트 카드 생성</h1>
+  <p>프로토콜에 따라 에이전트 능력 선언용 카드를 생성하고 저장했습니다.</p>
+  
+  <h2>실행 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>작업 단계</th>
+        <th>상태</th>
+        <th>설명</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>에이전트 카드 생성 스크립트 실행</td>
+        <td>성공</td>
+        <td>tools/gen-agent-card.ps1 스크립트 실행 완료</td>
+      </tr>
+      <tr>
+        <td>JSON 파일 작성</td>
+        <td>성공</td>
+        <td>agents/antigravity/agent-card.json 파일 생성 확인</td>
+      </tr>
+      <tr>
+        <td>문서화 및 형상 관리</td>
+        <td>성공</td>
+        <td>HTML 보고서 및 마크다운 응답 작성, 커밋 대기</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>산출물 정보</h2>
+  <p>파일 경로: <code>agents/antigravity/agent-card.json</code></p>
+  <p>주요 능력: 안드로이드 네이티브, 구글 네이티브, 에뮬레이터 검수, 기기 검수, 성능, 크래시 분석, 멀티모달 렌더</p>
+  
+  <p>이 보고서는 헤드리스 환경에서 작성되었습니다.</p>
+</body>
+</html>

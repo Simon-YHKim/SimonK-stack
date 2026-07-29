@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>교차 검증 보고서: 다국어 위기 대응 패치</title>
+<style>
+  body {
+    background-color: #111111;
+    color: #dddddd;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    border-bottom: 1px solid #222222;
+    padding-bottom: 8px;
+  }
+  .status-box {
+    background-color: #222222;
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+  }
+  th, td {
+    border: 1px solid #222222;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #222222;
+  }
+</style>
+</head>
+<body>
+
+<h1>교차 검증 보고서: 다국어 위기 대응 패치</h1>
+
+<div class="status-box">
+  <strong>검토 결과:</strong> 병합을 차단할 만한 결함 없음. (승인)
+</div>
+
+<h2>검증 항목</h2>
+<table>
+  <thead>
+    <tr>
+      <th>항목</th>
+      <th>상태</th>
+      <th>비고</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>src/lib/llm/gemini.ts</code> 수정 사항 확인</td>
+      <td>확인됨</td>
+      <td><code>classifyInput</code> 함수가 <code>classifyInputAnyLocale</code>로 정상적으로 교체됨을 확인.</td>
+    </tr>
+    <tr>
+      <td>UI 로캘 핫라인 라우팅 유지 여부</td>
+      <td>확인됨</td>
+      <td>기존 로캘 변수가 안전하게 전달되며, 교차 로캘 입력(예: 한국어 UI에서 영어 위기 입력)에 대해서도 올바른 라우팅이 유지됨을 확인.</td>
+    </tr>
+    <tr>
+      <td><code>classifier.test.ts</code> 테스트 검증</td>
+      <td>확인됨</td>
+      <td>다국어 대응에 대한 유효한 테스트 케이스(KR-in-EN, EN-in-KR 등)가 추가되어 정상 작동함을 확인.</td>
+    </tr>
+    <tr>
+      <td>위험 요소 및 누락된 테스트 여부</td>
+      <td>이상 없음</td>
+      <td>호출부 테스트 누락이 존재하나, 핵심 분류기 테스트가 충분하므로 병합 차단 사유에 해당하지 않음.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>결론</h2>
+<p>
+  해당 커밋(<code>55ba98d9</code>)은 보안 및 안전성을 향상시키는 긍정적인 변경 사항이며, 
+  기존 로캘 처리 라우팅을 손상시키지 않습니다. 교차 검증 결과, 즉시 병합이 가능한 상태로 판단됩니다.
+</p>
+
+</body>
+</html>

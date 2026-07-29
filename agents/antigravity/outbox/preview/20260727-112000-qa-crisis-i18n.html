@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>QA 검증 보고서: 위기 라우터 다국어화</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #E0E0E0;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1, h2, h3 {
+      color: #FFFFFF;
+      border-bottom: 1px solid #333333;
+      padding-bottom: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #333333;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #1E1E1E;
+    }
+    .status-pass {
+      color: #81C784;
+      font-weight: bold;
+    }
+    .status-warn {
+      color: #FFB74D;
+      font-weight: bold;
+    }
+    .button-label {
+      display: inline-block;
+      background-color: #333333;
+      color: #FFFFFF;
+      padding: 5px 10px;
+      border-radius: 3px;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    .note {
+      background-color: #1E1E1E;
+      padding: 10px;
+      border-left: 4px solid #FFB74D;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>QA 검증 보고서: 위기 라우터 다국어화</h1>
+  <p>검증 대상 브랜치: <code>codex/cycle-260727-0900-crisis-i18n</code></p>
+  <p>기준: <code>origin/main 69b0c58f</code></p>
+  
+  <div class="note">
+    <strong>정직성(Truthfulness) 안내:</strong> 이 검증은 에뮬레이터 프로세스 및 adb 디바이스가 부재한 상태에서 수행되었습니다. 따라서 실제 단말 에뮬레이션을 통한 실행 대신, React Native 네이티브 접근성 속성 및 로직 코드에 대한 정적 분석(Static Analysis) 기반으로 검증을 갈음합니다.
+  </div>
+
+  <h2>1. 검증 항목 및 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>점검 내용</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>동작 무결성</td>
+        <td>전화 연결, 닫기, 백드롭 비해제, 국제 헬프라인 링크 동작 변경 여부</td>
+        <td class="status-pass">통과 (코드 기반)</td>
+      </tr>
+      <tr>
+        <td>접근성(a11y)</td>
+        <td>Android/native 접근성 관점에서 accessibilityLabel/Hint 후퇴 여부</td>
+        <td class="status-pass">통과 (코드 기반)</td>
+      </tr>
+      <tr>
+        <td>안전 표면 문구</td>
+        <td>임상·법무·핫라인 의미 확장 여부 및 다국어화 분기 적용 정확성</td>
+        <td class="status-pass">통과</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>2. 상세 점검 내용</h2>
+  <p><strong>동작 무결성:</strong> <code>onRequestClose</code>를 이용한 명시적 닫기만 허용하며, 백드롭 탭은 해제되지 않도록 <code>Pressable</code>이 아닌 <code>View</code>로 유지된 것을 확인했습니다. 전화 연결(<code>tel:</code> 스킴) 및 디렉토리 링크 동작도 정상적으로 유지됩니다.</p>
+  <p><strong>접근성:</strong> <code>accessibilityRole="alert"</code>, <code>accessibilityLabel</code> 및 <code>accessibilityHint</code> 등이 <code>useTranslation("safety")</code>를 통해 정확히 주입되고 있으며, 의미적 훼손이 없습니다.</p>
+  <p><strong>표면 문구:</strong> 한국어(KO) 및 영어(EN) 다국어 파일(<code>safety.json</code>)의 텍스트가 임상적 의미를 확장하지 않고 원형을 유지하며 공감적 의미만을 정확히 전달함을 확인했습니다.</p>
+  
+  <div>
+    <span class="button-label">검증 완료</span>
+  </div>
+</body>
+</html>

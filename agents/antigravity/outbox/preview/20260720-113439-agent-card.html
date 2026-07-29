@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>에이전트 카드 생성 주기 보고서</title>
+    <style>
+        body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; }
+        h1, h2 { color: #ffffff; }
+        .container { max-width: 800px; margin: 0 auto; padding: 1rem; border: 1px solid #333333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { border: 1px solid #333333; padding: 0.5rem; text-align: left; }
+        th { background-color: #1e1e1e; }
+        .button { display: inline-block; padding: 0.5rem 1rem; background-color: #2c2c2c; color: #ffffff; text-decoration: none; border: 1px solid #555555; margin-top: 1rem; }
+        .caption { font-size: 0.85rem; color: #888888; margin-top: 0.5rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>에이전트 카드 생성 주기 보고서</h1>
+        <h2>작업 요약</h2>
+        <p>요청에 따라 agent-card.json 파일을 성공적으로 생성 및 커밋하였습니다.</p>
+        
+        <h2>작업 세부 사항</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>항목</th>
+                    <th>상태</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>작업 대상</td>
+                    <td>agent-card.json</td>
+                </tr>
+                <tr>
+                    <td>실행 스크립트</td>
+                    <td>tools/gen-agent-card.ps1</td>
+                </tr>
+                <tr>
+                    <td>처리 결과</td>
+                    <td>완료 (단일 작업 규정 준수)</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="caption">표 1: 에이전트 카드 생성 결과</div>
+        
+        <a href="#" class="button">확인</a>
+    </div>
+</body>
+</html>

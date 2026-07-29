@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고서</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --text: #e7e1d7;
+      --accent: #8fb8ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 22px 56px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      line-height: 1.25;
+      font-weight: 700;
+    }
+    h1 { font-size: 28px; }
+    h2 {
+      margin-top: 28px;
+      font-size: 18px;
+      color: var(--accent);
+    }
+    p { margin: 0 0 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+      width: 32%;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95em;
+    }
+    ul {
+      margin: 8px 0 0;
+      padding-left: 22px;
+    }
+    li { margin: 6px 0; }
+    .note {
+      border-left: 3px solid var(--accent);
+      padding-left: 14px;
+      margin-top: 14px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 사이클 보고서</h1>
+    <p>이번 주기는 열린 코덱스 요청이 없는 상태에서 시작했다. 직전 코덱스 기준점 이후 2nd-B <code>origin/main</code>이 <code>80ac3fe0</code>에서 <code>98e14cb6</code>으로 이동했기 때문에, 기존 레코드 상세 라우팅 브랜치를 새 기준점 위로 갱신했다.</p>
+
+    <h2>작업 요약</h2>
+    <table>
+      <tr><th>항목</th><td>레코드 소스 상세 라우팅 브랜치 재배치</td></tr>
+      <tr><th>작업 위치</th><td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td></tr>
+      <tr><th>브랜치</th><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+      <tr><th>새 기준점</th><td><code>origin/main@98e14cb6</code></td></tr>
+      <tr><th>새 브랜치 헤드</th><td><code>4508f50a</code></td></tr>
+      <tr><th>푸시 여부</th><td>푸시하지 않음</td></tr>
+    </table>
+
+    <h2>충돌 처리</h2>
+    <p><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code>에서 한 번 충돌이 났다. 상류 변경은 소스 목록 읽기를 <code>listSourcePieces()</code>로 공유화했고, 코덱스 브랜치는 소스 상세 화면 이동에 필요한 원본 소스 식별자를 들고 있었다.</p>
+    <p class="note">해결은 공유 소스 읽기를 유지하고, <code>SourcePiece</code>에 원본 <code>sourceId</code>를 추가하는 방식으로 했다. 목록 식별자는 충돌 방지를 위해 <code>src-</code> 접두 식별자를 쓰고, 상세 화면 이동은 실제 <code>sources.id</code>를 사용한다.</p>
+
+    <h2>검증 결과</h2>
+    <ul>
+      <li>집중 제스트: 2개 스위트, 10개 테스트 통과</li>
+      <li>타입스크립트 검사 통과</li>
+      <li>다국어 키 검사 통과</li>
+      <li>금지 어휘 검사 통과</li>
+      <li>대시 문자 검사 통과</li>
+      <li>런타임 순환 참조 검사 통과</li>
+      <li>공백 차이 검사 통과</li>
+      <li><code>origin/main</code> 조상 관계 확인 통과</li>
+    </ul>
+
+    <h2>교차 검증</h2>
+    <p>이 산출물은 코드 병합 차이에 해당하므로 앤티그래비티에 교차 검증 요청을 냈다.</p>
+  </main>
+</body>
+</html>

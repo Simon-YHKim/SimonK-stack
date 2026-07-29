@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>온보딩 시작 버튼 검토</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --text: #e8ecef;
+      --accent: #67d5c8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-bottom: 12px; color: var(--accent); }
+    section {
+      border-top: 1px solid rgba(103, 213, 200, 0.35);
+      padding-top: 20px;
+      margin-top: 24px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin: 20px 0 0;
+    }
+    .card {
+      border: 1px solid rgba(232, 236, 239, 0.18);
+      border-radius: 6px;
+      padding: 14px;
+      min-height: 92px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid rgba(232, 236, 239, 0.14);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 600; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      overflow-wrap: anywhere;
+    }
+    details {
+      border: 1px solid rgba(232, 236, 239, 0.18);
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>온보딩 시작 버튼 검토</h1>
+    <p>Codex는 이번 단일 폴 사이클에서 2nd-B <code>origin/main</code>의 새 커밋 <code>7726e9c3</code>를 검토했다. 이 커밋은 직전 rc2 에뮬레이터 검토에서 보류 후보로 잡힌 온보딩 <code>Get started</code> 터치 불발을 직접 다룬다.</p>
+
+    <div class="grid" aria-label="요약">
+      <div class="card"><span class="label">판정</span>소스 수준 병합 지원 통과</div>
+      <div class="card"><span class="label">범위</span><code>src/app/onboarding.tsx</code> 한 파일</div>
+      <div class="card"><span class="label">검증</span>정적 검사와 관련 테스트 통과</div>
+      <div class="card"><span class="label">남은 확인</span>실기기 또는 에뮬레이터 탭 재확인</div>
+    </div>
+
+    <section>
+      <h2>핵심 판단</h2>
+      <p>차단 이슈는 온보딩 마지막 단계의 시작 버튼이 Android Fabric에서 눌려도 동작하지 않는 문제였다. 이번 변경은 해당 경로의 <code>MdButton</code>을 제거하고, 스타일은 바깥 <code>View</code>에 두며 내부는 단순 <code>Pressable</code>로 유지한다. 이는 이미 같은 화면의 다음 버튼에 적용된 회피 패턴과 일치한다.</p>
+      <p>접근성 역할, 라벨, 힌트, 최소 터치 높이, 가운데 정렬, 강조색 채움, 물결 피드백이 유지되어 보이는 동작과 UI 일관성도 유지된다.</p>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead>
+          <tr><th>검사</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>git diff --check a5506d3c..HEAD</code></td><td>통과</td></tr>
+          <tr><td><code>npx eslint src/app/onboarding.tsx</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td>관련 온보딩 및 <code>#680</code> Jest 4개 스위트</td><td>통과, 20개 테스트</td></tr>
+          <tr><td><code>npm run check:constraints</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자기 패널</h2>
+      <details open>
+        <summary>판정 근거</summary>
+        <p>찬성 관점: 변경은 한 파일에 제한되어 있고, 문제 버튼만 release-critical 최소 수정으로 바꿨다. 전체 버튼 컴포넌트 보강을 섞지 않은 점도 범위 관리상 타당하다.</p>
+        <p>반대 관점: 정적 검토만으로 Android Fabric 실제 터치 이벤트를 증명할 수는 없다. 새 APK에서 같은 계정과 같은 경로로 탭 동작 확인이 필요하다.</p>
+        <p>최종 판단: 소스 수준 검토는 통과다. 다만 원래 결함이 런타임 터치 문제였으므로 Claude 확인 요청을 남겼고, 에뮬레이터 재검증이 최종 해제 조건이다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>산출 경로</h2>
+      <p>보고 문서: <code>agents/codex/outbox/20260722-144449-codex-re-onboarding-getstarted-main-qa.md</code></p>
+      <p>확인 요청: <code>agents/codex/outbox/20260722-144449-codex-to-claude-onboarding-getstarted-main-qa-verify.md</code></p>
+      <p>작성 시각: 2026-07-22 14:44:49 KST</p>
+    </section>
+  </main>
+</body>
+</html>

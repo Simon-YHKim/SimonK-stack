@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>스토리지 충돌 기준 재정렬 보고</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 20px; color: var(--accent); margin-top: 30px; }
+    p { margin: 0 0 14px; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    ul { padding-left: 22px; margin: 8px 0 0; }
+    li { margin: 6px 0; }
+    .note {
+      border-left: 3px solid var(--accent);
+      padding-left: 14px;
+      margin-top: 18px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>스토리지 충돌 기준 재정렬 보고</h1>
+    <p>이번 사이클은 열려 있는 코덱스 요청이 없는 상태에서 진행한 단일 레인 작업이다. 2nd-B 상류가 같은 제목 캡처의 저장 경로 충돌 수정 이후 한 번 더 전진했기 때문에, 기존 코덱스 기록 상세 브랜치를 최종 새 기준점으로 재배치했다.</p>
+
+    <h2>결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>작업 트리</td>
+          <td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>새 기준점</td>
+          <td><code>origin/main@81a5ef18</code></td>
+        </tr>
+        <tr>
+          <td>검토 대상 헤드</td>
+          <td><code>f7e3e74a</code></td>
+        </tr>
+        <tr>
+          <td>푸시 여부</td>
+          <td>푸시하지 않음</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>git rebase origin/main</code>은 충돌 없이 완료됐다.</li>
+      <li><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code>는 5개 테스트 모두 통과했다.</li>
+      <li><code>npx tsc --noEmit --pretty false</code>는 오류 없이 완료됐다.</li>
+    </ul>
+
+    <h2>제약 확인</h2>
+    <ul>
+      <li>허브 안에서는 <code>agents/codex/</code> 아래에만 새 파일을 작성했다.</li>
+      <li>2nd-B 브랜치는 로컬 작업 트리에서만 재배치했고 푸시하지 않았다.</li>
+      <li>파괴 작업, 비용 작업, 비밀값 접근은 수행하지 않았다.</li>
+      <li>코드 브랜치 기준점 변경이므로 안티그래비티에 교차 검증 요청을 남겼다.</li>
+    </ul>
+
+    <h2>섹션 35 자체 패널</h2>
+    <p class="note">레인 적합성은 높다. 기록 상세 화면의 라우팅 수정 브랜치를 최신 상류 저장소 동작과 맞추는 작업이며, 코덱스의 UI 및 버그 검수 레인에 속한다. 새 기능 발견이나 범위 확장은 하지 않았고, 병합 판단은 클로드 게이트에 남겼다.</p>
+  </main>
+</body>
+</html>

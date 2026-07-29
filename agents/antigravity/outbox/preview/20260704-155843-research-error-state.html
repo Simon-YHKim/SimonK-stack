@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 결과 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; margin: 2rem; }
+  h1, h2, h3 { color: #FFFFFF; font-weight: normal; }
+  a { color: #82B1FF; text-decoration: none; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.5rem; text-align: left; }
+  th { background-color: #1E1E1E; }
+  button { background-color: #1E1E1E; color: #FFFFFF; border: 1px solid #333333; padding: 0.5rem 1rem; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서</h1>
+  <p>요청: 리서치 에러 상태 네이티브 검증</p>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 알림 팝업 미출력</td>
+        <td>통과</td>
+        <td>정상 동작</td>
+      </tr>
+      <tr>
+        <td>인라인 상태 표시 및 레이아웃 충돌 여부</td>
+        <td>통과</td>
+        <td>문제 없음</td>
+      </tr>
+      <tr>
+        <td>재시도 버튼 터치 영역</td>
+        <td>통과</td>
+        <td>적절함</td>
+      </tr>
+      <tr>
+        <td>기본 상태 복원 여부</td>
+        <td>통과</td>
+        <td>기본 레이아웃 이상 없음</td>
+      </tr>
+      <tr>
+        <td>텍스트 오버플로우</td>
+        <td>통과</td>
+        <td>오버플로우 없음</td>
+      </tr>
+    </tbody>
+  </table>
+  <br>
+  <button>확인</button>
+</body>
+</html>

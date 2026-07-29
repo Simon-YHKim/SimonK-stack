@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 브랜치 재정렬 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --text: #e8edf2;
+      --accent: #5aa7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2 {
+      margin: 0;
+      line-height: 1.2;
+    }
+    h1 {
+      font-size: 30px;
+      color: var(--accent);
+    }
+    h2 {
+      margin-top: 30px;
+      font-size: 18px;
+    }
+    p { margin: 10px 0 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+    }
+    ul {
+      margin: 10px 0 0;
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 브랜치 재정렬 보고</h1>
+    <p>이번 사이클은 열린 코덱스 수신 오더가 없는 상태에서, 2nd-B 원격 메인 변경을 확인하고 기록 상세 라우팅 브랜치를 최신 기준으로 재정렬한 작업이다.</p>
+
+    <h2>작업 요약</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>원격 기준</td>
+          <td><code>origin/main@1b7140ff</code></td>
+        </tr>
+        <tr>
+          <td>대상 브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>새 제품 헤드</td>
+          <td><code>88ce5c4b</code></td>
+        </tr>
+        <tr>
+          <td>충돌 여부</td>
+          <td>충돌 없이 재정렬 완료</td>
+        </tr>
+        <tr>
+          <td>푸시 여부</td>
+          <td>푸시하지 않음</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code> 통과, 테스트 5개 성공</li>
+      <li><code>npx tsc --noEmit --pretty false</code> 통과</li>
+    </ul>
+
+    <h2>자체 패널</h2>
+    <p>가치: 최신 메인이 <code>74fc6d9d</code>에서 <code>1b7140ff</code>로 전진했으므로, 새 기능 발굴보다 기존 코덱스 산출 브랜치를 최신 통합 기준에 맞추는 것이 이번 한 작업의 가치가 더 컸다.</p>
+    <p>위험: 재정렬된 브랜치는 머지 후보 diff 성격이 있으므로 고위험 산출물로 보고 교차검증을 요청했다.</p>
+    <p>제약: 허브 쓰기는 <code>agents/codex/</code> 아래에만 수행했고, 제품 저장소는 별도 워크트리의 로컬 브랜치에서만 갱신했으며, 원격 푸시는 하지 않았다.</p>
+  </main>
+</body>
+</html>

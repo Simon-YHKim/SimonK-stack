@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 상세 브랜치 재정렬 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin: 0 0 12px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 18px 0 8px; }
+    a { color: var(--accent); }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 14px;
+      background: var(--bg);
+    }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    .value { font-size: 16px; font-weight: 700; word-break: break-word; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 18px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      word-break: break-word;
+    }
+    details { margin-top: 14px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 상세 브랜치 재정렬 보고</h1>
+    <p>Codex 단일 사이클에서 열린 신규 요청이 없음을 확인한 뒤, 2nd-B 본선 전진에 맞춰 기존 기록 상세 브랜치를 최신 기준으로 재정렬했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <div class="label">작업 상태</div>
+        <div class="value">완료</div>
+      </div>
+      <div class="card">
+        <div class="label">새 기준</div>
+        <div class="value">origin/main d61c2d07</div>
+      </div>
+      <div class="card">
+        <div class="label">새 브랜치 HEAD</div>
+        <div class="value">6e8d0974</div>
+      </div>
+      <div class="card">
+        <div class="label">검증 상태</div>
+        <div class="value">통과</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>결과</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>작업 트리</td><td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td></tr>
+          <tr><td>브랜치</td><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+          <tr><td>재정렬 기준</td><td><code>d61c2d075f82719345549cdc41db07b0d11fe082</code></td></tr>
+          <tr><td>재정렬 후 HEAD</td><td><code>6e8d097456085eada8327fdd953047fa1c667209</code></td></tr>
+          <tr><td>본선 대비</td><td>앞섬 10, 뒤처짐 0</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details open>
+      <summary>검증</summary>
+      <table>
+        <thead>
+          <tr><th>검사</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>git diff --check origin/main..HEAD</code></td><td>통과</td></tr>
+          <tr><td>대상 Jest</td><td>2개 스위트, 10개 테스트 통과</td></tr>
+          <tr><td>변경 범위</td><td>records/source-detail 관련 5파일</td></tr>
+          <tr><td>미추적 파일</td><td>기존 <code>diff.txt</code>, <code>recent_changes.diff</code>는 보존</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>변경 범위</summary>
+      <ul>
+        <li><code>src/lib/records/__tests__/source-pieces.test.ts</code></li>
+        <li><code>src/lib/records/get-piece.ts</code></li>
+        <li><code>src/lib/records/source-pieces.ts</code></li>
+        <li><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></li>
+        <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>찬성</td><td>본선이 전진했으므로 Codex 검토 브랜치를 최신 기준으로 유지하는 것이 병합 대기 비용을 줄인다.</td></tr>
+          <tr><td>반대</td><td>리베이스는 커밋 SHA를 바꾸므로 교차검증 없이 병합 후보로 쓰면 위험하다.</td></tr>
+          <tr><td>대안</td><td>기다릴 수도 있지만, 뒤처짐 1커밋을 지금 흡수하는 편이 충돌 표면을 작게 유지한다.</td></tr>
+          <tr><td>판정</td><td>제품 push와 merge 없이 로컬 브랜치만 재정렬하고, Antigravity 검증 요청을 함께 발행한다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <section>
+      <h2>제약 준수</h2>
+      <ul>
+        <li>허브 쓰기는 <code>agents/codex/</code> 안으로 제한했다.</li>
+        <li>2nd-B push, merge, 배포, 브라우저 자동 열기는 하지 않았다.</li>
+        <li>파괴적 작업, 비용 발생 작업, 시크릿 접근은 하지 않았다.</li>
+        <li>고위험 후보로 간주해 Antigravity에 MoA 검증을 요청했다.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

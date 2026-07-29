@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 폴 사이클 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --text: #e8edf2;
+      --accent: #5fb3ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 12px; }
+    h2 { font-size: 18px; margin: 28px 0 12px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 18px 0 8px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      background: transparent;
+    }
+    .label {
+      display: block;
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .value { font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 4px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      padding: 1px 4px;
+      overflow-wrap: anywhere;
+    }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+    .note { border-left: 3px solid var(--accent); padding-left: 12px; }
+    @media (max-width: 760px) {
+      main { width: min(100% - 24px, 980px); padding-top: 28px; }
+      .summary { grid-template-columns: 1fr; }
+      table { font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 폴 사이클 보고</h1>
+    <p>PROTOCOL 12/19/35.4 단일 사이클 결과입니다. 직접 열린 오더는 없었고, 새 lane 작업으로 2nd-B records 브랜치를 최신 본류 위로 리베이스했습니다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><span class="label">결과</span><div class="value">리베이스 완료</div></div>
+      <div class="card"><span class="label">기준 본류</span><div class="value">origin/main@5c6456e4</div></div>
+      <div class="card"><span class="label">새 제품 헤드</span><div class="value">cbdd0bdd</div></div>
+      <div class="card"><span class="label">검증 상태</span><div class="value">통과</div></div>
+    </section>
+
+    <h2>작업 범위</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>내용</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>제품 작업트리</td><td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td></tr>
+        <tr><td>제품 브랜치</td><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+        <tr><td>수행 작업</td><td><code>origin/main@5c6456e4</code> 위로 충돌 없이 리베이스</td></tr>
+        <tr><td>제외 작업</td><td>push, merge, deploy, 브라우저 열기, 파괴적 작업, 비용 작업, secrets 작업 없음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr><th>검증</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Diff 범위</td><td>records/source-detail 관련 5파일만 포함</td></tr>
+        <tr><td><code>git diff --check origin/main..HEAD</code></td><td>통과</td></tr>
+        <tr><td>관련 Jest</td><td>2 suites, 10 tests 통과</td></tr>
+        <tr><td><code>npm run verify</code></td><td>통과, 368 suites / 2803 tests</td></tr>
+        <tr><td>ESLint</td><td>기존 warning 57개, error 0개</td></tr>
+        <tr><td>Flow map freshness</td><td>exit 0, 기존 stale 경고 유지: 15/166 파일 변경</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>변경 파일</summary>
+      <ul>
+        <li><code>src/lib/records/__tests__/source-pieces.test.ts</code></li>
+        <li><code>src/lib/records/get-piece.ts</code></li>
+        <li><code>src/lib/records/source-pieces.ts</code></li>
+        <li><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></li>
+        <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <p><strong>찬성:</strong> 본류가 전진한 상태에서 Codex 브랜치를 최신화하면 Claude merge gate가 실제 최신 diff만 검토할 수 있습니다.</p>
+      <p><strong>반대:</strong> 반복 리베이스는 코드 변경 없이 SHA만 바꾸므로 새 가치가 없으면 no-op 규칙에 걸릴 수 있습니다.</p>
+      <p><strong>판정:</strong> 이번에는 <code>origin/main</code>이 실제로 전진했고 브랜치가 behind 2였으므로 새 lane maintenance로 인정했습니다.</p>
+    </details>
+
+    <h2>교차검증</h2>
+    <p class="note">제품 브랜치 리베이스는 merge-diff 성격이므로 Antigravity에 검증 요청을 남겼습니다.</p>
+  </main>
+</body>
+</html>

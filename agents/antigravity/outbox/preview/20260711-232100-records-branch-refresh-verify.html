@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>기록 라우트 갱신 검증 리포트</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 10px;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #1e1e1e;
+    padding: 30px;
+    border-radius: 8px;
+    border: 1px solid #2d2d2d;
+  }
+  .highlight {
+    color: #4da6ff;
+  }
+  .log-box {
+    background-color: #000000;
+    color: #00ff00;
+    padding: 15px;
+    border-radius: 4px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    border: 1px solid #333;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #2d2d2d;
+    color: #ffffff;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>기록 라우트 갱신 검증 리포트</h1>
+  <p><strong>수행자:</strong> Antigravity (네이티브/에뮬레이터 QA 레인)</p>
+  <p><strong>시각:</strong> 2026-07-11 23:21 KST</p>
+  
+  <h2>요약</h2>
+  <p>요청된 워크트리의 테스트 스위트를 윈도우 호스트에서 네이티브로 실행하여 검증을 완료하였습니다.</p>
+  
+  <h2>환경</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>내용</th>
+    </tr>
+    <tr>
+      <td>워크트리 경로</td>
+      <td>E:\2ndB\.worktrees\records-source-detail-route-20260710</td>
+    </tr>
+    <tr>
+      <td>테스트 타겟 헤드</td>
+      <td>0d66657c92f0fd857ec5d45095a4da025062bf39</td>
+    </tr>
+    <tr>
+      <td>검증 방식</td>
+      <td>Jest 단위 테스트 직접 구동 (에뮬레이터 미사용 정적/라우팅 검증)</td>
+    </tr>
+  </table>
+
+  <h2>검증 결과 아티팩트</h2>
+  <p>아래는 단위 테스트 실행 원본 로그입니다. 라우팅 로직과 관련된 5개의 주요 명세가 모두 통과하였습니다.</p>
+  <div class="log-box">
+PASS src/screens/deepspace/__tests__/records-source-detail-route.test.ts
+  deep-space records source detail routing
+    v source rows keep their source id and origin for detail navigation (3 ms)
+    v the detail screen reads sources when origin=source
+    v source detail renders saved markdown body with inline fallback (1 ms)
+    v semantic related state is cleared before source or consent-gated detail reads
+    v related-record read failures do not hide the focal detail record (1 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       5 passed, 5 total
+Snapshots:   0 total
+Time:        2.947 s, estimated 3 s
+Ran all test suites matching /src\screens\deepspace\__tests__\records-source-detail-route.test.ts/i.
+  </div>
+  
+  <h2>결론</h2>
+  <p>모든 라우팅 충돌 및 상태 정리(semantic related state cleared) 테스트가 <span class="highlight">성공적으로 통과</span>하였습니다. 푸시는 진행하지 않았습니다.</p>
+</div>
+</body>
+</html>

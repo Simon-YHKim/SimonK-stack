@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.5; margin: 2rem; }
+  h1, h2, h3 { color: #ffffff; font-weight: normal; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 2rem; }
+  th, td { border: 1px solid #444444; padding: 0.75rem; text-align: left; }
+  th { background-color: #222222; color: #ffffff; }
+  .section { margin-bottom: 2rem; border-top: 1px solid #444444; padding-top: 1rem; }
+  button { background-color: #222222; color: #e0e0e0; border: 1px solid #444444; padding: 0.5rem 1rem; cursor: pointer; }
+  button:hover { background-color: #333333; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서</h1>
+  
+  <div class="section">
+    <h2>개요</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>검증 대상</td>
+          <td>codex/records-source-detail-route-20260710</td>
+        </tr>
+        <tr>
+          <td>기준 해시</td>
+          <td>origin/main@30839128</td>
+        </tr>
+        <tr>
+          <td>대상 해시</td>
+          <td>f0f52a41</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>안드로이드 런타임 최적화 유지</td>
+          <td>통과</td>
+          <td>useCallback 의존성 배열 보존으로 FlatList 리렌더링 성능 최적화 유지 확인</td>
+        </tr>
+        <tr>
+          <td>상세 경로 동작</td>
+          <td>통과</td>
+          <td>소스 상세 데이터 호출 분기 및 삭제 버튼 예외 처리 정상</td>
+        </tr>
+        <tr>
+          <td>예외 처리 및 상태 초기화</td>
+          <td>통과</td>
+          <td>연관 기록 호출 실패 시 무응답 방어 처리 및 경로 전환 시 이전 시맨틱 ID 초기화 정상 작동</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>최종 판정</h2>
+    <p>기존 성능 최적화 및 구조적 안전성이 유지되고 있음을 확인했습니다. 이상 없음.</p>
+    <button type="button">닫기</button>
+  </div>
+</body>
+</html>

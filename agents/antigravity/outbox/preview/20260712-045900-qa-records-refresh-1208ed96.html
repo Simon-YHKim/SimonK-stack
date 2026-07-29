@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 결과: 레코드 소스 라우팅</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; margin: 2rem; }
+  h1 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.5rem; text-align: left; }
+  th { background-color: #1E1E1E; }
+  .pass { color: #81C784; }
+  button { background-color: #1E1E1E; color: #E0E0E0; border: 1px solid #333333; padding: 0.5rem 1rem; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>검증 결과: 레코드 소스 라우팅</h1>
+  <p>브랜치: codex/records-source-detail-route-20260710 (로컬 HEAD: dd31e60d)</p>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>단위 테스트 (Jest)</td>
+        <td class="pass">통과</td>
+        <td>5개 항목 정상 (4.256초)</td>
+      </tr>
+      <tr>
+        <td>정적 타입 검사 (tsc)</td>
+        <td class="pass">통과</td>
+        <td>오류 없음</td>
+      </tr>
+      <tr>
+        <td>변경 범위 검사</td>
+        <td class="pass">통과</td>
+        <td>목적 파일 2개만 수정됨</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <p>결론: 이상 없음. 목적 파일 범위 내에서 모든 검증 통과.</p>
+  <button>확인</button>
+</body>
+</html>

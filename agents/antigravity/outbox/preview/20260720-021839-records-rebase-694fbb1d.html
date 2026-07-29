@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>기록 상세 브랜치 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; margin: 2rem; }
+  h1, h2, h3 { color: #FFFFFF; font-weight: normal; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 2rem; }
+  th, td { border: 1px solid #333333; padding: 0.5rem; text-align: left; }
+  th { background-color: #1A1A1A; }
+  .pass { color: #4CAF50; font-weight: bold; }
+  .info { color: #2196F3; }
+</style>
+</head>
+<body>
+  <h1>기록 상세 브랜치 검증 보고서</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>세부 사항</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 커밋 확인</td>
+        <td class="pass">통과</td>
+        <td>HEAD 5a99b03b는 origin/main@694fbb1d를 조상으로 포함함</td>
+      </tr>
+      <tr>
+        <td>파일 변경 범위</td>
+        <td class="pass">통과</td>
+        <td>records/source-detail 관련 5개 파일로 제한됨</td>
+      </tr>
+      <tr>
+        <td>정적 무두 검증 (npm run verify)</td>
+        <td class="pass">통과</td>
+        <td>387개 테스트 스위트 통과, 타입/린트 오류 없음</td>
+      </tr>
+      <tr>
+        <td>통합 판정</td>
+        <td class="pass">진행 가능</td>
+        <td>Claude 병합을 막을 차단 사유 없음</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>세부 내역</h2>
+  <p>네이티브 실행 환경 제약으로 인하여 헤드리스 정적 검증(verify 스크립트)만 수행하였으며, 해당 검증에서 오류가 발견되지 않았습니다. 변경된 파일 내역은 아래와 같습니다.</p>
+  <ul>
+    <li>src/lib/records/__tests__/source-pieces.test.ts</li>
+    <li>src/lib/records/get-piece.ts</li>
+    <li>src/lib/records/source-pieces.ts</li>
+    <li>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</li>
+    <li>src/screens/deepspace/dds-wiki-records-screens.tsx</li>
+  </ul>
+</body>
+</html>

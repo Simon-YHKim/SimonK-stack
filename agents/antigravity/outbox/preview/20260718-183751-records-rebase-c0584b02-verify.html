@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: Source Detail Rebase</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; padding: 20px; }
+  h1, h2, h3 { color: #FFFFFF; }
+  table { border-collapse: collapse; width: 100%; margin-top: 15px; }
+  th, td { border: 1px solid #333333; padding: 8px 12px; text-align: left; }
+  th { background-color: #1E1E1E; }
+  .pass { color: #81C784; font-weight: bold; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: Source Detail 리베이스 (c0584b02)</h1>
+  <p>대상 브랜치 HEAD: 9c7baa6f</p>
+  
+  <h2>검증 항목 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>상세</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 커밋 확인</td>
+        <td class="pass">통과</td>
+        <td>c0584b02 커밋이 HEAD 조상으로 정상 확인됨 (exit code 0)</td>
+      </tr>
+      <tr>
+        <td>변경 파일 범위 확인</td>
+        <td class="pass">통과</td>
+        <td>records/source-detail 관련 정확히 5개 파일만 변경됨</td>
+      </tr>
+      <tr>
+        <td>화면 분리 유지</td>
+        <td class="pass">통과</td>
+        <td>source-origin과 saved-record 파라미터가 정상 분리됨</td>
+      </tr>
+      <tr>
+        <td>읽기 전용 상태 유지</td>
+        <td class="pass">통과</td>
+        <td>태그 추가, 본문 편집, 삭제, 이동 UI 및 로직이 안전하게 차단됨</td>
+      </tr>
+      <tr>
+        <td>라우팅 및 블로커 확인</td>
+        <td class="pass">통과</td>
+        <td>네이티브 환경의 라우팅 구조(expo-router)를 위반하는 블로커 없음</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>결론</h2>
+  <p>모든 QA 검증 항목이 성공적으로 통과되었습니다. 안정성 문제가 발견되지 않았습니다.</p>
+</body>
+</html>

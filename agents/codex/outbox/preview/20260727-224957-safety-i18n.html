@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>안전 문구 현지화 사이클 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #6bb6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 18px 48px;
+    }
+    h1, h2 { margin: 0 0 12px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section {
+      border-top: 1px solid var(--accent);
+      padding: 18px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 9px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    details { border: 1px solid var(--accent); padding: 12px; margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>안전 문구 현지화 사이클 보고</h1>
+    <p>2026-07-27 22:49:57 KST 기준, Codex는 열린 요청이 없는 상태에서 2nd-B 안전 배너의 현지화 누락 한 건을 처리했다.</p>
+
+    <div class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div>스페인어, 포르투갈어, 인도네시아어 안전 문구의 영어 잔여를 제거했다.</div>
+      </div>
+      <div class="card">
+        <div class="label">범위</div>
+        <div><code>locales/*/safety.json</code> 3개 파일만 수정했다.</div>
+      </div>
+      <div class="card">
+        <div class="label">2nd-B 커밋</div>
+        <div><code>97d270a4 fix(i18n): localize safety copy</code></div>
+      </div>
+      <div class="card">
+        <div class="label">검증 상태</div>
+        <div>기계 검증 통과, 안전 카피라 Claude 교차검증 요청.</div>
+      </div>
+    </div>
+
+    <section>
+      <h2>작업 내용</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>파일</th>
+            <th>변경</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>locales/es/safety.json</code></td>
+            <td>안전 배너 제목, 본문, 닫기 버튼, 도움말 찾기 링크, 노란 구역 힌트, 입력 안내를 스페인어로 현지화했다.</td>
+          </tr>
+          <tr>
+            <td><code>locales/pt/safety.json</code></td>
+            <td>같은 키를 포르투갈어로 현지화하고 공식 서비스명은 보존했다.</td>
+          </tr>
+          <tr>
+            <td><code>locales/id/safety.json</code></td>
+            <td>같은 키를 인도네시아어로 현지화하고 접근성 힌트까지 영어 잔여를 제거했다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>검사</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>JSON 파싱</td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과, 줄끝 경고만 표시</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>제약 준수</h2>
+      <details open>
+        <summary>자율 사이클 자체 점검</summary>
+        <p>허브 브랜치는 전환하지 않았고, 2nd-B 작업은 <code>origin/main</code> 기준 새 worktree <code>E:\2ndB\.worktrees\codex-cycle-20260727-224804-antislop</code>에서 수행했다. 2nd-B push, PR, merge, 배포, 비용 작업, 시크릿 작업, 브라우저 자동 열기는 하지 않았다.</p>
+        <p>섹션 35 자체 패널 기준으로 이 변경은 독립 설계 결정을 만들지 않고 기존 안전 배너의 언어 품질만 맞추는 작업이다. 다만 안전 카피라서 Claude 검증 요청을 함께 냈다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

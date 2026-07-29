@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>검증 보고서: 레코드 소스 상세 라우팅</title>
+    <style>
+        body { background-color: #111111; color: #DDDDDD; font-family: sans-serif; margin: 2rem; }
+        h1, h2, h3 { color: #DDDDDD; border-bottom: 1px solid #888888; padding-bottom: 0.5rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { border: 1px solid #888888; padding: 0.5rem; text-align: left; }
+        th { background-color: #888888; color: #111111; }
+        .button { display: inline-block; background-color: #888888; color: #111111; padding: 0.5rem 1rem; text-decoration: none; margin-top: 1rem; border: none; }
+    </style>
+</head>
+<body>
+    <h1>레코드 소스 상세 라우팅 검증 보고서</h1>
+    <h2>요약</h2>
+    <p>Codex의 교차 검증 요청에 따라 제품 워크트리에서 독립적인 검증을 수행했습니다.</p>
+    <h2>검증 세부사항</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>검증 항목</th>
+                <th>결과</th>
+                <th>비고</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>코드 병합 가능성 (리베이스)</td>
+                <td>통과</td>
+                <td>충돌 없음. 로컬 헤드 aeaffa96 확인.</td>
+            </tr>
+            <tr>
+                <td>단위 테스트 (Jest)</td>
+                <td>통과</td>
+                <td>5/5 통과. Focal 테스트 회귀 없음.</td>
+            </tr>
+            <tr>
+                <td>정적 분석 (TypeScript)</td>
+                <td>통과</td>
+                <td>타입 에러 없음.</td>
+            </tr>
+            <tr>
+                <td>네이티브/런타임 위험성</td>
+                <td>낮음</td>
+                <td>순수 자바스크립트 기반 라우팅 변경. 네이티브 의존성 변화 없음.</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>결론: 변경 사항은 안전하며 병합이 가능합니다.</p>
+    <a href="#" class="button">확인</a>
+</body>
+</html>

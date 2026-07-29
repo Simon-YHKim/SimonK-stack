@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: 정적 검증</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+  }
+  h1, h2 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 5px;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .pass {
+    color: #aaaaaa;
+  }
+  button {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border: 1px solid #333333;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  button:hover {
+    background-color: #333333;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 정적 검증 보고서</h1>
+  <p>대상 브랜치: codex/records-source-detail-route-20260710 (헤드 ffffc197)</p>
+  <p>기준 커밋: origin/main@90a1a42b</p>
+
+  <h2>검증 항목 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>상세 내역</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 확인 (Ancestor Check)</td>
+        <td class="pass">통과</td>
+        <td>origin/main@90a1a42b 포함 확인 (병합 기준점 정상)</td>
+      </tr>
+      <tr>
+        <td>충돌 표식 검색</td>
+        <td class="pass">통과</td>
+        <td>src 디렉터리 내 잔여 충돌 표식 없음</td>
+      </tr>
+      <tr>
+        <td>타입스크립트 컴파일 (tsc)</td>
+        <td class="pass">통과</td>
+        <td>오류 없음</td>
+      </tr>
+      <tr>
+        <td>단위 테스트 (Jest)</td>
+        <td class="pass">통과</td>
+        <td>records-source-detail-route.test.ts (5개 통과)</td>
+      </tr>
+      <tr>
+        <td>다국어 키 검증 (i18n)</td>
+        <td class="pass">통과</td>
+        <td>다국어 키 일치 확인</td>
+      </tr>
+      <tr>
+        <td>금지어구 검증 (Lexicon)</td>
+        <td class="pass">통과</td>
+        <td>금지어구 검출 안됨</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button type="button">확인 완료</button>
+</body>
+</html>

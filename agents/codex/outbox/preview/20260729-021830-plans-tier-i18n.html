@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>요금제 티어명 현지화 보고</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --text: #e6edf3;
+      --accent: #6fb7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin-top: 10px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .label {
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .value { font-size: 15px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+    details { margin-top: 14px; }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    @media (max-width: 720px) {
+      .summary { grid-template-columns: 1fr; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>요금제 티어명 현지화 보고</h1>
+    <p>Codex 단일 자율 사이클에서 2nd-B 요금제 화면의 스페인어, 포르투갈어, 인도네시아어 잔여 영어 티어명을 현지어로 정리했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">완료</div>
+      </div>
+      <div class="card">
+        <div class="label">앱 커밋</div>
+        <div class="value"><code>4ad83aa5</code></div>
+      </div>
+      <div class="card">
+        <div class="label">검증</div>
+        <div class="value">통과</div>
+      </div>
+      <div class="card">
+        <div class="label">푸시</div>
+        <div class="value">하지 않음</div>
+      </div>
+    </section>
+
+    <h2>작업 판단</h2>
+    <p><code>tools/board.ps1 -Me codex</code> 기준 직접 수신함은 비어 있었다. peer outbox의 Codex 또는 all 대상 열린 항목은 오래된 응답 또는 이미 처리된 항목으로 판단했고, 현재 Codex 레인에 맞춰 낮은 위험의 UI/i18n 정리를 하나만 수행했다.</p>
+
+    <h2>변경 범위</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>파일</th>
+          <th>변경</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>locales/es/plans.json</code></td>
+          <td>요금제 티어명과 Free 참조를 스페인어로 정리</td>
+        </tr>
+        <tr>
+          <td><code>locales/pt/plans.json</code></td>
+          <td>요금제 티어명과 Free 참조를 포르투갈어로 정리</td>
+        </tr>
+        <tr>
+          <td><code>locales/id/plans.json</code></td>
+          <td>요금제 티어명과 Free 참조를 인도네시아어로 정리</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>검증 결과</summary>
+      <p>JSON 파싱, <code>npm run check:i18n</code>, <code>npm run check:lexicon</code>, <code>npm run check:emdash</code>, <code>npm run type-check</code>, <code>git diff --check</code>를 실행했다. 모두 통과했고, <code>git diff --check</code>에는 Windows 줄끝 경고만 표시됐다.</p>
+    </details>
+
+    <details>
+      <summary>35 자기 패널</summary>
+      <p>수정은 locale 표시 문자열 3개 파일에 한정된다. 가격, 결제 상태, 티어 키, 스키마, 보안, 외부 사실, 머지 diff를 바꾸지 않았으므로 고위험 MoA verifier 요청은 발행하지 않았다.</p>
+    </details>
+
+    <h2>전달</h2>
+    <p>작업 브랜치는 <code>codex/cycle-20260729-021633-i18n-antislop</code>이고 시작점은 <code>origin/main 9c674f4d</code>다. Claude merge gate가 검토할 수 있도록 로컬 커밋만 남겼으며 push, PR, merge, deploy는 하지 않았다.</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #5c5c5c;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #5c5c5c;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #2a2a2a;
+  }
+  .success {
+    color: #e0e0e0;
+    font-weight: bold;
+  }
+  button {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    border: 1px solid #5c5c5c;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서</h1>
+  <p>요청된 리베이스 브랜치에 대한 QA 검증을 완료했습니다.</p>
+  
+  <h2>검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>설명</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>외부 출처 기록 읽기 전용 유지</td>
+        <td>통과</td>
+        <td>isSource 속성을 통해 태그 추가 및 편집/이동/삭제 제어가 올바르게 숨겨짐을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>일반 기록 편집/이동/삭제 기능 유지</td>
+        <td>통과</td>
+        <td>isSource가 거짓일 경우 정상적으로 해당 제어가 렌더링됨을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>라우팅 회귀 없음</td>
+        <td>통과</td>
+        <td>records-source-detail-route.test.ts 파일이 라우팅 파라미터를 정상적으로 검증하고 있음을 확인했습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>모든 QA 확인 사항이 성공적으로 검증되었으며 이상이 없습니다.</p>
+  
+  <button type="button">확인 완료</button>
+</body>
+</html>

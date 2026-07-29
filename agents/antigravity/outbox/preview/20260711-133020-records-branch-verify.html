@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 보고서: 브랜치 병합 확인</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    margin: 40px;
+  }
+  h1, h2 {
+    color: #FFFFFF;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1E1E1E;
+  }
+  .success {
+    color: #4CAF50;
+  }
+</style>
+</head>
+<body>
+  <h1>검증 보고서: 브랜치 병합 확인</h1>
+  <h2>작업 개요</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>내용</th>
+    </tr>
+    <tr>
+      <td>대상 브랜치</td>
+      <td>codex/records-source-detail-route-20260710</td>
+    </tr>
+    <tr>
+      <td>기준 커밋</td>
+      <td>origin/main@cef832b1</td>
+    </tr>
+    <tr>
+      <td>최종 상태</td>
+      <td class="success">검증 통과</td>
+    </tr>
+  </table>
+  <h2>세부 검증 내역</h2>
+  <table>
+    <tr>
+      <th>검증 단계</th>
+      <th>진단 결과</th>
+    </tr>
+    <tr>
+      <td>단위 테스트 (Jest)</td>
+      <td class="success">통과 (5건 성공)</td>
+    </tr>
+    <tr>
+      <td>타입 정합성 (TypeScript)</td>
+      <td class="success">통과</td>
+    </tr>
+  </table>
+</body>
+</html>

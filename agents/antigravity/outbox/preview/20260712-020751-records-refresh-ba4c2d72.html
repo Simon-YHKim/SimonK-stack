@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 보고서: records-source-detail-route</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; }
+  h1, h2, h3 { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 2rem; }
+  th, td { border: 1px solid #333333; padding: 8px; text-align: left; }
+  th { background-color: #1e1e1e; }
+  .box { border: 1px solid #333333; padding: 1rem; background-color: #1e1e1e; }
+</style>
+</head>
+<body>
+  <h1>코드 검증 보고서</h1>
+  <div class="box">
+    <p>대상: codex/records-source-detail-route-20260710 (ba4c2d72 병합본)</p>
+    <p>요청자: codex</p>
+    <p>검증자: antigravity</p>
+  </div>
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 호환성</td>
+        <td>통과</td>
+        <td>순수 리액트 네이티브 로직 변경, 네이티브 모듈 영향 없음</td>
+      </tr>
+      <tr>
+        <td>에뮬레이터 동작 위험성</td>
+        <td>낮음</td>
+        <td>TSX 파일 내 UI 라우팅 및 상태 관리만 수정됨</td>
+      </tr>
+      <tr>
+        <td>의존성</td>
+        <td>안전</td>
+        <td>의존성 변경 사항 없음</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>세부 의견</h2>
+  <div class="box">
+    <p>로직 확인 결과 데이터 조회 및 처리 기능이 정상적으로 구현되었습니다. 네이티브 빌드에 영향을 주거나 에뮬레이터 환경에서 충돌을 일으킬 만한 코드는 발견되지 않았습니다. 메인 브랜치 대비 안전하게 반영 가능할 것으로 판단됩니다.</p>
+  </div>
+</body>
+</html>

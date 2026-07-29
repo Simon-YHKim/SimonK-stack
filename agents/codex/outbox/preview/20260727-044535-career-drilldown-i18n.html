@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>커리어 드릴다운 다국어 정리 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e8edf2;
+      --accent: #6ec6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main { max-width: 960px; margin: 0 auto; padding: 40px 20px 56px; }
+    header { border-bottom: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding-bottom: 20px; margin-bottom: 24px; }
+    h1, h2 { margin: 0 0 12px; letter-spacing: 0; }
+    h1 { font-size: clamp(26px, 4vw, 40px); }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 18px 0 26px; }
+    .card { border: 1px solid color-mix(in srgb, var(--text) 14%, transparent); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--text) 5%, transparent); }
+    .label { display: block; color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid color-mix(in srgb, var(--text) 13%, transparent); vertical-align: top; }
+    th { color: var(--accent); font-weight: 650; }
+    code { color: var(--accent); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; }
+    details { border: 1px solid color-mix(in srgb, var(--text) 14%, transparent); border-radius: 8px; padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 650; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>커리어 드릴다운 다국어 정리 보고</h1>
+      <p>이번 사이클은 Codex 레인의 UI 문구 품질 작업으로, 커리어 드릴다운 화면의 3C/4P 입력 구조가 비한국어 환경에서 한국어 또는 영어로 섞여 보이던 문제를 한 파일 안에서 정리했다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">앱 브랜치</span><code>codex/cycle-260727-041229</code></div>
+      <div class="card"><span class="label">앱 커밋</span><code>a275fca1</code></div>
+      <div class="card"><span class="label">기준</span><code>origin/main 69b0c58f</code></div>
+      <div class="card"><span class="label">범위</span><code>src/app/career-drilldown.tsx</code></div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>경험 유형</td><td>영어, 한국어, 스페인어, 포르투갈어, 인도네시아어 표시값을 locale별로 분기했다.</td></tr>
+          <tr><td>3C/4P 입력 구조</td><td>밴드 제목, 그룹 보조명, 필드 라벨, 예시 placeholder를 locale별 copy table로 연결했다.</td></tr>
+          <tr><td>저장 본문</td><td>저장되는 기록 본문의 필드 라벨과 유형 라벨도 현재 locale의 화면 문구를 사용하도록 맞췄다.</td></tr>
+          <tr><td>안전 범위</td><td>네비게이션, 저장 로직, 데이터 모델, 외부 호출, 비용 발생 작업은 변경하지 않았다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>검증 결과</summary>
+      <table>
+        <thead>
+          <tr><th>검증</th><th>상태</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npx eslint src/app/career-drilldown.tsx --quiet</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과, 줄끝 변환 경고만 표시</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <p>장점: 기존 저장 플로우를 건드리지 않고, 화면에 보이는 scaffold와 저장 본문 라벨의 locale 불일치를 함께 줄였다.</p>
+      <p>우려: copy table이 화면 파일 안에서 커졌다. 이 화면이 더 커지면 다음 통합 때 locale JSON 키로 이동하는 편이 유지보수에 낫다.</p>
+      <p>판정: 한 파일 범위의 UI/i18n 품질 개선으로 적합하며, 고위험 변경이나 교차검증 필수 대상은 아니다.</p>
+    </details>
+  </main>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>검증 회신 수거 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --fg: #e6edf3;
+      --accent: #7aa2f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      font-size: 28px;
+      line-height: 1.25;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 18px;
+      margin: 28px 0 12px;
+      color: var(--accent);
+    }
+    .lead { opacity: .88; margin-bottom: 24px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 22px 0;
+    }
+    .card, details {
+      border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      background: color-mix(in srgb, var(--fg) 4%, transparent);
+    }
+    .label {
+      display: block;
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .value { font-weight: 700; overflow-wrap: anywhere; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 4px;
+      font-size: 14px;
+    }
+    th, td {
+      border-top: 1px solid color-mix(in srgb, var(--fg) 16%, transparent);
+      padding: 9px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--fg);
+      background: color-mix(in srgb, var(--fg) 8%, transparent);
+      padding: 1px 5px;
+      border-radius: 4px;
+      overflow-wrap: anywhere;
+    }
+    ul { padding-left: 20px; }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    button {
+      margin-top: 10px;
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--fg);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font: inherit;
+      cursor: pointer;
+    }
+    button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      main { padding: 28px 14px 44px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>검증 회신 수거 보고</h1>
+    <p class="lead">이번 Codex poll cycle은 열린 Codex 오더 없이, Antigravity가 새로 남긴 records/source-detail route 검증 회신을 수거하고 기존 Codex 검증 요청을 닫는 작업만 수행했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span><span class="value">완료</span></div>
+      <div class="card"><span class="label">제품 변경</span><span class="value">없음</span></div>
+      <div class="card"><span class="label">제품 HEAD</span><span class="value">f499ebe5</span></div>
+      <div class="card"><span class="label">기준</span><span class="value">origin/main c8103dde</span></div>
+    </section>
+
+    <h2>수거한 회신</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>값</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>회신</td>
+          <td><code>20260718-114741-antigravity-re-records-source-detail-route-verify</code></td>
+        </tr>
+        <tr>
+          <td>참조 요청</td>
+          <td><code>20260711-112849-codex-re-records-branch-refresh-verify</code></td>
+        </tr>
+        <tr>
+          <td>처리</td>
+          <td>Codex 요청 frontmatter를 <code>status: done</code>으로 종료</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증 내용</h2>
+    <ul>
+      <li>Antigravity는 일반 레코드 삭제 동작, 출처 상세 화면 삭제 버튼 숨김, 기존 라우팅 및 폴백 유지를 PASS로 보고했다.</li>
+      <li>Antigravity는 records source-detail route Jest와 TypeScript 검사를 통과했다고 보고했다.</li>
+      <li>Codex는 현재 제품 작업트리에서 <code>origin/main</code> ancestry와 <code>git diff --check origin/main...HEAD</code> 통과를 재확인했다.</li>
+      <li>diff 범위는 records/source-detail 관련 5개 파일로 유지된다.</li>
+    </ul>
+
+    <details open>
+      <summary>35절 자기 패널</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>관점</th>
+            <th>판정</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>구축자</td>
+            <td>새 검증 회신을 수거하고 오래 열린 Codex 검증 요청을 닫았다.</td>
+          </tr>
+          <tr>
+            <td>회의론자</td>
+            <td>회신은 PASS로 기록하되 Codex가 직접 런타임 재실행을 주장하지 않는다.</td>
+          </tr>
+          <tr>
+            <td>품질 확인</td>
+            <td>제품 HEAD, 기준 ancestry, 5파일 diff 범위, whitespace 검사를 확인했다.</td>
+          </tr>
+          <tr>
+            <td>위험 담당</td>
+            <td>제품 코드 변경, push, merge, 배포, 브라우저 오픈, 파괴/비용/secrets 작업은 하지 않았다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <h2>링크</h2>
+    <ul>
+      <li><code>agents/codex/outbox/20260718-114912-codex-re-records-source-detail-route-verify-close.md</code></li>
+      <li><code>agents/antigravity/outbox/20260718-114741-antigravity-re-records-source-detail-route-verify.md</code></li>
+      <li><code>agents/codex/outbox/20260711-112849-to-antigravity-records-branch-refresh-verify.md</code></li>
+    </ul>
+    <button type="button" onclick="navigator.clipboard && navigator.clipboard.writeText('agents/codex/outbox/preview/20260718-114912-records-source-detail-route-verify-close.html')">보고서 경로 복사</button>
+  </main>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 브랜치 최신화 보고</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --text: #e8ecef;
+      --accent: #76a9ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 48px 0;
+    }
+    h1, h2 {
+      margin: 0;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+    h1 {
+      font-size: 30px;
+      color: var(--accent);
+    }
+    h2 {
+      margin-top: 32px;
+      font-size: 18px;
+    }
+    p { margin: 12px 0 0; }
+    table {
+      width: 100%;
+      margin-top: 16px;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+      width: 28%;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      overflow-wrap: anywhere;
+    }
+    ul {
+      margin: 12px 0 0;
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 브랜치 최신화 보고</h1>
+    <p>이번 사이클은 코덱스 수신함과 동료 산출함을 먼저 확인했다. 새로 처리할 열린 요청은 없었고, 이전부터 남아 있던 열린 행은 이미 답변된 요청, 공지, 또는 낡은 메타데이터로 분류했다.</p>
+
+    <h2>수행한 단일 작업</h2>
+    <p>코덱스 레인의 대기 브랜치 <code>codex/records-source-detail-route-20260710</code>가 최신 메인보다 한 커밋 뒤처져 있었다. 별도 제품 워크트리에서 <code>origin/main@74fc6d9d</code> 위로 재배치했고, 충돌 없이 완료했다. 새 제품 브랜치 헤드는 <code>03e38d49</code>이다. 푸시는 하지 않았다.</p>
+
+    <table>
+      <tr>
+        <th>항목</th>
+        <td>기록 상세 라우팅 브랜치 최신화</td>
+      </tr>
+      <tr>
+        <th>기준 메인</th>
+        <td><code>74fc6d9d</code></td>
+      </tr>
+      <tr>
+        <th>새 브랜치 헤드</th>
+        <td><code>03e38d49</code></td>
+      </tr>
+      <tr>
+        <th>제약 준수</th>
+        <td>허브 쓰기는 <code>agents/codex/</code> 아래로 제한했고, 제품 브랜치는 로컬 워크트리에서만 다뤘으며, 원격 푸시는 하지 않았다.</td>
+      </tr>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code> 통과, 테스트 5개 성공</li>
+      <li><code>npx tsc --noEmit --pretty false</code> 통과</li>
+    </ul>
+
+    <h2>자체 패널</h2>
+    <p>가치 판단: 새 기능을 더 찾는 것보다 이미 대기 중인 기록 상세 브랜치를 최신 메인 위에 유지하는 편이 머지 대기 비용을 줄인다.</p>
+    <p>위험 판단: 재배치 산출물은 병합 차이 성격이 있으므로 안티그래비티에 교차 검증을 요청한다.</p>
+    <p>범위 판단: 이번 사이클의 작업은 브랜치 최신화와 검증으로 한정했고, 추가 제품 변경이나 허브 외부 쓰기는 하지 않았다.</p>
+  </main>
+</body>
+</html>

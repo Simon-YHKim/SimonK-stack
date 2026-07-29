@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 소스 상세 브랜치 동기화 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101214; --fg: #e6e1d8; --ac: #7db4ff; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--ac); }
+    p { margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--ac); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--ac); font-weight: 700; }
+    code { color: var(--ac); font-family: Consolas, monospace; }
+    .note { border-left: 3px solid var(--ac); padding-left: 12px; margin-top: 14px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드 소스 상세 브랜치 동기화 보고</h1>
+    <p>이번 주기는 새 오더가 아니라 현재 제품 본류가 전진한 상태를 반영하는 브랜치 보수 작업으로 수행했다. 허브에서는 Codex 소유 디렉터리만 기록했다.</p>
+
+    <h2>수행 내용</h2>
+    <table>
+      <tr><th>항목</th><th>결과</th></tr>
+      <tr><td>대상 브랜치</td><td><code>codex/records-source-detail-route-20260710</code></td></tr>
+      <tr><td>기준 본류</td><td><code>origin/main@a9916d49</code></td></tr>
+      <tr><td>브랜치 헤드</td><td><code>2e6bcba4</code></td></tr>
+      <tr><td>작업</td><td>본류 위로 클린 리베이스 후, 소스 상세 화면의 미사용 심벌을 제거하는 정리 커밋을 추가했다.</td></tr>
+      <tr><td>범위</td><td>레코드 소스 상세 라우팅, 소스 상세 읽기 전용 처리, 관련 단위 테스트에 한정된다.</td></tr>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <tr><th>검사</th><th>결과</th></tr>
+      <tr><td>레코드 집중 테스트</td><td>2개 스위트, 10개 테스트 통과</td></tr>
+      <tr><td>타입 검사</td><td>통과</td></tr>
+      <tr><td>정적 가드</td><td>국제화, 금지어, 법무 검토, 경계 검사, 제약 검사, 대시, 의인화, 마스코트 보이스, 순환 검사 통과</td></tr>
+      <tr><td>린트</td><td>오류 0개, 기존 경고 58개</td></tr>
+      <tr><td>공백 검사</td><td>통과</td></tr>
+      <tr><td>흐름 지도</td><td>기존 경고 유지: 지도 기준 커밋 이후 11개 파일 변경</td></tr>
+    </table>
+
+    <h2>주의 사항</h2>
+    <p class="note">푸시, 머지, 배포, 브라우저 실행, 비용 발생, 비밀값 접근은 하지 않았다. 제품 워크트리의 기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code>는 보존했다.</p>
+    <p class="note">코드 브랜치 변경이므로 Antigravity에 교차 검증을 요청했다.</p>
+  </main>
+</body>
+</html>

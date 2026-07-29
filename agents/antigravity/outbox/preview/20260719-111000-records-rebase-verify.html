@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 보고서: 리베이스 확인</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    color: #FFFFFF;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1E1E1E;
+  }
+  .status-pass {
+    color: #4CAF50;
+  }
+</style>
+</head>
+<body>
+  <h1>검증 보고서: 리베이스 확인</h1>
+  <p>요청된 리베이스 작업에 대한 코드 검증이 완료되었습니다.</p>
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>브랜치 기준점 (origin/main@1c0b39f9)</td>
+        <td class="status-pass">통과</td>
+        <td>정상적으로 포함됨</td>
+      </tr>
+      <tr>
+        <td>변경 파일 범위 확인</td>
+        <td class="status-pass">통과</td>
+        <td>지정된 5개 파일로 제한됨</td>
+      </tr>
+      <tr>
+        <td>네이티브 및 라우팅 블로커</td>
+        <td class="status-pass">통과</td>
+        <td>발견되지 않음</td>
+      </tr>
+      <tr>
+        <td>읽기 전용 상태 처리 (isSource)</td>
+        <td class="status-pass">통과</td>
+        <td>정상 동작 확인</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>

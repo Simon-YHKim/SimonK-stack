@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA 교차 검증 보고서: 레코드 소스 상세 라우팅</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+  }
+  h1 {
+    color: #FFFFFF;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 10px;
+  }
+  h2 {
+    color: #CCCCCC;
+    margin-top: 30px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #444444;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1E1E1E;
+    color: #FFFFFF;
+  }
+  .status-pass {
+    color: #4CAF50;
+    font-weight: bold;
+  }
+  button {
+    background-color: #333333;
+    color: #FFFFFF;
+    border: 1px solid #555555;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  button:hover {
+    background-color: #444444;
+  }
+  .caption {
+    font-size: 0.9em;
+    color: #888888;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<h1>QA 교차 검증 보고서: 레코드 소스 상세 라우팅</h1>
+<p>이 보고서는 Codex 요원으로부터 요청된 `records-source-detail-route-20260710` 브랜치 변경 사항에 대한 QA 검증 결과를 요약합니다.</p>
+
+<h2>검증 항목 및 결과</h2>
+<table>
+  <thead>
+    <tr>
+      <th>검증 항목</th>
+      <th>상태</th>
+      <th>비고</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>단위 테스트 (Jest)</td>
+      <td class="status-pass">통과</td>
+      <td>5개의 테스트가 모두 성공적으로 통과됨.</td>
+    </tr>
+    <tr>
+      <td>타입 검사 (TypeScript)</td>
+      <td class="status-pass">통과</td>
+      <td>타입 오류 없음.</td>
+    </tr>
+    <tr>
+      <td>변경 범위 확인</td>
+      <td class="status-pass">통과</td>
+      <td>변경 사항이 `records-source-detail-route.test.ts`와 `dds-wiki-records-screens.tsx` 에만 국한됨을 확인.</td>
+    </tr>
+  </tbody>
+</table>
+<div class="caption">표 1. 검증 요청 내역 요약표</div>
+
+<h2>상세 결론</h2>
+<p>해당 브랜치(976ce76b)의 레코드 소스 상세 라우팅 로직은 모든 기술적 기준(테스트 및 빌드)을 충족하며 의도된 파일들로 변경이 적절히 격리되어 있습니다.</p>
+
+<button>검증 완료 확인</button>
+
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>검증 보고서: 레코드 리베이스</title>
+    <style>
+        body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; padding: 20px; }
+        h1, h2, h3 { color: #FFFFFF; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        th, td { border: 1px solid #333333; padding: 8px; text-align: left; }
+        th { background-color: #1E1E1E; }
+        .success { color: #4CAF50; }
+    </style>
+</head>
+<body>
+    <h1>검증 보고서: 레코드 소스 상세 리베이스</h1>
+    <p>본 보고서는 리베이스 작업에 대한 품질 보증 검증 결과를 포함합니다.</p>
+    
+    <h2>요약</h2>
+    <p>작업 대상 브랜치는 검증을 <span class="success">통과</span>했습니다. 네이티브 및 라우팅 관점에서 문제가 발견되지 않았습니다.</p>
+    
+    <h2>상세 검증 항목</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>검증 항목</th>
+                <th>결과</th>
+                <th>비고</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>HEAD 조상 확인</td>
+                <td class="success">통과</td>
+                <td>origin/main@0bec7b89가 올바른 조상임</td>
+            </tr>
+            <tr>
+                <td>변경 파일 범위</td>
+                <td class="success">통과</td>
+                <td>정확히 5개의 관련 파일만 변경됨</td>
+            </tr>
+            <tr>
+                <td>읽기 전용 상태 유지</td>
+                <td class="success">통과</td>
+                <td>UI 기능(태그, 수정, 이동, 삭제)이 안전하게 비활성화됨</td>
+            </tr>
+            <tr>
+                <td>상세 경로 분리</td>
+                <td class="success">통과</td>
+                <td>기록 경로와 소스 경로가 명확히 분리됨</td>
+            </tr>
+            <tr>
+                <td>네이티브/라우팅 블로커</td>
+                <td class="success">통과</td>
+                <td>라우팅 블로커 발견되지 않음</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>결론</h2>
+    <p>모든 검증이 성공적으로 완료되었습니다.</p>
+</body>
+</html>

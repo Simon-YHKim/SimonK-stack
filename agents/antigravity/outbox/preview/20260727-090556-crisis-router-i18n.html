@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>위기 안내 전화 다국어화 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .highlight {
+    background-color: #1e1e1e;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+  <h1>위기 안내 전화 다국어화 검증 보고서</h1>
+  <p>대상 브랜치: <span class="highlight">codex/cycle-260727-0900-crisis-i18n</span></p>
+  <p>커밋: <span class="highlight">eb3b02e1</span></p>
+  
+  <h2>검증 항목 및 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>기존 동작 유지 (전화 연결, 닫기, 헬프라인 링크)</td>
+        <td>통과</td>
+        <td>컴포넌트 내 핸들러 함수 변경 없음</td>
+      </tr>
+      <tr>
+        <td>접근성 레이블 및 힌트 유지</td>
+        <td>통과</td>
+        <td>다국어 번역 키가 정상 적용되어 기존 KO/EN 문구가 정확히 유지됨</td>
+      </tr>
+      <tr>
+        <td>안전 표면 문구 의미 유지</td>
+        <td>통과</td>
+        <td>임상, 법무 관련 단어 추가 없이 KO/EN 분기만 성공적으로 제거됨</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>결론</h2>
+  <p>모든 검증 항목이 통과되었습니다. 안드로이드 모바일 환경 접근성 및 기능 퇴행 없이 다국어화가 정상적으로 반영되었습니다.</p>
+</body>
+</html>

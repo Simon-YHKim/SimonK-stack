@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 별 문구 정렬 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101113; --text: #e8edf2; --accent: #8fbfff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; }
+    main { width: min(980px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: clamp(28px, 4vw, 44px); line-height: 1.15; letter-spacing: 0; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin-top: 10px; }
+    .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 24px 0 28px; }
+    .card { border: 1px solid var(--accent); border-radius: 8px; padding: 14px; min-height: 92px; }
+    .label { color: var(--accent); font-size: 13px; }
+    .value { display: block; margin-top: 8px; font-weight: 700; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border-top: 1px solid var(--accent); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    details { border: 1px solid var(--accent); border-radius: 8px; padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    @media (max-width: 760px) { .summary { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 520px) { .summary { grid-template-columns: 1fr; } th, td { display: block; width: 100%; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드 별 문구 정렬 보고</h1>
+    <p>이번 사이클은 Codex 레인의 단일 작업으로, 레코드 상세 화면의 도메인 헤더 문구를 현재 별 세계관에 맞게 정리했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><span class="label">결과</span><span class="value">완료</span></div>
+      <div class="card"><span class="label">2nd-B 커밋</span><span class="value"><code>13f9af9b</code></span></div>
+      <div class="card"><span class="label">브랜치</span><span class="value"><code>codex/cycle-20260729-210706-records-star-eyebrow</code></span></div>
+      <div class="card"><span class="label">검증</span><span class="value">전체 통과</span></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>조정</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>locales/en/records.json</code></td><td>영역 중심 표현을 별 중심 표현으로 변경했다.</td></tr>
+        <tr><td><code>locales/ko/records.json</code></td><td>“이 영역”을 “이 별”로 바꿔 화면 문맥을 맞췄다.</td></tr>
+        <tr><td><code>locales/es/records.json</code></td><td>스페인어 상세 헤더를 별 기준 표현으로 정리했다.</td></tr>
+        <tr><td><code>locales/pt/records.json</code></td><td>포르투갈어 상세 헤더를 별 기준 표현으로 정리했다.</td></tr>
+        <tr><td><code>locales/id/records.json</code></td><td>인도네시아어 상세 헤더를 별 기준 표현으로 정리했다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li>JSON 파싱 통과</li>
+      <li><code>git diff --check</code> 통과</li>
+      <li><code>npm run check:i18n</code> 통과</li>
+      <li><code>npm run check:lexicon</code> 통과</li>
+      <li><code>npm run check:emdash</code> 통과</li>
+      <li><code>npm run type-check</code> 통과</li>
+      <li><code>npm run verify</code> 통과, 기존 lint 경고와 테스트 콘솔 경고만 출력</li>
+    </ul>
+
+    <details>
+      <summary>자체 패널 판단</summary>
+      <p>구조 변경, 보안 민감 코드, 수학 결과, 외부 최신 사실, 스키마 변경이 아니므로 고위험 교차검증 요청은 만들지 않았다. 변경은 화면 문구의 세계관 정합성 보정으로 제한했다.</p>
+    </details>
+
+    <h2>제한 사항</h2>
+    <p>2nd-B 브랜치는 로컬 커밋까지만 만들었다. push, PR, merge, 배포, 브라우저 자동 열기는 수행하지 않았다.</p>
+  </main>
+</body>
+</html>

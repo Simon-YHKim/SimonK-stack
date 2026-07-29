@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>세컨비 북극성 힌트 정렬 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --text: #e6edf7;
+      --muted: #8ea0ba;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; letter-spacing: 0; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    .lead { margin-top: 12px; color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .card {
+      border: 1px solid rgba(125, 211, 252, 0.28);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .label { color: var(--muted); font-size: 12px; }
+    .value { margin-top: 6px; font-weight: 700; word-break: break-word; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid rgba(125, 211, 252, 0.22);
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(125, 211, 252, 0.14);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95em;
+    }
+    details {
+      margin-top: 12px;
+      border: 1px solid rgba(125, 211, 252, 0.22);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 10px 0 0 20px; padding: 0; }
+    li + li { margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>세컨비 북극성 힌트 정렬 보고</h1>
+    <p class="lead">이번 사이클은 미응답 codex 요청이 없어 2nd-B UI/anti-slop 레인에서 새 작업 하나만 수행했다. 세컨비 systemHint의 레거시 “Soul Core/소울 코어” 명칭을 현재 정본인 “North Star/북극성”으로 정렬했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">완료</div>
+      </div>
+      <div class="card">
+        <div class="label">2nd-B 브랜치</div>
+        <div class="value"><code>codex/cycle-20260728-174850-secondb-northstar</code></div>
+      </div>
+      <div class="card">
+        <div class="label">로컬 커밋</div>
+        <div class="value"><code>dea27a56</code></div>
+      </div>
+      <div class="card">
+        <div class="label">푸시 상태</div>
+        <div class="value">푸시하지 않음</div>
+      </div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>파일</th>
+          <th>변경</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>locales/en/secondb.json</code></td>
+          <td>세컨비 systemHint를 “central AI for the North Star”로 정렬했다.</td>
+        </tr>
+        <tr>
+          <td><code>locales/ko/secondb.json</code></td>
+          <td>세컨비 systemHint를 “북극성의 중심 AI 세컨비”로 정렬했다.</td>
+        </tr>
+        <tr>
+          <td><code>src/lib/__tests__/worldview-naming.test.ts</code></td>
+          <td>회귀 테스트 기대값을 새 정본 명칭에 맞췄다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>상태</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>JSON 파싱</td><td>통과</td></tr>
+        <tr><td><code>npm test -- --runTestsByPath src/lib/__tests__/worldview-naming.test.ts --runInBand</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과, 윈도우 줄끝 알림만 표시</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자체 패널 판단</summary>
+      <ul>
+        <li>찬성: 정본 문서가 “Soul Core” 표시명을 폐기하고 “북극성”을 사용하도록 요구하므로 사용자-facing 힌트 정렬 가치가 있다.</li>
+        <li>반대: systemHint는 응답 스타일에 영향을 주므로 큰 의미 변경을 피해야 한다.</li>
+        <li>판정: 명칭만 바꾸고 Analytic/Divergent, 기록 연결, 톤 지시는 보존했으므로 범위가 안전하다.</li>
+        <li>고위험 여부: 머지 diff, 스키마, 보안, 외부사실, 정량 산출물이 아니므로 별도 verify 요청은 만들지 않았다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>

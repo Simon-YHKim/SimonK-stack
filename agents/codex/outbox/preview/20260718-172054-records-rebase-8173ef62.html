@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 상세 브랜치 재베이스 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101418;
+      --text: #e6edf3;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 44px;
+    }
+    header {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin-bottom: 10px; color: var(--accent); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }
+    .card, details {
+      border: 1px solid rgba(125, 211, 252, 0.45);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(230, 237, 243, 0.04);
+    }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 4px; }
+    .value { font-size: 16px; font-weight: 700; overflow-wrap: anywhere; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 0;
+    }
+    th, td {
+      border-bottom: 1px solid rgba(125, 211, 252, 0.35);
+      text-align: left;
+      padding: 9px 8px;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    details { margin-top: 12px; }
+    ul { padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>레코드 상세 브랜치 재베이스 보고</h1>
+      <p>이번 사이클의 단일 신규 작업은 2nd-B Codex 레인 브랜치를 최신 <code>origin/main@8173ef62</code> 위로 재베이스하고, 기존 변경 범위와 관련 테스트를 확인하는 것이었다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">완료</div>
+      </div>
+      <div class="card">
+        <div class="label">새 제품 헤드</div>
+        <div class="value"><code>1b4bdfff</code></div>
+      </div>
+      <div class="card">
+        <div class="label">기준 메인</div>
+        <div class="value"><code>8173ef62</code></div>
+      </div>
+      <div class="card">
+        <div class="label">제품 푸시</div>
+        <div class="value">수행 안 함</div>
+      </div>
+    </section>
+
+    <details open>
+      <summary>검증 요약</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>결과</th>
+            <th>근거</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>재베이스</td>
+            <td>통과</td>
+            <td><code>git rebase origin/main</code>이 충돌 없이 완료됨</td>
+          </tr>
+          <tr>
+            <td>계보 확인</td>
+            <td>통과</td>
+            <td><code>git merge-base --is-ancestor origin/main HEAD</code> 종료 코드 <code>0</code></td>
+          </tr>
+          <tr>
+            <td>변경 범위</td>
+            <td>통과</td>
+            <td>records/source-detail 관련 5파일, <code>126</code> 추가 및 <code>34</code> 삭제</td>
+          </tr>
+          <tr>
+            <td>공백 검사</td>
+            <td>통과</td>
+            <td><code>git diff --check origin/main...HEAD</code> 출력 없음</td>
+          </tr>
+          <tr>
+            <td>대상 테스트</td>
+            <td>통과</td>
+            <td>Jest 2개 suite, 10개 테스트 통과</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>변경 파일</summary>
+      <ul>
+        <li><code>src/lib/records/__tests__/source-pieces.test.ts</code></li>
+        <li><code>src/lib/records/get-piece.ts</code></li>
+        <li><code>src/lib/records/source-pieces.ts</code></li>
+        <li><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></li>
+        <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>관점</th>
+            <th>판정</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>찬성</td>
+            <td>최신 메인 위 재베이스로 Claude가 현재 기준에서 검토할 수 있는 브랜치 상태가 복구됐다.</td>
+          </tr>
+          <tr>
+            <td>반대</td>
+            <td>제품 전체 검증은 시간이 더 들며 이번 사이클에서는 targeted Jest만 실행했다.</td>
+          </tr>
+          <tr>
+            <td>심판</td>
+            <td>단일 사이클 범위에서는 재베이스, 범위 확인, 공백 검사, 관련 테스트 통과가 충분하다. merge-diff 성격이므로 Antigravity 검증 요청을 별도로 남겼다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>제한 사항</summary>
+      <ul>
+        <li>제품 푸시, 병합, 배포, 브라우저 열기, 파괴적 작업, 비용 작업, 시크릿 작업은 수행하지 않았다.</li>
+        <li>기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code>는 보존했다.</li>
+        <li>전체 <code>npm run verify</code>는 실행하지 않았다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>

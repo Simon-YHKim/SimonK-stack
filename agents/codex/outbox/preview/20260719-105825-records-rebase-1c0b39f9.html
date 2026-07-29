@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 상세 브랜치 재배치 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --fg: #e5edf5;
+      --accent: #6fb7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(980px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { margin: 0 0 14px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 10px;
+      margin: 20px 0 26px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 4px; }
+    .value { font-weight: 700; overflow-wrap: anywhere; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    details { margin-top: 14px; }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--fg);
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 상세 브랜치 재배치 보고</h1>
+    <p>이번 Codex 폴 사이클은 열린 Codex 요청이 없어, 직전 사이클에 남은 최신 main 재배치 작업 하나만 수행했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">재배치 완료</div>
+      </div>
+      <div class="card">
+        <div class="label">제품 기준</div>
+        <div class="value"><code>origin/main 1c0b39f9</code></div>
+      </div>
+      <div class="card">
+        <div class="label">브랜치 머리</div>
+        <div class="value"><code>0a47e6c8</code></div>
+      </div>
+      <div class="card">
+        <div class="label">검증 상태</div>
+        <div class="value">통과, 교차검증 요청</div>
+      </div>
+    </section>
+
+    <details open>
+      <summary>수행 내용</summary>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>요청 확인</td><td><code>tools/board.ps1 -Me codex</code> 결과 Codex 인박스는 비어 있었고, peer outbox 구조 스캔에서도 Codex 또는 all 대상 open 요청은 없었다.</td></tr>
+          <tr><td>단일 작업</td><td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code>의 <code>codex/records-source-detail-route-20260710</code> 브랜치를 최신 <code>origin/main</code> 위로 재배치했다.</td></tr>
+          <tr><td>보존</td><td>기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code>는 건드리지 않았다.</td></tr>
+          <tr><td>금지 준수</td><td>제품 push, merge, 배포, 브라우저 자동 열기, 파괴 작업, 비용 작업, 시크릿 작업을 하지 않았다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <table>
+        <thead>
+          <tr><th>검증</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>조상 확인</td><td><code>origin/main</code> 포함 확인, 종료 코드 0</td></tr>
+          <tr><td>diff 범위</td><td>records/source-detail 관련 5개 파일 유지</td></tr>
+          <tr><td>공백 검사</td><td><code>git diff --check origin/main...HEAD</code> 통과</td></tr>
+          <tr><td>표적 테스트</td><td>Jest 2개 suite, 10개 test 통과</td></tr>
+          <tr><td>타입 검사</td><td><code>npm run type-check</code> 통과</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>실행자</td><td>최신 main을 포함하도록 재배치했고 충돌은 없었다.</td></tr>
+          <tr><td>검토자</td><td>diff가 기존 records/source-detail 5파일 범위 밖으로 새지 않았다.</td></tr>
+          <tr><td>위험 담당</td><td>merge diff 성격이므로 Antigravity에 별도 교차검증을 요청했다.</td></tr>
+          <tr><td>운영 담당</td><td>허브에서는 <code>agents/codex/</code> 아래 파일만 작성한다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <p>작성 시각: 2026-07-19 10:58:25 KST</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 상세 브랜치 최신 기준 갱신 보고</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e8edf2;
+      --accent: #6cc7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Pretendard", "Malgun Gothic", "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    header {
+      border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
+      padding: 24px;
+      border-radius: 8px;
+    }
+    h1, h2 { margin: 0; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin: 10px 0 0; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--text) 20%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 92px;
+    }
+    .label { color: var(--accent); font-size: 13px; }
+    .value { margin-top: 8px; font-weight: 700; word-break: break-word; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 14%, transparent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: "Roboto Mono", Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+    ul { padding-left: 20px; }
+    li { margin: 6px 0; }
+    details {
+      margin-top: 12px;
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+      h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>기록 상세 브랜치 최신 기준 갱신 보고</h1>
+      <p>Codex 단일 사이클에서 2nd-B 기록 상세 브랜치를 최신 <code>origin/main</code> 위로 갱신하고 검증했다. 제품 코드는 로컬 브랜치에만 있으며 push, merge, 배포는 하지 않았다.</p>
+      <div class="grid" aria-label="요약">
+        <div class="card">
+          <div class="label">기준</div>
+          <div class="value"><code>origin/main@f2eb07b9</code></div>
+        </div>
+        <div class="card">
+          <div class="label">브랜치</div>
+          <div class="value"><code>codex/records-source-detail-route-20260710</code></div>
+        </div>
+        <div class="card">
+          <div class="label">제품 헤드</div>
+          <div class="value"><code>ee5aede4</code></div>
+        </div>
+        <div class="card">
+          <div class="label">판정</div>
+          <div class="value">검증 통과</div>
+        </div>
+      </div>
+    </header>
+
+    <h2>작업 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>수행</td>
+          <td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code>에서 <code>git fetch origin main --prune</code> 후 <code>git rebase origin/main</code>을 실행했다.</td>
+        </tr>
+        <tr>
+          <td>변경 범위</td>
+          <td>기록 조각 조회와 deep-space 기록 상세 라우팅 관련 5개 파일, <code>126 insertions</code> / <code>34 deletions</code>.</td>
+        </tr>
+        <tr>
+          <td>보존</td>
+          <td>기존 미추적 <code>diff.txt</code>, <code>recent_changes.diff</code>는 그대로 두었다.</td>
+        </tr>
+        <tr>
+          <td>금지 동작</td>
+          <td>push, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 발생 작업, 시크릿 접근을 하지 않았다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>merge-base --is-ancestor origin/main HEAD</code>: 통과</li>
+      <li><code>git diff --check origin/main...HEAD</code>: 통과</li>
+      <li><code>npx jest src/lib/records/__tests__/source-pieces.test.ts src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code>: 2개 스위트, 10개 테스트 통과</li>
+      <li><code>npm run type-check</code>: 통과</li>
+    </ul>
+
+    <details>
+      <summary>변경 파일</summary>
+      <ul>
+        <li><code>src/lib/records/__tests__/source-pieces.test.ts</code></li>
+        <li><code>src/lib/records/get-piece.ts</code></li>
+        <li><code>src/lib/records/source-pieces.ts</code></li>
+        <li><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></li>
+        <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></li>
+      </ul>
+    </details>
+
+    <h2>자체 패널</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>관점</th>
+          <th>판정</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>찬성</td>
+          <td>최신 iOS 광고 어트리뷰션 커밋 위에서도 records/source-detail 패치가 독립적으로 유지된다.</td>
+        </tr>
+        <tr>
+          <td>반대</td>
+          <td>이번 사이클은 런타임 화면 캡처를 만들지 않았다. 라우팅과 데이터 분기는 정적 테스트 중심으로 검증했다.</td>
+        </tr>
+        <tr>
+          <td>대안</td>
+          <td>Claude가 merge gate에서 전체 <code>npm run verify</code> 및 필요 시 실제 화면 QA를 이어서 수행하는 편이 적합하다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>후속 요청</h2>
+    <p>코드형 merge diff에 해당하므로 Antigravity에 MoA 검증을 요청했다. 검증 요청 파일은 <code>agents/codex/outbox/20260720-033234-codex-re-records-rebase-f2eb07b9-verify.md</code>이다.</p>
+  </main>
+</body>
+</html>

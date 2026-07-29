@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex UI 배치 기준선 갱신</title>
+  <style>
+    :root { color-scheme: dark; --bg:#111316; --fg:#e7e9ee; --muted:#9aa3ad; --line:#9aa3ad; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.6 system-ui, -apple-system, Segoe UI, sans-serif; }
+    main { width: min(1040px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    h1, h2 { line-height: 1.2; margin: 0 0 14px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 20px 0 24px; }
+    .card { border: 1px solid var(--line); border-radius: 8px; padding: 14px; min-height: 88px; }
+    .label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+    .value { display: block; font-size: 22px; font-weight: 700; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-bottom: 1px solid var(--line); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--fg); font-size: 13px; }
+    td { color: var(--muted); }
+    code { color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; }
+    ul { margin: 8px 0 0; padding-left: 20px; color: var(--muted); }
+    li { margin: 5px 0; }
+    details { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--fg); font-weight: 650; }
+    @media (max-width: 760px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } main { width: min(100% - 20px, 1040px); padding-top: 28px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex UI 배치 기준선 갱신</h1>
+    <p>이번 사이클은 새 실행 요청이 없어 기존 Codex UI 배치 후보가 최신 2nd-B 원격 기준선과 직접 충돌하는지 갱신 점검했다. 신규 제품 코드 변경은 만들지 않았다.</p>
+
+    <section class="grid" aria-label="핵심 지표">
+      <div class="card"><span class="label">최신 기준선</span><span class="value">8f59fd2e</span></div>
+      <div class="card"><span class="label">검토 후보</span><span class="value">18개</span></div>
+      <div class="card"><span class="label">이미 포함</span><span class="value">0개</span></div>
+      <div class="card"><span class="label">직접 파일 교집합</span><span class="value">0개</span></div>
+    </section>
+
+    <h2>결론</h2>
+    <p><code>67f2263a..origin/main</code> 전진분은 안전 어휘, 위기 레이어 평가, handoff 문서, import 요약 경고 처리 주변 11개 파일이었다. 기존 Codex 후보 18개는 모두 최신 main에 아직 포함되지 않았고, 후보 변경 파일 16개와 main 전진 파일의 직접 교집합은 없었다.</p>
+
+    <h2>전진 파일</h2>
+    <table>
+      <thead><tr><th>구분</th><th>파일</th></tr></thead>
+      <tbody>
+        <tr><td>프로젝트 지침</td><td><code>CLAUDE.md</code></td></tr>
+        <tr><td>제품 문서</td><td><code>docs/VISION.md</code></td></tr>
+        <tr><td>인수인계</td><td><code>docs/handoff/ai_260721.md</code>, <code>docs/handoff/logic_260721.md</code></td></tr>
+        <tr><td>평가 스크립트</td><td><code>scripts/eval-crisis-layer-parity.ts</code>, <code>scripts/eval-lexicon-bareterm.ts</code></td></tr>
+        <tr><td>회귀 테스트</td><td><code>src/lib/audit/__tests__/axis-estimate.test.ts</code>, <code>src/lib/persona/__tests__/northstar-propose.test.ts</code>, <code>src/lib/persona/__tests__/propose-self-model.test.ts</code></td></tr>
+        <tr><td>안전 어휘</td><td><code>src/lib/safety/lexicon.ts</code></td></tr>
+        <tr><td>가져오기 화면</td><td><code>src/screens/deepspace/import/ImportHubScreen.tsx</code></td></tr>
+      </tbody>
+    </table>
+
+    <h2>확인</h2>
+    <ul>
+      <li><code>tools/board.ps1 -Me codex</code>: Codex inbox 비어 있음.</li>
+      <li>peer outbox 구조 스캔: 새 Codex 또는 all 대상 실행 가능 open 요청 없음.</li>
+      <li><code>git -C E:\2ndB fetch origin main --prune</code>: <code>origin/main@8f59fd2e</code> 확인.</li>
+      <li>18개 후보 각각 <code>merge-base --is-ancestor</code>: 모두 최신 main 미포함.</li>
+      <li>main 전진 파일과 후보 변경 파일 교집합: 없음.</li>
+    </ul>
+
+    <details>
+      <summary>35절 자기 패널</summary>
+      <p>찬성: main이 두 커밋 전진했으므로, 기존 UI 후보가 최신 기준선과 직접 겹치는지 갱신해야 Claude merge gate가 안전하게 소비할 수 있다.</p>
+      <p>반대: 직접 교집합만 보는 점검은 의미론적 충돌까지 보장하지 않는다. 특히 import 화면 변경은 같은 제품 영역의 흐름에 영향을 줄 수 있다.</p>
+      <p>판정: 이번 사이클은 throttle 상태의 병합 지원 작업이므로 신규 패치나 리베이스를 만들지 않고 포함 여부와 직접 파일 충돌 표면만 보고한다.</p>
+    </details>
+
+    <h2>안전</h2>
+    <p>제품 코드 변경, 2nd-B push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 작업은 하지 않았다. 병합 지원 큐 갱신은 고위험 산출물이 아니므로 별도 MoA verify 요청은 만들지 않았다.</p>
+  </main>
+</body>
+</html>

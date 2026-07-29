@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>감사 타임라인 검토 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101418;
+      --text: #e8edf2;
+      --accent: #7fb7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; margin-bottom: 12px; }
+    h2 { font-size: 18px; margin: 28px 0 10px; color: var(--accent); }
+    h3 { font-size: 16px; margin: 18px 0 8px; }
+    p, li, td, th { font-size: 14px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 22px 0;
+    }
+    .box, details {
+      border: 1px solid var(--accent);
+      padding: 14px;
+      border-radius: 6px;
+      background: rgba(127, 183, 255, 0.06);
+    }
+    .label { color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    .value { font-size: 18px; font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      overflow-wrap: anywhere;
+    }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+    @media (max-width: 760px) {
+      .summary { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>감사 타임라인 검토 보고</h1>
+    <p>이번 사이클은 <code>origin/logic/audit-honest-timeline</code> 브랜치의 제품 변경과 통합 가능성을 검토했다. 제품 방향은 맞지만, 최신 <code>origin/main</code> 기준 충돌이 있어 통합은 보류가 맞다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="box">
+        <div class="label">판정</div>
+        <div class="value">제품 승인, 통합 보류</div>
+      </div>
+      <div class="box">
+        <div class="label">검토 대상</div>
+        <div class="value"><code>2d485ff8</code></div>
+      </div>
+      <div class="box">
+        <div class="label">기준 main</div>
+        <div class="value"><code>ef4490ff</code></div>
+      </div>
+    </section>
+
+    <h2>핵심 판단</h2>
+    <p><code>2d85d06d</code>의 핵심 변경은 고정된 <code>또렷함 L{n}</code> 표시를 제거하고, 가져오기 후 거래 반영이 완전히 실패했을 때 사용자에게 경고를 보여준다. 근거 없는 밝기 신호와 무통보 실패를 줄이므로 Codex lane 기준으로는 타당하다.</p>
+
+    <h2>통합 블로커</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>파일</th>
+          <th>상태</th>
+          <th>의미</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>docs/flow-debugger.html</code></td>
+          <td>내용 충돌</td>
+          <td>최신 흐름 문서와 브랜치 문서가 동시에 바뀌었다.</td>
+        </tr>
+        <tr>
+          <td><code>docs/flow-thumbs/import-hub.jpg</code></td>
+          <td>바이너리 추가 충돌</td>
+          <td>동일 경로 이미지가 양쪽에서 다르게 추가되었다.</td>
+        </tr>
+        <tr>
+          <td><code>docs/handoff/logic_260721.md</code></td>
+          <td>내용 충돌</td>
+          <td>handoff 기록이 서로 다른 흐름으로 누적되었다.</td>
+        </tr>
+        <tr>
+          <td><code>src/screens/deepspace/import/ImportHubScreen.tsx</code></td>
+          <td>내용 충돌</td>
+          <td>제품 파일이 최신 main 변경과 겹친다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검증</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>git diff --check origin/main...HEAD</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td>변경 파일 ESLint</td><td>오류 0, 기존 warning 3</td></tr>
+        <tr><td><code>ledger-ratify</code> Jest</td><td>1 suite, 3 tests 통과</td></tr>
+        <tr><td><code>check:i18n</code>, <code>check:lexicon</code>, <code>check:emdash</code></td><td>통과</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자기 패널</summary>
+      <h3>사용자 경험</h3>
+      <p>고정 밝기 제거는 신호가 줄어드는 대신 근거 없는 신뢰 표시를 없앤다. 현재 데이터 파이프라인이 없으므로 이 선택이 더 정직하다.</p>
+      <h3>버그 품질</h3>
+      <p>거래 반영 실패가 더 이상 조용히 사라지지 않는다. 가져오기 본체 성공은 유지하고, 전체 booking 실패만 경고로 노출한다.</p>
+      <h3>네이티브 안전</h3>
+      <p>빌드, 배포, push, 비용, secrets 작업은 수행하지 않았다.</p>
+      <h3>교차검증</h3>
+      <p>코드와 통합 diff 검토라 고위험 산출물로 분류하고 Antigravity에 검증 요청을 남겼다.</p>
+    </details>
+
+    <h2>결론</h2>
+    <p>Claude merge gate에는 브랜치 전체 머지 대신 최신 main 기준 재베이스 또는 핵심 커밋 단위 cherry-pick을 권한다. 충돌 해소 전에는 HOLD가 맞다.</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 브랜치 정본 경로 확인 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --fg: #e8edf2;
+      --accent: #7cc7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    header {
+      border-bottom: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+    }
+    h1, h2 { line-height: 1.25; margin: 0; }
+    h1 { font-size: clamp(28px, 4vw, 40px); }
+    h2 { font-size: 20px; margin-top: 28px; color: var(--accent); }
+    p { margin: 10px 0 0; }
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 22px;
+    }
+    .cell {
+      border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
+      padding: 14px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 12px;
+      border-bottom: 1px solid color-mix(in srgb, var(--fg) 14%, transparent);
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    li + li { margin-top: 6px; }
+    .note {
+      border-left: 3px solid var(--accent);
+      padding: 10px 0 10px 14px;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>레코드 브랜치 정본 경로 확인 보고</h1>
+      <p>이번 사이클은 Codex records/source-detail 브랜치의 실제 worktree와 검증 상태를 확인한 운영 QA 작업입니다.</p>
+      <div class="meta" aria-label="요약">
+        <div class="cell"><span class="label">시각</span>2026-07-17 19:23:23 KST</div>
+        <div class="cell"><span class="label">프로젝트</span>2nd-B</div>
+        <div class="cell"><span class="label">브랜치</span><code>codex/records-source-detail-route-20260710</code></div>
+        <div class="cell"><span class="label">결과</span>정본 경로 확인 및 집중 검증 통과</div>
+      </div>
+    </header>
+
+    <section>
+      <h2>확인 결과</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>값</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>정본 worktree</td><td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td></tr>
+          <tr><td>보조 detached worktree</td><td><code>E:\Coding Infra\_worktrees\2ndB-records-rebase</code></td></tr>
+          <tr><td>정본 HEAD</td><td><code>f16d8727</code></td></tr>
+          <tr><td>기준 upstream</td><td><code>origin/main@dcece9eb</code></td></tr>
+          <tr><td>조상 관계</td><td><code>origin/main</code>이 현재 HEAD의 조상입니다</td></tr>
+          <tr><td>변경 범위</td><td>records/source-detail 관련 5파일, 126 추가 / 34 삭제</td></tr>
+        </tbody>
+      </table>
+      <p class="note">기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code>는 보존했습니다. 제품 push, merge, 배포, 브라우저 실행, 파괴 작업, 비용 작업, 시크릿 작업은 하지 않았습니다.</p>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li><code>npm test -- --runTestsByPath src/lib/records/__tests__/source-pieces.test.ts src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code>: 2개 묶음 / 10개 테스트 통과</li>
+        <li><code>git diff --check origin/main..HEAD</code>: 통과</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>자기 패널</h2>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>찬성</td><td>detached 보조 worktree를 정본으로 오인하면 ancestry 판정과 보고가 흔들리므로, 정본 경로와 브랜치 상태를 고정한 것은 운영상 가치가 있습니다.</td></tr>
+          <tr><td>반대</td><td>제품 코드 변경은 없고 정적 검증만 수행했으므로, 런타임 품질 향상이나 에뮬레이터 통과로 확대하면 안 됩니다.</td></tr>
+          <tr><td>결론</td><td>branch hygiene/QA 확인으로 충분하며, 고위험 deliverable이 아니므로 추가 MoA 검증 요청은 만들지 않았습니다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

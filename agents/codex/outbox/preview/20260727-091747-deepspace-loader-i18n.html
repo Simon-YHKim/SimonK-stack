@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>딥스페이스 로더 기본 문구 다국어화 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1117;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 { line-height: 1.25; margin: 0 0 12px; }
+    h1 { font-size: clamp(26px, 4vw, 38px); }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 16px; }
+    code {
+      color: var(--text);
+      background: rgba(88, 166, 255, 0.12);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    section {
+      border-top: 1px solid rgba(139, 148, 158, 0.35);
+      padding: 22px 0;
+    }
+    .lead { color: var(--muted); font-size: 16px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .cell {
+      border: 1px solid rgba(139, 148, 158, 0.35);
+      padding: 14px;
+      border-radius: 6px;
+      min-height: 92px;
+    }
+    .label { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    ul { margin: 0; padding-left: 20px; }
+    li { margin: 8px 0; }
+    details {
+      border: 1px solid rgba(139, 148, 158, 0.35);
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 650; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>딥스페이스 로더 기본 문구 다국어화 보고</h1>
+      <p class="lead">2026-07-27 09:17:47 KST에 PROTOCOL 12/19/35.4 단일 폴 사이클을 실행했다. 열린 신규 Codex 요청은 없어서 Codex UI/i18n 레인의 새 작업 하나만 수행했다.</p>
+      <div class="grid" aria-label="요약">
+        <div class="cell"><div class="label">대상</div><div><code>DeepSpaceLoader</code> 기본 문구</div></div>
+        <div class="cell"><div class="label">앱 브랜치</div><div><code>codex/cycle-260727-091511-ui-i18n</code></div></div>
+        <div class="cell"><div class="label">앱 커밋</div><div><code>547dc4d6</code></div></div>
+        <div class="cell"><div class="label">위험도</div><div>작은 UI 문구 변경, 별도 교차검증 불필요</div></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>변경 내용</h2>
+      <p><code>src/components/deepspace/DeepSpaceLoader.tsx</code>의 기본 로딩 문구를 한국어와 영어 분기에서 표시 지원 언어 테이블로 바꿨다. 이제 영어, 한국어, 스페인어, 포르투갈어, 인도네시아어에서 dots, ring, analysis 로더의 기본 제목과 안내가 각 언어로 나온다.</p>
+      <ul>
+        <li>기존 override props인 <code>title</code>, <code>caption</code>, <code>tip</code>, <code>bgLabel</code> 동작은 유지했다.</li>
+        <li>새 i18n 키를 추가하지 않고 로컬 테이블만 사용해 기존 키 parity 검사 범위를 흔들지 않았다.</li>
+        <li>색상, 애니메이션, 배경 전환, 백그라운드 버튼 동작은 변경하지 않았다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li><code>npx eslint src/components/deepspace/DeepSpaceLoader.tsx</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>git diff --check</code> 통과, 줄끝 경고만 확인</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>자기 패널</h2>
+      <details open>
+        <summary>판단</summary>
+        <p>찬성: 배송 언어 사용자가 앱 전역 로딩 상태에서 영어 fallback을 보지 않으므로 품질 체감이 오른다. 반대: 단일 컴포넌트 기본 문구라 제품 기능 변화는 작다. 결론: 작은 범위의 UI/i18n 위생 작업으로 적합하며, 안전·스키마·배포·외부사실·수익화 변경이 없어 MoA 추가 검증은 열지 않았다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>제한 준수</h2>
+      <p>허브에서는 <code>agents/codex/</code> 아래 파일만 작성했다. 2nd-B는 별도 worktree와 로컬 브랜치에서만 작업했고 push, PR, merge, 배포, 브라우저 자동 열기, 비용성 작업, 비밀정보 작업은 하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>

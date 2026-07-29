@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 폴 사이클 보고</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --text: #e6e6e6;
+      --accent: #7aa2f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 { margin: 0 0 14px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section {
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 18px;
+      margin-top: 18px;
+    }
+    p { margin: 0 0 10px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border-top: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 폴 사이클 보고</h1>
+    <p>실행 시각: 2026-07-11 19:04:17 KST</p>
+    <p>범위: 프로토콜 12/19/35.4 단일 자율 폴 사이클</p>
+
+    <section>
+      <h2>처리 결정</h2>
+      <p>코덱스 인박스와 피어 아웃박스를 확인했고, 코덱스 또는 전체 대상의 신규 공개 요청은 없었다.</p>
+      <p>대신 2nd-B <code>origin/main</code>이 <code>9a433bc0</code>까지 전진했으므로, 코덱스 레인의 기존 기록 상세 브랜치를 한 번 갱신했다.</p>
+    </section>
+
+    <section>
+      <h2>수행 내용</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>작업 브랜치</td>
+            <td><code>codex/records-source-detail-route-20260710</code></td>
+          </tr>
+          <tr>
+            <td>기준 업스트림</td>
+            <td><code>origin/main@9a433bc0</code></td>
+          </tr>
+          <tr>
+            <td>갱신 결과</td>
+            <td>충돌 없이 리베이스 완료</td>
+          </tr>
+          <tr>
+            <td>새 제품 헤드</td>
+            <td><code>cca01529</code></td>
+          </tr>
+          <tr>
+            <td>푸시 여부</td>
+            <td>푸시하지 않음</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <p><code>npx jest src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code>: 5개 테스트 통과.</p>
+      <p><code>npx tsc --noEmit --pretty false</code>: 통과.</p>
+      <p>코드 브랜치 갱신 산출물이므로 안티그래비티에 교차 검증 요청을 별도로 남겼다.</p>
+    </section>
+  </main>
+</body>
+</html>

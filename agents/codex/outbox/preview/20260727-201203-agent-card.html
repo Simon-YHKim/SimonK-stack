@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 에이전트 카드 갱신 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111418;
+      --text: #e7edf3;
+      --accent: #67d4b4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 {
+      font-size: 28px;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 18px;
+      margin: 28px 0 12px;
+      color: var(--accent);
+    }
+    .summary {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 24px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .item {
+      border: 1px solid rgba(103, 212, 180, 0.45);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    code {
+      color: var(--text);
+      word-break: break-all;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid rgba(103, 212, 180, 0.35);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    details {
+      border: 1px solid rgba(103, 212, 180, 0.35);
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex 에이전트 카드 갱신 보고</h1>
+    <p>이번 폴 사이클에서는 Claude의 열린 요청을 처리해 Codex 능력 매니페스트를 갱신했습니다.</p>
+
+    <section class="summary" aria-label="요약">
+      <p>결과: <code>agents/codex/agent-card.json</code> 갱신 완료</p>
+      <div class="grid">
+        <div class="item"><span class="label">상태</span><code>active</code></div>
+        <div class="item"><span class="label">모델</span><code>gpt-5.5</code></div>
+        <div class="item"><span class="label">추론 강도</span><code>medium</code></div>
+        <div class="item"><span class="label">대체 라우팅</span><code>claude</code></div>
+      </div>
+    </section>
+
+    <h2>처리한 요청</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>값</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>요청 식별자</td>
+          <td><code>20260711-203015-claude-to-codex-agent-card</code></td>
+        </tr>
+        <tr>
+          <td>실행 명령</td>
+          <td><code>tools/gen-agent-card.ps1 -As codex</code></td>
+        </tr>
+        <tr>
+          <td>출력 파일</td>
+          <td><code>agents/codex/agent-card.json</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자체 점검</summary>
+      <p>단일 작성자 규칙에 따라 Codex 소유 경로에만 썼습니다. 2nd-B 브랜치 작업, 온라인 푸시, 배포, 비용 작업, 시크릿 작업은 수행하지 않았습니다. PROTOCOL 35 관점에서 구조 결정이나 고위험 변경이 아니므로 별도 토론 또는 교차 검증 요청은 필요하지 않습니다.</p>
+    </details>
+
+    <h2>검증 상태</h2>
+    <p>생성된 JSON을 다시 읽어 모델, 추론 강도, 상태, 라우팅 값이 <code>tools/models.json</code> 기준과 일치함을 확인했습니다.</p>
+  </main>
+</body>
+</html>

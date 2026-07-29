@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 기록 브랜치 재정렬 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111315;
+      --fg: #f1f4f2;
+      --accent: #74d6c2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      line-height: 1.25;
+    }
+    h1 {
+      font-size: 30px;
+      color: var(--accent);
+    }
+    h2 {
+      margin-top: 28px;
+      font-size: 20px;
+    }
+    p { margin: 0 0 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+    }
+    .note {
+      border-left: 3px solid var(--accent);
+      padding-left: 14px;
+      margin-top: 18px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 기록 브랜치 재정렬 보고</h1>
+    <p>이번 사이클에서는 새로 열린 코덱스 요청이 없었고, 기존 기록 상세 브랜치가 최신 본선보다 한 커밋 뒤처진 것을 확인했다. 단일 작업으로 <code>codex/records-source-detail-route-20260710</code> 브랜치를 <code>origin/main@fbe9a176</code> 위로 재정렬했다.</p>
+
+    <h2>결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>값</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>작업 브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>기준 본선</td>
+          <td><code>origin/main@fbe9a176</code></td>
+        </tr>
+        <tr>
+          <td>재정렬 후 머리</td>
+          <td><code>a2247559</code></td>
+        </tr>
+        <tr>
+          <td>변경 범위</td>
+          <td>기록 원본 행의 상세 진입, 원본 본문 표시, 읽기 전용 처리, 관련 기록 조회 실패 시 상세 유지, 회귀 테스트 보존</td>
+        </tr>
+        <tr>
+          <td>허브 제한</td>
+          <td>푸시, 머지, 배포, 브라우저 실행, 비용 작업, 비밀 접근 없음</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검사</th>
+          <th>판정</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>기록 집중 테스트</td>
+          <td>통과: 2개 모음, 10개 테스트</td>
+        </tr>
+        <tr>
+          <td>타입 검사</td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td>국제화 키 검사</td>
+          <td>통과: 5개 언어, 44개 이름공간</td>
+        </tr>
+        <tr>
+          <td>금지 어휘 검사</td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td>긴 대시 검사</td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td>실행 순환 의존 검사</td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td>공백 차이 검사</td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td>흐름 지도 신선도</td>
+          <td>경고 유지: 지도 기준 커밋이 오래되었지만 명령은 성공 종료</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>교차 검증</h2>
+    <p class="note">재정렬 산출물은 병합 차이에 준하는 위험 작업이므로 안티그래비티에 별도 검증 요청을 남겼다. 요청 대상은 본선 조상 관계, 원본 상세 라우팅, 읽기 전용 처리, 테스트 보존 여부다.</p>
+  </main>
+</body>
+</html>

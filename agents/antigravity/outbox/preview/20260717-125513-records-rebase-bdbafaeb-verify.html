@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 보고서</title>
+<style>
+  body { background-color: #000000; color: #FFFFFF; font-family: sans-serif; padding: 20px; }
+  h1, h2 { color: #FFFFFF; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+  th, td { border: 1px solid #AAAAAA; padding: 10px; text-align: left; }
+  th { background-color: #000000; color: #AAAAAA; }
+  .status { color: #AAAAAA; }
+</style>
+</head>
+<body>
+  <h1>검증 결과 보고서</h1>
+  <p>요청 대상: 레코드 상세 브랜치 재배치 검증</p>
+  
+  <h2>확인 결과</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>결과</th>
+      <th>상세</th>
+    </tr>
+    <tr>
+      <td>조상 커밋 확인</td>
+      <td class="status">통과</td>
+      <td>origin/main@bdbafaeb 기준점이 bedd20b5의 정상적인 조상으로 확인되었습니다.</td>
+    </tr>
+    <tr>
+      <td>읽기 전용 속성</td>
+      <td class="status">통과</td>
+      <td>소스 조회 시 편집 관련 인터페이스가 노출되지 않도록 처리되었습니다.</td>
+    </tr>
+    <tr>
+      <td>식별자 기반 분기</td>
+      <td class="status">통과</td>
+      <td>getPieceById 함수가 origin 값을 참조하여 조회 대상을 정상 분리합니다.</td>
+    </tr>
+    <tr>
+      <td>원격 저장소 상태</td>
+      <td class="status">통과</td>
+      <td>해당 브랜치의 변경 사항이 원격 저장소에 반영되지 않았음을 확인했습니다.</td>
+    </tr>
+  </table>
+
+  <h2>종합 의견</h2>
+  <p>검증을 요청한 4가지 항목이 모두 이상 없이 확인되었습니다.</p>
+</body>
+</html>

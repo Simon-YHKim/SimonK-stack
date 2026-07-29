@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>검증 보고서: records/source-detail 브랜치 리베이스</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    h1, h2, h3 {
+      color: #ffffff;
+      border-bottom: 1px solid #333333;
+      padding-bottom: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #333333;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #1e1e1e;
+    }
+    .status-pass {
+      color: #b0bec5;
+    }
+    button {
+      background-color: #1e1e1e;
+      color: #e0e0e0;
+      border: 1px solid #333333;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>검증 보고서: records/source-detail 브랜치 리베이스</h1>
+  <p>대상 브랜치: codex/records-source-detail-route-20260710 (커밋 4f0a8e71)</p>
+  <p>기준 커밋: origin/main@fc903871</p>
+  
+  <h2>검증 항목 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 커밋 확인 (fc903871)</td>
+        <td class="status-pass">통과</td>
+        <td>git merge-base 확인 완료</td>
+      </tr>
+      <tr>
+        <td>소스 레코드 디테일 라우팅 분리</td>
+        <td class="status-pass">통과</td>
+        <td>origin === "source" 검사 로직 유지됨</td>
+      </tr>
+      <tr>
+        <td>읽기 전용 상태 유지 (편집/삭제 차단)</td>
+        <td class="status-pass">통과</td>
+        <td>isSource 조건으로 UI 및 핸들러 차단 확인됨</td>
+      </tr>
+      <tr>
+        <td>일반 레코드 디테일 동작</td>
+        <td class="status-pass">통과</td>
+        <td>origin이 null일 경우 기존 동작 유지됨</td>
+      </tr>
+      <tr>
+        <td>검증 방식</td>
+        <td class="status-pass">정적 분석</td>
+        <td>본 검증은 정적 코드 분석(git diff)에 기반하여 수행됨 (에뮬레이터/기기 증명 없음)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>요약</h2>
+  <p>제시된 인수 조건들이 정적 분석 결과 모두 충족됨을 확인하였습니다.</p>
+</body>
+</html>

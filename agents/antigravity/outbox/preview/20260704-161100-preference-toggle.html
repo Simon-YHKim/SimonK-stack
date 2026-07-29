@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 보고서: 환경설정 토글</title>
+<style>
+  body {
+    background-color: #000000;
+    color: #aaaaaa;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 2rem;
+  }
+  h1, h2, h3, th {
+    color: #ffffff;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+  }
+  th, td {
+    border: 1px solid #aaaaaa;
+    padding: 0.75rem;
+    text-align: left;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: 공통 환경설정 토글</h1>
+  <p>대상 커밋: d6d6287b6594f9655d78ae6aef90f22460df79ee</p>
+  
+  <h2>검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>화면</th>
+        <th>항목</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>프라이버시 설정</td>
+        <td>긴 한국어 및 영어 설명, 잠금 태그, 비활성화 상태 정렬 확인</td>
+        <td>통과</td>
+      </tr>
+      <tr>
+        <td>프라이버시 설정</td>
+        <td>터치 영역 확보, 낙관적 업데이트 정상 작동, 비활성화 항목 토글 방지</td>
+        <td>통과</td>
+      </tr>
+      <tr>
+        <td>포맷 설정</td>
+        <td>카드 우측 공유 스위치 레이아웃 내 정상 위치, 겹침 현상 없음</td>
+        <td>통과</td>
+      </tr>
+      <tr>
+        <td>포맷 설정</td>
+        <td>대기 상태 중 레이아웃 변경 없이 스위치 비활성화 확인</td>
+        <td>통과</td>
+      </tr>
+      <tr>
+        <td>공통</td>
+        <td>스크린 리더 스위치 상태 (선택/비활성화) 정상 인식</td>
+        <td>통과</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>종합 의견</h2>
+  <p>모든 항목이 네이티브 에뮬레이터에서 정상적으로 동작함을 확인했습니다. 특이사항 없습니다.</p>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>도메인 별 렌즈 다국어 정리</title>
+  <style>
+    :root { color-scheme: dark; --bg: #111318; --text: #eef2f5; --accent: #72c7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; }
+    main { width: min(940px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    header { border-bottom: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding-bottom: 20px; margin-bottom: 24px; }
+    h1 { margin: 0 0 8px; font-size: clamp(28px, 5vw, 44px); line-height: 1.15; letter-spacing: 0; }
+    h2 { margin: 28px 0 10px; font-size: 20px; }
+    p { margin: 0 0 12px; }
+    .meta { color: color-mix(in srgb, var(--text) 68%, transparent); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 18px 0 8px; }
+    .card { border: 1px solid color-mix(in srgb, var(--text) 16%, transparent); border-radius: 8px; padding: 14px; min-height: 104px; }
+    .label { display: block; color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    .value { font-size: 18px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border-bottom: 1px solid color-mix(in srgb, var(--text) 14%, transparent); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.95em; }
+    details { border: 1px solid color-mix(in srgb, var(--text) 16%, transparent); border-radius: 8px; padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } th, td { display: block; width: 100%; } th { border-bottom: 0; padding-bottom: 2px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>도메인 별 렌즈 다국어 정리</h1>
+      <p class="meta">작성 시각: 2026-07-27 08:29:41 KST</p>
+      <p>이번 사이클은 열린 Codex 인박스 요청이 없어, 2nd-B의 UI 다국어 잔여를 한 파일 단위로 정리했다. 허브에는 Codex 소유 경로만 기록했고, 2nd-B에는 로컬 브랜치 커밋만 남겼다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약 지표">
+      <div class="card"><span class="label">대상</span><span class="value">도메인 별 렌즈</span></div>
+      <div class="card"><span class="label">브랜치</span><span class="value">codex/cycle-260727-082428-domain-lens-i18n</span></div>
+      <div class="card"><span class="label">커밋</span><span class="value">8f3203fb</span></div>
+      <div class="card"><span class="label">검증</span><span class="value">통과</span></div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <p><code>src/components/deep-space/DomainStarLens.tsx</code>의 EN/KO 분기 문구를 실제 i18n 언어 기준의 로컬 copy table로 정리했다.</p>
+      <table>
+        <thead><tr><th>영역</th><th>처리</th></tr></thead>
+        <tbody>
+          <tr><td>표시 문구</td><td>커리어, 재정, 관계, 성장, 건강, 휴식, 정리 대기, 로딩, 오류 문구를 <code>en/ko/es/pt/id</code>로 분리했다.</td></tr>
+          <tr><td>접근성</td><td>재정 진행률, 관계 지도, 로딩 상태 같은 접근성 라벨도 같은 언어 선택을 따르게 했다.</td></tr>
+          <tr><td>숫자와 날짜</td><td>금액, 수면 요일, 기록 개수, 연대 표시가 선택 언어의 지역 포맷을 쓰도록 정리했다.</td></tr>
+          <tr><td>범위 제한</td><td>앱 로직, 라우팅, 데이터 호출, 디자인 토큰은 바꾸지 않았다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead><tr><th>검사</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><code>npx eslint src/components/deep-space/DomainStarLens.tsx</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>공백 오류 없음. 줄끝 정책 경고만 확인했다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>운영 제약 확인</summary>
+      <ul>
+        <li>허브 브랜치는 <code>master</code>에서 전환하지 않았다.</li>
+        <li>허브 쓰기는 <code>agents/codex/</code> 아래로 제한했다.</li>
+        <li>2nd-B는 <code>origin/main</code> 기준 worktree와 브랜치에서만 작업했다.</li>
+        <li>push, PR, merge, 배포, 비용 발생, 시크릿 접근, 브라우저 자동 열기를 수행하지 않았다.</li>
+        <li>구조적 토론 트리거에 해당하는 설계, 스키마, 보안, 배포 변경은 없었고, 35.4 self-panel로 범위와 위험을 점검했다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>

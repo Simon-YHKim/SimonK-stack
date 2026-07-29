@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>랜딩 북극성 라벨 정리 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    h3 { font-size: 15px; margin-bottom: 8px; }
+    p { margin-top: 10px; }
+    .lead { color: var(--accent); margin-top: 8px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .value { font-size: 18px; font-weight: 700; margin-top: 6px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+    }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>랜딩 북극성 라벨 정리 보고</h1>
+    <p class="lead">Codex PROTOCOL 12/19/35.4 단일 사이클 결과</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <h3>목적</h3>
+        <p class="value">정본 용어 일치</p>
+        <p>랜딩 화면에 남은 구 명칭을 현재 정본인 북극성으로 맞췄습니다.</p>
+      </div>
+      <div class="card">
+        <h3>결과</h3>
+        <p class="value">로컬 커밋 완료</p>
+        <p>2nd-B worktree 커밋은 <code>ff4a2b52</code>입니다.</p>
+      </div>
+      <div class="card">
+        <h3>검증</h3>
+        <p class="value">통과</p>
+        <p>타입, 금지어, em dash, diff 공백 검사를 확인했습니다.</p>
+      </div>
+      <div class="card">
+        <h3>위험도</h3>
+        <p class="value">낮음</p>
+        <p>정적 랜딩 문구 3곳만 변경했고 외부 동작은 없습니다.</p>
+      </div>
+    </section>
+
+    <h2>변경 파일</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>파일</th>
+          <th>변경 내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>public/landing/index.html</code></td>
+          <td>그래프 노드와 나 기능 버튼의 표시명을 소울 코어에서 북극성으로 변경했습니다.</td>
+        </tr>
+        <tr>
+          <td><code>public/landing/main.js</code></td>
+          <td>하위 보기 제목을 북극성으로 바꾸고, 설명 문장을 정본 용어에 맞게 줄였습니다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>검증 내역</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>npm run check:emdash</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td><code>npm run type-check</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td><code>npm run check:lexicon</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td><code>git diff --check</code></td>
+            <td>기능 실패 없음. Windows 줄끝 변환 경고만 확인했습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>관점</th>
+            <th>판정</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>정본성</td>
+            <td>사용자 노출 명칭을 북극성으로 맞춰 폐기 명칭 노출을 줄였습니다.</td>
+          </tr>
+          <tr>
+            <td>범위</td>
+            <td>랜딩 정적 문자열만 수정했습니다. 라우팅, 데이터, 결제, 배포는 건드리지 않았습니다.</td>
+          </tr>
+          <tr>
+            <td>교차검증</td>
+            <td>고위험 산출물이 아니므로 별도 검증 요청은 만들지 않았습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <h2>메타</h2>
+    <p>작업 시각: 2026-07-28 20:21:38 KST</p>
+    <p>브랜치: <code>codex/cycle-20260728-202009-antislop</code></p>
+    <p>worktree: <code>E:\2ndB\.worktrees\codex-cycle-20260728-202009-antislop</code></p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>인도네시아어 홈 캡처 라벨 정리</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --text: #e8edf2; --accent: #6fb7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; margin-bottom: 10px; }
+    h2 { font-size: 17px; margin: 28px 0 10px; color: var(--accent); }
+    p { margin-top: 8px; }
+    .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 22px 0; }
+    .card { border: 1px solid var(--accent); padding: 14px; min-height: 92px; }
+    .label { display: block; color: var(--accent); font-size: 12px; margin-bottom: 8px; }
+    .value { font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: Consolas, monospace; }
+    details { border: 1px solid var(--accent); padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 720px) { .summary { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 460px) { .summary { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>인도네시아어 홈 캡처 라벨 정리</h1>
+    <p>이번 Codex 단일 자율 사이클은 새 수신 오더가 없어 2nd-B UI 현지화 표면에서 영어 잔여 라벨 1개를 정리했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><span class="label">결과</span><span class="value">완료</span></div>
+      <div class="card"><span class="label">앱 커밋</span><span class="value"><code>172d89dd</code></span></div>
+      <div class="card"><span class="label">브랜치</span><span class="value"><code>codex/cycle-20260729-023142-i18n-antislop</code></span></div>
+      <div class="card"><span class="label">위험도</span><span class="value">낮음</span></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>키</th><th>이전</th><th>이후</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>locales/id/home.json</code></td>
+          <td><code>ds.imagine.toCapture</code></td>
+          <td><code>Pindahkan ke Capture</code></td>
+          <td><code>Pindahkan ke Tangkap</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>판단</h2>
+    <p>같은 인도네시아어 홈 네임스페이스에서 캡처 기능은 이미 <code>Tangkap</code>으로 표시된다. 상상 화면의 이동 버튼만 영어 <code>Capture</code>를 남겨 사용자 가시 일관성이 깨져 있었으므로 동일 표기로 맞췄다.</p>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr><th>검사</th><th>상태</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>JSON 파싱</td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과, Windows 줄끝 경고만 표시</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자체 패널 검토</summary>
+      <p>찬성: 영어 기능명이 남아 있는 버튼은 현지화 완성도를 낮춘다. 반대: 기능명이 고유명사라면 유지할 수 있으나, 같은 파일의 메뉴가 이미 <code>Tangkap</code>을 정본처럼 사용한다. 대안: 안전·동의 문구의 큰 번역을 진행할 수 있지만 법무·위기 대응 표면이라 이번 저위험 단일 사이클에는 부적절하다. 판정: 현지화 일관성만 고치는 이 변경을 제출한다.</p>
+    </details>
+
+    <h2>제한</h2>
+    <p>2nd-B push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 발생 작업은 수행하지 않았다. 이 커밋은 Claude merge gate 검토용 로컬 브랜치에만 있다.</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>코드 재배치 검증 보고서</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #E0E0E0;
+      font-family: sans-serif;
+      line-height: 1.6;
+      margin: 0 auto;
+      max-width: 800px;
+      padding: 20px;
+    }
+    h1, h2, h3 {
+      color: #FFFFFF;
+      border-bottom: 1px solid #333333;
+      padding-bottom: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #333333;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #1E1E1E;
+    }
+    .accent {
+      color: #3A82F6;
+    }
+    button {
+      background-color: #1E1E1E;
+      color: #3A82F6;
+      border: 1px solid #3A82F6;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #3A82F6;
+      color: #121212;
+    }
+  </style>
+</head>
+<body>
+  <h1>코드 재배치 및 무결성 검증 보고서</h1>
+  <p>요청자: 코덱스</p>
+  <p>검증자: 안티그래비티</p>
+  
+  <h2>검증 개요</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>작업 트리 경로</td>
+        <td>E:\2ndB\.worktrees\records-source-detail-route-20260710</td>
+      </tr>
+      <tr>
+        <td>조상 일치 여부</td>
+        <td class="accent">통과 (755af576 확인됨)</td>
+      </tr>
+      <tr>
+        <td>에뮬레이터 구동 상태</td>
+        <td>불가 (ADB 디바이스 없음, 정적 분석으로 대체)</td>
+      </tr>
+      <tr>
+        <td>정적 코드 무결성</td>
+        <td class="accent">통과 (읽기 전용 로직 확인)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>정적 코드 분석 결과</h2>
+  <p>작업 트리의 코드 변경 사항을 검토한 결과, 기록의 상세 화면에서 원본 여부를 판별하는 로직이 정상적으로 삽입되었습니다. 원본으로 판별된 경우 데이터 편집, 태그 추가, 이동, 삭제 및 관련된 사용자 인터페이스가 비활성화됨을 확인했습니다.</p>
+  <p>현재 연결된 안드로이드 에뮬레이터 또는 장치가 없으므로 동적 응용 프로그램 검증은 생략하고 정적 검증으로 판정을 갈음합니다.</p>
+
+  <div style="margin-top: 20px;">
+    <button onclick="window.close()">닫기</button>
+  </div>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>하네스 튜닝 브랜치 중복 판정</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --text: #e7e9ee;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(1040px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin-top: 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      background: transparent;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .value {
+      font-size: 16px;
+      font-weight: 700;
+      word-break: keep-all;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      padding: 10px;
+      border-top: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+      word-break: keep-all;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    details { margin-top: 12px; }
+    ul { margin: 10px 0 0 18px; padding: 0; }
+    @media (max-width: 760px) {
+      main { width: min(100% - 24px, 1040px); padding-top: 28px; }
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 23px; }
+      th, td { display: block; width: 100%; }
+      tr { display: block; border-top: 1px solid var(--accent); }
+      th { border-top: 0; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>하네스 튜닝 브랜치 중복 판정</h1>
+  <p><code>origin/ai/harness-tune-260721</code> 검토 결과, 핵심 코드 변경은 이미 <code>origin/main</code>에 반영되어 있어 새 병합 후보로는 보류가 맞습니다.</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><span class="label">판정</span><div class="value">보류</div></div>
+    <div class="card"><span class="label">주 사유</span><div class="value">중복 반영</div></div>
+    <div class="card"><span class="label">기준 본선</span><div class="value">2735afdc</div></div>
+    <div class="card"><span class="label">리뷰 대상</span><div class="value">e9b20f94</div></div>
+  </section>
+
+  <h2>결론</h2>
+  <p>북극성 제안, 축 추정, 자기모델 제안의 구조화 출력과 인젝션 방어 방향은 타당합니다. 그러나 동일한 기능 묶음은 이미 <code>ce7ae0ab</code>로 <code>origin/main</code>에 들어가 있습니다. 현 브랜치를 그대로 병합하면 새 제품 가치는 거의 없고, 문서와 흐름 썸네일 충돌만 재발합니다.</p>
+
+  <table aria-label="판정 근거">
+    <thead>
+      <tr><th>항목</th><th>확인 내용</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>기능 변경</td><td><code>05943d7b</code>의 핵심 7개 코드 변경은 <code>ce7ae0ab</code>와 본질적으로 동일합니다.</td></tr>
+      <tr><td>남은 차이</td><td><code>ce7ae0ab..05943d7b</code> 비교에서 제품 코드는 빠지고, settings 병합 흔적과 handoff 문서 삭제 차이만 남습니다.</td></tr>
+      <tr><td>머지 위험</td><td><code>merge-tree origin/main origin/ai/harness-tune-260721</code>가 <code>docs/flow-debugger.html</code>, 썸네일, handoff, 테스트 파일에서 충돌합니다.</td></tr>
+      <tr><td>코드 품질</td><td>대상 테스트, 타입체크, 변경 파일 ESLint, lexicon, emdash, diff whitespace는 통과했습니다.</td></tr>
+    </tbody>
+  </table>
+
+  <details open>
+    <summary>검증 명령</summary>
+    <ul>
+      <li><code>tools/board.ps1 -Me codex</code>: codex 인박스 비어 있음</li>
+      <li><code>git -C E:\2ndB fetch origin --prune</code>: <code>origin/main</code>은 <code>2735afdc</code></li>
+      <li><code>npm test -- --runTestsByPath src/lib/audit/__tests__/axis-estimate.test.ts src/lib/persona/__tests__/northstar-propose.test.ts src/lib/persona/__tests__/propose-self-model.test.ts --runInBand</code>: 3개 스위트, 28개 테스트 통과</li>
+      <li><code>npm run type-check</code>: 통과</li>
+      <li><code>npx eslint ...</code>: 변경 코드 파일 통과</li>
+      <li><code>npm run check:lexicon</code>: 통과</li>
+      <li><code>npm run check:emdash</code>: 통과</li>
+      <li><code>git diff --check origin/main...origin/ai/harness-tune-260721</code>: 통과</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>셀프 패널</summary>
+    <table aria-label="셀프 패널">
+      <tbody>
+        <tr><td>UI와 안티슬롭</td><td>사용자 기록에서 온 텍스트를 신뢰 지시로 취급하지 않도록 fence와 schema를 둔 방향은 맞습니다.</td></tr>
+        <tr><td>버그 품질</td><td>기존에는 모델 거절문이나 임상 어휘가 화면 실패나 잘못된 표시로 이어질 수 있었고, 현재 main에는 그 방어가 이미 들어가 있습니다.</td></tr>
+        <tr><td>네이티브 안전</td><td>라이브 모델 호출 비용이나 배포 동작은 실행하지 않았고, 정적 검증과 로컬 테스트만 수행했습니다.</td></tr>
+        <tr><td>병합 안전</td><td>그대로 병합하지 말고, 필요하면 문서만 최신 main 위에서 다시 작성하는 편이 안전합니다.</td></tr>
+      </tbody>
+    </table>
+  </details>
+</main>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>커뮤니티 형식 신고·차단 QA 보고</title>
+  <style>
+    :root { --bg: #0f1115; --text: #e8e8e8; --accent: #6aa6ff; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 48px; }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    h3 { font-size: 15px; margin-top: 18px; }
+    p { margin-top: 10px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+    .card, details, table { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 8px; }
+    .card { padding: 14px; min-height: 96px; }
+    .label { color: color-mix(in srgb, var(--text) 62%, transparent); font-size: 12px; }
+    .value { margin-top: 8px; font-weight: 700; }
+    .accent { color: var(--accent); }
+    details { margin-top: 12px; padding: 12px 14px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    li + li { margin-top: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; overflow: hidden; }
+    th, td { padding: 10px; border-bottom: 1px solid color-mix(in srgb, var(--text) 14%, transparent); text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.95em; }
+    .foot { margin-top: 28px; color: color-mix(in srgb, var(--text) 62%, transparent); font-size: 13px; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } main { padding: 24px 14px 36px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>커뮤니티 형식 신고·차단 QA 보고</h1>
+    <p>Codex는 2nd-B <code>origin/main</code>의 새 커밋 <code>505ac8f0</code>을 이번 사이클의 단일 작업으로 검토했다. 대상은 커뮤니티 공유 클리퍼 형식에 신고, 작성자 차단, 자동 숨김 RLS를 추가한 변경이다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">판정</div><div class="value accent">차단 결함 없음</div></div>
+      <div class="card"><div class="label">범위</div><div class="value">12개 파일</div></div>
+      <div class="card"><div class="label">검증</div><div class="value">주요 가드 통과</div></div>
+      <div class="card"><div class="label">교차검증</div><div class="value">Antigravity 요청</div></div>
+    </section>
+
+    <h2>검토 결과</h2>
+    <p>신고·차단 게이트는 클라이언트 필터가 아니라 <code>clipper_templates_read</code> RLS 정책에 들어가 있어 우회 위험을 줄인다. 신고 사유는 고정 목록이며 자유 입력 필드가 없어 추가 PII 수집 표면을 만들지 않는다. UI는 커뮤니티 카드의 전체 Pressable을 제거해 신고·차단 컨트롤이 별도 접근성 요소로 노출된다.</p>
+
+    <details open>
+      <summary>주요 확인</summary>
+      <ul>
+        <li>작성자 본인은 신고·자동 숨김 이후에도 자기 형식을 볼 수 있어 삭제 또는 비공개 전환이 가능하다.</li>
+        <li>차단한 작성자의 공유 형식, 내가 신고한 형식, 3명 이상 신고로 숨겨진 형식은 공유 목록에서 제외된다.</li>
+        <li>신고 중복과 차단 중복은 성공으로 흡수되어 사용자가 반복 탭으로 상태를 망가뜨리지 않는다.</li>
+        <li>bottom sheet는 화면 높이의 60%로 제한되어 큰 글자 크기에서도 상단으로 밀려 사라질 가능성을 낮췄다.</li>
+      </ul>
+    </details>
+
+    <h2>검증 명령</h2>
+    <table>
+      <thead><tr><th>명령</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>git diff --check 3c4f784a..HEAD</code></td><td>통과</td></tr>
+        <tr><td><code>npm test -- --runTestsByPath ... --runInBand</code></td><td>3개 suite, 47개 test 통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npx eslint ...</code></td><td>변경 TS/TSX 파일 통과</td></tr>
+        <tr><td><code>npm run check:i18n</code>, <code>check:lexicon</code>, <code>check:emdash</code>, <code>check:constraints</code></td><td>모두 통과</td></tr>
+        <tr><td><code>git merge-tree --write-tree HEAD origin/main</code></td><td>충돌 없음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>남은 위험</h2>
+    <p>이 변경은 DB RLS, Supabase 권한, 사용자 신고 흐름을 포함하므로 고위험 산출물로 분류했다. Codex 검토에서는 차단 결함을 찾지 못했지만, 네이티브·보안 경계 관점의 독립 확인을 위해 Antigravity에 교차검증을 요청했다.</p>
+
+    <p class="foot">생성 시각: 2026-07-26 14:37:27 KST. 브라우저 자동 열기 없음.</p>
+  </main>
+</body>
+</html>

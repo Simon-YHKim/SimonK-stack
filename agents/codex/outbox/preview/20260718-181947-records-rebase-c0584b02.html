@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 소스 상세 브랜치 최신화 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --panel: #1a1d21;
+      --text: #e8edf2;
+      --muted: #9aa7b3;
+      --accent: #7dc4ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 44px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin-bottom: 12px; }
+    p, li, td, th { font-size: 14px; }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 22px 0;
+    }
+    .card, details {
+      background: var(--panel);
+      border: 1px solid #2b3036;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .label { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .value { color: var(--text); font-size: 16px; font-weight: 700; overflow-wrap: anywhere; }
+    .ok { color: var(--accent); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      overflow-wrap: anywhere;
+    }
+    th, td {
+      border-top: 1px solid #2b3036;
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 600; }
+    code {
+      color: var(--accent);
+      background: #11161b;
+      border: 1px solid #2b3036;
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 소스 상세 브랜치 최신화 보고</h1>
+    <p class="muted">작성 시각: 2026-07-18 18:19:47 KST · 작성자: codex · 대상: claude</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">목적</div>
+        <div class="value">최신 main 반영</div>
+      </div>
+      <div class="card">
+        <div class="label">기준</div>
+        <div class="value">origin/main@c0584b02</div>
+      </div>
+      <div class="card">
+        <div class="label">제품 HEAD</div>
+        <div class="value">9c7baa6f</div>
+      </div>
+      <div class="card">
+        <div class="label">검증 상태</div>
+        <div class="value ok">통과</div>
+      </div>
+    </section>
+
+    <details open>
+      <summary>작업 결과</summary>
+      <p>2nd-B 작업 브랜치 <code>codex/records-source-detail-route-20260710</code>를 최신 <code>origin/main@c0584b02</code> 위로 충돌 없이 리베이스했다. 허브에서는 <code>agents/codex/</code> 아래 산출물만 작성했다.</p>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>값</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>리베이스 결과</td><td>성공</td></tr>
+          <tr><td>조상 확인</td><td><code>git merge-base --is-ancestor origin/main HEAD</code> exit <code>0</code></td></tr>
+          <tr><td>변경 범위</td><td>records/source-detail 관련 5파일</td></tr>
+          <tr><td>제약</td><td>2nd-B push, merge, deploy, browser-open, destructive, cost, secrets 작업 없음</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>검증 내역</summary>
+      <table>
+        <thead>
+          <tr><th>검증</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>git diff --check origin/main...HEAD</code></td><td>통과</td></tr>
+          <tr><td>대상 Jest</td><td>2 suites / 10 tests 통과</td></tr>
+          <tr><td>변경 파일</td><td><code>source-pieces.test.ts</code>, <code>get-piece.ts</code>, <code>source-pieces.ts</code>, <code>records-source-detail-route.test.ts</code>, <code>dds-wiki-records-screens.tsx</code></td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>찬성</td><td>최신 main 위에서 기존 source-origin 상세 화면 분리 패치를 보존해 Claude merge gate 판단 기준을 갱신했다.</td></tr>
+          <tr><td>반대</td><td>전체 <code>npm run verify</code>는 이번 단일 사이클 범위에서 실행하지 않았다.</td></tr>
+          <tr><td>결론</td><td>merge diff 성격이므로 Antigravity에 MoA 교차검증을 요청했다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+  </main>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; padding: 2rem; }
+  h1, h2 { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.5rem; text-align: left; }
+  th { background-color: #1e1e1e; }
+  .success { color: #81c784; }
+  button { background-color: #333333; color: #ffffff; border: 1px solid #555555; padding: 0.5rem 1rem; cursor: pointer; }
+</style>
+<title>QA 테스트 결과 보고서 (ba4c2d72 리베이스 검증)</title>
+</head>
+<body>
+  <h1>QA 테스트 결과 보고서</h1>
+  <p>Codex의 codex/records-source-detail-route-20260710 브랜치 (ba4c2d72 리베이스 후) 네이티브/에뮬레이터 환경 회귀 테스트 결과를 보고합니다.</p>
+  
+  <h2>테스트 요약</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>소요 시간</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>딥 스페이스 레코드 소스 상세 라우팅</td>
+        <td class="success">통과</td>
+        <td>8.504 s</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>검증 내역</h2>
+  <ul>
+    <li>소스 행이 상세 이동 시 소스 ID와 원본을 유지하는지 확인</li>
+    <li>상세 화면에서 소스를 올바르게 읽는지 확인</li>
+    <li>인라인 폴백을 사용하여 저장된 마크다운 본문을 올바르게 렌더링하는지 확인</li>
+    <li>소스 또는 동의 기반 상세 내용을 읽기 전에 시맨틱 관련 상태가 초기화되는지 확인</li>
+    <li>관련 레코드 읽기 실패 시 메인 상세 레코드가 숨겨지지 않는지 확인</li>
+  </ul>
+
+  <button type="button">닫기</button>
+</body>
+</html>

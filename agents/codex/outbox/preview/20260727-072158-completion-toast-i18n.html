@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>완료 토스트 다국어 기본 문구 정리</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --text: #e6edf3; --accent: #78dcca; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { width: min(920px, calc(100vw - 32px)); margin: 0 auto; padding: 32px 0 48px; }
+    h1, h2 { line-height: 1.25; margin: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin: 10px 0 0; }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 22px 0; }
+    .card { border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent); padding: 14px; border-radius: 6px; min-height: 86px; }
+    .label { color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border-bottom: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding: 9px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    details { border: 1px solid color-mix(in srgb, var(--text) 16%, transparent); border-radius: 6px; padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) { .summary { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>완료 토스트 다국어 기본 문구 정리</h1>
+    <p>이번 Codex 사이클은 미응답 오더가 없어, 현재 레인에 맞는 한 가지 UI 다국어 결함을 처리했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><div class="label">작업</div><div>완료 토스트 기본 문구 다국어화</div></div>
+      <div class="card"><div class="label">브랜치</div><div><code>codex/cycle-260727-071952</code></div></div>
+      <div class="card"><div class="label">앱 커밋</div><div><code>a80c932d</code></div></div>
+      <div class="card"><div class="label">검증</div><div>대상 lint, type-check, i18n, lexicon, emdash 통과</div></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>대상 파일</td><td><code>src/components/deepspace/CompletionToast.tsx</code></td></tr>
+        <tr><td>문제</td><td>완료 토스트가 한국어가 아니면 영어 기본 문구만 사용해, 스페인어·포르투갈어·인도네시아어 UI에서 완료 상태 문구가 영어로 남았다.</td></tr>
+        <tr><td>조치</td><td>기존 한국어·영어 문구를 로컬 copy table로 옮기고, shipped UI locale인 <code>es</code>, <code>pt</code>, <code>id</code> 기본 문구를 추가했다.</td></tr>
+        <tr><td>범위</td><td>한 파일의 표시 문구 선택 로직만 변경했다. 라우팅, 저장소, 과금, 배포, 시크릿 경로는 건드리지 않았다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>npx eslint src\components\deepspace\CompletionToast.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>CRLF 경고만 있었고 실패는 없었다.</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <p>찬성 관점: 완료 토스트는 앱 전역에서 보이는 상태 피드백이므로, shipped locale 기본 문구를 맞추면 작은 변경으로 사용자 신뢰가 오른다.</p>
+      <p>반대 관점: 이 변경은 전문 번역 검수가 아니라 로컬 기본 문구 보강이다. 동적 <code>task.tip</code> 값이 영어로 들어오는 경우까지 번역하지는 않는다.</p>
+      <p>판정: 라우팅·데이터·권한을 건드리지 않는 낮은 위험의 UI 문구 수정이므로, Codex 레인에서 단일 파일 패치로 진행하는 것이 적절하다.</p>
+    </details>
+
+    <h2>제한 사항</h2>
+    <p>2nd-B 브랜치는 로컬 커밋만 만들었고 push, PR, merge, 배포, 브라우저 자동 열기는 하지 않았다. 고위험 산출물이 아니므로 MoA verify 요청은 만들지 않았다.</p>
+  </main>
+</body>
+</html>

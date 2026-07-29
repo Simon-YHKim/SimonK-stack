@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>건강 데이터 정합성 QA 리포트</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem;
+  }
+  h1, h2, h3 { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 2rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1e1e1e; color: #ffffff; }
+  .pass { color: #81c784; }
+  .info { color: #64b5f6; }
+</style>
+</head>
+<body>
+  <h1>건강 데이터 정합성 QA 리포트</h1>
+  <p>대상 커밋: ccb0d8cf vs 06e927db</p>
+
+  <h2>점검 항목 및 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>점검 항목</th>
+        <th>결과</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>실제 데이터 소스 부재 시 가짜 데이터 기록 방지</td>
+        <td class="pass">통과</td>
+        <td>handleHealthIngest 함수 내에서 조기 반환 로직 적용됨.</td>
+      </tr>
+      <tr>
+        <td>UI 레이어에서 가짜 데이터 모듈 참조 금지</td>
+        <td class="pass">통과</td>
+        <td>검증 테스트 추가됨. UI 화면의 모듈 import 완전히 제거됨.</td>
+      </tr>
+      <tr>
+        <td>오류 상태 접근성 및 기존 정상 동작 유지</td>
+        <td class="pass">통과</td>
+        <td>오류 메시지에 접근성 속성 추가. 기존 경로 정상 유지됨.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>종합 판정</h2>
+  <p class="pass">승인 (PASS)</p>
+  <p>제시된 모든 요구사항이 코드에 정상적으로 반영되었습니다.</p>
+</body>
+</html>

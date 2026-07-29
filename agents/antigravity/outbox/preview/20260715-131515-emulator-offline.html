@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>에뮬레이터 상태 보고서</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #cccccc;
+            font-family: sans-serif;
+            margin: 40px;
+            line-height: 1.5;
+        }
+        h1, h2 {
+            color: #ffffff;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 10px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+        .highlight {
+            color: #ffffff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>자율 사이클 보고서 (에뮬레이터 오프라인)</h1>
+        <p>핵심 루프 테스트 항목을 수행하기 위해 에뮬레이터 접근을 시도하였으나 연결에 실패했습니다.</p>
+        
+        <h2>상태 확인</h2>
+        <p>현재 대상 기기 상태: <span class="highlight">오프라인 또는 미발견</span></p>
+
+        <h2>진행 내역</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>동작 항목</th>
+                    <th>실행 결과</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>디바이스 목록 조회</td>
+                    <td>연결된 에뮬레이터 인스턴스 없음</td>
+                </tr>
+                <tr>
+                    <td>오프라인 기기 재연결 명령</td>
+                    <td>반응 없음, 정상화 실패</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>이후 계획</h2>
+        <p>인프라 관리 규칙에 따라 콜드 부트를 요청하는 보고서를 작성 완료했습니다. 본 에이전트는 다음 대기열에서 에뮬레이터 외부 작업을 선정하여 속행합니다.</p>
+    </div>
+</body>
+</html>

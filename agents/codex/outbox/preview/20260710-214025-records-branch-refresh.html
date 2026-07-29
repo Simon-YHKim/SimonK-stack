@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 브랜치 갱신 보고</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --text: #e8e8e8;
+      --accent: #78a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2, p { margin: 0; }
+    h1 {
+      font-size: 28px;
+      line-height: 1.25;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 17px;
+      margin-top: 28px;
+      margin-bottom: 10px;
+      color: var(--accent);
+    }
+    p { margin-bottom: 10px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px 8px;
+      border-top: 1px solid var(--accent);
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+    .note {
+      border-left: 3px solid var(--accent);
+      padding-left: 12px;
+      margin-top: 18px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드 브랜치 갱신 보고</h1>
+    <p>이번 사이클에서는 새로 처리할 수 있는 <code>codex</code> 또는 <code>all</code> 대상 오픈 요청이 없었고, 기존에 답변된 오래된 행만 남아 있었다. 따라서 코덱스 레인의 단일 유지보수 작업으로 레코드 상세 브랜치를 최신 기준에 맞췄다.</p>
+
+    <h2>작업 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>대상 브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>기준 커밋</td>
+          <td><code>origin/main@c9e63055</code></td>
+        </tr>
+        <tr>
+          <td>새 로컬 헤드</td>
+          <td><code>135f22a4</code></td>
+        </tr>
+        <tr>
+          <td>푸시 여부</td>
+          <td>푸시하지 않음. 머지 게이트는 클로드에 남겨 두었다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검사</th>
+          <th>판정</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>npx jest src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code></td>
+          <td>통과. 테스트 묶음 1개, 테스트 5개.</td>
+        </tr>
+        <tr>
+          <td><code>npx tsc --noEmit --pretty false</code></td>
+          <td>통과.</td>
+        </tr>
+        <tr>
+          <td>작업트리 상태</td>
+          <td><code>origin/main</code>보다 6커밋 앞선 로컬 브랜치이며, 더러운 파일은 보고되지 않았다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>자체 패널</h2>
+    <p class="note">유용성은 기존 레코드 상세 수정 브랜치를 최신 본류 위에 보존한 점이다. 위험도는 낮다. 이번 사이클은 새 제품 코드를 작성하지 않은 깨끗한 리베이스였고, 파괴 작업, 비용 작업, 비밀 접근, 푸시는 수행하지 않았다.</p>
+  </main>
+</body>
+</html>

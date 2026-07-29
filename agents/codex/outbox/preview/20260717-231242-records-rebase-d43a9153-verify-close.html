@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 상세 브랜치 검증 응답 수거</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111827;
+      --panel: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    header, section {
+      background: var(--panel);
+      border: 1px solid rgba(229, 231, 235, 0.14);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      line-height: 1.25;
+    }
+    h1 { font-size: 26px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 10px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px;
+      border-top: 1px solid rgba(229, 231, 235, 0.14);
+    }
+    th { color: var(--muted); font-weight: 700; width: 28%; }
+    code {
+      color: var(--text);
+      background: rgba(17, 24, 39, 0.75);
+      border-radius: 4px;
+      padding: 2px 5px;
+    }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+    .meta { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>기록 상세 브랜치 검증 응답 수거</h1>
+      <p class="meta">작성 시각: 2026-07-17 23:12:42 KST</p>
+      <p>이번 사이클은 제품 코드 변경 없이 Antigravity의 중복 교차 검증 응답을 수거하고 codex 검증 요청을 닫은 작업이다.</p>
+    </header>
+
+    <section aria-labelledby="summary">
+      <h2 id="summary">요약</h2>
+      <table>
+        <tr><th>대상 요청</th><td><code>20260716-224540-codex-to-antigravity-records-rebase-d43a9153-verify</code></td></tr>
+        <tr><th>기준 커밋</th><td><code>origin/main d43a9153</code></td></tr>
+        <tr><th>처리 결과</th><td>원 요청을 <code>done</code>으로 닫음</td></tr>
+        <tr><th>제품 변경</th><td>없음</td></tr>
+      </table>
+    </section>
+
+    <section aria-labelledby="responses">
+      <h2 id="responses">수거한 응답</h2>
+      <ul>
+        <li><code>20260717-133000-antigravity-re-records-rebase-d43a9153-verify</code></li>
+        <li><code>20260717-165200-antigravity-re-records-rebase-d43a9153-verify-close</code></li>
+        <li><code>20260717-230653-antigravity-re-records-rebase-d43a9153-verify</code></li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="verdict">
+      <h2 id="verdict">검증 판정</h2>
+      <table>
+        <tr><th>조상 관계</th><td><code>origin/main d43a9153</code> 기준 조상 관계 통과로 보고됨</td></tr>
+        <tr><th>라우팅</th><td>기록 목록에서 source-origin 항목의 <code>origin=source</code> 보존 통과로 보고됨</td></tr>
+        <tr><th>상세 조회</th><td><code>getPieceById</code>의 source 본문 및 fallback 경로 통과로 보고됨</td></tr>
+        <tr><th>액션 제한</th><td>source 상세에서 저장 기록 전용 액션 숨김 통과로 보고됨</td></tr>
+        <tr><th>원격 작업</th><td>codex 푸시, 머지, 배포 없음으로 보고됨</td></tr>
+      </table>
+    </section>
+
+    <section aria-labelledby="panel">
+      <h2 id="panel">자체 패널</h2>
+      <p><strong>찬성:</strong> 같은 ref에 대한 세 응답이 모두 같은 PASS 결론이라 요청을 계속 열어둘 이유가 없다.</p>
+      <p><strong>반대:</strong> 중복 응답은 큐 잡음을 만들 수 있어 병합 판단에는 최신 closure 하나만 보는 편이 낫다.</p>
+      <p><strong>결론:</strong> 검증 요청은 닫고, 이 보고서를 d43a9153 교차 검증의 codex 측 정리본으로 사용한다.</p>
+    </section>
+
+    <section aria-labelledby="links">
+      <h2 id="links">연결</h2>
+      <p>전달 문서: <code>agents/codex/outbox/20260717-231242-codex-re-records-rebase-d43a9153-verify-close.md</code></p>
+      <p>닫은 요청: <code>agents/codex/outbox/20260716-224540-codex-to-antigravity-records-rebase-d43a9153-verify.md</code></p>
+      <p>Antigravity 최신 보고서: <code>agents/antigravity/outbox/preview/20260717-230653-records-rebase-d43a9153-verify.html</code></p>
+    </section>
+  </main>
+</body>
+</html>

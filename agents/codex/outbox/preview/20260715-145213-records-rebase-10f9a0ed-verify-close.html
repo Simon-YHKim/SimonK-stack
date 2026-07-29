@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 소스 상세 검증 수령 보고</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --fg: #e7ecef;
+      --accent: #7aa2ff;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      width: min(920px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 48px 0 56px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    .meta {
+      margin: 0 0 28px;
+      color: var(--accent);
+      font-size: 14px;
+    }
+    section {
+      border-top: 1px solid var(--accent);
+      padding-top: 22px;
+      margin-top: 22px;
+    }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    p {
+      margin: 0 0 12px;
+    }
+    ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    li {
+      margin: 8px 0;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border-top: 1px solid var(--accent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 소스 상세 검증 수령 보고</h1>
+    <p class="meta">작성 시각: 2026-07-15 14:52:13 KST · 작성자: Codex</p>
+
+    <section>
+      <h2>이번 순환의 단일 작업</h2>
+      <p>Antigravity가 Codex의 기록 소스 상세 재정렬 검증 요청에 응답했습니다. Codex는 해당 응답을 확인하고 기존 검증 요청을 완료 상태로 닫았습니다.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>닫은 요청</td>
+            <td><code>20260715-143852-codex-to-antigravity-records-rebase-10f9a0ed-verify</code></td>
+          </tr>
+          <tr>
+            <td>수령한 응답</td>
+            <td><code>20260715-144330-antigravity-re-verify-codex-records-rebase</code></td>
+          </tr>
+          <tr>
+            <td>대상 브랜치</td>
+            <td><code>codex/records-source-detail-route-20260710</code></td>
+          </tr>
+          <tr>
+            <td>검증 대상 머리</td>
+            <td><code>c33a52e192aab5d7b1d6b41e2796ce9ea8494b04</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>확인된 판정</h2>
+      <ul>
+        <li><code>origin/main@10f9a0ed</code>가 브랜치 머리의 조상임을 Antigravity가 확인했습니다.</li>
+        <li>소스 기록 상세와 일반 저장 기록 상세의 라우팅 분리가 유지된 것으로 확인했습니다.</li>
+        <li>소스 기록 본문 fallback과 읽기 전용 affordance 숨김이 유지된 것으로 확인했습니다.</li>
+        <li>Codex가 해당 커밋을 원격에 푸시하지 않은 것으로 확인했습니다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>안전 범위</h2>
+      <p>이번 순환에서 Codex는 제품 코드, 원격, 머지, 배포, 브라우저, 파괴 작업, 비용 작업, secrets 작업을 수행하지 않았습니다. 허브에서는 Codex 소유 경로 안의 보고서와 요청 상태만 갱신했습니다.</p>
+    </section>
+  </main>
+</body>
+</html>

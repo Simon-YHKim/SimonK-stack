@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고: records rebase bc1a8b1e</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --fg: #e7eaf0;
+      --muted: #9aa3b2;
+      --accent: #6ea8ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { margin-top: 28px; font-size: 18px; }
+    p { margin-top: 10px; color: var(--muted); }
+    .meta {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      margin-top: 24px;
+      border: 1px solid rgba(231, 234, 240, 0.14);
+    }
+    .cell {
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      min-height: 104px;
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .value {
+      display: block;
+      color: var(--fg);
+      font-size: 17px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      margin-top: 14px;
+      border-collapse: collapse;
+      border: 1px solid rgba(231, 234, 240, 0.14);
+    }
+    th, td {
+      padding: 11px 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(231, 234, 240, 0.14);
+      vertical-align: top;
+    }
+    th { color: var(--fg); font-weight: 700; }
+    td { color: var(--muted); }
+    code {
+      color: var(--fg);
+      overflow-wrap: anywhere;
+    }
+    details {
+      margin-top: 16px;
+      border: 1px solid rgba(231, 234, 240, 0.14);
+      padding: 12px 14px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--fg);
+      font-weight: 700;
+    }
+    ul { margin: 10px 0 0 20px; padding: 0; color: var(--muted); }
+    a { color: var(--accent); }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 480px) {
+      main { width: min(100% - 24px, 960px); padding-top: 28px; }
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex 사이클 보고: records/source-detail rebase</h1>
+    <div class="meta">작성 시각: 2026-07-19 09:59:03 KST · 프로토콜: 12/19/35.4 · 작업 수: 1</div>
+    <p>이번 사이클은 열린 Codex 요청이 없어, Codex 레인의 최신 병합 후보를 현재 main 위로 재정렬하는 작업만 수행했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="cell">
+        <span class="label">결과</span>
+        <span class="value">rebase 완료</span>
+      </div>
+      <div class="cell">
+        <span class="label">기준 main</span>
+        <span class="value">bc1a8b1e</span>
+      </div>
+      <div class="cell">
+        <span class="label">새 작업 HEAD</span>
+        <span class="value">11c0d3b7</span>
+      </div>
+      <div class="cell">
+        <span class="label">검증 상태</span>
+        <span class="value">통과</span>
+      </div>
+    </section>
+
+    <h2>수행 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>작업 위치</td>
+          <td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>작업</td>
+          <td><code>origin/main@bc1a8b1e</code> 위로 충돌 없이 rebase</td>
+        </tr>
+        <tr>
+          <td>변경 범위</td>
+          <td>records/source-detail 관련 5개 파일</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검증</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>main 포함 여부</td>
+          <td><code>merge-base --is-ancestor origin/main HEAD</code> exit 0</td>
+        </tr>
+        <tr>
+          <td>공백 검사</td>
+          <td><code>git diff --check origin/main...HEAD</code> 통과</td>
+        </tr>
+        <tr>
+          <td>대상 테스트</td>
+          <td>Jest 2 suites / 10 tests 통과</td>
+        </tr>
+        <tr>
+          <td>타입 검사</td>
+          <td><code>npm run type-check</code> 통과</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>파일 범위</summary>
+      <ul>
+        <li><code>src/lib/records/__tests__/source-pieces.test.ts</code></li>
+        <li><code>src/lib/records/get-piece.ts</code></li>
+        <li><code>src/lib/records/source-pieces.ts</code></li>
+        <li><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></li>
+        <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>제약 준수</summary>
+      <ul>
+        <li>허브에서는 <code>agents/codex/</code> 아래 파일만 작성했다.</li>
+        <li>제품 push, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 접근은 하지 않았다.</li>
+        <li>기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code>는 보존했다.</li>
+        <li>병합 후보 diff 성격이므로 Antigravity 검증 요청을 별도 발행했다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: 레코드 상세 브랜치 재배치</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; }
+  h1, h2, h3 { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 2rem; }
+  th, td { border: 1px solid #333333; padding: 0.5rem; text-align: left; }
+  th { background-color: #1e1e1e; }
+  .pass { color: #81c784; }
+  .fail { color: #e57373; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: 레코드 상세 브랜치 재배치</h1>
+  <p>검증 대상: codex/records-source-detail-route-20260710 (c9505546)</p>
+  
+  <h2>검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>상세</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 확인</td>
+        <td class="pass">통과</td>
+        <td>origin/main@2166fa3b가 새 브랜치의 조상임을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>경로 유지</td>
+        <td class="pass">통과</td>
+        <td>getPieceById 호출 시 origin 매개변수가 올바르게 전달됩니다.</td>
+      </tr>
+      <tr>
+        <td>액션 노출 차단</td>
+        <td class="pass">통과</td>
+        <td>isSource 조건에 의해 편집, 태그, 이동, 삭제 액션이 화면에서 숨겨집니다.</td>
+      </tr>
+      <tr>
+        <td>레코드 분리</td>
+        <td class="pass">통과</td>
+        <td>일반 레코드와 source-origin 레코드가 isSource로 명확히 분리됩니다.</td>
+      </tr>
+      <tr>
+        <td>푸시 방지</td>
+        <td class="pass">통과</td>
+        <td>원격 저장소에 해당 커밋이 푸시되지 않았음을 확인했습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>결론</h2>
+  <p>모든 검증 항목을 통과했습니다. 사이드 이펙트나 회귀 버그는 발견되지 않았습니다. 병합을 진행해도 안전합니다.</p>
+</body>
+</html>

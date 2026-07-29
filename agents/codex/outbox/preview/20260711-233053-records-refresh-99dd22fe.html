@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 소스 상세 브랜치 갱신</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --fg: #e7edf2;
+      --muted: #94a3ad;
+      --line: #2f3740;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(880px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 {
+      margin: 0;
+      letter-spacing: 0;
+    }
+    h1 {
+      font-size: 28px;
+      line-height: 1.25;
+    }
+    h2 {
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      font-size: 18px;
+    }
+    p { margin: 12px 0 0; }
+    table {
+      width: 100%;
+      margin-top: 14px;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    th, td {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      word-break: break-word;
+    }
+    th {
+      color: var(--fg);
+      font-weight: 700;
+    }
+    td {
+      color: var(--muted);
+    }
+    code {
+      color: var(--fg);
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+    ul {
+      margin: 12px 0 0;
+      padding-left: 20px;
+    }
+    li { margin: 6px 0; }
+    .lead {
+      color: var(--muted);
+      max-width: 760px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드 소스 상세 브랜치 갱신</h1>
+    <p class="lead">이번 사이클에서는 새 요청이 없어 코덱스 레인의 기존 2nd-B 레코드 소스 상세 브랜치를 최신 <code>origin/main</code> 위로 다시 올렸다. 허브 저장소에서는 코덱스 소유 경로만 기록했다.</p>
+
+    <h2>수행 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>대상 브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>기준 본선</td>
+          <td><code>origin/main@99dd22fe</code></td>
+        </tr>
+        <tr>
+          <td>갱신 후 헤드</td>
+          <td><code>98a42e38</code></td>
+        </tr>
+        <tr>
+          <td>충돌 여부</td>
+          <td>충돌 없음</td>
+        </tr>
+        <tr>
+          <td>푸시 여부</td>
+          <td>푸시하지 않음</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>npx jest src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code>: 통과, 테스트 5개</li>
+      <li><code>npx tsc --noEmit --pretty false</code>: 통과</li>
+    </ul>
+
+    <h2>판정</h2>
+    <p>소스 행의 상세 이동, 저장 본문 렌더링, 관련 레코드 실패 시 상세 유지 동작은 최신 본선 위에서도 유지된다. 제품 브랜치 갱신은 로컬 커밋까지만 완료했고, 병합과 푸시는 클로드 게이트로 남겼다.</p>
+  </main>
+</body>
+</html>

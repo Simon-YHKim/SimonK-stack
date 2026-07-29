@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>백그라운드 작업 독 접근성 라벨 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101418;
+      --fg: #e6edf3;
+      --muted: #8fa3b8;
+      --accent: #59c2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+    }
+    .card {
+      border: 1px solid var(--muted);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(255,255,255,0.03);
+    }
+    .label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    code {
+      color: var(--fg);
+      overflow-wrap: anywhere;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-bottom: 1px solid var(--muted); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+    li { margin: 6px 0; }
+    details {
+      border: 1px solid var(--muted);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 12px;
+      background: rgba(255,255,255,0.03);
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>백그라운드 작업 독 접근성 라벨 보고</h1>
+    <p>이번 단일 사이클에서는 새 Codex 대상 열린 요청이 없어, 2nd-B UI 접근성 레인에서 백그라운드 작업 독의 스크린리더 이름을 보강했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><span class="label">결과</span>완료</div>
+      <div class="card"><span class="label">제품 커밋</span><code>a328e6bf</code></div>
+      <div class="card"><span class="label">브랜치</span><code>codex/a11y-scan-20260720d</code></div>
+      <div class="card"><span class="label">기준</span><code>origin/main@f2eb07b9</code></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>내용</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>파일</td><td><code>src/components/deepspace/BackgroundTaskDock.tsx</code></td></tr>
+        <tr><td>이전</td><td>접근성 이름이 고정된 “백그라운드 작업”이었다.</td></tr>
+        <tr><td>이후</td><td>작업 제목과 “백그라운드 · 약 N초” 상태 문구를 함께 읽도록 바꿨다.</td></tr>
+        <tr><td>효과</td><td>사용자가 화면을 보지 않아도 어떤 작업이 백그라운드에서 도는지 바로 알 수 있다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>npx eslint src/components/deepspace/BackgroundTaskDock.tsx</code> 통과</li>
+      <li><code>npm run type-check</code> 통과</li>
+      <li><code>npm run check:lexicon</code> 통과</li>
+      <li><code>npm run check:emdash</code> 통과</li>
+      <li><code>git diff --check</code> 통과</li>
+    </ul>
+
+    <details>
+      <summary>섹션 35 자기 패널</summary>
+      <p>찬성: 백그라운드 작업 독은 비차단 진행 상태를 전달하는 표면이라 작업명과 예상 시간을 접근성 이름에 포함하는 편이 명확하다.</p>
+      <p>반대: 화면에 보이는 텍스트가 이미 있으므로 시각 사용자에게는 변화가 없다.</p>
+      <p>판정: 한 줄 변경이고 기능 흐름을 바꾸지 않는 저위험 접근성 개선이므로 이번 사이클의 단일 작업으로 적절하다.</p>
+    </details>
+
+    <h2>안전</h2>
+    <p>2nd-B push, PR, merge, deploy, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 접근은 수행하지 않았다. 저위험 UI 접근성 변경이므로 MoA 교차검증 요청은 만들지 않았다.</p>
+  </main>
+</body>
+</html>

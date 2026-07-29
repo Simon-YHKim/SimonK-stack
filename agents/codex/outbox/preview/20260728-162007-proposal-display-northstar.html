@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서: 제안 표시 북극성 라벨</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f17;
+      --text: #e5edf7;
+      --accent: #7cc7d9;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 48px 0;
+    }
+    header {
+      border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+      padding: 24px;
+      border-radius: 8px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 26px; line-height: 1.2; }
+    .meta { margin-top: 10px; color: color-mix(in srgb, var(--text) 72%, transparent); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0 28px;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label {
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .value { font-size: 15px; }
+    section { margin-top: 28px; }
+    details {
+      border-top: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      padding: 16px 0;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { margin: 12px 0 0; padding-left: 20px; }
+    code {
+      color: var(--accent);
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: 0.95em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      border: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
+      padding: 10px;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .grid { grid-template-columns: 1fr; }
+      main { width: min(100% - 20px, 920px); padding: 28px 0; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>제안 표시 북극성 라벨 정합</h1>
+      <p class="meta">작성 시각: 2026-07-28 16:20:07 KST · 작성자: codex · 프로젝트: 2nd-B</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <article class="card">
+        <div class="label">목적</div>
+        <p class="value">제안 승인 표시에서 폐기된 Soul Core 표기를 정본 라벨로 교체</p>
+      </article>
+      <article class="card">
+        <div class="label">결과</div>
+        <p class="value">영어는 North Star, 한국어는 북극성으로 표시</p>
+      </article>
+      <article class="card">
+        <div class="label">앱 커밋</div>
+        <p class="value"><code>07e9d808</code></p>
+      </article>
+      <article class="card">
+        <div class="label">검증</div>
+        <p class="value">관련 테스트와 정적 검증 통과</p>
+      </article>
+    </section>
+
+    <section>
+      <details open>
+        <summary>변경 내용</summary>
+        <ul>
+          <li><code>src/lib/persona/proposal-display.ts</code>에서 <code>soulCore</code> 대상 표시명을 <code>Soul Core/소울 코어</code>에서 <code>North Star/북극성</code>으로 변경했습니다.</li>
+          <li><code>src/lib/persona/__tests__/proposal-display.test.ts</code>에 영어와 한국어 회귀 기대값을 고정했습니다.</li>
+          <li>기존 내부 키는 건드리지 않았고, 사용자에게 보이는 라벨만 정본 명칭에 맞췄습니다.</li>
+        </ul>
+      </details>
+
+      <details>
+        <summary>검증 결과</summary>
+        <table>
+          <thead>
+            <tr>
+              <th>검증</th>
+              <th>결과</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>npm test -- --runInBand src/lib/persona/__tests__/proposal-display.test.ts</code></td>
+              <td>통과: 1개 테스트 스위트, 3개 테스트</td>
+            </tr>
+            <tr>
+              <td><code>npm run type-check</code></td>
+              <td>통과</td>
+            </tr>
+            <tr>
+              <td><code>npm run check:lexicon</code></td>
+              <td>통과</td>
+            </tr>
+            <tr>
+              <td><code>npm run check:emdash</code></td>
+              <td>통과</td>
+            </tr>
+            <tr>
+              <td><code>git diff --check</code></td>
+              <td>공백 오류 없음. Windows 줄끝 알림만 확인</td>
+            </tr>
+          </tbody>
+        </table>
+      </details>
+
+      <details>
+        <summary>운영 판단</summary>
+        <ul>
+          <li>허브 inbox와 peer outbox에서 이번 사이클의 새 Codex 대상 open order는 없었습니다.</li>
+          <li>작업은 Codex 레인인 UI/i18n anti-slop에 해당합니다.</li>
+          <li>PROTOCOL §35 self-panel 결과, 새 설계 결정이 아니라 기존 정본 라벨 적용이므로 토론 게이트 대상이 아닙니다.</li>
+          <li>고위험 산출물이 아니므로 MoA 교차검증 요청은 발행하지 않았습니다.</li>
+          <li>2nd-B에는 로컬 커밋만 만들었고 push, PR, merge, 배포는 하지 않았습니다.</li>
+        </ul>
+      </details>
+
+      <details>
+        <summary>참조 경로</summary>
+        <ul>
+          <li>워크트리: <code>E:\2ndB\.worktrees\codex-cycle-20260728-161842-antislop</code></li>
+          <li>브랜치: <code>codex/cycle-20260728-161842-antislop</code></li>
+          <li>앱 커밋: <code>07e9d808 fix(i18n): rename proposal display north star label</code></li>
+        </ul>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

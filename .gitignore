@@ -31,3 +31,29 @@ Output/branch-review-queue-*.json
 # 원격 오더 소비자 로컬 상태 (하트비트·픽업 원장)
 tools/orders-poll-heartbeat.txt
 tools/orders-ack.json
+
+# 워치독 런타임 상태 (매 실행 변경 — 추적하면 트리가 영구 dirty, BRANCH-HEAL 차단)
+tools/.watchdog-state.json
+
+# 구조화 사이클 트레이스 (2026-07-11 감사 B2: hub-daemon.log에서 재생성 가능한 로컬 파생물)
+tools/trace/
+
+# 반-퇴화 게이트 시그니처 히스토리 (2026-07-11 감사 A1: 레인별 최근 커밋 시그니처, 런타임 상태)
+agents/*/.cycle-sigs.*
+
+# 측정 기반 루프 점수 원장 (2026-07-11 감사 H3: 매 실행 변경되는 로컬 점수 히스토리)
+Output/scores.jsonl
+
+# 2026-07-04 백업복원 좀비 격리 (robocopy가 부활시킨 아카이브 중복 — MANIFEST.csv 참조, 검토 후 폐기)
+_restore-quarantine-*/
+
+# 빌드 번들 — 코디네이션 레포에 유입 금지 (2026-07-11 감사 C2: 루트 76MB APK 사고 클래스,
+# git add -A footgun 차단). 서명 번들엔 서명설정/시크릿이 박힐 수 있어 공유 트리에 두지 않는다.
+# ※ QA 증거(스크린샷 PNG·logcat)는 AG QA-truthfulness 정책상 증거이므로 무시하지 않는다.
+*.apk
+*.aab
+*.ipa
+
+# QA 디버그 잔해 디렉터리 (2026-07-11 감사 C5: 원시 logcat 덤프·중복 리포트·스크린샷 대량.
+# ※ 큐레이션된 QA 증거(개별 스크린샷/logcat)는 AG QA-truthfulness상 보존 — "Legacy-qa-debris" 잔해만 차단).
+agents/*/Legacy-qa-debris-*/

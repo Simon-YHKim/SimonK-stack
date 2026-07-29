@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 상세 브랜치 재정렬 보고</title>
+  <style>
+    :root {
+      --bg: #0e1116;
+      --text: #e6edf3;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, h3 { line-height: 1.25; margin: 0 0 14px; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 20px; margin-top: 30px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 24px 0 28px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px;
+      background: var(--bg);
+    }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    .value { font-size: 18px; font-weight: 700; word-break: break-word; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 20px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--accent);
+      word-break: break-word;
+    }
+    ul { padding-left: 20px; }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    a { color: var(--accent); }
+    @media (max-width: 760px) {
+      .summary { grid-template-columns: 1fr 1fr; }
+      h1 { font-size: 24px; }
+    }
+    @media (max-width: 480px) {
+      .summary { grid-template-columns: 1fr; }
+      main { width: min(100% - 20px, 980px); padding-top: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 상세 브랜치 재정렬 보고</h1>
+    <p>이번 사이클은 신규 upstream 전진을 확인한 뒤 Codex records/source-detail 브랜치를 현재 2nd-B 기준으로 재정렬하고 정적 검증을 수행한 작업입니다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">재정렬 완료</div>
+      </div>
+      <div class="card">
+        <div class="label">새 기준</div>
+        <div class="value"><code>dcece9eb</code></div>
+      </div>
+      <div class="card">
+        <div class="label">새 브랜치</div>
+        <div class="value"><code>f16d8727</code></div>
+      </div>
+      <div class="card">
+        <div class="label">검증 상태</div>
+        <div class="value">통과</div>
+      </div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>워크트리</td>
+          <td><code>E:\2ndB\.worktrees\records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>이전 기준</td>
+          <td><code>origin/main@997413ac</code></td>
+        </tr>
+        <tr>
+          <td>새 기준</td>
+          <td><code>origin/main@dcece9eb</code></td>
+        </tr>
+        <tr>
+          <td>새 결과</td>
+          <td><code>f16d8727</code>, 충돌 없는 rebase</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검증 항목</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>origin/main@dcece9eb</code> 조상 포함</td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td>집중 records/source-detail Jest</td>
+          <td>통과, 2 suites / 10 tests</td>
+        </tr>
+        <tr>
+          <td><code>git diff --check origin/main..HEAD</code></td>
+          <td>통과</td>
+        </tr>
+        <tr>
+          <td><code>npm run verify</code></td>
+          <td>통과, 364 suites / 2777 tests</td>
+        </tr>
+        <tr>
+          <td>lint</td>
+          <td>exit 0, 기존 warning 57개 유지</td>
+        </tr>
+        <tr>
+          <td><code>npm run check:flow-map-fresh</code></td>
+          <td>기존 stale 경고 계열 유지, 지도 기준 이후 6개 파일 변경</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>자체 패널 판정</summary>
+      <ul>
+        <li>찬성: upstream 전진과 조상 불일치가 확인되어 브랜치 유지보수 가치가 있었습니다.</li>
+        <li>반대: 반복 rebase 보고는 no-op 소음이 될 수 있으므로 실제 변화가 없으면 쓰지 않아야 합니다.</li>
+        <li>대안: 이번에는 아무 작업도 하지 않는 선택이 부적절했습니다. 새 upstream head가 실제로 존재했습니다.</li>
+        <li>판정: 재정렬과 정적 검증만 수행하고, 코드 diff 성격상 Antigravity 검증 요청을 발행했습니다.</li>
+      </ul>
+    </details>
+
+    <h2>범위 제한</h2>
+    <p>제품 push, merge, deploy, 브라우저 실행, 파괴 작업, 비용 작업, 시크릿 작업은 수행하지 않았습니다. 기존 미추적 파일 <code>diff.txt</code>, <code>recent_changes.diff</code>는 보존했습니다.</p>
+
+    <h2>링크</h2>
+    <ul>
+      <li>Markdown 보고서: <code>agents/codex/outbox/20260717-184245-codex-re-records-rebase-dcece9eb.md</code></li>
+      <li>검증 요청: <code>agents/codex/outbox/20260717-184245-codex-to-antigravity-records-rebase-dcece9eb-verify.md</code></li>
+    </ul>
+  </main>
+</body>
+</html>

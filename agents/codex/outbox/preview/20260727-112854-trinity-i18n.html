@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>트리니티 영역 라벨 다국어 정리</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101318; --fg:#eef3f8; --muted:#94a3b8; --accent:#7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 20px 48px; }
+    header { border-bottom: 1px solid var(--muted); padding-bottom: 18px; margin-bottom: 22px; }
+    h1, h2 { margin: 0 0 10px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    .muted { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin: 18px 0; }
+    .card { border: 1px solid var(--muted); padding: 14px; border-radius: 6px; }
+    .label { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; }
+    th, td { border: 1px solid var(--muted); padding: 9px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { border: 1px solid var(--muted); border-radius: 6px; padding: 12px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>트리니티 영역 라벨 다국어 정리</h1>
+      <p class="muted">작성 시각: 2026-07-27 11:28:54 KST</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">작업 결과</div><p>완료</p></div>
+      <div class="card"><div class="label">앱 브랜치</div><p><code>codex/cycle-260727-112629-trait-radar-i18n</code></p></div>
+      <div class="card"><div class="label">앱 커밋</div><p><code>64ad1c9b</code></p></div>
+      <div class="card"><div class="label">허브 조치</div><p>보고서와 상태 기록만 작성</p></div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <p><code>src/app/trinity.tsx</code>에서 네 영역 라벨과 날짜 표시를 표시 언어 기준으로 분리했다. 기존 시스템 로케일 계약은 영어와 한국어로 유지했다.</p>
+      <table>
+        <thead><tr><th>항목</th><th>정리 내용</th></tr></thead>
+        <tbody>
+          <tr><td>영역 라벨</td><td>영어, 한국어, 스페인어, 포르투갈어, 인도네시아어 라벨을 화면 표시용 테이블로 추가했다.</td></tr>
+          <tr><td>날짜 표시</td><td>각 표시 언어에 맞는 날짜 로케일을 사용하도록 바꿨다.</td></tr>
+          <tr><td>데이터 계약</td><td>저장, 분류, 안전 경로에 쓰는 시스템 로케일은 기존 영어와 한국어 경계로 유지했다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>검사</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><code>npx eslint src/app/trinity.tsx</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과, 줄끝 경고만 있음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>자체 패널</summary>
+      <p>설계 관점: 표시 언어 확장은 제품 경험 개선이며 데이터 계약을 넓히지 않는다.</p>
+      <p>안전 관점: 안전 분류나 위기 경로를 건드리지 않았다.</p>
+      <p>운영 관점: 별도 push, 배포, 비용 작업은 하지 않았다.</p>
+    </details>
+  </main>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 에이전트 카드 생성 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --fg: #e6e8ee;
+      --muted: #9aa3b2;
+      --accent: #6ea8fe;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 { margin: 0; letter-spacing: 0; }
+    h1 { font-size: clamp(28px, 4vw, 42px); }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { color: var(--muted); margin: 8px 0 0; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .card {
+      border: 1px solid rgba(230, 232, 238, .16);
+      border-radius: 8px;
+      padding: 16px;
+      background: rgba(255, 255, 255, .03);
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .value { font-size: 18px; font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      overflow-wrap: anywhere;
+    }
+    th, td {
+      border-bottom: 1px solid rgba(230, 232, 238, .14);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 600; }
+    code {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: .95em;
+    }
+    details {
+      margin-top: 16px;
+      border: 1px solid rgba(230, 232, 238, .16);
+      border-radius: 8px;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, .03);
+    }
+    summary { cursor: pointer; font-weight: 700; }
+    ul { margin: 10px 0 0; padding-left: 20px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 에이전트 카드 생성 보고</h1>
+    <p>프로토콜 12/19/35.4 단일 폴 사이클에서 Claude의 A2A 능력 카드 요청을 처리했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <span class="label">결과</span>
+        <span class="value">완료</span>
+      </div>
+      <div class="card">
+        <span class="label">대상 요청</span>
+        <span class="value">agent-card</span>
+      </div>
+      <div class="card">
+        <span class="label">검증</span>
+        <span class="value">JSON 파싱 성공</span>
+      </div>
+      <div class="card">
+        <span class="label">위험도</span>
+        <span class="value">낮음</span>
+      </div>
+    </section>
+
+    <h2>작업 내역</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>실행 명령</td>
+          <td><code>tools/gen-agent-card.ps1 -As codex</code></td>
+        </tr>
+        <tr>
+          <td>생성 파일</td>
+          <td><code>agents/codex/agent-card.json</code></td>
+        </tr>
+        <tr>
+          <td>응답 파일</td>
+          <td><code>agents/codex/outbox/20260726-180036-codex-re-agent-card.md</code></td>
+        </tr>
+        <tr>
+          <td>보고서 파일</td>
+          <td><code>agents/codex/outbox/preview/20260726-180036-agent-card.html</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>35 self-panel</summary>
+      <ul>
+        <li>범위: 허브 내부 A2A 카드 요청 처리로 한정했다.</li>
+        <li>안전: 단일 작성자 규칙에 따라 <code>agents/codex/</code> 하위만 변경했다.</li>
+        <li>검증: 생성된 JSON을 파싱해 구조를 확인했다.</li>
+        <li>교차검증: 고위험 산출물이 아니므로 별도 MoA verify 요청은 만들지 않았다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>

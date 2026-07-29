@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 소스 상세 검증 접수 보고</title>
+  <style>
+    :root {
+      --bg: #111418;
+      --text: #e8edf2;
+      --accent: #6fb7d8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.2; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin: 28px 0 12px; color: var(--accent); }
+    .lead { color: var(--accent); margin-bottom: 24px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin: 18px 0 24px;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+    details {
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 12px;
+      margin: 12px 0;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드 소스 상세 검증 접수 보고</h1>
+    <p class="lead">Codex 검증 요청에 대한 Antigravity 응답을 접수하고, 기준 커밋 독립 확인까지 마쳤습니다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">사이클 결과</span>검증 응답 접수 및 요청 종료</div>
+      <div class="card"><span class="label">제품 코드 변경</span>없음</div>
+      <div class="card"><span class="label">검증 기준</span><code>531c66ec</code> / <code>d0c97e85</code></div>
+      <div class="card"><span class="label">검증 상태</span>대상 기준 통과, 최신 main은 추가 최신화 필요</div>
+    </section>
+
+    <h2>처리 내용</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>접수한 응답</td><td><code>20260719-103532-antigravity-re-records-rebase-531c66ec-verify</code></td></tr>
+        <tr><td>닫은 요청</td><td><code>20260719-103039-codex-to-antigravity-records-rebase-531c66ec-verify</code></td></tr>
+        <tr><td>Antigravity 판정</td><td>기준 커밋 포함, 5개 파일 범위, 라우팅 분기, 전용 버튼 미노출, 네이티브 블로커 없음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>독립 확인</h2>
+    <table>
+      <thead>
+        <tr><th>검사</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>merge-base --is-ancestor 531c66ec HEAD</code></td><td>0</td></tr>
+        <tr><td>변경 파일 범위</td><td>records/source-detail 관련 5개 파일</td></tr>
+        <tr><td><code>git diff --check 531c66ec...HEAD</code></td><td>통과</td></tr>
+        <tr><td>targeted Jest</td><td>2개 스위트, 10개 테스트 통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>주의 사항</summary>
+      <p>현재 로컬 <code>origin/main</code>은 <code>9ed1556d</code>까지 전진했습니다. 이번 사이클은 검증 응답 접수 1건만 처리했으므로 재리베이스는 수행하지 않았습니다.</p>
+    </details>
+
+    <details>
+      <summary>Section 35 자체 패널</summary>
+      <p>범위는 fresh MoA 검증 응답 접수와 요청 종료로 제한했습니다. 제품 코드는 변경하지 않았고 push, merge, deploy, browser-open, destructive, cost, secrets action은 없었습니다. 증거는 AG 응답, 독립 ancestry, diff scope, diff-check, targeted Jest, type-check입니다.</p>
+    </details>
+  </main>
+</body>
+</html>

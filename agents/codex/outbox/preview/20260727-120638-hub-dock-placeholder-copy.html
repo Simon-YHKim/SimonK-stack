@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>허브 도크 화면 카피 정리 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0f14; --fg:#e6edf3; --muted:#8b949e; --accent:#58a6ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:920px; margin:0 auto; padding:32px 20px 44px; }
+    h1 { margin:0 0 8px; font-size:26px; }
+    h2 { margin:28px 0 12px; font-size:18px; color:var(--accent); }
+    p { margin:8px 0; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin:18px 0; }
+    .card { border:1px solid var(--muted); border-radius:8px; padding:14px; background:#0f1620; }
+    .label { display:block; color:var(--muted); font-size:12px; margin-bottom:6px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--muted); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--fg); background:#0f1620; padding:2px 5px; border-radius:4px; }
+    details { border:1px solid var(--muted); border-radius:8px; padding:12px 14px; margin-top:12px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>허브 도크 화면 카피 정리 보고</h1>
+    <p class="muted">생성 시각: 2026-07-27 12:06:38 KST</p>
+    <div class="grid" aria-label="요약">
+      <section class="card"><span class="label">목적</span>세컨비 허브 도크 화면의 개발자용 문구 노출 제거</section>
+      <section class="card"><span class="label">결과</span>로컬 앱 커밋 <code>bfc9e2b9</code> 생성, 푸시 없음</section>
+      <section class="card"><span class="label">검증</span>타입, 대상 린트, i18n, 금지어, 대시 검사 통과</section>
+      <section class="card"><span class="label">범위</span><code>DeepSpaceHubDockScreen.tsx</code> 한 파일</section>
+    </div>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead><tr><th>항목</th><th>이전</th><th>변경 후</th></tr></thead>
+      <tbody>
+        <tr><td>전송 후 안내</td><td>개발 TODO가 사용자 화면에 노출됨</td><td>대화 기록 반영 준비 상태를 제품 카피로 표시</td></tr>
+        <tr><td>근거 표시</td><td>장식성 심볼과 근거 문구 혼재</td><td>근거 수를 명시한 텍스트 배지로 정리</td></tr>
+        <tr><td>최근 항목 아이콘</td><td>글, 링크 항목에 장식성 심볼 사용</td><td>고정 폭 텍스트 배지로 교체</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>npx eslint src/screens/deepspace/DeepSpaceHubDockScreen.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>공백 오류 없음, 줄끝 경고만 확인</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>작업 판단</summary>
+      <p>codex/all 대상 열린 요청은 없었고, 현재 보드의 Codex 레인에 따라 UI anti-slop 결함 하나를 선택했다. 이 변경은 설계, 스키마, 보안, 외부 사실, 머지, 배포를 포함하지 않아 추가 교차검증 요청 대상이 아니다.</p>
+    </details>
+  </main>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>홈 접근성 브랜드 라벨 정렬 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0d1117; --text: #e6edf3; --accent: #58a6ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 system-ui, -apple-system, Segoe UI, sans-serif; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    section { border-top: 1px solid var(--accent); padding-top: 18px; margin-top: 22px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+    .card { border: 1px solid var(--accent); padding: 12px; min-height: 92px; }
+    .label { color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--accent); padding: 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    details { border: 1px solid var(--accent); padding: 12px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>홈 접근성 브랜드 라벨 정렬 보고</h1>
+    <p>PROTOCOL 12/19/35.4 단일 poll cycle 결과입니다. Codex에게 열린 요청은 없었고, 현재 UI/i18n 레인에서 홈 화면 접근성 라벨의 폐기 용어 잔여를 한 건 수정했습니다.</p>
+
+    <div class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div>완료</div></div>
+      <div class="card"><div class="label">범위</div><div>홈 접근성 문자열 6개</div></div>
+      <div class="card"><div class="label">앱 커밋</div><div><code>645be4ca</code></div></div>
+      <div class="card"><div class="label">위험도</div><div>낮음</div></div>
+    </div>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>정리한 라벨</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>locales/es/home.json</code></td><td><code>Soul Core</code>를 <code>Estrella Polar</code>로, <code>Second Brain</code>을 <code>SecondB</code>로 정렬했습니다.</td></tr>
+          <tr><td><code>locales/pt/home.json</code></td><td><code>Soul Core</code>를 <code>Estrela Polar</code>로, <code>Second Brain</code>을 <code>SecondB</code>로 정렬했습니다.</td></tr>
+          <tr><td><code>locales/id/home.json</code></td><td><code>Soul Core</code>를 <code>Bintang Utara</code>로, <code>Second Brain</code>을 <code>SecondB</code>로 정렬했습니다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr><th>검사</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>JSON 파싱</td><td>통과</td></tr>
+          <tr><td>대상 파일 잔여 검색</td><td><code>Soul Core</code>, <code>Second Brain</code> 잔여 없음</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과, Windows 줄끝 경고만 표시</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자기 패널</h2>
+      <details open>
+        <summary>판정</summary>
+        <p>찬성 관점: 폐기된 브랜드/세계관 용어가 스크린리더 라벨에 남아 있으면 사용자가 시각 텍스트와 접근성 음성을 다르게 듣게 됩니다. 이번 변경은 동일 키의 번역 문자열만 바꾸므로 UI 구조 위험이 낮습니다.</p>
+        <p>반대 관점: 전체 로케일 잔여를 한 번에 모두 정리하면 범위가 커지고 반복 i18n 큐가 됩니다. 이번 사이클은 홈 첫 블록의 같은 의미 라벨로 제한했습니다.</p>
+        <p>결론: 저위험 UI/i18n 수정이며 MoA 고위험 검증 대상이 아닙니다. push, PR, merge, 배포, 비용, secrets 작업은 수행하지 않았습니다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

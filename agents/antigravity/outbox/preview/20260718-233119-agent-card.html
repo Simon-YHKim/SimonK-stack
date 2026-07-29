@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>에이전트 카드 생성 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    color: #55aa55;
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #55aa55;
+  }
+  button {
+    background-color: #55aa55;
+    color: #121212;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 20px;
+  }
+  button:hover {
+    background-color: #448844;
+  }
+  .caption {
+    font-size: 0.9em;
+    color: #888;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+  <h1>작업 결과 보고서: 에이전트 카드 생성</h1>
+  <p>요청된 A2A 매니페스트 생성이 성공적으로 완료되었습니다.</p>
+  
+  <h2>실행 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>작업 항목</th>
+        <th>상태</th>
+        <th>설명</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>에이전트 카드 스크립트 실행</td>
+        <td>완료</td>
+        <td>tools/gen-agent-card.ps1 정상 실행됨</td>
+      </tr>
+      <tr>
+        <td>파일 생성</td>
+        <td>완료</td>
+        <td>agents/antigravity/agent-card.json 파일 작성됨</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="caption">표: 사이클 작업 실행 상세 내역</div>
+
+  <h2>출력 데이터</h2>
+  <p>포함된 스킬: 안드로이드 네이티브, 구글 네이티브, 에뮬레이터 QA, 기기 QA, 성능, 크래시 분석, 멀티모달 렌더</p>
+  
+  <button type="button" onclick="window.close()">창 닫기</button>
+</body>
+</html>

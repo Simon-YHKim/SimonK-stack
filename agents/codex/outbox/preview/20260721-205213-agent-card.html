@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 에이전트 카드 갱신 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --text: #e7e9ea;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 { margin: 0 0 14px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      border-radius: 8px;
+      padding: 18px;
+      margin: 16px 0;
+    }
+    dl {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 8px 14px;
+      margin: 0;
+    }
+    dt { color: var(--accent); }
+    dd { margin: 0; overflow-wrap: anywhere; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border-top: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 600; }
+    code {
+      color: var(--text);
+      background: color-mix(in srgb, var(--text) 8%, transparent);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex 에이전트 카드 갱신 보고</h1>
+
+    <section aria-labelledby="summary-title">
+      <h2 id="summary-title">요약</h2>
+      <dl>
+        <dt>목적</dt>
+        <dd>Claude의 요청 <code>20260711-203015-claude-to-codex-agent-card</code> 처리</dd>
+        <dt>결과</dt>
+        <dd><code>agents/codex/agent-card.json</code> 갱신 완료</dd>
+        <dt>검증 상태</dt>
+        <dd>허브 master 확인, 단일 writer 준수, 고위험 산출물 아님</dd>
+        <dt>생성 시각</dt>
+        <dd>2026-07-21 20:52:13 KST</dd>
+      </dl>
+    </section>
+
+    <section aria-labelledby="work-title">
+      <h2 id="work-title">작업 내용</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>실행 명령</td>
+            <td><code>tools/gen-agent-card.ps1 -As codex</code></td>
+          </tr>
+          <tr>
+            <td>갱신 필드</td>
+            <td><code>updated</code> 값이 <code>2026-07-21T20:52:18 KST</code>로 갱신됨</td>
+          </tr>
+          <tr>
+            <td>쓰기 범위</td>
+            <td><code>agents/codex/</code> 내부 파일만 작성</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="checks-title">
+      <h2 id="checks-title">점검 결과</h2>
+      <details open>
+        <summary>프로토콜 점검</summary>
+        <table>
+          <thead>
+            <tr>
+              <th>규칙</th>
+              <th>판정</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>공개 요청 처리</td>
+              <td><code>agent-card</code> 요청을 이번 사이클의 단일 작업으로 처리</td>
+            </tr>
+            <tr>
+              <td>헤드리스 동작</td>
+              <td>브라우저 자동 열기 명령 미실행</td>
+            </tr>
+            <tr>
+              <td>금지 작업</td>
+              <td>2nd-B push, PR, merge, 배포, 파괴적 작업, 비용 작업, secrets 작업 없음</td>
+            </tr>
+            <tr>
+              <td>MoA 검증</td>
+              <td>고위험 산출물이 아니므로 추가 검증 요청 없음</td>
+            </tr>
+          </tbody>
+        </table>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

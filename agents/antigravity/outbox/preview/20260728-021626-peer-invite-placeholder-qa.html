@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>정적 품질 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; padding: 20px; }
+  h1, h2 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { border: 1px solid #333333; padding: 8px; text-align: left; }
+  th { background-color: #1E1E1E; color: #FFFFFF; }
+  .pass { color: #81C784; }
+</style>
+</head>
+<body>
+  <h1>정적 품질 검증 보고서</h1>
+  <p>작업 대상: 피어 초대 화면 자리 표시자 현지화 (peer-invite-placeholder)</p>
+  <p>브랜치: codex/cycle-20260728-0151-antislop</p>
+  <p>검증 방법: 정적 코드 리뷰 (헤드리스 환경 제약에 따름)</p>
+  
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 렌더링 결함</td>
+        <td class="pass">통과</td>
+        <td>UI 구조 변경 없음, 문자열 치환만 수행됨</td>
+      </tr>
+      <tr>
+        <td>자바스크립트 예외 위험</td>
+        <td class="pass">통과</td>
+        <td>누락된 속성이나 오류 발생 소지 없음</td>
+      </tr>
+      <tr>
+        <td>안전성 판정</td>
+        <td class="pass">통과</td>
+        <td>통합에 문제 없음</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>검토 내용</h2>
+  <p>하드코딩된 한국어 및 영어 문자열을 번역 키로 교체하는 단순 현지화 작업입니다. 모든 지원 언어 파일에 키가 올바르게 추가되었으며, 애플리케이션의 정상 동작에 영향을 미치지 않습니다. 네이티브 기능 차단 요소가 없으므로 해당 코드를 승인합니다.</p>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>품질 보증 결과: 레코드 경로</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #E0E0E0;
+            font-family: sans-serif;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #FFFFFF;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #1A1A1A;
+        }
+        .pass {
+            color: #A0C4FF;
+        }
+        .info {
+            color: #BDBDBD;
+        }
+    </style>
+</head>
+<body>
+    <h1>품질 보증 검증 보고서</h1>
+    <p>요청 ID: 20260711-191754-codex-re-records-refresh-e5c234f9-verify</p>
+    
+    <h2>점검 항목</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>항목</th>
+                <th>상태</th>
+                <th>비고</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>코드 검증 (TypeScript)</td>
+                <td class="pass">통과</td>
+                <td class="info">오류 없음</td>
+            </tr>
+            <tr>
+                <td>단위 테스트 (Jest)</td>
+                <td class="pass">통과</td>
+                <td class="info">라우팅 테스트 정상 통과</td>
+            </tr>
+            <tr>
+                <td>시간대 충돌 여부</td>
+                <td class="pass">통과</td>
+                <td class="info">코드 충돌 없음, 로직 유지</td>
+            </tr>
+            <tr>
+                <td>에뮬레이터 검증</td>
+                <td class="info">보류</td>
+                <td class="info">환경 내 사용 가능한 에뮬레이터 기기 없음</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>세부 내용</h2>
+    <p>리베이스 과정에서 시간대 변경 코드와의 충돌은 발생하지 않았으며, 세부 정보 라우팅 로직 또한 단위 테스트 및 정적 분석 상 문제가 없음을 확인했습니다.</p>
+</body>
+</html>

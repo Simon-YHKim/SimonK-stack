@@ -1,8 +1,8 @@
 ---
 owner: claude
 note: "이 파일은 Claude(오케스트레이터)만 작성한다. Codex·Antigravity·Grok은 읽기 전용."
-last-updated: 2026-07-03 08:17 KST
-run_mode: RUNNING (CONTROL.md 정본 — 2026-07-02 재개, 07-03 감사·정비 완료. 데몬=codex+AG 레인, grok=요청전용, 원격오더 채널=watchdog 감시)
+last-updated: 2026-07-04 16:45 KST
+run_mode: RUNNING (CONTROL.md 정본 — 07-04 E:머신 이관·복원 수리 완료 후 재개. 데몬=codex+AG 레인, grok=요청전용, 원격오더 채널=watchdog 감시)
 live_head: 2nd-B 라이브 상태는 2nd-B 레포(github.com/Simon-YHKim/2nd-B main)와 ORDERS.md가 정본 — BOARD frontmatter에 SHA 복제 금지(06-17 스냅샷이 16일 stale로 남던 관행 폐기, 2026-07-03).
 ---
 
@@ -12,7 +12,18 @@ live_head: 2nd-B 라이브 상태는 2nd-B 레포(github.com/Simon-YHKim/2nd-B m
 > Codex·Antigravity·Grok은 세션 시작 시 이 파일로 현재 상황을 파악한다.
 > **런-스테이트는 `CONTROL.md`, 합의는 `DECISIONS.md`.** 운용 모델 = B(자율, PROTOCOL §11).
 
-## 🎯 현재 포커스 (2026-07-03 08:17 — 2nd-B 개선 루프 · 4-AI 디렉티드 배정, Claude)
+## 🎯 현재 포커스 (2026-07-04 16:45 — E:머신 이관·복원 정합 수리 완료, Claude)
+> **허브 라이브 머신 = E: (202502)**. 07-03 SOHA/C: 백업(H:\backup_SimonK_260703)에서 이관. 7-agent 워크플로 감사(46건) → 수리 완료:
+> - **좀비 격리**: robocopy 복원이 부활시킨 아카이브 중복 1,832건(open 486) → `_restore-quarantine-20260704/`(gitignored, MANIFEST.csv) 이동. 레인이 죽은 6월 오더를 재실행하던 것 차단.
+> - **git 수렴**: master↔origin 분기(17↓/3↑) 머지(`ac22ae9e`)·푸시, remote==local 검증. E-고아 히스토리 `rescue/e-pre-restore` 브랜치로 보존. **HubBackup 재등록(매시간)** + hub-backup.ps1 ff-가드(non-ff 무음실패 13일 사고 재발방지).
+> - **⚠ AG QA 판정 무효 3건**: `292104ae`(research-error-state)·`23828d7c`(preference-toggle)·`0edc10dc`(consent-checkbox) — "에뮬레이터 통과" 주장이나 **이 머신에 에뮬 프로세스 0, adb 디바이스 0** (헤드리스 텍스트 사이클 3.5분). 대상 오더 자체가 좀비(20260606, 기답변 5회)라 이중 무효. AG RULES에 QA-truthfulness(증거 아티팩트 필수) 신설 — 재발 시 §15 인시던트.
+> - **하드닝**: 데몬 로그 어펜드 뮤텍스(torn line) · 타임아웃 시 CLI 자식트리 킬 · AG 쿼터폴백 실배선(agy_fallback_model="Gemini 3.5 Flash (High)") · commit.ps1 rename-hole+Conventional-Commits 자동접두 · dispatch-oneshot default-레인 프로브 · watchdog CONTROL fail-closed+푸시정체(#8)+grok대기큐(#9) · PS5.1 mojibake 소스 ASCII화(refresh-models 데일리 노트 깨짐 확정건).
+> - **경로 현행화**: PROTOCOL·RUNBOOK·RULES·loop-baseline C:→E: 전면 + worktree canon `E:\2ndB\.worktrees\<name>`.
+> - **🚫 SPLIT-BRAIN 가드**: SOHA/C: PC에서 허브 레인·데몬·HubBackup **재가동 금지** — 두 머신이 같은 master에 쓰면 분기 재발. SOHA PC는 이관 완료로 은퇴.
+> **Simon 결정 반영(07-04 17:30)**: 격리폴더 폐기 완료(매니페스트 `Output/restore-quarantine-manifest-20260704.csv` 보존) · 디렉터 /loop 불요 · SOHA PC Legacy 처리(`tools/soha-pc-decommission.ps1`, H:백업 `-Legacy` 리네임+재복원금지 마커).
+> **E2E 실가동 테스트 (07-04 17:10~17:27, Simon 지시) — 3/3 레인 PASS**: codex 280s(헤드리스 렌더 실측 UI 리뷰 5건) · AG 480s(truthfulness 규칙 정확 인정 + §34.2 실모순 발견→패치됨) · grok 1차 무음사망→**근본원인 확정·수정**(dispatch-oneshot 배열 ArgumentList가 공백 경로 분해 = 07-03 사고 진범, watchdog-proven 인용 문자열로 픽스)→재스폰 163s 정상 응답. 전 레인 신원·lane격리·9키 frontmatter·ConvCommits 준수, 좀비 재처리 0. **신설 watchdog #9(grok-order-waiting)가 무음사망 구간에서 라이브 발화 — 설계 검증됨.** 관찰 지속: AG/grok STATUS 커밋 누락 버릇(P2)·grok self-report 모델 과장("4.3" vs 실배너 grok-build)·grok 분량 초과. 남음: agy 폴백 라벨 첫 쿼터이벤트 실증(관찰만).
+
+## 이전 포커스 아카이브 (2026-07-03 08:17 — 2nd-B 개선 루프 · 4-AI 디렉티드 배정, Claude)
 > **2nd-B 3세션 완결 직후** (rev2 15PR+#726 / fable5 게이트해소+#727 / runtime 0.0.7 EAS 빌드 FINISHED, OTA 그룹 40033b66). Claude QA 세션이 상시 감시(main/PR/OTA/허브/inbox) + 머지·OTA 보장 중.
 > **디렉티드 오더 3건 발행 (닫힌 루프 — 산출 수거→Claude 검증·머지→피드백)**:
 > - **AG**: `007-emu-qa` — 0.0.7 APK 에뮬 설치 + 신기능 캡처 세트(소셜버튼/Seen gap/통화회고/plans). 판정은 Claude 픽셀 직독.

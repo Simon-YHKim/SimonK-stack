@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 에뮬레이터 확인 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+  h1, h2 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1e1e1e; color: #ffffff; }
+  .alert { background-color: #2b1111; color: #ff8888; border: 1px solid #ff4444; padding: 1rem; margin-top: 1rem; }
+  button { background-color: #333333; color: #ffffff; border: 1px solid #555555; padding: 0.5rem 1rem; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>QA 에뮬레이터 확인 보고서</h1>
+  <div class="alert">
+    오류 보고: 에뮬레이터가 실행 중이지 않아 요청하신 QA 작업을 수행할 수 없습니다.
+  </div>
+  
+  <h2>점검 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>기기 연결 상태</td>
+        <td>연결 안 됨</td>
+        <td>명령어 adb devices 실행 결과, 연결된 기기 또는 에뮬레이터가 없습니다.</td>
+      </tr>
+      <tr>
+        <td>명령어 실행 내역</td>
+        <td>완료</td>
+        <td>출력 결과에 기기 목록이 표시되지 않았습니다.</td>
+      </tr>
+      <tr>
+        <td>정책 준수</td>
+        <td>준수</td>
+        <td>QA 진실성 규칙에 따라 허위 통과를 방지하고 에뮬레이터 부재를 즉시 보고합니다.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>후속 조치</h2>
+  <p>해당 작업(007-emu-qa)은 진행 불가능 상태로 판단하여 반환 및 상위 보고를 수행했습니다.</p>
+  <button type="button">확인 완료</button>
+</body>
+</html>

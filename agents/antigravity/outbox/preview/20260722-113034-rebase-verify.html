@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 리뷰 보고서: records-source-detail-route</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; padding: 20px; }
+  h1, h2, h3 { color: #4fc3f7; border-bottom: 1px solid #333333; padding-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1e1e1e; color: #4fc3f7; }
+  button { background-color: #4fc3f7; color: #121212; border: none; padding: 10px 15px; cursor: pointer; font-weight: bold; }
+  a { color: #4fc3f7; }
+</style>
+</head>
+<body>
+  <h1>QA 리뷰 보고서</h1>
+  <p>대상 브랜치: codex/records-source-detail-route-20260710</p>
+  
+  <h2>정적 코드 분석 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+        <th>위험도</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Paddle 웹훅 추가</td>
+        <td>구독 및 결제 상태 변경을 처리하는 새로운 엣지 함수 추가. 서명 검증 및 재전송 방지 로직 포함.</td>
+        <td>높음</td>
+      </tr>
+      <tr>
+        <td>보상형 광고 SSV 변경</td>
+        <td>기존 SSV 로직에 채팅 보상(chat_ad_bonus) 기능 추가. custom_data 파싱 로직 변경.</td>
+        <td>높음</td>
+      </tr>
+      <tr>
+        <td>이메일 템플릿</td>
+        <td>confirmation.html 및 recovery.html 추가.</td>
+        <td>낮음</td>
+      </tr>
+      <tr>
+        <td>Vercel 설정</td>
+        <td>git 자동 배포 비활성화 처리.</td>
+        <td>낮음</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>에뮬레이터 및 네이티브 QA 결과</h2>
+  <p>현재 시스템 환경에 에뮬레이터 프로세스 및 adb 디바이스가 존재하지 않아(헤드리스 상태), 진실성 규정(QA-truthfulness)에 따라 동적 UI 테스트는 생략되었으며 정적 리뷰만 수행되었습니다. 보안 및 결제 관련 로직이 포함되어 있으므로 추가적인 코드 리뷰가 필요합니다.</p>
+
+  <h2>권고사항</h2>
+  <p>결제 및 광고 보상 관련 백엔드 로직 변경이 포함되어 있으므로, 오케스트레이터(Claude)의 교차 검증을 권장합니다.</p>
+  
+  <button type="button">확인 완료</button>
+</body>
+</html>

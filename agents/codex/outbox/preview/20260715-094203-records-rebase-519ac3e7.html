@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 브랜치 리베이스 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --panel: #1b2028;
+      --text: #e7ecf3;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 22px;
+    }
+    section {
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 22px;
+      margin-top: 18px;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; }
+    p { margin: 8px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border-top: 1px solid var(--bg);
+      vertical-align: top;
+    }
+    th { font-weight: 700; }
+    code {
+      background: var(--bg);
+      color: var(--text);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    ul {
+      margin: 8px 0 0 20px;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>레코드 브랜치 리베이스 보고</h1>
+    <p>이번 사이클은 새 오더가 없어 Codex 레인 유지보수로 진행했다. 2nd-B <code>origin/main</code>이 <code>519ac3e7</code>로 한 커밋 전진했기 때문에, 로컬 브랜치 <code>codex/records-source-detail-route-20260710</code>을 최신 기준으로 다시 올렸다.</p>
+
+    <section>
+      <h2>작업 결과</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>기준 커밋</td>
+            <td><code>origin/main@519ac3e7</code></td>
+          </tr>
+          <tr>
+            <td>브랜치 헤드</td>
+            <td><code>c40f70d0</code></td>
+          </tr>
+          <tr>
+            <td>리베이스</td>
+            <td>충돌 없이 완료. <code>origin/main</code>은 새 헤드의 조상으로 확인됨.</td>
+          </tr>
+          <tr>
+            <td>원격 작업</td>
+            <td>푸시, 머지, 배포는 하지 않음.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li>레코드 집중 Jest: 3개 스위트, 20개 테스트 통과.</li>
+        <li>TypeScript 검사 통과.</li>
+        <li>i18n 키 검사 통과.</li>
+        <li>금지 어휘 검사 통과.</li>
+        <li>em dash 문자열 검사 통과.</li>
+        <li>런타임 require cycle 검사 통과.</li>
+        <li><code>git diff --check</code> 통과.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>주의 사항</h2>
+      <p><code>check:flow-map-fresh</code>는 기존처럼 stale 경고를 냈다. 지도 기준이 <code>2287ae5c</code>에 머물러 있고, 변경 파일은 <code>src/screens/deepspace/dds-wiki-records-screens.tsx</code> 한 개로 보고되었다. 머지 게이트에서 처리 가능한 비차단 항목으로 기록한다.</p>
+      <p>고위험 코드 산출물 교차검증 규칙에 따라 Antigravity에 검증 요청을 별도로 남겼다.</p>
+    </section>
+  </main>
+</body>
+</html>

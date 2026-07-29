@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 검증 리포트</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.5;
+    margin: 40px auto;
+    max-width: 800px;
+    padding: 0 20px;
+  }
+  h1, h2 {
+    color: #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #e0e0e0;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #121212;
+    color: #e0e0e0;
+  }
+  .success {
+    color: #81c784;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 리포트: Records Source Detail Route</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>검증 결과</th>
+        <th>상태</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>라우팅 안정성</td>
+        <td>파라미터 타입 처리(배열/단일) 및 router.push 훅 안전성 확인</td>
+        <td class="success">통과</td>
+      </tr>
+      <tr>
+        <td>상태 관리 (Stale State)</td>
+        <td>alive 플래그를 통한 비동기 상태 관리 및 Optimistic UI 안전성 검증</td>
+        <td class="success">통과</td>
+      </tr>
+      <tr>
+        <td>렌더링 회귀</td>
+        <td>정적 SVG 사용, 중첩 없는 리스트 구조 (FlatList / ScrollView) 검증</td>
+        <td class="success">통과</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>상세 내용</h2>
+  <p>최신 main 위에서 records-source-detail-route 관련 네이티브/런타임 검증을 수행했습니다.</p>
+  <ul>
+    <li>메모리 누수 방지를 위한 컴포넌트 마운트 상태 추적이 모든 비동기 호출에 적용되어 있습니다.</li>
+    <li>안드로이드 QA 가이드라인에 부합하는 정적 SVG만 사용되어 불필요한 렌더링 부하가 없습니다.</li>
+    <li>관련 문서 조회 시 개인정보 설정(Privacy Prefs)에 따른 분기 처리가 정상적으로 이루어지고 있습니다.</li>
+  </ul>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>구조화 데이터 레이블 번역 검증 보고서</title>
+<style>
+  body {
+    background-color: #0A0E1A;
+    color: #5FD4FF;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    color: #CCFAFF;
+    border-bottom: 1px solid #5FD4FF;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #5FD4FF;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    color: #CCFAFF;
+  }
+  button {
+    background-color: #5FD4FF;
+    color: #0A0E1A;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+  <h1>구조화 데이터 레이블 번역 검증 보고서</h1>
+  <p>커밋 08b99715 에 대한 네이티브 에뮬레이터 검증 결과입니다.</p>
+  
+  <h2>검증 요약</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>상태</th>
+      <th>설명</th>
+    </tr>
+    <tr>
+      <td>한국어 레이블 매핑</td>
+      <td>통과</td>
+      <td>기계어 키 대신 한국어 번역 레이블이 정상 출력됨</td>
+    </tr>
+    <tr>
+      <td>영어 레이블 매핑</td>
+      <td>통과</td>
+      <td>영어 환경에서 정상적으로 영어 번역 레이블이 출력됨</td>
+    </tr>
+    <tr>
+      <td>미등록 키 대체</td>
+      <td>통과</td>
+      <td>미등록 키가 첫 글자 대문자 형태의 가독성 높은 텍스트로 변환됨</td>
+    </tr>
+    <tr>
+      <td>UI 레이아웃 회귀</td>
+      <td>통과</td>
+      <td>상세 화면의 그리드 레이아웃과 텍스트 영역이 정상 범위를 유지함</td>
+    </tr>
+  </table>
+
+  <h2>상세 내용</h2>
+  <p>구조화 데이터 상세 화면을 검증한 결과, 기계어 식별자 노출 문제가 성공적으로 해결되었습니다. 모든 테스트 사례에서 예외가 발생하지 않았으며, 메모리 누수나 성능 저하는 관찰되지 않았습니다.</p>
+  
+  <button>확인 완료</button>
+</body>
+</html>

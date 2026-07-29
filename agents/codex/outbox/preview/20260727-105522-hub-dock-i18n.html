@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>딥스페이스 허브 독 다국어 표시 보강</title>
+  <style>
+    :root { --bg: #0b0f14; --text: #e6edf3; --accent: #6ee7f9; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2 { margin: 0; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin: 10px 0 0; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+    .card { border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--text) 5%, transparent); }
+    .label { display: block; color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    .value { font-size: 15px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 8px; padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>딥스페이스 허브 독 다국어 표시 보강</h1>
+    <p>이번 사이클은 열린 Codex 요청이 없어, 현재 UI·다국어 품질 레인에서 사용자에게 보이는 데모 화면 하나를 보강했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">대상</span><span class="value">허브 독 데모 화면</span></div>
+      <div class="card"><span class="label">앱 브랜치</span><span class="value">codex/cycle-260727-105036-ui-i18n</span></div>
+      <div class="card"><span class="label">앱 커밋</span><span class="value">ccda2f8b</span></div>
+      <div class="card"><span class="label">검증</span><span class="value">통과</span></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>수정 파일</td><td><code>src/screens/deepspace/DeepSpaceHubDockScreen.tsx</code></td></tr>
+        <tr><td>표시 언어</td><td>영어, 한국어, 스페인어, 포르투갈어, 인도네시아어</td></tr>
+        <tr><td>범위</td><td>탭 제목, 상태 헤더, 담기 모드, 데모 문장, 태그, 최근 항목, 세컨비 입력, 트렌드 카드, 점검 승인 문구, 접근성 라벨</td></tr>
+        <tr><td>안티 슬롭</td><td>사용자에게 보이던 구현 예정 안내 문구를 단순 완료 문구로 낮추고, 장식성 그림문자 표기를 제거했다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead><tr><th>검사</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>npx eslint src/screens/deepspace/DeepSpaceHubDockScreen.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자기 패널 판단</summary>
+      <p>단일 작업 원칙을 지켜 한 화면 파일만 수정했다. 제품 코드 변경은 별도 2nd-B worktree 브랜치에 로컬 커밋으로만 남겼고, 허브에는 Codex outbox와 상태 파일만 작성했다. 보안, 비용, 배포, 푸시, 스키마, 운영 데이터 변경은 없었다.</p>
+    </details>
+  </main>
+</body>
+</html>

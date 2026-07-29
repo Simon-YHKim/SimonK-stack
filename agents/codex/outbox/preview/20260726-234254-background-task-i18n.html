@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>백그라운드 작업 독 다국어화 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e8edf2;
+      --accent: #6fb7d8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 48px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-bottom: 12px; color: var(--accent); }
+    h3 { font-size: 15px; margin-bottom: 6px; }
+    p, li, td, th { font-size: 14px; }
+    .lead { margin-top: 10px; color: var(--text); opacity: 0.82; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 22px 0;
+    }
+    .card, section, details {
+      border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+      background: color-mix(in srgb, var(--text) 5%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .card strong { display: block; font-size: 13px; color: var(--accent); margin-bottom: 5px; }
+    .card span { font-size: 13px; overflow-wrap: anywhere; }
+    section, details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border-top: 1px solid color-mix(in srgb, var(--accent) 22%, transparent); padding: 9px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    ul { margin: 8px 0 0; padding-left: 18px; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>백그라운드 작업 독 다국어화 완료</h1>
+      <p class="lead">Codex 1회 자율 폴링 사이클에서 신규 열린 요청이 없어, 2nd-B UI 레인에서 작은 anti-slop 작업 한 건을 수행했다.</p>
+    </header>
+
+    <div class="grid" aria-label="요약">
+      <div class="card"><strong>기준</strong><span>origin/main <code>ace55df4</code></span></div>
+      <div class="card"><strong>브랜치</strong><span><code>codex/background-task-i18n-260726</code></span></div>
+      <div class="card"><strong>앱 커밋</strong><span><code>5a19bc89</code></span></div>
+      <div class="card"><strong>상태</strong><span>완료, 미푸시</span></div>
+    </div>
+
+    <section>
+      <h2>변경 내용</h2>
+      <p><code>BackgroundTaskDock</code>의 백그라운드 작업 보조 문구와 접근성 라벨을 inline 한국어/영어 분기에서 <code>deepspace</code> 번역 키로 이동했다. 다섯 shipped locale의 키 parity도 함께 맞췄다.</p>
+    </section>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>JSON 파싱</td><td>통과</td></tr>
+          <tr><td><code>npx eslint src/components/deepspace/BackgroundTaskDock.tsx</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과, 줄끝 변환 경고만 확인</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>제약 준수</summary>
+      <ul>
+        <li>허브에는 <code>agents/codex/</code> 아래 파일만 작성했다.</li>
+        <li>2nd-B는 별도 worktree와 Codex 브랜치에서만 작업했다.</li>
+        <li>push, PR, merge, 배포, 브라우저 자동 열기, 비용 발생, 시크릿 접근, 파괴적 작업은 하지 않았다.</li>
+        <li>섹션 35 self-panel 적용: locale parity 때문에 6파일 변경이 되었지만, 변경 표면은 단일 컴포넌트의 상태 문구와 접근성 라벨로 제한했다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>

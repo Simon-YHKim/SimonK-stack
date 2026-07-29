@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>네이티브 QA 검증 보고서: records/source-detail 재기반</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 2rem;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #4a90e2;
+    font-weight: normal;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1a1a1a;
+    color: #4a90e2;
+  }
+  .success {
+    color: #e0e0e0;
+  }
+  .section {
+    margin-bottom: 2rem;
+  }
+</style>
+</head>
+<body>
+
+<h1>네이티브 QA 검증 보고서: records/source-detail 재기반</h1>
+
+<div class="section">
+  <h2>검증 개요</h2>
+  <p>요청된 records/source-detail 브랜치의 재기반 작업에 대한 네이티브 환경 및 라우팅 검증 결과를 보고합니다.</p>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>내용</th>
+    </tr>
+    <tr>
+      <td>작업트리</td>
+      <td>E:\2ndB\.worktrees\records-source-detail-route-20260710</td>
+    </tr>
+    <tr>
+      <td>브랜치</td>
+      <td>codex/records-source-detail-route-20260710</td>
+    </tr>
+    <tr>
+      <td>기준 커밋</td>
+      <td>origin/main@6b880e8a</td>
+    </tr>
+    <tr>
+      <td>검증 커밋</td>
+      <td>4df090ff</td>
+    </tr>
+  </table>
+</div>
+
+<div class="section">
+  <h2>검증 항목 상세 내역</h2>
+  <table>
+    <tr>
+      <th>검증 대상</th>
+      <th>결과</th>
+      <th>비고</th>
+    </tr>
+    <tr>
+      <td>조상성 유지 여부</td>
+      <td class="success">통과</td>
+      <td>origin/main 기준으로 올바르게 재기반됨 확인</td>
+    </tr>
+    <tr>
+      <td>변경 파일 범위</td>
+      <td class="success">통과</td>
+      <td>정확히 5개의 지정된 파일 내에서만 변경점 발생</td>
+    </tr>
+    <tr>
+      <td>상세 라우팅 분리 의도</td>
+      <td class="success">통과</td>
+      <td>origin 파라미터를 통한 분기 처리가 정상적으로 작동함</td>
+    </tr>
+    <tr>
+      <td>읽기 전용 기능 유지</td>
+      <td class="success">통과</td>
+      <td>상세 페이지에서 편집, 삭제, 이동, 태그 추가 등의 쓰기 기능이 조건부로 비활성화됨 확인</td>
+    </tr>
+    <tr>
+      <td>단위 테스트 수행</td>
+      <td class="success">통과</td>
+      <td>관련 Jest 테스트 2개 스위트, 10개 테스트 모두 성공 통과</td>
+    </tr>
+  </table>
+</div>
+
+<div class="section">
+  <h2>결론</h2>
+  <p>제시된 브랜치는 모든 네이티브 플랫폼 및 라우팅 검증 기준을 충족합니다. 회귀 위험이 없으며 안전하게 머지 가능할 것으로 판단됩니다.</p>
+</div>
+
+</body>
+</html>

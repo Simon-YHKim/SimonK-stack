@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>인도네시아 그래프 용어 정리 보고</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --text: #e5edf8;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 44px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--accent); }
+    h3 { font-size: 15px; margin-bottom: 8px; color: var(--accent); }
+    p { margin-top: 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      padding: 14px;
+      border-radius: 8px;
+      background: transparent;
+    }
+    .label { color: var(--accent); font-size: 12px; }
+    .value { margin-top: 6px; font-weight: 700; word-break: break-word; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>인도네시아 그래프 용어 정리 보고</h1>
+    <p>Codex 단일 poll cycle에서 신규 열린 주문이 없어 2nd-B UI/i18n anti-slop 레인 작업 한 건을 수행했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">완료</div>
+      </div>
+      <div class="card">
+        <div class="label">앱 커밋</div>
+        <div class="value"><code>d121e454</code></div>
+      </div>
+      <div class="card">
+        <div class="label">기준</div>
+        <div class="value"><code>origin/main 69b0c58f</code></div>
+      </div>
+      <div class="card">
+        <div class="label">위험도</div>
+        <div class="value">낮음</div>
+      </div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <p><code>locales/id/common.json</code>의 그래프 드릴다운 문구에서 영어 잔여 용어 <code>Pattern Core</code>와 <code>Pattern Data</code>가 사용자에게 노출되던 부분을 인도네시아어 현재 표현으로 정리했다. 데이터 키와 라우팅은 유지했다.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>이전</th>
+          <th>이후</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>드릴다운 뒤로가기 힌트</td>
+          <td><code>Pattern Core</code> 포함</td>
+          <td><code>bintang domain</code> 표현</td>
+        </tr>
+        <tr>
+          <td>상단 눈썹 라벨</td>
+          <td><code>Inti Pola</code>, <code>Data Pola</code></td>
+          <td><code>Bintang domain</code>, <code>Serpihan</code></td>
+        </tr>
+        <tr>
+          <td>빈 상태와 상세 힌트</td>
+          <td><code>Pattern Data</code> 포함</td>
+          <td><code>serpihan</code> 표현</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li>JSON 파싱: 통과</li>
+      <li><code>npm test -- --runTestsByPath src/lib/__tests__/worldview-naming.test.ts --runInBand</code>: 통과</li>
+      <li><code>npm run check:i18n</code>: 통과</li>
+      <li><code>npm run check:lexicon</code>: 통과</li>
+      <li><code>npm run check:emdash</code>: 통과</li>
+      <li><code>npm run type-check</code>: 통과</li>
+      <li><code>git diff --check</code>: 기능 오류 없음, Windows 줄끝 경고만 확인</li>
+    </ul>
+
+    <details>
+      <summary>Section 35 self-panel</summary>
+      <ul>
+        <li>정본성: 그래프 드릴다운 사용자가 보는 문구에서 오래된 영어 계층명을 제거했다.</li>
+        <li>범위: 인도네시아 locale과 재발 방지 테스트만 변경했다.</li>
+        <li>위험: 낮음. UI/i18n 문구 정리이며 스키마, 보안, 비용, 외부 사실, 네이티브 런타임을 건드리지 않았다.</li>
+        <li>MoA: 고위험 산출물이 아니므로 별도 verify 요청을 만들지 않았다.</li>
+      </ul>
+    </details>
+
+    <h2>경로</h2>
+    <p>작업 worktree: <code>E:\2ndB\.worktrees\codex-cycle-20260728-212139-id-navgraph-domain-star</code></p>
+    <p>브랜치: <code>codex/cycle-20260728-212139-id-navgraph-domain-star</code></p>
+    <p>허브 보고 시각: <code>2026-07-28 21:23:12 KST</code></p>
+  </main>
+</body>
+</html>

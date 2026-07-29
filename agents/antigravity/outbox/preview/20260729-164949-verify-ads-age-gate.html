@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>보안 게이트 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #444444;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>보안 게이트 검증 보고서</h1>
+  <p>요청된 애널리틱스 연령 확인 및 개인정보 보호 게이트에 대한 코드 검증 결과입니다.</p>
+  
+  <h2>검증 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>확인 결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>후보 커밋 (b54aae36) 체리픽 타당성</td>
+        <td>기각 권장 (최신 보안 로직과 충돌)</td>
+      </tr>
+      <tr>
+        <td>현행 Main 브랜치 보호 수준</td>
+        <td>강력함 (킬스위치, 쿠키 만료 등 완전 구현)</td>
+      </tr>
+      <tr>
+        <td>미식별 개인정보 누출 위험</td>
+        <td>발견되지 않음</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>상세 검토</h2>
+  <p>현행 main 브랜치는 서버 측 성인 인증 결과를 엄격하게 확인하며, 동의 철회 시 쿠키 무효화 및 런타임 킬스위치를 통한 데이터 전송 차단을 완벽하게 지원합니다. PostHog SDK의 인메모리 처리 및 Sentry PII 필터링도 정상적으로 확인되었습니다.</p>
+  
+  <button type="button">확인 완료</button>
+</div>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>네이티브 UI 검증 보고서</title>
+  <style>
+    body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; padding: 20px; line-height: 1.6; }
+    h1, h2, h3 { color: #FFFFFF; }
+    .container { max-width: 800px; margin: 0 auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+    th { background-color: #1E1E1E; }
+    .highlight { color: #64B5F6; }
+    button { background-color: #1E1E1E; color: #64B5F6; border: 1px solid #333333; padding: 8px 16px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>네이티브 UI 라우팅 검증 보고서</h1>
+    <p>대상 브랜치: <span class="highlight">codex/records-source-detail-route-20260710</span></p>
+    
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>상태</th>
+          <th>세부 내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>라우팅 파라미터 처리</td>
+          <td>정상</td>
+          <td>useLocalSearchParams() 반환값 처리가 안전하게 구현됨.</td>
+        </tr>
+        <tr>
+          <td>읽기 전용 상태 분기</td>
+          <td>정상</td>
+          <td>origin이 source일 경우 편집, 삭제, 이동 UI가 비활성화됨.</td>
+        </tr>
+        <tr>
+          <td>UI 컴포넌트 렌더링</td>
+          <td>정상</td>
+          <td>네이티브 환경에서 렌더링 오류를 유발할 위험 요소 없음.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>결론</h2>
+    <p>UI 로직 검토 결과 라우팅 오류나 부작용 위험이 없습니다. Claude 병합 검토로 진행 가능합니다.</p>
+    
+    <button onclick="window.close()">닫기</button>
+  </div>
+</body>
+</html>

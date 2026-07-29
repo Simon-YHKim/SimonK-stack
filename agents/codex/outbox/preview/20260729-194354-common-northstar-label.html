@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>공통 세계관 북극성 라벨 정렬 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1117;
+      --text: #e6edf3;
+      --accent: #7aa2f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin-bottom: 10px; color: var(--accent); }
+    .meta { opacity: .78; margin-bottom: 24px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 20px 0 28px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      background: var(--bg);
+    }
+    .label { opacity: .72; font-size: 13px; }
+    .value { font-size: 16px; font-weight: 700; margin-top: 4px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 22px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--text);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      padding: 1px 4px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>공통 세계관 북극성 라벨 정렬 보고서</h1>
+    <p class="meta">작성 시각: 2026-07-29 19:43:54 KST · 작성자: Codex · 프로젝트: 2nd-B</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">완료</div>
+      </div>
+      <div class="card">
+        <div class="label">범위</div>
+        <div class="value">공통 locale 5개</div>
+      </div>
+      <div class="card">
+        <div class="label">2nd-B 커밋</div>
+        <div class="value"><code>58dd8113</code></div>
+      </div>
+      <div class="card">
+        <div class="label">검증</div>
+        <div class="value">전체 통과</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>작업 내용</h2>
+      <p>새 Codex 대상 OPEN 요청이 없어 Codex 레인의 단일 자율 작업으로 진행했습니다. 공통 세계관 라벨의 내부 키는 그대로 두고, 사용자에게 보이는 legacy Soul Core 표시명만 현재 정본인 North Star와 북극성 계열로 정렬했습니다.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>언어</th>
+            <th>이전 표시</th>
+            <th>변경 표시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>영어</td><td>Soul Core</td><td>North Star</td></tr>
+          <tr><td>한국어</td><td>소울 코어</td><td>북극성</td></tr>
+          <tr><td>스페인어</td><td>Núcleo del alma</td><td>Estrella del Norte</td></tr>
+          <tr><td>포르투갈어</td><td>Núcleo da alma</td><td>Estrela do Norte</td></tr>
+          <tr><td>인도네시아어</td><td>Inti Jiwa</td><td>Bintang Utara</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <ul>
+        <li>JSON 파싱 통과</li>
+        <li>대상 잔여 검색 통과</li>
+        <li><code>git diff --check</code> 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>npm run verify</code> 통과, 기존 경고만 출력</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자체 패널 판단</summary>
+      <p>찬성: 공통 세계관 라벨은 여러 화면에서 재사용될 수 있어 폐기 명칭이 남으면 현재 북극성 정본과 충돌합니다.</p>
+      <p>반대: 내부 키와 주변 legacy graph 명칭까지 넓게 바꾸면 계약 리스크가 커집니다.</p>
+      <p>판정: 이번 사이클은 표시 문자열 5줄만 변경합니다. 고위험 산출물이 아니므로 별도 교차검증 요청은 만들지 않았습니다.</p>
+    </details>
+
+    <details>
+      <summary>금지 동작 확인</summary>
+      <p>2nd-B push, PR 생성, merge, 배포, 비용 발생, 시크릿 접근, 파괴 작업, 브라우저 자동 실행을 수행하지 않았습니다.</p>
+    </details>
+  </main>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>승인 이력 보류 색상 토큰화 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --fg: #e6edf3; --ac: #86cfff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2 { line-height: 1.25; margin: 0 0 14px; }
+    h1 { font-size: 28px; color: var(--ac); }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 0 0 14px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; border: 1px solid color-mix(in srgb, var(--ac) 35%, transparent); margin: 22px 0; }
+    .card { padding: 16px; background: color-mix(in srgb, var(--fg) 6%, transparent); min-height: 104px; }
+    .label { font-size: 12px; color: color-mix(in srgb, var(--fg) 72%, transparent); margin-bottom: 6px; }
+    .value { font-size: 16px; font-weight: 700; overflow-wrap: anywhere; }
+    code { color: var(--ac); font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace; font-size: 0.94em; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { text-align: left; vertical-align: top; border-bottom: 1px solid color-mix(in srgb, var(--ac) 24%, transparent); padding: 10px 8px; }
+    th { color: var(--ac); font-weight: 700; }
+    .note { border-left: 3px solid var(--ac); padding: 10px 14px; background: color-mix(in srgb, var(--fg) 5%, transparent); }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>승인 이력 보류 색상 토큰화 보고</h1>
+    <p>이번 Codex 단일 사이클은 열린 Codex 요청이 없는 상태에서 2nd-B UI anti-slop 레인의 작은 색상 부채 하나를 처리했다. 제품 브랜치는 별도 worktree에서 만들었고 허브에는 Codex 소유 경로만 기록했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">대상</div><div class="value"><code>src/app/ratifications.tsx</code></div></div>
+      <div class="card"><div class="label">브랜치</div><div class="value"><code>codex/ratifications-amber-token-260726</code></div></div>
+      <div class="card"><div class="label">커밋</div><div class="value"><code>ff14e760</code></div></div>
+      <div class="card"><div class="label">기준</div><div class="value"><code>origin/main 505ac8f0</code></div></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <p><code>HOLD_AMBER = "#F7B955"</code> 상수를 제거하고, 동일한 기준 색상이 이미 들어 있는 <code>m3.accent.trendFlat</code>을 보류 요약 컬럼 색상으로 사용했다. 화면 의미와 실제 색상 값은 유지하면서 컴포넌트의 원시 hex 의존만 줄였다.</p>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>검사</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>잔여 원시 색상 스캔</td><td><code>#F7B955</code> 및 <code>HOLD_AMBER</code> 잔여 없음</td></tr>
+        <tr><td>대상 lint</td><td><code>npx eslint src/app/ratifications.tsx</code> 통과</td></tr>
+        <tr><td>타입 검사</td><td><code>npm run type-check</code> 통과</td></tr>
+        <tr><td>공백 검사</td><td><code>git diff --check</code> 통과</td></tr>
+      </tbody>
+    </table>
+
+    <h2>제약 확인</h2>
+    <p class="note">2nd-B push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 접근은 하지 않았다. 허브 쓰기는 <code>agents/codex/</code> 아래로 제한했다.</p>
+
+    <h2>35절 자기 패널</h2>
+    <table>
+      <thead><tr><th>관점</th><th>판단</th></tr></thead>
+      <tbody>
+        <tr><td>찬성</td><td>이미 존재하는 M3 토큰을 사용하므로 색상 의미가 한 곳으로 수렴하고 디자인 규칙 위반 후보가 줄어든다.</td></tr>
+        <tr><td>반대</td><td>단일 상수 치환이라 사용자 체감 변화는 없다.</td></tr>
+        <tr><td>판정</td><td>작고 검증 가능한 anti-slop 개선이며, 이전 사이클의 scrim 계열과 다른 새 대상이므로 이번 단일 작업으로 적합하다.</td></tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>

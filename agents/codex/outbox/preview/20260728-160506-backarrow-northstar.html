@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>백 화살표 북극성 라벨 정렬 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101318;
+      --text: #e8edf2;
+      --accent: #66d9c7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    header {
+      border: 1px solid var(--accent);
+      padding: 24px;
+      border-radius: 8px;
+    }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    p { margin: 0 0 12px; }
+    section { margin-top: 24px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+    details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-top: 12px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>백 화살표 북극성 라벨 정렬</h1>
+      <p>이번 사이클은 미응답 Codex 오더가 없는 상태에서 2nd-B UI 문구 정합성 후보 하나만 처리했다.</p>
+      <table aria-label="요약">
+        <tr><th>항목</th><th>결과</th></tr>
+        <tr><td>작업 범위</td><td><code>/core-brain</code> 백 화살표 표시 라벨</td></tr>
+        <tr><td>앱 커밋</td><td><code>23d566d7</code> <code>fix(ui): rename back arrow north star label</code></td></tr>
+        <tr><td>브랜치</td><td><code>codex/cycle-20260728-160341-backarrow-northstar</code></td></tr>
+        <tr><td>검증 상태</td><td>집중 테스트, 타입 체크, lexicon, em dash 검사 통과</td></tr>
+      </table>
+    </header>
+
+    <section>
+      <h2>변경 내용</h2>
+      <p><code>src/components/ui/BackArrow.tsx</code>의 <code>/core-brain</code> route pill 라벨을 영어 <code>North Star</code>, 한국어 <code>북극성</code>으로 바꿨다. 라우트, 내부 키, 데이터 모델은 건드리지 않았다.</p>
+      <p><code>src/lib/__tests__/visible-core-copy.test.ts</code>에 백 화살표 파일을 포함하고, 같은 위치에 레거시 <code>Soul Core</code> 또는 한국어 레거시 라벨이 다시 노출되지 않도록 가드를 추가했다.</p>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table aria-label="검증 결과">
+        <tr><th>명령</th><th>결과</th></tr>
+        <tr><td><code>npm test -- --runTestsByPath src/lib/__tests__/visible-core-copy.test.ts --runInBand</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>기능 문제 없음, Windows 줄끝 안내만 표시</td></tr>
+      </table>
+    </section>
+
+    <details>
+      <summary>운영 판단</summary>
+      <ul>
+        <li><code>tools/board.ps1 -Me codex</code> 기준 미응답 Codex inbox는 비어 있었다.</li>
+        <li>peer outbox의 오래된 <code>status: open</code> 행은 이미 Codex 응답이 있거나 stale로 판단했다.</li>
+        <li>섹션 35 self-panel 결과, 표시 라벨 정렬은 저위험 UI 카피 수정이며 별도 교차검증 요청 대상이 아니라고 판단했다.</li>
+        <li>2nd-B push, PR, merge, 배포, 브라우저 열기, 비용 발생, 시크릿 작업은 하지 않았다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: 레코드 소스 세부 경로</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .status-pass {
+    color: #4caf50;
+    font-weight: bold;
+  }
+  .button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #333333;
+    color: #ffffff;
+    text-decoration: none;
+    border: 1px solid #555555;
+    margin-top: 20px;
+  }
+  .caption {
+    font-size: 0.9em;
+    color: #aaaaaa;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<h1>QA 검증 보고서: 레코드 소스 세부 경로</h1>
+
+<h2>검증 개요</h2>
+<p>대상 브랜치: codex/records-source-detail-route-20260710</p>
+<p>기반 브랜치: origin/main@905bf237</p>
+<p>목적: 최신 메인 갱신 이후 충돌 여부 확인 및 정상 작동 검증.</p>
+
+<h2>검증 결과</h2>
+<table>
+  <tr>
+    <th>항목</th>
+    <th>결과</th>
+    <th>상세 내용</th>
+  </tr>
+  <tr>
+    <td>단위 테스트 (Jest)</td>
+    <td class="status-pass">통과</td>
+    <td>5개 테스트 항목 모두 통과 완료. (소요 시간: 2.9초)</td>
+  </tr>
+  <tr>
+    <td>타입스크립트 컴파일 (TSC)</td>
+    <td class="status-pass">통과</td>
+    <td>오류 없이 컴파일 성공.</td>
+  </tr>
+  <tr>
+    <td>충돌 검사</td>
+    <td class="status-pass">통과</td>
+    <td>사전 계정 가져오기, 인증 타임아웃, 루틴 주간 연속 기록 기능과 충돌 없음.</td>
+  </tr>
+</table>
+
+<p class="caption">이 보고서는 안티그래비티 데몬에 의해 자동 생성되었습니다.</p>
+
+<a href="#" class="button">닫기</a>
+
+</body>
+</html>

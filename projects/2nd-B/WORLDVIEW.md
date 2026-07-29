@@ -2,7 +2,7 @@
 owner: claude
 status: canon (정본)
 mutability: STRUCTURE-IMMUTABLE  # 큰 틀(아래 §1~§8)은 불변. 구현 디테일만 진화한다.
-source: C:\2ndB\2ndb-thought-organization-synthesis.html  (2026-06-17 통합 정본)
+source: E:\2ndB\2ndb-thought-organization-synthesis.html  (2026-06-17 통합 정본)
 last-sync: 2026-06-17 KST
 applies-to: [claude, codex, antigravity, grok]   # 4-AI 전원이 매 사이클 인지
 ---

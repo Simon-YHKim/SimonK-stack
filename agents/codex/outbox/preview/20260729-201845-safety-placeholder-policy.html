@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>안전 문구 번역 후보 정책 검증</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --text: #f2f4f6;
+      --muted: #9aa3ad;
+      --accent: #6fb7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { line-height: 1.25; margin: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 10px 0 0; color: var(--muted); }
+    strong, code { color: var(--text); }
+    code {
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: 0.95em;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--muted) 36%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .value {
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 700;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid color-mix(in srgb, var(--muted) 36%, transparent);
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid color-mix(in srgb, var(--muted) 24%, transparent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--text); font-weight: 700; }
+    td { color: var(--muted); }
+    a { color: var(--accent); }
+    details {
+      margin-top: 12px;
+      border: 1px solid color-mix(in srgb, var(--muted) 36%, transparent);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--text);
+      font-weight: 700;
+    }
+    @media (max-width: 760px) {
+      .summary { grid-template-columns: 1fr 1fr; }
+      table, tbody, tr, th, td { display: block; }
+      th { border-bottom: 0; padding-bottom: 2px; }
+      td { padding-top: 2px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>안전 문구 번역 후보 정책 검증</h1>
+    <p>요청 없는 자율 사이클에서 2nd-B 안전 화면의 다국어 입력 안내 문구를 점검했다. 번역 후보는 검증 단계에서 정책 위반으로 확인되어 제출하지 않았다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">코드 제출 없음</div>
+      </div>
+      <div class="card">
+        <div class="label">판정</div>
+        <div class="value">영어 복제 유지</div>
+      </div>
+      <div class="card">
+        <div class="label">검증 상태</div>
+        <div class="value">정책 검사 통과</div>
+      </div>
+      <div class="card">
+        <div class="label">위험도</div>
+        <div class="value">낮음</div>
+      </div>
+    </section>
+
+    <h2>수행 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>작업 기준</td>
+          <td><code>origin/main</code>의 <code>9c674f4d</code> 기준 새 worktree에서 확인했다.</td>
+        </tr>
+        <tr>
+          <td>검토 대상</td>
+          <td><code>locales/es/safety.json</code>, <code>locales/pt/safety.json</code>, <code>locales/id/safety.json</code>의 안전 화면 입력 안내 문구.</td>
+        </tr>
+        <tr>
+          <td>발견</td>
+          <td>해당 문구는 일반 다국어 잔재처럼 보였지만, 안전 및 동의 문구는 사람 검토 전 번역 금지 정책의 보호 대상이었다.</td>
+        </tr>
+        <tr>
+          <td>처리</td>
+          <td>번역 변경을 되돌리고 worktree를 깨끗하게 유지했다. 2nd-B 커밋, 푸시, PR, 배포는 수행하지 않았다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>검증 기록</summary>
+      <p><code>node</code> JSON 파싱은 통과했다.</p>
+      <p><code>git diff --check</code>는 공백 오류 없이 통과했다.</p>
+      <p><code>npm run check:i18n</code>, <code>npm run check:lexicon</code>, <code>npm run check:emdash</code>, <code>npm run type-check</code>는 통과했다.</p>
+      <p><code>npm run verify</code>는 안전 및 동의 번역 정책 검사에서 실패했다. 실패 원인은 이번 번역 후보가 사람 검토 전 안전 문구 번역을 만들었기 때문이다.</p>
+      <p>변경을 되돌린 뒤 <code>npm run check:safety-consent-locale</code>가 통과했고, worktree에는 남은 diff가 없다.</p>
+    </details>
+
+    <h2>자체 패널</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>관점</th>
+          <th>판정</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>사용자 가치</td>
+          <td>안전 화면 문구는 사용자에게 직접 보이므로 점검 가치가 있었다.</td>
+        </tr>
+        <tr>
+          <td>정책 적합성</td>
+          <td>안전 및 동의 문구는 번역 품질보다 사람 검토 여부가 우선이다.</td>
+        </tr>
+        <tr>
+          <td>실행 판정</td>
+          <td>코드를 제출하지 않는 것이 올바른 결과다.</td>
+        </tr>
+        <tr>
+          <td>교차검증</td>
+          <td>머지 diff, 스키마, 보안 코드, 정량 결과, 실시간 외부사실 산출물이 아니므로 별도 검증 요청은 만들지 않았다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>다음 전달 사항</h2>
+    <p>사람 검토가 완료되어 관련 언어가 허용 목록에 들어가기 전까지, 안전 및 동의 문구의 비영어 번역 후보는 제출하지 않는다.</p>
+  </main>
+</body>
+</html>

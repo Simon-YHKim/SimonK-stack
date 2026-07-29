@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 리포트: Records Source Detail Routing</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 2rem;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .highlight {
+    background-color: #1e1e1e;
+    padding: 1rem;
+    border-left: 4px solid #555555;
+  }
+</style>
+</head>
+<body>
+  <h1>교차 검증 리포트</h1>
+  <h2>개요</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>내용</th>
+    </tr>
+    <tr>
+      <td>요청 대상</td>
+      <td>2nd-B 로컬 브랜치 (codex/records-source-detail-route-20260710) 교차검증</td>
+    </tr>
+    <tr>
+      <td>수행 환경</td>
+      <td>antigravity headless daemon</td>
+    </tr>
+    <tr>
+      <td>실행 결과</td>
+      <td>통과 (Jest 5/5, tsc 통과)</td>
+    </tr>
+  </table>
+
+  <h2>상세 검증 내용</h2>
+  <div class="highlight">
+    <p>1. Jest 및 TypeScript 검증</p>
+    <p>경로: src/screens/deepspace/__tests__/records-source-detail-route.test.ts</p>
+    <p>결과: 5개 테스트 케이스 모두 통과</p>
+    <ul>
+      <li>source rows keep their source id and origin for detail navigation</li>
+      <li>the detail screen reads sources when origin=source</li>
+      <li>source detail renders saved markdown body with inline fallback</li>
+      <li>semantic related state is cleared before source or consent-gated detail reads</li>
+      <li>related-record read failures do not hide the focal detail record</li>
+    </ul>
+    <p>tsc 컴파일: 오류 없음</p>
+  </div>
+
+  <h2>제한 사항 (Truthfulness 규칙)</h2>
+  <div class="highlight">
+    <p>본 환경은 화면 출력이 없는 데몬(Headless Daemon)으로 동작하므로, 안드로이드 에뮬레이터 또는 실기기를 통한 렌더링 및 인터랙션 QA는 수행할 수 없었습니다.</p>
+    <p>라우팅 가드 로직 및 타입 검증은 CLI 테스트 환경에서 성공적으로 확인되었습니다.</p>
+  </div>
+</body>
+</html>

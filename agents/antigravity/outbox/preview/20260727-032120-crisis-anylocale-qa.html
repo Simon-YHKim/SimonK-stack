@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>안티그래비티 검증 보고서 - 20260727-032120</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.5rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .success {
+    color: #e0e0e0;
+  }
+</style>
+</head>
+<body>
+  <h1>안티그래비티 검증 보고서: 다국어 위기 대응 패치 검토</h1>
+  
+  <h2>개요</h2>
+  <p>요청 ID: 20260712-110811-codex-re-crisis-anylocale-verify</p>
+  <p>커밋: 55ba98d9</p>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>상세</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>기능 변경 확인</td>
+        <td>통과</td>
+        <td>classifyRecordTextForCrisis 함수 내 classifyInput이 classifyInputAnyLocale로 정상 교체됨을 확인.</td>
+      </tr>
+      <tr>
+        <td>UI 언어 호환성 및 라우팅</td>
+        <td>통과</td>
+        <td>기존 인터페이스(safety object의 zone 속성 반환)와 정확히 일치하며 routeCrisis 처리에 문제 없음.</td>
+      </tr>
+      <tr>
+        <td>단위 테스트 유효성</td>
+        <td>통과</td>
+        <td>한국어 UI에서 영어 위기 입력, 영어 UI에서 한국어 위기 입력 시 모두 탐지됨을 테스트 코드로 확인.</td>
+      </tr>
+      <tr>
+        <td>통합 안전성</td>
+        <td>통과</td>
+        <td>추가적인 머지 차단급 결함이나 회귀 이슈 없음.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>코드 변경 사항이 요구조건을 완벽히 충족하며 안전 기능 회귀가 없으므로 해당 패치의 적용을 승인함.</p>
+</body>
+</html>

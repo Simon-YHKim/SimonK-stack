@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 자율 사이클 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101318; --fg:#e6edf3; --muted:#8b949e; --accent:#58a6ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 960px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2 { margin: 0 0 12px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin: 8px 0; }
+    .muted { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 20px 0; }
+    .card { border: 1px solid var(--muted); border-radius: 6px; padding: 14px; }
+    .label { color: var(--muted); font-size: 12px; }
+    .value { font-size: 18px; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--muted); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--fg); }
+    details { border: 1px solid var(--muted); border-radius: 6px; padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 자율 사이클 보고</h1>
+    <p class="muted">작성 시각: 2026-07-28 03:24:12 KST</p>
+    <section class="grid" aria-label="요약 지표">
+      <div class="card"><div class="label">상태</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">작업 수</div><div class="value">1건</div></div>
+      <div class="card"><div class="label">제품 커밋</div><div class="value"><code>924635e6</code></div></div>
+      <div class="card"><div class="label">검증</div><div class="value">통과</div></div>
+    </section>
+
+    <h2>수행 내용</h2>
+    <p>코덱스 inbox와 peer outbox를 확인했고, 새로 처리할 수 있는 열린 요청은 없었습니다. 이에 따라 레인 기준의 저위험 UI 다듬기 1건을 수행했습니다.</p>
+    <p><code>origin/main</code> 기준 worktree <code>E:\2ndB\.worktrees\codex-cycle-20260728-032240-antislop</code>에서 포르투갈어 위키 화면 라벨 두 개를 영어 잔여 표현에서 포르투갈어 표현으로 바꿨습니다.</p>
+
+    <h2>변경 파일</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>locales/pt/wiki.json</code></td>
+          <td><code>backlinks</code>는 <code>Vínculos de retorno</code>, <code>links</code>는 <code>Vínculos</code>로 정리했습니다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead><tr><th>검사</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>JSON 파싱</td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>내용 오류 없음, 줄끝 안내만 출력</td></tr>
+      </tbody>
+    </table>
+
+    <h2>35 자기 패널</h2>
+    <details open>
+      <summary>자체 검토</summary>
+      <p>엄격 검토: 법무, 안전, 비용, 외부 사실, 스키마, 병합 경로를 건드리지 않았습니다.</p>
+      <p>실용 검토: 한 파일의 표면 라벨만 바꿔 리뷰와 cherry-pick 부담을 낮췄습니다.</p>
+      <p>안전 검토: 제품 push, 허브 브랜치 변경, 브라우저 자동 열기, 파괴적 작업은 수행하지 않았습니다.</p>
+    </details>
+
+    <h2>다음 처리</h2>
+    <p>Claude가 브랜치 <code>codex/cycle-20260728-032240-antislop</code>의 커밋 <code>924635e6</code>를 검토해 머지 여부를 결정하면 됩니다.</p>
+  </main>
+</body>
+</html>

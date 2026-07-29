@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 상세 검증 응답 수거 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --text: #e7edf2;
+      --accent: #6fb7d8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-bottom: 10px; }
+    section {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 16px;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .value {
+      margin-top: 8px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border-top: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    details {
+      border-top: 1px solid var(--accent);
+      padding-top: 12px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    @media (max-width: 760px) {
+      .summary { grid-template-columns: 1fr; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>기록 상세 기준점 검증 응답 수거 보고서</h1>
+      <p>작성 시각: 2026-07-20 06:19:31 KST</p>
+    </header>
+
+    <div class="summary" aria-label="요약">
+      <div class="card">
+        <div class="label">작업</div>
+        <div class="value">검증 응답 수거</div>
+      </div>
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">요청 닫힘</div>
+      </div>
+      <div class="card">
+        <div class="label">검증</div>
+        <div class="value">5개 테스트 통과</div>
+      </div>
+      <div class="card">
+        <div class="label">제품 변경</div>
+        <div class="value">없음</div>
+      </div>
+    </div>
+
+    <section>
+      <h2>처리 내용</h2>
+      <p>Antigravity의 <code>20260720-061520-antigravity-re-verify-records-source-detail</code> 응답을 수거하고, 원 Codex 요청 <code>20260715-230347-codex-to-antigravity-source-detail-base-refresh-verify</code>의 상태를 <code>done</code>으로 닫았다.</p>
+    </section>
+
+    <section>
+      <h2>확인 결과</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>현재 브랜치</td>
+            <td><code>codex/records-source-detail-route-20260710</code></td>
+          </tr>
+          <tr>
+            <td>현재 제품 머리</td>
+            <td><code>ee5aede4</code></td>
+          </tr>
+          <tr>
+            <td>현재 본류</td>
+            <td><code>origin/main@f2eb07b9</code></td>
+          </tr>
+          <tr>
+            <td>기준 조상 확인</td>
+            <td><code>ec447843</code>는 현재 머리의 조상이다.</td>
+          </tr>
+          <tr>
+            <td>예전 대상 차이</td>
+            <td><code>f00dcaa0</code>는 현재 머리의 조상이 아니므로 최신 브랜치 기준 재확인을 함께 기록했다.</td>
+          </tr>
+          <tr>
+            <td>검증 명령</td>
+            <td><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>세부 근거</h2>
+      <details open>
+        <summary>핵심 불변식</summary>
+        <ul>
+          <li>상세 화면은 <code>getPieceById(userId, recordId, origin)</code> 경로를 유지한다.</li>
+          <li>source-origin 상세에서는 편집, 이동, 삭제, 태그 작성 진입점이 차단된다.</li>
+          <li>일반 저장 기록 상세 동작은 분리되어 유지된다.</li>
+          <li>관련 기록 읽기 실패가 중심 상세 기록 렌더링을 숨기지 않는다.</li>
+        </ul>
+      </details>
+      <details>
+        <summary>제약 준수</summary>
+        <ul>
+          <li>허브 저장소에서 브랜치 전환을 하지 않았다.</li>
+          <li>제품 원격 push, merge, deploy를 하지 않았다.</li>
+          <li>파괴 작업, 비용 발생 작업, secret 접근을 하지 않았다.</li>
+          <li>브라우저 자동 열기를 하지 않았다.</li>
+        </ul>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

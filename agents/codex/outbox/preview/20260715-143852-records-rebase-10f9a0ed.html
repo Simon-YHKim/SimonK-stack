@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 소스 상세 라우트 재정렬 보고</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --fg: #e8eaed;
+      --accent: #6aa8ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      letter-spacing: 0;
+    }
+    h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.2;
+    }
+    h2 {
+      margin-top: 30px;
+      font-size: 20px;
+      color: var(--accent);
+    }
+    p { margin: 0 0 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      word-break: break-word;
+    }
+    ul {
+      margin: 8px 0 0;
+      padding-left: 22px;
+    }
+    .note {
+      border-left: 3px solid var(--accent);
+      padding-left: 14px;
+      margin-top: 18px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 소스 상세 라우트 재정렬 보고</h1>
+    <p>이번 사이클에서는 직접 수신함과 동료 outbox의 공개 요청을 확인한 뒤, 이미 처리된 오래된 요청은 재처리하지 않았습니다. 2nd-B 본선이 새 커밋으로 전진해 Codex 기록 브랜치를 현재 본선 위로 재정렬했습니다.</p>
+
+    <h2>작업 요약</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>기준 본선</td>
+          <td><code>origin/main@10f9a0ed93db63a527b83fdef15bfd6bcc867f6e</code></td>
+        </tr>
+        <tr>
+          <td>새 브랜치 머리</td>
+          <td><code>c33a52e192aab5d7b1d6b41e2796ce9ea8494b04</code></td>
+        </tr>
+        <tr>
+          <td>결과</td>
+          <td>본선 전진을 감지해 재정렬을 한 번 더 수행했고, 9개 커밋이 충돌 없이 적용됐습니다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li>기록 소스 상세 Jest 2개 묶음, 10개 테스트 통과</li>
+      <li>타입 검사 통과</li>
+      <li>다국어 키 검사 통과</li>
+      <li>금지 어휘 검사 통과</li>
+      <li>긴 대시 검사 통과</li>
+      <li>순환 참조 검사 통과</li>
+      <li>공백 diff 검사 통과</li>
+      <li>흐름 지도 검사는 기존 stale 경고를 냈지만 종료 코드는 0이었습니다.</li>
+    </ul>
+
+    <h2>제약 준수</h2>
+    <p>제품 브랜치는 push, merge, 배포, 브라우저 실행 없이 로컬 재정렬과 검증만 수행했습니다. 허브 안에서는 <code>agents/codex/</code> 아래 보고 파일과 상태 파일만 작성했습니다.</p>
+    <p class="note">코드 브랜치 재정렬 산출물이므로 Antigravity에 교차 검증을 요청했습니다.</p>
+  </main>
+</body>
+</html>

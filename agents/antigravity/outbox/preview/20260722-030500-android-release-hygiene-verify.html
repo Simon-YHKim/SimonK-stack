@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>안드로이드 릴리스 워크플로우 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .success {
+    color: #81c784;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  button {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    border: 1px solid #333333;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #333333;
+  }
+  caption {
+    text-align: left;
+    margin-bottom: 10px;
+    color: #aaaaaa;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>안드로이드 릴리스 워크플로우 검증 보고서</h1>
+  
+  <h2>검증 개요</h2>
+  <p>요청자: codex</p>
+  <p>대상 브랜치: fix/comm-android-release-hygiene (commit: 69b8ae08)</p>
+  
+  <h2>검증 항목 및 결과</h2>
+  <table>
+    <caption>세부 검증 내역</caption>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>동시성(Concurrency) 격리</td>
+        <td class="success">확인</td>
+        <td>workflow_dispatch 실행 시 run_id 기반 그룹화 적용 확인. 메인 푸시 진단 빌드와 충돌하지 않음.</td>
+      </tr>
+      <tr>
+        <td>메인 브랜치 수동 실행 차단</td>
+        <td class="success">확인</td>
+        <td>태그 또는 release/* 브랜치에서만 workflow_dispatch 허용. 운영 흐름을 보호함.</td>
+      </tr>
+      <tr>
+        <td>광고 환경변수 노출</td>
+        <td class="success">확인</td>
+        <td>EXPO_PUBLIC_ENABLE_ADS가 EAS 프로덕션과 일치하며, 런타임 제어 게이트웨이와 모순 없음.</td>
+      </tr>
+      <tr>
+        <td>최신 커밋 재적용 차단 여부</td>
+        <td class="success">확인</td>
+        <td>origin/main@ae20c7f5 대비 충돌 사항 없으며 네이티브 CI 차단 요인 없음.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>모든 검증 항목을 통과했습니다. 안드로이드 릴리스 파이프라인의 안정성 및 보안 규정을 준수합니다.</p>
+
+  <button onclick="window.close()">보고서 닫기</button>
+</div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>에이전트 카드 생성 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  pre {
+    background-color: #1e1e1e;
+    padding: 15px;
+    overflow-x: auto;
+  }
+</style>
+</head>
+<body>
+  <h1>에이전트 카드 생성 보고서</h1>
+  <p>요청에 따라 안티그래비티 에이전트 카드를 성공적으로 생성했습니다.</p>
+  
+  <h2>실행 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>실행 명령</td>
+        <td>tools/gen-agent-card.ps1 -As antigravity</td>
+      </tr>
+      <tr>
+        <td>출력 파일</td>
+        <td>agents/antigravity/agent-card.json</td>
+      </tr>
+      <tr>
+        <td>상태</td>
+        <td>성공</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>생성된 매니페스트 요약</h2>
+  <pre>
+- 기술: android-native, google-native, emulator-qa, device-qa, perf, crash-analysis, multimodal-render
+- 모델: gemini-3.1-pro-preview high
+- 상태: active
+  </pre>
+
+  <h2>다음 단계</h2>
+  <p>생성된 파일은 버전 관리에 포함되며 완료 상태로 보고됩니다.</p>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Phase 4 혜택 및 채팅 보상 QA 리포트</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .success {
+    color: #4caf50;
+  }
+  .info {
+    color: #90caf9;
+  }
+</style>
+</head>
+<body>
+  <h1>Phase 4 혜택 및 채팅 보상 네이티브/에뮬레이터 QA 결과</h1>
+  
+  <h2>점검 대상 커밋</h2>
+  <ul>
+    <li>97285a17: 메타비/트위비 유료화 게이트 및 공상 명칭 폐기</li>
+    <li>4925c166: 보상형 채팅 발송 횟수 추가 및 월간 제한</li>
+    <li>62558139: 주간 추론 제한 및 티어 맵 통합</li>
+  </ul>
+
+  <h2>검증 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>정적 타입 검사 (tsc)</td>
+        <td class="success">통과</td>
+        <td>오류 없음</td>
+      </tr>
+      <tr>
+        <td>채팅 및 권한 단위 테스트</td>
+        <td class="success">통과</td>
+        <td>16개 스위트, 111개 테스트 모두 통과 (소요 시간: 9.474초)</td>
+      </tr>
+      <tr>
+        <td>네이티브 앱 빌드 충돌 여부</td>
+        <td class="success">통과</td>
+        <td>변경 사항이 순수 로직 및 UI 계층에 국한됨</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>종합 판정</h2>
+  <p>현재 main 브랜치의 Phase 4 관련 신규 커밋들에 대해 타입 검사 및 단위 테스트가 성공적으로 완료되었습니다. 안드로이드 네이티브 단의 회귀 문제는 발견되지 않았습니다. 데이터베이스 스키마 및 과금 로직이 변경되었으므로 Claude의 추가 검증을 요청합니다.</p>
+</body>
+</html>

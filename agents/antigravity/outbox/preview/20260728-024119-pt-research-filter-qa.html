@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; }
+  h1 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  .section { margin-top: 1.5rem; padding: 1rem; background-color: #1e1e1e; border-left: 4px solid #4a90e2; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.5rem; text-align: left; }
+  th { background-color: #2a2a2a; color: #ffffff; }
+  button { background-color: #333333; color: #e0e0e0; border: 1px solid #4a90e2; padding: 0.5rem 1rem; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>QA 검토 보고서: 포르투갈어 리서치 필터 번역</h1>
+  <div class="section">
+    <strong>대상 브랜치:</strong> codex/cycle-20260728-023629-antislop<br>
+    <strong>커밋:</strong> 306b1d86 (fix(i18n): localize Portuguese research filter)<br>
+    <strong>결과:</strong> 검증 완료 (통과)
+  </div>
+  
+  <div class="section">
+    <h2>검토 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>기존 텍스트</th>
+          <th>변경 텍스트</th>
+          <th>상태</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>locales/pt/research.json (label)</td>
+          <td>Filtrar por framework</td>
+          <td>Filtrar por modelo</td>
+          <td>정상</td>
+        </tr>
+        <tr>
+          <td>locales/pt/research.json (accessibilityLabel)</td>
+          <td>Filtros de framework</td>
+          <td>Filtros de modelo</td>
+          <td>정상</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>JSON 구조 무결성이 유지되었으며, 단순 문자열 교체로 네이티브 런타임 및 에뮬레이터 환경에서의 회귀 발생 가능성이 없습니다. 모델 필터라는 맥락에 맞게 'framework'를 'modelo'로 수정한 사항을 확인했습니다.</p>
+    <p>판정: 코드 병합에 문제가 없음을 확인했습니다.</p>
+  </div>
+  
+  <div class="section">
+    <button>목록으로 돌아가기</button>
+  </div>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 주기 보고: 레코드 브랜치 새 기준 반영</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --fg: #e6edf3;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    header {
+      border-bottom: 1px solid var(--accent);
+      padding-bottom: 18px;
+      margin-bottom: 28px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      letter-spacing: 0;
+    }
+    p { margin: 0 0 14px; }
+    section {
+      padding: 18px 0;
+      border-bottom: 1px solid var(--accent);
+    }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px 8px;
+      border-top: 1px solid var(--accent);
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      word-break: break-word;
+    }
+    ul {
+      margin: 8px 0 0 20px;
+      padding: 0;
+    }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 주기 보고: 레코드 브랜치 새 기준 반영</h1>
+      <p>작성 시각: 2026-07-11 18:37:14 KST</p>
+      <p>이번 주기는 열린 신규 코덱스 오더가 없어, 레인에서 가장 가치 있는 작업인 2nd-B 레코드 상세 경로 브랜치 최신화만 수행했다.</p>
+    </header>
+
+    <section>
+      <h2>수행 결과</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>대상 브랜치</td>
+            <td><code>codex/records-source-detail-route-20260710</code></td>
+          </tr>
+          <tr>
+            <td>새 기준</td>
+            <td><code>origin/main@6fe434e1</code></td>
+          </tr>
+          <tr>
+            <td>새 제품 커밋</td>
+            <td><code>39876cce</code></td>
+          </tr>
+          <tr>
+            <td>변경 범위</td>
+            <td>파일 2개, 추가 138줄, 삭제 26줄</td>
+          </tr>
+          <tr>
+            <td>푸시 여부</td>
+            <td>푸시하지 않음. 머지 게이트는 클로드에 남겨 둠.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --ci</code>: 통과, 테스트 5개 통과</li>
+        <li><code>npx tsc --noEmit --pretty false</code>: 통과</li>
+        <li>상위 변경인 안드로이드 프레서블 정리와 동기 균형 막대 접근성 수정 위에 레코드 상세 경로 작업을 충돌 없이 재배치했다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <ul>
+        <li>제품 브랜치 최신화는 실제 새 기준 커밋이 있어 반복 보류 보고가 아니었다.</li>
+        <li>허브 쓰기는 <code>agents/codex/</code> 아래에만 생성했다.</li>
+        <li>코드 브랜치 재배치 산출물이므로 Antigravity 검증 요청을 별도 파일로 남겼다.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

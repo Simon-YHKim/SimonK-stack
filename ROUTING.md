@@ -36,8 +36,8 @@
 ## 1.5 추가 듀티 (2026-06-14 허브 역할분석 — PROTOCOL §31.8/§35.6/§36)
 > 새 AI 없이 기존 좌석의 미사용 역량을 깨운다(§31.8 용량게이트). SPOF=Claude에 더 안 쌓는다.
 - **🟩 Antigravity 좌석 (long-context 병행 듀티)**: 네이티브 QA(주력)에 더해 헤드리스 텍스트 역량을 **long-context 전레포 감사관 + 코어레인 독립 반론 검토관**(§35.6 advisory — 최종 판정·머지권은 Claude 불변)으로 병행 배치. (원래 agy 헤드리스 차단 동안의 대체 듀티였으나 07-03 winpty 픽스로 헤드리스 복구 — 듀티는 병행 유지.) Supabase RLS/IDOR·schema↔type 드리프트·DECISIONS 원장 freshness 감사 포함.
-- **🟪 Grok**: 시장 advisory + **허브 와치독** — 매 사이클 `hub-health.ps1 -Json` 읽고 임계 breach 시 `type: incident`(→Simon+Claude, §15) + **벤더 free→metered 절벽 와처**(주1회). read-only envelope 유지(코드·git 없음).
-- **🟨 Codex**: UI/UX + **독립 테스트-저자**(Claude 머지 safety/data diff에 failing-first 테스트 저술) + **consent/미성년 `verify:safety` 불변식 저술**(§36) + **release scribe**(CHANGELOG/store copy). ⚠ 과적재 주의 — release-readiness 확인은 Gemini/자동.
+- **🟪 Grok**: 시장 advisory + **벤더 free→metered 절벽 와처**(주1회). read-only envelope 유지(코드·git 없음). ~~허브 와치독(매 사이클 hub-health 읽기)~~ — **폐기(2026-07-04)**: §4 요청전용 좌석에는 "매 사이클"이 존재하지 않음(죽은 듀티). 실제 breach 감지 = `tools/hub-watchdog.ps1`(예약작업 10분)이 수행.
+- **🟨 Codex**: UI/UX + **독립 테스트-저자**(Claude 머지 safety/data diff에 failing-first 테스트 저술) + **consent/미성년 `verify:safety` 불변식 저술**(§36) + **release scribe**(CHANGELOG/store copy). ⚠ 과적재 주의 — release-readiness 확인은 AG(Antigravity)/자동.
 - **🟦 Claude**: 제품 LLM 런타임-비용 거버너(§31.6 COST 렌즈, enforcement=hook) + 미성년 enablement 오케스트레이션(§36) + 독립 릴리즈게이트(`tools/release-gate.ps1`) 운용. 신규 노동은 기계적/facilitation으로 최소화.
 
 ---
@@ -46,7 +46,7 @@
 > Sakana Fugu(Mixture-of-Agents)의 decompose→delegate→**verify→synthesize**를 실행 레이어에 반영. `ai-debate`(결정용 MoA)의 실행판. 상세·트리거표=`ROUTING-MOA.md`, 스킬 반영=`model-router §9`. **런타임**: hub-daemon 프롬프트에 고위험 산출물 verify-request 훅 배선(2026-07-03).
 > **위임 게이트(Fugu 06-22 정식 릴리즈 반영)**: 분해·팬아웃은 과제가 단일 좌석 역량을 넘을 때만 — 코디네이터(Claude)가 "직접 해결 vs 팀 조립"을 먼저 판정한다. 위임 시 **컨텍스트 봉투**(Conductor: 담당·과제·큐레이션된 최소 컨텍스트 3종)를 명시해 보낸다(`agent-delegate` 스킬과 동일 원칙).
 - **고위험 산출물만**(머지 diff·스키마·보안·수학·비가역) → 작성자와 **다른 seat**가 크로스체크 1회. 일상 산출물 제외(쿼터 보호).
-- 검증 매핑: 코드/스키마→Gemini(long-context 감사) · 수학/실시간 외부사실→Grok · UI→Codex+persona-sim.
+- 검증 매핑: 코드/스키마→AG(Antigravity, long-context 감사 — "Gemini"는 모델명 §0) · 수학/실시간 외부사실→Grok · UI→Codex+persona-sim.
 - **종합**: BOARD가 파편 결과를 rationale와 함께 병합(소수의견 보존). **고정 능력레인 유지 + 동적 태스크라우팅**(Fugu의 불투명성은 미채택 — BOARD/DECISIONS 투명성 유지).
 
 ---

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>작업 보고서 - 레코드 임베딩 동의 UI 에스컬레이션</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .highlight {
+    color: #90caf9;
+  }
+  button {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    border: 1px solid #333333;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #333333;
+  }
+</style>
+</head>
+<body>
+  <h1>작업 보고서</h1>
+  <p>실행 주체: 안티그래비티</p>
+  <p>요청 참조: 레코드 임베딩 동의 UI 시각 검증</p>
+
+  <h2>작업 요약</h2>
+  <p>현재 할당된 에뮬레이터 환경에서 대상 애플리케이션의 구동을 확인하였으나, 요청된 작업이 육안 판정을 요구하므로 권한 및 역할 제약에 따라 작업을 이관합니다.</p>
+
+  <h2>상세 내용</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>에뮬레이터 프로세스</td>
+        <td class="highlight">가동 확인</td>
+        <td>UI 덤프 정상 수집됨</td>
+      </tr>
+      <tr>
+        <td>시각 판정 수행</td>
+        <td>불가</td>
+        <td>헤드리스 환경 제약</td>
+      </tr>
+      <tr>
+        <td>작업 이관</td>
+        <td class="highlight">진행</td>
+        <td>시각 검증은 클로드로 이관</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>시스템 권고</h2>
+  <p>비주얼 검증 외 로그 분석 및 시스템 지표 수집 등은 정상 수행 가능합니다. 시각적 판정은 역할 분담 규칙에 따라 클로드 환경에서 진행하시기 바랍니다.</p>
+
+  <div style="margin-top: 40px;">
+    <button>확인</button>
+  </div>
+</body>
+</html>

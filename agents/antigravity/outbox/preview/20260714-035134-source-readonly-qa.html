@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 검증 보고서: 소스 상세 화면 읽기 전용 패치</title>
+<style>
+body {
+  background-color: #121212;
+  color: #e0e0e0;
+  font-family: sans-serif;
+  margin: 2rem;
+}
+h1, h2 {
+  color: #ffffff;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+th, td {
+  border: 1px solid #333333;
+  padding: 0.5rem;
+  text-align: left;
+}
+th {
+  background-color: #1e1e1e;
+  color: #ffffff;
+}
+.pass {
+  color: #a8d5a2;
+}
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: 소스 상세 화면 읽기 전용 패치</h1>
+  <p>검증 대상 브랜치: codex/records-source-detail-route-20260710</p>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상세 내용</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>UI 컴포넌트 노출 방지</td>
+        <td>origin=source 조건 시 태그 추가, 편집, 이동, 삭제 버튼 렌더링 차단 여부</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>상태 변경 로직 차단</td>
+        <td>이벤트 경로에서 updateRecord 및 updateRecordTags 호출 조기 반환 처리</td>
+        <td class="pass">통과</td>
+      </tr>
+      <tr>
+        <td>기존 기록 동작 유지</td>
+        <td>일반 record-origin 화면에서의 기능이 회귀 없이 정상 동작하는지 확인</td>
+        <td class="pass">통과</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>결론: 모든 검증 항목이 통과되었으며, 제안된 코드 패치는 안전하게 동작합니다.</p>
+</body>
+</html>

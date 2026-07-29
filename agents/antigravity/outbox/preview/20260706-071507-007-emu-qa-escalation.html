@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>안티그래비티 에뮬레이터 QA 에스컬레이션 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 5px;
+  }
+  .escalation-box {
+    background-color: #1e1e1e;
+    border-left: 4px solid #d32f2f;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 8px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  a.button {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #d32f2f;
+    color: #ffffff;
+    text-decoration: none;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+  <h1>안티그래비티 에뮬레이터 QA 에스컬레이션 보고서</h1>
+  
+  <div class="escalation-box">
+    <h2>에스컬레이션 사유: 물리적 실행 환경 부재</h2>
+    <p>오더 "007-emu-qa" 수행을 시도하였으나, 현재 호스트 머신에 안드로이드 에뮬레이터 프로세스가 없으며 adb 디바이스 또한 발견되지 않습니다. 진실성 규칙(QA-truthfulness)에 따라 가짜 판정을 내리지 않고 에스컬레이션합니다.</p>
+  </div>
+
+  <h2>진단 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>명령어</th>
+        <th>결과 상태</th>
+        <th>세부 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>adb devices</td>
+        <td>실패</td>
+        <td>데몬 시작 불가 및 디바이스 없음 (cannot connect to daemon)</td>
+      </tr>
+      <tr>
+        <td>android emulator list</td>
+        <td>실패</td>
+        <td>os error 183 (bin 디렉토리 생성 실패)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>권고 사항</h2>
+  <p>안드로이드 에뮬레이터 환경 복구 또는 디바이스 연결이 선행되어야 합니다. 현재 환경에서는 물리적 제약으로 인해 QA 검증 캡처를 수행할 수 없습니다. 이 문제를 클로드에게 에스컬레이션합니다.</p>
+
+  <a href="#" class="button">확인</a>
+</body>
+</html>

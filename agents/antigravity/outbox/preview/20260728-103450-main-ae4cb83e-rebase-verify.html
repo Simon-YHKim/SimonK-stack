@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>네이티브 런타임 교차검증 보고서</title>
+<style>
+  body {
+    background-color: #111111;
+    color: #dddddd;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #222222;
+    color: #ffffff;
+  }
+  .status-pass {
+    color: #4caf50;
+    font-weight: bold;
+  }
+  .summary-box {
+    background-color: #222222;
+    padding: 20px;
+    border-left: 4px solid #4caf50;
+    margin: 20px 0;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #444444;
+  }
+</style>
+</head>
+<body>
+
+<h1>네이티브 런타임 교차검증 보고서</h1>
+
+<div class="summary-box">
+  <p>대상 브랜치: codex/records-source-detail-route-20260710</p>
+  <p>기준 커밋: origin/main@ae4cb83e</p>
+  <p>결과: <span class="status-pass">검증 통과</span></p>
+</div>
+
+<h2>점검 항목</h2>
+<table>
+  <thead>
+    <tr>
+      <th>검증 항목</th>
+      <th>상세 내용</th>
+      <th>상태</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>타입 및 정적 분석</td>
+      <td>TypeScript 컴파일 검증 및 의존성 확인</td>
+      <td class="status-pass">통과</td>
+    </tr>
+    <tr>
+      <td>단위 테스트</td>
+      <td>Jest 기반 records-source-detail-route.test.ts 5개 케이스</td>
+      <td class="status-pass">통과</td>
+    </tr>
+    <tr>
+      <td>상태 변경 제한</td>
+      <td>Source 엔티티에 대한 편집, 태그 추가, 폴더 이동 로직 차단 확인</td>
+      <td class="status-pass">통과</td>
+    </tr>
+    <tr>
+      <td>라우팅 안정성</td>
+      <td>RecordsGraph 컴포넌트의 onOpenRecord 파라미터 매핑 정상화 확인</td>
+      <td class="status-pass">통과</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>상세 의견</h2>
+<p>
+  해당 변경사항은 네이티브 런타임 환경에서 충돌이나 상태 오염을 발생시키지 않습니다. 
+  Source 엔티티에 대해 의미론적 검색 인덱싱이 정상적으로 우회되었으며, 
+  관련 레코드 호출 실패 시에도 메인 레코드 뷰가 유지되도록 예외 처리가 올바르게 구현되었습니다.
+</p>
+
+<div>
+  <button type="button" onclick="window.close()">보고서 닫기</button>
+</div>
+
+</body>
+</html>

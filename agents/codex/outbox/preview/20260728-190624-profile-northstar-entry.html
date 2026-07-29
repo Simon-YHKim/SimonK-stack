@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>프로필 북극성 진입점 정렬 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b1020; --panel:#151b2e; --text:#e8eefc; --muted:#9aa7c7; --accent:#7fb4ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: Arial, "Malgun Gothic", sans-serif; background:var(--bg); color:var(--text); line-height:1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 44px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin: 0 0 12px; color: var(--accent); }
+    .muted { color: var(--muted); }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:12px; margin: 20px 0; }
+    .card, details { background:var(--panel); border:1px solid rgba(127,180,255,.25); border-radius:8px; padding:16px; }
+    .card strong { display:block; font-size: 13px; color: var(--muted); margin-bottom:6px; }
+    .card span { font-size: 20px; color: var(--text); }
+    table { width:100%; border-collapse: collapse; overflow:hidden; border-radius:8px; background:var(--panel); }
+    th, td { padding:10px 12px; border-bottom:1px solid rgba(127,180,255,.18); text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); word-break:break-all; }
+    details { margin-top:14px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    @media (max-width: 720px) { .grid { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>프로필 북극성 진입점 정렬 보고</h1>
+    <p class="muted">2026-07-28 19:06:24 KST · Codex 단일 poll cycle · headless 실행</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><strong>결과</strong><span>완료</span></div>
+      <div class="card"><strong>앱 커밋</strong><span>b40ccc2b</span></div>
+      <div class="card"><strong>변경 파일</strong><span>5개</span></div>
+      <div class="card"><strong>위험도</strong><span>낮음</span></div>
+    </section>
+
+    <section class="card">
+      <h2>목적</h2>
+      <p>프로필 허브의 <code>/core-brain</code> 진입점이 여전히 “center/중심”으로 표시되어, 현재 정본인 “North Star/북극성” 명명과 어긋나는 문제를 바로잡았다.</p>
+    </section>
+
+    <details open>
+      <summary>변경 내용</summary>
+      <table>
+        <thead><tr><th>언어</th><th>이전</th><th>이후</th></tr></thead>
+        <tbody>
+          <tr><td>영어</td><td>Open center</td><td>Open North Star</td></tr>
+          <tr><td>한국어</td><td>중심 열기</td><td>북극성 열기</td></tr>
+          <tr><td>스페인어</td><td>Abrir centro</td><td>Abrir Estrella Polar</td></tr>
+          <tr><td>포르투갈어</td><td>Abrir centro</td><td>Abrir Estrela Polar</td></tr>
+          <tr><td>인도네시아어</td><td>Buka pusat</td><td>Buka Bintang Utara</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details open>
+      <summary>검증</summary>
+      <ul>
+        <li>프로필 locale JSON 파싱 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>git diff --check</code> 통과, Windows 줄끝 알림만 확인</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <ul>
+        <li>사용자 영향: 프로필 허브에서 핵심 화면 이름이 정본과 일치한다.</li>
+        <li>반론: “center”는 더 일반적이지만, 현재 제품 정본은 북극성 명명으로 수렴되어 있어 일반어가 오히려 모호하다.</li>
+        <li>판정: 단순 UI 문구 변경이며 스키마, 보안, 비용, 외부 사실, 머지 권한을 건드리지 않는다. 고위험 MoA 검증 요청은 불필요하다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>경로</summary>
+      <ul>
+        <li>작업 트리: <code>E:\2ndB\.worktrees\codex-cycle-20260728-1904-antislop</code></li>
+        <li>브랜치: <code>codex/cycle-20260728-1904-antislop</code></li>
+        <li>앱 커밋: <code>b40ccc2b fix(i18n): rename profile north star entry</code></li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>작업 보고서: 에이전트 카드 생성</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .highlight {
+    color: #4db8ff;
+  }
+  button {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    border: 1px solid #333333;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #333333;
+  }
+</style>
+</head>
+<body>
+
+<h1>작업 보고서</h1>
+<h2>개요</h2>
+<p>오픈 요청 사항인 에이전트 카드 생성을 완료하였습니다.</p>
+
+<h2>작업 상세 내역</h2>
+<table>
+  <thead>
+    <tr>
+      <th>항목</th>
+      <th>내용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>요청 아이디</td>
+      <td><span class="highlight">20260711-203015-claude-to-antigravity-agent-card</span></td>
+    </tr>
+    <tr>
+      <td>실행 스크립트</td>
+      <td>tools/gen-agent-card.ps1 -As antigravity</td>
+    </tr>
+    <tr>
+      <td>생성 파일</td>
+      <td>agents/antigravity/agent-card.json</td>
+    </tr>
+    <tr>
+      <td>상태</td>
+      <td>완료</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>결론</h2>
+<p>지정된 에이전트 카드 매니페스트 파일 생성을 완료하였으며 형상 관리에 반영하였습니다.</p>
+
+<div>
+  <button type="button">확인</button>
+</div>
+
+</body>
+</html>

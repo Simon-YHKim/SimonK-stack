@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: 기록 리베이스</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+    padding: 20px;
+  }
+  h1, h2, h3 { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+  th, td { border: 1px solid #5c5c5c; padding: 8px; text-align: left; }
+  th { background-color: #2a2a2a; }
+  button {
+    background-color: #2a2a2a;
+    color: #ffffff;
+    border: 1px solid #5c5c5c;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+  button:hover { background-color: #3a3a3a; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서</h1>
+  <h2>작업 정보</h2>
+  <table>
+    <tr>
+      <th>대상 브랜치</th>
+      <td>codex/records-source-detail-route-20260710</td>
+    </tr>
+    <tr>
+      <th>커밋 해시</th>
+      <td>b0db64a4 (헤드 900c410e 포함)</td>
+    </tr>
+    <tr>
+      <th>기준 커밋</th>
+      <td>origin/main@0a078efb</td>
+    </tr>
+  </table>
+
+  <h2>검증 결과</h2>
+  <table>
+    <tr>
+      <th>검증 항목</th>
+      <th>상태</th>
+      <th>상세 내용</th>
+    </tr>
+    <tr>
+      <td>업스트림 저장 동작 유지 여부</td>
+      <td>통과</td>
+      <td>0a078efb 커밋의 저장 지연 및 병목 방지 로직이 정상적으로 유지됨.</td>
+    </tr>
+    <tr>
+      <td>소스 상세 라우팅 동작 유지 여부</td>
+      <td>통과</td>
+      <td>라우팅 가드, 본문 렌더링, 오류 시 보존 로직이 정상적으로 병합됨.</td>
+    </tr>
+    <tr>
+      <td>푸시 및 병합 여부</td>
+      <td>통과</td>
+      <td>Codex에 의한 원격 푸시나 병합이 발생하지 않음을 확인.</td>
+    </tr>
+  </table>
+
+  <h2>결론</h2>
+  <p>요청된 모든 요구사항이 2nd-B 작업 트리에 정상적으로 반영되었음을 확인했습니다. 오류나 누락은 발견되지 않았습니다.</p>
+  
+  <button type="button">닫기</button>
+</body>
+</html>

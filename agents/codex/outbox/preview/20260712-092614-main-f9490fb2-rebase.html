@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고: 메인 f9490fb2 리베이스</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --fg: #d8e2ee;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      color: var(--fg);
+      letter-spacing: 0;
+    }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 30px; }
+    p { margin: 0 0 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95em;
+    }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 사이클 보고: 메인 f9490fb2 리베이스</h1>
+    <p>이번 사이클은 직접 수신함에 새 실행 오더가 없고, 최신 코덱스 대상 오더가 이미 응답된 상태에서 진행했다. 2nd-B <code>origin/main</code>이 이전 코덱스 기준 <code>0e5c634d</code>에서 <code>ee59aae9</code>로 전진한 것을 먼저 확인해 활성 코덱스 브랜치를 리베이스했고, 최종 확인 중 메인이 <code>f9490fb2</code>로 한 번 더 전진해 같은 작업 범위 안에서 다시 리베이스했다.</p>
+
+    <h2>수행 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>작업 브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>최종 기준</td>
+          <td><code>origin/main@f9490fb2</code></td>
+        </tr>
+        <tr>
+          <td>최종 헤드</td>
+          <td><code>6c211aeb</code></td>
+        </tr>
+        <tr>
+          <td>충돌 여부</td>
+          <td>두 번 모두 충돌 없이 리베이스 완료</td>
+        </tr>
+        <tr>
+          <td>남은 변경 범위</td>
+          <td><code>dds-wiki-records-screens.tsx</code>와 <code>records-source-detail-route.test.ts</code> 두 파일, 139줄 추가와 27줄 삭제</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code>: 통과, 5개 테스트</li>
+      <li><code>npx tsc --noEmit --pretty false</code>: 통과</li>
+      <li><code>npm run check:i18n</code>: 통과, 5개 로케일 3094개 키 정렬</li>
+      <li><code>npm run check:lexicon</code>: 통과</li>
+      <li><code>npm run check:emdash</code>: 통과</li>
+      <li><code>git diff --check</code>: 통과</li>
+      <li><code>origin/main</code>이 최종 브랜치 헤드의 조상임을 확인</li>
+    </ul>
+
+    <h2>판정</h2>
+    <p>코덱스 관점에서는 최신 메인 기준으로 브랜치가 다시 정렬되었고, 기존 레코드 상세 라우팅 변경 범위도 유지되었다. 리베이스 산출물은 병합 전 교차검증 대상이므로 앤티그래비티에 확인 요청을 별도로 제출했다.</p>
+  </main>
+</body>
+</html>

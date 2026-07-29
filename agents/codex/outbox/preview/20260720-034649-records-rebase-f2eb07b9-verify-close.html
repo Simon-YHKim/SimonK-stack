@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 상세 브랜치 검증 응답 수거 보고서</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --text: #e6edf3;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    p { margin-top: 10px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      margin-top: 24px;
+      border: 1px solid var(--accent);
+    }
+    .cell { padding: 14px; border-right: 1px solid var(--accent); }
+    .cell:last-child { border-right: 0; }
+    .label { display: block; font-size: 12px; color: var(--accent); }
+    .value { display: block; margin-top: 6px; font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--accent);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    tr:last-child td { border-bottom: 0; }
+    code {
+      color: var(--text);
+      border-bottom: 1px solid var(--accent);
+      padding-bottom: 1px;
+    }
+    a { color: var(--accent); }
+    details {
+      margin-top: 16px;
+      border: 1px solid var(--accent);
+      padding: 12px 14px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 10px 0 0 20px; padding: 0; }
+    @media (max-width: 760px) {
+      .summary { grid-template-columns: 1fr 1fr; }
+      .cell:nth-child(2) { border-right: 0; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>기록 상세 브랜치 검증 응답 수거 보고서</h1>
+  <p>이번 사이클은 Antigravity의 MoA 검증 응답을 수거하고, Codex가 같은 기준을 독립 재확인해 검증 요청을 닫은 작업입니다.</p>
+
+  <section class="summary" aria-label="요약">
+    <div class="cell"><span class="label">결과</span><span class="value">완료</span></div>
+    <div class="cell"><span class="label">판정</span><span class="value">통과 수거</span></div>
+    <div class="cell"><span class="label">기준</span><span class="value"><code>f2eb07b9</code></span></div>
+    <div class="cell"><span class="label">작성 시각</span><span class="value">2026-07-20 03:46:49 KST</span></div>
+  </section>
+
+  <h2>핵심 결과</h2>
+  <table>
+    <thead>
+      <tr><th>항목</th><th>확인 내용</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>수거한 응답</td><td><code>20260720-033839-antigravity-re-records-rebase-f2eb07b9</code></td></tr>
+      <tr><td>닫은 요청</td><td><code>20260720-033234-codex-re-records-rebase-f2eb07b9-verify</code></td></tr>
+      <tr><td>브랜치</td><td><code>codex/records-source-detail-route-20260710</code>, 현재 끝 <code>ee5aede4</code></td></tr>
+      <tr><td>조상 관계</td><td><code>origin/main@f2eb07b9</code> 포함, <code>ancestry_exit=0</code></td></tr>
+      <tr><td>검증</td><td><code>git diff --check</code> 통과, 대상 Jest 2개 모음 / 10개 테스트 통과, <code>npm run type-check</code> 통과</td></tr>
+    </tbody>
+  </table>
+
+  <details open>
+    <summary>변경 범위</summary>
+    <ul>
+      <li><code>src/lib/records/__tests__/source-pieces.test.ts</code></li>
+      <li><code>src/lib/records/get-piece.ts</code></li>
+      <li><code>src/lib/records/source-pieces.ts</code></li>
+      <li><code>src/screens/deepspace/__tests__/records-source-detail-route.test.ts</code></li>
+      <li><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>안전 및 한계</summary>
+    <p>제품 코드 변경, 재배치, 푸시, 병합, 배포, 브라우저 열기는 수행하지 않았습니다. 파괴적 작업, 비용 발생 작업, 비밀값 관련 작업도 없었습니다. 이번 작업은 기존 검증 응답 수거와 재확인이므로 신규 설계, 아키텍처, 네이밍, 비가역 결정에 해당하지 않아 추가 토론 게이트는 열지 않았습니다.</p>
+  </details>
+
+  <h2>링크</h2>
+  <p><a href="../20260720-034649-codex-re-records-rebase-f2eb07b9-verify-close.md">허브 응답 파일</a></p>
+</main>
+</body>
+</html>

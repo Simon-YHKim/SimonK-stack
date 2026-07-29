@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>보상형 광고 기능 게이트 리뷰</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101214; --panel:#191d21; --text:#e8edf2; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.55; }
+    main { width: min(1040px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 48px; }
+    h1 { margin: 0 0 8px; font-size: 28px; line-height: 1.2; }
+    h2 { margin: 28px 0 12px; font-size: 18px; }
+    p { margin: 8px 0; }
+    code { color: var(--text); }
+    .muted { color: rgba(232,237,242,.68); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 20px 0; }
+    .card, details { background: var(--panel); border: 1px solid rgba(232,237,242,.12); border-radius: 8px; padding: 14px; }
+    .label { color: rgba(232,237,242,.68); font-size: 12px; }
+    .value { margin-top: 4px; font-size: 20px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 8px; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid rgba(232,237,242,.12); vertical-align: top; }
+    th { color: rgba(232,237,242,.68); font-weight: 600; background: var(--panel); }
+    details { margin: 10px 0; }
+    summary { cursor: pointer; color: var(--text); font-weight: 700; }
+    @media (max-width: 760px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } h1 { font-size: 24px; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>보상형 광고 기능 게이트 리뷰</h1>
+  <p class="muted">작성 시각: 2026-07-21 13:18:58 KST. 대상: <code>origin/feat/comm-rewarded-capability-gate</code> at <code>14dd7dd3</code>.</p>
+
+  <section class="grid" aria-label="요약 지표">
+    <div class="card"><div class="label">판정</div><div class="value">보류</div></div>
+    <div class="card"><div class="label">제품 검증</div><div class="value">통과</div></div>
+    <div class="card"><div class="label">머지 충돌</div><div class="value">1건</div></div>
+    <div class="card"><div class="label">검증 요청</div><div class="value">발행</div></div>
+  </section>
+
+  <h2>결론</h2>
+  <p>제품 코드 관점에서는 보상형 광고 진입점이 실제 완료 가능한 빌드에서만 노출되도록 잘 막혀 있다. 다만 최신 <code>origin/main@2735afdc</code> 기준 병합 시 <code>docs/flow-debugger.html</code>에서 충돌이 발생하므로, Claude merge gate는 문서 산출물을 재생성하거나 해당 충돌을 먼저 정리해야 한다.</p>
+
+  <h2>검토 범위</h2>
+  <table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td>기준 브랜치</td><td><code>origin/main@2735afdc</code></td></tr>
+      <tr><td>대상 브랜치</td><td><code>origin/feat/comm-rewarded-capability-gate@14dd7dd3</code></td></tr>
+      <tr><td>작업 워크트리</td><td><code>E:\2ndB\.worktrees\codex-review-rewarded-capability-20260721</code></td></tr>
+      <tr><td>주요 파일</td><td><code>src/lib/ads/rewarded.native.ts</code>, <code>src/lib/ads/rewarded.ts</code>, <code>ReasoningLimitSheet.tsx</code>, <code>dds-plans-screen.tsx</code>, <code>secondb.tsx</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>확인 결과</h2>
+  <table>
+    <thead><tr><th>검사</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td>보상형 광고 Jest</td><td><code>5 suites / 39 tests</code> 통과</td></tr>
+      <tr><td>변경 파일 ESLint</td><td>통과</td></tr>
+      <tr><td>TypeScript</td><td><code>npm run type-check</code> 통과</td></tr>
+      <tr><td>Lexicon / em dash</td><td>통과</td></tr>
+      <tr><td>공백 검사</td><td><code>git diff --check origin/main...HEAD</code> 통과</td></tr>
+      <tr><td>머지 트리</td><td><code>docs/flow-debugger.html</code> 충돌로 <code>--write-tree</code> 실패</td></tr>
+    </tbody>
+  </table>
+
+  <details open>
+    <summary>35절 자기 패널</summary>
+    <p>찬성: 기능 게이트를 정책 게이트 앞에 두어, 실제 광고 완료가 불가능한 빌드에서 동의 플로우나 죽은 CTA가 노출되지 않게 한 점은 UI 정직성과 개인정보 측면에서 맞다.</p>
+    <p>반대: 최신 main을 포함하지 않고 생성 산출물 충돌이 남아 있어, 지금 상태의 브랜치를 바로 머지하면 통합 비용이 발생한다.</p>
+    <p>판정: 제품 변경은 merge-safe에 가깝지만 브랜치 전체는 충돌 때문에 hold다. 코드 위험도가 있어 Antigravity 검증을 요청했다.</p>
+  </details>
+
+  <details>
+    <summary>안전 확인</summary>
+    <p>제품 코드를 수정하지 않았고, 2nd-B push, PR, merge, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 작업을 수행하지 않았다. 허브 쓰기는 Codex outbox와 STATUS에 한정했다.</p>
+  </details>
+</main>
+</body>
+</html>

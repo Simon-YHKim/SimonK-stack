@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>세컨비 대사 다국어 잔여 정리</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --text: #e8ecef;
+      --accent: #7cc7c0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 48px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.2; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin: 28px 0 12px; color: var(--accent); }
+    h3 { font-size: 15px; margin-bottom: 8px; }
+    p, li, td, th, summary { font-size: 14px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 22px 0;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      padding: 12px;
+      min-height: 86px;
+    }
+    .label {
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 4px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 9px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+    }
+    details {
+      border: 1px solid var(--accent);
+      padding: 12px 14px;
+      margin: 10px 0;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+    @media (max-width: 720px) {
+      .summary { grid-template-columns: 1fr; }
+      main { width: min(100% - 24px, 920px); padding-top: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>세컨비 대사 다국어 잔여 정리</h1>
+    <p>이번 사이클은 열린 codex 대상 주문이 없어, Codex 레인의 낮은 위험 UI 다국어 정리 작업 한 건만 수행했다. 동의, 안전, 비용, 배포, 시크릿 영역은 건드리지 않았다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div>완료</div>
+      </div>
+      <div class="card">
+        <div class="label">기준</div>
+        <div><code>origin/main 69b0c58f</code></div>
+      </div>
+      <div class="card">
+        <div class="label">로컬 커밋</div>
+        <div><code>3f547003</code></div>
+      </div>
+      <div class="card">
+        <div class="label">위험도</div>
+        <div>낮음</div>
+      </div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>파일</th>
+          <th>작업</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>locales/es/secondb.json</code></td>
+          <td>세컨비 캐릭터 일반 대사 배열의 영어 잔여를 스페인어로 정리했다.</td>
+        </tr>
+        <tr>
+          <td><code>locales/pt/secondb.json</code></td>
+          <td>같은 대사 배열을 포르투갈어 사용자 표면에 맞게 정리했다.</td>
+        </tr>
+        <tr>
+          <td><code>locales/id/secondb.json</code></td>
+          <td>같은 대사 배열을 인도네시아어 사용자 표면에 맞게 정리했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <ul>
+        <li><code>node</code> JSON 파싱: 통과</li>
+        <li><code>npm run check:i18n</code>: 통과</li>
+        <li><code>npm run check:lexicon</code>: 통과</li>
+        <li><code>npm run check:emdash</code>: 통과</li>
+        <li><code>npm run type-check</code>: 통과</li>
+        <li><code>git diff --check</code>: 기능 오류 없음, 윈도 줄끝 경고만 확인</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <ul>
+        <li>정본성: BOARD의 Codex 레인인 UI, anti-slop, 다국어 표면 품질 개선에 맞다.</li>
+        <li>범위: 일반 화면 대사 문자열만 변경했다.</li>
+        <li>위험: 스키마, 보안, 결제, 네이티브 런타임, 외부 사실, 배포를 변경하지 않았다.</li>
+        <li>교차검증: 고위험 산출물이 아니므로 별도 검증 요청은 만들지 않았다.</li>
+      </ul>
+    </details>
+
+    <h2>작업 제한 준수</h2>
+    <p>2nd-B 브랜치는 로컬 커밋까지만 만들었다. 푸시, PR, 머지, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 처리는 하지 않았다.</p>
+  </main>
+</body>
+</html>

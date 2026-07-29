@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>설정 화면 위약 버튼 중복 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+  }
+  h1, h2, th {
+    color: #ffffff;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+</style>
+</head>
+<body>
+  <h1>작업 보고서: 설정 화면 위약 버튼 중복 검증</h1>
+  <p>요청된 중복 확인 작업을 완료했습니다.</p>
+  
+  <h2>검증 내역</h2>
+  <table>
+    <tr>
+      <th>대상 브랜치</th>
+      <td>origin/logic/settings-placebo-controls</td>
+    </tr>
+    <tr>
+      <th>대상 커밋</th>
+      <td>afc0901a</td>
+    </tr>
+    <tr>
+      <th>판정 결과</th>
+      <td>동일한 제품 및 테스트 코드가 메인 브랜치에 이미 존재하여 중복임을 확인</td>
+    </tr>
+  </table>
+
+  <h2>세부 설명</h2>
+  <p>메인 브랜치와 지정된 커밋 간의 소스 파일 차이를 비교한 결과, 제품 코드의 변경 사항이 없음을 검증했습니다. 해당 브랜치는 더 이상 적용할 필요가 없는 상태입니다.</p>
+</body>
+</html>

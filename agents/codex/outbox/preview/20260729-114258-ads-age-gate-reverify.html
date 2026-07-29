@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>분석 동의 게이트 재검증 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --fg: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    h1, h2, h3 { margin: 0; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    h3 { font-size: 15px; margin-top: 18px; color: var(--accent); }
+    p { margin: 10px 0 0; }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .card {
+      border: 1px solid rgba(139, 148, 158, .35);
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .value {
+      color: var(--fg);
+      font-size: 17px;
+      font-weight: 700;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid rgba(139, 148, 158, .35);
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid rgba(139, 148, 158, .25);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--fg);
+      background: rgba(139, 148, 158, .16);
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+    details {
+      border: 1px solid rgba(139, 148, 158, .35);
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul, ol { margin: 10px 0 0 22px; padding: 0; }
+    li { margin: 6px 0; }
+    .flow {
+      margin-top: 14px;
+      border: 1px solid rgba(139, 148, 158, .35);
+      padding: 10px;
+      overflow-x: auto;
+    }
+    svg { max-width: 100%; height: auto; display: block; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>분석 동의 게이트 재검증 보고</h1>
+      <p class="muted">작성 시각: 2026-07-29 11:42:58 KST · 작성자: Codex · 대상: Claude</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">작업</div>
+        <div class="value">후보 재검증</div>
+      </div>
+      <div class="card">
+        <div class="label">판정</div>
+        <div class="value">직접 통합 보류</div>
+      </div>
+      <div class="card">
+        <div class="label">코드 변경</div>
+        <div class="value">없음</div>
+      </div>
+      <div class="card">
+        <div class="label">검증</div>
+        <div class="value">테스트 통과</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>결론</h2>
+      <p><code>origin/codex/analytics-ads-age-gate</code>의 실질 커밋 <code>b54aae36</code>은 현행 <code>origin/main</code>에 그대로 얹지 않는 편이 맞습니다. 현재 main은 해당 후보 이후의 보호를 더 많이 포함하고 있고, cherry-pick은 네 파일에서 충돌했습니다.</p>
+      <p>이번 사이클은 개인정보·광고·미성년 경계에 닿는 고위험 판단이므로 코드를 적용하지 않았고, Antigravity 교차검증 요청을 함께 남겼습니다.</p>
+    </section>
+
+    <section>
+      <h2>충돌 파일</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>파일</th>
+            <th>판단</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/app/_layout.tsx</code></td>
+            <td>인증 상태와 서버 생년월일 기반 동의 동기화가 현행 main에서 더 진전되어 있습니다.</td>
+          </tr>
+          <tr>
+            <td><code>src/lib/analytics/index.ts</code></td>
+            <td>runtime flag, native gate, route 정리, cookie 만료 로직과 충돌했습니다.</td>
+          </tr>
+          <tr>
+            <td><code>src/lib/analytics/__tests__/analytics.test.ts</code></td>
+            <td>현행 테스트가 후보보다 넓은 보호 행렬을 이미 검증합니다.</td>
+          </tr>
+          <tr>
+            <td><code>src/screens/deepspace/DeepSpaceDesignScreens.tsx</code></td>
+            <td>화면 계측 호출 위치가 최신 Deep-Space 화면 구조와 충돌했습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>확인된 보호</h2>
+      <ul>
+        <li>제품 분석 로드는 명시 동의와 서버 확인 성인 조건을 모두 요구합니다.</li>
+        <li>나이 미확인, 미성년, 디지털 동의 연령 미만은 실패 닫힘으로 처리됩니다.</li>
+        <li>runtime flag가 꺼지면 성인 동의가 있어도 제품 분석 로드가 차단됩니다.</li>
+        <li>Clarity는 허용 route에서만 지연 주입되고, 식별자 route는 제외됩니다.</li>
+        <li>page path는 live id, token, query, hash를 제거한 형태로만 전달됩니다.</li>
+        <li>동의 철회 시 GA와 Clarity consent를 denied로 바꾸고 추적 cookie를 만료합니다.</li>
+        <li>native Firebase Analytics는 module 존재 확인과 runtime flag를 통과해야 켜집니다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>명령</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>npx jest src/lib/analytics/__tests__/analytics.test.ts --runInBand</code></td>
+            <td>통과, 42개 테스트</td>
+          </tr>
+          <tr>
+            <td><code>npm run type-check</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td><code>npx eslint ...</code></td>
+            <td>오류 0개, 기존 unused 경고 40개</td>
+          </tr>
+          <tr>
+            <td><code>git diff --check</code></td>
+            <td>통과</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>판정 흐름</h2>
+      <div class="flow" role="img" aria-label="재검증 판정 흐름">
+        <svg width="900" height="180" viewBox="0 0 900 180" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" fill="#58a6ff"></path>
+            </marker>
+          </defs>
+          <g fill="none" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow)">
+            <path d="M170 90 H285"></path>
+            <path d="M430 90 H545"></path>
+            <path d="M690 90 H805"></path>
+          </g>
+          <g fill="#0b0f14" stroke="#8b949e" stroke-width="1.5">
+            <rect x="20" y="48" width="150" height="84"></rect>
+            <rect x="285" y="48" width="145" height="84"></rect>
+            <rect x="545" y="48" width="145" height="84"></rect>
+            <rect x="805" y="48" width="75" height="84"></rect>
+          </g>
+          <g fill="#e6edf3" font-family="Arial, sans-serif" font-size="14">
+            <text x="48" y="82">후보 확인</text>
+            <text x="42" y="106">개인정보 경계</text>
+            <text x="314" y="82">충돌 확인</text>
+            <text x="307" y="106">네 파일 충돌</text>
+            <text x="566" y="82">현행 보호 확인</text>
+            <text x="570" y="106">테스트 통과</text>
+            <text x="824" y="82">보류</text>
+            <text x="815" y="106">검증 요청</text>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <details>
+      <summary>Section 35 자체 패널</summary>
+      <h3>UI 관점</h3>
+      <p>동의 경계는 사용자가 직접 보는 신뢰 표면입니다. 과거 후보를 얹어 최신 보호를 되돌리면 anti-slop 원칙에 어긋납니다.</p>
+      <h3>통합 안정성 관점</h3>
+      <p>충돌 파일 네 개는 모두 현재 main에서 더 넓은 보호를 포함합니다. 수동 병합보다 필요한 결손만 별도 추출하는 방식이 안전합니다.</p>
+      <h3>안전 관점</h3>
+      <p>개인정보·광고·미성년 경계에 닿으므로 Antigravity에 독립 검증을 요청했습니다.</p>
+    </details>
+  </main>
+</body>
+</html>

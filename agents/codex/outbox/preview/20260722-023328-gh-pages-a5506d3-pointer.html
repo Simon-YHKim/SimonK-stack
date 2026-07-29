@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>배포 포인터 확인 보고</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #6aa6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2, p { margin-top: 0; }
+    h1 {
+      font-size: 28px;
+      letter-spacing: 0;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 18px;
+      margin: 28px 0 12px;
+      color: var(--accent);
+    }
+    .meta {
+      color: var(--accent);
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 20px 0 28px;
+    }
+    .panel {
+      border: 1px solid var(--accent);
+      padding: 14px;
+      min-height: 112px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    code {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 4px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    details {
+      border: 1px solid var(--accent);
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { padding-left: 20px; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      main { padding: 28px 14px 40px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>배포 포인터 확인 보고</h1>
+    <p class="meta">생성 시각: 2026-07-22 02:33:28 KST · 작성자: codex · 프로젝트: 2nd-B</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="panel">
+        <span class="label">목적</span>
+        <p>새로 전진한 <code>origin/gh-pages</code>가 현재 <code>origin/main</code> 배포를 가리키는지 확인했다.</p>
+      </div>
+      <div class="panel">
+        <span class="label">결과</span>
+        <p>배포 커밋 제목이 현재 main 전체 SHA를 정확히 포함한다.</p>
+      </div>
+      <div class="panel">
+        <span class="label">검증 상태</span>
+        <p>원격 갱신, SHA 대조, 커밋 제목 확인 완료.</p>
+      </div>
+      <div class="panel">
+        <span class="label">제약</span>
+        <p>푸시, 머지, 배포 실행, 브라우저 자동 열기, 비용 작업 없음.</p>
+      </div>
+    </section>
+
+    <h2>확인값</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>값</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>현재 본선</td>
+          <td><code>a5506d3c0b3a2f65d8c9387e871010891370049d</code></td>
+        </tr>
+        <tr>
+          <td>배포 브랜치</td>
+          <td><code>8f91849c606a59bca2e62cd64e1d9e8550ad90d0</code></td>
+        </tr>
+        <tr>
+          <td>배포 제목</td>
+          <td><code>deploy: a5506d3c0b3a2f65d8c9387e871010891370049d a5506d3c0b3a2f65d8c9387e871010891370049d</code></td>
+        </tr>
+        <tr>
+          <td>조상 관계</td>
+          <td><code>false</code>. 정적 산출물 브랜치라 소스 조상 관계를 기대하지 않는다.</td>
+        </tr>
+        <tr>
+          <td>공백 검사</td>
+          <td>정적 번들 파일의 trailing whitespace 3건을 표시했다. 소스 회귀 판정이 아니라 산출물 경고로 분리했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>섹션 35 자체 패널</summary>
+      <ul>
+        <li>찬성 관점: 배포 포인터가 현재 main 전체 SHA를 명시하므로 최신 배포 산출 신호로 기록할 가치가 있다.</li>
+        <li>반대 관점: gh-pages는 산출물 브랜치라 제품 소스와 직접 diff 비교하면 대량 산출물 차이처럼 보이며, 그 자체를 회귀로 해석하면 안 된다.</li>
+        <li>판정: 이번 사이클은 코드 변경 없이 포인터 정합성만 확인하는 단일 작업으로 제한한다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>실행한 명령</summary>
+      <ul>
+        <li><code>git -C E:\2ndB fetch origin --prune</code></li>
+        <li><code>git -C E:\2ndB rev-parse origin/main</code></li>
+        <li><code>git -C E:\2ndB show --no-patch origin/gh-pages</code></li>
+        <li><code>git -C E:\2ndB merge-base --is-ancestor origin/main origin/gh-pages</code></li>
+        <li><code>git -C E:\2ndB diff --check origin/main..origin/gh-pages</code></li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>

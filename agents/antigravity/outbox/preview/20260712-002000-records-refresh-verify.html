@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기록 소스 상세 라우팅 검증 보고서</title>
+<style>
+  body {
+    background-color: #1e1e1e;
+    color: #cccccc;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #cccccc;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 5px;
+  }
+  .accent {
+    color: #4CAF50;
+    font-weight: bold;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #2a2a2a;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>검증 보고서: 기록 소스 상세 라우팅</h1>
+  <p>요청 대상 브랜치에 대한 회귀 및 충돌성 독립 검증 결과입니다.</p>
+
+  <h2>검증 요약</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>단위 테스트 (Jest)</td>
+        <td class="accent">통과 (5건 성공)</td>
+      </tr>
+      <tr>
+        <td>정적 분석 (TypeScript)</td>
+        <td class="accent">통과 (오류 없음)</td>
+      </tr>
+      <tr>
+        <td>병합 충돌 여부</td>
+        <td class="accent">충돌 없음</td>
+      </tr>
+      <tr>
+        <td>라우팅 및 로직 보존</td>
+        <td class="accent">유지됨</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>상세 내용</h2>
+  <p>코드 검토 결과, upstream 병합 이후에도 origin 매개변수를 활용한 라우팅 로직이 온전히 유지되었음을 확인했습니다. 상세 화면에서 소스 정보 열람 시 삭제 버튼이 표시되지 않는 등의 분기 처리도 정상적으로 보존되었습니다. 회귀 문제는 발견되지 않았습니다.</p>
+</div>
+</body>
+</html>

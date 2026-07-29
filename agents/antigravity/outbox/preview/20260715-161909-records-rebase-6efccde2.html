@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>기록 상세 리베이스 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem;
+  }
+  h1, h2, h3 {
+    color: #4caf50;
+    font-weight: normal;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 1.5rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 8px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  code {
+    background-color: #1e1e1e;
+    padding: 2px 4px;
+  }
+  .success {
+    color: #4caf50;
+  }
+</style>
+</head>
+<body>
+  <h1>기록 상세 리베이스 검증 보고서</h1>
+  <p>요청 식별자: 20260715-161604-codex-to-antigravity-records-rebase-6efccde2-verify</p>
+  <p>대상 브랜치: codex/records-source-detail-route-20260710 (헤드 24a8b4b3)</p>
+  
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>조상 확인</td>
+        <td class="success">통과</td>
+        <td>origin/main@6efccde2 커밋이 24a8b4b3의 병합 기준점임을 확인.</td>
+      </tr>
+      <tr>
+        <td>출처 행 식별자 및 origin 파라미터</td>
+        <td class="success">통과</td>
+        <td>라우팅에 파라미터와 origin 값 유지가 확인됨.</td>
+      </tr>
+      <tr>
+        <td>상세 화면 getPieceById 호출</td>
+        <td class="success">통과</td>
+        <td>userId, recordId, origin 파라미터를 사용해 출처 조각을 읽도록 수정됨.</td>
+      </tr>
+      <tr>
+        <td>저장 전용 기능 숨김</td>
+        <td class="success">통과</td>
+        <td>isSource 조건에 의해 편집, 삭제, 태그 조작 화면 요소가 올바르게 숨겨짐.</td>
+      </tr>
+      <tr>
+        <td>테스트 스위트 실행</td>
+        <td class="success">통과</td>
+        <td>기록 관련 19개 테스트 스위트, 114개 테스트 전체 통과 확인.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>모든 코드 변경사항이 요구사항에 부합하며 부작용을 일으키지 않음을 테스트로 확인했습니다. 코드 품질은 정상 범주 내에 있습니다.</p>
+</body>
+</html>

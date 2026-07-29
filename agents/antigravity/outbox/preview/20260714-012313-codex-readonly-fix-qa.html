@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서</title>
+<style>
+  body {
+    background-color: #000000;
+    color: #cccccc;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #ffffff;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+  }
+  th, td {
+    border: 1px solid #ffffff;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    color: #ffffff;
+  }
+  .success {
+    font-weight: bold;
+    color: #ffffff;
+  }
+  pre, code {
+    border: 1px solid #ffffff;
+    padding: 2px 4px;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: source-origin 상세 화면 읽기 전용 패치</h1>
+  <p>작업 브랜치: <code>codex/records-source-detail-route-20260710</code></p>
+  
+  <h2>검증 결과 요약</h2>
+  <p>모든 요구사항이 충족되었습니다. 회귀 현상 없이 소스 상세 화면의 변경 불가 상태가 정상적으로 적용되었습니다.</p>
+  
+  <h2>상세 검증 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>source 화면 기능 버튼 숨김</td>
+        <td class="success">통과</td>
+        <td>UI에서 정상 차단됨</td>
+      </tr>
+      <tr>
+        <td>상태 변경 함수 호출 차단</td>
+        <td class="success">통과</td>
+        <td>이벤트 핸들러 내 조건부 조기 반환 적용</td>
+      </tr>
+      <tr>
+        <td>record-origin 화면 회귀 없음</td>
+        <td class="success">통과</td>
+        <td>기존 데이터 소스에 대한 기능 정상 동작</td>
+      </tr>
+      <tr>
+        <td>테스트 코드</td>
+        <td class="success">통과</td>
+        <td>관련 단위 테스트 모두 성공</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>검토 내용</h2>
+  <p>정적 코드 분석 및 단위 테스트 실행 결과 제어와 UI 분기 처리가 정확하게 구현되었습니다.</p>
+</body>
+</html>

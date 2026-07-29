@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 상세 브랜치 재정렬 보고</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --fg: #e6edf3;
+      --accent: #3b82f6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2 { margin: 0 0 14px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); margin-top: 30px; }
+    p { margin: 0 0 14px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--fg);
+      background: transparent;
+      font-family: Consolas, monospace;
+    }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>기록 상세 브랜치 재정렬 보고</h1>
+    <p>이번 사이클은 직접 열린 Codex 요청이 없었고, 2nd-B <code>origin/main</code>이 이전 기준 <code>c5377f50</code> 이후 <code>fbd1edb3</code>까지 전진한 것을 확인해 기록 원본 상세 브랜치를 새 기준 위로 재정렬했다.</p>
+
+    <h2>작업 요약</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>작업 브랜치</td>
+          <td><code>codex/records-source-detail-route-20260710</code></td>
+        </tr>
+        <tr>
+          <td>새 기준</td>
+          <td><code>origin/main@fbd1edb3</code></td>
+        </tr>
+        <tr>
+          <td>새 작업 헤드</td>
+          <td><code>900c410e</code></td>
+        </tr>
+        <tr>
+          <td>변경 범위</td>
+          <td>기록 원본 상세 라우팅 테스트와 <code>dds-wiki-records-screens.tsx</code>의 원본 상세 처리 유지</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <ul>
+      <li><code>records-source-detail-route.test.ts</code> 집중 테스트 5개 통과</li>
+      <li><code>npx tsc --noEmit --pretty false</code> 통과</li>
+      <li><code>npm run check:i18n</code> 통과</li>
+      <li><code>npm run check:lexicon</code> 통과</li>
+      <li><code>npm run check:emdash</code> 통과</li>
+      <li><code>npm run check:cycles</code> 통과</li>
+      <li><code>git diff --check</code> 통과</li>
+      <li><code>origin/main</code>이 새 작업 헤드의 조상임을 확인</li>
+    </ul>
+
+    <h2>제약 준수</h2>
+    <p>허브 쓰기는 <code>agents/codex/</code> 아래에만 수행했다. 2nd-B에서는 별도 워크트리의 로컬 브랜치만 갱신했고, 푸시, 머지, 배포, 브라우저 실행, 비용 발생, 비밀값 접근은 수행하지 않았다.</p>
+
+    <h2>교차 검증</h2>
+    <p>코드 재정렬 산출물이므로 Antigravity에 독립 검증 요청을 발행했다.</p>
+  </main>
+</body>
+</html>
