@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>뒤로가기 북극성 라벨 정리 보고</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #64d2c8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; letter-spacing: 0; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    h3 { font-size: 15px; color: var(--accent); }
+    p { margin-top: 10px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px;
+      background: var(--bg);
+    }
+    .card strong {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    code {
+      color: var(--accent);
+      word-break: break-word;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    details { margin-top: 12px; }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .flow {
+      margin-top: 14px;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+    }
+    .footer {
+      margin-top: 28px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>뒤로가기 북극성 라벨 정리 보고</h1>
+    <p>Codex 단일 자율 사이클에서 열린 직접 요청은 없었고, 2nd-B UI 용어 정합성 후보 하나를 처리했습니다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <strong>결과</strong>
+        <span>완료</span>
+      </div>
+      <div class="card">
+        <strong>앱 커밋</strong>
+        <code>03613b66</code>
+      </div>
+      <div class="card">
+        <strong>브랜치</strong>
+        <code>codex/cycle-20260729-170312-backarrow-northstar</code>
+      </div>
+      <div class="card">
+        <strong>위험도</strong>
+        <span>낮음</span>
+      </div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>기준</td>
+          <td><code>origin/main 9c674f4d</code></td>
+        </tr>
+        <tr>
+          <td>작업 위치</td>
+          <td><code>E:\2ndB\.worktrees\codex-cycle-20260729-170312-backarrow-northstar</code></td>
+        </tr>
+        <tr>
+          <td>변경</td>
+          <td><code>/core-brain</code> 뒤로가기 보조 라벨을 <code>Soul Core/소울 코어</code>에서 <code>North Star/북극성</code>으로 정리했습니다.</td>
+        </tr>
+        <tr>
+          <td>회귀 방지</td>
+          <td><code>visible-brand-copy.test.ts</code>에 해당 라벨 고정 테스트를 추가했습니다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <svg class="flow" viewBox="0 0 760 150" role="img" aria-label="작업 흐름">
+      <rect x="24" y="48" width="160" height="54" rx="8" fill="#0b0f14" stroke="#64d2c8"/>
+      <text x="104" y="80" text-anchor="middle" fill="#e6edf3" font-size="14">후보 확인</text>
+      <line x1="184" y1="75" x2="292" y2="75" stroke="#64d2c8"/>
+      <rect x="292" y="48" width="176" height="54" rx="8" fill="#0b0f14" stroke="#64d2c8"/>
+      <text x="380" y="80" text-anchor="middle" fill="#e6edf3" font-size="14">라벨 수정</text>
+      <line x1="468" y1="75" x2="576" y2="75" stroke="#64d2c8"/>
+      <rect x="576" y="48" width="160" height="54" rx="8" fill="#0b0f14" stroke="#64d2c8"/>
+      <text x="656" y="80" text-anchor="middle" fill="#e6edf3" font-size="14">검증 완료</text>
+    </svg>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <table>
+        <thead>
+          <tr>
+            <th>검증</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>npm test -- --runTestsByPath src/lib/__tests__/visible-brand-copy.test.ts --runInBand</code></td>
+            <td>통과, 5개 테스트 성공</td>
+          </tr>
+          <tr>
+            <td><code>npm run type-check</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td><code>npm run check:lexicon</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td><code>npm run check:emdash</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td><code>git diff --check</code></td>
+            <td>통과, Windows 줄끝 경고만 표시</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>제약 확인</summary>
+      <p>2nd-B push, PR, merge, 배포, 비용 발생, 삭제, 시크릿 작업은 수행하지 않았습니다. 허브 쓰기는 <code>agents/codex/</code> 안으로 제한했습니다. 섹션 35 자체 패널 기준으로 단순 사용자 가시 라벨 정리이며 고위험 교차검증 요청은 필요하지 않다고 판단했습니다.</p>
+    </details>
+
+    <p class="footer">생성 시각: 2026-07-29 17:04:28 KST</p>
+  </main>
+</body>
+</html>
