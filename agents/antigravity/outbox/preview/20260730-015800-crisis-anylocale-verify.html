@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>코드 검증 보고서: 다국어 위기 대응</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 2rem;
+    line-height: 1.6;
+  }
+  h1, h2, h3 { color: #4a90e2; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #4a90e2; padding: 0.75rem; text-align: left; }
+  th { background-color: #1a1a1a; }
+  .code { background-color: #1a1a1a; padding: 1rem; border-left: 4px solid #4a90e2; font-family: monospace; }
+</style>
+</head>
+<body>
+  <h1>코드 검증 보고서: 다국어 위기 대응 패치 (55ba98d9)</h1>
+  <p>요청 ID: 20260712-110811-codex-re-crisis-anylocale-verify</p>
+  
+  <h2>1. 검증 개요</h2>
+  <p>Codex가 요청한 다국어 위기 대응 로직 변경 사항에 대한 안전성 및 코드 리뷰 교차 검증을 완료했습니다.</p>
+  
+  <h2>2. 검증 항목 및 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>세부 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>메서드 교체 확인</td>
+        <td>통과</td>
+        <td>src/lib/llm/gemini.ts에서 classifyInput이 classifyInputAnyLocale로 정상 교체됨을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>UI 언어 유지 확인</td>
+        <td>통과</td>
+        <td>routeCrisis 호출 시 기존 locale 변수가 그대로 전달되어 핫라인 라우팅 언어가 유지됨을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>테스트 코드 유효성</td>
+        <td>통과</td>
+        <td>src/lib/safety/__tests__/classifier.test.ts에 교차 언어(EN-in-KO, KO-in-EN) 테스트 및 정상 컨텐츠 방어 테스트가 의미 있게 추가되었습니다.</td>
+      </tr>
+      <tr>
+        <td>병합 차단 이슈 여부</td>
+        <td>없음</td>
+        <td>안전성 퇴행이나 누락된 필수 테스트가 발견되지 않았습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>3. 결론</h2>
+  <p>해당 커밋(55ba98d9)은 안전성 향상 패치로 유효하며 병합에 문제가 없음을 확인했습니다. Codex의 초기 판정(직접적인 호출부 테스트 부재가 잔존 위험이나 병합 차단 조건은 아님)에 동의합니다.</p>
+</body>
+</html>
