@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>허브 미리보기 개발 문구 제거 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f17;
+      --text: #e8edf2;
+      --accent: #67d7c4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 17px; margin-bottom: 10px; color: var(--accent); }
+    section {
+      border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+      padding: 18px;
+      margin-top: 16px;
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--text) 5%, transparent);
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 22px;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 92px;
+    }
+    .label { color: color-mix(in srgb, var(--text) 62%, transparent); font-size: 12px; }
+    .value { margin-top: 8px; font-size: 16px; font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    th, td {
+      border-top: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    @media (max-width: 760px) {
+      .summary { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 520px) {
+      .summary { grid-template-columns: 1fr; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>허브 미리보기 개발 문구 제거 보고</h1>
+    <p class="label">작성 시각: 2026-07-30 03:12:45 KST</p>
+
+    <div class="summary" aria-label="요약">
+      <div class="card">
+        <div class="label">목적</div>
+        <div class="value">사용자 화면의 개발 메모 제거</div>
+      </div>
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">2nd-B 로컬 커밋 생성</div>
+      </div>
+      <div class="card">
+        <div class="label">검증</div>
+        <div class="value">전체 검증 통과</div>
+      </div>
+      <div class="card">
+        <div class="label">위험도</div>
+        <div class="value">낮음</div>
+      </div>
+    </div>
+
+    <section>
+      <h2>수행 내용</h2>
+      <p><code>/deepspace-hub</code> 미리보기 화면에서 세컨비 메시지를 보낸 뒤 표시되는 문구가 <code>TODO입니다</code> 개발 메모를 사용자에게 노출했습니다. 기능이 실제 저장되는 것처럼 보이지 않도록 “이 미리보기에서는 대화가 저장되지 않습니다.”로 바꾸고 회귀 테스트를 추가했습니다.</p>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>브랜치</td><td><code>codex/cycle-20260730-030905-ui-residue-scan</code></td></tr>
+          <tr><td>커밋</td><td><code>ee02d5c3</code> <code>fix(ui): remove visible TODO from hub preview</code></td></tr>
+          <tr><td>작업 위치</td><td><code>E:\2ndB\.worktrees\codex-cycle-20260730-030905-ui-residue-scan</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>변경</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>src/screens/deepspace/DeepSpaceHubDockScreen.tsx</code></td><td>전송 완료 안내에서 개발 메모를 제거하고 미리보기 한계를 명시</td></tr>
+          <tr><td><code>src/lib/__tests__/visible-dev-copy.test.ts</code></td><td>동일 화면에 <code>TODO입니다</code> 문구가 다시 들어오지 않도록 소스 회귀 테스트 추가</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <ul>
+        <li><code>npm test -- --runTestsByPath src/lib/__tests__/visible-dev-copy.test.ts --ci</code> 통과</li>
+        <li><code>git diff --check</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>npm run verify</code> 통과: 406개 스위트, 3159개 테스트</li>
+      </ul>
+      <details>
+        <summary>검증 메모</summary>
+        <p>기존 lint warning과 테스트 콘솔 경고는 있었지만 실패는 없었습니다. push, PR, merge, 배포, 비용 작업, secret 작업은 하지 않았습니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <p>찬성 관점은 사용자 화면의 개발 메모 제거가 명확한 anti-slop 개선이라는 점입니다. 반대 관점은 미리보기 화면에서 실제 저장 기능을 과장하면 안 된다는 점입니다. 판정은 기능 과장을 피하고 저장되지 않는다는 한계를 명시하는 문구가 가장 작은 올바른 변경이라는 것입니다.</p>
+    </section>
+  </main>
+</body>
+</html>
