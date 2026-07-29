@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>홈 별 개수 문구 정합 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b1020; --panel:#121a2b; --text:#e8edf7; --accent:#62d6ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 18px 48px; }
+    header, section { background: var(--panel); border: 1px solid rgba(98,214,255,.22); border-radius: 8px; padding: 20px; margin: 0 0 16px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.2; }
+    h1 { font-size: 26px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-top: 1px solid rgba(232,237,247,.16); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .card { border: 1px solid rgba(98,214,255,.22); border-radius: 8px; padding: 12px; background: rgba(11,16,32,.5); }
+    .label { color: var(--accent); font-size: 12px; margin-bottom: 4px; }
+    .value { font-size: 15px; font-weight: 700; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>홈 별 개수 문구 정합 보고</h1>
+      <p>이번 사이클은 새 주문이 없어 codex 레인의 자율 작업으로 진행했다. 2026-07-29 결정 이후 홈은 보이는 6개 도메인 별과 뮤지엄 포털을 그리는데, 일부 문구가 여전히 7개 별을 직접 누르는 것처럼 안내하던 불일치를 정리했다.</p>
+      <div class="grid" aria-label="요약">
+        <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+        <div class="card"><div class="label">2nd-B 커밋</div><div class="value"><code>27ea451c</code></div></div>
+        <div class="card"><div class="label">브랜치</div><div class="value"><code>codex/cycle-20260730-015811-polish-scan</code></div></div>
+        <div class="card"><div class="label">검증</div><div class="value">전체 통과</div></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead><tr><th>파일</th><th>수정</th></tr></thead>
+        <tbody>
+          <tr><td><code>locales/en/home.json</code></td><td>홈 안내를 보이는 6개 별과 뮤지엄 포털 구조에 맞추고, 북극성 종합 대상을 7개 도메인으로 표현했다.</td></tr>
+          <tr><td><code>locales/ko/home.json</code></td><td>북극성 패널의 7별 표현을 7도메인 종합으로 바꾸고, 도메인 섹션은 보이는 6개 삶 별로 분리했다.</td></tr>
+          <tr><td><code>locales/es/home.json</code>, <code>locales/pt/home.json</code>, <code>locales/id/home.json</code></td><td>같은 의미 구분을 각 로케일에 맞춰 반영했다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><code>JSON.parse</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run verify</code></td><td>통과. 기존 린트 경고 57개와 테스트 콘솔 경고는 있었지만 실패는 없었다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>제한 준수</h2>
+      <p>허브에서는 <code>agents/codex/</code> 아래 보고 파일과 상태 파일만 작성했다. 2nd-B 작업은 별도 작업트리와 로컬 브랜치에서 수행했고 푸시, 피알, 머지, 배포, 비용 발생, 브라우저 열기는 하지 않았다.</p>
+      <p>섹션 35 자체 패널 결론: 문구 정합성 개선으로 범위가 낮고 되돌리기 쉬우며, 스키마나 보안 로직을 건드리지 않아 추가 교차 검증 요청은 필요하지 않다.</p>
+    </section>
+  </main>
+</body>
+</html>
