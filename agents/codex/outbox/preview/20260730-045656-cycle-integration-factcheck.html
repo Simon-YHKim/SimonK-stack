@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 통합 문서 사실검증</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101216; --text: #e8edf2; --accent: #63c7b2; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Noto Sans KR", sans-serif; line-height: 1.62; }
+    main { width: min(980px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    header { border: 1px solid var(--accent); padding: 22px; margin-bottom: 22px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin-bottom: 10px; color: var(--accent); }
+    h3 { font-size: 16px; margin-bottom: 8px; }
+    section { border-top: 1px solid var(--accent); padding-top: 20px; margin-top: 22px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .card { border: 1px solid var(--accent); padding: 14px; min-height: 112px; }
+    .num { display: block; font-size: 28px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code, pre { color: var(--text); }
+    pre { border: 1px solid var(--accent); padding: 12px; overflow: auto; }
+    ul { padding-left: 20px; }
+    li { margin: 8px 0; }
+    details { border: 1px solid var(--accent); padding: 12px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .small { font-size: 13px; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } main { width: min(100% - 20px, 980px); padding-top: 24px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>코덱스 사이클 통합 문서 사실검증</h1>
+    <p>대상 문서 <code>docs/sessions/R1/T-R1-S7-S4-06.md</code>의 긴급 주장과 현재 로컬·원격 Git 상태를 대조했다. 결론은 문서의 큰 통합 방향은 유효하지만, "대부분 로컬 디스크에만 있다"와 "120개만 얹은 상태의 세계관 가드 실패"는 현재 기준으로 그대로 재현되지 않는다.</p>
+    <p class="small">작성 시각: 2026-07-30 04:56:56 KST</p>
+  </header>
+
+  <section>
+    <h2>핵심 지표</h2>
+    <div class="grid">
+      <div class="card"><span class="num">184</span>로컬 <code>codex/cycle-*</code> 브랜치</div>
+      <div class="card"><span class="num">173</span><code>origin/main</code> 대비 실질 변경 브랜치</div>
+      <div class="card"><span class="num">172</span>실질 변경 중 원격에 같은 이름이 있는 브랜치</div>
+      <div class="card"><span class="num">1</span>실질 변경 중 원격에 없는 브랜치</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>문서 주장</th><th>현재 확인</th><th>판정</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>대상 수량</td>
+          <td>실질 변경 173개, 비어 있거나 이미 반영 11개</td>
+          <td>로컬 <code>codex/cycle-*</code> 184개 중 <code>origin/main</code> 대비 실질 변경 173개</td>
+          <td>일치</td>
+        </tr>
+        <tr>
+          <td>원격 보존 위험</td>
+          <td>브랜치들이 한 대의 디스크에만 있고 원격에 없음</td>
+          <td>실질 변경 173개 중 172개는 <code>origin/codex/cycle-*</code>로 확인됨. 원격에 없는 실질 변경은 <code>codex/cycle-20260730-043919-legal-vocab-review</code> 하나</td>
+          <td>현재 기준 불일치</td>
+        </tr>
+        <tr>
+          <td>120개 통합 브랜치</td>
+          <td><code>chore/codex-cycle-integration</code>은 원격에 있고 120개만 얹힌 상태</td>
+          <td><code>origin/chore/codex-cycle-integration</code> 존재, <code>origin/main..origin/chore/codex-cycle-integration</code>은 120커밋</td>
+          <td>일치</td>
+        </tr>
+        <tr>
+          <td>세계관 가드</td>
+          <td>120개만 올리면 <code>WorldviewConceptCoherence</code>가 실패</td>
+          <td><code>E:\2ndB\.worktrees\s7-cycle-integrate</code>에서 <code>src/lib/__tests__/worldview-naming.test.ts</code> 단독 실행 결과 13개 테스트 통과</td>
+          <td>현재 기준 재현 안 됨</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>실행한 검증</h2>
+    <pre>git -C E:\2ndB fetch --all --prune
+git -C E:\2ndB rev-list --count origin/main..chore/codex-cycle-integration
+git -C E:\2ndB branch --list "codex/cycle-*"
+npm test -- --runTestsByPath src/lib/__tests__/worldview-naming.test.ts --runInBand</pre>
+    <p>Jest 결과: 1개 테스트 스위트, 13개 테스트 모두 통과. 실행 위치는 <code>E:\2ndB\.worktrees\s7-cycle-integrate</code>이다.</p>
+  </section>
+
+  <section>
+    <h2>권고</h2>
+    <ul>
+      <li>S4 또는 Claude는 통합 착수 전에 <code>T-R1-S7-S4-06.md</code>의 긴급 설명을 현재 원격 상태에 맞게 갱신하는 편이 안전하다.</li>
+      <li>원격 보존이 필요하다면 전체 브랜치 일괄 푸시가 아니라 원격에 없는 실질 변경 1개부터 Claude 게이트로 판단해야 한다. Codex는 이번 사이클에서 2nd-B 푸시를 하지 않았다.</li>
+      <li>120커밋 브랜치의 전체 <code>npm run verify</code>는 아직 재실행하지 않았다. 이 보고서는 세계관 가드 단독 재현성만 닫는다.</li>
+      <li><code>-X theirs</code> 강제 통합 금지 권고는 유지한다. 문서가 든 TypeScript 중복 위험은 여전히 타당한 통합 리스크다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>섹션 35 자기 패널</h2>
+    <details open>
+      <summary>검토</summary>
+      <p>찬성: 새 코드 추가보다 현재 통합 문서의 사실관계를 바로잡는 것이 S4의 큰 작업 실패를 줄인다.</p>
+      <p>반대: 전체 verify와 53개 충돌 재현을 하지 않았으므로 "통합 가능" 판정은 아니다.</p>
+      <p>판정: 이번 사이클의 결론은 "문서의 두 핵심 위험 주장이 현재 기준으로 과장 또는 stale"까지만 확정한다.</p>
+    </details>
+  </section>
+</main>
+</body>
+</html>
