@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>세컨비 역할 라벨 재검증</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101418;
+      --text: #e8edf2;
+      --accent: #6aa6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin-top: 10px; }
+    .muted { opacity: 0.76; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .box {
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 14px;
+      min-height: 104px;
+    }
+    .box strong {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 14px;
+    }
+    th, td {
+      border-top: 1px solid var(--accent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+    details {
+      border-top: 1px solid var(--accent);
+      margin-top: 18px;
+      padding-top: 14px;
+    }
+    summary {
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 700;
+    }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      main { width: min(100% - 24px, 980px); padding-top: 28px; }
+      table { font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>세컨비 역할 라벨 재검증</h1>
+      <p class="muted">생성 시각: 2026-07-29 09:05:23 KST</p>
+      <p>Codex 우선 배치 두 번째 후보를 최신 기준에서 다시 적용하고, 충돌과 기본 회귀 검증을 확인했다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="box">
+        <strong>결과</strong>
+        <span>병합 후보 유지</span>
+      </div>
+      <div class="box">
+        <strong>기준</strong>
+        <code>origin/main 9c674f4d</code>
+      </div>
+      <div class="box">
+        <strong>재생성 커밋</strong>
+        <code>d1ef34d3</code>
+      </div>
+      <div class="box">
+        <strong>푸시 여부</strong>
+        <span>푸시 없음</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <p>기존 후보 <code>42b27482</code>를 새 worktree에서 clean cherry-pick 하여, 세컨비 역할 설명의 표시 라벨을 퇴역한 소울 코어 표현에서 현재 정본인 북극성 표현으로 맞췄다.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>파일</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/lib/characters.ts</code></td>
+            <td>세컨비 역할 라벨을 북극성 기준으로 정렬</td>
+          </tr>
+          <tr>
+            <td><code>src/lib/chat/personas.ts</code></td>
+            <td>대화 페르소나 설명의 같은 역할 표현 정렬</td>
+          </tr>
+          <tr>
+            <td><code>src/lib/__tests__/characters.test.ts</code></td>
+            <td>역할 라벨 기대값 갱신</td>
+          </tr>
+          <tr>
+            <td><code>src/lib/__tests__/worldview-naming.test.ts</code></td>
+            <td>정본 명칭 회귀 가드 갱신</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>jest --runTestsByPath</code></td>
+            <td>통과, 2개 테스트 파일, 24개 테스트</td>
+          </tr>
+          <tr>
+            <td><code>npm run check:i18n</code></td>
+            <td>통과, 5개 언어 44개 네임스페이스 정렬</td>
+          </tr>
+          <tr>
+            <td><code>npm run check:lexicon</code></td>
+            <td>통과, 금지 어휘 없음</td>
+          </tr>
+          <tr>
+            <td><code>npm run check:emdash</code></td>
+            <td>통과, 로케일 문자열 내 금지 대시 없음</td>
+          </tr>
+          <tr>
+            <td><code>npm run type-check</code></td>
+            <td>통과</td>
+          </tr>
+          <tr>
+            <td><code>git diff --check</code></td>
+            <td>통과, 공백 오류 없음</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <ul>
+        <li>사용자 경험 관점: 세컨비가 북극성 보조자로 보이는 것이 현재 세계관과 맞다.</li>
+        <li>통합 안정성 관점: 변경 파일이 4개로 작고, 기존 테스트가 라벨 회귀를 직접 고정한다.</li>
+        <li>안전 관점: 스키마, 인증, 결제, 외부 사실, 시크릿, 운영 배포를 건드리지 않아 고위험 교차검증 요청은 필요하지 않다.</li>
+      </ul>
+    </details>
+
+    <section>
+      <h2>산출 위치</h2>
+      <p>작업 브랜치: <code>codex/cycle-20260729-090416-secondb-role-reverify</code></p>
+      <p>작업 경로: <code>E:\2ndB\.worktrees\codex-cycle-20260729-090416-secondb-role-reverify</code></p>
+    </section>
+  </main>
+</body>
+</html>
