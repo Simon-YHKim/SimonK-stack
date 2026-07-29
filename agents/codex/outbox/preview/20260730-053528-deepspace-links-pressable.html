@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DeepSpaceLinks Pressable 스윕 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b1020; --text:#e8ecf8; --accent:#72f2c7; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height:1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 18px 48px; }
+    header, section { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 8px; padding: 18px; margin: 0 0 14px; background: color-mix(in srgb, var(--text) 4%, transparent); }
+    h1, h2 { margin: 0 0 10px; letter-spacing: 0; }
+    h1 { font-size: 24px; }
+    h2 { font-size: 17px; color: var(--accent); }
+    p { margin: 6px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: left; padding: 10px; border-top: 1px solid color-mix(in srgb, var(--text) 14%, transparent); vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
+    .card { border: 1px solid color-mix(in srgb, var(--text) 14%, transparent); border-radius: 8px; padding: 12px; min-height: 82px; }
+    .label { color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>DeepSpaceLinks Pressable 스윕 보고</h1>
+      <p>이번 사이클은 장기 Pressable 스윕 주문 중 작은 컴포넌트 1개만 처리했습니다.</p>
+      <p>작성 시각: 2026-07-30 05:35:28 KST</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><p>완료</p></div>
+      <div class="card"><div class="label">변경 수</div><p>1파일, 1패턴</p></div>
+      <div class="card"><div class="label">앱 커밋</div><p><code>172d6969</code></p></div>
+      <div class="card"><div class="label">푸시</div><p>하지 않음</p></div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>변경</th><th>이유</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/components/deep-space/DeepSpaceLinks.tsx</code></td>
+            <td>함수형 <code>Pressable</code> style을 제거하고 바깥 <code>View</code>와 안쪽 <code>Pressable</code>로 역할을 분리했습니다.</td>
+            <td>Fabric에서 함수형 Pressable style이 무시되는 회귀 위험을 줄이고 Android ripple을 명시했습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>바깥 <code>View</code>는 테두리, 배경, 모서리, 줄바꿈 레이아웃을 유지합니다. 안쪽 <code>Pressable</code>은 최소 44픽셀 높이, 패딩, 접근성 라벨, 라우팅, Android ripple만 담당합니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr><th>검사</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npx eslint src/components/deep-space/DeepSpaceLinks.tsx</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>위험과 남은 작업</h2>
+      <p>시각적 회귀 검사는 실행하지 않았습니다. 변경 범위는 단일 링크 그룹 컴포넌트이며, 다음 사이클에서는 다른 남은 Pressable 함수형 style 후보를 별도 1건으로 처리할 수 있습니다.</p>
+    </section>
+  </main>
+</body>
+</html>
