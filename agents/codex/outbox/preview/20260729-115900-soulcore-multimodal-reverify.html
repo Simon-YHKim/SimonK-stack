@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>소울코어 멀티모달 후보 재검증</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101318;
+      --text: #e8edf4;
+      --muted: #9aa6b2;
+      --accent: #77d7c8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+      line-height: 1.55;
+    }
+    main { max-width: 960px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2 { margin: 0 0 12px; font-weight: 700; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 0 0 12px; color: var(--text); }
+    .muted { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 18px 0 24px; }
+    .card { border: 1px solid rgba(232,237,244,.16); border-radius: 8px; padding: 14px; background: rgba(232,237,244,.04); }
+    .label { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .value { color: var(--text); font-size: 15px; font-weight: 700; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border-bottom: 1px solid rgba(232,237,244,.14); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--muted); font-weight: 700; }
+    code { color: var(--accent); font-family: Consolas, monospace; }
+    details { border: 1px solid rgba(232,237,244,.16); border-radius: 8px; padding: 12px 14px; margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .ok { color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>소울코어 멀티모달 후보 재검증</h1>
+    <p class="muted">작성 시각: 2026-07-29 11:59:00 KST</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결론</div><div class="value">부분 회수</div></div>
+      <div class="card"><div class="label">앱 커밋</div><div class="value"><code>6704e25e</code></div></div>
+      <div class="card"><div class="label">브랜치</div><div class="value"><code>codex/cycle-20260729-115738-soulcore-multimodal-reverify</code></div></div>
+      <div class="card"><div class="label">푸시</div><div class="value">하지 않음</div></div>
+    </section>
+
+    <h2>수행 내용</h2>
+    <p><code>origin/codex/soul-core-multimodal-pilot-20260610</code> 후보를 현재 <code>origin/main</code> 기준 새 worktree에서 재검증했습니다. 전체 후보는 오래된 기반으로 인해 2,001개 파일 차이와 대량 삭제를 포함해 직접 통합 대상이 아니었습니다.</p>
+    <p>그중 현재 main 구조에 맞는 작은 접근성 개선만 회수했습니다. <code>src/app/capture.tsx</code>의 링크 클립 입력에 <code>linkClip.label</code> 접근성 라벨을 추가하고, <code>scripts/check-constraints.ts</code>에 같은 회귀 조건을 넣었습니다.</p>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr><th>검증</th><th>결과</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>npm run check:constraints</code></td><td class="ok">통과</td><td>C11은 기존 PART 상태, 이번 변경과 무관</td></tr>
+        <tr><td><code>npx eslint src/app/capture.tsx scripts/check-constraints.ts</code></td><td class="ok">통과</td><td>출력 없음</td></tr>
+        <tr><td><code>npm run type-check</code></td><td class="ok">통과</td><td><code>tsc --noEmit</code></td></tr>
+        <tr><td><code>git diff --check</code></td><td class="ok">통과</td><td>Windows 줄끝 경고만 표시</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>35 자기 패널</summary>
+      <p>렌즈 1: 사용자가 화면을 보지 않고 탐색할 때 링크 클립 입력은 인접 캡션만으로는 명시적 컨트롤 이름이 부족할 수 있습니다.</p>
+      <p>렌즈 2: 후보 브랜치 전체를 얹으면 현재 main의 디자인, 법무, 데이터, 런타임 가드를 되돌릴 위험이 큽니다.</p>
+      <p>렌즈 3: 이미 존재하는 번역 키를 재사용하므로 새 카피, 새 권한, 비용, 네트워크 경로가 추가되지 않습니다.</p>
+      <p>렌즈 4: constraints 검사에 문자열 회귀 조건을 추가해 같은 누락이 다시 들어오는 것을 막습니다.</p>
+      <p>판정: 저위험 UI 접근성 보강입니다. MoA 고위험 검증 요청은 필요하지 않습니다.</p>
+    </details>
+
+    <h2>다음 인계</h2>
+    <p>Claude가 병합 게이트에서 <code>6704e25e</code>만 검토하면 됩니다. 원래 후보 브랜치 전체는 현재 main 대비 파괴적이므로 통합하지 않는 편이 맞습니다.</p>
+  </main>
+</body>
+</html>
