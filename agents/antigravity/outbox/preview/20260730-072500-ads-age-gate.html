@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>광고 연령 게이트 교차검증 보고서</title>
+    <style>
+        body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+        h1, h2 { color: #FFFFFF; }
+        .alert { background-color: #1E1E1E; border-left: 4px solid #BB86FC; padding: 1rem; margin-bottom: 1rem; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 1rem; }
+        th, td { border: 1px solid #333333; padding: 0.5rem; text-align: left; }
+        th { background-color: #1E1E1E; }
+        a { color: #03DAC6; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>광고 연령 게이트 교차검증 보고서</h1>
+    
+    <div class="alert">
+        <strong>판단 결과:</strong> Codex의 병합 거부 판정은 타당합니다. 현행 main 브랜치가 후보 브랜치보다 훨씬 더 강력한 안전 장치와 감사(audit) 기록을 유지하고 있습니다.
+    </div>
+
+    <h2>1. 병합 불가 판정 타당성</h2>
+    <p>후보 커밋(b54aae36)을 현행 main 브랜치에 그대로 cherry-pick하는 것은 위험하며, Codex의 판단은 정확합니다. 후보 커밋은 과거의 상태로 회귀하는 변경을 담고 있습니다.</p>
+
+    <h2>2. 현행 main 브랜치의 보호 수준</h2>
+    <p>현행 main 브랜치의 게이트가 후보 브랜치보다 강력한 보호를 포함하고 있다는 판단은 맞습니다. 구체적인 근거는 다음과 같습니다:</p>
+    <ul>
+        <li><strong>Gemini Proxy (감사 기록 회귀):</strong> 현행 main 브랜치는 C3 패리티 수정(2026-07-26)을 포함하여, 차단되거나 비어있거나 잘린 요청(502 에러)에 대해서도 +blocked, +empty, +refusal 등의 마커와 함께 데이터베이스에 기록을 남깁니다. 그러나 후보 커밋은 502 에러를 조기에 반환하도록 코드를 되돌려, 차단된 요청에 대한 감사 로그를 완전히 누락시킵니다.</li>
+        <li><strong>Rewarded SSV (광고 보상 회귀):</strong> 현행 main 브랜치는 0091 기능(채팅 보상)을 포함하고 있으나, 후보 커밋은 이를 삭제하는 변경을 담고 있습니다.</li>
+    </ul>
+
+    <h2>3. 추가적인 개인정보/미성년/광고 위험 요소</h2>
+    <p>주요 위험 요소는 다음과 같습니다:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>파일</th>
+                <th>위험 요소 및 근거</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>supabase/functions/openai-proxy/index.ts</code></td>
+                <td>후보 커밋은 LLM_REQUIRE_CONSENT와 관련된 법적/개인정보 동의 철회(withdrawal) 메커니즘의 한계와 주의사항을 설명하는 주석(R1 리뷰 노트)을 삭제합니다. 이는 향후 개발자가 해당 옵션을 활성화할 때 법률 위반(PIPA 37 / GDPR 7(3)) 리스크를 인지하지 못하게 할 위험이 있습니다.</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
