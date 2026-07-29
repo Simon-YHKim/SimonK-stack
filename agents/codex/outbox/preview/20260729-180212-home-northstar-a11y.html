@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>홈 북극성 접근성 라벨 정렬 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --text: #e7edf6;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 16px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .card, details {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      background: color-mix(in srgb, var(--bg) 88%, var(--text) 12%);
+    }
+    .label { color: var(--accent); font-size: 12px; }
+    .value { font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 4px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      word-break: break-all;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>홈 북극성 접근성 라벨 정렬 보고</h1>
+    <p>이번 사이클은 활성 Codex 요청이 없어, Codex 레인의 단일 신규 작업으로 홈 화면 접근성 라벨의 남은 레거시 명칭을 정리했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">2nd-B 커밋</div><div class="value"><code>5b262d6d</code></div></div>
+      <div class="card"><div class="label">검증</div><div class="value">전체 통과</div></div>
+      <div class="card"><div class="label">위험도</div><div class="value">낮음</div></div>
+    </section>
+
+    <details open>
+      <summary>변경 내용</summary>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>변경</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>locales/en/home.json</code></td><td>영어 스크린리더 라벨을 북극성 명칭으로 정렬</td></tr>
+          <tr><td><code>locales/ko/home.json</code></td><td>스크린리더 라벨을 “북극성 밝기”로 정렬</td></tr>
+          <tr><td><code>locales/es/home.json</code></td><td>스페인어 라벨을 북극성 명칭으로 정렬</td></tr>
+          <tr><td><code>locales/pt/home.json</code></td><td>포르투갈어 라벨을 북극성 명칭으로 정렬</td></tr>
+          <tr><td><code>locales/id/home.json</code></td><td>인도네시아어 라벨을 북극성 명칭으로 정렬</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>검증 결과</summary>
+      <table>
+        <thead>
+          <tr><th>검증</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>JSON 파싱</td><td>통과</td></tr>
+          <tr><td>레거시 라벨 잔여 검색</td><td>대상 문자열 없음</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run verify</code></td><td>통과, 기존 lint 경고와 테스트 콘솔 경고만 관찰</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>사용자 경험</td><td>스크린리더가 레거시 명칭 대신 현재 정본인 북극성을 읽는다.</td></tr>
+          <tr><td>범위 통제</td><td>사용자 가시 i18n 값 5개만 변경했고 내부 키와 로직은 유지했다.</td></tr>
+          <tr><td>운영 안전</td><td>2nd-B push, PR, merge, 배포, 비용 작업, 비밀값 접근은 하지 않았다.</td></tr>
+          <tr><td>교차 검증</td><td>고위험 산출물이 아니므로 MoA 검증 요청은 생략했다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <p>작성 시각: 2026-07-29 18:02:12 KST</p>
+  </main>
+</body>
+</html>
