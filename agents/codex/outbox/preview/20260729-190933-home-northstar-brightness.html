@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>홈 북극성 접근성 라벨 정렬 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --text: #e8edf2;
+      --accent: #66d9ef;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    header {
+      border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+      border-radius: 8px;
+      padding: 22px;
+      background: color-mix(in srgb, var(--accent) 8%, transparent);
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      margin-bottom: 10px;
+      font-size: clamp(26px, 4vw, 38px);
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 28px 0 12px;
+      font-size: 20px;
+      color: var(--accent);
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .label {
+      display: block;
+      color: color-mix(in srgb, var(--text) 68%, transparent);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .value { font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      overflow-wrap: anywhere;
+    }
+    th, td {
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.95em;
+    }
+    details {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 10px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+    li + li { margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>홈 북극성 접근성 라벨 정렬 보고</h1>
+      <p>이번 사이클은 새 요청이 없어 Codex 레인의 사용자 경험 정합성 작업 한 건을 수행했다. 홈 화면의 북극성 밝기 접근성 라벨에 남아 있던 예전 명칭을 현재 정본 명칭으로 맞췄다.</p>
+      <div class="summary" aria-label="요약">
+        <div class="card"><span class="label">결과</span><span class="value">완료</span></div>
+        <div class="card"><span class="label">위험도</span><span class="value">낮음</span></div>
+        <div class="card"><span class="label">2nd-B 커밋</span><span class="value"><code>c38d7a5c</code></span></div>
+        <div class="card"><span class="label">검증</span><span class="value">전체 통과</span></div>
+      </div>
+    </header>
+
+    <section aria-labelledby="changes">
+      <h2 id="changes">변경 내용</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>파일</th>
+            <th>변경</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>locales/en/home.json</code></td><td>접근성 라벨을 <code>North Star brightness</code>로 변경</td></tr>
+          <tr><td><code>locales/ko/home.json</code></td><td>접근성 라벨을 <code>북극성 밝기</code>로 변경</td></tr>
+          <tr><td><code>locales/es/home.json</code></td><td>접근성 라벨을 스페인어 북극성 표현으로 변경</td></tr>
+          <tr><td><code>locales/pt/home.json</code></td><td>접근성 라벨을 포르투갈어 북극성 표현으로 변경</td></tr>
+          <tr><td><code>locales/id/home.json</code></td><td>접근성 라벨을 인도네시아어 북극성 표현으로 변경</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="verification">
+      <h2 id="verification">검증 결과</h2>
+      <ul>
+        <li>다섯 개 locale 파일의 JSON 파싱 통과</li>
+        <li>변경 대상 예전 라벨 문자열 잔여 검색 결과 없음</li>
+        <li><code>git diff --check</code> 통과</li>
+        <li><code>npm run check:i18n</code>, <code>check:lexicon</code>, <code>check:emdash</code>, <code>type-check</code> 통과</li>
+        <li><code>npm run verify</code> 통과: 404개 테스트 스위트, 3138개 테스트</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="panel">
+      <h2 id="panel">자체 패널</h2>
+      <details open>
+        <summary>판정</summary>
+        <p>장점은 홈 화면 접근성 라벨이 현재 북극성 정본과 맞아 사용자 보조기술에서 예전 명칭이 노출되지 않는다는 점이다. 반대 관점은 내부 키 이름이 아직 <code>soulCore</code>라는 점이지만, 이 키는 내부 계약이라 이번 낮은 위험도 사이클에서 바꾸지 않는 것이 맞다. 결론은 표시 문구만 변경하고 구조, 라우트, 스키마, 동작은 건드리지 않는 것이다.</p>
+      </details>
+    </section>
+
+    <section aria-labelledby="limits">
+      <h2 id="limits">제한 준수</h2>
+      <p>2nd-B 브랜치 작업만 수행했고 푸시, 병합, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 발생 작업, 시크릿 취급은 하지 않았다. 고위험 산출물이 아니므로 교차검증 요청은 만들지 않았다.</p>
+      <p>작성 시각: 2026-07-29 19:09:33 KST</p>
+    </section>
+  </main>
+</body>
+</html>
