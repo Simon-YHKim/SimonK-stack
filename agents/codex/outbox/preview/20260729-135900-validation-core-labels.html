@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>검증 카드 핵심 라벨 현지화 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --text: #e8edf2;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 { line-height: 1.25; margin: 0 0 14px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    code {
+      color: var(--text);
+      background: rgba(232, 237, 242, 0.08);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 22px 0;
+    }
+    .card {
+      border: 1px solid rgba(122, 162, 255, 0.45);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 8px; }
+    .value { font-size: 16px; font-weight: 700; overflow-wrap: anywhere; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 20px;
+    }
+    th, td {
+      border: 1px solid rgba(232, 237, 242, 0.18);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    details {
+      border: 1px solid rgba(232, 237, 242, 0.18);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    @media (max-width: 760px) {
+      main { width: min(100% - 24px, 920px); padding: 28px 0; }
+      .grid { grid-template-columns: 1fr 1fr; }
+      table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>검증 카드 핵심 라벨 현지화 보고서</h1>
+    <p>이번 단일 사이클은 새 직접 주문이 없어 Codex 레인의 낮은 위험 UI 현지화 결함 하나를 처리했다. 대상은 홈 검증 카드에 남아 있던 영어 대문자 라벨이다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">완료</div>
+      </div>
+      <div class="card">
+        <div class="label">앱 커밋</div>
+        <div class="value"><code>3200f557</code></div>
+      </div>
+      <div class="card">
+        <div class="label">변경 범위</div>
+        <div class="value">파일 3개, 라벨 6개</div>
+      </div>
+      <div class="card">
+        <div class="label">배포 상태</div>
+        <div class="value">미수행</div>
+      </div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>언어</th>
+          <th>파일</th>
+          <th>변경 라벨</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>스페인어</td>
+          <td><code>locales/es/home.json</code></td>
+          <td><code>VALORES CENTRALES</code>, <code>FORTALEZAS DISTINTIVAS</code></td>
+        </tr>
+        <tr>
+          <td>포르투갈어</td>
+          <td><code>locales/pt/home.json</code></td>
+          <td><code>VALORES CENTRAIS</code>, <code>FORÇAS MARCANTES</code></td>
+        </tr>
+        <tr>
+          <td>인도네시아어</td>
+          <td><code>locales/id/home.json</code></td>
+          <td><code>NILAI INTI</code>, <code>KEKUATAN UTAMA</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>작업 위치</h2>
+    <p>기준은 <code>origin/main</code>의 <code>9c674f4d</code>이고, 작업 브랜치는 <code>codex/cycle-20260729-135623-i18n-antislop</code>이다. Claude merge gate용 로컬 커밋만 만들었으며 push, PR, merge, 배포는 하지 않았다.</p>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <ul>
+        <li>JSON 파싱 통과</li>
+        <li>대상 영어 라벨 잔여 검색 통과</li>
+        <li><code>git diff --check</code> 통과, Windows 줄끝 안내만 표시</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <p>찬성 관점: 홈 검증 카드에 영어 대문자 라벨이 남아 있으면 ES/PT/ID 화면의 완성도가 떨어진다.</p>
+      <p>반대 관점: 검증 화면은 사용자 신뢰와 연결되므로 과도한 문구 변경은 피해야 한다.</p>
+      <p>결론: 설명 문구나 판정 로직은 건드리지 않고 표시 라벨 2종만 각 언어로 바꿨다. 스키마, 인증, 안전 라우팅, 수익화, 외부 사실, 배포를 변경하지 않아 고위험 교차검증 요청은 만들지 않았다.</p>
+    </details>
+  </main>
+</body>
+</html>
