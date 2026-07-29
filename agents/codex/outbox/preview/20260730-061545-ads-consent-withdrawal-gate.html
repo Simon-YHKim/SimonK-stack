@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>광고 및 LLM 동의 철회 gate 확인 요청</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101418;
+      --text: #e6edf3;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main { max-width: 980px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section { border-top: 1px solid var(--accent); padding-top: 18px; margin-top: 24px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      padding: 14px;
+      min-height: 104px;
+    }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 8px; }
+    ul { padding-left: 20px; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    details { border: 1px solid var(--accent); padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>광고 및 LLM 동의 철회 gate 확인 요청</h1>
+    <p>이번 Codex poll cycle은 Antigravity의 06:05 재검증 결과를 읽고, 이전 03:07 결론과 달라진 개인정보 gate 위험을 Claude에게 올리는 작업으로 제한했다.</p>
+
+    <div class="summary" aria-label="요약">
+      <div class="card">
+        <div class="label">결론</div>
+        <div><code>b54aae36</code> 병합 금지 판단은 유지한다.</div>
+      </div>
+      <div class="card">
+        <div class="label">새 위험</div>
+        <div><code>LLM_REQUIRE_CONSENT</code> 활성화 전 동의 철회 반영 보완이 필요하다.</div>
+      </div>
+      <div class="card">
+        <div class="label">조치</div>
+        <div>Codex가 직접 패치하지 않고 Claude 보안/데이터 모델 lane에 확인 요청을 냈다.</div>
+      </div>
+      <div class="card">
+        <div class="label">검증 상태</div>
+        <div>현행 코드 주석, 구현, R1 문서가 같은 위험을 가리키는 것을 확인했다.</div>
+      </div>
+    </div>
+
+    <section>
+      <h2>확인한 근거</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>위치</th>
+            <th>확인 내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>E:\2ndB\supabase\functions\openai-proxy\index.ts</code></td>
+            <td>주석은 <code>consent_records</code>가 grant ledger이고 철회 상태는 <code>users.privacy_prefs</code>와 <code>consent_changes</code>에 있다고 설명한다.</td>
+          </tr>
+          <tr>
+            <td><code>E:\2ndB\supabase\functions\openai-proxy\index.ts</code></td>
+            <td>구현은 최신 <code>consent_records</code> 행의 <code>llm_processing_ack</code>와 <code>overseas_transfer_ack</code>만 확인한다.</td>
+          </tr>
+          <tr>
+            <td><code>E:\2ndB\docs\RISK-REMEDIATION-260726.md</code></td>
+            <td>R1 항목이 grant-only read는 withdrawal을 놓친다고 기록하며, flag 활성화 전 effective consent read 보완을 요구한다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>판단</h2>
+      <ul>
+        <li><code>origin/codex/analytics-ads-age-gate</code>의 <code>b54aae36</code>을 현행 main에 그대로 cherry-pick하면 최신 보호 문구와 서버 보호 레이어를 퇴행시킬 수 있으므로 병합하지 않는다.</li>
+        <li>AG의 06:05 위험 지적은 코드와 문서에 부합한다.</li>
+        <li>다만 어떤 pref가 해외 이전 동의의 현재 상태인지 정하는 일은 법무/데이터 모델 결정이므로 Codex lane에서 임의 구현하지 않는다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>35절 자체 패널</h2>
+      <details open>
+        <summary>찬성</summary>
+        <p>AG의 06:05 결론은 기존 AG 03:07 결론과 충돌하고, 보안/개인정보 영향이 있어 Claude 병합 관문에 올려야 한다.</p>
+      </details>
+      <details>
+        <summary>반대</summary>
+        <p>반복된 광고 gate 보고가 no-op 스팸이 될 수 있고, Codex가 직접 보안/데이터 모델 패치를 만들면 lane을 벗어난다.</p>
+      </details>
+      <details>
+        <summary>결론</summary>
+        <p>이번 사이클은 코드 변경 없이 Claude 확인 요청과 사람용 HTML 보고만 남긴다. 푸시, PR, 병합, 배포, 파괴적 작업, 비용 작업, 비밀값 작업, 브라우저 열기는 하지 않았다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>
