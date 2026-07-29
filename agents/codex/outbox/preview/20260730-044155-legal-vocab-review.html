@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>법무 문서 요금제 어휘 리뷰</title>
+  <style>
+    :root {
+      --bg: #0b0d12;
+      --text: #e9eef8;
+      --accent: #7cc7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Pretendard", "Malgun Gothic", system-ui, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 64px;
+    }
+    header, section, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 18px;
+      margin: 0 0 16px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: clamp(24px, 3vw, 34px); line-height: 1.2; }
+    h2 { font-size: 20px; }
+    h3 { font-size: 16px; }
+    code {
+      color: var(--accent);
+      font-family: "Roboto Mono", Consolas, monospace;
+      font-size: 0.95em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border-top: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; margin-bottom: 0; }
+    li + li { margin-top: 6px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .result {
+      color: var(--accent);
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>법무 문서 요금제 어휘 리뷰</h1>
+      <p class="result">판정: 머지 가능. 차단 결함 없음.</p>
+      <p>대상은 <code>origin/claude/s1-legal-vocab-lifetime</code>의 <code>0a3fe30a</code>입니다. 공개 약관, 환불정책, 정적 법무 페이지, 앱 내 법무 스냅샷에서 평생 이용권과 구 요금제명 노출을 제거했는지 확인했습니다.</p>
+    </header>
+
+    <section>
+      <h2>핵심 결과</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>결과</th>
+            <th>근거</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>구 요금제명</td>
+            <td>정리됨</td>
+            <td><code>Plus</code>, <code>Pro</code>가 검토 대상 법무 문서에서 <code>항해자</code>, <code>북극성</code>, <code>Voyager</code>, <code>North Star</code>로 교체됨.</td>
+          </tr>
+          <tr>
+            <td>평생 이용권</td>
+            <td>정리됨</td>
+            <td><code>평생</code>, <code>Lifetime</code>, <code>₩99,000</code> 노출이 약관과 환불정책의 앱 스냅샷에서 회귀 테스트로 차단됨.</td>
+          </tr>
+          <tr>
+            <td>정적 공개 페이지</td>
+            <td>동기화됨</td>
+            <td><code>check:legal-html</code>이 문서 원본과 <code>public/legal</code> HTML 4개 일치를 확인함.</td>
+          </tr>
+          <tr>
+            <td>잔여 위험</td>
+            <td>낮음</td>
+            <td>구 요금제명 제거 테스트가 <code>TERMS_DOC</code> 중심이라 <code>REFUND_DOC</code>의 <code>Plus/Pro</code> 재유입을 직접 단언하지는 않음. 현재 diff와 HTML freshness로는 문제 없음.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li><code>npm test -- --runTestsByPath src/lib/legal/__tests__/legal-documents.test.ts --ci</code> 통과: 13개 테스트.</li>
+        <li><code>npm run check:legal-html</code> 통과: 법무 HTML 4개가 원본과 일치.</li>
+        <li><code>npm run check:legal-review</code> 통과.</li>
+        <li><code>npm run check:emdash</code> 통과.</li>
+        <li><code>npm run check:lexicon</code> 통과.</li>
+        <li><code>git diff --check origin/main..HEAD</code> 통과.</li>
+        <li><code>npm run verify</code> 통과: 405개 스위트, 3159개 테스트. 기존 lint 경고 57개와 테스트 콘솔 경고만 남음.</li>
+      </ul>
+    </section>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <h3>찬성</h3>
+      <p>Simon의 평생 이용권 미판매 결정과 공개 법무 문서가 어긋나면 사용자 신뢰와 결제 고지가 흔들립니다. 이번 변경은 그 모순을 작은 범위에서 닫습니다.</p>
+      <h3>반대</h3>
+      <p>법무 문서는 고위험 표면이므로 Codex가 문구 자체의 법적 충분성을 단독 확정하면 안 됩니다.</p>
+      <h3>판정</h3>
+      <p>Codex 판정은 UI와 공개 어휘 정합에 한정합니다. 변경은 머지 가능하지만, 최종 법무 판단과 배포 시점 조율은 Claude 게이트에 남깁니다.</p>
+    </details>
+
+    <section>
+      <h2>작업 경계</h2>
+      <p>2nd-B 코드는 수정하지 않았고, 새 앱 커밋도 만들지 않았습니다. 검토용 워크트리는 <code>E:\2ndB\.worktrees\codex-cycle-20260730-043919-legal-vocab-review</code>이며 브랜치는 <code>codex/cycle-20260730-043919-legal-vocab-review</code>입니다. push, 병합, 배포, 브라우저 자동 열기, 비용 작업, 시크릿 작업은 하지 않았습니다.</p>
+    </section>
+  </main>
+</body>
+</html>
