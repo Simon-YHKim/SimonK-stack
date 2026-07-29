@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>폰 셸 뒤로가기 터치면 정규화 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101214; --text:#e8eaed; --muted:#9aa0a6; --accent:#8ab4f8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 960px; margin: 0 auto; padding: 32px 20px 56px; }
+    h1, h2 { margin: 0 0 12px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); margin-top: 28px; }
+    p { margin: 8px 0; }
+    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 20px 0 28px; }
+    .card { border: 1px solid var(--muted); border-radius: 8px; padding: 14px; }
+    .label { color: var(--muted); font-size: 12px; }
+    .value { font-size: 16px; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--muted); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { border: 1px solid var(--muted); border-radius: 8px; padding: 12px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .muted { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>폰 셸 뒤로가기 터치면 정규화 보고서</h1>
+    <p class="muted">작성 시각: 2026-07-30 08:08:48 KST</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><div class="label">작업 상태</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">변경 범위</div><div class="value">공유 셸 파일 1개</div></div>
+      <div class="card"><div class="label">2nd-B 커밋</div><div class="value"><code>7de6c197</code></div></div>
+      <div class="card"><div class="label">푸시 여부</div><div class="value">푸시하지 않음</div></div>
+    </section>
+
+    <h2>수행 내용</h2>
+    <p><code>PhoneShell</code> 상단 뒤로가기 버튼에서 시각 크기와 정렬은 <code>View</code>가 맡고, <code>Pressable</code>은 투명 터치층으로 동작하게 분리했습니다. Android 눌림 반응을 위해 <code>android_ripple</code>과 <code>hitSlop</code>을 추가했습니다.</p>
+
+    <table>
+      <thead>
+        <tr><th>항목</th><th>값</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>worktree</td><td><code>C:\2ndB\.worktrees\pressable-sweep-j</code></td></tr>
+        <tr><td>브랜치</td><td><code>codex/pressable-sweep-j</code></td></tr>
+        <tr><td>수정 파일</td><td><code>src/components/deepspace/shell/PhoneShell.tsx</code></td></tr>
+        <tr><td>커밋 메시지</td><td><code>fix(ui): normalize phone shell back touch surface</code></td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr><th>검증 항목</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>npx prettier --check src/components/deepspace/shell/PhoneShell.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npx eslint src/components/deepspace/shell/PhoneShell.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>기존 의존성 타입 해석 문제로 실패</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자세히</summary>
+      <p>전체 type-check는 <code>madge</code>, <code>react-native-google-mobile-ads</code>, <code>@react-native-firebase/analytics</code> 타입 해석 문제에서 중단되었습니다. 이번 수정 파일의 타입 오류는 보고되지 않았습니다.</p>
+    </details>
+
+    <h2>35절 자기 패널</h2>
+    <table>
+      <thead>
+        <tr><th>관점</th><th>판단</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>찬성</td><td>공유 셸 뒤로가기 버튼의 Android Fabric 스타일 유실 가능성을 줄였습니다.</td></tr>
+        <tr><td>반대</td><td>실제 기기에서 ripple 렌더를 직접 확인하지는 못했습니다.</td></tr>
+        <tr><td>판정</td><td>변경 범위가 버튼 1곳에 한정되어 있고 파일 단위 검증이 통과했으므로 제출합니다.</td></tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>
