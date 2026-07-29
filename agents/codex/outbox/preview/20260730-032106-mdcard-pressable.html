@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>엠디카드 프레서블 표면 정리 보고서</title>
+  <style>
+    :root{--bg:#101214;--text:#e7ecef;--accent:#7cc7b2}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Malgun Gothic",sans-serif;line-height:1.6}
+    main{max-width:980px;margin:0 auto;padding:32px 18px 48px}
+    header{border:1px solid var(--accent);border-radius:8px;padding:22px;margin-bottom:18px}
+    h1{font-size:24px;margin:0 0 8px}
+    h2{font-size:18px;margin:0 0 10px}
+    p{margin:0 0 10px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:16px 0}
+    .card,details{border:1px solid color-mix(in srgb,var(--text) 28%,transparent);border-radius:8px;padding:14px;background:color-mix(in srgb,var(--text) 4%,transparent)}
+    .label{font-size:12px;opacity:.72}
+    .value{font-size:18px;font-weight:700}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{border-top:1px solid color-mix(in srgb,var(--text) 22%,transparent);padding:9px;text-align:left;vertical-align:top}
+    th{color:var(--accent)}
+    code{color:var(--accent)}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    .ok{color:var(--accent);font-weight:700}
+    svg{width:100%;height:auto;margin-top:8px}
+    .bar{fill:var(--accent)}
+    .axis{stroke:var(--text);opacity:.35}
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>엠디카드 프레서블 표면 정리 보고서</h1>
+      <p>작성 시각: 2026-07-30 03:21:06 KST</p>
+      <p>이번 사이클은 새로 처리할 codex 대상 open 요청이 없어, 기존 큐 G의 남은 Fabric Pressable 위험 중 공유 컴포넌트 하나를 정리했다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">완료</div><p>로컬 커밋 생성, push 없음</p></div>
+      <div class="card"><div class="label">대상</div><div class="value">MdCard</div><p>시각 표면을 바깥 View로 이동</p></div>
+      <div class="card"><div class="label">검증</div><div class="value">통과</div><p>전체 verify exit code 0</p></div>
+      <div class="card"><div class="label">위험</div><div class="value">낮음</div><p>단일 공유 UI 컴포넌트 변경</p></div>
+    </section>
+
+    <details open>
+      <summary>변경 내용</summary>
+      <table>
+        <thead><tr><th>항목</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td>파일</td><td><code>src/components/m3/MdCard.tsx</code></td></tr>
+          <tr><td>변경</td><td>interactive 카드에서 배경, 테두리, elevation, pressed opacity를 바깥 <code>View</code>가 소유하도록 변경했다.</td></tr>
+          <tr><td>Pressable 역할</td><td><code>Pressable</code>은 터치 처리, 접근성 역할, 접근성 라벨, Android ripple만 담당한다.</td></tr>
+          <tr><td>2nd-B 커밋</td><td><code>8f20e245</code> <code>fix(m3): normalize md card pressable surface</code></td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>검증 상태</summary>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th><th>메모</th></tr></thead>
+        <tbody>
+          <tr><td><code>git diff --check</code></td><td class="ok">통과</td><td>공백 오류 없음. 줄끝 경고만 표시됨.</td></tr>
+          <tr><td><code>npm run type-check</code></td><td class="ok">통과</td><td>TypeScript 오류 없음.</td></tr>
+          <tr><td><code>npm run verify</code></td><td class="ok">통과</td><td>lint, type-check, i18n, lexicon, legal, boundary, constraints, emdash, anti-anthro, mascot, Jest 통과.</td></tr>
+          <tr><td>Jest</td><td class="ok">통과</td><td>295 suites, 2212 tests 통과.</td></tr>
+        </tbody>
+      </table>
+      <svg viewBox="0 0 640 120" role="img" aria-label="검증 통과 막대 차트">
+        <line class="axis" x1="20" y1="96" x2="620" y2="96"></line>
+        <rect class="bar" x="42" y="28" width="110" height="68"></rect>
+        <rect class="bar" x="192" y="28" width="110" height="68"></rect>
+        <rect class="bar" x="342" y="28" width="110" height="68"></rect>
+        <rect class="bar" x="492" y="28" width="110" height="68"></rect>
+        <text x="64" y="113" fill="var(--text)" font-size="13">diff</text>
+        <text x="204" y="113" fill="var(--text)" font-size="13">type</text>
+        <text x="352" y="113" fill="var(--text)" font-size="13">verify</text>
+        <text x="506" y="113" fill="var(--text)" font-size="13">tests</text>
+      </svg>
+    </details>
+
+    <details>
+      <summary>위험과 롤백</summary>
+      <table>
+        <thead><tr><th>구분</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td>위험</td><td>현재 검색 기준으로 <code>MdCard</code>의 interactive 사용처는 많지 않지만, 공유 컴포넌트라 향후 사용처의 Android Fabric 안정성에 영향을 준다.</td></tr>
+          <tr><td>제약</td><td>허브에서는 <code>agents/codex/</code>만 작성했고, 2nd-B는 별도 worktree에서 로컬 커밋만 만들었다.</td></tr>
+          <tr><td>롤백</td><td>Claude가 머지 전이면 커밋 <code>8f20e245</code>를 제외하면 된다. 머지 후에는 같은 커밋을 revert하면 된다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <table>
+        <thead><tr><th>관점</th><th>판단</th></tr></thead>
+        <tbody>
+          <tr><td>찬성</td><td>Fabric Android에서 함수형 Pressable style이 무시되는 계열을 공유 컴포넌트에서 줄였다.</td></tr>
+          <tr><td>반대</td><td>현재 직접 interactive 사용처가 적어 즉시 사용자 체감은 제한적일 수 있다.</td></tr>
+          <tr><td>판정</td><td>작고 검증 가능한 변경이며, 큐 G의 패턴과 일치하므로 이번 단일 작업으로 적합하다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+  </main>
+</body>
+</html>
