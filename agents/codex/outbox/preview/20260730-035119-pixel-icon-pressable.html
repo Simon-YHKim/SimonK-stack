@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>픽셀 아이콘 버튼 터치 표면 정리 보고서</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e8eef4; --accent:#76d1c4; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial,"Malgun Gothic",sans-serif; line-height:1.55; }
+    main { max-width:960px; margin:0 auto; padding:32px 18px 48px; }
+    header { border:1px solid var(--accent); padding:22px; border-radius:8px; }
+    h1 { margin:0 0 10px; font-size:28px; letter-spacing:0; }
+    h2 { margin:28px 0 12px; font-size:18px; color:var(--accent); }
+    p { margin:8px 0; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border:1px solid var(--accent); border-radius:8px; padding:10px 12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-top:16px; }
+    .card { border:1px solid var(--accent); border-radius:8px; padding:14px; min-height:116px; }
+    .label { color:var(--accent); font-weight:700; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>픽셀 아이콘 버튼 터치 표면 정리</h1>
+      <p>작성 시각: 2026-07-30 03:51:19 KST</p>
+      <p>이번 사이클은 Codex 레인의 Pressable 함수형 스타일 정리 요청 중 한 항목만 처리했다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><p class="label">결과</p><p><code>PixelIconButton</code>의 함수형 <code>style</code>을 제거하고 바깥 <code>View</code>가 비주얼 상태를 소유하게 했다.</p></div>
+      <div class="card"><p class="label">검증</p><p><code>git diff --check</code>, <code>npm run type-check</code>, <code>npm run verify</code> 통과.</p></div>
+      <div class="card"><p class="label">커밋</p><p>2nd-B 로컬 커밋 <code>1f6e1b9d</code>. push는 하지 않았다.</p></div>
+      <div class="card"><p class="label">위험</p><p>저위험 UI 구조 정리. 스키마, 보안, 외부 사실, 머지 diff 고위험 산출물이 아니다.</p></div>
+    </section>
+
+    <h2>변경 파일</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경 내용</th><th>영향</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>src/components/premium/surfaces.tsx</code></td>
+          <td><code>PixelIconButton</code>에서 pressed 상태를 <code>useState</code>로 관리하고, 비주얼 스타일을 바깥 <code>View</code>에 적용했다. 내부 <code>Pressable</code>은 터치, 접근성, 리플만 담당한다.</td>
+          <td>Fabric Android에서 함수형 Pressable style이 무시되는 패턴을 줄인다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th><th>메모</th></tr></thead>
+      <tbody>
+        <tr><td><code>git diff --check</code></td><td>통과</td><td>공백 오류 없음.</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td><td><code>tsc --noEmit</code> 성공.</td></tr>
+        <tr><td><code>npm run verify</code></td><td>통과</td><td>Jest 295개 스위트, 2212개 테스트 통과. 기존 lint 경고는 남아 있으나 오류는 없음.</td></tr>
+        <tr><td>시크릿 점검</td><td>통과</td><td>diff에서 민감값 패턴 없음.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>자체 패널</h2>
+    <details open>
+      <summary>찬성 관점</summary>
+      <p>프리미엄 공통 표면의 아이콘 버튼은 여러 화면에서 재사용될 수 있으므로, Fabric 안전 패턴으로 먼저 정리할 가치가 있다.</p>
+    </details>
+    <details>
+      <summary>반대 관점</summary>
+      <p>직접 사용자 흐름을 바꾸는 변경은 아니므로 즉시 체감 효과는 작다. 범위를 넓히면 회귀 위험이 커질 수 있다.</p>
+    </details>
+    <details>
+      <summary>판정</summary>
+      <p>한 컴포넌트의 터치 표면만 정리하는 저위험 변경으로 제한했다. 추가 MoA 검증 요청 대상은 아니다.</p>
+    </details>
+  </main>
+</body>
+</html>
