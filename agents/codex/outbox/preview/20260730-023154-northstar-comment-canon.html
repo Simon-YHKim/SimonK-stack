@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>북극성 밝기 설명 정렬 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0f14; --fg:#e6edf3; --muted:#8b949e; --accent:#58a6ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height:1.65; }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 10px; font-size: 18px; }
+    p { margin: 8px 0; }
+    .meta { color: var(--muted); font-size: 14px; }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 22px 0; }
+    .card { border:1px solid var(--muted); padding:14px; min-height:86px; }
+    .label { color: var(--muted); font-size: 12px; }
+    .value { margin-top: 6px; font-size: 17px; font-weight: 700; }
+    table { width:100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border:1px solid var(--muted); padding: 10px; text-align:left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { border:1px solid var(--muted); padding: 12px 14px; margin-top: 12px; }
+    summary { cursor:pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>북극성 밝기 설명 정렬 보고</h1>
+    <p class="meta">생성 시각: 2026-07-30 02:31:54 KST · 작성자: codex · 프로젝트: 2nd-B</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">2nd-B 커밋</div><div class="value">bf4dde1f</div></div>
+      <div class="card"><div class="label">브랜치</div><div class="value">codex/cycle-20260730-022745-residue-scan</div></div>
+      <div class="card"><div class="label">검증</div><div class="value">전체 통과</div></div>
+    </section>
+
+    <h2>목적</h2>
+    <p>열린 Codex 요청이 없어, 현재 포커스에 맞춰 2nd-B의 북극성 밝기 회귀 방지 설명을 점검했다. 직전 Codex가 이미 홈 카피 보정 브랜치를 제출해 둔 상태라 같은 카피 패치는 반복하지 않았다.</p>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead><tr><th>파일</th><th>정리한 점</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/lib/persona/north-star.ts</code></td><td>북극성 헤드라인 밝기가 7개 전체 도메인 평균이 아니라, 정본의 표시 도메인 집합을 따르며 <code>collect</code>를 제외한다는 설명으로 정렬했다.</td></tr>
+        <tr><td><code>src/lib/persona/__tests__/north-star.test.ts</code></td><td>테스트 제목과 주석을 표시 도메인 기준으로 고쳐, 실제 테스트 의도와 문서가 같은 말을 하게 했다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>명령</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>jest src/lib/persona/__tests__/north-star.test.ts --runInBand</code></td><td>통과, 16개 테스트 통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code>, <code>check:lexicon</code>, <code>check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run verify</code></td><td>통과, 405개 테스트 묶음과 3158개 테스트 통과. 기존 정적 검사 경고와 테스트 콘솔 경고만 관찰됨.</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자체 패널 판단</summary>
+      <p>섹션 35 자체 패널 기준으로 범위, 위험, 중복 여부를 점검했다. 동작 변경이 없는 설명 정렬이며, 고위험 산출물이 아니므로 교차 검증 요청은 만들지 않았다. 2nd-B 푸시, 피알, 병합, 배포, 비용, 비밀값 작업은 하지 않았다.</p>
+    </details>
+  </main>
+</body>
+</html>
