@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>한국어 audit 종료 문구 정리</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { font-size: 18px; margin-bottom: 10px; }
+    section {
+      border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 16px;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 92px;
+    }
+    .label {
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .value { font-size: 15px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      padding: 10px 8px;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    li + li { margin-top: 6px; }
+    details { margin-top: 10px; }
+    summary { color: var(--accent); cursor: pointer; }
+    @media (max-width: 720px) {
+      .summary { grid-template-columns: 1fr; }
+      main { width: min(100% - 24px, 920px); padding-top: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>한국어 audit 종료 문구 정리</h1>
+    <p>2026-07-29 16:49:32 KST 기준 Codex 단일 poll cycle 결과입니다.</p>
+
+    <div class="summary" aria-label="요약">
+      <div class="card">
+        <div class="label">목적</div>
+        <div class="value">한국어 audit 종료 대화상자의 임상적 표현 제거</div>
+      </div>
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">`진단` 4곳을 `자기 점검` 흐름으로 교체</div>
+      </div>
+      <div class="card">
+        <div class="label">범위</div>
+        <div class="value">`locales/ko/audit.json` 단일 파일</div>
+      </div>
+      <div class="card">
+        <div class="label">검증</div>
+        <div class="value">핵심 검사 통과</div>
+      </div>
+    </div>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>이전</th>
+            <th>이후</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>알림 라벨</td>
+            <td>진단 종료 안내</td>
+            <td>자기 점검 종료 안내</td>
+          </tr>
+          <tr>
+            <td>제목</td>
+            <td>진단을 종료할까요?</td>
+            <td>자기 점검을 종료할까요?</td>
+          </tr>
+          <tr>
+            <td>취소 힌트</td>
+            <td>진단을 계속 진행합니다.</td>
+            <td>자기 점검을 계속 진행합니다.</td>
+          </tr>
+          <tr>
+            <td>확인 힌트</td>
+            <td>진단을 종료하고 질문 선택 화면으로 돌아갑니다.</td>
+            <td>자기 점검을 종료하고 질문 선택 화면으로 돌아갑니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>산출물</h2>
+      <ul>
+        <li>기준: <code>origin/main 9c674f4d</code></li>
+        <li>브랜치: <code>codex/cycle-20260729-164725-i18n-antislop</code></li>
+        <li>커밋: <code>6345402a</code></li>
+        <li>커밋 메시지: <code>fix(i18n): avoid diagnosis wording in Korean audit exit</code></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <ul>
+        <li>JSON 파싱 통과</li>
+        <li>대상 잔여어 검색 통과</li>
+        <li><code>git diff --check</code> 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <details open>
+        <summary>판정 보기</summary>
+        <p>이 변경은 한국어 UI 카피만 바꾸는 저위험 정리입니다. 스키마, 인증, 결제, 외부 사실 주장, 배포, main 머지에 닿지 않았으므로 별도 MoA 검증 요청은 만들지 않았습니다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>
