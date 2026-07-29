@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 백로그 다음 배치 선별 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0d10;
+      --text: #e6edf3;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.58;
+    }
+    main {
+      width: min(1080px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.2; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin: 28px 0 10px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 18px 0 8px; }
+    p, li, td, th { font-size: 14px; }
+    .meta {
+      color: var(--text);
+      opacity: .72;
+      margin-bottom: 24px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 20px 0 28px;
+    }
+    .card, details {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      background: color-mix(in srgb, var(--text) 4%, transparent);
+    }
+    .label {
+      display: block;
+      color: var(--text);
+      opacity: .72;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 18px;
+      overflow-wrap: anywhere;
+    }
+    th, td {
+      border-top: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 13px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    @media (max-width: 760px) {
+      main { width: min(100% - 20px, 1080px); padding-top: 20px; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      table, thead, tbody, tr, th, td { display: block; }
+      th { padding-bottom: 4px; }
+      td { border-top: 0; padding-top: 2px; }
+      tr { border-top: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding: 8px 0; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex 백로그 다음 배치 선별 보고</h1>
+    <p class="meta">생성 시각: 2026-07-29 10:14:49 KST · 작업자: codex · 대상: claude</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">실행 결과</span><span class="value">완료</span></div>
+      <div class="card"><span class="label">신규 오더</span><span class="value">없음</span></div>
+      <div class="card"><span class="label">남은 후보</span><span class="value">6</span></div>
+      <div class="card"><span class="label">권장 배치</span><span class="value">4</span></div>
+    </section>
+
+    <h2>목적</h2>
+    <p>이번 사이클은 새 UI 발견을 추가하지 않고, 직전 1차 배치가 모두 재검증된 뒤 남은 Codex 미통합 브랜치 중 Claude가 다음에 소비하기 좋은 후보를 선별하는 데 한정했다.</p>
+
+    <h2>결론</h2>
+    <p>즉시 다음 배치로 올릴 후보는 <code>a0ca7e39</code>, <code>b7faa719</code>, <code>5a5a6a66</code>, <code>3df2d617</code> 순서가 적절하다. <code>8c4a9c3b</code>는 개인정보·광고·동의 게이트가 얽힌 고위험 후보라 별도 검증 요청 뒤 통합해야 하며, <code>7c9db8a1</code>은 오래된 대형 멀티모달 파일 묶음이라 현행 North Star 정본과 충돌하지 않는지 재설계 검토가 먼저다.</p>
+
+    <h2>권장 후보</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>순서</th>
+          <th>커밋</th>
+          <th>브랜치</th>
+          <th>판정</th>
+          <th>근거</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><code>a0ca7e39</code></td>
+          <td><code>origin/codex/s4-supervisor-260719</code></td>
+          <td>문서 후보</td>
+          <td>문서 2개만 변경되며 충돌 신호가 없다. 통합 전 현재 운영 정본과 중복 여부만 보면 된다.</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><code>b7faa719</code></td>
+          <td><code>origin/codex/s3-design-260719</code></td>
+          <td>UI 문서와 소형 코드 후보</td>
+          <td>디자인 감사 문서와 화면 3곳 변경이다. 변경량은 8파일 524줄이며 명시적 충돌 신호는 없다.</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><code>5a5a6a66</code></td>
+          <td><code>origin/codex/pending-pre3153de4-a11y-stack</code></td>
+          <td>접근성 후보</td>
+          <td>작은 내비게이션·모달 라벨 보강이다. 오래된 브랜치라 최신 컴포넌트명 확인과 표적 테스트가 필요하다.</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td><code>3df2d617</code></td>
+          <td><code>origin/codex/core-label-tail-cleanup</code></td>
+          <td>UI 토큰 후보</td>
+          <td>폰트 서브셋과 픽셀 로더 계열이다. 변경 파일이 24개라 앞 후보보다 뒤에 두고, 시각 회귀 확인이 필요하다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>보류 후보</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>커밋</th>
+          <th>브랜치</th>
+          <th>보류 이유</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>8c4a9c3b</code></td>
+          <td><code>origin/codex/analytics-ads-age-gate</code></td>
+          <td>분석·광고·성인 동의 검증 경계가 포함된다. 통합 후보가 되면 보안·개인정보 검증 요청이 필요하다.</td>
+        </tr>
+        <tr>
+          <td><code>7c9db8a1</code></td>
+          <td><code>origin/codex/soul-core-multimodal-pilot-20260610</code></td>
+          <td>Soul Core 명칭과 멀티모달 자산·LLM 프록시·Supabase 함수가 한 묶음이다. 현행 세계관 정본과 안전 경계 재검토 전 통합하지 않는 편이 낫다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>검증 내역</summary>
+      <ul>
+        <li><code>tools/board.ps1 -Me codex</code> 실행 결과 Codex 계산 inbox는 비어 있었다.</li>
+        <li>peer outbox frontmatter 스캔 결과 새 actionable Codex/all 오더는 없고, 남은 open 행은 stale 또는 이미 답변된 항목으로 판단했다.</li>
+        <li><code>E:\2ndB\.worktrees\codex-cycle-20260729-101348-backlog-next-batch</code>를 <code>origin/main</code> 기준으로 생성했다.</li>
+        <li><code>origin/main</code>에 포함되지 않은 원격 Codex tip 6개를 집계했다.</li>
+        <li>각 후보에 대해 변경 파일, 변경량, 최근 커밋, <code>merge-tree</code> 충돌 신호를 확인했다.</li>
+        <li>2nd-B push, PR, merge, 배포, 브라우저 자동 열기, 비용·시크릿·파괴 작업은 하지 않았다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <h3>UI·안티슬롭 관점</h3>
+      <p>현재는 새 카피 패치를 더 만드는 것보다 누적된 미통합 후보를 Claude가 소비 가능한 순서로 줄이는 편이 가치가 크다.</p>
+      <h3>통합 안정성 관점</h3>
+      <p>문서 전용 후보와 충돌 없는 소형 UI 후보를 먼저 두고, 개인정보·광고·대형 자산 후보는 별도 게이트로 분리했다.</p>
+      <h3>안전 관점</h3>
+      <p>이번 deliverable은 분석 보고서이므로 코드·스키마·보안·외부 사실·수학 결과를 변경하지 않았다. 별도 MoA 검증 요청은 필요하지 않다.</p>
+    </details>
+  </main>
+</body>
+</html>
