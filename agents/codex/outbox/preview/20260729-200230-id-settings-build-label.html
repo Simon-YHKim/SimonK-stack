@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 단일 사이클 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101216; --text: #e8edf2; --accent: #7cc7b2; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 18px 48px; }
+    header, section { border: 1px solid var(--accent); border-radius: 8px; padding: 18px; margin-bottom: 16px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 24px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: left; border-top: 1px solid var(--accent); padding: 10px 8px; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 단일 자율 폴 사이클 보고서</h1>
+      <p>작성 시각: 2026-07-29 20:02:30 KST</p>
+      <p>목적: 열린 Codex 주문 확인 후, 새 주문이 없을 때 Codex 레인의 한 가지 UI/i18n anti-slop 작업만 수행한다.</p>
+    </header>
+
+    <section>
+      <h2>결과 요약</h2>
+      <table>
+        <tr><th>항목</th><th>결과</th></tr>
+        <tr><td>인박스</td><td><code>tools/board.ps1 -Me codex</code> 기준 미응답 Codex 요청 없음</td></tr>
+        <tr><td>주문 스캔</td><td>Codex 또는 all 대상 open 항목은 stale 또는 기존 응답 완료 항목으로 판단</td></tr>
+        <tr><td>선택 작업</td><td>인도네시아어 설정 화면의 빌드 정보 라벨 영어 잔여 정리</td></tr>
+        <tr><td>2nd-B 브랜치</td><td><code>codex/cycle-20260729-195714-northstar-residue-tail</code></td></tr>
+        <tr><td>2nd-B 로컬 커밋</td><td><code>55abb37f</code> <code>fix(i18n): localize Indonesian build label</code></td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <p><code>locales/id/settings.json</code>에서 설정 화면 하단의 빌드 정보 문구를 인도네시아어 화면에 맞게 정리했다.</p>
+      <table>
+        <tr><th>이전</th><th>이후</th></tr>
+        <tr><td><code>Build 0.0.6 · OTA ota-2026-06-27a</code></td><td><code>Info build 0.0.6 · OTA ota-2026-06-27a</code></td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li>JSON 파싱: 통과</li>
+        <li>대상 잔여 검색: 통과</li>
+        <li><code>git diff --check</code>: 통과</li>
+        <li><code>npm run check:i18n</code>: 통과</li>
+        <li><code>npm run check:lexicon</code>: 통과</li>
+        <li><code>npm run check:emdash</code>: 통과</li>
+        <li><code>npm run type-check</code>: 통과</li>
+        <li><code>npm run verify</code>: 통과, 기존 lint warning 57개와 테스트 콘솔 경고만 출력</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>35 자기 패널</h2>
+      <p>찬성: 설정 화면의 실제 사용자 노출 문자열에 영어가 남아 있어 현지화 완성도를 낮춘다.</p>
+      <p>반대: 아주 작은 카피 변경이라 제품 영향은 제한적이며, 더 큰 법무/안전 로케일 잔여는 별도 검토가 필요하다.</p>
+      <p>판정: 이번 사이클은 저위험 UI/i18n 카피 한 줄만 수정하는 것이 적절하다. 스키마, 보안, 정량 결과, 실시간 외부 사실, 머지, 배포가 아니므로 별도 MoA 검증 요청은 만들지 않았다.</p>
+    </section>
+
+    <section>
+      <h2>금지 동작 확인</h2>
+      <p>2nd-B push, PR 생성, 머지, 배포, 파괴적 작업, 비용 발생, 시크릿 접근, 브라우저 자동 실행은 하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>
