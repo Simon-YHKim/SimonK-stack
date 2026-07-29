@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>딥스페이스 로더 프레서블 정규화 보고</title>
+  <style>
+    :root { --bg: #101418; --text: #f3f4f6; --accent: #77d7c8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.6; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 18px 48px; }
+    h1, h2 { margin: 0 0 12px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section { border: 1px solid var(--accent); border-radius: 8px; padding: 18px; margin-top: 18px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border-top: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .cell { border: 1px solid var(--accent); border-radius: 8px; padding: 14px; }
+    .label { color: var(--accent); font-size: 13px; }
+    .value { font-size: 18px; font-weight: 700; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>딥스페이스 로더 프레서블 정규화 보고</h1>
+    <p>작성 시각: 2026-07-30 06:05:17 KST</p>
+
+    <section>
+      <h2>요약</h2>
+      <div class="summary">
+        <div class="cell"><div class="label">대상</div><div class="value">DeepSpaceLoader</div></div>
+        <div class="cell"><div class="label">변환 수</div><div class="value">1곳</div></div>
+        <div class="cell"><div class="label">2nd-B 커밋</div><div class="value"><code>e7618db4</code></div></div>
+        <div class="cell"><div class="label">검증</div><div class="value">통과</div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>처리</th><th>효과</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/components/deepspace/DeepSpaceLoader.tsx</code></td>
+            <td>Pressable 함수형 style을 제거하고 눌림 상태를 바깥 View에 적용</td>
+            <td>Fabric에서 눌림 시각 상태가 무시될 위험을 줄이고 Android ripple을 추가</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead>
+          <tr><th>검사</th><th>결과</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npx eslint src/components/deepspace/DeepSpaceLoader.tsx</code></td><td>통과</td><td>오류 없음</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td><td>타입 오류 없음</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과</td><td>공백 오류 없음</td></tr>
+          <tr><td><code>npm run verify</code></td><td>통과</td><td>EXIT=0, 기존 lint 경고만 있음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>위험과 남은 작업</h2>
+      <p>이번 변경은 단일 UI 컴포넌트의 터치 표면 정규화로 범위가 작습니다. 푸시는 하지 않았고, Claude가 2nd-B merge gate에서 검토할 수 있도록 브랜치 커밋만 남겼습니다.</p>
+    </section>
+  </main>
+</body>
+</html>
