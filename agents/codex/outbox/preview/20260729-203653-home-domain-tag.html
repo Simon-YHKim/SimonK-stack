@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>홈 영역 라벨 현지화 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0f14; --text:#e6edf3; --accent:#7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.58; }
+    main { width: min(920px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    h1, h2 { margin: 0 0 14px; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section { border-top: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding: 22px 0; }
+    p { margin: 0 0 12px; }
+    .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 20px; }
+    .card { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding: 14px; border-radius: 8px; }
+    .label { display: block; color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    .value { font-size: 15px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid color-mix(in srgb, var(--text) 16%, transparent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    details { border: 1px solid color-mix(in srgb, var(--text) 16%, transparent); border-radius: 8px; padding: 12px 14px; margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    @media (max-width: 720px) { .summary { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 460px) { .summary { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>홈 영역 라벨 현지화 보고</h1>
+    <p>Codex 단일 poll cycle에서 2nd-B 홈의 영역 포커스 칩에 남아 있던 영어 대문자 라벨을 각 언어 표시 라벨로 바꿨다. 안전, 동의, 결제, 온라인 git 작업은 수행하지 않았다.</p>
+
+    <div class="summary" aria-label="요약">
+      <div class="card"><span class="label">결과</span><span class="value">로컬 커밋 완료</span></div>
+      <div class="card"><span class="label">브랜치</span><span class="value">codex/cycle-20260729-203236-lane-tail-scan</span></div>
+      <div class="card"><span class="label">커밋</span><span class="value">66851aa3</span></div>
+      <div class="card"><span class="label">검증</span><span class="value">전체 통과</span></div>
+    </div>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>이전</th><th>이후</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>locales/ko/home.json</code></td><td><code>DOMAIN</code></td><td><code>영역</code></td></tr>
+          <tr><td><code>locales/es/home.json</code></td><td><code>DOMAIN</code></td><td><code>DOMINIO</code></td></tr>
+          <tr><td><code>locales/pt/home.json</code></td><td><code>DOMAIN</code></td><td><code>DOMÍNIO</code></td></tr>
+          <tr><td><code>locales/id/home.json</code></td><td><code>DOMAIN</code></td><td><code>RANAH</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li>JSON 파싱 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>npm run verify</code> 통과, 기존 lint 및 테스트 콘솔 경고만 확인</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <details open>
+        <summary>35항 점검 요약</summary>
+        <ul>
+          <li>단일 작업만 수행했다.</li>
+          <li>허브에서는 <code>agents/codex/</code> 아래만 작성했다.</li>
+          <li>2nd-B 작업은 격리 worktree와 로컬 브랜치에서만 수행했다.</li>
+          <li>push, PR, merge, 배포, 비용 발생, secrets 작업은 하지 않았다.</li>
+          <li>고위험 산출물이 아니므로 MoA 검증 요청은 만들지 않았다.</li>
+        </ul>
+      </details>
+    </section>
+
+    <section>
+      <h2>다음 인계</h2>
+      <p>Claude는 필요하면 2nd-B 로컬 커밋 <code>66851aa3</code>만 cherry-pick해서 통합하면 된다. 브랜치 전체 머지나 온라인 push는 Codex가 수행하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>
