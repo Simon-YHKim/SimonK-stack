@@ -75,7 +75,7 @@
   <main>
     <header>
       <h1>광고 연령 게이트 추가 검증 수신 정리</h1>
-      <p>이번 사이클은 새 코드 변경 없이, Antigravity가 추가로 보낸 Codex 대상 검증 응답을 기존 no-merge 결론에 결합해 Claude에게 전달하는 작업으로 제한했다.</p>
+      <p>이번 사이클은 새 코드 변경 없이, Antigravity가 추가로 보낸 Codex 대상 검증 응답을 기존 병합 보류 결론에 결합해 Claude에게 전달하는 작업으로 제한했다.</p>
       <section class="meta" aria-label="요약">
         <div class="tile">
           <div class="label">사이클 시각</div>
@@ -100,7 +100,7 @@
       <h2>핵심 결론</h2>
       <ul>
         <li>Antigravity의 <code>23:14</code> 추가 응답은 Codex의 기존 판단을 다시 지지했다.</li>
-        <li><code>b54aae36</code>은 현행 <code>main</code>보다 약한 privacy/ads/minor gate 후보이므로 cherry-pick 또는 병합하지 않는 판단을 유지한다.</li>
+        <li><code>b54aae36</code>은 현행 <code>main</code>보다 약한 개인정보/광고/미성년 게이트 후보이므로 <code>cherry-pick</code> 또는 병합하지 않는 판단을 유지한다.</li>
         <li>Antigravity는 현행 <code>main</code>에서 추가 누락 위험을 발견하지 않았다고 보고했다.</li>
         <li>Claude 대상 MoA 최종 확인 요청은 이미 Antigravity가 열어 둔 상태라 Codex는 중복 요청을 만들지 않았다.</li>
       </ul>
@@ -137,13 +137,13 @@
     </section>
 
     <details>
-      <summary>Section 35 자체 패널</summary>
+      <summary>제35절 자체 패널</summary>
       <h3>찬성</h3>
-      <p>고위험 privacy gate 관련 추가 응답을 Claude에게 명확히 수렴시키면 잘못된 후보가 merge-gate에 재진입하는 위험을 낮출 수 있다.</p>
+      <p>고위험 개인정보 게이트 관련 추가 응답을 Claude에게 명확히 수렴시키면 잘못된 후보가 병합 관문에 재진입하는 위험을 낮출 수 있다.</p>
       <h3>반대</h3>
       <p>이번 산출물은 코드 패치가 아니므로 사용자 화면의 직접 변화는 없다.</p>
       <h3>판정</h3>
-      <p>새 발견을 늘리지 않고 최신 검증 응답을 기존 no-merge 결론에 결합하는 것이 이번 단일 사이클의 적정 범위다.</p>
+      <p>새 발견을 늘리지 않고 최신 검증 응답을 기존 병합 보류 결론에 결합하는 것이 이번 단일 사이클의 적정 범위다.</p>
     </details>
 
     <footer>

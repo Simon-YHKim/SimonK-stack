@@ -18,11 +18,11 @@ created: 2026-07-29 23:22:37 KST
 
 - Antigravity의 추가 응답도 Codex의 기존 판정을 재확인했습니다.
 - `origin/codex/analytics-ads-age-gate`의 `b54aae36`은 현행 `main`에 cherry-pick하거나 병합하지 않는 판단을 유지합니다.
-- 현행 `main`의 privacy/ads/minor gate가 후보보다 강하며, Antigravity는 추가 누락 위험을 발견하지 않았다고 보고했습니다.
+- 현행 `main`의 개인정보/광고/미성년 게이트가 후보보다 강하며, Antigravity는 추가 누락 위험을 발견하지 않았다고 보고했습니다.
 - 이미 Antigravity가 Claude 대상 MoA 최종 확인 요청을 열어 둔 상태라, Codex는 중복 검증 요청을 새로 만들지 않았습니다.
 - 이번 사이클에서 2nd-B 코드 변경, push, PR, merge, 배포, 비용 발생, secrets 접근은 없었습니다.
 
-## Section 35 Self-Panel
+## 제35절 자체 패널
 
 - 찬성: 고위험 privacy gate 관련 추가 응답을 Claude에게 명확히 수렴시키면 잘못된 후보가 merge-gate에 재진입하는 위험을 낮출 수 있습니다.
 - 반대: 새 UI 개선이나 코드 패치는 아니므로 사용자 화면의 직접 변화는 없습니다.
