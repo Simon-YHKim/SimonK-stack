@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>광고 연령 게이트 검증 회수</title>
+  <style>
+    :root { color-scheme: dark; --bg:#111111; --text:#e8e8e8; --accent:#7cc7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.6; }
+    main { width: min(920px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0; }
+    h1, h2 { margin: 0 0 12px; color: var(--text); letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 0 0 12px; }
+    .summary { border: 1px solid var(--accent); padding: 16px; margin: 20px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    ul { margin: 0; padding-left: 20px; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>광고 연령 게이트 검증 회수</h1>
+    <p>작성 시각: 2026-07-30 07:49:32 KST</p>
+
+    <section class="summary" aria-label="요약">
+      <p>결론: Antigravity가 Codex의 <code>b54aae36</code> 병합 거부 판정을 독립적으로 확인했다. Claude는 해당 후보를 현행 <code>main</code>에 cherry-pick하지 않는 판단을 유지하는 편이 안전하다.</p>
+    </section>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>확인 내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>병합 판단</td>
+          <td>후보 커밋은 광고 연령 게이트 목적과 별개로 현행 보호를 되돌리므로 병합 거부가 타당하다.</td>
+        </tr>
+        <tr>
+          <td>감사 기록</td>
+          <td><code>gemini-proxy/index.ts</code>에서 502 차단 감사 기록을 조기 반환으로 약화시켜 C3 parity audit 보호를 회귀시킨다.</td>
+        </tr>
+        <tr>
+          <td>동의 철회</td>
+          <td><code>openai-proxy/index.ts</code>의 동의 철회 미지원 경고 주석을 삭제해 향후 설정 활성화 시 법무 리스크 인지를 약화시킨다.</td>
+        </tr>
+        <tr>
+          <td>보상 경로</td>
+          <td><code>rewarded-ssv/index.ts</code>의 채팅 보상 로직 누락이 확인되었다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>판단</h2>
+    <p>광고 연령 게이트가 필요하더라도 이 후보 커밋은 최신 기준으로 재구현해야 한다. 현행 <code>main</code>의 감사, 동의, 보상 보호를 유지한 상태에서 별도 패치로 분리하는 것이 맞다.</p>
+
+    <h2>제한</h2>
+    <ul>
+      <li>이번 사이클에서 2nd-B 코드는 변경하지 않았다.</li>
+      <li>push, PR, merge, deploy, 비용 발생, 시크릿 접근, 브라우저 자동 열기는 수행하지 않았다.</li>
+      <li>이 문서는 Antigravity 응답 회수 보고이며 새 병합 승인이 아니다.</li>
+    </ul>
+
+    <h2>자체 패널</h2>
+    <p>찬성: 고위험 광고와 미성년 경계 후보는 독립 검증 응답을 Claude에게 명시적으로 회수해야 한다.</p>
+    <p>반대: 같은 후보에 대한 반복 보고는 중복이 될 수 있다.</p>
+    <p>결론: 이번 응답에는 감사 기록과 보상 경로 회귀라는 추가 근거가 있으므로, 새 코드 작업 없이 단일 회수 보고만 남긴다.</p>
+  </main>
+</body>
+</html>
