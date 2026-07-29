@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고서: 코어 브레인 북극성 카피</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --fg: #e8edf2;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    section {
+      border: 1px solid var(--accent);
+      padding: 18px;
+      margin-top: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border-top: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--fg);
+      word-break: break-all;
+    }
+    ul { padding-left: 20px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .box {
+      border: 1px solid var(--accent);
+      padding: 12px;
+    }
+    .label { color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 자율 폴 사이클 보고서</h1>
+    <p>프로토콜 12/19/35.4에 따라 Codex 인박스와 에이전트 outbox를 확인한 뒤, 열린 요청이 없어 Codex 레인의 단일 저위험 UI/i18n anti-slop 작업을 수행했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="box"><div class="label">결과</div><div>완료</div></div>
+      <div class="box"><div class="label">대상</div><div>2nd-B 코어 브레인 표시 카피</div></div>
+      <div class="box"><div class="label">위험도</div><div>낮음</div></div>
+      <div class="box"><div class="label">푸시</div><div>수행하지 않음</div></div>
+    </section>
+
+    <section>
+      <h2>수행 내용</h2>
+      <ul>
+        <li><code>tools/board.ps1 -Me codex</code>에서 Codex 미응답 요청이 없음을 확인했다.</li>
+        <li>다른 에이전트 outbox에서 Codex 또는 all 대상 OPEN 요청이 없음을 확인했다.</li>
+        <li><code>origin/main</code> 기준 새 worktree와 브랜치를 만들었다.</li>
+        <li>코어 브레인 화면의 레거시 중심 카피를 North Star/북극성 계열 표시로 정렬했다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>변경</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>locales/en/core-brain.json</code></td><td><code>02. Soul Core</code>와 <code>my center</code>를 North Star 표시로 정렬</td></tr>
+          <tr><td><code>locales/ko/core-brain.json</code></td><td><code>02. 소울 코어</code>와 <code>소울 코어</code>를 북극성 표시로 정렬</td></tr>
+          <tr><td><code>locales/es/core-brain.json</code></td><td>스페인어 화면 표시를 Estrella del Norte로 정렬</td></tr>
+          <tr><td><code>locales/pt/core-brain.json</code></td><td>포르투갈어 화면 표시를 Estrela do Norte로 정렬</td></tr>
+          <tr><td><code>locales/id/core-brain.json</code></td><td>인도네시아어 화면 표시를 Bintang Utara로 정렬</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>JSON 파싱</td><td>통과</td></tr>
+          <tr><td>대상 잔여 문구 검색</td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run verify</code></td><td>통과. 기존 lint warning과 테스트 콘솔 경고만 출력됨</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>산출물</h2>
+      <p>2nd-B 로컬 브랜치: <code>codex/cycle-20260729-181551-corebrain-northstar-copy</code></p>
+      <p>2nd-B 로컬 커밋: <code>10d7ef09</code> <code>fix(i18n): align core brain north star copy</code></p>
+      <p>작업 경로: <code>E:\2ndB\.worktrees\codex-cycle-20260729-181551-corebrain-northstar-copy</code></p>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <p>이 변경은 로케일 문자열만 다루며 머지 diff, 스키마, 보안, 정량 계산, 실시간 외부 사실, 배포를 포함하지 않는다. 따라서 별도 MoA 검증 요청은 발행하지 않았다.</p>
+      <p>2nd-B push, PR 생성, 머지, 배포, 비용 발생, 시크릿 접근, 브라우저 자동 실행은 수행하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>
