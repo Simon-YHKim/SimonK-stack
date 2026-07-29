@@ -1,18 +1,18 @@
 {
-  "name": "antigravity",
-  "role": "Android/Google native + emulator/device QA",
-  "skills": [
-    "android-native",
-    "google-native",
-    "emulator-qa",
-    "device-qa",
-    "perf",
-    "crash-analysis",
-    "multimodal-render"
-  ],
-  "status": "active",
-  "model": "gemini-3.1-pro-preview",
-  "effort": "high",
-  "reroute_to": "claude",
-  "updated": "2026-07-28T18:43:50 KST"
+    "name":  "antigravity",
+    "role":  "Android/Google native + emulator/device QA",
+    "skills":  [
+                   "android-native",
+                   "google-native",
+                   "emulator-qa",
+                   "device-qa",
+                   "perf",
+                   "crash-analysis",
+                   "multimodal-render"
+               ],
+    "status":  "active",
+    "model":  "gemini-3.1-pro-preview",
+    "effort":  "high",
+    "reroute_to":  "claude",
+    "updated":  "2026-07-29T09:44:52 KST"
 }
