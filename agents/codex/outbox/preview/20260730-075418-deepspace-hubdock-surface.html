@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>딥스페이스 허브 독 표면 정규화 보고서</title>
+  <style>
+    :root { --bg:#101418; --text:#edf4f8; --accent:#66d9ef; --muted:#9aa8b1; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Malgun Gothic", sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 44px; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { font-size:28px; line-height:1.2; margin-bottom:10px; }
+    h2 { font-size:18px; margin:28px 0 12px; color:var(--accent); }
+    h3 { font-size:15px; margin:0 0 8px; }
+    p, li, td, th { font-size:14px; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:20px 0; }
+    .card { border:1px solid rgba(102,217,239,.35); border-radius:8px; padding:14px; background:rgba(255,255,255,.03); min-height:96px; }
+    .value { font-size:20px; font-weight:700; margin-bottom:4px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { text-align:left; padding:10px; border-bottom:1px solid rgba(154,168,177,.28); vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); font-family:Consolas, monospace; font-size:13px; word-break:break-all; }
+    details { border:1px solid rgba(154,168,177,.28); border-radius:8px; padding:12px 14px; margin:10px 0; background:rgba(255,255,255,.025); }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { display:flex; align-items:center; gap:12px; margin:8px 0; }
+    .bar span { width:86px; color:var(--muted); font-size:13px; }
+    .track { flex:1; height:10px; border:1px solid rgba(102,217,239,.45); border-radius:8px; overflow:hidden; }
+    .fill { height:100%; background:var(--accent); }
+    .footer { margin-top:30px; color:var(--muted); font-size:12px; }
+    @media (max-width:760px) { .grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>딥스페이스 허브 독 표면 정규화 보고서</h1>
+    <p class="muted">작성 시각: 2026-07-30 07:54:18 KST · 작성자: codex · 대상: claude</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="value">완료</div><div class="muted">작업 상태</div></div>
+      <div class="card"><div class="value">1개</div><div class="muted">수정 파일</div></div>
+      <div class="card"><div class="value">통과</div><div class="muted">파일 단위 린트</div></div>
+      <div class="card"><div class="value">미푸시</div><div class="muted">브랜치 제출 상태</div></div>
+    </section>
+
+    <h2>결과</h2>
+    <table>
+      <tr><th>항목</th><th>내용</th></tr>
+      <tr><td>작업 위치</td><td><code>C:\2ndB\.worktrees\pressable-sweep-j</code></td></tr>
+      <tr><td>브랜치</td><td><code>codex/pressable-sweep-j</code></td></tr>
+      <tr><td>로컬 커밋</td><td><code>bb189ecf</code></td></tr>
+      <tr><td>수정 파일</td><td><code>src/components/deepspace/DeepSpaceHubDock.tsx</code></td></tr>
+      <tr><td>푸시</td><td>하지 않음. Claude 머지 게이트가 가져가야 합니다.</td></tr>
+    </table>
+
+    <h2>무엇을 바꿨나</h2>
+    <details open>
+      <summary>핵심 변경</summary>
+      <p>딥스페이스 허브 독의 각 탭에서 레이아웃과 시각 스타일은 바깥 <code>View</code>가 담당하고, 안쪽 <code>Pressable</code>은 터치, 접근성, Android ripple만 담당하도록 분리했습니다.</p>
+      <p>기존 이모지 아이콘은 제거하고, 같은 색 토큰을 사용하는 작은 SVG 아이콘으로 바꿨습니다. 화면 의미는 유지하면서 Android 렌더러에서 폰트 이모지 모양이 흔들리는 문제를 줄입니다.</p>
+    </details>
+    <details>
+      <summary>왜 필요한가</summary>
+      <p>이 레포에는 Fabric Android에서 <code>Pressable</code>에 직접 준 스타일이 런타임에서 누락될 수 있다는 반복 패턴이 기록되어 있습니다. 하단 독은 자주 누르는 UI라 터치 영역과 시각 표면이 안정적으로 분리되어야 합니다.</p>
+    </details>
+
+    <h2>검증</h2>
+    <div class="bar"><span>파일 린트</span><div class="track"><div class="fill" style="width:100%"></div></div><strong>통과</strong></div>
+    <div class="bar"><span>diff 점검</span><div class="track"><div class="fill" style="width:100%"></div></div><strong>통과</strong></div>
+    <div class="bar"><span>타입체크</span><div class="track"><div class="fill" style="width:35%"></div></div><strong>기존 문제로 실패</strong></div>
+    <details>
+      <summary>검증 로그 요약</summary>
+      <table>
+        <tr><th>명령</th><th>결과</th></tr>
+        <tr><td><code>npx eslint src/components/deepspace/DeepSpaceHubDock.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td><code>madge</code>, <code>react-native-google-mobile-ads</code>, <code>@react-native-firebase/analytics</code> 타입 해석 문제로 실패</td></tr>
+      </table>
+    </details>
+
+    <h2>35절 자기 패널</h2>
+    <details open>
+      <summary>판정</summary>
+      <table>
+        <tr><th>입장</th><th>내용</th></tr>
+        <tr><td>찬성</td><td>전역 허브 독의 터치 표면 안정성을 높이고, 이모지 의존을 제거해 시각 일관성을 개선했습니다.</td></tr>
+        <tr><td>반대</td><td>SVG 아이콘 4개가 추가되어 파일 길이가 늘었습니다.</td></tr>
+        <tr><td>판정</td><td>새 의존성 없이 기존 패턴을 사용했고, 변경 범위가 파일 1개로 제한되어 제출합니다.</td></tr>
+      </table>
+    </details>
+
+    <h2>위험과 남은 일</h2>
+    <details>
+      <summary>위험</summary>
+      <p>시각 변경이므로 실제 Android 렌더 캡처가 있으면 더 좋습니다. 이번 사이클에서는 헤드리스 제한과 한 작업 원칙 때문에 정적 검증까지만 수행했습니다.</p>
+    </details>
+    <details>
+      <summary>남은 일</summary>
+      <p>Claude가 브랜치를 검토한 뒤 필요하면 Android 렌더 QA를 Antigravity에 배정하면 됩니다. 이번 작업은 고위험 산출물이 아니므로 별도 MoA 검증 요청은 발행하지 않았습니다.</p>
+    </details>
+
+    <p class="footer">이 보고서는 외부 라이브러리와 네트워크 의존 없이 열리는 단일 HTML 파일입니다.</p>
+  </main>
+</body>
+</html>
