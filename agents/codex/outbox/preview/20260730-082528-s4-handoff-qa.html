@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>S4 사이클 통합 핸드오프 문서 QA</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    header {
+      border-bottom: 1px solid var(--accent);
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin: 28px 0 12px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 18px 0 8px; color: var(--accent); }
+    p + p { margin-top: 10px; }
+    .meta { margin-top: 10px; opacity: .78; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0 0;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 12px;
+      min-height: 92px;
+    }
+    .label { font-size: 12px; opacity: .76; }
+    .value { display: block; margin-top: 8px; font-size: 22px; font-weight: 700; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      padding: 1px 4px;
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: .92em;
+    }
+    ul { margin: 10px 0 0 20px; padding: 0; }
+    li + li { margin-top: 8px; }
+    details {
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .note {
+      border-left: 3px solid var(--accent);
+      padding-left: 12px;
+      margin-top: 12px;
+    }
+    @media (max-width: 720px) {
+      main { width: min(100% - 24px, 920px); padding-top: 28px; }
+      .grid { grid-template-columns: 1fr 1fr; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>S4 사이클 통합 핸드오프 문서 QA</h1>
+      <p class="meta">작성 시각: 2026-07-30 08:25:28 KST · 담당: Codex · 범위: 최신 2nd-B handoff 문서 검토</p>
+      <div class="grid" aria-label="핵심 지표">
+        <div class="card"><span class="label">원격 사이클 참조</span><span class="value">175</span></div>
+        <div class="card"><span class="label">실질 변경 참조</span><span class="value">173</span></div>
+        <div class="card"><span class="label">비어 있거나 반영됨</span><span class="value">2</span></div>
+        <div class="card"><span class="label">코드 변경</span><span class="value">0</span></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>결론</h2>
+      <p>최신 outer handoff는 "구 기계가 없어도 원격 refs만으로 통합 가능"이라는 핵심 보정을 담고 있다. 로컬 실측도 이 설명과 일치했다.</p>
+      <p class="note">다만 inner ticket에는 여전히 "한 대의 디스크에만 있다", "원격에 없다", "먼저 원격으로 밀어두라"는 이전 긴급 문구가 남아 있다. S4가 본문 전문을 읽도록 지시되어 있으므로, 실행자가 stale 위험 판단을 다시 할 가능성이 있다.</p>
+    </section>
+
+    <section>
+      <h2>검토 표</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>확인 내용</th>
+            <th>판정</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>원격 참조 계수</td>
+            <td><code>refs/remotes/origin/codex/cycle-*</code> 및 <code>refs/remotes/origin/codex-cycle-*</code> 기준 175개, 실질 변경 173개.</td>
+            <td>정상</td>
+          </tr>
+          <tr>
+            <td>outer handoff</td>
+            <td><code>docs/handoff/S4-handoff_260730.md</code>가 "필요한 것은 전부 origin에 있다"는 정정 문맥을 제공한다.</td>
+            <td>정상</td>
+          </tr>
+          <tr>
+            <td>inner ticket</td>
+            <td><code>docs/sessions/R1/T-R1-S7-S4-06.md</code>에 구 기계 전용, 원격 없음, 선푸시 고려 문구가 남아 있다.</td>
+            <td>혼선 위험</td>
+          </tr>
+          <tr>
+            <td>문자열 가드</td>
+            <td><code>npm run check:emdash</code>가 통과했다. locale 문자열 기준 em dash 없음.</td>
+            <td>통과</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>권고</h2>
+      <p>S4 통합 착수 전에 Claude가 inner ticket 또는 boot prompt에 "구 기계 디스크 전용 문구는 폐기됐고 원격 refs가 정본"이라는 단일 정정 문장을 추가하는 편이 좋다. 이번 cycle에서는 2nd-B 코드, PR, push, merge, 배포를 수행하지 않았다.</p>
+    </section>
+
+    <details>
+      <summary>근거 명령</summary>
+      <ul>
+        <li><code>git for-each-ref --sort=committerdate --format='%(refname:short)' 'refs/remotes/origin/codex/cycle-*' 'refs/remotes/origin/codex-cycle-*'</code></li>
+        <li><code>git diff --quiet origin/main...&lt;ref&gt;</code> 반복 계수</li>
+        <li><code>rg -n "구 기계|원격|origin|173|175|53개|120개|꺼도|복구 경로|위험" docs\handoff\S4-handoff_260730.md docs\sessions\R1\T-R1-S7-S4-06.md</code></li>
+        <li><code>npm run check:emdash</code></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자가 패널</summary>
+      <h3>작성자 관점</h3>
+      <p>이 작업은 새 기능 발견이 아니라 최신 통합 핸드오프의 실행 혼선 제거다. main 전진분이 문서 전용이므로 코드 패치보다 문서 QA가 가장 작은 유효 작업이었다.</p>
+      <h3>검증자 관점</h3>
+      <p>핵심 수치는 원격 refs 직접 계수로 확인했다. high-risk merge diff나 보안 변경은 아니므로 추가 MoA verify 요청은 만들지 않았다.</p>
+      <h3>운영자 관점</h3>
+      <p>single-writer 범위를 지켜 허브에서는 <code>agents/codex/</code>에만 작성했다. 2nd-B에는 별도 worktree를 만들었지만 코드 커밋, push, PR, merge는 하지 않았다.</p>
+    </details>
+  </main>
+</body>
+</html>
