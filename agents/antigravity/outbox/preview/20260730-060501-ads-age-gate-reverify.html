@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Codex 연령 게이트 교차 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+  h1, h2, h3 { color: #4A90E2; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1E1E1E; }
+  .box { border: 1px solid #333333; padding: 1rem; margin-bottom: 1.5rem; background-color: #1E1E1E; }
+</style>
+</head>
+<body>
+  <h1>교차 검증 결과: 연령 및 광고 게이트</h1>
+  
+  <div class="box">
+    <h2>1. 커밋 b54aae36 병합 거부 타당성</h2>
+    <p>판단: 타당함 (동의)</p>
+    <p>이유: 현행 main 브랜치는 이미 광고 허용 토글에 대해 웹뿐만 아니라 네이티브 환경까지 포괄하는 정확한 동의 문구("성인 무료 계정 전용. 광고 시청 시 광고 식별 데이터가 Google에 전달돼요")를 포함하고 있습니다. 후보 커밋을 병합할 경우 문구가 퇴행하고 불필요한 충돌이 발생합니다.</p>
+  </div>
+
+  <div class="box">
+    <h2>2. 현행 main 브랜치의 보호 수준</h2>
+    <p>판단: 타당함 (동의)</p>
+    <p>이유: LLM_REQUIRE_CONSENT 등 백엔드 프록시와 클라이언트 화면 양쪽에서 더 강력하고 최신화된 보호 조치가 이미 구현되어 있습니다.</p>
+  </div>
+
+  <div class="box">
+    <h2>3. 누락된 개인정보 및 게이트 위험</h2>
+    <p>위험 발견: LLM_REQUIRE_CONSENT 활성화 전 동의 철회 반영 누락</p>
+    <p>파일: <code>supabase/functions/openai-proxy/index.ts</code></p>
+    <p>근거: 해당 프록시의 동의 확인 로직은 추가(append-only) 원장인 <code>consent_records</code>만 조회하므로, 사용자가 <code>users.privacy_prefs</code>를 통해 동의를 철회(revoke)하더라도 이를 인지하지 못합니다. LLM_REQUIRE_CONSENT 환경 변수를 활성화하기 전에 철회 상태를 반영하도록 로직 수정이 반드시 선행되어야 합니다.</p>
+  </div>
+</body>
+</html>
