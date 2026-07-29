@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>프리미엄 그래프 프레서블 정규화 보고</title>
+  <style>
+    :root{--bg:#101214;--text:#f2f0e8;--accent:#70d6c7}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Malgun Gothic",sans-serif;line-height:1.55}
+    main{max-width:920px;margin:0 auto;padding:32px 20px}
+    h1{font-size:28px;margin:0 0 8px}
+    h2{font-size:18px;margin:28px 0 10px;color:var(--accent)}
+    p{margin:8px 0}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{border:1px solid var(--accent);padding:10px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent)}
+    .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:20px 0}
+    .card{border:1px solid var(--accent);padding:14px}
+    .label{color:var(--accent);font-size:13px}
+    details{border:1px solid var(--accent);padding:12px;margin:12px 0}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>프리미엄 그래프 프레서블 정규화 보고</h1>
+    <p>작성 시각: 2026-07-30 02:30:51 KST</p>
+    <div class="summary">
+      <div class="card"><div class="label">결과</div><p>완료</p></div>
+      <div class="card"><div class="label">2nd-B 커밋</div><p><code>bb72d571</code></p></div>
+      <div class="card"><div class="label">변환 수</div><p>2곳</p></div>
+      <div class="card"><div class="label">검증</div><p><code>npm run verify</code> 통과</p></div>
+    </div>
+    <h2>변경 요약</h2>
+    <table>
+      <tr><th>파일</th><th>내용</th><th>판정</th></tr>
+      <tr><td><code>src/components/premium/graph-bits.tsx</code></td><td><code>ReferenceShardCard</code>와 <code>GraphNodeChip</code>의 함수형 <code>Pressable style</code>을 제거하고 내부 <code>View</code>가 pressed 시각 상태를 갖도록 변경</td><td>Fabric 무시 패턴 제거</td></tr>
+    </table>
+    <h2>검증</h2>
+    <table>
+      <tr><th>항목</th><th>결과</th></tr>
+      <tr><td><code>git diff --check</code></td><td>통과. 줄바꿈 안내만 출력</td></tr>
+      <tr><td>시크릿 패턴 검사</td><td>검출 없음</td></tr>
+      <tr><td><code>npm run verify</code></td><td>EXIT=0, 295 suites / 2212 tests 통과</td></tr>
+    </table>
+    <details>
+      <summary>자체 패널</summary>
+      <p>범위는 UI pressed 상태 정규화 한 파일로 제한했다. 보안, 스키마, 머지 diff, 외부 사실, 정량 결과에 해당하지 않아 별도 MoA 검증 요청은 만들지 않았다.</p>
+    </details>
+    <details>
+      <summary>남은 후보</summary>
+      <p>이번 사이클은 한 작업만 수행했다. 다른 남은 <code>Pressable</code> 후보는 다음 사이클에서 별도 그룹으로 처리해야 한다.</p>
+    </details>
+  </main>
+</body>
+</html>
