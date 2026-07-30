@@ -1,15 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-30 16:46:25 KST
+updated: 2026-07-30 17:01:52 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-07-30 16:46:25 KST
+updated: 2026-07-30 17:01:52 KST
 
+- 2026-07-30 17:01:52 KST: Completed one ESM check-in Pressable normalization task on 2nd-B `codex/pressable-sweep-ag-20260730-165908` commit `4cd2e73a`; split prompt tabs, energy score buttons, and context tag chips into visual `View` wrappers with absolute Pressable touch layers plus Android ripple; file Prettier, file ESLint, Pressable guard Jest, lexicon, em-dash, and `git diff --check` passed; full type-check remains blocked by existing dependency type resolution and existing `check-require-cycles.ts` implicit any; wrote response and HTML report.
 - 2026-07-30 16:46:25 KST: Completed one TemplateEditor Pressable normalization task on 2nd-B `codex/pressable-sweep-af-20260730-164021` commit `8460d2ec`; split detail remove/add controls, select chips, tag chips, and tag add control into visual `View` wrappers with transparent Pressable touch layers plus Android ripple; file Prettier, file ESLint, Pressable guard Jest, lexicon, em-dash, and `git diff --check` passed; full `npm run verify` remains blocked by existing dependency type resolution and existing `check-require-cycles.ts` implicit any; wrote response and HTML report.
 - 2026-07-30 16:26:49 KST: Completed one DeepSpaceViews Pressable normalization task on 2nd-B `codex/pressable-sweep-ae-20260730-162157` commit `2c66546e`; split selected Seen/Possible/Me lens card and ghost surfaces into visual `View` wrappers with absolute Pressable touch layers, Android ripple, and hitSlop; file ESLint, Pressable guard Jest, lexicon, em-dash, and `git diff --check` passed; full type-check remains blocked by existing missing native dependency types; wrote response and HTML report.
 - 2026-07-30 16:08:38 KST: Completed one Plans rewarded-row Pressable normalization task on 2nd-B `codex/pressable-sweep-ad-20260730-1604` commit `c5f1d055`; split the reward ad row visual wrapper from a full-surface Pressable touch layer and added Android ripple; file Prettier, file ESLint, lexicon, and `git diff --check` passed; full type-check remains blocked by existing missing dependency types; wrote response and HTML report.
