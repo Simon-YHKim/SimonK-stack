@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>프리미엄 버튼 Pressable 정규화 보고서</title>
+  <style>
+    :root { --bg: #0b0d10; --text: #e8eef2; --accent: #7cc7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 56px; }
+    header, section { border: 1px solid var(--accent); padding: 18px; margin: 0 0 16px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 26px; line-height: 1.2; }
+    h2 { font-size: 18px; color: var(--accent); }
+    h3 { font-size: 15px; color: var(--accent); }
+    code { color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    details { border-top: 1px solid var(--accent); padding-top: 10px; margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .metric { border: 1px solid var(--accent); padding: 14px; min-height: 92px; }
+    .metric strong { display: block; color: var(--accent); font-size: 13px; }
+    .metric span { display: block; font-size: 20px; margin-top: 8px; }
+    .bar { width: 100%; height: 12px; border: 1px solid var(--accent); margin-top: 8px; }
+    .bar > i { display: block; height: 100%; background: var(--accent); }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } table { font-size: 14px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>프리미엄 버튼 Pressable 정규화 보고서</h1>
+      <p>작성 시각: 2026-07-30 17:54:33 한국 표준시</p>
+      <p>이번 사이클은 2nd-B의 공유 버튼 컴포넌트에서 Android Fabric이 무시할 수 있는 함수형 Pressable 스타일을 제거하는 한 가지 작업만 수행했다.</p>
+      <div class="grid">
+        <div class="metric"><strong>작업 범위</strong><span>파일 1개</span></div>
+        <div class="metric"><strong>2nd-B 커밋</strong><span><code>efbb2d41</code></span></div>
+        <div class="metric"><strong>변환 수</strong><span>1곳</span></div>
+        <div class="metric"><strong>보류 수</strong><span>0곳</span></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>결과 요약</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>대상</td><td><code>src/components/premium/surfaces.tsx</code>의 <code>PremiumButton</code></td></tr>
+          <tr><td>변경</td><td>버튼의 색, 테두리, 그림자, 애니메이션은 <code>Animated.View</code>가 맡고, <code>Pressable</code>은 절대 배치된 터치 영역, 접근성 상태, Android 리플만 맡게 분리했다.</td></tr>
+          <tr><td>의도</td><td>Android Fabric에서 함수형 Pressable 스타일이 사라지는 결함 패턴을 공유 버튼 primitive에서 제거했다.</td></tr>
+          <tr><td>푸시</td><td>하지 않았다. Claude가 merge gate다.</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>기존 구현은 <code>AnimatedPressable</code>에 시각 스타일과 터치 처리를 함께 두었다. 새 구현은 wrapper 안에 시각 레이어와 터치 레이어를 분리한다. 호출자가 넘긴 스타일은 기존 계약대로 시각 레이어의 base 스타일 뒤에 적용된다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <table>
+        <thead>
+          <tr><th>검증</th><th>결과</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Prettier 파일 검사</td><td>통과</td><td><code>src/components/premium/surfaces.tsx</code></td></tr>
+          <tr><td>ESLint 파일 검사</td><td>통과</td><td>오류 없음</td></tr>
+          <tr><td>Pressable 회귀 테스트</td><td>통과</td><td>2개 테스트 파일, 14개 테스트 통과</td></tr>
+          <tr><td>금지어 검사</td><td>통과</td><td>938개 파일 검사</td></tr>
+          <tr><td>em dash 검사</td><td>통과</td><td>문자열 위반 없음</td></tr>
+          <tr><td>공백 diff 검사</td><td>통과</td><td>공백 오류 없음</td></tr>
+          <tr><td>전체 verify</td><td>실패</td><td><code>EXIT=2</code>. 기존 dependency/type 해석 문제로 type-check 단계에서 중단됨.</td></tr>
+        </tbody>
+      </table>
+      <div class="bar" aria-label="통과한 직접 검증 비율"><i style="width: 86%"></i></div>
+      <details>
+        <summary>자세히</summary>
+        <p>전체 verify의 차단 원인은 <code>madge</code>, <code>react-native-google-mobile-ads</code>, <code>@react-native-firebase/analytics</code> 타입 해석 문제와 <code>check-require-cycles.ts</code>의 기존 implicit any다. 이번 변경 파일에서 생긴 타입 오류는 재실행 후 남지 않았다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>자체 패널 검토</h2>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>디자인</td><td>색, 카피, 시각 위계는 바꾸지 않았다. wrapper 분리만 수행했다.</td></tr>
+          <tr><td>Android 안전</td><td>리플은 Pressable에 남기고, 그림자와 이동 애니메이션은 시각 레이어에 유지했다.</td></tr>
+          <tr><td>접근성</td><td>역할, 라벨, 힌트, disabled와 busy 상태를 Pressable에 유지했다.</td></tr>
+          <tr><td>회귀 위험</td><td>공유 버튼 primitive라 영향 범위는 넓다. 타깃 가드는 통과했지만 실제 Android 렌더 캡처는 Claude merge gate 전에 권장된다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>남은 작업</h2>
+      <p>Claude가 브랜치 <code>codex/pressable-sweep-aj-20260730-174947</code>의 커밋 <code>efbb2d41</code>을 검토하고, 필요한 경우 Android 실기기 또는 에뮬레이터에서 버튼 눌림, 리플, disabled 상태를 확인하면 된다.</p>
+    </section>
+  </main>
+</body>
+</html>
