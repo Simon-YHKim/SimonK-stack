@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>인증 화면 터치 표면 정규화 보고서</title>
+  <style>
+    :root { --bg:#101318; --text:#e8edf2; --accent:#7fd0c4; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 56px; }
+    header, section { border:1px solid color-mix(in srgb, var(--accent) 35%, transparent); padding:20px; margin:0 0 16px; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { font-size:26px; }
+    h2 { font-size:18px; color:var(--accent); }
+    h3 { font-size:15px; color:var(--accent); }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border-top:1px solid color-mix(in srgb, var(--accent) 28%, transparent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); overflow-wrap:anywhere; }
+    details { border-top:1px solid color-mix(in srgb, var(--accent) 28%, transparent); padding-top:10px; margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; }
+    .card { border:1px solid color-mix(in srgb, var(--accent) 28%, transparent); padding:12px; min-height:92px; }
+    .value { font-size:20px; color:var(--accent); font-weight:700; }
+    svg { display:block; width:100%; height:auto; margin-top:12px; }
+    @media (max-width:720px) { .grid { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>인증 화면 터치 표면 정규화 보고서</h1>
+      <p>작성 시각: 2026-07-30 13:33:26 KST</p>
+      <p>이번 사이클은 2nd-B 인증 화면의 일부 터치 표면에서 시각 스타일을 <code>Pressable</code> 밖으로 분리하고, Android 터치 반응을 보강했다.</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="card"><div class="value">1</div><div>수정 파일</div></div>
+        <div class="card"><div class="value">5</div><div>정규화 표면</div></div>
+        <div class="card"><div class="value">4</div><div>통과 검증</div></div>
+        <div class="card"><div class="value">1</div><div>기존 차단 검증</div></div>
+      </div>
+      <svg viewBox="0 0 640 120" role="img" aria-label="검증 결과 막대 차트">
+        <rect x="0" y="0" width="640" height="120" fill="#101318"></rect>
+        <text x="16" y="28" fill="#e8edf2" font-size="14">통과</text>
+        <rect x="120" y="14" width="360" height="22" fill="#7fd0c4"></rect>
+        <text x="492" y="31" fill="#e8edf2" font-size="13">ESLint, diff, lexicon, em dash</text>
+        <text x="16" y="76" fill="#e8edf2" font-size="14">차단</text>
+        <rect x="120" y="62" width="90" height="22" fill="#7fd0c4"></rect>
+        <text x="222" y="79" fill="#e8edf2" font-size="13">type-check 기존 의존성 타입 문제</text>
+      </svg>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead><tr><th>항목</th><th>내용</th><th>파일</th></tr></thead>
+        <tbody>
+          <tr><td>제공자 아이콘</td><td>원형 버튼 스타일을 내부 <code>View</code>로 이동하고 <code>hitSlop</code>, <code>android_ripple</code>을 추가했다.</td><td><code>src/screens/deepspace/dds-auth-screens.tsx</code></td></tr>
+          <tr><td>가입 링크</td><td>가입 안내 행의 시각 레이아웃을 내부 <code>View</code>로 분리했다.</td><td><code>src/screens/deepspace/dds-auth-screens.tsx</code></td></tr>
+          <tr><td>기존 계정 도움 버튼</td><td>도움 카드 안의 로그인 버튼에 동일한 터치 표면 규칙을 적용했다.</td><td><code>src/screens/deepspace/dds-auth-screens.tsx</code></td></tr>
+          <tr><td>로그인 링크</td><td>가입 화면 하단 로그인 링크 행을 wrapper 구조로 바꿨다.</td><td><code>src/screens/deepspace/dds-auth-screens.tsx</code></td></tr>
+          <tr><td>재설정 뒤로가기</td><td>비밀번호 재설정 화면의 로그인 복귀 링크도 같은 구조로 정규화했다.</td><td><code>src/screens/deepspace/dds-auth-screens.tsx</code></td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>Android Fabric 환경에서 <code>Pressable</code>에 직접 붙은 시각 스타일은 누락되거나 터치 반응과 시각 레이아웃이 섞일 수 있다. 이번 변경은 터치 계층과 보이는 계층을 분리해 그 위험을 줄인다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><td>파일 ESLint</td><td>통과</td><td><code>npx eslint src/screens/deepspace/dds-auth-screens.tsx</code></td></tr>
+          <tr><td>공백 오류 검사</td><td>통과</td><td><code>git diff --check</code></td></tr>
+          <tr><td>금지 어휘 검사</td><td>통과</td><td><code>npm run check:lexicon</code></td></tr>
+          <tr><td>em dash 검사</td><td>통과</td><td><code>npm run check:emdash</code></td></tr>
+          <tr><td>전체 type-check</td><td>차단</td><td>기존 의존성 타입 해석 문제: <code>madge</code>, <code>react-native-google-mobile-ads</code>, Firebase analytics</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>변경 파일 자체의 styled <code>Pressable</code> 잔여 패턴은 대상 스타일명 기준으로 다시 검색했고 새 잔여는 없었다. 전체 type-check 실패는 이번 변경 파일이 아닌 기존 의존성 타입 문제에서 발생했다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>위험과 인계</h2>
+      <table>
+        <thead><tr><th>위험</th><th>영향</th><th>대응</th></tr></thead>
+        <tbody>
+          <tr><td>포맷 변경량 큼</td><td>Prettier가 기존 압축 JSX를 넓게 재정렬해 diff가 실제 동작 변경보다 크다.</td><td>Claude 머지 게이트에서 포맷 churn 허용 여부를 확인한다.</td></tr>
+          <tr><td>실기기 미검증</td><td>헤드리스 사이클이라 Android 렌더링은 직접 보지 못했다.</td><td>필요 시 Antigravity 에뮬레이터 QA로 넘긴다.</td></tr>
+        </tbody>
+      </table>
+      <p>2nd-B 커밋: <code>39bce5fe</code>, 브랜치: <code>codex/pressable-sweep-v-20260730-132950</code>. push는 하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>

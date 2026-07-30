@@ -1,15 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-30 13:16:28 KST
+updated: 2026-07-30 13:33:26 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-07-30 13:16:28 KST
+updated: 2026-07-30 13:33:26 KST
 
+- 2026-07-30 13:33:26 KST: Completed one auth screen Pressable normalization task on 2nd-B `codex/pressable-sweep-v-20260730-132950` commit `39bce5fe`; split provider icons and auth link/help surfaces from Pressable touch layers, added Android ripple/hitSlop; file ESLint, `git diff --check`, lexicon, and em-dash checks passed; full type-check remains blocked by existing dependency type resolution; wrote response and HTML report.
 - 2026-07-30 13:16:28 KST: Completed one import inbox Pressable normalization task on 2nd-B `codex/pressable-sweep-u-20260730-131344` commit `1deb3a96`; split file/account mode toggle visuals from Pressable touch layers and added Android ripple/hitSlop; file Prettier, file ESLint, `git diff --check`, lexicon, and em-dash checks passed; full type-check remains blocked by existing missing dependency types; wrote response and HTML report.
 - 2026-07-30 13:01:07 KST: Completed one legal document Pressable normalization task on 2nd-B `codex/pressable-sweep-t-20260730-125741` commit `399a5412`; split legal cross-link visuals from Pressable touch layers and added Android ripple/hitSlop; file Prettier, file ESLint, `git diff --check`, lexicon, and em-dash checks passed; full type-check remains blocked by existing missing dependency types; wrote response and HTML report.
 - 2026-07-30 12:45:25 KST: Completed one Ops kit Pressable normalization task on 2nd-B `codex/pressable-sweep-s-20260730-124020` commit `2b87ccbd`; split shared Ops action/toggle/push/state/domain tab visuals from Pressable touch layers and added Android ripple feedback; file Prettier, file ESLint, `git diff --check`, lexicon, and em-dash checks passed; full type-check/verify remain blocked by existing missing dependency types; wrote response and HTML report.
