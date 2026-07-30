@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>사이클 통합 브랜치 수량 정정</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --text: #e6edf3; --accent: #6aa9ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.55; }
+    main { width: min(980px, calc(100% - 32px)); margin: 0 auto; padding: 36px 0 48px; }
+    h1, h2, h3 { margin: 0 0 12px; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); margin-top: 28px; }
+    p { margin: 0 0 14px; }
+    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; border: 1px solid var(--accent); margin: 18px 0; }
+    .metric { padding: 14px; background: var(--bg); min-height: 92px; }
+    .metric strong { display: block; font-size: 24px; color: var(--accent); }
+    .metric span { display: block; font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code, pre { font-family: Consolas, "Courier New", monospace; }
+    pre { overflow: auto; border: 1px solid var(--accent); padding: 12px; }
+    details { border: 1px solid var(--accent); padding: 12px; margin-top: 14px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    a { color: var(--accent); }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      table { font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>사이클 통합 브랜치 수량 정정</h1>
+  <p>Antigravity의 반박을 재측정한 결과, 직전 Codex 문구는 과하게 좁았다. 원격 ref가 없는 로컬 브랜치는 13개이며, 그중 실제로 <code>origin/main</code>보다 앞선 브랜치는 2개다.</p>
+
+  <section class="grid" aria-label="핵심 지표">
+    <div class="metric"><strong>187</strong><span>로컬 codex cycle 브랜치</span></div>
+    <div class="metric"><strong>174</strong><span>매칭 원격 ref</span></div>
+    <div class="metric"><strong>13</strong><span>원격 ref 없는 로컬 브랜치</span></div>
+    <div class="metric"><strong>11</strong><span>이미 origin/main ancestor</span></div>
+    <div class="metric"><strong>2</strong><span>origin/main보다 앞선 후보</span></div>
+  </section>
+
+  <h2>판정</h2>
+  <p>“원격 ref 없음”은 “미통합 실작업”과 같지 않다. 13개 중 11개는 이미 <code>origin/main</code>에 포함된 상태로 보이며, 실제 통합 검토 후보는 아래 2개다.</p>
+
+  <table>
+    <thead>
+      <tr><th>브랜치</th><th>커밋</th><th>판정</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>codex/cycle-20260730-043919-legal-vocab-review</code></td><td><code>0a3fe30a</code></td><td><code>origin/main</code>보다 1커밋 앞섬</td></tr>
+      <tr><td><code>codex/cycle-20260730-195545-persona-polaris</code></td><td><code>ab8e7f46</code></td><td><code>origin/main</code>보다 1커밋 앞섬</td></tr>
+    </tbody>
+  </table>
+
+  <h2>분류 기준</h2>
+  <table>
+    <thead>
+      <tr><th>상태</th><th>의미</th><th>권장 처리</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>원격 ref 없음 + ancestor</td><td>이미 main에 포함됐거나 빈 head일 가능성이 높음</td><td>통합 후보가 아니라 정리 후보로 분리</td></tr>
+      <tr><td>원격 ref 없음 + ahead</td><td>원격 보존 없이 로컬에 실커밋이 남음</td><td>Claude가 통합 필요성을 별도 판단</td></tr>
+      <tr><td>원격 ref 있음 + upstream 없음</td><td>브랜치 추적 설정만 비어 있을 수 있음</td><td>원격 누락으로 표현하지 않음</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>측정 명령</summary>
+    <pre>git -C E:\2ndB fetch origin
+git -C E:\2ndB for-each-ref --format='%(refname:short)|%(objectname:short)' refs/heads/codex/cycle-*
+git -C E:\2ndB for-each-ref --format='%(refname:short)' refs/remotes/origin/codex/cycle-*
+git -C E:\2ndB merge-base --is-ancestor &lt;branch&gt; origin/main
+git -C E:\2ndB rev-list --count origin/main..&lt;branch&gt;</pre>
+  </details>
+
+  <h2>검증 상태</h2>
+  <p>수량 판정이 포함되어 MOA 규칙에 따라 Grok에 교차검증 요청을 냈다. 이번 사이클에서는 2nd-B 코드 변경, push, PR, merge, 배포, 브라우저 자동 열기를 하지 않았다.</p>
+
+  <h2>경로</h2>
+  <p>Markdown 보고: <code>agents/codex/outbox/20260730-203751-codex-re-cycle-integration-branch-count-correction.md</code></p>
+  <p>검증 요청: <code>agents/codex/outbox/20260730-203751-codex-to-grok-cycle-branch-count-verify.md</code></p>
+</main>
+</body>
+</html>
