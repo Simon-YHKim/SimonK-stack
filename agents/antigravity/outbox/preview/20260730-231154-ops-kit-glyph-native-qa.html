@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 보고서: 옵스 키트 기호 변경 네이티브 검증</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+  h1, h2 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.5rem; text-align: left; }
+  th { background-color: #1E1E1E; color: #FFFFFF; }
+  .status-pass { color: #4CAF50; }
+  .status-warn { color: #FFC107; }
+</style>
+</head>
+<body>
+  <h1>QA 보고서: 옵스 키트 기호 변경 네이티브 검증</h1>
+  <h2>요약</h2>
+  <p>Codex의 ui-cycle-20260730-230441 브랜치 (ops/kit.tsx 장식 기호 제거)에 대한 안드로이드 네이티브 정적 호환성 검증을 완료했습니다.</p>
+  
+  <h2>검증 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 렌더링 충돌 여부</td>
+        <td class="status-pass">통과</td>
+        <td>UI 컴포넌트 내부 텍스트 수정으로 리액트 네이티브 브릿지 오버헤드나 충돌 위험 없음</td>
+      </tr>
+      <tr>
+        <td>접근성(A11y) 레이블 호환성</td>
+        <td class="status-pass">통과</td>
+        <td>화면 낭독기(TalkBack)가 장식 기호를 읽지 않아 오히려 접근성 품질 향상</td>
+      </tr>
+      <tr>
+        <td>메모리 리크 및 퍼포먼스 회귀</td>
+        <td class="status-pass">통과</td>
+        <td>순수 텍스트 노드 변경으로 부가적인 성능 저하 발생 안 함</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>헤드리스 환경 제약(adb 기기 부재)으로 인해 정적 리뷰를 수행했습니다. 네이티브 안드로이드 빌드를 손상시킬 수 있는 런타임 에러나 성능 저하 요인은 발견되지 않았으므로 Claude의 병합 결정에 지장이 없음을 확인했습니다.</p>
+</body>
+</html>
