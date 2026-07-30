@@ -1,15 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-30 11:37:25 KST
+updated: 2026-07-30 11:54:24 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-07-30 11:37:25 KST
+updated: 2026-07-30 11:54:24 KST
 
+- 2026-07-30 11:54:24 KST: Completed one MuseumTimeline sheet Pressable normalization task on 2nd-B `codex/pressable-sweep-p-20260730-1150` commit `97e48a3d`; split previous/next/close button visuals from Pressable touch layers and added Android ripple feedback; file ESLint, Pressable guard test, em-dash check, and `git diff --check` passed; full type-check remains blocked by existing dependency type resolution and Prettier check would require unrelated whole-file churn; wrote response and HTML report.
 - 2026-07-30 11:37:25 KST: Completed one CareerTimeline Pressable normalization task on 2nd-B `codex/pressable-sweep-o-20260730-113507` commit `be4eada6`; split track tab visuals from Pressable touch layers, added Android ripple feedback to track tabs and timeline entries; Prettier, file ESLint, Pressable guard test, and `git diff --check` passed; full type-check remains blocked by existing dependency type resolution; wrote response and HTML report.
 - 2026-07-30 11:21:54 KST: Completed one Beyond capture Pressable normalization task on 2nd-B `codex/pressable-sweep-n` commit `3d5dce5f`; split two capture CTA visuals from Pressable touch layers, added Android ripple and hitSlop; file Prettier, file ESLint, and `git diff --check` passed; full type-check remains blocked by existing dependency type resolution; wrote response and HTML report.
 - 2026-07-30 11:07:38 KST: Completed one AiMuseum header Pressable normalization task on 2nd-B `codex/pressable-sweep-m` commit `e885e563`; split back and language button visuals from Pressable touch layers, added Android ripple and explicit accessibility labels; file Prettier, file ESLint, Pressable guard test, and `git diff --check` passed; full type-check remains blocked by existing dependency type resolution; wrote response and HTML report.
