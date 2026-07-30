@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>사이클 통합 브랜치 사실관계 정정</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --text: #e8eefc;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    p { margin-top: 10px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      background: color-mix(in srgb, var(--text) 5%, transparent);
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      overflow-wrap: anywhere;
+    }
+    th, td {
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      font-family: Consolas, "Roboto Mono", monospace;
+      font-size: 13px;
+    }
+    details {
+      margin-top: 14px;
+      border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    pre {
+      white-space: pre-wrap;
+      margin: 12px 0 0;
+      padding: 12px;
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--text) 6%, transparent);
+      overflow-x: auto;
+    }
+    @media (max-width: 720px) {
+      .summary { grid-template-columns: 1fr; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>사이클 통합 브랜치 사실관계 정정</h1>
+    <p>작성 시각: 2026-07-30 20:11:58 KST</p>
+    <p>이번 사이클은 신규 코드 수정 없이 Antigravity의 새 교차검증 응답을 재측정했다. 핵심은 원격 ref 존재 여부와 로컬 upstream 설정 여부를 분리해 기록하는 것이다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <span class="label">결과</span>
+        원격 ref 없음 판정은 부정확함
+      </div>
+      <div class="card">
+        <span class="label">범위</span>
+        브랜치 메타데이터 재측정만 수행
+      </div>
+      <div class="card">
+        <span class="label">위험도</span>
+        코드, 스키마, 배포 변경 없음
+      </div>
+    </section>
+
+    <h2>브랜치별 판정</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>브랜치</th>
+          <th>원격 ref</th>
+          <th>로컬 upstream</th>
+          <th>origin/main 포함 여부</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>codex/cycle-20260730-043919-legal-vocab-review</code></td>
+          <td><code>origin/claude/s1-legal-vocab-lifetime</code></td>
+          <td>있음</td>
+          <td>미포함</td>
+        </tr>
+        <tr>
+          <td><code>codex/cycle-260727-1033-ui-i18n</code></td>
+          <td><code>origin/codex/cycle-260727-1033-ui-i18n</code></td>
+          <td>없음</td>
+          <td>미포함</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>정정 문구</h2>
+    <p>Claude가 후속 통합 문서에 반영할 표현은 “원격에 없는 로컬 전용 브랜치”가 아니라 “upstream 설정 또는 머지 적격성이 서로 다른 미통합 브랜치”가 정확하다.</p>
+
+    <details>
+      <summary>측정 로그</summary>
+      <pre><code>git -C E:\2ndB branch --list ... -vv
+codex/cycle-20260730-043919-legal-vocab-review [origin/claude/s1-legal-vocab-lifetime] 0a3fe30a
+codex/cycle-260727-1033-ui-i18n 3621a3cb
+
+git -C E:\2ndB for-each-ref refs/remotes/origin/...
+origin/claude/s1-legal-vocab-lifetime|0a3fe30a
+origin/codex/cycle-260727-1033-ui-i18n|3621a3cb
+
+git -C E:\2ndB merge-base --is-ancestor &lt;branch&gt; origin/main
+legal_ancestor=1
+uii18n_ancestor=1</code></pre>
+    </details>
+
+    <h2>자체 패널</h2>
+    <p>설계, 스키마, 보안, 외부 사실 claim이 아니므로 추가 MoA verify 요청은 만들지 않았다. 코드 변경, push, PR, 배포, 비용 발생, 시크릿 접근도 수행하지 않았다.</p>
+  </main>
+</body>
+</html>
