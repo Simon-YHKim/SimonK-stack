@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고서</title>
+  <style>
+    :root { --bg:#101214; --text:#e8edf2; --accent:#67d7b8; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Noto Sans KR", sans-serif; line-height:1.6; }
+    main { width:min(920px, calc(100% - 32px)); margin:0 auto; padding:40px 0; }
+    header { border:1px solid var(--accent); padding:24px; border-radius:8px; margin-bottom:20px; }
+    h1, h2 { margin:0 0 12px; line-height:1.25; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; color:var(--accent); }
+    p { margin:0 0 12px; }
+    section { border-top:1px solid color-mix(in srgb, var(--text) 22%, transparent); padding:20px 0; }
+    table { width:100%; border-collapse:collapse; margin:12px 0; }
+    th, td { text-align:left; vertical-align:top; padding:10px; border:1px solid color-mix(in srgb, var(--text) 18%, transparent); }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); font-family:Consolas, monospace; }
+    details { border:1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius:8px; padding:12px 14px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; margin-top:16px; }
+    .card { border:1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius:8px; padding:14px; min-height:96px; }
+    .label { display:block; color:var(--accent); font-size:13px; margin-bottom:6px; }
+    .value { font-size:15px; }
+    svg { max-width:100%; height:auto; display:block; margin-top:10px; }
+    @media (max-width: 720px) { .grid { grid-template-columns:1fr 1fr; } main { padding:24px 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 단일 사이클 보고서</h1>
+      <p>이번 사이클은 열린 지시가 없는 상태에서 코덱스 레인의 UI anti-slop 작업 하나를 수행한 기록이다.</p>
+      <div class="grid" aria-label="요약">
+        <div class="card"><span class="label">상태</span><span class="value">완료</span></div>
+        <div class="card"><span class="label">대상</span><span class="value">AdvisorFollowupNote</span></div>
+        <div class="card"><span class="label">앱 커밋</span><span class="value"><code>e6bb3632</code></span></div>
+        <div class="card"><span class="label">푸시</span><span class="value">수행하지 않음</span></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>수행한 일</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>큐 확인</td><td><code>tools/board.ps1 -Me codex</code>와 다른 좌석 outbox를 확인했으며, 코덱스 대상의 열린 요청은 없었다.</td></tr>
+          <tr><td>수정 범위</td><td><code>src/components/records/AdvisorFollowupNote.tsx</code> 한 파일만 수정했다.</td></tr>
+          <tr><td>변경 내용</td><td>근거 펼침 버튼과 DOI 링크에서 시각 텍스트와 Pressable 터치 레이어를 분리하고 Android ripple 및 hitSlop을 추가했다.</td></tr>
+          <tr><td>브랜치</td><td><code>codex/pressable-sweep-k</code></td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>기존 구조는 Pressable이 텍스트 표시 영역과 터치 동작을 함께 맡았다. 변경 후에는 View가 보이는 텍스트 영역을 담당하고, Pressable은 절대 위치 터치 레이어로 동작한다. 이 패턴은 Android 터치 피드백과 화면 구성 안정성을 분리한다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead>
+          <tr><th>검증</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Prettier 파일 검사</td><td>통과</td></tr>
+          <tr><td>ESLint 파일 검사</td><td>통과</td></tr>
+          <tr><td>Jest 계약 테스트</td><td>통과, 4개 테스트</td></tr>
+          <tr><td>git diff 공백 검사</td><td>통과</td></tr>
+          <tr><td>전체 타입 검사</td><td>기존 의존성 타입 해석 문제로 실패. 이번 파일 관련 오류는 없음.</td></tr>
+        </tbody>
+      </table>
+      <svg viewBox="0 0 420 92" role="img" aria-label="검증 통과와 차단 요약">
+        <rect x="0" y="0" width="420" height="92" fill="none"></rect>
+        <rect x="0" y="10" width="320" height="22" fill="#67d7b8"></rect>
+        <text x="330" y="27" fill="#e8edf2" font-size="13">통과 4</text>
+        <rect x="0" y="52" width="80" height="22" fill="#e8edf2" opacity="0.28"></rect>
+        <text x="90" y="69" fill="#e8edf2" font-size="13">기존 차단 1</text>
+      </svg>
+      <details>
+        <summary>자세히</summary>
+        <p>전체 타입 검사는 <code>madge</code>, ads/Firebase native module 타입 해석 문제에서 실패했다. 이는 이전 사이클들에서도 확인된 기존 차단 요인이다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>사용성</td><td>근거 펼침과 DOI 링크에 더 명확한 터치 피드백을 제공한다.</td></tr>
+          <tr><td>안정성</td><td>공용 컴포넌트 한 파일만 바꾸어 영향 범위를 작게 유지했다.</td></tr>
+          <tr><td>검증 정직성</td><td>통과한 검증과 기존 차단 요인을 분리해서 기록했다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>남은 위험</h2>
+      <p>전체 타입 검사는 기존 의존성 타입 해석 문제가 해결되기 전까지 완전 통과를 확인할 수 없다. 앱 커밋은 Claude 검토 및 병합 게이트를 위해 남겼고 푸시는 수행하지 않았다.</p>
+      <p>기록 시각: 2026-07-30 09:46:47 KST</p>
+    </section>
+  </main>
+</body>
+</html>
