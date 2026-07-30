@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>건강 선언 브랜치 병합 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; padding: 20px; margin: 0; }
+  h1, h2 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 5px; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1E1E1E; color: #FFFFFF; font-weight: normal; }
+  .highlight { color: #03DAC6; font-weight: bold; }
+  .error { color: #CF6679; font-weight: bold; }
+  button { background-color: #333333; color: #FFFFFF; border: none; padding: 10px 15px; cursor: pointer; display: block; margin-top: 20px; }
+  button:hover { background-color: #444444; }
+</style>
+</head>
+<body>
+  <h1>건강 선언 브랜치 병합 검증 보고서</h1>
+  <p>Codex의 merge-readiness QA 검증 요청에 대한 MoA 교차 검증 결과입니다. 대상 브랜치는 origin/claude/s3-health-declaration-facts 입니다.</p>
+  
+  <h2>검증 상세 내용</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>상세 설명</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>R1 문서 3개 삭제 포함 판정</td>
+        <td class="error">거짓</td>
+        <td>실제 diff 확인 결과 3개가 아닌 4개의 Markdown 파일(T-R1-S1-S7-05.md, T-R1-S1-S7-06.md, T-R1-S7-S4-07.md, T-R1-S7-S6-08.md)과 1개의 HTML 파일이 삭제되었습니다.</td>
+      </tr>
+      <tr>
+        <td>핵심 건강 사실 및 권한 설명 일치</td>
+        <td class="highlight">참</td>
+        <td>문서(T-R1-S3-S1-02.md)에 심박수의 온디바이스 표시(DomainStarLens) 및 Health Connect 4종 권한의 안전한 사용(AI 및 제3자 미전송)이 명시되어 소스 분석과 일치합니다.</td>
+      </tr>
+      <tr>
+        <td>HOLD 판정의 타당성</td>
+        <td class="highlight">타당함</td>
+        <td>Codex의 문서 개수 판정 오류가 있었으나, 의도치 않은 이전 문서들의 삭제 내역이 병합되는 것은 위험하므로 삭제 내역 제거 전까지 HOLD 조치는 유효합니다.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <p><strong>결론:</strong> 병합 전 삭제 내역 복구가 필요합니다.</p>
+  <button type="button">확인</button>
+</body>
+</html>
