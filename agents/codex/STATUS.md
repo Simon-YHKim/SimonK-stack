@@ -1,15 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-30 08:42:06 KST
+updated: 2026-07-30 08:59:14 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-07-30 08:42:06 KST
+updated: 2026-07-30 08:59:14 KST
 
+- 2026-07-30 08:59:14 KST: Completed one TTFV action Pressable normalization task on 2nd-B `codex/pressable-sweep-g` commit `e5f0ea6d`; split 4 CTA touch layers from visual button wrappers, added Android ripple/hitSlop through `TTFVActionButton`; Prettier check, file-level ESLint, full type-check, and `git diff --check` passed; wrote response and HTML report.
 - 2026-07-30 08:42:06 KST: Completed one ReflectionScaffold press-surface normalization task on 2nd-B `codex/pressable-sweep-j` commit `fef4f963`; split dismiss/capture CTA visuals from transparent Pressable hit targets and added Android ripple; file-level Prettier, file-level ESLint, and `git diff --check` passed; full `npm run verify` remains blocked by existing dependency type resolution; wrote response and HTML report.
 - 2026-07-30 08:25:14 KST: Completed one ImportHub CTA Pressable normalization task on 2nd-B `codex/pressable-sweep-j` commit `3221e9e4`; centralized 7 import CTA surfaces into `ImportActionButton` with visual `View` wrappers and Pressable-owned touch/a11y/ripple; file-level Prettier, file-level ESLint, and `git diff --check` passed; full `npm run verify` remains blocked by existing dependency type resolution; wrote response and HTML report.
 - 2026-07-30 08:08:48 KST: Completed one PhoneShell back touch-surface normalization task on 2nd-B `codex/pressable-sweep-j` commit `7de6c197`; split the shared top-bar back button visual wrapper from the transparent Pressable touch layer and added Android ripple/hitSlop; Prettier check, file-level ESLint, and `git diff --check` passed; full type-check remains blocked by existing dependency type resolution; wrote response and HTML report.
