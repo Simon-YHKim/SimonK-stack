@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>프로필 북극성 라벨 정렬 보고서</title>
+  <style>
+    :root { --bg: #101318; --text: #edf2f7; --muted: #96a0ad; --accent: #7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin: 0 0 12px; }
+    p, li, td, th { font-size: 14px; }
+    .muted { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 22px 0; }
+    .card, details { border: 1px solid rgba(237,242,247,.18); border-radius: 8px; padding: 14px; background: rgba(255,255,255,.03); }
+    .card strong { display: block; color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    th, td { border-bottom: 1px solid rgba(237,242,247,.16); padding: 9px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code, pre { background: rgba(255,255,255,.06); color: var(--text); border-radius: 6px; }
+    code { padding: 2px 5px; }
+    pre { padding: 12px; overflow-x: auto; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>프로필 북극성 라벨 정렬 보고서</h1>
+    <p class="muted">작성 시각: 2026-07-30 22:06:40 KST</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><strong>목적</strong>프로필 허브의 오래된 중심 라벨을 정본 용어로 정렬</div>
+      <div class="card"><strong>결과</strong>5개 locale의 프로필 섹션 라벨 수정</div>
+      <div class="card"><strong>앱 커밋</strong><code>6357823b</code></div>
+      <div class="card"><strong>검증</strong>JSON, i18n, lexicon, em dash, type-check 통과</div>
+    </section>
+
+    <details open>
+      <summary>변경 내용</summary>
+      <table>
+        <thead><tr><th>파일</th><th>변경 요약</th></tr></thead>
+        <tbody>
+          <tr><td><code>locales/en/profile.json</code></td><td>Self center를 North Star로 정렬</td></tr>
+          <tr><td><code>locales/ko/profile.json</code></td><td>나의 중심을 북극성으로 정렬</td></tr>
+          <tr><td><code>locales/es/profile.json</code></td><td>Centro personal을 Estrella polar로 정렬</td></tr>
+          <tr><td><code>locales/pt/profile.json</code></td><td>Centro pessoal을 Estrela Polar로 정렬</td></tr>
+          <tr><td><code>locales/id/profile.json</code></td><td>Pusat diri를 Bintang Utara로 정렬</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>검증 기록</summary>
+      <pre>JSON 파싱: 통과
+git diff --check: 통과
+npm run check:i18n: 통과
+npm run check:lexicon: 통과
+npm run check:emdash: 통과
+npm run type-check: 통과</pre>
+    </details>
+
+    <details>
+      <summary>제약 준수</summary>
+      <ul>
+        <li>허브 쓰기는 <code>agents/codex/</code>에만 수행했다.</li>
+        <li>2nd-B 작업은 <code>origin/main</code> 기반 별도 worktree와 branch에서 수행했다.</li>
+        <li>2nd-B push, PR, merge, 배포는 수행하지 않았다.</li>
+        <li>파괴적 작업, 비용 작업, secrets 접근, 브라우저 자동 열기는 수행하지 않았다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <p>찬성 관점: 사용자가 보는 프로필 허브의 핵심 라벨이 현재 정본인 북극성과 맞아 화면 간 용어 drift를 줄인다.</p>
+      <p>반대 관점: 이미 비슷한 용어 정렬 브랜치가 여러 개 있어 새 발견을 늘리는 부담이 있다.</p>
+      <p>판정: 변경 파일이 5개 locale JSON에 한정되고 새 설계가 아니라 정본 용어 정렬이므로 이번 사이클의 단일 낮은 위험 작업으로 적합하다.</p>
+    </details>
+  </main>
+</body>
+</html>
