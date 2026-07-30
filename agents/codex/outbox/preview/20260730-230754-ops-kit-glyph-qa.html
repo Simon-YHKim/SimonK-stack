@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>옵스 키트 장식 기호 제거 검증 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0f14; --fg:#e6edf3; --muted:#8b949e; --accent:#58a6ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 48px; }
+    h1, h2 { margin:0 0 12px; }
+    h1 { font-size:26px; }
+    h2 { font-size:18px; color:var(--accent); margin-top:28px; }
+    p { margin:0 0 12px; }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; margin:18px 0 10px; }
+    .card { border:1px solid var(--muted); padding:14px; border-radius:8px; min-height:96px; }
+    .label { color:var(--muted); font-size:12px; margin-bottom:6px; }
+    .value { font-size:16px; font-weight:700; word-break:break-word; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--muted); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--fg); }
+    details { border:1px solid var(--muted); border-radius:8px; padding:10px 12px; margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    @media (max-width: 720px) { .grid { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>옵스 키트 장식 기호 제거 검증 보고</h1>
+  <p>이번 cycle은 열린 Codex 요청이 없는 상태에서 Codex 레인 작업으로 진행했다. 최신 <code>origin/main</code> 기준 새 worktree를 만들고, 공유 옵스 컴포넌트의 장식 기호 제거 패치를 재적용해 merge-ready 앱 커밋을 만들었다.</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+    <div class="card"><div class="label">앱 브랜치</div><div class="value"><code>codex/ui-cycle-20260730-230441</code></div></div>
+    <div class="card"><div class="label">앱 커밋</div><div class="value"><code>f828b4c9</code></div></div>
+    <div class="card"><div class="label">푸시</div><div class="value">하지 않음</div></div>
+  </section>
+
+  <h2>변경 내용</h2>
+  <table>
+    <thead><tr><th>파일</th><th>내용</th><th>영향</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>src/components/deepspace/ops/kit.tsx</code></td>
+        <td>잠금, 경고, 추천, 빈 상태 같은 장식 기호를 텍스트 배지와 토큰 기반 상태 표현으로 교체했다.</td>
+        <td>공유 옵스 화면에서 깨질 수 있는 장식 글리프 의존을 줄이고 한국어 UI 밀도를 안정화했다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>검증</h2>
+  <table>
+    <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>대상 파일 포맷</td><td>통과</td><td><code>npx prettier --check src/components/deepspace/ops/kit.tsx</code></td></tr>
+      <tr><td>대상 파일 린트</td><td>통과</td><td><code>npx eslint src/components/deepspace/ops/kit.tsx</code></td></tr>
+      <tr><td>장식 기호 스캔</td><td>통과</td><td>대상 파일에서 지정 기호 패턴 0건</td></tr>
+      <tr><td>대시 문구 게이트</td><td>통과</td><td><code>npm run check:emdash</code></td></tr>
+      <tr><td>금지 어휘 게이트</td><td>통과</td><td><code>npm run check:lexicon</code></td></tr>
+      <tr><td>전체 타입 검사</td><td>기존 블로커</td><td><code>madge</code>, 광고 네이티브 모듈, Firebase Analytics 타입 해석 오류로 실패</td></tr>
+    </tbody>
+  </table>
+
+  <h2>위험 및 남은 일</h2>
+  <details>
+    <summary>자세히</summary>
+    <p>변경 범위는 공유 presentation kit 한 파일이다. 로직, 데이터, 결제, 인증, 시크릿, 배포 작업은 수행하지 않았다. UI 산출물이므로 MoA 규칙에 따라 Claude 검증 요청을 별도로 발행했다.</p>
+    <p>Claude가 검증 후 병합 게이트에서 동일 커밋을 확인해야 한다. Codex는 온라인 push를 하지 않았다.</p>
+  </details>
+
+  <h2>섹션 35 자체 패널</h2>
+  <table>
+    <thead><tr><th>관점</th><th>판단</th></tr></thead>
+    <tbody>
+      <tr><td>찬성</td><td>공유 컴포넌트의 장식 기호 제거는 anti-slop 레인에 맞고, 작은 범위라 검증이 빠르다.</td></tr>
+      <tr><td>반대</td><td>이미 미병합 Codex 브랜치가 많으므로 새 발견보다 통합 우선순위가 높다.</td></tr>
+      <tr><td>판정</td><td>새 기능을 늘리지 않고 기존 패치를 최신 main에 재적용해 merge-ready 상태로 만드는 것이 이번 한 cycle의 최선이다.</td></tr>
+    </tbody>
+  </table>
+
+  <p class="label">기록 시각: 2026-07-30 23:07:54 KST</p>
+</main>
+</body>
+</html>
