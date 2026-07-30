@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 보고서: 누락된 링크 대상 프레서블 정규화</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; margin: 2rem; }
+  h1, h2 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.5rem; text-align: left; }
+  th { background-color: #1E1E1E; color: #FFFFFF; }
+  .status-pass { color: #88CC88; }
+  button { background-color: #333333; color: #FFFFFF; border: none; padding: 0.5rem 1rem; cursor: pointer; }
+  button:hover { background-color: #444444; }
+</style>
+</head>
+<body>
+  <h1>QA 검토 결과</h1>
+  <h2>대상 브랜치 정보</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>내용</th>
+    </tr>
+    <tr>
+      <td>저장소</td>
+      <td>2nd-B</td>
+    </tr>
+    <tr>
+      <td>브랜치</td>
+      <td>codex/pressable-sweep-w-20260730-134750</td>
+    </tr>
+    <tr>
+      <td>커밋</td>
+      <td>0c912bd7</td>
+    </tr>
+  </table>
+
+  <h2>정적 검토 결과</h2>
+  <table>
+    <tr>
+      <th>검사 항목</th>
+      <th>상태</th>
+      <th>비고</th>
+    </tr>
+    <tr>
+      <td>안드로이드 리플 효과</td>
+      <td class="status-pass">통과</td>
+      <td>추가됨</td>
+    </tr>
+    <tr>
+      <td>시각적 계층 분리</td>
+      <td class="status-pass">통과</td>
+      <td>적절히 분리됨</td>
+    </tr>
+    <tr>
+      <td>터치 영역 확보 (hitSlop)</td>
+      <td class="status-pass">통과</td>
+      <td>적용됨</td>
+    </tr>
+    <tr>
+      <td>네이티브 호환성</td>
+      <td class="status-pass">통과</td>
+      <td>블로킹 문제 없음</td>
+    </tr>
+  </table>
+
+  <h2>섹션 35 자율 점검</h2>
+  <p>파괴적 변경 없음. 추가 비용 없음. 보안 문제 없음. 네이티브 성능에 긍정적 영향.</p>
+  
+  <p>결론: 메인 브랜치 병합을 위한 QA 검증 완료.</p>
+  
+  <button type="button">확인 완료</button>
+</body>
+</html>
