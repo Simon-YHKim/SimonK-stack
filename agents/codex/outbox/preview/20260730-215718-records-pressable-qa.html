@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Records Pressable QA 보고서</title>
+  <style>
+    :root { --bg: #0b0f14; --text: #e8edf2; --accent: #7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.6; }
+    main { width: min(1060px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 30px; line-height: 1.2; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin: 28px 0 12px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 18px 0 8px; }
+    .meta { color: var(--accent); font-size: 14px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 22px 0; }
+    .card { border: 1px solid var(--accent); padding: 14px; min-height: 112px; }
+    .label { color: var(--accent); font-size: 12px; margin-bottom: 8px; }
+    .value { font-size: 17px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 18px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { border: 1px solid var(--accent); padding: 12px; margin: 10px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+    .bar { width: 100%; height: 12px; border: 1px solid var(--accent); margin-top: 8px; }
+    .fill { height: 100%; background: var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } h1 { font-size: 24px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="meta">생성 시각: 2026-07-30 21:57:18 KST</p>
+    <h1>Records Pressable QA 보고서</h1>
+    <p>이번 사이클은 새 Codex 대상 open order가 없어, Codex lane의 미머지 UI 후보 한 건을 `origin/main` 기준 별도 worktree에서 검증한 작업입니다. 브라우저 자동 열기, push, 비용 작업, secret 작업은 하지 않았습니다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">작업</div><div class="value">Records 카드 터치영역 QA</div></div>
+      <div class="card"><div class="label">원본 후보</div><div class="value"><code>e45b9ffd</code></div></div>
+      <div class="card"><div class="label">QA 커밋</div><div class="value"><code>1a9053aa</code></div></div>
+      <div class="card"><div class="label">최종 판정</div><div class="value">조건부 통합 가능</div></div>
+    </section>
+
+    <h2>산출물</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>QA 브랜치</td><td><code>codex/qa-records-pressable-20260730-215446</code></td></tr>
+        <tr><td>QA worktree</td><td><code>C:\2ndB\.worktrees\codex\qa-records-pressable-20260730-215446</code></td></tr>
+        <tr><td>변경 파일</td><td><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></td></tr>
+        <tr><td>push</td><td>수행하지 않음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td><code>git diff --check</code></td><td>통과</td><td>공백 오류 없음</td></tr>
+        <tr><td><code>prettier --check</code></td><td>통과</td><td>대상 파일 포맷 정규화 후 통과</td></tr>
+        <tr><td><code>eslint</code></td><td>통과</td><td>기존 unused import 경고 2개</td></tr>
+        <tr><td>Records/Wiki 정적 Jest</td><td>통과</td><td>5개 suite, 33개 test</td></tr>
+        <tr><td><code>check:emdash</code></td><td>통과</td><td>금지 대시 없음</td></tr>
+        <tr><td><code>check:lexicon</code></td><td>통과</td><td>금지 어휘 없음</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>실패</td><td>기존 의존성 타입 해석 블로커</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 범위 차트</h2>
+    <div class="card">
+      <div class="label">통과한 검증 6개, 기존 블로커 1개</div>
+      <div class="bar" aria-label="검증 통과 비율"><div class="fill" style="width:86%"></div></div>
+    </div>
+
+    <h2>상세</h2>
+    <details>
+      <summary>변경 내용</summary>
+      <p>Records 화면의 카드형 Pressable에서 시각 표현과 실제 터치 레이어를 분리하는 후보를 `origin/main` 위에 적용했습니다. Android Fabric 계열에서 함수형 Pressable style과 중첩 터치영역이 만드는 불안정성을 줄이는 목적입니다.</p>
+    </details>
+    <details>
+      <summary>남은 위험</summary>
+      <p>대상 파일 전체 Prettier 정규화가 들어가 최종 diff가 원본 후보보다 커졌습니다. 의미 변경은 Pressable surface 정규화 범위로 제한했지만, Claude merge gate에서 포맷 churn 수용 여부를 확인해야 합니다.</p>
+    </details>
+    <details>
+      <summary>Section 35 self-panel</summary>
+      <ul>
+        <li>찬성 관점: 카드 터치영역 소유권이 명확해지고 Android ripple 적용이 쉬워집니다.</li>
+        <li>회의 관점: 포맷 정규화로 diff가 커져 merge review 비용이 늘어납니다.</li>
+        <li>품질 관점: 기존 Records/Wiki 정적 테스트가 통과해 데이터 식별자와 import 무결성 회귀는 보이지 않습니다.</li>
+        <li>결론: Claude 교차검증 후 통합 후보로 유지하는 것이 적절합니다.</li>
+      </ul>
+    </details>
+
+    <h2>다음 단계</h2>
+    <p>Claude가 MoA 요청을 확인해 포맷 churn, 터치 레이어 의미 변경 여부, 기존 unused import 경고 처리 방침을 판단하면 됩니다.</p>
+  </main>
+</body>
+</html>
