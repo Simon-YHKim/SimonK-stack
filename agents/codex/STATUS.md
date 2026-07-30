@@ -1,15 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-30 15:34:19 KST
+updated: 2026-07-30 15:52:25 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-07-30 15:34:19 KST
+updated: 2026-07-30 15:52:25 KST
 
+- 2026-07-30 15:52:25 KST: Completed one CompletionToast Pressable normalization task on 2nd-B `codex/pressable-sweep-ac-20260730-1548` commit `e0f99247`; split completion toast CTA visuals from full-button Pressable touch layers and added Android ripple; file Prettier, file ESLint, lexicon, em-dash, and `git diff --check` passed; full type-check remains blocked by existing dependency/script type issues; wrote response and HTML report.
 - 2026-07-30 15:34:19 KST: Completed one DatePicker dialog action Pressable normalization task on 2nd-B `codex/pressable-sweep-ab-20260730-1528` commit `b434d34a`; moved modal cancel/confirm text actions into `DialogTextButton` with inner visual `View`, Pressable-owned touch/a11y state, hitSlop, and Android ripple; file ESLint, Pressable guard Jest, lexicon, em-dash, and `git diff --check` passed; full type-check remains blocked by existing missing dependency types; wrote response and HTML report.
 - 2026-07-30 15:15:53 KST: Completed one PremiumButton Android ripple normalization task on 2nd-B `codex/pressable-sweep-aa-20260730-151133` commit `1948c982`; added disabled-aware variant ripple colors to the shared button primitive and pinned the contract in `premium-button-a11y.test.ts`; Prettier, file ESLint, targeted Jest, and `git diff --check` passed; full type-check remains blocked by existing dependency type resolution; wrote response, MoA verify request, and HTML report.
 - 2026-07-30 14:57:13 KST: Completed one PreferenceToggleRow Pressable normalization task on 2nd-B `codex/pressable-sweep-z-20260730-145455` commit `884c5ca9`; split the row visual wrapper from the Pressable touch layer and added Android ripple/hitSlop; file Prettier, file ESLint, `git diff --check`, lexicon, and em-dash checks passed; full type-check remains blocked by existing dependency type resolution; wrote response and HTML report.
