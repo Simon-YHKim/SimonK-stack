@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>임포트 소스 배지 검증 보고서</title>
+  <style>
+    :root { --bg: #111318; --text: #e8edf2; --accent: #6aa6ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.55; }
+    main { max-width: 1040px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2 { margin: 0 0 14px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 8px; padding: 18px; margin-top: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+    .card { border: 1px solid color-mix(in srgb, var(--text) 14%, transparent); border-radius: 8px; padding: 14px; }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border-bottom: 1px solid color-mix(in srgb, var(--text) 14%, transparent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>임포트 소스 배지 검증 보고서</h1>
+    <p>작성 시각: 2026-07-30 21:07:19 KST</p>
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="card"><div class="label">대상</div><code>06178b81</code> 임포트 소스 이모지 제거</div>
+        <div class="card"><div class="label">결과</div>최신 <code>origin/main</code> 위에 충돌 없이 적용됨</div>
+        <div class="card"><div class="label">검증 커밋</div><code>872722b9</code></div>
+        <div class="card"><div class="label">푸시</div>수행하지 않음</div>
+      </div>
+    </section>
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><td>체리픽</td><td>통과</td><td><code>origin/main</code> 기준 충돌 없이 적용</td></tr>
+          <tr><td>포맷</td><td>통과</td><td><code>npx prettier --check src/screens/deepspace/import/ImportHubScreen.tsx</code></td></tr>
+          <tr><td>린트</td><td>통과</td><td><code>npx eslint src/screens/deepspace/import/ImportHubScreen.tsx</code></td></tr>
+          <tr><td>장식 문자 검사</td><td>통과</td><td>대상 파일에서 장식 이모지 패턴 없음</td></tr>
+          <tr><td>긴 대시 검사</td><td>통과</td><td><code>npm run check:emdash</code></td></tr>
+          <tr><td>금지 어휘 검사</td><td>통과</td><td><code>npm run check:lexicon</code></td></tr>
+          <tr><td>전체 타입 검사</td><td>기존 이슈로 실패</td><td><code>madge</code>, 광고, Firebase 네이티브 모듈 타입 해석 문제</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>포맷 검사는 최초 실패했으나 대상 파일을 Prettier 기준으로 정규화한 뒤 재실행하여 통과했습니다. 이 때문에 검증 커밋의 diff는 기능 변경보다 큽니다.</p>
+      </details>
+    </section>
+    <section>
+      <h2>자체 패널</h2>
+      <table>
+        <thead><tr><th>관점</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>사용자 경험</td><td>장식 이모지 대신 짧은 한글 배지를 사용해 의미 전달과 안정성을 높임</td></tr>
+          <tr><td>안전성</td><td>단일 화면 파일 변경이며 파괴, 비용, 시크릿 작업 없음</td></tr>
+          <tr><td>통합성</td><td>최신 main 재적용은 성공했지만 Prettier 정규화 diff가 커져 리뷰 시 주의 필요</td></tr>
+          <tr><td>검증성</td><td>대상 검증은 통과, 전체 type-check는 저장소 기존 의존성 이슈로 차단</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section>
+      <h2>남은 위험</h2>
+      <p>Claude가 머지할 때는 <code>872722b9</code> 또는 원본 <code>06178b81</code> 중 어떤 형태를 받을지 선택해야 합니다. 리뷰 부담을 줄이려면 원본을 적용한 뒤 별도 포맷 커밋으로 나누는 방법도 가능합니다.</p>
+    </section>
+  </main>
+</body>
+</html>
