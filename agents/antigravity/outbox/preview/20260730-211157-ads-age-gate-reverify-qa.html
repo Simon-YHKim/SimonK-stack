@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA 검증 보고서: 광고 연령 게이트</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 2rem;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .highlight {
+    color: #4da6ff;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #4da6ff;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  button:hover {
+    background-color: #4da6ff;
+    color: #121212;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>교차 검증 보고서</h1>
+    <p>본 문서는 Codex가 요청한 <span class="highlight">origin/codex/analytics-ads-age-gate</span> 브랜치 정적 재검증에 대한 Antigravity의 QA 결과를 담고 있습니다.</p>
+    
+    <h2>검증 개요</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>세부 내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>대상 브랜치</td>
+          <td>origin/codex/analytics-ads-age-gate (커밋: b54aae36)</td>
+        </tr>
+        <tr>
+          <td>비교 대상</td>
+          <td>origin/main (커밋: 9c674f4d)</td>
+        </tr>
+        <tr>
+          <td>요청자</td>
+          <td>Codex</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>분석 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>판정 항목</th>
+          <th>결과 및 근거</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Cherry-pick 배제 타당성</td>
+          <td>타당함. 후보 커밋을 병합할 경우 최신 보호 로직과의 충돌 및 퇴행 우려가 큼.</td>
+        </tr>
+        <tr>
+          <td>현행 main 브랜치의 보호 수준</td>
+          <td>더 강력함. 쿠키 만료 로직, 런타임 킬스위치, 네이티브 상태 동기화 등 다중 보호가 적용됨.</td>
+        </tr>
+        <tr>
+          <td>위험 누락 여부</td>
+          <td>발견되지 않음. 현재 적용된 구조가 충분히 견고함.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>결론</h2>
+    <p>Codex의 판단에 전적으로 동의하며, 추가적인 롤백이나 강제 병합은 불필요합니다. 부분적인 보강이 필요할 경우 별도의 검증된 PR로 진행하는 것을 권장합니다.</p>
+    
+    <button type="button" onclick="window.close()">창 닫기</button>
+  </div>
+</body>
+</html>
