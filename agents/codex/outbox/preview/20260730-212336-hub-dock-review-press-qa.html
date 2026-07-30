@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>허브 독 리뷰 press surface QA</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #6aa7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(1080px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 36px 0 56px;
+    }
+    header {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: clamp(28px, 4vw, 44px); line-height: 1.15; margin-bottom: 10px; }
+    h2 { font-size: 22px; margin-bottom: 12px; }
+    h3 { font-size: 16px; margin-bottom: 8px; color: var(--accent); }
+    p { margin-bottom: 12px; }
+    code {
+      color: var(--accent);
+      word-break: break-word;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }
+    .tile, section, details {
+      border: 1px solid color-mix(in srgb, var(--text) 16%, transparent);
+      padding: 16px;
+    }
+    .tile strong {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    section { margin: 14px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      table-layout: fixed;
+    }
+    th, td {
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 14%, transparent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .chart {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .bar {
+      display: grid;
+      grid-template-columns: 130px 1fr 70px;
+      gap: 10px;
+      align-items: center;
+      font-size: 14px;
+    }
+    .track {
+      height: 10px;
+      border: 1px solid color-mix(in srgb, var(--text) 18%, transparent);
+    }
+    .fill {
+      height: 100%;
+      background: var(--accent);
+    }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .bar { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>허브 독 리뷰 press surface QA</h1>
+      <p>이번 사이클은 Codex 미머지 큐의 다음 후보를 새로 발견하지 않고 검증하는 데 사용했다. 대상은 허브 독 리뷰 화면의 press surface 정규화 커밋이다.</p>
+      <div class="grid" aria-label="요약">
+        <div class="tile"><strong>원본 후보</strong><code>bac34f4e</code></div>
+        <div class="tile"><strong>QA 커밋</strong><code>2a654b89</code></div>
+        <div class="tile"><strong>브랜치</strong><code>codex/qa-hub-dock-review-press-20260730-212127</code></div>
+        <div class="tile"><strong>push</strong>수행하지 않음</div>
+      </div>
+    </header>
+
+    <section>
+      <h2>결과</h2>
+      <p><code>origin/main</code> 기준 별도 worktree에서 선별 적용했고 충돌은 없었다. cherry-pick 직후 대상 파일의 Prettier가 실패해 해당 파일만 정규화한 뒤 커밋을 amend했다.</p>
+      <table>
+        <thead>
+          <tr><th>구분</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>변경 파일</td><td><code>src/screens/deepspace/DeepSpaceHubDockScreen.tsx</code></td></tr>
+          <tr><td>변경 규모</td><td>1파일, 518줄 추가, 91줄 삭제</td></tr>
+          <tr><td>검증 목적</td><td>허브 독 리뷰 카드와 승인 보류 버튼의 press surface 정규화가 머지 후보로 유지 가능한지 확인</td></tr>
+          <tr><td>남은 판단</td><td>Claude가 큐 통합 시 전체 verify 또는 기존 type-check 블로커 해소 후 재확인 필요</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <div class="chart" aria-label="검증 통과 요약">
+        <div class="bar"><span>통과</span><div class="track"><div class="fill" style="width:83%"></div></div><span>5 / 6</span></div>
+        <div class="bar"><span>실패</span><div class="track"><div class="fill" style="width:17%"></div></div><span>1 / 6</span></div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>검사</th><th>판정</th><th>근거</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>git diff --check</code></td><td>통과</td><td>공백 오류 없음</td></tr>
+          <tr><td>대상 파일 Prettier</td><td>통과</td><td>포맷 정규화 후 재검사 통과</td></tr>
+          <tr><td>대상 파일 ESLint</td><td>통과</td><td>변경 파일 정적 검사 통과</td></tr>
+          <tr><td><code>check:emdash</code></td><td>통과</td><td>locale 문자열의 em dash 금지 검사 통과</td></tr>
+          <tr><td><code>check:lexicon</code></td><td>통과</td><td>금지 어휘 검사 통과</td></tr>
+          <tr><td><code>type-check</code></td><td>실패</td><td>기존 의존성 타입 해석 문제로 실패</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>type-check 실패 상세</summary>
+      <p>실패 지점은 이번 변경 파일이 아니라 기존 환경 의존성으로 보인다. 확인된 항목은 <code>madge</code>, <code>react-native-google-mobile-ads</code>, <code>@react-native-firebase/analytics</code> 타입 해석 실패와 <code>check-require-cycles.ts</code>의 implicit any다.</p>
+    </details>
+
+    <details>
+      <summary>다음 처리 권장</summary>
+      <p>이 후보는 대상 파일 기준 merge-readiness가 유지된다. 다만 전체 type-check가 기존 블로커로 닫히지 않으므로, Claude 통합 시 기존 블로커를 별도 해소하거나 동일 블로커임을 기준으로 부분 검증 결과를 함께 판단해야 한다.</p>
+    </details>
+
+    <section>
+      <h2>기록</h2>
+      <p>생성 시각: 2026-07-30 21:23:36 KST</p>
+      <p>작업 위치: <code>C:\2ndB\.worktrees\codex\qa-hub-dock-review-press-20260730-212127</code></p>
+    </section>
+  </main>
+</body>
+</html>
