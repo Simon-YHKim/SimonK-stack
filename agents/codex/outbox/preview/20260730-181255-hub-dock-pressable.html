@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>허브 독 버튼 표면 정리 보고서</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e6edf3; --accent:#7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.6; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 48px; }
+    header, section { border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent); border-radius: 8px; padding: 18px; margin-bottom: 16px; background: color-mix(in srgb, var(--text) 5%, transparent); }
+    h1, h2 { margin: 0 0 10px; line-height: 1.25; }
+    h1 { font-size: 26px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-top: 1px solid color-mix(in srgb, var(--accent) 22%, transparent); padding: 9px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+    .box { border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent); border-radius: 8px; padding: 12px; }
+    .controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    button { background: transparent; color: var(--text); border: 1px solid var(--accent); border-radius: 6px; padding: 8px 10px; cursor: pointer; }
+    button[aria-pressed="true"] { background: var(--accent); color: var(--bg); }
+    .expert, body.mode-expert .easy { display: none; }
+    body.mode-expert .expert { display: block; }
+    details { margin-top: 8px; }
+    summary { color: var(--accent); cursor: pointer; }
+  </style>
+</head>
+<body class="mode-easy">
+  <main>
+    <header>
+      <h1>허브 독 버튼 표면 정리 보고서</h1>
+      <p>작성 시각: 2026-07-30 18:12:55 한국표준시</p>
+      <p>대상: 2nd-B <code>codex/pressable-sweep-ak-20260730-180851</code>, 커밋 <code>bac34f4e</code></p>
+      <div class="controls">
+        <button type="button" id="easyBtn" aria-pressed="true" aria-label="쉬운 설명 보기">쉬운 설명</button>
+        <button type="button" id="expertBtn" aria-pressed="false" aria-label="전문가 설명 보기">전문가 설명</button>
+      </div>
+    </header>
+
+    <section>
+      <h2>한눈에 보기</h2>
+      <div class="grid">
+        <div class="box"><strong>결과</strong><p>허브 독 점검 화면의 제안 카드와 승인 버튼 터치 표면을 정리했습니다.</p></div>
+        <div class="box"><strong>검증</strong><p>파일 단위 검사는 통과했습니다. 전체 검증은 기존 의존성 타입 문제로 중단됐습니다.</p></div>
+        <div class="box"><strong>위험</strong><p>레이아웃 구조는 유지했고, 터치 피드백 계층만 분리했습니다.</p></div>
+      </div>
+    </section>
+
+    <section class="easy">
+      <h2>쉬운 설명</h2>
+      <p>버튼 겉모습과 실제 누르는 영역이 한 덩어리로 섞여 있던 부분을 나눴습니다. 겉모습은 그대로 두고, 누르는 영역은 별도 투명 층으로 올렸습니다.</p>
+      <details><summary>자세히</summary><p>안드로이드에서는 이런 분리가 더 안정적입니다. 사용자가 눌렀을 때 물결 반응도 더 일관되게 보입니다.</p></details>
+    </section>
+
+    <section class="expert">
+      <h2>전문가 설명</h2>
+      <p><code>TrendCard</code>와 점검 액션 버튼을 시각 <code>View</code>와 절대 배치 <code>Pressable</code> 계층으로 분리했습니다. <code>Pressable</code>은 터치, 접근성, 안드로이드 ripple만 담당합니다.</p>
+      <details><summary>자세히</summary><p>Fabric에서 함수형 Pressable style이 누락되는 회귀 패턴을 피하는 방향과 맞췄고, 기존 카드와 버튼 스타일 값은 보존했습니다.</p></details>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead><tr><th>파일</th><th>내용</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/screens/deepspace/DeepSpaceHubDockScreen.tsx</code></td><td>제안 카드 2개와 점검 버튼 2개의 터치 계층 분리</td><td>커밋 완료</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead><tr><th>검사</th><th>결과</th><th>메모</th></tr></thead>
+        <tbody>
+          <tr><td>Prettier 파일 검사</td><td>통과</td><td>대상 파일 형식 정상</td></tr>
+          <tr><td>ESLint 파일 검사</td><td>통과</td><td>대상 파일 오류 없음</td></tr>
+          <tr><td>Pressable guard Jest</td><td>통과</td><td>10개 테스트 통과</td></tr>
+          <tr><td>lexicon 검사</td><td>통과</td><td>금지어 없음</td></tr>
+          <tr><td>em dash 검사</td><td>통과</td><td>금지 문장부호 없음</td></tr>
+          <tr><td>전체 verify</td><td>차단</td><td>기존 <code>madge</code>, 광고, 분석 의존성 타입 누락으로 <code>EXIT=2</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>35 자기 패널</h2>
+      <table>
+        <thead><tr><th>관점</th><th>판단</th></tr></thead>
+        <tbody>
+          <tr><td>찬성</td><td>작은 화면 그룹 하나만 손대므로 lane 가치와 사이클 제한에 맞습니다.</td></tr>
+          <tr><td>반대</td><td>Prettier가 기존 압축 JSX를 풀어 diff가 실제 변경보다 커졌습니다.</td></tr>
+          <tr><td>판정</td><td>단일 파일이고 검증으로 변경 오류를 제거했으므로 제출합니다. 머지와 push는 Claude 게이트입니다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <script>
+    const body = document.body, easy = document.getElementById("easyBtn"), expert = document.getElementById("expertBtn");
+    easy.onclick = () => { body.className = "mode-easy"; easy.setAttribute("aria-pressed", "true"); expert.setAttribute("aria-pressed", "false"); };
+    expert.onclick = () => { body.className = "mode-expert"; expert.setAttribute("aria-pressed", "true"); easy.setAttribute("aria-pressed", "false"); };
+  </script>
+</body>
+</html>
