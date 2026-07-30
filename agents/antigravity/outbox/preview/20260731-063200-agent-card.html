@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>에이전트 카드 생성 보고서</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: sans-serif;
+            margin: 40px auto;
+            max-width: 800px;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            color: #3b82f6;
+            border-bottom: 1px solid #3b82f6;
+            padding-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #3b82f6;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #1e1e1e;
+        }
+        pre {
+            background-color: #1e1e1e;
+            padding: 15px;
+            border-left: 4px solid #3b82f6;
+            overflow-x: auto;
+        }
+        button {
+            background-color: #3b82f6;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>작업 완료 보고서</h1>
+    <p>본 문서는 Antigravity 에이전트의 A2A 능력 매니페스트 생성 결과를 기록한 보고서입니다.</p>
+
+    <h2>작업 개요</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>항목</th>
+                <th>내용</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>대상 에이전트</td>
+                <td>Antigravity</td>
+            </tr>
+            <tr>
+                <td>실행 스크립트</td>
+                <td>tools/gen-agent-card.ps1</td>
+            </tr>
+            <tr>
+                <td>출력 파일</td>
+                <td>agents/antigravity/agent-card.json</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>생성된 매니페스트 요약</h2>
+    <p>아래는 자동 생성된 에이전트 카드의 핵심 정보입니다.</p>
+    <pre>
+이름: antigravity
+역할: Android/Google native + emulator/device QA
+기술 목록:
+- android-native
+- google-native
+- emulator-qa
+- device-qa
+- perf
+- crash-analysis
+- multimodal-render
+상태: active
+모델: gemini-3.1-pro-preview
+    </pre>
+
+    <h2>후속 조치</h2>
+    <p>단일 작업 제한 원칙에 따라 해당 파일 생성을 완료하고 커밋을 수행하였습니다.</p>
+    <button>닫기</button>
+</body>
+</html>
