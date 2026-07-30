@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>템플릿 편집기 터치 표면 정규화 보고서</title>
+  <style>
+    :root{--bg:#0b0f14;--text:#e5edf4;--muted:#91a1ad;--accent:#5fb3a4}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Malgun Gothic",sans-serif;line-height:1.55}
+    main{max-width:980px;margin:0 auto;padding:32px 18px 56px}
+    header{border:1px solid var(--accent);padding:22px;margin-bottom:18px}
+    h1,h2,h3,p{margin-top:0}
+    h1{font-size:28px;margin-bottom:8px}
+    h2{font-size:18px;margin:0 0 10px}
+    p,li,td,th,summary{font-size:14px}
+    .muted{color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0}
+    .card{border:1px solid rgba(95,179,164,.55);padding:14px;min-height:96px}
+    .label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
+    .value{font-size:16px;font-weight:700}
+    table{width:100%;border-collapse:collapse;margin:10px 0 18px}
+    th,td{border:1px solid rgba(145,161,173,.35);padding:9px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    details{border:1px solid rgba(145,161,173,.35);padding:10px;margin:10px 0}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    code{color:var(--text);background:rgba(145,161,173,.14);padding:1px 4px}
+    .bar{height:8px;background:rgba(145,161,173,.22);margin-top:8px}
+    .bar span{display:block;height:8px;background:var(--accent)}
+    @media (max-width:760px){.grid{grid-template-columns:1fr 1fr}h1{font-size:23px}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>템플릿 편집기 터치 표면 정규화 보고서</h1>
+    <p class="muted">작성 시각: 2026-07-30 16:45:17 KST</p>
+    <p>Codex 단일 자율 사이클에서 2nd-B 템플릿 편집기의 칩과 보조 버튼 터치 구조를 정리했다.</p>
+  </header>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><span class="label">작업</span><div class="value">완료</div><div class="bar"><span style="width:100%"></span></div></div>
+    <div class="card"><span class="label">변경 파일</span><div class="value">1개</div><div class="bar"><span style="width:25%"></span></div></div>
+    <div class="card"><span class="label">앱 커밋</span><div class="value">8460d2ec</div><div class="bar"><span style="width:80%"></span></div></div>
+    <div class="card"><span class="label">온라인 push</span><div class="value">하지 않음</div><div class="bar"><span style="width:0%"></span></div></div>
+  </section>
+
+  <section>
+    <h2>변경 내용</h2>
+    <table>
+      <thead><tr><th>대상</th><th>변경</th><th>효과</th></tr></thead>
+      <tbody>
+        <tr><td>세부 속성 삭제 버튼</td><td>시각 박스는 <code>View</code>, 터치는 절대 배치 <code>Pressable</code>로 분리</td><td>버튼 크기와 터치 피드백을 안정화</td></tr>
+        <tr><td>세부 속성 추가 버튼</td><td>테두리와 글자는 <code>View</code>가 유지하고 <code>Pressable</code>은 투명 히트 레이어로 동작</td><td>시각 스타일 손실 위험 감소</td></tr>
+        <tr><td>선택 칩과 태그 칩</td><td>각 칩의 선택 상태와 텍스트는 고정 시각 박스에 두고 Android ripple을 추가</td><td>Fabric Android에서 터치 피드백과 레이아웃을 분리</td></tr>
+      </tbody>
+    </table>
+    <details>
+      <summary>자세히</summary>
+      <p>변경 파일은 <code>src/components/wiki/TemplateEditor.tsx</code> 하나다. 기존 사용자 입력, 저장 로직, 검증 로직은 건드리지 않았다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>검증 상태</h2>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td><code>npx prettier --check src/components/wiki/TemplateEditor.tsx</code></td><td>통과</td><td>파일 포맷 확인</td></tr>
+        <tr><td><code>npx eslint src/components/wiki/TemplateEditor.tsx</code></td><td>통과</td><td>파일 단위 lint 오류 없음</td></tr>
+        <tr><td><code>npm test -- --runTestsByPath src/lib/__tests__/no-function-form-pressable-style.test.ts --ci</code></td><td>통과</td><td>10개 테스트 통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td><td>금지 어휘 없음</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td><td>locale 문자열 em dash 없음</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td><td>공백 오류 없음</td></tr>
+        <tr><td><code>npm run verify</code></td><td>실패</td><td>기존 type-check 의존성 누락에서 <code>VERIFY_EXIT=2</code></td></tr>
+      </tbody>
+    </table>
+    <details>
+      <summary>전체 검증 실패 원인</summary>
+      <p><code>madge</code>, <code>react-native-google-mobile-ads</code>, <code>@react-native-firebase/analytics</code> 타입 해석 실패와 기존 <code>check-require-cycles.ts</code> 암시적 any가 원인이다. 이번 변경 파일의 type-check 오류는 재실행 후 사라졌다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>위험과 판단</h2>
+    <details open>
+      <summary>자체 패널</summary>
+      <p>찬성 관점: 시각 스타일과 터치 레이어를 분리하면 Android Fabric에서 Pressable 스타일 누락이 생겨도 보이는 박스가 유지된다.</p>
+      <p>반대 관점: 절대 배치 터치 레이어는 부모 크기가 불안정하면 터치 범위가 어긋날 수 있다.</p>
+      <p>판정: 부모 <code>View</code>에 상대 위치와 숨김 처리를 명시하고 기존 접근성 라벨과 선택 상태를 유지했으므로, 국소 UI 정리로 수용 가능하다.</p>
+    </details>
+    <details>
+      <summary>롤백 방법</summary>
+      <p>2nd-B worktree에서 <code>git revert 8460d2ec</code>를 실행하면 이번 앱 변경만 되돌릴 수 있다. 허브 보고 파일은 별도 기록이므로 앱 동작에 영향이 없다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>경로</h2>
+    <table>
+      <tbody>
+        <tr><th>worktree</th><td><code>C:\2ndB\.worktrees\pressable-sweep-af-20260730-164021</code></td></tr>
+        <tr><th>브랜치</th><td><code>codex/pressable-sweep-af-20260730-164021</code></td></tr>
+        <tr><th>커밋</th><td><code>8460d2ec</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>
