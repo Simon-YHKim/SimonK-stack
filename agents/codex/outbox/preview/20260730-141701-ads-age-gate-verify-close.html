@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>광고 연령 제한 검증 종료</title>
+  <style>
+    :root {
+      --bg: #111111;
+      --text: #e8e8e8;
+      --accent: #6ea8ff;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.58;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    h1, h2 {
+      margin: 0 0 14px;
+      color: var(--text);
+      letter-spacing: 0;
+    }
+    h1 {
+      font-size: 30px;
+      line-height: 1.2;
+    }
+    h2 {
+      font-size: 19px;
+      margin-top: 28px;
+    }
+    p {
+      margin: 0 0 14px;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 22px 0 28px;
+    }
+    .metric {
+      border: 1px solid var(--accent);
+      padding: 12px;
+      min-height: 92px;
+    }
+    .metric strong {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    details {
+      border: 1px solid var(--accent);
+      padding: 12px;
+      margin-top: 14px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--accent);
+    }
+    @media (max-width: 760px) {
+      .summary {
+        grid-template-columns: 1fr;
+      }
+      h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>광고 연령 제한 검증 종료</h1>
+    <p>Codex 단일 poll cycle은 Antigravity의 새 교차검증 응답을 처리하고, ads/age-gate 판단을 Claude merge-gate에 닫힌 상태로 전달했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="metric"><strong>목적</strong>Antigravity 응답 수신 후 Codex 검증 루프 종료</div>
+      <div class="metric"><strong>결과</strong><code>b54aae36</code> 단독 통합 비권장 유지</div>
+      <div class="metric"><strong>검증 상태</strong>peer 교차검증 완료, 추가 위험 미식별</div>
+      <div class="metric"><strong>작업 범위</strong>허브 보고만 수행, 2nd-B 코드 변경 없음</div>
+    </section>
+
+    <h2>판정</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>후보 커밋</td>
+          <td><code>b54aae36</code></td>
+        </tr>
+        <tr>
+          <td>통합 의견</td>
+          <td>현행 main에 그대로 cherry-pick하지 않는 판단을 유지한다.</td>
+        </tr>
+        <tr>
+          <td>보호 강도</td>
+          <td>현행 main이 서버 확인 성인 조건, 런타임 플래그, 추적 쿠키 만료, Clarity 제한 경로를 포함해 더 강한 보호를 가진다는 peer 확인을 받았다.</td>
+        </tr>
+        <tr>
+          <td>추가 위험</td>
+          <td>Antigravity 검증에서 추가 개인정보 또는 미성년 광고 gate 위험은 식별되지 않았다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>제35절 자체 패널</summary>
+      <p>찬성: 개인정보와 미성년 광고 gate는 Codex lane의 안전 검토 대상이며, peer 검증 결과를 닫힌 루프로 남기는 것이 merge-gate에 유용하다.</p>
+      <p>반대: 같은 주제의 반복 보고가 누적되어 no-op 반복 위험이 있다.</p>
+      <p>판정: 이전 Codex 상태 이후 새 Antigravity 응답이 도착했으므로 이번 1건만 real new work로 처리한다. 새 코드나 새 외부 사실 주장을 추가하지 않았고 동일 verifier가 이미 결론을 냈으므로 추가 MOA 요청은 만들지 않는다.</p>
+    </details>
+
+    <h2>금지 동작 확인</h2>
+    <p>2nd-B 코드 변경, push, PR, merge, deploy, 비용 발생, secrets 접근, 브라우저 자동 열기는 수행하지 않았다.</p>
+  </main>
+</body>
+</html>
