@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 폴 사이클 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0f14; --text:#e8eef5; --muted:#8da0b3; --accent:#62c7ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:14px/1.6 system-ui, -apple-system, Segoe UI, sans-serif; }
+    main { max-width:960px; margin:0 auto; padding:32px 20px 48px; }
+    header { border:1px solid color-mix(in srgb, var(--accent) 35%, transparent); padding:22px; border-radius:8px; }
+    h1, h2 { margin:0 0 12px; line-height:1.25; }
+    h1 { font-size:24px; }
+    h2 { font-size:17px; color:var(--accent); margin-top:28px; }
+    p { margin:8px 0; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; margin-top:16px; }
+    .card { border:1px solid color-mix(in srgb, var(--muted) 35%, transparent); border-radius:8px; padding:14px; min-height:88px; }
+    .label { color:var(--muted); font-size:12px; }
+    .value { font-size:18px; margin-top:6px; color:var(--text); }
+    table { width:100%; border-collapse:collapse; margin-top:10px; overflow:hidden; border:1px solid color-mix(in srgb, var(--muted) 35%, transparent); }
+    th, td { text-align:left; vertical-align:top; padding:10px; border-bottom:1px solid color-mix(in srgb, var(--muted) 25%, transparent); }
+    th { color:var(--accent); font-weight:650; }
+    code { color:var(--accent); font-family:ui-monospace, SFMono-Regular, Consolas, monospace; }
+    details { border:1px solid color-mix(in srgb, var(--muted) 30%, transparent); border-radius:8px; padding:10px 12px; margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); }
+    .bar { display:flex; gap:4px; align-items:end; height:84px; margin:12px 0 4px; }
+    .bar span { display:block; width:32px; background:var(--accent); opacity:.85; border-radius:3px 3px 0 0; }
+    @media (max-width:720px) { .grid { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="muted">프로토콜 12/19/35.4 단일 사이클</p>
+      <h1>AI 뮤지엄 상단 버튼 터치 표면 정규화</h1>
+      <p>이번 사이클은 열린 요청이 없어 Codex 레인의 UI anti-slop 작업을 한 건 수행했다. 2nd-B 별도 worktree에서 상단 뒤로 버튼과 언어 전환 버튼의 시각 레이어와 터치 레이어를 분리했다.</p>
+      <div class="grid">
+        <div class="card"><div class="label">대상</div><div class="value">2개 버튼</div></div>
+        <div class="card"><div class="label">수정 파일</div><div class="value">1개</div></div>
+        <div class="card"><div class="label">브랜치</div><div class="value">codex/pressable-sweep-m</div></div>
+        <div class="card"><div class="label">커밋</div><div class="value">e885e563</div></div>
+      </div>
+    </header>
+
+    <h2>수행 내용</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>요청 확인</td><td>열린 요청 없음</td><td><code>tools/board.ps1 -Me codex</code> 및 상위 outbox request 필터 확인</td></tr>
+        <tr><td>자율 작업</td><td>AI 뮤지엄 헤더 버튼 정규화</td><td><code>src/screens/deepspace/museum/AiMuseumScreen.tsx</code></td></tr>
+        <tr><td>터치 피드백</td><td>Android ripple 추가</td><td>뒤로 버튼과 언어 전환 버튼에 별도 <code>Pressable</code> 터치 레이어 적용</td></tr>
+        <tr><td>접근성</td><td>명시 라벨 추가</td><td>한국어와 영어 상태별 접근성 라벨 추가</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 상태</h2>
+    <div class="bar" aria-label="검증 결과 막대">
+      <span style="height:76px"></span>
+      <span style="height:76px"></span>
+      <span style="height:76px"></span>
+      <span style="height:34px; opacity:.45"></span>
+    </div>
+    <table>
+      <thead><tr><th>검증</th><th>상태</th><th>메모</th></tr></thead>
+      <tbody>
+        <tr><td>Prettier 파일 검사</td><td>통과</td><td>대상 파일 포맷 검사 통과</td></tr>
+        <tr><td>ESLint 파일 검사</td><td>통과</td><td>대상 파일 lint 통과</td></tr>
+        <tr><td>Pressable guard 테스트</td><td>통과</td><td>10개 테스트 통과</td></tr>
+        <tr><td>전체 타입체크</td><td>기존 차단</td><td><code>madge</code>, 광고, Firebase 타입 선언 누락으로 중단</td></tr>
+      </tbody>
+    </table>
+
+    <h2>자체 패널</h2>
+    <details>
+      <summary>판단 근거 보기</summary>
+      <p>찬성 관점: Fabric Android에서 Pressable 스타일 전달 문제를 줄이고, 버튼의 시각 크기와 터치 책임을 분리해 회귀 가능성을 낮춘다.</p>
+      <p>반대 관점: Prettier가 기존 압축 포맷을 정리해 diff가 실제 변경보다 크게 보인다.</p>
+      <p>판정: 단일 파일 변경이며 테스트가 통과했다. diff 크기는 보고서와 커밋 메시지에서 명시하고, Claude가 머지 게이트에서 실제 동작 변경만 확인하면 된다.</p>
+    </details>
+
+    <h2>남은 위험</h2>
+    <p>전체 타입체크는 기존 의존성 타입 누락으로 완료하지 못했다. 이번 변경에서 새 타입 오류는 남기지 않았다.</p>
+    <p class="muted">작성 시각: 2026-07-30 11:06:43 KST</p>
+  </main>
+</body>
+</html>
