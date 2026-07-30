@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>수동 매뉴얼 카피 검증 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --text: #e8edf2; --accent: #7cc7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; letter-spacing: 0; margin-bottom: 12px; }
+    h2 { font-size: 18px; margin: 28px 0 12px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 0 0 8px; }
+    p, li, td, th, summary { font-size: 14px; }
+    code { color: var(--accent); word-break: break-word; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 20px 0; }
+    .card, details { border: 1px solid var(--accent); padding: 14px; border-radius: 8px; background: var(--bg); }
+    .label { display: block; font-size: 12px; opacity: .72; margin-bottom: 6px; }
+    .value { font-size: 18px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; border-bottom: 1px solid var(--accent); padding: 10px 8px; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    details { margin: 10px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .bar { height: 10px; border: 1px solid var(--accent); margin-top: 8px; }
+    .fill { height: 100%; background: var(--accent); width: 100%; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } main { padding: 28px 14px 44px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>수동 매뉴얼 카피 검증 보고서</h1>
+    <p>이 보고서는 Codex가 한 번의 자율 폴 사이클에서 수행한 2nd-B 카피 후보 검증 결과입니다. 대상은 <code>origin/fix/s4-manual-copy-r1</code>입니다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">판정</span><div class="value">병합 가능</div></div>
+      <div class="card"><span class="label">위험도</span><div class="value">낮음</div></div>
+      <div class="card"><span class="label">변경 파일</span><div class="value">3개</div></div>
+      <div class="card"><span class="label">푸시</span><div class="value">없음</div></div>
+    </section>
+
+    <h2>결론</h2>
+    <p>후보 브랜치는 홈에 보이는 6개 별과 보이지 않는 입력 영역인 담아내기의 설명을 맞춥니다. 변경은 수동 매뉴얼 문구와 영어 대응 문구에 한정되어 있으며, Codex 관점에서는 병합해도 됩니다.</p>
+
+    <h2>변경 범위</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td><code>design/proto_rev2/reference-app/data/screens/gaps.json</code></td><td>한국어 매뉴얼 개념 카피 수정</td><td>정상</td></tr>
+        <tr><td><code>public/proto/data/screens/gaps.json</code></td><td>동일한 공개 프로토타입 데이터 카피 수정</td><td>정상</td></tr>
+        <tr><td><code>src/screens/deepspace/DeepSpaceDesignScreens.tsx</code></td><td>영어 대응 카피 수정</td><td>정상</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead><tr><th>검사</th><th>결과</th><th>메모</th></tr></thead>
+      <tbody>
+        <tr><td><code>git diff --check</code></td><td>통과</td><td>공백 오류 없음</td></tr>
+        <tr><td>JSON 파싱</td><td>통과</td><td>변경된 두 데이터 파일 모두 파싱됨</td></tr>
+        <tr><td>병합 트리 충돌 마커</td><td>통과</td><td>충돌 마커 없음</td></tr>
+        <tr><td>오래된 7별 문구 스캔</td><td>통과</td><td>오해를 만든 기존 문구 없음</td></tr>
+        <tr><td>대체 문구 스캔</td><td>통과</td><td>6개 보이는 별과 7개 영역 설명 확인</td></tr>
+        <tr><td><code>check-no-emdash</code></td><td>통과</td><td>금지 문장부호 없음</td></tr>
+        <tr><td><code>check-forbidden-lexicon</code></td><td>통과</td><td>금지 어휘 없음</td></tr>
+        <tr><td><code>check-constraints</code></td><td>통과</td><td>카피 제약 포함 전체 제약 검사 통과</td></tr>
+        <tr><td>대상 ESLint</td><td>통과</td><td>오류 0개, 기존 경고 40개</td></tr>
+      </tbody>
+    </table>
+
+    <h2>주의 사항</h2>
+    <details open>
+      <summary>Prettier 경고</summary>
+      <p>변경된 3개 파일의 <code>prettier --check</code>는 경고를 냈습니다. 다만 같은 파일을 기존 <code>2ndB-codex</code> worktree에서 검사해도 동일하게 실패하므로, 이번 후보가 새로 만든 포맷 회귀로 보지 않았습니다. 넓은 파일 재포맷은 이 카피 검증의 신호를 흐리므로 수행하지 않았습니다.</p>
+    </details>
+
+    <h2>자체 검토</h2>
+    <details>
+      <summary>검토 내용</summary>
+      <p>찬성 관점: 실제 홈 UI의 6개 보이는 별과 수집 입력 영역의 관계를 더 정확히 설명합니다.</p>
+      <p>회의 관점: 처음 보는 사용자에게 6개 별과 7개 영역을 함께 말하는 구조가 아직 조금 복잡할 수 있습니다.</p>
+      <p>판정 관점: 기술적으로는 낮은 위험의 카피 정렬이며, 병합 가능한 후보입니다.</p>
+    </details>
+
+    <h2>작업 정보</h2>
+    <table>
+      <tbody>
+        <tr><th>작성 시각</th><td>2026-07-31 02:25:10 KST</td></tr>
+        <tr><th>기준 본선</th><td><code>origin/main</code> <code>58e5d68d</code></td></tr>
+        <tr><th>대상 브랜치</th><td><code>origin/fix/s4-manual-copy-r1</code> <code>eec8dcb8</code></td></tr>
+        <tr><th>검증 작업트리</th><td><code>C:\Coding Infra\_worktrees\2ndB-codex-qa-manual-copy-20260731-022307</code></td></tr>
+      </tbody>
+    </table>
+    <div class="bar" aria-label="검증 진행률"><div class="fill"></div></div>
+  </main>
+</body>
+</html>
