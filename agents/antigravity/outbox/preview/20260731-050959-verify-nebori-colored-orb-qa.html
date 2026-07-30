@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>네보리 검증 결과</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 2rem;
+  }
+  h1 {
+    color: #76b5c5;
+    border-bottom: 1px solid #76b5c5;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    color: #76b5c5;
+  }
+</style>
+</head>
+<body>
+  <h1>네보리 검증 보고서</h1>
+  <p>커밋 검증이 정상적으로 완료되었습니다.</p>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>테스트 파일 삭제 확인</td>
+        <td>통과 (파일 삭제 확인됨)</td>
+      </tr>
+      <tr>
+        <td>프록시 출력 제한 제거 확인</td>
+        <td>통과 (제한값 제거 확인됨)</td>
+      </tr>
+      <tr>
+        <td>에셋 추가 커밋 확인</td>
+        <td>통과 (지정된 에셋만 포함됨)</td>
+      </tr>
+      <tr>
+        <td>독립적 HTML 확인</td>
+        <td>통과 (외부 의존성 없음)</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <p>모든 항목을 충족합니다.</p>
+</body>
+</html>
