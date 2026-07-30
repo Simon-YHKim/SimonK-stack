@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>허브독 프레스 표면 정리 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b1117; --fg:#e6edf3; --accent:#58a6ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font-family:Arial,"Malgun Gothic",sans-serif; line-height:1.6; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 44px; }
+    header, section { border:1px solid var(--accent); border-radius:6px; padding:18px; margin-bottom:16px; }
+    h1, h2 { margin:0 0 12px; line-height:1.25; }
+    h1 { font-size:24px; }
+    h2 { font-size:18px; color:var(--accent); }
+    p { margin:8px 0; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--accent); padding:9px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; }
+    .card { border:1px solid var(--accent); border-radius:6px; padding:12px; }
+    .ok { color:var(--accent); font-weight:700; }
+    details { margin-top:8px; }
+    summary { cursor:pointer; color:var(--accent); }
+    .bar { width:100%; height:12px; border:1px solid var(--accent); border-radius:999px; overflow:hidden; margin-top:8px; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>허브독 프레스 표면 정리 보고서</h1>
+    <p>생성 시각: 2026-07-30 12:26:34 KST</p>
+    <p>이번 사이클은 열린 신규 Codex 인박스가 없는 상태에서 Codex 레인의 단일 신규 UI 작업으로 진행했다.</p>
+  </header>
+
+  <section>
+    <h2>요약</h2>
+    <div class="grid">
+      <div class="card"><strong>대상</strong><p><code>DeepSpaceHubDockScreen.tsx</code></p></div>
+      <div class="card"><strong>브랜치</strong><p><code>codex/pressable-sweep-r-20260730-1223</code></p></div>
+      <div class="card"><strong>앱 커밋</strong><p><code>40c35167</code></p></div>
+      <div class="card"><strong>푸시</strong><p>하지 않음</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>변경 내용</h2>
+    <table>
+      <thead><tr><th>항목</th><th>처리</th><th>효과</th></tr></thead>
+      <tbody>
+        <tr><td>모드 칩</td><td><code>Pressable</code>은 터치만 맡고 내부 <code>View</code>가 외형을 보유</td><td>Android Fabric 스타일 누락 위험 감소</td></tr>
+        <tr><td>담기 버튼</td><td>외형 래퍼 분리와 <code>android_ripple</code>, <code>hitSlop</code> 추가</td><td>터치 피드백과 조작성 개선</td></tr>
+        <tr><td>전송 버튼</td><td>비활성 시각 상태를 내부 래퍼로 이동</td><td>Pressable 스타일 의존도 감소</td></tr>
+        <tr><td>점검 버튼과 트렌드 카드</td><td>보류, 승인, 제안 카드, 정리 링크 표면 정리</td><td>일관된 터치 표면 소유권 확보</td></tr>
+      </tbody>
+    </table>
+    <details><summary>자세히</summary><p>이번 변경은 기능 흐름을 바꾸지 않고 UI 표면 소유권만 정리했다. 화면 텍스트, 라우팅, 상태 전이는 유지했다.</p></details>
+  </section>
+
+  <section>
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>파일 포맷</td><td class="ok">통과</td><td><code>npx prettier --check src/screens/deepspace/DeepSpaceHubDockScreen.tsx</code></td></tr>
+        <tr><td>파일 린트</td><td class="ok">통과</td><td><code>npx eslint src/screens/deepspace/DeepSpaceHubDockScreen.tsx</code></td></tr>
+        <tr><td>공백 검사</td><td class="ok">통과</td><td><code>git diff --check</code></td></tr>
+        <tr><td>전역 타입 검사</td><td>기존 문제로 실패</td><td><code>madge</code>, 광고, Firebase native 모듈 타입 해석 실패. 수정 파일 관련 오류는 없었다.</td></tr>
+      </tbody>
+    </table>
+    <div class="bar" aria-label="검증 통과 비율"><span style="width:75%"></span></div>
+  </section>
+
+  <section>
+    <h2>위험과 남은 일</h2>
+    <p>위험은 낮다. 변경 범위는 단일 UI 프리뷰 파일이고, 데이터, 보안, 결제, 배포, 원격 푸시는 건드리지 않았다.</p>
+    <details><summary>롤백</summary><p>Claude merge gate가 필요 없다고 판단하면 앱 브랜치 커밋 <code>40c35167</code>을 폐기하면 된다. hub 보고서는 기록용이다.</p></details>
+  </section>
+</main>
+</body>
+</html>
