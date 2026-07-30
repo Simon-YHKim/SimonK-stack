@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>통합 후보 검수 보고서</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e6edf3; --accent:#7aa2ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:1040px; margin:0 auto; padding:40px 20px 56px; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { font-size:30px; line-height:1.2; margin-bottom:12px; }
+    h2 { font-size:20px; margin:28px 0 12px; border-top:1px solid var(--accent); padding-top:18px; }
+    h3 { font-size:16px; margin-bottom:8px; }
+    .lead { max-width:760px; opacity:.88; }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; margin:22px 0; }
+    .card { border:1px solid var(--accent); padding:14px; min-height:92px; }
+    .label { font-size:12px; opacity:.72; margin-bottom:6px; }
+    .value { font-size:18px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin:12px 0 20px; }
+    th, td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { font-weight:700; }
+    code { color:var(--accent); font-family:Consolas, monospace; }
+    details { border:1px solid var(--accent); padding:12px; margin:10px 0; }
+    summary { cursor:pointer; font-weight:700; color:var(--accent); }
+    .bar { width:100%; height:10px; border:1px solid var(--accent); margin-top:8px; }
+    .fill { display:block; height:100%; background:var(--accent); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } }
+    @media (max-width:480px) { .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>통합 후보 검수 보고서</h1>
+    <p class="lead">Codex 자율 폴링 1회에서 새로 발견한 통합 후보 <code>origin/chore/codex-cycle-integration-v2</code>를 <code>origin/main</code> 기준으로 검수했다. 앱 코드 수정과 push는 하지 않았다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">대상</div><div class="value">통합 후보 QA</div></div>
+      <div class="card"><div class="label">HEAD</div><div class="value">14c2c90d</div></div>
+      <div class="card"><div class="label">변경 규모</div><div class="value">163파일</div></div>
+      <div class="card"><div class="label">판정</div><div class="value">조건부 통과</div></div>
+    </section>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>merge-tree 충돌</td><td>통과</td><td><code>CONFLICT</code>, <code>changed in both</code>, 충돌 마커 검색 결과 없음</td></tr>
+        <tr><td>공백 오류</td><td>통과</td><td><code>git diff --check origin/main..HEAD</code> 종료 코드 0</td></tr>
+        <tr><td>i18n 키 정합</td><td>통과</td><td>5개 locale, 44개 namespace, 3282개 key 정렬</td></tr>
+        <tr><td>금지 어휘</td><td>통과</td><td>941개 파일 스캔, 금지 lexicon 검사 통과</td></tr>
+        <tr><td>em dash locale</td><td>통과</td><td>locale 문자열 내 U+2014 없음</td></tr>
+        <tr><td>정책 제약</td><td>통과</td><td><code>check:constraints</code> 주요 항목 통과, C11은 기존 부분 상태</td></tr>
+        <tr><td>lint</td><td>조건부 통과</td><td>오류 0개, 경고 53개</td></tr>
+        <tr><td>type-check</td><td>차단</td><td>기존 <code>madge</code>, ads native module, Firebase Analytics 타입 해석 오류</td></tr>
+      </tbody>
+    </table>
+
+    <h2>위험도</h2>
+    <div class="bar" aria-label="위험도 중간"><span class="fill" style="width:55%"></span></div>
+    <p>변경 폭이 크고 locale 및 UI 파일이 넓게 바뀌었으므로 merge diff는 고위험으로 취급했다. 다만 충돌, 정책 검사, i18n 정합, 금지어, visible glyph 스캔에서는 새 blocker를 발견하지 못했다.</p>
+
+    <details>
+      <summary>자세히 보기: 실행한 명령</summary>
+      <p><code>git fetch origin</code>, <code>git switch -C codex/qa-cycle-integration-v2-20260730 origin/chore/codex-cycle-integration-v2</code>, <code>git diff --check origin/main..HEAD</code>, <code>npm run check:emdash</code>, <code>npm run check:lexicon</code>, <code>npm run check:constraints</code>, <code>npm run check:i18n</code>, <code>npm run lint</code>, <code>npm run type-check</code>, focused <code>rg</code> scans.</p>
+    </details>
+
+    <details>
+      <summary>자세히 보기: self-panel</summary>
+      <p>반대 관점: 변경 규모가 163파일이라 단일 Codex QA만으로 merge-safe 확정은 어렵다. 찬성 관점: 이번 검수 범위의 핵심인 UI anti-slop, i18n, 정책 제약, 충돌 여부에서는 blocker가 없다. 결정: Claude에게 별도 교차 검증을 요청하고, Codex 판정은 조건부 통과로 제한한다.</p>
+    </details>
+
+    <h2>결론</h2>
+    <p><code>origin/chore/codex-cycle-integration-v2</code>는 Codex UI/anti-slop 관점에서 조건부 통과다. merge 전 Claude가 type-check 차단 사유가 기존 환경 문제인지 재확인하고, 53개 lint 경고 중 통합 후보가 새로 만든 항목이 있는지 한 번 더 보는 것이 맞다.</p>
+  </main>
+</body>
+</html>
