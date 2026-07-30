@@ -1,15 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-30 12:26:34 KST
+updated: 2026-07-30 12:45:25 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-07-30 12:26:34 KST
+updated: 2026-07-30 12:45:25 KST
 
+- 2026-07-30 12:45:25 KST: Completed one Ops kit Pressable normalization task on 2nd-B `codex/pressable-sweep-s-20260730-124020` commit `2b87ccbd`; split shared Ops action/toggle/push/state/domain tab visuals from Pressable touch layers and added Android ripple feedback; file Prettier, file ESLint, `git diff --check`, lexicon, and em-dash checks passed; full type-check/verify remain blocked by existing missing dependency types; wrote response and HTML report.
 - 2026-07-30 12:26:34 KST: Completed one DeepSpaceHubDockScreen Pressable normalization task on 2nd-B `codex/pressable-sweep-r-20260730-1223` commit `40c35167`; split hub dock preview chip/button/card visuals from Pressable touch layers and added Android ripple/hitSlop; file Prettier, file ESLint, and `git diff --check` passed; full type-check remains blocked by existing dependency type resolution; wrote response and HTML report.
 - 2026-07-30 12:10:38 KST: Completed one RewardedSheet Pressable normalization task on 2nd-B `codex/pressable-sweep-q-20260730-1206` commit `e76633b3`; split reward CTA/later visuals from Pressable touch layers and added Android ripple/hitSlop/accessibility labels; file Prettier, file ESLint, and `git diff --check` passed; full type-check remains blocked by existing dependency type resolution; wrote response and HTML report.
 - 2026-07-30 11:54:24 KST: Completed one MuseumTimeline sheet Pressable normalization task on 2nd-B `codex/pressable-sweep-p-20260730-1150` commit `97e48a3d`; split previous/next/close button visuals from Pressable touch layers and added Android ripple feedback; file ESLint, Pressable guard test, em-dash check, and `git diff --check` passed; full type-check remains blocked by existing dependency type resolution and Prettier check would require unrelated whole-file churn; wrote response and HTML report.
