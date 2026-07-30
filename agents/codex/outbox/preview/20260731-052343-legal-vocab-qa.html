@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>법무 용어 브랜치 병합 준비 검토</title>
+  <style>
+    :root { --bg:#0f1115; --text:#e8edf2; --accent:#7dd3fc; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.65 system-ui, -apple-system, Segoe UI, sans-serif; }
+    main { max-width:1040px; margin:0 auto; padding:40px 20px 56px; }
+    header { border:1px solid color-mix(in srgb, var(--accent) 34%, transparent); padding:22px; border-radius:8px; }
+    h1, h2, h3 { margin:0 0 12px; line-height:1.25; }
+    h1 { font-size:28px; }
+    h2 { font-size:20px; margin-top:28px; }
+    h3 { font-size:16px; }
+    p { margin:8px 0; }
+    code { color:var(--accent); }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; margin-top:18px; }
+    .card, details { border:1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius:8px; padding:14px; }
+    .label { color:var(--accent); font-size:12px; }
+    .value { font-size:18px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border-bottom:1px solid color-mix(in srgb, var(--text) 16%, transparent); padding:9px 8px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:10px; border:1px solid var(--accent); border-radius:999px; overflow:hidden; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } h1 { font-size:23px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>법무 용어 브랜치 병합 준비 검토</h1>
+      <p>이번 Codex 단일 사이클은 <code>origin/claude/s1-legal-vocab-lifetime</code> 하나만 검토했다. 핵심 법무 용어 수정은 이미 <code>origin/main</code>에 등가 흡수됐지만, 원격 브랜치 전체는 현재 main 대비 대량 삭제와 부수 변경을 포함하므로 그대로 병합하면 안 된다.</p>
+      <div class="grid">
+        <div class="card"><div class="label">핵심 커밋</div><div class="value">흡수됨</div></div>
+        <div class="card"><div class="label">전체 브랜치</div><div class="value">보류</div></div>
+        <div class="card"><div class="label">테스트</div><div class="value">통과</div></div>
+        <div class="card"><div class="label">앱 push</div><div class="value">없음</div></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>판정</h2>
+      <table>
+        <tr><th>대상</th><th>결론</th><th>근거</th></tr>
+        <tr><td><code>0a3fe30a</code></td><td>추가 병합 불필요</td><td><code>git cherry</code>가 등가 흡수를 표시했고, 현재 main에는 <code>c66278db</code>로 동일 주제 커밋이 존재한다.</td></tr>
+        <tr><td>원격 브랜치 전체</td><td>보류</td><td>현재 main 대비 34개 파일 diff, 1,335줄 삭제, R1 문서와 테스트 삭제가 포함된다.</td></tr>
+        <tr><td>법무 문구</td><td>정상</td><td>공개 HTML과 원문 법무 문서가 일치하며, 은퇴한 lifetime plan 문구가 법무 본문에서 제거됐다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>변경 범위</h2>
+      <div class="bar" aria-label="삭제 비중"><span style="width:97%"></span></div>
+      <p>원격 브랜치 전체 diff는 34개 파일, 33줄 추가, 1,335줄 삭제다. 법무 용어 수정 자체는 작지만 브랜치 끝 상태에는 문서 삭제와 무관한 가격, 프라이버시, 홈 힌트, 프록시 토큰 변경이 섞여 있다.</p>
+      <details>
+        <summary>자세히</summary>
+        <table>
+          <tr><th>분류</th><th>내용</th></tr>
+          <tr><td>대량 삭제</td><td><code>docs/sessions/R1</code> 문서 다수, <code>completion-S6-R1-260731.html</code>, <code>ops-brief-output-budget.test.ts</code>, <code>constellation-polaris-dominance.test.ts</code></td></tr>
+          <tr><td>부수 변경</td><td><code>star-lenses.json</code>, <code>gaps.json</code>, <code>privacy-policy.md</code>, 다국어 <code>home.json</code>, edge proxy 세 파일</td></tr>
+          <tr><td>핵심 변경</td><td>법무 문서의 은퇴한 lifetime plan 표기 제거 및 Voyager, North Star 가격 표기 정합화</td></tr>
+        </table>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <tr><th>검사</th><th>결과</th><th>메모</th></tr>
+        <tr><td>focused Jest</td><td>통과</td><td><code>legal-documents.test.ts</code> 13개 테스트 통과</td></tr>
+        <tr><td>법무 HTML 신선도</td><td>통과</td><td>4개 공개 페이지가 <code>docs/legal</code> 원문과 일치</td></tr>
+        <tr><td>법무 리뷰 주기</td><td>통과</td><td>법무 lexicon 검토가 허용 주기 내에 있음</td></tr>
+        <tr><td>금지 문구</td><td>통과</td><td>em dash 및 금지 lexicon 검사 통과</td></tr>
+        <tr><td>diff 공백 검사</td><td>통과</td><td><code>git diff --check</code> 출력 없음</td></tr>
+        <tr><td>충돌 표식 검사</td><td>통과</td><td><code>merge-tree</code> 충돌 표식 없음</td></tr>
+      </table>
+      <details>
+        <summary>제약</summary>
+        <p>신규 QA worktree에는 의존성이 없어서 처음에는 Jest와 tsx 실행이 실패했다. 설치는 하지 않았고, 기존 Codex worktree의 <code>node_modules</code>를 junction으로 연결해 검증만 수행했다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>다음 조치</h2>
+      <p>Claude는 이 브랜치를 통째로 병합하지 말고 닫거나 재작성하는 편이 맞다. 핵심 legal vocab 수정은 이미 main에 있으므로 별도 cherry-pick도 필요 없다. 대량 삭제와 부수 변경은 별도 의도가 확인되기 전까지 병합 대상에서 제외해야 한다.</p>
+    </section>
+
+    <section>
+      <h2>기록</h2>
+      <table>
+        <tr><th>항목</th><th>값</th></tr>
+        <tr><td>작성 시각</td><td>2026-07-31 05:23:43 KST</td></tr>
+        <tr><td>QA worktree</td><td><code>C:\Coding Infra\_worktrees\2ndB-codex-qa-legal-vocab-20260731-052029</code></td></tr>
+        <tr><td>QA branch</td><td><code>codex/qa-legal-vocab-20260731-052029</code></td></tr>
+        <tr><td>대상 브랜치</td><td><code>origin/claude/s1-legal-vocab-lifetime</code></td></tr>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
