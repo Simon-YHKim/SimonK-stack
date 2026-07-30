@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>포커스 도미넌스 QA 보고서</title>
+  <style>
+    :root { --bg:#111318; --text:#eef1f6; --muted:#9aa4b2; --accent:#7cc7ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 56px; }
+    h1, h2, h3 { margin:0 0 12px; line-height:1.2; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; margin-top:28px; color:var(--accent); }
+    p { margin:0 0 12px; }
+    .summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:22px 0; }
+    .card, details { border:1px solid rgba(124,199,255,.28); border-radius:6px; padding:14px; background:rgba(255,255,255,.03); }
+    .label { color:var(--muted); font-size:12px; text-transform:uppercase; }
+    .value { font-size:18px; font-weight:700; margin-top:4px; }
+    table { width:100%; border-collapse:collapse; margin:12px 0; }
+    th, td { border-bottom:1px solid rgba(154,164,178,.28); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { width:100%; height:12px; background:rgba(154,164,178,.25); border-radius:999px; overflow:hidden; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+    .muted { color:var(--muted); }
+  </style>
+</head>
+<body>
+<main>
+  <h1>포커스 도미넌스 QA 보고서</h1>
+  <p class="muted">작성 시각: 2026-07-31 04:11:45 KST</p>
+  <section class="summary" aria-label="요약">
+    <div class="card"><div class="label">대상</div><div class="value">origin/claude/s2-focus-dominance</div></div>
+    <div class="card"><div class="label">판정</div><div class="value">브랜치 HOLD</div></div>
+    <div class="card"><div class="label">의도 패치</div><div class="value">이미 main 반영</div></div>
+    <div class="card"><div class="label">검증 요청</div><div class="value">Antigravity 요청</div></div>
+  </section>
+
+  <h2>결론</h2>
+  <p>의도 커밋 <code>24e7102d</code>의 별 크기 위계 수정은 현재 <code>origin/main</code>에 <code>58e5d68d</code>로 이미 반영되어 있습니다. 따라서 해당 기능 자체는 추가 머지가 필요 없습니다.</p>
+  <p>다만 브랜치 전체 diff는 현재 main 대비 문서 삭제, 테스트 삭제, 프록시 토큰 상한 되돌림, dead locale key 재추가를 포함합니다. 이 상태의 whole-branch merge는 HOLD입니다.</p>
+
+  <h2>검증 요약</h2>
+  <table>
+    <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>의도 커밋 흡수</td><td>통과</td><td><code>git cherry</code>가 <code>24e7102d</code>를 <code>-</code>로 표시</td></tr>
+      <tr><td>파일 동일성</td><td>통과</td><td><code>origin/main</code>과 <code>58e5d68d</code> 대상 파일 diff 없음</td></tr>
+      <tr><td>대상 Jest</td><td>통과</td><td>1 suite, 4 tests 통과</td></tr>
+      <tr><td>merge-tree 충돌 마커</td><td>통과</td><td><code>NO_CONFLICT_MARKERS</code></td></tr>
+      <tr><td>em dash 검사</td><td>통과</td><td><code>check:emdash</code> 통과</td></tr>
+      <tr><td>금지 lexicon 검사</td><td>통과</td><td><code>check:lexicon</code> 통과</td></tr>
+      <tr><td>시크릿 패턴 검사</td><td>통과</td><td>patch 기반 패턴 매치 없음</td></tr>
+    </tbody>
+  </table>
+
+  <h2>위험도</h2>
+  <div class="bar" aria-label="위험도 높음"><span style="width:78%"></span></div>
+  <p class="muted">위험은 의도 UI 패치가 아니라 stale whole-branch diff에 있습니다.</p>
+
+  <details>
+    <summary>자세히: whole-branch 오염</summary>
+    <p>현재 <code>origin/main..origin/claude/s2-focus-dominance</code>는 16개 파일에 걸쳐 18 insertions, 266 deletions입니다.</p>
+    <table>
+      <thead><tr><th>분류</th><th>영향</th></tr></thead>
+      <tbody>
+        <tr><td>삭제</td><td>R1 답변 문서 2개와 <code>ops-brief-output-budget.test.ts</code> 삭제</td></tr>
+        <tr><td>프록시</td><td><code>ops_daily_brief</code> 토큰 floor 보호 로직 제거</td></tr>
+        <tr><td>로케일</td><td>이미 제거된 <code>ds.home.hint</code> 키 재추가</td></tr>
+        <tr><td>디자인 데이터</td><td>별 렌즈와 gap mirror 변경 포함</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <details>
+    <summary>자세히: 35 self-panel</summary>
+    <table>
+      <thead><tr><th>관점</th><th>판단</th></tr></thead>
+      <tbody>
+        <tr><td>찬성</td><td>별 위계 수정은 실제 규칙 위반을 닫았고 테스트도 포함되어 있어 유지 가치가 큽니다.</td></tr>
+        <tr><td>반대</td><td>브랜치 전체를 머지하면 이미 해결된 brief truncation 방어와 dead key 정리가 되돌아갑니다.</td></tr>
+        <tr><td>대안</td><td>브랜치는 닫고, 필요한 경우 main의 <code>58e5d68d</code>를 정본으로 삼습니다.</td></tr>
+        <tr><td>판정</td><td>기능은 완료, 브랜치는 HOLD 및 폐기 후보입니다.</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <h2>권고</h2>
+  <p>Claude는 <code>origin/claude/s2-focus-dominance</code>를 merge하지 말고 stale branch로 정리하는 것이 안전합니다. 추가 cherry-pick도 필요 없습니다.</p>
+</main>
+</body>
+</html>
