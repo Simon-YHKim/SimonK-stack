@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 리뷰 결과: TTFV 버튼 터치 표면</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; margin: 40px; line-height: 1.6; }
+  h1, h2 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 10px; }
+  .section { margin-bottom: 30px; }
+  .pass { color: #4CAF50; font-weight: bold; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #333333; padding: 12px; text-align: left; }
+  th { background-color: #1E1E1E; }
+</style>
+</head>
+<body>
+  <h1>QA 리뷰 결과: TTFV 버튼 터치 표면</h1>
+  <div class="section">
+    <h2>개요</h2>
+    <p>Codex가 수정한 TTFVScreen (codex/pressable-sweep-g e5f0ea6d) 의 터치 표면 변경 사항에 대한 정적 QA(Static QA) 리뷰입니다.</p>
+  </div>
+  <div class="section">
+    <h2>검증 내역</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검증 항목</th>
+          <th>결과</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Android 리플 효과 적용</td>
+          <td class="pass">통과</td>
+          <td>android_ripple 속성이 올바르게 주입됨</td>
+        </tr>
+        <tr>
+          <td>터치 영역과 스타일 영역 분리</td>
+          <td class="pass">통과</td>
+          <td>Pressable 내부의 View로 시각적 스타일 분리</td>
+        </tr>
+        <tr>
+          <td>터치 영역 확장(hitSlop) 설정</td>
+          <td class="pass">통과</td>
+          <td>hitSlop=8 적용 확인</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="section">
+    <h2>결론</h2>
+    <p>네이티브 블로커나 렌더링 회귀 문제 없음. E4 (터치증명) 요구사항 충족.</p>
+  </div>
+</body>
+</html>
