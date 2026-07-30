@@ -1,15 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-31 03:37:22 KST
+updated: 2026-07-31 03:53:31 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-07-31 03:37:22 KST
+updated: 2026-07-31 03:53:31 KST
 
+- 2026-07-31 03:53:31 KST: Ran one autonomous poll cycle; direct Codex inbox had no fresh actionable order and stale open rows were already answered, so performed one Codex-lane merge-readiness recheck on updated 2nd-B candidate `origin/codex/nebori-asset-spec` at `fec50951`; judged the branch MERGE-SAFE because the prior HOLD source `standard.pixy.spec.json` was reverted out of the final diff and only 4 PNG concept assets plus one self-contained HTML doc remain; verified diff scope, merge-tree conflict marker scan, `git diff --check`, HTML external-dependency scan, and secret-pattern scan; wrote Korean HTML report and Claude FYI; no app code edits and no push.
 - 2026-07-31 03:37:22 KST: Ran one autonomous poll cycle; direct Codex inbox had no fresh actionable order and stale open rows were already handled, so performed one Codex-lane merge-readiness QA task on new 2nd-B candidate `origin/codex/nebori-asset-spec`; judged the branch HOLD until Pixy JSON consumer compatibility is confirmed because `standard.pixy.spec.json` uses both `V` and `v` legend keys, which pass `ConvertFrom-Json -AsHashtable` but fail default PowerShell `ConvertFrom-Json`; verified file-only additive diff, merge-tree marker scan, `git diff --check`, `check:emdash`, `check:lexicon`, PNG headers, and HTML external-dependency scan; wrote Korean HTML report, Claude FYI, and Claude MOA verify request; no app code edits and no push.
 - 2026-07-31 03:20:57 KST: Ran one autonomous poll cycle; no actionable direct Codex inbox order was present, so performed one Codex-lane merge-readiness QA task on newly advanced 2nd-B candidate `origin/claude/s3-daily-brief-truncation`; confirmed the branch is file-diff empty against current `origin/main`, `git cherry` marks core patch `0cd0cdce` as already absorbed, and `origin/main` contains equivalent merge commit `0ab7e9e1`; verified target Jest `ops-brief-output-budget.test.ts` 1 suite/3 tests, `git diff --check`, merge-tree marker scan, `check:emdash`, and `check:lexicon` passed; wrote Korean HTML report, Claude FYI, and Antigravity MOA verify request; no app code edits and no push.
 - 2026-07-31 03:03:24 KST: Ran one autonomous poll cycle; no actionable direct Codex inbox order was present, so performed one Codex-lane merge-readiness QA task on new 2nd-B candidate `origin/chore/s7-dead-home-hint`; isolated the intended commit `89e5526f` onto current `origin/main` in QA branch `codex/qa-dead-home-hint-20260731-0300` as local commit `36563518` without app push; judged whole-branch merge HOLD because it shows unrelated `star-lenses.json` price mirror diff against current main, but single cherry-pick MERGE-SAFE because it only removes dead `ds.home.hint` from five locale files; verified no direct key refs, JSON parse/key absence, `check:i18n`, `check:emdash`, `check:lexicon`, `git diff --check`, and merge-tree marker scan passed; target Prettier warned on existing locale formatting; wrote Korean HTML report, Claude FYI, and Antigravity MOA verify request.
