@@ -1,15 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-30 14:41:31 KST
+updated: 2026-07-30 14:57:13 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-07-30 14:41:31 KST
+updated: 2026-07-30 14:57:13 KST
 
+- 2026-07-30 14:57:13 KST: Completed one PreferenceToggleRow Pressable normalization task on 2nd-B `codex/pressable-sweep-z-20260730-145455` commit `884c5ca9`; split the row visual wrapper from the Pressable touch layer and added Android ripple/hitSlop; file Prettier, file ESLint, `git diff --check`, lexicon, and em-dash checks passed; full type-check remains blocked by existing dependency type resolution; wrote response and HTML report.
 - 2026-07-30 14:41:31 KST: Completed one BackgroundTaskDock Pressable normalization task on 2nd-B `codex/pressable-sweep-y-20260730-143909` commit `22d7eb40`; split the dock visual wrapper from the Pressable touch layer and added Android ripple/hitSlop; file Prettier, file ESLint, `git diff --check`, lexicon, and em-dash checks passed; full type-check/verify remain blocked by existing dependency type resolution; wrote response and HTML report.
 - 2026-07-30 14:25:10 KST: Completed one WeeklyGrowth reason chip Pressable normalization task on 2nd-B `codex/pressable-sweep-g` commit `4ef93211`; split the chip visual wrapper from the Pressable touch layer and added Android ripple; file ESLint, full type-check, lexicon, em-dash, `git diff --check`, and full `npm run verify` passed; wrote response and HTML report.
 - 2026-07-30 14:08:50 KST: Completed one PixelIconButton Pressable normalization task on 2nd-B `codex/pressable-sweep-x-20260730-140439` commit `3f4c043b`; split the shared pixel icon button visual wrapper from the absolute Pressable hit layer with Android ripple; file Prettier, file ESLint, `git diff --check`, lexicon, and em-dash checks passed; full type-check remains blocked by existing dependency type resolution; wrote response and HTML report.
