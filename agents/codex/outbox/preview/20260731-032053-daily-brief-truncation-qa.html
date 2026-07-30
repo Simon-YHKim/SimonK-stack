@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>데일리 브리프 절단 방지 브랜치 검증</title>
+  <style>
+    :root { --bg: #101214; --text: #e7e7e7; --accent: #72c7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 1040px; margin: 0 auto; padding: 32px 18px 56px; }
+    header { border: 1px solid var(--accent); padding: 22px; border-radius: 8px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin: 28px 0 12px; color: var(--accent); }
+    h3 { font-size: 15px; margin-bottom: 8px; }
+    .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+    .card, details { border: 1px solid var(--accent); border-radius: 8px; padding: 14px; }
+    .card strong { display: block; color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    .controls { display: flex; gap: 8px; margin: 18px 0; flex-wrap: wrap; }
+    button { background: var(--bg); color: var(--text); border: 1px solid var(--accent); border-radius: 6px; padding: 8px 12px; cursor: pointer; }
+    button[aria-pressed="true"] { background: var(--accent); color: var(--bg); }
+    .mode-expert .easy, .mode-easy .expert { display: none; }
+    .bar { width: 100%; height: 12px; border: 1px solid var(--accent); border-radius: 999px; overflow: hidden; }
+    .bar span { display: block; height: 100%; background: var(--accent); }
+    @media (max-width: 760px) { .summary { grid-template-columns: 1fr; } h1 { font-size: 23px; } }
+  </style>
+</head>
+<body class="mode-easy">
+  <main>
+    <header>
+      <h1>데일리 브리프 절단 방지 브랜치 검증</h1>
+      <p>이번 사이클은 새로 전진한 2nd-B 브랜치가 현재 main에 이미 흡수된 상태인지 확인했다.</p>
+      <div class="summary">
+        <div class="card"><strong>결론</strong><span>새 파일 변화 없음</span></div>
+        <div class="card"><strong>브랜치</strong><code>origin/claude/s3-daily-brief-truncation</code></div>
+        <div class="card"><strong>위험</strong><span>낮음</span></div>
+        <div class="card"><strong>검증</strong><span>통과</span></div>
+      </div>
+    </header>
+
+    <div class="controls" aria-label="표시 설정">
+      <button type="button" data-mode="easy" aria-pressed="true" aria-label="쉬운 설명 보기">쉬운 설명</button>
+      <button type="button" data-mode="expert" aria-pressed="false" aria-label="전문가 설명 보기">전문가 설명</button>
+    </div>
+
+    <section class="easy">
+      <h2>쉬운 설명</h2>
+      <p>검사한 브랜치는 새로 움직였지만, 현재 main과 비교하면 실제로 바뀐 파일이 없었다. 중요한 수정은 이미 main에 들어가 있다.</p>
+      <details><summary>자세히</summary><p>쉽게 말해, 같은 수정이 이미 정본에 반영된 상태다. 그래서 Codex가 앱 코드를 다시 고치거나 새 브랜치를 만들 필요는 없었다.</p></details>
+    </section>
+
+    <section class="expert">
+      <h2>전문가 설명</h2>
+      <p><code>git diff --stat origin/main..origin/claude/s3-daily-brief-truncation</code>가 빈 결과를 반환했고, <code>git cherry</code>는 핵심 패치 <code>0cd0cdce</code>를 main에 이미 존재하는 동등 패치로 표시했다.</p>
+      <details><summary>자세히</summary><p><code>origin/main</code>에는 <code>0ab7e9e1</code> 머지 커밋이 있으며, 같은 제목의 절단 방지 수정과 회귀 테스트가 포함되어 있다. 따라서 브랜치 병합은 기능 변화 없는 정리 작업으로 판단했다.</p></details>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead><tr><th>항목</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+          <tr><td><code>git merge-tree</code></td><td>충돌 표식 없음</td></tr>
+          <tr><td><code>ops-brief-output-budget.test.ts</code></td><td>1개 suite, 3개 test 통과</td></tr>
+          <tr><td><code>check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>check:lexicon</code></td><td>949개 파일 검사 통과</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>위험도</h2>
+      <div class="bar" aria-label="위험도 낮음"><span style="width:18%"></span></div>
+      <p>앱 코드 diff가 없으므로 직접 회귀 위험은 낮다. 큐 정리 전 독립 검증 요청을 남겼다.</p>
+    </section>
+
+    <section>
+      <h2>기록</h2>
+      <table>
+        <tbody>
+          <tr><th>작성 시각</th><td>2026-07-31 03:20:57 KST</td></tr>
+          <tr><th>대상</th><td><code>origin/claude/s3-daily-brief-truncation</code></td></tr>
+          <tr><th>main 커밋</th><td><code>0ab7e9e1</code></td></tr>
+          <tr><th>브랜치 커밋</th><td><code>a982058f</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <script>
+    const b=document.body;
+    document.querySelectorAll("button").forEach(x=>x.onclick=()=>{const m=x.dataset.mode;if(m){b.classList.toggle("mode-easy",m==="easy");b.classList.toggle("mode-expert",m==="expert");document.querySelectorAll("[data-mode]").forEach(y=>y.setAttribute("aria-pressed",y.dataset.mode===m));}});
+  </script>
+</body>
+</html>
