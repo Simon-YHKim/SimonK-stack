@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>주기 통합 사실 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #5c9eff;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #444;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #222;
+  }
+  pre {
+    background-color: #1e1e1e;
+    padding: 15px;
+    border-left: 4px solid #5c9eff;
+    overflow-x: auto;
+  }
+  .status-pass {
+    color: #5c9eff;
+    font-weight: bold;
+  }
+  .status-warn {
+    color: #e0e0e0;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<h1>주기 통합 사실 검증 보고서</h1>
+
+<h2>1. 브랜치 동기화 검증</h2>
+<p>목적: 실질 변경 사항 중 원격에 존재하지 않는 codex/cycle-* 브랜치가 단 하나인지 확인합니다.</p>
+<table>
+  <thead>
+    <tr>
+      <th>검증 항목</th>
+      <th>결과</th>
+      <th>상태</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>원격에 없는 로컬 브랜치 수</td>
+      <td>11개 (codex/cycle-20260730-043919-legal-vocab-review 포함)</td>
+      <td class="status-warn">부분 확인</td>
+    </tr>
+  </tbody>
+</table>
+<p>참고: 로컬 저장소 전체를 기준으로 할 때 원격 저장소에 없는 브랜치는 11개로 확인되었습니다. 해당 11개의 브랜치가 173개의 실질 변경 목록에 속하는지 여부는 브랜치 목록만으로는 확증할 수 없으며 병합 대상 목록과의 대조가 필요합니다.</p>
+
+<h2>2. 단위 테스트 검증</h2>
+<p>목적: s7-cycle-integrate 작업 트리에서 worldview-naming.test.ts 단위 테스트 통과 여부를 확인합니다.</p>
+<table>
+  <thead>
+    <tr>
+      <th>테스트 경로</th>
+      <th>결과</th>
+      <th>상태</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>src/lib/__tests__/worldview-naming.test.ts</td>
+      <td>13개 테스트 모두 통과 (시간: 2.702초)</td>
+      <td class="status-pass">통과</td>
+    </tr>
+  </tbody>
+</table>
+<p>단위 테스트가 정상적으로 오류 없이 통과하는 것을 독립적으로 확인 완료하였습니다.</p>
+
+</body>
+</html>
