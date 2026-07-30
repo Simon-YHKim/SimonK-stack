@@ -1,15 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-07-30 16:08:38 KST
+updated: 2026-07-30 16:26:49 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-07-30 16:08:38 KST
+updated: 2026-07-30 16:26:49 KST
 
+- 2026-07-30 16:26:49 KST: Completed one DeepSpaceViews Pressable normalization task on 2nd-B `codex/pressable-sweep-ae-20260730-162157` commit `2c66546e`; split selected Seen/Possible/Me lens card and ghost surfaces into visual `View` wrappers with absolute Pressable touch layers, Android ripple, and hitSlop; file ESLint, Pressable guard Jest, lexicon, em-dash, and `git diff --check` passed; full type-check remains blocked by existing missing native dependency types; wrote response and HTML report.
 - 2026-07-30 16:08:38 KST: Completed one Plans rewarded-row Pressable normalization task on 2nd-B `codex/pressable-sweep-ad-20260730-1604` commit `c5f1d055`; split the reward ad row visual wrapper from a full-surface Pressable touch layer and added Android ripple; file Prettier, file ESLint, lexicon, and `git diff --check` passed; full type-check remains blocked by existing missing dependency types; wrote response and HTML report.
 - 2026-07-30 15:52:25 KST: Completed one CompletionToast Pressable normalization task on 2nd-B `codex/pressable-sweep-ac-20260730-1548` commit `e0f99247`; split completion toast CTA visuals from full-button Pressable touch layers and added Android ripple; file Prettier, file ESLint, lexicon, em-dash, and `git diff --check` passed; full type-check remains blocked by existing dependency/script type issues; wrote response and HTML report.
 - 2026-07-30 15:34:19 KST: Completed one DatePicker dialog action Pressable normalization task on 2nd-B `codex/pressable-sweep-ab-20260730-1528` commit `b434d34a`; moved modal cancel/confirm text actions into `DialogTextButton` with inner visual `View`, Pressable-owned touch/a11y state, hitSlop, and Android ripple; file ESLint, Pressable guard Jest, lexicon, em-dash, and `git diff --check` passed; full type-check remains blocked by existing missing dependency types; wrote response and HTML report.
