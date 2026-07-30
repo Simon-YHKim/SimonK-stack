@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>프리미엄 버튼 리플 정규화 보고</title>
+  <style>
+    :root { --bg:#101214; --text:#eceff1; --accent:#6fb7ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Noto Sans KR", sans-serif; line-height:1.55; }
+    main { width:min(980px, 92vw); margin:0 auto; padding:40px 0 56px; }
+    h1,h2,h3,p { margin-top:0; }
+    h1 { font-size:30px; line-height:1.2; margin-bottom:12px; }
+    h2 { font-size:18px; margin:0 0 12px; color:var(--accent); }
+    h3 { font-size:15px; margin:0 0 8px; }
+    p,li,td,th,summary { font-size:14px; }
+    .top { border:1px solid var(--accent); padding:22px; margin-bottom:18px; }
+    .grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin:18px 0; }
+    .cell { border:1px solid rgba(111,183,255,.55); padding:14px; min-height:92px; }
+    .label { color:var(--accent); font-size:12px; margin-bottom:6px; }
+    .value { font-size:18px; font-weight:700; }
+    section { border-top:1px solid rgba(111,183,255,.35); padding-top:18px; margin-top:22px; }
+    table { width:100%; border-collapse:collapse; margin:10px 0 14px; }
+    th,td { border:1px solid rgba(111,183,255,.35); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border:1px solid rgba(111,183,255,.35); padding:10px 12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); }
+    .controls { display:flex; gap:8px; flex-wrap:wrap; margin:16px 0 0; }
+    button { background:transparent; color:var(--text); border:1px solid var(--accent); padding:8px 12px; cursor:pointer; }
+    button[aria-pressed="true"] { background:var(--accent); color:var(--bg); }
+    .expert, .mode-expert .easy { display:none; }
+    .mode-expert .expert { display:block; }
+    svg { width:100%; max-width:520px; height:auto; display:block; margin-top:10px; }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } h1 { font-size:24px; } }
+  </style>
+</head>
+<body class="mode-easy">
+  <main>
+    <div class="top">
+      <h1>프리미엄 버튼 리플 정규화 보고</h1>
+      <p>작성 시각: 2026-07-30 15:14:26 KST</p>
+      <p>이번 단일 poll cycle에서는 2nd-B 공유 버튼 원시 컴포넌트에 Android 리플 피드백을 추가하고, 해당 계약을 테스트로 고정했다.</p>
+      <div class="controls" aria-label="설명 모드">
+        <button type="button" id="easyBtn" aria-pressed="true" aria-label="쉬운 설명 보기">쉬운 설명</button>
+        <button type="button" id="expertBtn" aria-pressed="false" aria-label="전문가 설명 보기">전문가 설명</button>
+      </div>
+    </div>
+
+    <div class="grid" aria-label="요약">
+      <div class="cell"><div class="label">결과</div><div class="value">완료</div><p>로컬 커밋 생성</p></div>
+      <div class="cell"><div class="label">브랜치</div><div class="value">codex</div><p><code>pressable-sweep-aa</code></p></div>
+      <div class="cell"><div class="label">검증</div><div class="value">부분 통과</div><p>타깃 테스트 통과</p></div>
+      <div class="cell"><div class="label">위험</div><div class="value">검증 요청</div><p>공유 UI 원시 컴포넌트</p></div>
+    </div>
+
+    <section>
+      <h2>작업 내용</h2>
+      <div class="easy">
+        <p>앱의 공통 버튼이 Android에서 눌렸다는 느낌을 더 분명히 주도록 리플 효과를 붙였다. 버튼이 비활성화되었거나 로딩 중일 때는 리플이 나오지 않게 했다.</p>
+      </div>
+      <div class="expert">
+        <p><code>PremiumButton</code>에 variant별 <code>BTN_RIPPLE</code> 색상 맵을 추가하고, <code>AnimatedPressable</code>에 <code>android_ripple</code>을 조건부로 전달했다. 기존 pressed transform, disabled, busy, accessibilityState, caller style override 순서는 유지했다.</p>
+      </div>
+      <table>
+        <thead><tr><th>항목</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td>제품 브랜치</td><td><code>codex/pressable-sweep-aa-20260730-151133</code></td></tr>
+          <tr><td>제품 커밋</td><td><code>1948c982 fix(ui): add premium button android ripple</code></td></tr>
+          <tr><td>변경 파일</td><td><code>src/components/premium/surfaces.tsx</code>, <code>src/lib/__tests__/premium-button-a11y.test.ts</code></td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>Prettier가 기존 긴 줄 몇 곳을 정규화해 diff가 실제 로직 변경보다 조금 넓다. 의도한 동작 변경은 공유 버튼의 Android 리플 추가와 테스트 계약 고정이다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <svg viewBox="0 0 520 120" role="img" aria-label="검증 결과 막대 그래프">
+        <rect x="0" y="0" width="520" height="120" fill="#101214"></rect>
+        <text x="0" y="24" fill="#eceff1" font-size="14">타깃 Jest</text>
+        <rect x="130" y="10" width="320" height="20" fill="#6fb7ff"></rect>
+        <text x="460" y="25" fill="#eceff1" font-size="13">통과</text>
+        <text x="0" y="58" fill="#eceff1" font-size="14">ESLint</text>
+        <rect x="130" y="44" width="320" height="20" fill="#6fb7ff"></rect>
+        <text x="460" y="59" fill="#eceff1" font-size="13">통과</text>
+        <text x="0" y="92" fill="#eceff1" font-size="14">TypeScript</text>
+        <rect x="130" y="78" width="180" height="20" fill="#6fb7ff"></rect>
+        <text x="320" y="93" fill="#eceff1" font-size="13">기존 의존성 차단</text>
+      </svg>
+      <table>
+        <thead><tr><th>명령</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><code>npx prettier --check ...</code></td><td>통과</td></tr>
+          <tr><td><code>npx eslint ...</code></td><td>통과</td></tr>
+          <tr><td><code>npx jest premium-button-a11y no-function-form...</code></td><td>2개 스위트, 14개 테스트 통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>기존 <code>madge</code>, 광고, Firebase 타입 해석 문제로 실패</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>TypeScript 실패는 이번 변경 파일이 아니라 기존 의존성 타입 해석 문제에서 발생했다. 오류 위치는 <code>scripts/check-require-cycles.ts</code>, <code>src/lib/ads/*.native.ts</code>, <code>src/lib/analytics/index.ts</code>였다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>자기 패널</h2>
+      <table>
+        <thead><tr><th>관점</th><th>판단</th></tr></thead>
+        <tbody>
+          <tr><td>찬성</td><td>공유 버튼의 Android 피드백을 한 번에 개선하므로 많은 화면에 작은 품질 상승이 전파된다.</td></tr>
+          <tr><td>반대</td><td>공유 원시 컴포넌트는 영향 범위가 넓어 시각 회귀를 만들 수 있다.</td></tr>
+          <tr><td>판정</td><td>구조 재작성은 보류하고, 조건부 ripple 추가와 테스트 계약만 적용했다. MoA 검증은 Claude에 요청했다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>남은 작업</h2>
+      <p>Claude가 커밋 <code>1948c982</code>를 cherry-pick 대상으로 검토하고, 공유 버튼 화면 스팟체크를 진행해야 한다. Codex는 push하지 않았다.</p>
+    </section>
+  </main>
+  <script>
+    const b=document.body,e=document.getElementById("easyBtn"),x=document.getElementById("expertBtn");
+    e.onclick=()=>{b.className="mode-easy";e.setAttribute("aria-pressed","true");x.setAttribute("aria-pressed","false")};
+    x.onclick=()=>{b.className="mode-expert";x.setAttribute("aria-pressed","true");e.setAttribute("aria-pressed","false")};
+  </script>
+</body>
+</html>
