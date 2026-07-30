@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>주간 성장 상상 배지 검증 보고</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e6eef5; --accent:#66d9e8; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height:1.55; }
+    main { max-width: 1040px; margin: 0 auto; padding: 28px; }
+    header { border:1px solid var(--accent); padding:22px; margin-bottom:18px; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { font-size: 28px; line-height:1.2; margin-bottom:10px; }
+    h2 { font-size: 18px; margin:0 0 10px; color:var(--accent); }
+    h3 { font-size: 15px; margin:0 0 8px; }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:12px; }
+    .card, details { border:1px solid var(--accent); padding:14px; background:var(--bg); }
+    .label { color:var(--accent); font-size:12px; margin-bottom:6px; }
+    .value { font-size:18px; font-weight:700; word-break:break-word; }
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th, td { border:1px solid var(--accent); padding:9px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); word-break:break-all; }
+    section { margin:18px 0; }
+    details { margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:10px; border:1px solid var(--accent); margin-top:8px; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+    .controls { display:flex; gap:8px; margin:14px 0 0; flex-wrap:wrap; }
+    button { background:var(--bg); color:var(--text); border:1px solid var(--accent); padding:8px 10px; cursor:pointer; }
+    button[aria-pressed="true"] { background:var(--accent); color:var(--bg); }
+    .mode-expert .easy, .mode-easy .expert { display:none; }
+    @media (max-width:760px) { main { padding:16px; } .grid { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body class="lang-ko mode-easy">
+  <main>
+    <header>
+      <h1>주간 성장 상상 배지 검증 보고</h1>
+      <p>2026-07-30 20:34:47 KST 기준으로 기존 Codex 후보를 최신 기준 브랜치에 다시 적용하고 검증했다.</p>
+      <div class="controls" aria-label="설명 모드">
+        <button type="button" aria-pressed="true" data-mode="easy">쉬운 설명</button>
+        <button type="button" aria-pressed="false" data-mode="expert">전문가 설명</button>
+      </div>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">적용 완료</div></div>
+      <div class="card"><div class="label">브랜치</div><div class="value">codex/ui-cycle-20260730-203247</div></div>
+      <div class="card"><div class="label">커밋</div><div class="value">9fb05294</div></div>
+      <div class="card"><div class="label">푸시</div><div class="value">하지 않음</div></div>
+    </section>
+
+    <section>
+      <h2>한눈에 보는 상태</h2>
+      <table>
+        <thead><tr><th>항목</th><th>상태</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><td>변경 범위</td><td>단일 파일</td><td><code>src/screens/deepspace/growth/WeeklyGrowthScreen.tsx</code></td></tr>
+          <tr><td>장식 제거</td><td>완료</td><td>sparkle 기호를 한국어 <code>상상</code> 배지로 교체</td></tr>
+          <tr><td>파일 검증</td><td>통과</td><td>Prettier, ESLint, diff check, 장식 기호 스캔 통과</td></tr>
+          <tr><td>전체 타입 검사</td><td>기존 블로커</td><td>변경 파일 밖 의존성 타입 해석 문제</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 막대</h2>
+      <div class="card">
+        <div class="label">변경 파일 기준 통과율</div>
+        <div class="bar" aria-label="변경 파일 기준 통과율 100퍼센트"><span style="width:100%"></span></div>
+        <p>변경 파일에 직접 닿는 포맷, lint, diff, 장식 기호 검사는 모두 통과했다.</p>
+      </div>
+    </section>
+
+    <section>
+      <details open>
+        <summary>작업 내용 자세히</summary>
+        <div class="easy">
+          <p>주간 성장 화면에서 반짝임 기호로 보이던 장식을 글자 배지로 바꾼 기존 후보를 최신 코드 위에 다시 얹었다. 화면 의미는 그대로 두고, 장식처럼 보이는 부분만 더 명확한 한국어 표시로 바꾼 것이다.</p>
+        </div>
+        <div class="expert">
+          <p><code>ef2415be</code>를 <code>origin/main</code> 기준 worktree에 cherry-pick한 뒤 Prettier 불일치를 같은 커밋으로 정리했다. 최종 QA 커밋은 <code>9fb05294</code>이며, 변경 범위는 <code>WeeklyGrowthScreen.tsx</code> 하나다.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>검증 자세히</summary>
+        <table>
+          <thead><tr><th>명령</th><th>결과</th></tr></thead>
+          <tbody>
+            <tr><td><code>git diff --check origin/main..HEAD</code></td><td>통과</td></tr>
+            <tr><td><code>npx prettier --check src/screens/deepspace/growth/WeeklyGrowthScreen.tsx</code></td><td>통과</td></tr>
+            <tr><td><code>npx eslint src/screens/deepspace/growth/WeeklyGrowthScreen.tsx</code></td><td>통과</td></tr>
+            <tr><td>변경 파일 장식 기호 스캔</td><td>통과</td></tr>
+            <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+            <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+            <tr><td><code>npm run type-check</code></td><td>기존 블로커로 실패</td></tr>
+          </tbody>
+        </table>
+      </details>
+
+      <details>
+        <summary>자체 패널 자세히</summary>
+        <p>설계 변경, 스키마 변경, 보안 민감 변경, 라이브 머지에 해당하지 않아 별도 다자 토론 요청은 만들지 않았다. 판단 기준은 단일 UI 파일의 기존 후보 재검증이며, 머지와 push는 Claude 게이트로 남겼다.</p>
+      </details>
+
+      <details>
+        <summary>위험과 다음 단계 자세히</summary>
+        <p>위험은 낮다. 다만 전체 type-check가 기존 의존성 타입 문제로 실패하므로 Claude merge gate에서는 이 블로커를 이번 UI 변경과 분리해 보아야 한다. 이 브랜치는 push하지 않았고, Claude가 필요 시 <code>9fb05294</code>를 검토하면 된다.</p>
+      </details>
+    </section>
+  </main>
+  <script>
+    const b=[...document.querySelectorAll("button[data-mode]")];
+    b.forEach(x=>x.onclick=()=>{document.body.className="lang-ko mode-"+x.dataset.mode;b.forEach(y=>y.setAttribute("aria-pressed",String(y===x)));});
+  </script>
+</body>
+</html>
