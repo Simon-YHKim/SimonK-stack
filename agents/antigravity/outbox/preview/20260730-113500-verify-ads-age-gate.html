@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Codex 판단 검증 보고서: analytics-ads-age-gate</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+  }
+  h1, h2, h3 {
+    color: #FFFFFF;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1E1E1E;
+    color: #FFFFFF;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Codex 판단 검증 보고서</h1>
+  
+  <h2>1. Codex 판정 타당성</h2>
+  <p>타당함. <code>b54aae36</code> 커밋을 현행 <code>main</code>에 그대로 cherry-pick하지 말라는 Codex의 판단은 정확함. 후보 브랜치는 광고 동의 안내 문구를 웹 전용(<code>웹 광고 허용</code>)으로 축소하여, 네이티브 환경을 포함하는 현행 통합 동의 체계를 훼손하는 회귀(regression)를 유발함.</p>
+
+  <h2>2. 현행 main 보호 강도 비교</h2>
+  <p>현행 <code>main</code>의 보호가 더 강력함. <code>9c674f4d</code> 기준 <code>DeepSpacePrivacyDesignScreen.tsx</code>는 플랫폼 중립적 동의(Platform-neutral consent copy)를 적용하여 데이터가 Google에 전달됨을 명시하고 있음. 후보 브랜치는 이를 웹 환경으로 한정하는 설명만 포함하여 동의의 명확성이 떨어짐.</p>
+
+  <h2>3. 미성년자 및 개인정보 누락 위험 검토</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>위험 여부</th>
+        <th>근거 및 파일</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>광고 동의 범위 축소</td>
+        <td>위험</td>
+        <td><code>src/screens/DeepSpacePrivacyDesignScreen.tsx</code> (b54aae36)에서 동의 범위가 '웹 전용'으로 축소표기됨. 병합 거부로 위험 해소.</td>
+      </tr>
+      <tr>
+        <td>추가 누락 요소</td>
+        <td>없음</td>
+        <td>후보 브랜치의 변경사항 외에 <code>main</code> 브랜치 자체의 미성년자(minor) 및 분석 게이트는 안전하게 잠금 처리되고 있음.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>
