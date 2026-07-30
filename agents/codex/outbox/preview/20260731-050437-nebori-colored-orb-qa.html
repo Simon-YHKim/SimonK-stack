@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nebori 색 구체 검증 보고서</title>
+  <style>
+    :root { --bg: #0b0f14; --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.58; }
+    main { max-width: 1120px; margin: 0 auto; padding: 36px 20px 64px; }
+    h1, h2, h3 { margin: 0 0 12px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 20px; margin-top: 30px; border-top: 1px solid var(--muted); padding-top: 22px; }
+    h3 { font-size: 16px; color: var(--accent); }
+    p { margin: 8px 0; }
+    .muted { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 18px 0 24px; }
+    .card { border: 1px solid var(--muted); border-radius: 6px; padding: 14px; min-height: 112px; }
+    .label { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+    .value { font-size: 18px; font-weight: 700; color: var(--text); }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 22px; }
+    th, td { border: 1px solid var(--muted); padding: 10px; vertical-align: top; text-align: left; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--text); background: rgba(139,148,158,.18); padding: 1px 4px; border-radius: 4px; }
+    details { border: 1px solid var(--muted); border-radius: 6px; padding: 10px 12px; margin: 10px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .bar { height: 10px; background: rgba(139,148,158,.24); border-radius: 999px; overflow: hidden; margin-top: 8px; }
+    .bar span { display: block; height: 100%; background: var(--accent); }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    ul { padding-left: 20px; }
+    @media (max-width: 820px) { .grid, .two { grid-template-columns: 1fr; } h1 { font-size: 23px; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Nebori 색 구체 검증 보고서</h1>
+  <p class="muted">작성 시각: 2026-07-31 05:04:37 KST · 작성자: codex · 대상: <code>origin/codex/nebori-asset-spec</code> <code>1cc221c0</code></p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card">
+      <div class="label">전체 브랜치 판정</div>
+      <div class="value">보류</div>
+      <p class="muted">회귀성 삭제와 토큰 floor 제거가 포함됨.</p>
+    </div>
+    <div class="card">
+      <div class="label">새 커밋 판정</div>
+      <div class="value">분리 가능</div>
+      <p class="muted">PNG 3개와 HTML 1개만 추가.</p>
+    </div>
+    <div class="card">
+      <div class="label">검증 결과</div>
+      <div class="value">주요 검사 통과</div>
+      <p class="muted">차이 검사, 병합 표시 검사, i18n, lexicon, emdash 통과.</p>
+    </div>
+    <div class="card">
+      <div class="label">교차검증</div>
+      <div class="value">요청함</div>
+      <p class="muted">Antigravity에 MoA 확인 요청.</p>
+    </div>
+  </section>
+
+  <h2>결론</h2>
+  <p>브랜치 전체는 머지하면 안 됩니다. 새 색 구체 Nebori 커밋 <code>1cc221c0</code>만 보면 산출물 범위가 작고 분리 가능하지만, 브랜치에는 이전 이력에서 들어온 위험한 변경이 남아 있습니다.</p>
+  <p>권장 조치: Claude가 <code>1cc221c0</code>만 현재 <code>origin/main</code>으로 cherry-pick 하거나, Codex가 네 파일만 포함한 깨끗한 브랜치를 다시 제출합니다.</p>
+
+  <h2>범위 비교</h2>
+  <table>
+    <thead>
+      <tr><th>범위</th><th>판정</th><th>근거</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>전체 브랜치</td>
+        <td>보류</td>
+        <td>테스트 삭제, 세 proxy의 <code>ops_daily_brief</code> 출력 floor 제거, R1 문서 삭제, 죽은 locale key 재추가, 가격 mirror drift가 함께 존재합니다.</td>
+      </tr>
+      <tr>
+        <td>새 커밋 <code>1cc221c0</code></td>
+        <td>분리 가능</td>
+        <td>PNG 3개와 자체완결 HTML 문서 1개만 추가합니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>검증 요약</h2>
+  <table>
+    <thead>
+      <tr><th>검사</th><th>결과</th><th>메모</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>git diff --check origin/main..HEAD</code></td><td>통과</td><td>공백 오류 없음.</td></tr>
+      <tr><td><code>git merge-tree</code> 충돌 표시 검사</td><td>통과</td><td>충돌 marker 없음.</td></tr>
+      <tr><td><code>git diff --check 8ca498a6..HEAD</code></td><td>통과</td><td>새 커밋 단독 공백 오류 없음.</td></tr>
+      <tr><td><code>npm run check:i18n</code></td><td>통과</td><td>3225 keys, 44 namespaces, 5 locales 정렬.</td></tr>
+      <tr><td><code>npm run check:lexicon</code></td><td>통과</td><td>949 files 스캔.</td></tr>
+      <tr><td><code>npm run check:emdash</code></td><td>통과</td><td>locale string에 U+2014 없음.</td></tr>
+      <tr><td>PNG 치수 확인</td><td>통과</td><td>새 PNG 3개 모두 1024x1024.</td></tr>
+      <tr><td>HTML 외부 의존성</td><td>통과</td><td>새 HTML에 외부 URL, CDN, 외부 script, 외부 stylesheet 없음.</td></tr>
+      <tr><td>시크릿 패턴</td><td>주의</td><td>새 커밋 차이는 깨끗합니다. 전체 브랜치에서는 이전 HTML의 image data URI 내부에서 마스킹된 오탐 후보 1건이 감지되었습니다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>자산 크기</h2>
+  <div class="two">
+    <div>
+      <h3>파일별 크기</h3>
+      <table>
+        <thead><tr><th>파일</th><th>치수</th><th>바이트</th></tr></thead>
+        <tbody>
+          <tr><td><code>nebori-illustration-head-copper-cradle.png</code></td><td>1024x1024</td><td>846494</td></tr>
+          <tr><td><code>nebori-illustration-head-lagoon-core.png</code></td><td>1024x1024</td><td>698977</td></tr>
+          <tr><td><code>nebori-illustration-head-pearl-filament.png</code></td><td>1024x1024</td><td>557188</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3>상대 크기</h3>
+      <p>copper cradle</p><div class="bar"><span style="width:100%"></span></div>
+      <p>lagoon core</p><div class="bar"><span style="width:83%"></span></div>
+      <p>pearl filament</p><div class="bar"><span style="width:66%"></span></div>
+    </div>
+  </div>
+
+  <h2>HOLD 근거</h2>
+  <details open>
+    <summary>출력 토큰 floor 회귀</summary>
+    <p>브랜치 전체 diff는 <code>ops_daily_brief</code>를 위한 output-token floor를 세 proxy에서 제거합니다. 이 floor는 14개 도메인의 consolidated brief JSON이 잘리지 않도록 보호하는 장치입니다.</p>
+  </details>
+  <details>
+    <summary>회귀 테스트 삭제</summary>
+    <p><code>src/lib/llm/__tests__/ops-brief-output-budget.test.ts</code>가 삭제되어 같은 회귀를 자동으로 막는 테스트가 사라집니다.</p>
+  </details>
+  <details>
+    <summary>불필요한 side diff</summary>
+    <p>브랜치에는 Nebori colored-orb 작업과 무관한 R1 문서 삭제, locale key 재추가, 가격 mirror 변경, DeepSpaceDesign copy drift가 남아 있습니다.</p>
+  </details>
+
+  <h2>35.4 셀프 패널</h2>
+  <table>
+    <thead><tr><th>관점</th><th>주장</th></tr></thead>
+    <tbody>
+      <tr><td>찬성</td><td><code>1cc221c0</code>은 additive asset commit이므로 단독 cherry-pick 후보로 가치가 있습니다.</td></tr>
+      <tr><td>반대</td><td>브랜치 head는 출력 floor 제거와 테스트 삭제를 포함하므로 그대로 머지하면 회귀 위험이 큽니다.</td></tr>
+      <tr><td>대안</td><td>네 파일만 포함한 깨끗한 브랜치를 만들거나 Claude가 단일 커밋만 선별 적용합니다.</td></tr>
+      <tr><td>심판</td><td>전체 브랜치는 보류, 새 커밋은 분리 가능으로 기록하고 Antigravity 검증을 요청합니다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>링크</h2>
+  <ul>
+    <li><code>agents/codex/outbox/20260731-050437-codex-to-claude-nebori-colored-orb-qa.md</code></li>
+    <li><code>agents/codex/outbox/20260731-050438-codex-to-antigravity-verify-nebori-colored-orb-qa.md</code></li>
+  </ul>
+</main>
+</body>
+</html>
