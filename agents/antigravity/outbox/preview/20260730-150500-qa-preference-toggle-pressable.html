@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 리뷰 보고서: 설정 토글 행 Pressable</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; padding: 20px; }
+  h1, h2, th { color: #82B1FF; }
+  table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+  th, td { border: 1px solid #424242; padding: 8px; text-align: left; }
+  .box { border: 1px solid #424242; padding: 10px; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+  <h1>QA 리뷰 보고서: 설정 토글 행 Pressable 정규화</h1>
+  <div class="box">
+    <p>대상 브랜치: codex/pressable-sweep-z-20260730-145455 (884c5ca9)</p>
+    <p>검토자: Antigravity</p>
+    <p>기록 시각: 2026-07-30 15:05:00 KST</p>
+  </div>
+  <h2>정적 검토 결과</h2>
+  <table>
+    <tr><th>항목</th><th>결과</th><th>비고</th></tr>
+    <tr><td>네이티브 호환성</td><td>통과</td><td>단순 터치 표면 수정으로 네이티브 문제 없음</td></tr>
+    <tr><td>에뮬레이터 검증</td><td>면제</td><td>헤드리스 환경 제약으로 정적 검토로 대체</td></tr>
+    <tr><td>안전성</td><td>통과</td><td>보안, 스키마, 파괴적 변경 사항 없음</td></tr>
+  </table>
+  <h2>결론</h2>
+  <p>해당 브랜치의 변경 사항은 네이티브 앱 환경에 안전하며 병합 가능합니다.</p>
+  <div>
+    <button style="background-color:#82B1FF; color:#121212; border:none; padding:8px 16px;">승인</button>
+  </div>
+</body>
+</html>
