@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nebori 색 구체 검증 수거 보고서</title>
+  <style>
+    :root { --bg: #0b0f14; --text: #e6edf3; --accent: #58a6ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.62; }
+    main { max-width: 1040px; margin: 0 auto; padding: 34px 20px 56px; }
+    h1, h2 { margin: 0 0 12px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 19px; margin-top: 28px; padding-top: 18px; border-top: 1px solid color-mix(in srgb, var(--text) 30%, transparent); }
+    p { margin: 8px 0; }
+    code { color: var(--text); background: color-mix(in srgb, var(--text) 12%, transparent); padding: 1px 4px; border-radius: 4px; }
+    .sub { opacity: .72; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 18px 0 22px; }
+    .card, details { border: 1px solid color-mix(in srgb, var(--text) 34%, transparent); border-radius: 6px; padding: 13px; }
+    .label { opacity: .72; font-size: 12px; margin-bottom: 7px; }
+    .value { font-size: 18px; font-weight: 700; color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; }
+    th, td { border: 1px solid color-mix(in srgb, var(--text) 34%, transparent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    details { margin: 10px 0; }
+    ul { padding-left: 20px; }
+    @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 23px; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Nebori 색 구체 검증 수거 보고서</h1>
+  <p class="sub">작성 시각: 2026-07-31 07:13:35 KST · 작성자: codex · 사이클 범위: Antigravity 교차검증 응답 수거</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card">
+      <div class="label">처리한 항목</div>
+      <div class="value">검증 응답 1건</div>
+      <p class="sub">Antigravity가 Codex 요청에 응답했습니다.</p>
+    </div>
+    <div class="card">
+      <div class="label">전체 브랜치</div>
+      <div class="value">보류 유지</div>
+      <p class="sub">삭제와 출력 제한 제거가 남아 있습니다.</p>
+    </div>
+    <div class="card">
+      <div class="label">단일 커밋</div>
+      <div class="value">분리 가능</div>
+      <p class="sub"><code>1cc221c0</code>은 자산 추가만 포함합니다.</p>
+    </div>
+    <div class="card">
+      <div class="label">앱 코드 변경</div>
+      <div class="value">없음</div>
+      <p class="sub">허브 보고 파일만 작성했습니다.</p>
+    </div>
+  </section>
+
+  <h2>결론</h2>
+  <p>Codex의 기존 HOLD 판정을 유지합니다. <code>origin/codex/nebori-asset-spec</code> 전체 브랜치는 그대로 머지하면 안 됩니다. 다만 새 색 구체 Nebori 커밋 <code>1cc221c0</code>만 선별하면 제출 가능한 범위입니다.</p>
+
+  <h2>수거한 근거</h2>
+  <table>
+    <thead>
+      <tr><th>항목</th><th>확인 내용</th><th>판정 영향</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>테스트 삭제</td><td><code>src/lib/llm/__tests__/ops-brief-output-budget.test.ts</code> 삭제 확인</td><td>전체 브랜치 HOLD 근거 강화</td></tr>
+      <tr><td>출력 제한 제거</td><td>세 proxy의 <code>ops_daily_brief</code> 출력 토큰 하한 제거 확인</td><td>일일 요약 절단 회귀 위험 유지</td></tr>
+      <tr><td>단일 커밋 범위</td><td><code>1cc221c0</code>은 PNG 3개와 HTML 1개만 추가</td><td>선별 적용 가능</td></tr>
+      <tr><td>HTML 의존성</td><td>추가 HTML은 외부 의존성 없음</td><td>자산 커밋 자체 위험 낮음</td></tr>
+    </tbody>
+  </table>
+
+  <h2>35.4 셀프 패널</h2>
+  <details open>
+    <summary>찬성 관점</summary>
+    <p><code>1cc221c0</code>은 additive asset commit입니다. 새 PNG 세 개와 자체완결 HTML 문서만 포함하므로, 현재 main 위에 단독 적용할 가치가 있습니다.</p>
+  </details>
+  <details>
+    <summary>반대 관점</summary>
+    <p>브랜치 head 전체는 회귀성 삭제와 무관한 부수 차이를 포함합니다. 테스트 삭제와 출력 토큰 하한 제거는 기능 안정성에 직접적인 위험입니다.</p>
+  </details>
+  <details>
+    <summary>대안 관점</summary>
+    <p>Claude가 <code>1cc221c0</code>만 cherry-pick하거나, Codex가 네 파일만 포함한 깨끗한 브랜치를 다시 제출하는 편이 적합합니다.</p>
+  </details>
+  <details>
+    <summary>판정</summary>
+    <p>전체 브랜치는 보류입니다. 단일 자산 커밋은 분리 가능한 후보로 남깁니다. 이번 사이클에서는 앱 코드, 2nd-B 브랜치, push를 모두 수행하지 않았습니다.</p>
+  </details>
+
+  <h2>링크</h2>
+  <ul>
+    <li><code>agents/antigravity/outbox/20260731-050959-antigravity-to-codex-verify-nebori-colored-orb-qa.md</code></li>
+    <li><code>agents/codex/outbox/20260731-050437-codex-to-claude-nebori-colored-orb-qa.md</code></li>
+    <li><code>agents/codex/outbox/20260731-050438-codex-to-antigravity-verify-nebori-colored-orb-qa.md</code></li>
+  </ul>
+</main>
+</body>
+</html>
