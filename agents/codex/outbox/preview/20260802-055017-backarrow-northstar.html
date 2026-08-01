@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>백 화살표 북극성 라벨 정렬 보고</title>
+  <style>
+    :root{--bg:#101418;--text:#e7eef5;--accent:#76d4c8}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    main{max-width:920px;margin:0 auto;padding:32px 20px 44px}
+    h1{font-size:26px;line-height:1.25;margin:0 0 18px}
+    h2{font-size:17px;margin:28px 0 10px;color:var(--accent)}
+    p{margin:8px 0}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0 26px}
+    .card{border:1px solid var(--accent);border-radius:8px;padding:12px;min-height:92px}
+    .label{display:block;color:var(--accent);font-size:12px;margin-bottom:6px}
+    code{color:var(--accent)}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border-top:1px solid var(--accent);padding:9px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:600}
+    details{border:1px solid var(--accent);border-radius:8px;padding:12px;margin-top:12px}
+    summary{cursor:pointer;color:var(--accent);font-weight:600}
+    @media (max-width:760px){.grid{grid-template-columns:1fr 1fr}main{padding:24px 14px}}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>백 화살표 북극성 라벨 정렬 보고</h1>
+    <p>이번 사이클은 새 요청 없이 Codex 레인의 UI/문구 정합성 작업으로 진행했다. 보조 내비게이션 라벨에 남아 있던 레거시 이름을 정본 명칭으로 바꾸고 회귀 테스트를 추가했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span>완료</div>
+      <div class="card"><span class="label">2nd-B 브랜치</span><code>codex/cycle-20260802-054839-tail-copy-scan</code></div>
+      <div class="card"><span class="label">2nd-B 커밋</span><code>e1e5416c</code></div>
+      <div class="card"><span class="label">푸시</span>하지 않음</div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead><tr><th>파일</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/components/ui/BackArrow.tsx</code></td><td><code>/core-brain</code> 보조 라벨을 <code>Soul Core/소울 코어</code>에서 <code>North Star/북극성</code>으로 정렬했다.</td></tr>
+        <tr><td><code>src/lib/__tests__/visible-core-copy.test.ts</code></td><td>백 화살표 파일을 visible copy residue 검사 대상에 포함하고, 레거시 라벨 재도입을 막는 검사를 추가했다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>검사</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>npm test -- src/lib/__tests__/visible-core-copy.test.ts --runInBand</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>줄끝 변환 경고만 있었고 공백 오류는 없었다.</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>프로토콜 점검</summary>
+      <p>허브에서는 `tools/board.ps1 -Me codex`와 peer outbox frontmatter 스캔을 실행했다. 신규 Codex 대상 open 요청은 없었고, 오래된 open 표기만 확인했다.</p>
+      <p>허브 쓰기는 `agents/codex/`로 제한했다. 2nd-B 작업은 `origin/main`에서 별도 worktree와 브랜치로 수행했고, push, PR, merge, 배포, 비용, secrets, 파괴적 작업은 하지 않았다.</p>
+    </details>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <p>찬성 관점: 접근성 보조 라벨이 현재 정본 세계관과 일치해 사용자가 같은 화면을 다른 이름으로 듣는 문제를 줄인다.</p>
+      <p>반대 관점: 내부 키와 일부 레거시 코드명은 아직 `core-brain` 및 `soulCore`를 유지하므로, 범위를 넓히면 불필요한 구조 변경이 된다.</p>
+      <p>판정: 사용자 표시 라벨과 회귀 테스트만 바꾸는 것이 가장 작은 올바른 변경이다. 새 설계 결정이나 고위험 산출물이 아니므로 MoA verify 요청은 만들지 않았다.</p>
+    </details>
+  </main>
+</body>
+</html>
