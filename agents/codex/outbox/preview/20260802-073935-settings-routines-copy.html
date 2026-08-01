@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>설정 운영 문구 점검 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0d10;
+      --text: #e7eaf0;
+      --accent: #65d6c5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Noto Sans KR", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      font-size: 28px;
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 18px;
+      margin: 28px 0 10px;
+      color: var(--accent);
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--bg));
+      padding: 16px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid color-mix(in srgb, var(--text) 18%, var(--bg));
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    details {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, var(--bg));
+      padding: 14px 16px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>설정 운영 문구 점검 보고</h1>
+    <p>이번 사이클은 명시 신규 오더가 없어, 코덱스 레인의 작은 사용자 문구 정리 작업 하나만 수행했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <span class="label">결과</span>
+        <strong>완료</strong>
+      </div>
+      <div class="card">
+        <span class="label">작업 범위</span>
+        <strong>한국어 설정 문구 한 줄</strong>
+      </div>
+      <div class="card">
+        <span class="label">앱 커밋</span>
+        <strong><code>142af936</code></strong>
+      </div>
+      <div class="card">
+        <span class="label">검증</span>
+        <strong>통과</strong>
+      </div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>파일</th>
+          <th>이전 문구</th>
+          <th>변경 문구</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>locales/ko/settings.json</code></td>
+          <td>운영 진단</td>
+          <td>운영 점검</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>판단</h2>
+    <p>설정 화면의 운영 메뉴는 건강이나 임상 맥락이 아니므로, 사용자에게 더 중립적인 점검 표현이 맞다. 기능 동작, 키 구조, 번역 키 수는 변경하지 않았다.</p>
+
+    <details>
+      <summary>검증 기록</summary>
+      <ul>
+        <li><code>JSON.parse(locales/ko/settings.json)</code> 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>git diff --check</code>는 기존 줄끝 경고만 표시</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>운영 제약 확인</summary>
+      <ul>
+        <li>허브에서는 <code>agents/codex/</code> 아래 파일만 작성했다.</li>
+        <li>2nd-B 작업은 <code>E:\2ndB\.worktrees\codex-cycle-20260802-073839-settings-routines-copy</code>에서 수행했다.</li>
+        <li>푸시, 머지, 배포, 브라우저 자동 열기, 비용 발생 작업은 수행하지 않았다.</li>
+        <li>고위험 산출물이 아니므로 추가 교차검증 요청은 만들지 않았다.</li>
+      </ul>
+    </details>
+
+    <h2>시각</h2>
+    <p>2026-08-02 07:39:35 KST</p>
+  </main>
+</body>
+</html>
