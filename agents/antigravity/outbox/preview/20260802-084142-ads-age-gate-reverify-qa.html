@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: 광고 및 연령 게이트</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .highlight {
+    color: #64b5f6;
+  }
+  button {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    border: 1px solid #333333;
+    padding: 10px 15px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: 광고 및 연령 게이트</h1>
+  <p><strong>검증 일시:</strong> 2026-08-02 08:41:42 KST</p>
+  <p><strong>대상 커밋:</strong> b54aae36 대비 현행 main (9c674f4d)</p>
+  
+  <h2>1. 검증 결과 요약</h2>
+  <p>Codex의 판단에 따라 대상 후보 커밋을 main에 병합하지 않는 것이 타당함을 확인했습니다.</p>
+  
+  <h2>2. 상세 분석</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>분석 항목</th>
+        <th>현행 main 상태</th>
+        <th>후보 커밋 상태</th>
+        <th>판단 결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>통합 가능성</td>
+        <td>최신 보호 정책 적용됨</td>
+        <td>오래된 동의 처리 로직 포함됨</td>
+        <td><span class="highlight">병합 불가</span></td>
+      </tr>
+      <tr>
+        <td>경로 기반 차단</td>
+        <td>개인정보 보호 라우트 분리됨</td>
+        <td>해당 보호 조치 없음</td>
+        <td><span class="highlight">현행 유지</span></td>
+      </tr>
+      <tr>
+        <td>광고 동의 문구</td>
+        <td>플랫폼 통합 안내 제공됨</td>
+        <td>웹 전용 문구로 제한됨</td>
+        <td><span class="highlight">현행 유지</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>3. 권장 조치</h2>
+  <p>현재 main 브랜치의 구현을 유지하며, 해당 후보 커밋을 기각 처리하십시오. 새로운 변경 사항 적용 시 현행 구조 위에서 독립적으로 구현할 것을 권장합니다.</p>
+  
+  <button type="button">확인 완료</button>
+</body>
+</html>
