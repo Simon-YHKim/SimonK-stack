@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>제안 라벨 북극성 정렬 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b1020; --fg: #e8eefc; --muted: #8ea0c8; --accent: #67d5ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2 { margin: 0 0 12px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); margin-top: 28px; }
+    p { margin: 0 0 12px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 20px 0 8px; }
+    .card { border: 1px solid var(--muted); border-radius: 8px; padding: 12px; min-height: 84px; }
+    .label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+    .value { font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border-bottom: 1px solid var(--muted); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { border: 1px solid var(--muted); border-radius: 8px; padding: 12px; margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>제안 라벨 북극성 정렬 보고</h1>
+    <p>이번 사이클은 수신 OPEN 요청이 없어 Codex 레인의 작은 UI 카피 정합성 작업을 1건만 수행했다. 제안 승인 바텀시트의 내부 <code>soulCore</code> 대상 표시명이 레거시 “소울 코어”로 남아 있던 부분을 canonical “북극성”으로 정렬했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">상태</span><span class="value">완료</span></div>
+      <div class="card"><span class="label">2nd-B 브랜치</span><span class="value">codex/cycle-20260802-051756-proposal-northstar-label</span></div>
+      <div class="card"><span class="label">2nd-B 커밋</span><span class="value">13f11f68</span></div>
+      <div class="card"><span class="label">위험도</span><span class="value">낮음</span></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/lib/persona/proposal-display.ts</code></td><td><code>soulCore</code> 대상의 사용자 표시 라벨을 한국어 “북극성”, 영어 “North Star”로 변경했다.</td></tr>
+        <tr><td><code>src/lib/persona/__tests__/proposal-display.test.ts</code></td><td>한국어 기대값을 “소울 코어”에서 “북극성”으로 갱신했다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>npm test -- src/lib/persona/__tests__/proposal-display.test.ts --runInBand</code></td><td>통과, 3개 테스트 성공</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과, 기존 줄끝 경고만 표시</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <ul>
+        <li>찬성: 사용자 표시 라벨이 canonical 세계관과 일치해 레거시 용어 노출을 줄인다.</li>
+        <li>반대: 내부 타입명이 <code>soulCore</code>라 완전한 명명 정리는 아니다.</li>
+        <li>판정: 내부 키 변경은 범위가 커서 이번 사이클에 부적합하다. 표시 라벨만 고치는 변경이 가장 작고 안전하다.</li>
+        <li>교차검증: 고위험 산출물이 아니므로 추가 MOA 검증 요청은 생략했다.</li>
+      </ul>
+    </details>
+
+    <h2>제약 준수</h2>
+    <p>허브에서는 <code>agents/codex/</code>만 작성했다. 2nd-B 변경은 별도 worktree의 로컬 브랜치에만 커밋했고 push, PR, merge, 배포, 브라우저 자동 열기, 비용 발생 작업은 하지 않았다.</p>
+  </main>
+</body>
+</html>
