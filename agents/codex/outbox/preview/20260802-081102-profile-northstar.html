@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고 - 프로필 북극성 라벨</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e8edf2;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { line-height: 1.25; margin: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin: 10px 0 0; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95em;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      padding: 16px;
+      background: var(--bg);
+      border-radius: 6px;
+    }
+    .label { color: var(--accent); font-size: 13px; }
+    .value { font-size: 16px; margin-top: 4px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    .footer { margin-top: 28px; font-size: 13px; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+      table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 사이클 보고 - 프로필 북극성 라벨</h1>
+    <p>프로토콜 12/19/35.4 단일 자율 폴 사이클 결과입니다. 열린 codex 요청은 없었고, codex 레인에서 저위험 2nd-B 프로필 화면 문구 정합 한 건을 처리했습니다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">완료</div>
+      </div>
+      <div class="card">
+        <div class="label">작업 범위</div>
+        <div class="value">프로필 문구 5개 언어</div>
+      </div>
+      <div class="card">
+        <div class="label">2nd-B 커밋</div>
+        <div class="value"><code>3690a942</code></div>
+      </div>
+      <div class="card">
+        <div class="label">위험도</div>
+        <div class="value">낮음</div>
+      </div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>언어</th>
+          <th>변경 전</th>
+          <th>변경 후</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>영어</td>
+          <td><code>Self center</code>, <code>Open center</code></td>
+          <td><code>North Star</code>, <code>Open North Star</code></td>
+        </tr>
+        <tr>
+          <td>한국어</td>
+          <td><code>나의 중심</code>, <code>중심 열기</code></td>
+          <td><code>북극성</code>, <code>북극성 열기</code></td>
+        </tr>
+        <tr>
+          <td>스페인어</td>
+          <td><code>Centro personal</code>, <code>Abrir centro</code></td>
+          <td><code>Estrella del Norte</code>, <code>Abrir Estrella del Norte</code></td>
+        </tr>
+        <tr>
+          <td>포르투갈어</td>
+          <td><code>Centro pessoal</code>, <code>Abrir centro</code></td>
+          <td><code>Estrela do Norte</code>, <code>Abrir Estrela do Norte</code></td>
+        </tr>
+        <tr>
+          <td>인도네시아어</td>
+          <td><code>Pusat diri</code>, <code>Buka pusat</code></td>
+          <td><code>Bintang Utara</code>, <code>Buka Bintang Utara</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <ul>
+        <li>프로필 locale JSON 5개 파일 파싱 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>git diff --check</code>는 기존 줄끝 경고만 표시</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <ul>
+        <li>범위: 프로필 화면의 사용자 가시 라벨과 접근성 힌트만 변경했습니다.</li>
+        <li>정본 정렬: 오래된 중심 표현을 현재 별자리 정본인 북극성 표현으로 맞췄습니다.</li>
+        <li>대안 검토: 라우팅, 데이터 모델, 안전 분류기, 결제, 권한 로직은 건드리지 않았습니다.</li>
+        <li>검증 판단: 스키마, 보안, 수학, 외부 사실, 머지 diff가 아니므로 추가 교차검증 요청은 만들지 않았습니다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>경로와 제한 준수</summary>
+      <ul>
+        <li>2nd-B 작업트리: <code>E:\2ndB\.worktrees\codex-cycle-20260802-080945-profile-northstar</code></li>
+        <li>2nd-B 브랜치: <code>codex/cycle-20260802-080945-profile-northstar</code></li>
+        <li>변경 파일: <code>locales/en/profile.json</code>, <code>locales/ko/profile.json</code>, <code>locales/es/profile.json</code>, <code>locales/pt/profile.json</code>, <code>locales/id/profile.json</code></li>
+        <li>push, PR, merge, 배포, 브라우저 자동 열기, 비용 발생, 시크릿 작업은 하지 않았습니다.</li>
+      </ul>
+    </details>
+
+    <p class="footer">작성 시각: 2026-08-02 08:11:02 KST</p>
+  </main>
+</body>
+</html>
