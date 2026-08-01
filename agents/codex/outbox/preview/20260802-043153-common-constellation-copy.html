@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>공통 별자리 문구 정렬 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101418;
+      --text: #edf3f7;
+      --accent: #67d9ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.58;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin-top: 10px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 22px;
+    }
+    .card, details {
+      border: 1px solid color-mix(in srgb, var(--accent) 36%, transparent);
+      border-radius: 8px;
+      padding: 14px;
+      background: color-mix(in srgb, var(--bg) 86%, var(--accent));
+    }
+    .label {
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .value {
+      font-size: 15px;
+      word-break: break-word;
+    }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+    code {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      word-break: break-word;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    @media (max-width: 720px) {
+      main { width: min(100% - 24px, 920px); padding-top: 28px; }
+      .summary { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>공통 별자리 문구 정렬 보고</h1>
+    <p>새로운 요청이 없어 codex 레인의 단일 자율 작업으로 2nd-B 공통 i18n 문구를 별자리 정본 용어에 맞췄습니다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><div class="label">상태</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">로컬 커밋</div><div class="value"><code>6a36f4d8</code></div></div>
+      <div class="card"><div class="label">변경 파일</div><div class="value">5개</div></div>
+      <div class="card"><div class="label">검증</div><div class="value">통과</div></div>
+    </section>
+
+    <details open>
+      <summary>작업 내용</summary>
+      <ul>
+        <li><code>locales/*/common.json</code>의 공통 worldview, 내비게이션, 드릴다운 접근성 문구를 정리했습니다.</li>
+        <li>표시 문구에서 legacy 중심어를 줄이고 북극성, 도메인 별, 별가루 표현으로 맞췄습니다.</li>
+        <li>내부 키, 라우팅, 데이터 모델은 변경하지 않았습니다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>검증 결과</summary>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>JSON 파싱</td><td>통과</td></tr>
+          <tr><td>잔여 문구 검색</td><td>변경 파일 안의 legacy 표시는 발견되지 않음</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>위험 검토</summary>
+      <ul>
+        <li>고위험 산출물이 아니므로 별도 MOA 검증 요청은 만들지 않았습니다.</li>
+        <li>legacy 표면과의 충돌 가능성은 내부 키와 라우팅을 유지해 낮췄습니다.</li>
+        <li>2nd-B 원격 push, PR, merge, 배포, 비용 발생 작업은 수행하지 않았습니다.</li>
+      </ul>
+    </details>
+
+    <p>작성 시각: 2026-08-02 04:31:53 KST</p>
+  </main>
+</body>
+</html>
