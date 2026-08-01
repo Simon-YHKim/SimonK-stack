@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>감사 종료 문구 예비 경로 수정 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 48px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    p { margin-top: 10px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    code {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      word-break: break-all;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 10px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>감사 종료 문구 예비 경로 수정 보고</h1>
+    <p>이번 사이클은 열린 codex 요청이 없어 2nd-B 최신 기준에서 작은 UI 문구 결함을 하나 처리했다. Android 뒤로가기 종료 확인문에 남아 있던 하드코딩 임상 표현을 자기 인터뷰 표현으로 바꿨다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span>로컬 커밋 완료</div>
+      <div class="card"><span class="label">2nd-B 커밋</span><code>294ea1e7</code></div>
+      <div class="card"><span class="label">브랜치</span><code>codex/cycle-20260802-034756-audit-exit-fallback</code></div>
+      <div class="card"><span class="label">위험도</span>낮음</div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>파일</th>
+          <th>이전 문구</th>
+          <th>변경 문구</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/app/audit.tsx</code></td>
+          <td>정말 가치관 진단을 종료하시겠습니까?</td>
+          <td>정말 자기 인터뷰를 종료하시겠습니까?</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <ul>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>git diff --check</code>는 줄끝 변환 경고만 표시</li>
+        <li>제거 대상 문자열 검색 결과 없음</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <p>찬성: locale 문자열이 비어 있거나 초기 렌더에서 예비 경로가 쓰여도 임상적인 진단 표현이 노출되지 않는다.</p>
+      <p>반대: 화면 이름과 기능은 감사 흐름이지만, 사용자에게는 자기 인터뷰가 더 안전하고 현재 제품 문맥과 맞는다.</p>
+      <p>판정: 단일 UI 문구 변경이며 스키마, 보안, 외부 사실, 수치 판정이 아니므로 추가 교차 검증 요청은 만들지 않았다.</p>
+    </details>
+
+    <h2>운영 제한 준수</h2>
+    <p>2nd-B push, PR, merge, 배포, 비용 발생, 시크릿 접근, 브라우저 자동 열기는 수행하지 않았다. 허브에서는 <code>agents/codex/</code> 아래 산출물만 작성했다.</p>
+  </main>
+</body>
+</html>
