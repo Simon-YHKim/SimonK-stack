@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서 - 가져오기 저장 문구 북극성 정렬</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e5edf4;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+    header {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+    h1, h2 { margin: 0 0 12px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 10px; }
+    section {
+      border-top: 1px solid var(--accent);
+      padding: 18px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>가져오기 저장 문구 북극성 정렬</h1>
+      <p>이번 Codex cycle은 열린 요청이 없어 BOARD 현재 포커스에 따라 2nd-B의 저위험 UI 문구 정렬 작업 1건만 수행했다.</p>
+      <table aria-label="요약">
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>결과</td><td>저장 완료 문구의 legacy 중심 표현을 북극성 표현으로 정렬했다.</td></tr>
+        <tr><td>제품 커밋</td><td><code>8fbedeb8</code> <code>fix(i18n): align import north star copy</code></td></tr>
+        <tr><td>검증</td><td>대상 Jest, JSON 파싱, i18n, lexicon, em-dash, type-check 통과</td></tr>
+        <tr><td>제한</td><td>push, PR, merge, deploy, 비용 작업, secrets 작업 없음</td></tr>
+      </table>
+    </header>
+
+    <section>
+      <h2>작업 범위</h2>
+      <p><code>origin/main</code> <code>77ebbcbc</code>에서 새 worktree를 만들고, 가져오기 저장 완료 화면의 사용자 가시 문구만 바꿨다.</p>
+      <ul>
+        <li>브랜치: <code>codex/cycle-20260802-061537-import-northstar-copy</code></li>
+        <li>워크트리: <code>E:\2ndB\.worktrees\codex-cycle-20260802-061537-import-northstar-copy</code></li>
+        <li>변경 파일: import locale 5개, visible-copy 테스트 1개</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table aria-label="변경 내용">
+        <tr><th>파일</th><th>변경</th></tr>
+        <tr><td><code>locales/*/import.json</code></td><td>저장 완료 본문을 legacy center/중심 표현에서 North Star/북극성 계열 표현으로 정렬했다.</td></tr>
+        <tr><td><code>src/lib/__tests__/visible-core-copy.test.ts</code></td><td>가져오기 저장 완료 문구가 legacy 중심 표현으로 되돌아가지 않도록 회귀 테스트를 추가했다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <ul>
+        <li><code>npm test -- src/lib/__tests__/visible-core-copy.test.ts --runInBand</code> 통과</li>
+        <li>5개 import locale JSON 파싱 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>git diff --check</code>는 기존 line-ending 변환 경고만 출력</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>자기 패널</h2>
+      <details open>
+        <summary>판단 기록</summary>
+        <p>찬성: 저장 완료 직후 보이는 문구가 최신 세계관의 북극성 명칭과 맞아 사용자에게 일관된 신호를 준다.</p>
+        <p>반론: 내부 키와 라우트에는 center/soulCore 계열 이름이 남아 있으므로 구조 변경으로 확장하면 범위가 커진다.</p>
+        <p>판단: 사용자 가시 i18n 문구와 좁은 테스트에만 한정했다. 고위험 산출물이 아니므로 MoA 교차검증 요청은 발행하지 않았다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>
