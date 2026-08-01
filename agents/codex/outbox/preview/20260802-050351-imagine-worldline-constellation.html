@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서: 상상 결과 세계선 문구 정렬</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101318;
+      --text: #e8edf4;
+      --accent: #7cc7d9;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Pretendard", "Noto Sans KR", system-ui, sans-serif;
+      line-height: 1.62;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    h1, h2, h3 { line-height: 1.25; margin: 0; }
+    h1 { font-size: 28px; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin-top: 28px; margin-bottom: 10px; color: var(--accent); }
+    p { margin: 8px 0; }
+    .lead { color: var(--accent); font-weight: 700; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+      margin: 22px 0;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .label { font-size: 12px; color: var(--accent); margin-bottom: 4px; }
+    code {
+      color: var(--accent);
+      word-break: break-word;
+      font-family: "Roboto Mono", "D2Coding", monospace;
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    details { border: 1px solid var(--accent); border-radius: 8px; padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>상상 결과 세계선 문구 정렬</h1>
+    <p class="lead">이번 Codex 자율 폴 사이클은 열린 요청이 없어, 2nd-B UI/카피 레인에서 중복이 아닌 저위험 문구 결함 한 건을 처리했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div>2nd-B 로컬 브랜치 커밋 완료</div></div>
+      <div class="card"><div class="label">커밋</div><div><code>bbf1e465</code></div></div>
+      <div class="card"><div class="label">브랜치</div><div><code>codex/cycle-20260802-050206-imagine-worldline-constellation</code></div></div>
+      <div class="card"><div class="label">검증</div><div>정적 검사와 관련 테스트 통과</div></div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <p>오프라인 미리보기 빌드에서 상상 결과 카드로 렌더링될 수 있는 샘플 세계선 문구가 아직 폐기된 마을 프레이밍을 사용하고 있었다. 이를 현재 정본인 별자리와 기록 조각 프레이밍에 맞췄다.</p>
+
+    <table>
+      <thead>
+        <tr><th>파일</th><th>변경</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/lib/llm/gemini.ts</code></td>
+          <td>영어와 한국어 <code>imagine</code> 오프라인 샘플의 <code>WORLDLINE</code> 두 줄을 마을의 첫 등불에서 별자리의 첫 신호로 정렬했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>git diff --check</code>: 오류 없음, 줄끝 변환 경고만 확인</li>
+      <li><code>npm run check:lexicon</code>: 통과</li>
+      <li><code>npm run check:emdash</code>: 통과</li>
+      <li><code>npm run type-check</code>: 통과</li>
+      <li><code>npm test -- src/lib/llm/__tests__/vendor-routing.test.ts --runInBand</code>: 통과, 16개 테스트</li>
+    </ul>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <p>찬성: 오프라인 결과 카드도 사용자가 보는 제품 경험이므로, 레거시 마을 표현을 남겨 두면 현재 별자리와 북극성 정본을 흐린다.</p>
+      <p>반대: <code>src/lib/llm/gemini.ts</code>는 LLM 경계 파일이므로 큰 프롬프트 재작성은 위험하다.</p>
+      <p>결론: 구조, 안전 분기, 모델 라우팅, 파서 형식은 건드리지 않고 샘플 결과 문구 두 줄만 바꾸는 최소 변경이 적절하다. 고위험 산출물이 아니므로 별도 MoA 검증 요청은 만들지 않았다.</p>
+    </details>
+
+    <h2>제한 준수</h2>
+    <p>2nd-B push, PR, merge, 배포, 브라우저 자동 열기, 비용 발생, 시크릿 접근, 파괴적 작업은 하지 않았다. 허브에서는 <code>agents/codex/</code> 아래 산출물과 상태만 작성했다.</p>
+  </main>
+</body>
+</html>
