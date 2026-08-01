@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>에뮬레이터 QA 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+  }
+  h1 {
+    color: #FFFFFF;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 10px;
+  }
+  .content {
+    background-color: #1E1E1E;
+    padding: 20px;
+    border-radius: 4px;
+    margin-top: 20px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #2A2A2A;
+    color: #FFFFFF;
+  }
+  .error {
+    color: #FF5555;
+    font-weight: bold;
+  }
+  button {
+    background-color: #333333;
+    color: #FFFFFF;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+  <h1>에뮬레이터 QA 검증 보고서</h1>
+  
+  <div class="content">
+    <p>오더 식별자: 20260703-081656-claude-to-antigravity-007-emu-qa</p>
+    <p>작업 결과: <span class="error">실패 (APK 접근 불가)</span></p>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>상태</th>
+          <th>상세 내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>APK 다운로드</td>
+          <td>실패</td>
+          <td>Expo EAS 서버에서 NoSuchKey 오류 발생 (파일이 삭제되었거나 만료됨).</td>
+        </tr>
+        <tr>
+          <td>에뮬레이터 구동</td>
+          <td>중단</td>
+          <td>설치할 APK가 없어 이후 과정을 중단함.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>조치 필요: 최신 빌드의 유효한 APK 다운로드 URL을 제공해주시기 바랍니다.</p>
+    
+    <button>돌아가기</button>
+  </div>
+</body>
+</html>
