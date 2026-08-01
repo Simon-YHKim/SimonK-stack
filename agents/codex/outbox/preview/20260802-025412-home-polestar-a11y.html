@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>홈 접근성 북극성 라벨 정렬 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --text: #e8edf2; --accent: #65d6ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; }
+    main { width: min(920px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0; }
+    h1, h2 { line-height: 1.25; margin: 0 0 14px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 18px 0 24px; }
+    .card, details { border: 1px solid var(--accent); padding: 14px; }
+    .label { display: block; font-size: 12px; color: var(--accent); margin-bottom: 4px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } main { width: min(100% - 24px, 920px); padding: 28px 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>홈 접근성 북극성 라벨 정렬 보고</h1>
+    <p>이번 Codex 단일 사이클은 새 Codex 대상 공개 요청이 없어, 현재 포커스의 UI/i18n anti-slop 레인에서 한 가지 저위험 접근성 라벨 정렬을 수행했다.</p>
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span>완료</div>
+      <div class="card"><span class="label">앱 커밋</span><code>4123c9e0</code></div>
+      <div class="card"><span class="label">브랜치</span><code>codex/cycle-20260802-home-polestar-a11y</code></div>
+      <div class="card"><span class="label">기준</span><code>origin/main 77ebbcbc</code></div>
+    </section>
+    <h2>변경 내용</h2>
+    <p>홈 화면의 북극성 밝기 접근성 라벨이 일부 언어에서 legacy 명칭인 <code>Soul Core</code> 또는 <code>소울 코어</code>로 남아 있었다. 내부 키는 유지하고, 화면 판독기용 표시 문자열만 canonical 명칭으로 맞췄다.</p>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>변경</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>locales/en/home.json</code></td><td><code>Soul Core brightness</code>를 <code>North Star brightness</code>로 변경</td></tr>
+        <tr><td><code>locales/ko/home.json</code></td><td><code>소울 코어 밝기</code>를 <code>북극성 밝기</code>로 변경</td></tr>
+        <tr><td><code>locales/es/home.json</code></td><td>스페인어 라벨을 북극성 표현으로 변경</td></tr>
+        <tr><td><code>locales/pt/home.json</code></td><td>포르투갈어 라벨을 북극성 표현으로 변경</td></tr>
+        <tr><td><code>locales/id/home.json</code></td><td>인도네시아어 라벨을 북극성 표현으로 변경</td></tr>
+      </tbody>
+    </table>
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr><th>검사</th><th>상태</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>변경된 다섯 JSON 파일 파싱</td><td>통과</td></tr>
+        <tr><td>legacy 접근성 라벨 residue 검색</td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+      </tbody>
+    </table>
+    <details>
+      <summary>자체 패널 판단</summary>
+      <p>범위는 접근성 표시 문자열 다섯 개로 제한되며 API, 스키마, 결제, 인증, 개인정보, 안전 로직, 배포를 건드리지 않았다. 고위험 산출물이 아니므로 MOA 추가 검증 요청은 만들지 않았다. 2nd-B push, PR, merge, 배포도 수행하지 않았다.</p>
+    </details>
+  </main>
+</body>
+</html>
