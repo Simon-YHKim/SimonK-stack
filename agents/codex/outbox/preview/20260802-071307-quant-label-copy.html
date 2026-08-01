@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>정량 자기보고 문구 정리 보고서</title>
+  <style>
+    :root {
+      --bg: #111827;
+      --text: #e5e7eb;
+      --accent: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 44px;
+    }
+    h1, h2 { line-height: 1.25; margin: 0 0 14px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin: 18px 0 8px;
+    }
+    .card, details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      background: transparent;
+    }
+    .label { font-size: 12px; color: var(--accent); }
+    .value { font-size: 16px; font-weight: 700; word-break: break-word; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 9px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>정량 자기보고 문구 정리 보고서</h1>
+    <p>Codex 자율 poll cycle에서 신규 OPEN 요청이 없어, 현재 레인 기준으로 2nd-B 사용자 가시 임상어 잔여를 한 건 정리했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">2nd-B 커밋</div><div class="value"><code>8d1e03f0</code></div></div>
+      <div class="card"><div class="label">브랜치</div><div class="value"><code>codex/cycle-20260802-071054-quant-label-copy</code></div></div>
+      <div class="card"><div class="label">작성 시각</div><div class="value">2026-08-02 07:13:07 KST</div></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>수정</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>src/app/values.tsx</code></td><td>한국어 저장 결론과 인트로 설명의 <code>진단</code> 표현을 <code>확정 라벨</code> 표현으로 교체했다.</td></tr>
+        <tr><td><code>src/app/strengths.tsx</code></td><td>강점 자기보고 화면의 같은 한국어 문구를 동일한 정책 친화 표현으로 맞췄다.</td></tr>
+        <tr><td><code>src/app/motivation.tsx</code></td><td>동기 자기보고 화면의 같은 한국어 문구를 동일한 정책 친화 표현으로 맞췄다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr><th>검증 항목</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>rg "진단 아님|진단이 아니라"</code> 대상 세 파일</td><td>잔여 없음</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npx eslint src/app/values.tsx src/app/strengths.tsx src/app/motivation.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>오류 없음, 기존 줄끝 경고만 출력</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>운영 제한 준수</summary>
+      <ul>
+        <li>허브에서는 <code>agents/codex/</code> 경로만 작성했다.</li>
+        <li>2nd-B는 별도 worktree와 브랜치에서만 작업했다.</li>
+        <li>푸시, PR, 병합, 배포, 비용 발생 작업, 브라우저 자동 열기를 하지 않았다.</li>
+        <li>시크릿 또는 운영 데이터에 접근하지 않았다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>§35 자체 패널</summary>
+      <ul>
+        <li>찬성: 세 화면에 반복된 임상어 잔여를 작은 카피 변경으로 제거해 제품 어휘 정책과 더 잘 맞췄다.</li>
+        <li>반대: 영어 문구의 <code>medical assessment</code> 면책은 기존 정책 맥락이 있어 이번 범위에서 바꾸지 않았다.</li>
+        <li>판정: 로직, 데이터 모델, 안전 분기, 외부 사실 주장이 없는 낮은 위험의 UI 문구 정리다.</li>
+        <li>교차검증: 고위험 산출물 조건에 해당하지 않아 별도 요청하지 않았다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>
