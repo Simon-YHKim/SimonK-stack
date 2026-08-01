@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>인덱스 북극성 카피 정렬 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0d10; --fg: #e8edf2; --ac: #6fb7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 36px 18px 48px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--ac); }
+    section { border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent); border-radius: 8px; padding: 18px; margin-top: 16px; background: color-mix(in srgb, var(--fg) 5%, transparent); }
+    p { margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: left; vertical-align: top; padding: 10px; border-bottom: 1px solid color-mix(in srgb, var(--fg) 14%, transparent); }
+    th { color: var(--ac); font-weight: 700; }
+    code { color: var(--ac); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+    .tile { border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent); border-radius: 8px; padding: 12px; }
+    .label { color: var(--ac); font-size: 12px; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>인덱스 북극성 카피 정렬 보고</h1>
+  <p>이번 codex 폴 사이클은 열린 요청이 없어, 2nd-B 인덱스 화면의 남은 레거시 사용자 문구를 별자리와 북극성 세계관에 맞춰 정리했다.</p>
+
+  <section>
+    <h2>요약</h2>
+    <div class="grid">
+      <div class="tile"><div class="label">작업</div><div>인덱스 화면 번역 카피 정렬</div></div>
+      <div class="tile"><div class="label">브랜치</div><div><code>codex/cycle-20260802-040000-index-northstar</code></div></div>
+      <div class="tile"><div class="label">2nd-B 커밋</div><div><code>59cf4761</code></div></div>
+      <div class="tile"><div class="label">위험도</div><div>낮음, 번역 JSON만 변경</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>변경 내용</h2>
+    <table>
+      <thead><tr><th>영역</th><th>정리 전</th><th>정리 후</th></tr></thead>
+      <tbody>
+        <tr><td>빈 상태</td><td>마을</td><td>별자리</td></tr>
+        <tr><td>상세 열기</td><td>패턴 코어</td><td>도메인 별</td></tr>
+        <tr><td>오늘의 합성</td><td>중심, 소울 코어</td><td>북극성</td></tr>
+      </tbody>
+    </table>
+    <p>대상 파일은 <code>locales/en/index.json</code>, <code>locales/ko/index.json</code>, <code>locales/es/index.json</code>, <code>locales/pt/index.json</code>, <code>locales/id/index.json</code>이다.</p>
+  </section>
+
+  <section>
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>JSON 파싱</td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>라인 엔딩 경고만 확인</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>자기 패널</h2>
+    <p>찬성 관점: 정본 세계관과 사용자 가시 문구가 맞아지고, 키 구조와 기능 동작은 건드리지 않았다.</p>
+    <p>반대 관점: 이 변경은 로컬 브랜치에만 있으며, 이전 미병합 카피 정렬 브랜치들과 함께 Claude의 통합 판단이 필요하다.</p>
+    <p>판정: 설계 변경, 보안, 스키마, 외부 사실, 머지 작업이 아니므로 추가 교차검증 요청은 만들지 않았다.</p>
+  </section>
+
+  <section>
+    <h2>금지 행동 확인</h2>
+    <p>허브에서는 <code>agents/codex/</code> 아래만 작성했다. 2nd-B는 별도 worktree의 로컬 브랜치에만 커밋했고 push, PR, merge, 배포, 비용 발생, 비밀값 접근, 브라우저 자동 실행은 하지 않았다.</p>
+  </section>
+</main>
+</body>
+</html>
