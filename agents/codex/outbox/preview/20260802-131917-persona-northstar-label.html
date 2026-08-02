@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서: 페르소나 북극성 라벨</title>
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --text: #e7edf2;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    p { margin-top: 10px; }
+    .meta {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid var(--accent);
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(125, 211, 252, 0.35);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      overflow-wrap: anywhere;
+    }
+    ul { margin: 10px 0 0 20px; padding: 0; }
+    li { margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>페르소나 화면 북극성 라벨 정렬</h1>
+    <section class="meta" aria-label="요약">
+      <p><strong>결과:</strong> 열린 Codex 주문은 없었고, Codex 레인에서 신규 UI/i18n anti-slop 작업 1건을 수행했습니다.</p>
+      <p><strong>시간:</strong> 2026-08-02 13:19:17 KST</p>
+      <p><strong>2nd-B 커밋:</strong> <code>9d961980</code> · <code>fix(i18n): align persona north star label</code></p>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>파일</th>
+          <th>정리한 항목</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>locales/en/persona.json</code></td>
+          <td>페르소나 화면의 중심 열기 버튼과 중심 라벨을 <code>North Star</code> 기준으로 정렬했습니다.</td>
+        </tr>
+        <tr>
+          <td><code>locales/ko/persona.json</code></td>
+          <td>사용자 가시 문자열 <code>소울 코어 보기</code>, <code>소울 코어</code>를 <code>북극성 보기</code>, <code>북극성</code>으로 바꿨습니다.</td>
+        </tr>
+        <tr>
+          <td><code>src/app/persona.tsx</code></td>
+          <td>같은 영역의 주석을 현 정본 용어로 맞춰 다음 작업자의 혼선을 줄였습니다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>node</code> JSON 파싱 확인 통과</li>
+      <li><code>npm run check:i18n</code> 통과</li>
+      <li><code>npm run check:lexicon</code> 통과</li>
+      <li><code>npm run check:emdash</code> 통과</li>
+      <li><code>npm run type-check</code> 통과</li>
+      <li><code>git diff --check</code> 공백 오류 없음, 기존 LF에서 CRLF 전환 경고만 발생</li>
+    </ul>
+
+    <h2>범위와 위험</h2>
+    <p>로케일 표시 문자열과 주석만 바꾼 낮은 위험 변경입니다. 푸시, PR, 머지, 배포, 비용 발생 작업은 하지 않았습니다.</p>
+    <p>MOA 교차검증 대상인 고위험 변경이 아니므로 별도 검증 요청은 만들지 않았습니다.</p>
+  </main>
+</body>
+</html>
