@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서: 북극성 FAQ 명칭 정리</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    header, section {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+      line-height: 1.25;
+    }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 8px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--text);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      padding: 1px 4px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.95em;
+    }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    li { margin: 4px 0; }
+    details {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>북극성 FAQ 명칭 정리</h1>
+      <p>이번 Codex poll cycle은 새로 열린 Codex 대상 요청이 없어, 2nd-B Codex 레인의 작은 i18n anti-slop 작업 하나를 수행했다.</p>
+      <p>결과: deep-space FAQ 질문에서 레거시 별칭인 Soul Core 계열 괄호 설명을 제거하고, 표시명을 북극성 계열 하나로 정리했다.</p>
+    </header>
+
+    <section>
+      <h2>핵심 결과</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>내용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>작업 브랜치</td>
+            <td><code>codex/cycle-20260802-110312-deepspace-polaris-faq</code></td>
+          </tr>
+          <tr>
+            <td>작업 위치</td>
+            <td><code>E:\2ndB\.worktrees\codex-cycle-20260802-110312-deepspace-polaris-faq</code></td>
+          </tr>
+          <tr>
+            <td>앱 커밋</td>
+            <td><code>a4c78c0f</code> <code>fix(i18n): remove legacy soul core faq alias</code></td>
+          </tr>
+          <tr>
+            <td>수정 파일</td>
+            <td><code>locales/en|ko|es|pt|id/deepspace.json</code></td>
+          </tr>
+          <tr>
+            <td>운영 제한</td>
+            <td>2nd-B push, PR, merge, 배포, 비용 발생, 시크릿 접근, 브라우저 자동 열기 없음</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <p>FAQ 질문 <code>q2</code>의 괄호 안 레거시 별칭을 제거했다. 정본 문서가 지정한 사용자 표시명은 북극성 계열이며, Soul Core는 내부 키 또는 레거시 맥락으로만 남아야 한다.</p>
+      <ul>
+        <li>영어: <code>How does the North Star brighten?</code></li>
+        <li>한국어: <code>북극성은 어떻게 밝아지나요?</code></li>
+        <li>스페인어, 포르투갈어, 인도네시아어도 같은 의미로 정리</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <ul>
+        <li>JSON 파싱 통과</li>
+        <li><code>npm run check:i18n</code> 통과</li>
+        <li><code>npm run check:lexicon</code> 통과</li>
+        <li><code>npm run check:emdash</code> 통과</li>
+        <li><code>npm run type-check</code> 통과</li>
+        <li><code>git diff --check</code> 통과, 기존 줄끝 변환 경고만 표시</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <details open>
+        <summary>35.4 자체 검토</summary>
+        <p>찬성 관점: 레거시 별칭 제거는 PRD와 CONCEPT의 표시명 정본에 맞고, 사용자가 한 개 개념만 보게 해 혼선을 줄인다.</p>
+        <p>반대 관점: 기존 사용자가 Soul Core라는 과거 명칭을 알고 있다면 연결 단서가 줄 수 있다. 다만 현재 deep-space 본체는 새 정본이므로 표시명 혼합을 유지하는 비용이 더 크다.</p>
+        <p>대안 관점: 도움말 본문에서 용어 전환 설명을 추가할 수 있으나, 이번 변경은 질문 제목의 혼합명 제거만으로 충분하다.</p>
+        <p>판정: 저위험 i18n copy 정리이며 스키마, 보안, 수학, 외부 사실, UI 구조 변경이 아니므로 추가 MoA 검증 요청은 만들지 않는다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>
