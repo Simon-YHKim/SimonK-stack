@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>네이티브 정적 검수 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; padding: 20px; }
+  h1, h2 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 5px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1E1E1E; color: #FFFFFF; }
+  a, button { color: #64B5F6; text-decoration: none; }
+  button { background-color: #1E1E1E; border: 1px solid #333333; padding: 5px 10px; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>네이티브 정적 검수 보고서</h1>
+  
+  <h2>검수 대상</h2>
+  <p>대상 커밋: da8fe3b6 (fix(ui): align graph root north star label)</p>
+  
+  <h2>검수 환경 및 방식</h2>
+  <p>현재 연결된 에뮬레이터 또는 디바이스 장비가 확인되지 않아 정적 코드 검수로 대체했습니다. 진실성 규칙을 준수하기 위해 에뮬레이터 구동 증명은 제출하지 않습니다.</p>
+
+  <h2>상세 검토 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>평가 항목</th>
+        <th>판정 결과</th>
+        <th>세부 설명</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 호환성</td>
+        <td>합격</td>
+        <td>단순 텍스트 교체로 네이티브 모듈 렌더링에 부정적 영향이 없습니다.</td>
+      </tr>
+      <tr>
+        <td>메모리 및 성능 리스크</td>
+        <td>합격</td>
+        <td>추가적인 이미지 자산이 없어 메모리 초과 위험이 없습니다.</td>
+      </tr>
+      <tr>
+        <td>레이아웃 파괴 리스크</td>
+        <td>합격</td>
+        <td>단순 라벨 텍스트 변경 수준으로 기기 해상도별 오버플로우 위험성이 낮습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>최종 결론</h2>
+  <p>해당 변경사항은 네이티브 애플리케이션 클라이언트에 구조적 위험을 가하지 않으므로 병합해도 안전합니다.</p>
+</body>
+</html>
