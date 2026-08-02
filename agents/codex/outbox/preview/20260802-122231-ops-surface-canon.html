@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>운영 보조 표면 정본 정렬 보고서</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --fg: #e8edf2;
+      --muted: #8ea0b3;
+      --accent: #59c2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2 { line-height: 1.25; margin: 0; }
+    h1 { font-size: 28px; letter-spacing: 0; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 10px 0 0; }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .card {
+      border: 1px solid rgba(89, 194, 255, 0.28);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    code {
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.95em;
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      border: 1px solid rgba(89, 194, 255, 0.24);
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(89, 194, 255, 0.18);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--muted); font-weight: 600; }
+    details {
+      margin-top: 12px;
+      border: 1px solid rgba(89, 194, 255, 0.24);
+      border-radius: 8px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+    summary { cursor: pointer; color: var(--accent); }
+    ul { margin: 10px 0 0; padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>운영 보조 표면 정본 정렬 보고서</h1>
+    <p class="muted">생성 시각: 2026-08-02 12:22:31 KST</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div>완료</div>
+      </div>
+      <div class="card">
+        <div class="label">작업 종류</div>
+        <div>군더더기 방지 문서 정렬</div>
+      </div>
+      <div class="card">
+        <div class="label">2nd-B 커밋</div>
+        <div><code>11c82bc0</code></div>
+      </div>
+      <div class="card">
+        <div class="label">검증 상태</div>
+        <div>문서 잔여 검색 및 diff 확인 통과</div>
+      </div>
+    </section>
+
+    <h2>수행 내용</h2>
+    <p>
+      Codex 대상 새 OPEN 요청은 없었습니다. 자율 lane 작업으로 2nd-B의
+      <code>docs/ASSISTANT_OPS.md</code>에서 운영 보조 표면을 옛
+      코어 확장 모델이 아니라 현재 정본인 북극성 + 7 도메인 별 구조의 보조 포털로 정리했습니다.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>값</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>작업 트리</td>
+          <td><code>E:\2ndB\.worktrees\codex-cycle-20260802-122053-ops-surface-canon</code></td>
+        </tr>
+        <tr>
+          <td>브랜치</td>
+          <td><code>codex/cycle-20260802-122053-ops-surface-canon</code></td>
+        </tr>
+        <tr>
+          <td>기준</td>
+          <td><code>origin/main 77ebbcbc</code></td>
+        </tr>
+        <tr>
+          <td>로컬 커밋</td>
+          <td><code>11c82bc0 docs(ui): align ops surface canon</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details open>
+      <summary>변경 요약</summary>
+      <ul>
+        <li><code>/ops</code>를 6번째 코어가 아니라 보조 포털로 설명했습니다.</li>
+        <li>별자리 승격은 Simon 게이트와 DESIGN 문서 개정이 필요한 별도 사이클로 분리했습니다.</li>
+        <li>루틴 에셋 프롬프트를 Material 3 + deep-space 방향과 낮은 시각 위계로 정렬했습니다.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>검증</summary>
+      <ul>
+        <li><code>git grep</code>으로 해당 문서의 stale 섹션 용어 잔여 없음 확인</li>
+        <li><code>git diff --check</code> 실행, whitespace 오류 없음</li>
+        <li>2nd-B 푸시, 풀 리퀘스트, 병합, 배포, 브라우저 자동 열기 없음</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <ul>
+        <li>찬성: 에이전트가 오래된 5코어 확장 모델을 신규 구현 기준으로 오독할 가능성을 줄였습니다.</li>
+        <li>반대: 문서 전용 변경이므로 런타임 사용자 화면에는 즉시 영향이 없습니다.</li>
+        <li>판정: 정본 문서와 충돌하던 설계 문구를 좁게 정렬한 저위험 변경입니다. 별도 MoA 검증 요청은 필요하지 않습니다.</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>
