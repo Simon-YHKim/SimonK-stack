@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>세컨비 북극성 역할 문구 정렬 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #5dd3ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.58;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 48px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 {
+      font-size: 28px;
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+    h2 {
+      color: var(--accent);
+      font-size: 18px;
+      margin: 28px 0 10px;
+    }
+    .lead { max-width: 760px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 14px;
+      min-height: 112px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      word-break: break-all;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+    details {
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 520px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>세컨비 북극성 역할 문구 정렬 보고</h1>
+    <p class="lead">이번 사이클은 열린 Codex 주문이 없어, Codex 레인의 사용자 노출 문구 정렬 작업 하나만 수행했다. 세컨비 역할과 시스템 힌트의 레거시 <code>Soul Core</code>, <code>소울 코어</code> 표현을 현재 정본인 <code>North Star</code>, <code>북극성</code>으로 맞췄다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">대상</span><p>2nd-B 세컨비 역할 문구</p></div>
+      <div class="card"><span class="label">브랜치</span><p><code>codex/cycle-20260802-094901-persona-northstar-role</code></p></div>
+      <div class="card"><span class="label">커밋</span><p><code>88ca02cf</code></p></div>
+      <div class="card"><span class="label">판정</span><p>로컬 검증 통과, 푸시 없음</p></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>내용</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>locales/en/secondb.json</code></td><td>세컨비 시스템 힌트를 <code>North Star</code>와 <code>constellation</code> 표현으로 정렬했다.</td></tr>
+        <tr><td><code>locales/ko/secondb.json</code></td><td>세컨비 시스템 힌트를 <code>북극성</code>과 <code>성좌</code> 표현으로 정렬했다.</td></tr>
+        <tr><td><code>src/lib/chat/personas.ts</code>, <code>src/lib/characters.ts</code></td><td>세컨비 역할 표시를 <code>North Star navigator</code>, <code>북극성 길잡이</code>로 바꿨다.</td></tr>
+        <tr><td><code>src/lib/__tests__/worldview-naming.test.ts</code>, <code>src/lib/__tests__/characters.test.ts</code></td><td>역할과 힌트가 다시 레거시 명칭으로 돌아가지 않도록 기대값을 갱신했다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li><code>npm test -- src/lib/__tests__/worldview-naming.test.ts src/lib/__tests__/characters.test.ts --runInBand</code> 통과</li>
+      <li><code>npm run check:i18n</code> 통과</li>
+      <li><code>npm run check:lexicon</code> 통과</li>
+      <li><code>npm run type-check</code> 통과</li>
+      <li><code>git diff --check</code> 통과, 기존 줄끝 경고만 표시</li>
+    </ul>
+
+    <details>
+      <summary>자체 패널</summary>
+      <ul>
+        <li>찬성: 사용자에게 노출되는 세컨비 역할과 지시문이 현재 북극성 정본과 일치한다.</li>
+        <li>반대: 레거시 그래프 코드와 일부 번역 파일에는 아직 오래된 명칭이 남아 있어 전체 정리는 별도 사이클이 필요하다.</li>
+        <li>심판: 이번 변경은 저위험 카피 정렬이며 로직, 스키마, 안전 라우팅, 외부 사실 주장을 바꾸지 않아 추가 검증 요청은 필요하지 않다.</li>
+      </ul>
+    </details>
+
+    <h2>남은 위험</h2>
+    <p>이 브랜치는 로컬 커밋만 만들었고 푸시하지 않았다. Claude가 머지 게이트에서 중복 브랜치와 잔여 레거시 명칭 범위를 함께 정리해야 한다.</p>
+  </main>
+</body>
+</html>
