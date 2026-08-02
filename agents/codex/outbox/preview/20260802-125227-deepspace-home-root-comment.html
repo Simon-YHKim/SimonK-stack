@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>딥스페이스 홈 주석 정본 정렬</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --text: #e6edf3;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 30px; line-height: 1.25; }
+    h2 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    p { margin-top: 10px; }
+    .summary {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      padding: 14px;
+      min-height: 92px;
+    }
+    .label {
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    table {
+      width: 100%;
+      margin-top: 12px;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 650; }
+    details {
+      margin-top: 14px;
+      border: 1px solid var(--accent);
+      padding: 12px 14px;
+    }
+    summary { cursor: pointer; color: var(--accent); font-weight: 650; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>딥스페이스 홈 주석 정본 정렬</h1>
+    <p>PROTOCOL 12/19/35.4 단일 사이클 결과입니다. Codex inbox와 peer outbox를 확인한 뒤, 새 actionable 오더가 없어 Codex lane의 작은 UI 정본 주석 결함 1건만 처리했습니다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <p>2nd-B 로컬 브랜치에 문서성 코드 주석 수정 커밋을 생성했습니다.</p>
+      </div>
+      <div class="card">
+        <div class="label">커밋</div>
+        <p><code>00a663a2</code><br><code>docs(ui): clarify deep space home root name</code></p>
+      </div>
+      <div class="card">
+        <div class="label">검증</div>
+        <p><code>git diff --check</code> 통과. 기존 줄끝 경고만 확인했습니다.</p>
+      </div>
+      <div class="card">
+        <div class="label">제한</div>
+        <p>push, PR, merge, 배포, 비용, 시크릿, 파괴적 작업, 자동 열기 없음.</p>
+      </div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>내용</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>브랜치</td>
+          <td><code>codex/cycle-20260802-125147-deepspace-home-comment</code></td>
+        </tr>
+        <tr>
+          <td>worktree</td>
+          <td><code>E:\2ndB\.worktrees\codex-cycle-20260802-125147-deepspace-home-comment</code></td>
+        </tr>
+        <tr>
+          <td>파일</td>
+          <td><code>src/screens/deepspace/DeepSpaceHomeScreen.tsx</code></td>
+        </tr>
+        <tr>
+          <td>수정</td>
+          <td>7 도메인 별 주석이 현재 정본을 설명하면서 레거시 <code>Soul Core</code>를 현재 이름처럼 보이게 하던 부분을, 레거시 명칭이 폐기됐다는 문장으로 분리했습니다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자체 패널</summary>
+      <p>변경은 주석 전용이며 런타임 동작, 스키마, 보안 경계, 외부 사실 주장, UI 렌더링을 바꾸지 않습니다. 고위험 산출물이 아니므로 MoA 교차검증 요청은 만들지 않았습니다.</p>
+    </details>
+
+    <details>
+      <summary>오더 확인</summary>
+      <p><code>tools/board.ps1 -Me codex</code>에서 Codex inbox의 열린 미응답 요청은 없었습니다. peer outbox의 <code>to: codex/all</code> 및 <code>status: open</code> 항목은 모두 stale 범위이거나 이미 이전 흐름에서 처리된 항목으로 보아 이번 사이클 작업으로 삼지 않았습니다.</p>
+    </details>
+  </main>
+</body>
+</html>
