@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>동의 민감정보 문구 현지화 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0d10; --text: #e6edf3; --accent: #6ee7b7; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 30px; line-height: 1.2; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin: 30px 0 10px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 18px 0 6px; }
+    p { margin-bottom: 12px; }
+    code { color: var(--accent); }
+    .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; border: 1px solid var(--accent); margin: 24px 0; }
+    .summary div { padding: 14px; border-left: 1px solid var(--accent); }
+    .summary div:first-child { border-left: 0; }
+    .label { display: block; color: var(--accent); font-size: 12px; margin-bottom: 4px; }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0 20px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+    li { margin: 6px 0; }
+    details { border: 1px solid var(--accent); padding: 12px 14px; margin: 12px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 720px) { .summary { grid-template-columns: 1fr; } .summary div { border-left: 0; border-top: 1px solid var(--accent); } .summary div:first-child { border-top: 0; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>동의 민감정보 문구 현지화 보고</h1>
+  <p>이번 Codex 단일 사이클은 열린 Codex 대상 요청이 없는 상태에서, 2nd-B 동의 화면의 비영어 로케일에 남아 있던 영어 민감정보 확인 문구를 현지어로 정리했다.</p>
+
+  <section class="summary" aria-label="요약">
+    <div><span class="label">대상</span>2nd-B 동의 화면</div>
+    <div><span class="label">브랜치</span><code>codex/cycle-20260802-104759-consent-sensitive-locales</code></div>
+    <div><span class="label">커밋</span><code>c8a75bf7</code></div>
+    <div><span class="label">상태</span>로컬 커밋 완료, 푸시 없음</div>
+  </section>
+
+  <h2>변경 내용</h2>
+  <table>
+    <thead>
+      <tr><th>파일</th><th>변경</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>locales/es/consent.json</code></td><td><code>ackSensitive</code> 문구를 스페인어로 현지화했다.</td></tr>
+      <tr><td><code>locales/id/consent.json</code></td><td><code>ackSensitive</code> 문구를 인도네시아어로 현지화했다.</td></tr>
+      <tr><td><code>locales/pt/consent.json</code></td><td><code>ackSensitive</code> 문구를 포르투갈어로 현지화했다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>판단</h2>
+  <p>기존 필수 확인 항목의 의미는 유지했고, 수집 범위, 동의 흐름, 저장 로직, 미성년자 보호, 외부 전송 조건은 바꾸지 않았다. 변경 범위는 사용자 가시 문구 3줄이다.</p>
+
+  <details open>
+    <summary>검증 결과</summary>
+    <ul>
+      <li>JSON 파싱: 통과</li>
+      <li><code>npm run check:i18n</code>: 통과</li>
+      <li><code>npm run check:lexicon</code>: 통과</li>
+      <li><code>npm run check:emdash</code>: 통과</li>
+      <li><code>npm run type-check</code>: 통과</li>
+      <li><code>git diff --check</code>: 내용 오류 없음, 기존 줄끝 경고만 출력</li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>제35절 자체 패널</summary>
+    <h3>찬성</h3>
+    <p>민감정보 동의 문구가 비영어 화면에서 영어로 노출되면 신뢰와 이해도가 떨어진다. 현지화는 동의 화면의 기본 품질을 높인다.</p>
+    <h3>반대</h3>
+    <p>동의 네임스페이스는 법무 검토 대상이 될 수 있으므로, 의미를 넓히거나 좁히는 번역은 위험하다.</p>
+    <h3>판정</h3>
+    <p>이번 문구는 기존 영어 문장의 의미를 유지한 저위험 현지화로 한정했다. 법적 약속, 동의 구조, 데이터 처리 코드는 변경하지 않았으므로 추가 교차검증 요청은 만들지 않았다.</p>
+  </details>
+
+  <h2>제한</h2>
+  <p>2nd-B 원격 브랜치 푸시, PR 생성, 머지, 배포, 브라우저 자동 열기, 파괴적 작업, 비용 작업, 시크릿 작업은 수행하지 않았다.</p>
+</main>
+</body>
+</html>
