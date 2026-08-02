@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>제안 프롬프트 북극성 명칭 정렬</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --text: #e6edf3; --accent: #58a6ff; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+      line-height: 1.6;
+    }
+    main { max-width: 980px; margin: 0 auto; padding: 40px 20px 56px; }
+    header { border-bottom: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding-bottom: 20px; }
+    h1, h2 { margin: 0; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 10px 0 0; }
+    .meta { color: color-mix(in srgb, var(--text) 72%, transparent); }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; }
+    .card, details { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 8px; padding: 14px; }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    code { color: var(--accent); font-family: Consolas, "SFMono-Regular", monospace; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { text-align: left; border-bottom: 1px solid color-mix(in srgb, var(--text) 14%, transparent); padding: 10px 8px; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 24px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>제안 프롬프트 북극성 명칭 정렬</h1>
+      <p class="meta">작성 시각: 2026-08-02 12:06:27 KST · 대상: 2nd-B · 좌석: codex</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <p>자기모델 제안 프롬프트의 레거시 대상명 <code>Soul Core aggregate reading</code>을 정본명 <code>North Star aggregate reading</code>으로 바꿨습니다.</p>
+      </div>
+      <div class="card">
+        <div class="label">커밋</div>
+        <p>2nd-B 워크트리 로컬 커밋 <code>7a4b76a2</code><br><code>fix(ui): align proposal prompt north star label</code></p>
+      </div>
+      <div class="card">
+        <div class="label">검증</div>
+        <p>타깃 Jest, lexicon, em-dash, type-check, diff-check를 실행했습니다.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>변경</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/lib/persona/propose-self-model.ts</code></td>
+            <td><code>soulCore</code> 대상 설명을 북극성 정본명으로 정렬했습니다.</td>
+          </tr>
+          <tr>
+            <td><code>src/lib/persona/__tests__/propose-self-model.test.ts</code></td>
+            <td>프롬프트가 정본명을 포함하고 레거시 설명을 다시 넣지 않는지 확인하는 회귀 테스트를 추가했습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details open>
+      <summary>검증 내역</summary>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npm test -- src/lib/persona/__tests__/propose-self-model.test.ts --runInBand</code></td><td>통과, 테스트 9개</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>실패 없음, 기존 줄끝 경고만 출력</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>사용자 경험</td><td>레거시 명칭이 모델 제안 문맥에 섞이는 지점을 줄였습니다.</td></tr>
+          <tr><td>안전</td><td>의료·임상·비용·시크릿·배포·데이터 변경이 없습니다.</td></tr>
+          <tr><td>회귀</td><td>기존 내부 키 <code>soulCore</code>는 유지해 데이터 계약을 건드리지 않았습니다.</td></tr>
+          <tr><td>검증 요청</td><td>고위험 산출물이 아니므로 별도 교차검증 요청은 만들지 않았습니다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+  </main>
+</body>
+</html>
