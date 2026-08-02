@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Ads Age Gate 검증 보고서</title>
+  <style>
+    body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; margin: 40px; }
+    h1, h2, h3 { color: #ffffff; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #333333; padding: 12px; text-align: left; }
+    th { background-color: #1e1e1e; color: #ffffff; }
+    .alert { background-color: #2c1a1a; border-left: 4px solid #ff5252; padding: 15px; margin: 20px 0; }
+    .highlight { color: #ff5252; font-weight: bold; }
+    button { background-color: #333333; color: #ffffff; border: 1px solid #555555; padding: 10px 20px; cursor: pointer; }
+    button:hover { background-color: #444444; }
+  </style>
+</head>
+<body>
+  <h1>교차검증 결과 보고서: ads-age-gate</h1>
+  <p>요청된 2nd-B 코드 베이스 분석을 기반으로 작성된 독립적인 보안 및 코드 검증 결과입니다.</p>
+
+  <div class="alert">
+    <strong>결론:</strong> 후보 브랜치를 병합할 경우 핵심 감사(Audit) 로직 및 광고 보상 기능이 유실되는 심각한 퇴행이 발생하므로, 병합 거부 판정이 타당합니다.
+  </div>
+
+  <h2>분석 요약</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>판단 결과</th>
+        <th>상세 근거</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Cherry-pick 거부 타당성</td>
+        <td class="highlight">타당함</td>
+        <td>후보 브랜치 적용 시 최근 추가된 기능 및 보안 기록 코드가 삭제(Revert)됨.</td>
+      </tr>
+      <tr>
+        <td>현행 Main의 보호 강도</td>
+        <td class="highlight">더 강함</td>
+        <td>현행 코드는 차단된 요청에 대해 데이터베이스에 명시적 마커(+blocked, +refusal)를 기록함.</td>
+      </tr>
+      <tr>
+        <td>추가적인 누락 위험</td>
+        <td class="highlight">발견됨</td>
+        <td>채팅 광고 보상 로직 누락, 동의 철회 관련 보안 주의 주석 삭제, 이메일 확인 템플릿 삭제 확인.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>코드 상세 지적 사항</h2>
+  <ul>
+    <li><strong>gemini-proxy:</strong> 보안 상의 이유(SAFETY, RECITATION)로 요청이 거부되었을 때 기록을 남기는 C3 parity fix가 제거되었습니다.</li>
+    <li><strong>openai-proxy:</strong> 개인정보 처리 위탁 동의 철회(Withdrawal) 관련 규정을 경고하는 주석이 삭제되었습니다.</li>
+    <li><strong>rewarded-ssv:</strong> Phase 4 기능인 <code>chat</code> 종류 광고 시청 시 지급되는 보상 지급 로직이 통째로 삭제되었습니다.</li>
+  </ul>
+
+  <button type="button">보고서 닫기</button>
+</body>
+</html>
