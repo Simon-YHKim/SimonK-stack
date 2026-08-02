@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고서: 기록 별가루 문구 정렬</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e8eef4;
+      --accent: #61d5ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    header {
+      border: 1px solid var(--accent);
+      padding: 24px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      font-size: 28px;
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 18px;
+      margin: 28px 0 10px;
+      color: var(--accent);
+    }
+    h3 {
+      font-size: 15px;
+      margin: 16px 0 6px;
+      color: var(--accent);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      padding: 14px;
+      min-height: 96px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); }
+    code {
+      color: var(--accent);
+      font-family: Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+    details {
+      border: 1px solid var(--accent);
+      padding: 14px;
+      margin-top: 12px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    ul { padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>기록 화면 별가루 문구 정렬</h1>
+      <p>프로토콜 12/19/35.4 단일 폴 사이클에서 새 미응답 주문은 없었고, 코덱스 레인의 단일 신규 작업으로 2nd-B 기록 화면 로케일 문구를 별자리 정본에 맞췄다.</p>
+      <div class="grid" aria-label="요약">
+        <section class="card">
+          <span class="label">결과</span>
+          <strong>로컬 커밋 완료</strong>
+          <p><code>29d9d6e7</code></p>
+        </section>
+        <section class="card">
+          <span class="label">범위</span>
+          <strong>로케일 5개 파일</strong>
+          <p>15줄 교체</p>
+        </section>
+        <section class="card">
+          <span class="label">위험도</span>
+          <strong>낮음</strong>
+          <p>문구만 변경, 스키마·라우팅·비용 변경 없음</p>
+        </section>
+        <section class="card">
+          <span class="label">검증</span>
+          <strong>통과</strong>
+          <p>문구·타입 검사 완료</p>
+        </section>
+      </div>
+    </header>
+
+    <h2>작업 내용</h2>
+    <p><code>origin/main</code> 기준 새 worktree <code>E:\2ndB\.worktrees\codex-cycle-20260802-113448-records-star-pieces</code>를 만들고, <code>records.json</code>의 도메인별 기록 화면 표현을 “영역/기록” 중심에서 “별/도메인 별/별가루” 중심으로 정렬했다.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>파일</th>
+          <th>변경 요약</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>locales/en/records.json</code></td><td>도메인별 기록을 별 아래의 조각으로 표현</td></tr>
+        <tr><td><code>locales/ko/records.json</code></td><td>“이 별 아래의 별가루”, “도메인 별” 표현으로 정렬</td></tr>
+        <tr><td><code>locales/es/records.json</code></td><td>별 조각 표현으로 정렬</td></tr>
+        <tr><td><code>locales/pt/records.json</code></td><td>별 조각 표현으로 정렬</td></tr>
+        <tr><td><code>locales/id/records.json</code></td><td>별 조각 표현으로 정렬</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li>JSON 파싱: 통과</li>
+      <li><code>npm run check:i18n</code>: 통과</li>
+      <li><code>npm run check:lexicon</code>: 통과</li>
+      <li><code>npm run check:emdash</code>: 통과</li>
+      <li><code>npm run type-check</code>: 통과</li>
+      <li><code>git diff --check</code>: 오류 없음, 기존 라인엔딩 안내만 표시</li>
+    </ul>
+
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <h3>찬성 관점</h3>
+      <p>기록 화면의 도메인별 리스트는 별자리 정본에서 “도메인 별에 모인 별가루”로 읽혀야 한다. 이번 변경은 사용자-visible 문구만 정렬하므로 작고 명확하다.</p>
+      <h3>반대 관점</h3>
+      <p><code>eyebrowVillage</code> 같은 내부 키 이름은 여전히 legacy지만, 키 변경은 i18n 호출부와 라우팅 영향이 있어 이번 단일 사이클 범위를 넘는다.</p>
+      <h3>판정</h3>
+      <p>키와 구조는 유지하고 표시 문구만 고치는 접근이 가장 작은 올바른 변경이다. 고위험 산출물이 아니므로 추가 교차검증 요청은 하지 않았다.</p>
+    </details>
+
+    <h2>제한 준수</h2>
+    <ul>
+      <li>허브에서는 <code>agents/codex/</code> 아래만 작성했다.</li>
+      <li>2nd-B는 별도 worktree와 브랜치에서만 작업했다.</li>
+      <li>푸시, 병합, 배포, 브라우저 자동 열기, 비용 발생 작업은 하지 않았다.</li>
+      <li>시크릿과 파괴적 작업은 건드리지 않았다.</li>
+    </ul>
+  </main>
+</body>
+</html>
