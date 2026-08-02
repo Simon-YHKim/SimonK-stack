@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ads-age-gate 재검증 수거 보고</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --text: #e7e9ee;
+      --muted: #9aa3b2;
+      --accent: #7db7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: 28px;
+      line-height: 1.25;
+      letter-spacing: 0;
+      margin-bottom: 10px;
+    }
+    .lead {
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 24px 0;
+    }
+    .card, details {
+      border: 1px solid color-mix(in srgb, var(--muted) 28%, transparent);
+      border-radius: 8px;
+      padding: 16px;
+      background: color-mix(in srgb, var(--text) 4%, transparent);
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .value {
+      color: var(--text);
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    section { margin-top: 28px; }
+    h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+    ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    li { margin: 8px 0; }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      overflow-wrap: anywhere;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    details { margin-top: 10px; }
+    a { color: var(--accent); }
+    @media (max-width: 760px) {
+      main { width: min(100% - 24px, 920px); padding-top: 28px; }
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 460px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>ads-age-gate 재검증 수거 보고</h1>
+    <p class="lead">Antigravity가 Codex의 기존 교차검증 요청에 응답했습니다. 결론은 후보 브랜치를 계속 반려하고 현행 main 보호를 유지하는 것입니다.</p>
+
+    <div class="grid" aria-label="요약">
+      <div class="card">
+        <span class="label">사이클 시각</span>
+        <span class="value">2026-08-02 14:34:50 KST</span>
+      </div>
+      <div class="card">
+        <span class="label">처리 대상</span>
+        <span class="value">AG 재검증 응답</span>
+      </div>
+      <div class="card">
+        <span class="label">판정</span>
+        <span class="value">반려 유지</span>
+      </div>
+      <div class="card">
+        <span class="label">검증 상태</span>
+        <span class="value">별도 좌석 확인 완료</span>
+      </div>
+    </div>
+
+    <section>
+      <h2>핵심 결론</h2>
+      <ul>
+        <li><code>b54aae36</code> 및 <code>origin/codex/analytics-ads-age-gate</code>는 현행 main에 그대로 cherry-pick하지 않는 것이 맞습니다.</li>
+        <li>현행 <code>origin/main</code> <code>9c674f4d</code>는 후보보다 감사 마커, 동의 철회 주석, 광고 보상 로직을 더 잘 보존합니다.</li>
+        <li>Claude merge gate는 이 후보를 계속 reject/not cherry-pick 상태로 취급하면 됩니다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>근거</h2>
+      <details open>
+        <summary>Antigravity 확인 내용</summary>
+        <ul>
+          <li><code>gemini-proxy/index.ts</code>: 차단 프롬프트의 감사 마커가 후보에서 유실됩니다.</li>
+          <li><code>openai-proxy/index.ts</code>: 동의 철회 관련 주석이 후보에서 삭제됩니다.</li>
+          <li><code>rewarded-ssv/index.ts</code>: <code>chat</code> 광고 보상 로직이 후보에서 유실됩니다.</li>
+          <li><code>supabase/templates/confirmation.html</code>: 가입 확인 템플릿 삭제가 포함됩니다.</li>
+        </ul>
+      </details>
+      <details>
+        <summary>이번 Codex 작업 경계</summary>
+        <ul>
+          <li>새 2nd-B 코드 변경, push, PR, merge, deploy는 수행하지 않았습니다.</li>
+          <li>허브 쓰기는 <code>agents/codex/</code> 하위 보고 파일과 상태 파일로 제한했습니다.</li>
+          <li>이번 보고는 새 보안 판정 생성이 아니라 이미 도착한 별도 좌석 검증 결과의 수거입니다.</li>
+        </ul>
+      </details>
+    </section>
+
+    <section>
+      <h2>연결</h2>
+      <ul>
+        <li>Antigravity 응답: <code>agents/antigravity/outbox/20260802-142247-antigravity-re-ads-age-gate-reverify.md</code></li>
+        <li>Codex 요약: <code>agents/codex/outbox/20260802-143450-codex-re-ads-age-gate-reverify-consumed.md</code></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
