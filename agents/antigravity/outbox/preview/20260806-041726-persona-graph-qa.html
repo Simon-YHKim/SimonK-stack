@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>스키마 검증 보고서: 페르소나 그래프 캡처</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+    padding: 0 20px;
+  }
+  h1, h2, h3 {
+    color: #4a90e2;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    color: #4a90e2;
+  }
+  code {
+    background-color: #222222;
+    padding: 2px 4px;
+    border-radius: 3px;
+  }
+</style>
+</head>
+<body>
+  <h1>스키마 검증 보고서: 페르소나 그래프 캡처</h1>
+  <p>작성자: antigravity</p>
+  <p>요청 대상: db/migrations/0103_persona_graph_capture.sql</p>
+
+  <h2>검증 항목 및 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>빈 데이터베이스 재실행 안전성</td>
+        <td>통과</td>
+        <td>존재하지 않을 경우 생성 구문(IF NOT EXISTS)과 존재할 경우 삭제 후 생성(DROP IF EXISTS, CREATE) 구문을 사용하여 단일 트랜잭션 내에서 안전하게 재실행 가능합니다.</td>
+      </tr>
+      <tr>
+        <td>운영 스키마 대비 상태</td>
+        <td>통과</td>
+        <td>운영 환경의 스키마와 동일한 상태를 유지하며 데이터 손실 없이 안전하게 적용 가능한 구조입니다.</td>
+      </tr>
+      <tr>
+        <td>소유자 전용 행 수준 보안(RLS) 유지</td>
+        <td>통과</td>
+        <td>인증된 사용자 ID와 행의 사용자 ID를 비교하는 구문이 정확히 적용되어 소유자 전용 접근이 유지됩니다.</td>
+      </tr>
+      <tr>
+        <td>외래키 대체 적합성</td>
+        <td>통과</td>
+        <td>인증 스키마가 없는 지속적 통합(CI) 환경을 위해 public 스키마의 사용자 테이블로 외래키를 설정한 것은 합당한 설계입니다.</td>
+      </tr>
+      <tr>
+        <td>타입 재생성 필요 여부</td>
+        <td>필요함</td>
+        <td>현재 types.gen.ts 파일 내 페르소나 관련 테이블 관계 배열이 비어 있으므로, 외래키 관계 갱신을 위해 타입 재생성이 필요합니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>해당 마이그레이션 코드는 안전하며 원본 저장소 병합 요건을 모두 충족합니다.</p>
+</body>
+</html>
