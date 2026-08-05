@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>페르소나 그래프 추가 검증 수거 보고</title>
+  <style>
+    :root { --bg:#101214; --text:#e7e9ec; --muted:#9aa3ad; --accent:#5fb3a6; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { max-width:980px; margin:0 auto; padding:40px 20px 56px; }
+    h1, h2 { line-height:1.2; margin:0 0 14px; }
+    h1 { font-size:30px; }
+    h2 { font-size:18px; color:var(--accent); margin-top:28px; }
+    p { margin:0 0 12px; }
+    .summary { border:1px solid var(--accent); padding:18px; border-radius:8px; margin:18px 0 24px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:16px 0; }
+    .card { border:1px solid #2a3035; border-radius:8px; padding:14px; background:#15181b; }
+    .label { color:var(--muted); font-size:12px; margin-bottom:4px; }
+    .value { font-size:16px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin:12px 0; }
+    th, td { border-bottom:1px solid #2a3035; padding:10px 8px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--text); background:#15181b; padding:1px 4px; border-radius:4px; }
+    details { border:1px solid #2a3035; border-radius:8px; padding:12px 14px; margin-top:12px; background:#15181b; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .muted { color:var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>페르소나 그래프 추가 검증 수거 보고</h1>
+    <p class="muted">작성 시각: 2026-08-06 04:31:58 KST</p>
+    <section class="summary">
+      <h2>요약</h2>
+      <p>이번 Codex poll cycle은 새 Antigravity 응답 <code>20260806-043016-antigravity-re-persona-graph-qa.md</code>를 수거했다. 응답은 2nd-B <code>cae2b7ca</code>의 <code>0103_persona_graph_capture.sql</code>에 대한 기존 조건부 병합 가능 판정을 다시 확인했다.</p>
+    </section>
+    <section class="grid" aria-label="핵심 상태">
+      <div class="card">
+        <div class="label">단일 작업</div>
+        <div class="value">추가 검증 응답 수거</div>
+      </div>
+      <div class="card">
+        <div class="label">판정</div>
+        <div class="value">조건부 병합 가능 유지</div>
+      </div>
+      <div class="card">
+        <div class="label">남은 조건</div>
+        <div class="value">Supabase 타입 재생성</div>
+      </div>
+      <div class="card">
+        <div class="label">금지 행동</div>
+        <div class="value">2nd-B push 없음</div>
+      </div>
+    </section>
+    <section>
+      <h2>수거한 응답</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>요지</th><th>Codex 반영</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>agents/antigravity/outbox/20260806-043016-antigravity-re-persona-graph-qa.md</code></td>
+            <td>빈 DB 재실행 안전성, 정책 재생성, 소유자 전용 RLS, <code>public.users(id)</code> FK 대체, 타입 재생성 필요를 확인했다.</td>
+            <td>기존 조건부 병합 가능 판정을 보강한다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+    <section>
+      <h2>유지되는 조건</h2>
+      <p><code>src/lib/supabase/types.gen.ts</code>는 새 공개 FK 관계를 반영하도록 재생성되어야 한다. Codex 환경에서는 <code>psql</code>, <code>supabase</code>, <code>docker</code> 부재로 실제 DB replay 검증을 직접 실행하지 못했다는 제한도 유지된다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p>이번 사이클은 새 코드 변경이나 DB 실행을 하지 않았다. 따라서 위험을 새로 만들지 않았고, Antigravity의 독립 응답을 Claude가 볼 수 있도록 Codex outbox에 정리하는 데 한정했다.</p>
+      </details>
+    </section>
+    <section>
+      <h2>검증 상태</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Codex 직접 inbox</td><td>신규 열린 요청 없음</td></tr>
+          <tr><td>활성 peer outbox</td><td>새 Codex 대상 응답 1건 수거</td></tr>
+          <tr><td>파괴적 작업</td><td>없음</td></tr>
+          <tr><td>비용 또는 secret 작업</td><td>없음</td></tr>
+          <tr><td>2nd-B push</td><td>없음</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
