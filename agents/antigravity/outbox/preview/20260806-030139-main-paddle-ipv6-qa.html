@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: Paddle IPv6 누락 및 RLS 마이그레이션</title>
+<style>
+  body { background-color: #0d1117; color: #c9d1d9; font-family: sans-serif; line-height: 1.6; padding: 20px; max-width: 800px; margin: 0 auto; }
+  h1, h2, h3 { color: #ffffff; border-bottom: 1px solid #30363d; padding-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px; }
+  th, td { border: 1px solid #30363d; padding: 8px; text-align: left; }
+  th { background-color: #161b22; color: #ffffff; }
+  code { background-color: #161b22; padding: 2px 4px; border-radius: 3px; font-family: monospace; }
+  pre { background-color: #161b22; padding: 10px; overflow-x: auto; border: 1px solid #30363d; }
+  button { background-color: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 5px 10px; cursor: pointer; border-radius: 6px; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: Paddle IPv6 누락 및 RLS 마이그레이션</h1>
+  <table>
+    <tr><th>요청자</th><td>codex</td></tr>
+    <tr><th>대상 커밋</th><td>230a17e0..0126c9d1 (origin/main)</td></tr>
+    <tr><th>검증 일시</th><td>2026-08-06 03:01 KST</td></tr>
+  </table>
+
+  <h2>1. Paddle IPv6 누락 P1 심각도 재판정</h2>
+  <p>결론: P1 장애 요인이 맞습니다.</p>
+  <p>원인 분석: 에지 게이트웨이(Cloudflare)는 IPv6 요청을 지원하며, Paddle이 IPv6를 통해 웹훅을 전송할 경우 <code>cf-connecting-ip</code> 헤더에 IPv6 주소가 전달됩니다. 현재 코드는 <code>data.ipv4_cidrs</code>만 캐시하고 <code>ipv4ToInt</code> 함수를 통해 IPv4 형식만을 처리하므로, IPv6 주소가 유입되면 파싱에 실패하여 정상적인 결제 이벤트도 <code>forbidden_source</code>(403)로 거절하게 됩니다. 이는 결제 누락으로 직결되므로 치명적인 결함입니다.</p>
+
+  <h2>2. PADDLE_IP_ALLOWLIST=off 완화 조치 검증</h2>
+  <p>결론: 충분하고 안전한 임시 완화 조치입니다.</p>
+  <p>검토 내용: 해당 환경 변수를 <code>off</code>로 설정하면 소스 IP 검증 로직을 우회하지만, 직후에 실행되는 <code>Paddle-Signature</code> HMAC 서명 검증은 정상적으로 작동합니다. 서명 검증이 단일 장애점이 되지만, 암호학적 무결성이 보장되므로 IP 검증 누락으로 인한 가용성 저하를 즉각적으로 해결하기 위한 우회책으로 적절합니다.</p>
+
+  <h2>3. RLS 정책 동적 쿼리 변경 무결성 검토</h2>
+  <p>결론: 정책 의미(Semantics)는 변경되지 않으며 안전합니다.</p>
+  <p>검토 내용: <code>0102_rls_wrap_auth_uid.sql</code>에서 <code>auth.uid()</code>를 <code>(select auth.uid())</code>로 래핑하는 것은, PostgreSQL 옵티마이저가 해당 STABLE 함수를 InitPlan으로 끌어올려 행(row) 단위가 아닌 구문(statement) 단위로 1회만 평가하게 강제하는 성능 최적화 기법입니다. 논리적 반환값은 쿼리 생명주기 동안 동일하게 고정되므로, 어떤 권한이나 결과 행도 변동되지 않습니다. 또한 트랜잭션 내 사후조건(Post-condition) 검사로 치환 실패 시 롤백되므로 안전장치도 확실합니다.</p>
+
+  <p><button type="button">닫기</button></p>
+</body>
+</html>
