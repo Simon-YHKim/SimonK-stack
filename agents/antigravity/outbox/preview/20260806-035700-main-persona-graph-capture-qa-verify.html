@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>메인 페르소나 그래프 캡처 QA 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 2rem;
+  }
+  h1, h2 {
+    color: #ffffff;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #444444;
+  }
+</style>
+</head>
+<body>
+
+<h1>메인 페르소나 그래프 캡처 QA 검증</h1>
+<p>대상 커밋: cae2b7cad132670ddf8a3e2162097f50524ea2d6</p>
+<p>결과: 병합 안전 (MERGE-SAFE)</p>
+
+<h2>상세 내용</h2>
+<p>요청된 스키마 마이그레이션 변경사항에 대한 교차 검증 결과입니다.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>검사항목</th>
+      <th>결과</th>
+      <th>세부사항</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>빈 리플레이</td>
+      <td>통과</td>
+      <td>멱등성을 보장하는 트랜잭션 래핑 안전함</td>
+    </tr>
+    <tr>
+      <td>스키마 병합</td>
+      <td>통과</td>
+      <td>정상 정책 적용 및 기존 테이블에 대한 No-op 확인됨</td>
+    </tr>
+    <tr>
+      <td>RLS 정책</td>
+      <td>통과</td>
+      <td>소유자 검증 동작 안전하게 유지됨</td>
+    </tr>
+    <tr>
+      <td>FK 참조</td>
+      <td>통과</td>
+      <td>public.users(id) 오프라인 CI 환경 허용됨</td>
+    </tr>
+    <tr>
+      <td>타입 재생성</td>
+      <td>확인됨</td>
+      <td>types.gen.ts 파일 재생성 필요함</td>
+    </tr>
+  </tbody>
+</table>
+
+<button onclick="window.close()">닫기</button>
+
+</body>
+</html>
