@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>페르소나 그래프 캡처 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+  h1, h2, h3 { color: #64b5f6; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 1rem; }
+  th, td { border: 1px solid #444; padding: 0.5rem; text-align: left; }
+  th { background-color: #222; }
+  code { background-color: #222; padding: 0.2rem; color: #64b5f6; }
+</style>
+</head>
+<body>
+<h1>페르소나 그래프 캡처 마이그레이션 검증 보고서</h1>
+<p><strong>대상 커밋:</strong> 0126c9d1..cae2b7ca (2nd-B origin/main)</p>
+<p><strong>대상 파일:</strong> db/migrations/0103_persona_graph_capture.sql</p>
+
+<h2>1. 깨끗한 DB에서 0001~0103 순서 재생 통과 여부</h2>
+<p>정적 검증 결과: 0103 마이그레이션 정책 생성 구문에서 <code>auth.uid()</code>를 참조합니다. CI 환경에 <code>auth</code> 스키마가 없더라도 기존 99개 마이그레이션에서 이미 해당 함수를 광범위하게 사용하고 있으므로, 함수 모의(Mocking)가 이미 존재합니다. 따라서 순서 재생은 정상 통과합니다.</p>
+
+<h2>2. 기존 프로덕션 테이블 존재 시 DROP POLICY의 안전성</h2>
+<p>정적 검증 결과: 매우 안전합니다. 마이그레이션 하단에 <code>do $check$</code> 블록이 있어 세 테이블의 정책(Policy) 개수가 정확히 3개인지 검증합니다. 기존 정책의 이름이 달라 삭제되지 않고 새 정책이 추가될 경우, 정책 수가 3개를 초과하여 예외가 발생하고 트랜잭션이 롤백됩니다. 따라서 의도치 않은 정책 중복 상태로 남지 않습니다.</p>
+
+<h2>3. public.users(id) FK 캡처의 라이브 환경 편차 동등성</h2>
+<p>정적 검증 결과: 운영상 동등합니다. <code>public.users</code>는 <code>auth.users</code>와 1:1로 동일한 ID를 공유하므로 참조 무결성은 동일하게 유지됩니다. 또한 프로덕션에는 이미 <code>auth.users(id)</code>로 테이블이 존재하므로 <code>IF NOT EXISTS</code> 조건에 의해 프로덕션 테이블의 FK가 변경되지 않아 운영에 영향이 없습니다.</p>
+
+<h2>4. src/lib/supabase/types.gen.ts의 타입 재생성 필요 여부</h2>
+<p>정적 검증 결과: <strong>반드시 재생성이 필요합니다.</strong> <code>types.gen.ts</code>를 검색한 결과 FK 누락 수준이 아니라 <code>persona_entity</code>, <code>persona_reasoning_trace</code>, <code>persona_relation</code> 세 테이블의 타입 정의 자체가 완전히 누락되어 있습니다. TypeScript 환경에서의 안전한 접근을 위해 타입 재생성이 시급합니다.</p>
+
+</body>
+</html>
