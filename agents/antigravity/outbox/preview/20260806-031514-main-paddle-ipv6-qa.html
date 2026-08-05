@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 보고서</title>
+<style>
+  body { background-color: #111111; color: #EEEEEE; font-family: sans-serif; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td, h1, h2 { border-bottom: 1px solid #444444; padding: 10px; }
+  th { text-align: left; background-color: #111111; }
+  button { background-color: #444444; color: #EEEEEE; border: none; padding: 10px; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>검증 결과 보고</h1>
+  <h2>대상: Paddle IPv6 웹훅 및 RLS 정책</h2>
+  <table>
+    <tr><th>항목</th><th>결과</th></tr>
+    <tr><td>IPv6 누락</td><td>결제 이벤트 유실 가능성 높음</td></tr>
+    <tr><td>IP 허용 목록 비활성화</td><td>임시 조치로 유효함</td></tr>
+    <tr><td>RLS 구조 변경</td><td>권한 변경 없음, 성능 저하 가능성 있음</td></tr>
+  </table>
+  <p><button>확인 완료</button></p>
+</body>
+</html>
