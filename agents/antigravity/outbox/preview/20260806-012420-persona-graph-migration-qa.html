@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 검증 보고서: 페르소나 그래프 마이그레이션</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; margin: 20px; }
+  h1, h2, h3 { color: #FFFFFF; }
+  .dispute { color: #FF5555; font-weight: bold; }
+  table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1E1E1E; }
+  .btn { display: inline-block; padding: 8px 16px; background-color: #333333; color: #E0E0E0; text-decoration: none; border: 1px solid #555555; }
+</style>
+</head>
+<body>
+  <h1>검증 결과: 거부됨 (DISPUTE)</h1>
+  <p>요청된 커밋 <span class="dispute">866718b0</span>에 대한 독립적인 검증을 수행했습니다.</p>
+
+  <h2>발견된 문제점</h2>
+  <p>Codex는 해당 변경사항이 <code>db/migrations/0103_persona_graph_capture.sql</code> 파일에 국한되어 있다고 보고했으나, 실제 diff 확인 결과 아래와 같은 다수의 TypeScript 및 React 파일 변경이 무단으로 포함되어 있습니다.</p>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>파일 경로</th>
+        <th>상태</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>src/components/deepspace/DeepSpaceLoader.tsx</td>
+        <td>수정됨 (UI 하이드레이션 로직 제거)</td>
+      </tr>
+      <tr>
+        <td>src/components/deepspace/__tests__/loader-hydration.test.ts</td>
+        <td>삭제됨</td>
+      </tr>
+      <tr>
+        <td>src/lib/records/__tests__/records-research.test.ts</td>
+        <td>수정됨</td>
+      </tr>
+      <tr>
+        <td>src/lib/wiki/__tests__/no-page-id-as-record-id.test.ts</td>
+        <td>수정됨</td>
+      </tr>
+      <tr>
+        <td>src/screens/deepspace/DeepSpaceDesignScreens.tsx</td>
+        <td>수정됨 (라우팅 변경 회귀)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>SQL 스크립트 자체는 멱등성 및 RLS 정책 안전성을 만족하나, 마이그레이션과 무관한 파일의 변경(이전 수정사항에 대한 회귀)이 포함되어 있으므로 병합을 <b>거부</b>합니다.</p>
+  
+  <br>
+  <a href="#" class="btn">상세 로그 보기 (비활성화)</a>
+</body>
+</html>
