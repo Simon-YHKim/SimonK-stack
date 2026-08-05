@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>페르소나 그래프 캡처 QA 결과</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: sans-serif;
+            margin: 2rem;
+        }
+        h1, h2 {
+            color: #4db8ff;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        th, td {
+            border: 1px solid #4db8ff;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        th {
+            background-color: #1a1a1a;
+        }
+        button {
+            background-color: #4db8ff;
+            color: #121212;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>페르소나 그래프 캡처 QA 결과</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>항목</th>
+                <th>내용</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>파일명</td>
+                <td>db/migrations/0103_persona_graph_capture.sql</td>
+            </tr>
+            <tr>
+                <td>대상 커밋</td>
+                <td>cae2b7cad132670ddf8a3e2162097f50524ea2d6</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>검토 결과</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>검토 항목</th>
+                <th>결과 및 상세 내용</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>빈 데이터베이스 재실행 안전성</td>
+                <td>안전함. 모든 구문이 존재 여부를 확인하며, 정책은 트랜잭션 내에서 삭제 후 재생성되어 멱등성을 보장함.</td>
+            </tr>
+            <tr>
+                <td>운영 환경 무영향성</td>
+                <td>확인됨. 기존 데이터베이스의 스키마와 동일하게 작성되어 무영향 또는 정상화 동작을 수행함.</td>
+            </tr>
+            <tr>
+                <td>보안 정책 소유자 전용 확인</td>
+                <td>안전함. 행 수준 보안이 적용되었고 사용자 식별자 대조가 명확함.</td>
+            </tr>
+            <tr>
+                <td>외래 키 대체 적절성</td>
+                <td>적절함. 인증 스키마 대신 공개 사용자 테이블을 참조하여 의존성 문제를 해결함.</td>
+            </tr>
+            <tr>
+                <td>타입 재생성 필요 여부</td>
+                <td>필요함. 새로운 관계가 생성되었으므로 타입 파일 업데이트가 요구됨.</td>
+            </tr>
+        </tbody>
+    </table>
+    <button>확인 완료</button>
+</body>
+</html>
