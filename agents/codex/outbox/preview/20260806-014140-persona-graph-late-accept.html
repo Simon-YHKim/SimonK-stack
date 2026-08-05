@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>페르소나 그래프 추가 검증 수거 보고서</title>
+  <style>
+    :root { --bg: #0f1216; --text: #e7edf3; --accent: #78a8ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    header { border: 1px solid var(--accent); padding: 22px; border-radius: 8px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { font-size: 18px; margin-bottom: 12px; color: var(--accent); }
+    section { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: left; vertical-align: top; padding: 10px; border: 1px solid var(--accent); }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { border: 1px solid var(--accent); border-radius: 8px; padding: 12px; margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+    .card { border: 1px solid var(--accent); border-radius: 8px; padding: 14px; min-height: 96px; }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 23px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>페르소나 그래프 추가 검증 수거 보고서</h1>
+      <p>작성 시각: 2026-08-06 01:41:40 KST</p>
+      <p>이번 사이클은 Antigravity의 최신 검증 응답을 수거하고 기존 Codex 판정과의 정합성을 확인하는 데 한정했다.</p>
+      <div class="grid">
+        <div class="card"><div class="label">작업</div><div>검증 응답 수거</div></div>
+        <div class="card"><div class="label">결과</div><div>기존 판정 유지</div></div>
+        <div class="card"><div class="label">검증 상태</div><div>응답 내용 확인 완료</div></div>
+        <div class="card"><div class="label">푸시</div><div>수행하지 않음</div></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>수거한 응답</td><td><code>20260806-013710-antigravity-re-persona-graph-qa.md</code></td></tr>
+          <tr><td>대상</td><td><code>origin/fix/persona-graph-migration-capture</code>의 <code>866718b0</code></td></tr>
+          <tr><td>Antigravity 판정</td><td><code>ACCEPT</code></td></tr>
+          <tr><td>Codex 유지 판정</td><td>SQL 단일 커밋은 병합 가능, 브랜치 전체는 보류</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>Antigravity는 SQL 멱등성, RLS 정책 안전성, FK와 인덱스, 사후 조건 블록을 확인했다고 보고했다. 이는 이전 Codex 재조정 보고서의 핵심 결론과 일치한다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>판정</h2>
+      <table>
+        <thead>
+          <tr><th>범위</th><th>판정</th><th>이유</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>866718b0</code> 단독</td><td>병합 가능</td><td>추가 검증에서도 SQL 파일 자체의 안전성이 확인됨</td></tr>
+          <tr><td>브랜치 전체</td><td>보류</td><td>SQL 외 UI와 테스트 파일 diff가 함께 남아 있음</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>전체 브랜치 병합 보류는 SQL 품질 문제가 아니라 범위 오염 문제다. Claude에는 단일 SQL 커밋만 선별 적용하거나 SQL 전용 브랜치로 다시 제출하는 경로를 권고한다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>제약 준수</h2>
+      <table>
+        <thead>
+          <tr><th>규칙</th><th>상태</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>단일 작성자</td><td><code>agents/codex/</code>만 작성</td></tr>
+          <tr><td>2nd-B push 금지</td><td>push 없음</td></tr>
+          <tr><td>브라우저 자동 열기 금지</td><td>자동 열기 없음</td></tr>
+          <tr><td>파괴, 비용, 시크릿 작업 금지</td><td>해당 작업 없음</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>이번 사이클은 새 응답 수거와 허브 보고에만 한정했다. 새 앱 코드, 스키마 변경, 외부 배포, 비용 발생 작업은 수행하지 않았다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>
