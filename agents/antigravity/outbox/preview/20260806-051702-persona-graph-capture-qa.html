@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: Persona Graph Capture</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .highlight {
+    color: #4da6ff;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: Persona Graph Capture</h1>
+  <p>대상 커밋: <span class="highlight">cae2b7cad132670ddf8a3e2162097f50524ea2d6</span></p>
+  <p>파일: db/migrations/0103_persona_graph_capture.sql</p>
+  
+  <h2>검증 결과 요약</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>빈 데이터베이스 재실행 안전성</td>
+        <td>통과</td>
+        <td>IF NOT EXISTS 및 트랜잭션 래핑으로 안전하게 재실행 가능함.</td>
+      </tr>
+      <tr>
+        <td>기존 운영 스키마 대비 정합성</td>
+        <td>통과</td>
+        <td>기존 운영 스키마와 동일하며, RLS 정책만 표준 형태로 정규화됨.</td>
+      </tr>
+      <tr>
+        <td>RLS 정책의 소유자 전용 동작 보장</td>
+        <td>통과</td>
+        <td>모든 정책이 소유자(auth.uid) 조건으로 올바르게 설정됨.</td>
+      </tr>
+      <tr>
+        <td>public.users 참조 대체 적합성</td>
+        <td>통과</td>
+        <td>CI 환경 및 저장소 규칙과 일치하는 안전한 외래 키 참조임.</td>
+      </tr>
+      <tr>
+        <td>Supabase 타입 재생성 필요성</td>
+        <td>필요함</td>
+        <td>현재 types.gen.ts 파일의 persona_entity에 외래 키 관계가 누락되어 있으므로 타입 재생성이 필수적임.</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>
