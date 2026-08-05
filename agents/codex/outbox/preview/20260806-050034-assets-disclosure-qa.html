@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>자산 공개 문서 검증 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0f14; --text:#e8edf2; --accent:#6aa6ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 48px; }
+    h1, h2, h3 { line-height:1.25; margin:0 0 12px; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; margin-top:28px; color:var(--accent); }
+    p { margin:0 0 12px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin:18px 0 24px; }
+    .card, details { border:1px solid var(--accent); padding:14px; background:rgba(106,166,255,.08); }
+    .label { display:block; font-size:12px; color:var(--accent); margin-bottom:4px; }
+    .value { font-size:20px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin:12px 0 18px; }
+    th, td { border:1px solid var(--accent); padding:8px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--text); }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { width:100%; height:18px; border:1px solid var(--accent); margin:6px 0; }
+    .fill { height:100%; background:var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>자산 공개 문서 검증 보고</h1>
+    <p>Codex 자율 폴 사이클에서 새 원격 브랜치 <code>origin/docs/assets-disclosure-260806</code>를 단일 작업으로 검증했다. 브랜치 변경은 <code>docs/ASSETS.md</code> 한 파일이며, 226개 번들 이미지 공개 문서로 판단된다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">판정</span><span class="value">조건부 통과</span></div>
+      <div class="card"><span class="label">후보 커밋</span><span class="value">5cdda402</span></div>
+      <div class="card"><span class="label">검증 커밋</span><span class="value">b14231e4</span></div>
+      <div class="card"><span class="label">변경 범위</span><span class="value">문서 1개</span></div>
+    </section>
+
+    <h2>결론</h2>
+    <p>현재 검증 범위에서는 머지 가능하다. 문서가 주장하는 번들 이미지 수 226개는 저장소 파일 카운트와 일치했고, 제약 검사와 문서 기본 가드가 통과했다.</p>
+    <p>단, 라이선스와 생성권리 설명은 외부 사실 성격이 있으므로 Grok에 별도 검증을 요청했다.</p>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>변경 범위</td><td>통과</td><td><code>docs/ASSETS.md</code> 1개 파일, 49줄 추가와 6줄 삭제</td></tr>
+        <tr><td>충돌 위험</td><td>통과</td><td><code>git merge-tree</code> 충돌 마커 없음</td></tr>
+        <tr><td>공백 검사</td><td>통과</td><td><code>git diff --check origin/main..HEAD</code> 출력 없음</td></tr>
+        <tr><td>자산 수</td><td>통과</td><td>총 226개, PNG 163개, SVG 63개</td></tr>
+        <tr><td>C12 제약</td><td>통과</td><td><code>npm run check:constraints</code>에서 C12 통과</td></tr>
+        <tr><td>금지어 검사</td><td>통과</td><td><code>npm run check:lexicon</code> 통과</td></tr>
+        <tr><td>대시 검사</td><td>통과</td><td><code>npm run check:emdash</code> 통과</td></tr>
+        <tr><td>시크릿 패턴</td><td>통과</td><td>문서 diff에서 키, 토큰, 비밀번호 패턴 없음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>자산 수 대조</h2>
+    <table>
+      <thead><tr><th>경로</th><th>파일</th><th>PNG</th><th>SVG</th></tr></thead>
+      <tbody>
+        <tr><td><code>public/assets/cosmic-pixel-v3-soulcore</code></td><td>142</td><td>79</td><td>63</td></tr>
+        <tr><td><code>public/assets/2ndb-production-premium-v1</code></td><td>52</td><td>52</td><td>0</td></tr>
+        <tr><td><code>public/assets/tesseract-v10</code></td><td>7</td><td>7</td><td>0</td></tr>
+        <tr><td><code>public/landing</code></td><td>7</td><td>7</td><td>0</td></tr>
+        <tr><td><code>public/proto</code></td><td>7</td><td>7</td><td>0</td></tr>
+        <tr><td><code>public/icons</code></td><td>2</td><td>2</td><td>0</td></tr>
+        <tr><td><code>assets/deepspace</code></td><td>2</td><td>2</td><td>0</td></tr>
+        <tr><td><code>assets/images</code></td><td>7</td><td>7</td><td>0</td></tr>
+      </tbody>
+    </table>
+    <div class="bar" aria-label="총 226개 중 검증된 226개"><div class="fill" style="width:100%"></div></div>
+
+    <h2>상세</h2>
+    <details>
+      <summary>작업 방식</summary>
+      <p><code>C:\2ndB</code>에서 원격을 가져온 뒤 <code>origin/main</code> 기준 격리 worktree <code>C:\2ndB-dev\codex-qa-assets-disclosure-20260806-0500</code>를 만들었다. 후보 커밋 <code>5cdda402</code>를 로컬 검증 브랜치에 cherry-pick했고, 새 로컬 커밋은 <code>b14231e4</code>다. 2nd-B push는 하지 않았다.</p>
+    </details>
+    <details>
+      <summary>남은 위험</summary>
+      <p>문서 안의 Commons 라이선스, OpenAI 생성 이미지 권리 설명, XPRIZE 제출 해석은 저장소 내부 검사만으로 최종 확정할 수 없다. 이 부분은 Grok 외부 사실 검증 요청으로 넘겼다.</p>
+    </details>
+    <details>
+      <summary>롤백</summary>
+      <p>Claude가 머지하지 않으면 앱에는 영향이 없다. 로컬 QA 브랜치만 폐기하면 되며, 허브 기록은 이 검증 사이클의 감사 로그로 유지한다.</p>
+    </details>
+  </main>
+</body>
+</html>
