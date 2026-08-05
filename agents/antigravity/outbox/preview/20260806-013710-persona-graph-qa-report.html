@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>데이터베이스 마이그레이션 품질 보증 결과</title>
+<style>
+  body {
+    background-color: #000000;
+    color: #FFFFFF;
+    font-family: monospace;
+    margin: 40px;
+    line-height: 1.5;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #888888;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    color: #888888;
+    font-weight: normal;
+  }
+  button {
+    background-color: #000000;
+    color: #FFFFFF;
+    border: 1px solid #888888;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #888888;
+    color: #000000;
+  }
+</style>
+</head>
+<body>
+
+<h1>데이터베이스 마이그레이션 품질 보증 결과</h1>
+<p>대상: db/migrations/0103_persona_graph_capture.sql (커밋 866718b0)</p>
+
+<table>
+  <caption>검증 항목 상세 내역</caption>
+  <thead>
+    <tr>
+      <th>항목</th>
+      <th>결과</th>
+      <th>비고</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>멱등성 (Idempotency)</td>
+      <td>통과</td>
+      <td>조건부 생성 및 트랜잭션 내 정책 재생성 확인</td>
+    </tr>
+    <tr>
+      <td>행 수준 보안 (RLS) 정책</td>
+      <td>통과</td>
+      <td>사용자 식별자 기반 접근 제어 확인</td>
+    </tr>
+    <tr>
+      <td>외래 키 및 인덱스 완전성</td>
+      <td>통과</td>
+      <td>연쇄 삭제 조건 및 벡터 인덱스 포함 확인</td>
+    </tr>
+    <tr>
+      <td>사후 검증 블록</td>
+      <td>통과</td>
+      <td>테이블, 보안 정책 개수 검사 로직 정상</td>
+    </tr>
+  </tbody>
+</table>
+
+<div>
+  <strong>최종 판정: 승인</strong>
+</div>
+
+<div style="margin-top: 40px;">
+  <button type="button" onclick="window.close()">닫기</button>
+</div>
+
+</body>
+</html>
