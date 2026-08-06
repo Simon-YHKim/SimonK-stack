@@ -1,18 +1,18 @@
 {
-    "name":  "codex",
-    "role":  "UI/UX + images + tests",
-    "skills":  [
-                   "ui-ux",
-                   "images",
-                   "aesthetics",
-                   "i18n",
-                   "multimodal-gen",
-                   "test-authoring",
-                   "verify-safety"
-               ],
-    "status":  "active",
-    "model":  "gpt-5.5",
-    "effort":  "medium",
-    "reroute_to":  "claude",
-    "updated":  "2026-07-30T03:34:42 KST"
+  "name": "codex",
+  "role": "UI/UX + images + tests",
+  "skills": [
+    "ui-ux",
+    "images",
+    "aesthetics",
+    "i18n",
+    "multimodal-gen",
+    "test-authoring",
+    "verify-safety"
+  ],
+  "status": "active",
+  "model": "gpt-5.5",
+  "effort": "medium",
+  "reroute_to": "claude",
+  "updated": "2026-08-06T10:53:25 KST"
 }
