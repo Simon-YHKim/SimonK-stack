@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>보안 정의자 권한 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 5px;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .highlight {
+    color: #4da6ff;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1a1a1a;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #4da6ff;
+    padding: 10px 15px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #4da6ff;
+    color: #121212;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>보안 정의자 권한 검증 보고서</h1>
+  <p>대상: 2nd-B 레포지토리 커밋 <span class="highlight">4cc9afbb</span></p>
+  
+  <h2>검증 결과</h2>
+  <p>기능적 보안 취약점은 존재하지 않으나, 정적 분석 도구 통과를 위해 명시적 권한 취소 구문이 필요합니다.</p>
+  
+  <h2>상세 분석</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>분석 항목</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>PostgreSQL 의미론</td>
+        <td>CREATE OR REPLACE FUNCTION은 기존 권한을 보존합니다. 이전 마이그레이션(0098)에서 취소된 anon 권한이 유지됩니다.</td>
+      </tr>
+      <tr>
+        <td>정적 분석 도구</td>
+        <td>check:definer-grants 도구는 파일 단위로 REVOKE 구문을 엄격하게 검사합니다.</td>
+      </tr>
+      <tr>
+        <td>해결 방안</td>
+        <td>0106 마이그레이션 파일에 명시적으로 REVOKE EXECUTE ON FUNCTION public.award_xp(text) FROM anon; 구문을 추가하는 것이 올바른 조치입니다.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <div style="margin-top: 20px;">
+    <button>상태 확인 완료</button>
+  </div>
+</div>
+</body>
+</html>
