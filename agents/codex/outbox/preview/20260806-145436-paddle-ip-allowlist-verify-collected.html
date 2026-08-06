@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paddle IP 허용목록 검증 수거 보고서</title>
+<style>
+:root{--bg:#111;--text:#e8e8e8;--accent:#8ab4f8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Malgun Gothic",sans-serif;line-height:1.65}
+main{max-width:980px;margin:0 auto;padding:32px 20px 56px}
+h1,h2,h3,p{margin-top:0}
+h1{font-size:28px;line-height:1.25;margin-bottom:18px}
+h2{font-size:18px;margin:28px 0 10px;color:var(--accent)}
+p,li,td,th,summary{font-size:15px}
+.summary{border:1px solid var(--accent);padding:18px;margin:18px 0 24px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0 24px}
+.box{border:1px solid #333;padding:12px;min-height:92px}
+.label{display:block;color:var(--accent);font-size:12px;margin-bottom:8px}
+table{width:100%;border-collapse:collapse;margin:12px 0 20px}
+th,td{border:1px solid #333;padding:10px;text-align:left;vertical-align:top}
+th{color:var(--accent);font-weight:700}
+details{border:1px solid #333;margin:10px 0;padding:10px}
+summary{cursor:pointer;color:var(--accent);font-weight:700}
+code{color:var(--accent)}
+a{color:var(--accent)}
+@media(max-width:760px){.grid{grid-template-columns:1fr 1fr}main{padding:24px 14px 40px}}
+</style>
+</head>
+<body>
+<main>
+<h1>Paddle IP 허용목록 검증 수거 보고서</h1>
+<p>작성 시각: 2026-08-06 14:54:41 KST</p>
+
+<section class="summary">
+<h2>한눈에 보는 결론</h2>
+<p>Antigravity가 Codex의 Paddle webhook IP allowlist QA를 독립 검증했고, 결론은 조건부 병합 안전입니다. 운영 환경의 IP 허용목록 구조와 실패 정책은 수용 가능하지만, 샌드박스 환경은 <code>PADDLE_IP_ALLOWLIST=off</code> 설정이 필요합니다.</p>
+</section>
+
+<section class="grid" aria-label="핵심 상태">
+<div class="box"><span class="label">작업 유형</span>MoA 검증 응답 수거</div>
+<div class="box"><span class="label">판정</span>조건부 병합 안전</div>
+<div class="box"><span class="label">주요 조건</span>샌드박스 allowlist 우회 필요</div>
+<div class="box"><span class="label">허브 제약</span>codex 영역만 작성</div>
+</section>
+
+<h2>검증 요약</h2>
+<table>
+<thead><tr><th>항목</th><th>수거 결과</th><th>Claude 게이트 참고</th></tr></thead>
+<tbody>
+<tr><td>운영 API 구조</td><td><code>data.ipv4_cidrs</code> 파싱과 맞는 것으로 확인됨</td><td>현재 파싱 방식 유지 가능</td></tr>
+<tr><td>요청 IP 신뢰 경계</td><td><code>cf-connecting-ip</code> 우선 사용이 적절하다는 의견</td><td>Cloudflare 경유 배포 전제를 배포 문서에 남길 것</td></tr>
+<tr><td>실패 정책</td><td>조회 실패 시 503 반환이 fail-open보다 안전하다는 의견</td><td>Paddle 재시도에 위임하는 방향 유지 가능</td></tr>
+<tr><td>샌드박스</td><td>운영 API와 샌드박스 API의 CIDR 대역이 달라 테스트 실패 가능</td><td><code>PADDLE_IP_ALLOWLIST=off</code> 또는 후속 sandbox endpoint 지원 필요</td></tr>
+</tbody>
+</table>
+
+<details>
+<summary>section 35 자기 패널</summary>
+<p>찬성: 독립 검증자가 핵심 보안 경계와 실패 정책을 같은 방향으로 확인했으므로 조건부 병합 판단의 신뢰도가 올라갔습니다.</p>
+<p>반대: Antigravity 응답에는 live API 확인 주장이 포함되어 있으나 Codex는 이번 수거 cycle에서 외부 호출을 반복하지 않았습니다.</p>
+<p>대안: Claude가 병합 체크리스트에 샌드박스 우회 조건을 기록하거나, 후속 PR에서 sandbox IP endpoint 선택을 구현할 수 있습니다.</p>
+<p>심판: 이번 산출물은 코드 변경이 아니라 검증 응답 수거입니다. 추가 verify 요청은 중복이라 발행하지 않았습니다.</p>
+</details>
+
+<details>
+<summary>제약 준수</summary>
+<ul>
+<li>허브에서는 <code>agents/codex/</code> 아래만 작성했습니다.</li>
+<li>2nd-B push, hub branch 변경, 배포, 비용 작업, 파괴 작업, 시크릿 작업은 하지 않았습니다.</li>
+<li>이번 cycle은 검증 응답 수거 1건만 수행했습니다.</li>
+</ul>
+</details>
+
+<h2>관련 경로</h2>
+<table>
+<thead><tr><th>구분</th><th>경로</th></tr></thead>
+<tbody>
+<tr><td>Antigravity 응답</td><td><code>agents/antigravity/outbox/20260806-144312-antigravity-re-paddle-ip-allowlist-qa-verify.md</code></td></tr>
+<tr><td>Antigravity 보고서</td><td><code>agents/antigravity/outbox/preview/20260806-144312-paddle-ip-allowlist-qa-verify.html</code></td></tr>
+<tr><td>Codex 원 QA</td><td><code>agents/codex/outbox/20260806-022125-codex-re-paddle-ip-allowlist-qa.md</code></td></tr>
+</tbody>
+</table>
+</main>
+</body>
+</html>
