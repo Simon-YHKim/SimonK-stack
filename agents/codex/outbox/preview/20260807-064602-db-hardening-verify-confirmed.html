@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DB 하드닝 검증 회신 수거 보고</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --text: #f1f5f9;
+      --accent: #7aa7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.58;
+    }
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 44px;
+    }
+    header {
+      border: 1px solid var(--accent);
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      font-size: 26px;
+      line-height: 1.25;
+      margin-bottom: 10px;
+    }
+    h2 {
+      font-size: 18px;
+      margin: 0 0 12px;
+      color: var(--accent);
+    }
+    section {
+      border: 1px solid var(--accent);
+      padding: 18px;
+      margin-top: 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      vertical-align: top;
+      word-break: break-word;
+    }
+    th {
+      text-align: left;
+      width: 28%;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    code {
+      color: var(--accent);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95em;
+    }
+    details {
+      border: 1px solid var(--accent);
+      padding: 12px;
+      margin-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .card {
+      border: 1px solid var(--accent);
+      padding: 12px;
+      min-height: 94px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 7px;
+    }
+    .value {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 12px 0 0;
+    }
+    button {
+      border: 1px solid var(--accent);
+      background: var(--bg);
+      color: var(--text);
+      padding: 8px 12px;
+      font: inherit;
+      cursor: pointer;
+    }
+    button[aria-pressed="true"] {
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 700;
+    }
+    .bar {
+      width: 100%;
+      height: 12px;
+      border: 1px solid var(--accent);
+      margin-top: 8px;
+    }
+    .bar span {
+      display: block;
+      height: 100%;
+      width: 100%;
+      background: var(--accent);
+    }
+    .en, .expert { display: none; }
+    body.mode-expert .easy { display: none; }
+    body.mode-expert .expert { display: block; }
+    body.lang-en .ko { display: none; }
+    body.lang-en .en { display: block; }
+    @media (max-width: 720px) {
+      main { width: min(100% - 20px, 980px); padding-top: 18px; }
+      .grid { grid-template-columns: 1fr 1fr; }
+      th, td { display: block; width: 100%; }
+    }
+  </style>
+</head>
+<body class="lang-ko mode-easy">
+  <main>
+    <header>
+      <h1 class="ko">DB 하드닝 검증 회신 수거 보고</h1>
+      <h1 class="en">DB hardening verification collection report</h1>
+      <p class="ko easy">이번 cycle에서는 Antigravity가 새로 보낸 검증 회신을 확인했고, Codex의 기존 보류 판정이 맞다는 점을 기록했습니다.</p>
+      <p class="ko expert">이번 cycle의 범위는 Antigravity의 `20260807-064100-antigravity-re-db-hardening-qa` 회신 수거와 merge gate용 판정 정리입니다.</p>
+      <p class="en easy">This cycle collected Antigravity's new verification response and recorded that Codex's existing hold verdict still stands.</p>
+      <p class="en expert">This cycle collected Antigravity's `20260807-064100-antigravity-re-db-hardening-qa` response and summarized the merge-gate verdict.</p>
+      <div class="controls" aria-label="보기 설정">
+        <button type="button" data-lang="ko" aria-pressed="true" aria-label="한국어 보기">한국어</button>
+        <button type="button" data-lang="en" aria-pressed="false" aria-label="영어 보기">영어</button>
+        <button type="button" data-mode="easy" aria-pressed="true" aria-label="쉬운 설명 보기">쉬운 설명</button>
+        <button type="button" data-mode="expert" aria-pressed="false" aria-label="전문가 설명 보기">전문가 설명</button>
+      </div>
+    </header>
+
+    <section>
+      <h2 class="ko">한눈에 보는 결과</h2>
+      <h2 class="en">Result at a glance</h2>
+      <div class="grid">
+        <div class="card"><span class="label ko">판정</span><span class="label en">Verdict</span><div class="value">HOLD</div></div>
+        <div class="card"><span class="label ko">대상</span><span class="label en">Target</span><div class="value">4cc9afbb</div></div>
+        <div class="card"><span class="label ko">검증</span><span class="label en">Verification</span><div class="value">재현됨</div></div>
+        <div class="card"><span class="label ko">위험</span><span class="label en">Risk</span><div class="value">보안 권한</div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="ko">핵심 내용</h2>
+      <h2 class="en">Key point</h2>
+      <p class="ko easy">문제는 데이터베이스 함수 권한입니다. 새 migration이 특별 권한으로 실행되는 함수를 만들지만, 익명 사용자 실행 권한을 같은 파일에서 명확히 막지 않았습니다.</p>
+      <p class="ko expert">`db/migrations/0106_award_xp_once_only_race.sql`은 `SECURITY DEFINER` 함수 `public.award_xp(text)`를 재정의하지만 같은 파일 내 `REVOKE EXECUTE ON FUNCTION ... FROM anon`이 없어 repo의 `check:definer-grants` 보안 가드에 걸립니다.</p>
+      <p class="en easy">The issue is database function permission. The migration creates a privileged function but does not clearly block anonymous execution in the same file.</p>
+      <p class="en expert">`db/migrations/0106_award_xp_once_only_race.sql` redefines `public.award_xp(text)` as a `SECURITY DEFINER` function without same-file `REVOKE EXECUTE ON FUNCTION ... FROM anon`, so the repository security guard fails.</p>
+      <details>
+        <summary><span class="ko">자세히</span><span class="en">Details</span></summary>
+        <table>
+          <tr><th class="ko">항목</th><th class="en">Item</th><td class="ko">내용</td><td class="en">Content</td></tr>
+          <tr><th>브랜치</th><td colspan="3"><code>origin/Simon-YHKim-patch-1</code></td></tr>
+          <tr><th>커밋</th><td colspan="3"><code>4cc9afbb</code></td></tr>
+          <tr><th>검증자</th><td colspan="3"><code>Antigravity</code></td></tr>
+          <tr><th>실패 검사</th><td colspan="3"><code>npm run check:definer-grants</code></td></tr>
+          <tr><th>필요 조치</th><td colspan="3"><code>REVOKE EXECUTE ON FUNCTION ... FROM anon</code> 추가</td></tr>
+        </table>
+      </details>
+    </section>
+
+    <section>
+      <h2 class="ko">검증 상태</h2>
+      <h2 class="en">Verification status</h2>
+      <p class="ko easy">독립 검증이 같은 문제를 다시 확인했으므로, 이 브랜치는 수정 전에는 합치면 안 됩니다.</p>
+      <p class="ko expert">Codex의 기존 HOLD 사유와 Antigravity의 재현 결과가 일치합니다. 추가 검증 요청은 만들지 않았습니다. 이번 산출물은 이미 요청된 MoA 회신의 수거이며, 새 schema 변경이나 merge diff를 생성하지 않았습니다.</p>
+      <p class="en easy">The independent verification confirmed the same issue, so this branch should not be merged before remediation.</p>
+      <p class="en expert">Codex's existing HOLD reason matches Antigravity's reproduction. No additional verification request was filed because this deliverable only collects the already-requested MoA response and does not create a new schema change or merge diff.</p>
+      <div class="bar" aria-label="검증 재현률"><span></span></div>
+    </section>
+
+    <section>
+      <h2 class="ko">제약 준수</h2>
+      <h2 class="en">Constraint compliance</h2>
+      <p class="ko easy">이번 cycle에서는 보고와 상태 갱신만 했습니다. 2nd-B에 push하지 않았고, 위험한 작업이나 비용 작업도 하지 않았습니다.</p>
+      <p class="ko expert">허브에서는 `agents/codex/` 아래 파일만 작성했습니다. hub branch 전환, 2nd-B push, destructive action, cost action, secret handling은 수행하지 않았습니다.</p>
+      <p class="en easy">This cycle only reported and updated status. No 2nd-B push, risky action, or cost action was performed.</p>
+      <p class="en expert">Only files under `agents/codex/` were written in the hub. No hub branch switch, 2nd-B push, destructive action, cost action, or secret handling was performed.</p>
+    </section>
+
+    <section>
+      <h2 class="ko">기록 시간</h2>
+      <h2 class="en">Recorded time</h2>
+      <p>2026-08-07 06:46:02 KST</p>
+    </section>
+  </main>
+  <script>
+    const b=[...document.querySelectorAll('button')];
+    b.forEach(x=>x.onclick=()=>{const k=x.dataset.lang?'lang':'mode',v=x.dataset.lang||x.dataset.mode;
+      document.body.classList.remove(k==='lang'?'lang-ko':'mode-easy',k==='lang'?'lang-en':'mode-expert');
+      document.body.classList.add(`${k}-${v}`);
+      b.filter(y=>y.dataset[k]).forEach(y=>y.setAttribute('aria-pressed',String(y===x)));
+    });
+  </script>
+</body>
+</html>
