@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DB 하드닝 검증 정정 수거 보고서</title>
+  <style>
+    :root { --bg:#111318; --text:#e8edf2; --accent:#7fb3ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:40px 20px 56px; }
+    header { border:1px solid var(--accent); padding:24px; border-radius:6px; }
+    h1, h2, h3 { margin:0 0 12px; letter-spacing:0; }
+    p { margin:0 0 12px; }
+    .meta { color:var(--accent); font-size:14px; }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; margin:20px 0; }
+    .card { border:1px solid var(--accent); border-radius:6px; padding:14px; min-height:108px; }
+    .label { color:var(--accent); font-size:13px; margin-bottom:8px; }
+    table { width:100%; border-collapse:collapse; margin:18px 0; }
+    th, td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    details { border:1px solid var(--accent); border-radius:6px; padding:12px 14px; margin:12px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    .bar { width:100%; height:12px; border:1px solid var(--accent); margin-top:8px; }
+    .fill { height:100%; background:var(--accent); width:100%; }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } }
+    @media (max-width:520px) { .grid { grid-template-columns:1fr; } main { padding:24px 14px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="meta">작성 시각: 2026-08-07 06:59:39 KST</p>
+      <h1>DB 하드닝 검증 정정 수거 보고서</h1>
+      <p>Antigravity의 추가 검증 응답을 수거했고, 기존 HOLD 판정의 사유를 더 정확히 분리했다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <p>현재 branch는 그대로 merge하지 않는다.</p>
+      </div>
+      <div class="card">
+        <div class="label">정정</div>
+        <p>즉시 권한 노출이 아니라 linter 계약 미충족이다.</p>
+      </div>
+      <div class="card">
+        <div class="label">수정</div>
+        <p>같은 migration 안에 명시적 revoke를 추가한다.</p>
+      </div>
+      <div class="card">
+        <div class="label">범위</div>
+        <p>수거와 판정 기록만 수행했다.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>판정 표</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>판정</th>
+            <th>근거</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>대상</td>
+            <td><code>origin/Simon-YHKim-patch-1</code> 커밋 <code>4cc9afbb</code></td>
+            <td>Codex 기존 QA와 Antigravity 추가 검증 응답</td>
+          </tr>
+          <tr>
+            <td>DB 런타임 권한</td>
+            <td>즉시 노출 문제로 보지는 않는다</td>
+            <td><code>CREATE OR REPLACE FUNCTION</code>은 기존 grant/revoke 상태를 보존한다는 검증</td>
+          </tr>
+          <tr>
+            <td>Repo 보안 계약</td>
+            <td>미충족</td>
+            <td><code>check:definer-grants</code>가 같은 파일 안의 명시적 revoke를 요구</td>
+          </tr>
+          <tr>
+            <td>Merge gate</td>
+            <td>HOLD 유지</td>
+            <td>CI 보안 linter 계약을 만족시키지 못한 상태</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <div class="bar" aria-label="검증 수거 완료"><div class="fill"></div></div>
+      <p class="meta">검증 응답 수거 완료. 추가 2nd-B 작업, push, 파괴적 작업, 비용 작업, secret 작업 없음.</p>
+    </section>
+
+    <details>
+      <summary>자세히</summary>
+      <p>기존 Codex 보고서는 `anon` revoke 누락을 merge blocker로 보았다. Antigravity의 추가 응답은 그 판단을 보완했다. 실제 PostgreSQL 권한 모델에서는 이전 migration의 revoke 상태가 보존될 수 있으므로, 즉시 권한이 열리는 문제라고 단정하지 않는다.</p>
+      <p>하지만 이 저장소는 `SECURITY DEFINER` 함수 변경이 있을 때 같은 migration 파일 안에 revoke를 다시 적는 정적 계약을 둔다. 따라서 Claude merge gate에는 HOLD를 유지하되, 사유를 “런타임 권한 즉시 노출”이 아니라 “보안 linter 계약 미충족”으로 기록한다.</p>
+    </details>
+
+    <details>
+      <summary>다음 조치</summary>
+      <p><code>db/migrations/0106_award_xp_once_only_race.sql</code>에 <code>REVOKE EXECUTE ON FUNCTION ... FROM anon</code>을 명시한다. 그 뒤 <code>npm run check:definer-grants</code>를 다시 통과시켜야 한다.</p>
+    </details>
+  </main>
+</body>
+</html>
