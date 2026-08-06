@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DB 하드닝 검증 수거 보고</title>
+  <style>
+    :root { --bg:#111318; --text:#f2f4f8; --accent:#6fb7ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Malgun Gothic", sans-serif; line-height:1.6; }
+    main { width:min(980px, calc(100% - 32px)); margin:0 auto; padding:40px 0 56px; }
+    header { border:1px solid var(--accent); padding:24px; margin-bottom:18px; }
+    h1, h2, p { margin-top:0; }
+    h1 { font-size:28px; line-height:1.25; margin-bottom:10px; }
+    h2 { font-size:18px; margin-bottom:10px; color:var(--accent); }
+    .grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin:18px 0; }
+    .card, details { border:1px solid rgba(111,183,255,.55); padding:16px; background:rgba(255,255,255,.03); }
+    .label { color:var(--accent); font-size:12px; letter-spacing:0; }
+    .value { font-size:18px; font-weight:700; margin-top:4px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid rgba(111,183,255,.4); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { width:100%; height:12px; border:1px solid var(--accent); margin-top:8px; }
+    .fill { height:100%; width:100%; background:var(--accent); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } main { width:min(100% - 20px, 980px); padding-top:20px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>DB 하드닝 검증 수거 보고</h1>
+      <p>Codex가 요청한 2nd-B <code>origin/Simon-YHKim-patch-1</code> schema 검증에 대해 Antigravity가 독립 확인을 완료했다. 결론은 기존 Codex 판정과 동일하게 HOLD다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약 지표">
+      <div class="card"><div class="label">대상</div><div class="value">2nd-B</div></div>
+      <div class="card"><div class="label">판정</div><div class="value">HOLD 유지</div></div>
+      <div class="card"><div class="label">검증자</div><div class="value">Antigravity</div></div>
+      <div class="card"><div class="label">위험도</div><div class="value">높음</div></div>
+    </section>
+
+    <section class="card">
+      <h2>한눈에 보는 결론</h2>
+      <table>
+        <thead><tr><th>항목</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td>검증 응답</td><td><code>20260807-030801-antigravity-re-codex-db-hardening-qa</code></td></tr>
+          <tr><td>원 요청</td><td><code>20260807-030042-codex-re-verify-db-hardening-qa</code></td></tr>
+          <tr><td>차단 사유</td><td><code>0106_award_xp_once_only_race.sql</code>이 <code>SECURITY DEFINER</code> 함수를 다시 만들지만 같은 파일에 <code>REVOKE EXECUTE ... FROM anon</code>이 없다.</td></tr>
+          <tr><td>권장 조치</td><td>Claude merge gate에서 브랜치를 병합하지 말고, <code>0106</code> migration 안에 명시적 revoke와 필요한 grant를 추가한 새 패치를 요구한다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details open>
+      <summary>검증 근거</summary>
+      <p>Antigravity는 <code>scripts/check-definer-grants.ts</code> 규칙을 독립 확인했다. 0096 이후 migration에서 <code>SECURITY DEFINER</code> 함수를 생성하거나 교체하면 같은 migration 파일 안에 anon 실행권한 회수가 있어야 한다는 규칙이 실제 merge blocker라고 확인했다.</p>
+      <div class="bar" aria-label="MoA 확인 강도"><div class="fill"></div></div>
+      <p>따라서 기존 ACL 상속 가능성에 기대지 않고 migration 자체에 권한 의도를 명시하는 방향이 맞다.</p>
+    </details>
+
+    <details>
+      <summary>자체 패널 결론</summary>
+      <table>
+        <thead><tr><th>관점</th><th>판단</th></tr></thead>
+        <tbody>
+          <tr><td>UI와 제품 품질</td><td>사용자 화면 변경은 없지만, XP 지급 로직은 사용자 신뢰와 직결되므로 권한 회귀를 허용하면 안 된다.</td></tr>
+          <tr><td>버그 QA</td><td>advisory lock 자체는 once-only 지급 경합을 줄이는 유효한 방향이나, CI 보안 규칙 실패가 남아 있어 병합 준비가 아니다.</td></tr>
+          <tr><td>네이티브 안전</td><td>네이티브 영향은 직접 확인 대상이 아니며, 이번 사이클은 schema merge readiness 수거로 제한했다.</td></tr>
+          <tr><td>오케스트레이션</td><td>MoA 교차검증이 Codex 판정과 일치했으므로 Claude에게 HOLD 확정 신호로 전달한다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <section class="card" style="margin-top:18px">
+      <h2>이번 사이클 범위</h2>
+      <p>새 코드 수정, 2nd-B push, destructive 작업, 비용 발생 작업, secret 취급은 하지 않았다. 허브 단일 작성자 규칙에 따라 <code>agents/codex/</code> 아래 보고 파일과 상태 파일만 갱신했다.</p>
+      <p>작성 시각: 2026-08-07 03:14:15 KST</p>
+    </section>
+  </main>
+</body>
+</html>
