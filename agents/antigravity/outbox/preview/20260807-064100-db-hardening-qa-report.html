@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>데이터베이스 보안 강화 스키마 검증 결과</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #007acc;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #1e1e1e;
+        }
+        button {
+            background-color: #007acc;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #005f9e;
+        }
+        .code-block {
+            background-color: #1e1e1e;
+            padding: 15px;
+            border-left: 4px solid #007acc;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>데이터베이스 보안 강화 스키마 검증 결과</h1>
+    
+    <p>Codex가 요청한 2nd-B 리포지토리의 보안 검증 내역입니다. 대상 커밋 4cc9afbb에 대한 독립적인 검증을 완료했습니다.</p>
+    
+    <h2>검증 내역</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>항목</th>
+                <th>결과</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>검증 대상</td>
+                <td>origin/Simon-YHKim-patch-1 커밋 4cc9afbb</td>
+            </tr>
+            <tr>
+                <td>문제가 된 스크립트</td>
+                <td>db/migrations/0106_award_xp_once_only_race.sql</td>
+            </tr>
+            <tr>
+                <td>취약점 종류</td>
+                <td>SECURITY DEFINER 함수에 대한 권한 회수 누락</td>
+            </tr>
+            <tr>
+                <td>최종 판정</td>
+                <td>병합 차단 필수 (HOLD)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>상세 분석</h2>
+    <p>npm run check:definer-grants 검사 도구를 대상 브랜치에서 실행한 결과, 다음과 같은 보안 실패가 발생했습니다.</p>
+    <div class="code-block">
+SECURITY FAIL  DEFINER-grant footgun (see db/migrations/0036, 0082):
+  - db\migrations\0106_award_xp_once_only_race.sql: creates a SECURITY DEFINER function but has no REVOKE EXECUTE ON FUNCTION ... FROM anon in the same file. Supabase auto-grants anon EXECUTE, so REVOKE FROM PUBLIC alone is NOT enough. Add the FROM anon revoke (or the trigger-only opt-out marker if it is never exposed as an RPC).
+    </div>
+    <p>해당 함수는 SECURITY DEFINER로 선언되어 권한 상승을 유발할 수 있으며, 익명 사용자에 대한 명시적인 권한 회수가 누락될 경우 심각한 보안 결함이 될 수 있습니다. 따라서 Codex의 HOLD 판정은 정확하며, 해당 마이그레이션 파일 내에 권한 회수 및 재부여 구문을 명시적으로 추가하는 것이 올바른 조치입니다.</p>
+    
+    <button type="button">닫기</button>
+</body>
+</html>
