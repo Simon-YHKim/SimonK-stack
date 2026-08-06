@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>티어맵 평생 요금제 브랜치 검토</title>
+  <style>
+    :root { --bg:#101214; --text:#f1f5f7; --accent:#77c7d9; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: Arial, sans-serif; line-height:1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 56px; }
+    h1, h2, h3 { margin: 0 0 12px; line-height:1.2; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 20px; margin-top: 28px; color: var(--accent); }
+    p { margin: 8px 0; }
+    .summary { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 22px 0; }
+    .card, details, table { border: 1px solid var(--accent); border-radius: 6px; background: rgba(119,199,217,.06); }
+    .card { padding: 14px; min-height: 92px; }
+    .label { color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: 0; }
+    .value { font-size: 18px; font-weight: 700; margin-top: 8px; }
+    table { width:100%; border-collapse: collapse; overflow:hidden; }
+    th, td { padding: 10px; border-bottom: 1px solid rgba(119,199,217,.45); text-align:left; vertical-align:top; }
+    th { color: var(--accent); font-weight: 700; }
+    tr:last-child td { border-bottom: 0; }
+    code { color: var(--accent); word-break: break-word; }
+    details { padding: 12px 14px; margin: 10px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .bar { width: 100%; height: 12px; border: 1px solid var(--accent); margin-top: 6px; }
+    .fill { display:block; height: 100%; background: var(--accent); }
+    @media (max-width: 760px) { .summary { grid-template-columns: 1fr; } h1 { font-size: 24px; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>티어맵 평생 요금제 브랜치 검토</h1>
+  <p>기록 시각: 2026-08-06 19:39:59 KST</p>
+  <p>Codex 단일 poll cycle에서 `origin/chore/tier-map-retire-lifetime-price`를 검토했다. 브랜치 자체는 이미 main에 포함되어 닫아도 되지만, 주변 코드에 남은 업그레이드 경로 모순을 발견했다.</p>
+
+  <section class="summary" aria-label="요약">
+    <div class="card"><div class="label">브랜치 판정</div><div class="value">닫기 / 무작업</div></div>
+    <div class="card"><div class="label">새 앱 수정</div><div class="value">없음</div></div>
+    <div class="card"><div class="label">검증</div><div class="value">통과</div></div>
+    <div class="card"><div class="label">후속 위험</div><div class="value">있음</div></div>
+  </section>
+
+  <h2>결론</h2>
+  <table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td>브랜치</td><td><code>origin/chore/tier-map-retire-lifetime-price</code></td></tr>
+      <tr><td>브랜치 끝</td><td><code>ad57d566e1f83a00f172afab332eb39d13c4b858</code></td></tr>
+      <tr><td>현재 main</td><td><code>cae2b7cad132670ddf8a3e2162097f50524ea2d6</code></td></tr>
+      <tr><td>판정 근거</td><td>브랜치 끝이 현재 main의 조상이며, main 대비 diff가 비어 있다.</td></tr>
+      <tr><td>권고</td><td>브랜치 자체는 다시 머지하지 말고 닫는다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>검증 결과</h2>
+  <div class="bar" aria-label="검증 통과율"><span class="fill" style="width:100%"></span></div>
+  <table>
+    <thead><tr><th>검증</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td><code>git diff --check</code></td><td>통과, 출력 없음</td></tr>
+      <tr><td>대상 Jest</td><td>3개 suite, 35개 test 통과</td></tr>
+      <tr><td><code>check:emdash</code></td><td>통과</td></tr>
+      <tr><td><code>check:lexicon</code></td><td>통과</td></tr>
+      <tr><td>집중 secret 패턴 검색</td><td>검토 파일에서 매치 없음</td></tr>
+    </tbody>
+  </table>
+
+  <h2>남은 문제</h2>
+  <p><code>src/lib/chat/limits.ts</code>는 아직 free 사용자가 한도에 걸렸을 때 다음 업그레이드를 <code>soma</code>로 반환한다. 같은 파일 주석도 soma가 다시 판매된다고 설명한다. 그러나 <code>pricing.ts</code>, <code>plans.tsx</code>, <code>tier-map.ts</code>의 현재 정본은 soma/Lifetime 구매 경로가 없고 화면에도 팔지 않는다고 말한다.</p>
+  <details>
+    <summary>자세히</summary>
+    <p>현재 테스트는 이 모순을 실패시키지 않는다. 오히려 <code>limits.test.ts</code>가 free 한도 초과 시 <code>upgradeTo: "soma"</code>를 기대한다. 따라서 Claude가 별도 좁은 수정으로 업그레이드 사다리를 판매 가능한 티어 기준으로 바꾸고, 테스트를 함께 갱신해야 한다.</p>
+  </details>
+
+  <h2>35 self-panel</h2>
+  <table>
+    <thead><tr><th>관점</th><th>판단</th></tr></thead>
+    <tbody>
+      <tr><td>UI/카피</td><td>요금 화면은 판매 가능한 free, cortex, brain만 노출한다. 이 부분은 정본과 맞다.</td></tr>
+      <tr><td>상태 전이</td><td>chat limit의 다음 업그레이드 값이 retired tier를 가리킬 수 있어 funnel 데이터와 화면 진입 맥락이 어긋난다.</td></tr>
+      <tr><td>머지 안전</td><td>대상 브랜치는 이미 main에 들어간 comment-only 변경이므로 재머지는 불필요하다.</td></tr>
+      <tr><td>후속 조치</td><td>Antigravity에게 교차검증을 요청했고, Claude가 fix order를 내리거나 직접 수정하는 것이 맞다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>작업 제한 준수</h2>
+  <p>2nd-B push, 파괴적 작업, 비용 작업, secret 작업은 수행하지 않았다. 허브에서는 <code>agents/codex/</code> 아래 산출물만 작성했다.</p>
+</main>
+</body>
+</html>
