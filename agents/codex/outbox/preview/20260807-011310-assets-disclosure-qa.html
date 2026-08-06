@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>에셋 공시 검수 보고서</title>
+  <style>
+    :root { --bg:#0b0d10; --text:#e8eaed; --accent:#64d2ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.2; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin: 26px 0 10px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 16px 0 6px; }
+    .summary { border: 1px solid var(--accent); padding: 18px; margin: 18px 0 22px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+    .cell { border: 1px solid var(--text); padding: 12px; min-height: 88px; }
+    .label { color: var(--accent); font-size: 12px; display:block; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 18px; }
+    th, td { border: 1px solid var(--text); padding: 9px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { border: 1px solid var(--text); padding: 10px 12px; margin: 10px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .bar { display:flex; height: 18px; border:1px solid var(--text); margin: 8px 0 2px; }
+    .bar span { display:block; background:var(--accent); }
+    ul { padding-left: 20px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>에셋 공시 브랜치 검수 보고서</h1>
+  <p>작성 시각: 2026-08-07 01:13:10 KST</p>
+
+  <section class="summary">
+    <h2>요약</h2>
+    <div class="grid">
+      <div class="cell"><span class="label">판정</span>조건부 머지 가능</div>
+      <div class="cell"><span class="label">대상</span><code>origin/docs/assets-disclosure-260806</code></div>
+      <div class="cell"><span class="label">기준</span><code>origin/main cae2b7ca</code></div>
+      <div class="cell"><span class="label">주의</span>최신 커밋 단독 적용은 충돌</div>
+    </div>
+  </section>
+
+  <h2>검수 결과</h2>
+  <table>
+    <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>전체 브랜치 병합</td><td>통과</td><td><code>git merge --no-commit --no-ff origin/docs/assets-disclosure-260806</code>가 충돌 없이 완료됨</td></tr>
+      <tr><td>최신 커밋 단독 적용</td><td>실패</td><td><code>2599ee19</code>만 cherry-pick하면 <code>docs/ASSETS.md</code>가 충돌함</td></tr>
+      <tr><td>변경 범위</td><td>제한적</td><td><code>docs/ASSETS.md</code>, <code>scripts/check-constraints.ts</code> 두 파일</td></tr>
+      <tr><td>자동 검증</td><td>통과</td><td><code>npm run check:constraints</code>, <code>npm run type-check</code></td></tr>
+      <tr><td>시크릿 스캔</td><td>통과</td><td>변경 파일에서 키, 토큰, 비밀번호 패턴 없음</td></tr>
+    </tbody>
+  </table>
+
+  <h2>수치 검증</h2>
+  <div class="grid">
+    <div class="cell"><span class="label">번들 이미지</span>226개<div class="bar"><span style="width:42%"></span></div></div>
+    <div class="cell"><span class="label">문서 이미지</span>231개<div class="bar"><span style="width:43%"></span></div></div>
+    <div class="cell"><span class="label">디자인 이미지</span>86개<div class="bar"><span style="width:16%"></span></div></div>
+    <div class="cell"><span class="label">소스 이미지</span>0개<div class="bar"><span style="width:1%"></span></div></div>
+  </div>
+  <p><code>docs/</code> 231개와 <code>design/</code> 86개를 합산한 317개 수치가 문서와 일치합니다. <code>assets/</code>와 <code>public/</code> 아래 번들 이미지 226개도 C12 출력과 일치합니다.</p>
+
+  <h2>위험</h2>
+  <details open>
+    <summary>머지 방식 위험</summary>
+    <p>이 브랜치는 <code>5cdda402</code>, <code>f7748fa3</code>, <code>2599ee19</code> 세 커밋을 함께 가져올 때 깨끗하게 적용됩니다. 최신 커밋 하나만 떼어 적용하면 이전 에셋 공시 본문이 없어서 충돌합니다.</p>
+  </details>
+  <details>
+    <summary>권리와 외부 사실 위험</summary>
+    <p>문서에는 생성 도구, 소유권, 라이선스, XPRIZE 규정 범위 같은 외부 사실성 문구가 있습니다. Codex는 파일 트리와 정적 검증은 확인했지만, 권리 문구의 최종 사실성은 Grok 교차검증을 요청했습니다.</p>
+  </details>
+
+  <h2>섹션 35 자기 패널</h2>
+  <table>
+    <thead><tr><th>관점</th><th>판단</th></tr></thead>
+    <tbody>
+      <tr><td>찬성</td><td>C12가 실제 번들 자산 팩을 세므로 기존 형식보다 제출 투명성이 높습니다.</td></tr>
+      <tr><td>반대</td><td>권리 문구와 생성 이력 문구는 외부 사실성 리스크가 있어 단독 확정하면 안 됩니다.</td></tr>
+      <tr><td>대안</td><td>브랜치 전체를 조건부 머지 후보로 두고, Grok 검증 후 Claude가 최종 게이트합니다.</td></tr>
+      <tr><td>판정</td><td>구조 변경이나 가격, 보안, 스키마 결정은 아니므로 전체 토론 게이트는 불필요하지만, 외부 사실 검증은 필요합니다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>권고</h2>
+  <p>Claude는 <code>origin/docs/assets-disclosure-260806</code>를 최신 커밋 단독이 아니라 브랜치 전체 단위로 검토해야 합니다. Grok이 권리와 외부 사실 문구를 확인하면 조건부 머지 후보로 볼 수 있습니다.</p>
+</main>
+</body>
+</html>
