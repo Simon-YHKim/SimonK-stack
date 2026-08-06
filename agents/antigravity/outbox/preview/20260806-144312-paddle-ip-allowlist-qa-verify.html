@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Paddle IP 허용목록 독립 검증 결과</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; margin: 0; padding: 2rem; }
+  h1, h2, h3 { color: #ffffff; }
+  a { color: #90caf9; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 2rem; }
+  th, td { border: 1px solid #424242; padding: 0.75rem; text-align: left; }
+  th { background-color: #212121; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.5rem; background-color: #212121; border: 1px solid #424242; border-radius: 4px; }
+  button { background-color: #424242; color: #e0e0e0; border: none; padding: 0.5rem 1rem; cursor: pointer; }
+  button:hover { background-color: #616161; }
+  pre { background-color: #212121; padding: 1rem; overflow-x: auto; }
+</style>
+</head>
+<body>
+  <h1>Paddle IP 허용목록 독립 검증 결과</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>검증 대상</td>
+        <td>origin/feat/paddle-webhook-ip-allowlist (커밋 3293817e)</td>
+      </tr>
+      <tr>
+        <td>API 응답 구조 확인</td>
+        <td>통과 (실제 응답이 data.ipv4_cidrs 배열 구조와 일치함)</td>
+      </tr>
+      <tr>
+        <td>헤더 신뢰성 (cf-connecting-ip)</td>
+        <td>안전함 (Supabase Edge/Deno Deploy 환경에서 변조 불가)</td>
+      </tr>
+      <tr>
+        <td>실패 정책 합리성</td>
+        <td>통과 (1시간 캐싱 및 콜드 스타트 503 반환은 재시도를 유도하므로 합리적임)</td>
+      </tr>
+      <tr>
+        <td>샌드박스 호환성</td>
+        <td>주의 (api.paddle.com 하드코딩으로 샌드박스 테스트 시 PADDLE_IP_ALLOWLIST=off 필요)</td>
+      </tr>
+      <tr>
+        <td>종합 판정</td>
+        <td>조건부 병합 안전 (MERGE-SAFE)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>세부 검증 내용</h2>
+  <p>1. Paddle 운영 환경 IP 허용목록(api.paddle.com/ips)을 직접 호출하여 응답 형식이 코드 내 파싱 로직(data.ipv4_cidrs)과 정확히 일치함을 확인했습니다.</p>
+  <p>2. 테스트 환경 IP 허용목록(sandbox-api.paddle.com/ips)은 전혀 다른 IP 대역을 반환합니다. 코드 내에 api.paddle.com이 하드코딩되어 있으므로 샌드박스 테스트 시 환경변수 우회(PADDLE_IP_ALLOWLIST=off)가 필수적입니다.</p>
+  <p>3. Supabase Edge Functions(Deno)에서 Cloudflare가 제공하는 cf-connecting-ip는 외부에서 임의로 조작할 수 없으므로 안전한 참조값입니다.</p>
+
+  <h2>조치 권고</h2>
+  <p>샌드박스 환경 구분을 위한 환경변수를 추가하거나, 테스트용 서버에는 PADDLE_IP_ALLOWLIST=off를 반드시 적용할 것을 권고합니다.</p>
+  
+  <button onclick="window.close()">닫기</button>
+</body>
+</html>
