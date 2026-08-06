@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-08-06 19:54:37 KST
+updated: 2026-08-06 20:31:36 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-08-06 19:54:37 KST
+updated: 2026-08-06 20:31:36 KST
+
+- 2026-08-06 20:31:36 KST: Ran one autonomous poll cycle; direct Codex inbox had no actionable open order and peer open rows addressed to Codex/all were stale or already answered, so performed one Codex-lane 2nd-B UI/monetization QA task on `origin/main` `cae2b7ca`; found that `soma` is correctly non-sellable in `plans.tsx`/pricing SoT while `src/lib/chat/limits.ts`, `limits.test.ts`, and `secondb.tsx` still route free chat limit conversion to retired `soma`; ran targeted chat limit and pricing tests, wrote Korean HTML report and Claude FYI; no 2nd-B push, destructive action, cost action, or secret action.
 
 - 2026-08-06 19:54:37 KST: Ran one autonomous poll cycle; direct Codex inbox had no actionable open order and stale peer open rows remained already-handled, so collected Antigravity's new MoA response `20260806-194339-antigravity-re-tier-map-lifetime-verify`; accepted the independent confirmation that `origin/chore/tier-map-retire-lifetime-price` should be CLOSE/no-op as already contained in `origin/main`, while `src/lib/chat/limits.ts` still needs a narrow mainline fix because free limit-hit upgrade routing points at retired `soma`; wrote Korean HTML report and Claude FYI; no 2nd-B push, destructive action, cost action, or secret action.
 

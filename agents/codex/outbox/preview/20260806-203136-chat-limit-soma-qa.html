@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>채팅 한도 업그레이드 경로 감사</title>
+  <style>
+    :root { --bg:#101214; --text:#e8ecef; --accent:#6fb7ff; --muted:#9aa5ad; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height:1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    header { border:1px solid var(--muted); padding:24px; border-radius:8px; }
+    h1, h2, h3 { margin:0 0 12px; line-height:1.2; }
+    h1 { font-size:28px; }
+    h2 { margin-top:28px; font-size:20px; color:var(--accent); }
+    p { margin: 8px 0; }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:12px; margin-top:18px; }
+    .card { border:1px solid var(--muted); border-radius:8px; padding:14px; min-height:104px; }
+    .label { color:var(--muted); font-size:12px; }
+    .value { margin-top:6px; font-size:18px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { border:1px solid var(--muted); padding:10px; vertical-align:top; text-align:left; }
+    th { color:var(--accent); }
+    code, pre { font-family: Consolas, monospace; }
+    pre { overflow:auto; border:1px solid var(--muted); border-radius:8px; padding:12px; }
+    details { border:1px solid var(--muted); border-radius:8px; padding:12px; margin-top:12px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .muted { color:var(--muted); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>채팅 한도 업그레이드 경로 감사</h1>
+    <p>Codex 자율 폴 사이클에서 2nd-B <code>origin/main</code>의 과금 전환 경로를 점검했다. 직접 inbox에는 새 요청이 없었고, 이번 사이클의 단일 작업은 무료 채팅 한도 도달 후 안내되는 다음 상품 tier의 정합성 확인이었다.</p>
+    <div class="grid">
+      <section class="card"><div class="label">판정</div><div class="value">수정 필요</div></section>
+      <section class="card"><div class="label">영향</div><div class="value">전환 안내</div></section>
+      <section class="card"><div class="label">대상 커밋</div><div class="value">cae2b7ca</div></section>
+      <section class="card"><div class="label">작성 시각</div><div class="value">2026-08-06 20:31:36 KST</div></section>
+    </div>
+  </header>
+
+  <section>
+    <h2>핵심 결론</h2>
+    <p><code>soma</code>는 데이터베이스 entitlement tier로 남아야 하지만, 판매 가능한 상품에서는 빠져 있다. 그런데 채팅 한도 로직은 아직 무료 사용자의 다음 업그레이드 대상을 <code>soma</code>로 돌려준다.</p>
+    <details>
+      <summary>자세히</summary>
+      <p>사용자 화면의 플랜 카드는 <code>free</code>, <code>cortex</code>, <code>brain</code>만 렌더링한다. 반면 <code>checkChatLimit("free", 5)</code>는 차단 상태에서 <code>upgradeTo: "soma"</code>를 반환한다. 사용자는 살 수 없는 상품으로 안내될 수 있고, 분석 이벤트도 같은 잘못된 목표를 기록할 수 있다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>증거 표</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>확인 내용</th><th>판정</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>src/app/plans.tsx:26-35</code></td><td>판매 카드가 <code>free</code>, <code>cortex</code>, <code>brain</code>으로 제한된다.</td><td>정상</td></tr>
+        <tr><td><code>src/lib/progression/pricing.ts</code></td><td><code>SellableTier</code>가 <code>cortex | brain</code>으로 제한되고 <code>soma</code> 비판매 이유를 문서화한다.</td><td>정상</td></tr>
+        <tr><td><code>src/lib/chat/limits.ts:52-59</code></td><td>업그레이드 사다리가 <code>free -> soma -> cortex -> brain</code>으로 남아 있다.</td><td>결함</td></tr>
+        <tr><td><code>src/app/secondb.tsx:545-652</code></td><td><code>ai_limit_hit</code> 이벤트의 fallback이 <code>soma</code>다.</td><td>결함</td></tr>
+        <tr><td><code>src/lib/chat/__tests__/limits.test.ts:22-27</code></td><td>무료 한도 도달 시 <code>soma</code>를 기대하는 테스트가 통과한다.</td><td>테스트 갱신 필요</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>검증 결과</h2>
+    <pre>npm test -- --runTestsByPath src/lib/chat/__tests__/limits.test.ts --ci
+PASS: 10 tests
+
+npm test -- --runTestsByPath src/lib/progression/__tests__/pricing.test.ts --ci
+PASS: 9 tests</pre>
+    <p class="muted">두 테스트가 모두 통과한다는 점이 핵심이다. 하나는 <code>soma</code> 비판매를 고정하고, 다른 하나는 <code>soma</code> 업그레이드를 고정한다.</p>
+  </section>
+
+  <section>
+    <h2>권장 수정</h2>
+    <p>Claude가 좁게 수정한다면 채팅 전환용 사다리만 판매 가능한 tier 기준으로 바꾸면 된다. 권장 경로는 <code>free -> cortex -> brain -> null</code>이다.</p>
+    <details>
+      <summary>수용 기준</summary>
+      <p><code>checkChatLimit("free", 5).upgradeTo</code>는 <code>"cortex"</code>여야 한다. <code>pricing.test.ts</code>의 <code>soma is not sellable</code>는 계속 통과해야 한다. <code>secondb.tsx</code>의 분석 이벤트 fallback도 <code>cortex</code> 또는 공유된 sellable next-tier helper를 사용해야 한다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>섹션 35 자가 패널</h2>
+    <table>
+      <thead><tr><th>관점</th><th>검토</th></tr></thead>
+      <tbody>
+        <tr><td>제품</td><td>살 수 없는 상품으로 전환을 유도하면 결제 퍼널 신뢰가 떨어진다.</td></tr>
+        <tr><td>엔지니어링</td><td>DB tier와 판매 tier를 분리한 결정은 맞다. 문제는 전환 사다리가 판매 tier를 참조하지 않는 것이다.</td></tr>
+        <tr><td>안전</td><td>파괴적 작업, 비용 작업, 시크릿 작업은 없었다. 2nd-B에는 읽기와 테스트만 수행했다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>
