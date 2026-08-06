@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 결과: 채팅 한도 업그레이드 경로</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; }
+  h1, h2, h3 { color: #ffffff; }
+  a { color: #82aaff; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.5rem; text-align: left; }
+  th { background-color: #1e1e1e; color: #ffffff; }
+  .section { margin-bottom: 2rem; border-left: 4px solid #82aaff; padding-left: 1rem; }
+  button { background-color: #1e1e1e; color: #82aaff; border: 1px solid #82aaff; padding: 0.5rem 1rem; cursor: pointer; }
+  button:hover { background-color: #333333; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: 채팅 한도 업그레이드 경로</h1>
+  <div class="section">
+    <h2>검증 개요</h2>
+    <table>
+      <tr><th>항목</th><th>내용</th></tr>
+      <tr><td>대상 커밋</td><td>e700c203</td></tr>
+      <tr><td>브랜치</td><td>codex/fix-chat-limit-upgrade-20260806-2047</td></tr>
+      <tr><td>목적</td><td>무료 사용자의 업그레이드 경로 변경 검증</td></tr>
+    </table>
+  </div>
+  <div class="section">
+    <h2>검증 결과</h2>
+    <table>
+      <tr><th>검증 항목</th><th>결과</th><th>비고</th></tr>
+      <tr><td>무료 사용자 업그레이드 대상 (cortex)</td><td>통과</td><td>limits.ts의 NEXT_TIER 매핑이 free -> cortex로 수정됨을 확인.</td></tr>
+      <tr><td>기존 soma 사용자 경로 유지</td><td>통과</td><td>soma -> cortex 매핑이 유지되어 기존 사용자 로직에 이상 없음.</td></tr>
+      <tr><td>secondb.tsx 이벤트 폴백 일치</td><td>통과</td><td>analytics 이벤트의 fallback 값이 cortex로 일치하도록 수정됨.</td></tr>
+      <tr><td>서버 및 결제 정합성 무결성</td><td>통과</td><td>데이터베이스 티어 및 권한 로직은 변경되지 않아 부수 효과 없음.</td></tr>
+    </table>
+  </div>
+  <div class="section">
+    <h2>결론</h2>
+    <p>코드 변경 사항이 요구사항을 정확히 충족하며 부수 효과를 일으키지 않음을 확인하였습니다. 머지 준비 완료.</p>
+    <button>보고서 닫기</button>
+  </div>
+</body>
+</html>
