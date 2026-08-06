@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>웹 배포 패들 환경 브랜치 검토</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e6edf3; --accent:#7aa2ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: Arial, sans-serif; line-height:1.55; }
+    main { max-width: 1060px; margin: 0 auto; padding: 32px 18px 48px; }
+    header, section { border: 1px solid var(--accent); padding: 18px; margin: 0 0 16px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    h3 { font-size: 15px; color: var(--accent); }
+    .grid { display:grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .card { border: 1px solid var(--accent); padding: 14px; min-height: 110px; }
+    .label { color: var(--accent); font-size: 12px; margin-bottom: 8px; }
+    .value { font-size: 20px; font-weight: 700; }
+    table { width:100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border:1px solid var(--accent); padding: 9px; text-align:left; vertical-align: top; }
+    th { color: var(--accent); }
+    code { color: var(--accent); }
+    details { border: 1px solid var(--accent); padding: 10px; margin: 10px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    svg { width:100%; height: 120px; display:block; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 23px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>웹 배포 패들 환경 브랜치 검토</h1>
+    <p>작성 시각: 2026-08-06 12:18:40 KST</p>
+    <p>대상: <code>origin/chore/web-deploy-paddle-env</code> 대 <code>origin/main</code></p>
+  </header>
+
+  <section>
+    <h2>한눈에 보는 결론</h2>
+    <div class="grid">
+      <div class="card"><div class="label">판정</div><div class="value">닫기 권고</div><p>전체 브랜치 병합 금지</p></div>
+      <div class="card"><div class="label">의도 변경</div><div class="value">이미 반영</div><p>패들 환경 변수 배선은 main에 있음</p></div>
+      <div class="card"><div class="label">위험도</div><div class="value">높음</div><p>결제, 웹훅, 스키마 삭제 포함</p></div>
+      <div class="card"><div class="label">검증 요청</div><div class="value">발행</div><p>Antigravity 교차검증 요청</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>변경 규모</h2>
+    <svg viewBox="0 0 640 120" role="img" aria-label="삽입 172줄, 삭제 1003줄">
+      <rect x="20" y="28" width="100" height="28" fill="#7aa2ff"></rect>
+      <text x="132" y="49" fill="#e6edf3">삽입 172줄</text>
+      <rect x="20" y="72" width="584" height="28" fill="#7aa2ff"></rect>
+      <text x="20" y="112" fill="#e6edf3">삭제 1003줄</text>
+    </svg>
+    <p>브랜치 이름은 배포 환경 배선을 가리키지만 실제 전체 diff는 35개 파일에 걸친 큰 삭제를 포함합니다.</p>
+  </section>
+
+  <section>
+    <h2>핵심 근거</h2>
+    <table>
+      <thead><tr><th>항목</th><th>확인 내용</th><th>판단</th></tr></thead>
+      <tbody>
+        <tr><td>워크플로</td><td><code>EXPO_PUBLIC_PADDLE_CLIENT_TOKEN</code> 등 5개 변수가 이미 <code>origin/main</code>에 존재</td><td>새 병합 가치 없음</td></tr>
+        <tr><td>스키마</td><td><code>0102_rls_wrap_auth_uid.sql</code>, <code>0103_persona_graph_capture.sql</code> 삭제</td><td>회귀 위험</td></tr>
+        <tr><td>결제 클라이언트</td><td><code>paddle-checkout.ts</code>와 checkout 테스트 삭제</td><td>웹 결제 경로 손실</td></tr>
+        <tr><td>웹훅 보안</td><td>source-IP allowlist 제거, 가격 ID 다중 매핑 후퇴</td><td>보안 및 과금 처리 위험</td></tr>
+        <tr><td>기계 검사</td><td><code>git diff --check</code>, merge-tree marker scan 통과</td><td>문법보다 의미 위험이 큼</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>자세한 판단</h2>
+    <details open>
+      <summary>쉬운 설명</summary>
+      <p>이 브랜치는 겉으로는 웹 결제 설정을 추가하는 것처럼 보입니다. 하지만 그 설정은 이미 현재 main에 들어와 있습니다. 지금 이 브랜치를 통째로 합치면 이미 고쳐진 데이터베이스 파일과 결제 보호 코드가 다시 사라질 수 있습니다.</p>
+    </details>
+    <details>
+      <summary>전문가 설명</summary>
+      <p><code>origin/main..origin/chore/web-deploy-paddle-env</code>는 workflow tip 의도와 달리 stale base의 side diff를 포함합니다. 특히 RLS auth.uid wrap, persona graph capture migration, Paddle checkout client, webhook IP allowlist, comma-separated price map contract가 삭제 또는 후퇴합니다. tip commit의 workflow env wiring은 main에 이미 존재하므로 cherry-pick도 불필요합니다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>권고</h2>
+    <p>Claude merge gate는 <code>origin/chore/web-deploy-paddle-env</code>를 <code>CLOSE/no-op</code> 처리해야 합니다. 전체 브랜치 병합은 금지하고, 별도 cherry-pick도 하지 않는 것이 맞습니다. 고위험 결제 및 스키마 판단이므로 Antigravity에 교차검증을 요청했습니다.</p>
+  </section>
+</main>
+</body>
+</html>
