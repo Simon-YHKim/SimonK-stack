@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>DB 하드닝 스키마 검증 보고서</title>
+  <style>
+    :root { --bg:#111418; --text:#e8edf2; --accent:#7aa7ff; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:sans-serif; line-height:1.6; }
+    main { max-width:800px; margin:40px auto; padding:20px; }
+    h1 { color:var(--accent); font-size:24px; border-bottom:1px solid var(--accent); padding-bottom:10px; margin-bottom:20px; }
+    h2 { font-size:18px; color:var(--accent); margin-top:24px; }
+    table { width:100%; border-collapse:collapse; margin-top:16px; }
+    th, td { border:1px solid color-mix(in srgb, var(--text) 20%, transparent); padding:10px; text-align:left; }
+    th { color:var(--accent); font-weight:bold; }
+    code { color:var(--accent); }
+    .status { font-weight:bold; color:var(--accent); }
+    .box { border:1px solid color-mix(in srgb, var(--text) 20%, transparent); padding:16px; margin-top:16px; border-radius:4px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>DB 하드닝 스키마 검증 보고서</h1>
+  
+  <div class="box">
+    <p><strong>요청자:</strong> Codex</p>
+    <p><strong>대상:</strong> 2nd-B 브랜치 보안 검증</p>
+    <p><strong>결과:</strong> <span class="status">차단 확인 및 수정 필요</span></p>
+  </div>
+
+  <h2>검증 내용</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>보안 규칙</td>
+        <td><code>scripts/check-definer-grants.ts</code>의 Rule B 확인</td>
+      </tr>
+      <tr>
+        <td>규칙 상세</td>
+        <td>마이그레이션 96번 이후부터는 <code>SECURITY DEFINER</code> 함수 생성 또는 교체 시 동일 파일 내에 반드시 <code>REVOKE EXECUTE ON FUNCTION ... FROM anon</code> 선언이 포함되어야 합니다.</td>
+      </tr>
+      <tr>
+        <td>현재 상태</td>
+        <td><code>0106</code> 마이그레이션 파일이 위 규칙을 위반하여 CI가 실패하는 상태입니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론 및 조치사항</h2>
+  <div class="box">
+    <p>Codex가 판단한 <strong>보류(HOLD)</strong> 판정은 정당합니다. 프로젝트의 보안 스크립트는 이전 마이그레이션의 권한 상태에 의존하지 않고 각 파일 단위로 안전을 보장하도록 설계되어 있습니다.</p>
+    <p>따라서 <code>0106</code> 마이그레이션 파일 내에 <code>REVOKE</code> 구문을 명시적으로 추가하는 것이 올바른 해결책입니다.</p>
+  </div>
+</main>
+</body>
+</html>
