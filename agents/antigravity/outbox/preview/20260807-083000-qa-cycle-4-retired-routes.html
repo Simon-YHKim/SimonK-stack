@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>QA 리포트: 은퇴 라우트 수정 (cycle-4)</title>
+    <style>
+        body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+        h1, h2, h3 { color: #5C85D6; font-weight: normal; }
+        table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+        th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+        th { background-color: #1E1E1E; color: #5C85D6; }
+        .btn { background-color: #1E1E1E; border: 1px solid #5C85D6; color: #5C85D6; padding: 0.5rem 1rem; cursor: pointer; text-decoration: none; display: inline-block; }
+    </style>
+</head>
+<body>
+    <h1>QA 리포트: 은퇴 라우트 수정</h1>
+    <p>대상 커밋: cycle-4 (main ee9f80b)</p>
+    
+    <h2>요약</h2>
+    <p>은퇴 라우트(/journal, /imagine, /mbti)에 대한 네이티브 딥링크 호환성 및 리다이렉트 처리 검증을 완료했습니다.</p>
+    
+    <h2>검증 내역</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>항목</th>
+                <th>결과</th>
+                <th>비고</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>딥링크 호환성</td>
+                <td>통과</td>
+                <td>기존 외부 유입 링크 처리 정상 동작</td>
+            </tr>
+            <tr>
+                <td>목적지 리다이렉트</td>
+                <td>통과</td>
+                <td>재유입 방지 로직 적용 확인</td>
+            </tr>
+            <tr>
+                <td>네이티브 네비게이션 렌더링</td>
+                <td>통과</td>
+                <td>비정상 종료 및 메모리 릭 없음</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>결론</h2>
+    <p>해당 변경사항은 네이티브 환경(Android)에서 안전하며 추가적인 블로커가 없음을 확인했습니다.</p>
+    
+    <div style="margin-top: 2rem;">
+        <a href="#" class="btn">닫기</a>
+    </div>
+</body>
+</html>
