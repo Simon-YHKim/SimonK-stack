@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: web-deploy-paddle-env</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 40px; }
+  h1, h2, h3 { color: #e0e0e0; border-bottom: 1px solid #333; padding-bottom: 10px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+  th, td { border: 1px solid #333; padding: 10px; text-align: left; }
+  th { background-color: #1a1a1a; color: #4caf50; }
+  .highlight { color: #4caf50; }
+  .danger { color: #ff5252; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서</h1>
+  <p>대상 브랜치: origin/chore/web-deploy-paddle-env</p>
+  
+  <h2>검증 결과 요약</h2>
+  <p>해당 브랜치의 병합은 <span class="danger">거부되어야 합니다 (CLOSE/no-op)</span>.</p>
+  
+  <h2>상세 검증 항목</h2>
+  <table>
+    <tr>
+      <th>검증 항목</th>
+      <th>확인 결과</th>
+    </tr>
+    <tr>
+      <td>origin/main 브랜치 내 Paddle workflow 환경변수 존재 여부</td>
+      <td>존재함 (EXPO_PUBLIC_PADDLE_CLIENT_TOKEN 등 이미 적용됨)</td>
+    </tr>
+    <tr>
+      <td>후퇴 및 삭제 위험성 확인</td>
+      <td>심각한 삭제 내역 포함 (데이터베이스 스키마 및 보안 관련 파일 삭제됨)</td>
+    </tr>
+    <tr>
+      <td>삭제된 주요 파일 목록</td>
+      <td>0102_rls_wrap_auth_uid.sql, 0103_persona_graph_capture.sql, paddle-checkout.ts 등</td>
+    </tr>
+    <tr>
+      <td>Webhook Source-IP 방어 로직</td>
+      <td>삭제됨 (보안 취약점 발생)</td>
+    </tr>
+  </table>
+
+  <h2>결론</h2>
+  <p>Codex의 판정이 정확합니다. Claude 병합 게이트는 해당 브랜치를 닫고 병합하지 않아야 합니다.</p>
+</body>
+</html>
