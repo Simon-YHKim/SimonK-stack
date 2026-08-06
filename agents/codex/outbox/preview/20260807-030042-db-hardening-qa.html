@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DB 하드닝 QA 보고서</title>
+  <style>
+    :root { --bg:#111418; --text:#e8edf2; --accent:#7aa7ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:960px; margin:0 auto; padding:32px 20px 56px; }
+    header, section { border:1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius:8px; padding:20px; margin:0 0 16px; }
+    h1, h2 { margin:0 0 12px; line-height:1.2; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; color:var(--accent); }
+    p { margin:8px 0; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border-top:1px solid color-mix(in srgb, var(--text) 16%, transparent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); word-break:break-word; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:12px; }
+    .card { border:1px solid color-mix(in srgb, var(--text) 14%, transparent); border-radius:8px; padding:14px; }
+    .verdict { font-size:22px; font-weight:700; color:var(--accent); }
+    details { margin-top:8px; }
+    summary { cursor:pointer; color:var(--accent); }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>DB 하드닝 브랜치 QA 보고서</h1>
+    <p class="verdict">판정: 보류</p>
+    <p>대상은 2nd-B <code>origin/Simon-YHKim-patch-1</code> 커밋 <code>4cc9afbb</code>입니다. 작업 시각은 2026-08-07 03:00:42 KST입니다.</p>
+  </header>
+
+  <section>
+    <h2>요약</h2>
+    <div class="grid">
+      <div class="card"><strong>충돌</strong><p><code>origin/main</code> 위 cherry-pick은 성공했습니다.</p></div>
+      <div class="card"><strong>범위</strong><p>migration 3개 추가, 총 103줄입니다.</p></div>
+      <div class="card"><strong>차단 사유</strong><p><code>check:definer-grants</code>가 실패했습니다.</p></div>
+      <div class="card"><strong>후속</strong><p>Antigravity에 schema 검증을 요청했습니다.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>검증 결과</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>적용성</td><td>통과</td><td><code>codex/qa-db-hardening-20260807-025926</code>에서 cherry-pick 성공, 로컬 커밋 <code>3491dc49</code></td></tr>
+        <tr><td>보안 가드</td><td>실패</td><td><code>0106_award_xp_once_only_race.sql</code>이 <code>SECURITY DEFINER</code> 함수를 만들지만 같은 파일에 <code>REVOKE ... FROM anon</code>이 없습니다.</td></tr>
+        <tr><td>제약 검사</td><td>통과</td><td><code>npm run check:constraints</code></td></tr>
+        <tr><td>문구 검사</td><td>통과</td><td><code>npm run check:lexicon</code>, <code>npm run check:emdash</code></td></tr>
+        <tr><td>공백 검사</td><td>통과</td><td><code>git diff --check origin/main..HEAD</code></td></tr>
+        <tr><td>시크릿 패턴</td><td>통과</td><td>신규 migration 3개에서 키, 토큰, 비밀번호 패턴 미검출</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>핵심 리스크</h2>
+    <p>프로젝트의 보안 스크립트는 0096 이후 새 <code>SECURITY DEFINER</code> 함수가 같은 migration 안에서 anon 실행권한을 명시적으로 제거하도록 강제합니다. <code>0106</code>은 기존 함수 교체라 실제 PostgreSQL ACL이 유지될 수 있지만, repo 가드는 그 가정에 의존하지 않도록 설계되어 있습니다.</p>
+    <details>
+      <summary>자세히</summary>
+      <p>현재 branch는 fresh environment 재현성과 CI 통과 관점에서 보류가 맞습니다. 최소 수정은 <code>0106</code> 끝에 <code>REVOKE EXECUTE ON FUNCTION public.award_xp(text) FROM PUBLIC;</code>와 <code>REVOKE EXECUTE ON FUNCTION public.award_xp(text) FROM anon;</code> 및 필요한 authenticated grant 보존을 명시하는 것입니다. 이 변경은 Claude merge gate에서 실제 DB 권한 의도와 함께 결정해야 합니다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>자체 패널</h2>
+    <table>
+      <thead><tr><th>관점</th><th>판단</th></tr></thead>
+      <tbody>
+        <tr><td>찬성</td><td>advisory lock은 once-only XP 중복 지급 경합을 좁게 막는 합리적 수정입니다.</td></tr>
+        <tr><td>반대</td><td>migration이 보안 권한 가드를 깨므로 그대로 merge하면 CI 또는 운영 보안 규칙과 충돌합니다.</td></tr>
+        <tr><td>결론</td><td>기능 방향은 좋지만, 권한 revoke를 같은 파일에 보강하기 전에는 merge-safe가 아닙니다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>
