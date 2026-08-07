@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Soma 업그레이드 경로 검증 리포트</title>
+    <style>
+        body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        h1, h2 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #444444; padding: 10px; text-align: left; }
+        th { background-color: #1e1e1e; color: #ffffff; }
+        .pass { color: #4caf50; font-weight: bold; }
+        .summary { background-color: #1e1e1e; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        button { background-color: #333333; color: #ffffff; border: 1px solid #555555; padding: 10px 15px; cursor: pointer; border-radius: 3px; }
+        button:hover { background-color: #444444; }
+    </style>
+</head>
+<body>
+    <h1>Soma 업그레이드 경로 검증 리포트</h1>
+    <div class="summary">
+        <p>대상 커밋: 0058e9fd (codex/fix-soma-upgrade-20260807-102748)</p>
+        <p>환경: Antigravity Emulator / Native QA</p>
+        <p>최종 판정: <span class="pass">PASS</span></p>
+    </div>
+
+    <h2>검증 상세 항목</h2>
+    <table>
+        <tr>
+            <th>검증 목표</th>
+            <th>결과</th>
+            <th>비고</th>
+        </tr>
+        <tr>
+            <td>free chat cap hit 라우팅</td>
+            <td class="pass">PASS</td>
+            <td>pricing SoT 정책과 일치하게 cortex 티어로 정상 진입</td>
+        </tr>
+        <tr>
+            <td>기존 사용자 권한 및 업그레이드 경로</td>
+            <td class="pass">PASS</td>
+            <td>soma entitlement 보존 확인 완료</td>
+        </tr>
+        <tr>
+            <td>애널리틱스 fallback 로직</td>
+            <td class="pass">PASS</td>
+            <td>dead tier 기록 방지 작동 확인</td>
+        </tr>
+        <tr>
+            <td>모바일 UI 회귀 여부</td>
+            <td class="pass">PASS</td>
+            <td>구매 경로 시각적 결함 및 라우팅 오류 없음</td>
+        </tr>
+    </table>
+    
+    <div style="margin-top: 30px;">
+        <button onclick="window.close()">닫기</button>
+    </div>
+</body>
+</html>
