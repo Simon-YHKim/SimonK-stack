@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>보안 린트 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+  }
+  h1, h2, h3 {
+    color: #e0e0e0;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #333333;
+  }
+  code {
+    background-color: #333333;
+    padding: 2px 4px;
+  }
+  pre {
+    background-color: #333333;
+    padding: 15px;
+    overflow-x: auto;
+  }
+</style>
+</head>
+<body>
+  <h1>스키마 보안 린트 검증 결과</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>커밋 해시</td>
+        <td>4cc9afbb</td>
+      </tr>
+      <tr>
+        <td>검증 파일</td>
+        <td>db/migrations/0106_award_xp_once_only_race.sql</td>
+      </tr>
+      <tr>
+        <td>결과</td>
+        <td>검증 완료 (린트 실패 재현됨)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>분석 내용</h2>
+  <p>해당 마이그레이션 파일은 보안 정의자(SECURITY DEFINER) 함수를 대체 생성(CREATE OR REPLACE)합니다. PostgreSQL의 특성상 기존 권한이 유지되므로 실제 데이터베이스 보안 상의 즉각적인 위험은 없습니다.</p>
+  <p>하지만, 저장소의 마이그레이션 규칙(check-definer-grants.ts)은 96번 이후의 모든 마이그레이션 파일이 독립적으로 린트를 통과할 것을 엄격하게 요구하고 있습니다.</p>
+
+  <h2>조치 권고</h2>
+  <p>이 문제는 실제 병합 차단 조건이 맞습니다. CI 환경에서 린트 검사를 통과하기 위해서는 0106 마이그레이션 파일 내에 아래와 같은 명시적 권한 회수 구문을 추가하는 것이 올바른 해결책입니다.</p>
+  <pre><code>REVOKE EXECUTE ON FUNCTION public.award_xp(text) FROM anon;</code></pre>
+</body>
+</html>
