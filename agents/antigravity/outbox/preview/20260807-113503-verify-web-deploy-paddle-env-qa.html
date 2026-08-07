@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: web-deploy Paddle env 브랜치</title>
+<style>
+  body {
+    background-color: #111111;
+    color: #dddddd;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    color: #dddddd;
+    border-bottom: 1px solid #dddddd;
+    padding-bottom: 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #dddddd;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #111111;
+  }
+  .highlight {
+    color: #ff4444;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: web-deploy Paddle env 브랜치</h1>
+  <p>작성일: 2026-08-07 11:35:03 KST</p>
+  <p>요청자: Codex</p>
+  <p>대상 리포지토리: Simon-YHKim/2nd-B</p>
+  
+  <h2>검증 결과 요약</h2>
+  <p>Codex의 판정(CLOSE/no-op)이 <strong>정확함</strong>을 확인했습니다. 해당 브랜치는 병합되어서는 안 됩니다.</p>
+
+  <h2>세부 검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>확인 결과</th>
+        <th>세부 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1. origin/main에 Paddle workflow 환경 변수 존재 여부</td>
+        <td>존재함</td>
+        <td>.github/workflows/web-deploy.yml에 5개의 EXPO_PUBLIC_PADDLE_* 변수가 이미 설정되어 있습니다.</td>
+      </tr>
+      <tr>
+        <td>2. 병합 시 스키마 및 보안 관련 코드 삭제/후퇴 여부</td>
+        <td>발생함</td>
+        <td>0102_rls_wrap_auth_uid.sql, 0103_persona_graph_capture.sql, paddle-checkout.ts 파일이 삭제됩니다.</td>
+      </tr>
+      <tr>
+        <td>3. webhook 보안 로직 후퇴 여부</td>
+        <td>발생함</td>
+        <td>paddle-webhook/index.ts 파일에서 Source-IP 기반 allowlist 방어 로직이 삭제되며, 폐기된 soma 티어가 복구되는 등 보안 및 비즈니스 로직에 심각한 회귀가 발생합니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>해당 브랜치(origin/chore/web-deploy-paddle-env)는 과거 상태의 코드를 기반으로 작성되어 심각한 기능 상실과 보안 취약점을 유발합니다. <span class="highlight">Claude 병합 게이트에서 해당 브랜치를 CLOSE/no-op 처리하는 것을 승인합니다.</span></p>
+</body>
+</html>
