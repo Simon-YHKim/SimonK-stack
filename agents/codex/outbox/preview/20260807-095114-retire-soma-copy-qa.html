@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>retire-dead-soma-plan-copy 검토 보고서</title>
+  <style>
+    :root { --bg:#101214; --text:#e8edf2; --accent:#7cc7ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 56px; }
+    h1, h2, h3 { margin:0 0 12px; letter-spacing:0; }
+    h1 { font-size:28px; }
+    h2 { font-size:20px; margin-top:28px; color:var(--accent); }
+    p { margin:8px 0 14px; }
+    code { color:var(--accent); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin:18px 0; }
+    .card { border:1px solid var(--accent); border-radius:6px; padding:14px; min-height:112px; }
+    .label { font-size:12px; color:var(--accent); margin-bottom:8px; }
+    .value { font-size:18px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin:12px 0 18px; }
+    th, td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    details { border:1px solid var(--accent); border-radius:6px; padding:12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:10px; background:var(--accent); margin-top:8px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>retire-dead-soma-plan-copy 검토 보고서</h1>
+    <p>작성 시각: 2026-08-07 09:51:14 KST</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">판정</div>
+        <div class="value">CLOSE/no-op 권고</div>
+      </div>
+      <div class="card">
+        <div class="label">대상</div>
+        <div class="value"><code>origin/chore/retire-dead-soma-plan-copy</code></div>
+      </div>
+      <div class="card">
+        <div class="label">변경량</div>
+        <div class="value">현재 main 대비 0</div>
+      </div>
+      <div class="card">
+        <div class="label">테스트</div>
+        <div class="value">9개 통과</div>
+      </div>
+    </section>
+
+    <h2>결론</h2>
+    <p>이 브랜치의 head <code>b1e0f811</code>은 이미 <code>origin/main</code> <code>cae2b7ca</code>에 포함되어 있습니다. 따라서 새로 merge할 diff가 없고, 브랜치는 닫는 것이 맞습니다.</p>
+
+    <h2>검증 표</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>결과</th><th>근거</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>포함 여부</td><td>포함됨</td><td><code>origin/main..origin/chore/retire-dead-soma-plan-copy</code> 로그가 비어 있음</td></tr>
+        <tr><td>diff 검사</td><td>비어 있음</td><td><code>git diff origin/main...origin/chore/retire-dead-soma-plan-copy</code> 변경 파일 없음</td></tr>
+        <tr><td>공백 검사</td><td>통과</td><td><code>git diff --check</code> 지적 없음</td></tr>
+        <tr><td>가격 테스트</td><td>통과</td><td><code>pricing.test.ts</code> 9개 테스트 통과</td></tr>
+      </tbody>
+    </table>
+
+    <h2>테스트 결과</h2>
+    <div class="card">
+      <div class="label">진행률</div>
+      <div class="value">9 / 9 통과</div>
+      <div class="bar" style="width:100%"></div>
+    </div>
+
+    <h2>상세</h2>
+    <details>
+      <summary>브랜치 원래 목적</summary>
+      <p>원래 변경은 죽은 <code>soma</code> 판매 카드와 lifetime 구매 문구를 locale, legal copy, pricing test에서 제거하는 작업입니다. 현재 main에는 이 변경이 이미 반영되어 있습니다.</p>
+    </details>
+    <details>
+      <summary>남은 주의점</summary>
+      <p><code>src/app/secondb.tsx</code>에는 <code>upgrade_to: pendingUpgrade ?? "soma"</code> 경로가 여전히 보입니다. 이것은 이번 브랜치 diff가 아니므로 이 브랜치의 merge 판단을 막지는 않지만, 별도 merge-gate 항목으로 계속 추적해야 합니다.</p>
+    </details>
+    <details>
+      <summary>안전 가드</summary>
+      <p>2nd-B push, 허브 branch 전환, 파괴적 작업, 비용 작업, secret 작업은 수행하지 않았습니다. 검토 worktree는 <code>C:\2ndB\.worktrees\codex-qa-retire-soma-copy-20260807-094948</code>입니다.</p>
+    </details>
+  </main>
+</body>
+</html>
