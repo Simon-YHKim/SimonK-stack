@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>soma 업그레이드 경로 수정 보고서</title>
+  <style>
+    :root { --bg:#0b0d10; --text:#e8edf2; --accent:#8fb3ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height:1.6; }
+    main { max-width: 980px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2, h3 { line-height:1.25; margin:0 0 12px; }
+    h1 { font-size: clamp(28px, 4vw, 44px); }
+    h2 { font-size: 20px; margin-top: 28px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    .lead { max-width: 760px; font-size: 18px; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 24px 0; }
+    .box { border:1px solid var(--accent); padding:16px; border-radius:8px; }
+    .label { display:block; color:var(--accent); font-size:13px; margin-bottom:6px; }
+    code { color:var(--accent); word-break: break-word; }
+    table { width:100%; border-collapse:collapse; margin: 14px 0 20px; }
+    th, td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    details { border:1px solid var(--accent); border-radius:8px; padding:12px 14px; margin:12px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { width:100%; height:14px; border:1px solid var(--accent); margin-top:8px; }
+    .fill { height:100%; background:var(--accent); width:100%; }
+    ul { padding-left: 20px; }
+    a { color:var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>soma 업그레이드 경로 수정 보고서</h1>
+    <p class="lead">이번 Codex 사이클은 열린 요청이 없어, 직전 사이클에 남긴 2nd-B main 잔여 항목 하나를 처리했다. free chat cap에 걸린 사용자를 판매되지 않는 <code>soma</code>가 아니라 최저 판매 tier인 <code>cortex</code>로 안내하도록 수정했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="box"><span class="label">결과</span>local commit <code>0058e9fd</code> 생성</div>
+      <div class="box"><span class="label">브랜치</span><code>codex/fix-soma-upgrade-20260807-102748</code></div>
+      <div class="box"><span class="label">기준</span><code>origin/main cae2b7ca</code></div>
+      <div class="box"><span class="label">푸시</span>하지 않음</div>
+    </section>
+
+    <h2>변경 파일</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/lib/chat/limits.ts</code></td><td>free cap hit의 upgrade target을 <code>soma</code>에서 <code>cortex</code>로 변경했다. 기존 <code>soma -> cortex</code> path는 유지했다.</td></tr>
+        <tr><td><code>src/app/secondb.tsx</code></td><td>blocked turn 전에 analytics가 먼저 발화될 때의 fallback <code>upgrade_to</code>를 <code>cortex</code>로 변경했다.</td></tr>
+        <tr><td><code>src/lib/chat/__tests__/limits.test.ts</code></td><td>free 사용자는 <code>cortex</code>로 안내되고 legacy paid step은 유지되는 것을 고정했다.</td></tr>
+        <tr><td><code>src/lib/chat/__tests__/conversation.test.ts</code></td><td>free cap blocked 응답의 upgrade target과 hint가 <code>Cortex</code>인 것을 고정했다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 상태</h2>
+    <div class="box">
+      <span class="label">검증 통과율</span>
+      <div class="bar" aria-label="검증 통과율 100퍼센트"><div class="fill"></div></div>
+    </div>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>targeted Jest</td><td>3 suites, 31 tests 통과</td></tr>
+        <tr><td>type-check</td><td>통과</td></tr>
+        <tr><td>constraints</td><td>통과</td></tr>
+        <tr><td>lexicon</td><td>통과</td></tr>
+        <tr><td>emdash</td><td>통과</td></tr>
+        <tr><td>diff whitespace</td><td>통과</td></tr>
+        <tr><td>diff secret scan</td><td>매치 없음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>판단</h2>
+    <details open>
+      <summary>핵심 판단</summary>
+      <p><code>pricing.ts</code>와 pricing test는 <code>soma</code>를 판매 tier에서 제외한다. 따라서 free 사용자의 구매 유도와 analytics fallback도 판매 가능한 <code>cortex</code>로 맞추는 것이 맞다.</p>
+    </details>
+    <details>
+      <summary>위험과 제한</summary>
+      <p><code>soma</code>는 DB tier와 기존 사용자 entitlement에 남아 있으므로 제거 대상이 아니다. 이번 변경은 free conversion route만 바꾸며, 기존 <code>soma</code> 사용자의 cap과 <code>soma -> cortex</code> step은 유지한다.</p>
+    </details>
+    <details>
+      <summary>교차 검증</summary>
+      <p>코드 merge diff 산출물이므로 Antigravity에 독립 검증 요청을 냈다. 요청 파일은 <code>agents/codex/outbox/20260807-102941-codex-to-antigravity-verify-soma-upgrade-route.md</code>이다.</p>
+    </details>
+
+    <h2>운영 기록</h2>
+    <p>보고 시각: 2026-08-07 10:29:41 KST</p>
+    <p>금지 작업 준수: 2nd-B push 없음, 허브 branch 전환 없음, 파괴적 작업 없음, 비용 작업 없음, secret 작업 없음.</p>
+  </main>
+</body>
+</html>

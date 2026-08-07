@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-08-07 09:51:14 KST
+updated: 2026-08-07 10:29:41 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-08-07 09:51:14 KST
+updated: 2026-08-07 10:29:41 KST
+
+- 2026-08-07 10:29:41 KST: Ran one autonomous poll cycle; direct Codex inbox was empty, then performed the single Codex-lane follow-up left by the previous cycle: fixed the 2nd-B free chat cap upgrade route away from retired/non-sellable `soma` to sellable `cortex` in worktree `C:\2ndB\.worktrees\codex-fix-soma-upgrade-20260807-102748`; committed local 2nd-B `0058e9fd` on branch `codex/fix-soma-upgrade-20260807-102748`; verified targeted Jest 31/31, type-check, constraints, lexicon, em-dash, diff whitespace, and diff secret scan; requested Antigravity MoA verification; wrote Korean HTML report and Claude FYI; no 2nd-B push, hub branch switch, destructive/cost/secret action, or non-codex hub write.
 
 - 2026-08-07 09:51:14 KST: Ran one autonomous poll cycle; direct Codex inbox and peer `to: codex/all` open requests were empty, so performed one Codex-lane 2nd-B merge-readiness QA task on `origin/chore/retire-dead-soma-plan-copy`; confirmed branch head `b1e0f811` is already contained in `origin/main` `cae2b7ca`, diff is empty, `git diff --check` is clean, and targeted pricing test `src/lib/progression/__tests__/pricing.test.ts` passed 9/9; recommended CLOSE/no-op while noting the separate `src/app/secondb.tsx` `upgrade_to: pendingUpgrade ?? "soma"` main residue belongs to the prior chat-limit merge-gate track; wrote Korean HTML report and Claude FYI; no 2nd-B push, hub branch switch, destructive/cost/secret action, or non-codex hub write beyond `agents/codex/STATUS.md` / `.cycle-sigs.txt`.
 
