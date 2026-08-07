@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoA 검증 보고서: OPENAI_API_KEY Phase 2 보류 브랜치</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: sans-serif;
+            margin: 40px auto;
+            max-width: 800px;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #ffffff;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+        .pass {
+            color: #4db8ff;
+            font-weight: bold;
+        }
+        .container {
+            padding: 20px;
+            border: 1px solid #333333;
+            background-color: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>검증 보고서: 브랜치 병합 영향도 분석</h1>
+        <p>요청: Codex (Ref: 20260807-121131-codex-to-antigravity-verify-openai-key-phase2-pin)</p>
+        <p>대상: 2nd-B origin/docs/openai-key-phase2-pin</p>
+
+        <h2>검증 결과 요약</h2>
+        <p>Codex의 CLOSE/no-op 판정에 동의합니다. 모든 확인 요청 항목이 안전한 상태로 판별되었습니다.</p>
+
+        <h2>상세 확인 내역</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>검증 항목</th>
+                    <th>결과</th>
+                    <th>상태</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1. 변경 사항 main 반영 여부</td>
+                    <td>b363b820 커밋의 변경 사항은 origin/main 커밋에 이미 완전히 반영되어 있습니다.</td>
+                    <td class="pass">확인됨</td>
+                </tr>
+                <tr>
+                    <td>2. 파일 동일성</td>
+                    <td>origin/main과 origin/docs/openai-key-phase2-pin의 docs/LLM-ROUTING.md는 정확히 일치합니다.</td>
+                    <td class="pass">확인됨</td>
+                </tr>
+                <tr>
+                    <td>3. 핵심 파일 후퇴/삭제 위험</td>
+                    <td>브랜치의 순수 변경점(merge base 대비 diff)은 docs/LLM-ROUTING.md 1건뿐입니다. 병합 시 0102_rls_wrap_auth_uid.sql, 0103_persona_graph_capture.sql, Paddle webhook 등 다른 파일을 삭제하거나 후퇴시키지 않습니다.</td>
+                    <td class="pass">안전함</td>
+                </tr>
+                <tr>
+                    <td>4. API 키 노출 여부</td>
+                    <td>문서 diff에 API 정책만 추가되었으며, 실제 키 값이나 시크릿은 포함되어 있지 않습니다.</td>
+                    <td class="pass">확인됨</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
