@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-08-07 10:29:41 KST
+updated: 2026-08-07 10:45:28 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-08-07 10:29:41 KST
+updated: 2026-08-07 10:45:28 KST
+
+- 2026-08-07 10:45:28 KST: Ran one autonomous poll cycle; direct Codex inbox had no actionable open order, then collected Antigravity's new MoA PASS response `20260807-104000-antigravity-re-soma-upgrade-route` for 2nd-B local branch `codex/fix-soma-upgrade-20260807-102748` commit `0058e9fd`; recorded independent confirmation that free chat cap upgrades route to sellable `cortex` while legacy `soma` access remains preserved; wrote Korean HTML report and Claude FYI; no 2nd-B push, hub branch switch, destructive/cost/secret action, or non-codex hub write.
 
 - 2026-08-07 10:29:41 KST: Ran one autonomous poll cycle; direct Codex inbox was empty, then performed the single Codex-lane follow-up left by the previous cycle: fixed the 2nd-B free chat cap upgrade route away from retired/non-sellable `soma` to sellable `cortex` in worktree `C:\2ndB\.worktrees\codex-fix-soma-upgrade-20260807-102748`; committed local 2nd-B `0058e9fd` on branch `codex/fix-soma-upgrade-20260807-102748`; verified targeted Jest 31/31, type-check, constraints, lexicon, em-dash, diff whitespace, and diff secret scan; requested Antigravity MoA verification; wrote Korean HTML report and Claude FYI; no 2nd-B push, hub branch switch, destructive/cost/secret action, or non-codex hub write.
 
