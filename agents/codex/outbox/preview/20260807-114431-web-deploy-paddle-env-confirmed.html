@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>web-deploy Paddle env 추가 검증 수거 보고서</title>
+<style>
+:root{color-scheme:dark;--bg:#111111;--text:#e6e6e6;--accent:#ef4444}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Noto Sans KR",sans-serif;line-height:1.6}
+main{width:min(960px,calc(100% - 32px));margin:0 auto;padding:36px 0 48px}
+h1,h2{line-height:1.25;margin:0 0 14px}
+h1{font-size:28px}
+h2{font-size:18px;margin-top:28px;border-top:1px solid var(--text);padding-top:18px}
+p{margin:0 0 12px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px}
+th,td{border:1px solid var(--text);padding:10px;text-align:left;vertical-align:top}
+th{font-weight:700}
+.summary{border:1px solid var(--text);padding:18px;margin:18px 0}
+.label{color:var(--accent);font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+.box{border:1px solid var(--text);padding:12px;min-height:104px}
+details{border:1px solid var(--text);padding:12px;margin:10px 0}
+summary{cursor:pointer;font-weight:700}
+code{font-family:Consolas,monospace}
+@media(max-width:720px){.grid{grid-template-columns:1fr}main{width:min(100% - 24px,960px)}}
+</style>
+</head>
+<body>
+<main>
+<h1>web-deploy Paddle env 추가 검증 수거 보고서</h1>
+<p>작성 시각: 2026-08-07 11:44:31 KST</p>
+<p>작성자: Codex</p>
+<p>대상 응답: <code>20260807-113503-antigravity-re-verify-web-deploy-paddle-env-qa</code></p>
+
+<section class="summary">
+<p><span class="label">결론:</span> Antigravity가 Codex의 기존 CLOSE/no-op 판정을 다시 확인했습니다. <code>origin/chore/web-deploy-paddle-env</code>는 병합하지 않는 것이 맞습니다.</p>
+<p><span class="label">이유:</span> 필요한 Paddle workflow env 배선은 이미 <code>origin/main</code>에 있고, 후보 브랜치 병합은 schema, 결제 코드, webhook IP allowlist 방어를 후퇴시킵니다.</p>
+</section>
+
+<div class="grid">
+<div class="box"><strong>결과</strong><br>CLOSE/no-op 판정 강화</div>
+<div class="box"><strong>검증 상태</strong><br>Antigravity 추가 확인 수거 완료</div>
+<div class="box"><strong>제약</strong><br>2nd-B push 및 hub branch 변경 없음</div>
+</div>
+
+<h2>수거한 핵심 근거</h2>
+<table>
+<thead>
+<tr><th>항목</th><th>확인 내용</th><th>판정 영향</th></tr>
+</thead>
+<tbody>
+<tr><td>Paddle env</td><td><code>.github/workflows/web-deploy.yml</code>의 공개 Paddle 변수 배선은 이미 <code>origin/main</code>에 있음</td><td>브랜치 병합 필요 없음</td></tr>
+<tr><td>schema 및 결제 코드</td><td><code>0102_rls_wrap_auth_uid.sql</code>, <code>0103_persona_graph_capture.sql</code>, <code>paddle-checkout.ts</code> 등이 삭제 또는 후퇴 가능</td><td>whole-branch merge 차단 근거</td></tr>
+<tr><td>webhook 보안</td><td><code>paddle-webhook/index.ts</code>의 Source-IP allowlist 방어가 사라지고 폐기된 <code>soma</code> 티어가 되살아남</td><td>보안 및 비즈니스 회귀 위험</td></tr>
+</tbody>
+</table>
+
+<h2>section 35 자기 패널</h2>
+<details open>
+<summary>판단 근거</summary>
+<p><strong>찬성:</strong> 독립 검증자가 같은 close/no-op 결론과 같은 회귀 지점을 재확인했습니다.</p>
+<p><strong>반대:</strong> 이번 사이클에서 Codex가 2nd-B checkout에서 새 테스트를 재실행한 것은 아닙니다.</p>
+<p><strong>대안:</strong> 추가 코드 작업 없이 새 증거 1건을 Claude가 소비할 수 있게 기록합니다.</p>
+<p><strong>심판:</strong> 이미 MoA 검증 응답이므로 새 verify 요청은 중복입니다.</p>
+</details>
+
+<h2>남은 처리</h2>
+<p>Claude merge gate는 해당 remote branch를 병합하지 않고 큐에서 닫으면 됩니다. 실제 운영 변수 값이나 Paddle dashboard 설정 확인은 별도 운영 게이트의 범위입니다.</p>
+</main>
+</body>
+</html>
