@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Soul Core 위키 라벨 은퇴 브랜치 QA</title>
+  <style>
+    :root{--bg:#111315;--text:#e8edf2;--muted:#9aa6b2;--accent:#79b8ff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Noto Sans KR",sans-serif;line-height:1.6}
+    main{max-width:980px;margin:0 auto;padding:40px 20px 56px}
+    h1{font-size:28px;margin:0 0 8px}
+    h2{font-size:18px;margin:28px 0 10px;color:var(--accent)}
+    p{margin:8px 0}
+    .muted{color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:20px 0}
+    .card{border:1px solid #2a3138;border-radius:8px;padding:16px;background:#161a1f}
+    .label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
+    .value{font-size:18px;font-weight:700}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{border-bottom:1px solid #2a3138;padding:10px;text-align:left;vertical-align:top}
+    th{color:var(--muted);font-weight:700}
+    code{color:var(--accent)}
+    details{border:1px solid #2a3138;border-radius:8px;padding:12px;margin:10px 0;background:#14181c}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Soul Core 위키 라벨 은퇴 브랜치 QA</h1>
+  <p class="muted">작성 시각: 2026-08-07 13:05:08 KST · 담당: codex · 프로젝트: 2nd-B</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><span class="label">판정</span><div class="value">닫기 / 추가 작업 없음</div></div>
+    <div class="card"><span class="label">후보 브랜치</span><div class="value">이미 main 포함</div></div>
+    <div class="card"><span class="label">검증</span><div class="value">통과</div></div>
+  </section>
+
+  <h2>결론</h2>
+  <p><code>origin/chore/retire-soul-core-wiki-label</code>은 새 병합이나 PR 없이 닫는 것이 맞다. 후보 커밋 <code>61bbe45f</code>는 이미 <code>origin/main</code>에 포함되어 있고, 대상 파일도 main과 동일하다.</p>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>main 포함 여부</td><td>통과</td><td><code>origin/main</code>이 후보 커밋을 포함</td></tr>
+      <tr><td>대상 파일 diff</td><td>통과</td><td><code>src/app/wiki.tsx</code>, <code>visible-core-copy.test.ts</code> 동일</td></tr>
+      <tr><td>targeted Jest</td><td>통과</td><td>2개 테스트 통과</td></tr>
+      <tr><td>lexicon</td><td>통과</td><td>금지어 검사 통과</td></tr>
+      <tr><td>whitespace</td><td>통과</td><td>대상 diff whitespace 오류 없음</td></tr>
+      <tr><td>secret scan</td><td>통과</td><td>대상 diff에서 키·토큰 패턴 없음</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>변경 내용 자세히</summary>
+    <p>후보 커밋은 위키 카드의 표시 라벨을 <code>Soul Core / 소울 코어</code>에서 <code>North Star / 북극성</code>으로 정렬하고, visible copy 회귀를 막는 테스트를 추가했다.</p>
+  </details>
+
+  <details>
+    <summary>주의 사항 자세히</summary>
+    <p>브랜치 전체 트리 비교에는 오래된 base 때문에 큰 삭제처럼 보이는 차이가 있다. 하지만 실제 후보 커밋은 이미 main에 들어간 2파일 copy fix이므로, 이 브랜치에 새 병합 작업을 만들 필요가 없다.</p>
+  </details>
+
+  <h2>section 35 self-panel</h2>
+  <table>
+    <thead><tr><th>관점</th><th>판단</th></tr></thead>
+    <tbody>
+      <tr><td>찬성</td><td>visible copy를 현재 worldview에 맞춰 정렬한다.</td></tr>
+      <tr><td>반대</td><td>전체 트리 diff만 보면 stale branch 위험을 과대평가할 수 있다.</td></tr>
+      <tr><td>대안</td><td>remote branch를 닫고 main 포함 상태를 정본 근거로 남긴다.</td></tr>
+      <tr><td>심판</td><td>닫기 / 추가 작업 없음이 가장 낮은 위험이다.</td></tr>
+    </tbody>
+  </table>
+</main>
+</body>
+</html>
