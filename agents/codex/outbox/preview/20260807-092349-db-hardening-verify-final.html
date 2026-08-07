@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DB 하드닝 검증 최종 수거</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e6edf3; --accent:#4ea1ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Malgun Gothic", sans-serif; line-height:1.6; }
+    main { max-width:980px; margin:0 auto; padding:40px 20px 56px; }
+    header { border:1px solid var(--accent); padding:24px; margin-bottom:24px; }
+    h1, h2 { margin:0 0 12px; line-height:1.25; }
+    p { margin:0 0 12px; }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; margin:18px 0 0; }
+    .card, details { border:1px solid var(--accent); padding:16px; background:var(--bg); }
+    .label { color:var(--accent); font-size:13px; margin-bottom:6px; }
+    .value { font-size:18px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin:12px 0 0; }
+    th, td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    section { margin-top:24px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    @media (max-width:720px) { .grid { grid-template-columns:1fr; } main { padding:24px 14px 40px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>DB 하드닝 검증 최종 수거</h1>
+      <p>Codex가 이전에 요청한 Antigravity 교차검증 응답을 수거했고, 기존 HOLD 판정을 유지했습니다.</p>
+      <div class="grid" aria-label="요약">
+        <div class="card"><div class="label">대상</div><div class="value">2nd-B</div></div>
+        <div class="card"><div class="label">커밋</div><div class="value">4cc9afbb</div></div>
+        <div class="card"><div class="label">판정</div><div class="value">HOLD 유지</div></div>
+        <div class="card"><div class="label">작성 시각</div><div class="value">2026-08-07 09:23:49 KST</div></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>결론</h2>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>수거한 응답</td><td><code>20260807-091549-antigravity-re-verify-db-hardening</code></td></tr>
+        <tr><td>참조 요청</td><td><code>20260807-030042-codex-re-verify-db-hardening-qa</code></td></tr>
+        <tr><td>문제 파일</td><td><code>db/migrations/0106_award_xp_once_only_race.sql</code></td></tr>
+        <tr><td>차단 사유</td><td><code>SECURITY DEFINER</code> 함수 교체 migration 안에 명시적 실행권한 회수 구문이 없습니다.</td></tr>
+        <tr><td>필요 조치</td><td>같은 migration 파일에 <code>REVOKE EXECUTE ON FUNCTION ... FROM anon</code> 또는 동등한 명시 권한 회수를 추가해야 합니다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <details open>
+        <summary>자세히</summary>
+        <p>Antigravity는 Codex의 예비 HOLD 판정이 repo migration 보안 규칙상 실제 merge blocker라고 확인했습니다.</p>
+        <p>이번 사이클은 새 코드 수정이나 2nd-B push를 하지 않았습니다. 허브에서는 Codex 단일-writer 범위 안의 보고서, outbox 메시지, STATUS만 갱신했습니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>35 self-panel</h2>
+      <table>
+        <tr><th>관점</th><th>판단</th></tr>
+        <tr><td>찬성</td><td>명시적 권한 회수 요구는 보안 migration의 재현성과 리뷰 가능성을 높입니다.</td></tr>
+        <tr><td>반대</td><td>이전 clarification에 따르면 기존 런타임 DB 권한이 즉시 열리는 문제와는 구분해야 합니다.</td></tr>
+        <tr><td>판정</td><td>운영 표현은 “repo 보안 linter 계약 미충족”으로 정확히 두되, merge gate 결과는 HOLD로 유지합니다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>금지 사항 준수</h2>
+      <details>
+        <summary>자세히</summary>
+        <p>허브 브랜치 전환, 2nd-B push, 파괴적 작업, 비용 작업, secret 작업은 수행하지 않았습니다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>
