@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OPENAI_API_KEY 보류 브랜치 검증 수거</title>
+<style>
+:root{--bg:#111318;--text:#eef1f5;--muted:#aab2bf;--accent:#7fb3ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Noto Sans KR",sans-serif;line-height:1.55}
+main{max-width:980px;margin:0 auto;padding:32px 20px 56px}
+h1{font-size:28px;margin:0 0 8px}
+h2{font-size:18px;margin:28px 0 10px;color:var(--accent)}
+p{margin:8px 0;color:var(--text)}
+.muted{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:20px 0}
+.card{border:1px solid var(--muted);border-radius:8px;padding:14px;background:rgba(255,255,255,.03)}
+.card strong{display:block;color:var(--accent);margin-bottom:6px}
+table{width:100%;border-collapse:collapse;margin:14px 0;border:1px solid var(--muted)}
+th,td{padding:10px;border-bottom:1px solid var(--muted);text-align:left;vertical-align:top}
+th{color:var(--accent);font-weight:700}
+code{color:var(--text);background:rgba(255,255,255,.07);padding:1px 4px;border-radius:4px}
+details{border:1px solid var(--muted);border-radius:8px;padding:10px 12px;margin:10px 0;background:rgba(255,255,255,.025)}
+summary{cursor:pointer;color:var(--accent);font-weight:700}
+ul{padding-left:20px}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+  <h1>OPENAI_API_KEY 보류 브랜치 검증 수거</h1>
+  <p class="muted">작성 시각: 2026-08-07 12:37:33 KST · 담당: codex · 프로젝트: 2nd-B</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><strong>결론</strong><span>CLOSE/no-op 유지</span></div>
+    <div class="card"><strong>검증 상태</strong><span>Antigravity 동의, Codex 재확인</span></div>
+    <div class="card"><strong>위험</strong><span>실제 키 노출 없음</span></div>
+  </section>
+
+  <h2>핵심 판단</h2>
+  <p><code>origin/docs/openai-key-phase2-pin</code>의 의도된 문서 변경은 이미 <code>origin/main</code>의 <code>61249799</code>에 반영되어 있습니다. 따라서 새 병합이나 추가 패치 없이 브랜치를 종료하는 편이 가장 낮은 비용입니다.</p>
+
+  <table>
+    <thead>
+      <tr><th>항목</th><th>결과</th><th>근거</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>문서 동일성</td><td>동일</td><td><code>git diff --exit-code origin/main origin/docs/openai-key-phase2-pin -- docs/LLM-ROUTING.md</code> 결과 <code>0</code></td></tr>
+      <tr><td>중복 여부</td><td>중복</td><td>후보 tip <code>b363b820</code> 변경은 main <code>61249799</code>에 이미 존재</td></tr>
+      <tr><td>시크릿 노출</td><td>없음</td><td>문서의 실제 API key 패턴 검사 결과 hit 0</td></tr>
+      <tr><td>MoA 응답</td><td>동의</td><td>Antigravity가 CLOSE/no-op 판정에 동의</td></tr>
+    </tbody>
+  </table>
+
+  <h2>정정 사항</h2>
+  <p>이전 Codex 보고의 “whole-branch merge가 최신 main 파일을 삭제한다”는 표현은 실제 Git merge 의미로는 과했습니다. <code>origin/main..branch</code> 트리 비교에는 stale 삭제 차이가 보이지만, merge-base 이후 후보 변경은 <code>docs/LLM-ROUTING.md</code> 1건입니다.</p>
+  <p>따라서 최종 사유는 “회귀 위험 때문에 병합 금지”가 아니라 “이미 main에 반영되어 병합 가치가 없음”입니다.</p>
+
+  <details>
+    <summary>자세히 보기</summary>
+    <ul>
+      <li>Antigravity 응답: <code>20260807-122512-antigravity-re-verify-openai-key-phase2-pin</code></li>
+      <li>Codex 원 요청: <code>20260807-121131-codex-to-antigravity-verify-openai-key-phase2-pin</code></li>
+      <li>Codex 원 보고: <code>20260807-121131-codex-re-openai-key-phase2-pin-qa</code></li>
+      <li>권장 처리: Claude가 stale remote branch를 닫거나 아카이브하고 main <code>61249799</code>를 정본 근거로 참조</li>
+    </ul>
+  </details>
+
+  <h2>제약 준수</h2>
+  <p>허브에서는 <code>agents/codex/</code> 아래만 작성했습니다. 2nd-B push, hub branch 변경, 파괴 작업, 비용 작업, 시크릿 작업은 하지 않았습니다.</p>
+</main>
+</body>
+</html>
