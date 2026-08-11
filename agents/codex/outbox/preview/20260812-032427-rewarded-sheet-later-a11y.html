@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>보상 시트 보조 버튼 접근성 보강 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101418; --fg:#edf2f4; --muted:#9aa8b2; --accent:#62d6c6; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    section { border-top: 1px solid rgba(237,242,244,.18); padding: 22px 0; }
+    .summary { border: 1px solid rgba(98,214,198,.35); padding: 18px; margin: 18px 0 22px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .box { border: 1px solid rgba(237,242,244,.16); padding: 12px; min-height: 92px; }
+    .label { display:block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .value { font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid rgba(237,242,244,.16); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: Consolas, monospace; overflow-wrap: anywhere; }
+    details { border: 1px solid rgba(237,242,244,.16); padding: 10px 12px; margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); }
+    .bar { display:flex; height: 12px; border:1px solid rgba(237,242,244,.16); margin-top: 10px; }
+    .bar span { background: var(--accent); width: 100%; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 24px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>보상 시트 보조 버튼 접근성 보강</h1>
+    <p class="summary">이번 사이클은 열린 Codex 요청이 없어 2nd-B UI 접근성 점검을 한 건 수행했다. 보상 시트의 하단 “나중에” 버튼에 스크린리더 라벨이 빠져 있어, 기존 다국어 문구를 접근성 라벨로 연결하고 회귀 방지 테스트를 추가했다.</p>
+
+    <div class="grid" aria-label="요약">
+      <div class="box"><span class="label">결과</span><span class="value">로컬 커밋 완료</span></div>
+      <div class="box"><span class="label">브랜치</span><span class="value"><code>codex/qa-cycle-20260812-032026</code></span></div>
+      <div class="box"><span class="label">커밋</span><span class="value"><code>ee1b68bd</code></span></div>
+      <div class="box"><span class="label">푸시</span><span class="value">하지 않음</span></div>
+    </div>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead><tr><th>파일</th><th>내용</th><th>영향</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/components/deepspace/RewardedSheet.tsx</code></td><td>하단 보조 버튼에 <code>accessibilityLabel={C.later}</code> 추가</td><td>한국어와 다른 언어 모두 기존 번역 문구로 버튼 목적을 읽음</td></tr>
+          <tr><td><code>src/lib/__tests__/rewarded-sheet-a11y.test.ts</code></td><td>닫기 대상 두 곳 모두 <code>C.later</code> 라벨을 유지하는 소스 스캔 테스트 추가</td><td>같은 회귀가 다시 들어오면 타깃 테스트에서 실패</td></tr>
+        </tbody>
+      </table>
+      <details><summary>자세히</summary><p>상단 배경 닫기 영역에는 이미 라벨이 있었지만, 실제로 보이는 하단 “나중에” 버튼은 라벨이 없어 스크린리더가 버튼 목적을 안정적으로 전달하지 못할 수 있었다.</p></details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>항목</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><code>prettier --check</code></td><td>통과</td></tr>
+          <tr><td><code>jest rewarded-sheet-a11y</code></td><td>통과</td></tr>
+          <tr><td><code>eslint</code></td><td>통과</td></tr>
+          <tr><td><code>type-check</code></td><td>통과</td></tr>
+          <tr><td><code>check:i18n</code>, <code>check:safety-consent-locale</code>, <code>check:constraints</code>, <code>check:emdash</code></td><td>통과</td></tr>
+          <tr><td>diff 시크릿 패턴 스캔</td><td>통과</td></tr>
+        </tbody>
+      </table>
+      <div class="bar" aria-label="검증 통과율"><span></span></div>
+    </section>
+
+    <section>
+      <h2>위험과 롤백</h2>
+      <p>동작 로직 변경 없이 접근성 속성만 추가했다. 위험은 낮다. 문제가 있으면 2nd-B 브랜치의 단일 커밋 <code>ee1b68bd</code>를 되돌리면 된다.</p>
+      <details><summary>제약 준수</summary><p>허브 브랜치를 전환하지 않았고, 2nd-B는 별도 worktree에서 작업했다. 2nd-B push, 비용 작업, 파괴 작업, secret 작업은 수행하지 않았다. 코드 diff 산출물이므로 Claude에게 MoA 검증 요청을 남겼다.</p></details>
+    </section>
+
+    <section>
+      <h2>기록</h2>
+      <p>작성 시각: 2026-08-12 03:24:27 KST</p>
+    </section>
+  </main>
+</body>
+</html>
