@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>주간 성장 동작 접근성 보강 보고</title>
+  <style>
+    :root { --bg: #0b0f14; --text: #e6edf3; --accent: #60d6d6; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.6; }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2 { margin: 0 0 14px; color: var(--text); }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; border-top: 1px solid var(--accent); padding-top: 18px; }
+    p { margin: 0 0 14px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { border: 1px solid var(--accent); padding: 12px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .lead { border: 1px solid var(--accent); padding: 16px; margin: 18px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>주간 성장 동작 접근성 보강</h1>
+    <p class="lead">2026-08-12 04:18:00 KST 단일 폴 사이클 결과입니다. 열린 코덱스 요청은 없었고, 코덱스 화면 접근성 레인에서 2nd-B 주간 성장 화면의 버튼 라벨 누락을 한 건 보강했습니다.</p>
+
+    <h2>요약</h2>
+    <table>
+      <tr><th>항목</th><th>내용</th></tr>
+      <tr><td>작업 위치</td><td><code>C:\2ndB\.worktrees\codex-qa-weekly-growth-a11y-20260812-041552</code></td></tr>
+      <tr><td>브랜치</td><td><code>codex/qa-weekly-growth-a11y-20260812-041552</code></td></tr>
+      <tr><td>기준</td><td><code>origin/main 215f5cdd123d94a27adf7165234807eec301f7da</code></td></tr>
+      <tr><td>로컬 커밋</td><td><code>8837c2b2</code> <code>fix(a11y): label weekly growth actions</code></td></tr>
+      <tr><td>푸시</td><td>하지 않았음</td></tr>
+    </table>
+
+    <h2>변경 내용</h2>
+    <p><code>WeeklyGrowthScreen.tsx</code>에서 근거 칩, 루틴 저장 버튼, 다시 분석 버튼, 첫 주 상태의 기록하기와 루틴 시작 버튼에 접근성 역할과 라벨을 보강했습니다. 저장 완료 상태는 비활성 상태로 전달되도록 맞췄습니다.</p>
+    <p><code>weekly-growth-a11y.test.ts</code>를 추가해 같은 라벨 계약이 다시 빠지지 않도록 소스 수준 회귀 테스트를 만들었습니다.</p>
+
+    <details>
+      <summary>자세히</summary>
+      <p>화면에 보이는 텍스트는 있었지만 일부 동작은 보조기술에 버튼 역할이나 명확한 동작 이름이 안정적으로 전달되지 않았습니다. 새 문구를 만들지 않고 기존 번역 키를 재사용했습니다.</p>
+      <p>기존 파일이 압축 포맷이라 Prettier가 같은 파일의 줄바꿈을 함께 정리했습니다. 의미 변경은 접근성 메타데이터 추가에 한정됩니다.</p>
+    </details>
+
+    <h2>검증</h2>
+    <table>
+      <tr><th>검사</th><th>결과</th></tr>
+      <tr><td>Prettier</td><td>통과</td></tr>
+      <tr><td>타깃 Jest</td><td>통과, 1개 테스트</td></tr>
+      <tr><td>파일 ESLint</td><td>통과</td></tr>
+      <tr><td>TypeScript</td><td>통과</td></tr>
+      <tr><td>다국어 키, 금지어, 제약, 안전 동의 문구, 긴 대시</td><td>통과</td></tr>
+      <tr><td>차이 위생</td><td>공백 오류 없음, Windows 줄끝 안내만 표시</td></tr>
+      <tr><td>시크릿 패턴 스캔</td><td>일치 없음</td></tr>
+    </table>
+
+    <h2>섹션 35 자체 검토</h2>
+    <p>찬성: 실제 버튼의 역할과 이름을 명확히 해 화면 읽기 사용자가 다음 동작을 예측하기 쉬워집니다.</p>
+    <p>반대: 시각 텍스트가 이미 있어 기능 고장은 아니며, Prettier 줄바꿈 정리가 diff를 크게 보이게 합니다.</p>
+    <p>판정: 기존 번역 키를 재사용한 낮은 위험 접근성 보강입니다. 보안, 스키마, 결제, 외부 사실, 배포 변경이 아니므로 별도 교차검증 요청은 열지 않았습니다.</p>
+
+    <h2>제약 준수</h2>
+    <p>허브 브랜치는 바꾸지 않았고, 허브 쓰기는 <code>agents/codex/</code> 아래로 제한했습니다. 2nd-B 푸시, 파괴적 작업, 비용 발생 작업, 시크릿 작업은 하지 않았습니다.</p>
+  </main>
+</body>
+</html>
