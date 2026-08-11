@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nebori 자산 브랜치 no-op QA</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101214; --fg:#f2f4f5; --muted:#9aa3a8; --accent:#5ab8ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 48px; }
+    h1, h2, h3 { line-height:1.25; margin:0; }
+    h1 { font-size:30px; margin-bottom:10px; }
+    h2 { font-size:18px; margin-top:28px; border-top:1px solid var(--muted); padding-top:18px; }
+    p { margin:10px 0; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:18px 0 8px; }
+    .card { border:1px solid var(--muted); border-radius:8px; padding:14px; min-height:110px; }
+    .card strong { display:block; color:var(--accent); font-size:13px; margin-bottom:8px; }
+    .value { font-size:24px; line-height:1.2; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { border:1px solid var(--muted); padding:8px 10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--fg); background:#161a1d; padding:1px 4px; border-radius:4px; }
+    details { border:1px solid var(--muted); border-radius:8px; padding:10px 12px; margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:10px; background:#161a1d; border:1px solid var(--muted); border-radius:999px; overflow:hidden; margin-top:8px; }
+    .fill { height:100%; background:var(--accent); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } h1 { font-size:24px; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Nebori 자산 브랜치 no-op QA</h1>
+  <p class="muted">작성 시각: 2026-08-11 20:44:11 KST · 수행자: codex · 프로젝트: 2nd-B</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><strong>최종 판정</strong><div class="value">닫기 권고</div><p>새 병합 대상이 아니라 이미 반영된 브랜치입니다.</p></div>
+    <div class="card"><strong>실제 병합 시험</strong><div class="value">차이 없음</div><p>충돌 없음, index와 working tree diff 모두 비어 있습니다.</p></div>
+    <div class="card"><strong>대상 파일</strong><div class="value">15개 동일</div><p>Nebori 자산과 완료 문서가 main과 같은 blob입니다.</p></div>
+    <div class="card"><strong>위험</strong><div class="value">낮음</div><p>단순 비교에서 보이는 삭제는 stale 브랜치 착시입니다.</p></div>
+  </section>
+
+  <h2>결론</h2>
+  <p><code>origin/codex/nebori-asset-spec</code>는 <code>origin/main</code>에 이미 반영된 Nebori 자산/문서 묶음입니다. Claude merge gate에는 이 브랜치를 새로 병합하지 말고 CLOSE/no-op으로 닫는 것을 권고합니다.</p>
+  <details>
+    <summary>자세히</summary>
+    <p>브랜치별 변경만 보면 Nebori PNG 11개와 완료 문서 HTML 4개가 추가된 것처럼 보입니다. 그러나 현재 <code>origin/main</code>에는 <code>1b882ae0</code> 커밋으로 같은 15개 파일이 이미 들어 있습니다. 대상 파일 blob hash도 모두 동일했습니다.</p>
+  </details>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead><tr><th>검사</th><th>결과</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>허브 inbox</td><td>새 직접 주문 없음</td><td><code>tools/board.ps1 -Me codex</code></td></tr>
+      <tr><td>2nd-B 원격 오더</td><td>OPEN 비어 있음</td><td><code>C:\2ndB\ORDERS.md</code></td></tr>
+      <tr><td>병합 시험</td><td>충돌 없음</td><td><code>git merge --no-ff --no-commit origin/codex/nebori-asset-spec</code></td></tr>
+      <tr><td>실제 병합 diff</td><td>비어 있음</td><td><code>git diff --exit-code HEAD</code>, <code>git diff --cached --exit-code</code></td></tr>
+      <tr><td>대상 파일 동일성</td><td>15/15 동일</td><td>main과 후보 브랜치의 blob hash 일치</td></tr>
+      <tr><td>시크릿 패턴</td><td>0건</td><td>대상 HTML 문서 제한 검사</td></tr>
+    </tbody>
+  </table>
+
+  <h2>파일 범위</h2>
+  <p>Nebori PNG 자산 11개와 완료 보고 HTML 4개가 대상입니다. PNG 총량은 약 4.9MB입니다.</p>
+  <div class="bar" aria-label="대상 파일 동일률"><div class="fill" style="width:100%"></div></div>
+  <p class="muted">동일률: 100%</p>
+
+  <h2>위험과 남은 일</h2>
+  <p>단순 two-dot diff는 최신 <code>main</code>의 notices/DB 파일 삭제처럼 보입니다. 실제 merge trial은 no-op이지만, 이 브랜치를 새 기능 브랜치처럼 다시 다루면 혼란이 생길 수 있습니다.</p>
+  <details>
+    <summary>자세히</summary>
+    <p>삭제처럼 보인 파일은 <code>db/migrations/0125_drop_users_orphan_backup_0107.sql</code>, <code>src/app/notices.tsx</code>, <code>src/lib/notices/__tests__/read-hydration.test.ts</code>입니다. 실제 병합 결과에는 이 삭제가 적용되지 않았습니다.</p>
+  </details>
+
+  <h2>자체 패널</h2>
+  <table>
+    <thead><tr><th>관점</th><th>판단</th></tr></thead>
+    <tbody>
+      <tr><td>찬성</td><td>대상 파일이 이미 main에 있고 실제 병합 결과가 비어 있으므로 닫아도 됩니다.</td></tr>
+      <tr><td>반대</td><td>브랜치 자체는 갈라져 있어 tree 비교만 보면 삭제처럼 보입니다.</td></tr>
+      <tr><td>최종</td><td>CLOSE/no-op으로 처리하고 새 병합 대상으로 삼지 않는 것이 안전합니다.</td></tr>
+    </tbody>
+  </table>
+</main>
+</body>
+</html>
