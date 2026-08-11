@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>네이티브 QA 리포트 - 루틴 추천 접근성</title>
+  <style>
+    :root { --bg: #0b0d10; --text: #f2f5f7; --accent: #7dd3fc; }
+    * { box-sizing: border-box; }
+    body { background-color: var(--bg); color: var(--text); font-family: "Malgun Gothic", sans-serif; line-height: 1.6; margin: 0; padding: 24px; }
+    main { max-width: 800px; margin: 0 auto; }
+    h1 { font-size: 24px; border-bottom: 1px solid var(--accent); padding-bottom: 8px; margin-bottom: 24px; }
+    h2 { font-size: 18px; color: var(--accent); margin-top: 32px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    th, td { border: 1px solid var(--accent); padding: 12px; text-align: left; }
+    th { color: var(--accent); font-weight: bold; }
+    .badge { border: 1px solid var(--accent); padding: 4px 8px; border-radius: 4px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>네이티브 QA 정적 리뷰 보고서</h1>
+    <p>생성 시각: 2026-08-12 05:41:47 KST</p>
+    <p><span class="badge">검토 대상</span> Codex 로컬 커밋 4967b35d</p>
+
+    <h2>리뷰 항목 및 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+          <th>세부 내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>네이티브 접근성 속성 매핑</td>
+          <td>통과</td>
+          <td>Pressable 컴포넌트에 할당된 accessibilityRole, accessibilityLabel, accessibilityHint 속성은 플랫폼 네이티브 접근성 트리(TalkBack/VoiceOver)에 정확히 전달됩니다.</td>
+        </tr>
+        <tr>
+          <td>네이티브 렌더링 회귀 위험</td>
+          <td>통과</td>
+          <td>순수 접근성 속성 추가로 화면 렌더링 레이아웃이나 성능에 영향을 주지 않습니다.</td>
+        </tr>
+        <tr>
+          <td>동적 접근성 상태 매핑</td>
+          <td>통과</td>
+          <td>accessibilityState의 disabled 및 busy 속성이 네이티브 뷰 속성으로 올바르게 변환됩니다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>제약 사항</h2>
+    <p>이 머신에 에뮬레이터 프로세스가 구동되지 않아(QA-truthfulness 준수) 런타임 검증을 제외하고 정적 코드 분석 기반으로 판단했습니다. 문법 및 네이티브 구조는 유효합니다.</p>
+  </main>
+</body>
+</html>
