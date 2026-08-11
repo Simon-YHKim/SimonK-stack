@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 폴 사이클 보고: ops 알림 버튼 접근성</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e6edf3; --accent:#58a6ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: Arial, sans-serif; line-height:1.6; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 56px; }
+    header, section { border: 1px solid var(--accent); padding: 18px; margin: 0 0 16px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 26px; line-height:1.25; }
+    h2 { font-size: 18px; color: var(--accent); }
+    table { width:100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    code { color: var(--accent); word-break: break-all; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .card { border:1px solid var(--accent); padding:14px; min-height:96px; }
+    .ok { color: var(--accent); font-weight:700; }
+    details { border:1px solid var(--accent); padding: 10px 12px; margin-top: 10px; }
+    summary { cursor:pointer; color: var(--accent); }
+    svg { width:100%; max-width:620px; height:auto; display:block; margin-top:10px; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Codex 폴 사이클 보고: ops 알림 버튼 접근성</h1>
+    <p>작성 시각: 2026-08-12 08:52:29 KST</p>
+    <p>이번 사이클은 새로 처리할 Codex 대상 주문이 없어, 2nd-B 최신 기준에서 UI 접근성 결함 한 건만 수정했다.</p>
+  </header>
+
+  <section>
+    <h2>한눈에 보기</h2>
+    <div class="grid">
+      <div class="card"><h3>결과</h3><p class="ok">완료</p><p>ops 허브의 알림 진입 버튼에 보조기술용 역할과 이름을 추가했다.</p></div>
+      <div class="card"><h3>범위</h3><p>2nd-B 로컬 worktree 1개, 앱 커밋 1개, 허브 보고서 2개.</p></div>
+      <div class="card"><h3>위험</h3><p>낮음. 화면 동작은 그대로 두고 접근성 속성만 추가했다.</p></div>
+      <div class="card"><h3>금지 준수</h3><p>2nd-B push 없음. 허브 branch 변경 없음. 비용, 파괴, secret 작업 없음.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>작업 내용</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>기준</td><td><code>origin/main 215f5cdd123d94a27adf7165234807eec301f7da</code></td></tr>
+        <tr><td>worktree</td><td><code>C:\2ndB\.worktrees\codex-qa-20260812-084705</code></td></tr>
+        <tr><td>branch</td><td><code>codex/qa-cycle-20260812-084705</code></td></tr>
+        <tr><td>로컬 커밋</td><td><code>cf2023df</code>, <code>fix: expose ops reminder CTA to screen readers</code></td></tr>
+        <tr><td>수정 파일</td><td><code>src/screens/deepspace/DeepSpaceDesignScreens.tsx</code>, <code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code></td></tr>
+      </tbody>
+    </table>
+    <details>
+      <summary>자세히</summary>
+      <p><code>/ops</code> 허브에서 <code>/reminders</code>로 이동하는 CTA는 실제 버튼이지만, 명시적 <code>accessibilityRole="button"</code>과 <code>accessibilityLabel</code>이 없었다. 보이는 문구 <code>card.remind</code>를 그대로 보조기술 이름으로 연결했다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>검증 상태</h2>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>대상 Jest</td><td class="ok">통과: deep-space-controls-a11y 9개 테스트</td></tr>
+        <tr><td>ESLint</td><td class="ok">오류 없음, 기존 unused 경고 40개</td></tr>
+        <tr><td>TypeScript</td><td class="ok">통과</td></tr>
+        <tr><td>i18n 키 및 미번역 검사</td><td class="ok">통과</td></tr>
+        <tr><td>lexicon, constraints, safety locale, emdash</td><td class="ok">통과</td></tr>
+        <tr><td>diff check와 secret 패턴 스캔</td><td class="ok">통과</td></tr>
+      </tbody>
+    </table>
+    <svg viewBox="0 0 620 120" role="img" aria-label="검증 6개 항목 모두 통과">
+      <rect x="0" y="0" width="620" height="120" fill="#0b0f14"></rect>
+      <rect x="20" y="20" width="560" height="18" fill="#58a6ff"></rect>
+      <rect x="20" y="52" width="560" height="18" fill="#58a6ff"></rect>
+      <rect x="20" y="84" width="560" height="18" fill="#58a6ff"></rect>
+    </svg>
+  </section>
+
+  <section>
+    <h2>35 self-panel</h2>
+    <table>
+      <thead><tr><th>관점</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>사용자 경험</td><td>보이는 UI는 유지하면서 스크린 리더가 버튼으로 이해할 수 있게 했다.</td></tr>
+        <tr><td>엔지니어링</td><td>변경은 한 CTA와 회귀 테스트에 제한했다. accidental broad format은 제거했다.</td></tr>
+        <tr><td>위험 관리</td><td>기능 경로, 데이터, 결제, 외부 API, secret에는 영향이 없다.</td></tr>
+        <tr><td>머지 게이트</td><td>2nd-B 원격에는 push하지 않았고 Claude가 검토할 수 있도록 outbox에 보고했다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>남은 작업</h2>
+    <p>Claude merge gate가 필요하면 로컬 커밋 <code>cf2023df</code>를 검토해 main 통합 여부를 판단하면 된다.</p>
+  </section>
+</main>
+</body>
+</html>
