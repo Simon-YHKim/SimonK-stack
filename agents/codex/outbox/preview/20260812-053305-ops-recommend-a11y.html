@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 자율 사이클 보고서 - 루틴 추천 접근성</title>
+  <style>
+    :root{--bg:#0b0d10;--text:#f2f5f7;--accent:#7dd3fc}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Malgun Gothic",sans-serif;line-height:1.55}
+    main{max-width:980px;margin:0 auto;padding:32px 18px 48px}
+    h1{font-size:28px;margin:0 0 12px}
+    h2{font-size:18px;margin:28px 0 10px;color:var(--accent)}
+    p{margin:8px 0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin:18px 0}
+    .card{border:1px solid var(--accent);border-radius:6px;padding:14px}
+    .label{font-size:12px;color:var(--accent);display:block;margin-bottom:4px}
+    table{width:100%;border-collapse:collapse;margin:10px 0 18px}
+    th,td{border-bottom:1px solid var(--accent);padding:10px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent);font-family:Consolas,monospace}
+    details{border:1px solid var(--accent);border-radius:6px;padding:10px;margin:10px 0}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    .bar{height:10px;border:1px solid var(--accent);border-radius:999px;overflow:hidden;margin-top:8px}
+    .bar span{display:block;height:100%;background:var(--accent)}
+  </style>
+</head>
+<body>
+<main>
+  <h1>자율 사이클 보고서 - 루틴 추천 접근성</h1>
+  <p>생성 시각: 2026-08-12 05:33:05 KST</p>
+  <div class="grid">
+    <div class="card"><span class="label">결과</span>2nd-B 로컬 커밋 생성</div>
+    <div class="card"><span class="label">브랜치</span><code>codex/qa-cycle-20260812-052625</code></div>
+    <div class="card"><span class="label">앱 커밋</span><code>4967b35d</code></div>
+    <div class="card"><span class="label">푸시</span>하지 않음</div>
+  </div>
+
+  <h2>이번 사이클 판단</h2>
+  <table>
+    <tr><th>항목</th><th>내용</th></tr>
+    <tr><td>요청 확인</td><td>codex 인박스에는 처리할 열린 요청이 없었고, peer outbox의 codex 대상 열린 행은 오래된 응답 완료 맥락으로 판정했다.</td></tr>
+    <tr><td>선택한 작업</td><td>현재 레인에 맞춰 2nd-B 루틴 추천 화면의 접근성 결함 하나를 수정했다.</td></tr>
+    <tr><td>제약 준수</td><td>허브에서는 <code>agents/codex/</code>만 썼고, 2nd-B는 별도 worktree에서 로컬 커밋만 만들었다.</td></tr>
+  </table>
+
+  <h2>변경 내용</h2>
+  <table>
+    <tr><th>파일</th><th>변경</th></tr>
+    <tr><td><code>src/screens/deepspace/DeepSpaceDesignScreens.tsx</code></td><td>루틴 추천 흐름의 리마인더 이동 버튼과 추천 실행 버튼에 역할, 라벨, 힌트를 추가했다.</td></tr>
+    <tr><td><code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code></td><td>두 버튼이 접근성 속성을 유지하는지 검사하는 소스 스캔 가드를 추가했다.</td></tr>
+  </table>
+
+  <h2>검증</h2>
+  <table>
+    <tr><th>검증 항목</th><th>상태</th><th>메모</th></tr>
+    <tr><td>대상 Jest</td><td>통과</td><td><code>deep-space-controls-a11y.test.ts</code> 9개 테스트 통과</td></tr>
+    <tr><td>ESLint</td><td>통과</td><td>오류 0개, 기존 미사용 경고 40개</td></tr>
+    <tr><td>TypeScript</td><td>통과</td><td><code>tsc --noEmit</code></td></tr>
+    <tr><td>i18n, lexicon, constraints, safety, emdash</td><td>통과</td><td>모두 관련 가드 통과</td></tr>
+    <tr><td>diff 위생 및 시크릿 패턴</td><td>통과</td><td><code>git diff --check</code>, 시크릿 패턴 없음</td></tr>
+  </table>
+  <div class="bar" aria-label="검증 통과율"><span style="width:100%"></span></div>
+
+  <h2>자기 패널</h2>
+  <details open>
+    <summary>35.4 자가 검토</summary>
+    <p>사용자 가치: 스크린리더 사용자가 루틴 추천의 주요 행동을 버튼으로 인식하고 목적을 들을 수 있다.</p>
+    <p>회귀 위험: 기존 번역 키를 재사용했고 화면 동작은 바꾸지 않아 낮다.</p>
+    <p>검증 가능성: 소스 스캔 테스트와 타입, i18n 가드로 속성 유지와 키 유효성을 확인했다.</p>
+  </details>
+
+  <h2>남은 위험</h2>
+  <p><code>npm ci</code> 중 기존 패치 버전 경고와 audit 취약점 목록이 출력됐다. 이번 접근성 변경과 직접 관련이 없어 수정하지 않았다.</p>
+</main>
+</body>
+</html>
