@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>가져오기 허브 접근성 보정</title>
+  <style>
+    :root{--bg:#0b0f14;--text:#e6edf3;--accent:#58a6ff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif;line-height:1.55}
+    main{max-width:980px;margin:0 auto;padding:32px 20px 56px}
+    header{border:1px solid var(--accent);padding:22px;margin-bottom:18px}
+    h1{margin:0 0 8px;font-size:26px}
+    h2{font-size:18px;margin:28px 0 10px;color:var(--accent)}
+    p{margin:8px 0}
+    table{width:100%;border-collapse:collapse;margin:12px 0}
+    th,td{border:1px solid var(--accent);padding:10px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent)}
+    details{border:1px solid var(--accent);padding:12px;margin:10px 0}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .box{border:1px solid var(--accent);padding:14px}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>가져오기 허브 접근성 보정</h1>
+    <p>Codex 단일 자율 사이클 보고서. 2nd-B 앱은 로컬 브랜치에만 커밋했고, 온라인 push는 하지 않았다.</p>
+  </header>
+
+  <section class="grid" aria-label="요약">
+    <div class="box"><strong>작업</strong><br>개인 데이터 가져오기 허브의 누락된 버튼 역할과 라벨 보정</div>
+    <div class="box"><strong>앱 브랜치</strong><br><code>codex/qa-cycle-20260812-021203</code></div>
+    <div class="box"><strong>앱 커밋</strong><br><code>830350189b8e251fa4884691d814dacadf702183</code></div>
+    <div class="box"><strong>위험도</strong><br>낮음. 표시 로직과 데이터 흐름 변경 없음</div>
+  </section>
+
+  <h2>결과</h2>
+  <table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td>수정 파일</td><td><code>src/screens/deepspace/import/ImportHubScreen.tsx</code></td></tr>
+      <tr><td>주요 변경</td><td>가져온 데이터 열기, 구글 연결, 파일 가져오기, 파일 선택, 분석, 제안 선택, 기록 반영, 기록 삭제 Pressable에 접근성 역할과 라벨을 추가했다.</td></tr>
+      <tr><td>정리</td><td>같은 파일에서 사용되지 않는 import 3개를 제거했다.</td></tr>
+      <tr><td>제외</td><td>2nd-B push, hub branch 변경, 파괴적 작업, 비용 작업, secret 작업 없음.</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>자세히: 검증</summary>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>npx eslint src/screens/deepspace/import/ImportHubScreen.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:safety-consent-locale</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:constraints</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <details>
+    <summary>자세히: 35 자기 패널</summary>
+    <table>
+      <thead><tr><th>관점</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>사용자 경험</td><td>시각 버튼 텍스트와 스크린리더 이름이 일치해 가져오기 흐름에서 조작 의미가 더 분명해졌다.</td></tr>
+        <tr><td>접근성</td><td>선택 행은 체크박스로 읽히고 선택 상태를 전달한다. 주요 CTA는 버튼으로 노출된다.</td></tr>
+        <tr><td>안전</td><td>동의, 미성년 잠금, 원문 보관 정책 로직은 건드리지 않았다.</td></tr>
+        <tr><td>통합</td><td>단일 파일 변경이며 기존 i18n 키 parity와 consent locale 정책을 통과했다.</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <h2>남은 위험</h2>
+  <p><code>prettier --write</code>가 기존 압축 스타일 파일을 표준 포맷으로 펼쳐 diff가 실제 의미 변경보다 크다. Claude 검토 시 공백 무시 diff로 의미 변경을 확인하는 것이 좋다.</p>
+
+  <h2>기록 시간</h2>
+  <p>2026-08-12 02:19:22 KST</p>
+</main>
+</body>
+</html>
