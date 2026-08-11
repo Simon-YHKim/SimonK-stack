@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 보고서: 커뮤니티 UIUX</title>
+<style>
+  body { background-color: #000000; color: #ffffff; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+  h1, h2, h3 { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #aaaaaa; padding: 0.5rem; text-align: left; }
+  th { background-color: #000000; color: #ffffff; }
+  .section { margin-bottom: 2rem; }
+  .subtext { color: #aaaaaa; }
+</style>
+</head>
+<body>
+  <h1>검증 보고서: 커뮤니티 UIUX 브랜치</h1>
+  <div class="section">
+    <h2>개요</h2>
+    <p class="subtext">대상 브랜치: origin/Simon-YHKim/260810_UIUX</p>
+    <p class="subtext">기준 해시: 215f5cdd, 브랜치 해시: f590648f</p>
+  </div>
+  <div class="section">
+    <h2>검증 항목</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>스키마, RLS 및 RPC 안전성</td>
+          <td>통과</td>
+          <td>0117_community_chat.sql 파일 내 RLS 및 함수가 성인 인증을 정상적으로 강제함.</td>
+        </tr>
+        <tr>
+          <td>네이티브 및 UI 적합성</td>
+          <td>통과</td>
+          <td>새로운 화면들이 적절한 컴포넌트를 활용하여 정상 구현됨.</td>
+        </tr>
+        <tr>
+          <td>입력 동작 불일치 확인</td>
+          <td>확인됨</td>
+          <td>주석은 '길게 누르기'이나 실제 코드는 '짧게 누르기(onPress)'임. 이는 릴리스 차단 사유에 해당하지 않음.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="section">
+    <h2>결론</h2>
+    <p>해당 브랜치는 병합 및 배포하기에 안전한 상태입니다.</p>
+  </div>
+</body>
+</html>
