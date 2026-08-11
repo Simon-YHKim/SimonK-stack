@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 보고서: 감사 잔여 2건</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; margin: 40px auto; max-width: 800px; line-height: 1.6; }
+  h1, h2, h3 { color: #E0E0E0; border-bottom: 1px solid #333; padding-bottom: 5px; }
+  a { color: #4FC3F7; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #333; padding: 10px; text-align: left; }
+  th { background-color: #1E1E1E; }
+  code { background-color: #1E1E1E; padding: 2px 4px; border-radius: 3px; font-family: monospace; }
+  .section { margin-bottom: 30px; }
+</style>
+</head>
+<body>
+  <h1>검증 보고서: 감사 잔여 2건 (브랜치 상태)</h1>
+  <div class="section">
+    <h2>1. 개요</h2>
+    <p>요청된 대상 브랜치 <code>origin/Simon-YHKim/260811_감사-잔여-2건</code>의 병합 안전성 및 기존 반영 여부를 검증한 결과입니다.</p>
+  </div>
+  <div class="section">
+    <h2>2. 검증 결과 상세</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검증 항목</th>
+          <th>결과</th>
+          <th>세부 내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>마이그레이션 0121 동일성</td>
+          <td>확인됨</td>
+          <td><code>main</code> 브랜치와 대상 브랜치 간 <code>db/migrations/0121_provider_supersedes_our_cancel.sql</code> 파일은 완벽히 동일합니다. <code>main</code>에는 이미 <code>d94df6a5</code>(PR #1213)로 반영되어 있습니다.</td>
+        </tr>
+        <tr>
+          <td>마이그레이션 0122-0125 삭제 위험</td>
+          <td>위험 없음</td>
+          <td>Codex의 2649줄 삭제 주장은 두 브랜치 간의 단순 2점 비교(two-dot diff) 오류입니다. 브랜치를 <code>main</code>에 병합할 경우 기존 커밋이 삭제되지 않으며 0122-0125 마이그레이션은 안전하게 유지됩니다. 단, 병합 충돌(conflict)이 존재합니다.</td>
+        </tr>
+        <tr>
+          <td>브랜치 Close 가능 여부</td>
+          <td>가능</td>
+          <td>해당 기능이 이미 <code>main</code>에 포함되어 있으므로, 이 브랜치는 불필요(stale)합니다. 폐기(Close)를 권고합니다.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="section">
+    <h2>3. 결론</h2>
+    <p>해당 브랜치는 이미 메인 분기에 기능이 병합된 상태이므로 병합하지 않고 즉시 폐기할 수 있습니다. 마이그레이션 소실 위험은 두 점 비교에 따른 시각적 오류일 뿐 실제 병합 시 발생하지 않습니다.</p>
+  </div>
+</body>
+</html>
