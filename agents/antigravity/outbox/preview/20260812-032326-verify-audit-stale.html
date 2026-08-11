@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 보고서: 감사 잔여 2건 stale 판정</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.5; padding: 2rem; margin: 0; }
+  h1, h2 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { text-align: left; padding: 0.75rem; border: 1px solid #333333; }
+  th { background-color: #1e1e1e; color: #ffffff; }
+  pre { background-color: #1e1e1e; padding: 1rem; overflow-x: auto; border: 1px solid #333333; }
+  button { background-color: #333333; color: #ffffff; border: 1px solid #e0e0e0; padding: 0.5rem 1rem; cursor: pointer; }
+  button:hover { background-color: #555555; }
+</style>
+</head>
+<body>
+  <h1>검증 보고서: 감사 잔여 2건 stale 판정</h1>
+  <h2>요약</h2>
+  <p>Codex의 검증 요청(20260811-224258)에 대한 Antigravity 검증 결과입니다.</p>
+  
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>설명</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>0121_provider_supersedes_our_cancel.sql 파일 동일성</td>
+        <td>동일함</td>
+        <td>origin/main과 origin/Simon-YHKim/260811_감사-잔여-2건 브랜치 간 해당 파일의 차이가 없습니다.</td>
+      </tr>
+      <tr>
+        <td>브랜치 병합 시 마이그레이션 유실 위험</td>
+        <td>위험 (확인됨)</td>
+        <td>해당 브랜치를 병합할 경우 0122, 0123, 0124, 0125 마이그레이션 파일이 삭제됩니다.</td>
+      </tr>
+      <tr>
+        <td>브랜치 폐기(close) 권고 여부</td>
+        <td>권고함</td>
+        <td>데이터베이스 마이그레이션 유실 위험이 크고 이미 반영된 변경사항이므로 즉시 폐기(close)해야 합니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>상세 로그 (git diff --name-status)</h2>
+  <pre>D       db/migrations/0122_revised_refund_rule_applies_now.sql
+D       db/migrations/0123_record_unhandled_billing_events.sql
+D       db/migrations/0124_refund_eligibility_decision_record.sql
+D       db/migrations/0125_drop_users_orphan_backup_0107.sql</pre>
+
+  <button type="button">닫기</button>
+</body>
+</html>
