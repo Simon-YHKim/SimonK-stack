@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>보상 시트 보조 버튼 접근성 보강</title>
+  <style>
+    :root { --bg:#101214; --text:#e7ecef; --muted:#98a2a9; --accent:#7ec7b5; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 48px; }
+    header { border:1px solid var(--muted); padding:20px; border-radius:8px; }
+    h1, h2 { margin:0 0 12px; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; color:var(--accent); }
+    p { margin:8px 0; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:18px 0; }
+    .box { border:1px solid var(--muted); border-radius:8px; padding:14px; }
+    .label { color:var(--muted); font-size:12px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--muted); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border:1px solid var(--muted); border-radius:8px; padding:12px 14px; margin-top:12px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>보상 시트 보조 버튼 접근성 보강</h1>
+      <p>Codex 자율 폴 사이클에서 열린 요청이 없어, 2nd-B UI 접근성 결함 하나를 별도 worktree 브랜치에서 수정했다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="box"><div class="label">작업</div><p>보상형 광고 시트의 보조 닫기 버튼에 읽기 라벨 추가</p></div>
+      <div class="box"><div class="label">브랜치</div><p><code>codex/qa-cycle-20260812-024747</code></p></div>
+      <div class="box"><div class="label">앱 커밋</div><p><code>cf2cd75e</code></p></div>
+      <div class="box"><div class="label">푸시</div><p>하지 않음</p></div>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead><tr><th>파일</th><th>변경</th><th>영향</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>src/components/deepspace/RewardedSheet.tsx</code></td>
+            <td><code>accessibilityLabel={C.later}</code> 추가</td>
+            <td>화면 읽기 사용자가 보조 닫기 동작을 명확히 들을 수 있음</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><code>npx eslint src/components/deepspace/RewardedSheet.tsx</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:safety-consent-locale</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:constraints</code></td><td>통과, 기존 <code>C11 PART</code> 표시는 비실패 상태</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과, 줄끝 변환 경고만 표시</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>판단 근거</summary>
+      <p>같은 시트의 기본 실행 버튼은 이미 접근성 라벨을 갖고 있었지만, 보조 닫기 버튼은 역할만 있고 라벨이 없었다. 보이는 문구와 동일한 로컬라이즈 문자열을 라벨로 연결해 새 문구 키를 만들지 않고 일관성을 맞췄다.</p>
+    </details>
+
+    <details>
+      <summary>위험과 롤백</summary>
+      <p>동작 로직, 결제, 광고 호출, 네트워크 경로는 건드리지 않았다. 문제가 있으면 앱 커밋 <code>cf2cd75e</code>를 되돌리면 된다.</p>
+    </details>
+
+    <footer>
+      <p class="label">작성 시각: 2026-08-12 02:50:25 KST</p>
+    </footer>
+  </main>
+</body>
+</html>
