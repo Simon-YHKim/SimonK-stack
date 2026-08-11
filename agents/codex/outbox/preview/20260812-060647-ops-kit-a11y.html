@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Codex 자율 폴 사이클 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0f14; --text:#e8edf2; --muted:#8fa1b3; --accent:#6fd3ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: Arial, sans-serif; background:var(--bg); color:var(--text); line-height:1.55; }
+    main { max-width: 960px; margin: 0 auto; padding: 32px 18px 48px; }
+    header { border:1px solid var(--accent); padding:20px; border-radius:8px; }
+    h1, h2 { margin:0 0 12px; letter-spacing:0; }
+    h1 { font-size:24px; }
+    h2 { font-size:18px; margin-top:28px; color:var(--accent); }
+    p { margin:8px 0; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { border:1px solid #25313d; padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); word-break:break-word; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top:16px; }
+    .card { border:1px solid #25313d; border-radius:8px; padding:14px; }
+    details { border:1px solid #25313d; border-radius:8px; padding:12px 14px; margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); }
+    .bar { height:10px; background:#25313d; border-radius:999px; overflow:hidden; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="muted">생성 시각: 2026-08-12 06:06:47 KST</p>
+      <h1>Codex 자율 폴 사이클 보고</h1>
+      <p>이번 사이클은 열린 Codex 대상 요청이 없어 2nd-B UI 접근성 레인의 새 단일 작업을 수행했습니다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <h2>작업</h2>
+        <p>공유 ops 컴포넌트 키트의 버튼, 스위치, 탭, 상태 CTA에 명시적 접근성 라벨을 추가했습니다.</p>
+      </div>
+      <div class="card">
+        <h2>결과</h2>
+        <p>2nd-B 로컬 커밋 <code>c73c0ad5</code>를 만들었고 원격 push는 하지 않았습니다.</p>
+      </div>
+      <div class="card">
+        <h2>위험</h2>
+        <p>동작 로직과 번역 키는 바꾸지 않았습니다. Prettier가 같은 파일의 줄바꿈을 함께 정리했습니다.</p>
+      </div>
+    </section>
+
+    <h2>변경 요약</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>브랜치</td><td><code>codex/qa-cycle-20260812-060402</code></td></tr>
+        <tr><td>기준</td><td><code>origin/main 215f5cdd123d94a27adf7165234807eec301f7da</code></td></tr>
+        <tr><td>앱 커밋</td><td><code>c73c0ad5eae6d244998f247534be3d7ac174591c</code></td></tr>
+        <tr><td>변경 파일</td><td><code>src/components/deepspace/ops/kit.tsx</code><br><code>src/components/deepspace/ops/__tests__/kit-a11y.test.ts</code></td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 상태</h2>
+    <div class="bar" aria-label="검증 통과율"><span style="width:100%"></span></div>
+    <table>
+      <thead><tr><th>검증</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td>Prettier</td><td>통과</td></tr>
+        <tr><td>타깃 Jest</td><td>통과, 2개 테스트</td></tr>
+        <tr><td>ESLint</td><td>통과</td></tr>
+        <tr><td>TypeScript</td><td>통과</td></tr>
+        <tr><td>i18n, lexicon, constraints, safety-consent-locale, emdash</td><td>통과</td></tr>
+        <tr><td>diff 공백 검사</td><td>통과, 줄끝 안내만 표시</td></tr>
+        <tr><td>diff 시크릿 패턴 검사</td><td>매치 없음</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>35 자기 패널</summary>
+      <table>
+        <thead><tr><th>관점</th><th>판단</th></tr></thead>
+        <tbody>
+          <tr><td>찬성</td><td>공유 컴포넌트 한 곳에서 여러 ops 화면의 보조기술 의미를 보강합니다.</td></tr>
+          <tr><td>반대</td><td>대부분 화면에는 시각 텍스트가 이미 있어 즉시 보이는 결함은 아닙니다.</td></tr>
+          <tr><td>판정</td><td>기존 표시 문구를 그대로 라벨로 재사용하는 낮은 위험 개선이므로 진행했습니다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>운영 가드</summary>
+      <p>2nd-B push, 허브 브랜치 전환, 파괴 작업, 비용 작업, 시크릿 작업은 수행하지 않았습니다. 허브 작성 범위는 <code>agents/codex/</code>로 제한했습니다.</p>
+    </details>
+  </main>
+</body>
+</html>
