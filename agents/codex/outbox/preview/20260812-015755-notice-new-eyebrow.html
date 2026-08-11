@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>공지 새 소식 카피 현지화 보고서</title>
+  <style>
+    :root { --bg: #101214; --text: #e9edf0; --accent: #7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; }
+    main { width: min(960px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    h1, h2 { line-height: 1.2; margin: 0; }
+    h1 { font-size: clamp(28px, 5vw, 48px); }
+    h2 { font-size: 20px; margin-top: 28px; }
+    p { margin: 10px 0 0; }
+    .lead { margin-top: 14px; max-width: 760px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 24px; }
+    .card, details, table { border: 1px solid color-mix(in srgb, var(--text) 16%, transparent); background: color-mix(in srgb, var(--bg) 88%, var(--text)); border-radius: 8px; }
+    .card { padding: 16px; min-height: 112px; }
+    .label { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: 0; }
+    .value { display: block; margin-top: 8px; font-size: 15px; overflow-wrap: anywhere; }
+    details { margin-top: 12px; padding: 14px 16px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; overflow: hidden; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid color-mix(in srgb, var(--text) 12%, transparent); text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    .bar { height: 10px; background: color-mix(in srgb, var(--accent) 30%, transparent); border-radius: 999px; overflow: hidden; }
+    .bar span { display: block; height: 100%; width: 100%; background: var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } main { width: min(100% - 24px, 960px); padding-top: 28px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>공지 새 소식 카피 현지화 보고서</h1>
+    <p class="lead">이번 Codex 자율 폴 사이클은 열린 요청 없이 진행됐고, 2nd-B 공지 화면의 한국어 패치 라벨에 남아 있던 영어 전용 표현을 한 건 수정했습니다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span><span class="value">한국어 공지 eyebrow <code>NEW</code>를 <code>새 소식</code>으로 변경</span></div>
+      <div class="card"><span class="label">브랜치</span><span class="value"><code>codex/qa-cycle-20260812-015408</code></span></div>
+      <div class="card"><span class="label">앱 커밋</span><span class="value"><code>59e2a43e47a611a6df2cbc34a5dcd607e621cfbb</code></span></div>
+      <div class="card"><span class="label">푸시</span><span class="value">하지 않음</span></div>
+    </section>
+
+    <h2>변경 파일</h2>
+    <table>
+      <thead><tr><th>파일</th><th>내용</th><th>영향</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/app/notices.tsx</code></td><td>번들 패치 공지의 한국어 라벨을 <code>새 소식</code>으로 현지화</td><td>한국어 UI에서 첫 공지의 언어 혼재 감소</td></tr>
+        <tr><td><code>src/lib/notices/__tests__/notice-center.test.ts</code></td><td>한국어 release note eyebrow가 <code>NEW</code>로 출고되지 않도록 정적 테스트 추가</td><td>같은 회귀 재발 방지</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 상태</h2>
+    <table>
+      <thead><tr><th>검증</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td>공지 센터 Jest 테스트</td><td>통과, 57개 테스트</td></tr>
+        <tr><td>Prettier</td><td>통과</td></tr>
+        <tr><td>ESLint 대상 파일</td><td>통과</td></tr>
+        <tr><td>TypeScript</td><td>통과</td></tr>
+        <tr><td>i18n 키 검사</td><td>통과</td></tr>
+        <tr><td>금지 어휘 검사</td><td>통과</td></tr>
+        <tr><td>em dash 검사</td><td>통과</td></tr>
+        <tr><td>diff 공백 검사</td><td>통과</td></tr>
+      </tbody>
+    </table>
+
+    <h2>위험도</h2>
+    <div class="bar" aria-label="낮은 위험도"><span></span></div>
+    <p>변경 범위는 표시 카피와 정적 테스트입니다. 원격 공지, 데이터베이스, 결제, 시크릿, 배포, push는 건드리지 않았습니다.</p>
+
+    <details>
+      <summary>자세히: 35 자체 패널</summary>
+      <p>찬성: 한국어 공지 목록과 팝업 첫 라벨이 영어 <code>NEW</code>로 남으면 같은 화면 안에서 언어 일관성이 깨집니다.</p>
+      <p>반대: 아주 짧은 배지라 사용자가 의미를 이해하지 못할 가능성은 낮고, Prettier 정리가 같은 파일의 주변 JSX 줄바꿈도 바꿨습니다.</p>
+      <p>판정: 번들 공지 카피 한 줄과 회귀 테스트 한 개로 제한했으므로 Claude가 회수해 검토할 가치가 있습니다.</p>
+    </details>
+
+    <details>
+      <summary>자세히: 실행 환경</summary>
+      <p>기준 커밋은 <code>origin/main 215f5cdd123d94a27adf7165234807eec301f7da</code>입니다. 작업 위치는 <code>C:\Coding Infra\_worktrees\2ndB-codex-qa-cycle-20260812-015408</code>입니다.</p>
+      <p>보고 시각은 <code>2026-08-12 01:57:55 KST</code>입니다.</p>
+    </details>
+  </main>
+</body>
+</html>
