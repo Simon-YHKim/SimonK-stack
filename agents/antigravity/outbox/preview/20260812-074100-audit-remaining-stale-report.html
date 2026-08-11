@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 보고서</title>
+<style>
+  body { background-color: #111111; color: #eeeeee; font-family: sans-serif; padding: 20px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; }
+  th { background-color: #333333; }
+</style>
+</head>
+<body>
+  <h1>감사 잔여 브랜치 검증 보고서</h1>
+  <p>요청 대상: origin/Simon-YHKim/260811_감사-잔여-2건</p>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>판정 결과</th>
+        <th>상세 설명</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>0121 마이그레이션 일치 여부</td>
+        <td>일치</td>
+        <td>origin/main과 해당 파일의 내용이 완전히 동일합니다.</td>
+      </tr>
+      <tr>
+        <td>0122-0125 삭제 위험 분석</td>
+        <td>위험 있음</td>
+        <td>해당 브랜치 병합 시 0122-0125 마이그레이션 파일 및 기타 최신 테스트 코드가 삭제됩니다.</td>
+      </tr>
+      <tr>
+        <td>브랜치 종료(Close) 판단</td>
+        <td>종료 권장</td>
+        <td>주요 코드가 main에 존재하며, 병합 시 최신 코드가 유실되므로 안전하게 종료해야 합니다.</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>
