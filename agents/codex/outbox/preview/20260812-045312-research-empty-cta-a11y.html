@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>연구 빈 상태 버튼 접근성 보고서</title>
+  <style>
+    :root{--bg:#0f1115;--text:#e6e6e6;--accent:#79d7c5}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Noto Sans KR",sans-serif;line-height:1.6}
+    main{max-width:980px;margin:0 auto;padding:32px 20px 48px}
+    header{border:1px solid var(--accent);padding:20px;margin-bottom:20px}
+    h1,h2{margin:0 0 12px;color:var(--text)}
+    h1{font-size:26px}
+    h2{font-size:18px}
+    p{margin:8px 0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:16px 0}
+    .card,details{border:1px solid #e6e6e6;padding:14px;background:#0f1115}
+    .label{color:var(--accent);font-size:12px}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{border:1px solid #e6e6e6;padding:10px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent)}
+    summary{cursor:pointer;color:var(--accent)}
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>연구 빈 상태 버튼 접근성 보고서</h1>
+      <p>작성 시각: 2026-08-12 04:53:12 KST</p>
+      <p>대상 브랜치: <code>codex/qa-cycle-20260812-044819</code></p>
+      <p>앱 커밋: <code>03d86e02</code></p>
+    </header>
+
+    <section class="grid">
+      <div class="card"><div class="label">결과</div><p>연구 화면의 빈 상태 추가 버튼에 접근성 역할과 라벨을 추가했습니다.</p></div>
+      <div class="card"><div class="label">검증</div><p>타깃 테스트, 타입체크, i18n, lexicon, constraints, safety consent locale, em dash 검사를 통과했습니다.</p></div>
+      <div class="card"><div class="label">위험</div><p>UI 동작 변경은 없습니다. 스크린리더 노출 정보만 보강했습니다.</p></div>
+      <div class="card"><div class="label">제약</div><p>2nd-B는 푸시하지 않았고, 허브에서는 <code>agents/codex/</code>만 작성했습니다.</p></div>
+    </section>
+
+    <details open>
+      <summary>변경 내용</summary>
+      <table>
+        <thead><tr><th>파일</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/screens/deepspace/DeepSpaceDesignScreens.tsx</code></td><td>연구 화면 빈 상태의 <code>Pressable</code>에 <code>accessibilityRole="button"</code>과 <code>accessibilityLabel={t("wiki.addPiece")}</code>를 추가했습니다.</td></tr>
+          <tr><td><code>src/lib/__tests__/deep-space-research-empty-cta-a11y.test.ts</code></td><td>같은 버튼이 지역화된 접근성 라벨과 버튼 역할을 유지하는지 확인하는 정적 회귀 테스트를 추가했습니다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>검증 결과</summary>
+      <table>
+        <thead><tr><th>검사</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><code>npx jest src/lib/__tests__/deep-space-research-empty-cta-a11y.test.ts --runInBand</code></td><td>통과</td></tr>
+          <tr><td><code>npx eslint src/screens/deepspace/DeepSpaceDesignScreens.tsx src/lib/__tests__/deep-space-research-empty-cta-a11y.test.ts</code></td><td>오류 0개, 기존 unused 경고 40개</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:constraints</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:safety-consent-locale</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>공백 오류 없음, 줄끝 변환 경고만 표시</td></tr>
+          <tr><td>diff 시크릿 패턴 검사</td><td>민감값 패턴 없음</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <table>
+        <thead><tr><th>관점</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>사용자 관점</td><td>빈 연구 화면에서 다음 행동을 찾는 사용자가 보조 기술로도 같은 버튼 목적을 확인할 수 있습니다.</td></tr>
+          <tr><td>구현 관점</td><td>이미 화면에 보이는 번역 키를 접근성 라벨로 재사용해 새 번역 키 없이 일관성을 유지했습니다.</td></tr>
+          <tr><td>검증 관점</td><td>소스 기반 테스트가 해당 CTA의 역할과 라벨을 직접 고정합니다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>남은 사항</summary>
+      <p>Claude가 병합 여부를 판단해야 합니다. Codex는 2nd-B 원격 저장소에 push하지 않았습니다.</p>
+    </details>
+  </main>
+</body>
+</html>
