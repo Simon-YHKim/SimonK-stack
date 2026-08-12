@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 폴 사이클 보고서</title>
+  <style>
+    :root { --bg:#0f1115; --text:#f2f4f8; --accent:#7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 56px; }
+    header { border:1px solid var(--accent); padding:22px; margin-bottom:18px; }
+    h1 { margin:0 0 8px; font-size:28px; letter-spacing:0; }
+    h2 { margin:24px 0 10px; font-size:18px; }
+    p { margin:6px 0; }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+    .card { border:1px solid var(--text); padding:14px; min-height:92px; }
+    .label { color:var(--accent); font-size:12px; }
+    .value { font-size:18px; font-weight:700; margin-top:6px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--text); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border:1px solid var(--text); padding:10px 12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { display:flex; height:18px; border:1px solid var(--text); margin-top:8px; }
+    .bar span { display:block; background:var(--accent); }
+    @media (max-width:720px) { .grid { grid-template-columns:1fr 1fr; } h1 { font-size:22px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 단일 폴 사이클 보고서</h1>
+      <p>기록 시각: 2026-08-12 21:36:29 KST</p>
+      <p>범위: 허브 폴링, 2nd-B 격리 worktree UI 접근성 수정, 허브 outbox 보고</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">사이클 결과</div><div class="value">신규 작업 완료</div></div>
+      <div class="card"><div class="label">수정 성격</div><div class="value">접근성 라벨 현지화</div></div>
+      <div class="card"><div class="label">2nd-B push</div><div class="value">하지 않음</div></div>
+      <div class="card"><div class="label">허브 쓰기 범위</div><div class="value">agents/codex</div></div>
+    </section>
+
+    <h2>수행 내용</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td>폴링</td><td><code>tools/board.ps1 -Me codex</code> 실행, Codex 인박스 미응답 요청 없음 확인. peer outbox의 열린 Codex 대상 요청 3건은 기존 응답이 있는 stale 요청으로 판정.</td><td>완료</td></tr>
+        <tr><td>작업 선택</td><td>보드의 Codex 레인에 맞춰 2nd-B UI 접근성 결함 1건만 처리.</td><td>완료</td></tr>
+        <tr><td>앱 수정</td><td><code>PhoneShell</code> 공유 뒤로가기 버튼의 하드코딩 한국어 접근성 라벨을 기존 locale 키 <code>common:navGraph.drilldown.back</code>으로 교체.</td><td>완료</td></tr>
+        <tr><td>회귀 방지</td><td><code>phone-shell-a11y.test.ts</code> source-scan 테스트를 추가해 하드코딩 재발을 막음.</td><td>완료</td></tr>
+      </tbody>
+    </table>
+
+    <h2>변경 파일</h2>
+    <table>
+      <thead><tr><th>저장소</th><th>파일</th><th>요약</th></tr></thead>
+      <tbody>
+        <tr><td>2nd-B</td><td><code>src/components/deepspace/shell/PhoneShell.tsx</code></td><td>뒤로가기 접근성 라벨을 i18n 기반으로 변경.</td></tr>
+        <tr><td>2nd-B</td><td><code>src/lib/__tests__/phone-shell-a11y.test.ts</code></td><td>현지화 키 사용과 한국어 하드코딩 제거를 검증.</td></tr>
+        <tr><td>허브</td><td><code>agents/codex/outbox</code>, <code>agents/codex/outbox/preview</code>, <code>agents/codex/STATUS.md</code></td><td>이번 사이클의 보고와 상태만 기록.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <div class="bar" aria-label="검증 통과율"><span style="width:100%"></span></div>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>npx jest src/lib/__tests__/phone-shell-a11y.test.ts --runInBand</code></td><td>통과</td></tr>
+        <tr><td><code>npx prettier --check</code> 변경 파일</td><td>통과</td></tr>
+        <tr><td><code>npx eslint</code> 변경 파일</td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code>, <code>check:i18n-untranslated</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code>, <code>check:constraints</code>, <code>check:emdash</code>, <code>check:cycles</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --cached --check</code>, diff 민감정보 패턴 스캔</td><td>통과</td></tr>
+      </tbody>
+    </table>
+
+    <h2>커밋 정보</h2>
+    <details open>
+      <summary>자세히</summary>
+      <p>2nd-B worktree: <code>C:\2ndB\.worktrees\codex-qa-20260812-213246</code></p>
+      <p>2nd-B 브랜치: <code>codex/qa-cycle-20260812-213246</code></p>
+      <p>기준 SHA: <code>215f5cdd123d94a27adf7165234807eec301f7da</code></p>
+      <p>로컬 앱 커밋: <code>61cc3c46</code></p>
+      <p>허브 브랜치: <code>master</code></p>
+    </details>
+
+    <h2>위험과 남은 일</h2>
+    <table>
+      <thead><tr><th>구분</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>위험</td><td>작은 UI 접근성 라벨 변경이며 런타임 로직, 데이터, 결제, 보안 경계는 건드리지 않음.</td></tr>
+        <tr><td>남은 일</td><td>Claude merge gate가 2nd-B 로컬 커밋을 검토하고 필요 시 통합해야 함. Codex는 push하지 않음.</td></tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>
