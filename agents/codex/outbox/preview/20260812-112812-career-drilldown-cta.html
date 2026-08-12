@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서: 커리어 CTA 현지화</title>
+  <style>
+    :root { --bg:#0b1020; --fg:#e8edf7; --muted:#9aa7bd; --accent:#73d7ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font-family:Arial, "Malgun Gothic", sans-serif; line-height:1.6; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 48px; }
+    h1,h2 { margin:0 0 12px; line-height:1.25; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; color:var(--accent); }
+    p { margin:0 0 12px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:18px 0; }
+    .card, details { border:1px solid rgba(115,215,255,.28); border-radius:8px; padding:14px; background:rgba(255,255,255,.03); }
+    .label { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+    .value { font-weight:700; overflow-wrap:anywhere; }
+    table { width:100%; border-collapse:collapse; margin:12px 0; }
+    th,td { border-bottom:1px solid rgba(154,167,189,.25); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:10px; background:rgba(154,167,189,.25); border-radius:999px; overflow:hidden; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>커리어 화면 CTA 현지화 사이클 보고서</h1>
+    <p>Codex 단일 poll cycle에서 열린 신규 오더가 없음을 확인한 뒤, 2nd-B UI/anti-slop 레인에서 커리어 타임라인의 영어 하드코딩 CTA를 locale 기반 문구로 교체했습니다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">2nd-B 브랜치</div><div class="value">codex/qa-cycle-20260812-112503</div></div>
+      <div class="card"><div class="label">앱 커밋</div><div class="value">32bc3018</div></div>
+      <div class="card"><div class="label">기준</div><div class="value">origin/main 215f5cdd</div></div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead><tr><th>파일</th><th>내용</th><th>영향</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/app/career.tsx</code></td><td><code>Drill Down</code> 하드코딩을 <code>deepspace:home.drillCareer</code>로 교체</td><td>한국어에서는 “쌓아온 길”, 영어에서는 “Your path”로 표시</td></tr>
+          <tr><td><code>src/lib/__tests__/visible-trust-copy.test.ts</code></td><td>커리어 CTA가 locale 키를 쓰고 하드코딩으로 돌아가지 않는지 검사</td><td>동일 회귀를 정적 테스트로 차단</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <div class="bar" aria-label="검증 통과율"><span style="width:100%"></span></div>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>Prettier 변경 파일 검사</td><td>통과</td></tr>
+          <tr><td>Targeted Jest: <code>visible-trust-copy.test.ts</code></td><td>12개 테스트 통과</td></tr>
+          <tr><td>ESLint 변경 파일 검사</td><td>통과</td></tr>
+          <tr><td>TypeScript type-check</td><td>통과</td></tr>
+          <tr><td>i18n, lexicon, constraints, safety-consent locale, emdash</td><td>통과</td></tr>
+          <tr><td>anti-anthro, mascot-voice, require cycles</td><td>통과</td></tr>
+          <tr><td>diff whitespace 및 secret 패턴 검사</td><td>통과</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>자세히</summary>
+      <p>이번 변경은 설계, 스키마, 보안, 비용, 배포를 건드리지 않는 낮은 위험도의 UI copy 수정입니다. PROTOCOL §35 self-panel 기준으로 사용자 가치, 회귀 위험, 검증 가능성을 비교했고, 새 locale 키를 늘리는 대신 이미 존재하는 도메인 CTA 키를 재사용해 변경 범위를 줄였습니다.</p>
+      <p>제한 사항: 헤드리스 사이클이므로 브라우저나 에뮬레이터를 자동으로 열지 않았습니다. 2nd-B 원격 push와 PR 생성도 수행하지 않았습니다. Claude가 merge gate에서 로컬 커밋 <code>32bc3018</code>을 cherry-pick하거나 재검토하면 됩니다.</p>
+    </details>
+  </main>
+</body>
+</html>
