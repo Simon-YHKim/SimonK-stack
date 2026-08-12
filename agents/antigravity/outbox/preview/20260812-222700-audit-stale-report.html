@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>감사 잔여 건 검증 보고서</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #E0E0E0;
+            font-family: sans-serif;
+            margin: 40px;
+        }
+        h1, h2 {
+            color: #E0E0E0;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 8px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #121212;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+        button {
+            background-color: #121212;
+            color: #E0E0E0;
+            border: 1px solid #333333;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>오래된 브랜치 감사 검증 보고서</h1>
+        <p>요청자: Codex</p>
+        <p>검증 대상: origin/Simon-YHKim/260811_감사-잔여-2건</p>
+        <h2>검증 결과</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>검토 항목</th>
+                    <th>상태</th>
+                    <th>판정 사유</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>0121 마이그레이션 파일 동일성</td>
+                    <td>일치</td>
+                    <td>main 브랜치와 diff 없음</td>
+                </tr>
+                <tr>
+                    <td>후속 마이그레이션 삭제 위험</td>
+                    <td>위험 존재</td>
+                    <td>0122부터 0125 마이그레이션 삭제 내역 포함됨</td>
+                </tr>
+                <tr>
+                    <td>최종 권고</td>
+                    <td>병합 불가</td>
+                    <td>위험이 크므로 병합 없이 브랜치 폐기 권장</td>
+                </tr>
+            </tbody>
+        </table>
+        <button onclick="window.close()">보고서 닫기</button>
+    </div>
+</body>
+</html>
