@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>루트 오류 화면 접근성 보고서</title>
+  <style>
+    :root { --bg: #101214; --text: #eef2f4; --accent: #7cc7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.2; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin: 28px 0 12px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 0 0 8px; }
+    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 22px 0; }
+    .card, details { border: 1px solid var(--accent); padding: 14px; border-radius: 6px; background: transparent; }
+    .label { display: block; color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    code { color: var(--accent); word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    ul { padding-left: 20px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .bar { width: 100%; height: 12px; border: 1px solid var(--accent); margin-top: 8px; }
+    .bar span { display: block; height: 100%; background: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>루트 오류 화면 접근성 보고서</h1>
+    <p>작성 시각: 2026-08-12 20:44:09 KST. Codex 단일 폴 사이클에서 열린 미처리 주문이 없음을 확인한 뒤, 2nd-B의 전역 오류 화면 재시도 버튼에 스크린리더 힌트를 추가했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><span class="label">결과</span>완료</div>
+      <div class="card"><span class="label">2nd-B 브랜치</span><code>codex/qa-cycle-20260812-204114</code></div>
+      <div class="card"><span class="label">2nd-B 커밋</span><code>218729fc</code></div>
+      <div class="card"><span class="label">푸시</span>하지 않음</div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>내용</th><th>위험</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>src/components/ui/RootErrorBoundary.tsx</code></td><td>전역 오류 화면 재시도 버튼에 <code>errors.retryHint</code> 기반 접근성 힌트를 추가했다.</td><td>낮음</td></tr>
+        <tr><td><code>locales/*/common.json</code></td><td>영어, 한국어, 스페인어, 포르투갈어, 인도네시아어 공통 오류 힌트 문구를 추가했다.</td><td>낮음</td></tr>
+        <tr><td><code>src/lib/__tests__/root-error-boundary-a11y.test.ts</code></td><td>오류 화면이 provider 밖에서도 suspense 없이 번역을 쓰고, 재시도 힌트를 유지하는지 고정했다.</td><td>낮음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr><th>검사</th><th>상태</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>npx prettier --check</code></td><td>통과</td></tr>
+        <tr><td><code>npm test -- --runTestsByPath src/lib/__tests__/root-error-boundary-a11y.test.ts --runInBand</code></td><td>통과</td></tr>
+        <tr><td><code>npx eslint src/components/ui/RootErrorBoundary.tsx src/lib/__tests__/root-error-boundary-a11y.test.ts</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n-untranslated</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:constraints</code></td><td>통과, 기존 <code>C11 PART</code> 유지</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:cycles</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+        <tr><td>민감정보 패턴 diff 검사</td><td>일치 없음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>자체 패널</h2>
+    <details>
+      <summary>판단 근거</summary>
+      <ul>
+        <li>사용자 관점: 오류 상황에서 버튼 이름만 들리는 것보다 재시도 의미가 분명해진다.</li>
+        <li>접근성 관점: 버튼 라벨과 힌트를 분리해 스크린리더 정보량을 보강했다.</li>
+        <li>엔지니어링 관점: 전역 오류 화면은 provider 밖에서 렌더링되므로 기존 <code>useSuspense:false</code> 제약을 유지했다.</li>
+        <li>운영 관점: 외부 호출, 비용, 민감정보, destructive 작업, 2nd-B push를 하지 않았다.</li>
+      </ul>
+    </details>
+
+    <h2>위험과 롤백</h2>
+    <p>위험은 낮다. UI 구조와 retry 동작은 바꾸지 않았고 접근성 속성과 locale 키만 추가했다. 롤백은 2nd-B 브랜치에서 <code>git revert 218729fc</code>로 가능하다.</p>
+
+    <h2>진행률</h2>
+    <div class="bar" aria-label="완료율"><span style="width:100%"></span></div>
+  </main>
+</body>
+</html>
