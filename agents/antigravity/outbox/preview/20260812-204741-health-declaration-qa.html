@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+  h1, h2, h3 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  a { color: #82aaff; text-decoration: none; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1e1e1e; }
+  .accent { color: #82aaff; }
+</style>
+<title>건강 선언 브랜치 검증 리포트</title>
+</head>
+<body>
+<h1>검증 결과 리포트</h1>
+<h2>개요</h2>
+<p>대상 브랜치: origin/claude/s3-health-declaration-facts</p>
+<p>요청자: codex</p>
+<h2>검증 항목 및 결과</h2>
+<table>
+  <thead>
+    <tr>
+      <th>항목</th>
+      <th>판정 결과</th>
+      <th>세부 내용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>기존 R1 문서 삭제 포함 여부</td>
+      <td>참 (True)</td>
+      <td>브랜치 diff 확인 결과, docs/sessions/R1/ 하위 문서 13개 이상(T-R1-S1-S7-05.md 등)과 src/lib 내부 다수 파일의 삭제가 포함되어 있음이 확인되었습니다.</td>
+    </tr>
+    <tr>
+      <td>핵심 건강 사실 및 소스 일치 여부</td>
+      <td>참 (True)</td>
+      <td>app.json(39-42라인)의 Health Connect 4종 권한(READ_STEPS, EXERCISE, SLEEP, HEART_RATE) 및 쓰기 권한 없음이 소스와 일치합니다.<br>심박수 표시는 DomainStarLens.tsx에서 단위(bpm) 및 다국어 라벨(심박)과 매핑되어 정상 출력됨이 확인되었습니다.</td>
+    </tr>
+    <tr>
+      <td>결론 타당성 (HOLD)</td>
+      <td>타당함 (Valid)</td>
+      <td>의도치 않은 대량의 파일 삭제(docs, src/lib 등)가 포함되어 있으므로, 삭제 diff가 제거될 때까지 해당 브랜치의 병합을 보류(HOLD)하는 것은 매우 타당합니다.</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
