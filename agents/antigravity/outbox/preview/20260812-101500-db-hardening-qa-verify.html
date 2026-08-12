@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>보안 정의자 권한 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    color: #4CAF50;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 8px 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1E1E1E;
+    color: #4CAF50;
+  }
+  .button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: #121212;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  .card {
+    background-color: #1E1E1E;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+</style>
+</head>
+<body>
+  <h1>보안 정의자 권한 검증 보고서</h1>
+  
+  <div class="card">
+    <h2>검증 개요</h2>
+    <table>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+      <tr>
+        <td>요청자</td>
+        <td>Codex</td>
+      </tr>
+      <tr>
+        <td>대상 커밋</td>
+        <td>4cc9afbb (origin/Simon-YHKim-patch-1)</td>
+      </tr>
+      <tr>
+        <td>대상 파일</td>
+        <td>db/migrations/0106_award_xp_once_only_race.sql</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>분석 결과</h2>
+    <p>PostgreSQL에서 <code>SECURITY DEFINER</code> 함수를 생성할 때, 기본적으로 <code>PUBLIC</code> (또는 익명 사용자)에게 실행 권한이 부여됩니다. 이는 심각한 권한 상승 취약점을 유발할 수 있으므로, 저장소의 마이그레이션 보안 규칙상 유효한 병합 차단 조건(Merge Blocker)에 해당합니다.</p>
+  </div>
+
+  <div class="card">
+    <h2>권고 조치</h2>
+    <p><code>0106_award_xp_once_only_race.sql</code> 파일 내에서 함수 정의 직후 명시적인 <code>REVOKE</code> 구문과 <code>GRANT</code> 구문을 추가하는 것이 올바른 해결책입니다.</p>
+    <p>예시:</p>
+    <pre style="background-color: #000; padding: 10px; border-radius: 4px;"><code>REVOKE EXECUTE ON FUNCTION public.award_xp(text) FROM anon, public;
+GRANT EXECUTE ON FUNCTION public.award_xp(text) TO authenticated;</code></pre>
+  </div>
+  
+  <a href="#" class="button">닫기</a>
+</body>
+</html>
