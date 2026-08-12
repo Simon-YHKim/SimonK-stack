@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>딥스페이스 하단 독 탭 접근성 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101316; --text:#f2f5f7; --muted:#9aa6ad; --accent:#7cc7d9; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height:1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 48px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.2; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin: 0 0 12px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 0 0 8px; }
+    p, li, td, th { font-size: 14px; }
+    .muted { color: var(--muted); }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 20px 0 24px; }
+    .card, details, table { border: 1px solid rgba(124,199,217,.28); background: rgba(255,255,255,.03); border-radius: 8px; }
+    .card { padding: 14px; min-height: 104px; }
+    .card strong { display:block; margin-bottom: 6px; color: var(--accent); }
+    details { padding: 12px 14px; margin: 10px 0; }
+    summary { cursor:pointer; color: var(--accent); font-weight: 650; }
+    table { width:100%; border-collapse: collapse; overflow:hidden; margin: 12px 0 18px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid rgba(124,199,217,.18); text-align:left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 650; }
+    code { color: var(--text); background: rgba(255,255,255,.08); padding: 1px 4px; border-radius: 4px; }
+    .bar { display:flex; gap:8px; flex-wrap:wrap; margin: 18px 0; }
+    button { border:1px solid var(--accent); background: transparent; color: var(--text); border-radius: 6px; padding: 8px 10px; cursor:pointer; }
+    button[aria-pressed="true"] { background: var(--accent); color: var(--bg); }
+    .en, .expert { display:none; }
+    body.lang-en .ko { display:none; }
+    body.lang-en .en { display:block; }
+    body.mode-expert .easy { display:none; }
+    body.mode-expert .expert { display:block; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body class="lang-ko mode-easy">
+<main>
+  <h1>딥스페이스 하단 독 탭 접근성 보고</h1>
+  <p class="muted">기록 시각: 2026-08-12 10:36:15 KST · 작업자: codex · 프로젝트: 2nd-B</p>
+
+  <div class="bar" aria-label="표시 전환">
+    <button type="button" data-lang="ko" aria-pressed="true">한국어</button>
+    <button type="button" data-lang="en" aria-pressed="false">영어 숨김</button>
+    <button type="button" data-mode="easy" aria-pressed="true">쉬운 설명</button>
+    <button type="button" data-mode="expert" aria-pressed="false">전문가 설명</button>
+  </div>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><strong>결과</strong><span class="ko easy">하단 메뉴를 스크린리더가 탭 묶음으로 읽게 고쳤습니다.</span><span class="ko expert">`DeepSpaceDock` 컨테이너를 `tablist`, 각 항목을 `tab`으로 노출했습니다.</span><span class="en">한국어 보고서 전용입니다.</span></div>
+    <div class="card"><strong>검증</strong><span class="ko easy">대상 테스트와 주요 정적 검사를 통과했습니다.</span><span class="ko expert">Jest, ESLint, TypeScript, i18n, lexicon, constraints, diff-check를 통과했습니다.</span><span class="en">한국어 보고서 전용입니다.</span></div>
+    <div class="card"><strong>위험</strong><span class="ko easy">화면 모양은 바꾸지 않았습니다.</span><span class="ko expert">시각 스타일 변경은 없고 접근성 메타데이터와 source-scan 테스트만 추가했습니다.</span><span class="en">한국어 보고서 전용입니다.</span></div>
+    <div class="card"><strong>제출</strong><span class="ko easy">2nd-B에는 로컬 커밋만 만들었고 push하지 않았습니다.</span><span class="ko expert">브랜치 `codex/qa-cycle-20260812-1032`, 커밋 `072d1934`입니다.</span><span class="en">한국어 보고서 전용입니다.</span></div>
+  </section>
+
+  <details open>
+    <summary>변경 요약</summary>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th><th>목적</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/components/deep-space/DeepSpaceDock.tsx</code></td><td>컨테이너 `tablist`, 항목 `tab`, label fallback 추가</td><td>하단 독을 탭 내비게이션으로 정확히 전달</td></tr>
+        <tr><td><code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code></td><td>source-scan 회귀 테스트 추가</td><td>역할과 label fallback이 사라지는 회귀 방지</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <details>
+    <summary>검증 결과</summary>
+    <table>
+      <thead><tr><th>검사</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>npx prettier --check ...</code></td><td>통과</td></tr>
+        <tr><td><code>npx jest src/lib/__tests__/deep-space-controls-a11y.test.ts --runInBand</code></td><td>통과, 9개 테스트</td></tr>
+        <tr><td><code>npx eslint ...</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:constraints</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+        <tr><td>diff 시크릿 패턴 검사</td><td>통과</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <details>
+    <summary>쉬운 설명</summary>
+    <p class="ko easy">하단 메뉴는 사용자가 화면을 옮겨 다니는 곳입니다. 그런데 스크린리더에는 일반 버튼처럼 들릴 수 있었습니다. 이제 메뉴 전체는 탭 묶음으로, 각 메뉴는 선택 상태를 가진 탭으로 전달됩니다.</p>
+    <p class="ko easy">겉모습은 그대로 두고, 보조기기가 이해하는 이름표만 더 정확하게 붙였습니다.</p>
+  </details>
+
+  <details>
+    <summary>전문가 설명</summary>
+    <p class="ko expert">`DeepSpaceDock`의 root `View`에 `accessibilityRole="tablist"`를 추가하고, 각 `Pressable`의 role을 `button`에서 `tab`으로 변경했습니다. 기존 `selected` state는 유지했으며, 호출부가 `accessibilityLabel`을 누락해도 표시 label이 accessible name으로 남도록 fallback을 추가했습니다.</p>
+    <p class="ko expert">변경은 UI 렌더링 스타일, 라우팅, 탭 선택 로직을 건드리지 않습니다. Prettier가 기존 한 줄 SVG 속성을 정리해 diff가 커졌지만 동작 변경은 접근성 메타데이터에 한정됩니다.</p>
+  </details>
+</main>
+<script>
+  const b=[...document.querySelectorAll("button")];
+  b.forEach(x=>x.onclick=()=>{const l=x.dataset.lang,m=x.dataset.mode;if(l){document.body.classList.toggle("lang-en",l==="en");document.body.classList.toggle("lang-ko",l==="ko");b.filter(y=>y.dataset.lang).forEach(y=>y.setAttribute("aria-pressed",String(y===x)))}if(m){document.body.classList.toggle("mode-expert",m==="expert");document.body.classList.toggle("mode-easy",m==="easy");b.filter(y=>y.dataset.mode).forEach(y=>y.setAttribute("aria-pressed",String(y===x)))}})
+</script>
+</body>
+</html>
