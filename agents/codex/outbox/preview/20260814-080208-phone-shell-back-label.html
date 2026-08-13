@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>폰 셸 뒤로가기 라벨 접근성 보고</title>
+  <style>
+    :root { --bg: #101214; --text: #e8eaed; --accent: #8ab4f8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 48px; }
+    h1, h2 { margin: 0 0 12px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section { border: 1px solid var(--accent); border-radius: 6px; padding: 16px; margin-top: 16px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-top: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    code { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+    .card { border: 1px solid var(--accent); border-radius: 6px; padding: 12px; }
+    .label { color: var(--accent); font-weight: 700; }
+    details { margin-top: 8px; }
+    summary { cursor: pointer; color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>폰 셸 뒤로가기 라벨 접근성 보고</h1>
+    <p>이번 사이클은 2nd-B의 공통 폰 셸 상단 뒤로가기 버튼을 점검하고, 고정 한국어 접근성 라벨을 공통 번역 키 기반 라벨로 교체했다.</p>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="card"><div class="label">결과</div><div>완료</div></div>
+        <div class="card"><div class="label">앱 브랜치</div><div><code>codex/qa-cycle-20260814-075857</code></div></div>
+        <div class="card"><div class="label">앱 커밋</div><div><code>5a449f0e5efc5223361c5bbe419bf48018c56736</code></div></div>
+        <div class="card"><div class="label">허브 작성 범위</div><div><code>agents/codex/</code> 내부만 작성</div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead><tr><th>파일</th><th>내용</th><th>이유</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>src/components/deepspace/shell/PhoneShell.tsx</code></td>
+            <td><code>accessibilityLabel="뒤로"</code>를 <code>t("navGraph.drilldown.back")</code>로 교체</td>
+            <td>한국어가 아닌 사용자에게도 스크린리더 라벨이 현재 언어에 맞게 들리도록 함</td>
+          </tr>
+          <tr>
+            <td><code>src/components/deepspace/shell/__tests__/phone-shell-a11y.test.ts</code></td>
+            <td>하드코딩 한국어 라벨 금지와 공통 번역 키 사용을 소스 가드로 고정</td>
+            <td>공통 셸 회귀가 여러 화면에 번지는 것을 막기 위함</td>
+          </tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>이 버튼은 여러 deep-space 화면의 상단 바에서 재사용된다. 한 곳의 하드코딩 라벨이 남으면 다국어 화면에서도 한국어 낭독이 섞이므로 공통 번역 키를 쓰는 편이 맞다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><code>npm test -- --runTestsByPath src/components/deepspace/shell/__tests__/phone-shell-a11y.test.ts --runInBand</code></td><td>통과</td></tr>
+          <tr><td><code>npx eslint src/components/deepspace/shell/PhoneShell.tsx src/components/deepspace/shell/__tests__/phone-shell-a11y.test.ts</code></td><td>통과</td></tr>
+          <tr><td><code>npx prettier --check ...</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code>, <code>check:i18n-untranslated</code>, <code>check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>check:constraints</code>, <code>check:emdash</code>, <code>check:anti-anthro</code>, <code>check:mascot-voice</code>, <code>check:cycles</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+          <tr><td>변경 diff 민감 패턴 스캔</td><td><code>theme/tokens</code> 단어만 검출된 false positive</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p><code>check:constraints</code>는 exit 0이었고 기존 <code>C11 PART</code> 상태를 함께 표시했다. 이번 변경과 관련된 실패는 없었다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>위험과 남은 일</h2>
+      <table>
+        <thead><tr><th>항목</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td>2nd-B push</td><td>하지 않음</td></tr>
+          <tr><td>파괴적 작업, 비용 작업, 시크릿 작업</td><td>하지 않음</td></tr>
+          <tr><td>머지</td><td>Claude 게이트 대기</td></tr>
+          <tr><td>고위험 산출물 여부</td><td>아님. 별도 교차검증 요청 없음</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
