@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 폴 사이클 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0d10; --text:#e8edf2; --muted:#9aa6b2; --accent:#6ee7d8; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height:1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 40px 20px 56px; }
+    header { border:1px solid var(--muted); padding:24px; border-radius:8px; }
+    h1, h2 { margin:0; letter-spacing:0; }
+    h1 { font-size:26px; }
+    h2 { font-size:18px; margin-top:28px; }
+    p { color:var(--muted); margin:8px 0 0; }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:12px; margin-top:18px; }
+    .card { border:1px solid var(--muted); border-radius:8px; padding:14px; min-height:92px; }
+    .label { color:var(--muted); font-size:12px; }
+    .value { color:var(--text); font-size:15px; margin-top:6px; word-break:break-word; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; border:1px solid var(--muted); }
+    th, td { border-bottom:1px solid var(--muted); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    td { color:var(--text); }
+    code { color:var(--accent); word-break:break-word; }
+    details { border:1px solid var(--muted); border-radius:8px; padding:12px 14px; margin-top:12px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { display:flex; height:14px; border:1px solid var(--muted); margin-top:10px; }
+    .bar span { display:block; background:var(--accent); width:100%; }
+    @media (max-width: 760px) { .grid { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>코덱스 자율 폴 사이클 보고서</h1>
+    <p>생성 시각: 2026-08-14 00:56:27 KST</p>
+    <div class="grid" aria-label="요약">
+      <section class="card"><div class="label">결과</div><div class="value">새 UI 접근성 수정 1건 완료</div></section>
+      <section class="card"><div class="label">브랜치</div><div class="value"><code>codex/qa-cycle-20260814-005148</code></div></section>
+      <section class="card"><div class="label">커밋</div><div class="value"><code>2763b14b</code></div></section>
+      <section class="card"><div class="label">위험도</div><div class="value">낮음, 공유 컴포넌트 라벨 추가</div></section>
+    </div>
+  </header>
+
+  <h2>작업 내용</h2>
+  <table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td>큐 판정</td><td>Codex inbox는 비어 있었고, 다른 에이전트 outbox의 open 항목은 stale 또는 기답변으로 판단했다.</td></tr>
+      <tr><td>선택 작업</td><td>2nd-B Ops 공유 루틴 행의 switch가 루틴 이름을 말하지 못하는 접근성 결함을 수정했다.</td></tr>
+      <tr><td>구현</td><td><code>OpsReminderRow</code> switch에 <code>props.title</code>과 <code>props.statusLabel</code>을 조합한 라벨을 추가했다.</td></tr>
+      <tr><td>회귀 방지</td><td>소스 스캔 테스트 <code>ops-reminder-row-a11y.test.ts</code>를 추가했다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>검증</h2>
+  <div class="bar" aria-label="검증 통과율"><span></span></div>
+  <table>
+    <thead><tr><th>검증</th><th>상태</th></tr></thead>
+    <tbody>
+      <tr><td>타깃 Jest</td><td>통과</td></tr>
+      <tr><td>타깃 ESLint</td><td>통과</td></tr>
+      <tr><td>새 테스트 Prettier</td><td>통과</td></tr>
+      <tr><td>TypeScript</td><td>통과</td></tr>
+      <tr><td>i18n, untranslated, lexicon</td><td>통과</td></tr>
+      <tr><td>constraints, safety-consent locale, emdash, anti-anthro, mascot-voice, require cycles</td><td>통과</td></tr>
+      <tr><td>diff check와 민감 패턴 스캔</td><td>통과. 민감 패턴 스캔은 출력 없음.</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>자세히</summary>
+    <p>35 자체 패널: 사용자 관점은 루틴 제목이 들려야 한다고 판단했다. 구현 관점은 기존 localized prop만 재사용해 새 번역 키를 만들지 않는 쪽을 선택했다. 검증 관점은 공유 컴포넌트의 switch 역할, 라벨, checked 상태를 같은 테스트에서 고정했다.</p>
+    <p>허브 규칙: 2nd-B push, hub branch 변경, 파괴적 작업, 비용 작업, 민감정보 작업은 수행하지 않았다. 허브 작성은 <code>agents/codex/</code> 내부로 제한했다.</p>
+  </details>
+</main>
+</body>
+</html>
