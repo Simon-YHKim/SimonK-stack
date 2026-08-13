@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>내보내기 접근성 상태 보강 보고</title>
+  <style>
+    :root { --bg:#111315; --text:#e7e2d8; --accent:#7cc7b0; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 48px; }
+    h1,h2,p { margin:0; }
+    h1 { font-size:28px; line-height:1.2; margin-bottom:10px; }
+    h2 { font-size:18px; margin:28px 0 10px; color:var(--accent); }
+    p { margin:8px 0; }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:22px 0; }
+    .card { border:1px solid var(--accent); border-radius:6px; padding:14px; min-height:96px; }
+    .label { color:var(--accent); font-size:12px; }
+    .value { font-size:20px; font-weight:700; margin-top:8px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th,td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border:1px solid var(--accent); border-radius:6px; padding:10px 12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { width:100%; height:12px; border:1px solid var(--accent); margin-top:8px; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>내보내기 접근성 상태 보강 보고</h1>
+    <p>이번 사이클은 열린 codex 주문이 없어 2nd-B UI 접근성 레인에서 새 결함 하나를 처리했다.</p>
+    <p>보고 시각: 2026-08-14 06:20:00 KST</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">작업</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">위험도</div><div class="value">낮음</div></div>
+      <div class="card"><div class="label">푸시</div><div class="value">없음</div></div>
+      <div class="card"><div class="label">검증</div><div class="value">통과</div></div>
+    </section>
+
+    <h2>결과</h2>
+    <table>
+      <tr><th>항목</th><th>내용</th></tr>
+      <tr><td>worktree</td><td><code>C:\2ndB\.worktrees\codex-qa-20260814-061803</code></td></tr>
+      <tr><td>브랜치</td><td><code>codex/qa-cycle-20260814-061803</code></td></tr>
+      <tr><td>기준</td><td><code>origin/main 5ba0cdd905ec3e9e2d5aac0fceb17830c556ab09</code></td></tr>
+      <tr><td>로컬 커밋</td><td><code>c0010cda85631c20b6a1e280656fdabedd6955de</code></td></tr>
+      <tr><td>변경 파일</td><td><code>DeepSpaceDesignScreens.tsx</code>, <code>deep-space-controls-a11y.test.ts</code></td></tr>
+    </table>
+
+    <h2>변경 내용</h2>
+    <details open>
+      <summary>요약</summary>
+      <p>형식 내보내기 버튼은 내보내기 중 비활성화되지만, 보조기술에는 버튼 역할과 처리중 상태가 전달되지 않았다. 버튼에 <code>accessibilityRole</code>, <code>accessibilityLabel</code>, <code>accessibilityState</code>를 추가했다.</p>
+    </details>
+    <details>
+      <summary>기술 세부</summary>
+      <p><code>exporting</code> 값을 <code>disabled</code>와 <code>busy</code> 상태에 그대로 연결했다. 기존 내보내기 로직, 공유 로직, 텍스트 키는 변경하지 않았다.</p>
+    </details>
+
+    <h2>검증</h2>
+    <table>
+      <tr><th>검증</th><th>상태</th></tr>
+      <tr><td>타깃 Jest</td><td>통과</td></tr>
+      <tr><td>Prettier</td><td>통과</td></tr>
+      <tr><td>ESLint</td><td>오류 없음, 기존 경고 40개 유지</td></tr>
+      <tr><td>TypeScript</td><td>통과</td></tr>
+      <tr><td>i18n 및 문구 가드</td><td>통과</td></tr>
+      <tr><td>diff 공백 검사</td><td>통과</td></tr>
+      <tr><td>변경 diff 시크릿 패턴 검사</td><td>통과</td></tr>
+    </table>
+
+    <h2>자체 패널</h2>
+    <details>
+      <summary>가치</summary>
+      <p>내보내기는 사용자 데이터가 파일이나 공유 대상으로 이동하는 명확한 작업이다. 처리중 상태가 보조기술에 드러나는 것이 사용자가 중복 실행을 피하는 데 도움이 된다.</p>
+    </details>
+    <details>
+      <summary>위험</summary>
+      <p>로직 변경 없이 접근성 메타데이터만 추가했다. 스키마, 인증, 결제, 네트워크, 시크릿 처리는 건드리지 않았다.</p>
+    </details>
+    <details>
+      <summary>검증 판단</summary>
+      <p>소스 스캔 회귀 테스트가 새 상태 노출을 고정했고, 관련 정적 검증이 통과했다. 시각 UI 변경은 버튼 불투명도 기존 처리만 유지한다.</p>
+      <div class="bar" aria-label="검증 통과율"><span style="width:100%"></span></div>
+    </details>
+
+    <h2>남은 위험</h2>
+    <p>실기기 스크린리더 낭독은 이번 헤드리스 사이클에서 실행하지 않았다. 필요 시 Antigravity 네이티브 QA 레인에서 확인할 수 있다.</p>
+  </main>
+</body>
+</html>
