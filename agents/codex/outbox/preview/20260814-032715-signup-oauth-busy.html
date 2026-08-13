@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>가입 오에이쓰 상태 접근성 사이클 보고</title>
+  <style>
+    :root { --bg: #0b0d10; --text: #e8edf2; --accent: #6aa6ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Noto Sans KR", sans-serif; line-height: 1.55; }
+    main { width: min(980px, calc(100vw - 32px)); margin: 0 auto; padding: 36px 0 48px; }
+    header { border: 1px solid var(--accent); padding: 24px; }
+    h1 { margin: 0 0 10px; font-size: clamp(24px, 4vw, 38px); letter-spacing: 0; }
+    h2 { margin: 0 0 12px; font-size: 18px; }
+    p { margin: 0; }
+    section { margin-top: 18px; border: 1px solid var(--accent); padding: 18px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-top: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { width: 28%; font-weight: 700; }
+    code { color: var(--text); }
+    .muted { opacity: 0.78; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
+    .box { border: 1px solid var(--accent); padding: 14px; min-height: 92px; }
+    .label { color: var(--accent); font-weight: 700; margin-bottom: 6px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } th, td { display: block; width: 100%; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>가입 오에이쓰 상태 접근성 사이클 보고</h1>
+      <p class="muted">작성 시각: 2026-08-14 03:27:15 KST</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="box"><div class="label">결과</div><p>2nd-B 가입 화면의 소셜 가입 버튼이 진행 중 상태를 시각과 보조기술에 함께 알리도록 수정했다.</p></div>
+        <div class="box"><div class="label">범위</div><p>앱 로컬 브랜치 한 개, 파일 두 개, 커밋 한 개. 허브에서는 Codex outbox와 상태 파일만 기록한다.</p></div>
+        <div class="box"><div class="label">게이트</div><p>2nd-B push 없음. 허브 브랜치 전환 없음. 파괴, 비용, 시크릿 작업 없음.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <tr><th>브랜치</th><td><code>codex/qa-cycle-20260814-031920</code></td></tr>
+        <tr><th>앱 커밋</th><td><code>4634d56bb83101c69a25fbfab747a74984c55346</code></td></tr>
+        <tr><th>작업 트리</th><td><code>C:\2ndB\.worktrees\codex-qa-20260814-031920</code></td></tr>
+        <tr><th>수정 파일</th><td><code>src/app/(auth)/sign-up.tsx</code>: 소셜 가입 버튼 여섯 개에 <code>loading={oauthSubmitting}</code> 추가</td></tr>
+        <tr><th>테스트 파일</th><td><code>src/lib/__tests__/signup-oauth-busy-a11y.test.ts</code>: 가입 버튼과 공용 버튼의 진행 중 접근성 계약 고정</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <tr><th>통과</th><td>타깃 Jest, 타깃 ESLint, TypeScript, i18n 키, 미번역 검사, 금지어 검사, 긴 대시 검사, 반의인화 검사, 마스코트 음성 검사, 제약 검사, require cycle 검사, diff 공백 검사</td></tr>
+        <tr><th>주의</th><td><code>src/app/(auth)/sign-up.tsx</code>는 기존 파일 포맷 때문에 Prettier 전체 검사가 경고를 낸다. 포맷 적용은 200줄 이상의 리뷰 노이즈를 만들어 이번 사이클에서는 의미 변경 6줄만 유지했다.</td></tr>
+        <tr><th>시크릿</th><td>변경 파일 대상 시크릿 패턴 스캔에서 매칭 없음.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>자기 패널</h2>
+      <table>
+        <tr><th>찬성 관점</th><td>가입 중 버튼이 비활성화만 되고 진행 중으로 노출되지 않던 작은 접근성 결함을 공용 Button 계약에 맞춰 고쳤다.</td></tr>
+        <tr><th>반대 관점</th><td>legacy 가입 화면은 이미 deep-space 화면으로 대체되는 흐름이 있어 우선순위가 낮을 수 있다.</td></tr>
+        <tr><th>판정</th><td>가입은 핵심 진입 경로이고 변경이 6줄로 제한되어 비용 대비 가치가 충분하다. 고위험 변경이 아니므로 추가 MoA 검증 요청은 만들지 않았다.</td></tr>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
