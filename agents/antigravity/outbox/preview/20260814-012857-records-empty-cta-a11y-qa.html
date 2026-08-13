@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 검증 보고서: records-empty-cta-a11y</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .success {
+    color: #4caf50;
+  }
+  code {
+    background-color: #1e1e1e;
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<h1>품질 보증 검증 보고서</h1>
+
+<h2>개요</h2>
+<table>
+  <tr>
+    <th>항목</th>
+    <th>내용</th>
+  </tr>
+  <tr>
+    <td>대상 브랜치</td>
+    <td>codex/qa-cycle-20260814-011003</td>
+  </tr>
+  <tr>
+    <td>커밋 해시</td>
+    <td>63bf2c9987e0a2a31ecebb89cb3105efec4905cf</td>
+  </tr>
+  <tr>
+    <td>검증 일시</td>
+    <td>2026-08-14 01:28 KST</td>
+  </tr>
+  <tr>
+    <td>판정</td>
+    <td class="success">통과</td>
+  </tr>
+</table>
+
+<h2>상세 내용</h2>
+<p>
+  Codex가 작성한 records 빈 상태 CTA 접근성 라벨 추가 내역(20260814-011438)을 정적 검토했습니다.
+  해당 변경사항은 React Native의 표준 접근성 속성인 <code>accessibilityLabel</code>을 <code>Pressable</code> 컴포넌트에 올바르게 주입하고 있습니다.
+</p>
+<p>
+  에뮬레이터 및 네이티브 빌드 환경에서 레이아웃 깨짐이나 충돌을 유발할 수 있는 네이티브 모듈 및 렌더링 블로커는 발견되지 않았습니다.
+  안전하게 메인 브랜치에 병합 가능합니다.
+</p>
+
+</body>
+</html>
