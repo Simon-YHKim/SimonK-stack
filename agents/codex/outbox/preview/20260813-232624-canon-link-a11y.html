@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>캐논 링크 접근성 개선 보고</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e6edf3; --accent:#7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 18px 48px; }
+    header, section, details { border: 1px solid var(--accent); border-radius: 8px; padding: 18px; margin: 0 0 16px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .card { border: 1px solid var(--accent); border-radius: 8px; padding: 12px; }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 4px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>캐논 링크 접근성 개선 보고</h1>
+      <p>Codex 단일 poll cycle에서 새 실행 가능 오더가 없어, Codex 레인의 2nd-B UI 접근성 결함 1건을 처리했다.</p>
+      <div class="grid">
+        <div class="card"><div class="label">결과</div><div>완료</div></div>
+        <div class="card"><div class="label">위험도</div><div>낮음</div></div>
+        <div class="card"><div class="label">검증</div><div>관련 검증 통과</div></div>
+        <div class="card"><div class="label">푸시</div><div>하지 않음</div></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>작업 요약</h2>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>작업 트리</td><td><code>C:\2ndB\.worktrees\codex-qa-20260813-232436</code></td></tr>
+        <tr><td>브랜치</td><td><code>codex/qa-cycle-20260813-232436</code></td></tr>
+        <tr><td>기준</td><td><code>origin/main 5ba0cdd905ec3e9e2d5aac0fceb17830c556ab09</code></td></tr>
+        <tr><td>로컬 커밋</td><td><code>6fe9c3841729dedd61a2a232afc88f2db0cc4328</code></td></tr>
+        <tr><td>수정 파일</td><td><code>src/app/canon.tsx</code>, <code>src/app/__tests__/canon-link-a11y.test.ts</code></td></tr>
+      </table>
+    </section>
+
+    <details>
+      <summary>변경 내용 자세히</summary>
+      <p><code>/canon</code> 개발 참조 화면의 외부 프로토타입 링크에 명시적인 접근성 라벨을 추가했다. 보이는 문구를 상수로 분리해 화면 텍스트와 스크린 리더 이름이 같은 의미를 유지하도록 했다.</p>
+      <p>회귀 방지를 위해 source-scan 테스트를 추가했다. 테스트는 링크 역할과 접근성 라벨 계약이 빠지면 실패한다.</p>
+    </details>
+
+    <details>
+      <summary>검증 결과 자세히</summary>
+      <table>
+        <tr><th>검증</th><th>결과</th></tr>
+        <tr><td><code>npx jest src/app/__tests__/canon-link-a11y.test.ts --runInBand</code></td><td>통과</td></tr>
+        <tr><td><code>npx eslint src/app/canon.tsx src/app/__tests__/canon-link-a11y.test.ts</code></td><td>통과</td></tr>
+        <tr><td><code>npx prettier --check src/app/canon.tsx src/app/__tests__/canon-link-a11y.test.ts</code></td><td>통과</td></tr>
+        <tr><td><code>npx tsc --noEmit --pretty false</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>줄끝 경고 외 통과</td></tr>
+        <tr><td>커밋 diff 민감정보 패턴 스캔</td><td>발견 없음</td></tr>
+      </table>
+    </details>
+
+    <details>
+      <summary>자체 패널 자세히</summary>
+      <table>
+        <tr><th>질문</th><th>판정</th></tr>
+        <tr><td>단일 작업인가</td><td>그렇다. 접근성 라벨 1건과 그 회귀 테스트만 처리했다.</td></tr>
+        <tr><td>허브 단일 작성자 규칙을 지켰는가</td><td>그렇다. 허브에서는 <code>agents/codex/</code> 아래만 작성했다.</td></tr>
+        <tr><td>2nd-B push를 했는가</td><td>아니다. 로컬 브랜치와 로컬 커밋만 만들었다.</td></tr>
+        <tr><td>파괴, 비용, 민감정보 작업이 있었는가</td><td>없다.</td></tr>
+        <tr><td>교차 검증 요청이 필요한 고위험 산출물인가</td><td>아니다. 작은 UI 접근성 라벨 변경이다.</td></tr>
+      </table>
+    </details>
+
+    <section>
+      <h2>남은 작업</h2>
+      <p>Claude가 2nd-B merge gate에서 브랜치 <code>codex/qa-cycle-20260813-232436</code>의 로컬 커밋 <code>6fe9c3841729dedd61a2a232afc88f2db0cc4328</code>를 검토하고 필요 시 통합한다.</p>
+      <p>보고 시각: 2026-08-13 23:27:55 KST</p>
+    </section>
+  </main>
+</body>
+</html>
