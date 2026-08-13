@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>폰 셸 뒤로가기 라벨 지역화 보고서</title>
+  <style>
+    :root { --bg:#111318; --text:#eef1f7; --muted:#aab2c0; --accent:#78a6ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 48px; }
+    h1, h2 { margin:0 0 12px; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; color:var(--accent); margin-top:28px; }
+    p { margin:0 0 12px; color:var(--muted); }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { border:1px solid var(--muted); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--text); }
+    code { color:var(--text); }
+    .summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin:20px 0; }
+    .card { border:1px solid var(--muted); padding:14px; border-radius:8px; }
+    .label { color:var(--muted); font-size:12px; }
+    .value { color:var(--text); font-weight:700; margin-top:4px; }
+    details { border:1px solid var(--muted); border-radius:8px; padding:12px; margin-top:12px; }
+    summary { cursor:pointer; color:var(--text); font-weight:700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>폰 셸 뒤로가기 라벨 지역화 보고서</h1>
+    <p>생성 시각: 2026-08-14 08:54:50 KST</p>
+    <section class="summary" aria-label="요약">
+      <div class="card"><div class="label">대상</div><div class="value">2nd-B 폰 셸 상단 뒤로가기</div></div>
+      <div class="card"><div class="label">결과</div><div class="value">완료, 로컬 커밋 생성</div></div>
+      <div class="card"><div class="label">브랜치</div><div class="value">codex/qa-cycle-20260814-085213</div></div>
+      <div class="card"><div class="label">푸시</div><div class="value">하지 않음</div></div>
+    </section>
+
+    <h2>무엇을 바꿨나</h2>
+    <p><code>PhoneShell.tsx</code>의 뒤로가기 접근성 라벨이 한국어 문자열 <code>뒤로</code>로 고정되어 있던 부분을 공용 번역 키 <code>common:navGraph.drilldown.back</code>로 바꿨습니다.</p>
+    <p><code>visible-brand-copy.test.ts</code>에 회귀 방지 검사를 추가해 같은 하드코딩이 다시 들어오면 테스트가 실패하게 했습니다.</p>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead><tr><th>검증</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td>대상 Jest</td><td>통과</td></tr>
+        <tr><td>변경 파일 Prettier</td><td>통과</td></tr>
+        <tr><td>변경 파일 ESLint</td><td>통과</td></tr>
+        <tr><td>TypeScript 타입 검사</td><td>통과</td></tr>
+        <tr><td>i18n 키 정합성</td><td>통과</td></tr>
+        <tr><td>미번역, 금지어, 문장부호, 마스코트 음성, 순환참조 가드</td><td>통과</td></tr>
+        <tr><td>민감값 패턴 스캔</td><td>통과</td></tr>
+      </tbody>
+    </table>
+
+    <h2>상세</h2>
+    <details>
+      <summary>변경 파일</summary>
+      <p><code>src/components/deepspace/shell/PhoneShell.tsx</code></p>
+      <p><code>src/lib/__tests__/visible-brand-copy.test.ts</code></p>
+    </details>
+    <details>
+      <summary>커밋과 기준</summary>
+      <p>기준 커밋: <code>origin/main 5ba0cdd905ec3e9e2d5aac0fceb17830c556ab09</code></p>
+      <p>제품 로컬 커밋: <code>9382d9eb19c7cabbe3cd114f2ff985208191b7f1</code></p>
+      <p>작업 트리: <code>C:\2ndB\.worktrees\codex-qa-20260814-085213</code></p>
+    </details>
+    <details>
+      <summary>제약 준수</summary>
+      <p>허브에서는 <code>agents/codex/</code>만 작성했습니다. 2nd-B 브랜치는 푸시하지 않았고, 파괴적 작업, 비용 발생 작업, 시크릿 조작은 하지 않았습니다.</p>
+    </details>
+  </main>
+</body>
+</html>
