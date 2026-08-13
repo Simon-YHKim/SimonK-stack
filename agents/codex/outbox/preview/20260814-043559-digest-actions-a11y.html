@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 주기 보고서: digest 작업 버튼 접근성</title>
+  <style>
+    :root { --bg: #0b0f14; --text: #e6edf3; --accent: #5cc8ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    main { width: min(980px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0; }
+    header, section { border: 1px solid color-mix(in srgb, var(--accent) 34%, transparent); padding: 20px; margin-bottom: 16px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.2; }
+    h1 { font-size: clamp(24px, 4vw, 36px); }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: left; vertical-align: top; border-top: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); padding: 10px; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); word-break: break-all; }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-top: 16px; }
+    .box { border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent); padding: 14px; min-height: 96px; }
+    .label { color: var(--accent); font-weight: 700; display: block; margin-bottom: 6px; }
+    details { border-top: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); padding-top: 10px; margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 640px) { main { width: min(100% - 20px, 980px); padding: 24px 0; } th, td { display: block; width: 100%; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>digest 작업 버튼 접근성 주기 보고서</h1>
+      <p>기록 제안 화면의 확인과 해제 버튼이 처리 중일 때 비활성화는 되었지만 보조기술에 상태를 알리지 못하던 누락을 수정했다.</p>
+      <div class="summary">
+        <div class="box"><span class="label">결과</span>2nd-B 로컬 브랜치에 수정 커밋 생성</div>
+        <div class="box"><span class="label">앱 커밋</span><code>daaa5bd9ace2682cbdcc6324f2c20579abbc98a1</code></div>
+        <div class="box"><span class="label">push</span>수행하지 않음</div>
+        <div class="box"><span class="label">위험도</span>낮음, UI 접근성 상태 보강</div>
+      </div>
+    </header>
+
+    <section>
+      <h2>주기 판정</h2>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>수신함</td><td><code>tools/board.ps1 -Me codex</code> 기준 직접 열린 요청 없음</td></tr>
+        <tr><td>peer outbox</td><td>열린 codex/all 행 중 최신 agent-card 요청은 기존 응답으로 처리된 stale 행으로 판정</td></tr>
+        <tr><td>선택 작업</td><td>BOARD 현재 레인의 anti-slop 접근성 QA로 신규 결함 하나 수정</td></tr>
+        <tr><td>작업 제한</td><td>허브에서는 <code>agents/codex/</code>만 작성, 2nd-B는 별도 worktree와 로컬 브랜치만 사용</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <p><code>src/app/digest.tsx</code>의 제안 확인과 해제 버튼에 <code>accessibilityState</code>를 추가해 <code>busy</code> 동안 disabled와 busy 상태가 함께 전달되도록 했다.</p>
+      <p><code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code>에 소스 스캔 회귀 테스트를 추가해 두 버튼 모두 같은 상태 계약을 유지하도록 했다.</p>
+      <details>
+        <summary>자세히</summary>
+        <ul>
+          <li>동작 로직, 라우팅, 데이터 쓰기 경로는 변경하지 않았다.</li>
+          <li>Prettier가 변경 파일의 기존 긴 줄을 함께 정리했다.</li>
+          <li>시크릿, 비용 발생, 파괴적 작업은 없었다.</li>
+        </ul>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <tr><th>검증</th><th>결과</th></tr>
+        <tr><td>타깃 Jest</td><td>통과, <code>deep-space-controls-a11y.test.ts</code> 9개 테스트</td></tr>
+        <tr><td>Prettier</td><td>통과, 변경 파일 2개</td></tr>
+        <tr><td>ESLint</td><td>통과, 변경 파일 2개</td></tr>
+        <tr><td>TypeScript</td><td>통과, <code>tsc --noEmit</code></td></tr>
+        <tr><td>i18n</td><td>통과, key parity와 untranslated 검사</td></tr>
+        <tr><td>안전 게이트</td><td>lexicon, constraints, emdash, anti-anthro, mascot-voice, require cycles 통과</td></tr>
+        <tr><td>diff 검사</td><td><code>git diff --check</code> 통과, 변경 diff 민감 패턴 매치 없음</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>남은 일</h2>
+      <p>Claude merge gate가 2nd-B 브랜치 <code>codex/qa-cycle-20260814-043302</code>의 로컬 커밋을 검토한 뒤 필요하면 통합한다. Codex는 push하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>
