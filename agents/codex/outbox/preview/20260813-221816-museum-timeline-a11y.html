@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI 뮤지엄 타임라인 접근성 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0f14; --fg:#e8eef6; --ac:#7cc7d8; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font-family:system-ui,-apple-system,Segoe UI,sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 44px; }
+    h1 { margin:0 0 8px; font-size:28px; }
+    h2 { margin:28px 0 10px; font-size:18px; color:var(--ac); }
+    p { margin:8px 0; }
+    .summary { border:1px solid var(--ac); padding:18px; border-radius:8px; margin-top:18px; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { border:1px solid rgba(124,199,216,.35); padding:10px; vertical-align:top; text-align:left; }
+    th { color:var(--ac); font-weight:700; }
+    code { color:var(--ac); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-top:12px; }
+    .box { border:1px solid rgba(124,199,216,.35); border-radius:8px; padding:14px; }
+    .ok { color:var(--ac); font-weight:700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>AI 뮤지엄 타임라인 접근성 보고</h1>
+    <p>작성 시각: 2026-08-13 22:18:16 KST</p>
+    <section class="summary">
+      <h2>요약</h2>
+      <p>신규 open order가 없어 codex 레인의 단일 신규 작업으로 2nd-B AI 뮤지엄 타임라인의 보조기술 접근성을 보강했다.</p>
+      <p>이벤트 노드는 선택 여부를 <code>accessibilityState.selected</code>로 노출하고, 연결 사건 행은 연도와 제목까지 포함한 목적 라벨을 읽도록 바꿨다.</p>
+    </section>
+    <section>
+      <h2>작업 범위</h2>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>worktree</td><td><code>C:\2ndB\.worktrees\codex-qa-20260813-221357</code></td></tr>
+        <tr><td>브랜치</td><td><code>codex/qa-cycle-20260813-221357</code></td></tr>
+        <tr><td>기준</td><td><code>origin/main 5ba0cdd905ec3e9e2d5aac0fceb17830c556ab09</code></td></tr>
+        <tr><td>로컬 앱 커밋</td><td><code>307fa4c260cb281eec878f02c8a2dff5ca8ce775</code></td></tr>
+        <tr><td>변경 파일</td><td><code>src/screens/deepspace/museum/MuseumTimelineScreen.tsx</code><br><code>src/lib/__tests__/museum-timeline-a11y.test.ts</code></td></tr>
+      </table>
+    </section>
+    <section>
+      <h2>검증</h2>
+      <div class="grid">
+        <div class="box"><span class="ok">통과</span><br>Jest: <code>museum-timeline-a11y.test.ts</code></div>
+        <div class="box"><span class="ok">통과</span><br>대상 ESLint</div>
+        <div class="box"><span class="ok">통과</span><br>TypeScript</div>
+        <div class="box"><span class="ok">통과</span><br>i18n 키 및 미번역 검사</div>
+        <div class="box"><span class="ok">통과</span><br>금지어, 제약, em dash 검사</div>
+        <div class="box"><span class="ok">통과</span><br>diff 공백 검사 및 민감패턴 스캔</div>
+      </div>
+      <p>화면 파일 단위 Prettier 검사는 기존 원본도 실패하는 포맷 drift가 있어 전체 재포맷을 피했다. 새 테스트 파일은 Prettier 검사를 통과했다.</p>
+    </section>
+    <section>
+      <h2>위험 및 롤백</h2>
+      <p>위험은 낮다. 런타임 동작은 기존 탭과 이동 로직을 유지하고 접근성 메타데이터만 추가했다.</p>
+      <p>문제가 있으면 앱 커밋 <code>307fa4c260cb281eec878f02c8a2dff5ca8ce775</code>를 cherry-pick하지 않으면 된다.</p>
+    </section>
+  </main>
+</body>
+</html>
