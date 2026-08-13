@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 자율 사이클 보고서</title>
+  <style>
+    :root { --bg:#0f1115; --fg:#e8eaed; --ac:#7aa2ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height:1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 48px; }
+    header, section { border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent); border-radius: 8px; padding: 18px; margin: 0 0 14px; background: color-mix(in srgb, var(--fg) 4%, transparent); }
+    h1 { margin: 0 0 8px; font-size: 24px; }
+    h2 { margin: 0 0 10px; font-size: 17px; color: var(--ac); }
+    p { margin: 6px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; vertical-align: top; padding: 9px; border-top: 1px solid color-mix(in srgb, var(--fg) 14%, transparent); }
+    th { color: var(--ac); font-weight: 700; }
+    code { color: var(--fg); background: color-mix(in srgb, var(--fg) 8%, transparent); padding: 1px 5px; border-radius: 4px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+    .card { border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent); border-radius: 8px; padding: 12px; }
+    .label { color: var(--ac); font-weight: 700; }
+    details { margin-top: 8px; }
+    summary { cursor: pointer; color: var(--ac); }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Codex 자율 사이클 보고서</h1>
+    <p>생성 시각: 2026-08-14 06:04:53 KST</p>
+    <p>범위: 4-AI 허브 PROTOCOL 12/19/35.4 단일 사이클, Codex UI 접근성 레인</p>
+  </header>
+
+  <section>
+    <h2>한눈에 보는 결과</h2>
+    <div class="grid">
+      <div class="card"><p class="label">수행 작업</p><p>2nd-B 연구 제안 승인, 거절, 재검색 버튼의 비활성 및 처리중 상태를 보조기술에 노출했다.</p></div>
+      <div class="card"><p class="label">앱 커밋</p><p><code>3c79dadb02f789bf3291452c5fc8bc84e9b17b87</code></p></div>
+      <div class="card"><p class="label">푸시</p><p>하지 않음. Claude가 병합 게이트다.</p></div>
+      <div class="card"><p class="label">위험도</p><p>낮음. UI 상태 속성 추가와 source-scan 회귀 가드에 한정된다.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>변경 파일</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/screens/deepspace/DeepSpaceDesignScreens.tsx</code></td><td><code>research.reject</code>, <code>research.ratify</code>, <code>research.getProposals</code> 버튼에 <code>accessibilityState</code>를 추가했다.</td></tr>
+        <tr><td><code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code></td><td>연구 제안 액션의 disabled/busy 상태 노출을 고정하는 테스트를 추가하고, 기존 포맷 취약 assert 2개를 줄바꿈 허용 형태로 보정했다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>검증 항목</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>targeted Jest</td><td>통과. <code>deep-space-controls-a11y.test.ts</code> 9개 테스트 통과.</td></tr>
+        <tr><td>targeted ESLint</td><td>오류 없음. 기존 unused-import 경고 40개 유지.</td></tr>
+        <tr><td>TypeScript</td><td>통과.</td></tr>
+        <tr><td>정책 스캔</td><td>i18n, untranslated-i18n, lexicon, constraints, emdash, anti-anthro, mascot-voice, require cycles 통과.</td></tr>
+        <tr><td>diff 검사</td><td><code>git diff --check</code> 통과. 민감 패턴 매치 없음.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>운영 준수</h2>
+    <details open>
+      <summary>세부 내용</summary>
+      <p>허브는 <code>master</code>에서 유지했고 checkout, switch, branch 명령을 실행하지 않았다.</p>
+      <p>허브 쓰기는 <code>agents/codex/</code> 아래로 제한했다.</p>
+      <p>2nd-B 작업은 <code>C:\2ndB\.worktrees\codex-qa-20260814-060044</code>의 별도 브랜치 <code>codex/qa-cycle-20260814-060044</code>에서 수행했다.</p>
+      <p>파괴, 비용, 시크릿, 프로덕션 배포, 2nd-B push 작업은 수행하지 않았다.</p>
+    </details>
+  </section>
+</main>
+</body>
+</html>
