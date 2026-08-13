@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 자율 폴 사이클 보고서</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e7edf3; --accent:#7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Malgun Gothic", sans-serif; line-height:1.6; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 48px; }
+    header, section { border:1px solid color-mix(in srgb, var(--text) 20%, transparent); border-radius:8px; padding:20px; margin-bottom:16px; background:color-mix(in srgb, var(--text) 4%, transparent); }
+    h1, h2 { margin:0 0 12px; line-height:1.25; }
+    h1 { font-size:24px; }
+    h2 { font-size:18px; color:var(--accent); }
+    p { margin:8px 0; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border-top:1px solid color-mix(in srgb, var(--text) 18%, transparent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); overflow-wrap:anywhere; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
+    .card { border:1px solid color-mix(in srgb, var(--text) 16%, transparent); border-radius:8px; padding:14px; }
+    details { margin-top:8px; }
+    summary { cursor:pointer; color:var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 자율 폴 사이클 보고서</h1>
+      <p>기록 시각: 2026-08-13 20:00:44 KST</p>
+      <p>프로토콜: 12 / 19 / 35.4 단일 사이클</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="card">
+          <strong>작업</strong>
+          <p>2nd-B 독서 책장 화면의 책별 액션에 스크린 리더용 항목별 이름을 추가했습니다.</p>
+        </div>
+        <div class="card">
+          <strong>결과</strong>
+          <p>로컬 브랜치 <code>codex/qa-cycle-20260813-195455</code>에 커밋 <code>be63356b</code>를 만들었습니다.</p>
+        </div>
+        <div class="card">
+          <strong>제약 준수</strong>
+          <p>2nd-B push 없음, hub 브랜치 변경 없음, 파괴적 작업 없음, 비용 작업 없음, 민감정보 작업 없음.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>큐 확인</h2>
+      <table>
+        <tr><th>항목</th><th>결과</th></tr>
+        <tr><td>Codex inbox</td><td><code>tools/board.ps1 -Me codex</code> 기준 open request 없음.</td></tr>
+        <tr><td>peer outbox</td><td><code>to: codex</code> 또는 <code>to: all</code> open 후보는 오래된 2026년 6월과 7월 항목이며 최신 STATUS에서 stale 또는 기답변 범주로 판단.</td></tr>
+        <tr><td>자율 작업 선택</td><td>BOARD 현재 레인인 UI/anti-slop에 맞춰 최신 2nd-B <code>origin/main</code>에서 접근성 결함 하나만 수정.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <tr><th>파일</th><th>내용</th></tr>
+        <tr><td><code>src/screens/deepspace/ops/screens.tsx</code></td><td>Reading 화면의 검색 결과 담기, 읽는 중으로 이동, 다 읽음 액션에 책 제목을 포함한 <code>accessibilityLabel</code>을 추가했습니다.</td></tr>
+        <tr><td><code>src/lib/__tests__/visible-dev-copy.test.ts</code></td><td>세 액션이 항목별 접근성 이름을 유지하는지 source-scan 회귀 테스트를 추가했습니다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <tr><th>검사</th><th>상태</th></tr>
+        <tr><td><code>npx jest src/lib/__tests__/visible-dev-copy.test.ts --runInBand</code></td><td>통과, 2개 테스트.</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과.</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과.</td></tr>
+        <tr><td><code>npm run check:i18n-untranslated</code></td><td>통과.</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과.</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과.</td></tr>
+        <tr><td><code>npm run check:constraints</code></td><td>통과.</td></tr>
+        <tr><td><code>npx eslint</code> 대상 파일</td><td>오류 없음. 기존 warning 3개는 이번 diff와 무관.</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과.</td></tr>
+        <tr><td>diff 민감정보 패턴 스캔</td><td>검출 없음.</td></tr>
+        <tr><td><code>npx prettier --check src/lib/__tests__/visible-dev-copy.test.ts</code></td><td>통과.</td></tr>
+        <tr><td><code>npx prettier --check src/screens/deepspace/ops/screens.tsx</code></td><td>실패. 파일 원본의 기존 포맷 drift 때문에 전체 파일 검사 실패. 대량 formatter churn은 의도적으로 피했습니다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>섹션 35 자기 패널</h2>
+      <details open>
+        <summary>판정 보기</summary>
+        <p>입장 1: 화면 전체 i18n 정리는 가치가 있지만 범위가 커져 단일 사이클 원칙을 넘습니다.</p>
+        <p>입장 2: 독서 책장 액션의 항목별 접근성 이름은 실제 사용자가 바로 체감하는 작고 검증 가능한 결함입니다.</p>
+        <p>결론: 이번 사이클은 Reading shelf 접근성 라벨 보강 하나로 제한했습니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>남은 위험</h2>
+      <p>2nd-B 변경은 로컬 커밋으로만 제출됐습니다. Claude가 merge gate에서 브랜치와 커밋을 검토한 뒤 통합해야 합니다.</p>
+    </section>
+  </main>
+</body>
+</html>
