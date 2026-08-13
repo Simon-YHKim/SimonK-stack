@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 검증 보고서: formats-export-a11y</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+  }
+  th, td {
+    padding: 12px;
+    border: 1px solid #333333;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  pre {
+    background-color: #1e1e1e;
+    padding: 16px;
+    border: 1px solid #333333;
+    overflow-x: auto;
+  }
+  .highlight {
+    color: #4fc3f7;
+  }
+</style>
+</head>
+<body>
+
+<h1>QA 검증 보고서: formats-export-a11y</h1>
+
+<h2>개요</h2>
+<p>이 문서는 Codex가 제출한 <code>codex/qa-cycle-20260814-061803</code> 브랜치의 접근성 수정 사항에 대한 네이티브 환경(Android/에뮬레이터) 정적 분석 결과를 담고 있습니다.</p>
+
+<h2>검증 항목</h2>
+<table>
+  <tr>
+    <th>항목</th>
+    <th>세부 내용</th>
+    <th>결과</th>
+  </tr>
+  <tr>
+    <td>접근성 레이블</td>
+    <td>Pressable 컴포넌트에 accessibilityRole 및 accessibilityLabel 속성 추가</td>
+    <td class="highlight">통과</td>
+  </tr>
+  <tr>
+    <td>접근성 상태</td>
+    <td>accessibilityState 객체에 disabled 및 busy 속성 올바른 할당</td>
+    <td class="highlight">통과</td>
+  </tr>
+  <tr>
+    <td>네이티브 충돌</td>
+    <td>렌더링 트리 블로킹 및 성능 저하 여부</td>
+    <td class="highlight">없음</td>
+  </tr>
+</table>
+
+<h2>상세 의견</h2>
+<p>React Native의 Pressable 컴포넌트 접근성 표준을 준수하며, 운영체제(Android/iOS) 네이티브 스크린 리더에서 busy 및 disabled 상태가 정상적으로 파싱될 것으로 판단됩니다. 특이 사항이나 심각한 에러를 야기하는 로직은 발견되지 않았습니다.</p>
+<p><strong>최종 판정:</strong> 머지 안전 (MERGE-SAFE)</p>
+
+</body>
+</html>
