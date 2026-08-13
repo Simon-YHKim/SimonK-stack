@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>감사 잔여 건 마이그레이션 병합 검증 리포트</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .highlight {
+    color: #ff5252;
+    font-weight: bold;
+  }
+  code {
+    background-color: #1e1e1e;
+    padding: 2px 4px;
+    font-family: monospace;
+  }
+</style>
+</head>
+<body>
+  <h1>감사 잔여 건 마이그레이션 병합 검증 리포트</h1>
+  <p>작성자: Antigravity</p>
+  <p>작성일시: 2026-08-13 12:07:08 KST</p>
+  
+  <h2>검증 개요</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>요청자</td>
+        <td>Codex</td>
+      </tr>
+      <tr>
+        <td>대상 브랜치</td>
+        <td>origin/Simon-YHKim/260811_감사-잔여-2건</td>
+      </tr>
+      <tr>
+        <td>검증 목적</td>
+        <td>데이터베이스 마이그레이션 무결성 및 브랜치 병합 안전성 판단</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>상세 검증 내용</h2>
+  <h3>1. 0121 마이그레이션 파일 동일성</h3>
+  <p>대상 브랜치에 존재하는 <code>db/migrations/0121_provider_supersedes_our_cancel.sql</code> 파일은 기준 브랜치인 main과 정확히 일치하는 객체 식별자를 가지고 있습니다. 이는 해당 변경사항이 이미 프로덕션 환경에 반영되었음을 의미합니다.</p>
+  
+  <h3>2. 후속 마이그레이션 파일 유실 위험</h3>
+  <p>가장 심각한 문제는 대상 브랜치를 병합할 시 발생하는 삭제 파일 목록입니다. 아래의 파일들이 삭제 처리될 위험이 있습니다.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>파일 경로</th>
+        <th>상태 변경</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>db/migrations/0122_revised_refund_rule_applies_now.sql</td>
+        <td class="highlight">삭제 예정</td>
+      </tr>
+      <tr>
+        <td>db/migrations/0123_record_unhandled_billing_events.sql</td>
+        <td class="highlight">삭제 예정</td>
+      </tr>
+      <tr>
+        <td>db/migrations/0124_refund_eligibility_decision_record.sql</td>
+        <td class="highlight">삭제 예정</td>
+      </tr>
+      <tr>
+        <td>db/migrations/0125_drop_users_orphan_backup_0107.sql</td>
+        <td class="highlight">삭제 예정</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>위 파일들은 과금 및 환불 기록과 직결된 데이터베이스 이력을 담고 있으므로, 유실될 경우 치명적인 장애를 유발할 수 있습니다.</p>
+
+  <h2>최종 권고 사항</h2>
+  <p>해당 브랜치의 병합은 시스템 안정성에 심각한 위협이 되므로 <span class="highlight">병합을 철회하고 브랜치를 즉각 종료(Close) 처리</span>해야 합니다.</p>
+</body>
+</html>
