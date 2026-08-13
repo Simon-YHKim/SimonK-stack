@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>세컨비 모드 라벨 지역화 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101214; --fg:#e7ecef; --muted:#8f9aa3; --accent:#71d6c6; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { max-width:920px; margin:0 auto; padding:32px 20px 48px; }
+    header { border:1px solid color-mix(in srgb, var(--muted) 45%, transparent); padding:22px; border-radius:8px; }
+    h1 { margin:0 0 8px; font-size:24px; letter-spacing:0; }
+    h2 { margin:28px 0 10px; font-size:17px; color:var(--accent); }
+    p { margin:8px 0; }
+    table { width:100%; border-collapse:collapse; margin:12px 0; }
+    th, td { border-bottom:1px solid color-mix(in srgb, var(--muted) 35%, transparent); padding:10px 8px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-top:16px; }
+    .card { border:1px solid color-mix(in srgb, var(--muted) 35%, transparent); border-radius:8px; padding:14px; }
+    .label { color:var(--muted); font-size:12px; }
+    details { border:1px solid color-mix(in srgb, var(--muted) 30%, transparent); border-radius:8px; padding:10px 12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>세컨비 모드 라벨 지역화 보고</h1>
+      <p class="muted">작성 시각: 2026-08-13 18:42:05 KST</p>
+      <p>이번 사이클은 신규 open order 없이 codex 레인에서 한 가지 UI/i18n 품질 결함을 수정했다. 세컨비 compact header의 모드 라벨이 영어 고정값으로 남아 있어 한국어 화면에서도 영어로 읽히는 문제를 기존 locale 키로 교체했다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">앱 브랜치</div><code>codex/qa-cycle-20260813-183901</code></div>
+      <div class="card"><div class="label">앱 커밋</div><code>bbbf0b80</code></div>
+      <div class="card"><div class="label">기준</div><code>origin/main 5ba0cdd9</code></div>
+      <div class="card"><div class="label">허브 쓰기 범위</div><code>agents/codex/</code></div>
+    </section>
+
+    <h2>변경 파일</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th><th>영향</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/app/secondb.tsx</code></td><td>compact header의 <code>Analysis</code>, <code>New angle</code> 고정 라벨을 <code>t("analysisChip")</code>, <code>t("newAngleChip")</code>로 교체</td><td>한국어 화면에서 모드 라벨이 기존 번역인 <code>분석</code>, <code>새 관점</code>으로 표시됨</td></tr>
+        <tr><td><code>src/lib/__tests__/secondb-compact-mode-label-i18n.test.ts</code></td><td>소스 스캔 회귀 테스트 추가</td><td>같은 영어 고정값이 되돌아오는 것을 방지</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>대상 Jest</td><td>통과: <code>secondb-compact-mode-label-i18n.test.ts</code></td></tr>
+        <tr><td>대상 ESLint</td><td>통과</td></tr>
+        <tr><td>TypeScript</td><td>통과</td></tr>
+        <tr><td>i18n 키 정합</td><td>통과</td></tr>
+        <tr><td>미번역 검사</td><td>통과</td></tr>
+        <tr><td>금지 어휘</td><td>통과</td></tr>
+        <tr><td>제약 검사</td><td>통과</td></tr>
+        <tr><td>em dash 검사</td><td>통과</td></tr>
+        <tr><td>Prettier</td><td>새 테스트 파일은 통과. <code>secondb.tsx</code> 파일 단위 검사는 기존 포맷 드리프트 때문에 실패 상태가 유지됨.</td></tr>
+        <tr><td>민감정보 패턴</td><td>실제 노출 없음. Git 줄끝 경고 문자열만 탐지됨.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>자체 패널</h2>
+    <details open>
+      <summary>검토 내용</summary>
+      <p>UI 관점: compact header는 작은 화면에서 사용자가 현재 대화 모드를 확인하는 영역이므로 locale 불일치는 직접 사용자 경험 결함이다.</p>
+      <p>구현 관점: 이미 같은 화면의 모드 칩이 동일 locale 키를 사용하고 있어 새 키를 만들지 않고 기존 키를 재사용했다.</p>
+      <p>위험 관점: 표시 문자열만 교체했고 LLM 호출, 저장, 결제, 네이티브 동작, 라우팅은 건드리지 않았다. 롤백은 앱 커밋 <code>bbbf0b80</code> revert로 충분하다.</p>
+    </details>
+
+    <h2>제한 준수</h2>
+    <p>2nd-B 원격 push는 하지 않았다. 허브 브랜치 전환은 하지 않았다. 파괴적 작업, 비용 발생 작업, 민감정보 작업은 하지 않았다. 허브에서는 <code>agents/codex/</code> 아래만 작성했다.</p>
+  </main>
+</body>
+</html>
