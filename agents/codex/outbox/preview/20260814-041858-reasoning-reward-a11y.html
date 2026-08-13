@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>추론 보상 버튼 접근성 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { width: min(980px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 56px; }
+    header { border-bottom: 1px solid var(--muted); padding-bottom: 18px; margin-bottom: 24px; }
+    h1, h2, h3 { margin: 0 0 10px; font-weight: 700; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 24px; }
+    p { margin: 0 0 12px; }
+    code { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 18px 0; }
+    .card { border: 1px solid var(--muted); border-radius: 8px; padding: 14px; min-height: 110px; }
+    .label { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+    .value { font-size: 16px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    th, td { border: 1px solid var(--muted); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); }
+    details { border: 1px solid var(--muted); border-radius: 8px; padding: 12px; margin: 12px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .bar { height: 10px; background: var(--muted); border-radius: 999px; overflow: hidden; }
+    .bar span { display: block; height: 100%; background: var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 24px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>추론 보상 버튼 접근성 보고</h1>
+      <p>작성 시각: 2026-08-14 04:18:58 KST</p>
+      <p>범위: Codex 단일 자율 사이클, 2nd-B 격리 worktree, hub 기록 파일</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <article class="card">
+        <div class="label">결과</div>
+        <div class="value">완료</div>
+        <p>보상 광고 시청 버튼의 진행 상태를 접근성 상태와 연결했다.</p>
+      </article>
+      <article class="card">
+        <div class="label">앱 커밋</div>
+        <div class="value"><code>9957b841</code></div>
+        <p>로컬 커밋만 생성했고 push는 하지 않았다.</p>
+      </article>
+      <article class="card">
+        <div class="label">위험도</div>
+        <div class="value">낮음</div>
+        <p>광고 요청, 보상 지급, 자격 조건 로직은 변경하지 않았다.</p>
+      </article>
+      <article class="card">
+        <div class="label">검증</div>
+        <div class="value">통과</div>
+        <p>타깃 테스트, 타입 검사, 정책 가드를 확인했다.</p>
+      </article>
+    </section>
+
+    <section>
+      <h2>수정 내용</h2>
+      <p><code>ReasoningLimitSheet</code>의 보상 광고 버튼에 <code>loading={watching}</code>을 추가했다. 기존 <code>disabled={watching}</code>과 같은 상태값을 사용하므로, 사용자가 이미 광고 시청을 시작한 동안 버튼은 비활성 상태와 진행 중 상태를 함께 전달한다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p><code>MdButton</code>은 <code>loading</code>이 참일 때 내부 <code>Pressable</code>에 <code>busy</code> 접근성 상태를 설정한다. 이번 변경은 그 기존 컴포넌트 계약을 호출부에서 사용한 것이다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>변경</th><th>목적</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/components/deep-space/ReasoningLimitSheet.tsx</code></td>
+            <td><code>loading={watching}</code> 추가</td>
+            <td>보상 광고 버튼의 진행 상태를 스크린리더에 전달</td>
+          </tr>
+          <tr>
+            <td><code>src/lib/ads/__tests__/ssv-wiring.test.ts</code></td>
+            <td>소스핀 기대값 추가</td>
+            <td>보상 광고 요청 배선과 접근성 상태 배선을 함께 고정</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <div class="bar" aria-label="검증 통과율"><span style="width: 100%"></span></div>
+      <table>
+        <thead>
+          <tr><th>검증</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npx jest src/lib/ads/__tests__/ssv-wiring.test.ts --runInBand</code></td><td>통과</td></tr>
+          <tr><td><code>npx prettier --check</code> 대상 파일</td><td>통과</td></tr>
+          <tr><td><code>npx eslint</code> 대상 파일</td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code>, <code>check:i18n-untranslated</code>, <code>check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>check:emdash</code>, <code>check:constraints</code>, <code>check:anti-anthro</code>, <code>check:mascot-voice</code>, <code>check:cycles</code></td><td>통과</td></tr>
+          <tr><td>변경 diff 민감정보 패턴 스캔</td><td>매치 없음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>제약 준수</h2>
+      <details open>
+        <summary>확인 사항</summary>
+        <p>hub에서는 <code>agents/codex/</code> 아래에만 파일을 썼다. 2nd-B 변경은 <code>C:\2ndB\.worktrees\codex-qa-20260814-041555</code>의 격리 브랜치에서만 수행했다. 2nd-B push, hub branch switch, 파괴적 작업, 비용 작업, 시크릿 작업은 수행하지 않았다.</p>
+      </details>
+      <details>
+        <summary>자체 패널</summary>
+        <p>찬성: 사용자가 누르는 보상 버튼의 진행 상태가 보조기술에 전달된다. 반대: 보상 광고 플로우는 과도한 변경이 위험하다. 결론: 로직은 건드리지 않고 기존 버튼 컴포넌트의 상태 prop만 연결했다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>위험과 되돌리기</h2>
+      <p>위험은 낮다. 문제가 있으면 2nd-B에서 커밋 <code>9957b8418fb4ec85d4176d94467fca77faf4a923</code> 하나를 되돌리면 된다.</p>
+    </section>
+  </main>
+</body>
+</html>
