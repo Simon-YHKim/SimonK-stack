@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 화면 접근성 라벨 보강 보고</title>
+  <style>
+    :root{--bg:#111318;--text:#eef2f6;--accent:#6fb7ff;--muted:#9aa7b4}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Noto Sans KR",sans-serif;line-height:1.6}
+    main{max-width:980px;margin:0 auto;padding:32px 20px 56px}
+    h1,h2{margin:0 0 12px}
+    h1{font-size:28px}
+    h2{font-size:18px;color:var(--accent)}
+    p{margin:0 0 12px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:20px 0}
+    .card,section{border:1px solid #2a3442;border-radius:8px;padding:16px;background:#171b22}
+    .label{color:var(--muted);font-size:12px}
+    .value{font-size:16px;font-weight:700}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border-bottom:1px solid #2a3442;padding:10px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent);word-break:break-all}
+    details{margin-top:10px}
+    summary{cursor:pointer;color:var(--accent)}
+  </style>
+</head>
+<body>
+<main>
+  <h1>기록 화면 접근성 라벨 보강 보고</h1>
+  <p>이번 Codex poll cycle에서는 직접 요청이 없어, 현재 보드의 Codex 레인에 맞춰 2nd-B 기록 화면의 접근성 결함 하나를 수정했다.</p>
+
+  <div class="grid">
+    <div class="card"><div class="label">결과</div><div class="value">로컬 커밋 완료</div></div>
+    <div class="card"><div class="label">브랜치</div><div class="value"><code>codex/qa-cycle-20260813-193602</code></div></div>
+    <div class="card"><div class="label">앱 커밋</div><div class="value"><code>49ce6396d47b712b1acd81437ccb908520b3d1e9</code></div></div>
+    <div class="card"><div class="label">작성 시각</div><div class="value">2026-08-13 19:41:52 KST</div></div>
+  </div>
+
+  <section>
+    <h2>수정 내용</h2>
+    <table>
+      <thead><tr><th>영역</th><th>변경</th><th>효과</th></tr></thead>
+      <tbody>
+        <tr><td>기록 오류 상태</td><td><code>records.retry</code> 버튼에 명시적 접근성 라벨 추가</td><td>다시 시도 버튼의 목적을 보조기술이 안정적으로 읽는다.</td></tr>
+        <tr><td>기록 빈 상태</td><td><code>wiki.addPiece</code> 담기 버튼 두 곳에 명시적 접근성 라벨 추가</td><td>목록과 그래프 빈 상태의 주요 행동이 같은 이름으로 노출된다.</td></tr>
+        <tr><td>기록 상세 행동</td><td>위키 페이지 만들기, 편집, 이동 버튼에 명시적 접근성 라벨 추가</td><td>상세 화면 하단 행동이 시각 텍스트에만 의존하지 않는다.</td></tr>
+        <tr><td>회귀 방지</td><td>기존 records source-scan 테스트에 CTA 라벨 가드 추가</td><td>후속 리팩터링에서 라벨 누락을 즉시 잡는다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>검사</th><th>상태</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td>타깃 Jest</td><td>통과</td><td><code>records-import-integrity.test.ts</code> 7개 테스트 통과</td></tr>
+        <tr><td>타깃 ESLint</td><td>통과</td><td>변경 파일 2개 기준 오류 없음</td></tr>
+        <tr><td>TypeScript</td><td>통과</td><td><code>npm run type-check</code></td></tr>
+        <tr><td>i18n, 미번역, lexicon, em dash, constraints</td><td>통과</td><td>기존 검사 모두 통과</td></tr>
+        <tr><td>Prettier</td><td>기존 drift</td><td>HEAD 원본도 같은 파일 단위 검사에서 불일치. 전체 재포맷은 범위 밖이라 보류.</td></tr>
+        <tr><td>민감정보 diff scan</td><td>통과</td><td>토큰, 비밀번호, 시크릿 패턴 없음</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>자체 패널</h2>
+    <details open>
+      <summary>판정</summary>
+      <p>찬성 관점: 이미 존재하는 번역 키를 재사용했으므로 새 카피 리스크가 없고, 접근성 표면만 개선했다.</p>
+      <p>반대 관점: 큰 화면 파일의 기존 포맷 drift 때문에 전체 Prettier 통과를 만들려면 넓은 재포맷이 필요하다.</p>
+      <p>종합: 이번 cycle의 단일 작업 원칙상 전체 재포맷은 하지 않고, 최소 diff와 통과한 핵심 검증으로 제출한다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>남은 작업</h2>
+    <p>Claude가 2nd-B merge gate에서 브랜치 <code>codex/qa-cycle-20260813-193602</code>의 로컬 커밋을 검토한 뒤 필요하면 통합한다. Codex는 push하지 않았다.</p>
+  </section>
+</main>
+</body>
+</html>
