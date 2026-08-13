@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>리즈닝 항목 접근성 상태 라벨 보고</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e6edf3; --accent:#67d8a6; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,sans-serif; line-height:1.6; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 56px; }
+    header { border:1px solid color-mix(in srgb, var(--text) 18%, transparent); padding:22px; border-radius:8px; }
+    h1 { margin:0 0 8px; font-size:28px; letter-spacing:0; }
+    h2 { margin:28px 0 10px; font-size:18px; color:var(--accent); }
+    p { margin:8px 0; }
+    code { color:var(--accent); }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { text-align:left; vertical-align:top; padding:10px; border-bottom:1px solid color-mix(in srgb, var(--text) 16%, transparent); }
+    th { color:var(--accent); font-weight:700; }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-top:16px; }
+    .card { border:1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius:8px; padding:14px; min-height:92px; }
+    .label { color:var(--accent); font-size:12px; font-weight:700; }
+    .value { font-size:18px; font-weight:700; margin-top:6px; }
+    details { border:1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius:8px; padding:12px 14px; margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    ul { margin:8px 0 0 20px; padding:0; }
+    .bar { width:100%; height:12px; border:1px solid color-mix(in srgb, var(--text) 20%, transparent); border-radius:8px; overflow:hidden; margin-top:8px; }
+    .fill { height:100%; width:100%; background:var(--accent); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } h1 { font-size:23px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>리즈닝 항목 접근성 상태 라벨 보고</h1>
+      <p>이번 사이클은 새 요청이 없어 codex 레인의 UI 접근성 개선 한 건을 수행했다. 대상은 2nd-B <code>/reasoning</code> 화면의 자료 선택 목록이다.</p>
+      <div class="grid" aria-label="요약">
+        <section class="card"><div class="label">결과</div><div class="value">완료</div><p>로컬 커밋 생성</p></section>
+        <section class="card"><div class="label">범위</div><div class="value">2파일</div><p>앱 화면 1개, 테스트 1개</p></section>
+        <section class="card"><div class="label">위험</div><div class="value">낮음</div><p>표시 상태와 읽기 상태 동기화</p></section>
+        <section class="card"><div class="label">푸시</div><div class="value">없음</div><p>Claude 병합 게이트 유지</p></section>
+      </div>
+    </header>
+
+    <h2>수정 내용</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>문제</td><td>리즈닝 실행 중 또는 완료 후 목록의 보이는 보조문구는 바뀌지만, 체크박스 접근성 라벨은 기존 자료 메타값을 계속 읽을 수 있었다.</td></tr>
+        <tr><td>조치</td><td><code>itemMetaLabel</code>을 계산해 화면 텍스트와 <code>accessibilityLabel</code>이 같은 상태 문구를 사용하게 했다.</td></tr>
+        <tr><td>가드</td><td>소스 스캔 테스트를 추가해 실행 중, 완료, 접근성 라벨 동기화 계약을 고정했다.</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>변경 파일 자세히</summary>
+      <ul>
+        <li><code>C:\2ndB\.worktrees\codex-qa-20260813-230401\src\app\reasoning.tsx</code></li>
+        <li><code>C:\2ndB\.worktrees\codex-qa-20260813-230401\src\lib\__tests__\reasoning-execution-isolation.test.ts</code></li>
+      </ul>
+    </details>
+
+    <h2>검증</h2>
+    <div class="bar" aria-label="검증 통과율"><div class="fill"></div></div>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>Jest 타깃 테스트</td><td>통과, 1 스위트 6 테스트</td></tr>
+        <tr><td>Prettier 테스트 파일 확인</td><td>통과</td></tr>
+        <tr><td>ESLint 대상 파일</td><td>통과</td></tr>
+        <tr><td>TypeScript</td><td>통과</td></tr>
+        <tr><td>i18n, 미번역, lexicon, constraints</td><td>통과</td></tr>
+        <tr><td>safety-consent locale, emdash, anti-anthro, mascot voice, require cycles</td><td>통과</td></tr>
+        <tr><td>diff 공백 검사와 민감정보 패턴 스캔</td><td>통과</td></tr>
+      </tbody>
+    </table>
+
+    <h2>산출</h2>
+    <table>
+      <thead><tr><th>구분</th><th>값</th></tr></thead>
+      <tbody>
+        <tr><td>2nd-B worktree</td><td><code>C:\2ndB\.worktrees\codex-qa-20260813-230401</code></td></tr>
+        <tr><td>브랜치</td><td><code>codex/qa-cycle-20260813-230401</code></td></tr>
+        <tr><td>기준</td><td><code>origin/main 5ba0cdd905ec3e9e2d5aac0fceb17830c556ab09</code></td></tr>
+        <tr><td>로컬 커밋</td><td><code>7416a2c8ed1cd3defd838199ba85f206fda34472</code></td></tr>
+      </tbody>
+    </table>
+
+    <h2>35 자체 패널</h2>
+    <details>
+      <summary>검토 결과 자세히</summary>
+      <table>
+        <thead><tr><th>관점</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>사용자 경험</td><td>보이는 상태와 보조기술이 읽는 상태가 같아져 혼란이 줄어든다.</td></tr>
+          <tr><td>기술</td><td>새 번역키 없이 기존 화면 상태 계산을 재사용해 변경 범위를 작게 유지했다.</td></tr>
+          <tr><td>안전</td><td>권한, 결제, 민감정보, 파괴적 작업을 수행하지 않았다.</td></tr>
+          <tr><td>병합</td><td>2nd-B push 없이 Claude가 검토·병합할 수 있는 로컬 브랜치 커밋만 남겼다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <h2>남은 작업</h2>
+    <p>Claude가 브랜치 <code>codex/qa-cycle-20260813-230401</code>의 커밋 <code>7416a2c8</code>를 검토한 뒤 병합 여부를 결정하면 된다.</p>
+    <p>작성 시각: 2026-08-13 23:11:12 KST</p>
+  </main>
+</body>
+</html>
