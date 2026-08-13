@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>허브 도크 전송 버튼 접근성 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101214; --text:#eef2f3; --accent:#72d6c9; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 40px 22px 56px; }
+    header { border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent); padding: 22px; border-radius: 8px; }
+    h1, h2 { margin: 0 0 12px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 14px; }
+    th, td { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    section { margin-top: 24px; padding-top: 18px; border-top: 1px solid color-mix(in srgb, var(--text) 14%, transparent); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+    .card { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 8px; padding: 14px; min-height: 94px; }
+    .label { color: var(--accent); font-weight: 700; font-size: 13px; }
+    .ok { color: var(--accent); font-weight: 700; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>허브 도크 전송 버튼 접근성 보고</h1>
+      <p>이번 Codex 자율 폴 사이클은 열린 새 주문이 없어 2nd-B UI 접근성 결함 한 건을 직접 수정했다.</p>
+      <p>작성 시각: 2026-08-13 21:43:18 KST</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="card"><div class="label">결과</div><p class="ok">완료</p></div>
+        <div class="card"><div class="label">범위</div><p>세컨비 허브 도크 입력 전송 버튼</p></div>
+        <div class="card"><div class="label">위험</div><p>낮음. 접근성 상태 노출만 변경</p></div>
+        <div class="card"><div class="label">푸시</div><p>하지 않음</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>무엇을 고쳤나</h2>
+      <p><code>DeepSpaceHubDockScreen</code>의 세컨비 입력 전송 버튼은 빈 입력일 때 실제로 비활성화됐지만, 보조 기술에는 비활성 상태가 전달되지 않았다. 이제 같은 계산값 <code>sendDisabled</code>를 동작, 접근성 상태, 시각 스타일에 함께 사용한다.</p>
+      <table>
+        <thead><tr><th>항목</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td>작업 브랜치</td><td><code>codex/qa-cycle-20260813-214033</code></td></tr>
+          <tr><td>작업 트리</td><td><code>C:\2ndB\.worktrees\codex-qa-20260813-214033</code></td></tr>
+          <tr><td>기준 커밋</td><td><code>origin/main 5ba0cdd905ec3e9e2d5aac0fceb17830c556ab09</code></td></tr>
+          <tr><td>앱 커밋</td><td><code>31f2ed1488023c97531e7da445d433c39bceb8dc</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>검사</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>대상 Jest</td><td class="ok">통과, 1개 스위트 9개 테스트</td></tr>
+          <tr><td>대상 ESLint</td><td class="ok">통과</td></tr>
+          <tr><td>TypeScript</td><td class="ok">통과</td></tr>
+          <tr><td>i18n 키 정합</td><td class="ok">통과</td></tr>
+          <tr><td>미번역 검사</td><td class="ok">통과</td></tr>
+          <tr><td>금지 어휘</td><td class="ok">통과</td></tr>
+          <tr><td>제약 검사</td><td class="ok">통과. 기존 C11 부분상태는 이번 diff와 무관</td></tr>
+          <tr><td>엠대시 검사</td><td class="ok">통과</td></tr>
+          <tr><td>diff 공백 검사</td><td class="ok">통과</td></tr>
+          <tr><td>민감 패턴 스캔</td><td class="ok">통과</td></tr>
+          <tr><td>Prettier</td><td>변경 대상 두 파일과 원본 HEAD 모두 기존 파일 단위 포맷 불일치가 있어 전체 재포맷은 보류</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자기 패널</h2>
+      <table>
+        <thead><tr><th>관점</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>가치</td><td>실제 비활성 버튼 상태를 보조 기술에 전달하므로 작은 접근성 개선으로 적합</td></tr>
+          <tr><td>중복</td><td>최근 서명에 없는 허브 도크 전송 상태 결함이며 기록 CTA와 보상 시트 작업과 겹치지 않음</td></tr>
+          <tr><td>안전</td><td>스키마, 결제, 시크릿, 배포, 파괴 작업 없음. MoA 고위험 검증 대상 아님</td></tr>
+          <tr><td>범위</td><td>앱 코드 두 파일만 변경하고 hub에는 Codex 소유 경로만 기록</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
