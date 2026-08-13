@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Codex 단일 사이클 보고서</title>
+  <style>
+    :root { --bg: #0b1020; --text: #e5edf7; --accent: #77d5ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.6; }
+    main { max-width: 980px; margin: 0 auto; padding: 40px 20px 56px; }
+    header { border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); border-radius: 8px; padding: 24px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 8px 0; }
+    section { margin-top: 24px; padding-top: 20px; border-top: 1px solid color-mix(in srgb, var(--text) 18%, transparent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { text-align: left; vertical-align: top; padding: 10px 8px; border-bottom: 1px solid color-mix(in srgb, var(--text) 16%, transparent); }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: Consolas, "Courier New", monospace; }
+    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-top: 16px; }
+    .card { border: 1px solid color-mix(in srgb, var(--text) 16%, transparent); border-radius: 8px; padding: 14px; }
+    .label { color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 단일 자율 사이클 보고서</h1>
+      <p>작성 시각: 2026-08-14 01:33:40 KST</p>
+      <p>이번 사이클은 열린 Codex 요청이 없어 2nd-B UI 접근성 레인에서 신규 결함 1건을 처리했다.</p>
+      <div class="summary">
+        <div class="card"><div class="label">결과</div><p>로컬 2nd-B 커밋 생성</p></div>
+        <div class="card"><div class="label">브랜치</div><p><code>codex/qa-cycle-20260814-012827</code></p></div>
+        <div class="card"><div class="label">커밋</div><p><code>a826f57f</code></p></div>
+        <div class="card"><div class="label">푸시</div><p>수행하지 않음</p></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>처리한 문제</h2>
+      <p><code>DeepSpaceHubDockScreen.tsx</code>의 접근성 라벨 일부가 한국어 문자열로 직접 고정되어 있었다. 이 상태에서는 영어와 다른 언어 UI에서도 보조기술 라벨이 한국어로 남고, i18n 정책의 키 기반 관리를 우회한다.</p>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead><tr><th>파일</th><th>요약</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/screens/deepspace/DeepSpaceHubDockScreen.tsx</code></td><td><code>useTranslation("deepspace")</code>를 연결하고 capture, SecondB 입력, 제안 승인, digest, trend 카드 라벨을 locale key로 교체했다.</td></tr>
+          <tr><td><code>locales/*/deepspace.json</code></td><td>5개 UI locale에 <code>ds.hubDock</code> 접근성 키를 추가했다.</td></tr>
+          <tr><td><code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code></td><td>해당 preview 화면에 한국어 hardcoded <code>accessibilityLabel</code>이 재유입되지 않도록 source-scan 회귀 테스트를 추가했다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>검증 항목</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>대상 Jest</td><td>통과: <code>deep-space-controls-a11y.test.ts</code>, 9개 테스트</td></tr>
+          <tr><td>Prettier</td><td>통과: 변경 7개 파일</td></tr>
+          <tr><td>ESLint</td><td>통과: 변경 TS/TSX 파일</td></tr>
+          <tr><td>TypeScript</td><td>통과: <code>npm run type-check</code></td></tr>
+          <tr><td>i18n parity</td><td>통과: 5개 locale, 3343 keys</td></tr>
+          <tr><td>constraints</td><td>통과: C1-C12 및 관련 가드</td></tr>
+          <tr><td>lexicon</td><td>통과: 금지 어휘 없음</td></tr>
+          <tr><td>em dash</td><td>통과: locale 문자열 내 U+2014 없음</td></tr>
+          <tr><td>require cycles</td><td>통과: runtime cycle 0</td></tr>
+          <tr><td>diff whitespace</td><td>통과: <code>git diff --check</code></td></tr>
+          <tr><td>민감 패턴</td><td>실제 secret 없음. <code>@/theme/tokens</code> import의 일반 단어가 false positive로 잡혔다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>제약 준수</h2>
+      <p>hub에서는 <code>agents/codex/</code> 아래 보고 파일만 작성했다. 2nd-B 작업은 격리 worktree에서 로컬 브랜치와 로컬 커밋까지만 수행했고, 2nd-B push, hub branch 변경, 파괴적 작업, 비용 발생 작업, 민감정보 작업은 하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>
