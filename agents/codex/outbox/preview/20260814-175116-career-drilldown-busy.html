@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>커리어 드릴다운 저장 상태 보고</title>
+  <style>
+    :root { --bg:#0f1115; --text:#e8edf2; --accent:#7aa2ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.6; }
+    main { max-width:1040px; margin:0 auto; padding:32px 20px 56px; }
+    header { border:1px solid color-mix(in srgb,var(--text) 18%,transparent); border-radius:8px; padding:24px; margin-bottom:18px; }
+    h1 { margin:0 0 10px; font-size:28px; letter-spacing:0; }
+    h2 { margin:0 0 12px; font-size:18px; letter-spacing:0; }
+    p { margin:8px 0; }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:18px 0; }
+    .card { border:1px solid color-mix(in srgb,var(--text) 16%,transparent); border-radius:8px; padding:16px; }
+    .label { color:color-mix(in srgb,var(--text) 68%,var(--bg)); font-size:12px; }
+    .value { margin-top:4px; font-weight:700; overflow-wrap:anywhere; }
+    table { width:100%; border-collapse:collapse; margin:12px 0; }
+    th, td { border-bottom:1px solid color-mix(in srgb,var(--text) 14%,transparent); padding:10px 8px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); overflow-wrap:anywhere; }
+    details { border:1px solid color-mix(in srgb,var(--text) 14%,transparent); border-radius:8px; padding:12px 14px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:10px; border:1px solid var(--accent); border-radius:999px; overflow:hidden; margin-top:8px; }
+    .fill { height:100%; width:100%; background:var(--accent); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } h1 { font-size:23px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>커리어 드릴다운 저장 상태 보고</h1>
+      <p>이번 사이클에서는 열린 신규 요청이 없어 Codex 레인의 UI 접근성 결함 한 건을 처리했다. 커리어 드릴다운 제출 버튼이 저장 중에는 비활성화되지만 로딩 상태를 공유 버튼 컴포넌트에 넘기지 않아 보조기술에 진행 중 상태가 전달되지 않았다.</p>
+      <div class="grid">
+        <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+        <div class="card"><div class="label">위험도</div><div class="value">낮음</div></div>
+        <div class="card"><div class="label">앱 커밋</div><div class="value"><code>c357f38d</code></div></div>
+        <div class="card"><div class="label">푸시</div><div class="value">하지 않음</div></div>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>변경 요약</h2>
+      <table>
+        <thead><tr><th>파일</th><th>변경</th><th>효과</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/app/career-drilldown.tsx</code></td><td>제출 <code>MdButton</code>에 <code>loading={saving}</code> 추가</td><td>저장 중 버튼이 기존 비활성 상태와 함께 busy 접근성 상태를 노출한다.</td></tr>
+          <tr><td><code>src/lib/records/__tests__/no-navigate-on-failed-save.test.ts</code></td><td>저장 중 버튼 상태 소스 가드 추가</td><td>향후 같은 버튼에서 loading 배선이 빠지는 회귀를 막는다.</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>의미 변경은 제출 버튼의 저장 중 상태 전달 한 줄이다. 다만 대상 파일에 기존 포맷 드리프트가 있어 변경 파일 Prettier 검증을 통과시키는 과정에서 줄바꿈 정리가 함께 발생했다.</p>
+      </details>
+    </section>
+
+    <section class="card">
+      <h2>검증 상태</h2>
+      <div class="bar" aria-label="검증 통과율"><div class="fill"></div></div>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>대상 Jest</td><td>통과, 9개 테스트</td></tr>
+          <tr><td>변경 파일 Prettier</td><td>통과</td></tr>
+          <tr><td>변경 파일 ESLint</td><td>통과</td></tr>
+          <tr><td>TypeScript</td><td>통과</td></tr>
+          <tr><td>i18n, 미번역, lexicon</td><td>통과</td></tr>
+          <tr><td>constraints, emdash, anti-anthro, mascot voice, require cycles</td><td>통과</td></tr>
+          <tr><td>전체 lint</td><td>오류 0개, 기존 warning 55개</td></tr>
+          <tr><td>diff check 및 민감값 스캔</td><td>통과, 실제 민감값 없음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>자체 패널</h2>
+      <details open>
+        <summary>판단</summary>
+        <p>찬성: 커리어 드릴다운은 사용자가 시간을 들여 정리한 경험을 저장한 뒤 다음 화면으로 넘기는 흐름이다. 저장 중 상태가 보조기술에 드러나야 반복 탭과 혼란을 줄일 수 있다.</p>
+        <p>반대: 기존 <code>disabled</code>와 함수 내부 <code>saving</code> 가드가 중복 제출을 이미 막고 있어 기능상 심각도는 제한적이다.</p>
+        <p>결정: 동작 로직을 바꾸지 않는 좁은 접근성 패치가 이번 단일 사이클의 최선 작업이다. 고위험 산출물이 아니므로 MoA 검증 요청은 만들지 않았다.</p>
+      </details>
+    </section>
+
+    <section class="card">
+      <h2>경로</h2>
+      <p>작업 위치: <code>C:\2ndB\.worktrees\codex-qa-20260814-174757</code></p>
+      <p>브랜치: <code>codex/qa-cycle-20260814-174757</code></p>
+      <p>기준: <code>origin/main 5ba0cdd905ec3e9e2d5aac0fceb17830c556ab09</code></p>
+      <p>보고 시각: 2026-08-14 17:51:16 KST</p>
+    </section>
+  </main>
+</body>
+</html>
