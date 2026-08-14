@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>가입 오어스 접근성 사이클 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0d10; --text:#e8edf2; --accent:#7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 48px; }
+    header, section { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding: 20px; margin-bottom: 16px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { font-size: 18px; color: var(--accent); }
+    h3 { font-size: 15px; }
+    p, li, td, th, summary { font-size: 14px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .card { border: 1px solid color-mix(in srgb, var(--text) 14%, transparent); padding: 14px; min-height: 112px; }
+    .label { color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-top: 1px solid color-mix(in srgb, var(--text) 14%, transparent); padding: 9px 8px; text-align: left; vertical-align: top; }
+    code { color: var(--accent); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; }
+    details { border-top: 1px solid color-mix(in srgb, var(--text) 14%, transparent); padding-top: 10px; margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); }
+    .bar { height: 10px; background: color-mix(in srgb, var(--accent) 72%, var(--bg)); margin-top: 8px; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } main { padding: 20px 12px 36px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>가입 오어스 접근성 사이클 보고</h1>
+      <p>작성 시각: 2026-08-14 13:21:24 KST</p>
+      <p>이번 한 사이클에서는 열린 codex 주문이 없어 2nd-B 레인에서 새 UI 접근성 개선 한 건을 수행했다. 허브에서는 codex 전용 경로에만 보고 파일을 작성했고, 2nd-B 변경은 별도 worktree의 로컬 커밋으로 남겼다.</p>
+    </header>
+
+    <section>
+      <h2>한눈 요약</h2>
+      <div class="grid">
+        <div class="card"><div class="label">대상</div><p>레거시 가입 화면의 소셜 가입 버튼</p></div>
+        <div class="card"><div class="label">결과</div><p>오어스 제출 중 상태가 보조 기술에 바쁨 상태로 전달됨</p></div>
+        <div class="card"><div class="label">커밋</div><p><code>b1a2d50c</code><br>2nd-B 로컬 전용</p></div>
+        <div class="card"><div class="label">제한</div><p>push 없음, 비용 작업 없음, 시크릿 작업 없음</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead><tr><th>파일</th><th>내용</th><th>영향</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>src/app/(auth)/sign-up.tsx</code></td>
+            <td>구글, 애플, 카카오, 페이스북, 깃허브, 네이버 가입 버튼에 <code>loading={oauthSubmitting}</code> 추가</td>
+            <td>shared 버튼의 기존 접근성 상태 경로를 통해 제출 중 상태를 노출</td>
+          </tr>
+          <tr>
+            <td><code>src/lib/__tests__/sign-up-oauth-a11y.test.ts</code></td>
+            <td>각 가입 제공자 버튼이 <code>disabled</code>와 <code>loading</code>을 함께 갖는지 소스 스캔</td>
+            <td>이후 같은 회귀가 조용히 돌아오지 않게 고정</td>
+          </tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>로그인 화면과 딥스페이스 가입 화면은 이미 오어스 진행 상태를 접근성 상태로 전달하고 있었다. 레거시 가입 화면만 비활성화는 되었지만 바쁨 상태가 없어서 화면 읽기 사용자는 버튼이 왜 멈췄는지 알기 어려웠다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>검증 항목</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td>대상 Jest</td><td>통과</td></tr>
+          <tr><td>대상 Prettier</td><td>통과</td></tr>
+          <tr><td>대상 ESLint</td><td>통과</td></tr>
+          <tr><td>TypeScript</td><td>통과</td></tr>
+          <tr><td>i18n 키와 미번역 검사</td><td>통과</td></tr>
+          <tr><td>lexicon, constraints, emdash, anti-anthro, mascot-voice, require cycles</td><td>통과</td></tr>
+          <tr><td>diff whitespace 검사</td><td>통과</td></tr>
+          <tr><td>변경 diff 민감 패턴 검사</td><td>통과</td></tr>
+        </tbody>
+      </table>
+      <div class="bar" style="width:100%"></div>
+      <details>
+        <summary>자세히</summary>
+        <p><code>sign-up.tsx</code>는 대상 Prettier 적용으로 기존 들여쓰기 드리프트가 함께 정리되어 diff 줄 수가 실제 기능 변경보다 크다. 공백을 제외한 핵심 변경은 여섯 버튼의 <code>loading</code> 전달과 새 테스트다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <table>
+        <thead><tr><th>관점</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>사용자 경험</td><td>제출 중 상태가 말로 전달되어 탭 반복과 혼란을 줄인다.</td></tr>
+          <tr><td>접근성</td><td>기존 shared 버튼의 바쁨 상태 구현을 재사용하므로 표면 간 일관성이 높다.</td></tr>
+          <tr><td>위험</td><td>제공자 처리 로직은 그대로라 동작 위험은 낮다. 포맷 diff가 큰 점은 Claude가 머지 전 확인해야 한다.</td></tr>
+          <tr><td>롤백</td><td>2nd-B 로컬 커밋 <code>b1a2d50c</code>를 버리면 된다. 허브 보고는 기록 목적이다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
