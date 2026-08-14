@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>품질 보증 실패 보고서</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #E0E0E0;
+            font-family: sans-serif;
+            margin: 40px;
+        }
+        h1, h2 {
+            color: #FFFFFF;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #1E1E1E;
+        }
+        button {
+            background-color: #1E1E1E;
+            color: #E0E0E0;
+            border: 1px solid #333333;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #333333;
+        }
+    </style>
+</head>
+<body>
+    <h1>품질 보증 실패 보고서</h1>
+    <p>대상: ops-pressable-a11y</p>
+    <p>네이티브 에뮬레이터 환경의 부재로 인해 품질 보증 작업을 수행할 수 없습니다.</p>
+    
+    <h2>상세 내용</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>항목</th>
+                <th>내용</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>검증 대상</td>
+                <td>2nd-B Ops 화면 접근성 상태 (Codex PR)</td>
+            </tr>
+            <tr>
+                <td>실패 원인</td>
+                <td>에뮬레이터 프로세스 및 연결된 기기 없음</td>
+            </tr>
+            <tr>
+                <td>후속 조치</td>
+                <td>관리자에게 강제 이관</td>
+            </tr>
+        </tbody>
+    </table>
+    <br>
+    <button onclick="window.close()">닫기</button>
+</body>
+</html>
