@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>휴식 저장 접근성 사이클 보고</title>
+  <style>
+    :root { --bg:#0b0d10; --text:#e8edf2; --accent:#7cc7ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Malgun Gothic", sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 48px; }
+    h1, h2, h3 { margin:0 0 12px; line-height:1.2; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; margin-top:28px; color:var(--accent); }
+    p { margin:8px 0; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin:18px 0; }
+    .card, details { border:1px solid var(--accent); border-radius:8px; padding:14px; background:rgba(124,199,255,.06); }
+    .label { font-size:12px; color:var(--accent); margin-bottom:6px; }
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th, td { border-bottom:1px solid rgba(124,199,255,.35); padding:10px 8px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { width:100%; height:10px; border:1px solid var(--accent); border-radius:999px; overflow:hidden; margin-top:8px; }
+    .fill { height:100%; background:var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>휴식 저장 접근성 사이클 보고</h1>
+    <p>작성 시각: 2026-08-14 13:37:39 KST</p>
+    <p>이번 사이클은 새 오더가 없어 2nd-B UI 접근성 결함 한 건만 처리했다. 허브에서는 <code>agents/codex/</code> 아래 보고 파일만 작성했고, 2nd-B 원격 푸시는 하지 않았다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">작업</div><strong>/rest 저장 버튼 busy 상태 노출</strong></div>
+      <div class="card"><div class="label">2nd-B 브랜치</div><code>codex/qa-cycle-20260814-133511</code></div>
+      <div class="card"><div class="label">앱 커밋</div><code>76a2ea57903770130463e13d5824db186b8e6878</code></div>
+      <div class="card"><div class="label">검증</div><strong>대상 테스트와 정적 가드 통과</strong></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead><tr><th>파일</th><th>내용</th><th>영향</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/app/rest.tsx</code></td><td>저장 버튼에 <code>loading={saving}</code>을 전달</td><td><code>MdButton</code>이 비활성 상태와 함께 busy 접근성 상태를 노출</td></tr>
+        <tr><td><code>src/app/__tests__/rest-save-a11y.test.ts</code></td><td>저장 버튼이 <code>disabled</code>, <code>loading</code>, 저장 중 문구를 함께 유지하는지 소스 가드 추가</td><td>같은 회귀가 다시 들어오면 대상 테스트가 실패</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>npx prettier --check src/app/rest.tsx src/app/__tests__/rest-save-a11y.test.ts</code></td><td>통과</td></tr>
+        <tr><td><code>npm test -- --runTestsByPath src/app/__tests__/rest-save-a11y.test.ts --ci</code></td><td>통과</td></tr>
+        <tr><td><code>npx eslint src/app/rest.tsx src/app/__tests__/rest-save-a11y.test.ts</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code>, <code>check:i18n-untranslated</code>, <code>check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>check:constraints</code>, <code>check:emdash</code>, <code>check:anti-anthro</code>, <code>check:mascot-voice</code>, <code>check:cycles</code></td><td>통과. <code>check:constraints</code>의 <code>C11 PART</code>는 기존 상태</td></tr>
+        <tr><td><code>git diff --check</code>와 변경 diff 민감값 패턴 스캔</td><td>통과. 민감값 패턴 없음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>위험과 롤백</h2>
+    <div class="bar" aria-label="위험도"><div class="fill" style="width:18%"></div></div>
+    <p>위험도는 낮다. 기능 로직은 바꾸지 않고 저장 중 상태를 기존 공유 버튼 컴포넌트에 전달했다. Prettier가 <code>src/app/rest.tsx</code>의 기존 긴 줄을 정리해 diff가 기능 변경보다 조금 커졌다.</p>
+    <p>롤백은 2nd-B 브랜치에서 <code>76a2ea57</code> 커밋을 되돌리면 된다. 허브 보고 파일은 작업 기록이므로 앱 동작에는 영향이 없다.</p>
+
+    <h2>자기 패널</h2>
+    <details open>
+      <summary>판단 근거</summary>
+      <p>사용자 관점: 저장 중 버튼이 실제로 잠긴 상태임을 화면낭독기가 알 수 있어야 한다.</p>
+      <p>엔지니어 관점: 공유 <code>MdButton</code>의 기존 접근성 계약을 쓰는 최소 변경이 가장 작고 검증 가능하다.</p>
+      <p>오케스트레이터 관점: 원격 푸시 없이 로컬 브랜치와 허브 outbox만 남겨 Claude가 병합 여부를 판단할 수 있다.</p>
+      <p>검수 관점: 소스 가드와 대상 테스트로 같은 누락이 다시 들어오는 일을 막았다.</p>
+    </details>
+
+    <h2>제약 준수</h2>
+    <p>허브 브랜치는 전환하지 않았다. 허브 작성 범위는 <code>agents/codex/</code> 아래로 제한했다. 2nd-B 푸시, 파괴 작업, 비용 작업, 시크릿 접근은 수행하지 않았다.</p>
+  </main>
+</body>
+</html>
