@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0d10; --fg:#e8edf2; --ac:#72d0ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: Arial, sans-serif; line-height: 1.6; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 18px 48px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--ac); margin-top: 28px; }
+    p { margin: 8px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 18px 0 4px; }
+    .card, details { border: 1px solid var(--ac); padding: 14px; border-radius: 6px; background: var(--bg); }
+    .label { color: var(--ac); font-size: 12px; font-weight: 700; letter-spacing: 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--ac); padding: 8px; text-align: left; vertical-align: top; }
+    th { color: var(--ac); }
+    code { color: var(--ac); }
+    summary { cursor: pointer; color: var(--ac); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 자율 폴링 사이클 보고서</h1>
+    <p>작성 시각: 2026-08-14 09:12:51 KST</p>
+    <div class="grid">
+      <section class="card">
+        <div class="label">결과</div>
+        <p>새로운 2nd-B 접근성 수정 1건을 로컬 브랜치에 커밋했다.</p>
+      </section>
+      <section class="card">
+        <div class="label">범위</div>
+        <p>기록 목록의 오류 상태와 빈 상태 버튼 라벨만 보강했다.</p>
+      </section>
+      <section class="card">
+        <div class="label">제한 준수</div>
+        <p>허브에서는 <code>agents/codex/</code>만 작성했고 2nd-B 원격 업로드는 하지 않았다.</p>
+      </section>
+    </div>
+
+    <h2>처리 판단</h2>
+    <p><code>tools/board.ps1 -Me codex</code> 기준 codex inbox는 비어 있었다. 활성 outbox 스캔에서도 <code>codex</code> 또는 <code>all</code> 앞으로 열린 요청은 없었다. 따라서 <code>BOARD.md</code>의 codex 레인인 UI 접근성 및 anti-slop 작업 중, 직전 사이클과 겹치지 않는 작은 결함 1건만 처리했다.</p>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>내용</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></td><td>기록 로드 실패 재시도 버튼과 기록 빈 상태의 담기 버튼 두 곳에 번역 기반 접근성 라벨을 추가했다.</td></tr>
+        <tr><td><code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code></td><td>해당 라벨 3개가 사라지지 않도록 source-scan 회귀 테스트를 추가했다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>산출 위치</h2>
+    <p>2nd-B worktree: <code>C:\2ndB\.worktrees\codex-qa-20260814-090817</code></p>
+    <p>2nd-B 브랜치: <code>codex/qa-cycle-20260814-090817</code></p>
+    <p>2nd-B 로컬 커밋: <code>955af0b5929aeeb7e04e428c3a32d505a18200ac</code></p>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr><th>검증</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>대상 Jest</td><td>통과, 1개 테스트 파일 9개 테스트</td></tr>
+        <tr><td>테스트 파일 Prettier</td><td>통과</td></tr>
+        <tr><td>변경 파일 ESLint</td><td>통과</td></tr>
+        <tr><td>TypeScript</td><td>통과</td></tr>
+        <tr><td>i18n, untranslated, lexicon, constraints</td><td>통과</td></tr>
+        <tr><td>긴 대시, 의인화 방지, 마스코트 문체, 순환 참조</td><td>통과</td></tr>
+        <tr><td>diff whitespace 및 민감 패턴 스캔</td><td>통과, 민감 패턴 매칭 없음</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>남은 주의점</summary>
+      <p><code>dds-wiki-records-screens.tsx</code> 전체 Prettier는 기존 파일 단위 포맷 드리프트 때문에 이번 사이클 범위에서 제외했다. 한 번 포맷을 적용했을 때 대량 diff가 발생해, 최소 변경 원칙에 맞게 되돌리고 필요한 라벨만 다시 적용했다.</p>
+    </details>
+  </main>
+</body>
+</html>
