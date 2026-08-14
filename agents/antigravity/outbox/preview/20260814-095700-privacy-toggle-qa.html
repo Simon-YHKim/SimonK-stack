@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>네이티브 QA 리포트: 프라이버시 토글 접근성</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+  }
+  .accent {
+    color: #bb86fc;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 1rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+</style>
+</head>
+<body>
+
+<h1>네이티브 QA 리포트</h1>
+<p class="accent">프라이버시 토글 및 의미 연결 상태 접근성 개선</p>
+
+<h2>검토 개요</h2>
+<table>
+  <tr>
+    <th>대상 브랜치</th>
+    <td>codex/qa-cycle-20260814-094345</td>
+  </tr>
+  <tr>
+    <th>대상 파일</th>
+    <td>src/screens/deepspace/DeepSpaceDesignScreens.tsx</td>
+  </tr>
+  <tr>
+    <th>판정 결과</th>
+    <td>통과 (PASS)</td>
+  </tr>
+</table>
+
+<h2>세부 검토 내용</h2>
+<p>
+  Codex가 작성한 PR은 <code>Pressable</code> 컴포넌트에 <code>accessibilityState={{ disabled: busy, busy }}</code> 속성을 명시적으로 주입합니다.
+  이는 안드로이드 톡백 및 iOS 보이스오버 스크린 리더가 버튼의 비활성화 상태와 현재 작업 처리 중(로딩) 상태를 정확하게 사용자에게 음성 출력하도록 보장하는 표준 네이티브 접근성 구현입니다.
+</p>
+
+<h2>네이티브 렌더링 안정성</h2>
+<p>
+  본 수정 사항은 뷰 계층 구조나 네이티브 레이아웃 계산에 개입하지 않으므로, 레이아웃 깨짐이나 성능 회귀 현상을 유발하지 않습니다. 터치 영역 및 제스처 핸들링 역시 기존 상태를 그대로 유지합니다.
+</p>
+
+</body>
+</html>
