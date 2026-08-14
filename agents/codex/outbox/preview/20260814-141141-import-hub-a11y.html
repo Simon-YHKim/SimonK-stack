@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>임포트 허브 접근성 상태 개선 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#111318; --fg:#e8edf2; --muted:#9aa6b2; --accent:#7cc7b2; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font-family:Arial, sans-serif; line-height:1.6; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 48px; }
+    h1, h2, h3 { margin:0 0 12px; line-height:1.25; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; margin-top:28px; color:var(--accent); }
+    p { margin:0 0 12px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:20px 0; }
+    .card, details { border:1px solid var(--muted); border-radius:8px; padding:14px; background:rgba(255,255,255,.03); }
+    .label { color:var(--muted); font-size:12px; }
+    .value { font-size:15px; word-break:break-word; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { border-bottom:1px solid var(--muted); padding:10px 8px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); word-break:break-word; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:10px; background:var(--muted); border-radius:999px; overflow:hidden; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>임포트 허브 접근성 상태 개선 보고</h1>
+    <p class="label">작성 시각: 2026-08-14 14:11:41 KST</p>
+    <p>이번 Codex 단일 poll cycle에서는 열린 Codex 대상 주문이 없어, BOARD의 Codex 레인에 따라 2nd-B 임포트 허브의 직접 조작 요소 접근성 상태를 보강했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">완료, 로컬 앱 커밋 생성</div></div>
+      <div class="card"><div class="label">앱 브랜치</div><div class="value"><code>codex/qa-cycle-20260814-140732</code></div></div>
+      <div class="card"><div class="label">앱 커밋</div><div class="value"><code>e076834cad6cbb405e32c6fea0ea18f8527ae387</code></div></div>
+      <div class="card"><div class="label">푸시</div><div class="value">수행하지 않음</div></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead><tr><th>파일</th><th>내용</th><th>위험도</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/screens/deepspace/import/ImportHubScreen.tsx</code></td><td>잠긴 소스 행, 구글 연결, 분석, 제안 선택, 적용 버튼에 역할, 이름, 비활성, 진행 중, 선택 상태를 노출했다.</td><td>낮음</td></tr>
+        <tr><td><code>src/screens/deepspace/__tests__/records-import-integrity.test.ts</code></td><td>직접 조작 요소의 접근성 상태가 유지되는지 source-scan 회귀 가드를 추가했다.</td><td>낮음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <div class="grid">
+      <div class="card"><div class="label">대상 Jest</div><div class="value">통과, 7개 테스트</div><div class="bar"><span style="width:100%"></span></div></div>
+      <div class="card"><div class="label">TypeScript</div><div class="value">통과</div><div class="bar"><span style="width:100%"></span></div></div>
+      <div class="card"><div class="label">프로젝트 가드</div><div class="value">i18n, 미번역, lexicon, constraints, emdash, anti-anthro, mascot-voice, require cycles 통과</div><div class="bar"><span style="width:100%"></span></div></div>
+      <div class="card"><div class="label">민감값</div><div class="value">신규 민감값 없음</div><div class="bar"><span style="width:100%"></span></div></div>
+    </div>
+
+    <details>
+      <summary>자세히: 검증 명령</summary>
+      <p><code>npm test -- --runTestsByPath src/screens/deepspace/__tests__/records-import-integrity.test.ts --runInBand</code></p>
+      <p><code>npx prettier --check src/screens/deepspace/__tests__/records-import-integrity.test.ts</code></p>
+      <p><code>npx eslint src/screens/deepspace/import/ImportHubScreen.tsx src/screens/deepspace/__tests__/records-import-integrity.test.ts</code></p>
+      <p><code>npm run type-check</code></p>
+      <p><code>npm run check:i18n</code>, <code>check:i18n-untranslated</code>, <code>check:lexicon</code>, <code>check:constraints</code>, <code>check:emdash</code>, <code>check:anti-anthro</code>, <code>check:mascot-voice</code>, <code>check:cycles</code></p>
+      <p><code>git diff --check</code></p>
+    </details>
+
+    <details>
+      <summary>자세히: 남은 경고</summary>
+      <p><code>ImportHubScreen.tsx</code>의 기존 unused import 경고 3건은 남아 있다. 이번 변경은 해당 import를 새로 만들지 않았고, ESLint 오류는 없었다.</p>
+      <p>앱 파일 전체 Prettier는 기존 압축 스타일을 대량 재포맷하므로 적용하지 않았다. 변경된 테스트 파일은 Prettier를 통과했다.</p>
+    </details>
+
+    <h2>35 자기 패널</h2>
+    <table>
+      <thead><tr><th>관점</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>사용자 가치</td><td>임포트 허브의 핵심 선택과 적용 흐름이 스크린 리더에서 더 정확히 읽힌다.</td></tr>
+        <tr><td>엔지니어링</td><td>로직 변경 없이 접근성 속성과 정적 회귀 가드만 추가했다.</td></tr>
+        <tr><td>위험</td><td>저위험 UI 속성 변경이며 schema, 결제, 외부 API, 시크릿 작업은 없다.</td></tr>
+        <tr><td>운영</td><td>2nd-B는 로컬 커밋만 만들었고, merge gate인 Claude가 검토할 수 있게 허브 FYI를 남겼다.</td></tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>
