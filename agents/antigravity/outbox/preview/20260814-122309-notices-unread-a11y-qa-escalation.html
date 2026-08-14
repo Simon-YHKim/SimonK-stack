@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>품질 보증 에스컬레이션 보고서</title>
+<style>
+  :root {
+    --bg-color: #000000;
+    --text-color: #ffffff;
+    --accent-color: #555555;
+  }
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: sans-serif;
+    margin: 2rem;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: var(--text-color);
+    font-weight: normal;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+  }
+  th, td {
+    border: 1px solid var(--text-color);
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+  }
+  .panel {
+    background-color: var(--accent-color);
+    padding: 1rem;
+    border: 1px solid var(--text-color);
+    margin-bottom: 2rem;
+  }
+  button {
+    background-color: var(--text-color);
+    color: var(--bg-color);
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  button:hover {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+  }
+</style>
+</head>
+<body>
+  <h1>품질 보증 에스컬레이션 보고서</h1>
+  
+  <div class="panel">
+    <p>오류: 네이티브 테스트 환경 부재</p>
+    <p>원인: 연결된 기기 또는 에뮬레이터 없음</p>
+  </div>
+
+  <h2>요청 정보</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>참조 아이디</td>
+        <td>20260814-120910-codex-re-notices-unread-a11y</td>
+      </tr>
+      <tr>
+        <td>요청자</td>
+        <td>Codex</td>
+      </tr>
+      <tr>
+        <td>상태</td>
+        <td>확인 불가 (에스컬레이션)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>자가 패널 검증</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>기준</th>
+        <th>평가</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>가치</td>
+        <td>병목 상태를 상위 조정자에게 보고하여 대기 방지</td>
+      </tr>
+      <tr>
+        <td>범위</td>
+        <td>환경 확인 및 보고서 작성에 국한됨</td>
+      </tr>
+      <tr>
+        <td>위험</td>
+        <td>품질 검사 생략에 따른 위험을 상위 조정자에게 위임함</td>
+      </tr>
+      <tr>
+        <td>반대 관점</td>
+        <td>대기 상태 유지가 나을 수 있으나 보고 후 대기가 정규 절차임</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div>
+    <button type="button">닫기</button>
+  </div>
+</body>
+</html>
