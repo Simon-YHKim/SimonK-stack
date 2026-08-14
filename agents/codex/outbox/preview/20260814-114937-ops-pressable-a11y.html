@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 폴 사이클 보고서</title>
+  <style>
+    :root{--bg:#0b0f14;--text:#e8edf2;--accent:#66d9c8}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.55}
+    main{max-width:980px;margin:0 auto;padding:28px}
+    header{border:1px solid var(--accent);padding:20px;margin-bottom:18px}
+    h1,h2{margin:0 0 10px}
+    h1{font-size:24px}
+    h2{font-size:17px;color:var(--accent)}
+    p{margin:6px 0 0}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+    .box{border:1px solid rgba(102,217,200,.45);padding:12px;min-height:86px}
+    .label{color:var(--accent);font-size:12px}
+    .value{font-size:15px;margin-top:4px;word-break:break-word}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{border:1px solid rgba(102,217,200,.35);padding:9px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    details{border:1px solid rgba(102,217,200,.35);padding:12px;margin:10px 0}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    code{color:var(--accent);word-break:break-word}
+    .bar{height:10px;background:rgba(102,217,200,.18);margin-top:8px}
+    .bar span{display:block;height:10px;background:var(--accent)}
+    @media (max-width:760px){main{padding:16px}.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 자율 폴 사이클 보고서</h1>
+      <p>작성 시각: 2026-08-14 11:49:37 KST</p>
+      <p>범위: 허브 주문 확인 후 2nd-B UI 접근성 개선 한 건 수행</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="box"><div class="label">결과</div><div class="value">완료</div></div>
+      <div class="box"><div class="label">앱 커밋</div><div class="value"><code>f85ea92d20520b4b877f73877ba21f5142341207</code></div></div>
+      <div class="box"><div class="label">브랜치</div><div class="value"><code>codex/qa-cycle-20260814-114438</code></div></div>
+      <div class="box"><div class="label">푸시</div><div class="value">수행하지 않음</div></div>
+    </section>
+
+    <section>
+      <h2>무엇을 했나</h2>
+      <p>Codex 인박스와 peer outbox를 확인했으나 새로 처리할 열린 주문은 없었습니다. 보드의 Codex 레인에 따라 2nd-B의 Ops 목표와 장부 화면에서 직접 만든 버튼의 비활성 및 진행 상태를 스크린리더가 알 수 있도록 보강했습니다.</p>
+      <details>
+        <summary>자세히</summary>
+        <table>
+          <tr><th>항목</th><th>내용</th></tr>
+          <tr><td>기준</td><td><code>origin/main 5ba0cdd905ec3e9e2d5aac0fceb17830c556ab09</code></td></tr>
+          <tr><td>작업 위치</td><td><code>C:\2ndB\.worktrees\codex-qa-20260814-114438</code></td></tr>
+          <tr><td>변경 파일</td><td><code>src/screens/deepspace/ops/screens.tsx</code><br><code>src/screens/deepspace/ops/__tests__/ops-pressable-a11y-state.test.ts</code></td></tr>
+          <tr><td>핵심 변경</td><td>목표 추가, 이름 저장, 취소, 상태 변경, 날짜 지우기, 장부 추가, 장부 삭제 버튼에 <code>accessibilityState</code>를 추가했습니다.</td></tr>
+        </table>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <div class="bar" aria-label="검증 통과율"><span style="width:100%"></span></div>
+      <table>
+        <tr><th>검증</th><th>결과</th></tr>
+        <tr><td>타깃 Jest 3개 파일</td><td>통과: 3개 스위트, 14개 테스트</td></tr>
+        <tr><td>대상 ESLint</td><td>오류 없음, 기존 경고 3건 유지</td></tr>
+        <tr><td>TypeScript</td><td>통과</td></tr>
+        <tr><td>i18n, lexicon, constraints, emdash, anti-anthro, mascot-voice, require cycles</td><td>통과</td></tr>
+        <tr><td>diff check 및 민감 패턴 스캔</td><td>통과</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>위험과 남은 일</h2>
+      <p>동작 로직이나 데이터 구조는 바꾸지 않았습니다. 직접 버튼의 접근성 상태만 추가한 낮은 위험 변경입니다. 병합과 원격 푸시는 Claude 게이트에 남겨두었습니다.</p>
+    </section>
+  </main>
+</body>
+</html>
