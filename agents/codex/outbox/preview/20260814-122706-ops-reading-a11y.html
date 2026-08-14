@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>독서 조작 접근성 개선 보고</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e8edf2; --accent:#7aa2ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Noto Sans KR", sans-serif; line-height:1.55; }
+    main { max-width:1040px; margin:0 auto; padding:32px 20px 56px; }
+    header { border:1px solid color-mix(in srgb, var(--text) 18%, transparent); padding:22px; border-radius:8px; }
+    h1,h2,h3,p { margin-top:0; }
+    h1 { font-size:28px; line-height:1.2; margin-bottom:10px; }
+    h2 { font-size:18px; margin:26px 0 10px; color:var(--accent); }
+    h3 { font-size:15px; margin:0 0 8px; }
+    p { color:color-mix(in srgb, var(--text) 86%, transparent); }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; margin-top:18px; }
+    .card { border:1px solid color-mix(in srgb, var(--text) 16%, transparent); border-radius:8px; padding:14px; min-height:98px; }
+    .label { font-size:12px; color:var(--accent); margin-bottom:6px; }
+    .value { font-size:15px; font-weight:700; word-break:break-word; }
+    table { width:100%; border-collapse:collapse; border:1px solid color-mix(in srgb, var(--text) 16%, transparent); border-radius:8px; overflow:hidden; }
+    th,td { text-align:left; padding:10px; border-bottom:1px solid color-mix(in srgb, var(--text) 12%, transparent); vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--text); background:color-mix(in srgb, var(--text) 10%, transparent); padding:2px 5px; border-radius:4px; }
+    details { border:1px solid color-mix(in srgb, var(--text) 14%, transparent); border-radius:8px; padding:12px 14px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .controls { display:flex; gap:8px; flex-wrap:wrap; margin:18px 0; }
+    button { color:var(--bg); background:var(--accent); border:0; border-radius:6px; padding:8px 12px; font-weight:700; cursor:pointer; }
+    button[aria-pressed="false"] { background:color-mix(in srgb, var(--text) 18%, var(--bg)); color:var(--text); }
+    .lang-en .ko, .lang-ko .en, .mode-expert .easy, .mode-easy .expert { display:none; }
+    svg { max-width:100%; height:auto; display:block; }
+    @media (max-width:720px) { .grid { grid-template-columns:1fr 1fr; } h1 { font-size:23px; } }
+    @media (prefers-reduced-motion:no-preference) { details { transition:border-color .15s ease; } }
+  </style>
+</head>
+<body class="lang-ko mode-easy">
+  <main>
+    <header>
+      <h1>독서 조작 접근성 개선 보고</h1>
+      <p class="ko easy">이번 주기에는 새 요청이 없어, 코덱스 담당 영역에서 실제 사용자에게 바로 도움이 되는 작은 결함 하나를 고쳤습니다. 독서 화면의 버튼이 어떤 책을 조작하는지 화면 읽기 도구에 더 분명히 말하게 했습니다.</p>
+      <p class="ko expert">이번 주기에는 actionable open order가 없어 2nd-B 별도 worktree에서 `ReadingScreen`의 Pressable 접근성 의미를 보강했습니다. 데이터 경로나 라우팅은 변경하지 않았고, 접근성 라벨과 회귀 소스 스캔만 추가했습니다.</p>
+      <p class="en easy">이 보고서는 daemon 산출 규칙에 따라 한국어로만 표시합니다.</p>
+      <p class="en expert">이 보고서는 daemon 산출 규칙에 따라 한국어로만 표시합니다.</p>
+      <div class="grid">
+        <div class="card"><div class="label">결과</div><div class="value">로컬 커밋 완료</div></div>
+        <div class="card"><div class="label">앱 커밋</div><div class="value"><code>00477270</code></div></div>
+        <div class="card"><div class="label">브랜치</div><div class="value"><code>codex/qa-cycle-20260814-122410</code></div></div>
+        <div class="card"><div class="label">검증</div><div class="value">주요 가드 통과</div></div>
+      </div>
+    </header>
+
+    <div class="controls" aria-label="설명 표시 전환">
+      <button type="button" id="easy" aria-pressed="true" aria-label="쉬운 설명 보기">쉬운 설명</button>
+      <button type="button" id="expert" aria-pressed="false" aria-label="전문가 설명 보기">전문가 설명</button>
+      <button type="button" id="ko" aria-pressed="true" aria-label="한국어 보기">한국어</button>
+      <button type="button" id="en" aria-pressed="false" aria-label="한국어 유지">한국어 유지</button>
+    </div>
+
+    <section>
+      <h2>변경 요약</h2>
+      <table>
+        <thead><tr><th>항목</th><th>내용</th><th>영향</th></tr></thead>
+        <tbody>
+          <tr><td>현재 읽는 책</td><td>완료 버튼 라벨에 책 제목을 포함</td><td>무엇을 완료하는지 명확함</td></tr>
+          <tr><td>검색 결과</td><td>추가 행에 버튼 역할과 책별 라벨을 부여</td><td>검색 결과 행이 조작 가능하다는 점이 명확함</td></tr>
+          <tr><td>읽고 싶은 책</td><td>시작 버튼 라벨에 책 제목을 포함</td><td>어떤 책을 읽기 시작하는지 명확함</td></tr>
+          <tr><td>회귀 방지</td><td>소스 스캔 테스트 추가</td><td>라벨 누락 재발 가능성 감소</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <svg viewBox="0 0 720 118" role="img" aria-label="검증 항목 여덟 개 중 일곱 개 통과, 포맷 한 항목은 기존 파일 드리프트로 부분 제한">
+        <rect x="0" y="0" width="720" height="118" fill="none" stroke="rgba(232,237,242,.16)"/>
+        <rect x="24" y="30" width="588" height="24" fill="#7aa2ff"/>
+        <rect x="612" y="30" width="84" height="24" fill="rgba(232,237,242,.18)"/>
+        <text x="24" y="82" fill="#e8edf2" font-size="15">통과: 테스트, 린트, 타입체크, 국제화, 금지어, 제약, 순환 참조, diff 검사</text>
+        <text x="24" y="103" fill="#e8edf2" font-size="13">제한: 기존 파일 단위 Prettier drift로 전체 파일 포맷 적용은 보류</text>
+      </svg>
+      <details>
+        <summary>자세히</summary>
+        <p>실행한 검증은 targeted Jest, ESLint, TypeScript, i18n 키 검사, 미번역 검사, 금지어 검사, 제약 검사, em dash 검사, 비의인화 검사, 마스코트 음성 검사, 순환 참조 검사, diff 공백 검사, 변경 diff 민감 패턴 스캔입니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>위험과 롤백</h2>
+      <details open>
+        <summary>자체 패널 판단</summary>
+        <p class="ko easy">디자인 관점에서는 눈에 보이는 화면이 바뀌지 않아 사용자 혼란이 적습니다. 품질 관점에서는 화면 읽기 도구 사용자에게 필요한 정보가 늘었습니다. 안전 관점에서는 데이터 삭제, 결제, 시크릿, 외부 전송이 없습니다.</p>
+        <p class="ko expert">섹션 35 자체 패널 기준으로 사용자 가치, 회귀 가능성, 안전 경계를 점검했습니다. 변경은 `accessibilityLabel`과 `accessibilityRole` 추가에 한정되어 낮은 위험이며, 문제가 생기면 앱 커밋 `00477270`만 되돌리면 됩니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>산출물</h2>
+      <table>
+        <thead><tr><th>구분</th><th>경로 또는 값</th></tr></thead>
+        <tbody>
+          <tr><td>작업 트리</td><td><code>C:\2ndB\.worktrees\codex-qa-20260814-122410</code></td></tr>
+          <tr><td>변경 파일</td><td><code>src/screens/deepspace/ops/screens.tsx</code><br><code>src/screens/deepspace/ops/__tests__/reading-buttons-a11y.test.ts</code></td></tr>
+          <tr><td>허브 보고 시각</td><td>2026-08-14 12:27:11 KST</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <script>
+    const b=document.body, ids=["easy","expert","ko","en"];
+    function set(k,v){ b.classList.toggle(k+"-"+v,true); b.classList.toggle(k+"-"+(v==="easy"?"expert":v==="expert"?"easy":v==="ko"?"en":"ko"),false); ids.forEach(id=>document.getElementById(id).setAttribute("aria-pressed",String(id===v))); }
+    document.getElementById("easy").onclick=()=>set("mode","easy");
+    document.getElementById("expert").onclick=()=>set("mode","expert");
+    document.getElementById("ko").onclick=()=>set("lang","ko");
+    document.getElementById("en").onclick=()=>set("lang","en");
+  </script>
+</body>
+</html>
