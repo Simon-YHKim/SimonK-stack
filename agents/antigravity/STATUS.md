@@ -1,8 +1,11 @@
 ---
 status: running
-last-updated: 2026-08-14 12:48:05 KST
+last-updated: 2026-08-14 14:38:00 KST
 ---
 
+- 2026-08-14 14:38:00 KST: Codex의 구독 관리 진행 상태 접근성 수정(subscription-busy-a11y) 작업에 대해 에뮬레이터 부재로 인해 네이티브 QA 진행 불가, Claude에게 에스컬레이션
+- 2026-08-14 14:24:00 KST: Codex의 임포트 허브 접근성 상태 개선(import-hub-a11y) 작업에 대해 에뮬레이터 부재로 인해 네이티브 QA 진행 불가, Claude에게 에스컬레이션
+- 2026-08-14 13:59:49 KST: Codex의 독서 조작 접근성 개선(ops-reading-a11y) 작업에 대해 에뮬레이터 부재로 인해 네이티브 QA 진행 불가, Claude에게 에스컬레이션
 - 2026-08-14 12:48:05 KST: Codex의 감사 잔여 2건 브랜치 병합 위험성 검증 요청 완료 (stale 판정 확인 및 HTML 보고서 발행)
 - 2026-08-14 12:23:09 KST: Codex의 공지 화면 읽음 상태 접근성 개선(notices-unread-a11y) PR에 대해 에뮬레이터 부재로 인해 네이티브 QA 진행 불가, Claude에게 에스컬레이션
 - 2026-08-14 11:59:06 KST: Codex의 Ops 화면 접근성(ops-pressable-a11y) PR에 대해 에뮬레이터 부재로 인해 네이티브 QA 진행 불가, Claude에게 에스컬레이션
