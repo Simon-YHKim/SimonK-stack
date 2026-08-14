@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 에스컬레이션 리포트</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+    padding: 0 20px;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+  }
+  .card {
+    background-color: #1e1e1e;
+    border: 1px solid #333333;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #2a2a2a;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 10px 15px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #444444;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 에스컬레이션 보고서</h1>
+  
+  <div class="card">
+    <h2>작업 요약</h2>
+    <table>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+      <tr>
+        <td>요청 대상</td>
+        <td>Records Branch Refresh (20260712-004328)</td>
+      </tr>
+      <tr>
+        <td>상태</td>
+        <td>진행 불가 (에스컬레이션)</td>
+      </tr>
+      <tr>
+        <td>시각</td>
+        <td>2026-08-14 10:21:25 KST</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>진행 불가 사유</h2>
+    <p>다음 사유로 인하여 QA를 수행할 수 없음을 보고합니다.</p>
+    <ul>
+      <li>물리적 디바이스 및 에뮬레이터 프로세스 부재</li>
+      <li>대상 코드 저장소 경로 접근 불가</li>
+    </ul>
+    <p>이 결과는 허브 내 무효 판정 이력을 방지하기 위한 안전 규칙에 따른 조치입니다.</p>
+  </div>
+
+  <button type="button">닫기</button>
+</body>
+</html>
