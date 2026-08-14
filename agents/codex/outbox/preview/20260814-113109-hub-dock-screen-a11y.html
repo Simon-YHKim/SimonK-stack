@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>허브 독 화면 접근성 라벨 지역화 보고</title>
+  <style>
+    :root { --bg: #0b0f14; --text: #e6edf3; --accent: #7aa2ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.6; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 56px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-bottom: 12px; color: var(--accent); }
+    section { border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--bg)); border-radius: 8px; padding: 18px; margin-top: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .card { border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--bg)); border-radius: 8px; padding: 14px; min-height: 108px; }
+    .label { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: 0; }
+    .value { font-size: 16px; font-weight: 700; margin-top: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border-bottom: 1px solid color-mix(in srgb, var(--accent) 24%, var(--bg)); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--text); background: color-mix(in srgb, var(--accent) 16%, var(--bg)); padding: 2px 5px; border-radius: 4px; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .bar { width: 100%; height: 10px; border: 1px solid var(--accent); border-radius: 999px; overflow: hidden; margin-top: 10px; }
+    .bar span { display: block; height: 100%; width: 100%; background: var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } h1 { font-size: 23px; } }
+    @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } main { padding: 24px 14px 40px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>허브 독 화면 접근성 라벨 지역화 보고</h1>
+    <p>이번 사이클은 미응답 공개 요청이 없어서, 코덱스 레인의 UI 및 접근성 결함 한 건을 처리했다. 대상은 딥스페이스 허브 독 미리보기 화면의 스크린리더 라벨이다.</p>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="card"><div class="label">결과</div><div class="value">완료</div><p>한국어로 고정된 접근성 라벨을 지역화 키로 교체했다.</p></div>
+        <div class="card"><div class="label">앱 커밋</div><div class="value"><code>94ce596a</code></div><p>2nd-B 작업 브랜치에만 로컬 커밋했다.</p></div>
+        <div class="card"><div class="label">푸시</div><div class="value">없음</div><p>머지와 원격 반영은 클로드 게이트에 맡긴다.</p></div>
+        <div class="card"><div class="label">검증</div><div class="value">통과</div><p>타깃 테스트, 타입, 린트, i18n, 제약 검사를 실행했다.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead><tr><th>파일</th><th>변경</th><th>이유</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/screens/deepspace/DeepSpaceHubDockScreen.tsx</code></td><td><code>useTranslation("deepspace")</code>로 상호작용 라벨을 공급</td><td>다국어 사용자의 스크린리더가 한국어 라벨만 읽는 문제를 줄임</td></tr>
+          <tr><td><code>locales/*/deepspace.json</code></td><td>영어, 한국어, 스페인어, 포르투갈어, 인도네시아어 키 추가</td><td>i18n 키 정합성을 유지하면서 라벨을 지역화</td></tr>
+          <tr><td><code>src/lib/__tests__/deep-space-hub-dock-screen-a11y.test.ts</code></td><td>소스 스캔 회귀 테스트 추가</td><td>한국어 하드코딩 접근성 라벨 재유입을 차단</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>담기 모드 탭, 현재 별가루 담기 버튼, 세컨비 입력창과 전송 버튼, 트렌드 제안 카드, 점검 보류와 승인 버튼, 오늘의 정리 링크가 새 지역화 키를 사용한다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <div class="bar"><span></span></div>
+      <table>
+        <thead><tr><th>검사</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><code>npx jest src/lib/__tests__/deep-space-hub-dock-screen-a11y.test.ts --runInBand</code></td><td>통과, 7개 테스트</td></tr>
+          <tr><td><code>npx prettier --check</code> 대상 파일</td><td>통과</td></tr>
+          <tr><td><code>npx eslint</code> 대상 파일</td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code>, <code>check:i18n-untranslated</code></td><td>통과</td></tr>
+          <tr><td><code>check:emdash</code>, <code>check:lexicon</code>, <code>check:constraints</code>, <code>check:cycles</code></td><td>통과</td></tr>
+          <tr><td>변경 diff 민감 패턴 스캔</td><td><code>@/theme/tokens</code>의 일반 단어만 검출되어 false positive로 판정</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>위험과 남은 작업</h2>
+      <p>기능 동작 변경은 없고 스크린리더 라벨 공급 방식만 바뀌었다. 다만 대상 화면 파일은 기존 포맷 편차가 커서 Prettier 적용 후 파일 diff가 크게 보인다. 클로드가 머지 전 실제 diff를 한 번 더 확인하면 된다.</p>
+      <p>작업 브랜치: <code>codex/qa-cycle-20260814-112715</code>. 작업 위치: <code>C:\2ndB\.worktrees\codex-qa-20260814-112715</code>.</p>
+    </section>
+  </main>
+</body>
+</html>
