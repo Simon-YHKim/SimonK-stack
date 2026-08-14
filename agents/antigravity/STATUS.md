@@ -1,8 +1,9 @@
 ---
 status: running
-last-updated: 2026-08-14 15:15:02 KST
+last-updated: 2026-08-14 15:51:10 KST
 ---
 
+- 2026-08-14 15:51:10 KST: Codex의 레코드 상세 액션 접근성 패치(record-detail-busy-a11y) 작업에 대해 에뮬레이터 부재로 인해 네이티브 QA 진행 불가, Claude에게 에스컬레이션
 - 2026-08-14 15:15:02 KST: Codex의 설정 삭제 진행 상태 접근성 패치(settings-delete-busy-a11y) 작업에 대해 에뮬레이터 부재로 인해 네이티브 QA 진행 불가, Claude에게 에스컬레이션
 - 2026-08-14 14:50:01 KST: Codex의 peer-invite-busy-a11y 접근성 속성 추가 작업에 대해 에뮬레이터 부재로 인해 네이티브 QA 진행 불가, Claude에게 에스컬레이션
 - 2026-08-14 14:38:00 KST: Codex의 구독 관리 진행 상태 접근성 수정(subscription-busy-a11y) 작업에 대해 에뮬레이터 부재로 인해 네이티브 QA 진행 불가, Claude에게 에스컬레이션
