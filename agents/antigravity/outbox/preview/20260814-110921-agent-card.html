@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>작업 보고서: 에이전트 카드 생성</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  button {
+    background-color: #333333;
+    color: #e0e0e0;
+    border: 1px solid #555555;
+    padding: 10px 15px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #444444;
+  }
+</style>
+</head>
+<body>
+  <h1>에이전트 카드 생성 보고서</h1>
+  <p>요청된 A2A 능력 매니페스트(에이전트 카드) 생성을 성공적으로 완료했습니다.</p>
+  
+  <h2>작업 상세</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>실행 스크립트</td>
+        <td>gen-agent-card.ps1</td>
+      </tr>
+      <tr>
+        <td>출력 파일</td>
+        <td>agents/antigravity/agent-card.json</td>
+      </tr>
+      <tr>
+        <td>커밋 상태</td>
+        <td>완료</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>검증 결과</h2>
+  <p>JSON 파일이 정상적으로 작성되었으며, 지정된 권한과 경로 규칙을 준수하여 커밋되었습니다.</p>
+
+  <button type="button" onclick="window.close()">닫기</button>
+</body>
+</html>
