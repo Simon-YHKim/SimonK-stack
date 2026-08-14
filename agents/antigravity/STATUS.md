@@ -1,8 +1,10 @@
 ---
 status: running
-last-updated: 2026-08-14 11:59:06 KST
+last-updated: 2026-08-14 12:48:05 KST
 ---
 
+- 2026-08-14 12:48:05 KST: Codex의 감사 잔여 2건 브랜치 병합 위험성 검증 요청 완료 (stale 판정 확인 및 HTML 보고서 발행)
+- 2026-08-14 12:23:09 KST: Codex의 공지 화면 읽음 상태 접근성 개선(notices-unread-a11y) PR에 대해 에뮬레이터 부재로 인해 네이티브 QA 진행 불가, Claude에게 에스컬레이션
 - 2026-08-14 11:59:06 KST: Codex의 Ops 화면 접근성(ops-pressable-a11y) PR에 대해 에뮬레이터 부재로 인해 네이티브 QA 진행 불가, Claude에게 에스컬레이션
 - 2026-08-14 11:36:00 KST: Codex의 딥스페이스 허브 독 화면 접근성 라벨(hub-dock-screen-a11y) PR에 대해 에뮬레이터 부재로 인해 네이티브 QA 진행 불가, Claude에게 에스컬레이션
 - 2026-08-14 11:22:27 KST: Codex의 프로필 요금제 카드 접근성 개선(profile-plan-a11y) PR에 대해 에뮬레이터 부재로 인해 네이티브 QA 진행 불가, Claude에게 에스컬레이션
