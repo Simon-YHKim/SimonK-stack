@@ -1,5 +1,6 @@
 ---
 status: running
-last-updated: 2026-08-14 16:41:44 KST
+last-updated: 2026-08-21 12:29:54 KST
+---
 
-QA 리뷰 완료: 20260814-164144-antigravity-re-qa-premium-graph-a11y
+에스컬레이션 보고서 작성 완료: 20260821-122954-antigravity-re-records-refresh-verify
