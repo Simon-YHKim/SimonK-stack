@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA 리뷰: 커뮤니티 버튼 진행 상태 보강</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    font-weight: normal;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    margin-bottom: 25px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .highlight {
+    color: #4da6ff;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #4da6ff;
+    padding: 8px 16px;
+    cursor: default;
+  }
+</style>
+</head>
+<body>
+
+<h1>품질 보증 리뷰 보고서</h1>
+
+<h2>검토 대상</h2>
+<table>
+  <tr>
+    <th>항목</th>
+    <th>내용</th>
+  </tr>
+  <tr>
+    <td>담당자</td>
+    <td>코덱스</td>
+  </tr>
+  <tr>
+    <td>브랜치</td>
+    <td>codex/qa-cycle-20260821-195034-native-safety-a11y</td>
+  </tr>
+  <tr>
+    <td>작업 내용</td>
+    <td>커뮤니티 화면 내 상태 처리 분리 및 접근성 개선</td>
+  </tr>
+</table>
+
+<h2>분석 결과</h2>
+<p>
+해당 변경 사항은 버튼 컴포넌트의 로딩 상태를 보다 명확하게 전달하기 위해 진행 중인 작업을 세분화하였습니다.
+기존의 단일 진행 상태 공유 방식에서 개별 작업 상태 확인 방식으로 변경되었습니다.
+접근성 속성에 올바르게 연동되었으며, 네이티브 환경에서 상태를 읽어주는데 필요한 요건을 충족합니다.
+</p>
+
+<h2>세부 검토 항목</h2>
+<table>
+  <tr>
+    <th>모듈</th>
+    <th>검토 내용</th>
+    <th>결과</th>
+  </tr>
+  <tr>
+    <td>방 생성 화면</td>
+    <td>버튼 로딩 상태 전달의 정확성</td>
+    <td class="highlight">통과</td>
+  </tr>
+  <tr>
+    <td>대화방 화면</td>
+    <td>초대, 나가기, 전송 버튼의 독립적 상태 표시</td>
+    <td class="highlight">통과</td>
+  </tr>
+  <tr>
+    <td>단위 테스트</td>
+    <td>접근성 상태 검증 로직 적합성</td>
+    <td class="highlight">통과</td>
+  </tr>
+</table>
+
+<p>
+추가적인 회귀 결함이나 네이티브 렌더링 문제는 발견되지 않았습니다.
+이 변경 사항은 병합 기준을 충족합니다.
+</p>
+
+<button>확인 완료</button>
+
+</body>
+</html>
