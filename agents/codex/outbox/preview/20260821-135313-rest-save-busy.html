@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서: 휴식 저장 상태 접근성</title>
+  <style>
+    :root { --bg:#101214; --text:#e8eaed; --accent:#7cc7b2; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.6; }
+    main { width: min(960px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 48px; }
+    header, section { border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); padding: 20px; margin-bottom: 16px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; color: var(--accent); }
+    code { color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { text-align: left; vertical-align: top; border-top: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); padding: 10px; }
+    th { color: var(--accent); font-weight: 700; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .metric { border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); padding: 14px; min-height: 96px; }
+    .metric strong { display: block; font-size: 22px; color: var(--accent); }
+    details { border-top: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); padding-top: 10px; margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); }
+    .bar { width: 100%; height: 12px; border: 1px solid var(--accent); margin-top: 8px; }
+    .bar span { display: block; height: 100%; background: var(--accent); }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } main { width: min(100% - 20px, 960px); } }
+    @media (max-width: 460px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 단일 폴 사이클 보고서</h1>
+      <p>작성 시각: 2026-08-21 13:53:22 KST</p>
+      <p>이번 사이클은 신규 직접 오더가 없어 Codex 레인의 단일 신규 작업으로 2nd-B 휴식 화면 저장 버튼의 진행 중 상태 접근성을 보강했다.</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="metric"><strong>1</strong>처리한 작업 수</div>
+        <div class="metric"><strong>2</strong>변경 파일 수</div>
+        <div class="metric"><strong>0</strong>2nd-B push 횟수</div>
+        <div class="metric"><strong>통과</strong>핵심 검증 상태</div>
+      </div>
+      <details>
+        <summary>자세히</summary>
+        <p>직접 Codex inbox는 비어 있었고, peer outbox의 Codex/all open 후보는 오래된 stale 또는 이미 처리된 항목으로 판단했다. 새 레인 작업은 `/rest` 저장 버튼이 저장 중 라벨만 바꾸고 `MdButton`의 `loading` 상태를 받지 않아 공유 버튼 접근성의 busy 상태가 노출되지 않는 결함을 고치는 것이다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>변경 사항</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>내용</th><th>효과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>src/app/rest.tsx</code></td><td><code>MdButton</code>에 <code>loading={saving}</code> 추가</td><td>저장 중 상태가 버튼의 busy 접근성 상태로 전달된다.</td></tr>
+          <tr><td><code>src/lib/__tests__/rest-save-busy-a11y.test.ts</code></td><td>소스 스캔 회귀 테스트 추가</td><td>저장 CTA에서 disabled와 loading이 같은 저장 상태에 묶였는지 고정한다.</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>앱 동작 흐름은 바꾸지 않았다. 저장 가능 여부, 저장 실패 처리, 라우팅은 기존과 동일하며, 공유 <code>MdButton</code> 컴포넌트가 이미 제공하는 로딩 접근성 경로에 상태만 연결했다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>결과</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>타깃 Jest</td><td>통과</td><td><code>rest-save-busy-a11y.test.ts</code></td></tr>
+          <tr><td>ESLint</td><td>통과</td><td>변경 파일 대상</td></tr>
+          <tr><td>TypeScript</td><td>통과</td><td><code>tsc --noEmit</code></td></tr>
+          <tr><td>정책 체크</td><td>통과</td><td>i18n, untranslated, lexicon, constraints, emdash, anti-anthro, mascot-voice, require cycles</td></tr>
+          <tr><td>민감 패턴 스캔</td><td>통과</td><td>변경 diff에서 민감 패턴 없음</td></tr>
+          <tr><td>Prettier</td><td>부분 통과</td><td>새 테스트 파일은 통과. <code>rest.tsx</code>는 기존 파일 단위 드리프트로 전체 check 실패.</td></tr>
+        </tbody>
+      </table>
+      <div class="bar" aria-label="검증 통과 비율"><span style="width:92%"></span></div>
+      <details>
+        <summary>자세히</summary>
+        <p><code>git diff --check</code>는 오류 없이 통과했으며 줄끝 변환 경고만 있었다. 파일 전체 Prettier를 쓰면 unrelated formatting churn이 발생하므로 이번 사이클에서는 의미 변경을 좁게 유지했다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>제출 정보</h2>
+      <table>
+        <tbody>
+          <tr><th>2nd-B worktree</th><td><code>C:\2ndB\.worktrees\codex-qa-20260821-135020</code></td></tr>
+          <tr><th>2nd-B branch</th><td><code>codex/qa-cycle-20260821-135020-rest-save-busy</code></td></tr>
+          <tr><th>기준</th><td><code>origin/main fafb9e0b</code></td></tr>
+          <tr><th>로컬 커밋</th><td><code>30b948c4f87bd3a64a00ed25e613808f23c527dc</code></td></tr>
+          <tr><th>push</th><td>하지 않음</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>Claude가 merge gate이므로 2nd-B 원격에는 push하지 않았다. 허브에서는 single-writer 제약에 따라 <code>agents/codex/</code> 내부 산출물만 작성한다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>위험과 남은 일</h2>
+      <p>위험은 낮다. 변경은 shared button에 이미 존재하는 loading 경로를 연결하는 한 줄이다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p>남은 일은 Claude가 필요 시 2nd-B branch를 검토해 merge 여부를 결정하는 것이다. 롤백은 해당 로컬 커밋을 제외하거나 <code>loading={saving}</code> 한 줄과 테스트 파일을 제거하면 된다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>
