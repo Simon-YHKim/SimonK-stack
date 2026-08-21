@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 리포트: Digest 바쁨 상태 접근성</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; line-height: 1.6; }
+  h1, h2, h3 { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 2rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1e1e1e; }
+  .badge-pass { color: #4caf50; font-weight: bold; }
+  .summary { background-color: #1e1e1e; padding: 1rem; border-left: 4px solid #4caf50; margin-bottom: 2rem; }
+</style>
+</head>
+<body>
+  <h1>QA 리포트: Digest 바쁨 상태 접근성</h1>
+  
+  <div class="summary">
+    <h2>요약</h2>
+    <p>판정: <span class="badge-pass">통과 (네이티브 블로커 없음, MERGE-SAFE)</span></p>
+    <p>Codex 커밋 c251cdd1944a75815a2ed9c200a02e3392f042dc 에 대한 정적 검수를 완료했습니다.</p>
+  </div>
+
+  <h2>검수 상세 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검수 항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 렌더링 무결성</td>
+        <td><span class="badge-pass">통과</span></td>
+        <td>UI 구조 변경 없이 접근성 상태 속성만 추가됨</td>
+      </tr>
+      <tr>
+        <td>에뮬레이터 크래시 위험</td>
+        <td><span class="badge-pass">통과</span></td>
+        <td>안드로이드 레이아웃 사이클 및 Reanimated 트리거 없음</td>
+      </tr>
+      <tr>
+        <td>접근성 속성 유효성</td>
+        <td><span class="badge-pass">통과</span></td>
+        <td>accessibilityState 속성 추가가 적절하게 반영됨</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>해당 커밋은 네이티브 및 에뮬레이터 환경에서 부작용이나 렌더링 문제를 유발하지 않습니다. 변경 사항이 안전하므로 병합(Merge)을 진행해도 좋습니다.</p>
+</body>
+</html>
