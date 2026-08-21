@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>플랜 복원 버튼 접근성 보강 보고서</title>
+  <style>
+    :root { --bg:#0b0d12; --text:#e8edf4; --accent:#7db7ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 48px; }
+    h1, h2, h3, p { margin:0; }
+    h1 { font-size:28px; line-height:1.2; margin-bottom:10px; }
+    h2 { font-size:18px; margin-top:28px; margin-bottom:10px; color:var(--accent); }
+    p { margin:8px 0; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:20px 0; }
+    .card { border:1px solid var(--accent); padding:14px; border-radius:8px; }
+    .label { color:var(--accent); font-size:12px; margin-bottom:6px; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border:1px solid var(--accent); border-radius:8px; padding:10px 12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:10px; border:1px solid var(--accent); margin-top:8px; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>플랜 복원 버튼 접근성 보강 보고서</h1>
+    <p>작성 시각: 2026-08-21 22:44:20 KST</p>
+    <p>이번 사이클은 Codex inbox와 peer outbox를 확인한 뒤 새로 처리할 open 주문이 없어, Codex 레인의 UI 접근성 보강을 한 건 수행했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><p>2nd-B 로컬 브랜치에 수정 커밋 완료</p></div>
+      <div class="card"><div class="label">브랜치</div><p><code>codex/qa-cycle-20260821-223004-download-busy-a11y</code></p></div>
+      <div class="card"><div class="label">커밋</div><p><code>03d7d49d</code></p></div>
+      <div class="card"><div class="label">푸시</div><p>하지 않음</p></div>
+    </section>
+
+    <h2>수정 내용</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/screens/deepspace/dds-plans-screen.tsx</code></td><td>구매 복원 버튼이 복원 중일 때 보이는 문구와 접근성 라벨을 맞추고, <code>accessibilityState</code>에 disabled와 busy 상태를 노출했다.</td></tr>
+        <tr><td><code>src/lib/billing/__tests__/plans-restore-busy-a11y.test.ts</code></td><td>복원 버튼의 busy 접근성 계약을 정적으로 고정하는 회귀 테스트를 추가했다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>항목</th><th>상태</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>대상 Jest</td><td>통과</td><td>새 테스트와 기존 결제 UX 테스트 16개 통과</td></tr>
+        <tr><td>대상 ESLint</td><td>통과</td><td>수정 파일 2개 오류 없음</td></tr>
+        <tr><td>타입체크</td><td>통과</td><td><code>tsc --noEmit</code> 통과</td></tr>
+        <tr><td>전체 verify</td><td>통과</td><td>493개 test suite, 4608개 test 통과</td></tr>
+        <tr><td>민감값 스캔</td><td>통과</td><td>변경 diff에서 실제 민감 패턴 매칭 없음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>위험과 대응</h2>
+    <div class="bar" aria-label="위험 수준"><span style="width:35%"></span></div>
+    <p>결제 화면 표면이라 고위험 전달물로 분류했다. 실제 구매, 복원, 외부 결제 호출, push는 수행하지 않았고 정적 코드 보강과 테스트만 적용했다.</p>
+    <details>
+      <summary>자세히</summary>
+      <p>Antigravity에 별도 검증 요청을 남겼다. 확인 범위는 restore CTA의 label in name, disabled/busy 상태, 결제 경로 무변경 여부다.</p>
+    </details>
+
+    <h2>제약 준수</h2>
+    <table>
+      <thead><tr><th>제약</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>hub 단일 작성자</td><td><code>agents/codex/</code> 아래 파일만 작성</td></tr>
+        <tr><td>2nd-B push 금지</td><td>로컬 브랜치 커밋만 생성</td></tr>
+        <tr><td>파괴적 작업 금지</td><td>삭제, 강제 push, 비용 작업 없음</td></tr>
+        <tr><td>헤드리스</td><td>보고서 자동 열기 명령 실행 없음</td></tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>
