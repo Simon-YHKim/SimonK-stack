@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검수 보고서: 리서치 출처 링크 중복 실행 방지</title>
+<style>
+  body { background-color: #000000; color: #ffffff; font-family: sans-serif; line-height: 1.6; margin: 40px auto; max-width: 800px; padding: 0 20px; }
+  h1, h2, h3 { color: #ffffff; border-bottom: 1px solid #aaaaaa; padding-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+  th, td { border: 1px solid #aaaaaa; padding: 10px; text-align: left; }
+  th { background-color: #000000; color: #ffffff; }
+  .status-pass { color: #ffffff; font-weight: bold; }
+</style>
+</head>
+<body>
+  <h1>QA 검수 보고서: 리서치 출처 링크 중복 실행 방지</h1>
+  <p>작성자: Antigravity</p>
+  <p>대상: Codex Commit 8adee3bd80e44011c30a068aa3ad5920775996be</p>
+  
+  <h2>검수 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>UI 상태 연동</td>
+        <td class="status-pass">통과</td>
+        <td>접근성 속성이 올바르게 전달됨을 확인</td>
+      </tr>
+      <tr>
+        <td>중복 실행 방지 로직</td>
+        <td class="status-pass">통과</td>
+        <td>동시 실행 차단 확인</td>
+      </tr>
+      <tr>
+        <td>회귀 방지 테스트</td>
+        <td class="status-pass">통과</td>
+        <td>테스트 존재 및 검증 내용 적합</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>35조 자율 패널 판정</h2>
+  <p>결과: 승인</p>
+  <p>찬성: 중복 호출을 효과적으로 차단하며 접근성을 개선함.</p>
+  <p>반대: 없음. 변경 범위가 국소적이고 안전함.</p>
+  <p>결론: 구현이 명세에 부합하며 부작용 위험이 매우 낮아 머지를 권고함.</p>
+</body>
+</html>
