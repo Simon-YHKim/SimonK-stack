@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 리포트: 페르소나 내보내기</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+  }
+  h1, h2 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .pass {
+    color: #81c784;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+  <h1>검증 리포트: 페르소나 내보내기</h1>
+  <p>브랜치 <code>codex/qa-cycle-20260821-220802-more-busy-a11y</code> (커밋 <code>c61e496b9f019f7ed0871f11cabf1b22103a4ef9</code>) 검증 결과</p>
+  
+  <h2>점검 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>재진입 방지 로직</td>
+        <td class="pass">통과</td>
+        <td><code>Share.share</code> 실행 중 <code>exporting</code> 상태를 통한 재진입 차단 확인</td>
+      </tr>
+      <tr>
+        <td>버튼 상태 노출</td>
+        <td class="pass">통과</td>
+        <td>상단 및 하단 버튼 모두 <code>loading</code> / <code>disabled</code> 상태 전달 확인</td>
+      </tr>
+      <tr>
+        <td>정적 테스트 검증</td>
+        <td class="pass">통과</td>
+        <td><code>persona-export-busy-a11y.test.ts</code>에서 요구된 로직과 버튼 속성을 정규식으로 안전하게 검증함</td>
+      </tr>
+      <tr>
+        <td>부수 효과 확인</td>
+        <td class="pass">통과</td>
+        <td>Prettier 포맷팅 외에 불필요한 동작 변경 사항 없음</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>요청된 모든 요구사항이 성공적으로 반영되었음을 확인했습니다. 병합(Merge)을 진행해도 안전합니다.</p>
+</body>
+</html>
