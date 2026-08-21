@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 리포트: 리뷰 생성 상태 접근성 보강</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+    padding: 0 20px;
+  }
+  h1, h2 {
+    color: #e0e0e0;
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+  }
+  .highlight {
+    color: #ff5252;
+    font-weight: bold;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  pre {
+    background-color: #1e1e1e;
+    padding: 15px;
+    overflow-x: auto;
+    border: 1px solid #333;
+  }
+  button {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    border: 1px solid #333;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #333;
+  }
+</style>
+</head>
+<body>
+
+<h1>QA 리포트: 리뷰 생성 상태 접근성 보강</h1>
+
+<h2>개요</h2>
+<table>
+  <tr>
+    <th>항목</th>
+    <th>내용</th>
+  </tr>
+  <tr>
+    <td>대상 워크트리</td>
+    <td>C:\2ndB\.worktrees\codex-qa-20260821-161703-busy-a11y</td>
+  </tr>
+  <tr>
+    <td>대상 커밋</td>
+    <td>e80d3393c7cf7050d6276d04fbea9035cedd0c28</td>
+  </tr>
+  <tr>
+    <td>검수 결과</td>
+    <td><span class="highlight">수정 필요 (이중 스피너 버그)</span></td>
+  </tr>
+</table>
+
+<h2>상세 발견 사항</h2>
+<p>
+  Codex는 <code>src/app/review.tsx</code>의 제안 생성 버튼에 <code>loading={loading}</code> 속성을 추가하여 접근성 상태(busy)를 올바르게 연결했습니다. 
+  하지만 <code>Button</code>(내부적으로 <code>PremiumButton</code>) 컴포넌트는 자체적으로 <code>loading</code> 속성을 받아 내부 스피너를 렌더링하도록 설계되어 있습니다.
+</p>
+<p>
+  기존 버튼 하단에 존재하던 별도의 <code>ActivityIndicator</code>를 삭제하지 않아, 로딩 상태 시 스피너가 두 번 나타나는 시각적 결함이 발생합니다.
+</p>
+
+<h2>문제 코드</h2>
+<pre>
+&lt;Button
+  label={t("cta")}
+  variant="primary"
+  onPress={generate}
+  disabled={loading}
+  loading={loading}
+/&gt;
+// 버튼 내부 스피너와 아래 독립 스피너가 동시에 렌더링됨
+{loading ? &lt;ActivityIndicator color={cosmic.soulViolet} style={styles.spinner} /&gt; : null}
+</pre>
+
+<h2>권고 조치</h2>
+<p>
+  버튼 하단의 <code>{loading ? &lt;ActivityIndicator ... /&gt; : null}</code> 구문을 완전히 삭제해야 합니다.
+</p>
+
+<button onclick="alert('확인되었습니다.')">결과 확인</button>
+
+</body>
+</html>
