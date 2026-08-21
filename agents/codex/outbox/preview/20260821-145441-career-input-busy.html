@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>커리어 입력 저장 상태 접근성 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #111418; --text: #e8edf2; --muted: #9aa6b2; --accent: #7cc7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; color: var(--accent); }
+    p { margin: 0 0 14px; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 20px 0 26px; }
+    .card { border: 1px solid var(--muted); border-radius: 6px; padding: 14px; min-height: 92px; }
+    .label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+    .value { font-size: 15px; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 22px; }
+    th, td { border: 1px solid var(--muted); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--text); overflow-wrap: anywhere; }
+    details { border: 1px solid var(--muted); border-radius: 6px; padding: 10px 12px; margin: 10px 0; }
+    summary { cursor: pointer; color: var(--accent); }
+    .bar { width: 100%; height: 10px; border: 1px solid var(--muted); border-radius: 999px; overflow: hidden; margin-top: 8px; }
+    .fill { width: 100%; height: 100%; background: var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>커리어 입력 저장 상태 접근성 보고</h1>
+    <p>이번 사이클은 새 요청이 없어서 codex 레인의 자율 작업으로 진행했다. 커리어 성과 입력 화면의 저장 버튼이 저장 중 상태를 공통 버튼의 진행 상태로 노출하지 않는 문제를 한 건 수정했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span><span class="value">완료</span></div>
+      <div class="card"><span class="label">앱 브랜치</span><span class="value"><code>codex/qa-cycle-20260821-145213</code></span></div>
+      <div class="card"><span class="label">앱 커밋</span><span class="value"><code>80e14204af0378c05dbcf95a0e3c788cd3a0f93b</code></span></div>
+      <div class="card"><span class="label">허브 작성 범위</span><span class="value"><code>agents/codex/</code></span></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>내용</th><th>영향</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/app/career-input.tsx</code></td>
+          <td>저장 버튼에 <code>loading={saving}</code>을 연결했다.</td>
+          <td>저장 중 버튼이 비활성 상태뿐 아니라 진행 중 상태도 접근성 상태로 전달한다.</td>
+        </tr>
+        <tr>
+          <td><code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code></td>
+          <td>커리어 입력 저장 버튼의 진행 상태 연결을 소스 스캔으로 고정했다.</td>
+          <td>같은 연결이 빠지는 회귀를 테스트에서 잡는다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <div class="bar" aria-label="검증 통과율"><div class="fill"></div></div>
+    <table>
+      <thead>
+        <tr><th>검사</th><th>상태</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>타깃 Jest</td><td>통과</td><td><code>deep-space-controls-a11y.test.ts</code> 9개 테스트 통과</td></tr>
+        <tr><td>변경 파일 린트</td><td>통과</td><td><code>npx eslint</code> 통과</td></tr>
+        <tr><td>타입 검사</td><td>통과</td><td><code>npm run type-check</code> 통과</td></tr>
+        <tr><td>문구와 제약 검사</td><td>통과</td><td>i18n, 미번역, 금지어, 제약, 대시, 의인화, 마스코트 음성, 순환 의존성 검사 통과</td></tr>
+        <tr><td>포맷 검사</td><td>부분 통과</td><td>테스트 파일은 통과. <code>career-input.tsx</code>는 기존 파일 단위 포맷 드리프트로 실패했고, 전체 재포맷은 피했다.</td></tr>
+        <tr><td>민감 문자열 스캔</td><td>통과</td><td>변경 diff에서 민감 문자열 패턴 없음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>상세</h2>
+    <details>
+      <summary>큐 판단</summary>
+      <p>codex inbox는 비어 있었고, peer outbox의 codex/all open 후보는 기존 사이클에서 이미 처리된 오래된 항목으로 판단했다. 따라서 보드의 현재 포커스에 맞춰 UI 접근성 자율 작업을 한 건 수행했다.</p>
+    </details>
+    <details>
+      <summary>위험과 롤백</summary>
+      <p>기능 로직 변경 없이 버튼 상태 연결만 추가했으므로 위험은 낮다. 문제가 생기면 앱 커밋 <code>80e14204</code>를 되돌리면 된다. 허브 master 전환, 2nd-B push, 파괴적 작업, 비용 작업, 시크릿 작업은 하지 않았다.</p>
+    </details>
+    <details>
+      <summary>남은 점</summary>
+      <p><code>career-input.tsx</code> 전체 파일에는 기존 포맷 드리프트가 남아 있다. 이번 사이클의 의미 변경과 무관하므로 정리하지 않았다.</p>
+    </details>
+  </main>
+</body>
+</html>
