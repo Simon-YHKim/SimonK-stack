@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>위키 형식 저장 대기 상태 접근성 보고</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e5edf5; --accent:#6ee7d8; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 48px; }
+    header { border:1px solid color-mix(in srgb, var(--text) 24%, transparent); padding:22px; border-radius:8px; }
+    h1 { margin:0 0 10px; font-size:28px; letter-spacing:0; }
+    h2 { margin:28px 0 10px; font-size:18px; color:var(--accent); letter-spacing:0; }
+    p { margin:8px 0; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin-top:16px; }
+    .card { border:1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius:8px; padding:14px; }
+    .label { color:var(--accent); font-size:12px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th,td { border-bottom:1px solid color-mix(in srgb, var(--text) 16%, transparent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border:1px solid color-mix(in srgb, var(--text) 16%, transparent); border-radius:8px; padding:10px 12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>위키 형식 저장 대기 상태 접근성 보고</h1>
+      <p>2026-08-21 14:17:35 KST 기준 한 사이클에서 수행한 Codex UI 접근성 보강 결과입니다.</p>
+      <div class="grid">
+        <div class="card"><div class="label">결과</div><p>2nd-B 로컬 커밋 생성 완료</p></div>
+        <div class="card"><div class="label">범위</div><p>위키 형식 편집과 형식 추가 흐름의 보조 버튼 상태</p></div>
+        <div class="card"><div class="label">위험</div><p>낮음. 화면 구조나 데이터 경로 변경 없음</p></div>
+        <div class="card"><div class="label">푸시</div><p>하지 않음. Claude 병합 게이트 대기</p></div>
+      </div>
+    </header>
+
+    <h2>작업 요약</h2>
+    <p>저장 중에는 취소나 다시 만들기 같은 보조 버튼이 비활성화됩니다. 기존 구현은 버튼이 눌리지 않는다는 상태는 전달했지만, 저장 작업 때문에 대기 중이라는 상태는 보조 버튼 접근성 정보에 남기지 않았습니다. 이번 변경은 해당 버튼에 <code>accessibilityState={{ busy: saving }}</code>를 추가해 보조기술이 저장 대기 상태를 알 수 있게 했습니다.</p>
+
+    <h2>변경 파일</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/components/wiki/TemplateEditor.tsx</code></td><td>저장 중 취소 버튼에 대기 상태를 추가했습니다.</td></tr>
+        <tr><td><code>src/components/wiki/AddFormatFlow.tsx</code></td><td>저장 중 다시 만들기와 취소 버튼에 대기 상태를 추가했습니다.</td></tr>
+        <tr><td><code>src/lib/__tests__/wiki-format-save-busy-a11y.test.ts</code></td><td>위 상태가 빠지지 않도록 소스 스캔 회귀 테스트를 추가했습니다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>검사</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>대상 Jest</td><td>통과. 새 테스트 2개 통과</td></tr>
+        <tr><td>Prettier</td><td>통과. 변경 파일 3개 확인</td></tr>
+        <tr><td>ESLint</td><td>통과. 변경 파일 3개 확인</td></tr>
+        <tr><td>TypeScript</td><td>통과. <code>tsc --noEmit</code></td></tr>
+        <tr><td>정적 정책</td><td>i18n, untranslated, lexicon, constraints, emdash, anti-anthro, mascot-voice, require cycles 통과</td></tr>
+        <tr><td>시크릿 검사</td><td>변경 diff 기준 민감 패턴 없음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>자체 패널</h2>
+    <details>
+      <summary>판단 근거</summary>
+      <p>설계, 가격, 권한, 스키마, 보안, 병합 같은 구조적 토론 필수 트리거는 없었습니다. 변경은 기존 <code>PremiumButton</code> API가 이미 병합하는 접근성 상태를 호출부에 전달하는 좁은 UI 접근성 보강입니다.</p>
+    </details>
+    <details>
+      <summary>롤백</summary>
+      <p>2nd-B 로컬 커밋 <code>b0af419cb5a06b709492d1f563047ff9c0d09429</code> 하나를 되돌리면 됩니다. 원격 푸시는 하지 않았습니다.</p>
+    </details>
+  </main>
+</body>
+</html>
