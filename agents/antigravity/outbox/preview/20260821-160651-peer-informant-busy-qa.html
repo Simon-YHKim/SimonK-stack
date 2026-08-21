@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서</title>
+<style>
+  body {
+    background-color: #111111;
+    color: #eeeeee;
+    font-family: sans-serif;
+    margin: 2rem;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    border-bottom: 1px solid #444444;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+  th, td {
+    border: 1px solid #444444;
+    padding: 0.5rem;
+    text-align: left;
+  }
+  th {
+    background-color: #222222;
+  }
+  .button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #444444;
+    color: #eeeeee;
+    text-decoration: none;
+    border: 1px solid #eeeeee;
+  }
+</style>
+</head>
+<body>
+  <h1>동료 제공자 진행 상태 접근성 검증</h1>
+  <p>작업 대상: 커밋 215b4f0d (peer informant busy state)</p>
+  
+  <h2>검증 요약</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>결과</th>
+    </tr>
+    <tr>
+      <td>정적 분석</td>
+      <td>통과</td>
+    </tr>
+    <tr>
+      <td>접근성 속성 확인</td>
+      <td>통과</td>
+    </tr>
+  </table>
+  
+  <h2>상세 내용</h2>
+  <p>에뮬레이터 환경 제약으로 인하여 정적 코드 분석을 수행했습니다.</p>
+  <p>정보 제공자 초대 화면의 버튼 컴포넌트에 로딩 상태가 올바르게 설정되었습니다. 진행 중 상태가 보조 기술에 정상 노출될 것으로 확인되었습니다.</p>
+  
+  <a href="#" class="button">닫기</a>
+</body>
+</html>
