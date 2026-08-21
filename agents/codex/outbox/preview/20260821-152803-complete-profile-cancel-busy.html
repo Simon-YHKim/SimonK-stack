@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 폴 사이클 보고서: 프로필 취소 진행 상태 가드</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --text: #e6edf3; --accent: #7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; }
+    main { max-width: 960px; margin: 0 auto; padding: 32px 20px 56px; }
+    h1, h2 { line-height: 1.2; margin: 0 0 14px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); margin-top: 28px; }
+    p { margin: 0 0 12px; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; }
+    th, td { border: 1px solid color-mix(in srgb, var(--text) 24%, transparent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .summary { border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); padding: 16px; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 18px 0; }
+    .box { border: 1px solid color-mix(in srgb, var(--text) 20%, transparent); padding: 14px; min-height: 104px; }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    details { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding: 12px 14px; margin: 10px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex 폴 사이클 보고서: 프로필 취소 진행 상태 가드</h1>
+    <p>생성 시각: 2026-08-21 15:28:03 KST</p>
+
+    <section class="summary">
+      <h2>요약</h2>
+      <p>Codex inbox와 peer outbox를 확인했으며, 새로 처리할 open order는 없었습니다. Codex 레인에 맞춰 2nd-B의 가입 완료 프로필 화면에서 취소 진행 상태 계약을 고정하는 테스트를 추가했습니다.</p>
+    </section>
+
+    <section class="grid" aria-label="핵심 결과">
+      <div class="box">
+        <div class="label">결과</div>
+        <p>새 테스트 1개 파일 추가, 2개 assertion 통과.</p>
+      </div>
+      <div class="box">
+        <div class="label">2nd-B 커밋</div>
+        <p><code>6922d0222a6bcc74d1751407ae17bf8f515cf2b9</code></p>
+      </div>
+      <div class="box">
+        <div class="label">브랜치</div>
+        <p><code>codex/qa-cycle-20260821-152507-profile-cancel-busy</code></p>
+      </div>
+      <div class="box">
+        <div class="label">푸시</div>
+        <p>하지 않음. Claude가 merge gate입니다.</p>
+      </div>
+    </section>
+
+    <h2>변경 파일</h2>
+    <table>
+      <thead>
+        <tr><th>저장소</th><th>파일</th><th>내용</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2nd-B worktree</td>
+          <td><code>src/app/__tests__/complete-profile-cancel-busy.test.ts</code></td>
+          <td><code>/complete-profile</code> 취소 버튼이 <code>submitting || cancelling</code> 동안 잠기고, <code>loading={cancelling}</code>으로 진행 상태를 노출하는 계약을 검사합니다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>npx jest src/app/__tests__/complete-profile-cancel-busy.test.ts --runInBand</code></td><td>통과</td></tr>
+        <tr><td><code>npx prettier --check src/app/__tests__/complete-profile-cancel-busy.test.ts</code></td><td>통과</td></tr>
+        <tr><td><code>npx eslint src/app/__tests__/complete-profile-cancel-busy.test.ts</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code>, <code>check:i18n-untranslated</code>, <code>check:llm-boundary</code>, <code>check:constraints</code>, <code>check:pixel-rules</code>, <code>check:lexicon</code>, <code>check:emdash</code>, <code>check:anti-anthro</code>, <code>check:mascot-voice</code>, <code>check:cycles</code>, <code>check:asset-exts</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code> 및 변경 diff 민감값 패턴 스캔</td><td>통과</td></tr>
+      </tbody>
+    </table>
+
+    <h2>자체 패널</h2>
+    <details open>
+      <summary>검토 요약</summary>
+      <p>제품 관점: 가입 완료 화면에서 취소는 실제로 로그아웃을 일으키므로, 진행 중 상태가 빠지면 사용자가 같은 동작을 반복할 수 있습니다.</p>
+      <p>접근성 관점: 기존 공유 버튼의 <code>loading</code> 경로가 busy 상태를 담당하므로, 화면 전용 테스트로 해당 연결이 사라지지 않게 고정했습니다.</p>
+      <p>엔지니어링 관점: 런타임 코드는 이미 올바른 상태였기 때문에 앱 로직을 다시 만지지 않고 회귀 테스트만 추가했습니다.</p>
+    </details>
+
+    <h2>위험과 남은 작업</h2>
+    <p>이 변경은 테스트 전용이라 런타임 위험은 낮습니다. 전체 <code>npm run verify</code>는 이번 단일 사이클 범위에서 생략했지만, 관련 표적 검증과 정책 체크는 통과했습니다.</p>
+  </main>
+</body>
+</html>
