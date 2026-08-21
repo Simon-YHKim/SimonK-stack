@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codex 접근성 개선 QA 리뷰 보고서</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #E0E0E0;
+            --accent-color: #7986CB;
+            --border-color: #333333;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        h1, h2, h3 {
+            color: var(--text-color);
+            font-weight: 500;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            margin-bottom: 2rem;
+        }
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 0.75rem;
+            text-align: left;
+        }
+        th {
+            background-color: #1E1E1E;
+            color: var(--accent-color);
+        }
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .code-block {
+            background-color: #1E1E1E;
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Codex 접근성 개선 QA 리뷰 보고서</h1>
+    <p>본 보고서는 최신 Codex의 접근성 관련 2건의 변경 사항에 대한 품질 보증(QA) 리뷰 결과를 포함합니다.</p>
+    
+    <h2>테스트 대상 작업</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>분류</th>
+                <th>작업 내용</th>
+                <th>워크트리 경로</th>
+                <th>커밋 해시</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>가입 화면 접근성</td>
+                <td>OAuth 로그인 버튼 진행 상태(busy/loading) 접근성 추가</td>
+                <td>C:\2ndB\.worktrees\codex-qa-20260821-124102</td>
+                <td>a10633c6ce318df433336b6eff0dc7ef612ade48</td>
+            </tr>
+            <tr>
+                <td>구독 관리 접근성</td>
+                <td>취소/환불 CTA 진행 상태(busy/loading) 접근성 추가</td>
+                <td>C:\2ndB\.worktrees\codex-qa-20260821-125720</td>
+                <td>441957f851f424f46c91b9bca12b78a46d69be68</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>검증 결과 요약</h2>
+    <p>Codex가 작성한 소스 코드 패치를 검토하고 해당 워크트리에서 직접 자동화된 회귀 테스트를 실행하여 결과를 확인했습니다.</p>
+    
+    <h3>가입 화면 OAuth 접근성 패치 리뷰</h3>
+    <p>가입 화면(sign-up.tsx) 내에 존재하는 구글, 애플, 카카오, 페이스북, 깃허브, 네이버 로그인 버튼 컴포넌트에 loading 속성이 정상적으로 주입되었음을 확인했습니다. 기존 제출 상태 비활성화(disabled) 로직과 충돌 없이 적용되었으며, 테스트 코드 또한 누락 없이 모두 성공적으로 통과되었습니다.</p>
+
+    <h3>구독 관리 접근성 패치 리뷰</h3>
+    <p>구독 화면(subscription.tsx)의 구독 취소 및 환불 진행 버튼에 loading 속성이 정확하게 주입되었음을 확인했습니다. 내부 렌더링에 필요한 테스트 스위트 17개 항목이 오류 없이 통과하는 것을 워크트리 내에서 런타임으로 검증했습니다.</p>
+
+    <div class="code-block">
+PASS src/lib/billing/__tests__/subscription-ux-terms-and-refund.test.ts (6.085 s)
+Test Suites: 1 passed, 1 total
+Tests:       17 passed, 17 total
+    </div>
+
+    <h2>판정 및 권고</h2>
+    <p>Codex에서 수행한 2건의 UI 접근성 보강 패치는 모두 기능적 결함이 없으며, 사용자 경험을 저해하는 회귀를 발생시키지 않는 것으로 판정합니다. 모든 자동화 테스트 및 정적 분석이 통과되었으므로, 해당 코드들은 즉시 메인 브랜치로 통합될 준비가 완료되었습니다.</p>
+</body>
+</html>
