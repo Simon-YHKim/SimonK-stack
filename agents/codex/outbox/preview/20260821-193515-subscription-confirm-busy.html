@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>구독 확인 모달 중복 실행 방지 보고서</title>
+  <style>
+    :root { --bg:#0b0d10; --text:#e7edf3; --accent:#7cc7ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.58; }
+    main { max-width:1040px; margin:0 auto; padding:40px 20px 56px; }
+    header, section { border:1px solid color-mix(in srgb, var(--text) 18%, transparent); padding:22px; margin:0 0 16px; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { font-size:30px; line-height:1.25; margin-bottom:10px; }
+    h2 { font-size:18px; margin-bottom:12px; color:var(--accent); }
+    h3 { font-size:15px; margin-bottom:8px; }
+    p, li, td, th { font-size:14px; }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; }
+    .card { border:1px solid color-mix(in srgb, var(--text) 14%, transparent); padding:14px; min-height:96px; }
+    .label { display:block; color:var(--accent); font-size:12px; margin-bottom:6px; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { border-top:1px solid color-mix(in srgb, var(--text) 16%, transparent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border-top:1px solid color-mix(in srgb, var(--text) 14%, transparent); padding-top:10px; margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); }
+    .flow { display:grid; grid-template-columns:1fr 44px 1fr 44px 1fr; gap:8px; align-items:center; margin-top:8px; }
+    .node { border:1px solid color-mix(in srgb, var(--text) 14%, transparent); padding:12px; min-height:72px; }
+    .arrow { text-align:center; color:var(--accent); font-size:22px; }
+    .bar { height:10px; background:color-mix(in srgb, var(--text) 12%, transparent); margin-top:8px; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } .flow { grid-template-columns:1fr; } .arrow { transform:rotate(90deg); } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>구독 확인 모달 중복 실행 방지 보고서</h1>
+      <p>2026-08-21 19:35:15 KST 기준 Codex 자율 폴 사이클 결과입니다. Codex inbox에는 새 미응답 오더가 없었고, 최신 peer 요청은 이미 처리된 흐름이라 2nd-B 구독 관리 화면의 결제 관련 확인 모달을 한 건 개선했습니다.</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="card"><span class="label">대상</span><code>src/app/subscription.tsx</code></div>
+        <div class="card"><span class="label">문제</span>해지와 환불 확인 중에도 확인 버튼과 옵션 토글이 다시 눌릴 수 있었습니다.</div>
+        <div class="card"><span class="label">조치</span><code>busy</code> 상태를 확인 함수, 버튼, 체크박스 접근성 상태에 연결했습니다.</div>
+        <div class="card"><span class="label">검증</span><code>npm run verify</code> 통과, 4608개 테스트 통과.</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 흐름</h2>
+      <div class="flow">
+        <div class="node"><h3>전</h3><p>사용자가 해지 또는 환불 확인을 누른 직후에도 같은 결정 버튼과 부가 옵션이 활성 상태였습니다.</p></div>
+        <div class="arrow">›</div>
+        <div class="node"><h3>수정</h3><p><code>busy</code> 재진입 차단, 확인 버튼 <code>disabled</code>와 <code>loading</code>, 체크박스 <code>disabled</code>와 <code>busy</code>를 추가했습니다.</p></div>
+        <div class="arrow">›</div>
+        <div class="node"><h3>후</h3><p>요청 처리 중에는 같은 결정을 다시 제출하거나 해지 옵션을 바꿀 수 없습니다.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead><tr><th>파일</th><th>내용</th><th>위험</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/app/subscription.tsx</code></td><td>해지와 환불 실행 함수에 재진입 가드를 추가하고, 모달의 닫기, 전환, 체크, 확인 컨트롤을 처리 중 비활성화했습니다.</td><td>결제 관련 UI라 영향도는 높게 보되 서버 호출과 금액 로직은 변경하지 않았습니다.</td></tr>
+          <tr><td><code>src/lib/billing/__tests__/subscription-ux-terms-and-refund.test.ts</code></td><td>확인 모달이 처리 중 상태를 노출하고 중복 결정을 막는지 소스 기반 회귀 테스트를 추가했습니다.</td><td>기존 테스트 파일에 구조적 검사를 추가했습니다.</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>Prettier가 기존 긴 줄도 함께 정리해 diff는 실제 논리 변경보다 큽니다. 의미 변경은 <code>busy</code> 가드와 해당 회귀 테스트에 한정됩니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th><th>비고</th></tr></thead>
+        <tbody>
+          <tr><td><code>npm run verify</code></td><td>통과</td><td>492개 테스트 묶음, 4608개 테스트 통과. 기존 lint warning 71건과 Jest worker 종료 경고는 실패가 아닙니다.</td></tr>
+          <tr><td><code>npx eslint</code> 대상 파일</td><td>통과</td><td>대상 파일 오류 없음.</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td><td>TypeScript 오류 없음.</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과</td><td>줄끝 변환 경고만 있었고 공백 오류는 없습니다.</td></tr>
+          <tr><td>변경 diff 시크릿 패턴 스캔</td><td>통과</td><td>민감값 패턴 출력 없음.</td></tr>
+        </tbody>
+      </table>
+      <div class="bar" aria-label="검증 통과율"><span style="width:100%"></span></div>
+    </section>
+
+    <section>
+      <h2>전달 상태</h2>
+      <p>2nd-B 로컬 worktree 커밋: <code>6a51d6287e2214693185cfe1e1b8b6ca0f755361</code></p>
+      <p>브랜치: <code>codex/qa-cycle-20260821-192559-ui-busy-a11y</code></p>
+      <p>worktree: <code>C:\2ndB\.worktrees\codex-qa-20260821-192559-ui-busy-a11y</code></p>
+      <p>2nd-B push는 하지 않았습니다. 결제 관련 UI 변경으로 Antigravity에 교차 검증을 요청했습니다.</p>
+    </section>
+  </main>
+</body>
+</html>
