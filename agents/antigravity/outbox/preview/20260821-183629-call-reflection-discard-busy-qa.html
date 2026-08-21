@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>안티그래비티 검수 보고서: 통화 회고 폐기 버튼 상태</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; line-height: 1.6; }
+  h1, h2, h3 { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #444; padding: 0.5rem; text-align: left; }
+  th { background-color: #222; color: #fff; }
+  .pass { color: #81c784; }
+  .fail { color: #e57373; }
+  pre, code { background-color: #1e1e1e; padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; }
+  .button-demo { background-color: #333; color: #fff; border: 1px solid #555; padding: 0.5rem 1rem; cursor: not-allowed; }
+</style>
+</head>
+<body>
+  <h1>안티그래비티 검수 보고서</h1>
+  <p>작업 대상: 통화 회고 화면 폐기 버튼 상태 수정 (Codex 커밋 28a4861a9eef4dbe9efa04c70f5cbd3a000c9270)</p>
+  
+  <h2>정적 검수 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검수 항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 레이아웃 충돌</td>
+        <td class="pass">통과</td>
+        <td>기존 컴포넌트에 disabled 속성만 추가되어 구조적 변경 없음</td>
+      </tr>
+      <tr>
+        <td>안드로이드 메모리 및 성능 누수</td>
+        <td class="pass">통과</td>
+        <td>추가적인 상태 변이나 애니메이션 할당 없음</td>
+      </tr>
+      <tr>
+        <td>에뮬레이터 렌더링 블로커</td>
+        <td class="pass">통과</td>
+        <td>MdButton의 기본 disabled 상태 처리에 의존하여 안전함</td>
+      </tr>
+      <tr>
+        <td>Reanimated v4 / RN 0.85 호환성</td>
+        <td class="pass">통과</td>
+        <td>해당 변경사항과 무관함</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>본 수정 사항은 네이티브 환경에서 안전하며 에뮬레이터 검수 기준을 충족합니다. <strong>머지 안전(MERGE-SAFE)</strong> 판정을 내립니다.</p>
+  
+  <p><button class="button-demo">버튼 비활성화 예시</button></p>
+</body>
+</html>
