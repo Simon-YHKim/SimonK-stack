@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>통화 회고 저장 중 이탈 방지 보고</title>
+  <style>
+    :root { --bg:#101214; --text:#f2f4f5; --muted:#9aa3aa; --accent:#67d4b2; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { max-width:980px; margin:0 auto; padding:40px 20px 56px; }
+    h1 { margin:0 0 8px; font-size:28px; line-height:1.25; }
+    h2 { margin:30px 0 10px; font-size:18px; }
+    p { margin:8px 0; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:24px 0; }
+    .card { border:1px solid #2a3034; padding:16px; background:#15191c; }
+    .label { display:block; color:var(--muted); font-size:12px; margin-bottom:6px; }
+    .value { font-weight:700; color:var(--accent); }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid #2a3034; padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; background:#15191c; }
+    code { color:var(--accent); word-break:break-all; }
+    details { border:1px solid #2a3034; padding:12px 14px; margin:10px 0; background:#15191c; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:12px; background:#2a3034; margin:8px 0 2px; }
+    .bar span { display:block; height:12px; background:var(--accent); }
+    @media (max-width:760px){ .grid{grid-template-columns:1fr 1fr;} }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>통화 회고 저장 중 이탈 방지</h1>
+    <p class="muted">작성 시각: 2026-08-21 18:31:50 KST · 작성자: codex</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span><span class="value">완료</span></div>
+      <div class="card"><span class="label">범위</span><span class="value">단일 화면</span></div>
+      <div class="card"><span class="label">푸시</span><span class="value">안 함</span></div>
+      <div class="card"><span class="label">위험도</span><span class="value">낮음</span></div>
+    </section>
+
+    <h2>무엇을 고쳤나</h2>
+    <p>통화 회고 결과 화면에서 사용자가 승인 저장을 누른 뒤 저장이 끝나기 전에 버리기 버튼으로 빠져나갈 수 있던 경로를 막았다. 승인 중에는 버리기 버튼도 비활성화되어 같은 저장 흐름이 중간에 끊기지 않는다.</p>
+
+    <h2>변경 파일</h2>
+    <table>
+      <thead><tr><th>파일</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/app/call-reflection.tsx</code></td><td>결과 화면의 버리기 버튼에 <code>disabled={busy}</code>를 연결했다.</td></tr>
+        <tr><td><code>src/app/__tests__/call-reflection-approve-busy.test.ts</code></td><td>승인 중 버리기 버튼 잠금과 승인 버튼 busy 표시 계약을 고정하는 정적 회귀 테스트를 추가했다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>항목</th><th>상태</th><th>메모</th></tr></thead>
+      <tbody>
+        <tr><td>Jest 대상 테스트</td><td>통과</td><td><code>call-reflection-approve-busy.test.ts</code></td></tr>
+        <tr><td>ESLint 대상 파일</td><td>통과</td><td>앱 파일과 새 테스트 파일</td></tr>
+        <tr><td>TypeScript</td><td>통과</td><td><code>npm run type-check</code></td></tr>
+        <tr><td>i18n / 번역 누락 / lexicon</td><td>통과</td><td>문구 추가 없음</td></tr>
+        <tr><td>constraints / emdash / LLM boundary</td><td>통과</td><td>프로젝트 가드 통과</td></tr>
+        <tr><td>pixel / anti-anthro / mascot / cycles</td><td>통과</td><td>UI 규칙과 순환 참조 가드 통과</td></tr>
+        <tr><td>Prettier</td><td>부분 통과</td><td>새 테스트는 통과. <code>call-reflection.tsx</code> 전체 파일은 기존 줄바꿈 drift 때문에 실패했고, 전체 재포맷 churn은 되돌렸다.</td></tr>
+        <tr><td>민감 문자열 스캔</td><td>통과</td><td>변경 diff에서 토큰, 키, 비밀번호 패턴 없음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>앱 커밋</h2>
+    <p>작업 브랜치: <code>codex/qa-cycle-20260821-182704-call-approve-busy</code></p>
+    <p>로컬 앱 커밋: <code>28a4861a9eef4dbe9efa04c70f5cbd3a000c9270</code></p>
+    <p>기준: <code>origin/main fafb9e0b</code></p>
+
+    <h2>자체 패널</h2>
+    <details open>
+      <summary>판정</summary>
+      <p>단일 화면의 async 저장 중 이탈 방지로 범위를 제한했다. 저장, 삭제, 결제, 외부 API 호출, 시크릿 처리, 온라인 push는 하지 않았다. 고위험 변경이 아니므로 별도 MoA 검증 요청은 만들지 않았다.</p>
+      <div class="bar" aria-label="위험도 낮음"><span style="width:24%"></span></div>
+      <p class="muted">남은 위험: Prettier 전체 파일 drift가 남아 있지만, 이번 커밋은 의미 변경을 최소화했다.</p>
+    </details>
+  </main>
+</body>
+</html>
