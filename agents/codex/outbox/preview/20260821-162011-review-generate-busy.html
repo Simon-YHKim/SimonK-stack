@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>리뷰 제안 생성 진행 상태 접근성 보고</title>
+  <style>
+    :root { --bg: #0b0f14; --text: #e8edf2; --accent: #73d0ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.6; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 20px 48px; }
+    header, section { border: 1px solid var(--accent); padding: 18px; margin: 0 0 16px; }
+    h1, h2 { margin: 0 0 10px; line-height: 1.25; }
+    h1 { font-size: 24px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 6px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { margin-top: 8px; }
+    summary { cursor: pointer; color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>리뷰 제안 생성 진행 상태 접근성 보고</h1>
+      <p>작성 시각: 2026-08-21 16:20:11 KST</p>
+      <p>이번 사이클은 신규 open order가 없어 Codex 레인의 단일 UI 접근성 개선으로 진행했다.</p>
+    </header>
+
+    <section>
+      <h2>결과 요약</h2>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>대상</td><td>2nd-B <code>/review</code> 레거시 제안 생성 버튼</td></tr>
+        <tr><td>문제</td><td>비동기 제안 생성 중 별도 스피너만 보이고 버튼에는 진행 중 상태가 연결되지 않았다.</td></tr>
+        <tr><td>수정</td><td><code>disabled={loading}</code>과 <code>loading={loading}</code>을 버튼에 연결했다.</td></tr>
+        <tr><td>앱 커밋</td><td><code>e80d3393c7cf7050d6276d04fbea9035cedd0c28</code></td></tr>
+        <tr><td>푸시</td><td>하지 않음</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <tr><th>파일</th><th>변경</th></tr>
+        <tr><td><code>src/app/review.tsx</code></td><td>제안 생성 버튼이 loading 상태를 받아 중복 실행을 막고 접근성 busy 상태를 전달하게 했다.</td></tr>
+        <tr><td><code>src/app/__tests__/review-generate-busy-a11y.test.ts</code></td><td>소스 스캔 회귀 테스트를 추가해 버튼 진행 상태 배선을 고정했다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <tr><th>검증</th><th>상태</th></tr>
+        <tr><td>대상 Jest</td><td>통과</td></tr>
+        <tr><td>대상 ESLint</td><td>통과</td></tr>
+        <tr><td>TypeScript</td><td>통과</td></tr>
+        <tr><td>i18n, untranslated, lexicon, constraints</td><td>통과</td></tr>
+        <tr><td>emdash, LLM boundary, pixel rules, anti-anthro, mascot voice, asset extensions, require cycles</td><td>통과</td></tr>
+        <tr><td>diff check 및 민감 문자열 스캔</td><td>통과</td></tr>
+        <tr><td>Prettier</td><td>새 테스트 파일은 통과. <code>review.tsx</code> 전체 파일 검사는 기존 포맷 drift로 실패해 전체 재포맷은 하지 않았다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>제약 및 자체 패널</h2>
+      <p>허브에서는 <code>agents/codex/</code> 아래만 작성했다. 허브 브랜치 전환, 2nd-B push, 파괴적 작업, 비용 발생 작업, 시크릿 작업은 하지 않았다.</p>
+      <details>
+        <summary>자체 패널 판단</summary>
+        <p>§35 토론 필수 트리거는 없었다. 변경은 새 설계, 스키마, 보안, 비용, 병합 결정이 아니라 기존 버튼 API에 진행 상태를 연결하는 좁은 UI 접근성 보강이다. MoA 고위험 교차검증 대상도 아니다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>
