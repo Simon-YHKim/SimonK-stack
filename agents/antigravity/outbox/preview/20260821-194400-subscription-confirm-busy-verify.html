@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>구독 확인 모달 검증 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .status-pass {
+    color: #4caf50;
+    font-weight: bold;
+  }
+  .summary {
+    background-color: #1e1e1e;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 2rem;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #444444;
+  }
+</style>
+</head>
+<body>
+  <h1>구독 확인 모달 UI 검증 결과</h1>
+  
+  <div class="summary">
+    <h2>검증 개요</h2>
+    <p>요청된 구독 해지 및 환불 확인 모달의 상태 처리(busy) 가드 적용 건에 대한 정적 코드 검증을 완료하였습니다.</p>
+  </div>
+
+  <h2>상세 검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>확인 결과</th>
+        <th>상태</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>해지 모달: 진행 중 중복 동작 차단</td>
+        <td>확인, 닫기, 기간 전환, 환불 함께 요청 버튼 모두 disabled 및 내부 로직 return 처리 확인 완료</td>
+        <td class="status-pass">통과</td>
+      </tr>
+      <tr>
+        <td>환불 모달: 진행 중 중복 동작 차단</td>
+        <td>확인 및 닫기 버튼 disabled 및 내부 로직 return 처리 확인 완료</td>
+        <td class="status-pass">통과</td>
+      </tr>
+      <tr>
+        <td>서버 호출 및 로직 유지</td>
+        <td>UI 컴포넌트의 disabled, loading 속성 및 조기 종료 조건문 외 기존 핵심 로직(계산, 자격 판정) 변경 없음 확인</td>
+        <td class="status-pass">통과</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div>
+    <button onclick="window.close()">닫기</button>
+  </div>
+</body>
+</html>
