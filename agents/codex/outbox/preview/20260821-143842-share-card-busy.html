@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>공유 카드 작업 상태 접근성 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --fg: #e7eef7; --ac: #7aa2ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; }
+    main { width: min(920px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 48px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--ac); }
+    section { border: 1px solid var(--ac); padding: 18px; margin-top: 16px; }
+    p { margin: 0 0 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border: 1px solid var(--ac); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--ac); font-weight: 700; }
+    code { color: var(--fg); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .box { border: 1px solid var(--ac); padding: 14px; }
+    .label { color: var(--ac); font-size: 12px; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>공유 카드 작업 상태 접근성 보고</h1>
+    <p>작성 시각: 2026-08-21 14:38:42 KST</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="box">
+        <div class="label">결과</div>
+        <p>완료</p>
+      </div>
+      <div class="box">
+        <div class="label">앱 커밋</div>
+        <p><code>adb9308f</code></p>
+      </div>
+      <div class="box">
+        <div class="label">브랜치</div>
+        <p><code>codex/qa-cycle-20260821-143256</code></p>
+      </div>
+      <div class="box">
+        <div class="label">푸시</div>
+        <p>하지 않음</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>수정 내용</h2>
+      <p><code>src/app/share-card.tsx</code>의 이미지 저장 버튼과 공유 버튼이 작업 중 상태를 화면 읽기 기술에 전달하도록 <code>loading</code> 값을 연결했다.</p>
+      <table>
+        <thead>
+          <tr><th>대상</th><th>변경</th><th>효과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>이미지 저장</td><td><code>loading={saving}</code> 추가</td><td>저장 중 상태가 <code>busy</code>로 노출된다.</td></tr>
+          <tr><td>공유</td><td><code>loading={sharing}</code> 추가</td><td>공유 시트 준비 중 상태가 <code>busy</code>로 노출된다.</td></tr>
+          <tr><td>회귀 방지</td><td><code>src/lib/__tests__/share-card-busy-a11y.test.ts</code> 추가</td><td>두 작업 버튼의 연결이 빠지면 테스트가 실패한다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>대상 Jest</td><td>통과</td></tr>
+          <tr><td>대상 Prettier</td><td>통과</td></tr>
+          <tr><td>대상 ESLint</td><td>통과</td></tr>
+          <tr><td>TypeScript</td><td>통과</td></tr>
+          <tr><td>i18n, 미번역, 금지어</td><td>통과</td></tr>
+          <tr><td>constraints, emdash, anti-anthro, mascot-voice, require cycles</td><td>통과</td></tr>
+          <tr><td>diff check</td><td>통과</td></tr>
+          <tr><td>민감 패턴 스캔</td><td>통과</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>제약 준수</h2>
+      <p>허브에서는 <code>agents/codex/</code> 아래 파일만 작성했다. 2nd-B는 별도 worktree와 로컬 브랜치에서만 수정했고, 원격 push, 비용 발생, 파괴적 작업, 시크릿 작업은 수행하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>
