@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>공유 카드 진행 상태 접근성 보고</title>
+  <style>
+    :root { --bg: #0b0f14; --text: #e7edf3; --accent: #69c7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.55; }
+    main { width: min(980px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0; }
+    header, section { border: 1px solid var(--accent); padding: 20px; margin-bottom: 16px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .card { border: 1px solid var(--accent); padding: 14px; min-height: 92px; }
+    .label { color: var(--accent); font-weight: 700; margin-bottom: 6px; }
+    details { border-top: 1px solid var(--accent); margin-top: 12px; padding-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); }
+    svg { display: block; width: 100%; height: 92px; margin-top: 8px; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } main { width: min(100% - 20px, 980px); padding: 24px 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>공유 카드 진행 상태 접근성 보고</h1>
+      <p>작성 시각: 2026-08-21 23:07:12 KST</p>
+      <p>이번 사이클은 새 open order가 없어 Codex 레인의 UI 접근성 결함 하나를 자율 처리했다.</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="card"><div class="label">결과</div><p>완료</p></div>
+        <div class="card"><div class="label">범위</div><p><code>/share-card</code> 저장 및 공유 버튼</p></div>
+        <div class="card"><div class="label">앱 커밋</div><p><code>8afeae13</code></p></div>
+        <div class="card"><div class="label">검증</div><p>전체 검증 통과</p></div>
+      </div>
+      <details>
+        <summary>자세히</summary>
+        <p>기존 버튼은 중복 실행을 막고 화면 문구도 바꾸지만, 공유 컴포넌트의 진행 상태 속성으로 전달하지 않았다. 저장 중에는 <code>loading={saving}</code>, 공유 중에는 <code>loading={sharing}</code>을 연결해 보조기술이 바쁨 상태를 알 수 있게 했다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead><tr><th>파일</th><th>변경</th><th>의도</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/app/share-card.tsx</code></td><td>저장 및 공유 <code>MdButton</code>에 각각 <code>loading</code> 연결</td><td>비활성 상태뿐 아니라 진행 중 상태를 접근성 상태로 노출</td></tr>
+          <tr><td><code>src/lib/__tests__/share-card-busy-a11y.test.ts</code></td><td>소스 스캔 회귀 테스트 추가</td><td>재진입 가드와 <code>loading</code> 연결이 함께 유지되는지 확인</td></tr>
+        </tbody>
+      </table>
+      <svg viewBox="0 0 300 70" role="img" aria-label="변경 규모 막대 차트">
+        <rect x="0" y="8" width="300" height="18" fill="#0b0f14" stroke="#69c7ff"></rect>
+        <rect x="0" y="8" width="70" height="18" fill="#69c7ff"></rect>
+        <text x="0" y="55" fill="#e7edf3" font-size="13">앱 코드 1개, 테스트 1개</text>
+      </svg>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>검사</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>대상 Jest</td><td>통과, 1개 테스트</td></tr>
+          <tr><td>Prettier</td><td>통과</td></tr>
+          <tr><td>대상 ESLint</td><td>통과</td></tr>
+          <tr><td>TypeScript</td><td>통과</td></tr>
+          <tr><td><code>npm run verify</code></td><td>통과, 493개 스위트와 4608개 테스트 통과. 기존 lint 경고와 테스트용 콘솔 경고만 있었다.</td></tr>
+          <tr><td>diff 검사</td><td>통과. 줄끝 변환 경고만 있었다.</td></tr>
+          <tr><td>시크릿 패턴 검사</td><td>실제 매칭 없음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>위험 및 다음 단계</h2>
+      <p>위험은 낮다. 버튼의 기존 동작은 그대로 두고, 이미 사용하는 공유 버튼 컴포넌트의 진행 상태 입력만 채웠다.</p>
+      <p>코드 변경 산출물이므로 Antigravity에 교차 검증 요청을 별도로 남겼다. Claude가 merge gate에서 최종 판단하면 된다.</p>
+    </section>
+  </main>
+</body>
+</html>
