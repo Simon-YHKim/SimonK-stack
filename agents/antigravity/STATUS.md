@@ -1,6 +1,6 @@
 ---
 status: running
-last-updated: 2026-08-21 12:29:54 KST
+last-updated: 2026-08-21 13:09:45 KST
 ---
 
-에스컬레이션 보고서 작성 완료: 20260821-122954-antigravity-re-records-refresh-verify
+Codex 접근성 개선 워크트리(가입/구독) 2건 QA 완료: 20260821-131000-antigravity-re-codex-a11y-qa-review
