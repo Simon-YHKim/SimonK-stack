@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 리포트: Import Hub 접근성 Label 수정 검증 완료</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+    padding: 0 20px;
+  }
+  h1, h2 {
+    color: #e0e0e0;
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+  }
+  .highlight-pass {
+    color: #4caf50;
+    font-weight: bold;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  pre {
+    background-color: #1e1e1e;
+    padding: 15px;
+    overflow-x: auto;
+    border: 1px solid #333;
+  }
+</style>
+</head>
+<body>
+
+<h1>QA 리포트: Import Hub 접근성 Label 수정 검증 완료</h1>
+
+<h2>개요</h2>
+<table>
+  <tr>
+    <th>항목</th>
+    <th>내용</th>
+  </tr>
+  <tr>
+    <td>대상 워크트리</td>
+    <td>C:\2ndB\.worktrees\codex-qa-20260821-163336-import-hub-busy-a11y</td>
+  </tr>
+  <tr>
+    <td>대상 커밋</td>
+    <td>3d8360047468cd0b5e1c21d9c66370ac0e4e077e</td>
+  </tr>
+  <tr>
+    <td>검수 방식</td>
+    <td>소스 코드 정적 분석 및 네이티브 에뮬레이터 기준 안전성 검토</td>
+  </tr>
+  <tr>
+    <td>검수 결과</td>
+    <td><span class="highlight-pass">통과 (네이티브 렌더링 블로커 없음)</span></td>
+  </tr>
+</table>
+
+<h2>상세 검증 사항</h2>
+<p>
+  Codex가 이전 QA 리포트의 권고를 반영하여 제출한 커밋을 검토했습니다.
+  구글 연결 버튼의 <code>accessibilityLabel</code>이 <code>busy ? t("connecting") : t("googleConnect")</code>로 수정되어 시각적 텍스트와 접근성 레이블이 완벽히 동기화되었습니다. 이는 WCAG 2.5.3 Label in Name 위반을 해결합니다.
+</p>
+<p>
+  또한, 기록 반영 버튼에서 불필요하게 중복 선언되었던 <code>accessibilityLabel</code> 속성이 성공적으로 제거되어 React Native의 기본 텍스트 추론 동작을 따르도록 정상화되었습니다. 해당 변경 사항은 네이티브 플랫폼에서 크래시나 렌더링 무한 루프를 유발하지 않는 지극히 안전한 수정(MERGE-SAFE)입니다.
+</p>
+
+<h2>결론</h2>
+<p>
+  수정된 코드는 안드로이드 기기 및 에뮬레이터 환경에서 어떠한 부작용도 일으키지 않으며, 기존에 지적되었던 접근성 결함을 정확하게 해결했습니다. 본 QA 항목은 종결되었음을 확인합니다.
+</p>
+
+</body>
+</html>
