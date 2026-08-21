@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 자율 폴 사이클 보고서</title>
+  <style>
+    :root { --bg: #0f1115; --text: #e8edf2; --accent: #76b7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 48px; }
+    header, section { border: 1px solid var(--accent); padding: 18px; margin: 0 0 16px; }
+    h1, h2 { margin: 0 0 10px; color: var(--text); }
+    h1 { font-size: 26px; }
+    h2 { font-size: 18px; }
+    p { margin: 0 0 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border: 1px solid var(--accent); padding: 9px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); word-break: break-all; }
+    details { border-top: 1px solid var(--accent); margin-top: 10px; padding-top: 10px; }
+    summary { color: var(--accent); cursor: pointer; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 자율 폴 사이클 보고서</h1>
+      <p>작성 시각: 2026-08-21 16:02:52 KST</p>
+      <p>이번 사이클은 열린 신규 Codex 요청이 없어, Codex 레인에 맞는 2nd-B UI 접근성 보강 한 건만 수행했다.</p>
+    </header>
+    <section>
+      <h2>요약</h2>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>작업</td><td>informant 초대 링크 화면의 제출 및 철회 버튼에 진행 중 상태를 노출</td></tr>
+        <tr><td>범위</td><td>2nd-B 격리 worktree 한 곳, 허브는 <code>agents/codex/</code> 산출물만 작성</td></tr>
+        <tr><td>결과</td><td>2nd-B 로컬 커밋 <code>215b4f0d</code> 생성, push 없음</td></tr>
+        <tr><td>위험</td><td>낮음. 버튼 진행 상태 전달과 회귀 테스트 추가만 포함</td></tr>
+      </table>
+    </section>
+    <section>
+      <h2>변경 내용</h2>
+      <p><code>src/app/peer/[token].tsx</code>에서 제출 버튼과 철회 버튼에 <code>loading={busy}</code>를 추가했다. 공용 <code>MdButton</code>은 이 값을 받아 버튼을 비활성화하고 접근성 상태의 <code>busy</code>를 함께 노출한다.</p>
+      <p><code>src/app/__tests__/peer-token-busy.test.ts</code>를 추가해 두 버튼이 계속 <code>loading={busy}</code> 계약을 유지하는지 원문 스캔으로 고정했다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p>이 화면은 계정 없는 informant가 초대 링크로 들어와 평가를 제출하거나 이미 제출한 응답을 철회하는 경로다. 기존에는 버튼 문구만 바뀌고 진행 중 접근성 상태가 공용 버튼에 전달되지 않았다. 이번 변경은 시각적 진행 표시와 스크린리더 상태를 같은 값으로 묶는다.</p>
+      </details>
+    </section>
+    <section>
+      <h2>검증</h2>
+      <table>
+        <tr><th>검증</th><th>상태</th></tr>
+        <tr><td><code>npm test -- --runTestsByPath src/app/__tests__/peer-token-busy.test.ts --ci</code></td><td>통과</td></tr>
+        <tr><td><code>npx prettier --check 'src/app/peer/[token].tsx' src/app/__tests__/peer-token-busy.test.ts</code></td><td>통과</td></tr>
+        <tr><td><code>npx eslint 'src/app/peer/[token].tsx' src/app/__tests__/peer-token-busy.test.ts</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td>i18n, untranslated-i18n, lexicon, constraints, emdash, llm-boundary, pixel-rules, anti-anthro, mascot-voice, asset-exts, require cycles</td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code> 및 staged diff 민감 문자열 스캔</td><td>통과</td></tr>
+      </table>
+    </section>
+    <section>
+      <h2>운영 준수</h2>
+      <p>허브 브랜치는 전환하지 않았고, 2nd-B는 별도 worktree <code>C:\2ndB\.worktrees\codex-qa-20260821-155941-anti-slop</code>에서만 작업했다. 2nd-B push, 파괴적 작업, 비용 발생 작업, 시크릿 작업은 수행하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>
