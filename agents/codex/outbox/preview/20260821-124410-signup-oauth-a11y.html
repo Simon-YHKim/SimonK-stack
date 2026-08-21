@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>가입 OAuth 접근성 사이클 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101316; --fg:#e8edf2; --muted:#8e99a6; --accent:#7bd7c6; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.55 system-ui, -apple-system, Segoe UI, sans-serif; }
+    main { width:min(980px, calc(100% - 32px)); margin:0 auto; padding:34px 0 48px; }
+    header { border-bottom:1px solid color-mix(in srgb, var(--muted) 35%, transparent); padding-bottom:18px; margin-bottom:20px; }
+    h1 { margin:0 0 8px; font-size:28px; letter-spacing:0; }
+    h2 { margin:28px 0 10px; font-size:18px; letter-spacing:0; }
+    p { margin:8px 0; }
+    code { color:var(--accent); }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; margin:18px 0; }
+    .card { border:1px solid color-mix(in srgb, var(--muted) 36%, transparent); border-radius:8px; padding:14px; min-height:92px; }
+    .label { color:var(--muted); font-size:12px; margin-bottom:6px; }
+    .value { font-size:16px; font-weight:650; overflow-wrap:anywhere; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { text-align:left; vertical-align:top; border-bottom:1px solid color-mix(in srgb, var(--muted) 24%, transparent); padding:10px 8px; }
+    th { color:var(--muted); font-weight:600; }
+    .pass { color:var(--accent); font-weight:650; }
+    details { border:1px solid color-mix(in srgb, var(--muted) 28%, transparent); border-radius:8px; padding:10px 12px; margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:650; }
+    ul { padding-left:20px; }
+    @media (max-width: 760px) { .grid { grid-template-columns:1fr 1fr; } }
+    @media (max-width: 480px) { .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>가입 OAuth 접근성 사이클 보고서</h1>
+      <p class="muted">작성 시각: 2026-08-21 12:44:10 KST</p>
+      <p>Codex 단일 폴 사이클에서 신규 UI 접근성 결함 1건을 수정하고 검증했다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">프로젝트</div><div class="value">2nd-B</div></div>
+      <div class="card"><div class="label">브랜치</div><div class="value">codex/qa-cycle-20260821-124102-signup-oauth-a11y</div></div>
+      <div class="card"><div class="label">앱 커밋</div><div class="value">a10633c6</div></div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>발견</td><td>가입 화면의 OAuth 및 Naver 버튼이 비활성화 상태는 갖고 있었지만, OAuth 제출 중임을 보조기술에 전달하는 busy 상태가 빠져 있었다.</td></tr>
+        <tr><td>수정</td><td><code>src/app/(auth)/sign-up.tsx</code>의 각 provider 버튼에 <code>loading={oauthSubmitting}</code>을 연결했다. shared Button은 이를 <code>PremiumButton</code>의 busy 접근성 상태로 전달한다.</td></tr>
+        <tr><td>회귀 방지</td><td><code>src/lib/__tests__/sign-up-oauth-a11y.test.ts</code>를 추가해 여섯 provider 버튼이 모두 loading과 disabled 계약을 유지하는지 source-scan으로 고정했다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>검사</th><th>상태</th><th>메모</th></tr></thead>
+      <tbody>
+        <tr><td>대상 Jest</td><td class="pass">통과</td><td><code>npm test -- --runTestsByPath src/lib/__tests__/sign-up-oauth-a11y.test.ts</code></td></tr>
+        <tr><td>신규 테스트 Prettier</td><td class="pass">통과</td><td><code>npx prettier --check src/lib/__tests__/sign-up-oauth-a11y.test.ts</code></td></tr>
+        <tr><td>대상 ESLint</td><td class="pass">통과</td><td><code>sign-up.tsx</code>와 신규 테스트 파일 대상</td></tr>
+        <tr><td>TypeScript</td><td class="pass">통과</td><td><code>npm run type-check</code></td></tr>
+        <tr><td>i18n/lexicon/constraints</td><td class="pass">통과</td><td>키 정합, 미번역, 금칙어, 제약 검사 통과</td></tr>
+        <tr><td>보조 가드</td><td class="pass">통과</td><td>emdash, anti-anthro, mascot-voice, require cycles, diff-check 통과</td></tr>
+        <tr><td>민감 패턴 스캔</td><td class="pass">확인</td><td><code>theme/tokens</code> import 단어만 잡힌 false positive</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>35 자기 패널</summary>
+      <ul>
+        <li>제품 관점: 가입은 첫 진입 흐름이므로 제출 중 상태를 보조기술에 명확히 전달해야 한다.</li>
+        <li>엔지니어링 관점: 새 컴포넌트나 별도 상태를 만들지 않고 기존 shared Button 계약을 재사용했다.</li>
+        <li>위험 관점: OAuth 실행 로직과 provider 노출 조건은 바꾸지 않아 기능 위험을 낮게 유지했다.</li>
+        <li>검증 관점: source-scan 테스트로 provider 추가나 리팩터링 때 busy 연결 누락을 다시 잡는다.</li>
+      </ul>
+    </details>
+
+    <h2>제약 준수</h2>
+    <table>
+      <tbody>
+        <tr><td>허브 단일 작성자</td><td>허브에서는 <code>agents/codex/</code> 아래에만 작성했다.</td></tr>
+        <tr><td>2nd-B push</td><td>실행하지 않았다. Claude가 merge gate다.</td></tr>
+        <tr><td>파괴적·비용·시크릿 작업</td><td>수행하지 않았다.</td></tr>
+        <tr><td>헤드리스</td><td>브라우저 자동 열기 명령은 실행하지 않았다.</td></tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>
