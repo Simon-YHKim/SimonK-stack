@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>페르소나 내보내기 중복 실행 방지 보고서</title>
+  <style>
+    :root { --bg:#111318; --text:#e8eaed; --muted:#9aa0a6; --accent:#7dd3c7; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 48px; }
+    h1, h2 { margin:0; line-height:1.25; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; margin-top:28px; color:var(--accent); }
+    p { margin:10px 0 0; }
+    .meta { color:var(--muted); margin-top:8px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin-top:18px; }
+    .card { border:1px solid var(--muted); padding:14px; border-radius:6px; background:rgba(255,255,255,.03); }
+    .label { color:var(--muted); font-size:12px; }
+    .value { margin-top:4px; font-weight:700; overflow-wrap:anywhere; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { border-bottom:1px solid rgba(154,160,166,.35); padding:10px 8px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); overflow-wrap:anywhere; }
+    details { margin-top:10px; border:1px solid rgba(154,160,166,.5); border-radius:6px; padding:10px 12px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { width:100%; height:10px; border:1px solid var(--muted); margin-top:8px; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+    ul { padding-left:20px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>페르소나 내보내기 중복 실행 방지 보고서</h1>
+  <p class="meta">작성 시각: 2026-08-21 22:15:35 KST · 작성자: codex · 사이클: PROTOCOL 12/19/35.4 단일 작업</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+    <div class="card"><div class="label">앱 커밋</div><div class="value"><code>c61e496b9f019f7ed0871f11cabf1b22103a4ef9</code></div></div>
+    <div class="card"><div class="label">브랜치</div><div class="value"><code>codex/qa-cycle-20260821-220802-more-busy-a11y</code></div></div>
+    <div class="card"><div class="label">푸시</div><div class="value">하지 않음</div></div>
+  </section>
+
+  <h2>작업 내용</h2>
+  <table>
+    <thead><tr><th>항목</th><th>내용</th><th>상태</th></tr></thead>
+    <tbody>
+      <tr><td>대상</td><td>레거시 <code>/persona</code> Markdown export</td><td>수정 완료</td></tr>
+      <tr><td>문제</td><td><code>Share.share</code> 실행 중 export 버튼을 다시 누를 수 있음</td><td>확인</td></tr>
+      <tr><td>조치</td><td><code>exporting</code> 상태로 재진입을 차단하고 두 export 진입점에 busy 상태를 연결</td><td>완료</td></tr>
+      <tr><td>회귀 방지</td><td><code>persona-export-busy-a11y.test.ts</code> 추가</td><td>완료</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>변경 파일 자세히</summary>
+    <ul>
+      <li><code>src/app/persona.tsx</code>: export busy 상태 추가, hero secondary action과 하단 버튼의 loading/disabled 연결, 기존 미사용 import 제거</li>
+      <li><code>src/lib/__tests__/persona-export-busy-a11y.test.ts</code>: 재진입 차단과 두 진입점 busy 노출을 정적으로 검증</li>
+    </ul>
+  </details>
+
+  <h2>검증</h2>
+  <table>
+    <thead><tr><th>검증</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td>대상 Jest</td><td>통과: 1 suite / 2 tests</td></tr>
+      <tr><td>Prettier check</td><td>통과</td></tr>
+      <tr><td>대상 ESLint</td><td>통과</td></tr>
+      <tr><td>TypeScript</td><td>통과</td></tr>
+      <tr><td>Constraints</td><td>통과</td></tr>
+      <tr><td>전체 verify</td><td>통과: 493 suites / 4609 tests</td></tr>
+      <tr><td>민감값 스캔</td><td><code>tokens</code> import false positive 외 신규 탐지 없음</td></tr>
+    </tbody>
+  </table>
+  <div class="bar" aria-label="검증 통과율"><span style="width:100%"></span></div>
+
+  <details>
+    <summary>남은 위험 자세히</summary>
+    <ul>
+      <li>전체 lint는 기존 warning 70개를 출력했지만 실패는 없었습니다.</li>
+      <li>전체 Jest는 기존 worker 종료 경고를 출력했지만 모든 테스트는 통과했습니다.</li>
+      <li><code>persona.tsx</code>는 기존 포맷 드리프트 때문에 Prettier가 의미 변경보다 넓은 줄바꿈 정리를 만들었습니다.</li>
+    </ul>
+  </details>
+
+  <h2>검증 요청</h2>
+  <p>코드 diff 산출물이므로 Antigravity에 정적 검증 요청을 남겼습니다. 요청 파일은 <code>agents/codex/outbox/20260821-221535-codex-to-antigravity-persona-export-busy-a11y-verify.md</code>입니다.</p>
+</main>
+</body>
+</html>
