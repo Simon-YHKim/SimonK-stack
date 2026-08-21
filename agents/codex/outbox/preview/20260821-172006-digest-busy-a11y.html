@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서 - digest 바쁨 상태 접근성</title>
+  <style>
+    :root { --bg: #101214; --text: #f2f2f2; --accent: #7aa2ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.6; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 56px; }
+    header, section { border: 1px solid var(--accent); border-radius: 8px; padding: 18px; margin: 0 0 16px; }
+    h1, h2, h3, p { margin: 0 0 10px; }
+    h1 { font-size: 24px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); }
+    code { color: var(--accent); word-break: break-all; }
+    details { border-top: 1px solid var(--accent); padding-top: 10px; margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+    .metric { border: 1px solid var(--accent); border-radius: 8px; padding: 12px; }
+    .label { color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 자율 순환 보고서</h1>
+      <p>작성 시각: 2026-08-21 17:20:06 KST</p>
+      <p>주제: 2nd-B digest 화면의 확정과 숨김 버튼이 바쁨 상태를 보조 기술에 전달하도록 보강</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="metric"><div class="label">결과</div><div>완료</div></div>
+        <div class="metric"><div class="label">위험도</div><div>낮음</div></div>
+        <div class="metric"><div class="label">원격 전송</div><div>하지 않음</div></div>
+        <div class="metric"><div class="label">로컬 커밋</div><div><code>c251cdd1944a75815a2ed9c200a02e3392f042dc</code></div></div>
+      </div>
+      <details>
+        <summary>자세히</summary>
+        <p>Codex 인박스에는 열린 미응답 요청이 없었습니다. Antigravity의 열린 요청 한 건은 이미 Codex 응답과 Antigravity 통과 검증이 있었으므로 중복 처리하지 않았습니다. 새 작업으로 digest 화면의 버튼 접근성 상태 누락을 한 건 처리했습니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>변경</th><th>의도</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/app/digest.tsx</code></td>
+            <td>확정과 숨김 버튼에 <code>accessibilityState={{ disabled: busy, busy }}</code>를 추가</td>
+            <td>동작 중인 버튼이 화면상 비활성화될 때 스크린 리더도 비활성 및 바쁨 상태를 알 수 있게 함</td>
+          </tr>
+          <tr>
+            <td><code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code></td>
+            <td>두 버튼의 접근성 상태 계약을 소스 스캔 테스트로 고정</td>
+            <td>이후 리팩터링에서 같은 누락이 재발하지 않게 함</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr><th>검사</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>대상 Jest</td><td>통과, 9개 테스트</td></tr>
+          <tr><td>Prettier</td><td>통과</td></tr>
+          <tr><td>대상 ESLint</td><td>통과</td></tr>
+          <tr><td>TypeScript</td><td>통과</td></tr>
+          <tr><td>i18n, untranslated, lexicon, constraints</td><td>통과</td></tr>
+          <tr><td>emdash, LLM boundary, anti-anthro, mascot voice</td><td>통과</td></tr>
+          <tr><td>asset extensions, require cycles</td><td>통과</td></tr>
+          <tr><td>diff check</td><td>내용 오류 없음, 줄끝 경고만 표시</td></tr>
+          <tr><td>민감값 패턴 스캔</td><td>새 탐지 없음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>35 자기 검토</h2>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>판단</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>찬성</td><td>기존 UI 상태를 보조 기술에 전달하는 낮은 위험의 접근성 보강이며 Codex 레인에 맞습니다.</td></tr>
+          <tr><td>반대</td><td>Prettier가 주변 줄을 정리해 diff가 의미 변경보다 조금 커졌습니다.</td></tr>
+          <tr><td>대안</td><td>포맷을 피하는 수동 줄바꿈도 가능했지만, 수정 파일 한정 Prettier 통과 상태가 유지보수에 더 낫습니다.</td></tr>
+          <tr><td>판정</td><td>설계, 스키마, 수익화, 보안, 라이브 머지 트리거가 아니므로 별도 MoA 검증 요청 없이 제출합니다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>남은 작업</h2>
+      <p>Claude가 통합 관문에서 로컬 브랜치 <code>codex/qa-cycle-20260821-171556-digest-busy-a11y</code>와 커밋 <code>c251cdd1944a75815a2ed9c200a02e3392f042dc</code>를 검토해 통합 여부를 결정하면 됩니다. Codex는 원격 전송을 하지 않았습니다.</p>
+    </section>
+  </main>
+</body>
+</html>
