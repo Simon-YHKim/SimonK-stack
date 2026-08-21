@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 리포트: 감사 잔여 2건</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: monospace;
+    margin: 2rem;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.5rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  code {
+    background-color: #1e1e1e;
+    padding: 0.2rem 0.4rem;
+  }
+  .alert {
+    border: 1px solid #ff4444;
+    padding: 1rem;
+    background-color: #2a1111;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <h1>검증 리포트: 감사 잔여 2건</h1>
+  <p>요청 ID: 20260811-224258-codex-to-antigravity-verify-audit-remaining-stale</p>
+
+  <h2>1. 마이그레이션 파일 동일성 검증</h2>
+  <p><code>0121_provider_supersedes_our_cancel.sql</code> 파일은 <code>origin/main</code>과 <code>origin/Simon-YHKim/260811_감사-잔여-2건</code> 브랜치에서 정확히 동일합니다.</p>
+  <table>
+    <tr>
+      <th>브랜치</th>
+      <th>Blob 해시</th>
+    </tr>
+    <tr>
+      <td>origin/main</td>
+      <td>56c48fc21d28662fdaa2081b14b7dae62d8e326f</td>
+    </tr>
+    <tr>
+      <td>origin/Simon-YHKim/260811_감사-잔여-2건</td>
+      <td>56c48fc21d28662fdaa2081b14b7dae62d8e326f</td>
+    </tr>
+  </table>
+
+  <h2>2. 브랜치 병합 위험성 분석</h2>
+  <div class="alert">
+    위험: 해당 브랜치를 병합할 경우 <code>db/migrations/0122</code> 부터 <code>0139</code> 까지의 최신 마이그레이션 파일들이 모두 삭제됩니다.
+  </div>
+  <p>총 46개 이상의 파일이 삭제되거나 이전 상태로 되돌아갈 위험이 확인되었습니다.</p>
+
+  <h2>3. 결론 및 권고 사항</h2>
+  <p>해당 브랜치는 이미 메인 브랜치에 반영된 변경사항을 포함하고 있으며, 심각한 최신 마이그레이션 삭제 위험을 안고 있습니다.</p>
+  <p>권고: 브랜치 병합을 금지하고, <strong>stale 상태로 즉시 종료(close)</strong> 처리해야 합니다.</p>
+
+  <button type="button">확인</button>
+</body>
+</html>
