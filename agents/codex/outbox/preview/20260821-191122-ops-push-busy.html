@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서 - 운영 추천 실행 중복 방지</title>
+  <style>
+    :root { --bg: #0b0f14; --text: #e6edf3; --accent: #6ea8ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.6; }
+    main { max-width: 980px; margin: 0 auto; padding: 40px 20px 56px; }
+    header { border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); padding: 22px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin: 28px 0 12px; color: var(--accent); }
+    h3 { font-size: 15px; margin-bottom: 6px; }
+    .muted { opacity: 0.72; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+    .card { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding: 14px; min-height: 110px; }
+    .label { display: block; font-size: 12px; opacity: 0.7; margin-bottom: 6px; }
+    .value { font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    ul { padding-left: 20px; }
+    li { margin: 6px 0; }
+    .status { color: var(--accent); font-weight: 700; }
+    details { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding: 12px; margin: 10px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } main { padding: 24px 14px 40px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="muted">Codex 자율 폴 사이클 보고서</p>
+      <h1>운영 추천 외부 실행 중복 방지</h1>
+      <p>이번 사이클은 열린 신규 요청이 없어서 Codex 레인의 새 UI 품질 작업 하나를 수행했다. 운영 추천 화면의 캘린더, 공유, 리마인더 실행이 진행 중일 때 같은 버튼을 다시 누를 수 있던 문제를 막았다.</p>
+      <div class="grid">
+        <section class="card">
+          <span class="label">결과</span>
+          <div class="value">완료</div>
+        </section>
+        <section class="card">
+          <span class="label">2nd-B 커밋</span>
+          <div class="value"><code>16141704ce25a52592d341e75e6611091b1a60a3</code></div>
+        </section>
+        <section class="card">
+          <span class="label">브랜치</span>
+          <div class="value"><code>codex/qa-cycle-20260821-190625-action-busy</code></div>
+        </section>
+        <section class="card">
+          <span class="label">작성 시각</span>
+          <div class="value">2026-08-21 19:11:22 KST</div>
+        </section>
+      </div>
+    </header>
+
+    <h2>수행 내용</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>내용</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>대상</td>
+          <td><code>src/app/ops.tsx</code>의 추천 결과 외부 실행 버튼과 동의 카드</td>
+        </tr>
+        <tr>
+          <td>문제</td>
+          <td>동의 저장, 캘린더 열기, 공유 시트 열기, 리마인더 예약 중에도 같은 실행 버튼이 다시 눌릴 수 있었다.</td>
+        </tr>
+        <tr>
+          <td>수정</td>
+          <td><code>pushBusy</code> 공통 상태와 <code>runPushAction</code> 잠금 함수를 추가하고, 관련 버튼에 <code>disabled</code>와 <code>loading</code>을 연결했다.</td>
+        </tr>
+        <tr>
+          <td>회귀 방지</td>
+          <td><code>src/lib/__tests__/ops-push-busy.test.ts</code>를 추가해 busy gate와 버튼 상태 계약을 정적으로 고정했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <ul>
+      <li><span class="status">통과</span> <code>npx prettier --check src/app/ops.tsx src/lib/__tests__/ops-push-busy.test.ts</code></li>
+      <li><span class="status">통과</span> <code>npx jest src/lib/__tests__/ops-push-busy.test.ts --runInBand</code></li>
+      <li><span class="status">통과</span> <code>npx eslint src/app/ops.tsx src/lib/__tests__/ops-push-busy.test.ts</code></li>
+      <li><span class="status">통과</span> <code>npm run type-check</code></li>
+      <li><span class="status">통과</span> <code>npm run check:i18n</code>, <code>check:i18n-untranslated</code>, <code>check:lexicon</code>, <code>check:constraints</code></li>
+      <li><span class="status">통과</span> <code>check:emdash</code>, <code>check:llm-boundary</code>, <code>check:anti-anthro</code>, <code>check:mascot-voice</code></li>
+      <li><span class="status">통과</span> <code>check:cycles</code>, <code>check:ota-runtime</code>, <code>check:crisis-parity</code>, <code>check:legal-review</code>, <code>check:legal-html</code></li>
+      <li><span class="status">통과</span> <code>check:definer-grants</code>, <code>check:supabase-auth-config</code>, <code>check:safety-consent-locale</code>, <code>git diff --check</code></li>
+      <li><span class="status">통과</span> 변경 diff 민감값 패턴 스캔에서 새 탐지 없음</li>
+    </ul>
+
+    <h2>제약 준수</h2>
+    <ul>
+      <li>허브에서는 <code>agents/codex/</code> 아래 파일만 작성했다.</li>
+      <li>2nd-B는 별도 worktree와 별도 브랜치에서 로컬 커밋만 만들었고 push하지 않았다.</li>
+      <li>파괴적 작업, 비용 발생 작업, secret 처리, 프로덕션 배포는 수행하지 않았다.</li>
+      <li>브라우저 자동 실행 명령은 사용하지 않았다.</li>
+    </ul>
+
+    <h2>35 자체 패널</h2>
+    <details open>
+      <summary>판단 요약</summary>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>검토</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>찬성</td>
+            <td>운영체제 시트와 권한 흐름은 중복 호출되면 사용자가 상태를 잃기 쉽다. 공통 실행 중 잠금이 가장 작은 수정이다.</td>
+            <td>진행</td>
+          </tr>
+          <tr>
+            <td>반대</td>
+            <td>모든 외부 실행 버튼이 같은 실행 중 상태를 공유하면 한 액션 진행 중 다른 액션도 잠긴다.</td>
+            <td>수용 가능</td>
+          </tr>
+          <tr>
+            <td>판정</td>
+            <td>이 화면은 외부 실행이 한 번에 하나만 진행되는 편이 더 명확하다. 새 설계 결정이나 고위험 변경은 아니다.</td>
+            <td>적용</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+
+    <h2>남은 위험</h2>
+    <p>에뮬레이터나 실기기에서 운영체제 캘린더, 공유 시트, 알림 권한 화면을 직접 열어 본 검증은 수행하지 않았다. 이번 검증은 코드, 타입, 정적 가드, 단위 테스트 기준이다.</p>
+  </main>
+</body>
+</html>
