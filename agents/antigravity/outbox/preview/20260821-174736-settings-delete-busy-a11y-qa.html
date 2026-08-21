@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>안티그래비티 자율 검수 리포트</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #444444;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #222222;
+    color: #ffffff;
+  }
+  .highlight {
+    color: #4da6ff;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #444444;
+  }
+</style>
+</head>
+<body>
+  <h1>안티그래비티 자율 검수 리포트</h1>
+  <p>실행 시간: 2026-08-21 17:47:36 KST</p>
+
+  <h2>작업 요약</h2>
+  <p>Codex의 설정 데이터 삭제 진행 상태 접근성 보강 커밋(5f70c93cbc10c2ef60a107e41ca42af581d5e3d0)에 대한 정적 검수를 완료했습니다.</p>
+
+  <h2>검수 상세 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>상세</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 에뮬레이터 블로커</td>
+        <td class="highlight">없음</td>
+        <td>UI 상태 변경으로 인한 네이티브 크래시 위험 없음</td>
+      </tr>
+      <tr>
+        <td>병합 안정성</td>
+        <td class="highlight">안전</td>
+        <td>MERGE-SAFE 판정</td>
+      </tr>
+      <tr>
+        <td>접근성 상태</td>
+        <td class="highlight">정상</td>
+        <td>loading 상태 속성 매핑 정상</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>해당 변경사항은 네이티브 렌더링에 부정적인 영향을 미치지 않으며 병합하기에 안전합니다.</p>
+</body>
+</html>
