@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>보상형 시청 버튼 접근성 보고서</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e6edf3; --accent:#64d9c8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 1040px; margin: 0 auto; padding: 32px 18px 48px; }
+    header, section { border: 1px solid var(--accent); padding: 18px; margin: 0 0 16px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); word-break: break-all; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .card { border: 1px solid var(--accent); padding: 12px; min-height: 104px; }
+    .label { color: var(--accent); font-size: 12px; margin-bottom: 8px; }
+    details { border-top: 1px solid var(--accent); margin-top: 12px; padding-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); }
+    svg { width: 100%; max-width: 520px; height: auto; display: block; margin-top: 10px; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>보상형 시청 버튼 접근성 보고서</h1>
+      <p>이번 사이클은 2nd-B의 보상형 광고 시청 버튼이 진행 중 상태를 보조기술에 알리지 못하는 문제를 한 가지 수정했다.</p>
+      <div class="grid">
+        <div class="card"><div class="label">결과</div><strong>수정 완료</strong><br>로컬 커밋 생성</div>
+        <div class="card"><div class="label">범위</div><strong>버튼 상태</strong><br>중복 시청 방어의 화면 상태 노출</div>
+        <div class="card"><div class="label">검증</div><strong>부분 통과</strong><br>타깃 테스트와 린트 통과</div>
+        <div class="card"><div class="label">남은 위험</div><strong>전체 타입 검사 보류</strong><br>기존 Clarity 모듈 해석 오류</div>
+      </div>
+    </header>
+
+    <section>
+      <h2>변경 요약</h2>
+      <table>
+        <thead><tr><th>파일</th><th>변경</th><th>효과</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>src/components/deepspace/RewardedSheet.tsx</code></td>
+            <td><code>watching</code> 상태를 추가하고 시청 버튼에 <code>disabled</code>와 <code>accessibilityState</code>를 연결했다.</td>
+            <td>사용자가 광고 시청을 시작한 동안 버튼이 비활성 및 진행 중 상태로 읽힌다.</td>
+          </tr>
+          <tr>
+            <td><code>src/lib/ads/__tests__/rewarded-sheet-a11y.test.ts</code></td>
+            <td>소스 스캔 회귀 테스트를 추가했다.</td>
+            <td>나중에 busy 상태 연결이 빠지면 테스트가 실패한다.</td>
+          </tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>기존 코드는 <code>watchingRef</code>로 중복 실행은 막았지만 React 상태가 아니어서 화면과 보조기술에는 진행 중임이 드러나지 않았다. 이번 변경은 그 내부 잠금 상태를 <code>watching</code> 화면 상태로 함께 유지한다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <svg viewBox="0 0 520 120" role="img" aria-label="검증 항목 네 개 중 세 개 통과, 한 개 기존 오류로 보류">
+        <rect x="10" y="15" width="350" height="16" fill="#64d9c8"></rect>
+        <text x="370" y="29" fill="#e6edf3">타깃 Jest 통과</text>
+        <rect x="10" y="40" width="350" height="16" fill="#64d9c8"></rect>
+        <text x="370" y="54" fill="#e6edf3">ESLint 통과</text>
+        <rect x="10" y="65" width="350" height="16" fill="#64d9c8"></rect>
+        <text x="370" y="79" fill="#e6edf3">emdash와 lexicon 통과</text>
+        <rect x="10" y="90" width="190" height="16" fill="#64d9c8"></rect>
+        <text x="210" y="104" fill="#e6edf3">TypeScript 기존 오류</text>
+      </svg>
+      <table>
+        <thead><tr><th>명령</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><code>npm test -- --runTestsByPath src/lib/ads/__tests__/rewarded-sheet-a11y.test.ts --ci</code></td><td>통과</td></tr>
+          <tr><td><code>npx eslint src/components/deepspace/RewardedSheet.tsx src/lib/ads/__tests__/rewarded-sheet-a11y.test.ts</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code>, <code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>실패. 변경과 무관한 <code>src/lib/analytics/clarity-native.ts</code>의 <code>@microsoft/react-native-clarity</code> 모듈 해석 오류.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>산출물</h2>
+      <table>
+        <tbody>
+          <tr><th>2nd-B 브랜치</th><td><code>codex/qa-cycle-20260826-013234-ui-a11y</code></td></tr>
+          <tr><th>2nd-B 로컬 커밋</th><td><code>adb18f76b9fe9608dca8a6aebf01c6129a8c97d6</code></td></tr>
+          <tr><th>작업 위치</th><td><code>C:\2ndB\.worktrees\codex-qa-20260826-013234-ui-a11y</code></td></tr>
+          <tr><th>허브 보고 시각</th><td><code>2026-08-26 01:35:53 KST</code></td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>위험과 되돌리기</summary>
+        <p>변경은 시청 버튼의 화면 상태와 정적 테스트에 한정된다. 되돌릴 때는 2nd-B 브랜치에서 커밋 <code>adb18f76b9fe9608dca8a6aebf01c6129a8c97d6</code>을 revert하면 된다. 2nd-B 원격 push는 하지 않았다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>
