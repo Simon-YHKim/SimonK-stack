@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서: Ops 비활성 조작 접근성</title>
+  <style>
+    :root { --bg: #101216; --fg: #eceff4; --muted: #9aa4b2; --accent: #7cc4ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.55 system-ui, -apple-system, Segoe UI, sans-serif; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 48px; }
+    h1, h2 { line-height: 1.2; margin: 0 0 14px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 26px; color: var(--accent); }
+    p { margin: 8px 0; color: var(--fg); }
+    .muted, td:nth-child(2) { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 18px 0 20px; }
+    .card { border: 1px solid #2a3038; padding: 14px; border-radius: 6px; background: #151922; }
+    .label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border-top: 1px solid #2a3038; text-align: left; padding: 9px 8px; vertical-align: top; }
+    th { color: var(--accent); font-weight: 650; }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    details { border-top: 1px solid #2a3038; padding: 12px 0; }
+    summary { cursor: pointer; color: var(--accent); }
+    .bar { width: 100%; height: 10px; background: #2a3038; border-radius: 4px; overflow: hidden; }
+    .fill { width: 78%; height: 100%; background: var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Ops 비활성 조작 접근성 보강</h1>
+    <p class="muted">KST 2026-08-27 01:06:16 기준 Codex 단일 자율 사이클 보고서입니다. 모든 작업은 격리된 2nd-B worktree에서 수행했고, 허브에는 Codex 소유 디렉터리만 기록했습니다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span>완료</div>
+      <div class="card"><span class="label">앱 커밋</span><code>9da0b0c8</code></div>
+      <div class="card"><span class="label">브랜치</span><code>codex/qa-cycle-20260827-010248-ui-a11y</code></div>
+      <div class="card"><span class="label">푸시</span>하지 않음</div>
+    </section>
+
+    <h2>무엇을 바꿨나</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th><th>이유</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/screens/deepspace/ops/screens.tsx</code></td><td>Milestones와 Ledger의 비활성 버튼에 <code>accessibilityState</code>를 추가했습니다.</td><td>화면상 비활성 또는 처리 중인 상태가 스크린 리더에 전달되도록 했습니다.</td></tr>
+        <tr><td><code>src/screens/deepspace/ops/__tests__/ops-disabled-a11y-state.test.ts</code></td><td>비활성 및 처리 중 상태 노출을 정적 테스트로 고정했습니다.</td><td>동일 회귀가 다시 들어오는 것을 막기 위해서입니다.</td></tr>
+        <tr><td><code>src/screens/deepspace/ops/__tests__/ledger-real-input.test.ts</code></td><td>Prettier 줄바꿈을 허용하도록 import 단언을 넓혔습니다.</td><td>의미 없는 줄바꿈 변화 때문에 기존 테스트가 실패하지 않게 했습니다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th><th>메모</th></tr></thead>
+      <tbody>
+        <tr><td>Jest</td><td>통과</td><td>Ops 관련 3개 테스트 파일, 14개 테스트 통과</td></tr>
+        <tr><td>Prettier</td><td>통과</td><td>변경 파일 3개 확인</td></tr>
+        <tr><td>ESLint</td><td>경고만</td><td>기존 <code>ScrollView</code> 및 hook disable 경고 3건, 새 오류 없음</td></tr>
+        <tr><td>TypeScript</td><td>차단</td><td>기존 <code>@microsoft/react-native-clarity</code> 타입 해석 오류로 중단</td></tr>
+        <tr><td>diff 검사</td><td>통과</td><td><code>git diff --check</code> 통과</td></tr>
+        <tr><td>민감 문자열</td><td>통과</td><td>변경 diff에서 secret, token, password 계열 실제 매칭 없음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>위험과 확인 요청</h2>
+    <p>이번 변경은 코드 diff를 포함하므로 MoA 규칙에 따라 Antigravity에 검증 요청을 남겼습니다. <code>screens.tsx</code>는 기존 Prettier drift가 있어 줄바꿈 diff가 실제 의미 변경보다 넓습니다.</p>
+    <div class="bar" aria-label="검증 진행률"><div class="fill"></div></div>
+
+    <details>
+      <summary>자세히</summary>
+      <p>수정된 실제 동작은 비활성 조건과 같은 값을 <code>accessibilityState.disabled</code>에 넣고, 저장 또는 삭제가 진행 중인 경우 <code>busy</code>를 같이 노출하는 것입니다. 기능 로직, 데이터 쓰기 경로, 라우팅, 결제, 외부 API 호출은 바꾸지 않았습니다.</p>
+    </details>
+  </main>
+</body>
+</html>
