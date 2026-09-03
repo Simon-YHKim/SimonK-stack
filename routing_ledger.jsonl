@@ -1,1 +1,0 @@
-{"run":"run_selftest0904","ts":"2026-09-04T01:05+0900","task":"selftest-dummy","class":"A","lane":"gpt-5.6-luna","effort":"low","falsifiable":false,"explore":true,"status":"done","sec":42,"retries":0,"quota_delta":{"codex":1},"items":4,"accepted":3,"guard_violations":[]}
