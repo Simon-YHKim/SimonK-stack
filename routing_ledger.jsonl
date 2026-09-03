@@ -1,1 +1,1 @@
-{"run":"run_26ad3eb182a7","ts":"2026-09-04T02:00+0900","task":"security-artifact-gate","class":"B","lane":"gpt-5.6-sol","effort":"ultra","falsifiable":true,"explore":false,"status":"done","sec":2100,"retries":1,"quota_delta":{"codex":1},"items":0,"accepted":0,"guard_violations":[]}
+{"run":"run_26ad3eb182a7","ts":"2026-09-04T02:00+0900","task":"security-artifact-gate","class":"B","lane":"gpt-5.6-sol","effort":"ultra","falsifiable":true,"explore":false,"status":"done","sec":2100,"retries":1,"quota_delta":{"codex":1},"items":20,"accepted":20,"guard_violations":[]}
