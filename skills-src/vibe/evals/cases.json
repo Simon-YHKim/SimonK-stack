@@ -1,0 +1,153 @@
+{
+  "skill": "vibe",
+  "version": "2.1.0",
+  "cases": [
+    {
+      "id": "ui-feature-full-pipeline",
+      "prompt": "/vibe 설정 화면에 알림 토글 섹션 추가해줘",
+      "assertions": [
+        {
+          "id": "preflight-first",
+          "text": "The agent runs `orca status --json` and `orca account list --json` before creating any Run or worker, and states the quota position."
+        },
+        {
+          "id": "classifies-as-ui",
+          "text": "The agent classifies this as a UI change and announces the stage list and expected worker count before starting."
+        },
+        {
+          "id": "pins-models-with-effort",
+          "text": "Codex workers are launched with `--model gpt-5.6-sol --effort ultra` and Claude workers with `--model claude-opus-5 --effort max`; the agent does not omit --effort."
+        },
+        {
+          "id": "design-gate-is-localhost",
+          "text": "The design stage instructs the worker to leave `npx expo start --web --port <port>` running, then the agent opens it with `orca tab create --url http://localhost:<port>` and screenshots it before asking Simon to confirm."
+        },
+        {
+          "id": "releases-workers",
+          "text": "After each accepted worker_done the agent runs `orca orchestration worker-release --dispatch <id>`."
+        }
+      ]
+    },
+    {
+      "id": "backend-only-skips-design",
+      "prompt": "/vibe records 테이블에 soft delete 컬럼 추가하고 쿼리 반영해줘",
+      "assertions": [
+        {
+          "id": "skips-design-and-wiring",
+          "text": "The agent classifies this as backend-only and explicitly skips the 디자인 and 배선 stages rather than running all six."
+        },
+        {
+          "id": "still-reviews",
+          "text": "리뷰 and 감사 stages still run — the agent does not treat review as optional."
+        }
+      ]
+    },
+    {
+      "id": "quota-gate-blocks",
+      "prompt": "/vibe 온보딩 플로우 전체 다시 만들어줘",
+      "assertions": [
+        {
+          "id": "stops-when-pool-exhausted",
+          "text": "If `account list` shows the relevant pool above 85 percent used, the agent stops using that lane, reports the reset time, and proposes a reduced plan rather than launching anyway."
+        },
+        {
+          "id": "avoids-fable-when-exhausted",
+          "text": "If claude.fableWeekly is 100 percent, the agent does not use fable for any worker."
+        }
+      ]
+    },
+    {
+      "id": "dry-run-costs-nothing",
+      "prompt": "/vibe --dry 검색 기능 개선",
+      "assertions": [
+        {
+          "id": "creates-dag-only",
+          "text": "The agent creates the Run and tasks, shows `task-list --brief --json`, and stops without calling worker-start."
+        }
+      ]
+    },
+    {
+      "id": "too-small-defers",
+      "prompt": "/vibe 오타 하나 고쳐줘",
+      "assertions": [
+        {
+          "id": "declines-pipeline",
+          "text": "The agent recognizes the task is too small to justify workers and hands it to dev-orchestrator or does it inline instead of spawning a pipeline."
+        }
+      ]
+    },
+
+    {
+      "id": "misclassified-process-class",
+      "prompt": "/vibe 리포지토리 전체에서 사용하지 않는 export를 세어서 목록으로 만들어줘. 어느 것을 먼저 지워야 하는지 우선순위도 정해줘.",
+      "assertions": [
+        {
+          "id": "splits-mechanical-from-judgment",
+          "text": "The agent splits this into TWO processes rather than one: counting/listing unused exports is class A (mechanical), while deciding deletion priority is class B (judgment). It does not route the whole task to a single class."
+        },
+        {
+          "id": "no-judgment-on-luna",
+          "text": "The priority-ordering half is NOT assigned to gpt-5.6-luna. Per the output rules luna is forbidden from 우열 판단 — if judgment is needed the agent escalates to terra or above."
+        },
+        {
+          "id": "states-class-per-process",
+          "text": "Before dispatch the agent states which class each process was put in, so a misclassification is visible to Simon rather than silent."
+        }
+      ]
+    },
+    {
+      "id": "explore-slot-must-not-hit-synthesis",
+      "prompt": "/vibe 2ndB 전수 감사 — 병렬 조사 4개 돌리고 종합해줘",
+      "assertions": [
+        {
+          "id": "explore-excludes-d-and-security",
+          "text": "The exploration slot (the one task forced onto the 2순위 lane) is NEVER assigned to the 종합/synthesis task (class D) or to either security gate. Those are fixed assignments excluded from exploration."
+        },
+        {
+          "id": "explore-is-random-not-first",
+          "text": "The exploration slot is chosen at random among eligible A-class (or non-fixed B) candidates — not always the first task, which would bias difficulty."
+        },
+        {
+          "id": "explore-is-announced-and-recorded",
+          "text": "The agent says which task is the exploration slot before dispatch, and that worker's ledger record carries explore:true."
+        }
+      ]
+    },
+    {
+      "id": "sol-effort-must-be-explicit",
+      "prompt": "/vibe 커밋 히스토리 6개월치 분류 집계해줘",
+      "assertions": [
+        {
+          "id": "never-dispatches-sol-without-effort",
+          "text": "No worker-start command for a codex lane is emitted without an explicit `--effort` value. Dispatching gpt-5.6-sol without --effort silently runs at low and is a failure."
+        },
+        {
+          "id": "uses-dispatch-argv-or-equivalent",
+          "text": "The agent builds the dispatch command via routing.dispatch_argv() (or otherwise proves effort is present) rather than hand-typing the command string."
+        },
+        {
+          "id": "agy-effort-in-slug-not-flag",
+          "text": "If a gemini lane is used, the model slug carries the effort (gemini-3.8-flash-high) and no separate --effort flag is appended — appending one is wrong for agy."
+        }
+      ]
+    },
+    {
+      "id": "security-review-must-be-cross-vendor",
+      "prompt": "/vibe 결제 웹훅 핸들러 새로 구현하고 보안 리뷰까지 해줘",
+      "assertions": [
+        {
+          "id": "implementer-does-not-review-itself",
+          "text": "The lane that writes the implementation is NOT the lane that performs the security review. If the implementation is on claude-opus-5, the artifact-safety gate stays on gpt-5.6-sol, and vice versa — G1."
+        },
+        {
+          "id": "two-security-gates-differ-in-model",
+          "text": "The two security processes (생성물 안전성 게이트 = gpt-5.6-sol@ultra, 비즈니스 로직·인가 = gpt-5.6-terra@high) are on DIFFERENT MODELS. Per D-260904-01 they deliberately share the codex vendor: only claude and codex can take judgment work, so coding plus the two gates cannot all get distinct vendors, and vendor diversity between the gates was the constraint relaxed so that neither gate ever reviews the implementer's own output. Collapsing both gates onto the SAME MODEL is the error the agent must refuse (G1_SEC_SAME_MODEL)."
+        },
+        {
+          "id": "guard-violation-recorded",
+          "text": "If such a same-vendor assignment is nonetheless produced, routing.check_guards() flags G1 and the violation is written to the ledger record's guard_violations."
+        }
+      ]
+    }
+  ]
+}
