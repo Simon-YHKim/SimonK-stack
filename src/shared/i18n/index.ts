@@ -41,6 +41,7 @@ export function placeholdersOf(template: string): string[] {
 export const ERROR_MESSAGE_KEYS: Readonly<Record<ErrorCode, MessageKey>> = {
   'cli-not-found': 'error_cliNotFound',
   'cli-unsupported-version': 'error_cliUnsupportedVersion',
+  'cli-unsupported-install': 'error_cliUnsupportedInstall',
   'node-not-found': 'error_nodeNotFound',
   'spawn-failed': 'error_spawnFailed',
   timeout: 'error_timeout',

@@ -81,7 +81,8 @@ export function resolveGrokCli(homeDir: string, resolveDeps: ResolveDeps): GrokC
   const p = isWin ? path.win32 : path.posix;
   const managed = resolveCommand(p.join(homeDir, '.grok', 'bin', isWin ? 'grok.exe' : 'grok'), resolveDeps);
   if (managed.ok) return { ok: true, command: managed.command, source: managed.source };
-  return { ok: false, code: onPath.code === 'node-not-found' ? 'node-not-found' : 'cli-not-found' };
+  if (onPath.code === 'node-not-found') return { ok: false, code: 'node-not-found' };
+  return { ok: false, code: onPath.code === 'unsupported-shim' ? 'cli-unsupported-install' : 'cli-not-found' };
 }
 
 /** `grok 1.0.30 (04b7ffed98c6) [stable]` -> `1.0.30`. */
@@ -203,6 +204,8 @@ export function createGrokAdapter(deps: ProviderDeps, options: GrokAdapterOption
 
   const adapter: ProviderAdapter = {
     id: 'grok',
+    // Same xAI-owned hosts that device-auth.ts accepts for verification pages.
+    loginUrlHosts: ['x.ai', 'grok.com'],
 
     async detectCli(signal) {
       const cli = resolveCli();

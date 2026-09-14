@@ -31,7 +31,7 @@ export function buildTrayItems(state: TrayMenuState): TrayItem[] {
       enabled: state.autostartSupported,
     },
     { type: 'normal', action: 'refresh-now', label: t('trayRefreshNow'), enabled: !state.refreshing },
-    { type: 'normal', action: 'accounts', label: t('trayAddAccount'), enabled: true },
+    { type: 'normal', action: 'accounts', label: t('trayAccounts'), enabled: true },
     { type: 'separator' },
     { type: 'normal', action: 'quit', label: t('trayQuit'), enabled: true },
   ];

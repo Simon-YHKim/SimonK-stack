@@ -265,8 +265,11 @@ export class WindowManager implements WindowsPort {
     this.popupState.toggle();
   }
 
-  showPopup(_tab: PopupTab | null, focus: boolean): void {
+  showPopup(tab: PopupTab | null, focus: boolean): void {
     this.popupState.show(focus);
+    if (tab !== null && this.popup !== null && !this.popup.isDestroyed()) {
+      sendEvent(this.popup.webContents, 'popup:show', { tab });
+    }
   }
 
   hidePopup(): void {

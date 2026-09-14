@@ -36,7 +36,7 @@ import { createLoginManager, type LoginManager } from '../login';
 import { profileDirFor } from '../paths';
 import type { Autostart } from '../platform/autostart';
 import type { ProviderRegistry } from '../providers/registry';
-import { ProviderError, type CliInfo, type ProviderAdapter } from '../providers/types';
+import { ProviderError, type CliInfo } from '../providers/types';
 import { SOURCE_BY_PROVIDER, createScheduler, type FetchOutcome, type Scheduler, type SchedulerOptions } from '../scheduler';
 import type { AppStore } from '../store';
 import { moveAccount, renumberAccounts } from '../store/accounts';
@@ -93,12 +93,6 @@ export type AppController = ReturnType<typeof createAppController>;
 
 function errorCodeOf(error: unknown): ErrorCode {
   return error instanceof ProviderError ? error.code : 'internal';
-}
-
-function adapterLoginHosts(adapter: ProviderAdapter): readonly string[] | null {
-  // Optional adapter extension until the contract carries it (see contract change requests).
-  const hosts = (adapter as { loginUrlHosts?: unknown }).loginUrlHosts;
-  return Array.isArray(hosts) && hosts.length > 0 && hosts.every((h) => typeof h === 'string') ? hosts : null;
 }
 
 export function createAppController(deps: AppControllerDeps) {
@@ -298,7 +292,7 @@ export function createAppController(deps: AppControllerDeps) {
       }
       scheduleBroadcast();
     },
-    allowedHosts: (provider) => adapterLoginHosts(registry.get(provider)),
+    allowedHosts: (provider) => registry.get(provider).loginUrlHosts,
     logger: logger.child('login'),
     now,
     ...(deps.loginTimeoutMs === undefined ? {} : { timeoutMs: deps.loginTimeoutMs }),

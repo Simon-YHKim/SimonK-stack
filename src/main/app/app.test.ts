@@ -93,8 +93,9 @@ function fakeWindows() {
 
 function fakeAdapter(id: ProviderId, calls: string[], logins: Harness['logins'], options: FakeOptions): ProviderAdapter {
   let usageCalls = 0;
-  const adapter: ProviderAdapter & { loginUrlHosts?: string[] } = {
+  const adapter: ProviderAdapter = {
     id,
+    loginUrlHosts: options.loginHosts ?? [],
     detectCli: () =>
       Promise.resolve(options.found === false ? { found: false, errorCode: 'cli-not-found' } : { found: true, version: '1.2.3', path: 'C:\\secret\\cli.exe' }),
     ensureProfileDir: (account) => {
@@ -128,7 +129,6 @@ function fakeAdapter(id: ProviderId, calls: string[], logins: Harness['logins'],
       return options.removeFails === true ? Promise.reject(new ProviderError('internal')) : Promise.resolve();
     },
   };
-  if (options.loginHosts !== undefined) adapter.loginUrlHosts = options.loginHosts;
   return adapter;
 }
 

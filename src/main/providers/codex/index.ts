@@ -118,6 +118,8 @@ export function createCodexAdapter(deps: ProviderDeps, options: CodexAdapterOpti
 
   const adapter: ProviderAdapter = {
     id: 'codex',
+    // Documented device page is auth.openai.com/codex/device (RESEARCH 3-2); confirm in T1.
+    loginUrlHosts: ['openai.com'],
 
     async detectCli(signal?: AbortSignal): Promise<CliInfo> {
       const resolved = resolveCli(deps.env);

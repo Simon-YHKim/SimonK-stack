@@ -191,13 +191,17 @@ export class LoginPanel {
       selectText(this.codeEl);
       return;
     }
+    const t = this.deps.translator();
     this.copyButton.replaceChildren(checkGlyph());
     this.copyButton.classList.add('is-copied');
+    setAttr(this.copyButton, 'aria-label', t('copied'));
+    setAttr(this.copyButton, 'title', t('copied'));
     if (this.copiedTimer !== null) clearTimeout(this.copiedTimer);
     this.copiedTimer = setTimeout(() => {
       this.copiedTimer = null;
       this.copyButton.replaceChildren(copyGlyph());
       this.copyButton.classList.remove('is-copied');
+      this.render();
     }, 2000);
   }
 
@@ -235,9 +239,10 @@ export class LoginPanel {
           showCode = true;
           hint = t('loginDeviceCodeHint');
           setText(this.codeEl, flow.deviceCode.userCode);
-          const codeLabel = t('loginDeviceCode', { code: flow.deviceCode.userCode });
-          setAttr(this.copyButton, 'aria-label', codeLabel);
-          setAttr(this.copyButton, 'title', codeLabel);
+          setAttr(this.codeEl, 'aria-label', t('loginDeviceCode', { code: flow.deviceCode.userCode }));
+          const copyLabel = this.copyButton.classList.contains('is-copied') ? t('copied') : t('copy');
+          setAttr(this.copyButton, 'aria-label', copyLabel);
+          setAttr(this.copyButton, 'title', copyLabel);
         }
         showPaste = flow.needsPaste || (this.provider === 'claude' && flow.url !== null);
         if (flow.url !== null && flow.deviceCode === null) hint = t('loginUrlHint');

@@ -20,6 +20,7 @@ const UNAVAILABLE_CODES: ReadonlySet<ErrorCode> = new Set([
   'node-not-found',
   'spawn-failed',
   'cli-unsupported-version',
+  'cli-unsupported-install',
   'quota-unavailable',
 ]);
 
@@ -36,7 +37,7 @@ export function resolveFailureCode(failure: ResolveFailure): ErrorCode {
     case 'node-not-found':
       return 'node-not-found';
     case 'unsupported-shim':
-      return 'spawn-failed';
+      return 'cli-unsupported-install';
   }
 }
 

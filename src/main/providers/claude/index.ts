@@ -14,7 +14,7 @@ import { errorCodeOf, type BridgeRuntime } from './bridge-files';
 import { createBridgeService } from './bridge-service';
 import { claudeEnvPolicy } from './env';
 import { parseAuthStatus, parseClaudeVersion } from './identity';
-import { createLoginManager } from './login';
+import { CLAUDE_LOGIN_URL_HOSTS, createLoginManager } from './login';
 
 export const CLAUDE_IDENTITY_TIMEOUT_MS = 30_000;
 export const CLAUDE_VERSION_TIMEOUT_MS = 15_000;
@@ -27,7 +27,9 @@ export interface ClaudeAdapterOverrides {
 }
 
 function resolveFailureCode(result: ResolveResult): ErrorCode {
-  return !result.ok && result.code === 'node-not-found' ? 'node-not-found' : 'cli-not-found';
+  if (!result.ok && result.code === 'node-not-found') return 'node-not-found';
+  if (!result.ok && result.code === 'unsupported-shim') return 'cli-unsupported-install';
+  return 'cli-not-found';
 }
 
 function spawnFailureCode(error: unknown): ErrorCode {
@@ -111,6 +113,7 @@ export function createClaudeAdapter(deps: ProviderDeps, overrides: ClaudeAdapter
 
   return {
     id: 'claude',
+    loginUrlHosts: CLAUDE_LOGIN_URL_HOSTS,
 
     async detectCli(signal) {
       const resolved = resolveClaude();

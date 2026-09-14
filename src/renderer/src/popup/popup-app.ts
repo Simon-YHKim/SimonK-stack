@@ -136,6 +136,9 @@ export class PopupApp {
       if (this.doc.visibilityState === 'visible') this.onShown();
     });
     this.api.on('login:event', (message) => this.onLoginEvent(message));
+    this.api.on('popup:show', ({ tab }) => {
+      if (tab !== null) this.selectTab(tab, false);
+    });
     this.selectTab('usage', false);
   }
 

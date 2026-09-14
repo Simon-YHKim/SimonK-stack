@@ -8,6 +8,7 @@ import type { CliInfo, ProviderAdapter, ProviderIdentity } from './types';
 export function createPlaceholderAdapter(id: ProviderId, source: UsageSource): ProviderAdapter {
   return {
     id,
+    loginUrlHosts: [],
     detectCli: (): Promise<CliInfo> => Promise.resolve({ found: false, errorCode: 'not-implemented' }),
     ensureProfileDir: (): Promise<void> => Promise.resolve(),
     startLogin: (_account, emit): Promise<void> => {

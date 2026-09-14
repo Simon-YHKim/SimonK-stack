@@ -51,7 +51,7 @@ describe('classifyFailure', () => {
   it('maps resolve failures and code states', () => {
     expect(resolveFailureCode('cli-not-found')).toBe('cli-not-found');
     expect(resolveFailureCode('node-not-found')).toBe('node-not-found');
-    expect(resolveFailureCode('unsupported-shim')).toBe('spawn-failed');
+    expect(resolveFailureCode('unsupported-shim')).toBe('cli-unsupported-install');
     expect(stateForCode('login-expired')).toBe('logged-out');
     expect(stateForCode('quota-unavailable')).toBe('unavailable');
     expect(stateForCode('rate-limited')).toBe('error');

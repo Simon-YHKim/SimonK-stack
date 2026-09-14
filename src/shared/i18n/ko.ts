@@ -8,6 +8,7 @@ export const ko = {
   trayAutoLaunch: 'Windows 시작 시 자동 실행',
   trayRefreshNow: '지금 새로고침',
   trayAddAccount: '계정 추가...',
+  trayAccounts: '계정 관리...',
   trayQuit: '종료',
   trayTooltip: 'AI 구독 사용량 위젯',
 
@@ -66,6 +67,8 @@ export const ko = {
   loginUrlHint: '브라우저에서 로그인한 뒤 표시된 코드를 아래에 붙여 넣으세요.',
   loginDeviceCodeHint: '아래 주소를 열고 코드를 입력하세요.',
   loginDeviceCode: '코드: {code}',
+  copy: '복사',
+  copied: '복사됨',
   loginPastePlaceholder: '인증 코드 붙여넣기',
   loginSubmit: '제출',
   loginSuccess: '로그인 완료',
@@ -92,6 +95,8 @@ export const ko = {
   bridgeConfirmInstall: '기본 Claude 설정(settings.json)을 백업한 뒤 상태줄 브리지를 추가할까요?',
   bridgeLastData: '마지막 기록 {time}',
   bridgeTargetAccount: '기록을 받을 계정: {label}',
+  bridgeSelectTarget: '기록을 받을 계정 선택',
+  bridgeInstallNote: 'Claude Code에서 작업 폴더 신뢰(trust)를 수락해야 기록되며, 상태줄 명령이 설정되면 Claude Code 하단 단축키 힌트가 숨겨집니다.',
 
   // Settings tab (v1)
   widgetTheme: '위젯 테마 디자인',
@@ -143,6 +148,7 @@ export const ko = {
   unitLeft: '남음',
   widgetTooltip: '{name} | 5시간: {p}% {unit} ({pr}) | 주간: {w}% {unit} ({wr})',
   widgetTooltipNoWeekly: '{name} | {p}% {unit} ({pr})',
+  widgetTooltipWeeklyOnly: '{name} | 주간: {p}% {unit} ({pr})',
   noAccountTitle: '연결된 AI 계정 없음 (클릭하여 계정 관리 열기)',
   widgetClickTitle: '클릭하여 상세 정보 및 설정 열기',
   widgetRefresh: '지금 새로고침',
@@ -168,6 +174,7 @@ export const ko = {
   // Error codes
   error_cliNotFound: 'CLI를 찾을 수 없습니다',
   error_cliUnsupportedVersion: '지원하지 않는 CLI 버전입니다',
+  error_cliUnsupportedInstall: 'CLI 설치 형식을 인식하지 못했습니다',
   error_nodeNotFound: 'Node.js를 찾을 수 없습니다',
   error_spawnFailed: 'CLI를 실행하지 못했습니다',
   error_timeout: '응답 시간이 초과되었습니다',
@@ -182,7 +189,7 @@ export const ko = {
   error_network: '네트워크 오류',
   error_providerError: '서비스 오류',
   error_bridgeNotInstalled: '상태줄 브리지가 설치되지 않았습니다',
-  error_bridgeNoData: '아직 브리지 기록이 없습니다',
+  error_bridgeNoData: '이 계정으로 Claude Code를 한 번 사용하면 표시됩니다(Pro/Max, 첫 응답 이후)',
   error_quotaUnavailable: '이 계정은 사용량 한도를 제공하지 않습니다',
   error_notImplemented: '아직 구현되지 않았습니다',
   error_internal: '내부 오류',

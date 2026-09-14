@@ -23,6 +23,8 @@ export type PopupTab = (typeof POPUP_TABS)[number];
 export const ERROR_CODES = [
   'cli-not-found',
   'cli-unsupported-version',
+  /** The CLI exists but its launcher (e.g. an npm shim) cannot be resolved without a shell. */
+  'cli-unsupported-install',
   'node-not-found',
   'spawn-failed',
   'timeout',

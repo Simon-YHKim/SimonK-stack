@@ -11,7 +11,26 @@ const htmlSinks = [
 ];
 
 export default defineConfig(
-  globalIgnores(['out/**', 'dist/**', 'release/**', 'coverage/**', 'node_modules/**', 'docs/**', 'resources/**']),
+  globalIgnores([
+    'out/**',
+    'dist/**',
+    'release/**',
+    'coverage/**',
+    'node_modules/**',
+    'docs/**',
+    'resources/**/*',
+    '!resources/claude-bridge/',
+    '!resources/claude-bridge/*.cjs',
+  ]),
+  {
+    // Statusline bridge runs under the user's own node; keep it plain CommonJS.
+    files: ['resources/claude-bridge/*.cjs'],
+    extends: [js.configs.recommended],
+    languageOptions: { sourceType: 'commonjs', globals: globals.node },
+    rules: {
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
+    },
+  },
   {
     files: ['**/*.ts'],
     extends: [js.configs.recommended, tseslint.configs.recommendedTypeChecked],

@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { DEFAULT_SETTINGS } from '../../shared/settings';
 import { relativeTimeText } from './format';
 import { pickLocale } from './locale';
-import { buildAccountView, selectWidgetRows, tagForWindow, toRow } from './model';
-import { HOUR, NOW, account, quotaWindow, usage } from './testing/fixtures';
+import { createTranslator } from '../../shared/i18n';
+import { buildAccountView, itemTooltip, selectWidgetRows, tagForWindow, toRow } from './model';
+import { HOUR, NOW, account, quotaWindow, themeTokens, usage } from './testing/fixtures';
 import { accentForeground, safeAccent } from './theme';
 
 describe('view model', () => {
@@ -13,6 +14,13 @@ describe('view model', () => {
     expect(buildAccountView(account({ id: 'a', loginState: 'logged-out' }), null, settings, NOW).state).toBe('logged-out');
     const cli = buildAccountView(account({ id: 'a', loginState: 'cli-missing' }), null, settings, NOW);
     expect([cli.state, cli.errorCode]).toEqual(['error', 'cli-not-found']);
+  });
+
+  it('tooltip names a weekly-only window as weekly', () => {
+    const snapshot = usage('g', { provider: 'grok', source: 'grok-acp', windows: [quotaWindow('weekly', 40, 2 * HOUR)] });
+    const view = buildAccountView(account({ id: 'g', provider: 'grok', label: 'G' }), snapshot, DEFAULT_SETTINGS, NOW);
+    const ctx = { t: createTranslator('en'), locale: 'en' as const, settings: DEFAULT_SETTINGS, theme: themeTokens(), now: NOW };
+    expect(itemTooltip(view, ctx)).toContain('G | Weekly: 60% left (');
   });
 
   it('ok snapshot without windows is shown as unavailable', () => {

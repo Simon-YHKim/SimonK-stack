@@ -7,6 +7,7 @@ export const en: Record<keyof typeof ko, string> = {
   trayAutoLaunch: 'Launch at Login',
   trayRefreshNow: 'Refresh Now',
   trayAddAccount: 'Add Account...',
+  trayAccounts: 'Accounts...',
   trayQuit: 'Quit',
   trayTooltip: 'AI Usage Widget',
 
@@ -65,6 +66,8 @@ export const en: Record<keyof typeof ko, string> = {
   loginUrlHint: 'Sign in in your browser, then paste the code it shows below.',
   loginDeviceCodeHint: 'Open the address below and enter the code.',
   loginDeviceCode: 'Code: {code}',
+  copy: 'Copy',
+  copied: 'Copied',
   loginPastePlaceholder: 'Paste authentication code',
   loginSubmit: 'Submit',
   loginSuccess: 'Signed in',
@@ -91,6 +94,8 @@ export const en: Record<keyof typeof ko, string> = {
   bridgeConfirmInstall: 'Back up the default Claude settings (settings.json) and add the statusline bridge?',
   bridgeLastData: 'Last record {time}',
   bridgeTargetAccount: 'Receiving account: {label}',
+  bridgeSelectTarget: 'Choose receiving account',
+  bridgeInstallNote: 'Claude Code records only after you accept folder trust, and a custom statusline hides its shortcut hints.',
 
   // Settings tab
   widgetTheme: 'Widget Theme',
@@ -142,6 +147,7 @@ export const en: Record<keyof typeof ko, string> = {
   unitLeft: 'left',
   widgetTooltip: '{name} | 5H: {p}% {unit} ({pr}) | Weekly: {w}% {unit} ({wr})',
   widgetTooltipNoWeekly: '{name} | {p}% {unit} ({pr})',
+  widgetTooltipWeeklyOnly: '{name} | Weekly: {p}% {unit} ({pr})',
   noAccountTitle: 'No AI account connected (click to open Accounts)',
   widgetClickTitle: 'Click for details and settings',
   widgetRefresh: 'Refresh now',
@@ -167,6 +173,7 @@ export const en: Record<keyof typeof ko, string> = {
   // Error codes
   error_cliNotFound: 'CLI not found',
   error_cliUnsupportedVersion: 'Unsupported CLI version',
+  error_cliUnsupportedInstall: 'Unrecognized CLI install layout',
   error_nodeNotFound: 'Node.js not found',
   error_spawnFailed: 'Failed to start the CLI',
   error_timeout: 'Timed out',
@@ -181,7 +188,7 @@ export const en: Record<keyof typeof ko, string> = {
   error_network: 'Network error',
   error_providerError: 'Service error',
   error_bridgeNotInstalled: 'Statusline bridge is not installed',
-  error_bridgeNoData: 'No bridge record yet',
+  error_bridgeNoData: 'Shown after you use Claude Code with this account once (Pro/Max, after the first reply)',
   error_quotaUnavailable: 'This account does not report usage limits',
   error_notImplemented: 'Not implemented yet',
   error_internal: 'Internal error',

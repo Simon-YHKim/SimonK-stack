@@ -1,5 +1,5 @@
 # DESIGN — AI Usage Widget v2
-> 원본(손으로 고치는 문서). 작성 2026-09-15 03:12 KST · 발행 Claude Code(스캐폴딩 에이전트)
+> 원본(손으로 고치는 문서). 작성 2026-09-15 03:12 KST · 발행 Claude Code(스캐폴딩 에이전트) / 갱신 2026-09-15 04:06 KST · Claude Code(통합 에이전트: 모듈 병합, 계약 변경 반영)
 > 결정의 근거는 `DECISIONS.md`, 사실의 근거는 `docs/RESEARCH-auth-quota.md`, v1 동작은 `docs/SPEC-v1-baseline.md`에 있다. 이 문서는 그 셋을 코드 구조로 옮긴 설계다. 충돌하면 `DECISIONS.md`가 우선한다.
 
 읽는 순서: §1 목표 → §2 구조 → §5 계약 → 자기 모듈 절(§7 공급자 / §8 셸 / §9 렌더러) → §13 소유권.
@@ -70,7 +70,8 @@
 |---|---|---|
 | `%APPDATA%\AIUsageWidgetV2\` (userData) | `settings.json`, `accounts.json`, `logs\main.log`(1MB×3 회전, 마스킹) | `app.setPath('userData')`를 ready 전에 명시. v1의 `ai-usage-taskbar-widget`과 분리 |
 | `%LOCALAPPDATA%\AIUsageWidget\profiles\<provider>\<accountId>\` | 계정별 CLI 홈(CLI가 자격증명을 여기에 쓴다) | 로밍 폴더 밖. ACL은 사용자 프로필 기본값. `profileDirFor()`가 id 패턴·루트 이탈을 검사 |
-| `%LOCALAPPDATA%\AIUsageWidget\bridge\` | Claude statusline 브리지 기록(`claude\<accountId>.json` 등, claude 모듈이 확정) | 토큰 없음. `rate_limits`만 |
+| `%LOCALAPPDATA%\AIUsageWidget\bridge\claude\` | `<key16>.json`(브리지 레코드: five_hour/seven_day `used_percentage`·`resets_at`, model id/이름만), `<key16>.wrap.json`(설치 전 statusLine 원본 `{v, previous:{present, value}}`), `default-profile.json`(기본 프로필 연결 `{v, targetAccountId, installedAt, backupPath}`), `bin\aiuw-claude-bridge.cjs`·`.ps1`(settings.json이 가리키는 고정 복사본) | 토큰·cwd·session_id·transcript·cost 없음. `key16` = sha256(정규화한 CONFIG_DIR — 절대경로·역슬래시·끝 슬래시 제거·소문자, 기본 프로필이면 `'~/.claude default'`)의 앞 16자. 경로는 `ProviderDeps.bridgeRoot`에서만 만든다 |
+| `%LOCALAPPDATA%\AIUsageWidget\cli-detect\codex\`, `tmp\claude-detect\` | `--version` 실행용 위젯 소유 CLI 홈 | 실제 `~/.codex`·`~/.claude`를 초기화하지 않기 위함 |
 | `<resources>\resources\` | 트레이·공급자 아이콘, `claude-bridge\` 스크립트 | 개발: `<appPath>\resources`, 배포: `process.resourcesPath\resources`(`resolveResourcesDir`) |
 | 설치 | `%LOCALAPPDATA%\Programs\AI Usage Widget\ai-usage-widget.exe` | NSIS oneClick per-user. exe 이름을 v1(`AI Usage Widget.exe`)과 다르게 해 프로세스를 구분 |
 
@@ -90,7 +91,7 @@
 - `UsageSnapshot { accountId, provider, state, windows, plan?, measuredAt, lastSuccessAt, errorCode?, source }`
   - `state`: `ok` 측정 성공 / `stale` 오래됨 / `loading` 첫 조회 중 / `error` 실패(윈도우는 마지막 실측값일 수 있음) / `unavailable` 공급원이 수치를 주지 않음 / `logged-out` / `reset` 모든 창의 리셋 시각이 지남.
   - `source`: `'codex-app-server'|'claude-statusline'|'grok-acp'`.
-- `ErrorCode`(20종): 렌더러는 코드만 받아 i18n 문구로 바꾼다. 공급자 원문 오류는 UI로 가지 않는다.
+- `ErrorCode`(21종, 통합 때 `cli-unsupported-install` 추가 — CLI는 있으나 npm shim 등 실행기를 셸 없이 해석할 수 없음): 렌더러는 코드만 받아 i18n 문구로 바꾼다. 공급자 원문 오류는 UI로 가지 않는다.
 - `LoginEvent`: `url` / `device-code {userCode, verificationUrl, expiresAt?}` / `needs-paste` / `progress {stage}` / `success {emailMasked?, plan?}` / `error {code}`. IPC에서는 `LoginEventMessage { sessionId, accountId, at, event }`.
 - `ThemeTokens { scheme, taskbarScheme, highContrast, accent('#rrggbb'), reducedTransparency, effectiveMaterial }`.
 - `AppStateSnapshot { locale, settings, accounts, usage, refresh, theme, cli }` — 렌더러가 받는 유일한 상태.
@@ -109,7 +110,7 @@ v1 키(SPEC §1-2) 중 의미가 남은 것 + v2 추가. mock 관련 키는 없�
 | `alphaPercent` | 85 | 정수 10~100 | 문구를 "카드 배경 불투명도"로 정정(V1-35) |
 | `showWeeklyLimit` | true | bool | UI 노출(V1-38) |
 | `colorByUsage` | true | bool | |
-| `showCardBackground` | true | bool | 기본값 단일 정의(V1-41), floating 강제 변경은 UI에 표시 |
+| `showCardBackground` | true | bool | 기본값 단일 정의(V1-41). v1의 'floating 선택 시 강제 켜기'는 이식하지 않는다(숨은 강제 규칙 없음, DECISIONS 04:06) |
 | `showUsedPercent` | false | bool | |
 | `placementMode` | `docked` | `docked`,`floating` | |
 | `alwaysOnTop` | true | bool | |
@@ -155,14 +156,16 @@ v1 키(SPEC §1-2) 중 의미가 남은 것 + v2 추가. mock 관련 키는 없�
 | `state:changed` | `AppStateSnapshot` |
 | `theme:changed` | `ThemeTokens` |
 | `login:event` | `LoginEventMessage` |
+| `popup:show` | `{tab: PopupTab|null}` — main이 팝업을 특정 탭으로 열 때(트레이 '계정 관리', 첫 실행, `window:show-popup {tab}`) 팝업 창에만 보낸다. `null`이면 현재 탭 유지 |
 
 - `IpcErrorCode`: `invalid-request` `forbidden-sender` `not-found` `conflict` `busy` `not-implemented` `internal`.
 - 발신자 검증(`ipc/dispatch.ts`): 최상위 프레임 URL이 `app://bundle/…`(개발 시 dev server origin)일 때만 처리한다. 하위 프레임은 거부.
-- `EXTERNAL_LINK_KEYS`(`claude-cli-install` `codex-cli-install` `grok-cli-install`)의 실제 URL 표는 셸이 main에 두며, 공식 문서에서 확인한 https 주소만 넣는다.
+- `EXTERNAL_LINK_KEYS`(`claude-cli-install` `codex-cli-install` `grok-cli-install`)의 실제 URL 표는 셸이 main에 두며(`src/main/platform/links.ts`), 공식 문서에서 확인한 https 주소만 넣는다. **현재 비어 있다**(RESEARCH에 검증된 설치 안내 URL 없음) → `{kind:'link'}`는 `not-found`.
 
 ### 5-4. `src/shared/i18n/`
 - `ko.ts`가 키 집합의 원본, `en.ts`는 `Record<keyof typeof ko, string>`이라 키가 어긋나면 typecheck가 실패한다. 테스트가 키 집합·자리표시자 일치·빈 문구 0건을 확인한다.
-- `t(locale, key, params)` / `createTranslator(locale)`. main(트레이)과 렌더러가 같은 사전을 쓰고, 로케일은 main이 정해 스냅샷으로 보낸다(V1-34).
+- `t(locale, key, params)` / `createTranslator(locale)`. main(트레이)과 렌더러가 같은 사전을 쓰고, 로케일은 main이 정해 스냅샷으로 보낸다(V1-34). 렌더러는 `state.locale`을 따르고 `navigator.language`는 폴백으로만 쓴다.
+- 사전 밖 허용 항목: 상대 시각은 `Intl.RelativeTimeFormat(locale)`로 만든다(사전 키 없음). 위젯 상태 표식(`···` `!` `—` `⊘` `↺`)과 행 태그(`5H` `WK`, 기타 창 `30m`/`1H`/`1D`)는 v1 전례대로 번역하지 않는 기호 상수다. 그 밖의 사용자 문구는 모두 사전을 거친다.
 - 유니온→키 표(`ERROR_MESSAGE_KEYS`, `USAGE_STATE_KEYS`, `LOGIN_STATE_KEYS`, `LOGIN_STAGE_KEYS`, `PROVIDER_NAME_KEYS`, `USAGE_SOURCE_KEYS`, `THEME_KEYS`, `MATERIAL_KEYS`, `LANGUAGE_KEYS`, `REFRESH_INTERVAL_KEYS`)는 `Record<Union, MessageKey>`라 새 코드에 문구가 없으면 typecheck가 실패한다.
 - v1 86키 대비 변경(§14).
 
@@ -177,6 +180,7 @@ v1 키(SPEC §1-2) 중 의미가 남은 것 + v2 추가. mock 관련 키는 없�
 ```ts
 interface ProviderAdapter {
   readonly id: ProviderId;
+  readonly loginUrlHosts: readonly string[];          // shell:open-external 허용 호스트(하위 도메인 포함). 빈 배열 = 열지 않음
   detectCli(signal?): Promise<CliInfo>;               // {found, path?, version?, errorCode?}
   ensureProfileDir(account): Promise<void>;           // 멱등
   startLogin(account, emit, signal): Promise<void>;   // success 또는 error를 emit한 뒤 resolve
@@ -189,7 +193,9 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 ```
 - `ProviderDeps { logger, now, appVersion, localDataRoot, profilesRoot, bridgeRoot, resourcesDir, homeDir, env }` — 테스트는 임시 폴더를 주입한다. 모든 경로는 주입값에서만 만든다(`os.homedir()` 직접 호출 금지).
 - `ProviderError(code)`는 프로그래머 오류나 내부 전달용이다. UI로 가는 실패는 snapshot의 `errorCode`다.
-- `registry.ts`는 `providers/<id>/index.ts`의 `create<Id>Adapter`를 import한다. 공급자 모듈은 그 **export 이름과 시그니처를 유지**한 채 내부를 구현한다. 지금 들어 있는 것은 `placeholder.ts` 기반 자리표시자(`not-implemented`, 가짜 수치 없음)다.
+- `getIdentity`: `loggedIn:false`는 **확정된 미로그인**에만 쓴다. 판단 불가(타임아웃·CLI 없음·네트워크)면 `ProviderError(code)`로 reject하고, 셸은 이를 loginState `unknown`으로 표시한다(`logged-out` 아님).
+- `loginUrlHosts`(통합 시 확정): claude `claude.com`·`claude.ai`(경로는 어댑터가 정확히 검사), codex `openai.com`(문서 예시 `auth.openai.com/codex/device`, T1에서 확인), grok `x.ai`·`grok.com`.
+- `registry.ts`는 `providers/<id>/index.ts`의 `create<Id>Adapter`를 import한다(통합 완료, 실제 어댑터). 팩토리는 테스트용 두 번째 인수를 가질 수 있다(`ProviderFactory`와 호환). `placeholder.ts`는 테스트와 미래 공급자용으로만 남는다.
 
 ### 5-7. `src/main/cli/` (완전 구현, 테스트 포함)
 | API | 동작 |
@@ -225,7 +231,7 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 - 자식 환경 = `BASE_ENV_ALLOW` + 공급자 HOME 변수 set + 자격증명 계열 변수 remove. 부모의 사용자 설정 폴더(`~/.claude`, `~/.codex`, `~/.grok`)는 절대 계정 폴더로 쓰지 않는다.
 - 위젯 코드는 CLI 자격증명 파일(`.credentials.json`, `auth.json`)을 **읽지도 쓰지도 않는다.** 공급자 HTTP API를 사용자 토큰으로 직접 부르지 않는다. 사칭 헤더·client ID 없음.
 - 로그인 이벤트의 URL·코드는 렌더러에 보여 주되 로그에는 남기지 않는다(`userCode`는 redact 키).
-- 모든 호출에 타임아웃. 로그인 전체 10분, 단발 조회 30초 이내(모듈이 실측 후 조정·보고).
+- 모든 호출에 타임아웃. 로그인 전체 10분. 셸 스케줄러는 계정 조회 1회(`getIdentity` + `fetchUsage`가 같은 슬롯에서 연달아 실행)에 45초 AbortSignal을 건다. 어댑터 내부 제한: codex init 30초·rpc 10초, grok init 30초·요청 20초·수명 60초, claude auth status 30초·`--version` 15초. 실측 시간이 나오면 조정한다.
 - 실측(T1·T2·T4) 전 추정으로 확정할 수 없는 응답 필드는 알 수 없는 필드를 허용하는 파서로 처리하고, 파서 테스트에 근거(스키마 파일·문서 경로)를 주석 1줄로 남긴다.
 
 ### 7-1. Claude (`providers/claude`, `resources/claude-bridge`) — DECISIONS 02:23
@@ -234,12 +240,13 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 | CLI 탐지 | `resolveCommand('claude')`(예: `%USERPROFILE%\.local\bin\claude.exe`) + `claude --version` |
 | env remove | `ANTHROPIC_API_KEY` `ANTHROPIC_AUTH_TOKEN` `CLAUDE_CODE_OAUTH_TOKEN` `CLAUDE_CODE_USE_BEDROCK` `CLAUDE_CODE_USE_VERTEX` `CLAUDE_CODE_USE_FOUNDRY` `ANTHROPIC_PROFILE` `ANTHROPIC_FEDERATION_RULE_ID` `ANTHROPIC_ORGANIZATION_ID` `AWS_BEARER_TOKEN_BEDROCK` `ANTHROPIC_CUSTOM_HEADERS` (RESEARCH 3-1) |
 | env set | `CLAUDE_CONFIG_DIR=<profileDir>` |
-| 로그인 | `spawnLongLived(claude, ['auth','login','--claudeai'])`. stdout을 `stripAnsi` 후 URL을 찾으면 `url`, `Paste code here if prompted` 프롬프트를 보면 `needs-paste`. `submitPaste`는 `code#state` 한 줄 쓰기. `Login successful.` + exit 0 → `getIdentity` 후 `success`. `#` 없는 입력은 끝나지 않으므로 타임아웃·kill 필수. `--console`은 노출하지 않는다 |
+| 로그인 | `spawnLongLived(claude, ['auth','login','--claudeai'])`. stdout을 `stripAnsi`(OSC 8 포함) 후 URL을 찾으면 `url`. claude.exe 2.1.270은 `Paste code here if prompted > `를 **줄바꿈 없이** URL 줄 직후 같은 콜백에서 출력하므로, 줄 단위 API로는 프롬프트를 볼 수 없어 URL 줄을 받는 즉시 `needs-paste`를 낸다(CLI가 순서를 바꾸면 조정, T2). `submitPaste`는 `^[A-Za-z0-9._~+/=-]{1,2048}#[A-Za-z0-9._~+/=-]{1,2048}$`만 stdin에 한 줄로 쓴다(틀리면 `parse-error`, 쓰지 않음). `Login successful.`(프롬프트와 같은 줄에 붙어 나오는 경우 포함) + exit 0 → `auth status` 확인 후 `success`. `#` 없는 입력은 끝나지 않으므로 타임아웃·kill 필수. `--console`은 노출하지 않는다. 허용 URL은 `https://claude.com/cai/oauth/authorize`(CLAUDE_AI_AUTHORIZE_URL)와 구버전용 `https://claude.ai/oauth/authorize` 두 개, 경로 정확히 일치·포트/자격정보 거부, 목록 밖 URL이면 kill + `protocol-error`. CLI가 브라우저를 스스로 연다('Opening browser to sign in…'); 렌더러 '브라우저에서 열기'는 대체 수단 |
 | 계정 표시 | `claude auth status --json`(미로그인 exit 1 → `logged-out`). 이 명령은 위젯 폴더에 `.claude.json`·`backups/`를 만든다(위젯 폴더라 허용). 이메일은 adapter 안에서 `maskEmail` |
-| 수치 | statusline 브리지: 계정 폴더 `settings.json`의 `statusLine.command`가 Claude Code의 stdin JSON에서 `rate_limits`만 뽑아 `bridgeRoot` 아래 위젯 전용 파일에 쓴다. `fetchUsage`는 그 파일만 읽는다(5시간·7일 `used_percentage`, `resets_at` epoch 초→ms). 파일이 없으면 `unavailable`+`bridge-no-data`, 기록 시각이 오래되면 `stale` |
-| 기본 프로필 브리지 | 사용자가 평소 `~/.claude`로 일하면 위젯 폴더에는 기록이 생기지 않는다(RESEARCH 3-1 추론). `bridge.installDefault(target)`는 사용자 확인 후 `<homeDir>\.claude\settings.json`을 백업하고 기존 `statusLine.command`를 감싸 보존한 채 설치, 기록을 `target` 계정에 연결한다. `uninstallDefault`는 원래 명령을 복원한다. 테스트는 `homeDir`에 임시 폴더를 주입하고 실제 `~/.claude`를 절대 건드리지 않는다 |
+| 수치 | statusline 브리지: 계정 폴더 `settings.json`의 `statusLine.command`가 Claude Code의 stdin JSON에서 `rate_limits`만 뽑아 `bridgeRoot\claude\<key16>.json`에 원자적으로 쓴다(ensureProfileDir에서 멱등 설치). `fetchUsage`는 그 파일만 읽는다(5시간·7일 `used_percentage`, `resets_at` epoch 초→ms). 레코드 없음 → `unavailable`+`bridge-no-data`, 깨짐 → `error`+`parse-error`, 5분보다 오래됨 → `stale`. **리셋 시각이 지난 창은 `usedPercent:null`**(0%나 이전 값으로 표시하지 않음), 모든 창이 지나면 `reset`. 미래 기록 시각·31일 초과 리셋은 무시, 퍼센트 0~100 clamp. 계정이 기본 프로필 대상이면 자기 레코드와 기본 프로필 레코드 중 창마다 최신 값. 로그아웃은 감지하지 않는다(셸이 `getIdentity`로 반영). 병합: 창이 들어오면 교체, `rate_limits`는 있는데 창이 빠지면 이전 창이 이미 리셋된 경우에만 유지, `rate_limits` 자체가 없으면 이전 창 유지 |
+| 브리지 실행기(확정) | **node**(설치 시점 `resolveCommand('node')`), 없으면 PowerShell 5.1. 실측 기동 node 약 260ms / PowerShell 약 850ms, `runAsNode:false`라 위젯 exe 불가(DECISIONS 04:06). 명령 형식: node `node '<bin/aiuw-claude-bridge.cjs>' --key <k> --out '<dir>'`, PowerShell `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File '<bin/aiuw-claude-bridge.ps1>' -Key <k> -Out '<dir>'`. 작은따옴표·슬래시 경로라 Git Bash·PowerShell 모두 동일 해석, 경로에 `'`·제어문자가 있으면 설치 거부. 감싼 원래 명령은 Claude Code 셸 선택을 흉내 내 실행(CLAUDE_CODE_GIT_BASH_PATH → PATH git의 bash → Program Files\Git\bin\bash.exe → powershell -EncodedCommand), 30초 타임아웃, stdout·종료코드 그대로 전달 |
+| 기본 프로필 브리지 | 사용자가 평소 `~/.claude`로 일하면 위젯 폴더에는 기록이 생기지 않는다(RESEARCH 3-1 추론). `bridge.installDefault(target)`는 사용자 확인 후 `settings.json.aiuw-backup-<UTC타임스탬프>`로 백업하고 기존 `statusLine` 객체(padding 등 유지)를 감싸 sidecar에 원본을 남긴 채 설치, 기록을 `target` 계정에 연결한다. JSON 객체가 아니면 쓰지도 백업하지도 않고 `parse-error`. `uninstallDefault`는 원본 객체를 복원(없었으면 키 삭제)하고, 사용자가 이미 다른 statusLine으로 바꿨으면 손대지 않는다. 기본 프로필 경로는 env `CLAUDE_CONFIG_DIR`가 위젯 profiles 밖의 절대경로일 때만 그 경로, 아니면 `<homeDir>\.claude`. 재직렬화라 한 줄 배열이 펼쳐지는 등 서식은 바뀔 수 있고 BOM은 제거된다(백업으로 대응). 대상 계정을 지워도 `targetAccountId`는 남는다(후속: 삭제 시 제거 여부 확인 UI). 테스트는 `homeDir`에 임시 폴더를 주입하고 실제 `~/.claude`를 절대 건드리지 않는다 |
 | 금지 | `/api/oauth/usage` 호출, `anthropic-ratelimit-*` 헤더 조회, PTY `/usage` 스크래핑, `setup-token` |
-| 미결(모듈이 실측·보고) | 브리지 실행기(PowerShell 5.1 스크립트 vs node — `runAsNode:false`라 위젯 exe는 불가), `claude -p`에서 statusline 실행 여부(T3) |
+| 미결(실측) | `claude -p`에서 statusline 실행 여부·trust 수락 필요 여부(T3), 줄바꿈 없는 프롬프트 직접 감지(`LongLivedProcess.onStdoutChunk`, T2 후 결정) |
 
 ### 7-2. Codex (`providers/codex`) — DECISIONS 02:23
 | 단계 | 방법 |
@@ -250,8 +257,9 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 | 연결 | `spawnLongLived(codex, ['app-server'])` + `createJsonRpcClient(dialect:'codex')` → `initialize {clientInfo:{name:'ai-usage-widget', version}}`(`experimentalApi` 없음) → 응답의 `codexHome`이 `profileDir`와 같은지 검증(다르면 `protocol-error`로 중단) → `initialized` 알림. 제한 init 30초 / rpc 10초 |
 | 로그인 | `account/login/start {type:'chatgptDeviceCode'}` → `{loginId, userCode, verificationUrl}` → `device-code` 이벤트 → `account/login/completed` 알림 대기 → `account/read`로 email(마스킹)·planType → `success`. device code가 계정 설정에서 꺼져 있으면 `device-auth-disabled` |
 | 수치 | `account/rateLimits/read` → `rateLimitsByLimitId` 각 버킷의 primary/secondary `{usedPercent, windowDurationMins, resetsAt(초)}` → `QuotaWindow`(kind는 분 단위로 분류, 버킷 id는 `label`). 결과를 받으면 프로세스 종료. `planType`은 모르는 값도 허용 |
-| 금지 | `chatgptAuthTokens`, `apiKey`, `account/rateLimitResetCredit/consume`, `account/sendAddCreditsNudgeEmail`, `~/.codex`·Orca 폴더 공유, `wham/usage` 직접 호출 |
-| 미결 | 실제 버킷 키·창 길이(T1), 조회가 auth.json을 다시 쓰는지 |
+| 금지 | `chatgptAuthTokens`, `apiKey`, `account/rateLimitResetCredit/consume`, `account/sendAddCreditsNudgeEmail`, `logout`, `~/.codex`·Orca 폴더 공유, `wham/usage` 직접 호출 |
+| 확인된 스키마(codex-cli 0.154.0, 빈 CODEX_HOME) | `account/read`는 params 필수(`{}` 전송). 미인증 `rateLimits/read` → -32600 'codex account authentication required…'. `rateLimitsByLimitId`는 nullable이라 없으면 단일 `rateLimits` 사용. `account/login/cancel {loginId}` → `{status: canceled|notFound}`(중단·타임아웃 시 호출). `--version`도 CODEX_HOME을 초기화하므로 `<localDataRoot>\cli-detect\codex`에서 실행. shim 해석 불가는 `cli-unsupported-install` |
+| 미결 | 실제 버킷 키·창 길이·verificationUrl 호스트(T1), 조회가 auth.json을 다시 쓰는지, device-auth-disabled·login-expired·rate-limited·network 판정 문구(정규식 추정). credits·한도 도달 차단(`rateLimitReachedType`) 표시는 T1 후 계약 필드 추가 여부 결정. libuv가 HOMEDRIVE·HOMEPATH·USERNAME 등을 자식에 자동으로 다시 넣는다(자격증명 아님) |
 
 ### 7-3. Grok (`providers/grok`) — DECISIONS 02:23
 | 단계 | 방법 |
@@ -259,10 +267,10 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 | CLI 탐지 | `resolveCommand('grok')`, PATH에 없으면 `<homeDir>\.grok\bin\grok.exe` 후보. `--version` |
 | env | set `GROK_HOME=<profileDir>`, remove `XAI_API_KEY` 계열. leader 모드는 켜지 않는다 |
 | 로그인 | `grok login --device-auth`를 상주 실행해 출력의 URL·코드를 `device-code`로 방출, 폴링 완료(exit 0) → `success` |
-| 수치 | `spawnLongLived(grok, ['agent','stdio'])` + `dialect:'jsonrpc2'`(ACP) → `initialize` → `x.ai/billing` 호출 → 주간 `creditUsagePercent` + `currentPeriod.end`(주간 창), 없으면 월간. 5시간 창은 없다. **100%를 차단으로 표시하지 않는다**(추가 크레딧 사용 가능). 메서드가 없으면 `unavailable`+`quota-unavailable` |
-| ACP 규칙 | 세션·프롬프트를 만들지 않는다(쿼터 소모 금지). 서버→클라이언트 요청(권한·파일)은 거부 응답 |
-| 금지 | `/billing` HTTP 직접 호출, `auth.json` 읽기, OIDC refresh 직접 수행, Orca 값 |
-| 미결 | `x.ai/billing` 존재·응답 형태(T4). 없으면 사용자에게 보고 후 재결정(DECISIONS 01:36 Grok 조건) |
+| 수치 | `spawnLongLived(grok, ['agent','--no-leader','stdio'])` + `dialect:'jsonrpc2'`(ACP) → `initialize {protocolVersion:1}` → **`_x.ai/billing`**(ACP는 확장 메서드 앞에 `_`를 붙인다. 접두어 없는 `x.ai/billing`은 -32601, 그때만 한 번 더 시도) → 주간 창은 `currentPeriod.type`이 주간일 때 `creditUsagePercent` + `currentPeriod.end`, 그 외 `used/monthlyLimit`로 `other` 창(label `monthly`). 5시간 창은 없다. **100%를 차단으로 표시하지 않는다**(on-demand·선불 크레딧, 파서의 `overageAvailable`은 T4 후 계약 필드 추가 여부 결정). 두 메서드 모두 -32601이면 `unavailable`+`quota-unavailable`, -32000 'Authentication required' → `logged-out`. `getIdentity`는 billing 결과로 로그인 여부를 판단하고 판단 불가면 `ProviderError`; 같은 계정의 identity·usage가 15초 안에 이어지면 결과를 한 번만 조회해 공유 |
+| ACP 규칙 | 세션·프롬프트를 만들지 않는다(쿼터 소모 금지). 호출은 `initialize`와 billing뿐, 끝나면 항상 프로세스 종료. 서버→클라이언트 요청(권한·파일)은 거부 응답. `initialize`는 확장 메서드 목록을 광고하지 않는다(실측) |
+| 금지 | `/billing` HTTP 직접 호출, `auth.json` 읽기, OIDC refresh 직접 수행, Orca 값, `x.ai/auth/*`(check_subscription 포함, 부작용 미확인) |
+| 미결 | 로그인된 계정의 `_x.ai/billing` 응답 형태·`subscriptionTier` 존재, `grok login --device-auth` 실제 출력(호스트·코드 형식·stdin 대기), 만료 토큰 자동 갱신 여부, 다중 GROK_HOME 동시 실행(T4) |
 
 ---
 

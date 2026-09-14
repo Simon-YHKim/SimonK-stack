@@ -36,6 +36,11 @@ export interface ProviderIdentity {
  */
 export interface ProviderAdapter {
   readonly id: ProviderId;
+  /**
+   * Hosts (and their subdomains) whose login URLs `shell:open-external` may open
+   * for this provider. Empty means no login URL is ever opened.
+   */
+  readonly loginUrlHosts: readonly string[];
   detectCli(signal?: AbortSignal): Promise<CliInfo>;
   /** Creates `account.profileDir` (and provider-specific scaffolding) if missing. Idempotent. */
   ensureProfileDir(account: Account): Promise<void>;
@@ -47,6 +52,11 @@ export interface ProviderAdapter {
   startLogin(account: Account, emit: (event: LoginEvent) => void, signal: AbortSignal): Promise<void>;
   /** Forwards a pasted code to the running login (providers with paste flows only). */
   submitPaste?(account: Account, text: string): Promise<void>;
+  /**
+   * `loggedIn:false` only for a confirmed signed-out profile. When the state
+   * cannot be determined (timeout, missing CLI, network) reject with
+   * `ProviderError(code)`; the shell shows loginState 'unknown', not 'logged-out'.
+   */
   getIdentity(account: Account, signal: AbortSignal): Promise<ProviderIdentity>;
   fetchUsage(account: Account, signal: AbortSignal): Promise<UsageSnapshot>;
   /** Deletes the widget-owned profile dir of this account. Must refuse paths outside the profiles root. */

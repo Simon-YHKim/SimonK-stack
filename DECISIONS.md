@@ -30,3 +30,17 @@
 26.09.15 03:12 · (Claude 결정) 설정 기본값 openAtLogin=false, language=auto(OS 로케일 ko* → ko, 그 외 en), 가짜 수치 관련 v1 설정 키·i18n 키 삭제 · V1-14(동의 없는 자동 실행), 비한국어 로케일에 한국어 기본은 부자연스러움, 가짜 수치 금지 · 사용자가 기본값 변경 요청
 26.09.15 03:12 · (Claude 결정) 계약 파일(src/shared/**, src/main/cli/**, src/main/log.ts, src/main/paths.ts, src/main/providers/{types,registry,placeholder}.ts, 빌드·린트·테스트 설정)은 병렬 모듈이 수정하지 않고 보고서로 변경을 요청한다. 모듈 소유권은 docs/DESIGN.md §13 · 병렬 작업 충돌 방지 · 통합 단계에서 재배정
 26.09.15 03:12 · (Claude 결정) 배포 exe 이름 `ai-usage-widget.exe`, appId `local.aiusagewidget`, userData `%APPDATA%\AIUsageWidgetV2` · v1(`AI Usage Widget.exe`, `ai-usage-taskbar-widget`)과 프로세스·데이터를 구분해 v1을 건드리지 않음 · v1 제거 후 이름 정리를 원하면
+26.09.15 04:06 · (Claude 결정, 셸) 시작 시 자동 실행은 레지스트리 상태가 이기고 설정에 복사만 한다. 사용자 모르게 다시 등록하지 않는다 · 작업 관리자에서 끈 사용자의 선택을 존중(V1-14·31) · 사용자가 설정값 우선을 요청
+26.09.15 04:06 · (Claude 결정, 셸) 좌/우 또는 자동 숨김 작업 표시줄에서는 docked 대신 floating으로 폴백(effectiveMode) · Win11 좌우 작업 표시줄·자동 숨김에서 오버레이 위치가 정의되지 않음 · T8에서 docked 배치가 안정적이면
+26.09.15 04:06 · (Claude 결정, 셸) 전체화면 = 위젯 모니터 전체를 덮는 전경 창. 셸 클래스·자기 창·캡션 있는 최대화 창 제외 · 최대화 창 오판 방지(V1-18) · T8에서 UWP·게임 오판이 나오면
+26.09.15 04:06 · (Claude 결정, 셸) 팝업 blur 숨김 120ms, 재열기 가드 400ms, 숨기면 항상 잠금 해제 · 위젯 클릭이 blur를 일으켜 깜빡이는 문제 방지(V1-09) · 실측에서 깜빡이면 수치 조정
+26.09.15 04:06 · (Claude 결정, 셸) 조회 1회(getIdentity+fetchUsage 한 슬롯) 타임아웃 45초, 배터리 사용 중 주기 2배, 절전 복귀 3초 뒤 재조회, 계정 최대 24개 · 공급자당 CLI 프로세스 1개 유지, DESIGN §7 30초는 identity+usage 연속 실행에 부족 · 공급자 실측 시간이 나오면 조정
+26.09.15 04:06 · (Claude 결정, 셸) koffi는 동적 import로 지연 로드하고 구조체는 익명. 실패하면 최상위 유지·전체화면 감지만 끈다 · DECISIONS 02:23 koffi 폴백 원칙 · T8 패키징에서 koffi 실패 시 재결정
+26.09.15 04:06 · (Claude 결정, Claude 공급자) 브리지 실행기 = node(없으면 PowerShell 5.1), 스크립트는 bridgeRoot\claude\bin 고정 복사본 · 기동 260ms vs 850ms 실측, runAsNode off라 위젯 exe 불가 · node 미설치 사용자가 다수이거나 Claude Code가 statusLine 실행 셸을 바꾸면
+26.09.15 04:06 · (Claude 결정, 통합) ProviderAdapter에 필수 `loginUrlHosts` 추가(claude claude.com·claude.ai, codex openai.com, grok x.ai·grok.com). 빈 배열이면 로그인 URL을 열지 않는다 · shell:open-external이 세션 방출 URL + 공급자 소유 호스트를 모두 확인하도록. codex 호스트는 문서 예시(auth.openai.com) 기준 · T1·T4에서 실제 인증 페이지 호스트가 다르면 목록 수정
+26.09.15 04:06 · (Claude 결정, 통합) 이벤트 `popup:show {tab}` 추가(main→팝업), ErrorCode `cli-unsupported-install` 추가, i18n 키 trayAccounts·copy·copied·bridgeSelectTarget·bridgeInstallNote·widgetTooltipWeeklyOnly·error_cliUnsupportedInstall 추가 · 모듈 계약 변경 요청 중 근거가 분명하고 호출처가 준비된 것 · 없음
+26.09.15 04:06 · (Claude 결정, 통합) getIdentity가 판단 불가면 ProviderError로 reject하고 셸은 loginState 'unknown'으로 표시(logged-out 아님). ProviderIdentity에 errorCode 필드는 추가하지 않는다 · 셸이 이미 그렇게 처리하고 codex·grok이 이 규칙으로 구현됨. 계약은 JSDoc·DESIGN §5-6에 명시 · UI에 판단 실패 사유를 보여 줘야 하면 필드 추가
+26.09.15 04:06 · (Claude 결정, 통합) floating 선택 시 showCardBackground 강제 켜기(v1)는 이식하지 않는다 · applySettingsPatch는 병합만(숨은 강제 규칙 없음, DESIGN §5-2) · 사용자가 v1 동작을 원하면
+26.09.15 04:06 · (Claude 결정, 통합) 보류: UsageSnapshot의 credits/blocked(codex)·overageAvailable(grok) 필드는 T1·T4 실측 전 추가하지 않는다. LongLivedProcess.onStdoutChunk는 T2 뒤 결정 · 응답 형태가 추정이고 표시 UI 결정이 없음. claude 로그인은 현 CLI에서 동작 · 실측에서 필드·출력 형태가 확인되면
+26.09.15 04:06 · (Claude 결정, 통합) 거절: fetchUsage retry-after 힌트 계약(어느 CLI 경로도 값을 주지 않고 스케줄러가 rate-limited에 최소 5분 적용), ErrorCode 'grok-acp-billing-missing'(quota-unavailable과 의미 중복, 공급자 중립 코드 유지) · 근거 없는 계약 확장 방지 · 공급자가 retry-after 값을 노출하거나 billing 부재와 한도 미제공을 UI에서 구분해야 하면
+26.09.15 04:06 · (Claude 결정, 통합) 브리지 스크립트 resources/claude-bridge/*.cjs를 ESLint 대상에 포함(js recommended + node globals, `_` 접두 catch 변수 허용) · 기존 설정은 resources/**를 통째로 무시해 lint 미적용 · 없음

@@ -44,11 +44,19 @@ describe('provider registry', () => {
   });
 
   it('placeholders report not-implemented without fabricated values', async () => {
-    const registry = createProviderRegistry(deps);
-    const snapshot = await registry.get('codex').fetchUsage(account, new AbortController().signal);
+    const placeholder = createPlaceholderAdapter('codex', 'codex-app-server');
+    const snapshot = await placeholder.fetchUsage(account, new AbortController().signal);
     expect(snapshot).toMatchObject({ state: 'unavailable', errorCode: 'not-implemented', windows: [], measuredAt: null });
     const events: unknown[] = [];
-    await registry.get('codex').startLogin(account, (event) => events.push(event), new AbortController().signal);
+    await placeholder.startLogin(account, (event) => events.push(event), new AbortController().signal);
     expect(events).toEqual([{ type: 'error', code: 'not-implemented' }]);
+    expect(placeholder.loginUrlHosts).toEqual([]);
+  });
+
+  it('real adapters declare the login hosts they may open', () => {
+    const registry = createProviderRegistry(deps);
+    expect(registry.get('claude').loginUrlHosts).toEqual(['claude.com', 'claude.ai']);
+    expect(registry.get('codex').loginUrlHosts).toEqual(['openai.com']);
+    expect(registry.get('grok').loginUrlHosts).toEqual(['x.ai', 'grok.com']);
   });
 });

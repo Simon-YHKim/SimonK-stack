@@ -380,7 +380,7 @@ class BridgeSection {
     this.targetSelect.replaceChildren(...options);
     if (this.accounts.some((a) => a.id === previous)) this.targetSelect.value = previous;
     this.targetSelect.hidden = this.accounts.length < 2 || installed;
-    setAttr(this.targetSelect, 'aria-label', t('accountLabelLabel'));
+    setAttr(this.targetSelect, 'aria-label', t('bridgeSelectTarget'));
 
     setText(this.installButton, t('bridgeInstallDefault'));
     setText(this.uninstallButton, t('bridgeUninstallDefault'));
@@ -388,7 +388,7 @@ class BridgeSection {
     this.installButton.disabled = this.busy || this.accounts.length === 0;
     this.uninstallButton.hidden = !installed;
     this.uninstallButton.disabled = this.busy;
-    setText(this.confirmText, t('bridgeConfirmInstall'));
+    setText(this.confirmText, `${t('bridgeConfirmInstall')} ${t('bridgeInstallNote')}`);
     setText(this.confirmButton, t('bridgeInstallDefault'));
     setText(this.confirmCancel, t('cancel'));
   }

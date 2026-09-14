@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { en } from '../../../shared/i18n/en';
 import type { AppStateSnapshot, LoginEvent } from '../../../shared/types';
 import { FakeApi, NOW, account, appState, flush, quotaWindow, usage } from '../testing/fixtures';
 import { isValidPaste } from './login-panel';
@@ -41,6 +42,14 @@ describe('PopupApp shell', () => {
     const { api } = setup(appState());
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     expect(api.callsTo('window:hide-popup').length).toBeGreaterThan(0);
+  });
+
+  it('popup:show from main selects the requested tab; null keeps the current one', () => {
+    const { api, app } = setup(appState({ accounts: [account({ id: 'a1' })] }));
+    api.emit('popup:show', { tab: 'accounts' });
+    expect(app.getActiveTab()).toBe('accounts');
+    api.emit('popup:show', { tab: null });
+    expect(app.getActiveTab()).toBe('accounts');
   });
 
   it('tabs follow the ARIA tab pattern with arrow keys', () => {
@@ -94,7 +103,7 @@ describe('Usage tab', () => {
     const [unavailable, loading] = [...root.querySelectorAll('.usage-card')];
     expect(unavailable?.querySelector('.quota-box')).toBeNull();
     expect(unavailable?.textContent).not.toMatch(/\d+%/);
-    expect(unavailable?.querySelector('.card-reason')?.textContent).toBe('Error: No bridge record yet');
+    expect(unavailable?.querySelector('.card-reason')?.textContent).toBe(`Error: ${en.error_bridgeNoData}`);
     expect(loading?.getAttribute('data-state')).toBe('loading');
     expect(loading?.textContent).not.toMatch(/\d+%/);
     expect(loading?.querySelector('.card-measured')?.textContent).toBe('Not measured yet');
@@ -165,7 +174,8 @@ describe('Accounts tab', () => {
     const panel = section.el.querySelector<HTMLElement>('.login-panel[data-account-id="new1"]');
     expect(panel?.hidden).toBe(false);
     expect(panel?.querySelector('.login-code')?.textContent).toBe('WXYZ-9876');
-    expect(panel?.querySelector('.login-copy')?.getAttribute('aria-label')).toBe('Code: WXYZ-9876');
+    expect(panel?.querySelector('.login-copy')?.getAttribute('aria-label')).toBe('Copy');
+    expect(panel?.querySelector('.login-code')?.getAttribute('aria-label')).toBe('Code: WXYZ-9876');
     expect(panel?.querySelector('.login-paste-form')?.hasAttribute('hidden')).toBe(true);
     panel?.querySelector<HTMLButtonElement>('.login-open')?.click();
     expect(api.callsTo('shell:open-external')).toEqual([

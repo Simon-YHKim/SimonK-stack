@@ -256,7 +256,8 @@ export function itemTooltip(view: AccountView, ctx: RenderContext): string {
         wr: b.countdown,
       });
     } else if (valueRow(a) && b === undefined) {
-      main = t('widgetTooltipNoWeekly', { name, p: Math.round(a.shownPercent), unit, pr: a.countdown });
+      const key: MessageKey = a.kind === 'weekly' ? 'widgetTooltipWeeklyOnly' : 'widgetTooltipNoWeekly';
+      main = t(key, { name, p: Math.round(a.shownPercent), unit, pr: a.countdown });
     } else {
       main = [name, ...view.rows.map((row) => `${windowTitle(t, row)}: ${rowValueText(t, row, unitKey)}`)].join(
         ' | ',

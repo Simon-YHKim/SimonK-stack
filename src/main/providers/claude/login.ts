@@ -22,6 +22,9 @@ const ALLOWED_LOGIN_URLS: ReadonlyArray<{ host: string; path: string }> = [
   { host: 'claude.ai', path: '/oauth/authorize' },
 ];
 
+/** Hosts the shell may open for Claude login (the exact paths are enforced above). */
+export const CLAUDE_LOGIN_URL_HOSTS: readonly string[] = ALLOWED_LOGIN_URLS.map((allowed) => allowed.host);
+
 export function isAllowedClaudeLoginUrl(value: string): boolean {
   if (value.length === 0 || value.length > URL_MAX_LENGTH) return false;
   let url: URL;

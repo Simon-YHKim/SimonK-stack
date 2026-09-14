@@ -3,6 +3,16 @@
 
 ## Latest
 - **목적**: v1 위젯을 소스 프로젝트로 재구성. 위젯 새로고침 버튼, Grok 구독 한도, 공식 CLI 로그인 위임 기반 다중 계정, Windows 테마, v1 문제 전부 해결
+- **최종 갱신**: 26.09.15 04:10 KST · Claude Code(통합 에이전트)
+- **지금까지**: 모듈 5개(shell·codex·claude·grok·renderer) main 병합, 실제 어댑터 연결, 계약 변경 반영(DECISIONS 04:06). `pnpm verify` 0 / `pnpm build` 0 / `pnpm dist:dir` 0 / 배포본 스모크 0(ok:true). 퓨즈 확인. 워크트리·병합 브랜치 정리
+- **다음 1개**: 사용자 참관 실측 T1(Codex 로그인) — 위젯 계정 탭에서 Codex 계정 추가 → device code 로그인
+- **막힌 것**: CLI 설치 안내 URL 미확정(`src/main/platform/links.ts` 비어 있음)
+- **TODO**: T1·T2·T3·T4 로그인·수치 실측 → 결과로 codex 오류 판정·grok billing 파서·claude needs-paste 조정 → T8 GUI 실측(팝업 blur, SetWindowPos topmost, 전체화면, 재질 #48031, 테마 이벤트, 배포본 자동 시작 Run 값 'AIUsageWidgetV2') → 기본 프로필 브리지 대상 계정 삭제 시 확인 UI → NSIS 설치(사용자 확인) → v1 교체(사용자 확인)
+- **미해결 질문**: 보류한 계약 필드(codex credits/blocked, grok overageAvailable, `onStdoutChunk`)를 실측 후 추가할지
+- **요청**: REQ-260915-01 실측 단계에서 브라우저 로그인·코드 입력(사용자)
+
+## 26.09.15 02:23 KST
+- **목적**: v1 위젯을 소스 프로젝트로 재구성. 위젯 새로고침 버튼, Grok 구독 한도, 공식 CLI 로그인 위임 기반 다중 계정, Windows 테마, v1 문제 전부 해결
 - **최종 갱신**: 26.09.15 02:23 KST · Claude Code
 - **지금까지**: 조사 완료(docs/RESEARCH-auth-quota.md), v1 명세(docs/SPEC-v1-baseline.md), 서비스별 방식 확정 — Claude=statusline 브리지, Codex=app-server, Grok=grok ACP만, Gemini 제거, Antigravity 보류, Orca 미사용(DECISIONS 02:23)
 - **다음 1개**: 뼈대 구현 워크플로 실행

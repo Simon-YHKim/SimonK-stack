@@ -63,6 +63,7 @@ export const EVENTS = {
   stateChanged: 'state:changed',
   themeChanged: 'theme:changed',
   loginEvent: 'login:event',
+  popupShow: 'popup:show',
 } as const;
 export type EventChannel = (typeof EVENTS)[keyof typeof EVENTS];
 export const EVENT_CHANNELS: readonly EventChannel[] = Object.values(EVENTS);
@@ -192,6 +193,12 @@ export interface EventContract {
   'state:changed': AppStateSnapshot;
   'theme:changed': ThemeTokens;
   'login:event': LoginEventMessage;
+  /** Sent to the popup when main shows it; `tab` null keeps the current tab. */
+  'popup:show': PopupShowEvent;
+}
+
+export interface PopupShowEvent {
+  tab: PopupTab | null;
 }
 
 export const IPC_ERROR_CODES = [
