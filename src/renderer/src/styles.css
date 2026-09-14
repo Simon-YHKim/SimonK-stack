@@ -1,92 +1,115 @@
-:root {
-  color-scheme: light dark;
-  --accent: #0078d4;
-  --bg: #f3f3f3;
-  --fg: #1b1b1b;
-  --muted: #5d5d5d;
-  --border: rgba(0, 0, 0, 0.12);
-  font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
-  font-size: 12px;
-}
+/* Base rules shared by the widget and popup views. No external fonts or network assets. */
 
-:root[data-scheme='dark'] {
-  --bg: #202020;
-  --fg: #f3f3f3;
-  --muted: #b3b3b3;
-  --border: rgba(255, 255, 255, 0.14);
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 html,
 body {
   margin: 0;
+  padding: 0;
   height: 100%;
-  color: var(--fg);
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.3;
   background: transparent;
 }
 
-:root[data-view='popup'] body {
-  background: var(--bg);
+[hidden] {
+  display: none !important;
 }
 
-#app {
-  height: 100vh;
-  display: flex;
-  align-items: center;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-.widget-empty {
+button,
+input,
+select {
   font: inherit;
-  color: var(--fg);
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 4px 10px;
+  color: inherit;
+}
+
+button {
   cursor: pointer;
 }
 
-.widget-accounts,
-.popup-accounts {
-  list-style: none;
-  margin: 0;
-  padding: 0 8px;
-  display: flex;
-  gap: 8px;
+button:disabled,
+button[aria-disabled='true'] {
+  cursor: default;
 }
 
-.popup {
-  align-self: stretch;
+.ai-brand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+.ai-brand-icon > img,
+.ai-brand-icon > svg {
+  display: block;
   width: 100%;
-  padding: 16px;
-  box-sizing: border-box;
+  height: 100%;
+  object-fit: contain;
 }
 
-.popup-title {
-  font-size: 14px;
-  font-weight: 600;
-  margin: 0 0 12px;
+.ai-brand-icon.is-color[data-provider='claude'] {
+  color: #d97757;
 }
 
-.popup-accounts {
-  flex-direction: column;
+.ai-brand-icon.is-color[data-provider='codex'] {
+  color: #6366f1;
 }
 
-.muted {
-  color: var(--muted);
+.ai-brand-icon.is-color[data-provider='grok'] {
+  color: #d4d4d8;
 }
 
-button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+.ai-brand-icon.is-mono {
+  color: #9ca3af;
 }
 
-@media (forced-colors: active) {
-  .widget-empty {
-    border-color: ButtonText;
+.ai-brand-icon.is-mono > img {
+  filter: grayscale(100%) brightness(1.25) contrast(1.1);
+  opacity: 0.88;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *,
+  *::before,
+  *::after {
     animation: none !important;
     transition: none !important;
   }
