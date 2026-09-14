@@ -1,0 +1,93 @@
+:root {
+  color-scheme: light dark;
+  --accent: #0078d4;
+  --bg: #f3f3f3;
+  --fg: #1b1b1b;
+  --muted: #5d5d5d;
+  --border: rgba(0, 0, 0, 0.12);
+  font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  font-size: 12px;
+}
+
+:root[data-scheme='dark'] {
+  --bg: #202020;
+  --fg: #f3f3f3;
+  --muted: #b3b3b3;
+  --border: rgba(255, 255, 255, 0.14);
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  color: var(--fg);
+  background: transparent;
+}
+
+:root[data-view='popup'] body {
+  background: var(--bg);
+}
+
+#app {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+.widget-empty {
+  font: inherit;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.widget-accounts,
+.popup-accounts {
+  list-style: none;
+  margin: 0;
+  padding: 0 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.popup {
+  align-self: stretch;
+  width: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.popup-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.popup-accounts {
+  flex-direction: column;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (forced-colors: active) {
+  .widget-empty {
+    border-color: ButtonText;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

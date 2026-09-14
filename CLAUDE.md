@@ -6,6 +6,7 @@
 3. `STATE.md`
 4. `docs/HANDOFF.md`
 - 서비스 조회 코드(`src/main/providers/*`)를 건드리기 전에 `docs/SPEC-v1-baseline.md`의 "v1 문제 목록"과 `docs/RESEARCH-auth-quota.md`를 읽는다.
+- `src/` 아래 코드를 건드리기 전에 `docs/DESIGN.md`(계약·소유권 맵)를 읽는다. 계약 파일은 소유 모듈 밖에서 고치지 않는다.
 
 ## 무엇인가
 Windows 작업표시줄 옆에 뜨는 AI 구독 사용량 위젯. v1(C:\AI.Usage.Widget-1.0.2-win, 소스 없음)을 재구성한 v2.
@@ -24,4 +25,5 @@ Windows 작업표시줄 옆에 뜨는 AI 구독 사용량 위젯. v1(C:\AI.Usage
 - 설정 파일은 BOM 없는 UTF-8
 
 ## 검증 게이트
-- 단일 명령 `pnpm verify` (typecheck + lint + test)의 종료코드로 판정한다. (스캐폴딩 시 정의)
+- 단일 명령 `pnpm verify` (typecheck + lint + test)의 종료코드로 판정한다. 빌드는 `pnpm build`.
+- 스모크: `pnpm build` 후 `node_modules\electron\dist\electron.exe . --smoke --smoke-out=<json> --user-data-dir=<임시 폴더>` (스스로 종료, 실제 userData 미사용).
