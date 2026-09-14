@@ -1,8 +1,15 @@
-import { BrowserWindow, screen, type WebPreferences } from 'electron';
+import { BrowserWindow, type WebPreferences } from 'electron';
+import type { Material } from '../../shared/settings';
+import type { ThemeTokens } from '../../shared/types';
+import { opaqueBackground } from '../platform/theme-core';
+import type { Rect } from './placement';
 
 export interface WindowFactoryOptions {
   preloadPath: string;
   devTools: boolean;
+  /** User setting; a material window cannot use the transparent flag. */
+  material: Material;
+  theme: ThemeTokens;
 }
 
 function webPreferences(options: WindowFactoryOptions): WebPreferences {
@@ -19,19 +26,21 @@ function webPreferences(options: WindowFactoryOptions): WebPreferences {
 }
 
 export const WIDGET_INITIAL_SIZE = { width: 240, height: 40 } as const;
+/** SPEC §4-2. */
 export const POPUP_SIZE = { width: 380, height: 440 } as const;
+export const WINDOW_TITLE = 'AI Usage Widget';
 
-/** Frameless widget bar. Placement against the taskbar is refined by the shell module. */
-export function createWidgetWindow(options: WindowFactoryOptions & { show: boolean }): BrowserWindow {
-  const { workArea } = screen.getPrimaryDisplay();
-  const { width, height } = WIDGET_INITIAL_SIZE;
-  const win = new BrowserWindow({
-    x: workArea.x + workArea.width - width - 20,
-    y: workArea.y + workArea.height - height - 4,
-    width,
-    height,
+function surface(options: WindowFactoryOptions, scheme: ThemeTokens['scheme']) {
+  if (options.material === 'none') return { transparent: true, backgroundColor: '#00000000' } as const;
+  return { transparent: false, thickFrame: false, backgroundColor: opaqueBackground(scheme) } as const;
+}
+
+/** Frameless, not in the taskbar, never activated on show. */
+export function createWidgetWindow(options: WindowFactoryOptions & { bounds: Rect }): BrowserWindow {
+  return new BrowserWindow({
+    ...options.bounds,
+    ...surface(options, options.theme.taskbarScheme),
     frame: false,
-    transparent: true,
     resizable: false,
     maximizable: false,
     minimizable: false,
@@ -39,18 +48,18 @@ export function createWidgetWindow(options: WindowFactoryOptions & { show: boole
     skipTaskbar: true,
     alwaysOnTop: true,
     hasShadow: false,
+    focusable: true,
     show: false,
-    title: 'AI Usage Widget',
+    title: WINDOW_TITLE,
     webPreferences: webPreferences(options),
   });
-  if (options.show) win.once('ready-to-show', () => win.showInactive());
-  return win;
 }
 
 export function createPopupWindow(options: WindowFactoryOptions): BrowserWindow {
   return new BrowserWindow({
     width: POPUP_SIZE.width,
     height: POPUP_SIZE.height,
+    ...surface(options, options.theme.scheme),
     frame: false,
     resizable: false,
     maximizable: false,
@@ -59,7 +68,26 @@ export function createPopupWindow(options: WindowFactoryOptions): BrowserWindow 
     skipTaskbar: true,
     alwaysOnTop: true,
     show: false,
-    title: 'AI Usage Widget',
+    title: WINDOW_TITLE,
     webPreferences: webPreferences(options),
   });
+}
+
+/** Applies Mica/Acrylic only when requested and allowed (high contrast / reduced transparency force none). */
+export function applyMaterial(win: BrowserWindow, material: Material, theme: ThemeTokens, scheme: ThemeTokens['scheme']): void {
+  if (material === 'none' || win.isDestroyed()) return;
+  if (theme.effectiveMaterial !== 'none') {
+    win.setBackgroundMaterial(theme.effectiveMaterial);
+  } else {
+    win.setBackgroundMaterial('none');
+    win.setBackgroundColor(opaqueBackground(scheme));
+  }
+}
+
+export function hwndOf(win: BrowserWindow | null): bigint | null {
+  if (win === null || win.isDestroyed()) return null;
+  const handle = win.getNativeWindowHandle();
+  if (handle.length >= 8) return handle.readBigUInt64LE(0);
+  if (handle.length >= 4) return BigInt(handle.readUInt32LE(0));
+  return null;
 }

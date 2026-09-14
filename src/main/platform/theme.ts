@@ -1,7 +1,7 @@
 import { nativeTheme, systemPreferences } from 'electron';
 import type { Material } from '../../shared/settings';
 import type { ThemeTokens } from '../../shared/types';
-import { computeThemeTokens } from './theme-core';
+import { computeThemeTokens, type ThemeSource } from './theme-core';
 
 export function readThemeTokens(material: Material): ThemeTokens {
   let accentRaw: unknown = null;
@@ -19,3 +19,17 @@ export function readThemeTokens(material: Material): ThemeTokens {
     material,
   });
 }
+
+/** nativeTheme 'updated' + systemPreferences 'accent-color-changed' as re-read triggers. */
+export const systemThemeSource: ThemeSource = {
+  read: readThemeTokens,
+  subscribe(onSystemChange) {
+    const listener = (): void => onSystemChange();
+    nativeTheme.on('updated', listener);
+    systemPreferences.on('accent-color-changed', listener);
+    return () => {
+      nativeTheme.removeListener('updated', listener);
+      systemPreferences.removeListener('accent-color-changed', listener);
+    };
+  },
+};

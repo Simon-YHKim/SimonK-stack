@@ -14,10 +14,17 @@ export interface SmokeMeta {
   userDataIsolated: boolean;
 }
 
+export interface SmokeCheck {
+  /** null = informational only. */
+  ok: boolean | null;
+  value: unknown;
+}
+
 export interface SmokeReport extends SmokeMeta {
   ok: boolean;
   views: Record<ViewId, SmokeViewResult>;
   providers: string[];
+  checks: Record<string, SmokeCheck>;
   durationMs: number;
   errors: string[];
 }
@@ -25,6 +32,7 @@ export interface SmokeReport extends SmokeMeta {
 export class SmokeTracker {
   private readonly views: Record<ViewId, SmokeViewResult>;
   private readonly errors: string[] = [];
+  private readonly checks: Record<string, SmokeCheck> = {};
   private waiters: (() => void)[] = [];
 
   constructor(
@@ -54,6 +62,11 @@ export class SmokeTracker {
     if (this.errors.length < 50) this.errors.push(message);
   }
 
+  /** Records a named check; `ok: false` fails the report. Values must not contain secrets or paths. */
+  setCheck(name: string, value: unknown, ok: boolean | null = null): void {
+    this.checks[name] = { ok, value };
+  }
+
   allReady(): boolean {
     return VIEW_IDS.every((id) => this.views[id].ready);
   }
@@ -75,14 +88,19 @@ export class SmokeTracker {
 
   report(at: number, providers: readonly string[]): SmokeReport {
     const views = { widget: { ...this.views.widget }, popup: { ...this.views.popup } };
-    const ok = this.errors.length === 0 && VIEW_IDS.every((id) => views[id].ready && views[id].cspEnforced === true);
+    const failedChecks = Object.entries(this.checks)
+      .filter(([, check]) => check.ok === false)
+      .map(([name]) => `check failed: ${name}`);
+    const errors = [...this.errors, ...failedChecks];
+    const ok = errors.length === 0 && VIEW_IDS.every((id) => views[id].ready && views[id].cspEnforced === true);
     return {
       ok,
       ...this.meta,
       views,
       providers: [...providers],
+      checks: { ...this.checks },
       durationMs: at - this.startedAt,
-      errors: [...this.errors],
+      errors,
     };
   }
 }
