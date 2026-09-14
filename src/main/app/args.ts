@@ -3,14 +3,22 @@ export interface LaunchArgs {
   smoke: boolean;
   smokeOut: string | null;
   smokeTimeoutMs: number;
-  /** Started by autostart: keep windows hidden until needed (V1-14). */
+  /** Quiet start: show only the widget, never open the popup (V1-14). */
   hidden: boolean;
+  /** Started by the login item registration (`--autostart`). Implies `hidden`. */
+  autostart: boolean;
 }
 
 export const DEFAULT_SMOKE_TIMEOUT_MS = 30_000;
 
 export function parseLaunchArgs(argv: readonly string[]): LaunchArgs {
-  const result: LaunchArgs = { smoke: false, smokeOut: null, smokeTimeoutMs: DEFAULT_SMOKE_TIMEOUT_MS, hidden: false };
+  const result: LaunchArgs = {
+    smoke: false,
+    smokeOut: null,
+    smokeTimeoutMs: DEFAULT_SMOKE_TIMEOUT_MS,
+    hidden: false,
+    autostart: false,
+  };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === undefined) continue;
@@ -28,7 +36,10 @@ export function parseLaunchArgs(argv: readonly string[]): LaunchArgs {
     } else if (arg.startsWith('--smoke-timeout-ms=')) {
       const value = Number(arg.slice('--smoke-timeout-ms='.length));
       if (Number.isInteger(value) && value >= 1000 && value <= 120_000) result.smokeTimeoutMs = value;
-    } else if (arg === '--hidden' || arg === '--autostart') {
+    } else if (arg === '--autostart') {
+      result.autostart = true;
+      result.hidden = true;
+    } else if (arg === '--hidden') {
       result.hidden = true;
     }
   }

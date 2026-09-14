@@ -8,6 +8,7 @@ describe('parseLaunchArgs', () => {
       smokeOut: null,
       smokeTimeoutMs: DEFAULT_SMOKE_TIMEOUT_MS,
       hidden: false,
+      autostart: false,
     });
   });
 
@@ -21,9 +22,9 @@ describe('parseLaunchArgs', () => {
     expect(parseLaunchArgs(['x', '--smoke-out', '--smoke']).smokeOut).toBeNull();
   });
 
-  it('ignores out-of-range timeouts and recognizes autostart', () => {
+  it('ignores out-of-range timeouts and separates --autostart from --hidden', () => {
     expect(parseLaunchArgs(['x', '--smoke-timeout-ms=10']).smokeTimeoutMs).toBe(DEFAULT_SMOKE_TIMEOUT_MS);
-    expect(parseLaunchArgs(['x', '--autostart']).hidden).toBe(true);
-    expect(parseLaunchArgs(['x', '--hidden']).hidden).toBe(true);
+    expect(parseLaunchArgs(['x', '--autostart'])).toMatchObject({ hidden: true, autostart: true });
+    expect(parseLaunchArgs(['x', '--hidden'])).toMatchObject({ hidden: true, autostart: false });
   });
 });

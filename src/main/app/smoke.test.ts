@@ -32,4 +32,20 @@ describe('SmokeTracker', () => {
     await expect(timeout.waitForAll(20)).resolves.toBe(false);
     expect(timeout.report(30, []).errors[0]).toContain('timeout');
   });
+
+  it('includes named checks; only explicit failures fail the report', () => {
+    const tracker = new SmokeTracker(0, META);
+    tracker.markReady({ view: 'widget', rendered: 'empty', cspEnforced: true }, 1);
+    tracker.markReady({ view: 'popup', rendered: 'empty', cspEnforced: true }, 1);
+    tracker.setCheck('koffi', { loaded: false }, null);
+    tracker.setCheck('ipc', { missing: [] }, true);
+    const passing = tracker.report(2, []);
+    expect(passing.ok).toBe(true);
+    expect(passing.checks.koffi).toEqual({ ok: null, value: { loaded: false } });
+
+    tracker.setCheck('cspHeader', { matchesProductionPolicy: false }, false);
+    const failing = tracker.report(3, []);
+    expect(failing.ok).toBe(false);
+    expect(failing.errors).toContain('check failed: cspHeader');
+  });
 });
