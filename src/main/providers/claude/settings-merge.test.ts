@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   applyBridgeStatusLine,
+  bridgeKeyInCommand,
   hasBridgeStatusLine,
   parsePreviousStatusLine,
   parseSettingsJson,
@@ -113,6 +114,18 @@ describe('removeBridgeStatusLine', () => {
   it('leaves a statusLine the bridge no longer owns alone', () => {
     const data = { statusLine: { type: 'command', command: 'my-own' } };
     expect(removeBridgeStatusLine(data, { present: false })).toEqual({ changed: false, data, reason: 'not-installed' });
+  });
+});
+
+describe('bridgeKeyInCommand', () => {
+  it('reads the key of node and PowerShell bridge commands only', () => {
+    expect(bridgeKeyInCommand(BRIDGE)).toBe('0123456789abcdef');
+    expect(
+      bridgeKeyInCommand("powershell -NoProfile -File 'C:/x/bin/aiuw-claude-bridge.ps1' -Key fedcba9876543210 -Out 'C:/x'"),
+    ).toBe('fedcba9876543210');
+    expect(bridgeKeyInCommand('my-statusline --key 0123456789abcdef')).toBeNull();
+    expect(bridgeKeyInCommand("node 'C:/x/bin/aiuw-claude-bridge.cjs' --out 'C:/x'")).toBeNull();
+    expect(bridgeKeyInCommand(null)).toBeNull();
   });
 });
 

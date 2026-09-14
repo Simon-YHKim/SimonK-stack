@@ -17,5 +17,6 @@ export function createInitialSnapshot(input: InitialSnapshotInput): AppStateSnap
     refresh: { inFlight: false, accountIds: [], lastRunAt: null, nextRunAt: null },
     theme: input.theme,
     cli: { claude: { state: 'unknown' }, codex: { state: 'unknown' }, grok: { state: 'unknown' } },
+    effectivePlacementMode: null,
   };
 }

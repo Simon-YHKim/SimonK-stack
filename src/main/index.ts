@@ -121,6 +121,8 @@ async function start(args: LaunchArgs, isolated: boolean, devServerUrl: string |
     logger: logger.child('autostart'),
   });
 
+  let controllerRef: AppController | null = null;
+  let initialMode: Parameters<AppController['setEffectivePlacementMode']>[0] = null;
   const windows = new WindowManager({
     preloadPath: path.join(__dirname, '../preload/index.js'),
     devTools: !app.isPackaged,
@@ -130,6 +132,10 @@ async function start(args: LaunchArgs, isolated: boolean, devServerUrl: string |
     native: native.ops,
     logger: logger.child('windows'),
     onLoadProblem: (view, message) => tracker?.addError(`${view}: ${message}`),
+    onEffectiveModeChange: (mode) => {
+      if (controllerRef === null) initialMode = mode;
+      else controllerRef.setEffectivePlacementMode(mode);
+    },
   });
 
   let tray: AppTray | null = null;
@@ -150,6 +156,8 @@ async function start(args: LaunchArgs, isolated: boolean, devServerUrl: string |
     },
     onSnapshot: (snapshot) => tray?.update(trayStateOf(snapshot, autostart.supported)),
   });
+  controllerRef = controller;
+  controller.setEffectivePlacementMode(initialMode);
   const unsubscribeTheme = theme.onChange((tokens) => controller.onThemeChanged(tokens));
 
   const handlers = createInvokeHandlers(controller);

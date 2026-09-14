@@ -1,5 +1,5 @@
 import { screen, type BrowserWindow, type Display } from 'electron';
-import type { EventChannel, EventContract, ResizeWidgetRequest } from '../../shared/ipc';
+import type { EventChannel, EventContract, PlacementPreview, ResizeWidgetRequest } from '../../shared/ipc';
 import type { Settings } from '../../shared/settings';
 import type { PopupTab, ThemeTokens, ViewId } from '../../shared/types';
 import type { WindowsPort } from '../app/controller';
@@ -29,6 +29,8 @@ export interface WindowManagerOptions {
   logger: Logger;
   onLoadProblem(view: ViewId, message: string): void;
   onWidgetVisibilityChange?(visible: boolean): void;
+  /** Placement actually in use changed (docked falls back to floating on side/auto-hide taskbars). */
+  onEffectiveModeChange?(mode: Settings['placementMode']): void;
 }
 
 export interface WindowSmokeInfo {
@@ -53,6 +55,9 @@ export class WindowManager implements WindowsPort {
   private fullscreenHidden = false;
   private closing = false;
   private placement: (WidgetPlacement & { taskbar: TaskbarInfo; display: Display }) | null = null;
+  private preview: PlacementPreview | null = null;
+  private reportedMode: Settings['placementMode'] | null = null;
+  private pendingPopupTab: PopupTab | null = null;
   private readonly popupState: PopupController;
   readonly zorder: ZOrderKeeper;
 
@@ -92,7 +97,7 @@ export class WindowManager implements WindowsPort {
     const popup = createPopupWindow(factory);
     this.widget = widget;
     this.popup = popup;
-    this.placement = initial;
+    this.setPlacement(initial);
     applyMaterial(widget, this.settings.material, this.theme, this.theme.taskbarScheme);
     applyMaterial(popup, this.settings.material, this.theme, this.theme.scheme);
     this.wire('widget', widget);
@@ -161,7 +166,15 @@ export class WindowManager implements WindowsPort {
     const display = this.targetDisplay(appBar);
     const geometry = { bounds: display.bounds, workArea: display.workArea };
     const taskbar = detectTaskbar(geometry, appBar);
-    return { ...computeWidgetBounds(this.settings, geometry, taskbar, this.widgetSize), taskbar, display };
+    const settings = this.preview === null ? this.settings : { ...this.settings, ...this.preview };
+    return { ...computeWidgetBounds(settings, geometry, taskbar, this.widgetSize), taskbar, display };
+  }
+
+  private setPlacement(next: WidgetPlacement & { taskbar: TaskbarInfo; display: Display }): void {
+    this.placement = next;
+    if (next.effectiveMode === this.reportedMode) return;
+    this.reportedMode = next.effectiveMode;
+    this.options.onEffectiveModeChange?.(next.effectiveMode);
   }
 
   /** Re-places the widget and an open popup (display changes, resize, settings; V1-27). */
@@ -169,7 +182,7 @@ export class WindowManager implements WindowsPort {
     const widget = this.widget;
     if (widget === null || widget.isDestroyed()) return;
     const next = this.computePlacement();
-    this.placement = next;
+    this.setPlacement(next);
     if (!sameRect(widget.getBounds(), next.bounds)) widget.setBounds(next.bounds);
     const popup = this.popup;
     if (popup !== null && !popup.isDestroyed() && popup.isVisible()) popup.setBounds(this.popupBounds(next));
@@ -196,6 +209,7 @@ export class WindowManager implements WindowsPort {
     const previous = this.settings;
     this.settings = { ...settings };
     this.theme = { ...theme };
+    this.preview = null;
     const transparencyChanged = (previous.material === 'none') !== (settings.material === 'none');
     if (transparencyChanged) {
       void this.recreate();
@@ -209,14 +223,22 @@ export class WindowManager implements WindowsPort {
   /** The transparent flag is fixed at creation, so switching to/from a material rebuilds both windows. */
   private async recreate(): Promise<void> {
     const wasShown = !this.userHidden;
+    // Material is chosen in the popup's settings tab; bring the user back there.
+    const popupWasVisible = this.popup !== null && !this.popup.isDestroyed() && this.popup.isVisible();
     this.destroyWindows();
     this.closing = false;
     await this.create();
     if (wasShown) this.showWidget();
+    if (popupWasVisible) this.showPopup('settings', true);
   }
 
   resizeWidget(size: ResizeWidgetRequest): void {
     this.widgetSize = { width: size.width, height: size.height };
+    this.reposition();
+  }
+
+  previewPlacement(patch: PlacementPreview | null): void {
+    this.preview = patch === null ? null : { ...patch };
     this.reposition();
   }
 
@@ -266,10 +288,9 @@ export class WindowManager implements WindowsPort {
   }
 
   showPopup(tab: PopupTab | null, focus: boolean): void {
+    this.pendingPopupTab = tab;
     this.popupState.show(focus);
-    if (tab !== null && this.popup !== null && !this.popup.isDestroyed()) {
-      sendEvent(this.popup.webContents, 'popup:show', { tab });
-    }
+    this.pendingPopupTab = null;
   }
 
   hidePopup(): void {
@@ -291,6 +312,9 @@ export class WindowManager implements WindowsPort {
     } else {
       popup.showInactive();
     }
+    // backgroundThrottling:false keeps the Page Visibility API at 'visible', so the
+    // renderer learns about every show from this event (entry animation, refreshes).
+    sendEvent(popup.webContents, 'popup:show', { tab: this.pendingPopupTab });
   }
 
   broadcast<E extends EventChannel>(channel: E, payload: EventContract[E]): void {

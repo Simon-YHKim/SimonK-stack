@@ -42,6 +42,26 @@ export function createClaudeAdapter(deps: ProviderDeps, overrides: ClaudeAdapter
   const run = overrides.run ?? runProcess;
   const login = createLoginManager({ logger, spawn: overrides.spawnLongLived ?? spawnLongLivedProcess });
   const claudeProfilesRoot = path.join(deps.profilesRoot, 'claude');
+  // CLI runs per account (cwd = profile dir); removeProfile waits for them so the folder can be deleted.
+  const active = new Map<string, Set<{ controller: AbortController; done: Promise<unknown> }>>();
+
+  const track = <T>(accountId: string, signal: AbortSignal, body: (signal: AbortSignal) => Promise<T>): Promise<T> => {
+    const controller = new AbortController();
+    const promise = body(AbortSignal.any([signal, controller.signal]));
+    const entry = { controller, done: promise.catch(() => undefined) };
+    let set = active.get(accountId);
+    if (set === undefined) {
+      set = new Set();
+      active.set(accountId, set);
+    }
+    set.add(entry);
+    const owner = set;
+    void entry.done.then(() => {
+      owner.delete(entry);
+      if (owner.size === 0 && active.get(accountId) === owner) active.delete(accountId);
+    });
+    return promise;
+  };
 
   // Node starts ~3x faster than Windows PowerShell 5.1 (measured 260 ms vs 850 ms); fuse runAsNode is off.
   const resolveRuntime = (): BridgeRuntime => {
@@ -78,24 +98,26 @@ export function createClaudeAdapter(deps: ProviderDeps, overrides: ClaudeAdapter
     assertProfile(account);
     const resolved = resolveClaude();
     if (!resolved.ok) throw new ProviderError(resolveFailureCode(resolved), 'claude CLI not found');
-    await mkdir(account.profileDir, { recursive: true });
-    let result;
-    try {
-      result = await run(resolved.command, ['auth', 'status', '--json'], {
-        env: claudeEnvPolicy(account.profileDir),
-        parentEnv: deps.env,
-        cwd: account.profileDir,
-        timeoutMs: CLAUDE_IDENTITY_TIMEOUT_MS,
-        signal,
-      });
-    } catch (error) {
-      throw new ProviderError(spawnFailureCode(error), 'auth status did not start', { cause: error });
-    }
-    if (result.aborted) throw new ProviderError('cancelled');
-    if (result.timedOut) throw new ProviderError('timeout');
-    const parsed = parseAuthStatus(result.stdout);
-    if (!parsed.ok) throw new ProviderError('parse-error', 'unexpected auth status output');
-    return parsed.identity;
+    return track(account.id, signal, async (opSignal) => {
+      await mkdir(account.profileDir, { recursive: true });
+      let result;
+      try {
+        result = await run(resolved.command, ['auth', 'status', '--json'], {
+          env: claudeEnvPolicy(account.profileDir),
+          parentEnv: deps.env,
+          cwd: account.profileDir,
+          timeoutMs: CLAUDE_IDENTITY_TIMEOUT_MS,
+          signal: opSignal,
+        });
+      } catch (error) {
+        throw new ProviderError(spawnFailureCode(error), 'auth status did not start', { cause: error });
+      }
+      if (result.aborted) throw new ProviderError('cancelled');
+      if (result.timedOut) throw new ProviderError('timeout');
+      const parsed = parseAuthStatus(result.stdout);
+      if (!parsed.ok) throw new ProviderError('parse-error', 'unexpected auth status output');
+      return parsed.identity;
+    });
   };
 
   const runVersion = async (command: ResolvedCommand, signal?: AbortSignal): Promise<CliInfo> => {
@@ -188,8 +210,12 @@ export function createClaudeAdapter(deps: ProviderDeps, overrides: ClaudeAdapter
       if (!isPathInside(claudeProfilesRoot, account.profileDir)) {
         throw new ProviderError('internal', 'refusing to delete outside the claude profiles root');
       }
+      const running = [...(active.get(account.id) ?? [])];
+      for (const operation of running) operation.controller.abort();
+      await Promise.all(running.map((operation) => operation.done));
       await login.cancel(account.id);
-      await rm(account.profileDir, { recursive: true, force: true });
+      // Windows can briefly keep the folder busy after a child exits (antivirus, handle release).
+      await rm(account.profileDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
       await bridge.removeAccountData(account);
     },
 

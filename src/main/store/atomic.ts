@@ -34,12 +34,9 @@ export async function writeFileAtomic(file: string, content: string, options: { 
     await handle.close();
   }
   try {
-    if (options.backup === true) {
-      try {
-        await copyFile(file, backupPathFor(file));
-      } catch (error) {
-        if (errorCode(error) !== 'ENOENT') throw error;
-      }
+    // A corrupt main file must never overwrite the last good backup.
+    if (options.backup === true && (await tryReadJson(file)).state === 'ok') {
+      await copyFile(file, backupPathFor(file));
     }
     for (let attempt = 1; ; attempt += 1) {
       try {

@@ -206,6 +206,25 @@ describe('scheduler', () => {
     scheduler.stop();
   });
 
+  it('keeps a single wake-up timer armed however often pump runs (CR-08)', async () => {
+    const accounts = [account('a'), account('b', 'grok')];
+    const { scheduler, calls } = harness(accounts);
+    scheduler.start();
+    await vi.advanceTimersByTimeAsync(0);
+    calls[0]!.resolve({ snapshot: snap(accounts[0]!, 'ok') });
+    await vi.advanceTimersByTimeAsync(0);
+    calls[1]!.resolve({ snapshot: snap(accounts[1]!, 'ok') });
+    await vi.advanceTimersByTimeAsync(0);
+    for (let i = 0; i < 5; i += 1) scheduler.sync();
+    // Both idle: exactly one wake-up timer, however many times pump ran.
+    expect(vi.getTimerCount()).toBe(1);
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(calls).toHaveLength(4);
+    // Both running: only their two fetch timeouts, no leftover wake-up.
+    expect(vi.getTimerCount()).toBe(2);
+    scheduler.stop();
+  });
+
   it('treats skipped fetches as neither result nor failure', async () => {
     const a = account('a');
     const { scheduler, calls, results } = harness([a]);

@@ -108,6 +108,26 @@ export function createGrokAdapter(deps: ProviderDeps, options: GrokAdapterOption
   const grokProfilesRoot = path.join(deps.profilesRoot, 'grok');
   const primedForUsage = new Map<string, Primed>();
   const primedForIdentity = new Map<string, Primed>();
+  // grok processes run with cwd and GROK_HOME in the profile dir; removeProfile waits for them.
+  const active = new Map<string, Set<{ controller: AbortController; done: Promise<unknown> }>>();
+
+  const track = <T>(accountId: string, signal: AbortSignal, body: (signal: AbortSignal) => Promise<T>): Promise<T> => {
+    const controller = new AbortController();
+    const promise = body(AbortSignal.any([signal, controller.signal]));
+    const entry = { controller, done: promise.catch(() => undefined) };
+    let set = active.get(accountId);
+    if (set === undefined) {
+      set = new Set();
+      active.set(accountId, set);
+    }
+    set.add(entry);
+    const owner = set;
+    void entry.done.then(() => {
+      owner.delete(entry);
+      if (owner.size === 0 && active.get(accountId) === owner) active.delete(accountId);
+    });
+    return promise;
+  };
 
   const resolveCli = (): GrokCliResolution =>
     options.resolveCli?.() ?? resolveGrokCli(deps.homeDir, options.resolveDeps ?? { ...defaultResolveDeps(), env: deps.env });
@@ -121,7 +141,10 @@ export function createGrokAdapter(deps: ProviderDeps, options: GrokAdapterOption
 
   const fail = (state: AcpFailure['state'], code: ErrorCode): ProbeResult => ({ kind: 'failed', failure: acpFailure(state, code) });
 
-  const probe = async (account: Account, signal: AbortSignal): Promise<ProbeResult> => {
+  const probe = (account: Account, signal: AbortSignal): Promise<ProbeResult> =>
+    track(account.id, signal, (opSignal) => probeOnce(account, opSignal));
+
+  const probeOnce = async (account: Account, signal: AbortSignal): Promise<ProbeResult> => {
     let dir: string;
     try {
       dir = profileDirOf(account);
@@ -234,102 +257,8 @@ export function createGrokAdapter(deps: ProviderDeps, options: GrokAdapterOption
       await mkdir(profileDirOf(account), { recursive: true });
     },
 
-    async startLogin(account, emit, signal) {
-      const send = (event: LoginEvent): void => {
-        try {
-          emit(event);
-        } catch (error) {
-          logger.warn('login event listener threw', error);
-        }
-      };
-      let proc: LongLivedProcess | undefined;
-      try {
-        const dir = profileDirOf(account);
-        await mkdir(dir, { recursive: true });
-        send({ type: 'progress', stage: 'starting' });
-        const cli = resolveCli();
-        if (!cli.ok) {
-          send({ type: 'error', code: cli.code });
-          return;
-        }
-        if (signal.aborted) {
-          send({ type: 'error', code: 'cancelled' });
-          return;
-        }
-        try {
-          proc = await spawnLongLived(cli.command, ['login', '--device-auth'], {
-            env: grokEnvPolicy(dir),
-            parentEnv: deps.env,
-            cwd: dir,
-            timeoutMs: timeouts.loginMs,
-            signal,
-          });
-        } catch (error) {
-          const code: ErrorCode = signal.aborted
-            ? 'cancelled'
-            : error instanceof SpawnError && error.code === 'cli-not-found'
-              ? 'cli-not-found'
-              : 'spawn-failed';
-          send({ type: 'error', code });
-          return;
-        }
-
-        const parser = createDeviceAuthParser(deps.now);
-        // Kept in memory only to classify a failure; never logged (may contain URLs or codes).
-        const tail: string[] = [];
-        const onLine = (raw: string): void => {
-          const line = stripAnsi(raw);
-          tail.push(line);
-          if (tail.length > LOGIN_TAIL_LINES) tail.shift();
-          const prompt = parser.push(line);
-          if (prompt === null) return;
-          logger.info('grok device code received', { accountId: account.id });
-          const event: LoginEvent = { type: 'device-code', userCode: prompt.userCode, verificationUrl: prompt.verificationUrl };
-          if (prompt.expiresAt !== undefined) event.expiresAt = prompt.expiresAt;
-          send(event);
-          send({ type: 'progress', stage: 'waiting-device-code' });
-        };
-        const offStdout = proc.onStdoutLine(onLine);
-        const offStderr = proc.onStderrLine(onLine);
-        const exit = await proc.exited;
-        offStdout();
-        offStderr();
-
-        if (exit.aborted || signal.aborted) {
-          send({ type: 'error', code: 'cancelled' });
-          return;
-        }
-        if (exit.timedOut) {
-          send({ type: 'error', code: 'timeout' });
-          return;
-        }
-        if (exit.exitCode !== 0) {
-          const code = classifyLoginFailure(tail.join('\n'));
-          logger.info('grok login exited with failure', { accountId: account.id, exitCode: exit.exitCode, code });
-          send({ type: 'error', code });
-          return;
-        }
-
-        send({ type: 'progress', stage: 'verifying' });
-        const result = await probe(account, signal);
-        prime(primedForUsage, account.id, result);
-        if (result.kind === 'ok') {
-          const success: LoginEvent = { type: 'success' };
-          if (result.billing.plan !== undefined) success.plan = result.billing.plan;
-          send(success);
-        } else if (result.failure.code === 'cancelled') {
-          send({ type: 'error', code: 'cancelled' });
-        } else if (result.failure.state === 'logged-out') {
-          send({ type: 'error', code: 'login-failed' });
-        } else {
-          // The CLI reported success; a billing problem must not turn that into a login failure.
-          send({ type: 'success' });
-        }
-      } catch (error) {
-        logger.error('grok login failed unexpectedly', { accountId: account.id, error });
-        if (proc !== undefined) await proc.kill();
-        send({ type: 'error', code: 'internal' });
-      }
+    startLogin(account, emit, signal) {
+      return track(account.id, signal, (opSignal) => runLogin(account, emit, opSignal));
     },
 
     async getIdentity(account, signal) {
@@ -348,8 +277,110 @@ export function createGrokAdapter(deps: ProviderDeps, options: GrokAdapterOption
       const dir = profileDirOf(account);
       primedForUsage.delete(account.id);
       primedForIdentity.delete(account.id);
-      await rm(dir, { recursive: true, force: true, maxRetries: 3, retryDelay: 200 });
+      const running = [...(active.get(account.id) ?? [])];
+      for (const operation of running) operation.controller.abort();
+      await Promise.all(running.map((operation) => operation.done));
+      await rm(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
     },
   };
+
+  async function runLogin(account: Account, emit: (event: LoginEvent) => void, signal: AbortSignal): Promise<void> {
+    const send = (event: LoginEvent): void => {
+      try {
+        emit(event);
+      } catch (error) {
+        logger.warn('login event listener threw', error);
+      }
+    };
+    let proc: LongLivedProcess | undefined;
+    try {
+      const dir = profileDirOf(account);
+      await mkdir(dir, { recursive: true });
+      send({ type: 'progress', stage: 'starting' });
+      const cli = resolveCli();
+      if (!cli.ok) {
+        send({ type: 'error', code: cli.code });
+        return;
+      }
+      if (signal.aborted) {
+        send({ type: 'error', code: 'cancelled' });
+        return;
+      }
+      try {
+        proc = await spawnLongLived(cli.command, ['login', '--device-auth'], {
+          env: grokEnvPolicy(dir),
+          parentEnv: deps.env,
+          cwd: dir,
+          timeoutMs: timeouts.loginMs,
+          signal,
+        });
+      } catch (error) {
+        const code: ErrorCode = signal.aborted
+          ? 'cancelled'
+          : error instanceof SpawnError && error.code === 'cli-not-found'
+            ? 'cli-not-found'
+            : 'spawn-failed';
+        send({ type: 'error', code });
+        return;
+      }
+
+      const parser = createDeviceAuthParser(deps.now);
+      // Kept in memory only to classify a failure; never logged (may contain URLs or codes).
+      const tail: string[] = [];
+      const onLine = (raw: string): void => {
+        const line = stripAnsi(raw);
+        tail.push(line);
+        if (tail.length > LOGIN_TAIL_LINES) tail.shift();
+        const prompt = parser.push(line);
+        if (prompt === null) return;
+        logger.info('grok device code received', { accountId: account.id });
+        const event: LoginEvent = { type: 'device-code', userCode: prompt.userCode, verificationUrl: prompt.verificationUrl };
+        if (prompt.expiresAt !== undefined) event.expiresAt = prompt.expiresAt;
+        send(event);
+        send({ type: 'progress', stage: 'waiting-device-code' });
+      };
+      const offStdout = proc.onStdoutLine(onLine);
+      const offStderr = proc.onStderrLine(onLine);
+      const exit = await proc.exited;
+      offStdout();
+      offStderr();
+
+      if (exit.aborted || signal.aborted) {
+        send({ type: 'error', code: 'cancelled' });
+        return;
+      }
+      if (exit.timedOut) {
+        send({ type: 'error', code: 'timeout' });
+        return;
+      }
+      if (exit.exitCode !== 0) {
+        const code = classifyLoginFailure(tail.join('\n'));
+        logger.info('grok login exited with failure', { accountId: account.id, exitCode: exit.exitCode, code });
+        send({ type: 'error', code });
+        return;
+      }
+
+      send({ type: 'progress', stage: 'verifying' });
+      const result = await probe(account, signal);
+      prime(primedForUsage, account.id, result);
+      if (result.kind === 'ok') {
+        const success: LoginEvent = { type: 'success' };
+        if (result.billing.plan !== undefined) success.plan = result.billing.plan;
+        send(success);
+      } else if (result.failure.code === 'cancelled') {
+        send({ type: 'error', code: 'cancelled' });
+      } else if (result.failure.state === 'logged-out') {
+        send({ type: 'error', code: 'login-failed' });
+      } else {
+        // The CLI reported success; a billing problem must not turn that into a login failure.
+        send({ type: 'success' });
+      }
+    } catch (error) {
+      logger.error('grok login failed unexpectedly', { accountId: account.id, error });
+      if (proc !== undefined) await proc.kill();
+      send({ type: 'error', code: 'internal' });
+    }
+  }
+
   return adapter;
 }

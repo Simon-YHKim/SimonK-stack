@@ -63,12 +63,13 @@ export class PopupApp {
     const report = (message: string): void => this.report(message);
 
     this.usage = new UsageTab();
-    this.accounts = new AccountsTab({ api: this.api, translator, report });
+    this.accounts = new AccountsTab({ api: this.api, translator, report, now: this.now });
     this.settings = new SettingsTab({
       api: this.api,
       translator,
       report,
       setLock: (locked) => void this.api.invoke('window:set-popup-lock', { locked }),
+      preview: (patch) => void this.api.invoke('window:preview-placement', { patch }),
     });
 
     this.titleEl = h('span', { class: 'popup-title-text' });
@@ -132,13 +133,10 @@ export class PopupApp {
         this.hide();
       }
     });
-    this.doc.addEventListener('visibilitychange', () => {
-      if (this.doc.visibilityState === 'visible') this.onShown();
-    });
     this.api.on('login:event', (message) => this.onLoginEvent(message));
-    this.api.on('popup:show', ({ tab }) => {
-      if (tab !== null) this.selectTab(tab, false);
-    });
+    // The window keeps backgroundThrottling off, so visibilitychange never fires on show/hide;
+    // main sends popup:show every time it shows the popup instead.
+    this.api.on('popup:show', ({ tab }) => this.onShown(tab));
     this.selectTab('usage', false);
   }
 
@@ -206,13 +204,16 @@ export class PopupApp {
     this.selectTab(tab, true);
   }
 
-  private onShown(): void {
+  onShown(tab: PopupTab | null): void {
     this.popupRoot.classList.remove('is-entering');
     this.popupRoot.getBoundingClientRect(); // restart the entry animation
     this.popupRoot.classList.add('is-entering');
-    // Opened from an empty widget: show where accounts are added (V1-35).
-    if (this.state !== null && this.state.accounts.length === 0) this.selectTab('accounts', false);
-    else if (this.activeTab === 'accounts') this.accounts.onShow();
+    // Without an explicit tab, an empty account list opens where accounts are added (V1-35).
+    const target = tab ?? (this.state !== null && this.state.accounts.length === 0 ? 'accounts' : this.activeTab);
+    const changed = target !== this.activeTab;
+    this.selectTab(target, false);
+    // selectTab refreshes the accounts tab only on a change; a reopen on it refreshes too (bridge status).
+    if (!changed && target === 'accounts') this.accounts.onShow();
     this.render();
   }
 
@@ -276,6 +277,6 @@ export class PopupApp {
 
     this.usage.update(views, ctx);
     this.accounts.update(state, ctx);
-    this.settings.update(state.settings, ctx);
+    this.settings.update(state.settings, ctx, state.effectivePlacementMode);
   }
 }

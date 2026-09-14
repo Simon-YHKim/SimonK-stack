@@ -13,21 +13,25 @@
   display: inline-flex;
   align-items: center;
   height: 34px;
+  max-width: 100%;
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
 }
 
+/* When the window is narrower than the bar (size clamp, display edge), items clip; the refresh button stays. */
 .widget-main {
   display: inline-flex;
   align-items: center;
   height: 100%;
+  min-width: 0;
+  overflow: hidden;
   outline: none;
 }
 
 .widget-main:focus-visible {
   outline: 2px solid var(--focus-ring);
-  outline-offset: 1px;
+  outline-offset: -2px;
   border-radius: 4px;
 }
 
@@ -39,6 +43,10 @@
 }
 
 .account-item.is-stale {
+  opacity: 0.5;
+}
+
+.account-item.is-error > :not(.state-mark) {
   opacity: 0.5;
 }
 
@@ -57,6 +65,7 @@
 
 .widget-refresh {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   width: 24px;
@@ -520,8 +529,9 @@
   background: rgb(var(--w-bg-rgb) / calc(var(--bg-alpha) * 0.5));
 }
 
+/* Alpha 1, not 0: fully transparent pixels of a transparent window pass clicks through (v1 SPEC §2-3). */
 .skin-windows.no-card-bg {
-  background: transparent;
+  background: #00000001;
   border-color: transparent;
   padding: 1px 3px;
 }

@@ -18,7 +18,11 @@ export const SOURCE_BY_PROVIDER: Readonly<Record<ProviderId, UsageSource>> = {
   grok: 'grok-acp',
 };
 
-export const DEFAULT_FETCH_TIMEOUT_MS = 45_000;
+/**
+ * Backstop for one slot (identity + usage). At least the sum of adapter budgets:
+ * codex identity session 50 s + usage session 60 s; each adapter still enforces its own limits.
+ */
+export const DEFAULT_FETCH_TIMEOUT_MS = 120_000;
 export const MANUAL_MIN_INTERVAL_MS = 5_000;
 export const RESUME_DELAY_MS = 3_000;
 export const BATTERY_INTERVAL_MULTIPLIER = 2;
@@ -236,7 +240,8 @@ export function createScheduler(options: SchedulerOptions): Scheduler {
   };
 
   function pump(): void {
-    timer = null;
+    // Direct calls (run settled, sync, refreshNow, cancel) must not leave an armed timer behind.
+    clearTimer();
     if (!running || paused) {
       emitStatus();
       return;

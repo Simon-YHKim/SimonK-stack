@@ -52,6 +52,8 @@ export const INVOKE = {
   windowHidePopup: 'window:hide-popup',
   windowSetPopupLock: 'window:set-popup-lock',
   windowResizeWidget: 'window:resize-widget',
+  windowPreviewPlacement: 'window:preview-placement',
+  cliRedetect: 'cli:redetect',
   claudeBridgeStatus: 'claude-bridge:status',
   claudeBridgeInstallDefault: 'claude-bridge:install-default',
   claudeBridgeUninstallDefault: 'claude-bridge:uninstall-default',
@@ -147,7 +149,19 @@ export interface ResizeWidgetRequest {
   height: number;
 }
 
-export const WIDGET_SIZE_LIMITS = { minWidth: 32, maxWidth: 1200, minHeight: 24, maxHeight: 120 } as const;
+/** Unsaved placement values applied while a slider is dragged; `patch: null` drops the preview. */
+export const PREVIEW_PLACEMENT_KEYS = ['offsetPx', 'verticalOffsetPx'] as const;
+export type PlacementPreview = Partial<Pick<Settings, (typeof PREVIEW_PLACEMENT_KEYS)[number]>>;
+export interface PreviewPlacementRequest {
+  patch: PlacementPreview | null;
+}
+export interface CliRedetectRequest {
+  /** null re-detects every provider. */
+  provider: ProviderId | null;
+}
+
+/** maxWidth fits 24 accounts; placement still clamps the window into its display. */
+export const WIDGET_SIZE_LIMITS = { minWidth: 32, maxWidth: 3840, minHeight: 24, maxHeight: 120 } as const;
 
 export function clampWidgetSize(request: ResizeWidgetRequest): ResizeWidgetRequest {
   const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, Math.round(value)));
@@ -181,6 +195,8 @@ export interface InvokeContract {
   'window:hide-popup': { req: null; res: null };
   'window:set-popup-lock': { req: SetPopupLockRequest; res: null };
   'window:resize-widget': { req: ResizeWidgetRequest; res: null };
+  'window:preview-placement': { req: PreviewPlacementRequest; res: null };
+  'cli:redetect': { req: CliRedetectRequest; res: null };
   'claude-bridge:status': { req: null; res: ClaudeBridgeStatus };
   'claude-bridge:install-default': { req: AccountRef; res: ClaudeBridgeStatus };
   'claude-bridge:uninstall-default': { req: null; res: ClaudeBridgeStatus };
@@ -193,7 +209,7 @@ export interface EventContract {
   'state:changed': AppStateSnapshot;
   'theme:changed': ThemeTokens;
   'login:event': LoginEventMessage;
-  /** Sent to the popup when main shows it; `tab` null keeps the current tab. */
+  /** Sent to the popup every time main shows it; `tab` null keeps the current tab. */
   'popup:show': PopupShowEvent;
 }
 
@@ -372,6 +388,25 @@ export const INVOKE_VALIDATORS: Validators = {
       return fail('invalid size');
     }
     return ok({ width, height });
+  },
+  'window:preview-placement': (input) => {
+    const rec = parseRecord(input, ['patch']);
+    if (!rec.ok) return rec;
+    if (rec.value.patch === null) return ok({ patch: null });
+    const patch = parseSettingsPatch(rec.value.patch);
+    if (!patch.ok) return patch;
+    if (Object.keys(patch.value).some((key) => !(PREVIEW_PLACEMENT_KEYS as readonly string[]).includes(key))) {
+      return fail('only placement offsets can be previewed');
+    }
+    return ok({ patch: patch.value });
+  },
+  'cli:redetect': (input) => {
+    const rec = parseRecord(input, ['provider']);
+    if (!rec.ok) return rec;
+    const { provider } = rec.value;
+    if (provider === null) return ok({ provider: null });
+    if (!isProviderId(provider)) return fail('invalid provider');
+    return ok({ provider });
   },
   'claude-bridge:status': parseNull,
   'claude-bridge:install-default': parseAccountRef,

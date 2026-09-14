@@ -6,10 +6,11 @@ import {
   type EventContract,
   type ExternalLinkKey,
   type OpenExternalRequest,
+  type PlacementPreview,
   type RendererReadyRequest,
   type ResizeWidgetRequest,
 } from '../../shared/ipc';
-import { applySettingsPatch, type Material, type Settings } from '../../shared/settings';
+import { applySettingsPatch, type Material, type PlacementMode, type Settings } from '../../shared/settings';
 import {
   PROVIDER_IDS,
   toAccountDTO,
@@ -54,6 +55,8 @@ export interface WindowsPort {
   hidePopup(): void;
   setPopupLock(locked: boolean): void;
   resizeWidget(size: ResizeWidgetRequest): void;
+  /** Re-places the widget with unsaved offsets; null returns to the saved settings. */
+  previewPlacement(patch: PlacementPreview | null): void;
   showWidget(): void;
   applySettings(settings: Settings, theme: ThemeTokens): void;
   broadcast<E extends EventChannel>(channel: E, payload: EventContract[E]): void;
@@ -109,9 +112,21 @@ export function createAppController(deps: AppControllerDeps) {
   const needsIdentity = new Set<string>();
   const cli: Record<ProviderId, CliInfo | null> = { claude: null, codex: null, grok: null };
   const lastDetectAt: Record<ProviderId, number> = { claude: 0, codex: 0, grok: 0 };
+  const detecting = new Set<ProviderId>();
+  let effectivePlacementMode: PlacementMode | null = null;
   let broadcastPending = false;
   let stopped = false;
+  /** Set by stop() and never cleared: a start() still awaiting must not revive the scheduler. */
+  let disposed = false;
   let staleTimer: ReturnType<typeof setInterval> | null = null;
+  let accountMutations: Promise<unknown> = Promise.resolve();
+
+  /** Account list changes run one at a time so none works from a list another already replaced. */
+  const serialized = <T>(task: () => Promise<T>): Promise<T> => {
+    const next = accountMutations.then(task, task);
+    accountMutations = next.catch(() => undefined);
+    return next;
+  };
 
   // -------------------------------------------------------------------------
   // Snapshot + broadcast
@@ -133,7 +148,7 @@ export function createAppController(deps: AppControllerDeps) {
 
   const cliDto = (provider: ProviderId): CliStatusDTO => {
     const info = cli[provider];
-    if (info === null) return { state: 'unknown' };
+    if (info === null || detecting.has(provider)) return { state: 'unknown' };
     if (!info.found) return { state: 'missing' };
     return info.version === undefined ? { state: 'found' } : { state: 'found', version: info.version };
   };
@@ -151,6 +166,7 @@ export function createAppController(deps: AppControllerDeps) {
       refresh: { ...refresh, accountIds: [...refresh.accountIds] },
       theme: { ...theme },
       cli: { claude: cliDto('claude'), codex: cliDto('codex'), grok: cliDto('grok') },
+      effectivePlacementMode,
     };
   };
 
@@ -228,9 +244,11 @@ export function createAppController(deps: AppControllerDeps) {
         logger.warn('getIdentity failed', { provider: account.provider, error });
         setIdentity(account.id, { loginState: 'unknown' });
       }
-      if (identities.get(account.id)?.loginState === 'logged-out') {
-        return { snapshot: createEmptySnapshot({ ...base, state: 'logged-out', errorCode: 'not-logged-in' }) };
-      }
+    }
+    // Identity is the one source of truth for sign-in: a confirmed logged-out account stays
+    // logged-out until identity is re-read (age, login, manual refresh), whatever usage would say.
+    if (identities.get(account.id)?.loginState === 'logged-out') {
+      return { snapshot: createEmptySnapshot({ ...base, state: 'logged-out', errorCode: 'not-logged-in' }) };
     }
     return { snapshot: await adapter.fetchUsage({ ...account }, signal) };
   };
@@ -355,6 +373,7 @@ export function createAppController(deps: AppControllerDeps) {
 
   return {
     async start(): Promise<void> {
+      if (disposed) return;
       const accounts = store.getAccounts();
       await Promise.all(
         accounts.map(async (account) => {
@@ -365,7 +384,9 @@ export function createAppController(deps: AppControllerDeps) {
           }
         }),
       );
+      if (disposed) return;
       await Promise.all(PROVIDER_IDS.map(detectProvider));
+      if (disposed) return;
       for (const account of accounts) {
         if (account.enabled && !usage.has(account.id)) {
           usage.set(
@@ -387,6 +408,7 @@ export function createAppController(deps: AppControllerDeps) {
           await store.saveSettings(settings).catch((error: unknown) => logger.warn('saving settings failed', { error }));
         }
       }
+      if (disposed) return;
       stopped = false;
       scheduler.start();
       staleTimer = setInterval(markStale, STALE_CHECK_INTERVAL_MS);
@@ -394,6 +416,7 @@ export function createAppController(deps: AppControllerDeps) {
     },
 
     stop(): void {
+      disposed = true;
       stopped = true;
       login.cancelAll();
       scheduler.stop();
@@ -433,82 +456,91 @@ export function createAppController(deps: AppControllerDeps) {
 
     listAccounts: (): AccountDTO[] => store.getAccounts().map(dtoFor),
 
-    async addAccount(provider: ProviderId, label: string): Promise<AccountDTO> {
-      const accounts = store.getAccounts();
-      if (accounts.length >= MAX_ACCOUNTS) throw new IpcHandlerError('conflict');
-      const id = newAccountId();
-      if (accounts.some((account) => account.id === id)) throw new IpcHandlerError('conflict');
-      let profileDir: string;
-      try {
-        profileDir = profileDirFor(deps.profilesRoot, provider, id);
-      } catch {
-        throw new IpcHandlerError('internal');
-      }
-      const account: Account = { id, provider, label, enabled: true, order: accounts.length, profileDir, createdAt: now() };
-      try {
-        await registry.get(provider).ensureProfileDir({ ...account });
-      } catch (error) {
-        logger.error('ensureProfileDir failed', { provider, error });
-        throw new IpcHandlerError('internal', errorCodeOf(error));
-      }
-      await persistAccounts(renumberAccounts([...accounts, account]));
-      needsIdentity.add(id);
-      usage.set(id, createEmptySnapshot({ accountId: id, provider, source: SOURCE_BY_PROVIDER[provider], state: 'loading' }));
-      scheduler.sync();
-      scheduleBroadcast();
-      return dtoFor(requireAccount(id));
-    },
-
-    async removeAccount(accountId: string): Promise<null> {
-      const account = requireAccount(accountId);
-      login.cancelForAccount(accountId);
-      scheduler.cancel(accountId);
-      try {
-        await registry.get(account.provider).removeProfile({ ...account });
-      } catch (error) {
-        logger.error('removeProfile failed', { provider: account.provider, error });
-        throw new IpcHandlerError('internal', errorCodeOf(error));
-      }
-      await persistAccounts(renumberAccounts(store.getAccounts().filter((a) => a.id !== accountId)));
-      usage.delete(accountId);
-      identities.delete(accountId);
-      needsIdentity.delete(accountId);
-      scheduler.sync();
-      scheduleBroadcast();
-      return null;
-    },
-
-    async renameAccount(accountId: string, label: string): Promise<AccountDTO> {
-      requireAccount(accountId);
-      await persistAccounts(store.getAccounts().map((a) => (a.id === accountId ? { ...a, label } : a)));
-      scheduleBroadcast();
-      return dtoFor(requireAccount(accountId));
-    },
-
-    async toggleAccount(accountId: string, enabled: boolean): Promise<AccountDTO> {
-      const account = requireAccount(accountId);
-      if (account.enabled !== enabled) {
-        if (!enabled) scheduler.cancel(accountId);
-        await persistAccounts(store.getAccounts().map((a) => (a.id === accountId ? { ...a, enabled } : a)));
-        if (enabled && !usage.has(accountId)) {
-          usage.set(
-            accountId,
-            createEmptySnapshot({ accountId, provider: account.provider, source: SOURCE_BY_PROVIDER[account.provider], state: 'loading' }),
-          );
+    addAccount: (provider: ProviderId, label: string): Promise<AccountDTO> =>
+      serialized(async () => {
+        if (store.getAccounts().length >= MAX_ACCOUNTS) throw new IpcHandlerError('conflict');
+        const id = newAccountId();
+        if (store.getAccount(id) !== undefined) throw new IpcHandlerError('conflict');
+        let profileDir: string;
+        try {
+          profileDir = profileDirFor(deps.profilesRoot, provider, id);
+        } catch {
+          throw new IpcHandlerError('internal');
         }
+        const account: Account = { id, provider, label, enabled: true, order: Number.MAX_SAFE_INTEGER, profileDir, createdAt: now() };
+        try {
+          await registry.get(provider).ensureProfileDir({ ...account });
+        } catch (error) {
+          logger.error('ensureProfileDir failed', { provider, error });
+          throw new IpcHandlerError('internal', errorCodeOf(error));
+        }
+        // Re-read after the await: the list on disk is the one to extend.
+        const accounts = store.getAccounts();
+        if (accounts.length >= MAX_ACCOUNTS || accounts.some((a) => a.id === id)) throw new IpcHandlerError('conflict');
+        await persistAccounts(renumberAccounts([...accounts, account]));
+        needsIdentity.add(id);
+        usage.set(id, createEmptySnapshot({ accountId: id, provider, source: SOURCE_BY_PROVIDER[provider], state: 'loading' }));
         scheduler.sync();
         scheduleBroadcast();
-      }
-      return dtoFor(requireAccount(accountId));
-    },
+        return dtoFor(requireAccount(id));
+      }),
 
-    async reorderAccount(accountId: string, direction: 'up' | 'down'): Promise<AccountDTO[]> {
-      const moved = moveAccount(store.getAccounts(), accountId, direction);
-      if (moved === null) throw new IpcHandlerError('not-found');
-      await persistAccounts(moved);
-      scheduleBroadcast();
-      return store.getAccounts().map(dtoFor);
-    },
+    removeAccount: (accountId: string): Promise<null> =>
+      serialized(async () => {
+        const account = requireAccount(accountId);
+        login.cancelForAccount(accountId);
+        scheduler.cancel(accountId);
+        try {
+          await registry.get(account.provider).removeProfile({ ...account });
+        } catch (error) {
+          logger.error('removeProfile failed', { provider: account.provider, error });
+          throw new IpcHandlerError('internal', errorCodeOf(error));
+        }
+        // If this save fails the account stays listed (store memory follows disk) and removal can be retried.
+        await persistAccounts(renumberAccounts(store.getAccounts().filter((a) => a.id !== accountId)));
+        usage.delete(accountId);
+        identities.delete(accountId);
+        needsIdentity.delete(accountId);
+        scheduler.sync();
+        scheduleBroadcast();
+        return null;
+      }),
+
+    renameAccount: (accountId: string, label: string): Promise<AccountDTO> =>
+      serialized(async () => {
+        requireAccount(accountId);
+        await persistAccounts(store.getAccounts().map((a) => (a.id === accountId ? { ...a, label } : a)));
+        scheduleBroadcast();
+        return dtoFor(requireAccount(accountId));
+      }),
+
+    toggleAccount: (accountId: string, enabled: boolean): Promise<AccountDTO> =>
+      serialized(async () => {
+        const account = requireAccount(accountId);
+        if (account.enabled !== enabled) {
+          if (!enabled) scheduler.cancel(accountId);
+          await persistAccounts(store.getAccounts().map((a) => (a.id === accountId ? { ...a, enabled } : a)));
+          if (enabled && !usage.has(accountId)) {
+            usage.set(
+              accountId,
+              createEmptySnapshot({ accountId, provider: account.provider, source: SOURCE_BY_PROVIDER[account.provider], state: 'loading' }),
+            );
+          }
+          scheduler.sync();
+          scheduleBroadcast();
+        }
+        return dtoFor(requireAccount(accountId));
+      }),
+
+    /** Moves an account past its neighbour of the same provider (the accounts tab groups by provider). */
+    reorderAccount: (accountId: string, direction: 'up' | 'down'): Promise<AccountDTO[]> =>
+      serialized(async () => {
+        const moved = moveAccount(store.getAccounts(), accountId, direction, { sameProvider: true });
+        if (moved === null) throw new IpcHandlerError('not-found');
+        await persistAccounts(moved);
+        scheduleBroadcast();
+        return store.getAccounts().map(dtoFor);
+      }),
 
     startLogin(accountId: string): { sessionId: string } {
       const account = requireAccount(accountId);
@@ -539,9 +571,12 @@ export function createAppController(deps: AppControllerDeps) {
       if (accountId !== null && !accounts.some((a) => a.id === accountId)) {
         return Promise.reject(new IpcHandlerError('not-found'));
       }
-      const providers = [
-        ...new Set(accounts.filter((a) => a.enabled && (accountId === null || a.id === accountId)).map((a) => a.provider)),
-      ];
+      const targets = accounts.filter((a) => a.enabled && (accountId === null || a.id === accountId));
+      // A manual refresh re-checks sign-in for accounts the gate keeps logged-out.
+      for (const account of targets) {
+        if (identities.get(account.id)?.loginState === 'logged-out') needsIdentity.add(account.id);
+      }
+      const providers = [...new Set(targets.map((a) => a.provider))];
       // Respond immediately; progress shows through refresh status in state:changed.
       void redetectMissing(providers)
         .catch((error: unknown) => logger.warn('redetect failed', { error }))
@@ -572,6 +607,30 @@ export function createAppController(deps: AppControllerDeps) {
     hidePopup: (): null => (windows.hidePopup(), null),
     setPopupLock: (locked: boolean): null => (windows.setPopupLock(locked), null),
     resizeWidget: (request: ResizeWidgetRequest): null => (windows.resizeWidget(clampWidgetSize(request)), null),
+    previewPlacement: (patch: PlacementPreview | null): null => (windows.previewPlacement(patch), null),
+
+    /** Called by the window manager whenever the placement in use changes. */
+    setEffectivePlacementMode(mode: PlacementMode | null): void {
+      if (mode === effectivePlacementMode) return;
+      effectivePlacementMode = mode;
+      scheduleBroadcast();
+    },
+
+    /** User-requested CLI detection (e.g. installed after launch); shows 'detecting' meanwhile. */
+    redetectCli(provider: ProviderId | null): null {
+      const providers = (provider === null ? [...PROVIDER_IDS] : [provider]).filter((p) => !detecting.has(p));
+      if (providers.length === 0) return null;
+      for (const p of providers) detecting.add(p);
+      scheduleBroadcast();
+      void Promise.all(providers.map(detectProvider))
+        .catch((error: unknown) => logger.warn('redetect failed', { error }))
+        .finally(() => {
+          for (const p of providers) detecting.delete(p);
+          scheduler.sync();
+          scheduleBroadcast();
+        });
+      return null;
+    },
 
     bridgeStatus: (): Promise<ClaudeBridgeStatus> => bridgeCall(() => registry.claude.bridge.status()),
     async bridgeInstallDefault(accountId: string): Promise<ClaudeBridgeStatus> {

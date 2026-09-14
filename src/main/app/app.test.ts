@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import type { EventChannel, EventContract, ResizeWidgetRequest } from '../../shared/ipc';
+import type { EventChannel, EventContract, PlacementPreview, ResizeWidgetRequest } from '../../shared/ipc';
 import type { Settings } from '../../shared/settings';
 import type {
   Account,
@@ -76,19 +76,21 @@ function fakeWindows() {
   const events: { channel: EventChannel; payload: unknown }[] = [];
   const applied: { settings: Settings; theme: ThemeTokens }[] = [];
   const resized: ResizeWidgetRequest[] = [];
+  const previews: (PlacementPreview | null)[] = [];
   const port: WindowsPort = {
     togglePopup: () => undefined,
     showPopup: () => undefined,
     hidePopup: () => undefined,
     setPopupLock: () => undefined,
     resizeWidget: (size) => resized.push(size),
+    previewPlacement: (patch) => previews.push(patch),
     showWidget: () => undefined,
     applySettings: (settings, theme) => applied.push({ settings, theme }),
     broadcast: <E extends EventChannel>(channel: E, payload: EventContract[E]) => events.push({ channel, payload }),
   };
   const states = (): AppStateSnapshot[] =>
     events.filter((e) => e.channel === 'state:changed').map((e) => e.payload as AppStateSnapshot);
-  return { port, events, applied, resized, states, last: () => states().at(-1) };
+  return { port, events, applied, resized, previews, states, last: () => states().at(-1) };
 }
 
 function fakeAdapter(id: ProviderId, calls: string[], logins: Harness['logins'], options: FakeOptions): ProviderAdapter {
@@ -362,10 +364,13 @@ describe('app controller', () => {
     expect(h.controller.listAccounts().map((a) => a.id)).toEqual(['a1']);
   });
 
-  it('renames, toggles and reorders accounts', async () => {
-    const h = await setup({ accounts: [{ id: 'a1', provider: 'codex' }, { id: 'a2', provider: 'grok' }] });
+  it('renames, toggles and reorders accounts (within the same provider)', async () => {
+    const h = await setup({
+      accounts: [{ id: 'a1', provider: 'codex' }, { id: 'a2', provider: 'grok' }, { id: 'a3', provider: 'codex' }],
+    });
     await h.controller.start();
-    expect((await h.controller.reorderAccount('a2', 'up')).map((a) => a.id)).toEqual(['a2', 'a1']);
+    expect((await h.controller.reorderAccount('a2', 'up')).map((a) => a.id)).toEqual(['a1', 'a2', 'a3']);
+    expect((await h.controller.reorderAccount('a3', 'up')).map((a) => a.id)).toEqual(['a3', 'a2', 'a1']);
     expect((await h.controller.renameAccount('a1', 'Renamed')).label).toBe('Renamed');
     expect((await h.controller.toggleAccount('a2', false)).enabled).toBe(false);
     await expect(h.controller.reorderAccount('zz', 'up')).rejects.toMatchObject({ code: 'not-found' });
@@ -417,7 +422,64 @@ describe('app controller', () => {
     expect(saved.offsetPx).toBe(40);
 
     h.controller.resizeWidget({ width: 5000, height: 1 });
-    expect(h.windows.resized).toEqual([{ width: 1200, height: 24 }]);
+    expect(h.windows.resized).toEqual([{ width: 3840, height: 24 }]);
+
+    h.controller.previewPlacement({ offsetPx: 20 });
+    h.controller.previewPlacement(null);
+    expect(h.windows.previews).toEqual([{ offsetPx: 20 }, null]);
+    h.controller.setEffectivePlacementMode('floating');
+    await until(() => h.windows.last()?.effectivePlacementMode === 'floating');
+  });
+
+  it('keeps a confirmed logged-out account logged-out even when usage would read ok (CR-02)', async () => {
+    const h = await setup({ accounts: [{ id: 'c1', provider: 'claude' }], adapters: { claude: { loggedIn: false } } });
+    await h.controller.start();
+    await until(() => h.windows.last()?.usage[0]?.state === 'logged-out');
+    for (let round = 2; round <= 4; round += 1) {
+      await h.controller.refreshNow('c1');
+      await until(() => h.calls.filter((c) => c === 'claude:identity:c1').length >= round);
+      await until(() => h.windows.last()?.refresh.inFlight === false);
+    }
+    expect(h.calls).not.toContain('claude:usage:c1');
+    expect(h.windows.states().some((s) => s.usage[0]?.state === 'ok')).toBe(false);
+    expect(h.windows.last()?.usage[0]?.state).toBe('logged-out');
+  });
+
+  it('serializes account changes so concurrent adds and renames all persist (CR-04)', async () => {
+    const h = await setup({ accounts: [{ id: 'a1', provider: 'codex' }] });
+    await h.controller.start();
+    await Promise.all([
+      h.controller.addAccount('grok', 'G'),
+      h.controller.addAccount('claude', 'C'),
+      h.controller.renameAccount('a1', 'Renamed'),
+    ]);
+    expect(h.controller.listAccounts().map((a) => [a.id, a.label, a.order])).toEqual([
+      ['a1', 'Renamed', 0],
+      ['n1', 'G', 1],
+      ['n2', 'C', 2],
+    ]);
+    const saved = JSON.parse(await readFile(path.join(h.dir, 'accounts.json'), 'utf8')) as { accounts: { id: string }[] };
+    expect(saved.accounts.map((a) => a.id)).toEqual(['a1', 'n1', 'n2']);
+  });
+
+  it('does not start the scheduler when stopped while start() is pending (CR-05)', async () => {
+    const h = await setup({ accounts: [{ id: 'a1', provider: 'codex' }] });
+    const starting = h.controller.start();
+    h.controller.stop();
+    await starting;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(h.calls.filter((c) => c.includes(':usage:') || c.includes(':identity:'))).toEqual([]);
+  });
+
+  it('re-detects a CLI on request and reports detection in progress (P-06)', async () => {
+    const h = await setup({ adapters: { grok: { found: false } } });
+    await h.controller.start();
+    await until(() => h.windows.last()?.cli.grok.state === 'missing');
+    const before = h.windows.states().length;
+    h.controller.redetectCli('grok');
+    await until(() => h.windows.states().length > before + 1);
+    expect(h.windows.states().slice(before).map((s) => s.cli.grok.state)).toEqual(['unknown', 'missing']);
+    expect(h.windows.last()?.cli.codex.state).toBe('found');
   });
 
   it('adopts an externally changed autostart registration without re-registering', async () => {

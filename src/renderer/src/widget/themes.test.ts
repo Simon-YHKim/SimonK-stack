@@ -54,13 +54,29 @@ describe.each(THEME_IDS)('widget theme %s', (theme) => {
     expect(item.getAttribute('title')).toContain('Stale | Last measured 20 minutes ago');
   });
 
-  it.each(['loading', 'error', 'unavailable', 'logged-out'] as const)('%s: marker only, never a number', (state) => {
+  it.each(['loading', 'unavailable', 'logged-out'] as const)('%s: marker only, never a number', (state) => {
     const item = render(theme, STATE_SNAPSHOTS[state]);
     expect(item.dataset.state).toBe(state);
     expect(item.classList.contains('is-status')).toBe(true);
     expect(item.textContent).not.toMatch(/\d/);
     expect(item.querySelectorAll(PERCENT_SELECTOR)).toHaveLength(0);
     expect(item.querySelector('.state-mark')?.textContent).toBe(STATUS_GLYPHS[state]);
+  });
+
+  it('error keeps the last measured values, dimmed, with the failure marker (P-02)', () => {
+    const item = render(theme, STATE_SNAPSHOTS.error);
+    expect(item.dataset.state).toBe('error');
+    expect(item.classList.contains('is-error')).toBe(true);
+    expect(item.classList.contains('is-status')).toBe(false);
+    expect([...item.querySelectorAll(PERCENT_SELECTOR)].map((el) => el.textContent)).toEqual(['75%', '10%']);
+    expect(item.querySelector('.state-mark')?.textContent).toBe(STATUS_GLYPHS.error);
+  });
+
+  it('error without an earlier measurement is a marker only', () => {
+    const item = render(theme, usage('a1', { state: 'error', errorCode: 'timeout', windows: [], measuredAt: null, lastSuccessAt: null }));
+    expect(item.classList.contains('is-status')).toBe(true);
+    expect(item.textContent).not.toMatch(/\d/);
+    expect(item.querySelector('.state-mark')?.textContent).toBe(STATUS_GLYPHS.error);
   });
 
   it('error and unavailable tooltips give the reason', () => {

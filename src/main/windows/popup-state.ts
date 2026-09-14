@@ -22,6 +22,7 @@ export const REOPEN_GUARD_MS = 400;
  */
 export class PopupController {
   private locked = false;
+  private blurredWhileLocked = false;
   private hideTimer: ReturnType<typeof setTimeout> | null = null;
   private lastAutoHideAt = Number.NEGATIVE_INFINITY;
   private readonly blurHideDelayMs: number;
@@ -52,22 +53,33 @@ export class PopupController {
 
   show(focus: boolean): void {
     this.cancelTimer();
+    this.blurredWhileLocked = false;
     this.port.show(focus);
   }
 
   hide(): void {
     this.cancelTimer();
     this.locked = false;
+    this.blurredWhileLocked = false;
     if (this.port.isVisible()) this.port.hide();
   }
 
   setLocked(locked: boolean): void {
     this.locked = locked;
-    if (locked) this.cancelTimer();
+    if (locked) {
+      this.cancelTimer();
+      return;
+    }
+    // Focus left while an interaction held the lock (e.g. a select dropdown): hide now.
+    if (this.blurredWhileLocked) this.onBlur();
   }
 
   onBlur(): void {
-    if (this.locked) return;
+    if (this.locked) {
+      this.blurredWhileLocked = true;
+      return;
+    }
+    this.blurredWhileLocked = false;
     this.cancelTimer();
     this.hideTimer = setTimeout(() => {
       this.hideTimer = null;
@@ -80,12 +92,14 @@ export class PopupController {
 
   onFocus(): void {
     this.cancelTimer();
+    this.blurredWhileLocked = false;
   }
 
   /** Window hidden by other means (e.g. closed); keeps state consistent. */
   onHidden(): void {
     this.cancelTimer();
     this.locked = false;
+    this.blurredWhileLocked = false;
   }
 
   dispose(): void {

@@ -94,7 +94,7 @@
 - `ErrorCode`(21종, 통합 때 `cli-unsupported-install` 추가 — CLI는 있으나 npm shim 등 실행기를 셸 없이 해석할 수 없음): 렌더러는 코드만 받아 i18n 문구로 바꾼다. 공급자 원문 오류는 UI로 가지 않는다.
 - `LoginEvent`: `url` / `device-code {userCode, verificationUrl, expiresAt?}` / `needs-paste` / `progress {stage}` / `success {emailMasked?, plan?}` / `error {code}`. IPC에서는 `LoginEventMessage { sessionId, accountId, at, event }`.
 - `ThemeTokens { scheme, taskbarScheme, highContrast, accent('#rrggbb'), reducedTransparency, effectiveMaterial }`.
-- `AppStateSnapshot { locale, settings, accounts, usage, refresh, theme, cli }` — 렌더러가 받는 유일한 상태.
+- `AppStateSnapshot { locale, settings, accounts, usage, refresh, theme, cli, effectivePlacementMode }` — 렌더러가 받는 유일한 상태. `effectivePlacementMode`는 실제 적용된 배치(docked가 좌우·자동 숨김 작업 표시줄에서 floating으로 폴백하면 floating, 배치 전 null).
 
 ### 5-2. `src/shared/settings.ts`
 v1 키(SPEC §1-2) 중 의미가 남은 것 + v2 추가. mock 관련 키는 없다.
@@ -146,7 +146,9 @@ v1 키(SPEC §1-2) 중 의미가 남은 것 + v2 추가. mock 관련 키는 없�
 | `window:show-popup` | `{tab:PopupTab|null}` | null | 빈 상태 클릭 시 `accounts` 탭(V1-35·43) |
 | `window:hide-popup` | null | null | |
 | `window:set-popup-lock` | `{locked}` | null | 설정 조작 중에만 잠금(V1-09) |
-| `window:resize-widget` | `{width, height}` | null | 유한 양수. main이 `clampWidgetSize`(32~1200 × 24~120)로 제한(V1-20) |
+| `window:resize-widget` | `{width, height}` | null | 유한 양수. main이 `clampWidgetSize`(32~3840 × 24~120)로 제한(V1-20). 배치가 다시 모니터 안으로 제한하고, 잘릴 때도 새로고침 버튼은 보인다 |
+| `window:preview-placement` | `{patch:{offsetPx?, verticalOffsetPx?}|null}` | null | 두 키만 허용(`parseSettingsPatch`). 저장하지 않고 위젯 위치만 바꾼다. 설정 저장 시 해제, `null`이면 저장값으로 복귀(V1-12) |
+| `cli:redetect` | `{provider:ProviderId|null}` | null | 사용자가 요청한 CLI 재탐지(설치 후 '다시 감지'). 탐지 중 `cli[provider].state`는 `unknown` |
 | `claude-bridge:status` | null | `ClaudeBridgeStatus` | |
 | `claude-bridge:install-default` | `{accountId}` | `ClaudeBridgeStatus` | 사용자 확인 대화 후에만 호출 |
 | `claude-bridge:uninstall-default` | null | `ClaudeBridgeStatus` | |
@@ -156,9 +158,10 @@ v1 키(SPEC §1-2) 중 의미가 남은 것 + v2 추가. mock 관련 키는 없�
 | `state:changed` | `AppStateSnapshot` |
 | `theme:changed` | `ThemeTokens` |
 | `login:event` | `LoginEventMessage` |
-| `popup:show` | `{tab: PopupTab|null}` — main이 팝업을 특정 탭으로 열 때(트레이 '계정 관리', 첫 실행, `window:show-popup {tab}`) 팝업 창에만 보낸다. `null`이면 현재 탭 유지 |
+| `popup:show` | `{tab: PopupTab|null}` — main이 팝업을 **표시할 때마다**(토글·트레이·첫 실행·`window:show-popup {tab}`) 팝업 창에만 보낸다. `tab`이 있으면 그 탭, `null`이면 현재 탭(계정 0개면 계정 탭). 두 창이 backgroundThrottling:false라 visibilitychange가 오지 않으므로 표시 처리(입장 애니메이션·계정 탭 갱신)는 이 이벤트로만 한다 |
 
 - `IpcErrorCode`: `invalid-request` `forbidden-sender` `not-found` `conflict` `busy` `not-implemented` `internal`.
+- 뷰 제한(`ipc/handlers.ts`): 상태를 바꾸는 채널(`settings:update`, `accounts:add·remove·rename·toggle·reorder`, `login:*`, `shell:open-external`, `window:hide-popup·set-popup-lock·preview-placement`, `cli:redetect`, `claude-bridge:install-default·uninstall-default`)은 팝업 뷰만, `window:resize-widget`은 위젯 뷰만 허용. 나머지(상태 읽기·새로고침·팝업 열기·브리지 상태)는 두 뷰 모두(DECISIONS 26.09.15 04:49).
 - 발신자 검증(`ipc/dispatch.ts`): 최상위 프레임 URL이 `app://bundle/…`(개발 시 dev server origin)일 때만 처리한다. 하위 프레임은 거부.
 - `EXTERNAL_LINK_KEYS`(`claude-cli-install` `codex-cli-install` `grok-cli-install`)의 실제 URL 표는 셸이 main에 두며(`src/main/platform/links.ts`), 공식 문서에서 확인한 https 주소만 넣는다. **현재 비어 있다**(RESEARCH에 검증된 설치 안내 URL 없음) → `{kind:'link'}`는 `not-found`.
 
@@ -231,7 +234,7 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 - 자식 환경 = `BASE_ENV_ALLOW` + 공급자 HOME 변수 set + 자격증명 계열 변수 remove. 부모의 사용자 설정 폴더(`~/.claude`, `~/.codex`, `~/.grok`)는 절대 계정 폴더로 쓰지 않는다.
 - 위젯 코드는 CLI 자격증명 파일(`.credentials.json`, `auth.json`)을 **읽지도 쓰지도 않는다.** 공급자 HTTP API를 사용자 토큰으로 직접 부르지 않는다. 사칭 헤더·client ID 없음.
 - 로그인 이벤트의 URL·코드는 렌더러에 보여 주되 로그에는 남기지 않는다(`userCode`는 redact 키).
-- 모든 호출에 타임아웃. 로그인 전체 10분. 셸 스케줄러는 계정 조회 1회(`getIdentity` + `fetchUsage`가 같은 슬롯에서 연달아 실행)에 45초 AbortSignal을 건다. 어댑터 내부 제한: codex init 30초·rpc 10초, grok init 30초·요청 20초·수명 60초, claude auth status 30초·`--version` 15초. 실측 시간이 나오면 조정한다.
+- 모든 호출에 타임아웃. 로그인 전체 10분. 셸 스케줄러는 계정 조회 1회(`getIdentity` + `fetchUsage`가 같은 슬롯에서 연달아 실행)에 120초 AbortSignal을 건다(어댑터 예산 합: codex identity 세션 50초 + usage 세션 60초, DECISIONS 04:49). 어댑터 내부 제한: codex init 30초·rpc 10초, grok init 30초·요청 20초·수명 60초, claude auth status 30초·`--version` 15초. 실측 시간이 나오면 조정한다.
 - 실측(T1·T2·T4) 전 추정으로 확정할 수 없는 응답 필드는 알 수 없는 필드를 허용하는 파서로 처리하고, 파서 테스트에 근거(스키마 파일·문서 경로)를 주석 1줄로 남긴다.
 
 ### 7-1. Claude (`providers/claude`, `resources/claude-bridge`) — DECISIONS 02:23
@@ -243,8 +246,8 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 | 로그인 | `spawnLongLived(claude, ['auth','login','--claudeai'])`. stdout을 `stripAnsi`(OSC 8 포함) 후 URL을 찾으면 `url`. claude.exe 2.1.270은 `Paste code here if prompted > `를 **줄바꿈 없이** URL 줄 직후 같은 콜백에서 출력하므로, 줄 단위 API로는 프롬프트를 볼 수 없어 URL 줄을 받는 즉시 `needs-paste`를 낸다(CLI가 순서를 바꾸면 조정, T2). `submitPaste`는 `^[A-Za-z0-9._~+/=-]{1,2048}#[A-Za-z0-9._~+/=-]{1,2048}$`만 stdin에 한 줄로 쓴다(틀리면 `parse-error`, 쓰지 않음). `Login successful.`(프롬프트와 같은 줄에 붙어 나오는 경우 포함) + exit 0 → `auth status` 확인 후 `success`. `#` 없는 입력은 끝나지 않으므로 타임아웃·kill 필수. `--console`은 노출하지 않는다. 허용 URL은 `https://claude.com/cai/oauth/authorize`(CLAUDE_AI_AUTHORIZE_URL)와 구버전용 `https://claude.ai/oauth/authorize` 두 개, 경로 정확히 일치·포트/자격정보 거부, 목록 밖 URL이면 kill + `protocol-error`. CLI가 브라우저를 스스로 연다('Opening browser to sign in…'); 렌더러 '브라우저에서 열기'는 대체 수단 |
 | 계정 표시 | `claude auth status --json`(미로그인 exit 1 → `logged-out`). 이 명령은 위젯 폴더에 `.claude.json`·`backups/`를 만든다(위젯 폴더라 허용). 이메일은 adapter 안에서 `maskEmail` |
 | 수치 | statusline 브리지: 계정 폴더 `settings.json`의 `statusLine.command`가 Claude Code의 stdin JSON에서 `rate_limits`만 뽑아 `bridgeRoot\claude\<key16>.json`에 원자적으로 쓴다(ensureProfileDir에서 멱등 설치). `fetchUsage`는 그 파일만 읽는다(5시간·7일 `used_percentage`, `resets_at` epoch 초→ms). 레코드 없음 → `unavailable`+`bridge-no-data`, 깨짐 → `error`+`parse-error`, 5분보다 오래됨 → `stale`. **리셋 시각이 지난 창은 `usedPercent:null`**(0%나 이전 값으로 표시하지 않음), 모든 창이 지나면 `reset`. 미래 기록 시각·31일 초과 리셋은 무시, 퍼센트 0~100 clamp. 계정이 기본 프로필 대상이면 자기 레코드와 기본 프로필 레코드 중 창마다 최신 값. 로그아웃은 감지하지 않는다(셸이 `getIdentity`로 반영). 병합: 창이 들어오면 교체, `rate_limits`는 있는데 창이 빠지면 이전 창이 이미 리셋된 경우에만 유지, `rate_limits` 자체가 없으면 이전 창 유지 |
-| 브리지 실행기(확정) | **node**(설치 시점 `resolveCommand('node')`), 없으면 PowerShell 5.1. 실측 기동 node 약 260ms / PowerShell 약 850ms, `runAsNode:false`라 위젯 exe 불가(DECISIONS 04:06). 명령 형식: node `node '<bin/aiuw-claude-bridge.cjs>' --key <k> --out '<dir>'`, PowerShell `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File '<bin/aiuw-claude-bridge.ps1>' -Key <k> -Out '<dir>'`. 작은따옴표·슬래시 경로라 Git Bash·PowerShell 모두 동일 해석, 경로에 `'`·제어문자가 있으면 설치 거부. 감싼 원래 명령은 Claude Code 셸 선택을 흉내 내 실행(CLAUDE_CODE_GIT_BASH_PATH → PATH git의 bash → Program Files\Git\bin\bash.exe → powershell -EncodedCommand), 30초 타임아웃, stdout·종료코드 그대로 전달 |
-| 기본 프로필 브리지 | 사용자가 평소 `~/.claude`로 일하면 위젯 폴더에는 기록이 생기지 않는다(RESEARCH 3-1 추론). `bridge.installDefault(target)`는 사용자 확인 후 `settings.json.aiuw-backup-<UTC타임스탬프>`로 백업하고 기존 `statusLine` 객체(padding 등 유지)를 감싸 sidecar에 원본을 남긴 채 설치, 기록을 `target` 계정에 연결한다. JSON 객체가 아니면 쓰지도 백업하지도 않고 `parse-error`. `uninstallDefault`는 원본 객체를 복원(없었으면 키 삭제)하고, 사용자가 이미 다른 statusLine으로 바꿨으면 손대지 않는다. 기본 프로필 경로는 env `CLAUDE_CONFIG_DIR`가 위젯 profiles 밖의 절대경로일 때만 그 경로, 아니면 `<homeDir>\.claude`. 재직렬화라 한 줄 배열이 펼쳐지는 등 서식은 바뀔 수 있고 BOM은 제거된다(백업으로 대응). 대상 계정을 지워도 `targetAccountId`는 남는다(후속: 삭제 시 제거 여부 확인 UI). 테스트는 `homeDir`에 임시 폴더를 주입하고 실제 `~/.claude`를 절대 건드리지 않는다 |
+| 브리지 실행기(확정) | **node**(설치 시점 `resolveCommand('node')`), 없으면 PowerShell 5.1. 실측 기동 node 약 260ms / PowerShell 약 850ms, `runAsNode:false`라 위젯 exe 불가(DECISIONS 04:06). 명령 형식: node `node '<bin/aiuw-claude-bridge.cjs>' --key <k> --out '<dir>'`, PowerShell `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File '<bin/aiuw-claude-bridge.ps1>' -Key <k> -Out '<dir>'`. 작은따옴표·슬래시 경로라 Git Bash·PowerShell 모두 동일 해석, 경로에 `'`·제어문자가 있으면 설치 거부. 감싼 원래 명령은 Claude Code 셸 선택을 흉내 내 실행(CLAUDE_CODE_GIT_BASH_PATH → PATH git의 bash → Program Files\Git\bin\bash.exe → powershell -EncodedCommand), 30초 타임아웃(초과 시 `taskkill /PID <pid> /T /F`로 셸과 자식 트리 종료), stdout·종료코드 그대로 전달 |
+| 기본 프로필 브리지 | 사용자가 평소 `~/.claude`로 일하면 위젯 폴더에는 기록이 생기지 않는다(RESEARCH 3-1 추론). `bridge.installDefault(target)`는 사용자 확인 후, 브리지가 statusLine을 처음 차지할 때 `settings.json.aiuw-backup-<UTC타임스탬프>[-n]`로 백업하고(제거할 때도 백업, 최근 3개만 유지, 이미 설치된 명령을 고칠 때는 백업 없음) 기존 `statusLine` 객체(padding 등 유지)를 감싸 sidecar에 원본을 남긴 채 설치, 기록을 `target` 계정에 연결한다. JSON 객체가 아니면 쓰지도 백업하지도 않고 `parse-error`. `uninstallDefault`는 원본 객체를 복원(없었으면 키 삭제)하고, 사용자가 이미 다른 statusLine으로 바꿨으면 손대지 않는다. 기본 프로필 경로는 env `CLAUDE_CONFIG_DIR`가 위젯 profiles 밖의 절대경로일 때만 그 경로, 아니면 `<homeDir>\.claude`. 키는 두 경우 모두 해석된 폴더 경로의 해시다. 이미 설치된 명령의 `--key`/`-Key`로 sidecar를 찾아 원본을 이어받고(다른 키로 설치돼 있어도 '설치됨'으로 표시하고 제거 가능), sidecar가 있는데 읽을 수 없으면 설치·제거를 거부한다(`parse-error`). bin 복사 전에 스크립트 SHA-256을 빌드 상수 `__AIUW_BRIDGE_SHA256__`(main 번들, asar 무결성 범위)과 대조하고 다르면 거부(`internal`). 앱 제거기는 settings.json을 되돌리지 않으므로 브리지 카드와 설치 확인 문구에 '삭제 전 [기본 프로필에서 제거]'와 백업 위치를 표시한다(DECISIONS 04:49). 재직렬화라 한 줄 배열이 펼쳐지는 등 서식은 바뀔 수 있고 BOM은 제거된다(백업으로 대응). 대상 계정을 지워도 `targetAccountId`는 남는다(후속: 삭제 시 제거 여부 확인 UI). 테스트는 `homeDir`에 임시 폴더를 주입하고 실제 `~/.claude`를 절대 건드리지 않는다 |
 | 금지 | `/api/oauth/usage` 호출, `anthropic-ratelimit-*` 헤더 조회, PTY `/usage` 스크래핑, `setup-token` |
 | 미결(실측) | `claude -p`에서 statusline 실행 여부·trust 수락 필요 여부(T3), 줄바꿈 없는 프롬프트 직접 감지(`LongLivedProcess.onStdoutChunk`, T2 후 결정) |
 
@@ -277,11 +280,11 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 ## 8. 셸(main) 설계 요점
 
 - **부트스트랩**(`index.ts`, 스캐폴드 구현됨): `configureUserData` → `setAppUserModelId('local.aiusagewidget')` → `registerSchemesAsPrivileged(app: standard+secure)` → 단일 인스턴스 락 → `hardenApp` → ready 후 `hardenSession`·`protocol.handle('app')`·registry·창 생성·IPC 등록. `--smoke`는 두 렌더러의 `app:renderer-ready`(CSP eval 차단 확인 포함)를 기다려 JSON 보고서를 쓰고 스스로 종료(0 성공 / 1 실패 / 2 강제 타임아웃).
-- **store**: 쓰기는 `<file>.<ts>.tmp` → rename. 로드는 `normalizeSettings`·계정 검증. 빈 계정 배열을 존중(기본 계정 부활 없음, V1-15). 계정 객체는 복사해서 넘긴다(V1-04).
+- **store**: 쓰기는 `<file>.<ts>.tmp` → rename. 로드는 `normalizeSettings`·계정 검증. 빈 계정 배열을 존중(기본 계정 부활 없음, V1-15). 계정 객체는 복사해서 넘긴다(V1-04). 쓰기가 성공한 뒤에만 메모리를 바꾸고, 파싱 안 되는 본 파일은 `.bak`을 덮지 않는다. 계정 변경(add·remove·rename·toggle·reorder)은 컨트롤러에서 한 번에 하나씩 실행한다. 로그인 여부는 identity가 기준이라 logged-out으로 확인된 계정은 identity 재조회(30분·로그인 성공·수동 새로고침) 전까지 수치를 조회하지 않는다(DECISIONS 04:49).
 - **login 세션**: `sessionId = randomUUID()` 기반 id, 세션마다 AbortController, 계정당 동시 1개. 방출된 URL 목록을 세션에 보관해 `shell:open-external {kind:'login'}` 검증에 쓴다. 세션 종료 시 목록 폐기.
 - **창·위치**: 위젯은 `screen` workArea/bounds 차이 + `display-added/removed/metrics-changed`로 재배치, 자동 숨김·좌우 작업 표시줄은 koffi `SHAppBarMessage`(실패 시 해당 기능만 끄고 폴백, V1-18·29). docked 최상위 유지는 koffi `SetWindowPos(HWND_TOPMOST)`를 같은 HWND에 재기동 없이(V1-12·28), 전체화면 감지는 koffi로 전경 창·모니터 비교 후 `showInactive()` 복원(V1-30). TaskbarDock.exe는 쓰지 않는다.
-- **팝업**: 위젯/트레이 클릭은 잠금 없이 열고 blur 시 숨김. 설정 조작 중에만 `window:set-popup-lock`(V1-09). 위젯 이동·디스플레이 변경 시 열린 팝업도 재배치(V1-27).
-- **트레이**: 메뉴 `trayToggleWidget`·`trayOpenPopup`·`trayAutoLaunch`·`trayRefreshNow`·`trayAddAccount`·`trayQuit`. 문구는 `shared/i18n`.
+- **팝업**: 위젯/트레이 클릭은 잠금 없이 열고 blur 시 숨김. 설정 조작 중에만 `window:set-popup-lock`(V1-09). 잠금 중에 온 blur는 기억했다가 잠금이 풀리면 숨긴다. 재질 전환으로 창을 다시 만들면 열려 있던 팝업을 설정 탭으로 다시 연다. 위젯 이동·디스플레이 변경 시 열린 팝업도 재배치(V1-27).
+- **트레이**: 메뉴 `trayToggleWidget`·`trayOpenPopup`·`trayAutoLaunch`·`trayRefreshNow`·`trayAccounts`·`trayQuit`. 문구는 `shared/i18n`.
 - **자동 시작**: `setLoginItemSettings({openAtLogin, path: process.execPath, args:['--autostart']})`, 조회도 같은 path·args(V1-31). `--autostart`/`--hidden`이면 위젯만 비활성 표시. Run 값 이름은 v1의 `electron.app.AI Usage Widget`과 달라야 한다(appUserModelId/productName 확인은 T8에서).
 - **second-instance**: 기존 인스턴스가 위젯 표시 + 팝업 열기(V1-32, 스캐폴드에 최소 처리 있음).
 
@@ -328,7 +331,7 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 
 | V1 | 요지 | 해결 위치(모듈) | 스캐폴드 상태 |
 |---|---|---|---|
-| 01 | customMock을 정상 값으로 표시 | 계약 `usedPercent:null`, `applyFetchFailure` / codex·claude·grok·renderer | 계약 완료 |
+| 01 | customMock을 정상 값으로 표시 | 계약 `usedPercent:null`, `applyFetchFailure` / codex·claude·grok·renderer | 완료(위젯도 조회 실패 시 마지막 실측값을 흐리게 + '!', 리뷰 1차) |
 | 02 | 폴더 권한·퓨즈 꺼짐 | `electron-builder.yml` per-user + 퓨즈 | 완료(dist:dir에서 퓨즈 적용 확인) |
 | 03 | 공식 클라이언트 사칭·자격증명 재사용 | CLI 위임 / codex·claude·grok | 계약 완료 |
 | 04 | 공유 계정 객체에 토큰 주입 | shell store 복사, 위젯 토큰 비보관 | 규칙 명시 |
@@ -339,20 +342,20 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 | 09 | 팝업 항상 잠금 | `window:set-popup-lock` / shell·renderer | 계약 완료 |
 | 10 | Antigravity PowerShell 반복 | 제거 | 해당 없음 |
 | 11 | Claude 백오프·상태 코드 | shell scheduler 백오프, ErrorCode | 계약 완료 |
-| 12 | 슬라이더마다 저장·staytop 재기동 | renderer 미리보기/확정 1회 저장, shell koffi 재기동 없음 | — |
+| 12 | 슬라이더마다 저장·staytop 재기동 | renderer 드래그 중 `window:preview-placement` 미리보기(저장 없음)·확정 1회 저장, shell koffi 재기동 없음 | 완료(리뷰 1차) |
 | 13 | node:sqlite 추정 | 제거 | 해당 없음 |
 | 14 | 자동 실행 기본 ON, `--hidden` 미사용 | 기본 false, `--autostart/--hidden` 파싱 / shell | 계약·인수 파싱 완료 |
 | 15 | 기본 계정 부활 | shell store 빈 배열 존중 | — |
 | 16 | fetch 타임아웃 없음·전체 정체 | `cli/spawn` 타임아웃, 계정별 즉시 브로드캐스트 / shell | spawn 완료 |
 | 17 | weekly 라벨 오표시 | `kind`를 창 길이로 분류 / providers | 계약 완료 |
-| 18 | 좌우·자동 숨김·보조 모니터 | shell platform/taskbar(koffi) | — |
-| 19 | exe 선택 기준·stdin error | `resolveCommand` 고정 규칙, stdin error 처리 | 완료 |
+| 18 | 좌우·자동 숨김·보조 모니터 | shell platform/taskbar(koffi) | **부분**: 좌우·자동 숨김(floating 폴백 + 설정 탭 안내)·최대화 창 판정 완료. 보조 모니터 선택은 보류(사용자 결정, DECISIONS 04:49) |
+| 19 | exe 선택 기준·stdin error | `resolveCommand` 고정 규칙, stdin error 처리 | 완료(Authenticode 확인은 하지 않음, DECISIONS 04:49) |
 | 20 | 렌더러 입력 무검증 | `shared/ipc` 검증기, `clampWidgetSize` | 완료 |
 | 21 | 앱 내 OAuth 결함 | 앱 내 OAuth 없음 | 해당 없음 |
 | 22 | 배포 번들 Mock API·테마 조건 | mock은 테스트만 / renderer | — |
 | 23 | isRefreshing 항상 false | `RefreshStatus` / shell·renderer | 계약 완료 |
 | 24 | 오류 삼킴·영구 loading | ErrorCode + i18n / shell·providers | 계약 완료 |
-| 25 | 전체 재렌더 | renderer 부분 갱신 | — |
+| 25 | 전체 재렌더 | renderer 키 기반 부분 갱신, 표시 애니메이션은 `popup:show` 때만 | 완료(리뷰 1차) |
 | 26 | 슬라이더 키보드 포커스 소실 | renderer | — |
 | 27 | 팝업 재배치 누락 | shell | — |
 | 28 | floating에서도 moveTop | shell zorder | — |
@@ -398,10 +401,11 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 
 ## 14. i18n 키 변경 기록(v1 86키 기준)
 
-- **유지(이름 그대로)**: `trayToggleWidget` `trayOpenPopup` `trayAutoLaunch` `trayRefreshNow` `trayQuit` `trayTooltip` `popupTitle` `accountsActive` `refresh` `close` `tabUsage` `tabAccounts` `tabSettings` `noActiveAccounts` `addAccountHint` `realtimeMonitoring` `sessionLimit5h` `usageLabel` `resetLabel` `weeklyLimit` `moveUp` `moveDown` `deleteAccountTitle` `deleteAccountBtn` `redetect` `checkedAccountsHint` `save` `cancel` `confirmDeleteAccount` `widgetTheme` `theme1a`~`theme1d` `iconStyleLabel` `iconColor` `iconMono` `launchAtLogin` `colorByUsageLabel` `showCardBg` `showUsedPercentLabel` `placementLabel` `placementDocked` `placementFloating` `alwaysOnTopLabel` `alwaysOnTopDesc` `alignmentLabel` `alignRightFloating` `alignRightDocked` `alignLeftFloating` `alignLeftDocked` `offsetLabel` `alphaLabel` `refreshIntervalLabel` `interval15`~`interval300` `unitUsed` `unitLeft` `widgetTooltip` `widgetTooltipNoWeekly` `noAccountTitle` `widgetClickTitle`. 문구 정정: `accountsActive`(복수형 회피), en `usageLabel`="Used"(중복 해소), `resetLabel`("리셋: -- 남음" 제거), `alphaLabel`·`noAccountTitle`(V1-35), "작업 표시줄" 표기 통일, `confirmDeleteAccount`(격리 폴더 삭제 안내).
-- **이름 변경**: `trayAddGoogle`→`trayAddAccount`, `modelQuotaTitle`→`otherWindowsTitle`, `detectingApps`→`detectingCli`, `localInstallDetected`→`cliDetected`/`cliDetectedNoVersion`, `loginFailedAlert`→`loginFailed`.
+- **유지(이름 그대로)**: `trayToggleWidget` `trayOpenPopup` `trayAutoLaunch` `trayRefreshNow` `trayQuit` `trayTooltip` `popupTitle` `accountsActive` `refresh` `close` `tabUsage` `tabAccounts` `tabSettings` `noActiveAccounts` `addAccountHint` `sessionLimit5h` `resetLabel` `weeklyLimit` `moveUp` `moveDown` `deleteAccountTitle` `deleteAccountBtn` `redetect` `checkedAccountsHint` `save` `cancel` `confirmDeleteAccount` `widgetTheme` `theme1a`~`theme1d` `iconStyleLabel` `iconColor` `iconMono` `launchAtLogin` `colorByUsageLabel` `showCardBg` `showUsedPercentLabel` `placementLabel` `placementDocked` `placementFloating` `alwaysOnTopLabel` `alwaysOnTopDesc` `alignmentLabel` `alignRightFloating` `alignRightDocked` `alignLeftFloating` `alignLeftDocked` `offsetLabel` `alphaLabel` `refreshIntervalLabel` `interval15`~`interval300` `unitUsed` `unitLeft` `widgetTooltip` `widgetTooltipNoWeekly` `noAccountTitle` `widgetClickTitle`. 문구 정정: `accountsActive`(복수형 회피), `resetLabel`("리셋: -- 남음" 제거), `alphaLabel`·`noAccountTitle`(V1-35), "작업 표시줄" 표기 통일, `confirmDeleteAccount`(격리 폴더 삭제 안내).
+- **이름 변경**: `trayAddGoogle`→`trayAccounts`(계정 관리 열기), `modelQuotaTitle`→`otherWindowsTitle`, `detectingApps`→`detectingCli`, `localInstallDetected`→`cliDetected`/`cliDetectedNoVersion`, `loginFailedAlert`→`loginFailed`.
 - **삭제**(mock·Google OAuth·로컬 IDE 전용): `localIdeNoAuth` `runningNow` `presetReady` `added` `addToWidget` `localDetectTitle` `addCustomAccountTitle` `accountAlias` `iconLetterLabel` `brandColorLabel` `usage5h` `usageWeekly` `addGoogleOAuth` `addManually` `resetDefaults` `confirmResetDefaults`.
-- **추가**: 창·상태(`windowOtherMinutes` `percentUnknown` `resetUnknown` `lastMeasured` `neverMeasured` `sourceLabel` `errorDetail` `state_*` `source_*` `provider_*`), 새로고침(`widgetRefresh` `refreshing`), 계정(`addAccountTitle` `addAccountFor` `accountLabelLabel` `accountLabelPlaceholder` `rename` `enableAccount` `cliNotFound` `cliInstallGuide`), 로그인(`login*`, `loginStage_*`, `loginState_*`), 브리지(`bridge*`), 테마·언어(`themeWindows` `material*` `language*` `showWeeklyLimitLabel` `verticalOffsetLabel` `pixels`), 오류(`error_*` 20개).
+- **추가**: 창·상태(`windowOtherMinutes` `percentUnknown` `resetUnknown` `lastMeasured` `neverMeasured` `sourceLabel` `errorDetail` `state_*` `source_*` `provider_*`), 새로고침(`widgetRefresh` `refreshing`), 계정(`addAccountFor` `accountLabelLabel` `accountLabelPlaceholder` `rename` `enableAccount` `cliNotFound` `cliInstallGuide`), 로그인(`login*`, `loginStage_*`, `loginState_*`), 브리지(`bridge*`), 테마·언어(`themeWindows` `material*` `language*` `showWeeklyLimitLabel` `verticalOffsetLabel` `pixels` `placementFallbackHint`), 오류(`error_*` 21개).
+- **리뷰 1차(26.09.15 04:49)**: 참조 0건 키 삭제 `trayAddAccount` `realtimeMonitoring` `usageLabel` `addAccountTitle`. 추가 `placementFallbackHint` `bridgeRemoveBeforeUninstall`. `redetect`는 계정 탭 공급자 헤더의 '다시 감지' 버튼에서 쓴다. `bridgeInstallNote`에 백업 위치·제거 전 복원 안내를 넣었다.
 
 ---
 

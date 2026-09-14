@@ -228,8 +228,10 @@ export class WidgetApp {
   private reportSize(): void {
     const size = this.measure(this.bar);
     if (!(size.width > 0) || !(size.height > 0)) return;
+    // The bar is capped at the window width; add what the items lost so the window can grow to fit.
+    const clipped = Math.max(0, this.main.scrollWidth - this.main.clientWidth);
     const next = {
-      width: Math.ceil(size.width) + SIZE_MARGIN,
+      width: Math.ceil(size.width + clipped) + SIZE_MARGIN,
       height: Math.max(MIN_HEIGHT, Math.ceil(size.height) + SIZE_MARGIN),
     };
     if (this.lastSize !== null && this.lastSize.width === next.width && this.lastSize.height === next.height) return;

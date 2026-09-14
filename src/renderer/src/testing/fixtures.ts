@@ -74,6 +74,7 @@ export function appState(overrides: AppStateOverrides = {}): AppStateSnapshot {
     refresh: { inFlight: false, accountIds: [], lastRunAt: null, nextRunAt: null },
     theme: themeTokens(),
     cli: { claude: { state: 'found', version: '2.1.270' }, codex: { state: 'found' }, grok: { state: 'missing' } },
+    effectivePlacementMode: null,
     ...rest,
     settings: { ...DEFAULT_SETTINGS, ...settings },
   };

@@ -4,7 +4,7 @@ import type { AppStateSnapshot, LoginEvent } from '../../../shared/types';
 import { FakeApi, NOW, account, appState, flush, quotaWindow, usage } from '../testing/fixtures';
 import { isValidPaste } from './login-panel';
 import { PopupApp } from './popup-app';
-import { RANGE_COMMIT_DELAY_MS } from './settings-tab';
+import { PREVIEW_THROTTLE_MS, RANGE_COMMIT_DELAY_MS } from './settings-tab';
 
 describe('isValidPaste', () => {
   it('requires one non-empty line within the IPC limit', () => {
@@ -50,6 +50,29 @@ describe('PopupApp shell', () => {
     expect(app.getActiveTab()).toBe('accounts');
     api.emit('popup:show', { tab: null });
     expect(app.getActiveTab()).toBe('accounts');
+  });
+
+  it('every popup:show replays the entry animation and refreshes a visible accounts tab (P-01)', () => {
+    const api = new FakeApi().reply('claude-bridge:status', () => ({
+      ok: true,
+      value: { installed: false, wrapsExistingCommand: false, targetAccountId: null, lastDataAt: null },
+    }));
+    const { app } = setup(appState({ accounts: [account({ id: 'a1' })] }), api);
+    expect(app.popupRoot.classList.contains('is-entering')).toBe(false);
+    api.emit('popup:show', { tab: 'accounts' });
+    expect(app.popupRoot.classList.contains('is-entering')).toBe(true);
+    expect(api.callsTo('claude-bridge:status')).toHaveLength(1);
+    api.emit('popup:show', { tab: null });
+    expect(app.getActiveTab()).toBe('accounts');
+    expect(api.callsTo('claude-bridge:status')).toHaveLength(2);
+  });
+
+  it('popup:show without a tab opens the accounts tab while there are no accounts', () => {
+    const { api, app } = setup(appState());
+    api.emit('popup:show', { tab: null });
+    expect(app.getActiveTab()).toBe('accounts');
+    api.emit('popup:show', { tab: 'settings' });
+    expect(app.getActiveTab()).toBe('settings');
   });
 
   it('tabs follow the ARIA tab pattern with arrow keys', () => {
@@ -285,6 +308,42 @@ describe('Accounts tab', () => {
     expect(app.accounts.sections.claude.installGuideButton.hidden).toBe(true);
   });
 
+  it('re-scan button asks main to detect a missing CLI and is inert while detecting (P-06)', async () => {
+    const { api, app } = setup(appState());
+    const grok = app.accounts.sections.grok;
+    expect(grok.redetectButton.hidden).toBe(false);
+    expect(grok.redetectButton.textContent).toBe('Re-scan');
+    grok.redetectButton.click();
+    await flush();
+    expect(api.callsTo('cli:redetect')).toEqual([{ provider: 'grok' }]);
+    expect(app.accounts.sections.codex.redetectButton.hidden).toBe(true);
+
+    const base = appState();
+    app.update({ ...base, cli: { ...base.cli, grok: { state: 'unknown' } } });
+    expect(grok.el.querySelector('.provider-cli')?.textContent).toBe('Checking installed CLIs...');
+    expect(grok.redetectButton.disabled).toBe(true);
+    grok.redetectButton.click();
+    expect(api.callsTo('cli:redetect')).toHaveLength(1);
+  });
+
+  it('order buttons follow the list shown in each provider section (P-05)', () => {
+    const state = appState({
+      accounts: [
+        account({ id: 'c1', provider: 'claude', order: 0 }),
+        account({ id: 'x1', provider: 'codex', order: 1 }),
+        account({ id: 'x2', provider: 'codex', order: 2 }),
+      ],
+    });
+    const { app } = setup(state);
+    const codexRows = app.accounts.sections.codex.el.querySelectorAll('.account-row');
+    expect(codexRows[0]?.querySelector<HTMLButtonElement>('.btn-move-up')?.disabled).toBe(true);
+    expect(codexRows[0]?.querySelector<HTMLButtonElement>('.btn-move-down')?.disabled).toBe(false);
+    expect(codexRows[1]?.querySelector<HTMLButtonElement>('.btn-move-down')?.disabled).toBe(true);
+    const claudeRow = app.accounts.sections.claude.el.querySelector('.account-row');
+    expect(claudeRow?.querySelector<HTMLButtonElement>('.btn-move-up')?.disabled).toBe(true);
+    expect(claudeRow?.querySelector<HTMLButtonElement>('.btn-move-down')?.disabled).toBe(true);
+  });
+
   it('Claude bridge: status, confirmed install for the only account, uninstall', async () => {
     const api = new FakeApi()
       .reply('claude-bridge:status', () => ({ ok: true, value: { installed: false, wrapsExistingCommand: false, targetAccountId: null, lastDataAt: null } }))
@@ -306,7 +365,8 @@ describe('Accounts tab', () => {
     expect(api.callsTo('claude-bridge:install-default')).toEqual([{ accountId: 'cl1' }]);
     expect(bridge?.querySelector('.bridge-status')?.textContent).toBe('Installed in default profile');
     expect(bridge?.querySelector('.bridge-detail')?.textContent).toBe(
-      'Wraps and keeps your existing statusline command · Last record 2 minutes ago · Receiving account: Claude A',
+      'Wraps and keeps your existing statusline command · Last record 2 minutes ago · Receiving account: Claude A · ' +
+        en.bridgeRemoveBeforeUninstall,
     );
     bridge?.querySelector<HTMLButtonElement>('.bridge-uninstall')?.click();
     expect(api.callsTo('claude-bridge:uninstall-default')).toEqual([null]);
@@ -371,15 +431,25 @@ describe('Settings tab', () => {
     expect(api.callsTo('settings:update')).toContainEqual({ patch: { refreshIntervalSec: 120 } });
   });
 
-  it('always-on-top is only shown for floating placement', () => {
+  it('always-on-top is shown whenever the widget floats, including the docked fallback (P-04)', () => {
     const { app } = setup(appState());
     const wrap = app.settings.el.querySelector('[data-setting="alwaysOnTop"]')?.closest<HTMLElement>('.form-group');
+    const hint = app.settings.el.querySelector<HTMLElement>('.placement-fallback');
     expect(wrap?.hidden).toBe(true);
-    app.update(appState({ settings: { placementMode: 'floating' } }));
+    expect(hint?.hidden).toBe(true);
+    app.update(appState({ settings: { placementMode: 'floating' }, effectivePlacementMode: 'floating' }));
     expect(wrap?.hidden).toBe(false);
+    expect(hint?.hidden).toBe(true);
+    // Docked chosen, but a side or auto-hide taskbar makes it float.
+    app.update(appState({ effectivePlacementMode: 'floating' }));
+    expect(wrap?.hidden).toBe(false);
+    expect(hint?.hidden).toBe(false);
+    expect(hint?.textContent).toBe(en.placementFallbackHint);
+    app.update(appState({ effectivePlacementMode: 'docked' }));
+    expect(wrap?.hidden).toBe(true);
   });
 
-  it('range input previews without saving and commits once after change', () => {
+  it('range input moves the widget without saving and commits once after change (P-03)', () => {
     const { api, app } = setup(appState());
     const slider = app.settings.el.querySelector<HTMLInputElement>('[data-setting="offsetPx"]');
     if (slider === null) throw new Error('slider missing');
@@ -387,12 +457,30 @@ describe('Settings tab', () => {
     slider.dispatchEvent(new Event('input', { bubbles: true }));
     expect(slider.parentElement?.querySelector('.range-value')?.textContent).toBe('120px');
     expect(api.callsTo('settings:update')).toHaveLength(0);
+    vi.advanceTimersByTime(PREVIEW_THROTTLE_MS);
+    expect(api.callsTo('window:preview-placement')).toEqual([{ patch: { offsetPx: 120 } }]);
     slider.dispatchEvent(new Event('change', { bubbles: true }));
     slider.value = '121';
     slider.dispatchEvent(new Event('change', { bubbles: true }));
     expect(api.callsTo('settings:update')).toHaveLength(0);
     vi.advanceTimersByTime(RANGE_COMMIT_DELAY_MS);
     expect(api.callsTo('settings:update')).toEqual([{ patch: { offsetPx: 121 } }]);
+  });
+
+  it('a drag that ends on the saved value drops the preview instead of saving', () => {
+    const { api, app } = setup(appState());
+    const slider = app.settings.el.querySelector<HTMLInputElement>('[data-setting="verticalOffsetPx"]');
+    if (slider === null) throw new Error('slider missing');
+    const saved = slider.value;
+    slider.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    slider.value = '12';
+    slider.dispatchEvent(new Event('input', { bubbles: true }));
+    vi.advanceTimersByTime(PREVIEW_THROTTLE_MS);
+    slider.value = saved;
+    slider.dispatchEvent(new Event('input', { bubbles: true }));
+    slider.dispatchEvent(new Event('pointerup', { bubbles: true }));
+    expect(api.callsTo('window:preview-placement')).toEqual([{ patch: { verticalOffsetPx: 12 } }, { patch: null }]);
+    expect(api.callsTo('settings:update')).toHaveLength(0);
   });
 
   it('dragging locks the popup and releases the lock on pointerup', () => {
@@ -405,6 +493,7 @@ describe('Settings tab', () => {
     slider.dispatchEvent(new Event('pointerup', { bubbles: true }));
     expect(api.callsTo('window:set-popup-lock')).toEqual([{ locked: true }, { locked: false }]);
     expect(api.callsTo('settings:update')).toEqual([{ patch: { alphaPercent: 50 } }]);
+    expect(api.callsTo('window:preview-placement')).toHaveLength(0);
   });
 
   it('reverts the control when saving fails', async () => {

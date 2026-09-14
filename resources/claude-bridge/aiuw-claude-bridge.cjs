@@ -214,6 +214,26 @@ function shellInvocation(command, mode, env) {
   return { file: powershellPath(env), args: ['-NoProfile', '-NonInteractive', '-EncodedCommand', encoded] };
 }
 
+// The wrapped command runs under a shell, so a plain kill would leave its children running.
+function killTree(child) {
+  const root = process.env.SystemRoot || process.env.windir || 'C:\\Windows';
+  try {
+    childProcess.spawnSync(path.win32.join(root, 'System32', 'taskkill.exe'), ['/PID', String(child.pid), '/T', '/F'], {
+      shell: false,
+      windowsHide: true,
+      stdio: 'ignore',
+      timeout: 5000,
+    });
+  } catch (_ignored) {
+    // Fall through to a direct kill.
+  }
+  try {
+    child.kill();
+  } catch (_ignored) {
+    // Already gone.
+  }
+}
+
 function runWrapped(stdinBuffer, args) {
   let command = null;
   try {
@@ -234,11 +254,7 @@ function runWrapped(stdinBuffer, args) {
     return;
   }
   const guard = setTimeout(function () {
-    try {
-      child.kill();
-    } catch (_ignored) {
-      // Already gone.
-    }
+    killTree(child);
   }, WRAP_TIMEOUT_MS);
   child.on('error', function () {
     clearTimeout(guard);

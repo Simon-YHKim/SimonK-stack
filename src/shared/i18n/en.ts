@@ -6,7 +6,6 @@ export const en: Record<keyof typeof ko, string> = {
   trayOpenPopup: 'Open Details',
   trayAutoLaunch: 'Launch at Login',
   trayRefreshNow: 'Refresh Now',
-  trayAddAccount: 'Add Account...',
   trayAccounts: 'Accounts...',
   trayQuit: 'Quit',
   trayTooltip: 'AI Usage Widget',
@@ -23,10 +22,8 @@ export const en: Record<keyof typeof ko, string> = {
   // Usage tab
   noActiveAccounts: 'No active accounts.',
   addAccountHint: 'Add and sign in to an account from the [Accounts] tab.',
-  realtimeMonitoring: 'Live monitoring',
   otherWindowsTitle: 'Other limits',
   sessionLimit5h: '5-Hour Session Limit',
-  usageLabel: 'Used',
   resetLabel: 'Resets in {time}',
   weeklyLimit: 'Weekly Limit',
   windowOtherMinutes: '{minutes}-min limit',
@@ -44,7 +41,6 @@ export const en: Record<keyof typeof ko, string> = {
   deleteAccountBtn: 'Delete',
   confirmDeleteAccount: "Remove this account from the widget? Its widget-only sign-in folder is deleted too.",
   checkedAccountsHint: 'Checked accounts are shown live on the taskbar widget.',
-  addAccountTitle: 'Add Account',
   addAccountFor: 'Add {provider} account',
   accountLabelLabel: 'Account name',
   accountLabelPlaceholder: 'e.g. Work account',
@@ -95,7 +91,9 @@ export const en: Record<keyof typeof ko, string> = {
   bridgeLastData: 'Last record {time}',
   bridgeTargetAccount: 'Receiving account: {label}',
   bridgeSelectTarget: 'Choose receiving account',
-  bridgeInstallNote: 'Claude Code records only after you accept folder trust, and a custom statusline hides its shortcut hints.',
+  bridgeInstallNote:
+    'Claude Code records only after you accept folder trust, and a custom statusline hides its shortcut hints. Backups stay in the same folder as settings.json.aiuw-backup-* (the newest 3). Before uninstalling the widget, click [Remove from default profile] to restore your original statusline.',
+  bridgeRemoveBeforeUninstall: 'Before uninstalling the widget, click [Remove from default profile] to restore your original statusline.',
 
   // Settings tab
   widgetTheme: 'Widget Theme',
@@ -115,6 +113,7 @@ export const en: Record<keyof typeof ko, string> = {
   placementLabel: 'Widget Placement',
   placementDocked: 'Taskbar Overlay (Recommended)',
   placementFloating: 'Above Taskbar',
+  placementFallbackHint: 'Your taskbar is on the side or auto-hides, so the widget is shown above it for now.',
   alwaysOnTopLabel: 'Always on Top',
   alwaysOnTopDesc: 'Keeps the widget above other windows',
   alignmentLabel: 'Widget Alignment',

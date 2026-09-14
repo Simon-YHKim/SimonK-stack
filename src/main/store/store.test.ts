@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -40,6 +40,15 @@ describe('atomic write', () => {
     expect(await readFile(file, 'utf8')).toBe('{"v":2}');
     expect(await readFile(backupPathFor(file), 'utf8')).toBe('{"v":1}');
     expect((await readdir(path.dirname(file))).filter((name) => name.endsWith('.tmp'))).toEqual([]);
+  });
+
+  it('never replaces a good backup with a corrupt main file (CR-09)', async () => {
+    const file = path.join(dir, 'c.json');
+    await writeFile(file, '{broken', 'utf8');
+    await writeFile(backupPathFor(file), '{"good":true}', 'utf8');
+    await writeFileAtomic(file, '{"v":3}', { backup: true });
+    expect(await readFile(file, 'utf8')).toBe('{"v":3}');
+    expect(await readFile(backupPathFor(file), 'utf8')).toBe('{"good":true}');
   });
 
   it('falls back to the backup when the main file is corrupt, and strips a BOM', async () => {
@@ -98,6 +107,18 @@ describe('accounts normalization', () => {
     expect(moveAccount(list, 'b', 'up')?.map((a) => a.id)).toEqual(['b', 'c', 'a']);
     expect(moveAccount(list, 'zzz', 'down')).toBeNull();
   });
+
+  it('moves within the same provider, skipping other providers (P-05)', () => {
+    const list = [
+      account({ id: 'c1', provider: 'claude', order: 0 }),
+      account({ id: 'x1', provider: 'codex', order: 1 }),
+      account({ id: 'g1', provider: 'grok', order: 2 }),
+      account({ id: 'x2', provider: 'codex', order: 3 }),
+    ];
+    expect(moveAccount(list, 'x2', 'up', { sameProvider: true })?.map((a) => a.id)).toEqual(['c1', 'x2', 'g1', 'x1']);
+    expect(moveAccount(list, 'x1', 'up', { sameProvider: true })?.map((a) => a.id)).toEqual(['c1', 'x1', 'g1', 'x2']);
+    expect(moveAccount(list, 'c1', 'down', { sameProvider: true })?.map((a) => a.id)).toEqual(['c1', 'x1', 'g1', 'x2']);
+  });
 });
 
 describe('openStore', () => {
@@ -130,6 +151,16 @@ describe('openStore', () => {
     expect(reloaded.getAccounts()).toEqual([
       { ...account({ id: 'x1', label: 'Mine' }), profileDir: path.resolve(profilesRoot, 'codex', 'x1') },
     ]);
+  });
+
+  it('keeps the in-memory value when the write fails (CR-10)', async () => {
+    const store = await openStore({ dir, profilesRoot, logger: nullLogger });
+    await store.saveAccounts([account({ id: 'x1' })]);
+    // A directory where accounts.json must be replaced makes every rename fail.
+    await rm(path.join(dir, ACCOUNTS_FILE), { force: true });
+    await mkdir(path.join(dir, ACCOUNTS_FILE));
+    await expect(store.saveAccounts([account({ id: 'x1' }), account({ id: 'x2', order: 1 })])).rejects.toBeDefined();
+    expect(store.getAccounts().map((a) => a.id)).toEqual(['x1']);
   });
 
   it('serializes concurrent writes so the last save wins', async () => {

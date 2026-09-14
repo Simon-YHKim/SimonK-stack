@@ -61,6 +61,12 @@ export function hasBridgeStatusLine(data: Record<string, unknown>): boolean {
   return isBridgeCommand(statusLineCommand(data));
 }
 
+/** Key passed to an installed bridge command (`--key <k>` for node, `-Key <k>` for PowerShell). */
+export function bridgeKeyInCommand(command: string | null): string | null {
+  if (command === null || !isBridgeCommand(command)) return null;
+  return /(?:^|\s)(?:--key|-Key)\s+([0-9a-f]{16})(?=\s|$)/.exec(command)?.[1] ?? null;
+}
+
 export type ApplyBridgeResult =
   | { ok: true; data: Record<string, unknown>; changed: boolean; previous: PreviousStatusLine }
   | { ok: false; reason: 'unsupported-status-line' };

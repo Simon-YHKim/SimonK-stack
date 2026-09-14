@@ -108,6 +108,18 @@ describe('WidgetApp', () => {
     expect(api.callsTo('window:resize-widget')).toHaveLength(1);
   });
 
+  it('asks for the width the items need when the window clips them (CR-06)', () => {
+    const api = new FakeApi();
+    const root = document.createElement('div');
+    document.body.replaceChildren(root);
+    const app = new WidgetApp({ api, root, measure: () => ({ width: 300, height: 30 }), schedule: (fn) => fn(), navigatorLanguage: 'en-US' });
+    Object.defineProperty(app.main, 'scrollWidth', { configurable: true, value: 700 });
+    Object.defineProperty(app.main, 'clientWidth', { configurable: true, value: 260 });
+    app.update(withAccounts());
+    expect(api.callsTo('window:resize-widget')).toEqual([{ width: 300 + 440 + 4, height: 34 }]);
+    expect(app.bar.lastElementChild?.previousElementSibling).toBe(app.refreshButton);
+  });
+
   it('renders enabled accounts in order with unique ids', () => {
     const state = withAccounts({
       accounts: [

@@ -105,6 +105,28 @@ describe('ipc contract', () => {
     });
   });
 
+  it('window:preview-placement accepts only placement offsets, or null', () => {
+    expect(validateInvokeRequest('window:preview-placement', { patch: null })).toEqual({ ok: true, value: { patch: null } });
+    expect(validateInvokeRequest('window:preview-placement', { patch: { offsetPx: 40, verticalOffsetPx: -3 } })).toEqual({
+      ok: true,
+      value: { patch: { offsetPx: 40, verticalOffsetPx: -3 } },
+    });
+    expect(validateInvokeRequest('window:preview-placement', { patch: { theme: '1c' } }).ok).toBe(false);
+    expect(validateInvokeRequest('window:preview-placement', { patch: { offsetPx: 9999 } }).ok).toBe(false);
+    expect(validateInvokeRequest('window:preview-placement', { patch: {} }).ok).toBe(false);
+    expect(validateInvokeRequest('window:preview-placement', null).ok).toBe(false);
+  });
+
+  it('cli:redetect takes a provider or null', () => {
+    expect(validateInvokeRequest('cli:redetect', { provider: null })).toEqual({ ok: true, value: { provider: null } });
+    expect(validateInvokeRequest('cli:redetect', { provider: 'codex' })).toEqual({ ok: true, value: { provider: 'codex' } });
+    expect(validateInvokeRequest('cli:redetect', { provider: 'gemini' }).ok).toBe(false);
+  });
+
+  it('widget size limit leaves room for many accounts', () => {
+    expect(WIDGET_SIZE_LIMITS.maxWidth).toBeGreaterThanOrEqual(24 * 150);
+  });
+
   it('window:show-popup accepts an optional tab', () => {
     expect(validateInvokeRequest('window:show-popup', null)).toEqual({ ok: true, value: { tab: null } });
     expect(validateInvokeRequest('window:show-popup', { tab: 'accounts' })).toEqual({ ok: true, value: { tab: 'accounts' } });

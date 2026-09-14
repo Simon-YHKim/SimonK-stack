@@ -1,4 +1,4 @@
-import type { Material, Settings } from './settings';
+import type { Material, PlacementMode, Settings } from './settings';
 
 export const PROVIDER_IDS = ['claude', 'codex', 'grok'] as const;
 export type ProviderId = (typeof PROVIDER_IDS)[number];
@@ -233,4 +233,9 @@ export interface AppStateSnapshot {
   refresh: RefreshStatus;
   theme: ThemeTokens;
   cli: Record<ProviderId, CliStatusDTO>;
+  /**
+   * Placement actually in use; differs from `settings.placementMode` when docked falls
+   * back to floating (side or auto-hide taskbar). null until the widget is placed.
+   */
+  effectivePlacementMode: PlacementMode | null;
 }

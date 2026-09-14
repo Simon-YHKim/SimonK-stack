@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { INVOKE_CHANNELS } from '../../shared/ipc';
+import { INVOKE_CHANNELS, type InvokeChannel } from '../../shared/ipc';
 import type { AppController } from '../app/controller';
 import { nullLogger } from '../log';
 import { dispatchInvoke } from './dispatch';
@@ -57,5 +57,43 @@ describe('createInvokeHandlers', () => {
       dispatchInvoke('window:resize-widget', { width: 300, height: 40 }, WIDGET, handlers, deps),
     ).resolves.toEqual({ ok: true, value: null });
     expect(calls).toEqual([{ method: 'resizeWidget', args: [{ width: 300, height: 40 }] }]);
+  });
+
+  it('refuses state-changing channels from the widget view (SEC-03)', async () => {
+    const { controller, calls } = recordingController();
+    const handlers = createInvokeHandlers(controller);
+    const popupOnly: [InvokeChannel, unknown][] = [
+      ['settings:update', { patch: { theme: '1c' } }],
+      ['accounts:add', { provider: 'grok', label: 'x' }],
+      ['accounts:remove', { accountId: 'a1' }],
+      ['accounts:rename', { accountId: 'a1', label: 'x' }],
+      ['accounts:toggle', { accountId: 'a1', enabled: false }],
+      ['accounts:reorder', { accountId: 'a1', direction: 'up' }],
+      ['login:start', { accountId: 'a1' }],
+      ['login:cancel', { sessionId: 's1' }],
+      ['login:submit-paste', { sessionId: 's1', text: 'a#b' }],
+      ['shell:open-external', { kind: 'link', key: 'codex-cli-install' }],
+      ['window:hide-popup', null],
+      ['window:preview-placement', { patch: { offsetPx: 10 } }],
+      ['cli:redetect', { provider: null }],
+      ['claude-bridge:install-default', { accountId: 'a1' }],
+      ['claude-bridge:uninstall-default', null],
+    ];
+    for (const [channel, payload] of popupOnly) {
+      await expect(dispatchInvoke(channel, payload, WIDGET, handlers, deps), channel).resolves.toEqual({
+        ok: false,
+        error: { code: 'forbidden-sender' },
+      });
+    }
+    expect(calls).toEqual([]);
+
+    await dispatchInvoke('cli:redetect', { provider: 'grok' }, POPUP, handlers, deps);
+    await dispatchInvoke('window:preview-placement', { patch: null }, POPUP, handlers, deps);
+    await dispatchInvoke('app:get-state', null, WIDGET, handlers, deps);
+    expect(calls).toEqual([
+      { method: 'redetectCli', args: ['grok'] },
+      { method: 'previewPlacement', args: [null] },
+      { method: 'snapshot', args: [] },
+    ]);
   });
 });

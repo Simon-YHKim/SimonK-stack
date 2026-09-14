@@ -160,6 +160,29 @@ describe('PopupController', () => {
     expect(visible).toBe(true);
   });
 
+  it('hides once the lock is released after a blur it had ignored (CR-01)', () => {
+    const popup = new PopupController(port, { now: () => Date.now() });
+    popup.show(true);
+    popup.setLocked(true); // select dropdown opened
+    popup.onBlur(); // user clicked the desktop
+    vi.advanceTimersByTime(1_000);
+    expect(visible).toBe(true);
+    popup.setLocked(false); // select blur
+    vi.advanceTimersByTime(119);
+    expect(visible).toBe(true);
+    vi.advanceTimersByTime(1);
+    expect(visible).toBe(false);
+
+    // Focus coming back before the unlock (option picked) keeps the popup open.
+    popup.show(true);
+    popup.setLocked(true);
+    popup.onBlur();
+    popup.onFocus();
+    popup.setLocked(false);
+    vi.advanceTimersByTime(1_000);
+    expect(visible).toBe(true);
+  });
+
   it('treats a widget click that caused the blur as a close, not a reopen', () => {
     const popup = new PopupController(port, { now: () => Date.now() });
     popup.toggle();

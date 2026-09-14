@@ -236,6 +236,15 @@ export function renderWidgetItem(view: AccountView, ctx: RenderContext): HTMLEle
     item.append(...RENDERERS[theme](view, ctx));
     return item;
   }
+  if (view.state === 'error' && view.rows.length > 0) {
+    // Last measured values, dimmed, with the failure marker; the tooltip gives the reason and time.
+    item.classList.add('is-error');
+    item.append(
+      ...RENDERERS[theme](view, ctx),
+      h('span', { class: 'state-mark', 'data-state': 'error', 'aria-hidden': 'true' }, [STATUS_GLYPHS.error]),
+    );
+    return item;
+  }
   item.classList.add('is-status');
   const glyph = STATUS_GLYPHS[view.state === 'ok' || view.state === 'stale' || view.state === 'reset' ? 'unavailable' : view.state];
   item.append(

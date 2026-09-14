@@ -23,6 +23,7 @@ export interface AccountsTabDeps {
   api: Api;
   translator: () => Translator;
   report: (message: string) => void;
+  now?: () => number;
 }
 
 const CLI_INSTALL_KEYS: Readonly<Record<ProviderId, ExternalLinkKey>> = {
@@ -364,6 +365,8 @@ class BridgeSection {
       }
       const target = this.accounts.find((a) => a.id === status.targetAccountId);
       if (status.installed && target !== undefined) details.push(t('bridgeTargetAccount', { label: target.label }));
+      // Uninstalling the app does not touch the user's settings.json; the restore step lives here.
+      if (status.installed) details.push(t('bridgeRemoveBeforeUninstall'));
     }
     setText(this.detailEl, details.join(' · '));
     this.detailEl.hidden = details.length === 0;
@@ -402,6 +405,7 @@ class ProviderSection {
   private readonly nameEl: HTMLElement;
   private readonly cliEl: HTMLElement;
   readonly installGuideButton: HTMLButtonElement;
+  readonly redetectButton: HTMLButtonElement;
   private readonly rowsEl: HTMLElement;
   private readonly orphansEl: HTMLElement;
   readonly addButton: HTMLButtonElement;
@@ -426,6 +430,7 @@ class ProviderSection {
     this.nameEl = h('h3', { class: 'provider-name', id: headingId });
     this.cliEl = h('span', { class: 'provider-cli' });
     this.installGuideButton = h('button', { type: 'button', class: 'btn-link cli-install' });
+    this.redetectButton = h('button', { type: 'button', class: 'btn-link cli-redetect' });
     this.rowsEl = h('div', { class: 'provider-rows' });
     this.orphansEl = h('div', { class: 'provider-orphans' });
     this.addButton = h('button', { type: 'button', class: 'btn-secondary btn-add-account' });
@@ -442,7 +447,7 @@ class ProviderSection {
     this.el = h('section', { class: 'provider-section', 'data-provider': provider, 'aria-labelledby': headingId }, [
       h('div', { class: 'provider-header' }, [
         h('div', { class: 'provider-title' }, [this.iconSlot, this.nameEl]),
-        h('div', { class: 'provider-cli-wrap' }, [this.cliEl, this.installGuideButton]),
+        h('div', { class: 'provider-cli-wrap' }, [this.cliEl, this.redetectButton, this.installGuideButton]),
       ]),
       this.rowsEl,
       this.orphansEl,
@@ -453,6 +458,13 @@ class ProviderSection {
 
     this.installGuideButton.addEventListener('click', () => {
       void tab.api.invoke('shell:open-external', { kind: 'link', key: CLI_INSTALL_KEYS[provider] });
+    });
+    // A CLI installed after launch: detect it now instead of waiting for a refresh (v1 #btn-detect-apps).
+    this.redetectButton.addEventListener('click', () => {
+      if (this.redetectButton.disabled) return;
+      void tab.api.invoke('cli:redetect', { provider }).then((result) => {
+        if (!result.ok) tab.reportError(ipcErrorCode(result.error));
+      });
     });
     this.addButton.addEventListener('click', () => this.openAdd());
     this.addCancel.addEventListener('click', () => this.closeAdd(true));
@@ -502,7 +514,7 @@ class ProviderSection {
     });
   }
 
-  update(state: AppStateSnapshot, ctx: RenderContext, globalOrder: readonly string[]): void {
+  update(state: AppStateSnapshot, ctx: RenderContext): void {
     const { t, settings } = ctx;
     const mono = settings.iconStyle === 'monochrome';
     const iconKey = String(mono);
@@ -517,6 +529,9 @@ class ProviderSection {
     this.cliEl.dataset.state = cli.state;
     setText(this.installGuideButton, t('cliInstallGuide'));
     this.installGuideButton.hidden = cli.state !== 'missing';
+    setText(this.redetectButton, t('redetect'));
+    this.redetectButton.hidden = cli.state === 'found';
+    this.redetectButton.disabled = cli.state === 'unknown';
     setText(this.addButton, `+ ${t('addAccountFor', { provider: providerName })}`);
     setText(this.addLabel, t('accountLabelLabel'));
     setAttr(this.addInput, 'placeholder', t('accountLabelPlaceholder'));
@@ -525,7 +540,8 @@ class ProviderSection {
 
     const accounts = sortedAccounts(state.accounts).filter((a) => a.provider === this.provider);
     const seen = new Set<string>();
-    const rowEls = accounts.map((dto) => {
+    // ▲▼ move within this provider's list (main swaps with the same-provider neighbour).
+    const rowEls = accounts.map((dto, index) => {
       seen.add(dto.id);
       let row = this.rows.get(dto.id);
       if (row === undefined) {
@@ -535,8 +551,8 @@ class ProviderSection {
       const panel = this.tab.existingPanel(dto.id);
       if (panel !== undefined && panel.el.parentElement !== row.panelSlot) row.panelSlot.append(panel.el);
       row.update(dto, ctx, {
-        first: globalOrder[0] === dto.id,
-        last: globalOrder[globalOrder.length - 1] === dto.id,
+        first: index === 0,
+        last: index === accounts.length - 1,
         cli,
         loginBusy: panel?.isBusy() ?? false,
       });
@@ -593,6 +609,7 @@ export class AccountsTab {
         api: this.api,
         translator: this.deps.translator,
         onChange: () => this.rerender(),
+        ...(this.deps.now === undefined ? {} : { now: this.deps.now }),
       });
       this.panels.set(accountId, panel);
     }
@@ -675,13 +692,12 @@ export class AccountsTab {
     const ctx = this.ctx;
     if (state === null || ctx === null) return;
     setText(this.hintEl, ctx.t('checkedAccountsHint'));
-    const globalOrder = sortedAccounts(state.accounts).map((a) => a.id);
     for (const [id, panel] of [...this.panels]) {
       if (!state.accounts.some((a) => a.id === id) && !panel.isVisible()) this.panels.delete(id);
       panel.render();
     }
     preservingFocus(this.el.ownerDocument, () => {
-      for (const provider of PROVIDER_IDS) this.sections[provider].update(state, ctx, globalOrder);
+      for (const provider of PROVIDER_IDS) this.sections[provider].update(state, ctx);
     });
   }
 }

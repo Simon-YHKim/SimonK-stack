@@ -97,12 +97,25 @@ export function renumberAccounts(accounts: readonly Account[]): Account[] {
   return [...accounts].sort((a, b) => a.order - b.order).map((account, order) => ({ ...account, order }));
 }
 
-/** Moves one account up or down; returns null when the id is unknown. */
-export function moveAccount(accounts: readonly Account[], accountId: string, direction: 'up' | 'down'): Account[] | null {
+/**
+ * Moves one account up or down; returns null when the id is unknown. With `sameProvider`
+ * it swaps places with the nearest account of the same provider, leaving the others in place.
+ */
+export function moveAccount(
+  accounts: readonly Account[],
+  accountId: string,
+  direction: 'up' | 'down',
+  options: { sameProvider?: boolean } = {},
+): Account[] | null {
   const sorted = renumberAccounts(accounts);
   const index = sorted.findIndex((account) => account.id === accountId);
   if (index < 0) return null;
-  const target = direction === 'up' ? index - 1 : index + 1;
+  const provider = sorted[index]?.provider;
+  const step = direction === 'up' ? -1 : 1;
+  let target = index + step;
+  if (options.sameProvider === true) {
+    while (target >= 0 && target < sorted.length && sorted[target]?.provider !== provider) target += step;
+  }
   if (target < 0 || target >= sorted.length) return sorted;
   const a = sorted[index];
   const b = sorted[target];

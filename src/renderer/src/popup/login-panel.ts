@@ -13,6 +13,7 @@ export interface LoginPanelDeps {
   translator: () => Translator;
   /** Called after every state change so the owner can update surrounding controls. */
   onChange?: (flow: LoginFlow) => void;
+  now?: () => number;
 }
 
 export function isValidPaste(text: string): boolean {
@@ -111,7 +112,7 @@ export class LoginPanel {
 
   start(): void {
     if (this.isBusy()) return;
-    this.dispatch({ type: 'start' });
+    this.dispatch({ type: 'start', at: this.now() });
     this.deps.api.invoke('login:start', { accountId: this.accountId }).then(
       (result) => {
         if (!result.ok) {
@@ -131,7 +132,12 @@ export class LoginPanel {
 
   /** Follow a flow started outside this panel (e.g. tray) without issuing login:start. */
   adopt(): void {
-    if (!this.isBusy()) this.dispatch({ type: 'start' });
+    // The flow already runs in main; accept every event of it.
+    if (!this.isBusy()) this.dispatch({ type: 'start', at: Number.NEGATIVE_INFINITY });
+  }
+
+  private now(): number {
+    return this.deps.now?.() ?? Date.now();
   }
 
   handleEvent(message: LoginEventMessage): void {

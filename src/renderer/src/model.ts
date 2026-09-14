@@ -125,7 +125,9 @@ export function buildAccountView(
   }
   let state = deriveDisplayState(snapshot, now, settings.refreshIntervalSec);
   const windows = snapshot.windows.map((w) => toRow(w, now, settings.showUsedPercent));
-  let rows = isMeasuredState(state) ? selectWidgetRows(windows, settings.showWeeklyLimit) : [];
+  // A failed fetch keeps the last measured windows (DECISIONS 01:36); the widget shows them dimmed.
+  const keepsLastValues = state === 'error' && snapshot.measuredAt !== null;
+  let rows = isMeasuredState(state) || keepsLastValues ? selectWidgetRows(windows, settings.showWeeklyLimit) : [];
   let errorCode = snapshot.errorCode;
   if (isMeasuredState(state) && rows.length === 0) {
     state = 'unavailable';

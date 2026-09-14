@@ -18,8 +18,10 @@ import {
   THEME_IDS,
   VERTICAL_OFFSET_PX_RANGE,
   isValidSettingValue,
+  type PlacementMode,
   type Settings,
 } from '../../../shared/settings';
+import type { PlacementPreview } from '../../../shared/ipc';
 import { ipcErrorCode, describeError, type Api } from '../api';
 import { h, setAttr, setText, uniqueId } from '../dom';
 import type { RenderContext } from '../model';
@@ -29,6 +31,8 @@ export interface SettingsTabDeps {
   translator: () => Translator;
   report: (message: string) => void;
   setLock: (locked: boolean) => void;
+  /** Moves the widget to unsaved offsets while a slider moves; null returns to the saved ones. */
+  preview: (patch: PlacementPreview | null) => void;
 }
 
 type BooleanKey = {
@@ -36,16 +40,23 @@ type BooleanKey = {
 }[keyof Settings];
 type NumberKey = 'offsetPx' | 'verticalOffsetPx' | 'alphaPercent';
 
-type Updater = (settings: Settings, ctx: RenderContext) => void;
+type Updater = (settings: Settings, ctx: RenderContext, effectiveMode: PlacementMode | null) => void;
 
 /** Commit delay for keyboard-driven range changes (one save per burst, V1-12). */
 export const RANGE_COMMIT_DELAY_MS = 250;
+/** Live widget position preview while dragging an offset slider (v1 used 50 ms). */
+export const PREVIEW_THROTTLE_MS = 50;
+
+function placementInUse(settings: Settings, effectiveMode: PlacementMode | null): PlacementMode {
+  return effectiveMode ?? settings.placementMode;
+}
 
 export class SettingsTab {
   readonly el: HTMLElement;
   private readonly updaters: Updater[] = [];
   private settings: Settings | null = null;
   private ctx: RenderContext | null = null;
+  private effectiveMode: PlacementMode | null = null;
 
   constructor(private readonly deps: SettingsTabDeps) {
     this.el = h('div', { class: 'settings-tab' });
@@ -58,8 +69,20 @@ export class SettingsTab {
     this.addSwitch('colorByUsage', 'colorByUsageLabel');
     this.addSwitch('showCardBackground', 'showCardBg');
     this.addRange('alphaPercent', ALPHA_PERCENT_RANGE, 'alphaLabel', (n) => `${n}%`);
-    this.addChoice('placementMode', PLACEMENT_MODES, (v) => (v === 'docked' ? 'placementDocked' : 'placementFloating'), 'placementLabel');
-    this.addSwitch('alwaysOnTop', 'alwaysOnTopLabel', 'alwaysOnTopDesc', (s) => s.placementMode === 'floating');
+    const placement = this.addChoice(
+      'placementMode',
+      PLACEMENT_MODES,
+      (v) => (v === 'docked' ? 'placementDocked' : 'placementFloating'),
+      'placementLabel',
+    );
+    const fallbackHint = h('p', { class: 'form-hint placement-fallback', hidden: true });
+    placement.append(fallbackHint);
+    this.updaters.push((settings, ctx, effectiveMode) => {
+      setText(fallbackHint, ctx.t('placementFallbackHint'));
+      fallbackHint.hidden = !(settings.placementMode === 'docked' && effectiveMode === 'floating');
+    });
+    // Always-on-top matters whenever the widget actually floats, including the docked fallback.
+    this.addSwitch('alwaysOnTop', 'alwaysOnTopLabel', 'alwaysOnTopDesc', (s, mode) => placementInUse(s, mode) === 'floating');
     this.addChoice('alignment', ALIGNMENTS, (v, s) => {
       const floating = s.placementMode === 'floating';
       if (v === 'right') return floating ? 'alignRightFloating' : 'alignRightDocked';
@@ -72,29 +95,39 @@ export class SettingsTab {
     this.addSwitch('openAtLogin', 'launchAtLogin');
   }
 
-  update(settings: Settings, ctx: RenderContext): void {
+  update(settings: Settings, ctx: RenderContext, effectiveMode: PlacementMode | null = null): void {
     this.settings = settings;
     this.ctx = ctx;
-    for (const run of this.updaters) run(settings, ctx);
+    this.effectiveMode = effectiveMode;
+    for (const run of this.updaters) run(settings, ctx, effectiveMode);
   }
 
   private revert(): void {
-    if (this.settings !== null && this.ctx !== null) this.update(this.settings, this.ctx);
+    if (this.settings !== null && this.ctx !== null) this.update(this.settings, this.ctx, this.effectiveMode);
   }
 
   commit(patch: Partial<Settings>): void {
+    const failed = (): void => {
+      // A saved setting clears any preview in main; a failed save must too.
+      if ('offsetPx' in patch || 'verticalOffsetPx' in patch) this.deps.preview(null);
+      this.revert();
+    };
     void this.deps.api.invoke('settings:update', { patch }).then(
       (result) => {
         if (!result.ok) {
           this.deps.report(describeError(this.deps.translator(), ipcErrorCode(result.error)));
-          this.revert();
+          failed();
         }
       },
-      () => this.revert(),
+      failed,
     );
   }
 
-  private group(labelKey: MessageKey, children: HTMLElement[], hintKey?: MessageKey): { el: HTMLElement; label: HTMLElement; hint: HTMLElement | null } {
+  private group(
+    labelKey: MessageKey,
+    children: HTMLElement[],
+    hintKey?: MessageKey,
+  ): { el: HTMLElement; label: HTMLElement; hint: HTMLElement | null } {
     const labelId = uniqueId('setting');
     const label = h('div', { class: 'form-label', id: labelId });
     const hint = hintKey === undefined ? null : h('p', { class: 'form-hint' });
@@ -114,7 +147,7 @@ export class SettingsTab {
     labelKey: MessageKey,
     extraClass?: string,
     hintKey?: MessageKey,
-  ): void {
+  ): HTMLElement {
     const buttons = values.map((value) => {
       const button = h('button', { type: 'button', class: 'choice-button', 'data-value': String(value), 'aria-pressed': 'false' });
       button.addEventListener('click', () => {
@@ -126,7 +159,7 @@ export class SettingsTab {
       return button;
     });
     const row = h('div', { class: `form-row${extraClass === undefined ? '' : ` ${extraClass}`}` }, buttons);
-    this.group(labelKey, [row], hintKey);
+    const { el } = this.group(labelKey, [row], hintKey);
     this.updaters.push((settings, ctx) => {
       values.forEach((value, index) => {
         const button = buttons[index];
@@ -137,9 +170,15 @@ export class SettingsTab {
         setAttr(button, 'aria-pressed', String(active));
       });
     });
+    return el;
   }
 
-  private addSwitch(key: BooleanKey, labelKey: MessageKey, descKey?: MessageKey, visible?: (s: Settings) => boolean): void {
+  private addSwitch(
+    key: BooleanKey,
+    labelKey: MessageKey,
+    descKey?: MessageKey,
+    visible?: (s: Settings, effectiveMode: PlacementMode | null) => boolean,
+  ): void {
     const inputId = uniqueId(`switch-${key}`);
     const input = h('input', { type: 'checkbox', role: 'switch', id: inputId, class: 'switch-input', 'data-setting': key });
     const text = h('span', { class: 'switch-text' });
@@ -156,11 +195,11 @@ export class SettingsTab {
       (patch as Record<string, unknown>)[key] = input.checked;
       this.commit(patch);
     });
-    this.updaters.push((settings, ctx) => {
+    this.updaters.push((settings, ctx, effectiveMode) => {
       setText(text, ctx.t(labelKey));
       if (desc !== null && descKey !== undefined) setText(desc, ctx.t(descKey));
       input.checked = settings[key];
-      wrap.hidden = visible !== undefined && !visible(settings);
+      wrap.hidden = visible !== undefined && !visible(settings, effectiveMode);
     });
   }
 
@@ -176,18 +215,37 @@ export class SettingsTab {
     setAttr(input, 'aria-labelledby', label.id);
     let dragging = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
+    const movesWidget = key === 'offsetPx' || key === 'verticalOffsetPx';
+    let previewTimer: ReturnType<typeof setTimeout> | null = null;
+    let previewed = false;
 
+    const sendPreview = (): void => {
+      previewTimer = null;
+      const n = Number(input.value);
+      if (key === 'alphaPercent' || !isValidSettingValue(key, n)) return;
+      previewed = true;
+      this.deps.preview(key === 'offsetPx' ? { offsetPx: n } : { verticalOffsetPx: n });
+    };
     const preview = (): void => {
       const n = Number(input.value);
       const text = format(n, this.deps.translator());
       setText(value, text);
       setAttr(input, 'aria-valuetext', text);
+      // Not saved: the widget follows the slider, the value is stored once when the gesture ends (V1-12).
+      if (movesWidget && previewTimer === null) previewTimer = setTimeout(sendPreview, PREVIEW_THROTTLE_MS);
     };
     const flush = (): void => {
       if (timer !== null) clearTimeout(timer);
       timer = null;
+      if (previewTimer !== null) clearTimeout(previewTimer);
+      previewTimer = null;
       const n = Number(input.value);
-      if (this.settings === null || this.settings[key] === n || !isValidSettingValue(key, n)) return;
+      const wasPreviewed = previewed;
+      previewed = false;
+      if (this.settings === null || this.settings[key] === n || !isValidSettingValue(key, n)) {
+        if (wasPreviewed) this.deps.preview(null);
+        return;
+      }
       const patch: Partial<Settings> = {};
       patch[key] = n;
       this.commit(patch);
@@ -216,10 +274,12 @@ export class SettingsTab {
       timer = setTimeout(flush, RANGE_COMMIT_DELAY_MS);
     });
 
-    this.updaters.push((settings) => {
-      if (dragging || timer !== null) return;
+    this.updaters.push((settings, ctx) => {
+      if (dragging || timer !== null || previewTimer !== null) return;
       input.value = String(settings[key]);
-      preview();
+      const text = format(settings[key], ctx.t);
+      setText(value, text);
+      setAttr(input, 'aria-valuetext', text);
     });
   }
 

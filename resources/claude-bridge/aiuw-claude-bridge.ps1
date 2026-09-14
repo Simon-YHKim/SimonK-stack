@@ -212,6 +212,10 @@ function Invoke-Wrapped([byte[]]$InputBytes) {
     # The wrapped command may exit without reading stdin.
   }
   if (-not $process.WaitForExit($WrapTimeoutMs)) {
+    # The wrapped command runs under a shell; end its whole tree, not only the shell.
+    $root = $env:SystemRoot
+    if (-not $root) { $root = 'C:\Windows' }
+    try { & ([System.IO.Path]::Combine($root, 'System32', 'taskkill.exe')) /PID $process.Id /T /F 2>&1 | Out-Null } catch { }
     try { $process.Kill() } catch { }
     return 1
   }

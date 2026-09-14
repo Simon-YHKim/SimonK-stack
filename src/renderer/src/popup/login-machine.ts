@@ -10,7 +10,8 @@ export interface DeviceCodeInfo {
 
 export type LoginFlow =
   | { phase: 'idle' }
-  | { phase: 'starting' }
+  /** `since`: when the user started this flow (epoch ms, same clock as LoginEventMessage.at). */
+  | { phase: 'starting'; since: number }
   | {
       phase: 'active';
       sessionId: string;
@@ -25,7 +26,7 @@ export type LoginFlow =
   | { phase: 'error'; code: ErrorCode; sessionId: string | null };
 
 export type LoginAction =
-  | { type: 'start' }
+  | { type: 'start'; at: number }
   | { type: 'started'; sessionId: string }
   | { type: 'start-failed'; code: ErrorCode }
   | { type: 'event'; message: LoginEventMessage }
@@ -83,18 +84,25 @@ function applyEvent(flow: Extract<LoginFlow, { phase: 'active' }>, message: Logi
 export function reduceLogin(flow: LoginFlow, action: LoginAction, accountId: string): LoginFlow {
   switch (action.type) {
     case 'start':
-      return isLoginBusy(flow) ? flow : { phase: 'starting' };
+      return isLoginBusy(flow) ? flow : { phase: 'starting', since: action.at };
     case 'started':
       if (flow.phase === 'starting') return activeFor(action.sessionId);
       if (flow.phase === 'active' && flow.sessionId !== action.sessionId) return { ...flow, sessionId: action.sessionId };
+      // An error adopted from an older session must not hide the session main just started.
+      if (flow.phase === 'error' && flow.sessionId !== null && flow.sessionId !== action.sessionId) {
+        return activeFor(action.sessionId);
+      }
       return flow;
     case 'start-failed':
       return flow.phase === 'starting' ? { phase: 'error', code: action.code, sessionId: null } : flow;
     case 'event': {
       const { message } = action;
       if (message.accountId !== accountId) return flow;
-      // Events may arrive before login:start resolves; adopt their session.
-      if (flow.phase === 'starting') return applyEvent(activeFor(message.sessionId), message);
+      // Events may arrive before login:start resolves; adopt their session, but never one emitted
+      // before this start (e.g. the 'cancelled' of a session the user just cancelled).
+      if (flow.phase === 'starting') {
+        return message.at < flow.since ? flow : applyEvent(activeFor(message.sessionId), message);
+      }
       if (flow.phase === 'active' && flow.sessionId === message.sessionId) return applyEvent(flow, message);
       return flow;
     }

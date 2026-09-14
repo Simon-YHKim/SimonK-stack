@@ -68,13 +68,18 @@ export async function openStore(options: OpenStoreOptions): Promise<AppStore> {
       const found = accounts.find((account) => account.id === accountId);
       return found === undefined ? undefined : cloneAccount(found);
     },
+    // Memory follows disk: a failed write leaves the previous value in place.
     saveSettings: (next) => {
-      settings = normalizeSettings(next);
-      return enqueue(settingsFile, `${JSON.stringify(settings, null, 2)}\n`);
+      const value = normalizeSettings(next);
+      return enqueue(settingsFile, `${JSON.stringify(value, null, 2)}\n`).then(() => {
+        settings = value;
+      });
     },
     saveAccounts: (next) => {
-      accounts = next.map(cloneAccount);
-      return enqueue(accountsFile, `${JSON.stringify(serializeAccounts(accounts), null, 2)}\n`);
+      const value = next.map(cloneAccount);
+      return enqueue(accountsFile, `${JSON.stringify(serializeAccounts(value), null, 2)}\n`).then(() => {
+        accounts = value;
+      });
     },
     flush: async () => {
       await Promise.allSettled([...queues.values()]);

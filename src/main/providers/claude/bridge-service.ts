@@ -22,7 +22,7 @@ import {
   writeDefaultState,
   type BridgeRuntime,
 } from './bridge-files';
-import { hasBridgeStatusLine, parseSettingsJson, statusLineCommand } from './settings-merge';
+import { bridgeKeyInCommand, hasBridgeStatusLine, parseSettingsJson, statusLineCommand } from './settings-merge';
 
 export interface ClaudeBridgeService extends ClaudeBridgeController {
   /** Widget-owned profile: install automatically (no user prompt needed, the folder is ours). */
@@ -39,15 +39,21 @@ export interface DefaultProfile {
 /**
  * The user's own Claude Code profile: `CLAUDE_CONFIG_DIR` from the widget's environment
  * when it is an absolute path outside the widget profiles, otherwise `<home>\.claude`.
+ * The key is always derived from the resolved folder, so the same folder gets the same key
+ * whether it came from the environment or the home default.
  */
 export function resolveDefaultProfile(deps: ProviderDeps): DefaultProfile {
   const fromEnv = deps.env.CLAUDE_CONFIG_DIR;
   if (typeof fromEnv === 'string' && fromEnv.length > 0 && path.isAbsolute(fromEnv)) {
     const insideWidget =
       isPathInside(deps.profilesRoot, fromEnv) || normalizeConfigDir(fromEnv) === normalizeConfigDir(deps.profilesRoot);
-    if (!insideWidget) return { configDir: path.resolve(fromEnv), key: bridgeKeyFor(fromEnv) };
+    if (!insideWidget) {
+      const configDir = path.resolve(fromEnv);
+      return { configDir, key: bridgeKeyFor(configDir) };
+    }
   }
-  return { configDir: path.join(deps.homeDir, '.claude'), key: bridgeKeyFor(null) };
+  const configDir = path.join(deps.homeDir, '.claude');
+  return { configDir, key: bridgeKeyFor(configDir) };
 }
 
 function withError(status: ClaudeBridgeStatus, code: ErrorCode): ClaudeBridgeStatus {
@@ -71,6 +77,8 @@ export function createBridgeService(deps: ProviderDeps, resolveRuntime: () => Br
       targetAccountId: null,
       lastDataAt: null,
     };
+    // An installed bridge under another key (older build, other env) still counts: uninstall must stay reachable.
+    let key = profile.key;
     try {
       const text = await readTextIfExists(path.join(profile.configDir, SETTINGS_FILE_NAME), SETTINGS_MAX_BYTES);
       if (text !== null) {
@@ -78,7 +86,8 @@ export function createBridgeService(deps: ProviderDeps, resolveRuntime: () => Br
         if (doc === null) {
           result.errorCode = 'parse-error';
         } else {
-          result.installed = hasBridgeStatusLine(doc.data) && (statusLineCommand(doc.data) ?? '').includes(profile.key);
+          result.installed = hasBridgeStatusLine(doc.data);
+          key = bridgeKeyInCommand(statusLineCommand(doc.data)) ?? profile.key;
         }
       }
     } catch (error) {
@@ -86,9 +95,10 @@ export function createBridgeService(deps: ProviderDeps, resolveRuntime: () => Br
     }
     if (result.installed) {
       result.targetAccountId = (await readDefaultState(layout))?.targetAccountId ?? null;
-      result.wrapsExistingCommand = (await readWrapState(layout, profile.key))?.present === true;
+      const wrap = await readWrapState(layout, key);
+      result.wrapsExistingCommand = wrap.kind === 'ok' && wrap.previous.present;
     }
-    const record = await readBridgeRecord(layout, profile.key);
+    const record = await readBridgeRecord(layout, key);
     if (record.kind === 'record') result.lastDataAt = record.record.capturedAt;
     return result;
   };
@@ -118,6 +128,7 @@ export function createBridgeService(deps: ProviderDeps, resolveRuntime: () => Br
         targetAccountId: target.id,
         installedAt: now,
         backupPath: result.backupPath ?? previousState?.backupPath ?? null,
+        key: profile.key,
       });
       logger.info('default profile bridge installed', { changed: result.changed, wrapsExisting: result.wrapsExisting });
       return status();
@@ -150,7 +161,7 @@ export function createBridgeService(deps: ProviderDeps, resolveRuntime: () => Br
     async readUsage(account) {
       const keys = [bridgeKeyFor(account.profileDir)];
       const state = await readDefaultState(layout);
-      if (state?.targetAccountId === account.id) keys.push(resolveDefaultProfile(deps).key);
+      if (state?.targetAccountId === account.id) keys.push(state.key ?? resolveDefaultProfile(deps).key);
       const records: BridgeRecord[] = [];
       let invalid = false;
       for (const key of keys) {
