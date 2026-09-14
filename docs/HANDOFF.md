@@ -3,6 +3,16 @@
 
 ## Latest
 - **목적**: v1 위젯을 소스 프로젝트로 재구성. 위젯 새로고침 버튼, Grok 구독 한도, 공식 CLI 로그인 위임 기반 다중 계정, Windows 테마, v1 문제 전부 해결
+- **최종 갱신**: 26.09.15 05:10 KST · Claude Code(리뷰 2차 수정 에이전트)
+- **지금까지**: 리뷰 1차(54ac8ab)·2차 수정 반영. 2차 = RR-01 위치 미리보기 중 팝업 고정(`WindowManager.reposition`), RR-02 설정 변경 직렬화·자동 실행 되돌림(`controller.updateSettings`). `pnpm verify` 0(535테스트) / `pnpm dist:dir` 0 / 배포본 스모크 0(ok:true)
+- **다음 1개**: 사용자 참관 실측 T1(Codex 로그인) — 위젯 계정 탭에서 Codex 계정 추가 → device code 로그인
+- **막힌 것**: CLI 설치 안내 URL 미확정(`src/main/platform/links.ts` 비어 있음) / 사용자 결정 대기 P-08 보조 모니터, SEC-06 제거 시 복원, 코드 서명
+- **TODO**: T1·T2·T3·T4 실측 → T8 GUI 실측(오프셋 슬라이더 드래그 right·left 정렬에서 값이 튀지 않는지, 드래그 후 팝업이 한 번만 옮겨지는지 포함) → NSIS 설치(사용자 확인) → v1 교체(사용자 확인)
+- **미해결 질문**: 보류한 계약 필드(codex credits/blocked, grok overageAvailable, `onStdoutChunk`)를 실측 후 추가할지
+- **요청**: REQ-260915-01 실측 단계에서 브라우저 로그인·코드 입력(사용자)
+
+## 26.09.15 04:10 KST
+- **목적**: v1 위젯을 소스 프로젝트로 재구성. 위젯 새로고침 버튼, Grok 구독 한도, 공식 CLI 로그인 위임 기반 다중 계정, Windows 테마, v1 문제 전부 해결
 - **최종 갱신**: 26.09.15 04:10 KST · Claude Code(통합 에이전트)
 - **지금까지**: 모듈 5개(shell·codex·claude·grok·renderer) main 병합, 실제 어댑터 연결, 계약 변경 반영(DECISIONS 04:06). `pnpm verify` 0 / `pnpm build` 0 / `pnpm dist:dir` 0 / 배포본 스모크 0(ok:true). 퓨즈 확인. 워크트리·병합 브랜치 정리
 - **다음 1개**: 사용자 참관 실측 T1(Codex 로그인) — 위젯 계정 탭에서 Codex 계정 추가 → device code 로그인

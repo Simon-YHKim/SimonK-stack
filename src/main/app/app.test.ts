@@ -49,6 +49,7 @@ interface Harness {
   writes: unknown[];
   profilesRoot: string;
   dir: string;
+  store: Awaited<ReturnType<typeof openStore>>;
 }
 
 const dirs: string[] = [];
@@ -226,7 +227,7 @@ async function setup(
     scheduler: { manualMinIntervalMs: 0, random: () => 0.5, timeoutMs: 2_000 },
   });
   controllers.push(controller);
-  return { controller, windows, calls, logins, opened, writes, profilesRoot, dir };
+  return { controller, windows, calls, logins, opened, writes, profilesRoot, dir, store };
 }
 
 describe('sanitizeSnapshot', () => {
@@ -429,6 +430,34 @@ describe('app controller', () => {
     expect(h.windows.previews).toEqual([{ offsetPx: 20 }, null]);
     h.controller.setEffectivePlacementMode('floating');
     await until(() => h.windows.last()?.effectivePlacementMode === 'floating');
+  });
+
+  it('serializes settings updates so back-to-back changes all persist (RR-02)', async () => {
+    const h = await setup({ autostartSupported: true });
+    await h.controller.start();
+    const [first, second] = await Promise.all([
+      h.controller.updateSettings({ openAtLogin: true }),
+      h.controller.updateSettings({ language: 'en' }),
+    ]);
+    expect(first).toMatchObject({ openAtLogin: true, language: 'auto' });
+    expect(second).toMatchObject({ openAtLogin: true, language: 'en' });
+    expect(h.controller.getSettings()).toMatchObject({ openAtLogin: true, language: 'en' });
+    expect(h.writes).toHaveLength(1);
+    const saved = JSON.parse(await readFile(path.join(h.dir, 'settings.json'), 'utf8')) as Settings;
+    expect(saved).toMatchObject({ openAtLogin: true, language: 'en' });
+  });
+
+  it('rolls the autostart registration back when settings cannot be saved', async () => {
+    const h = await setup({ autostartSupported: true });
+    await h.controller.start();
+    const save = h.store.saveSettings.bind(h.store);
+    h.store.saveSettings = () => Promise.reject(new Error('disk full'));
+    await expect(h.controller.updateSettings({ openAtLogin: true })).rejects.toMatchObject({ code: 'internal' });
+    expect(h.writes.map((w) => (w as { openAtLogin: boolean }).openAtLogin)).toEqual([true, false]);
+    expect(h.controller.getSettings().openAtLogin).toBe(false);
+    // The queue keeps working after a failed change.
+    h.store.saveSettings = save;
+    await expect(h.controller.updateSettings({ language: 'en' })).resolves.toMatchObject({ language: 'en', openAtLogin: false });
   });
 
   it('keeps a confirmed logged-out account logged-out even when usage would read ok (CR-02)', async () => {

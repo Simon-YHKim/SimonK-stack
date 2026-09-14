@@ -185,7 +185,11 @@ export class WindowManager implements WindowsPort {
     this.setPlacement(next);
     if (!sameRect(widget.getBounds(), next.bounds)) widget.setBounds(next.bounds);
     const popup = this.popup;
-    if (popup !== null && !popup.isDestroyed() && popup.isVisible()) popup.setBounds(this.popupBounds(next));
+    // The popup stays put while its offset slider previews: moving it with the widget would shift
+    // the track under a still pointer and feed back into the value. It follows once the preview ends.
+    if (this.preview === null && popup !== null && !popup.isDestroyed() && popup.isVisible()) {
+      popup.setBounds(this.popupBounds(next));
+    }
     this.applyTopmost();
   }
 

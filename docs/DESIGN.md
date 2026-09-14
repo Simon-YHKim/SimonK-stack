@@ -283,7 +283,7 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 - **store**: 쓰기는 `<file>.<ts>.tmp` → rename. 로드는 `normalizeSettings`·계정 검증. 빈 계정 배열을 존중(기본 계정 부활 없음, V1-15). 계정 객체는 복사해서 넘긴다(V1-04). 쓰기가 성공한 뒤에만 메모리를 바꾸고, 파싱 안 되는 본 파일은 `.bak`을 덮지 않는다. 계정 변경(add·remove·rename·toggle·reorder)은 컨트롤러에서 한 번에 하나씩 실행한다. 로그인 여부는 identity가 기준이라 logged-out으로 확인된 계정은 identity 재조회(30분·로그인 성공·수동 새로고침) 전까지 수치를 조회하지 않는다(DECISIONS 04:49).
 - **login 세션**: `sessionId = randomUUID()` 기반 id, 세션마다 AbortController, 계정당 동시 1개. 방출된 URL 목록을 세션에 보관해 `shell:open-external {kind:'login'}` 검증에 쓴다. 세션 종료 시 목록 폐기.
 - **창·위치**: 위젯은 `screen` workArea/bounds 차이 + `display-added/removed/metrics-changed`로 재배치, 자동 숨김·좌우 작업 표시줄은 koffi `SHAppBarMessage`(실패 시 해당 기능만 끄고 폴백, V1-18·29). docked 최상위 유지는 koffi `SetWindowPos(HWND_TOPMOST)`를 같은 HWND에 재기동 없이(V1-12·28), 전체화면 감지는 koffi로 전경 창·모니터 비교 후 `showInactive()` 복원(V1-30). TaskbarDock.exe는 쓰지 않는다.
-- **팝업**: 위젯/트레이 클릭은 잠금 없이 열고 blur 시 숨김. 설정 조작 중에만 `window:set-popup-lock`(V1-09). 잠금 중에 온 blur는 기억했다가 잠금이 풀리면 숨긴다. 재질 전환으로 창을 다시 만들면 열려 있던 팝업을 설정 탭으로 다시 연다. 위젯 이동·디스플레이 변경 시 열린 팝업도 재배치(V1-27).
+- **팝업**: 위젯/트레이 클릭은 잠금 없이 열고 blur 시 숨김. 설정 조작 중에만 `window:set-popup-lock`(V1-09). 잠금 중에 온 blur는 기억했다가 잠금이 풀리면 숨긴다. 재질 전환으로 창을 다시 만들면 열려 있던 팝업을 설정 탭으로 다시 연다. 위젯 이동·디스플레이 변경 시 열린 팝업도 재배치(V1-27). 단 위치 미리보기 중에는 팝업을 옮기지 않고 미리보기 해제·설정 저장 때 재배치한다(슬라이더 되먹임 방지, DECISIONS 26.09.15 05:10).
 - **트레이**: 메뉴 `trayToggleWidget`·`trayOpenPopup`·`trayAutoLaunch`·`trayRefreshNow`·`trayAccounts`·`trayQuit`. 문구는 `shared/i18n`.
 - **자동 시작**: `setLoginItemSettings({openAtLogin, path: process.execPath, args:['--autostart']})`, 조회도 같은 path·args(V1-31). `--autostart`/`--hidden`이면 위젯만 비활성 표시. Run 값 이름은 v1의 `electron.app.AI Usage Widget`과 달라야 한다(appUserModelId/productName 확인은 T8에서).
 - **second-instance**: 기존 인스턴스가 위젯 표시 + 팝업 열기(V1-32, 스캐폴드에 최소 처리 있음).
@@ -342,7 +342,7 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 | 09 | 팝업 항상 잠금 | `window:set-popup-lock` / shell·renderer | 계약 완료 |
 | 10 | Antigravity PowerShell 반복 | 제거 | 해당 없음 |
 | 11 | Claude 백오프·상태 코드 | shell scheduler 백오프, ErrorCode | 계약 완료 |
-| 12 | 슬라이더마다 저장·staytop 재기동 | renderer 드래그 중 `window:preview-placement` 미리보기(저장 없음)·확정 1회 저장, shell koffi 재기동 없음 | 완료(리뷰 1차) |
+| 12 | 슬라이더마다 저장·staytop 재기동 | renderer 드래그 중 `window:preview-placement` 미리보기(저장 없음)·확정 1회 저장, 미리보기 중 팝업 고정(되먹임 방지), shell koffi 재기동 없음 | 완료(리뷰 2차, 드래그 체감은 T8 실측) |
 | 13 | node:sqlite 추정 | 제거 | 해당 없음 |
 | 14 | 자동 실행 기본 ON, `--hidden` 미사용 | 기본 false, `--autostart/--hidden` 파싱 / shell | 계약·인수 파싱 완료 |
 | 15 | 기본 계정 부활 | shell store 빈 배열 존중 | — |

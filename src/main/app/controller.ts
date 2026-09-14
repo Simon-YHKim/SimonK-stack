@@ -119,14 +119,19 @@ export function createAppController(deps: AppControllerDeps) {
   /** Set by stop() and never cleared: a start() still awaiting must not revive the scheduler. */
   let disposed = false;
   let staleTimer: ReturnType<typeof setInterval> | null = null;
-  let accountMutations: Promise<unknown> = Promise.resolve();
-
-  /** Account list changes run one at a time so none works from a list another already replaced. */
-  const serialized = <T>(task: () => Promise<T>): Promise<T> => {
-    const next = accountMutations.then(task, task);
-    accountMutations = next.catch(() => undefined);
-    return next;
+  /** Runs tasks one at a time so none works from state another already replaced. */
+  const serialQueue = () => {
+    let tail: Promise<unknown> = Promise.resolve();
+    return <T>(task: () => Promise<T>): Promise<T> => {
+      const next = tail.then(task, task);
+      tail = next.catch(() => undefined);
+      return next;
+    };
   };
+  /** Account list changes. */
+  const serialized = serialQueue();
+  /** Settings changes: a patch is applied to the settings the previous change committed. */
+  const settingsQueue = serialQueue();
 
   // -------------------------------------------------------------------------
   // Snapshot + broadcast
@@ -348,6 +353,14 @@ export function createAppController(deps: AppControllerDeps) {
       await store.saveSettings(next);
     } catch (error) {
       logger.error('saving settings failed', { error });
+      if (next.openAtLogin !== previous.openAtLogin) {
+        // Keep the registration matching the settings that stay in effect.
+        try {
+          deps.autostart.setEnabled(previous.openAtLogin);
+        } catch (rollbackError) {
+          logger.error('autostart rollback failed', { error: rollbackError });
+        }
+      }
       throw new IpcHandlerError('internal');
     }
     settings = store.getSettings();
@@ -401,12 +414,13 @@ export function createAppController(deps: AppControllerDeps) {
         }
       }
       if (deps.autostart.supported) {
-        const registered = deps.autostart.isEnabled();
-        if (registered !== null && registered !== settings.openAtLogin) {
+        await settingsQueue(async () => {
+          const registered = deps.autostart.isEnabled();
+          if (registered === null || registered === settings.openAtLogin) return;
           // The registry (e.g. Task Manager) is the truth; never re-register silently.
           settings = { ...settings, openAtLogin: registered };
           await store.saveSettings(settings).catch((error: unknown) => logger.warn('saving settings failed', { error }));
-        }
+        });
       }
       if (disposed) return;
       stopped = false;
@@ -451,7 +465,7 @@ export function createAppController(deps: AppControllerDeps) {
     },
 
     updateSettings(patch: Partial<Settings>): Promise<Settings> {
-      return applySettings(applySettingsPatch(settings, patch));
+      return settingsQueue(() => applySettings(applySettingsPatch(settings, patch)));
     },
 
     listAccounts: (): AccountDTO[] => store.getAccounts().map(dtoFor),
