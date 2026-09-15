@@ -120,12 +120,12 @@ def read_live(now=None):
 
 
 def lane_state(vendor, quota):
-    """§8 — 60% 초과 강등 · 85% 초과 금지 · 미확인은 순위 유지."""
+    """§8 — 80% 초과 강등 · 한도 100% 도달 금지(Q-05) · 미확인은 순위 유지."""
     q = quota.get(vendor) or {}
     if q.get("state") != "ok":
         return "unknown"
     p = q["pct"]
-    if p > routing.QUOTA_BLOCK:
+    if p >= routing.QUOTA_BLOCK:          # Q-05: 도달이 금지다(100%)
         return "blocked"
     if p > routing.QUOTA_DEMOTE:
         return "demote"
@@ -146,7 +146,7 @@ def lane_state_for(lane, quota, fable_pct=None, live=None):
     if m.get("quota_bucket") == "fableWeekly":
         if fable_pct is None:
             st = "unknown"
-        elif fable_pct > routing.QUOTA_BLOCK:
+        elif fable_pct >= routing.QUOTA_BLOCK:
             st = "blocked"
         elif fable_pct > routing.QUOTA_DEMOTE:
             st = "demote"
@@ -175,15 +175,16 @@ def lane_state_for(lane, quota, fable_pct=None, live=None):
     return st, why
 
 
-def pick_default(cls, quota, fable_pct=None, live=None, proc=None, falsifiable=False):
+def pick_default(cls, quota, fable_pct=None, live=None, proc=None, falsifiable=False, writes=False):
     """C5 — 기본 레인. 반환 (lane, 메모).
 
-    D-28 #13①: 60% 초과 강등을 **모든 순위**에 적용한다 — ok(또는 미확인) 레인이 있으면 그중 첫째,
+    D-28 #13①: 강등(80% 초과, Q-05)을 **모든 순위**에 적용한다 — ok(또는 미확인) 레인이 있으면 그중 첫째,
     없으면 첫 강등 레인. 이전 판은 1순위만 건너뛰어 61% 인 2순위가 그대로 뽑혔고,
     전 레인이 강등·금지로 섞이면 None 을 돌려주는 버그가 있었다(D-28 N6).
     proc 을 주면 공정 단위 목록(PROCESS_LANES · R1 승격)을 쓴다.
     """
-    lanes = routing.lanes_for_proc(proc, cls, falsifiable) if proc else routing.lanes_for(cls)
+    lanes = (routing.lanes_for_proc(proc, cls, falsifiable, writes) if (proc or writes)
+             else routing.lanes_for(cls))
     if not lanes:
         return None, ("모델 미사용 (orca CLI)" if cls == "N" else "레인 미정")
     first_demote = None
@@ -199,10 +200,10 @@ def pick_default(cls, quota, fable_pct=None, live=None, proc=None, falsifiable=F
             first_demote = (lane, why)
         skipped.append(f"{lane}({why})")
     if first_demote:
-        return first_demote[0], f"전 레인 60% 초과 — 첫 강등 레인 사용({first_demote[1]})"
+        return first_demote[0], f"전 레인 강등선({routing.QUOTA_DEMOTE}%) 초과 — 첫 강등 레인 사용({first_demote[1]})"
     # 감사 MED: 전 후보가 blocked 인데 마지막 금지 lane 을 prefill 하면
     # 문서의 "사용 금지, 후보 없으면 축소안 승인" 과 정반대다. lane 을 주지 않는다.
-    return None, "전 레인이 85% 초과 — 실행 불가. 축소안 승인 필요"
+    return None, "전 레인이 한도 도달·실호출 실패 — 실행 불가. 축소안 승인 필요"
 
 
 def main(out_path=None, argv=None):

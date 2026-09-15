@@ -69,3 +69,30 @@ Q-260913-01 grok 새 계정 충전 · 05 codex 60% 경계 게이트 몫 · 06 �
   `validate_plan` 에 `A_VERIFY_WRITES`(계획에 `writes: true` 면 coding 으로 재분류하라고 막는다) · selftest.
 - **순위 커밋**: `CLASS_LANES["A-verify"] = astra → fable → opus` · #11 본 규칙(반증 "예"인 A 작업 → A-verify).
 - 되돌릴 때는 `VALID_CLASSES` 에서 빼지 말고 `CLASS_LANES` 에서만 뺀다 — 이미 쓰인 원장 행이 손상 판정을 받는다.
+
+## 남은 결정 회신 (2026-09-16 04:19 · 허브 DECISIONS.md)
+
+| 질문 | 결정 | 반영 |
+|---|---|---|
+| Q-260913-01 grok | A — 새 계정 로그인 후 실호출 확인까지만, 충전은 402일 때 재질문 (grok usage 토 11:30경 리셋 — Simon) | 코드 변경 없음 |
+| Q-260913-05 게이트 몫 | Simon 미선택 → Claude 판단: 강등 60→**80% 초과** · 금지 85→**100% 도달**·실호출 실패 · 한도로 실패·정지한 워커만 `handoff_spec` 으로 인수인계 | `QUOTA_DEMOTE/BLOCK` · `make_intake.lane_state` · `routing.handoff_spec` · G4 |
+| Q-260913-06 거울 배치 | C — 모델 장애 대비 비상 절차로만 문서화(아래) | 문서 |
+| Q-260913-09 파일 쓰는 작업 | A — 계획에 `writes: true` 인 공정은 전부 코딩 규칙(코딩 레인·G1·보안 게이트 필수) | `check_guards` · `validate_plan` · `lanes_for_proc(writes=)` |
+| Q-260913-10 fable 순서 | A — M2 뒤 재논의(보류) | 없음 |
+
+**Q-05 에서 채택하지 않은 것**: 상시 모니터링 데몬 · 80% 에서 실행 중 워커 선제 교체. 불변 가드 G4(쿼터로 실행 중 워커를
+멈추지 않는다)와 "데몬·상시 폴링을 만들지 않는다"에 정면으로 걸린다(최고 품질 워커 오사살 · 03:00 쿼터 0% 오독 실적).
+바꾸려면 Simon 의 명시 결정이 필요하다.
+
+**인수인계 절차 (G4 안에서)**: 코디네이터의 수확 루프(`check --wait`)에서 워커가 한도 신호(worker_done 실패 사유 ·
+`worker-read` 끝부분의 한도 메시지 · 429/402)로 실패·정지한 것이 보이면 → `worker-read --source auto` 끝부분과
+`git status` 로 바뀐 파일을 모은다 → `routing.handoff_spec(원 과제, 사유, from, to, 끝부분, 파일)` → 여유 레인으로
+`revalidate_for_retry` 통과 확인(G13) → **새 task** 로 띄운다(실패한 task 는 재디스패치가 안 된다).
+
+## 거울 배치 — 모델 장애 대비 비상 절차 (Q-260913-06 = C)
+
+- **무엇**: 코딩 = codex(`gpt-6-astra` 또는 `gpt-5.6-sol`) · 보안 게이트 2개 = claude 의 서로 다른 두 모델(`claude-opus-5` · `claude-fable-5-1`).
+- **언제만 쓰나**: 쿼터가 아니라 **특정 모델**이 막혔을 때 — daybreak(보안 전용) 장애 · Trusted Access 해제 · astra 장애 등.
+- **쿼터 대책이 아니다**: 판단 벤더가 claude·codex 둘뿐이라, 어느 벤더가 한도에 닿아도 현행이든 거울 배치든 코딩과 게이트 중 한쪽이 멈춘다.
+- **비용**: daybreak 보안 전용 모델·Trusted Access 경로를 잃는다 · 종합(D)과 게이트가 같은 claude 벤더가 된다 · fable 게이트는 보안 요청에서 refusal 가능성(추정).
+- **코드 기본값에는 넣지 않는다**: `PROCESS_LANES["coding"]` 은 claude 전용 그대로다. 쓰려면 그 라운드에 한해 계획을 사람이 바꾸고 `validate_plan` 을 통과시킨다(고정 게이트를 바꾸므로 `FIXED_LANE_OVERRIDDEN` 이 뜬다 — 비상 사용 사유를 원장에 남긴다).
