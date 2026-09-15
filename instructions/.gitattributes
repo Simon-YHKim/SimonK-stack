@@ -1,0 +1,4 @@
+# 지침 사본의 sha256 게이트(split.py --check)는 바이트 단위다.
+# CRLF 로 체크아웃되면 sha 가 달라져 게이트가 항상 실패한다. LF 로 고정한다.
+* text eol=lf
+*.py text eol=lf
