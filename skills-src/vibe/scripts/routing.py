@@ -109,11 +109,22 @@ LANES = {
         #   ⚠ Orca 는 --model 문자열을 검증하지 않으므로 이 측정은 '모델이 돈다'의 증거가 아니다.
         # ⚠ 쿼터는 claude 일반 weekly 가 아니라 claude.fableWeekly 버킷(Orca 가 따로 추적).
         #   두 한도가 서로 영향을 주는지는 미확인.
-        # 클래스·순위 배치는 D-28 §35 토론 판정 전까지 CLASS_LANES 에 넣지 않는다.
+        # D-28 2단계(2026-09-16): M1 실워커 1회 통과 — run_c0c4a6905e26 · claude.exe --model claude-fable-5-1
+        #   --effort high 로 기동 · 읽기 전용 과제 정답 3/3 · worker_done · filesModified []. 코딩·B 비코딩 2순위로 편입.
         # prompt-keyword(ultracode) 방식이 아니라 --effort 플래그로 전달한다 — Orca 카탈로그의 launchArgs 가 --effort 다.
         "cli": "claude", "vendor": "claude", "effort_style": "flag", "dispatch": "orca",
         "top": "max", "std": "high", "ctx": "1M · 쿼터 fableWeekly 별도 · API 단가 Opus 5의 2배",
         "quota_bucket": "fableWeekly",
+        "orca_efforts": ("low", "medium", "high", "xhigh", "max"),
+    },
+    "claude-sonnet-5": {
+        # D-28 #2 (Simon 확정 2026-09-16) · 2단계 M1 통과 — run_c0c4a6905e26 · claude.exe --model claude-sonnet-5
+        #   --effort medium 으로 기동 · 읽기 전용 과제 정답 3/3 · worker_done · filesModified [].
+        # Orca 1.4.200 claude 카탈로그: 별칭 sonnet("Efficient for routine tasks", isDefault) ·
+        #   effort low·medium·high·xhigh·max (2026-09-13 22:33 실측: ultra 만 거부).
+        # 쿼터는 claude 일반 weekly 를 쓴다. A 클래스 2순위 — codex(luna)가 강등·금지일 때 받는다.
+        "cli": "claude", "vendor": "claude", "effort_style": "flag", "dispatch": "orca",
+        "top": "xhigh", "std": "medium", "ctx": "1M · API 단가 Opus 5의 0.4배",
         "orca_efforts": ("low", "medium", "high", "xhigh", "max"),
     },
     "gpt-6-astra": {
@@ -225,7 +236,8 @@ VENDORS = ["claude", "codex", "gemini", "grok"]
 CLASS_LANES = {
     # D-28 #3 (Simon 확정 2026-09-16): gemini(과제 전달 실패)·grok(402)을 강등·탐색 목적지에서 뺀다.
     #   검증 전 목록 = luna → opus. claude-sonnet-5 는 M1 실워커 1회 통과 뒤 2순위로 들어간다.
-    "A":          ["gpt-5.6-luna", "claude-opus-5"],
+    #   2단계(2026-09-16 M1 통과): sonnet 을 2순위로 넣었다.
+    "A":          ["gpt-5.6-luna", "claude-sonnet-5", "claude-opus-5"],
     # 2026-09-06: 2순위를 sol → gpt-6-astra 로 올린다.
     #   · astra 가 codex 계열 최상위 모델이다(models_cache priority 1).
     #   · sol 을 목록에서 빼면 코디네이터 좌석과 B 워커가 **구조적으로** 겹칠 수
@@ -238,7 +250,8 @@ CLASS_LANES = {
     #   codex 여도 코딩은 codex 로 가지 않는다(두 보안 게이트가 codex → G1).
     #   검증 전 목록 = astra → opus. fable 은 M1 통과 뒤 2순위로 들어간다.
     #   위 09-06 주석의 "1순위 claude" 근거는 D-28 로 대체됐다(판정 원문 reports/vibe-d28-debate-260913).
-    "B":          ["gpt-6-astra", "claude-opus-5"],
+    #   2단계(2026-09-16 M1 통과): fable 을 2순위로 넣었다.
+    "B":          ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5"],
     # D-28 #6: grok 은 새 계정 실호출 통과 전 blocked(make_intake 가 건너뛴다) → sol → opus.
     "C-realtime": ["grok-4.6", "gpt-5.6-sol", "claude-opus-5"],
     # D-28 #7: gemini 는 dispatch "unavailable" 이라 기본 채움이 건너뛴다(#12) — 오늘 기본은 sol.
@@ -255,7 +268,7 @@ CLASS_LANES = {
 #   불변식: PROCESS_LANES["coding"] 의 벤더 ∩ 보안 게이트 벤더 = ∅ (selftest 가 잡는다).
 #   fable 은 M1 실워커 1회 통과 뒤 2순위로 들어간다.
 PROCESS_LANES = {
-    "coding": ["claude-opus-5"],
+    "coding": ["claude-opus-5", "claude-fable-5-1"],   # 2단계: fable 은 M1 통과 뒤 2순위 (D-28 갈린 쟁점 ① = opus 먼저)
 }
 
 CLASS_LABEL = {
@@ -1073,9 +1086,8 @@ def emit_md():
              "--probe-efforts --task <실재 task_id>` 로 언제든 다시 잰다(워커가 안 뜨므로 비용 0). "
              "`models_cache.json` 이 지원한다고 적는 값과 **다르다**: astra·daybreak 은 CLI 에서는 "
              "`ultra`·`max` 가 돌지만 Orca 워커로는 `xhigh` 가 상한이다. "
-             "정책 두 단(최상위/표준) 밖의 값을 쓰려면 `allow_off_ladder=True` 를 명시한다.")
-    L.append("")
-    L.append("⚠ **Orca 는 `--model` 문자열을 검증하지 않는다** — 존재하지 않는 슬러그도 "
+             "정책 두 단(최상위/표준) 밖의 값을 쓰려면 `allow_off_ladder=True` 를 명시한다. "
+             "⚠ **Orca 는 `--model` 문자열을 검증하지 않는다** — 존재하지 않는 슬러그도 "
              "`high`·`xhigh` 면 통과하고, 워커가 뜬 뒤 codex 가 죽는다. "
              "이 표의 레인 키가 사실상 유일한 오타 방어선이다.")
     L.append("")
@@ -1090,7 +1102,7 @@ def emit_md():
     L.append(f"**배정 금지**: {' · '.join('`'+x+'`' for x in sorted(FORBIDDEN_LANES))} "
              "— 용도 미검증 / R&R 미확정 (발주 §3) · **D-28**: 코딩은 공정 전용 목록 `PROCESS_LANES` "
              "(claude 전용 · codex 폴백 없음 · #5) · 반증 \"예\"인 A 작업은 B 비코딩 목록으로 승격(#11) · "
-             "`claude-fable-5-1`·`claude-sonnet-5` 는 실워커 1회(M1) 전까지 목록 밖 · gemini `unavailable`(M6) "
+             "fable·sonnet 은 M1 통과(2026-09-16) 뒤 2순위 편입 · A-verify 는 Q-260913-08 보류 · gemini `unavailable`(M6) "
              "→ `references/d28-routing.md`")
     L.append("")
     L.append("### 공정 → 클래스 → 레인")

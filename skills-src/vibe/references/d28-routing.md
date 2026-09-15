@@ -52,3 +52,13 @@
 Q-260913-01 grok 새 계정 충전 · 05 codex 60% 경계 게이트 몫 · 06 거울 배치 비상안(D-260904-01 재개) ·
 07 fable 30일 보존 허용 저장소 · 08 A-verify 원장 class 영구 확장 · 09 파일 바꾸는 터미널·대조 작업의 coding 재분류 ·
 10 계측 뒤 fable 순서 상향
+
+## 2단계 진행 기록 (2026-09-16)
+
+- **M1 통과** — `run_c0c4a6905e26`. 첫 시도 2건은 SimonK-stack 폴더가 Claude Code 신뢰 안 됨이라 신뢰 창에 과제가 먹혀 실패(→ `references/pitfalls.md`).
+  신뢰된 코디네이터 폴더(`--worktree current`)에서 재기동 → `claude.exe --model claude-fable-5-1 --effort high` · `--model claude-sonnet-5 --effort medium` 확인 ·
+  읽기 전용 과제(HEAD · SKILL.md version · scripts/*.py 개수) 정답 3/3 둘 다 · `worker_done` · `filesModified: []` · 자기보고 모델 일치.
+- **M2 판정 불가** — 워커 2개 전후 claude weekly 62→62 · session 17→18 · fableWeekly 0→0. 정수 %가 움직이지 않아 독립 여부를 못 갈랐다.
+  → fable 상태는 **fableWeekly 와 claude 일반 한도 중 더 나쁜 쪽**으로 판정한다(`make_intake.lane_state_for`). 독립이 확인되면 푼다.
+- **편입** — `claude-sonnet-5` 레인 신설(사다리 medium/xhigh) · A = luna → sonnet → opus · 코딩 = opus → fable · B 비코딩 = astra → fable → opus.
+- **보류** — #4 A-verify 스키마 · #11 본 규칙 (Q-260913-08). R1 임시 승격(B 비코딩 목록)은 그대로다.

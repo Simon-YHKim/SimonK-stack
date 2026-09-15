@@ -153,6 +153,15 @@ def lane_state_for(lane, quota, fable_pct=None, live=None):
         else:
             st = "ok"
         why = f"fableWeekly {fable_pct}%" if fable_pct is not None else "fableWeekly 미확인"
+        # D-28 M2 미확정(2026-09-16: 워커 2개로는 claude weekly 62→62 · fableWeekly 0→0 으로 정수 %가
+        #   움직이지 않았다) — fableWeekly 가 claude 일반 한도와 독립인지 모르므로 둘 중 더 나쁜 상태로 판정한다.
+        #   독립이 확인되면(M2) 이 블록을 지운다.
+        vst = lane_state(vendor, quota)
+        order = {"ok": 0, "unknown": 1, "demote": 2, "blocked": 3}
+        if order.get(vst, 1) > order.get(st, 1):
+            st = vst
+            q = quota.get(vendor) or {}
+            why += f" · {vendor} {q.get('pct')}% (M2 미확정 — 더 나쁜 쪽)"
     else:
         st = lane_state(vendor, quota)
         q = quota.get(vendor) or {}

@@ -298,8 +298,10 @@ def run():
             check("fable 에 ultra → 차단 (Orca 실측 거부)", True)
         check("fable 쿼터 버킷은 fableWeekly",
               routing.LANES["claude-fable-5-1"].get("quota_bucket") == "fableWeekly")
-        check("fable 은 D-28 판정 전까지 기본 배정에 없다",
-              all("claude-fable-5-1" not in v for v in routing.CLASS_LANES.values()))
+        check("fable 은 코딩·B 비코딩 2순위 (D-28 2단계 · M1 통과)",
+              routing.PROCESS_LANES["coding"] == ["claude-opus-5", "claude-fable-5-1"]
+              and routing.lanes_for("B")[1] == "claude-fable-5-1",
+              f"coding={routing.PROCESS_LANES['coding']} B={routing.lanes_for('B')}")
         # 이름이 실제로 전달되는 것은 '새 워크트리' 뿐이다 —
         # current/기존 워크트리에는 생성 플래그를 못 붙인다(orca 규칙, 실전에서 확인).
         rc, out, _, _m = routing.run_dispatch("gpt-5.6-sol", "ultra", "t1",
@@ -476,7 +478,7 @@ def run():
         check("ok 레인이 없으면 첫 강등 레인 (D-28 N6)", lane_n6 == "gpt-5.6-luna", f"{lane_n6} {note_n6}")
         q_c61 = dict(q6190, claude=_q(30))
         lane_d2, _nd2 = MI.pick_default("A", q_c61)
-        check("1순위 61% 면 ok 인 2순위로 강등", lane_d2 == "claude-opus-5", str(lane_d2))
+        check("1순위 61% 면 ok 인 2순위로 강등", lane_d2 == "claude-sonnet-5", str(lane_d2))
         q_ok = {v: _q(10) for v in routing.VENDORS}
         lane_cp, note_cp = MI.pick_default("C-platform", q_ok)
         check("dispatch unavailable 인 gemini 는 기본 채움에서 건너뛴다 (D-28 #12)",
@@ -489,8 +491,9 @@ def run():
         check("오래된 실호출 실패는 막지 않는다 (D-28 #13③)", lane_rt2 == "grok-4.6", f"{lane_rt2} {note_rt2}")
         st_f, why_f = MI.lane_state_for("claude-fable-5-1", q_ok, fable_pct=100)
         check("fable 은 fableWeekly 버킷으로 판정 (D-28 #13②)", st_f == "blocked", f"{st_f} {why_f}")
-        st_f2, _wf2 = MI.lane_state_for("claude-fable-5-1", q6190, fable_pct=0)
-        check("claude 주간 90% 여도 fableWeekly 0% 면 fable 은 ok", st_f2 == "ok", st_f2)
+        st_f2, wf2 = MI.lane_state_for("claude-fable-5-1", q6190, fable_pct=0)
+        check("M2 미확정 — claude 주간 90% 면 fableWeekly 0% 여도 fable 은 blocked", st_f2 == "blocked",
+              f"{st_f2} {wf2}")
         lane_cd, _ncd = MI.pick_default("B", q_ok, proc="coding")
         check("코딩 기본 채움은 공정 전용 목록 (D-28 #5)", lane_cd == "claude-opus-5", str(lane_cd))
 
@@ -580,10 +583,12 @@ def run():
         check("astra 의 Orca 상한은 xhigh", routing.ceiling_for("gpt-6-astra") == "xhigh")
         check("B(비코딩) 1순위가 astra (D-28 #5)", routing.lanes_for("B")[0] == "gpt-6-astra",
               str(routing.lanes_for("B")))
-        check("검증 전(M1) 목록에 sonnet·fable 이 없다 (D-28 #1·#2)",
-              all(l not in ("claude-sonnet-5", "claude-fable-5-1")
-                  for v in list(routing.CLASS_LANES.values()) + list(routing.PROCESS_LANES.values())
-                  for l in v))
+        check("sonnet 은 A 2순위 · 사다리 medium/xhigh (D-28 #2·#3 · M1 통과)",
+              routing.lanes_for("A")[1] == "claude-sonnet-5"
+              and routing.ladder_for("claude-sonnet-5") == ("medium", "xhigh"),
+              f"A={routing.lanes_for('A')} ladder={routing.ladder_for('claude-sonnet-5')}")
+        check("코딩 목록에는 codex 가 끝까지 없다 (D-28 #5)",
+              all(routing.LANES[l]["vendor"] == "claude" for l in routing.PROCESS_LANES["coding"]))
         check("코디네이터(sol)가 B 목록에 없다 — 겸임이 구조적으로 불가",
               "gpt-5.6-sol" not in routing.lanes_for("B"))
         check("인가 게이트가 astra @xhigh 로 올라갔다 (Simon 결정 2026-09-06)",
