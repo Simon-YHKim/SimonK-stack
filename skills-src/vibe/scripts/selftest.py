@@ -242,8 +242,11 @@ def run():
         check("실호출 통과 벤더가 아닌 2순위는 탐색 후보에서 빠진다",
               all(routing.LANES[routing.lanes_for_proc(c)[1]]["vendor"] == "codex" for c in only_codex),
               str(only_codex))
-        check("R1 — 반증 예인 A 작업은 B 비코딩 목록으로 승격 (D-28 #11)",
-              routing.lanes_for_proc("inventory-schema", falsifiable=True) == routing.lanes_for("B"))
+        check("R1 — 반증 예인 A 작업은 A-verify 로 승격 (D-28 #11 본 규칙)",
+              routing.lanes_for_proc("inventory-schema", falsifiable=True) == routing.lanes_for("A-verify"))
+        check("A-verify = astra → fable → opus (D-28 #4)",
+              routing.lanes_for("A-verify") == ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5"],
+              str(routing.lanes_for("A-verify")))
         check("R1 — 반증 아니오인 A 작업은 A 목록 그대로",
               routing.lanes_for_proc("inventory-schema") == routing.lanes_for("A"))
         check("A-verify 는 원장 class 허용목록에 있다 (D-28 #4 · Q-08)", "A-verify" in ledger.VALID_CLASSES)

@@ -252,6 +252,9 @@ CLASS_LANES = {
     #   위 09-06 주석의 "1순위 claude" 근거는 D-28 로 대체됐다(판정 원문 reports/vibe-d28-debate-260913).
     #   2단계(2026-09-16 M1 통과): fable 을 2순위로 넣었다.
     "B":          ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5"],
+    # D-28 #4 (Q-260913-08 승인 2026-09-16) — 대조·판정. 심판안 순서 그대로: astra → fable → opus.
+    #   읽기 전용 클래스라 G1 과 무관하다(코딩이 아니다). 파일을 바꾸면 validate_plan 이 A_VERIFY_WRITES 로 막는다.
+    "A-verify":   ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5"],
     # D-28 #6: grok 은 새 계정 실호출 통과 전 blocked(make_intake 가 건너뛴다) → sol → opus.
     "C-realtime": ["grok-4.6", "gpt-5.6-sol", "claude-opus-5"],
     # D-28 #7: gemini 는 dispatch "unavailable" 이라 기본 채움이 건너뛴다(#12) — 오늘 기본은 sol.
@@ -456,7 +459,7 @@ def lanes_for_proc(proc_id, cls=None, falsifiable=False):
     p = PROC_BY_ID.get(proc_id)
     c = cls or (p[1] if p else None)
     if c == "A" and falsifiable:
-        return lanes_for("B")
+        return lanes_for("A-verify")      # D-28 #11 본 규칙(2026-09-16): 임시 승격(B 비코딩)에서 A-verify 로
     return lanes_for(c)
 
 
@@ -1110,8 +1113,8 @@ def emit_md():
     #   이 한 줄 끝에 붙인다. 자세한 규칙은 references/d28-routing.md.
     L.append(f"**배정 금지**: {' · '.join('`'+x+'`' for x in sorted(FORBIDDEN_LANES))} "
              "— 용도 미검증 / R&R 미확정 (발주 §3) · **D-28**: 코딩은 공정 전용 목록 `PROCESS_LANES` "
-             "(claude 전용 · codex 폴백 없음 · #5) · 반증 \"예\"인 A 작업은 B 비코딩 목록으로 승격(#11) · "
-             "fable·sonnet 은 M1 통과(2026-09-16) 뒤 2순위 편입 · A-verify 클래스 신설(읽기 전용 · `writes` 면 A_VERIFY_WRITES) · gemini `unavailable`(M6) "
+             "(claude 전용 · codex 폴백 없음 · #5) · "
+             "fable·sonnet 은 M1 통과(2026-09-16) 뒤 2순위 편입 · A-verify = astra → fable → opus(읽기 전용 · `writes` 면 A_VERIFY_WRITES) · 반증 \"예\"인 A 작업은 A-verify 로 승격 · gemini `unavailable`(M6) "
              "→ `references/d28-routing.md`")
     L.append("")
     L.append("### 공정 → 클래스 → 레인")
