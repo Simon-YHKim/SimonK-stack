@@ -62,3 +62,10 @@ Q-260913-01 grok 새 계정 충전 · 05 codex 60% 경계 게이트 몫 · 06 �
   → fable 상태는 **fableWeekly 와 claude 일반 한도 중 더 나쁜 쪽**으로 판정한다(`make_intake.lane_state_for`). 독립이 확인되면 푼다.
 - **편입** — `claude-sonnet-5` 레인 신설(사다리 medium/xhigh) · A = luna → sonnet → opus · 코딩 = opus → fable · B 비코딩 = astra → fable → opus.
 - **보류** — #4 A-verify 스키마 · #11 본 규칙 (Q-260913-08). R1 임시 승격(B 비코딩 목록)은 그대로다.
+
+## A-verify (Q-260913-08 승인 2026-09-16)
+
+- **스키마 커밋**: `ledger.VALID_CLASSES` 에 `A-verify` · 공정 `claim-verify`(읽기 전용) · 클래스 라벨 · 폼 반복문 · 탐색 후보 클래스 ·
+  `validate_plan` 에 `A_VERIFY_WRITES`(계획에 `writes: true` 면 coding 으로 재분류하라고 막는다) · selftest.
+- **순위 커밋**: `CLASS_LANES["A-verify"] = astra → fable → opus` · #11 본 규칙(반증 "예"인 A 작업 → A-verify).
+- 되돌릴 때는 `VALID_CLASSES` 에서 빼지 말고 `CLASS_LANES` 에서만 뺀다 — 이미 쓰인 원장 행이 손상 판정을 받는다.

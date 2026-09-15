@@ -185,7 +185,7 @@ def pick_default(cls, quota, fable_pct=None, live=None, proc=None, falsifiable=F
     """
     lanes = routing.lanes_for_proc(proc, cls, falsifiable) if proc else routing.lanes_for(cls)
     if not lanes:
-        return None, "모델 미사용 (orca CLI)"
+        return None, ("모델 미사용 (orca CLI)" if cls == "N" else "레인 미정")
     first_demote = None
     skipped = []
     for lane in lanes:
@@ -333,7 +333,7 @@ def main(out_path=None, argv=None):
     defaults = {}
     drows = []
     live = read_live()
-    for cls in ["A", "B", "C-realtime", "C-platform", "D"]:
+    for cls in ["A", "A-verify", "B", "C-realtime", "C-platform", "D"]:
         lane, note = pick_default(cls, quota, fable_pct, live)
         defaults[cls] = lane
         lanes = routing.lanes_for(cls)
@@ -486,7 +486,7 @@ def main(out_path=None, argv=None):
       L.push('');
       L.push('vibe 스킬대로 진행할 것:');
       L.push('1) 프리플라이트 — 4벤더 쿼터 각각 확인(미확인은 0%로 간주 금지)');
-      L.push('2) 공정을 클래스(A/B/C/D/N)로 분류하고 클래스별 레인을 배정');
+      L.push('2) 공정을 클래스(A/A-verify/B/C/D/N)로 분류하고 클래스별 레인을 배정 — 판정이 섞인 대조는 A-verify(읽기 전용)');
       L.push('3) 태스크마다 반증질문 예/아니오를 정하고 그에 따라 effort 를 고른다(미응답=아니오)');
       L.push('4) 디스패치는 routing.validate_and_dispatch() 로만 — 계획 검증을 통과해야 실행된다');
   L.push('   (effort 누락·금지 레인·필수 게이트 부재·4벤더 쿼터 미확인을 코드가 막는다)');

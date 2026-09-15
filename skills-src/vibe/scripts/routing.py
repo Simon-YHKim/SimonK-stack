@@ -273,6 +273,7 @@ PROCESS_LANES = {
 
 CLASS_LABEL = {
     "A": "기계적 — 판단 0",
+    "A-verify": "대조·판정 — 기록↔사실 · 주장 확인 (읽기 전용)",
     "B": "판단 — 우열·인과·설계",
     "C-realtime": "외부 — 실시간·수집",
     "C-platform": "외부 — 플랫폼·시각",
@@ -287,6 +288,8 @@ PROCESSES = [
     ("inventory-schema",      "A", "인벤토리 · 스키마 검증",               None),
     ("disk-grep",             "A", "디스크 스캔 · grep",                   None),
     ("log-history-triage",    "A", "장문 로그 · 커밋히스토리 분류 집계",   None),
+    # D-28 #4 (Q-260913-08 승인 2026-09-16) — 판정이 섞인 대조 작업. 읽기 전용이다(파일을 바꾸면 coding).
+    ("claim-verify",          "A-verify", "기록↔사실 대조 · 주장 판정 (읽기 전용)", None),
     ("research-deep",         "B", "웹 리서치 — 정독 · 모순 종합",         None),
     ("coding",                "B", "코딩 — 구현 · 대규모 리팩터링",        None),
     ("terminal-ci-git",       "B", "터미널 · CI · git (판단 섞인 경우)",   None),
@@ -472,7 +475,7 @@ def explore_candidates(live_ok_vendors=None):
     """
     out = []
     for pid, cls, _label, fixed in PROCESSES:
-        if fixed or pid in EXPLORE_EXCLUDE or cls not in ("A", "B"):
+        if fixed or pid in EXPLORE_EXCLUDE or cls not in ("A", "A-verify", "B"):
             continue
         lanes = lanes_for_proc(pid, cls)
         if len(lanes) < 2:
@@ -954,6 +957,12 @@ def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None, qu
                 v.append("GATE_VENDOR_BLOCKED")
                 notes.append(f"보안 게이트 벤더 {blocked} 사용 금지 — 코딩 없는 라운드로 축소한다 (D-28 #14)")
 
+    # D-28 #4 — A-verify 는 읽기 전용이다. 파일을 바꾸는 작업이면 coding 으로 재분류해 G1 을 받는다.
+    for a in assignments:
+        if a.get("class") == "A-verify" and a.get("writes"):
+            v.append("A_VERIFY_WRITES")
+            notes.append(f"{a.get('proc')}: A-verify 는 읽기 전용 — 파일을 바꾸면 coding 으로 재분류한다 (D-28 #4)")
+
     # G5 는 '4벤더 각각' 이다 — 쓰는 벤더만 확인하는 것으로는 부족하다
     if quota_checked_vendors is not None:
         missing = set(VENDORS) - set(quota_checked_vendors)
@@ -1102,7 +1111,7 @@ def emit_md():
     L.append(f"**배정 금지**: {' · '.join('`'+x+'`' for x in sorted(FORBIDDEN_LANES))} "
              "— 용도 미검증 / R&R 미확정 (발주 §3) · **D-28**: 코딩은 공정 전용 목록 `PROCESS_LANES` "
              "(claude 전용 · codex 폴백 없음 · #5) · 반증 \"예\"인 A 작업은 B 비코딩 목록으로 승격(#11) · "
-             "fable·sonnet 은 M1 통과(2026-09-16) 뒤 2순위 편입 · A-verify 는 Q-260913-08 보류 · gemini `unavailable`(M6) "
+             "fable·sonnet 은 M1 통과(2026-09-16) 뒤 2순위 편입 · A-verify 클래스 신설(읽기 전용 · `writes` 면 A_VERIFY_WRITES) · gemini `unavailable`(M6) "
              "→ `references/d28-routing.md`")
     L.append("")
     L.append("### 공정 → 클래스 → 레인")

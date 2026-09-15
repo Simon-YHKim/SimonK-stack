@@ -154,7 +154,9 @@ RECORD_KEYS = {"run", "ts", "task", "class", "lane", "effort", "falsifiable",
                "items", "accepted", "guard_violations"}
 REQUIRED_KEYS = {"run", "ts", "task", "class", "lane", "effort", "status"}
 VALID_STATUS = {"done", "failed", "timeout", "cancelled", "unknown"}
-VALID_CLASSES = {"A", "B", "C-realtime", "C-platform", "D", "N"}
+# D-28 #4 (Q-260913-08 Simon 승인 2026-09-16): A-verify(대조·판정) 추가. 원장 class 값은 되돌리기 어렵다 —
+#   되돌릴 때는 이 목록에서 빼지 말고 CLASS_LANES 에서만 뺀다(기존 원장 행이 손상 판정을 받는다).
+VALID_CLASSES = {"A", "A-verify", "B", "C-realtime", "C-platform", "D", "N"}
 TASK_RE = re.compile(r"[A-Za-z0-9_\-.]{1,64}")      # 비식별 ID 만
 TS_RE = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}[+\-]\d{4}")
 LANE_RE = re.compile(r"[A-Za-z0-9._\-]{1,60}")

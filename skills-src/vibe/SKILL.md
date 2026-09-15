@@ -2,7 +2,7 @@
 name: vibe
 description: "Use when, and proactively whenever, work should be fanned out to Orca workers across four vendors instead of one session—triggers \"/vibe\", \"바이브 코딩\", \"오르카로 돌려\", \"파이프라인 돌려\", \"워커 붙여서\", \"orca pipeline\", \"fan out this task\", or a pasted \"/vibe 실행\" block. Produces: an HTML intake form (vibe-intake.html) with live 4-vendor quota and prefilled class lanes; then Orca workers routed by process class (A mechanical / B judgment / C external / D synthesis) across claude-opus-5, gpt-6-astra, gpt-5.6-sol/terra/luna, gpt-daybreak-blue-latest (cyber), gemini-3.8-flash (agent antigravity) and grok-4.6, with effort forced into every codex dispatch and checked against Orca's measured allowlist (astra/daybreak cap at xhigh); a decision sheet; and one routing-ledger row per worker. NOT for small single-session edits (dev-orchestrator) or new apps (app-dev-orchestrator)."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.3.1
+version: 2.4.0
 author: simon-stack
 ---
 
@@ -45,7 +45,7 @@ python "$SKILL_ROOT/scripts/routing.py"    # 레인·상한 요약
 
 B 2순위가 `gpt-6-astra` 로, 인가 게이트가 `gpt-6-astra @xhigh` 로 올랐고 effort 를 **정책(최상위/표준)** 과 **Orca 물리적 상한**으로 쪼갰다.
 astra·daybreak 은 Orca 워커로 `xhigh` 가 끝이다(Orca 앱의 codex 카탈로그 다섯 줄 밖이라 `unknownModelOptions` 로 떨어진다, 1.4.200 에서도 같다). `ultra` 는 sol 로 내리거나 codex 직행(3-2)뿐이다.
-원인 규명 전문 · 측정법(`routing.py --probe-efforts`) → **`references/v2.2-astra-effort-cap.md`** · **v2.3 (2026-09-16) — D-28 1단계**: 코딩 claude 전용(`PROCESS_LANES`) · 강등을 전 순위에·실호출·fable 버킷 · gemini `unavailable` · 코디네이터 sol@xhigh · **2단계**: M1 통과 뒤 sonnet=A 2순위 · fable=코딩·B 2순위 → **`references/d28-routing.md`**
+원인 규명 전문 · 측정법(`routing.py --probe-efforts`) → **`references/v2.2-astra-effort-cap.md`** · **v2.3 (2026-09-16) — D-28 1단계**: 코딩 claude 전용(`PROCESS_LANES`) · 강등을 전 순위에·실호출·fable 버킷 · gemini `unavailable` · 코디네이터 sol@xhigh · **2단계**: M1 통과 뒤 sonnet=A 2순위 · fable=코딩·B 2순위 · **A-verify**(대조·판정, 읽기 전용) → **`references/d28-routing.md`**
 
 ---
 
@@ -74,7 +74,7 @@ astra·daybreak 은 Orca 워커로 `xhigh` 가 끝이다(Orca 앱의 codex 카�
 
 **오르카 기동은 2026-09-04 실측이다.** `--model` 은 Claude·Codex·Cursor 만 받는다 (orca help) — grok·gemini 는 `--agent` 만 주고 모델은 그 CLI 의 기본값이 쓰인다. ⚠ **agent id 는 CLI 이름이 아니라 좌석 이름이다**: `--agent agy` 는 `agent_unconfigured` 로 거부되고 `--agent antigravity` 가 정본이다. (CLI 바이너리는 `agy`, Orca 등록명은 `antigravity`.)
 
-**배정 금지**: `codex-auto-review` · `gpt-5.3-codex-spark` · `gpt-5.4-mini` · `gpt-reserve` — 용도 미검증 / R&R 미확정 (발주 §3) · **D-28**: 코딩은 공정 전용 목록 `PROCESS_LANES` (claude 전용 · codex 폴백 없음 · #5) · 반증 "예"인 A 작업은 B 비코딩 목록으로 승격(#11) · fable·sonnet 은 M1 통과(2026-09-16) 뒤 2순위 편입 · A-verify 는 Q-260913-08 보류 · gemini `unavailable`(M6) → `references/d28-routing.md`
+**배정 금지**: `codex-auto-review` · `gpt-5.3-codex-spark` · `gpt-5.4-mini` · `gpt-reserve` — 용도 미검증 / R&R 미확정 (발주 §3) · **D-28**: 코딩은 공정 전용 목록 `PROCESS_LANES` (claude 전용 · codex 폴백 없음 · #5) · 반증 "예"인 A 작업은 B 비코딩 목록으로 승격(#11) · fable·sonnet 은 M1 통과(2026-09-16) 뒤 2순위 편입 · A-verify 클래스 신설(읽기 전용 · `writes` 면 A_VERIFY_WRITES) · gemini `unavailable`(M6) → `references/d28-routing.md`
 
 ### 공정 → 클래스 → 레인
 
@@ -84,6 +84,7 @@ astra·daybreak 은 Orca 워커로 `xhigh` 가 끝이다(Orca 앱의 codex 카�
 | 인벤토리 · 스키마 검증 | A | `gpt-5.6-luna` | `claude-sonnet-5` | `claude-opus-5` |
 | 디스크 스캔 · grep | A | `gpt-5.6-luna` | `claude-sonnet-5` | `claude-opus-5` |
 | 장문 로그 · 커밋히스토리 분류 집계 | A | `gpt-5.6-luna` | `claude-sonnet-5` | `claude-opus-5` |
+| 기록↔사실 대조 · 주장 판정 (읽기 전용) | A-verify | — | — | — |
 | 웹 리서치 — 정독 · 모순 종합 | B | `gpt-6-astra` | `claude-fable-5-1` | `claude-opus-5` |
 | 코딩 — 구현 · 대규모 리팩터링 **(공정 전용 목록)** | B | `claude-opus-5` | `claude-fable-5-1` | — |
 | 터미널 · CI · git (판단 섞인 경우) | B | `gpt-6-astra` | `claude-fable-5-1` | `claude-opus-5` |
@@ -446,7 +447,7 @@ run_id = run_result["run"]["id"]            # "run_26ad3eb182a7"
 recs = [ledger.new_record(
     run_id,                                  # str
     "security-artifact-gate",                # task = 공정 ID (비식별, 영숫자·_·-·. 64자)
-    "B",                                     # class ∈ A / B / C-realtime / C-platform / D / N
+    "B",                                     # class ∈ A / A-verify / B / C-realtime / C-platform / D / N
     "gpt-5.6-sol", "ultra",                  # lane·effort 는 routing 정본의 허용 쌍
     falsifiable=True, explore=False, status="done",
     sec=2100, retries=0, quota_delta={"codex": 1}, guard_violations=[])]
