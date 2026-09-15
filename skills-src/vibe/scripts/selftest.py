@@ -197,7 +197,7 @@ def run():
 
         print()
         print("=== C11 · 가드 ===")
-        default_coding = routing.lanes_for("B")[0]
+        default_coding = routing.lanes_for_proc("coding")[0]   # D-28 #5 — 코딩은 공정 전용 목록
         gate = routing.fixed_for("security-artifact-gate")
         biz = routing.fixed_for("security-bizlogic-2nd")
         a_ok = [{"proc": "coding", "lane": default_coding, "class": "B"},
@@ -206,6 +206,46 @@ def run():
         v_ok = routing.check_guards(a_ok, quota_checked_vendors=routing.VENDORS)
         print(f"  [정본 기본 배정] 코딩={default_coding} · 게이트={gate[0]} · 인가={biz[0]}")
         check("정본 기본 배정이 가드를 통과한다", not v_ok, f"위반={v_ok}")
+
+        # D-28 #5·#14·C2 — 코딩 불변식 · 음성대조 · 게이트 벤더 차단 · 재시도 재검증 · 탐색 후보
+        gv = routing.gate_vendors()
+        check("코딩 목록 벤더 ∩ 게이트 벤더 = ∅ (D-28 #5)",
+              not ({routing.LANES[l]["vendor"] for l in routing.PROCESS_LANES["coding"]} & gv),
+              f"coding={routing.PROCESS_LANES['coding']} gate={sorted(gv)}")
+        ok_n1, v_n1, _n1 = routing.validate_plan(
+            [{"proc": "coding", "lane": "gpt-6-astra", "class": "B"}] + a_ok[1:],
+            quota_checked_vendors=routing.VENDORS)
+        check("코딩이 codex(astra)면 G1 + CODING_LANE_NOT_ALLOWED (D-28 N1)",
+              not ok_n1 and "G1" in v_n1 and "CODING_LANE_NOT_ALLOWED" in v_n1, str(v_n1))
+        ok_def, v_def, _nd = routing.validate_plan(a_ok, quota_checked_vendors=routing.VENDORS)
+        check("정본 기본 배정이 validate_plan 을 통과한다", ok_def, str(v_def))
+        ok_gb, v_gb, _ng = routing.validate_plan(
+            a_ok, quota_checked_vendors=routing.VENDORS,
+            quota_states={"claude": "ok", "codex": "blocked", "gemini": "ok", "grok": "ok"})
+        check("게이트 벤더 사용 금지면 코딩 라운드 차단 (D-28 #14)",
+              not ok_gb and "GATE_VENDOR_BLOCKED" in v_gb, str(v_gb))
+        ok_rt, v_rt, _nr, _new = routing.revalidate_for_retry(
+            a_ok, "coding", "gpt-6-astra", quota_checked_vendors=routing.VENDORS)
+        check("재시도로 코딩을 codex 로 옮기면 재검증이 막는다 (G13)",
+              not ok_rt and "G1" in v_rt, str(v_rt))
+        v_exc = routing.check_guards(
+            [{"proc": "coding", "lane": "claude-opus-5", "class": "B", "explore": True}],
+            quota_checked_vendors=routing.VENDORS)
+        check("탐색 슬롯이 코딩에 배정 → 검출 (D-28 C2)", "EXPLORE_MISASSIGNED" in v_exc, str(v_exc))
+        cands = routing.explore_candidates()
+        check("탐색 후보에 코딩·고정 공정이 없다",
+              "coding" not in cands and not any(routing.fixed_for(c) for c in cands), str(cands))
+        check("탐색 후보의 2순위는 모두 Orca 로 뜬다 (D-28 #12)",
+              all(routing.LANES[routing.lanes_for_proc(c)[1]].get("dispatch") != "unavailable"
+                  for c in cands), str(cands))
+        only_codex = routing.explore_candidates(live_ok_vendors={"codex"})
+        check("실호출 통과 벤더가 아닌 2순위는 탐색 후보에서 빠진다",
+              all(routing.LANES[routing.lanes_for_proc(c)[1]]["vendor"] == "codex" for c in only_codex),
+              str(only_codex))
+        check("R1 — 반증 예인 A 작업은 B 비코딩 목록으로 승격 (D-28 #11)",
+              routing.lanes_for_proc("inventory-schema", falsifiable=True) == routing.lanes_for("B"))
+        check("R1 — 반증 아니오인 A 작업은 A 목록 그대로",
+              routing.lanes_for_proc("inventory-schema") == routing.lanes_for("A"))
 
         v_same = routing.check_guards(
             [{"proc": "coding", "lane": "claude-opus-5", "class": "B"},
@@ -258,8 +298,10 @@ def run():
             check("fable 에 ultra → 차단 (Orca 실측 거부)", True)
         check("fable 쿼터 버킷은 fableWeekly",
               routing.LANES["claude-fable-5-1"].get("quota_bucket") == "fableWeekly")
-        check("fable 은 D-28 판정 전까지 기본 배정에 없다",
-              all("claude-fable-5-1" not in v for v in routing.CLASS_LANES.values()))
+        check("fable 은 코딩·B 비코딩 2순위 (D-28 2단계 · M1 통과)",
+              routing.PROCESS_LANES["coding"] == ["claude-opus-5", "claude-fable-5-1"]
+              and routing.lanes_for("B")[1] == "claude-fable-5-1",
+              f"coding={routing.PROCESS_LANES['coding']} B={routing.lanes_for('B')}")
         # 이름이 실제로 전달되는 것은 '새 워크트리' 뿐이다 —
         # current/기존 워크트리에는 생성 플래그를 못 붙인다(orca 규칙, 실전에서 확인).
         rc, out, _, _m = routing.run_dispatch("gpt-5.6-sol", "ultra", "t1",
@@ -428,6 +470,33 @@ def run():
         check("전 레인 85% 초과 → lane 없음", lane_b is None, f"lane={lane_b}")
         check("사유에 축소안 안내", "축소안" in note_b, note_b)
 
+        # D-28 #13 — 강등을 모든 순위에 · 첫 강등 레인 폴백 · fable 버킷 · 실호출 · unavailable
+        def _q(pct):
+            return {"pct": pct, "reset": "", "state": "ok", "key": "weekly"}
+        q6190 = {"claude": _q(90), "codex": _q(61), "gemini": _q(0), "grok": _q(0)}
+        lane_n6, note_n6 = MI.pick_default("A", q6190)
+        check("ok 레인이 없으면 첫 강등 레인 (D-28 N6)", lane_n6 == "gpt-5.6-luna", f"{lane_n6} {note_n6}")
+        q_c61 = dict(q6190, claude=_q(30))
+        lane_d2, _nd2 = MI.pick_default("A", q_c61)
+        check("1순위 61% 면 ok 인 2순위로 강등", lane_d2 == "claude-sonnet-5", str(lane_d2))
+        q_ok = {v: _q(10) for v in routing.VENDORS}
+        lane_cp, note_cp = MI.pick_default("C-platform", q_ok)
+        check("dispatch unavailable 인 gemini 는 기본 채움에서 건너뛴다 (D-28 #12)",
+              lane_cp == "gpt-5.6-sol", f"{lane_cp} {note_cp}")
+        live_bad = {"at": "t", "age_sec": 10, "stale": False,
+                    "vendors": {"grok": False, "codex": True, "claude": True, "gemini": True}}
+        lane_rt, _nrt = MI.pick_default("C-realtime", q_ok, live=live_bad)
+        check("실호출 실패 벤더는 쿼터와 무관하게 건너뛴다 (D-28 #13③)", lane_rt == "gpt-5.6-sol", str(lane_rt))
+        lane_rt2, note_rt2 = MI.pick_default("C-realtime", q_ok, live=dict(live_bad, stale=True))
+        check("오래된 실호출 실패는 막지 않는다 (D-28 #13③)", lane_rt2 == "grok-4.6", f"{lane_rt2} {note_rt2}")
+        st_f, why_f = MI.lane_state_for("claude-fable-5-1", q_ok, fable_pct=100)
+        check("fable 은 fableWeekly 버킷으로 판정 (D-28 #13②)", st_f == "blocked", f"{st_f} {why_f}")
+        st_f2, wf2 = MI.lane_state_for("claude-fable-5-1", q6190, fable_pct=0)
+        check("M2 미확정 — claude 주간 90% 면 fableWeekly 0% 여도 fable 은 blocked", st_f2 == "blocked",
+              f"{st_f2} {wf2}")
+        lane_cd, _ncd = MI.pick_default("B", q_ok, proc="coding")
+        check("코딩 기본 채움은 공정 전용 목록 (D-28 #5)", lane_cd == "claude-opus-5", str(lane_cd))
+
         print()
         print("=== 2026-09-04 최종 감사 반영분 ===")
 
@@ -470,16 +539,24 @@ def run():
         # --agent agy 는 agent_unconfigured, --agent antigravity 가 정본.
         check("gemini 레인의 agent id 는 antigravity",
               routing.LANES["gemini-3.8-flash"]["cli"] == "antigravity")
-        gm = routing.dispatch_argv("gemini-3.8-flash", "medium", "t", "n", "current")
-        check("gemini argv 에 antigravity 가 들어간다", "antigravity" in gm, str(gm))
-        check("gemini 에는 --model 을 붙이지 않는다", "--model" not in gm, str(gm))
+        # D-28 #12 — gemini 는 Orca 워커로 과제를 못 받아 dispatch=unavailable 이다.
+        try:
+            routing.dispatch_argv("gemini-3.8-flash", "medium", "t", "n", "current")
+            check("gemini(unavailable) 디스패치 → 차단", False, "통과되어 버렸다")
+        except ValueError:
+            check("gemini(unavailable) 디스패치 → 차단", True)
+        ok_gm, v_gm, _ngm = routing.validate_plan(
+            [{"proc": "google-platform", "lane": "gemini-3.8-flash", "class": "C-platform"}],
+            quota_checked_vendors=routing.VENDORS)
+        check("gemini 배정은 계획 검증이 LANE_NOT_DISPATCHABLE 로 막는다",
+              not ok_gm and "LANE_NOT_DISPATCHABLE" in v_gm, str(v_gm))
         gk = routing.dispatch_argv("grok-4.6", "high", "t", "n", "current")
         check("grok 에는 --model 을 붙이지 않는다", "--model" not in gk, str(gk))
         check("codex 에는 --model 이 붙는다",
               "--model" in routing.dispatch_argv("gpt-5.6-luna", "low", "t", "n", "current"))
-        # 기동 불가로 표시된 레인이 있으면 계획 검증이 막아야 한다 (현재는 해당 없음)
+        # 기동 불가 레인은 D-28 #12 로 gemini 하나다 — 늘거나 줄면 표를 다시 본다
         unavail = [l for l, m in routing.LANES.items() if m.get("dispatch") == "unavailable"]
-        check("기동 불가 레인은 현재 없다", not unavail, str(unavail))
+        check("기동 불가 레인은 gemini 하나 (D-28 #12)", unavail == ["gemini-3.8-flash"], str(unavail))
 
         print()
         print("=== 출력 규칙 ===")
@@ -489,14 +566,29 @@ def run():
         check("코디네이터가 B 워커 겸임 → 경고",
               routing.coordinator_conflict(
                   [{"proc": "coding", "lane": "gpt-5.6-sol", "class": "B"}]))
+        check("코디네이터 겸임은 클래스와 무관하게 경고 (D-28 #6)",
+              routing.coordinator_conflict(
+                  [{"proc": "research-collect", "lane": routing.COORDINATOR[0], "class": "C-realtime"}]))
+        check("코디네이터 effort 는 xhigh (D-28 #8)",
+              routing.COORDINATOR == ("gpt-5.6-sol", "xhigh"), str(routing.COORDINATOR))
+        check("terra 사다리 medium/max (D-28 #9)",
+              routing.ladder_for("gpt-5.6-terra") == ("medium", "max"), str(routing.ladder_for("gpt-5.6-terra")))
+        check("luna 사다리는 low/medium 유지 (D-28 #10 보류)",
+              routing.ladder_for("gpt-5.6-luna") == ("low", "medium"))
 
         print()
         print("=== 2026-09-06 · gpt-6-astra 편입 · effort 사다리 ===")
 
         check("astra 레인이 존재한다", "gpt-6-astra" in routing.LANES)
         check("astra 의 Orca 상한은 xhigh", routing.ceiling_for("gpt-6-astra") == "xhigh")
-        check("B 2순위가 astra", routing.lanes_for("B")[1] == "gpt-6-astra",
+        check("B(비코딩) 1순위가 astra (D-28 #5)", routing.lanes_for("B")[0] == "gpt-6-astra",
               str(routing.lanes_for("B")))
+        check("sonnet 은 A 2순위 · 사다리 medium/xhigh (D-28 #2·#3 · M1 통과)",
+              routing.lanes_for("A")[1] == "claude-sonnet-5"
+              and routing.ladder_for("claude-sonnet-5") == ("medium", "xhigh"),
+              f"A={routing.lanes_for('A')} ladder={routing.ladder_for('claude-sonnet-5')}")
+        check("코딩 목록에는 codex 가 끝까지 없다 (D-28 #5)",
+              all(routing.LANES[l]["vendor"] == "claude" for l in routing.PROCESS_LANES["coding"]))
         check("코디네이터(sol)가 B 목록에 없다 — 겸임이 구조적으로 불가",
               "gpt-5.6-sol" not in routing.lanes_for("B"))
         check("인가 게이트가 astra @xhigh 로 올라갔다 (Simon 결정 2026-09-06)",

@@ -5,6 +5,7 @@
 #   C5 · 클래스별 기본 레인이 미리 채워지고, 미선택 시 그대로 진행된다
 #   C6 · 반증질문(예/아니오)과 탐색 슬롯 표시가 폼에 있다
 #   §10· 실행 때마다 decisions_run_*.json 을 자동 회수하고, 미회수 3건 이상이면 경고한다
+#   D-28 · 강등을 전 순위에 · quota_bucket(fable) · 실호출(G12) 반영 · unavailable 건너뛰기 · 코딩 전용 행 (2026-09-16)
 #
 # 라우팅 표는 scripts/routing.py 가 정본이다 — 여기서 다시 적지 않는다 (발주 §2).
 # 사용: python make_intake.py [출력경로]
@@ -12,6 +13,7 @@ import datetime
 import json
 import os
 import subprocess
+import time
 import sys
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -96,8 +98,29 @@ def read_quota():
     return out, (int(fw) if fw is not None else None)
 
 
+LIVE_PATH = os.path.join(os.path.dirname(_HERE), "state", "eval-vendors.json")
+LIVE_STALE_SEC = 24 * 3600      # D-28 #13③ — 실호출 결과가 이보다 오래되면 미확인
+
+
+def read_live(now=None):
+    """G12 실호출 결과(adversarial_eval.py --preflight 가 쓴 state/eval-vendors.json).
+
+    반환 {"at", "age_sec", "stale", "vendors": {vendor: True|False}}.
+    파일이 없거나 깨지면 vendors 가 비고 stale=True — 막지 않고 '미확인'으로 표시한다.
+    """
+    now = time.time() if now is None else now
+    try:
+        with open(LIVE_PATH, encoding="utf-8") as fh:
+            d = json.load(fh)
+        age = now - float(d.get("at_epoch") or 0)
+        vendors = {k: bool((v or {}).get("ok")) for k, v in (d.get("vendors") or {}).items()}
+        return {"at": d.get("at"), "age_sec": age, "stale": age > LIVE_STALE_SEC, "vendors": vendors}
+    except Exception:
+        return {"at": None, "age_sec": None, "stale": True, "vendors": {}}
+
+
 def lane_state(vendor, quota):
-    """§8 — 60% 초과 강등 · 85% 초과 금지 · 미확인은 1순위 유지."""
+    """§8 — 60% 초과 강등 · 85% 초과 금지 · 미확인은 순위 유지."""
     q = quota.get(vendor) or {}
     if q.get("state") != "ok":
         return "unknown"
@@ -109,20 +132,74 @@ def lane_state(vendor, quota):
     return "ok"
 
 
-def pick_default(cls, quota):
-    """C5 — 클래스의 기본 레인. 쿼터 상태를 반영해 미리 채운다."""
-    lanes = routing.lanes_for(cls)
+def lane_state_for(lane, quota, fable_pct=None, live=None):
+    """레인 단위 상태 (D-28 #12·#13). 반환 (state, 사유).
+
+    ② quota_bucket 이 있는 레인(fable)은 벤더 주간값이 아니라 그 버킷으로 판정한다.
+    ③ 실호출 실패는 쿼터와 무관하게 blocked. 결과가 오래됐으면 막지 않고 사유에 '미확인'.
+    #12 dispatch == "unavailable" 은 기본 채움에서 건너뛴다(blocked).
+    """
+    m = routing.LANES[lane]
+    if m.get("dispatch") == "unavailable":
+        return "blocked", "Orca 워커 불가(dispatch=unavailable)"
+    vendor = m["vendor"]
+    if m.get("quota_bucket") == "fableWeekly":
+        if fable_pct is None:
+            st = "unknown"
+        elif fable_pct > routing.QUOTA_BLOCK:
+            st = "blocked"
+        elif fable_pct > routing.QUOTA_DEMOTE:
+            st = "demote"
+        else:
+            st = "ok"
+        why = f"fableWeekly {fable_pct}%" if fable_pct is not None else "fableWeekly 미확인"
+        # D-28 M2 미확정(2026-09-16: 워커 2개로는 claude weekly 62→62 · fableWeekly 0→0 으로 정수 %가
+        #   움직이지 않았다) — fableWeekly 가 claude 일반 한도와 독립인지 모르므로 둘 중 더 나쁜 상태로 판정한다.
+        #   독립이 확인되면(M2) 이 블록을 지운다.
+        vst = lane_state(vendor, quota)
+        order = {"ok": 0, "unknown": 1, "demote": 2, "blocked": 3}
+        if order.get(vst, 1) > order.get(st, 1):
+            st = vst
+            q = quota.get(vendor) or {}
+            why += f" · {vendor} {q.get('pct')}% (M2 미확정 — 더 나쁜 쪽)"
+    else:
+        st = lane_state(vendor, quota)
+        q = quota.get(vendor) or {}
+        why = f"{vendor} {q['pct']}%" if q.get("state") == "ok" else f"{vendor} 쿼터 미확인"
+    if live is not None:
+        seen = live.get("vendors", {})
+        if seen.get(vendor) is False:
+            if not live.get("stale"):
+                return "blocked", f"{vendor} 실호출 실패({live.get('at')})"
+            why += f" · 실호출 실패 기록이 오래됨({live.get('at')}) — 미확인"
+    return st, why
+
+
+def pick_default(cls, quota, fable_pct=None, live=None, proc=None, falsifiable=False):
+    """C5 — 기본 레인. 반환 (lane, 메모).
+
+    D-28 #13①: 60% 초과 강등을 **모든 순위**에 적용한다 — ok(또는 미확인) 레인이 있으면 그중 첫째,
+    없으면 첫 강등 레인. 이전 판은 1순위만 건너뛰어 61% 인 2순위가 그대로 뽑혔고,
+    전 레인이 강등·금지로 섞이면 None 을 돌려주는 버그가 있었다(D-28 N6).
+    proc 을 주면 공정 단위 목록(PROCESS_LANES · R1 승격)을 쓴다.
+    """
+    lanes = routing.lanes_for_proc(proc, cls, falsifiable) if proc else routing.lanes_for(cls)
     if not lanes:
         return None, "모델 미사용 (orca CLI)"
-    for i, lane in enumerate(lanes):
-        st = lane_state(routing.LANES[lane]["vendor"], quota)
-        if st == "blocked":
-            continue
-        if st == "demote" and i == 0 and len(lanes) > 1:
-            continue                      # 1순위가 60% 초과면 2순위로
-        note = {"ok": "", "unknown": "쿼터 미확인 — 1순위 유지",
-                "demote": "대안 없음 — 강등 무시"}[st]
-        return lane, note
+    first_demote = None
+    skipped = []
+    for lane in lanes:
+        st, why = lane_state_for(lane, quota, fable_pct, live)
+        if st in ("ok", "unknown"):
+            note = "" if st == "ok" else "쿼터 미확인 — 순위 유지"
+            if skipped:
+                note = (note + " · " if note else "") + "건너뜀: " + ", ".join(skipped)
+            return lane, note
+        if st == "demote" and first_demote is None:
+            first_demote = (lane, why)
+        skipped.append(f"{lane}({why})")
+    if first_demote:
+        return first_demote[0], f"전 레인 60% 초과 — 첫 강등 레인 사용({first_demote[1]})"
     # 감사 MED: 전 후보가 blocked 인데 마지막 금지 lane 을 prefill 하면
     # 문서의 "사용 금지, 후보 없으면 축소안 승인" 과 정반대다. lane 을 주지 않는다.
     return None, "전 레인이 85% 초과 — 실행 불가. 축소안 승인 필요"
@@ -255,8 +332,9 @@ def main(out_path=None, argv=None):
     # ── 기본 레인 패널 (C5) ─────────────────────────────────────────
     defaults = {}
     drows = []
+    live = read_live()
     for cls in ["A", "B", "C-realtime", "C-platform", "D"]:
-        lane, note = pick_default(cls, quota)
+        lane, note = pick_default(cls, quota, fable_pct, live)
         defaults[cls] = lane
         lanes = routing.lanes_for(cls)
         alt = " → ".join(f"<code>{esc(l)}</code>" for l in lanes) if lanes else "—"
@@ -266,6 +344,25 @@ def main(out_path=None, argv=None):
             f"{f'<br><span class=\"note\">{esc(note)}</span>' if note else ''}</td>"
             f"<td class='note'>{alt}</td></tr>")
 
+    # D-28 #5·#14 — 코딩은 공정 전용 목록. 게이트 벤더가 사용 금지면 코딩 라운드 불가.
+    c_lane, c_note = pick_default("B", quota, fable_pct, live, proc="coding")
+    gate_blocked = sorted(vd for vd in routing.gate_vendors()
+                          if lane_state(vd, quota) == "blocked"
+                          or (not live["stale"] and live["vendors"].get(vd) is False))
+    if gate_blocked:
+        c_note = (c_note + " · " if c_note else "") + \
+            f"보안 게이트 벤더 {', '.join(gate_blocked)} 사용 금지 — 코딩 없는 라운드로 축소"
+        c_lane = None
+    defaults["coding"] = c_lane
+    c_alt = " → ".join(f"<code>{esc(l)}</code>" for l in routing.lanes_for_proc("coding"))
+    drows.append(
+        "<tr><td><b>coding</b><br><span class='note'>공정 전용 목록 (D-28 #5)</span></td>"
+        f"<td><span class='tag lane'>{esc(c_lane or '—')}</span>"
+        + (f"<br><span class='note'>{esc(c_note)}</span>" if c_note else "")
+        + f"</td><td class='note'>{c_alt} · codex 폴백 없음</td></tr>")
+    live_note = ("실호출 결과 없음 — adversarial_eval.py --preflight 먼저" if live["at"] is None
+                 else f"실호출 {live['at']}" + (" · 24시간 초과 — 미확인" if live["stale"] else ""))
+
     fixed_rows = "".join(
         f"<tr><td>{esc(p[2])}</td><td><span class='tag lane'>{esc(p[3][0])}</span> "
         f"<span class='tag'>@{esc(p[3][1])}</span></td><td class='note'>고정 · 탐색·스왑 제외</td></tr>"
@@ -273,7 +370,7 @@ def main(out_path=None, argv=None):
 
     default_html = (
         '<section class="quota"><h2>클래스별 기본 레인 '
-        '<span class="note">안 건드리면 이대로 간다 — 정본은 scripts/routing.py</span></h2>'
+        f'<span class="note">안 건드리면 이대로 간다 — 정본은 scripts/routing.py · {esc(live_note)}</span></h2>'
         '<table class="sum"><tr><th>클래스</th><th>기본</th><th>우선순위</th></tr>'
         + "".join(drows) + "</table>"
         '<h2 style="margin-top:14px">고정 배정 <span class="note">바뀌지 않는다</span></h2>'
@@ -283,8 +380,9 @@ def main(out_path=None, argv=None):
         "</section>")
 
     # ── 탐색 슬롯 · 학습 상태 (C6 · §10) ────────────────────────────
-    explore_pool = [p[2] for p in routing.PROCESSES
-                    if p[0] not in routing.EXPLORE_EXCLUDE and p[1] in ("A", "B") and not p[3]]
+    # D-28 #12·C2 — 2순위가 Orca 로 뜨고 실호출을 통과한 공정만 후보
+    live_ok = None if live["stale"] else {vd for vd, ok in live["vendors"].items() if ok}
+    explore_pool = [routing.PROC_BY_ID[pid][2] for pid in routing.explore_candidates(live_ok)]
     learn_warn = ""
     if len(unmerged) >= 3:
         learn_warn = (f'<p class="warn">⚠ 최근 {len(unmerged)}개 라운드의 채택률이 비어 있다 — '
@@ -295,7 +393,7 @@ def main(out_path=None, argv=None):
     explore_html = (
         '<section class="quota"><h2>탐색 슬롯 '
         '<span class="note">라운드당 1개를 2순위 레인으로 돌려 학습을 쌓는다</span></h2>'
-        f'<p class="note">대상 후보(A 우선, 고정·종합·보안 제외): {esc(" · ".join(explore_pool[:6]))}'
+        f'<p class="note">대상 후보(A 우선 · 고정·종합·보안·코딩 제외 · 2순위가 Orca 로 뜨고 실호출 통과한 공정만 — D-28 #12): {esc(" · ".join(explore_pool[:6]))}'
         f'{" 외" if len(explore_pool) > 6 else ""}<br>'
         '실제 선택은 후보 중 <b>무작위</b>다 — 항상 첫 태스크를 고르면 난이도 편향이 생긴다. '
         '끄려면 아래 추가 조건에서 "탐색 슬롯 끄기".</p>'
@@ -392,12 +490,14 @@ def main(out_path=None, argv=None):
       L.push('3) 태스크마다 반증질문 예/아니오를 정하고 그에 따라 effort 를 고른다(미응답=아니오)');
       L.push('4) 디스패치는 routing.validate_and_dispatch() 로만 — 계획 검증을 통과해야 실행된다');
   L.push('   (effort 누락·금지 레인·필수 게이트 부재·4벤더 쿼터 미확인을 코드가 막는다)');
-      L.push('5) 탐색 슬롯 1개를 후보 중 무작위로 2순위 레인에 배정(explore:true)');
+      L.push('   재시도(--retry-of)·수동 재배정 전에는 routing.revalidate_for_retry() 로 다시 검증(G13)');
+      L.push('5) 탐색 슬롯 1개를 routing.explore_candidates() 후보 중 무작위로 2순위 레인에 배정(explore:true)');
       L.push('6) 보안 2종은 서로 다른 모델(__SECFIXED__ — D-260904-01)');
+      L.push('   코딩은 PROCESS_LANES["coding"](claude 전용)만 — 게이트 벤더가 사용 금지면 코딩을 빼고 축소안(D-28 #5·#14)');
       L.push('   effort 는 Orca 실측 허용목록 안에서만 — astra·daybreak 은 xhigh 가 상한이고');
       L.push('   ultra/max 는 codex 직행(run_codex_exec)으로만 닿는다. 정책 밖 값은 off_ladder 명시');
       L.push('7) worker_done 수확·release → 보드 갱신');
-      L.push('8) 결정 시트 생성(make_decision_sheet.py) → Simon 이 [결과 저장]');
+      L.push('8) 결정 시트 생성(make_decision_sheet.py) → Simon 이 [결과 저장] — 이 단계 없이 라운드 종료 금지(G14)');
       L.push('9) 마지막에 원장 append+commit(ledger.py) — 데몬 만들지 말 것');
       L.push('착수 전 분류 결과·예상 워커 수·탐색 슬롯이 뭔지 한 줄로 알릴 것.');
       document.getElementById('prompt').textContent=L.join('\\n');
