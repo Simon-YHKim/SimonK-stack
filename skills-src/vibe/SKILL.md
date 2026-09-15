@@ -2,7 +2,7 @@
 name: vibe
 description: "Use when, and proactively whenever, work should be fanned out to Orca workers across four vendors instead of one session—triggers \"/vibe\", \"바이브 코딩\", \"오르카로 돌려\", \"파이프라인 돌려\", \"워커 붙여서\", \"orca pipeline\", \"fan out this task\", or a pasted \"/vibe 실행\" block. Produces: an HTML intake form (vibe-intake.html) with live 4-vendor quota and prefilled class lanes; then Orca workers routed by process class (A mechanical / B judgment / C external / D synthesis) across claude-opus-5, gpt-6-astra, gpt-5.6-sol/terra/luna, gpt-daybreak-blue-latest (cyber), gemini-3.8-flash (agent antigravity) and grok-4.6, with effort forced into every codex dispatch and checked against Orca's measured allowlist (astra/daybreak cap at xhigh); a decision sheet; and one routing-ledger row per worker. NOT for small single-session edits (dev-orchestrator) or new apps (app-dev-orchestrator)."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.4.0
+version: 2.5.0
 author: simon-stack
 ---
 
@@ -74,7 +74,7 @@ astra·daybreak 은 Orca 워커로 `xhigh` 가 끝이다(Orca 앱의 codex 카�
 
 **오르카 기동은 2026-09-04 실측이다.** `--model` 은 Claude·Codex·Cursor 만 받는다 (orca help) — grok·gemini 는 `--agent` 만 주고 모델은 그 CLI 의 기본값이 쓰인다. ⚠ **agent id 는 CLI 이름이 아니라 좌석 이름이다**: `--agent agy` 는 `agent_unconfigured` 로 거부되고 `--agent antigravity` 가 정본이다. (CLI 바이너리는 `agy`, Orca 등록명은 `antigravity`.)
 
-**배정 금지**: `codex-auto-review` · `gpt-5.3-codex-spark` · `gpt-5.4-mini` · `gpt-reserve` — 용도 미검증 / R&R 미확정 (발주 §3) · **D-28**: 코딩은 공정 전용 목록 `PROCESS_LANES` (claude 전용 · codex 폴백 없음 · #5) · fable·sonnet 은 M1 통과(2026-09-16) 뒤 2순위 편입 · A-verify = astra → fable → opus(읽기 전용 · `writes` 면 A_VERIFY_WRITES) · 반증 "예"인 A 작업은 A-verify 로 승격 · gemini `unavailable`(M6) → `references/d28-routing.md`
+**배정 금지**: `codex-auto-review` · `gpt-5.3-codex-spark` · `gpt-5.4-mini` · `gpt-reserve` — 용도 미검증 / R&R 미확정 (발주 §3) · **D-28**: 코딩은 공정 전용 목록 `PROCESS_LANES` (claude 전용 · codex 폴백 없음 · #5 · 파일을 바꾸는 `writes` 공정도 같음 · Q-09) · fable·sonnet 은 M1 통과(2026-09-16) 뒤 2순위 편입 · A-verify = astra → fable → opus(읽기 전용 · `writes` 면 A_VERIFY_WRITES) · 반증 "예"인 A 작업은 A-verify 로 승격 · gemini `unavailable`(M6) → `references/d28-routing.md`
 
 ### 공정 → 클래스 → 레인
 
@@ -129,7 +129,7 @@ astra·daybreak 은 Orca 워커로 `xhigh` 가 끝이다(Orca 앱의 codex 카�
 | G1 | 짠 레인이 자기 코드를 보안 리뷰하지 않는다 | ✅ 원장 기록 |
 | G2 | 자기 결론 재검증에 서브에이전트를 쓰지 않는다 — 반증은 리포트 '§X 반증 시도' 섹션 | — (오검출 방지) |
 | G3 | 워커당 spawn 상한 8 | ✅ 원장 기록 |
-| G4 | 쿼터 게이트는 디스패치 시점에만. 실행 중 중단 근거로 쓰지 않는다 | — (오검출 방지) |
+| G4 | 쿼터 게이트는 디스패치 시점에만. 실행 중 중단 근거로 쓰지 않는다 — 한도 도달로 **실패·정지한** 워커만 여유 레인의 새 task 로 인수인계한다(`handoff_spec` + `revalidate_for_retry`, Q-260913-05). 상시 모니터링 데몬·실행 중 선제 교체는 하지 않는다 | — (오검출 방지) |
 | G5 | 쿼터는 4벤더 각각 확인한다 | ✅ 원장 기록 |
 | G6 | 부재 보고에는 탐색 범위를 붙인다. 범위 없는 '0건'은 반환값 불인정 — gemini 뿐 아니라 **A 클래스 전체**에 적용 (Simon 결정 2026-09-04) | — (오검출 방지) |
 | G7 | 최상위 effort 는 반증질문 YES 인 태스크에만 | — (오검출 방지) |
@@ -141,7 +141,7 @@ astra·daybreak 은 Orca 워커로 `xhigh` 가 끝이다(Orca 앱의 codex 카�
 | G13 | 재시도(`worker-start --retry-of`)·수동 재배정도 계획 검증을 다시 통과해야 한다 — `routing.revalidate_for_retry(plan, proc, new_lane, ...)` 가 (ok, 위반, 메모, 새 계획)을 준다. `--retry-of` 는 orca CLI 를 직접 부르므로 routing 의 계획 검증을 거치지 않는다 (D-28 #14) | — (오검출 방지) |
 | G14 | 결정 시트(`make_decision_sheet.py`)를 만들지 않은 라운드는 **끝난 것으로 치지 않는다** — 손으로 조립한 시트는 `decisions_run_*.json` 을 내지 않아 채택률이 비고 스왑 규칙이 돌지 않는다 (D-28 #15) | — (오검출 방지) |
 
-쿼터: 60% 초과 → **모든 순위에서** 강등(ok 레인이 없으면 첫 강등 레인) · 85% 초과 → 사용 금지 · 읽기 실패 = **미확인**(0%로 간주 금지) · 실호출(G12) 실패 = 사용 금지 · 실호출 결과가 24시간 넘으면 미확인 · `quota_bucket` 이 있는 레인(fable)은 그 버킷으로 판정 (D-28 #13)
+쿼터: 80% 초과 → **모든 순위에서** 강등(ok 레인이 없으면 첫 강등 레인) · 100% 도달 → 사용 금지(Q-05) · 읽기 실패 = **미확인**(0%로 간주 금지) · 실호출(G12) 실패 = 사용 금지 · 실호출 결과가 24시간 넘으면 미확인 · `quota_bucket` 이 있는 레인(fable)은 그 버킷으로 판정 (D-28 #13)
 
 <!-- ROUTING:END -->
 
@@ -199,8 +199,8 @@ ok, status = routing.run_orca_json("status")
 ok, acct  = routing.run_orca_json("account", "list")   # 4벤더 각각
 ```
 
-- 어느 벤더 60% 초과 → **그 레인을 쓰는 태스크만** 2순위로 강등
-- 어느 벤더 85% 초과 → 그 레인 사용 금지. 후보가 없으면 **축소안을 제시**하고 승인받는다
+- 어느 벤더 80% 초과 → **그 레인을 쓰는 태스크만** 다음 순위로 강등 (Q-260913-05: 60→80)
+- 어느 벤더가 한도 100% 도달 또는 실호출 실패 → 그 레인 사용 금지(Q-05: 85→100). 후보가 없으면 **축소안을 제시**하고 승인받는다 · 한도에 걸려 실패·정지한 워커는 `handoff_spec` 으로 여유 레인에 인수인계(G4)
 - 읽기 실패 → **"미확인"**으로 표시하고 1순위 유지. **0%로 간주하지 않는다**
 - `claude.fableWeekly` 100%면 fable을 워커로 쓰지 않는다
 

@@ -247,6 +247,29 @@ def run():
         check("A-verify = astra → fable → opus (D-28 #4)",
               routing.lanes_for("A-verify") == ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5"],
               str(routing.lanes_for("A-verify")))
+        gate_a = [{"proc": "security-artifact-gate", "lane": routing.fixed_for("security-artifact-gate")[0], "class": "B"},
+                  {"proc": "security-bizlogic-2nd", "lane": routing.fixed_for("security-bizlogic-2nd")[0], "class": "B"}]
+        ok_w1, v_w1, _nw1 = routing.validate_plan(
+            [{"proc": "terminal-ci-git", "lane": "gpt-6-astra", "class": "B", "writes": True}] + gate_a,
+            quota_checked_vendors=routing.VENDORS)
+        check("writes 공정이 codex 면 G1 + CODING_LANE_NOT_ALLOWED (Q-09)",
+              not ok_w1 and "G1" in v_w1 and "CODING_LANE_NOT_ALLOWED" in v_w1, str(v_w1))
+        ok_w2, v_w2, _nw2 = routing.validate_plan(
+            [{"proc": "terminal-ci-git", "lane": "claude-opus-5", "class": "B", "writes": True}],
+            quota_checked_vendors=routing.VENDORS)
+        check("writes 공정만 있고 게이트가 없으면 MISSING_SECURITY_GATE (Q-09)",
+              not ok_w2 and "MISSING_SECURITY_GATE" in v_w2, str(v_w2))
+        ok_w3, v_w3, _nw3 = routing.validate_plan(
+            [{"proc": "terminal-ci-git", "lane": "claude-opus-5", "class": "B", "writes": True}] + gate_a,
+            quota_checked_vendors=routing.VENDORS)
+        check("writes 공정이 claude 코딩 레인 + 게이트면 통과 (Q-09)", ok_w3, str(v_w3))
+        check("writes 는 lanes_for_proc 도 코딩 목록 (Q-09)",
+              routing.lanes_for_proc("terminal-ci-git", writes=True) == routing.PROCESS_LANES["coding"])
+        hs = routing.handoff_spec("원래 과제 본문 XYZ", "codex 한도 도달(429)", "gpt-6-astra", "claude-opus-5",
+                                  transcript_tail="마지막 줄", files_changed=["a.py"])
+        check("handoff_spec 에 원 과제·사유·바뀐 파일·출력 끝이 들어간다 (Q-05)",
+              all(s in hs for s in ("원래 과제 본문 XYZ", "codex 한도 도달(429)", "- a.py", "마지막 줄",
+                                    "gpt-6-astra → claude-opus-5")), hs[:200])
         check("R1 — 반증 아니오인 A 작업은 A 목록 그대로",
               routing.lanes_for_proc("inventory-schema") == routing.lanes_for("A"))
         check("A-verify 는 원장 class 허용목록에 있다 (D-28 #4 · Q-08)", "A-verify" in ledger.VALID_CLASSES)
@@ -474,21 +497,29 @@ def run():
 
         # 쿼터 전 후보 blocked → lane None
         import make_intake as MI
-        blocked = {v: {"pct": 99, "reset": "", "state": "ok", "key": "weekly"}
+        blocked = {v: {"pct": 100, "reset": "", "state": "ok", "key": "weekly"}
                    for v in routing.VENDORS}
         lane_b, note_b = MI.pick_default("A", blocked)
-        check("전 레인 85% 초과 → lane 없음", lane_b is None, f"lane={lane_b}")
+        check("전 레인 한도 100% 도달 → lane 없음 (Q-05)", lane_b is None, f"lane={lane_b}")
+        lane_99, note_99 = MI.pick_default("A", {v: {"pct": 99, "reset": "", "state": "ok", "key": "weekly"}
+                                                for v in routing.VENDORS})
+        check("99% 는 금지가 아니라 강등 — 첫 강등 레인 (Q-05)", lane_99 == "gpt-5.6-luna", f"{lane_99} {note_99}")
         check("사유에 축소안 안내", "축소안" in note_b, note_b)
 
         # D-28 #13 — 강등을 모든 순위에 · 첫 강등 레인 폴백 · fable 버킷 · 실호출 · unavailable
         def _q(pct):
             return {"pct": pct, "reset": "", "state": "ok", "key": "weekly"}
-        q6190 = {"claude": _q(90), "codex": _q(61), "gemini": _q(0), "grok": _q(0)}
+        q6190 = {"claude": _q(100), "codex": _q(81), "gemini": _q(0), "grok": _q(0)}   # Q-05: 금지 100 · 강등 >80
         lane_n6, note_n6 = MI.pick_default("A", q6190)
         check("ok 레인이 없으면 첫 강등 레인 (D-28 N6)", lane_n6 == "gpt-5.6-luna", f"{lane_n6} {note_n6}")
         q_c61 = dict(q6190, claude=_q(30))
         lane_d2, _nd2 = MI.pick_default("A", q_c61)
-        check("1순위 61% 면 ok 인 2순위로 강등", lane_d2 == "claude-sonnet-5", str(lane_d2))
+        check("1순위 81% 면 ok 인 2순위로 강등 (Q-05 강등선 80)", lane_d2 == "claude-sonnet-5", str(lane_d2))
+        lane_80, _n80 = MI.pick_default("A", dict(q_c61, codex=_q(80)))
+        check("정확히 80% 는 강등이 아니다 (초과만)", lane_80 == "gpt-5.6-luna", str(lane_80))
+        # Q-09 — writes:true 공정은 코딩 규칙
+        lane_wr, _nwr = MI.pick_default("B", _q and {v: _q(10) for v in routing.VENDORS}, proc="terminal-ci-git", writes=True)
+        check("writes 공정의 기본 채움은 코딩 레인 (Q-09)", lane_wr == routing.PROCESS_LANES["coding"][0], str(lane_wr))
         q_ok = {v: _q(10) for v in routing.VENDORS}
         lane_cp, note_cp = MI.pick_default("C-platform", q_ok)
         check("dispatch unavailable 인 gemini 는 기본 채움에서 건너뛴다 (D-28 #12)",
@@ -502,7 +533,7 @@ def run():
         st_f, why_f = MI.lane_state_for("claude-fable-5-1", q_ok, fable_pct=100)
         check("fable 은 fableWeekly 버킷으로 판정 (D-28 #13②)", st_f == "blocked", f"{st_f} {why_f}")
         st_f2, wf2 = MI.lane_state_for("claude-fable-5-1", q6190, fable_pct=0)
-        check("M2 미확정 — claude 주간 90% 면 fableWeekly 0% 여도 fable 은 blocked", st_f2 == "blocked",
+        check("M2 미확정 — claude 주간 100% 면 fableWeekly 0% 여도 fable 은 blocked", st_f2 == "blocked",
               f"{st_f2} {wf2}")
         lane_cd, _ncd = MI.pick_default("B", q_ok, proc="coding")
         check("코딩 기본 채움은 공정 전용 목록 (D-28 #5)", lane_cd == "claude-opus-5", str(lane_cd))

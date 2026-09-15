@@ -320,7 +320,7 @@ PROCESSES = [
     #   astra 설명이 정확히 그 자리를 가리킨다("complex, demanding work").
     #   [Simon 결정 2026-09-06] effort 도 같이 xhigh 로. 즉 Orca 에서 이 모델로
     #   갈 수 있는 최상단이다(그 위 max·ultra 는 Orca 가 안 받는다 — 위 원인 규명 참조).
-    #   비용은 codex 주간 쿼터로 관리한다(60% 초과 시 강등 규칙이 이미 있다).
+    #   비용은 codex 주간 쿼터로 관리한다(강등 규칙이 이미 있다 — 2026-09-16 Q-05 로 80% 초과).
     #   두 게이트가 같은 codex 벤더인 것은 D-260904-01 에서 이미 양보한 부분이고,
     #   구분자는 이제 'effort 상한'이 아니라 **모델 성격**이다 —
     #   daybreak 은 model_specialty="cyber" 전용, astra 는 범용 프론티어.
@@ -400,7 +400,9 @@ GUARDS = [
     ("G1", "짠 레인이 자기 코드를 보안 리뷰하지 않는다", True),
     ("G2", "자기 결론 재검증에 서브에이전트를 쓰지 않는다 — 반증은 리포트 '§X 반증 시도' 섹션", False),
     ("G3", "워커당 spawn 상한 8", True),
-    ("G4", "쿼터 게이트는 디스패치 시점에만. 실행 중 중단 근거로 쓰지 않는다", False),
+    ("G4", "쿼터 게이트는 디스패치 시점에만. 실행 중 중단 근거로 쓰지 않는다 — 한도 도달로 **실패·정지한** 워커만 "
+           "여유 레인의 새 task 로 인수인계한다(`handoff_spec` + `revalidate_for_retry`, Q-260913-05). "
+           "상시 모니터링 데몬·실행 중 선제 교체는 하지 않는다", False),
     ("G5", "쿼터는 4벤더 각각 확인한다", True),
     ("G6", "부재 보고에는 탐색 범위를 붙인다. 범위 없는 '0건'은 반환값 불인정 — "
            "gemini 뿐 아니라 **A 클래스 전체**에 적용 (Simon 결정 2026-09-04)", False),
@@ -434,8 +436,10 @@ GUARDS = [
 AUTO_GUARDS = [g for g in GUARDS if g[2]]
 
 SPAWN_CAP = 8            # G3
-QUOTA_DEMOTE = 60        # §8 초과 → 2순위 강등
-QUOTA_BLOCK = 85         # §8 초과 → 사용 금지
+# Q-260913-05 (2026-09-16, Simon 메모 "모든 모델 100%까지 사용" + Claude 판단): 강등 60→80 · 금지 85→100(도달).
+#   80% 넘은 벤더에서 비고정 레인은 여유 레인으로 가고, 옮길 수 없는 고정 게이트가 80~100% 구간을 쓴다.
+QUOTA_DEMOTE = 80        # 초과 → 다음 순위로 강등
+QUOTA_BLOCK = 100        # 도달(>=) → 사용 금지. 실호출(G12) 실패도 사용 금지
 SWAP_MIN_OBS = 5         # §12 양쪽 관측 최소
 SWAP_MIN_GAP = 0.15      # §12 채택률 15%p
 
@@ -446,7 +450,7 @@ def lanes_for(cls):
     return list(CLASS_LANES.get(cls, []))
 
 
-def lanes_for_proc(proc_id, cls=None, falsifiable=False):
+def lanes_for_proc(proc_id, cls=None, falsifiable=False, writes=False):
     """공정 단위 레인 목록 (D-28 #5·#11).
 
     우선순위: PROCESS_LANES[proc] → R1 승격 → CLASS_LANES[클래스].
@@ -454,6 +458,8 @@ def lanes_for_proc(proc_id, cls=None, falsifiable=False):
       A-verify 클래스(2단계 · Q-260913-08)가 생기기 전까지는 B 비코딩 목록으로 임시 승격한다.
       effort 는 도착 레인의 최상위다 — effort_for(lane, True).
     """
+    if writes:                            # Q-09: 파일을 바꾸는 공정은 코딩 레인만
+        return list(PROCESS_LANES["coding"])
     if proc_id in PROCESS_LANES:
         return list(PROCESS_LANES[proc_id])
     p = PROC_BY_ID.get(proc_id)
@@ -886,8 +892,10 @@ def check_guards(assignments, quota_checked_vendors=None, spawn_counts=None):
     #   · 생성물 안전성 게이트 = 만든 산출물을 검사한다 → 겹치면 진짜 자기검토. HARD (G1)
     #   · 비즈니스로직·인가   = 설계·권한을 본다      → 겹침이 불가피. SOFT (G1_BIZLOGIC)
     #   Simon 이 §5 를 바꾸면 이 분기도 같이 바꾼다.
+    # Q-260913-09 (Simon 2026-09-16): 계획에 writes:true 인 공정도 코딩으로 본다 — 파일을 바꾸는 쪽이
+    #   자기 결과물을 검사하지 못하게 한다(공정 이름이 coding 이 아니어도).
     impl = {LANES[a["lane"]]["vendor"] for a in assignments
-            if a.get("proc") == "coding" and a.get("lane") in LANES}
+            if (a.get("proc") == "coding" or a.get("writes")) and a.get("lane") in LANES}
     gate = {LANES[a["lane"]]["vendor"] for a in assignments
             if a.get("proc") == "security-artifact-gate" and a.get("lane") in LANES}
     biz = {LANES[a["lane"]]["vendor"] for a in assignments
@@ -940,7 +948,7 @@ def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None, qu
     notes = []
 
     procs = {a.get("proc") for a in assignments}
-    if "coding" in procs:
+    if "coding" in procs or any(a.get("writes") for a in assignments):   # Q-09: writes 도 게이트 필수
         for need in ("security-artifact-gate", "security-bizlogic-2nd"):
             if need not in procs:
                 v.append("MISSING_SECURITY_GATE")
@@ -948,11 +956,11 @@ def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None, qu
 
         # D-28 #5 — 코딩은 PROCESS_LANES["coding"] 안에서만. codex 폴백 없음.
         for a in assignments:
-            if a.get("proc") == "coding" and a.get("lane") not in PROCESS_LANES["coding"]:
+            if (a.get("proc") == "coding" or a.get("writes")) and a.get("lane") not in PROCESS_LANES["coding"]:
                 v.append("CODING_LANE_NOT_ALLOWED")
                 notes.append(f"coding 레인 {a.get('lane')} 은 허용 목록 {PROCESS_LANES['coding']} 밖이다 (D-28 #5)")
 
-        # D-28 #14 — 게이트 벤더가 사용 금지(85% 초과·실호출 실패)면 코딩 라운드를 띄우지 않는다.
+        # D-28 #14 — 게이트 벤더가 사용 금지(한도 100% 도달·실호출 실패, Q-05)면 코딩 라운드를 띄우지 않는다.
         #   quota_states: {vendor: "ok"|"demote"|"blocked"|"unknown"} — make_intake 가 판정한 값.
         if quota_states:
             blocked = sorted(vd for vd in gate_vendors() if quota_states.get(vd) == "blocked")
@@ -1068,6 +1076,36 @@ def revalidate_for_retry(assignments, proc, new_lane, **kw):
     return ok, v, notes, new
 
 
+def handoff_spec(original_spec, reason, from_lane, to_lane, transcript_tail="", files_changed=None):
+    """한도 도달로 실패·정지한 워커의 일을 여유 레인에 넘기는 새 task 과제 (Q-260913-05 · G4).
+
+    트리거는 쿼터 % 가 아니라 **그 워커가 실제로 한도에 걸려 실패·정지했다는 신호**다
+    (worker_done 실패 사유 · worker-read 끝부분의 한도 메시지 · 429/402). 실행 중인 워커를
+    쿼터 % 로 선제 교체하지 않는다(G4). 새 task 를 띄우기 전에 revalidate_for_retry 로 계획을 다시 검증한다(G13).
+    """
+    files = [str(x) for x in (files_changed or [])]
+    tail = (transcript_tail or "").strip()
+    if len(tail) > 4000:
+        tail = "…(앞부분 생략)…\n" + tail[-4000:]
+    lines = [
+        f"[인수인계 · {from_lane} → {to_lane} · 사유: {reason}]",
+        "",
+        "이전 워커가 한도에 걸려 끝내지 못한 일을 이어받는다. 이미 끝난 부분은 다시 하지 말고,",
+        "아래 '바뀐 파일'과 '이전 출력 끝부분'으로 어디까지 됐는지 먼저 확인한 뒤 남은 일만 한다.",
+        "이어받은 사실과 확인한 진행 지점을 worker_done 보고 첫 줄에 적는다.",
+        "",
+        "## 바뀐 파일 (이전 워커)",
+        "\n".join(f"- {x}" for x in files) if files else "- (없음 또는 미확인 — git status 로 먼저 확인)",
+        "",
+        "## 이전 출력 끝부분",
+        tail or "(없음)",
+        "",
+        "## 원래 과제",
+        original_spec or "",
+    ]
+    return "\n".join(lines)
+
+
 # ── SKILL.md 표 생성 (단일 출처 유지) ───────────────────────────
 def emit_md():
     L = []
@@ -1113,7 +1151,7 @@ def emit_md():
     #   이 한 줄 끝에 붙인다. 자세한 규칙은 references/d28-routing.md.
     L.append(f"**배정 금지**: {' · '.join('`'+x+'`' for x in sorted(FORBIDDEN_LANES))} "
              "— 용도 미검증 / R&R 미확정 (발주 §3) · **D-28**: 코딩은 공정 전용 목록 `PROCESS_LANES` "
-             "(claude 전용 · codex 폴백 없음 · #5) · "
+             "(claude 전용 · codex 폴백 없음 · #5 · 파일을 바꾸는 `writes` 공정도 같음 · Q-09) · "
              "fable·sonnet 은 M1 통과(2026-09-16) 뒤 2순위 편입 · A-verify = astra → fable → opus(읽기 전용 · `writes` 면 A_VERIFY_WRITES) · 반증 \"예\"인 A 작업은 A-verify 로 승격 · gemini `unavailable`(M6) "
              "→ `references/d28-routing.md`")
     L.append("")
@@ -1168,7 +1206,7 @@ def emit_md():
         L.append(f"| {code} | {text} | {'✅ 원장 기록' if auto else '— (오검출 방지)'} |")
     L.append("")
     L.append(f"쿼터: {QUOTA_DEMOTE}% 초과 → **모든 순위에서** 강등(ok 레인이 없으면 첫 강등 레인) · "
-             f"{QUOTA_BLOCK}% 초과 → 사용 금지 · 읽기 실패 = **미확인**(0%로 간주 금지) · "
+             f"{QUOTA_BLOCK}% 도달 → 사용 금지(Q-05) · 읽기 실패 = **미확인**(0%로 간주 금지) · "
              "실호출(G12) 실패 = 사용 금지 · 실호출 결과가 24시간 넘으면 미확인 · "
              "`quota_bucket` 이 있는 레인(fable)은 그 버킷으로 판정 (D-28 #13)")
     L.append("")
