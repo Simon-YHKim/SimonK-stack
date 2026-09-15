@@ -2,7 +2,7 @@
 name: vibe
 description: "Use when, and proactively whenever, work should be fanned out to Orca workers across four vendors instead of one session—triggers \"/vibe\", \"바이브 코딩\", \"오르카로 돌려\", \"파이프라인 돌려\", \"워커 붙여서\", \"orca pipeline\", \"fan out this task\", or a pasted \"/vibe 실행\" block. Produces: an HTML intake form (vibe-intake.html) with live 4-vendor quota and prefilled class lanes; then Orca workers routed by process class (A mechanical / B judgment / C external / D synthesis) across claude-opus-5, gpt-6-astra, gpt-5.6-sol/terra/luna, gpt-daybreak-blue-latest (cyber), gemini-3.8-flash (agent antigravity) and grok-4.6, with effort forced into every codex dispatch and checked against Orca's measured allowlist (astra/daybreak cap at xhigh); a decision sheet; and one routing-ledger row per worker. NOT for small single-session edits (dev-orchestrator) or new apps (app-dev-orchestrator)."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.2.0
+version: 2.3.0
 author: simon-stack
 ---
 
@@ -45,7 +45,7 @@ python "$SKILL_ROOT/scripts/routing.py"    # 레인·상한 요약
 
 B 2순위가 `gpt-6-astra` 로, 인가 게이트가 `gpt-6-astra @xhigh` 로 올랐고 effort 를 **정책(최상위/표준)** 과 **Orca 물리적 상한**으로 쪼갰다.
 astra·daybreak 은 Orca 워커로 `xhigh` 가 끝이다(Orca 앱의 codex 카탈로그 다섯 줄 밖이라 `unknownModelOptions` 로 떨어진다, 1.4.200 에서도 같다). `ultra` 는 sol 로 내리거나 codex 직행(3-2)뿐이다.
-원인 규명 전문 · 측정법(`routing.py --probe-efforts`) → **`references/v2.2-astra-effort-cap.md`**
+원인 규명 전문 · 측정법(`routing.py --probe-efforts`) → **`references/v2.2-astra-effort-cap.md`** · **v2.3 (2026-09-16) — D-28 1단계**: 코딩 claude 전용(`PROCESS_LANES`) · 강등을 전 순위에·실호출·fable 버킷 · gemini `unavailable` · 코디네이터 sol@xhigh → **`references/d28-routing.md`**
 
 ---
 
@@ -62,11 +62,11 @@ astra·daybreak 은 Orca 워커로 `xhigh` 가 끝이다(Orca 앱의 codex 카�
 | `claude-opus-5` | claude | `ultracode` | `standard` | `standard` · `ultracode` (와이어는 항상 `--effort max`) | 프롬프트 키워드 | ✅ `--model`·`--effort` 가능 | 1M |
 | `claude-fable-5-1` | claude | `max` | `high` | `low` · `medium` · `high` · `xhigh` · `max` | `--effort` | ✅ `--model`·`--effort` 가능 | 1M · 쿼터 fableWeekly 별도 · API 단가 Opus 5의 2배 |
 | `gpt-6-astra` | codex | `xhigh` | `high` | `minimal` · `low` · `medium` · `high` · `xhigh` | `--effort` | ✅ `--model`·`--effort` 가능 | 272K(최대 872K) · Orca 상한 xhigh |
-| `gpt-5.6-sol` | codex | `ultra` | `high` | `minimal` · `low` · `medium` · `high` · `xhigh` · `max` · `ultra` | `--effort` | ✅ `--model`·`--effort` 가능 | 1.5M |
-| `gpt-5.6-terra` | codex | `high` | `medium` | `minimal` · `low` · `medium` · `high` · `xhigh` · `max` · `ultra` | `--effort` | ✅ `--model`·`--effort` 가능 | 1.5M |
-| `gpt-5.6-luna` | codex | `medium` | `low` | `minimal` · `low` · `medium` · `high` · `xhigh` · `max` | `--effort` | ✅ `--model`·`--effort` 가능 | 1.5M · 최저가 |
+| `gpt-5.6-sol` | codex | `ultra` | `high` | `minimal` · `low` · `medium` · `high` · `xhigh` · `max` · `ultra` | `--effort` | ✅ `--model`·`--effort` 가능 | 272K(최대 872K) |
+| `gpt-5.6-terra` | codex | `max` | `medium` | `minimal` · `low` · `medium` · `high` · `xhigh` · `max` · `ultra` | `--effort` | ✅ `--model`·`--effort` 가능 | 272K(최대 872K) |
+| `gpt-5.6-luna` | codex | `medium` | `low` | `minimal` · `low` · `medium` · `high` · `xhigh` · `max` | `--effort` | ✅ `--model`·`--effort` 가능 | 272K(최대 872K) · 최저가 |
 | `gpt-daybreak-blue-latest` | codex | `xhigh` | `high` | `minimal` · `low` · `medium` · `high` · `xhigh` | `--effort` | ✅ `--model`·`--effort` 가능 | 보안 전용 · 기본 low · Orca 상한 xhigh |
-| `gemini-3.8-flash` | antigravity | `high` | `medium` | — **지정 불가** (그 CLI 기본값) | **슬러그 내장** | ⚠ `--agent` 만 — `--model` 거부 | Gemini Flash 계열 |
+| `gemini-3.8-flash` | antigravity | `high` | `medium` | — **지정 불가** (그 CLI 기본값) | **슬러그 내장** | ❌ **Orca 워커 불가** (agent 미등록·과제 전달 실패 — CLI 직행만) | Gemini Flash 계열 |
 | `grok-4.6` | grok | `xhigh` | `high` | — **지정 불가** (그 CLI 기본값) | `--effort` | ⚠ `--agent` 만 — `--model` 거부 | 500K · 200K초과 2배 과금 |
 
 **「Orca 실측 허용」은 2026-09-06 에 전수 측정한 값이다** — `python scripts/routing.py --probe-efforts --task <실재 task_id>` 로 언제든 다시 잰다(워커가 안 뜨므로 비용 0). `models_cache.json` 이 지원한다고 적는 값과 **다르다**: astra·daybreak 은 CLI 에서는 `ultra`·`max` 가 돌지만 Orca 워커로는 `xhigh` 가 상한이다. 정책 두 단(최상위/표준) 밖의 값을 쓰려면 `allow_off_ladder=True` 를 명시한다.
@@ -75,25 +75,25 @@ astra·daybreak 은 Orca 워커로 `xhigh` 가 끝이다(Orca 앱의 codex 카�
 
 **오르카 기동은 2026-09-04 실측이다.** `--model` 은 Claude·Codex·Cursor 만 받는다 (orca help) — grok·gemini 는 `--agent` 만 주고 모델은 그 CLI 의 기본값이 쓰인다. ⚠ **agent id 는 CLI 이름이 아니라 좌석 이름이다**: `--agent agy` 는 `agent_unconfigured` 로 거부되고 `--agent antigravity` 가 정본이다. (CLI 바이너리는 `agy`, Orca 등록명은 `antigravity`.)
 
-**배정 금지**: `codex-auto-review` · `gpt-5.3-codex-spark` · `gpt-5.4-mini` · `gpt-reserve` — 용도 미검증 / R&R 미확정 (발주 §3)
+**배정 금지**: `codex-auto-review` · `gpt-5.3-codex-spark` · `gpt-5.4-mini` · `gpt-reserve` — 용도 미검증 / R&R 미확정 (발주 §3) · **D-28**: 코딩은 공정 전용 목록 `PROCESS_LANES` (claude 전용 · codex 폴백 없음 · #5) · 반증 "예"인 A 작업은 B 비코딩 목록으로 승격(#11) · `claude-fable-5-1`·`claude-sonnet-5` 는 실워커 1회(M1) 전까지 목록 밖 · gemini `unavailable`(M6) → `references/d28-routing.md`
 
 ### 공정 → 클래스 → 레인
 
 | 공정 | 클래스 | 1순위 | 2순위 | 3후보 |
 |---|---|---|---|---|
-| 대량 정형 변환 · 카운트 | A | `gpt-5.6-luna` | `gemini-3.8-flash` | `grok-4.6` |
-| 인벤토리 · 스키마 검증 | A | `gpt-5.6-luna` | `gemini-3.8-flash` | `grok-4.6` |
-| 디스크 스캔 · grep | A | `gpt-5.6-luna` | `gemini-3.8-flash` | `grok-4.6` |
-| 장문 로그 · 커밋히스토리 분류 집계 | A | `gpt-5.6-luna` | `gemini-3.8-flash` | `grok-4.6` |
-| 웹 리서치 — 정독 · 모순 종합 | B | `claude-opus-5` | `gpt-6-astra` | `gpt-5.6-terra` |
-| 코딩 — 구현 · 대규모 리팩터링 | B | `claude-opus-5` | `gpt-6-astra` | `gpt-5.6-terra` |
-| 터미널 · CI · git (판단 섞인 경우) | B | `claude-opus-5` | `gpt-6-astra` | `gpt-5.6-terra` |
+| 대량 정형 변환 · 카운트 | A | `gpt-5.6-luna` | `claude-opus-5` | — |
+| 인벤토리 · 스키마 검증 | A | `gpt-5.6-luna` | `claude-opus-5` | — |
+| 디스크 스캔 · grep | A | `gpt-5.6-luna` | `claude-opus-5` | — |
+| 장문 로그 · 커밋히스토리 분류 집계 | A | `gpt-5.6-luna` | `claude-opus-5` | — |
+| 웹 리서치 — 정독 · 모순 종합 | B | `gpt-6-astra` | `claude-opus-5` | — |
+| 코딩 — 구현 · 대규모 리팩터링 **(공정 전용 목록)** | B | `claude-opus-5` | — | — |
+| 터미널 · CI · git (판단 섞인 경우) | B | `gpt-6-astra` | `claude-opus-5` | — |
 | 보안 — 생성물 안전성 게이트 | B | **`gpt-daybreak-blue-latest` @xhigh 고정** | — | — |
 | 보안 — 비즈니스 로직 · 인가 | B | **`gpt-6-astra` @xhigh 고정** | — | — |
-| 트렌드 · 실시간 | C-realtime | `grok-4.6` | `gemini-3.8-flash` | — |
-| 웹 리서치 — 수집 | C-realtime | `grok-4.6` | `gemini-3.8-flash` | — |
-| Google 플랫폼 (BigQuery/Firebase/Workspace) | C-platform | `gemini-3.8-flash` | — | — |
-| UI 시각 검증 | C-platform | `gemini-3.8-flash` | — | — |
+| 트렌드 · 실시간 | C-realtime | `grok-4.6` | `gpt-5.6-sol` | `claude-opus-5` |
+| 웹 리서치 — 수집 | C-realtime | `grok-4.6` | `gpt-5.6-sol` | `claude-opus-5` |
+| Google 플랫폼 (BigQuery/Firebase/Workspace) | C-platform | `gemini-3.8-flash` | `gpt-5.6-sol` | `claude-opus-5` |
+| UI 시각 검증 | C-platform | `gemini-3.8-flash` | `gpt-5.6-sol` | `claude-opus-5` |
 | 다레인 산출물 조립 | D | **`claude-opus-5` @ultracode 고정** | — | — |
 | 워크트리 · run 관리 (orca CLI) | N | — | — | — |
 
@@ -103,13 +103,13 @@ astra·daybreak 은 Orca 워커로 `xhigh` 가 끝이다(Orca 앱의 codex 카�
 
 | | `claude-opus-5` | `claude-fable-5-1` | `gpt-6-astra` | `gpt-5.6-sol` | `gpt-5.6-terra` | `gpt-5.6-luna` | `gpt-daybreak-blue-latest` | `gemini-3.8-flash` | `grok-4.6` |
 |---|---|---|---|---|---|---|---|---|---|
-| **YES** 최상위 | `ultracode` | `max` | `xhigh` | `ultra` | `high` | `medium` | `xhigh` | `high` | `xhigh` |
+| **YES** 최상위 | `ultracode` | `max` | `xhigh` | `ultra` | `max` | `medium` | `xhigh` | `high` | `xhigh` |
 | **NO** 표준 | `standard` | `high` | `high` | `high` | `medium` | `low` | `high` | `medium` | `high` |
 | 사다리 밖 상한 (`allow_off_ladder`) | `ultracode` | `max` | `xhigh` | `ultra` | `ultra` | `max` | `xhigh` | — (지정 불가) | — (지정 불가) |
 
 셋째 줄이 **물리적 상한**이다. 둘째 줄까지가 기본 경로고, 셋째 줄까지는 `allow_off_ladder=True` 를 명시해야 열린다 — 원장에 `off_ladder` 로 남는다. 그 위(`ultra`·`max` on astra/daybreak)는 Orca 가 거부하므로 **없는 값**이다. 거기가 정말 필요하면 워커가 아니라 codex 직행이다 (`run_codex_exec`).
 
-코디네이터 레인 = **`gpt-5.6-sol` @ultra** — 종합(D)과 벤더가 달라야 한다.
+코디네이터 레인 = **`gpt-5.6-sol` @xhigh** — 종합(D)과 벤더가 달라야 한다. 워커 겸임은 클래스와 무관하게 경고한다(D-28 #6).
 
 ### 레인별 산출물 제약
 
@@ -138,8 +138,10 @@ astra·daybreak 은 Orca 워커로 `xhigh` 가 끝이다(Orca 앱의 codex 카�
 | G10 | 적대적 평가에서 채점자는 두 생산자와 **벤더가 달라야** 한다. 벤더 3개를 못 채우면 그 문제는 건너뛴다 — 자기 벤더가 자기 답을 채점하느니 관측을 포기한다 (`adversarial_eval.py`) | — (오검출 방지) |
 | G11 | 디스패치 전에 툴체인 최신화를 확인한다 — codex 가 한 버전만 뒤처져도 `Agent startup blocked: codex-update-prompt` 로 **전 워커가 안 뜨는데 에러가 프롬프트 문제처럼 보인다** (2026-09-12 실사고). `python scripts/check_tooling.py` | — (오검출 방지) |
 | G12 | **벤더 가용성은 쿼터로 판정하지 않는다 — 실호출로 확인한다.** 2026-09-13 실측: grok 은 402(잔액 소진), gemini 단독 CLI 는 IneligibleTierError 였는데 **쿼터 %로는 둘 다 여유 있어 보였다** — 못 쓰는 이유가 쿼터가 아니었기 때문이다. 쿼터 게이트(G5)는 '얼마나 썼나'를 보고, 이건 '지금 답이 나오나'를 본다. 다른 질문이다. `python scripts/adversarial_eval.py --preflight` | — (오검출 방지) |
+| G13 | 재시도(`worker-start --retry-of`)·수동 재배정도 계획 검증을 다시 통과해야 한다 — `routing.revalidate_for_retry(plan, proc, new_lane, ...)` 가 (ok, 위반, 메모, 새 계획)을 준다. `--retry-of` 는 orca CLI 를 직접 부르므로 routing 의 계획 검증을 거치지 않는다 (D-28 #14) | — (오검출 방지) |
+| G14 | 결정 시트(`make_decision_sheet.py`)를 만들지 않은 라운드는 **끝난 것으로 치지 않는다** — 손으로 조립한 시트는 `decisions_run_*.json` 을 내지 않아 채택률이 비고 스왑 규칙이 돌지 않는다 (D-28 #15) | — (오검출 방지) |
 
-쿼터: 60% 초과 → 2순위 강등 · 85% 초과 → 사용 금지 · 읽기 실패 = **미확인**(0%로 간주 금지)
+쿼터: 60% 초과 → **모든 순위에서** 강등(ok 레인이 없으면 첫 강등 레인) · 85% 초과 → 사용 금지 · 읽기 실패 = **미확인**(0%로 간주 금지) · 실호출(G12) 실패 = 사용 금지 · 실호출 결과가 24시간 넘으면 미확인 · `quota_bucket` 이 있는 레인(fable)은 그 버킷으로 판정 (D-28 #13)
 
 <!-- ROUTING:END -->
 
@@ -296,7 +298,7 @@ plan = [{"proc": "research-deep", "lane": "gpt-6-astra", "class": "B",
 **배정 검증** — 디스패치 전에 돌린다:
 ```python
 routing.check_guards(assignments, quota_checked_vendors, spawn_counts)   # G1·G3·G5·탐색오배정
-routing.coordinator_conflict(assignments)                                 # sol이 코디네이터+B워커 겸임
+routing.coordinator_conflict(assignments)   # 코디네이터 레인이 워커를 겸임(클래스 무관, D-28 #6) · 재시도 전엔 revalidate_for_retry()(G13)
 ```
 
 ✅ **D-260904-01 — 보안 검사 배정 (Simon 결정, 2026-09-04)**
@@ -305,7 +307,7 @@ routing.coordinator_conflict(assignments)                                 # sol�
 
 | | 배정 | 벤더 |
 |---|---|---|
-| 코딩 (B 1순위) | `claude-opus-5` | claude |
+| 코딩 (공정 전용 목록 `PROCESS_LANES`, D-28 #5) | `claude-opus-5` | claude |
 | 생성물 안전성 게이트 | `gpt-daybreak-blue-latest` @xhigh | codex |
 | 비즈로직·인가 게이트 | `gpt-6-astra` @xhigh  *(2026-09-06, 직전 `gpt-5.6-terra` @high)* | codex |
 
@@ -317,7 +319,7 @@ routing.coordinator_conflict(assignments)                                 # sol�
 > Simon 이 codex 모델 선택지에서 찾아냈다. 정본은 `~/.codex/models_cache.json`:
 > display_name **"Daybreak Blue"**, *"Latest frontier agentic coding model for
 > broad defensive cybersecurity work."* — **보안 전용 프론티어 모델**이다.
-> sol 은 범용 워크호스("Reliable agentic workhorse")였으니, 보안 자리에 보안 모델을 놓는다.
+> sol 은 범용 워크호스("Reliable agentic workhorse")였으니, 보안 자리에 보안 모델을 놓는다. *(D-28 #16: 2026-09-13 models_cache 에서 sol 은 priority 1 "Latest frontier agentic coding model." 로 바뀌었다 — 이 문장은 09-04 기록이다)*
 > 벤더는 여전히 codex 라 위 양보는 그대로고, 개선된 것은 **모델 적합성**뿐이다.
 > 부수 효과로 sol 이 게이트에서 풀려 **코디네이터 겸임 충돌이 사라졌다.**
 > ⚠ daybreak 도 **기본 effort 가 low** 다 — sol 과 같은 함정. effort 명시는 코드가 강제한다.
@@ -362,7 +364,7 @@ rc, out, err = routing.run_codex_exec(
 
 A 클래스 태스크 하나(없으면 B의 비고정 공정)를 **2순위 레인**으로 강제 배정하고 `explore:true`로 기록한다.
 - 후보 중 **무작위**로 고른다 — 항상 첫 태스크를 고르면 난이도 편향이 생긴다
-- **제외**: D · 보안 게이트 2종 · 되돌릴 수 없는 태스크
+- **제외**: D · 보안 게이트 2종 · 코딩(공정 전용 목록 — 2순위 없음) · 되돌릴 수 없는 태스크 · 2순위가 Orca 로 안 뜨거나 실호출에 실패한 공정 — 후보는 `routing.explore_candidates()` 결과만 (D-28 #12)
 - 추가 조건에 "탐색 슬롯 끄기"가 있으면 건너뛴다
 
 ### 5. 디자인 게이트 — 로컬호스트 컨펌
@@ -420,7 +422,7 @@ python "<skill>/scripts/kill_worker.py" --dispatch ctx_… --kill --fence
 - **claude 2번째(22:16)는 `id:` + `--timeout-ms 300000` 을 처음부터 줬는데도 났다.** 방금 `git worktree add` 한 **새 워크트리의 첫 기동**이었다. `worker-start` 는 `cli_failed rc=1`(stderr 빈 값), `worker-show` 는 `start_unknown` · "input was written and submitted, but turn start could not be verified (up to 30s)", `terminal read` 의 `draft:` 에는 과제 전문이 있는데 **화면 입력창은 빈 `❯`** 였다. 복구: `kill_worker.py --kill --fence`(7프로세스 · 재스캔 0) → `task-update --status failed` → **같은 task 에 `worker-start --retry-of <죽인 dispatch>`** 를 같은 워크트리 · agent 로 다시 → `turnStart: observed`. 두 번째 기동은 그 폴더를 이미 한 번 연 뒤라 빨랐다는 것은 **추론**이다. 새 워크트리로 보낼 때는 첫 시도가 이렇게 날 수 있다고 보고, 응답의 `turnStart` 부터 본다
 - **agy 2건은 원인 미확정이다.** 한 번은 처음 여는 폴더의 `Do you trust the contents of this project?`(`agentWait.reason = codex-trust-workspace`)에 막혔고, Enter 로 기본값을 주는 사이 과제가 사라졌다. 두 번째는 신뢰가 끝난 폴더에서도 입력창이 5분 넘게 비었다 — 위 claude 와 같은 타임아웃이었을 수 있는데 **agy 를 `--timeout-ms` 로 다시 띄워 보지는 않았다.** 손으로 과제를 보내면 dispatch 별 `--dispatch-capability` 토큰이 없어 `worker_done` 을 못 보낸다
 - **codex 1건(astra, 22:32)은 `turnStart: observed` 가 거짓이었다.** 응답은 observed 였는데 50분 뒤 보니 `worker-show` 단계가 `input_accepted` · 하트비트 0 · codex 프로세스 CPU 15초였고, 화면 입력창에 `[Pasted Content 3026 chars][Pasted Content 4125 chars]` 가 **전송 안 된 채** 걸려 있었다. 복구: `orca terminal send --terminal <handle> --enter` 한 번 → 곧바로 `Working` 으로 바뀌었다. **dispatch 가 그대로라 `worker_done` 토큰도 산다**(죽이고 재발주하는 것보다 싸다). ⚠ `--wait-submit` 은 `--text` 없이 쓰면 `invalid_argument` 다 — Enter 만 보낼 때는 빼고, 확인은 화면(`terminal read --screen`)으로 한다
-- → 디스패치 응답의 `turnStart` 가 `observed` 여도 **몇 분 뒤 한 번 더** 본다 — 하트비트가 없고 화면에 붙여넣은 과제가 남아 있으면 먼저 `terminal send --enter`, 입력창이 비어 있으면 아래 절차다. `observed` 가 아니면 `kill_worker.py --kill --fence` 로 내리고 **새 task** 를 `--timeout-ms` 를 늘려 띄운다. gemini 레인은 `--timeout-ms` 로 한 번 재확인하기 전까지 Orca 워커 배정을 피하고, 꼭 필요하면 CLI 직행(`agy --print`)이다
+- → 디스패치 응답의 `turnStart` 가 `observed` 여도 **몇 분 뒤 한 번 더** 본다 — 하트비트가 없고 화면에 붙여넣은 과제가 남아 있으면 먼저 `terminal send --enter`, 입력창이 비어 있으면 아래 절차다. `observed` 가 아니면 `kill_worker.py --kill --fence` 로 내리고 **새 task** 를 `--timeout-ms` 를 늘려 띄운다. gemini 레인은 `--timeout-ms` 로 한 번 재확인하기 전까지 Orca 워커 배정을 피하고, 꼭 필요하면 CLI 직행(`agy --print`)이다 — D-28 #12 로 routing.py 에서 `dispatch: unavailable`(해제 조건 M6)
 
 ⚠ **`--worktree current` 는 cwd 가 아니라 코디네이터 터미널의 워크트리다 (2026-09-13).** Orca 터미널 안에서 도는 세션은 환경변수 `ORCA_WORKTREE_ID` 를 갖고 `worker-start --worktree current` 는 그걸 쓴다. 전용 워크트리로 `cd` 한 뒤 불렀는데도 워커는 **코디네이터 워크트리**에서 떴다 — `orca worktree current` 명령만 cwd 를 본다(둘이 다르다). 쓰기 워커를 다른 워크트리로 보내려면 `--worktree id:<repoId>::<절대경로>` 를 쓰고, `orca worktree show --worktree id:…` 로 먼저 풀리는지 본다. 옛 기록("Orca 터미널 밖 셸에서는 `current` 만 통과")과 결과가 다른 이유는 코디네이터가 Orca 터미널 안에 있느냐로 보인다(추론)
 
@@ -432,7 +434,7 @@ python "<skill>/scripts/kill_worker.py" --dispatch ctx_… --kill --fence
 python "<skill>/scripts/make_decision_sheet.py" <items.json> [출력.html]
 ```
 
-항목마다 **어느 레인이 냈는지** 배지로 표시된다. Simon이 체크하고 **[결과 저장]**을 누르면 `decisions_<run_id>.json`이 다운로드되고, **다음 `/vibe` 실행 때 자동으로 원장에 합쳐진다.** Simon이 외울 새 명령은 없다.
+항목마다 **어느 레인이 냈는지** 배지로 표시된다. Simon이 체크하고 **[결과 저장]**을 누르면 `decisions_<run_id>.json`이 다운로드되고, **다음 `/vibe` 실행 때 자동으로 원장에 합쳐진다.** Simon이 외울 새 명령은 없다. **이 시트 없이는 라운드가 끝나지 않는다(G14 · D-28 #15)** — 손으로 조립한 시트는 회수 경로가 없다.
 
 ### 8. 원장 append — 마지막 단계
 

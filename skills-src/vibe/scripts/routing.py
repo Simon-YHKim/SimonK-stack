@@ -16,6 +16,10 @@
 #   gpt-6-astra 가 올라왔다: "Our most capable model for complex, demanding work."
 #   ~/.codex/config.toml 의 model 도 이미 gpt-6-astra 다 (sol 에서 바뀐 흔적이
 #   config.toml.bak 에 남아 있다).
+#   ⚠ D-28 #16 정정(2026-09-16): 위 두 줄은 09-06 시점 기록이다. 2026-09-13 실측
+#   config.toml 은 model = "gpt-5.6-sol" · model_reasoning_effort = "xhigh" 이고,
+#   models_cache.json(2026-09-13 수신본)에서 sol 도 priority 1 · "Latest frontier agentic
+#   coding model." 이다. codex 모델 context_window 는 전부 272K(max 872K)다.
 #
 #   ⚠ 핵심 실측: **Orca 의 effort 허용목록은 CLI 의 정본보다 좁다.**
 #   models_cache 는 astra 가 low~ultra 6단을 다 지원한다고 적지만
@@ -126,17 +130,17 @@ LANES = {
     },
     "gpt-5.6-sol": {
         "cli": "codex", "vendor": "codex", "effort_style": "flag", "dispatch": "orca",
-        "top": "ultra", "std": "high", "ctx": "1.5M",
+        "top": "ultra", "std": "high", "ctx": "272K(최대 872K)",   # D-28 #16: 1.5M 은 옛 값
         "orca_efforts": ("minimal", "low", "medium", "high", "xhigh", "max", "ultra"),
     },
     "gpt-5.6-terra": {
         "cli": "codex", "vendor": "codex", "effort_style": "flag", "dispatch": "orca",
-        "top": "high", "std": "medium", "ctx": "1.5M",
+        "top": "max", "std": "medium", "ctx": "272K(최대 872K)",   # D-28 #9 최상위 high→max(Simon 확정 09-16) · #16 ctx
         "orca_efforts": ("minimal", "low", "medium", "high", "xhigh", "max", "ultra"),
     },
     "gpt-5.6-luna": {
         "cli": "codex", "vendor": "codex", "effort_style": "flag", "dispatch": "orca",
-        "top": "medium", "std": "low", "ctx": "1.5M · 최저가",
+        "top": "medium", "std": "low", "ctx": "272K(최대 872K) · 최저가",   # D-28 #10 보류(사다리 유지) · #16 ctx
         # max 까지 받지만 ultra 는 거부된다. 정책상 medium 을 넘기지 않는다.
         "orca_efforts": ("minimal", "low", "medium", "high", "xhigh", "max"),
     },
@@ -170,7 +174,12 @@ LANES = {
         "cli": "antigravity", "cli_binary": "agy",
         "vendor": "gemini", "effort_style": "slug-suffix",
         "top": "high", "std": "medium", "ctx": "Gemini Flash 계열",
-        "dispatch": "orca-no-model",   # --model 은 Claude·Codex·Cursor 만 받는다
+        # D-28 #12 (Simon 확정 2026-09-16): Orca 워커로는 과제가 전달되지 않는다 —
+        #   재현 2/2(SKILL.md 6-2) · 원장 A 탐색 실패·시간초과 3회 · 2026-09-13 21:16 T4 exit 15.
+        #   새 문자열(cli-direct 등)은 가드를 통과한 뒤 antigravity 로 기동돼 실패를 재현한다(D-28 N4 실측)
+        #   → 기존 값 "unavailable" 만 쓴다. 필요하면 CLI 직행(agy --print). 해제 조건 = M6(--timeout-ms 재확인).
+        #   (이전 값 "orca-no-model": --model 은 Claude·Codex·Cursor 만 받는다)
+        "dispatch": "unavailable",
         # 2026-09-06 실측: --model 을 주면 "Agent antigravity does not support
         # launch-time model selection". effort 는 슬러그에 들어가므로 목록도 슬러그 기준.
         "orca_efforts": ("low", "medium", "high"),
@@ -214,7 +223,9 @@ VENDORS = ["claude", "codex", "gemini", "grok"]
 
 # ── 클래스 → 레인 우선순위 (발주 §5) ────────────────────────────
 CLASS_LANES = {
-    "A":          ["gpt-5.6-luna", "gemini-3.8-flash", "grok-4.6"],
+    # D-28 #3 (Simon 확정 2026-09-16): gemini(과제 전달 실패)·grok(402)을 강등·탐색 목적지에서 뺀다.
+    #   검증 전 목록 = luna → opus. claude-sonnet-5 는 M1 실워커 1회 통과 뒤 2순위로 들어간다.
+    "A":          ["gpt-5.6-luna", "claude-opus-5"],
     # 2026-09-06: 2순위를 sol → gpt-6-astra 로 올린다.
     #   · astra 가 codex 계열 최상위 모델이다(models_cache priority 1).
     #   · sol 을 목록에서 빼면 코디네이터 좌석과 B 워커가 **구조적으로** 겹칠 수
@@ -222,18 +233,36 @@ CLASS_LANES = {
     #   · 1순위를 claude 로 두는 이유는 성능이 아니라 가용성이다(codex 주간 64%,
     #     claude 주간 23% — 2026-09-06 실측). 이 스킬의 목적은 단일 벤더 쿼터가
     #     라운드를 죽이지 않게 하는 것이다.
-    "B":          ["claude-opus-5", "gpt-6-astra", "gpt-5.6-terra"],
-    "C-realtime": ["grok-4.6", "gemini-3.8-flash"],
-    "C-platform": ["gemini-3.8-flash"],           # 대체 불가
+    # D-28 #5 (Simon 확정 2026-09-16): 이 목록은 **코딩이 아닌** B 공정(research-deep ·
+    #   terminal-ci-git)용이다. 코딩은 PROCESS_LANES["coding"] 이 먼저 잡는다 — B 1순위가
+    #   codex 여도 코딩은 codex 로 가지 않는다(두 보안 게이트가 codex → G1).
+    #   검증 전 목록 = astra → opus. fable 은 M1 통과 뒤 2순위로 들어간다.
+    #   위 09-06 주석의 "1순위 claude" 근거는 D-28 로 대체됐다(판정 원문 reports/vibe-d28-debate-260913).
+    "B":          ["gpt-6-astra", "claude-opus-5"],
+    # D-28 #6: grok 은 새 계정 실호출 통과 전 blocked(make_intake 가 건너뛴다) → sol → opus.
+    "C-realtime": ["grok-4.6", "gpt-5.6-sol", "claude-opus-5"],
+    # D-28 #7: gemini 는 dispatch "unavailable" 이라 기본 채움이 건너뛴다(#12) — 오늘 기본은 sol.
+    #   sol·opus 가 BigQuery·Firebase 작업을 대신할 수 있는지는 미확인.
+    "C-platform": ["gemini-3.8-flash", "gpt-5.6-sol", "claude-opus-5"],
     "D":          ["claude-opus-5"],              # 고정
     "N":          [],                             # 모델 미사용 — orca CLI
+}
+
+# D-28 #5·#14 (Simon 확정 2026-09-16) — 공정 단위 레인 목록. CLASS_LANES 보다 먼저 본다.
+#   코딩은 claude 계열에만 둔다: 두 보안 게이트가 codex 라 코딩이 codex 로 가면 G1 이다
+#   (D-28 음성대조 N1~N3 실측: S 원안·현행 강등·현행 탐색 슬롯 모두 (False, ['G1'])).
+#   codex 폴백은 두지 않는다 — claude 가 막히면 코딩 없는 라운드로 줄인다(#14).
+#   불변식: PROCESS_LANES["coding"] 의 벤더 ∩ 보안 게이트 벤더 = ∅ (selftest 가 잡는다).
+#   fable 은 M1 실워커 1회 통과 뒤 2순위로 들어간다.
+PROCESS_LANES = {
+    "coding": ["claude-opus-5"],
 }
 
 CLASS_LABEL = {
     "A": "기계적 — 판단 0",
     "B": "판단 — 우열·인과·설계",
     "C-realtime": "외부 — 실시간·수집",
-    "C-platform": "외부 — 플랫폼·시각 (후보 1개)",
+    "C-platform": "외부 — 플랫폼·시각",
     "D": "종합 — 다레인 산출물 조립",
     "N": "무모델 — 워크트리·run 관리",
 }
@@ -264,6 +293,7 @@ PROCESSES = [
     # 2026-09-04 갱신: 생성물 게이트를 gpt-5.6-sol → gpt-daybreak-blue-latest 로 옮겼다.
     # sol 은 범용 워크호스이고 daybreak 은 "broad defensive cybersecurity work" 전용
     # 프론티어 모델이다(codex models_cache 원문). 보안 자리에 보안 모델을 놓는다.
+    #   (D-28 #16 정정: 2026-09-13 models_cache 에서 sol 은 priority 1 "Latest frontier agentic coding model." — "범용 워크호스"는 09-04 시점 설명이다)
     # 벤더는 여전히 codex 라 위 양보는 그대로다 — 개선된 것은 모델 적합성뿐이다.
     #
     # 2026-09-06: 인가 게이트를 gpt-5.6-terra @high → gpt-6-astra @xhigh 로 올린다.
@@ -295,10 +325,16 @@ PROC_BY_ID = {p[0]: p for p in PROCESSES}
 #   ② 코디네이터는 메일·디스패치 부기가 일이지 깊은 판단이 아니다. 프론티어 좌석은
 #      실제로 판단하는 워커(B·보안 인가)에 쓴다. 그리고 sol 은 Orca 에서 ultra 가
 #      실제로 통과하는 몇 안 되는 레인이다(astra 는 xhigh 가 상한).
-COORDINATOR = ("gpt-5.6-sol", "ultra")
+#   D-28 #8 (Simon 확정 2026-09-16): effort ultra → xhigh. ②의 이유(부기)로 ultra 는 과대다.
+#   ⚠ D-28 #6 이후 sol 이 C-realtime·C-platform 2순위에 들어가 ①은 더 이상 참이 아니다 —
+#     coordinator_conflict() 가 클래스와 무관하게 겸임을 경고한다.
+#   이 상수는 표시·안내용이고 validate_effort 를 거치지 않는다(D-28 N7b 실측).
+COORDINATOR = ("gpt-5.6-sol", "xhigh")
 
 # 탐색 슬롯 제외 (발주 §11)
-EXPLORE_EXCLUDE = {"synthesis", "security-artifact-gate", "security-bizlogic-2nd"}
+# D-28 C2: 코딩은 공정 전용 목록 하나뿐이라 탐색할 2순위가 없다 → 제외에 넣는다.
+#   2순위가 Orca 로 안 뜨거나 실호출에 실패한 공정은 explore_candidates() 가 따로 걸러낸다.
+EXPLORE_EXCLUDE = {"synthesis", "security-artifact-gate", "security-bizlogic-2nd", "coding"}
 
 # ── 레인별 산출물 제약 (발주 §6) ────────────────────────────────
 OUTPUT_RULES = {
@@ -370,6 +406,11 @@ GUARDS = [
             "못 쓰는 이유가 쿼터가 아니었기 때문이다. 쿼터 게이트(G5)는 "
             "'얼마나 썼나'를 보고, 이건 '지금 답이 나오나'를 본다. 다른 질문이다. "
             "`python scripts/adversarial_eval.py --preflight`", False),
+    ("G13", "재시도(`worker-start --retry-of`)·수동 재배정도 계획 검증을 다시 통과해야 한다 — "
+            "`routing.revalidate_for_retry(plan, proc, new_lane, ...)` 가 (ok, 위반, 메모, 새 계획)을 준다. "
+            "`--retry-of` 는 orca CLI 를 직접 부르므로 routing 의 계획 검증을 거치지 않는다 (D-28 #14)", False),
+    ("G14", "결정 시트(`make_decision_sheet.py`)를 만들지 않은 라운드는 **끝난 것으로 치지 않는다** — "
+            "손으로 조립한 시트는 `decisions_run_*.json` 을 내지 않아 채택률이 비고 스왑 규칙이 돌지 않는다 (D-28 #15)", False),
 ]
 AUTO_GUARDS = [g for g in GUARDS if g[2]]
 
@@ -384,6 +425,52 @@ SWAP_MIN_GAP = 0.15      # §12 채택률 15%p
 def lanes_for(cls):
     """클래스의 레인 우선순위 목록."""
     return list(CLASS_LANES.get(cls, []))
+
+
+def lanes_for_proc(proc_id, cls=None, falsifiable=False):
+    """공정 단위 레인 목록 (D-28 #5·#11).
+
+    우선순위: PROCESS_LANES[proc] → R1 승격 → CLASS_LANES[클래스].
+    R1(#11): 반증 질문이 "예"인 A 작업은 판정이 섞였으므로 luna 에 두지 않는다.
+      A-verify 클래스(2단계 · Q-260913-08)가 생기기 전까지는 B 비코딩 목록으로 임시 승격한다.
+      effort 는 도착 레인의 최상위다 — effort_for(lane, True).
+    """
+    if proc_id in PROCESS_LANES:
+        return list(PROCESS_LANES[proc_id])
+    p = PROC_BY_ID.get(proc_id)
+    c = cls or (p[1] if p else None)
+    if c == "A" and falsifiable:
+        return lanes_for("B")
+    return lanes_for(c)
+
+
+def gate_vendors():
+    """두 보안 게이트(고정 공정)의 벤더 집합."""
+    return {LANES[fixed_for(p)[0]]["vendor"]
+            for p in ("security-artifact-gate", "security-bizlogic-2nd")}
+
+
+def explore_candidates(live_ok_vendors=None):
+    """탐색 슬롯 후보 공정 id (D-28 #12 · C2).
+
+    2순위 레인이 있고, 그 레인이 Orca 워커로 뜨며(dispatch != unavailable),
+    실호출 확인(G12)을 통과한 벤더일 때만 후보다. live_ok_vendors 가 None 이면
+    실호출 조건은 보지 않는다(미확인 — 호출자가 표시할 것).
+    """
+    out = []
+    for pid, cls, _label, fixed in PROCESSES:
+        if fixed or pid in EXPLORE_EXCLUDE or cls not in ("A", "B"):
+            continue
+        lanes = lanes_for_proc(pid, cls)
+        if len(lanes) < 2:
+            continue
+        second = LANES[lanes[1]]
+        if second.get("dispatch") == "unavailable":
+            continue
+        if live_ok_vendors is not None and second["vendor"] not in live_ok_vendors:
+            continue
+        out.append(pid)
+    return out
 
 
 def fixed_for(proc_id):
@@ -494,7 +581,8 @@ def dispatch_argv(lane, effort, task_id, name, worktree="new-top-level",
     mode = m.get("dispatch", "orca")
     if mode == "unavailable":
         raise ValueError(
-            f"{lane} 는 오르카 워커로 기동할 수 없다 (agent 미등록, 2026-09-04 실측). "
+            f"{lane} 는 오르카 워커로 기동할 수 없다 (dispatch=unavailable — agent 미등록이거나 "
+            f"과제 전달이 실측으로 실패한 레인, D-28 #12). "
             f"헤드리스 CLI 로 따로 돌리거나 다른 레인을 쓸 것")
     argv += ["--agent", m["cli"]]
     if mode == "orca":
@@ -811,7 +899,7 @@ def check_guards(assignments, quota_checked_vendors=None, spawn_counts=None):
         if used - set(quota_checked_vendors):
             v.append("G5")
 
-    # 탐색 슬롯이 D·보안에 배정
+    # 탐색 슬롯이 D·보안·코딩에 배정 (코딩은 EXPLORE_EXCLUDE — D-28 C2)
     for a in assignments:
         if a.get("explore") and a.get("proc") in EXPLORE_EXCLUDE:
             v.append("EXPLORE_MISASSIGNED")
@@ -820,7 +908,7 @@ def check_guards(assignments, quota_checked_vendors=None, spawn_counts=None):
     return sorted(set(v))
 
 
-def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None):
+def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None, quota_states=None):
     """디스패치 전 계획 전체를 검증한다. 반환 (ok, violations, notes).
 
     감사 MED (재검증): check_guards() 는 list 만 돌려주고 run_dispatch() 가
@@ -838,6 +926,20 @@ def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None):
             if need not in procs:
                 v.append("MISSING_SECURITY_GATE")
                 notes.append(f"코딩이 있는 라운드에 {need} 가 없다")
+
+        # D-28 #5 — 코딩은 PROCESS_LANES["coding"] 안에서만. codex 폴백 없음.
+        for a in assignments:
+            if a.get("proc") == "coding" and a.get("lane") not in PROCESS_LANES["coding"]:
+                v.append("CODING_LANE_NOT_ALLOWED")
+                notes.append(f"coding 레인 {a.get('lane')} 은 허용 목록 {PROCESS_LANES['coding']} 밖이다 (D-28 #5)")
+
+        # D-28 #14 — 게이트 벤더가 사용 금지(85% 초과·실호출 실패)면 코딩 라운드를 띄우지 않는다.
+        #   quota_states: {vendor: "ok"|"demote"|"blocked"|"unknown"} — make_intake 가 판정한 값.
+        if quota_states:
+            blocked = sorted(vd for vd in gate_vendors() if quota_states.get(vd) == "blocked")
+            if blocked:
+                v.append("GATE_VENDOR_BLOCKED")
+                notes.append(f"보안 게이트 벤더 {blocked} 사용 금지 — 코딩 없는 라운드로 축소한다 (D-28 #14)")
 
     # G5 는 '4벤더 각각' 이다 — 쓰는 벤더만 확인하는 것으로는 부족하다
     if quota_checked_vendors is not None:
@@ -875,13 +977,14 @@ def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None):
 
 def validate_and_dispatch(assignments, task_of, worktree,
                           quota_checked_vendors=None, spawn_counts=None,
-                          spec_of=None, dry=False):
+                          spec_of=None, dry=False, quota_states=None):
     """계획 검증을 통과해야만 디스패치한다. 위반이 있으면 아무것도 실행하지 않는다.
 
     task_of / spec_of: proc_id -> task_id / spec 을 주는 dict 또는 callable.
     반환 (ok, results, violations, notes)
     """
-    ok, v, notes = validate_plan(assignments, quota_checked_vendors, spawn_counts)
+    ok, v, notes = validate_plan(assignments, quota_checked_vendors, spawn_counts,
+                                 quota_states=quota_states)
     if not ok:
         return False, [], v, notes
 
@@ -914,9 +1017,30 @@ def validate_and_dispatch(assignments, task_of, worktree,
 
 
 def coordinator_conflict(assignments):
-    """코디네이터(sol)가 B 워커를 겸하면 경고 (발주 §5)."""
-    return any(a.get("lane") == COORDINATOR[0] and a.get("class") == "B"
-               for a in assignments)
+    """코디네이터 레인이 워커를 겸하면 경고 (발주 §5).
+
+    D-28 #6: 클래스와 무관하게 본다 — sol 이 C-realtime·C-platform 2순위에 들어가
+    B 밖에서도 겸임이 생긴다. 경고일 뿐 디스패치를 막지는 않는다.
+    """
+    return any(a.get("lane") == COORDINATOR[0] for a in assignments)
+
+
+def revalidate_for_retry(assignments, proc, new_lane, **kw):
+    """재시도·수동 재배정 전에 계획 전체를 다시 검증한다 (G13 · D-28 #14).
+
+    assignments: 그 라운드의 원래 계획. proc 의 레인만 new_lane 으로 바꿔 validate_plan 에 넣는다.
+    kw 는 validate_plan 인자(quota_checked_vendors · spawn_counts · quota_states) 그대로.
+    반환 (ok, violations, notes, new_assignments) — ok 가 아니면 --retry-of 를 부르지 않는다.
+    """
+    new = []
+    for a in assignments:
+        b = dict(a)
+        if b.get("proc") == proc:
+            b["lane"] = new_lane
+            b.pop("effort", None)     # 레인이 바뀌면 이전 effort 는 새 레인 사다리에 없을 수 있다
+        new.append(b)
+    ok, v, notes = validate_plan(new, **kw)
+    return ok, v, notes, new
 
 
 # ── SKILL.md 표 생성 (단일 출처 유지) ───────────────────────────
@@ -930,7 +1054,7 @@ def emit_md():
     L.append("|---|---|---|---|---|---|---|---|")
     disp = {"orca": "✅ `--model`·`--effort` 가능",
             "orca-no-model": "⚠ `--agent` 만 — `--model` 거부",
-            "unavailable": "❌ **agent 미등록 — 워커 불가**"}
+            "unavailable": "❌ **Orca 워커 불가** (agent 미등록·과제 전달 실패 — CLI 직행만)"}
     for lane, m in LANES.items():
         style = {"flag": "`--effort`", "slug-suffix": "**슬러그 내장**",
                  "prompt-keyword": "프롬프트 키워드"}[m["effort_style"]]
@@ -961,19 +1085,26 @@ def emit_md():
              "`agent_unconfigured` 로 거부되고 `--agent antigravity` 가 정본이다. "
              "(CLI 바이너리는 `agy`, Orca 등록명은 `antigravity`.)")
     L.append("")
+    # D-28: SKILL.md 본문 500줄 상한(SimonK-stack validate_skill E007) 때문에 새 줄을 늘리지 않고
+    #   이 한 줄 끝에 붙인다. 자세한 규칙은 references/d28-routing.md.
     L.append(f"**배정 금지**: {' · '.join('`'+x+'`' for x in sorted(FORBIDDEN_LANES))} "
-             "— 용도 미검증 / R&R 미확정 (발주 §3)")
+             "— 용도 미검증 / R&R 미확정 (발주 §3) · **D-28**: 코딩은 공정 전용 목록 `PROCESS_LANES` "
+             "(claude 전용 · codex 폴백 없음 · #5) · 반증 \"예\"인 A 작업은 B 비코딩 목록으로 승격(#11) · "
+             "`claude-fable-5-1`·`claude-sonnet-5` 는 실워커 1회(M1) 전까지 목록 밖 · gemini `unavailable`(M6) "
+             "→ `references/d28-routing.md`")
     L.append("")
     L.append("### 공정 → 클래스 → 레인")
     L.append("")
     L.append("| 공정 | 클래스 | 1순위 | 2순위 | 3후보 |")
     L.append("|---|---|---|---|---|")
     for pid, cls, label, fixed in PROCESSES:
-        lanes = lanes_for(cls)
+        lanes = lanes_for_proc(pid, cls)
         if fixed:
             cells = [f"**`{fixed[0]}` @{fixed[1]} 고정**", "—", "—"]
         else:
             cells = [f"`{l}`" for l in lanes[:3]] + ["—"] * (3 - len(lanes[:3]))
+        if pid in PROCESS_LANES:
+            label = f"{label} **(공정 전용 목록)**"
         L.append(f"| {label} | {cls} | {cells[0]} | {cells[1]} | {cells[2]} |")
     L.append("")
     L.append("### effort 결정 — 클래스가 아니라 태스크 속성")
@@ -995,7 +1126,8 @@ def emit_md():
              "그 위(`ultra`·`max` on astra/daybreak)는 Orca 가 거부하므로 **없는 값**이다. "
              "거기가 정말 필요하면 워커가 아니라 codex 직행이다 (`run_codex_exec`).")
     L.append("")
-    L.append(f"코디네이터 레인 = **`{COORDINATOR[0]}` @{COORDINATOR[1]}** — 종합(D)과 벤더가 달라야 한다.")
+    L.append(f"코디네이터 레인 = **`{COORDINATOR[0]}` @{COORDINATOR[1]}** — 종합(D)과 벤더가 달라야 한다. "
+             "워커 겸임은 클래스와 무관하게 경고한다(D-28 #6).")
     L.append("")
     L.append("### 레인별 산출물 제약")
     L.append("")
@@ -1011,8 +1143,10 @@ def emit_md():
     for code, text, auto in GUARDS:
         L.append(f"| {code} | {text} | {'✅ 원장 기록' if auto else '— (오검출 방지)'} |")
     L.append("")
-    L.append(f"쿼터: {QUOTA_DEMOTE}% 초과 → 2순위 강등 · {QUOTA_BLOCK}% 초과 → 사용 금지 · "
-             "읽기 실패 = **미확인**(0%로 간주 금지)")
+    L.append(f"쿼터: {QUOTA_DEMOTE}% 초과 → **모든 순위에서** 강등(ok 레인이 없으면 첫 강등 레인) · "
+             f"{QUOTA_BLOCK}% 초과 → 사용 금지 · 읽기 실패 = **미확인**(0%로 간주 금지) · "
+             "실호출(G12) 실패 = 사용 금지 · 실호출 결과가 24시간 넘으면 미확인 · "
+             "`quota_bucket` 이 있는 레인(fable)은 그 버킷으로 판정 (D-28 #13)")
     L.append("")
     L.append("<!-- ROUTING:END -->")
     return "\n".join(L)
@@ -1061,7 +1195,7 @@ if __name__ == "__main__":
         print(emit_md())
     elif "--json" in sys.argv:
         print(json.dumps({
-            "lanes": LANES, "class_lanes": CLASS_LANES,
+            "lanes": LANES, "class_lanes": CLASS_LANES, "process_lanes": PROCESS_LANES,
             "processes": [{"id": p[0], "class": p[1], "label": p[2],
                            "fixed": list(p[3]) if p[3] else None} for p in PROCESSES],
             "coordinator": list(COORDINATOR),
