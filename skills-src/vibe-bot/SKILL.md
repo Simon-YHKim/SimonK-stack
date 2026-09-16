@@ -1,0 +1,114 @@
+---
+name: vibe-bot
+description: "Use when a task should be executed by Grok Bot on the xAI/Cursor cloud computer instead of local Orca workers - triggers \"/vibe-bot\", \"그록 봇으로 돌려\", \"봇한테 시켜\", \"클라우드 컴퓨터로 자동화\", \"봇으로 자동화\", \"run this on Grok Bot\", \"automate with the bot\", \"cloud computer task\". Produces a bot-ready task sheet (Outcome / Sources / Constraints / Deliverable / Review point) carrying a run nonce, a safety gate that refuses secrets, repo writes, merges, deploys, payments and company-confidential data, a delivery step that is manual by default (webhook and GitHub triggers stay disabled until measured once), and a result check that rejects a scope-less absence claim, a missing nonce or a returned credential. NOT for local repo work (use vibe) or small single-session edits (dev-orchestrator)."
+allowed-tools: Read, Write, Edit, Bash, Grep, Glob
+version: 0.1.0
+author: simon-stack
+---
+
+# vibe-bot - Grok Bot (xAI 클라우드 컴퓨터)로 일 보내기
+
+`/vibe`는 이 PC의 Orca 워커에 일을 뿌린다. `vibe-bot`은 **남의 클라우드 컴퓨터에서 도는
+Grok Bot**에 일을 맡긴다. 브라우저를 직접 몰아야 하거나, 노트북을 닫아도 계속 돌아야 하거나,
+API가 없는 사이트를 다뤄야 할 때 쓴다.
+
+```
+/vibe-bot <요청>                 → 과제서 생성 + 안전 게이트 + 전달 안내에서 멈춤
+/vibe-bot <요청> --deliver webhook → 웹훅 전송 (실측 통과 전에는 거부된다)
+/vibe-bot --verify <결과파일>      → 봇이 준 결과를 규칙으로 검사
+```
+
+## 지금 어디까지 되나 (2026-09-17)
+
+| 단계 | 상태 |
+|---|---|
+| 과제서 조립 · 안전 게이트 · 결과 검사 | **동작한다.** 구독도 로그인도 필요 없다 |
+| 전달(웹훅 · GitHub 이벤트) | **미검증.** 아래 실측 절차를 한 번 통과해야 열린다 |
+| /vibe 원장 편입 | 아직. 실측 뒤 별도 PR |
+
+**공식 문서에 Grok Bot 과제 전송 API는 없다.** 커뮤니티 기능요청 단계다. 웹훅 트리거는
+외부 보도에만 있고 공식 문서 페이지에는 없다. 그래서 이 스킬의 기본 전달 경로는
+**사람이 붙여넣는 것**이고, 나머지는 실측 뒤에만 켠다.
+
+## 사실 근거 (공식 문서에서 확인한 것만)
+
+- 봇은 **사람의 권한을 넘길 수 없고**, 모든 행동은 그 사람 이름으로 기록된다.
+- 격리 단위는 **사람**이다. 한 사람의 봇들은 **같은 컴퓨터 · 파일 · 브라우저 세션 · 앱 로그인**을 쓴다.
+  공식 문서 문장: 봇을 보안 경계로 쓰지 말 것.
+- 로그인 · 2차 인증 · 결제 입력은 봇이 타이핑하지 않고 **사람에게 화면을 넘긴다.**
+- 커넥터 토큰은 백엔드에 남고 클라우드 컴퓨터에 저장되지 않는다.
+- 외부에서 읽은 내용은 **신뢰할 수 없는 데이터**로 표시되지만, 문서도 "위험을 줄일 뿐 없애지
+  못한다"고 적는다.
+- 학습 제외는 Privacy Mode 설정을 따른다. 감사 로그 · 행동 기록 · 네트워크 정책은 기업 플랜 기능이다.
+- 루틴은 일정과 계정 이벤트(예: GitHub 알림)로 시작할 수 있다.
+
+## 게이트 - 코드가 막는다
+
+| | 규칙 | 근거 |
+|---|---|---|
+| B1 | 요청·과제서에 키 · 토큰 · 비밀번호 · 계정 문자열이 있으면 **중단** | 전역 지침 §3-4 |
+| B2 | 레포 쓰기 · 머지 · 배포 · force push · 삭제 · 결제 · 권한 변경은 **봇에게 위임하지 않는다** | 파괴·비용 게이트 |
+| B3 | 회사 기밀(설비·LOT·공정 수치·단가·고객사)은 **보내지 않는다** | 프로젝트 지침 §1 |
+| B4 | 봇 산출물은 grok 레인과 같은 등급이다. 수치·목록은 받되 **결론은 재검증** | vibe 레인별 산출물 제약 |
+| B5 | 요청마다 nonce를 박고, 결과에 그 nonce가 없으면 **버린다** | 웹훅은 보낸 쪽을 검증하지 않는다 |
+| B6 | 봇 쪽 승인 규칙은 전송 · 게시 · 삭제 · 구매 · 운영 변경 = 승인 필요로 둔다 | 공식 Auto Review |
+| B7 | 상시 폴링 · 감시 데몬을 만들지 않는다. 회수는 횟수 상한이 있는 확인뿐 | vibe 규율(허브가 그 SPOF로 죽었다) |
+
+## 쓰는 법
+
+### 1. 과제서 만들기 (기본)
+
+```bash
+SKILL_ROOT="$HOME/.claude/skills/vibe-bot"
+python "$SKILL_ROOT/scripts/make_bot_spec.py" --task "경쟁 툴 5곳 가격 페이지를 열어 요금제와 변경일을 표로 정리"
+```
+
+- 통과하면 과제서 파일과 `.meta.json`(nonce 포함)이 리포트 폴더에 생긴다.
+- 막히면 이유가 코드로 출력된다. 막힌 요청은 **사람이 직접** 하거나 `/vibe`로 돌린다.
+
+과제서는 공식 문서가 권하는 다섯 칸으로 나온다: **Outcome · Sources · Constraints ·
+Deliverable · Review point**. 여기에 vibe 규율 두 줄이 항상 따라붙는다.
+
+- 부재 보고에는 **찾은 범위**를 쓴다. 범위 없는 "0건"은 반환값으로 인정하지 않는다.
+- 판단에는 근거(URL · 파일 · 명령 출력)를 붙인다.
+
+### 2. 전달
+
+| 경로 | 명령 | 조건 |
+|---|---|---|
+| 수동(기본) | 과제서를 봇 대화창에 붙여넣기 | 항상 가능 |
+| 웹훅 | `--deliver webhook --send` | 환경변수 두 개 + 실측 1회 통과 |
+| GitHub 이벤트 | `--deliver github` | 전용 레포 이슈에 남기고 루틴이 집어가게 |
+
+웹훅 값은 `.env`에서 읽는다(`GROK_BOT_WEBHOOK_URL`, `GROK_BOT_WEBHOOK_KEY`). 키를 명령줄에
+쓰지 않는다. 실측 전에는 `--send`가 거부된다 - 실호출로 확인하기 전까지 열지 않는다.
+
+### 3. 회수와 검사
+
+```bash
+python "$SKILL_ROOT/scripts/make_bot_spec.py" --verify 결과.md --nonce vb-1a2b3c4d
+```
+
+검사에서 걸리는 것: nonce 없음 · 범위 없는 "0건" · 근거 없는 결론 · 결과에 섞여 돌아온
+자격증명. 하나라도 걸리면 그 결과는 **쓰지 않는다**.
+
+## 실측 절차 (한 번만, PC 앞에서)
+
+1. `grok logout; grok login --oauth` 로 계정 정리
+2. Grok Bot이 열리는 구독인지 확인. **결제가 필요하면 멈추고 Simon에게 묻는다**
+3. Privacy Mode 확인, 추가 사용량 과금 끄기, 승인 규칙(B6) 설정
+4. 봇 1개 생성 - 이름과 직무 한 줄. 로그인은 아무것도 연결하지 않는다
+5. 과제서 1장을 **수동**으로 넣고 결과를 `--verify`로 통과시킨다
+6. 그다음에야 웹훅/GitHub 트리거를 만들고, 성공하면 이 문서의 표를 고친다
+
+각 단계 결과는 허브 `DECISIONS.md`에 한 줄로 남긴다.
+
+## 이 스킬을 쓰지 않는 경우
+
+- 레포 코드를 고치는 일 → `/vibe`(Orca 워커, 워크트리 격리, 보안 게이트)
+- 한 세션에서 끝나는 작은 수정 → `dev-orchestrator`
+- 되돌리기 어려운 일, 돈이 나가는 일, 자격증명이 필요한 일 → 사람이 한다
+
+## 관련 스킬
+
+`vibe`(4벤더 로컬 파이프라인) · `ai-debate`(결정 지점) · `simon-worktree`(격리 규칙)
