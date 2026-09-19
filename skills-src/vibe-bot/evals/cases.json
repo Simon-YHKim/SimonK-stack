@@ -87,6 +87,24 @@
           "text": "The returned result is checked with --verify --mode console; a result without a menu path or screenshot fails C1, and any report that a submit, publish, reply or resubmit was pressed is escalated to Simon (C2)."
         }
       ]
+    },
+    {
+      "id": "routes-to-owning-bot-through-hub",
+      "prompt": "/vibe-bot App Store Connect 에서 심사 상태 확인해서 허브로 보내줘",
+      "assertions": [
+        {
+          "id": "routes-from-roster",
+          "text": "The sheet is routed to the owning bot from bots.json (Apple Dev for App Store Connect), and the sheet header names that bot and its hub result file."
+        },
+        {
+          "id": "hub-delivery-and-one-line",
+          "text": "With --deliver hub the sheet and its meta land in bots/apple-dev/inbox under the hub, and the agent gives Simon the single line to send to that bot instead of pasting the whole sheet."
+        },
+        {
+          "id": "collect-without-polling",
+          "text": "Results are gathered with --collect as a one-shot scan of the outboxes and checked with the mode recorded in the meta; the agent does not start a polling loop or daemon."
+        }
+      ]
     }
   ]
 }

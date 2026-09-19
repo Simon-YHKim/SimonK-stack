@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""vibe-bot - build a Grok Bot task sheet, gate it, and check what comes back.
+"""vibe-bot - build a Grok Bot task sheet, gate it, route it, and check what comes back.
 
 Stage 1 (2026-09-17): composing, gating and checking all run offline. Delivery
 over a webhook stays refused until the transport is measured once, because xAI
@@ -11,11 +11,17 @@ explicit sheet - target, goal, scope, buttons it must not press, stop points,
 screen evidence and result format. The result check then also demands screen
 evidence (C1) and escalates any report of an irreversible action (C2).
 
+Roster and hub bus (0.4.0, 2026-09-19): bots.json names the owning bot for each
+kind of work. --deliver hub drops the sheet into that bot's hub inbox
+(AI Infra/Communication/bots/<id>/inbox) and the bot writes its result to the
+matching outbox. --collect scans every outbox once and checks each result.
+
 Usage:
-    python make_bot_spec.py --task "<request>" [--deliver manual|webhook|github]
+    python make_bot_spec.py --task "<request>" [--deliver manual|hub|webhook|github] [--bot <id|name>]
     python make_bot_spec.py --mode console --target "<console · app id>" --task "<goal>"
                             [--url URL] [--allow-change "<item and value>"] [--forbid "<button>"]
     python make_bot_spec.py --verify <result file> --nonce <nonce> [--mode console]
+    python make_bot_spec.py --collect [--nonce <nonce>]
 """
 from __future__ import annotations
 
@@ -34,6 +40,9 @@ WEBHOOK_URL_ENV = "GROK_BOT_WEBHOOK_URL"
 WEBHOOK_KEY_ENV = "GROK_BOT_WEBHOOK_KEY"
 # Flipped to True only after one measured end-to-end webhook run (see SKILL.md).
 TRANSPORT_VERIFIED = False
+SKILL_DIR = Path(__file__).resolve().parent.parent
+ROSTER_PATH = SKILL_DIR / "bots.json"
+HUB_DIR = Path(os.environ.get("VIBE_BOT_HUB", r"E:\Coding Infra\AI Infra\Communication"))
 
 SECRET_PATTERNS = [
     ("openai/anthropic style key", re.compile(r"\b(?:sk|pk)-[A-Za-z0-9_-]{16,}")),
@@ -251,6 +260,76 @@ def _absence_unscoped(text: str) -> bool:
                for line in text.splitlines())
 
 
+# --- roster and hub bus (0.4.0) -----------------------------------------------------
+def load_roster(path: Path = ROSTER_PATH) -> list[dict]:
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    return data.get("bots", [])
+
+
+def resolve_bot(roster: list[dict], target: str = "", task: str = "",
+                explicit: str = "") -> dict | None:
+    """Pick the bot that owns this work. An explicit --bot (id or name) wins; otherwise
+    the roster entry whose keywords hit target + task most often; ties go to roster
+    order; nothing matched falls back to the default bot."""
+    if explicit:
+        key = explicit.strip().lower()
+        for b in roster:
+            if key in (b["id"].lower(), b["name"].lower()):
+                return b
+        return None
+    text = f"{target} {task}".lower()
+    best, best_hits = None, 0
+    for b in roster:
+        hits = sum(1 for k in b.get("keywords", []) if k.lower() in text)
+        if hits > best_hits:
+            best, best_hits = b, hits
+    if best is None:
+        best = next((b for b in roster if b.get("default")), None)
+    return best
+
+
+def hub_paths(bot: dict, nonce: str, hub: Path = HUB_DIR) -> dict:
+    base = Path(hub) / "bots" / bot["id"]
+    return {"inbox": base / "inbox" / f"{nonce}.md",
+            "meta": base / "inbox" / f"{nonce}.meta.json",
+            "result": base / "outbox" / f"{nonce}.result.md"}
+
+
+def add_routing(spec: str, bot: dict | None, result_path: Path | None) -> str:
+    """Insert 'which bot' and 'where the result goes' right under the title lines."""
+    if not bot:
+        return spec
+    extra = [f"보낼 봇: {bot['name']} ({bot['id']})"]
+    if result_path:
+        extra.append(f"결과 파일: {result_path} (대화창에도 같은 내용을 남긴다)")
+    lines = spec.split("\n")
+    return "\n".join(lines[:2] + extra + lines[2:])
+
+
+def collect(hub: Path = HUB_DIR, nonce: str = "") -> list[dict]:
+    """One-shot scan of every bot outbox - no polling (B7). Each result is checked
+    with the mode recorded in its inbox meta."""
+    rows = []
+    for res in sorted(Path(hub, "bots").glob("*/outbox/*.result.md")):
+        n = res.name[: -len(".result.md")]
+        if nonce and n != nonce:
+            continue
+        meta_p = res.parent.parent / "inbox" / f"{n}.meta.json"
+        mode = "general"
+        if meta_p.exists():
+            try:
+                mode = json.loads(meta_p.read_text(encoding="utf-8")).get("mode", "general")
+            except ValueError:
+                pass
+        text = res.read_text(encoding="utf-8", errors="replace")
+        rows.append({"bot": res.parent.parent.name, "nonce": n, "mode": mode,
+                     "path": str(res), "findings": verify_result(text, n, mode=mode)})
+    return rows
+
+
 def webhook_argv(url: str) -> list[str]:
     """Display-only argv. The key is referenced by env name, never inlined."""
     return [
@@ -302,17 +381,35 @@ def main(argv: list[str] | None = None) -> int:
                     help="console mode: the exact change allowed (default read-only)")
     ap.add_argument("--forbid", action="append", default=[],
                     help="console mode: extra button the bot must not press (repeatable)")
+    ap.add_argument("--bot", default="", help="owning bot id or name (default: routed from bots.json)")
+    ap.add_argument("--hub", type=Path, default=HUB_DIR, help="hub root holding bots/<id>/inbox|outbox")
     ap.add_argument("--sources"), ap.add_argument("--constraints")
     ap.add_argument("--deliverable"), ap.add_argument("--review")
     ap.add_argument("--return-to", dest="return_to", default="")
-    ap.add_argument("--deliver", choices=("manual", "webhook", "github"),
+    ap.add_argument("--deliver", choices=("manual", "hub", "webhook", "github"),
                     default="manual")
     ap.add_argument("--send", action="store_true",
                     help="actually POST the webhook (refused until measured)")
     ap.add_argument("--out", type=Path, default=DEFAULT_OUT)
     ap.add_argument("--verify", type=Path, help="result file to check")
+    ap.add_argument("--collect", action="store_true",
+                    help="scan every bot outbox once and check each result")
     ap.add_argument("--nonce", default="")
     a = ap.parse_args(argv)
+
+    if a.collect:
+        rows = collect(a.hub, a.nonce)
+        if not rows:
+            print(f"결과 없음 - 찾은 범위: {Path(a.hub, 'bots')}\\*\\outbox\\*.result.md")
+            return 0
+        bad = 0
+        for r in rows:
+            mark = "합격" if not r["findings"] else "불합격"
+            print(f"[{mark}] {r['bot']} · {r['nonce']} · {r['mode']} · {r['path']}")
+            for f in r["findings"]:
+                print(f"    - {f}")
+            bad += bool(r["findings"])
+        return 1 if bad else 0
 
     if a.verify:
         text = a.verify.read_text(encoding="utf-8", errors="replace")
@@ -327,7 +424,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if not a.task:
-        ap.error("--task 또는 --verify 중 하나가 필요하다")
+        ap.error("--task, --verify, --collect 중 하나가 필요하다")
 
     gate = check_request(a.task)
     for w in gate["warns"]:
@@ -341,6 +438,12 @@ def main(argv: list[str] | None = None) -> int:
         print("콘솔 모드는 --target 이 필요하다 (예: \"Google Play Console · com.example.app\")")
         return 2
 
+    roster = load_roster()
+    bot = resolve_bot(roster, a.target, a.task, a.bot)
+    if a.bot and bot is None:
+        print(f"명단에 없는 봇: {a.bot} - bots.json 의 id 또는 이름을 쓴다")
+        return 2
+
     nonce = make_nonce()
     if a.mode == "console":
         spec = build_console_spec(a.task, nonce, target=a.target, url=a.url,
@@ -351,14 +454,32 @@ def main(argv: list[str] | None = None) -> int:
                           constraints=a.constraints or "",
                           deliverable=a.deliverable or "", review=a.review or "",
                           return_to=a.return_to)
+    paths = hub_paths(bot, nonce, a.hub) if bot else None
+    spec = add_routing(spec, bot, paths["result"] if paths else None)
     meta = {"nonce": nonce, "created": now_kst(), "deliver": a.deliver, "mode": a.mode,
-            "target": a.target, "task": a.task, "transport_verified": TRANSPORT_VERIFIED}
+            "bot": bot["id"] if bot else None, "target": a.target, "task": a.task,
+            "transport_verified": TRANSPORT_VERIFIED}
     spec_path, meta_path = write_outputs(spec, meta, a.out)
     print(f"과제서: {spec_path}")
     print(f"메타:   {meta_path}")
     print(f"nonce:  {nonce}")
+    if bot:
+        print(f"담당 봇: {bot['name']} ({bot['id']})")
 
-    if a.deliver == "webhook":
+    if a.deliver == "hub":
+        if not paths:
+            print("허브 전달에는 담당 봇이 필요하다(bots.json 확인)")
+            return 2
+        paths["inbox"].parent.mkdir(parents=True, exist_ok=True)
+        paths["result"].parent.mkdir(parents=True, exist_ok=True)
+        paths["inbox"].write_text(spec, encoding="utf-8")
+        paths["meta"].write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"과제함: {paths['inbox']}")
+        print(f"{bot['name']} 에게 보낼 한 줄:")
+        print(f"  과제함 {paths['inbox']} 를 읽고 그대로 수행해. 결과는 {paths['result']} 에 "
+              "저장하고 대화창에도 남겨.")
+        print(f"회수: make_bot_spec.py --collect --nonce {nonce}")
+    elif a.deliver == "webhook":
         url = os.environ.get(WEBHOOK_URL_ENV, "<" + WEBHOOK_URL_ENV + ">")
         print("웹훅 명령(표시용, 키는 환경변수로):")
         print("  " + " ".join(webhook_argv(url)))
