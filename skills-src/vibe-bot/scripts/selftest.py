@@ -166,6 +166,27 @@ def main() -> int:
               bool(rows) and any("C2" in f for f in rows[0]["findings"])
               and any("C1" in f for f in rows[0]["findings"]), str(rows))
 
+    # project bus (0.5.0): 2nd-B bots use Simon's worktree, not the hub or the main tree
+    projects = m.load_projects()
+    check("2nd-b project root is the TTL-Work_rev2 worktree",
+          "TTL-Work_rev2" in projects.get("2nd-b", {}).get("root", ""), str(projects))
+    pc = next(b for b in roster if b["id"] == "play-console")
+    gb = next(b for b in roster if b["id"] == "grok-bot")
+    check("play-console belongs to 2nd-b", pc.get("project") == "2nd-b")
+    with tempfile.TemporaryDirectory() as hub2, tempfile.TemporaryDirectory() as proot:
+        pj = {"2nd-b": {"root": proot, "bus": ".bots"}}
+        check("project bot bus sits under the project root",
+              m.bus_root(pc, Path(hub2), pj) == Path(proot) / ".bots")
+        check("non-project bot stays on the hub", m.bus_root(gb, Path(hub2), pj) == Path(hub2) / "bots")
+        p = m.hub_paths(pc, "vb-00000001", Path(hub2), pj)
+        p["result"].parent.mkdir(parents=True, exist_ok=True)
+        p["result"].write_text("vb-00000001\n검색 범위: 트랙 3곳\n| 트랙 | 0.8.0 |", encoding="utf-8")
+        rows = m.collect(Path(hub2), projects=pj)
+        check("collect scans project buses too",
+              len(rows) == 1 and rows[0]["bot"] == "play-console", str(rows))
+        routed = m.add_routing("# t\nline2\nbody", pc, p["result"], proot)
+        check("sheet names the project root", f"프로젝트 루트: {proot}" in routed)
+
     # CLI: blocked request exits 2, verify of a good file exits 0
     check("cli blocks write verb", m.main(["--task", "PR 머지해줘"]) == 2)
 
