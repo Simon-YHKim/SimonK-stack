@@ -291,42 +291,72 @@ def resolve_bot(roster: list[dict], target: str = "", task: str = "",
     return best
 
 
-def hub_paths(bot: dict, nonce: str, hub: Path = HUB_DIR) -> dict:
-    base = Path(hub) / "bots" / bot["id"]
+def load_projects(path: Path = ROSTER_PATH) -> dict:
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return data.get("projects", {})
+
+
+def bus_root(bot: dict, hub: Path = HUB_DIR, projects: dict | None = None) -> Path:
+    """Where this bot's inbox and outbox live: the project's own bus when the bot
+    belongs to a project with a configured root (2nd-B -> Simon's worktree, 0.5.0),
+    otherwise the hub."""
+    proj = (projects or {}).get(bot.get("project", ""))
+    if proj and proj.get("root"):
+        return Path(proj["root"]) / proj.get("bus", ".bots")
+    return Path(hub) / "bots"
+
+
+def hub_paths(bot: dict, nonce: str, hub: Path = HUB_DIR, projects: dict | None = None) -> dict:
+    base = bus_root(bot, hub, projects) / bot["id"]
     return {"inbox": base / "inbox" / f"{nonce}.md",
             "meta": base / "inbox" / f"{nonce}.meta.json",
             "result": base / "outbox" / f"{nonce}.result.md"}
 
 
-def add_routing(spec: str, bot: dict | None, result_path: Path | None) -> str:
-    """Insert 'which bot' and 'where the result goes' right under the title lines."""
+def add_routing(spec: str, bot: dict | None, result_path: Path | None,
+                project_root: str | None = None) -> str:
+    """Insert 'which bot', 'project root' and 'where the result goes' under the title lines."""
     if not bot:
         return spec
     extra = [f"보낼 봇: {bot['name']} ({bot['id']})"]
+    if project_root:
+        extra.append(f"프로젝트 루트: {project_root} (이 경로 밖의 레포 작업 트리는 쓰지 않는다)")
     if result_path:
         extra.append(f"결과 파일: {result_path} (대화창에도 같은 내용을 남긴다)")
     lines = spec.split("\n")
     return "\n".join(lines[:2] + extra + lines[2:])
 
 
-def collect(hub: Path = HUB_DIR, nonce: str = "") -> list[dict]:
-    """One-shot scan of every bot outbox - no polling (B7). Each result is checked
-    with the mode recorded in its inbox meta."""
-    rows = []
-    for res in sorted(Path(hub, "bots").glob("*/outbox/*.result.md")):
-        n = res.name[: -len(".result.md")]
-        if nonce and n != nonce:
-            continue
-        meta_p = res.parent.parent / "inbox" / f"{n}.meta.json"
-        mode = "general"
-        if meta_p.exists():
-            try:
-                mode = json.loads(meta_p.read_text(encoding="utf-8")).get("mode", "general")
-            except ValueError:
-                pass
-        text = res.read_text(encoding="utf-8", errors="replace")
-        rows.append({"bot": res.parent.parent.name, "nonce": n, "mode": mode,
-                     "path": str(res), "findings": verify_result(text, n, mode=mode)})
+def bus_roots(hub: Path = HUB_DIR, projects: dict | None = None) -> list[Path]:
+    return [Path(hub) / "bots"] + [Path(p["root"]) / p.get("bus", ".bots")
+                                   for p in (projects or {}).values() if p.get("root")]
+
+
+def collect(hub: Path = HUB_DIR, nonce: str = "", projects: dict | None = None) -> list[dict]:
+    """One-shot scan of every bot outbox on the hub and on each project bus - no
+    polling (B7). Each result is checked with the mode recorded in its inbox meta."""
+    rows, seen = [], set()
+    for root in bus_roots(hub, projects):
+        for res in sorted(root.glob("*/outbox/*.result.md")):
+            if res in seen:
+                continue
+            seen.add(res)
+            n = res.name[: -len(".result.md")]
+            if nonce and n != nonce:
+                continue
+            meta_p = res.parent.parent / "inbox" / f"{n}.meta.json"
+            mode = "general"
+            if meta_p.exists():
+                try:
+                    mode = json.loads(meta_p.read_text(encoding="utf-8")).get("mode", "general")
+                except ValueError:
+                    pass
+            text = res.read_text(encoding="utf-8", errors="replace")
+            rows.append({"bot": res.parent.parent.name, "nonce": n, "mode": mode,
+                         "path": str(res), "findings": verify_result(text, n, mode=mode)})
     return rows
 
 
@@ -382,7 +412,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--forbid", action="append", default=[],
                     help="console mode: extra button the bot must not press (repeatable)")
     ap.add_argument("--bot", default="", help="owning bot id or name (default: routed from bots.json)")
-    ap.add_argument("--hub", type=Path, default=HUB_DIR, help="hub root holding bots/<id>/inbox|outbox")
+    ap.add_argument("--hub", type=Path, default=None,
+                    help="hub root holding bots/<id>/inbox|outbox; giving it sends every bot there "
+                         "and ignores project buses (for tests)")
     ap.add_argument("--sources"), ap.add_argument("--constraints")
     ap.add_argument("--deliverable"), ap.add_argument("--review")
     ap.add_argument("--return-to", dest="return_to", default="")
@@ -396,11 +428,14 @@ def main(argv: list[str] | None = None) -> int:
                     help="scan every bot outbox once and check each result")
     ap.add_argument("--nonce", default="")
     a = ap.parse_args(argv)
+    hub = a.hub if a.hub is not None else HUB_DIR
+    projects = {} if a.hub is not None else load_projects()
 
     if a.collect:
-        rows = collect(a.hub, a.nonce)
+        rows = collect(hub, a.nonce, projects)
         if not rows:
-            print(f"결과 없음 - 찾은 범위: {Path(a.hub, 'bots')}\\*\\outbox\\*.result.md")
+            scope = ", ".join(str(r) for r in bus_roots(hub, projects))
+            print(f"결과 없음 - 찾은 범위: {scope} 아래 */outbox/*.result.md")
             return 0
         bad = 0
         for r in rows:
@@ -454,8 +489,10 @@ def main(argv: list[str] | None = None) -> int:
                           constraints=a.constraints or "",
                           deliverable=a.deliverable or "", review=a.review or "",
                           return_to=a.return_to)
-    paths = hub_paths(bot, nonce, a.hub) if bot else None
-    spec = add_routing(spec, bot, paths["result"] if paths else None)
+    paths = hub_paths(bot, nonce, hub, projects) if bot else None
+    proj = projects.get(bot.get("project", "")) if bot else None
+    spec = add_routing(spec, bot, paths["result"] if paths else None,
+                       proj.get("root") if proj else None)
     meta = {"nonce": nonce, "created": now_kst(), "deliver": a.deliver, "mode": a.mode,
             "bot": bot["id"] if bot else None, "target": a.target, "task": a.task,
             "transport_verified": TRANSPORT_VERIFIED}
