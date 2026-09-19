@@ -273,7 +273,8 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 | 수치 | `spawnLongLived(grok, ['agent','--no-leader','stdio'])` + `dialect:'jsonrpc2'`(ACP) → `initialize {protocolVersion:1}` → **`_x.ai/billing`**(ACP는 확장 메서드 앞에 `_`를 붙인다. 접두어 없는 `x.ai/billing`은 -32601, 그때만 한 번 더 시도) → 주간 창은 `currentPeriod.type`이 주간일 때 `creditUsagePercent` + `currentPeriod.end`, 그 외 `used/monthlyLimit`로 `other` 창(label `monthly`). 5시간 창은 없다. **100%를 차단으로 표시하지 않는다**(on-demand·선불 크레딧, 파서의 `overageAvailable`은 T4 후 계약 필드 추가 여부 결정). 두 메서드 모두 -32601이면 `unavailable`+`quota-unavailable`, -32000 'Authentication required' → `logged-out`. `getIdentity`는 billing 결과로 로그인 여부를 판단하고 판단 불가면 `ProviderError`; 같은 계정의 identity·usage가 15초 안에 이어지면 결과를 한 번만 조회해 공유 |
 | ACP 규칙 | 세션·프롬프트를 만들지 않는다(쿼터 소모 금지). 호출은 `initialize`와 billing뿐, 끝나면 항상 프로세스 종료. 서버→클라이언트 요청(권한·파일)은 거부 응답. `initialize`는 확장 메서드 목록을 광고하지 않는다(실측) |
 | 금지 | `/billing` HTTP 직접 호출, `auth.json` 읽기, OIDC refresh 직접 수행, Orca 값, `x.ai/auth/*`(check_subscription 포함, 부작용 미확인) |
-| 미결 | 로그인된 계정의 `_x.ai/billing` 응답 형태·`subscriptionTier` 존재, `grok login --device-auth` 실제 출력(호스트·코드 형식·stdin 대기), 만료 토큰 자동 갱신 여부, 다중 GROK_HOME 동시 실행(T4) |
+| 실측(T4, 26.09.20, grok 1.0.34) | `_x.ai/billing` = `{config:{currentPeriod:{type:'USAGE_PERIOD_TYPE_WEEKLY',start,end}, onDemandCap:{val}, onDemandUsed:{val}, prepaidBalance:{val}, isUnifiedBillingUser, billingPeriodStart, billingPeriodEnd}, subscription_tier}`(0.8~0.9초). proto3 JSON이라 **0인 스칼라는 생략**된다: 주간 리셋 직후에는 `creditUsagePercent`가 없다. 파서는 weekly `currentPeriod` + 리셋 시각 + 동반 필드 2개 이상이 있을 때만 그 부재를 0%로 읽고, 필드가 있는데 못 읽는 값이면 미확인으로 둔다(DECISIONS 26.09.20 08:40, 추론 — 되돌리는 조건 기재) |
+| 미결 | 사용량이 쌓인 뒤 `creditUsagePercent`가 실제로 나타나는지(0% 추론의 확증), `grok login --device-auth` 실제 출력(호스트·코드 형식·stdin 대기), 만료 토큰 자동 갱신 여부, 다중 GROK_HOME 동시 실행 |
 
 ### 7-4. Antigravity (`providers/antigravity`) — DECISIONS 26.09.19 11:42
 | 단계 | 방법 |

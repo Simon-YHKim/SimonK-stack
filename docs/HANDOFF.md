@@ -3,6 +3,16 @@
 
 ## Latest
 - **목적**: v1 위젯을 소스 프로젝트로 재구성. 위젯 새로고침 버튼, Grok 구독 한도, 공식 CLI 로그인 위임 기반 다중 계정, Windows 테마, v1 문제 전부 해결
+- **최종 갱신**: 26.09.20 08:43 KST · Claude Code(E:\Coding Infra 세션)
+- **지금까지**: 사용자가 계정 4개를 추가·로그인했고 Claude(기본 프로필 브리지)·Codex·Antigravity 수치가 실제로 표시됨(사용자 캡처). Grok만 "한도 미제공"이었는데, 실제 `_x.ai/billing` 응답에 `creditUsagePercent`가 없어서였음(주간 리셋 직후, proto3 JSON의 0 생략). 온전한 주간 config일 때만 0%로 읽도록 `providers/grok/billing.ts` 수정, 실계정 재조회로 weekly 0% 확인. `pnpm verify` 0(563테스트) / dist:dir 0 / 배포본 스모크 0 / 위젯 재실행
+- **다음 1개**: Grok 0% 추론 확증 — 사용량이 쌓인 뒤 `creditUsagePercent`가 나타나는지, grok.com 주간 수치와 위젯 값이 맞는지 확인. 어긋나면 DECISIONS 26.09.20 08:40대로 되돌림
+- **막힌 것**: 사용자 결정 대기 P-08 보조 모니터, SEC-06 제거 시 복원, 코드 서명, Antigravity 위젯 막대 그룹 선택 / C:\dev 이동 주체 확인
+- **TODO**: codex 로그인 2회 실패 후 성공한 원인 분석 → T8 GUI 실측 → NSIS 설치(사용자 확인) → v1 교체(사용자 확인)
+- **미해결 질문**: 보류한 계약 필드(codex credits/blocked, grok overageAvailable, `onStdoutChunk`). agy 로그아웃 출력 문구(정규식은 추정). Orca가 `~/.claude` statusLine을 다시 쓰면 브리지가 사라지는지
+- **요청**: 없음
+
+## 26.09.19 11:55 KST
+- **목적**: v1 위젯을 소스 프로젝트로 재구성. 위젯 새로고침 버튼, Grok 구독 한도, 공식 CLI 로그인 위임 기반 다중 계정, Windows 테마, v1 문제 전부 해결
 - **최종 갱신**: 26.09.19 11:55 KST · Claude Code(E:\Coding Infra 세션)
 - **지금까지**: T6 실측 성공 → Antigravity 공급자 추가(`src/main/providers/antigravity/**`, `PROVIDER_TRAITS`, 팝업 label 표시, 설치 링크). 공식 `agy -p "/usage" --output-format json`만 사용, 계정 1개·위젯 로그인 없음, `/usage`가 AI 프롬프트로 처리되면 재시작 전까지 호출 중단. `pnpm verify` 0(561테스트) / `pnpm dist:dir` 0 / 배포본 스모크 0(providers 4종) / 실제 agy 1.2.7로 실경로 확인. 배포본을 다시 실행해 둠
 - **다음 1개**: 사용자가 위젯 [계정 관리] 탭에서 Antigravity 계정 추가 → 5H·WK 수치 표시 확인(T6b), 이어서 T1(Codex 로그인)

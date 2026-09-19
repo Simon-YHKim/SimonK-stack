@@ -132,6 +132,20 @@ function detectOverage(root: JsonObject): boolean | null {
   return null;
 }
 
+/** Fields the billing config always carries next to `currentPeriod` (measured 26.09.20, grok 1.0.34). */
+const CONFIG_COMPANION_KEYS = ['billingPeriodEnd', 'isUnifiedBillingUser', 'onDemandCap', 'onDemandUsed', 'prepaidBalance'];
+
+/**
+ * The payload is proto3 JSON, which leaves zero-valued scalars out: a weekly config right
+ * after its reset arrives with every companion field but no `creditUsagePercent`
+ * (DECISIONS 26.09.20). That absence is a measured 0 only when the rest of the config is
+ * there; a present-but-unreadable value, or a bare object, stays unknown.
+ */
+function creditPercentOmittedAsZero(root: JsonObject, periodType: BillingPeriodType, periodEnd: number | null): boolean {
+  if ('creditUsagePercent' in root || periodType !== 'weekly' || periodEnd === null) return false;
+  return CONFIG_COMPANION_KEYS.filter((key) => key in root).length >= 2;
+}
+
 function minutesBetween(start: number | null, end: number | null): number | null {
   if (start === null || end === null || end <= start) return null;
   return Math.round((end - start) / 60_000);
@@ -144,6 +158,7 @@ function roundPercent(value: number | null): number | null {
 /**
  * Maps a billing result to quota windows.
  * - weekly: `creditUsagePercent` + `currentPeriod.end`, only when `currentPeriod.type` is weekly.
+ *   A full weekly config without the percent field reads as 0 % (see creditPercentOmittedAsZero).
  * - otherwise one 'other' window: `used / monthlyLimit` (label `monthly`), or the credit percent
  *   when the monthly amounts are missing.
  * Returns null when `result` is not an object.
@@ -155,7 +170,9 @@ export function parseBillingResponse(result: unknown): GrokBilling | null {
   const periodType = parsePeriodType(period.type ?? period.periodType);
   const periodStart = parseTimestamp(period.start);
   const periodEnd = parseTimestamp(period.end);
-  const creditPercent = roundPercent(normalizePercent(parseAmount(root.creditUsagePercent)));
+  const creditPercent = creditPercentOmittedAsZero(root, periodType, periodEnd)
+    ? 0
+    : roundPercent(normalizePercent(parseAmount(root.creditUsagePercent)));
   const windows: QuotaWindow[] = [];
 
   if (periodType === 'weekly' && creditPercent !== null) {

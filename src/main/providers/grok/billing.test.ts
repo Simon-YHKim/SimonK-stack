@@ -138,6 +138,57 @@ describe('parseBillingResponse', () => {
     expect(parseBillingResponse({ monthlyLimit: { val: 0 }, used: { val: 5 } })?.windows).toEqual([]);
   });
 
+  it('reads the measured post-reset config (no creditUsagePercent) as 0 % of the weekly pool', () => {
+    // `_x.ai/billing` on grok 1.0.34, 26.09.20, SuperGrok Heavy, nine hours after the weekly reset.
+    const measured = {
+      config: {
+        currentPeriod: {
+          type: 'USAGE_PERIOD_TYPE_WEEKLY',
+          start: '2026-09-19T14:12:19.802834+00:00',
+          end: '2026-09-26T14:12:19.802834+00:00',
+        },
+        onDemandCap: { val: 0 },
+        onDemandUsed: { val: 0 },
+        prepaidBalance: { val: 0 },
+        isUnifiedBillingUser: true,
+        billingPeriodStart: '2026-09-19T14:12:19.802834+00:00',
+        billingPeriodEnd: '2026-09-26T14:12:19.802834+00:00',
+      },
+      subscription_tier: 'SuperGrok Heavy',
+    };
+    expect(parseBillingResponse(measured)).toEqual({
+      windows: [
+        { kind: 'weekly', usedPercent: 0, resetsAt: Date.parse('2026-09-26T14:12:19.802Z'), windowMinutes: 10_080, label: 'credits' },
+      ],
+      plan: 'SuperGrok Heavy',
+      periodType: 'weekly',
+      overageAvailable: null,
+    });
+  });
+
+  it('does not read a missing percent as 0 without the rest of the weekly config', () => {
+    const period = { type: 'USAGE_PERIOD_TYPE_WEEKLY', end: WEEKLY_END };
+    // Bare period, one companion only, no reset time, non-weekly period: all stay unknown.
+    expect(parseBillingResponse({ currentPeriod: period })?.windows).toEqual([]);
+    expect(parseBillingResponse({ currentPeriod: period, isUnifiedBillingUser: true })?.windows).toEqual([]);
+    expect(
+      parseBillingResponse({ currentPeriod: { type: 'WEEKLY' }, isUnifiedBillingUser: true, billingPeriodEnd: WEEKLY_END })?.windows,
+    ).toEqual([]);
+    expect(
+      parseBillingResponse({ currentPeriod: { type: 'MONTHLY', end: WEEKLY_END }, isUnifiedBillingUser: true, billingPeriodEnd: WEEKLY_END })
+        ?.windows,
+    ).toEqual([]);
+    // Present but unreadable is unknown, never 0.
+    expect(
+      parseBillingResponse({ creditUsagePercent: 'n/a', currentPeriod: period, isUnifiedBillingUser: true, billingPeriodEnd: WEEKLY_END })
+        ?.windows,
+    ).toEqual([]);
+    expect(
+      parseBillingResponse({ creditUsagePercent: null, currentPeriod: period, isUnifiedBillingUser: true, billingPeriodEnd: WEEKLY_END })
+        ?.windows,
+    ).toEqual([]);
+  });
+
   it('finds billing data wrapped one level deep', () => {
     const billing = parseBillingResponse({ credits: { creditUsagePercent: 5, currentPeriod: { type: 'WEEKLY', end: WEEKLY_END } } });
     expect(billing?.windows[0]?.usedPercent).toBe(5);

@@ -13,8 +13,9 @@
 - 검증(26.09.19 11:53, 새 위치): `pnpm verify` exit 0(51파일·561테스트), `pnpm dist:dir` exit 0, 배포본 `--smoke` exit 0(ok:true, packaged:true, errors 0, providers claude·codex·grok·antigravity, CLI claude 2.1.277·codex 0.155.1·grok 1.0.34·agy 1.2.7). 실제 agy로 어댑터 실경로 확인(loggedIn, 창 4개, agy 실행 1회 6.9초). 변경 27파일 제어 문자·CRLF 0건
 
 ## 진행중
-- 26.09.19 21:47 Claude 수치 미표시 원인 확인: 브리지가 위젯 계정 폴더(`profiles\claude\ZmxbGZx_CdxR\settings.json`)에만 있고, 사용자는 기본 `~/.claude`로 Claude Code를 씀(그쪽 statusLine은 Orca 훅) → 기록 파일 0개. RESEARCH 114행의 예상과 일치. 해결 = 위젯 [계정 관리] → Claude → [기본 프로필에 브리지 설치](사용자 클릭 대기). 사전 시험: 실제 Orca statusLine 명령을 임시 폴더에서 감싸 실행 → exit 0·221ms·기록 생성·stderr 없음(`~/.claude` 미수정)
-- 사용자가 12:00~12:04에 계정 4개 추가·로그인 완료(claude Max20, codex Pro20, grok Super grok Heavy, antigravity AI Pro). codex 로그인은 protocol-error → login-failed → 3번째에 success(로그 12:01~12:02, 원인 미분석)
+- 26.09.20 08:43 Grok "한도 미제공" 수정 배포: 실제 billing 응답에 `creditUsagePercent`가 없었음(주간 리셋 9시간 뒤, proto3 JSON의 0 생략) → 온전한 주간 config일 때만 0%로 읽도록 파서 수정(DECISIONS 26.09.20 08:40, **추론**). 실계정 재조회로 weekly 0%·리셋 9/26 23:12 KST 확인, `pnpm verify` 0(563테스트)·dist:dir 0·배포본 스모크 0, 위젯 재실행. **확증 대기**: 사용량이 쌓인 뒤 필드가 나타나고 grok.com 수치와 맞는지
+- 26.09.20 사용자 캡처로 확인: Claude 5H 94%·WK 69%(기본 프로필 브리지 설치됨, T3 통과), Codex 주간 17%, Antigravity 5H·WK 표시 → T1·T2·T3·T6b 실사용 통과
+- 사용자가 09.19 12:00~12:04에 계정 4개 추가·로그인 완료(claude Max20, codex Pro20, grok Super grok Heavy, antigravity AI Pro). codex 로그인은 protocol-error → login-failed → 3번째에 success(로그 12:01~12:02, 원인 미분석)
 
 ## 다음
 - 사용자와 실측: T1 Codex device code 로그인·버킷·인증 페이지 호스트 / T2 Claude 파이프 로그인 / T3 statusline rate_limits 기록 / T4 Grok `_x.ai/billing` 응답·device-auth 출력 / T6b 위젯 화면에서 Antigravity 계정 추가 → 5H·WK 표시 확인 / T8 GUI(팝업 blur·topmost·전체화면·재질·테마 이벤트·오프셋 슬라이더 드래그 right·left 정렬·자동 시작 배포본)
