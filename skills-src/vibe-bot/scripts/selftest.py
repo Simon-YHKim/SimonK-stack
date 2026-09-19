@@ -62,6 +62,26 @@ def main() -> int:
     leaked = f"{nonce}\n검색 범위: 3곳\n토큰: ghp_abcdefghijklmnopqrstuvwxyz12"
     check("leaked credential fails", any("B1" in f for f in m.verify_result(leaked, nonce)))
 
+    # 2026-09-19 pilot: each absence row carries its own source column
+    pilot = (f"{nonce}\n| 도구 | 최근 변경일 | 출처 |\n"
+             "| Claude Code | 페이지에 변경일 없음 | claude.com/pricing |\n"
+             "| Cursor | 페이지에 변경일 없음 | cursor.com/pricing |")
+    check("row-level source scopes absence", m.verify_result(pilot, nonce) == [],
+          str(m.verify_result(pilot, nonce)))
+    unsourced = pilot + "\n| Gemini CLI | 페이지에 변경일 없음 | |"
+    check("absence row without source still fails",
+          any("G6" in f for f in m.verify_result(unsourced, nonce)))
+    counted = f"{nonce}\n5곳 모두 공개 가격 페이지에서 확인했고 변경일은 없었습니다"
+    check("counted places scope absence", m.verify_result(counted, nonce) == [],
+          str(m.verify_result(counted, nonce)))
+    header_scope = f"{nonce}\n검색 범위: 가격 페이지 5곳\n결과: 변경일 0건"
+    check("scope on another line still passes", m.verify_result(header_scope, nonce) == [],
+          str(m.verify_result(header_scope, nonce)))
+    domain_conclusion = f"{nonce}\n결론: 가격이 올랐다 (cursor.com/pricing)"
+    check("domain counts as evidence for a conclusion",
+          m.verify_result(domain_conclusion, nonce) == [],
+          str(m.verify_result(domain_conclusion, nonce)))
+
     # transport stays shut until measured
     ok, note = m.send_webhook({"nonce": nonce})
     check("webhook refused before measurement", ok is False and "실측" in note, note)
