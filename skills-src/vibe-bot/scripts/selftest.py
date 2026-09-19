@@ -126,6 +126,46 @@ def main() -> int:
     check("cli console mode without --target exits 2",
           m.main(["--mode", "console", "--task", "출시 트랙 상태를 읽어 표로 정리"]) == 2)
 
+    # roster + hub bus (0.4.0)
+    import tempfile
+    roster = m.load_roster()
+    ids = {b["id"] for b in roster}
+    check("roster has 11 bots", len(roster) == 11, str(sorted(ids)))
+    check("play console target routes to play-console",
+          (m.resolve_bot(roster, "Google Play Console · com.simonk.secondbrain", "") or {}).get("id")
+          == "play-console")
+    check("app store connect routes to apple-dev",
+          (m.resolve_bot(roster, "App Store Connect · 6792266942", "심사 상태 확인") or {}).get("id")
+          == "apple-dev")
+    check("unknown work falls back to the default bot",
+          (m.resolve_bot(roster, "", "아무 일이나 해줘") or {}).get("id") == "grok-bot")
+    check("explicit --bot by name wins",
+          (m.resolve_bot(roster, "Google Play Console", "", explicit="Web QA") or {}).get("id") == "web-qa")
+    check("unknown explicit bot returns None", m.resolve_bot(roster, "", "", explicit="nope") is None)
+    with tempfile.TemporaryDirectory() as hub:
+        rc = m.main(["--mode", "console", "--target", "Google Play Console · com.simonk.secondbrain",
+                     "--task", "출시 트랙 상태를 읽어 표로 정리", "--deliver", "hub",
+                     "--hub", hub, "--out", hub])
+        check("hub delivery exits 0", rc == 0)
+        inbox = sorted(Path(hub, "bots", "play-console", "inbox").glob("vb-*.md"))
+        check("sheet lands in the play-console inbox", len(inbox) == 1, str(inbox))
+        n = inbox[0].stem if inbox else "vb-none"
+        sheet = inbox[0].read_text(encoding="utf-8") if inbox else ""
+        check("sheet names the bot and the result file",
+              "보낼 봇: Play Console" in sheet and f"{n}.result.md" in sheet)
+        out = Path(hub, "bots", "play-console", "outbox")
+        (out / f"{n}.result.md").write_text(
+            f"{n}\n| 항목 | 값 | 화면 경로 | 스크린샷 |\n| 프로덕션 | 0.8.0 | 출시 > 프로덕션 | s.png |",
+            encoding="utf-8")
+        rows = m.collect(Path(hub))
+        check("collect finds the result and passes it",
+              len(rows) == 1 and rows[0]["findings"] == [] and rows[0]["mode"] == "console", str(rows))
+        (out / f"{n}.result.md").write_text(f"{n}\n검토 답변도 보냈습니다", encoding="utf-8")
+        rows = m.collect(Path(hub))
+        check("collect re-checks with console rules (C1 and C2)",
+              bool(rows) and any("C2" in f for f in rows[0]["findings"])
+              and any("C1" in f for f in rows[0]["findings"]), str(rows))
+
     # CLI: blocked request exits 2, verify of a good file exits 0
     check("cli blocks write verb", m.main(["--task", "PR 머지해줘"]) == 2)
 
