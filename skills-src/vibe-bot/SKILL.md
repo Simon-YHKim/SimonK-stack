@@ -2,7 +2,7 @@
 name: vibe-bot
 description: "Use when a task should be executed by Grok Bot on the xAI/Cursor cloud computer instead of local Orca workers - triggers \"/vibe-bot\", \"그록 봇으로 돌려\", \"봇한테 시켜\", \"클라우드 컴퓨터로 자동화\", \"봇으로 자동화\", \"run this on Grok Bot\", \"automate with the bot\", \"cloud computer task\". Produces a bot-ready task sheet (Outcome / Sources / Constraints / Deliverable / Review point) carrying a run nonce, a safety gate that refuses secrets, repo writes, merges, deploys, payments and company-confidential data, a delivery step that is manual by default (webhook and GitHub triggers stay disabled until measured once), and a result check that rejects a scope-less absence claim, a missing nonce or a returned credential. NOT for local repo work (use vibe) or small single-session edits (dev-orchestrator)."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 0.1.0
+version: 0.2.0
 author: simon-stack
 ---
 
@@ -18,13 +18,14 @@ API가 없는 사이트를 다뤄야 할 때 쓴다.
 /vibe-bot --verify <결과파일>      → 봇이 준 결과를 규칙으로 검사
 ```
 
-## 지금 어디까지 되나 (2026-09-17)
+## 지금 어디까지 되나 (2026-09-19)
 
 | 단계 | 상태 |
 |---|---|
 | 과제서 조립 · 안전 게이트 · 결과 검사 | **동작한다.** 구독도 로그인도 필요 없다 |
-| 전달(웹훅 · GitHub 이벤트) | **미검증.** 아래 실측 절차를 한 번 통과해야 열린다 |
-| /vibe 원장 편입 | 아직. 실측 뒤 별도 PR |
+| 전달 - 수동 붙여넣기 | **실측 1회 통과**(2026-09-19, `vb-f66af738`): nonce 일치, 행마다 출처가 달린 5행 표, 공식 가격 페이지 표본 대조 모순 0건 |
+| 전달 - 웹훅 · GitHub 이벤트 | **미검증.** 실측을 한 번 통과해야 열린다 |
+| /vibe 원장 편입 | 아직. 관측이 쌓인 뒤 별도 PR |
 
 **공식 문서에 Grok Bot 과제 전송 API는 없다.** 커뮤니티 기능요청 단계다. 웹훅 트리거는
 외부 보도에만 있고 공식 문서 페이지에는 없다. 그래서 이 스킬의 기본 전달 경로는
@@ -41,6 +42,17 @@ API가 없는 사이트를 다뤄야 할 때 쓴다.
   못한다"고 적는다.
 - 학습 제외는 Privacy Mode 설정을 따른다. 감사 로그 · 행동 기록 · 네트워크 정책은 기업 플랜 기능이다.
 - 루틴은 일정과 계정 이벤트(예: GitHub 알림)로 시작할 수 있다.
+- 앱은 **별도 데스크톱 앱**이고 로그인은 **Cursor 계정**이다. grok CLI 의 xAI 로그인과 계정이 다르다.
+
+## 앱 화면에서 확인한 것 (2026-09-19, Grok Bot 0.56.1)
+
+- **설정 → 컴퓨터**에 "이 컴퓨터에서 실행"(드롭다운)과 "이 컴퓨터를 통해 트래픽 라우팅"(스위치)이
+  있다. 켜져 있으면 클라우드 봇이 **이 PC의 파일 · 명령 · 네트워크**에 닿는다. 파일럿 권장값은
+  허용 안 함 · 끄기. 실제 선택은 사람이 하고 허브 `DECISIONS.md`에 남긴다.
+- **설정 → 일반 → 자동 검토 규칙**의 "이렇게 해야 해요" 기본값은 **"자동으로 허용"**이다.
+  그대로 추가하면 그 동작을 기본 검토보다 **느슨하게** 통과시킨다. 막을 규칙은 "먼저 묻기"로 바꾸고,
+  필요 없는 규칙은 드롭다운이 아니라 **삭제**한다.
+- 첫 화면 카드(받은편지함 · 회의 준비 · Slack 요약)는 계정 연결을 부른다. 파일럿은 닫고 시작한다.
 
 ## 게이트 - 코드가 막는다
 
@@ -51,7 +63,7 @@ API가 없는 사이트를 다뤄야 할 때 쓴다.
 | B3 | 회사 기밀(설비·LOT·공정 수치·단가·고객사)은 **보내지 않는다** | 프로젝트 지침 §1 |
 | B4 | 봇 산출물은 grok 레인과 같은 등급이다. 수치·목록은 받되 **결론은 재검증** | vibe 레인별 산출물 제약 |
 | B5 | 요청마다 nonce를 박고, 결과에 그 nonce가 없으면 **버린다** | 웹훅은 보낸 쪽을 검증하지 않는다 |
-| B6 | 봇 쪽 승인 규칙은 전송 · 게시 · 삭제 · 구매 · 운영 변경 = 승인 필요로 둔다 | 공식 Auto Review |
+| B6 | 봇 쪽 승인 규칙은 전송 · 게시 · 삭제 · 구매 · 운영 변경 = 먼저 묻기로 둔다 | 공식 Auto Review |
 | B7 | 상시 폴링 · 감시 데몬을 만들지 않는다. 회수는 횟수 상한이 있는 확인뿐 | vibe 규율(허브가 그 SPOF로 죽었다) |
 
 ## 쓰는 법
@@ -76,7 +88,7 @@ Deliverable · Review point**. 여기에 vibe 규율 두 줄이 항상 따라붙
 
 | 경로 | 명령 | 조건 |
 |---|---|---|
-| 수동(기본) | 과제서를 봇 대화창에 붙여넣기 | 항상 가능 |
+| 수동(기본) | 과제서를 봇 대화창에 붙여넣기 | 항상 가능 · 2026-09-19 실측 통과 |
 | 웹훅 | `--deliver webhook --send` | 환경변수 두 개 + 실측 1회 통과 |
 | GitHub 이벤트 | `--deliver github` | 전용 레포 이슈에 남기고 루틴이 집어가게 |
 
@@ -92,13 +104,19 @@ python "$SKILL_ROOT/scripts/make_bot_spec.py" --verify 결과.md --nonce vb-1a2b
 검사에서 걸리는 것: nonce 없음 · 범위 없는 "0건" · 근거 없는 결론 · 결과에 섞여 돌아온
 자격증명. 하나라도 걸리면 그 결과는 **쓰지 않는다**.
 
-## 실측 절차 (한 번만, PC 앞에서)
+부재 보고의 범위는 두 가지로 인정한다. 결과 어딘가에 찾은 범위("검색 범위", "5곳 모두 ...에서
+확인" 등)가 있거나, **부재를 적은 줄마다 자기 출처(URL · 도메인)**가 붙어 있으면 된다. 표에서
+"변경일 없음" 칸 옆에 출처 칸이 있는 형태가 후자다(2026-09-19 첫 실측에서 이걸 오판해 고쳤다).
 
-1. `grok logout; grok login --oauth` 로 계정 정리
-2. Grok Bot이 열리는 구독인지 확인. **결제가 필요하면 멈추고 Simon에게 묻는다**
-3. Privacy Mode 확인, 추가 사용량 과금 끄기, 승인 규칙(B6) 설정
-4. 봇 1개 생성 - 이름과 직무 한 줄. 로그인은 아무것도 연결하지 않는다
-5. 과제서 1장을 **수동**으로 넣고 결과를 `--verify`로 통과시킨다
+## 실측 절차 (PC 앞에서)
+
+1. 앱 설치: `cursor.com/download/bot` 에서 받는다(winget 없음). 설치 전에 서명이
+   **Anysphere, Inc.** 인지 확인한다
+2. **Cursor 계정**으로 로그인한다. 요금제 · 결제 화면이 나오면 **멈추고 Simon에게 묻는다**
+3. 설정: 일반 → 자동 검토 켜기 + 개인 규칙을 "먼저 묻기"로(B6) · 컴퓨터 → 로컬 실행 · 트래픽
+   라우팅 결정 · 사용량 및 청구 → 추가 사용량 확인
+4. 첫 화면의 계정 연결 제안은 닫는다. 로그인은 아무것도 연결하지 않는다
+5. 과제서 1장을 **수동**으로 넣고 결과를 `--verify`로 통과시킨다 (2026-09-19 완료)
 6. 그다음에야 웹훅/GitHub 트리거를 만들고, 성공하면 이 문서의 표를 고친다
 
 각 단계 결과는 허브 `DECISIONS.md`에 한 줄로 남긴다.

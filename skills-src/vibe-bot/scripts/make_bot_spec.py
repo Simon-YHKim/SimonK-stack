@@ -60,8 +60,13 @@ CONFIDENTIAL_PATTERNS = [
 ]
 
 SCOPE_WORDS = re.compile(
-    r"(?i)(?:범위|스캔|검색한|조회한|찾아본|확인한 곳|searched|scanned|scope|"
-    r"looked at|checked \d)")
+    r"(?i)(?:범위|스캔|검색한|조회한|찾아본|확인한 곳|\d+\s*곳|에서 확인|searched|scanned|"
+    r"scope|looked at|checked \d)")
+# A line that names its own source (URL or bare domain) is scoped by that source,
+# e.g. a table row "| Cursor | 변경일 없음 | cursor.com/pricing |" (2026-09-19 pilot).
+SOURCE_RE = re.compile(
+    r"(?i)(?:https?://\S+|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\."
+    r"(?:com|ai|dev|io|org|net|co|app|gov|edu|kr)\b)")
 ABSENCE_WORDS = re.compile(
     r"(?i)(?:0\s*건|없었|없습니다|없음|찾지 못|not found|no results|none found)")
 EVIDENCE_WORDS = re.compile(
@@ -140,11 +145,21 @@ def verify_result(text: str, nonce: str) -> list[str]:
     for label, rx in SECRET_PATTERNS:
         if rx.search(text):
             findings.append(f"B1 결과에 자격증명 추정 문자열({label})이 섞여 있다")
-    if ABSENCE_WORDS.search(text) and not SCOPE_WORDS.search(text):
+    if _absence_unscoped(text):
         findings.append("G6 범위 없는 부재 보고 - 어디를 찾았는지가 없다")
-    if CONCLUSION_WORDS.search(text) and not EVIDENCE_WORDS.search(text):
+    if CONCLUSION_WORDS.search(text) and not (
+            EVIDENCE_WORDS.search(text) or SOURCE_RE.search(text)):
         findings.append("B4 근거 없는 결론 - 출처나 파일 표기가 없다")
     return findings
+
+
+def _absence_unscoped(text: str) -> bool:
+    """An absence claim is scoped if the text states a search scope anywhere,
+    or if every line that reports an absence names its own source."""
+    if not ABSENCE_WORDS.search(text) or SCOPE_WORDS.search(text):
+        return False
+    return any(ABSENCE_WORDS.search(line) and not SOURCE_RE.search(line)
+               for line in text.splitlines())
 
 
 def webhook_argv(url: str) -> list[str]:
