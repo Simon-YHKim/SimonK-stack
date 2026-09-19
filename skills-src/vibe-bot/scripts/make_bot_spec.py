@@ -299,31 +299,54 @@ def load_projects(path: Path = ROSTER_PATH) -> dict:
     return data.get("projects", {})
 
 
-def bus_root(bot: dict, hub: Path = HUB_DIR, projects: dict | None = None) -> Path:
-    """Where this bot's inbox and outbox live: the project's own bus when the bot
-    belongs to a project with a configured root (2nd-B -> Simon's worktree, 0.5.0),
-    otherwise the hub."""
-    proj = (projects or {}).get(bot.get("project", ""))
+def resolve_project(projects: dict, target: str = "", task: str = "",
+                    explicit: str = "") -> str | None:
+    """Pick the project this task belongs to (0.6.0). Bots are shared - the project is
+    chosen per task. An explicit --project wins; otherwise the project whose keywords
+    hit target + task most often; nothing matched means the shared hub bus."""
+    if explicit:
+        key = explicit.strip().lower()
+        for pid in projects:
+            if pid.lower() == key:
+                return pid
+        return None
+    text = f"{target} {task}".lower()
+    best, best_hits = None, 0
+    for pid, p in projects.items():
+        hits = sum(1 for k in p.get("keywords", []) if k.lower() in text)
+        if hits > best_hits:
+            best, best_hits = pid, hits
+    return best
+
+
+def bus_root(hub: Path = HUB_DIR, projects: dict | None = None,
+             project_id: str | None = None) -> Path:
+    """Where the sheet and the result land: that project's own bus when the task belongs
+    to a project (2nd-B -> E:/2ndB/.bots, so the work accumulates with the project),
+    otherwise the shared hub."""
+    proj = (projects or {}).get(project_id or "")
     if proj and proj.get("root"):
         return Path(proj["root"]) / proj.get("bus", ".bots")
     return Path(hub) / "bots"
 
 
-def hub_paths(bot: dict, nonce: str, hub: Path = HUB_DIR, projects: dict | None = None) -> dict:
-    base = bus_root(bot, hub, projects) / bot["id"]
+def hub_paths(bot: dict, nonce: str, hub: Path = HUB_DIR, projects: dict | None = None,
+              project_id: str | None = None) -> dict:
+    base = bus_root(hub, projects, project_id) / bot["id"]
     return {"inbox": base / "inbox" / f"{nonce}.md",
             "meta": base / "inbox" / f"{nonce}.meta.json",
             "result": base / "outbox" / f"{nonce}.result.md"}
 
 
 def add_routing(spec: str, bot: dict | None, result_path: Path | None,
-                project_root: str | None = None) -> str:
-    """Insert 'which bot', 'project root' and 'where the result goes' under the title lines."""
+                project: tuple | None = None) -> str:
+    """Insert 'which bot', 'which project' and 'where the result goes' under the titles.
+    project = (id, root)."""
     if not bot:
         return spec
     extra = [f"보낼 봇: {bot['name']} ({bot['id']})"]
-    if project_root:
-        extra.append(f"프로젝트 루트: {project_root} (이 경로 밖의 레포 작업 트리는 쓰지 않는다)")
+    if project:
+        extra.append(f"프로젝트: {project[0]} · 루트 {project[1]} (이 경로를 기준으로 일한다)")
     if result_path:
         extra.append(f"결과 파일: {result_path} (대화창에도 같은 내용을 남긴다)")
     lines = spec.split("\n")
@@ -412,6 +435,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--forbid", action="append", default=[],
                     help="console mode: extra button the bot must not press (repeatable)")
     ap.add_argument("--bot", default="", help="owning bot id or name (default: routed from bots.json)")
+    ap.add_argument("--project", default="",
+                    help="project id from bots.json (default: routed from its keywords; "
+                         "none means the shared hub bus)")
     ap.add_argument("--hub", type=Path, default=None,
                     help="hub root holding bots/<id>/inbox|outbox; giving it sends every bot there "
                          "and ignores project buses (for tests)")
@@ -478,6 +504,10 @@ def main(argv: list[str] | None = None) -> int:
     if a.bot and bot is None:
         print(f"명단에 없는 봇: {a.bot} - bots.json 의 id 또는 이름을 쓴다")
         return 2
+    project_id = resolve_project(projects, a.target, a.task, a.project)
+    if a.project and project_id is None:
+        print(f"명단에 없는 프로젝트: {a.project} - bots.json 의 projects 키를 쓴다")
+        return 2
 
     nonce = make_nonce()
     if a.mode == "console":
@@ -489,12 +519,13 @@ def main(argv: list[str] | None = None) -> int:
                           constraints=a.constraints or "",
                           deliverable=a.deliverable or "", review=a.review or "",
                           return_to=a.return_to)
-    paths = hub_paths(bot, nonce, hub, projects) if bot else None
-    proj = projects.get(bot.get("project", "")) if bot else None
+    paths = hub_paths(bot, nonce, hub, projects, project_id) if bot else None
+    proj = projects.get(project_id or "")
     spec = add_routing(spec, bot, paths["result"] if paths else None,
-                       proj.get("root") if proj else None)
+                       (project_id, proj.get("root")) if proj else None)
     meta = {"nonce": nonce, "created": now_kst(), "deliver": a.deliver, "mode": a.mode,
-            "bot": bot["id"] if bot else None, "target": a.target, "task": a.task,
+            "bot": bot["id"] if bot else None, "project": project_id,
+            "target": a.target, "task": a.task,
             "transport_verified": TRANSPORT_VERIFIED}
     spec_path, meta_path = write_outputs(spec, meta, a.out)
     print(f"과제서: {spec_path}")
@@ -502,6 +533,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"nonce:  {nonce}")
     if bot:
         print(f"담당 봇: {bot['name']} ({bot['id']})")
+    print(f"프로젝트: {project_id + ' · ' + str(proj.get('root')) if proj else '없음 (공용 허브)'}")
 
     if a.deliver == "hub":
         if not paths:

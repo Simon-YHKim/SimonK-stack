@@ -2,7 +2,7 @@
 name: vibe-bot
 description: "Use when a task should run on Grok Bot's xAI/Cursor cloud computer, and for all console or GUI work (Play Console, App Store Connect, cloud consoles, desktop apps) - triggers \"/vibe-bot\", \"그록 봇으로 돌려\", \"봇한테 시켜\", \"콘솔 작업\", \"GUI 작업\", \"run this on Grok Bot\", \"console task\". Produces a task sheet with a run nonce (console: target, goal, scope, forbidden buttons, stop points, screen evidence, result format), routes it to the owning bot from an 11-bot roster and drops it in that bot's hub inbox, gates secrets, repo writes, merges, deploys and payments, and collects results from the hub outboxes with a check that rejects a missing nonce, a scope-less absence, a returned credential or console output without screen evidence, and escalates any reported irreversible click. NOT for local repo work (use vibe)."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 0.5.0
+version: 0.6.0
 author: simon-stack
 ---
 
@@ -149,12 +149,13 @@ python "$SKILL_ROOT/scripts/make_bot_spec.py" --mode console --deliver hub \
 쓰므로 세션이 바뀌어도 과제와 결과가 이어진다. 회수는 `--collect` 한 번이고, 합격한 결과만 결정에 쓴다.
 봇끼리 넘길 때도 상대 봇 과제함에 과제서를 두고 그 봇 이름을 결과에 적는다.
 
-**프로젝트 버스 (0.5.0)** - 프로젝트에 속한 봇(`bots.json` 의 `project`)은 그 프로젝트 작업 폴더 안의 버스를 쓴다.
-2nd-B 봇 9개는 Simon 의 작업 워크트리 `TTL-Work_rev2`(`projects.2nd-b.root`)의 `.bots/<id>/` 를 쓰고, 과제서에는
-`프로젝트 루트` 줄이 붙는다. 메인 작업 트리 `E:\2ndB` 에는 쓰지 않는다(`_sync/` 만 거기 있다 - 읽기만).
-`.bots/` 와 `marketing/` 은 `E:\2ndB\.git\info\exclude` 로 로컬 제외라 Simon 의 브랜치 상태를 바꾸지 않는다.
-워크트리 이름이 바뀌면 `projects.2nd-b.root` 한 곳만 고친다. `--hub` 를 명시하면 모든 봇이 그 경로를 쓴다(시험용).
-`--collect` 는 허브와 프로젝트 버스를 함께 훑는다.
+**프로젝트 버스 (0.6.0)** - **봇은 공용이다.** 어느 봇도 프로젝트에 묶이지 않고, 프로젝트는 **과제마다** 정해진다
+(`--project`, 없으면 `bots.json` 의 `projects.<id>.keywords` 로 자동 배정). 프로젝트가 정해지면 과제서와 결과가
+그 프로젝트 폴더에 쌓인다 - 2nd-B 는 `E:\2ndB\.bots\<봇>\inbox|outbox`. 프로젝트가 없으면 공용 허브
+`AI Infra/Communication/bots/<봇>/` 를 쓴다. 과제서에는 `프로젝트: <id> · 루트 <경로>` 줄이 붙고, 봇은 그 루트를
+기준으로 일한다. `.bots/` 와 `marketing/` 은 `E:\2ndB\.git\info\exclude` 로 로컬 제외라 어느 워크트리의 git 상태도
+바뀌지 않는다(Simon 이 직접 코드를 만지는 워크트리는 `TTL-Work_rev2` 다 - 과제서가 지정하지 않는 한 봇은 건드리지
+않는다). `--hub` 를 명시하면 모든 과제가 그 경로를 쓴다(시험용). `--collect` 는 허브와 모든 프로젝트 버스를 함께 훑는다.
 
 ## 실측 절차 (PC 앞에서)
 
