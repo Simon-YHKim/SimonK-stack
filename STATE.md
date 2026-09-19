@@ -8,14 +8,13 @@
 - 통합(0cc0306), 리뷰 1차 수정(54ac8ab), 리뷰 2차 수정(92a9aa8)
 - 26.09.19 위치 이동 복구: 소스가 C:\dev → `E:\Coding Infra\dev\ai-usage-widget`로 옮겨져 있었고(주체 미확인) src 141·resources 10 파일 누락 + node_modules 껍데기 → `git restore` + `pnpm install --frozen-lockfile`로 복구(DECISIONS 26.09.19 11:20)
 - 26.09.19 CLI 설치 안내 URL 확정(`src/main/platform/links.ts` + `EXTERNAL_LINK_HOSTS` + `links.test.ts`), 세 주소 직접 열어 확인
-- 검증(26.09.19 11:20, 새 위치): `pnpm verify` exit 0(49파일·539테스트), `pnpm build` exit 0, 개발 빌드 `--smoke` exit 0(ok:true, CSP 일치). **`pnpm dist:dir`·배포본 스모크는 새 위치에서 미재실행**(out·release는 이동 중 사라짐, 재생성 가능)
+- 검증(26.09.19 11:25, 새 위치): `pnpm verify` exit 0(49파일·539테스트), `pnpm build` exit 0, `pnpm dist:dir` exit 0, 배포본(`release\win-unpacked\ai-usage-widget.exe`) `--smoke` exit 0(ok:true, packaged:true, errors 0, windows·cspHeader·ipc·tray·autostart ok, koffi loaded, CLI claude 2.1.277·codex 0.155.1·grok 1.0.34)
 
 ## 진행중
 - 없음
 
 ## 다음
 - 사용자와 실측: T1 Codex device code 로그인·버킷·인증 페이지 호스트 / T2 Claude 파이프 로그인 / T3 statusline rate_limits 기록 / T4 Grok `_x.ai/billing` 응답·device-auth 출력 / T8 GUI(팝업 blur·topmost·전체화면·재질·테마 이벤트·오프셋 슬라이더 드래그 right·left 정렬·자동 시작 배포본)
-- 실측 전에 `pnpm dist:dir` + 배포본 스모크를 새 위치에서 1회 재확인
 
 ## 막힌 것
 - 사용자 결정 대기: 보조 모니터 배치(P-08·V1-18), 앱 제거 시 statusLine 자동 복원(SEC-06), 코드 서명(SEC-04 koffi.node 검증 대체)
