@@ -85,12 +85,12 @@
 모듈은 계약 파일을 고치지 않는다. 필요한 변경은 작업 보고서의 "계약 변경 요청"에 적고, 통합 단계에서 반영한다(§13).
 
 ### 5-1. `src/shared/types.ts`
-- `ProviderId = 'claude'|'codex'|'grok'`.
+- `ProviderId = 'claude'|'codex'|'grok'|'antigravity'`. `PROVIDER_TRAITS: Record<ProviderId, {maxAccounts:number|null, widgetLogin:boolean}>`는 main(계정 수 강제)과 렌더러(버튼 표시)가 함께 쓴다(DECISIONS 26.09.19 11:42).
 - `Account { id, provider, label, enabled, order, profileDir(main 전용), createdAt }` / `AccountDTO { id, provider, label, enabled, order, emailMasked?, plan?, loginState }`. 변환은 반드시 `toAccountDTO()`(필드를 명시적으로 골라 새 필드가 새지 않게 함).
-- `QuotaWindow { kind:'session'|'weekly'|'other', usedPercent:number|null, resetsAt:number|null(epoch ms), windowMinutes:number|null, label? }`. **모르는 값은 null이며 0으로 쓰지 않는다.**
+- `QuotaWindow { kind:'session'|'weekly'|'other', usedPercent:number|null, resetsAt:number|null(epoch ms), windowMinutes:number|null, label? }`. **모르는 값은 null이며 0으로 쓰지 않는다.** `label`(codex 버킷 id, antigravity 모델 그룹)은 팝업 상자 제목 아래에 텍스트로 표시해 같은 kind의 창을 구분한다. 위젯 막대에는 표시하지 않는다.
 - `UsageSnapshot { accountId, provider, state, windows, plan?, measuredAt, lastSuccessAt, errorCode?, source }`
   - `state`: `ok` 측정 성공 / `stale` 오래됨 / `loading` 첫 조회 중 / `error` 실패(윈도우는 마지막 실측값일 수 있음) / `unavailable` 공급원이 수치를 주지 않음 / `logged-out` / `reset` 모든 창의 리셋 시각이 지남.
-  - `source`: `'codex-app-server'|'claude-statusline'|'grok-acp'`.
+  - `source`: `'codex-app-server'|'claude-statusline'|'grok-acp'|'antigravity-cli-usage'`.
 - `ErrorCode`(21종, 통합 때 `cli-unsupported-install` 추가 — CLI는 있으나 npm shim 등 실행기를 셸 없이 해석할 수 없음): 렌더러는 코드만 받아 i18n 문구로 바꾼다. 공급자 원문 오류는 UI로 가지 않는다.
 - `LoginEvent`: `url` / `device-code {userCode, verificationUrl, expiresAt?}` / `needs-paste` / `progress {stage}` / `success {emailMasked?, plan?}` / `error {code}`. IPC에서는 `LoginEventMessage { sessionId, accountId, at, event }`.
 - `ThemeTokens { scheme, taskbarScheme, highContrast, accent('#rrggbb'), reducedTransparency, effectiveMaterial }`.
@@ -163,7 +163,7 @@ v1 키(SPEC §1-2) 중 의미가 남은 것 + v2 추가. mock 관련 키는 없�
 - `IpcErrorCode`: `invalid-request` `forbidden-sender` `not-found` `conflict` `busy` `not-implemented` `internal`.
 - 뷰 제한(`ipc/handlers.ts`): 상태를 바꾸는 채널(`settings:update`, `accounts:add·remove·rename·toggle·reorder`, `login:*`, `shell:open-external`, `window:hide-popup·set-popup-lock·preview-placement`, `cli:redetect`, `claude-bridge:install-default·uninstall-default`)은 팝업 뷰만, `window:resize-widget`은 위젯 뷰만 허용. 나머지(상태 읽기·새로고침·팝업 열기·브리지 상태)는 두 뷰 모두(DECISIONS 26.09.15 04:49).
 - 발신자 검증(`ipc/dispatch.ts`): 최상위 프레임 URL이 `app://bundle/…`(개발 시 dev server origin)일 때만 처리한다. 하위 프레임은 거부.
-- `EXTERNAL_LINK_KEYS`(`claude-cli-install` `codex-cli-install` `grok-cli-install`)의 실제 URL 표는 셸이 main에 두며(`src/main/platform/links.ts`), 공식 문서에서 확인한 https 주소만 넣는다. 세 키 모두 확정(DECISIONS 26.09.19 11:20). 같은 파일의 `EXTERNAL_LINK_HOSTS`가 키별 허용 호스트이고 `links.test.ts`가 https·호스트·쿼리 없음을 강제한다. 표에 없는 키는 `not-found`.
+- `EXTERNAL_LINK_KEYS`(`claude-cli-install` `codex-cli-install` `grok-cli-install` `antigravity-cli-install`)의 실제 URL 표는 셸이 main에 두며(`src/main/platform/links.ts`), 공식 문서에서 확인한 https 주소만 넣는다. 세 키 모두 확정(DECISIONS 26.09.19 11:20). 같은 파일의 `EXTERNAL_LINK_HOSTS`가 키별 허용 호스트이고 `links.test.ts`가 https·호스트·자격증명/포트/프래그먼트 없음을 강제한다(antigravity 주소는 CLI 탭을 고르는 쿼리를 쓴다). 표에 없는 키는 `not-found`.
 
 ### 5-4. `src/shared/i18n/`
 - `ko.ts`가 키 집합의 원본, `en.ts`는 `Record<keyof typeof ko, string>`이라 키가 어긋나면 typecheck가 실패한다. 테스트가 키 집합·자리표시자 일치·빈 문구 0건을 확인한다.
@@ -274,6 +274,18 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 | ACP 규칙 | 세션·프롬프트를 만들지 않는다(쿼터 소모 금지). 호출은 `initialize`와 billing뿐, 끝나면 항상 프로세스 종료. 서버→클라이언트 요청(권한·파일)은 거부 응답. `initialize`는 확장 메서드 목록을 광고하지 않는다(실측) |
 | 금지 | `/billing` HTTP 직접 호출, `auth.json` 읽기, OIDC refresh 직접 수행, Orca 값, `x.ai/auth/*`(check_subscription 포함, 부작용 미확인) |
 | 미결 | 로그인된 계정의 `_x.ai/billing` 응답 형태·`subscriptionTier` 존재, `grok login --device-auth` 실제 출력(호스트·코드 형식·stdin 대기), 만료 토큰 자동 갱신 여부, 다중 GROK_HOME 동시 실행(T4) |
+
+### 7-4. Antigravity (`providers/antigravity`) — DECISIONS 26.09.19 11:42
+| 단계 | 방법 |
+|---|---|
+| 계정 | **1개, 위젯 로그인 없음.** `PROVIDER_TRAITS.antigravity = {maxAccounts:1, widgetLogin:false}`(`src/shared/types.ts`). main은 `providerIsFull`로 두 번째 계정을 `conflict`로 거절하고, 렌더러는 [계정 추가]·[로그인] 버튼을 숨기고 안내 문구(`externalLoginHint`)를 보여 준다. 사용자가 터미널에서 `agy`로 로그인해 둔 상태를 그대로 쓴다(agy에 설정 폴더 오버라이드·login 서브커맨드 없음) |
+| CLI 탐지 | `resolveCommand('agy')`, PATH에 없으면 `%LOCALAPPDATA%\agy\bin\agy.exe`. `--version` |
+| env | `BASE_ENV_ALLOW` + set `AGY_CLI_DISABLE_AUTO_UPDATE=1`(자동 업데이터의 UAC 권한 상승 방지)·`NO_COLOR=1`, remove `GEMINI_API_KEY`·`GOOGLE_API_KEY` 계열. cwd는 위젯 소유의 빈 `profileDir` |
+| 수치 | `run(agy, ['-p','/usage','--output-format','json','--print-timeout','30s'])`(하드 타임아웃 45초) → `command.data.groups[].buckets[]`의 `window`(`5h`→session, `weekly`→weekly, 그 외 other)·`remaining_fraction`(used = (1−x)×100, 범위 밖·비숫자는 null)·`reset_time`(ISO). 그룹 순서 유지, 그룹 안에서는 session→weekly, 버킷마다 `label`=그룹 이름(제어 문자 제거·40자 제한). 사람이 읽는 `response` 문자열은 파싱하지 않는다. 실측(agy 1.2.6·1.2.7): 6.9~8.6초, `num_turns:0`·토큰 0 |
+| 차단기 | 응답이 `command.name==='usage'` + `num_turns===0`이 아니면(슬래시가 AI 프롬프트로 처리됨) 앱을 다시 켤 때까지 agy를 호출하지 않고 `unavailable`+`cli-unsupported-version`. 요청 소모를 1회로 제한한다 |
+| 신원 | `/usage` 성공 = `loggedIn:true`(e-mail·plan은 제공되지 않음). 로그아웃 문구가 보이면 `logged-out`, 그 외 실패는 `ProviderError`(unknown). identity·usage가 15초 안에 이어지면 agy 실행 1회를 공유하고, 같은 계정의 동시 호출도 한 실행을 공유한다 |
+| 금지 | wincred(`gemini:antigravity`) 읽기, 로컬 language server RPC, `cloudcode-pa` 직접 호출, Orca 값(RESEARCH 3-5) |
+| 미결 | 로그아웃 상태의 실제 출력 문구(현재 정규식은 추정), 위젯 막대에 표시할 그룹 선택(현재 첫 그룹) |
 
 ---
 
@@ -387,6 +399,7 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 | `codex` | `src/main/providers/codex/**` |
 | `claude` | `src/main/providers/claude/**`, `resources/claude-bridge/**` |
 | `grok` | `src/main/providers/grok/**` |
+| `antigravity` | `src/main/providers/antigravity/**` |
 | `renderer` | `src/renderer/**`, `src/preload/**` |
 
 계약(어느 모듈도 수정 금지): `src/shared/**`, `src/main/cli/**`, `src/main/log.ts`, `src/main/log.test.ts`, `src/main/paths.ts`, `src/main/paths.test.ts`, `src/main/providers/types.ts`, `src/main/providers/registry.ts`, `src/main/providers/registry.test.ts`, `src/main/providers/placeholder.ts`, `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `tsconfig.json`, `tsconfig.node.json`, `tsconfig.web.json`, `eslint.config.mjs`, `vitest.config.ts`, `electron.vite.config.ts`, `electron-builder.yml`, `.gitignore`, `.gitattributes`, `.editorconfig`, `CLAUDE.md`, `DECISIONS.md`(append만), `docs/DESIGN.md`.

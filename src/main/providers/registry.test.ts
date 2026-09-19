@@ -30,9 +30,9 @@ const account: Account = {
 };
 
 describe('provider registry', () => {
-  it('registers all three providers with matching ids', () => {
+  it('registers every provider with a matching id', () => {
     const registry = createProviderRegistry(deps);
-    expect(registry.list().map((adapter) => adapter.id)).toEqual(['claude', 'codex', 'grok']);
+    expect(registry.list().map((adapter) => adapter.id)).toEqual(['claude', 'codex', 'grok', 'antigravity']);
     expect(registry.get('grok').id).toBe('grok');
     expect(registry.claude.id).toBe('claude');
   });
@@ -58,5 +58,7 @@ describe('provider registry', () => {
     expect(registry.get('claude').loginUrlHosts).toEqual(['claude.com', 'claude.ai']);
     expect(registry.get('codex').loginUrlHosts).toEqual(['openai.com']);
     expect(registry.get('grok').loginUrlHosts).toEqual(['x.ai', 'grok.com']);
+    // Antigravity signs in through the user's own terminal; the widget opens no login URL for it.
+    expect(registry.get('antigravity').loginUrlHosts).toEqual([]);
   });
 });

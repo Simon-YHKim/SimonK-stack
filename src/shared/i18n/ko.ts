@@ -42,6 +42,7 @@ export const ko = {
   deleteAccountBtn: '삭제',
   confirmDeleteAccount: '이 계정을 위젯에서 제거할까요? 위젯 전용 로그인 폴더도 함께 삭제됩니다.',
   checkedAccountsHint: '체크된 계정이 작업 표시줄 위젯에 실시간 표시됩니다.',
+  externalLoginHint: '{provider}는 이 PC의 CLI 로그인을 그대로 씁니다. 계정은 1개이고, 로그인은 터미널에서 CLI를 실행해 진행하세요.',
   addAccountFor: '{provider} 계정 추가',
   accountLabelLabel: '계정 이름',
   accountLabelPlaceholder: '예: 회사 계정',
@@ -165,9 +166,11 @@ export const ko = {
   provider_claude: 'Claude',
   provider_codex: 'Codex',
   provider_grok: 'Grok',
+  provider_antigravity: 'Antigravity',
   source_codexAppServer: '공식 Codex app-server',
   source_claudeStatusline: 'Claude Code 상태줄 브리지',
   source_grokAcp: '공식 grok ACP',
+  source_antigravityCliUsage: '공식 agy /usage',
 
   // Error codes
   error_cliNotFound: 'CLI를 찾을 수 없습니다',

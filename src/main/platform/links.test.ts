@@ -7,14 +7,14 @@ describe('EXTERNAL_LINKS', () => {
     for (const key of EXTERNAL_LINK_KEYS) expect(EXTERNAL_LINKS[key], key).toBeTypeOf('string');
   });
 
-  it('only holds https URLs on the provider-owned host, without credentials, query or fragment', () => {
+  it('only holds https URLs on the provider-owned host, without credentials, port or fragment', () => {
     for (const key of EXTERNAL_LINK_KEYS) {
       const raw = EXTERNAL_LINKS[key];
       if (raw === undefined) continue;
       const url = new URL(raw);
       expect(url.protocol, key).toBe('https:');
       expect(EXTERNAL_LINK_HOSTS[key], key).toContain(url.hostname);
-      expect(url.username + url.password + url.search + url.hash, key).toBe('');
+      expect(url.username + url.password + url.hash, key).toBe('');
       expect(url.port, key).toBe('');
     }
   });

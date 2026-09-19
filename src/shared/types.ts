@@ -1,11 +1,29 @@
 import type { Material, PlacementMode, Settings } from './settings';
 
-export const PROVIDER_IDS = ['claude', 'codex', 'grok'] as const;
+export const PROVIDER_IDS = ['claude', 'codex', 'grok', 'antigravity'] as const;
 export type ProviderId = (typeof PROVIDER_IDS)[number];
 
 export function isProviderId(value: unknown): value is ProviderId {
   return typeof value === 'string' && (PROVIDER_IDS as readonly string[]).includes(value);
 }
+
+export interface ProviderTraits {
+  /** Most accounts of this provider the widget accepts; null = only the global account limit. */
+  maxAccounts: number | null;
+  /**
+   * false: the CLI has no isolated profile or login command, so the account reuses the user's own
+   * CLI sign-in and the widget offers no login button (DECISIONS 26.09.19 11:42).
+   */
+  widgetLogin: boolean;
+}
+
+/** Shared by main (enforcement) and the renderer (which controls to show). */
+export const PROVIDER_TRAITS: Readonly<Record<ProviderId, ProviderTraits>> = Object.freeze({
+  claude: { maxAccounts: null, widgetLogin: true },
+  codex: { maxAccounts: null, widgetLogin: true },
+  grok: { maxAccounts: null, widgetLogin: true },
+  antigravity: { maxAccounts: 1, widgetLogin: false },
+});
 
 export const LOCALES = ['ko', 'en'] as const;
 export type Locale = (typeof LOCALES)[number];
@@ -132,7 +150,7 @@ export interface QuotaWindow {
 export const USAGE_STATES = ['ok', 'stale', 'loading', 'error', 'unavailable', 'logged-out', 'reset'] as const;
 export type UsageState = (typeof USAGE_STATES)[number];
 
-export const USAGE_SOURCES = ['codex-app-server', 'claude-statusline', 'grok-acp'] as const;
+export const USAGE_SOURCES = ['codex-app-server', 'claude-statusline', 'grok-acp', 'antigravity-cli-usage'] as const;
 export type UsageSource = (typeof USAGE_SOURCES)[number];
 
 export interface UsageSnapshot {

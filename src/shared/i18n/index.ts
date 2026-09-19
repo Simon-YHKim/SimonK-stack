@@ -92,12 +92,14 @@ export const PROVIDER_NAME_KEYS: Readonly<Record<ProviderId, MessageKey>> = {
   claude: 'provider_claude',
   codex: 'provider_codex',
   grok: 'provider_grok',
+  antigravity: 'provider_antigravity',
 };
 
 export const USAGE_SOURCE_KEYS: Readonly<Record<UsageSource, MessageKey>> = {
   'codex-app-server': 'source_codexAppServer',
   'claude-statusline': 'source_claudeStatusline',
   'grok-acp': 'source_grokAcp',
+  'antigravity-cli-usage': 'source_antigravityCliUsage',
 };
 
 export const THEME_KEYS: Readonly<Record<ThemeId, MessageKey>> = {

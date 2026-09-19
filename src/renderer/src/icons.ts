@@ -1,5 +1,6 @@
 import type { ProviderId } from '../../shared/types';
 import claudeIconUrl from '../../../resources/icons/claude_64.png';
+import antigravityIconUrl from '../../../resources/icons/antigravity_64.png';
 import codexIconUrl from '../../../resources/icons/codex_64.png';
 import { h, s, setStyles } from './dom';
 
@@ -7,6 +8,7 @@ import { h, s, setStyles } from './dom';
 const PNG_ICONS: Readonly<Partial<Record<ProviderId, string>>> = {
   claude: claudeIconUrl,
   codex: codexIconUrl,
+  antigravity: antigravityIconUrl,
 };
 
 function isBundledAssetUrl(url: string): boolean {
@@ -37,6 +39,12 @@ export function providerGlyph(provider: ProviderId, size: number, mono: boolean)
         'stroke-linecap': 'round',
         'stroke-linejoin': 'round',
       }),
+    ]);
+  }
+  if (provider === 'antigravity') {
+    // Neutral arch mark; the brand PNG is used whenever it is bundled.
+    return s('svg', attrs, [
+      s('path', { d: 'M4 20L12 4l8 16', fill: 'none', stroke: 'currentColor', 'stroke-width': 2.2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }),
     ]);
   }
   return s('svg', attrs, [

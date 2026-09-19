@@ -125,7 +125,12 @@ export interface RefreshNowRequest {
   accountId: string | null;
 }
 
-export const EXTERNAL_LINK_KEYS = ['claude-cli-install', 'codex-cli-install', 'grok-cli-install'] as const;
+export const EXTERNAL_LINK_KEYS = [
+  'claude-cli-install',
+  'codex-cli-install',
+  'grok-cli-install',
+  'antigravity-cli-install',
+] as const;
 export type ExternalLinkKey = (typeof EXTERNAL_LINK_KEYS)[number];
 /** Windows ShellExecute limit is 2081 chars (RESEARCH §5). */
 export const EXTERNAL_URL_MAX_LENGTH = 2048;

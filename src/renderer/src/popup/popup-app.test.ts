@@ -151,6 +151,35 @@ describe('Usage tab', () => {
     expect(root.querySelector('.card-reason')?.textContent).toBe('Error: Network error');
   });
 
+  it('tells same-kind windows apart by their provider label, rendered as text', () => {
+    const evil = '<b>Claude</b> and GPT models';
+    const state = appState({
+      accounts: [account({ id: 'ag1', provider: 'antigravity' })],
+      usage: [
+        usage('ag1', {
+          provider: 'antigravity',
+          source: 'antigravity-cli-usage',
+          windows: [
+            { ...quotaWindow('session', 10, 3_600_000), label: 'Gemini Models' },
+            { ...quotaWindow('weekly', 20, 4 * 24 * 3_600_000), label: 'Gemini Models' },
+            { ...quotaWindow('session', 30, 3_600_000), label: evil },
+            quotaWindow('weekly', 40, 4 * 24 * 3_600_000),
+          ],
+        }),
+      ],
+    });
+    const { root } = setup(state);
+    const boxes = [...root.querySelectorAll('.quota-box')];
+    expect(boxes.map((box) => box.querySelector('.quota-box-label')?.textContent ?? null)).toEqual([
+      'Gemini Models',
+      'Gemini Models',
+      evil,
+      null,
+    ]);
+    expect(root.querySelector('.quota-box-label b')).toBeNull();
+    expect(root.querySelector('.card-source')?.textContent).toBe(`Source: ${en.source_antigravityCliUsage}`);
+  });
+
   it('keeps card elements across updates and renders labels as text', () => {
     const evil = '<img src=x onerror=alert(1)>';
     const state = appState({ accounts: [account({ id: 'a1', label: evil })], usage: [usage('a1')] });
@@ -213,6 +242,35 @@ describe('Accounts tab', () => {
 
     loginEvent(api, 'new1', 'sess1', { type: 'success', emailMasked: 'w***@e***.com' });
     expect(panel?.querySelector('.login-status')?.textContent).toBe('Signed in · w***@e***.com');
+  });
+
+  it('Antigravity: one account, no widget login, and a hint pointing at the CLI sign-in', async () => {
+    const api = new FakeApi().reply('accounts:add', (req) => ({
+      ok: true,
+      value: account({ id: 'ag1', provider: req.provider, label: req.label, loginState: 'unknown' }),
+    }));
+    const { app } = setup(appState(), api);
+    app.selectTab('accounts', false);
+    const section = app.accounts.sections.antigravity;
+    expect(section.loginHintEl.hidden).toBe(false);
+    expect(section.loginHintEl.textContent).toBe(en.externalLoginHint.replace('{provider}', 'Antigravity'));
+    expect(app.accounts.sections.codex.loginHintEl.hidden).toBe(true);
+
+    section.addButton.click();
+    typeInto(section.addInput, 'Main');
+    submit(section.addForm);
+    await flush();
+    expect(api.callsTo('accounts:add')).toEqual([{ provider: 'antigravity', label: 'Main' }]);
+    // No login panel and no login:start for a provider without a widget login.
+    expect(api.callsTo('login:start')).toHaveLength(0);
+    expect(section.el.querySelector('.login-panel')).toBeNull();
+
+    app.update(appState({ accounts: [account({ id: 'ag1', provider: 'antigravity', label: 'Main', loginState: 'logged-out' })] }));
+    const row = section.el.querySelector('.account-row[data-account-id="ag1"]');
+    expect(row?.querySelector<HTMLButtonElement>('.btn-login')?.hidden).toBe(true);
+    expect(section.addButton.hidden).toBe(true);
+    // Providers without a limit keep their add button.
+    expect(app.accounts.sections.codex.addButton.hidden).toBe(false);
   });
 
   it('Claude login: open page, paste code#state, submit', async () => {

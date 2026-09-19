@@ -41,6 +41,7 @@ export const en: Record<keyof typeof ko, string> = {
   deleteAccountBtn: 'Delete',
   confirmDeleteAccount: "Remove this account from the widget? Its widget-only sign-in folder is deleted too.",
   checkedAccountsHint: 'Checked accounts are shown live on the taskbar widget.',
+  externalLoginHint: '{provider} uses the CLI sign-in already on this PC. One account only; sign in by running the CLI in a terminal.',
   addAccountFor: 'Add {provider} account',
   accountLabelLabel: 'Account name',
   accountLabelPlaceholder: 'e.g. Work account',
@@ -165,9 +166,11 @@ export const en: Record<keyof typeof ko, string> = {
   provider_claude: 'Claude',
   provider_codex: 'Codex',
   provider_grok: 'Grok',
+  provider_antigravity: 'Antigravity',
   source_codexAppServer: 'Official Codex app-server',
   source_claudeStatusline: 'Claude Code statusline bridge',
   source_grokAcp: 'Official grok ACP',
+  source_antigravityCliUsage: 'Official agy /usage',
 
   // Error codes
   error_cliNotFound: 'CLI not found',

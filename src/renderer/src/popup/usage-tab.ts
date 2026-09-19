@@ -40,7 +40,10 @@ function quotaBox(view: AccountView, row: RowView, index: number, ctx: RenderCon
     'div',
     { class: 'quota-box', 'data-status': row.status, 'data-level': windowsRowLevel(row, settings), 'data-kind': row.kind },
     [
-      h('div', { class: 'quota-box-title' }, [windowTitle(t, row)]),
+      h('div', { class: 'quota-box-title' }, [
+        windowTitle(t, row),
+        row.label === null ? null : h('span', { class: 'quota-box-label' }, [row.label]),
+      ]),
       percentEl,
       h('div', { class: 'quota-bar', 'aria-hidden': 'true' }, [fill]),
       h('div', { class: 'quota-box-reset' }, [reset]),

@@ -199,6 +199,7 @@ async function setup(
       }),
       codex: () => fakeAdapter('codex', calls, logins, config.adapters?.codex ?? {}),
       grok: () => fakeAdapter('grok', calls, logins, config.adapters?.grok ?? {}),
+      antigravity: () => fakeAdapter('antigravity', calls, logins, config.adapters?.antigravity ?? {}),
     },
   );
   const writes: unknown[] = [];
@@ -356,6 +357,22 @@ describe('app controller', () => {
     await until(() => h.windows.last()?.accounts.length === 0);
     expect(h.windows.last()?.usage).toEqual([]);
     await expect(h.controller.removeAccount('n1')).rejects.toMatchObject({ code: 'not-found' });
+  });
+
+  it('accepts one Antigravity account only, while other providers stay unlimited', async () => {
+    const h = await setup();
+    await h.controller.start();
+    await h.controller.addAccount('antigravity', 'Main');
+    await expect(h.controller.addAccount('antigravity', 'Second')).rejects.toMatchObject({ code: 'conflict' });
+    expect(h.calls.filter((call) => call.startsWith('antigravity:ensure:'))).toHaveLength(1);
+    await h.controller.addAccount('grok', 'G1');
+    await h.controller.addAccount('grok', 'G2');
+    expect(h.store.getAccounts().map((a) => a.provider)).toEqual(['antigravity', 'grok', 'grok']);
+
+    // Removing it frees the slot again.
+    const [first] = h.store.getAccounts();
+    await h.controller.removeAccount(first!.id);
+    await expect(h.controller.addAccount('antigravity', 'Again')).resolves.toMatchObject({ provider: 'antigravity' });
   });
 
   it('keeps an account when its profile cannot be removed', async () => {

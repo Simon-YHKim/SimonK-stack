@@ -46,6 +46,8 @@ export interface RowView {
   countdown: string;
   resetsAt: number | null;
   windowMinutes: number | null;
+  /** Provider qualifier (bucket id or model group) that tells same-kind windows apart; popup only. */
+  label: string | null;
 }
 
 export interface AccountView {
@@ -90,6 +92,7 @@ export function toRow(window: QuotaWindow, now: number, showUsed: boolean): RowV
     countdown: status === 'reset' ? '--' : countdownText(window.resetsAt, now),
     resetsAt: window.resetsAt,
     windowMinutes: window.windowMinutes,
+    label: window.label ?? null,
   };
 }
 
@@ -180,6 +183,7 @@ export const PROVIDER_BRAND: Readonly<Record<ProviderId, string>> = {
   claude: '#D97757',
   codex: '#6366F1',
   grok: '#D4D4D8',
+  antigravity: '#4285F4',
 };
 
 export function v1RowColor(row: RowView, index: number, settings: Settings, provider: ProviderId): string {

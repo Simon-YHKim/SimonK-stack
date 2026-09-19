@@ -13,6 +13,7 @@ import {
 import { applySettingsPatch, type Material, type PlacementMode, type Settings } from '../../shared/settings';
 import {
   PROVIDER_IDS,
+  PROVIDER_TRAITS,
   toAccountDTO,
   type Account,
   type AccountDTO,
@@ -48,6 +49,12 @@ export const CLI_DETECT_TIMEOUT_MS = 15_000;
 export const REDETECT_MIN_INTERVAL_MS = 30_000;
 export const IDENTITY_MAX_AGE_MS = 30 * 60_000;
 export const STALE_CHECK_INTERVAL_MS = 30_000;
+
+/** Providers without isolated profiles accept a limited number of accounts (PROVIDER_TRAITS). */
+export function providerIsFull(accounts: readonly Account[], provider: ProviderId): boolean {
+  const max = PROVIDER_TRAITS[provider].maxAccounts;
+  return max !== null && accounts.filter((a) => a.provider === provider).length >= max;
+}
 
 export interface WindowsPort {
   togglePopup(): void;
@@ -110,8 +117,8 @@ export function createAppController(deps: AppControllerDeps) {
   const usage = new Map<string, UsageSnapshot>();
   const identities = new Map<string, AccountIdentityInfo & { at: number }>();
   const needsIdentity = new Set<string>();
-  const cli: Record<ProviderId, CliInfo | null> = { claude: null, codex: null, grok: null };
-  const lastDetectAt: Record<ProviderId, number> = { claude: 0, codex: 0, grok: 0 };
+  const cli: Record<ProviderId, CliInfo | null> = { claude: null, codex: null, grok: null, antigravity: null };
+  const lastDetectAt: Record<ProviderId, number> = { claude: 0, codex: 0, grok: 0, antigravity: 0 };
   const detecting = new Set<ProviderId>();
   let effectivePlacementMode: PlacementMode | null = null;
   let broadcastPending = false;
@@ -170,7 +177,7 @@ export function createAppController(deps: AppControllerDeps) {
         .map((entry) => ({ ...entry, windows: entry.windows.map((w) => ({ ...w })) })),
       refresh: { ...refresh, accountIds: [...refresh.accountIds] },
       theme: { ...theme },
-      cli: { claude: cliDto('claude'), codex: cliDto('codex'), grok: cliDto('grok') },
+      cli: { claude: cliDto('claude'), codex: cliDto('codex'), grok: cliDto('grok'), antigravity: cliDto('antigravity') },
       effectivePlacementMode,
     };
   };
@@ -446,6 +453,7 @@ export function createAppController(deps: AppControllerDeps) {
       claude: cli.claude === null ? null : { ...cli.claude },
       codex: cli.codex === null ? null : { ...cli.codex },
       grok: cli.grok === null ? null : { ...cli.grok },
+      antigravity: cli.antigravity === null ? null : { ...cli.antigravity },
     }),
 
     suspend: (): void => scheduler.suspend(),
@@ -472,7 +480,9 @@ export function createAppController(deps: AppControllerDeps) {
 
     addAccount: (provider: ProviderId, label: string): Promise<AccountDTO> =>
       serialized(async () => {
-        if (store.getAccounts().length >= MAX_ACCOUNTS) throw new IpcHandlerError('conflict');
+        if (store.getAccounts().length >= MAX_ACCOUNTS || providerIsFull(store.getAccounts(), provider)) {
+          throw new IpcHandlerError('conflict');
+        }
         const id = newAccountId();
         if (store.getAccount(id) !== undefined) throw new IpcHandlerError('conflict');
         let profileDir: string;
@@ -490,7 +500,9 @@ export function createAppController(deps: AppControllerDeps) {
         }
         // Re-read after the await: the list on disk is the one to extend.
         const accounts = store.getAccounts();
-        if (accounts.length >= MAX_ACCOUNTS || accounts.some((a) => a.id === id)) throw new IpcHandlerError('conflict');
+        if (accounts.length >= MAX_ACCOUNTS || providerIsFull(accounts, provider) || accounts.some((a) => a.id === id)) {
+          throw new IpcHandlerError('conflict');
+        }
         await persistAccounts(renumberAccounts([...accounts, account]));
         needsIdentity.add(id);
         usage.set(id, createEmptySnapshot({ accountId: id, provider, source: SOURCE_BY_PROVIDER[provider], state: 'loading' }));

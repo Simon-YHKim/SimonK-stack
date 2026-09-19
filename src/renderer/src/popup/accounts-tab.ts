@@ -2,6 +2,7 @@ import { LOGIN_STATE_KEYS, PROVIDER_NAME_KEYS, type Translator } from '../../../
 import type { ExternalLinkKey } from '../../../shared/ipc';
 import {
   PROVIDER_IDS,
+  PROVIDER_TRAITS,
   type AccountDTO,
   type AppStateSnapshot,
   type ClaudeBridgeStatus,
@@ -30,6 +31,7 @@ const CLI_INSTALL_KEYS: Readonly<Record<ProviderId, ExternalLinkKey>> = {
   claude: 'claude-cli-install',
   codex: 'codex-cli-install',
   grok: 'grok-cli-install',
+  antigravity: 'antigravity-cli-install',
 };
 
 export function cliStatusText(t: Translator, cli: CliStatusDTO): string {
@@ -197,7 +199,12 @@ class AccountRow {
 
     const cliMissing = info.cli.state === 'missing' || dto.loginState === 'cli-missing';
     setText(this.loginButton, t('login'));
-    this.loginButton.hidden = dto.loginState === 'logged-in' || dto.loginState === 'logging-in' || info.loginBusy;
+    // Providers without a widget login reuse the CLI's own sign-in; the section shows how.
+    this.loginButton.hidden =
+      !PROVIDER_TRAITS[dto.provider].widgetLogin ||
+      dto.loginState === 'logged-in' ||
+      dto.loginState === 'logging-in' ||
+      info.loginBusy;
     this.loginButton.disabled = cliMissing;
     setAttr(this.loginButton, 'title', cliMissing ? t('cliNotFound') : null);
 
@@ -406,6 +413,7 @@ class ProviderSection {
   private readonly cliEl: HTMLElement;
   readonly installGuideButton: HTMLButtonElement;
   readonly redetectButton: HTMLButtonElement;
+  readonly loginHintEl: HTMLElement;
   private readonly rowsEl: HTMLElement;
   private readonly orphansEl: HTMLElement;
   readonly addButton: HTMLButtonElement;
@@ -431,6 +439,7 @@ class ProviderSection {
     this.cliEl = h('span', { class: 'provider-cli' });
     this.installGuideButton = h('button', { type: 'button', class: 'btn-link cli-install' });
     this.redetectButton = h('button', { type: 'button', class: 'btn-link cli-redetect' });
+    this.loginHintEl = h('p', { class: 'accounts-hint muted provider-login-hint', hidden: true });
     this.rowsEl = h('div', { class: 'provider-rows' });
     this.orphansEl = h('div', { class: 'provider-orphans' });
     this.addButton = h('button', { type: 'button', class: 'btn-secondary btn-add-account' });
@@ -449,6 +458,7 @@ class ProviderSection {
         h('div', { class: 'provider-title' }, [this.iconSlot, this.nameEl]),
         h('div', { class: 'provider-cli-wrap' }, [this.cliEl, this.redetectButton, this.installGuideButton]),
       ]),
+      this.loginHintEl,
       this.rowsEl,
       this.orphansEl,
       this.addButton,
@@ -507,6 +517,7 @@ class ProviderSection {
         return;
       }
       this.closeAdd(false);
+      if (!PROVIDER_TRAITS[this.provider].widgetLogin) return;
       const panel = this.tab.panelFor(result.value.id, this.provider);
       this.orphansEl.append(panel.el);
       panel.start();
@@ -539,6 +550,12 @@ class ProviderSection {
     setText(this.addCancel, t('cancel'));
 
     const accounts = sortedAccounts(state.accounts).filter((a) => a.provider === this.provider);
+    const traits = PROVIDER_TRAITS[this.provider];
+    const full = traits.maxAccounts !== null && accounts.length >= traits.maxAccounts;
+    this.addButton.hidden = full;
+    if (full && !this.addForm.hidden) this.closeAdd(false);
+    setText(this.loginHintEl, traits.widgetLogin ? '' : t('externalLoginHint', { provider: providerName }));
+    this.loginHintEl.hidden = traits.widgetLogin;
     const seen = new Set<string>();
     // ▲▼ move within this provider's list (main swaps with the same-provider neighbour).
     const rowEls = accounts.map((dto, index) => {
@@ -594,6 +611,7 @@ export class AccountsTab {
       claude: new ProviderSection('claude', this, deps),
       codex: new ProviderSection('codex', this, deps),
       grok: new ProviderSection('grok', this, deps),
+      antigravity: new ProviderSection('antigravity', this, deps),
     };
     this.el = h('div', { class: 'accounts-tab' }, [this.hintEl, ...PROVIDER_IDS.map((id) => this.sections[id].el)]);
   }

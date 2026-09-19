@@ -16,6 +16,7 @@ export const SOURCE_BY_PROVIDER: Readonly<Record<ProviderId, UsageSource>> = {
   claude: 'claude-statusline',
   codex: 'codex-app-server',
   grok: 'grok-acp',
+  antigravity: 'antigravity-cli-usage',
 };
 
 /**

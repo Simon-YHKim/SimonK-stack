@@ -1,4 +1,5 @@
 import { PROVIDER_IDS, type ProviderId } from '../../shared/types';
+import { createAntigravityAdapter } from './antigravity';
 import { createClaudeAdapter } from './claude';
 import { createCodexAdapter } from './codex';
 import { createGrokAdapter } from './grok';
@@ -8,12 +9,14 @@ export interface ProviderFactories {
   claude: ProviderFactory<ClaudeProviderAdapter>;
   codex: ProviderFactory;
   grok: ProviderFactory;
+  antigravity: ProviderFactory;
 }
 
 export const DEFAULT_PROVIDER_FACTORIES: ProviderFactories = {
   claude: createClaudeAdapter,
   codex: createCodexAdapter,
   grok: createGrokAdapter,
+  antigravity: createAntigravityAdapter,
 };
 
 export interface ProviderRegistry {
@@ -31,6 +34,7 @@ export function createProviderRegistry(
     claude,
     codex: factories.codex({ ...deps, logger: deps.logger.child('codex') }),
     grok: factories.grok({ ...deps, logger: deps.logger.child('grok') }),
+    antigravity: factories.antigravity({ ...deps, logger: deps.logger.child('antigravity') }),
   };
   for (const id of PROVIDER_IDS) {
     if (adapters[id].id !== id) throw new Error(`adapter registered as ${id} reports id ${adapters[id].id}`);

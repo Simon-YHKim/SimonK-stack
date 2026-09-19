@@ -381,6 +381,13 @@
   color: var(--p-fg2);
 }
 
+/* Model group or bucket id under the window title; long names wrap instead of widening the box. */
+.quota-box-label {
+  display: block;
+  overflow-wrap: anywhere;
+  opacity: 0.8;
+}
+
 .quota-box-percent {
   font-family: var(--p-mono);
   font-size: 14px;
