@@ -9,10 +9,11 @@
 - 26.09.19 위치 이동 복구: 소스가 C:\dev → `E:\Coding Infra\dev\ai-usage-widget`로 옮겨져 있었고(주체 미확인) src 141·resources 10 파일 누락 + node_modules 껍데기 → `git restore` + `pnpm install --frozen-lockfile`로 복구(DECISIONS 26.09.19 11:20)
 - 26.09.19 CLI 설치 안내 URL 확정(`src/main/platform/links.ts` + `EXTERNAL_LINK_HOSTS` + `links.test.ts`), 주소 직접 열어 확인(8e04f5f)
 - 26.09.19 **Antigravity 공급자 추가**(T6 성공, DECISIONS 26.09.19 11:42·11:54): 공식 `agy -p "/usage" --output-format json`, 계정 1개·위젯 로그인 없음(`PROVIDER_TRAITS`), 요청 소모 차단기, 그룹 label을 팝업에 표시, 설치 안내 링크. DESIGN §7-4
+- 26.09.19 Grok Bot 조사 완료 → **카드 미추가**(DECISIONS 26.09.19 11:56): CLI 없음(exe 4개 직접 확인), 개인 계정용 usage API 없음, Cursor 계정에서 별도 계량(SuperGrok 풀과 무관), 수치는 앱 Settings·cursor.com/dashboard GUI에서만 확인 가능
 - 검증(26.09.19 11:53, 새 위치): `pnpm verify` exit 0(51파일·561테스트), `pnpm dist:dir` exit 0, 배포본 `--smoke` exit 0(ok:true, packaged:true, errors 0, providers claude·codex·grok·antigravity, CLI claude 2.1.277·codex 0.155.1·grok 1.0.34·agy 1.2.7). 실제 agy로 어댑터 실경로 확인(loggedIn, 창 4개, agy 실행 1회 6.9초). 변경 27파일 제어 문자·CRLF 0건
 
 ## 진행중
-- Grok Bot 사용량 공식 조회 경로 조사(하위 에이전트, 읽기 전용). 결과가 "공식 경로 없음"이면 카드 미추가
+- 없음
 
 ## 다음
 - 사용자와 실측: T1 Codex device code 로그인·버킷·인증 페이지 호스트 / T2 Claude 파이프 로그인 / T3 statusline rate_limits 기록 / T4 Grok `_x.ai/billing` 응답·device-auth 출력 / T6b 위젯 화면에서 Antigravity 계정 추가 → 5H·WK 표시 확인 / T8 GUI(팝업 blur·topmost·전체화면·재질·테마 이벤트·오프셋 슬라이더 드래그 right·left 정렬·자동 시작 배포본)

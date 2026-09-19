@@ -6,7 +6,8 @@
 - **최종 갱신**: 26.09.19 11:55 KST · Claude Code(E:\Coding Infra 세션)
 - **지금까지**: T6 실측 성공 → Antigravity 공급자 추가(`src/main/providers/antigravity/**`, `PROVIDER_TRAITS`, 팝업 label 표시, 설치 링크). 공식 `agy -p "/usage" --output-format json`만 사용, 계정 1개·위젯 로그인 없음, `/usage`가 AI 프롬프트로 처리되면 재시작 전까지 호출 중단. `pnpm verify` 0(561테스트) / `pnpm dist:dir` 0 / 배포본 스모크 0(providers 4종) / 실제 agy 1.2.7로 실경로 확인. 배포본을 다시 실행해 둠
 - **다음 1개**: 사용자가 위젯 [계정 관리] 탭에서 Antigravity 계정 추가 → 5H·WK 수치 표시 확인(T6b), 이어서 T1(Codex 로그인)
-- **막힌 것**: 사용자 결정 대기 P-08 보조 모니터, SEC-06 제거 시 복원, 코드 서명, Antigravity 위젯 막대 그룹 선택 / C:\dev 이동 주체 확인 / Grok Bot 공식 조회 경로 조사 중
+- **Grok Bot**: 조사 완료, 카드 미추가(DECISIONS 26.09.19 11:56) — CLI·개인 계정용 usage API 없음, Cursor 계정에서 별도 계량. 재검토 조건 = Cursor가 usage API 또는 CLI usage 명령을 문서화
+- **막힌 것**: 사용자 결정 대기 P-08 보조 모니터, SEC-06 제거 시 복원, 코드 서명, Antigravity 위젯 막대 그룹 선택 / C:\dev 이동 주체 확인
 - **TODO**: T6b·T1·T2·T3·T4 실측 → T8 GUI 실측 → NSIS 설치(사용자 확인) → v1 교체(사용자 확인)
 - **미해결 질문**: 보류한 계약 필드(codex credits/blocked, grok overageAvailable, `onStdoutChunk`)를 실측 후 추가할지. agy 로그아웃 출력 문구(정규식은 추정)
 - **요청**: REQ-260915-01 실측 단계에서 브라우저 로그인·코드 입력(사용자)
