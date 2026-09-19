@@ -235,6 +235,8 @@ VENDORS = ["claude", "codex", "gemini", "grok"]
 # ── 클래스 → 레인 우선순위 (발주 §5) ────────────────────────────
 CLASS_LANES = {
     # D-28 #3 (Simon 확정 2026-09-16): gemini(과제 전달 실패)·grok(402)을 강등·탐색 목적지에서 뺀다.
+    #   2026-09-20 에 grok 402 는 풀렸지만 A 목록에는 그대로 넣지 않는다 — 빼둔 이유가 가용성만이
+    #   아니라 산출물 제약(CSV·카운트·분류 라벨만)이기 때문이다. grok 은 C-realtime 1순위로만 쓴다.
     #   검증 전 목록 = luna → opus. claude-sonnet-5 는 M1 실워커 1회 통과 뒤 2순위로 들어간다.
     #   2단계(2026-09-16 M1 통과): sonnet 을 2순위로 넣었다.
     "A":          ["gpt-5.6-luna", "claude-sonnet-5", "claude-opus-5"],
@@ -256,6 +258,8 @@ CLASS_LANES = {
     #   읽기 전용 클래스라 G1 과 무관하다(코딩이 아니다). 파일을 바꾸면 validate_plan 이 A_VERIFY_WRITES 로 막는다.
     "A-verify":   ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5"],
     # D-28 #6: grok 은 새 계정 실호출 통과 전 blocked(make_intake 가 건너뛴다) → sol → opus.
+    #   2026-09-20 08:33 실호출 OK(41.5초) — M3 해소. 상태는 여전히 make_intake 가 실호출로 판정한다
+    #   (여기에 고정하지 않는다: G12 창이 24시간이라 하루 지나면 다시 미확인이다).
     "C-realtime": ["grok-4.6", "gpt-5.6-sol", "claude-opus-5"],
     # D-28 #7: gemini 는 dispatch "unavailable" 이라 기본 채움이 건너뛴다(#12) — 오늘 기본은 sol.
     #   sol·opus 가 BigQuery·Firebase 작업을 대신할 수 있는지는 미확인.
