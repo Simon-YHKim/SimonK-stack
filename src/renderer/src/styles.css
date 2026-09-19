@@ -74,7 +74,7 @@ button[aria-disabled='true'] {
 }
 
 .ai-brand-icon.is-color[data-provider='codex'] {
-  color: #6366f1;
+  color: #d4d4d8;
 }
 
 .ai-brand-icon.is-color[data-provider='grok'] {
@@ -83,6 +83,12 @@ button[aria-disabled='true'] {
 
 .ai-brand-icon.is-mono {
   color: #9ca3af;
+}
+
+/* codex and grok ship as the vendors' square dark tiles; round them like an app icon. */
+.ai-brand-icon[data-provider='codex'] > img,
+.ai-brand-icon[data-provider='grok'] > img {
+  border-radius: 24%;
 }
 
 .ai-brand-icon.is-mono > img {

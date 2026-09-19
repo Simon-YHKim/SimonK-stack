@@ -145,7 +145,7 @@ function render1c(view: AccountView, ctx: RenderContext): HTMLElement[] {
     class: `ring-center-icon ${mono ? 'is-mono' : 'is-color'}`,
     'data-provider': view.account.provider,
   });
-  center.append(h('span', { class: 'ring-center-glyph' }, [providerGlyph(view.account.provider, 16, mono)]));
+  center.append(h('span', { class: 'ring-center-glyph' }, [providerGlyph(view.account.provider, 16)]));
   const ring = h('div', { class: 'ring-container' }, [
     s('svg', { class: 'ring-svg', viewBox: '0 0 36 36', 'aria-hidden': 'true' }, circles),
     center,
