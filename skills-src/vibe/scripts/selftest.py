@@ -228,6 +228,22 @@ def run():
             a_ok, "coding", "gpt-6-astra", quota_checked_vendors=routing.VENDORS)
         check("재시도로 코딩을 codex 로 옮기면 재검증이 막는다 (G13)",
               not ok_rt and "G1" in v_rt, str(v_rt))
+        # G13 보강 (2026-09-19) — 일반 공정을 사용 금지 레인으로 넘기는 재배정도 막는다
+        a_rd = a_ok + [{"proc": "research-deep", "lane": "gpt-6-astra", "class": "B"}]
+        qs_grok_blocked = {"claude": "ok", "codex": "ok", "gemini": "ok", "grok": "blocked"}
+        ok_lb, v_lb, _nlb, _ = routing.revalidate_for_retry(
+            a_rd, "research-deep", "grok-4.6", quota_checked_vendors=routing.VENDORS,
+            quota_states=qs_grok_blocked)
+        check("재배정 대상 레인 벤더가 사용 금지면 막는다 (G13 보강)",
+              not ok_lb and "LANE_VENDOR_BLOCKED" in v_lb, str(v_lb))
+        ok_ld, v_ld, _nld, _ = routing.revalidate_for_retry(
+            a_rd, "research-deep", "claude-fable-5-1", quota_checked_vendors=routing.VENDORS,
+            quota_states={"claude": "demote", "codex": "demote", "gemini": "ok", "grok": "blocked"})
+        check("강등(demote) 레인으로의 재배정은 허용한다 (Q-05)", ok_ld, str(v_ld))
+        ok_ln, v_ln, _nln, _ = routing.revalidate_for_retry(
+            a_rd, "research-deep", "grok-4.6", quota_checked_vendors=routing.VENDORS)
+        check("quota_states 가 없으면 벤더 금지 검사는 건너뛴다(기존 동작 유지)",
+              "LANE_VENDOR_BLOCKED" not in v_ln, str(v_ln))
         v_exc = routing.check_guards(
             [{"proc": "coding", "lane": "claude-opus-5", "class": "B", "explore": True}],
             quota_checked_vendors=routing.VENDORS)

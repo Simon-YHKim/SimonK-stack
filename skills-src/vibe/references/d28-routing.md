@@ -3,6 +3,12 @@
 > Simon 확정 2026-09-16 (16건 전부 심판안). 토론 원문: `E:\Coding Infra\reports\vibe-d28-debate-260913\judge-verdict.md`
 > · 허브 `DECISIONS.md` 2026-09-13 23:19 D-28 · 2026-09-16 00:55 RATIFY.
 
+## Contents
+
+- 왜 · 1단계에서 바뀐 것 · 2단계 — 선행 계측 뒤 · 3단계 — 데이터 뒤 · 미결 질문 (Simon)
+- 2단계 진행 기록 (2026-09-16) · 계측 재확인 (2026-09-19)
+- A-verify (Q-260913-08) · 남은 결정 회신 (2026-09-16) · 거울 배치 — 모델 장애 대비 비상 절차
+
 ## 왜
 
 - **4벤더가 사실상 2벤더였다.** grok 402(잔액 소진) · gemini 는 Orca 워커로 과제를 못 받는다(재현 2/2 · T4 exit 15).
@@ -62,6 +68,20 @@ Q-260913-01 grok 새 계정 충전 · 05 codex 60% 경계 게이트 몫 · 06 �
   → fable 상태는 **fableWeekly 와 claude 일반 한도 중 더 나쁜 쪽**으로 판정한다(`make_intake.lane_state_for`). 독립이 확인되면 푼다.
 - **편입** — `claude-sonnet-5` 레인 신설(사다리 medium/xhigh) · A = luna → sonnet → opus · 코딩 = opus → fable · B 비코딩 = astra → fable → opus.
 - **보류** — #4 A-verify 스키마 · #11 본 규칙 (Q-260913-08). R1 임시 승격(B 비코딩 목록)은 그대로다.
+
+## 계측 재확인 (2026-09-19)
+
+- **G11** — codex 0.154.0 → 0.155.1 로 올린 뒤 `check_tooling.py` 통과. 떠 있던 codex 는 AI Usage Widget 의 Codex 앱 전용 바이너리라 npm 전역과 별개였다.
+- **G12 실호출** (`adversarial_eval.run_lane` 으로 벤더별 1회, claude 는 `claude -p` 과금이라 제외) —
+  codex(luna@low) OK 10.6초 · gemini(agy) OK 13.2초 · grok **402 잔액 소진**.
+- **M2 부분 증거** — 09-16 → 09-19 사이 claude weekly 63→84%, fableWeekly 는 0% 그대로. 일반 사용이 fableWeekly 를 깎지 않는다는
+  한 방향만 확인됐다. fable 사용이 weekly 를 깎는지는 아직 모른다 → 판정 규칙(더 나쁜 쪽) 유지.
+- **M3 미해소** — 위 402. 새 계정 로그인 또는 토요일 11:30 초기화 뒤 다시 본다.
+- **M6 실패 재현** — `run_3e67aee2999a` · antigravity 워커를 `--timeout-ms 300000` 으로 띄웠다. 신뢰 창 없이 Antigravity CLI 1.2.6 이
+  떴지만 입력창이 3분 넘게 비어 과제가 전달되지 않았다(`turnStart: unsupported`). `kill_worker.py --kill --fence` 로 2개 종료 ·
+  잔존 0 · task failed. → `dispatch: unavailable` 유지. CLI 직행(`agy --print`)은 위 실호출처럼 동작한다.
+- **G13 결함 발견·수정** — 실제 사용량 상태로 인수인계를 모의 실행하니 사용 금지 레인(grok)으로의 재배정이 통과했다.
+  `validate_plan` 에 `LANE_VENDOR_BLOCKED` 를 넣었다(강등 레인은 허용).
 
 ## A-verify (Q-260913-08 승인 2026-09-16)
 
