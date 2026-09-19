@@ -1,8 +1,8 @@
 ---
 name: vibe-bot
-description: "Use when a task should be executed by Grok Bot on the xAI/Cursor cloud computer instead of local Orca workers - triggers \"/vibe-bot\", \"그록 봇으로 돌려\", \"봇한테 시켜\", \"클라우드 컴퓨터로 자동화\", \"봇으로 자동화\", \"run this on Grok Bot\", \"automate with the bot\", \"cloud computer task\". Produces a bot-ready task sheet (Outcome / Sources / Constraints / Deliverable / Review point) carrying a run nonce, a safety gate that refuses secrets, repo writes, merges, deploys, payments and company-confidential data, a delivery step that is manual by default (webhook and GitHub triggers stay disabled until measured once), and a result check that rejects a scope-less absence claim, a missing nonce or a returned credential. NOT for local repo work (use vibe) or small single-session edits (dev-orchestrator)."
+description: "Use when a task should run on Grok Bot's xAI/Cursor cloud computer instead of local Orca workers, and for all console or GUI work (Play Console, App Store Connect, cloud consoles, desktop apps) - triggers \"/vibe-bot\", \"그록 봇으로 돌려\", \"봇한테 시켜\", \"콘솔 작업\", \"GUI 작업\", \"run this on Grok Bot\", \"console task\". Produces a bot-ready task sheet with a run nonce (general: Outcome / Sources / Constraints / Deliverable / Review point; console: target, goal, scope, forbidden buttons, stop points, screen evidence, result format), a gate that refuses secrets, repo writes, merges, deploys, payments and confidential data, manual delivery by default, and a result check that rejects a scope-less absence, a missing nonce, a returned credential or console output without screen evidence, and escalates any reported irreversible click. NOT for local repo work (use vibe)."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 0.2.0
+version: 0.3.0
 author: simon-stack
 ---
 
@@ -10,12 +10,13 @@ author: simon-stack
 
 `/vibe`는 이 PC의 Orca 워커에 일을 뿌린다. `vibe-bot`은 **남의 클라우드 컴퓨터에서 도는
 Grok Bot**에 일을 맡긴다. 브라우저를 직접 몰아야 하거나, 노트북을 닫아도 계속 돌아야 하거나,
-API가 없는 사이트를 다뤄야 할 때 쓴다.
+API가 없는 사이트를 다뤄야 할 때 쓴다. **콘솔 · GUI 작업은 항상 이 스킬로 간다**(아래 절).
 
 ```
-/vibe-bot <요청>                 → 과제서 생성 + 안전 게이트 + 전달 안내에서 멈춤
-/vibe-bot <요청> --deliver webhook → 웹훅 전송 (실측 통과 전에는 거부된다)
-/vibe-bot --verify <결과파일>      → 봇이 준 결과를 규칙으로 검사
+/vibe-bot <요청>                                   → 과제서 생성 + 안전 게이트 + 전달 안내에서 멈춤
+/vibe-bot --mode console --target "<콘솔 · 앱 ID>" <목표> → 콘솔 과제서(누르지 말 것 · 멈춤 지점 · 화면 증거)
+/vibe-bot <요청> --deliver webhook                 → 웹훅 전송 (실측 통과 전에는 거부된다)
+/vibe-bot --verify <결과파일> [--mode console]      → 봇이 준 결과를 규칙으로 검사
 ```
 
 ## 지금 어디까지 되나 (2026-09-19)
@@ -23,7 +24,8 @@ API가 없는 사이트를 다뤄야 할 때 쓴다.
 | 단계 | 상태 |
 |---|---|
 | 과제서 조립 · 안전 게이트 · 결과 검사 | **동작한다.** 구독도 로그인도 필요 없다 |
-| 전달 - 수동 붙여넣기 | **실측 1회 통과**(2026-09-19, `vb-f66af738`): nonce 일치, 행마다 출처가 달린 5행 표, 공식 가격 페이지 표본 대조 모순 0건 |
+| 전달 - 수동 붙여넣기 | **실측 1회 통과**(2026-09-19, `vb-f66af738`): nonce 일치, 행마다 출처가 달린 5행 표. 이후 fable 교차검증으로 금액 6/6 일치 확인 |
+| 콘솔 모드 | 과제서 · 검사(C1 · C2) 동작(2026-09-19). 콘솔 과제 실측은 아직 |
 | 전달 - 웹훅 · GitHub 이벤트 | **미검증.** 실측을 한 번 통과해야 열린다 |
 | /vibe 원장 편입 | 아직. 관측이 쌓인 뒤 별도 PR |
 
@@ -92,7 +94,7 @@ Deliverable · Review point**. 여기에 vibe 규율 두 줄이 항상 따라붙
 | 웹훅 | `--deliver webhook --send` | 환경변수 두 개 + 실측 1회 통과 |
 | GitHub 이벤트 | `--deliver github` | 전용 레포 이슈에 남기고 루틴이 집어가게 |
 
-웹훅 값은 `.env`에서 읽는다(`GROK_BOT_WEBHOOK_URL`, `GROK_BOT_WEBHOOK_KEY`). 키를 명령줄에
+웹훅 값은 환경변수에서 읽는다(`GROK_BOT_WEBHOOK_URL`, `GROK_BOT_WEBHOOK_KEY`). 키를 명령줄에
 쓰지 않는다. 실측 전에는 `--send`가 거부된다 - 실호출로 확인하기 전까지 열지 않는다.
 
 ### 3. 회수와 검사
@@ -105,8 +107,40 @@ python "$SKILL_ROOT/scripts/make_bot_spec.py" --verify 결과.md --nonce vb-1a2b
 자격증명. 하나라도 걸리면 그 결과는 **쓰지 않는다**.
 
 부재 보고의 범위는 두 가지로 인정한다. 결과 어딘가에 찾은 범위("검색 범위", "5곳 모두 ...에서
-확인" 등)가 있거나, **부재를 적은 줄마다 자기 출처(URL · 도메인)**가 붙어 있으면 된다. 표에서
-"변경일 없음" 칸 옆에 출처 칸이 있는 형태가 후자다(2026-09-19 첫 실측에서 이걸 오판해 고쳤다).
+확인" 등)가 있거나, **부재를 적은 줄마다 자기 출처(URL · 도메인)**가 붙어 있으면 된다(2026-09-19
+첫 실측에서 이걸 오판해 고쳤다).
+
+## 콘솔 · GUI 작업 (Simon 원칙 2026-09-19)
+
+웹 콘솔(Play Console · App Store Connect · 클라우드 콘솔 · 관리 화면)과 데스크톱 GUI 조작은
+**이 스킬로 Grok Bot에 맡긴다.** Claude는 과제서를 쓰고 결과를 검사한다. 사람은 로그인 · 2단계
+인증 · 결제 · 되돌릴 수 없는 버튼 승인만 한다. 콘솔 · GUI 작업에 한해 전역 지침 §7 의 브라우저
+순서(HTTP → Playwright → … → Computer Use)보다 이 원칙이 우선한다.
+
+```bash
+python "$SKILL_ROOT/scripts/make_bot_spec.py" --mode console \
+  --target "Google Play Console · com.simonk.secondbrain" --url "https://play.google.com/console" \
+  --task "출시 트랙별 최신 버전 · 상태 · 검토 메시지를 읽어 표로 정리"
+```
+
+과제서 칸은 고정이다. **비운 칸은 봇이 추측하는 칸이다.**
+
+| 칸 | 내용 |
+|---|---|
+| 대상 | 콘솔 · 앱 이름, 앱/패키지 ID, 시작 URL (`--target` 필수 · `--url`) |
+| 목표 | 확인하거나 바꿀 것 한 문장 (`--task`) |
+| 범위 | 기본 **읽기 전용**. 바꿔야 하면 `--allow-change "항목과 값"` 으로 정확히 적는다 - 그래도 저장 · 제출 직전에는 멈춘다 |
+| 누르지 말 것 | 제출 · 게시 · 출시 · 검토 요청 · Reply · Resubmit · 삭제 · 결제 · 권한 변경 · 허용 밖 저장 (+ `--forbid`) |
+| 멈춤 지점 | 로그인 · 2단계 인증 · 결제 화면, 금지 버튼이 필요한 순간, 지시와 다른 화면 |
+| 증거 | 화면마다 메뉴 경로 · 읽은 값 · 스크린샷 1장 |
+| 결과 형식 | 첫 줄 nonce → 표(항목 · 값 · 화면 경로 · 스크린샷) → 한 일 / 안 한 일 → 다음 행동은 제안만 |
+
+결과 검사에 `--mode console` 을 붙이면 두 가지를 더 본다.
+
+- **C1** 메뉴 경로나 스크린샷이 없으면 불합격
+- **C2** "제출했다 · 게시 완료 · Resubmit 눌렀다" 같은 되돌릴 수 없는 동작 보고가 있으면 불합격 처리하고
+  사람이 콘솔에서 바로 확인한다. 콘솔의 상태 라벨("제출 완료")을 읽은 것도 걸릴 수 있다 - 안전한
+  쪽으로 틀리는 것이라 그대로 둔다. "누르지 않았다" 같은 부정문은 걸리지 않는다
 
 ## 실측 절차 (PC 앞에서)
 

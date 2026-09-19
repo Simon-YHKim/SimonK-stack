@@ -69,6 +69,24 @@
           "text": "Running with --send returns a refusal naming the measurement step, rather than attempting a POST with an unverified endpoint."
         }
       ]
+    },
+    {
+      "id": "console-task-uses-explicit-sheet",
+      "prompt": "/vibe-bot Play Console 들어가서 2nd-Brain 출시 트랙 상태랑 검토 메시지 확인해줘",
+      "assertions": [
+        {
+          "id": "uses-console-mode",
+          "text": "The agent runs make_bot_spec.py with --mode console and a --target naming the console and the app or package id, instead of asking Simon to open the console or driving it with Playwright."
+        },
+        {
+          "id": "sheet-has-every-slot",
+          "text": "The sheet fills every console slot: target with start URL, goal, read-only scope, the buttons the bot must not press, the stop points (login, 2FA, payment, irreversible buttons), per-screen evidence (menu path, values, screenshot) and the result format with the nonce."
+        },
+        {
+          "id": "checks-console-result",
+          "text": "The returned result is checked with --verify --mode console; a result without a menu path or screenshot fails C1, and any report that a submit, publish, reply or resubmit was pressed is escalated to Simon (C2)."
+        }
+      ]
     }
   ]
 }

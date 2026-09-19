@@ -89,6 +89,43 @@ def main() -> int:
     check("key never inlined in argv", all("crsr_" not in x for x in argv)
           and any(m.WEBHOOK_KEY_ENV in x for x in argv), str(argv))
 
+    # console mode (2026-09-19, Simon): explicit sheet + screen evidence + irreversible escalation
+    cspec = m.build_console_spec("출시 트랙별 최신 버전과 상태를 읽는다", nonce,
+                                 target="Google Play Console · com.simonk.secondbrain",
+                                 url="https://play.google.com/console")
+    for sec in m.CONSOLE_SECTIONS:
+        check(f"console spec has {sec}", f"## {sec}" in cspec)
+    check("console spec is read-only by default", "읽기 전용" in cspec)
+    check("console spec forbids Resubmit", "Resubmit" in cspec)
+    check("console spec carries nonce and start URL",
+          nonce in cspec and "https://play.google.com/console" in cspec)
+    cspec2 = m.build_console_spec("x", nonce, target="t", allow_change="스토어 설명 첫 문단 교체",
+                                  extra_forbid=["프로모션 코드 발급"])
+    check("allow-change is spelled out and still stops for approval",
+          "허용 변경: 스토어 설명 첫 문단 교체" in cspec2 and "사람 승인" in cspec2)
+    check("extra forbid is listed", "- 프로모션 코드 발급" in cspec2)
+    good_c = (f"{nonce}\n| 항목 | 값 | 화면 경로 | 스크린샷 |\n"
+              "| 프로덕션 | 0.8.0 (40) | 출시 > 프로덕션 | shot1.png |")
+    check("console result with path passes", m.verify_result(good_c, nonce, mode="console") == [],
+          str(m.verify_result(good_c, nonce, mode="console")))
+    no_ev = f"{nonce}\n프로덕션 트랙 버전은 0.8.0 입니다"
+    check("console result without screen evidence fails C1",
+          any("C1" in f for f in m.verify_result(no_ev, nonce, mode="console")))
+    pressed = good_c + "\n요청대로 Resubmit 눌렀습니다"
+    check("reported irreversible press escalates C2",
+          any("C2" in f for f in m.verify_result(pressed, nonce, mode="console")))
+    for said in ("검토 답변도 보냈습니다", "새 AAB 업로드 완료", "회신했습니다"):
+        check(f"Korean irreversible report escalates C2: {said}",
+              any("C2" in f for f in m.verify_result(good_c + "\n" + said, nonce, mode="console")))
+    held = good_c + "\nReply 버튼은 누르지 않았고 제출하지 않았다"
+    check("negated press does not trigger C2",
+          not any("C2" in f for f in m.verify_result(held, nonce, mode="console")),
+          str(m.verify_result(held, nonce, mode="console")))
+    check("general mode ignores C1 and C2", m.verify_result(no_ev, nonce) == [],
+          str(m.verify_result(no_ev, nonce)))
+    check("cli console mode without --target exits 2",
+          m.main(["--mode", "console", "--task", "출시 트랙 상태를 읽어 표로 정리"]) == 2)
+
     # CLI: blocked request exits 2, verify of a good file exits 0
     check("cli blocks write verb", m.main(["--task", "PR 머지해줘"]) == 2)
 
