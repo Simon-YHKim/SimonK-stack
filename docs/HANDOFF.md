@@ -3,6 +3,16 @@
 
 ## Latest
 - **목적**: v1 위젯을 소스 프로젝트로 재구성. 위젯 새로고침 버튼, Grok 구독 한도, 공식 CLI 로그인 위임 기반 다중 계정, Windows 테마, v1 문제 전부 해결
+- **최종 갱신**: 26.09.19 11:22 KST · Claude Code(E:\Coding Infra 세션에서 이어받음)
+- **지금까지**: 소스 위치가 `E:\Coding Infra\dev\ai-usage-widget`로 바뀜(C:\dev 없음). 이동 중 빠진 src·resources를 `git restore`로, node_modules를 `pnpm install --frozen-lockfile --config.confirmModulesPurge=false`로 복구. CLI 설치 안내 URL 3건 확정(`links.ts`). `pnpm verify` 0(539테스트) / `pnpm build` 0 / 개발 빌드 스모크 0(ok:true). `dist:dir`·배포본 스모크는 새 위치에서 아직 안 돌림
+- **다음 1개**: `pnpm dist:dir` + 배포본 스모크 재확인 → 사용자 참관 실측 T1(Codex 로그인)
+- **막힌 것**: 사용자 결정 대기 P-08 보조 모니터, SEC-06 제거 시 복원, 코드 서명 / C:\dev 이동 주체 확인
+- **TODO**: T1·T2·T3·T4 실측 → T8 GUI 실측 → NSIS 설치(사용자 확인) → v1 교체(사용자 확인)
+- **미해결 질문**: 보류한 계약 필드(codex credits/blocked, grok overageAvailable, `onStdoutChunk`)를 실측 후 추가할지
+- **요청**: REQ-260915-01 실측 단계에서 브라우저 로그인·코드 입력(사용자)
+
+## 26.09.15 05:10 KST
+- **목적**: v1 위젯을 소스 프로젝트로 재구성. 위젯 새로고침 버튼, Grok 구독 한도, 공식 CLI 로그인 위임 기반 다중 계정, Windows 테마, v1 문제 전부 해결
 - **최종 갱신**: 26.09.15 05:10 KST · Claude Code(리뷰 2차 수정 에이전트)
 - **지금까지**: 리뷰 1차(54ac8ab)·2차 수정 반영. 2차 = RR-01 위치 미리보기 중 팝업 고정(`WindowManager.reposition`), RR-02 설정 변경 직렬화·자동 실행 되돌림(`controller.updateSettings`). `pnpm verify` 0(535테스트) / `pnpm dist:dir` 0 / 배포본 스모크 0(ok:true)
 - **다음 1개**: 사용자 참관 실측 T1(Codex 로그인) — 위젯 계정 탭에서 Codex 계정 추가 → device code 로그인

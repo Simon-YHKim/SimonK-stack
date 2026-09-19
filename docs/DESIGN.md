@@ -163,7 +163,7 @@ v1 키(SPEC §1-2) 중 의미가 남은 것 + v2 추가. mock 관련 키는 없�
 - `IpcErrorCode`: `invalid-request` `forbidden-sender` `not-found` `conflict` `busy` `not-implemented` `internal`.
 - 뷰 제한(`ipc/handlers.ts`): 상태를 바꾸는 채널(`settings:update`, `accounts:add·remove·rename·toggle·reorder`, `login:*`, `shell:open-external`, `window:hide-popup·set-popup-lock·preview-placement`, `cli:redetect`, `claude-bridge:install-default·uninstall-default`)은 팝업 뷰만, `window:resize-widget`은 위젯 뷰만 허용. 나머지(상태 읽기·새로고침·팝업 열기·브리지 상태)는 두 뷰 모두(DECISIONS 26.09.15 04:49).
 - 발신자 검증(`ipc/dispatch.ts`): 최상위 프레임 URL이 `app://bundle/…`(개발 시 dev server origin)일 때만 처리한다. 하위 프레임은 거부.
-- `EXTERNAL_LINK_KEYS`(`claude-cli-install` `codex-cli-install` `grok-cli-install`)의 실제 URL 표는 셸이 main에 두며(`src/main/platform/links.ts`), 공식 문서에서 확인한 https 주소만 넣는다. **현재 비어 있다**(RESEARCH에 검증된 설치 안내 URL 없음) → `{kind:'link'}`는 `not-found`.
+- `EXTERNAL_LINK_KEYS`(`claude-cli-install` `codex-cli-install` `grok-cli-install`)의 실제 URL 표는 셸이 main에 두며(`src/main/platform/links.ts`), 공식 문서에서 확인한 https 주소만 넣는다. 세 키 모두 확정(DECISIONS 26.09.19 11:20). 같은 파일의 `EXTERNAL_LINK_HOSTS`가 키별 허용 호스트이고 `links.test.ts`가 https·호스트·쿼리 없음을 강제한다. 표에 없는 키는 `not-found`.
 
 ### 5-4. `src/shared/i18n/`
 - `ko.ts`가 키 집합의 원본, `en.ts`는 `Record<keyof typeof ko, string>`이라 키가 어긋나면 typecheck가 실패한다. 테스트가 키 집합·자리표시자 일치·빈 문구 0건을 확인한다.

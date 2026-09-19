@@ -10,6 +10,7 @@
 
 ## 무엇인가
 Windows 작업표시줄 옆에 뜨는 AI 구독 사용량 위젯. v1(C:\AI.Usage.Widget-1.0.2-win, 소스 없음)을 재구성한 v2.
+소스 위치 = `E:\Coding Infra\dev\ai-usage-widget`(26.09.19 C:\dev에서 이동, DECISIONS 26.09.19 11:20). 과거 기록의 `C:\dev\...` 경로는 이 위치로 읽는다.
 
 ## 절대 규칙
 - **가짜 수치 금지.** 조회 실패는 `error`/`unknown` 상태로 표시한다. 0%로 간주하지 않는다. 개발용 mock은 테스트 코드에만 둔다.
