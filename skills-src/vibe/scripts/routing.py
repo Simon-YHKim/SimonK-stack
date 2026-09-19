@@ -990,6 +990,14 @@ def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None, qu
         if lane in FORBIDDEN_LANES:
             v.append("FORBIDDEN_LANE")
             notes.append(f"{a.get('proc')} 에 배정 금지 레인 {lane}")
+        # G13 보강 (2026-09-19 모의 인수인계 실측) — 위의 GATE_VENDOR_BLOCKED 는 코딩 라운드의
+        #   게이트 벤더만 본다. 그래서 revalidate_for_retry 로 일반 공정을 사용 금지 레인
+        #   (한도 100% 도달·실호출 실패, Q-05 — 예: grok 402)으로 넘기는 재배정이 통과했다.
+        #   강등(demote)은 설계대로 허용하고, 금지(blocked)만 막는다.
+        vendor = LANES.get(lane, {}).get("vendor") if lane else None
+        if quota_states and vendor and quota_states.get(vendor) == "blocked":
+            v.append("LANE_VENDOR_BLOCKED")
+            notes.append(f"{a.get('proc')} 의 레인 {lane} 은 벤더 {vendor} 가 사용 금지 상태다 (Q-05 · G13)")
         fixed = fixed_for(a.get("proc"))
         if fixed and lane and lane != fixed[0]:
             v.append("FIXED_LANE_OVERRIDDEN")
