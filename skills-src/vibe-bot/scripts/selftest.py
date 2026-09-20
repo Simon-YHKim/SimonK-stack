@@ -158,7 +158,7 @@ def main() -> int:
     import tempfile
     roster = m.load_roster()
     ids = {b["id"] for b in roster}
-    check("roster has 12 bots", len(roster) == 12, str(sorted(ids)))
+    check("roster has 14 bots", len(roster) == 14, str(sorted(ids)))
     check("relay is in the roster and is not the default", "relay" in ids
           and not next(b for b in roster if b["id"] == "relay").get("default"))
     check("play console target routes to play-console",
