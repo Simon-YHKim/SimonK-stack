@@ -42,6 +42,9 @@ WEBHOOK_KEY_ENV = "GROK_BOT_WEBHOOK_KEY"
 TRANSPORT_VERIFIED = False
 SKILL_DIR = Path(__file__).resolve().parent.parent
 ROSTER_PATH = SKILL_DIR / "bots.json"
+# 0.7.0 - a keyword hit in --target/--url counts this many times a hit in the task prose.
+#   Ownership follows the console the work is on, not the tool the sentence happens to name.
+WEIGHT_TARGET = 3
 HUB_DIR = Path(os.environ.get("VIBE_BOT_HUB", r"E:\Coding Infra\AI Infra\Communication"))
 
 SECRET_PATTERNS = [
@@ -85,6 +88,13 @@ SOURCE_RE = re.compile(
     r"(?:com|ai|dev|io|org|net|co|app|gov|edu|kr)\b)")
 ABSENCE_WORDS = re.compile(
     r"(?i)(?:0\s*건|없었|없습니다|없음|찾지 못|not found|no results|none found)")
+# G6 is about a FINDING that is absent ("취약점 0건"), not about the bot's own action
+# having gone fine ("쓰기 실패 여부: 실패 없음"). The second is a status line and carries
+# no search scope by nature. Measured 2026-09-20 on the rly-d16843d2 probe, which the gate
+# failed for saying it hit no write error. A finding-absence still needs its scope -
+# "취약점 없음" has none of these words and is still caught.
+SELF_STATUS_RE = re.compile(
+    r"(?i)(?:실패|오류|에러|예외|거부|차단|error|failure|exception|denied|blocked)")
 EVIDENCE_WORDS = re.compile(
     r"(?i)(?:https?://|\.md\b|\.py\b|\.json\b|:\d+\b|출처|근거|source:)")
 CONCLUSION_WORDS = re.compile(
@@ -253,10 +263,12 @@ def verify_result(text: str, nonce: str, mode: str = "general") -> list[str]:
 
 def _absence_unscoped(text: str) -> bool:
     """An absence claim is scoped if the text states a search scope anywhere,
-    or if every line that reports an absence names its own source."""
+    or if every line that reports an absence names its own source. A line that
+    reports the bot's own action not failing is a status line, not a finding (0.7.0)."""
     if not ABSENCE_WORDS.search(text) or SCOPE_WORDS.search(text):
         return False
     return any(ABSENCE_WORDS.search(line) and not SOURCE_RE.search(line)
+               and not SELF_STATUS_RE.search(line)
                for line in text.splitlines())
 
 
@@ -270,20 +282,29 @@ def load_roster(path: Path = ROSTER_PATH) -> list[dict]:
 
 
 def resolve_bot(roster: list[dict], target: str = "", task: str = "",
-                explicit: str = "") -> dict | None:
+                explicit: str = "", url: str = "") -> dict | None:
     """Pick the bot that owns this work. An explicit --bot (id or name) wins; otherwise
-    the roster entry whose keywords hit target + task most often; ties go to roster
-    order; nothing matched falls back to the default bot."""
+    the roster entry whose keywords hit target + url (weighted) and task most often;
+    ties go to roster order; nothing matched falls back to the default bot.
+
+    0.7.0: target + url weigh WEIGHT_TARGET times a task hit. Why: --target names the
+    console the work is on, which is what ownership follows, while the task prose often
+    names another bot's tool. Measured 2026-09-20: a read-only App Store Connect audit
+    routed to the EAS bot because the task sentence said "eas submit" - the console in
+    --target was Apple's. Weighting target fixes that without touching the keywords."""
     if explicit:
         key = explicit.strip().lower()
         for b in roster:
             if key in (b["id"].lower(), b["name"].lower()):
                 return b
         return None
-    text = f"{target} {task}".lower()
+    strong = f"{target} {url}".lower()
+    weak = task.lower()
     best, best_hits = None, 0
     for b in roster:
-        hits = sum(1 for k in b.get("keywords", []) if k.lower() in text)
+        keys = [k.lower() for k in b.get("keywords", [])]
+        hits = (WEIGHT_TARGET * sum(1 for k in keys if k in strong)
+                + sum(1 for k in keys if k in weak))
         if hits > best_hits:
             best, best_hits = b, hits
     if best is None:
@@ -300,20 +321,24 @@ def load_projects(path: Path = ROSTER_PATH) -> dict:
 
 
 def resolve_project(projects: dict, target: str = "", task: str = "",
-                    explicit: str = "") -> str | None:
+                    explicit: str = "", url: str = "") -> str | None:
     """Pick the project this task belongs to (0.6.0). Bots are shared - the project is
     chosen per task. An explicit --project wins; otherwise the project whose keywords
-    hit target + task most often; nothing matched means the shared hub bus."""
+    hit target + url (weighted, 0.7.0) and task most often; nothing matched means the
+    shared hub bus."""
     if explicit:
         key = explicit.strip().lower()
         for pid in projects:
             if pid.lower() == key:
                 return pid
         return None
-    text = f"{target} {task}".lower()
+    strong = f"{target} {url}".lower()
+    weak = task.lower()
     best, best_hits = None, 0
     for pid, p in projects.items():
-        hits = sum(1 for k in p.get("keywords", []) if k.lower() in text)
+        keys = [k.lower() for k in p.get("keywords", [])]
+        hits = (WEIGHT_TARGET * sum(1 for k in keys if k in strong)
+                + sum(1 for k in keys if k in weak))
         if hits > best_hits:
             best, best_hits = pid, hits
     return best
@@ -500,11 +525,11 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     roster = load_roster()
-    bot = resolve_bot(roster, a.target, a.task, a.bot)
+    bot = resolve_bot(roster, a.target, a.task, a.bot, a.url)
     if a.bot and bot is None:
         print(f"명단에 없는 봇: {a.bot} - bots.json 의 id 또는 이름을 쓴다")
         return 2
-    project_id = resolve_project(projects, a.target, a.task, a.project)
+    project_id = resolve_project(projects, a.target, a.task, a.project, a.url)
     if a.project and project_id is None:
         print(f"명단에 없는 프로젝트: {a.project} - bots.json 의 projects 키를 쓴다")
         return 2

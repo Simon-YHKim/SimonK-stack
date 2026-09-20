@@ -1,8 +1,8 @@
 ---
 name: vibe-bot
-description: "Use when a task should run on Grok Bot's xAI/Cursor cloud computer, and for all console or GUI work (Play Console, App Store Connect, cloud consoles, desktop apps) - triggers \"/vibe-bot\", \"그록 봇으로 돌려\", \"봇한테 시켜\", \"콘솔 작업\", \"GUI 작업\", \"run this on Grok Bot\", \"console task\". Produces a task sheet with a run nonce (console: target, goal, scope, forbidden buttons, stop points, screen evidence, result format), routes it to the owning bot from an 11-bot roster and drops it in that bot's hub inbox, gates secrets, repo writes, merges, deploys and payments, and collects results from the hub outboxes with a check that rejects a missing nonce, a scope-less absence, a returned credential or console output without screen evidence, and escalates any reported irreversible click. NOT for local repo work (use vibe)."
+description: "Use when a task should run on Grok Bot's xAI/Cursor cloud computer, and for all console or GUI work (Play Console, App Store Connect, cloud consoles, desktop apps) - triggers \"/vibe-bot\", \"그록 봇으로 돌려\", \"봇한테 시켜\", \"콘솔 작업\", \"GUI 작업\", \"run this on Grok Bot\", \"console task\". Produces a task sheet with a run nonce (console: target, goal, scope, forbidden buttons, stop points, screen evidence, result format), routes it to the owning bot from a 12-bot roster (the console named in --target outweighs a tool name in the prose) and drops it in that bot's hub inbox, gates secrets, repo writes, merges, deploys and payments, and collects results from the hub outboxes with a check that rejects a missing nonce, a scope-less absence, a returned credential or console output without screen evidence, and escalates any reported irreversible click. NOT for local repo work (use vibe)."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 0.6.0
+version: 0.7.0
 author: simon-stack
 ---
 
@@ -20,19 +20,29 @@ API가 없는 사이트를 다뤄야 할 때 쓴다. **콘솔 · GUI 작업은 �
 /vibe-bot --verify <결과파일> [--mode console]      → 결과 하나를 규칙으로 검사
 ```
 
-## 지금 어디까지 되나 (2026-09-19)
+## 지금 어디까지 되나 (2026-09-20)
 
 | 단계 | 상태 |
 |---|---|
 | 과제서 조립 · 안전 게이트 · 결과 검사 | **동작한다.** 구독도 로그인도 필요 없다 |
 | 전달 - 수동 붙여넣기 | **실측 1회 통과**(2026-09-19, `vb-f66af738`). 이후 fable 교차검증으로 금액 6/6 일치 |
 | 콘솔 모드 | 과제서 · 검사(C1 · C2) 동작(2026-09-19). 콘솔 과제 실측은 아직 |
-| 봇 명단 · 허브 과제함/결과함 · `--collect` | 동작(0.4.0). 봇이 허브 파일을 읽고 쓰는 실측은 아직 |
+| 봇 명단 · 허브 과제함/결과함 · `--collect` | 동작(0.4.0) |
+| **봇 → 내 PC 쓰기** | **실측 통과**(2026-09-20 09:43, `rly-d16843d2`). Relay 가 승인을 묻지 않고 PowerShell `Set-Content` 로 결과함에 파일을 썼다 |
+| **내 PC → 봇 (깨우기)** | **미해결.** 앱에 인바운드 경로가 없다 - 아래 |
 | 전달 - 웹훅 · GitHub 이벤트 | **미검증.** 실측을 한 번 통과해야 열린다 |
 | /vibe 원장 편입 | 아직. 관측이 쌓인 뒤 별도 PR |
 
-**공식 문서에 Grok Bot 과제 전송 API는 없다.** 웹훅 트리거는 외부 보도에만 있다. 그래서 기본
-전달은 **사람이 한 줄을 보내는 것**이고, 나머지는 실측 뒤에만 켠다.
+**공식 문서에 Grok Bot 과제 전송 API는 없다.** 웹훅 트리거는 외부 보도에만 있다. 앱 번들
+(`app.asar`)에 등록된 `grokbot://` 경로도 **`grokbot://mcp/oauth/callback` 하나뿐**이라
+딥링크로 메시지를 넣을 수도 없다(2026-09-20 확인). 그래서 기본 전달은 **사람이 한 줄을 보내는
+것**이고, 나머지는 실측 뒤에만 켠다.
+
+**Relay (0.7.0, 개통 중)** - 통신 전담 봇. 두 과제함 폴더를 폴링해 과제서를 수행·전달하고
+결과를 결과함에 쓴다. 반쪽(봇 → 내 PC)은 위 실측으로 열렸고, 나머지 반쪽은 **봇을 깨우는
+루틴**이 되느냐에 달렸다. 붙여넣을 프롬프트 6장 = `E:\Coding Infra\reports\grokbot-relay-260920.html`.
+Relay 의 금지 목록은 프로필 문장일 뿐 **강제되는 경계가 아니다** - 승인 없이 로컬 파일을 쓰는
+권한(`localToolPermission: always`)이 이미 열려 있다는 뜻이기도 하다.
 
 ## 사실 근거 (공식 문서에서 확인한 것만)
 
@@ -130,6 +140,11 @@ python "$SKILL_ROOT/scripts/make_bot_spec.py" --mode console --deliver hub \
 정본은 `bots.json` 이다. 대상 · 과제 문구의 키워드로 담당 봇을 고르고(`--bot` 으로 지정 가능),
 아무것도 안 맞으면 **Grok Bot**(접수 · 분배)이 받는다.
 
+**가중치 (0.7.0)** - `--target` · `--url` 의 키워드 적중은 과제 문구 적중의 **3배**로 센다.
+담당은 *일이 벌어지는 콘솔*을 따라가야 하는데, 과제 문구에는 남의 도구 이름이 섞이기 때문이다.
+2026-09-20 실측: App Store Connect 읽기 과제가 문장에 "eas submit"이 들어갔다는 이유로 EAS 봇에게
+갔다. 키워드를 건드리지 않고 가중치로 고쳤고, 두 방향 모두 selftest 가 잡는다.
+
 | id | 앱 이름 | 맡는 일 |
 |---|---|---|
 | `play-console` | Play Console | 트랙 · 출시 · 스토어 등록정보 · 앱 콘텐츠 · 정책 기한 |
@@ -142,6 +157,7 @@ python "$SKILL_ROOT/scripts/make_bot_spec.py" --mode console --deliver hub \
 | `public-mail` | Public Mail | 공개 메일 분류 · 삭제 요청 기한 · 답장 초안(받은편지함 연결 보류) |
 | `marketing` | Marketing | 콘텐츠 · SNS 초안(게시 승인, 레포 파일은 브랜치 + PR 로만) |
 | `research` | Research Bot | 출처 달린 사실 조사 |
+| `relay` | Relay | 통신 전담(0.7.0) - 과제함 폴링 → 수행·전달 → 결과함 기록. 되돌릴 수 없는 버튼·외부 전송은 안 한다 |
 | `grok-bot` | Grok Bot | 접수 · 분배, 일회성 일 |
 
 **허브 버스** - `AI Infra/Communication/bots/<id>/inbox` 에 과제서(`vb-….md` + `.meta.json`)가 들어가고,

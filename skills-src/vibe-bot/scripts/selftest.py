@@ -77,6 +77,15 @@ def main() -> int:
     header_scope = f"{nonce}\n검색 범위: 가격 페이지 5곳\n결과: 변경일 0건"
     check("scope on another line still passes", m.verify_result(header_scope, nonce) == [],
           str(m.verify_result(header_scope, nonce)))
+    # 0.7.0 - measured on the rly-d16843d2 probe: a status line about the bot's own action
+    # not failing is not a finding-absence.
+    own_status = (f"{nonce}\n- 봇 이름: Relay\n- 도구: PowerShell Set-Content\n"
+                  "- 쓰기 실패 여부: (작성 시점에는 실패 없음)")
+    check("own-action status line is not a scope-less absence",
+          m.verify_result(own_status, nonce) == [], str(m.verify_result(own_status, nonce)))
+    mixed = own_status + "\n- 취약점 0건"
+    check("a real finding-absence still fails next to a status line",
+          any("G6" in f for f in m.verify_result(mixed, nonce)))
     domain_conclusion = f"{nonce}\n결론: 가격이 올랐다 (cursor.com/pricing)"
     check("domain counts as evidence for a conclusion",
           m.verify_result(domain_conclusion, nonce) == [],
@@ -130,7 +139,9 @@ def main() -> int:
     import tempfile
     roster = m.load_roster()
     ids = {b["id"] for b in roster}
-    check("roster has 11 bots", len(roster) == 11, str(sorted(ids)))
+    check("roster has 12 bots", len(roster) == 12, str(sorted(ids)))
+    check("relay is in the roster and is not the default", "relay" in ids
+          and not next(b for b in roster if b["id"] == "relay").get("default"))
     check("play console target routes to play-console",
           (m.resolve_bot(roster, "Google Play Console · com.simonk.secondbrain", "") or {}).get("id")
           == "play-console")
@@ -139,6 +150,13 @@ def main() -> int:
           == "apple-dev")
     check("unknown work falls back to the default bot",
           (m.resolve_bot(roster, "", "아무 일이나 해줘") or {}).get("id") == "grok-bot")
+    # 0.7.0 - measured 2026-09-20: the task prose named another bot's tool and stole the sheet.
+    check("the console in --target beats a tool name in the task prose",
+          (m.resolve_bot(roster, "App Store Connect · 2nd Brain · 6792266942",
+                         "Auto Review 허용목록에 eas submit 이 있어서 제출 이력을 확인한다",
+                         url="https://appstoreconnect.apple.com/apps") or {}).get("id") == "apple-dev")
+    check("a task that really is EAS work still routes to eas",
+          (m.resolve_bot(roster, "EAS · expo 빌드 목록", "eas submit 상태 확인") or {}).get("id") == "eas")
     check("explicit --bot by name wins",
           (m.resolve_bot(roster, "Google Play Console", "", explicit="Web QA") or {}).get("id") == "web-qa")
     check("unknown explicit bot returns None", m.resolve_bot(roster, "", "", explicit="nope") is None)

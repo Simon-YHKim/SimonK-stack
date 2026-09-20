@@ -37,6 +37,10 @@
     {"id": "research", "name": "Research Bot", "purpose": "Sourced fact research: prices, policies, competitors, trends - every row carries its source",
      "keywords": ["조사", "리서치", "research", "경쟁", "가격 비교", "트렌드", "시장"],
      "handoff": {"content": "marketing"}, "status": "active"},
+    {"id": "relay", "name": "Relay", "purpose": "Post office only (0.7.0): poll the inbox folders on Simon's PC, run or hand over what is there, write the result to the matching outbox - never presses an irreversible button and never sends anything outward",
+     "keywords": ["relay", "릴레이", "우체국", "과제함 폴링"],
+     "handoff": {"console work": "grok-bot"},
+     "status": "proposed - the app has no inbound message path (only grokbot://mcp/oauth/callback), so Relay must be woken by a routine; opening it is the rly-d16843d2 probe plus the routine questions in reports/grokbot-relay-260920.html"},
     {"id": "grok-bot", "name": "Grok Bot", "purpose": "Intake and triage: decide the owning bot and hand over; general one-off tasks",
      "keywords": [], "default": true, "handoff": {}, "status": "active"}
   ]
