@@ -86,6 +86,18 @@ def main() -> int:
     mixed = own_status + "\n- 취약점 0건"
     check("a real finding-absence still fails next to a status line",
           any("G6" in f for f in m.verify_result(mixed, nonce)))
+    # 0.7.0 - measured on vb-78dadec4: this bus is files, so a local path scopes a line
+    # exactly the way a URL does.
+    path_scoped = (f"{nonce}\n- E:\\2ndB\\.bots\\relay\\inbox\\ - 읽힘 "
+                   "(직전 실행에서 폴더 없음이었던 경로가 이번 턴에 존재)")
+    check("a local path scopes an absence line",
+          m.verify_result(path_scoped, nonce) == [], str(m.verify_result(path_scoped, nonce)))
+    posix_scoped = f"{nonce}\n- src/app/index.tsx 에서 그 호출은 없음"
+    check("a posix path scopes an absence line too",
+          m.verify_result(posix_scoped, nonce) == [], str(m.verify_result(posix_scoped, nonce)))
+    bare = f"{nonce}\n- 해당 설정 없음"
+    check("an absence with neither path nor source still fails",
+          any("G6" in f for f in m.verify_result(bare, nonce)))
     domain_conclusion = f"{nonce}\n결론: 가격이 올랐다 (cursor.com/pricing)"
     check("domain counts as evidence for a conclusion",
           m.verify_result(domain_conclusion, nonce) == [],

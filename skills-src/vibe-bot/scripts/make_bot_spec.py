@@ -86,6 +86,12 @@ SCOPE_WORDS = re.compile(
 SOURCE_RE = re.compile(
     r"(?i)(?:https?://\S+|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\."
     r"(?:com|ai|dev|io|org|net|co|app|gov|edu|kr)\b)")
+# A local path is a source too (0.7.0). This bus is files, not URLs: "E:\2ndB\.bots\relay\inbox\
+# - 읽힘 ... 직전에는 폴더 없음이었다" names exactly where it looked, and the URL-only rule
+# still failed it. Measured on vb-78dadec4, 2026-09-20.
+PATH_RE = re.compile(
+    r"(?:[A-Za-z]:[\\/][^\s|,;]+|\\\\[^\s|,;]+|"
+    r"(?:\.{0,2}/)?[\w.-]+/[\w./-]*\.[A-Za-z0-9]{1,5}\b)")
 ABSENCE_WORDS = re.compile(
     r"(?i)(?:0\s*건|없었|없습니다|없음|찾지 못|not found|no results|none found)")
 # G6 is about a FINDING that is absent ("취약점 0건"), not about the bot's own action
@@ -267,7 +273,8 @@ def _absence_unscoped(text: str) -> bool:
     reports the bot's own action not failing is a status line, not a finding (0.7.0)."""
     if not ABSENCE_WORDS.search(text) or SCOPE_WORDS.search(text):
         return False
-    return any(ABSENCE_WORDS.search(line) and not SOURCE_RE.search(line)
+    return any(ABSENCE_WORDS.search(line)
+               and not SOURCE_RE.search(line) and not PATH_RE.search(line)
                and not SELF_STATUS_RE.search(line)
                for line in text.splitlines())
 
