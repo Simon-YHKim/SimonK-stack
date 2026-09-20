@@ -98,6 +98,13 @@ def main() -> int:
     bare = f"{nonce}\n- 해당 설정 없음"
     check("an absence with neither path nor source still fails",
           any("G6" in f for f in m.verify_result(bare, nonce)))
+    # 0.7.0 - the sheet template's own section: every line under it is self-conduct.
+    did_not = f"{nonce}\n## 안 한 일\n- 봇 답 대필/날조 없음\n- inbox 원본 삭제 없음"
+    check("lines under 안 한 일 are conduct, not findings",
+          m.verify_result(did_not, nonce) == [], str(m.verify_result(did_not, nonce)))
+    finding_section = f"{nonce}\n## 안 한 일\n- 삭제 없음\n## 발견\n- 취약점 0건"
+    check("a finding section after it is still checked",
+          any("G6" in f for f in m.verify_result(finding_section, nonce)))
     domain_conclusion = f"{nonce}\n결론: 가격이 올랐다 (cursor.com/pricing)"
     check("domain counts as evidence for a conclusion",
           m.verify_result(domain_conclusion, nonce) == [],

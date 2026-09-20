@@ -101,6 +101,13 @@ ABSENCE_WORDS = re.compile(
 # "취약점 없음" has none of these words and is still caught.
 SELF_STATUS_RE = re.compile(
     r"(?i)(?:실패|오류|에러|예외|거부|차단|error|failure|exception|denied|blocked)")
+# The sheet template asks for a "한 일 / 안 한 일" section, and every line under it is a
+# statement about the bot's own conduct ("봇 답 대필/날조 없음"), never a finding. Exempt the
+# section instead of chasing one more verb each time - three of today's four G6 hits were
+# exactly this shape. Tradeoff: a finding-absence buried under that heading is missed, so the
+# deliverable keeps findings in the table above it.
+SELF_SECTION_RE = re.compile(r"(?i)^#{1,6}\s*(?:안 한 일|하지 않은|한 일|처리 요약)")
+HEADING_RE = re.compile(r"^#{1,6}\s")
 EVIDENCE_WORDS = re.compile(
     r"(?i)(?:https?://|\.md\b|\.py\b|\.json\b|:\d+\b|출처|근거|source:)")
 CONCLUSION_WORDS = re.compile(
@@ -273,10 +280,17 @@ def _absence_unscoped(text: str) -> bool:
     reports the bot's own action not failing is a status line, not a finding (0.7.0)."""
     if not ABSENCE_WORDS.search(text) or SCOPE_WORDS.search(text):
         return False
-    return any(ABSENCE_WORDS.search(line)
-               and not SOURCE_RE.search(line) and not PATH_RE.search(line)
-               and not SELF_STATUS_RE.search(line)
-               for line in text.splitlines())
+    in_self_section = False
+    for line in text.splitlines():
+        if HEADING_RE.match(line):
+            in_self_section = bool(SELF_SECTION_RE.match(line))
+            continue
+        if in_self_section or not ABSENCE_WORDS.search(line):
+            continue
+        if not (SOURCE_RE.search(line) or PATH_RE.search(line)
+                or SELF_STATUS_RE.search(line)):
+            return True
+    return False
 
 
 # --- roster and hub bus (0.4.0) -----------------------------------------------------
