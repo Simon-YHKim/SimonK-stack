@@ -3,6 +3,15 @@
 
 ## Latest
 - **목적**: v1 위젯을 소스 프로젝트로 재구성. 위젯 새로고침 버튼, Grok 구독 한도, 공식 CLI 로그인 위임 기반 다중 계정, Windows 테마, v1 문제 전부 해결
+- **최종 갱신**: 26.09.20 11:00 KST · Claude Code(E:\Coding Infra 세션)
+- **지금까지**: 공급자 4종이 실계정으로 표시됨(사용자 확인). 이번 라운드: Grok 0% 해석 확증(`creditUsagePercent` 29% 등장), Codex는 서버가 주간 창만 줌(정상), Codex 첫 로그인 `protocol-error` = 같은 CODEX_HOME에서 app-server 두 개가 겹친 경합 → `quiesce` 수정 + 재현 테스트, 자동 조회 공급자별 최소 간격(claude 15·codex 60·grok 60·antigravity 120초), T8 부분 실측(창 위치·topmost·Run 키), NSIS 설치 파일 빌드 확인(실행 안 함). `pnpm verify` 0(571테스트) / dist:dir 0 / 배포본 스모크 0
+- **다음 1개**: 사용자와 T8 나머지(팝업 blur·전체화면 숨김·재질·테마 전환·슬라이더·자동 시작) → SEC-06 결정 → NSIS 설치(사용자 확인) → v1 정리(사용자 확인)
+- **막힌 것**: 사용자 결정 4건(P-08 보조 모니터, SEC-06 제거 시 statusLine 복원, 코드 서명, Antigravity 막대 그룹) / 원격 저장소 없음
+- **실측 도구**: 공급자 실제 응답을 볼 때는 어댑터 모듈을 esbuild로 묶어 위젯 계정 폴더로 직접 호출(세션 스크래치패드의 `grok-probe.cjs`·`codex-probe.cjs` 방식, 토큰·이메일 마스킹). 응답에 accountId 같은 식별자가 섞여 나오므로 보고서·커밋에는 옮기지 않는다
+- **요청**: 없음
+
+## 26.09.20 09:58 KST
+- **목적**: v1 위젯을 소스 프로젝트로 재구성. 위젯 새로고침 버튼, Grok 구독 한도, 공식 CLI 로그인 위임 기반 다중 계정, Windows 테마, v1 문제 전부 해결
 - **최종 갱신**: 26.09.20 09:58 KST · Claude Code(E:\Coding Infra 세션)
 - **아이콘(09:58)**: Codex·Grok = 공식 SVG 경로(`src/renderer/src/brand-marks.ts`, 출처 URL 주석)를 투명 배경·`currentColor`로 그림. 색 규칙은 `styles.css`의 `.ai-brand-icon` 한 곳(`--p-fg` → `--w-fg` → `--text-main` 순 폴백)이라 새 테마는 이 변수만 정의하면 된다. 색이 있는 브랜드(Claude·Antigravity)만 PNG. 새 공급자 아이콘도 같은 규칙: 공식 도메인에서 받고 출처를 DECISIONS에 남긴다(DECISIONS 26.09.20 08:57·09:54)
 - **지금까지**: 사용자가 계정 4개를 추가·로그인했고 Claude(기본 프로필 브리지)·Codex·Antigravity 수치가 실제로 표시됨(사용자 캡처). Grok만 "한도 미제공"이었는데, 실제 `_x.ai/billing` 응답에 `creditUsagePercent`가 없어서였음(주간 리셋 직후, proto3 JSON의 0 생략). 온전한 주간 config일 때만 0%로 읽도록 `providers/grok/billing.ts` 수정, 실계정 재조회로 weekly 0% 확인. `pnpm verify` 0(563테스트) / dist:dir 0 / 배포본 스모크 0 / 위젯 재실행
