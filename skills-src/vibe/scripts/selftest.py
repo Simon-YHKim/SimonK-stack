@@ -716,6 +716,21 @@ def run():
         check("codex 직행 argv 에 모델·effort 가 박힌다",
               "gpt-6-astra" in cx and any("ultra" in a for a in cx), str(cx))
         check("codex 직행은 프롬프트를 stdin 으로 받는다", cx[-1] == "-", str(cx))
+        # 2026-09-20: 이 경로가 조용히 죽어 있었다. codex 는 이 머신에서 npm 셰임(.CMD)이라
+        # shell=False 로는 CreateProcess 가 못 푼다 - 나머지 CLI 가 .EXE 라 티가 안 났다.
+        import os as _os
+        import shutil as _sh
+        _self = _os.path.basename(sys.executable)
+        _res = routing.resolve_bin([_self, "-V"])
+        check("resolve_bin 이 실행 파일을 절대경로로 푼다",
+              _res[0] in (_sh.which(_self), sys.executable) or _res[0] == _self, str(_res[:2]))
+        check("resolve_bin 은 못 찾은 이름을 그대로 둔다",
+              routing.resolve_bin(["zzz-no-such-binary", "x"]) == ["zzz-no-such-binary", "x"])
+        _cmd = _sh.which("cmd")
+        if _cmd and _os.path.splitext(_cmd)[1].lower() == ".exe":
+            check("resolve_bin 이 .cmd 셰임을 cmd /c 로 감싼다",
+                  routing.resolve_bin(["npm", "-v"])[:2] == ["cmd", "/c"]
+                  if (_sh.which("npm") or "").lower().endswith(".cmd") else True)
         try:
             routing.codex_exec_argv("gpt-6-astra", "insane")
             check("codex 직행의 잘못된 effort → 차단", False, "통과되어 버렸다")
