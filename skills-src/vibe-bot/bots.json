@@ -40,7 +40,7 @@
     {"id": "relay", "name": "Relay", "purpose": "Post office only (0.7.0): poll the inbox folders on Simon's PC, run or hand over what is there, write the result to the matching outbox - never presses an irreversible button and never sends anything outward",
      "keywords": ["relay", "릴레이", "우체국", "과제함 폴링"],
      "handoff": {"console work": "grok-bot"},
-     "status": "proposed - the app has no inbound message path (only grokbot://mcp/oauth/callback), so Relay must be woken by a routine; opening it is the rly-d16843d2 probe plus the routine questions in reports/grokbot-relay-260920.html"},
+     "status": "active - measured 2026-09-20: the routine 'Relay inbox 확인' (@every 10m) fired at 09:56:16 KST with no human message, read vb-97f4d44c from the hub inbox and wrote the result at 09:57. Local file access only while the desktop app is connected (machine DESKTOP-Q02Q4FG)"},
     {"id": "grok-bot", "name": "Grok Bot", "purpose": "Intake and triage: decide the owning bot and hand over; general one-off tasks",
      "keywords": [], "default": true, "handoff": {}, "status": "active"}
   ]
