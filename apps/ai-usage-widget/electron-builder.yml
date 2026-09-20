@@ -1,0 +1,47 @@
+# electron-builder 26.15.3 (keys checked against app-builder-lib/scheme.json)
+appId: local.aiusagewidget
+productName: AI Usage Widget
+executableName: ai-usage-widget
+directories:
+  output: release
+  buildResources: resources
+files:
+  - out/**/*
+  - package.json
+  - "!**/*.map"
+extraResources:
+  - from: resources
+    to: resources
+    filter:
+      - tray-icon.ico
+      - tray-icon.png
+      - icons/**/*
+      - claude-bridge/**/*
+asar: true
+asarUnpack:
+  - "**/node_modules/koffi/**"
+  - "**/node_modules/@koromix/koffi-win32-x64/**"
+npmRebuild: false
+electronFuses:
+  runAsNode: false
+  enableCookieEncryption: true
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true
+  grantFileProtocolExtraPrivileges: false
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+nsis:
+  oneClick: true
+  perMachine: false
+  allowElevation: false
+  createDesktopShortcut: false
+  createStartMenuShortcut: true
+  shortcutName: AI Usage Widget
+  uninstallDisplayName: AI Usage Widget
+  deleteAppDataOnUninstall: false
+  artifactName: ai-usage-widget-setup-${version}.${ext}

@@ -1,0 +1,125 @@
+/* Base rules shared by the widget and popup views. No external fonts or network assets. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.3;
+  background: transparent;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled,
+button[aria-disabled='true'] {
+  cursor: default;
+}
+
+.ai-brand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+.ai-brand-icon > img,
+.ai-brand-icon > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.ai-brand-icon.is-color[data-provider='claude'] {
+  color: #d97757;
+}
+
+/*
+ * Codex and Grok are single-colour marks on a transparent background. They take the surface's
+ * main text colour: near-black on the light Windows theme, white on dark themes and the v1
+ * skins, CanvasText in high contrast. Each surface defines one of these variables.
+ */
+.ai-brand-icon.is-color[data-provider='codex'],
+.ai-brand-icon.is-color[data-provider='grok'] {
+  color: var(--p-fg, var(--w-fg, var(--text-main, #f4f4f5)));
+}
+
+.ai-brand-icon.is-mono {
+  color: var(--p-fg2, var(--w-fg2, var(--text-muted, #9ca3af)));
+}
+
+.ai-brand-icon.is-mono > img {
+  filter: grayscale(100%) brightness(1.25) contrast(1.1);
+  opacity: 0.88;
+}
+
+/* The brightened grey above is tuned for dark surfaces; on the light Windows theme darken instead. */
+:root[data-scheme='light'] .skin-windows .ai-brand-icon.is-mono > img,
+:root[data-view='popup'][data-skin='windows'][data-scheme='light'] .ai-brand-icon.is-mono > img {
+  filter: grayscale(100%) brightness(0.6) contrast(1.1);
+  opacity: 0.8;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
