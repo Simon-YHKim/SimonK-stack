@@ -42,6 +42,9 @@ WEBHOOK_KEY_ENV = "GROK_BOT_WEBHOOK_KEY"
 TRANSPORT_VERIFIED = False
 SKILL_DIR = Path(__file__).resolve().parent.parent
 ROSTER_PATH = SKILL_DIR / "bots.json"
+# 0.7.0 - a keyword hit in --target/--url counts this many times a hit in the task prose.
+#   Ownership follows the console the work is on, not the tool the sentence happens to name.
+WEIGHT_TARGET = 3
 HUB_DIR = Path(os.environ.get("VIBE_BOT_HUB", r"E:\Coding Infra\AI Infra\Communication"))
 
 SECRET_PATTERNS = [
@@ -70,6 +73,19 @@ WRITE_PATTERNS = [
         r"(?i)(?:권한을 (?:바꾸|부여|변경)|access.*grant|IAM 정책 변경|공개로 전환)")),
 ]
 
+# B8 (0.7.0) - the boundary Simon drew: /vibe stays the core, and only work that needs a
+# screen goes to a bot. A CLI can be run, logged and verified on this PC for free, so sending
+# it to a bot buys a slower, less checkable version of the same thing. Warn rather than block:
+# a session or credential that exists only on the cloud computer is a real exception, and the
+# author should say so in the sheet.
+CLI_PATTERNS = [
+    ("eas-cli", re.compile(r"(?i)\beas\s+(?:build|submit|update|whoami|credentials)\b")),
+    ("git / gh", re.compile(r"(?i)(?:\bgit\s+\w+|\bgh\s+(?:pr|run|api|issue|release)\b)")),
+    ("node / npm", re.compile(r"(?i)\b(?:npm|npx|pnpm|yarn)\s+\w+")),
+    ("supabase cli", re.compile(r"(?i)\bsupabase\s+(?:db|functions|migration|login|link)\b")),
+    ("shell", re.compile(r"(?i)(?:터미널에서|명령어를? 실행|\bcurl\s+http|\bpytest\b|\bpython\s+\S+\.py)")),
+]
+
 CONFIDENTIAL_PATTERNS = [
     ("company confidential hint", re.compile(
         r"(?i)(?:\bLOT\b|설비명|공정 ?수치|택트 ?타임 실측|CapEx|고객사명|단가표|원가표)")),
@@ -83,8 +99,28 @@ SCOPE_WORDS = re.compile(
 SOURCE_RE = re.compile(
     r"(?i)(?:https?://\S+|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\."
     r"(?:com|ai|dev|io|org|net|co|app|gov|edu|kr)\b)")
+# A local path is a source too (0.7.0). This bus is files, not URLs: "E:\2ndB\.bots\relay\inbox\
+# - 읽힘 ... 직전에는 폴더 없음이었다" names exactly where it looked, and the URL-only rule
+# still failed it. Measured on vb-78dadec4, 2026-09-20.
+PATH_RE = re.compile(
+    r"(?:[A-Za-z]:[\\/][^\s|,;]+|\\\\[^\s|,;]+|"
+    r"(?:\.{0,2}/)?[\w.-]+/[\w./-]*\.[A-Za-z0-9]{1,5}\b)")
 ABSENCE_WORDS = re.compile(
     r"(?i)(?:0\s*건|없었|없습니다|없음|찾지 못|not found|no results|none found)")
+# G6 is about a FINDING that is absent ("취약점 0건"), not about the bot's own action
+# having gone fine ("쓰기 실패 여부: 실패 없음"). The second is a status line and carries
+# no search scope by nature. Measured 2026-09-20 on the rly-d16843d2 probe, which the gate
+# failed for saying it hit no write error. A finding-absence still needs its scope -
+# "취약점 없음" has none of these words and is still caught.
+SELF_STATUS_RE = re.compile(
+    r"(?i)(?:실패|오류|에러|예외|거부|차단|error|failure|exception|denied|blocked)")
+# The sheet template asks for a "한 일 / 안 한 일" section, and every line under it is a
+# statement about the bot's own conduct ("봇 답 대필/날조 없음"), never a finding. Exempt the
+# section instead of chasing one more verb each time - three of today's four G6 hits were
+# exactly this shape. Tradeoff: a finding-absence buried under that heading is missed, so the
+# deliverable keeps findings in the table above it.
+SELF_SECTION_RE = re.compile(r"(?i)^#{1,6}\s*(?:안 한 일|하지 않은|한 일|처리 요약)")
+HEADING_RE = re.compile(r"^#{1,6}\s")
 EVIDENCE_WORDS = re.compile(
     r"(?i)(?:https?://|\.md\b|\.py\b|\.json\b|:\d+\b|출처|근거|source:)")
 CONCLUSION_WORDS = re.compile(
@@ -138,6 +174,10 @@ def check_request(task: str) -> dict:
     for label, rx in CONFIDENTIAL_PATTERNS:
         if rx.search(task):
             warns.append(f"B3 회사 기밀일 수 있는 표현({label}) - 보내기 전에 지운다")
+    for label, rx in CLI_PATTERNS:
+        if rx.search(task):
+            warns.append(f"B8 CLI로 되는 일({label})이다 - /vibe 레인이 더 싸고 검증도 된다. "
+                         "화면에서만 되는 부분만 봇에 남기고, 봇에 보내야 하는 이유를 과제서에 적는다")
     if len(task.strip()) < 12:
         warns.append("요청이 너무 짧다 - Outcome 한 줄을 더 쓰면 결과가 좋아진다")
     return {"blocks": blocks, "warns": warns}
@@ -253,11 +293,21 @@ def verify_result(text: str, nonce: str, mode: str = "general") -> list[str]:
 
 def _absence_unscoped(text: str) -> bool:
     """An absence claim is scoped if the text states a search scope anywhere,
-    or if every line that reports an absence names its own source."""
+    or if every line that reports an absence names its own source. A line that
+    reports the bot's own action not failing is a status line, not a finding (0.7.0)."""
     if not ABSENCE_WORDS.search(text) or SCOPE_WORDS.search(text):
         return False
-    return any(ABSENCE_WORDS.search(line) and not SOURCE_RE.search(line)
-               for line in text.splitlines())
+    in_self_section = False
+    for line in text.splitlines():
+        if HEADING_RE.match(line):
+            in_self_section = bool(SELF_SECTION_RE.match(line))
+            continue
+        if in_self_section or not ABSENCE_WORDS.search(line):
+            continue
+        if not (SOURCE_RE.search(line) or PATH_RE.search(line)
+                or SELF_STATUS_RE.search(line)):
+            return True
+    return False
 
 
 # --- roster and hub bus (0.4.0) -----------------------------------------------------
@@ -270,20 +320,29 @@ def load_roster(path: Path = ROSTER_PATH) -> list[dict]:
 
 
 def resolve_bot(roster: list[dict], target: str = "", task: str = "",
-                explicit: str = "") -> dict | None:
+                explicit: str = "", url: str = "") -> dict | None:
     """Pick the bot that owns this work. An explicit --bot (id or name) wins; otherwise
-    the roster entry whose keywords hit target + task most often; ties go to roster
-    order; nothing matched falls back to the default bot."""
+    the roster entry whose keywords hit target + url (weighted) and task most often;
+    ties go to roster order; nothing matched falls back to the default bot.
+
+    0.7.0: target + url weigh WEIGHT_TARGET times a task hit. Why: --target names the
+    console the work is on, which is what ownership follows, while the task prose often
+    names another bot's tool. Measured 2026-09-20: a read-only App Store Connect audit
+    routed to the EAS bot because the task sentence said "eas submit" - the console in
+    --target was Apple's. Weighting target fixes that without touching the keywords."""
     if explicit:
         key = explicit.strip().lower()
         for b in roster:
             if key in (b["id"].lower(), b["name"].lower()):
                 return b
         return None
-    text = f"{target} {task}".lower()
+    strong = f"{target} {url}".lower()
+    weak = task.lower()
     best, best_hits = None, 0
     for b in roster:
-        hits = sum(1 for k in b.get("keywords", []) if k.lower() in text)
+        keys = [k.lower() for k in b.get("keywords", [])]
+        hits = (WEIGHT_TARGET * sum(1 for k in keys if k in strong)
+                + sum(1 for k in keys if k in weak))
         if hits > best_hits:
             best, best_hits = b, hits
     if best is None:
@@ -299,31 +358,58 @@ def load_projects(path: Path = ROSTER_PATH) -> dict:
     return data.get("projects", {})
 
 
-def bus_root(bot: dict, hub: Path = HUB_DIR, projects: dict | None = None) -> Path:
-    """Where this bot's inbox and outbox live: the project's own bus when the bot
-    belongs to a project with a configured root (2nd-B -> Simon's worktree, 0.5.0),
-    otherwise the hub."""
-    proj = (projects or {}).get(bot.get("project", ""))
+def resolve_project(projects: dict, target: str = "", task: str = "",
+                    explicit: str = "", url: str = "") -> str | None:
+    """Pick the project this task belongs to (0.6.0). Bots are shared - the project is
+    chosen per task. An explicit --project wins; otherwise the project whose keywords
+    hit target + url (weighted, 0.7.0) and task most often; nothing matched means the
+    shared hub bus."""
+    if explicit:
+        key = explicit.strip().lower()
+        for pid in projects:
+            if pid.lower() == key:
+                return pid
+        return None
+    strong = f"{target} {url}".lower()
+    weak = task.lower()
+    best, best_hits = None, 0
+    for pid, p in projects.items():
+        keys = [k.lower() for k in p.get("keywords", [])]
+        hits = (WEIGHT_TARGET * sum(1 for k in keys if k in strong)
+                + sum(1 for k in keys if k in weak))
+        if hits > best_hits:
+            best, best_hits = pid, hits
+    return best
+
+
+def bus_root(hub: Path = HUB_DIR, projects: dict | None = None,
+             project_id: str | None = None) -> Path:
+    """Where the sheet and the result land: that project's own bus when the task belongs
+    to a project (2nd-B -> E:/2ndB/.bots, so the work accumulates with the project),
+    otherwise the shared hub."""
+    proj = (projects or {}).get(project_id or "")
     if proj and proj.get("root"):
         return Path(proj["root"]) / proj.get("bus", ".bots")
     return Path(hub) / "bots"
 
 
-def hub_paths(bot: dict, nonce: str, hub: Path = HUB_DIR, projects: dict | None = None) -> dict:
-    base = bus_root(bot, hub, projects) / bot["id"]
+def hub_paths(bot: dict, nonce: str, hub: Path = HUB_DIR, projects: dict | None = None,
+              project_id: str | None = None) -> dict:
+    base = bus_root(hub, projects, project_id) / bot["id"]
     return {"inbox": base / "inbox" / f"{nonce}.md",
             "meta": base / "inbox" / f"{nonce}.meta.json",
             "result": base / "outbox" / f"{nonce}.result.md"}
 
 
 def add_routing(spec: str, bot: dict | None, result_path: Path | None,
-                project_root: str | None = None) -> str:
-    """Insert 'which bot', 'project root' and 'where the result goes' under the title lines."""
+                project: tuple | None = None) -> str:
+    """Insert 'which bot', 'which project' and 'where the result goes' under the titles.
+    project = (id, root)."""
     if not bot:
         return spec
     extra = [f"보낼 봇: {bot['name']} ({bot['id']})"]
-    if project_root:
-        extra.append(f"프로젝트 루트: {project_root} (이 경로 밖의 레포 작업 트리는 쓰지 않는다)")
+    if project:
+        extra.append(f"프로젝트: {project[0]} · 루트 {project[1]} (이 경로를 기준으로 일한다)")
     if result_path:
         extra.append(f"결과 파일: {result_path} (대화창에도 같은 내용을 남긴다)")
     lines = spec.split("\n")
@@ -412,6 +498,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--forbid", action="append", default=[],
                     help="console mode: extra button the bot must not press (repeatable)")
     ap.add_argument("--bot", default="", help="owning bot id or name (default: routed from bots.json)")
+    ap.add_argument("--project", default="",
+                    help="project id from bots.json (default: routed from its keywords; "
+                         "none means the shared hub bus)")
     ap.add_argument("--hub", type=Path, default=None,
                     help="hub root holding bots/<id>/inbox|outbox; giving it sends every bot there "
                          "and ignores project buses (for tests)")
@@ -474,9 +563,13 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     roster = load_roster()
-    bot = resolve_bot(roster, a.target, a.task, a.bot)
+    bot = resolve_bot(roster, a.target, a.task, a.bot, a.url)
     if a.bot and bot is None:
         print(f"명단에 없는 봇: {a.bot} - bots.json 의 id 또는 이름을 쓴다")
+        return 2
+    project_id = resolve_project(projects, a.target, a.task, a.project, a.url)
+    if a.project and project_id is None:
+        print(f"명단에 없는 프로젝트: {a.project} - bots.json 의 projects 키를 쓴다")
         return 2
 
     nonce = make_nonce()
@@ -489,12 +582,13 @@ def main(argv: list[str] | None = None) -> int:
                           constraints=a.constraints or "",
                           deliverable=a.deliverable or "", review=a.review or "",
                           return_to=a.return_to)
-    paths = hub_paths(bot, nonce, hub, projects) if bot else None
-    proj = projects.get(bot.get("project", "")) if bot else None
+    paths = hub_paths(bot, nonce, hub, projects, project_id) if bot else None
+    proj = projects.get(project_id or "")
     spec = add_routing(spec, bot, paths["result"] if paths else None,
-                       proj.get("root") if proj else None)
+                       (project_id, proj.get("root")) if proj else None)
     meta = {"nonce": nonce, "created": now_kst(), "deliver": a.deliver, "mode": a.mode,
-            "bot": bot["id"] if bot else None, "target": a.target, "task": a.task,
+            "bot": bot["id"] if bot else None, "project": project_id,
+            "target": a.target, "task": a.task,
             "transport_verified": TRANSPORT_VERIFIED}
     spec_path, meta_path = write_outputs(spec, meta, a.out)
     print(f"과제서: {spec_path}")
@@ -502,6 +596,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"nonce:  {nonce}")
     if bot:
         print(f"담당 봇: {bot['name']} ({bot['id']})")
+    print(f"프로젝트: {project_id + ' · ' + str(proj.get('root')) if proj else '없음 (공용 허브)'}")
 
     if a.deliver == "hub":
         if not paths:

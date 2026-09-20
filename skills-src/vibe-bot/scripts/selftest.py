@@ -77,6 +77,34 @@ def main() -> int:
     header_scope = f"{nonce}\n검색 범위: 가격 페이지 5곳\n결과: 변경일 0건"
     check("scope on another line still passes", m.verify_result(header_scope, nonce) == [],
           str(m.verify_result(header_scope, nonce)))
+    # 0.7.0 - measured on the rly-d16843d2 probe: a status line about the bot's own action
+    # not failing is not a finding-absence.
+    own_status = (f"{nonce}\n- 봇 이름: Relay\n- 도구: PowerShell Set-Content\n"
+                  "- 쓰기 실패 여부: (작성 시점에는 실패 없음)")
+    check("own-action status line is not a scope-less absence",
+          m.verify_result(own_status, nonce) == [], str(m.verify_result(own_status, nonce)))
+    mixed = own_status + "\n- 취약점 0건"
+    check("a real finding-absence still fails next to a status line",
+          any("G6" in f for f in m.verify_result(mixed, nonce)))
+    # 0.7.0 - measured on vb-78dadec4: this bus is files, so a local path scopes a line
+    # exactly the way a URL does.
+    path_scoped = (f"{nonce}\n- E:\\2ndB\\.bots\\relay\\inbox\\ - 읽힘 "
+                   "(직전 실행에서 폴더 없음이었던 경로가 이번 턴에 존재)")
+    check("a local path scopes an absence line",
+          m.verify_result(path_scoped, nonce) == [], str(m.verify_result(path_scoped, nonce)))
+    posix_scoped = f"{nonce}\n- src/app/index.tsx 에서 그 호출은 없음"
+    check("a posix path scopes an absence line too",
+          m.verify_result(posix_scoped, nonce) == [], str(m.verify_result(posix_scoped, nonce)))
+    bare = f"{nonce}\n- 해당 설정 없음"
+    check("an absence with neither path nor source still fails",
+          any("G6" in f for f in m.verify_result(bare, nonce)))
+    # 0.7.0 - the sheet template's own section: every line under it is self-conduct.
+    did_not = f"{nonce}\n## 안 한 일\n- 봇 답 대필/날조 없음\n- inbox 원본 삭제 없음"
+    check("lines under 안 한 일 are conduct, not findings",
+          m.verify_result(did_not, nonce) == [], str(m.verify_result(did_not, nonce)))
+    finding_section = f"{nonce}\n## 안 한 일\n- 삭제 없음\n## 발견\n- 취약점 0건"
+    check("a finding section after it is still checked",
+          any("G6" in f for f in m.verify_result(finding_section, nonce)))
     domain_conclusion = f"{nonce}\n결론: 가격이 올랐다 (cursor.com/pricing)"
     check("domain counts as evidence for a conclusion",
           m.verify_result(domain_conclusion, nonce) == [],
@@ -130,7 +158,20 @@ def main() -> int:
     import tempfile
     roster = m.load_roster()
     ids = {b["id"] for b in roster}
-    check("roster has 11 bots", len(roster) == 11, str(sorted(ids)))
+    check("roster has 14 bots", len(roster) == 14, str(sorted(ids)))
+    check("relay is in the roster and is not the default", "relay" in ids
+          and not next(b for b in roster if b["id"] == "relay").get("default"))
+    # 0.7.0 B8 - Simon's boundary: /vibe keeps CLI work, bots get screens.
+    for phrase, why in [("eas submit 로 스토어에 올려줘", "eas-cli"),
+                        ("gh pr 목록을 정리해줘", "git / gh"),
+                        ("npm run verify 돌려줘", "node / npm"),
+                        ("supabase functions deploy 해줘", "supabase cli"),
+                        ("터미널에서 상태를 확인해줘", "shell")]:
+        check(f"B8 warns on CLI work ({why})",
+              any("B8" in w for w in m.check_request(phrase)["warns"]), phrase)
+    check("a screen task draws no B8",
+          not any("B8" in w for w in m.check_request(
+              "Play Console 데이터 보안 양식 화면에서 선언 상태를 읽어 표로 정리")["warns"]))
     check("play console target routes to play-console",
           (m.resolve_bot(roster, "Google Play Console · com.simonk.secondbrain", "") or {}).get("id")
           == "play-console")
@@ -139,6 +180,13 @@ def main() -> int:
           == "apple-dev")
     check("unknown work falls back to the default bot",
           (m.resolve_bot(roster, "", "아무 일이나 해줘") or {}).get("id") == "grok-bot")
+    # 0.7.0 - measured 2026-09-20: the task prose named another bot's tool and stole the sheet.
+    check("the console in --target beats a tool name in the task prose",
+          (m.resolve_bot(roster, "App Store Connect · 2nd Brain · 6792266942",
+                         "Auto Review 허용목록에 eas submit 이 있어서 제출 이력을 확인한다",
+                         url="https://appstoreconnect.apple.com/apps") or {}).get("id") == "apple-dev")
+    check("a task that really is EAS work still routes to eas",
+          (m.resolve_bot(roster, "EAS · expo 빌드 목록", "eas submit 상태 확인") or {}).get("id") == "eas")
     check("explicit --bot by name wins",
           (m.resolve_bot(roster, "Google Play Console", "", explicit="Web QA") or {}).get("id") == "web-qa")
     check("unknown explicit bot returns None", m.resolve_bot(roster, "", "", explicit="nope") is None)
@@ -166,26 +214,33 @@ def main() -> int:
               bool(rows) and any("C2" in f for f in rows[0]["findings"])
               and any("C1" in f for f in rows[0]["findings"]), str(rows))
 
-    # project bus (0.5.0): 2nd-B bots use Simon's worktree, not the hub or the main tree
+    # shared bots + per-task project bus (0.6.0)
     projects = m.load_projects()
-    check("2nd-b project root is the TTL-Work_rev2 worktree",
-          "TTL-Work_rev2" in projects.get("2nd-b", {}).get("root", ""), str(projects))
+    check("2nd-b project root is E:/2ndB", projects.get("2nd-b", {}).get("root", "") == "E:/2ndB",
+          str(projects))
     pc = next(b for b in roster if b["id"] == "play-console")
-    gb = next(b for b in roster if b["id"] == "grok-bot")
-    check("play-console belongs to 2nd-b", pc.get("project") == "2nd-b")
+    check("bots carry no project tag - they are shared",
+          all("project" not in b for b in roster), str([b["id"] for b in roster if "project" in b]))
+    check("2nd-B words pick the 2nd-b project",
+          m.resolve_project(projects, "Google Play Console · com.simonk.secondbrain", "") == "2nd-b")
+    check("a task with no project words stays on the hub",
+          m.resolve_project(projects, "", "경쟁 툴 가격 정리") is None)
+    check("explicit --project wins", m.resolve_project(projects, "", "", explicit="2nd-b") == "2nd-b")
+    check("unknown explicit project is rejected",
+          m.resolve_project(projects, "", "", explicit="nope") is None)
     with tempfile.TemporaryDirectory() as hub2, tempfile.TemporaryDirectory() as proot:
         pj = {"2nd-b": {"root": proot, "bus": ".bots"}}
-        check("project bot bus sits under the project root",
-              m.bus_root(pc, Path(hub2), pj) == Path(proot) / ".bots")
-        check("non-project bot stays on the hub", m.bus_root(gb, Path(hub2), pj) == Path(hub2) / "bots")
-        p = m.hub_paths(pc, "vb-00000001", Path(hub2), pj)
+        check("project task lands under the project root",
+              m.bus_root(Path(hub2), pj, "2nd-b") == Path(proot) / ".bots")
+        check("no project means the shared hub", m.bus_root(Path(hub2), pj, None) == Path(hub2) / "bots")
+        p = m.hub_paths(pc, "vb-00000001", Path(hub2), pj, "2nd-b")
         p["result"].parent.mkdir(parents=True, exist_ok=True)
         p["result"].write_text("vb-00000001\n검색 범위: 트랙 3곳\n| 트랙 | 0.8.0 |", encoding="utf-8")
         rows = m.collect(Path(hub2), projects=pj)
         check("collect scans project buses too",
               len(rows) == 1 and rows[0]["bot"] == "play-console", str(rows))
-        routed = m.add_routing("# t\nline2\nbody", pc, p["result"], proot)
-        check("sheet names the project root", f"프로젝트 루트: {proot}" in routed)
+        routed = m.add_routing("# t\nline2\nbody", pc, p["result"], ("2nd-b", proot))
+        check("sheet names the project and its root", f"프로젝트: 2nd-b · 루트 {proot}" in routed)
 
     # CLI: blocked request exits 2, verify of a good file exits 0
     check("cli blocks write verb", m.main(["--task", "PR 머지해줘"]) == 2)
