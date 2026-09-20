@@ -73,6 +73,19 @@ WRITE_PATTERNS = [
         r"(?i)(?:권한을 (?:바꾸|부여|변경)|access.*grant|IAM 정책 변경|공개로 전환)")),
 ]
 
+# B8 (0.7.0) - the boundary Simon drew: /vibe stays the core, and only work that needs a
+# screen goes to a bot. A CLI can be run, logged and verified on this PC for free, so sending
+# it to a bot buys a slower, less checkable version of the same thing. Warn rather than block:
+# a session or credential that exists only on the cloud computer is a real exception, and the
+# author should say so in the sheet.
+CLI_PATTERNS = [
+    ("eas-cli", re.compile(r"(?i)\beas\s+(?:build|submit|update|whoami|credentials)\b")),
+    ("git / gh", re.compile(r"(?i)(?:\bgit\s+\w+|\bgh\s+(?:pr|run|api|issue|release)\b)")),
+    ("node / npm", re.compile(r"(?i)\b(?:npm|npx|pnpm|yarn)\s+\w+")),
+    ("supabase cli", re.compile(r"(?i)\bsupabase\s+(?:db|functions|migration|login|link)\b")),
+    ("shell", re.compile(r"(?i)(?:터미널에서|명령어를? 실행|\bcurl\s+http|\bpytest\b|\bpython\s+\S+\.py)")),
+]
+
 CONFIDENTIAL_PATTERNS = [
     ("company confidential hint", re.compile(
         r"(?i)(?:\bLOT\b|설비명|공정 ?수치|택트 ?타임 실측|CapEx|고객사명|단가표|원가표)")),
@@ -161,6 +174,10 @@ def check_request(task: str) -> dict:
     for label, rx in CONFIDENTIAL_PATTERNS:
         if rx.search(task):
             warns.append(f"B3 회사 기밀일 수 있는 표현({label}) - 보내기 전에 지운다")
+    for label, rx in CLI_PATTERNS:
+        if rx.search(task):
+            warns.append(f"B8 CLI로 되는 일({label})이다 - /vibe 레인이 더 싸고 검증도 된다. "
+                         "화면에서만 되는 부분만 봇에 남기고, 봇에 보내야 하는 이유를 과제서에 적는다")
     if len(task.strip()) < 12:
         warns.append("요청이 너무 짧다 - Outcome 한 줄을 더 쓰면 결과가 좋아진다")
     return {"blocks": blocks, "warns": warns}

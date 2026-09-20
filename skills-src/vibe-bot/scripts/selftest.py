@@ -161,6 +161,17 @@ def main() -> int:
     check("roster has 14 bots", len(roster) == 14, str(sorted(ids)))
     check("relay is in the roster and is not the default", "relay" in ids
           and not next(b for b in roster if b["id"] == "relay").get("default"))
+    # 0.7.0 B8 - Simon's boundary: /vibe keeps CLI work, bots get screens.
+    for phrase, why in [("eas submit 로 스토어에 올려줘", "eas-cli"),
+                        ("gh pr 목록을 정리해줘", "git / gh"),
+                        ("npm run verify 돌려줘", "node / npm"),
+                        ("supabase functions deploy 해줘", "supabase cli"),
+                        ("터미널에서 상태를 확인해줘", "shell")]:
+        check(f"B8 warns on CLI work ({why})",
+              any("B8" in w for w in m.check_request(phrase)["warns"]), phrase)
+    check("a screen task draws no B8",
+          not any("B8" in w for w in m.check_request(
+              "Play Console 데이터 보안 양식 화면에서 선언 상태를 읽어 표로 정리")["warns"]))
     check("play console target routes to play-console",
           (m.resolve_bot(roster, "Google Play Console · com.simonk.secondbrain", "") or {}).get("id")
           == "play-console")
