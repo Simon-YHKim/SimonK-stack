@@ -184,6 +184,32 @@ describe('parseRateLimits', () => {
     });
   });
 
+  it('reads the measured Pro response, which carries a weekly window only (T1, codex 0.155.1, 26.09.20)', () => {
+    const bucket = {
+      limitId: 'codex',
+      limitName: null,
+      normalModelSlug: null,
+      primary: { usedPercent: 18, windowDurationMins: 10_080, resetsAt: 1_790_420_068 },
+      secondary: null,
+      credits: { hasCredits: false, unlimited: false, balance: '0' },
+      individualLimit: null,
+      spendControlReached: false,
+      planType: 'pro',
+      rateLimitReachedType: null,
+    };
+    const parsed = parseRateLimits({
+      ordinaryUsageAllowed: true,
+      rateLimits: bucket,
+      rateLimitsByLimitId: { codex: bucket },
+      rateLimitResetCredits: { availableCount: 0, credits: null },
+      accountId: '00000000-0000-4000-8000-000000000000',
+      rateLimitUpsell: null,
+    });
+    // The server sends no 5-hour window for this plan, so the widget shows the weekly row alone.
+    expect(parsed?.windows).toEqual([{ kind: 'weekly', usedPercent: 18, resetsAt: 1_790_420_068_000, windowMinutes: 10_080 }]);
+    expect(parsed?.planType).toBe('pro');
+  });
+
   it('falls back to the legacy single-bucket view', () => {
     expect(
       parseRateLimits({

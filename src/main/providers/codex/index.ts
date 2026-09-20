@@ -87,6 +87,18 @@ export function createCodexAdapter(deps: ProviderDeps, options: CodexAdapterOpti
     return promise;
   };
 
+  /**
+   * Aborts this account's running operations and waits until their app-server processes are
+   * gone. Two app-servers must never initialise the same CODEX_HOME at once: a login started
+   * while a cancelled identity read was still shutting down died with `protocol-error` on a
+   * brand-new profile (log 26.09.19 12:01, DECISIONS 26.09.20 10:51).
+   */
+  const quiesce = async (accountId: string): Promise<void> => {
+    const running = [...(active.get(accountId) ?? [])];
+    for (const operation of running) operation.controller.abort();
+    await Promise.all(running.map((operation) => operation.done));
+  };
+
   const sessionLifetime = (rpcCount: number): number => timeouts.initMs + rpcCount * timeouts.rpcMs + 10_000;
 
   /** Adds process-exit context to failures (lifetime timeout vs. crash). */
@@ -183,6 +195,12 @@ export function createCodexAdapter(deps: ProviderDeps, options: CodexAdapterOpti
       const resolved = resolveCli(deps.env);
       if (!resolved.ok) {
         fail(resolveFailureCode(resolved.code));
+        return;
+      }
+
+      await quiesce(account.id);
+      if (signal.aborted) {
+        fail('cancelled');
         return;
       }
 
@@ -408,9 +426,7 @@ export function createCodexAdapter(deps: ProviderDeps, options: CodexAdapterOpti
       if (!isPathInside(deps.profilesRoot, codexHome)) {
         throw new ProviderError('internal', 'refusing to delete outside the profiles root');
       }
-      const running = [...(active.get(account.id) ?? [])];
-      for (const operation of running) operation.controller.abort();
-      await Promise.all(running.map((operation) => operation.done));
+      await quiesce(account.id);
       await rm(codexHome, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
     },
   };

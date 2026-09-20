@@ -28,7 +28,16 @@ if (args[0] === '--version') {
 if (args[0] !== 'app-server') process.exit(2);
 const scenario = JSON.parse(fs.readFileSync(path.join(home, 'fake-scenario.json'), 'utf8'));
 const responses = scenario.responses || {};
-log({ kind: 'start', pid: process.pid, args: args, envKeys: Object.keys(process.env), cwd: process.cwd() });
+function alivePeers() {
+  try {
+    return fs.readFileSync(path.join(home, 'fake-log.jsonl'), 'utf8').split('\\n').filter(Boolean)
+      .map(function (line) { return JSON.parse(line); })
+      .filter(function (entry) { return entry.kind === 'start'; })
+      .map(function (entry) { return entry.pid; })
+      .filter(function (pid) { try { process.kill(pid, 0); return true; } catch (e) { return false; } });
+  } catch (e) { return []; }
+}
+log({ kind: 'start', pid: process.pid, alivePeers: alivePeers(), args: args, envKeys: Object.keys(process.env), cwd: process.cwd() });
 if (scenario.grandchild) {
   const child = require('child_process').spawn(process.execPath, ['-e', 'setInterval(function(){},1000)'], { stdio: 'ignore', windowsHide: true });
   log({ kind: 'grandchild', pid: child.pid });
@@ -74,6 +83,8 @@ function handle(message) {
 interface LogEntry {
   kind: string;
   pid?: number;
+  /** Earlier app-server processes of the same CODEX_HOME that were still running at start. */
+  alivePeers?: number[];
   envKeys?: string[];
   cwd?: string;
   message?: { id?: number; method?: string; params?: unknown };
@@ -544,6 +555,38 @@ describe('codex adapter: device-code login', () => {
       expect(messages[2]?.params).toEqual({ type: 'chatgptDeviceCode' });
       const pid = readLog(account.profileDir).find((entry) => entry.kind === 'start')?.pid ?? 0;
       expect(await waitUntil(() => !isAlive(pid), 5000)).toBe(true);
+    },
+    TEST_TIMEOUT,
+  );
+
+  it(
+    'waits for a cancelled identity read to exit before its own app-server starts in the same CODEX_HOME',
+    async () => {
+      const { account, adapter } = setup();
+      // ignoreStdinClose: the first process only goes away through the tree kill, like a real one mid-initialisation.
+      writeScenario(account, {
+        ignoreStdinClose: true,
+        responses: { 'account/read': { hang: true }, 'account/login/start': START_OK },
+      });
+      const identityAbort = new AbortController();
+      const identity = adapter.getIdentity(account, identityAbort.signal).catch((error: unknown) => error);
+      expect(await waitUntil(() => received(account.profileDir).some((m) => m.method === 'account/read'), 10_000)).toBe(true);
+
+      // What the controller does when the user presses Login: cancel the fetch, start the login at once.
+      identityAbort.abort();
+      const loginAbort = new AbortController();
+      const events: LoginEvent[] = [];
+      const login = adapter.startLogin(account, (event) => events.push(event), loginAbort.signal);
+      expect(await waitUntil(() => events.some((event) => event.type === 'device-code'), 15_000)).toBe(true);
+
+      const starts = readLog(account.profileDir).filter((entry) => entry.kind === 'start');
+      expect(starts).toHaveLength(2);
+      expect(starts[1]?.alivePeers).toEqual([]);
+      expect(await identity).toMatchObject({ code: 'cancelled' });
+
+      loginAbort.abort();
+      await login;
+      expect(events.at(-1)).toEqual({ type: 'error', code: 'cancelled' });
     },
     TEST_TIMEOUT,
   );
