@@ -73,27 +73,30 @@ button[aria-disabled='true'] {
   color: #d97757;
 }
 
-.ai-brand-icon.is-color[data-provider='codex'] {
-  color: #d4d4d8;
-}
-
+/*
+ * Codex and Grok are single-colour marks on a transparent background. They take the surface's
+ * main text colour: near-black on the light Windows theme, white on dark themes and the v1
+ * skins, CanvasText in high contrast. Each surface defines one of these variables.
+ */
+.ai-brand-icon.is-color[data-provider='codex'],
 .ai-brand-icon.is-color[data-provider='grok'] {
-  color: #d4d4d8;
+  color: var(--p-fg, var(--w-fg, var(--text-main, #f4f4f5)));
 }
 
 .ai-brand-icon.is-mono {
-  color: #9ca3af;
-}
-
-/* codex and grok ship as the vendors' square dark tiles; round them like an app icon. */
-.ai-brand-icon[data-provider='codex'] > img,
-.ai-brand-icon[data-provider='grok'] > img {
-  border-radius: 24%;
+  color: var(--p-fg2, var(--w-fg2, var(--text-muted, #9ca3af)));
 }
 
 .ai-brand-icon.is-mono > img {
   filter: grayscale(100%) brightness(1.25) contrast(1.1);
   opacity: 0.88;
+}
+
+/* The brightened grey above is tuned for dark surfaces; on the light Windows theme darken instead. */
+:root[data-scheme='light'] .skin-windows .ai-brand-icon.is-mono > img,
+:root[data-view='popup'][data-skin='windows'][data-scheme='light'] .ai-brand-icon.is-mono > img {
+  filter: grayscale(100%) brightness(0.6) contrast(1.1);
+  opacity: 0.8;
 }
 
 @keyframes spin {

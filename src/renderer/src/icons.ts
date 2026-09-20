@@ -1,18 +1,15 @@
 import type { ProviderId } from '../../shared/types';
 import claudeIconUrl from '../../../resources/icons/claude_64.png';
 import antigravityIconUrl from '../../../resources/icons/antigravity_64.png';
-import codexIconUrl from '../../../resources/icons/codex_64.png';
-import grokIconUrl from '../../../resources/icons/grok_64.png';
 import { GROK_MARK_PATHS, GROK_MARK_VIEWBOX, OPENAI_BLOSSOM_PATH, OPENAI_BLOSSOM_VIEWBOX } from './brand-marks';
 import { h, s, setStyles } from './dom';
 
 // Bundled at build time; Vite may inline small files as data:image/png URIs (allowed by img-src).
-// codex and grok are the vendors' own dark app tiles (white mark on black), so they read on
-// light and dark widgets alike; styles.css rounds their corners (DECISIONS 26.09.20 08:57).
-const PNG_ICONS: Readonly<Record<ProviderId, string>> = {
+// Codex and Grok have single-colour marks: they are drawn as vectors on a transparent
+// background in the theme's foreground colour, black on light and white on dark, the way both
+// vendors publish them (DECISIONS 26.09.20 09:54). Multi-colour brands stay PNG.
+const PNG_ICONS: Readonly<Partial<Record<ProviderId, string>>> = {
   claude: claudeIconUrl,
-  codex: codexIconUrl,
-  grok: grokIconUrl,
   antigravity: antigravityIconUrl,
 };
 
@@ -46,7 +43,7 @@ export function providerGlyph(provider: ProviderId, size: number): SVGSVGElement
   ]);
 }
 
-/** v1 `U()` equivalent: brand PNG when bundled, SVG otherwise. Decorative; callers provide text. */
+/** Brand PNG for multi-colour brands, theme-coloured vector mark otherwise. Decorative; callers provide text. */
 export function providerIcon(provider: ProviderId, size: number, mono: boolean, title?: string): HTMLElement {
   const wrap = h('span', {
     class: `ai-brand-icon ${mono ? 'is-mono' : 'is-color'}`,
@@ -56,7 +53,7 @@ export function providerIcon(provider: ProviderId, size: number, mono: boolean, 
   });
   setStyles(wrap, { width: `${size}px`, height: `${size}px`, 'min-width': `${size}px` });
   const png = PNG_ICONS[provider];
-  if (isBundledAssetUrl(png)) {
+  if (png !== undefined && isBundledAssetUrl(png)) {
     const img = h('img', { alt: '', width: size, height: size, draggable: 'false' });
     img.src = png;
     wrap.append(img);

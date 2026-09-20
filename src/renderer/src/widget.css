@@ -369,7 +369,7 @@
 }
 
 .skin-v1 .theme-1c .ring-center-icon.is-color[data-provider='grok'] {
-  color: #d4d4d8;
+  color: #f4f4f5;
 }
 
 .skin-v1 .theme-1c .ring-center-icon.is-mono {
@@ -543,11 +543,6 @@
 .skin-windows .account-item + .account-item {
   padding-left: 10px;
   border-left: 1px solid var(--w-divider);
-}
-
-.skin-windows .ai-brand-icon.is-color[data-provider='grok'],
-.skin-windows .ai-brand-icon.is-mono {
-  color: var(--w-fg2);
 }
 
 .skin-windows .w-stack {

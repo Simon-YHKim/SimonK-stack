@@ -4,15 +4,23 @@ import { GROK_MARK_PATHS, GROK_MARK_VIEWBOX, OPENAI_BLOSSOM_PATH, OPENAI_BLOSSOM
 import { providerGlyph, providerIcon } from './icons';
 
 describe('providerIcon', () => {
-  it('shows a bundled brand image for every provider', () => {
+  it('draws single-colour brands as theme-coloured vectors and multi-colour brands as images', () => {
+    const vector = new Set(['codex', 'grok']);
     for (const provider of PROVIDER_IDS) {
       const icon = providerIcon(provider, 24, false, 'name');
-      const img = icon.querySelector('img');
-      expect(img, provider).not.toBeNull();
-      expect(img?.getAttribute('src') ?? '', provider).not.toBe('');
-      expect(icon.querySelector('svg'), provider).toBeNull();
       expect(icon.getAttribute('data-provider')).toBe(provider);
       expect(icon.getAttribute('aria-hidden')).toBe('true');
+      if (vector.has(provider)) {
+        // No image and no fixed fill: the mark sits on a transparent background in currentColor.
+        expect(icon.querySelector('img'), provider).toBeNull();
+        const paths = [...icon.querySelectorAll('svg path')];
+        expect(paths.length, provider).toBeGreaterThan(0);
+        for (const path of paths) expect(path.getAttribute('fill')).toBe('currentColor');
+        expect(icon.querySelector('svg rect, svg circle'), provider).toBeNull();
+      } else {
+        expect(icon.querySelector('img')?.getAttribute('src') ?? '', provider).not.toBe('');
+        expect(icon.querySelector('svg'), provider).toBeNull();
+      }
     }
   });
 
