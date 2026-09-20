@@ -105,6 +105,18 @@ def main() -> int:
     finding_section = f"{nonce}\n## 안 한 일\n- 삭제 없음\n## 발견\n- 취약점 0건"
     check("a finding section after it is still checked",
           any("G6" in f for f in m.verify_result(finding_section, nonce)))
+    # 0.7.0 - the sheet template asks for 막힌 것, so "막힘: 없음" is our own vocabulary
+    # reporting a clear run. Measured on vb-acda474d.
+    blocked_none = f"{nonce}\n⑤ 막힘: 없음. 루틴 패널에서 읽어 기록했다"
+    check("막힘 없음 is a run status, not a finding-absence",
+          m.verify_result(blocked_none, nonce) == [], str(m.verify_result(blocked_none, nonce)))
+    # One wake is this system's unit of observation, so naming it is naming a scope.
+    turn_scope = f"{nonce}\n이번 프롬프트에 webhook_event 블록 없음 (웹훅 기동이면 포함된다)"
+    check("이번 턴/프롬프트 counts as a scope",
+          m.verify_result(turn_scope, nonce) == [], str(m.verify_result(turn_scope, nonce)))
+    still = f"{nonce}\n결과: 해당 항목 0건"
+    check("a bare absence is still caught after those two",
+          any("G6" in f for f in m.verify_result(still, nonce)))
     domain_conclusion = f"{nonce}\n결론: 가격이 올랐다 (cursor.com/pricing)"
     check("domain counts as evidence for a conclusion",
           m.verify_result(domain_conclusion, nonce) == [],
