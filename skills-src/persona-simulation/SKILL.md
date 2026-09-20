@@ -56,7 +56,6 @@ grep -rln "onboarding\|first.?run\|permission\|consent\|initialRoute" "$ROOT/src
 # 3) i18n/locale 자원 유무 (문화 축 근거)
 ls "$ROOT/src/i18n" "$ROOT/locales" "$ROOT/src/locales" 2>/dev/null
 ```
-
 근거 디렉터리가 없으면 "코드 근거 없는 페르소나 시뮬은 의견글" 이므로 **중단하고 경로를 묻는다**.
 
 ## 워크플로 (6단계)
@@ -224,11 +223,18 @@ start "" "persona-sim-$(date +%Y%m%d-%H%M).html" 2>/dev/null \
 - [ ] 큐 적재용 블록(§25 E.UX) + 라우팅 제안(§26.3) 포함?
 
 ```bash
-# 발견 리포트에 근거 없는 항목이 없는지 마지막 그렙 (file:line 패턴 강제)
-grep -nE "BLOCKER|DROPOUT|DISTRUST|CONFUSION" persona-sim-*.html 2>/dev/null \
-  | grep -vE "\.tsx:[0-9]+|\.ts:[0-9]+|\.jsx?:[0-9]+" \
-  && echo "⚠ 근거(file:line) 없는 발견 존재 — 보강 필요" \
-  || echo "OK — 모든 발견에 코드 근거 있음"
+# 발견 리포트 자가 점검 - 막는 쪽이 기본이다(fail-closed).
+# 2026-09-20 보안 게이트가 옛 grep 판을 깼다. 리포트가 없으면 "OK"가 났고(fail-open),
+# 파일이 둘 이상이면 grep 이 줄머리에 붙이는 **파일명**이 근거로 오인됐으며
+# (persona-sim-x.tsx:7.html 같은 이름), 읽기 실패한 파일은 조용히 건너뛰어졌다.
+# HTML 이 한 줄이면 줄 단위 grep 은 발견과 근거를 구분하지도 못한다.
+# grep 으로 막을 수 있는 종류가 아니라 검사기를 파이썬으로 옮겼다.
+python scripts/check_findings.py --expect "persona-sim-$(date +%Y%m%d-%H%M).html"
+#   exit 0 통과   · 근거 있는 발견 1건 이상, 또는 0건인데 리포트에 PERSONA-SCOPE 선언이 있음
+#   exit 1 불합격 · 리포트 없음 / 읽기 실패 / 근거 없는 발견 / 0건인데 범위 선언 없음
+#
+# 발견이 정말 0건인 실행은 리포트에 이 한 줄을 넣어 통과시킨다(무엇을 어디까지 걸었는지 함께):
+#   PERSONA-SCOPE: 첫 실행 + 핵심 루프, 페르소나 12명(연령 4 · 직업 3 · 소득 3 · 문화 2)
 ```
 
 ## 완료 보고 (HTML) — 표준
