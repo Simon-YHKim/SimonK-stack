@@ -149,6 +149,8 @@ async function setup(
     adapters?: Partial<Record<ProviderId, FakeOptions>>;
     loginItems?: { name: string; enabled: boolean }[];
     autostartSupported?: boolean;
+    /** Saved `openAtLogin` before the controller starts. */
+    savedOpenAtLogin?: boolean;
   } = {},
 ): Promise<Harness> {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'aiuw-ctrl-'));
@@ -168,6 +170,7 @@ async function setup(
       })),
     );
   }
+  if (config.savedOpenAtLogin !== undefined) await store.saveSettings({ ...store.getSettings(), openAtLogin: config.savedOpenAtLogin });
   const calls: string[] = [];
   const logins: Harness['logins'] = [];
   const bridgeCalls: string[] = [];
@@ -533,6 +536,34 @@ describe('app controller', () => {
     await h.controller.start();
     expect(h.controller.getSettings().openAtLogin).toBe(true);
     expect(h.writes).toEqual([]);
+  });
+
+  it('re-registers autostart for this executable when the saved "on" has no entry for it', async () => {
+    // What an install after a dev run looks like: Electron lists no entry for the new path.
+    const h = await setup({ autostartSupported: true, savedOpenAtLogin: true, loginItems: [] });
+    await h.controller.start();
+    expect(h.writes).toEqual([
+      { openAtLogin: true, path: 'C:\\app.exe', args: ['--autostart'], name: 'AIUsageWidgetV2', enabled: true },
+    ]);
+    expect(h.controller.getSettings().openAtLogin).toBe(true);
+  });
+
+  it('leaves an entry that Task Manager switched off alone and adopts "off"', async () => {
+    const h = await setup({
+      autostartSupported: true,
+      savedOpenAtLogin: true,
+      loginItems: [{ name: 'AIUsageWidgetV2', enabled: false }],
+    });
+    await h.controller.start();
+    expect(h.writes).toEqual([]);
+    expect(h.controller.getSettings().openAtLogin).toBe(false);
+  });
+
+  it('registers nothing when autostart is off and no entry exists', async () => {
+    const h = await setup({ autostartSupported: true, savedOpenAtLogin: false, loginItems: [] });
+    await h.controller.start();
+    expect(h.writes).toEqual([]);
+    expect(h.controller.getSettings().openAtLogin).toBe(false);
   });
 
   it('routes the Claude bridge only for Claude accounts', async () => {

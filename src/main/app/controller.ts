@@ -422,9 +422,23 @@ export function createAppController(deps: AppControllerDeps) {
       }
       if (deps.autostart.supported) {
         await settingsQueue(async () => {
-          const registered = deps.autostart.isEnabled();
-          if (registered === null || registered === settings.openAtLogin) return;
-          // The registry (e.g. Task Manager) is the truth; never re-register silently.
+          const entry = deps.autostart.entryState();
+          if (entry === null) return;
+          if (entry === 'absent' && settings.openAtLogin) {
+            // The saved "on" has no entry for this executable: it still names another copy (dev
+            // build, previous install folder) or was never written. Register this one; an entry
+            // switched off in Task Manager reads as 'disabled' and is left alone below.
+            try {
+              deps.autostart.setEnabled(true);
+              logger.info('autostart re-registered for this executable');
+            } catch (error) {
+              logger.warn('autostart re-registration failed', { error });
+            }
+            return;
+          }
+          const registered = entry === 'enabled';
+          if (registered === settings.openAtLogin) return;
+          // The registry (e.g. Task Manager) is the truth; never re-enable a switched-off entry.
           settings = { ...settings, openAtLogin: registered };
           await store.saveSettings(settings).catch((error: unknown) => logger.warn('saving settings failed', { error }));
         });
