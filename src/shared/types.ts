@@ -15,14 +15,21 @@ export interface ProviderTraits {
    * CLI sign-in and the widget offers no login button (DECISIONS 26.09.19 11:42).
    */
   widgetLogin: boolean;
+  /**
+   * Shortest automatic polling interval in seconds; the scheduler uses the larger of this and the
+   * user's refresh setting. Manual refresh is not limited by it (DECISIONS 26.09.20 10:54).
+   */
+  minRefreshSec: number;
 }
 
 /** Shared by main (enforcement) and the renderer (which controls to show). */
 export const PROVIDER_TRAITS: Readonly<Record<ProviderId, ProviderTraits>> = Object.freeze({
-  claude: { maxAccounts: null, widgetLogin: true },
-  codex: { maxAccounts: null, widgetLogin: true },
-  grok: { maxAccounts: null, widgetLogin: true },
-  antigravity: { maxAccounts: 1, widgetLogin: false },
+  // claude reads a local bridge file only; the others start a CLI that asks the vendor's servers.
+  claude: { maxAccounts: null, widgetLogin: true, minRefreshSec: 15 },
+  codex: { maxAccounts: null, widgetLogin: true, minRefreshSec: 60 },
+  grok: { maxAccounts: null, widgetLogin: true, minRefreshSec: 60 },
+  // One agy run takes 7-9 s and a whole CLI start-up.
+  antigravity: { maxAccounts: 1, widgetLogin: false, minRefreshSec: 120 },
 });
 
 export const LOCALES = ['ko', 'en'] as const;

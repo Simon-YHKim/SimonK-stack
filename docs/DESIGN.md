@@ -235,6 +235,7 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 - 위젯 코드는 CLI 자격증명 파일(`.credentials.json`, `auth.json`)을 **읽지도 쓰지도 않는다.** 공급자 HTTP API를 사용자 토큰으로 직접 부르지 않는다. 사칭 헤더·client ID 없음.
 - 로그인 이벤트의 URL·코드는 렌더러에 보여 주되 로그에는 남기지 않는다(`userCode`는 redact 키).
 - 모든 호출에 타임아웃. 로그인 전체 10분. 셸 스케줄러는 계정 조회 1회(`getIdentity` + `fetchUsage`가 같은 슬롯에서 연달아 실행)에 120초 AbortSignal을 건다(어댑터 예산 합: codex identity 세션 50초 + usage 세션 60초, DECISIONS 04:49). 어댑터 내부 제한: codex init 30초·rpc 10초, grok init 30초·요청 20초·수명 60초, claude auth status 30초·`--version` 15초. 실측 시간이 나오면 조정한다.
+- 자동 조회 간격 = max(설정 `refreshIntervalSec`, `PROVIDER_TRAITS[provider].minRefreshSec`) × 배터리 배수. 최소값: claude 15초(로컬 브리지 파일만 읽음), codex·grok 60초, antigravity 120초(`agy` 1회 7~9초). 수동 새로고침은 이 하한과 무관하게 즉시 조회한다. 설정 탭 `refreshIntervalHint`가 같은 상수로 안내한다(DECISIONS 26.09.20 10:54).
 - 실측(T1·T2·T4) 전 추정으로 확정할 수 없는 응답 필드는 알 수 없는 필드를 허용하는 파서로 처리하고, 파서 테스트에 근거(스키마 파일·문서 경로)를 주석 1줄로 남긴다.
 
 ### 7-1. Claude (`providers/claude`, `resources/claude-bridge`) — DECISIONS 02:23

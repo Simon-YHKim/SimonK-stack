@@ -22,6 +22,7 @@ import {
   type Settings,
 } from '../../../shared/settings';
 import type { PlacementPreview } from '../../../shared/ipc';
+import { PROVIDER_TRAITS } from '../../../shared/types';
 import { ipcErrorCode, describeError, type Api } from '../api';
 import { h, setAttr, setText, uniqueId } from '../dom';
 import type { RenderContext } from '../model';
@@ -90,7 +91,11 @@ export class SettingsTab {
     }, 'alignmentLabel');
     this.addRange('offsetPx', OFFSET_PX_RANGE, 'offsetLabel', (n, t) => t('pixels', { n }));
     this.addRange('verticalOffsetPx', VERTICAL_OFFSET_PX_RANGE, 'verticalOffsetLabel', (n, t) => t('pixels', { n }));
-    this.addSelect('refreshIntervalSec', REFRESH_INTERVALS_SEC, (v) => REFRESH_INTERVAL_KEYS[v], 'refreshIntervalLabel');
+    // The scheduler never polls a provider faster than its floor; say so next to the setting.
+    this.addSelect('refreshIntervalSec', REFRESH_INTERVALS_SEC, (v) => REFRESH_INTERVAL_KEYS[v], 'refreshIntervalLabel', 'refreshIntervalHint', {
+      cli: Math.max(PROVIDER_TRAITS.codex.minRefreshSec, PROVIDER_TRAITS.grok.minRefreshSec),
+      antigravity: PROVIDER_TRAITS.antigravity.minRefreshSec,
+    });
     this.addSelect('language', LANGUAGES, (v) => LANGUAGE_KEYS[v], 'languageLabel');
     this.addSwitch('openAtLogin', 'launchAtLogin');
   }
@@ -127,6 +132,7 @@ export class SettingsTab {
     labelKey: MessageKey,
     children: HTMLElement[],
     hintKey?: MessageKey,
+    hintParams?: Readonly<Record<string, string | number>>,
   ): { el: HTMLElement; label: HTMLElement; hint: HTMLElement | null } {
     const labelId = uniqueId('setting');
     const label = h('div', { class: 'form-label', id: labelId });
@@ -135,7 +141,7 @@ export class SettingsTab {
     this.el.append(el);
     this.updaters.push((_s, ctx) => {
       setText(label, ctx.t(labelKey));
-      if (hint !== null && hintKey !== undefined) setText(hint, ctx.t(hintKey));
+      if (hint !== null && hintKey !== undefined) setText(hint, ctx.t(hintKey, hintParams));
     });
     return { el, label, hint };
   }
@@ -288,11 +294,13 @@ export class SettingsTab {
     values: readonly Settings[K][],
     labelOf: (value: Settings[K]) => MessageKey,
     labelKey: MessageKey,
+    hintKey?: MessageKey,
+    hintParams?: Readonly<Record<string, string | number>>,
   ): void {
     const select = h('select', { class: 'select-input', 'data-setting': key });
     const options = values.map((value) => h('option', { value: String(value) }));
     select.append(...options);
-    const { label } = this.group(labelKey, [select]);
+    const { label } = this.group(labelKey, [select], hintKey, hintParams);
     setAttr(select, 'aria-labelledby', label.id);
     select.addEventListener('pointerdown', () => this.deps.setLock(true));
     select.addEventListener('blur', () => this.deps.setLock(false));

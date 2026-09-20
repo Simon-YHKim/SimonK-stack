@@ -1,4 +1,5 @@
 import {
+  PROVIDER_TRAITS,
   isErrorCode,
   type Account,
   type ErrorCode,
@@ -117,8 +118,9 @@ export function createScheduler(options: SchedulerOptions): Scheduler {
   let lastRunAt: number | null = null;
   let lastStatusJson = '';
 
-  const intervalMs = (): number =>
-    options.intervalSec() * 1000 * (onBattery ? BATTERY_INTERVAL_MULTIPLIER : 1);
+  /** The user's interval, never shorter than the provider's floor, stretched on battery. */
+  const intervalMs = (provider: ProviderId): number =>
+    Math.max(options.intervalSec(), PROVIDER_TRAITS[provider].minRefreshSec) * 1000 * (onBattery ? BATTERY_INTERVAL_MULTIPLIER : 1);
 
   const wakeWaiters = (entry: Entry): void => {
     const waiters = entry.waiters;
@@ -204,7 +206,7 @@ export function createScheduler(options: SchedulerOptions): Scheduler {
       const outcome = await runFetch(account, controller);
       if (entry.generation !== generation || entries.get(account.id) !== entry) return;
       if (outcome.skipped === true) {
-        entry.dueAt = now() + intervalMs();
+        entry.dueAt = now() + intervalMs(account.provider);
         return;
       }
       const snapshot = outcome.snapshot;
@@ -219,7 +221,7 @@ export function createScheduler(options: SchedulerOptions): Scheduler {
         });
       } else {
         entry.failures = 0;
-        delay = intervalMs();
+        delay = intervalMs(account.provider);
       }
       entry.dueAt = now() + delay;
       try {
@@ -340,13 +342,13 @@ export function createScheduler(options: SchedulerOptions): Scheduler {
       const entry = entries.get(accountId);
       if (entry === undefined) return;
       cancelEntry(entry);
-      entry.dueAt = now() + intervalMs();
+      entry.dueAt = now() + intervalMs(entry.account.provider);
       pump();
     },
     reschedule() {
-      const next = now() + intervalMs();
       for (const entry of entries.values()) {
-        if (entry.run === null && entry.failures === 0) entry.dueAt = Math.min(entry.dueAt, next);
+        if (entry.run !== null || entry.failures !== 0) continue;
+        entry.dueAt = Math.min(entry.dueAt, now() + intervalMs(entry.account.provider));
       }
       arm();
       emitStatus();

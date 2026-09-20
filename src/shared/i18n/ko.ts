@@ -127,6 +127,7 @@ export const ko = {
   pixels: '{n}px',
   alphaLabel: '카드 배경 불투명도',
   refreshIntervalLabel: '데이터 갱신 주기',
+  refreshIntervalHint: 'Codex·Grok은 최소 {cli}초, Antigravity는 최소 {antigravity}초 간격으로 자동 조회합니다. 새로고침 버튼은 바로 조회합니다.',
   interval15: '15초',
   interval30: '30초',
   interval60: '1분 (기본)',

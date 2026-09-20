@@ -127,6 +127,7 @@ export const en: Record<keyof typeof ko, string> = {
   pixels: '{n}px',
   alphaLabel: 'Card Background Opacity',
   refreshIntervalLabel: 'Refresh Interval',
+  refreshIntervalHint: 'Codex and Grok are polled at most every {cli} s and Antigravity every {antigravity} s. The refresh button fetches right away.',
   interval15: '15s',
   interval30: '30s',
   interval60: '1 min (default)',

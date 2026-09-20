@@ -239,8 +239,55 @@ describe('scheduler', () => {
     scheduler.stop();
   });
 
+  it('never polls a provider faster than its floor, however short the setting is', async () => {
+    const accounts = [account('cl', 'claude'), account('cx', 'codex'), account('gk', 'grok'), account('ag', 'antigravity')];
+    const { scheduler, calls } = harness(accounts, { intervalSec: () => 15 });
+    scheduler.start();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(calls.map((c) => c.account.id).sort()).toEqual(['ag', 'cl', 'cx', 'gk']);
+    // Answer every fetch as soon as it is asked for, so only the schedule decides the next one.
+    let answered = 0;
+    const answerAll = (): void => {
+      for (; answered < calls.length; answered += 1) calls[answered]!.resolve({ snapshot: snap(calls[answered]!.account, 'ok') });
+    };
+    const countOf = (id: string): number => calls.filter((c) => c.account.id === id).length;
+    for (let second = 0; second < 120; second += 1) {
+      answerAll();
+      await vi.advanceTimersByTimeAsync(1_000);
+    }
+    answerAll();
+    // First run at 0 s, then: claude every 15 s, codex and grok every 60 s, antigravity every 120 s.
+    expect(countOf('cl')).toBe(9);
+    expect(countOf('cx')).toBe(3);
+    expect(countOf('gk')).toBe(3);
+    expect(countOf('ag')).toBe(2);
+    scheduler.stop();
+  });
+
+  it('keeps a longer setting for every provider and lets a manual refresh skip the floor', async () => {
+    const ag = account('ag', 'antigravity');
+    const { scheduler, calls } = harness([ag], { intervalSec: () => 300, manualMinIntervalMs: 0 });
+    scheduler.start();
+    await vi.advanceTimersByTimeAsync(0);
+    calls[0]!.resolve({ snapshot: snap(ag, 'ok') });
+    await vi.advanceTimersByTimeAsync(299_999);
+    expect(calls).toHaveLength(1);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(calls).toHaveLength(2);
+    calls[1]!.resolve({ snapshot: snap(ag, 'ok') });
+
+    await vi.advanceTimersByTimeAsync(10_000);
+    const manual = scheduler.refreshNow('ag');
+    await vi.advanceTimersByTimeAsync(0);
+    expect(calls).toHaveLength(3);
+    calls[2]!.resolve({ snapshot: snap(ag, 'ok') });
+    await manual;
+    scheduler.stop();
+  });
+
   it('stretches the interval on battery and applies a shorter interval immediately', async () => {
-    const a = account('a');
+    // claude has the 15 s floor, so the shortest setting applies unchanged.
+    const a = account('a', 'claude');
     let interval = 300;
     const { scheduler, calls } = harness([a], { intervalSec: () => interval });
     scheduler.setOnBattery(true);
