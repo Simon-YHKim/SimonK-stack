@@ -60,7 +60,9 @@
 #     minimal 도 받는다(실측 확인). 정책으로는 안 쓰지만 목록에는 사실대로 적는다.
 import hashlib
 import json
+import os
 import re
+import shutil
 import subprocess
 import sys
 
@@ -796,6 +798,21 @@ def codex_exec_argv(model, effort, sandbox="read-only", cwd_check=True):
     return argv
 
 
+def resolve_bin(argv):
+    """argv[0] 을 실제 실행 파일로 바꾼다. shell 은 여전히 쓰지 않는다.
+
+    2026-09-20 실측: 이 머신에서 `codex` 는 npm 전역 셰임 `codex.CMD` 다.
+    shell=False 로 부르면 CreateProcess 가 확장자 없는 이름을 못 풀어 **FileNotFoundError** 로
+    죽는다 - 다른 넷(orca · claude · grok · agy)은 .EXE 라 멀쩡해서 이 경로만 조용히 막혔다.
+    `adversarial_eval._resolve` 가 같은 일을 하는데 이쪽에만 없었다.
+    .cmd/.bat 은 CreateProcess 가 직접 못 띄우므로 `cmd /c` 로 감싼다.
+    """
+    exe = shutil.which(argv[0])
+    if exe and os.path.splitext(exe)[1].lower() in (".cmd", ".bat"):
+        return ["cmd", "/c", exe] + list(argv[1:])
+    return ([exe] + list(argv[1:])) if exe else list(argv)
+
+
 def run_codex_exec(prompt, model="gpt-6-astra", effort="ultra",
                    sandbox="read-only", cwd=None, timeout=1800, dry=False):
     """codex 직행 실행. 반환 (returncode, stdout, stderr).
@@ -808,7 +825,7 @@ def run_codex_exec(prompt, model="gpt-6-astra", effort="ultra",
         return 0, json.dumps({"argv": argv, "prompt_sha": spec_digest(prompt)},
                              ensure_ascii=False), ""
     try:
-        p = subprocess.run(argv, input=prompt or "", capture_output=True, text=True,
+        p = subprocess.run(resolve_bin(argv), input=prompt or "", capture_output=True, text=True,
                            encoding="utf-8", errors="replace",
                            cwd=cwd, timeout=timeout)      # shell=False
     except subprocess.TimeoutExpired:
