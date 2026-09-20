@@ -93,7 +93,10 @@ CONFIDENTIAL_PATTERNS = [
 
 SCOPE_WORDS = re.compile(
     r"(?i)(?:범위|스캔|검색한|조회한|찾아본|확인한 곳|\d+\s*곳|에서 확인|searched|scanned|"
-    r"scope|looked at|checked \d)")
+    r"scope|looked at|checked \d|"
+    # 이 시스템의 관측 단위는 한 번의 기동이다. "이번 턴에 웹훅 블록 없음" 은 어디를 봤는지를
+    # 말한 것이다 - 2026-09-20 vb-bd0ba78c 에서 이 문장이 범위 없는 부재로 걸렸다.
+    r"이번 (?:턴|프롬프트|기동|실행|회수|점검))")
 # A line that names its own source (URL or bare domain) is scoped by that source,
 # e.g. a table row "| Cursor | 변경일 없음 | cursor.com/pricing |" (2026-09-19 pilot).
 SOURCE_RE = re.compile(
@@ -113,7 +116,7 @@ ABSENCE_WORDS = re.compile(
 # failed for saying it hit no write error. A finding-absence still needs its scope -
 # "취약점 없음" has none of these words and is still caught.
 SELF_STATUS_RE = re.compile(
-    r"(?i)(?:실패|오류|에러|예외|거부|차단|error|failure|exception|denied|blocked)")
+    r"(?i)(?:실패|오류|에러|예외|거부|차단|막힘|막힌|error|failure|exception|denied|blocked)")
 # The sheet template asks for a "한 일 / 안 한 일" section, and every line under it is a
 # statement about the bot's own conduct ("봇 답 대필/날조 없음"), never a finding. Exempt the
 # section instead of chasing one more verb each time - three of today's four G6 hits were
