@@ -173,6 +173,19 @@ describe('antigravity adapter', () => {
   );
 
   it(
+    'classifies a connectivity failure as network and logs a masked reason for the next diagnosis',
+    async () => {
+      const { adapter, account } = setup('network-error');
+      expect(await adapter.fetchUsage(account, never)).toMatchObject({ state: 'error', errorCode: 'network', windows: [] });
+      const line = logLines.find((entry) => entry.includes('agy usage run failed')) ?? '';
+      expect(line).toContain('"status":"ERROR"');
+      expect(line).toContain('connection reset by peer');
+      expect(line).not.toContain('someone@example.com');
+    },
+    TEST_TIMEOUT,
+  );
+
+  it(
     'kills a hanging agy at the timeout and honours abort',
     async () => {
       const slow = setup('hang', { timeouts: { usageMs: 1_500 } });

@@ -28,6 +28,7 @@ if (args[0] === '--version') {
 if (args[0] !== 'app-server') process.exit(2);
 const scenario = JSON.parse(fs.readFileSync(path.join(home, 'fake-scenario.json'), 'utf8'));
 const responses = scenario.responses || {};
+const calls = {};
 function alivePeers() {
   try {
     return fs.readFileSync(path.join(home, 'fake-log.jsonl'), 'utf8').split('\\n').filter(Boolean)
@@ -61,6 +62,11 @@ function handle(message) {
   log({ kind: 'recv', message: message });
   if (message.id === undefined) return;
   let spec = responses[message.method];
+  // { sequence: [specA, specB] }: one spec per call, the last one repeats.
+  if (spec !== undefined && Array.isArray(spec.sequence)) {
+    calls[message.method] = (calls[message.method] || 0) + 1;
+    spec = spec.sequence[Math.min(calls[message.method], spec.sequence.length) - 1];
+  }
   if (spec === undefined && message.method === 'initialize') {
     spec = {
       result: { userAgent: 'fake/1', codexHome: scenario.codexHome || home, platformFamily: 'windows', platformOs: 'windows', futureField: true },
@@ -114,6 +120,8 @@ const TIMEOUTS: NonNullable<CodexAdapterOptions['timeouts']> = {
   loginCancelMs: 2_000,
   exitGraceMs: 1_000,
   versionMs: 10_000,
+  verifyAttempts: 4,
+  verifyDelayMs: 50,
 };
 const TEST_TIMEOUT = 30_000;
 
@@ -555,6 +563,49 @@ describe('codex adapter: device-code login', () => {
       expect(messages[2]?.params).toEqual({ type: 'chatgptDeviceCode' });
       const pid = readLog(account.profileDir).find((entry) => entry.kind === 'start')?.pid ?? 0;
       expect(await waitUntil(() => !isAlive(pid), 5000)).toBe(true);
+    },
+    TEST_TIMEOUT,
+  );
+
+  it(
+    'keeps reading the account after a successful login until the app-server has reloaded auth',
+    async () => {
+      const { account, adapter } = setup();
+      writeScenario(account, {
+        responses: {
+          'account/login/start': {
+            ...START_OK,
+            then: [{ method: 'account/login/completed', params: { loginId: 'login-1', success: true, error: null }, delayMs: 50 }],
+          },
+          // Right after the login the app-server still answers "no account" twice.
+          'account/read': { sequence: [ACCOUNT_NONE, ACCOUNT_NONE, ACCOUNT_PRO] },
+        },
+      });
+      const events: LoginEvent[] = [];
+      await adapter.startLogin(account, (event) => events.push(event), signal());
+      expect(events.at(-1)).toEqual({ type: 'success', emailMasked: 'j***@e***.com', plan: 'pro' });
+      expect(received(account.profileDir).filter((m) => m.method === 'account/read')).toHaveLength(3);
+    },
+    TEST_TIMEOUT,
+  );
+
+  it(
+    'trusts the completed login when the account view never catches up, instead of reporting a failure',
+    async () => {
+      const { account, adapter } = setup();
+      writeScenario(account, {
+        responses: {
+          'account/login/start': {
+            ...START_OK,
+            then: [{ method: 'account/login/completed', params: { loginId: 'login-1', success: true, error: null }, delayMs: 50 }],
+          },
+          'account/read': ACCOUNT_NONE,
+        },
+      });
+      const events: LoginEvent[] = [];
+      await adapter.startLogin(account, (event) => events.push(event), signal());
+      expect(events.at(-1)).toEqual({ type: 'success' });
+      expect(received(account.profileDir).filter((m) => m.method === 'account/read')).toHaveLength(4);
     },
     TEST_TIMEOUT,
   );

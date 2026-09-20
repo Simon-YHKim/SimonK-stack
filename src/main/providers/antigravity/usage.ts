@@ -10,8 +10,8 @@ export type AgyUsageParse =
   | { kind: 'ok'; windows: QuotaWindow[] }
   /** Valid JSON that is not a zero-turn `/usage` command result: the slash command was not expanded. */
   | { kind: 'not-usage-command' }
-  /** The CLI answered but reported a failure status. */
-  | { kind: 'failed'; status: string }
+  /** The CLI answered but reported a failure status. `reason` is the CLI's own short text, for masked logging only. */
+  | { kind: 'failed'; status: string; reason?: string }
   | { kind: 'malformed' };
 
 const WINDOW_MINUTES: Readonly<Record<string, number>> = {
@@ -70,7 +70,19 @@ export function parseAgyUsage(stdout: string): AgyUsageParse {
     return { kind: 'malformed' };
   }
   if (!isRecord(root)) return { kind: 'malformed' };
-  if (typeof root.status === 'string' && root.status !== 'SUCCESS') return { kind: 'failed', status: root.status.slice(0, 40) };
+  if (typeof root.status === 'string' && root.status !== 'SUCCESS') {
+    const failed: { kind: 'failed'; status: string; reason?: string } = { kind: 'failed', status: root.status.slice(0, 40) };
+    // Field name unknown (no failure has been captured yet): take the first short text the CLI offers.
+    for (const key of ['error', 'message', 'response']) {
+      const field = root[key];
+      const value = isRecord(field) ? field.message : field;
+      if (typeof value === 'string' && value.trim() !== '') {
+        failed.reason = value.replace(/\s+/g, ' ').trim().slice(0, 160);
+        break;
+      }
+    }
+    return failed;
+  }
 
   const command = root.command;
   if (!isRecord(command) || command.name !== 'usage' || root.num_turns !== 0) return { kind: 'not-usage-command' };

@@ -38,6 +38,11 @@ switch (scenario) {
     process.stderr.write('Error: not logged in. Run agy to sign in.\n');
     process.exitCode = 1;
     break;
+  case 'network-error':
+    // Shape assumed (no real failure captured yet): a non-success status with a short error text.
+    process.stdout.write(JSON.stringify({ status: 'ERROR', error: 'request failed for someone@example.com: connection reset by peer' }));
+    process.exitCode = 1;
+    break;
   case 'garbage':
     process.stdout.write('<<not json>>');
     break;

@@ -271,21 +271,36 @@ export function createCodexAdapter(deps: ProviderDeps, options: CodexAdapterOpti
               return;
             }
             if (!outcome.completed.success) {
+              logger.info('codex login reported failure', { accountId: account.id, stage: 'completed' });
               fail(classifyLoginError(outcome.completed.error ?? ''));
               return;
             }
 
+            // The app-server re-reads auth.json on a timer (about once a second), so account/read
+            // right after a successful login can still answer "no account". That made a login that
+            // had worked show as failed (profile log 26.09.19 12:02, DECISIONS 26.09.20 11:54).
             send({ type: 'progress', stage: 'verifying' });
-            let identity: CodexAccountInfo | null;
-            try {
-              identity = await readAccount(current, opSignal);
-            } catch (error) {
-              logger.warn('account/read after login failed', { code: explainFailure(error, current, opSignal).code });
-              identity = null;
+            let identity: CodexAccountInfo | null = null;
+            for (let attempt = 0; attempt < timeouts.verifyAttempts; attempt += 1) {
+              if (attempt > 0) await sleep(timeouts.verifyDelayMs, opSignal);
+              if (opSignal.aborted) break;
+              try {
+                identity = await readAccount(current, opSignal);
+              } catch (error) {
+                logger.warn('account/read after login failed', { code: explainFailure(error, current, opSignal).code });
+                identity = null;
+                break;
+              }
+              if (identity.kind !== 'none') break;
+            }
+            if (opSignal.aborted) {
+              fail('cancelled');
+              return;
             }
             if (identity?.kind === 'none') {
-              fail('login-failed');
-              return;
+              // The CLI said the login succeeded; a lagging account view must not turn that into a failure.
+              logger.warn('codex login succeeded but account/read still reports no account', { accountId: account.id });
+              identity = null;
             }
             const success: Extract<LoginEvent, { type: 'success' }> = { type: 'success' };
             if (identity?.kind === 'chatgpt') {
@@ -440,6 +455,25 @@ export function createCodexAdapter(deps: ProviderDeps, options: CodexAdapterOpti
   }
 
   return adapter;
+}
+
+/** Resolves after `ms` or as soon as `signal` aborts; never rejects. */
+function sleep(ms: number, signal: AbortSignal): Promise<void> {
+  return new Promise<void>((resolve) => {
+    if (signal.aborted) {
+      resolve();
+      return;
+    }
+    const onAbort = (): void => {
+      clearTimeout(timer);
+      resolve();
+    };
+    const timer = setTimeout(() => {
+      signal.removeEventListener('abort', onAbort);
+      resolve();
+    }, ms);
+    signal.addEventListener('abort', onAbort, { once: true });
+  });
 }
 
 function waitForLogin(

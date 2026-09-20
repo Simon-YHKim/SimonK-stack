@@ -5,6 +5,7 @@
 
 import { mkdir, rm } from 'node:fs/promises';
 import path from 'node:path';
+import { maskSecrets } from '../../../shared/mask';
 import type { Account, ErrorCode, LoginEvent, UsageSnapshot } from '../../../shared/types';
 import { createEmptySnapshot } from '../../../shared/usage';
 import { defaultResolveDeps, resolveCommand, type ResolveDeps } from '../../cli/resolve';
@@ -76,6 +77,9 @@ export function parseAgyVersion(output: string): string | undefined {
 
 /** Sign-in wording of a CLI that has no account; anything else stays "unknown", never "logged out". */
 const SIGNED_OUT_PATTERN = /\b(not (?:logged|signed) in|sign in required|login required|please (?:log|sign) in|unauthenticated)\b/i;
+
+/** Connectivity wording; shown as a network error and retried with the normal back-off. */
+const NETWORK_PATTERN = /\b(network|dns|econn\w*|enotfound|etimedout|timed? ?out|connection (?:refused|reset|closed)|unreachable|tls|socket hang up|offline)\b/i;
 
 type ProbeResult =
   | { kind: 'ok'; windows: UsageSnapshot['windows'] }
@@ -151,10 +155,22 @@ export function createAntigravityAdapter(deps: ProviderDeps, options: Antigravit
       logger.warn('agy did not expand /usage as a command; antigravity polling is off until restart', { accountId: account.id });
       return fail('unavailable', 'cli-unsupported-version');
     }
-    // Output may name the account; only the classification is logged.
     const text = stripAnsi(`${result.stdout}\n${result.stderr}`);
     if (SIGNED_OUT_PATTERN.test(text)) return fail('logged-out', 'not-logged-in');
-    logger.info('agy usage run failed', { accountId: account.id, exitCode: result.exitCode, parse: parsed.kind });
+    // Output may name the account, so only the status, a masked short reason and the first stderr
+    // line are kept. The one failure seen so far (26.09.20 08:12) could not be explained because
+    // nothing but "failed" had been recorded.
+    const stderrLine = stripAnsi(result.stderr).split(/\r?\n/).find((line) => line.trim() !== '');
+    logger.info('agy usage run failed', {
+      accountId: account.id,
+      exitCode: result.exitCode,
+      parse: parsed.kind,
+      status: parsed.kind === 'failed' ? parsed.status : undefined,
+      reason: parsed.kind === 'failed' && parsed.reason !== undefined ? maskSecrets(parsed.reason) : undefined,
+      stderr: stderrLine === undefined ? undefined : maskSecrets(stderrLine.trim().slice(0, 160)),
+      durationMs: result.durationMs,
+    });
+    if (NETWORK_PATTERN.test(text)) return fail('error', 'network');
     return fail('error', parsed.kind === 'failed' ? 'provider-error' : 'parse-error');
   };
 

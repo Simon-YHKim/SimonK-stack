@@ -17,6 +17,9 @@ export interface CodexTimeouts {
   /** Grace period after closing stdin before the process tree is killed. */
   exitGraceMs: number;
   versionMs: number;
+  /** account/read tries after a successful login, while the app-server still reloads auth.json. */
+  verifyAttempts: number;
+  verifyDelayMs: number;
 }
 
 export const DEFAULT_TIMEOUTS: Readonly<CodexTimeouts> = {
@@ -27,6 +30,9 @@ export const DEFAULT_TIMEOUTS: Readonly<CodexTimeouts> = {
   loginCancelMs: 3_000,
   exitGraceMs: 1_500,
   versionMs: 15_000,
+  // The reload timer ticks about once a second: five tries cover four ticks.
+  verifyAttempts: 5,
+  verifyDelayMs: 1_000,
 };
 
 /**
