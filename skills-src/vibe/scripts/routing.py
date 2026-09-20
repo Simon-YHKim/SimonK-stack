@@ -234,6 +234,11 @@ CODEX_DIRECT_EFFORTS = ("low", "medium", "high", "xhigh", "max", "ultra")
 
 VENDORS = ["claude", "codex", "gemini", "grok"]
 
+# G5 를 의도적으로 건너뛸 때만 쓰는 표식(2026-09-20). 기본값 None 은 이제 '미확인'이라
+# 위반으로 잡힌다 - 게이트가 호출자의 기억에 의존하지 않게 하려는 것이다.
+# 문자열로 둔 이유: 건너뛴 사실이 로그·원장·예외 메시지에 그대로 남아야 한다.
+QUOTA_SKIP = "quota-check-skipped"
+
 # ── 클래스 → 레인 우선순위 (발주 §5) ────────────────────────────
 CLASS_LANES = {
     # D-28 #3 (Simon 확정 2026-09-16): gemini(과제 전달 실패)·grok(402)을 강등·탐색 목적지에서 뺀다.
@@ -942,9 +947,13 @@ def check_guards(assignments, quota_checked_vendors=None, spawn_counts=None):
             v.append("G3")
 
     # G5 — 4벤더 쿼터 미확인 상태로 디스패치
-    if quota_checked_vendors is not None:
+    # 2026-09-20: 인자를 생략하면(None) 검사를 건너뛰던 것을 **미확인으로 본다**.
+    #   validate_plan(plan) 한 줄이 (True, [], []) 로 통과했다 - '코드가 막는다'는 약속이
+    #   호출자가 인자를 기억하는지에 달려 있었다. 이제 기본이 막는 쪽이고, 정말 건너뛰려면
+    #   QUOTA_SKIP 을 명시해야 한다(문자열이라 로그·원장에 그대로 남는다).
+    if quota_checked_vendors is not QUOTA_SKIP:
         used = {LANES[a["lane"]]["vendor"] for a in assignments if a.get("lane") in LANES}
-        if used - set(quota_checked_vendors):
+        if used - set(quota_checked_vendors or ()):
             v.append("G5")
 
     # 탐색 슬롯이 D·보안·코딩에 배정 (코딩은 EXPLORE_EXCLUDE — D-28 C2)
@@ -996,8 +1005,8 @@ def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None, qu
             notes.append(f"{a.get('proc')}: A-verify 는 읽기 전용 — 파일을 바꾸면 coding 으로 재분류한다 (D-28 #4)")
 
     # G5 는 '4벤더 각각' 이다 — 쓰는 벤더만 확인하는 것으로는 부족하다
-    if quota_checked_vendors is not None:
-        missing = set(VENDORS) - set(quota_checked_vendors)
+    if quota_checked_vendors is not QUOTA_SKIP:
+        missing = set(VENDORS) - set(quota_checked_vendors or ())
         if missing:
             if "G5" not in v:
                 v.append("G5")

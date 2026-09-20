@@ -394,6 +394,20 @@ def run():
         okp2, vp2, _ = routing.validate_plan(a_ok, quota_checked_vendors=routing.VENDORS)
         check("정본 계획은 검증 통과", okp2, str(vp2))
 
+        # 2026-09-20 — 인자를 생략한 호출이 G5 를 그냥 통과했다. 기존 테스트가 전부
+        # quota_checked_vendors 를 넘겨서 이 경로를 한 번도 밟지 않았고, 그래서 구멍이 살았다.
+        ok_omit, v_omit, n_omit = routing.validate_plan(a_ok)
+        check("쿼터 인자를 생략하면 미확인으로 보고 막는다",
+              (not ok_omit) and "G5" in v_omit, f"{v_omit} {n_omit}")
+        ok_none, v_none, _ = routing.validate_plan(a_ok, quota_checked_vendors=None)
+        check("None 도 생략과 같다", (not ok_none) and "G5" in v_none, str(v_none))
+        ok_skip, v_skip, _ = routing.validate_plan(a_ok,
+                                                   quota_checked_vendors=routing.QUOTA_SKIP)
+        check("QUOTA_SKIP 을 명시하면 건너뛴다", ok_skip and "G5" not in v_skip, str(v_skip))
+        check("건너뛴 사실이 문자열로 남는다", isinstance(routing.QUOTA_SKIP, str))
+        check("check_guards 도 생략하면 G5",
+              "G5" in routing.check_guards(a_ok), str(routing.check_guards(a_ok)))
+
         # 결정 시트 입력 스키마
         for label, items_ in [
             ("CLI 슬러그 lane", [{"id": "i1", "lane": "gemini-3.8-flash-high", "title": "t"}]),
@@ -762,6 +776,52 @@ def run():
               ae.TRUTH_POST["prefix_count"]("## Latest a\n x ## Latest\n", 0, "## Latest") == "1")
         check("grep_yesno 는 없으면 no",
               ae.TRUTH_POST["grep_yesno"]("a\nb\n", 0, "zzz") == "no")
+
+        # (1-b) G12 preflight — 2026-09-20: rc 를 받아놓고 안 봤다. 종료코드 1 인 실패 응답도
+        # 본문에 ANSWER 줄만 있으면 '가용'으로 캐시됐다. 캐시·모델 호출은 대체한다.
+        _orig_run_lane, _orig_cache = ae.run_lane, ae.VENDOR_CACHE
+        try:
+            import tempfile as _tf
+            ae.VENDOR_CACHE = os.path.join(_tf.mkdtemp(), "eval-vendors.json")
+            ae.run_lane = lambda *a, **k: (1, "ANSWER: UNKNOWN", "boom", 0.0)
+            got = ae.preflight("nowhere", force=True)
+            check("G12 — 종료코드가 1 이면 답이 와도 불가용",
+                  all(not d["ok"] for d in got.values()), str(got))
+            check("G12 — 사유에 종료코드가 남는다",
+                  any("1" in str(d.get("note", "")) for d in got.values()), str(got))
+            ae.run_lane = lambda *a, **k: (0, "ANSWER: OK", "", 0.1)
+            got2 = ae.preflight("nowhere", force=True)
+            check("G12 — rc 0 이고 답이 있으면 가용",
+                  all(d["ok"] for d in got2.values()), str(got2))
+
+            # 2026-09-20 게이트 B1 — rc 를 안 보던 시절의 캐시가 그대로 재사용되면
+            # 패치가 새 측정에만 붙고 기존 오판이 6~24시간 더 산다.
+            import json as _json
+            import time as _time
+            calls = {"n": 0}
+
+            def _counting(*a, **k):
+                calls["n"] += 1
+                return (1, "ANSWER: UNKNOWN", "boom", 0.0)
+
+            old_cache = {"at": "old", "at_epoch": _time.time(),
+                         "vendors": {v: {"ok": True, "note": "ok", "sec": 1}
+                                     for v in ae.ALL_VENDORS}}
+            with open(ae.VENDOR_CACHE, "w", encoding="utf-8") as fh:
+                _json.dump(old_cache, fh)
+            ae.run_lane = _counting
+            got3 = ae.preflight("nowhere")          # force 없이 - 캐시를 쓰려 한다
+            check("G12 — 판정 버전 없는 옛 캐시는 재사용하지 않는다",
+                  calls["n"] > 0 and all(not d["ok"] for d in got3.values()),
+                  f"run_lane {calls['n']}회 {got3}")
+            with open(ae.VENDOR_CACHE, encoding="utf-8") as fh:
+                written = _json.load(fh)
+            check("G12 — 새 캐시에는 판정 버전과 rc 가 남는다",
+                  written.get("verdict_v") == ae.VERDICT_V
+                  and all("rc" in d for d in written["vendors"].values()),
+                  str(written)[:160])
+        finally:
+            ae.run_lane, ae.VENDOR_CACHE = _orig_run_lane, _orig_cache
         check("exit_to_yesno 는 종료코드를 답으로 읽는다",
               ae.TRUTH_POST["exit_to_yesno"]("", 0, "") == "yes"
               and ae.TRUTH_POST["exit_to_yesno"]("", 1, "") == "no")

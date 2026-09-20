@@ -112,6 +112,10 @@ def read_live(now=None):
     try:
         with open(LIVE_PATH, encoding="utf-8") as fh:
             d = json.load(fh)
+        # 2026-09-20 (게이트 B1): rc 를 보지 않던 판정으로 쓰인 캐시는 '가용'이라 적혀 있어도
+        # 근거가 다르다. 버전이 없거나 낮으면 읽지 않은 것으로 본다 - 미확인이 오판보다 낫다.
+        if int(d.get("verdict_v") or 0) < 2:
+            return None
         age = now - float(d.get("at_epoch") or 0)
         vendors = {k: bool((v or {}).get("ok")) for k, v in (d.get("vendors") or {}).items()}
         return {"at": d.get("at"), "age_sec": age, "stale": age > LIVE_STALE_SEC, "vendors": vendors}

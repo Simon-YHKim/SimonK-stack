@@ -71,6 +71,10 @@ LEDGER = os.path.join(STATE_DIR, "eval-ledger.jsonl")
 VENDOR_CACHE = os.path.join(STATE_DIR, "eval-vendors.json")
 DUE_DAYS = 14
 VENDOR_CACHE_HOURS = 6
+# 판정 버전. rc 를 보지 않던 시절(v1 이전)의 캐시는 '가용'이라고 적혀 있어도 근거가 다르다 —
+# 그 캐시를 그대로 재사용하면 패치가 새 측정에만 적용되고 기존 오판은 6~24시간 더 살아남는다.
+# (2026-09-20 비즈로직 게이트 B1) 버전이 낮거나 없으면 캐시를 버리고 다시 잰다.
+VERDICT_V = 2
 
 # 레인 -> 벤더. G10(채점자 벤더 분리) 판정에 쓴다.
 VENDOR_OF = {
@@ -351,7 +355,8 @@ def preflight(repo, force=False, dry=False):
     if not force and os.path.isfile(VENDOR_CACHE):
         try:
             c = json.load(open(VENDOR_CACHE, encoding="utf-8"))
-            if (time.time() - c.get("at_epoch", 0)) < VENDOR_CACHE_HOURS * 3600:
+            if (int(c.get("verdict_v") or 0) >= VERDICT_V
+                    and (time.time() - c.get("at_epoch", 0)) < VENDOR_CACHE_HOURS * 3600):
                 return c["vendors"]
         except Exception:  # noqa: BLE001
             pass
@@ -362,11 +367,18 @@ def preflight(repo, force=False, dry=False):
     for v in ALL_VENDORS:
         rc, so, se, sec = run_lane(probe_lane[v], probe_eff[v], PING, repo, timeout=300)
         ans = extract_answer(so)
-        ok = ans is not None
-        out[v] = {"ok": ok, "note": "ok" if ok else _why_down(so + "\n" + se),
-                  "sec": round(sec, 1)}
+        # 2026-09-20: rc 를 받아놓고 쓰지 않았다. 종료코드 1 짜리 실패 응답이라도 본문에
+        # ANSWER 줄만 있으면 '가용'으로 6시간 캐시됐다 - G12 는 '쿼터로는 안 보이는 불가용'을
+        # 잡으려고 만든 게이트인데 바로 그 자리에서 열려 있었다. rc 를 판정에 넣는다.
+        ok = (rc == 0) and (ans is not None)
+        if ans is not None and rc != 0:
+            note = f"종료코드 {rc} - 답은 왔지만 호출이 실패했다"
+        else:
+            note = "ok" if ok else _why_down(so + "\n" + se)
+        out[v] = {"ok": ok, "note": note, "sec": round(sec, 1), "rc": rc}
     os.makedirs(STATE_DIR, exist_ok=True)
-    json.dump({"at": time.strftime("%Y-%m-%dT%H:%M:%S"), "at_epoch": time.time(),
+    json.dump({"verdict_v": VERDICT_V,
+               "at": time.strftime("%Y-%m-%dT%H:%M:%S"), "at_epoch": time.time(),
                "vendors": out}, open(VENDOR_CACHE, "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
     return out
