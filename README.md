@@ -166,6 +166,18 @@ Office     & Design               & Platform & Compl.   & Revenue  & Memory   De
 
 ---
 
+## 📦 같이 들어 있는 앱 — AI Usage Widget
+
+`apps/ai-usage-widget/` — Windows 작업 표시줄 옆에 Claude·Codex·Grok·Antigravity **구독 사용량**(5시간·주간 한도, 리셋까지 남은 시간)을 띄우는 Electron 위젯. 각 공급자의 **공식 CLI 경로만** 쓰고, 조회에 실패하면 가짜 숫자 대신 "미확인"과 마지막 실측 시각을 보여 준다.
+
+```powershell
+# 소스에서 빌드 → 검증 → 사용자 전용 설치 (Windows, node + pnpm + git 필요)
+& ".\skills-src\ai-usage-widget-install\scripts\install-widget.ps1"
+& ".\skills-src\ai-usage-widget-install\scripts\install-widget.ps1" -Status   # 상태만
+```
+
+Claude Code 안에서는 `/ai-usage-widget-install` 또는 "AI 사용량 위젯 설치해줘". 로그인(브라우저·기기 코드)은 위젯 화면에서 사용자가 직접 한다. 타사 로고의 권리는 각 소유자에게 있다 — `NOTICE` 참고.
+
 ## 🤖 simonK — CEO 사무실 + Chief of Staff
 
 회사의 모든 부서를 묶어주는 자율 진입점. 단일 명령으로 6 phase 자율 흐름.

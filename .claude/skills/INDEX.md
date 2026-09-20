@@ -210,6 +210,7 @@
 | `setup-browser-cookies` (Gstack) | 브라우저 쿠키 가져오기 |
 | `open-gstack-browser` (Gstack) | GStack Browser 실행 |
 | `gstack-upgrade` (Gstack) | Gstack 버전 업데이트 (gstack-only) |
+| `ai-usage-widget-install` | `apps/ai-usage-widget`(Claude·Codex·Grok·Antigravity 사용량 작업 표시줄 위젯)를 소스에서 빌드·검증해 사용자 전용 설치, 상태 점검, 브리지 안전장치가 있는 제거 |
 | `stack-update` | **전체 SimonK Stack holistic 최신화** — SimonK-stack + Wiki + gstack + 5 vendored + skill 재설치 |
 | `omc-upgrade` | vendored oh-my-claudecode 단독 최신화 |
 | `omo-upgrade` | vendored oh-my-openagent 단독 최신화 |
