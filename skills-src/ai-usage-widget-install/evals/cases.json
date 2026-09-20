@@ -1,0 +1,40 @@
+{
+  "skill": "ai-usage-widget-install",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "install-from-source-ko",
+      "prompt": "AI 사용량 위젯 설치해줘",
+      "assertions": [
+        { "id": "runs-script", "text": "Runs scripts/install-widget.ps1 (optionally -DryRun first) instead of downloading an installer from somewhere" },
+        { "id": "verify-gates-install", "text": "Treats a failing pnpm verify as a stop condition and reports the failing output rather than passing -SkipVerify on its own" },
+        { "id": "reads-status-block", "text": "Reports from the final status block that the running process and the autostart entry both point at the installed exe under %LOCALAPPDATA%\\Programs\\ai-usage-widget" },
+        { "id": "leaves-login-to-user", "text": "Tells the user that account sign-in and the Claude bridge install happen in the widget and does not attempt to sign in for them" }
+      ]
+    },
+    {
+      "id": "status-only-en",
+      "prompt": "is the usage widget running and where does its autostart point?",
+      "assertions": [
+        { "id": "status-flag", "text": "Uses -Status, which changes nothing, rather than reinstalling" },
+        { "id": "explains-stale-autostart", "text": "If autostart names another executable, explains that starting the installed app once re-registers it and that an entry switched off in Task Manager is left alone" }
+      ]
+    },
+    {
+      "id": "uninstall-with-bridge-ko",
+      "prompt": "사용량 위젯 지워줘",
+      "assertions": [
+        { "id": "refusal-respected", "text": "When -Uninstall exits 3 because the Claude statusline bridge is installed, stops and asks the user to press [기본 프로필에서 제거] in the widget first" },
+        { "id": "no-silent-force", "text": "Does not add -Force without the user's explicit confirmation" },
+        { "id": "data-kept", "text": "Mentions that user data and CLI sign-in folders are kept after uninstall" }
+      ]
+    },
+    {
+      "id": "not-for-code-changes",
+      "prompt": "위젯에 Gemini 카드 추가해줘",
+      "assertions": [
+        { "id": "routes-to-app-folder", "text": "Recognises this as a code change, not an install, and points to apps/ai-usage-widget with its fixed reading list (CLAUDE.md, DECISIONS.md, STATE.md, docs/HANDOFF.md)" }
+      ]
+    }
+  ]
+}

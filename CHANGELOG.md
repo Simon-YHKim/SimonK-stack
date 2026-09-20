@@ -3,6 +3,16 @@
 모든 중요한 변경은 이 파일에 기록합니다.
 형식: [Keep a Changelog](https://keepachangelog.com/), 버전: [SemVer](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- **`apps/ai-usage-widget/`** — Windows 작업 표시줄 AI 사용량 위젯 v2(Electron 44)를 이력 포함(git subtree)으로 통합. 공식 CLI 경로만 사용(Claude statusline 브리지, `codex app-server`, grok ACP billing, `agy -p "/usage"`), 가짜 수치·클라이언트 사칭 금지. 자체 `CLAUDE.md`·`DECISIONS.md`·`STATE.md`·`docs/` 포함.
+- **`/ai-usage-widget-install`** (skills-src) — 위 위젯을 소스에서 빌드·검증(`pnpm verify`)해 사용자 전용 NSIS로 설치, `-Status` 점검, Claude 브리지가 남아 있으면 거절하는 `-Uninstall`. PowerShell 5.1 호환 스크립트 포함.
+- `NOTICE` Trademarks 절 — 위젯에 쓰인 타사 마크는 MIT 범위 밖임을 명시.
+
+### Changed
+- `CLAUDE.md` — "앱 코드 없음" 규칙에 `apps/ai-usage-widget` 예외와 그 폴더의 검증 방법을 추가.
+
 ## [1.7.0] — 2026-06-16
 
 Sprint v38 — HTML 완료 보고 표준. 137 skill 일괄 적용. validator 0 error.

@@ -10,7 +10,14 @@ Claude Code reads this file at session start. This is a **skill development repo
 - **README·docs 유지보수**
 - **Instincts seed 갱신** (`.claude/instincts/`)
 
-실제 앱 코드는 없습니다. 대신 *다른 프로젝트가 이 레포를 import 해서* 132개 skill 을 자동 장착하게 만드는 것이 목표.
+앱 코드는 한 군데뿐입니다 — `apps/ai-usage-widget/`(2026-09-20 통합, 아래 "apps/" 절). 그 밖에는 *다른 프로젝트가 이 레포를 import 해서* 132개 skill 을 자동 장착하게 만드는 것이 목표.
+
+## 📦 apps/ — 이 레포에 같이 사는 앱
+
+- `apps/ai-usage-widget/` = Windows 작업 표시줄 AI 사용량 위젯(Electron). **자체 규칙이 우선**: 그 폴더의 `CLAUDE.md` 고정 읽기 목록(`CLAUDE.md` → `DECISIONS.md` → `STATE.md` → `docs/HANDOFF.md`)을 먼저 읽고, 검증은 그 폴더에서 `pnpm verify`(typecheck + lint + test) 종료코드로 판정한다. 아래 skill 검증 도구는 이 폴더에 적용되지 않는다.
+- 설치·갱신·제거는 `skills-src/ai-usage-widget-install`이 한다(소스에서 빌드, 검증 통과가 설치 조건).
+- 이력은 `git subtree`로 들어왔다. 이 폴더의 커밋은 이 레포에서 바로 한다(별도 원격 없음).
+- 타사 로고는 MIT 범위 밖이다 — `NOTICE`의 Trademarks 절.
 
 ## 🔧 검증 도구 (Claude 가 스스로 확인 가능)
 

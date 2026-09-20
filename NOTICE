@@ -1,3 +1,12 @@
 SimonKStack — attribution
 일부 스킬은 Garry Tan 의 gstack (MIT) 에서 재배치되었을 수 있으며 SKILL.md 에 출처 주석을 유지합니다.
 원 SimonK 스킬: (c) Simon Kim (Simon-YHKim).
+
+Trademarks — apps/ai-usage-widget
+The widget shows third-party marks only to identify the services whose usage it reports:
+the Claude mark (Anthropic), the OpenAI blossom used for Codex (OpenAI), the Grok mark (xAI) and the
+Antigravity mark (Google). They live in apps/ai-usage-widget/resources/icons/ and
+apps/ai-usage-widget/src/renderer/src/brand-marks.ts. These marks belong to their owners and are NOT
+covered by this repository's MIT license. The widget is an independent personal tool; it is not
+affiliated with, endorsed by or sponsored by Anthropic, OpenAI, xAI or Google. If you redistribute the
+widget, follow each owner's brand guidelines or replace the marks.

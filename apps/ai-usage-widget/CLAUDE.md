@@ -9,8 +9,11 @@
 - `src/` 아래 코드를 건드리기 전에 `docs/DESIGN.md`(계약·소유권 맵)를 읽는다. 계약 파일은 소유 모듈 밖에서 고치지 않는다.
 
 ## 무엇인가
-Windows 작업표시줄 옆에 뜨는 AI 구독 사용량 위젯. v1(C:\AI.Usage.Widget-1.0.2-win, 소스 없음)을 재구성한 v2.
-소스 위치 = `E:\Coding Infra\dev\ai-usage-widget`(26.09.19 C:\dev에서 이동, DECISIONS 26.09.19 11:20). 과거 기록의 `C:\dev\...` 경로는 이 위치로 읽는다.
+Windows 작업표시줄 옆에 뜨는 AI 구독 사용량 위젯. v1(AI Usage Widget 1.0.2, 소스 없음)을 재구성한 v2.
+소스 위치 = **공개 리포 `github.com/Simon-YHKim/SimonK-stack`의 `apps/ai-usage-widget/`**(26.09.20 git subtree 통합, DECISIONS 26.09.20 12:05). 로컬 = `E:\Coding Infra\Harrness Eng\SimonK-stack\apps\ai-usage-widget`. 과거 기록의 `C:\dev\...`·`E:\Coding Infra\dev\...` 경로는 이 위치로 읽는다.
+- **공개 리포다.** 커밋 전에 실제 키·토큰·이메일·계정 식별자가 없는지 본다. 실측 응답을 픽스처로 넣을 때는 식별자를 지운다.
+- 스택 리포는 여러 에이전트가 동시에 쓴다: 작업 전 `git fetch`, 다른 파일을 같이 고칠 때는 워크트리로 격리, 커밋은 `apps/ai-usage-widget/` 경로만 명시해서 올린다(`git add -A` 금지).
+- 설치·갱신·제거는 스택의 `skills-src/ai-usage-widget-install`(`install-widget.ps1`)로 한다. 설치본 = `%LOCALAPPDATA%\Programs\ai-usage-widget`.
 
 ## 절대 규칙
 - **가짜 수치 금지.** 조회 실패는 `error`/`unknown` 상태로 표시한다. 0%로 간주하지 않는다. 개발용 mock은 테스트 코드에만 둔다.
@@ -19,7 +22,7 @@ Windows 작업표시줄 옆에 뜨는 AI 구독 사용량 위젯. v1(C:\AI.Usage
 - **토큰을 렌더러로 보내지 않는다.** 렌더러 DTO는 id·이름·provider·email·사용량만. 로그에 토큰·이메일 원문 금지(마스킹).
 - 위젯이 직접 보관해야 하는 비밀은 `safeStorage`로 암호화한다.
 - 렌더러는 `innerHTML`에 외부 문자열을 넣지 않는다(이스케이프 또는 textContent). CSP 필수.
-- 원본 v1 폴더(C:\AI.Usage.Widget-1.0.2-win)는 읽기 전용 참고 자료다. 수정 금지.
+- 원본 v1 폴더(`C:\AI.Usage.Widget-1.0.2-win`)와 v1 userData는 26.09.20 휴지통으로 보냈다(DECISIONS 26.09.20 11:43). v1 동작의 근거는 `docs/SPEC-v1-baseline.md`다.
 
 ## 환경
 - Windows 11, PowerShell 5.1, Node v24.14.1, pnpm 11.7, git 2.53

@@ -3,6 +3,15 @@
 
 ## Latest
 - **목적**: v1 위젯을 소스 프로젝트로 재구성. 위젯 새로고침 버튼, Grok 구독 한도, 공식 CLI 로그인 위임 기반 다중 계정, Windows 테마, v1 문제 전부 해결
+- **최종 갱신**: 26.09.20 17:16 KST · Claude Code(E:\Coding Infra 세션)
+- **지금까지**: 사용자 T8 전 항목 OK·결정 4건 확정. **설치 완료**(`%LOCALAPPDATA%\Programs\ai-usage-widget`, 자동 시작 경로 자동 교정), **v1 정리 완료**(Run 값 제거, 폴더·userData 휴지통). 원인 규명 2건: Codex 2번째 `login-failed` = 로그인 완료 직후 account/read가 옛 상태(재조회 + 성공 신뢰, 정황 근거), agy 1회 실패 = 규명 불가(진단 로그 보강). **리포 통합**: 이 폴더는 이제 공개 리포 SimonK-stack의 `apps/ai-usage-widget/`이고 설치는 `skills-src/ai-usage-widget-install`이 한다. `pnpm verify` 0(577테스트), 스택 CI 게이트 PASS
+- **다음 1개**: 없음(운영 단계). 실패 로그가 다시 나오면 STATE "다음"의 두 항목을 확정
+- **막힌 것**: 없음
+- **작업 규칙 변화**: 공개 리포라 커밋 전 식별자 확인, 스택 리포 동시 작업 규칙(fetch 먼저·경로 명시 add·워크트리)은 `CLAUDE.md`에 추가됨. 옛 단독 폴더 `E:\Coding Infra\dev\ai-usage-widget`는 `Legacy-` 접두로 남김(삭제는 사용자 판단)
+- **요청**: 없음
+
+## 26.09.20 11:00 KST
+- **목적**: v1 위젯을 소스 프로젝트로 재구성. 위젯 새로고침 버튼, Grok 구독 한도, 공식 CLI 로그인 위임 기반 다중 계정, Windows 테마, v1 문제 전부 해결
 - **최종 갱신**: 26.09.20 11:00 KST · Claude Code(E:\Coding Infra 세션)
 - **지금까지**: 공급자 4종이 실계정으로 표시됨(사용자 확인). 이번 라운드: Grok 0% 해석 확증(`creditUsagePercent` 29% 등장), Codex는 서버가 주간 창만 줌(정상), Codex 첫 로그인 `protocol-error` = 같은 CODEX_HOME에서 app-server 두 개가 겹친 경합 → `quiesce` 수정 + 재현 테스트, 자동 조회 공급자별 최소 간격(claude 15·codex 60·grok 60·antigravity 120초), T8 부분 실측(창 위치·topmost·Run 키), NSIS 설치 파일 빌드 확인(실행 안 함). `pnpm verify` 0(571테스트) / dist:dir 0 / 배포본 스모크 0
 - **다음 1개**: 사용자와 T8 나머지(팝업 blur·전체화면 숨김·재질·테마 전환·슬라이더·자동 시작) → SEC-06 결정 → NSIS 설치(사용자 확인) → v1 정리(사용자 확인)
