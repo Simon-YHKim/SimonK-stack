@@ -6,6 +6,15 @@
               "keywords": ["2nd-b", "2ndb", "2nd-brain", "secondbrain", "com.simonk.secondbrain", "6792266942", "2nd brain"],
               "note": "Sheets and results accumulate in E:/2ndB/.bots/<bot>/inbox|outbox. .bots/ and marketing/ are excluded locally via E:/2ndB/.git/info/exclude, so no worktree shows them as changes. Simon's own code work happens in the worktree E:/2ndB/.worktrees/2ndB/TTL-Work_rev2."}
   },
+  "teams": {
+    "release": {"name": "앱 출시 및 관리 팀", "channel": "5d2eee98-ea15-4be2-89f5-43738e8b1a84",
+                "members": ["apple-dev", "eas", "dev-infra", "play-console", "keys", "relay"],
+                "note": "Membership read off the group chat title on 2026-09-20; apple-dev, eas and play-console answered a roll call in their own names within 5 minutes of Relay posting."},
+    "customer": {"name": "고객관리 팀", "channel": "105a4c2c-dbba-47b8-8a42-35732be576f3",
+                 "members": ["store-reviews", "public-mail", "marketing", "research", "relay"],
+                 "note": "Same roll call posted 10:53; no member had answered by 11:06, so this team is unmeasured."}
+  },
+  "unassigned": ["web-qa", "grok-bot"],
   "bots": [
     {"id": "play-console", "name": "Play Console", "purpose": "Google Play Console: tracks, releases, store listing, app content, policy deadlines",
      "keywords": ["play console", "google play", "플레이 콘솔", "플레이콘솔", "aab", "alpha", "알파", "내부 테스트", "스토어 등록정보", "data safety", "데이터 보안", "앱 콘텐츠"],
