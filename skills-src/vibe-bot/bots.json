@@ -13,7 +13,7 @@
                 "note": "Membership read off the group chat title on 2026-09-20; apple-dev, eas and play-console answered a roll call in their own names within 5 minutes of Relay posting."},
     "customer": {"name": "고객관리 팀", "channel": "105a4c2c-dbba-47b8-8a42-35732be576f3",
                  "members": ["store-reviews", "public-mail", "marketing", "research", "relay"],
-                 "note": "Same roll call posted 10:53; all four answered in their own names by 11:06 (Public Mail, Marketing, Research Bot, Store Reviews). Public Mail says the Gmail kim0405@hayangzip.com connector is already live - Simon had that connection on hold pending the privacy review, so confirm it."}
+                 "note": "Same roll call posted 10:53; all four answered in their own names by 11:06 (Public Mail, Marketing, Research Bot, Store Reviews). Public Mail's Gmail connector for kim0405@hayangzip.com is live and Simon approved it on 2026-09-20; revisit if the deletion-request or personal-data flow changes."}
   },
   "unassigned": ["web-qa", "grok-bot"],
   "bots": [
