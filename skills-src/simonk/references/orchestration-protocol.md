@@ -1,164 +1,154 @@
-# simonK Orchestration Protocol — Detail Reference
+# simonk consumer protocol
 
 ## Contents
 
-- [Ambiguity Score Calculation](#ambiguity-score-calculation)
-- [Sprint Plan Format](#sprint-plan-format)
-- [Task Tool Delegation Templates](#task-tool-delegation-templates)
-- [Verification Matrix](#verification-matrix)
-- [Auto-Push Decision Tree](#auto-push-decision-tree)
-- [External Repo Integration](#external-repo-integration)
+- Ownership and handoff
+- Request preparation
+- Execution and recovery
+- PowerShell contract
+- Verification and persistence
+- Migration boundary
 
-## Ambiguity Score Calculation
+## Ownership and handoff
 
-Each dimension scored 0-3 (rare 4+ for excellent clarity). Total = sum / clamped to 0-10.
+There is one current host coordinator per run. simonk supplies a six-phase
+procedure; /vibe owns discovery, model/effort selection, budget, state and
+provider-specific dispatch.
 
-| Dimension | 0 (bad) | 2 (medium) | 3 (good) |
-|---|---|---|---|
-| Goal clarity | "improve X", "make better" | "add field Y to schema Z" | "rename foo() to bar() in module M" |
-| Scope boundary | "the whole thing" | "files under src/" | "skills-src/<specific-skill>/SKILL.md only" |
-| Success criteria | "looks good" | "tests pass" | "validate_skill.py exit 0 + N broken links" |
-| Risk awareness | unmentioned | "I think this is safe" | "no public push · no .env touch" |
+| Context | Required behavior |
+| --- | --- |
+| Existing registered /vibe handoff | Keep run_id, node ID, plan_digest, DAG, grant, state DB and ancestor_skills unchanged. Return evidence to the owner. |
+| Parent still preparing a plan | Let that owner include simonk in active ancestry before registration. Add tasks/reviewers to its complete DAG, not another run. |
+| Standalone /simonk in a current host | Read the /vibe contract, then prepare one request with ancestor_skills containing simonk and the user's budget. |
+| Recursive child asks for /vibe or active simonk | Block recursion. Loading their instructions for the current host is not spawning another coordinator. |
 
-Score < 6 → invoke deep-interview pattern (3-5 Socratic questions).
-Score 6-7 → proceed with caution flag (state assumptions before acting).
-Score 8+ → proceed directly.
+A worker cannot enlarge its own scope, replace the plan or register a fresh
+grant. If decomposition requires a changed registered intent, return it to the
+owner for authorized reconciliation; do not overwrite the old plan. Refresh
+supports only the unchanged-intent contract documented by /vibe.
 
-## Sprint Plan Format
+## Request preparation
 
-`.simonK/plan.md`:
+This is a synthetic shape example, not a dispatch-ready runtime observation:
 
-```markdown
----
-sprint-id: 2026-05-23T17:00
-user-task: "통합 simonK harness 빌드"
-ambiguity-score: 7/10
-sub-tasks: 4
-parallel-tasks: 3
-sequential-tasks: 1
-start: 2026-05-23T17:05
----
-
-# Sprint Plan
-
-## Sub-tasks
-
-### [P1] skills-src/simonK/SKILL.md 작성
-- agent: general-purpose
-- deps: none
-- est-time: 5min
-
-### [P2] PowerShell function simonk.ps1
-- agent: general-purpose
-- deps: none
-- est-time: 3min
-
-### [P3] settings.json env var 추가
-- agent: Explore + manual edit
-- deps: none
-- est-time: 2min
-
-### [S4] SimonK-stack CLAUDE.md 갱신 + commit + push
-- agent: general-purpose
-- deps: P1, P2, P3
-- est-time: 5min
-
-## Status
-
-(updated by simonK during execution)
+```json
+{
+  "run_id": "example-sprint",
+  "ancestor_skills": ["simonk"],
+  "budget": {
+    "mode": "balanced", "approved_usd": "0",
+    "spent_usd": "0", "external_reserved_usd": "0",
+    "max_attempts": 2, "max_parallel": 2
+  },
+  "steps": [
+    {
+      "id": "inspect", "task_type": "CODE_REVIEW",
+      "task": "Inspect the authorized files and report findings; do not edit.",
+      "skills": ["code-health-guard"], "writes": false,
+      "depends_on": []
+    }
+  ]
+}
 ```
 
-## Task Tool Delegation Templates
+The central compiler maps task_type to kind, capabilities, demand, proc and
+class. Preserve explicit writes and stronger requirements; do not copy that
+mapping into simonk. A model label in prose is not a route pin. The central
+registry fingerprint, observed runtime and exact supported provider/transport
+effort intersection determine eligibility.
 
-### General-purpose research
+For writing work include a distinct same-DAG review with verify_of and a
+dependency on the writer. Never flatten dependencies to launch everything in
+parallel. Missing independent review blocks the writer. Local tests can feed
+a review, but cannot replace it.
 
-```
-Description: <2-5 word summary>
-prompt: |
-  컨텍스트: <필요한 cwd, env, 관련 파일>
-  
-  목표: <specific outcome>
-  
-  방법 (선택사항): <approach hint>
-  
-  반환 형식:
-  - finding 1: <fact>
-  - finding 2: <fact>
-  - <summary in 1 sentence>
-  
-  제약: <안전·범위 제한>
-subagent_type: general-purpose
-```
+A handoff includes scope, authorized paths, acceptance criteria, plan/node
+identity, read-skills paths and the owner's state references. Account refs
+are non-secret identifiers, not credentials or proof of genuine identity.
+Real model inclusion, quota binding and disabled overage/API fallback need
+separate evidence. API list prices and subscription names cannot supply it.
 
-### Explore (read-only)
+Use only the user's actual approved budget and existing grant. Unknown spend
+is not zero. Count all attempts, reviewers, paid orchestration and fallback.
+Do not reset spent/reserved amounts or open a different database to pass a cap.
 
-```
-Description: <2-5 word>
-prompt: |
-  Find: <pattern or symbol>
-  Path scope: <dir>
-  Breadth: quick | medium | very thorough
-subagent_type: Explore
-```
+## Execution and recovery
 
-### Plan (architecture)
+The offline planner launches nothing. The host admits a valid complete plan
+to the canonical state service, then uses a supported guarded adapter for
+ready nodes. A worker may not invoke an old raw launcher as a shortcut.
 
-```
-Description: <2-5 word>
-prompt: |
-  Task to plan: <task>
-  Constraints: <list>
-  Output: step-by-step plan + critical files + tradeoffs
-subagent_type: Plan
-```
+The initial guarded Orca adapter supports only its documented local
+Claude/Codex flag-effort lanes. It does not imply that Grok, Antigravity,
+remote or Bot execution is available. Respect its certificate, native Task,
+workspace, launch-profile and unique dispatch identity checks.
 
-## Verification Matrix
+Only a new successful atomic claim grants a send. Reentry and timeout require
+lookup/reconciliation, never another send inferred from a missing response.
+Unknown provider acceptance or unknown actual cost keeps the reservation.
+Plan-ready, process exit, received output, cost settlement and accepted output
+are different states. Apply the required independent review before downstream
+work consumes a writer's result.
 
-| Touched | Verify |
-|---|---|
-| `skills-src/<name>/SKILL.md` | `python .claude/skills/skill-gen-agent/scripts/validate_skill.py skills-src/<name>` |
-| `.claude/skills/<name>/SKILL.md` | same |
-| `*.sh` in hooks/scripts | `bash -n <file>` |
-| `*.json` (settings/config) | `python -c "import json; json.load(open('<file>'))"` |
-| `*.yaml` / SKILL frontmatter | `python -c "import yaml; yaml.safe_load(open('<file>').read().split('---')[1])"` |
-| Wiki `*.md` (SimonKWiki) | structural lint script (broken wikilinks · index sync · frontmatter check) |
-| Anything in SimonKWiki Output/ | manual visual diff |
+Grok generation remains held until actual quota recovery and verified billing
+evidence satisfy the user's additional-cost limit. A predicted reset time is
+not recovery. Grok Bot has separate evidence and cannot inherit CLI access.
 
-## Auto-Push Decision Tree
+## PowerShell contract
 
-```
-After commit:
-├─ Branch is main?
-│  ├─ Yes
-│  │  ├─ Force push needed? → STOP, ask user
-│  │  ├─ Multi-collaborator repo? → confirmed only on first push
-│  │  └─ Solo repo (SimonKWiki, SimonK-stack)? → push immediately
-│  └─ No (feature branch) → push immediately (no risk)
-│
-└─ Network/auth failure?
-   ├─ Retry once (10s wait)
-   └─ If retry fails → report only · do not block
-```
+The profile-compatible simonK function accepts:
 
-## External Repo Integration
+- RequestPath: canonical complete request JSON.
+- RuntimePath: observed runtime JSON; no implicit collector.
+- RegistryPath: optional trusted central registry override.
+- Root: optional array of trusted skill catalog roots, in precedence order.
 
-When user requests features from external repos:
+The helper resolves the planner relative to its own checkout, uses a native
+Python application (not a same-named shell function), and forwards an argv
+array to the central plan command. Input files are not rewritten. No shell
+command is constructed from task text or path contents. The current directory
+is unchanged; relative paths belong to the caller's directory.
 
-| Request | Action |
-|---|---|
-| "OMC team mode 써줘" | Suggest user run `/plugin marketplace add Yeachan-Heo/oh-my-claudecode` + `/plugin install oh-my-claudecode` (one-time). Then `/team <N>:<role> <task>` available. |
-| "OMO Hashline edit 써줘" | Reference `external/oh-my-openagent/` for impl pattern. Currently no vendoring (OpenCode-specific). |
-| "OpenHarness ohmo 게이트웨이" | Reference `external/OpenHarness/`. Phase 6 polish. Currently npm CLI `omc` is available for similar features. |
-| "anthropics 공식 skill X 추가" | Cherry-pick from `external/anthropics-skills/skills/<name>/` into SimonK-stack skills-src + run validate_skill.py. |
+Dot-sourcing defines only the function. It does not load gcloud, discover a
+provider, modify environment credentials, initialize state or open a terminal.
+Text and empty invocations are deliberately unsupported, returning a migration
+hint without echoing the supplied task. There is no hidden interactive mode.
 
-## Slash Command Disambiguation
+Success stdout is exactly planner JSON. Planner blocked/error JSON remains
+planner output and preserves its nonzero code; wrapper-local errors use stderr.
+After a normally returning call, check $LASTEXITCODE immediately. PowerShell
+parameter-binding errors happen before the function body and do not set that
+variable. Batch scripts set $ErrorActionPreference = 'Stop' before invocation
+so those exceptions terminate nonzero, then use exit $LASTEXITCODE for native
+planner status. Interactive callers handle binding exceptions with try/catch
+and must not exit their own host just to inspect a result.
 
-If user types `/simonK <task>` inside Claude Code:
-- Skip PowerShell wrapper
-- Execute simonK protocol directly with task = `<task>`
+The checkout and Python application on PATH are trusted inputs. This shim is
+not a sandbox or protection against a malicious Python binary, altered core
+files or forged runtime evidence. Its tests use synthetic observations.
 
-If user types `simonK <task>` in PowerShell:
-- PowerShell function dispatches `claude -p "/simonK <task>"` in `C:\Coding` dir
-- Same protocol executes
+## Verification and persistence
 
-If no task ("simonK" alone): open interactive Claude Code in `C:\Coding`.
+- Run project-specific tests/lint/build and the skill validator as applicable.
+- Verify output, effective configuration and cost separately using evidence.
+- Treat unsupported execution or a missing result as incomplete, not success.
+- Stage only explicit reviewed paths; keep unrelated changes and signing.
+- Commit conventionally and push only within the owner's authorized branch.
+- Do not create/merge PRs, promote main, publish artifacts or change credentials
+  as a side effect of completing this procedure.
+- Keep documentation/report claims aligned with source, installed and live
+  status. A schema-only eval is not a model behavior test.
+
+## Migration boundary
+
+Version 2.0.0 intentionally removes the old shell's unconditional Claude
+startup and implicit cloud bootstrap, independent Task fan-out, USD 5
+confirmation exception, catch-all staging and automatic signing override.
+
+The profile installer and root documentation still need a coordinated
+follow-up before installation/main promotion. Do not run the old installer
+to apply this source-only unit. Existing installed skill/profile paths do not
+change merely because these source files changed.
+
+The offline tests prove the shell-to-planner boundary, not five-surface E2E,
+actual account billing, global spend caps or cross-provider model quality.

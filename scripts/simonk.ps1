@@ -1,71 +1,65 @@
-﻿# simonk.ps1 — PowerShell entry point for the simonK unified harness
-#
-# Sourced from $PROFILE (one-time install via scripts/install-simonk-profile.ps1).
-# Defines a global `simonK` function callable from any PowerShell session.
-#
-# Usage:
-#   simonK <task description>     → non-interactive: launches `claude -p "/simonK <task>"`
-#   simonK                        → interactive: opens `claude` in E:\Coding Infra
-#
-# Project root default: E:\Coding Infra (overridable via $env:SIMONK_PROJECT_DIR)
-# Wiki vault default: $env:SIMON_WIKI_DIR (set during 2026-05-23 vault consolidation)
-#
-# Auto helpers (silent if OK, 안내만 출력):
-#   - gcloud-bootstrap : Google Cloud SDK 인증 + project + ADC 자동 진단·inject
-#                        (사용자 인터랙션 = 첫 1회 `gcloud auth login` browser OAuth만)
-
-# Load helper functions (silent dot-source)
-$_simonkScriptDir = $PSScriptRoot
-$_gcloudBootstrap = Join-Path $_simonkScriptDir 'gcloud-bootstrap.ps1'
-if (Test-Path $_gcloudBootstrap) { . $_gcloudBootstrap }
+# simonK is an offline compatibility entry point, not an LLM launcher.
+# Dot-source this file, then:
+#   $ErrorActionPreference = 'Stop'  # In batch scripts: catch binding errors too.
+#   simonK -RequestPath request.json -RuntimePath runtime.json
+#   exit $LASTEXITCODE   # In batch scripts only; never exit an interactive host.
+# Text/no-argument invocations now fail closed. Use /simonk in an existing host.
+# No profile, cloud bootstrap, credentials, provider, run state or budget writes.
 
 function global:simonK {
-    [CmdletBinding()]
+    [CmdletBinding(PositionalBinding = $false)]
     param(
+        [string] $RequestPath,
+        [string] $RuntimePath,
+        [string] $RegistryPath,
+        [string[]] $Root,
         [Parameter(ValueFromRemainingArguments = $true)]
         [string[]] $TaskArgs
     )
 
-    $task = if ($TaskArgs) { ($TaskArgs -join ' ').Trim() } else { '' }
-    $projectDir = if ($env:SIMONK_PROJECT_DIR) { $env:SIMONK_PROJECT_DIR } else { 'E:\Coding Infra' }
-
-    if (-not (Test-Path $projectDir)) {
-        Write-Host "[simonK] project dir not found: $projectDir" -ForegroundColor Red
-        return
+    $failure = $null
+    $message = $null
+    if ($TaskArgs -or [string]::IsNullOrWhiteSpace($RequestPath) -or
+        [string]::IsNullOrWhiteSpace($RuntimePath)) {
+        $failure = 'SIMONK_PLAN_INPUT_REQUIRED'
+        $message = 'Use /simonk <task> in an existing host, or simonK -RequestPath request.json -RuntimePath runtime.json. Planning never dispatches.'
     }
 
-    $claude = Get-Command claude -ErrorAction SilentlyContinue
-    if (-not $claude) {
-        Write-Host "[simonK] 'claude' CLI not found on PATH. Install Claude Code first." -ForegroundColor Red
-        return
+    # Bind to this checkout, even when dot-sourced from a profile or called
+    # from another directory. Never silently fall back to an installed skill.
+    $planner = Join-Path $PSScriptRoot '../skills-src/vibe/scripts/orchestrate.py'
+    if (-not $failure -and -not (Test-Path -LiteralPath $planner -PathType Leaf)) {
+        $failure = 'SIMONK_PLANNER_UNAVAILABLE'
+        $message = 'The sibling /vibe planner is missing. Use a complete matching checkout.'
     }
-
-    # Auto: gcloud 인증 진단 + ADC + project 자동 inject (silent if OK)
-    if (Get-Command Invoke-GcloudBootstrap -ErrorAction SilentlyContinue) {
-        Invoke-GcloudBootstrap -Silent | Out-Null
-    }
-
-    Push-Location $projectDir
-    try {
-        if (-not $task) {
-            Write-Host "[simonK] interactive mode @ $projectDir" -ForegroundColor Cyan
-            Write-Host "         use '/simonK <task>' inside the session to trigger the harness" -ForegroundColor DarkGray
-            & claude
-        } else {
-            Write-Host "[simonK] task: $task" -ForegroundColor Cyan
-            Write-Host "[simonK] dispatching: claude -p '/simonK $task'" -ForegroundColor DarkGray
-            & claude -p "/simonK $task"
+    $python = $null
+    if (-not $failure) {
+        $python = Get-Command python -CommandType Application -ErrorAction SilentlyContinue |
+            Select-Object -First 1
+        if (-not $python) {
+            $failure = 'SIMONK_PYTHON_UNAVAILABLE'
+            $message = 'A trusted Python 3 application must be available on PATH.'
         }
-    } finally {
-        Pop-Location
+    }
+    if ($failure) {
+        $global:LASTEXITCODE = 2
+        [Console]::Error.WriteLine((@{status = 'blocked'; error = $failure; message = $message} |
+            ConvertTo-Json -Compress))
+        return
+    }
+
+    # Native argv, never a shell-built command. Keep the central request and
+    # its run ID, ancestry, DAG, registry, policy and runtime evidence unchanged.
+    $plannerArgs = @('-B', $planner, 'plan', '--input', $RequestPath, '--runtime', $RuntimePath)
+    if ($PSBoundParameters.ContainsKey('RegistryPath')) {
+        $plannerArgs += @('--registry', $RegistryPath)
+    }
+    foreach ($skillRoot in $Root) { $plannerArgs += @('--root', $skillRoot) }
+    try {
+        & $python.Source @plannerArgs
+        $global:LASTEXITCODE = $LASTEXITCODE
+    } catch {
+        $global:LASTEXITCODE = 2
+        [Console]::Error.WriteLine('{"status":"blocked","error":"SIMONK_PLANNER_FAILED","message":"The offline planner could not run; no provider fallback was attempted."}')
     }
 }
-
-# Expose Invoke-GcloudBootstrap as a global helper (수동 호출용)
-if (Get-Command Invoke-GcloudBootstrap -ErrorAction SilentlyContinue) {
-    Set-Item function:global:simonk-gcloud-check (Get-Command Invoke-GcloudBootstrap).ScriptBlock
-}
-
-# PowerShell function/command lookup is case-insensitive — `simonK`, `simonk`, `SIMONK`
-# all resolve to the function above. No aliases needed; aliases here would create a
-# circular self-reference because alias names collapse to the same case-insensitive key.
