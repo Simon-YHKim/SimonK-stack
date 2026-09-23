@@ -17,6 +17,18 @@
 
 set -euo pipefail
 
+# Explicit offline overlay mode exits before ALL legacy prerequisites/effects.
+# Default is preview; --apply only publishes a new isolated target or verifies an
+# identical release. No --force, live-home install, network or fallback here.
+for arg in "$@"; do
+  case "$arg" in
+    --offline-package|--offline-package=*)
+      RELEASE_REPO="$(cd "$(dirname "$0")/.." && pwd)"
+      exec "${SIMONK_PYTHON:-python3}" -B "$RELEASE_REPO/scripts/skill_release.py" materialize "$@"
+      ;;
+  esac
+done
+
 DRY=""
 FORCE=""
 NO_BACKUP=""

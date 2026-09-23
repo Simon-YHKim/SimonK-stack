@@ -2,7 +2,86 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
+## 검증된 소스 오버레이 — 격리·오프라인 경로
+
+`/vibe` 이관의 새 배포 경로는 **source-owned overlay**입니다. 아래 명령은 실제
+사용자 설치나 공식 5-plugin release를 교체하지 않습니다. 기존 기본 설치기와
+SessionStart 자동 복사 경로는 아직 아래 계약으로 전환되지 않았습니다.
+
+`distribution/skills-release.v1.json`이 배포용 소스 137개의 단일 plugin home을
+명시합니다. 개발용 4개는 제외 범위로 기록하고, 공식 plugin에만 있는 45개도
+포함하거나 삭제하지 않습니다. 숫자는 이 manifest 기준이며 새 스킬을 추가하면
+소유권도 함께 갱신해야 합니다. 미배정 source는 빌드가 실패합니다.
+
+Windows의 Python 3.10+와 Git으로, 존재하는 격리 부모 폴더 아래 **새 절대 경로**를 지정합니다.
+예시 경로는 실제 환경의 임시 경로로 바꾸세요. 출력 위치가 이미 있으면 빌드는
+덮어쓰지 않고 실패합니다.
+
+```text
+python -B scripts/skill_release.py build --repo E:/reviewed/SimonK-stack --ownership E:/reviewed/SimonK-stack/distribution/skills-release.v1.json --output E:/staging/release-a
+python -B scripts/skill_release.py verify --package E:/staging/release-a --expected-digest <build가 반환한 release_digest>
+```
+
+빌드는 Git 추적 중인 `skills-src/<name>/` 전체 파일과 LICENSE/NOTICE,
+`skills-src/VENDORED.md`의 upstream attribution을 복사합니다.
+`release.json`에는 source/package/flat-install 상대경로, 바이트 수, SHA-256,
+Git 실행 비트가 들어갑니다. 캐시·`.env`·백업·symlink/reparse·hardlink·충돌·경로 탈출은
+포장하지 않습니다. 파일은 읽기 전에 열린 핸들의 hardlink 수까지 검사합니다.
+미추적 파일은 배포물에 포함되지 않으므로 필요한 새 helper/assets는 먼저 Git에
+추가하세요. SKILL.md가 있는 미추적 새 스킬 자체는 소유권 검사에서 차단됩니다.
+
+`release_digest`는 검토한 빌드 결과에서 별도로 보관해야 합니다. 공격자가 package와
+동시에 바꿀 수 있는 manifest의 자체 hash를 신뢰하는 서명/인증 체계가 아닙니다.
+이 artifact는 명시한 tracked working-tree bytes의 snapshot이며 Git commit 전체나
+공급망 출처를 인증하지 않습니다. 소스 snapshot과 임시 staging의 단독 작성이
+전제입니다. 빌드·materialize 중 다른 작성자가 해당 트리를 수정하지 않아야 합니다.
+
+기존 `install.sh`를 통해 격리된 flat skill root로 연결합니다. 이 명시적 모드는
+backup/clone/의존성 설치/환경변경/marker 기록보다 먼저 끝납니다. `--force` 등
+legacy 옵션 혼용은 실패하고, 옛 설치 경로로 자동 fallback하지 않습니다.
+
+```bash
+# 기본 preview: target 생성·설정 변경 없음
+bash scripts/install.sh --offline-package E:/staging/release-a --target E:/staging/skills-a --expected-digest <digest>
+# 전체 검증 후 새 격리 target에만 공개
+bash scripts/install.sh --offline-package E:/staging/release-a --target E:/staging/skills-a --expected-digest <digest> --apply
+```
+
+Git Bash의 Python 경로가 다르면 이 명령에만 `SIMONK_PYTHON`을 지정할 수 있습니다.
+검증·읽기·쓰기·publish는 현재 Windows 고정 로컬 드라이브 전용이며,
+UNC/장치 경로·네트워크 드라이브·다른 플랫폼은 실패로 차단합니다.
+보호 경로와 입력/출력 중복 검사는 핸들에서 얻은 정규 경로를 비교하므로
+Windows 8.3 짧은 경로 별칭으로 우회할 수 없습니다.
+부모/파일/stage의 native handle을 고정하여 reparse 경로 바꿔치기와 stage 교체를
+막고, 같은 부모 안에서 no-replace 원자적 directory publish를 수행합니다.
+publish 전후 owned 파일을 검증하지만 같은 사용자에 의한 동시 child 추가를
+OS 권한으로 봉쇄하는 기능은 아닙니다. 위 단독 작성 전제와 구분하세요.
+Windows는 Git의 portable 실행 비트를 기록하지만 실제 POSIX executable 권한 검증은
+할 수 없어 `mode_verified=false`입니다. bytes 검증과 이를 구분하세요.
+
+같은 artifact로 다시 실행하면 이미 설치된 **실제 owned 파일**을 다시 검증할 뿐
+쓰지 않습니다. 다른 release, 수정/추가/누락된 owned 파일, 기존 unmanaged target은
+보존하고 실패합니다. 별개의 unowned 최상위 폴더는 읽거나 바꾸지 않습니다.
+실제 `.claude/.codex/.agents`, 공식 `SimonK-Plugins`, gstack 및 reparse target은
+이 경로의 적용 대상이 아닙니다. 실제 운영 이관은 별도 검토·승인 단계입니다.
+중단 시 완성 전 임시 `.simonk-build-*`/`.simonk-materialize-*`는 부모에 남을 수
+있지만 기존 destination을 삭제하거나 교체하지 않습니다. 자동 정리/롤백은 없습니다.
+
+이 검증은 **포장된 파일 전체의 무결성**입니다. repo-root PowerShell wrapper,
+`~/.claude/scripts/upgrade-vendor.sh`, 외부 vendor/runtime/CLI/API/MCP/인증/과금,
+호스트별 SKILL frontmatter 호환성 및 스킬 행동 평가까지 닫힌 의존성 검증이 아닙니다.
+빠진 외부 의존은 manifest에 명시하며, 모델·Bot을 실행하거나 설치하지 않습니다.
+공식 plugin의 extras/manifest 및 자동 설치기의 정합성, 실제 재설치·main 통합은
+후속 배포 게이트로 남습니다.
+
+회귀 테스트: `python -B -m unittest discover -s scripts/tests -p test_skill_release.py`
+(임시 Git repo·격리 target, 실제 사용자 홈/공식 plugin/모델 호출 없음).
+
 ## One-shot 설치
+
+아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
+네트워크·환경변경을 포함합니다. `--dry`만으로 모든 legacy 부작용의 안전성이
+검증됐다고 가정하지 마세요. 새 `/vibe` 운영 이관을 위해 자동 실행하지 않습니다.
 
 ```bash
 git clone https://github.com/Simon-YHKim/SimonK-stack.git
