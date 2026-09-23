@@ -3,6 +3,7 @@ import copy
 import importlib.util
 import tempfile
 import unittest
+from datetime import datetime, timedelta
 from pathlib import Path
 
 SCRIPT = Path(__file__).with_name("orchestrate.py")
@@ -34,6 +35,28 @@ def step(name="read", **changes):
     return item
 
 
+def fixture_registry(candidates):
+    """Isolate planner behavior from changing production model catalogs."""
+    vendor = {"codex": "openai", "claude": "anthropic", "antigravity": "google", "grok": "xai"}
+    sources = {"openai": "https://developers.openai.com/api/docs/models",
+               "anthropic": "https://platform.claude.com/docs/en/models/overview",
+               "google": "https://ai.google.dev/gemini-api/docs/models",
+               "xai": "https://docs.x.ai/developers/models"}
+    models = {}
+    for c in candidates or [candidate()]:
+        if c["surface"] not in vendor:
+            continue
+        v = vendor[c["surface"]]
+        models[c["model"]] = {"id": c["model"], "surface": c["surface"], "vendor": v,
+                              "id_namespace": "provider-api",
+                              "lifecycle": "active", "api_efforts": ["low", "medium", "high", "xhigh", "max"],
+                              "aliases": [], "sources": [v], "pricing": None}
+    if not models:
+        return fixture_registry([candidate()])
+    return {"schema_version": 1, "version": "offline-fixture", "checked_at": NOW,
+            "models": list(models.values()), "sources": sources}
+
+
 class OrchestrationTests(unittest.TestCase):
     def setUp(self):
         self.assertTrue(SCRIPT.is_file(), "The /vibe umbrella planner is not implemented")
@@ -48,7 +71,7 @@ class OrchestrationTests(unittest.TestCase):
                    "tools": [], "observed_at": NOW}
         runtime.update(runtime_changes)
         request = {"run_id": "test-run", "steps": steps or [step()], "budget": budget or {}}
-        return self.m.make_plan(request, self.catalog, runtime, NOW)
+        return self.m.make_plan(request, self.catalog, runtime, NOW, fixture_registry(runtime["candidates"]))
 
     def events(self, plan, *events):
         return [dict(run_id=plan["run_id"], plan_digest=plan["plan_digest"], **event) for event in events]
@@ -312,9 +335,12 @@ class OrchestrationTests(unittest.TestCase):
             request, runtime = root / "request.json", root / "runtime.json"
             request.write_text(json.dumps({"run_id": "cli-test", "steps": [step()]}), encoding="utf-8")
             runtime.write_text(json.dumps({"candidates": [candidate()], "observed_at": NOW}), encoding="utf-8")
+            registry_path = root / "registry.json"
+            registry_path.write_text(json.dumps(fixture_registry([candidate()])), encoding="utf-8")
             before = sorted(p.name for p in root.iterdir())
             result = subprocess.run([sys.executable, str(SCRIPT), "plan", "--input", str(request),
-                                     "--runtime", str(runtime), "--root", str(root), "--now", NOW],
+                                     "--runtime", str(runtime), "--root", str(root), "--now", NOW,
+                                     "--registry", str(registry_path)],
                                     capture_output=True, text=True, encoding="utf-8", timeout=15)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(json.loads(result.stdout)["status"], "ready")
@@ -346,6 +372,71 @@ class OrchestrationTests(unittest.TestCase):
         events = self.events(p, *[{"id": name, "status": "done", "verified": True, "evidence": ["output"]}
                                   for name in ("read", "test-artifact")])
         self.assertEqual(self.m.ready_steps(p, events, now=NOW), ["review"])
+
+    def test_default_planner_rejects_unregistered_runtime_model(self):
+        c = candidate()
+        p = self.m.make_plan({"run_id": "registry-check", "steps": [step()]}, self.catalog,
+                             {"candidates": [c]}, NOW)
+        self.assertEqual(p["status"], "blocked")
+        self.assertIn("MODEL_NOT_REGISTERED", str(p))
+
+    def test_planner_locks_registry_and_does_not_invent_resolved_model(self):
+        now = "2026-09-23T13:00:00+00:00"
+        c = candidate(model="gpt-6-sol", observed_at=now, quota={"used_pct": 10, "observed_at": now})
+        p = self.m.make_plan({"run_id": "registry-check", "steps": [step()]}, self.catalog,
+                             {"candidates": [c]}, now)
+        self.assertEqual(p["status"], "ready")
+        self.assertIn("model_registry", p)
+        self.assertEqual(p["steps"][0]["route"]["requested_model"], "gpt-6-sol")
+        self.assertIsNone(p["steps"][0]["route"]["resolved_model"])
+
+    def test_harness_ultra_is_not_an_ordinary_worker_effort(self):
+        now = "2026-09-23T13:00:00+00:00"
+        c = candidate(model="gpt-6-sol", observed_at=now, quota={"used_pct": 10, "observed_at": now},
+                      provider_efforts=["ultra"], transport_efforts=["ultra"],
+                      effort_by_demand={"routine": "ultra"})
+        p = self.m.make_plan({"run_id": "registry-check", "steps": [step()]}, self.catalog,
+                             {"candidates": [c]}, now)
+        self.assertEqual(p["status"], "blocked")
+
+    def test_ready_rechecks_alias_access_and_registry_expiry(self):
+        clock = datetime.fromisoformat(NOW)
+        old = (clock - timedelta(seconds=899)).isoformat()
+        boundary = (clock + timedelta(seconds=1)).isoformat()
+        later = (clock + timedelta(seconds=3)).isoformat()
+        for expiring in ("alias", "access", "registry"):
+            with self.subTest(expiring=expiring):
+                c = candidate()
+                registry = fixture_registry([c])
+                if expiring == "registry":
+                    registry["checked_at"] = (clock - timedelta(days=7)
+                                               + timedelta(seconds=1)).isoformat()
+                else:
+                    target = c["model"]
+                    alias = copy.deepcopy(registry["models"][0])
+                    alias.update(id="fixture-alias", id_namespace="provider-api-alias",
+                                 documented_target=target, api_efforts=None)
+                    if expiring == "access":
+                        alias["requires_access_program"] = "fixture-access"
+                        c["access_proof"] = {"program": "fixture-access", "verified": True,
+                                             "account_ref": "test-account", "observed_at": old,
+                                             "evidence": "authorized fixture"}
+                    registry["models"].append(alias)
+                    c.update(model=alias["id"], resolved_model=target,
+                             resolution_observed_at=old if expiring == "alias" else NOW,
+                             resolution_evidence="fixture resolution")
+                p = self.m.make_plan({"run_id": "expiry-test", "steps": [step()]}, self.catalog,
+                                     {"candidates": [c]}, NOW, registry)
+                self.assertEqual(p["status"], "ready")
+                self.assertEqual(self.m.ready_steps(p, [], now=NOW), ["read"])
+                self.assertEqual(self.m.ready_steps(p, [], now=boundary), ["read"])
+                self.assertEqual(self.m.ready_steps(p, [], now=later), [])
+
+    def test_ready_requires_derived_validity_bound(self):
+        p = self.plan()
+        p["steps"][0]["route"].pop("valid_until", None)
+        p["plan_digest"] = self.m.digest({k: v for k, v in p.items() if k != "plan_digest"})
+        self.assertEqual(self.m.ready_steps(p, [], now=NOW), [])
 
 
 if __name__ == "__main__":

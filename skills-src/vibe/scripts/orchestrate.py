@@ -23,6 +23,9 @@ DEMAND_TIER = {"routine": 1, "reasoning": 2, "critical": 3}
 ORCHESTRATORS = {"vibe", "simonk", "app-dev-orchestrator", "dev-orchestrator"}
 SCRIPT_ROOT = Path(__file__).resolve().parent
 DEFAULT_TTL = 900  # Refresh availability, price quotes and quota before dispatch.
+if str(SCRIPT_ROOT) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_ROOT))
+from model_registry import constrain_runtime, load_registry
 
 
 def digest(value):
@@ -107,7 +110,7 @@ def ordered_steps(steps):
 
 
 def assess_candidate(c, step, policy, now, producer_vendor=None):
-    errors = []
+    errors = list(c.get("registry_errors", []))
     surface = c.get("surface")
     demand = step.get("demand", "routine")
     effort = c.get("effort_by_demand", {}).get(demand)
@@ -204,9 +207,10 @@ def _legacy_validation(nodes, runtime):
     return [] if ok else ["ORCA_" + v for v in violations]
 
 
-def make_plan(request, catalog, runtime, now=None):
+def make_plan(request, catalog, runtime, now=None, registry=None):
     now = now or datetime.now(timezone.utc).isoformat()
     instant(now)
+    runtime = constrain_runtime(runtime, registry if registry is not None else load_registry(), now)
     budget = request.get("budget", {})
     policy = {"mode": budget.get("mode", "balanced"),
               "approved_usd": str(money(budget.get("approved_usd", 0))),
@@ -297,10 +301,12 @@ def make_plan(request, catalog, runtime, now=None):
                 reserved += amount
                 s["route"] = {"candidate_id": c["id"], "surface": c["surface"],
                               "vendor": SURFACES[c["surface"]], "transport": c["transport"],
-                              "model": c.get("model"), "requested_effort": effort,
+                              "model": c.get("model"), "requested_model": c.get("requested_model"),
+                              "resolved_model": c.get("resolved_model"), "requested_effort": effort,
                               "effective_effort": c.get("effective_effort") if c["transport"] == "host" else None,
                               "billing": copy.deepcopy(c["billing"]), "quota": copy.deepcopy(c["quota"]),
                               "reserved_upper_usd": float(amount), "actual_usd": None,
+                              "valid_until": c["valid_until"],
                               "runtime_observed_at": c["observed_at"]}
                 s["handoff"] = {"kind": c["transport"], "read_skills": s["skill_paths"],
                                 "reuse_coordinator": any(k in ORCHESTRATORS for k in s.get("skills", []))}
@@ -319,7 +325,8 @@ def make_plan(request, catalog, runtime, now=None):
         raise ValueError("A unique run_id is required")
     result = {"schema_version": 1, "run_id": request["run_id"],
             "planned_at": now, "status": "blocked" if global_errors or any(s["errors"] for s in nodes) else "ready",
-            "errors": global_errors, "budget": policy, "steps": nodes}
+            "errors": global_errors, "budget": policy, "steps": nodes,
+            "model_registry": runtime["model_registry"]}
     result["plan_digest"] = digest(result)
     return result
 
@@ -333,10 +340,14 @@ def ready_steps(plan, events, now=None):
         return []
     for node in plan["steps"]:
         route = node.get("route") or {}
-        if route.get("surface") != "local" and (
-                not fresh(route.get("runtime_observed_at"), now)
-                or not fresh(route.get("quota", {}).get("observed_at"), now)):
-            return []
+        if route.get("surface") != "local":
+            try:
+                valid = instant(now) <= instant(route.get("valid_until"))
+            except (TypeError, ValueError, AttributeError):
+                valid = False
+            if (not valid or not fresh(route.get("runtime_observed_at"), now)
+                    or not fresh(route.get("quota", {}).get("observed_at"), now)):
+                return []
     if plan.get("plan_digest") != digest({k: v for k, v in plan.items() if k != "plan_digest"}):
         raise ValueError("Plan changed after validation")
     ids = {s["id"] for s in plan["steps"]}
@@ -420,6 +431,7 @@ def main(argv=None):
     parser.add_argument("--root", action="append", default=[])
     parser.add_argument("--input", type=Path)
     parser.add_argument("--runtime", type=Path)
+    parser.add_argument("--registry", type=Path, help="Override the packaged central model registry")
     parser.add_argument("--events", type=Path)
     parser.add_argument("--now")
     parser.add_argument("--bot-root", type=Path)
@@ -438,7 +450,8 @@ def main(argv=None):
         if args.command == "catalog":
             result = discover_skills(roots)
         elif args.command == "plan":
-            result = make_plan(read(args.input), discover_skills(roots), read(args.runtime), args.now)
+            result = make_plan(read(args.input), discover_skills(roots), read(args.runtime), args.now,
+                               load_registry(args.registry) if args.registry else None)
         elif args.command == "ready":
             result = ready_steps(read(args.input), read(args.events) if args.events else [], args.now)
         else:
