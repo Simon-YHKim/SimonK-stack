@@ -13,6 +13,7 @@ import base64
 from contextlib import ExitStack
 import copy
 import hashlib
+import json
 import os
 from pathlib import Path
 import re
@@ -23,6 +24,7 @@ import tempfile
 import skill_release as r
 
 SCOPE = "five-plugin-candidate-v1"
+SAFETY_SCOPE = "five-plugin-candidate-safety-v2"
 OID = re.compile(r"[a-f0-9]{40}\Z")
 VERSION = re.compile(r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\Z")
 PLUGIN = ".claude-plugin/plugin.json"
@@ -38,6 +40,193 @@ LIMITATIONS = [
     "Local Git metadata/config is trusted single-writer input; worktree traversal is no-follow and pinned.",
     "Windows records portable Git mode; physical POSIX executable mode is not verified.",
 ]
+SAFETY_LIMITATIONS = [
+    *LIMITATIONS[:3],
+    "Selected safety commands/resources are an explicit projection, not source-exact copies.",
+    "Native hook startup, interpreter availability and Codex policies are unverified.",
+    *LIMITATIONS[5:],
+    "Session state is a same-user namespace, not authentication; trusted single writer required.",
+    "Setup rendering accepts only genuine one-line Windows paths and host session IDs.",
+]
+SAFETY_DOCS = {
+    "careful": "plugins/SimonKCore/skills/careful/SKILL.md",
+    "freeze": "plugins/SimonKStack/skills/freeze/SKILL.md",
+    "guard": "plugins/SimonKStack/skills/guard/SKILL.md",
+    "investigate": "plugins/SimonKStack/skills/investigate/SKILL.md",
+    "unfreeze": "plugins/SimonKCore/skills/unfreeze/SKILL.md",
+    "detail": "plugins/SimonKStack/skills/investigate/references/detail.md",
+}
+SAFETY_RESOURCES = {
+    "careful/bin/check-careful.sh": "plugins/SimonKCore/skills/careful/bin/check-careful.sh",
+    "careful/bin/hook-extract.sh": "plugins/SimonKCore/skills/careful/bin/hook-extract.sh",
+    "freeze/bin/check-freeze.sh": "plugins/SimonKStack/skills/freeze/bin/check-freeze.sh",
+    "safety_runtime.py": "plugins/SimonKStack/skills/freeze/bin/safety_runtime.py",
+}
+SAFETY_INPUTS = set(SAFETY_DOCS.values()) | set(SAFETY_RESOURCES.values())
+
+
+def replace_exact(text, old, new, count=1):
+    if text.count(old) != count:
+        raise ValueError("Safety projection input drift; review required")
+    return text.replace(old, new)
+
+
+def safety_setup(action):
+    """Static shell program; substituted one-line Windows values are DATA only.
+
+    No claim that a malicious heredoc delimiter is made safe by a later Python
+    check. Host values must satisfy the documented one-line Windows contract.
+    """
+    if action not in {"set", "clear"}:
+        raise ValueError("Unknown safety setup action")
+    count = 4 if action == "set" else 3
+    code = ('import ctypes,os,pathlib,runpy,sys; rows=sys.stdin.read(32769).splitlines(); '
+            f'len(rows)=={count} or sys.exit(2); '
+            'root=pathlib.Path(rows[0]); '
+            '(os.name=="nt" and root.is_absolute() and len(root.drive)==2 '
+            'and root.drive[0].isascii() and root.drive[0].isalpha() '
+            'and root.drive[1]==":") or sys.exit(2); '
+            'ctypes.windll.kernel32.GetDriveTypeW(ctypes.c_wchar_p(root.anchor))==3 or sys.exit(2); '
+            'target=root/".simonk-runtime"/"safety_runtime.py"; '
+            f'sys.argv=[str(target),"{action}","--project",rows[1],"--session",rows[2]]'
+            + ('+["--boundary",rows[3]]' if action == "set" else '')
+            + '; runpy.run_path(str(target),run_name="__main__")')
+    values = '${CLAUDE_PLUGIN_ROOT}\n${CLAUDE_PROJECT_DIR}\n${CLAUDE_SESSION_ID}\n'
+    if action == "set":
+        values += '<absolute-existing-Windows-directory>\n'
+    return ("```bash\npython -B -c '" + code + "' <<'SIMONK_SAFETY_INPUT'\n"
+            + values + "SIMONK_SAFETY_INPUT\n```\n")
+
+
+def safety_document(name, data):
+    """Version 1 fixed transformations; never execute a candidate transformer."""
+    raw = data.decode("utf-8")
+    eol = "\r\n" if "\r\n" in raw else "\n"
+    if ("\r" in raw.replace("\r\n", "")
+            or eol == "\r\n" and "\n" in raw.replace("\r\n", "")):
+        raise ValueError("Safety projection requires consistent source line endings")
+    text = raw.replace("\r\n", "\n")
+    commands = {
+        "careful": [("bin/check-careful.sh", "careful", 1)],
+        "freeze": [("bin/check-freeze.sh", "freeze", 2)],
+        "guard": [("../careful/bin/check-careful.sh", "careful", 1),
+                  ("../freeze/bin/check-freeze.sh", "freeze", 2)],
+        "investigate": [("../freeze/bin/check-freeze.sh", "freeze", 2)],
+    }
+    for relative, kind, count in commands.get(name, []):
+        old = '          command: "bash ${CLAUDE_SKILL_DIR}/' + relative + '"'
+        args = ["-B", "${CLAUDE_PLUGIN_ROOT}/.simonk-runtime/safety_runtime.py",
+                "check", kind, "--project", "${CLAUDE_PROJECT_DIR}"]
+        new = '          command: "python"\n          args: ' + json.dumps(args)
+        text = replace_exact(text, old, new, count)
+    setup_note = ("Use only an existing, one-line absolute Windows directory. Replace the\n"
+                  "boundary placeholder in the raw-data block below; do not paste arbitrary\n"
+                  "multi-line text or shell code. Leave host placeholders for the host to render.\n"
+                  "If the launcher fails, STOP: do not report that the boundary is active.\n\n")
+    if name in {"freeze", "guard"}:
+        old = '''1. Resolve it to an absolute path:
+```bash
+FREEZE_DIR=$(cd "<user-provided-path>" 2>/dev/null && pwd)
+echo "$FREEZE_DIR"
+```
+
+2. Ensure trailing slash and save to the freeze state file:
+```bash
+FREEZE_DIR="${FREEZE_DIR%/}/"
+STATE_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}"
+mkdir -p "$STATE_DIR"
+echo "$FREEZE_DIR" > "$STATE_DIR/freeze-dir.txt"
+echo "Freeze boundary set: $FREEZE_DIR"
+```
+'''
+        text = replace_exact(text, old, setup_note + safety_setup("set"))
+    if name == "guard":
+        text = replace_exact(text,
+            '**Dependency note:** This skill references hook scripts from the sibling `/careful`\n'
+            'and `/freeze` skill directories. Both must be installed (they are installed together\n'
+            'by the gstack setup script).',
+            '**Candidate dependency:** This plugin carries reviewed safety runtime resources.\n'
+            'Python and Git Bash are required; native host activation remains unverified.')
+    if name == "unfreeze":
+        old = '''```bash
+STATE_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}"
+if [ -f "$STATE_DIR/freeze-dir.txt" ]; then
+  PREV=$(cat "$STATE_DIR/freeze-dir.txt")
+  rm -f "$STATE_DIR/freeze-dir.txt"
+  echo "Freeze boundary cleared (was: $PREV). Edits are now allowed everywhere."
+else
+  echo "No freeze boundary was set."
+fi
+```
+'''
+        text = replace_exact(text, old, safety_setup("clear"))
+        text = replace_exact(text,
+            'session — they will just allow everything since no state file exists. To re-freeze,',
+            'session — only an explicit inactive tombstone permits edits. Missing state denies. To re-freeze,')
+    if name == "investigate":
+        header, body = text.split("\n---\n", 1)
+        text = (header + "\n---\n\n## Candidate session scope commands\n\n"
+                + setup_note + "For Scope Lock in references/detail.md, use this rendered set command:\n\n"
+                + safety_setup("set")
+                + "\nIf scope is explicitly skipped, record an inactive tombstone with this command:\n\n"
+                + safety_setup("clear")
+                + "\nDo not run both: choose set or explicit skip. Missing/broken state denies edits.\n"
+                + body)
+    if name == "detail":
+        old = '''```bash
+[ -x "${CLAUDE_SKILL_DIR}/../freeze/bin/check-freeze.sh" ] && echo "FREEZE_AVAILABLE" || echo "FREEZE_UNAVAILABLE"
+```
+
+**If FREEZE_AVAILABLE:** Identify the narrowest directory containing the affected files. Write it to the freeze state file:
+
+```bash
+STATE_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}"
+mkdir -p "$STATE_DIR"
+echo "<detected-directory>/" > "$STATE_DIR/freeze-dir.txt"
+echo "Debug scope locked to: <detected-directory>/"
+```
+
+Substitute `<detected-directory>` with the actual directory path (e.g., `src/auth/`). Tell the user: "Edits restricted to `<dir>/` for this debug session. This prevents changes to unrelated code. Run `/unfreeze` to remove the restriction."
+
+If the bug spans the entire repo or the scope is genuinely unclear, skip the lock and note why.
+
+**If FREEZE_UNAVAILABLE:** Skip scope lock. Edits are unrestricted.'''
+        text = replace_exact(text, old,
+            'Identify the narrowest existing directory containing the affected files.\n'
+            'Use the **Candidate session scope commands** already rendered in this skill\'s\n'
+            'SKILL.md, choosing set with that absolute directory. Do not execute unexpanded\n'
+            'host placeholders from a supporting file read via Read.\n\n'
+            'If the scope is genuinely unclear, explain why and use the explicit skip/clear\n'
+            'command in SKILL.md. A missing/broken runtime does NOT imply unrestricted edits.\n'
+            'On any launcher failure, stop and report that scope protection is not confirmed.')
+    return text.replace("\n", eol).encode("utf-8")
+
+
+def project_safety(source, projection, files, generated, add):
+    exact(projection, {"version", "originals"}, "safety projection")
+    if type(projection["version"]) is not int or projection["version"] != 1:
+        raise ValueError("Unknown safety transformation version")
+    exact(projection["originals"], SAFETY_INPUTS, "safety original inputs")
+    source_files = {f["package_path"]: f for f in source["files"]}
+    originals = {}
+    for path, encoded in projection["originals"].items():
+        if path not in source_files:
+            raise ValueError("Safety source input is missing")
+        data = unbase64(encoded)
+        item = source_files[path]
+        if len(data) != item["size"] or r.digest(data) != item["sha256"]:
+            raise ValueError("Safety original differs from approved source")
+        originals[path] = data
+    for name, path in SAFETY_DOCS.items():
+        data = safety_document(name, originals[path])
+        generated[path] = data
+        files[path] = content_record(path, data, source_files[path]["mode"], "generated", path)
+    for owner in ("SimonKCore", "SimonKStack"):
+        for relative, original in SAFETY_RESOURCES.items():
+            path = f"plugins/{owner}/.simonk-runtime/{relative}"
+            data = originals[original]
+            generated[path] = data
+            add(content_record(path, data, source_files[original]["mode"], "generated", original))
 
 
 def exact(value, keys, label):
@@ -282,7 +471,7 @@ def metadata_bytes(base, path, record):
     return result
 
 
-def derive(source, source_digest, inputs, bases):
+def derive(source, source_digest, inputs, bases, safety_projection=None):
     """Recompute exact candidate ownership/files from authenticated receipt inputs."""
     r.validate_manifest(source)
     if not isinstance(source_digest, str) or r.digest(r.encoded(source)) != source_digest:
@@ -383,6 +572,8 @@ def derive(source, source_digest, inputs, bases):
         for path in paths:
             add({"path": path, **{k: f[k] for k in ("sha256", "size", "mode")},
                  "origin": "source", "input_path": f["package_path"]})
+    if safety_projection is not None:
+        project_safety(source, safety_projection, files, generated, add)
     if len(files) > r.MAX_FILES or sum(f["size"] for f in files.values()) > r.MAX_TOTAL:
         raise ValueError("Candidate exceeds file/byte limits")
     return owners, sorted(files.values(), key=lambda f: f["path"]), generated
@@ -414,13 +605,19 @@ def verify_bundle(root, expected_digest):
         if r.digest(data) != expected_digest:
             raise ValueError("Candidate receipt digest mismatch")
         m = r.decoded(data)
-        exact(m, {"schema_version", "scope", "source_digest", "source_manifest", "inputs", "bases", "owners", "files",
-                  "runtime_closure_verified", "host_compatibility_verified", "installation_ready", "limitations"}, "candidate receipt")
-        if (type(m["schema_version"]) is not int or m["schema_version"] != 1 or m["scope"] != SCOPE
+        if not isinstance(m, dict):
+            raise ValueError("Invalid candidate receipt")
+        safety = m.get("scope") == SAFETY_SCOPE
+        keys = {"schema_version", "scope", "source_digest", "source_manifest", "inputs", "bases", "owners", "files",
+                "runtime_closure_verified", "host_compatibility_verified", "installation_ready", "limitations"}
+        exact(m, keys | ({"safety_projection"} if safety else set()), "candidate receipt")
+        if (type(m["schema_version"]) is not int or m["schema_version"] != (2 if safety else 1)
+                or m["scope"] != (SAFETY_SCOPE if safety else SCOPE)
                 or any(m[k] is not False for k in ("runtime_closure_verified", "host_compatibility_verified", "installation_ready"))
-                or m["limitations"] != LIMITATIONS or data != r.encoded(m)):
+                or m["limitations"] != (SAFETY_LIMITATIONS if safety else LIMITATIONS) or data != r.encoded(m)):
             raise ValueError("Invalid candidate-only contract")
-        owners, files, _ = derive(m["source_manifest"], m["source_digest"], m["inputs"], m["bases"])
+        owners, files, _ = derive(m["source_manifest"], m["source_digest"], m["inputs"], m["bases"],
+                                 m["safety_projection"] if safety else None)
         if r.encoded(m["owners"]) != r.encoded(owners) or r.encoded(m["files"]) != r.encoded(files):
             raise ValueError("Candidate does not match its source/base closure")
         if r.files_under(root) != {f["path"] for f in files} | {"bundle.json"}:
@@ -433,7 +630,9 @@ def verify_bundle(root, expected_digest):
         return m
 
 
-def build_bundle(source_package, source_digest, plugin_parent, inputs, output):
+def build_bundle(source_package, source_digest, plugin_parent, inputs, output, *, safety_adapter=False):
+    if type(safety_adapter) is not bool:
+        raise ValueError("Safety adapter option must be boolean")
     validate_inputs(inputs)
     source_package, plugin_parent = r.no_links(source_package), r.no_links(plugin_parent)
     target = r.destination(output, source_package, plugin_parent)
@@ -443,13 +642,20 @@ def build_bundle(source_package, source_digest, plugin_parent, inputs, output):
         stack.enter_context(r.pinned(source_package, directory=True))
         stack.enter_context(r.pinned(plugin_parent, directory=True))
         source = r.verify_release(source_package, source_digest)
+        projection = None
+        if safety_adapter:
+            if not SAFETY_INPUTS <= {f["package_path"] for f in source["files"]}:
+                raise ValueError("Safety projection requires all reviewed source inputs")
+            projection = {"version": 1, "originals": {
+                path: base64.b64encode(r.read_file(r.safe_member(source_package, path))).decode("ascii")
+                for path in sorted(SAFETY_INPUTS)}}
         bases, snapshots = {}, {}
         actual_files = {owner: pin_snapshot(r.safe_member(plugin_parent, owner), stack) for owner in sorted(r.OWNERS)}
         for owner, info in sorted(inputs["plugins"].items()):
             root = r.safe_member(plugin_parent, owner)
             stack.enter_context(r.pinned(root, directory=True))
             bases[owner], snapshots[owner] = collect_base(root, info, owner, source, actual_files[owner])
-        owners, files, generated = derive(source, source_digest, inputs, bases)
+        owners, files, generated = derive(source, source_digest, inputs, bases, projection)
         blobs = {}
         for f in files:
             if f["origin"] == "source":
@@ -462,10 +668,13 @@ def build_bundle(source_package, source_digest, plugin_parent, inputs, output):
                 raise ValueError("Input changed during candidate construction")
             check_content(f["path"], data, owners, f["origin"])
             blobs[f["path"]] = data
-    manifest = {"schema_version": 1, "scope": SCOPE, "source_digest": source_digest, "source_manifest": source,
+    manifest = {"schema_version": 2 if safety_adapter else 1,
+                "scope": SAFETY_SCOPE if safety_adapter else SCOPE, "source_digest": source_digest, "source_manifest": source,
                 "inputs": copy.deepcopy(inputs), "bases": bases, "owners": owners, "files": files,
                 "runtime_closure_verified": False, "host_compatibility_verified": False,
-                "installation_ready": False, "limitations": LIMITATIONS}
+                "installation_ready": False, "limitations": SAFETY_LIMITATIONS if safety_adapter else LIMITATIONS}
+    if safety_adapter:
+        manifest["safety_projection"] = projection
     data = r.encoded(manifest)
     if len(data) > r.MAX_FILE:
         raise ValueError("Candidate receipt exceeds byte limit")
@@ -493,6 +702,8 @@ def main(argv=None):
     build.add_argument("--plugin-parent", type=Path, required=True)
     build.add_argument("--inputs", type=Path, required=True)
     build.add_argument("--output", type=Path, required=True)
+    build.add_argument("--safety-adapter", action="store_true",
+                       help="Opt in to reviewed v2 safety command/resource projection; not installation")
     verify = commands.add_parser("verify")
     verify.add_argument("--package", type=Path, required=True)
     verify.add_argument("--expected-digest", required=True)
@@ -500,7 +711,7 @@ def main(argv=None):
     try:
         if args.command == "build":
             result = build_bundle(args.source_package, args.source_digest, args.plugin_parent,
-                                  r.load_json(args.inputs), args.output)
+                                  r.load_json(args.inputs), args.output, safety_adapter=args.safety_adapter)
         else:
             receipt = verify_bundle(args.package, args.expected_digest)
             result = {"status": "candidate_bytes_verified", "bundle_digest": args.expected_digest,

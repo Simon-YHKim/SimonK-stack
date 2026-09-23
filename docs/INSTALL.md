@@ -177,6 +177,56 @@ clone/checkout 준비는 builder가 자동 수행하는 기능이 아니며, 긴
 [Plugins reference](https://code.claude.com/docs/en/plugins-reference)를 참고하세요.
 이 후보에 대한 native Claude/Codex validator 또는 host 실행 통과 주장은 없습니다.
 
+### 선택적 v2 safety projection — 여전히 격리 후보
+
+`build`에 `--safety-adapter`를 추가하면 v1 exact-copy 대신 명시적
+`five-plugin-candidate-safety-v2` 계약을 사용합니다. 기본값과 기존 v1 검증은
+바뀌지 않습니다. v2는 careful/freeze/guard/investigate/unfreeze의 SKILL과
+investigate scope 참고문서, 총 6개 입력의 정해진 hook/setup 부분만 변환합니다.
+원본 source 파일과 3개 Bash leaf는 수정하지 않습니다.
+
+Core/Stack 각각의 `.simonk-runtime/`에 helper와 Python adapter를 포함합니다.
+이들은 skill이 아니며 새 SKILL.md나 두 번째 plugin home을 만들지 않습니다.
+receipt의 `safety_projection.originals`는 변환/복제 입력 10개의 원본 바이트를
+보관하고, verifier는 source manifest의 hash/size와 대조한 뒤 고정 변환을
+재실행합니다. 출력 hash만 새로 쓰거나 원본/복제 helper를 바꿔 통과시킬 수
+없습니다. 단 공격자가 모든 입력을 교체하고 사용자가 새로운 digest를 승인하는
+경우까지 인증하는 서명 체계는 아닙니다.
+
+```text
+python -B scripts/plugin_bundle.py build --source-package E:/staging/release-a --source-digest <digest> --plugin-parent E:/reviewed/SimonK-Plugins --inputs distribution/plugin-inputs.v1.json --output E:/staging/plugins-safety-candidate-a --safety-adapter
+```
+
+Hook는 `python` + `args`의 exec-form을 사용합니다. 정상 설치된 실제 Python
+실행 파일이 PATH에 있어야 하며, native host가 이를 기동하는지는 별도 확인입니다.
+adapter는 검토한 Git Bash만 사용합니다. `SIMONK_SAFETY_BASH`로 지정할 수 있고,
+Windows의 WSL `bash.exe`를 대체 runtime으로 추측하지 않습니다. 최상위 Python
+기동 자체가 실패하면 adapter의 deny/ask도 실행될 수 없으므로 호스트 활성화는
+이 후보만으로 승인되지 않습니다.
+변경하지 않은 Bash leaf의 JSON 파서를 위해 `node.exe`도 PATH에서 사용할 수
+있어야 합니다. 의존성을 자동 설치하거나 PATH·전역 환경을 수정하지 않습니다.
+
+상태는 `SIMONK_SAFETY_STATE_ROOT` 또는 `%LOCALAPPDATA%/SimonK/safety-v1` 아래
+canonical project + host session ID로 분리합니다. plugin DATA나 변경 가능한
+hook cwd를 상태의 식별자로 쓰지 않습니다. session ID는 namespace이지 호출자
+인증 수단이 아닙니다. freeze 상태 부재/손상/접근 오류는 deny이며, 명시적
+unfreeze가 기록한 inactive tombstone만 허용합니다. 이는 원본 leaf의
+absent-file 허용 동작을 바꾼 것이 아니라 새 adapter의 전처리 계약입니다.
+단독 작성·동일 사용자 환경 전제이며 OS 보안 경계나 Bash 파일쓰기 차단이 아닙니다.
+
+Setup의 host 치환값은 shell 코드로 재해석하지 않고 quoted heredoc의 raw data로
+전달합니다. 이 후보는 실제 존재하는 **한 줄 Windows 절대 경로**와 host session
+ID만 허용합니다. 임의 여러 줄 텍스트나 heredoc 종료 구문을 붙여넣지 마세요.
+shell이 먼저 해석한 뒤 Python으로 검사하는 것은 shell injection 방어가 아닙니다.
+investigate 참고문서는 Read 시 치환을 가정하지 않고, SKILL 본문에서 이미 치환된
+setup 명령을 참조합니다. synced skill이나 다른 호스트의 치환 동작은 인증하지 않습니다.
+
+검증은 격리 state root/후보/fixture 안에서만 수행합니다. 실제 사용자 state,
+프로필, 설치본을 이 예제로 자동 전환하지 마세요. 세 readiness 플래그는 v2에도
+false이며 전체 의존성·호스트 정책·설치 준비 완료 주장은 아닙니다.
+공식 계약: [Skills substitutions](https://code.claude.com/docs/en/skills#available-string-substitutions),
+[Hook exec form](https://code.claude.com/docs/en/hooks#exec-form-and-shell-form).
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
