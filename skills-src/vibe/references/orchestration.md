@@ -3,6 +3,7 @@
 ## Contents
 
 - Ownership
+- Skill discovery and scoped coverage
 - Request schema
 - Runtime snapshot
 - Budget and selection
@@ -17,6 +18,90 @@ The host LLM interprets the request, reads selected skills, and executes work.
 `orchestrate.py` is an offline preflight/readiness helper, not an autonomous
 daemon or a replacement for provider-specific dispatch. It does not fabricate
 runtime observations or send tasks. The host owns one run and its budget.
+
+## Skill discovery and scoped coverage
+
+One scanner backs `catalog`, `inventory`, `coverage` and `plan`. It visits only
+direct children of each supplied flat skill root, never arbitrary recursive
+directories, scripts or package imports. Add nested system/plugin roots
+explicitly. `catalog`/`plan` retain default sibling and home roots (including
+`.codex/skills/.system`); audit commands require explicit roots so a report
+cannot silently change scope with the current machine. Names and descriptions
+are discovery hints, never an automatic skill-name-to-model policy.
+
+```text
+python scripts/orchestrate.py inventory --root /source/skills-src --root /source/.claude/skills --exclude-root /protected
+python scripts/orchestrate.py coverage --source-root /source/skills-src --source-root /source/.claude/skills --root /installed/skills --plugin-root /plugin/skills --exclude-root /protected
+python scripts/orchestrate.py plan --root /installed/skills --host-skills host-skills.json --input request.json --runtime runtime.json
+```
+
+Repeat root/exclusion flags as needed. Supply every expected source/install/plugin
+root; no registry of old hardcoded skill counts is authoritative. Protected paths
+must be excluded before scanning; lexical paths and resolved symlink/junction
+targets are both checked before content reads. Missing/unreadable/limited roots,
+excluded paths and malformed files remain explicit issues. `complete` means
+only the declared flat scope was observed, never that all machine/host skills
+were found. No host snapshot means nonfilesystem exposure was not inspected.
+
+The scanner supports scalar names and inline or folded/literal descriptions,
+not a full YAML interpreter. Malformed/unsupported required metadata is reported,
+not replaced by a guessed directory name. Reads are bounded to 2 MiB per SKILL,
+10,000 entries and 64 roots. It emits metadata and raw-byte SHA-256, not bodies.
+Same physical paths become aliases; distinct same-name files remain alternatives.
+The first valid declared name wins as before. `plan` can use a valid selected
+leaf despite unrelated scan issues; its discovery summary and selected bindings
+are included in the plan digest. Review alternatives and choose explicit root
+order when a shadowed skill is the intended one. Do not silently rename a skill.
+
+Coverage compares each declared source name against the **selected** installed
+copy, not any matching shadow. Ambiguous source names, missing/drifted installs,
+host-only observations, missing/duplicate physical plugin homes and plugin SKILL
+drift are distinct. Extra installed/plugin names are retained separately, not
+discarded. With no plugin roots, that comparison is not checked. `inventory`
+and `catalog` exit 2 on incomplete scope; `coverage` exits 2 on gaps. A metadata
+match is not approval to install, overwrite, dispatch or mark the goal complete.
+
+Hashes cover SKILL.md bytes only, not scripts/assets/dependency closure or host
+resource content. Equal SKILL hashes do not prove package parity or quality.
+Every compared skill's economy/balanced/quality result is `not_evaluated`, with
+quality, actual_usd and latency_ms null. An eval file's existence or schema PASS
+cannot upgrade that state. Actual per-skill/mode evaluation and release checksum
+parity require separate measured evidence; this utility never fabricates them.
+
+### Host-native instructions
+
+Only a trusted coordinator may build this snapshot from the **current host's
+actual tool/skill catalog**, not from worker prose, guessed URIs or an arbitrary
+external JSON file. Resolve the instructions through that host's supported
+resource reader and read required references before using them. Example shape:
+
+```json
+{"schema_version":1,"host_ref":"current-session-reference",
+ "observed_at":"2026-09-24T00:00:00+09:00","evidence":["current host catalog observation"],
+ "skills":[{"name":"documents:documents","canonical_name":"documents",
+            "description":"Read and edit documents","uri":"skill://documents/main"}]}
+```
+
+These values are examples, not live evidence. Preserve exact qualified names,
+the actual declared canonical name and the actual resource URI. A URI cannot
+claim two different canonical identities. Stable identity and host_ref travel
+in `skill_bindings`; refreshable snapshot digest, timestamp and evidence travel
+in `handoff.host_skills`. Both are bound by the plan digest. This separation lets
+the durable Store refresh observations without changing task intent, while a
+different resource/host identity remains an intent change. Native bindings
+have `path=null` and `sha256=null`; `read_skills` remains filesystem paths only.
+The helper never fetches a URI or materializes native instructions for workers.
+
+Native nodes require `kind=llm`, a candidate with `transport=host`, matching
+`host_ref`, and fresh snapshot/runtime evidence. Canonical names and resource
+identities participate in ancestor/vibe recursion checks. Native snapshot expiry
+also caps `route.valid_until`, so existing readiness/claim gates reject an expired
+plan. Immediately before host execution reobserve the same host/session, skills
+and access; if anything changed, refresh/replan instead of executing stale input.
+The snapshot is trusted input, not cryptographic attestation or a resource-access
+lock. It never proves available models, billing, skill behavior or authority.
+When the host cannot establish provenance, use inventory-only metadata and do
+not manufacture a host snapshot to force an executable plan.
 
 ## Request schema
 

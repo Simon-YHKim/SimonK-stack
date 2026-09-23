@@ -2,7 +2,7 @@
 name: vibe
 description: "Use when the user invokes \"/vibe\", \"바이브로 알아서 해줘\", \"스킬 조합해서 처리해\", \"오르카로 돌려\", or \"orchestrate this task\". Acts as the main entry point for installed SimonK-stack skills: discovers the relevant skills, decomposes dependencies, chooses software and CLI/API/MCP or GUI Bot execution, and matches Claude, Codex (GPT), Antigravity (Gemini), Grok and Grok Bot to verified model/effort capabilities and a total-run cost budget. Produces a validated execution plan, scoped handoffs, verified artifacts and a usage report. Small tasks stay in the current session; GUI-only steps use vibe-bot internally. Never treats unknown cost or unsupported model controls as zero or applied."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.9.0
+version: 2.10.0
 author: simon-stack
 ---
 
@@ -33,10 +33,19 @@ Quality preference is not spending authorization.
 
 Run `python "<skill>/scripts/orchestrate.py" catalog` to inspect skill metadata.
 Root order is: the current skill's sibling directory, then installed .agents,
-.codex and .claude roots. Supply repeated `--root` flags when the environment
-provides different canonical roots. First declared name wins; resolved paths
-and content hashes expose duplicate copies. Native/plugin skills exposed by
-the host remain available even if they have no local directory.
+.codex, .claude and .codex/skills/.system roots. Supply repeated `--root` flags
+for other flat parents, including plugin skill directories. First declared
+name wins; alternatives and resolved aliases remain visible. Before scanning,
+pass `--exclude-root` for protected repositories/backups: exclusion also applies
+to symlink targets before content reads. Nothing is recursively imported.
+
+Use `inventory` with explicit roots for scope/errors, and `coverage` with
+explicit source, plugin and installation roots to detect missing/shadowed/drifted
+SKILL files. Read the [discovery contract](references/orchestration.md) for the
+CLI and trusted current-host snapshot format. Host-native skills keep their exact
+qualified names and resource URIs in typed bindings, not filesystem paths.
+Only the matching, freshly observed host may plan them; workers cannot inherit
+the host's resource access. Discovery never establishes behavior or cost.
 
 Honor user-named skills, then use descriptions to select the smallest complete
 set. Read each selected SKILL.md and its required references before execution.
@@ -313,6 +322,10 @@ python "<skill>/scripts/sync_skill_table.py" --check
 
 ## Version note
 
+2.10.0 shares lossless, bounded metadata discovery between catalog and planning,
+adds scoped source/plugin/install comparison, and plans trusted host-native
+bindings only in their matching host context. All behavioral/mode evaluations
+remain unmeasured; SKILL byte equality is not full-package installation parity.
 2.9.0 connects the 2.8.0 durable reservation/intent store to a guarded local
 Orca adapter, with fixed task/spec/workspace/runtime identity, fresh transport
 account gates, bounded CLI I/O and lookup-only recovery. Raw output stays in

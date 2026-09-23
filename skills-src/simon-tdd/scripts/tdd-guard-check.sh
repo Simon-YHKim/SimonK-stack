@@ -33,7 +33,7 @@ is_source() {
 # Test file patterns
 is_test() {
   case "$1" in
-    *.test.*|*.spec.*|test_*.py|*_test.py|*_test.go|*.test.ts|*.test.tsx) return 0 ;;
+    *.test.*|*.spec.*|test_*.py|*/test_*.py|*_test.py|*_test.go|*.test.ts|*.test.tsx) return 0 ;;
     */tests/*|*/test/*|*/__tests__/*|*/spec/*) return 0 ;;
     *) return 1 ;;
   esac
