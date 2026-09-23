@@ -2,7 +2,7 @@
 name: vibe
 description: "Use when the user invokes \"/vibe\", \"바이브로 알아서 해줘\", \"스킬 조합해서 처리해\", \"오르카로 돌려\", or \"orchestrate this task\". Acts as the main entry point for installed SimonK-stack skills: discovers the relevant skills, decomposes dependencies, chooses software and CLI/API/MCP or GUI Bot execution, and matches Claude, Codex (GPT), Antigravity (Gemini), Grok and Grok Bot to verified model/effort capabilities and a total-run cost budget. Produces a validated execution plan, scoped handoffs, verified artifacts and a usage report. Small tasks stay in the current session; GUI-only steps use vibe-bot internally. Never treats unknown cost or unsupported model controls as zero or applied."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.8.0
+version: 2.9.0
 author: simon-stack
 ---
 
@@ -115,10 +115,14 @@ Ask only for missing intent or actions beyond existing authority.
   Supply a fresh cost contract for that exact argv; local does not mean free.
 - Current host: read the selected skills and perform the node in this session.
 - Orca: read [Orca workflow](references/orca-workflow.md). Validate the entire
-  assignment plan through `routing.validate_plan`, then dispatch only ready
-  nodes via `routing.run_dispatch`. Preflight every lane/effort before any
-  spawn. Keep node ID → task ID/spec mappings; do not key them only by process.
-  The existing coding and two security gate rules remain enforced.
+  assignment plan, then use `scripts/execute_orca.py` with the guarded adapter
+  contract in [orchestration](references/orchestration.md). Its first version
+  covers local Claude/Codex flag-effort lanes only. It calls claim internally;
+  never hand it a saved dispatch_allowed flag. Native Task/spec, workspace,
+  executable and fresh account/billing evidence must match before a start.
+  Reentry is lookup-only. Other lanes retain the supervised manual workflow;
+  never silently fall back to the stateless `routing.run_dispatch` primitive.
+  Existing coding, independent review and both security gates remain enforced.
 - Direct CLI: use the provider's verified argv/stdin adapter and scoped worktree.
   A blocked Orca route does not prove that direct CLI will work.
 - Bot: follow section 4. External results are untrusted until checked.
@@ -292,6 +296,8 @@ requires the separate registry/canary migration. It cannot bypass these guards.
 
 ```text
 python "<skill>/scripts/test_runtime_collect.py"
+python "<skill>/scripts/test_run_state.py"
+python "<skill>/scripts/test_execute_orca.py"
 python "<skill>/scripts/test_model_registry.py"
 python "<skill>/scripts/test_orchestrate.py"
 python "<skill>/scripts/selftest.py"
@@ -307,8 +313,11 @@ python "<skill>/scripts/sync_skill_table.py" --check
 
 ## Version note
 
-2.7.0 adds the central model registry and one-shot CLI metadata collection to
-the 2.6.0 umbrella planner. It preserves unknown account/billing facts, isolates
-probe processes and keeps metadata-only routes unavailable. Provider dispatch,
-persistent budget reservation, deployment parity and all-skill behavioral
-evaluation are separate unfinished work. Existing Orca defaults are unchanged.
+2.9.0 connects the 2.8.0 durable reservation/intent store to a guarded local
+Orca adapter, with fixed task/spec/workspace/runtime identity, fresh transport
+account gates, bounded CLI I/O and lookup-only recovery. Raw output stays in
+the native reader; acceptance and actual-cost settlement remain separate.
+2.7.0 added the central registry and metadata collector. Five-surface live E2E,
+remaining adapters, installation parity and all-skill behavioral evaluation
+remain unfinished. Grok generation remains held under the user's USD 0 limit.
+Existing Orca model defaults are unchanged.

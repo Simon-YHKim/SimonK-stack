@@ -8,6 +8,7 @@
 - Budget and selection
 - Execution and evidence
 - Durable state and recovery
+- Guarded Orca adapter
 - Completion boundary
 
 ## Ownership
@@ -145,7 +146,7 @@ dispatch and inspect their job IDs on resume to avoid duplicate work. Failed
 nodes do not retry automatically; refresh runtime and budget first.
 
 For Orca, validate the entire plan before every ready wave. Use node ID to map
-to task ID/spec, then call run_dispatch on ready nodes only. Calling
+to task ID/spec, then use the guarded adapter below for its supported lanes. Calling
 validate_and_dispatch on the entire DAG starts later phases too early; calling
 it on coding alone drops required security gates. Preserve its full-plan
 validation before using the ready-node dispatch primitive.
@@ -248,6 +249,97 @@ state lifecycle. They do not establish provider adapters, five-surface live
 generation, true provider spend caps or installation parity. Keep those gates
 separate; Grok generation stays on hold while the user's USD 0 constraint and
 exhausted quota apply.
+
+## Guarded Orca adapter
+
+`execute_orca.py` is a one-shot local transport, not a scheduler. Read the
+installed version-matched Orca orchestration guide first. This initial adapter
+supports only registered Claude/Codex lanes whose effort_style is flag. Grok,
+Antigravity, remote placements, prompt-keyword/ultracode lanes and automatic
+retry/fallback are deliberately unsupported. It creates no Run, Task, workspace
+or terminal outside the single guarded worker-start. The coordinator prepares
+the unique native Run/Task and exact existing workspace using the normal Orca
+contract. Do not reuse a Task with any previous Dispatch.
+
+Each request node preserves an `orca` manifest in its registered plan:
+
+```json
+{"run_id":"native-run", "task_id":"native-task",
+ "worktree_id":"exact-native-workspace-id", "worktree_path":"absolute-resolved-path",
+ "workspace_instance":"native-instance-id",
+ "executable":"absolute-native-orca-executable", "executable_sha256":"sha256",
+ "runtime_id":"observed-runtime-id", "app_version":"observed-app-version",
+ "account_ref":"opaque-account-reference", "profile_ref":"opaque-launch-profile",
+ "guards":{"quota_checked_vendors":["claude","codex","grok","gemini"], "quota_states":{}}}
+```
+
+These are placeholders, not runtime facts. Supply actual quota_states and all
+normal plan inputs from evidence. The entire plan still passes the legacy
+policy, dependency, quota and budget guards. Plan registration durably fixes
+the manifest, route and spec intent before the first claim. Use
+`execute_orca.py spec --plan plan.json --node ID` to print the exact Task spec;
+it includes the complete node intent, skill paths and handoff, excluding only
+transport fields and planner diagnostics. Set that exact spec on the prepared
+native Task before dispatch. No unrelated prompt is accepted at send time.
+
+The coordinator supplies a separate certificate for the exact Orca launch
+account/profile, not a generic subscription label or direct-CLI login. Required
+fields are verified=true, binding_sha256 (`binding_digest(plan, node_id)`),
+account_ref, profile_ref, observed_at, valid_until, billing (exact route billing
+object) and a nonempty evidence array. Evidence must establish model inclusion,
+quota, the launch profile/account mapping and disabled overage/API fallback for
+a subscription route. No helper creates or upgrades this certificate. Unknown
+facts block dispatch; do not relabel metadata-only observations as verified.
+The certificate is trusted coordinator evidence, not a cryptographic provider
+attestation or an atomic lock on external account settings. Profile changes
+require revalidation. There is no claim of a provider-enforced spend cap.
+
+```text
+python "<skill>/scripts/execute_orca.py" dispatch --plan plan.json --node ID --db shared-runs.sqlite3 --certificate account-proof.json
+python "<skill>/scripts/execute_orca.py" reconcile --plan plan.json --node ID --db shared-runs.sqlite3
+```
+
+Before sending, the adapter compares the pinned executable hash, runtime ID and
+version, native Task ID/spec, and native workspace ID/path/local host/instance.
+It repeats freshness checks after these reads and after its internal claim.
+Only that call's fresh claim permits one worker-start with an exact `id:`
+workspace selector and stable --retry-request identity. A persisted true flag,
+timeout, nonzero CLI exit or missing lookup cannot authorize another send.
+Repeated dispatch calls and reconcile use only task-list, worker-list,
+worker-show, worker-read, status and worktree show. Missing/ambiguous/incomplete
+lookup stays uncertain. Pagination is bounded and incomplete pages fail closed.
+Orca --retry-request is additional deduplication, not exactly-once proof.
+
+`worker-show` structured launch.requested/effective must both match. Effective
+settings prove Orca's applied launch configuration, not the internal reasoning
+of a model or a provider invoice. Missing/mismatched settings remain uncertain
+and can be observed again later. Task/Dispatch completion requires matching
+native identity, worker state, dispatch status and projection outcome; PTY exit
+or prose claiming success is insufficient. It never calls settle or verify.
+
+Worker output is read in a bounded call, but raw text, cursor, provider errors
+and tool inputs are not copied into stdout or the DB: arbitrary prose can
+contain credentials. Returned metadata includes a digest, completeness and
+warning flags, text byte count and a native read argv. The coordinator must
+inspect the actual result through that authorized reader, handle clipping and
+then attach acceptance evidence. A digest is not content acceptance. Unknown
+actual cost retains the reservation even after native success.
+
+The adapter uses routing's argv builder and full-plan guards, but not its
+legacy PATH-resolved run_orca runner. Its separate native runner fixes the
+executable for this run and stops its own CLI client when stdout exceeds 1 MiB
+or a call exceeds 45 seconds. It never kills the Orca-owned worker process tree.
+The runtime can still accept work after a client timeout; lookup remains the
+only automatic recovery. No stop, abandon, release, retry, payment, reset,
+installation or worktree deletion is automatic. After accepted settlement the
+coordinator still owes the cleanup decision required by the Orca guide.
+
+This adapter assumes cooperating coordinators share the same DB and own the
+unique native Task. It cannot stop another tool/user from editing the native
+Task, changing account settings, or independently launching its own worker.
+Those external races need reconciliation, not a claim of global exactly-once.
+Offline fixtures cover crashes, concurrency, mismatched identity, output limits
+and missing evidence; they are not live provider generation or billing tests.
 
 ## Completion boundary
 

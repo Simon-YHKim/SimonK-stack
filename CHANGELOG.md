@@ -6,6 +6,7 @@
 ## [Unreleased]
 
 ### Added
+- **`/vibe` 2.9.0 guarded Orca adapter** — registers native Task/spec, runtime, executable and exact workspace bindings with the durable plan; fresh account/billing evidence and an internal atomic claim gate one start. Lookup-only recovery, bounded CLI output and metadata-only result reporting preserve unknown costs without automatic retry, cleanup or acceptance. Local Claude/Codex flag-effort lanes only; Grok generation remains held, live billing/E2E and installed-version parity are not established.
 - **`apps/ai-usage-widget/`** — Windows 작업 표시줄 AI 사용량 위젯 v2(Electron 44)를 이력 포함(git subtree)으로 통합. 공식 CLI 경로만 사용(Claude statusline 브리지, `codex app-server`, grok ACP billing, `agy -p "/usage"`), 가짜 수치·클라이언트 사칭 금지. 자체 `CLAUDE.md`·`DECISIONS.md`·`STATE.md`·`docs/` 포함.
 - **`/ai-usage-widget-install`** (skills-src) — 위 위젯을 소스에서 빌드·검증(`pnpm verify`)해 사용자 전용 NSIS로 설치, `-Status` 점검, Claude 브리지가 남아 있으면 거절하는 `-Uninstall`. PowerShell 5.1 호환 스크립트 포함.
 - `NOTICE` Trademarks 절 — 위젯에 쓰인 타사 마크는 MIT 범위 밖임을 명시.
