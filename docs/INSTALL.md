@@ -71,8 +71,8 @@ Windows는 Git의 portable 실행 비트를 기록하지만 실제 POSIX executa
 `~/.claude/scripts/upgrade-vendor.sh`, 외부 vendor/runtime/CLI/API/MCP/인증/과금,
 호스트별 SKILL frontmatter 호환성 및 스킬 행동 평가까지 닫힌 의존성 검증이 아닙니다.
 빠진 외부 의존은 manifest에 명시하며, 모델·Bot을 실행하거나 설치하지 않습니다.
-공식 plugin의 extras/manifest 및 자동 설치기의 정합성, 실제 재설치·main 통합은
-후속 배포 게이트로 남습니다.
+공식 plugin의 extras/manifest는 아래 별도 candidate 경로에서 검증합니다.
+자동 설치기의 정합성, 실제 재설치·main 통합은 후속 배포 게이트로 남습니다.
 
 회귀 테스트: `python -B -m unittest discover -s scripts/tests -p test_skill_release.py`
 (임시 Git repo·격리 target, 실제 사용자 홈/공식 plugin/모델 호출 없음).
@@ -103,6 +103,79 @@ installer의 preview/apply/재검증을 확인합니다. fixture만 설치하며
 이 정의를 추가했다고 원격 CI가 통과한 것은 아닙니다. 과금 조건 확인과 별도 실행 권한
 없이는 실행하지 마세요. 결과는 같은 SHA·선언된 checkout 정책 아래의 재현성만 증명합니다.
 배포 전에는 commit과 artifact를 결합하는 별도 provenance receipt/승인도 필요합니다.
+
+## 공식 5-plugin 배포 후보 — 설치·활성화 아님
+
+`scripts/plugin_bundle.py`는 verified source overlay와 **로컬의 pinned 공식 저장소
+5개**를 결합하여 새 격리 폴더에 Claude-format candidate를 만듭니다. 현재 입력은
+`distribution/plugin-inputs.v1.json`의 정확 HEAD이며, 변경된 HEAD를 자동 수용하거나
+fetch/pull하지 않습니다. 실제 홈·공식 plugin 폴더를 출력 대상으로 지정할 수 없습니다.
+
+```text
+python -B scripts/plugin_bundle.py build --source-package E:/staging/release-a --source-digest <source release_digest> --plugin-parent E:/reviewed/SimonK-Plugins --inputs distribution/plugin-inputs.v1.json --output E:/staging/plugins-candidate-a
+python -B scripts/plugin_bundle.py verify --package E:/staging/plugins-candidate-a --expected-digest <build가 반환한 전체 bundle_digest>
+```
+
+소스 137개와 plugin-only 45개를 합쳐 182개의 단일 home을 검사합니다. 현재 분포는
+AIHub 7 / Core 61 / Design 22 / Market 32 / Stack 60입니다. source-owned 폴더는
+source member와 정확히 일치해야 하며, 원본에 source가 설명하지 못하는 supplemental
+파일이 있으면 버리지 않고 빌드를 차단합니다. source의 frontmatter·hooks·명시호출
+정책·파일 bytes·Git mode는 바꾸지 않습니다.
+
+3,872개 pinned base 경로를 copied/replaced/transformed/excluded 중 하나로 전수
+분류합니다. plugin-only 파일, 안전한 공식 agents/commands/.github/루트 문서·LICENSE/
+NOTICE를 보존하고, source LICENSE/NOTICE/VENDORED는 각 plugin의
+`.simonk-source-attribution/`에 별도로 둡니다. AIHub `legacy/` 3,292개와 대응 `.py`가
+있는 CPython 캐시 7개는 payload에서 제외하되 Git blob/mode/path/이유를 기록합니다.
+미분류·위험 파일·캐시 원본 부재·중복 소유권·manifest 목록 차이는 실패합니다.
+manifest/agent/command와 plugin-only의 알려진 text 파일에서 legacy/cache를 명시
+참조하면 차단합니다. 이는 보수적인 text 검사이며 동적 런타임 의존 해석은 아닙니다.
+
+`bundle.json`은 원본 metadata bytes, 원본 Git commit object, 전체 base inventory,
+source manifest와 source digest, output의 origin/input path/hash/size/mode를 보관합니다.
+package-only verifier는 Git tree Merkle root와 commit SHA를 다시 계산해 base 경로
+누락을 검출하고, 모든 source member·각 home의 attribution과 정확히 대조합니다.
+**이 연결은 Git inventory의 증명이지 raw working-tree bytes가 blob과 같다는 증명이
+아닙니다.** clean status도 filter/EOL/assume-unchanged 설정을 넘어선 blob attestation은
+아닙니다. 검토한 전체 `bundle_digest`를 별도로 고정해야 하며 서명 체계는 아닙니다.
+
+후보는 원본 plugin.json의 version/skills와 self-marketplace의 두 version만 변환합니다.
+`<base-version>-vibe.<source-digest 앞 12자>`는 후보 표시일 뿐 고유 검증키나 설치
+방지 장치가 아닙니다. 원본 JSON과 변환 후 JSON을 모두 검증 기록으로 보존합니다.
+이 candidate envelope를 marketplace에 등록하거나 `install.sh` 입력으로 넘기지 마세요.
+
+Windows 고정 로컬 드라이브만 지원하며 기존 출력은 덮어쓰지 않습니다. Git 실행 전에
+working tree를 bounded/no-follow 검사하고 파일·디렉터리 및 index를 핀합니다.
+실제 파일집합·Git index·pinned tree를 대조하고 `status -uno`만 사용하므로 untracked
+junction을 Git의 재귀 탐색에 맡기지 않습니다. ignored untracked 파일도 허용하지 않는
+엄격한 후보 입력입니다. clean filter/include/redirected worktree/alternates와 linked
+worktree는 거부합니다. Git child는 상속 GIT_* override를 제거하고 global/system 설정,
+lazy fetch, 허용 transport, 인증 prompt를 차단합니다. 네트워크·provider·Bot을 실행하지
+않습니다. **로컬 `.git` metadata/config 자체는 신뢰된 단독 작성 입력**이어야 합니다.
+config는 물리 라인 기준의 제한된 문법만 허용하며 indented section/option을 일반 INI
+continuation으로 해석하지 않습니다. 모호한 다중 행 문법은 거부합니다.
+Git status는 제외된 tracked 파일도 hash할 수 있으므로 excluded payload의 직접
+read/copy 제외를 OS 전체 read=0 주장으로 확대하지 않습니다.
+
+기존 공식 clone의 ignored model cache를 지워 입력을 맞추지 마세요. 필요한 경우 검토한
+정확 HEAD의 새 **로컬** clone을 별도 임시 폴더에 준비합니다. 준비 단계도 global/system
+Git 설정·hooks/filter와 외부 transport를 차단하고 `--no-hardlinks --no-checkout`을
+사용한 뒤 checkout **전에** local `core.autocrlf=false`, `core.longpaths=true`를 명시합니다.
+clone/checkout 준비는 builder가 자동 수행하는 기능이 아니며, 긴 legacy 경로가 누락된
+불완전 checkout은 정상 입력이 아닙니다. 실제 공식 저장소나 전역 Git 설정은 바꾸지 않습니다.
+
+안전 I/O와 단독 writer·중단 stage 잔존·POSIX mode 미검증 한계는 위 overlay와 같습니다.
+`runtime_closure_verified=false`, `host_compatibility_verified=false`,
+`installation_ready=false`는 항상 유지합니다. 예를 들어 guard(Stack)→careful(Core)의
+`../careful` 참조는 분리 plugin에서 닫히지 않을 수 있습니다. Codex의
+`disable-model-invocation`/Claude hooks 정책 처리, 외부 wrapper/vendor/runtime도 별도
+게이트입니다. metadata 보존을 실제 host 로딩·안전정책 실행 PASS로 해석하지 않습니다.
+실제 설치·SessionStart/default installer 전환·공식 version 승격·main 병합은 포함하지 않습니다.
+
+회귀 테스트: `python -B -m unittest discover -s scripts/tests -p test_plugin_bundle.py`
+(임시 5개 Git 입력·격리 후보만 사용). Claude plugin 구조의 공식 설명은
+[Plugins reference](https://code.claude.com/docs/en/plugins-reference)를 참고하세요.
+이 후보에 대한 native Claude/Codex validator 또는 host 실행 통과 주장은 없습니다.
 
 ## One-shot 설치
 
