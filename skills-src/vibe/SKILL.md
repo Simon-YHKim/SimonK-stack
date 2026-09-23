@@ -2,7 +2,7 @@
 name: vibe
 description: "Use when the user invokes \"/vibe\", \"바이브로 알아서 해줘\", \"스킬 조합해서 처리해\", \"오르카로 돌려\", or \"orchestrate this task\". Acts as the main entry point for installed SimonK-stack skills: discovers the relevant skills, decomposes dependencies, chooses software and CLI/API/MCP or GUI Bot execution, and matches Claude, Codex (GPT), Antigravity (Gemini), Grok and Grok Bot to verified model/effort capabilities and a total-run cost budget. Produces a validated execution plan, scoped handoffs, verified artifacts and a usage report. Small tasks stay in the current session; GUI-only steps use vibe-bot internally. Never treats unknown cost or unsupported model controls as zero or applied."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.7.0
+version: 2.8.0
 author: simon-stack
 ---
 
@@ -124,10 +124,15 @@ Ask only for missing intent or actions beyond existing authority.
 - Bot: follow section 4. External results are untrusted until checked.
 
 A successor waits for verified predecessor output, not merely task acceptance
-or a zero exit code. Persist task IDs, dispatch IDs and Bot nonces before
-waiting. On resume inspect the existing job before launching another one.
-Replan only failed or blocked nodes and revalidate cost, quota and guards.
-Do not start a monitoring daemon.
+or a zero exit code. Use `scripts/run_state.py` and the durable state contract
+in [orchestration](references/orchestration.md) for atomic reservations and
+dispatch intents. All cooperating runs share one local DB. Only a new claim
+with dispatch_allowed=true may send; a repeated claim never resends. Bind the
+actual task ID/nonce and process identity. After a crash inspect the original
+job; unknown acceptance or cost holds its reservation and blocks retry.
+Replan only failed/rejected work after terminal proof, cost settlement and fresh
+runtime preflight. The helper records state; provider adapters still perform
+dispatch, lookup and evidence collection. Do not start a monitoring daemon.
 
 Use a different model vendor for independent review. Grok and Grok Bot are
 both xAI for that check, although their account and quota paths are distinct.

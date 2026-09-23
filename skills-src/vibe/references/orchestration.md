@@ -7,6 +7,7 @@
 - Runtime snapshot
 - Budget and selection
 - Execution and evidence
+- Durable state and recovery
 - Completion boundary
 
 ## Ownership
@@ -125,9 +126,10 @@ subscription spending. Never use an invented multiplier for high reasoning.
 Reserve sum(per-attempt bound × max_attempts) for all nodes, plus already spent
 and externally reserved amounts, before dispatch. Keep failed-attempt spend.
 Review and fallback work are not free; add their cost before starting them.
-One coordinator serializes changes to the run. Multiple unrelated runs need a
-shared account budget reservation service before claiming a global hard cap.
-The current helper verifies a plan, not atomic cross-process billing limits.
+One coordinator owns each run. `run_state.py` serializes cooperating runs and
+account reservations in one local database. This is admission control, not a
+provider-enforced or cross-device billing hard cap. Outside CLI calls and a
+different database are not covered.
 
 ## Execution and evidence
 
@@ -157,6 +159,95 @@ verify-bot with --evidence pointing to JSON containing nonce, target and images
 (PNG/JPEG paths inside the result directory). Inspect the images and apply
 acceptance criteria; file/signature checks alone do not verify pixels. A missing
 result remains waiting_external, even if collect returned exit code 0.
+
+## Durable state and recovery
+
+`run_state.py` is a one-shot coordinator utility, not a dispatcher. Its default
+Windows DB is `%LOCALAPPDATA%/SimonK/vibe/runs.sqlite3`; elsewhere it uses
+`~/.local/state/SimonK/vibe/runs.sqlite3`. All cooperating coordinators must use
+the same canonical local fixed-disk DB. `--db` is for an explicitly scoped
+alternative or isolated tests, never a way to bypass an exhausted grant.
+Network paths, symlink files, unsupported journals/schema and corrupt DBs fail
+closed. Never reset a failed DB or copy it while active to clear reservations.
+
+SQLite rollback journal, synchronous=FULL and BEGIN IMMEDIATE make the run,
+account, reservation and intent update one transaction. The grant is immutable:
+initialize once with the existing authorized scope, default USD 0. A nonzero
+grant requires an approval reference; the helper trusts the coordinator's
+authorization evidence and does not itself obtain permission. Money is stored
+as integer nanoUSD: approval caps round down, cost/reservations round up. Use
+decimal strings for exact monetary inputs; lossy JSON numbers are rejected
+instead of silently underflowing, overflowing or changing the approved amount.
+Do not reuse one grant as a new allowance per run. Plan spent_usd and
+external_reserved_usd cover costs outside this DB only, to avoid double counting.
+
+```text
+python "<skill>/scripts/run_state.py" init
+python "<skill>/scripts/run_state.py" register --plan plan.json
+python "<skill>/scripts/run_state.py" ready --run run-id
+python "<skill>/scripts/run_state.py" claim --run run-id --node node-id --request stable-key --plan-digest digest
+python "<skill>/scripts/run_state.py" status
+```
+
+Registration reserves the full run, all nodes and attempts, atomically against
+run and shared grant limits. Account identity is the surface plus a non-secret
+account_ref. Separate surfaces are not assumed to share a quota bucket. Pending
+intents count toward concurrency (default two global and two per account).
+`ready` and first `claim` repeat runtime, quota, billing, model/effort and
+dependency checks. An identical claim returns its existing dispatch_id and
+dispatch_allowed=false; a changed payload/key binding is rejected. Only a first
+successful claim grants permission to send, after the intent is committed.
+
+| Command | Trusted coordinator input / required evidence |
+| --- | --- |
+| bind --dispatch ID --input handle.json | Exactly kind, id, identity; original provider task ID or process ID plus start identity, not PID alone |
+| observe --dispatch ID --input observation.json | state, observed_at, evidence, matching handle; resolved_model and effective_effort for controlled model execution |
+| settle --dispatch ID --input receipt.json | actual_usd and nonempty evidence; unknown is not zero |
+| verify --dispatch ID --input acceptance.json | evidence after inspecting output; observed model/effort must match the requested route |
+| reject --dispatch ID --input rejection.json | evidence explaining why an unverified succeeded result failed acceptance |
+| refresh --plan refreshed-plan.json | Same task intent/policy; refreshed route and runtime evidence, new plan digest |
+| cancel or complete --run ID --input evidence.json | Nonempty evidence list, terminal execution and settled costs |
+
+Input files contain JSON objects, with an evidence array where listed. Observe
+accepts running, unknown, succeeded, failed or not_started; unknown becomes
+uncertain. not_started requires a null handle, proof_kind=transport-not-accepted
+and evidence from the transport. It still needs explicit cost settlement before
+release. No timeout or process disappearance establishes non-acceptance.
+Receipts and bound handles are immutable. Late observations cannot rewrite a
+terminal result. Accepted output cannot later be rejected to create another try.
+
+The external send cannot share the DB transaction. A crash after intent, or
+after provider acceptance before handle binding, therefore leaves an unresolved
+intent. Lookup using the original dispatch identity and bind that job; do not
+automatically resend. If the transport cannot prove acceptance/non-acceptance,
+pause that node for reconciliation. This is duplicate-send prevention, not an
+exactly-once provider delivery guarantee.
+
+Terminal execution and cost settlement are separate. An unknown actual amount
+retains its reservation and blocks new admissions. Actual overrun is persisted
+even when it exceeds the estimate, then further admissions halt. Verified,
+settled success releases unused future attempts; failed/rejected attempts keep
+their actual spend and remaining attempt allowance. Refresh is conservative:
+no attempt in that run may still be active/uncertain or have unknown cost. It
+preserves completed routes and cannot change intent, budget or max attempts.
+Fallback gets a fresh plan digest and billing/account checks before another
+claim. cancel only releases unused allowance after reconciliation. complete
+requires every node, including all required reviewers, succeeded and verified,
+all costs settled and the run budget satisfied.
+
+Only the trusted coordinator writes this DB. Worker output is untrusted; inspect
+and reduce it to evidence references, never feed raw responses or credentials
+into these commands. Records reject sensitive keys/patterns, duplicate JSON
+keys, non-finite numbers, oversized/deep structures and malformed JSON embedded
+in strings. This guard is not a comprehensive DLP or hostile-user security
+boundary. Output schema/secret screening does not prove a screenshot, receipt,
+account binding or user authorization is genuine.
+
+Offline crash/concurrency tests and a real local Python fixture cover this
+state lifecycle. They do not establish provider adapters, five-surface live
+generation, true provider spend caps or installation parity. Keep those gates
+separate; Grok generation stays on hold while the user's USD 0 constraint and
+exhausted quota apply.
 
 ## Completion boundary
 

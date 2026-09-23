@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.8.0 - 2026-09-23
+
+- Add durable local run/account reservations and dispatch intents in one SQLite
+  transaction; keep the authorized grant immutable and default to USD 0.
+- Prevent repeated claim sends and unsafe retries after uncertain acceptance;
+  require original-job lookup, terminal proof, cost settlement and fresh plans.
+- Separate execution success, acceptance/rejection and actual-cost evidence.
+  Preserve unknown cost and observed overruns; never release them on timeout.
+- Add crash, concurrent-process, local CLI lifecycle and sensitive-payload
+  regression tests. Strict embedded JSON parsing rejects duplicate keys and
+  non-finite values; exact nanoUSD conversion never rounds approval caps up.
+- Document trusted-coordinator and single-local-DB boundaries. No provider
+  generation adapter, live five-surface E2E, installation or main promotion is
+  implied by these state tests.
+
 ## 2.7.0 - 2026-09-23
 
 - Add a central model/effort registry with separate provider and transport facts;
