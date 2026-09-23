@@ -1,0 +1,13 @@
+# Fresh-checkout policy only. Do not renormalize existing working copies.
+# Unknown packaged assets are binary unless an explicit text extension follows.
+/skills-src/** -text
+/skills-src/**/*.md text eol=lf
+/skills-src/**/*.json text eol=lf
+/skills-src/**/*.py text eol=lf
+/skills-src/**/*.sh text eol=lf
+/skills-src/**/*.ps1 text eol=lf
+/skills-src/**/*.sql text eol=lf
+/skills-src/**/*.html text eol=lf
+/LICENSE text eol=lf
+/NOTICE text eol=lf
+/scripts/install.sh text eol=lf

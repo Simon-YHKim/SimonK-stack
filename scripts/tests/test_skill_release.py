@@ -5,6 +5,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import shlex
 import subprocess
 import sys
@@ -171,6 +172,138 @@ class SkillReleaseTests(unittest.TestCase):
         self.assertEqual(m["plugin_only_out_of_scope"], ["third-party"])
         self.assertEqual(m["external_dependencies"], self.config["external_dependencies"])
         self.assertTrue(m["preserve_unowned"])
+
+    def test_schema_version_requires_an_integer_not_bool_or_float(self):
+        for version in (True, 1.0, "1", None):
+            conf = copy.deepcopy(self.config)
+            conf["schema_version"] = version
+            with self.subTest(version=repr(version)), self.assertRaises(ValueError):
+                self.m.validate_config(conf)
+
+    def test_dependencies_have_exact_bounded_string_fields_and_unique_names(self):
+        cases = [None, ["Python"], [{}], [{"name": "Python"}],
+                 [{"name": "Python", "status": "not_verified", "verified": True}],
+                 [{"name": "", "status": "not_verified"}],
+                 [{"name": "Python", "status": False}],
+                 [{"name": "Python", "status": ""}],
+                 [{"name": "x" * 4097, "status": "not_verified"}],
+                 [{"name": "Python", "status": "x" * 4097}],
+                 [{"name": "Python", "status": "not_verified"},
+                  {"name": "python", "status": "not_verified"}]]
+        for deps in cases:
+            conf = copy.deepcopy(self.config)
+            conf["external_dependencies"] = deps
+            with self.subTest(dependencies=repr(deps)[:70]), self.assertRaises(ValueError):
+                self.m.validate_config(conf)
+
+    def test_scope_name_collections_reject_bad_types_with_validation_error(self):
+        for field, value in (("owners", {"alpha": []}), ("development_only", [[]]),
+                             ("plugin_only_out_of_scope", [None])):
+            conf = copy.deepcopy(self.config)
+            conf[field] = value
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                self.m.validate_config(conf)
+
+    def test_json_loader_and_encoder_reject_nonfinite_numbers(self):
+        path = self.base / "nonfinite.json"
+        for literal in ("NaN", "Infinity", "-Infinity", "1e999", "-1e999"):
+            path.write_text('{"nested": [{"number": ' + literal + '}]}', encoding="utf-8")
+            with self.subTest(literal=literal), self.assertRaises(ValueError):
+                self.m.load_json(path)
+        for value in (float("nan"), float("inf"), float("-inf")):
+            with self.subTest(encoded=repr(value)), self.assertRaises(ValueError):
+                self.m.encoded({"number": value})
+
+    def test_manifest_source_state_cannot_claim_a_different_provenance(self):
+        self.build()
+        path = self.bundle / "release.json"
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        for state in (None, False, "commit-attested", ""):
+            changed = copy.deepcopy(manifest)
+            changed["source_state"] = state
+            data = (json.dumps(changed, sort_keys=True, indent=2) + "\n").encode("utf-8")
+            path.write_bytes(data)
+            with self.subTest(state=state), self.assertRaises(ValueError):
+                self.m.verify_release(self.bundle, hashlib.sha256(data).hexdigest())
+            self.assertFalse(self.target.exists())
+
+    def test_noncanonical_release_json_is_rejected_during_verification(self):
+        self.build()
+        path = self.bundle / "release.json"
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        data = json.dumps(manifest, separators=(",", ":")).encode("utf-8")
+        path.write_bytes(data)
+        with self.assertRaises(ValueError):
+            self.m.verify_release(self.bundle, hashlib.sha256(data).hexdigest())
+
+    def test_release_json_nonfinite_values_are_rejected_with_new_digest(self):
+        self.build()
+        path = self.bundle / "release.json"
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        for value in (float("nan"), float("inf"), float("-inf")):
+            changed = copy.deepcopy(manifest)
+            changed["external_dependencies"][0]["status"] = value
+            data = json.dumps(changed).encode("utf-8")
+            path.write_bytes(data)
+            with self.subTest(value=repr(value)), self.assertRaises(ValueError):
+                self.m.verify_release(self.bundle, hashlib.sha256(data).hexdigest())
+
+    def test_manual_workflow_eol_gate_checks_only_declared_text(self):
+        workflow = (ROOT / ".github/workflows/skill-release-windows-manual.yml").read_text(encoding="utf-8")
+        pattern = re.search(r"if \(\$eols -match '([^']+)'", workflow).group(1)
+        self.assertIsNone(re.search(pattern, "i/crlf w/crlf attr/-text\tskills-src/alpha/capture.raw"))
+        self.assertIsNone(re.search(pattern, "i/lf w/lf attr/text eol=lf\tskills-src/alpha/SKILL.md"))
+        for eol in ("crlf", "mixed"):
+            self.assertIsNotNone(re.search(pattern, f"i/lf w/{eol} attr/text eol=lf\tskills-src/alpha/SKILL.md"))
+        self.assertRegex(workflow, r"(?m)^on:\n  workflow_dispatch:\n\npermissions:\n  contents: read\n")
+        self.assertIn("persist-credentials: false", workflow)
+        self.assertNotRegex(workflow, r"(?m)^  (push|pull_request|schedule):")
+
+    def test_fresh_checkouts_preserve_binary_bytes_and_execute_installer_directly(self):
+        attributes = ROOT / ".gitattributes"
+        self.assertTrue(attributes.is_file(), "Fresh-checkout byte policy is missing")
+        self.put(".gitattributes", attributes.read_text(encoding="utf-8"))
+        self.put("scripts/install.sh", (ROOT / "scripts/install.sh").read_text(encoding="utf-8"))
+        self.put("scripts/skill_release.py", HELPER.read_text(encoding="utf-8"))
+        self.put("distribution/skills-release.v1.json", json.dumps(self.config))
+        binary = b"fixture\x00\r\nbytes\xff\r\n"
+        self.put("skills-src/alpha/assets/image.bin", "")
+        (self.repo / "skills-src/alpha/assets/image.bin").write_bytes(binary)
+        raw = b"raw fixture\r\nunchanged bytes\r\n"
+        (self.repo / "skills-src/alpha/assets/capture.raw").write_bytes(raw)
+        self.git("add", ".")
+        self.git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "fixture")
+        results = []
+        for autocrlf in ("true", "false"):
+            clone = self.base / ("checkout-" + autocrlf)
+            subprocess.run(["git", "clone", "--no-local", "--no-checkout", str(self.repo), str(clone)],
+                           check=True, capture_output=True, timeout=30)
+            subprocess.run(["git", "-C", str(clone), "config", "core.autocrlf", autocrlf], check=True)
+            subprocess.run(["git", "-C", str(clone), "checkout", "-q", "HEAD"], check=True, timeout=30)
+            status = subprocess.run(["git", "-C", str(clone), "status", "--porcelain"],
+                                    check=True, capture_output=True).stdout
+            self.assertEqual(status, b"")
+            self.assertNotIn(b"\r", (clone / "scripts/install.sh").read_bytes())
+            self.assertEqual((clone / "skills-src/alpha/assets/image.bin").read_bytes(), binary)
+            self.assertEqual((clone / "skills-src/alpha/assets/capture.raw").read_bytes(), raw)
+            package = self.base / ("release-" + autocrlf)
+            cli = [sys.executable, "-B", str(clone / "scripts/skill_release.py")]
+            built = subprocess.run([*cli, "build", "--repo", str(clone), "--ownership",
+                                    str(clone / "distribution/skills-release.v1.json"), "--output", str(package)],
+                                   check=True, capture_output=True, text=True, encoding="utf-8", timeout=30)
+            release = json.loads(built.stdout)["release_digest"]
+            target = self.base / ("installed-" + autocrlf)
+            env = dict(os.environ, SIMONK_PYTHON=sys.executable, PYTHONUTF8="1")
+            args = ["C:/Program Files/Git/bin/bash.exe", str(clone / "scripts/install.sh"),
+                    "--offline-package", str(package), "--target", str(target), "--expected-digest", release]
+            for flags, expected in (([], "preview"), (["--apply"], "materialized_verified"),
+                                    (["--apply"], "existing_verified")):
+                executed = subprocess.run([*args, *flags], check=True, capture_output=True, text=True,
+                                          encoding="utf-8", env=env, timeout=30)
+                self.assertEqual(json.loads(executed.stdout)["status"], expected)
+            results.append((release, {p.relative_to(package).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+                                      for p in package.rglob("*") if p.is_file()}))
+        self.assertEqual(results[0], results[1])
 
     def test_source_link_is_rejected_without_reading_its_target(self):
         external = self.base / "external"

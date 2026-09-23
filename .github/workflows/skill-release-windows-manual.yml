@@ -1,0 +1,69 @@
+name: manual Windows source-release verification
+
+# No push/PR/schedule trigger: hosted runner billing needs separate authorization.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-owned-only:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    env:
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Windows fixture regressions (no provider or real installation)
+        shell: pwsh
+        run: |
+          python -B -m unittest discover -s scripts/tests -p test_skill_release.py
+          if ($LASTEXITCODE -ne 0) { throw 'Windows fixture regressions failed' }
+      - name: Two fresh local checkouts of the exact reviewed commit
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          function GitChecked([string[]] $Arguments) {
+            $result = & git @Arguments
+            if ($LASTEXITCODE -ne 0) { throw 'Local Git verification failed' }
+            return $result
+          }
+          function ReleaseChecked([string[]] $Arguments) {
+            $result = & python -B @Arguments
+            if ($LASTEXITCODE -ne 0) { throw 'Release verification failed' }
+            return ($result | ConvertFrom-Json)
+          }
+          $source = (Get-Location).Path
+          $sha = (GitChecked @('rev-parse', 'HEAD')).Trim()
+          if (GitChecked @('status', '--porcelain')) { throw 'Source checkout is not clean' }
+          $base = Join-Path ([IO.Path]::GetTempPath()) ('simonk-release-ci-' + [Guid]::NewGuid().ToString('N'))
+          New-Item -ItemType Directory -Path $base | Out-Null
+          $digests = @()
+          foreach ($mode in @('true', 'false')) {
+            $clone = Join-Path $base ('checkout-' + $mode)
+            $output = Join-Path $base ('release-' + $mode)
+            GitChecked @('clone', '--no-local', '--no-checkout', '--depth', '1', $source, $clone) | Out-Null
+            GitChecked @('-C', $clone, 'config', 'core.autocrlf', $mode) | Out-Null
+            GitChecked @('-C', $clone, 'checkout', '--detach', $sha) | Out-Null
+            if ((GitChecked @('-C', $clone, 'rev-parse', 'HEAD')).Trim() -ne $sha) { throw 'Wrong checkout commit' }
+            if (GitChecked @('-C', $clone, 'status', '--porcelain')) { throw 'Fresh checkout is not clean' }
+            $eols = GitChecked @('-C', $clone, 'ls-files', '--eol', '--', 'skills-src/', 'LICENSE', 'NOTICE', 'scripts/install.sh')
+            if ($eols -match 'w/(crlf|mixed)\s+attr/[^\t]*\beol=lf\b') { throw 'Unexpected CRLF/mixed declared-text input' }
+            $helper = Join-Path $clone 'scripts/skill_release.py'
+            $ownership = Join-Path $clone 'distribution/skills-release.v1.json'
+            $built = ReleaseChecked @($helper, 'build', '--repo', $clone, '--ownership', $ownership, '--output', $output)
+            $verified = ReleaseChecked @($helper, 'verify', '--package', $output, '--expected-digest', $built.release_digest)
+            if ($verified.release_digest -ne $built.release_digest) { throw 'Digest changed' }
+            $digests += $built.release_digest
+            if (GitChecked @('-C', $clone, 'status', '--porcelain')) { throw 'Verification changed checkout' }
+            [pscustomobject]@{head=$sha; autocrlf=$mode; digest=$built.release_digest; skills=$built.skills; files=$built.files; artifact=$output} | ConvertTo-Json -Compress
+          }
+          if ($digests.Count -ne 2 -or $digests[0] -ne $digests[1]) { throw 'Fresh checkouts produced different releases' }
+          # verify checks every file against each identical pinned manifest. No uploads,
+          # provider calls, default installer, home writes, or official plugin promotion.

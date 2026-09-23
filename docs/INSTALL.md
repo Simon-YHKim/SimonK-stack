@@ -77,6 +77,33 @@ Windows는 Git의 portable 실행 비트를 기록하지만 실제 POSIX executa
 회귀 테스트: `python -B -m unittest discover -s scripts/tests -p test_skill_release.py`
 (임시 Git repo·격리 target, 실제 사용자 홈/공식 plugin/모델 호출 없음).
 
+### Manifest 계약과 새 체크아웃 재현성
+
+`schema_version`은 정수 1만 허용하며 bool/실수는 거부합니다. `source_state`는
+`tracked-working-tree-bytes`만 허용하고, 외부 의존 선언은 정확한 `name/status`
+문자열 두 필드·필드당 1~4096자·고유한 이름으로 제한합니다. 선언 순서는 보존합니다.
+NaN/Infinity/overflow·중복 JSON 키·비정규 release.json은 검증에서 거부합니다.
+release.json은 builder의 UTF-8/sorted-key/2-space/trailing-newline 형식이어야 합니다.
+이는 형식 검사이지 의존 상태 문자열의 진실성이나 공급망 출처를 인증하는 기능은 아닙니다.
+
+`.gitattributes`는 **새 체크아웃**의 배포 텍스트 확장자(md/json/py/sh/ps1/sql/html),
+LICENSE/NOTICE 및 scripts/install.sh에만 LF를 지정합니다. 알려지지 않은 packaged
+asset은 `-text`로 바이트를 보존합니다. 기존 작업 폴더를 일괄 renormalize하지 마세요.
+일반 build는 dirty 상태도 가능한 현재 raw snapshot이며 clean commit attestation이 아닙니다.
+같은 commit이어도 기존 CRLF 작업 폴더와 새 LF 체크아웃은 서로 다른 **정상 digest**를
+만들 수 있습니다. 이전 패키지를 무효화하거나 기존 checkout과 같다고 주장하지 않습니다.
+
+테스트는 두 개의 독립 임시 Git checkout에 checkout **전** `core.autocrlf=true/false`를
+각각 적용하여 전체 package bytes/digest 일치, binary 원본 보존, 실제 Git Bash
+installer의 preview/apply/재검증을 확인합니다. fixture만 설치하며 실제 홈은 건드리지 않습니다.
+
+`.github/workflows/skill-release-windows-manual.yml`은 같은 정확 HEAD의 **실제 소스**를
+두 새 로컬 clone으로 검증할 수 있는 Windows workflow 정의입니다. `workflow_dispatch`
+전용·contents:read·credential persistence 없음·artifact upload/배포 없음입니다.
+이 정의를 추가했다고 원격 CI가 통과한 것은 아닙니다. 과금 조건 확인과 별도 실행 권한
+없이는 실행하지 마세요. 결과는 같은 SHA·선언된 checkout 정책 아래의 재현성만 증명합니다.
+배포 전에는 commit과 artifact를 결합하는 별도 provenance receipt/승인도 필요합니다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,

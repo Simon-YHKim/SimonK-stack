@@ -13,6 +13,7 @@ from ctypes import wintypes
 from contextlib import contextmanager
 import hashlib
 import json
+import math
 import os
 from pathlib import Path, PurePosixPath
 import re
@@ -113,7 +114,7 @@ def pinned(path, directory=False, delete=False, create_dirs=False):
 
 
 def encoded(value):
-    return (json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode("utf-8")
+    return (json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2, allow_nan=False) + "\n").encode("utf-8")
 
 
 def digest(data):
@@ -176,32 +177,68 @@ def read_file(path, limit=MAX_FILE):
     return data
 
 
+def finite_float(value):
+    number = float(value)
+    if not math.isfinite(number):
+        raise ValueError("Non-finite JSON numbers are forbidden")
+    return number
+
+
+def reject_constant(value):
+    raise ValueError("Non-finite JSON constants are forbidden")
+
+
+def decoded(data):
+    try:
+        return json.loads(data.decode("utf-8"), object_pairs_hook=unique_pairs,
+                          parse_float=finite_float, parse_constant=reject_constant)
+    except RecursionError:
+        raise ValueError("JSON nesting exceeds the parser limit") from None
+
+
 def load_json(path):
-    return json.loads(read_file(path).decode("utf-8"), object_pairs_hook=unique_pairs)
+    return decoded(read_file(path))
 
 
 def validate_config(config):
     fields = {"schema_version", "scope", "owners", "development_only", "preserve_unowned",
               "plugin_only_out_of_scope", "external_dependencies"}
-    if not isinstance(config, dict) or set(config) != fields or config["schema_version"] != 1:
+    if (not isinstance(config, dict) or set(config) != fields
+            or type(config["schema_version"]) is not int or config["schema_version"] != 1):
         raise ValueError("Invalid ownership schema")
     if config["scope"] != SCOPE or config["preserve_unowned"] is not True:
         raise ValueError("Only source-owned preserving overlays are supported")
     owners = config["owners"]
     if not isinstance(owners, dict) or not owners or len(owners) > 1000:
         raise ValueError("Invalid owner mapping")
-    if any(not NAME.fullmatch(n) or owner not in OWNERS for n, owner in owners.items()):
+    if any(not isinstance(n, str) or not NAME.fullmatch(n)
+           or not isinstance(owner, str) or owner not in OWNERS for n, owner in owners.items()):
         raise ValueError("Invalid skill name or plugin owner")
     for field in ("development_only", "plugin_only_out_of_scope"):
         names = config[field]
-        if not isinstance(names, list) or len(names) > 1000 or len(set(names)) != len(names):
+        if not isinstance(names, list) or len(names) > 1000:
             raise ValueError("Invalid excluded-name list")
         if any(not isinstance(n, str) or not NAME.fullmatch(n) for n in names):
             raise ValueError("Invalid excluded skill name")
+        if len(set(names)) != len(names):
+            raise ValueError("Duplicate excluded skill name")
         if set(names) & set(owners):
             raise ValueError("Owned and excluded skills overlap")
     if not isinstance(config["external_dependencies"], list) or len(config["external_dependencies"]) > 100:
         raise ValueError("Invalid external dependency declarations")
+    dependency_names = set()
+    for dependency in config["external_dependencies"]:
+        if not isinstance(dependency, dict) or set(dependency) != {"name", "status"}:
+            raise ValueError("Invalid external dependency fields")
+        for field in ("name", "status"):
+            value = dependency[field]
+            if (not isinstance(value, str) or not value.strip() or len(value) > 4096
+                    or value != value.strip() or any(ord(c) < 32 for c in value)):
+                raise ValueError("Invalid external dependency text")
+        name = dependency["name"].casefold()
+        if name in dependency_names:
+            raise ValueError("Duplicate external dependency name")
+        dependency_names.add(name)
     return config
 
 
@@ -400,6 +437,8 @@ def validate_manifest(m):
     validate_config({key: m[key] for key in fields})
     if m["full_plugin_build"] is not False or m["runtime_closure_verified"] is not False:
         raise ValueError("Unsupported completeness claim")
+    if m["source_state"] != "tracked-working-tree-bytes":
+        raise ValueError("Unsupported source provenance claim")
     if not isinstance(m["files"], list) or not 1 <= len(m["files"]) <= MAX_FILES:
         raise ValueError("Invalid release members")
     seen_package, seen_install, skills = set(), set(), set()
@@ -412,7 +451,9 @@ def validate_manifest(m):
             if value.casefold() in seen:
                 raise ValueError("Duplicate/case-colliding member")
             seen.add(value.casefold())
-        if not HEX.fullmatch(f["sha256"]) or type(f["size"]) is not int or not 0 <= f["size"] <= MAX_FILE or f["mode"] not in {"100644", "100755"}:
+        if (not isinstance(f["sha256"], str) or not HEX.fullmatch(f["sha256"])
+                or type(f["size"]) is not int or not 0 <= f["size"] <= MAX_FILE
+                or not isinstance(f["mode"], str) or f["mode"] not in {"100644", "100755"}):
             raise ValueError("Invalid file hash/size/mode")
         if f["source_path"] == "skills-src/VENDORED.md":
             package, installed = "VENDORED.md", ".simonk-source-release/VENDORED.md"
@@ -459,8 +500,10 @@ def _verify_release(root, expected_digest):
     data = read_file(root / "release.json")
     if digest(data) != expected_digest:
         raise ValueError("Release manifest digest mismatch")
-    manifest = json.loads(data.decode("utf-8"), object_pairs_hook=unique_pairs)
+    manifest = decoded(data)
     validate_manifest(manifest)
+    if data != encoded(manifest):
+        raise ValueError("Release manifest must use the builder's canonical JSON bytes")
     if files_under(root) != {f["package_path"] for f in manifest["files"]} | {"release.json"}:
         raise ValueError("Missing or extra package files")
     check_members(root, manifest, "package_path")
