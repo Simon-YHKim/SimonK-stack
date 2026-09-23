@@ -109,7 +109,7 @@ class OrchestrationTests(unittest.TestCase):
         self.assertIn("COST_UNKNOWN", str(p))
 
     def test_retry_and_review_reservations_are_in_total(self):
-        c = candidate(billing={"mode": "api", "verified": True}, upper_usd_per_attempt=0.3)
+        c = candidate(billing={"mode": "api", "verified": True, "account_ref": "test-api"}, upper_usd_per_attempt=0.3)
         p = self.plan([step(), step("review", depends_on=["read"])], [c],
                       {"approved_usd": 1, "max_attempts": 2})
         self.assertEqual(p["status"], "blocked")
@@ -437,6 +437,110 @@ class OrchestrationTests(unittest.TestCase):
         p["steps"][0]["route"].pop("valid_until", None)
         p["plan_digest"] = self.m.digest({k: v for k, v in p.items() if k != "plan_digest"})
         self.assertEqual(self.m.ready_steps(p, [], now=NOW), [])
+
+    def typed(self, task_type="CODE_FIX", **changes):
+        node = {"id": "read", "task": "Offline classification fixture", "task_type": task_type,
+                "skills": ["explain"], "depends_on": [], "writes": False}
+        node.update(changes)
+        return node
+
+    def test_typed_request_is_compiled_on_the_actual_plan_path(self):
+        node = self.typed()
+        before = copy.deepcopy(node)
+        p = self.plan([node])
+        self.assertEqual(node, before)
+        self.assertEqual(p["status"], "ready")
+        out = p["steps"][0]
+        for key, expected in {"kind": "llm", "proc": "coding", "class": "B",
+                              "needs": ["code"], "demand": "reasoning"}.items():
+            self.assertEqual(out[key], expected)
+        self.assertEqual(out["route"]["requested_effort"], "high")
+
+    def test_typed_contract_rejects_unknown_types_and_conflicts(self):
+        for change in ({"task_type": "UNKNOWN"}, {"task_type": None}, {"task_type": []},
+                       {"kind": "local"}, {"proc": "bulk-transform"}, {"class": "A"},
+                       {"needs": []}, {"needs": "code"}, {"demand": "routine"},
+                       {"demand": "ultra"}, {"writes": "false"}):
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                self.plan([self.typed(**change)])
+
+    def test_typed_contract_requires_explicit_write_scope(self):
+        node = self.typed()
+        del node["writes"]
+        with self.assertRaises(ValueError):
+            self.plan([node])
+
+    def test_typed_contract_allows_stronger_requirements_and_preserves_metadata(self):
+        node = self.typed(demand="critical", needs=["code", "reasoning"],
+                          parent_run_id="parent", orca={"task_id": "native-task"})
+        p = self.plan([node], [candidate(quality_tier=3)])
+        self.assertEqual(p["status"], "ready")
+        out = p["steps"][0]
+        self.assertEqual(out["route"]["requested_effort"], "xhigh")
+        self.assertEqual(out["parent_run_id"], "parent")
+        self.assertEqual(out["orca"], {"task_id": "native-task"})
+
+    def test_typed_writer_requires_same_dag_independent_review(self):
+        writer = self.typed(writes=True)
+        self.assertIn("MISSING_REVIEW", str(self.plan([writer])))
+        reviewer = self.typed("CODE_REVIEW", id="review", depends_on=["read"], verify_of="read")
+        self.assertEqual(self.plan([writer, reviewer])["status"], "blocked")
+        p = self.plan([writer, reviewer], [candidate(), candidate("reviewer", surface="claude")])
+        self.assertEqual(p["status"], "ready")
+        self.assertEqual(p["steps"][1]["verify_of"], "read")
+        self.assertNotEqual(p["steps"][0]["route"]["vendor"], p["steps"][1]["route"]["vendor"])
+
+    def test_typed_gui_does_not_grant_tool_bypass_or_bot_authority(self):
+        node = self.typed("COMPUTER_USE", skills=["vibe-bot"])
+        p = self.plan([node], [self.bot()])
+        self.assertIn("PREFER_TOOL_ROUTE", str(p))
+        self.assertIn("GUI_TARGET_REQUIRED", str(p))
+        node.update(target="Offline Console", tool_route_available=False,
+                    gui_reason="Fixture has no authorized CLI/API route")
+        self.assertEqual(self.plan([node], [self.bot()])["status"], "ready")
+
+    def test_typed_task_map_uses_only_existing_process_classes(self):
+        import routing
+        expected = {"CODE_NEW", "CODE_FIX", "CODE_REVIEW", "RESEARCH", "AGENTIC",
+                    "COMPUTER_USE", "DESIGN_UI", "KOREAN_DOC", "BULK_LIGHT",
+                    "REASONING_ABSTRACT", "VISION"}
+        self.assertEqual(set(self.m.TASK_TYPE_MAP), expected)
+        for mapping in self.m.TASK_TYPE_MAP.values():
+            self.assertEqual(routing.PROC_BY_ID[mapping["proc"]][1], mapping["class"])
+            self.assertEqual(set(mapping), {"kind", "needs", "demand", "proc", "class"})
+
+    def test_untyped_requests_remain_backward_compatible(self):
+        node = step()
+        self.assertEqual(self.m.compile_task_type(node), node)
+        self.assertEqual(self.plan([node])["status"], "ready")
+
+    def test_missing_account_identity_cannot_become_a_route(self):
+        for value in (None, "", "  ", 123):
+            c = candidate()
+            c["billing"]["account_ref"] = value
+            with self.subTest(value=value):
+                p = self.plan([self.typed()], [c])
+                self.assertEqual(p["status"], "blocked")
+                self.assertIn("ACCOUNT_UNVERIFIED", str(p))
+
+    def test_ancestry_is_validated_and_preserved_in_plan(self):
+        request = {"run_id": "parent", "ancestor_skills": ["vibe", "simonk", "model-router"],
+                   "steps": [self.typed()]}
+        runtime = {"candidates": [candidate()]}
+        p = self.m.make_plan(request, self.catalog, runtime, NOW, fixture_registry(runtime["candidates"]))
+        self.assertEqual(p.get("ancestor_skills"), request["ancestor_skills"])
+        p["ancestor_skills"].append("changed-output")
+        self.assertNotIn("changed-output", request["ancestor_skills"])
+        for invalid in (None, "simonk", [None], [""], ["  "], [{}]):
+            request["ancestor_skills"] = invalid
+            with self.subTest(invalid=invalid), self.assertRaises(ValueError):
+                self.m.make_plan(request, self.catalog, runtime, NOW, fixture_registry(runtime["candidates"]))
+
+    def test_read_only_code_review_cannot_masquerade_as_a_writer(self):
+        reviewer = self.typed("CODE_REVIEW", writes=True)
+        checker = self.typed("CODE_REVIEW", id="check", verify_of="read", depends_on=["read"])
+        with self.assertRaises(ValueError):
+            self.plan([reviewer, checker], [candidate(), candidate("reviewer", surface="claude")])
 
 
 if __name__ == "__main__":

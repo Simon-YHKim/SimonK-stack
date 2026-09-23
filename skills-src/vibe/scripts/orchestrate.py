@@ -20,6 +20,21 @@ from pathlib import Path
 SURFACES = {"claude": "anthropic", "codex": "openai", "antigravity": "google",
             "grok": "xai", "grok-bot": "xai"}
 DEMAND_TIER = {"routine": 1, "reasoning": 2, "critical": 3}
+# Task semantics only. Models, scoring, effort and money stay in central policy.
+# model-router documents this contract; offline tests bind the mirror to it.
+TASK_TYPE_MAP = {
+    "CODE_NEW": {"kind": "llm", "needs": ["code"], "demand": "reasoning", "proc": "coding", "class": "B"},
+    "CODE_FIX": {"kind": "llm", "needs": ["code"], "demand": "reasoning", "proc": "coding", "class": "B"},
+    "CODE_REVIEW": {"kind": "llm", "needs": ["code", "reasoning"], "demand": "reasoning", "proc": "claim-verify", "class": "A-verify"},
+    "RESEARCH": {"kind": "llm", "needs": ["research", "reasoning"], "demand": "reasoning", "proc": "research-deep", "class": "B"},
+    "AGENTIC": {"kind": "llm", "needs": ["reasoning"], "demand": "reasoning", "proc": "terminal-ci-git", "class": "B"},
+    "COMPUTER_USE": {"kind": "gui", "needs": ["gui"], "demand": "reasoning", "proc": "ui-visual", "class": "C-platform"},
+    "DESIGN_UI": {"kind": "llm", "needs": ["vision", "reasoning"], "demand": "reasoning", "proc": "ui-visual", "class": "C-platform"},
+    "KOREAN_DOC": {"kind": "llm", "needs": ["reasoning"], "demand": "reasoning", "proc": "research-deep", "class": "B"},
+    "BULK_LIGHT": {"kind": "llm", "needs": ["reasoning"], "demand": "routine", "proc": "bulk-transform", "class": "A"},
+    "REASONING_ABSTRACT": {"kind": "llm", "needs": ["reasoning"], "demand": "critical", "proc": "research-deep", "class": "B"},
+    "VISION": {"kind": "llm", "needs": ["vision"], "demand": "reasoning", "proc": "ui-visual", "class": "C-platform"},
+}
 ORCHESTRATORS = {"vibe", "simonk", "app-dev-orchestrator", "dev-orchestrator"}
 SCRIPT_ROOT = Path(__file__).resolve().parent
 DEFAULT_TTL = 900  # Refresh availability, price quotes and quota before dispatch.
@@ -86,6 +101,40 @@ def discover_skills(roots):
     return result
 
 
+def compile_task_type(node):
+    """Compile optional typed steps on the real plan path, without new routing.
+
+    A type grants no authority to write, open a GUI or spend. Stronger needs and
+    demand survive; conflicting fields fail closed. Untyped requests still work.
+    """
+    result = copy.deepcopy(node)
+    if "task_type" not in result:
+        return result
+    name = result["task_type"]
+    if not isinstance(name, str) or name not in TASK_TYPE_MAP:
+        raise ValueError("Unknown task_type")
+    if type(result.get("writes")) is not bool:
+        raise ValueError("Typed steps require explicit boolean writes scope")
+    if name == "CODE_REVIEW" and result["writes"]:
+        raise ValueError("CODE_REVIEW is read-only; put repairs in a separate CODE_FIX step")
+    contract = TASK_TYPE_MAP[name]
+    for field in ("kind", "proc", "class"):
+        if field in result and result[field] != contract[field]:
+            raise ValueError("task_type conflicts with " + field)
+        result[field] = contract[field]
+    demand = result.get("demand", contract["demand"])
+    if (not isinstance(demand, str) or demand not in DEMAND_TIER
+            or DEMAND_TIER[demand] < DEMAND_TIER[contract["demand"]]):
+        raise ValueError("task_type demand floor cannot be weakened")
+    result["demand"] = demand
+    needs = result.get("needs", contract["needs"])
+    if (not isinstance(needs, list) or any(not isinstance(n, str) or not n for n in needs)
+            or not set(contract["needs"]) <= set(needs)):
+        raise ValueError("task_type capability requirements cannot be weakened")
+    result["needs"] = copy.deepcopy(needs)
+    return result
+
+
 def ordered_steps(steps):
     ids = [s.get("id") for s in steps]
     if not steps or any(not isinstance(i, str) or not re.fullmatch(r"[\w.-]{1,80}", i) for i in ids):
@@ -149,6 +198,9 @@ def assess_candidate(c, step, policy, now, producer_vendor=None):
         if c.get("transport") == "host" and c.get("effective_effort") != effort:
             errors.append("HOST_EFFORT_MISMATCH")
     billing = c.get("billing", {})
+    account_ref = billing.get("account_ref")
+    if not isinstance(account_ref, str) or not account_ref.strip():
+        errors.append("ACCOUNT_UNVERIFIED")
     upper = None
     if billing.get("verified") is not True:
         errors.append("BILLING_UNVERIFIED")
@@ -223,7 +275,11 @@ def make_plan(request, catalog, runtime, now=None, registry=None):
     for field in ("max_attempts", "max_parallel"):
         if type(policy[field]) is not int or not 1 <= policy[field] <= 8:
             raise ValueError(field + " must be an integer from 1 to 8")
-    nodes = copy.deepcopy(ordered_steps(request.get("steps", [])))
+    ancestors = request.get("ancestor_skills", [])
+    if (not isinstance(ancestors, list)
+            or any(not isinstance(name, str) or not name.strip() for name in ancestors)):
+        raise ValueError("ancestor_skills must be a list of nonempty skill names")
+    nodes = ordered_steps([compile_task_type(s) for s in request.get("steps", [])])
     candidates = runtime.get("candidates", [])
     candidate_ids = [c.get("id") for c in candidates]
     if len(set(candidate_ids)) != len(candidate_ids) or any(not i for i in candidate_ids):
@@ -236,7 +292,7 @@ def make_plan(request, catalog, runtime, now=None, registry=None):
         if s.get("kind") not in ("local", "llm", "gui") or s.get("demand", "routine") not in DEMAND_TIER:
             raise ValueError("Invalid step kind or demand")
         for name in s.get("skills", []):
-            if name == "vibe" or name in request.get("ancestor_skills", []):
+            if name == "vibe" or name in ancestors:
                 errors.append("RECURSIVE_SKILL")
             elif name not in catalog:
                 errors.append("SKILL_NOT_FOUND:" + name)
@@ -323,7 +379,7 @@ def make_plan(request, catalog, runtime, now=None, registry=None):
                    "estimate_is_provider_hard_cap": False})
     if not isinstance(request.get("run_id"), str) or not request["run_id"].strip():
         raise ValueError("A unique run_id is required")
-    result = {"schema_version": 1, "run_id": request["run_id"],
+    result = {"schema_version": 1, "run_id": request["run_id"], "ancestor_skills": copy.deepcopy(ancestors),
             "planned_at": now, "status": "blocked" if global_errors or any(s["errors"] for s in nodes) else "ready",
             "errors": global_errors, "budget": policy, "steps": nodes,
             "model_registry": runtime["model_registry"]}

@@ -1,30 +1,93 @@
 {
   "skill": "model-router",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "cases": [
     {
-      "id": "code-fix-basic",
-      "prompt": "이 Python 코드의 race condition 버그 어떤 모델로 고쳐야 할까?",
+      "id": "code-fix-recommendation",
+      "prompt": "이 Python race condition을 고칠 모델을 추천해줘. 지금은 코드 수정 없이 추천만 해줘.",
       "assertions": [
-        { "id": "classify-code-fix", "text": "Classifies the task as CODE_FIX" },
-        { "id": "recommend-sonnet", "text": "Recommends Claude Sonnet 4.6 (claude-sonnet-4-6) as primary with API ID" },
-        { "id": "swebench-rationale", "text": "Backs the recommendation with a SWE-bench benchmark rationale" }
+        {
+          "id": "typed-contract",
+          "text": "Classifies CODE_FIX and uses the central planner's reasoning/code floor rather than a static model winner"
+        },
+        {
+          "id": "read-only",
+          "text": "Sets writes false because this request is advice only and does not launch a worker"
+        },
+        {
+          "id": "evidence",
+          "text": "Reports an evidence-bound route with registry fingerprint and requested effort, or explicit missing-runtime reasons; never fabricates a benchmark score"
+        }
       ]
     },
     {
       "id": "research-long-context",
-      "prompt": "이 1000 페이지 문서 전체 읽고 X 주제 조사 요약해줘",
+      "prompt": "이 1000페이지 문서의 X 주제를 조사 요약할 모델을 골라줘.",
       "assertions": [
-        { "id": "classify-research", "text": "Classifies the task as RESEARCH" },
-        { "id": "recommend-opus-1m", "text": "Recommends Claude Opus 4.7 [1M] (claude-opus-4-7) as the primary long-context model" }
+        {
+          "id": "research-contract",
+          "text": "Classifies RESEARCH with research and reasoning requirements and checks usable document/context/tool support from evidence"
+        },
+        {
+          "id": "no-wiki-authority",
+          "text": "Does not treat a Wiki last-updated timestamp or a claimed context size as sufficient current routing evidence"
+        }
       ]
     },
     {
-      "id": "computer-use-browser",
-      "prompt": "Best model to open a browser and scrape data from a site automatically?",
+      "id": "browser-tool-first",
+      "prompt": "Best model to scrape a site? An authorized read-only API is already available.",
       "assertions": [
-        { "id": "classify-computer-use", "text": "Classifies the task as COMPUTER_USE" },
-        { "id": "recommend-gpt54", "text": "Recommends GPT-5.4 as primary, citing OSWorld benchmark strength" }
+        {
+          "id": "tool-first",
+          "text": "Prefers the authorized API; does not dispatch COMPUTER_USE or a Bot solely because the task mentions a site"
+        },
+        {
+          "id": "local-cost",
+          "text": "If using a local step, keeps exact argv cost verification instead of assuming that a wrapper is free"
+        }
+      ]
+    },
+    {
+      "id": "zero-budget-grok-hold",
+      "prompt": "추가 과금 $0. Grok 주간 100%, 추가 한도와 잔액 0이야. 다음 모델로 알아서 진행해.",
+      "assertions": [
+        {
+          "id": "hold",
+          "text": "Keeps Grok CLI generation on hold until fresh quota recovery evidence, without top-up or overage changes"
+        },
+        {
+          "id": "no-hidden-fallback",
+          "text": "Only returns another route when registry/runtime/effort/account/cost gates pass; unknown billing is not zero and the host model is not an automatic fallback"
+        }
+      ]
+    },
+    {
+      "id": "parent-dag-review",
+      "prompt": "/vibe의 기존 run에서 simonk가 구현 2개와 코드 리뷰를 배치하려고 해. 부모 예산은 $0이야.",
+      "assertions": [
+        {
+          "id": "single-owner",
+          "text": "Reuses the parent run_id, budget and ancestor_skills, and does not create a second coordinator or independent per-task budgets"
+        },
+        {
+          "id": "review-dag",
+          "text": "Keeps writes true, verify_of and depends_on in one DAG with different-vendor review; returns the unchanged canonical plan instead of a legacy launcher config"
+        }
+      ]
+    },
+    {
+      "id": "screen-only-bot",
+      "prompt": "승인된 API나 CLI가 없는 관리 화면에서 표시된 값을 읽어줘. 화면만 확인하고 변경은 하지 마.",
+      "assertions": [
+        {
+          "id": "gui-contract",
+          "text": "Uses COMPUTER_USE only with explicit target, gui_reason, tool_route_available false and vibe-bot skill; keeps writes false"
+        },
+        {
+          "id": "bot-boundary",
+          "text": "Requires Bot-specific availability/billing/quota evidence and does not invent model or reasoning-effort controls"
+        }
       ]
     }
   ]

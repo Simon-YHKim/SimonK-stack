@@ -1,155 +1,176 @@
 ---
 name: model-router
-description: "Use when the user needs the best LLM model for a specific task type, or when simonk/multi-agent dispatch needs to assign models to parallel subtasks. Trigger phrases: '어떤 모델이 좋아', '모델 추천', '베스트 모델', 'which model is best', 'best model for', 'model router', 'task별 모델', '모델 자동 배치', '병렬로 모델 다르게'. Reads SimonKWiki wiki/concepts/ai-model-benchmarks.md as source of truth (latest May 2026 frontier matrix). Produces: (1) task type classification (CODE_NEW / CODE_FIX / CODE_REVIEW / RESEARCH / AGENTIC / COMPUTER_USE / DESIGN_UI / KOREAN_DOC / BULK_LIGHT / REASONING_ABSTRACT / VISION), (2) primary + secondary + cost-fallback model recommendation with API IDs, (3) rationale based on specific benchmark scores (SWE-bench / OSWorld / GPQA / Aider Polyglot / Arena Elo). Optionally outputs JSON config consumable by multi-terminal dispatch (sprint v23 Phase B)."
-version: 0.1.0
+description: "Use when the user asks \"어떤 모델이 좋아\", \"모델 추천\", \"모델 자동 배치\", \"which model is best\", or \"route these tasks\", and when /vibe or simonk needs model and reasoning-effort assignments. Classifies eleven task types and submits one dependency-aware request to the central /vibe planner. Produces an evidence-bound plan with model/effort, registry fingerprint, quota, incremental-cost reservation and blocked reasons. Never launches workers, reads credentials or treats missing account evidence as a free fallback. Uses runtime facts, not a static benchmark winner table."
+version: 0.2.0
 ---
 
-# model-router — Task → Best LLM Selector
+# Model Router — one typed request, one central plan
 
-> [[wiki/concepts/ai-model-benchmarks]] (SimonKWiki PRIVATE) 의 매트릭스를 사용해 task type 별 best model 추천. simonk 의 Phase 3 위임 시 활용. Sprint v23 Phase B 의 multi-terminal dispatch 의 결정 layer.
+## Scope and source of truth
 
-## 0. 운영 컨텍스트
+This skill classifies tasks; it does not own a second coordinator, model catalog,
+budget ledger or dispatch engine. Resolve the active `vibe` skill home from the
+skill inventory, read its instructions, then use its [planner](../vibe/scripts/orchestrate.py).
+Use the same approved skill installation and registry as the parent run. Do not
+silently combine a development planner with an older installed skill home.
 
-- **Source of truth**: `$env:SIMON_WIKI_DIR\wiki\concepts\ai-model-benchmarks.md` (env 미설정 시 `E:\Coding Infra\obsidian\SimonKWiki\wiki\concepts\ai-model-benchmarks.md`)
-- **갱신 cadence**: 주 1회 cron (`scripts/fetch-model-benchmarks.py`)
-- **API key 가용**: Anthropic primary (Claude Opus 4.7 / Sonnet 4.6 / Haiku 4.5). 외부 (OpenAI / Google / xAI / DeepSeek / GLM) 는 사용자 key 확보 시 활성.
+- Model IDs, lifecycle, provider effort and public reference prices:
+  [model-registry.json](../vibe/references/model-registry.json), through the planner's loader.
+- Account availability, resolved aliases, transport effort, billing, overage and
+  quota: fresh, account-bound runtime evidence. Unknown is blocked, not zero.
+- Task-type defaults: `TASK_TYPE_MAP` in the central planner. The mirror below is
+  checked against that executable contract by offline integration tests.
+- Wiki benchmarks are historical research, not dispatch authority. A fetch time
+  or `last-updated` date alone does not prove that benchmark rows were updated.
+  Do not run a fetcher to manufacture freshness or claim an unverified score.
 
-## 1. Task type 분류 (11 카테고리)
+**Migration status:** source-only consumer migration. Do not install or promote
+this change to main until simonk, multi-terminal and their legacy launcher have
+also migrated and passed review. Never translate this plan into an old terminal
+config or invoke the legacy launcher.
 
-사용자 prompt 또는 sub-task description 을 다음 중 하나로 분류:
+## 1. Classify and scope
 
-| Type | 키워드 / 패턴 | Best 1차 | Best 2차 | Cost-fallback |
-|---|---|---|---|---|
-| `CODE_NEW` | "구현해", "만들어", "scaffold", "implement", "build" | Claude Sonnet 4.6 | Claude Opus 4.7 | Claude Haiku 4.5 |
-| `CODE_FIX` | "버그", "fix", "고쳐", "debug", "에러" | Claude Sonnet 4.6 | Claude Opus 4.7 | DeepSeek V3 |
-| `CODE_REVIEW` | "review", "검토", "PR", "audit", "리뷰" | Claude Opus 4.7 | GPT-5.3 Codex | Claude Sonnet 4.6 |
-| `RESEARCH` | "조사", "research", "분석", "compare", "papers" | Claude Opus 4.7 [1M] | Gemini 3.1 Pro | Claude Sonnet 4.6 |
-| `AGENTIC` | "자동화", "agent", "multi-step", "execute", "워크플로" | Claude Opus 4.7 | GPT-5.4 | Claude Sonnet 4.6 |
-| `COMPUTER_USE` | "브라우저", "screen", "click", "OS", "computer use" | GPT-5.4 | Claude Opus 4.7 | — |
-| `DESIGN_UI` | "디자인", "UI", "landing", "랜딩", "Figma", "mockup" | Claude Opus 4.7 | GPT-5.4 | Claude Sonnet 4.6 |
-| `KOREAN_DOC` | 한국어 prompt + 문서 작성 / 보고서 | Claude Sonnet 4.6 | GLM-5 | Claude Haiku 4.5 |
-| `BULK_LIGHT` | "리스트", "대량", "bulk", "summarize many", "tag" | Gemini 3.5 Flash | Claude Haiku 4.5 | DeepSeek V3 |
-| `REASONING_ABSTRACT` | "추상", "logic", "ARC", "math proof", "복잡 추론" | Gemini 3.1 Pro | Claude Opus 4.7 | Grok 4 |
-| `VISION` | "이미지", "screenshot", "diagram", "vision", "OCR" | Gemini 3.1 Pro | Claude Sonnet 4.6 | GPT-5 |
+Read the actual task before classifying. Keywords are hints, not authorization.
+Split mixed tasks into steps. Prefer authorized deterministic CLI/API/MCP work
+over adding an LLM or GUI worker. A local tool step uses the canonical local
+contract without `task_type`; its exact argv cost still needs verification.
 
-분류 시 핵심 신호:
-- 키워드 매칭 우선
-- 한국어 prompt + 한국 도메인 → `KOREAN_DOC` 가산점
-- 외부 도구 호출 동반 (Bash, Web, MCP) → `AGENTIC` 또는 `COMPUTER_USE`
+| Type | Meaning |
+|---|---|
+| CODE_NEW | Implement new code; writing scope must be explicit |
+| CODE_FIX | Diagnose or repair code; distinguish advice from edits |
+| CODE_REVIEW | Read-only code review; link `verify_of` when reviewing a writer |
+| RESEARCH | Gather and synthesize sourced evidence |
+| AGENTIC | Judgment within a tool workflow; split code and GUI substeps |
+| COMPUTER_USE | Screen-only operation after authorized tool alternatives are checked |
+| DESIGN_UI | Visual design reasoning or critique; code implementation is a separate CODE step |
+| KOREAN_DOC | Korean document reasoning; language alone is not a model ranking |
+| BULK_LIGHT | Low-risk repetitive language work; use local tools when deterministic |
+| REASONING_ABSTRACT | Difficult abstract reasoning requiring the critical quality floor |
+| VISION | Image/OCR/diagram interpretation, not authority to control a screen |
 
-## 2. 사용 흐름 (호출 패턴)
+The planner fills omitted canonical fields from the following contract. Explicit
+`kind`, `proc` and `class` must agree; `needs` may only add capabilities, and
+`demand` may only increase. Contradictions or unknown types are errors. For work
+outside these categories, the parent may use an explicitly reviewed canonical
+step; never omit a type merely to bypass a rejected requirement.
 
-### 패턴 1: 단일 task 모델 추천
-
-사용자: "이 버그 어떤 모델로 고쳐야 가장 정확할까?"
-→ 분류: `CODE_FIX`
-→ 출력:
-```
-Primary: Claude Sonnet 4.6 (claude-sonnet-4-6)
-  - SWE-bench Verified: 79.6% (top tier)
-  - 가격: $3/$15 per 1M tok
-  - 권장 사유: 실 PR-grade fix 정확도 + 비용 균형
-Secondary: Claude Opus 4.7 (claude-opus-4-7)
-  - 더 복잡한 root cause 분석 필요시
-  - 비용 5배 ($15/$75) — 해당 안 되면 Primary 가성비 ↑
-Cost-fallback: DeepSeek V3 (deepseek-v3)
-  - 가격 1/10, 정확도 65% 정도
-```
-
-### 패턴 2: simonk Phase 3 위임 시 자동 호출
-
-simonk skill 의 Phase 2 (Sprint plan) 에서 task N 개 split → 각 task 마다 model-router 호출 → Phase 3 (Task tool delegation) 시 적절한 model 명시.
-
-예: sprint = 3 tasks
-- Task A (CODE_NEW) → Claude Sonnet 4.6 worktree 1
-- Task B (RESEARCH) → Claude Opus 4.7 [1M] worktree 2
-- Task C (BULK_LIGHT) → Gemini 3.5 Flash worktree 3
-
-### 패턴 3: Multi-terminal dispatch (Sprint v23 Phase B)
-
-`wiki/concepts/multi-agent-dispatch.md` 의 흐름과 통합. model-router 가 JSON config 출력:
+<!-- task-type-contract:start -->
 ```json
 {
-  "dispatch_id": "v23-multi-001",
-  "tasks": [
-    {"id": "t1", "type": "CODE_NEW", "model": "claude-sonnet-4-6", "terminal": "wt-tab-1"},
-    {"id": "t2", "type": "RESEARCH", "model": "claude-opus-4-7", "terminal": "wt-tab-2"},
-    {"id": "t3", "type": "BULK_LIGHT", "model": "gemini-3.5-flash", "terminal": "wt-tab-3"}
+  "CODE_NEW": {"kind": "llm", "needs": ["code"], "demand": "reasoning", "proc": "coding", "class": "B"},
+  "CODE_FIX": {"kind": "llm", "needs": ["code"], "demand": "reasoning", "proc": "coding", "class": "B"},
+  "CODE_REVIEW": {"kind": "llm", "needs": ["code", "reasoning"], "demand": "reasoning", "proc": "claim-verify", "class": "A-verify"},
+  "RESEARCH": {"kind": "llm", "needs": ["research", "reasoning"], "demand": "reasoning", "proc": "research-deep", "class": "B"},
+  "AGENTIC": {"kind": "llm", "needs": ["reasoning"], "demand": "reasoning", "proc": "terminal-ci-git", "class": "B"},
+  "COMPUTER_USE": {"kind": "gui", "needs": ["gui"], "demand": "reasoning", "proc": "ui-visual", "class": "C-platform"},
+  "DESIGN_UI": {"kind": "llm", "needs": ["vision", "reasoning"], "demand": "reasoning", "proc": "ui-visual", "class": "C-platform"},
+  "KOREAN_DOC": {"kind": "llm", "needs": ["reasoning"], "demand": "reasoning", "proc": "research-deep", "class": "B"},
+  "BULK_LIGHT": {"kind": "llm", "needs": ["reasoning"], "demand": "routine", "proc": "bulk-transform", "class": "A"},
+  "REASONING_ABSTRACT": {"kind": "llm", "needs": ["reasoning"], "demand": "critical", "proc": "research-deep", "class": "B"},
+  "VISION": {"kind": "llm", "needs": ["vision"], "demand": "reasoning", "proc": "ui-visual", "class": "C-platform"}
+}
+```
+<!-- task-type-contract:end -->
+
+Every typed step must explicitly set boolean `writes`. Classification does not
+infer permission. Set it true for actual edits or external mutations, and provide
+a separate LLM reviewer in the same DAG (`verify_of` plus `depends_on`). The
+planner requires a different model vendor, not just another model name. A Grok
+Bot and Grok CLI do not count as independent reviewers. Destructive actions,
+publishing, credential changes and payment retain their separate approval gates.
+CODE_REVIEW is always read-only; the compiler rejects `writes: true`. Split
+repairs into a CODE_FIX step and review the resulting changes independently.
+
+For COMPUTER_USE also supply the `vibe-bot` skill, exact `target`, evidence-based
+`gui_reason`, and `tool_route_available: false`. Otherwise planning blocks. Do not
+invent Bot model/effort controls or substitute Bot quota for Grok CLI quota.
+For DESIGN_UI follow `simon-design-first` before implementation.
+
+## 2. Submit the whole DAG to the existing coordinator
+
+Preserve the parent's `run_id`, budget, dependencies, `verify_of`, scoped skill
+list and `ancestor_skills`. Include `vibe`, `model-router` and any active parent
+orchestrator in the ancestry; do not dispatch them as new nested coordinators.
+Do not split a writer and its reviewer into independently budgeted plans.
+
+Example request for a recommendation only (not permission to repair files):
+
+```json
+{
+  "run_id": "parent-run-id",
+  "ancestor_skills": ["vibe", "model-router", "simonk"],
+  "budget": {"mode": "balanced", "approved_usd": 0, "max_attempts": 2, "max_parallel": 2},
+  "steps": [
+    {"id": "diagnose", "task_type": "CODE_FIX", "task": "Explain the supplied race condition without edits",
+     "skills": ["explain"], "writes": false, "depends_on": []}
   ]
 }
 ```
 
-이 config 를 multi-terminal launcher (B2) 가 consume.
+Resolve the actual script path first; the following uses a placeholder, not a
+literal installation directory:
 
-## 3. 가용 API key 확인 (fallback chain)
-
-사용자 환경의 API key 확인 후 권장:
-1. Primary 가용 → Primary 추천
-2. Primary key 없음 → Secondary 추천 + "Primary key 박으면 정확도 +5~10% 가능" 안내
-3. 모두 없음 → Cost-fallback (DeepSeek / open-weight)
-4. fallback 도 없음 → Claude default (어차피 simonk 호출 = Claude Code 안)
-
-key 확인: `~/.claude/.env` 또는 KeePassXC vault (`scripts/keepass-inject.ps1`).
-
-## 4. 추천 출력 형식
-
-기본 format (Markdown table):
-```
-| 순위 | 모델 | API ID | 사유 | 가격 |
-|---|---|---|---|---|
-| 1차 | Claude Sonnet 4.6 | claude-sonnet-4-6 | SWE-bench 79.6%, 한국어 OK | $3/$15 |
-| 2차 | Claude Opus 4.7 | claude-opus-4-7 | flagship, agentic 강점 | $15/$75 |
-| 비용 | Claude Haiku 4.5 | claude-haiku-4-5-20251001 | 1차의 1/3 비용, 70% 정확도 | $1/$5 |
+```text
+python <resolved-vibe-home>/scripts/orchestrate.py plan --input request.json --runtime runtime.json
 ```
 
-JSON format (`--format json` 또는 simonk integration):
-```json
-{
-  "task_type": "CODE_FIX",
-  "primary": {"name": "Claude Sonnet 4.6", "id": "claude-sonnet-4-6", "price_in": 3, "price_out": 15},
-  "secondary": {"name": "Claude Opus 4.7", "id": "claude-opus-4-7", "price_in": 15, "price_out": 75},
-  "fallback": {"name": "DeepSeek V3", "id": "deepseek-v3", "price_in": 0.27, "price_out": 1.10},
-  "rationale": "SWE-bench Verified 79.6% (Claude Sonnet 4.6 top tier). 한국어 prompt 호환."
-}
+Use `--root` only for verified skill roots. Normally use the packaged registry;
+an approved alternative `--registry` must match the parent's expected digest.
+The planner emits JSON to stdout and never launches a worker. Exit 2 means an
+invalid or blocked plan; inspect the returned reason, never guess a fallback.
+An absent compatible planner is a blocker, not permission to use old routing.
+
+## 3. Report, then hand back the unchanged plan
+
+Return the canonical plan to /vibe. Include its `model_registry.version`,
+`model_registry.sha256`, `plan_digest`, same `run_id`, steps and budget. Check the
+registry fingerprint against the parent's approved registry before handoff.
+Do not reconstruct routes from a Markdown recommendation table. Registration,
+atomic budget reservation, readiness, dispatch and acceptance belong to the
+parent's existing state/execution workflow, not this skill.
+
+User-facing output should summarize each step's type, selected surface/model,
+requested effort, evidence freshness, quota, incremental reservation and blocked
+reasons. Distinguish requested, resolved and effective settings. A planned model
+or exit code is not a successful execution; `actual_usd: null` means unknown.
+
+- Default additional spending is **$0**, including retries and review. Never use
+  a dollar threshold or number-of-tasks exception to authorize extra spending.
+- A paid route needs an explicit grant, a conservative bound and valid account
+  evidence. Public API prices are not a subscription invoice or hard cap.
+- Grok CLI stays on hold while quota is exhausted. A predicted reset time is
+  not recovery evidence. Do not top up, enable overage or change credentials.
+- No API key, environment file, password vault or login-cookie reads are needed
+  for this classifier. No automatic fallback to the current host's model.
+- `economy`, `balanced` and `quality` use the central policy, not local scoring.
+  Mode choice never overrides cost, capability or review gates. Measured
+  quality/cost/latency optimization remains separate validation work.
+
+## Verification and limits
+
+In the source repository, the model-router integration test invokes the actual
+planner CLI for all eleven types and compares this contract to executable code.
+It covers registry identity, aliases, effort, $0, quota, recursive coordinators
+and independent review using fixtures only. Evals cover classification intent;
+their dry-run is schema validation, not a real-model quality evaluation.
+
+Run from the source repository (not the installed skill directory):
+
+```text
+python -m unittest discover -s scripts -p test_model_router_integration.py
+python -m unittest discover -s skills-src/vibe/scripts -p test_orchestrate.py
 ```
 
-## 5. 안전 가드
+The eleven-type positive fixtures use the CLI planning path, not eleven live
+Orca workers. Orca's existing process, lane and security gates still apply.
 
-- **벤치마크 의존 위험**: 매트릭스가 outdated 면 잘못된 추천. wiki page `last-updated` 7일 초과 시 경고: *"벤치마크 갱신 X (last fetched: YYYY-MM-DD). `scripts/fetch-model-benchmarks.py` 실행 권장."*
-- **모델명 환각 방지**: API ID 가 wiki § 1 Frontier 모델 table 에 없으면 추천 X (e.g. "Claude Sonnet 5" 같은 검증 안 된 vendor 마케팅 문구).
-- **비용 폭증 방지**: simonk 통합 시 task 5+ 동시 + Claude Opus 4.7 → 사용자 명시 확인.
+Natural-language classification, truthful `writes`, exact account-to-transport
+binding and final user authorization remain coordinator responsibilities. This
+skill does not prove real provider E2E, install parity or universal skill quality.
 
-## 6. 갱신 cadence
-
-- 매주 (cron): `fetch-model-benchmarks.py` 가 wiki 매트릭스 갱신 → 자동으로 이 skill 의 추천도 갱신
-- 매 신규 frontier 모델 출시 (대형 event): manual 매트릭스 추가 (사용자 결정)
-- 매 sprint v23 Phase B 진입 시: multi-terminal dispatch 통합 검증
-
-## 7. 관련 자산
-
-- **Wiki (SimonKWiki PRIVATE)**:
-  - `[[ai-model-benchmarks]]` — source of truth 매트릭스
-  - `[[multi-agent-dispatch]]` — 이 skill 의 사용 흐름 패턴
-- **Script**: `scripts/fetch-model-benchmarks.py` — 주 1회 cron 갱신
-- **External vendor**:
-  - `external/oh-my-claudecode/` (OMC) — Team Mode 19 agents → model 배치 reference
-  - `external/oh-my-openagent/` (OMO) — model-agnostic harness 6M lines reference
-  - `external/OpenHarness/` — multi-agent infrastructure
-- **Skills**:
-  - `simonk` — Phase 3 위임 시 model-router 호출
-  - (v23) `multi-terminal-dispatcher` — 이 skill 의 출력 consume
-
-## 8. Roadmap
-
-- v0.1 (현재): task type 분류 + 추천 매트릭스 + Markdown/JSON output
-- v0.2 (Phase B): simonk Phase 3 자동 호출 hook + multi-terminal config 출력
-- v0.3: 사용자 API key 자동 detect (KeePassXC 읽기)
-- v0.4: 작업 history 기반 학습 (어떤 task 에서 어떤 모델이 실제 잘 했는지 누적)
-- v1.0: 벤치마크 → 매핑 자동 재계산 (수동 매트릭스 → 가중치 기반 알고리즘)
-
-## 완료 보고 (HTML) — 표준
-작업을 끝내면 **HTML 완료 보고서**를 생성한다 (SimonKCore `completion-report` 표준).
-- 첫 화면은 **심플 요약**(한눈 카드 한 줄) + 직관 그래픽/차트(인라인 SVG)·이미지.
-- 각 항목 옆 **[자세히] 버튼**(`<details>`)을 펼치면 상세 — 처음부터 쏟지 않는다(progressive disclosure).
-- 자체완결 1파일(인라인 CSS/SVG, 무JS) · 사용자 언어 · 현지시간 스탬프.
-- Core 있으면 `completion-report` 호출, 없으면 동일 형식으로 인라인 생성.
+For a substantial shareable report, use a self-contained HTML summary with
+progressive disclosure and an actual local timestamp. Use an installed
+completion-report skill if available; do not claim one exists without checking.
+Short routing answers and machine-readable plans need no separate HTML file.
