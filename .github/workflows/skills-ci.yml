@@ -11,3 +11,5 @@ jobs:
         with: { python-version: '3.11' }
       - name: Skills quality gate (lint + evals + description score, both roots)
         run: python3 .github/skill-ci/run_ci.py
+      - name: Offline benchmark freshness regressions (no network or real Wiki)
+        run: python3 -m unittest discover -s scripts/tests -p test_fetch_model_benchmarks.py

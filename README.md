@@ -303,11 +303,26 @@ done
 # 24-check 통합 테스트
 python3 .claude/skills/skill-gen-agent/scripts/tests/run_all.py
 
+# 벤치마크 수집기 회귀 검사 (네트워크 없이 임시 Wiki/cache만 사용)
+python3 -m unittest discover -s scripts/tests -p test_fetch_model_benchmarks.py
+
 # Bash 스크립트 문법
 for f in scripts/*.sh .claude/hooks/*.sh; do bash -n "$f" && echo "OK: $f"; done
 ```
 
 **원칙** (Boris Cherny): Claude 가 *눈으로 확인 가능* 한 검증 명령을 명시. "확인해 주세요" 가 아니라 자신이 실행.
+
+### 벤치마크 수집은 Wiki 갱신이 아닙니다
+
+`scripts/fetch-model-benchmarks.py`는 검토 전 raw 후보만 수집하며 Wiki 본문·날짜·로그와 라우팅 registry를 수정하지 않습니다.
+캐시의 `attempted_at`은 조회 시각일 뿐이며 `data_as_of: null`, `validation_status: unverified`, `wiki_updated: false`를 유지합니다.
+기존 `fetched_at` 캐시도 검증된 최신 모델 정보로 취급하지 않습니다. 모델 라우팅은 `/vibe`의 중앙 registry와 최신 계정·transport 증거를 사용합니다.
+
+- 종료코드 `0`: **요청한 모든 source**에 형식상 유효한 raw 행이 있습니다. 벤치마크 사실 검증, 전체 leaderboard의 완전한 수집 또는 Wiki 업데이트 성공을 뜻하지 않습니다.
+- 종료코드 `2`: 실패·0건·파서 미구현·일부 source 누락·잘못된 행 또는 캐시 저장 실패입니다. 기존 캐시는 유지합니다.
+- `--dry-run`: 수집/표시만 하며 파일을 쓰지 않습니다. **네트워크는 사용하므로 오프라인 검사는 위 unittest 명령을 사용합니다.**
+- 현재 Vellum/LLM Stats/Aider 파서는 미구현이므로 `--source all`은 incomplete로 종료합니다. 이미 구현된 단일 source만 선택할 수 있지만 결과는 여전히 미검증입니다.
+- 외부 Wiki cron은 실패 종료코드도 검사해야 합니다. 이 저장소의 변경은 별도 Wiki 저장소의 cron이나 설치본을 자동 교체하지 않습니다.
 
 ---
 

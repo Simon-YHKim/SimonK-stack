@@ -5,6 +5,9 @@
 
 ## [Unreleased]
 
+### Fixed
+- **Benchmark freshness truthfulness** — raw collection never edits Wiki timestamps/content/logs or the routing registry. Empty, failed, unimplemented, malformed or partial collections return `2` without replacing a prior cache; `--dry-run` writes no files. Successful snapshots remain explicitly unverified with an attempt timestamp and unknown data-as-of date. Cache replacement is atomic, and offline fixture regressions are included in skills CI. The external Wiki cron still needs separate exit-code integration; this is not a completed live benchmark refresh.
+
 ### Added
 - **`/vibe` 2.9.0 guarded Orca adapter** — registers native Task/spec, runtime, executable and exact workspace bindings with the durable plan; fresh account/billing evidence and an internal atomic claim gate one start. Lookup-only recovery, bounded CLI output and metadata-only result reporting preserve unknown costs without automatic retry, cleanup or acceptance. Local Claude/Codex flag-effort lanes only; Grok generation remains held, live billing/E2E and installed-version parity are not established.
 - **`apps/ai-usage-widget/`** — Windows 작업 표시줄 AI 사용량 위젯 v2(Electron 44)를 이력 포함(git subtree)으로 통합. 공식 CLI 경로만 사용(Claude statusline 브리지, `codex app-server`, grok ACP billing, `agy -p "/usage"`), 가짜 수치·클라이언트 사칭 금지. 자체 `CLAUDE.md`·`DECISIONS.md`·`STATE.md`·`docs/` 포함.

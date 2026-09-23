@@ -1,9 +1,9 @@
 """
-fetch-model-benchmarks.py — LLM 벤치마크 leaderboard fetcher + wiki updater
+fetch-model-benchmarks.py — unverified leaderboard collection, not a Wiki updater
 
 목적:
-    SimonKWiki 의 wiki/concepts/ai-model-benchmarks.md 를 최신 벤치마크 데이터로 갱신.
-    주 1회 cron 실행 (run-wiki-lint.ps1 통합).
+    Collect raw benchmark candidates for later review. No validated data merge
+    exists here, so this command never edits Wiki content, dates, logs or routing.
 
 수집 대상:
     1. lmarena.ai/leaderboard      — Arena Elo (코딩 / general)
@@ -13,9 +13,11 @@ fetch-model-benchmarks.py — LLM 벤치마크 leaderboard fetcher + wiki update
     5. swebench.com                — SWE-bench Verified
 
 출력:
-    - wiki/concepts/ai-model-benchmarks.md `last-updated` 자동 bump
-    - .simonk/benchmarks-cache.json (raw fetched data, 백업)
-    - wiki/log.md LINT 기록
+    - .simonk/benchmarks-cache.json: source-keyed, UNVERIFIED raw observations
+    - attempted_at is a collection attempt, never the source data's as-of date
+    - rc=0: every requested source yielded structurally usable raw rows
+    - rc=2: incomplete/invalid collection or cache write failure; prior cache kept
+    - --dry-run performs collection but never writes any files
 
 사용:
     python scripts/fetch-model-benchmarks.py [--dry-run] [--source lmarena|vellum|all]
@@ -28,11 +30,13 @@ fetch-model-benchmarks.py — LLM 벤치마크 leaderboard fetcher + wiki update
 
 import argparse
 import json
+import math
 import os
 import re
 import sys
 import time
-from datetime import datetime
+import tempfile
+from datetime import datetime, timezone
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 
@@ -41,8 +45,6 @@ try:
 except Exception:
     pass
 
-WIKI_DIR = os.environ.get('SIMON_WIKI_DIR', r'C:\Coding\obsidian\SimonKWiki')
-WIKI_PAGE = os.path.join(WIKI_DIR, 'wiki', 'concepts', 'ai-model-benchmarks.md')
 CACHE_DIR = os.path.join(os.path.dirname(__file__), '..', '.simonk')
 CACHE_FILE = os.path.join(CACHE_DIR, 'benchmarks-cache.json')
 USER_AGENT = 'SimonK-stack-benchmark-fetcher/0.1 (+https://github.com/Simon-YHKim/SimonK-stack)'
@@ -99,7 +101,6 @@ def parse_lmarena(html: str) -> dict:
     """
     out = {
         'source': 'lmarena',
-        'fetched_at': datetime.utcnow().isoformat(),
         'models': [],
     }
     # 1) Try direct JSON endpoint
@@ -109,15 +110,20 @@ def parse_lmarena(html: str) -> dict:
         try:
             data = json.loads(json_html)
             # JSON 구조 추정: {"models": [{"name": "...", "arena_score": 1548, ...}, ...]}
-            if isinstance(data, dict) and 'models' in data:
+            if isinstance(data, dict) and isinstance(data.get('models'), list):
                 for m in data['models'][:30]:
+                    if not isinstance(m, dict):
+                        out['models'].append(m)  # Collection gate reports invalid rows.
+                        continue
                     out['models'].append({
                         'name': m.get('name') or m.get('model'),
-                        'arena_elo': m.get('arena_score') or m.get('elo'),
+                        'arena_elo': m.get('arena_score', m.get('elo')),
                         'category': m.get('category'),
                     })
                 out['status'] = f"parsed {len(out['models'])} models from /api/leaderboard JSON"
                 return out
+            out['status'] = 'incompatible JSON model list'
+            return out
         except (json.JSONDecodeError, KeyError, TypeError):
             pass
     # 2) Fallback: parse HTML for model+score patterns (rough regex)
@@ -139,7 +145,6 @@ def parse_vellum(html: str) -> dict:
     """
     return {
         'source': 'vellum',
-        'fetched_at': datetime.utcnow().isoformat(),
         'status': 'TODO: parser 미구현',
         'raw_length': len(html) if html else 0,
         'models': [],
@@ -151,7 +156,6 @@ def parse_swebench(html: str) -> dict:
     # SWE-bench 는 github io static page — table 가능성
     out = {
         'source': 'swebench',
-        'fetched_at': datetime.utcnow().isoformat(),
         'models': [],
     }
     if not html:
@@ -174,74 +178,96 @@ PARSERS = {
 }
 
 
+def usable_row(source: str, row) -> bool:
+    """Shape/range checks only, NOT benchmark authenticity or model validation."""
+    if not isinstance(row, dict) or not isinstance(row.get('name'), str) or not row['name'].strip():
+        return False
+    metric = {'lmarena': 'arena_elo', 'swebench': 'swe_bench_verified_pct'}.get(source)
+    score = row.get(metric)
+    if type(score) not in (int, float) or not math.isfinite(score) or score < 0:
+        return False
+    return metric is not None and (source != 'swebench' or score <= 100)
+
+
 def collect(source_filter: str = 'all') -> dict:
-    """모든 source fetch + parse. dict source_id → parsed data."""
+    """Return source-keyed unverified observations; a timestamp is not freshness."""
+    if source_filter != 'all' and source_filter not in SOURCES:
+        raise ValueError('Unknown source')
     out = {}
     targets = SOURCES.keys() if source_filter == 'all' else [source_filter]
     for sid in targets:
-        if sid not in SOURCES:
-            print(f"[skip] unknown source: {sid}")
-            continue
+        attempted_at = datetime.now(timezone.utc).isoformat()
         url = SOURCES[sid]['url']
         print(f"[fetch] {sid}: {url}")
-        html = fetch(url)
-        out[sid] = PARSERS[sid](html or '')
+        try:
+            html = fetch(url)
+            item = PARSERS[sid](html or '')
+            rows = item.get('models')
+            if not isinstance(rows, list):
+                raise ValueError('Parser did not return a model list')
+            invalid = sum(not usable_row(sid, row) for row in rows)
+            item.update(complete=bool(rows) and not invalid, invalid_rows=invalid)
+        except Exception as exc:
+            # Do not include arbitrary response/error text in the cache.
+            item = {'models': [], 'complete': False, 'invalid_rows': 0,
+                    'status': 'parser/collection failure: ' + type(exc).__name__}
+        item.update(source=sid, source_url=url, attempted_at=attempted_at,
+                    validation_status='unverified', data_as_of=None, wiki_updated=False)
+        out[sid] = item
         time.sleep(2)  # rate limit
     return out
 
 
-def update_wiki_timestamp() -> bool:
-    """wiki page 의 last-updated frontmatter 만 갱신 (실 데이터 merge 는 TODO)."""
-    if not os.path.exists(WIKI_PAGE):
-        print(f"[wiki-update] page missing: {WIKI_PAGE}", file=sys.stderr)
-        return False
-    content = open(WIKI_PAGE, encoding='utf-8').read()
-    today = datetime.now().strftime('%Y-%m-%d')
-    new_content = re.sub(r'^last-updated:\s*\S+', f'last-updated: {today}', content, count=1, flags=re.MULTILINE)
-    if new_content != content:
-        open(WIKI_PAGE, 'w', encoding='utf-8').write(new_content)
-        print(f"[wiki-update] last-updated → {today}")
-        return True
-    return False
-
-
 def save_cache(data: dict) -> None:
-    os.makedirs(CACHE_DIR, exist_ok=True)
-    with open(CACHE_FILE, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-    print(f"[cache] {CACHE_FILE} ({sum(len(d.get('models', [])) for d in data.values())} models total)")
+    """Replace a complete raw snapshot atomically; never truncate a prior cache."""
+    payload = json.dumps(data, ensure_ascii=False, indent=2, allow_nan=False) + '\n'
+    directory = os.path.dirname(os.path.abspath(CACHE_FILE))
+    os.makedirs(directory, exist_ok=True)
+    pending = None
+    try:
+        with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', dir=directory,
+                                         prefix='.benchmark-', suffix='.tmp', delete=False) as f:
+            pending = f.name
+            f.write(payload)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(pending, CACHE_FILE)
+        pending = None
+    finally:
+        if pending is not None:
+            os.unlink(pending)  # Only this invocation's temporary file.
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument('--source', default='all', help='all | lmarena | vellum | llm-stats | aider | swebench')
-    ap.add_argument('--dry-run', action='store_true', help='fetch + cache, wiki 갱신 X')
+    ap.add_argument('--source', default='all', choices=['all', *SOURCES])
+    ap.add_argument('--dry-run', action='store_true', help='collect and report only; no files written (network is still used)')
     args = ap.parse_args()
 
-    print(f"# fetch-model-benchmarks.py — {datetime.now().isoformat()}")
+    print(f"# fetch-model-benchmarks.py — {datetime.now(timezone.utc).isoformat()}")
     print(f"sources: {args.source}, dry-run: {args.dry_run}")
 
     data = collect(args.source)
-    save_cache(data)
-
-    if not args.dry_run:
-        update_wiki_timestamp()
-
     # Summary
     total_models = sum(len(d.get('models', [])) for d in data.values())
     print(f"\n=== Summary ===")
     for sid, d in data.items():
-        print(f"  {sid}: {d.get('status', '?')} ({len(d.get('models', []))} models)")
-    print(f"  Total: {total_models} model entries cached")
-    print(f"  Wiki page: {WIKI_PAGE}")
-    print(f"  Cache: {CACHE_FILE}")
-
-    # TODO: 다음 sprint
-    # 1. 각 parser 실제 구현 (HTML inspect 후 정확한 selector)
-    # 2. Vellum / llm-stats API endpoint 발견 시 JSON 우선
-    # 3. 신규 모델 자동 감지 → wiki 의 § 1 Frontier 모델 table 행 추가
-    # 4. 가격 변동 감지 → § 4 가격 + 컨텍스트 table 갱신
-    # 5. 작업 type → best model 매핑 자동 재계산 (벤치마크 가중 평균)
+        state = 'raw-complete' if d['complete'] else 'incomplete'
+        print(f"  {sid}: {state}; {d.get('status', '?')} ({len(d['models'])} raw rows, {d['invalid_rows']} invalid)")
+    print(f"  Total: {total_models} raw rows; validation_status=unverified; data_as_of=unknown")
+    print('  Wiki unchanged: no validated data merge is implemented; routing registry unchanged.')
+    if not data or not all(item['complete'] for item in data.values()):
+        print('  Collection incomplete; cache not written, any previous cache preserved.')
+        return 2
+    if args.dry_run:
+        print('  Dry-run: cache not written; no files changed.')
+        return 0
+    try:
+        save_cache(data)
+    except (OSError, TypeError, ValueError) as exc:
+        print('  Cache not written: ' + type(exc).__name__, file=sys.stderr)
+        return 2
+    print(f"  Unverified raw cache written: {CACHE_FILE}")
     return 0
 
 
