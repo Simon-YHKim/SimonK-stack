@@ -24,15 +24,84 @@ SOFTWARE.
 
 ## Third-party components
 
-This repository references but does not vendor the following upstream projects.
-Each is governed by its own license:
+Third-party code and references retain their upstream licenses:
 
-- **Gstack** — https://github.com/garrytan/gstack (cloned at session start by
-  the bootstrap hook; see that repo for its license)
+- **Gstack** — https://github.com/garrytan/gstack. Vendored skill attribution
+  is listed in skills-src/VENDORED.md. The safety runtime restoration below
+  additionally includes adapted executable code under Garry Tan's MIT license.
 - **Superpowers** — https://github.com/obra/superpowers (concepts referenced
   in simon-tdd / simon-worktree; no code vendored)
 - **everything-claude-code** — https://github.com/affaan-m/everything-claude-code
   (concepts referenced in simon-instincts / simon-research; no code vendored)
 
-The simon-stack skills, install scripts, hooks, templates, and documentation
-in this repository are original works released under the MIT license above.
+Except for identified third-party components, SimonK contributions are released
+under the MIT license above.
+
+## Gstack safety runtime restoration (2026-09-24)
+
+Upstream: https://github.com/garrytan/gstack/tree/b9706f3635b6a545f46fae607ae9d6bcbfb69b91
+Pinned commit: b9706f3635b6a545f46fae607ae9d6bcbfb69b91
+Original LF-byte SHA-256 (before the explicitly described SimonK adaptations):
+
+- careful/bin/check-careful.sh: 7b04f0b8f409d4ecf166ef45e72eb95ed7c2f37434bd7125e6b403d0f7bf5d42
+- careful/bin/hook-extract.sh: 5be66386d4945f27ba52ac3df720a8f84755634de1713eacbd239376050106c9
+- freeze/bin/check-freeze.sh: 97e6013a990911ef544e4e80fc464560286e298d85ffbdf391b860e9910376f4
+
+These files reside under skills-src/. They are adapted, not byte-identical
+copies. Local changes preserve the current SimonK skill contracts:
+
+- careful keeps advisory ask decisions (including upstream HIGH patterns),
+  with an ask JSON backstop on unexpected runtime errors; baseline matcher
+  errors are distinguished from clean non-matches and also ask. This is not a
+  security sandbox and never grants permission to execute a destructive action.
+- The shared state reader matches existing writers exactly:
+  ${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}. GSTACK_HOME remains analytics-only for
+  these hooks; it does not override the boundary writer's chosen state root.
+- Missing/empty/wrong-type required input and NUL fail closed (ask for careful,
+  deny for an active freeze). File paths reject control characters before Bash
+  can silently strip trailing newlines. Only an absent state file is an inactive freeze;
+  invalid state, unreadable state, broken links and unresolved paths deny.
+- Freeze path resolution requires an existing parent; newly created nested
+  directories are conservatively denied until their parents exist. The helper
+  does not fall back to lexical prefix matching after a resolution failure.
+  Existing directory/root boundaries resolve directly, with root-aware joining.
+- After physical resolution, Git Bash mount aliases use cygpath for comparison
+  (/tmp and /c can denote the same directory). This does not certify native
+  Windows input paths or host hook dispatch.
+
+Validated scope: scripts/tests/test_safety_hooks.py exercises actual Bash
+subprocesses, isolated home/state and flat source-package materialization.
+It only passes commands as stdin data; it never executes them. Dependencies:
+Bash and POSIX utilities, plus python3 or Node for JSON parsing. Optional
+per-project custom patterns still require upstream bin/gstack-slug (not restored).
+
+NOT a completed activation or installation: separated Core/Stack plugin sibling
+dependencies, plugin-specific state sharing with unfreeze, session ownership and
+cleanup, SKILL hook command quoting/variable availability, native Windows file
+paths, and Claude/Codex host enforcement remain unverified or known incomplete.
+The candidate runtime/host/installation readiness flags therefore remain false.
+Current SKILL activation claims must not be treated as host-verification evidence.
+
+Upstream license (applies to the three adapted runtime files):
+
+MIT License
+
+Copyright (c) 2026 Garry Tan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
