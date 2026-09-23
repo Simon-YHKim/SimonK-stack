@@ -192,13 +192,19 @@ evidence establishes them. The planner reads the central registry by default;
 API capabilities and CLI-reported efforts are distinct constraints.
 
 The collector uses an allowlisted child environment and a temporary working
-directory. It bounds stdout, writes and process lifetime. Windows probes start
+directory. It bounds protocol stdin/stdout and process lifetime. Windows probes start
 suspended inside a kill-on-close Job Object before their code can run; POSIX
 probes own a process group. Cleanup targets only the probe's own tree, including
 descendants that outlive its root. Server tool/auth requests are refused, not
 executed. An unavailable containment primitive fails closed. Offline subprocess
 tests cover timeouts, inherited pipes, hostile request IDs and environment
 filtering. These are transport-safety tests, not provider generation canaries.
+Process containment and a temporary cwd are not an OS filesystem/network
+sandbox. Native CLIs may still discover real user profiles, skills or startup
+configuration; overriding HOME/USERPROFILE/CODEX_HOME does not prove isolation.
+When protected paths or startup side effects cannot be excluded, keep the
+probe blocked until a real isolation boundary is available. Do not retry a
+native host probe just to turn an unverified claim into PASS.
 
 ## Budget and selection
 
@@ -231,10 +237,11 @@ dispatch and inspect their job IDs on resume to avoid duplicate work. Failed
 nodes do not retry automatically; refresh runtime and budget first.
 
 For Orca, validate the entire plan before every ready wave. Use node ID to map
-to task ID/spec, then use the guarded adapter below for its supported lanes. Calling
-validate_and_dispatch on the entire DAG starts later phases too early; calling
-it on coding alone drops required security gates. Preserve its full-plan
-validation before using the ready-node dispatch primitive.
+to task ID/spec, then use the guarded adapter below for its supported lanes.
+Preserve routing.validate_plan's full-plan checks, including both security
+gates, and dispatch only ready nodes through the adapter's internal claim.
+Legacy validate_and_dispatch and run_dispatch live calls are disabled; a dry
+argv or a stored dispatch_allowed flag is never an execution authorization.
 
 Blocked plans start no nodes; independent safe work needs a separately valid
 plan. A local test cannot substitute for an independent LLM reviewer.
@@ -271,16 +278,27 @@ external_reserved_usd cover costs outside this DB only, to avoid double counting
 python "<skill>/scripts/run_state.py" init
 python "<skill>/scripts/run_state.py" register --plan plan.json
 python "<skill>/scripts/run_state.py" ready --run run-id
-python "<skill>/scripts/run_state.py" claim --run run-id --node node-id --request stable-key --plan-digest digest
 python "<skill>/scripts/run_state.py" status
 ```
+
+These state-changing commands are not an offline planning/dry-run sequence.
+For Orca, do not call the low-level claim command manually before dispatch:
+the adapter owns claim and send together. A manually committed intent without
+a send can become unresolved; its repeated claim does not authorize sending.
+The claim API is for reviewed adapter integration, not a standalone runbook step.
 
 Registration reserves the full run, all nodes and attempts, atomically against
 run and shared grant limits. Account identity is the surface plus a non-secret
 account_ref. Separate surfaces are not assumed to share a quota bucket. Pending
 intents count toward concurrency (default two global and two per account).
-`ready` and first `claim` repeat runtime, quota, billing, model/effort and
-dependency checks. An identical claim returns its existing dispatch_id and
+`ready` and first `claim` check the stored plan's freshness/validity windows,
+dependency/review state, shared budgets, reservations and concurrency. They
+do not contact providers or reobserve account settings, quota or model access.
+Registration validates the supplied plan; the guarded Orca adapter separately
+checks its fresh account/billing certificate and native identity before send.
+Resolved model/effective effort and actual cost require post-send observation
+and settlement; none are established by a successful claim.
+An identical claim returns its existing dispatch_id and
 dispatch_allowed=false; a changed payload/key binding is rejected. Only a first
 successful claim grants permission to send, after the intent is committed.
 
@@ -342,9 +360,13 @@ installed version-matched Orca orchestration guide first. This initial adapter
 supports only registered Claude/Codex lanes whose effort_style is flag. Grok,
 Antigravity, remote placements, prompt-keyword/ultracode lanes and automatic
 retry/fallback are deliberately unsupported. It creates no Run, Task, workspace
-or terminal outside the single guarded worker-start. The coordinator prepares
-the unique native Run/Task and exact existing workspace using the normal Orca
-contract. Do not reuse a Task with any previous Dispatch.
+or terminal outside the single guarded worker-start. It requires a unique
+existing native Run/Task and exact workspace. The central guarded preparation
+lifecycle for these resources is not yet implemented. If an independently
+reviewed, authorized preparation path and its evidence are absent, block this
+node; do not revive raw run-create/task-create helpers as a workaround. Read
+the native contract to interpret supplied resources, not as blanket authority
+to create them. Do not reuse a Task with any previous Dispatch.
 
 Each request node preserves an `orca` manifest in its registered plan:
 
@@ -364,8 +386,9 @@ policy, dependency, quota and budget guards. Plan registration durably fixes
 the manifest, route and spec intent before the first claim. Use
 `execute_orca.py spec --plan plan.json --node ID` to print the exact Task spec;
 it includes the complete node intent, skill paths and handoff, excluding only
-transport fields and planner diagnostics. Set that exact spec on the prepared
-native Task before dispatch. No unrelated prompt is accepted at send time.
+transport fields and planner diagnostics. It only prints the spec; it does not
+set a native Task. A reviewed preparation path must establish that exact spec
+on the native Task before dispatch. No unrelated prompt is accepted at send time.
 
 The coordinator supplies a separate certificate for the exact Orca launch
 account/profile, not a generic subscription label or direct-CLI login. Required
@@ -418,6 +441,9 @@ The runtime can still accept work after a client timeout; lookup remains the
 only automatic recovery. No stop, abandon, release, retry, payment, reset,
 installation or worktree deletion is automatic. After accepted settlement the
 coordinator still owes the cleanup decision required by the Orca guide.
+Legacy kill_worker.py --kill --fence is prohibited until its handle/dispatch
+identity and authorization defect is repaired; raw worker-stop is disabled.
+Do not kill, submit input, release or resend automatically to resolve uncertainty.
 
 This adapter assumes cooperating coordinators share the same DB and own the
 unique native Task. It cannot stop another tool/user from editing the native
