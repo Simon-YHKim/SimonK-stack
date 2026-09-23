@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
-"""레인 간 적대적 상호평가 - 영역별 최적 모델·effort 를 데이터로 정한다.
+"""Legacy offline evaluation utilities; live generation is quarantined.
+
+2026-09-24: --preflight and --run without --dry return rc=2 before I/O.
+run_lane cannot generate. Old success caches are not availability authority.
+Historical design below is retained for migration, NOT permission to call CLIs.
+Use the central planner/store and a verified guarded adapter; unsupported
+evaluation transports remain blocked. Dry answers are not measured quality.
 
 왜 필요한가 (Simon 지시, 2026-09-12):
     모델은 계속 바뀌는데(gpt-6-astra 편입, daybreak 신설, codex 0.154 …) 라우팅 표는
@@ -238,21 +244,11 @@ def _dry_answer(lane):
 
 
 def run_lane(lane, effort, prompt, cwd, timeout=900, dry=False):
-    """레인 하나를 동기 호출. 반환 (rc, stdout, stderr, sec)."""
-    argv, stdin = exec_plan(lane, effort, prompt)
-    if dry:
-        return 0, _dry_answer(lane), "", 0.0
-    t0 = time.time()
-    try:
-        p = subprocess.run(_resolve(argv), input=(stdin or ""), capture_output=True,
-                           text=True, encoding="utf-8", errors="replace",
-                           cwd=cwd, timeout=timeout, shell=False)
-    except subprocess.TimeoutExpired:
-        return 124, "", "timeout %ds" % timeout, time.time() - t0
-    except Exception as e:  # noqa: BLE001
-        return 1, "", type(e).__name__, time.time() - t0
-    return (p.returncode, (p.stdout or "").strip(),
-            (p.stderr or "").strip()[:800], time.time() - t0)
+    """Dry fixture only. Legacy live calls never resolve or start a provider."""
+    if not dry:
+        return 2, "", routing.LEGACY_EXECUTION_MESSAGE, 0.0
+    exec_plan(lane, effort, prompt)  # Retain offline argv validation, not execution.
+    return 0, _dry_answer(lane), "", 0.0
 
 
 ANSWER_RE = re.compile(r"^\s*ANSWER\s*:\s*(.+?)\s*$", re.IGNORECASE | re.MULTILINE)
@@ -340,36 +336,10 @@ def _why_down(blob):
 
 
 def preflight(repo, force=False, dry=False):
-    """벤더마다 아주 싼 호출 1회로 '지금 답을 만들 수 있는가'를 본다.
-
-    왜 필요한가: 2026-09-13 실측에서 grok 은 402(잔액 소진), gemini 단독 CLI 는
-    IneligibleTierError 였다. 쿼터 %만 보면 둘 다 '여유 있음'으로 보인다 -
-    **못 쓰는 이유가 쿼터가 아니기 때문이다.** 가용성은 호출해봐야 안다.
-    """
+    """Disabled, without cache reads/writes or pings; dry is simulation only."""
     if dry:
         return {v: {"ok": True, "note": "dry"} for v in ALL_VENDORS}
-    if not force and os.path.isfile(VENDOR_CACHE):
-        try:
-            c = json.load(open(VENDOR_CACHE, encoding="utf-8"))
-            if (time.time() - c.get("at_epoch", 0)) < VENDOR_CACHE_HOURS * 3600:
-                return c["vendors"]
-        except Exception:  # noqa: BLE001
-            pass
-    probe_lane = {"claude": "claude-opus-5", "codex": "gpt-5.6-luna",
-                  "gemini": "gemini-3.8-flash", "grok": "grok-4.6"}
-    probe_eff = {"claude": "standard", "codex": "low", "gemini": "low", "grok": "high"}
-    out = {}
-    for v in ALL_VENDORS:
-        rc, so, se, sec = run_lane(probe_lane[v], probe_eff[v], PING, repo, timeout=300)
-        ans = extract_answer(so)
-        ok = ans is not None
-        out[v] = {"ok": ok, "note": "ok" if ok else _why_down(so + "\n" + se),
-                  "sec": round(sec, 1)}
-    os.makedirs(STATE_DIR, exist_ok=True)
-    json.dump({"at": time.strftime("%Y-%m-%dT%H:%M:%S"), "at_epoch": time.time(),
-               "vendors": out}, open(VENDOR_CACHE, "w", encoding="utf-8"),
-              ensure_ascii=False, indent=1)
-    return out
+    return {v: {"ok": False, "note": routing.LEGACY_EXECUTION_MESSAGE} for v in ALL_VENDORS}
 
 
 # --------------------------------------------------------------------- 실행
@@ -430,13 +400,16 @@ def cmd_validate(args):
 
 
 def _print_vendors(vend):
-    print("=== 벤더 가용성 (실호출로 확인) ===")
+    print("=== legacy 평가 상태 (dry는 모의 값, 실가용성 증거 아님) ===")
     for name in ALL_VENDORS:
         s = vend.get(name) or {}
         print("  %-8s %s  %s" % (name, "✅" if s.get("ok") else "❌", s.get("note", "")))
 
 
 def cmd_preflight(args):
+    if not args.dry:
+        print(routing.LEGACY_EXECUTION_MESSAGE)
+        return 2
     vend = preflight(args.repo, force=args.force, dry=args.dry)
     _print_vendors(vend)
     up = sorted(k for k, s in vend.items() if s.get("ok"))
@@ -491,6 +464,9 @@ def cmd_due(args):
 
 
 def cmd_run(args):
+    if not args.dry:
+        print(routing.LEGACY_EXECUTION_MESSAGE)
+        return 2
     probes = {p["id"]: p for p in load_probes()}
     if args.only:
         missing = [i for i in args.only if i not in probes]

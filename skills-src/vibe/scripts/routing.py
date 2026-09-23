@@ -1,4 +1,5 @@
-# routing.py — /vibe v2.1 라우팅 정본 (단일 출처)
+# routing.py — legacy Orca policy/builders; live dispatch uses execute_orca.py.
+# This is not the frontier registry. Dry output is not execution authorization.
 #
 # 이 파일이 레인·클래스·effort·가드의 유일한 기계 판독 정본이다.
 # SKILL.md 의 표는 여기서 생성한다:  python routing.py --emit-md
@@ -65,6 +66,13 @@ import re
 import shutil
 import subprocess
 import sys
+
+LEGACY_EXECUTION_DISABLED = "LEGACY_EXECUTION_DISABLED"
+LEGACY_EXECUTION_MESSAGE = (
+    LEGACY_EXECUTION_DISABLED + ": use orchestrate.py, run_state.py and the guarded "
+    "execute_orca.py adapter with a fresh plan/account/cost certificate; "
+    "unsupported transports stay blocked. No legacy live preflight or direct CLI fallback."
+)
 
 # Windows 콘솔 기본이 cp949 라 em-dash 하나로 스크립트가 죽는다 (실측 2026-09-04).
 try:
@@ -413,12 +421,9 @@ GUARDS = [
     ("G6", "부재 보고에는 탐색 범위를 붙인다. 범위 없는 '0건'은 반환값 불인정 — "
            "gemini 뿐 아니라 **A 클래스 전체**에 적용 (Simon 결정 2026-09-04)", False),
     ("G7", "최상위 effort 는 반증질문 YES 인 태스크에만", False),
-    ("G8", "쓰기 라운드는 **워커 강제종료 절차가 선 상태에서만** 띄운다 — "
-           "`python scripts/kill_worker.py --dispatch <ctx_…>` (기본은 목록만, "
-           "`--kill --fence` 로 트리 종료 → 재스캔 0 확인 → worker-stop). "
-           "worker-stop 은 프로세스 사망을 약속하지 않는다. "
-           "원래 문구 '문서화 전까지 착수 금지'는 2026-09-13 문서화·실측 1회로 충족 — "
-           "SKILL.md '워커 강제종료 (G8)'", False),
+    ("G8", "쓰기 라운드 전 검증된 종료 절차가 필요하다. legacy `kill_worker.py --kill --fence`는 "
+           "handle/dispatch 결속 미검증으로 사용 금지이며 raw `worker-stop`도 차단된다. "
+           "별도 승인·정확한 대상 검증 없이 종료하거나 재발주하지 않는다", False),
     ("G9", "Move-Item 배치는 매니페스트 + 역방향 스크립트 선행", False),
     ("G10", "적대적 평가에서 채점자는 두 생산자와 **벤더가 달라야** 한다. "
             "벤더 3개를 못 채우면 그 문제는 건너뛴다 — 자기 벤더가 자기 답을 "
@@ -427,15 +432,11 @@ GUARDS = [
             "`Agent startup blocked: codex-update-prompt` 로 **전 워커가 안 뜨는데 "
             "에러가 프롬프트 문제처럼 보인다** (2026-09-12 실사고). "
             "`python scripts/check_tooling.py`", False),
-    ("G12", "**벤더 가용성은 쿼터로 판정하지 않는다 — 실호출로 확인한다.** "
-            "2026-09-13 실측: grok 은 402(잔액 소진), gemini 단독 CLI 는 "
-            "IneligibleTierError 였는데 **쿼터 %로는 둘 다 여유 있어 보였다** — "
-            "못 쓰는 이유가 쿼터가 아니었기 때문이다. 쿼터 게이트(G5)는 "
-            "'얼마나 썼나'를 보고, 이건 '지금 답이 나오나'를 본다. 다른 질문이다. "
-            "`python scripts/adversarial_eval.py --preflight`", False),
-    ("G13", "재시도(`worker-start --retry-of`)·수동 재배정도 계획 검증을 다시 통과해야 한다 — "
-            "`routing.revalidate_for_retry(plan, proc, new_lane, ...)` 가 (ok, 위반, 메모, 새 계획)을 준다. "
-            "`--retry-of` 는 orca CLI 를 직접 부르므로 routing 의 계획 검증을 거치지 않는다 (D-28 #14)", False),
+    ("G12", "쿼터·metadata는 생성 성공이나 무료 사용 증거가 아니다. legacy "
+            "`adversarial_eval.py --preflight` 실호출은 차단됐다. 실측도 중앙 계획·예산 예약·"
+            "fresh 계정/비용 증명 뒤에만 가능하며 Grok HOLD를 우회하지 않는다", False),
+    ("G13", "재시도·대체도 중앙 planner/Store/guarded adapter를 거친다. "
+            "수락 불명은 lookup-only이며 raw `worker-start --retry-of`로 우회하지 않는다", False),
     ("G14", "결정 시트(`make_decision_sheet.py`)를 만들지 않은 라운드는 **끝난 것으로 치지 않는다** — "
             "손으로 조립한 시트는 `decisions_run_*.json` 을 내지 않아 채택률이 비고 스왑 규칙이 돌지 않는다 (D-28 #15)", False),
 ]
@@ -671,6 +672,8 @@ def run_dispatch(lane, effort, task_id, name, worktree,
     반환: (returncode, stdout, stderr, meta). meta 에 최종 spec 과 그 해시가 들어간다.
     dry=True 면 실행하지 않고 argv·spec 을 돌려준다.
     """
+    if not dry:
+        return 2, "", LEGACY_EXECUTION_MESSAGE, {"execution": "blocked"}
     if not worktree or not isinstance(worktree, str):
         raise ValueError("worktree 를 명시해야 한다 (외부 셸에서는 보통 'current')")
     # MED-69: claude 최상위는 프롬프트 첫 줄 키워드로만 발동한다.
@@ -686,17 +689,7 @@ def run_dispatch(lane, effort, task_id, name, worktree,
     meta = {"spec": final_spec, "spec_sha": spec_digest(final_spec),
             "prompt_prefix": prompt_prefix(lane, effort),
             "off_ladder": effort not in set(ladder_for(lane))}
-    if dry:
-        return 0, json.dumps({"argv": argv, **meta}, ensure_ascii=False), "", meta
-    try:
-        p = subprocess.run(argv, capture_output=True, text=True,
-                           encoding="utf-8", errors="replace",
-                           timeout=timeout)          # shell=False 가 기본이다
-        return p.returncode, (p.stdout or "").strip(), _redact((p.stderr or "").strip()), meta
-    except subprocess.TimeoutExpired:
-        return 1, "", f"timeout {timeout}s", meta
-    except Exception as e:
-        return 1, "", type(e).__name__, meta
+    return 0, json.dumps({"argv": argv, **meta}, ensure_ascii=False), "", meta
 
 
 _REDACT = [
@@ -728,20 +721,33 @@ def _redact(text, limit=2000):
     return text[:limit]
 
 
+def _legacy_read_only(args):
+    """Exact small inspection grammar; unknown flags/verbs and all writes deny."""
+    if not all(isinstance(arg, str) for arg in args):
+        return False
+    args = list(args)
+    if args and args[-1] == "--json":
+        args.pop()
+    if tuple(args) in (("status",), ("account", "list"),
+                       ("orchestration", "worker-list")):
+        return True
+    if len(args) == 4 and args[0] == "orchestration":
+        selector = {"worker-list": "--run", "worker-show": "--dispatch",
+                    "worker-read": "--dispatch", "task-list": "--run",
+                    "task-show": "--task", "run-show": "--run"}.get(args[1])
+        return (selector is not None and args[2] == selector and
+                re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,199}", args[3]) is not None)
+    return False
+
+
 def run_orca(*args, timeout=120):
-    """orca 호출의 **유일한 실행 경로**.
+    """Legacy read-only inspection. All writes, including worker-stop, deny.
 
-    감사 HIGH-C (2026-09-04 재검증): dispatch wrapper 만 고쳤더니
-    run-create/task-create/gate-create/worktree set 예시가 여전히 자유 문자열을
-    셸 큰따옴표에 넣고 있었다. `$(...)`·`;`·백틱이 orca 보다 먼저 실행된다.
-    builder 만 주면 호출자가 다시 문자열로 합치므로, 실행·timeout·returncode·
-    redaction 까지 여기서 강제한다.
-
-    objective·spec·comment·question 같은 자유 문자열을 그냥 인자로 넘기면 된다.
-    셸을 거치지 않으므로 인용이 필요 없다.
-
-    반환: (returncode, stdout, stderr) — stderr 는 redact 된다.
+    Not the pinned/bounded dispatch transport or billing evidence. Never add
+    generation or arbitrary terminal commands to this compatibility list.
     """
+    if not _legacy_read_only(args):
+        return 2, "", LEGACY_EXECUTION_MESSAGE
     argv = ["orca", *[str(a) for a in args]]
     try:
         p = subprocess.run(argv, capture_output=True, text=True,
@@ -756,7 +762,8 @@ def run_orca(*args, timeout=120):
 
 def run_orca_json(*args, timeout=120):
     """run_orca + --json 파싱. 반환 (ok, result_or_error)."""
-    rc, out, err = run_orca(*args, "--json", timeout=timeout)
+    args = args if args and args[-1] == "--json" else (*args, "--json")
+    rc, out, err = run_orca(*args, timeout=timeout)
     if rc != 0:
         return False, {"code": "cli_failed", "rc": rc, "stderr": err}
     try:
@@ -820,68 +827,18 @@ def run_codex_exec(prompt, model="gpt-6-astra", effort="ultra",
     기본을 read-only 로 둔 이유: 이 경로에는 워크트리 격리가 없다.
     쓰기가 필요하면 워커로 띄우는 것이 맞다 — sandbox 를 올리기 전에 그걸 먼저 검토할 것.
     """
+    if not dry:
+        return 2, "", LEGACY_EXECUTION_MESSAGE
     argv = codex_exec_argv(model, effort, sandbox=sandbox, cwd_check=False)
-    if dry:
-        return 0, json.dumps({"argv": argv, "prompt_sha": spec_digest(prompt)},
-                             ensure_ascii=False), ""
-    try:
-        p = subprocess.run(resolve_bin(argv), input=prompt or "", capture_output=True, text=True,
-                           encoding="utf-8", errors="replace",
-                           cwd=cwd, timeout=timeout)      # shell=False
-    except subprocess.TimeoutExpired:
-        return 1, "", f"timeout {timeout}s"
-    except Exception as e:
-        return 1, "", type(e).__name__
-    return p.returncode, (p.stdout or "").strip(), _redact((p.stderr or "").strip())
+    return 0, json.dumps({"argv": argv, "prompt_sha": spec_digest(prompt)},
+                         ensure_ascii=False), ""
 
 
-# ── Orca effort 허용목록 실측 (비용 0) ──────────────────────────
+# Legacy bad-worktree probes are not metadata-only and can spawn a worker.
 def probe_orca_efforts(task_id, agent, model, efforts=None,
                        bad_worktree="name:zzz-nonexistent-probe"):
-    """워커를 띄우지 않고 Orca 의 effort 허용목록을 읽는다.
-
-    원리(2026-09-06 실측): worker-start 의 검증 순서가
-      consumer fence → task 존재 → **effort** → worktree 셀렉터 → 실제 기동
-    이다. 그래서 '존재하지 않는 worktree 이름'을 같이 주면
-      · effort 가 거부되면  invalid_argument "does not support effort X"
-      · effort 가 통과하면  selector_not_found
-    로 갈린다. 어느 쪽이든 워커는 뜨지 않으므로 **비용이 0** 이다.
-
-    task_id 는 실재하는 태스크여야 한다(없으면 task_not_found 로 먼저 잘린다).
-
-    ⚠ 모델 슬러그 자체는 Orca 가 검증하지 않는다(MODEL_ID_UNVALIDATED).
-      오타 난 슬러그도 low·medium·high·xhigh 는 '통과'로 나온다.
-      이 함수는 effort 만 재는 자다 — 모델 존재 확인에 쓰지 말 것.
-
-    반환: {effort: True(허용) | False(거부) | None(판정 불가)}
-    """
-    if efforts is None:
-        efforts = ["low", "medium", "high", "xhigh", "max", "ultra"]
-    out = {}
-    for ef in efforts:
-        args = ["orchestration", "worker-start", "--task", str(task_id),
-                "--worktree", bad_worktree, "--agent", str(agent)]
-        if model:
-            args += ["--model", str(model)]
-        args += ["--effort", str(ef)]
-        rc, so, se = run_orca(*args, "--json", timeout=120)
-        try:
-            d = json.loads(so)
-        except Exception:
-            out[ef] = None
-            continue
-        err = d.get("error") or {}
-        msg = err.get("message", "")
-        if "does not support effort" in msg:
-            out[ef] = False
-        elif err.get("code") == "selector_not_found":
-            out[ef] = True
-        elif d.get("ok"):
-            # 여기 오면 안 된다 — bad_worktree 가 실재하는 이름이라는 뜻이다.
-            out[ef] = "SPAWNED"
-        else:
-            out[ef] = None
-    return out
+    """Retired: an invalid worktree is not proof of zero execution/cost."""
+    raise RuntimeError(LEGACY_EXECUTION_MESSAGE)
 
 
 def prompt_prefix(lane, effort):
@@ -1045,6 +1002,8 @@ def validate_and_dispatch(assignments, task_of, worktree,
     task_of / spec_of: proc_id -> task_id / spec 을 주는 dict 또는 callable.
     반환 (ok, results, violations, notes)
     """
+    if not dry:
+        return False, [], [LEGACY_EXECUTION_DISABLED], [LEGACY_EXECUTION_MESSAGE]
     ok, v, notes = validate_plan(assignments, quota_checked_vendors, spawn_counts,
                                  quota_states=quota_states)
     if not ok:
@@ -1161,14 +1120,10 @@ def emit_md():
         L.append(f"| `{lane}` | {m['cli']} | `{m['top']}` | `{m['std']}` | {phys} | {style} "
                  f"| {disp[m.get('dispatch', 'orca')]} | {m['ctx']} |")
     L.append("")
-    L.append("**「Orca 실측 허용」은 2026-09-06 에 전수 측정한 값이다** — `python scripts/routing.py "
-             "--probe-efforts --task <실재 task_id>` 로 언제든 다시 잰다(워커가 안 뜨므로 비용 0). "
-             "`models_cache.json` 이 지원한다고 적는 값과 **다르다**: astra·daybreak 은 CLI 에서는 "
-             "`ultra`·`max` 가 돌지만 Orca 워커로는 `xhigh` 가 상한이다. "
-             "정책 두 단(최상위/표준) 밖의 값을 쓰려면 `allow_off_ladder=True` 를 명시한다. "
-             "⚠ **Orca 는 `--model` 문자열을 검증하지 않는다** — 존재하지 않는 슬러그도 "
-             "`high`·`xhigh` 면 통과하고, 워커가 뜬 뒤 codex 가 죽는다. "
-             "이 표의 레인 키가 사실상 유일한 오타 방어선이다.")
+    L.append("**과거 Orca 정책표이며 현재 실행·가격·계정 증거가 아니다.** "
+             "`--probe-efforts`는 worker-start를 사용하므로 차단됐다. "
+             "중앙 registry/runtime과 guarded adapter로 재검증한다. "
+             "`allow_off_ladder=True`는 오프라인 argv 검증 옵션일 뿐 실행 허가가 아니다.")
     L.append("")
     L.append("**오르카 기동은 2026-09-04 실측이다.** `--model` 은 Claude·Codex·Cursor 만 받는다 "
              "(orca help) — grok·gemini 는 `--agent` 만 주고 모델은 그 CLI 의 기본값이 쓰인다. "
@@ -1212,10 +1167,9 @@ def emit_md():
              + " | ".join(f"`{ceiling_for(l)}`" if LANES[l].get("dispatch") == "orca"
                           else "— (지정 불가)" for l in LANES) + " |")
     L.append("")
-    L.append("셋째 줄이 **물리적 상한**이다. 둘째 줄까지가 기본 경로고, 셋째 줄까지는 "
-             "`allow_off_ladder=True` 를 명시해야 열린다 — 원장에 `off_ladder` 로 남는다. "
-             "그 위(`ultra`·`max` on astra/daybreak)는 Orca 가 거부하므로 **없는 값**이다. "
-             "거기가 정말 필요하면 워커가 아니라 codex 직행이다 (`run_codex_exec`).")
+    L.append("이 사다리는 과거 transport 제약이다. 현재 모델/effort는 중앙 registry와 "
+             "fresh runtime의 교집합으로 정한다. `run_codex_exec` 실호출은 차단됐으며 "
+             "상한 초과를 direct CLI로 우회하지 않는다.")
     L.append("")
     L.append(f"코디네이터 레인 = **`{COORDINATOR[0]}` @{COORDINATOR[1]}** — 종합(D)과 벤더가 달라야 한다. "
              "워커 겸임은 클래스와 무관하게 경고한다(D-28 #6).")
@@ -1244,39 +1198,9 @@ def emit_md():
 
 
 def _cli_probe(argv):
-    """--probe-efforts --task <task_id> [--lane <lane>] — Orca 허용목록 재측정."""
-    if "--task" not in argv:
-        print("사용법: routing.py --probe-efforts --task <실재 task_id> [--lane <lane>]")
-        print("  · task 는 이 터미널에 바인딩된 Run 의 실재 태스크여야 한다")
-        print("    (orca orchestration run-create → task-create 로 하나 만들면 된다)")
-        print("  · 워커는 뜨지 않는다. 비용 0.")
-        return 2
-    task = argv[argv.index("--task") + 1]
-    only = argv[argv.index("--lane") + 1] if "--lane" in argv else None
-    targets = [only] if only else list(LANES)
-    print(f"task={task} · 워커를 띄우지 않고 effort 허용목록만 읽는다\n")
-    for lane in targets:
-        m = LANES[lane]
-        if m.get("dispatch") != "orca":
-            # --effort 는 --model 을 요구하는데 이 레인들은 --model 자체를 거부한다.
-            # 즉 Orca 로는 effort 를 지정할 방법이 없다 — 그 CLI 의 기본값이 쓰인다.
-            print(f"{lane:26s} N/A — Orca 가 --model 을 거부하는 레인(효력 있는 effort 지정 불가)")
-            continue
-        model = slug_for(lane, m["std"])
-        res = probe_orca_efforts(task, m["cli"], model)
-        cells = " ".join(f"{k}={'O' if v is True else 'X' if v is False else str(v)}"
-                         for k, v in res.items())
-        measured = {k for k, v in res.items() if v is True}
-        if m["effort_style"] == "prompt-keyword":
-            # claude 의 top/std 는 프롬프트 키워드 라벨이고 와이어 값은 항상 max 다.
-            # 비교 대상은 표가 아니라 '와이어 값이 아직 살아 있는가' 하나뿐이다.
-            mark = "와이어 max 유효" if "max" in measured else "⚠ 와이어 max 가 거부된다"
-        else:
-            declared = set(orca_efforts_for(lane))
-            mark = ("일치" if declared == measured
-                    else f"⚠ 불일치 표={sorted(declared)} 실측={sorted(measured)}")
-        print(f"{lane:26s} {cells}   [{mark}]")
-    return 0
+    """Retired CLI entry; no argument can turn a spawn probe into metadata."""
+    print(LEGACY_EXECUTION_MESSAGE)
+    return 2
 
 
 if __name__ == "__main__":
@@ -1300,4 +1224,4 @@ if __name__ == "__main__":
             print(f"  {l:26s} 정책 {LANES[l]['std']}/{LANES[l]['top']:9s} "
                   f"Orca 상한 {ceiling_for(l)}")
         print("--emit-md 로 SKILL.md 표를, --json 으로 기계 판독본을 낸다")
-        print("--probe-efforts --task <id> 로 Orca 허용목록을 다시 잰다 (비용 0)")
+        print("--probe-efforts 는 차단됨; central runtime/guarded adapter를 사용한다")

@@ -103,20 +103,8 @@ LIVE_STALE_SEC = 24 * 3600      # D-28 #13③ — 실호출 결과가 이보다 
 
 
 def read_live(now=None):
-    """G12 실호출 결과(adversarial_eval.py --preflight 가 쓴 state/eval-vendors.json).
-
-    반환 {"at", "age_sec", "stale", "vendors": {vendor: True|False}}.
-    파일이 없거나 깨지면 vendors 가 비고 stale=True — 막지 않고 '미확인'으로 표시한다.
-    """
-    now = time.time() if now is None else now
-    try:
-        with open(LIVE_PATH, encoding="utf-8") as fh:
-            d = json.load(fh)
-        age = now - float(d.get("at_epoch") or 0)
-        vendors = {k: bool((v or {}).get("ok")) for k, v in (d.get("vendors") or {}).items()}
-        return {"at": d.get("at"), "age_sec": age, "stale": age > LIVE_STALE_SEC, "vendors": vendors}
-    except Exception:
-        return {"at": None, "age_sec": None, "stale": True, "vendors": {}}
+    """Legacy booleans lack account/cost/claim evidence; never read as authority."""
+    return {"at": None, "age_sec": None, "stale": True, "vendors": {}}
 
 
 def lane_state(vendor, quota):
@@ -325,6 +313,7 @@ def main(out_path=None, argv=None):
     if fable_pct is not None and fable_pct >= 100:
         qwarn.append(f"Claude Fable 주간 {fable_pct}% — fable 을 워커로 쓰지 않는다")
 
+    qwarn.insert(0, "아래 레인은 과거 정책 예시이며 실행 허가가 아닙니다. 중앙 registry/runtime·예산 검증이 필요합니다.")
     warn_html = (f'<p class="warn">⚠ {esc(" · ".join(qwarn))}</p>') if qwarn else ""
     quota_html = (f'<section class="quota"><h2>4벤더 쿼터 '
                   f'<span class="note">{esc(now)} 기준 · orca account list</span></h2>'
@@ -361,7 +350,7 @@ def main(out_path=None, argv=None):
         f"<td><span class='tag lane'>{esc(c_lane or '—')}</span>"
         + (f"<br><span class='note'>{esc(c_note)}</span>" if c_note else "")
         + f"</td><td class='note'>{c_alt} · codex 폴백 없음</td></tr>")
-    live_note = ("실호출 결과 없음 — adversarial_eval.py --preflight 먼저" if live["at"] is None
+    live_note = ("실가용성 미확인 — legacy preflight 차단, 중앙 계정·비용·실행 증거 필요" if live["at"] is None
                  else f"실호출 {live['at']}" + (" · 24시간 초과 — 미확인" if live["stale"] else ""))
 
     fixed_rows = "".join(
@@ -481,26 +470,19 @@ def main(out_path=None, argv=None):
       if(on.length){L.push('추가 조건: '+on.map(function(k){return OPTLABEL[k];}).join(' · '));}
       if(auto.length){L.push('');L.push('안 고른 축('+auto.join(', ')+')은 네가 판단하고 이유를 밝혀줘.');}
       L.push('');
-      L.push('── 라우팅 (v2.2 · 정본 = scripts/routing.py) ──');
-      L.push('기본 레인: '+Object.keys(DEFAULTS).map(function(c){return c+'='+DEFAULTS[c];}).join(' · '));
+      L.push('── 중앙 라우팅 (orchestrate.py + model-registry.json) ──');
+      L.push('과거 레인 예시(실행 허가 아님): '+Object.keys(DEFAULTS).map(function(c){return c+'='+DEFAULTS[c];}).join(' · '));
       L.push('쿼터: '+QUOTA);
       L.push('');
       L.push('vibe 스킬대로 진행할 것:');
-      L.push('1) 프리플라이트 — 4벤더 쿼터 각각 확인(미확인은 0%로 간주 금지)');
-      L.push('2) 공정을 클래스(A/A-verify/B/C/D/N)로 분류하고 클래스별 레인을 배정 — 판정이 섞인 대조는 A-verify(읽기 전용)');
-      L.push('3) 태스크마다 반증질문 예/아니오를 정하고 그에 따라 effort 를 고른다(미응답=아니오)');
-      L.push('4) 디스패치는 routing.validate_and_dispatch() 로만 — 계획 검증을 통과해야 실행된다');
-  L.push('   (effort 누락·금지 레인·필수 게이트 부재·4벤더 쿼터 미확인을 코드가 막는다)');
-      L.push('   재시도(--retry-of)·수동 재배정 전에는 routing.revalidate_for_retry() 로 다시 검증(G13)');
-      L.push('5) 탐색 슬롯 1개를 routing.explore_candidates() 후보 중 무작위로 2순위 레인에 배정(explore:true)');
-      L.push('6) 보안 2종은 서로 다른 모델(__SECFIXED__ — D-260904-01)');
-      L.push('   코딩은 PROCESS_LANES["coding"](claude 전용)만 — 게이트 벤더가 사용 금지면 코딩을 빼고 축소안(D-28 #5·#14)');
-      L.push('   effort 는 Orca 실측 허용목록 안에서만 — astra·daybreak 은 xhigh 가 상한이고');
-      L.push('   ultra/max 는 codex 직행(run_codex_exec)으로만 닿는다. 정책 밖 값은 off_ladder 명시');
-      L.push('7) worker_done 수확·release → 보드 갱신');
-      L.push('8) 결정 시트 생성(make_decision_sheet.py) → Simon 이 [결과 저장] — 이 단계 없이 라운드 종료 금지(G14)');
-      L.push('9) 마지막에 원장 append+commit(ledger.py) — 데몬 만들지 말 것');
-      L.push('착수 전 분류 결과·예상 워커 수·탐색 슬롯이 뭔지 한 줄로 알릴 것.');
+      L.push('1) 현재 /vibe와 orchestration 계약을 읽고 필요한 스킬·소프트웨어·의존·검증을 계획한다.');
+      L.push('2) 중앙 registry와 fresh runtime으로 모델/effort/계정/과금/쿼터를 확인한다. 미확인은 0이 아니다.');
+      L.push('3) 추가 과금 기본 $0. Grok HOLD 등 사용자 제한을 유지하고 비용 미확인 경로는 보류한다.');
+      L.push('4) orchestrate.py plan → run_state.py의 동일 DB/예약 → 지원되는 execute_orca.py adapter만 실발주한다.');
+      L.push('5) legacy live preflight·raw worker-start·direct CLI는 차단됐다. 미지원 transport를 우회하지 않는다.');
+      L.push('6) 검증된 선행 결과를 기다린다. 수락/비용 불명은 재발주하지 않고 원래 핸들을 조회한다.');
+      L.push('7) 독립 리뷰·산출물 확인·실비용 정산·결정 시트/원장을 완료한다. dry는 실제 품질/비용 측정이 아니다.');
+      L.push('착수 전 계획과 미확인·보류 항목을 한 줄로 알릴 것. 데몬을 만들지 않는다.');
       document.getElementById('prompt').textContent=L.join('\\n');
     }
     function fallback(t){document.getElementById('fb').style.display='block';
@@ -533,17 +515,7 @@ def main(out_path=None, argv=None):
         f"{VENDOR_LABEL[v]} " + ("미확인" if quota[v]["state"] == "unknown" else f"{quota[v]['pct']}%")
         for v in routing.VENDORS)
 
-    # 보안 2종 고정 배정은 routing 정본에서 읽는다 — 여기 손으로 적으면 곧 어긋난다
-    # (실제로 어긋나 있었다: 표는 daybreak@xhigh 인데 이 줄은 sol@ultra 였다).
-    _sec = " / ".join(
-        f"{routing.fixed_for(p)[0]}@{routing.fixed_for(p)[1]}"
-        for p in ("security-artifact-gate", "security-bizlogic-2nd"))
-    _sec_vendors = sorted({routing.LANES[routing.fixed_for(p)[0]]["vendor"]
-                           for p in ("security-artifact-gate", "security-bizlogic-2nd")})
-    secfixed = f"{_sec}, 벤더 {'·'.join(_sec_vendors)}"
-
-    JS = (JS.replace("__SECFIXED__", secfixed)
-            .replace("__MULTI__", json.dumps({k: True for k in MULTI_IDS}, ensure_ascii=False))
+    JS = (JS.replace("__MULTI__", json.dumps({k: True for k in MULTI_IDS}, ensure_ascii=False))
             .replace("__OPTLABEL__", json.dumps(dict(OPTIONS), ensure_ascii=False))
             .replace("__DEFAULTS__", json.dumps(defaults, ensure_ascii=False))
             .replace("__QUOTA__", json.dumps(qsummary, ensure_ascii=False)))

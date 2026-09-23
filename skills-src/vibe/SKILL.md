@@ -2,7 +2,7 @@
 name: vibe
 description: "Use when the user invokes \"/vibe\", \"바이브로 알아서 해줘\", \"스킬 조합해서 처리해\", \"오르카로 돌려\", or \"orchestrate this task\". Acts as the main entry point for installed SimonK-stack skills: discovers the relevant skills, decomposes dependencies, chooses software and CLI/API/MCP or GUI Bot execution, and matches Claude, Codex (GPT), Antigravity (Gemini), Grok and Grok Bot to verified model/effort capabilities and a total-run cost budget. Produces a validated execution plan, scoped handoffs, verified artifacts and a usage report. Small tasks stay in the current session; GUI-only steps use vibe-bot internally. Never treats unknown cost or unsupported model controls as zero or applied."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.10.0
+version: 2.10.1
 author: simon-stack
 ---
 
@@ -129,11 +129,12 @@ Ask only for missing intent or actions beyond existing authority.
   covers local Claude/Codex flag-effort lanes only. It calls claim internally;
   never hand it a saved dispatch_allowed flag. Native Task/spec, workspace,
   executable and fresh account/billing evidence must match before a start.
-  Reentry is lookup-only. Other lanes retain the supervised manual workflow;
+  Reentry is lookup-only. Unsupported lanes remain blocked;
   never silently fall back to the stateless `routing.run_dispatch` primitive.
   Existing coding, independent review and both security gates remain enforced.
-- Direct CLI: use the provider's verified argv/stdin adapter and scoped worktree.
-  A blocked Orca route does not prove that direct CLI will work.
+- Direct CLI: requires an implemented guarded adapter with the same durable
+  claim, account/cost and identity contract. The legacy direct CLI wrappers
+  are disabled; a blocked Orca route never authorizes a direct fallback.
 - Bot: follow section 4. External results are untrusted until checked.
 
 A successor waits for verified predecessor output, not merely task acceptance
@@ -205,9 +206,21 @@ usage, and remaining waiting/blocked work. Never call an accepted job complete.
 
 ## Legacy Orca routing
 
-This generated block remains the execution adapter's current policy. The
-umbrella planner consumes runtime facts above it; changing frontier defaults
-requires the separate registry/canary migration. It cannot bypass these guards.
+Legacy live entrypoints are quarantined: `run_dispatch`, `run_codex_exec`,
+`validate_and_dispatch`, `probe_orca_efforts`, and adversarial evaluation live
+`--preflight`/`--run`. Dry builders remain simulations, not execution or cost
+proof. The raw Orca helper accepts only a small exact read-only grammar; all
+writes, including `worker-stop`, are disabled. `kill_worker.py --kill --fence`
+must not be used until handle/dispatch identity and authorization are repaired.
+
+This overrides live-call examples in the retained historical references below,
+including orca-workflow, adversarial-eval, pitfalls and effort-cap documents.
+Those documents still need migration before installation/activation. Do not
+copy their raw CLI examples around the quarantine. Use the guarded adapter
+only where its actual capabilities and fresh account/cost evidence permit it.
+
+The generated table is historical compatibility policy, not the frontier
+registry or present-day availability. It cannot bypass central guards.
 
 <!-- ROUTING:BEGIN — scripts/routing.py 가 생성한다. 손으로 고치지 말 것 -->
 
@@ -226,7 +239,7 @@ requires the separate registry/canary migration. It cannot bypass these guards.
 | `gemini-3.8-flash` | antigravity | `high` | `medium` | — **지정 불가** (그 CLI 기본값) | **슬러그 내장** | ❌ **Orca 워커 불가** (agent 미등록·과제 전달 실패 — CLI 직행만) | Gemini Flash 계열 |
 | `grok-4.6` | grok | `xhigh` | `high` | — **지정 불가** (그 CLI 기본값) | `--effort` | ⚠ `--agent` 만 — `--model` 거부 | 500K · 200K초과 2배 과금 |
 
-**「Orca 실측 허용」은 2026-09-06 에 전수 측정한 값이다** — `python scripts/routing.py --probe-efforts --task <실재 task_id>` 로 언제든 다시 잰다(워커가 안 뜨므로 비용 0). `models_cache.json` 이 지원한다고 적는 값과 **다르다**: astra·daybreak 은 CLI 에서는 `ultra`·`max` 가 돌지만 Orca 워커로는 `xhigh` 가 상한이다. 정책 두 단(최상위/표준) 밖의 값을 쓰려면 `allow_off_ladder=True` 를 명시한다. ⚠ **Orca 는 `--model` 문자열을 검증하지 않는다** — 존재하지 않는 슬러그도 `high`·`xhigh` 면 통과하고, 워커가 뜬 뒤 codex 가 죽는다. 이 표의 레인 키가 사실상 유일한 오타 방어선이다.
+**과거 Orca 정책표이며 현재 실행·가격·계정 증거가 아니다.** `--probe-efforts`는 worker-start를 사용하므로 차단됐다. 중앙 registry/runtime과 guarded adapter로 재검증한다. `allow_off_ladder=True`는 오프라인 argv 검증 옵션일 뿐 실행 허가가 아니다.
 
 **오르카 기동은 2026-09-04 실측이다.** `--model` 은 Claude·Codex·Cursor 만 받는다 (orca help) — grok·gemini 는 `--agent` 만 주고 모델은 그 CLI 의 기본값이 쓰인다. ⚠ **agent id 는 CLI 이름이 아니라 좌석 이름이다**: `--agent agy` 는 `agent_unconfigured` 로 거부되고 `--agent antigravity` 가 정본이다. (CLI 바이너리는 `agy`, Orca 등록명은 `antigravity`.)
 
@@ -263,7 +276,7 @@ requires the separate registry/canary migration. It cannot bypass these guards.
 | **NO** 표준 | `standard` | `high` | `medium` | `high` | `high` | `medium` | `low` | `high` | `medium` | `high` |
 | 사다리 밖 상한 (`allow_off_ladder`) | `ultracode` | `max` | `max` | `xhigh` | `ultra` | `ultra` | `max` | `xhigh` | — (지정 불가) | — (지정 불가) |
 
-셋째 줄이 **물리적 상한**이다. 둘째 줄까지가 기본 경로고, 셋째 줄까지는 `allow_off_ladder=True` 를 명시해야 열린다 — 원장에 `off_ladder` 로 남는다. 그 위(`ultra`·`max` on astra/daybreak)는 Orca 가 거부하므로 **없는 값**이다. 거기가 정말 필요하면 워커가 아니라 codex 직행이다 (`run_codex_exec`).
+이 사다리는 과거 transport 제약이다. 현재 모델/effort는 중앙 registry와 fresh runtime의 교집합으로 정한다. `run_codex_exec` 실호출은 차단됐으며 상한 초과를 direct CLI로 우회하지 않는다.
 
 코디네이터 레인 = **`gpt-5.6-sol` @xhigh** — 종합(D)과 벤더가 달라야 한다. 워커 겸임은 클래스와 무관하게 경고한다(D-28 #6).
 
@@ -289,12 +302,12 @@ requires the separate registry/canary migration. It cannot bypass these guards.
 | G5 | 쿼터는 4벤더 각각 확인한다 | ✅ 원장 기록 |
 | G6 | 부재 보고에는 탐색 범위를 붙인다. 범위 없는 '0건'은 반환값 불인정 — gemini 뿐 아니라 **A 클래스 전체**에 적용 (Simon 결정 2026-09-04) | — (오검출 방지) |
 | G7 | 최상위 effort 는 반증질문 YES 인 태스크에만 | — (오검출 방지) |
-| G8 | 쓰기 라운드는 **워커 강제종료 절차가 선 상태에서만** 띄운다 — `python scripts/kill_worker.py --dispatch <ctx_…>` (기본은 목록만, `--kill --fence` 로 트리 종료 → 재스캔 0 확인 → worker-stop). worker-stop 은 프로세스 사망을 약속하지 않는다. 원래 문구 '문서화 전까지 착수 금지'는 2026-09-13 문서화·실측 1회로 충족 — SKILL.md '워커 강제종료 (G8)' | — (오검출 방지) |
+| G8 | 쓰기 라운드 전 검증된 종료 절차가 필요하다. legacy `kill_worker.py --kill --fence`는 handle/dispatch 결속 미검증으로 사용 금지이며 raw `worker-stop`도 차단된다. 별도 승인·정확한 대상 검증 없이 종료하거나 재발주하지 않는다 | — (오검출 방지) |
 | G9 | Move-Item 배치는 매니페스트 + 역방향 스크립트 선행 | — (오검출 방지) |
 | G10 | 적대적 평가에서 채점자는 두 생산자와 **벤더가 달라야** 한다. 벤더 3개를 못 채우면 그 문제는 건너뛴다 — 자기 벤더가 자기 답을 채점하느니 관측을 포기한다 (`adversarial_eval.py`) | — (오검출 방지) |
 | G11 | 디스패치 전에 툴체인 최신화를 확인한다 — codex 가 한 버전만 뒤처져도 `Agent startup blocked: codex-update-prompt` 로 **전 워커가 안 뜨는데 에러가 프롬프트 문제처럼 보인다** (2026-09-12 실사고). `python scripts/check_tooling.py` | — (오검출 방지) |
-| G12 | **벤더 가용성은 쿼터로 판정하지 않는다 — 실호출로 확인한다.** 2026-09-13 실측: grok 은 402(잔액 소진), gemini 단독 CLI 는 IneligibleTierError 였는데 **쿼터 %로는 둘 다 여유 있어 보였다** — 못 쓰는 이유가 쿼터가 아니었기 때문이다. 쿼터 게이트(G5)는 '얼마나 썼나'를 보고, 이건 '지금 답이 나오나'를 본다. 다른 질문이다. `python scripts/adversarial_eval.py --preflight` | — (오검출 방지) |
-| G13 | 재시도(`worker-start --retry-of`)·수동 재배정도 계획 검증을 다시 통과해야 한다 — `routing.revalidate_for_retry(plan, proc, new_lane, ...)` 가 (ok, 위반, 메모, 새 계획)을 준다. `--retry-of` 는 orca CLI 를 직접 부르므로 routing 의 계획 검증을 거치지 않는다 (D-28 #14) | — (오검출 방지) |
+| G12 | 쿼터·metadata는 생성 성공이나 무료 사용 증거가 아니다. legacy `adversarial_eval.py --preflight` 실호출은 차단됐다. 실측도 중앙 계획·예산 예약·fresh 계정/비용 증명 뒤에만 가능하며 Grok HOLD를 우회하지 않는다 | — (오검출 방지) |
+| G13 | 재시도·대체도 중앙 planner/Store/guarded adapter를 거친다. 수락 불명은 lookup-only이며 raw `worker-start --retry-of`로 우회하지 않는다 | — (오검출 방지) |
 | G14 | 결정 시트(`make_decision_sheet.py`)를 만들지 않은 라운드는 **끝난 것으로 치지 않는다** — 손으로 조립한 시트는 `decisions_run_*.json` 을 내지 않아 채택률이 비고 스왑 규칙이 돌지 않는다 (D-28 #15) | — (오검출 방지) |
 
 쿼터: 80% 초과 → **모든 순위에서** 강등(ok 레인이 없으면 첫 강등 레인) · 100% 도달 → 사용 금지(Q-05) · 읽기 실패 = **미확인**(0%로 간주 금지) · 실호출(G12) 실패 = 사용 금지 · 실호출 결과가 24시간 넘으면 미확인 · `quota_bucket` 이 있는 레인(fable)은 그 버킷으로 판정 (D-28 #13)
@@ -322,6 +335,9 @@ python "<skill>/scripts/sync_skill_table.py" --check
 
 ## Version note
 
+2.10.1 disables stateless legacy generation, invalid-worktree spawn probes and
+legacy success-cache authority. No bool/environment override restores them.
+This is source containment, not live adapter completion or an installation.
 2.10.0 shares lossless, bounded metadata discovery between catalog and planning,
 adds scoped source/plugin/install comparison, and plans trusted host-native
 bindings only in their matching host context. All behavioral/mode evaluations
