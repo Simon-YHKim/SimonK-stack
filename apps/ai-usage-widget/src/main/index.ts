@@ -1,9 +1,10 @@
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { app, ipcMain, net, powerMonitor, screen, session, shell } from 'electron';
+import { app, ipcMain, net, Notification, powerMonitor, screen, session, shell } from 'electron';
+import { PROVIDER_NAME_KEYS, resolveLocale, t } from '../shared/i18n';
 import { INVOKE_CHANNELS } from '../shared/ipc';
-import type { AppStateSnapshot } from '../shared/types';
+import { PROVIDER_TRAITS, type AppStateSnapshot } from '../shared/types';
 import { parseLaunchArgs, type LaunchArgs } from './app/args';
 import { createAppController, type AppController } from './app/controller';
 import { SmokeTracker } from './app/smoke';
@@ -139,6 +140,8 @@ async function start(args: LaunchArgs, isolated: boolean, devServerUrl: string |
   });
 
   let tray: AppTray | null = null;
+  // Keep one native object per account so Action Center clicks still work after the toast times out.
+  const authNotices = new Map<string, Notification>();
   const controller = createAppController({
     store,
     registry,
@@ -155,6 +158,30 @@ async function start(args: LaunchArgs, isolated: boolean, devServerUrl: string |
       tracker?.markReady(request, Date.now());
     },
     onSnapshot: (snapshot) => tray?.update(trayStateOf(snapshot, autostart.supported)),
+    onAuthRequired: (account) => {
+      if (tracker !== null || !Notification.isSupported()) return;
+      const locale = resolveLocale(store.getSettings().language, app.getLocale());
+      const provider = t(locale, PROVIDER_NAME_KEYS[account.provider]);
+      const notice = new Notification({
+        title: `${provider} · ${t(locale, 'state_loggedOut')}`,
+        body: `${account.label} · ${t(locale, 'trayAccounts')}`,
+        silent: true,
+      });
+      authNotices.get(account.id)?.close();
+      authNotices.set(account.id, notice);
+      notice.on('click', () => {
+        windows.showPopup('accounts', true);
+        const current = controllerRef;
+        const loginState = current?.snapshot().accounts.find((entry) => entry.id === account.id)?.loginState;
+        if (loginState !== 'logged-out' || !PROVIDER_TRAITS[account.provider].widgetLogin) return;
+        try {
+          current?.startLogin(account.id);
+        } catch (error) {
+          logger.warn('auth-required login start failed', { provider: account.provider, error });
+        }
+      });
+      notice.show();
+    },
   });
   controllerRef = controller;
   controller.setEffectivePlacementMode(initialMode);
@@ -227,6 +254,8 @@ async function start(args: LaunchArgs, isolated: boolean, devServerUrl: string |
       powerMonitor.removeListener('on-battery', onBattery);
       powerMonitor.removeListener('on-ac', onAc);
       controller.stop();
+      for (const notice of authNotices.values()) notice.close();
+      authNotices.clear();
       unsubscribeTheme();
       theme.dispose();
       unregisterIpc();

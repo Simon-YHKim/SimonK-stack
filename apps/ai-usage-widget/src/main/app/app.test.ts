@@ -44,6 +44,7 @@ interface Harness {
   controller: ReturnType<typeof createAppController>;
   windows: ReturnType<typeof fakeWindows>;
   calls: string[];
+  authRequired: { id: string; provider: ProviderId; label: string }[];
   logins: { emit: (event: LoginEvent) => void; signal: AbortSignal }[];
   opened: string[];
   writes: unknown[];
@@ -172,6 +173,7 @@ async function setup(
   }
   if (config.savedOpenAtLogin !== undefined) await store.saveSettings({ ...store.getSettings(), openAtLogin: config.savedOpenAtLogin });
   const calls: string[] = [];
+  const authRequired: Harness['authRequired'] = [];
   const logins: Harness['logins'] = [];
   const bridgeCalls: string[] = [];
   const registry = createProviderRegistry(
@@ -227,11 +229,12 @@ async function setup(
     profilesRoot,
     logger: nullLogger,
     externalLinks: {},
+    onAuthRequired: (account) => authRequired.push(account),
     newAccountId: () => `n${(counter += 1)}`,
     scheduler: { manualMinIntervalMs: 0, random: () => 0.5, timeoutMs: 2_000 },
   });
   controllers.push(controller);
-  return { controller, windows, calls, logins, opened, writes, profilesRoot, dir, store };
+  return { controller, windows, calls, authRequired, logins, opened, writes, profilesRoot, dir, store };
 }
 
 describe('sanitizeSnapshot', () => {
@@ -344,6 +347,41 @@ describe('app controller', () => {
     expect(h.calls).not.toContain('claude:usage:c1');
     h.controller.markStale();
     await until(() => h.windows.last()?.usage[1]?.state === 'stale');
+  });
+
+  it('alerts once per confirmed signed-out account across providers', async () => {
+    const providers: ProviderId[] = ['claude', 'codex', 'grok', 'antigravity'];
+    const h = await setup({
+      accounts: providers.map((provider) => ({ id: provider, provider })),
+      adapters: Object.fromEntries(providers.map((provider) => [provider, { loggedIn: false }])),
+    });
+    await h.controller.start();
+    await until(() => h.authRequired.length === providers.length);
+    expect(h.authRequired.map(({ provider }) => provider)).toEqual(providers);
+
+    await h.controller.refreshNow(null);
+    await until(() => h.calls.filter((call) => call.endsWith(':identity:antigravity')).length >= 2);
+    await until(() => h.windows.last()?.refresh.inFlight === false);
+    expect(h.authRequired).toHaveLength(providers.length);
+  });
+
+  it('alerts again only after an account recovers and later signs out', async () => {
+    const h = await setup({
+      accounts: [{ id: 'a1', provider: 'codex' }],
+      adapters: {
+        codex: {
+          usage: (account, call) =>
+            call === 2 ? okUsage(account) : { ...okUsage(account), state: 'logged-out', windows: [], errorCode: 'login-expired' },
+        },
+      },
+    });
+    await h.controller.start();
+    await until(() => h.authRequired.length === 1);
+    await h.controller.refreshNow('a1');
+    await until(() => h.windows.last()?.usage[0]?.state === 'ok');
+    await h.controller.refreshNow('a1');
+    await until(() => h.authRequired.length === 2);
+    expect(h.authRequired.map(({ id }) => id)).toEqual(['a1', 'a1']);
   });
 
   it('adds and removes accounts through the adapters, persisting without profile paths', async () => {
