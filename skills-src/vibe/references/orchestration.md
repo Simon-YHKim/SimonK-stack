@@ -67,6 +67,52 @@ For Orca supply proc/class per node plus quota_checked_vendors and quota_states
 in runtime. The existing complete-plan guard must pass. Legacy gates remain
 in effect; newly announced model IDs cannot bypass them through this helper.
 
+### One-shot metadata collection
+
+```text
+python "<skill>/scripts/runtime_collect.py" --surface codex --surface claude
+python "<skill>/scripts/runtime_collect.py" --surface grok --surface antigravity
+```
+
+Select surfaces explicitly. The command prints one redacted JSON snapshot to
+stdout and exits 2 if any selected surface fails. It does not save credentials,
+install software, dispatch work or start a daemon. Exit 0 means the metadata
+request succeeded, not that a model is available or a task was completed.
+Account/profile references are opaque hashes, not authentication credentials;
+do not publish them as anonymous identifiers. Raw provider errors are omitted.
+
+| Surface | Read-only observation | Not established |
+| --- | --- | --- |
+| Codex | Same app-server connection: profile match, account before/after, model/list, rate-limit and credit buckets | Generation, model-to-quota binding, disabled overage/API fallback |
+| Claude | auth status --json; observed identity and subscription type | Model access, quota, per-model inclusion, extra usage |
+| Grok | ACP billing; alternate method only after method-not-found | Missing account identity or overage flag; no session/prompt |
+| Antigravity | Version-gated /usage, successful command, zero turns and all token counters zero | Account identity, model access and billing authorization |
+
+Antigravity accepts only locally measured /usage contract versions. An unknown
+version stops before sending the slash command. A nonzero turn/token response
+fails closed without retry; it cannot undo usage already reported by that CLI.
+Grok billing metadata may be read while generation is suspended, but quota
+recovery must be observed again before reconsidering a route. A reset timestamp
+is not proof of recovery. Grok Bot has no collector here and never inherits the
+CLI account/quota. Claude Widget bridge data is not joined without identity and
+bucket-binding evidence. No provider's subscription label proves a free model.
+
+Only models actually returned by Codex model/list and present in the registry
+become candidates; this is not an exhaustive cross-provider model inventory.
+All collected candidates have available=false, billing.verified=false, unknown
+model quota and no effective model/effort. Keep those gates until separate
+evidence establishes them. The planner reads the central registry by default;
+API capabilities and CLI-reported efforts are distinct constraints.
+
+The collector uses an allowlisted child environment and a temporary working
+directory. It bounds stdout, writes and process lifetime. Windows probes start
+suspended inside a kill-on-close Job Object before their code can run; POSIX
+probes own a process group. Cleanup targets only the probe's own tree, including
+descendants that outlive its root. Server tool/auth requests are refused, not
+executed. An unavailable containment primitive fails closed. Offline subprocess
+tests cover timeouts, inherited pipes, hostile request IDs and environment
+filtering. These are transport-safety tests, not provider generation canaries.
+
 ## Budget and selection
 
 Default: balanced, USD 0 additional billing, two attempts, two concurrent jobs.

@@ -2,7 +2,7 @@
 name: vibe
 description: "Use when the user invokes \"/vibe\", \"바이브로 알아서 해줘\", \"스킬 조합해서 처리해\", \"오르카로 돌려\", or \"orchestrate this task\". Acts as the main entry point for installed SimonK-stack skills: discovers the relevant skills, decomposes dependencies, chooses software and CLI/API/MCP or GUI Bot execution, and matches Claude, Codex (GPT), Antigravity (Gemini), Grok and Grok Bot to verified model/effort capabilities and a total-run cost budget. Produces a validated execution plan, scoped handoffs, verified artifacts and a usage report. Small tasks stay in the current session; GUI-only steps use vibe-bot internally. Never treats unknown cost or unsupported model controls as zero or applied."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.6.0
+version: 2.7.0
 author: simon-stack
 ---
 
@@ -68,6 +68,12 @@ same legacy process (for example coding).
 Supply a runtime snapshot from observed local catalogs and transport probes.
 Model IDs, provider-supported efforts, transport-supported efforts, billing
 mode, quota, lifecycle and observation evidence are data, not guesses.
+Use `scripts/runtime_collect.py --surface <name>` for explicit, one-shot CLI
+metadata collection; repeat `--surface` for other providers. Read the runtime
+snapshot section of the orchestration contract for its safety boundaries.
+Metadata-only candidates stay unavailable until separate generation, billing,
+model-to-quota and task-policy evidence is verified. This collector does not
+dispatch tasks, change payment settings or prove zero-cost model access.
 Do not turn a newly announced model into an active route without availability
 and transport evidence. Do not inherit an old model's effort mapping blindly.
 
@@ -280,6 +286,8 @@ requires the separate registry/canary migration. It cannot bypass these guards.
 ## Verification and references
 
 ```text
+python "<skill>/scripts/test_runtime_collect.py"
+python "<skill>/scripts/test_model_registry.py"
 python "<skill>/scripts/test_orchestrate.py"
 python "<skill>/scripts/selftest.py"
 python "<skill>/scripts/sync_skill_table.py" --check
@@ -294,6 +302,8 @@ python "<skill>/scripts/sync_skill_table.py" --check
 
 ## Version note
 
-2.6.0 adds the main skill entry point, discovered skill composition, five
-execution surfaces, dependency preflight, total-run cost bounds and the
-vibe-bot handoff/result contract. Existing Orca model defaults are unchanged.
+2.7.0 adds the central model registry and one-shot CLI metadata collection to
+the 2.6.0 umbrella planner. It preserves unknown account/billing facts, isolates
+probe processes and keeps metadata-only routes unavailable. Provider dispatch,
+persistent budget reservation, deployment parity and all-skill behavioral
+evaluation are separate unfinished work. Existing Orca defaults are unchanged.
