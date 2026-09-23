@@ -9,17 +9,19 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from datetime import datetime, timedelta, timezone
 
 SCRIPT = Path(__file__).resolve().parents[1] / "dispatch_wave.py"
 ROOT = Path(__file__).resolve().parents[4]
 CORE = ROOT / "skills-src/vibe/scripts"
 sys.path.insert(0, str(CORE))
-import execute_orca
-import orchestrate
-import run_state
-from test_execute_orca import FakeOrca
-from test_orchestrate import candidate, fixture_registry, step
+with patch("subprocess.Popen", side_effect=AssertionError("Process launch during test import")):
+    import execute_orca
+    import orchestrate
+    import run_state
+    from test_execute_orca import FakeOrca
+    from test_orchestrate import candidate, fixture_registry, step
 
 
 class TaggedOrca(FakeOrca):
@@ -44,6 +46,12 @@ class TaggedOrca(FakeOrca):
 
 class WaveTests(unittest.TestCase):
     def setUp(self):
+        # Shell integration has its own explicit opt-in below; ordinary unit
+        # cases never launch any child, even after an accidental real import.
+        if self._testMethodName != "test_actual_powershell_preview_and_rejected_dispatch":
+            process_guard = patch("subprocess.Popen", side_effect=AssertionError("Offline wave: no process launch"))
+            process_guard.start()
+            self.addCleanup(process_guard.stop)
         self.assertTrue(SCRIPT.exists(), "A bounded wave consumer of the canonical state/adapter is missing")
         spec = importlib.util.spec_from_file_location("dispatch_wave", SCRIPT)
         self.m = importlib.util.module_from_spec(spec)
@@ -86,6 +94,13 @@ class WaveTests(unittest.TestCase):
                 "verified": True, "binding_sha256": execute_orca.binding_digest(self.plan, node["id"]),
                 "account_ref": "test-account", "profile_ref": "profile-fixture", "observed_at": self.now,
                 "valid_until": self.later, "billing": copy.deepcopy(c["billing"]), "evidence": ["fixture-only"]}
+            self.certificates[node["id"]]["request_identity"] = {
+                "contract": "caller-chosen-uuid-first-worker-start-v1", "supported": True,
+                "binding_sha256": execute_orca.binding_digest(self.plan, node["id"]),
+                "runtime_id": "runtime-fixture", "app_version": "1.4.206",
+                "executable_sha256": self.transports[node["id"]].sha256,
+                "observed_at": self.now, "valid_until": self.later,
+                "evidence": ["synthetic fixture; not native support evidence"]}
 
     def factory(self, executable, sha):
         self.factory_calls.append(executable)
@@ -123,6 +138,42 @@ class WaveTests(unittest.TestCase):
         self.assertEqual(result["status"], "reconciled")
         self.assertEqual(self.starts(), 2)
         self.assertEqual(result["new_dispatches"], [])
+
+    def test_legacy_pending_is_visible_and_reconciled_without_refill_or_certificate(self):
+        legacy = "vibe-orca-" + execute_orca.binding_digest(self.plan, "one")
+        old = self.store.claim("wave-run", "one", legacy, self.plan["plan_digest"], now=self.now)
+        preview = self.run_wave("preview")
+        self.assertEqual(preview["next_action"], "reconcile")
+        self.assertEqual(preview["unresolved"][0]["request_id"], legacy)
+        result = self.run_wave(nodes=["two"], certificates={})
+        self.assertEqual(result["status"], "blocked")
+        self.assertEqual(result["results"][0]["dispatch_id"], old["dispatch_id"])
+        self.assertEqual(result["results"][0]["request_id"], legacy)
+        self.assertEqual(result["results"][0]["state"], "uncertain")
+        self.assertEqual(result["new_dispatches"], [])
+        self.assertEqual(result["deferred"], ["two"])
+        self.assertEqual(self.starts(), 0)
+
+    def test_foreign_or_ambiguous_identity_blocks_before_transport(self):
+        self.store.claim("wave-run", "one", execute_orca.request_id(self.plan, "one"),
+                         self.plan["plan_digest"], now=self.now)
+        snapshot = self.store.snapshot()
+        for mode in ("foreign", "ambiguous"):
+            changed = copy.deepcopy(snapshot)
+            if mode == "foreign":
+                changed["attempts"][0]["request_id"] = "vibe-orca-wrong-binding"
+            else:
+                changed["attempts"].append(dict(changed["attempts"][0], dispatch_id="conflict",
+                    request_id="vibe-orca-" + execute_orca.binding_digest(self.plan, "one")))
+            with patch.object(self.store, "snapshot", return_value=changed):
+                self.assertEqual(self.run_wave()["status"], "blocked")
+            self.assertEqual(self.factory_calls, [])
+
+    def test_one_missing_first_use_contract_blocks_whole_wave_before_claim(self):
+        del self.certificates["two"]["request_identity"]
+        self.assertEqual(self.run_wave()["status"], "blocked")
+        self.assertEqual(self.starts(), 0)
+        self.assertEqual(self.store.snapshot()["attempts"], [])
 
     def test_one_bad_certificate_blocks_entire_fresh_wave(self):
         self.certificates["two"]["verified"] = False
@@ -285,6 +336,7 @@ class WaveTests(unittest.TestCase):
             self.store.verify(attempt["dispatch_id"], ["local acceptance"], now=self.now)
         for node in self.plan["steps"][1:]:
             self.certificates[node["id"]]["binding_sha256"] = execute_orca.binding_digest(self.plan, node["id"])
+            self.certificates[node["id"]]["request_identity"]["binding_sha256"] = execute_orca.binding_digest(self.plan, node["id"])
             self.transports[node["id"]].spec = execute_orca.render_spec(node)
 
     def test_finalized_local_predecessor_does_not_block_orca_wave(self):
@@ -319,6 +371,8 @@ class WaveTests(unittest.TestCase):
         self.assertEqual(result["status"], "blocked")
         self.assertEqual(self.starts(), 0)
 
+    @unittest.skipUnless(os.environ.get("VIBE_REVIEWED_SHELL_INTEGRATION") == "1",
+                         "Native shell integration requires separately reviewed isolation; not a unit test")
     def test_actual_powershell_preview_and_rejected_dispatch(self):
         pwsh = shutil.which("pwsh")
         if not pwsh:
@@ -338,6 +392,8 @@ class WaveTests(unittest.TestCase):
         self.assertEqual(self.store.snapshot()["attempts"], [])
 
 
+@unittest.skipUnless(os.environ.get("VIBE_REVIEWED_SHELL_INTEGRATION") == "1",
+                     "Native shell integration requires separately reviewed isolation; not a unit test")
 class LegacyShellTests(unittest.TestCase):
     def test_empty_legacy_args_and_conflicting_dry_run_fail_closed(self):
         pwsh = shutil.which("pwsh")

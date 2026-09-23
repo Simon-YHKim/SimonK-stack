@@ -15,6 +15,7 @@ from pathlib import Path
 import subprocess
 import sys
 import time
+import uuid
 
 import orchestrate
 import routing
@@ -54,7 +55,20 @@ def binding_digest(plan, node_id):
 
 
 def request_id(plan, node_id):
-    return "vibe-orca-" + binding_digest(plan, node_id)
+    return str(uuid.uuid5(uuid.NAMESPACE_URL,
+        "simonk:vibe:orca:worker-start:v1:" + binding_digest(plan, node_id)))
+
+
+def existing_attempt(plan, node_id, attempts):
+    """Recognize exact old/new identities; never rekey an already committed intent."""
+    rows = [a for a in attempts if a["run_id"] == plan["run_id"]
+            and a["node_id"] == node_id and a["plan_digest"] == plan["plan_digest"]]
+    require(len(rows) <= 1, "AMBIGUOUS_DISPATCH_IDENTITY")
+    if rows:
+        allowed = {request_id(plan, node_id), "vibe-orca-" + binding_digest(plan, node_id)}
+        require(rows[0]["request_id"] in allowed, "FOREIGN_DISPATCH_IDENTITY")
+        return rows[0]
+    return None
 
 
 def _client(argv, timeout=45, max_bytes=LIMIT):
@@ -166,8 +180,7 @@ class Adapter:
         return node, r, b
 
     def attempt(self, plan, node_id):
-        return next((a for a in self.store.snapshot()["attempts"] if a["run_id"] == plan["run_id"]
-                     and a["request_id"] == request_id(plan, node_id)), None)
+        return existing_attempt(plan, node_id, self.store.snapshot()["attempts"])
 
     def runtime(self, binding):
         result = self.transport.call("status").get("runtime", {})
@@ -227,6 +240,21 @@ class Adapter:
                 and certificate.get("billing") == route["billing"], "TRANSPORT_ACCOUNT_MISMATCH")
         require(orchestrate.fresh(certificate.get("observed_at"), now)
                 and orchestrate.instant(now) < orchestrate.instant(certificate["valid_until"]), "TRANSPORT_ACCOUNT_STALE")
+        # UUID syntax is not evidence that this runtime accepts caller-chosen
+        # IDs on a first mutation. This is coordinator evidence, NOT an invented
+        # native capability. Existing intents reconcile without this certificate.
+        identity = certificate.get("request_identity")
+        require(isinstance(identity, dict) and identity.get("supported") is True
+                and identity.get("contract") == "caller-chosen-uuid-first-worker-start-v1",
+                "FIRST_USE_REQUEST_IDENTITY_UNVERIFIED")
+        evidence(identity.get("evidence"))
+        require(identity.get("binding_sha256") == binding_digest(plan, node_id)
+                and all(identity.get(k) == binding[k] for k in
+                        ("runtime_id", "app_version", "executable_sha256")),
+                "REQUEST_IDENTITY_BINDING_MISMATCH")
+        require(orchestrate.fresh(identity.get("observed_at"), now)
+                and orchestrate.instant(now) < orchestrate.instant(identity.get("valid_until")),
+                "REQUEST_IDENTITY_EVIDENCE_STALE")
         return node, route, binding
 
     def preflight(self, plan, node_id, certificate):

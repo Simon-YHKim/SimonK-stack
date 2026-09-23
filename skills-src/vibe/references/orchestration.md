@@ -402,6 +402,30 @@ The certificate is trusted coordinator evidence, not a cryptographic provider
 attestation or an atomic lock on external account settings. Profile changes
 require revalidation. There is no claim of a provider-enforced spend cap.
 
+New sends also require `certificate.request_identity`, separate from account
+proof. It must contain `contract="caller-chosen-uuid-first-worker-start-v1"`,
+`supported=true`, nonempty `evidence`, fresh `observed_at`, future `valid_until`,
+and exact `binding_sha256`, `runtime_id`, `app_version`, `executable_sha256`.
+This is a local coordinator-evidence schema, **not an Orca capability name**.
+Evidence must establish that the pinned native runtime supports a caller-chosen
+UUID on the **first** worker-start. General retry support or UUID syntax alone
+does not establish that. Missing/unknown/mismatched evidence blocks before the
+first native read and before claim. No helper manufactures this certificate.
+Current installed-source inspection established UUID syntax only; first-use
+support remains unverified, so new native sends remain on hold. Fixture proofs
+are synthetic test inputs, not operational evidence or authorization.
+
+The adapter deterministically derives a UUID5 from the complete binding with
+the versioned `simonk:vibe:orca:worker-start:v1:` prefix and URL namespace.
+Previously persisted exact `vibe-orca-<binding_digest>` intents are recognized
+only for lookup/reconciliation. Their request ID, dispatch ID, history and
+reservations are never rewritten, released or resent under a new UUID. Both
+formats for one current run/node/plan, or an unrelated ID, fail closed. The
+ready-wave consumer shares this exact classification; a legacy unresolved
+sibling forces lookup-only for that whole invocation. Existing intents can
+still reconcile without the new first-use certificate. No worker found means
+uncertain, never permission to issue a fresh request.
+
 ```text
 python "<skill>/scripts/execute_orca.py" dispatch --plan plan.json --node ID --db shared-runs.sqlite3 --certificate account-proof.json
 python "<skill>/scripts/execute_orca.py" reconcile --plan plan.json --node ID --db shared-runs.sqlite3
@@ -451,6 +475,12 @@ Task, changing account settings, or independently launching its own worker.
 Those external races need reconciliation, not a claim of global exactly-once.
 Offline fixtures cover crashes, concurrency, mismatched identity, output limits
 and missing evidence; they are not live provider generation or billing tests.
+Adapter tests deny process launch before imports and during each case except
+three exact `python -I -S -c` pipe fixtures. Wave unit tests deny all children;
+its three shell integration cases are separate, default-skipped tests requiring
+`VIBE_REVIEWED_SHELL_INTEGRATION=1` after independent isolation review. Setting
+that flag is not a sandbox or spending approval. Keep it unset for offline
+validation under the current hold. A reported skip is not a passed integration.
 
 ## Completion boundary
 

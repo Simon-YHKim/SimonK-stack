@@ -32,8 +32,7 @@ def current_attempts(plan, snapshot):
     for row in rows:
         node = execute_orca.selected(plan, row["node_id"])
         if node["route"]["transport"] == "orca":
-            require(row["request_id"] == execute_orca.request_id(plan, row["node_id"]),
-                    "FOREIGN_DISPATCH_IDENTITY")
+            execute_orca.existing_attempt(plan, row["node_id"], rows)
     return rows
 
 

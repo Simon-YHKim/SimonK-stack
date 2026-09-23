@@ -2,17 +2,22 @@
 import copy
 from concurrent.futures import ThreadPoolExecutor
 import importlib.util
+import re
+import subprocess
 import sys
 import tempfile
 import threading
 import time
 import unittest
+import uuid
 from pathlib import Path
+from unittest.mock import patch
 
-import orchestrate
-import run_state
-from test_orchestrate import NOW, candidate, fixture_registry, step
-from test_run_state import STALE
+with patch("subprocess.Popen", side_effect=AssertionError("Process launch during test import")):
+    import orchestrate
+    import run_state
+    from test_orchestrate import NOW, candidate, fixture_registry, step
+    from test_run_state import STALE
 
 SCRIPT = Path(__file__).with_name("execute_orca.py")
 
@@ -55,6 +60,9 @@ class FakeOrca:
             return {"scope": {"run": "run-fixture"}, "workers": copy.deepcopy(self.workers),
                     "page": {"hasMore": False, "nextCursor": None}}
         if command == "worker-start":
+            request = args[args.index("--retry-request") + 1]
+            if not re.fullmatch(r"[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}", request, re.I):
+                raise run_state.StateError("NATIVE_RETRY_REQUEST_UUID_REQUIRED")
             self.workers = [{"dispatchId": "ctx-fixture", "taskId": "task-fixture", "runId": "run-fixture"}]
             if self.after_start:
                 self.after_start()
@@ -83,6 +91,18 @@ class FakeOrca:
 
 class OrcaAdapterTests(unittest.TestCase):
     def setUp(self):
+        original_popen = subprocess.Popen
+        fixture_code = {"import os; os.write(1, b'x'*2000000)",
+                        "import time; time.sleep(30)", "print('fixture')"}
+        def fixture_only(argv, *args, **kwargs):
+            if (not isinstance(argv, list) or len(argv) != 5
+                    or argv[:4] != [sys.executable, "-I", "-S", "-c"]
+                    or argv[4] not in fixture_code):
+                raise AssertionError("Only the three isolated local Python fixtures may launch")
+            return original_popen(argv, *args, **kwargs)
+        process_guard = patch("subprocess.Popen", side_effect=fixture_only)
+        process_guard.start()
+        self.addCleanup(process_guard.stop)
         self.assertTrue(SCRIPT.is_file(), "Guarded Orca execution adapter is not implemented")
         spec = importlib.util.spec_from_file_location("execute_orca", SCRIPT)
         self.m = importlib.util.module_from_spec(spec)
@@ -109,6 +129,11 @@ class OrcaAdapterTests(unittest.TestCase):
         self.certificate = {"verified": True, "binding_sha256": self.m.binding_digest(self.plan, "read"),
             "account_ref": "test-account", "profile_ref": "profile-fixture", "observed_at": NOW,
             "valid_until": STALE, "billing": copy.deepcopy(c["billing"]), "evidence": ["fixture-only-account-and-no-overage"]}
+        self.certificate["request_identity"] = {
+            "contract": "caller-chosen-uuid-first-worker-start-v1", "supported": True,
+            "binding_sha256": self.certificate["binding_sha256"], "runtime_id": "runtime-fixture",
+            "app_version": "1.4.206", "executable_sha256": self.transport.sha256,
+            "observed_at": NOW, "valid_until": STALE, "evidence": ["synthetic fixture; not native support evidence"]}
         self.clock = NOW
         self.adapter = self.m.Adapter(self.store, self.transport, clock=lambda: self.clock)
 
@@ -125,8 +150,76 @@ class OrcaAdapterTests(unittest.TestCase):
         self.assertEqual(self.starts(), 1)
         args = next(a for a in self.transport.calls if len(a) > 1 and a[1] == "worker-start")
         self.assertIn("--retry-request", args)
+        self.assertEqual(args[args.index("--retry-request") + 1], result["request_id"])
+        self.assertEqual(result["request_id"], self.m.request_id(self.plan, "read"))
         self.assertIn("id:workspace-fixture", args)
         self.assertNotIn("current", args)
+
+    def test_request_identity_is_stable_uuid_and_changes_with_binding(self):
+        request = self.m.request_id(self.plan, "read")
+        self.assertEqual(str(uuid.UUID(request)), request)
+        self.assertEqual(self.m.request_id(copy.deepcopy(self.plan), "read"), request)
+        changed = copy.deepcopy(self.plan)
+        changed["steps"][0]["orca"]["task_id"] = "another-task"
+        changed["plan_digest"] = orchestrate.digest({k: v for k, v in changed.items() if k != "plan_digest"})
+        self.assertNotEqual(self.m.request_id(changed, "read"), request)
+
+    def test_first_use_contract_missing_or_mismatched_blocks_before_reads_and_claim(self):
+        original = copy.deepcopy(self.certificate)
+        mutations = [(None, None), ("supported", False), ("contract", "unknown"),
+                     ("binding_sha256", "wrong"), ("runtime_id", "wrong"), ("app_version", "wrong"),
+                     ("executable_sha256", "wrong"), ("observed_at", STALE),
+                     ("valid_until", NOW), ("evidence", [])]
+        for key, value in mutations:
+            with self.subTest(key=key):
+                self.certificate = copy.deepcopy(original)
+                if key is None:
+                    del self.certificate["request_identity"]
+                else:
+                    self.certificate["request_identity"][key] = value
+                with self.assertRaises(run_state.StateError):
+                    self.dispatch()
+                self.assertEqual(self.transport.calls, [])
+                self.assertEqual(self.store.snapshot()["attempts"], [])
+
+    def legacy_claim(self):
+        legacy = "vibe-orca-" + self.m.binding_digest(self.plan, "read")
+        return self.store.claim("vibe-fixture", "read", legacy, self.plan["plan_digest"], now=NOW)
+
+    def test_legacy_absent_worker_remains_same_unsettled_intent_without_send(self):
+        old = self.legacy_claim()
+        result = self.dispatch()
+        self.assertEqual(result["state"], "uncertain")
+        self.assertEqual(result["dispatch_id"], old["dispatch_id"])
+        self.assertEqual(result["request_id"], old["request_id"])
+        self.assertIsNone(result["actual_usd"])
+        self.assertEqual(self.starts(), 0)
+        self.assertEqual(len(self.store.snapshot()["attempts"]), 1)
+
+    def test_legacy_existing_worker_is_observed_without_rekey_or_send(self):
+        old = self.legacy_claim()
+        self.transport.workers = [{"dispatchId": "ctx-fixture", "taskId": "task-fixture", "runId": "run-fixture"}]
+        result = self.adapter.dispatch(self.plan, "read", None)
+        self.assertEqual(result["state"], "running")
+        self.assertEqual(result["dispatch_id"], old["dispatch_id"])
+        self.assertEqual(result["request_id"], old["request_id"])
+        self.assertEqual(self.starts(), 0)
+
+    def test_legacy_and_current_identity_conflict_blocks_before_native_reads(self):
+        self.legacy_claim()
+        snapshot = self.store.snapshot()
+        snapshot["attempts"].append(dict(snapshot["attempts"][0], dispatch_id="conflict",
+                                        request_id=self.m.request_id(self.plan, "read")))
+        with patch.object(self.store, "snapshot", return_value=snapshot):
+            with self.assertRaises(run_state.StateError):
+                self.dispatch()
+        self.assertEqual(self.transport.calls, [])
+
+    def test_foreign_request_for_current_node_blocks_before_native_reads(self):
+        self.store.claim("vibe-fixture", "read", "vibe-orca-not-the-binding", self.plan["plan_digest"], now=NOW)
+        with self.assertRaises(run_state.StateError):
+            self.dispatch()
+        self.assertEqual(self.transport.calls, [])
 
     def test_missing_certificate_never_claims_or_starts(self):
         with self.assertRaises(run_state.StateError):
@@ -281,15 +374,15 @@ class OrcaAdapterTests(unittest.TestCase):
     def test_native_client_bounds_output_without_temporary_disk_spool(self):
         started = time.monotonic()
         with self.assertRaisesRegex(run_state.StateError, "TOO_LARGE"):
-            self.m._client([sys.executable, "-c", "import os; os.write(1, b'x'*2000000)"], max_bytes=1024)
+            self.m._client([sys.executable, "-I", "-S", "-c", "import os; os.write(1, b'x'*2000000)"], max_bytes=1024)
         self.assertLess(time.monotonic() - started, 5)
 
     def test_native_client_timeout_is_not_provider_exit(self):
         with self.assertRaisesRegex(run_state.StateError, "TIMEOUT"):
-            self.m._client([sys.executable, "-c", "import time; time.sleep(30)"], timeout=0.15)
+            self.m._client([sys.executable, "-I", "-S", "-c", "import time; time.sleep(30)"], timeout=0.15)
 
     def test_native_client_reads_json_and_exit_code(self):
-        rc, raw = self.m._client([sys.executable, "-c", "print('fixture')"])
+        rc, raw = self.m._client([sys.executable, "-I", "-S", "-c", "print('fixture')"])
         self.assertEqual(rc, 0)
         self.assertEqual(raw.strip(), b"fixture")
 
