@@ -201,6 +201,24 @@ describe('Accounts tab', () => {
     vi.useRealTimers();
   });
 
+  it('adopts a login started from a Windows notification without starting another session', () => {
+    const api = new FakeApi();
+    const state = appState({ accounts: [account({ id: 'a1', provider: 'codex', loginState: 'logged-out' })] });
+    const { app } = setup(state, api);
+    app.selectTab('accounts', false);
+
+    loginEvent(api, 'a1', 'notification-session', {
+      type: 'device-code',
+      userCode: 'WXYZ-9876',
+      verificationUrl: 'https://auth.openai.com/codex/device',
+    });
+
+    const panel = app.accounts.sections.codex.el.querySelector<HTMLElement>('.login-panel[data-account-id="a1"]');
+    expect(panel?.hidden).toBe(false);
+    expect(panel?.querySelector('.login-code')?.textContent).toBe('WXYZ-9876');
+    expect(api.callsTo('login:start')).toEqual([]);
+  });
+
   it('add account -> label -> login with device code, copy target and open login page', async () => {
     const api = new FakeApi()
       .reply('accounts:add', (req) => ({ ok: true, value: account({ id: 'new1', provider: req.provider, label: req.label, loginState: 'logged-out' }) }))

@@ -89,6 +89,7 @@ export interface AppControllerDeps {
   newAccountId?: () => string;
   onRendererReady?(request: RendererReadyRequest): void;
   onSnapshot?(snapshot: AppStateSnapshot): void;
+  onAuthRequired?(account: Pick<Account, 'id' | 'provider' | 'label'>): void;
   scheduler?: Partial<Pick<SchedulerOptions, 'timeoutMs' | 'manualMinIntervalMs' | 'resumeDelayMs' | 'random'>>;
   loginTimeoutMs?: number;
 }
@@ -117,6 +118,7 @@ export function createAppController(deps: AppControllerDeps) {
   const usage = new Map<string, UsageSnapshot>();
   const identities = new Map<string, AccountIdentityInfo & { at: number }>();
   const needsIdentity = new Set<string>();
+  const authAlerted = new Set<string>();
   const cli: Record<ProviderId, CliInfo | null> = { claude: null, codex: null, grok: null, antigravity: null };
   const lastDetectAt: Record<ProviderId, number> = { claude: 0, codex: 0, grok: 0, antigravity: 0 };
   const detecting = new Set<ProviderId>();
@@ -276,6 +278,15 @@ export function createAppController(deps: AppControllerDeps) {
     } else if (clean.state === 'ok' && identity?.loginState !== 'logged-in') {
       needsIdentity.add(account.id);
     }
+    if (clean.state === 'ok') authAlerted.delete(account.id);
+    if (clean.state === 'logged-out' && !stopped && !authAlerted.has(account.id) && deps.onAuthRequired !== undefined) {
+      authAlerted.add(account.id);
+      try {
+        deps.onAuthRequired({ id: account.id, provider: account.provider, label: account.label });
+      } catch (error) {
+        logger.warn('auth-required alert failed', { provider: account.provider, error });
+      }
+    }
     scheduleBroadcast();
   };
 
@@ -313,6 +324,7 @@ export function createAppController(deps: AppControllerDeps) {
     onStarted: () => scheduleBroadcast(),
     onSettled: ({ accountId, event }) => {
       if (event.type === 'success') {
+        authAlerted.delete(accountId);
         const info: AccountIdentityInfo = { loginState: 'logged-in' };
         if (event.emailMasked !== undefined) info.emailMasked = event.emailMasked;
         if (event.plan !== undefined) info.plan = event.plan;
@@ -541,6 +553,7 @@ export function createAppController(deps: AppControllerDeps) {
         usage.delete(accountId);
         identities.delete(accountId);
         needsIdentity.delete(accountId);
+        authAlerted.delete(accountId);
         scheduler.sync();
         scheduleBroadcast();
         return null;
