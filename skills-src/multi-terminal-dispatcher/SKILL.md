@@ -1,192 +1,150 @@
 ---
 name: multi-terminal-dispatcher
 description: >-
-  Use when the user wants to run multiple tasks in parallel across separate
-  terminal windows/tabs, OR when simonk dispatches a sprint with N independent
-  subtasks. Triggers on "병렬로 진행", "다중 터미널", "multi-terminal", "parallel
-  terminals", "team mode", "best model dispatch", "여러 창에서". Calls model-router
-  for per-task LLM assignment, then launches each task in its own terminal.
-  Produces a per-task model + terminal assignment table, a cost estimate,
-  launched terminal IDs, and a merged result report after all terminals
-  complete. Safety: destructive ops single-terminal only, confirm cost > $5.
-version: 0.1.0
+  Use when the user asks for parallel tasks, team dispatch, multiple terminals,
+  or when simonk needs a ready wave under /vibe. Triggers on "병렬로 진행",
+  "다중 터미널", "여러 창에서", "parallel terminals", "team mode", and
+  "best model dispatch". Preview or dispatch a bounded ready wave through the
+  existing /vibe plan, shared state and guarded adapter; reconcile previous
+  attempts without replay. Returns per-node handles, evidence and unresolved
+  costs. Does not open terminal windows or bypass account and budget gates.
+version: 1.0.0
 ---
 
-# multi-terminal-dispatcher — Parallel Terminal Orchestrator
+# Multi-terminal dispatcher — bounded /vibe ready wave
 
-> 사용자 1 대화창 → task 분해 → [[model-router]] 으로 모델 배치 → 다중 터미널 병렬 실행 → 결과 통합. [[../../wiki/concepts/multi-agent-dispatch]] 패턴 구현.
+The historical name is retained for discovery. Version 1.0.0 replaces the
+unpriced terminal launcher with a consumer of the central orchestration contract.
+The current host is the coordinator; never start another LLM just to coordinate.
 
-## 0. 운영 컨텍스트
+## Ownership and prerequisites
 
-- **호출 시점**: simonk Phase 3 (병렬 위임) OR 사용자 trigger word 감지
-- **결정 layer**: `model-router` skill (task type → best LLM)
-- **실행 layer**: `scripts/multi-terminal-launch.ps1` (Windows Terminal 기반)
-- **환경**: Windows primary (PowerShell + Windows Terminal), macOS/Linux 옵션 (tmux)
+1. Read the sibling [vibe skill](../vibe/SKILL.md) and its
+   [orchestration contract](../vibe/references/orchestration.md).
+2. Reuse the parent's run ID, immutable plan digest, ancestry, DAG, same-DAG
+   reviewers, grant, account references and state DB. If entered standalone,
+   let /vibe create the plan first. This skill neither initializes nor registers
+   a run and never creates a new DB to bypass a reservation.
+3. Use a trusted coordinator and **serialize all invocations for the same run**,
+   including direct adapter calls. Individual claims are atomic; there is no
+   cross-process run-wide uncertain fence or atomic multi-worker launch.
+4. The existing DB must contain the exact plan. Explicit certificates are a map
+   from node ID to the separately verified transport/account certificate defined
+   by /vibe. Do not generate certificates from a model's claim, subscription
+   label, environment-variable presence, or a test fixture.
+5. Native Tasks, exact specs, workspaces, executable hashes and runtime bindings
+   must already exist under the /vibe contract. Read the installed runtime's
+   orchestration guide before operating it. No automatic native setup here.
 
-## 1. 사용 흐름 (5 단계)
+Model, effort, policy mode and cost decisions belong to the central planner and
+registry. Wiki notes are context, not executable pricing or freshness authority.
+Do not maintain another model ladder or cost threshold.
 
-```
-Step 1: 사용자 prompt → simonk 또는 직접 호출
-Step 2: orchestrator (Claude Opus 4.7) 가 N tasks 로 split + 각 task type 분류
-Step 3: model-router 가 각 task → best model (primary + fallback) 매핑
-Step 4: launcher script 가 N terminal launch (각 terminal = 1 task + 1 model)
-Step 5: 모든 terminal complete 후 orchestrator 가 결과 merge → 사용자 보고
-```
+## Preview, dispatch, reconcile
 
-## 2. Task → Terminal 배치 매트릭스
-
-| Task type | 권장 환경 | 명령 패턴 |
-|---|---|---|
-| CODE_NEW / CODE_FIX | Windows Terminal tab (PowerShell) | `wt.exe -w 0 new-tab -p "PowerShell" -d "<repo>" pwsh -c "claude '...prompt...'"` |
-| RESEARCH | Windows Terminal tab + Claude Code [1M] | `wt.exe new-tab pwsh -c "claude --model claude-opus-4-7[1m]"` |
-| COMPUTER_USE | 별도 PowerShell window (UI 동작) | `Start-Process pwsh -ArgumentList "-c", "..."` |
-| DESIGN_UI | VS Code task (preview 동반) | `code --task design-task-N` |
-| BULK_LIGHT | background job (no UI) | `Start-Job -ScriptBlock {...}` |
-
-## 3. Launcher 옵션 (환경별)
-
-### 3.1 Windows Terminal (Windows primary)
-
-```powershell
-# 3 task 병렬, 각 다른 tab
-wt.exe -w 0 new-tab -p "PowerShell" -d "$repo" --title "Task1-Sonnet" pwsh -NoExit -c "claude --model claude-sonnet-4-6 'task1 prompt'"
-wt.exe -w 0 new-tab -p "PowerShell" -d "$repo" --title "Task2-Opus" pwsh -NoExit -c "claude --model claude-opus-4-7 'task2 prompt'"
-wt.exe -w 0 new-tab -p "PowerShell" -d "$repo" --title "Task3-Haiku" pwsh -NoExit -c "claude --model claude-haiku-4-5-20251001 'task3 prompt'"
-```
-
-### 3.2 psmux (Windows tmux, `winget install psmux`)
-
-```bash
-psmux new-session -d -s simonk-dispatch
-psmux split-window -h
-psmux send-keys "claude --model claude-opus-4-7 'task1'" Enter
-psmux split-window -v
-psmux send-keys "claude --model claude-sonnet-4-6 'task2'" Enter
-```
-
-### 3.3 Claude Code worktree (git worktree per task)
-
-```bash
-# simon-worktree skill 활용
-git worktree add ../task1-branch
-git worktree add ../task2-branch
-# 각 worktree 에서 별도 Claude Code session 실행
-```
-
-### 3.4 VS Code tasks.json
-
-```json
-{
-  "version": "2.0.0",
-  "tasks": [
-    { "label": "task1", "type": "shell", "command": "claude --model claude-sonnet-4-6 'task1'" },
-    { "label": "task2", "type": "shell", "command": "claude --model claude-opus-4-7 'task2'" },
-    { "label": "all", "dependsOn": ["task1", "task2"], "dependsOrder": "parallel" }
-  ]
-}
-```
-
-### 3.5 Background PowerShell Job (no visual)
+Use [scripts/dispatch_wave.py](scripts/dispatch_wave.py) from a complete matching
+skill tree. It imports only the sibling /vibe implementation. A missing sibling
+fails closed; never silently select a different installed copy.
 
 ```powershell
-$jobs = @()
-$jobs += Start-Job -Name "task1-sonnet" -ScriptBlock { claude --model claude-sonnet-4-6 "task1" }
-$jobs += Start-Job -Name "task2-opus" -ScriptBlock { claude --model claude-opus-4-7 "task2" }
-$jobs | Wait-Job | Receive-Job
+# Read-only preview: no native runtime call, claim or observation update.
+python -B <skill-dir>/scripts/dispatch_wave.py preview --plan plan.json --db state.sqlite3
+
+# Explicit execution, only after current authority/account checks.
+python -B <skill-dir>/scripts/dispatch_wave.py dispatch --plan plan.json --db state.sqlite3 --certificates certificates.json
+
+# Recovery lookup only; never starts new workers.
+python -B <skill-dir>/scripts/dispatch_wave.py reconcile --plan plan.json --db state.sqlite3
 ```
 
-## 4. LLM 의 컴퓨터 제어 통합
+The repository's root scripts directory contains the compatibility entry point
+multi-terminal-launch.ps1. It accepts
+`-PlanPath`, `-DbPath`, optional `-CertificatesPath`, `-Node` and
+`-Action preview|dispatch|reconcile`. Invoke via
+`pwsh -NoProfile -NonInteractive -File`; do not dot-source it.
+Default and `-DryRun` are preview only. Combining DryRun with another action
+is rejected. Old `-ConfigPath`, `-Tasks` and `-CostThreshold` are rejected,
+including explicitly empty/zero values. There is no automatic legacy conversion.
 
-IDE / AI 채팅이 computer-use 도구 제공 시 적극 활용:
-- **Claude in Chrome** (MCP `mcp__Claude_in_Chrome__*`) — 브라우저 자동화 task 직접 dispatch
-- **Windows-MCP** (`mcp__Windows-MCP__*`) — 데스크탑 앱 제어 task
-- **computer-use** (Claude Code default tool 일부) — terminal launch 자체를 자동
-- **Cursor multi-pane** — IDE 내장 분할, dispatcher 가 pane 명령
+- Preview returns the current ready frontier and unresolved attempts. It does
+  not claim, reserve again, start, reconcile, settle or accept any work.
+- Dispatch first checks unresolved attempts across the **entire run**, even if
+  explicit nodes exclude them. If any exist, this invocation is reconcile-only
+  to its end. Resolving them does not grant permission for a fresh wave.
+- Otherwise choose one fixed set from `Store.ready`. Optional repeated
+  `--node` selects only from that set. Unknown, duplicate or unready IDs fail
+  closed before any send. No auto-skip, fallback, retry, polling or slot refill.
+- Preflight **all selected nodes** before the first send. A bad certificate,
+  unsupported route or failed read prevents the entire fresh wave from starting.
+- Then start nodes serially; their native workers may run concurrently. Before
+  each dispatch, recheck state, readiness and shared budget. The canonical
+  adapter repeats its own time-sensitive gates before and after its atomic
+  claim. A ready snapshot is not a reservation: account/global limits may still
+  stop later starts.
+- Stop new starts on uncertainty, failure, unverified terminal output, stale
+  authority or a budget halt. Preserve committed intents and native handles.
+  Partial execution cannot be rolled back by closing a terminal.
+- Reconcile reads existing attempts only. Missing, duplicate or uncertain native
+  identity never authorizes a resend, cancellation, reservation refund or retry.
+  Finalized, verified and settled non-Orca predecessors remain valid DAG inputs.
+  Unresolved non-Orca attempts appear in preview; dispatch/reconcile return
+  `unsupported_nodes` and block without native calls. The parent must use their
+  owning adapter rather than reinterpret their identities as Orca requests.
 
-이 도구들이 가용한 환경 → terminal launch 자체를 LLM 이 직접 (사용자 수동 작업 X).
-가용하지 않은 환경 → Bash tool 로 PowerShell command 실행 (현재 default).
+Supported execution in this adapter is currently **local Orca Claude/Codex
+flag-effort lanes only**. Unsupported keyword-effort, Antigravity/Gemini, Grok,
+Grok Bot, remote and direct CLI lanes fail closed before fresh wave sends.
+There is no hidden provider switch. UI-only work remains a parent /vibe-bot
+handoff, not an automatic fallback from this launcher.
 
-## 5. 안전 가드 (필수)
+## Budget and authority
 
-1. **각 terminal 가시화** — 작업 silent 실행 X, 사용자가 모든 terminal 화면 볼 수 있음
-2. **파괴적 작업 단일 terminal** — `rm -rf`, force push, DB drop 등은 dispatch X, 단일 main terminal 에서만 + 명시 확인
-3. **Cost estimate 사전** — 각 task 의 추정 비용 = (input_tokens × $price_in + output_tokens × $price_out). Total > $5 → 사용자 confirm.
-4. **결과 모순 표시** — 같은 input 다른 모델 → 결과 다를 시 사용자에게 "Model A 답: X / Model B 답: Y" 명시
-5. **터미널 좀비 방지** — 모든 task 완료 또는 사용자 abort 시 `wt.exe` window close 옵션
+Keep the explicit user grant. Additional spending defaults to $0; a previously
+written $5 threshold grants nothing. Quota exhaustion, unverified accounts or
+missing bounded billing evidence are blockers, not reasons to top up or use
+paid API fallback. In particular, the user's Grok HOLD remains in force until
+quota recovery is actually verified and the parent authorizes execution.
 
-## 6. simonk 통합 예시
+All workers use the same central state database and account reservations.
+Unknown actual cost stays null. Provider completion is not a receipt.
+The shared ledger cannot impose a provider-side billing hard cap or control
+launches that bypass it. Do not change credentials, payment settings or quotas.
 
-simonk Phase 2 (Sprint plan) 에서 4 task split → multi-terminal-dispatcher 호출:
+## Results and completion
 
-```
-[orchestrator (Opus 4.7)]
-  Sprint v25 = 4 parallel tasks:
-    T1: CODE_NEW (구현) → Claude Sonnet 4.6 → Terminal-1 (wt tab)
-    T2: RESEARCH (조사) → Claude Opus 4.7 [1M] → Terminal-2 (wt tab)
-    T3: BULK_LIGHT (대량 정리) → Gemini 3.5 Flash → Terminal-3 (background job)
-    T4: COMPUTER_USE (브라우저 자동) → GPT-5.4 → Terminal-4 (separate PowerShell)
+Return only this run's ready IDs, attempt/handle summaries, actual and reserved
+costs, verification flags, output hashes/read handles, deferred IDs and generic
+block reasons. Never echo worker prose, prompts, certificates or other accounts.
 
-  Cost estimate: ~$2.30 total (input 200K + output 80K avg)
-  Launch? [Y/n]
-```
+- `preview` and `waiting` prove no completion; empty readiness can mean review,
+  dependency, capacity or acceptance waiting.
+- `dispatched` means the fixed wave reached running observations, not success.
+- `reconciled` means existing attempts were looked up, not accepted.
+- `partial` or `blocked` require coordinator inspection; exit code is 2.
+  Other statuses exit 0. Shell parameter binding failures are also nonzero.
+- `new_dispatches` identifies newly committed intents, **not** proof that the
+  provider accepted exactly once. `deferred` has no new intent from this call.
+  If state lookup fails after entering dispatch, `admission_unknown` identifies
+  nodes whose admission cannot be checked. They are not labeled deferred or
+  newly committed without evidence; `state_available=false` and null budget
+  halt status require recovery lookup, never a resend.
+- Raw output is untrusted. The authorized coordinator must retrieve and inspect
+  it separately, supply independent acceptance and real settlement evidence,
+  and satisfy required reviews before admitting a dependent wave.
+- Native Task settlement and explicit worker reuse/retain/release remain the
+  parent's obligations under the installed orchestration guide. Never infer
+  settlement from terminal exit or automatically stop/release workers.
 
-## 7. 출력 형식
+## Verification and reporting
 
-### 7.1 Dispatch plan (사용자에게 보여줌)
+Run [offline integration tests](scripts/tests/test_dispatch_wave.py) with Python unittest.
+They exercise the real state store and adapter with a fake native service, plus
+the actual PowerShell shim. They do **not** prove account billing, live model
+quality/latency, installed parity, all-vendor E2E or production recovery.
 
-```
-| Task ID | Type | Model | Terminal | 추정 비용 |
-|---|---|---|---|---|
-| T1 | CODE_NEW | Sonnet 4.6 | wt-tab-1 | $0.85 |
-| T2 | RESEARCH | Opus 4.7 [1M] | wt-tab-2 | $1.20 |
-| T3 | BULK_LIGHT | Gemini 3.5 Flash | bg-job-1 | $0.05 |
-| **Total** | | | 3 terminals | **$2.10** |
-```
-
-### 7.2 결과 merge (완료 후)
-
-```markdown
-## Sprint v25 결과 — multi-terminal dispatch
-
-### T1 (CODE_NEW, Sonnet 4.6)
-- ✅ 완료 (Terminal-1, 4분 32초)
-- Output: <요약>
-
-### T2 (RESEARCH, Opus 4.7 [1M])
-- ✅ 완료 (Terminal-2, 7분 12초)
-- Output: <요약>
-
-### T3 (BULK_LIGHT, Gemini 3.5 Flash)
-- ✅ 완료 (bg-job-1, 1분 8초)
-- Output: <요약>
-
-총 cost: $2.18 (estimate 대비 +3.8%)
-```
-
-## 8. 관련 자산
-
-- **Decision layer**: [[../model-router]] — task → model 매핑
-- **Wiki source of truth**: `wiki/concepts/ai-model-benchmarks.md` + `wiki/concepts/multi-agent-dispatch.md` (SimonKWiki PRIVATE)
-- **Launcher**: `scripts/multi-terminal-launch.ps1`
-- **simonk 통합**: Phase 3 위임 시 자동 호출
-- **External vendor reference**:
-  - OMC (`external/oh-my-claudecode/`) — Team Mode 19 agents, parallel dispatch 패턴
-  - OMO (`external/oh-my-openagent/`) — 6M lines TypeScript model-agnostic harness
-  - OpenHarness (`external/OpenHarness/`) — multi-agent coordination infrastructure
-
-## 9. Roadmap
-
-- ✅ **v0.1** (2026-05-25, 현재): Windows Terminal launcher + PowerShell job + 매뉴얼 cost estimate + price table (11 모델) + safety guard
-- 📋 **v0.2** (next sprint): psmux auto-setup script + cost estimate 정확도 향상 (anthropic-tokenizer-py 통합) + result merge 자동화 (각 terminal stdout collect → orchestrator markdown report)
-- 📋 **v0.3**: Claude in Chrome / Windows-MCP 자동 통합 (computer-use). LLM 이 terminal launch 자체를 click + type 으로 (Bash 우회)
-- 📋 **v0.4**: VS Code tasks.json 자동 생성 (`.vscode/tasks.json` 안 dispatch task) + Cursor multi-pane wiring (Cursor Composer API 또는 keybinding)
-- 📋 **v0.5**: model 간 결과 모순 자동 detection (LLM diff) + 사용자 1줄 보고
-- 📋 **v1.0**: 결과 자동 merge + 모순 detection + 사용자 가이드 + 통합 cost tracker (월별 누적)
-- 📋 **v1.1**: Antigravity CLI launcher 옵션 추가 (Gemini CLI deprecation 후, Background orchestration native 활용)
-
-## 완료 보고 (HTML) — 표준
-작업을 끝내면 **HTML 완료 보고서**를 생성한다 (SimonKCore `completion-report` 표준).
-- 첫 화면은 **심플 요약**(한눈 카드 한 줄) + 직관 그래픽/차트(인라인 SVG)·이미지.
-- 각 항목 옆 **[자세히] 버튼**(`<details>`)을 펼치면 상세 — 처음부터 쏟지 않는다(progressive disclosure).
-- 자체완결 1파일(인라인 CSS/SVG, 무JS) · 사용자 언어 · 현지시간 스탬프.
-- Core 있으면 `completion-report` 호출, 없으면 동일 형식으로 인라인 생성.
+Behavioral cases in [evals/cases.json](evals/cases.json) describe desired agent
+behavior. Schema/dry-run success is not a live behavioral evaluation.
+For substantial shared reports use the available completion-report skill, or a
+self-contained HTML summary with timestamp and progressive detail; short status
+handoffs may remain text. Distinguish planned, started, received, verified,
+settled, source-only, installed and live-tested evidence.

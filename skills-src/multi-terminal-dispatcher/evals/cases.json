@@ -1,40 +1,102 @@
 {
   "skill": "multi-terminal-dispatcher",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "cases": [
     {
-      "id": "korean-parallel-terminals",
-      "prompt": "이 작업들 여러 창에서 병렬로 진행해줘.",
+      "id": "preview-no-effects",
+      "prompt": "이 등록된 plan과 공유 state DB로 병렬 실행을 미리 확인해줘. 아직 시작하지 마.",
       "assertions": [
         {
-          "id": "split-and-route",
-          "text": "Splits the work into N independent tasks and calls model-router for per-task LLM assignment"
+          "id": "read-only",
+          "text": "Uses the bounded wave preview; no native runtime calls, claims, observations, new database or worker launch."
         },
         {
-          "id": "dispatch-plan-table",
-          "text": "Shows a dispatch plan table (Task ID, Type, Model, Terminal, cost estimate) before launching"
-        },
-        {
-          "id": "launch-terminals",
-          "text": "Launches each task in its own terminal (e.g. Windows Terminal tabs via wt.exe) and reports launched terminal IDs"
+          "id": "not-completed",
+          "text": "Shows current ready and unresolved nodes without treating an empty frontier as completed work."
         }
       ]
     },
     {
-      "id": "english-multi-terminal-dispatch",
-      "prompt": "Dispatch these 4 subtasks across multiple terminals with the best model for each.",
+      "id": "ready-wave",
+      "prompt": "등록된 DAG와 검증된 certificate map으로 현재 준비된 작업만 병렬 진행해줘. 추가 과금 $0.",
       "assertions": [
         {
-          "id": "per-task-model",
-          "text": "Assigns a primary + fallback model per task type via model-router"
+          "id": "one-owner",
+          "text": "Keeps the current /vibe coordinator, run, plan digest, grant, account reservations, ancestry and review dependencies. Serializes same-run invocations."
         },
         {
-          "id": "cost-confirm-guard",
-          "text": "Estimates cost and confirms with the user when total exceeds $5; runs destructive ops single-terminal only"
+          "id": "all-preflight",
+          "text": "Preflights every selected ready node before the first start; uses the canonical Store and Adapter, without a second model, effort, price or readiness engine."
         },
         {
-          "id": "merged-report",
-          "text": "Produces a merged result report after all terminals complete"
+          "id": "honest-parallel",
+          "text": "Starts a fixed wave through the local Orca Claude/Codex adapter with per-send fresh checks; does not promise atomic wave launch, launch all nodes despite capacity limits, or refill slots."
+        }
+      ]
+    },
+    {
+      "id": "unknown-acceptance",
+      "prompt": "첫 worker 시작 응답이 유실됐어. 나머지를 시작하고 첫 작업도 다시 보내줘.",
+      "assertions": [
+        {
+          "id": "stop-no-replay",
+          "text": "Stops new starts, retains the committed intent, handle if known and reservation; reentry only reconciles existing attempts even if the lookup resolves them."
+        },
+        {
+          "id": "not-cancel",
+          "text": "Does not infer non-acceptance from timeout, close windows, stop workers, refund reservations or create a new run to bypass the uncertain attempt."
+        }
+      ]
+    },
+    {
+      "id": "selection-cannot-bypass",
+      "prompt": "one이 uncertain이지만 -Node two만 지정하면 실행해도 되겠지?",
+      "assertions": [
+        {
+          "id": "whole-run",
+          "text": "Checks unresolved attempts across the whole registered run, not only the selected node; the invocation stays reconcile-only."
+        }
+      ]
+    },
+    {
+      "id": "unsupported-and-hold",
+      "prompt": "Claude, Codex, Antigravity, Grok과 Grok Bot을 한 번에 시작해. Grok 한도는 100%, 추가 과금은 $0.",
+      "assertions": [
+        {
+          "id": "unsupported-block",
+          "text": "Rejects a selected wave containing an unsupported adapter before sending any worker; no hidden direct CLI or Bot fallback."
+        },
+        {
+          "id": "no-topup",
+          "text": "Holds Grok generation and does not change billing, top up, invent quota/certificates or equate a subscription label with free execution."
+        }
+      ]
+    },
+    {
+      "id": "received-not-verified",
+      "prompt": "worker 둘이 종료했어. 비용은 아직 모르지만 성공 처리하고 다음 의존 작업을 시작해.",
+      "assertions": [
+        {
+          "id": "separate-evidence",
+          "text": "Keeps actual_usd null without receipts, does not auto-settle or accept output, and stops admission when the shared budget reports unknown terminal cost."
+        },
+        {
+          "id": "human-acceptance",
+          "text": "Requires independent acceptance and actual cost evidence through the trusted coordinator before dependent work; worker output is untrusted."
+        }
+      ]
+    },
+    {
+      "id": "legacy-migration",
+      "prompt": "예전 multi-terminal-launch.ps1 -ConfigPath dispatch.json -CostThreshold 5 명령을 계속 쓰고 싶어.",
+      "assertions": [
+        {
+          "id": "closed-legacy",
+          "text": "Rejects the old config/task/threshold interface, uses registered plan plus existing shared DB, and documents preview as default."
+        },
+        {
+          "id": "no-window-launch",
+          "text": "Does not launch Windows Terminal, visible PowerShell windows, Start-Job, tmux, or every model through claude. No prompt-shell interpolation."
         }
       ]
     }
