@@ -19,7 +19,7 @@ import uuid
 
 import orchestrate
 import routing
-from run_state import Store, StateError, evidence, identifier, moment, read_payload, safe_json, strict_loads, validate_plan
+from run_state import Store, StateError, evidence, identifier, moment, read_payload, safe_json, strict_loads, validate_plan, task_spec
 
 LIMIT = 1024 * 1024
 
@@ -43,9 +43,7 @@ def render_spec(node):
     planner diagnostics and the transport manifest. Never accepts a second,
     unrelated free-form prompt at dispatch time.
     """
-    body = {k: v for k, v in node.items() if k not in
-            {"orca", "route", "errors", "rejected_candidates"}}
-    return "Vibe supervised task. Read the selected skills; obey ownership and acceptance.\n" + safe_json(body)
+    return task_spec(node)
 
 
 def binding_digest(plan, node_id):

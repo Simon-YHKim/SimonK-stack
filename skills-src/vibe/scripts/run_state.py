@@ -35,6 +35,7 @@ SCHEMA = (
     "CREATE TABLE attempts (dispatch_id TEXT PRIMARY KEY, run_id TEXT NOT NULL REFERENCES runs, node_id TEXT NOT NULL, attempt INTEGER NOT NULL, request_id TEXT NOT NULL, plan_digest TEXT NOT NULL, account_key TEXT NOT NULL REFERENCES accounts, route TEXT NOT NULL, state TEXT NOT NULL, reserved INTEGER NOT NULL CHECK(reserved>=0), actual INTEGER CHECK(actual>=0), handle TEXT, proof TEXT, verified INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, observed_at TEXT NOT NULL, UNIQUE(run_id,request_id), UNIQUE(run_id,node_id,attempt), FOREIGN KEY(run_id,node_id) REFERENCES nodes)",
     "CREATE TABLE events (seq INTEGER PRIMARY KEY, run_id TEXT, dispatch_id TEXT, kind TEXT NOT NULL, at TEXT NOT NULL, payload TEXT NOT NULL)",
 )
+PREPARATIONS_SCHEMA = "CREATE TABLE preparations (run_id TEXT PRIMARY KEY, draft_digest TEXT NOT NULL, draft TEXT NOT NULL, caller TEXT NOT NULL, ops TEXT NOT NULL, state TEXT NOT NULL, cap INTEGER NOT NULL CHECK(cap>=0), held INTEGER NOT NULL CHECK(held>=0), spent INTEGER NOT NULL CHECK(spent>=0), prior_unknown INTEGER NOT NULL, final_plan TEXT)"
 
 
 class StateError(ValueError):
@@ -168,6 +169,80 @@ def spec_digest(plan):
         ("mode", "approved_usd", "spent_usd", "external_reserved_usd", "max_attempts", "max_parallel")}})
 
 
+def task_spec(node):
+    """The same immutable Task text is used by preparation and dispatch."""
+    body = {k: v for k, v in node.items() if k not in
+            {"orca", "route", "errors", "rejected_candidates"}}
+    return "Vibe supervised task. Read the selected skills; obey ownership and acceptance.\n" + safe_json(body)
+
+
+def preparation_caller(caller):
+    if not isinstance(caller, dict) or set(caller) != {"handle", "identity_sha256"}:
+        raise StateError("EXACT_PREPARATION_CALLER_REQUIRED")
+    identifier(caller["handle"])
+    if not isinstance(caller["identity_sha256"], str) or not re.fullmatch("[0-9a-f]{64}", caller["identity_sha256"]):
+        raise StateError("EXACT_PREPARATION_CALLER_REQUIRED")
+    return safe_json(caller)
+
+
+def preparation_argv(plan, caller, key, native_ids):
+    """Pure canonical payload projection, also used for admission sizing."""
+    marker = "vibe-preparation:" + plan["plan_digest"]
+    if key == "run":
+        return ["orchestration", "run-create", "--objective", marker, "--from", caller["handle"]]
+    nodes = [n for n in plan["steps"] if "task:" + n["id"] == key]
+    if len(nodes) != 1:
+        raise StateError("PREPARATION_OPERATION_UNKNOWN")
+    node = nodes[0]
+    try:
+        return ["orchestration", "task-create", "--spec", task_spec(node), "--task-title", marker + ":" + node["id"],
+            "--deps", safe_json([native_ids["task:" + d] for d in node["depends_on"]]),
+            "--run", native_ids["run"], "--from", caller["handle"]]
+    except KeyError:
+        raise StateError("PREPARATION_DEPENDENCY_UNBOUND") from None
+
+
+def preparation_capacity(plan, caller):
+    # Admission uses worst-length IDs/escaping and one bounded proof per op;
+    # native effects must not precede a deterministic journal-size failure.
+    keys = ["run", *["task:" + n["id"] for n in plan["steps"]]]
+    if len(keys) > 33:
+        raise StateError("PREPARATION_SIZE_LIMIT")
+    ids = {key: ":" * 160 for key in keys}
+    safe_json(preparation_projection(plan, ids))
+    largest = {}
+    for key in keys:
+        argv = preparation_argv(plan, caller, key, ids) + ["--retry-request", "0" * 36, "--json"]
+        largest[key] = {"request_id": "0" * 36, "argv": argv, "operation_sha256": "0" * 64,
+            "state": "uncertain", "native_id": ":" * 160, "proof": "p" * 4096}
+    # More conservative than the 1MiB storage cap, with ample event overhead.
+    if len(safe_json(largest).encode("utf-8")) > 768 * 1024:
+        raise StateError("PREPARATION_SIZE_LIMIT")
+
+
+def preparation_projection(plan, native_ids):
+    result = json.loads(safe_json(plan))
+    for node in result["steps"]:
+        node["orca"].update(run_id=native_ids["run"], task_id=native_ids["task:" + node["id"]])
+    result["plan_digest"] = orchestrate.digest({k: v for k, v in result.items() if k != "plan_digest"})
+    return result
+
+
+def preparation_proof(proof):
+    if not isinstance(proof, dict) or len(safe_json(proof).encode("utf-8")) > 4096:
+        raise StateError("PREPARATION_PROOF_SIZE_LIMIT")
+    evidence(proof.get("evidence"))
+
+
+def native_binding(node):
+    binding = node.get("orca")
+    if isinstance(binding, dict):
+        return binding  # Retain historical ID ownership across route refresh.
+    if node["route"].get("transport") == "orca":
+        raise StateError("EXACT_ORCA_BINDING_REQUIRED")
+    return {}  # Generic nodes historically allow absent/null extra metadata.
+
+
 def validate_plan(plan, now):
     safe_json(plan)
     try:
@@ -218,7 +293,7 @@ class Store:
             db = sqlite3.connect(self.path.as_uri() + "?mode=rw", uri=True,
                                  isolation_level=None, timeout=self.timeout)
             db.row_factory = sqlite3.Row
-            if not new and db.execute("PRAGMA user_version").fetchone()[0] != 1:
+            if not new and db.execute("PRAGMA user_version").fetchone()[0] not in {1, 2}:
                 raise StateError("SCHEMA_UNSUPPORTED")
             if db.execute("PRAGMA journal_mode").fetchone()[0] != "delete":
                 raise StateError("JOURNAL_UNSUPPORTED")
@@ -259,6 +334,219 @@ class Store:
             db.execute("PRAGMA user_version=1")
             self._event(db, None, None, "initialized", moment(), {"approved_usd": usd(cap)})
 
+    def upgrade_preparations(self, approval_ref, now=None):
+        """Explicit additive migration; never changes the immutable grant.
+
+        This is not called by initialize/dispatch. Quiesce old coordinators and
+        review a backup before migrating an operational DB. Old v1 code rejects
+        v2 instead of ignoring preparation reservations.
+        """
+        evidence([approval_ref])
+        with self._transaction() as db:
+            if db.execute("PRAGMA user_version").fetchone()[0] == 2:
+                return
+            db.execute(PREPARATIONS_SCHEMA)
+            db.execute("PRAGMA user_version=2")
+            self._event(db, None, None, "preparation_schema_upgraded", moment(now), {"evidence": [approval_ref]})
+
+    @staticmethod
+    def _preparations(db):
+        if db.execute("PRAGMA user_version").fetchone()[0] == 1:
+            return []
+        return [dict(r) for r in db.execute("SELECT * FROM preparations ORDER BY run_id")]
+
+    def _preparation(self, db, run, caller=None):
+        if db.execute("PRAGMA user_version").fetchone()[0] != 2:
+            raise StateError("PREPARATION_SCHEMA_REQUIRED")
+        row = self._one(db, "SELECT * FROM preparations WHERE run_id=?", (identifier(run),))
+        if caller is not None and preparation_caller(caller) != row["caller"]:
+            raise StateError("PREPARATION_CALLER_CHANGED")
+        return row, json.loads(row["draft"]), json.loads(row["ops"])
+
+    def _native_available(self, db, run, kind, native, node=None):
+        """Conservative same-DB resource ownership, including closed history.
+
+        Run owner=(logical run); Task owner=(logical run,node). Runtime namespaces
+        are not inferred: even a cross-runtime identical native ID is fenced.
+        """
+        identifier(native)
+        owner = (run, node if kind == "task" else None)
+        for row in self._preparations(db):
+            for key, op in json.loads(row["ops"]).items():
+                other_kind = "run" if key == "run" else "task"
+                other = (row["run_id"], key[5:] if other_kind == "task" else None)
+                if other_kind == kind and op["native_id"] == native and other != owner:
+                    raise StateError("NATIVE_RESOURCE_ALREADY_OWNED")
+        for row in db.execute("SELECT run_id,plan FROM runs"):
+            for n in json.loads(row["plan"])["steps"]:
+                other = (row["run_id"], n["id"] if kind == "task" else None)
+                if native_binding(n).get(kind + "_id") == native and other != owner:
+                    raise StateError("NATIVE_RESOURCE_ALREADY_OWNED")
+
+    @staticmethod
+    def _bound_digest(row, ops):
+        # Proof timestamps are observations, not operation identity.
+        return orchestrate.digest({"draft": row["draft_digest"], "caller": json.loads(row["caller"]),
+            "bindings": {k: {f: op[f] for f in ("operation_sha256", "native_id")} for k, op in ops.items()}})
+
+    def preparation(self, run):
+        with self._transaction() as db:
+            row, _, ops = self._preparation(db, run)
+            return {"run_id": row["run_id"], "draft_digest": row["draft_digest"], "state": row["state"],
+                "held_usd": usd(row["held"]), "caller": json.loads(row["caller"]), "operations": ops,
+                "bound_sha256": self._bound_digest(row, ops) if row["state"] in {"bound", "registered"} else None}
+
+    def begin_preparation(self, plan, caller, now=None):
+        """Reserve a complete unbound plan. No native access or send authority.
+
+        Caller identity is trusted coordinator evidence of transport/runtime and
+        owned pane scope, not an authentication claim established by --from.
+        """
+        now, caller_text = moment(now), preparation_caller(caller)
+        validate_plan(plan, now)
+        try:
+            orchestrate.ordered_steps(plan["steps"])
+            if any(len(n["depends_on"]) != len(set(n["depends_on"])) for n in plan["steps"]):
+                raise ValueError("Duplicate dependency")
+        except (ValueError, TypeError, KeyError):
+            raise StateError("INVALID_PREPARATION_DAG") from None
+        shared, seen = None, set()
+        pins = ("runtime_id", "app_version", "executable", "executable_sha256", "worktree_id",
+                "worktree_path", "workspace_instance", "guards")
+        for n in plan["steps"]:
+            b = n.get("orca", {})
+            if (n["id"] in seen or "run_id" in b or "task_id" in b or
+                    n["route"].get("transport") != "orca" or n["route"]["surface"] not in {"claude", "codex"} or
+                    any(k not in b for k in (*pins, "account_ref", "profile_ref"))):
+                raise StateError("UNBOUND_ORCA_PLAN_REQUIRED")
+            current = {k: b[k] for k in pins}
+            if shared is not None and shared != current:
+                raise StateError("PREPARATION_SCOPE_CHANGED")
+            shared, seen = current, seen | {n["id"]}
+        if any(d not in seen for n in plan["steps"] for d in n["depends_on"]):
+            raise StateError("INVALID_PREPARATION_DAG")
+        preparation_capacity(plan, caller)
+        with self._transaction() as db:
+            if db.execute("PRAGMA user_version").fetchone()[0] != 2:
+                raise StateError("PREPARATION_SCHEMA_REQUIRED")
+            old = db.execute("SELECT * FROM preparations WHERE run_id=?", (plan["run_id"],)).fetchone()
+            if old:
+                if old["draft_digest"] != plan["plan_digest"] or old["caller"] != caller_text:
+                    raise StateError("PREPARATION_IMMUTABLE")
+                return
+            if db.execute("SELECT 1 FROM runs WHERE run_id=?", (plan["run_id"],)).fetchone():
+                raise StateError("RUN_ALREADY_EXISTS")
+            grant = self._one(db, "SELECT * FROM grant_policy WHERE id=1")
+            for other in self._preparations(db):
+                previous = json.loads(other["caller"])
+                if not any(previous[k] == caller[k] for k in ("handle", "identity_sha256")):
+                    continue
+                if (other["state"] != "registered" or
+                        self._one(db, "SELECT closed FROM runs WHERE run_id=?", (other["run_id"],))["closed"] == 0):
+                    raise StateError("PREPARATION_CALLER_BUSY")
+            if sum(r["state"] != "registered" for r in self._preparations(db)) >= grant["parallel"]:
+                raise StateError("PREPARATION_LIMIT")
+            self._budget_guard(db)
+            b, count = plan["budget"], plan["budget"]["max_attempts"]
+            held = nano(b["external_reserved_usd"]) + sum(
+                ((nano(n["route"]["reserved_upper_usd"]) + count - 1) // count) * count for n in plan["steps"])
+            db.execute("INSERT INTO preparations VALUES(?,?,?,?,?,'preparing',?,?,?,?,NULL)",
+                (plan["run_id"], plan["plan_digest"], safe_json(plan), caller_text, "{}",
+                 nano(b["approved_usd"], ceiling=False), held, nano(b["spent_usd"]), int(bool(nano(b["external_reserved_usd"])))))
+            self._budget_guard(db)
+            self._event(db, plan["run_id"], None, "preparation_reserved", now, {"draft_digest": plan["plan_digest"]})
+
+    def preparation_intent(self, run, key, caller, now=None):
+        """Persist exact argv+UUID before a future adapter may send once.
+
+        send_allowed is only a fresh journal claim, NOT native/billing/ownership
+        authorization. This module never executes these arguments.
+        """
+        now = moment(now)
+        with self._transaction() as db:
+            row, plan, ops = self._preparation(db, run, caller)
+            if key in ops:
+                return {**ops[key], "send_allowed": False}
+            if row["state"] != "preparing":
+                raise StateError("PREPARATION_RECONCILIATION_REQUIRED")
+            validate_plan(plan, now)
+            self._budget_guard(db)
+            argv = preparation_argv(plan, caller, key, {k: op["native_id"] for k, op in ops.items() if op["state"] == "complete"})
+            identity = orchestrate.digest({"draft": row["draft_digest"], "caller": caller, "key": key, "argv": argv})
+            request = str(uuid.uuid5(uuid.NAMESPACE_URL, "simonk:vibe:orca:preparation:v1:" + identity))
+            argv += ["--retry-request", request, "--json"]
+            op = {"request_id": request, "argv": argv, "operation_sha256": orchestrate.digest({
+                "identity": identity, "argv": argv}), "state": "intent", "native_id": None, "proof": None}
+            ops[key] = op
+            db.execute("UPDATE preparations SET ops=? WHERE run_id=?", (safe_json(ops), run))
+            self._event(db, run, None, "preparation_intent", now, {"key": key, "operation_sha256": op["operation_sha256"]})
+            return {**op, "send_allowed": True}
+
+    def observe_preparation(self, run, key, caller, proof, now=None):
+        """Accept only coordinator-verified, exact request/resource readback.
+
+        Raw native receipts require an adapter to check ownership, scope, spec,
+        dependencies and caller fingerprint first. No such adapter ships here.
+        """
+        now = moment(now)
+        preparation_proof(proof)
+        if not orchestrate.fresh(proof.get("observed_at"), now):
+            raise StateError("PREPARATION_PROOF_STALE")
+        with self._transaction() as db:
+            row, plan, ops = self._preparation(db, run, caller)
+            if key not in ops or proof.get("operation_sha256") != ops[key]["operation_sha256"]:
+                raise StateError("PREPARATION_PROOF_MISMATCH")
+            op = ops[key]
+            state = proof.get("state")
+            if state == "complete":
+                native = identifier(proof.get("native_id"))
+                if (proof.get("verified") is not True or proof.get("non_generating") is not True or
+                        nano(proof.get("actual_usd")) != 0):
+                    raise StateError("PREPARATION_PROOF_REQUIRED")
+                if op["native_id"] is not None and op["native_id"] != native:
+                    raise StateError("PREPARATION_BINDING_CHANGED")
+                if key != "run" and any(k != key and k != "run" and v["native_id"] == native for k, v in ops.items()):
+                    raise StateError("PREPARATION_BINDING_DUPLICATE")
+                self._native_available(db, run, "run" if key == "run" else "task", native,
+                                       None if key == "run" else key[5:])
+                op.update(state="complete", native_id=native, proof=proof)
+            elif state == "unknown":
+                if op["state"] != "complete":
+                    op.update(state="uncertain", proof=proof)
+            else:
+                raise StateError("PREPARATION_PROOF_INVALID")
+            if row["state"] == "registered":
+                return  # Identity checked, immutable completed preparation.
+            expected = {"run", *["task:" + n["id"] for n in plan["steps"]]}
+            phase = ("bound" if set(ops) == expected and all(o["state"] == "complete" for o in ops.values()) else
+                     "uncertain" if any(o["state"] == "uncertain" for o in ops.values()) else "preparing")
+            db.execute("UPDATE preparations SET ops=?,state=? WHERE run_id=?", (safe_json(ops), phase, run))
+            self._event(db, run, None, "preparation_observed", now, {"key": key, "state": state})
+
+    def finalize_preparation(self, run, caller, proof, now=None):
+        """Atomically transfer hold and inject only native IDs into stored draft."""
+        now = moment(now)
+        preparation_proof(proof)
+        with self._transaction() as db:
+            row, plan, ops = self._preparation(db, run, caller)
+            if row["state"] == "registered":
+                return json.loads(row["final_plan"])
+            if (row["state"] != "bound" or proof.get("bound_sha256") != self._bound_digest(row, ops) or
+                    any(proof.get(k) is not True for k in ("verified", "scope_verified", "no_workers", "non_generating")) or
+                    nano(proof.get("actual_usd")) != 0):
+                raise StateError("PREPARATION_FINAL_PROOF_REQUIRED")
+            evidence(proof.get("evidence"))
+            if not orchestrate.fresh(proof.get("observed_at"), now):
+                raise StateError("PREPARATION_PROOF_STALE")
+            plan = preparation_projection(plan, {key: op["native_id"] for key, op in ops.items()})
+            validate_plan(plan, now)
+            self._budget_guard(db)
+            db.execute("UPDATE preparations SET state='registered',held=0,spent=0,prior_unknown=0,final_plan=? WHERE run_id=?",
+                       (safe_json(plan), run))
+            self._register(db, plan, now)
+            self._event(db, run, None, "preparation_registered", now, {"proof": proof})
+            return plan
+
     @staticmethod
     def _one(db, sql, args=()):
         row = db.execute(sql, args).fetchone()
@@ -297,6 +585,12 @@ class Store:
                 unsettled += a["state"] in TERMINAL
             else:
                 spent += a["actual"]
+        for row in self._preparations(db):
+            if run is None or row["run_id"] == run:
+                held += row["held"]
+                spent += row["spent"]
+                unknown += row["prior_unknown"]
+                unknown += sum(op["state"] != "complete" for op in json.loads(row["ops"]).values())
         return spent, held, unknown, unsettled
 
     def _budget_guard(self, db):
@@ -310,6 +604,8 @@ class Store:
             s, h, _, _ = self._totals(db, row["run_id"])
             if s + h > row["cap"]:
                 raise StateError("RUN_BUDGET_EXCEEDED")
+        if any(r["held"] + r["spent"] > r["cap"] for r in self._preparations(db)):
+            raise StateError("RUN_BUDGET_EXCEEDED")
 
     def _node(self, db, run, node, attempts_used=0):
         route = node["route"]
@@ -329,19 +625,36 @@ class Store:
         validate_plan(plan, now)
         run = plan["run_id"]
         with self._transaction() as db:
-            old = db.execute("SELECT plan_digest FROM runs WHERE run_id=?", (run,)).fetchone()
-            if old:
-                if old[0] != plan["plan_digest"]:
-                    raise StateError("RUN_ALREADY_EXISTS")
-                return
-            self._budget_guard(db)
-            b = plan["budget"]
-            db.execute("INSERT INTO runs VALUES(?,?,?,?,?,?,?,0)", (run, plan["plan_digest"], spec_digest(plan),
-                safe_json(plan), nano(b["approved_usd"], ceiling=False), nano(b["spent_usd"]), nano(b["external_reserved_usd"])))
-            for node in plan["steps"]:
-                self._node(db, run, node)
-            self._budget_guard(db)
-            self._event(db, run, None, "reserved", now, {"plan_digest": plan["plan_digest"]})
+            if any(r["run_id"] == run and r["state"] != "registered" for r in self._preparations(db)):
+                raise StateError("PREPARATION_FINALIZATION_REQUIRED")
+            self._register(db, plan, now)
+
+    def _register(self, db, plan, now):
+        run = plan["run_id"]
+        old = db.execute("SELECT plan_digest FROM runs WHERE run_id=?", (run,)).fetchone()
+        if old:
+            if old[0] != plan["plan_digest"]:
+                raise StateError("RUN_ALREADY_EXISTS")
+            return
+        self._budget_guard(db)
+        tasks = set()
+        for n in plan["steps"]:
+            for kind in ("run", "task"):
+                native = native_binding(n).get(kind + "_id")
+                if native is None:
+                    continue
+                self._native_available(db, run, kind, native, n["id"])
+                if kind == "task":
+                    if native in tasks:
+                        raise StateError("PREPARATION_BINDING_DUPLICATE")
+                    tasks.add(native)
+        b = plan["budget"]
+        db.execute("INSERT INTO runs VALUES(?,?,?,?,?,?,?,0)", (run, plan["plan_digest"], spec_digest(plan),
+            safe_json(plan), nano(b["approved_usd"], ceiling=False), nano(b["spent_usd"]), nano(b["external_reserved_usd"])))
+        for node in plan["steps"]:
+            self._node(db, run, node)
+        self._budget_guard(db)
+        self._event(db, run, None, "reserved", now, {"plan_digest": plan["plan_digest"]})
 
     def _ready(self, db, run, now):
         row, p = self._run(db, run)
@@ -572,11 +885,13 @@ class Store:
                 account["known_spent_usd"] = usd(sum(a["actual"] for a in attempts if a["actual"] is not None))
                 account["actual_total_usd"] = None if any(a["actual"] is None for a in attempts) else account["known_spent_usd"]
                 accounts.append(account)
-            return {"schema_version": 1, "budget": {"approved_usd": usd(grant["cap"]),
+            return {"schema_version": db.execute("PRAGMA user_version").fetchone()[0], "budget": {"approved_usd": usd(grant["cap"]),
                 "known_spent_usd": usd(spent), "held_usd": usd(held),
                 "actual_total_usd": None if unknown else usd(spent), "unknown_attempts": unknown,
                 "halted": halted is not None, "halt_reason": halted, "provider_hard_cap": False},
                 "runs": [dict(r, status=("active", "cancelled", "completed")[r["closed"]]) for r in db.execute("SELECT run_id,plan_digest,closed FROM runs ORDER BY run_id")],
+                "preparations": [{"run_id": r["run_id"], "draft_digest": r["draft_digest"], "state": r["state"],
+                    "held_usd": usd(r["held"]), "known_spent_usd": usd(r["spent"])} for r in self._preparations(db)],
                 "accounts": accounts, "attempts": [self._public_attempt(a) for a in self._attempts(db)]}
 
 
@@ -596,6 +911,7 @@ def main(argv=None):
     p = sub.add_parser("init")
     p.add_argument("--approved-usd", default="0")
     p.add_argument("--approval-ref", default="user-zero-additional-budget")
+    sub.add_parser("upgrade-preparations").add_argument("--approval-ref", required=True)
     for name in ("register", "refresh"):
         sub.add_parser(name).add_argument("--plan", required=True)
     sub.add_parser("status")
@@ -616,6 +932,8 @@ def main(argv=None):
         store, result = Store(args.db), None
         if args.action == "init":
             store.initialize(args.approved_usd, args.approval_ref)
+        elif args.action == "upgrade-preparations":
+            store.upgrade_preparations(args.approval_ref)
         elif args.action in {"register", "refresh"}:
             getattr(store, args.action)(read_payload(args.plan))
         elif args.action == "claim":

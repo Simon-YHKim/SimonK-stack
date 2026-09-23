@@ -411,8 +411,11 @@ Evidence must establish that the pinned native runtime supports a caller-chosen
 UUID on the **first** worker-start. General retry support or UUID syntax alone
 does not establish that. Missing/unknown/mismatched evidence blocks before the
 first native read and before claim. No helper manufactures this certificate.
-Current installed-source inspection established UUID syntax only; first-use
-support remains unverified, so new native sends remain on hold. Fixture proofs
+Installed Orca 1.4.206 server-source inspection now establishes first-use UUID
+handling, scoped by `(callerFingerprint, requestId)`, plus same-payload replay
+and mismatch rejection. This does not establish that the running runtime loaded
+those inspected bytes or prove account/cost/owned-caller readiness. New native
+sends remain on hold until those operational bindings are verified. Fixture proofs
 are synthetic test inputs, not operational evidence or authorization.
 
 The adapter deterministically derives a UUID5 from the complete binding with
@@ -481,6 +484,88 @@ its three shell integration cases are separate, default-skipped tests requiring
 `VIBE_REVIEWED_SHELL_INTEGRATION=1` after independent isolation review. Setting
 that flag is not a sandbox or spending approval. Keep it unset for offline
 validation under the current hold. A reported skip is not a passed integration.
+
+## Offline preparation journal (schema 2; native preparation adapter pending)
+
+`run_state.Store` now exposes a preparation lifecycle, not a native Run/Task
+creator. `execute_orca.py` still accepts already-bound Tasks only; there is no
+`prepare` command or automated native preparation yet. This section supersedes
+older statements that **all** preparation state is unimplemented, not the
+remaining prohibition on ad-hoc Run/Task creation or manual preclaim.
+
+An operational schema migration requires explicit review/authorization, a
+validated backup and quiesced old coordinators. Existing `init` remains schema1;
+only `run_state.py --db <same-shared-db> upgrade-preparations --approval-ref <ref>`
+opts into additive schema2. It never changes the grant, existing runs/attempts,
+or a profile. Old schema1-only code rejects schema2; do not downgrade user_version
+or create an alternative DB to evade holds. **No operational migration has been
+performed by the development fixture tests.**
+
+The trusted coordinator API is:
+
+1. `begin_preparation(draft, caller)`: ready, fresh, all-Orca Claude/Codex draft,
+   with native `run_id`/`task_id` absent (not fabricated placeholders). Nodes must
+   share exact runtime/executable/workspace/guard pins. Full-plan attempt reserves,
+   prior spend and external holds enter shared budget accounting atomically.
+   No ordinary `runs` row exists yet; public registration of that run ID is fenced.
+2. `preparation_intent(run, "run"|"task:<node>", caller)`: derive and persist exact
+   canonical argv and stable UUID before returning `send_allowed=true` once.
+   Tasks reference positively bound native dependencies and the same spec renderer
+   as dispatch. Re-entry, restart or concurrent claims return false with the same
+   identity; never execute a stored true response. An absent receipt is unknown.
+3. `observe_preparation(...)`: accept coordinator-verified matching
+   `operation_sha256`, immutable native ID, fresh time, evidence, non-generating
+   metadata and actual cost exactly zero. Unknown observations retain hold/slot
+   and block further new operations until reconciled. Missing/positive cost is not
+   relabeled as zero. Global `actual_total_usd` is null while metadata intents are
+   unresolved; `unknown_attempts` also counts those metadata operations.
+4. `finalize_preparation(...)`: require all operations bound, fresh exact
+   `bound_sha256` proof, `scope_verified`, `no_workers`, `non_generating`, verified
+   zero actual metadata cost and evidence. Store injects **only** native Run/Task
+   IDs into its stored draft, revalidates/re-hashes, and transfers the preparation
+   hold into ordinary run/node reservations in one transaction. Any failure rolls
+   back both sides. It neither claims workers nor verifies their outputs.
+
+`caller` has exactly `handle` and `identity_sha256`. The latter must fingerprint
+the verified transport/runtime/owned-coordinator scope; a made-up digest or
+`--from` handle is not ownership proof. Orca's receipt key is caller-scoped, not
+globally scoped by UUID. All cooperating callers must use this same DB. Raw
+native receipts must pass a future adapter's scope/ownership/spec/dependency
+checks before entering these trusted observation APIs. These local proof fields
+are **not** an Orca response schema or cryptographic attestation.
+
+There are at most grant.parallel unfinished preparations, including zero-cost
+and uncertain ones. A caller handle or identity cannot own another unfinished
+preparation or registered-but-active run. Finalization does not release that
+caller fence while the ordinary run remains active. Native IDs have exclusive
+same-DB owners, including manual bound registrations and registered/closed
+history: a Run belongs to one logical run, a Task to one logical run/node.
+Even identical IDs on different runtimes are conservatively fenced; this is
+not a claim that Orca IDs are globally unique. Fresh native current-Run and
+owned-pane checks are still mandatory; local closure is not native cleanup.
+Admission verifies the full DAG, at most32 Task nodes and
+worst-length journal serialization <=768KiB and final-plan projection <=1MiB;
+each observation/final proof is
+<=4096 UTF-8 JSON bytes. There is no automatic expiry, cancellation, budget
+release, UUID reset or draft rebase. Expired drafts retain their reservation;
+safe observation-only rebase is a follow-up, not permission to create another
+run. `snapshot.preparations` exposes these holds separately from ordinary runs;
+the global budget includes them. The existing `accounts` view covers registered
+node/attempt reserves only, not preparation-level holds.
+
+The unimplemented native preparation adapter must validate zero-cost,
+non-generating execution and pinned first-use Run/Task request support before
+**any** native call. It must prove the caller owns the pane and refuse an unrelated
+current Run: installed run-create can unbind that pane's previous Run. Persisted
+intent comes before each send, with readback/recovery via exact caller-scoped
+receipts and Run/Task evidence. Native mutations/receipt completion are separate
+transactions, so partial Run/DAG state is expected after a crash. Missing,
+pending, pruned or ambiguous receipts never authorize replacement UUIDs.
+
+Offline check: `python -B -m unittest discover -s tests -p test_prepare_state.py -v` from this skill's
+`scripts` directory. It denies subprocess launch before imports and throughout
+each test; SQLite files and all proofs are temporary synthetic fixtures. It does
+not test live Orca creation, the running backend, provider billing or OS isolation.
 
 ## Completion boundary
 
