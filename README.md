@@ -1,6 +1,6 @@
 # SimonK-Stack
 
-> **Claude 를 1인 회사로 만드는 skill 라이브러리.** 132 개 skill 이 8 개 부서로 나뉘어 있고, `simonK` 가 CEO 사무실에서 자율 진행. 사용자 = 창업자.
+> **스킬을 한 요청으로 조합하는 라이브러리.** `/vibe`가 메인 조정자이고, `simonk`는 그 아래의 스프린트 절차입니다. 사용자 = 목표와 권한의 결정자.
 
 ![version](https://img.shields.io/badge/version-0.1.0-5b8cff) ![license](https://img.shields.io/badge/license-MIT-green) [![validate](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml/badge.svg)](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml) [![skills](https://img.shields.io/badge/skills-132-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]()
 
@@ -29,7 +29,7 @@ Claude Code 마켓플레이스에서 바로 설치 (Install directly from the Cl
                   └────────────┬────────────┘
                                │
                   ┌────────────▼────────────┐
-                  │  /simonK = Chief of Staff │  ← 단일 자율 진입점 (6-phase)
+                  │  /vibe = Main coordinator│  ← simonk 등 필요한 절차 선택
                   └────────────┬────────────┘
                                │
    ┌───────────┬───────────┬───┴───────┬───────────┬───────────┬───────────┬───────────┐
@@ -46,7 +46,7 @@ Office     & Design               & Platform & Compl.   & Revenue  & Memory   De
 
 ### 1. Strategy Office (전략실) — 비전·계획·의사결정
 
-새 프로젝트 시작 시 *무엇을 왜* 만들지 결정. simonK 가 작업 의뢰 받자마자 가장 먼저 들르는 곳.
+새 프로젝트 시작 시 *무엇을 왜* 만들지 결정. /vibe가 목표에 맞춰 필요한 기획 절차를 선택합니다.
 
 | 핵심 skill | 역할 |
 |---|---|
@@ -98,7 +98,7 @@ Office     & Design               & Platform & Compl.   & Revenue  & Memory   De
 | `/ship` (gstack) | VERSION + CHANGELOG + push + PR 한 흐름 |
 | `/canary` (gstack) | 프로덕션 헬스 카나리 검증 |
 | `/stack-update` | SimonK Stack 본체 + Wiki + gstack + 5 vendored stacks 홀리스틱 최신화 |
-| `/multi-terminal-dispatcher` | 모델 라우터 + 다중 터미널 병렬 작업 dispatch |
+| `/multi-terminal-dispatcher` | 중앙 계획·상태·비용을 공유하는 준비된 작업 묶음 실행; 기본은 미리보기 |
 
 ### 5. Security & Compliance (보안·법무) — 위협·규제·인증
 
@@ -178,30 +178,62 @@ Office     & Design               & Platform & Compl.   & Revenue  & Memory   De
 
 Claude Code 안에서는 `/ai-usage-widget-install` 또는 "AI 사용량 위젯 설치해줘". 로그인(브라우저·기기 코드)은 위젯 화면에서 사용자가 직접 한다. 타사 로고의 권리는 각 소유자에게 있다 — `NOTICE` 참고.
 
-## 🤖 simonK — CEO 사무실 + Chief of Staff
+## /vibe — 메인 진입점, simonk — 스프린트 절차
 
-회사의 모든 부서를 묶어주는 자율 진입점. 단일 명령으로 6 phase 자율 흐름.
+기존 LLM 세션에서 `/vibe <원하는 결과>`를 사용합니다. 필요한 스킬과
+소프트웨어를 고르고, 모델·effort·계정·쿼터·추가 비용·검증을 한 계획으로
+관리합니다. `/simonK <task>`도 같은 조정자 아래의 6단계 스프린트 절차입니다.
 
-```bash
-# PowerShell — 어디서든
-simonK "사용자 인증 + Stripe 결제 + 한국 결제 추가"
+명확화 → 의존성·리뷰 계획 → 준비된 작업 실행 → 검증·복구 → 범위 내 Git
+반영 → 결과 보고. 무조건 병렬 실행하거나 모든 저장소를 자동 push하지 않습니다.
+추가 과금 기본값은 $0이며, 미확인 과금이나 사용량을 0으로 간주하지 않습니다.
+GUI가 꼭 필요한 일만 내부 vibe-bot 경로로 전달합니다.
 
-# Claude Code 슬래시 — 세션 내
-/simonK <task>
+PowerShell의 `simonK`는 슬래시 명령과 다르게 **구조화된 오프라인 계획 전용**입니다.
+이전의 `simonK "task"`와 인자 없는 Claude 실행은 차단됩니다.
+
+```powershell
+# 기존 세션에 함수를 직접 정의하려면 검토한 지속 clone에서만:
+. ./scripts/simonk.ps1
+# 배치 스크립트는 binding 실패도 중단하고 종료코드를 전달합니다.
+$ErrorActionPreference = 'Stop'
+simonK -RequestPath request.json -RuntimePath runtime.json
+# exit $LASTEXITCODE  # 배치 파일에서만; 대화형 셸에서는 종료하지 마세요.
 ```
 
-### 6 phase 흐름
+입력 계약: [vibe 실행 계약](skills-src/vibe/references/orchestration.md).
+[스프린트 절차](skills-src/simonk/SKILL.md)와
+[다중 실행기](skills-src/multi-terminal-dispatcher/SKILL.md)는 같은 중앙 정본을 소비합니다.
+계획 성공·작업 시작·출력 수신·비용 정산·검증 완료는 서로 다릅니다.
 
-| Phase | 무엇을 | 어느 부서가 |
-|---|---|---|
-| 1 | Ambiguity Score (4 차원 0-10) — <6 면 Socratic 3-5 Q | Strategy Office |
-| 2 | Sprint plan → `.simonk/plan.md` (trivial 작업은 skip) | Strategy Office |
-| 3 | Parallel Task tool delegation (general / Explore / Plan) | 부서별 분배 |
-| 4 | Verification — `validate_skill.py` / `wiki-lint` / `bash -n` / 작업별 | QA + Security |
-| 5 | Persistence — commit + push (PR 자동 X, .env / 파괴적 작업 STOP) | DevOps |
-| 6 | Final report — 구조화 요약 | Strategy Office (CEO 보고) |
+### 선택 사항: PowerShell 7 프로필 연결
 
-자세한 protocol: [`skills-src/simonk/SKILL.md`](skills-src/simonk/SKILL.md) + [`references/orchestration-protocol.md`](skills-src/simonk/references/orchestration-protocol.md)
+검토된 실행기·중앙 planner가 일치하는 **지속 일반 clone**을 명시하세요.
+임시 linked worktree나 아직 구버전인 main으로 연결하지 않습니다.
+
+```powershell
+# 기본은 읽기 전용 미리보기
+pwsh -NoProfile -NonInteractive -File scripts/install-simonk-profile.ps1 -RepoRoot 'E:/persistent/SimonK-stack'
+# 미리보기와 대상을 확인한 뒤에만 같은 명령에 -Apply 추가
+```
+
+기본 대상은 현재 PowerShell의 CurrentUserAllHosts 프로필이며, 절대 경로
+`-ProfilePath`로 지정할 수 있습니다. `-Apply`는 정확히 인식된 v1/v2 관리 블록만
+교체하고 사용자 코드·인코딩을 보존합니다. 변경 전 파일은 고유 백업으로 남기며,
+수정된 블록·중복 표식·불명확한 인코딩은 쓰지 않고 차단합니다. 재적용은 멱등적입니다.
+
+예제 문자열·주석·중첩 함수에 있는 표식은 AST 문맥 검사로 제외합니다.
+시작 시 파일의 쓰기·교체를 잠근 상태에서 해시를 확인하고 함수를 로드합니다. 변경·누락·조회 실패 시 로드하지
+않고 재설치를 안내합니다. 설치 중 dot-source, 환경변수·gcloud·Team Mode·결제
+설정 변경은 없습니다. 기존 환경변수는 그대로 두며 이 명령으로 정리하지 않습니다.
+적용 중 다른 편집기를 닫으세요. 마지막 재확인은 외부 편집기 전체를 잠그는 기능이
+아닙니다. 복구는 백업·현재 파일을 확인하고 덮어쓰기 권한을 받은 뒤 수동으로 합니다.
+
+이 연결은 전체 스킬 설치, planner 패키지 무결성, 열린 세션의 실행 무결성 또는
+5계열 모델 실호출 검증을 대신하지 않습니다. 정식 설치·재설치 checksum은 별도 게이트입니다.
+
+검증: `python -B -m unittest discover -s scripts/tests -p test_install_simonk_profile.py`
+(임시 프로필·복제본만 사용, 사용자 프로필 변경 없음).
 
 ---
 

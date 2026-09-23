@@ -311,43 +311,88 @@ LLM 이 직접 처리할 것:
 
 ---
 
-## 🤖 simonk 통합 자율 하네스 (2026-05-23 추가)
+## /vibe main entry and simonk compatibility
 
-`simonk` 는 OMC·OMO·OpenHarness 3 철학을 종합한 **단일 자율 실행 진입점**. Claude Code Task tool 기반 self-contained (외부 plugin 의존 X).
+/vibe owns skill discovery, model/effort routing, account/quota evidence, budget,
+the registered DAG and execution state. simonk contributes a six-phase sprint
+procedure in that same host, not a second coordinator.
 
-### 사용
+### Entry points
+
+```text
+/vibe <outcome>     # Main entry in an existing LLM session
+/simonK <task>      # Sprint procedure under the same /vibe contract
+```
+
+The case-insensitive PowerShell command is different: it accepts prepared JSON
+for **offline planning only**, never a text prompt or an interactive LLM launch.
 
 ```powershell
-# PowerShell (어디서든)
-simonK "task description"            # non-interactive, /simonK 호출 자동
-simonK                                # interactive, claude 열림
-
-# Claude Code 슬래시 (interactive session)
-/simonK <task>
+$ErrorActionPreference = 'Stop'  # Batch callers must also catch binding errors.
+simonK -RequestPath request.json -RuntimePath runtime.json
+exit $LASTEXITCODE              # Batch scripts only, not interactive shells.
 ```
 
-대소문자 무관 (alias `simonk`, `SimonK` 모두 작동).
+Use the schemas and execution gates in
+`skills-src/vibe/references/orchestration.md`. A plan is neither a reservation
+nor proof of dispatch. Reuse the parent's run, grant, DB, ancestry and reviews.
+Additional spending defaults to $0; unknown billing/quota is not free.
+GUI-only work uses vibe-bot through the same owner; Bot is no quota workaround.
 
-### 6-Phase 실행 흐름
+### Six phases and Git boundary
 
+Clarify consequential gaps → one dependency/review plan → authorized ready work
+→ evidence-based verification/recovery → scoped persistence → honest report.
+See `skills-src/simonk/SKILL.md` and its orchestration protocol for the details.
+
+Do not fan out raw Task/terminal/provider calls, stage all changes, disable
+signing/hooks or push unrelated repositories. Commit only the intended changes
+after tests/review; push only the confirmed repository/branch within the user's
+authorization. PR, merge, deployment, destructive, credential and spending gates
+remain in force. Installed parity and live model tests are separate evidence.
+
+### Optional PowerShell profile migration
+
+Use PowerShell 7 and an explicitly chosen persistent **ordinary clone** whose
+entry script and central planner match this reviewed source. A linked worktree,
+old primary checkout or automatic fallback is not an installation target.
+
+```powershell
+# Default: preview only. No directory, profile, backup or environment writes.
+pwsh -NoProfile -NonInteractive -File scripts/install-simonk-profile.ps1 -RepoRoot 'E:/persistent/SimonK-stack'
+
+# After inspecting the target and preview, explicitly apply:
+pwsh -NoProfile -NonInteractive -File scripts/install-simonk-profile.ps1 -RepoRoot 'E:/persistent/SimonK-stack' -Apply
 ```
-Phase 1: Ambiguity Score (4 차원 0-10) — score<6 면 Socratic Q&A 3-5문항
-Phase 2: Sprint Plan (.simonk/plan.md, trivial 작업은 skip)
-Phase 3: Parallel Task tool delegation (general-purpose / Explore / Plan)
-Phase 4: Verification (validate_skill.py, wiki-lint, bash -n, 등 작업별)
-Phase 5: Persistence (commit + push, Full Auto 모든 repo, PR 자동 X)
-Phase 6: Final Report (구조화된 요약)
+
+An optional absolute `-ProfilePath` selects a specific .ps1 profile; otherwise
+the current PowerShell's CurrentUserAllHosts path is used. The installer only
+replaces one exact owned v1/v2 block, preserves surrounding bytes and supported
+UTF-8/UTF-16 encoding, and returns a unique byte-preserving backup on replacement.
+Malformed/edited/duplicate markers or unmanaged simonk.ps1 references fail closed.
+The marker and statement must be actual top-level code, not a here-string,
+block comment or nested function that merely contains an installer example.
+
+A v2 profile holds a read-only file handle (no write/delete sharing) from hash
+verification through dot-source, and loads the function-definition wrapper only
+when its pinned SHA-256 matches. Missing/changed/unreadable files give a warning, not
+startup execution. The installer does not dot-source anything itself, change
+SIMONK_PROJECT_DIR, authenticate gcloud, enable Team Mode or alter settings.
+Existing environment values are left intact; removing unrelated bootstrap
+consumers belongs to a separate migration.
+
+Close other editors/installers during apply. The final hash recheck and atomic
+replacement preserve a backup but are not a universal cross-editor lock.
+For rollback, inspect the returned backup and current profile first, then restore
+only with the applicable overwrite authorization; no automatic rollback occurs.
+Startup pinning is not full planner-package integrity or a guarantee for already
+open sessions. Full release/installation checksum parity remains a separate gate.
+
+Offline validation:
+```text
+python -B -m unittest discover -s scripts/tests -p test_install_simonk_profile.py
+python -B -m unittest discover -s scripts/tests -p test_simonk_entrypoint.py
 ```
-
-전체 protocol: `skills-src/simonk/SKILL.md` + `skills-src/simonk/references/orchestration-protocol.md`.
-
-### Auto-push 정책: **Full Auto**
-
-사용자 명시 확인 없이 모든 repo (private + public) 자동 push. 단 (1) PR 생성·머지 자동 X, (2) 파괴적 작업 (`rm -rf`, force push, DB drop) STOP, (3) .env / credentials 노출 STOP.
-
-### Entry point 영속화
-
-`scripts/install-simonk-profile.ps1` 가 PowerShell profile 에 `simonk.ps1` dot-source 박음 (idempotent). `SIMONK_PROJECT_DIR=C:\Coding` 환경변수 user-scope 영속 설정.
 
 ### 통합 외부 reference (Sprint v22-EXT: vendored, 2026-05-25)
 
@@ -362,12 +407,14 @@ Phase 6: Final Report (구조화된 요약)
 
 ### Claude Code Native Team Mode 활성
 
-`~/.claude/settings.json` 에 `"env": { "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1" }` 자동 박힘 (`scripts/install-simonk-profile.ps1` 의 사이드 효과). OMC vendor `external/oh-my-claudecode/` 가 reference로 즉시 가용, 정식 plugin install 후 `/team N:role "task"` 사용 가능.
+The profile installer does not enable experimental teams or edit Claude settings.
+External team tooling is a separately authorized setup; availability and supported
+controls must be checked before use, not inferred from a vendored directory.
 
 ### Windows 제약
 
 - `omc team` CLI mode (tmux 워커) 는 `winget install psmux` 필요 (선택사항).
-- `simonK <task>` 본체는 tmux 없이 작동.
+- The offline PowerShell planning entry does not require tmux or a provider CLI.
 
 ## graphify
 

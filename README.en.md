@@ -1,6 +1,6 @@
 # SimonK-Stack
 
-> A skill library that makes Claude Code **follow the right procedure automatically** — from product planning to development, monetization, growth, and exit. Plus **simonK unified autonomous harness**.
+> A skill library for outcome-driven work: **/vibe is the main coordinator**, and **simonk supplies its sprint procedure**, from planning through verified results.
 
 **[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![validator](https://img.shields.io/badge/skill--validator-132%20skills-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
 
@@ -12,7 +12,7 @@
 
 **Problem**: AI coding assistants work in a different order every time you give them a large task, and they repeat the same mistakes.
 
-**Solution**: **132 skills** (work manuals, `validate_skill.py` reports 0 errors / 0 warnings as of 2026-05-28; sprint v36 added 11 absorbed from `zarazhangrui/frontend-slides`, `robonuggets/{design-system,html-it}`, `OpenSenseNova/SenseNova-Skills`, and the Claude Skills 2026 slide deck) + **simonK unified autonomous harness** (single entry point → 6-phase autonomous execution). Combined with [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (private) for cross-session learning accumulation — no more re-reasoning from scratch every session.
+**Solution**: **132 skills** (work manuals, `validate_skill.py` reports 0 errors / 0 warnings as of 2026-05-28; sprint v36 added 11 absorbed from `zarazhangrui/frontend-slides`, `robonuggets/{design-system,html-it}`, `OpenSenseNova/SenseNova-Skills`, and the Claude Skills 2026 slide deck) + **/vibe main coordinator with the simonk sprint procedure** (one owner → guarded work → verified results). Combined with [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (private) for cross-session learning accumulation — no more re-reasoning from scratch every session.
 
 **Sprint v34 (2026-05-25)** — 5 external vendor integrations (user-level live clone + auto-update each session):
 - [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) · [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) · [OpenHarness](https://github.com/HKUDS/OpenHarness) — existing (sprint v22-EXT)
@@ -31,43 +31,75 @@ Location: `~/.simon-stack/vendor/<repo>/` — `.claude/hooks/session-start.sh` �
 "pick a stack"         → tech-preference-tracker → consistency advice based on accumulated preferences
 "exit strategy"        → exit-strategy-planner   → IPO/M&A roadmap
 
-simonK <goal>          → unified autonomous harness → Ambiguity check → Sprint plan
-                                                    → parallel Task agents → Verify → Full Auto push
+/vibe <goal>          → one coordinator → skill selection → guarded ready work
+                                        → independent verification → scoped persistence
 ```
 
 ---
 
-## 🤖 simonK Unified Autonomous Harness (★ v2 core)
+## /vibe main entry and simonk sprint procedure
 
-**Single entry point — invokable from anywhere:**
+Use `/vibe <outcome>` inside the current LLM session. It owns skill/software
+selection, model and effort routing, account/quota evidence, shared budget and
+execution state. `/simonK <task>` runs a six-phase procedure in that same host:
+clarify → dependency/review plan → ready work → verify/recover → scoped Git
+persistence → report. It does not create a second coordinator or fresh budget.
+
+Default additional spend is $0. Unknown billing is not free. GUI-only work uses
+the internal vibe-bot handoff, never a shortcut around account or quota gates.
+No unconditional Task fan-out, stage-all, all-repository push, PR, merge or
+deployment follows from invoking the skill.
+
+The case-insensitive PowerShell `simonK` command is **offline planning only**.
+Legacy text/no-argument provider launches are rejected:
 
 ```powershell
-# PowerShell — profile persisted (works in any folder)
-simonK <task>
-
-# Inside Claude Code interactive session — slash
-/simonK <task>
+# Define the function only from a reviewed persistent clone:
+. ./scripts/simonk.ps1
+$ErrorActionPreference = 'Stop'
+simonK -RequestPath request.json -RuntimePath runtime.json
+# exit $LASTEXITCODE  # Batch files only; do not exit interactive shells.
 ```
 
-Both execute the same `skills-src/simonk/SKILL.md`. **Case-insensitive** (`simonk`, `SIMONK`, `SimonK` all equivalent).
+See the [central contract](skills-src/vibe/references/orchestration.md),
+[sprint procedure](skills-src/simonk/SKILL.md) and
+[bounded wave consumer](skills-src/multi-terminal-dispatcher/SKILL.md).
+Plan-ready, started, received, settled and verified are different states.
 
-### 6-Phase autonomous flow
+### Optional PowerShell 7 profile migration
 
-| Phase | Action | User input? |
-|---|---|---|
-| **1** Ambiguity Score | Evaluate 4 dimensions (Goal/Scope/Success/Risk) 0-10 | If score<6 → Socratic 3-5 Q&A once |
-| **2** Sprint Plan | Break into `≤5` sub-tasks + dependency graph → `.simonk/plan.md` | default proceed |
-| **3** Parallel Execution | Independent sub-tasks → Task tool parallel calls (general-purpose / Explore / Plan agents) | none |
-| **4** Verification | Task-specific (`validate_skill.py` / `wiki-lint` / `bash -n` / test) | none (report on 2nd failure) |
-| **5** Persistence | `git add -A && commit && push` both repos (Full Auto) | none |
-| **6** Final Report | Structured summary of work · verification · git status · next steps | none |
+Choose an explicit persistent ordinary clone with matching reviewed entrypoint
+and planner. Linked worktrees, stale primary clones and silent fallback are
+rejected. This does not install the skills or promote the source to main.
 
-### Auto-push policy (Full Auto, user-agreed)
+```powershell
+# Read-only preview; no profile, directory, backup or environment writes:
+pwsh -NoProfile -NonInteractive -File scripts/install-simonk-profile.ps1 -RepoRoot 'E:/persistent/SimonK-stack'
+# Only after checking the target and preview, repeat with -Apply.
+```
 
-- ✅ All repos (private + public) auto commit + push
-- ❌ **PR creation/merge** — NEVER automated (global CLAUDE.md policy)
-- ❌ **Destructive ops** (`rm -rf`, `git reset --hard`, force push to main of multi-collab, DB drop) STOP
-- ❌ **.env / credentials** exposure/modification immediate STOP
+The default is this PowerShell's CurrentUserAllHosts profile; an absolute
+`-ProfilePath` selects another .ps1 profile. Apply replaces only one exact owned
+v1/v2 block, preserves supported UTF-8/UTF-16 encoding and surrounding bytes,
+and returns a unique original-file backup. Ambiguous/modified/duplicate markers
+fail closed. Reapplying unchanged content creates no backup.
+
+Managed blocks must be top-level executable code, not examples in here-strings,
+comments or nested functions. At startup a read handle prevents writes/deletion
+through hash verification and loading; the wrapper loads only if SHA-256 matches. Missing,
+changed or unreadable targets give a reinstall warning. Installation itself
+does not dot-source code, change environment variables, authenticate gcloud,
+enable Team Mode or edit billing/settings. Existing environment values remain
+untouched. Close competing editors/installers: the final freshness check is
+not a universal cross-editor lock. Inspect backup/current bytes and obtain
+applicable overwrite authorization before manually restoring a backup.
+
+Startup wrapper pinning does not prove whole planner-package integrity, already
+open session integrity, installed parity or live model execution. Those remain
+separate release/verification gates.
+
+Offline tests use disposable profiles/clones, not the user's configuration:
+`python -B -m unittest discover -s scripts/tests -p test_install_simonk_profile.py`.
 
 ---
 
@@ -108,11 +140,11 @@ Details: [docs/USING-IN-OTHER-REPOS.md](docs/USING-IN-OTHER-REPOS.md)
 
 ## 🎯 Quick Start — 18 Curated Skills
 
-For first-time users, **`simonK <goal>` is the single entry point**. The rest of the curated 18 main skills:
+For first-time users, **`/vibe <goal>` is the main entry point** in an existing LLM session. These curated skills remain discoverable procedures:
 
 | Priority | Skills |
 |---|---|
-| ★ Entry | `simonK <task>` |
+| ★ Entry | `/vibe <goal>`; `/simonK <task>` for its sprint procedure |
 | ★ Pipelines | `app-dev-orchestrator` · `dev-orchestrator` · `security-orchestrator` |
 | ★ Methodology base | `karpathy-guidelines` · `simon-tdd` · `simon-worktree` · `simon-instincts` |
 | ★ Pre-launch | `payment-integrator` · `human-voice-guard` · `release-notes` · `viral-launch` |
@@ -196,7 +228,7 @@ Three Phase 3 core tools entered *3 weeks early*:
 
 1. *"SimonK-stack: 6-month case study of a single Korean engineer running 100 Claude Code skills + autonomous harness"*
 2. *"Show HN: I built a personal AI OS with 100 skills, MCP integration, and a closed-network signature agent roadmap"*
-3. *"Show HN: simonK — autonomous 6-phase harness for Claude Code (one-command → Plan + parallel Task agents + auto-push)"*
+3. *"Show HN: SimonK-stack — /vibe coordinates skills, budget-aware execution and verified results"*
 
 ### Pitch (140 chars)
 
