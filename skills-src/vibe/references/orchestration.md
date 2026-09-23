@@ -485,11 +485,13 @@ its three shell integration cases are separate, default-skipped tests requiring
 that flag is not a sandbox or spending approval. Keep it unset for offline
 validation under the current hold. A reported skip is not a passed integration.
 
-## Offline preparation journal (schema 2; native preparation adapter pending)
+## Preparation journal and host-injected core (schema 2; native bridge pending)
 
 `run_state.Store` now exposes a preparation lifecycle, not a native Run/Task
 creator. `execute_orca.py` still accepts already-bound Tasks only; there is no
-`prepare` command or automated native preparation yet. This section supersedes
+operational `prepare` command or automated native preparation yet. The library
+`prepare_orca.py` connects this journal to a host-injected protocol core, not an
+implemented native bridge. This section supersedes
 older statements that **all** preparation state is unimplemented, not the
 remaining prohibition on ad-hoc Run/Task creation or manual preclaim.
 
@@ -530,7 +532,7 @@ The trusted coordinator API is:
 the verified transport/runtime/owned-coordinator scope; a made-up digest or
 `--from` handle is not ownership proof. Orca's receipt key is caller-scoped, not
 globally scoped by UUID. All cooperating callers must use this same DB. Raw
-native receipts must pass a future adapter's scope/ownership/spec/dependency
+native receipts must pass the protocol core's scope/ownership/spec/dependency
 checks before entering these trusted observation APIs. These local proof fields
 are **not** an Orca response schema or cryptographic attestation.
 
@@ -553,7 +555,7 @@ run. `snapshot.preparations` exposes these holds separately from ordinary runs;
 the global budget includes them. The existing `accounts` view covers registered
 node/attempt reserves only, not preparation-level holds.
 
-The unimplemented native preparation adapter must validate zero-cost,
+The host-injected preparation core validates coordinator evidence of zero-cost,
 non-generating execution and pinned first-use Run/Task request support before
 **any** native call. It must prove the caller owns the pane and refuse an unrelated
 current Run: installed run-create can unbind that pane's previous Run. Persisted
@@ -562,7 +564,82 @@ receipts and Run/Task evidence. Native mutations/receipt completion are separate
 transactions, so partial Run/DAG state is expected after a crash. Missing,
 pending, pruned or ambiguous receipts never authorize replacement UUIDs.
 
-Offline check: `python -B -m unittest discover -s tests -p test_prepare_state.py -v` from this skill's
+### Host-injected preparation protocol core — not an operational CLI
+
+`PreparationAdapter(store, host, clock)` provides `begin(draft)`,
+`prepare_one(draft, "run"|"task:<node>")`, `reconcile(draft)` and
+`finalize(draft)`. This is a library with **no main/CLI, JSON certificate factory,
+default host or raw Orca fallback**. No helper builds operational evidence.
+Do not implement a bridge by returning fixture certificates or merely copying
+the inherited environment into the old subprocess runner.
+
+The trusted host's in-process `open(expected)` returns an exclusive owned local
+session with an immutable `scope_id`, `attest()`, `read_exact(tuple_argv)` and
+`mutate_exact(tuple_argv)`. Open/attest must not spawn processes, discover/read
+credentials, change profiles or generate provider requests. Before operational
+use, the host must independently prove bounded I/O, fixed executable/hash,
+fixed local runtime/transport/user-data context, startup isolation, owned pane
+and process incarnation, exclusive mutation authority, matching loaded/inspected
+server bytes, first-use UUID support and zero incremental metadata cost. This
+bridge is **not shipped**; its Python interface cannot authenticate assertions.
+
+Expected binding includes the draft digest and exact runtime/app/executable/
+workspace pins. Attestation contract `owned-local-orca-preparation-v1` includes
+that digest, scope_id, fresh observed_at/future valid_until, nonempty evidence,
+verified/owned/exclusive/startup_reviewed/non_generating/first_use_uuid=true and
+actual_usd exactly zero. Its immutable context contains those pins plus local
+target, handle, pane_key, process_incarnation, transport_id, and equal 64-hex
+loaded_server_sha256/inspected_server_sha256. Caller identity is the digest of
+that whole context, not a claim that `--from` authenticates the process.
+All of this is a **local trusted-host contract**, not fields or capabilities
+advertised by native Orca.
+
+Attestation also carries `request_identity` with contract
+`caller-chosen-uuid-first-run-task-create-v1`, exact methods
+`orchestration.runCreate`, `orchestration.taskCreate`, `orchestration.requestShow`,
+matching runtime_id/app_version/server_sha256 and separate nonempty evidence.
+The enclosing fresh proof binds it to this owned session and loaded server.
+Worker-start-only UUID evidence or a generic first-use boolean is insufficient.
+The worker-launch-preferences capability is not required or accepted as proof
+of metadata preparation support; actual worker dispatch retains its own gate.
+
+Each session reply wraps the unchanged native JSON envelope as
+`{scope_id, context_sha256, envelope}`. The core checks the host context before
+and after every call and native `_meta.runtimeId`. Only exact fixed status,
+worktree show, current/show Run, full task-list, empty worker-list and saved
+request-show lookups are expressible by its read transport. The only mutations
+are the freshly claimed, byte-for-byte stored Run/Task creation argv, including
+one `--json`. No worker start/stop, run-use, task-update, input or payment command
+is forwarded. Re-checking current Run and graph after intent prevents a changed
+pane association from being silently rebound; exclusivity still needs the host.
+
+Every new mutation first reconciles all existing operations. A newly missing
+receipt on a historically complete operation blocks the next send, even though
+the Store correctly preserves the completed historical binding. Recovery
+invocations never add another operation, including when lookup just recovered
+the old one. Crash-before-send can remain unresolved indefinitely: receipt
+absence is not non-effect proof and no new UUID or automatic reservation release
+is provided. Finalization repeats the full receipt/resource graph and no-worker
+checks, then uses Store's atomic IDs-only projection; it does not dispatch.
+
+Native 1.4.206 `request-show` has no `--from`, and exposes no caller fingerprint.
+The checked host session must establish same-caller scope independently.
+Completed receipt method/requestId and stored mutation requestId must match;
+Run current/show must match objective, coordinator handle, numeric legacy=0 and
+generation=1. Task list is unpaginated: require exact count and unique IDs, full
+spec/title/deps (native deps is JSON TEXT), no parent/Dispatch, ready root Tasks
+and pending dependent Tasks. This restricted core also requires positive matching
+Task created_by handle/pane/process/run-generation. Native provenance fields
+can be null: null stays **unknown**, not a fabricated match. Missing provenance,
+changed generation, extra Tasks, any worker, partial list or pruned receipt blocks
+progress. This deliberate limitation is not general native preparation support.
+
+Stale drafts may reconcile using fresh owned-session observations but cannot
+create more operations or finalize. TTL rebase and native caller cleanup remain
+unimplemented. A session must remain valid/exclusive for the whole invocation;
+retention/release belongs to the future reviewed host integration, not this core.
+
+Offline check: `python -B -m unittest discover -s tests -p "test_prepare*.py" -v` from this skill's
 `scripts` directory. It denies subprocess launch before imports and throughout
 each test; SQLite files and all proofs are temporary synthetic fixtures. It does
 not test live Orca creation, the running backend, provider billing or OS isolation.

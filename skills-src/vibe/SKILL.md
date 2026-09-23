@@ -2,7 +2,7 @@
 name: vibe
 description: "Use when the user invokes \"/vibe\", \"바이브로 알아서 해줘\", \"스킬 조합해서 처리해\", \"오르카로 돌려\", or \"orchestrate this task\". Acts as the main entry point for installed SimonK-stack skills: discovers the relevant skills, decomposes dependencies, chooses software and CLI/API/MCP or GUI Bot execution, and matches Claude, Codex (GPT), Antigravity (Gemini), Grok and Grok Bot to verified model/effort capabilities and a total-run cost budget. Produces a validated execution plan, scoped handoffs, verified artifacts and a usage report. Small tasks stay in the current session; GUI-only steps use vibe-bot internally. Never treats unknown cost or unsupported model controls as zero or applied."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.10.2
+version: 2.10.3
 author: simon-stack
 ---
 
@@ -217,9 +217,13 @@ The Orca workflow and evaluation reference now follow this quarantine.
 This still overrides live-call examples in the historical pitfalls and
 effort-cap documents; those documents need migration before activation. Do not
 copy raw CLI examples around the quarantine. Use the guarded adapter only where
-its actual capabilities and fresh account/cost evidence permit it. The guarded
-native Run/Task preparation lifecycle remains unimplemented; missing preparation
-evidence blocks dispatch, not permission to use old raw helpers.
+its actual capabilities and fresh account/cost evidence permit it. A schema2
+preparation journal and host-injected protocol core now exist. There is no
+operational preparation bridge or CLI: `prepare_orca.py` requires a reviewed,
+exclusive owned-host session and cannot instantiate the raw Orca runner.
+Missing preparation evidence blocks dispatch, not permission to use old helpers.
+Read the preparation contract before integrating this library. Fixture evidence
+does not establish a live caller, loaded runtime, OS isolation or free access.
 
 The generated table is historical compatibility policy, not the frontier
 registry or present-day availability. It cannot bypass central guards.
@@ -326,6 +330,8 @@ python "<skill>/scripts/test_model_registry.py"
 python "<skill>/scripts/test_orchestrate.py"
 python "<skill>/scripts/selftest.py"
 python "<skill>/scripts/sync_skill_table.py" --check
+# Process-denied preparation fixtures, from the skill's scripts directory:
+python -B -m unittest discover -s tests -p "test_prepare*.py"
 ```
 
 - [Orchestration schema and cost policy](references/orchestration.md)
@@ -337,6 +343,10 @@ python "<skill>/scripts/sync_skill_table.py" --check
 
 ## Version note
 
+2.10.3 adds the schema2 full-reservation preparation journal and a host-injected
+protocol core: exact one-send intent, dual receipt/resource verification and
+full-DAG finalization. The real owned-session bridge, TTL rebase, native
+preparation, operational migration, live E2E and installation remain incomplete.
 2.10.2 aligns the active Orca/evaluation runbooks and behavioral case assertions
 with the central execution boundary. Schema PASS is not measured behavior or
 all-skill/mode optimization. Remaining historical references, native preparation,
