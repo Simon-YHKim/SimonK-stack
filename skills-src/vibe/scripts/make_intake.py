@@ -41,6 +41,9 @@ ORCA_ERR = {}          # 마지막 오류 종류를 보존한다 (감사 MED: fa
 
 def orca(args):
     """S3 — 인자 배열. 실패하면 None. 실패 '종류' 는 ORCA_ERR 에 남긴다."""
+    if not isinstance(args, (list, tuple)) or tuple(args) not in (("account", "list"), ("repo", "list")):
+        ORCA_ERR["blocked"] = routing.LEGACY_EXECUTION_DISABLED
+        return None
     key = " ".join(args)
     try:
         p = subprocess.run(["orca", *args, "--json"], capture_output=True, text=True,
@@ -359,11 +362,11 @@ def main(out_path=None, argv=None):
         for p in routing.PROCESSES if p[3])
 
     default_html = (
-        '<section class="quota"><h2>클래스별 기본 레인 '
-        f'<span class="note">안 건드리면 이대로 간다 — 정본은 scripts/routing.py · {esc(live_note)}</span></h2>'
+        '<section class="quota"><h2>과거 클래스별 레인 예시 '
+        f'<span class="note">자동 배정 아님 — 중앙 registry/runtime 재검증 필요 · {esc(live_note)}</span></h2>'
         '<table class="sum"><tr><th>클래스</th><th>기본</th><th>우선순위</th></tr>'
         + "".join(drows) + "</table>"
-        '<h2 style="margin-top:14px">고정 배정 <span class="note">바뀌지 않는다</span></h2>'
+        '<h2 style="margin-top:14px">과거 고정 배정 <span class="note">현재 실행 권한 아님</span></h2>'
         '<table class="sum"><tr><th>공정</th><th>레인</th><th></th></tr>' + fixed_rows + "</table>"
         f'<p class="note" style="margin-top:10px">코디네이터 = <code>{esc(routing.COORDINATOR[0])}</code> '
         f'@{esc(routing.COORDINATOR[1])} — 종합(D)과 벤더가 다르다.</p>'
@@ -371,7 +374,7 @@ def main(out_path=None, argv=None):
 
     # ── 탐색 슬롯 · 학습 상태 (C6 · §10) ────────────────────────────
     # D-28 #12·C2 — 2순위가 Orca 로 뜨고 실호출을 통과한 공정만 후보
-    live_ok = None if live["stale"] else {vd for vd, ok in live["vendors"].items() if ok}
+    live_ok = set() if live["stale"] else {vd for vd, ok in live["vendors"].items() if ok}
     explore_pool = [routing.PROC_BY_ID[pid][2] for pid in routing.explore_candidates(live_ok)]
     learn_warn = ""
     if len(unmerged) >= 3:
@@ -382,11 +385,8 @@ def main(out_path=None, argv=None):
 
     explore_html = (
         '<section class="quota"><h2>탐색 슬롯 '
-        '<span class="note">라운드당 1개를 2순위 레인으로 돌려 학습을 쌓는다</span></h2>'
-        f'<p class="note">대상 후보(A 우선 · 고정·종합·보안·코딩 제외 · 2순위가 Orca 로 뜨고 실호출 통과한 공정만 — D-28 #12): {esc(" · ".join(explore_pool[:6]))}'
-        f'{" 외" if len(explore_pool) > 6 else ""}<br>'
-        '실제 선택은 후보 중 <b>무작위</b>다 — 항상 첫 태스크를 고르면 난이도 편향이 생긴다. '
-        '끄려면 아래 추가 조건에서 "탐색 슬롯 끄기".</p>'
+        '<span class="note">탐색 보류 — 검증된 실행·비용 증거 없음</span></h2>'
+        f'<p class="note">추천 후보 {len(explore_pool)}개. 탐색도 중앙 계획·예산 예약과 승인된 실행 경로가 필요하다.</p>'
         f'<p class="note">원장 레코드 {len(ledger.read_ledger()[0])}개 · 채택률 미회수 run {len(unmerged)}개</p>'
         f"{merged_note}{learn_warn}</section>")
 

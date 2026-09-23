@@ -200,6 +200,27 @@ sys.exit(adversarial_eval.main())
         self.assertNotIn('run_codex_exec', html)
         self.assertFalse('adversarial_eval.py --preflight 먼저' in html,
                          'Generated intake still recommends the disabled live preflight')
+        self.assertFalse('안 건드리면 이대로 간다' in html)
+        self.assertFalse('실호출 통과한 공정만' in html)
+        self.assertTrue('탐색 보류 — 검증된 실행·비용 증거 없음' in html)
+        self.assertTrue('추천 후보 0개' in html)
+
+    def test_intake_orca_helper_cannot_bypass_quarantine(self):
+        intake = importlib.import_module('make_intake')
+        for args in [['orchestration', 'worker-start', '--task', 't', '--worktree', 'current',
+                      '--agent', 'codex', '--model', 'gpt-6-astra', '--effort', 'high'],
+                     ['repo', 'list', '--exec', 'x'], ['account', 'list', '--refresh'], []]:
+            with self.subTest(args=args), patch('subprocess.run') as native:
+                self.assertIsNone(intake.orca(args))
+                native.assert_not_called()
+
+    def test_intake_orca_preserves_only_its_two_read_calls(self):
+        intake = importlib.import_module('make_intake')
+        for args in [['repo', 'list'], ['account', 'list']]:
+            with self.subTest(args=args), patch('subprocess.run', return_value=
+                    subprocess.CompletedProcess([], 0, '{"ok":true,"result":{}}', '')) as native:
+                self.assertEqual(intake.orca(args), {})
+                self.assertEqual(native.call_args.args[0], ['orca', *args, '--json'])
 
     def test_orca_json_block_and_read_compatibility(self):
         with patch('subprocess.run') as native:
