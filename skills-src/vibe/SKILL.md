@@ -2,7 +2,7 @@
 name: vibe
 description: "Use when the user invokes \"/vibe\", \"바이브로 알아서 해줘\", \"스킬 조합해서 처리해\", \"오르카로 돌려\", or \"orchestrate this task\". Acts as the main entry point for installed SimonK-stack skills: discovers the relevant skills, decomposes dependencies, chooses software and CLI/API/MCP or GUI Bot execution, and matches Claude, Codex (GPT), Antigravity (Gemini), Grok and Grok Bot to verified model/effort capabilities and a total-run cost budget. Produces a validated execution plan, scoped handoffs, verified artifacts and a usage report. Small tasks stay in the current session; GUI-only steps use vibe-bot internally. Never treats unknown cost or unsupported model controls as zero or applied."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.11.0
+version: 2.11.1
 author: simon-stack
 ---
 
@@ -32,7 +32,11 @@ Quality preference is not spending authorization.
 ## 1. Discover the needed skills and software
 
 Run `python "<skill>/scripts/orchestrate.py" catalog` to inspect skill metadata.
-Root order is: the current skill's sibling directory, then installed .agents,
+Inside an intact five-plugin candidate, default catalog/plan uses that bundle's
+five skill roots only. Its receipt, planner, manifests and SKILL metadata must
+match; missing/drifted inputs stop discovery without falling back to home.
+This is candidate discovery, not approval to install or execute its skills.
+For other layouts, root order is the current skill's sibling directory, then .agents,
 .codex, .claude and .codex/skills/.system roots. Supply repeated `--root` flags
 for other flat parents, including plugin skill directories. First declared
 name wins; alternatives and resolved aliases remain visible. Before scanning,
@@ -357,6 +361,10 @@ python -B -I -S tests/test_ledger_scan.py
 
 ## Version note
 
+2.11.1 binds default discovery in an intact five-plugin candidate to its local
+bundle receipt. Non-Core skills are available without mixing old home copies.
+Explicit roots retain precedence. Separately installed plugin homes still need
+explicit roots; no installer, PowerShell shim or live execution is added.
 2.11.0 adds explicit observable-local preparation alongside unchanged owned-v1:
 durable contract/approval identity, separate UUID namespace, implicit session
 commands and nullable-but-consistent provenance. Trust and native-effects

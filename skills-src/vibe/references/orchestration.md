@@ -25,9 +25,27 @@ One scanner backs `catalog`, `inventory`, `coverage` and `plan`. It visits only
 direct children of each supplied flat skill root, never arbitrary recursive
 directories, scripts or package imports. Add nested system/plugin roots
 explicitly. `catalog`/`plan` retain default sibling and home roots (including
-`.codex/skills/.system`); audit commands require explicit roots so a report
+`.codex/skills/.system`) outside intact candidates; audit commands require explicit roots so a report
 cannot silently change scope with the current machine. Names and descriptions
 are discovery hints, never an automatic skill-name-to-model policy.
+
+When the resolved planner is exactly at
+`<bundle>/plugins/SimonKCore/skills/vibe/scripts/orchestrate.py`, default
+catalog/plan uses only that bundle's five plugin skill roots, Core first.
+`bundle.json` must be present and valid (v1 or safety-v2, strict JSON, at most
+8 MiB). Discovery checks the planner and plugin manifest hashes, exact physical
+skill membership, declared owners/names and SKILL byte hashes against that
+trusted local receipt. Links and excluded paths are rejected before reading
+their contents. Missing, extra or changed metadata fails with exit 2; no home
+fallback occurs. The plan's discovery records the receipt path/hash and narrow
+verification scope. This is not a signature, a full scripts/assets verifier,
+host compatibility proof or an installation/dispatch grant. Use the existing
+bundle verifier before use; keep the trusted single-writer boundary throughout.
+
+Repeated explicit `--root` flags override candidate inference entirely. This
+is also required for plugin homes installed separately (e.g. separate cache
+directories), where the enclosing bundle receipt is absent. No ancestor search,
+global roots-file installation or PowerShell entry migration is implied.
 
 ```text
 python scripts/orchestrate.py inventory --root /source/skills-src --root /source/.claude/skills --exclude-root /protected

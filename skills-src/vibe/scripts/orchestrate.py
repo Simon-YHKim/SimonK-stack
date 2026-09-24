@@ -252,6 +252,114 @@ def discover_skills(roots, exclude_roots=(), host_skills=None):
     return skill_inventory(roots, exclude_roots, host_skills)["catalog"]
 
 
+def candidate_inventory(exclude_roots=(), host_skills=None):
+    """Bind metadata to an intact local bundle, not a split installed cache.
+
+    The receipt is trusted local input, NOT a signature or installation grant.
+    Only discovery inputs are checked here; full package verification belongs
+    to plugin_bundle.verify_bundle. Explicit roots never enter this path.
+    """
+    suffix = ("plugins", "SimonKCore", "skills", "vibe", "scripts")
+    if tuple(SCRIPT_ROOT.parts[-5:]) != suffix:
+        return None
+    base = SCRIPT_ROOT.parents[4]
+    owners = ("SimonKCore", "SimonKAIHub", "SimonKDesign", "SimonKMarket", "SimonKStack")
+    exclusions = [Path(p).expanduser().absolute() for p in exclude_roots]
+    exclusions += [p.resolve() for p in exclusions]
+
+    def local(member):
+        path = base / member
+        # Check every component before reading metadata (including junctions).
+        for part in (path, *path.parents):
+            if part == base:
+                break
+            if any(part == p or part.is_relative_to(p) for p in exclusions):
+                raise ValueError("Candidate discovery intersects an excluded path")
+            if part.is_symlink() or part.resolve() != part:
+                raise ValueError("Candidate discovery does not follow links")
+        return path
+
+    def raw(member, limit):
+        with local(member).open("rb") as stream:
+            data = stream.read(limit + 1)
+        if len(data) > limit:
+            raise ValueError("Candidate discovery input too large")
+        return data
+
+    def decode(data):
+        def unique(pairs):
+            result = {}
+            for key, value in pairs:
+                if key in result:
+                    raise ValueError("Duplicate candidate JSON key")
+                result[key] = value
+            return result
+        def nonfinite(value):
+            raise ValueError("Nonfinite candidate JSON value")
+        return json.loads(data.decode("utf-8"), object_pairs_hook=unique, parse_constant=nonfinite)
+
+    receipt_bytes = raw("bundle.json", 8 * 1024 * 1024)
+    receipt = decode(receipt_bytes)
+    scopes = {1: "five-plugin-candidate-v1", 2: "five-plugin-candidate-safety-v2"}
+    if (not isinstance(receipt, dict) or type(receipt.get("schema_version")) is not int
+            or receipt["schema_version"] not in scopes
+            or receipt.get("scope") != scopes[receipt["schema_version"]]
+            or not isinstance(receipt.get("inputs"), dict)
+            or not isinstance(receipt["inputs"].get("plugins"), dict)
+            or set(receipt["inputs"]["plugins"]) != set(owners)
+            or not isinstance(receipt.get("owners"), dict)
+            or receipt["owners"].get("vibe") != "SimonKCore"
+            or not isinstance(receipt.get("files"), list)
+            or not 1 <= len(receipt["files"]) <= MAX_SKILL_ENTRIES):
+        raise ValueError("Invalid candidate discovery receipt")
+    members = {}
+    for row in receipt["files"]:
+        if (not isinstance(row, dict) or not isinstance(row.get("path"), str)
+                or row["path"] in members or type(row.get("size")) is not int
+                or not 0 <= row["size"] <= 8 * 1024 * 1024
+                or not isinstance(row.get("sha256"), str)
+                or not re.fullmatch(r"[a-f0-9]{64}", row["sha256"])):
+            raise ValueError("Invalid candidate discovery member")
+        members[row["path"]] = row
+
+    def checked(member):
+        expected = members[member]
+        data = raw(member, MAX_SKILL_BYTES)
+        if len(data) != expected["size"] or hashlib.sha256(data).hexdigest() != expected["sha256"]:
+            raise ValueError("Candidate discovery member drift")
+        return data
+
+    checked("plugins/SimonKCore/skills/vibe/scripts/orchestrate.py")
+    expected_skills, roots = {}, []
+    for name, owner in receipt["owners"].items():
+        if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", name) or owner not in owners:
+            raise ValueError("Invalid candidate skill ownership")
+        member = f"plugins/{owner}/skills/{name}/SKILL.md"
+        expected_skills[str(local(member))] = (name, members[member]["sha256"])
+    for owner in owners:
+        names = {n for n, o in receipt["owners"].items() if o == owner}
+        manifest = decode(checked(f"plugins/{owner}/.claude-plugin/plugin.json"))
+        if (not isinstance(manifest, dict) or not isinstance(manifest.get("skills"), list)
+                or any(not isinstance(s, str) for s in manifest["skills"])
+                or sorted(manifest["skills"]) != sorted(f"./skills/{n}/" for n in names)):
+            raise ValueError("Candidate manifest membership mismatch")
+        root = local(f"plugins/{owner}/skills")
+        children = list(islice(root.iterdir(), MAX_SKILL_ENTRIES + 1))
+        if len(children) > MAX_SKILL_ENTRIES or {p.name for p in children} != names:
+            raise ValueError("Candidate physical skill membership mismatch")
+        roots.append(root)
+    inventory = skill_inventory(roots, exclude_roots, host_skills)
+    actual = {r["path"]: (r["name"], r["sha256"]) for r in inventory["records"] if r["origin"] == "filesystem"}
+    if inventory["status"] != "complete" or actual != expected_skills:
+        raise ValueError("Candidate skill metadata differs from receipt")
+    inventory["catalog"].discovery["bundle"] = {
+        "path": str(base / "bundle.json"), "sha256": hashlib.sha256(receipt_bytes).hexdigest(),
+        "scope": receipt["scope"], "hash_scope": "planner, plugin manifests and SKILL.md only",
+        "installation_verified": False,
+    }
+    return inventory
+
+
 def skill_coverage(source, installed, plugins=None):
     """Compare selected metadata, not behavior or scripts/assets integrity."""
     rows = []
@@ -723,9 +831,6 @@ def main(argv=None):
     parser.add_argument("--evidence", type=Path)
     parser.add_argument("--nonce")
     args = parser.parse_args(argv)
-    roots = args.root or [SCRIPT_ROOT.parent.parent, Path.home() / ".agents" / "skills",
-                         Path.home() / ".codex" / "skills", Path.home() / ".claude" / "skills",
-                         Path.home() / ".codex" / "skills" / ".system"]
     def read(path):
         if path is None:
             raise ValueError("Required JSON input path missing")
@@ -733,10 +838,10 @@ def main(argv=None):
     try:
         inventory = None
         if args.command in ("catalog", "inventory", "coverage", "plan"):
+            roots = args.root
             if args.command in ("inventory", "coverage"):
                 if not args.root and not args.host_skills:
                     raise ValueError("Inventory and coverage require explicit --root or --host-skills")
-                roots = args.root
             host = None
             if args.host_skills:
                 def unique_keys(pairs):
@@ -751,7 +856,14 @@ def main(argv=None):
                 if len(raw) > MAX_SKILL_BYTES:
                     raise ValueError("Host skill snapshot too large")
                 host = json.loads(raw.decode("utf-8-sig"), object_pairs_hook=unique_keys)
-            inventory = skill_inventory(roots, args.exclude_root, host)
+            if not roots and args.command in ("catalog", "plan"):
+                inventory = candidate_inventory(args.exclude_root, host)
+                if inventory is None:
+                    roots = [SCRIPT_ROOT.parent.parent, Path.home() / ".agents" / "skills",
+                             Path.home() / ".codex" / "skills", Path.home() / ".claude" / "skills",
+                             Path.home() / ".codex" / "skills" / ".system"]
+            if inventory is None:
+                inventory = skill_inventory(roots, args.exclude_root, host)
         if args.command == "catalog":
             result = inventory["catalog"]
         elif args.command == "inventory":
@@ -774,7 +886,7 @@ def main(argv=None):
         return 2 if ((args.command == "catalog" and inventory["status"] == "incomplete") or
                      (isinstance(result, dict) and (result.get("status") in ("blocked", "incomplete", "gaps")
                                                   or result.get("findings")))) else 0
-    except (OSError, ValueError, KeyError, TypeError) as exc:
+    except (OSError, ValueError, KeyError, TypeError, RuntimeError) as exc:
         print(json.dumps({"error": type(exc).__name__, "message": str(exc)}, ensure_ascii=False))
         return 2
 
