@@ -8,7 +8,7 @@ description: >-
   existing /vibe plan, shared state and guarded adapter; reconcile previous
   attempts without replay. Returns per-node handles, evidence and unresolved
   costs. Does not open terminal windows or bypass account and budget gates.
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Multi-terminal dispatcher — bounded /vibe ready wave
@@ -47,7 +47,7 @@ skill tree. It imports only the sibling /vibe implementation. A missing sibling
 fails closed; never silently select a different installed copy.
 
 ```powershell
-# Read-only preview: no native runtime call, claim or observation update.
+# Logical preview: no native call or row updates; requires a writable DB/lock.
 python -B <skill-dir>/scripts/dispatch_wave.py preview --plan plan.json --db state.sqlite3
 
 # Explicit execution, only after current authority/account checks.
@@ -57,8 +57,8 @@ python -B <skill-dir>/scripts/dispatch_wave.py dispatch --plan plan.json --db st
 python -B <skill-dir>/scripts/dispatch_wave.py reconcile --plan plan.json --db state.sqlite3
 ```
 
-The repository's root scripts directory contains the compatibility entry point
-multi-terminal-launch.ps1. It accepts
+The packaged PowerShell entry is
+[multi-terminal-launch.ps1](scripts/multi-terminal-launch.ps1). It accepts
 `-PlanPath`, `-DbPath`, optional `-CertificatesPath`, `-Node` and
 `-Action preview|dispatch|reconcile`. Invoke via
 `pwsh -NoProfile -NonInteractive -File`; do not dot-source it.
@@ -66,8 +66,18 @@ Default and `-DryRun` are preview only. Combining DryRun with another action
 is rejected. Old `-ConfigPath`, `-Tasks` and `-CostThreshold` are rejected,
 including explicitly empty/zero values. There is no automatic legacy conversion.
 
+Version 1.1.0 makes this skill-local script canonical. The repository's root
+scripts/multi-terminal-launch.ps1 keeps the same typed parameters and forwards
+only to that matching copy; it never falls back to another installed skill.
+If the canonical file is missing, the root facade reports WAVE_HELPER_UNAVAILABLE
+before skill-level input validation, including for otherwise invalid input.
+Do not dot-source either entry or treat source publication as profile installation.
+
 - Preview returns the current ready frontier and unresolved attempts. It does
   not claim, reserve again, start, reconcile, settle or accept any work.
+  It still opens the existing SQLite DB in read/write mode and briefly takes
+  a writer lock (BEGIN IMMEDIATE). It is not filesystem-read-only or lock-free;
+  serialize it with other invocations as required above.
 - Dispatch first checks unresolved attempts across the **entire run**, even if
   explicit nodes exclude them. If any exist, this invocation is reconcile-only
   to its end. Resolving them does not grant permission for a fresh wave.
@@ -141,6 +151,10 @@ Run [offline integration tests](scripts/tests/test_dispatch_wave.py) with Python
 They exercise the real state store and adapter with a fake native service, plus
 the actual PowerShell shim. They do **not** prove account billing, live model
 quality/latency, installed parity, all-vendor E2E or production recovery.
+The source checkout also provides scripts/tests/test_multi_terminal_entrypoint.py:
+both actual PowerShell entries, typed parameter parity, package-only preview,
+rejected sends and unchanged temporary state under a child process/network guard.
+No valid live dispatch is part of these shell tests.
 
 Behavioral cases in [evals/cases.json](evals/cases.json) describe desired agent
 behavior. Schema/dry-run success is not a live behavioral evaluation.

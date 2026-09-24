@@ -90,8 +90,25 @@ exit $LASTEXITCODE # 배치 스크립트에서만 사용; 대화형 셸에서는
 분리된 plugin 배치나 flat skill root에서는 검토한 전체 catalog를 `-Root`로
 명시하세요. `-RegistryPath`는 신뢰한 중앙 registry 입력만 지정합니다.
 이 경로의 테스트는 synthetic runtime으로 수행하며 실제 모델·과금·설치 증명이
-아닙니다. 별도 multi-terminal wrapper의 package 연결과 전체 runtime closure는
-아직 별도 게이트입니다. 이 추가로 readiness 플래그를 true로 바꾸지 않습니다.
+아닙니다. 전체 runtime closure는 아직 별도 게이트입니다.
+이 추가로 readiness 플래그를 true로 바꾸지 않습니다.
+
+`multi-terminal-dispatcher` 1.1.0은 skill-local PowerShell entry를 포함합니다.
+기존 repo-root `scripts/multi-terminal-launch.ps1`은 같은 typed parameter를
+유지하며 해당 entry에만 위임합니다. 배포 후보에서는 source checkout 없이:
+
+```powershell
+pwsh -NoProfile -NonInteractive -File '<candidate>/plugins/SimonKCore/skills/multi-terminal-dispatcher/scripts/multi-terminal-launch.ps1' -PlanPath plan.json -DbPath state.sqlite3 -Action preview
+```
+
+이 preview는 이미 등록된 plan/DB를 필요로 하며 모델·Orca 호출이나 논리 행
+갱신을 하지 않습니다. 그러나 SQLite read/write 열기와 `BEGIN IMMEDIATE`로
+쓰기 잠금을 사용하므로 파일시스템 읽기 전용이나 무경합 조회는 아닙니다.
+DB·run을 새로 만들거나 certificate를 만들어주는 설치/준비 명령이 아닙니다.
+`dispatch`/`reconcile`은 별도 실행 권한과 runtime/account 검증이 필요합니다.
+root facade의 canonical 파일이 없으면 입력 오류보다 helper 부재를 먼저
+보고하며 다른 설치본으로 fallback하지 않습니다. 실제 설치·호스트 활성화는
+이 예제나 파일 무결성 검증으로 승인되지 않습니다.
 
 회귀 테스트: `python -B -m unittest discover -s scripts/tests -p test_skill_release.py`
 (임시 Git repo·격리 target, 실제 사용자 홈/공식 plugin/모델 호출 없음).
