@@ -42,6 +42,55 @@ def module(name, path):
 builder = module("bot_fixture_builder", BOT_ROOT / "scripts/make_bot_spec.py")
 
 
+class BotOrganizationTests(unittest.TestCase):
+    def test_explicit_reversible_save_keeps_hard_stops(self):
+        sheet = builder.build_console_spec("Prepare the approved private draft", "vb-01234567",
+            target="Fixture Console", allow_change="Save this private draft only")
+        self.assertIn("무료·가역적인 저장", sheet)
+        self.assertNotIn("저장·제출 버튼은 누르기 직전에", sheet)
+        for forbidden in ("Publish", "Release", "Delete", "Purchase", "Invite"):
+            self.assertIn(forbidden, sheet)
+        readonly = builder.build_console_spec("Inspect the screen", "vb-01234567", target="Fixture")
+        self.assertIn("읽기 전용. 어떤 값도 바꾸거나 저장하지 않는다.", readonly)
+
+    def test_current_roster_and_six_teams(self):
+        data = json.loads((BOT_ROOT / "bots.json").read_text(encoding="utf-8"))
+        bots = data["bots"]
+        self.assertEqual(len(bots), 19)
+        self.assertEqual(len({b["agent_id"] for b in bots}), 19)
+        self.assertEqual(len(data["teams"]), 6)
+        ids = {b["id"] for b in bots}
+        for team in data["teams"].values():
+            self.assertIn("relay", team["members"])
+            self.assertLessEqual(len(team["members"]), 6)
+            self.assertTrue(set(team["members"]) <= ids)
+
+    def test_analytics_and_admob_have_distinct_owners(self):
+        roster = builder.load_roster()
+        for target, expected in (("GA4 Firebase Clarity", "analytics"),
+                                 ("AdMob ad units", "admob"),
+                                 ("GitHub Supabase dashboard", "dev-infra")):
+            with self.subTest(target=target):
+                self.assertEqual(builder.resolve_bot(roster, target)["id"], expected)
+
+    def test_default_and_unresolved_web_qa_go_to_relay(self):
+        roster = builder.load_roster()
+        self.assertEqual(builder.resolve_bot(roster)["id"], "relay")
+        self.assertEqual(builder.resolve_bot(roster, explicit="grok-bot")["id"], "relay")
+        self.assertEqual(builder.resolve_bot(roster, explicit="web-qa")["id"], "relay")
+        self.assertEqual(builder.resolve_bot(roster, explicit="QA")["id"], "qa")
+
+    def test_all_owners_use_relay_bus_paths(self):
+        with tempfile.TemporaryDirectory() as hub:
+            for bot in builder.load_roster():
+                paths = builder.hub_paths(bot, "vb-01234567", Path(hub), {})
+                self.assertEqual(paths["inbox"].parent, Path(hub) / "bots/relay/inbox")
+                self.assertEqual(paths["result"].parent, Path(hub) / "bots/relay/outbox")
+            project = {"test": {"root": hub, "bus": ".bots"}}
+            paths = builder.hub_paths({"id": "analytics"}, "vb-01234567", Path(hub), project, "test")
+            self.assertEqual(paths["inbox"].parent, Path(hub) / ".bots/relay/inbox")
+
+
 class LegacyDeliveryTests(unittest.TestCase):
     def test_hub_without_central_claim_has_no_file_effect(self):
         with tempfile.TemporaryDirectory() as root, contextlib.redirect_stdout(io.StringIO()):
@@ -72,6 +121,8 @@ class LegacyDeliveryTests(unittest.TestCase):
 
 
 class BotAdapterTests(unittest.TestCase):
+    bot_id = "relay"
+
     def setUp(self):
         path = SCRIPTS / "execute_bot.py"
         self.assertTrue(path.is_file(), "Shared durable Bot publication adapter is missing")
@@ -84,13 +135,14 @@ class BotAdapterTests(unittest.TestCase):
         helper = self.bot_root / "scripts/make_bot_spec.py"
         helper.write_bytes((BOT_ROOT / "scripts/make_bot_spec.py").read_bytes())
         (self.bot_root / "bots.json").write_text(json.dumps({"bots": [
-            {"id": "relay", "name": "Fixture Relay", "status": "active", "keywords": []}]}))
+            {"id": "relay", "name": "Fixture Relay", "status": "active", "keywords": []},
+            {"id": "analytics", "name": "Fixture Analytics", "status": "active", "keywords": []}]}))
         self.bus = self.root / "bus"
         self.bus.mkdir()
         self.nonce = "vb-00000001"
         self.task = "Read the fixture screen and report its displayed status"
         self.target = "Fixture Console"
-        meta = {"nonce": self.nonce, "bot": "relay", "mode": "console", "target": self.target,
+        meta = {"nonce": self.nonce, "bot": self.bot_id, "mode": "console", "target": self.target,
                 "task": self.task, "deliver": "manual", "project": None}
         spec = builder.build_console_spec(self.task, self.nonce, target=self.target,
             return_to=str(self.bus / "relay/outbox" / (self.nonce + ".result.md")))
@@ -102,7 +154,7 @@ class BotAdapterTests(unittest.TestCase):
             "spec_path": str(self.spec), "meta_path": str(self.meta),
             "spec_sha256": self.sha(self.spec), "meta_sha256": self.sha(self.meta),
             "helper_sha256": self.sha(helper), "roster_sha256": self.sha(self.bot_root / "bots.json")}
-        c = candidate("bot", "grok-bot", transport="bot", model=None, bot_id="relay",
+        c = candidate("bot", "grok-bot", transport="bot", model=None, bot_id=self.bot_id,
                       bot_status="active", capabilities=["gui"])
         request = {"run_id": "bot-fixture", "steps": [{"id": "screen", "kind": "gui",
             "task": self.task, "target": self.target, "skills": ["vibe-bot"], "needs": ["gui"],
@@ -119,7 +171,7 @@ class BotAdapterTests(unittest.TestCase):
         self.proof = {"verified": True, "binding_sha256": self.m.binding_digest(self.plan, "screen"),
             "account_ref": route["billing"]["account_ref"], "billing": route["billing"],
             "relay_account_ref": route["billing"]["account_ref"],
-            "quota": route["quota"], "bot_id": "relay", "bus_root": str(self.bus),
+            "quota": route["quota"], "bot_id": self.bot_id, "bus_root": str(self.bus),
             "delivery_authorized": True, "approval_ref": "fixture-only-approval",
             "relay_verified": True, "all_delivery_costs_included": True,
             "observed_at": NOW, "valid_until": "2026-09-23T10:10:00+00:00",
@@ -346,6 +398,41 @@ class BotAdapterTests(unittest.TestCase):
                           + marshal.dumps(payload))
         self.assertEqual(self.sha(helper), self.binding["helper_sha256"])
         self.assertEqual(self.adapter.check_result(self.plan, "screen", proof)["status"], "result_checks_passed")
+
+
+class SpecialistPublicationTests(unittest.TestCase):
+    bot_id = "analytics"
+    setUp = BotAdapterTests.setUp
+    sha = staticmethod(BotAdapterTests.sha)
+
+    def test_missing_or_held_relay_blocks_specialist_before_claim(self):
+        for status in (None, "ON HOLD", "inactive"):
+            with self.subTest(relay_status=status):
+                bots = [{"id": "analytics", "status": "active"}]
+                if status is not None:
+                    bots.append({"id": "relay", "status": status})
+                roster = self.bot_root / "bots.json"
+                roster.write_text(json.dumps({"bots": bots}))
+                changed = copy.deepcopy(self.plan)
+                changed["steps"][0]["bot_delivery"]["roster_sha256"] = self.sha(roster)
+                changed["plan_digest"] = orchestrate.digest({k: v for k, v in changed.items() if k != "plan_digest"})
+                store = Store(self.root / (str(status).replace(" ", "-") + ".sqlite3"))
+                store.initialize()
+                store.register(changed, now=NOW)
+                proof = {**self.proof, "binding_sha256": self.m.binding_digest(changed, "screen")}
+                with self.assertRaisesRegex(StateError, "RELAY_NOT_ACTIVE"):
+                    self.m.Adapter(store, lambda: NOW).dispatch(changed, "screen", proof)
+                self.assertEqual(store.snapshot()["attempts"], [])
+                self.assertEqual(list(self.bus.iterdir()), [])
+
+    def test_specialist_publishes_only_to_relay_and_preserves_owner(self):
+        result = self.adapter.dispatch(self.plan, "screen", self.proof)
+        self.assertEqual(result["status"], "waiting_external")
+        self.assertTrue((self.inbox / (self.nonce + ".md")).is_file())
+        self.assertFalse((self.bus / self.bot_id).exists())
+        meta = json.loads((self.inbox / (self.nonce + ".meta.json")).read_bytes())
+        self.assertEqual(meta["bot"], self.bot_id)
+        self.assertIsNone(result["actual_usd"])
 
 
 if __name__ == "__main__":

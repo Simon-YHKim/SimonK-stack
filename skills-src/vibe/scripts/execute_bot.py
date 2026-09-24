@@ -145,7 +145,8 @@ class Adapter:
                 "DRAFT_IN_WATCHED_BUS")
         runs = [r for r in self.store.snapshot()["runs"] if r["run_id"] == plan["run_id"]]
         require(len(runs) == 1 and runs[0]["plan_digest"] == plan["plan_digest"], "REGISTERED_PLAN_REQUIRED")
-        base = paths["bus_root"] / bot_id
+        # Pin the specialist in the plan, but deliver/collect through Relay only.
+        base = paths["bus_root"] / "relay"
         paths.update(inbox=base / "inbox" / (binding["nonce"] + ".md"),
                      meta=base / "inbox" / (binding["nonce"] + ".meta.json"),
                      result=base / "outbox" / (binding["nonce"] + ".result.md"))
@@ -195,6 +196,8 @@ class Adapter:
         safe_json(roster)
         matches = [b for b in roster["bots"] if b.get("id") == node["handoff"]["bot_id"]]
         require(len(matches) == 1 and re.match(r"^active(?:\s|$)", matches[0].get("status", ""), re.I), "BOT_NOT_ACTIVE")
+        relays = [b for b in roster["bots"] if b.get("id") == "relay"]
+        require(len(relays) == 1 and re.match(r"^active(?:\s|$)", relays[0].get("status", ""), re.I), "RELAY_NOT_ACTIVE")
         module = pinned_builder(paths["bot_root"], binding["helper_sha256"])
         spec, _ = self.payload(plan, node_id)
         require(not module.check_request(node["task"])["blocks"], "BOT_REQUEST_BLOCKED")

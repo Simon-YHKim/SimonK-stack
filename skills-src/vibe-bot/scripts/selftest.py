@@ -170,9 +170,9 @@ def main() -> int:
     import tempfile
     roster = m.load_roster()
     ids = {b["id"] for b in roster}
-    check("roster has 14 bots", len(roster) == 14, str(sorted(ids)))
-    check("relay is in the roster and is not the default", "relay" in ids
-          and not next(b for b in roster if b["id"] == "relay").get("default"))
+    check("roster has 19 reported bots", len(roster) == 19, str(sorted(ids)))
+    check("relay is the default intake", "relay" in ids
+          and next(b for b in roster if b["id"] == "relay").get("default"))
     # 0.7.0 B8 - Simon's boundary: /vibe keeps CLI work, bots get screens.
     for phrase, why in [("eas submit 로 스토어에 올려줘", "eas-cli"),
                         ("gh pr 목록을 정리해줘", "git / gh"),
@@ -191,7 +191,7 @@ def main() -> int:
           (m.resolve_bot(roster, "App Store Connect · 6792266942", "심사 상태 확인") or {}).get("id")
           == "apple-dev")
     check("unknown work falls back to the default bot",
-          (m.resolve_bot(roster, "", "아무 일이나 해줘") or {}).get("id") == "grok-bot")
+          (m.resolve_bot(roster, "", "아무 일이나 해줘") or {}).get("id") == "relay")
     # 0.7.0 - measured 2026-09-20: the task prose named another bot's tool and stole the sheet.
     check("the console in --target beats a tool name in the task prose",
           (m.resolve_bot(roster, "App Store Connect · 2nd Brain · 6792266942",
@@ -200,7 +200,7 @@ def main() -> int:
     check("a task that really is EAS work still routes to eas",
           (m.resolve_bot(roster, "EAS · expo 빌드 목록", "eas submit 상태 확인") or {}).get("id") == "eas")
     check("explicit --bot by name wins",
-          (m.resolve_bot(roster, "Google Play Console", "", explicit="Web QA") or {}).get("id") == "web-qa")
+          (m.resolve_bot(roster, "Google Play Console", "", explicit="QA") or {}).get("id") == "qa")
     check("unknown explicit bot returns None", m.resolve_bot(roster, "", "", explicit="nope") is None)
     with tempfile.TemporaryDirectory() as hub:
         rc = m.main(["--mode", "console", "--target", "Google Play Console · com.simonk.secondbrain",
@@ -216,13 +216,14 @@ def main() -> int:
             "출시 트랙 상태를 읽어 표로 정리", n, target="Google Play Console"),
             next(b for b in roster if b["id"] == "play-console"), fixture_paths["result"]), encoding="utf-8")
         fixture_paths["meta"].write_text('{"mode":"console"}', encoding="utf-8")
-        inbox = sorted(Path(hub, "bots", "play-console", "inbox").glob("vb-*.md"))
-        check("sheet lands in the play-console inbox", len(inbox) == 1, str(inbox))
+        inbox = sorted(Path(hub, "bots", "relay", "inbox").glob("vb-*.md"))
+        check("sheet lands only in the relay inbox", len(inbox) == 1, str(inbox))
         n = inbox[0].stem if inbox else "vb-none"
         sheet = inbox[0].read_text(encoding="utf-8") if inbox else ""
         check("sheet names the bot and the result file",
-              "보낼 봇: Play Console" in sheet and f"{n}.result.md" in sheet)
-        out = Path(hub, "bots", "play-console", "outbox")
+              "전달: Relay" in sheet and "(play-console)" in sheet
+              and f"{n}.result.md" in sheet)
+        out = Path(hub, "bots", "relay", "outbox")
         (out / f"{n}.result.md").write_text(
             f"{n}\n| 항목 | 값 | 화면 경로 | 스크린샷 |\n| 프로덕션 | 0.8.0 | 출시 > 프로덕션 | s.png |",
             encoding="utf-8")
@@ -259,7 +260,7 @@ def main() -> int:
         p["result"].write_text("vb-00000001\n검색 범위: 트랙 3곳\n| 트랙 | 0.8.0 |", encoding="utf-8")
         rows = m.collect(Path(hub2), projects=pj)
         check("collect scans project buses too",
-              len(rows) == 1 and rows[0]["bot"] == "play-console", str(rows))
+              len(rows) == 1 and rows[0]["bot"] == "relay", str(rows))
         routed = m.add_routing("# t\nline2\nbody", pc, p["result"], ("2nd-b", proot))
         check("sheet names the project and its root", f"프로젝트: 2nd-b · 루트 {proot}" in routed)
 

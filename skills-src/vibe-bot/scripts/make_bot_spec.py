@@ -15,10 +15,10 @@ explicit sheet - target, goal, scope, buttons it must not press, stop points,
 screen evidence and result format. The result check then also demands screen
 evidence (C1) and escalates any report of an irreversible action (C2).
 
-Roster and hub bus (0.4.0, 2026-09-19): bots.json names the owning bot for each
-kind of work. --deliver hub drops the sheet into that bot's hub inbox
-(AI Infra/Communication/bots/<id>/inbox) and the bot writes its result to the
-matching outbox. --collect scans every outbox once and checks each result.
+Roster and hub bus (2026-09-24): bots.json names the specialist owner, but
+all new coordinator tasks use relay/inbox and relay/outbox. The guarded
+central adapter owns publication; this helper creates private drafts only.
+--collect can still read historical specialist outboxes.
 
 Usage:
     python make_bot_spec.py --task "<request>" [--deliver manual|hub|webhook|github] [--bot <id|name>]
@@ -200,7 +200,7 @@ def build_spec(task: str, nonce: str, *, sources: str = "", constraints: str = "
     return_to = return_to or "이 대화창"
     return "\n".join([
         f"# Grok Bot 과제서 · {nonce}",
-        f"작성 {now_kst()} · 발행 Claude Code · 스킬 vibe-bot",
+        f"작성 {now_kst()} · 발행 /vibe coordinator · 스킬 vibe-bot",
         "",
         "## Outcome",
         task.strip(),
@@ -232,13 +232,14 @@ def build_console_spec(task: str, nonce: str, *, target: str, url: str = "",
     forbid = list(CONSOLE_FORBID_DEFAULT) + [x.strip() for x in extra_forbid if x and x.strip()]
     if allow_change.strip():
         scope = (f"허용 변경: {allow_change.strip()} - 이것 말고는 아무것도 바꾸지 않는다. "
-                 "바꾸기 직전 화면을 증거로 남기고, 저장·제출 버튼은 누르기 직전에 멈춰 사람 승인을 받는다.")
+                 "변경 전후 화면을 증거로 남긴다. 명시한 범위의 무료·가역적인 저장만 허용하며, "
+                 "제출·공개·삭제·결제·권한 변경은 별도 승인 전 멈춘다.")
     else:
         scope = "읽기 전용. 어떤 값도 바꾸거나 저장하지 않는다."
     target_line = target.strip() + (f" · 시작 URL {url.strip()}" if url.strip() else "")
     return "\n".join([
         f"# Grok Bot 콘솔 과제서 · {nonce}",
-        f"작성 {now_kst()} · 발행 Claude Code · 스킬 vibe-bot (콘솔 모드)",
+        f"작성 {now_kst()} · 발행 /vibe coordinator · 스킬 vibe-bot (콘솔 모드)",
         "",
         "## 대상",
         target_line,
@@ -340,7 +341,8 @@ def resolve_bot(roster: list[dict], target: str = "", task: str = "",
     if explicit:
         key = explicit.strip().lower()
         for b in roster:
-            if key in (b["id"].lower(), b["name"].lower()):
+            if key in (b["id"].lower(), b["name"].lower(),
+                       *[alias.lower() for alias in b.get("aliases", [])]):
                 return b
         return None
     strong = f"{target} {url}".lower()
@@ -402,7 +404,8 @@ def bus_root(hub: Path = HUB_DIR, projects: dict | None = None,
 
 def hub_paths(bot: dict, nonce: str, hub: Path = HUB_DIR, projects: dict | None = None,
               project_id: str | None = None) -> dict:
-    base = bus_root(hub, projects, project_id) / bot["id"]
+    # Specialist ownership is metadata, not a second delivery channel.
+    base = bus_root(hub, projects, project_id) / "relay"
     return {"inbox": base / "inbox" / f"{nonce}.md",
             "meta": base / "inbox" / f"{nonce}.meta.json",
             "result": base / "outbox" / f"{nonce}.result.md"}
@@ -414,7 +417,8 @@ def add_routing(spec: str, bot: dict | None, result_path: Path | None,
     project = (id, root)."""
     if not bot:
         return spec
-    extra = [f"보낼 봇: {bot['name']} ({bot['id']})"]
+    extra = ["전달: Relay 전용 inbox (전문 봇 inbox로 직접 전달하지 않는다)",
+             f"담당 요청: {bot['name']} ({bot['id']})"]
     if project:
         extra.append(f"프로젝트: {project[0]} · 루트 {project[1]} (이 경로를 기준으로 일한다)")
     if result_path:
