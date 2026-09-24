@@ -47,6 +47,36 @@ is also required for plugin homes installed separately (e.g. separate cache
 directories), where the enclosing bundle receipt is absent. No ancestor search,
 global roots-file installation or PowerShell entry migration is implied.
 
+For split homes, the current host coordinator owns root production and refresh:
+
+1. Use the active host's observed, authorized filesystem skill locations and
+   approved plugin scope, not guessed cache/version paths or all installed records.
+   Preserve supplied order and identify the flat parent of each SKILL directory.
+   Deduplicate the same physical root without changing priority. Never scan a
+   broader home/cache tree to fill a gap or include disabled/out-of-scope skills.
+2. Run `inventory` with those repeated `--root` values and all required
+   `--exclude-root` values. Check declared roots, selected names/paths, aliases,
+   alternatives and issues against the observed host scope. Exit 0 means a
+   complete scan, not a verdict that duplicate names are safe. Resolve an intended
+   winner explicitly; unresolved conflicts or missing scope block this handoff.
+3. Pass the identical ordered roots and exclusions to `plan`. Match its discovery
+   inventory digest and selected bindings to the inspected inventory; if paths,
+   scope or content changed, reobserve and replan. A timestamp or old saved root
+   list is not fresh host evidence. Do not persist another global root registry.
+4. `simonK -Root <array>` forwards roots but **does not forward exclusions**.
+   Use it only with dedicated plugin roots whose contents are all permitted to
+   scan. When exclusions are needed, use Python `plan --root ... --exclude-root ...`
+   directly; an excluded inventory does not authorize an unexcluded PS rescan.
+
+This is an LLM-coordinator procedure using existing arguments, not a new native
+host registry collector or automatic installer. It does not prove that the host
+loaded/enabled those skills or that their hooks/policies are enforced. If the host
+cannot expose a trustworthy scope, report that gap instead of manufacturing one.
+Do not invoke default catalog/plan with an empty root list to bypass that gap.
+Keep resource-only skills in the trusted host-native snapshot below; never turn
+their URIs into filesystem roots. Explicit split roots do not carry candidate
+receipt validation, so full release/installation verification remains separate.
+
 ```text
 python scripts/orchestrate.py inventory --root /source/skills-src --root /source/.claude/skills --exclude-root /protected
 python scripts/orchestrate.py coverage --source-root /source/skills-src --source-root /source/.claude/skills --root /installed/skills --plugin-root /plugin/skills --exclude-root /protected

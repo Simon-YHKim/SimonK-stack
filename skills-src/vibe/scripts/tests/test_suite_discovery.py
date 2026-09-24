@@ -4,6 +4,7 @@ import hashlib
 import io
 import json
 from pathlib import Path
+import shutil
 import sys
 import tempfile
 import unittest
@@ -192,6 +193,80 @@ class SuiteDiscoveryTests(unittest.TestCase):
                 code = planner.main(["catalog"])
         self.assertEqual(code, 2)  # missing declared legacy roots, not a candidate error
         self.assertNotIn("error", json.loads(output.getvalue()))
+
+    def detached_roots(self):
+        roots = []
+        for index, owner in enumerate(OWNERS):
+            target = self.root / f"host-{index}/cache/version-{index}/skills"
+            shutil.copytree(self.root / f"plugins/{owner}/skills", target)
+            roots.append(target)
+        self.script_root = roots[0] / "vibe/scripts"
+        return roots
+
+    @staticmethod
+    def root_args(roots, flag="--root"):
+        return [value for root in roots for value in (flag, str(root))]
+
+    def test_host_supplied_detached_roots_need_no_home_or_bundle_inference(self):
+        roots = self.detached_roots()
+        with patch.object(planner, "candidate_inventory", side_effect=AssertionError("No inference")):
+            code, result = self.call("inventory", *self.root_args(roots))
+        self.assertEqual(code, 0, result)
+        self.assertEqual(set(result["catalog"]), {"vibe", "hub", "design", "market", "qa"})
+        self.assertEqual([row["path"] for row in result["roots"]], list(map(str, roots)))
+        self.assertFalse(result["package_evaluated"])
+        self.assertFalse(result["behavior_evaluated"])
+
+    def test_detached_metadata_coverage_and_cross_owner_plan(self):
+        roots = self.detached_roots()
+        source = [self.root / f"plugins/{owner}/skills" for owner in OWNERS]
+        code, coverage = self.call("coverage", *self.root_args(roots),
+                                   *self.root_args(source, "--source-root"),
+                                   *self.root_args(roots, "--plugin-root"))
+        self.assertEqual(code, 0, coverage)
+        self.assertEqual(coverage["status"], "metadata_matched")
+        self.assertFalse(coverage["optimization_complete"])
+        self.assertTrue(all(row["modes"]["balanced"]["status"] == "not_evaluated"
+                            for row in coverage["rows"]))
+        values = {"request": {"run_id": "detached", "steps": [step(skills=["qa", "design"])]},
+                  "runtime": {"candidates": [candidate()], "observed_at": NOW},
+                  "registry": fixture_registry([candidate()])}
+        for name, value in values.items():
+            (self.root / f"{name}.json").write_text(json.dumps(value), encoding="utf-8")
+        code, plan = self.call("plan", *self.root_args(roots), "--input", str(self.root / "request.json"),
+                              "--runtime", str(self.root / "runtime.json"), "--registry",
+                              str(self.root / "registry.json"), "--now", NOW)
+        self.assertEqual(code, 0, plan)
+        bindings = plan["steps"][0]["skill_bindings"]
+        self.assertEqual([b["path"] for b in bindings],
+                         [str(roots[4] / "qa/SKILL.md"), str(roots[2] / "design/SKILL.md")])
+        for binding in bindings:
+            self.assertEqual(binding["sha256"], hashlib.sha256(Path(binding["path"]).read_bytes()).hexdigest())
+        self.assertNotIn("bundle", plan["discovery"])
+
+    def test_detached_missing_root_is_incomplete_not_home_fallback(self):
+        roots = self.detached_roots()
+        roots[-1] = self.root / "missing/skills"
+        code, result = self.call("inventory", *self.root_args(roots))
+        self.assertEqual(code, 2, result)
+        self.assertEqual(result["status"], "incomplete")
+        self.assertIn("ROOT_MISSING", [issue["code"] for issue in result["issues"]])
+        self.assertNotIn("qa", result["catalog"])
+
+    def test_detached_order_and_conflicts_are_observable(self):
+        roots = self.detached_roots()
+        shadow = roots[1] / "qa"
+        shadow.mkdir()
+        (shadow / "SKILL.md").write_text("---\nname: qa\ndescription: different package\n---\n",
+                                        encoding="utf-8")
+        code, first = self.call("inventory", *self.root_args(roots))
+        self.assertEqual(code, 0, first)  # Complete scan is NOT a conflict-resolution verdict.
+        self.assertEqual(first["catalog"]["qa"]["path"], str(shadow / "SKILL.md"))
+        self.assertEqual(len(first["catalog"]["qa"]["alternatives"]), 1)
+        code, second = self.call("inventory", *self.root_args(list(reversed(roots))))
+        self.assertEqual(code, 0, second)
+        self.assertEqual(second["catalog"]["qa"]["path"], str(roots[4] / "qa/SKILL.md"))
+        self.assertNotEqual(first["inventory_digest"], second["inventory_digest"])
 
 
 if __name__ == "__main__":

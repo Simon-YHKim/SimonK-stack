@@ -88,7 +88,16 @@ exit $LASTEXITCODE # 배치 스크립트에서만 사용; 대화형 셸에서는
 
 온전한 five-plugin candidate는 receipt에 묶인 5개 catalog를 기본 탐색합니다.
 분리된 plugin 배치나 flat skill root에서는 검토한 전체 catalog를 `-Root`로
-명시하세요. `-RegistryPath`는 신뢰한 중앙 registry 입력만 지정합니다.
+명시합니다. `/vibe` 코디네이터가 현재 호스트에서 실제로 노출·허용된 경로를
+조합하며, 이미 확인 가능한 경로를 사용자에게 매번 입력하도록 요구하지 않습니다.
+inventory의 scope·충돌·digest를 확인하고 같은 순서의 root를 plan에 전달합니다.
+캐시 버전 경로 추측·전역 registry 자동 스캔·설정 저장은 추가하지 않습니다.
+**PS `-Root`에는 exclusion 전달이 없습니다.** 읽기 허용된 전용 plugin root에만
+사용하고, 보호 경로 제외가 필요하면 Python `plan --root ... --exclude-root ...`를
+직접 사용하세요. 사전 inventory의 제외가 PS 호출에 자동 적용되지는 않습니다.
+상세는 `vibe/references/orchestration.md`의 split-home 절차를 따릅니다.
+이는 코디네이터 절차이며 실제 호스트의 자동 수집 adapter·설치 검증 완료가 아닙니다.
+`-RegistryPath`는 신뢰한 중앙 registry 입력만 지정합니다.
 이 경로의 테스트는 synthetic runtime으로 수행하며 실제 모델·과금·설치 증명이
 아닙니다. 전체 runtime closure는 아직 별도 게이트입니다.
 이 추가로 readiness 플래그를 true로 바꾸지 않습니다.

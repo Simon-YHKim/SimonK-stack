@@ -235,6 +235,24 @@ class SimonkEntrypointTests(unittest.TestCase):
         self.assertEqual(rc, 0, plan)
         self.assertEqual(plan["steps"][0]["route"]["requested_model"], "fixture-small")
 
+    def test_host_supplied_split_roots_preserve_cross_plugin_binding(self):
+        roots = []
+        for index, name in enumerate(("core-leaf", "hub-leaf", "design-leaf", "market-leaf", "stack-leaf")):
+            root = self.root / f"plugin-{index}/version-{index}/skills"
+            leaf = root / name
+            leaf.mkdir(parents=True)
+            (leaf / "SKILL.md").write_text(f"---\nname: {name}\ndescription: Split fixture\n---\n",
+                                           encoding="utf-8")
+            roots.append(root)
+        self.request["steps"] = [self.node(skills=["design-leaf", "stack-leaf"])]
+        params = {**self.inputs(), "Root": list(map(str, roots))}
+        rc, plan = self.run_wrapper(params)
+        self.assertEqual(rc, 0, plan)
+        self.assertEqual([row["path"] for row in plan["discovery"]["roots"]], list(map(str, roots)))
+        self.assertEqual([b["path"] for b in plan["steps"][0]["skill_bindings"]],
+                         [str(roots[2] / "design-leaf/SKILL.md"), str(roots[4] / "stack-leaf/SKILL.md")])
+        self.assertNotIn("bundle", plan["discovery"])
+
     def test_documented_batch_recipe_rejects_pre_body_binding_errors(self):
         # Do not use HARNESS: its catch deliberately normalizes errors to JSON.
         # A binding failure happens before the function can set LASTEXITCODE.

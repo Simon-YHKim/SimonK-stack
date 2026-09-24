@@ -2,7 +2,7 @@
 name: vibe
 description: "Use when the user invokes \"/vibe\", \"바이브로 알아서 해줘\", \"스킬 조합해서 처리해\", \"오르카로 돌려\", or \"orchestrate this task\". Acts as the main entry point for installed SimonK-stack skills: discovers the relevant skills, decomposes dependencies, chooses software and CLI/API/MCP or GUI Bot execution, and matches Claude, Codex (GPT), Antigravity (Gemini), Grok and Grok Bot to verified model/effort capabilities and a total-run cost budget. Produces a validated execution plan, scoped handoffs, verified artifacts and a usage report. Small tasks stay in the current session; GUI-only steps use vibe-bot internally. Never treats unknown cost or unsupported model controls as zero or applied."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.11.1
+version: 2.11.2
 author: simon-stack
 ---
 
@@ -32,6 +32,8 @@ Quality preference is not spending authorization.
 ## 1. Discover the needed skills and software
 
 Run `python "<skill>/scripts/orchestrate.py" catalog` to inspect skill metadata.
+For separately installed plugins, compose explicit roots from the current host's observed, authorized paths before invoking the helper.
+Own this step; do not ask Simon to maintain paths already supplied by the host. Follow the split-home procedure in [discovery](references/orchestration.md).
 Inside an intact five-plugin candidate, default catalog/plan uses that bundle's
 five skill roots only. Its receipt, planner, manifests and SKILL metadata must
 match; missing/drifted inputs stop discovery without falling back to home.
@@ -361,10 +363,8 @@ python -B -I -S tests/test_ledger_scan.py
 
 ## Version note
 
-2.11.1 binds default discovery in an intact five-plugin candidate to its local
-bundle receipt. Non-Core skills are available without mixing old home copies.
-Explicit roots retain precedence. Separately installed plugin homes still need
-explicit roots; no installer, PowerShell shim or live execution is added.
+2.11.2 defines coordinator-owned root injection for separately installed homes, with observed-scope/conflict checks and exclusion-preserving command selection.
+Existing CLI/PowerShell argument handling is unchanged. Intact candidates retain receipt-bound discovery; no registry collector, installation or host E2E is added.
 2.11.0 adds explicit observable-local preparation alongside unchanged owned-v1:
 durable contract/approval identity, separate UUID namespace, implicit session
 commands and nullable-but-consistent provenance. Trust and native-effects
