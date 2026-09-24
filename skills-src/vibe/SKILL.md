@@ -2,7 +2,7 @@
 name: vibe
 description: "Use when the user invokes \"/vibe\", \"바이브로 알아서 해줘\", \"스킬 조합해서 처리해\", \"오르카로 돌려\", or \"orchestrate this task\". Acts as the main entry point for installed SimonK-stack skills: discovers the relevant skills, decomposes dependencies, chooses software and CLI/API/MCP or GUI Bot execution, and matches Claude, Codex (GPT), Antigravity (Gemini), Grok and Grok Bot to verified model/effort capabilities and a total-run cost budget. Produces a validated execution plan, scoped handoffs, verified artifacts and a usage report. Small tasks stay in the current session; GUI-only steps use vibe-bot internally. Never treats unknown cost or unsupported model controls as zero or applied."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.10.5
+version: 2.10.6
 author: simon-stack
 ---
 
@@ -340,6 +340,8 @@ python "<skill>/scripts/selftest.py"
 python "<skill>/scripts/sync_skill_table.py" --check
 # Process-denied preparation fixtures, from the skill's scripts directory:
 python -B -m unittest discover -s tests -p "test_prepare*.py"
+# Secret detection equivalence/latency; denies child processes and networking:
+python -B -I -S tests/test_ledger_scan.py
 ```
 
 - [Orchestration schema and cost policy](references/orchestration.md)
@@ -351,6 +353,10 @@ python -B -m unittest discover -s tests -p "test_prepare*.py"
 
 ## Version note
 
+2.10.6 avoids repeated-suffix secret scans on long URI-like words and incomplete
+JWTs. Detection names, first offsets, declaration order and value redaction are
+preserved; input is not truncated. Offline tests cover the 1MiB run-state limit.
+This does not change execution authority, live billing or installation status.
 2.10.5 retires the environment-handle process killer and its mutable home routing
 import. Legacy calls now fail without process/native access, including former
 dry mode. Official supervised stop integration, exact-target authorization and

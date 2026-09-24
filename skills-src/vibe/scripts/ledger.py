@@ -80,7 +80,11 @@ SECRET_PATTERNS = [
     (re.compile(r"lin_api_[A-Za-z0-9]{30,}"), "linear key"),
     (re.compile(r"ntn_[A-Za-z0-9]{30,}"), "notion token"),
     (re.compile(r"vercel_[A-Za-z0-9]{20,}"), "vercel token"),
-    (re.compile(r"[a-zA-Z][a-zA-Z0-9+.\-]*://[^\s:/@]+:[^\s:/@]+@"), "connection uri with password"),
+    # Attempt each maximal ASCII scheme run once, not every suffix of a long
+    # word. Leading nonletters belong to the scan, not the reported credential.
+    (re.compile(r"(?<![A-Za-z0-9+.\-])[0-9+.\-]*"
+                r"(?P<credential>[A-Za-z][A-Za-z0-9+.\-]*://[^\s:/@]+:[^\s:/@]+@)"),
+     "connection uri with password"),
     # JSON·ini 양쪽을 덮는다. 레코드 안에 JSON 문자열이 들어가면 따옴표가 \" 로
     # 이스케이프되므로 구분자 자리에 백슬래시를 허용해야 한다 (검증에서 실제로 새어나갔다).
     (re.compile(r"(?i)[\"'\\]{0,2}\b(?:api[_-]?key|secret|password|passwd|passphrase|"
@@ -199,13 +203,44 @@ def _downloads_dir():
 
 
 # ── 시크릿 검사 ─────────────────────────────────────────────────
+_BASE64URL_RUN = re.compile(r"[A-Za-z0-9_\-]+")
+
+
+def _first_jwt(text):
+    """Preserve the JWT pattern's first offset without retrying every eyJ.
+
+    A maximal run's first eyJ has the longest possible header suffix. If that
+    suffix is too short, a later eyJ in the same run cannot match either.
+    Keep only the previous run; adjacent dots and payload length determine the
+    result. No signature, decoding, truncation or token values are returned.
+    """
+    previous = None
+    for run in _BASE64URL_RUN.finditer(text):
+        if previous is not None:
+            offset, end = previous
+            if (run.start() == end + 1 and text[end] == "."
+                    and run.end() - run.start() >= 10
+                    and text[run.end():run.end() + 1] == "."):
+                return offset
+        offset = text.find("eyJ", run.start(), run.end())
+        previous = (offset, run.end()) if offset >= 0 and run.end() - offset >= 13 else None
+    return None
+
+
 def scan_secrets(text):
     """검출된 (패턴이름, 위치) 목록. 값 자체는 반환하지 않는다."""
     hits = []
     for rx, name in SECRET_PATTERNS:
+        # Keep the legacy regex as the format contract, but do not execute its
+        # quadratic search on repeated eyJ prefixes with a missing delimiter.
+        if name == "jwt":
+            offset = _first_jwt(text)
+            if offset is not None:
+                hits.append((name, offset))
+            continue
         m = rx.search(text)
         if m:
-            hits.append((name, m.start()))
+            hits.append((name, m.start("credential") if "credential" in rx.groupindex else m.start()))
     return hits
 
 
