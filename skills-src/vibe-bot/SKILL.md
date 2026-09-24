@@ -2,7 +2,7 @@
 name: vibe-bot
 description: "Use when a task needs Grok Bot's cloud computer for a GUI-only step, or the user invokes \"/vibe-bot\", \"봇한테 시켜\", \"그록 봇으로 돌려\", or \"console task\". Works inside the current /vibe run: drafts a scoped console task, selects an active roster entry, publishes through the shared budget and durable-claim adapter only with fresh account/Relay/delivery evidence, and checks the exact nonce and screen evidence on return. Produces a task sheet and an honest queued/uncertain/verified result. NOT for work an authorized CLI/API/MCP can perform, direct webhook sends, or local repository changes."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 0.8.0
+version: 0.8.1
 author: simon-stack
 ---
 
@@ -129,13 +129,16 @@ acceptance occurs. Keep the original private drafts for reconciliation.
 Use the adapter's exact result and metadata paths, not another result found by
 a broad scan. `--collect` is a legacy convenience scan: exit0 can mean no result,
 and missing metadata can downgrade its mode. It is not completion evidence.
+`reconcile` and `check-result` may bind and record unknown state in the existing
+Store; they are not read-only queries. Their exit0 can still mean waiting_external.
 
 Use `check-result` to require the exact first-line nonce and pinned published
 metadata (bot/target/task and nested vibe run/node/plan/dispatch identifiers),
 then reuse the pinned builder's console checks and the adapter's bounded image
 checks. Put the evidence JSON and its images under the exact result directory.
-Inspect the screenshots, reported
-values and task acceptance criteria yourself. PNG/JPEG signatures or a prose
+Inspect the screenshots, reported values and task acceptance criteria yourself.
+The legacy `orchestrate.py verify-bot` and builder `--verify` are unbound helpers,
+not substitutes for this registered-plan check. PNG/JPEG signatures or a prose
 claim alone cannot prove the screen state or that the operation finished.
 
 Reject missing nonce, unscoped absence, unsupported conclusions, leaked secrets
@@ -155,9 +158,11 @@ this skill. Bots sharing an account/computer are not separate security boundarie
 
 Earlier local records describe successful manual and hub pilots on
 2026-09-19/20. They are historical evidence, not current generation authorization
-or proof that this new adapter is deployed. The legacy evals/cases.json still
-contains pre-integration manual/hub assertions; its schema dry-run must not be
-reported as current behavioral validation.
+or proof that this new adapter is deployed. `evals/cases.json` evaluates the current
+draft/route/publication/recovery/result/account boundaries. Its schema dry-run is
+not behavioral validation. Record each observed outcome and distinguish an offline
+fixture or current-host response from actual Relay/provider behavior; never grade
+unperformed actions as passed or infer cross-model quality from one host.
 
 ## Verification and current limits
 

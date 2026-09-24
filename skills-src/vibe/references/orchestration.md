@@ -9,7 +9,9 @@
 - Budget and selection
 - Execution and evidence
 - Durable state and recovery
+- Guarded Bot adapter
 - Guarded Orca adapter
+- Preparation journal and host-injected core
 - Completion boundary
 
 ## Ownership
@@ -294,12 +296,12 @@ argv or a stored dispatch_allowed flag is never an execution authorization.
 Blocked plans start no nodes; independent safe work needs a separately valid
 plan. A local test cannot substitute for an independent LLM reviewer.
 
-For a Bot, read the resolved vibe-bot skill, select an active roster entry,
-create the console spec and link nonce/meta/result paths to the run. Supply
-verify-bot with --evidence pointing to JSON containing nonce, target and images
-(PNG/JPEG paths inside the result directory). Inspect the images and apply
-acceptance criteria; file/signature checks alone do not verify pixels. A missing
-result remains waiting_external, even if collect returned exit code 0.
+For a Bot, use the guarded Bot adapter below and read the resolved vibe-bot
+skill before drafting or dispatch. Bind the private draft and exact published
+nonce/meta/result paths to the registered GUI node. Structural result checks,
+including PNG/JPEG signatures, do not establish pixels, terminal execution,
+cost or acceptance. Missing results remain waiting_external; collect exit 0
+does not prove that any result was found.
 
 ## Durable state and recovery
 
@@ -330,7 +332,7 @@ python "<skill>/scripts/run_state.py" status
 ```
 
 These state-changing commands are not an offline planning/dry-run sequence.
-For Orca, do not call the low-level claim command manually before dispatch:
+For Orca or Bot, do not call the low-level claim command manually before dispatch:
 the adapter owns claim and send together. A manually committed intent without
 a send can become unresolved; its repeated claim does not authorize sending.
 The claim API is for reviewed adapter integration, not a standalone runbook step.
@@ -342,8 +344,8 @@ intents count toward concurrency (default two global and two per account).
 `ready` and first `claim` check the stored plan's freshness/validity windows,
 dependency/review state, shared budgets, reservations and concurrency. They
 do not contact providers or reobserve account settings, quota or model access.
-Registration validates the supplied plan; the guarded Orca adapter separately
-checks its fresh account/billing certificate and native identity before send.
+Registration validates the supplied plan; each guarded adapter separately
+checks its fresh account/billing authority and transport-specific identity before send.
 Resolved model/effective effort and actual cost require post-send observation
 and settlement; none are established by a successful claim.
 An identical claim returns its existing dispatch_id and
@@ -400,6 +402,37 @@ state lifecycle. They do not establish provider adapters, five-surface live
 generation, true provider spend caps or installation parity. Keep those gates
 separate; Grok generation stays on hold while the user's USD 0 constraint and
 exhausted quota apply.
+
+## Guarded Bot adapter
+
+`execute_bot.py` consumes the registered GUI plan and shared Store. The discovered
+vibe-bot SKILL.md owns the exact `bot_delivery` descriptor and certificate schema;
+read it rather than reconstructing these from legacy examples. A private draft
+may precede account/approval evidence, but publication may not. Include all Bot,
+Relay, attempt and review costs in the whole-plan reservation. This adapter requires
+Bot and Relay account_ref to match; separate-account Relay is unsupported.
+
+Only a fresh internal claim can publish. Immutable draft/helper/roster pins and
+delivery authority are rechecked before metadata-first, no-replace `.md`-last
+publication. This makes local files visible to a consumer; it does not prove
+actual Relay/Bot acceptance. The real consumer's staging/marker behavior must
+be verified separately. Reentry reconciles the same intent without another send,
+even when a marker or result is missing. Unknown cost keeps the reservation.
+
+Use `execute_bot.py check-result --plan ... --node ... --db ... --evidence ...`
+for exact first-line nonce and bound publication checks, pinned builder console
+checks and bounded image evidence. `result_checks_passed` is not Store verified
+success. Inspect the actual pixels and task criteria; obtain matching terminal
+and cost evidence before Store observe/settle/verify and required reviews.
+The adapter never automatically accepts, settles, retries, stops or completes.
+Reconcile/check-result may bind and observe unknown state in the existing Store;
+they are not read-only queries. Inspect the JSON status even when exit code is 0.
+
+Legacy `orchestrate.py verify-bot` and builder `--verify/--collect` remain separate
+unbound helpers; they do not check the registered plan/Store/pinned helper. Do not
+use their exit codes as completion or as a substitute for this adapter. No helper
+result, historical pilot or manual paste grants permission to bypass a delivery
+hold. Source fixtures are not account, generation, OS-isolation or installation proof.
 
 ## Guarded Orca adapter
 

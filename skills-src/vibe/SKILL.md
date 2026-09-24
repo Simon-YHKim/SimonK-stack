@@ -2,7 +2,7 @@
 name: vibe
 description: "Use when the user invokes \"/vibe\", \"바이브로 알아서 해줘\", \"스킬 조합해서 처리해\", \"오르카로 돌려\", or \"orchestrate this task\". Acts as the main entry point for installed SimonK-stack skills: discovers the relevant skills, decomposes dependencies, chooses software and CLI/API/MCP or GUI Bot execution, and matches Claude, Codex (GPT), Antigravity (Gemini), Grok and Grok Bot to verified model/effort capabilities and a total-run cost budget. Produces a validated execution plan, scoped handoffs, verified artifacts and a usage report. Small tasks stay in the current session; GUI-only steps use vibe-bot internally. Never treats unknown cost or unsupported model controls as zero or applied."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.11.2
+version: 2.11.3
 author: simon-stack
 ---
 
@@ -160,29 +160,27 @@ Writing work always needs review; an automated build does not replace it.
 
 ## 4. Use vibe-bot internally for GUI-only work
 
-Read the discovered vibe-bot SKILL.md before calling its scripts. Confirm that
-an authorized CLI/API/MCP cannot do the required screen operation.
-Use an active bot from its roster; reject ON HOLD, WITHDRAWN and not-created
-entries even if the legacy keyword resolver selects one.
-
-Build the console task with its target, project, outcome, allowed scope,
-forbidden actions, stop points, screen evidence and return path.
-Use `make_bot_spec.py --mode console --target ... --task ... --bot ...`.
-Local drafting can proceed while delivery is blocked by missing cost or access
-evidence. Deliver to the verified hub/Relay path only after the run gate passes.
-Respect existing explicit authority for external actions; obtaining a new
-login, payment or irreversible permission is not implicit in /vibe.
-
-Link the generated nonce and expected meta/result paths to the node.
-`--collect` returning 0 is not completion: it also returns 0 for no results.
-Check the expected metadata, nonce and console result explicitly:
+Read the discovered vibe-bot SKILL.md for its draft, immutable `bot_delivery`
+descriptor and fresh delivery/account/Relay certificate. Keep the current run,
+whole-plan reservation and shared Store. No authorized CLI/API/MCP alternative
+may be available; execution needs an observed active exact roster entry.
+Draft privately while delivery is blocked. Drafting, pasting into chat and
+publishing to a watched bus are different effects; only drafting is local-only.
+Never use the builder's retired hub/webhook/github/--send paths or manually
+preclaim. The central adapter owns claim and publication together:
 ```text
-python "<skill>/scripts/orchestrate.py" verify-bot --bot-root <resolved-vibe-bot> --meta <meta.json> --result <result.md> --nonce <vb-nonce> --evidence <screens.json>
+python "<skill>/scripts/execute_bot.py" dispatch --plan plan.json --node screen --db shared-runs.sqlite3 --certificate bot-evidence.json
+python "<skill>/scripts/execute_bot.py" reconcile --plan plan.json --node screen --db shared-runs.sqlite3
+python "<skill>/scripts/execute_bot.py" check-result --plan plan.json --node screen --db shared-runs.sqlite3 --evidence screens.json
 ```
-The evidence JSON links nonce, target and actual PNG/JPEG paths inside the run's
-result directory. Inspect those screenshots and compare their values with the result.
-Missing metadata never downgrades console verification to general mode.
-A queued Bot task remains waiting_external until this verification finishes.
+Reentry is lookup-only, never a new nonce or resend. Exact publication remains
+waiting_external with unknown cost; it does not prove Bot acceptance. The legacy
+`orchestrate.py verify-bot` and builder `--verify/--collect` do not bind the Store,
+plan or pinned helper and must not replace `check-result` for this workflow.
+`check-result`'s result_checks_passed is structural evidence only: inspect actual screenshots
+and task criteria, establish terminal and cost evidence, then observe/settle/
+verify through the Store. Required reviews still apply. No automatic completion,
+login/payment/Submit authorization, settlement or provider-model selection.
 
 ## 5. Account and finish
 
@@ -363,8 +361,8 @@ python -B -I -S tests/test_ledger_scan.py
 
 ## Version note
 
-2.11.2 defines coordinator-owned root injection for separately installed homes, with observed-scope/conflict checks and exclusion-preserving command selection.
-Existing CLI/PowerShell argument handling is unchanged. Intact candidates retain receipt-bound discovery; no registry collector, installation or host E2E is added.
+2.11.3 aligns Bot guidance with the durable execute_bot adapter; legacy result checks cannot establish central completion. No live execution or installation is added.
+2.11.2 defines coordinator-owned split-home roots with scope/conflict/exclusion checks; intact candidates retain receipt-bound discovery, without a native collector or installer.
 2.11.0 adds explicit observable-local preparation alongside unchanged owned-v1:
 durable contract/approval identity, separate UUID namespace, implicit session
 commands and nullable-but-consistent provenance. Trust and native-effects

@@ -6,6 +6,7 @@
 ## [Unreleased]
 
 ### Fixed
+- **`/vibe` 2.11.3 / `vibe-bot` 0.8.1 contract alignment** — the main runbook now consumes the durable Bot hub adapter and pinned result checks introduced in 0.8.0. Legacy unbound verification and collect exit codes cannot establish central completion. Bot evals cover observable draft, routing, recovery, acceptance and cost outcomes rather than manual paste or retired hub/webhook delivery. Source/fixture validation is not live Relay/account proof, model-mode measurement or installation.
 - **Benchmark freshness truthfulness** — raw collection never edits Wiki timestamps/content/logs or the routing registry. Empty, failed, unimplemented, malformed or partial collections return `2` without replacing a prior cache; `--dry-run` writes no files. Successful snapshots remain explicitly unverified with an attempt timestamp and unknown data-as-of date. Cache replacement is atomic, and offline fixture regressions are included in skills CI. The external Wiki cron still needs separate exit-code integration; this is not a completed live benchmark refresh.
 
 ### Added
