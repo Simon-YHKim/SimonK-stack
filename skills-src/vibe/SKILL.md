@@ -2,7 +2,7 @@
 name: vibe
 description: "Use when the user invokes \"/vibe\", \"바이브로 알아서 해줘\", \"스킬 조합해서 처리해\", \"오르카로 돌려\", or \"orchestrate this task\". Acts as the main entry point for installed SimonK-stack skills: discovers the relevant skills, decomposes dependencies, chooses software and CLI/API/MCP or GUI Bot execution, and matches Claude, Codex (GPT), Antigravity (Gemini), Grok and Grok Bot to verified model/effort capabilities and a total-run cost budget. Produces a validated execution plan, scoped handoffs, verified artifacts and a usage report. Small tasks stay in the current session; GUI-only steps use vibe-bot internally. Never treats unknown cost or unsupported model controls as zero or applied."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.10.3
+version: 2.10.4
 author: simon-stack
 ---
 
@@ -224,6 +224,11 @@ exclusive owned-host session and cannot instantiate the raw Orca runner.
 Missing preparation evidence blocks dispatch, not permission to use old helpers.
 Read the preparation contract before integrating this library. Fixture evidence
 does not establish a live caller, loaded runtime, OS isolation or free access.
+An explicit schema3 validation overlay permits same-intent runtime freshness
+renewal without resetting native UUIDs or reservations. It requires a newly
+validated central plan; never edit timestamps to bypass expired evidence.
+Registry/model/account/budget changes and operational migration remain outside
+this renewal path. Expired or unresolved work never authorizes a replacement run.
 
 The generated table is historical compatibility policy, not the frontier
 registry or present-day availability. It cannot bypass central guards.
@@ -343,9 +348,14 @@ python -B -m unittest discover -s tests -p "test_prepare*.py"
 
 ## Version note
 
+2.10.4 adds explicit schema3 preparation freshness renewal: immutable native
+intent, strict timestamp-only validation overlay, revision CAS and fresh final
+projection. Partial preparations can resume after trusted runtime revalidation
+within the unchanged registry's lifetime. This is source-only, not a native
+bridge, operational DB migration, deployment or live billing proof.
 2.10.3 adds the schema2 full-reservation preparation journal and a host-injected
 protocol core: exact one-send intent, dual receipt/resource verification and
-full-DAG finalization. The real owned-session bridge, TTL rebase, native
+full-DAG finalization. The real owned-session bridge, registry-changing rebase, native
 preparation, operational migration, live E2E and installation remain incomplete.
 2.10.2 aligns the active Orca/evaluation runbooks and behavioral case assertions
 with the central execution boundary. Schema PASS is not measured behavior or

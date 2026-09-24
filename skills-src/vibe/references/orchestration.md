@@ -485,7 +485,7 @@ its three shell integration cases are separate, default-skipped tests requiring
 that flag is not a sandbox or spending approval. Keep it unset for offline
 validation under the current hold. A reported skip is not a passed integration.
 
-## Preparation journal and host-injected core (schema 2; native bridge pending)
+## Preparation journal and host-injected core (schema 2/3; native bridge pending)
 
 `run_state.Store` now exposes a preparation lifecycle, not a native Run/Task
 creator. `execute_orca.py` still accepts already-bound Tasks only; there is no
@@ -524,7 +524,8 @@ The trusted coordinator API is:
 4. `finalize_preparation(...)`: require all operations bound, fresh exact
    `bound_sha256` proof, `scope_verified`, `no_workers`, `non_generating`, verified
    zero actual metadata cost and evidence. Store injects **only** native Run/Task
-   IDs into its stored draft, revalidates/re-hashes, and transfers the preparation
+   IDs into its current validation plan (the original draft until renewed),
+   revalidates/re-hashes, and transfers the preparation
    hold into ordinary run/node reservations in one transaction. Any failure rolls
    back both sides. It neither claims workers nor verifies their outputs.
 
@@ -549,8 +550,8 @@ Admission verifies the full DAG, at most32 Task nodes and
 worst-length journal serialization <=768KiB and final-plan projection <=1MiB;
 each observation/final proof is
 <=4096 UTF-8 JSON bytes. There is no automatic expiry, cancellation, budget
-release, UUID reset or draft rebase. Expired drafts retain their reservation;
-safe observation-only rebase is a follow-up, not permission to create another
+release, UUID reset or draft rewrite. Expired drafts retain their reservation;
+the explicit schema3 validation overlay below is not permission to create another
 run. `snapshot.preparations` exposes these holds separately from ordinary runs;
 the global budget includes them. The existing `accounts` view covers registered
 node/attempt reserves only, not preparation-level holds.
@@ -634,10 +635,78 @@ can be null: null stays **unknown**, not a fabricated match. Missing provenance,
 changed generation, extra Tasks, any worker, partial list or pruned receipt blocks
 progress. This deliberate limitation is not general native preparation support.
 
-Stale drafts may reconcile using fresh owned-session observations but cannot
-create more operations or finalize. TTL rebase and native caller cleanup remain
-unimplemented. A session must remain valid/exclusive for the whole invocation;
+Without a fresh validation overlay, stale drafts may reconcile using fresh
+owned-session observations but cannot create more operations or finalize.
+Registry-changing rebase and native caller cleanup remain unimplemented.
+A session must remain valid/exclusive for the whole invocation;
 retention/release belongs to the future reviewed host integration, not this core.
+
+### Explicit freshness overlay (schema 3; source-only)
+
+After authorized backup and coordinator quiescence, the separate command
+`run_state.py --db <same-shared-db> upgrade-preparation-refresh --approval-ref <ref>`
+upgrades **schema2 to schema3**. It adds only `preparation_validations` with plan,
+revision and proof, leaving all original preparation rows and grants unchanged.
+`init` still creates schema1; ordinary preparation does not auto-upgrade.
+Old schema2 readers reject schema3. Do not downgrade `user_version`, remove this
+table, reset UUIDs, release holds or switch DBs to recover. No operational DB has
+been migrated by these fixtures; database rollback needs a separate reviewed
+procedure that preserves any subsequent reservations/native effects.
+
+The coordinator must rerun the central planner against **newly observed** runtime,
+quota, billing and applicable alias/access/quote evidence. Supplying a plan with
+edited timestamps is not revalidation. The source core cannot authenticate the
+coordinator's assertions or recover alias/access evidence omitted from a plan.
+The actual owned-host bridge and zero-additional-cost evidence remain required.
+
+`renew_preparation(run, fresh_plan, caller, proof)` accepts only the same original
+intent. Canonical JSON comparison masks exactly `planned_at`, derived
+`plan_digest`, and each route's `runtime_observed_at`, `quota.observed_at`,
+`valid_until`. Paths must already exist. All other keys, values and numeric types
+are frozen: registry identity/check time, quota usage/bucket, billing/account,
+model/effort, budget, order/DAG, native pins, skills, exact task text and handoff.
+Changed quota usage or registry data requires a different reviewed recovery path,
+not weakening this comparison. Host-native skills are unsupported in Orca
+preparation; central planning requires a host route for them.
+
+The new plan must be ready, fresh and fit worst-ID final projection/journal
+limits. Its expiry cannot exceed the unchanged registry's seven-day lifetime or
+either runtime/quota observation's 900-second TTL. Observation times cannot go
+backwards; a fresh observation **may shorten** expiry, and that shorter boundary
+is enforced. Once the frozen registry expires, this path stays blocked. Opaque
+registry SHA changes are not accepted as timestamp-only updates.
+
+Proof fields are `verified=true`, `runtime_revalidated=true`, fresh
+`observed_at`, nonempty `evidence`, original `draft_digest`, `previous_digest`,
+integer `previous_revision` and new `validation_digest`. A transaction checks
+caller identity, the prior digest/revision and the unchanged shared budget.
+An exact replay of a committed proof/plan is idempotent. A different stale writer
+loses the CAS. Renewal changes **no** operation, native ID, state, reserve, spend
+or unknown-cost flag; absent/pruned/pending requests remain lookup-only.
+
+`PreparationAdapter.renew(original_draft, fresh_plan, revalidation_evidence)` is
+the trusted in-process coordinator entry. It checks the owned session, records
+the proof and does **no native read or mutation**; explicit reconciliation is
+still necessary. Do not construct a bridge from synthetic tests or worker data.
+`preparation_validation(run, caller)` returns current plan/revision;
+`preparation(run)` exposes original and validation digests/revision separately.
+
+New intents validate this overlay atomically but derive argv/UUID/spec/native
+markers from the **original draft**. A claim returns its validation digest and
+revision separately from immutable operation identity. The adapter checks the
+same revision and freshness again immediately before send. If changed, the
+intent remains unresolved and recovery is lookup-only, not a resend. All calls
+still require the documented exclusive, serialized coordinator/host scope;
+SQLite CAS is not a network transaction or a provider-enforced spending cap.
+
+Finalization on schema3 requires both `bound_sha256` and exact current
+`validation_digest`/integer `validation_revision` in its final proof. It projects
+existing native IDs onto the fresh overlay, then atomically transfers the same
+hold to the registered run. The event records original/validation/final digests.
+The native Run/Task markers remain original. Subsequent dispatch must use the
+registered **final** plan and new exact account/worker-start proof bindings;
+never transplant an older final plan's certificate. Registered preparations
+cannot renew; ordinary registered-run refresh retains its existing contract.
 
 Offline check: `python -B -m unittest discover -s tests -p "test_prepare*.py" -v` from this skill's
 `scripts` directory. It denies subprocess launch before imports and throughout

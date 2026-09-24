@@ -16,11 +16,12 @@ import sqlite3
 import sys
 import uuid
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 import orchestrate
+import model_registry
 from ledger import scan_secrets, _is_sensitive_key
 
 SCALE = 1_000_000_000
@@ -36,6 +37,7 @@ SCHEMA = (
     "CREATE TABLE events (seq INTEGER PRIMARY KEY, run_id TEXT, dispatch_id TEXT, kind TEXT NOT NULL, at TEXT NOT NULL, payload TEXT NOT NULL)",
 )
 PREPARATIONS_SCHEMA = "CREATE TABLE preparations (run_id TEXT PRIMARY KEY, draft_digest TEXT NOT NULL, draft TEXT NOT NULL, caller TEXT NOT NULL, ops TEXT NOT NULL, state TEXT NOT NULL, cap INTEGER NOT NULL CHECK(cap>=0), held INTEGER NOT NULL CHECK(held>=0), spent INTEGER NOT NULL CHECK(spent>=0), prior_unknown INTEGER NOT NULL, final_plan TEXT)"
+PREPARATION_REFRESH_SCHEMA = "CREATE TABLE preparation_validations (run_id TEXT PRIMARY KEY REFERENCES preparations, plan TEXT NOT NULL, revision INTEGER NOT NULL CHECK(revision>0), proof TEXT NOT NULL)"
 
 
 class StateError(ValueError):
@@ -234,6 +236,52 @@ def preparation_proof(proof):
     evidence(proof.get("evidence"))
 
 
+def preparation_semantics(plan):
+    """Only these existing timestamp leaves may differ; retain every other byte.
+
+    Registry identity, numeric types, diagnostics, route selection and unknown
+    extensions are intentionally frozen. This is narrower than spec_digest.
+    """
+    value = json.loads(safe_json(plan))
+    try:
+        for key in ("planned_at", "plan_digest"):
+            value[key]  # Missing paths must not be added by masking.
+            value[key] = None
+        for node in value["steps"]:
+            for key in ("runtime_observed_at", "valid_until"):
+                node["route"][key]
+                node["route"][key] = None
+            node["route"]["quota"]["observed_at"]
+            node["route"]["quota"]["observed_at"] = None
+    except (KeyError, TypeError):
+        raise StateError("PREPARATION_VALIDATION_SHAPE") from None
+    return safe_json(value)
+
+
+def validate_preparation_freshness(plan, now):
+    """Bound visible evidence; omitted alias/access proofs remain host-owned."""
+    validate_plan(plan, now)
+    if any(n.get("handoff", {}).get("host_skills") or
+           any(b.get("origin") == "host" for b in n.get("skill_bindings", [])) for n in plan["steps"]):
+        # The central planner only permits host-native skills on host routes.
+        # Reject unsupported hand-built combinations instead of renewing them.
+        raise StateError("PREPARATION_HOST_SKILL_UNSUPPORTED")
+    try:
+        checked = plan["model_registry"]["checked_at"]
+        registry_expiry = model_registry.timestamp(checked) + timedelta(seconds=model_registry.MAX_FACT_AGE_SECONDS)
+        if not orchestrate.fresh(checked, now, model_registry.MAX_FACT_AGE_SECONDS):
+            raise ValueError("Registry expired")
+        for node in plan["steps"]:
+            route = node["route"]
+            maximum = min(registry_expiry, *[
+                model_registry.timestamp(t) + timedelta(seconds=model_registry.RUNTIME_TTL_SECONDS)
+                for t in (route["runtime_observed_at"], route["quota"]["observed_at"])])
+            if not model_registry.timestamp(now) < model_registry.timestamp(route["valid_until"]) <= maximum:
+                raise ValueError("Unbounded expiry")
+    except (ValueError, KeyError, TypeError, AttributeError, OverflowError):
+        raise StateError("PREPARATION_EVIDENCE_EXPIRED") from None
+
+
 def native_binding(node):
     binding = node.get("orca")
     if isinstance(binding, dict):
@@ -293,7 +341,7 @@ class Store:
             db = sqlite3.connect(self.path.as_uri() + "?mode=rw", uri=True,
                                  isolation_level=None, timeout=self.timeout)
             db.row_factory = sqlite3.Row
-            if not new and db.execute("PRAGMA user_version").fetchone()[0] not in {1, 2}:
+            if not new and db.execute("PRAGMA user_version").fetchone()[0] not in {1, 2, 3}:
                 raise StateError("SCHEMA_UNSUPPORTED")
             if db.execute("PRAGMA journal_mode").fetchone()[0] != "delete":
                 raise StateError("JOURNAL_UNSUPPORTED")
@@ -343,11 +391,28 @@ class Store:
         """
         evidence([approval_ref])
         with self._transaction() as db:
-            if db.execute("PRAGMA user_version").fetchone()[0] == 2:
+            if db.execute("PRAGMA user_version").fetchone()[0] in {2, 3}:
                 return
             db.execute(PREPARATIONS_SCHEMA)
             db.execute("PRAGMA user_version=2")
             self._event(db, None, None, "preparation_schema_upgraded", moment(now), {"evidence": [approval_ref]})
+
+    def upgrade_preparation_refresh(self, approval_ref, now=None):
+        """Explicit v2->v3 only. Quiesce readers and review a DB backup first.
+
+        Old v2 readers reject v3. No reservations/operations are migrated or
+        released; operational migration is not an automatic recovery action.
+        """
+        evidence([approval_ref])
+        with self._transaction() as db:
+            version = db.execute("PRAGMA user_version").fetchone()[0]
+            if version == 3:
+                return
+            if version != 2:
+                raise StateError("PREPARATION_SCHEMA_REQUIRED")
+            db.execute(PREPARATION_REFRESH_SCHEMA)
+            db.execute("PRAGMA user_version=3")
+            self._event(db, None, None, "preparation_refresh_schema_upgraded", moment(now), {"evidence": [approval_ref]})
 
     @staticmethod
     def _preparations(db):
@@ -356,12 +421,72 @@ class Store:
         return [dict(r) for r in db.execute("SELECT * FROM preparations ORDER BY run_id")]
 
     def _preparation(self, db, run, caller=None):
-        if db.execute("PRAGMA user_version").fetchone()[0] != 2:
+        if db.execute("PRAGMA user_version").fetchone()[0] not in {2, 3}:
             raise StateError("PREPARATION_SCHEMA_REQUIRED")
         row = self._one(db, "SELECT * FROM preparations WHERE run_id=?", (identifier(run),))
         if caller is not None and preparation_caller(caller) != row["caller"]:
             raise StateError("PREPARATION_CALLER_CHANGED")
         return row, json.loads(row["draft"]), json.loads(row["ops"])
+
+    @staticmethod
+    def _preparation_validation(db, row):
+        saved = (db.execute("SELECT * FROM preparation_validations WHERE run_id=?", (row["run_id"],)).fetchone()
+                 if db.execute("PRAGMA user_version").fetchone()[0] == 3 else None)
+        return {"plan": json.loads(saved["plan"] if saved else row["draft"]),
+                "revision": saved["revision"] if saved else 0, "proof": saved["proof"] if saved else None}
+
+    def preparation_validation(self, run, caller):
+        with self._transaction() as db:
+            row, _, _ = self._preparation(db, run, caller)
+            validation = self._preparation_validation(db, row)
+            return {k: validation[k] for k in ("plan", "revision")}
+
+    def renew_preparation(self, run, plan, caller, proof, now=None):
+        """Persist trusted planner observations, never mutate native intent/state.
+
+        Callers must rerun the central planner with fresh runtime/quota and all
+        alias/access/cost evidence. A JSON claim is not independent attestation.
+        """
+        now = moment(now)
+        with self._transaction() as db:
+            if db.execute("PRAGMA user_version").fetchone()[0] != 3:
+                raise StateError("PREPARATION_REFRESH_SCHEMA_REQUIRED")
+            row, draft, _ = self._preparation(db, run, caller)
+            if row["state"] == "registered":
+                raise StateError("PREPARATION_ALREADY_REGISTERED")
+            current = self._preparation_validation(db, row)
+            preparation_proof(proof)
+            validate_preparation_freshness(plan, now)
+            if preparation_semantics(plan) != preparation_semantics(draft):
+                raise StateError("PREPARATION_INTENT_CHANGED")
+            preparation_capacity(plan, caller)
+            if (proof.get("verified") is not True or proof.get("runtime_revalidated") is not True or
+                    proof.get("draft_digest") != row["draft_digest"] or
+                    proof.get("validation_digest") != plan["plan_digest"] or
+                    not orchestrate.fresh(proof.get("observed_at"), now) or
+                    type(proof.get("previous_revision")) is not int):
+                raise StateError("PREPARATION_REFRESH_PROOF_REQUIRED")
+            self._budget_guard(db)
+            # An exact retry of a committed renewal is safe and does not bump
+            # revision. A different stale writer must lose the CAS below.
+            if current["proof"] == safe_json(proof) and safe_json(current["plan"]) == safe_json(plan):
+                return
+            if (proof.get("previous_digest") != current["plan"]["plan_digest"] or
+                    proof["previous_revision"] != current["revision"]):
+                raise StateError("PREPARATION_VALIDATION_CHANGED")
+            old = current["plan"]
+            timestamps = [(old["planned_at"], plan["planned_at"])]
+            for before, after in zip(old["steps"], plan["steps"]):
+                timestamps.append((before["route"]["runtime_observed_at"], after["route"]["runtime_observed_at"]))
+                timestamps.append((before["route"]["quota"]["observed_at"], after["route"]["quota"]["observed_at"]))
+            if any(orchestrate.instant(after) < orchestrate.instant(before) for before, after in timestamps):
+                raise StateError("PREPARATION_VALIDATION_DOWNGRADE")
+            revision = current["revision"] + 1
+            db.execute("INSERT INTO preparation_validations VALUES(?,?,?,?) ON CONFLICT(run_id) DO UPDATE SET plan=excluded.plan,revision=excluded.revision,proof=excluded.proof",
+                       (run, safe_json(plan), revision, safe_json(proof)))
+            self._event(db, run, None, "preparation_renewed", now, {"draft_digest": row["draft_digest"],
+                "previous_digest": old["plan_digest"], "validation_digest": plan["plan_digest"],
+                "validation_revision": revision, "proof": proof})
 
     def _native_available(self, db, run, kind, native, node=None):
         """Conservative same-DB resource ownership, including closed history.
@@ -392,7 +517,9 @@ class Store:
     def preparation(self, run):
         with self._transaction() as db:
             row, _, ops = self._preparation(db, run)
+            validation = self._preparation_validation(db, row)
             return {"run_id": row["run_id"], "draft_digest": row["draft_digest"], "state": row["state"],
+                "validation_digest": validation["plan"]["plan_digest"], "validation_revision": validation["revision"],
                 "held_usd": usd(row["held"]), "caller": json.loads(row["caller"]), "operations": ops,
                 "bound_sha256": self._bound_digest(row, ops) if row["state"] in {"bound", "registered"} else None}
 
@@ -427,7 +554,7 @@ class Store:
             raise StateError("INVALID_PREPARATION_DAG")
         preparation_capacity(plan, caller)
         with self._transaction() as db:
-            if db.execute("PRAGMA user_version").fetchone()[0] != 2:
+            if db.execute("PRAGMA user_version").fetchone()[0] not in {2, 3}:
                 raise StateError("PREPARATION_SCHEMA_REQUIRED")
             old = db.execute("SELECT * FROM preparations WHERE run_id=?", (plan["run_id"],)).fetchone()
             if old:
@@ -469,7 +596,10 @@ class Store:
                 return {**ops[key], "send_allowed": False}
             if row["state"] != "preparing":
                 raise StateError("PREPARATION_RECONCILIATION_REQUIRED")
-            validate_plan(plan, now)
+            validation = self._preparation_validation(db, row)
+            validate_plan(validation["plan"], now)
+            if validation["revision"]:
+                validate_preparation_freshness(validation["plan"], now)
             self._budget_guard(db)
             argv = preparation_argv(plan, caller, key, {k: op["native_id"] for k, op in ops.items() if op["state"] == "complete"})
             identity = orchestrate.digest({"draft": row["draft_digest"], "caller": caller, "key": key, "argv": argv})
@@ -480,7 +610,8 @@ class Store:
             ops[key] = op
             db.execute("UPDATE preparations SET ops=? WHERE run_id=?", (safe_json(ops), run))
             self._event(db, run, None, "preparation_intent", now, {"key": key, "operation_sha256": op["operation_sha256"]})
-            return {**op, "send_allowed": True}
+            return {**op, "send_allowed": True, "validation_digest": validation["plan"]["plan_digest"],
+                    "validation_revision": validation["revision"]}
 
     def observe_preparation(self, run, key, caller, proof, now=None):
         """Accept only coordinator-verified, exact request/resource readback.
@@ -524,13 +655,19 @@ class Store:
             self._event(db, run, None, "preparation_observed", now, {"key": key, "state": state})
 
     def finalize_preparation(self, run, caller, proof, now=None):
-        """Atomically transfer hold and inject only native IDs into stored draft."""
+        """Atomically transfer hold and project IDs into the current validation."""
         now = moment(now)
         preparation_proof(proof)
         with self._transaction() as db:
             row, plan, ops = self._preparation(db, run, caller)
             if row["state"] == "registered":
                 return json.loads(row["final_plan"])
+            validation = self._preparation_validation(db, row)
+            if db.execute("PRAGMA user_version").fetchone()[0] == 3 and (
+                    proof.get("validation_digest") != validation["plan"]["plan_digest"] or
+                    type(proof.get("validation_revision")) is not int or
+                    proof["validation_revision"] != validation["revision"]):
+                raise StateError("PREPARATION_VALIDATION_CHANGED")
             if (row["state"] != "bound" or proof.get("bound_sha256") != self._bound_digest(row, ops) or
                     any(proof.get(k) is not True for k in ("verified", "scope_verified", "no_workers", "non_generating")) or
                     nano(proof.get("actual_usd")) != 0):
@@ -538,13 +675,17 @@ class Store:
             evidence(proof.get("evidence"))
             if not orchestrate.fresh(proof.get("observed_at"), now):
                 raise StateError("PREPARATION_PROOF_STALE")
-            plan = preparation_projection(plan, {key: op["native_id"] for key, op in ops.items()})
+            if validation["revision"]:
+                validate_preparation_freshness(validation["plan"], now)
+            plan = preparation_projection(validation["plan"], {key: op["native_id"] for key, op in ops.items()})
             validate_plan(plan, now)
             self._budget_guard(db)
             db.execute("UPDATE preparations SET state='registered',held=0,spent=0,prior_unknown=0,final_plan=? WHERE run_id=?",
                        (safe_json(plan), run))
             self._register(db, plan, now)
-            self._event(db, run, None, "preparation_registered", now, {"proof": proof})
+            self._event(db, run, None, "preparation_registered", now, {"proof": proof,
+                "draft_digest": row["draft_digest"], "validation_digest": validation["plan"]["plan_digest"],
+                "final_digest": plan["plan_digest"]})
             return plan
 
     @staticmethod
@@ -912,6 +1053,7 @@ def main(argv=None):
     p.add_argument("--approved-usd", default="0")
     p.add_argument("--approval-ref", default="user-zero-additional-budget")
     sub.add_parser("upgrade-preparations").add_argument("--approval-ref", required=True)
+    sub.add_parser("upgrade-preparation-refresh").add_argument("--approval-ref", required=True)
     for name in ("register", "refresh"):
         sub.add_parser(name).add_argument("--plan", required=True)
     sub.add_parser("status")
@@ -934,6 +1076,8 @@ def main(argv=None):
             store.initialize(args.approved_usd, args.approval_ref)
         elif args.action == "upgrade-preparations":
             store.upgrade_preparations(args.approval_ref)
+        elif args.action == "upgrade-preparation-refresh":
+            store.upgrade_preparation_refresh(args.approval_ref)
         elif args.action in {"register", "refresh"}:
             getattr(store, args.action)(read_payload(args.plan))
         elif args.action == "claim":

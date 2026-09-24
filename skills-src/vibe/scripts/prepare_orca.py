@@ -12,7 +12,8 @@ import orchestrate
 import routing
 from execute_orca import Adapter, require
 from run_state import (StateError, evidence, identifier, moment, nano,
-                       preparation_argv, safe_json, strict_loads, task_spec, validate_plan)
+                       preparation_argv, safe_json, strict_loads, task_spec,
+                       validate_plan, validate_preparation_freshness)
 
 PINS = ("runtime_id", "app_version", "executable", "executable_sha256",
         "worktree_id", "worktree_path", "workspace_instance")
@@ -205,6 +206,31 @@ class PreparationAdapter:
     def _result(self, status):
         return {"status": status, "preparation": self._state()}
 
+    def renew(self, draft, fresh_plan, revalidation_evidence):
+        """Trusted coordinator entry, not timestamp editing or native recovery.
+
+        Supply the actual central planner result after re-observing all runtime
+        facts. This only stores metadata; reconcile remains a separate step.
+        """
+        self._open(draft)
+        state = self._state()
+        self.store.renew_preparation(draft["run_id"], fresh_plan, self.caller,
+            {"verified": True, "runtime_revalidated": True, "observed_at": self.clock(),
+             "draft_digest": draft["plan_digest"], "previous_digest": state["validation_digest"],
+             "previous_revision": state["validation_revision"], "validation_digest": fresh_plan["plan_digest"],
+             "evidence": evidence(revalidation_evidence)}, now=self.clock())
+        return self._state()
+
+    def _validation(self, claim=None):
+        current = self.store.preparation_validation(self.plan["run_id"], self.caller)
+        if claim is not None:
+            require(current["plan"]["plan_digest"] == claim["validation_digest"]
+                and current["revision"] == claim["validation_revision"], "PREPARATION_VALIDATION_CHANGED")
+        validate_plan(current["plan"], self.clock())
+        if current["revision"]:
+            validate_preparation_freshness(current["plan"], self.clock())
+        return current
+
     def _unknown(self, key):
         op = self._state()["operations"][key]
         self.store.observe_preparation(self.plan["run_id"], key, self.caller,
@@ -223,7 +249,7 @@ class PreparationAdapter:
             if (observed["status"] == "uncertain" or key in state["operations"]
                     or any(op["state"] != "complete" for op in state["operations"].values())):
                 return observed  # Recovery invocation is always lookup-only.
-        validate_plan(plan, self.clock())
+        self._validation()
         self._environment()
         self._graph()
         op = self.store.preparation_intent(plan["run_id"], key, self.caller, now=self.clock())
@@ -234,7 +260,7 @@ class PreparationAdapter:
             self._environment()
             self._graph(ignore=key)
             self._guard()
-            validate_plan(plan, self.clock())
+            self._validation(op)
             bindings = {k: v["native_id"] for k, v in self._state()["operations"].items() if v["state"] == "complete"}
             expected = preparation_argv(plan, self.caller, key, bindings) + ["--retry-request", op["request_id"], "--json"]
             require(op["argv"] == expected, "PREPARATION_ARGV_CHANGED")
@@ -290,7 +316,9 @@ class PreparationAdapter:
         require(self.reconcile(plan)["status"] == "bound", "PREPARATION_RECONCILIATION_REQUIRED")
         self._graph()
         self._guard()
+        validation = self._validation()
         return self.store.finalize_preparation(plan["run_id"], self.caller,
             {"verified": True, "bound_sha256": self._state()["bound_sha256"], "observed_at": self.clock(),
+             "validation_digest": validation["plan"]["plan_digest"], "validation_revision": validation["revision"],
              "scope_verified": True, "no_workers": True, "non_generating": True, "actual_usd": "0",
              "evidence": ["owned-session:" + self.scope_id, "full-receipt-resource-DAG-readback"]}, now=self.clock())
