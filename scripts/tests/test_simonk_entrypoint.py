@@ -58,6 +58,8 @@ exit $rc
 
 @unittest.skipUnless(PWSH, "PowerShell 7 is required for executable entrypoint tests")
 class SimonkEntrypointTests(unittest.TestCase):
+    wrapper = WRAPPER
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
@@ -65,6 +67,16 @@ class SimonkEntrypointTests(unittest.TestCase):
         self.root.mkdir()
         self.harness = self.root / "harness.ps1"
         self.harness.write_text(HARNESS, encoding="utf-8")
+        # Keep PYTHONPATH outside the literal-path fixture: ';' is a Windows
+        # path-list separator, so quoting cannot preserve it inside PYTHONPATH.
+        self.python_guard = Path(self.temp.name) / "python-guard"
+        self.python_guard.mkdir()
+        (self.python_guard / "sitecustomize.py").write_text(
+            "import sys\n"
+            "def deny(event,args):\n"
+            "    if event.startswith(('subprocess.','socket.','os.system','os.exec','os.spawn','os.posix_spawn','os.kill')):\n"
+            "        raise RuntimeError('OFFLINE_TEST_EFFECT_BLOCKED')\n"
+            "sys.addaudithook(deny)\n", encoding="utf-8")
         self.now = datetime.now(timezone.utc).isoformat()
         self.candidates = [self.observed(candidate()), self.observed(candidate("review", surface="claude"))]
         self.request = {
@@ -89,7 +101,9 @@ class SimonkEntrypointTests(unittest.TestCase):
         return {"id": "inspect", "task_type": "CODE_FIX", "task": "Offline fixture",
                 "skills": ["explain"], "writes": False, "depends_on": [], **changes}
 
-    def run_wrapper(self, params=None, *, wrapper=WRAPPER, env_changes=None):
+    def run_wrapper(self, params=None, *, wrapper=None, env_changes=None):
+        wrapper = wrapper or self.wrapper
+        self.assertTrue(wrapper.is_file(), "The packaged PowerShell entry is missing")
         case = self.root / "call.json"
         case.write_text(json.dumps(params or {}), encoding="utf-8")
         before = {p.relative_to(self.root): p.read_bytes() for p in self.root.rglob("*") if p.is_file()}
@@ -97,7 +111,9 @@ class SimonkEntrypointTests(unittest.TestCase):
                                  str(wrapper), str(case), str(self.root)],
                                 capture_output=True, text=True, encoding="utf-8", timeout=20,
                                 cwd=self.root, env={**os.environ, "PYTHONUTF8": "1",
-                                                    "PYTHONDONTWRITEBYTECODE": "1", **(env_changes or {})})
+                                                    "PYTHONDONTWRITEBYTECODE": "1",
+                                                    "PYTHONPATH": str(self.python_guard),
+                                                    "PYTHONNOUSERSITE": "1", **(env_changes or {})})
         self.assertTrue(result.stdout.strip(), result.stderr)
         envelope = json.loads(result.stdout)
         self.assertEqual(envelope["provider_calls"], 0, envelope)
@@ -192,7 +208,7 @@ class SimonkEntrypointTests(unittest.TestCase):
     def test_missing_sibling_planner_never_uses_installed_copy(self):
         isolated = self.root / "isolated/scripts/simonk.ps1"
         isolated.parent.mkdir(parents=True)
-        isolated.write_bytes(WRAPPER.read_bytes())
+        isolated.write_bytes(self.wrapper.read_bytes())
         rc, error = self.run_wrapper(self.inputs(), wrapper=isolated)
         self.assertEqual(rc, 2)
         self.assertEqual(error["error"], "SIMONK_PLANNER_UNAVAILABLE")
@@ -201,6 +217,15 @@ class SimonkEntrypointTests(unittest.TestCase):
         rc, error = self.run_wrapper(self.inputs(), env_changes={"PATH": ""})
         self.assertEqual(rc, 2)
         self.assertEqual(error["error"], "SIMONK_PYTHON_UNAVAILABLE")
+
+    def test_python_child_effect_barrier_is_active(self):
+        for code in ("import os; os.system('cmd /c exit 0')", "import socket; socket.socket()"):
+            result = subprocess.run([sys.executable, "-B", "-c", code], capture_output=True,
+                                    text=True, encoding="utf-8", timeout=10,
+                                    env={**os.environ, "PYTHONPATH": str(self.python_guard),
+                                         "PYTHONNOUSERSITE": "1", "PYTHONDONTWRITEBYTECODE": "1"})
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("OFFLINE_TEST_EFFECT_BLOCKED", result.stderr)
 
     def test_multiple_roots_and_literal_paths_reach_real_planner(self):
         self.candidates = [self.candidates[0]]
@@ -223,10 +248,38 @@ class SimonkEntrypointTests(unittest.TestCase):
                                  "$global:LASTEXITCODE = 0\n" + invocation +
                                  "\nexit $LASTEXITCODE\n", encoding="utf-8")
                 result = subprocess.run([PWSH, "-NoProfile", "-NonInteractive", "-File",
-                                         str(batch), str(WRAPPER)], capture_output=True, text=True,
+                                         str(batch), str(self.wrapper)], capture_output=True, text=True,
                                         encoding="utf-8", timeout=10)
                 self.assertNotEqual(result.returncode, 0, result.stderr)
                 self.assertEqual(result.stdout, "")
+
+
+class PackagedSimonkEntrypointTests(SimonkEntrypointTests):
+    wrapper = ROOT / "skills-src/simonk/scripts/simonk.ps1"
+
+    def test_package_and_checkout_adapters_have_the_same_contract(self):
+        def body(path):
+            return "\n".join(line for line in path.read_text(encoding="utf-8").splitlines()
+                             if not line.lstrip().startswith("#"))
+        expected = body(WRAPPER).replace("../skills-src/vibe/scripts/orchestrate.py",
+                                        "../../vibe/scripts/orchestrate.py")
+        self.assertEqual(body(self.wrapper), expected)
+
+    def test_packaged_entry_runs_without_the_source_checkout(self):
+        skill_root = self.root / "independent/SimonKCore/skills"
+        wrapper = skill_root / "simonk/scripts/simonk.ps1"
+        wrapper.parent.mkdir(parents=True)
+        self.assertTrue(self.wrapper.is_file(), "The packaged PowerShell entry is missing")
+        shutil.copy2(self.wrapper, wrapper)
+        for name in ("orchestrate.py", "model_registry.py", "routing.py"):
+            target = skill_root / "vibe/scripts" / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(VIBE / name, target)
+        params = self.inputs()
+        rc, plan = self.run_wrapper(params, wrapper=wrapper)
+        self.assertEqual(rc, 0, plan)
+        self.assertEqual(plan["run_id"], self.request["run_id"])
+        self.assertFalse((skill_root.parent / "scripts/simonk.ps1").exists())
 
 
 if __name__ == "__main__":

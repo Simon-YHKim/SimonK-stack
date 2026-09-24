@@ -74,6 +74,25 @@ Windows는 Git의 portable 실행 비트를 기록하지만 실제 POSIX executa
 공식 plugin의 extras/manifest는 아래 별도 candidate 경로에서 검증합니다.
 자동 설치기의 정합성, 실제 재설치·main 통합은 후속 배포 게이트로 남습니다.
 
+`simonk` 2.1.0부터 skill-local `simonk/scripts/simonk.ps1`은 overlay와
+Core candidate에 포함됩니다. 별도 source checkout 없이 같은 배포의 sibling
+`vibe/scripts/orchestrate.py`로 오프라인 계획만 전달합니다. 기존 repo-root
+helper와 프로필의 hash pin은 그대로이며, 아래 예제는 프로필 설치가 아닙니다.
+
+```powershell
+$ErrorActionPreference = 'Stop'
+. '<candidate>/plugins/SimonKCore/skills/simonk/scripts/simonk.ps1'
+simonK -RequestPath request.json -RuntimePath runtime.json
+exit $LASTEXITCODE # 배치 스크립트에서만 사용; 대화형 셸에서는 상태만 확인
+```
+
+온전한 five-plugin candidate는 receipt에 묶인 5개 catalog를 기본 탐색합니다.
+분리된 plugin 배치나 flat skill root에서는 검토한 전체 catalog를 `-Root`로
+명시하세요. `-RegistryPath`는 신뢰한 중앙 registry 입력만 지정합니다.
+이 경로의 테스트는 synthetic runtime으로 수행하며 실제 모델·과금·설치 증명이
+아닙니다. 별도 multi-terminal wrapper의 package 연결과 전체 runtime closure는
+아직 별도 게이트입니다. 이 추가로 readiness 플래그를 true로 바꾸지 않습니다.
+
 회귀 테스트: `python -B -m unittest discover -s scripts/tests -p test_skill_release.py`
 (임시 Git repo·격리 target, 실제 사용자 홈/공식 plugin/모델 호출 없음).
 

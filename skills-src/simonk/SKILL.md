@@ -1,7 +1,7 @@
 ---
 name: simonk
 description: "Use when planning and executing a bounded multi-step sprint. Triggers on 'simonK', '/simonK', 'ultrawork', '팀으로 진행해', '자율로 끝까지', or '스프린트 시작'. Supplies the six-phase sprint procedure inside the current /vibe coordinator and consumes its central model/effort, account/quota and shared cost policy. The PowerShell command accepts prepared request.json and runtime.json for offline planning only, without launching a second LLM. Produces a dependency-aware plan, evidence-linked verification and scoped Git status. Do not use for casual conversation or a single lookup."
-version: 2.0.0
+version: 2.1.0
 ---
 
 # simonk — Sprint procedure under /vibe
@@ -17,7 +17,7 @@ planning, delegating or resuming work.
 | --- | --- |
 | /vibe selects simonk | Run this procedure in the existing coordinator; preserve its registered plan, run_id, budget/grant, state database and ancestry. |
 | /simonK task in an existing LLM session | Adopt the /vibe contract in that same host. If no parent run exists, prepare one request; do not spawn a second host. |
-| PowerShell simonK with request/runtime paths | Forward to the matching checkout's central offline planner. No dispatch, claim, run-state write or provider call. |
+| PowerShell simonK with request/runtime paths | Forward to the matching distribution's central offline planner. No dispatch, claim, run-state write or provider call. |
 | PowerShell simonK with text or no arguments | Fail closed with migration guidance; do not open an interactive or print-mode Claude session. |
 
 Load [vibe](../vibe/SKILL.md) and its execution contract before new planning.
@@ -131,21 +131,26 @@ may use a concise handoff; do not label it a completed deployment or live E2E.
 
 ## PowerShell migration (breaking change in 2.0.0)
 
-The repository shell helper is [simonk.ps1](../../scripts/simonk.ps1).
-For an offline batch script, dot-source that exact trusted checkout and use:
+The packaged shell helper is [simonk.ps1](scripts/simonk.ps1), added in 2.1.0.
+For an offline batch script, dot-source that exact trusted skill copy and use:
 
 ```powershell
 $ErrorActionPreference = 'Stop'
-. '<stack-root>/scripts/simonk.ps1'
+. '<simonk-skill>/scripts/simonk.ps1'
 simonK -RequestPath request.json -RuntimePath runtime.json
 # In a batch script, propagate native status explicitly:
 exit $LASTEXITCODE
 ```
 
 Optional -RegistryPath and -Root select trusted offline inputs/catalog roots.
+An intact five-plugin candidate discovers its receipt-bound sibling catalogs;
+separately arranged plugins or a flat skill root require explicit -Root paths.
+The source checkout's root scripts/simonk.ps1 remains a compatible entry for
+existing profile pins. Both helpers forward to their own matching /vibe copy;
+neither falls back to an installed or unrelated planner when that copy is missing.
 No argument injects a model, effort, new budget or coordinator. The helper
 never gathers runtime facts. Do not fabricate snapshots to make a plan ready.
-The Python application on PATH and the checkout must be trusted; this is a
+The Python application on PATH and the distribution must be trusted; this is a
 compatibility shim, not a hostile-environment sandbox.
 
 The function preserves planner stdout and native status. Its own failures go
@@ -159,9 +164,10 @@ Text/empty calls no longer
 spawn Claude, and automatic gcloud/helper loading is removed. Use /simonk
 inside an already authorized host for natural-language tasks.
 
-This source change does not update profiles, installed skill copies, the
-legacy multi-terminal launcher or main. Align those consumers and verify
-installation parity in their separate integration unit.
+This source change does not update profiles, installed skill copies or main.
+The explicit-target source profile installer retains the root helper's pin;
+it is not automatically run or repointed at a candidate. Package integration
+of the separate multi-terminal entry remains a distinct release gate.
 
 ## Validation
 
@@ -172,7 +178,9 @@ python -m unittest discover -s scripts/tests -p test_simonk_entrypoint.py
 python .claude/skills/skill-gen-agent/scripts/validate_skill.py skills-src/simonk
 ```
 
-The PowerShell tests exercise the real central planner with synthetic
-runtime/registry facts and no provider calls. Missing PowerShell skips that
+The PowerShell tests exercise both entries and the real central planner with
+synthetic runtime/registry facts, an independent package layout, and no provider
+calls. A body-parity test allows only the relative planner path to differ.
+Missing PowerShell skips that
 suite; a skip is not a pass. evals/cases.json describes behavioral scenarios;
 schema validation does not prove that any live model followed them.

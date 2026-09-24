@@ -103,7 +103,15 @@ The profile-compatible simonK function accepts:
 - RegistryPath: optional trusted central registry override.
 - Root: optional array of trusted skill catalog roots, in precedence order.
 
-The helper resolves the planner relative to its own checkout, uses a native
+The packaged scripts/simonk.ps1 resolves ../../vibe/scripts/orchestrate.py
+relative to its own script directory. The source-root scripts/simonk.ps1
+retains ../skills-src/vibe/scripts/orchestrate.py and its existing profile pin.
+Both resolve their own matching distribution, never an unrelated home copy.
+An intact five-plugin candidate uses the central receipt-bound discovery;
+for separately arranged plugins or flat catalogs, provide explicit Root paths.
+This does not install a profile or authorize candidate activation.
+
+The helper uses a native
 Python application (not a same-named shell function), and forwards an argv
 array to the central plan command. Input files are not rewritten. No shell
 command is constructed from task text or path contents. The current directory
@@ -123,7 +131,7 @@ so those exceptions terminate nonzero, then use exit $LASTEXITCODE for native
 planner status. Interactive callers handle binding exceptions with try/catch
 and must not exit their own host just to inspect a result.
 
-The checkout and Python application on PATH are trusted inputs. This shim is
+The distribution and Python application on PATH are trusted inputs. This shim is
 not a sandbox or protection against a malicious Python binary, altered core
 files or forged runtime evidence. Its tests use synthetic observations.
 
@@ -145,10 +153,14 @@ Version 2.0.0 intentionally removes the old shell's unconditional Claude
 startup and implicit cloud bootstrap, independent Task fan-out, USD 5
 confirmation exception, catch-all staging and automatic signing override.
 
-The profile installer and root documentation still need a coordinated
-follow-up before installation/main promotion. Do not run the old installer
-to apply this source-only unit. Existing installed skill/profile paths do not
-change merely because these source files changed.
+Version 2.1.0 adds the skill-local shell entry to the source overlay and Core
+candidate without changing the existing source-root helper or profile pin.
+Executable parity tests cover both copies; the only permitted body difference
+is their relative planner path. The explicit-target source profile installer
+is a separate operation, not candidate activation. Existing installed
+skill/profile paths do not change merely because these source files changed.
+The separate multi-terminal package entry and installation/main promotion
+remain follow-up gates. Do not run a legacy installer to apply this unit.
 
 The offline tests prove the shell-to-planner boundary, not five-surface E2E,
 actual account billing, global spend caps or cross-provider model quality.
