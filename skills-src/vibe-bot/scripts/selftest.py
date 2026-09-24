@@ -124,7 +124,7 @@ def main() -> int:
 
     # transport stays shut until measured
     ok, note = m.send_webhook({"nonce": nonce})
-    check("webhook refused before measurement", ok is False and "실측" in note, note)
+    check("legacy webhook cannot bypass the central gate", ok is False and "LEGACY_BOT_DELIVERY_DISABLED" in note, note)
     argv = m.webhook_argv("https://example.invalid/hook")
     check("key never inlined in argv", all("crsr_" not in x for x in argv)
           and any(m.WEBHOOK_KEY_ENV in x for x in argv), str(argv))
@@ -206,7 +206,16 @@ def main() -> int:
         rc = m.main(["--mode", "console", "--target", "Google Play Console · com.simonk.secondbrain",
                      "--task", "출시 트랙 상태를 읽어 표로 정리", "--deliver", "hub",
                      "--hub", hub, "--out", hub])
-        check("hub delivery exits 0", rc == 0)
+        check("legacy hub delivery is refused before writing", rc == 2 and list(Path(hub).iterdir()) == [])
+        # Synthetic consumer fixtures only; never call a live publishing path.
+        n = "vb-00000042"
+        fixture_paths = m.hub_paths(next(b for b in roster if b["id"] == "play-console"), n, Path(hub))
+        fixture_paths["inbox"].parent.mkdir(parents=True)
+        fixture_paths["result"].parent.mkdir(parents=True)
+        fixture_paths["inbox"].write_text(m.add_routing(m.build_console_spec(
+            "출시 트랙 상태를 읽어 표로 정리", n, target="Google Play Console"),
+            next(b for b in roster if b["id"] == "play-console"), fixture_paths["result"]), encoding="utf-8")
+        fixture_paths["meta"].write_text('{"mode":"console"}', encoding="utf-8")
         inbox = sorted(Path(hub, "bots", "play-console", "inbox").glob("vb-*.md"))
         check("sheet lands in the play-console inbox", len(inbox) == 1, str(inbox))
         n = inbox[0].stem if inbox else "vb-none"

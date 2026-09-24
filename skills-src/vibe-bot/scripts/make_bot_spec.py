@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """vibe-bot - build a Grok Bot task sheet, gate it, route it, and check what comes back.
 
+Legacy delivery is retired: use /vibe's execute_bot.py with a registered plan,
+shared Store and fresh account/Relay/total-cost/delivery evidence. This builder
+only drafts and checks; neither --deliver nor --send authorizes publication.
+
 Stage 1 (2026-09-17): composing, gating and checking all run offline. Delivery
 over a webhook stays refused until the transport is measured once, because xAI
 publishes no official Grok Bot task API and the webhook trigger appears only in
@@ -460,22 +464,7 @@ def webhook_argv(url: str) -> list[str]:
 
 
 def send_webhook(payload: dict) -> tuple[bool, str]:
-    if not TRANSPORT_VERIFIED:
-        return False, ("전달 경로가 아직 실측되지 않았다. SKILL.md '실측 절차'를 한 번 "
-                       "통과한 뒤 TRANSPORT_VERIFIED 를 켠다.")
-    url, key = os.environ.get(WEBHOOK_URL_ENV), os.environ.get(WEBHOOK_KEY_ENV)
-    if not url or not key:
-        return False, f"{WEBHOOK_URL_ENV} / {WEBHOOK_KEY_ENV} 가 환경에 없다(.env 확인)"
-    import urllib.request
-    req = urllib.request.Request(
-        url, data=json.dumps(payload).encode("utf-8"),
-        headers={"Authorization": f"Bearer {key}",
-                 "Content-Type": "application/json"}, method="POST")
-    try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            return True, f"HTTP {resp.status}"
-    except Exception as exc:  # noqa: BLE001 - surfaced to the caller as text
-        return False, f"전송 실패: {type(exc).__name__}"
+    return False, "LEGACY_BOT_DELIVERY_DISABLED: 중앙 /vibe 실행·예산 계약을 사용한다."
 
 
 def write_outputs(spec: str, meta: dict, out_dir: Path) -> tuple[Path, Path]:
@@ -520,6 +509,9 @@ def main(argv: list[str] | None = None) -> int:
                     help="scan every bot outbox once and check each result")
     ap.add_argument("--nonce", default="")
     a = ap.parse_args(argv)
+    if a.deliver != "manual" or a.send:
+        print("LEGACY_BOT_DELIVERY_DISABLED: /vibe execute_bot.py의 등록된 plan·공유 DB·fresh 증명이 필요하다.")
+        return 2
     hub = a.hub if a.hub is not None else HUB_DIR
     projects = {} if a.hub is not None else load_projects()
 
@@ -552,6 +544,13 @@ def main(argv: list[str] | None = None) -> int:
 
     if not a.task:
         ap.error("--task, --verify, --collect 중 하나가 필요하다")
+
+    # A manual draft placed in a watched bus is itself delivery. Include both
+    # configured production buses and the explicit test/alternative bus.
+    watched = bus_roots(HUB_DIR, load_projects()) + bus_roots(hub, projects)
+    if any(a.out.resolve().is_relative_to(root.resolve()) for root in watched):
+        print("DRAFT_IN_WATCHED_BUS: 초안은 봇이 감시하지 않는 검토용 폴더에 저장한다.")
+        return 2
 
     gate = check_request(a.task)
     for w in gate["warns"]:
@@ -601,36 +600,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"담당 봇: {bot['name']} ({bot['id']})")
     print(f"프로젝트: {project_id + ' · ' + str(proj.get('root')) if proj else '없음 (공용 허브)'}")
 
-    if a.deliver == "hub":
-        if not paths:
-            print("허브 전달에는 담당 봇이 필요하다(bots.json 확인)")
-            return 2
-        paths["inbox"].parent.mkdir(parents=True, exist_ok=True)
-        paths["result"].parent.mkdir(parents=True, exist_ok=True)
-        paths["inbox"].write_text(spec, encoding="utf-8")
-        paths["meta"].write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"과제함: {paths['inbox']}")
-        print(f"{bot['name']} 에게 보낼 한 줄:")
-        print(f"  과제함 {paths['inbox']} 를 읽고 그대로 수행해. 결과는 {paths['result']} 에 "
-              "저장하고 대화창에도 남겨.")
-        print(f"회수: make_bot_spec.py --collect --nonce {nonce}")
-    elif a.deliver == "webhook":
-        url = os.environ.get(WEBHOOK_URL_ENV, "<" + WEBHOOK_URL_ENV + ">")
-        print("웹훅 명령(표시용, 키는 환경변수로):")
-        print("  " + " ".join(webhook_argv(url)))
-        if a.send:
-            ok, note = send_webhook({"nonce": nonce, "spec": spec})
-            print(("전송됨: " if ok else "전송 안 됨: ") + note)
-            if not ok:
-                return 3
-    elif a.deliver == "github":
-        print("GitHub 경로: 전용 레포 이슈로 남기고 루틴이 그 알림으로 시작하게 한다.")
-        print("  gh issue create --repo <owner>/<repo> --title \"" + nonce +
-              "\" --body-file " + str(spec_path))
-    else:
-        print("전달: 과제서를 봇 대화창에 붙여넣는다(기본 경로).")
-        if a.mode == "console":
-            print(f"회수: 결과를 파일로 저장한 뒤 --verify <파일> --nonce {nonce} --mode console")
+    print("초안만 생성됨: 전달·복사·붙여넣기는 실행 승인이 아니다. 중앙 /vibe 계약을 거친다.")
     return 0
 
 

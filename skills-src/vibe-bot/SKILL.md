@@ -1,224 +1,173 @@
 ---
 name: vibe-bot
-description: "Use when a task should run on Grok Bot's xAI/Cursor cloud computer, and for all console or GUI work (Play Console, App Store Connect, cloud consoles, desktop apps) - triggers \"/vibe-bot\", \"그록 봇으로 돌려\", \"봇한테 시켜\", \"콘솔 작업\", \"GUI 작업\", \"run this on Grok Bot\", \"console task\". Produces a task sheet with a run nonce (console: target, goal, scope, forbidden buttons, stop points, screen evidence, result format), routes it to the owning bot from the roster in bots.json (the console named in --target outweighs a tool name in the prose) and drops it in that bot's hub inbox, gates secrets, repo writes, merges, deploys and payments, and collects results from the hub outboxes with a check that rejects a missing nonce, a scope-less absence, a returned credential or console output without screen evidence, and escalates any reported irreversible click. NOT for local repo work (use vibe)."
+description: "Use when a task needs Grok Bot's cloud computer for a GUI-only step, or the user invokes \"/vibe-bot\", \"봇한테 시켜\", \"그록 봇으로 돌려\", or \"console task\". Works inside the current /vibe run: drafts a scoped console task, selects an active roster entry, publishes through the shared budget and durable-claim adapter only with fresh account/Relay/delivery evidence, and checks the exact nonce and screen evidence on return. Produces a task sheet and an honest queued/uncertain/verified result. NOT for work an authorized CLI/API/MCP can perform, direct webhook sends, or local repository changes."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 0.7.0
+version: 0.8.0
 author: simon-stack
 ---
 
-# vibe-bot - Grok Bot (xAI 클라우드 컴퓨터)로 일 보내기
+# vibe-bot — GUI adapter under /vibe
 
-`/vibe`는 이 PC의 Orca 워커에 일을 뿌린다. `vibe-bot`은 **남의 클라우드 컴퓨터에서 도는
-Grok Bot**에 일을 맡긴다. 브라우저를 직접 몰아야 하거나, 노트북을 닫아도 계속 돌아야 하거나,
-API가 없는 사이트를 다뤄야 할 때 쓴다. **콘솔 · GUI 작업은 항상 이 스킬로 간다**(아래 절).
+Use the current /vibe coordinator, run, budget, shared Store and review graph.
+A direct `/vibe-bot` invocation enters that same workflow; never start a second
+coordinator or create another budget to evade a hold. Grok CLI and Grok Bot
+are different account paths. Never inherit CLI quota or billing for a Bot.
 
-```
-/vibe-bot <요청>                                   → 과제서 생성 + 담당 봇 배정 + 안전 게이트
-/vibe-bot --mode console --target "<콘솔 · 앱 ID>" <목표> → 콘솔 과제서(누르지 말 것 · 멈춤 지점 · 화면 증거)
-/vibe-bot ... --deliver hub                        → 담당 봇의 허브 과제함에 넣고, 봇에게 보낼 한 줄만 준다
-/vibe-bot --collect [--nonce vb-…]                 → 모든 봇 결과함을 한 번 훑어 검사
-/vibe-bot --verify <결과파일> [--mode console]      → 결과 하나를 규칙으로 검사
-```
+Choose this adapter only when the required screen operation has no usable,
+authorized CLI/API/MCP route. Keep deterministic and repository work in /vibe.
+A screen session is not permission to log in, pay, publish, delete or change
+permissions. Honor current user holds even when a previous pilot succeeded.
 
-## 지금 어디까지 되나 (2026-09-20)
+## 1. Prepare the task without delivery
 
-| 단계 | 상태 |
-|---|---|
-| 과제서 조립 · 안전 게이트 · 결과 검사 | **동작한다.** 구독도 로그인도 필요 없다 |
-| 전달 - 수동 붙여넣기 | **실측 1회 통과**(2026-09-19, `vb-f66af738`). 이후 fable 교차검증으로 금액 6/6 일치 |
-| 콘솔 모드 | 과제서 · 검사(C1 · C2) 동작(2026-09-19). 콘솔 과제 실측은 아직 |
-| 봇 명단 · 허브 과제함/결과함 · `--collect` | 동작(0.4.0) |
-| **봇 → 내 PC 쓰기** | **실측 통과**(2026-09-20 09:43, `rly-d16843d2`). Relay 가 승인을 묻지 않고 PowerShell `Set-Content` 로 결과함에 파일을 썼다 |
-| **내 PC → 봇 (깨우기)** | **실측 통과**(2026-09-20). 루틴이 09:56:16 에 스스로 깨어나 `vb-97f4d44c` 를 읽고 09:57 에 결과를 썼다 - **사람 메시지 0**. 즉시 호출(웹훅)은 키 대기 |
-| 전달 - 웹훅 | 공식 문서로 **경로 확인**. 키를 받아 1회 실측해야 `TRANSPORT_VERIFIED` 가 열린다 |
-| /vibe 원장 편입 | 아직. 관측이 쌓인 뒤 별도 PR |
+Read `bots.json` and select the exact owning bot. Keyword matching is a draft
+suggestion only: it can return inactive entries. For execution require an
+observed active bot and account; reject HOLD, WITHDRAWN and not-created entries.
+Target/URL keyword hits weigh more than incidental tool names in task prose.
+The project belongs to the task, not to the bot.
 
-**공식 문서에 Grok Bot 과제 전송 API는 없다.** 웹훅 트리거는 외부 보도에만 있다. 앱 번들
-(`app.asar`)에 등록된 `grokbot://` 경로도 **`grokbot://mcp/oauth/callback` 하나뿐**이라
-딥링크로 메시지를 넣을 수도 없다(2026-09-20 확인). 그래서 기본 전달은 **사람이 한 줄을 보내는
-것**이고, 나머지는 실측 뒤에만 켠다.
+Use `scripts/make_bot_spec.py --mode console --target ... --task ... --bot ...`
+with an explicit private `--out` directory. `--hub` selects a bus parent for
+draft routing; project routing otherwise follows `bots.json`. Inspect the
+generated result path before registering a plan. No argument here authorizes
+delivery. The console sheet contains:
 
-**Relay (0.7.0, 개통됨)** - 통신 전담 봇. 두 과제함 폴더를 폴링해 과제서를 수행·전달하고
-결과를 결과함에 쓴다. **양방향 모두 2026-09-20 에 실측으로 열렸다**: 봇 → 내 PC 쓰기(`rly-d16843d2`,
-09:43, 승인 안 물음) · 루틴 자율 기동(`vb-97f4d44c`, 09:56 발화 → 09:57 결과, 사람 메시지 0).
-그 실행에서 봇이 낸 결함 하나 - `E:/2ndB/.bots/relay/` 가 없었다(프로젝트 버스는 11봇만 만들어 뒀다).
-**봇을 추가하면 두 버스 모두에 폴더를 만든다.** 프롬프트 7장 = `E:\Coding Infra\reports\grokbot-relay-260920.html`.
-Relay 의 **상시 지침 정본은 `references/relay-charter.md`** 다 - 맥락 · 루프 · 결과 검사 기준 · 금지선 ·
-넘길 곳을 한 장에 담았다. 봇 프로필과 1:1 채팅에 붙여넣고, 바뀌면 **파일을 고쳐서 다시 붙여넣는다**
-(봇 안의 사본을 손으로 고치지 않는다 - 정본이 갈라진다).
-Relay 의 금지 목록은 프로필 문장일 뿐 **강제되는 경계가 아니다** - 승인 없이 로컬 파일을 쓰는
-권한(`localToolPermission: always`)이 이미 열려 있다는 뜻이기도 하다.
+- exact console/app target and goal;
+- read-only scope, or narrowly authorized changes that still stop before Save/Submit;
+- forbidden buttons, login/2FA/payment stop points;
+- menu path, observed values and a screenshot for each screen;
+- expected result path, exact first-line nonce and independent review.
 
-### 루틴과 트리거 (2026-09-20 · `cursor.com/help/grok-bot/routines` 에서 확인)
+The builder refuses legacy `--deliver hub|webhook|github` and every `--send`
+before writing. `send_webhook()` cannot be reenabled with
+`TRANSPORT_VERIFIED` or environment values. Manual draft output is rejected
+inside configured or explicitly supplied buses, including resolved aliases.
+The coordinator must also exclude other watched folders: this is not an
+all-filesystem monitor or a sandbox. Do not paste a draft into Bot chat to bypass
+the central gates; pasting also dispatches work.
 
-- 트리거는 **스케줄 · Slack 키워드 · 웹훅** 셋이다. **문서에 email·GitHub 트리거는 없다** -
-  Relay 는 자기 루틴 스펙에 email 트리거가 있다고 답했지만 공식 문서에서 확인되지 않았다.
-  **봇 말은 grok 등급으로 받는다**(사실은 문서·실측으로만 승격).
-- **웹훅**: 루틴을 저장하면 패널에 POST URL · key · 헤더가 뜬다. `Authorization: Bearer <key>` 로
-  POST 한다. **200 은 "실행을 접수했다"이지 "끝났다"가 아니다** - 결과는 결과함으로 따로 받는다.
-- 한도: 봇당 루틴 **50개** · 실행 기록 **20개** · 스케줄 **최소 5분** 간격.
-- *"Routines run in the cloud while your laptop is closed"* - 다만 **과제함 파일 접근은 데스크톱
-  앱이 켜져 연결돼 있을 때만** 된다. 꺼져 있으면 읽기·쓰기가 실패하고 그렇게 보고된다.
-- 실재 확인: Relay 루틴 **"Relay inbox 확인" @every 10m**(2026-09-20 Simon 이 걸었다).
-- 그래서 전달은 **웹훅(즉시) + 루틴 폴링(10분, 앱 켜짐 필요)** 두 겹으로 간다. 웹훅 키는
-  `.env` 의 `GROK_BOT_WEBHOOK_URL` · `GROK_BOT_WEBHOOK_KEY` 로만 둔다 - 과제서·대화·커밋에 넣지 않는다.
+Inspect every field, not just the task. Never include credentials, company
+process/LOT/equipment/cost/customer data or unapproved operations. Existing
+B1/B2/B3/B8 checks assist review but are not comprehensive DLP or authorization.
 
-## 사실 근거 (공식 문서에서 확인한 것만)
+## 2. Register immutable delivery intent
 
-- 봇은 **사람의 권한을 넘길 수 없고**, 모든 행동은 그 사람 이름으로 기록된다.
-- 격리 단위는 **사람**이다. 한 사람의 봇들은 **같은 컴퓨터 · 파일 · 브라우저 세션 · 앱 로그인**을 쓴다.
-  공식 문서 문장: 봇을 보안 경계로 쓰지 말 것.
-- 로그인 · 2차 인증 · 결제 입력은 봇이 타이핑하지 않고 **사람에게 화면을 넘긴다.**
-- 커넥터 토큰은 백엔드에 남고 클라우드 컴퓨터에 저장되지 않는다.
-- 외부에서 읽은 내용은 **신뢰할 수 없는 데이터**로 표시되지만 "위험을 줄일 뿐 없애지 못한다".
-- 학습 제외는 Privacy Mode 설정을 따른다. 감사 로그 · 행동 기록 · 네트워크 정책은 기업 플랜 기능이다.
-- 루틴은 일정과 계정 이벤트(예: GitHub 알림)로 시작할 수 있다. **기존 봇이 새 봇을 만들 수 있다.**
-- 앱은 **별도 데스크톱 앱**이고 로그인은 **Cursor 계정**이다. grok CLI 의 xAI 로그인과 계정이 다르다.
+Read the discovered /vibe orchestration contract. Build a GUI node with
+`kind=gui`, `skills=["vibe-bot"]`, `tool_route_available=false`, a
+`gui_reason`, exact `task` and `target`. Use fresh observed Bot runtime,
+account/quota and billing evidence in the central planner; unknown is not free.
+The route must be `grok-bot` / `bot`, with provider-managed model and effort
+left null. This first hub adapter does not control Bot model settings.
 
-## 앱 화면에서 확인한 것 (2026-09-19, Grok Bot 0.56.1)
+Before planning/registration, add `bot_delivery` to the node with exactly:
 
-- **설정 → 컴퓨터**의 "이 컴퓨터에서 실행" · "트래픽 라우팅"이 켜져 있으면 클라우드 봇이 **이 PC의
-  파일 · 명령 · 네트워크**에 닿는다(Simon 선택: 허용 — 허브 과제함 방식이 이걸 쓴다).
-- **자동 검토 규칙**의 기본값은 **"자동으로 허용"**이다. 막을 규칙은 "먼저 묻기"로, 필요 없는 규칙은 삭제.
-- 첫 화면 카드는 계정 연결을 부른다. 필요한 연결만 커넥터로 한다.
+| Key | Trusted coordinator input |
+| --- | --- |
+| nonce | Existing draft nonce, `vb-` plus 8–64 lowercase hex digits |
+| bot_root | Reviewed vibe-bot package's absolute canonical directory |
+| bus_root | Exact authorized bus, e.g. the hub's bots directory or project's .bots directory |
+| spec_path / meta_path | Private reviewed draft files outside that bus |
+| spec_sha256 / meta_sha256 | SHA-256 of those exact file bytes |
+| helper_sha256 / roster_sha256 | SHA-256 of bot_root/scripts/make_bot_spec.py and bot_root/bots.json |
 
-## 게이트 - 코드가 막는다
+Use actual hashes, never example values. The plan digest fixes these values.
+The adapter uses bounded, link/reparse-rejecting local fixed-disk paths; it does
+not discover home/cache roots. Keep cooperating single-writer ownership of the
+package, drafts, bus and Store throughout the invocation. These checks do not
+defend against a hostile process with the same OS user's filesystem rights.
 
-| | 규칙 | 근거 |
-|---|---|---|
-| B1 | 요청·과제서에 키 · 토큰 · 비밀번호 · 계정 문자열이 있으면 **중단** | 전역 지침 §3-4 |
-| B2 | 레포 쓰기 · 머지 · 배포 · force push · 삭제 · 결제 · 권한 변경은 **봇에게 위임하지 않는다** | 파괴·비용 게이트 |
-| B3 | 회사 기밀(설비·LOT·공정 수치·단가·고객사)은 **보내지 않는다** | 프로젝트 지침 §1 |
-| B4 | 봇 산출물은 grok 레인과 같은 등급이다. 수치·목록은 받되 **결론은 재검증** | vibe 레인별 산출물 제약 |
-| B5 | 요청마다 nonce를 박고, 결과에 그 nonce가 없으면 **버린다** | 웹훅은 보낸 쪽을 검증하지 않는다 |
-| B6 | 봇 쪽 승인 규칙은 전송 · 게시 · 삭제 · 구매 · 운영 변경 = 먼저 묻기로 둔다 | 공식 Auto Review |
-| B7 | 상시 폴링 · 감시 데몬을 만들지 않는다. 회수는 `--collect` 한 번 훑기뿐 | vibe 규율(허브가 그 SPOF로 죽었다) |
-| B8 | **CLI · API · MCP 로 되는 일은 봇에 보내지 않는다**(경고). 화면에서만 되는 부분만 남긴다 | Simon 경계 2026-09-20 |
+Register the whole plan in the existing shared Store to reserve attempts,
+reviews and all delivery/Relay/Bot costs. No helper initializes, migrates or
+resets an operational DB. Do not manually claim before using the adapter.
 
-**경계 (Simon, 2026-09-20)** - `/vibe` 가 본체다. 봇은 **화면이 있어야만 되는 일**에만 쓴다.
-넘기기 전에 한 번 묻는다: **"CLI·API·MCP 가 있고 우리에게 자격이 있나?"** 있으면 `/vibe` 레인이다 -
-이 PC에서 더 싸고 빠르고, 무엇보다 **출력을 검증할 수 있다.** 봇이 정당한 경우는 **로그인이 걸린
-화면인데 쓸 만한 API 가 없을 때**뿐이다(Play Console 정책·데이터 보안 양식 · ASC 심사 스레드 ·
-GA4/AdMob/Clarity 대시보드 · 우리 MCP 밖의 메일 계정).
-`eas`·`keys`·`marketing`·`research`·`dev-infra` 는 이 기준으로 **역할을 좁혔고**,
-`compliance-watch` 는 제안 당일 **철회**, `design-ref`·`web-qa` 는 **보류**다 - 자세한 사유는
-`bots.json` 의 각 `status`.
+## 3. Publish through the single guarded adapter
 
-## 쓰는 법
+Resolve `execute_bot.py` in the discovered /vibe package's scripts directory. It imports
+only the pinned reviewed builder bytes from `bot_root`; no mutable home fallback.
 
-### 1. 과제서 만들기
+Supply a separate trusted coordinator certificate, not worker prose or a
+generated fixture. It contains `verified=true`, `binding_sha256` from
+`execute_bot.binding_digest(plan,node)`, the exact route's `account_ref`,
+`billing` and `quota`, matching `bot_id` and `bus_root`,
+`delivery_authorized=true`, a real `approval_ref`,
+`relay_verified=true`, `all_delivery_costs_included=true`,
+fresh `observed_at`, future `valid_until` and nonempty `evidence`.
+The same-account Relay limitation and required relay_account_ref are enforced
+by this adapter; separate or unknown Relay billing needs another reviewed route.
 
-```bash
-SKILL_ROOT="$HOME/.claude/skills/vibe-bot"
-python "$SKILL_ROOT/scripts/make_bot_spec.py" --task "경쟁 툴 5곳 가격 페이지를 열어 요금제와 변경일을 표로 정리"
+Evidence must establish the actual account/profile and quota mapping, target
+and Relay availability, full cost bound including retries/reviews/Relay work,
+and permission to publish this exact task to this exact watched bus. Included
+subscription use additionally needs disabled overage/API fallback. These fields
+are trusted assertions, not provider attestations, credential discovery or a
+factory that turns unverified observations into permission.
+
+```text
+python "<vibe-script-dir>/execute_bot.py" dispatch --plan plan.json --node screen --db shared-runs.sqlite3 --certificate bot-evidence.json
+python "<vibe-script-dir>/execute_bot.py" reconcile --plan plan.json --node screen --db shared-runs.sqlite3
+python "<vibe-script-dir>/execute_bot.py" check-result --plan plan.json --node screen --db shared-runs.sqlite3 --evidence screens.json
 ```
 
-통과하면 과제서와 `.meta.json`(nonce · 담당 봇)이 리포트 폴더에 생긴다. 막히면 이유가 출력된다.
-일반 과제서는 다섯 칸(**Outcome · Sources · Constraints · Deliverable · Review point**)이고, 부재
-보고에는 찾은 범위를, 판단에는 근거를 붙이라는 규율이 항상 따라붙는다.
+Only the call that commits a fresh Store claim can publish. It rechecks pins
+and authority after the claim and before the visible task marker. Metadata
+gets the exact run/node/plan/dispatch/binding identifiers. Complete temporary
+files are fsynced, metadata is published first, then the `.md` file last through
+atomic no-replace hard links. Existing files are never overwritten. The consumer
+must ignore `.tmp` files and metadata-only orphans. Test that contract against
+the actual Relay before activation; filesystem tests alone cannot prove it.
 
-### 2. 전달
+A crash, missing marker, partial pair, collision, expired authority or failure
+does not authorize another send. Reentry and `reconcile` inspect the exact nonce
+and byte hashes only. Even an intact pair proves local publication, not Bot
+acceptance: output stays `waiting_external`, `bot_acceptance_verified=false`,
+and unknown actual cost stays null. Store intent/uncertain holds remain reserved.
+No automatic retry, new nonce, webhook fallback, stop, cleanup, settlement or
+acceptance occurs. Keep the original private drafts for reconciliation.
 
-| 경로 | 명령 | 조건 |
-|---|---|---|
-| 허브(권장) | `--deliver hub` | 담당 봇 과제함에 넣고 봇에게 **한 줄**만 보낸다. 봇이 이 PC 파일을 읽을 수 있어야 한다 |
-| 수동 | 과제서를 봇 대화창에 붙여넣기 | 항상 가능 · 2026-09-19 실측 통과 |
-| 웹훅 | `--deliver webhook --send` | 환경변수 두 개 + 실측 1회 통과 |
-| GitHub 이벤트 | `--deliver github` | 전용 비공개 레포 이슈 + 루틴(실측 전) |
+## 4. Collect, inspect and account
 
-웹훅 값은 환경변수에서 읽는다(`GROK_BOT_WEBHOOK_URL`, `GROK_BOT_WEBHOOK_KEY`). 키를 명령줄에 쓰지 않는다.
+Use the adapter's exact result and metadata paths, not another result found by
+a broad scan. `--collect` is a legacy convenience scan: exit0 can mean no result,
+and missing metadata can downgrade its mode. It is not completion evidence.
 
-### 3. 회수와 검사
+Use `check-result` to require the exact first-line nonce and pinned published
+metadata (bot/target/task and nested vibe run/node/plan/dispatch identifiers),
+then reuse the pinned builder's console checks and the adapter's bounded image
+checks. Put the evidence JSON and its images under the exact result directory.
+Inspect the screenshots, reported
+values and task acceptance criteria yourself. PNG/JPEG signatures or a prose
+claim alone cannot prove the screen state or that the operation finished.
 
-```bash
-python "$SKILL_ROOT/scripts/make_bot_spec.py" --collect                 # 모든 결과함 한 번 훑기
-python "$SKILL_ROOT/scripts/make_bot_spec.py" --verify 결과.md --nonce vb-1a2b3c4d
+Reject missing nonce, unscoped absence, unsupported conclusions, leaked secrets
+and missing console evidence. Escalate any report of Submit/Reply/Publish/Delete/
+Payment; it is not retroactive authorization. Only after actual terminal and
+cost evidence should the coordinator use Store observe/settle/verify. Unknown
+cost is never settled as zero. Required independent reviews remain separate.
+
+## Relay and historical evidence
+
+Read [Relay standing instructions](references/relay-charter.md) only when
+reviewing Relay behavior or an explicitly authorized profile update. That file
+records the earlier 2026-09-20 arrangement; it is not a fresh account, cost or
+transport observation and does not override the current central contract.
+Do not update a cloud profile, start routines or contact a Bot merely to test
+this skill. Bots sharing an account/computer are not separate security boundaries.
+
+Earlier local records describe successful manual and hub pilots on
+2026-09-19/20. They are historical evidence, not current generation authorization
+or proof that this new adapter is deployed. The legacy evals/cases.json still
+contains pre-integration manual/hub assertions; its schema dry-run must not be
+reported as current behavioral validation.
+
+## Verification and current limits
+
+```text
+python -B -I -S "<bot>/scripts/tests/test_execute_bot.py"
+python -B "<bot>/scripts/selftest.py"
 ```
 
-걸리는 것: nonce 없음 · 범위 없는 "0건" · 근거 없는 결론 · 결과에 섞여 돌아온 자격증명(+ 콘솔이면
-C1 · C2). 하나라도 걸리면 그 결과는 **쓰지 않는다**. 부재 보고의 범위는 결과 어딘가의 범위 문장이나
-**부재를 적은 줄마다 붙은 출처**로 인정한다.
-
-## 콘솔 · GUI 작업 (Simon 원칙 2026-09-19)
-
-웹 콘솔과 데스크톱 GUI 조작은 **이 스킬로 Grok Bot에 맡긴다.** Claude는 과제서를 쓰고 결과를 검사하고,
-사람은 로그인 · 2단계 인증 · 결제 · 되돌릴 수 없는 버튼 승인만 한다. 콘솔 · GUI 작업에 한해 전역 지침
-§7 의 브라우저 순서보다 이 원칙이 우선한다. **레포 코드 · CLI 로 끝나는 일은 기존 `/vibe` 레인**이다.
-
-```bash
-python "$SKILL_ROOT/scripts/make_bot_spec.py" --mode console --deliver hub \
-  --target "Google Play Console · com.simonk.secondbrain" --url "https://play.google.com/console" \
-  --task "출시 트랙별 최신 버전 · 상태 · 검토 메시지를 읽어 표로 정리"
-```
-
-| 칸 | 내용 |
-|---|---|
-| 대상 | 콘솔 · 앱 이름, 앱/패키지 ID, 시작 URL (`--target` 필수 · `--url`) |
-| 목표 | 확인하거나 바꿀 것 한 문장 (`--task`) |
-| 범위 | 기본 **읽기 전용**. 바꿔야 하면 `--allow-change "항목과 값"` - 그래도 저장 · 제출 직전에는 멈춘다 |
-| 누르지 말 것 | 제출 · 게시 · 출시 · 검토 요청 · Reply · Resubmit · 삭제 · 결제 · 권한 변경 · 허용 밖 저장 (+ `--forbid`) |
-| 멈춤 지점 | 로그인 · 2단계 인증 · 결제 화면, 금지 버튼이 필요한 순간, 지시와 다른 화면 |
-| 증거 | 화면마다 메뉴 경로 · 읽은 값 · 스크린샷 1장 |
-| 결과 형식 | 첫 줄 nonce → 표(항목 · 값 · 화면 경로 · 스크린샷) → 한 일 / 안 한 일 → 다음 행동은 제안만 |
-
-**C1** 메뉴 경로나 스크린샷이 없으면 불합격. **C2** "제출했다 · 답변 보냈다 · Resubmit 눌렀다" 같은
-보고는 불합격 처리하고 사람이 콘솔에서 바로 확인한다(상태 라벨을 읽은 것도 걸릴 수 있다 - 안전한 쪽).
-
-## 봇 명단과 연동 (0.4.0)
-
-정본은 `bots.json` 이다. 대상 · 과제 문구의 키워드로 담당 봇을 고르고(`--bot` 으로 지정 가능),
-아무것도 안 맞으면 **Grok Bot**(접수 · 분배)이 받는다.
-
-**가중치 (0.7.0)** - `--target` · `--url` 의 키워드 적중은 과제 문구 적중의 **3배**로 센다.
-담당은 *일이 벌어지는 콘솔*을 따라가야 하는데, 과제 문구에는 남의 도구 이름이 섞이기 때문이다.
-2026-09-20 실측: App Store Connect 읽기 과제가 문장에 "eas submit"이 들어갔다는 이유로 EAS 봇에게
-갔다. 키워드를 건드리지 않고 가중치로 고쳤고, 두 방향 모두 selftest 가 잡는다.
-
-| id | 앱 이름 | 맡는 일 |
-|---|---|---|
-| `play-console` | Play Console | 트랙 · 출시 · 스토어 등록정보 · 앱 콘텐츠 · 정책 기한 |
-| `apple-dev` | Apple Dev | App Store Connect · 심사 · TestFlight · 인증서 |
-| `store-reviews` | Store Reviews | 스토어 리뷰 분류 · 답글 초안(게시 직전 멈춤) |
-| `eas` | EAS Bot | EAS 빌드 · 제출 상태(유료 빌드 시작 · 제출은 승인) |
-| `dev-infra` | Dev Infra | GitHub · Supabase · GA4 · Firebase · AdMob · Clarity 대시보드 |
-| `keys` | 2ndB Keys | 비밀값 이름 · 존재 · 회전 점검(값은 보지 않음, 운영 변경은 Simon + 레포 게이트 문서) |
-| `web-qa` | Web QA | 라이브 웹 · 랜딩 스모크 · 회귀, 화면별 스크린샷 |
-| `public-mail` | Public Mail | 공개 메일 분류 · 삭제 요청 기한 · 답장 초안(받은편지함 연결 보류) |
-| `marketing` | Marketing | 콘텐츠 · SNS 초안(게시 승인, 레포 파일은 브랜치 + PR 로만) |
-| `research` | Research Bot | 출처 달린 사실 조사 |
-| `relay` | Relay | 통신 전담(0.7.0) - 과제함 폴링 → 수행·전달 → 결과함 기록. 되돌릴 수 없는 버튼·외부 전송은 안 한다 |
-| `grok-bot` | Grok Bot | 접수 · 분배, 일회성 일 |
-
-**허브 버스** - `AI Infra/Communication/bots/<id>/inbox` 에 과제서(`vb-….md` + `.meta.json`)가 들어가고,
-봇은 결과를 `outbox/vb-….result.md` 로 남긴다. 누가 보냈든(Claude · codex · 다른 세션) 같은 폴더를
-쓰므로 세션이 바뀌어도 과제와 결과가 이어진다. 회수는 `--collect` 한 번이고, 합격한 결과만 결정에 쓴다.
-봇끼리 넘길 때도 상대 봇 과제함에 과제서를 두고 그 봇 이름을 결과에 적는다.
-
-**프로젝트 버스 (0.6.0)** - **봇은 공용이다.** 어느 봇도 프로젝트에 묶이지 않고, 프로젝트는 **과제마다** 정해진다
-(`--project`, 없으면 `bots.json` 의 `projects.<id>.keywords` 로 자동 배정). 프로젝트가 정해지면 과제서와 결과가
-그 프로젝트 폴더에 쌓인다 - 2nd-B 는 `E:\2ndB\.bots\<봇>\inbox|outbox`. 프로젝트가 없으면 공용 허브
-`AI Infra/Communication/bots/<봇>/` 를 쓴다. 과제서에는 `프로젝트: <id> · 루트 <경로>` 줄이 붙고, 봇은 그 루트를
-기준으로 일한다. `.bots/` 와 `marketing/` 은 `E:\2ndB\.git\info\exclude` 로 로컬 제외라 어느 워크트리의 git 상태도
-바뀌지 않는다(Simon 이 직접 코드를 만지는 워크트리는 `TTL-Work_rev2` 다 - 과제서가 지정하지 않는 한 봇은 건드리지
-않는다). `--hub` 를 명시하면 모든 과제가 그 경로를 쓴다(시험용). `--collect` 는 허브와 모든 프로젝트 버스를 함께 훑는다.
-
-## 실측 절차 (PC 앞에서)
-
-1. 앱 설치: `cursor.com/download/bot` (winget 없음). 서명이 **Anysphere, Inc.** 인지 확인
-2. **Cursor 계정** 로그인. 요금제 · 결제 화면이 나오면 **멈추고 Simon에게 묻는다**
-3. 설정: 자동 검토 켜기 + 규칙 "먼저 묻기" · 컴퓨터 탭 결정 · 추가 사용량 확인
-4. 계정 연결은 필요한 커넥터만. **토큰을 채팅에 붙여넣지 않는다**
-5. 과제서 1장을 수동으로 넣고 `--verify` 통과 (2026-09-19 완료)
-6. 허브 과제함 1회(`--deliver hub` → 한 줄 → `--collect`) 실측 뒤 이 표를 고친다
-
-각 단계 결과는 허브 `DECISIONS.md`에 한 줄로 남긴다.
-
-## 이 스킬을 쓰지 않는 경우
-
-- 레포 코드를 고치는 일 → `/vibe`(Orca 워커, 워크트리 격리, 보안 게이트)
-- 한 세션에서 끝나는 작은 수정 → `dev-orchestrator`
-- 되돌리기 어려운 일, 돈이 나가는 일, 자격증명이 필요한 일 → 사람이 한다
-
-## 관련 스킬
-
-`vibe`(4벤더 로컬 파이프라인) · `ai-debate`(결정 지점) · `simon-worktree`(격리 규칙)
+Run tests with process/network denial before imports, using only disposable
+local drafts, buses and DBs. Never substitute operational hub/project paths.
+The source adapter and fixtures do not establish native host compatibility,
+installation parity, real Relay receipt, generation success, screenshots,
+account costs or all-skill optimization. Keep user $0/Grok/no-model-call holds.
