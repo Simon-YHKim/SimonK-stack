@@ -2,7 +2,7 @@
 name: vibe-bot
 description: "Use when a task needs Grok Bot's cloud computer for a GUI-only step, or the user invokes \"/vibe-bot\", \"봇한테 시켜\", \"그록 봇으로 돌려\", or \"console task\". Works inside the current /vibe run: drafts a scoped console task, selects an active roster entry, publishes through the shared budget and durable-claim adapter only with fresh account/Relay/delivery evidence, and checks the exact nonce and screen evidence on return. Produces a task sheet and an honest queued/uncertain/verified result. NOT for work an authorized CLI/API/MCP can perform, direct webhook sends, or local repository changes."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 0.8.1
+version: 0.9.0
 author: simon-stack
 ---
 
@@ -20,11 +20,18 @@ permissions. Honor current user holds even when a previous pilot succeeded.
 
 ## 1. Prepare the task without delivery
 
-Read `bots.json` and select the exact owning bot. Keyword matching is a draft
+Read `bots.json` and [current organization](references/relay-charter.md), then
+select the exact owning bot. The 2026-09-24 snapshot describes 19 bots and six
+teams; reported status is not live availability. Keyword matching is a draft
 suggestion only: it can return inactive entries. For execution require an
 observed active bot and account; reject HOLD, WITHDRAWN and not-created entries.
 Target/URL keyword hits weigh more than incidental tool names in task prose.
-The project belongs to the task, not to the bot.
+The project belongs to the task, not to the bot. All new tasks and results pass
+through `relay/inbox` and `relay/outbox`; the specialist remains the pinned
+`bot_id`, not a separate inbox. Both Relay and the specialist must be active.
+For a team request use `--bot relay` with the exact team in the target/task.
+The legacy `web-qa` alias means Relay triage, not a verified dedicated profile;
+do not assign it to Cassius without confirmation. `qa` explicitly names Cassius.
 
 Use `scripts/make_bot_spec.py --mode console --target ... --task ... --bot ...`
 with an explicit private `--out` directory. `--hub` selects a bus parent for
@@ -33,10 +40,14 @@ generated result path before registering a plan. No argument here authorizes
 delivery. The console sheet contains:
 
 - exact console/app target and goal;
-- read-only scope, or narrowly authorized changes that still stop before Save/Submit;
+- read-only scope, or explicit free, reversible changes via `--allow-change`;
 - forbidden buttons, login/2FA/payment stop points;
 - menu path, observed values and a screenshot for each screen;
 - expected result path, exact first-line nonce and independent review.
+
+Within that explicit scope, reversible draft saves need no repeated approval.
+This does not authorize login/2FA, credentials, account creation, public posting,
+payment or permission changes. Apply the current task's authority and hard stops.
 
 The builder refuses legacy `--deliver hub|webhook|github` and every `--send`
 before writing. `send_webhook()` cannot be reenabled with
@@ -124,6 +135,11 @@ and unknown actual cost stays null. Store intent/uncertain holds remain reserved
 No automatic retry, new nonce, webhook fallback, stop, cleanup, settlement or
 acceptance occurs. Keep the original private drafts for reconciliation.
 
+Do not migrate an in-flight pre-0.9 specialist plan to Relay or reissue its nonce.
+Its pinned specialist result path is incompatible with this adapter. Preserve
+the previous package and use its original adapter only for authorized lookup;
+never edit its plan, drafts, hashes, Store or reservations to make it fit.
+
 ## 4. Collect, inspect and account
 
 Use the adapter's exact result and metadata paths, not another result found by
@@ -147,12 +163,13 @@ Payment; it is not retroactive authorization. Only after actual terminal and
 cost evidence should the coordinator use Store observe/settle/verify. Unknown
 cost is never settled as zero. Required independent reviews remain separate.
 
-## Relay and historical evidence
+## Relay operations and evidence
 
-Read [Relay standing instructions](references/relay-charter.md) only when
-reviewing Relay behavior or an explicitly authorized profile update. That file
-records the earlier 2026-09-20 arrangement; it is not a fresh account, cost or
-transport observation and does not override the current central contract.
+The [organization reference](references/relay-charter.md) describes the supplied
+2026-09-24 snapshot: Relay-only intake, role/team routing, one reminder, worklog,
+shared-machine boundaries and Android-only QA. It replaces the old 09-20 charter,
+but is not fresh account, cost or transport evidence. Never treat its reported
+routines as permission to create schedulers or send reminder messages now.
 Do not update a cloud profile, start routines or contact a Bot merely to test
 this skill. Bots sharing an account/computer are not separate security boundaries.
 

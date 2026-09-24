@@ -2,7 +2,7 @@
 name: vibe
 description: "Use when the user invokes \"/vibe\", \"바이브로 알아서 해줘\", \"스킬 조합해서 처리해\", \"오르카로 돌려\", or \"orchestrate this task\". Acts as the main entry point for installed SimonK-stack skills: discovers the relevant skills, decomposes dependencies, chooses software and CLI/API/MCP or GUI Bot execution, and matches Claude, Codex (GPT), Antigravity (Gemini), Grok and Grok Bot to verified model/effort capabilities and a total-run cost budget. Produces a validated execution plan, scoped handoffs, verified artifacts and a usage report. Small tasks stay in the current session; GUI-only steps use vibe-bot internally. Never treats unknown cost or unsupported model controls as zero or applied."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.11.3
+version: 2.11.4
 author: simon-stack
 ---
 
@@ -164,6 +164,9 @@ Read the discovered vibe-bot SKILL.md for its draft, immutable `bot_delivery`
 descriptor and fresh delivery/account/Relay certificate. Keep the current run,
 whole-plan reservation and shared Store. No authorized CLI/API/MCP alternative
 may be available; execution needs an observed active exact roster entry.
+Use the current Bot organization reference: all new deliveries/results use
+Relay, while the selected specialist remains bound in the plan. Team requests
+go through Relay; historical specialist runs retain their original adapter.
 Draft privately while delivery is blocked. Drafting, pasting into chat and
 publishing to a watched bus are different effects; only drafting is local-only.
 Never use the builder's retired hub/webhook/github/--send paths or manually
@@ -361,6 +364,10 @@ python -B -I -S tests/test_ledger_scan.py
 
 ## Version note
 
+2.11.4 pairs with vibe-bot 0.9.0: the 2026-09-24 organization has 19 bots and
+six teams, Relay-only new delivery, distinct Analytics/AdMob/QA ownership and
+bounded reversible preparation. This user-test release does not certify live
+provider, Relay, host compatibility or historical-run migration.
 2.11.3 aligns Bot guidance with the durable execute_bot adapter; legacy result checks cannot establish central completion. No live execution or installation is added.
 2.11.2 defines coordinator-owned split-home roots with scope/conflict/exclusion checks; intact candidates retain receipt-bound discovery, without a native collector or installer.
 2.11.0 adds explicit observable-local preparation alongside unchanged owned-v1:
@@ -384,13 +391,6 @@ bridge, operational DB migration, deployment or live billing proof.
 protocol core: exact one-send intent, dual receipt/resource verification and
 full-DAG finalization. The real owned-session bridge, registry-changing rebase, native
 preparation, operational migration, live E2E and installation remain incomplete.
-2.10.2 aligns the active Orca/evaluation runbooks and behavioral case assertions
-with the central execution boundary. Schema PASS is not measured behavior or
-all-skill/mode optimization. Remaining historical references, native preparation,
-live validation and installation gates stay incomplete.
-2.10.1 disables stateless legacy generation, invalid-worktree spawn probes and
-legacy success-cache authority. No bool/environment override restores them.
-This is source containment, not live adapter completion or an installation.
 2.10.0 shares lossless, bounded metadata discovery between catalog and planning,
 adds scoped source/plugin/install comparison, and plans trusted host-native
 bindings only in their matching host context. All behavioral/mode evaluations
