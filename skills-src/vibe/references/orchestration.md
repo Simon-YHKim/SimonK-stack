@@ -468,9 +468,38 @@ The runtime can still accept work after a client timeout; lookup remains the
 only automatic recovery. No stop, abandon, release, retry, payment, reset,
 installation or worktree deletion is automatic. After accepted settlement the
 coordinator still owes the cleanup decision required by the Orca guide.
-Legacy kill_worker.py --kill --fence is prohibited until its handle/dispatch
-identity and authorization defect is repaired; raw worker-stop is disabled.
-Do not kill, submit input, release or resend automatically to resolve uncertainty.
+Legacy `kill_worker.py` is now an inert retired entrypoint. Every invocation,
+including no arguments, former preview, `--handle`, `--dispatch`, `--kill`,
+`--fence`, mixed help or force options, returns nonzero with no process/native
+access. Only standalone `--help` or `-h` returns zero as documentation. The fixed
+error `LEGACY_WORKER_TERMINATION_DISABLED` and `termination_verified=false`
+are not a cleanup receipt or budget settlement. Old imported process helpers
+and the mutable home routing import are removed; there is no env/force override.
+Historical examples must not be redirected to an old installed copy.
+
+The old environment match was not ownership: it allowed a handle to bypass the
+dispatch lookup, ignored unreadable processes and could report success even
+when native fencing failed. Pair validation alone cannot fix process lineage or
+identity races. No diagnostic here now scans environments or concludes that an
+unreadable process is absent. This retirement does **not** satisfy G8 or implement
+termination automation. Raw worker-stop remains disabled too.
+
+Installed Orca 1.4.206 code/guide inspection distinguishes official supervised
+stop from the retired OS-tree killer: `worker-stop` fences a Dispatch and closes
+its exact proven owned supervised terminal; an unsupervised/context-only
+Dispatch can be fenced without stopping a process. A `stop_unknown` result is
+not a proven exit. Native CLI success alone therefore is not sufficient either.
+These are package-source observations, not proof of loaded runtime identity or
+all descendant processes being dead.
+
+A future native stop adapter needs explicit exact-target authorization, the
+Store-bound run/node/attempt/native Dispatch, pinned runtime/executable/workspace,
+verified owned caller scope and a durable stop request identity. It must inspect
+typed stop receipts and matching post-state, distinguish fenced-only/unknown
+from a proven supervised stop, and keep unknown cost reserved. No such adapter
+ships in this unit. Never replace it with psutil, PID/ENV matching, manual raw
+commands or a synthetic certificate. Do not kill, submit input, release or resend
+automatically to resolve uncertainty. Stop is not output acceptance or settlement.
 
 This adapter assumes cooperating coordinators share the same DB and own the
 unique native Task. It cannot stop another tool/user from editing the native

@@ -2,7 +2,7 @@
 name: vibe
 description: "Use when the user invokes \"/vibe\", \"바이브로 알아서 해줘\", \"스킬 조합해서 처리해\", \"오르카로 돌려\", or \"orchestrate this task\". Acts as the main entry point for installed SimonK-stack skills: discovers the relevant skills, decomposes dependencies, chooses software and CLI/API/MCP or GUI Bot execution, and matches Claude, Codex (GPT), Antigravity (Gemini), Grok and Grok Bot to verified model/effort capabilities and a total-run cost budget. Produces a validated execution plan, scoped handoffs, verified artifacts and a usage report. Small tasks stay in the current session; GUI-only steps use vibe-bot internally. Never treats unknown cost or unsupported model controls as zero or applied."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.10.4
+version: 2.10.5
 author: simon-stack
 ---
 
@@ -210,8 +210,11 @@ Legacy live entrypoints are quarantined: `run_dispatch`, `run_codex_exec`,
 `validate_and_dispatch`, `probe_orca_efforts`, and adversarial evaluation live
 `--preflight`/`--run`. Dry builders remain simulations, not execution or cost
 proof. The raw Orca helper accepts only a small exact read-only grammar; all
-writes, including `worker-stop`, are disabled. `kill_worker.py --kill --fence`
-must not be used until handle/dispatch identity and authorization are repaired.
+writes, including `worker-stop`, are disabled. `kill_worker.py` is a retired,
+inert compatibility entrypoint: every request returns nonzero except standalone
+help. It does not scan processes, terminate, fence or verify cleanup. No flag or
+environment variable re-enables it. The G8 safe-stop requirement is still unmet;
+retirement is not an implemented or authorized replacement stop adapter.
 
 The Orca workflow and evaluation reference now follow this quarantine.
 This still overrides live-call examples in the historical pitfalls and
@@ -348,6 +351,10 @@ python -B -m unittest discover -s tests -p "test_prepare*.py"
 
 ## Version note
 
+2.10.5 retires the environment-handle process killer and its mutable home routing
+import. Legacy calls now fail without process/native access, including former
+dry mode. Official supervised stop integration, exact-target authorization and
+positive termination evidence remain required; G8 is not satisfied by this fix.
 2.10.4 adds explicit schema3 preparation freshness renewal: immutable native
 intent, strict timestamp-only validation overlay, revision CAS and fresh final
 projection. Partial preparations can resume after trusted runtime revalidation

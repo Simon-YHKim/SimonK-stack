@@ -150,9 +150,18 @@ short answer is not a zero-cost receipt. Report provider overspend if observed.
 
 Cleanup is not automatic. The adapter does not stop, abandon or release workers,
 switch native Runs, delete worktrees or alter payment settings.
-`kill_worker.py --kill --fence` is prohibited pending repair of handle/dispatch
-identity and authorization; raw worker-stop is disabled too. A timeout or low
-CPU is not permission to kill a process. Preserve dirty worktrees and obtain the
+`kill_worker.py` is retired and cannot inspect or terminate processes. Every
+legacy request, including the former dry path, fails with exit2 and
+`LEGACY_WORKER_TERMINATION_DISABLED`; standalone help alone returns0. Do not use
+an old installed copy or treat this diagnostic as proof of cleanup. Raw
+worker-stop remains disabled, and the G8 safe-stop requirement is still unmet.
+
+Official Orca 1.4.206 supervised stop can close an exact proven owned terminal;
+unsupervised Dispatch fencing does not imply process exit. The future guarded
+integration must bind authorization and a durable stop intent to the exact
+Store/native target and verify the result. It is not provided by the retired
+script. A timeout, low CPU, unreadable process or missing receipt authorizes no
+OS kill, stop, retry or reservation release. Preserve dirty worktrees and obtain
 applicable exact-target authorization before destructive action. No daemon.
 
 ## Records and evaluation
