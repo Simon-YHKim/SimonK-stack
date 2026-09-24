@@ -2,7 +2,7 @@
   "schema_version": 1,
   "plugins": {
     "SimonKAIHub": {"name": "simonk-aihub", "commit": "f700053ca61e522c347193a60828aef11ddee17f"},
-    "SimonKCore": {"name": "simonk-core", "commit": "c080bdaef14a23b1b2dfe2b3234a4243f500ded2"},
+    "SimonKCore": {"name": "simonk-core", "commit": "c7429f630367458580bccda7e8d150bef8cde449"},
     "SimonKDesign": {"name": "simonk-design", "commit": "88b140d2e7fc5e44df3f48b1fa307d58ad314e0f"},
     "SimonKMarket": {"name": "simonk-market", "commit": "30e74ba6a43a9009d4ebdd4fbc30efe6edec7274"},
     "SimonKStack": {"name": "simonk-stack", "commit": "989dbc29229f88ef3a1009e15daff3b4e404a6e5"}

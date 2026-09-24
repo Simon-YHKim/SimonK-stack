@@ -167,7 +167,7 @@ source member와 정확히 일치해야 하며, 원본에 source가 설명하지
 파일이 있으면 버리지 않고 빌드를 차단합니다. source의 frontmatter·hooks·명시호출
 정책·파일 bytes·Git mode는 바꾸지 않습니다.
 
-3,872개 pinned base 경로를 copied/replaced/transformed/excluded 중 하나로 전수
+3,873개 pinned base 경로를 copied/replaced/transformed/excluded 중 하나로 전수
 분류합니다. plugin-only 파일, 안전한 공식 agents/commands/.github/루트 문서·LICENSE/
 NOTICE를 보존하고, source LICENSE/NOTICE/VENDORED는 각 plugin의
 `.simonk-source-attribution/`에 별도로 둡니다. AIHub `legacy/` 3,292개와 대응 `.py`가
@@ -221,6 +221,25 @@ clone/checkout 준비는 builder가 자동 수행하는 기능이 아니며, 긴
 (임시 5개 Git 입력·격리 후보만 사용). Claude plugin 구조의 공식 설명은
 [Plugins reference](https://code.claude.com/docs/en/plugins-reference)를 참고하세요.
 이 후보에 대한 native Claude/Codex validator 또는 host 실행 통과 주장은 없습니다.
+
+### Codex frontmatter 검사 범위
+
+로컬 `skill-creator/scripts/quick_validate.py`의 허용 키 목록은 실제 Codex
+로더와 동일하다는 증거가 아닙니다. 이 helper는 `version`, `author` 등의 확장
+키를 거부합니다. 반면 YAML 구문 오류·필수 name/description 부재는 별도로
+확인해야 합니다. 검사 도구·버전/해시·대상 candidate digest를 함께 기록하고,
+helper의 FAIL을 곧바로 native 로딩 실패로, 기본 구조 PASS를 native 호환으로
+바꿔 보고하지 마세요. 공용 소스의 키나 hooks를 통과 목적으로 삭제하지 않습니다.
+
+plugin-only 스킬도 검사 대상입니다. `semantic-recall`의 잘못된 plain scalar는
+Core의 별도 수정 브랜치에서 고쳤으며, `distribution/plugin-inputs.v1.json`은
+그 정확한 commit을 가리킵니다. 공식 main·설치본의 자동 변경은 아닙니다.
+후보의 실제 호스트 로딩, 명시호출 정책·hooks, runtime 의존성과 행동 검증은
+여전히 별도 게이트입니다. OpenAI의
+[스킬 문서](https://learn.chatgpt.com/docs/build-skills)와
+[plugin 검사 오류](https://developers.openai.com/plugins/deploy/submission-errors)는
+서로 다른 적용 범위이며, 공개 directory 제출 규칙 전체를 로컬 CLI 규칙으로
+간주하지 않습니다.
 
 ### 선택적 v2 safety projection — 여전히 격리 후보
 
