@@ -2,7 +2,7 @@
 name: vibe
 description: "Use when the user invokes \"/vibe\", \"바이브로 알아서 해줘\", \"스킬 조합해서 처리해\", \"오르카로 돌려\", or \"orchestrate this task\". Acts as the main entry point for installed SimonK-stack skills: discovers the relevant skills, decomposes dependencies, chooses software and CLI/API/MCP or GUI Bot execution, and matches Claude, Codex (GPT), Antigravity (Gemini), Grok and Grok Bot to verified model/effort capabilities and a total-run cost budget. Produces a validated execution plan, scoped handoffs, verified artifacts and a usage report. Small tasks stay in the current session; GUI-only steps use vibe-bot internally. Never treats unknown cost or unsupported model controls as zero or applied."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.10.6
+version: 2.11.0
 author: simon-stack
 ---
 
@@ -222,8 +222,12 @@ effort-cap documents; those documents need migration before activation. Do not
 copy raw CLI examples around the quarantine. Use the guarded adapter only where
 its actual capabilities and fresh account/cost evidence permit it. A schema2
 preparation journal and host-injected protocol core now exist. There is no
-operational preparation bridge or CLI: `prepare_orca.py` requires a reviewed,
-exclusive owned-host session and cannot instantiate the raw Orca runner.
+operational preparation bridge or CLI: `prepare_orca.py` requires a reviewed
+host and cannot instantiate the raw Orca runner. Its default owned-v1 contract
+is unchanged. Explicit observable-v2 PC trust records the user's decision and
+matches native session/Run/Task/request observations without claiming process
+ownership or loaded-code attestation. A separate, scoped native-effects grant
+is still required; trust approval does not authorize DB initialization or sends.
 Missing preparation evidence blocks dispatch, not permission to use old helpers.
 Read the preparation contract before integrating this library. Fixture evidence
 does not establish a live caller, loaded runtime, OS isolation or free access.
@@ -353,6 +357,10 @@ python -B -I -S tests/test_ledger_scan.py
 
 ## Version note
 
+2.11.0 adds explicit observable-local preparation alongside unchanged owned-v1:
+durable contract/approval identity, separate UUID namespace, implicit session
+commands and nullable-but-consistent provenance. Trust and native-effects
+approval remain separate. No operational bridge or live execution is enabled.
 2.10.6 avoids repeated-suffix secret scans on long URI-like words and incomplete
 JWTs. Detection names, first offsets, declaration order and value redaction are
 preserved; input is not truncated. Offline tests cover the 1MiB run-state limit.

@@ -178,9 +178,17 @@ def task_spec(node):
     return "Vibe supervised task. Read the selected skills; obey ownership and acceptance.\n" + safe_json(body)
 
 
+OBSERVABLE_PREPARATION = "observable-local-orca-preparation-v2"
+
+
 def preparation_caller(caller):
-    if not isinstance(caller, dict) or set(caller) != {"handle", "identity_sha256"}:
+    legacy = {"handle", "identity_sha256"}
+    if not isinstance(caller, dict) or set(caller) not in (legacy, legacy | {"contract", "approval_ref"}):
         raise StateError("EXACT_PREPARATION_CALLER_REQUIRED")
+    if "contract" in caller:
+        if caller["contract"] != OBSERVABLE_PREPARATION:
+            raise StateError("EXACT_PREPARATION_CALLER_REQUIRED")
+        identifier(caller["approval_ref"])
     identifier(caller["handle"])
     if not isinstance(caller["identity_sha256"], str) or not re.fullmatch("[0-9a-f]{64}", caller["identity_sha256"]):
         raise StateError("EXACT_PREPARATION_CALLER_REQUIRED")
@@ -189,9 +197,11 @@ def preparation_caller(caller):
 
 def preparation_argv(plan, caller, key, native_ids):
     """Pure canonical payload projection, also used for admission sizing."""
+    preparation_caller(caller)
+    origin = [] if caller.get("contract") == OBSERVABLE_PREPARATION else ["--from", caller["handle"]]
     marker = "vibe-preparation:" + plan["plan_digest"]
     if key == "run":
-        return ["orchestration", "run-create", "--objective", marker, "--from", caller["handle"]]
+        return ["orchestration", "run-create", "--objective", marker, *origin]
     nodes = [n for n in plan["steps"] if "task:" + n["id"] == key]
     if len(nodes) != 1:
         raise StateError("PREPARATION_OPERATION_UNKNOWN")
@@ -199,7 +209,7 @@ def preparation_argv(plan, caller, key, native_ids):
     try:
         return ["orchestration", "task-create", "--spec", task_spec(node), "--task-title", marker + ":" + node["id"],
             "--deps", safe_json([native_ids["task:" + d] for d in node["depends_on"]]),
-            "--run", native_ids["run"], "--from", caller["handle"]]
+            "--run", native_ids["run"], *origin]
     except KeyError:
         raise StateError("PREPARATION_DEPENDENCY_UNBOUND") from None
 
@@ -527,7 +537,7 @@ class Store:
         """Reserve a complete unbound plan. No native access or send authority.
 
         Caller identity is trusted coordinator evidence of transport/runtime and
-        owned pane scope, not an authentication claim established by --from.
+        its explicit trust contract, not authentication established by --from.
         """
         now, caller_text = moment(now), preparation_caller(caller)
         validate_plan(plan, now)
@@ -603,7 +613,8 @@ class Store:
             self._budget_guard(db)
             argv = preparation_argv(plan, caller, key, {k: op["native_id"] for k, op in ops.items() if op["state"] == "complete"})
             identity = orchestrate.digest({"draft": row["draft_digest"], "caller": caller, "key": key, "argv": argv})
-            request = str(uuid.uuid5(uuid.NAMESPACE_URL, "simonk:vibe:orca:preparation:v1:" + identity))
+            version = "v2" if caller.get("contract") == OBSERVABLE_PREPARATION else "v1"
+            request = str(uuid.uuid5(uuid.NAMESPACE_URL, "simonk:vibe:orca:preparation:" + version + ":" + identity))
             argv += ["--retry-request", request, "--json"]
             op = {"request_id": request, "argv": argv, "operation_sha256": orchestrate.digest({
                 "identity": identity, "argv": argv}), "state": "intent", "native_id": None, "proof": None}
