@@ -1,8 +1,11 @@
 ---
 name: remotion-best-practices
 description: >
-  Use when building or fixing programmatic video with Remotion (TypeScript + React) — triggers "Remotion 비디오", "프로그래밍 비디오", "코드로 영상 만들어", "데이터 기반 비디오", "영상 렌더링 자동화", "remotion video", "programmatic video", "code-driven video", "data-driven video", "render mp4 from react", or /remotion-best-practices. Produces correct Composition/Sequence structure, frame-driven animation via useCurrentFrame + interpolate + spring, audio/video asset sync (Audio, OffthreadVideo, staticFile), data-driven compositions with calculateMetadata, server-side render via renderMedia (@remotion/renderer) or scaled render via renderMediaOnLambda (@remotion/lambda), and verified output (npx remotion studio / npx remotion render). Targets Remotion v4 (4.0.x). Different from /design-shotgun (static visual exploration) and /make-pdf (document export) — this emits actual rendered MP4/WebM.
-version: 2.0.0
+  Use when building/fixing Remotion (React/TypeScript) video: "remotion video", "코드로 영상 만들어".
+  Produces Remotion v4 compositions and verified MP4/WebM with frame-driven
+  animation and asset sync; not static design, PDF, slides or React Native.
+  Paid Lambda requires approval.
+version: 2.0.1
 allowed-tools:
   - Bash
   - Read

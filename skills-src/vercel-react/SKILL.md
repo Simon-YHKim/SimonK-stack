@@ -1,19 +1,10 @@
 ---
 name: vercel-react
 description: >-
-  Use when building or hardening a Next.js App Router app for Vercel production
-  — triggers "Next.js 앱 만들어", "서버 컴포넌트 vs 클라이언트", "use client 남발",
-  "스트리밍 적용", "Server Action 구현", "ISR 설정", "Vercel 배포 최적화", "하이드레이션 에러",
-  "next build 느려", "Next.js best practices", "App Router data fetching",
-  "server vs client component", "fix hydration mismatch", "streaming with Suspense",
-  "server actions", "edge vs node runtime", "next.config tuning". Produces a
-  Server/Client boundary decision table, data-fetching plus caching patterns
-  (fetch revalidate, use cache, cacheLife/cacheTag), Suspense streaming and
-  Server Action snippets, runtime (edge vs node) guidance, next.config plus ISR
-  plus image plus env config, a precheck grep for boundary smells, and a verify
-  step (next build, Lighthouse). For RN/Expo native use building-native-ui; for
-  pure Core Web Vitals tuning of an existing app use nextjs-optimizer.
-version: 0.1.0
+  Use when building or hardening Next.js App Router for Vercel: "Next.js 앱 만들어",
+  "server actions". Produces verified boundary, caching, streaming and deployment
+  code. RN/Expo -> building-native-ui; Core Web Vitals-only tuning -> nextjs-optimizer.
+version: 0.1.1
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch
 compatibility: [claude-code]
 author: simon-stack

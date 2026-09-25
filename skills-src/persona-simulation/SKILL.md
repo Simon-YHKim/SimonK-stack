@@ -1,19 +1,10 @@
 ---
 name: persona-simulation
 description: >-
-  Use when the user wants to stress-test a product's screens against a diverse
-  user cohort — triggers "페르소나 시뮬", "페르소나 검증", "페르소나 시뮬레이션",
-  "다양성 검증", "유아부터 90대", "누가 막히나", "persona simulation",
-  "diversity audit", "accessibility cohort", "who gets stuck". Builds a 4-axis
-  persona matrix (age infant/guardian→90s, job, income very-poor→wealthy,
-  culture KR/US/JP/SEA/EU/MENA/LATAM), walks EACH persona through the actual
-  first-run + core loop by reading the REAL screen code, and flags
-  blocker/dropout/distrust/confusion grounded in file:line. PRODUCES a prioritized
-  code-grounded findings report (HTML, sorted by frequency × severity) plus a queue
-  block and per-AI routing. Can fan out via agent-delegate for large cohorts —
-  the reusable form of hub PROTOCOL §26.2 / §27.9. Different from design-review
-  (one eye) and grill-me (plan); NOT for picking a direction (simon-design-first).
-version: 0.1.0
+  Use when stress-testing screen code with "persona simulation" or "페르소나 시뮬"
+  across age, job, income and culture. Produces prioritized HTML findings from
+  first-run/core-loop file:line evidence; not visual QA, plan review or design direction.
+version: 0.1.1
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch
 compatibility: [claude-code]
 author: simon-stack

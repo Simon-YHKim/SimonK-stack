@@ -1,19 +1,11 @@
 ---
 name: accessibility-audit
 description: >-
-  Use when the user asks to check or fix accessibility — triggers "접근성",
-  "a11y", "접근성 점검", "WCAG", "WCAG 검사", "스크린리더", "키보드 네비게이션",
-  "색약 대비", "포커스 안 보임", "screen reader", "keyboard navigation",
-  "axe", "lighthouse a11y", "alt text", "aria 점검". Runs axe-core (CLI or
-  DevTools) plus Lighthouse accessibility, then validates WCAG 2.2 AA by hand —
-  contrast 4.5:1 / 3:1, target size 24px (44px mobile), focus-visible, focus
-  not obscured, prefers-reduced-motion, semantic HTML + ARIA landmarks/roles,
-  keyboard nav and focus order, form label association, color-blind safety, and
-  screen-reader sanity (NVDA / VoiceOver / TalkBack). Produces a WCAG 2.2 AA
-  conformance report with violations grouped by severity and a prioritized
-  fix list (file, selector, before→after). Complements design-review — invoke
-  on an explicit a11y request or when automated audits alone fall short.
-version: 0.1.0
+  Use when web/hybrid UI needs "accessibility audit", "접근성 점검" or deeper
+  checks than automation. Produces a WCAG 2.2 AA HTML diagnosis and prioritized
+  fixes using axe/Lighthouse plus manual keyboard/screen-reader checks; not
+  visual QA or performance tuning.
+version: 0.1.1
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 compatibility: [claude-code]
 author: simon-stack

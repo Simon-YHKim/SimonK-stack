@@ -1,8 +1,11 @@
 ---
 name: notebooklm-import
 description: >
-  Use when Simon wants to pull an external source (YouTube video, web article, or PDF) into the SimonKWiki vault — triggers "비디오 자막 가져와", "유튜브 자막 위키에", "이 영상 정리해줘", "PDF 위키에 넣어줘", "이 글 클리핑해서 인제스트", "import this video transcript", "pdf to knowledge base", "clip this article into the wiki". Produces a raw/ source file (subtitle text via yt-dlp, article body via defuddle, or PDF text via pdftotext/pypdf) landed under raw/transcripts|clipped|documents with proper frontmatter, then hands off to wiki-ingest for the reflective compile into wiki/sources/. For headless runs where wiki-ingest's 4-question gate cannot be answered, the raw file is tagged status: needs-reflection and left for a later interactive pass. Different from wiki-ingest (compiles already-saved raw/ files), defuddle (single-page extract, no wiki routing), and notebooklm (Google NotebookLM cloud API).
-version: 0.1.0
+  Use when importing YouTube, web or PDF into SimonKWiki: "import transcript",
+  "유튜브 자막 위키에". Produces new raw/ files and a wiki-ingest handoff
+  (headless: needs-reflection); not NotebookLM cloud API, wiki compilation or
+  read-only extraction.
+version: 0.1.1
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch
 compatibility:
   - claude-code
