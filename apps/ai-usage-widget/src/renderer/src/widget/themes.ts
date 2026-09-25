@@ -34,8 +34,10 @@ function isMono(ctx: RenderContext): boolean {
   return ctx.settings.iconStyle === 'monochrome';
 }
 
-function rowText(row: RowView): string {
-  if (row.status === 'value' && row.shownPercent !== null) return percentText(row.shownPercent);
+function rowText(row: RowView, ctx: RenderContext): string {
+  if (row.status === 'value' && row.shownPercent !== null) {
+    return `${percentText(row.shownPercent)} ${ctx.t(ctx.settings.showUsedPercent ? 'unitUsed' : 'unitLeft')}`;
+  }
   return row.status === 'reset' ? ROW_GLYPHS.reset : ROW_GLYPHS.unknown;
 }
 
@@ -63,7 +65,7 @@ function render1a(view: AccountView, ctx: RenderContext): HTMLElement[] {
     return h('div', { class: 'row', 'data-status': row.status }, [
       h('span', { class: 'label' }, [row.tag]),
       h('div', { class: 'progress-track' }, [fill]),
-      colored(h('span', { class: 'percent' }, [rowText(row)]), color),
+      colored(h('span', { class: 'percent' }, [rowText(row, ctx)]), color),
       h('span', { class: 'reset-time' }, [row.countdown]),
     ]);
   });
@@ -97,7 +99,7 @@ function render1b(view: AccountView, ctx: RenderContext): HTMLElement[] {
   const rows = view.rows.map((row, index) => {
     const color = v1RowColor(row, index, ctx.settings, view.account.provider);
     return h('div', { class: 'row', 'data-status': row.status }, [
-      colored(h('span', { class: 'percent-mono' }, [rowText(row)]), color),
+      colored(h('span', { class: 'percent-mono' }, [rowText(row, ctx)]), color),
       segmentMeter(fillPercent(row), color),
       h('span', { class: 'reset-mono' }, [row.countdown]),
     ]);
@@ -153,7 +155,7 @@ function render1c(view: AccountView, ctx: RenderContext): HTMLElement[] {
   const rows = view.rows.map((row, index) => {
     const color = v1RowColor(row, index, ctx.settings, view.account.provider);
     return h('div', { class: 'row', 'data-status': row.status }, [
-      colored(h('span', { class: 'percent' }, [rowText(row)]), color),
+      colored(h('span', { class: 'percent' }, [rowText(row, ctx)]), color),
       h('span', { class: 'tag' }, [row.tag]),
       h('span', { class: 'reset' }, [row.countdown]),
     ]);
@@ -172,7 +174,7 @@ function render1d(view: AccountView, ctx: RenderContext): HTMLElement[] {
     children.push(
       h('div', { class: 'top-line', 'data-status': top.status }, [
         icon(view, ctx, ICON_SIZE['1d']),
-        colored(h('strong', { class: 'quota-val' }, [rowText(top)]), color),
+        colored(h('strong', { class: 'quota-val' }, [rowText(top, ctx)]), color),
         h('span', { class: 'quota-time' }, [top.countdown]),
       ]),
     );
@@ -181,7 +183,7 @@ function render1d(view: AccountView, ctx: RenderContext): HTMLElement[] {
     const color = v1RowColor(sub, 1, ctx.settings, view.account.provider);
     children.push(
       h('div', { class: 'sub-line', 'data-status': sub.status }, [
-        colored(h('span', { class: 'quota-val-sub' }, [rowText(sub)]), color),
+        colored(h('span', { class: 'quota-val-sub' }, [rowText(sub, ctx)]), color),
         h('span', { class: 'quota-time-sub' }, [sub.countdown]),
       ]),
     );
@@ -206,7 +208,7 @@ function renderWindows(view: AccountView, ctx: RenderContext): HTMLElement[] {
     setStyles(fill, { width: `${fillPercent(row)}%` });
     return h('div', { class: 'w-row', 'data-status': row.status, 'data-level': windowsRowLevel(row, ctx.settings) }, [
       h('span', { class: 'w-tag' }, [row.tag]),
-      h('span', { class: 'w-pct' }, [rowText(row)]),
+      h('span', { class: 'w-pct' }, [rowText(row, ctx)]),
       h('span', { class: 'w-bar' }, [fill]),
       h('span', { class: 'w-reset' }, [row.countdown]),
     ]);

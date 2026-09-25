@@ -110,7 +110,7 @@ describe('Usage tab', () => {
     const card = root.querySelector('.usage-card');
     expect(card?.querySelector('.card-account-name')?.textContent).toBe('Work');
     expect(card?.querySelector('.card-account-email')?.textContent).toBe('j***@e***.com');
-    expect([...(card?.querySelectorAll('.quota-box-percent') ?? [])].map((el) => el.textContent)).toEqual(['25%', '90%']);
+    expect([...(card?.querySelectorAll('.quota-box-percent') ?? [])].map((el) => el.textContent)).toEqual(['25% used', '90% used']);
     expect(card?.querySelector('.quota-box-reset')?.textContent).toBe('Resets in 2h 07m');
     expect(card?.querySelector('.card-measured')?.textContent).toBe('Last measured now');
     expect(card?.querySelector('.card-source')?.textContent).toBe('Source: Official Codex app-server');
@@ -146,7 +146,7 @@ describe('Usage tab', () => {
     });
     const { root } = setup(state);
     expect(root.querySelector('.card-quota-grid')?.classList.contains('is-dim')).toBe(true);
-    expect([...root.querySelectorAll('.quota-box-percent')].map((el) => el.textContent)).toEqual(['30%', 'Unknown']);
+    expect([...root.querySelectorAll('.quota-box-percent')].map((el) => el.textContent)).toEqual(['30% used', 'Unknown']);
     expect(root.querySelector('.card-measured')?.textContent).toBe('Last measured 10 minutes ago');
     expect(root.querySelector('.card-reason')?.textContent).toBe('Error: Network error');
   });

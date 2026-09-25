@@ -37,14 +37,14 @@ describe.each(THEME_IDS)('widget theme %s', (theme) => {
     const item = render(theme, STATE_SNAPSHOTS.ok);
     expect(item.dataset.state).toBe('ok');
     const values = [...item.querySelectorAll(PERCENT_SELECTOR)].map((el) => el.textContent);
-    expect(values).toEqual(['75%', '10%']);
+    expect(values).toEqual(['75% left', '10% left']);
     expect(item.textContent).toContain('2h 07m');
     expect(item.getAttribute('title')).toBe('Work | 5H: 75% left (2h 07m) | Weekly: 10% left (4d 0h)');
   });
 
   it('ok with showUsedPercent shows used%', () => {
     const item = render(theme, STATE_SNAPSHOTS.ok, { showUsedPercent: true });
-    expect([...item.querySelectorAll(PERCENT_SELECTOR)].map((el) => el.textContent)).toEqual(['25%', '90%']);
+    expect([...item.querySelectorAll(PERCENT_SELECTOR)].map((el) => el.textContent)).toEqual(['25% used', '90% used']);
   });
 
   it('stale: values dimmed and tooltip names the last measurement', () => {
@@ -68,7 +68,7 @@ describe.each(THEME_IDS)('widget theme %s', (theme) => {
     expect(item.dataset.state).toBe('error');
     expect(item.classList.contains('is-error')).toBe(true);
     expect(item.classList.contains('is-status')).toBe(false);
-    expect([...item.querySelectorAll(PERCENT_SELECTOR)].map((el) => el.textContent)).toEqual(['75%', '10%']);
+    expect([...item.querySelectorAll(PERCENT_SELECTOR)].map((el) => el.textContent)).toEqual(['75% left', '10% left']);
     expect(item.querySelector('.state-mark')?.textContent).toBe(STATUS_GLYPHS.error);
   });
 
@@ -132,7 +132,7 @@ describe.each(THEME_IDS)('widget theme %s', (theme) => {
       { showWeeklyLimit: false },
       grok,
     );
-    expect([...item.querySelectorAll(PERCENT_SELECTOR)].map((el) => el.textContent)).toEqual(['60%']);
+    expect([...item.querySelectorAll(PERCENT_SELECTOR)].map((el) => el.textContent)).toEqual(['60% left']);
   });
 
   it('monochrome applies to icons and value colors', () => {

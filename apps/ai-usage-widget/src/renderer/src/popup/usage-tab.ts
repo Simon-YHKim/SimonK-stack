@@ -21,7 +21,7 @@ function quotaBox(view: AccountView, row: RowView, index: number, ctx: RenderCon
   // The popup always shows used % (v1 SPEC §1-2).
   const percent =
     row.status === 'value' && row.usedPercent !== null
-      ? `${Math.round(clampPercent(row.usedPercent))}%`
+      ? `${Math.round(clampPercent(row.usedPercent))}% ${t('unitUsed')}`
       : row.status === 'reset'
         ? t('state_reset')
         : t('percentUnknown');

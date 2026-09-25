@@ -257,7 +257,8 @@
   font-size: 9.5px;
   line-height: 12px;
   font-weight: 600;
-  width: 25px;
+  min-width: 25px;
+  white-space: nowrap;
   text-align: right;
 }
 
@@ -300,7 +301,8 @@
   font-size: 10px;
   line-height: 12px;
   font-weight: 700;
-  width: 26px;
+  min-width: 26px;
+  white-space: nowrap;
   text-align: right;
   flex-shrink: 0;
 }
@@ -399,6 +401,7 @@
   font-family: var(--mono);
   font-size: 10px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .skin-v1 .theme-1c .tag {
@@ -432,6 +435,7 @@
   font-size: 11px;
   font-weight: 700;
   line-height: 1;
+  white-space: nowrap;
 }
 
 .skin-v1 .theme-1d .quota-time {
@@ -455,6 +459,7 @@
 .skin-v1 .theme-1d .quota-val-sub {
   font-family: var(--mono);
   font-size: 9px;
+  white-space: nowrap;
 }
 
 .skin-v1 .theme-1d .quota-time-sub {
@@ -571,6 +576,7 @@
   font-weight: 600;
   min-width: 30px;
   text-align: right;
+  white-space: nowrap;
 }
 
 .skin-windows .w-bar {
