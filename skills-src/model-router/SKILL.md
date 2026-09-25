@@ -1,7 +1,10 @@
 ---
 name: model-router
-description: "Use when the user asks \"어떤 모델이 좋아\", \"모델 추천\", \"모델 자동 배치\", \"which model is best\", or \"route these tasks\", and when /vibe or simonk needs model and reasoning-effort assignments. Classifies eleven task types and submits one dependency-aware request to the central /vibe planner. Produces an evidence-bound plan with model/effort, registry fingerprint, quota, incremental-cost reservation and blocked reasons. Never launches workers, reads credentials or treats missing account evidence as a free fallback. Uses runtime facts, not a static benchmark winner table."
-version: 0.2.0
+description: >-
+  Use when choosing model/effort assignments: "which model", "모델 추천",
+  "route tasks". Returns an evidence-bound /vibe plan with quota, cost and
+  blocked reasons; never launches workers or treats unknown billing as free.
+version: 0.2.1
 ---
 
 # Model Router — one typed request, one central plan

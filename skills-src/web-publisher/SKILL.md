@@ -1,8 +1,11 @@
 ---
 name: web-publisher
-description: >
-  Use when the user wants to automate publishing to a website they already log into — triggers "웹사이트에 올려", "자동 로그인 후 게시", "폼 자동 작성", "글 자동 발행", "publish to website", "auto-login and post", "fill the form and submit", "automate the upload", or /web-publisher. Drives the gstack browse headless Chromium against a per-site form-schema JSON (url, selectors, fields, files, submit, confirm) — loading cookies via setup-browser-cookies, navigating, filling, uploading, submitting, then verifying a success signal. Produces a reusable site-schema file under .web-publisher/, the browse command sequence, and a pass/fail verification. Credentials are NEVER hardcoded — secrets come from keepass-helper inject or env vars at run time. Different from /browse (one-off headless browsing) and /scrape (read-only extraction); this is repeatable write automation against a stored per-site mapping.
-version: 0.1.0
+description: >-
+  Use when automating repeated website form publishing: "publish to website",
+  "웹사이트에 올려", "/web-publisher". Produces a reusable site-schema JSON and
+  verified results; prefer usable APIs, keep secrets out of files, confirm
+  public/paid submits. Not app deployment.
+version: 0.1.1
 allowed-tools:
   - Bash
   - Read
