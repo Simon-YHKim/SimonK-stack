@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AppStateSnapshot } from '../../../shared/types';
-import { FakeApi, NOW, account, appState, flush, usage, type AppStateOverrides } from '../testing/fixtures';
+import { FakeApi, NOW, account, appState, flush, quotaWindow, usage, type AppStateOverrides } from '../testing/fixtures';
 import { REFRESH_COOLDOWN_MS, TOGGLE_DEBOUNCE_MS, WidgetApp } from './widget-app';
 
 function withAccounts(overrides: AppStateOverrides = {}): AppStateSnapshot {
@@ -144,5 +144,70 @@ describe('WidgetApp', () => {
     expect(html.style.getPropertyValue('--accent-fg')).toBe('#000000');
     expect(app.bar.classList.contains('no-card-bg')).toBe(true);
     expect(app.bar.style.getPropertyValue('--bg-alpha')).toBe('0.4');
+  });
+
+  it('highlights only the account whose recent quota pace exceeds its earlier pace', () => {
+    const { app, root } = setup(appState());
+    const feed = (minute: number, used: number, otherUsed = 5) => {
+      const at = NOW + minute * 60_000;
+      vi.setSystemTime(at);
+      app.update(appState({
+        accounts: [account({ id: 'a1' }), account({ id: 'a2', order: 1 })],
+        usage: [
+          usage('a1', { windows: [quotaWindow('session', used, 5 * 3_600_000)], measuredAt: at, lastSuccessAt: at }),
+          usage('a2', { windows: [quotaWindow('session', otherUsed, 5 * 3_600_000)], measuredAt: at, lastSuccessAt: at }),
+        ],
+      }));
+    };
+    for (const [minute, used] of [[0, 0], [15, 1], [30, 2], [45, 3], [60, 4], [65, 6]] as const) {
+      feed(minute, used);
+      expect(root.querySelector('.account-item.is-fast')).toBeNull();
+    }
+    feed(70, 8);
+    expect(root.querySelectorAll('.account-item.is-fast')).toHaveLength(1);
+    feed(75, 10);
+    expect(root.querySelectorAll('.account-item.is-fast')).toHaveLength(1);
+    expect(root.querySelector('.account-item.is-fast')?.getAttribute('data-account-id')).toBe('a1');
+    expect(root.querySelector('.account-item.is-fast')?.getAttribute('title')).toContain('Quota usage is rising faster');
+    expect(app.main.getAttribute('aria-describedby')).toBe(app.bar.querySelector('.sr-only')?.id);
+    expect(app.bar.querySelector('.sr-only')?.textContent).toContain('Quota usage is rising faster');
+
+    feed(80, 1); // quota reset: old history must not trigger an alert
+    expect(root.querySelector('.account-item.is-fast')).toBeNull();
+  });
+
+  it('does not infer a fast pace from stale or unknown quota readings', () => {
+    const { app, root } = setup(appState());
+    for (const minute of [0, 15, 30, 45, 60, 65, 70, 75]) {
+      const at = NOW + minute * 60_000;
+      vi.setSystemTime(at);
+      app.update(appState({
+        accounts: [account({ id: 'a1' })],
+        usage: [usage('a1', {
+          state: minute === 75 ? 'error' : 'ok',
+          windows: [quotaWindow('session', minute === 75 ? 30 : null, 5 * 3_600_000)],
+          measuredAt: at,
+          lastSuccessAt: at,
+        })],
+      }));
+    }
+    expect(root.querySelector('.account-item.is-fast')).toBeNull();
+  });
+
+  it('ignores one delayed quota jump without a sustained increase', () => {
+    const { app, root } = setup(appState());
+    for (const [minute, used] of [[0, 0], [15, 1], [30, 2], [45, 3], [60, 4], [65, 12], [70, 12], [75, 12]] as const) {
+      const at = NOW + minute * 60_000;
+      vi.setSystemTime(at);
+      app.update(appState({
+        accounts: [account({ id: 'a1' })],
+        usage: [usage('a1', {
+          windows: [quotaWindow('session', used, 5 * 3_600_000)],
+          measuredAt: at,
+          lastSuccessAt: at,
+        })],
+      }));
+      expect(root.querySelector('.account-item.is-fast')).toBeNull();
+    }
   });
 });

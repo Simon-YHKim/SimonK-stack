@@ -146,6 +146,7 @@ export const en: Record<keyof typeof ko, string> = {
   // Widget bar
   unitUsed: 'used',
   unitLeft: 'left',
+  quotaPaceFast: 'Quota usage is rising faster: {recent} pp/hour now vs {usual} pp/hour earlier. Based on limits, not token counts.',
   widgetTooltip: '{name} | 5H: {p}% {unit} ({pr}) | Weekly: {w}% {unit} ({wr})',
   widgetTooltipNoWeekly: '{name} | {p}% {unit} ({pr})',
   widgetTooltipWeeklyOnly: '{name} | Weekly: {p}% {unit} ({pr})',

@@ -15,6 +15,50 @@ export const REFRESH_COOLDOWN_MS = 5000;
 export const TICK_MS = 30_000;
 const SIZE_MARGIN = 4;
 const MIN_HEIGHT = 34;
+const MINUTE_MS = 60_000;
+
+interface PaceSample {
+  at: number;
+  used: number;
+  resetsAt: number | null;
+}
+
+interface FastPace {
+  recent: number;
+  usual: number;
+}
+
+/** Compare two measured slopes; a single delayed provider update cannot trigger the indicator. */
+function fastPace(samples: readonly PaceSample[]): FastPace | null {
+  const latest = samples.at(-1);
+  if (latest === undefined) return null;
+  const recentStart = [...samples].reverse().find((sample) => {
+    const age = latest.at - sample.at;
+    return age >= 15 * MINUTE_MS && age <= 30 * MINUTE_MS;
+  });
+  if (recentStart === undefined) return null;
+  const usualStart = [...samples].reverse().find((sample) => {
+    const age = recentStart.at - sample.at;
+    return age >= 45 * MINUTE_MS && age <= 90 * MINUTE_MS;
+  });
+  if (usualStart === undefined || latest.used - recentStart.used < 3) return null;
+  let positiveSteps = 0;
+  let largestStep = 0;
+  let previous = recentStart;
+  for (const sample of samples) {
+    if (sample.at <= recentStart.at) continue;
+    const step = sample.used - previous.used;
+    if (step > 0) {
+      positiveSteps += 1;
+      largestStep = Math.max(largestStep, step);
+    }
+    previous = sample;
+  }
+  if (positiveSteps < 2 || latest.used - recentStart.used - largestStep < 2 || recentStart.used < usualStart.used) return null;
+  const recent = (latest.used - recentStart.used) * 3_600_000 / (latest.at - recentStart.at);
+  const usual = (recentStart.used - usualStart.used) * 3_600_000 / (recentStart.at - usualStart.at);
+  return recent >= Math.max(6, usual * 2) ? { recent, usual } : null;
+}
 
 export interface Size {
   width: number;
@@ -58,6 +102,8 @@ export class WidgetApp {
   private lastSignature = '';
   private lastSize: Size | null = null;
   private tickTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly paceHistory = new Map<string, Map<string, PaceSample[]>>();
+  private readonly fastAccounts = new Map<string, FastPace>();
 
   readonly bar: HTMLDivElement;
   readonly main: HTMLDivElement;
@@ -108,7 +154,54 @@ export class WidgetApp {
 
   update(state: AppStateSnapshot): WidgetRendered {
     this.state = state;
+    this.observePace(state);
     return this.render();
+  }
+
+  private observePace(state: AppStateSnapshot): void {
+    this.fastAccounts.clear();
+    const accountIds = new Set(state.accounts.map((account) => account.id));
+    for (const id of this.paceHistory.keys()) if (!accountIds.has(id)) this.paceHistory.delete(id);
+    for (const snapshot of state.usage) {
+      const at = snapshot.measuredAt;
+      if (snapshot.state !== 'ok' || at === null || !Number.isFinite(at) || at > this.now() + MINUTE_MS) continue;
+      let windows = this.paceHistory.get(snapshot.accountId);
+      if (windows === undefined) {
+        windows = new Map();
+        this.paceHistory.set(snapshot.accountId, windows);
+      }
+      const seen = new Set<string>();
+      snapshot.windows.forEach((window, index) => {
+        const used = window.usedPercent;
+        if (used === null || !Number.isFinite(used) || used < 0 || used > 100) return;
+        if (window.resetsAt !== null && window.resetsAt <= at) return;
+        const key = JSON.stringify([index, window.kind, window.label ?? '']);
+        seen.add(key);
+        let samples = windows.get(key) ?? [];
+        const last = samples.at(-1);
+        if (last !== undefined && at <= last.at) {
+          const pace = fastPace(samples);
+          if (pace !== null && pace.recent > (this.fastAccounts.get(snapshot.accountId)?.recent ?? 0)) {
+            this.fastAccounts.set(snapshot.accountId, pace);
+          }
+          return;
+        }
+        const resetChanged = last !== undefined && (
+          (last.resetsAt === null) !== (window.resetsAt === null) ||
+          (last.resetsAt !== null && window.resetsAt !== null && Math.abs(last.resetsAt - window.resetsAt) > 2 * MINUTE_MS)
+        );
+        if (last !== undefined && (used < last.used || resetChanged)) samples = [];
+        samples = [...samples, { at, used, resetsAt: window.resetsAt }]
+          .filter((sample) => at - sample.at <= 2 * 3_600_000)
+          .slice(-50);
+        windows.set(key, samples);
+        const pace = fastPace(samples);
+        if (pace !== null && pace.recent > (this.fastAccounts.get(snapshot.accountId)?.recent ?? 0)) {
+          this.fastAccounts.set(snapshot.accountId, pace);
+        }
+      });
+      for (const key of windows.keys()) if (!seen.has(key)) windows.delete(key);
+    }
   }
 
   updateTheme(theme: ThemeTokens): void {
@@ -163,7 +256,15 @@ export class WidgetApp {
         this.main.replaceChildren(h('span', { class: 'white-circle-dot', 'aria-hidden': 'true' }));
         this.summary.textContent = title;
       } else {
-        const items = views.map((view) => renderWidgetItem(view, ctx));
+        const items = views.map((view) => {
+          const item = renderWidgetItem(view, ctx);
+          const pace = view.state === 'ok' ? this.fastAccounts.get(view.account.id) : undefined;
+          if (pace !== undefined) {
+            item.classList.add('is-fast');
+            item.title += `\n${t('quotaPaceFast', { recent: pace.recent.toFixed(1), usual: pace.usual.toFixed(1) })}`;
+          }
+          return item;
+        });
         this.main.replaceChildren(...items);
         this.summary.textContent = items.map((item) => item.getAttribute('title') ?? '').join('. ');
       }
