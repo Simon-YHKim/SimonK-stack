@@ -156,6 +156,17 @@ describe.each(THEME_IDS)('widget theme %s', (theme) => {
   });
 });
 
+it('labels Korean remaining and used percentages in the widget itself', () => {
+  const base = ctx('windows');
+  const ko = { ...base, locale: 'ko' as const, t: createTranslator('ko') };
+  const snapshot = STATE_SNAPSHOTS.ok;
+  const left = renderWidgetItem(buildAccountView(account({ id: 'a1' }), snapshot, ko.settings, NOW), ko);
+  expect([...left.querySelectorAll(PERCENT_SELECTOR)].map((el) => el.textContent)).toEqual(['75% 남음', '10% 남음']);
+  const used = { ...ko, settings: { ...ko.settings, showUsedPercent: true } };
+  const usedItem = renderWidgetItem(buildAccountView(account({ id: 'a1' }), snapshot, used.settings, NOW), used);
+  expect([...usedItem.querySelectorAll(PERCENT_SELECTOR)].map((el) => el.textContent)).toEqual(['25% 소모', '90% 소모']);
+});
+
 describe('v1 color thresholds', () => {
   it('uses 85/60 on used percent regardless of display mode', () => {
     const item = render('1b', usage('a1', { windows: [quotaWindow('session', 85, HOUR), quotaWindow('weekly', 60, HOUR)] }));

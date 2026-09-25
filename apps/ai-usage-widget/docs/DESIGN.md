@@ -311,6 +311,8 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 - 프레임워크 없는 TS/DOM. HTML 문자열 금지: `h()`(`src/renderer/src/dom.ts`)처럼 `createElement`·`textContent`만 쓴다. ESLint가 `innerHTML`·`outerHTML`·`insertAdjacentHTML`·`document.write`를 막는다(V1-06).
 - 상태 변경 시 전체 재렌더 대신 키 기반 부분 갱신, 입력·포커스·스크롤 보존, 애니메이션은 표시할 때만(V1-25·26).
 - 위젯 막대: 계정별 아이콘·5H/주간 값·리셋 카운트다운(매초가 아니라 분 단위로 로컬 재계산), **새로고침 버튼**(회전 표시, `refresh` 상태 기준 비활성). 빈 상태 클릭 → 팝업 계정 탭.
+- 수치 단위는 위젯 값 옆에 `남음`/`left` 또는 `소모`/`used`로 직접 표시한다. 팝업 수치는 항상 소모율이므로 `소모`/`used`를 붙인다.
+- 빠른 소모 강조는 실제 토큰 개수가 아닌 **계정별 한도 사용률 증가**를 비교한다. 위젯 실행 중 쌓인 같은 창의 관측치로 최근 15~30분과 앞선 45~90분을 비교해 최근 증가가 3%p 이상·시간당 6%p 이상·이전의 2배 이상이고, 여러 번 나누어 증가한 경우에만 계정 테두리와 hover 말풍선을 표시한다. 리셋·조회 실패·미확인 수치·단일 지연 업데이트는 제외한다. 이력은 메모리에만 있어 재시작 후 약 1시간의 학습이 필요하며, 말풍선은 한도 사용률 추정임을 밝힌다.
 - 테마 1a~1d의 v1 수치·색 규칙(SPEC §2)을 유지하되 조건 통일(V1-22), 모노크롬 규칙 단일 정의(V1-33), SVG gradient id는 인스턴스별 고유(V1-42). `windows` 테마는 `ThemeTokens` CSS 변수만 쓴다.
 - 접근성: `role=tablist/tab`, 화살표 키 이동, 아이콘 버튼 `aria-label`, `:focus-visible`, `forced-colors`, `prefers-reduced-motion`(V1-36).
 - 로그인 UI: `url`→"브라우저에서 열기"(`shell:open-external {kind:'login'}`) + 붙여넣기 입력, `device-code`→코드 크게 표시 + 주소 열기, `progress`/`error` 문구는 i18n 표.
