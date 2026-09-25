@@ -19,6 +19,20 @@ Claude Code 마켓플레이스에서 바로 설치 (Install directly from the Cl
 
 > git clone 기반 3-모드 설치(Direct / Vendor / Bootstrap)는 아래 [빠른 시작](#-빠른-시작--3-가지-설치-모드) 참고.
 
+### Codex 스킬 설명 예산
+
+`Skill descriptions were shortened ...`는 초기 선택 목록의 설명이 줄었다는 경고이며, 선택한 `SKILL.md` 본문을 삭제하지 않습니다. 설명은 고유 목적·호출 조건·산출물 위주로 짧게 유지합니다. `/vibe` 진입을 확실히 지정하려면 Codex에서 `$vibe`를 사용하세요.
+
+동일 패키지가 `.agents/skills`와 `.codex/skills`에 따로 복사돼 있으면, 파일·참조를 비교한 뒤 한 경로만 `~/.codex/config.toml`에서 비활성화할 수 있습니다. 이름이 같다는 이유만으로 다른 구현이나 플러그인을 끄지 마세요.
+
+```toml
+[[skills.config]]
+path = "/absolute/path/to/redundant/skill/SKILL.md"
+enabled = false
+```
+
+설정 원본을 백업하고 **새 Codex 세션**에서 확인하세요. 선택 경로의 파일은 그대로 두며, 해당 비활성화 항목을 제거하면 복구됩니다. 다른 플러그인 수에 따라 경고가 남을 수 있습니다. [공식 스킬 로딩·비활성화 안내](https://learn.chatgpt.com/docs/build-skills)
+
 ---
 
 ## 회사 비유 — 한 페이지로 보기

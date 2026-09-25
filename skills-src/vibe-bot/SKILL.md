@@ -1,8 +1,8 @@
 ---
 name: vibe-bot
-description: "Use when a task needs Grok Bot's cloud computer for a GUI-only step, or the user invokes \"/vibe-bot\", \"봇한테 시켜\", \"그록 봇으로 돌려\", or \"console task\". Works inside the current /vibe run: drafts a scoped console task, selects an active roster entry, publishes through the shared budget and durable-claim adapter only with fresh account/Relay/delivery evidence, and checks the exact nonce and screen evidence on return. Produces a task sheet and an honest queued/uncertain/verified result. NOT for work an authorized CLI/API/MCP can perform, direct webhook sends, or local repository changes."
+description: 'Use when asked to "/vibe-bot", "봇한테 시켜", or use Grok Bot for GUI-only work without an authorized CLI/API/MCP route. Produces scoped task sheets and checked screen evidence under /vibe; Relay delivery requires fresh account, budget and approval evidence. Not for repository edits.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 0.9.0
+version: 0.9.1
 author: simon-stack
 ---
 

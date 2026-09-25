@@ -17,6 +17,7 @@
 - `NOTICE` Trademarks 절 — 위젯에 쓰인 타사 마크는 MIT 범위 밖임을 명시.
 
 ### Changed
+- **Skill discovery context** — compacted 12 routing/long descriptions while preserving skill bodies and safety controls; removed the 400-character authoring minimum. Codex duplicate exposure can be disabled by exact path without uninstalling skills. This is metadata optimization, not a claim of measured model routing accuracy or elimination of every host budget warning.
 - `CLAUDE.md` — "앱 코드 없음" 규칙에 `apps/ai-usage-widget` 예외와 그 폴더의 검증 방법을 추가.
 
 ## [1.7.0] — 2026-06-16

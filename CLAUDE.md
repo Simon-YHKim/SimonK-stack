@@ -106,7 +106,9 @@ LICENSE                        ← MIT + upstream credits
   - `"Use when..."` 으로 시작
   - 한국어 + 영어 트리거 문구 병기
   - 구체 사용자 구문 포함 ("새 앱 만들자", "debug this" 등)
-  - 400-900 자 사이, state the output
+  - 보통 160-280 자를 목표로 하되 필요한 선택 경계는 보존한다. 최소 글자 수를 채우려고 늘리지 않는다.
+  - 첫 문장에 고유 목적·트리거, 이어서 산출물과 중요한 제외 조건을 둔다. 절차·예시·모델 목록은 본문으로 유지한다.
+  - 설명 축약은 본문·권한·비용 가드 변경이 아니다. 중복 노출은 동일 패키지 확인 후 경로별 비활성화하고 파일은 보존한다.
 - **Commit**: Conventional Commits (`feat(skills):`, `fix(hook):`, `docs(readme):`, `chore:`, `test:`)
 - **Skill 이름**: kebab-case, ≤ 64 자, `claude`/`anthropic` 예약어 금지
 - **SKILL.md 본문**: < 500 줄 (400 에서 warning). 넘으면 `references/*.md` 로 분리 + TOC

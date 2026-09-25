@@ -1,8 +1,8 @@
 ---
 name: vibe
-description: "Use when the user invokes \"/vibe\", \"바이브로 알아서 해줘\", \"스킬 조합해서 처리해\", \"오르카로 돌려\", or \"orchestrate this task\". Acts as the main entry point for installed SimonK-stack skills: discovers the relevant skills, decomposes dependencies, chooses software and CLI/API/MCP or GUI Bot execution, and matches Claude, Codex (GPT), Antigravity (Gemini), Grok and Grok Bot to verified model/effort capabilities and a total-run cost budget. Produces a validated execution plan, scoped handoffs, verified artifacts and a usage report. Small tasks stay in the current session; GUI-only steps use vibe-bot internally. Never treats unknown cost or unsupported model controls as zero or applied."
+description: 'Use when asked to "/vibe", "orchestrate this task", "바이브로 알아서 해줘", or "스킬 조합해서 처리해". Main skill orchestrator: selects skills, software, model/effort and budget; uses vibe-bot only for GUI-only work. Produces verified artifacts and usage reports; unknown cost blocks paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.11.4
+version: 2.11.5
 author: simon-stack
 ---
 
