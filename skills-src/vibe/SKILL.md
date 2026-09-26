@@ -185,6 +185,8 @@ and task criteria, establish terminal and cost evidence, then observe/settle/
 verify through the Store. Required reviews still apply. No automatic completion,
 login/payment/Submit authorization, settlement or provider-model selection.
 
+For an authorized ongoing Bot collaboration, follow the discovered vibe-bot skill's Relay handshake reference for saved-state watching, timely replies, duplicate-write checks and `교훈` results; existing approval gates still apply.
+
 ## 5. Account and finish
 
 Keep an orchestration run-state for host/tool/Bot tasks, costs and evidence.
