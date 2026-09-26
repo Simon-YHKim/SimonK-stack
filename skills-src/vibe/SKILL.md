@@ -1,8 +1,8 @@
 ---
 name: vibe
-description: 'Use when asked to "/vibe", "orchestrate this task", "바이브로 알아서 해줘", or "스킬 조합해서 처리해". Main skill orchestrator: selects skills, software, model/effort and budget; uses vibe-bot only for GUI-only work. Produces verified artifacts and usage reports; unknown cost blocks paid routes.'
+description: 'Use when asked to "/vibe", "orchestrate this task", "바이브로 알아서 해줘", "오르카로 돌려", or "스킬 조합해서 처리해". Main skill orchestrator: selects skills, software, model/effort and budget; uses vibe-bot only for GUI-only work. Produces verified artifacts and usage reports; unknown cost blocks paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.11.5
+version: 2.11.6
 author: simon-stack
 ---
 

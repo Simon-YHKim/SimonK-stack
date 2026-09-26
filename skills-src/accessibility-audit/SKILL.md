@@ -1,11 +1,11 @@
 ---
 name: accessibility-audit
 description: >-
-  Use when web/hybrid UI needs "accessibility audit", "접근성 점검" or deeper
+  Use when web/hybrid UI needs "accessibility audit", "접근성 점검", "스크린리더 테스트" or deeper
   checks than automation. Produces a WCAG 2.2 AA HTML diagnosis and prioritized
   fixes using axe/Lighthouse plus manual keyboard/screen-reader checks; not
   visual QA or performance tuning.
-version: 0.1.1
+version: 0.1.2
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
 compatibility: [claude-code]
 author: simon-stack

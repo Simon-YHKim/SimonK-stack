@@ -2,9 +2,9 @@
 name: vercel-react
 description: >-
   Use when building or hardening Next.js App Router for Vercel: "Next.js 앱 만들어",
-  "server actions". Produces verified boundary, caching, streaming and deployment
+  "server actions", "하이드레이션 에러". Produces verified boundary, caching, streaming and deployment
   code. RN/Expo -> building-native-ui; Core Web Vitals-only tuning -> nextjs-optimizer.
-version: 0.1.1
+version: 0.1.2
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch
 compatibility: [claude-code]
 author: simon-stack

@@ -21,7 +21,7 @@ Claude Code 마켓플레이스에서 바로 설치 (Install directly from the Cl
 
 ### Codex 스킬 설명 예산
 
-`Skill descriptions were shortened ...`는 초기 선택 목록의 설명이 줄었다는 경고이며, 선택한 `SKILL.md` 본문을 삭제하지 않습니다. 설명은 고유 목적·호출 조건·산출물 위주로 짧게 유지합니다. `/vibe` 진입을 확실히 지정하려면 Codex에서 `$vibe`를 사용하세요.
+`Skill descriptions were shortened ...`는 초기 선택 목록의 설명이 줄었다는 경고이며, 선택한 `SKILL.md` 본문을 삭제하지 않습니다. 설명은 고유 목적·호출 조건·산출물 위주로 짧게 유지합니다. `/vibe` 진입을 확실히 지정하려면 Codex의 스킬 목록에서 실제 등록 이름을 선택하세요. 플러그인이 namespace를 붙였다면 `$simonk-core:vibe`, 독립 스킬로 등록됐다면 `$vibe`처럼 이름이 다를 수 있습니다.
 
 동일 패키지가 `.agents/skills`와 `.codex/skills`에 따로 복사돼 있으면, 파일·참조를 비교한 뒤 한 경로만 `~/.codex/config.toml`에서 비활성화할 수 있습니다. 이름이 같다는 이유만으로 다른 구현이나 플러그인을 끄지 마세요.
 
@@ -32,6 +32,8 @@ enabled = false
 ```
 
 설정 원본을 백업하고 **새 Codex 세션**에서 확인하세요. 선택 경로의 파일은 그대로 두며, 해당 비활성화 항목을 제거하면 복구됩니다. 다른 플러그인 수에 따라 경고가 남을 수 있습니다. [공식 스킬 로딩·비활성화 안내](https://learn.chatgpt.com/docs/build-skills)
+
+본문 보존과 자동 선택 정확도는 별개입니다. [선택 전후 비교 절차](docs/skill-selection-validation.md)는 대표 요청 30개와 오프라인 채점 도구를 제공하며, 실제 Claude/GPT 관측이 없으면 `pending`으로 남깁니다. 단위 테스트 통과를 모델 정확도 통과로 해석하지 마세요.
 
 ---
 
