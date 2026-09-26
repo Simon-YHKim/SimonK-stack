@@ -677,13 +677,16 @@ class OrchestrationTests(unittest.TestCase):
             registry_path = root / "registry.json"
             registry_path.write_text(json.dumps(fixture_registry([candidate()])), encoding="utf-8")
             before = sorted(p.name for p in root.iterdir())
-            result = subprocess.run([sys.executable, str(SCRIPT), "plan", "--input", str(request),
+            cache_dir = SCRIPT.parent / "__pycache__"
+            before_cache = sorted(p.name for p in cache_dir.glob("*.pyc"))
+            result = subprocess.run([sys.executable, "-B", str(SCRIPT), "plan", "--input", str(request),
                                      "--runtime", str(runtime), "--root", str(root), "--now", NOW,
                                      "--registry", str(registry_path)],
                                     capture_output=True, text=True, encoding="utf-8", timeout=15)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(json.loads(result.stdout)["status"], "ready")
             self.assertEqual(sorted(p.name for p in root.iterdir()), before)
+            self.assertEqual(sorted(p.name for p in cache_dir.glob("*.pyc")), before_cache)
 
     def test_ready_requires_fresh_dispatch_time(self):
         p = self.plan()
