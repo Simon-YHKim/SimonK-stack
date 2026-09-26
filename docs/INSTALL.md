@@ -353,6 +353,35 @@ SimonK가 0개입니다. `plugin details`의 187개 구성요소는 실제 `SKIL
 아닙니다. `--bare`는 hook를 건너뛰므로 훅 로딩·집행 검증으로 확대하지 마세요.
 모델 생성 호출이나 영구 플러그인 설치는 없었습니다.
 
+### `/vibe` 2.11.8 구독 전용 비용 가드 후보 (2026-09-27)
+
+기능 브랜치 `feat/skill-context-budget-260925`의 `f2b2f35`는 구독 경로를
+USD 0으로 예약하기 전에 **정확한 LLM 모델의 구독 포함 여부**(Grok Bot은
+Bot 사용량 포함 여부)와 초과 사용·API fallback 비활성화를 각각 긍정적으로
+확인하도록 바꿨습니다. 기본 추가 과금 승인액 USD 0에서는 견적이 0이라고
+주장하는 API/metered 경로도 거부합니다. `billing.verified=true` 하나로는
+사용 승인이나 무과금 보증이 되지 않습니다. 관측기가 알 수 없는 값은 그대로
+`null`로 남기므로, 이 변경은 실계정의 포함 사용량을 새로 증명하지 않습니다.
+
+새 산출물은
+`E:/Coding Infra/Releases/SimonK-stack/20260927-vibe-2.11.8-subscription-guard-candidate/`
+아래의 `source`·`candidate`이며 기존 2.11.7 후보를 덮어쓰지 않았습니다.
+source digest는
+`198f8ccd2a6de57df414b3704e583be1d69236178dcb07885bdad418f11e3b90`,
+bundle digest는
+`45fd469af453ccf014bf2b13ac83c3a59dc4bb41b36fa6e071caece4b0e7403c`입니다.
+source 137스킬/407파일, bundle 5플러그인/182스킬/713파일의 build·별도
+verify가 통과했습니다. 최종 코드의 `/vibe` 테스트 210개와 중앙 라우터 통합
+테스트 8개가 통과했고, 릴리스·번들 테스트 81개도 통과했습니다.
+
+Core 원본 저장소의 현재 HEAD가 고정 입력 `4369136`에서 이동했기 때문에
+원본을 체크아웃·되돌리지 않고 `inputs/`에 5개 원본을 로컬 복제해 지정된
+커밋을 detached 상태로 고정했습니다. 이 디렉터리는 후보 재현용 입력이며
+사용자 설치본이 아닙니다. 새 후보의 정적 경로 감사는 150참조 중 앞 절과
+동일한 미해결 항목 11개를 보고하며 종료 코드 1입니다. 따라서
+`runtime_closure_verified`, `host_compatibility_verified`, `installation_ready`는
+모두 `false`입니다. 실사용 설치·모델 호출·정식 머지·원격 push는 하지 않았습니다.
+
 ### Codex frontmatter 검사 범위
 
 로컬 `skill-creator/scripts/quick_validate.py`의 허용 키 목록은 실제 Codex
