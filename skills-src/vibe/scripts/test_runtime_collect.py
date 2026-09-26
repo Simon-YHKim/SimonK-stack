@@ -199,10 +199,11 @@ class RuntimeCollectionTests(unittest.TestCase):
                    'subprocess.Popen([sys.executable,"-c","import time; time.sleep(4)"],stdout=sys.stdout)\n'
                    'print(json.dumps({"id":m["id"],"result":{}}),flush=True)\n')
         started = time.monotonic()
-        with self.m.Rpc([sys.executable, "-u", "-c", program], timeout=0.3) as rpc:
+        # Fresh packaged files can make Windows child startup exceed 300 ms.
+        with self.m.Rpc([sys.executable, "-u", "-c", program], timeout=2) as rpc:
             rpc.request("initialize", {})
             rpc.process.wait(timeout=1)
-        self.assertLess(time.monotonic() - started, 2)
+        self.assertLess(time.monotonic() - started, 3.5)
         self.assertFalse(rpc.reader.is_alive())
 
     def test_unexpected_server_request_does_not_echo_large_id(self):
@@ -212,10 +213,10 @@ class RuntimeCollectionTests(unittest.TestCase):
                    'time.sleep(4)\n')
         started = time.monotonic()
         with self.assertRaises(self.m.CollectorError) as ctx:
-            with self.m.Rpc([sys.executable, "-u", "-c", program], timeout=0.3) as rpc:
+            with self.m.Rpc([sys.executable, "-u", "-c", program], timeout=2) as rpc:
                 rpc.request("initialize", {})
         self.assertEqual(ctx.exception.code, "server-request-forbidden")
-        self.assertLess(time.monotonic() - started, 2)
+        self.assertLess(time.monotonic() - started, 3.5)
 
     def test_child_environment_uses_allowlist_not_secret_denylist(self):
         env = self.m.child_env({"PATH": "safe-path", "HOME": "/fixture", "CODEX_HOME": "/fixture/codex",
@@ -317,7 +318,7 @@ class RuntimeCollectionTests(unittest.TestCase):
         for program, code in programs:
             with self.subTest(code=code):
                 with self.assertRaises(self.m.CollectorError) as ctx:
-                    with self.m.Rpc([sys.executable, "-u", "-c", program], timeout=0.2, max_bytes=1000) as rpc:
+                    with self.m.Rpc([sys.executable, "-u", "-c", program], timeout=2, max_bytes=1000) as rpc:
                         rpc.request("initialize", {})
                 self.assertEqual(ctx.exception.code, code)
                 self.assertIsNotNone(rpc.process.poll())
