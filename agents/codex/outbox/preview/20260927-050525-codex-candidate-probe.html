@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SimonK-stack 2.11.7 Codex 후보 호스트 검증</title>
+<style>
+:root{color-scheme:light dark;--bg:#f7f9fb;--fg:#162331;--muted:#526476;--accent:#086b77}
+@media(prefers-color-scheme:dark){:root{--bg:#101820;--fg:#e4eef3;--muted:#9cb3c0;--accent:#65ccd1}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,sans-serif}main{max-width:960px;margin:auto;padding:36px 22px 70px}h1{font-size:clamp(1.65rem,3vw,2.25rem);line-height:1.2;margin:0 0 12px}h2{font-size:1.12rem}p{margin:.6rem 0}small,.muted{color:var(--muted)}.lead{font-size:1.1rem;max-width:66ch}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:25px 0}.card,details{border:1px solid var(--muted);border-radius:10px;padding:15px}.card strong{display:block;font-size:1.4rem;color:var(--accent)}summary{cursor:pointer;font-weight:650}summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}details{margin:12px 0}code{overflow-wrap:anywhere}a{color:var(--accent)}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--muted)}
+</style>
+</head>
+<body><main>
+<small>2026-09-27 05:05:25 KST · SimonK-stack · 격리된 로컬 검증</small>
+<h1>Codex에서 실제 2.11.7 후보 5개 등록 확인</h1>
+<p class="lead">사용자 설치본을 전환하지 않고 별도 Codex 홈에 후보 플러그인을 등록했습니다. 파일 수용은 통과했지만 설치 준비 완료 판정은 아닙니다.</p>
+<div class="grid" aria-label="핵심 검증 지표">
+<div class="card"><strong>5 / 5</strong>플러그인 설치·활성화</div>
+<div class="card"><strong>182 / 182</strong>스킬 파일 SHA-256 일치</div>
+<div class="card"><strong>PASS</strong>후보 receipt 재검증</div>
+<div class="card"><strong>FALSE</strong>installation_ready</div>
+</div>
+<details><summary>플러그인별 대조</summary><table><thead><tr><th scope="col">플러그인</th><th scope="col">스킬</th><th scope="col">복사본 해시 불일치</th></tr></thead><tbody><tr><td>SimonKAIHub</td><td>7</td><td>0</td></tr><tr><td>SimonKCore</td><td>61</td><td>0</td></tr><tr><td>SimonKDesign</td><td>22</td><td>0</td></tr><tr><td>SimonKMarket</td><td>32</td><td>0</td></tr><tr><td>SimonKStack</td><td>60</td><td>0</td></tr></tbody></table></details>
+<details><summary>검증 범위와 남은 게이트</summary><p>Codex CLI 0.155.0의 로컬 marketplace 등록, 캐시 복사, <code>plugin list --json</code> 탐색까지만 확인했습니다. 자동 스킬 선택·명령 호출·hook 차단·모델 응답·Core/Market 외부 의존 폐쇄성은 미검증입니다. <code>installation_ready</code>, <code>host_compatibility_verified</code>, <code>runtime_closure_verified</code>는 모두 false입니다.</p><p>사용자 프로필 설치, 원본 main, 후보 bytes, 결제/credential, 모델·Bot·Orca 호출, 원격 push/merge는 변경하지 않았습니다. 추가 과금 $0.</p></details>
+<details><summary>근거와 변경 기록</summary><p>후보 digest: <code>a26903c3419523a983795650d319f9f5694101f1c0939e687d50e7963bbec6da</code>. 설치 문서만 기능 브랜치 커밋 <code>cf4adb5</code>로 갱신했습니다. 격리 테스트 홈: <code>E:/Coding Infra/Releases/SimonK-stack/20260927-vibe-2.11.7-candidate/diagnostics/codex-host-probe-20260927-0505/</code>.</p></details>
+</main></body></html>

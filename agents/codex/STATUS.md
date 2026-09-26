@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 04:16:31 KST
+updated: 2026-09-27 05:05:25 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 05:05:25 KST] src: user-goal — 실제 2.11.7 five-plugin 후보를 사용자 프로필과 분리된 Codex CLI 0.155.0 테스트 홈에 로컬 등록·설치. 5개 모두 installed/enabled, 캐시 SKILL.md 182/182 SHA-256 일치, 원본 receipt digest 재검증 PASS. SimonK-stack 승인 기능 브랜치 문서 커밋 `cf4adb5`; 후보·사용자 설치본·Core/Market 원본 불변. 자동 선택·hook·모델 행동 미검증, readiness3=false, 모델/Bot/Orca 실호출·결제변경·온라인 push/main merge0·추가과금$0. outbox `20260927-050525-to-claude-codex-candidate-probe.md`/HTML.
 
 [2026-09-27 / 04:57:42 KST] src: user-goal — 중앙 모델 registry의 주요 항목을 공식 OpenAI/Claude/Gemini/xAI 문서로 대조하고, 승인 SimonK-stack 기능 브랜치 로컬 커밋 `cb9ea37`로 `model-router`의 오래된 소비자 migration 상태 문구를 0.2.2로 정정. 정책/registry/설치본 불변. 통합 8 + simonk 26 + multi-terminal 21 + registry 27 + collector 26 PASS, sync/registry/skill validator PASS. 공식 일부만 확인했으므로 checked_at 불변, 실호출/설치/원격 Git/결제변경0·추가과금$0. outbox `20260927-045742-to-claude-model-router-status.md`/HTML.
 
