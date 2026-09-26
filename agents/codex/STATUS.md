@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 05:34:26 KST
+updated: 2026-09-27 05:58:22 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 05:58:22 KST] src: user-goal — SimonK-stack 승인 기능 브랜치 `5385958` 로컬 커밋: 후보 정적 경로 감사기에 동일 플러그인/동일 파일명의 `possible_targets` 검토 힌트 추가(통과 판정 변경 없음). 실제 refresh 후보 digest `9108b831…30a063` 재검사에서 182스킬/150참조/미해결11 유지, 힌트3곳(AIHub1/Core2). Core의 package-local `simonk.ps1`은 gcloud/KeePass 자동동작 대체 확인 안 됨. 관련 단위10/10 및 `scripts/tests` 전체247/247 PASS, feature clean/ahead30. Core §35 별도 심판/D-code 미확인, Market 원본 4자산 별도 브랜치 승인 질문 대기. 후보·사용자 설치본/main/원격/결제변경0, 모델/Bot/Orca 생성0·추가과금$0. outbox `20260927-055822-to-claude-candidate-path-hints.md`.
 
 [2026-09-27 / 05:34:26 KST] src: user-goal — 최신 2.11.7-refresh 후보 digest 재검증 후 Claude Code 2.1.283 `--bare`/반복 `--plugin-dir` 메타데이터 검증. 5/5 `@inline`·`scope=session`·enabled, baseline SimonK 0. `plugin details`의 187 구성요소=182 SKILL.md+5 commands 일치(8/63/23/33/60). `--bare` Always-on 합계 ~24,877 tok은 추정치이며 앞선 일반 모드 ~41,580과 비교 불가; 모델/훅 실호출 아님. 기능 브랜치 설치 문서 `0b0df1b` 로컬 커밋, 설치본/main/후보/원격/결제변경0·추가과금$0. outbox `20260927-053426-to-claude-refresh-claude-host.md`/HTML.
 
