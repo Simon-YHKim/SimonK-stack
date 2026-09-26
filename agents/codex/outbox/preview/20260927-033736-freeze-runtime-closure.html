@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>분리 플러그인 freeze 런타임 닫힘 검증</title>
+<style>
+:root{color-scheme:light dark;--a:#345ca8;--t:#17202b;--m:#586575;background:#f7f9fc;color:var(--t);font:16px/1.55 system-ui,sans-serif}
+@media(prefers-color-scheme:dark){:root{--a:#a5c2ff;--t:#e9eef5;--m:#a7b4c6;background:#111720}}
+body{max-width:900px;margin:auto;padding:2rem 1rem}h1{font-size:1.7rem;line-height:1.25}h2{font-size:1.1rem}p{max-width:76ch}.muted{color:var(--m)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.8rem;margin:1.3rem 0}.card,details{border:1px solid var(--m);border-radius:.6rem;padding:.8rem}.card strong{display:block;font-size:1.35rem}summary{cursor:pointer;font-weight:600}summary:focus-visible,a:focus-visible{outline:3px solid var(--a);outline-offset:3px}a{color:var(--a)}code,pre{overflow-wrap:anywhere}pre{white-space:pre-wrap;border-left:3px solid var(--a);padding:.6rem;margin:0}
+</style></head>
+<body>
+<p class="muted">2026-09-27 03:37:36 KST · 격리 후보 · 모델 호출 없음</p>
+<h1>분리 후보의 <code>freeze</code> 훅은 안전하게 막지만 정상 동작하지 않는다</h1>
+<p>Stack 플러그인의 <code>freeze/bin/check-freeze.sh</code>는 Core 플러그인에 있는 <code>careful/bin/hook-extract.sh</code>를 같은 <code>skills/</code> 형제 경로에서 찾습니다. 후보의 해당 경로가 실제로 없으며, 더미 요청 실행은 보조 파일 부재를 이유로 deny를 반환했습니다.</p>
+<div class="cards" aria-label="핵심 결과"><div class="card"><strong>PASS</strong>후보 영수증 digest 일치</div><div class="card"><strong>DENY</strong>더미 훅 요청의 실제 응답</div><div class="card"><strong>FALSE</strong>설치 준비·런타임 닫힘</div></div>
+<details open><summary>재현 증거</summary><pre>입력: {"tool_name":"Read","tool_input":{"file_path":"fixture-only.txt"}}
+출력: permissionDecision=deny
+사유: [freeze] Hook helpers unavailable (broken install?)
+프로세스 종료코드: 0
+후보 검증: 5 plugins / 182 skills / candidate_bytes_verified</pre><p>이 결과는 실제 사용자 파일이나 운영 설정에 대한 읽기·쓰기 테스트가 아닙니다. 후크의 fail-closed 경로만 검증합니다.</p></details>
+<details><summary>해결 방향의 결정 게이트</summary><p>freeze 소유권을 Core로 옮기기, 보조 스크립트를 freeze에 동봉하기, 또는 호스트가 검증한 플러그인 경로를 전달하기가 가능한 방향입니다. 보안 훅의 출처·업데이트·상대경로 계약을 바꾸므로 허브 §35 토론과 별도 심판, D-코드 전에는 한 방식을 선택하지 않습니다.</p></details>
+<details><summary>현재 경계</summary><p>후보·설치본·원본 main은 변경하지 않았습니다. 기능 브랜치의 설치 문서만 수정·커밋했습니다. 설치·push·main 머지·모델/Bot/Orca 실호출·결제 변경은 없습니다. 추가 과금은 $0입니다.</p></details>
+<p class="muted">문서 교정: <code>bc04485</code> · 후보 digest: <code>a26903c3419523a983795650d319f9f5694101f1c0939e687d50e7963bbec6da</code></p>
+</body></html>
