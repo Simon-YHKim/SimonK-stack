@@ -43,9 +43,10 @@ fallback occurs. The plan's discovery records the receipt path/hash and narrow
 verification scope. This is not a signature, a full scripts/assets verifier,
 host compatibility proof or an installation/dispatch grant. Use the existing
 bundle verifier before use; keep the trusted single-writer boundary throughout.
-Invoke candidate Python helpers and tests with `python -B` and re-verify the
-receipt afterward. Bytecode from an imported local module is an extra package
-file even when the scan itself only reads SKILL metadata.
+Invoke candidate Python helpers with `python -B`. For test suites or helpers
+that spawn child Python processes, also set `PYTHONDONTWRITEBYTECODE=1` in the
+parent environment: `-B` is not inherited by children. Re-verify the receipt
+afterward. Bytecode is an extra package file even when the scan is read-only.
 
 Repeated explicit `--root` flags override candidate inference entirely. This
 is also required for plugin homes installed separately (e.g. separate cache
