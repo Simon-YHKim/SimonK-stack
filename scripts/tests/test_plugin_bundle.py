@@ -657,6 +657,15 @@ class PluginBundleTests(unittest.TestCase):
             with self.subTest(text=text), self.assertRaises(ValueError):
                 self.build()
 
+    def test_crlf_shell_script_blocks_candidate_before_publication(self):
+        root = self.plugins / "SimonKAIHub"
+        self.put(root, "skills/extra-simonk-aihub/scripts/runner.sh",
+                 "#!/bin/sh\r\nprintf 'fixture only\\n'\r\n")
+        self.repin("SimonKAIHub")
+        with self.assertRaisesRegex(ValueError, "CRLF"):
+            self.build()
+        self.assertFalse(self.output.exists())
+
     def test_embedded_source_manifest_is_cryptographically_checked(self):
         self.forge(lambda m: m["source_manifest"]["files"][0].update(sha256="0" * 64))
 

@@ -5,6 +5,7 @@ Pinned Git commit/tree objects authenticate the tracked path/mode/blob inventory
 NOT copied bytes: those are raw working-tree snapshots, not blob attestation.
 Excluded payload is not read/copied by the packager; Git status may hash it.
 Keep the full receipt SHA-256 separately. It is not a signature.
+Shell scripts with CR/CRLF bytes are rejected for portable execution.
 """
 from __future__ import annotations
 
@@ -581,6 +582,8 @@ def derive(source, source_digest, inputs, bases, safety_projection=None):
 
 def check_content(path, data, owners, origin):
     parts = r.relative(path).parts
+    if Path(path).suffix.lower() == ".sh" and b"\r" in data:
+        raise ValueError("Shell script has CRLF or CR line endings")
     if len(parts) == 5 and parts[2] == "skills" and parts[-1] == "SKILL.md":
         text = data.decode("utf-8").replace("\r\n", "\n")
         header = text.split("\n---\n", 1)[0] if text.startswith("---\n") else ""

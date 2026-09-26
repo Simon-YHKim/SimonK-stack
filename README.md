@@ -359,9 +359,17 @@ python3 -m unittest discover -s scripts/tests -p test_fetch_model_benchmarks.py
 (cd skills-src/vibe/scripts && PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -s . -p 'test_*.py' -q)
 (cd skills-src/vibe/scripts && PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -s tests -p 'test_*.py' -q)
 
+# 5-plugin 후보 빌더 회귀 검사 (격리된 임시 Git 입력만 사용)
+PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -s scripts/tests -p test_plugin_bundle.py -q
+
 # Bash 스크립트 문법
 for f in scripts/*.sh .claude/hooks/*.sh; do bash -n "$f" && echo "OK: $f"; done
 ```
+
+5-plugin 후보의 모든 `.sh` 파일은 LF 줄바꿈이어야 합니다. Windows의 Git
+`core.autocrlf=true` 체크아웃은 CRLF 스크립트를 만들 수 있으며, 후보 빌드·검증은
+이 입력을 차단합니다. 원본 저장소 설정을 바꾸지 말고 격리된 빌드 입력에서
+줄바꿈을 확인하세요. 후보 영수증은 파일 바이트 검증이지 설치·실행 승인서가 아닙니다.
 
 **원칙** (Boris Cherny): Claude 가 *눈으로 확인 가능* 한 검증 명령을 명시. "확인해 주세요" 가 아니라 자신이 실행.
 
