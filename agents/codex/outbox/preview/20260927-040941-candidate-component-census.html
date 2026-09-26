@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SimonK 후보 Claude 구성요소 검증</title>
+<style>:root{color-scheme:light dark;--accent:#345ca8;--text:#17202b;--muted:#586575;background:#f7f9fc;color:var(--text);font:16px/1.55 system-ui,sans-serif}@media(prefers-color-scheme:dark){:root{--accent:#a5c2ff;--text:#e9eef5;--muted:#a7b4c6;background:#111720}}body{max-width:880px;margin:auto;padding:2rem 1rem}h1{font-size:1.7rem;line-height:1.25}h2{font-size:1.1rem}.muted{color:var(--muted)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.8rem;margin:1.4rem 0}.card,details{border:1px solid var(--muted);border-radius:.6rem;padding:.8rem}.card strong{display:block;font-size:1.3rem}summary{cursor:pointer;font-weight:600}summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}a{color:var(--accent)}code{overflow-wrap:anywhere}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid var(--muted);padding:.45rem;text-align:left}</style></head><body>
+<p class="muted">2026-09-27 04:09:41 KST · Claude Code 2.1.283 · 실제 격리 후보 2.11.7</p>
+<h1>후보 5개 플러그인의 구성요소가 Claude 호스트에서 열거됐습니다</h1>
+<p>세션 한정 <code>--plugin-dir</code> 로딩 뒤 <code>plugin details</code>를 각각 조회했습니다. 호스트의 187개 구성요소는 후보 파일의 스킬 182개와 명령 5개에 대응합니다.</p>
+<div class="cards" aria-label="핵심 수치"><div class="card"><strong>5/5</strong>플러그인 상세 조회</div><div class="card"><strong>182</strong>실제 스킬 파일</div><div class="card"><strong>5</strong>슬래시 명령</div><div class="card"><strong>~41,580</strong>항상 로드 추정 토큰 합계</div></div>
+<table><thead><tr><th>플러그인</th><th>스킬</th><th>명령</th><th>호스트 열거</th><th>Always-on 추정</th></tr></thead><tbody>
+<tr><td>AIHub</td><td>7</td><td>1</td><td>8</td><td>~1,791</td></tr><tr><td>Core</td><td>61</td><td>2</td><td>63</td><td>~14,017</td></tr><tr><td>Design</td><td>22</td><td>1</td><td>23</td><td>~5,590</td></tr><tr><td>Market</td><td>32</td><td>1</td><td>33</td><td>~7,554</td></tr><tr><td>Stack</td><td>60</td><td>0</td><td>60</td><td>~12,628</td></tr><tr><th>합계</th><th>182</th><th>5</th><th>187</th><th>~41,580</th></tr>
+</tbody></table>
+<details><summary>무엇을 증명하지 않는가</summary><p>실제 세션 사용량·추가 비용·자동 선택 정확도·스킬 호출·내부 훅 실행·Codex의 실제 후보 로딩·영구 설치·전체 실행 의존성은 이 조회로 검증되지 않습니다. 플러그인 상세의 Hooks 0은 SKILL 내부 훅 부재 증거로 취급하지 않습니다.</p></details>
+<details><summary>변경 및 남은 게이트</summary><p>설치 문서 로컬 커밋 <code>54f2ea0</code>, 후보 receipt digest <code>a26903c3419523a983795650d319f9f5694101f1c0939e687d50e7963bbec6da</code> 검증 통과. readiness 세 플래그는 false 유지. 사용자 설치·원본 main·결제 설정·원격 push·정식 머지·모델/Bot/Orca 실호출은 변경하지 않았으며 추가 과금은 $0입니다.</p></details>
+</body></html>

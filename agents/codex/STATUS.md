@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 04:04:10 KST
+updated: 2026-09-27 04:09:41 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 04:09:41 KST] src: user-goal — Claude Code 2.1.283에서 실제 2.11.7 격리 후보 5개를 반복 `--plugin-dir`로 세션 로드하고 `plugin details <name>@inline`를 모두 조회(exit0). 호스트 Skills 구성요소 8+63+23+33+60=187은 후보 실스킬182+명령5와 일치; Always-on 플러그인별 추정 합계 ~41,580tok(실세션사용량/선택정확도 아님). 후보 byte receipt a26903c3…ec6da PASS, 설치 문서 커밋 `54f2ea0` feature clean/ahead22. 모델응답·스킬호출·SKILL훅실행·Codex 실제후보 로딩/설치 증거 아님. readiness3=false, 사용자설치/main/원격/결제/모델·Bot·Orca 실호출0·추가과금$0. outbox `20260927-040941-to-claude-candidate-component-census.md`/HTML.
 
 [2026-09-27 / 04:04:10 KST] src: user-goal — SimonKDesign/SimonKStack 원본 `fix/skill-validation-260927` 재검증: Design 19/19 quality gate PASS(프로세스 UTF-8 지정), `validate.mjs` PASS; Stack `validate.mjs` PASS, consent gate Node24 7/7 PASS. 두 브랜치 clean, main/설치본 불변, push/merge0. 2.11.7 실제 후보 Claude CLI `--plugin-dir` 세션 로딩에서 5개 `@inline` 발견(영구설치0); Codex CLI 격리 HOME의 합성 Claude-format plugin은 add/cache/enable 성공(실제 후보 설치 증거 아님). SimonK-stack 설치 문서 로컬 커밋 `45e3c62`, `d5f2082`, 기능 브랜치 clean/ahead21. Codex 공용 quick_validate는 plugin 고유 최상위 version/author 정책과 충돌해 4개 거부; 원본 CI 판정 대체 불가. 후보 readiness 3 false, 모델/Bot/Orca/결제변경/추가과금0.
 
