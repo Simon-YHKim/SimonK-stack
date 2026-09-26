@@ -4,7 +4,7 @@ description: >-
   Use when choosing model/effort assignments: "which model", "모델 추천",
   "route tasks". Returns an evidence-bound /vibe plan with quota, cost and
   blocked reasons; never launches workers or treats unknown billing as free.
-version: 0.2.1
+version: 0.2.2
 ---
 
 # Model Router — one typed request, one central plan
@@ -27,10 +27,13 @@ silently combine a development planner with an older installed skill home.
   or `last-updated` date alone does not prove that benchmark rows were updated.
   Do not run a fetcher to manufacture freshness or claim an unverified score.
 
-**Migration status:** source-only consumer migration. Do not install or promote
-this change to main until simonk, multi-terminal and their legacy launcher have
-also migrated and passed review. Never translate this plan into an old terminal
-config or invoke the legacy launcher.
+**Release status:** `simonk` and `multi-terminal-dispatcher` now have source
+entrypoints that consume the typed central plan; the repo-root terminal launcher
+is a typed compatibility shim that rejects legacy task/config inputs. Their
+offline fixture tests do not prove installation parity, live dispatch, billing
+or host behavior. This skill edit is source-only: do not promote the five-plugin
+candidate or repoint an installed copy until the separate release gates pass.
+Never translate a plan into an old terminal config or invoke the retired path.
 
 ## 1. Classify and scope
 
