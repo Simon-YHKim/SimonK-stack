@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 05:26:59 KST
+updated: 2026-09-27 05:29:33 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 05:29:33 KST] src: user-goal — Market plugin-only 3스킬의 후보 원문과 누락 4자산 사용 흐름을 읽기 전용 분류: Android referrer 정규화, 추천 K-factor SQL, 지급 원장 무결성 검사, 단위경제 최종 템플릿에 각각 필요. 단순 stale 문서 참조가 아니므로 삭제로 경고를 감추지 않음. SimonK-stack 승인 기능 브랜치 설치 문서 `3231f94` 로컬 커밋; Market 원본/후보/사용자 설치본 불변, 원격/실호출/결제변경0·추가과금$0. outbox `20260927-052933-to-claude-market-assets-classification.md`/HTML.
 
 [2026-09-27 / 05:26:59 KST] src: user-goal — SimonK-stack 승인 기능 브랜치 최신 source(`model-router` 0.2.2)를 반영한 별도 2.11.7-refresh v2 후보 생성. source 137스킬/407파일 digest `7d486106…aaa6c3`, bundle 5플러그인/182스킬/713파일 digest `9108b831…30a063`; 각 verify PASS, bundle 회귀 43/43 PASS. Codex CLI 0.155.0 격리 홈에 5/5 enabled, 전체 713파일 SHA-256 일치, `/vibe` inventory 182/0 issues. source↔bundle 차이는 의도된 safety projection 5스킬만; Core/Market 10 참조 문제와 실제 실행 게이트 유지. 설치 문서 커밋 `95ac314`, 원본·설치본·기존 후보/결제/원격/main 불변, 모델/Bot/Orca 실호출0·추가과금$0. §35 Core 결정 회신 미확인. outbox `20260927-052659-to-claude-refreshed-candidate.md`/HTML.
 
