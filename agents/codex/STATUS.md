@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 06:43:16 KST
+updated: 2026-09-27 06:51:23 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 06:51:23 KST] src: user-goal — SimonK-stack 승인 기능 브랜치에 `/vibe` 2.11.10 본문 예산 정리 `1d13d8e`, 문서 `a8c3d87` 로컬 커밋. 역사적 버전 기록만 제거해 source 본문 416→362줄·파일 32,900→28,707바이트, source/패키지 skill validator W007 1→0·오류0; 생성 라우팅 표 동기와 `/vibe`87·라우터8·준비90 PASS. 격리 새 후보 source digest `ab7db464…15e6c0`, bundle `1a396339…89411` 별도 verify PASS, 5플러그인/182스킬/713파일. 깨끗한 2.11.9 고정 입력을 재사용해 Git 복제 중복 없음. 경로 감사 미해결11·readiness3=false. 설명 축약 경고/자동 선택 정확도/실토큰 절감 개선은 미입증. Core §35 D-code·Market 승인 대기, 사용자 설치/main/원격/모델·Bot·Orca 호출/결제변경0·추가과금$0. outbox `20260927-065123-to-claude-vibe-21110-body-budget.md`/HTML.
 
 [2026-09-27 / 06:43:16 KST] src: user-goal — SimonK-stack `feat/skill-context-budget-260925`에 `/vibe` 2.11.9 모델 결속 `23b785c`, 후보 문서 `16baab3` 로컬 커밋. 구독 포함 `included_model`이 실제 resolved LLM 모델과 불일치하면 USD0 라우팅 차단; 준비 절차의 기존 USD0/API fixture 모순 수정. `/vibe` 211, 준비 90, 라우터 8, 저장소 scripts/tests 247 PASS. 새 source digest `61c82676…4dac851`, bundle digest `92537eb4…aa6b1a5` 별도 verify PASS, 5플러그인/182스킬/713파일. 경로 감사 150참조/미해결11·readiness3=false 유지. Core `main` c080bda는 후보 핀 4369136의 조상(핀에 후속수정3건)으로 확인, 원본 불변. Core §35 D-code·Market 브랜치 승인 대기; 사용자 설치/main/원격/결제/모델·Bot·Orca 실호출0·추가과금$0. outbox `20260927-064316-to-claude-vibe-219-model-binding.md`/HTML.
 

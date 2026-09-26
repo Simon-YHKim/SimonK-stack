@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>/vibe 2.11.10 본문 예산 후보</title>
+<style>
+:root{color-scheme:light dark;--a:#2563eb;--t:#172033;--m:#596779;--b:#fff;--l:#cbd5e1}
+@media(prefers-color-scheme:dark){:root{--a:#93c5fd;--t:#edf2f7;--m:#b0bdca;--b:#111827;--l:#475569}}
+*{box-sizing:border-box}body{max-width:940px;margin:auto;padding:2rem 1.2rem;background:var(--b);color:var(--t);font:16px/1.6 system-ui,sans-serif}h1{font-size:clamp(1.7rem,4vw,2.5rem);line-height:1.25}.muted,small{color:var(--m)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:.8rem;margin:1.5rem 0}.card,details{border:1px solid var(--l);border-radius:.7rem;padding:1rem}.card strong{display:block;font-size:1.3rem}.card span{color:var(--m)}details{margin:.7rem 0}summary{cursor:pointer;font-weight:650}summary:focus-visible{outline:3px solid var(--a);outline-offset:3px}code{overflow-wrap:anywhere}
+</style></head><body><main>
+<p class="muted">SimonK-stack · 2026-09-27 06:51:23 KST · 설치 전 격리 후보</p>
+<h1>/vibe 2.11.10 본문 길이 경고 해소</h1>
+<p>실행 규칙은 유지하고 역사적 버전 기록만 스킬 본문에서 제거했습니다. 이 변경은 선택 후 읽는 본문을 줄이지만, 초기 skill description 축약 경고나 자동 선택 정확도 개선을 뜻하지 않습니다.</p>
+<section class="cards" aria-label="검증 요약"><div class="card"><strong>416 → 362줄</strong><span>검증기 기준 본문</span></div><div class="card"><strong>W007 0건</strong><span>source와 패키지</span></div><div class="card"><strong>185 PASS</strong><span>/vibe 87 + 라우터 8 + 준비 90</span></div><div class="card"><strong>11 미해결</strong><span>정적 경로 참조</span></div></section>
+<details><summary>후보와 검증</summary><p>후보: <code>E:/Coding Infra/Releases/SimonK-stack/20260927-vibe-2.11.10-body-budget-candidate/</code></p><p>source SHA-256: <code>ab7db4645c420f804684083672b108ec4e6e2d91449f33425a3cd267a415e6c0</code><br>bundle SHA-256: <code>1a3963396749266759a1ee36b64d07fea5a5eb548d1a3b5cf3465db55ab89411</code></p><p>5플러그인/182스킬/713파일의 별도 무결성 검증을 통과했습니다. 2.11.9 후보의 깨끗한 고정 입력을 재사용해 원본 저장소를 바꾸지 않았습니다.</p></details>
+<details><summary>남은 게이트</summary><p>Core helper 패키징 §35 별도 심판/D-code와 Market 원본 4자산 별도 브랜치 승인이 남았습니다. 경로 감사 11건 미해결, readiness 세 플래그 모두 false입니다. 사용자 설치·정식 머지·원격 push·모델/Bot/Orca 실호출·결제 변경은 하지 않았고 추가 과금은 $0입니다.</p></details>
+<p><small>로컬 커밋 1d13d8e, a8c3d87. 길이 경고 해소만으로 런타임 호환성이나 품질을 인증하지 않습니다.</small></p>
+</main></body></html>
