@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when asked to "/vibe", "orchestrate this task", "바이브로 알아서 해줘", "오르카로 돌려", or "스킬 조합해서 처리해". Main skill orchestrator: selects skills, software, model/effort and budget; uses vibe-bot only for GUI-only work. Produces verified artifacts and usage reports; unknown cost blocks paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.11.6
+version: 2.11.7
 author: simon-stack
 ---
 
@@ -366,10 +366,10 @@ python -B -I -S tests/test_ledger_scan.py
 
 ## Version note
 
-2.11.4 pairs with vibe-bot 0.9.0: the 2026-09-24 organization has 19 bots and
-six teams, Relay-only new delivery, distinct Analytics/AdMob/QA ownership and
-bounded reversible preparation. This user-test release does not certify live
-provider, Relay, host compatibility or historical-run migration.
+2.11.7 keeps receipt-bound candidate discovery bytecode-free and requires
+inherited bytecode suppression for child Python tests; installation is unchanged.
+2.11.4 pairs with vibe-bot 0.9.0: 19 bots/six teams, Relay-only new delivery,
+distinct Analytics/AdMob/QA ownership and bounded reversible preparation; live provider, Relay, host compatibility and historical migration are not certified.
 2.11.3 aligns Bot guidance with the durable execute_bot adapter; legacy result checks cannot establish central completion. No live execution or installation is added.
 2.11.2 defines coordinator-owned split-home roots with scope/conflict/exclusion checks; intact candidates retain receipt-bound discovery, without a native collector or installer.
 2.11.0 adds explicit observable-local preparation alongside unchanged owned-v1:
