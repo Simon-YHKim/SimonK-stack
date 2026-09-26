@@ -8,6 +8,8 @@ source: user-direct
 
 # Codex STATUS
 
+[2026-09-27 / 04:57:42 KST] src: user-goal — 중앙 모델 registry의 주요 항목을 공식 OpenAI/Claude/Gemini/xAI 문서로 대조하고, 승인 SimonK-stack 기능 브랜치 로컬 커밋 `cb9ea37`로 `model-router`의 오래된 소비자 migration 상태 문구를 0.2.2로 정정. 정책/registry/설치본 불변. 통합 8 + simonk 26 + multi-terminal 21 + registry 27 + collector 26 PASS, sync/registry/skill validator PASS. 공식 일부만 확인했으므로 checked_at 불변, 실호출/설치/원격 Git/결제변경0·추가과금$0. outbox `20260927-045742-to-claude-model-router-status.md`/HTML.
+
 [2026-09-27 / 04:49:36 KST] src: user-goal — SimonK-stack 승인 기능 브랜치 `feat/skill-context-budget-260925` 로컬 커밋 `eb3a7a9`로 후보 정적 파일 경로 감사기·8회귀·CI fixture·README/INSTALL 추가. 실제 2.11.7 후보 digest 검증 뒤 182스킬/150정적 참조/11문맥 검토 대상; `runtime_closure_verified=false`. 테스트 8+43+38 PASS, branch clean. Core/Market 원본·사용자 설치본·후보 불변, 온라인 push/main merge/모델·Bot·Orca 실호출/결제변경0·추가과금$0. outbox `20260927-044936-to-claude-candidate-path-audit.md`/HTML; Core §35 D-code 미완료.
 
 [2026-09-27 / 04:30:24 KST] src: user-goal — Core plugin 독립 실행 의존성의 아키텍처·보안 경계를 정리하고 §35 토론 요청 `20260927-043024-to-claude-core-plugin-closure-debate.md`와 사람용 HTML을 Codex outbox에 작성. Design/Stack 별도 원본 브랜치와 2.11.7 후보 반영·검증 재확인; Core/Market main/설치/후보 불변. Claude 별도 심판/D-code, Simon의 credential-sensitive 승인 전에는 root helper 동봉·실행 금지. 모델·Bot·Orca 실호출/결제변경/원격 push/main merge0, 추가 과금$0.
