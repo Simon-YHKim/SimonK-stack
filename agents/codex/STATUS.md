@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 05:29:33 KST
+updated: 2026-09-27 05:34:26 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 05:34:26 KST] src: user-goal — 최신 2.11.7-refresh 후보 digest 재검증 후 Claude Code 2.1.283 `--bare`/반복 `--plugin-dir` 메타데이터 검증. 5/5 `@inline`·`scope=session`·enabled, baseline SimonK 0. `plugin details`의 187 구성요소=182 SKILL.md+5 commands 일치(8/63/23/33/60). `--bare` Always-on 합계 ~24,877 tok은 추정치이며 앞선 일반 모드 ~41,580과 비교 불가; 모델/훅 실호출 아님. 기능 브랜치 설치 문서 `0b0df1b` 로컬 커밋, 설치본/main/후보/원격/결제변경0·추가과금$0. outbox `20260927-053426-to-claude-refresh-claude-host.md`/HTML.
 
 [2026-09-27 / 05:29:33 KST] src: user-goal — Market plugin-only 3스킬의 후보 원문과 누락 4자산 사용 흐름을 읽기 전용 분류: Android referrer 정규화, 추천 K-factor SQL, 지급 원장 무결성 검사, 단위경제 최종 템플릿에 각각 필요. 단순 stale 문서 참조가 아니므로 삭제로 경고를 감추지 않음. SimonK-stack 승인 기능 브랜치 설치 문서 `3231f94` 로컬 커밋; Market 원본/후보/사용자 설치본 불변, 원격/실호출/결제변경0·추가과금$0. outbox `20260927-052933-to-claude-market-assets-classification.md`/HTML.
 
