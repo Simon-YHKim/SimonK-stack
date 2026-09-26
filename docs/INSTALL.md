@@ -336,6 +336,16 @@ coverage의 차이는 이제 안전 어댑터로 의도적으로 변환한 5스�
 행동을 인증하지 않습니다. 세 readiness flag는 여전히 false이고 실제 사용자
 설치·운영 marketplace 전환은 별도 게이트입니다.
 
+같은 refresh 후보를 Claude Code 2.1.283의 `--bare` + 반복 `--plugin-dir`로
+세션 한정 조회하면 `plugin list --json`에 5개 모두 `@inline`/`scope=session`/
+`enabled=true`로 표시됩니다. 플러그인 경로를 주지 않은 `--bare` 기준 목록에는
+SimonK가 0개입니다. `plugin details`의 187개 구성요소는 실제 `SKILL.md` 182개와
+`commands/*.md` 5개를 합친 수와 정확히 일치합니다(8/63/23/33/60개).
+이 모드의 Always-on 합계 **~24,877 tok**는 CLI의 예상치이며 앞서 기록한 일반
+모드의 ~41,580 tok과 조건이 달라 절감률로 비교하지 않습니다. 실제 토큰 사용량도
+아닙니다. `--bare`는 hook를 건너뛰므로 훅 로딩·집행 검증으로 확대하지 마세요.
+모델 생성 호출이나 영구 플러그인 설치는 없었습니다.
+
 ### Codex frontmatter 검사 범위
 
 로컬 `skill-creator/scripts/quick_validate.py`의 허용 키 목록은 실제 Codex
