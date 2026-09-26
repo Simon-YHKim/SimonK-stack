@@ -227,6 +227,10 @@ clone/checkout 준비는 builder가 자동 수행하는 기능이 아니며, 긴
 (임시 5개 Git 입력·격리 후보만 사용). Claude plugin 구조의 공식 설명은
 [Plugins reference](https://code.claude.com/docs/en/plugins-reference)를 참고하세요.
 이 후보에 대한 native Claude/Codex validator 또는 host 실행 통과 주장은 없습니다.
+현재 2.11.7 후보를 Claude CLI의 반복 `--plugin-dir`로 세션 한정 로드한
+`plugin list --json`은 5개 모두 `@inline`/`scope=session`으로 표시했습니다.
+같은 CLI의 일반 설치 목록 16개에는 SimonK가 0개입니다. 이는 이 후보의
+manifest 발견 증거이며 스킬 호출·훅 실행·영구 설치 증거는 아닙니다.
 
 OpenAI의 [plugin 패키징 문서](https://developers.openai.com/plugins/build/plugins)는
 Claude 호환 manifest도 수용한다고 설명합니다. 로컬 `plugin-creator`의
