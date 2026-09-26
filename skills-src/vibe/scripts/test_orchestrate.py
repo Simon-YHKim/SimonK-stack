@@ -5,6 +5,7 @@ import importlib.util
 import io
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -687,6 +688,24 @@ class OrchestrationTests(unittest.TestCase):
             self.assertEqual(json.loads(result.stdout)["status"], "ready")
             self.assertEqual(sorted(p.name for p in root.iterdir()), before)
             self.assertEqual(sorted(p.name for p in cache_dir.glob("*.pyc")), before_cache)
+
+    def test_cli_inventory_plain_python_does_not_write_bytecode(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            scripts = root / "scripts"
+            scripts.mkdir()
+            for name in ("orchestrate.py", "model_registry.py"):
+                shutil.copyfile(SCRIPT.with_name(name), scripts / name)
+            skills = root / "skills"
+            (skills / "explain").mkdir(parents=True)
+            (skills / "explain" / "SKILL.md").write_text(
+                "---\nname: explain\ndescription: Explain\n---\n", encoding="utf-8")
+            result = subprocess.run(
+                [sys.executable, str(scripts / "orchestrate.py"), "inventory", "--root", str(skills)],
+                capture_output=True, text=True, encoding="utf-8", timeout=15)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(json.loads(result.stdout)["status"], "complete")
+            self.assertFalse(list(scripts.rglob("*.pyc")))
 
     def test_ready_requires_fresh_dispatch_time(self):
         p = self.plan()

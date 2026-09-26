@@ -31,7 +31,7 @@ Quality preference is not spending authorization.
 
 ## 1. Discover the needed skills and software
 
-Run `python "<skill>/scripts/orchestrate.py" catalog` to inspect skill metadata.
+Run `python -B "<skill>/scripts/orchestrate.py" catalog` to inspect skill metadata.
 For separately installed plugins, compose explicit roots from the current host's observed, authorized paths before invoking the helper.
 Own this step; do not ask Simon to maintain paths already supplied by the host. Follow the split-home procedure in [discovery](references/orchestration.md).
 Inside an intact five-plugin candidate, default catalog/plan uses that bundle's

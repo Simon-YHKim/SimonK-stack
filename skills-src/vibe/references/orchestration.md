@@ -43,6 +43,9 @@ fallback occurs. The plan's discovery records the receipt path/hash and narrow
 verification scope. This is not a signature, a full scripts/assets verifier,
 host compatibility proof or an installation/dispatch grant. Use the existing
 bundle verifier before use; keep the trusted single-writer boundary throughout.
+Invoke candidate Python helpers and tests with `python -B` and re-verify the
+receipt afterward. Bytecode from an imported local module is an extra package
+file even when the scan itself only reads SKILL metadata.
 
 Repeated explicit `--root` flags override candidate inference entirely. This
 is also required for plugin homes installed separately (e.g. separate cache
@@ -80,9 +83,9 @@ their URIs into filesystem roots. Explicit split roots do not carry candidate
 receipt validation, so full release/installation verification remains separate.
 
 ```text
-python scripts/orchestrate.py inventory --root /source/skills-src --root /source/.claude/skills --exclude-root /protected
-python scripts/orchestrate.py coverage --source-root /source/skills-src --source-root /source/.claude/skills --root /installed/skills --plugin-root /plugin/skills --exclude-root /protected
-python scripts/orchestrate.py plan --root /installed/skills --host-skills host-skills.json --input request.json --runtime runtime.json
+python -B scripts/orchestrate.py inventory --root /source/skills-src --root /source/.claude/skills --exclude-root /protected
+python -B scripts/orchestrate.py coverage --source-root /source/skills-src --source-root /source/.claude/skills --root /installed/skills --plugin-root /plugin/skills --exclude-root /protected
+python -B scripts/orchestrate.py plan --root /installed/skills --host-skills host-skills.json --input request.json --runtime runtime.json
 ```
 
 Repeat root/exclusion flags as needed. Supply every expected source/install/plugin

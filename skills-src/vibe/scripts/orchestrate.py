@@ -40,6 +40,10 @@ TASK_TYPE_MAP = {
 ORCHESTRATORS = {"vibe", "simonk", "app-dev-orchestrator", "dev-orchestrator"}
 SCRIPT_ROOT = Path(__file__).resolve().parent
 DEFAULT_TTL = 900  # Refresh availability, price quotes and quota before dispatch.
+# Direct CLI inspection of a receipt-bound candidate must not create an
+# unreceipted __pycache__ member and invalidate the bundle after the read.
+if __name__ == "__main__":
+    sys.dont_write_bytecode = True
 if str(SCRIPT_ROOT) not in sys.path:
     sys.path.insert(0, str(SCRIPT_ROOT))
 from model_registry import constrain_runtime, load_registry
