@@ -298,6 +298,11 @@ Core의 설치·업그레이드·자격증명 보조 스크립트를 경고 제�
 후보에 복사하거나 실행하지 않습니다. 각 스킬의 독립 패키지 계약과 안전성을
 수리·검증해야 합니다. Market 원본 변경도 별도 소유 브랜치 검토 전에는 하지
 않습니다. 이 분류만으로 세 readiness flag를 올리지 않습니다.
+Market의 4개 자산은 단순한 장식 파일이 아닙니다. `parse-install-referrer.ts`는
+Android referrer 정규화 단계, `k-factor-queries.sql`은 추천 성과 계산,
+`check-referral-integrity.sh`는 지급 원장 무결성 검증,
+`UNIT_ECONOMICS.template.md`는 최종 분석 산출물의 입력입니다. 원본에 없는
+내용을 임의로 존재한다고 가정하거나 해당 검증 단계를 통과로 표시하지 마세요.
 
 후보의 정적 경로 재검사는 번들 digest를 먼저 검증한 뒤 실행합니다. 로컬
 `scripts/candidate_path_audit.py`는 SKILL 본문의 백틱으로 감싼 명시적 **ASCII 파일**
