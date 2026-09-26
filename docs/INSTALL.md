@@ -405,6 +405,28 @@ verify가 통과했습니다. `/vibe` 테스트 211개, 준비 절차 90개, 중
 11건 미해결(종료 코드 1)이며, 세 readiness flag는 모두 `false`입니다.
 호스트 실사용 설치·모델 생성 호출·정식 머지·원격 push는 여전히 별도 게이트입니다.
 
+### `/vibe` 2.11.10 본문 예산 후보 (2026-09-27)
+
+기능 브랜치 `1d13d8e`는 `/vibe`의 실행 규칙과 생성 라우팅 표는 유지하고,
+Git/설치 문서로 추적 가능한 과거 버전 기록 55줄만 `SKILL.md`에서 제거했습니다.
+source 파일 크기는 32,900→28,707바이트, 스킬 검증기 기준 본문은
+416→362줄입니다. 이전 `W007` 본문 길이 경고는 source와 패키지 양쪽에서
+0건이며, validator 오류도 0건입니다. 이는 선택 후 본문 부담만 줄인 결과로,
+호스트 초기 description 축약 경고·실제 토큰 사용량·모델 선택 정확도 개선을
+증명하지 않습니다. sync 표 검사, `/vibe` 87개, 중앙 라우터 8개, 준비 절차
+90개 테스트가 통과했습니다.
+
+2.11.9 후보를 보존하고
+`E:/Coding Infra/Releases/SimonK-stack/20260927-vibe-2.11.10-body-budget-candidate/`
+에 새 source·bundle 후보를 생성했습니다. source digest
+`ab7db4645c420f804684083672b108ec4e6e2d91449f33425a3cd267a415e6c0`,
+bundle digest
+`1a3963396749266759a1ee36b64d07fea5a5eb548d1a3b5cf3465db55ab89411`의
+별도 verify가 통과했습니다. 이 후보의 입력은 이전 2.11.9 후보의 깨끗한
+고정 커밋 `inputs/`를 재사용해 원본·설치본을 변경하거나 불필요한 Git 저장소
+복제본을 추가하지 않았습니다. 5플러그인/182스킬/713파일과 정적 참조
+150건/미해결 11건은 이전과 같습니다. 세 readiness flag는 여전히 false입니다.
+
 ### Codex frontmatter 검사 범위
 
 로컬 `skill-creator/scripts/quick_validate.py`의 허용 키 목록은 실제 Codex
