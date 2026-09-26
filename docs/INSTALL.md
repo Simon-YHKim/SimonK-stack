@@ -211,8 +211,11 @@ clone/checkout 준비는 builder가 자동 수행하는 기능이 아니며, 긴
 
 안전 I/O와 단독 writer·중단 stage 잔존·POSIX mode 미검증 한계는 위 overlay와 같습니다.
 `runtime_closure_verified=false`, `host_compatibility_verified=false`,
-`installation_ready=false`는 항상 유지합니다. 예를 들어 guard(Stack)→careful(Core)의
-`../careful` 참조는 분리 plugin에서 닫히지 않을 수 있습니다. Codex의
+`installation_ready=false`는 항상 유지합니다. 실제 후보의
+`freeze`(Stack) `bin/check-freeze.sh`는 `../../careful/bin/hook-extract.sh`를
+같은 `skills/` 아래에서 찾지만 `careful`은 Core에 있습니다. 분리 후보에서 이 경로가
+없어 더미 `Read` 요청은 `permissionDecision: deny`(exit 0)로 fail-closed 되었습니다.
+안전한 실패이지만 정상적인 freeze 동작이나 runtime closure 검증은 아닙니다. Codex의
 `disable-model-invocation`/Claude hooks 정책 처리, 외부 wrapper/vendor/runtime도 별도
 게이트입니다. metadata 보존을 실제 host 로딩·안전정책 실행 PASS로 해석하지 않습니다.
 실제 설치·SessionStart/default installer 전환·공식 version 승격·main 병합은 포함하지 않습니다.
