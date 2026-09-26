@@ -191,10 +191,11 @@ These are observed/configured facts, not inferred from a model name. Candidate
 observations and quota have a conservative 15-minute validity window.
 
 Billing fields are `mode` (subscription/api/metered/unknown), `verified`,
-`account_ref`, `extra_usage_enabled`, `model_included`, `bot_usage_included`,
+`account_ref`, `extra_usage_enabled`, `model_included`, `included_model`, `bot_usage_included`,
 and `api_fallback_disabled`. Included subscription routing requires all of
 `verified=true`, `extra_usage_enabled=false`, `api_fallback_disabled=true` for
-the account/transport, plus `model_included=true` for an exact LLM model or
+the account/transport, plus `model_included=true` and `included_model` equal to
+the resolved exact LLM model (or requested exact ID without an alias), or
 `bot_usage_included=true` for the provider-managed Grok Bot. Missing or uncertain
 values block that route. A paid candidate supplies
 upper_usd_per_attempt including reasoning, tool use and transport charges.

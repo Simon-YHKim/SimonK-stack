@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when asked to "/vibe", "orchestrate this task", "바이브로 알아서 해줘", "오르카로 돌려", or "스킬 조합해서 처리해". Main skill orchestrator: selects skills, software, model/effort and budget; uses vibe-bot only for GUI-only work. Produces verified artifacts and usage reports; unknown cost blocks paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.11.8
+version: 2.11.9
 author: simon-stack
 ---
 
@@ -112,7 +112,7 @@ starting a paid wave. Only one coordinator may own a run's budget.
 
 Unknown price, billing mode or exhausted/stale quota excludes that route.
 Subscription usage is not free: report included quota separately from extra
-money. Zero incremental spend is valid only when the exact LLM model (or
+money. Zero incremental spend is valid only when the exact resolved LLM model (or
 provider-managed Bot usage) is included in the subscription and both overage
 and API fallback are verified disabled.
 Unknown is blocked. Do not silently fall back to an API key, paid overage or
@@ -370,6 +370,12 @@ python -B -I -S tests/test_ledger_scan.py
 
 ## Version note
 
+2.11.9 binds `model_included=true` to an explicit `included_model` matching the
+resolved model (or exact requested model without an alias). A copied inclusion
+flag for another model is blocked. Zero-grant Orca preparation fixtures now
+use a subscription route instead of a zero-price API claim. This source-only
+change does not independently attest billing timestamps, operational installs,
+or actual account inclusion.
 2.11.8 requires exact-model or Bot-usage subscription inclusion and disabled
 API fallback as separate positive runtime facts before a route can reserve USD 0.
 It also rejects API/metered model routes under a zero-money grant, including

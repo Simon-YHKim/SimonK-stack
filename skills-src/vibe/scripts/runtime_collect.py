@@ -130,7 +130,8 @@ def normalize(surface, raw, now, profile):
               "account_ref": None, "account_verified": False, "generation_verified": False,
               "models": [], "quota_windows": [], "auth": {},
               "billing": {"mode": "unknown", "verified": False, "extra_usage_enabled": None,
-                          "model_included": None, "api_fallback_disabled": None,
+                          "model_included": None, "included_model": None,
+                          "api_fallback_disabled": None,
                           "provider_hard_cap": None, "actual_cost_usd": None},
               "collection": {"generation_requested": False, "zero_token_verified": None}}
     identity = None

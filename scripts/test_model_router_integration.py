@@ -116,6 +116,8 @@ class ModelRouterIntegrationTests(unittest.TestCase):
                                 "extra_usage_enabled": False, "model_included": True,
                                 "api_fallback_disabled": None, "account_ref": "test-account"}),
              "API_FALLBACK_UNVERIFIED"),
+            (candidate(billing={**candidate()["billing"], "included_model": "different-model"}),
+             "MODEL_INCLUSION_UNVERIFIED"),
             (candidate(quota={"used_pct": None, "observed_at": NOW}), "QUOTA_UNKNOWN"),
             (candidate("grok", surface="grok", quota={"used_pct": 100, "observed_at": NOW}),
              "QUOTA_EXHAUSTED"),

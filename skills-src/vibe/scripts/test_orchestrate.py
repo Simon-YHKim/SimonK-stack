@@ -19,16 +19,17 @@ NOW = "2026-09-23T10:00:00+00:00"
 
 
 def candidate(name="small", surface="codex", **changes):
+    model = changes.get("model", "fixture-" + name)
     item = {
         "id": name, "surface": surface, "transport": "cli",
-        "model": "fixture-" + name, "lifecycle": "active", "available": True,
+        "model": model, "lifecycle": "active", "available": True,
         "observed_at": NOW, "evidence": "offline test fixture", "quality_tier": 2,
         "capabilities": ["reasoning", "code", "research"], "resource_rank": 1,
         "provider_efforts": ["low", "high", "xhigh"],
         "transport_efforts": ["low", "high", "xhigh"],
         "effort_by_demand": {"routine": "low", "reasoning": "high", "critical": "xhigh"},
         "billing": {"mode": "subscription", "verified": True,
-                    "extra_usage_enabled": False, "model_included": True,
+                    "extra_usage_enabled": False, "model_included": True, "included_model": model,
                     "api_fallback_disabled": True, "account_ref": "test-account"},
         "quota": {"used_pct": 10, "observed_at": NOW, "bucket": "test-weekly"},
     }
@@ -164,6 +165,15 @@ class OrchestrationTests(unittest.TestCase):
                                        ({"model_included": False}, "MODEL_INCLUSION_UNVERIFIED"),
                                        ({"api_fallback_disabled": None}, "API_FALLBACK_UNVERIFIED"),
                                        ({"api_fallback_disabled": False}, "API_FALLBACK_UNVERIFIED")):
+            with self.subTest(billing_change=billing_change):
+                billing = dict(candidate()["billing"], **billing_change)
+                plan = self.plan(candidates=[candidate(billing=billing)])
+                self.assertEqual(plan["status"], "blocked")
+                self.assertIn(reason, str(plan))
+
+    def test_subscription_inclusion_is_bound_to_resolved_model(self):
+        for billing_change, reason in (({"included_model": "other-model"}, "MODEL_INCLUSION_UNVERIFIED"),
+                                       ({"included_model": None}, "MODEL_INCLUSION_UNVERIFIED")):
             with self.subTest(billing_change=billing_change):
                 billing = dict(candidate()["billing"], **billing_change)
                 plan = self.plan(candidates=[candidate(billing=billing)])

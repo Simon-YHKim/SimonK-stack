@@ -35,8 +35,11 @@ class PreparationTests(unittest.TestCase):
             "executable_sha256": "a" * 64, "app_version": "1.4.206", "runtime_id": "runtime-fixture",
             "account_ref": "test-account", "profile_ref": "profile-fixture",
             "guards": {"quota_checked_vendors": ["claude", "codex", "grok", "gemini"]}}
+        billing = ({**candidate(model="gpt-5.6-luna")["billing"]}
+                   if cap == 0 and cost == 0 else
+                   {"mode": "api", "verified": True, "account_ref": "test-account"})
         c = candidate(model="gpt-5.6-luna", transport="orca", upper_usd_per_attempt=cost,
-            billing={"mode": "api", "verified": True, "account_ref": "test-account"})
+            billing=billing)
         steps = nodes or [step("a"), step("b", depends_on=["a"])]
         steps = [{**s, "orca": copy.deepcopy(binding), "proc": "inventory-schema", "class": "A"} for s in steps]
         p = orchestrate.make_plan({"run_id": run, "budget": {"approved_usd": cap}, "steps": steps},
@@ -49,6 +52,11 @@ class PreparationTests(unittest.TestCase):
         self.store.initialize(cap, "fixture-only-grant" if cap else "user-zero-additional-budget")
         self.assertTrue(hasattr(self.store, "upgrade_preparations"), "Durable preparation schema is missing")
         self.store.upgrade_preparations("fixture-only-schema-approval", now=NOW)
+
+    def test_zero_grant_preparation_fixture_uses_included_subscription(self):
+        plan = self.draft()
+        self.assertEqual(plan["budget"]["approved_usd"], "0")
+        self.assertEqual(plan["steps"][0]["route"]["billing"]["mode"], "subscription")
 
     def start(self, p=None):
         p = p or self.draft()
