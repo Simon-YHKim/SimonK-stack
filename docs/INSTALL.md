@@ -268,6 +268,19 @@ Claude 형식 **메타데이터·파일 수용** 관측이지, 5-plugin 후보 �
 호스트 훅 동작이나 모델 응답 검증이 아닙니다. 후보를 marketplace에 등록하지 말라는
 위 규칙은 그대로 유지합니다.
 
+이후 **실제 2.11.7 후보의 플러그인 폴더 5개**를 별도 `CODEX_HOME`·`APPDATA`·
+`LOCALAPPDATA`·임시 폴더를 지정한 Codex CLI 0.155.0에서 로컬 marketplace로
+각각 등록하고 `plugin add`했습니다. `plugin list --json`은 5개 모두
+`installed=true`, `enabled=true`로 반환했고, 캐시된 `SKILL.md` 182개의 SHA-256이
+후보 원본과 전부 일치했습니다(7/61/22/32/60개). 테스트 홈은 release의
+`diagnostics/codex-host-probe-20260927-0505/`이며 사용자 설치본은 전환하지
+않았습니다. 여기서 허용한 것은 **격리 홈의 개별 plugin 폴더 등록**이지
+`candidate/` envelope의 운영 marketplace 등록이나 사용자 프로필 설치가 아닙니다.
+receipt 재검증은 동일 digest로 통과했지만 `installation_ready=false`입니다.
+이 실측으로 확인한 범위는 Codex의 로컬 등록·복사·목록 조회뿐입니다. 자동 스킬
+선택, 명시 명령 호출, hook 집행·차단, 모델 행동, 외부 의존 폐쇄성은 여전히 미검증이며
+세 readiness flag를 올리지 않습니다.
+
 ### 후보 경로 경고 분류 (2026-09-27)
 
 같은 2.11.7 후보의 182개 스킬을 기존 `skill-gen-agent` 검증기로 다시 검사한
