@@ -1,5 +1,4 @@
-"""Grok Bot bus watcher (read-only on the bus). DRAFT 2026-09-26: needs
-process/network-denied tests before release; see references/relay-handshake.md.
+"""Grok Bot bus watcher (read-only on the bus); see references/relay-handshake.md.
 
 Lists bus files that changed since the previous run, grouped by priority, and
 tracks this session's outbound tasks until a result appears in ANY outbox.
@@ -15,9 +14,17 @@ Outbound rule (vibe-bot charter): before saying "no reply", check
 A claim older than PING_AFTER_MIN with no result marks PING-DUE once;
 at most one reminder per nonce (charter: one authorized reminder).
 
-usage: python bus_scan.py [--baseline-before "YYYY-MM-DD HH:MM"] [--no-save]
-       python bus_scan.py --track <nonce> [--track <nonce> ...]
-       python bus_scan.py --pinged <nonce>
+Watch mode (--watch) streams one line per unprocessed bus file for a host
+monitor. Its baseline is the saved state, not the moment it starts, so a file
+that lands between the last scan and arming the monitor is still reported
+(2026-09-26: a review result at 22:18 was missed because a monitor armed at
+22:19 treated it as already seen). Watch mode never writes the state; the scan
+that processes the files does.
+
+usage: python bus_watch.py [--baseline-before "YYYY-MM-DD HH:MM"] [--no-save]
+       python bus_watch.py --track <nonce> [--track <nonce> ...]
+       python bus_watch.py --pinged <nonce>
+       python bus_watch.py --watch [--interval 20] [--once]
 """
 import argparse
 import datetime as dt
@@ -94,6 +101,49 @@ def save_state(state):
     os.replace(tmp, STATE)
 
 
+def snapshot():
+    now = {}
+    for pat in WATCH:
+        for p in glob.glob(pat):
+            if os.path.isdir(p) or p.endswith(".tmp"):
+                continue
+            st = os.stat(p)
+            now[p.replace("\\", "/")] = [st.st_mtime_ns, st.st_size]
+    return now
+
+
+def watch_events(state, current, emitted):
+    """Lines for files the saved state has not seen yet, most urgent first."""
+    lines = []
+    for p in sorted(current, key=lambda k: current[k][0]):
+        if p in state["files"] or p in emitted:
+            continue
+        emitted.add(p)
+        if classify(p) == "NOISE":
+            continue
+        name = p.rsplit("/", 1)[-1]
+        answer = next((n for n in state["outbound"] if name.startswith(n) and name.endswith(".result.md")), None)
+        if answer:
+            lines.append((0, f"ANSWER {answer}: {p}"))
+        elif "simon-go" in name:
+            lines.append((1, f"ALERT production change: {p}"))
+        elif p.endswith(".md") and "/inbox/" in p and CODING_MARK.search(" ".join(head(p, 12))):
+            lines.append((2, f"CODING TASK: {p}"))
+        else:
+            lines.append((3, f"NEW bus file: {p}"))
+    return [text for _, text in sorted(lines, key=lambda x: x[0])]
+
+
+def watch(state, interval, once=False):
+    emitted = set()
+    while True:
+        for line in watch_events(state, snapshot(), emitted):
+            print(line, flush=True)
+        if once:
+            return
+        time.sleep(interval)
+
+
 def outbound_status(nonce, meta):
     results = sorted(glob.glob(f"{BUS}/*/outbox/{nonce}*.result.md"))
     claims = glob.glob(f"{BUS}/*/inbox/{nonce}.claim")
@@ -114,6 +164,9 @@ def main():
     ap.add_argument("--track", action="append", default=[])
     ap.add_argument("--pinged", action="append", default=[])
     ap.add_argument("--state", default=DEFAULT_STATE)
+    ap.add_argument("--watch", action="store_true", help="stream unprocessed bus files for a monitor")
+    ap.add_argument("--interval", type=float, default=20.0)
+    ap.add_argument("--once", action="store_true", help="with --watch: one pass, for tests")
     a = ap.parse_args()
     global STATE
     STATE = a.state
@@ -123,18 +176,15 @@ def main():
         state["outbound"].setdefault(n, {"pinged": False})
     for n in a.pinged:
         state["outbound"].setdefault(n, {})["pinged"] = True
+    if a.watch:
+        watch(state, a.interval, a.once)
+        return
 
     cut = None
     if a.baseline_before:
         cut = dt.datetime.strptime(a.baseline_before, "%Y-%m-%d %H:%M").replace(tzinfo=KST).timestamp() * 1e9
 
-    now = {}
-    for pat in WATCH:
-        for p in glob.glob(pat):
-            if os.path.isdir(p) or p.endswith(".tmp"):
-                continue
-            st = os.stat(p)
-            now[p.replace("\\", "/")] = [st.st_mtime_ns, st.st_size]
+    now = snapshot()
 
     changed = []
     for p, (m, s) in sorted(now.items(), key=lambda kv: kv[1][0]):

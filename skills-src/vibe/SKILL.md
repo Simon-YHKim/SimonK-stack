@@ -188,6 +188,8 @@ login/payment/Submit authorization, settlement or provider-model selection.
 When Simon authorizes an ongoing collaboration with the Bot team, run it as a
 self-paced `/loop` that scans the bus each tick and answers Relay's coding
 tasks. Follow the vibe-bot handshake reference (`references/relay-handshake.md`):
+keep a `bus_watch.py --watch` monitor armed for the whole loop and catch up
+before each sleep so no task or answer waits for the next scheduled tick,
 check every outbox before calling a task unanswered, send at most one reminder,
 treat `simon-go` files as production changes to verify read-only, ignore HR
 noise, end every result with a `교훈` block, and claim before any production

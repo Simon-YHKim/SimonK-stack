@@ -115,6 +115,39 @@ class BusWatchTests(unittest.TestCase):
               f"{nonce}\n# Result\n- **Bot:** Claude Code (코딩 LLM)\n")
         self.assertNotIn(f"OPEN-CODING-TASK {nonce}", self.run_main())
 
+    def run_watch(self):
+        out = io.StringIO()
+        argv = ["bus_watch.py", "--state", str(self.state), "--watch", "--once"]
+        with patch.object(sys, "argv", argv), contextlib.redirect_stdout(out):
+            self.w.main()
+        return out.getvalue()
+
+    def test_watch_reports_an_answer_that_landed_before_the_monitor_started(self):
+        # 2026-09-26 22:18: the review result arrived, then a monitor armed at
+        # 22:19 took it as already present. The baseline must be the saved state.
+        self.run_main("--track", "vb-b36e42bf")
+        write(self.bus / "relay/outbox/vb-b36e42bf.result.md", "vb-b36e42bf\n# Result\n")
+        out = self.run_watch()
+        self.assertIn("ANSWER vb-b36e42bf:", out)
+
+    def test_watch_orders_by_urgency_and_drops_org_noise(self):
+        self.run_main("--track", "vb-88888888")
+        write(self.drafts / "hr-kpi.md", "# HR\n")
+        write(self.bus / "relay/outbox/_tmp-copy.md", "# tmp\n")
+        write(self.bus / "relay/inbox/vb-99999999.md", "# Task — Coding · fix the copy\n")
+        write(self.bus / "keys/outbox/vb-simon-go-x.result.md", "# Simon GO\n")
+        write(self.bus / "keys/outbox/vb-88888888.result.md", "vb-88888888\n")
+        lines = [l for l in self.run_watch().splitlines() if l]
+        self.assertEqual([l.split(" ", 1)[0] for l in lines], ["ANSWER", "ALERT", "CODING"])
+        self.assertFalse(any("hr-kpi" in l or "_tmp-copy" in l for l in lines))
+
+    def test_watch_never_writes_state(self):
+        self.run_main()
+        before = self.state.read_bytes()
+        write(self.bus / "relay/outbox/vb-12121212.result.md", "vb-12121212\n")
+        self.assertIn("NEW bus file:", self.run_watch())
+        self.assertEqual(self.state.read_bytes(), before)
+
     def test_scan_never_writes_to_the_bus_and_keeps_state_outside(self):
         write(self.bus / "keys/outbox/vb-simon-go-x.result.md", "# Simon GO\n")
         write(self.drafts / "hr-org.md", "# HR\n")

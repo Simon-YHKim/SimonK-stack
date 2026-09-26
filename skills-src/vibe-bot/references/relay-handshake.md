@@ -16,6 +16,37 @@ For 2ndB the bus is `E:/2ndB/.bots` and drafts live in `E:/2ndB/docs/drafts/`
 (outside Git). Relay claims its own pointer tasks, so a Relay `.claim` on a
 coding task does not mean the coding session has answered.
 
+**Result path belongs to the assignee.** `<nonce>.result.md` is written only by
+whoever does the work. A dispatcher that wants to record "I handed this on"
+writes `<nonce>.dispatch.md`. On 2026-09-26 Relay wrote its dispatch note as
+`vb-1865-date-q5-fix.result.md`, so the coding result had nowhere canonical to
+go and waiting bots could mistake the note for the answer. If the path is taken
+anyway, the assignee writes `<nonce>.<role>.result.md` (for example
+`.coding.result.md`) and names that path in its STATUS line. Readers glob
+`<nonce>*.result.md` and check the `Bot` field, never the file name alone.
+
+## 1a. Watching without gaps
+
+The collaboration loop must see a new task or answer within one watcher tick,
+not at the next hourly scan. Three failures on 2026-09-26 set these rules:
+
+1. **Keep the monitor armed for the whole loop.** Re-arm it on every expiry,
+   including quiet hours. A 30-minute expiry notice is cheap; a missed task is
+   not (a coding task sat unseen for more than 30 minutes while only hourly
+   scans ran).
+2. **Watch from the saved state, not from "now".** Arm the monitor with
+   `scripts/bus_watch.py --watch --state <state>`. Its baseline is the last
+   processed scan, so a file that landed between that scan and the moment the
+   monitor started is still reported (a review result at 22:18 was missed by a
+   monitor armed at 22:19 that took it as already present).
+3. **Catch up before sleeping.** Every time the loop wakes or re-arms, run one
+   processing scan first and act on anything pending, then arm the watcher.
+
+Watch mode prints, most urgent first: `ANSWER <nonce>` for results to this
+session's own requests, `ALERT` for `simon-go` files, `CODING TASK` for inbox
+tasks addressed to the coding session, then other new files. Organization noise
+is dropped. An `ANSWER` or `CODING TASK` is handled in the same turn it wakes.
+
 ## 2. Waiting for a reply
 
 1. Check `<bus>/*/outbox/<nonce>*.result.md` (every outbox, any suffix) and the

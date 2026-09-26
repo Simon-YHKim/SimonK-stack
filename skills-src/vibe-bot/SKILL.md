@@ -186,8 +186,16 @@ unperformed actions as passed or infer cross-model quality from one host.
 Relay also sends work back to the coding session: a `relay/inbox/<nonce>.md`
 whose owner line names the Coding LLM, answered in `relay/outbox/<nonce>.result.md`.
 Follow [the handshake reference](references/relay-handshake.md) whenever the user
-has authorized an ongoing collaboration loop. It fixes four behaviors:
+has authorized an ongoing collaboration loop. It fixes these behaviors:
 
+- Watch without gaps: keep a monitor armed for the whole loop (re-arm on every
+  expiry, quiet hours included), run it as `scripts/bus_watch.py --watch` so its
+  baseline is the saved state rather than the moment it starts, and catch up
+  with one processing scan before each sleep. Handle `ANSWER` and `CODING TASK`
+  lines in the turn they arrive.
+- `<nonce>.result.md` belongs to whoever did the work. Dispatch notes are
+  `<nonce>.dispatch.md`; if the result path is already taken, write
+  `<nonce>.<role>.result.md` and say so.
 - Before reporting "no reply", search every `*/outbox/<nonce>*.result.md` and
   read the top of Relay STATUS. A claim older than 20 minutes with neither may
   receive exactly one `ping-relay-<nonce>.md`; after that, report it blocked.
