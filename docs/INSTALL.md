@@ -268,6 +268,24 @@ Claude 형식 **메타데이터·파일 수용** 관측이지, 5-plugin 후보 �
 호스트 훅 동작이나 모델 응답 검증이 아닙니다. 후보를 marketplace에 등록하지 말라는
 위 규칙은 그대로 유지합니다.
 
+### 후보 경로 경고 분류 (2026-09-27)
+
+같은 2.11.7 후보의 182개 스킬을 기존 `skill-gen-agent` 검증기로 다시 검사한
+결과 오류 0건, 경고 49건(`W007` 2·`W009` 15·`W013` 32)이었습니다.
+`W009`는 아래처럼 **15개 경고 발생 위치**를 분류해야 합니다. 모두를 15개의
+누락 파일로 세거나, 검증기 성공을 실행 준비 완료로 해석하지 않습니다.
+
+| 분류 | W009 위치 | 확인된 상태 |
+| --- | ---: | --- |
+| AIHub `rag-builder` | 1 | 참조 대상 `../llm-eval/scripts/gate.mjs`가 같은 후보 플러그인에 존재. 검증기의 스킬-로컬 경로 해석에 따른 오탐. |
+| Core `gcloud-helper`·`keepass-helper`·`stack-update` | 10 | 참조하는 모노레포 루트 스크립트는 현재 소스에 있지만 분리 후보의 Core plugin에는 없음. 특히 gcloud/KeePass 지침에 원본 PC 절대 경로가 남아 있어 독립 설치의 실행 폐쇄성을 증명하지 못함. |
+| Market `mobile-attribution-integrator`·`referral-program-builder`·`unit-economics-modeler` | 4 | 참조하는 보조 파일 4개가 후보뿐 아니라 Market 원본 `main`에도 없음. |
+
+Core의 설치·업그레이드·자격증명 보조 스크립트를 경고 제거 목적으로 무심코
+후보에 복사하거나 실행하지 않습니다. 각 스킬의 독립 패키지 계약과 안전성을
+수리·검증해야 합니다. Market 원본 변경도 별도 소유 브랜치 검토 전에는 하지
+않습니다. 이 분류만으로 세 readiness flag를 올리지 않습니다.
+
 ### Codex frontmatter 검사 범위
 
 로컬 `skill-creator/scripts/quick_validate.py`의 허용 키 목록은 실제 Codex
