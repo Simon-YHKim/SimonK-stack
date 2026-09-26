@@ -316,6 +316,21 @@ python -B scripts/candidate_path_audit.py --package '<candidate>' --expected-dig
 연결되므로 독립 파일 누락으로 세지 않습니다. 나머지 Core/Market 항목도
 원본·후보의 파일과 스킬 의도를 대조한 뒤 수정 범위를 정해야 합니다.
 
+`model-router` 0.2.2 소스 문구 갱신 후 기존 후보를 덮어쓰지 않고
+`E:/Coding Infra/Releases/SimonK-stack/20260927-vibe-2.11.7-refresh-candidate/`에
+새 v2 후보를 만들었습니다. source digest는
+`7d4861068847989a6b8a69a9ff2f91b50a87bb5648b4541aa60c5b37ebaaa6c3`,
+bundle digest는 `9108b83165f13100f72d19abf1d1c75dae651f0aab40c5a7304cc7957430a063`입니다.
+source 137스킬/407파일과 bundle 5플러그인/182스킬/713파일의 build·별도 verify가
+통과했고, bundle 회귀 테스트는 43/43 PASS였습니다. 별도 Codex CLI 0.155.0
+테스트 홈에서 5개 installed/enabled, 후보↔캐시 **전체 713파일**의 누락·변경·추가
+0건, `/vibe` inventory 182 records/0 issues를 확인했습니다. source↔bundle
+coverage의 차이는 이제 안전 어댑터로 의도적으로 변환한 5스킬뿐입니다.
+정적 경로 검사는 새 후보에서도 같은 150참조·11문맥 검토 항목을 반환합니다.
+이 호스트 관측은 설치·파일탐색 증거이며 스킬 선택/호출·hook 집행·실제 모델
+행동을 인증하지 않습니다. 세 readiness flag는 여전히 false이고 실제 사용자
+설치·운영 marketplace 전환은 별도 게이트입니다.
+
 ### Codex frontmatter 검사 범위
 
 로컬 `skill-creator/scripts/quick_validate.py`의 허용 키 목록은 실제 Codex
