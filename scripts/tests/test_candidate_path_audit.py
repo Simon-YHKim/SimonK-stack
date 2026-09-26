@@ -35,6 +35,24 @@ class CandidatePathAuditTests(unittest.TestCase):
             ("templates/k-factor-queries.sql", "unresolved"),
         ])
 
+    def test_unresolved_reference_suggests_same_plugin_file_without_resolving_it(self):
+        skill = "plugins/SimonKAIHub/skills/rag-builder/SKILL.md"
+        sibling = "plugins/SimonKAIHub/skills/llm-eval/scripts/gate.mjs"
+        other_plugin = "plugins/SimonKCore/skills/example/scripts/gate.mjs"
+        rows = audit.inspect_skill_references(skill, "Use `scripts/gate.mjs`.",
+                                              {skill, sibling, other_plugin})
+        self.assertEqual(rows, [{"reference": "scripts/gate.mjs",
+                                 "resolved": "plugins/SimonKAIHub/skills/rag-builder/scripts/gate.mjs",
+                                 "status": "unresolved", "possible_targets": [sibling]}])
+
+    def test_outside_plugin_reference_gets_no_alternative_hint(self):
+        skill = "plugins/SimonKCore/skills/stack-update/SKILL.md"
+        target = "plugins/SimonKCore/skills/other/scripts/install.sh"
+        rows = audit.inspect_skill_references(skill, "`../../../../scripts/install.sh`",
+                                              {skill, target})
+        self.assertEqual(rows[0]["status"], "outside-plugin")
+        self.assertNotIn("possible_targets", rows[0])
+
     def test_reference_cannot_escape_own_plugin_or_claim_root_helper(self):
         skill = "plugins/SimonKCore/skills/stack-update/SKILL.md"
         rows = audit.inspect_skill_references(

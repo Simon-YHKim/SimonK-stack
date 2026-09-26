@@ -310,6 +310,13 @@ Android referrer 정규화 단계, `k-factor-queries.sql`은 추천 성과 계�
 해석합니다. 종료 1은 `unresolved`에 대한 **문맥 검토 필요**이지 파일 누락
 확정이나 실행 실패 증명이 아닙니다. 동적 경로·절대 호스트 경로·import·서비스·
 자격증명·hook 동작은 범위 밖이고 `runtime_closure_verified`는 항상 false입니다.
+`unresolved`에 `possible_targets`가 있으면 같은 플러그인 안의 동일 파일명
+후보를 최대 5개 제시한 것입니다. 상대경로가 실제로 작동한다는 증거가 아니며
+`unresolved` 상태와 종료 코드를 바꾸지 않습니다. 플러그인 밖 파일은 제안하지 않습니다.
+현재 후보에서는 AIHub `gate.mjs` 1곳과 Core `simonk.ps1` 2곳에 제안이 나옵니다.
+Core의 `skills/simonk/scripts/simonk.ps1`은 패키지 전용 계획 진입점으로,
+`gcloud-helper`·`keepass-helper`가 설명하는 자동 동작의 대체재로 확인되지
+않았습니다. 세 위치 모두 수동 검토 대상으로 남습니다.
 
 ```powershell
 python -B scripts/candidate_path_audit.py --package '<candidate>' --expected-digest '<bundle_digest>'

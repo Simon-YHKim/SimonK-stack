@@ -23,7 +23,7 @@ LOCAL_PREFIXES = ("scripts/", "templates/", "references/", "./scripts/",
                   "./templates/", "./references/", "../")
 
 
-def inspect_skill_references(skill_path: str, text: str, available: set[str]) -> list[dict[str, str]]:
+def inspect_skill_references(skill_path: str, text: str, available: set[str]) -> list[dict[str, object]]:
     """Resolve only explicit local references against the same plugin's file list."""
     parts = skill_path.split("/")
     if len(parts) != 5 or parts[0] != "plugins" or parts[2] != "skills" or parts[4] != "SKILL.md":
@@ -50,7 +50,15 @@ def inspect_skill_references(skill_path: str, text: str, available: set[str]) ->
             status = "present"
         else:
             status = "unresolved"
-        rows.append({"reference": reference, "resolved": resolved, "status": status})
+        row: dict[str, object] = {"reference": reference, "resolved": resolved, "status": status}
+        if status == "unresolved":
+            # A basename match is a review hint, never proof that a relative path works.
+            basename = posixpath.basename(resolved)
+            alternatives = sorted(path for path in available
+                                  if path.startswith(boundary) and posixpath.basename(path) == basename)
+            if alternatives:
+                row["possible_targets"] = alternatives[:5]
+        rows.append(row)
     return rows
 
 
