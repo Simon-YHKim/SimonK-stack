@@ -429,11 +429,32 @@ class OrchestrationTests(unittest.TestCase):
                 self.assertEqual(self.m.main(["inventory"]), 2)
             scanner.assert_not_called()
 
-    def test_default_catalog_includes_system_root_without_scanning_home_in_test(self):
+    def test_default_catalog_uses_candidate_receipt_or_system_root(self):
+        bound = self.m.candidate_inventory()
+        if bound is not None:
+            stream = io.StringIO()
+            with contextlib.redirect_stdout(stream):
+                self.assertEqual(self.m.main(["catalog"]), 0)
+            catalog = json.loads(stream.getvalue())
+            self.assertEqual(set(catalog), set(bound["catalog"]))
+            self.assertIn("vibe", catalog)
+            self.assertIn("vibe-bot", catalog)
+            return
         inv = self.inventory([])
         with contextlib.redirect_stdout(io.StringIO()), patch.object(self.m, "skill_inventory", return_value=inv) as scan:
             self.assertEqual(self.m.main(["catalog"]), 0)
         self.assertIn(Path.home() / ".codex" / "skills" / ".system", scan.call_args.args[0])
+
+    def test_default_catalog_does_not_fallback_from_a_bound_candidate(self):
+        inv = self.inventory([])
+        stream = io.StringIO()
+        with contextlib.redirect_stdout(stream), \
+                patch.object(self.m, "candidate_inventory", return_value=inv) as bound, \
+                patch.object(self.m, "skill_inventory") as fallback:
+            self.assertEqual(self.m.main(["catalog"]), 0)
+        bound.assert_called_once_with([], None)
+        fallback.assert_not_called()
+        self.assertEqual(json.loads(stream.getvalue()), inv["catalog"])
 
     def test_coverage_compares_selected_install_not_a_matching_shadow(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -863,7 +884,10 @@ class OrchestrationTests(unittest.TestCase):
 
 class TddGuardRegression(unittest.TestCase):
     def test_nested_python_tests_are_tests_without_weakening_source_gate(self):
-        guard = SCRIPT.parents[3] / "skills-src/simon-tdd/scripts/tdd-guard-check.sh"
+        source_guard = SCRIPT.parents[3] / "skills-src/simon-tdd/scripts/tdd-guard-check.sh"
+        bundle_guard = SCRIPT.parents[4] / "SimonKStack/skills/simon-tdd/scripts/tdd-guard-check.sh"
+        guard = source_guard if source_guard.is_file() else bundle_guard
+        self.assertTrue(guard.is_file(), "TDD guard must be present in source or candidate")
         bash = "C:/Program Files/Git/bin/bash.exe" if os.name == "nt" else "bash"
         source = guard.read_text(encoding="utf-8").replace("\r", "")
         fixtures = (
