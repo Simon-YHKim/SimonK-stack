@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 03:48:33 KST
+updated: 2026-09-27 04:04:10 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 04:04:10 KST] src: user-goal — SimonKDesign/SimonKStack 원본 `fix/skill-validation-260927` 재검증: Design 19/19 quality gate PASS(프로세스 UTF-8 지정), `validate.mjs` PASS; Stack `validate.mjs` PASS, consent gate Node24 7/7 PASS. 두 브랜치 clean, main/설치본 불변, push/merge0. 2.11.7 실제 후보 Claude CLI `--plugin-dir` 세션 로딩에서 5개 `@inline` 발견(영구설치0); Codex CLI 격리 HOME의 합성 Claude-format plugin은 add/cache/enable 성공(실제 후보 설치 증거 아님). SimonK-stack 설치 문서 로컬 커밋 `45e3c62`, `d5f2082`, 기능 브랜치 clean/ahead21. Codex 공용 quick_validate는 plugin 고유 최상위 version/author 정책과 충돌해 4개 거부; 원본 CI 판정 대체 불가. 후보 readiness 3 false, 모델/Bot/Orca/결제변경/추가과금0.
 
 [2026-09-27 / 03:48:33 KST] src: user-goal — 03:37:36의 “현재 후보 freeze runtime-closure 결손” 판정 철회: 직접 실행한 원본 Bash leaf는 현재 v2 safety 후보의 활성 훅이 아님. 실제 Stack SKILL hook은 `.simonk-runtime/safety_runtime.py`이고 Stack runtime에 careful helper 동봉. 현재 후보 adapter를 격리 state에서 실실행해 경계 안 allow·밖 deny·Core clear 뒤 Stack allow(exit0), source safety21회귀/빌더 cross-plugin E2E1 PASS, receipt digest a26903c3…ec6da·pyc0. 기능 브랜치 docs 정정 `58cb1e7`(clean/ahead19), false blocker 철회; native host loading/전체closure/설치는 여전히 미검증 flags3=false. 이전 보고에 정정 배너, 새 outbox `20260927-034833-to-claude-freeze-v2-correction.md`/HTML. 운영 설치/main/원본·결제불변, 실모델·Bot·Orca/push/merge0·추가과금$0.
 

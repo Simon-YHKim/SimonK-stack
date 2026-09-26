@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SimonK 원본 스킬 검증과 호스트 증거</title>
+<style>:root{color-scheme:light dark;--accent:#345ca8;--text:#17202b;--muted:#586575;background:#f7f9fc;color:var(--text);font:16px/1.55 system-ui,sans-serif}@media(prefers-color-scheme:dark){:root{--accent:#a5c2ff;--text:#e9eef5;--muted:#a7b4c6;background:#111720}}body{max-width:900px;margin:auto;padding:2rem 1rem}h1{font-size:1.7rem;line-height:1.25}h2{font-size:1.1rem}.muted{color:var(--muted)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.8rem;margin:1.4rem 0}.card,details{border:1px solid var(--muted);border-radius:.6rem;padding:.8rem}.card strong{display:block;font-size:1.3rem}summary{cursor:pointer;font-weight:600}summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}a{color:var(--accent)}code{overflow-wrap:anywhere}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid var(--muted);padding:.45rem;text-align:left}</style></head><body>
+<p class="muted">2026-09-27 04:04:10 KST · 원본 브랜치 재검증 · 격리 호스트 형식 시험</p>
+<h1>원본 스킬 수리 검증 통과, 후보 설치는 아직 보류</h1>
+<p>SimonKDesign·SimonKStack의 별도 기능 브랜치에서 앞서 수정한 오류가 재현되지 않았습니다. Claude는 실제 후보의 세션 한정 manifest를 발견했고, Codex는 별도의 합성 Claude-format 플러그인을 격리 환경에 설치했습니다. 두 결과를 실제 5개 후보의 운영 설치 성공으로 확대하지 않습니다.</p>
+<div class="cards" aria-label="검증 지표"><div class="card"><strong>19/19</strong>Design 품질 게이트</div><div class="card"><strong>7/7</strong>Stack 동의 회귀</div><div class="card"><strong>5/5</strong>Claude 후보 세션 발견</div><div class="card"><strong>0</strong>사용자 프로필 신규 설치</div></div>
+<table><thead><tr><th>검증</th><th>결과와 한계</th></tr></thead><tbody>
+<tr><td>Design <code>fix/skill-validation-260927</code></td><td><code>9decad2</code>; 품질 19/19, manifest PASS. Windows에서는 프로세스 UTF-8 지정 필요.</td></tr>
+<tr><td>Stack <code>fix/skill-validation-260927</code></td><td><code>54b8153</code>; manifest PASS, Node 24 동의 게이트 7/7 PASS.</td></tr>
+<tr><td>Claude CLI와 실제 2.11.7 후보</td><td>다섯 플러그인 모두 <code>@inline</code>/<code>scope=session</code>. 스킬 호출·훅 실행·영구 설치 미검증.</td></tr>
+<tr><td>Codex CLI와 합성 fixture</td><td>격리된 홈에서 Claude-format manifest의 add/cache/enable 성공. 실제 후보 설치 결과가 아님.</td></tr>
+<tr><td>공용 <code>quick_validate.py</code></td><td>네 스킬의 최상위 <code>version</code>/<code>author</code>를 거부. 원본 플러그인 CI 스키마와 달라 호환성 제한으로 분류.</td></tr>
+</tbody></table>
+<details><summary>남은 게이트와 보존 상태</summary><p>실제 5-plugin 후보의 Codex 로딩·스킬 선택·훅 실행, 전체 runtime closure, 설치 전환은 미검증입니다. 후보의 readiness 3개 플래그는 모두 false입니다. 기존 main·설치본·사용자 계정/결제 설정은 바꾸지 않았고, 모델/Bot/Orca 실호출·push·merge는 0, 추가 과금도 $0입니다.</p></details>
+<details><summary>로컬 근거</summary><p>원본 브랜치 HEAD: Design <code>9decad2</code>, Stack <code>54b8153</code>. SimonK-stack 문서 커밋 <code>45e3c62</code>, <code>d5f2082</code>. 후보 receipt digest <code>a26903c3419523a983795650d319f9f5694101f1c0939e687d50e7963bbec6da</code>. 온라인 Git 작업과 공식 설치는 Claude·사용자 결정 게이트 뒤로 남겼습니다.</p></details>
+</body></html>
