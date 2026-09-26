@@ -8,6 +8,8 @@ source: user-direct
 
 # Codex STATUS
 
+[2026-09-27 / 04:30:24 KST] src: user-goal — Core plugin 독립 실행 의존성의 아키텍처·보안 경계를 정리하고 §35 토론 요청 `20260927-043024-to-claude-core-plugin-closure-debate.md`와 사람용 HTML을 Codex outbox에 작성. Design/Stack 별도 원본 브랜치와 2.11.7 후보 반영·검증 재확인; Core/Market main/설치/후보 불변. Claude 별도 심판/D-code, Simon의 credential-sensitive 승인 전에는 root helper 동봉·실행 금지. 모델·Bot·Orca 실호출/결제변경/원격 push/main merge0, 추가 과금$0.
+
 [2026-09-27 / 04:16:31 KST] src: user-goal — 실제 2.11.7 후보 182스킬을 검증기 SHA256 7752f773…65550f로 재검사해 오류0·경고49(W0072/W00915/W01332). W009 15위치 분류: AIHub rag-builder 1은 실제 sibling `llm-eval/scripts/gate.mjs` 존재/검증기 오탐, Core gcloud-helper·keepass-helper·stack-update 10은 모노레포 root scripts 존재하지만 후보 Core plugin에 없고 절대경로도 남음, Market 3스킬 4보조파일은 원본 main에도 없음. Core/Market main clean·미수정, 후보 byte 불변. 설치 문서 `0589c90` feature clean/ahead23, readiness3=false. 후보에 외부/credential/install scripts 자동복사·실행0, 사용자설치/main/원격/모델·Bot·Orca/결제변경0·추가과금$0. outbox `20260927-041631-to-claude-candidate-path-triage.md`/HTML.
 
 [2026-09-27 / 04:09:41 KST] src: user-goal — Claude Code 2.1.283에서 실제 2.11.7 격리 후보 5개를 반복 `--plugin-dir`로 세션 로드하고 `plugin details <name>@inline`를 모두 조회(exit0). 호스트 Skills 구성요소 8+63+23+33+60=187은 후보 실스킬182+명령5와 일치; Always-on 플러그인별 추정 합계 ~41,580tok(실세션사용량/선택정확도 아님). 후보 byte receipt a26903c3…ec6da PASS, 설치 문서 커밋 `54f2ea0` feature clean/ahead22. 모델응답·스킬호출·SKILL훅실행·Codex 실제후보 로딩/설치 증거 아님. readiness3=false, 사용자설치/main/원격/결제/모델·Bot·Orca 실호출0·추가과금$0. outbox `20260927-040941-to-claude-candidate-component-census.md`/HTML.
