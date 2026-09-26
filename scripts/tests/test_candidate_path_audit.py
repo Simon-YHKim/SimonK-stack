@@ -1,0 +1,86 @@
+"""The candidate path audit is a conservative, read-only static check."""
+
+import importlib.util
+from contextlib import redirect_stderr
+import io
+from pathlib import Path
+import sys
+import unittest
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts"))
+spec = importlib.util.spec_from_file_location("candidate_path_audit", ROOT / "scripts/candidate_path_audit.py")
+audit = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(audit)
+
+
+class CandidatePathAuditTests(unittest.TestCase):
+    def test_sibling_skill_reference_is_resolved_inside_same_plugin(self):
+        skill = "plugins/SimonKAIHub/skills/rag-builder/SKILL.md"
+        target = "plugins/SimonKAIHub/skills/llm-eval/scripts/gate.mjs"
+        rows = audit.inspect_skill_references(skill, "Use `../llm-eval/scripts/gate.mjs`.", {skill, target})
+        self.assertEqual(rows, [{"reference": "../llm-eval/scripts/gate.mjs",
+                                 "resolved": target, "status": "present"}])
+
+    def test_missing_paths_reported_once_without_treating_placeholders_as_files(self):
+        skill = "plugins/SimonKMarket/skills/referral-program-builder/SKILL.md"
+        text = ("Run `scripts/check-referral-integrity.sh` and use "
+                "`templates/k-factor-queries.sql`; repeat `scripts/check-referral-integrity.sh`. "
+                "Ignore `scripts/<project>.sh`, `scripts/*.sh`, "
+                "`scripts/key?token=abc` and ` `.")
+        rows = audit.inspect_skill_references(skill, text, {skill})
+        self.assertEqual([(row["reference"], row["status"]) for row in rows], [
+            ("scripts/check-referral-integrity.sh", "unresolved"),
+            ("templates/k-factor-queries.sql", "unresolved"),
+        ])
+
+    def test_reference_cannot_escape_own_plugin_or_claim_root_helper(self):
+        skill = "plugins/SimonKCore/skills/stack-update/SKILL.md"
+        rows = audit.inspect_skill_references(
+            skill, "`../../../../scripts/install.sh` and `scripts/install.sh --force`",
+            {skill, "scripts/install.sh"})
+        self.assertEqual([(row["reference"], row["status"]) for row in rows], [
+            ("../../../../scripts/install.sh", "outside-plugin"),
+            ("scripts/install.sh", "unresolved"),
+        ])
+
+    def test_example_worktree_directories_are_not_asset_refs(self):
+        skill = "plugins/SimonKCore/skills/simon-worktree/SKILL.md"
+        self.assertEqual(audit.inspect_skill_references(skill, "`../myapp-auth`", {skill}), [])
+
+    def test_directory_prefix_does_not_substitute_for_the_named_file(self):
+        skill = "plugins/SimonKCore/skills/example/SKILL.md"
+        ref = "plugins/SimonKCore/skills/example/scripts/entry.py"
+        rows = audit.inspect_skill_references(skill, "`scripts/entry.py`", {skill, ref + "/nested"})
+        self.assertEqual(rows[0]["status"], "unresolved")
+
+    def test_receipt_verification_precedes_skill_reads(self):
+        with patch.object(audit.release, "no_links", side_effect=lambda path: path), \
+             patch.object(audit.plugin_bundle, "verify_bundle", side_effect=ValueError("bad digest")), \
+             patch.object(audit.release, "read_file") as read_file:
+            with self.assertRaisesRegex(ValueError, "bad digest"):
+                audit.audit_candidate(Path("fixture"), "0" * 64)
+            read_file.assert_not_called()
+
+    def test_changed_skill_bytes_fail_closed_after_receipt_verification(self):
+        skill = "plugins/SimonKCore/skills/example/SKILL.md"
+        receipt = {"files": [{"path": skill, "size": 3, "sha256": "0" * 64}]}
+        with patch.object(audit.release, "no_links", side_effect=lambda path: path), \
+             patch.object(audit.plugin_bundle, "verify_bundle", return_value=receipt), \
+             patch.object(audit.release, "safe_member", side_effect=lambda root, path: root / path), \
+             patch.object(audit.release, "read_file", return_value=b"bad"):
+            with self.assertRaisesRegex(ValueError, "changed after candidate verification"):
+                audit.audit_candidate(Path("fixture"), "0" * 64)
+
+    def test_cli_verification_failure_does_not_echo_untrusted_details(self):
+        output = io.StringIO()
+        with patch.object(audit, "audit_candidate", side_effect=ValueError("secret in receipt")), \
+             redirect_stderr(output):
+            code = audit.main(["--package", "fixture", "--expected-digest", "0" * 64])
+        self.assertEqual(code, 2)
+        self.assertNotIn("secret", output.getvalue())
+
+
+if __name__ == "__main__":
+    unittest.main()

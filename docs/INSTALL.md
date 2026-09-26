@@ -286,6 +286,23 @@ Core의 설치·업그레이드·자격증명 보조 스크립트를 경고 제�
 수리·검증해야 합니다. Market 원본 변경도 별도 소유 브랜치 검토 전에는 하지
 않습니다. 이 분류만으로 세 readiness flag를 올리지 않습니다.
 
+후보의 정적 경로 재검사는 번들 digest를 먼저 검증한 뒤 실행합니다. 로컬
+`scripts/candidate_path_audit.py`는 SKILL 본문의 백틱으로 감싼 명시적 **ASCII 파일**
+상대경로만 검사하며, 형제 스킬 경로(`../llm-eval/...`)도 같은 플러그인 안에서
+해석합니다. 종료 1은 `unresolved`에 대한 **문맥 검토 필요**이지 파일 누락
+확정이나 실행 실패 증명이 아닙니다. 동적 경로·절대 호스트 경로·import·서비스·
+자격증명·hook 동작은 범위 밖이고 `runtime_closure_verified`는 항상 false입니다.
+
+```powershell
+python -B scripts/candidate_path_audit.py --package '<candidate>' --expected-digest '<bundle_digest>'
+```
+
+2.11.7 후보 digest `a26903c3…ec6da` 실측에서는 182개 스킬의 정적 참조 150개를
+대조하고, 중복 제거된 `unresolved` 11개를 보고했습니다. 이 중 AIHub의
+`scripts/gate.mjs` 표기는 같은 스킬의 실제 명령 `../llm-eval/scripts/gate.mjs`와
+연결되므로 독립 파일 누락으로 세지 않습니다. 나머지 Core/Market 항목도
+원본·후보의 파일과 스킬 의도를 대조한 뒤 수정 범위를 정해야 합니다.
+
 ### Codex frontmatter 검사 범위
 
 로컬 `skill-creator/scripts/quick_validate.py`의 허용 키 목록은 실제 Codex

@@ -13,3 +13,5 @@ jobs:
         run: python3 .github/skill-ci/run_ci.py
       - name: Offline benchmark freshness regressions (no network or real Wiki)
         run: python3 -m unittest discover -s scripts/tests -p test_fetch_model_benchmarks.py
+      - name: Candidate static path audit regressions (fixtures only)
+        run: python3 -B -m unittest discover -s scripts/tests -p test_candidate_path_audit.py
