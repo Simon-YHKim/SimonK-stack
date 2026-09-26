@@ -43,7 +43,14 @@ WATCH = [
     HUB_STATUS,
     RELAY_STATUS,
 ]
-CODING_MARK = re.compile(r"(담당 봇|보낼 봇|수신|Task for)\s*[:：—-]?.*Coding LLM", re.I)
+# Relay addresses coding work in several shapes: an owner line ("담당 봇: Coding
+# LLM"), a heading ("# Task — Coding · ..."), or a "Coding LLM (...)" mention.
+CODING_MARK = re.compile(
+    r"(담당 봇|보낼 봇|수신|Task for)\s*[:：—-]?.*Coding LLM"
+    r"|^#\s*Task\s*[—-]+\s*Coding\b"
+    r"|Coding LLM\s*[:·(]",
+    re.I | re.M,
+)
 NOISE = re.compile(r"(^|/)(hr-|_tmp-|_relay-)")
 
 
@@ -154,12 +161,16 @@ def main():
             continue
         if "발행 Claude Code" in body or not CODING_MARK.search(body):
             continue
-        own = glob.glob(f"{BUS}/relay/outbox/{nonce}.result.md")
-        if own:
-            with open(own[0], "r", encoding="utf-8-sig", errors="replace") as f:
-                res = f.read(600)
-            if "Claude Code" in res or "코딩 LLM" in res:
-                continue
+        # Only a result written by the coding session answers the task. Relay may
+        # publish its own dispatch note under the same nonce (2ndB 2026-09-26,
+        # vb-1865-date-q5-fix), and that note mentions "Coding LLM" too.
+        answered = False
+        for rp in glob.glob(f"{BUS}/*/outbox/{nonce}*.result.md"):
+            with open(rp, "r", encoding="utf-8-sig", errors="replace") as f:
+                if "Claude Code" in f.read(800):
+                    answered = True
+        if answered:
+            continue
         open_tasks.append(nonce)
 
     groups = {"ALERT": [], "CODING": [], "NOISE": []}
