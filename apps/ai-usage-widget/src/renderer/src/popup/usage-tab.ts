@@ -128,17 +128,25 @@ export class UsageTab {
       }
       card.dataset.state = view.state;
       const content = cardContent(view, ctx);
-      if (view.resetCreditsAvailable !== undefined && view.resetCreditsAvailable > 0) {
-        const use = h('button', { type: 'button', class: 'reset-credit-button' }, [t('resetCreditUse')]);
-        use.disabled = this.pending.has(view.account.id);
-        use.addEventListener('click', () => this.redeem(view.account.id, use));
+      if (view.account.provider === 'codex') {
+        const count = view.resetCreditsAvailable;
+        const resetControls: HTMLElement[] = [
+          h('span', { class: 'reset-credit-label' }, [
+            count === undefined ? t('resetCreditUnknown') : t('resetCreditCount', { count }),
+          ]),
+        ];
+        if (count !== undefined && count > 0) {
+          const use = h('button', { type: 'button', class: 'reset-credit-button' }, [t('resetCreditUse')]);
+          use.disabled = this.pending.has(view.account.id);
+          use.addEventListener('click', () => this.redeem(view.account.id, use));
+          resetControls.push(use);
+        }
         const official = h('button', { type: 'button', class: 'reset-credit-link' }, [t('resetCreditUsagePage')]);
         official.addEventListener('click', () => {
           void this.deps.api.invoke('shell:open-external', { kind: 'link', key: 'codex-usage' });
         });
-        content.push(h('div', { class: 'reset-credit-row' }, [
-          h('span', {}, [t('resetCreditCount', { count: view.resetCreditsAvailable })]), use, official,
-        ]));
+        resetControls.push(official);
+        content.push(h('div', { class: 'reset-credit-row' }, resetControls));
       }
       card.replaceChildren(...content);
       return card;

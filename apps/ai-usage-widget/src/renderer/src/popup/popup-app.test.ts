@@ -115,6 +115,21 @@ describe('Usage tab', () => {
     expect(api.callsTo('shell:open-external')).toContainEqual({ kind: 'link', key: 'codex-usage' });
     app.update(appState({ accounts: [account({ id: 'a1', provider: 'codex' })],
       usage: [usage('a1', { state: 'error', resetCreditsAvailable: 2, errorCode: 'network' })] }));
+    expect(root.querySelector('.reset-credit-label')?.textContent).toBe('Codex banked resets unavailable');
+    expect(root.querySelector('.reset-credit-button')).toBeNull();
+    expect(root.querySelector('.reset-credit-link')).not.toBeNull();
+  });
+
+  it('shows zero without offering redemption, and keeps unknown distinct from zero', () => {
+    const codex = account({ id: 'a1', provider: 'codex' });
+    const { root, app } = setup(appState({ accounts: [codex], usage: [usage('a1', { resetCreditsAvailable: 0 })] }));
+    expect(root.querySelector('.reset-credit-label')?.textContent).toBe('0 Codex banked resets');
+    expect(root.querySelector('.reset-credit-button')).toBeNull();
+    app.update(appState({ accounts: [codex], usage: [usage('a1')] }));
+    expect(root.querySelector('.reset-credit-label')?.textContent).toBe('Codex banked resets unavailable');
+    expect(root.querySelector('.reset-credit-button')).toBeNull();
+    app.update(appState({ accounts: [account({ id: 'g1', provider: 'grok' })],
+      usage: [usage('g1', { provider: 'grok', source: 'grok-acp' })] }));
     expect(root.querySelector('.reset-credit-row')).toBeNull();
   });
 

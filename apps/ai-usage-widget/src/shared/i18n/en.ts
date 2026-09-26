@@ -147,6 +147,7 @@ export const en: Record<keyof typeof ko, string> = {
   unitUsed: 'used',
   unitLeft: 'left',
   resetCreditCount: '{count} Codex banked resets',
+  resetCreditUnknown: 'Codex banked resets unavailable',
   resetCreditUse: 'Use one',
   resetCreditUsagePage: 'Official usage page',
   resetCreditConfirmTitle: 'Use one Codex banked reset',

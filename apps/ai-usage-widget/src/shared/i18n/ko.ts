@@ -147,6 +147,7 @@ export const ko = {
   unitUsed: '소모',
   unitLeft: '남음',
   resetCreditCount: 'Codex 초기화권 {count}개',
+  resetCreditUnknown: 'Codex 초기화권 수량 미확인',
   resetCreditUse: '1개 사용',
   resetCreditUsagePage: '공식 사용량 페이지',
   resetCreditConfirmTitle: 'Codex 초기화권 1개 사용',
