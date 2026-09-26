@@ -66,7 +66,10 @@ class ModelRouterIntegrationTests(unittest.TestCase):
                                 gui_reason="No authorized tool route in fixture")
                     c = candidate("bot", surface="grok-bot", transport="bot", model=None,
                                   capabilities=["gui"], bot_id="fixture-bot", bot_status="active",
-                                  provider_efforts=[], transport_efforts=[], effort_by_demand={})
+                                  provider_efforts=[], transport_efforts=[], effort_by_demand={},
+                                  billing={"mode": "subscription", "verified": True,
+                                           "extra_usage_enabled": False, "bot_usage_included": True,
+                                           "api_fallback_disabled": True, "account_ref": "fixture-bot"})
                 rc, p = self.run_plan([node], [c])
                 self.assertEqual(rc, 0, p)
                 for key, expected in fields.items():
@@ -105,6 +108,14 @@ class ModelRouterIntegrationTests(unittest.TestCase):
             (candidate(billing={"mode": "unknown", "verified": False}), "BILLING_UNVERIFIED"),
             (candidate(billing={"mode": "subscription", "verified": True,
                                 "extra_usage_enabled": False, "account_ref": None}), "ACCOUNT_UNVERIFIED"),
+            (candidate(billing={"mode": "subscription", "verified": True,
+                                "extra_usage_enabled": False, "model_included": None,
+                                "api_fallback_disabled": True, "account_ref": "test-account"}),
+             "MODEL_INCLUSION_UNVERIFIED"),
+            (candidate(billing={"mode": "subscription", "verified": True,
+                                "extra_usage_enabled": False, "model_included": True,
+                                "api_fallback_disabled": None, "account_ref": "test-account"}),
+             "API_FALLBACK_UNVERIFIED"),
             (candidate(quota={"used_pct": None, "observed_at": NOW}), "QUOTA_UNKNOWN"),
             (candidate("grok", surface="grok", quota={"used_pct": 100, "observed_at": NOW}),
              "QUOTA_EXHAUSTED"),

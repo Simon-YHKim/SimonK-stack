@@ -28,7 +28,8 @@ def candidate(name="small", surface="codex", **changes):
         "transport_efforts": ["low", "high", "xhigh"],
         "effort_by_demand": {"routine": "low", "reasoning": "high", "critical": "xhigh"},
         "billing": {"mode": "subscription", "verified": True,
-                    "extra_usage_enabled": False, "account_ref": "test-account"},
+                    "extra_usage_enabled": False, "model_included": True,
+                    "api_fallback_disabled": True, "account_ref": "test-account"},
         "quota": {"used_pct": 10, "observed_at": NOW, "bucket": "test-weekly"},
     }
     item.update(changes)
@@ -116,6 +117,15 @@ class OrchestrationTests(unittest.TestCase):
         p = self.plan(candidates=[c], budget={"approved_usd": 1})
         self.assertIn("COST_UNKNOWN", str(p))
 
+    def test_zero_budget_never_routes_metered_api_even_with_zero_quote(self):
+        for mode in ("api", "metered"):
+            with self.subTest(mode=mode):
+                c = candidate(billing={"mode": mode, "verified": True,
+                                       "account_ref": "fixture-api"}, upper_usd_per_attempt=0)
+                p = self.plan(candidates=[c])
+                self.assertEqual(p["status"], "blocked")
+                self.assertIn("SUBSCRIPTION_ONLY", str(p))
+
     def test_retry_and_review_reservations_are_in_total(self):
         c = candidate(billing={"mode": "api", "verified": True, "account_ref": "test-api"}, upper_usd_per_attempt=0.3)
         p = self.plan([step(), step("review", depends_on=["read"])], [c],
@@ -148,6 +158,17 @@ class OrchestrationTests(unittest.TestCase):
         for changes in ({"quota": {"used_pct": 100, "observed_at": NOW}},
                         {"billing": {"mode": "subscription", "verified": True}}):
             self.assertEqual(self.plan(candidates=[candidate(**changes)])["status"], "blocked")
+
+    def test_subscription_needs_model_inclusion_and_no_api_fallback(self):
+        for billing_change, reason in (({"model_included": None}, "MODEL_INCLUSION_UNVERIFIED"),
+                                       ({"model_included": False}, "MODEL_INCLUSION_UNVERIFIED"),
+                                       ({"api_fallback_disabled": None}, "API_FALLBACK_UNVERIFIED"),
+                                       ({"api_fallback_disabled": False}, "API_FALLBACK_UNVERIFIED")):
+            with self.subTest(billing_change=billing_change):
+                billing = dict(candidate()["billing"], **billing_change)
+                plan = self.plan(candidates=[candidate(billing=billing)])
+                self.assertEqual(plan["status"], "blocked")
+                self.assertIn(reason, str(plan))
 
     def test_quality_floor_wins_over_cheapest_candidate(self):
         p = self.plan([step(demand="critical")],
@@ -537,7 +558,10 @@ class OrchestrationTests(unittest.TestCase):
     def bot(self, **changes):
         c = candidate("bot", surface="grok-bot", transport="bot", model=None,
                       capabilities=["gui"], bot_id="grok-bot", bot_status="active",
-                      provider_efforts=[], transport_efforts=[], effort_by_demand={})
+                      provider_efforts=[], transport_efforts=[], effort_by_demand={},
+                      billing={"mode": "subscription", "verified": True,
+                               "extra_usage_enabled": False, "bot_usage_included": True,
+                               "api_fallback_disabled": True, "account_ref": "test-bot-account"})
         c.update(changes)
         return c
 
@@ -554,6 +578,17 @@ class OrchestrationTests(unittest.TestCase):
         self.assertIsNone(p["steps"][0]["route"]["requested_effort"])
         self.assertEqual(p["steps"][0]["route"]["vendor"], "xai")
         self.assertEqual(p["steps"][0]["handoff"]["mode"], "console")
+
+    def test_bot_needs_included_subscription_usage_not_a_model_claim(self):
+        for included in (None, False):
+            with self.subTest(included=included):
+                billing = dict(self.bot()["billing"], bot_usage_included=included,
+                               model_included=True)
+                p = self.plan([self.gui()], [self.bot(billing=billing)])
+                self.assertEqual(p["status"], "blocked")
+                self.assertIn("BOT_USAGE_INCLUSION_UNVERIFIED", str(p))
+        billing = dict(self.bot()["billing"], model_included=None)
+        self.assertEqual(self.plan([self.gui()], [self.bot(billing=billing)])["status"], "ready")
 
     def test_held_bot_is_not_routed(self):
         p = self.plan([self.gui()], [self.bot(bot_status="ON HOLD")])

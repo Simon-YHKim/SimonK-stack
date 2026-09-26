@@ -4,7 +4,7 @@ description: >-
   Use when choosing model/effort assignments: "which model", "모델 추천",
   "route tasks". Returns an evidence-bound /vibe plan with quota, cost and
   blocked reasons; never launches workers or treats unknown billing as free.
-version: 0.2.2
+version: 0.2.3
 ---
 
 # Model Router — one typed request, one central plan
@@ -19,8 +19,9 @@ silently combine a development planner with an older installed skill home.
 
 - Model IDs, lifecycle, provider effort and public reference prices:
   [model-registry.json](../vibe/references/model-registry.json), through the planner's loader.
-- Account availability, resolved aliases, transport effort, billing, overage and
-  quota: fresh, account-bound runtime evidence. Unknown is blocked, not zero.
+- Account availability, resolved aliases, transport effort, exact-model or
+  Bot-usage subscription inclusion, disabled overage/API fallback and quota: fresh,
+  account-bound runtime evidence. Unknown is blocked, not zero.
 - Task-type defaults: `TASK_TYPE_MAP` in the central planner. The mirror below is
   checked against that executable contract by offline integration tests.
 - Wiki benchmarks are historical research, not dispatch authority. A fetch time
@@ -146,6 +147,9 @@ or exit code is not a successful execution; `actual_usd: null` means unknown.
   a dollar threshold or number-of-tasks exception to authorize extra spending.
 - A paid route needs an explicit grant, a conservative bound and valid account
   evidence. Public API prices are not a subscription invoice or hard cap.
+- A subscription route requires positive exact-model (or Bot-usage) inclusion
+  and disabled overage/API fallback evidence; `billing.verified=true` alone is
+  insufficient.
 - Grok CLI stays on hold while quota is exhausted. A predicted reset time is
   not recovery evidence. Do not top up, enable overage or change credentials.
 - No API key, environment file, password vault or login-cookie reads are needed

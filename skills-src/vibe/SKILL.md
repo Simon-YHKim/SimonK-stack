@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when asked to "/vibe", "orchestrate this task", "바이브로 알아서 해줘", "오르카로 돌려", or "스킬 조합해서 처리해". Main skill orchestrator: selects skills, software, model/effort and budget; uses vibe-bot only for GUI-only work. Produces verified artifacts and usage reports; unknown cost blocks paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.11.7
+version: 2.11.8
 author: simon-stack
 ---
 
@@ -112,9 +112,13 @@ starting a paid wave. Only one coordinator may own a run's budget.
 
 Unknown price, billing mode or exhausted/stale quota excludes that route.
 Subscription usage is not free: report included quota separately from extra
-money. Zero incremental spend is valid only when the included subscription
-path and disabled overage have been verified. Do not silently fall back to an
-API key, paid overage or a new subscription.
+money. Zero incremental spend is valid only when the exact LLM model (or
+provider-managed Bot usage) is included in the subscription and both overage
+and API fallback are verified disabled.
+Unknown is blocked. Do not silently fall back to an API key, paid overage or
+a new subscription.
+With the default USD 0 grant, API/metered model routes stay blocked even when
+a quote claims zero cost; this user's route is subscription usage only.
 
 Choose among routes that meet the quality/capability floor, then minimize
 incremental cost and quota pressure. Lower unnecessary effort, trim context,
@@ -366,6 +370,12 @@ python -B -I -S tests/test_ledger_scan.py
 
 ## Version note
 
+2.11.8 requires exact-model or Bot-usage subscription inclusion and disabled
+API fallback as separate positive runtime facts before a route can reserve USD 0.
+It also rejects API/metered model routes under a zero-money grant, including
+claimed zero-price calls, so subscription-only intent cannot be bypassed.
+Unknown flags remain blocked; this does not establish real account evidence or
+authorize live generation, installation, or an operational DB migration.
 2.11.7 keeps receipt-bound candidate discovery bytecode-free and requires
 inherited bytecode suppression for child Python tests; installation is unchanged.
 2.11.4 pairs with vibe-bot 0.9.0: 19 bots/six teams, Relay-only new delivery,

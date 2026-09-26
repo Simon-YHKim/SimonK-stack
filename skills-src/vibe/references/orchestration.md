@@ -191,10 +191,17 @@ These are observed/configured facts, not inferred from a model name. Candidate
 observations and quota have a conservative 15-minute validity window.
 
 Billing fields are `mode` (subscription/api/metered/unknown), `verified`,
-`account_ref`, and `extra_usage_enabled`. Included subscription routing requires
-verified=true and extra_usage_enabled=false. A paid candidate supplies
+`account_ref`, `extra_usage_enabled`, `model_included`, `bot_usage_included`,
+and `api_fallback_disabled`. Included subscription routing requires all of
+`verified=true`, `extra_usage_enabled=false`, `api_fallback_disabled=true` for
+the account/transport, plus `model_included=true` for an exact LLM model or
+`bot_usage_included=true` for the provider-managed Grok Bot. Missing or uncertain
+values block that route. A paid candidate supplies
 upper_usd_per_attempt including reasoning, tool use and transport charges.
 The quote belongs to this task/run snapshot, not a permanent model price.
+With approved_usd=0, API and metered LLM routes are excluded even when their
+claimed per-attempt upper quote is zero. A positive metered grant is a separate
+user decision; it is never inferred from a free-tier claim.
 Quota supplies used_pct, observed_at and an optional bucket ID. Unknown is null,
 never zero. Both quota exhaustion and unverified billing exclude the route.
 

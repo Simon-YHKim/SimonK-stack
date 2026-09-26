@@ -511,11 +511,21 @@ def assess_candidate(c, step, policy, now, producer_vendor=None):
     if billing.get("verified") is not True:
         errors.append("BILLING_UNVERIFIED")
     elif billing.get("mode") == "subscription":
+        included_key = "bot_usage_included" if surface == "grok-bot" else "model_included"
         if billing.get("extra_usage_enabled") is not False:
             errors.append("OVERAGE_UNVERIFIED")
-        else:
+        if billing.get(included_key) is not True:
+            errors.append("BOT_USAGE_INCLUSION_UNVERIFIED" if surface == "grok-bot"
+                          else "MODEL_INCLUSION_UNVERIFIED")
+        if billing.get("api_fallback_disabled") is not True:
+            errors.append("API_FALLBACK_UNVERIFIED")
+        if (billing.get("extra_usage_enabled") is False
+                and billing.get(included_key) is True
+                and billing.get("api_fallback_disabled") is True):
             upper = Decimal(0)  # Incremental bill only; subscription usage is separate.
     elif billing.get("mode") in ("api", "metered"):
+        if money(policy["approved_usd"]) == 0:
+            errors.append("SUBSCRIPTION_ONLY")
         try:
             upper = money(c.get("upper_usd_per_attempt"))
         except ValueError:
