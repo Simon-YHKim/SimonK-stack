@@ -374,13 +374,36 @@ source 137스킬/407파일, bundle 5플러그인/182스킬/713파일의 build·�
 verify가 통과했습니다. 최종 코드의 `/vibe` 테스트 210개와 중앙 라우터 통합
 테스트 8개가 통과했고, 릴리스·번들 테스트 81개도 통과했습니다.
 
-Core 원본 저장소의 현재 HEAD가 고정 입력 `4369136`에서 이동했기 때문에
-원본을 체크아웃·되돌리지 않고 `inputs/`에 5개 원본을 로컬 복제해 지정된
+Core 원본 `main`의 HEAD `c080bda`는 고정 입력 `4369136`의 조상이며,
+고정 입력은 `fix/semantic-recall-metadata-260924`의 후속 수정 3건을 포함합니다.
+원본 브랜치를 체크아웃·되돌리지 않고 `inputs/`에 5개 원본을 로컬 복제해 지정된
 커밋을 detached 상태로 고정했습니다. 이 디렉터리는 후보 재현용 입력이며
 사용자 설치본이 아닙니다. 새 후보의 정적 경로 감사는 150참조 중 앞 절과
 동일한 미해결 항목 11개를 보고하며 종료 코드 1입니다. 따라서
 `runtime_closure_verified`, `host_compatibility_verified`, `installation_ready`는
 모두 `false`입니다. 실사용 설치·모델 호출·정식 머지·원격 push는 하지 않았습니다.
+
+### `/vibe` 2.11.9 모델 결속 후보 (2026-09-27)
+
+기능 브랜치 `23b785c`는 `billing.model_included=true`를 다른 모델에서 복사해
+USD 0 구독 경로를 통과시킬 수 없도록 `billing.included_model`을 선택된
+실제 모델 ID에 결속합니다. alias가 있으면 검증된 resolved model을 사용합니다.
+기본 승인액 USD 0에서 API/metered 경로를 차단한 2.11.8 계약은 그대로입니다.
+또한 준비 절차 테스트의 USD 0 fixture가 구독이 아닌 API 경로를 쓰던 기존
+모순을 수정했습니다. 이 패치는 독립적인 billing 관측 시각이나 실제 계정의
+모델 포함 여부를 증명하지 않습니다.
+
+기존 2.11.8 후보는 유지하고
+`E:/Coding Infra/Releases/SimonK-stack/20260927-vibe-2.11.9-model-binding-candidate/`
+에 새 `source`·`candidate`·고정 입력 `inputs`를 만들었습니다. source digest는
+`61c82676a72dca622f921e05d436f47cfe784524b6f7d76342fffa19a4dac851`,
+bundle digest는
+`92537eb4cd9ac3735c8ffa4e83285d2bf10eedf454237e78bd4d650b6aa6b1a5`입니다.
+source 137스킬/407파일, bundle 5플러그인/182스킬/713파일의 build·별도
+verify가 통과했습니다. `/vibe` 테스트 211개, 준비 절차 90개, 중앙 라우터
+통합 8개가 통과했습니다. 정적 경로 감사는 이전과 동일하게 150참조 중
+11건 미해결(종료 코드 1)이며, 세 readiness flag는 모두 `false`입니다.
+호스트 실사용 설치·모델 생성 호출·정식 머지·원격 push는 여전히 별도 게이트입니다.
 
 ### Codex frontmatter 검사 범위
 
