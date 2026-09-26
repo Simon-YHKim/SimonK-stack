@@ -5,6 +5,6 @@
     "SimonKCore": {"name": "simonk-core", "commit": "4369136ea7db22e8e5a79124615e31b8e27eb663"},
     "SimonKDesign": {"name": "simonk-design", "commit": "9decad2b263f9caa0fdfaf4f4a0c6be07f2ebdec"},
     "SimonKMarket": {"name": "simonk-market", "commit": "30e74ba6a43a9009d4ebdd4fbc30efe6edec7274"},
-    "SimonKStack": {"name": "simonk-stack", "commit": "529239bfe1c673faa13160b0f3816000326f9c87"}
+    "SimonKStack": {"name": "simonk-stack", "commit": "f0155557d12ad9d6ec30fe996cd9120e987bc086"}
   }
 }
