@@ -232,6 +232,24 @@ clone/checkout 준비는 builder가 자동 수행하는 기능이 아니며, 긴
 같은 CLI의 일반 설치 목록 16개에는 SimonK가 0개입니다. 이는 이 후보의
 manifest 발견 증거이며 스킬 호출·훅 실행·영구 설치 증거는 아닙니다.
 
+같은 5개 `--plugin-dir` 세션에서 `claude plugin details <name>@inline`를 각각
+조회하면 아래 구성요소를 열거합니다. `Skills` 행에는 이름이 같은 슬래시 명령도
+포함되므로, 실제 `skills/*/SKILL.md` 182개와 `commands/*.md` 5개를 분리해
+대조했습니다. 플러그인별 `Always-on` 수치는 CLI의 **추정치**이며 합산값을
+실제 세션 토큰 사용량이나 라우팅 정확도 측정값으로 해석하지 않습니다.
+
+| 플러그인 | 실제 스킬 | 명령 | 호스트 열거 | Always-on 추정 |
+| --- | ---: | ---: | ---: | ---: |
+| SimonKAIHub | 7 | 1 | 8 | ~1,791 tok |
+| SimonKCore | 61 | 2 | 63 | ~14,017 tok |
+| SimonKDesign | 22 | 1 | 23 | ~5,590 tok |
+| SimonKMarket | 32 | 1 | 33 | ~7,554 tok |
+| SimonKStack | 60 | 0 | 60 | ~12,628 tok |
+| **합계** | **182** | **5** | **187** | **~41,580 tok** |
+
+이 관측은 호스트의 **구성요소 열거**를 확인할 뿐, 자동 스킬 선택, 명령 호출,
+SKILL 내부 훅의 실행·안전성, Codex의 실제 후보 로딩을 확인하지 않습니다.
+
 OpenAI의 [plugin 패키징 문서](https://developers.openai.com/plugins/build/plugins)는
 Claude 호환 manifest도 수용한다고 설명합니다. 로컬 `plugin-creator`의
 `validate_plugin.py`는 `.codex-plugin/plugin.json` 형식만 검사하므로, 현재
