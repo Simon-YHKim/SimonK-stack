@@ -185,6 +185,14 @@ and task criteria, establish terminal and cost evidence, then observe/settle/
 verify through the Store. Required reviews still apply. No automatic completion,
 login/payment/Submit authorization, settlement or provider-model selection.
 
+When Simon authorizes an ongoing collaboration with the Bot team, run it as a
+self-paced `/loop` that scans the bus each tick and answers Relay's coding
+tasks. Follow the vibe-bot handshake reference (`references/relay-handshake.md`):
+check every outbox before calling a task unanswered, send at most one reminder,
+treat `simon-go` files as production changes to verify read-only, ignore HR
+noise, end every result with a `교훈` block, and claim before any production
+write that may also have been approved in the Bot channel.
+
 ## 5. Account and finish
 
 Keep an orchestration run-state for host/tool/Bot tasks, costs and evidence.

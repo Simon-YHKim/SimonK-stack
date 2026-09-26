@@ -181,10 +181,36 @@ not behavioral validation. Record each observed outcome and distinguish an offli
 fixture or current-host response from actual Relay/provider behavior; never grade
 unperformed actions as passed or infer cross-model quality from one host.
 
+## Two-way handshake with Relay
+
+Relay also sends work back to the coding session: a `relay/inbox/<nonce>.md`
+whose owner line names the Coding LLM, answered in `relay/outbox/<nonce>.result.md`.
+Follow [the handshake reference](references/relay-handshake.md) whenever the user
+has authorized an ongoing collaboration loop. It fixes four behaviors:
+
+- Before reporting "no reply", search every `*/outbox/<nonce>*.result.md` and
+  read the top of Relay STATUS. A claim older than 20 minutes with neither may
+  receive exactly one `ping-relay-<nonce>.md`; after that, report it blocked.
+- Classify bus traffic: `simon-go` names are production changes (alert first);
+  `vb-*`, `ping-*` and STATUS are the coding queue; `hr-*`, `_tmp-*` and
+  `_relay-*` are organization drafts and never wake the coding loop.
+- Every result, in both directions, ends with a `교훈:` block (what was fixed,
+  what blocked, the next step) so Worklog can fold it into workbooks. Grok-side
+  pitfalls come back through the lessons file named in the reference.
+- A production write that may have been approved in two channels starts with a
+  claim line on the bus. If another claim or `simon-go` task already exists, stop
+  and verify read-only instead of writing.
+- `simon-go-attested-*` files and "Simon GO via Relay" results are Simon's
+  decision. Record them; do not ask Simon to confirm them again.
+
+The reminder rule is an authorized-task behavior, not a scheduler: it never
+creates routines, and it respects the charter's one-reminder limit.
+
 ## Verification and current limits
 
 ```text
 python -B -I -S "<bot>/scripts/tests/test_execute_bot.py"
+python -B -I -S "<bot>/scripts/tests/test_bus_watch.py"
 python -B "<bot>/scripts/selftest.py"
 ```
 
