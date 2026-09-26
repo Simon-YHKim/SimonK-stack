@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>freeze v2 어댑터 판정 정정</title>
+<style>:root{color-scheme:light dark;--a:#345ca8;--t:#17202b;--m:#586575;background:#f7f9fc;color:var(--t);font:16px/1.55 system-ui,sans-serif}@media(prefers-color-scheme:dark){:root{--a:#a5c2ff;--t:#e9eef5;--m:#a7b4c6;background:#111720}}body{max-width:880px;margin:auto;padding:2rem 1rem}h1{font-size:1.7rem;line-height:1.25}h2{font-size:1.1rem}.muted{color:var(--m)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8rem;margin:1.4rem 0}.card,details{border:1px solid var(--m);border-radius:.6rem;padding:.8rem}.card strong{display:block;font-size:1.3rem}summary{cursor:pointer;font-weight:600}summary:focus-visible,a:focus-visible{outline:3px solid var(--a);outline-offset:3px}a{color:var(--a)}code{overflow-wrap:anywhere}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid var(--m);padding:.45rem;text-align:left}</style></head><body>
+<p class="muted">2026-09-27 03:48:33 KST · 정정 보고 · 격리된 현재 후보 실행</p>
+<h1>현재 v2 후보의 <code>freeze</code> 런타임 결손 판정을 철회합니다</h1>
+<p>앞선 보고는 패키지에 보존된 원본 Bash leaf를 직접 실행했습니다. 실제 v2 후보의 SKILL 훅은 Stack의 Python safety adapter를 호출합니다. Stack의 <code>.simonk-runtime/</code>에는 Bash leaf와 <code>careful</code> helper가 함께 있어, 직접 leaf 실행 결과를 활성 훅의 결과로 일반화할 수 없습니다.</p>
+<div class="cards" aria-label="검증 결과"><div class="card"><strong>ALLOW</strong>경계 안 파일</div><div class="card"><strong>DENY</strong>경계 밖 파일</div><div class="card"><strong>ALLOW</strong>Core clear 후 Stack</div><div class="card"><strong>미검증</strong>실제 호스트 로딩·설치</div></div>
+<table><thead><tr><th>증거</th><th>범위</th></tr></thead><tbody>
+<tr><td>후보 <code>bundle.json</code> scope = <code>five-plugin-candidate-safety-v2</code></td><td>v2 변환이 이 후보에 적용됨</td></tr>
+<tr><td>Stack <code>freeze/SKILL.md</code> 훅 → <code>.simonk-runtime/safety_runtime.py</code></td><td>원본 leaf 직접 호출 아님</td></tr>
+<tr><td>현재 후보 어댑터 격리 실행: 안 allow / 밖 deny / Core clear 후 allow</td><td>로컬 프로세스·일회성 state root의 실제 동작</td></tr>
+<tr><td>safety runtime 21회귀 + 후보 빌더 cross-plugin E2E 1회 PASS</td><td>테스트 픽스처; native Claude/Codex host 증명 아님</td></tr>
+<tr><td>후보 receipt digest 일치, <code>.pyc</code> 0</td><td>바이트 무결성; 전체 의존성 증명 아님</td></tr>
+</tbody></table>
+<details><summary>남은 검증</summary><p>Claude/Codex가 패키지와 훅을 실제로 발견·기동하는지, Python·Node·Git Bash가 그 호스트 실행 환경에서 사용 가능한지, 전체 182스킬의 실행 의존성이 닫히는지, 설치 전환이 안전한지는 아직 확인되지 않았습니다. readiness 플래그 3개는 모두 false로 유지합니다.</p></details>
+<details><summary>상태와 보존</summary><p>기능 브랜치 문서 정정 커밋 <code>58cb1e7</code>. 기존 후보·설치본·원본 main은 보존했습니다. 모델/Bot/Orca 실호출, 원격 push, 정식 머지, 결제 변경은 0이며 추가 과금은 $0입니다. 격리 테스트 state 폴더는 증거로 보존합니다.</p></details>
+</body></html>

@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>분리 플러그인 freeze 런타임 닫힘 검증</title>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>철회된 freeze 직접 실행 판정</title>
 <style>
 :root{color-scheme:light dark;--a:#345ca8;--t:#17202b;--m:#586575;background:#f7f9fc;color:var(--t);font:16px/1.55 system-ui,sans-serif}
 @media(prefers-color-scheme:dark){:root{--a:#a5c2ff;--t:#e9eef5;--m:#a7b4c6;background:#111720}}
@@ -8,15 +8,15 @@ body{max-width:900px;margin:auto;padding:2rem 1rem}h1{font-size:1.7rem;line-heig
 </style></head>
 <body>
 <p class="muted">2026-09-27 03:37:36 KST · 격리 후보 · 모델 호출 없음</p>
-<h1>분리 후보의 <code>freeze</code> 훅은 안전하게 막지만 정상 동작하지 않는다</h1>
-<p>Stack 플러그인의 <code>freeze/bin/check-freeze.sh</code>는 Core 플러그인에 있는 <code>careful/bin/hook-extract.sh</code>를 같은 <code>skills/</code> 형제 경로에서 찾습니다. 후보의 해당 경로가 실제로 없으며, 더미 요청 실행은 보조 파일 부재를 이유로 deny를 반환했습니다.</p>
-<div class="cards" aria-label="핵심 결과"><div class="card"><strong>PASS</strong>후보 영수증 digest 일치</div><div class="card"><strong>DENY</strong>더미 훅 요청의 실제 응답</div><div class="card"><strong>FALSE</strong>설치 준비·런타임 닫힘</div></div>
-<details open><summary>재현 증거</summary><pre>입력: {"tool_name":"Read","tool_input":{"file_path":"fixture-only.txt"}}
+<h1>철회: 원본 Bash leaf 직접 실행은 활성 훅 검증이 아니다</h1>
+<p class="card" role="alert">03:48 KST 정정: 현재 후보는 v2 safety projection입니다. 활성 <code>freeze</code> 훅은 Stack의 <code>.simonk-runtime/safety_runtime.py</code>를 호출하며, 그 안에 필요한 <code>careful</code> helper가 있습니다. 격리 실행에서 경계 안 허용·밖 차단·Core 해제 후 허용을 확인했습니다. 아래 원래 판정은 사용하지 마세요. <a href="20260927-034833-freeze-v2-correction.html">정정 보고서</a>.</p>
+<div class="cards" aria-label="당시 관측"><div class="card"><strong>PASS</strong>후보 영수증 digest 일치</div><div class="card"><strong>DENY</strong>원본 leaf 단독 실행</div><div class="card"><strong>미검증</strong>실제 호스트 설치</div></div>
+<details><summary>철회된 판정의 직접 실행 기록</summary><pre>입력: {"tool_name":"Read","tool_input":{"file_path":"fixture-only.txt"}}
 출력: permissionDecision=deny
 사유: [freeze] Hook helpers unavailable (broken install?)
 프로세스 종료코드: 0
 후보 검증: 5 plugins / 182 skills / candidate_bytes_verified</pre><p>이 결과는 실제 사용자 파일이나 운영 설정에 대한 읽기·쓰기 테스트가 아닙니다. 후크의 fail-closed 경로만 검증합니다.</p></details>
-<details><summary>해결 방향의 결정 게이트</summary><p>freeze 소유권을 Core로 옮기기, 보조 스크립트를 freeze에 동봉하기, 또는 호스트가 검증한 플러그인 경로를 전달하기가 가능한 방향입니다. 보안 훅의 출처·업데이트·상대경로 계약을 바꾸므로 허브 §35 토론과 별도 심판, D-코드 전에는 한 방식을 선택하지 않습니다.</p></details>
+<details><summary>철회한 제안</summary><p>소유권 이동·helper 중복·호스트 경로 주입은 현재 v2 후보의 결손을 근거로 요구할 수 없습니다. 실제 호스트 로딩과 운영 설치 증거는 별개로 필요합니다.</p></details>
 <details><summary>현재 경계</summary><p>후보·설치본·원본 main은 변경하지 않았습니다. 기능 브랜치의 설치 문서만 수정·커밋했습니다. 설치·push·main 머지·모델/Bot/Orca 실호출·결제 변경은 없습니다. 추가 과금은 $0입니다.</p></details>
 <p class="muted">문서 교정: <code>bc04485</code> · 후보 digest: <code>a26903c3419523a983795650d319f9f5694101f1c0939e687d50e7963bbec6da</code></p>
 </body></html>
