@@ -222,6 +222,15 @@ clone/checkout 준비는 builder가 자동 수행하는 기능이 아니며, 긴
 [Plugins reference](https://code.claude.com/docs/en/plugins-reference)를 참고하세요.
 이 후보에 대한 native Claude/Codex validator 또는 host 실행 통과 주장은 없습니다.
 
+OpenAI의 [plugin 패키징 문서](https://developers.openai.com/plugins/build/plugins)는
+Claude 호환 manifest도 수용한다고 설명합니다. 로컬 `plugin-creator`의
+`validate_plugin.py`는 `.codex-plugin/plugin.json` 형식만 검사하므로, 현재
+Claude-format 후보 5개에 적용하면 모두 해당 파일 부재로 실패합니다. 이 결과를
+Codex가 후보를 로드할 수 없다는 판정으로 해석하지 마세요. 반대로 문서상 호환성만으로
+이 후보의 native 로딩, skill 선택, hooks·commands 변환이나 실행 안전성이 검증된 것도
+아닙니다. 별도 격리 호스트 검증과 설치 승인 전까지 위 세 readiness flag는 그대로
+`false`입니다.
+
 ### Codex frontmatter 검사 범위
 
 로컬 `skill-creator/scripts/quick_validate.py`의 허용 키 목록은 실제 Codex
