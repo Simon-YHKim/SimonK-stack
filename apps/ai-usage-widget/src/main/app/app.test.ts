@@ -274,6 +274,13 @@ describe('sanitizeSnapshot', () => {
     const bad = { state: 'ready', windows: 'nope', source: 'mock' } as unknown as UsageSnapshot;
     expect(sanitizeSnapshot(account, bad)).toMatchObject({ state: 'error', errorCode: 'internal', windows: [], source: 'grok-acp' });
   });
+
+  it('keeps only a bounded Codex banked reset count', () => {
+    const codex = { ...account, provider: 'codex' as const };
+    expect(sanitizeSnapshot(codex, { ...okUsage(codex), resetCreditsAvailable: 2 }).resetCreditsAvailable).toBe(2);
+    expect(sanitizeSnapshot(codex, { ...okUsage(codex), resetCreditsAvailable: -1 }).resetCreditsAvailable).toBeUndefined();
+    expect(sanitizeSnapshot(account, { ...okUsage(account), resetCreditsAvailable: 2 }).resetCreditsAvailable).toBeUndefined();
+  });
 });
 
 describe('app controller', () => {

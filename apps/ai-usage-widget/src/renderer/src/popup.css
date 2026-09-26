@@ -453,6 +453,12 @@
   color: var(--p-crit);
 }
 
+.reset-credit-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; color: var(--p-fg2); font-size: 11px; }
+.reset-credit-row button { min-height: 28px; border: 1px solid var(--p-border); border-radius: 6px; padding: 3px 8px; color: var(--p-fg); background: transparent; cursor: pointer; }
+.reset-credit-row button:hover { background: var(--p-control-hover); }
+.reset-credit-row button:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.reset-credit-row button:disabled { opacity: .5; cursor: wait; }
+
 /* Accounts tab */
 .accounts-hint {
   margin: 0;

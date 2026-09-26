@@ -46,6 +46,7 @@ export const INVOKE = {
   loginCancel: 'login:cancel',
   loginSubmitPaste: 'login:submit-paste',
   usageRefreshNow: 'usage:refresh-now',
+  usageRedeemResetCredit: 'usage:redeem-reset-credit',
   shellOpenExternal: 'shell:open-external',
   windowTogglePopup: 'window:toggle-popup',
   windowShowPopup: 'window:show-popup',
@@ -124,10 +125,12 @@ export interface RefreshNowRequest {
   /** null refreshes every enabled account. */
   accountId: string | null;
 }
+export type ResetCreditResult = 'reset' | 'cancelled' | 'unavailable' | 'nothingToReset' | 'noCredit' | 'alreadyRedeemed';
 
 export const EXTERNAL_LINK_KEYS = [
   'claude-cli-install',
   'codex-cli-install',
+  'codex-usage',
   'grok-cli-install',
   'antigravity-cli-install',
 ] as const;
@@ -194,6 +197,7 @@ export interface InvokeContract {
   'login:cancel': { req: LoginSessionRef; res: null };
   'login:submit-paste': { req: LoginSubmitPasteRequest; res: null };
   'usage:refresh-now': { req: RefreshNowRequest; res: null };
+  'usage:redeem-reset-credit': { req: AccountRef; res: ResetCreditResult };
   'shell:open-external': { req: OpenExternalRequest; res: null };
   'window:toggle-popup': { req: null; res: null };
   'window:show-popup': { req: ShowPopupRequest; res: null };
@@ -351,6 +355,7 @@ export const INVOKE_VALIDATORS: Validators = {
     if (!isId(accountId)) return fail('invalid accountId');
     return ok({ accountId });
   },
+  'usage:redeem-reset-credit': parseAccountRef,
   'shell:open-external': (input) => {
     const rec = parseRecord(input, ['kind', 'key', 'sessionId', 'url']);
     if (!rec.ok) return rec;

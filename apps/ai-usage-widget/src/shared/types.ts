@@ -166,6 +166,8 @@ export interface UsageSnapshot {
   state: UsageState;
   windows: QuotaWindow[];
   plan?: string;
+  /** Codex banked rate-limit resets available; separate from purchased credits. */
+  resetCreditsAvailable?: number;
   /** Epoch ms when `windows` were measured, null if never. */
   measuredAt: number | null;
   /** Epoch ms of the last successful fetch, null if never. */

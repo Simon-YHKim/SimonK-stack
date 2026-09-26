@@ -62,7 +62,7 @@ export class PopupApp {
     const translator = (): Translator => this.translator;
     const report = (message: string): void => this.report(message);
 
-    this.usage = new UsageTab();
+    this.usage = new UsageTab({ api: this.api, report });
     this.accounts = new AccountsTab({ api: this.api, translator, report, now: this.now });
     this.settings = new SettingsTab({
       api: this.api,

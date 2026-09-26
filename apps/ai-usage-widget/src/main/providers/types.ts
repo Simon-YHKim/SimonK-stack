@@ -59,6 +59,8 @@ export interface ProviderAdapter {
    */
   getIdentity(account: Account, signal: AbortSignal): Promise<ProviderIdentity>;
   fetchUsage(account: Account, signal: AbortSignal): Promise<UsageSnapshot>;
+  /** Optional official banked reset flow; confirmation happens before the consuming RPC. */
+  redeemResetCredit?(account: Account, confirm: (offer: { availableCount: number; expiresAt: number | null }) => Promise<boolean>, signal: AbortSignal): Promise<'reset' | 'cancelled' | 'unavailable' | 'nothingToReset' | 'noCredit' | 'alreadyRedeemed'>;
   /** Deletes the widget-owned profile dir of this account. Must refuse paths outside the profiles root. */
   removeProfile(account: Account): Promise<void>;
 }

@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { app, ipcMain, net, Notification, powerMonitor, screen, session, shell } from 'electron';
+import { app, dialog, ipcMain, net, Notification, powerMonitor, screen, session, shell } from 'electron';
 import { PROVIDER_NAME_KEYS, resolveLocale, t } from '../shared/i18n';
 import { INVOKE_CHANNELS } from '../shared/ipc';
 import { PROVIDER_TRAITS, type AppStateSnapshot } from '../shared/types';
@@ -149,6 +149,18 @@ async function start(args: LaunchArgs, isolated: boolean, devServerUrl: string |
     theme,
     autostart,
     openExternal: (url) => shell.openExternal(url),
+    confirmResetCredit: async ({ label, emailMasked, availableCount, expiresAt, locale }) => {
+      const expiry = expiresAt === null ? t(locale, 'resetCreditExpiryUnknown') :
+        new Intl.DateTimeFormat(locale === 'ko' ? 'ko-KR' : 'en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(expiresAt);
+      const result = await dialog.showMessageBox({
+        type: 'warning', title: t(locale, 'resetCreditConfirmTitle'),
+        message: t(locale, 'resetCreditConfirmTitle'),
+        detail: t(locale, 'resetCreditConfirmBody', { account: label, email: emailMasked ?? '-', count: availableCount, expiry }),
+        buttons: [locale === 'ko' ? '취소' : 'Cancel', t(locale, 'resetCreditUse')],
+        defaultId: 0, cancelId: 0, noLink: true,
+      });
+      return result.response === 1;
+    },
     systemLocale: app.getLocale(),
     profilesRoot,
     logger: logger.child('app'),

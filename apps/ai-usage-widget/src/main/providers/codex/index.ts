@@ -2,6 +2,7 @@
 // official `codex app-server` over stdio, device-code login, account/rateLimits/read.
 
 import { existsSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
 import { mkdir, rm } from 'node:fs/promises';
 import path from 'node:path';
 import type { Account, ErrorCode, LoginEvent, UsageSnapshot } from '../../../shared/types';
@@ -18,6 +19,8 @@ import {
   parseLoginCompleted,
   parseLoginStartResult,
   parseRateLimits,
+  parseResetOffer,
+  parseConsumeResetOutcome,
   samePath,
   type CodexAccountInfo,
   type DeviceCodeStart,
@@ -52,6 +55,8 @@ export function createCodexAdapter(deps: ProviderDeps, options: CodexAdapterOpti
   const resolveCli =
     options.resolveCli ?? ((env: NodeJS.ProcessEnv) => resolveCommand('codex', { ...defaultResolveDeps(), env }));
   const active = new Map<string, Set<ActiveOperation>>();
+  /** Prevent periodic reads from opening a second app-server while a native redemption dialog is open. */
+  const redeeming = new Set<string>();
 
   /** The only CODEX_HOME an account may use: `<profilesRoot>\codex\<id>`, never ~/.codex. */
   const profileDirOf = (account: Account): string => {
@@ -322,6 +327,7 @@ export function createCodexAdapter(deps: ProviderDeps, options: CodexAdapterOpti
     },
 
     async getIdentity(account: Account, signal: AbortSignal): Promise<ProviderIdentity> {
+      if (redeeming.has(account.id)) throw new ProviderError('cancelled', 'reset redemption in progress');
       const codexHome = profileDirOf(account);
       if (!existsSync(codexHome)) return { loggedIn: false };
       const resolved = resolveCli(deps.env);
@@ -361,6 +367,7 @@ export function createCodexAdapter(deps: ProviderDeps, options: CodexAdapterOpti
     },
 
     async fetchUsage(account: Account, signal: AbortSignal): Promise<UsageSnapshot> {
+      if (redeeming.has(account.id)) return failedSnapshot(account, { state: 'error', code: 'cancelled' });
       let codexHome: string;
       try {
         codexHome = profileDirOf(account);
@@ -419,6 +426,7 @@ export function createCodexAdapter(deps: ProviderDeps, options: CodexAdapterOpti
             source: SOURCE,
           };
           if (plan !== undefined) snapshot.plan = plan;
+          if (limits.resetCreditCount !== undefined) snapshot.resetCreditsAvailable = limits.resetCreditCount;
           logger.debug('codex usage read', {
             accountId: account.id,
             windows: limits.windows.length,
@@ -434,6 +442,50 @@ export function createCodexAdapter(deps: ProviderDeps, options: CodexAdapterOpti
           await session?.close();
         }
       });
+    },
+
+    async redeemResetCredit(account, confirm, signal) {
+      const codexHome = profileDirOf(account);
+      if (!existsSync(codexHome)) return 'unavailable';
+      const resolved = resolveCli(deps.env);
+      if (!resolved.ok) return 'unavailable';
+      if (redeeming.has(account.id)) return 'unavailable';
+      redeeming.add(account.id);
+      try {
+        await quiesce(account.id);
+        return await trackOperation(account, signal, async (opSignal) => {
+          let session: CodexSession | null = null;
+          try {
+            session = await openCodexSession({
+              command: resolved.command, codexHome, appVersion: deps.appVersion, parentEnv: deps.env,
+              lifetimeMs: sessionLifetime(5) + 120_000, timeouts, signal: opSignal,
+              killOnAbort: true, logger,
+            });
+            const identity = await readAccount(session, opSignal);
+            if (identity.kind !== 'chatgpt') return 'unavailable';
+            const readOffer = async () => parseResetOffer(await session!.client.request(
+              METHOD.rateLimitsRead, { excludeResetCreditDetails: false },
+              { timeoutMs: timeouts.rpcMs, signal: opSignal },
+            ), deps.now());
+            const offer = await readOffer();
+            if (offer === null) return 'unavailable';
+            if (!await confirm({ availableCount: offer.availableCount, expiresAt: offer.expiresAt })) return 'cancelled';
+            if (opSignal.aborted) return 'cancelled';
+            const current = await readOffer();
+            if (current === null || current.backendAccountId !== offer.backendAccountId || current.creditId !== offer.creditId) {
+              return 'unavailable';
+            }
+            const raw = await session.client.request(METHOD.resetCreditConsume,
+              { idempotencyKey: randomUUID(), creditId: offer.creditId },
+              { timeoutMs: timeouts.rpcMs, signal: opSignal });
+            return parseConsumeResetOutcome(raw) ?? 'unavailable';
+          } finally {
+            await session?.close();
+          }
+        });
+      } finally {
+        redeeming.delete(account.id);
+      }
     },
 
     async removeProfile(account: Account): Promise<void> {

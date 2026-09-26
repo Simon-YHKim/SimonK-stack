@@ -101,6 +101,23 @@ describe('PopupApp shell', () => {
 });
 
 describe('Usage tab', () => {
+  it('offers one Codex reset only for a fresh measured count and routes use through main', async () => {
+    const api = new FakeApi().reply('usage:redeem-reset-credit', () => ({ ok: true, value: 'cancelled' }));
+    const state = appState({ accounts: [account({ id: 'a1', provider: 'codex' })],
+      usage: [usage('a1', { resetCreditsAvailable: 2 })] });
+    const { root, app } = setup(state, api);
+    expect(root.querySelector('.reset-credit-row')?.textContent).toContain('2 Codex banked resets');
+    (root.querySelector('.reset-credit-button') as HTMLButtonElement).click();
+    await flush();
+    expect(api.callsTo('usage:redeem-reset-credit')).toEqual([{ accountId: 'a1' }]);
+    expect(root.textContent).toContain('Reset use cancelled.');
+    (root.querySelector('.reset-credit-link') as HTMLButtonElement).click();
+    expect(api.callsTo('shell:open-external')).toContainEqual({ kind: 'link', key: 'codex-usage' });
+    app.update(appState({ accounts: [account({ id: 'a1', provider: 'codex' })],
+      usage: [usage('a1', { state: 'error', resetCreditsAvailable: 2, errorCode: 'network' })] }));
+    expect(root.querySelector('.reset-credit-row')).toBeNull();
+  });
+
   it('shows used %, reset countdown, measured time and source per account', () => {
     const state = appState({
       accounts: [account({ id: 'a1', label: 'Work', emailMasked: 'j***@e***.com' })],

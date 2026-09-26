@@ -61,6 +61,7 @@ export interface AccountView {
   measuredAt: number | null;
   source: UsageSource | null;
   plan?: string;
+  resetCreditsAvailable?: number;
 }
 
 /** States whose windows hold current (or dimmed recent) measurements. */
@@ -148,6 +149,9 @@ export function buildAccountView(
   if (errorCode !== undefined) view.errorCode = errorCode;
   const plan = snapshot.plan ?? account.plan;
   if (plan !== undefined) view.plan = plan;
+  if (state === 'ok' && account.provider === 'codex' && snapshot.resetCreditsAvailable !== undefined) {
+    view.resetCreditsAvailable = snapshot.resetCreditsAvailable;
+  }
   return view;
 }
 

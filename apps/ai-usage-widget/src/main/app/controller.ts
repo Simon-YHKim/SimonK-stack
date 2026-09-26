@@ -8,6 +8,7 @@ import {
   type OpenExternalRequest,
   type PlacementPreview,
   type RendererReadyRequest,
+  type ResetCreditResult,
   type ResizeWidgetRequest,
 } from '../../shared/ipc';
 import { applySettingsPatch, type Material, type PlacementMode, type Settings } from '../../shared/settings';
@@ -90,6 +91,7 @@ export interface AppControllerDeps {
   onRendererReady?(request: RendererReadyRequest): void;
   onSnapshot?(snapshot: AppStateSnapshot): void;
   onAuthRequired?(account: Pick<Account, 'id' | 'provider' | 'label'>): void;
+  confirmResetCredit?(input: { label: string; emailMasked?: string; availableCount: number; expiresAt: number | null; locale: Locale }): Promise<boolean>;
   scheduler?: Partial<Pick<SchedulerOptions, 'timeoutMs' | 'manualMinIntervalMs' | 'resumeDelayMs' | 'random'>>;
   loginTimeoutMs?: number;
 }
@@ -119,6 +121,7 @@ export function createAppController(deps: AppControllerDeps) {
   const identities = new Map<string, AccountIdentityInfo & { at: number }>();
   const needsIdentity = new Set<string>();
   const authAlerted = new Set<string>();
+  const redeeming = new Set<string>();
   const cli: Record<ProviderId, CliInfo | null> = { claude: null, codex: null, grok: null, antigravity: null };
   const lastDetectAt: Record<ProviderId, number> = { claude: 0, codex: 0, grok: 0, antigravity: 0 };
   const detecting = new Set<ProviderId>();
@@ -540,6 +543,7 @@ export function createAppController(deps: AppControllerDeps) {
     removeAccount: (accountId: string): Promise<null> =>
       serialized(async () => {
         const account = requireAccount(accountId);
+        if (redeeming.has(accountId)) throw new IpcHandlerError('busy');
         login.cancelForAccount(accountId);
         scheduler.cancel(accountId);
         try {
@@ -635,6 +639,40 @@ export function createAppController(deps: AppControllerDeps) {
         .catch((error: unknown) => logger.warn('redetect failed', { error }))
         .then(() => scheduler.refreshNow(accountId));
       return Promise.resolve(null);
+    },
+
+    async redeemResetCredit(accountId: string): Promise<ResetCreditResult> {
+      const account = store.getAccounts().find((item) => item.id === accountId);
+      if (account === undefined || account.provider !== 'codex' || !account.enabled) throw new IpcHandlerError('not-found');
+      if (redeeming.has(accountId)) throw new IpcHandlerError('busy');
+      const adapter = registry.get('codex');
+      if (adapter.redeemResetCredit === undefined || deps.confirmResetCredit === undefined) return 'unavailable';
+      redeeming.add(accountId);
+      scheduler.cancel(accountId);
+      try {
+        const result = await adapter.redeemResetCredit({ ...account }, (offer) => {
+          const current = store.getAccounts().find((item) => item.id === accountId);
+          if (current === undefined || !current.enabled || current.provider !== 'codex') return Promise.resolve(false);
+          return deps.confirmResetCredit!({ label: current.label, emailMasked: identities.get(accountId)?.emailMasked,
+            availableCount: offer.availableCount, expiresAt: offer.expiresAt, locale });
+        }, new AbortController().signal);
+        if (result === 'reset' || result === 'noCredit' || result === 'alreadyRedeemed') {
+          const previous = usage.get(accountId);
+          if (previous !== undefined) {
+            const next = { ...previous };
+            delete next.resetCreditsAvailable;
+            usage.set(accountId, next);
+            scheduleBroadcast();
+          }
+          void scheduler.refreshNow(accountId);
+        }
+        return result;
+      } catch (error) {
+        logger.warn('codex reset redemption failed', { accountId, code: errorCodeOf(error) });
+        throw new IpcHandlerError('internal', errorCodeOf(error));
+      } finally {
+        redeeming.delete(accountId);
+      }
     },
 
     async openExternal(request: OpenExternalRequest): Promise<null> {

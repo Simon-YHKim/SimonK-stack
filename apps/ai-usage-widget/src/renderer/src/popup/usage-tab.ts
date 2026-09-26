@@ -15,6 +15,7 @@ import {
   type RowView,
 } from '../model';
 import { syncChildren } from './keyed';
+import type { Api } from '../api';
 
 function quotaBox(view: AccountView, row: RowView, index: number, ctx: RenderContext): HTMLElement {
   const { t, settings } = ctx;
@@ -98,14 +99,19 @@ export class UsageTab {
   private readonly emptyEl: HTMLElement;
   private readonly listEl: HTMLElement;
   private readonly cards = new Map<string, HTMLElement>();
+  private readonly pending = new Set<string>();
+  private latestViews: readonly AccountView[] = [];
+  private latestContext: RenderContext | null = null;
 
-  constructor() {
+  constructor(private readonly deps: { api: Api; report(message: string): void }) {
     this.emptyEl = h('div', { class: 'usage-empty', hidden: true });
     this.listEl = h('div', { class: 'usage-list' });
     this.el = h('div', { class: 'usage-tab' }, [this.emptyEl, this.listEl]);
   }
 
   update(views: readonly AccountView[], ctx: RenderContext): void {
+    this.latestViews = views;
+    this.latestContext = ctx;
     const { t } = ctx;
     this.emptyEl.hidden = views.length > 0;
     this.emptyEl.replaceChildren(
@@ -121,10 +127,42 @@ export class UsageTab {
         this.cards.set(view.account.id, card);
       }
       card.dataset.state = view.state;
-      card.replaceChildren(...cardContent(view, ctx));
+      const content = cardContent(view, ctx);
+      if (view.resetCreditsAvailable !== undefined && view.resetCreditsAvailable > 0) {
+        const use = h('button', { type: 'button', class: 'reset-credit-button' }, [t('resetCreditUse')]);
+        use.disabled = this.pending.has(view.account.id);
+        use.addEventListener('click', () => this.redeem(view.account.id, use));
+        const official = h('button', { type: 'button', class: 'reset-credit-link' }, [t('resetCreditUsagePage')]);
+        official.addEventListener('click', () => {
+          void this.deps.api.invoke('shell:open-external', { kind: 'link', key: 'codex-usage' });
+        });
+        content.push(h('div', { class: 'reset-credit-row' }, [
+          h('span', {}, [t('resetCreditCount', { count: view.resetCreditsAvailable })]), use, official,
+        ]));
+      }
+      card.replaceChildren(...content);
       return card;
     });
     for (const id of [...this.cards.keys()]) if (!seen.has(id)) this.cards.delete(id);
     syncChildren(this.listEl, cards);
+  }
+
+  private redeem(accountId: string, button: HTMLButtonElement): void {
+    if (this.pending.has(accountId)) return;
+    this.pending.add(accountId);
+    button.disabled = true;
+    void this.deps.api.invoke('usage:redeem-reset-credit', { accountId }).then((result) => {
+      const t = this.latestContext?.t;
+      if (t === undefined) return;
+      if (!result.ok) { this.deps.report(t('resetCreditUnavailable')); return; }
+      const key = {
+        reset: 'resetCreditSuccess', cancelled: 'resetCreditCancelled', unavailable: 'resetCreditUnavailable',
+        nothingToReset: 'resetCreditNothingToReset', noCredit: 'resetCreditNoCredit', alreadyRedeemed: 'resetCreditAlreadyRedeemed',
+      } as const;
+      this.deps.report(t(key[result.value]));
+    }).catch(() => this.deps.report(this.latestContext?.t('resetCreditUnavailable') ?? '')).finally(() => {
+      this.pending.delete(accountId);
+      if (this.latestContext !== null) this.update(this.latestViews, this.latestContext);
+    });
   }
 }

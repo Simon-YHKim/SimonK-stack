@@ -15,6 +15,7 @@ import type { ExternalLinkKey } from '../../shared/ipc';
 export const EXTERNAL_LINKS: Readonly<Partial<Record<ExternalLinkKey, string>>> = Object.freeze({
   'claude-cli-install': 'https://code.claude.com/docs/en/setup',
   'codex-cli-install': 'https://developers.openai.com/codex/cli',
+  'codex-usage': 'https://chatgpt.com/codex/settings/usage',
   'grok-cli-install': 'https://docs.x.ai/build/overview',
   'antigravity-cli-install': 'https://antigravity.google/docs/getting-started?tab=cli',
 });
@@ -23,6 +24,7 @@ export const EXTERNAL_LINKS: Readonly<Partial<Record<ExternalLinkKey, string>>> 
 export const EXTERNAL_LINK_HOSTS: Readonly<Record<ExternalLinkKey, readonly string[]>> = Object.freeze({
   'claude-cli-install': ['code.claude.com'],
   'codex-cli-install': ['developers.openai.com'],
+  'codex-usage': ['chatgpt.com'],
   'grok-cli-install': ['docs.x.ai'],
   'antigravity-cli-install': ['antigravity.google'],
 });

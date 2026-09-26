@@ -37,6 +37,7 @@ export function createInvokeHandlers(controller: AppController): AllInvokeHandle
     'login:cancel': only('popup', (request) => controller.cancelLogin(request.sessionId)),
     'login:submit-paste': only('popup', (request) => controller.submitLoginPaste(request.sessionId, request.text)),
     'usage:refresh-now': (request) => controller.refreshNow(request.accountId),
+    'usage:redeem-reset-credit': only('popup', (request) => controller.redeemResetCredit(request.accountId)),
     'shell:open-external': only('popup', (request) => controller.openExternal(request)),
     'window:toggle-popup': () => controller.togglePopup(),
     'window:show-popup': (request) => controller.showPopup(request.tab),

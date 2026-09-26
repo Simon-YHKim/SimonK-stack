@@ -8,7 +8,9 @@ import {
   parseInitializeResult,
   parseLoginCompleted,
   parseLoginStartResult,
+  parseConsumeResetOutcome,
   parseRateLimits,
+  parseResetOffer,
   samePath,
   sanitizeIdentifier,
 } from './protocol';
@@ -181,6 +183,7 @@ describe('parseRateLimits', () => {
       ],
       planType: 'pro',
       credits: { hasCredits: true, unlimited: false, balance: '12.50' },
+      resetCreditCount: 0,
     });
   });
 
@@ -266,5 +269,37 @@ describe('parseRateLimits', () => {
     expect(parseRateLimits(null)).toBeNull();
     expect(parseRateLimits({})).toBeNull();
     expect(parseRateLimits({ rateLimits: 'x', rateLimitsByLimitId: [] })).toBeNull();
+  });
+});
+
+describe('banked reset parsing', () => {
+  const now = 1_800_000_000_000;
+  const base = { rateLimits: { primary: { usedPercent: 80, windowDurationMins: 10_080, resetsAt: 1_800_400_000 } } };
+
+  it('reads a real available count without confusing it with purchased usage credits', () => {
+    expect(parseRateLimits({ ...base, rateLimitResetCredits: { availableCount: 2, credits: null } })?.resetCreditCount).toBe(2);
+    expect(parseRateLimits({ ...base, rateLimitResetCredits: { availableCount: -1 } })?.resetCreditCount).toBeUndefined();
+    expect(parseRateLimits({ ...base, rateLimitResetCredits: { availableCount: '2' } })?.resetCreditCount).toBeUndefined();
+  });
+
+  it('selects the earliest unexpired Codex reset only when the backend account is known', () => {
+    const credits = [
+      { id: 'credit-later', resetType: 'codexRateLimits', status: 'available', expiresAt: 1_800_200_000 },
+      { id: 'credit-sooner', resetType: 'codexRateLimits', status: 'available', expiresAt: 1_800_100_000 },
+      { id: 'credit-expired', resetType: 'codexRateLimits', status: 'available', expiresAt: 1_799_999_999 },
+      { id: 'credit-other', resetType: 'futureReset', status: 'available', expiresAt: 1_800_050_000 },
+    ];
+    expect(parseResetOffer({ ...base, accountId: 'workspace_1', rateLimitResetCredits: { availableCount: 3, credits } }, now))
+      .toEqual({ backendAccountId: 'workspace_1', creditId: 'credit-sooner', availableCount: 3, expiresAt: 1_800_100_000_000 });
+    expect(parseResetOffer({ ...base, rateLimitResetCredits: { availableCount: 3, credits } }, now)).toBeNull();
+    expect(parseResetOffer({ ...base, accountId: 'workspace_1', rateLimitResetCredits: { availableCount: 3, credits: null } }, now)).toBeNull();
+  });
+
+  it('accepts only documented redemption outcomes', () => {
+    for (const outcome of ['reset', 'nothingToReset', 'noCredit', 'alreadyRedeemed'] as const) {
+      expect(parseConsumeResetOutcome({ outcome })).toBe(outcome);
+    }
+    expect(parseConsumeResetOutcome({ outcome: 'charged' })).toBeNull();
+    expect(parseConsumeResetOutcome(null)).toBeNull();
   });
 });

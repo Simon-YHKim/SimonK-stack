@@ -8,12 +8,13 @@ import { classifyWindowKind, epochSecondsToMs, normalizePercent } from '../../..
 
 export const CLIENT_NAME = 'ai-usage-widget';
 
-/** Only these methods are ever sent. No mutating account method besides login start/cancel. */
+/** Only these methods are ever sent. Reset redemption is called only after native user confirmation. */
 export const METHOD = {
   initialize: 'initialize',
   initialized: 'initialized',
   accountRead: 'account/read',
   rateLimitsRead: 'account/rateLimits/read',
+  resetCreditConsume: 'account/rateLimitResetCredit/consume',
   loginStart: 'account/login/start',
   loginCancel: 'account/login/cancel',
   loginCompleted: 'account/login/completed',
@@ -158,6 +159,54 @@ export interface CodexRateLimits {
   planType?: string;
   credits?: CodexCredits;
   rateLimitReachedType?: string;
+  resetCreditCount?: number;
+}
+
+export interface CodexResetOffer {
+  /** Backend account returned by the same account-specific usage read. Never sent to a renderer. */
+  backendAccountId: string;
+  /** Opaque credit identifier. Never sent to a renderer or log. */
+  creditId: string;
+  availableCount: number;
+  expiresAt: number | null;
+}
+
+export type ConsumeResetOutcome = 'reset' | 'nothingToReset' | 'noCredit' | 'alreadyRedeemed';
+
+function resetCreditCount(value: unknown): number | undefined {
+  if (!isObj(value)) return undefined;
+  const count = value.availableCount;
+  return typeof count === 'number' && Number.isSafeInteger(count) && count >= 0 && count <= 1_000 ? count : undefined;
+}
+
+/** A count-only background read is not enough to offer redemption. */
+export function parseResetOffer(value: unknown, now: number): CodexResetOffer | null {
+  if (!isObj(value) || !isObj(value.rateLimitResetCredits)) return null;
+  const backendAccountId = nonEmptyString(value.accountId);
+  if (backendAccountId === undefined || backendAccountId.length > 256 || CONTROL_OR_BIDI_RE.test(backendAccountId)) return null;
+  const availableCount = resetCreditCount(value.rateLimitResetCredits);
+  if (availableCount === undefined || availableCount === 0) return null;
+  const rows = value.rateLimitResetCredits.credits;
+  if (!Array.isArray(rows)) return null;
+  const eligible = rows.flatMap((row): CodexResetOffer[] => {
+    if (!isObj(row) || row.resetType !== 'codexRateLimits' || row.status !== 'available') return [];
+    const creditId = nonEmptyString(row.id);
+    if (creditId === undefined || creditId.length > 256 || CONTROL_OR_BIDI_RE.test(creditId)) return [];
+    const expiresAt = row.expiresAt == null ? null : epochSecondsToMs(row.expiresAt);
+    if (expiresAt === null && row.expiresAt != null) return [];
+    if (expiresAt !== null && expiresAt <= now) return [];
+    return [{ backendAccountId, creditId, availableCount, expiresAt }];
+  });
+  eligible.sort((a, b) => (a.expiresAt ?? Infinity) - (b.expiresAt ?? Infinity));
+  return eligible[0] ?? null;
+}
+
+export function parseConsumeResetOutcome(value: unknown): ConsumeResetOutcome | null {
+  if (!isObj(value)) return null;
+  const outcome = value.outcome;
+  return outcome === 'reset' || outcome === 'nothingToReset' || outcome === 'noCredit' || outcome === 'alreadyRedeemed'
+    ? outcome
+    : null;
 }
 
 function parseWindowMinutes(value: unknown): number | null {
@@ -233,5 +282,7 @@ export function parseRateLimits(value: unknown): CodexRateLimits | null {
   if (credits !== undefined) result.credits = credits;
   const reached = sanitizeIdentifier(primary?.rateLimitReachedType ?? legacy?.rateLimitReachedType);
   if (reached !== undefined) result.rateLimitReachedType = reached;
+  const resetCount = resetCreditCount(value.rateLimitResetCredits);
+  if (resetCount !== undefined) result.resetCreditCount = resetCount;
   return result;
 }
