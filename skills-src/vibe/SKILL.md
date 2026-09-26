@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when asked to "/vibe", "orchestrate this task", "바이브로 알아서 해줘", "오르카로 돌려", or "스킬 조합해서 처리해". Main skill orchestrator: selects skills, software, model/effort and budget; uses vibe-bot only for GUI-only work. Produces verified artifacts and usage reports; unknown cost blocks paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.11.9
+version: 2.11.10
 author: simon-stack
 ---
 
@@ -367,57 +367,3 @@ python -B -I -S tests/test_ledger_scan.py
 - [Astra effort transport cap](references/v2.2-astra-effort-cap.md)
 - [Adversarial evaluations](references/adversarial-eval.md)
 - [Operational pitfalls](references/pitfalls.md)
-
-## Version note
-
-2.11.9 binds `model_included=true` to an explicit `included_model` matching the
-resolved model (or exact requested model without an alias). A copied inclusion
-flag for another model is blocked. Zero-grant Orca preparation fixtures now
-use a subscription route instead of a zero-price API claim. This source-only
-change does not independently attest billing timestamps, operational installs,
-or actual account inclusion.
-2.11.8 requires exact-model or Bot-usage subscription inclusion and disabled
-API fallback as separate positive runtime facts before a route can reserve USD 0.
-It also rejects API/metered model routes under a zero-money grant, including
-claimed zero-price calls, so subscription-only intent cannot be bypassed.
-Unknown flags remain blocked; this does not establish real account evidence or
-authorize live generation, installation, or an operational DB migration.
-2.11.7 keeps receipt-bound candidate discovery bytecode-free and requires
-inherited bytecode suppression for child Python tests; installation is unchanged.
-2.11.4 pairs with vibe-bot 0.9.0: 19 bots/six teams, Relay-only new delivery,
-distinct Analytics/AdMob/QA ownership and bounded reversible preparation; live provider, Relay, host compatibility and historical migration are not certified.
-2.11.3 aligns Bot guidance with the durable execute_bot adapter; legacy result checks cannot establish central completion. No live execution or installation is added.
-2.11.2 defines coordinator-owned split-home roots with scope/conflict/exclusion checks; intact candidates retain receipt-bound discovery, without a native collector or installer.
-2.11.0 adds explicit observable-local preparation alongside unchanged owned-v1:
-durable contract/approval identity, separate UUID namespace, implicit session
-commands and nullable-but-consistent provenance. Trust and native-effects
-approval remain separate. No operational bridge or live execution is enabled.
-2.10.6 avoids repeated-suffix secret scans on long URI-like words and incomplete
-JWTs. Detection names, first offsets, declaration order and value redaction are
-preserved; input is not truncated. Offline tests cover the 1MiB run-state limit.
-This does not change execution authority, live billing or installation status.
-2.10.5 retires the environment-handle process killer and its mutable home routing
-import. Legacy calls now fail without process/native access, including former
-dry mode. Official supervised stop integration, exact-target authorization and
-positive termination evidence remain required; G8 is not satisfied by this fix.
-2.10.4 adds explicit schema3 preparation freshness renewal: immutable native
-intent, strict timestamp-only validation overlay, revision CAS and fresh final
-projection. Partial preparations can resume after trusted runtime revalidation
-within the unchanged registry's lifetime. This is source-only, not a native
-bridge, operational DB migration, deployment or live billing proof.
-2.10.3 adds the schema2 full-reservation preparation journal and a host-injected
-protocol core: exact one-send intent, dual receipt/resource verification and
-full-DAG finalization. The real owned-session bridge, registry-changing rebase, native
-preparation, operational migration, live E2E and installation remain incomplete.
-2.10.0 shares lossless, bounded metadata discovery between catalog and planning,
-adds scoped source/plugin/install comparison, and plans trusted host-native
-bindings only in their matching host context. All behavioral/mode evaluations
-remain unmeasured; SKILL byte equality is not full-package installation parity.
-2.9.0 connects the 2.8.0 durable reservation/intent store to a guarded local
-Orca adapter, with fixed task/spec/workspace/runtime identity, fresh transport
-account gates, bounded CLI I/O and lookup-only recovery. Raw output stays in
-the native reader; acceptance and actual-cost settlement remain separate.
-2.7.0 added the central registry and metadata collector. Five-surface live E2E,
-remaining adapters, installation parity and all-skill behavioral evaluation
-remain unfinished. Grok generation remains held under the user's USD 0 limit.
-Existing Orca model defaults are unchanged.
