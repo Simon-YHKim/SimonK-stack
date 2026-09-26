@@ -1,0 +1,8 @@
+<!doctype html>
+<html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>후보 정적 경로 검사</title>
+<style>:root{color-scheme:light dark;--a:#2677aa;--t:CanvasText;--m:GrayText}body{max-width:900px;margin:2rem auto;padding:0 1rem;font:16px/1.6 system-ui;background:Canvas;color:var(--t)}h1,h2{line-height:1.25}.muted,small{color:var(--m)}a{color:var(--a)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.8rem}.card,details{border:1px solid var(--m);border-radius:10px;padding:1rem}.card b{display:block;font-size:1.5rem}summary{cursor:pointer;font-weight:650}code{overflow-wrap:anywhere}</style>
+<main><small>2026-09-27 04:49:36 KST · SimonK-stack · feat/skill-context-budget-260925</small><h1>후보의 명시적 파일 경로를 재현 가능하게 검사</h1><p>로컬 커밋 <code>eb3a7a9</code>에 읽기 전용 검사를 추가했습니다. 후보 바이트를 먼저 검증한 뒤 SKILL 본문의 정적 파일 경로를 대조합니다.</p>
+<div class="cards" aria-label="핵심 결과"><div class="card"><b>182</b>검사한 스킬</div><div class="card"><b>150</b>정적 참조</div><div class="card"><b>11</b>문맥 검토 대상</div><div class="card"><b>89/89</b>회귀 테스트</div></div>
+<details><summary>검증 범위와 결과</summary><p>새 테스트 8개, 플러그인 번들 43개, 소스 릴리스 38개가 통과했습니다. 2.11.7 후보 digest <code>a26903c3…ec6da</code>는 사전 검증됐고 정적 경로 검사는 <code>incomplete</code>를 반환했습니다. AIHub 설명용 표기 한 건은 실제 형제 스킬 명령과 연결되므로 파일 누락 확정이 아닙니다. Core와 Market 참조는 소유 원본/후보를 대조하며 수리해야 합니다.</p></details>
+<details><summary>하지 않은 것</summary><p>동적 실행 경로·절대 호스트 경로·외부 서비스·자격증명·hook 동작·모델 선택 정확도는 검증하지 않았습니다. <code>runtime_closure_verified=false</code>이며 설치 준비 완료라고 보고하지 않습니다. 원본 플러그인, 기존 후보와 설치본은 변경하지 않았고 추가 과금은 $0입니다.</p></details>
+<p>다음 게이트: Core 패키징 §35 토론/D-code, Core·Market 원본 수정 범위 확인, 별도 설치·런타임 검증.</p></main></html>

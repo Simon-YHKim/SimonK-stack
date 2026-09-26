@@ -8,6 +8,8 @@ source: user-direct
 
 # Codex STATUS
 
+[2026-09-27 / 04:49:36 KST] src: user-goal — SimonK-stack 승인 기능 브랜치 `feat/skill-context-budget-260925` 로컬 커밋 `eb3a7a9`로 후보 정적 파일 경로 감사기·8회귀·CI fixture·README/INSTALL 추가. 실제 2.11.7 후보 digest 검증 뒤 182스킬/150정적 참조/11문맥 검토 대상; `runtime_closure_verified=false`. 테스트 8+43+38 PASS, branch clean. Core/Market 원본·사용자 설치본·후보 불변, 온라인 push/main merge/모델·Bot·Orca 실호출/결제변경0·추가과금$0. outbox `20260927-044936-to-claude-candidate-path-audit.md`/HTML; Core §35 D-code 미완료.
+
 [2026-09-27 / 04:30:24 KST] src: user-goal — Core plugin 독립 실행 의존성의 아키텍처·보안 경계를 정리하고 §35 토론 요청 `20260927-043024-to-claude-core-plugin-closure-debate.md`와 사람용 HTML을 Codex outbox에 작성. Design/Stack 별도 원본 브랜치와 2.11.7 후보 반영·검증 재확인; Core/Market main/설치/후보 불변. Claude 별도 심판/D-code, Simon의 credential-sensitive 승인 전에는 root helper 동봉·실행 금지. 모델·Bot·Orca 실호출/결제변경/원격 push/main merge0, 추가 과금$0.
 
 [2026-09-27 / 04:16:31 KST] src: user-goal — 실제 2.11.7 후보 182스킬을 검증기 SHA256 7752f773…65550f로 재검사해 오류0·경고49(W0072/W00915/W01332). W009 15위치 분류: AIHub rag-builder 1은 실제 sibling `llm-eval/scripts/gate.mjs` 존재/검증기 오탐, Core gcloud-helper·keepass-helper·stack-update 10은 모노레포 root scripts 존재하지만 후보 Core plugin에 없고 절대경로도 남음, Market 3스킬 4보조파일은 원본 main에도 없음. Core/Market main clean·미수정, 후보 byte 불변. 설치 문서 `0589c90` feature clean/ahead23, readiness3=false. 후보에 외부/credential/install scripts 자동복사·실행0, 사용자설치/main/원격/모델·Bot·Orca/결제변경0·추가과금$0. outbox `20260927-041631-to-claude-candidate-path-triage.md`/HTML.
