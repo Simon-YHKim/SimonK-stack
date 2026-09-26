@@ -355,6 +355,10 @@ python3 .claude/skills/skill-gen-agent/scripts/tests/run_all.py
 # 벤치마크 수집기 회귀 검사 (네트워크 없이 임시 Wiki/cache만 사용)
 python3 -m unittest discover -s scripts/tests -p test_fetch_model_benchmarks.py
 
+# /vibe 오프라인 테스트: 상위 스크립트와 tests/를 각각 발견 (실제 모델·Orca 호출 없음)
+(cd skills-src/vibe/scripts && PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -s . -p 'test_*.py' -q)
+(cd skills-src/vibe/scripts && PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -s tests -p 'test_*.py' -q)
+
 # Bash 스크립트 문법
 for f in scripts/*.sh .claude/hooks/*.sh; do bash -n "$f" && echo "OK: $f"; done
 ```

@@ -6,25 +6,42 @@ import re
 import sys
 import time
 import unittest
+from contextvars import ContextVar
 from pathlib import Path
 
 
+_deny_external_active = ContextVar("ledger_scan_deny_external", default=False)
+
+
 def deny_external(event, args):
-    if event.startswith(("subprocess.", "os.system", "os.exec", "os.spawn",
-                         "os.posix_spawn", "socket.connect", "socket.__new__")):
+    if _deny_external_active.get() and event.startswith((
+            "subprocess.", "os.system", "os.exec", "os.spawn", "os.posix_spawn",
+            "socket.connect", "socket.__new__")):
         raise RuntimeError("PROCESS_OR_NETWORK_FORBIDDEN")
 
 
 sys.addaudithook(deny_external)
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import ledger
-import run_state
+_import_guard = _deny_external_active.set(True)
+try:
+    import ledger
+    import run_state
+finally:
+    _deny_external_active.reset(_import_guard)
 
 URI = re.compile(r"[a-zA-Z][a-zA-Z0-9+.\-]*://[^\s:/@]+:[^\s:/@]+@")
 JWT = re.compile(r"eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\.")
 
 
 class LedgerScanTests(unittest.TestCase):
+    def setUp(self):
+        guard = _deny_external_active.set(True)
+        self.addCleanup(_deny_external_active.reset, guard)
+
+    def test_audit_guard_is_active_only_during_ledger_tests(self):
+        with self.assertRaisesRegex(RuntimeError, "^PROCESS_OR_NETWORK_FORBIDDEN$"):
+            sys.audit("subprocess.Popen", "fixture", (), None, None)
+
     def assert_offset(self, text, name, old):
         match = old.search(text)  # Bounded short inputs only; never the large cases.
         expected = [] if match is None else [(name, match.start())]

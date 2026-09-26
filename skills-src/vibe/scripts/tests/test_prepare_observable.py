@@ -4,21 +4,30 @@ import inspect
 import sys
 import unittest
 import uuid
+from contextvars import ContextVar
 from pathlib import Path
 from unittest.mock import patch
 
 
+_deny_external_active = ContextVar("prepare_observable_deny_external", default=False)
+
+
 def deny_external(event, args):
-    if event.startswith(("subprocess.", "os.system", "os.exec", "os.spawn",
-                         "os.posix_spawn", "socket.connect", "socket.__new__", "os.kill")):
+    if _deny_external_active.get() and event.startswith((
+            "subprocess.", "os.system", "os.exec", "os.spawn", "os.posix_spawn",
+            "socket.connect", "socket.__new__", "os.kill")):
         raise RuntimeError("PROCESS_NETWORK_OR_SIGNAL_FORBIDDEN")
 
 
 sys.addaudithook(deny_external)
 sys.path[:0] = [str(Path(__file__).resolve().parent), str(Path(__file__).resolve().parents[1])]
-import test_prepare_orca as f
-from test_orchestrate import NOW
-from test_run_state import STALE
+_import_guard = _deny_external_active.set(True)
+try:
+    import test_prepare_orca as f
+    from test_orchestrate import NOW
+    from test_run_state import STALE
+finally:
+    _deny_external_active.reset(_import_guard)
 
 CONTRACT = "observable-local-orca-preparation-v2"
 READS = ["status", "worktree.show", "orchestration.runCurrent", "orchestration.runShow",
@@ -65,12 +74,18 @@ class Session(f.Session):
 
 class ObservablePreparationTests(unittest.TestCase):
     def setUp(self):
+        guard = _deny_external_active.set(True)
+        self.addCleanup(_deny_external_active.reset, guard)
         self.fixture = f.fixture_module.PreparationTests()
         self.fixture.setUp()
         self.addCleanup(self.fixture.doCleanups)
         self.fixture.init()
         self.plan, self.store = self.fixture.draft(), self.fixture.store
         self.session = Session(self.plan, self.store)
+
+    def test_audit_guard_is_active_only_during_observable_tests(self):
+        with self.assertRaisesRegex(RuntimeError, "^PROCESS_NETWORK_OR_SIGNAL_FORBIDDEN$"):
+            sys.audit("subprocess.Popen", "fixture", (), None, None)
 
     def adapter(self, session=None, **kwargs):
         self.assertIn("contract", inspect.signature(f.core.PreparationAdapter).parameters,
