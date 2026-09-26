@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SimonK-stack /vibe 2.11.9 후보 검증</title>
+<style>
+:root{color-scheme:light dark;--a:#2563eb;--t:#172033;--m:#596779;--b:#fff;--l:#cbd5e1}
+@media(prefers-color-scheme:dark){:root{--a:#93c5fd;--t:#edf2f7;--m:#b0bdca;--b:#111827;--l:#475569}}
+*{box-sizing:border-box}body{max-width:940px;margin:auto;padding:2rem 1.2rem;background:var(--b);color:var(--t);font:16px/1.6 system-ui,sans-serif}
+h1{line-height:1.25;font-size:clamp(1.7rem,4vw,2.5rem);margin-bottom:.4rem}.muted,small{color:var(--m)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:.8rem;margin:1.5rem 0}.card,details{border:1px solid var(--l);border-radius:.7rem;padding:1rem}.card strong{display:block;font-size:1.3rem}.card span{color:var(--m)}
+details{margin:.7rem 0}summary{cursor:pointer;font-weight:650}summary:focus-visible{outline:3px solid var(--a);outline-offset:3px}code{overflow-wrap:anywhere}
+</style>
+</head>
+<body><main>
+<p class="muted">SimonK-stack · 2026-09-27 06:43:16 KST · 격리 후보</p>
+<h1>/vibe 2.11.9 모델 결속 검증</h1>
+<p>구독 포함 확인값을 실제 선택 모델에 묶는 가드를 추가했습니다. 새 후보는 빌드·파일 무결성 검증을 통과했지만 <strong>설치 준비 완료는 아닙니다.</strong></p>
+<section class="cards" aria-label="핵심 지표">
+<div class="card"><strong>5 / 182 / 713</strong><span>플러그인 / 스킬 / 파일</span></div>
+<div class="card"><strong>556 PASS</strong><span>단위 211 + 준비 90 + 라우터 8 + 저장소 247</span></div>
+<div class="card"><strong>11 미해결</strong><span>정적 참조 150건 중</span></div>
+<div class="card"><strong>$0</strong><span>추가 과금 · 모델 실호출 없음</span></div>
+</section>
+<details><summary>무엇이 바뀌었나</summary><p><code>billing.model_included=true</code>만으로는 부족합니다. <code>billing.included_model</code>이 선택된 resolved LLM 모델과 같아야 구독 경로를 USD 0으로 예약합니다. 기존 USD 0 테스트 fixture가 API 경로를 사용하던 모순도 구독 fixture로 바로잡았습니다. 별도 billing 관측 시각이나 실제 계정 포함 여부를 인증한 것은 아닙니다.</p></details>
+<details><summary>후보와 검증 범위</summary><p>경로: <code>E:/Coding Infra/Releases/SimonK-stack/20260927-vibe-2.11.9-model-binding-candidate/</code></p><p>source SHA-256: <code>61c82676a72dca622f921e05d436f47cfe784524b6f7d76342fffa19a4dac851</code><br>bundle SHA-256: <code>92537eb4cd9ac3735c8ffa4e83285d2bf10eedf454237e78bd4d650b6aa6b1a5</code></p><p>두 receipt의 별도 verify와 후보 본문 버전·가드 대조를 완료했습니다. 호스트 자동 선택·hook·모델 실행은 검증하지 않았습니다.</p></details>
+<details><summary>남은 결정·설치 게이트</summary><p>Core helper 패키징은 §35 별도 심판과 D-code가 필요합니다. Market 원본 4자산은 별도 브랜치 승인 대기입니다. 경로 참조 11건 미해결이며 <code>runtime_closure_verified</code>, <code>host_compatibility_verified</code>, <code>installation_ready</code>는 모두 false입니다. 사용자 설치·정식 머지·원격 push는 하지 않았습니다.</p></details>
+<p><small>기능 브랜치 로컬 커밋: 23b785c, 16baab3. Core 원본 main은 후보 고정 커밋의 조상이며 수정하지 않았습니다.</small></p>
+</main></body></html>

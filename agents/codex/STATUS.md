@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 06:19:56 KST
+updated: 2026-09-27 06:43:16 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
 
-[2026-09-27 / 06:19:56 KST] src: user-goal — SimonK-stack 승인 기능 브랜치에서 `/vibe` 2.11.8 비용 가드 `f2b2f35`, 후보 문서 `ede3996` 로컬 커밋. 정확한 모델/Bot 구독 포함·초과 과금/API fallback 비활성화를 확인하지 못하면 USD 0 라우팅 차단, 기본 USD 0에서 API/metered 거부. 최종 `/vibe` 210·라우터 8·릴리스/번들 81 PASS. 새 격리 후보 source digest `198f8ccd…11e3b90`, bundle digest `45fd469a…e4b0e7403c`, 5플러그인/182스킬/713파일 별도 verify PASS. Core 원본 HEAD 이동으로 원본 불변 유지하고 고정 커밋 5개를 별도 입력 복제로 패키징. 경로 감사 미해결11, readiness3=false, 설치/main/원격/실호출/결제변경0·추가과금$0. Core §35 심판과 Market 원본 승인 대기. outbox `20260927-061956-to-claude-vibe-218-guarded-candidate.md`.
+[2026-09-27 / 06:43:16 KST] src: user-goal — SimonK-stack `feat/skill-context-budget-260925`에 `/vibe` 2.11.9 모델 결속 `23b785c`, 후보 문서 `16baab3` 로컬 커밋. 구독 포함 `included_model`이 실제 resolved LLM 모델과 불일치하면 USD0 라우팅 차단; 준비 절차의 기존 USD0/API fixture 모순 수정. `/vibe` 211, 준비 90, 라우터 8, 저장소 scripts/tests 247 PASS. 새 source digest `61c82676…4dac851`, bundle digest `92537eb4…aa6b1a5` 별도 verify PASS, 5플러그인/182스킬/713파일. 경로 감사 150참조/미해결11·readiness3=false 유지. Core `main` c080bda는 후보 핀 4369136의 조상(핀에 후속수정3건)으로 확인, 원본 불변. Core §35 D-code·Market 브랜치 승인 대기; 사용자 설치/main/원격/결제/모델·Bot·Orca 실호출0·추가과금$0. outbox `20260927-064316-to-claude-vibe-219-model-binding.md`/HTML.
+
+[2026-09-27 / 06:19:56 KST] src: user-goal — SimonK-stack 승인 기능 브랜치에서 `/vibe` 2.11.8 비용 가드 `f2b2f35`, 후보 문서 `ede3996` 로컬 커밋. 정확한 모델/Bot 구독 포함·초과 과금/API fallback 비활성화를 확인하지 못하면 USD 0 라우팅 차단, 기본 USD 0에서 API/metered 거부. 최종 `/vibe` 210·라우터 8·릴리스/번들 81 PASS. 새 격리 후보 source digest `198f8ccd…11e3b90`, bundle digest `45fd469a…e4b0e7403c`, 5플러그인/182스킬/713파일 별도 verify PASS. Core 원본 `main`은 고정 커밋의 조상임을 뒤에 확인했으며 원본 불변 유지하고 고정 커밋 5개를 별도 입력 복제로 패키징. 경로 감사 미해결11, readiness3=false, 설치/main/원격/실호출/결제변경0·추가과금$0. Core §35 심판과 Market 원본 승인 대기. outbox `20260927-061956-to-claude-vibe-218-guarded-candidate.md`.
 
 [2026-09-27 / 05:58:22 KST] src: user-goal — SimonK-stack 승인 기능 브랜치 `5385958` 로컬 커밋: 후보 정적 경로 감사기에 동일 플러그인/동일 파일명의 `possible_targets` 검토 힌트 추가(통과 판정 변경 없음). 실제 refresh 후보 digest `9108b831…30a063` 재검사에서 182스킬/150참조/미해결11 유지, 힌트3곳(AIHub1/Core2). Core의 package-local `simonk.ps1`은 gcloud/KeePass 자동동작 대체 확인 안 됨. 관련 단위10/10 및 `scripts/tests` 전체247/247 PASS, feature clean/ahead30. Core §35 별도 심판/D-code 미확인, Market 원본 4자산 별도 브랜치 승인 질문 대기. 후보·사용자 설치본/main/원격/결제변경0, 모델/Bot/Orca 생성0·추가과금$0. outbox `20260927-055822-to-claude-candidate-path-hints.md`.
 
