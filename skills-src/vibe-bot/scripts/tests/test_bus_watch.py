@@ -103,6 +103,18 @@ class BusWatchTests(unittest.TestCase):
         self.assertIn("OPEN-CODING-TASK vb-33333333", out)
         self.assertNotIn("vb-44444444", out.split("OPEN-CODING-TASK", 1)[-1])
 
+    def test_heading_task_stays_open_until_the_coding_session_answers(self):
+        nonce = "vb-1865-date-q5-fix"
+        write(self.bus / f"relay/inbox/{nonce}.md", "# Task — Coding · #1865 date 09-26\n\n- From: Relay\n")
+        self.assertIn(f"OPEN-CODING-TASK {nonce}", self.run_main())
+        # Relay's own dispatch note reuses the nonce and names the Coding LLM.
+        write(self.bus / f"relay/outbox/{nonce}.result.md",
+              "# Result — dispatch\n- **Bot:** `aurelius`\n1. Coding LLM (file bus) will update the PR.\n")
+        self.assertIn(f"OPEN-CODING-TASK {nonce}", self.run_main())
+        write(self.bus / f"relay/outbox/{nonce}.coding.result.md",
+              f"{nonce}\n# Result\n- **Bot:** Claude Code (코딩 LLM)\n")
+        self.assertNotIn(f"OPEN-CODING-TASK {nonce}", self.run_main())
+
     def test_scan_never_writes_to_the_bus_and_keeps_state_outside(self):
         write(self.bus / "keys/outbox/vb-simon-go-x.result.md", "# Simon GO\n")
         write(self.drafts / "hr-org.md", "# HR\n")
