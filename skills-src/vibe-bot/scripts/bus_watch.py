@@ -134,10 +134,24 @@ def watch_events(state, current, emitted):
     return [text for _, text in sorted(lines, key=lambda x: x[0])]
 
 
+def watch_tick(state, emitted):
+    """Re-read the saved state, then report. A scan may track a new request or
+    process files while the monitor runs; a state read once at start would
+    report that request's answer as an ordinary file."""
+    try:
+        fresh = load_state()
+    except (OSError, ValueError):
+        fresh = None  # a scan is replacing the file; keep the last good copy
+    if fresh:
+        state["files"] = fresh["files"]
+        state["outbound"] = fresh["outbound"]
+    return watch_events(state, snapshot(), emitted)
+
+
 def watch(state, interval, once=False):
     emitted = set()
     while True:
-        for line in watch_events(state, snapshot(), emitted):
+        for line in watch_tick(state, emitted):
             print(line, flush=True)
         if once:
             return

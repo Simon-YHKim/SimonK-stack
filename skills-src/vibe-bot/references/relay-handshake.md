@@ -38,7 +38,9 @@ not at the next hourly scan. Three failures on 2026-09-26 set these rules:
    `scripts/bus_watch.py --watch --state <state>`. Its baseline is the last
    processed scan, so a file that landed between that scan and the moment the
    monitor started is still reported (a review result at 22:18 was missed by a
-   monitor armed at 22:19 that took it as already present).
+   monitor armed at 22:19 that took it as already present). The watcher
+   re-reads that state on every tick, so a request tracked by a scan after
+   the monitor started still comes back as `ANSWER`.
 3. **Catch up before sleeping.** Every time the loop wakes or re-arms, run one
    processing scan first and act on anything pending, then arm the watcher.
 

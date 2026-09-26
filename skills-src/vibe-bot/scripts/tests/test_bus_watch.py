@@ -141,6 +141,18 @@ class BusWatchTests(unittest.TestCase):
         self.assertEqual([l.split(" ", 1)[0] for l in lines], ["ANSWER", "ALERT", "CODING"])
         self.assertFalse(any("hr-kpi" in l or "_tmp-copy" in l for l in lines))
 
+    def test_watch_sees_a_nonce_tracked_after_it_started(self):
+        # 2026-09-26 22:38: a request was tracked by a scan while the monitor
+        # was already running; its answer must still read as ANSWER.
+        self.run_main()
+        state = self.w.load_state()
+        emitted = set()
+        self.assertEqual(self.w.watch_events(state, self.w.snapshot(), emitted), [])
+        self.run_main("--track", "vb-5dd53ebc")
+        write(self.bus / "relay/outbox/vb-5dd53ebc.result.md", "vb-5dd53ebc\n# Result\n")
+        lines = self.w.watch_tick(state, emitted)
+        self.assertEqual([l.split(" ", 1)[0] for l in lines], ["ANSWER"])
+
     def test_watch_never_writes_state(self):
         self.run_main()
         before = self.state.read_bytes()
