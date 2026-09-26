@@ -28,4 +28,5 @@ SimonK-stack `feat/skill-context-budget-260925`에 로컬 커밋 `f2b2f35`와 `e
 ## Links
 
 - 설치·검증 범위: `E:/Coding Infra/Harrness Eng/SimonK-stack-skill-budget-260925/docs/INSTALL.md`.
+- 검증 요약 HTML: `agents/codex/outbox/preview/20260927-061956-vibe-218-guarded-candidate.html`.
 - 남은 결정: Core helper 패키징 §35 별도 심판/D-code, SimonKMarket 원본 4자산 별도 브랜치 승인. 둘 다 해결 전 설치/머지 게이트 유지.

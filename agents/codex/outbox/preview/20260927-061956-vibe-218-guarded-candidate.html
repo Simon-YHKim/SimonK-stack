@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SimonK-stack /vibe 2.11.8 후보 검증</title>
+<style>
+:root{color-scheme:light dark;--accent:#2563eb;--text:#172033;--muted:#596779;--bg:#fff;--line:#cbd5e1}
+@media(prefers-color-scheme:dark){:root{--accent:#93c5fd;--text:#edf2f7;--muted:#b0bdca;--bg:#111827;--line:#475569}}
+*{box-sizing:border-box}body{max-width:960px;margin:auto;padding:2rem 1.2rem;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,sans-serif}
+h1,h2{line-height:1.25}h1{font-size:clamp(1.7rem,4vw,2.5rem);margin-bottom:.4rem}a{color:var(--accent)}
+.muted{color:var(--muted)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8rem;margin:1.5rem 0}
+.card,details{border:1px solid var(--line);border-radius:.7rem;padding:1rem}.card strong{display:block;font-size:1.3rem}
+.card span{color:var(--muted)}details{margin:.7rem 0}summary{cursor:pointer;font-weight:650}summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+table{border-collapse:collapse;width:100%}th,td{padding:.55rem;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+code{overflow-wrap:anywhere}small{color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<p class="muted">SimonK-stack · 2026-09-27 06:19:56 KST · 기능 브랜치 전용 후보</p>
+<h1>/vibe 2.11.8 구독 전용 비용 가드</h1>
+<p>새 후보는 생성·무결성 검증을 통과했습니다. <strong>설치 준비 완료 판정은 아닙니다.</strong> 사용자 설치본, 원본 main, 원격, 결제 설정은 변경하지 않았습니다.</p>
+<section class="cards" aria-label="핵심 결과">
+<div class="card"><strong>5 / 182 / 713</strong><span>플러그인 / 스킬 / 파일</span></div>
+<div class="card"><strong>299 PASS</strong><span>/vibe 210 + 라우터 8 + 릴리스·번들 81</span></div>
+<div class="card"><strong>11 미해결</strong><span>정적 참조 150건 중; 이전 후보와 동일</span></div>
+<div class="card"><strong>$0</strong><span>추가 과금 · 실모델/Bot 호출 없음</span></div>
+</section>
+<h2>변경과 판정</h2>
+<table><thead><tr><th>항목</th><th>결과</th></tr></thead><tbody>
+<tr><td>구독 경로</td><td>정확한 모델 또는 Bot 사용량 포함과 초과 과금·API fallback 비활성화가 모두 확인돼야 USD 0 예약</td></tr>
+<tr><td>API/metered</td><td>기본 승인액 USD 0에서는 견적 0 주장도 차단</td></tr>
+<tr><td>후보 무결성</td><td>source·bundle 각각 별도 verify 통과</td></tr>
+<tr><td>설치 준비</td><td>runtime closure / host compatibility / installation readiness 모두 false</td></tr>
+</tbody></table>
+<details><summary>재현 가능한 산출물과 고정 입력</summary>
+<p>후보: <code>E:/Coding Infra/Releases/SimonK-stack/20260927-vibe-2.11.8-subscription-guard-candidate/</code></p>
+<p>source SHA-256: <code>198f8ccd2a6de57df414b3704e583be1d69236178dcb07885bdad418f11e3b90</code><br>bundle SHA-256: <code>45fd469af453ccf014bf2b13ac83c3a59dc4bb41b36fa6e071caece4b0e7403c</code></p>
+<p>Core 원본 HEAD가 고정 입력과 달라, 원본은 건드리지 않고 다섯 저장소의 고정 커밋을 후보 하위 <code>inputs/</code>로 별도 복제했습니다.</p>
+</details>
+<details><summary>남은 게이트</summary>
+<p>Core helper 패키징은 허브 §35의 별도 심판과 D-code가 필요합니다. Market 누락 자산 네 개는 원본 별도 브랜치 작업 승인 대기입니다. 정적 경로 감사의 미해결 11건은 통과로 해석하지 않습니다. 실사용 설치·정식 머지·모델 호출은 별도 판단 전 보류합니다.</p>
+</details>
+<p><small>기능 브랜치 로컬 커밋: f2b2f35, ede3996. 증거 범위는 정적 빌드·검증·단위 테스트이며 실계정 사용량·호스트 실행 동작의 증명은 아닙니다.</small></p>
+</main>
+</body>
+</html>
