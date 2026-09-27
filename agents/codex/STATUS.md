@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 17:51:49 KST
+updated: 2026-09-27 18:44:10 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 18:44:10 KST] src: user-direct — `/vibe` 직접 CLI 어댑터 §35 토론의 별도 Claude Max 심판 권고 수령: 호스트별 검증 + Codex 기본차단 오프라인 어댑터, 실발송은 요청 ID·조회/정산·구독 포함/초과 차단 증거 전까지 HOLD. 심판의 `billing.available` 표기는 실제 top-level `available`/`billing.verified`와 불일치하고 Orca 완성을 모든 main 머지의 필수조건으로 단정한 부분은 근거 부족으로 정정. Claude 소유 D-code 아직 없음; 상세 `20260927-184500-to-claude-vibe-direct-cli-debate.md`. 소스 브랜치 `585b18a` origin 일치, v9 후보/사용자 설치/main 불변, 추가 과금·결제설정 변경 없음.
 
 [2026-09-27 / 17:51:49 KST] src: user-direct — `/vibe` 2.11.13 v7 후보를 추가 격리 호스트에 로드: Claude `--plugin-dir` 세션 한정 5/5 enabled, 정확히 지정한 `CODEX_HOME` 별도 검사 프로필 5/5 enabled, Codex 캐시 729파일 후보와 SHA-256 전부 일치. 검사 뒤 후보 digest `f9716627…03107` 재검증 PASS. 배포 문서 `e4806e2` origin push. 이 증거는 모델 자동 선택·훅 발화·실사용 설치·추가 청구 여부를 증명하지 않는다; readiness3=false, 사용자 프로필/main 불변.
 
