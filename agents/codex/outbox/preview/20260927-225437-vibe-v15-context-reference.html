@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>/vibe v15 격리 후보 검증</title>
+<style>
+:root{color-scheme:light dark;--accent:#19707b;--text:#183039;--muted:#61747a;background:#f6faf9;color:var(--text);font:16px/1.55 system-ui,sans-serif}
+@media(prefers-color-scheme:dark){:root{--accent:#79d8e0;--text:#e4f2f0;--muted:#aec3c1;background:#101c20}}
+body{max-width:920px;margin:auto;padding:2rem 1.25rem}h1,h2{line-height:1.2}a{color:var(--accent)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:.75rem;margin:1.5rem 0}.card,details{border:1px solid var(--muted);border-radius:.65rem;padding:1rem}.card strong{display:block;font-size:1.35rem;color:var(--accent)}.muted{color:var(--muted)}code{overflow-wrap:anywhere}summary{cursor:pointer;font-weight:650}details{margin:.8rem 0}summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}table{width:100%;border-collapse:collapse}th,td{padding:.5rem;border-bottom:1px solid var(--muted);text-align:left}
+</style>
+</head>
+<body>
+<h1>/vibe v15 격리 후보: 레거시 표 지연 로딩</h1>
+<p>2026-09-27 22:54:37 KST · SimonK-stack 기능 브랜치 <code>feat/skill-context-budget-260925</code></p>
+<div class="cards" aria-label="검증 요약">
+<div class="card">소스 커밋<strong>56fb120</strong><span>origin 기능 브랜치 push</span></div>
+<div class="card">스킬 본문<strong>−88줄</strong><span>371 → 283줄; 레거시 표는 직접 링크</span></div>
+<div class="card">격리 번들<strong>5 / 182</strong><span>플러그인 / 스킬</span></div>
+<div class="card">설치 준비<strong>아니요</strong><span>운영 설치·main 머지 없음</span></div>
+</div>
+<p>역사적 Orca 표만 <code>references/legacy-routing.md</code>로 옮겼습니다. 현재 모델 registry·계정/비용 가드·실행 정책은 변경하지 않았습니다. 기존 v14 후보와 사용자 설치본은 보존했습니다.</p>
+<details open><summary>검증 결과</summary>
+<table><thead><tr><th>검사</th><th>결과</th></tr></thead><tbody>
+<tr><td>소스 /vibe</td><td>새 회귀 3, 기존 orchestration 90, selftest 180, 릴리스 38, 번들 43 통과</td></tr>
+<tr><td>스킬 검증</td><td>저장소 validator 오류 0·경고 0, 평가 20케이스 형식 통과</td></tr>
+<tr><td>후보 내부</td><td>레거시 표 동기 3, selftest 180, 정적 링크 142개 미해결 0</td></tr>
+<tr><td>Claude 호스트 메타데이터</td><td>strict manifest 5/5 오류·경고 0, 세션 목록 5개 enabled</td></tr>
+<tr><td>후보 불변성</td><td>테스트 후 번들 digest 재검증 통과</td></tr>
+</tbody></table>
+</details>
+<details><summary>바이트 영수증과 범위</summary>
+<p>소스: <code>d856259eea3e563792013afb666866d24e3d114c06a64b020c695c081ab1e8e2</code> (137 스킬/409 파일). 번들: <code>84e8759fa16a4d3c5af39e7465076831dd4bbf01045cb3b0b4158187e4386bf9</code> (5 플러그인/182 스킬). 경로: <code>E:\Coding Infra\Releases\SimonK-stack\20260927-vibe-helper-closure-candidate\candidate-safety-v15-context-reference</code>.</p>
+<p>첫 병렬 번들 테스트는 Windows 임시 폴더 잠금으로 정리 단계에서 실패했습니다. 문제 케이스 단독 통과, 전체 43개 단독 재실행 통과입니다. 실제 모델 자동 선택·실호출·Bot·Orca·설치 호환성은 이 검사로 증명되지 않습니다.</p>
+</details>
+<details><summary>남은 게이트</summary>
+<p>상시 노출량을 줄이면서 모든 스킬을 호출할 배포 구조는 허브 §35.1 설계 토론 중입니다. 직접 CLI 재진입 계약, Codex 호스트 동작, 사용자 설치 전환, main 머지는 별도 게이트입니다. <code>routing.py</code> 상단의 이전 표 위치를 가리키는 주석도 다음 소규모 문서 정리 때 수정해야 합니다. 추가 과금·결제 설정 변경·모델/Bot/Orca 실호출은 0입니다.</p>
+</details>
+</body></html>

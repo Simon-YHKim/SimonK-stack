@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 22:21:24 KST
+updated: 2026-09-27 22:54:37 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 22:54:37 KST] src: user-direct — 유료 호출 없이 `/vibe` 레거시 라우팅 표를 직접 링크 참고 파일로 이동(본문 371→283줄), 소스 `56fb120` origin 기능 브랜치 push/clean. 새 회귀3·기존 orchestration90·selftest180·release38·bundle43 통과; skill validator 0/0. v15 격리 후보 5 plugin/182 skill, source digest `d856259e…b1e8e2`, bundle digest `84e8759f…386bf9`; 후보 내부 표 동기3/selftest180·정적 링크142 미해결0·Claude strict 5/5/세션 enabled5·테스트 후 digest 불변. 기존 설치본/v14 유지, readiness3=false, 모델/Bot/Orca 실호출·추가 과금·main 머지 없음. 낡은 `routing.py` 주석은 다음 단위에서 수정. 상세 outbox `20260927-225437-to-claude-vibe-v15-context-reference.md`, HTML `preview/20260927-225437-vibe-v15-context-reference.html`.
 
 [2026-09-27 / 22:21:24 KST] src: user-direct — v14 후보의 Claude Code 2.1.283 호스트 구조 조회: 다섯 plugin.json 모두 strict validate 종료0·오류/경고0, 동시 `--plugin-dir` 목록에 5개 `@inline`/session/enabled, details 합계 187 구성요소(스킬182+명령5)·Always-on 추정 ~41,095 tok. 번들 digest 불변·설치 readiness3=false. SimonK-stack 기능 브랜치 설치문서 `e5d18b5` origin push, clean. 대규모 상시 노출량을 줄이되 `/vibe`의 전 스킬 호출성을 유지하는 배포 구조는 §35.1 토론 요청 `20260927-222124-to-claude-vibe-load-architecture-debate.md`로 제출. 모델/Bot/Orca 생성·유료 호출·운영 설치/main 머지 없음. HTML `preview/20260927-222124-vibe-host-footprint.html`.
 
