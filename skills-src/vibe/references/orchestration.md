@@ -412,8 +412,9 @@ account binding or user authorization is genuine.
 Offline crash/concurrency tests and a real local Python fixture cover this
 state lifecycle. They do not establish provider adapters, five-surface live
 generation, true provider spend caps or installation parity. Keep those gates
-separate; Grok generation stays on hold while the user's USD 0 constraint and
-exhausted quota apply.
+separate. A past Grok quota hold is not permanent, but a reset timestamp or
+user report alone does not verify current quota, model inclusion or disabled
+overage for a new generation request under the USD 0 additional-spend limit.
 
 ## Guarded Bot adapter
 

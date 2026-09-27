@@ -1,6 +1,6 @@
 {
   "skill": "vibe",
-  "version": "2.10.2",
+  "version": "2.11.11",
   "cases": [
     {
       "id": "ui-feature-full-pipeline",
@@ -62,6 +62,27 @@
         {
           "id": "no-budget-workaround",
           "text": "No top-up, billing change, API fallback or Grok Bot substitution bypasses the hold."
+        }
+      ]
+    },
+    {
+      "id": "grok-recovery-not-permanent-hold",
+      "prompt": "/vibe Grok 사용량이 복구됐어. 추가 과금 $0과 구독 포함 사용만 유지하면서 최신 동향 조사에 쓸 수 있는지 검증해줘.",
+      "fixtures": [
+        "The old exhausted-quota snapshot is stale; this request has no newly observed account, model inclusion, quota or direct-transport evidence."
+      ],
+      "assertions": [
+        {
+          "id": "recovery-is-not-permanent-ban",
+          "text": "The old Grok hold is not treated as permanent; a new verified subscription-only route may be considered after fresh evidence."
+        },
+        {
+          "id": "report-is-not-proof",
+          "text": "The user's recovery report alone is not treated as current account, quota, model inclusion or disabled-overage evidence."
+        },
+        {
+          "id": "no-unguarded-call",
+          "text": "No Grok generation, legacy preflight, API fallback or direct CLI call occurs before the guarded adapter and cost gates are satisfied."
         }
       ]
     },

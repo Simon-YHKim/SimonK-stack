@@ -434,7 +434,8 @@ GUARDS = [
             "`python scripts/check_tooling.py`", False),
     ("G12", "쿼터·metadata는 생성 성공이나 무료 사용 증거가 아니다. legacy "
             "`adversarial_eval.py --preflight` 실호출은 차단됐다. 실측도 중앙 계획·예산 예약·"
-            "fresh 계정/비용 증명 뒤에만 가능하며 Grok HOLD를 우회하지 않는다", False),
+            "fresh 계정/비용 증명 뒤에만 가능하다. 과거 Grok HOLD는 영구 금지가 아니며 "
+            "복구 시에도 최신 쿼터·선택 모델의 구독 포함·초과 과금 차단을 다시 확인한다", False),
     ("G13", "재시도·대체도 중앙 planner/Store/guarded adapter를 거친다. "
             "수락 불명은 lookup-only이며 raw `worker-start --retry-of`로 우회하지 않는다", False),
     ("G14", "결정 시트(`make_decision_sheet.py`)를 만들지 않은 라운드는 **끝난 것으로 치지 않는다** — "
