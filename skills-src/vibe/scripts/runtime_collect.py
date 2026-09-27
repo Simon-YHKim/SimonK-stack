@@ -27,6 +27,9 @@ from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
+# Plain CLI invocation must not create an unreceipted registry cache in a bundle.
+if __name__ == "__main__":
+    sys.dont_write_bytecode = True
 SCRIPT_ROOT = Path(__file__).resolve().parent
 if str(SCRIPT_ROOT) not in sys.path:
     sys.path.insert(0, str(SCRIPT_ROOT))

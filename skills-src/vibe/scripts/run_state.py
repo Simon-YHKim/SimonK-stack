@@ -20,6 +20,9 @@ from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
+# Suppress local import caches before they can invalidate a receipt-bound bundle.
+if __name__ == "__main__":
+    sys.dont_write_bytecode = True
 import orchestrate
 import model_registry
 from ledger import scan_secrets, _is_sensitive_key

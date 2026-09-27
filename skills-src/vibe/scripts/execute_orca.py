@@ -17,6 +17,9 @@ import sys
 import time
 import uuid
 
+# Plain CLI entry must not create unreceipted Python cache files in a bundle.
+if __name__ == "__main__":
+    sys.dont_write_bytecode = True
 import orchestrate
 import routing
 from run_state import Store, StateError, evidence, identifier, moment, read_payload, safe_json, strict_loads, validate_plan, task_spec

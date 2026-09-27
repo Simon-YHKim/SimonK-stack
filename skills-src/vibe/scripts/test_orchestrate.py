@@ -759,6 +759,24 @@ class OrchestrationTests(unittest.TestCase):
             self.assertEqual(json.loads(result.stdout)["status"], "complete")
             self.assertFalse(list(scripts.rglob("*.pyc")))
 
+    def test_packaged_cli_entrypoints_do_not_create_unreceipted_bytecode(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            scripts = Path(tmp) / "scripts"
+            scripts.mkdir()
+            for source in SCRIPT.parent.glob("*.py"):
+                shutil.copyfile(source, scripts / source.name)
+            env = os.environ.copy()
+            env.pop("PYTHONDONTWRITEBYTECODE", None)
+            env.pop("PYTHONPYCACHEPREFIX", None)
+            for name in ("orchestrate.py", "runtime_collect.py", "run_state.py",
+                         "execute_orca.py", "execute_bot.py"):
+                with self.subTest(entrypoint=name):
+                    result = subprocess.run([sys.executable, str(scripts / name), "--help"],
+                                            capture_output=True, text=True, encoding="utf-8",
+                                            cwd=tmp, env=env, timeout=15)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertFalse(list(scripts.rglob("*.pyc")))
+
     def test_ready_requires_fresh_dispatch_time(self):
         p = self.plan()
         self.assertEqual(self.m.ready_steps(p, [], now="2026-09-23T10:16:00Z"), [])

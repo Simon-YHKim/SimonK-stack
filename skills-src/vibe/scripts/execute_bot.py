@@ -18,9 +18,13 @@ import os
 from pathlib import Path
 import re
 import stat
+import sys
 import tempfile
 import uuid
 
+# Disable local import caches before reading receipt-bound helper modules.
+if __name__ == "__main__":
+    sys.dont_write_bytecode = True
 import orchestrate
 from run_state import Store, StateError, TERMINAL, evidence, identifier, moment, read_payload, safe_json, strict_loads, validate_plan
 
