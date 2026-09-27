@@ -1303,6 +1303,16 @@ python -B scripts/gstack_migration_audit.py `
 감사 결과는 `migration_review_required`/종료 1이며 검증기 단위 테스트
 9건이 통과했다. digest는 선택된 생성 `SKILL.md`의 상대 경로와 바이트를 고정하며
 런타임·보조 파일이나 원본 Git 커밋과의 생성 관계는 검증하지 않는다.
+
+생성 관계의 별도 재현 확인(2026-09-28): 작업트리가 깨끗한 격리 Gstack
+`01593aa67c94780528e8f5121e47362502410ced`에서
+`scripts/gen-skill-docs.ts`의 `runGeneration`을 Claude·Codex 각각 실행해
+두 기대 digest가 모두 재현됐다. 이때 `contentLinkRoot`를 최초 생성본과 같은
+`E:/Coding Infra/Releases/SimonK-stack/20260928-gstack-render-probe`처럼
+슬래시(`/`) 문자열로 전달했다. Windows CLI의 `--link-root`는 이를
+백슬래시(`\`) 경로로 정규화해 Claude 생성 문서 20개의 섹션 링크 바이트가
+달라진다(Codex digest는 동일). 그러므로 이 재현은 **특정 커밋·옵션·경로**의
+문서 바이트 증거일 뿐, 이식 가능한 생성물이나 런타임 폐쇄성의 증거는 아니다.
 제목 부재는 **동일 의미의 부재 증명**이 아니고,
 생성 폴더의 upstream 출처·런타임 동작·호스트 호환성도 이 감사기가
 증명하지 않는다. 세 readiness 플래그는 계속 false다.
