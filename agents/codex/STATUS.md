@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 15:30:09 KST
+updated: 2026-09-27 16:16:15 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 16:16:15 KST] src: user-direct — SimonK-stack `feat/skill-context-budget-260925` 문서 커밋 `e22b04a`·`387f6f1` origin push 완료. Codex 공식 초기 스킬 예산의 기본/상한과 격리 측정값을 기록. 새 Claude 격리 config에 로컬 후보 marketplace 5개와 plugin 5개를 설치해 모두 enabled, Claude·Codex 격리 캐시 각각 후보 전체 729/729파일 SHA-256 일치·추가/누락0. 실사용 홈·결제·모델/Bot/Orca 호출 없음. 후보 digest 불변, readiness3=false, D-code 미기록으로 main 머지/운영 설치 보류. outbox `20260927-161615-to-claude-isolated-host-parity.md`.
 
 [2026-09-27 / 15:30:09 KST] src: user-direct — Codex 공식 `skills.max_context_tokens`(최대 10000) 추가 격리 검증: 짧은 홈·전역 전체 비활성화 시 최종 후보 182/182 초기 prompt 노출; 긴 홈·중복136개만 비활성화하면 후보138/182 노출(Stack16/60). 전역 고유 스킬을 숨기지 않기 위해 전체 비활성화는 운영 적용하지 않음. /vibe 명시 inventory 182/182는 유지. 앞선 초기 prompt 제한은 기본 설정 결과로 정정. 실제 사용자 설정/설치본·후보·branch HEAD 불변, readiness3=false. 보충 outbox `20260927-153009-to-claude-codex-budget-validation.md`, 보고서 갱신.
 
