@@ -1,6 +1,6 @@
 {
   "skill": "vibe",
-  "version": "2.11.11",
+  "version": "2.11.12",
   "cases": [
     {
       "id": "ui-feature-full-pipeline",

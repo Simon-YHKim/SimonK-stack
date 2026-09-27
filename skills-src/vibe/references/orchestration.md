@@ -240,6 +240,13 @@ do not publish them as anonymous identifiers. Raw provider errors are omitted.
 Antigravity accepts only locally measured /usage contract versions. An unknown
 version stops before sending the slash command. A nonzero turn/token response
 fails closed without retry; it cannot undo usage already reported by that CLI.
+CLI 1.2.12 was measured on Windows with a successful `/usage` result, zero
+turns and zero in every token counter. The upstream changelog describes this
+slash command as quota-free; this observation adds 1.2.12 to the exact version
+allowlist, not to available model routes. On that installed CLI,
+`agy models --output-format json` exits nonzero even though the upstream
+changelog describes a machine-readable subcommand; plain `agy models` lists
+slugs, but this collector does not parse them or infer account/model billing.
 Grok billing metadata may be read while generation is suspended, but quota
 recovery must be observed again before reconsidering a route. A reset timestamp
 is not proof of recovery. Grok Bot has no collector here and never inherits the

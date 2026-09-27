@@ -295,6 +295,21 @@ class RuntimeCollectionTests(unittest.TestCase):
         self.assertEqual(run.call_count, 1)
         self.assertEqual(run.call_args.args[0], ["fixture", "--version"])
 
+    def test_agy_1212_zero_turn_usage_is_metadata_only(self):
+        with mock.patch.object(self.m, "resolve_command", return_value=["fixture"]), \
+             mock.patch.object(self.m, "run_text", side_effect=[
+                 ("1.2.12", 0), (json.dumps(agy_raw()), 0)]) as run:
+            result = self.m.collect_all(["antigravity"], now=NOW)
+        self.assertEqual(run.call_count, 2)
+        self.assertEqual(run.call_args_list[1].args[0],
+                         ["fixture", "-p", "/usage", "--output-format", "json",
+                          "--print-timeout", "30s"])
+        observed = result["observations"][0]
+        self.assertEqual(observed["state"], "ok")
+        self.assertTrue(observed["collection"]["zero_token_verified"])
+        self.assertFalse(observed["generation_verified"])
+        self.assertFalse(observed["billing"]["verified"])
+
     def test_expired_deadline_cannot_consume_already_queued_response(self):
         with self.m.Rpc([sys.executable, "-c", "import time; time.sleep(3)"], timeout=1) as rpc:
             rpc.messages.put(b'{"id":1,"result":{}}\n')

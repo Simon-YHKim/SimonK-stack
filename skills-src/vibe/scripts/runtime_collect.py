@@ -37,7 +37,7 @@ MAX_BYTES = 1024 * 1024  # Catalogs fit well below 1 MiB; stop unsolicited flood
 RPC_METHODS = {"initialize", "model/list", "account/read", "account/rateLimits/read",
                "_x.ai/billing", "x.ai/billing"}
 TOKEN_FIELDS = {"input_tokens", "output_tokens", "thinking_tokens", "cache_read_tokens", "total_tokens"}
-AGY_USAGE_VERSIONS = {"1.2.6", "1.2.7", "1.2.9"}  # Zero-turn command contract measured locally.
+AGY_USAGE_VERSIONS = {"1.2.6", "1.2.7", "1.2.9", "1.2.12"}  # Zero-turn command contract measured locally.
 BASE_ENV = {"SYSTEMROOT", "SYSTEMDRIVE", "WINDIR", "COMSPEC", "PATH", "PATHEXT", "TEMP", "TMP", "TMPDIR",
             "HOME", "USERPROFILE", "HOMEDRIVE", "HOMEPATH", "APPDATA", "LOCALAPPDATA", "PROGRAMDATA",
             "PROGRAMFILES", "PROGRAMFILES(X86)", "PROGRAMW6432", "COMMONPROGRAMFILES", "COMMONPROGRAMFILES(X86)",

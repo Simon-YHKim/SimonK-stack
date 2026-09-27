@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.11.12 - 2026-09-27
+
+- Admit only locally measured Antigravity CLI 1.2.12 for zero-turn, zero-token
+  `/usage` metadata collection. Keep account, model and billing verification
+  unavailable; the observed quota buckets do not authorize generation.
+- Record the installed CLI's rejection of `agy models --output-format json`;
+  do not infer executable model routes from the text-only listing.
+
 ## 2.8.0 - 2026-09-23
 
 - Add durable local run/account reservations and dispatch intents in one SQLite

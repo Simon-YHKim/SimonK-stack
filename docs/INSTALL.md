@@ -595,6 +595,22 @@ false이며 전체 의존성·호스트 정책·설치 준비 완료 주장은 �
 공식 계약: [Skills substitutions](https://code.claude.com/docs/en/skills#available-string-substitutions),
 [Hook exec form](https://code.claude.com/docs/en/hooks#exec-form-and-shell-form).
 
+### `/vibe` 2.11.12 Antigravity 1.2.12 메타데이터 재검증 (2026-09-27)
+
+설치된 `agy.exe` 1.2.12의 `-p '/usage' --output-format json`은 성공·0턴·
+모든 토큰 카운터 0으로 실측했다. [공식 변경 기록](https://github.com/google-antigravity/antigravity-cli/blob/main/CHANGELOG.md)은
+이 읽기 전용 명령이 모델 턴·쿼터를 쓰지 않는다고 설명한다. 수집기의 정확한 버전
+허용 목록에 1.2.12만 추가했고, 회귀 테스트가 이전 미확인 버전 차단과 새 버전의
+0턴 계약을 함께 검사한다. 실제 수집 결과는 Gemini 주간/5시간과 타사 주간/5시간
+버킷 네 개를 반환했지만 계정 참조·과금 방식·모델 목록은 여전히 미확인이다.
+이 관측은 생성·무료 모델 접근 허가가 아니다.
+
+이 PC의 `agy models --output-format json`은 exit 1이며, 인자 없는 `agy models`만
+텍스트 슬러그를 반환했다. 따라서 공식 변경 기록의 JSON 하위 명령 설명을 이
+바이너리의 동작으로 간주하지 않고 모델 목록을 실행 후보에 편입하지 않았다.
+현재 2.11.11 배포 후보는 불변으로 보존한다. 2.11.12 소스·번들은 별도 후보로
+빌드·검증하고 영수증을 기록한다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
