@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 17:17:10 KST
+updated: 2026-09-27 17:46:10 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 17:46:10 KST] src: user-direct — 구독 전용 범위의 읽기 전용 Claude Max 도구 없는 생성 1회에서 Play Console 자연어 요청에 존재하지 않는 GUI 스킬을 답한 실패 관측. `claude.ai` Max 로그인/API 키 env 부재를 확인했고 Simon의 초과 사용 차단 진술을 사용했으나 CLI `total_cost_usd=0.222612`가 표시되어 실제 추가 청구 여부는 독립 확인 못함; 이후 모델 호출0. `/vibe` 2.11.13 설명에 GUI 자연어·CLI/API/MCP 우선·실제 vibe-bot 이름을 넣고 평가/회귀 추가, 기능 브랜치 커밋 `68c0efc`,`f3c70c5`,`f904c1f` origin push. v7 source digest `128fc271…09384`(137/407), 후보 `f9716627…03107`(5 plugin/182 skill/729 file) 영수증 PASS; 후보 validator/eval182/182, 정적 경로143 미해결0, Claude strict5/5, /vibe 단위213, 소스 품질141 PASS. 전체 배포 도구 단위 테스트는 장시간 미완료로 중단하여 미통과로 분류. 새 후보의 격리 호스트 로드·후속 모델 자동 선택은 미검증, readiness3=false. 실사용 설치/main 머지·Bot/Orca 생성·결제설정변경 없음. 보고 `E:/Coding Infra/reports/2026-09-27-vibe-skill-closure-status.html`, outbox `20260927-174610-to-claude-vibe-21113-gui-probe.md`.
 
 [2026-09-27 / 17:17:10 KST] src: user-direct — 구독 포함 사용만 허용하며 유료 호출을 제외하는 최신 지시로 `/vibe` Antigravity CLI 1.2.12 메타데이터 계약을 최소 확장했다. `agy -p '/usage' --output-format json`은 성공·agent turns 0·모든 token counters 0; 계정/모델/과금은 미확인으로 생성 라우트 불허. SimonK-stack `feat/skill-context-budget-260925` 커밋 `e607858`, `5e74727` origin push, `/vibe` 2.11.12 source/candidate receipt digest `b6d95f00…2b347`/`ed02ba50…67ecc` PASS, 5 plugin/182 skill/729 file, 경로143 미해결0, eval182/182, Claude strict5/5 및 격리 Claude·Codex 각5 enabled, Codex 캐시729 해시 일치. collector27, orchestrate87, vibe212, source quality141 PASS. 격리 Codex 검사 중 예약 변수 충돌로 사용자 프로필 루트에 새 검사 홈3개를 잘못 생성했으나 기존 `.codex`는 변경되지 않았고 새 항목만 `Releases/SimonK-stack/20260927-vibe-helper-closure-candidate/diagnostics/codex-v21112-host/recovered-home`으로 이동 보존, 원래 경로 부재 확인. 보고 `E:/Coding Infra/reports/2026-09-27-vibe-skill-closure-status.html`. 모델/Bot/Orca 생성·결제변경·실사용 설치·main 머지 없음, 추가과금$0, readiness3=false, Claude-owned D-code 미기록.
 
