@@ -51,6 +51,15 @@ class GstackMigrationAuditTests(unittest.TestCase):
         self.assertNotEqual(first, second)
         self.assertNotEqual(first, moved)
 
+    def test_generated_root_link_counter_finds_forward_and_backslash_paths(self):
+        docs = {
+            "qa": ("qa/SKILL.md", "Read E:/probe/qa/sections/start.md\n"),
+            "ship": ("ship/SKILL.md", "Read E:\\probe\\ship\\sections\\end.md\n"),
+            "review": ("review/SKILL.md", "No local link\n"),
+        }
+        self.assertEqual(audit.generated_root_links(docs, Path("E:/probe")),
+                         {"skills": 2, "occurrences": 2})
+
     def test_compare_pair_reports_missing_policy_and_format_without_claiming_failure(self):
         legacy = ("---\nname: investigate\n---\n"
                   "## Skill routing\n## Candidate session scope commands\n"
@@ -93,6 +102,33 @@ class GstackMigrationAuditTests(unittest.TestCase):
         self.assertEqual(report["policy_gap_counts"]["completion_report"], 1)
         self.assertEqual(report["status"], "migration_review_required")
         self.assertFalse(report["runtime_closure_verified"])
+
+    def test_absolute_generated_root_link_prevents_static_mapping_pass(self):
+        skill = "plugins/SimonKStack/skills/qa/SKILL.md"
+        body = b"---\nname: qa\n---\n~/.claude/skills/gstack/bin/gstack-skill-start\n"
+        receipt = {"files": [{"path": skill, "size": len(body),
+                              "sha256": audit.release.digest(body)}]}
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "source"
+            target = source / skill
+            target.parent.mkdir(parents=True)
+            target.write_bytes(body)
+            generated = root / "generated"
+            (generated / "qa").mkdir(parents=True)
+            (generated / ".agents" / "skills" / "gstack-qa").mkdir(parents=True)
+            (generated / "qa" / "SKILL.md").write_text(
+                f"---\nname: qa\n---\nRead {generated.as_posix()}/qa/sections/demo.md\n",
+                encoding="utf-8")
+            (generated / ".agents" / "skills" / "gstack-qa" / "SKILL.md").write_text(
+                "---\nname: qa\n---\nNo absolute generated root\n", encoding="utf-8")
+            with patch.object(audit.plugin_bundle, "verify_bundle", return_value=receipt):
+                report = audit.audit_candidate(source, "0" * 64, generated)
+        self.assertEqual(report["generated_root_links"]["claude"],
+                         {"skills": 1, "occurrences": 1})
+        self.assertEqual(report["generated_root_links"]["codex"],
+                         {"skills": 0, "occurrences": 0})
+        self.assertEqual(report["status"], "migration_review_required")
 
     def test_empty_legacy_set_is_not_a_migration_pass(self):
         skill = "plugins/SimonKStack/skills/qa/SKILL.md"
