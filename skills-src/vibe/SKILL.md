@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use for /vibe, "알아서 진행", "오르카로 돌려", "스킬 조합", skill/model/effort/subscription-cost orchestration, and Play Console/GUI requests. Check CLI/API/MCP first; use vibe-bot only for GUI-only steps. Produces verified plans and artifacts; never invent specialist skills or assume paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.11.16
+version: 2.12.0
 author: simon-stack
 ---
 
@@ -134,7 +134,9 @@ Continue automatically with authorized, ready work. Reuse existing user choices.
 Ask only for missing intent or actions beyond existing authority.
 
 - Local tool: execute a reviewed argv array through the host's tool runner.
-  Supply a fresh cost contract for that exact argv; local does not mean free.
+  Supply a fresh cost contract for that exact argv, including nested API effects
+  in setup and smoke tests; local does not mean free. See the pinned Gstack
+  design-helper example in [orchestration](references/orchestration.md).
 - Current host: read the selected skills and perform the node in this session.
 - Orca: read [Orca workflow](references/orca-workflow.md). Validate the entire
   assignment plan, then use `scripts/execute_orca.py` with the guarded adapter

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.12.0 - 2026-09-28
+
+- Block pinned Gstack design API-key setup, generation and checks under subscription-only USD 0; require transitive local-command cost evidence.
+
 ## 2.11.13 - 2026-09-27
 
 - Make Play Console and other GUI requests discover the `/vibe` coordinator

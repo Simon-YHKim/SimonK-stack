@@ -180,6 +180,19 @@ the predecessor being independently reviewed and must also be a dependency.
 The host includes scope and acceptance evidence in each task handoff. It must
 include every billed coordinator, review and synthesis call in the plan.
 
+Audit the exact local command's transitive effects before assigning a zero-cost
+contract; `setup`, smoke tests and validation commands can themselves call an
+API. In pinned Gstack `01593aa` (v1.91.2.0), `design/src/cli.ts` runs image
+generation during `setup`; `generate.ts` posts to OpenAI Responses API with an
+API key, and `check.ts` posts to OpenAI Chat Completions API. An installed CLI
+or a ChatGPT subscription does not convert those API-key calls into included
+subscription use. For Simon's USD 0 subscription-only grant, keep these
+Gstack `design` setup/generate/check commands unavailable, do not collect or
+reuse an API key, and do not label them free local tools. Other design work may
+continue locally; image generation requires separately observed subscription
+inclusion and disabled overage on the exact alternative surface. Inspect any
+other Gstack command separately instead of treating the whole suite as paid.
+
 ## Runtime snapshot
 
 Pass `candidates`, `tools`, `observed_at`. Each candidate has a unique id,
