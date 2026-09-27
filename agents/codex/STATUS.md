@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 15:22:45 KST
+updated: 2026-09-27 15:30:09 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 15:30:09 KST] src: user-direct — Codex 공식 `skills.max_context_tokens`(최대 10000) 추가 격리 검증: 짧은 홈·전역 전체 비활성화 시 최종 후보 182/182 초기 prompt 노출; 긴 홈·중복136개만 비활성화하면 후보138/182 노출(Stack16/60). 전역 고유 스킬을 숨기지 않기 위해 전체 비활성화는 운영 적용하지 않음. /vibe 명시 inventory 182/182는 유지. 앞선 초기 prompt 제한은 기본 설정 결과로 정정. 실제 사용자 설정/설치본·후보·branch HEAD 불변, readiness3=false. 보충 outbox `20260927-153009-to-claude-codex-budget-validation.md`, 보고서 갱신.
 
 [2026-09-27 / 15:22:45 KST] src: user-direct — 앞선 `14:59` 후보를 Stack 평가 정규화 후 새 최종 후보로 교체: `candidate-safety-v2-normalized`, digest `55770a53…e7aa3d9c`, 5 plugin/182 skill/729 file. 182/182 eval dry-run, 정적 경로143 미해결0, Claude strict 5/5, Codex 격리 홈 5 plugin enabled·스킬/평가364 해시 일치·/vibe inventory182 충돌0. Codex 초기 prompt는 선택적 전역 중복136개 비활성화한 짧은 격리 홈에서도 후보105개만 표시(Stack0); 전역 전체 비활성화 시127개. 실제 사용자 홈·설치본 변경 없음, 운영 설치/merge 보류, readiness3=false. Stack `dde60fb`, SimonK-stack `bdfc24b`까지 origin push 완료. HTML `E:\Coding Infra\reports\2026-09-27-vibe-skill-closure-status.html`; Claude D-code 요청 계속 open. 상세 outbox `20260927-152245-to-claude-vibe-host-limits.md`.
 
