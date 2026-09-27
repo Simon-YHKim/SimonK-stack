@@ -10,6 +10,11 @@ author: simon-stack
 
 Andrej Karpathy의 [llm-wiki 패턴](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) 구현.
 
+이 스킬은 기존 wiki 호환용이다. SimonKWiki v2는 `wiki-ingest`, `wiki-query`,
+`wiki-lint`를 우선한다. 아래 `<llm-wiki-builder-dir>`은 호스트에서 확인한
+이 `SKILL.md`의 부모 절대 경로로 치환한다. 작업 프로젝트에 `skills-src/`
+디렉터리가 있다고 가정하지 않는다.
+
 > "The wiki is a persistent, compounding artifact. Obsidian = IDE, LLM = programmer, wiki = codebase." — Karpathy
 
 ## RAG vs Wiki
@@ -59,7 +64,7 @@ export SIMON_WIKI_REPO=https://github.com/your/wiki.git
 새 소스 추가 → wiki 갱신.
 
 ```bash
-bash skills-src/llm-wiki-builder/scripts/ingest.sh <source-path-or-url> [--topic "토픽명"]
+bash "<llm-wiki-builder-dir>/scripts/ingest.sh" <source-path-or-url> [--topic "토픽명"]
 ```
 
 워크플로:
@@ -81,7 +86,7 @@ bash skills-src/llm-wiki-builder/scripts/ingest.sh <source-path-or-url> [--topic
 Wiki에 질문 → 답변 + **답변도 wiki에 file back**.
 
 ```bash
-bash skills-src/llm-wiki-builder/scripts/query.sh "질문 텍스트"
+bash "<llm-wiki-builder-dir>/scripts/query.sh" "질문 텍스트"
 ```
 
 워크플로:
@@ -103,7 +108,7 @@ bash skills-src/llm-wiki-builder/scripts/query.sh "질문 텍스트"
 Wiki health check.
 
 ```bash
-bash skills-src/llm-wiki-builder/scripts/lint.sh
+bash "<llm-wiki-builder-dir>/scripts/lint.sh"
 ```
 
 체크 항목:
