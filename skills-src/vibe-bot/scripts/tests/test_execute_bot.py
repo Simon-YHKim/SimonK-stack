@@ -154,8 +154,15 @@ class BotAdapterTests(unittest.TestCase):
             "spec_path": str(self.spec), "meta_path": str(self.meta),
             "spec_sha256": self.sha(self.spec), "meta_sha256": self.sha(self.meta),
             "helper_sha256": self.sha(helper), "roster_sha256": self.sha(self.bot_root / "bots.json")}
+        # Bot usage has its own subscription-inclusion proof; the generic LLM
+        # fixture's model_included flag must never stand in for it.
         c = candidate("bot", "grok-bot", transport="bot", model=None, bot_id=self.bot_id,
-                      bot_status="active", capabilities=["gui"])
+                      bot_status="active", capabilities=["gui"], provider_efforts=[],
+                      transport_efforts=[], effort_by_demand={},
+                      billing={"mode": "subscription", "verified": True,
+                               "extra_usage_enabled": False, "bot_usage_included": True,
+                               "api_fallback_disabled": True,
+                               "account_ref": "test-bot-account"})
         request = {"run_id": "bot-fixture", "steps": [{"id": "screen", "kind": "gui",
             "task": self.task, "target": self.target, "skills": ["vibe-bot"], "needs": ["gui"],
             "gui_reason": "fixture screen only", "tool_route_available": False,
