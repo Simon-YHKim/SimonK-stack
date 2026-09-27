@@ -16,6 +16,49 @@ spec.loader.exec_module(audit)
 
 
 class CandidatePathAuditTests(unittest.TestCase):
+    def test_source_checkout_commands_are_reported_without_command_text(self):
+        skill = "plugins/SimonKCore/skills/example/SKILL.md"
+        text = ("Run `bash skills-src/example/scripts/run.sh --token SENSITIVE`.\n"
+                "bash ./skills-src/example/scripts/check.sh\n"
+                "python -B -m unittest discover -s skills-src/vibe/scripts\n")
+        rows = audit.inspect_unportable_commands(skill, text)
+        self.assertEqual(rows, [
+            {"skill": skill, "line": 1, "reason": "source_checkout_command"},
+            {"skill": skill, "line": 2, "reason": "source_checkout_command"},
+            {"skill": skill, "line": 3, "reason": "source_checkout_command"},
+        ])
+        self.assertNotIn("SENSITIVE", repr(rows))
+
+    def test_explicit_source_repo_placeholder_and_prose_are_not_runtime_commands(self):
+        skill = "plugins/SimonKCore/skills/example/SKILL.md"
+        text = ("Do not assume `skills-src/` exists.\n"
+                "python -m unittest discover -s '<stack-source-root>/skills-src/vibe/scripts'\n")
+        self.assertEqual(audit.inspect_unportable_commands(skill, text), [])
+
+    def test_project_relative_skill_commands_are_reported(self):
+        skill = "plugins/SimonKStack/skills/data-retention-planner/SKILL.md"
+        text = ("bash skills/data-retention-planner/scripts/scan-retention.sh\n"
+                "node ./skills/data-retention-planner/scripts/gen-purge-plan.mjs\n"
+                "bash '<skill-dir>/scripts/scan-retention.sh'\n")
+        self.assertEqual(audit.inspect_unportable_commands(skill, text), [
+            {"skill": skill, "line": 1, "reason": "project_relative_skill_command"},
+            {"skill": skill, "line": 2, "reason": "project_relative_skill_command"},
+        ])
+
+    def test_verified_candidate_includes_unportable_command_findings(self):
+        skill = "plugins/SimonKCore/skills/example/SKILL.md"
+        body = b"bash skills-src/example/scripts/run.sh\n"
+        receipt = {"files": [{"path": skill, "size": len(body),
+                              "sha256": audit.release.digest(body)}]}
+        with patch.object(audit.release, "no_links", side_effect=lambda path: path), \
+             patch.object(audit.plugin_bundle, "verify_bundle", return_value=receipt), \
+             patch.object(audit.release, "safe_member", side_effect=lambda root, path: root / path), \
+             patch.object(audit.release, "read_file", return_value=body):
+            report = audit.audit_candidate(Path("fixture"), "0" * 64)
+        self.assertEqual(report["status"], "incomplete")
+        self.assertEqual(report["unportable_commands"], [
+            {"skill": skill, "line": 1, "reason": "source_checkout_command"}])
+
     def test_sibling_skill_reference_is_resolved_inside_same_plugin(self):
         skill = "plugins/SimonKAIHub/skills/rag-builder/SKILL.md"
         target = "plugins/SimonKAIHub/skills/llm-eval/scripts/gate.mjs"

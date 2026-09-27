@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Flag unresolved ASCII backtick-quoted file paths in a verified plugin candidate.
+"""Flag unresolved local paths and unportable skill commands in a verified candidate.
 
 This is a conservative static audit, not runtime dependency closure. Unresolved
 paths need manual context review; they are not necessarily missing dependencies.
@@ -21,6 +21,28 @@ INLINE = re.compile(r"`([^`\r\n]+)`")
 SAFE_REFERENCE = re.compile(r"[A-Za-z0-9._/-]{1,240}\Z")
 LOCAL_PREFIXES = ("scripts/", "templates/", "references/", "./scripts/",
                   "./templates/", "./references/", "../")
+COMMAND_START = re.compile(r"(?:^|`)[ \t]*(?:bash|python(?:3)?|node|pwsh|powershell)\b")
+SOURCE_ROOT_ARG = re.compile(r"(?<![A-Za-z0-9_./-])(?:\./)?skills-src/[A-Za-z0-9_./-]+")
+PROJECT_SKILL_ARG = re.compile(
+    r"(?<![A-Za-z0-9_./-])(?:\./)?skills/[A-Za-z0-9_-]+/"
+    r"(?:scripts|templates|references)/[A-Za-z0-9_./-]+")
+
+
+def inspect_unportable_commands(skill_path: str, text: str) -> list[dict[str, object]]:
+    """Report command locations only; never echo candidate command bodies."""
+    rows = []
+    for line_number, line in enumerate(text.splitlines(), 1):
+        for match in COMMAND_START.finditer(line):
+            command = line[match.end():].split("`", 1)[0]
+            if SOURCE_ROOT_ARG.search(command):
+                rows.append({"skill": skill_path, "line": line_number,
+                             "reason": "source_checkout_command"})
+                break
+            if PROJECT_SKILL_ARG.search(command):
+                rows.append({"skill": skill_path, "line": line_number,
+                             "reason": "project_relative_skill_command"})
+                break
+    return rows
 
 
 def inspect_skill_references(skill_path: str, text: str, available: set[str]) -> list[dict[str, object]]:
@@ -69,6 +91,7 @@ def audit_candidate(root: Path, expected_digest: str) -> dict:
     records = {item["path"]: item for item in receipt["files"]}
     available = set(records)
     rows = []
+    unportable_commands = []
     checked = 0
     for path in sorted(available):
         if not re.fullmatch(r"plugins/[^/]+/skills/[^/]+/SKILL\.md", path):
@@ -80,13 +103,15 @@ def audit_candidate(root: Path, expected_digest: str) -> dict:
         text = data.decode("utf-8")
         for row in inspect_skill_references(path, text, available):
             rows.append({"skill": path, **row})
+        unportable_commands.extend(inspect_unportable_commands(path, text))
     unresolved = [row for row in rows if row["status"] != "present"]
-    return {"status": "incomplete" if unresolved else "static_paths_present",
+    return {"status": "incomplete" if unresolved or unportable_commands else "static_paths_present",
             "bundle_digest": expected_digest, "skills_checked": checked,
             "static_refs_checked": len(rows), "unresolved": unresolved,
+            "unportable_commands": unportable_commands,
             "runtime_closure_verified": False,
-            "scope": "literal ASCII backtick file paths only; unresolved needs manual review; "
-                     "no execution, imports, host paths or services"}
+            "scope": "literal ASCII backtick paths and source/project-relative skill command locations; "
+                     "findings need manual review; no execution, imports, host paths or services"}
 
 
 def main(argv=None) -> int:
@@ -101,7 +126,7 @@ def main(argv=None) -> int:
         print('{"status":"blocked","message":"Candidate path audit failed"}', file=sys.stderr)
         return 2
     print(json.dumps(report, ensure_ascii=False, indent=2))
-    return 1 if report["unresolved"] else 0
+    return 1 if report["unresolved"] or report["unportable_commands"] else 0
 
 
 if __name__ == "__main__":
