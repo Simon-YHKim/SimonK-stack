@@ -662,7 +662,10 @@ manifest 5/5, Claude 세션 한정 플러그인 5개 enabled,
 평가 케이스 보강 후보 v9에 명시 `/vibe`를 같은 격리 조건으로 한 번
 질의한 결과, 응답은 CLI/API/MCP 우선, GUI-only일 때 `vibe-bot`, 추가
 과금 USD 0을 올바르게 설명했다. 관측된 `Skill` 도구 호출은 없으므로
-실제 스킬 본문 실행이나 자동 오케스트레이션의 종단 간 증거로 세지 않는다.
+자동 오케스트레이션의 종단 간 증거로 세지 않는다. 다만 명시적
+`/스킬` 호출은 `Skill` 도구를 거치지 않고 확장될 수 있으므로,
+도구 호출이 없었다는 사실만으로 스킬 본문 미로딩을 단정하지 않는다
+(https://code.claude.com/docs/en/hooks#userpromptexpansion).
 
 Anthropic의 2026-06-15 공식 업데이트는 현재 `claude -p`가 구독 사용량을
 사용한다고 명시한다(https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan).
