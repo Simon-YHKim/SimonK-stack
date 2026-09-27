@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 22:10:46 KST
+updated: 2026-09-27 22:21:24 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 22:21:24 KST] src: user-direct — v14 후보의 Claude Code 2.1.283 호스트 구조 조회: 다섯 plugin.json 모두 strict validate 종료0·오류/경고0, 동시 `--plugin-dir` 목록에 5개 `@inline`/session/enabled, details 합계 187 구성요소(스킬182+명령5)·Always-on 추정 ~41,095 tok. 번들 digest 불변·설치 readiness3=false. SimonK-stack 기능 브랜치 설치문서 `e5d18b5` origin push, clean. 대규모 상시 노출량을 줄이되 `/vibe`의 전 스킬 호출성을 유지하는 배포 구조는 §35.1 토론 요청 `20260927-222124-to-claude-vibe-load-architecture-debate.md`로 제출. 모델/Bot/Orca 생성·유료 호출·운영 설치/main 머지 없음. HTML `preview/20260927-222124-vibe-host-footprint.html`.
 
 [2026-09-27 / 22:10:46 KST] src: user-direct — SimonK-stack `feat/skill-context-budget-260925`의 v14 후보 검증 범위·제약을 README/INSTALL/CHANGELOG에 기록했다. 문서 커밋 `89c09c3`를 origin 기능 브랜치에 push했고, `git diff --check`, `/vibe` 저장소 validator 0오류/0경고, 추가 줄의 알려진 시크릿 패턴 검사를 통과했다. 소스 브랜치는 원격과 동기화·clean. 모델/봇/Orca 실호출·추가 과금·운영 설치·main 머지는 없음. 직접 CLI 계약은 §35.1 ai-debate/D-code 요청 상태이며 readiness3=false. 상세 `20260927-221046-to-claude-vibe-v14-docs.md`, HTML `preview/20260927-221046-vibe-v14-docs.html`.
 
