@@ -510,19 +510,19 @@ python -B scripts/plugin_bundle.py build --source-package E:/staging/release-a -
 실제 모델 행동·호스트 설치 검증 또는 운영 적용 승인으로 간주하지 않는다.
 Stack 입력 `dde60fb`은 후보에서 남았던 plugin-only 스킬 9개의 평가 케이스를
 추가하고 기존 배열형 케이스 4개를 공통 스키마로 변환한다. `/skstack`도 `/vibe`의
-하위 절차로 명시한다. 격리 후보 `20260927-vibe-helper-closure-candidate/
+하위 절차로 명시한다. 이전 격리 후보 `20260927-vibe-helper-closure-candidate/
 candidate-safety-v2-normalized`의 digest는
 `55770a53f1f0f5fb332fc987d497cccb5ef05154b65f02d4706fe384e7aa3d9c`다.
 5 plugin/182 skill/729 file 바이트 검증, 평가 dry-run 182/182, 정적 파일 경로
 143개 미해결 0, Claude strict manifest 5/5가 통과했다. 평가 dry-run은 실제
 모델 행동 증명이 아니다.
 
-최종 후보를 별도 Codex 홈과 Claude 설정 디렉터리에 개별 설치한 결과 양쪽 모두
+이전 후보를 별도 Codex 홈과 Claude 설정 디렉터리에 개별 설치한 결과 양쪽 모두
 5개 plugin이 enabled이고 각 캐시의 전체 729파일 SHA-256이 후보와 일치했다.
 이 설치는 격리 테스트 프로필에만 적용했고 실제 사용자 홈은 변경하지 않았다.
 `/vibe` 명시 루트 inventory도 182개를 충돌 없이 인식했다. Codex 기본 예산에서
-짧은 격리 홈의 전역 중복
-136개만 선택적으로 비활성화하면 초기 prompt에는 plugin skill 105개(Stack 0개),
+짧은 격리 홈의 전역 중복 136개만 선택적으로 비활성화하면 초기 prompt에는
+plugin skill 105개(Stack 0개),
 전역 전체 비활성화 시에는 127개가 보였다. [공식 설정 참조](https://learn.chatgpt.com/docs/config-file/config-reference)의
 `skills.max_context_tokens=10000`을 격리 명령 인자로 적용하면 긴 홈·중복
 136개 비활성화 시 plugin skill 138개(Stack 16개), 짧은 홈·전역 전체 비활성화
@@ -531,6 +531,27 @@ candidate-safety-v2-normalized`의 digest는
 명시 호출·훅 동작을 별도 검증해야 한다. 사용자 홈에는 적용하지 않았다. receipt의
 `runtime_closure_verified`, `host_compatibility_verified`, `installation_ready`는
 계속 false이며 운영 설치·main 머지의 근거가 아니다.
+
+### `/vibe` 2.11.11 Grok 복구 안내 후보 (2026-09-27)
+
+기능 브랜치 `3538b23`은 과거 Grok HOLD를 영구 금지처럼 보이게 하던 안내를
+최신 쿼터·선택 모델의 구독 포함·초과 과금 차단 재확인 규칙으로 바꿨다. 실제
+라우팅·결제 게이트를 완화하거나 모델을 실호출하지는 않았다. 이전의 사용량
+100% 시나리오는 유지하고, 복구 보고만으로 새 호출을 시작하지 않는 평가
+케이스를 추가했다. `vibe` 버전은 2.11.11이다.
+
+새 불변 소스 패키지는 `20260927-vibe-helper-closure-candidate/source-v4-grok-recovery`,
+digest `53be3aa8942dfdefac38d7ed2493e7b61ec77854632566caab5a33ea75afb4ed`다.
+선택할 새 v2 안전 후보는 같은 부모의 `candidate-safety-v4-grok-recovery`, digest
+`fb6900863fde6dad51ecda9e930050b330b4c1e1917eda098ddf8b5f1d55986d`다.
+5 plugin/182 skill/729 file byte verify, 평가 dry-run 182/182, 정적 파일 경로
+143개 미해결 0, Claude strict manifest 5/5가 통과했다. 별도 Claude·Codex
+테스트 프로필에서 각각 5개 plugin enabled, 후보↔캐시 729파일 해시 일치,
+Codex `/vibe` 명시 inventory 182개/문제 0건을 확인했다. 초기 목록·모델 선택·
+실제 훅 실행·실계정 청구·운영 설치까지 증명한 결과는 아니다. 안전 adapter를
+적용하지 않은 별도 v1 진단 후보(`candidate-safety-v3-grok-recovery`, 721파일)는
+보존하되 설치 대상으로 사용하지 않는다. 새 영수증의 readiness 세 플래그도
+모두 false다.
 
 Hook는 `python` + `args`의 exec-form을 사용합니다. 정상 설치된 실제 Python
 실행 파일이 PATH에 있어야 하며, native host가 이를 기동하는지는 별도 확인입니다.
