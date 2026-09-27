@@ -1361,6 +1361,21 @@ remove 후 설치 목록과 등록 marketplace는 각각 0개다. 다만 CLI가 
 재검증했다. 이는 **빈 프로필 등록·복사·활성·철회** 증거일 뿐 기존 사용자
 프로필의 무손실 운영 롤백이나 182개 스킬 실행 증거가 아니다.
 
+같은 v16 후보를 `scripts/codex_overlay.py`로 별도
+`E:/Coding Infra/Releases/SimonK-stack/20260928-vibe-codex-overlay-v16-candidate`에
+Codex 호환 투영했다(overlay digest
+`2b7aec29b2a3c746a4ff21fb5ceb61482c6ffd0203d7058f8f572926ba31047c`).
+번들·오버레이 회귀 49/49, 플러그인 validator 5/5, overlay 재검증이 통과했다.
+새 빈 `CODEX_HOME`
+`E:/Coding Infra/Releases/SimonK-stack/20260928-vibe-codex-overlay-v16-rollback-probe`에서
+로컬 marketplace 5개 등록 → 플러그인 5개 설치·활성 → 캐시 파일 737개
+경로·SHA-256 일치 확인 → 5개 플러그인·marketplace 철회를 모델 호출 없이
+리허설했다. 철회 후 테스트 설치 0·marketplace 0·캐시 파일 0이며,
+사용자 Codex의 SimonK 설치는 전후 0개, overlay digest도 불변이었다.
+제거된 것은 이 빈 테스트 프로필에 새로 복사한 캐시 737개뿐이고 후보
+원본은 보존했다. 이는 Codex의 **격리 등록·복사·롤백** 증거이지
+실제 스킬 선택·안전 훅·전체 동작 또는 기존 사용자 프로필의 롤백 증거가 아니다.
+
 이것은 **대표 스킬의 시작/종료 및 호스트 경로 연결 시험**일 뿐이다.
 `canary` 본문 작업, 안전 훅, 기존 31개 복사본과 새 런타임의 호환성,
 전체 182개 동작, 프로세스 중단/복원, 모델 선택·추가 과금, 사용자 설치본 롤백은 확인하지
