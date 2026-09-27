@@ -998,10 +998,19 @@ Core `simonk-core:careful`과 별도 Stack `simonk-stack:guard`를 각각 명시
 `printf`에는 각각 `permissionDecision=ask`가 반환돼 승인 표면이 없는
 세션에서 도구 실행이 거부됐다. 이는 **Claude Code 2.1.283에서 두
 스킬의 훅 로딩·차단을 관측한 대표 사례**다. 위험 문자열을 단순 출력해도
-보수적으로 막는 위양성도 함께 관측했다. 나머지 `freeze`·`investigate`
-경계, 세션별 상태 설정·해제, 다른 도구/플랫폼과 전체 스킬은 아직
-호스트 실측 대상이다. 임시 작업 디렉터리는 비어 있음을 확인해 제거했고
-후보 번들 digest를 다시 검증했다.
+보수적으로 막는 위양성도 함께 관측했다. 이 두 임시 작업 디렉터리는 비어
+있음을 확인해 제거했다.
+
+별도의 Claude Max/Sonnet 5 `low` 세션에서는 Stack `freeze`를 호출하고
+임시 프로젝트 안에 세션별 경계를 미리 설정했다. `Write`로 경계 밖의 새
+파일을 만들려는 요청은 `PreToolUse:Write hook error: [freeze] Blocked`로
+거부됐고, 경계 안의 새 파일은 생성됐다. 실제 사용자 프로젝트에는 쓰지
+않았다. 같은 조건의 `investigate` 시험에서는 모델이 축약된 스킬 호출을
+거부해 `Skill`·`Write`가 모두 0회였다. 따라서 `investigate` 훅의 호스트
+동작은 **미검증**이다. `freeze`의 상태 해제, 다른 도구·플랫폼과 전체
+스킬도 아직 실측 대상이다. 안전 훅 단위 테스트 28/28은 통과했고 후보
+digest는 재검증됐다. 이 추가 시험의 임시 파일 3개와 디렉터리는 삭제
+명령이 실행 정책에 막혀 보존돼 있다. 사용자 설치본에는 영향이 없다.
 
 후보 182개 SKILL.md 중 `hooks:` frontmatter를 가진 것은 위의 `careful`,
 `guard`, `freeze`, `investigate` 네 개이며, 5개 플러그인 어디에도 Codex
