@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SimonK v15 호스트 안전 훅과 배포 판단</title>
+<style>
+:root{color-scheme:light dark;--accent:#387e96;--text:#182b34;--muted:#637783;background:#f6f8f9;color:var(--text);font:16px/1.55 system-ui,sans-serif}body{max-width:900px;margin:0 auto;padding:32px 20px 64px}h1{font-size:1.85rem;line-height:1.2;margin:.3em 0}h2{font-size:1.15rem}p{max-width:75ch}.muted{color:var(--muted)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;margin:24px 0}.card,details{background:color-mix(in srgb,Canvas 93%,var(--accent));border:1px solid color-mix(in srgb,var(--muted) 35%,transparent);border-radius:12px;padding:14px}.card strong{display:block;font-size:1.35rem}.card span{font-size:.86rem;color:var(--muted)}details{margin:12px 0}summary{cursor:pointer;font-weight:650}summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}table{border-collapse:collapse;width:100%}th,td{text-align:left;border-bottom:1px solid var(--muted);padding:10px 8px;vertical-align:top}th{width:17%}a{color:var(--accent)}svg{max-width:100%;height:auto}.flow{margin:22px 0}@media(prefers-color-scheme:dark){:root{--accent:#7ec4d6;--text:#e8f0f3;--muted:#a1b6bf;background:#101a1e}}
+</style>
+</head>
+<body>
+<p class="muted">SimonK-stack · 2026-09-28 01:02:26 KST · 기능 브랜치 feat/skill-context-budget-260925</p>
+<h1>v15는 검증 후보로 유지</h1>
+<p>Claude 안전 훅 두 개는 실제 호스트에서 개입했다. 아직 전체 설치 패키지, 롤백, Codex 훅 신뢰 절차가 검증되지 않아 사용자 설치 2.11.6을 유지한다.</p>
+<div class="cards" aria-label="핵심 상태"><div class="card"><strong>5 / 182</strong><span>후보 플러그인 / 스킬</span></div><div class="card"><strong>2 / 4</strong><span>Claude 훅 스킬 대표 실측</span></div><div class="card"><strong>0 / 3</strong><span>승격 readiness true</span></div><div class="card"><strong>2.11.6</strong><span>사용자 설치 유지</span></div></div>
+<h2>승격 순서</h2>
+<svg class="flow" viewBox="0 0 850 115" role="img" aria-labelledby="flowtitle flowdesc"><title id="flowtitle">단계별 배포 게이트</title><desc id="flowdesc">현 설치 유지, Claude 패키지와 복원 실증, 제한 파일럿, Codex 신뢰와 훅 동작 실증 후 승격</desc><defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="currentColor"/></marker></defs><g fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="18" width="172" height="70" rx="8"/><rect x="224" y="18" width="172" height="70" rx="8"/><rect x="444" y="18" width="172" height="70" rx="8"/><rect x="664" y="18" width="180" height="70" rx="8"/><path d="M180 53H216M400 53H436M620 53H656" marker-end="url(#arrow)"/></g><g fill="currentColor" font-size="14" text-anchor="middle"><text x="90" y="45">설치 2.11.6 유지</text><text x="90" y="66">격리 검증</text><text x="310" y="45">Claude 전체 패키지</text><text x="310" y="66">closure·복원</text><text x="530" y="45">Claude 제한</text><text x="530" y="66">사용자 파일럿</text><text x="754" y="45">Codex trust·훅</text><text x="754" y="66">허용·차단 실측</text></g></svg>
+<details><summary>실제 호스트에서 확인한 내용</summary><p>Claude Max/Sonnet 5 low의 서로 다른 빈 임시 디렉터리에서 Core careful과 Stack guard를 호출했다. 각 로컬 세션 기록에서 Bash 직전 안전 훅 2회 성공, 안전한 printf 실행, 위험 명령 문자열만 출력하는 printf의 확인 요청과 비대화형 거부를 관측했다. 실제 <code>git reset</code>은 요청하거나 실행하지 않았다. 문자열 위양성도 관측됐으며 freeze와 investigate, 전체 182개 스킬은 실측하지 않았다.</p></details>
+<details><summary>세 입장과 심판의 판단</summary><table><tbody><tr><th>A</th><td>Codex 브리지부터 구현. 공식 호스트 계약과 trust 절차를 먼저 실측하지 않아 선구현 위험.</td></tr><tr><th>B</th><td>Claude만 즉시 사용자 시험. 피드백은 빠르지만 전체 패키지·복원 증거가 부족.</td></tr><tr><th>C 채택</th><td>기존 설치를 보존하고 격리 검증을 통과할 때마다 단계적으로 승격. 빠른 피드백은 Claude 게이트 통과 뒤 파일럿으로 보존.</td></tr></tbody></table></details>
+<details><summary>Codex와 비용 경계</summary><p>후보 5개 플러그인에는 <code>hooks/hooks.json</code>이 없다. <a href="https://developers.openai.com/plugins/build/plugins">OpenAI 공식 문서</a>는 Codex 플러그인 훅 탐색과 사용자의 정의 검토·신뢰 승인을 명시한다. 이것만으로 SKILL frontmatter 훅의 미동작을 단정하지는 않는다. 본 작업은 유료 API·초과 과금·자동충전 설정을 사용하거나 변경하지 않았다. 실제 계정 청구액은 CLI 로그로 증명할 수 없다.</p></details>
+<p class="muted">근거: SimonK-stack <code>0889eb1</code>의 docs/INSTALL.md. 후보 digest 84e8759fa16a4d3c5af39e7465076831dd4bbf01045cb3b0b4158187e4386bf9. Claude 소유 DECISIONS.md에 D-code 채택 요청 중.</p>
+</body>
+</html>

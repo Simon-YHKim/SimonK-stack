@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 00:33:46 KST
+updated: 2026-09-28 01:02:26 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-28 / 01:02:26 KST] src: user-direct — 추가 과금·유료 API 없이 Claude Max/Sonnet 5 low 호스트에서 Core careful과 Stack guard의 `PreToolUse:Bash`를 각각 안전 printf 허용/위험 문자열 printf `ask`→`dontAsk` 거부로 관측. 실제 reset은 실행하지 않았고 문자열 출력도 보수적으로 막는 위양성 관측. Codex 공식 플러그인 문서는 훅 파일·사용자 trust 검토가 필요하다고 명시하나 후보 5플러그인에는 해당 manifest가 없고 네이티브 설치0. `ai-debate` 3입장·교차반박·별도 심판 결과 현재 2.11.6 유지, v15는 격리 검증→full plugin/closure·롤백 후 Claude 파일럿→Codex trust/허용·차단 실측 후 승격. 소스 근거 문서만 `0889eb1`로 origin 기능 브랜치 push/clean. 후보 digest·설치본·결제설정·main/Bot/Orca 불변, readiness3=false. Claude 소유 DECISIONS에 D-code 요청 `20260928-010226-to-claude-vibe-hook-release-dcode.md`와 HTML 제출. CLI 실제 청구액 확인 불가.
 
 [2026-09-28 / 00:33:46 KST] src: user-direct — v15 후보의 5-plugin 구독 미리보기를 `-AllPlugins` 명시 옵션으로 추가하고 `plan`→`dontAsk`+Skill 사전 허용+MCP 차단+권한 프롬프트 없음으로 변경. fake Claude 회귀 RED→6/6 GREEN, PowerShell AST0, 실제 후보 CheckOnly에서 5/182·model_called=false. 별도 Claude Max/Sonnet5 low 단발 호스트 호출에서 Market Skill 1건·결과1건·최종 오류 없음·정확한 응답·3턴, 이전 ExitPlanMode 오류 미재현. 후보 digest 불변. source 커밋 `ddc67e4` origin 기능 브랜치 push, 로컬·원격 일치/clean. 사용자 설치2.11.6·readiness3=false·main/결제설정/Bot/Orca 불변. CLI 청구액 증거 없음. 보고 `20260928-003346-to-claude-vibe-five-plugin-preview.md` 및 HTML. §35 D-code 회신과 release 승격 계약은 계속 대기.
 
