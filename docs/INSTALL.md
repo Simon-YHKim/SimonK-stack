@@ -1024,6 +1024,44 @@ digest는 재검증됐다. 이 추가 시험의 임시 파일 3개와 디렉터�
 0개였다. Codex 쪽 실제 훅 계약·신뢰 절차·격리 호스트 동작을 확인하기
 전에는 Claude의 통과를 Codex 설치 준비 완료로 승격하지 않는다.
 
+### Codex 호환 오버레이 v2 (2026-09-28, 설치 전 후보)
+
+`scripts/codex_overlay.py`는 고정된 v15 5-플러그인 후보를 **읽기 전용**으로
+검증하고 별도 경로에 복사해 Codex 호환 `.codex-plugin/plugin.json` 다섯 개를
+추가한다. Stack의 수동 전용 `zoom-out`은 오버레이 복사본에서만 기존
+`disable-model-invocation: true`를 제거하고
+`skills/zoom-out/agents/openai.yaml`의
+`policy.allow_implicit_invocation: false`로 투영한다. [OpenAI 공식 플러그인
+검증 규격](https://developers.openai.com/plugins/deploy/submission-errors)은 이
+정책 필드를 정의한다. 원본 후보·사용자 설치본은 바꾸지 않는다.
+
+```powershell
+python -B scripts/codex_overlay.py build `
+  --candidate 'E:/Coding Infra/Releases/SimonK-stack/20260927-vibe-helper-closure-candidate/candidate-safety-v15-context-reference' `
+  --candidate-digest 84e8759fa16a4d3c5af39e7465076831dd4bbf01045cb3b0b4158187e4386bf9 `
+  --output 'E:/Coding Infra/Releases/SimonK-stack/20260928-vibe-codex-overlay-v2-candidate'
+python -B scripts/codex_overlay.py verify `
+  --package 'E:/Coding Infra/Releases/SimonK-stack/20260928-vibe-codex-overlay-v2-candidate' `
+  --overlay-digest 545cc8967404a710f09cfdbbbcd9e75f1856dce6a5a10533f3fb9631360c8228
+```
+
+오버레이 영수증은 원본 후보 digest와 일곱 투영 파일의 바이트를 묶는다.
+원본 스킬 바이트도 저장해 후보 영수증과 대조하며, 추가·변조 파일은 거부한다.
+2026-09-28 로컬 `plugin-creator` 검증기는 5/5 플러그인을 통과시켰다.
+새 빈 `CODEX_HOME` 검사 홈에 후보의 로컬 marketplace 다섯 개를 등록하고
+다섯 플러그인을 설치한 결과 `codex plugin list --json`에서 모두
+`installed=true`, `enabled=true`였다. 검사 홈은 `codex login status`에서
+`Not logged in`이며 모델 호출은 없었다. 검사 캐시의 737개 파일은 후보와
+경로·SHA-256이 모두 일치했고, 검사 뒤 오버레이 digest도 재검증됐다.
+번들·오버레이 회귀 테스트 49/49도 PASS였다
+(`python -B -m unittest scripts.tests.test_plugin_bundle scripts.tests.test_codex_overlay`).
+이는 **패키지 등록·복사 검사**일 뿐, Codex 모델의 실제 스킬 선택·실행,
+훅 신뢰·동작, 사용자 홈 설치·롤백 검증이 아니다. 특히 Claude 스킬
+frontmatter 안전 훅 네 개를 Codex 훅으로 옮기지 않았다. 영수증의
+`installation_ready`와
+`host_compatibility_verified`는 계속 false이며, 운영 설치 전환의 근거로
+사용하지 않는다. 모델 호출이나 별도 과금은 이 빌드·검증에 필요 없다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,

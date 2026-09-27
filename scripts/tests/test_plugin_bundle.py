@@ -580,6 +580,22 @@ class PluginBundleTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     self.m.verify_bundle(output, result["bundle_digest"])
 
+    def test_overlay_exception_requires_exact_declared_members_and_original_bytes(self):
+        result = self.build()
+        base_path = "plugins/SimonKCore/commands/inspect.md"
+        base_file = self.output / base_path
+        original = base_file.read_bytes()
+        base_file.write_bytes(b"Codex-only projected fixture\n")
+        extra_path = "plugins/SimonKCore/compat.txt"
+        (self.output / extra_path).write_bytes(b"compat\n")
+        with self.assertRaises(ValueError):
+            self.m.verify_bundle(self.output, result["bundle_digest"])
+        with self.assertRaises(ValueError):
+            self.m.verify_bundle(self.output, result["bundle_digest"],
+                                 allowed_extra={extra_path}, base_overrides={base_path: b"wrong"})
+        self.m.verify_bundle(self.output, result["bundle_digest"],
+                             allowed_extra={extra_path}, base_overrides={base_path: original})
+
     def test_source_digest_mismatch_and_protected_target_are_rejected(self):
         with self.assertRaises(ValueError):
             self.m.build_bundle(self.source, "0" * 64, self.plugins, self.inputs, self.output)
