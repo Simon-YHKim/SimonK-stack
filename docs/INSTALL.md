@@ -1096,6 +1096,19 @@ digest는 변경되지 않았다. 이는 빈 테스트 프로필의 신규 설�
 증거일 뿐, 기존 사용자 홈의 2.11.6 파일·설정·활성 세션을 보존하며
 되돌리는 운영 롤백 검증은 아니다. 따라서 위 readiness 플래그는 그대로다.
 
+별도의 빈 `CLAUDE_CONFIG_DIR`
+`E:/Coding Infra/Releases/SimonK-stack/20260928-vibe-claude-rollback-probe`에서도
+같은 v15 원본 후보의 로컬 marketplace 5개 등록 → Claude 플러그인 5개
+설치·활성화 → 설치 캐시와 후보의 731개 파일 경로·SHA-256 일치 확인 →
+플러그인 5개 uninstall → marketplace 5개 remove를 모델 호출 없이 실행했다.
+마지막 `claude plugin list --json`은 빈 목록이고 marketplace 설정도 0이다.
+다만 Claude CLI의 uninstall은 복사된 캐시를 삭제하지 않고 각 버전 폴더에
+`.orphaned_at`을 추가했다. 테스트 프로필에 **캐시 파일 736개(원본 복사본
+731개 + 표시 5개)**가 남았으며, 이 파일들은 수동 삭제하지 않고 보존했다.
+따라서 이 리허설은 **등록·활성 상태 철회**만 입증하고 디스크 캐시 정리나
+기존 사용자 프로필 2.11.6의 무손실 운영 롤백을 입증하지 않는다. 실제 사용자
+설정·설치본, 결제 설정, 원본 후보 및 위 readiness 플래그는 변경하지 않았다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
