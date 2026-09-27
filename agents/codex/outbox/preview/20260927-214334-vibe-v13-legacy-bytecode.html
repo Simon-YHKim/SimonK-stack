@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SimonKStack /vibe v13 후보 검증</title>
+<style>
+:root{color-scheme:light dark;--accent:#236a8a;--text:#17232b;--muted:#64747e;background:#f5f7f8;color:var(--text)}
+@media(prefers-color-scheme:dark){:root{--accent:#78c8ee;--text:#e9f0f3;--muted:#9eafb7;background:#10191e}}
+*{box-sizing:border-box}body{font:16px/1.55 system-ui,sans-serif;max-width:960px;margin:auto;padding:2rem 1.2rem}h1{line-height:1.15}p,li{max-width:75ch}a{color:var(--accent)}.muted,small{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8rem}.card,details{border:1px solid var(--muted);border-radius:.7rem;padding:1rem}.value{font-size:1.5rem;font-weight:700;color:var(--accent)}details{margin-top:1rem}summary{cursor:pointer;font-weight:700}code{overflow-wrap:anywhere}a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+</style>
+</head>
+<body>
+<main>
+<p class="muted">2026-09-27 21:43:34 KST · SimonKStack 기능 브랜치</p>
+<h1>/vibe v13 후보 검증</h1>
+<p>레거시 Python 진입점 3개가 receipt 밖의 바이트코드를 만들지 않도록 수정했다. 후보 패키지 검증은 통과했지만 실사용 설치 승인은 아니다.</p>
+<div class="grid" aria-label="핵심 결과">
+<div class="card"><div class="value">447388a</div><div>기능 브랜치 커밋 · origin 동기화</div></div>
+<div class="card"><div class="value">500 PASS</div><div>후보 패키지 오프라인 테스트</div></div>
+<div class="card"><div class="value">729/729</div><div>후보와 격리 Codex 캐시 해시 일치</div></div>
+<div class="card"><div class="value">0</div><div>모델·Bot·Orca 실호출 및 추가 유료 호출</div></div>
+</div>
+<details><summary>변경과 검증</summary><p><code>make_intake.py</code>, <code>make_decision_sheet.py</code>, <code>selftest.py</code>에서 첫 로컬 import 전에 바이트코드 생성을 차단한다. 격리 subprocess 회귀 테스트는 RED 3건에서 GREEN으로 전환됐다. 소스 테스트 369, selftest 180, validator 0/0, eval dry-run 20케이스가 통과했다. 후보 receipt digest는 패키지 테스트 후에도 변하지 않았다.</p></details>
+<details><summary>사용 가능 범위와 남은 게이트</summary><p>Claude·Codex v13 실행기는 parser와 읽기 전용 <code>-CheckOnly</code>를 통과했다. Codex 격리 프로필은 미로그인이다. 남은 레거시 CLI, 실제 호스트·Relay·Orca 연결, 모델-구독 결속, §35 D-code는 미검증이다. <code>runtime_closure_verified</code>, <code>host_compatibility_verified</code>, <code>installation_ready</code> 모두 false다. 사용자 홈 설치본과 main은 변경하지 않았다.</p></details>
+<details><summary>후보 식별자와 미리보기</summary><p>Source digest: <code>8ef0897fdb58e858363cc396858c3183e9eb8450b6c011179b8e01380889ebd2</code><br>Bundle digest: <code>9b8bd8f3e415f58edf69e3f2333046918d8b7a2bdb9e9d07c30eb697579e92cb</code></p><p><a href="file:///E:/Coding%20Infra/Releases/SimonK-stack/20260927-vibe-helper-closure-candidate/try-vibe-v13-claude.ps1">Claude 세션 미리보기</a> · <a href="file:///E:/Coding%20Infra/Releases/SimonK-stack/20260927-vibe-helper-closure-candidate/try-vibe-v13-codex.ps1">Codex 세션 미리보기</a></p></details>
+</main>
+</body>
+</html>

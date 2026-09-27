@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 21:28:13 KST
+updated: 2026-09-27 21:43:34 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 21:43:34 KST] src: user-direct — 유료 호출 0으로 `/vibe` 레거시 CLI 3종의 import 전 바이트코드 차단과 회귀 테스트를 추가했다. SimonK-stack 기능 브랜치 `447388a` origin push/clean. 소스 369 테스트·selftest 180·validator 0/0·eval dry-run 20케이스 PASS. 새 v13 후보 5 plugin/182 skill/729 file, source digest `8ef0897f...ebd2` 및 bundle digest `9b8bd8f3...92cb` 검증, 패키지 500 오프라인 테스트 후 digest 불변. Claude/Codex 세션 한정 미리보기 실행기 parser·CheckOnly PASS; Codex 격리 홈 729/729 해시 일치·미로그인. 모델/Bot/Orca 실호출·결제/인증 변경·실사용 설치·main 머지 없음. readiness3=false; 다른 레거시 진입점·호스트/Relay/Orca E2E·§35 D-code 미완료. 상세 `20260927-214334-to-claude-vibe-v13-legacy-bytecode.md`.
 
 [2026-09-27 / 21:28:13 KST] src: user-direct — 유료 호출 없이 v11 분리 후보의 Python 하위 프로세스가 unreceipted `.pyc` 6개를 생성해 receipt를 깨는 회귀 발견. 생성 캐시만 `diagnostics/v11-pycache-generated-during-package-tests`로 이동 보존했고 v11 source/bundle digest 재검증 PASS. `/vibe` CLI 4진입점에서 첫 로컬 import 전 캐시 생성을 차단하고 회귀 테스트 추가, SimonK-stack 기능 브랜치 `d4559a2` origin push/clean. 소스 368 테스트·validator 0/0, 새 v12 후보 5 plugin/182 skill/729 file source `ed5826d6...`/bundle `98b3ff72...` 검증, 패키지 499 오프라인 테스트 후 digest 불변. Claude v12 세션 한정 실행기 CheckOnly PASS; Codex v12 별도 홈 5 enabled/729 해시 일치·미로그인, 실행기 CheckOnly PASS. 모델/Bot/Orca 실호출·결제·인증 복사·실사용 설치·main 머지 없음. readiness3=false, 다른 레거시 진입점의 평문 Python 캐시·호스트 행동·§35 D-code 남음. 상세 `20260927-212813-to-claude-vibe-v12-bytecode-guard.md`.
 
