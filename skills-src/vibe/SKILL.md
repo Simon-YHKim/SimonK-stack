@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use for /vibe, "알아서 진행", "오르카로 돌려", "스킬 조합", skill/model/effort/subscription-cost orchestration, and Play Console/GUI requests. Check CLI/API/MCP first; use vibe-bot only for GUI-only steps. Produces verified plans and artifacts; never invent specialist skills or assume paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.11.14
+version: 2.11.15
 author: simon-stack
 ---
 
@@ -366,7 +366,9 @@ python -B -I -S tests/test_ledger_scan.py
 
 When testing an immutable bundle, also set `PYTHONDONTWRITEBYTECODE=1` for
 child Python processes and reverify its receipt afterward. `-B` on the parent
-command alone does not propagate to subprocesses.
+command alone does not propagate to subprocesses. Plain Python invocation of
+legacy CLI entrypoints now blocks bytecode before their first local import;
+module imports by other callers still need the caller's own no-bytecode policy.
 
 - [Orchestration schema and cost policy](references/orchestration.md)
 - [Guarded Orca workflow and preparation limits](references/orca-workflow.md)

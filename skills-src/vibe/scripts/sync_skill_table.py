@@ -10,6 +10,10 @@
 import os
 import sys
 
+# Plain Python entrypoints must not add unreceipted bytecode to a bundle.
+if __name__ == "__main__":
+    sys.dont_write_bytecode = True
+
 _HERE = os.path.dirname(os.path.abspath(__file__))
 if _HERE not in sys.path:
     sys.path.insert(0, _HERE)

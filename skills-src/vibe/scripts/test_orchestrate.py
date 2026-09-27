@@ -790,7 +790,8 @@ class OrchestrationTests(unittest.TestCase):
             "try: runpy.run_path(sys.argv[1], run_name='__main__')\n"
             "except StopProbe: print('STOPPED')\n"
         )
-        for name in ("make_intake.py", "make_decision_sheet.py", "selftest.py"):
+        for name in ("make_intake.py", "make_decision_sheet.py", "selftest.py",
+                     "aggregate_ledger.py", "adversarial_eval.py", "sync_skill_table.py"):
             with self.subTest(entrypoint=name), tempfile.TemporaryDirectory() as tmp:
                 scripts = Path(tmp) / "scripts"
                 scripts.mkdir()

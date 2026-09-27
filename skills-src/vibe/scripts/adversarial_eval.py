@@ -66,6 +66,10 @@ import subprocess
 import sys
 import time
 
+# Local imports must not mutate a receipt-bound skill bundle.
+if __name__ == "__main__":
+    sys.dont_write_bytecode = True
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import routing  # noqa: E402
 
