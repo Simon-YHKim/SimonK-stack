@@ -983,6 +983,38 @@ SKILL.md 모두 `version` 키를 가진다. 저장소의 Claude용 validator는
 자동 선택 정확도 또는 구독 청구액을 증명하지 않는다. 후보 digest는 다시
 일치했고 사용자 설치본·결제 설정·Bot/Orca는 변경하지 않았다.
 
+### v15 Claude 안전 훅 실측과 Codex 이식 경계 (2026-09-28)
+
+격리된 빈 임시 작업 디렉터리에서 Claude Max/Sonnet 5 `low` 구독 경로로
+Core `simonk-core:careful`과 별도 Stack `simonk-stack:guard`를 각각 명시
+호출했다. 두 세션 모두 `Skill`과 `Bash(printf *)`만 허용하고
+`dontAsk`·권한 프롬프트 없음·MCP 차단을 적용했다. 각 세션은
+`printf 'SAFE_PROBE'`류 명령과, **문자열만 출력하는**
+`printf '%s' 'git reset --hard'` 명령을 요청했다. 실제 reset 명령은
+요청하거나 실행하지 않았다.
+
+두 세션의 로컬 호스트 기록에는 각각 `PreToolUse:Bash` 훅 실행 성공이
+2건씩 있었다. 안전한 `printf`는 실행됐고, reset 문자열을 포함한
+`printf`에는 각각 `permissionDecision=ask`가 반환돼 승인 표면이 없는
+세션에서 도구 실행이 거부됐다. 이는 **Claude Code 2.1.283에서 두
+스킬의 훅 로딩·차단을 관측한 대표 사례**다. 위험 문자열을 단순 출력해도
+보수적으로 막는 위양성도 함께 관측했다. 나머지 `freeze`·`investigate`
+경계, 세션별 상태 설정·해제, 다른 도구/플랫폼과 전체 스킬은 아직
+호스트 실측 대상이다. 임시 작업 디렉터리는 비어 있음을 확인해 제거했고
+후보 번들 digest를 다시 검증했다.
+
+후보 182개 SKILL.md 중 `hooks:` frontmatter를 가진 것은 위의 `careful`,
+`guard`, `freeze`, `investigate` 네 개이며, 5개 플러그인 어디에도 Codex
+플러그인용 `hooks/hooks.json`은 없다. OpenAI의
+[플러그인 패키징 문서](https://developers.openai.com/plugins/build/plugins)에
+따르면 Codex 플러그인 훅은 `hooks/hooks.json` 또는 명시된 hook 설정으로
+발견되며, 설치·활성화만으로 신뢰되지 않아 사용자의 현재 정의 검토가
+필요하다. 이것은 **Codex가 SKILL frontmatter 훅을 실행하지 않는다는
+실측 증명은 아니지만**, 현재 후보로 동등한 안전 훅 정책을 주장할 근거도
+없다는 뜻이다. 현 사용자 Codex 네이티브 설치 목록 20개에는 SimonK가
+0개였다. Codex 쪽 실제 훅 계약·신뢰 절차·격리 호스트 동작을 확인하기
+전에는 Claude의 통과를 Codex 설치 준비 완료로 승격하지 않는다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
