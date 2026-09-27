@@ -1478,6 +1478,21 @@ Codex 오버레이 5/5 회귀 PASS. Claude strict manifest와 Codex
 참조 142개 중 미해결 0·비이식 명령 0이지만 외부 Gstack bin 참조
 31개로 `external_runtime_pending`/종료 1이다.
 
+Gstack 경고 31개는 서로 다른 실행 파일 31개가 아니라, `SKILL.md` 31개에
+`gstack/bin/` 문자열이 있다는 뜻이다. 이 문서들의 직접 참조 646곳은
+`gstack-config`(305), `gstack-slug`(87), `gstack-telemetry-log`(66),
+`gstack-update-check`(62), `gstack-timeline-log`(33),
+`gstack-learnings-search`(30), `gstack-repo-mode`(30),
+`gstack-team-init`(30), `gstack-learnings-log`(3)의 9개 Bash helper로
+모인다. 고정 업스트림 `01593aa`는 9개를 모두 추적하고 실행 비트
+`100755`를 기록하며 Git Bash 구문 검사도 9/9 통과했다. 이는 **직접 참조
+분류**일 뿐 전이 실행 의존성의 폐쇄나 설치 적합성 검증이 아니다.
+`gstack-update-check`의 네트워크 접근, telemetry의 로컬 기록·동기화,
+config/team helper의 상태 변경 가능성을 별도 감사해야 한다. 기존
+preamble과 새 호스트별 생성 문서의 차이, Windows CSO launcher 부재도
+남아 있으므로 9개 스크립트를 후보에 단순 복사하거나 이 검사만으로
+준비 상태를 올리지 않는다.
+
 후보 manifest의 `runtime_closure_verified`, `host_compatibility_verified`,
 `installation_ready`는 모두 `false`다. 실제 모델 선택·안전 훅·Bot/Orca
 연결·전체 182스킬 동작, 구독 청구 안전성, 사용자 홈 롤백은 이 빌드가
