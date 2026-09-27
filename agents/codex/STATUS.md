@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 20:49:50 KST
+updated: 2026-09-27 21:04:35 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 21:04:35 KST] src: user-direct — v11 후보 카탈로그 182개와 네 CLI 읽기 전용 메타데이터 조회 성공; Codex 후보7개는 전부 available=false/billing.verified=false. 공식 최신 GPT-6/Claude Opus5.5/Fable5.1/Sonnet5/Grok4.7/Gemini3.8은 중앙 registry에 이미 있음. 로컬 Grok 4.7 기본, 주간89%·on-demand cap/잔액0·billing unknown; agy는 Gemini3.8 Flash 목록 확인, Grok/AG 생성0. Claude Max 구독·API env 부재에서 Opus5.5 단일 도구 없는 평가를 했으나 `error_max_budget_usd`·빈 답변, CLI 비용 상당 3.711888(설정 상한0.5 초과; 실제 청구액 아님)로 canary 미통과, 추가 모델 호출 중단. 기능 브랜치 docs `c7675da` origin push, HTML `E:/Coding Infra/reports/2026-09-27-vibe-frontier-subscription-audit.html`, v11 Claude 체험기에 quota 경고 추가/CheckOnly 통과. 결제·자동충전·운영 설치/main 불변, readiness=false. 상세 `20260927-210435-to-claude-vibe-frontier-audit.md`.
 
 [2026-09-27 / 20:49:50 KST] src: user-direct — 추가 유료 호출 없이 Claude Max 구독 경로에서 v10 자연어 Play Console 요청의 `vibe-bot` 오선택을 재현하고, `vibe-bot` 0.9.3 발견 문구를 명시 Bot 요청/검증된 `/vibe` 내부 위임으로 더 좁혔다. SimonK-stack 기능 브랜치 `4ef0cb1` origin push, validator 0오류/0경고, Bot93·adapter27·bus11·release38·bundle43 통과. v11 동일 요청은 `vibe`를 선택했고 후속에서 `Skill(simonk-core:vibe)` 호출 관측, 별도 명시 로드는 제목까지 성공. 새 v11 source digest `92cb7c43...`, 번들 digest `1e5874de...`, 5/182/729 검증. 격리 Codex v11 프로필 729/729 해시 일치·미로그인; Claude/Codex v11 체험기 CheckOnly·더미 API 키 가드 통과. 실제 사용자 설치본 2.11.6·결제설정·main 불변; readiness3=false, 5표면/Relay/Orca E2E와 Claude 소유 D-code 남음. 상세 `20260927-204950-to-claude-vibe-v11-routing.md`, HTML `E:/Coding Infra/reports/2026-09-27-vibe-v11-routing-probe.html`.
 
