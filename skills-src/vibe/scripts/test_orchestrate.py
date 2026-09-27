@@ -777,6 +777,35 @@ class OrchestrationTests(unittest.TestCase):
                     self.assertEqual(result.returncode, 0, result.stderr)
                     self.assertFalse(list(scripts.rglob("*.pyc")))
 
+    def test_legacy_user_entrypoints_import_without_bytecode_or_effects(self):
+        probe = (
+            "import runpy, sys\n"
+            "class StopProbe(Exception): pass\n"
+            "def trace(frame, event, arg):\n"
+            "    if event == 'call' and frame.f_code.co_filename == sys.argv[1] "
+            "and frame.f_code.co_name in ('main', 'run'):\n"
+            "        raise StopProbe\n"
+            "    return trace\n"
+            "sys.settrace(trace)\n"
+            "try: runpy.run_path(sys.argv[1], run_name='__main__')\n"
+            "except StopProbe: print('STOPPED')\n"
+        )
+        for name in ("make_intake.py", "make_decision_sheet.py", "selftest.py"):
+            with self.subTest(entrypoint=name), tempfile.TemporaryDirectory() as tmp:
+                scripts = Path(tmp) / "scripts"
+                scripts.mkdir()
+                for source in SCRIPT.parent.glob("*.py"):
+                    shutil.copyfile(source, scripts / source.name)
+                env = os.environ.copy()
+                env.pop("PYTHONDONTWRITEBYTECODE", None)
+                env.pop("PYTHONPYCACHEPREFIX", None)
+                result = subprocess.run([sys.executable, "-c", probe, str(scripts / name)],
+                                        capture_output=True, text=True, encoding="utf-8",
+                                        cwd=tmp, env=env, timeout=15)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout.strip(), "STOPPED")
+                self.assertFalse(list(scripts.rglob("*.pyc")))
+
     def test_ready_requires_fresh_dispatch_time(self):
         p = self.plan()
         self.assertEqual(self.m.ready_steps(p, [], now="2026-09-23T10:16:00Z"), [])

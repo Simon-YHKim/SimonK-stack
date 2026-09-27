@@ -22,6 +22,9 @@ import sys
 import tempfile
 import uuid
 
+# Suppress helper bytecode before local imports in an immutable candidate.
+if __name__ == "__main__":
+    sys.dont_write_bytecode = True
 _HERE = os.path.dirname(os.path.abspath(__file__))
 if _HERE not in sys.path:
     sys.path.insert(0, _HERE)

@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use for /vibe, "알아서 진행", "오르카로 돌려", "스킬 조합", skill/model/effort/subscription-cost orchestration, and Play Console/GUI requests. Check CLI/API/MCP first; use vibe-bot only for GUI-only steps. Produces verified plans and artifacts; never invent specialist skills or assume paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.11.13
+version: 2.11.14
 author: simon-stack
 ---
 
@@ -104,8 +104,8 @@ Bot model/effort remains provider-managed unless a real control is verified.
 
 Validate with:
 ```text
-python "<skill>/scripts/orchestrate.py" plan --input request.json --runtime runtime.json
-python "<skill>/scripts/orchestrate.py" ready --input plan.json --events events.json
+python -B "<skill>/scripts/orchestrate.py" plan --input request.json --runtime runtime.json
+python -B "<skill>/scripts/orchestrate.py" ready --input plan.json --events events.json
 ```
 
 The output is a preflight decision, not proof of dispatch. Refresh runtime and
@@ -179,9 +179,9 @@ publishing to a watched bus are different effects; only drafting is local-only.
 Never use the builder's retired hub/webhook/github/--send paths or manually
 preclaim. The central adapter owns claim and publication together:
 ```text
-python "<skill>/scripts/execute_bot.py" dispatch --plan plan.json --node screen --db shared-runs.sqlite3 --certificate bot-evidence.json
-python "<skill>/scripts/execute_bot.py" reconcile --plan plan.json --node screen --db shared-runs.sqlite3
-python "<skill>/scripts/execute_bot.py" check-result --plan plan.json --node screen --db shared-runs.sqlite3 --evidence screens.json
+python -B "<skill>/scripts/execute_bot.py" dispatch --plan plan.json --node screen --db shared-runs.sqlite3 --certificate bot-evidence.json
+python -B "<skill>/scripts/execute_bot.py" reconcile --plan plan.json --node screen --db shared-runs.sqlite3
+python -B "<skill>/scripts/execute_bot.py" check-result --plan plan.json --node screen --db shared-runs.sqlite3 --evidence screens.json
 ```
 Reentry is lookup-only, never a new nonce or resend. Exact publication remains
 waiting_external with unknown cost; it does not prove Bot acceptance. The legacy
@@ -351,18 +351,22 @@ registry or present-day availability. It cannot bypass central guards.
 ## Verification and references
 
 ```text
-python "<skill>/scripts/test_runtime_collect.py"
-python "<skill>/scripts/test_run_state.py"
-python "<skill>/scripts/test_execute_orca.py"
-python "<skill>/scripts/test_model_registry.py"
-python "<skill>/scripts/test_orchestrate.py"
-python "<skill>/scripts/selftest.py"
-python "<skill>/scripts/sync_skill_table.py" --check
+python -B "<skill>/scripts/test_runtime_collect.py"
+python -B "<skill>/scripts/test_run_state.py"
+python -B "<skill>/scripts/test_execute_orca.py"
+python -B "<skill>/scripts/test_model_registry.py"
+python -B "<skill>/scripts/test_orchestrate.py"
+python -B "<skill>/scripts/selftest.py"
+python -B "<skill>/scripts/sync_skill_table.py" --check
 # Process-denied preparation fixtures, from the skill's scripts directory:
 python -B -m unittest discover -s tests -p "test_prepare*.py"
 # Secret detection equivalence/latency; denies child processes and networking:
 python -B -I -S tests/test_ledger_scan.py
 ```
+
+When testing an immutable bundle, also set `PYTHONDONTWRITEBYTECODE=1` for
+child Python processes and reverify its receipt afterward. `-B` on the parent
+command alone does not propagate to subprocesses.
 
 - [Orchestration schema and cost policy](references/orchestration.md)
 - [Guarded Orca workflow and preparation limits](references/orca-workflow.md)
