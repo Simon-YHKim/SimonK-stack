@@ -1,10 +1,11 @@
-# Read-only Claude host preview for a verified five-plugin /vibe candidate.
+# Tool-restricted Claude host preview for a verified five-plugin /vibe candidate.
 # Default CheckOnly makes no model call. -Run consumes included subscription usage.
 [CmdletBinding(PositionalBinding = $false)]
 param(
     [Parameter(Mandatory = $true)] [string] $CandidateRoot,
     [Parameter(Mandatory = $true)] [string] $ExpectedDigest,
     [switch] $Run,
+    [switch] $AllPlugins,
     [switch] $SubscriptionOnlyConfirmed
 )
 
@@ -44,11 +45,24 @@ try {
         -not (Test-Path -LiteralPath (Join-Path $core 'skills\vibe\SKILL.md') -PathType Leaf)) {
         $reason = 'CORE_PLUGIN_MISSING'; throw 'blocked'
     }
+    $pluginNames = if ($AllPlugins) {
+        @('SimonKCore', 'SimonKDesign', 'SimonKStack', 'SimonKMarket', 'SimonKAIHub')
+    } else {
+        @('SimonKCore')
+    }
+    $pluginArgs = @()
+    foreach ($name in $pluginNames) {
+        $pluginPath = Join-Path $candidate "plugins\$name"
+        if (-not (Test-Path -LiteralPath (Join-Path $pluginPath '.claude-plugin\plugin.json') -PathType Leaf)) {
+            $reason = 'PLUGIN_MISSING'; throw 'blocked'
+        }
+        $pluginArgs += '--plugin-dir', $pluginPath
+    }
 
     if (-not $Run) {
         [Console]::Out.WriteLine((@{status='candidate_verified'; bundle_digest=$digest;
             plugins=$receipt.plugins; skills=$receipt.skills; model_called=$false;
-            installation_ready=$false} | ConvertTo-Json -Compress))
+            preview_plugins=$pluginNames.Count; installation_ready=$false} | ConvertTo-Json -Compress))
         exit 0
     }
 
@@ -71,10 +85,13 @@ try {
     try {
         # Session-local only: avoid unrelated claude.ai connector schemas during routing evaluation.
         $env:ENABLE_CLAUDEAI_MCP_SERVERS = 'false'
-        [Console]::Out.WriteLine('Read-only Core-only routing preview. Invoke $simonk-core:vibe; included subscription usage is consumed.')
+        [Console]::Out.WriteLine('Tool-restricted candidate preview; included subscription usage is consumed.')
+        [Console]::Out.WriteLine('Only Skill is available to the model; plugin hooks and host startup are not an OS sandbox.')
         [Console]::Out.WriteLine('This launcher cannot verify the account overage toggle; it relies on the explicit confirmation for this run.')
-        & $claude.Source --setting-sources '' --strict-mcp-config --plugin-dir $core `
-            --model claude-sonnet-5 --effort low --permission-mode plan --tools Skill
+        & $claude.Source --setting-sources '' --strict-mcp-config @pluginArgs `
+            --model claude-sonnet-5 --effort low --permission-mode dontAsk `
+            --allowedTools Skill --tools Skill --disallowedTools 'mcp__*' `
+            --permission-prompts none
         $sessionExit = $LASTEXITCODE
     } finally {
         if ($null -eq $oldMcp) {

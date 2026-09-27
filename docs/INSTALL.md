@@ -887,18 +887,34 @@ pwsh -NoProfile -NonInteractive -File scripts/preview-vibe-candidate.ps1 `
   -ExpectedDigest 84e8759fa16a4d3c5af39e7465076831dd4bbf01045cb3b0b4158187e4386bf9
 ```
 
-읽기 전용 라우팅 세션은 위 명령에 `-Run -SubscriptionOnlyConfirmed`를
-**명시적으로** 더할 때만 시작된다. 정확한 Max 구독 로그인과 API/대체
-제공자 환경변수 부재를 재검사하며, 그 자식 프로세스에만
+도구 제한 라우팅 세션은 위 명령에 `-Run -SubscriptionOnlyConfirmed`를
+**명시적으로** 더할 때만 시작된다. 다섯 플러그인을 함께 시험하려면
+`-AllPlugins`도 추가한다. `-AllPlugins`만 주면 5개 플러그인의 파일 존재와
+후보 digest를 확인하고 모델을 호출하지 않는다. `-Run`은 대화형 세션으로
+열리며 사용자가 입력한 프롬프트가 구독 사용량을 소비한다.
+정확한 Max 구독 로그인과 API/대체 제공자 환경변수 부재를 재검사하며,
+그 자식 프로세스에만
 `ENABLE_CLAUDEAI_MCP_SERVERS=false`를 설정하고 `--strict-mcp-config`,
-Core-inline 한 개, Sonnet 5 `low`, plan mode, `Skill` 도구만 사용한다.
-환경변수 차단과 초과 사용 설정의 실제 효과·호스트 컨텍스트 절감은
-아직 모델을 재호출해 실측하지 않았다. 실행기는 사용자에게 설정 확인을
+기본 Core-inline 한 개 또는 명시된 5-plugin, Sonnet 5 `low`,
+`dontAsk` 권한 모드, `Skill` 도구만 사용한다. `Skill`만 사전 허용하고
+`mcp__*`는 명시 차단하고 권한 프롬프트도 사용하지 않는다.
+[Claude Code 권한 문서](https://code.claude.com/docs/en/permissions)의
+`dontAsk`는 미승인 도구를 프롬프트 대신 거부하며,
+[CLI 참조](https://code.claude.com/docs/en/cli-reference)의 `--tools`는
+모델에 보이는 내장 도구를 제한한다. 이는 플러그인 훅·호스트 시작 동작까지
+격리하는 OS 샌드박스가 아니다.
+이 절 작성 당시에는 환경변수 차단과 호스트 컨텍스트 절감 효과를 아직
+실측하지 않았다. 아래의 2026-09-28 관측이 이를 부분적으로 보충한다.
+실행기는 사용자에게 설정 확인을
 요구하지만 초과 사용 비활성화를 기계적으로 증명하지 못한다. 일반 작업
 실행이나 설치가 아닌 라우팅 미리보기이며 GUI/봇/Orca 조작은 불가하다.
 새 테스트는 RED 3건을 재현한 뒤 GREEN 3건 및 실제 v15 후보
 `CheckOnly` 1건 및 가짜 API 키 차단 1건을 통과했다. 가짜 키가 있을 때 `-Run`은 모델 시작 전
 `NON_SUBSCRIPTION_CREDENTIAL_PRESENT`로 차단됐다.
+2026-09-28 추가 회귀 테스트는 새 `-AllPlugins` 호출이 없어서 RED였고,
+가짜 Claude 호스트를 통한 다섯 `--plugin-dir`·`dontAsk`·`Skill` 사전 허용·
+MCP 차단·프로세스 로컬 플래그를 검증한 뒤 전체 6/6 GREEN이었다.
+이 테스트는 실제 모델 호출이나 훅 동작 증거가 아니다.
 
 ### v15 커넥터 억제와 비-Core Skill 호스트 관측 (2026-09-28)
 
@@ -946,6 +962,26 @@ SKILL.md 모두 `version` 키를 가진다. 저장소의 Claude용 validator는
 `plugin_bundle.py`는 후보 영수증의 세 readiness 값을 의도적으로 항상
 `false`로 생성·검증하므로, 단순 호스트 호출 성공이나 영수증 재검증만으로
 승격할 수 없다. 별도 release 검증·승격 계약과 §35 설계 판정이 남아 있다.
+
+### v15 다섯 플러그인 `dontAsk` 호스트 재시험 (2026-09-28)
+
+위의 `ExitPlanMode` 오류를 재현한 `plan` 모드는 `Skill`만 제공하는
+세션의 목적과 맞지 않았다. 실행기에는 명시 `-AllPlugins` 옵션과
+`dontAsk`+`Skill` 사전 허용+MCP 도구 차단을 추가했다. 이 권한 모드 변경은
+사용자·프로젝트 설정에 기록하지 않고 해당 Claude 자식 세션에만 적용된다.
+가짜 Claude 호스트 회귀 테스트는 수정 전 `-AllPlugins` 미지원 RED,
+수정 후 전체 6/6 GREEN이었다. 이 테스트는 실제 모델 동작을 증명하지 않는다.
+
+별도의 단발 실제 호출은 동일한 다섯 `--plugin-dir`, Sonnet 5 `low`,
+`dontAsk`, `--allowedTools Skill --tools Skill --disallowedTools 'mcp__*'`,
+`ENABLE_CLAUDEAI_MCP_SERVERS=false`, `--setting-sources ''`,
+`--strict-mcp-config`, `--permission-prompts none`, 최대 3 agentic turns로
+실행했다. Max/claude.ai/firstParty 로그인·대체 API 환경변수 0개를 호출 직전에
+확인했다. 스트림 관측은 `Skill=simonk-market:aha-moment-optimizer` 1건,
+도구 결과 1건, 최종 `is_error=false`, 정확한 응답, CLI 종료 0이었다.
+이 한 예에서 후속 `ExitPlanMode` 오류가 사라졌지만 전체 스킬 행동·훅·명령·
+자동 선택 정확도 또는 구독 청구액을 증명하지 않는다. 후보 digest는 다시
+일치했고 사용자 설치본·결제 설정·Bot/Orca는 변경하지 않았다.
 
 ## One-shot 설치
 
