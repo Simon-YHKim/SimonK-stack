@@ -1,8 +1,20 @@
 {
   "skill": "vibe-bot",
-  "version": "0.9.0",
+  "version": "0.9.2",
   "evaluation_scope": "Grade observable outcomes in authorized fixtures. Schema validation, offline helper behavior and current-host responses are distinct from real Relay/provider behavior. Missing observations remain unmeasured. Never dispatch merely to complete an eval.",
   "cases": [
+    {
+      "id": "ordinary-gui-enters-vibe-first",
+      "prompt": "Play Console에서 앱의 최근 정책 경고를 확인해 줘. 승인 없이 변경·제출·메시지 전송은 하지 마. 화면 조작 전에 사용할 SimonK 스킬 이름만 알려줘.",
+      "fixtures": [
+        "Both vibe and vibe-bot are available. No authorized CLI/API/MCP route or Bot account, cost and Relay evidence has been verified."
+      ],
+      "assertions": [
+        {"id": "top-level-vibe", "text": "The top-level skill selected for this ordinary GUI request is vibe, not vibe-bot."},
+        {"id": "bot-only-after-check", "text": "vibe-bot is described only as a possible internal adapter after /vibe checks CLI/API/MCP and the exact GUI step."},
+        {"id": "no-dispatch", "text": "No screen operation, Bot delivery or model handoff occurs from this skill-name-only request."}
+      ]
+    },
     {
       "id": "organization-relay-only-specialist",
       "prompt": "/vibe GA4 이벤트 현황을 확인할 봇 과제서만 만들어줘. 전문 담당자를 지정하되 전송하지 마. 현재 조직 파일을 사용해.",

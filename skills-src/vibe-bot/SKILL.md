@@ -1,8 +1,8 @@
 ---
 name: vibe-bot
-description: 'Use when asked to "/vibe-bot", "봇한테 시켜", or use Grok Bot for GUI-only work without an authorized CLI/API/MCP route. Produces scoped task sheets and checked screen evidence under /vibe; Relay delivery requires fresh account, budget and approval evidence. Not for repository edits.'
+description: 'Use when /vibe-bot or "봇한테 시켜" is explicit, or /vibe has verified a GUI-only step without an authorized CLI/API/MCP route. Ordinary Play Console/GUI requests start with /vibe. Produces scoped Grok Bot task sheets and checked screen evidence; Relay delivery requires fresh account, budget and approval.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 0.9.1
+version: 0.9.2
 author: simon-stack
 ---
 
