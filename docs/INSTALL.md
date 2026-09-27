@@ -752,6 +752,38 @@ Claude Max `claude.ai`/firstParty 로그인과 API 키·대체 엔드포인트 �
 확인을 유지했고 설정 변경이나 추가 모델 재시도는 하지 않았다. 따라서 Opus 5.5의
 성공 canary, 모델-쿼터 결합, 구독 전용 라우트 활성화는 계속 **미검증**이다.
 
+## `/vibe` 2.11.15 v14 레거시 CLI 바이트코드 후보 (2026-09-27)
+
+기능 브랜치 `feat/skill-context-budget-260925`의 `e5831d5`에서 평문 Python으로
+실행한 레거시 CLI 여섯 종의 첫 로컬 import가 후보 영수증 밖 `.pyc`를 만들지
+않도록 수정하고 격리 subprocess 회귀 검사를 추가했다. 마지막 세 종
+(`aggregate_ledger.py`, `adversarial_eval.py`, `sync_skill_table.py`)은 수정 전
+각각 실패를 재현했다. 모듈로 import하는 다른 호출자는 자체 no-bytecode 정책이
+필요하며, 부모 `-B`는 자식 Python에 전파되지 않는다.
+
+기존 후보는 덮어쓰지 않았다. 릴리스 부모
+`E:/Coding Infra/Releases/SimonK-stack/20260927-vibe-helper-closure-candidate/`의
+`source-v14-legacy-cli-closure` digest는
+`93df1319b4960fd9eb6bf7bb226663d68ecd5a02ac6f12841a6f0488112bd20d`
+(137 skill/407 file), `candidate-safety-v14-legacy-cli-closure` digest는
+`d5f9a10bd8e4521c87adce70482a16303dd228f843db8385dab20069af1847e4`
+(5 plugin/182 skill/729 file)이다. 저장소 `/vibe` 테스트 369개와
+selftest 180개, 후보 안의 오프라인 테스트 500개가 통과했고, 일반 Python으로
+후보의 라우팅 표 검사·평가 CLI 도움말을 실행한 뒤에도 두 영수증을 재검증했다.
+저장소 skill validator는 0오류/0경고, eval dry-run은 20케이스 형식 통과다.
+Codex 기본 `skill-creator` quick validator는 기존 `version`·`author`
+frontmatter를 허용하지 않아 이 저장소의 검증기를 사용했다.
+
+`try-vibe-v14-claude.ps1 -CheckOnly`와 `try-vibe-v14-codex.ps1 -CheckOnly`는
+후보만 확인하고 모델을 호출하지 않는다. 별도 Codex 진단 프로필은 5개 플러그인이
+enabled이며 후보↔캐시 전체 729파일 SHA-256이 일치하지만 로그인되지 않았다.
+실사용 Claude·Codex 홈의 `/vibe`는 2.11.6 그대로다. 모델/Bot/Orca 발송,
+결제·인증 설정 변경, 운영 설치와 main 머지는 하지 않았다. 세 readiness 플래그
+`runtime_closure_verified`, `host_compatibility_verified`, `installation_ready`는
+모두 false다. 후보 바이트 검증을 실행 가능성·구독 포함·과금 차단의 증거로
+해석하지 않는다. 직접 CLI의 crash/reentry 계약은 허브 §35.1 토론·D-code가
+필요하며, 그전에는 레거시 직접 실행을 우회 경로로 사용하지 않는다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
