@@ -3,7 +3,8 @@
 
 This is a conservative static audit, not runtime dependency closure. Unresolved
 paths need manual context review; they are not necessarily missing dependencies.
-Dynamic commands, absolute host paths, imports and services are out of scope.
+Gstack bin references are reported as external-runtime hints, not proof of
+availability. Dynamic commands, imports and services are out of scope.
 """
 from __future__ import annotations
 
@@ -26,6 +27,7 @@ SOURCE_ROOT_ARG = re.compile(r"(?<![A-Za-z0-9_./-])(?:\./)?skills-src/[A-Za-z0-9
 PROJECT_SKILL_ARG = re.compile(
     r"(?<![A-Za-z0-9_./-])(?:\./)?skills/[A-Za-z0-9_-]+/"
     r"(?:scripts|templates|references)/[A-Za-z0-9_./-]+")
+GSTACK_BIN_REF = re.compile(r"(?:~/)?\.claude/skills/gstack/bin/[A-Za-z0-9._-]+")
 
 
 def inspect_unportable_commands(skill_path: str, text: str) -> list[dict[str, object]]:
@@ -43,6 +45,13 @@ def inspect_unportable_commands(skill_path: str, text: str) -> list[dict[str, ob
                              "reason": "project_relative_skill_command"})
                 break
     return rows
+
+
+def inspect_external_runtime_hints(skill_path: str, text: str) -> list[dict[str, str]]:
+    """Report the affected skill, never executable text or alleged runtime state."""
+    if GSTACK_BIN_REF.search(text):
+        return [{"skill": skill_path, "reason": "gstack_bin_reference"}]
+    return []
 
 
 def inspect_skill_references(skill_path: str, text: str, available: set[str]) -> list[dict[str, object]]:
@@ -92,6 +101,7 @@ def audit_candidate(root: Path, expected_digest: str) -> dict:
     available = set(records)
     rows = []
     unportable_commands = []
+    external_runtime_hints = []
     checked = 0
     for path in sorted(available):
         if not re.fullmatch(r"plugins/[^/]+/skills/[^/]+/SKILL\.md", path):
@@ -104,14 +114,17 @@ def audit_candidate(root: Path, expected_digest: str) -> dict:
         for row in inspect_skill_references(path, text, available):
             rows.append({"skill": path, **row})
         unportable_commands.extend(inspect_unportable_commands(path, text))
+        external_runtime_hints.extend(inspect_external_runtime_hints(path, text))
     unresolved = [row for row in rows if row["status"] != "present"]
     return {"status": "incomplete" if unresolved or unportable_commands else "static_paths_present",
             "bundle_digest": expected_digest, "skills_checked": checked,
             "static_refs_checked": len(rows), "unresolved": unresolved,
             "unportable_commands": unportable_commands,
+            "external_runtime_hints": external_runtime_hints,
             "runtime_closure_verified": False,
             "scope": "literal ASCII backtick paths and source/project-relative skill command locations; "
-                     "findings need manual review; no execution, imports, host paths or services"}
+                     "literal Gstack bin references are external-runtime hints; "
+                     "findings need manual review; no execution, imports or services"}
 
 
 def main(argv=None) -> int:

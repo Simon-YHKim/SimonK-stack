@@ -59,6 +59,29 @@ class CandidatePathAuditTests(unittest.TestCase):
         self.assertEqual(report["unportable_commands"], [
             {"skill": skill, "line": 1, "reason": "source_checkout_command"}])
 
+    def test_gstack_runtime_hint_is_reported_once_without_exposing_commands(self):
+        skill = "plugins/SimonKStack/skills/qa/SKILL.md"
+        text = ("~/.claude/skills/gstack/bin/gstack-config get telemetry --token SENSITIVE\n"
+                ".claude/skills/gstack/bin/gstack-skill-start --skill qa\n")
+        rows = audit.inspect_external_runtime_hints(skill, text)
+        self.assertEqual(rows, [{"skill": skill, "reason": "gstack_bin_reference"}])
+        self.assertNotIn("SENSITIVE", repr(rows))
+
+    def test_verified_candidate_separates_static_paths_from_external_runtime(self):
+        skill = "plugins/SimonKStack/skills/qa/SKILL.md"
+        body = b"~/.claude/skills/gstack/bin/gstack-skill-start --skill qa\n"
+        receipt = {"files": [{"path": skill, "size": len(body),
+                              "sha256": audit.release.digest(body)}]}
+        with patch.object(audit.release, "no_links", side_effect=lambda path: path), \
+             patch.object(audit.plugin_bundle, "verify_bundle", return_value=receipt), \
+             patch.object(audit.release, "safe_member", side_effect=lambda root, path: root / path), \
+             patch.object(audit.release, "read_file", return_value=body):
+            report = audit.audit_candidate(Path("fixture"), "0" * 64)
+        self.assertEqual(report["status"], "static_paths_present")
+        self.assertEqual(report["external_runtime_hints"], [
+            {"skill": skill, "reason": "gstack_bin_reference"}])
+        self.assertFalse(report["runtime_closure_verified"])
+
     def test_sibling_skill_reference_is_resolved_inside_same_plugin(self):
         skill = "plugins/SimonKAIHub/skills/rag-builder/SKILL.md"
         target = "plugins/SimonKAIHub/skills/llm-eval/scripts/gate.mjs"

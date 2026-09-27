@@ -1229,6 +1229,20 @@ readiness 플래그는 계속 `false`이고 사용자 설치 전환 게이트도
 | 정적 경로 감사 | 182스킬, 명시 참조 142건 모두 존재, 미해결 0·비이식 실행 명령 0 |
 | 오프라인 `/vibe` 회귀 | 영수증 검증 후 격리 복사에서 selftest·runtime unit·prepare unit·table sync 4단계 통과 |
 
+경로 감사기의 후속 확장은 같은 검증된 v16 후보에서
+`external_runtime_hints`로 Gstack `bin/` 참조 스킬 31개를 별도 보고한다
+(검사 단위 테스트 16/16). 이 목록은 **외부 의존성 힌트**이지 해당 스킬의
+실행 실패 31건이나 런타임 가용성 증명이 아니다. 정적 경로 142건 통과와
+구분하며 `runtime_closure_verified=false`를 그대로 유지한다.
+
+공식 Gstack 원본을 사용자 홈 설치본과 분리된 로컬 읽기 전용 조사 복제본
+`E:/Coding Infra/Releases/SimonK-stack/20260928-gstack-upstream-audit`에서
+확인했다(HEAD `01593aa67c94780528e8f5121e47362502410ced`, `VERSION`
+`1.91.2.0`, MIT). 현재 복사된 31개 스킬은 구형 인라인 preamble인 반면
+원본은 호스트별 스킬 생성과 `gstack-skill-start/end` 런타임을 사용한다.
+따라서 최신 `bin/`만 덧붙여 호환성을 주장할 수 없다. 원본 setup·의존성
+설치·실행은 하지 않았고, 사용자 홈 Gstack은 읽거나 변경하지 않았다.
+
 정적 경로 감사는 리터럴 참조와 알려진 프로젝트 상대 명령만 다룬다.
 동적 import, 외부 Gstack 실행 파일, 호스트 권한·안전 훅, 모델 선택 행동,
 Bot/Orca 실연결, 모든 스킬의 동작은 검증하지 않는다. 후보 manifest의
