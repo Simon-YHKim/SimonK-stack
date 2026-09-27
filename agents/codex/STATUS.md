@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 19:15:27 KST
+updated: 2026-09-27 19:22:29 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 19:22:29 KST] src: user-direct — v9 Stack `freeze` 격리 Claude Code 2.1.283 Skill/Write 실측: 상태 없는 세션 Write fail-closed, 별도 세션에서 진단 폴더의 active `allow/` 경계 설정 후 바깥 Write 차단·파일 없음/안쪽 Write 성공·정확한 INSIDE 내용. 상태 파일 1개는 지정 진단 루트에만 저장, 실제 사용자 safety state 불변. `docs/INSTALL.md` `a80c15c` origin push, HTML 갱신. Core careful Bash·Core vibe Skill 실측과 별개이며 Edit/unfreeze/타 호스트/운영 설치 증거는 아님. readiness3=false, D-code 미완료. 상세 `20260927-192229-to-claude-vibe-freeze-host-proof.md`.
 
 [2026-09-27 / 19:15:27 KST] src: user-direct — 이전 장시간 중단됐던 배포 도구 10개 테스트 파일을 각각 완료시켜 합계 247/247 PASS(릴리스38·번들43·안전49·설치15·진입26·멀티21·벤치마크19·선택26·경로10). /vibe 213/213, 모델 라우터 통합8/8 PASS, v9 번들 digest 재검증 PASS. 기능 브랜치 문서 `9784ada` origin push, HTML `E:/Coding Infra/reports/2026-09-27-vibe-skill-closure-status.html` 갱신. 4표면 메타데이터 조회 성공이나 후보7개 available=false; 추가 과금 경로/설정 변경·Bot/Orca 실발송·운영 설치/main 머지 없음. D-code·호스트 E2E 및 계정/모델 과금 결합 미완료.
 
