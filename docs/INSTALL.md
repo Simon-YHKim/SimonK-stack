@@ -508,9 +508,10 @@ python -B scripts/plugin_bundle.py build --source-package E:/staging/release-a -
 원본 Core와 소스 오버레이는 별도 저장소이므로 두 커밋을 함께 고정한 새 격리
 후보를 빌드·검증해야 한다. 품질 게이트의 eval dry-run은 케이스 구문 검사이며,
 실제 모델 행동·호스트 설치 검증 또는 운영 적용 승인으로 간주하지 않는다.
-Stack 입력 `30be41b`은 후보에서 남았던 plugin-only 스킬 9개의 평가 케이스를
-추가하고 `/skstack`을 `/vibe`의 하위 절차로 명시한다. 후보 전체의 평가 파일
-존재 여부와 실행 가능한 경로는 새 입력 핀으로 다시 확인해야 한다.
+Stack 입력 `dde60fb`은 후보에서 남았던 plugin-only 스킬 9개의 평가 케이스를
+추가하고 기존 배열형 케이스 4개를 공통 스키마로 변환한다. `/skstack`도 `/vibe`의
+하위 절차로 명시한다. 후보 전체의 평가 파일 존재 여부와 실행 가능한 경로는
+새 입력 핀으로 다시 확인해야 한다.
 
 Hook는 `python` + `args`의 exec-form을 사용합니다. 정상 설치된 실제 Python
 실행 파일이 PATH에 있어야 하며, native host가 이를 기동하는지는 별도 확인입니다.
