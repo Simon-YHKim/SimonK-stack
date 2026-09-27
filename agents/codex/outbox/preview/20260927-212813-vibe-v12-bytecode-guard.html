@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>vibe v12 후보 검증</title>
+<style>
+:root{color-scheme:light dark;--accent:#386d9e;--text:#202936;--muted:#5b6673;background:#f6f8fb;color:var(--text);font:16px/1.55 system-ui,sans-serif}
+@media(prefers-color-scheme:dark){:root{--accent:#8bbbed;--text:#e8eef5;--muted:#adb9c6;background:#111820}}
+body{max-width:960px;margin:auto;padding:2rem 1.2rem}h1{font-size:2rem;line-height:1.2}p{max-width:75ch}a{color:var(--accent)}.muted{color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.8rem;margin:1.5rem 0}.card,details{border:1px solid var(--muted);border-radius:.7rem;padding:1rem}.card b{display:block;font-size:1.5rem;color:var(--accent)}.card span{color:var(--muted)}
+details{margin:1rem 0}summary{cursor:pointer;font-weight:650}summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}code{overflow-wrap:anywhere}table{width:100%;border-collapse:collapse}td,th{padding:.5rem;border-bottom:1px solid var(--muted);text-align:left}th{font-weight:650}
+</style>
+<main><p class="muted">2026-09-27 21:28:13 KST · SimonKStack /vibe</p><h1>v12 후보의 바이트 무결성 회귀를 고쳤습니다</h1>
+<p>패키지 테스트의 자식 Python이 남긴 캐시 6개 때문에 v11 영수증이 깨지는 결함을 발견했습니다. 공개 CLI 진입점을 수정하고 새 불변 후보를 검증했습니다. 실제 사용자 설치와 모델 호출은 하지 않았습니다.</p>
+<div class="cards" aria-label="핵심 결과"><div class="card"><b>499/499</b><span>v12 패키지 오프라인 테스트</span></div><div class="card"><b>729/729</b><span>Codex 격리 캐시 파일 일치</span></div><div class="card"><b>5/5</b><span>평문 Python CLI 후 digest 유지</span></div><div class="card"><b>0</b><span>새 모델·Bot·Orca 호출</span></div></div>
+<p>기능 브랜치 커밋 <code>d4559a2</code>는 push됐습니다. 새 후보의 <code>installation_ready</code>는 여전히 <code>false</code>이며 운영 설치·main 머지는 보류입니다.</p>
+<details><summary>원인과 수정</summary><p><code>python -B</code>는 자식 프로세스에 상속되지 않았습니다. 첫 수정은 import된 모듈 자신의 캐시까지 막지 못해 회귀 테스트에서 실패했습니다. 최종 수정은 공개 CLI가 로컬 모듈을 import하기 전에 바이트코드 생성을 끕니다. v11의 캐시 6개는 삭제하지 않고 진단 폴더로 이동했고 원래 영수증을 재검증했습니다.</p></details>
+<details><summary>검증 범위</summary><table><thead><tr><th>항목</th><th>결과</th><th>해석</th></tr></thead><tbody><tr><td>소스 테스트</td><td>368 통과</td><td>/vibe 코드 회귀</td></tr><tr><td>패키지 테스트</td><td>499 통과</td><td>/vibe + /vibe-bot 오프라인</td></tr><tr><td>번들·소스 digest</td><td>테스트 전후 일치</td><td>바이트 무결성만</td></tr><tr><td>Claude/Codex 실행기</td><td>두 CheckOnly 통과</td><td>세션 전용; Codex 미로그인</td></tr></tbody></table></details>
+<details><summary>다음 게이트</summary><p>남은 평문 Python 진입점, 호스트 훅 수명주기, Codex 사용자 직접 로그인, 구독 모델 결속·안전 실행, Relay/Orca 종단 간 증거, §35 D-code가 필요합니다. 인증정보·과금 설정을 복사하거나 바꾸지 않았습니다.</p></details>
+<p class="muted">소스 digest: <code>ed5826d60af65a2e9a4ae6e90b967533987cd2095fbad221eb924f36f09f81b8</code><br>번들 digest: <code>98b3ff729f22a9afd6989e5b312ac277c559c19441346ad508bb8d0c6faa2445</code></p></main></html>
