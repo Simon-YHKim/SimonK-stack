@@ -1194,6 +1194,16 @@ python -B scripts/candidate_runtime_probe.py --package '<candidate>' --expected-
 182스킬의 실행 의존성·호스트 동작·설치 복원 증거가 아니다. 따라서 세
 readiness 플래그는 계속 `false`이고 사용자 설치 전환 게이트도 그대로다.
 
+추가 정적 점검에서 v15의 7개 스킬에 `skills-src/` 경로 표기가 13곳
+남아 있음을 확인했다(`code-health-guard`, `dev-orchestrator`,
+`llm-wiki-builder`, `model-router`, `simon-research`, `simon-tdd`,
+`simonk`). 후보 루트에는 `skills-src/`가 없으므로 배포 환경에서 이
+표기를 그대로 실행하는 절차는 자체완결성이 없다. 또한 31개 스킬의
+본문에 외부 Gstack 실행 파일 탐색 코드가 포함되지만 해당 `bin/`은 이
+후보에 묶이지 않는다. 이것은 **정적 의존성 결손/외부 의존성 목록**이지
+31개 스킬 모두의 실행 실패 실측은 아니다. 표기 교정·외부 런타임 계약과
+격리 재검증 전에는 전체 package closure를 완료로 판정하지 않는다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
