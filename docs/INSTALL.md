@@ -1340,6 +1340,22 @@ python -B scripts/gstack_migration_audit.py `
 `$GSTACK_ROOT`를 정하므로, 해당 경로가 설치 플러그인 런타임과 실제로
 결속되는지 별도 호스트 시험 전에는 가정하지 않는다.
 
+Windows 런타임 자산 조사(2026-09-28): 위 Claude 생성 `SKILL.md`의 정적
+`~/.claude/skills/gstack/` 참조를 고정 원본 커밋의 파일과 대조하면,
+빌드 산출물인 `bin/gstack-cso-launcher`/`.exe`, `design/dist/design`,
+`bin/gstack-global-discover`가 원본 트리에 없다. 이는 정적 문자열의
+부분 감사이며 동적 의존성이나 전체 런타임 폐쇄성을 증명하지 않는다.
+별도 로컬 빌드 복제본 `20260928-gstack-build-probe`에서 네트워크·모델 호출
+없이 Bun으로 `gstack-global-discover.exe`, `design.exe`, `gstack-cso-core.exe`
+3개를 컴파일했다. 합계 347,122,688바이트(약 331 MiB)이며 Git Bash에서는
+앞의 두 `.exe`를 확장자 없는 경로의 `test -x`로 찾았다. 그러나 CSO의
+보안 경계인 네이티브 `gstack-cso-launcher.exe`는 빌드하지 못했다.
+고정 원본의 Windows 빌드는 Visual Studio 2022 MSVC/Windows SDK를
+요구하며 이 PC의 스크립트 지정 경로에는 `vswhere.exe`가 없다. 따라서 이 세 컴파일 성공을
+CSO 또는 Gstack 전체의 실행 가능 판정으로 승격하지 않는다. 바이너리
+크기도 전체 번들 크기가 아닌 세 산출물만의 측정치다. 런타임 포장 방식과
+설치 경로 정책은 별도 아키텍처 결정 후 선택한다.
+
 같은 네트워크 차단 게스트의 별도 실행에서는 첫 `gstack-skill-start` 뒤
 `gstack-skill-end`를 의도적으로 생략하고, 동일한 게스트 상태에서 두 번째
 시작·종료를 수행했다. 시작 2회는 모두 종료 0·프로토콜 1을 반환했고
