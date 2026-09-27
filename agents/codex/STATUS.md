@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 13:16:52 KST
+updated: 2026-09-27 14:20:38 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 14:20:38 KST] src: user-direct — Simon이 유료 호출 제외 나머지 진행을 지시. 추가 과금 $0·구독 포함 경로만, 모델/Bot/Orca 실호출 없음. SimonKAIHub `fix/rag-eval-gate-path-260927` 경로 수정 `e37f07b` 로컬 커밋, 7/7 quality PASS. SimonKCore `fix/core-helper-closure-260927`(고정 입력 4369136에서 분기)에서 gcloud/keepass/stack-update 2.0.0 읽기 전용·명시 apply 분리 계약과 eval을 원본/소스에 바이트 일치로 수정 중, Core 57/57 quality 및 소스 3 validator/dry-run PASS, 독립 리뷰 진행. §35 ai-debate 패널 C/B + 별도 심판은 C 목표·B 과도기·A 기각, B 소수의견 보존; Claude 단일 소유 DECISIONS.md D-code 요청 `20260927-142038-to-claude-core-closure-verdict.md` 발송. 원본 main/설치/원격/credential/DB 불변. 설치·main merge는 D-code와 후보·호스트 게이트 이후.
 
 [2026-09-27 / 13:16:52 KST] src: user-direct — SimonKMarket 원본 `fix/market-missing-assets-260927`의 누락 기능 자산 4개와 회귀 테스트·문서 수정, 로컬 커밋 `4b6d804`+`257c2cd`(main/설치본 불변). Market 32개 skill quality PASS, Node 9/9 PASS, 실제 DB SQL 실행은 미수행. SimonK-stack 기능 브랜치 `feat/skill-context-budget-260925`에서 Market 입력 commit을 핀하고 `183791c` 커밋; 별도 v2 후보 5 plugin/182 skill/720 files, digest `8d7ea761…958cb1c`, verify PASS·빌더 회귀43 PASS. 정적 경로 감사 미해결11→7(Core6/AIHub1), readiness3=false. Codex 격리 호스트에서 전역 `.agents/skills` 중복 때문에 후보 Core 61개 중 초기 프롬프트에 27개만 보인 문제 기록; 실제 사용자 프로필은 미수정. 원본 main/설치/원격 push/정식 merge/모델·Bot·Orca 실호출/결제설정 변경 없음, 추가 과금 $0. Core §35 D-code·나머지 경로 및 선택적 전역 스킬 이전/호스트 재검증 대기. outbox `20260927-131652-to-claude-market-asset-candidate.md`/HTML.
 
