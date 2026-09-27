@@ -856,6 +856,50 @@ Core에 있는 `/vibe`의 후보 내 오프라인 `catalog`는 고정된 5개 �
 `SKILL.md`에 생성된다고 적어 실제 참조 파일 위치와 다른 문서 드리프트로
 남아 있다. 다음 소규모 수정에서 바로잡는다.
 
+### v15 구독 경로의 단일 Claude 선택 테스트와 제한된 미리보기
+
+Claude Max 로그인(`claude.ai`/firstParty), API 키·대체 엔드포인트 환경변수
+부재, 사용자가 확인한 초과 사용·자동충전 비활성화를 전제로 Sonnet 5 `low`의
+짧은 읽기 전용 선택 테스트 **1건**을 실행했다. `--tools Skill`, plan mode,
+v15 Core만 `--plugin-dir`로 지정했을 때 기록된 `Skill` 입력은
+`simonk-core:vibe`였고, 최종 답은 `/vibe`를 선택했다. 실제 콘솔 접근,
+Bot·Orca 디스패치나 파일 변경은 없었다. 후보 digest와 실사용 홈의
+2.11.6 버전은 검사 후 불변이었다. 이는 **한 프롬프트의 명시적 호출**이며,
+자연어 자동 선택 정확도나 다른 181개 스킬의 동작 검증이 아니다.
+
+이 호출에서 Claude CLI는 3턴과 `total_cost_usd=3.856994`를 보고했다.
+이는 구독 사용의 **API 단가 환산치**이지 추가 청구 영수증이 아니다.
+고유 모델 응답 2건의 로컬 기록에는 cache-creation 입력 276,232 및
+687,242토큰이 있었다. `--tools Skill`만 허용해도 모델 요청에
+claude.ai MCP 도구 정의가 각각 239개와 669개 포함됐다. 이 기록만으로
+어떤 개별 플러그인·스킬이 그 증가를 유발했는지 단정할 수 없지만,
+반복 실호출 전 불필요한 커넥터 노출을 줄여야 한다는 강한 신호다.
+`--setting-sources ''`와 `--tools Skill`만으로 연결 도구 목록이 사라진다고
+가정하지 않는다. 공식 [Claude Code 환경변수 안내](https://code.claude.com/docs/ko/env-vars)는
+`ENABLE_CLAUDEAI_MCP_SERVERS=false`로 claude.ai MCP를 끌 수 있다고 한다.
+
+그래서 `scripts/preview-vibe-candidate.ps1`을 추가했다. 기본 호출은 후보
+영수증·Core 플러그인만 검사하고 **모델을 호출하지 않는다**:
+
+```powershell
+pwsh -NoProfile -NonInteractive -File scripts/preview-vibe-candidate.ps1 `
+  -CandidateRoot 'E:/Coding Infra/Releases/SimonK-stack/20260927-vibe-helper-closure-candidate/candidate-safety-v15-context-reference' `
+  -ExpectedDigest 84e8759fa16a4d3c5af39e7465076831dd4bbf01045cb3b0b4158187e4386bf9
+```
+
+읽기 전용 라우팅 세션은 위 명령에 `-Run -SubscriptionOnlyConfirmed`를
+**명시적으로** 더할 때만 시작된다. 정확한 Max 구독 로그인과 API/대체
+제공자 환경변수 부재를 재검사하며, 그 자식 프로세스에만
+`ENABLE_CLAUDEAI_MCP_SERVERS=false`를 설정하고 `--strict-mcp-config`,
+Core-inline 한 개, Sonnet 5 `low`, plan mode, `Skill` 도구만 사용한다.
+환경변수 차단과 초과 사용 설정의 실제 효과·호스트 컨텍스트 절감은
+아직 모델을 재호출해 실측하지 않았다. 실행기는 사용자에게 설정 확인을
+요구하지만 초과 사용 비활성화를 기계적으로 증명하지 못한다. 일반 작업
+실행이나 설치가 아닌 라우팅 미리보기이며 GUI/봇/Orca 조작은 불가하다.
+새 테스트는 RED 3건을 재현한 뒤 GREEN 3건 및 실제 v15 후보
+`CheckOnly` 1건 및 가짜 API 키 차단 1건을 통과했다. 가짜 키가 있을 때 `-Run`은 모델 시작 전
+`NON_SUBSCRIPTION_CREDENTIAL_PRESENT`로 차단됐다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,

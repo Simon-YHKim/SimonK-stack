@@ -5,6 +5,9 @@
 
 ## [Unreleased]
 
+### Added
+- **Guarded `/vibe` Claude preview** — `scripts/preview-vibe-candidate.ps1` verifies the immutable five-plugin receipt by default without a model call. An explicit, subscription-confirmed `-Run` offers a Core-inline, plan-mode, Skill-only routing preview, blocks API/alternate-provider environment routes, and requests claude.ai MCP connector suppression only in that child process. This preview does not install plugins or certify billing, connector suppression, other host paths, actual tasks, or context savings.
+
 ### Changed
 - **`/vibe` 2.11.16 progressive disclosure** — moved the generated historical Orca lane table into a directly linked reference and retargeted its drift checker. Normal skill loading omits the legacy table; the generator, safety guards and frontier runtime routing are unchanged. This does not reduce the initial five-plugin description footprint or prove model/host behavior.
 
