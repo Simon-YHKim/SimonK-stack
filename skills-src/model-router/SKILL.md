@@ -166,11 +166,13 @@ It covers registry identity, aliases, effort, $0, quota, recursive coordinators
 and independent review using fixtures only. Evals cover classification intent;
 their dry-run is schema validation, not a real-model quality evaluation.
 
-Run from the source repository (not the installed skill directory):
+These are development-only checks, not commands for a project that installed
+the plugin. Resolve `<stack-source-root>` to the verified SimonK-stack source
+checkout, then run from that checkout:
 
 ```text
 python -m unittest discover -s scripts -p test_model_router_integration.py
-python -m unittest discover -s skills-src/vibe/scripts -p test_orchestrate.py
+python -m unittest discover -s "<stack-source-root>/skills-src/vibe/scripts" -p test_orchestrate.py
 ```
 
 The eleven-type positive fixtures use the CLI planning path, not eleven live

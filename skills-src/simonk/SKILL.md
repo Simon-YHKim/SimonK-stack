@@ -174,11 +174,13 @@ of the separate multi-terminal entry remains a distinct release gate.
 
 ## Validation
 
-Run the executable offline integration suite from the stack root:
+Run these development-only checks from the verified SimonK-stack source root;
+`<stack-source-root>` is that checkout's absolute path, not an installed
+project or a plugin cache:
 
 ```text
 python -m unittest discover -s scripts/tests -p test_simonk_entrypoint.py
-python .claude/skills/skill-gen-agent/scripts/validate_skill.py skills-src/simonk
+python "<stack-source-root>/.claude/skills/skill-gen-agent/scripts/validate_skill.py" "<stack-source-root>/skills-src/simonk"
 ```
 
 The PowerShell tests exercise both entries and the real central planner with
