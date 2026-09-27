@@ -1505,6 +1505,10 @@ v18 후보 digest `2f49c092d816802863b41ad6c194f066d5ae1bfbca30bd522d68c2fac8295
 `gstack_migration_audit.py`는 `migration_review_required`/종료 1이었다.
 기존 31스킬 중 생성 이름 대응은 Claude 30·Codex 29이며, Claude 생성본에
 테스트 폴더 절대 링크 47곳과 사용자 홈 Gstack 링크 884곳이 남아 있다.
+읽기 전용 감사기의 첫 경로 구성요소 분류에서 Claude 홈 링크 884곳은
+`bin` 636, `scripts` 78, `docs` 78, 기타 자산·스킬 43,
+동적·루트 표현 49로 정확히 합산됐다(Codex 0). 이 집계는 명령 본문·
+경로값을 출력하지 않으며 각 링크의 실행성·이식 가능성을 증명하지 않는다.
 원본 생성기는 Claude 링크 루트를 절대 경로로 정규화하고 Claude 문서에는
 사용자 홈을, Codex 문서에는 별도 `$GSTACK_ROOT` 탐색을 사용한다. 현재
 5플러그인 후보 영수증에 고정 Gstack 런타임은 포함되지 않는다. 호스트별

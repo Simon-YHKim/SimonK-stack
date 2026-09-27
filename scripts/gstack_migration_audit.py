@@ -110,6 +110,22 @@ def generated_user_home_gstack_links(documents: dict[str, tuple[str, str]]) -> d
     return _literal_link_counts(documents, "~/.claude/skills/gstack/")
 
 
+def generated_user_home_gstack_link_kinds(documents: dict[str, tuple[str, str]]) -> dict:
+    """Group literal home links by first component; never emit path bodies."""
+    prefix = "~/.claude/skills/gstack/"
+    counts = {key: 0 for key in
+              ("bin", "scripts", "docs", "other_asset_or_skill", "dynamic_or_root")}
+    for _, body in documents.values():
+        normalized = body.replace("\\", "/").casefold()
+        for match in re.finditer(re.escape(prefix), normalized):
+            component = re.match(r"[a-z0-9][a-z0-9._-]*", normalized[match.end():])
+            head = component.group() if component else None
+            kind = (head if head in {"bin", "scripts", "docs"} else
+                    "other_asset_or_skill" if head else "dynamic_or_root")
+            counts[kind] += 1
+    return counts
+
+
 def audit_candidate(package: Path, expected_digest: str, generated_root: Path,
                     expected_generated_digests: dict[str, str] | None = None) -> dict:
     package = release.no_links(Path(package))
@@ -122,6 +138,8 @@ def audit_candidate(package: Path, expected_digest: str, generated_root: Path,
                   for host, docs in host_docs.items()}
     home_links = {host: generated_user_home_gstack_links(docs)
                   for host, docs in host_docs.items()}
+    home_link_kinds = {host: generated_user_home_gstack_link_kinds(docs)
+                       for host, docs in host_docs.items()}
     if expected_generated_digests is not None:
         if (set(expected_generated_digests) != set(generated_digests)
                 or any(not re.fullmatch(r"[0-9a-f]{64}", value)
@@ -174,11 +192,13 @@ def audit_candidate(package: Path, expected_digest: str, generated_root: Path,
             "generated_bytes_verified": expected_generated_digests is not None,
             "generated_root_links": root_links,
             "generated_user_home_gstack_links": home_links,
+            "generated_user_home_gstack_link_kinds": home_link_kinds,
             "matched": matched, "missing": missing, "over_500_body_lines": over_500,
             "policy_gap_counts": gap_counts, "issues": issues,
             "runtime_closure_verified": False, "host_compatibility_verified": False,
             "scope": "Literal generated name, body length, render-root/user-home links and selected "
                      "legacy headings only; "
+                     "home link kinds are first-component hints, not executable-path proof; "
                      "no semantic equivalence, generated provenance, runtime or host proof"}
 
 

@@ -69,6 +69,21 @@ class GstackMigrationAuditTests(unittest.TestCase):
         self.assertEqual(audit.generated_user_home_gstack_links(docs),
                          {"skills": 2, "occurrences": 2})
 
+    def test_generated_user_home_links_are_classified_without_exposing_paths(self):
+        docs = {
+            "qa": ("qa/SKILL.md", "Run ~/.claude/skills/gstack/bin/start and "
+                   "~/.claude/skills/gstack/scripts/scan\n"),
+            "ship": ("ship/SKILL.md", "Read ~\\.claude\\skills\\gstack\\docs\\a and "
+                     "~/.claude/skills/gstack/[skill]/SKILL.md\n"),
+            "review": ("review/SKILL.md", "Open ~/.CLAUDE/skills/gstack/ETHOS.md "
+                       "and ~/.claude/skills/gstack/`\n"),
+        }
+        kinds = audit.generated_user_home_gstack_link_kinds(docs)
+        self.assertEqual(kinds, {"bin": 1, "scripts": 1, "docs": 1,
+                                 "other_asset_or_skill": 1, "dynamic_or_root": 2})
+        self.assertEqual(sum(kinds.values()),
+                         audit.generated_user_home_gstack_links(docs)["occurrences"])
+
     def test_compare_pair_reports_missing_policy_and_format_without_claiming_failure(self):
         legacy = ("---\nname: investigate\n---\n"
                   "## Skill routing\n## Candidate session scope commands\n"
@@ -111,6 +126,8 @@ class GstackMigrationAuditTests(unittest.TestCase):
         self.assertEqual(report["policy_gap_counts"]["completion_report"], 1)
         self.assertEqual(report["status"], "migration_review_required")
         self.assertFalse(report["runtime_closure_verified"])
+        self.assertEqual(sum(report["generated_user_home_gstack_link_kinds"]["claude"].values()),
+                         report["generated_user_home_gstack_links"]["claude"]["occurrences"])
 
     def test_absolute_generated_root_link_prevents_static_mapping_pass(self):
         skill = "plugins/SimonKStack/skills/qa/SKILL.md"
