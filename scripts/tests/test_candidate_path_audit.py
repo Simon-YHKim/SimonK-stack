@@ -77,10 +77,20 @@ class CandidatePathAuditTests(unittest.TestCase):
              patch.object(audit.release, "safe_member", side_effect=lambda root, path: root / path), \
              patch.object(audit.release, "read_file", return_value=body):
             report = audit.audit_candidate(Path("fixture"), "0" * 64)
-        self.assertEqual(report["status"], "static_paths_present")
+        self.assertEqual(report["status"], "external_runtime_pending")
         self.assertEqual(report["external_runtime_hints"], [
             {"skill": skill, "reason": "gstack_bin_reference"}])
         self.assertFalse(report["runtime_closure_verified"])
+
+    def test_external_runtime_hint_prevents_success_exit(self):
+        with patch.object(audit, "audit_candidate", return_value={
+            "status": "external_runtime_pending", "unresolved": [],
+            "unportable_commands": [], "external_runtime_hints": [
+                {"skill": "plugins/SimonKStack/skills/qa/SKILL.md",
+                 "reason": "gstack_bin_reference"}]}), redirect_stderr(io.StringIO()):
+            with patch("sys.stdout", new_callable=io.StringIO):
+                code = audit.main(["--package", "fixture", "--expected-digest", "0" * 64])
+        self.assertEqual(code, 1)
 
     def test_sibling_skill_reference_is_resolved_inside_same_plugin(self):
         skill = "plugins/SimonKAIHub/skills/rag-builder/SKILL.md"

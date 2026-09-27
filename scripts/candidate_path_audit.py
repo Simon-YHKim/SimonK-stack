@@ -116,7 +116,9 @@ def audit_candidate(root: Path, expected_digest: str) -> dict:
         unportable_commands.extend(inspect_unportable_commands(path, text))
         external_runtime_hints.extend(inspect_external_runtime_hints(path, text))
     unresolved = [row for row in rows if row["status"] != "present"]
-    return {"status": "incomplete" if unresolved or unportable_commands else "static_paths_present",
+    status = ("incomplete" if unresolved or unportable_commands else
+              "external_runtime_pending" if external_runtime_hints else "static_paths_present")
+    return {"status": status,
             "bundle_digest": expected_digest, "skills_checked": checked,
             "static_refs_checked": len(rows), "unresolved": unresolved,
             "unportable_commands": unportable_commands,
@@ -139,7 +141,7 @@ def main(argv=None) -> int:
         print('{"status":"blocked","message":"Candidate path audit failed"}', file=sys.stderr)
         return 2
     print(json.dumps(report, ensure_ascii=False, indent=2))
-    return 1 if report["unresolved"] or report["unportable_commands"] else 0
+    return 0 if report["status"] == "static_paths_present" else 1
 
 
 if __name__ == "__main__":

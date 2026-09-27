@@ -307,8 +307,10 @@ Android referrer 정규화 단계, `k-factor-queries.sql`은 추천 성과 계�
 후보의 정적 경로 재검사는 번들 digest를 먼저 검증한 뒤 실행합니다. 로컬
 `scripts/candidate_path_audit.py`는 SKILL 본문의 백틱으로 감싼 명시적 **ASCII 파일**
 상대경로만 검사하며, 형제 스킬 경로(`../llm-eval/...`)도 같은 플러그인 안에서
-해석합니다. 종료 1은 `unresolved`에 대한 **문맥 검토 필요**이지 파일 누락
-확정이나 실행 실패 증명이 아닙니다. 동적 경로·절대 호스트 경로·import·서비스·
+해석합니다. 종료 1은 미해결 경로·비이식 명령 또는 외부 Gstack 런타임 참조의
+**문맥 검토 필요**이지 파일 누락 확정이나 실행 실패 증명이 아닙니다.
+정적 경로만 충족하고 외부 참조가 남으면 `external_runtime_pending`을 반환합니다.
+동적 경로·절대 호스트 경로·import·서비스·
 자격증명·hook 동작은 범위 밖이고 `runtime_closure_verified`는 항상 false입니다.
 `unresolved`에 `possible_targets`가 있으면 같은 플러그인 안의 동일 파일명
 후보를 최대 5개 제시한 것입니다. 상대경로가 실제로 작동한다는 증거가 아니며
@@ -1231,9 +1233,10 @@ readiness 플래그는 계속 `false`이고 사용자 설치 전환 게이트도
 
 경로 감사기의 후속 확장은 같은 검증된 v16 후보에서
 `external_runtime_hints`로 Gstack `bin/` 참조 스킬 31개를 별도 보고한다
-(검사 단위 테스트 16/16). 이 목록은 **외부 의존성 힌트**이지 해당 스킬의
+(검사 단위 테스트 17/17). 이 목록은 **외부 의존성 힌트**이지 해당 스킬의
 실행 실패 31건이나 런타임 가용성 증명이 아니다. 정적 경로 142건 통과와
-구분하며 `runtime_closure_verified=false`를 그대로 유지한다.
+구분하며 감사 명령은 `external_runtime_pending`/종료 1,
+`runtime_closure_verified=false`를 그대로 유지한다.
 
 공식 Gstack 원본을 사용자 홈 설치본과 분리된 로컬 읽기 전용 조사 복제본
 `E:/Coding Infra/Releases/SimonK-stack/20260928-gstack-upstream-audit`에서
