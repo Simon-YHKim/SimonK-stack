@@ -1444,6 +1444,46 @@ v17 빈 프로필 등록·복사·철회 리허설(2026-09-28): Claude Code 2.1.
 400줄 소프트 제한 초과(W007) 2개이며, 이 경고만으로 행동 실패나
 Gstack 생성 문서의 자동 재작성 필요성을 단정하지 않는다.
 
+## `/vibe` 2.12.1 v18 로컬 비용 검증 후보 (2026-09-28)
+
+기능 브랜치 `feat/skill-context-budget-260925`의 `7543901`은 로컬 도구
+견적에 `transitive_effects_audited=true`와 `billing_mode=nonmetered|metered`를
+요구한다. 0달러라는 숫자만 적은 견적이나 내부 호출을 감사하지 않은
+wrapper는 무료 경로로 인정하지 않는다. 이는 호스트가 수행한 전이 효과
+감사의 선언을 검증할 뿐, 임의의 프로그램 내부를 자동으로 분석해 비용이
+없음을 증명하지 않는다. TDD의 여섯 실패 케이스 확인 뒤 라우팅 92/92,
+run-state 40/40, selftest 및 eval JSON dry-run이 통과했다.
+
+기존 v17·사용자 홈을 덮어쓰지 않고 새 격리 부모
+`E:/Coding Infra/Releases/SimonK-stack/20260928-v18-local-cost-guard/`에
+다음 세 산출물을 생성했다.
+
+| 산출물 | 검증 digest | 범위 |
+|---|---|---|
+| `source-v18` | `9f1abd11fa3b648fe12ed1dc78183881e236d957bde007002cda61ece69567f8` | 137스킬·409파일 |
+| `candidate-safety-v18` | `2f49c092d816802863b41ad6c194f066d5ae1bfbca30bd522d68c2fac8295cb5` | 5플러그인·182스킬·731파일 |
+| `codex-overlay-v18` | `2a30ea29979f5f5d3a09c12cd7561fae92921c1b6c5781d4d9ee4776097ecfcd` | 5플러그인·737 payload 파일 |
+
+첫 후보 빌드는 원본 `SimonKCore`의 Git 무시 모델 캐시 11개 때문에
+패키저의 정확한 추적 파일 대조에서 차단됐다. 원본 캐시는 보존하고
+`clean-plugin-inputs/`에 다섯 고정 commit을 새로 로컬 복제했다. 복제본
+HEAD가 입력 핀과 각각 일치하고 무시·미추적 파일이 없는 것을 확인한 뒤
+동일한 source package로 빌드했다. 실패한 첫 시도는 후보를 게시하지 않았다.
+
+세 영수증 재검증 PASS, 격리 후보 런타임 시험 4단계 PASS, 번들 44/44와
+Codex 오버레이 5/5 회귀 PASS. Claude strict manifest와 Codex
+`plugin-creator` 검증은 각각 5/5 통과했다. Claude 검증의 `contents=[]`는
+스킬 본문 동작 증거가 아니다. 182개 SKILL 전수 validator는 오류 0,
+권고 경고 34(W013 32·W007 2)이며 v17과 같다. 정적 경로 감사는
+참조 142개 중 미해결 0·비이식 명령 0이지만 외부 Gstack bin 참조
+31개로 `external_runtime_pending`/종료 1이다.
+
+후보 manifest의 `runtime_closure_verified`, `host_compatibility_verified`,
+`installation_ready`는 모두 `false`다. 실제 모델 선택·안전 훅·Bot/Orca
+연결·전체 182스킬 동작, 구독 청구 안전성, 사용자 홈 롤백은 이 빌드가
+증명하지 않는다. 사용자 설치·`main` 머지·결제 설정 변경·모델/API/Bot
+실호출은 수행하지 않았다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
