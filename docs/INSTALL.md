@@ -553,6 +553,18 @@ Codex `/vibe` 명시 inventory 182개/문제 0건을 확인했다. 초기 목록
 보존하되 설치 대상으로 사용하지 않는다. 새 영수증의 readiness 세 플래그도
 모두 false다.
 
+포장된 안전 런타임은 실제 후보 파일을 별도 임시 디렉터리로 복사하여 검증할 수
+있다. `SIMONK_SAFETY_CANDIDATE_PLUGIN_ROOT`를 각각 후보의 `plugins/SimonKCore`,
+`plugins/SimonKStack` 절대 경로로 지정하고 다음을 실행한다. 기본값(변수 미설정)은
+소스 런타임을 검사한다. 2026-09-27에 기본·Core 후보·Stack 후보 각각 21/21
+통과했다. 이 검사는 실제 Claude `PreToolUse` 활성화나 모델 호출을 하지 않는다.
+
+```powershell
+$env:SIMONK_SAFETY_CANDIDATE_PLUGIN_ROOT = 'E:\Coding Infra\Releases\SimonK-stack\20260927-vibe-helper-closure-candidate\candidate-safety-v4-grok-recovery\plugins\SimonKCore'
+python -B -m unittest scripts.tests.test_safety_runtime
+Remove-Item Env:SIMONK_SAFETY_CANDIDATE_PLUGIN_ROOT
+```
+
 Hook는 `python` + `args`의 exec-form을 사용합니다. 정상 설치된 실제 Python
 실행 파일이 PATH에 있어야 하며, native host가 이를 기동하는지는 별도 확인입니다.
 adapter는 검토한 Git Bash만 사용합니다. `SIMONK_SAFETY_BASH`로 지정할 수 있고,

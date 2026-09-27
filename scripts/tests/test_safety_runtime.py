@@ -20,6 +20,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE_RUNTIME = ROOT / "skills-src/freeze/bin/safety_runtime.py"
+PACKAGED_PLUGIN = os.environ.get("SIMONK_SAFETY_CANDIDATE_PLUGIN_ROOT")
 RESOURCES = (
     "careful/bin/check-careful.sh",
     "careful/bin/hook-extract.sh",
@@ -31,15 +32,20 @@ BASH = Path(os.environ.get("ProgramFiles", "C:/Program Files")) / "Git/bin/bash.
 @unittest.skipUnless(os.name == "nt" and BASH.is_file(), "Windows Git Bash is required")
 class SafetyRuntimeTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.assertTrue(SOURCE_RUNTIME.is_file(), "candidate safety runtime is missing")
+        self.source_runtime = (Path(PACKAGED_PLUGIN) / ".simonk-runtime/safety_runtime.py"
+                               if PACKAGED_PLUGIN else SOURCE_RUNTIME)
+        resource_root = (Path(PACKAGED_PLUGIN) / ".simonk-runtime"
+                         if PACKAGED_PLUGIN else ROOT / "skills-src")
+        self.assertTrue(self.source_runtime.is_file(), "candidate safety runtime is missing")
         self.temp = tempfile.TemporaryDirectory(prefix="simonk safety runtime ")
         self.addCleanup(self.temp.cleanup)
         self.base = Path(self.temp.name)
         self.runtime = self.base / ".simonk-runtime"
         self.runtime.mkdir()
-        shutil.copyfile(SOURCE_RUNTIME, self.runtime / "safety_runtime.py")
+        shutil.copyfile(self.source_runtime, self.runtime / "safety_runtime.py")
         for relative in RESOURCES:
-            source = ROOT / "skills-src" / relative
+            source = resource_root / relative
+            self.assertTrue(source.is_file(), f"candidate safety resource is missing: {relative}")
             target = self.runtime / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(source, target)
@@ -385,7 +391,7 @@ class SafetyRuntimeTests(unittest.TestCase):
         self.assertEqual(self.decision(result), "ask")
 
     def test_atomic_collision_does_not_delete_preexisting_file(self):
-        spec = importlib.util.spec_from_file_location("candidate_safety_runtime", SOURCE_RUNTIME)
+        spec = importlib.util.spec_from_file_location("candidate_safety_runtime", self.source_runtime)
         self.assertIsNotNone(spec)
         self.assertIsNotNone(spec.loader)
         module = importlib.util.module_from_spec(spec)
