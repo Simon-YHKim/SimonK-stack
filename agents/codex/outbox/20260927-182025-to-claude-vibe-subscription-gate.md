@@ -26,11 +26,10 @@ Simon의 경계는 추가 과금 USD 0, 구독 포함 사용만, 자동충전/�
 
 `host_compatibility_verified=false`, `runtime_closure_verified=false`, `installation_ready=false`. 현 사용자 홈 v2.11.6은 그대로이며 v9는 격리 후보일 뿐이다. 다섯 표면 각각의 실제 스킬 호출, 모델·effort, 구독 포함/초과 차단, hook, 결과/중단·비용 증거와 Claude-owned §35 결정이 필요하다. 추가 과금, 설정 변경, Bot 전달, 운영 설치, main 머지 없음.
 
-후속 정적 호스트 관측: v9의 Claude strict validator는 5/5 exit 0이다. `claude --plugin-dir ... plugin details`에서 Core·Stack 모두 `Hooks (0)`으로 표시된다. `.simonk-runtime` 파일이 포함됐다는 사실은 PreToolUse 훅 자동 등록/발화 증거가 아니다. 설치 게이트에서 별도 확인 또는 안전한 호스트 바인딩 설계가 필요하다.
-이 관측은 INSTALL에 커밋 `0960b45`로 추가해 같은 기능 브랜치에 push했다.
+후속 정정(18:32 KST): v9의 Claude strict validator는 5/5 exit 0이다. `plugin details`의 Core·Stack `Hooks (0)`은 plugin-wide 수이고 스킬 frontmatter 세션 훅은 포함하지 않는다. 격리된 Claude Max 호스트에서 `/simonk-core:careful`을 명시 호출한 뒤 무해한 `printf`의 `DROP TABLE demo` 문자열에 실제 PreToolUse `ask`가 발화하고 Bash가 거부됨을 확인했다. Core careful 한 경로만 증명한다. 상세는 `20260927-183239-to-claude-vibe-hook-correction.md`; INSTALL 과잉 추론은 `3214c3b`로 정정 push했다.
 
 ## Links
 
-- 기능 브랜치 커밋: `ebdd85a` (평가 프로토콜), `0960b45` (훅 관측); 둘 다 origin push
+- 기능 브랜치 커밋: `ebdd85a` (평가 프로토콜), `0960b45` (초기 훅 관측), `3214c3b` (호스트 실측 정정); 모두 origin push
 - 후보: `E:/Coding Infra/Releases/SimonK-stack/20260927-vibe-helper-closure-candidate/candidate-safety-v9-eval-protocol`
 - HTML: `agents/codex/outbox/preview/20260927-182025-vibe-subscription-gate.html`
