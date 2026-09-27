@@ -519,11 +519,14 @@ candidate-safety-v2-normalized`의 digest는
 
 최종 후보를 별도 Codex 홈에 개별 설치한 결과 5개가 enabled이고 스킬·평가
 파일 364개의 캐시 SHA-256이 후보와 일치했다. `/vibe` 명시 루트 inventory도
-182개를 충돌 없이 인식했다. 그러나 짧은 격리 홈에서 기존 전역 중복 136개만
-선택적으로 비활성화해도 초기 prompt에는 plugin skill 105개만 보였고 Stack
-스킬은 0개였다. 전역을 모두 비활성화한 실험도 plugin skill 127개만 보였다.
-이는 사용자 홈 변경 지침이 아니다. 사용자의 전역 전용 스킬을 일괄 비활성화하지
-말고, 실제 호스트의 선택·명시 호출·훅 동작을 별도 검증해야 한다. receipt의
+182개를 충돌 없이 인식했다. Codex 기본 예산에서 짧은 격리 홈의 전역 중복
+136개만 선택적으로 비활성화하면 초기 prompt에는 plugin skill 105개(Stack 0개),
+전역 전체 비활성화 시에는 127개가 보였다. [공식 설정 참조](https://learn.chatgpt.com/docs/config-file/config-reference)의
+`skills.max_context_tokens=10000`을 격리 명령 인자로 적용하면 긴 홈·중복
+136개 비활성화 시 plugin skill 138개(Stack 16개), 짧은 홈·전역 전체 비활성화
+시 182개 전부가 초기 목록에 표시됐다. 이는 모델 선택 행동·훅 실행 증거가
+아니다. 사용자 전역 전용 스킬을 일괄 비활성화하지 말고, 실제 호스트의 선택·
+명시 호출·훅 동작을 별도 검증해야 한다. 사용자 홈에는 적용하지 않았다. receipt의
 `runtime_closure_verified`, `host_compatibility_verified`, `installation_ready`는
 계속 false이며 운영 설치·main 머지의 근거가 아니다.
 
