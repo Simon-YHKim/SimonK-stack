@@ -12,7 +12,7 @@ body{max-width:920px;margin:auto;padding:2rem 1.25rem}h1,h2{line-height:1.2}a{co
 </head>
 <body>
 <h1>/vibe v15 격리 후보: 레거시 표 지연 로딩</h1>
-<p>2026-09-27 22:54:37 KST · SimonK-stack 기능 브랜치 <code>feat/skill-context-budget-260925</code></p>
+<p>2026-09-27 23:05:42 KST 갱신 · SimonK-stack 기능 브랜치 <code>feat/skill-context-budget-260925</code></p>
 <div class="cards" aria-label="검증 요약">
 <div class="card">소스 커밋<strong>56fb120</strong><span>origin 기능 브랜치 push</span></div>
 <div class="card">스킬 본문<strong>−88줄</strong><span>371 → 283줄; 레거시 표는 직접 링크</span></div>
@@ -20,6 +20,13 @@ body{max-width:920px;margin:auto;padding:2rem 1.25rem}h1,h2{line-height:1.2}a{co
 <div class="card">설치 준비<strong>아니요</strong><span>운영 설치·main 머지 없음</span></div>
 </div>
 <p>역사적 Orca 표만 <code>references/legacy-routing.md</code>로 옮겼습니다. 현재 모델 registry·계정/비용 가드·실행 정책은 변경하지 않았습니다. 기존 v14 후보와 사용자 설치본은 보존했습니다.</p>
+<details open><summary>Core-only 노출과 전체 카탈로그의 차이</summary>
+<table><thead><tr><th>관측 표면</th><th>관측치</th><th>해석 한계</th></tr></thead><tbody>
+<tr><td>Claude Core-only 세션</td><td>inline 플러그인 1개, Core 스킬 63개, Always-on 추정 13,532토큰</td><td>다른 4개 플러그인 leaf의 호스트 직접 호출은 빠짐</td></tr>
+<tr><td>같은 후보의 /vibe 로컬 카탈로그</td><td>5개 플러그인 스킬 182개 발견</td><td>메타데이터 발견이며 leaf 실행·훅 검증은 아님</td></tr>
+<tr><td>v14 다섯 플러그인 동시 노출</td><td>Always-on 추정 41,095토큰</td><td>실제 컨텍스트·구독 사용량·요금 수치가 아님</td></tr>
+</tbody></table><p>README와 설치 문서의 v15 범위 갱신: <code>ae70ee8</code> origin push. 구조 선택은 허브 §35.1 토론 중입니다.</p>
+</details>
 <details open><summary>검증 결과</summary>
 <table><thead><tr><th>검사</th><th>결과</th></tr></thead><tbody>
 <tr><td>소스 /vibe</td><td>새 회귀 3, 기존 orchestration 90, selftest 180, 릴리스 38, 번들 43 통과</td></tr>

@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 22:54:37 KST
+updated: 2026-09-27 23:05:42 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 23:05:42 KST] src: user-direct — v15의 Core-only Claude 세션에서 `simonk-core@inline` 1개 enabled, Core 호스트 스킬 63개·Always-on 추정 13,532토큰 확인. 같은 불변 후보의 `/vibe` 오프라인 catalog는 5-plugin 182 스킬을 발견하며 번들 digest 불변. 다른 4개 플러그인의 호스트 직접 호출·훅은 미검증. SimonK-stack 기능 브랜치 README/INSTALL v15 정확 범위 문서 커밋 `ae70ee8` origin push/clean. 기존 설치 2.11.6·readiness3=false 유지; 모델/Bot/Orca 실호출·추가 과금·main 머지 없음. 허브 §35.1 논의 보충 `20260927-230542-to-claude-vibe-core-only-host-evidence.md`, HTML 보강 `preview/20260927-225437-vibe-v15-context-reference.html`.
 
 [2026-09-27 / 22:54:37 KST] src: user-direct — 유료 호출 없이 `/vibe` 레거시 라우팅 표를 직접 링크 참고 파일로 이동(본문 371→283줄), 소스 `56fb120` origin 기능 브랜치 push/clean. 새 회귀3·기존 orchestration90·selftest180·release38·bundle43 통과; skill validator 0/0. v15 격리 후보 5 plugin/182 skill, source digest `d856259e…b1e8e2`, bundle digest `84e8759f…386bf9`; 후보 내부 표 동기3/selftest180·정적 링크142 미해결0·Claude strict 5/5/세션 enabled5·테스트 후 digest 불변. 기존 설치본/v14 유지, readiness3=false, 모델/Bot/Orca 실호출·추가 과금·main 머지 없음. 낡은 `routing.py` 주석은 다음 단위에서 수정. 상세 outbox `20260927-225437-to-claude-vibe-v15-context-reference.md`, HTML `preview/20260927-225437-vibe-v15-context-reference.html`.
 
