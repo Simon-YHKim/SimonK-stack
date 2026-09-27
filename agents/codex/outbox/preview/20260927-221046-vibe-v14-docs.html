@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>/vibe v14 후보 문서화 및 남은 게이트</title>
+  <style>
+    :root{color-scheme:light dark;--accent:#176b83;--text:#183038;--muted:#587079;background:#f7faf9;color:var(--text);font:16px/1.55 system-ui,sans-serif}
+    @media(prefers-color-scheme:dark){:root{--accent:#81d3e5;--text:#e7f3f5;--muted:#a8bec2;background:#111b1e}}
+    *{box-sizing:border-box}body{margin:0}main{max-width:940px;margin:auto;padding:2rem 1.2rem 4rem}h1{font-size:clamp(1.6rem,4vw,2.5rem);line-height:1.2;margin:.25rem 0}h2{font-size:1.15rem}p{max-width:72ch}small,.muted{color:var(--muted)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8rem;margin:1.4rem 0}.card,details{border:1px solid var(--muted);border-radius:.7rem;padding:1rem;background:color-mix(in srgb,var(--text) 4%,transparent)}.card strong{display:block;font-size:1.2rem;color:var(--accent)}.card span{font-size:.9rem}details{margin:.7rem 0}summary{cursor:pointer;font-weight:650}a{color:var(--accent)}a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}code{overflow-wrap:anywhere}
+  </style>
+</head>
+<body><main>
+  <small>SimonK-stack · 2026-09-27 22:10:46 KST · 기능 브랜치 진행 보고</small>
+  <h1>/vibe v14 후보의 검증 범위를 문서에 고정</h1>
+  <p>문서 커밋 <code>89c09c3</code>을 원격 기능 브랜치에 push했다. 실사용 설치본은 2.11.6 그대로이며 v14는 격리 후보이다.</p>
+  <section class="cards" aria-label="핵심 상태">
+    <div class="card"><strong>3개</strong><span>README · INSTALL · CHANGELOG 변경</span></div>
+    <div class="card"><strong>0 / 0</strong><span>저장소 /vibe validator 오류 / 경고</span></div>
+    <div class="card"><strong>0</strong><span>이번 작업의 모델·Bot·Orca 실호출 및 추가 과금</span></div>
+    <div class="card"><strong>미준비</strong><span>런타임·호스트·설치 readiness 3개 모두 false</span></div>
+  </section>
+  <details open><summary>바뀐 내용과 근거</summary><p>v14의 평문 Python CLI 바이트코드 회귀 방지, 불변 후보 digest, 기존 오프라인 테스트와 CheckOnly 결과를 설치 문서에 기록했다. README와 CHANGELOG에는 이 검증이 실제 호스트 라우팅이나 구독 결제 안전성을 증명하지 않는다고 명시했다.</p></details>
+  <details><summary>이번 확인</summary><p>변경 범위는 문서 세 파일만이다. <code>git diff --check</code>, 저장소 validator(오류 0·경고 0), 추가 줄의 알려진 시크릿 패턴 검사를 통과했다. 커밋 후 소스 브랜치는 origin과 동기화되어 clean이다. 후보 500개 오프라인 테스트는 이전 v14 검증의 기록이며 이번 문서 커밋에서 재실행한 것으로 표시하지 않는다.</p></details>
+  <details><summary>남은 게이트와 안전 경계</summary><p>직접 CLI의 crash/reentry·중복 발송·비용 증거는 허브 §35.1 토론과 D-code 대기 중이다. 그 전에는 실행 어댑터를 활성화하지 않는다. 모델별 구독 포함 경로와 초과 과금 차단, 실제 호스트 호환성, 설치 전환, main 머지는 검증·실행되지 않았다. 유료 호출은 사용하지 않는다.</p></details>
+</main></body></html>

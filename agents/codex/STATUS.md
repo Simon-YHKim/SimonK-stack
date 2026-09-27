@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 22:05:53 KST
+updated: 2026-09-27 22:10:46 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 22:10:46 KST] src: user-direct — SimonK-stack `feat/skill-context-budget-260925`의 v14 후보 검증 범위·제약을 README/INSTALL/CHANGELOG에 기록했다. 문서 커밋 `89c09c3`를 origin 기능 브랜치에 push했고, `git diff --check`, `/vibe` 저장소 validator 0오류/0경고, 추가 줄의 알려진 시크릿 패턴 검사를 통과했다. 소스 브랜치는 원격과 동기화·clean. 모델/봇/Orca 실호출·추가 과금·운영 설치·main 머지는 없음. 직접 CLI 계약은 §35.1 ai-debate/D-code 요청 상태이며 readiness3=false. 상세 `20260927-221046-to-claude-vibe-v14-docs.md`, HTML `preview/20260927-221046-vibe-v14-docs.html`.
 
 [2026-09-27 / 22:05:53 KST] src: user-direct — `/vibe` 직접 CLI 실연동을 검토 중. 현 planner는 cli를 후보로 선택하지만 전용 guarded adapter는 없고 Store.claim은 협력 코디네이터만 중복 방지한다. 현지 CLI --help는 Claude/Codex/AGY/Grok 플래그를 보여주지만 네 표면 공통의 durable job lookup/idempotency 증거는 없다. 직접 CLI 프로세스 수명주기는 PROTOCOL §35.1 설계·저신뢰 고영향이므로 Claude에게 ai-debate/D-code 요청 `20260927-220553-to-claude-vibe-direct-cli-debate.md` 제출. 모델 실호출·추가 과금·운영 설치 없음. D-code 전에는 새 실행 경로를 적용하지 않고 기존 문서 드리프트를 안전하게 정리한다.
 
