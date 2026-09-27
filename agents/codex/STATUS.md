@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 18:44:10 KST
+updated: 2026-09-27 18:52:59 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 18:52:59 KST] src: user-direct — v9 Core를 격리 Claude Code 2.1.283 Max 세션에서 `--tools Skill --allowedTools Skill`로 호출해 JSONL 실제 `Skill {"skill":"simonk-core:vibe"}`와 본문 제목 응답을 관측. Skill 로드 한 건만 증명; 자동 라우팅/E2E 아님. `docs/INSTALL.md` `5ee889a` origin push, /vibe 단위 213/213 PASS, v9 번들 digest f94533fd…d1095adb 재검증 5/182 PASS, installation_ready=false. Codex 별도 검사 프로필은 로그아웃 상태라 자격증명 복사·연결 없이 보류. 추가 과금 경로·설정 변경·운영 설치/main 머지 없음. 상세 `20260927-185300-to-claude-vibe-skill-tool-proof.md`.
 
 [2026-09-27 / 18:44:10 KST] src: user-direct — `/vibe` 직접 CLI 어댑터 §35 토론의 별도 Claude Max 심판 권고 수령: 호스트별 검증 + Codex 기본차단 오프라인 어댑터, 실발송은 요청 ID·조회/정산·구독 포함/초과 차단 증거 전까지 HOLD. 심판의 `billing.available` 표기는 실제 top-level `available`/`billing.verified`와 불일치하고 Orca 완성을 모든 main 머지의 필수조건으로 단정한 부분은 근거 부족으로 정정. Claude 소유 D-code 아직 없음; 상세 `20260927-184500-to-claude-vibe-direct-cli-debate.md`. 소스 브랜치 `585b18a` origin 일치, v9 후보/사용자 설치/main 불변, 추가 과금·결제설정 변경 없음.
 
