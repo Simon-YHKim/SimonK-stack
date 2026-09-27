@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 23:05:42 KST
+updated: 2026-09-27 23:41:12 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 23:41:12 KST] src: user-direct — 유료 API 경로 없이 Claude Max 구독 로그인에서 v15 Core-inline Sonnet 5 low/plan/Skill 단일 라우팅 호출을 수행했고 `Skill=simonk-core:vibe`를 관측. CLI `total_cost_usd=3.856994`는 API 단가 환산치이지 청구 증거가 아님. 첫 호출의 claude.ai MCP 도구 정의 239/669개와 cache-creation 입력 276,232/687,242토큰 때문에 반복 호출 중단. 새 `preview-vibe-candidate.ps1`은 기본 무모델 digest 검사, 명시적 구독 확인·API 키 차단·세션 로컬 MCP 억제 요청을 구현. 격리 후보 통합 포함 5/5 PASS, PowerShell AST·diff/시크릿 검사 PASS. 기존 bundle 전체 43개는 첫 실행에서 1실패 후 중단, 해당 E2E 단독 재실행 PASS; 전체 재통과 전 source `6643096`은 로컬 커밋만, push 보류. 설치 2.11.6·v15 번들 불변, readiness3=false. 보고 `20260927-234112-to-claude-vibe-subscription-preview.md` 및 HTML. 추가 과금·인증/결제 변경·Grok/Bot/Orca 호출·설치/main 머지 없음.
 
 [2026-09-27 / 23:05:42 KST] src: user-direct — v15의 Core-only Claude 세션에서 `simonk-core@inline` 1개 enabled, Core 호스트 스킬 63개·Always-on 추정 13,532토큰 확인. 같은 불변 후보의 `/vibe` 오프라인 catalog는 5-plugin 182 스킬을 발견하며 번들 digest 불변. 다른 4개 플러그인의 호스트 직접 호출·훅은 미검증. SimonK-stack 기능 브랜치 README/INSTALL v15 정확 범위 문서 커밋 `ae70ee8` origin push/clean. 기존 설치 2.11.6·readiness3=false 유지; 모델/Bot/Orca 실호출·추가 과금·main 머지 없음. 허브 §35.1 논의 보충 `20260927-230542-to-claude-vibe-core-only-host-evidence.md`, HTML 보강 `preview/20260927-225437-vibe-v15-context-reference.html`.
 

@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>/vibe 구독 경로 단일 검증</title>
+<style>
+:root{color-scheme:light dark;--accent:#176d78;--text:#183039;--muted:#60767c;background:#f6faf9;color:var(--text);font:16px/1.55 system-ui,sans-serif}
+@media(prefers-color-scheme:dark){:root{--accent:#7ad8df;--text:#e5f3f1;--muted:#aec4c0;background:#101d20}}
+body{max-width:920px;margin:auto;padding:2rem 1.25rem}h1,h2{line-height:1.2}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.75rem;margin:1.5rem 0}.card,details{border:1px solid var(--muted);border-radius:.65rem;padding:1rem}.card strong{display:block;color:var(--accent);font-size:1.35rem}details{margin:.8rem 0}summary{cursor:pointer;font-weight:650}summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}a{color:var(--accent)}table{border-collapse:collapse;width:100%}td,th{padding:.55rem;border-bottom:1px solid var(--muted);text-align:left}code{overflow-wrap:anywhere}.muted{color:var(--muted)}
+</style></head><body>
+<h1>/vibe 구독 경로: 단일 호스트 선택 검증</h1>
+<p class="muted">2026-09-27 23:41:12 KST · SimonK-stack <code>feat/skill-context-budget-260925</code></p>
+<div class="cards" aria-label="핵심 결과"><div class="card">선택 결과<strong>/vibe</strong><span>Claude Max 단일 라우팅 호출</span></div><div class="card">새 테스트<strong>5 / 5</strong><span>무모델 후보·안전 가드</span></div><div class="card">소스 커밋<strong>6643096</strong><span>로컬만, push 보류</span></div><div class="card">설치 준비<strong>아니요</strong><span>기존 2.11.6 유지</span></div></div>
+<p>구독 로그인과 사용자 확인을 전제로 Sonnet 5 low/plan/Skill 질의 1건에서 실제 <code>Skill=simonk-core:vibe</code>를 관측했습니다. 작업 실행·GUI·Bot·Orca 호출은 없었습니다.</p>
+<details open><summary>비용과 컨텍스트 관측</summary><p>Claude CLI의 <code>total_cost_usd=3.856994</code>는 API 단가 환산치이며 추가 청구 영수증이 아닙니다. 고유 응답 두 건의 cache-creation 입력은 276,232/687,242토큰이었고, 모델 요청에 claude.ai MCP 도구 정의 239/669개가 포함됐습니다. 어느 플러그인이 증가를 일으켰는지는 미확정이며 반복 실호출을 중단했습니다.</p><p>공식 <a href="https://support.claude.com/en/articles/11145838-use-claude-code-with-your-pro-or-max-plan">Claude Max 안내</a>와 <a href="https://code.claude.com/docs/ko/env-vars">Claude Code 환경변수 문서</a>를 참고했습니다.</p></details>
+<details open><summary>안전한 미리보기와 검증</summary><table><thead><tr><th>항목</th><th>결과</th></tr></thead><tbody><tr><td>기본 실행</td><td>불변 5-plugin 후보 영수증만 검사, 모델 호출 0</td></tr><tr><td>명시적 <code>-Run</code></td><td>구독 확인·Max 로그인·API/대체 경로 차단 후 계획 모드 제한 실행하도록 구현; 실제 세션은 미검증</td></tr><tr><td>테스트</td><td>신규 5/5, AST·diff·시크릿 검사 통과</td></tr><tr><td>기존 bundle 43</td><td>첫 실행 E2E 1실패 후 중단; 해당 항목 단독 1/1 통과. 전체 통과 미확인</td></tr></tbody></table></details>
+<details><summary>남은 게이트와 범위</summary><p>원격 push는 전체 검증 전 보류했습니다. 후보 digest <code>84e8759fa16a4d3c5af39e7465076831dd4bbf01045cb3b0b4158187e4386bf9</code>와 기존 설치본은 변경하지 않았습니다. 실제 커넥터 억제·컨텍스트 절감·다른 호스트·설치 준비는 아직 입증되지 않았습니다. 직접 CLI 재진입 구조는 허브 §35.1 D-code 대상입니다. main 머지·설치·결제/인증 설정 변경은 없습니다.</p></details>
+</body></html>
