@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SimonKStack /vibe v14 후보 검증</title>
+<style>
+:root{color-scheme:light dark;--accent:#236a8a;--text:#17232b;--muted:#64747e;background:#f5f7f8;color:var(--text)}
+@media(prefers-color-scheme:dark){:root{--accent:#78c8ee;--text:#e9f0f3;--muted:#9eafb7;background:#10191e}}
+*{box-sizing:border-box}body{font:16px/1.55 system-ui,sans-serif;max-width:960px;margin:auto;padding:2rem 1.2rem}h1{line-height:1.15}p{max-width:75ch}a{color:var(--accent)}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8rem}.card,details{border:1px solid var(--muted);border-radius:.7rem;padding:1rem}.value{font-size:1.5rem;font-weight:700;color:var(--accent)}details{margin-top:1rem}summary{cursor:pointer;font-weight:700}code{overflow-wrap:anywhere}a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+</style>
+</head>
+<body><main>
+<p class="muted">2026-09-27 21:57:15 KST · SimonKStack 기능 브랜치</p>
+<h1>/vibe v14 후보 검증</h1>
+<p>나머지 레거시 Python CLI 3개가 패키지 영수증 밖 바이트코드를 만들던 문제를 차단했다. 격리 후보의 바이트 검증은 통과했지만 운영 설치는 아직 승인되지 않았다.</p>
+<div class="grid" aria-label="핵심 결과">
+<div class="card"><div class="value">e5831d5</div><div>기능 브랜치 원격 동기화</div></div>
+<div class="card"><div class="value">500 PASS</div><div>후보 패키지 오프라인 테스트</div></div>
+<div class="card"><div class="value">729/729</div><div>후보와 격리 Codex 캐시 해시 일치</div></div>
+<div class="card"><div class="value">0</div><div>모델·Bot·Orca 및 추가 유료 호출</div></div>
+</div>
+<details><summary>수정과 검증 자세히</summary><p><code>aggregate_ledger.py</code>, <code>adversarial_eval.py</code>, <code>sync_skill_table.py</code>의 첫 로컬 import 전에 바이트코드를 차단했다. 수정 전 RED 3건, 수정 후 GREEN. 소스 테스트 369+selftest 180, 저장소 스킬 검증 오류·경고 0건, eval dry-run 20케이스가 통과했다. 패키지 테스트 및 평문 Python 실행 후에도 영수증 해시가 변하지 않았다.</p></details>
+<details><summary>설치·과금 경계</summary><p>v14 실행기 2개는 구문 검사와 읽기 전용 <code>-CheckOnly</code>를 통과했다. Codex 격리 프로필은 미로그인이다. 사용자 설치본, main, 결제 설정, 인증정보는 변경하지 않았다. <code>runtime_closure_verified</code>, <code>host_compatibility_verified</code>, <code>installation_ready</code>는 모두 false다.</p></details>
+<details><summary>남은 검증과 후보 식별자</summary><p>실제 호스트 훅·Relay·Orca·직접 CLI 안전 어댑터, 모델-구독 결속, 전체 스킬 동작과 머지 결정이 남았다. Source digest: <code>93df1319b4960fd9eb6bf7bb226663d68ecd5a02ac6f12841a6f0488112bd20d</code><br>Bundle digest: <code>d5f9a10bd8e4521c87adce70482a16303dd228f843db8385dab20069af1847e4</code></p></details>
+</main></body>
+</html>

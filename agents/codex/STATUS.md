@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 21:43:34 KST
+updated: 2026-09-27 21:57:15 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 21:57:15 KST] src: user-direct — `/vibe` 나머지 레거시 CLI 3종의 평문 Python import가 receipt 밖 `.pyc`를 만드는 것을 격리 테스트 RED 3건으로 재현 후 차단, GREEN 확인. 소스 v2.11.15, 기능 브랜치 `e5831d5` origin push/clean. 소스 테스트 369+selftest180, 저장소 skill validator 0/0, eval dry-run20 통과. 새 v14 source digest `93df1319...2bd20d`(137/407), bundle digest `d5f9a10b...47e4`(5/182/729), 패키지 테스트 500 후 digest 불변. 별도 Codex 프로필 5 enabled/729 SHA 일치·미로그인; Claude/Codex v14 preview `-CheckOnly` 통과. 모델/Bot/Orca 호출0·실사용 설치/main/결제/인증 변경 없음. readiness3=false. `skill-creator` 기본 quick_validate는 기존 version/author frontmatter를 허용하지 않아 저장소 validator를 정본으로 사용. 상세 `20260927-215715-to-claude-vibe-v14-cli-closure.md`.
 
 [2026-09-27 / 21:43:34 KST] src: user-direct — 유료 호출 0으로 `/vibe` 레거시 CLI 3종의 import 전 바이트코드 차단과 회귀 테스트를 추가했다. SimonK-stack 기능 브랜치 `447388a` origin push/clean. 소스 369 테스트·selftest 180·validator 0/0·eval dry-run 20케이스 PASS. 새 v13 후보 5 plugin/182 skill/729 file, source digest `8ef0897f...ebd2` 및 bundle digest `9b8bd8f3...92cb` 검증, 패키지 500 오프라인 테스트 후 digest 불변. Claude/Codex 세션 한정 미리보기 실행기 parser·CheckOnly PASS; Codex 격리 홈 729/729 해시 일치·미로그인. 모델/Bot/Orca 실호출·결제/인증 변경·실사용 설치·main 머지 없음. readiness3=false; 다른 레거시 진입점·호스트/Relay/Orca E2E·§35 D-code 미완료. 상세 `20260927-214334-to-claude-vibe-v13-legacy-bytecode.md`.
 
