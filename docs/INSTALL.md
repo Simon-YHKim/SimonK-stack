@@ -1109,6 +1109,57 @@ digest는 변경되지 않았다. 이는 빈 테스트 프로필의 신규 설�
 기존 사용자 프로필 2.11.6의 무손실 운영 롤백을 입증하지 않는다. 실제 사용자
 설정·설치본, 결제 설정, 원본 후보 및 위 readiness 플래그는 변경하지 않았다.
 
+### D-29 Codex 일반 스킬 전용 하위 후보 (2026-09-28, 설치 전)
+
+허브의 별도 심판 판정 `D-29`는 현재 v15 Codex 후보의 `careful`, `guard`,
+`freeze`, `investigate` 정책 집행을 **미지원**으로 표시한다. 일반 스킬만
+제공하려면 네 안전 스킬 디렉터리를 제외하고 그 한계를 고지한 별도 후보가
+필요하다. 이 결정은 훅 신뢰·차단 실측을 대신하거나 사용자 설치를 허용하지
+않는다. 허브 `DECISIONS.md`의 D-29는 현재 로컬 공유 작업트리에만 있고,
+허브 원격 동기화·정식 릴리스 판정은 별개다.
+
+`scripts/codex_safe_subset.py`는 검증된 v2 오버레이를 읽어 위 네 스킬과
+`freeze`에 종속된 Claude 전용 `unfreeze`, Core/Stack의 `.simonk-runtime/`
+안전 런타임을 제외한 불변 복사본과 `subset.json` 영수증을 새 경로에 만든다.
+초기 v1 하위 후보는 `unfreeze`와 런타임이 남아 있어 이 검토에서 탈락했고,
+원본 보존을 위해 그대로 두었다. 아래 v2가 현재 검증 대상이다.
+영수증은 포함·제외 파일의 경로·크기·SHA-256, 원본 오버레이 digest,
+`D-29`, 두 readiness=false 플래그를 고정한다. 검증 시 원본 오버레이를
+같이 제공하면 원본→하위 후보의 바이트 출처도 다시 대조한다. 원본 v15와
+v2 오버레이는 변경하지 않는다.
+
+```powershell
+python -B scripts/codex_safe_subset.py build `
+  --source-overlay 'E:/Coding Infra/Releases/SimonK-stack/20260928-vibe-codex-overlay-v2-candidate' `
+  --overlay-digest 545cc8967404a710f09cfdbbbcd9e75f1856dce6a5a10533f3fb9631360c8228 `
+  --output 'E:/Coding Infra/Releases/SimonK-stack/20260928-vibe-codex-general-subset-v2'
+python -B scripts/codex_safe_subset.py verify `
+  --package 'E:/Coding Infra/Releases/SimonK-stack/20260928-vibe-codex-general-subset-v2' `
+  --subset-digest d1b93f09a9bd84d4a8e72bb51a065782b62572a9c0c5e3a5738b7e9e4968cc80 `
+  --source-overlay 'E:/Coding Infra/Releases/SimonK-stack/20260928-vibe-codex-overlay-v2-candidate' `
+  --overlay-digest 545cc8967404a710f09cfdbbbcd9e75f1856dce6a5a10533f3fb9631360c8228
+```
+
+로컬 v2 후보는 5플러그인·177개 `SKILL.md`이며 위 다섯 스킬과 두 안전
+런타임 디렉터리가 없다. 공식 `plugin-creator` 검증기는 5/5,
+번들·v2 오버레이·하위 후보 회귀는 54/54 통과했다. `/vibe`를 다섯 스킬
+루트와 함께 명시적 `--root`로 호출한 인벤토리는 177개·문제 0건이었다.
+하위 후보에는 원본의
+182개짜리 `bundle.json`이 출처 자료로 남으므로 기본 번들 탐색의
+성공을 주장하지 않는다. 분리 설치된 Codex 캐시에서는 현재 호스트가
+관측한 다섯 루트를 명시적으로 넘기는 split-home 절차가 필요하다.
+v2도 새 미로그인 격리 `CODEX_HOME`
+`E:/Coding Infra/Releases/SimonK-stack/20260928-vibe-codex-general-subset-hostprobe-v2`
+에서 5개를 설치·활성화했다. 캐시 714파일이 후보와 경로·SHA-256 일치했고
+177개 스킬 중 `/vibe`는 1개, 제외된 안전 스킬은 0개였다. 이어 정확한
+5개 플러그인·마켓플레이스를 제거해 설치 목록·마켓플레이스·캐시 파일
+모두 0으로 확인했다. 이는
+**설치 복사·목록·철회** 증거이지 모델의 178개 스킬 선택, 일반 스킬의
+안전성, Codex 훅 집행 또는 사용자 홈 무손실 롤백 증거가 아니다. 다른
+스킬 문서나 README가 제외된 안전 스킬을 언급할 수도 있으므로 실행 전에는 실제
+호스트의 스킬 목록과 누락 의존성을 대조한다. 이 하위 후보도
+`installation_ready=false`, `host_compatibility_verified=false`다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
