@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 16:35:14 KST
+updated: 2026-09-27 16:53:52 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 16:53:52 KST] src: user-direct — 유료 호출 제외·구독 포함 사용만 허용하는 최신 지시 반영. SimonK-stack 기능 브랜치 `feat/skill-context-budget-260925`에 포장된 Core/Stack 안전 런타임을 직접 검증하는 테스트 경로와 문서 추가(`554f668`, origin push). 소스·Core 후보·Stack 후보 각 21/21 PASS, 저장소 전체 247/247 PASS, diff/시크릿 점검 PASS. 현재 `runtime_collect` 관측은 Claude Max/Codex Pro 로그인, Codex 구독 사용 9%, Grok 주간 79%/on-demand cap 0, AGY 1.2.12는 버전 계약 미검증으로 중단. 구독 포함 모델·직접 CLI 안전 adapter 증거 없어서 모델/Bot/Orca 실호출0·추가과금$0, 결제설정/실사용 홈/main 불변. 후보 readiness3=false, Claude-owned D-code 요청 계속 open. outbox `20260927-165352-to-claude-safety-candidate-subscription-boundary.md`.
 
 [2026-09-27 / 16:35:14 KST] src: user-direct — Grok 복구 뒤에도 과거 HOLD가 영구 금지처럼 보이던 /vibe 안내를 2.11.11로 수정·회귀 검증. source `3538b23`, 배포 문서 `cd48742`를 `feat/skill-context-budget-260925` origin push. 새 v2 안전 후보 `candidate-safety-v4-grok-recovery` digest `fb690086…d55986d`, 5 plugin/182 skill/729 file byte verify, 정적 경로143 미해결0, eval182/182, Claude strict5/5, Claude·Codex 격리 설치 각5 enabled·각729 해시 일치, Codex /vibe inventory182/문제0. /vibe 상위211·하위154·source quality141 PASS. 유료/모델/Bot/Orca 호출 없음. 실사용 홈·main 불변, readiness3=false; D-code 미기록. outbox `20260927-163514-to-claude-vibe-21111-candidate.md`.
 
