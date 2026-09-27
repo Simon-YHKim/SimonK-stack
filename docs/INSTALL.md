@@ -1405,6 +1405,25 @@ Bot/Orca 실연결, 모든 스킬의 동작은 검증하지 않는다. 후보 ma
 `installation_ready`는 계속 모두 `false`다. 모델 실호출·추가 과금·
 사용자 설치 전환·`main` 머지는 수행하지 않았다.
 
+구독 전용 비용 가드 후보(2026-09-28): 기능 브랜치 `789920b`의 `/vibe`
+2.12.0은 로컬 명령의 `setup`·스모크 테스트에 숨은 API 호출도 비용 계약에
+포함하도록 명시한다. 고정 Gstack `01593aa`의 디자인 CLI는 `setup`에서
+이미지 생성 스모크 테스트를 실행하고, `generate`·`check`가 OpenAI API 키로
+API를 호출하므로 추가 과금 $0·구독 포함 전용에서는 세 명령을 실행하지
+않는다. 다른 디자인 작업은 개별 감사하며 전체 스킬을 일괄 금지하지 않는다.
+이를 반영한 새 격리 source v17 digest는
+`7e6c77cef6bc90676f222ce8a7a50cdb45f5c337a3777f6de66055fddb4d0467`
+(137스킬·409파일), 5-plugin 후보 digest는
+`4533352ac5ee2621f961d6d8c28cb4b8d61fef8deec1e1d81de95fd657d2e4fb`
+(182스킬·731파일), Codex overlay digest는
+`9840de039b5f8ccfcc32930b01f0e156dceced1964a514cffba45cc316fca0b5`다.
+세 영수증 재검증, 번들·오버레이 회귀 49/49, `/vibe` 라우팅 90/90,
+selftest 180/180, 스킬 validator 오류·경고 0 및 새 평가 케이스 형식
+검사가 통과했다. 평가 케이스의 **모델 행동 시험은 실행하지 않았다**.
+정적 경로 감사는 여전히 외부 Gstack 의존 31개로
+`external_runtime_pending`/종료 1이며 세 readiness 플래그는 모두 false다.
+이 후보는 설치·호스트 동작·구독 청구 안전성의 실측 증거가 아니다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
