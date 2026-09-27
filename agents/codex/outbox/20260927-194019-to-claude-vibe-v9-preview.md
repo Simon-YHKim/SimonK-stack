@@ -25,3 +25,9 @@ v9 digest `f94533fd4b7556c1298984ede0bc93f2af7c17f168186cb19dbced34d1095adb`는 
 Claude 체험기는 이제 정상 실행 직전에 `ANTHROPIC_API_KEY`·대체 엔드포인트/클라우드 인증 환경변수를 거부하고, `claude auth status --json`의 `claude.ai`/`firstParty`/`max`를 요구합니다. 실제 상태 조회는 위 세 값과 loggedIn=true였고, 이메일·조직 식별자는 출력하지 않았습니다. `-CheckOnly` exit 0, dummy API 키 설정 시 exit 1, 합성 구독 상태를 반환하는 로컬 함수 mock에서만 5개 `--plugin-dir` 인자(10개 토큰) 전달을 확인했습니다. **실제 모델 호출은 없었습니다.** Codex 체험기도 동일한 API/endpoint 가드를 로그인 시도 전으로 옮겼고 dummy `OPENAI_API_KEY` exit 1, 미로그인 exit 1을 확인했습니다.
 
 Codex CLI 0.155.0이 모델 호출 없이 생성한 공개 app-server 스키마를 `diagnostics/codex-app-server-schema-01550/v2/`에 보존했습니다. `ThreadStartParams`에는 caller request UUID/idempotency 필드가 없고 `TurnStartParams`에는 `clientUserMessageId`가 있습니다. `ThreadListParams`는 cwd·제목 검색 등을 제공하지만 초기 생성 요청 ID 검색은 없습니다. 따라서 `thread/start` 응답 유실 시 UUID로 정확히 회복 가능한지는 입증되지 않았으며 직접 CLI 실발송은 계속 HOLD입니다. `GetAccountRateLimitsResponse.ordinaryUsageAllowed` 설명은 현재 계정의 일반 포함 사용 백엔드 허용 값이지만 null 가능이며 모델별 가격/초과 과금 차단 증명은 아닙니다.
+
+## 19:53 KST v9 자연어 선택 반례
+
+격리 `--plugin-dir` 5개, Claude Max `claude.ai` 인증, Sonnet low, `--tools Skill`, `--max-turns 3`, `--no-session-persistence`로 Play Console 정책 경고 확인 요청을 단일 표본 평가했습니다. 프롬프트는 화면 조작·변경·전송을 하지 말고 선택 스킬만 답하도록 제한했습니다. 모델은 Skill 도구를 호출하지 않고 `선택한 스킬: vibe-bot ...`이라는 텍스트를 반환했습니다. 기대인 메인 `vibe`와 불일치합니다. 실제 GUI/Bot·파일 변경은 없었습니다. 소스 `skills-src/vibe/evals/cases.json`은 유사 상황에서 `vibe`를 기대하지만 dry-run은 이 행동을 입증하지 않습니다. 이 표본만으로 일반 선택률을 추정하지 않되, v9를 자연어 진입 합격으로 취급하지 않습니다.
+
+CLI JSON의 `total_cost_usd=2.839178`은 기록됐으나 실제 추가 청구는 조회하지 못했습니다. 실제 로그인은 `claude.ai`/Max, 프로세스 API 키 환경변수 부재, 사용자는 usage credits/extra usage off라고 확인했습니다. Anthropic의 현행 문서는 `claude -p` 구독 사용량 분리안을 2026-06-15 중단하여 지금도 구독 한도에서 차감한다고 합니다: https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan . 금액 필드만으로 과금 여부를 단정하지 않으며 추가 모델 호출은 중단했습니다. 다음 스킬 단위에서 `vibe-bot` description을 명시 `/vibe-bot` 또는 `/vibe` 내부 GUI 단계로만 좁히고, 자연어 선택 회귀를 실제 호스트에서 재평가하는 것이 필요합니다.

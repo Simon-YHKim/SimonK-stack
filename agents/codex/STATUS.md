@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 19:46:40 KST
+updated: 2026-09-27 19:53:23 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 19:53:23 KST] src: user-direct — Claude Max `claude.ai`/Sonnet low 구독 1회 자연어 선택 평가(5 plugin v9, `--tools Skill`, max-turns3, 세션 미저장). Play Console GUI 요청에서 실제 Skill tool 호출은 없었고 모델 텍스트는 `vibe-bot` 선택; 기대 메인 `vibe`와 불일치. 화면·Bot·파일 작업 0. JSON `total_cost_usd=2.839178`은 표기됐으나 실제 청구 내역은 미조회; Anthropic 현행 안내는 `claude -p` 구독 사용량 차감(06-15 분리안 중단)을 명시하며 API 키 환경변수는 없고 사용자는 extra usage off 확인. 추가 모델 호출 중단, v9 readiness false 유지. 보고서와 Claude FYI 업데이트; 원인 분석은 설명 간 우선순위 충돌 가능성이고 단일 표본 이상으로 일반화하지 않음.
 
 [2026-09-27 / 19:46:40 KST] src: user-direct — 두 v9 체험기에서 구독 외 인증·엔드포인트를 모델/로그인 전 차단하도록 보강. Claude 실제 CLI `auth status`: loggedIn=true, authMethod=claude.ai, apiProvider=firstParty, subscriptionType=max(이메일·조직 정보 미출력); 체험기 CheckOnly exit 0, dummy ANTHROPIC_API_KEY exit 1, 합성 구독 상태 mock launch 10 plugin args/모델 0회. Codex CheckOnly exit 0, dummy OPENAI_API_KEY exit 1, 무인증 exit 1. 로컬 Codex 0.155.0 생성 스키마에서 thread/start 호출자 ID 없음, turn/start clientUserMessageId 있음 확인; 최초 요청 timeout의 확정 복구 계약 미증명으로 직접 CLI 실발송 HOLD. 보고서 갱신, 인증 복사·결제 설정 변경·추가 과금 없음.
 
