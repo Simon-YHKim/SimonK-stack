@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 23:41:12 KST
+updated: 2026-09-27 23:51:45 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 23:51:45 KST] src: user-direct — PROTOCOL §35.1에 맞춰 `ai-debate`의 제안자·회의론자·대안자 3입장, 교차반박, 비제안자 별도 심판을 완료. 심판 판정은 v15 격리 호스트별 검증 우선 + 직접 CLI 실발송 잠금 유지, guarded adapter는 오프라인 구현만 허용. 구독 $0/정확 모델, 첫 수락 상관관계, 중단 확인, 모호 상태 재발송 금지, 단일 과제 영수증이 활성화 게이트. Claude 소유 `DECISIONS.md`에 직접 쓰지 않고 D-code 채택 요청 `20260927-235145-to-claude-vibe-direct-cli-dcode.md`와 HTML 보냄. 판정은 설치·main 머지 승인 아님.
 
 [2026-09-27 / 23:41:12 KST] src: user-direct — 유료 API 경로 없이 Claude Max 구독 로그인에서 v15 Core-inline Sonnet 5 low/plan/Skill 단일 라우팅 호출을 수행했고 `Skill=simonk-core:vibe`를 관측. CLI `total_cost_usd=3.856994`는 API 단가 환산치이지 청구 증거가 아님. 첫 호출의 claude.ai MCP 도구 정의 239/669개와 cache-creation 입력 276,232/687,242토큰 때문에 반복 호출 중단. 새 `preview-vibe-candidate.ps1`은 기본 무모델 digest 검사, 명시적 구독 확인·API 키 차단·세션 로컬 MCP 억제 요청을 구현. 격리 후보 통합 포함 5/5 PASS, PowerShell AST·diff/시크릿 검사 PASS. 기존 bundle 전체 43개는 첫 실행에서 1실패 후 중단, 해당 E2E 단독 재실행 PASS; 전체 재통과 전 source `6643096`은 로컬 커밋만, push 보류. 설치 2.11.6·v15 번들 불변, readiness3=false. 보고 `20260927-234112-to-claude-vibe-subscription-preview.md` 및 HTML. 추가 과금·인증/결제 변경·Grok/Bot/Orca 호출·설치/main 머지 없음.
 
