@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 16:16:15 KST
+updated: 2026-09-27 16:35:14 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 16:35:14 KST] src: user-direct — Grok 복구 뒤에도 과거 HOLD가 영구 금지처럼 보이던 /vibe 안내를 2.11.11로 수정·회귀 검증. source `3538b23`, 배포 문서 `cd48742`를 `feat/skill-context-budget-260925` origin push. 새 v2 안전 후보 `candidate-safety-v4-grok-recovery` digest `fb690086…d55986d`, 5 plugin/182 skill/729 file byte verify, 정적 경로143 미해결0, eval182/182, Claude strict5/5, Claude·Codex 격리 설치 각5 enabled·각729 해시 일치, Codex /vibe inventory182/문제0. /vibe 상위211·하위154·source quality141 PASS. 유료/모델/Bot/Orca 호출 없음. 실사용 홈·main 불변, readiness3=false; D-code 미기록. outbox `20260927-163514-to-claude-vibe-21111-candidate.md`.
 
 [2026-09-27 / 16:16:15 KST] src: user-direct — SimonK-stack `feat/skill-context-budget-260925` 문서 커밋 `e22b04a`·`387f6f1` origin push 완료. Codex 공식 초기 스킬 예산의 기본/상한과 격리 측정값을 기록. 새 Claude 격리 config에 로컬 후보 marketplace 5개와 plugin 5개를 설치해 모두 enabled, Claude·Codex 격리 캐시 각각 후보 전체 729/729파일 SHA-256 일치·추가/누락0. 실사용 홈·결제·모델/Bot/Orca 호출 없음. 후보 digest 불변, readiness3=false, D-code 미기록으로 main 머지/운영 설치 보류. outbox `20260927-161615-to-claude-isolated-host-parity.md`.
 
