@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 17:46:10 KST
+updated: 2026-09-27 17:51:49 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 17:51:49 KST] src: user-direct — `/vibe` 2.11.13 v7 후보를 추가 격리 호스트에 로드: Claude `--plugin-dir` 세션 한정 5/5 enabled, 정확히 지정한 `CODEX_HOME` 별도 검사 프로필 5/5 enabled, Codex 캐시 729파일 후보와 SHA-256 전부 일치. 검사 뒤 후보 digest `f9716627…03107` 재검증 PASS. 배포 문서 `e4806e2` origin push. 이 증거는 모델 자동 선택·훅 발화·실사용 설치·추가 청구 여부를 증명하지 않는다; readiness3=false, 사용자 프로필/main 불변.
 
 [2026-09-27 / 17:46:10 KST] src: user-direct — 구독 전용 범위의 읽기 전용 Claude Max 도구 없는 생성 1회에서 Play Console 자연어 요청에 존재하지 않는 GUI 스킬을 답한 실패 관측. `claude.ai` Max 로그인/API 키 env 부재를 확인했고 Simon의 초과 사용 차단 진술을 사용했으나 CLI `total_cost_usd=0.222612`가 표시되어 실제 추가 청구 여부는 독립 확인 못함; 이후 모델 호출0. `/vibe` 2.11.13 설명에 GUI 자연어·CLI/API/MCP 우선·실제 vibe-bot 이름을 넣고 평가/회귀 추가, 기능 브랜치 커밋 `68c0efc`,`f3c70c5`,`f904c1f` origin push. v7 source digest `128fc271…09384`(137/407), 후보 `f9716627…03107`(5 plugin/182 skill/729 file) 영수증 PASS; 후보 validator/eval182/182, 정적 경로143 미해결0, Claude strict5/5, /vibe 단위213, 소스 품질141 PASS. 전체 배포 도구 단위 테스트는 장시간 미완료로 중단하여 미통과로 분류. 새 후보의 격리 호스트 로드·후속 모델 자동 선택은 미검증, readiness3=false. 실사용 설치/main 머지·Bot/Orca 생성·결제설정변경 없음. 보고 `E:/Coding Infra/reports/2026-09-27-vibe-skill-closure-status.html`, outbox `20260927-174610-to-claude-vibe-21113-gui-probe.md`.
 
