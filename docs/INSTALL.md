@@ -427,6 +427,36 @@ bundle digest
 복제본을 추가하지 않았습니다. 5플러그인/182스킬/713파일과 정적 참조
 150건/미해결 11건은 이전과 같습니다. 세 readiness flag는 여전히 false입니다.
 
+### Market 보조 자산 후보 — 설치·활성화 아님
+
+SimonKMarket 원본의 별도 브랜치 `fix/market-missing-assets-260927`에서
+Install Referrer 파서, 추천 무결성 스캔, K-factor 측정 SQL, 단위경제성 템플릿을
+복구했습니다. `distribution/plugin-inputs.v1.json`은 검증한 Market 커밋
+`257c2cde94891369307899dac95681a243aaee59`을 고정합니다. 이전 후보와
+원본 `main`·사용자 설치본은 변경하지 않았습니다.
+
+새 검증 후보는 `E:/Coding Infra/Releases/SimonK-stack/20260927-vibe-2.11.10-market-assets-candidate/`
+의 `inputs/`와 `candidate-safety-v2/`에 있습니다. 기존 2.11.10 source digest
+`ab7db4645c420f804684083672b108ec4e6e2d91449f33425a3cd267a415e6c0`를
+재사용했으며, bundle digest는
+`8d7ea761ac6de6e3a54fbb7d198087cc91e1ed6f861057b924c7e54d1958cb1c`입니다.
+기존 후보와 같은 `five-plugin-candidate-safety-v2` 계약의 5개 plugin·182개 skill·
+720개 파일에 대한 바이트 검증은 통과했습니다. 동일 폴더의 `candidate/`는 비교용
+기본 v1 계약 후보이며, 안전 변환이 빠져 있으므로 후속 후보로 사용하지 않습니다.
+정적 경로 감사의 미해결은
+11건에서 7건으로 줄었지만 결과는 여전히 `incomplete`이고, 나머지 경로는
+AIHub 1건·Core 6건입니다. 이 감사는 실제 실행·호스트 호환·설치 승인이 아닙니다.
+Market의 로컬 검증은 32개 skill 품질 게이트와 새 회귀 테스트 9개가 통과했습니다.
+SQL은 운영 DB나 별도 PostgreSQL 테스트 DB에서 실행하지 않았습니다.
+
+격리된 Codex 호스트 실험에서는 기존 전역 `.agents/skills` 항목들이 후보 Core
+skill과 중복되어, 설치한 Core 61개 중 초기 프롬프트에 보이는 항목이 27개뿐이고
+`simonk-core:vibe`가 후보 대신 이전 전역 경로를 가리키는 현상이 확인됐습니다.
+전역 스킬 162개를 일시적으로 정확한 경로별 설정으로 비활성화했을 때는 후보
+`vibe`/`vibe-bot`이 보였으나, 이는 실제 사용자 프로필 변경이나 안전한 마이그레이션
+방법의 검증이 아닙니다. 전역 스킬에 후보와 서로 다른 내용·전역 전용 스킬이 있어
+일괄 비활성화는 하지 마세요. 설치 전 선택적 중복 정리와 실제 호스트 재검증이 필요합니다.
+
 ### Codex frontmatter 검사 범위
 
 로컬 `skill-creator/scripts/quick_validate.py`의 허용 키 목록은 실제 Codex
