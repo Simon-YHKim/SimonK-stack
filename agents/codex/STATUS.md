@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 14:20:38 KST
+updated: 2026-09-27 14:59:52 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 14:59:52 KST] src: user-direct — 추가 과금 $0 유지. Core/AIHub/Design/Market/Stack 원본 기능 브랜치와 SimonK-stack `feat/skill-context-budget-260925`를 검증 후 origin에 비강제 push 완료(Core `6527e81`, AIHub `e37f07b`, 소스 `34aba87`). 새 격리 후보 `20260927-vibe-helper-closure-candidate/candidate-safety-v2-final` digest `4444a7cd…f97b34a`, 5 plugin/182 skill/720 file byte verify PASS, 정적 경로143개 미해결0, Claude manifest strict 5/5 PASS. Core quality57/57, AIHub7/7, Design19/19, Market32/32, Stack manifest58 PASS; 소스 배포·경로·릴리스 테스트91, /vibe211, 나머지 소스 테스트156, /vibe-bot38 PASS. Stack 원본은 eval 케이스 체계 부재. readiness3=false, 설치·main merge·모델/Bot/Orca 실호출·credential/DB/결제 설정 변경 없음. §35 D-code 및 호스트 선택 충돌 검증 대기. 상세 outbox `20260927-145952-to-claude-vibe-closure-candidate.md`.
 
 [2026-09-27 / 14:20:38 KST] src: user-direct — Simon이 유료 호출 제외 나머지 진행을 지시. 추가 과금 $0·구독 포함 경로만, 모델/Bot/Orca 실호출 없음. SimonKAIHub `fix/rag-eval-gate-path-260927` 경로 수정 `e37f07b` 로컬 커밋, 7/7 quality PASS. SimonKCore `fix/core-helper-closure-260927`(고정 입력 4369136에서 분기)에서 gcloud/keepass/stack-update 2.0.0 읽기 전용·명시 apply 분리 계약과 eval을 원본/소스에 바이트 일치로 수정 중, Core 57/57 quality 및 소스 3 validator/dry-run PASS, 독립 리뷰 진행. §35 ai-debate 패널 C/B + 별도 심판은 C 목표·B 과도기·A 기각, B 소수의견 보존; Claude 단일 소유 DECISIONS.md D-code 요청 `20260927-142038-to-claude-core-closure-verdict.md` 발송. 원본 main/설치/원격/credential/DB 불변. 설치·main merge는 D-code와 후보·호스트 게이트 이후.
 
