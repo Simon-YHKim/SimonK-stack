@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 19:40:19 KST
+updated: 2026-09-27 19:46:40 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 19:46:40 KST] src: user-direct — 두 v9 체험기에서 구독 외 인증·엔드포인트를 모델/로그인 전 차단하도록 보강. Claude 실제 CLI `auth status`: loggedIn=true, authMethod=claude.ai, apiProvider=firstParty, subscriptionType=max(이메일·조직 정보 미출력); 체험기 CheckOnly exit 0, dummy ANTHROPIC_API_KEY exit 1, 합성 구독 상태 mock launch 10 plugin args/모델 0회. Codex CheckOnly exit 0, dummy OPENAI_API_KEY exit 1, 무인증 exit 1. 로컬 Codex 0.155.0 생성 스키마에서 thread/start 호출자 ID 없음, turn/start clientUserMessageId 있음 확인; 최초 요청 timeout의 확정 복구 계약 미증명으로 직접 CLI 실발송 HOLD. 보고서 갱신, 인증 복사·결제 설정 변경·추가 과금 없음.
 
 [2026-09-27 / 19:40:19 KST] src: user-direct — `/vibe` v9 후보를 운영 설치하지 않고 Claude 세션 한정 체험 실행기와 별도 Codex 검사 홈 체험 실행기로 노출. 두 `-CheckOnly` 무모델 실행, PowerShell 구문 0오류; Codex 별도 프로필 5개 플러그인 enabled, 후보↔캐시 729파일 SHA-256 일치(누락·변경·추가 0), 로그인 상태 `Not logged in`. Codex 체험기는 미로그인 일반 실행을 exit 1로 거부하도록 수정·검증. 소스 README의 비대표 자연어 선택 평가 해석 정정 `438621f` origin push. 실제 사용자 설치 2.11.6 유지, credentials 복사·모델 실호출·추가 과금·Bot/Orca 전송·main 머지 없음. 상세 `20260927-194019-to-claude-vibe-v9-preview.md`.
 
