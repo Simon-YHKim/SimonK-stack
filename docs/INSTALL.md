@@ -701,6 +701,16 @@ Claude 공식 문서는 스킬 호출 시 frontmatter 훅을 등록한다고 명
 Core `careful` Bash 훅 한 건만 입증하며 Stack `freeze`·`guard`, 훅의
 전체 수명주기, Codex/Antigravity/Grok 또는 운영 설치 호환성은 미검증이다.
 
+2026-09-27 추가 검증에서 `scripts/tests`의 10개 테스트 파일을 각각
+완료까지 실행해 합계 **247/247 PASS**를 확인했다(릴리스 38, 번들 43,
+안전 훅/런타임 49, 설치 프로필 15, 진입점 26, 멀티터미널 21,
+벤치마크 19, 선택 평가 26, 후보 경로 10). 별도
+`scripts/test_model_router_integration.py`는 **8/8 PASS**,
+`skills-src/vibe/scripts`의 테스트는 **213/213 PASS**다. 이전의
+장시간 중단 기록은 그 당시 실행 결과이며 이 분할 실행으로 해당
+테스트 파일들의 완료 상태가 갱신됐다. 실제 CLI 실발송, 전체 호스트
+수명주기, 사용자 설치·과금 청구 검증으로 확대 해석하지 않는다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
