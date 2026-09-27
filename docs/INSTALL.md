@@ -1281,6 +1281,27 @@ SHA-256은 호스트 생성본과 일치했고 모두 종료 0·시작 프로토
 31개를 54/55개로 일괄 치환하거나 동명 안전 스킬을 덮어쓰는 설계는
 별도의 소유권·별칭·훅 의미 검토 없이 진행할 수 없다.
 
+`scripts/gstack_migration_audit.py`는 검증된 후보와 별도 생성 폴더를
+읽기 전용으로 대조한다. 파일명 대신 생성 문서 frontmatter의 선언 이름을
+매칭하고, 없어진 로컬 정책 제목 및 500줄 초과 본문을 검토 항목으로
+보고한다. 비밀이 들어갈 수 있는 명령문이나 본문은 출력하지 않는다.
+
+```powershell
+python -B scripts/gstack_migration_audit.py `
+  --package 'E:/Coding Infra/Releases/SimonK-stack/20260927-vibe-helper-closure-candidate/candidate-safety-v16-path-closure' `
+  --expected-digest 5cbef02fbee7ee0777b694f44e3d6cdbe61f16ec28144c91a4ccbdef87f03d0a `
+  --generated-root 'E:/Coding Infra/Releases/SimonK-stack/20260928-gstack-render-probe'
+```
+
+2026-09-28 실측: legacy 31개 중 Claude 생성 이름 30개·Codex 29개 대응,
+누락은 Claude `checkpoint`, Codex `checkpoint`·`codex`다. 각 호스트의
+생성 문서 24개가 500줄을 넘었다. 기존 문서에만 있는 선택 정책 제목은
+완료 보고 59쌍, Skill routing 57쌍, `investigate` 세션 범위 2쌍이었다.
+감사 결과는 `migration_review_required`/종료 1이며 검증기 단위 테스트
+7건이 통과했다. 제목 부재는 **동일 의미의 부재 증명**이 아니고,
+생성 폴더의 upstream 출처·런타임 동작·호스트 호환성도 이 감사기가
+증명하지 않는다. 세 readiness 플래그는 계속 false다.
+
 같은 네트워크 차단 게스트의 별도 실행에서는 첫 `gstack-skill-start` 뒤
 `gstack-skill-end`를 의도적으로 생략하고, 동일한 게스트 상태에서 두 번째
 시작·종료를 수행했다. 시작 2회는 모두 종료 0·프로토콜 1을 반환했고
