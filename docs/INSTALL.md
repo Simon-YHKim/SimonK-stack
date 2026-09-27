@@ -510,8 +510,22 @@ python -B scripts/plugin_bundle.py build --source-package E:/staging/release-a -
 실제 모델 행동·호스트 설치 검증 또는 운영 적용 승인으로 간주하지 않는다.
 Stack 입력 `dde60fb`은 후보에서 남았던 plugin-only 스킬 9개의 평가 케이스를
 추가하고 기존 배열형 케이스 4개를 공통 스키마로 변환한다. `/skstack`도 `/vibe`의
-하위 절차로 명시한다. 후보 전체의 평가 파일 존재 여부와 실행 가능한 경로는
-새 입력 핀으로 다시 확인해야 한다.
+하위 절차로 명시한다. 격리 후보 `20260927-vibe-helper-closure-candidate/
+candidate-safety-v2-normalized`의 digest는
+`55770a53f1f0f5fb332fc987d497cccb5ef05154b65f02d4706fe384e7aa3d9c`다.
+5 plugin/182 skill/729 file 바이트 검증, 평가 dry-run 182/182, 정적 파일 경로
+143개 미해결 0, Claude strict manifest 5/5가 통과했다. 평가 dry-run은 실제
+모델 행동 증명이 아니다.
+
+최종 후보를 별도 Codex 홈에 개별 설치한 결과 5개가 enabled이고 스킬·평가
+파일 364개의 캐시 SHA-256이 후보와 일치했다. `/vibe` 명시 루트 inventory도
+182개를 충돌 없이 인식했다. 그러나 짧은 격리 홈에서 기존 전역 중복 136개만
+선택적으로 비활성화해도 초기 prompt에는 plugin skill 105개만 보였고 Stack
+스킬은 0개였다. 전역을 모두 비활성화한 실험도 plugin skill 127개만 보였다.
+이는 사용자 홈 변경 지침이 아니다. 사용자의 전역 전용 스킬을 일괄 비활성화하지
+말고, 실제 호스트의 선택·명시 호출·훅 동작을 별도 검증해야 한다. receipt의
+`runtime_closure_verified`, `host_compatibility_verified`, `installation_ready`는
+계속 false이며 운영 설치·main 머지의 근거가 아니다.
 
 Hook는 `python` + `args`의 exec-form을 사용합니다. 정상 설치된 실제 Python
 실행 파일이 PATH에 있어야 하며, native host가 이를 기동하는지는 별도 확인입니다.
