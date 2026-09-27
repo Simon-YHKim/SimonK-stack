@@ -1500,6 +1500,19 @@ timeline-log/learnings-log→brain-enqueue, update-check→egress-lib 및
 조건부 `supabase/config.sh`, 여러 JSON 처리 경로→Bun이 있다. 이 목록은
 전이 의존성 전수 조사나 네트워크·상태 격리의 증명이 아니다.
 
+v18 후보 digest `2f49c092d816802863b41ad6c194f066d5ae1bfbca30bd522d68c2fac8295cb5`를
+고정 생성본의 두 digest와 다시 대조한 결과, 생성 바이트 핀은 일치했지만
+`gstack_migration_audit.py`는 `migration_review_required`/종료 1이었다.
+기존 31스킬 중 생성 이름 대응은 Claude 30·Codex 29이며, Claude 생성본에
+테스트 폴더 절대 링크 47곳과 사용자 홈 Gstack 링크 884곳이 남아 있다.
+원본 생성기는 Claude 링크 루트를 절대 경로로 정규화하고 Claude 문서에는
+사용자 홈을, Codex 문서에는 별도 `$GSTACK_ROOT` 탐색을 사용한다. 현재
+5플러그인 후보 영수증에 고정 Gstack 런타임은 포함되지 않는다. 호스트별
+경로 어댑터·런타임 영수증·동명 스킬 소유권을 결정하기 전에는 단순 복사로
+설치 후보를 만들 수 없다. Windows 네이티브 CSO 공식 빌드의 `-CheckOnly`도
+이 PC에서 Visual Studio 2022 MSVC/SDK가 없어 종료 1이었다. 도구 설치는
+시도하지 않았다.
+
 후보 manifest의 `runtime_closure_verified`, `host_compatibility_verified`,
 `installation_ready`는 모두 `false`다. 실제 모델 선택·안전 훅·Bot/Orca
 연결·전체 182스킬 동작, 구독 청구 안전성, 사용자 홈 롤백은 이 빌드가
