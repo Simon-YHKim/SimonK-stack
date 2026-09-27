@@ -697,9 +697,23 @@ Claude 공식 문서는 스킬 호출 시 frontmatter 훅을 등록한다고 명
 `DROP TABLE demo`가 실제 PreToolUse에서 `SQL DROP detected`로
 가로채졌고, `dontAsk` 세션은 명령을 실행하지 않았다. 같은 명령에 대한
 후보 helper의 오프라인 판정도 `ask`였다. 디버그 로그는 릴리스 부모의
-`diagnostics/hook-skill-probe-260927/`에 있다. 이는 해당 버전·호스트의
-Core `careful` Bash 훅 한 건만 입증하며 Stack `freeze`·`guard`, 훅의
-전체 수명주기, Codex/Antigravity/Grok 또는 운영 설치 호환성은 미검증이다.
+`diagnostics/hook-skill-probe-260927/`에 있다. 이 첫 검사는 해당 버전·
+호스트의 Core `careful` Bash 훅 한 건만 입증한다. Stack `freeze`의
+별도 후속 결과는 아래와 같으며, `guard`, 훅의 전체 수명주기,
+Codex/Antigravity/Grok 또는 운영 설치 호환성은 여전히 미검증이다.
+
+같은 v9 Stack 후보를 Claude Code 2.1.283의 별도 격리 세션에서
+`Skill {"skill":"simonk-stack:freeze"}`로 호출했다. 경계를 설정하지 않은
+새 세션의 `Write`는 `Safety runtime unavailable; blocked, fail closed`로
+거부되고 대상 파일은 생성되지 않았다. 이어 다른 새 세션에서 상태 루트를
+릴리스 진단 폴더로 격리하고 문서화된 setup launcher로 기존 `allow/`
+경계를 설정했다. 바깥 `outside.txt`의 `Write`는 PreToolUse에서 차단되어
+파일이 없고, 안쪽 `allow/inside.txt`의 `Write`만 성공해 정확한 테스트
+문자열을 담았다. 상태 파일 한 개의 active 경계도 `allow/`와 일치했다.
+이는 **해당 PC·Claude Code 버전·Stack freeze의 Write 경계 한 건**이며
+Edit 매처, unfreeze/세션 종료 정리, 다른 호스트나 사용자 설치본 증거는
+아니다. 테스트 파일과 상태는 `diagnostics/hook-skill-probe-260927/`에
+보존했고 실제 사용자 safety state·설정은 수정하지 않았다.
 
 2026-09-27 추가 검증에서 `scripts/tests`의 10개 테스트 파일을 각각
 완료까지 실행해 합계 **247/247 PASS**를 확인했다(릴리스 38, 번들 43,
