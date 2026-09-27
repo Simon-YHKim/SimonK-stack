@@ -809,6 +809,53 @@ Claude Code 2.1.283의 모델 생성 없는 로컬 명령으로 v14 후보의 �
 상시 노출량을 낮추면서 `/vibe`를 통해 모든 스킬을 호출하는 배포 구조는
 §35.1 설계 토론 대상으로 분리한다.
 
+## `/vibe` 2.11.16 v15 레거시 표 참조 후보 (2026-09-27)
+
+기능 브랜치 `feat/skill-context-budget-260925`의 `56fb120`은 과거 Orca
+라우팅 표를 `/vibe` 본문에서 직접 연결된
+`references/legacy-routing.md`로 옮겼다. 본문은 371→283줄이다. 표의
+생성 정본 `routing.py`, 현행 모델 registry, 계정·비용 가드와 실행 경로는
+그대로다. 기본 본문 로드 감소는 초기 스킬 **description** 예산이나
+자동 선택 정확도 개선의 증거가 아니다.
+
+기존 v14와 설치본을 덮어쓰지 않고 같은 격리 릴리스 부모 아래 새
+`source-v15-context-reference`와 `candidate-safety-v15-context-reference`를
+만들었다. source digest는
+`d856259eea3e563792013afb666866d24e3d114c06a64b020c695c081ab1e8e2`
+(137 스킬/409 파일), five-plugin bundle digest는
+`84e8759fa16a4d3c5af39e7465076831dd4bbf01045cb3b0b4158187e4386bf9`
+(5 플러그인/182 스킬)이다. 부모 경로는
+`E:/Coding Infra/Releases/SimonK-stack/20260927-vibe-helper-closure-candidate/`.
+입력 플러그인 5개는 `distribution/plugin-inputs.v1.json`의 pinned commit과
+일치했고 빌드 전 clean이었다.
+
+소스 회귀 3건·orchestration 90건·selftest 180건·릴리스 38건·번들
+43건이 통과했고, skill validator는 오류 0/경고 0, eval dry-run은
+20케이스 형식 통과였다. 첫 병렬 번들 실행의 Windows 임시 폴더 잠금
+오류는 단독 케이스 및 전체 43건 단독 재실행에서 재현되지 않았다. 후보
+내 표 동기 회귀 3건과 selftest 180건, 정적 링크 142개 미해결 0,
+Claude manifest strict 5/5 오류·경고 0을 확인했고 검사 후 bundle
+digest가 그대로였다. 부모 `-B`와 별도로 자식 Python에도
+`PYTHONDONTWRITEBYTECODE=1`을 적용했다.
+
+Claude Code 2.1.283의 **모델 생성 없는** 로컬 명령에서 v15 Core만
+`--plugin-dir`로 로드하면 `simonk-core@inline` 한 개가 세션 enabled이고
+호스트 목록은 Core 스킬 63개, Always-on 추정치는 약 13,532토큰이다.
+Core에 있는 `/vibe`의 후보 내 오프라인 `catalog`는 고정된 5개 플러그인
+스킬 182개를 찾았다. 이는 Core-only 기본 노출 + 전체 로컬 카탈로그
+탐색의 가능성을 보여주지만, 다른 네 플러그인의 호스트 고유 Skill 호출,
+훅·명령 실행이나 동등한 사용성은 검증하지 않는다. v14의 5-plugin 동시
+노출 추정 41,095토큰과 두 추정치의 차이는 실제 컨텍스트 절감량이나
+구독 사용량·요금 차이로 해석하지 않는다. 배포 구조 선택은 허브 §35.1
+설계 토론 후 결정한다.
+
+세 readiness 플래그 `runtime_closure_verified`, `host_compatibility_verified`,
+`installation_ready`는 계속 false다. 실사용 Claude·Codex 설치본은
+2.11.6이고, 운영 설치·main 머지·모델/Bot/Orca 실호출·결제/인증 설정
+변경은 하지 않았다. source의 `routing.py` 상단 한 줄은 아직 표가
+`SKILL.md`에 생성된다고 적어 실제 참조 파일 위치와 다른 문서 드리프트로
+남아 있다. 다음 소규모 수정에서 바로잡는다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
