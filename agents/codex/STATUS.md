@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 23:57:50 KST
+updated: 2026-09-28 00:16:08 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-28 / 00:16:08 KST] src: user-direct — 유료 호출 없이 v15 불변 후보의 Claude Max 구독 호스트를 추가 확인. 프로세스 로컬 claude.ai MCP 억제 후 단일 Skill 정의/MCP 0 관측; 5플러그인 동시 로드에서 Market 비-Core Skill 명시 호출·도구 결과는 성공했으나 후속 `Skill=ExitPlanMode` 오류로 전체 호스트 PASS 아님. Codex 사용자 프로필의 SimonK 네이티브 플러그인 0, quick_validate의 version/author frontmatter 불일치 확인. source `docs/INSTALL.md` 증거를 `5c69418`로 origin 기능 브랜치 push/clean. v15 번들 digest 불변, 사용자 설치 2.11.6 유지, readiness3=false. 실제 청구액은 확인 불가하므로 CLI API 환산치를 결제 증거로 사용하지 않음. 결제·자동충전 설정/후보/설치/main/Bot/Orca 불변. §35 직접 CLI D-code 회신 대기. 보고 `20260928-001608-to-claude-vibe-subscription-host-evidence.md`와 HTML.
 
 [2026-09-27 / 23:57:50 KST] src: user-direct — 신규 무모델/구독 경로 미리보기 테스트 5/5, 기존 bundle 전체 단독 재실행 43/43 PASS(728.593초). 첫 실행의 E2E 단발 실패 원인은 미확정이나 단독+전체 재실행 통과. `git fetch` 후 `git diff --check`·clean 확인, `6643096`을 origin `feat/skill-context-budget-260925`에 push, 원격 SHA 일치. v15 후보 digest 불변·설치 2.11.6 유지·readiness3=false. 허브 판정 D-code 요청은 Claude 응답 대기. 결과 `20260927-235750-to-claude-vibe-preview-validated-pushed.md`, HTML 링크. 추가 과금·설정 변경·Grok/Bot/Orca 호출·main 머지/설치 없음.
 

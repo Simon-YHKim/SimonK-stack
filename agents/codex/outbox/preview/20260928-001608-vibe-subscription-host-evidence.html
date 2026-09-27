@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v15 구독 호스트 검증</title>
+<style>
+:root{color-scheme:light dark;--a:#176b8a;--t:#202b35;--m:#637382}body{font:16px/1.55 system-ui,sans-serif;max-width:900px;margin:0 auto;padding:24px;color:var(--t)}@media(prefers-color-scheme:dark){:root{--a:#70c8e6;--t:#e7edf2;--m:#aab9c5}}h1{line-height:1.2}small{color:var(--m)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.card,details{border:1px solid var(--m);border-radius:10px;padding:14px}.card strong{display:block;color:var(--a);font-size:1.3rem}details{margin-top:12px}summary{cursor:pointer;font-weight:600}a{color:var(--a)}code{overflow-wrap:anywhere}p{margin:.5em 0}
+</style>
+</head>
+<body>
+<main>
+<small>2026-09-28 00:16:08 KST · SimonK-stack · 후보 v15</small>
+<h1>구독 경로의 호스트 검증: 부분 통과</h1>
+<p>Claude Max에서 5개 플러그인 중 Market Skill 명시 호출에 성공했다. 이어 잘못된 도구 이름 호출 오류가 발생해 전체 호스트 통과는 아니다. 기존 설치와 후보 파일은 바꾸지 않았다.</p>
+<section class="grid" aria-label="핵심 결과">
+<div class="card"><strong>0</strong>모델 요청에 포함된 claude.ai MCP 정의</div>
+<div class="card"><strong>1 성공 + 1 오류</strong>Market Skill 호출과 후속 도구 오류</div>
+<div class="card"><strong>5 / 182</strong>후보 플러그인 / 전체 스킬</div>
+<div class="card"><strong>설치 유지</strong>사용자 /vibe 2.11.6 · readiness false</div>
+</section>
+<details><summary>무엇을 확인했나</summary><p>Core 단독 한 턴 시험은 정상 종료했다. 5-plugin 시험은 <code>simonk-market:aha-moment-optimizer</code>의 Skill 결과가 정상이었으나 이어 <code>Skill=ExitPlanMode</code>는 오류였다. 실제 Codex 사용자 프로필에는 SimonK native plugin이 없다. Codex 작성용 quick_validate는 기존 frontmatter 형식과 맞지 않는다.</p></details>
+<details><summary>검증과 보존 범위</summary><p>문서만 갱신한 source 커밋 <code>5c69418</code>을 기능 브랜치에 push했다. diff 검사·시크릿 패턴 검사·원격 SHA 일치 확인. 후보 digest 유지. 직전 동일 코드에서 bundle 43/43 통과. 결제 설정, 기존 설치, main, Bot/Orca는 변경하지 않았다. CLI의 USD 값은 API 환산치여서 실제 청구액 증거가 아니다.</p></details>
+<details><summary>남은 게이트</summary><p>§35 직접 CLI 설계 결정, release 승격 계약, 사용자 설치 전환/롤백, 전체 호스트 동작 검증. 이번 부분 통과만으로 자동 설치나 main 머지를 진행하지 않는다.</p></details>
+<p>상세 기록: <a href="../../../../../../Harrness%20Eng/SimonK-stack-skill-budget-260925/docs/INSTALL.md">source 설치 문서</a></p>
+</main>
+</body>
+</html>
