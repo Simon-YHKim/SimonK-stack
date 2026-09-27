@@ -647,7 +647,35 @@ manifest 5/5, Claude 세션 한정 플러그인 5개 enabled,
 별도 Codex 검사 홈의 플러그인 5개 enabled·캐시 729파일 해시 일치,
 `/vibe` 단위 213개와 소스 품질 141/141이 통과했다.
 전체 배포 도구 단위 테스트는 장시간 미완료로 중단했으므로 통과로 기록하지 않는다.
-2.11.13의 실제 모델 선택 정확도와 호스트 훅 실행도 미검증이다.
+2.11.13의 전반적인 모델 선택 정확도와 호스트 훅 실행도 미검증이다.
+
+2026-09-27 후속 점검에서 위 `--tools ''` 평가는 `Skill` 사용도 막는
+비대표 조건임을 확인했다. 따라서 가상 스킬 답변을 일반적인 자동 선택 실패
+증거로, 2.11.13 설명 수정의 효과로 모두 해석하지 않는다. 같은 질문을
+`--restricted --tools Skill --allowedTools Skill --permission-mode dontAsk`로
+격리 실행하자 2.11.13 후보는 `vibe`, 설명 재작성 실험 후보는
+`simonk-core:vibe`를 한 번씩 답했다. 두 실행 모두 파일·셸·웹 도구와
+봇 전달은 없었고, 스킬 도구 호출 자체도 관측되지 않았다. 이는 단일
+응답 표본일 뿐 반복 선택 정확도나 실제 스킬 본문 호출 증거가 아니다.
+평가 케이스에는 질문을 추가했으며 설명 재작성은 되돌렸다. 새 후보를
+만들더라도 이 증거만으로 readiness를 올리지 않는다.
+평가 케이스 보강 후보 v9에 명시 `/vibe`를 같은 격리 조건으로 한 번
+질의한 결과, 응답은 CLI/API/MCP 우선, GUI-only일 때 `vibe-bot`, 추가
+과금 USD 0을 올바르게 설명했다. 관측된 `Skill` 도구 호출은 없으므로
+실제 스킬 본문 실행이나 자동 오케스트레이션의 종단 간 증거로 세지 않는다.
+
+Anthropic의 2026-06-15 공식 업데이트는 현재 `claude -p`가 구독 사용량을
+사용한다고 명시한다(https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan).
+이전 CLI의 `total_cost_usd`는 실제 추가 청구 영수증이 아니며, 결제
+설정이나 충전 설정은 변경하지 않았다.
+
+평가 케이스만 보강한 새 불변 패키지는 `source-v9-eval-protocol`
+(digest `1708dbb6b8ba774a6acd0240dc04392d85b02e603518dc93c44b7fce251de92d`,
+137 skill/407 file)과 `candidate-safety-v9-eval-protocol`
+(digest `f94533fd4b7556c1298984ede0bc93f2af7c17f168186cb19dbced34d1095adb`,
+5 plugin/182 skill/729 file)이다. 두 영수증 재검증, 정적 경로 143개
+미해결 0, `/vibe` 단위 213개를 확인했다. 설치·호스트 호환·런타임 closure
+플래그는 모두 false이며 v7 운영 후보를 대체 설치하지 않았다.
 
 ## One-shot 설치
 

@@ -24,6 +24,27 @@
       ]
     },
     {
+      "id": "gui-skill-name-with-cli-check",
+      "prompt": "다음 사용자 요청에서 사용할 SimonK 플러그인 스킬 이름을 정확히 하나만 답하세요. 다른 설명이나 GUI 조작은 하지 마세요. 요청: Play Console 출시 정보 화면에서 상태를 확인해야 하는데, 같은 정보를 CLI/API/MCP로 확인할 수 있는지도 먼저 판단해줘.",
+      "fixtures": [
+        "The available SimonK inventory includes vibe and vibe-bot, but no Play Console specialist. No CLI/API/MCP access or Bot account and billing evidence has been verified."
+      ],
+      "assertions": [
+        {
+          "id": "main-router-name",
+          "text": "The one named SimonK skill is vibe, the main coordinator. A GUI-only step may later use its real vibe-bot adapter after CLI/API/MCP verification."
+        },
+        {
+          "id": "no-fabricated-gui-name",
+          "text": "The answer does not invent play-console-release-status or any other specialist skill."
+        },
+        {
+          "id": "no-dispatch",
+          "text": "No Bot, model or GUI operation is sent from this skill-name question."
+        }
+      ]
+    },
+    {
       "id": "ui-feature-full-pipeline",
       "prompt": "/vibe 설정 화면에 알림 토글 섹션 추가해줘",
       "fixtures": [

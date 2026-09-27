@@ -8,6 +8,10 @@
 - Add a natural-language GUI routing evaluation and a description regression
   after a tool-less Claude subscription probe invented a nonexistent specialist.
   This metadata change is not a measured improvement in live selection accuracy.
+- Add the exact skill-name question as a second evaluation. A follow-up
+  isolated probe with `Skill` available selected the real `/vibe` on both the
+  old and revised metadata. The tool-less probe disabled automatic skill use;
+  it cannot establish a regression or a metadata-driven improvement.
 
 ## 2.11.12 - 2026-09-27
 
