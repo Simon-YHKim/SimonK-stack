@@ -1328,6 +1328,18 @@ python -B scripts/gstack_migration_audit.py `
 홈을 탐색하지 않는다. 따라서 문서 자체만 플러그인으로 복사해도 Gstack
 런타임·섹션 의존성이 폐쇄된다고 간주할 수 없다.
 
+호스트별 이식 경계: [Claude 플러그인 공식 문서](https://code.claude.com/docs/en/plugins/components#reference-plugin-paths-and-store-data)는
+스킬 본문의 `${CLAUDE_PLUGIN_ROOT}`를 버전별 설치 경로로 치환한다고 명시한다.
+반면 고정 Gstack 원본의 `hosts/claude.ts`는 `usesEnvVars: false`이며
+사용자 홈 리터럴 경로를 생성한다. 따라서 Claude 플러그인에 번들할 경우
+호스트별 경로 재작성과 실제 설치 경로·섹션·런타임 검증이 필요하다.
+[Codex 플러그인 공식 문서](https://developers.openai.com/plugins/build/plugins#bundled-mcp-servers-and-lifecycle-hooks)는
+`${PLUGIN_ROOT}`를 플러그인 **훅 프로세스**에 제공한다고 설명하지만,
+스킬 본문 치환까지 보증하지 않는다. 고정 Gstack Codex 생성본은
+`$HOME/.codex/skills/gstack` 또는 프로젝트 `.agents/skills/gstack`에서
+`$GSTACK_ROOT`를 정하므로, 해당 경로가 설치 플러그인 런타임과 실제로
+결속되는지 별도 호스트 시험 전에는 가정하지 않는다.
+
 같은 네트워크 차단 게스트의 별도 실행에서는 첫 `gstack-skill-start` 뒤
 `gstack-skill-end`를 의도적으로 생략하고, 동일한 게스트 상태에서 두 번째
 시작·종료를 수행했다. 시작 2회는 모두 종료 0·프로토콜 1을 반환했고
