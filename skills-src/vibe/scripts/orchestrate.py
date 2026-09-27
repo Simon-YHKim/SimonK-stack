@@ -664,9 +664,25 @@ def make_plan(request, catalog, runtime, now=None, registry=None):
                     errors.append("LOCAL_COST_UNVERIFIED")
                 else:
                     try:
-                        local_upper = money(quote.get("upper_usd_per_attempt")) * policy["max_attempts"]
+                        per_attempt = money(quote.get("upper_usd_per_attempt"))
                     except ValueError:
                         errors.append("LOCAL_COST_UNVERIFIED")
+                    else:
+                        # The host must audit nested effects; a zero quote alone is not a free-tool certificate.
+                        if quote.get("transitive_effects_audited") is not True:
+                            errors.append("LOCAL_EFFECTS_UNVERIFIED")
+                        billing_mode = quote.get("billing_mode")
+                        if billing_mode == "nonmetered":
+                            if per_attempt != 0:
+                                errors.append("LOCAL_BILLING_UNVERIFIED")
+                        elif billing_mode == "metered":
+                            if per_attempt == 0:
+                                errors.append("LOCAL_BILLING_UNVERIFIED")
+                            if money(policy["approved_usd"]) == 0:
+                                errors.append("SUBSCRIPTION_ONLY")
+                        else:
+                            errors.append("LOCAL_BILLING_UNVERIFIED")
+                        local_upper = per_attempt * policy["max_attempts"]
             if not errors:
                 reserved += local_upper
                 s["route"] = {"surface": "local", "transport": "tool", "model": None,

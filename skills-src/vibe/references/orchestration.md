@@ -174,7 +174,17 @@ not manufacture a host snapshot to force an executable plan.
 `kind`: local, llm or gui. A local node supplies an `argv` list and `software`
 names checked against runtime tools. Runtime tool_costs must include the exact
 argv_sha256 (`orchestrate.digest(argv)`), verified=true, evidence, observed_at
-and upper_usd_per_attempt. Local execution does not imply zero cost. A GUI node supplies target, gui_reason,
+and upper_usd_per_attempt. It must also set `transitive_effects_audited=true`
+after reviewing the command and nested setup/smoke-test calls, and set
+`billing_mode` to `nonmetered` or `metered`. `nonmetered` requires a zero upper
+quote and means no incremental billable effect was found; it does not require
+the command to be network-free. `metered` requires a positive upper quote and
+an explicit nonzero approved budget. Missing/unknown classification, a zero
+metered quote, or an unaudited effect chain blocks planning. Existing quotes
+without these fields must be re-audited; do not label an opaque wrapper
+`nonmetered` just to pass preflight. This is a host-supplied audit assertion,
+not automatic proof that arbitrary nested programs are free.
+Local execution does not imply zero cost. A GUI node supplies target, gui_reason,
 tool_route_available=false and vibe-bot in its skill list. `verify_of` names
 the predecessor being independently reviewed and must also be a dependency.
 The host includes scope and acceptance evidence in each task handoff. It must

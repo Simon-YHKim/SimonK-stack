@@ -489,7 +489,8 @@ class RunStateTests(unittest.TestCase):
             "skills": [], "writes": False, "argv": argv, "software": [sys.executable]}]}, {},
             {"observed_at": now, "tools": [sys.executable], "candidates": [], "tool_costs": [{
                 "argv_sha256": orchestrate.digest(argv), "observed_at": now, "verified": True,
-                "evidence": "inspected-fixed-offline-fixture", "upper_usd_per_attempt": 0}]}, now)
+                "evidence": "inspected-fixed-offline-fixture", "upper_usd_per_attempt": 0,
+                "transitive_effects_audited": True, "billing_mode": "nonmetered"}]}, now)
         cli("register", "--plan", data("plan.json", p))
         a = cli("claim", "--run", "local-cli", "--node", "local", "--request", "local-once", "--plan-digest", p["plan_digest"])
         self.assertTrue(a["dispatch_allowed"])

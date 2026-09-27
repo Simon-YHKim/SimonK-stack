@@ -87,8 +87,9 @@ class OrchestrationTests(unittest.TestCase):
         return [dict(run_id=plan["run_id"], plan_digest=plan["plan_digest"], **event) for event in events]
 
     def tool_cost(self, argv):
-        return {"argv_sha256": self.m.digest(argv), "verified": True, "evidence": "Inspected offline command",
-                "observed_at": NOW, "upper_usd_per_attempt": 0}
+        return {"argv_sha256": self.m.digest(argv), "verified": True, "evidence": "Reviewed fixture command",
+                "observed_at": NOW, "upper_usd_per_attempt": 0,
+                "transitive_effects_audited": True, "billing_mode": "nonmetered"}
 
     def test_gui_request_is_discoverable_from_main_skill_description(self):
         text = (SCRIPT.parent.parent / "SKILL.md").read_text(encoding="utf-8")
@@ -653,6 +654,39 @@ class OrchestrationTests(unittest.TestCase):
         p = self.plan([step(kind="local", skills=[], argv=["python", "api.py"], software=["python"])],
                       [], tools=["python"])
         self.assertIn("LOCAL_COST_UNVERIFIED", str(p))
+
+    def test_local_zero_quote_requires_explicit_transitive_effects_and_nonmetered_billing(self):
+        argv = ["python", "fixed-local-fixture.py"]
+        local = step(kind="local", skills=[], argv=argv, software=["python"])
+        quote = self.tool_cost(argv)
+        for change, reason in (({"transitive_effects_audited": False}, "LOCAL_EFFECTS_UNVERIFIED"),
+                               ({"billing_mode": "metered"}, "SUBSCRIPTION_ONLY"),
+                               ({"billing_mode": "unknown"}, "LOCAL_BILLING_UNVERIFIED"),
+                               ({"billing_mode": "nonmetered", "upper_usd_per_attempt": 1},
+                                "LOCAL_BILLING_UNVERIFIED")):
+            with self.subTest(change=change):
+                plan = self.plan([local], [], tools=["python"], tool_costs=[dict(quote, **change)])
+                self.assertEqual(plan["status"], "blocked")
+                self.assertIn(reason, plan["steps"][0]["errors"])
+        for removed, reason in (("transitive_effects_audited", "LOCAL_EFFECTS_UNVERIFIED"),
+                                ("billing_mode", "LOCAL_BILLING_UNVERIFIED")):
+            with self.subTest(removed=removed):
+                incomplete = dict(quote)
+                incomplete.pop(removed)
+                plan = self.plan([local], [], tools=["python"], tool_costs=[incomplete])
+                self.assertIn(reason, plan["steps"][0]["errors"])
+        self.assertEqual(self.plan([local], [], tools=["python"], tool_costs=[quote])["status"], "ready")
+
+    def test_metered_local_quote_requires_positive_authorized_budget(self):
+        argv = ["python", "api.py"]
+        local = step(kind="local", skills=[], argv=argv, software=["python"])
+        quote = dict(self.tool_cost(argv), billing_mode="metered", upper_usd_per_attempt="0.25")
+        blocked = self.plan([local], [], tools=["python"], tool_costs=[quote])
+        self.assertIn("SUBSCRIPTION_ONLY", blocked["steps"][0]["errors"])
+        allowed = self.plan([local], [], budget={"approved_usd": "0.5"},
+                            tools=["python"], tool_costs=[quote])
+        self.assertEqual(allowed["status"], "ready")
+        self.assertEqual(allowed["budget"]["reserved_upper_usd"], 0.5)
 
     def test_local_test_cannot_replace_independent_review(self):
         argv = ["echo", "PASS"]
