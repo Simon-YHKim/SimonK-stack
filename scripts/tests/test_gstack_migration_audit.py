@@ -43,6 +43,14 @@ class GstackMigrationAuditTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "Duplicate generated"):
                 audit.generated_index(root, "claude")
 
+    def test_generated_digest_changes_with_document_bytes(self):
+        first = audit.generated_digest({"qa": ("qa/SKILL.md", "---\nname: qa\n---\n")})
+        second = audit.generated_digest({"qa": ("qa/SKILL.md", "---\nname: qa\n---\n## Updated\n")})
+        moved = audit.generated_digest({"qa": ("gstack-qa/SKILL.md", "---\nname: qa\n---\n")})
+        self.assertEqual(len(first), 64)
+        self.assertNotEqual(first, second)
+        self.assertNotEqual(first, moved)
+
     def test_compare_pair_reports_missing_policy_and_format_without_claiming_failure(self):
         legacy = ("---\nname: investigate\n---\n"
                   "## Skill routing\n## Candidate session scope commands\n"
@@ -104,6 +112,18 @@ class GstackMigrationAuditTests(unittest.TestCase):
         self.assertEqual(report["status"], "no_legacy_gstack_refs")
         self.assertEqual(report["skills_checked"], 0)
         self.assertFalse(report["runtime_closure_verified"])
+
+    def test_wrong_generated_digest_blocks_audit(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            generated = root / "generated"
+            (generated / "qa").mkdir(parents=True)
+            (generated / "qa" / "SKILL.md").write_text(
+                "---\nname: qa\n---\n", encoding="utf-8")
+            with patch.object(audit.plugin_bundle, "verify_bundle", return_value={"files": []}):
+                with self.assertRaisesRegex(ValueError, "Generated document digest mismatch"):
+                    audit.audit_candidate(root / "package", "0" * 64, generated,
+                                          {"claude": "0" * 64, "codex": "0" * 64})
 
 
 if __name__ == "__main__":

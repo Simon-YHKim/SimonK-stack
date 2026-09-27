@@ -62,7 +62,7 @@ def compare_pair(name: str, legacy_text: str, generated_text: str | None) -> dic
             "generated_body_lines": body_lines}
 
 
-def generated_index(root: Path, host: str) -> dict[str, str]:
+def generated_index(root: Path, host: str) -> dict[str, tuple[str, str]]:
     root = release.no_links(Path(root))
     if host not in {"claude", "codex"}:
         raise ValueError("Unsupported generated host")
@@ -81,16 +81,31 @@ def generated_index(root: Path, host: str) -> dict[str, str]:
         name = declared_name(body)
         if name in result:
             raise ValueError("Duplicate generated skill name")
-        result[name] = body
+        result[name] = (member, body)
     return result
 
 
-def audit_candidate(package: Path, expected_digest: str, generated_root: Path) -> dict:
+def generated_digest(documents: dict[str, tuple[str, str]]) -> str:
+    """Pin the selected generated SKILL.md bytes, not their claimed origin."""
+    members = {name: {"path": member, "sha256": release.digest(body.encode("utf-8"))}
+               for name, (member, body) in sorted(documents.items())}
+    return release.digest(release.encoded(members))
+
+
+def audit_candidate(package: Path, expected_digest: str, generated_root: Path,
+                    expected_generated_digests: dict[str, str] | None = None) -> dict:
     package = release.no_links(Path(package))
     receipt = plugin_bundle.verify_bundle(package, expected_digest)
     generated_root = release.no_links(Path(generated_root))
     host_docs = {host: generated_index(generated_root, host)
                  for host in ("claude", "codex")}
+    generated_digests = {host: generated_digest(docs) for host, docs in host_docs.items()}
+    if expected_generated_digests is not None:
+        if (set(expected_generated_digests) != set(generated_digests)
+                or any(not re.fullmatch(r"[0-9a-f]{64}", value)
+                       for value in expected_generated_digests.values())
+                or expected_generated_digests != generated_digests):
+            raise ValueError("Generated document digest mismatch")
     entries = []
     seen = set()
     for item in receipt["files"]:
@@ -115,7 +130,8 @@ def audit_candidate(package: Path, expected_digest: str, generated_root: Path) -
     issues = []
     for name, legacy_body in sorted(entries):
         for host, docs in host_docs.items():
-            row = compare_pair(name, legacy_body, docs.get(name))
+            generated = docs.get(name)
+            row = compare_pair(name, legacy_body, generated[1] if generated else None)
             if row["status"] == "missing_generated":
                 missing[host].append(name)
             else:
@@ -130,6 +146,8 @@ def audit_candidate(package: Path, expected_digest: str, generated_root: Path) -
               "migration_review_required" if issues else "static_mapping_present")
     return {"status": status,
             "bundle_digest": expected_digest, "skills_checked": len(entries),
+            "generated_doc_digests": generated_digests,
+            "generated_bytes_verified": expected_generated_digests is not None,
             "matched": matched, "missing": missing, "over_500_body_lines": over_500,
             "policy_gap_counts": gap_counts, "issues": issues,
             "runtime_closure_verified": False, "host_compatibility_verified": False,
@@ -142,9 +160,17 @@ def main(argv=None) -> int:
     parser.add_argument("--package", type=Path, required=True)
     parser.add_argument("--expected-digest", required=True)
     parser.add_argument("--generated-root", type=Path, required=True)
+    parser.add_argument("--expected-claude-digest")
+    parser.add_argument("--expected-codex-digest")
     args = parser.parse_args(argv)
     try:
-        result = audit_candidate(args.package, args.expected_digest, args.generated_root)
+        if bool(args.expected_claude_digest) != bool(args.expected_codex_digest):
+            raise ValueError("Both generated digests are required together")
+        generated_pins = ({"claude": args.expected_claude_digest,
+                           "codex": args.expected_codex_digest}
+                          if args.expected_claude_digest else None)
+        result = audit_candidate(args.package, args.expected_digest, args.generated_root,
+                                 generated_pins)
     except (ValueError, OSError, UnicodeError, KeyError, TypeError):
         print('{"status":"blocked","message":"Gstack migration audit failed"}', file=sys.stderr)
         return 2

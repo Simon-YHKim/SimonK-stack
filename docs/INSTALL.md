@@ -1290,15 +1290,20 @@ SHA-256은 호스트 생성본과 일치했고 모두 종료 0·시작 프로토
 python -B scripts/gstack_migration_audit.py `
   --package 'E:/Coding Infra/Releases/SimonK-stack/20260927-vibe-helper-closure-candidate/candidate-safety-v16-path-closure' `
   --expected-digest 5cbef02fbee7ee0777b694f44e3d6cdbe61f16ec28144c91a4ccbdef87f03d0a `
-  --generated-root 'E:/Coding Infra/Releases/SimonK-stack/20260928-gstack-render-probe'
+  --generated-root 'E:/Coding Infra/Releases/SimonK-stack/20260928-gstack-render-probe' `
+  --expected-claude-digest f8b896bb5cd71b9cc4978feaecbdf2bc5a19cbef9a222ca5173eab881e83a385 `
+  --expected-codex-digest 852be775940075d52e5953ddc76a52ab4498266fa676bb6cc6fb99be7b8e87af
 ```
 
 2026-09-28 실측: legacy 31개 중 Claude 생성 이름 30개·Codex 29개 대응,
 누락은 Claude `checkpoint`, Codex `checkpoint`·`codex`다. 각 호스트의
 생성 문서 24개가 500줄을 넘었다. 기존 문서에만 있는 선택 정책 제목은
 완료 보고 59쌍, Skill routing 57쌍, `investigate` 세션 범위 2쌍이었다.
+두 생성 digest를 지정한 재검사에서 `generated_bytes_verified=true`이고
 감사 결과는 `migration_review_required`/종료 1이며 검증기 단위 테스트
-7건이 통과했다. 제목 부재는 **동일 의미의 부재 증명**이 아니고,
+9건이 통과했다. digest는 선택된 생성 `SKILL.md`의 상대 경로와 바이트를 고정하며
+런타임·보조 파일이나 원본 Git 커밋과의 생성 관계는 검증하지 않는다.
+제목 부재는 **동일 의미의 부재 증명**이 아니고,
 생성 폴더의 upstream 출처·런타임 동작·호스트 호환성도 이 감사기가
 증명하지 않는다. 세 readiness 플래그는 계속 false다.
 
