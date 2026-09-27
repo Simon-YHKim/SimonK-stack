@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 21:57:15 KST
+updated: 2026-09-27 22:05:53 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 22:05:53 KST] src: user-direct — `/vibe` 직접 CLI 실연동을 검토 중. 현 planner는 cli를 후보로 선택하지만 전용 guarded adapter는 없고 Store.claim은 협력 코디네이터만 중복 방지한다. 현지 CLI --help는 Claude/Codex/AGY/Grok 플래그를 보여주지만 네 표면 공통의 durable job lookup/idempotency 증거는 없다. 직접 CLI 프로세스 수명주기는 PROTOCOL §35.1 설계·저신뢰 고영향이므로 Claude에게 ai-debate/D-code 요청 `20260927-220553-to-claude-vibe-direct-cli-debate.md` 제출. 모델 실호출·추가 과금·운영 설치 없음. D-code 전에는 새 실행 경로를 적용하지 않고 기존 문서 드리프트를 안전하게 정리한다.
 
 [2026-09-27 / 21:57:15 KST] src: user-direct — `/vibe` 나머지 레거시 CLI 3종의 평문 Python import가 receipt 밖 `.pyc`를 만드는 것을 격리 테스트 RED 3건으로 재현 후 차단, GREEN 확인. 소스 v2.11.15, 기능 브랜치 `e5831d5` origin push/clean. 소스 테스트 369+selftest180, 저장소 skill validator 0/0, eval dry-run20 통과. 새 v14 source digest `93df1319...2bd20d`(137/407), bundle digest `d5f9a10b...47e4`(5/182/729), 패키지 테스트 500 후 digest 불변. 별도 Codex 프로필 5 enabled/729 SHA 일치·미로그인; Claude/Codex v14 preview `-CheckOnly` 통과. 모델/Bot/Orca 호출0·실사용 설치/main/결제/인증 변경 없음. readiness3=false. `skill-creator` 기본 quick_validate는 기존 version/author frontmatter를 허용하지 않아 저장소 validator를 정본으로 사용. 상세 `20260927-215715-to-claude-vibe-v14-cli-closure.md`.
 
