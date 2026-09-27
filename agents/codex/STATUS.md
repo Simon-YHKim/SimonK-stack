@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 19:53:23 KST
+updated: 2026-09-27 20:25:26 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 20:25:26 KST] src: user-direct — v9 자연어 GUI 선택 반례의 단일 스킬 수정 완료: SimonK-stack `feat/skill-context-budget-260925`의 `vibe-bot` 0.9.2 설명을 명시 Bot 요청 또는 `/vibe`가 확인한 GUI-only 단계로 좁히고 회귀 eval/CHANGELOG를 추가, `13e41ed` origin push. strict YAML, 대상 validator 0오류/0경고, bot93+adapter27+bus11, release38+bundle43, eval 형식 통과. 새 v10 소스 137/407 digest `ba674701...`, 안전 후보 5/182/729 digest `52774f01...` 검증, v9 대비 payload 변경 12파일(스킬2·메타10). 원본 Core의 무시된 의미검색 캐시 11개는 보존하고 LF 고정 로컬 복제본으로 빌드. 별도 Codex v10 프로필 729파일 해시 일치·미로그인, Claude/Codex v10 체험기 CheckOnly 통과·API 키 가드 거부. v10 자연어 실선택은 재측정하지 않았고 readiness3=false·설치/main 머지·Bot/Orca 발송 없음. 상세 `20260927-202526-to-claude-vibe-v10-routing.md`, HTML `E:/Coding Infra/reports/2026-09-27-vibe-v10-routing-candidate.html`.
 
 [2026-09-27 / 19:53:23 KST] src: user-direct — Claude Max `claude.ai`/Sonnet low 구독 1회 자연어 선택 평가(5 plugin v9, `--tools Skill`, max-turns3, 세션 미저장). Play Console GUI 요청에서 실제 Skill tool 호출은 없었고 모델 텍스트는 `vibe-bot` 선택; 기대 메인 `vibe`와 불일치. 화면·Bot·파일 작업 0. JSON `total_cost_usd=2.839178`은 표기됐으나 실제 청구 내역은 미조회; Anthropic 현행 안내는 `claude -p` 구독 사용량 차감(06-15 분리안 중단)을 명시하며 API 키 환경변수는 없고 사용자는 extra usage off 확인. 추가 모델 호출 중단, v9 readiness false 유지. 보고서와 Claude FYI 업데이트; 원인 분석은 설명 간 우선순위 충돌 가능성이고 단일 표본 이상으로 일반화하지 않음.
 
