@@ -115,17 +115,26 @@ ECC `research-first` 스킬의 핵심 추출. 플래닝 전에 외부 리서치�
 
 ### 8. Wiki에 file back (영속 누적)
 
-`llm-wiki-builder` 가 설치돼 있으면 리서치 결과를 wiki에 자동 누적:
+SimonKWiki v2에서는 설치된 `wiki-ingest`를 우선한다. 리서치 문서를
+영속 자료로 남길 의사가 확인되면 대상 vault의 `raw/`에 보존할 원본을
+확인한다. 이미 있는 원본은 그대로 사용하고, 새 복사가 필요하면 그
+범위를 확인한 뒤 별도 준비 단계로만 추가한다. 이어 `wiki-ingest`의
+Phase 1로 전달하며, 사용자의 성찰 답변 전에는 wiki 편집을 시작하지 않는다.
+
+구형 `llm-wiki-builder`는 사용자가 그 별도 wiki를 명시적으로 선택하고
+대상 저장소·네트워크/파일 변경 범위를 확인한 경우에만 사용한다. 아래
+`<llm-wiki-builder-dir>`은 호스트에서 확인한 그 스킬의 `SKILL.md` 부모
+절대 경로이며 프로젝트의 `skills-src/`가 아니다.
 
 ```bash
 # 리서치 docs/research/<date>-<topic>.md 가 ingest 대상
-bash skills-src/llm-wiki-builder/scripts/wiki-init.sh   # 첫 사용 시
+bash "<llm-wiki-builder-dir>/scripts/wiki-init.sh"   # 첫 사용 시
 # LLM 이 ingest 워크플로 실행:
 #   - raw/articles/ 에 research doc 복사
 #   - wiki/sources/<date>-<topic>.md 요약 페이지
 #   - 관련 entity/concept 갱신 (예: 경쟁 제품 비교 → entities/<product>.md)
 #   - log.md append
-bash skills-src/llm-wiki-builder/scripts/log-append.sh ingest "<topic> research"
+bash "<llm-wiki-builder-dir>/scripts/log-append.sh" ingest "<topic> research"
 ```
 
 **왜?** 리서치가 한 프로젝트에서 끝나지 않고 영속 자산으로 누적됨. 다음 프로젝트에서
