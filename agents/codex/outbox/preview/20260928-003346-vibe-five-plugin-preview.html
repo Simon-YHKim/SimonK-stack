@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v15 다섯 플러그인 미리보기</title>
+<style>:root{color-scheme:light dark;--a:#176b8a;--t:#202b35;--m:#637382}body{font:16px/1.55 system-ui,sans-serif;max-width:880px;margin:0 auto;padding:24px;color:var(--t)}@media(prefers-color-scheme:dark){:root{--a:#70c8e6;--t:#e7edf2;--m:#aab9c5}}h1{line-height:1.2}small{color:var(--m)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}.card,details{border:1px solid var(--m);border-radius:10px;padding:14px}.card strong{display:block;color:var(--a);font-size:1.3rem}details{margin-top:12px}summary{cursor:pointer;font-weight:600}a{color:var(--a)}code{overflow-wrap:anywhere}</style></head>
+<body><main><small>2026-09-28 00:33:46 KST · SimonK-stack · 후보 v15</small>
+<h1>다섯 플러그인 미리보기 경로 추가</h1>
+<p>구독 전용 미리보기 실행기의 <code>-AllPlugins</code> 옵션과 도구 권한을 수정했다. 실제 Market 스킬 1건은 오류 없이 로드됐지만 후보의 설치 승격은 아직 아니다.</p>
+<section class="grid" aria-label="검증 요약"><div class="card"><strong>5 / 182</strong>후보 플러그인 / 스킬</div><div class="card"><strong>6 / 6</strong>가짜 호스트 회귀 테스트</div><div class="card"><strong>1 / 1</strong>실제 Market Skill 예제 성공</div><div class="card"><strong>변경 없음</strong>사용자 설치 2.11.6·readiness false</div></section>
+<details><summary>실행 안전 경계</summary><p>기본은 CheckOnly로 모델 호출이 없다. <code>-Run -SubscriptionOnlyConfirmed</code>를 명시해야 구독 사용량을 소비한다. Claude child process에만 MCP 억제를 설정하고, 모델 가시 도구는 Skill만 남기며 미승인 권한 프롬프트를 거부한다. 플러그인 훅이나 호스트 시작의 OS 격리는 아니다. 결제·자동충전 설정은 바꾸지 않았다.</p></details>
+<details><summary>검증과 잔여</summary><p>source 커밋 <code>ddc67e4</code> origin 기능 브랜치 push/clean. PowerShell AST 오류 0, 실제 후보 CheckOnly 5/182·모델 호출 없음, bundle digest 재검증. 단발 Claude Max 호출에서 Skill 1건/결과 1건/최종 오류 없음. 전체 자동 선택·핵심 훅·사용자 프로필 설치/롤백 및 실제 청구액은 미검증. §35 직접 CLI 결정과 release 승격 계약이 남아 있다.</p></details>
+<p><a href="../../../../../../Harrness%20Eng/SimonK-stack-skill-budget-260925/docs/INSTALL.md">상세 설치·검증 기록</a></p></main></body></html>

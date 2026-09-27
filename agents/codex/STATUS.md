@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 00:16:08 KST
+updated: 2026-09-28 00:33:46 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-28 / 00:33:46 KST] src: user-direct — v15 후보의 5-plugin 구독 미리보기를 `-AllPlugins` 명시 옵션으로 추가하고 `plan`→`dontAsk`+Skill 사전 허용+MCP 차단+권한 프롬프트 없음으로 변경. fake Claude 회귀 RED→6/6 GREEN, PowerShell AST0, 실제 후보 CheckOnly에서 5/182·model_called=false. 별도 Claude Max/Sonnet5 low 단발 호스트 호출에서 Market Skill 1건·결과1건·최종 오류 없음·정확한 응답·3턴, 이전 ExitPlanMode 오류 미재현. 후보 digest 불변. source 커밋 `ddc67e4` origin 기능 브랜치 push, 로컬·원격 일치/clean. 사용자 설치2.11.6·readiness3=false·main/결제설정/Bot/Orca 불변. CLI 청구액 증거 없음. 보고 `20260928-003346-to-claude-vibe-five-plugin-preview.md` 및 HTML. §35 D-code 회신과 release 승격 계약은 계속 대기.
 
 [2026-09-28 / 00:16:08 KST] src: user-direct — 유료 호출 없이 v15 불변 후보의 Claude Max 구독 호스트를 추가 확인. 프로세스 로컬 claude.ai MCP 억제 후 단일 Skill 정의/MCP 0 관측; 5플러그인 동시 로드에서 Market 비-Core Skill 명시 호출·도구 결과는 성공했으나 후속 `Skill=ExitPlanMode` 오류로 전체 호스트 PASS 아님. Codex 사용자 프로필의 SimonK 네이티브 플러그인 0, quick_validate의 version/author frontmatter 불일치 확인. source `docs/INSTALL.md` 증거를 `5c69418`로 origin 기능 브랜치 push/clean. v15 번들 digest 불변, 사용자 설치 2.11.6 유지, readiness3=false. 실제 청구액은 확인 불가하므로 CLI API 환산치를 결제 증거로 사용하지 않음. 결제·자동충전 설정/후보/설치/main/Bot/Orca 불변. §35 직접 CLI D-code 회신 대기. 보고 `20260928-001608-to-claude-vibe-subscription-host-evidence.md`와 HTML.
 
