@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 19:22:29 KST
+updated: 2026-09-27 19:40:19 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 19:40:19 KST] src: user-direct — `/vibe` v9 후보를 운영 설치하지 않고 Claude 세션 한정 체험 실행기와 별도 Codex 검사 홈 체험 실행기로 노출. 두 `-CheckOnly` 무모델 실행, PowerShell 구문 0오류; Codex 별도 프로필 5개 플러그인 enabled, 후보↔캐시 729파일 SHA-256 일치(누락·변경·추가 0), 로그인 상태 `Not logged in`. Codex 체험기는 미로그인 일반 실행을 exit 1로 거부하도록 수정·검증. 소스 README의 비대표 자연어 선택 평가 해석 정정 `438621f` origin push. 실제 사용자 설치 2.11.6 유지, credentials 복사·모델 실호출·추가 과금·Bot/Orca 전송·main 머지 없음. 상세 `20260927-194019-to-claude-vibe-v9-preview.md`.
 
 [2026-09-27 / 19:22:29 KST] src: user-direct — v9 Stack `freeze` 격리 Claude Code 2.1.283 Skill/Write 실측: 상태 없는 세션 Write fail-closed, 별도 세션에서 진단 폴더의 active `allow/` 경계 설정 후 바깥 Write 차단·파일 없음/안쪽 Write 성공·정확한 INSIDE 내용. 상태 파일 1개는 지정 진단 루트에만 저장, 실제 사용자 safety state 불변. `docs/INSTALL.md` `a80c15c` origin push, HTML 갱신. Core careful Bash·Core vibe Skill 실측과 별개이며 Edit/unfreeze/타 호스트/운영 설치 증거는 아님. readiness3=false, D-code 미완료. 상세 `20260927-192229-to-claude-vibe-freeze-host-proof.md`.
 
