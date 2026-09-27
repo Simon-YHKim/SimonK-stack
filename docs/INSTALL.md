@@ -1546,6 +1546,19 @@ v18 Claude 빈 프로필 리허설(2026-09-28): 새 전용
 로컬 설치·복사·활성·철회** 증거이며 기존 사용자 프로필의 무손실 롤백,
 Gstack 런타임, 모델 선택 또는 구독 청구 안전성의 증거가 아니다.
 
+v18 Codex 격리 게스트 리허설(2026-09-28): 네트워크·클립보드·vGPU를
+차단한 새 Windows Sandbox 사용자 프로필에서 Codex CLI 0.155.0 실행
+파일과 `codex-overlay-v18`만 읽기 전용으로 매핑했다. 게스트 인증정보는
+없었다. 로컬 marketplace 5개 등록, 플러그인 5개 설치·활성 뒤 캐시
+737파일의 상대 경로·크기·SHA-256이 오버레이 영수증과 전부 일치했다.
+시험 게스트에서 플러그인과 marketplace를 모두 철회하자 해당 목록과
+캐시 파일이 각각 0개였고, 게스트 세션은 종료했다. 오버레이 digest도
+전후 재검증했다. 원시 결과와 실행 스크립트는
+`E:/Coding Infra/Releases/SimonK-stack/20260928-v18-codex-sandbox-probe/`에
+있다. 이는 **새 게스트의 로컬 설치·바이트 복사·철회** 증거이며 기존
+사용자 Codex 프로필 롤백, 실제 스킬 실행·훅, Gstack 런타임 또는
+구독 청구 안전성의 증거가 아니다.
+
 후보 manifest의 `runtime_closure_verified`, `host_compatibility_verified`,
 `installation_ready`는 모두 `false`다. 실제 모델 선택·안전 훅·Bot/Orca
 연결·전체 182스킬 동작, 구독 청구 안전성, 사용자 홈 롤백은 이 빌드가
