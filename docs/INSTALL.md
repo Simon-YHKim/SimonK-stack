@@ -1513,6 +1513,23 @@ v18 후보 digest `2f49c092d816802863b41ad6c194f066d5ae1bfbca30bd522d68c2fac8295
 이 PC에서 Visual Studio 2022 MSVC/SDK가 없어 종료 1이었다. 도구 설치는
 시도하지 않았다.
 
+별도 Windows Sandbox helper 시험
+`E:/Coding Infra/Releases/SimonK-stack/20260928-gstack-helper-sandbox/`에서는
+네트워크·클립보드·vGPU를 끄고 고정 원본 `01593aa`·Git·Bun 1.3.11을
+읽기 전용으로 매핑했다. 첫 게스트의 직접 helper 9종 호출은 8/9 종료 0:
+`gstack-learnings-log`만 Bun의 읽기 전용 매핑
+`lib/jsonl-store.ts` import에서 `EPERM`으로 실패했다. 두 번째 게스트는
+원본 `bin`·`lib`·`VERSION`을 게스트 내부로 복사하고 해당 TS 파일의
+SHA-256 동일성을 확인했다. 읽기 전용 경로의 직접 Bun import는 다시
+종료 1/`EPERM`이었지만 로컬 복사 import와 helper 9/9는 종료 0이었다.
+전후 활성 네트워크 어댑터는 0개였고 `update_check=false`,
+`telemetry=off`, `artifacts_sync_mode=off`에서 telemetry usage JSONL·
+brain queue는 없었다. 새 게스트 repo의 `CLAUDE.md`와 게스트 Gstack
+상태 파일만 생성됐고, 두 게스트는 결과 수집 뒤 종료했다. 상세 증거는
+`gstack-helper-sandbox-report.html` 및 같은 폴더의 `output/`에 있다.
+이는 Sandbox 읽기 전용 매핑·Bun 조합의 문제를 분리한 제한 시험이지,
+실제 플러그인 캐시나 182스킬·Windows CSO 런타임의 동작 증거가 아니다.
+
 후보 manifest의 `runtime_closure_verified`, `host_compatibility_verified`,
 `installation_ready`는 모두 `false`다. 실제 모델 선택·안전 훅·Bot/Orca
 연결·전체 182스킬 동작, 구독 청구 안전성, 사용자 홈 롤백은 이 빌드가
