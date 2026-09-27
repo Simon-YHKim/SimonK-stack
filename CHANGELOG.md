@@ -5,6 +5,9 @@
 
 ## [Unreleased]
 
+### Changed
+- **`/vibe` 2.11.16 progressive disclosure** — moved the generated historical Orca lane table into a directly linked reference and retargeted its drift checker. Normal skill loading omits the legacy table; the generator, safety guards and frontier runtime routing are unchanged. This does not reduce the initial five-plugin description footprint or prove model/host behavior.
+
 ### Fixed
 - **`/vibe` 2.11.14–2.11.15 immutable-bundle CLI safety** — plain Python entrypoints now disable bytecode before their first local import; the six legacy/user CLIs have isolated subprocess regressions. Parent `-B` does not cover child Python, so bundle tests also set `PYTHONDONTWRITEBYTECODE=1` and reverify the receipt. v14 source and five-plugin candidate passed offline tests without digest drift. This does not verify actual host routing, subscription billing, live dispatch or installation readiness.
 - **`vibe-bot` 0.9.3 natural GUI over-trigger** — a bounded v10 Claude Max skill-name probe still selected `vibe-bot` for a fresh Play Console request without loading `Skill`. The adapter description now contains only explicit Bot requests or a verified internal `/vibe` handoff; the regression case uses the observed prompt. This changes discovery metadata only and needs a fresh host-selection measurement; no Bot work was dispatched.
