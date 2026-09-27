@@ -1024,6 +1024,19 @@ digest는 재검증됐다. 이 추가 시험의 임시 파일 3개와 디렉터�
 0개였다. Codex 쪽 실제 훅 계약·신뢰 절차·격리 호스트 동작을 확인하기
 전에는 Claude의 통과를 Codex 설치 준비 완료로 승격하지 않는다.
 
+추가로 [Codex 공식 훅 계약](https://learn.chatgpt.com/docs/hooks)은
+`PreToolUse`의 `permissionDecision: "ask"`를 **미지원**으로 명시한다.
+Codex는 이 값을 훅 실패로 보고하고 원래 도구 호출을 계속할 수 있으므로,
+Claude `careful`/`guard`의 승인 요청을 Codex에 그대로 연결하면 안전 정책이
+동등해지지 않는다. Codex의 `apply_patch`는 `Edit`/`Write` matcher에 걸릴 수
+있지만 실제 입력은 `tool_input.command`이며, 현재 freeze 런타임의
+`tool_input.file_path` 전제와 다르다. 이는 공식 계약과 후보 코드의 **정적
+불일치**로, 아직 Codex 호스트에서 위험 명령이나 패치 차단을 실측한 결과가
+아니다. Codex 승격에는 네이티브 훅 등록·사용자 신뢰 외에도 지원되는
+`deny`/실패 처리, 명령 및 패치 경계 안·밖의 허용/차단, 롤백을 각각
+확인해야 한다. 훅은 일부 특수 도구에 적용되지 않을 수 있어 완전한 보안
+경계로 간주하지 않는다.
+
 ### Codex 호환 오버레이 v2 (2026-09-28, 설치 전 후보)
 
 `scripts/codex_overlay.py`는 고정된 v15 5-플러그인 후보를 **읽기 전용**으로
