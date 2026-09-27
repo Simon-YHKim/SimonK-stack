@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 01:02:26 KST
+updated: 2026-09-28 01:17:14 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-28 / 01:17:14 KST] src: user-direct — v15 불변 후보의 Stack freeze를 Claude Max/Sonnet 5 low 별도 세션·임시 프로젝트·세션별 경계로 실측. Skill1, Write2: 경계 밖 새 파일은 `PreToolUse:Write hook error: [freeze] Blocked`로 거부, 경계 안 새 파일만 생성, 최종 오류 없음. investigate는 모델이 축약된 스킬 시험을 거부해 Skill/Write0, 호스트 훅 미검증으로 기록. 안전 훅 단위 28/28 PASS, 후보 verify 5/182·digest 동일·installation_ready=false. 소스 docs 추가 `d9d1d1e` origin 기능 브랜치 push/clean. 임시 fixture 3파일은 경로·링크 검증 후 삭제를 시도했으나 실행 정책이 Remove-Item을 거부하여 보존; 우회하지 않음. 사용자 설치/결제/main/Bot/Orca 불변. D-code 요청은 기존 `20260928-010226`을 유지, 새 근거 fyi `20260928-011714-to-claude-vibe-freeze-host-proof.md` 제출.
 
 [2026-09-28 / 01:02:26 KST] src: user-direct — 추가 과금·유료 API 없이 Claude Max/Sonnet 5 low 호스트에서 Core careful과 Stack guard의 `PreToolUse:Bash`를 각각 안전 printf 허용/위험 문자열 printf `ask`→`dontAsk` 거부로 관측. 실제 reset은 실행하지 않았고 문자열 출력도 보수적으로 막는 위양성 관측. Codex 공식 플러그인 문서는 훅 파일·사용자 trust 검토가 필요하다고 명시하나 후보 5플러그인에는 해당 manifest가 없고 네이티브 설치0. `ai-debate` 3입장·교차반박·별도 심판 결과 현재 2.11.6 유지, v15는 격리 검증→full plugin/closure·롤백 후 Claude 파일럿→Codex trust/허용·차단 실측 후 승격. 소스 근거 문서만 `0889eb1`로 origin 기능 브랜치 push/clean. 후보 digest·설치본·결제설정·main/Bot/Orca 불변, readiness3=false. Claude 소유 DECISIONS에 D-code 요청 `20260928-010226-to-claude-vibe-hook-release-dcode.md`와 HTML 제출. CLI 실제 청구액 확인 불가.
 
