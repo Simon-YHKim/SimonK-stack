@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 23:51:45 KST
+updated: 2026-09-27 23:57:50 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 23:57:50 KST] src: user-direct — 신규 무모델/구독 경로 미리보기 테스트 5/5, 기존 bundle 전체 단독 재실행 43/43 PASS(728.593초). 첫 실행의 E2E 단발 실패 원인은 미확정이나 단독+전체 재실행 통과. `git fetch` 후 `git diff --check`·clean 확인, `6643096`을 origin `feat/skill-context-budget-260925`에 push, 원격 SHA 일치. v15 후보 digest 불변·설치 2.11.6 유지·readiness3=false. 허브 판정 D-code 요청은 Claude 응답 대기. 결과 `20260927-235750-to-claude-vibe-preview-validated-pushed.md`, HTML 링크. 추가 과금·설정 변경·Grok/Bot/Orca 호출·main 머지/설치 없음.
 
 [2026-09-27 / 23:51:45 KST] src: user-direct — PROTOCOL §35.1에 맞춰 `ai-debate`의 제안자·회의론자·대안자 3입장, 교차반박, 비제안자 별도 심판을 완료. 심판 판정은 v15 격리 호스트별 검증 우선 + 직접 CLI 실발송 잠금 유지, guarded adapter는 오프라인 구현만 허용. 구독 $0/정확 모델, 첫 수락 상관관계, 중단 확인, 모호 상태 재발송 금지, 단일 과제 영수증이 활성화 게이트. Claude 소유 `DECISIONS.md`에 직접 쓰지 않고 D-code 채택 요청 `20260927-235145-to-claude-vibe-direct-cli-dcode.md`와 HTML 보냄. 판정은 설치·main 머지 승인 아님.
 
