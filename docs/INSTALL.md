@@ -725,6 +725,33 @@ Edit 매처, unfreeze/세션 종료 정리, 다른 호스트나 사용자 설치
 테스트 파일들의 완료 상태가 갱신됐다. 실제 CLI 실발송, 전체 호스트
 수명주기, 사용자 설치·과금 청구 검증으로 확대 해석하지 않는다.
 
+## 2026-09-27 frontier 메타데이터와 구독 평가 경계
+
+공식 [OpenAI 모델 안내](https://developers.openai.com/api/docs/models),
+[Anthropic 모델 비교](https://platform.claude.com/docs/en/models/overview),
+[xAI 모델 안내](https://docs.x.ai/developers/models) 및
+[Google Antigravity CLI 안내](https://codelabs.developers.google.com/antigravity-cli-hands-on)를
+현재 로컬 목록과 대조했다. GPT-6 Astra/Sol/Luna, Claude Opus 5.5/Fable 5.1/Sonnet 5,
+Grok 4.7, Gemini 3.8 Flash는 이미 `model-registry.json`에 있다. 새 API 모델 ID를
+발견했다는 이유만으로 구독 포함 실행 레인으로 승격하지 않는다.
+
+v11 후보의 `runtime_collect.py`를 네 표면에 읽기 전용으로 실행해 종료코드 0을
+확인했다. 반환된 Codex 후보 7개는 모두 `available=false`,
+`billing.verified=false`다. 로컬 `grok models`는 `grok-4.7`을 기본·사용 가능
+목록에 표시하지만, ACP billing의 주간 사용량은 89%, on-demand cap/잔액은 0이고
+account/billing/model 포함 증거는 미확인이다. `agy models`는 Gemini 3.8 Flash
+High/Medium/Low를 표시한다. 이 메타데이터는 생성·과금 방식·호스트 라우팅 성공의
+증거가 아니며, Grok/Gemini 모델 실호출은 하지 않았다.
+
+Claude Max `claude.ai`/firstParty 로그인과 API 키·대체 엔드포인트 환경변수 부재를
+확인한 뒤, 도구 없는 Opus 5.5 단일 응답 평가를 구독 경로에서 시도했다. CLI는
+`modelUsage=claude-opus-5-5`를 표시했으나 `error_max_budget_usd`와 빈 응답을
+반환했다. `--max-budget-usd 0.5`에도 CLI `total_cost_usd=3.711888`이 표시되어
+이 플래그가 호출 전 결제·사용량 하드캡임을 입증하지 못했다. 이 값은 실제 추가
+청구 영수증이 아니며 청구서는 조회하지 않았다. 사용자의 초과 사용·자동충전 OFF
+확인을 유지했고 설정 변경이나 추가 모델 재시도는 하지 않았다. 따라서 Opus 5.5의
+성공 canary, 모델-쿼터 결합, 구독 전용 라우트 활성화는 계속 **미검증**이다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
