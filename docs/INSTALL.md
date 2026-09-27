@@ -1037,6 +1037,16 @@ Claude `careful`/`guard`의 승인 요청을 Codex에 그대로 연결하면 안
 확인해야 한다. 훅은 일부 특수 도구에 적용되지 않을 수 있어 완전한 보안
 경계로 간주하지 않는다.
 
+적용 **범위**도 별도 설계가 필요하다. 공식 문서는 활성 플러그인의
+`hooks/hooks.json`을 플러그인 훅으로 로드하고 matcher에 맞는 도구 호출에
+적용한다고 설명한다. 반면 현재 네 안전 스킬은 Claude `SKILL.md`의
+skill-scoped frontmatter 훅이다. 현 freeze 런타임은 해당 프로젝트·세션의
+상태 파일이 없거나 무효하면 `deny`로 닫는다(오프라인 회귀 재통과).
+이를 Codex의 전역 플러그인 훅으로 **그대로** 등록하면 일반 세션의
+`apply_patch`도 거부할 수 있다는 것은 계약·소스에서 나온 추론이며,
+Codex 호스트 실측은 아니다. 스킬 활성화 신호·세션 상태·미활성 시 동작을
+정하지 않은 채 훅 파일만 추가해서는 안전 동등성이나 사용성을 얻지 못한다.
+
 ### Codex 호환 오버레이 v2 (2026-09-28, 설치 전 후보)
 
 `scripts/codex_overlay.py`는 고정된 v15 5-플러그인 후보를 **읽기 전용**으로
@@ -1074,6 +1084,17 @@ frontmatter 안전 훅 네 개를 Codex 훅으로 옮기지 않았다. 영수증
 `installation_ready`와
 `host_compatibility_verified`는 계속 false이며, 운영 설치 전환의 근거로
 사용하지 않는다. 모델 호출이나 별도 과금은 이 빌드·검증에 필요 없다.
+
+같은 날 별도 미로그인 프로필
+`E:/Coding Infra/Releases/SimonK-stack/20260928-vibe-codex-rollback-probe`에서
+로컬 marketplace 5개 등록 → 플러그인 5개 설치 → `codex plugin remove`
+5회 → `codex plugin marketplace remove` 5회의 **격리 롤백 리허설**을 했다.
+설치 직후 다섯 개 모두 `installed=true`, `enabled=true`였고, 제거 후
+SimonK 설치 목록 0·마켓플레이스 설정 0·캐시 파일 0을 확인했다. 빈 캐시
+상위 디렉터리 5개는 남는다. 기존 v2 검사 프로필의 설치 5개와 후보
+digest는 변경되지 않았다. 이는 빈 테스트 프로필의 신규 설치를 철회한
+증거일 뿐, 기존 사용자 홈의 2.11.6 파일·설정·활성 세션을 보존하며
+되돌리는 운영 롤백 검증은 아니다. 따라서 위 readiness 플래그는 그대로다.
 
 ## One-shot 설치
 
