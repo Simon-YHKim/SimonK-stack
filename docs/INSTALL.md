@@ -608,8 +608,18 @@ false이며 전체 의존성·호스트 정책·설치 준비 완료 주장은 �
 이 PC의 `agy models --output-format json`은 exit 1이며, 인자 없는 `agy models`만
 텍스트 슬러그를 반환했다. 따라서 공식 변경 기록의 JSON 하위 명령 설명을 이
 바이너리의 동작으로 간주하지 않고 모델 목록을 실행 후보에 편입하지 않았다.
-현재 2.11.11 배포 후보는 불변으로 보존한다. 2.11.12 소스·번들은 별도 후보로
-빌드·검증하고 영수증을 기록한다.
+기존 2.11.11 배포 후보는 불변으로 보존했다. 새 소스 패키지는
+`20260927-vibe-helper-closure-candidate/source-v5-agy-1212`, digest
+`b6d95f0008299a3df24aeb16f13454332c9958ab537199772d3b026fc6a2b347`이며
+137 skill/407 file을 재검증했다. v2 안전 번들은 같은 부모의
+`candidate-safety-v5-agy-1212`, digest
+`ed02ba503feb835885a43563657677e272aac44bbfe5e6575d9f8060ae767ecc`다.
+5 plugin/182 skill/729 file byte verify, 정적 경로 143개 미해결 0,
+평가 dry-run·프로젝트 검사 182/182, Claude strict manifest 5/5,
+Claude 세션 한정 로드 5개 enabled를 확인했다. 별도 Codex 진단 홈에서도
+5개 enabled와 후보↔캐시 729파일 SHA-256 일치를 확인했다.
+이 검증은 실제 모델 선택·훅 발화·개별 모델의 구독 포함을 증명하지 않으며
+세 readiness 플래그는 계속 false다.
 
 ## One-shot 설치
 
