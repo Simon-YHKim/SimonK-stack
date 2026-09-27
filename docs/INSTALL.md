@@ -517,9 +517,11 @@ candidate-safety-v2-normalized`의 digest는
 143개 미해결 0, Claude strict manifest 5/5가 통과했다. 평가 dry-run은 실제
 모델 행동 증명이 아니다.
 
-최종 후보를 별도 Codex 홈에 개별 설치한 결과 5개가 enabled이고 스킬·평가
-파일 364개의 캐시 SHA-256이 후보와 일치했다. `/vibe` 명시 루트 inventory도
-182개를 충돌 없이 인식했다. Codex 기본 예산에서 짧은 격리 홈의 전역 중복
+최종 후보를 별도 Codex 홈과 Claude 설정 디렉터리에 개별 설치한 결과 양쪽 모두
+5개 plugin이 enabled이고 각 캐시의 전체 729파일 SHA-256이 후보와 일치했다.
+이 설치는 격리 테스트 프로필에만 적용했고 실제 사용자 홈은 변경하지 않았다.
+`/vibe` 명시 루트 inventory도 182개를 충돌 없이 인식했다. Codex 기본 예산에서
+짧은 격리 홈의 전역 중복
 136개만 선택적으로 비활성화하면 초기 prompt에는 plugin skill 105개(Stack 0개),
 전역 전체 비활성화 시에는 127개가 보였다. [공식 설정 참조](https://learn.chatgpt.com/docs/config-file/config-reference)의
 `skills.max_context_tokens=10000`을 격리 명령 인자로 적용하면 긴 홈·중복
