@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.11.13 - 2026-09-27
+
+- Make Play Console and other GUI requests discover the `/vibe` coordinator
+  even without a slash invocation. Check authorized CLI/API/MCP first and name
+  only the actual `vibe-bot` adapter for GUI-only steps.
+- Add a natural-language GUI routing evaluation and a description regression
+  after a tool-less Claude subscription probe invented a nonexistent specialist.
+  This metadata change is not a measured improvement in live selection accuracy.
+
 ## 2.11.12 - 2026-09-27
 
 - Admit only locally measured Antigravity CLI 1.2.12 for zero-turn, zero-token

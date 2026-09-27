@@ -1,8 +1,8 @@
 ---
 name: vibe
-description: 'Use when asked to "/vibe", "orchestrate this task", "바이브로 알아서 해줘", "오르카로 돌려", or "스킬 조합해서 처리해". Main skill orchestrator: selects skills, software, model/effort and budget; uses vibe-bot only for GUI-only work. Produces verified artifacts and usage reports; unknown cost blocks paid routes.'
+description: 'Use for /vibe, "알아서 진행", "오르카로 돌려", "스킬 조합", skill/model/effort/subscription-cost orchestration, and Play Console/GUI requests. Check CLI/API/MCP first; use vibe-bot only for GUI-only steps. Never invent specialist skills or assume paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.11.12
+version: 2.11.13
 author: simon-stack
 ---
 
@@ -57,6 +57,9 @@ Honor user-named skills, then use descriptions to select the smallest complete
 set. Read each selected SKILL.md and its required references before execution.
 Do not load every skill body. Do not restrict discovery to a hardcoded list or
 a historical skill count. Missing skills are explicit blockers for their step.
+For GUI requests, enter through /vibe even without a slash invocation, check
+CLI/API/MCP first, and name the actual discovered vibe-bot adapter only when
+the step is GUI-only. Never invent a specialist skill name from a console name.
 
 Treat `simonk`, `app-dev-orchestrator` and `dev-orchestrator` as procedures
 owned by the current coordinator. Reuse their planning and verification; never

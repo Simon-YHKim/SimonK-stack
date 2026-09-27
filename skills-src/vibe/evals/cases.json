@@ -1,7 +1,28 @@
 {
   "skill": "vibe",
-  "version": "2.11.12",
+  "version": "2.11.13",
   "cases": [
+    {
+      "id": "gui-natural-language-main-router",
+      "prompt": "Play Console의 현재 심사 상태를 GUI에서 확인해줘. 실행 전 어떤 SimonK 스킬을 써야 해?",
+      "fixtures": [
+        "No CLI/API/MCP route or Bot account and billing evidence has yet been verified. The inventory contains vibe and vibe-bot but no play-console-navigator skill."
+      ],
+      "assertions": [
+        {
+          "id": "main-router-first",
+          "text": "The answer selects /vibe as coordinator without requiring the user to repeat a slash command."
+        },
+        {
+          "id": "no-invented-specialist",
+          "text": "No invented Play Console specialist skill is named. GUI-only work uses the discovered vibe-bot adapter after checking authorized CLI/API/MCP routes."
+        },
+        {
+          "id": "no-unverified-dispatch",
+          "text": "The request stays read-only and no Bot or model job is sent without fresh account, subscription and approval evidence."
+        }
+      ]
+    },
     {
       "id": "ui-feature-full-pipeline",
       "prompt": "/vibe 설정 화면에 알림 토글 섹션 추가해줘",

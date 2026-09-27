@@ -90,6 +90,13 @@ class OrchestrationTests(unittest.TestCase):
         return {"argv_sha256": self.m.digest(argv), "verified": True, "evidence": "Inspected offline command",
                 "observed_at": NOW, "upper_usd_per_attempt": 0}
 
+    def test_gui_request_is_discoverable_from_main_skill_description(self):
+        text = (SCRIPT.parent.parent / "SKILL.md").read_text(encoding="utf-8")
+        description = text.split("description:", 1)[1].splitlines()[0]
+        for keyword in ("Play Console", "CLI/API/MCP", "vibe-bot"):
+            with self.subTest(keyword=keyword):
+                self.assertIn(keyword, description)
+
     def test_subscription_and_effort_are_explicit(self):
         p = self.plan()
         self.assertEqual(p["status"], "ready")
