@@ -677,8 +677,17 @@ Anthropic의 2026-06-15 공식 업데이트는 현재 `claude -p`가 구독 사�
 미해결 0, `/vibe` 단위 213개를 확인했다. 설치·호스트 호환·런타임 closure
 플래그는 모두 false이며 v7 운영 후보를 대체 설치하지 않았다.
 Claude `plugin details`로 v9 Core·Stack을 확인하면 둘 다 `Hooks (0)`이다.
-포함된 `.simonk-runtime` helper는 호스트 PreToolUse 훅 자동 등록이나
-실제 발화를 입증하지 않는다.
+이는 plugin-wide 훅 수이며 SKILL.md frontmatter의 세션 훅 수가 아니다.
+Claude 공식 문서는 스킬 호출 시 frontmatter 훅을 등록한다고 명시한다
+(https://code.claude.com/docs/en/hooks). 따라서 이 숫자로 스킬 훅의
+미등록을 단정할 수 없다. 별도 격리 Claude Max 호스트 테스트에서
+`/simonk-core:careful` 호출 후 무해한 `printf` 문자열에 포함된
+`DROP TABLE demo`가 실제 PreToolUse에서 `SQL DROP detected`로
+가로채졌고, `dontAsk` 세션은 명령을 실행하지 않았다. 같은 명령에 대한
+후보 helper의 오프라인 판정도 `ask`였다. 디버그 로그는 릴리스 부모의
+`diagnostics/hook-skill-probe-260927/`에 있다. 이는 해당 버전·호스트의
+Core `careful` Bash 훅 한 건만 입증하며 Stack `freeze`·`guard`, 훅의
+전체 수명주기, Codex/Antigravity/Grok 또는 운영 설치 호환성은 미검증이다.
 
 ## One-shot 설치
 
