@@ -666,6 +666,15 @@ manifest 5/5, Claude 세션 한정 플러그인 5개 enabled,
 `/스킬` 호출은 `Skill` 도구를 거치지 않고 확장될 수 있으므로,
 도구 호출이 없었다는 사실만으로 스킬 본문 미로딩을 단정하지 않는다
 (https://code.claude.com/docs/en/hooks#userpromptexpansion).
+이와 별도로 v9 Core를 `--plugin-dir`로 로드한 Claude Code 2.1.283
+격리 세션에서 `--restricted --tools Skill --allowedTools Skill`을 지정하고
+`simonk-core:vibe` 로드를 요청했다. JSONL에는 실제 `Skill` 도구 호출
+`{"skill":"simonk-core:vibe"}`와 본문의 첫 제목 두 개를 그대로
+반환한 응답이 기록됐다. 이는 Claude의 **명시적 Skill 도구 로드 한 건**을
+입증하지만 자연어 자동 선택 정확도, 하위 스킬 실행, 모델·effort 선택,
+다른 호스트 또는 운영 설치를 입증하지 않는다. 파일·셸·웹 도구는 허용하지
+않았고 `--no-session-persistence`를 사용했다. CLI `total_cost_usd`는
+추정 사용량 표시이며 추가 청구 영수증으로 해석하지 않는다.
 
 Anthropic의 2026-06-15 공식 업데이트는 현재 `claude -p`가 구독 사용량을
 사용한다고 명시한다(https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan).
