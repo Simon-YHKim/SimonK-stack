@@ -92,13 +92,22 @@ def generated_digest(documents: dict[str, tuple[str, str]]) -> str:
     return release.digest(release.encoded(members))
 
 
-def generated_root_links(documents: dict[str, tuple[str, str]], root: Path) -> dict:
-    """Count literal links to the render folder; these need relocation review."""
-    prefix = root.as_posix().replace("\\", "/").rstrip("/").casefold() + "/"
+def _literal_link_counts(documents: dict[str, tuple[str, str]], prefix: str) -> dict:
     counts = [body.replace("\\", "/").casefold().count(prefix)
               for _, body in documents.values()]
     return {"skills": sum(count > 0 for count in counts),
             "occurrences": sum(counts)}
+
+
+def generated_root_links(documents: dict[str, tuple[str, str]], root: Path) -> dict:
+    """Count literal links to the render folder; these need relocation review."""
+    prefix = root.as_posix().replace("\\", "/").rstrip("/").casefold() + "/"
+    return _literal_link_counts(documents, prefix)
+
+
+def generated_user_home_gstack_links(documents: dict[str, tuple[str, str]]) -> dict:
+    """Count literal links to a separately installed user-home Gstack tree."""
+    return _literal_link_counts(documents, "~/.claude/skills/gstack/")
 
 
 def audit_candidate(package: Path, expected_digest: str, generated_root: Path,
@@ -110,6 +119,8 @@ def audit_candidate(package: Path, expected_digest: str, generated_root: Path,
                  for host in ("claude", "codex")}
     generated_digests = {host: generated_digest(docs) for host, docs in host_docs.items()}
     root_links = {host: generated_root_links(docs, generated_root)
+                  for host, docs in host_docs.items()}
+    home_links = {host: generated_user_home_gstack_links(docs)
                   for host, docs in host_docs.items()}
     if expected_generated_digests is not None:
         if (set(expected_generated_digests) != set(generated_digests)
@@ -155,17 +166,18 @@ def audit_candidate(package: Path, expected_digest: str, generated_root: Path,
                 issues.append({"host": host, **row})
     status = ("no_legacy_gstack_refs" if not entries else
               "migration_review_required" if issues or any(
-                  row["occurrences"] for row in root_links.values())
+                  row["occurrences"] for row in (*root_links.values(), *home_links.values()))
               else "static_mapping_present")
     return {"status": status,
             "bundle_digest": expected_digest, "skills_checked": len(entries),
             "generated_doc_digests": generated_digests,
             "generated_bytes_verified": expected_generated_digests is not None,
             "generated_root_links": root_links,
+            "generated_user_home_gstack_links": home_links,
             "matched": matched, "missing": missing, "over_500_body_lines": over_500,
             "policy_gap_counts": gap_counts, "issues": issues,
             "runtime_closure_verified": False, "host_compatibility_verified": False,
-            "scope": "Literal generated name, body length, render-root links and selected "
+            "scope": "Literal generated name, body length, render-root/user-home links and selected "
                      "legacy headings only; "
                      "no semantic equivalence, generated provenance, runtime or host proof"}
 

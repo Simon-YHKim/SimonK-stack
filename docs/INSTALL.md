@@ -1283,7 +1283,8 @@ SHA-256은 호스트 생성본과 일치했고 모두 종료 0·시작 프로토
 
 `scripts/gstack_migration_audit.py`는 검증된 후보와 별도 생성 폴더를
 읽기 전용으로 대조한다. 파일명 대신 생성 문서 frontmatter의 선언 이름을
-매칭하고, 없어진 로컬 정책 제목·500줄 초과 본문·생성 폴더 절대 링크를 검토 항목으로
+매칭하고, 없어진 로컬 정책 제목·500줄 초과 본문·생성 폴더 절대 링크·
+사용자 홈 Gstack 링크를 검토 항목으로
 보고한다. 비밀이 들어갈 수 있는 명령문이나 본문은 출력하지 않는다.
 
 ```powershell
@@ -1320,6 +1321,12 @@ python -B scripts/gstack_migration_audit.py `
 생성 폴더의 절대 경로를 가리킨다(Codex 0곳). 설치 경로가 달라지면 이
 링크들을 다시 생성·검증해야 한다. 감사기의 `generated_root_links`는
 이 폴더를 가리키는 리터럴만 세며 모든 외부 경로를 포괄하지 않는다.
+또한 Claude 생성 문서 49개에 `~/.claude/skills/gstack/` 리터럴 884곳이
+있다(Codex 0곳). 생성기의 `contentLinkRoot=null`도 상대 링크를
+만드는 대신 같은 사용자 홈 경로를 남긴다. 감사기의
+`generated_user_home_gstack_links`는 이 정확한 접두어만 세며 실제 사용자
+홈을 탐색하지 않는다. 따라서 문서 자체만 플러그인으로 복사해도 Gstack
+런타임·섹션 의존성이 폐쇄된다고 간주할 수 없다.
 
 같은 네트워크 차단 게스트의 별도 실행에서는 첫 `gstack-skill-start` 뒤
 `gstack-skill-end`를 의도적으로 생략하고, 동일한 게스트 상태에서 두 번째

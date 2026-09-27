@@ -60,6 +60,15 @@ class GstackMigrationAuditTests(unittest.TestCase):
         self.assertEqual(audit.generated_root_links(docs, Path("E:/probe")),
                          {"skills": 2, "occurrences": 2})
 
+    def test_generated_user_home_gstack_counter_finds_legacy_links(self):
+        docs = {
+            "qa": ("qa/SKILL.md", "Run ~/.claude/skills/gstack/bin/start\n"),
+            "ship": ("ship/SKILL.md", "Read ~\\.claude\\skills\\gstack\\ship\\SKILL.md\n"),
+            "review": ("review/SKILL.md", "No legacy path\n"),
+        }
+        self.assertEqual(audit.generated_user_home_gstack_links(docs),
+                         {"skills": 2, "occurrences": 2})
+
     def test_compare_pair_reports_missing_policy_and_format_without_claiming_failure(self):
         legacy = ("---\nname: investigate\n---\n"
                   "## Skill routing\n## Candidate session scope commands\n"
@@ -127,6 +136,33 @@ class GstackMigrationAuditTests(unittest.TestCase):
         self.assertEqual(report["generated_root_links"]["claude"],
                          {"skills": 1, "occurrences": 1})
         self.assertEqual(report["generated_root_links"]["codex"],
+                         {"skills": 0, "occurrences": 0})
+        self.assertEqual(report["status"], "migration_review_required")
+
+    def test_legacy_user_home_link_prevents_static_mapping_pass(self):
+        skill = "plugins/SimonKStack/skills/qa/SKILL.md"
+        body = b"---\nname: qa\n---\n~/.claude/skills/gstack/bin/gstack-skill-start\n"
+        receipt = {"files": [{"path": skill, "size": len(body),
+                              "sha256": audit.release.digest(body)}]}
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "source"
+            target = source / skill
+            target.parent.mkdir(parents=True)
+            target.write_bytes(body)
+            generated = root / "generated"
+            (generated / "qa").mkdir(parents=True)
+            (generated / ".agents" / "skills" / "gstack-qa").mkdir(parents=True)
+            (generated / "qa" / "SKILL.md").write_text(
+                "---\nname: qa\n---\nRun ~/.claude/skills/gstack/bin/start\n",
+                encoding="utf-8")
+            (generated / ".agents" / "skills" / "gstack-qa" / "SKILL.md").write_text(
+                "---\nname: qa\n---\nNo legacy path\n", encoding="utf-8")
+            with patch.object(audit.plugin_bundle, "verify_bundle", return_value=receipt):
+                report = audit.audit_candidate(source, "0" * 64, generated)
+        self.assertEqual(report["generated_user_home_gstack_links"]["claude"],
+                         {"skills": 1, "occurrences": 1})
+        self.assertEqual(report["generated_root_links"]["claude"],
                          {"skills": 0, "occurrences": 0})
         self.assertEqual(report["status"], "migration_review_required")
 
