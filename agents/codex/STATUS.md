@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 20:25:26 KST
+updated: 2026-09-27 20:49:50 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 20:49:50 KST] src: user-direct — 추가 유료 호출 없이 Claude Max 구독 경로에서 v10 자연어 Play Console 요청의 `vibe-bot` 오선택을 재현하고, `vibe-bot` 0.9.3 발견 문구를 명시 Bot 요청/검증된 `/vibe` 내부 위임으로 더 좁혔다. SimonK-stack 기능 브랜치 `4ef0cb1` origin push, validator 0오류/0경고, Bot93·adapter27·bus11·release38·bundle43 통과. v11 동일 요청은 `vibe`를 선택했고 후속에서 `Skill(simonk-core:vibe)` 호출 관측, 별도 명시 로드는 제목까지 성공. 새 v11 source digest `92cb7c43...`, 번들 digest `1e5874de...`, 5/182/729 검증. 격리 Codex v11 프로필 729/729 해시 일치·미로그인; Claude/Codex v11 체험기 CheckOnly·더미 API 키 가드 통과. 실제 사용자 설치본 2.11.6·결제설정·main 불변; readiness3=false, 5표면/Relay/Orca E2E와 Claude 소유 D-code 남음. 상세 `20260927-204950-to-claude-vibe-v11-routing.md`, HTML `E:/Coding Infra/reports/2026-09-27-vibe-v11-routing-probe.html`.
 
 [2026-09-27 / 20:25:26 KST] src: user-direct — v9 자연어 GUI 선택 반례의 단일 스킬 수정 완료: SimonK-stack `feat/skill-context-budget-260925`의 `vibe-bot` 0.9.2 설명을 명시 Bot 요청 또는 `/vibe`가 확인한 GUI-only 단계로 좁히고 회귀 eval/CHANGELOG를 추가, `13e41ed` origin push. strict YAML, 대상 validator 0오류/0경고, bot93+adapter27+bus11, release38+bundle43, eval 형식 통과. 새 v10 소스 137/407 digest `ba674701...`, 안전 후보 5/182/729 digest `52774f01...` 검증, v9 대비 payload 변경 12파일(스킬2·메타10). 원본 Core의 무시된 의미검색 캐시 11개는 보존하고 LF 고정 로컬 복제본으로 빌드. 별도 Codex v10 프로필 729파일 해시 일치·미로그인, Claude/Codex v10 체험기 CheckOnly 통과·API 키 가드 거부. v10 자연어 실선택은 재측정하지 않았고 readiness3=false·설치/main 머지·Bot/Orca 발송 없음. 상세 `20260927-202526-to-claude-vibe-v10-routing.md`, HTML `E:/Coding Infra/reports/2026-09-27-vibe-v10-routing-candidate.html`.
 
