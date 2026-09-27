@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 14:59:52 KST
+updated: 2026-09-27 15:22:45 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 15:22:45 KST] src: user-direct — 앞선 `14:59` 후보를 Stack 평가 정규화 후 새 최종 후보로 교체: `candidate-safety-v2-normalized`, digest `55770a53…e7aa3d9c`, 5 plugin/182 skill/729 file. 182/182 eval dry-run, 정적 경로143 미해결0, Claude strict 5/5, Codex 격리 홈 5 plugin enabled·스킬/평가364 해시 일치·/vibe inventory182 충돌0. Codex 초기 prompt는 선택적 전역 중복136개 비활성화한 짧은 격리 홈에서도 후보105개만 표시(Stack0); 전역 전체 비활성화 시127개. 실제 사용자 홈·설치본 변경 없음, 운영 설치/merge 보류, readiness3=false. Stack `dde60fb`, SimonK-stack `bdfc24b`까지 origin push 완료. HTML `E:\Coding Infra\reports\2026-09-27-vibe-skill-closure-status.html`; Claude D-code 요청 계속 open. 상세 outbox `20260927-152245-to-claude-vibe-host-limits.md`.
 
 [2026-09-27 / 14:59:52 KST] src: user-direct — 추가 과금 $0 유지. Core/AIHub/Design/Market/Stack 원본 기능 브랜치와 SimonK-stack `feat/skill-context-budget-260925`를 검증 후 origin에 비강제 push 완료(Core `6527e81`, AIHub `e37f07b`, 소스 `34aba87`). 새 격리 후보 `20260927-vibe-helper-closure-candidate/candidate-safety-v2-final` digest `4444a7cd…f97b34a`, 5 plugin/182 skill/720 file byte verify PASS, 정적 경로143개 미해결0, Claude manifest strict 5/5 PASS. Core quality57/57, AIHub7/7, Design19/19, Market32/32, Stack manifest58 PASS; 소스 배포·경로·릴리스 테스트91, /vibe211, 나머지 소스 테스트156, /vibe-bot38 PASS. Stack 원본은 eval 케이스 체계 부재. readiness3=false, 설치·main merge·모델/Bot/Orca 실호출·credential/DB/결제 설정 변경 없음. §35 D-code 및 호스트 선택 충돌 검증 대기. 상세 outbox `20260927-145952-to-claude-vibe-closure-candidate.md`.
 
