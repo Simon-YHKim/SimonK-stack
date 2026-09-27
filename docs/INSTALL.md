@@ -496,6 +496,19 @@ receipt의 `safety_projection.originals`는 변환/복제 입력 10개의 원본
 python -B scripts/plugin_bundle.py build --source-package E:/staging/release-a --source-digest <digest> --plugin-parent E:/reviewed/SimonK-Plugins --inputs distribution/plugin-inputs.v1.json --output E:/staging/plugins-safety-candidate-a --safety-adapter
 ```
 
+### 2026-09-27 인증·갱신 계약 보정
+
+현재 입력 핀은 AIHub의 RAG gate 경로 수정 `e37f07bf`와 Core의 독립 실행
+안전 계약 `6527e816`을 포함한다. `gcloud-helper`와 `keepass-helper`는 상태
+진단만 제공하며 인증·금고 열기·시크릿 주입을 실행하지 않는다. `stack-update`는
+저장소별 안전한 fast-forward만 다루고 vendor helper 호출이나 프로필 강제
+재설치를 포함하지 않는다. `web-publisher`는 기존 인증 세션이나 사전에 준비된
+환경변수만 사용한다. 이 변경은 기존 설치본을 자동으로 바꾸지 않는다.
+
+원본 Core와 소스 오버레이는 별도 저장소이므로 두 커밋을 함께 고정한 새 격리
+후보를 빌드·검증해야 한다. 품질 게이트의 eval dry-run은 케이스 구문 검사이며,
+실제 모델 행동·호스트 설치 검증 또는 운영 적용 승인으로 간주하지 않는다.
+
 Hook는 `python` + `args`의 exec-form을 사용합니다. 정상 설치된 실제 Python
 실행 파일이 PATH에 있어야 하며, native host가 이를 기동하는지는 별도 확인입니다.
 adapter는 검토한 Git Bash만 사용합니다. `SIMONK_SAFETY_BASH`로 지정할 수 있고,
