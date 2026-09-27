@@ -58,6 +58,8 @@ class CandidatePathAuditTests(unittest.TestCase):
         self.assertEqual(report["status"], "incomplete")
         self.assertEqual(report["unportable_commands"], [
             {"skill": skill, "line": 1, "reason": "source_checkout_command"}])
+        self.assertEqual(report["external_runtime_counts"], {
+            "skill_documents": 0, "literal_references": 0, "distinct_targets": 0})
 
     def test_gstack_runtime_hint_is_reported_once_without_exposing_commands(self):
         skill = "plugins/SimonKStack/skills/qa/SKILL.md"
@@ -80,7 +82,27 @@ class CandidatePathAuditTests(unittest.TestCase):
         self.assertEqual(report["status"], "external_runtime_pending")
         self.assertEqual(report["external_runtime_hints"], [
             {"skill": skill, "reason": "gstack_bin_reference"}])
+        self.assertEqual(report["external_runtime_counts"], {
+            "skill_documents": 1, "literal_references": 1, "distinct_targets": 1})
         self.assertFalse(report["runtime_closure_verified"])
+
+    def test_external_runtime_counts_repeat_refs_without_exposing_target_names(self):
+        skill = "plugins/SimonKStack/skills/qa/SKILL.md"
+        body = (b"~/.claude/skills/gstack/bin/gstack-config get telemetry\n"
+                b".claude/skills/gstack/bin/gstack-config get update_check\n"
+                b"~/.claude/skills/gstack/bin/gstack-slug\n"
+                b"~/.claude/skills/gstack/bin/gstack-secretmarker12345\n")
+        receipt = {"files": [{"path": skill, "size": len(body),
+                              "sha256": audit.release.digest(body)}]}
+        with patch.object(audit.release, "no_links", side_effect=lambda path: path), \
+             patch.object(audit.plugin_bundle, "verify_bundle", return_value=receipt), \
+             patch.object(audit.release, "safe_member", side_effect=lambda root, path: root / path), \
+             patch.object(audit.release, "read_file", return_value=body):
+            report = audit.audit_candidate(Path("fixture"), "0" * 64)
+        self.assertEqual(report["external_runtime_counts"], {
+            "skill_documents": 1, "literal_references": 4, "distinct_targets": 3})
+        self.assertEqual(report["status"], "external_runtime_pending")
+        self.assertNotIn("secretmarker12345", repr(report))
 
     def test_external_runtime_hint_prevents_success_exit(self):
         with patch.object(audit, "audit_candidate", return_value={

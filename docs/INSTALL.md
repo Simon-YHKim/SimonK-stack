@@ -1484,7 +1484,10 @@ Gstack 경고 31개는 서로 다른 실행 파일 31개가 아니라, `SKILL.md
 `gstack-update-check`(62), `gstack-timeline-log`(33),
 `gstack-learnings-search`(30), `gstack-repo-mode`(30),
 `gstack-team-init`(30), `gstack-learnings-log`(3)의 9개 Bash helper로
-모인다. 고정 업스트림 `01593aa`는 9개를 모두 추적하고 실행 비트
+모인다. `candidate_path_audit.py`의 `external_runtime_counts`도 v18의
+문서 31·문자열 646·고유 대상 9를 반환하지만 종료 1/보류 상태는 유지한다.
+이 결과에는 대상 이름이나 명령 본문이 출력되지 않는다. 고정 업스트림
+`01593aa`는 9개를 모두 추적하고 실행 비트
 `100755`를 기록하며 Git Bash 구문 검사도 9/9 통과했다. 이는 **직접 참조
 분류**일 뿐 전이 실행 의존성의 폐쇄나 설치 적합성 검증이 아니다.
 `gstack-update-check`의 네트워크 접근, telemetry의 로컬 기록·동기화,
@@ -1492,6 +1495,10 @@ config/team helper의 상태 변경 가능성을 별도 감사해야 한다. 기
 preamble과 새 호스트별 생성 문서의 차이, Windows CSO launcher 부재도
 남아 있으므로 9개 스크립트를 후보에 단순 복사하거나 이 검사만으로
 준비 상태를 올리지 않는다.
+고정 업스트림의 정적 전이 예로 telemetry-log→telemetry-sync,
+timeline-log/learnings-log→brain-enqueue, update-check→egress-lib 및
+조건부 `supabase/config.sh`, 여러 JSON 처리 경로→Bun이 있다. 이 목록은
+전이 의존성 전수 조사나 네트워크·상태 격리의 증명이 아니다.
 
 후보 manifest의 `runtime_closure_verified`, `host_compatibility_verified`,
 `installation_ready`는 모두 `false`다. 실제 모델 선택·안전 훅·Bot/Orca

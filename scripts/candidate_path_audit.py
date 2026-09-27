@@ -102,6 +102,8 @@ def audit_candidate(root: Path, expected_digest: str) -> dict:
     rows = []
     unportable_commands = []
     external_runtime_hints = []
+    external_runtime_ref_count = 0
+    external_runtime_targets: set[str] = set()
     checked = 0
     for path in sorted(available):
         if not re.fullmatch(r"plugins/[^/]+/skills/[^/]+/SKILL\.md", path):
@@ -115,6 +117,10 @@ def audit_candidate(root: Path, expected_digest: str) -> dict:
             rows.append({"skill": path, **row})
         unportable_commands.extend(inspect_unportable_commands(path, text))
         external_runtime_hints.extend(inspect_external_runtime_hints(path, text))
+        for match in GSTACK_BIN_REF.finditer(text):
+            external_runtime_ref_count += 1
+            # Keep names internal: an untrusted filename must not enter JSON.
+            external_runtime_targets.add(match.group(0).rsplit("/", 1)[-1])
     unresolved = [row for row in rows if row["status"] != "present"]
     status = ("incomplete" if unresolved or unportable_commands else
               "external_runtime_pending" if external_runtime_hints else "static_paths_present")
@@ -123,9 +129,13 @@ def audit_candidate(root: Path, expected_digest: str) -> dict:
             "static_refs_checked": len(rows), "unresolved": unresolved,
             "unportable_commands": unportable_commands,
             "external_runtime_hints": external_runtime_hints,
+            "external_runtime_counts": {
+                "skill_documents": len(external_runtime_hints),
+                "literal_references": external_runtime_ref_count,
+                "distinct_targets": len(external_runtime_targets)},
             "runtime_closure_verified": False,
             "scope": "literal ASCII backtick paths and source/project-relative skill command locations; "
-                     "literal Gstack bin references are external-runtime hints; "
+                     "literal Gstack bin counts are lexical external-runtime hints, not calls; "
                      "findings need manual review; no execution, imports or services"}
 
 
