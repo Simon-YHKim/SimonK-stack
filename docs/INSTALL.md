@@ -900,6 +900,53 @@ Core-inline 한 개, Sonnet 5 `low`, plan mode, `Skill` 도구만 사용한다.
 `CheckOnly` 1건 및 가짜 API 키 차단 1건을 통과했다. 가짜 키가 있을 때 `-Run`은 모델 시작 전
 `NON_SUBSCRIPTION_CREDENTIAL_PRESENT`로 차단됐다.
 
+### v15 커넥터 억제와 비-Core Skill 호스트 관측 (2026-09-28)
+
+같은 v15 후보를 변경하지 않고 Claude Max 구독 경로에서 Sonnet 5 `low`의
+추가 읽기 전용 테스트 2건을 수행했다. 사용자 확인대로 초과 사용·자동충전은
+꺼진 상태이며 API 키·대체 제공자 환경변수는 없었다. 두 테스트 모두
+`ENABLE_CLAUDEAI_MCP_SERVERS=false`를 해당 자식 프로세스에서만 적용했고,
+`--setting-sources '' --strict-mcp-config --tools Skill`을 사용했다.
+첫 테스트는 Core-inline만 로드해 한 단어 응답을 요청했다. 모델 요청에
+도구 정의는 `Skill` 1개, claude.ai MCP 정의 0개였고 한 턴에서 끝났다.
+CLI `total_cost_usd=0.093304`는 API 단가 환산치이며 청구 영수증이 아니다.
+고유 응답의 cache-creation 입력은 23,315토큰이었다. 반면 이전의 플래그
+미적용 테스트에는 claude.ai MCP 정의가 각 요청에 239개·669개 실렸다.
+도구 정의 제거는 관측했지만, 두 테스트의 프롬프트·턴 수가 다르므로
+cache-creation 차이 전체를 플래그의 절감량으로 계산하지 않는다.
+공식 [Claude Code 환경변수 안내](https://code.claude.com/docs/ko/env-vars)도
+이 플래그의 커넥터 비활성화 용도를 명시한다.
+
+두 번째 테스트는 다섯 플러그인을 함께 로드해
+`simonk-market:aha-moment-optimizer`의 실제 `Skill` 호출과 정상 도구 결과를
+관측했다. 이때도 MCP 도구 정의는 0개였다. 그 뒤
+`Skill` 도구에 존재하지 않는 `ExitPlanMode` 이름을 전달해 도구 오류가 1건
+발생했다. CLI 최종 종료 코드는 0이지만 이를 완전한 호스트 동작 통과로
+간주하지 않는다. 명시 호출의 한 예가 통과한 것이며 전체 182개 스킬의
+자동 선택·훅·실제 작업 결과는 아직 검증되지 않았다. 두 호출 모두
+추가 결제 설정, Bot/Orca 발주, 후보 파일 변경 없이 끝났고 번들 digest는
+`84e8759fa16a4d3c5af39e7465076831dd4bbf01045cb3b0b4158187e4386bf9`로
+재검증됐다.
+
+현 사용자 Codex CLI 0.155.0의 `codex plugin list --json`에는 설치 플러그인
+20개 중 SimonK 네이티브 항목이 없다. 이는 loose skill 경로의 노출과
+별개의 사실이다. 앞 절의 격리 Codex 프로필 5-plugin 등록 증거를 사용자
+홈의 네이티브 설치로 확대 해석하지 않는다. OpenAI의
+[로컬 플러그인 문서](https://developers.openai.com/plugins/build/plugins)는
+저장소·개인 marketplace와 로컬 캐시 설치 방식을 구분한다. 현재 후보에는
+각 플러그인의 Claude-compatible marketplace 파일이 있지만, 후보 envelope
+전체의 운영 marketplace 등록·사용자 Codex 설치는 수행하지 않았다.
+Codex `skill-creator`의 보조 `quick_validate.py`는 후보 `/vibe`에 있는 기존
+`version`·`author` frontmatter 키를 허용하지 않아 종료 1을 냈다. 182개
+SKILL.md 모두 `version` 키를 가진다. 저장소의 Claude용 validator는
+`/vibe` 오류 0·경고 0이며, 앞 절의 격리 Codex 플러그인 등록도 통과했다.
+따라서 이 차이는 **Codex 작성용 linter와 기존 배포 형식의 차이**로 기록하고,
+실제 Codex 로더가 182개를 거부한다는 증거로 확대하지 않는다. Codex 전용
+정규화 패키지가 필요한지는 설치·행동 실측 후 별도 설계 판정으로 다룬다.
+`plugin_bundle.py`는 후보 영수증의 세 readiness 값을 의도적으로 항상
+`false`로 생성·검증하므로, 단순 호스트 호출 성공이나 영수증 재검증만으로
+승격할 수 없다. 별도 release 검증·승격 계약과 §35 설계 판정이 남아 있다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
