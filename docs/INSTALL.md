@@ -1530,6 +1530,18 @@ brain queue는 없었다. 새 게스트 repo의 `CLAUDE.md`와 게스트 Gstack
 이는 Sandbox 읽기 전용 매핑·Bun 조합의 문제를 분리한 제한 시험이지,
 실제 플러그인 캐시나 182스킬·Windows CSO 런타임의 동작 증거가 아니다.
 
+v18 Claude 빈 프로필 리허설(2026-09-28): 새 전용
+`CLAUDE_CONFIG_DIR=E:/Coding Infra/Releases/SimonK-stack/20260928-v18-claude-rollback-probe`
+에서 로컬 marketplace 5개를 등록하고 Claude Code 2.1.283으로 플러그인
+5개를 설치·활성화했다. 설치 캐시 731파일의 상대 경로·크기·SHA-256이
+`candidate-safety-v18` 영수증과 모두 일치했고 후보 digest 재검증도
+통과했다. 이어서 시험 프로필의 플러그인 5개와 marketplace 5개를 철회한
+뒤 목록은 각각 0개였다. CLI가 보존한 캐시 736파일(복사본 731개와
+`.orphaned_at` 5개)은 삭제하지 않았다. 상세 결과는 같은 Releases 부모의
+`20260928-v18-claude-rollback-report.html`에 있다. 이것은 **빈 프로필의
+로컬 설치·복사·활성·철회** 증거이며 기존 사용자 프로필의 무손실 롤백,
+Gstack 런타임, 모델 선택 또는 구독 청구 안전성의 증거가 아니다.
+
 후보 manifest의 `runtime_closure_verified`, `host_compatibility_verified`,
 `installation_ready`는 모두 `false`다. 실제 모델 선택·안전 훅·Bot/Orca
 연결·전체 182스킬 동작, 구독 청구 안전성, 사용자 홈 롤백은 이 빌드가
