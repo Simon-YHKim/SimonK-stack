@@ -14,7 +14,7 @@ description: >
   (product landing), /document-release (README sync), /release-notes
   (announcement copy), and /html-default-output (generic — this is
   simonk-session-specific with a fixed schema).
-version: 1.0.0
+version: 1.1.0
 allowed-tools:
   - Bash
   - Read
@@ -83,7 +83,16 @@ Pull from the conversation context (not raw transcripts):
 
 Read the template at `templates/report.html`, fill placeholders, and
 write to `.simonk/reports/<TIMESTAMP>.html`. Template is fully
-self-contained (CSS inline in `<style>`, no external fonts, no JS).
+self-contained (CSS and JS inline, zero external requests). JS only
+drives the 요약/상세 tabs, the memo sidebar and the copy fallbacks;
+with JS off every section still renders top to bottom.
+
+The format floor is global instruction §6 (S grade). The template
+already meets it — header with `작성 … KST · 발행 <세션> · 등급`,
+summary/detail tabs, memo sidebar, download banner, light/dark
+automatic, three colors. Do not strip any of these to simplify.
+HTML-escape every value (commit messages go inside `<pre>`), and
+report the §6 pre-delivery self-audit as numbers.
 
 If `.simonk/reports/` does not exist, create it. If the file already
 exists for this timestamp (multiple invocations in the same minute),
@@ -95,7 +104,7 @@ append `-2`, `-3`, etc.
 SendUserFile(
   files=[".simonk/reports/<TIMESTAMP>.html"],
   status="proactive",  # ensures mobile / desktop notification
-  caption="simonK 스프린트 보고서 — <한 줄 요약>"
+  caption="simonK 스프린트 보고서 — <한 줄 요약> · 다운로드해서 브라우저로 열어야 메모·복사가 동작"
 )
 ```
 
@@ -120,30 +129,44 @@ ephemeral; the HTML is the durable artifact.
 
 The template has these sections in order. Omit any section that has
 no content for this session — empty placeholders are not rendered.
+Every label is Korean (§6 한국어 단일).
 
-| Section | Purpose | Length |
-|---|---|---|
-| **Header** | Task title, timestamp, duration, repo, branch | 1 line each |
-| **Executive Summary** | What shipped / what didn't / next | 3-5 bullets |
-| **Decisions Log** | Key choices made (Phase 1 ambiguity Q&A, Phase 2 scope cuts, user-explicit choices) | 3-10 items |
-| **Phase Trace** | simonK Phase 1-6 each with input / output / duration | 6 cards |
-| **Diff Summary** | Files changed (grouped by area), +/- LOC, key commits with SHAs | Table |
-| **Verification** | What ran (validators, tests, lints, smoke tests), pass / fail counts | Table |
-| **Perspectives** | If `/perspectives` ran — Core 5 + session-specific findings | Conditional |
-| **Next-up Backlog** | Deferred items, follow-up PRs, manual to-do tasks | Bulleted |
-| **Appendix** | Raw commit log, full file list (collapsed `<details>`) | Collapsible |
+| Section (template label) | Tab | Purpose | Length |
+|---|---|---|---|
+| **헤더** | 공통 | Title · `작성 YYYY-MM-DD HH:MM KST` (갱신본은 `/ 갱신 …`) · `발행 <세션>` · `등급` · repo · branch · duration | 2 lines |
+| **무엇을 / 왜 / 지금 어디까지** | 요약 | Three cards for a reader with zero coding knowledge: what shipped, why, what's left. Status card carries the 3-5 summary bullets | 3 cards |
+| **용어** | 요약 | One-line gloss for each technical term used in the cards | Conditional |
+| **결정 기록** | 상세 | Key choices made (Phase 1 ambiguity Q&A, Phase 2 scope cuts, user-explicit choices) | 3-10 items |
+| **단계 추적** | 상세 | simonK Phase 1-6 each with input / output / duration | 6 steps |
+| **변경 요약** | 상세 | Files changed (grouped by area), +/- LOC, key commits with SHAs | Table |
+| **검증** | 상세 | What ran (validators, tests, lints, smoke tests), pass / fail counts | Table |
+| **관점 점검** | 상세 | If `/perspectives` ran — Core 5 + session-specific findings | Conditional |
+| **다음 할 일** | 상세 | Deferred items, follow-up PRs, manual to-do tasks | Bulleted |
+| **부록** | 상세 | Raw commit log, full file list | Collapsible |
+
+Each detail section is a closed `<details>` so the first screen is the
+summary cards. An important fact that appears only under 상세 means the
+summary failed — move it up. This template is §6 grade S; a sprint that
+needs M (history · to-do · decision tabs, question carry-over) adds
+those tabs per §6 instead of stretching 상세.
 
 ## Visual design
 
-Tinted neutral palette (per CLAUDE.md design rules):
-- Background: `#0F0E1A` (deep violet-tinted dark) for dark mode
-- Text: `#E8E6F0` (warm off-white)
-- Accent: `#7B68EE` (medium slate blue — calm, professional)
-- No emojis in body text. Section icons use simple Unicode geometric shapes (▸ ◆ ●)
-- Font: system sans (`-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif`) — NEVER Inter
+Global instruction §6 sets the floor (three colors at most, light/dark
+automatic, zero network, aria · contrast · focus, memo sidebar). The
+template implements it with these defaults:
+- Theme: light tokens on `:root`, dark tokens under
+  `@media (prefers-color-scheme: dark)`. Never a fixed dark page.
+- Colors: accent (slate violet `#5B48D9` light / `#9D8FF5` dark), ok
+  (green), err (red). Tinted neutrals don't count. A warning badge is
+  neutral with a text label — there is no fourth color.
+- Font: system stack with `Pretendard` first by name only — used when
+  installed, never downloaded. No `@font-face`, no webfont. NEVER Inter.
+- No emojis in body text. Section markers use simple Unicode geometric shapes (▸ ◆ ●)
 - 100% width on mobile, max 720px on desktop
-- Code blocks: monospace with `#1A1828` background
-- No JavaScript
+- JS: tabs, memo sidebar (`localStorage` keyed by file name, memory
+  fallback, [메모 → 프롬프트 복사]) and copy fallbacks only. Content
+  never depends on it; banner, tabs and sidebar are hidden in print.
 
 ## Optional — VLM quality self-check (SenseNova pattern)
 
@@ -163,6 +186,8 @@ Tinted neutral palette (per CLAUDE.md design rules):
 
 - ❌ External CSS / fonts / images. The HTML must open offline.
 - ❌ Emojis throughout (one in the title is the limit).
+- ❌ Removing the tabs, memo sidebar or download banner to "simplify" —
+  they are the §6 grade-S floor, not decoration.
 - ❌ Dumping the chat transcript. The report is a DIGEST.
 - ❌ Generating before Phase 6 fires (mid-sprint reports lie because
   later phases may change the conclusion).
@@ -250,5 +275,5 @@ or shell profile.
 작업을 끝내면 **HTML 완료 보고서**를 생성한다 (SimonKCore `completion-report` 표준).
 - 첫 화면은 **심플 요약**(한눈 카드 한 줄) + 직관 그래픽/차트(인라인 SVG)·이미지.
 - 각 항목 옆 **[자세히] 버튼**(`<details>`)을 펼치면 상세 — 처음부터 쏟지 않는다(progressive disclosure).
-- 자체완결 1파일(인라인 CSS/SVG, 무JS) · 사용자 언어 · 현지시간 스탬프.
+- 자체완결 1파일(인라인 CSS/SVG/JS, 외부 요청 0 — JS 가 꺼져도 본문은 전부 읽힌다) · 사용자 언어 · 현지시간 스탬프. 형식 바닥선은 전역 지침 §6.
 - Core 있으면 `completion-report` 호출, 없으면 동일 형식으로 인라인 생성.
