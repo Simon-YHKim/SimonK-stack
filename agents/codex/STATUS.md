@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 18:52:59 KST
+updated: 2026-09-27 19:15:27 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 19:15:27 KST] src: user-direct — 이전 장시간 중단됐던 배포 도구 10개 테스트 파일을 각각 완료시켜 합계 247/247 PASS(릴리스38·번들43·안전49·설치15·진입26·멀티21·벤치마크19·선택26·경로10). /vibe 213/213, 모델 라우터 통합8/8 PASS, v9 번들 digest 재검증 PASS. 기능 브랜치 문서 `9784ada` origin push, HTML `E:/Coding Infra/reports/2026-09-27-vibe-skill-closure-status.html` 갱신. 4표면 메타데이터 조회 성공이나 후보7개 available=false; 추가 과금 경로/설정 변경·Bot/Orca 실발송·운영 설치/main 머지 없음. D-code·호스트 E2E 및 계정/모델 과금 결합 미완료.
 
 [2026-09-27 / 18:52:59 KST] src: user-direct — v9 Core를 격리 Claude Code 2.1.283 Max 세션에서 `--tools Skill --allowedTools Skill`로 호출해 JSONL 실제 `Skill {"skill":"simonk-core:vibe"}`와 본문 제목 응답을 관측. Skill 로드 한 건만 증명; 자동 라우팅/E2E 아님. `docs/INSTALL.md` `5ee889a` origin push, /vibe 단위 213/213 PASS, v9 번들 digest f94533fd…d1095adb 재검증 5/182 PASS, installation_ready=false. Codex 별도 검사 프로필은 로그아웃 상태라 자격증명 복사·연결 없이 보류. 추가 과금 경로·설정 변경·운영 설치/main 머지 없음. 상세 `20260927-185300-to-claude-vibe-skill-tool-proof.md`.
 
