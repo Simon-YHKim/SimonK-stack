@@ -676,6 +676,9 @@ Anthropic의 2026-06-15 공식 업데이트는 현재 `claude -p`가 구독 사�
 5 plugin/182 skill/729 file)이다. 두 영수증 재검증, 정적 경로 143개
 미해결 0, `/vibe` 단위 213개를 확인했다. 설치·호스트 호환·런타임 closure
 플래그는 모두 false이며 v7 운영 후보를 대체 설치하지 않았다.
+Claude `plugin details`로 v9 Core·Stack을 확인하면 둘 다 `Hooks (0)`이다.
+포함된 `.simonk-runtime` helper는 호스트 PreToolUse 훅 자동 등록이나
+실제 발화를 입증하지 않는다.
 
 ## One-shot 설치
 
