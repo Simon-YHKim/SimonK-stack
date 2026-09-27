@@ -637,6 +637,16 @@ Claude Max `claude.ai` 로그인과 API 키 환경변수 부재, 사용자의 �
 않는다. 구독 포함 경로와 초과 사용 차단은 실호출마다 재확인하며,
 readiness 세 플래그는 계속 false다.
 
+최종 격리 후보는 같은 릴리스 부모의 `source-v7-gui-routing`(digest
+`128fc2716a71974197eb4325f4370915527663bda1298669d893fb19a6609384`,
+137 skill/407 file)과 `candidate-safety-v7-gui-routing`(digest
+`f9716627dd05973811dd81aa56454db4e5a8794ba663792d9503e0ae07903107`,
+5 plugin/182 skill/729 file)이다. 두 영수증 검증, 후보 182개 평가 파일
+dry-run·validator 182/182, 정적 경로 143개 미해결 0, Claude strict
+manifest 5/5, `/vibe` 단위 213개와 소스 품질 141/141이 통과했다.
+전체 배포 도구 단위 테스트는 장시간 미완료로 중단했으므로 통과로 기록하지 않는다.
+2.11.13의 실제 모델 선택 정확도와 호스트 훅 실행도 미검증이다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
