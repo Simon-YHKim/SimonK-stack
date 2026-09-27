@@ -1,11 +1,11 @@
 {
   "skill": "vibe-bot",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "evaluation_scope": "Grade observable outcomes in authorized fixtures. Schema validation, offline helper behavior and current-host responses are distinct from real Relay/provider behavior. Missing observations remain unmeasured. Never dispatch merely to complete an eval.",
   "cases": [
     {
       "id": "ordinary-gui-enters-vibe-first",
-      "prompt": "Play Console에서 앱의 최근 정책 경고를 확인해 줘. 승인 없이 변경·제출·메시지 전송은 하지 마. 화면 조작 전에 사용할 SimonK 스킬 이름만 알려줘.",
+      "prompt": "Play Console에서 앱의 최근 정책 경고를 확인해 줘. 승인 없이 변경·제출·메시지 전송은 하지 마. 가능한 스킬을 먼저 선택하고, 화면 조작은 시작하지 말고 어떤 스킬을 선택했는지만 한 줄로 알려줘.",
       "fixtures": [
         "Both vibe and vibe-bot are available. No authorized CLI/API/MCP route or Bot account, cost and Relay evidence has been verified."
       ],
