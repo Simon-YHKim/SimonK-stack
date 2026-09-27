@@ -784,6 +784,31 @@ enabled이며 후보↔캐시 전체 729파일 SHA-256이 일치하지만 로그
 해석하지 않는다. 직접 CLI의 crash/reentry 계약은 허브 §35.1 토론·D-code가
 필요하며, 그전에는 레거시 직접 실행을 우회 경로로 사용하지 않는다.
 
+Claude Code 2.1.283의 모델 생성 없는 로컬 명령으로 v14 후보의 다섯
+`.claude-plugin/plugin.json`을 각각 `plugin validate --strict --json`으로
+검사했다(모두 종료 0, 오류·경고 0). 후보 `plugins/`를 한 번에
+`--plugin-dir`로 지정한 `plugin list --json`에는 다섯 플러그인 모두
+`@inline`·`scope=session`·`enabled=true`로 나타났다. 각 플러그인의
+`plugin details`는 아래 구성요소와 세션당 **Always-on 추정치**를 반환했다.
+
+| 플러그인 | 호스트 열거(스킬+명령) | Always-on 추정 |
+| --- | ---: | ---: |
+| SimonKAIHub | 8 | ~1,791 tok |
+| SimonKCore | 63 | ~13,532 tok |
+| SimonKDesign | 23 | ~5,590 tok |
+| SimonKMarket | 33 | ~7,554 tok |
+| SimonKStack | 60 | ~12,628 tok |
+| **합계** | **187 = 182 스킬 + 5 명령** | **~41,095 tok** |
+
+이는 v14의 세션 전용 **발견·매니페스트** 관측이다. CLI의 추정 토큰 수는
+실측 컨텍스트 사용량이나 Codex의 설명 예산 경고와 같은 지표가 아니며,
+합계가 그대로 청구되거나 모델 응답 품질을 떨어뜨렸다고 주장하지 않는다.
+`plugin validate` 결과의 `contents=[]`는 개별 스킬 본문 검증을 뜻하지
+않는다. 자동 선택·명시 스킬 호출·훅·비용·영구 설치는 미검증이다. 이 조회
+후에도 bundle digest `d5f9a10b…69af1847e4`가 일치했고 readiness3=false다.
+상시 노출량을 낮추면서 `/vibe`를 통해 모든 스킬을 호출하는 배포 구조는
+§35.1 설계 토론 대상으로 분리한다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
