@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 06:51:23 KST
+updated: 2026-09-27 13:16:52 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 13:16:52 KST] src: user-direct — SimonKMarket 원본 `fix/market-missing-assets-260927`의 누락 기능 자산 4개와 회귀 테스트·문서 수정, 로컬 커밋 `4b6d804`+`257c2cd`(main/설치본 불변). Market 32개 skill quality PASS, Node 9/9 PASS, 실제 DB SQL 실행은 미수행. SimonK-stack 기능 브랜치 `feat/skill-context-budget-260925`에서 Market 입력 commit을 핀하고 `183791c` 커밋; 별도 v2 후보 5 plugin/182 skill/720 files, digest `8d7ea761…958cb1c`, verify PASS·빌더 회귀43 PASS. 정적 경로 감사 미해결11→7(Core6/AIHub1), readiness3=false. Codex 격리 호스트에서 전역 `.agents/skills` 중복 때문에 후보 Core 61개 중 초기 프롬프트에 27개만 보인 문제 기록; 실제 사용자 프로필은 미수정. 원본 main/설치/원격 push/정식 merge/모델·Bot·Orca 실호출/결제설정 변경 없음, 추가 과금 $0. Core §35 D-code·나머지 경로 및 선택적 전역 스킬 이전/호스트 재검증 대기. outbox `20260927-131652-to-claude-market-asset-candidate.md`/HTML.
 
 [2026-09-27 / 06:51:23 KST] src: user-goal — SimonK-stack 승인 기능 브랜치에 `/vibe` 2.11.10 본문 예산 정리 `1d13d8e`, 문서 `a8c3d87` 로컬 커밋. 역사적 버전 기록만 제거해 source 본문 416→362줄·파일 32,900→28,707바이트, source/패키지 skill validator W007 1→0·오류0; 생성 라우팅 표 동기와 `/vibe`87·라우터8·준비90 PASS. 격리 새 후보 source digest `ab7db464…15e6c0`, bundle `1a396339…89411` 별도 verify PASS, 5플러그인/182스킬/713파일. 깨끗한 2.11.9 고정 입력을 재사용해 Git 복제 중복 없음. 경로 감사 미해결11·readiness3=false. 설명 축약 경고/자동 선택 정확도/실토큰 절감 개선은 미입증. Core §35 D-code·Market 승인 대기, 사용자 설치/main/원격/모델·Bot·Orca 호출/결제변경0·추가과금$0. outbox `20260927-065123-to-claude-vibe-21110-body-budget.md`/HTML.
 

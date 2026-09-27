@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SimonKMarket 누락 자산 후보 검증</title>
+<style>
+:root{color-scheme:light dark;--accent:#1b7286;--text:#16252b;--muted:#52656d;background:#f4f7f7;color:var(--text);font:16px/1.55 system-ui,sans-serif}
+@media(prefers-color-scheme:dark){:root{--accent:#73c4d5;--text:#e5edef;--muted:#a8b9bf;background:#112025}}
+*{box-sizing:border-box}body{margin:0 auto;max-width:980px;padding:clamp(20px,5vw,48px)}h1,h2{line-height:1.2}p{max-width:76ch}small,.muted{color:var(--muted)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:24px 0}.card,details{border:1px solid var(--muted);border-radius:12px;padding:16px}.card strong{display:block;font-size:1.6rem;color:var(--accent)}details{margin:12px 0}summary{cursor:pointer;font-weight:650}code{overflow-wrap:anywhere}a{color:var(--accent)}:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+</style>
+</head>
+<body>
+<main>
+<small>2026-09-27 13:16:52 KST · 설치 전 격리 후보</small>
+<h1>SimonKMarket 누락 자산 복구</h1>
+<p>별도 기능 브랜치에서 네 보조 자산을 구현했고, 기존 원본 <code>main</code>과 설치본은 유지했습니다. 안전 v2 후보의 바이트 검증은 통과했지만 실행 의존성 및 실제 호스트 호환성 검증은 남아 있습니다.</p>
+<div class="cards" aria-label="핵심 검증 지표">
+<div class="card"><strong>4</strong>복구한 기능 자산</div>
+<div class="card"><strong>32/32</strong>Market 스킬 품질 게이트</div>
+<div class="card"><strong>9/9</strong>신규 회귀 테스트</div>
+<div class="card"><strong>43/43</strong>번들 빌더 테스트</div>
+<div class="card"><strong>7</strong>남은 정적 경로 미해결</div>
+</div>
+<details open><summary>산출물과 검증</summary><p>Install Referrer 파서, 추천 무결성 읽기 전용 검사, 수신자별 초대 ID 기반 K-factor SQL, 코호트 단위경제성 템플릿을 추가했습니다. 원본 커밋은 <code>4b6d804</code>·<code>257c2cd</code>, 배포 입력 핀 커밋은 <code>183791c</code>입니다. 안전 v2 후보는 5 plugin·182 skill·720 file이며 digest는 <code>8d7ea761ac6de6e3a54fbb7d198087cc91e1ed6f861057b924c7e54d1958cb1c</code>입니다.</p></details>
+<details><summary>남은 위험과 게이트</summary><p>정적 경로 감사는 11건에서 7건으로 줄었으나 Core 6건·AIHub 1건이 미해결입니다. SQL은 실제 PostgreSQL에서 실행하지 않았습니다. 격리 Codex 호스트에서 전역 스킬과 후보가 겹쳐 Core 61개 중 초기 프롬프트에 27개만 보였습니다. 선택적 이전과 재검증 전에는 설치를 승인할 수 없습니다. 세 readiness flag는 모두 false입니다.</p></details>
+<details><summary>비용·변경 경계</summary><p>추가 과금 $0. 모델·Bot·Orca 실호출, 운영 DB 연결, 사용자 프로필 설치, main 머지, 원격 push, 결제 설정 변경을 하지 않았습니다. 같은 릴리스 폴더의 기본 v1 <code>candidate/</code>는 비교용이고, 후속 기준은 <code>candidate-safety-v2/</code>입니다.</p></details>
+<p class="muted">작업 경로: E:/Coding Infra/Harrness Eng/SimonK-stack-skill-budget-260925/docs/INSTALL.md</p>
+</main>
+</body>
+</html>
