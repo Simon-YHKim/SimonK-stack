@@ -119,8 +119,12 @@ CLAUDE.md 또는 세션 시작 시 아래를 명시:
 
 ### 자동 검사
 
+호스트의 스킬 목록에서 이 `SKILL.md`의 실제 경로를 확인한다.
+`<simon-tdd-dir>`은 그 부모 디렉터리의 절대 경로이며 프로젝트의
+`skills-src/` 경로가 아니다.
+
 ```bash
-bash skills-src/simon-tdd/scripts/tdd-guard-check.sh
+bash "<simon-tdd-dir>/scripts/tdd-guard-check.sh"
 ```
 
 검사 로직:
@@ -134,11 +138,13 @@ bash skills-src/simon-tdd/scripts/tdd-guard-check.sh
 
 ```bash
 # .git/hooks/pre-commit 또는 husky
-bash skills-src/simon-tdd/scripts/tdd-guard-check.sh || {
+bash "<simon-tdd-dir>/scripts/tdd-guard-check.sh" || {
   echo "TDD Guard 위반: 테스트 없이 source 변경"
   exit 1
 }
 ```
+
+훅에 등록할 때는 `<simon-tdd-dir>`을 검증된 절대 경로로 실제 치환한다.
 
 ### 예외
 
