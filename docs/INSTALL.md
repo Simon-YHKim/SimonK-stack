@@ -1204,6 +1204,38 @@ readiness 플래그는 계속 `false`이고 사용자 설치 전환 게이트도
 31개 스킬 모두의 실행 실패 실측은 아니다. 표기 교정·외부 런타임 계약과
 격리 재검증 전에는 전체 package closure를 완료로 판정하지 않는다.
 
+## `/vibe` 2.11.16 v16 경로 폐쇄 후보 (2026-09-28)
+
+소스의 `code-health-guard`·`simon-tdd`·`dev-orchestrator`·`llm-wiki-builder`·
+`simon-research`·`model-router`·`simonk`에 있던 프로젝트 상대
+`skills-src/` 실행 안내를 설치 스킬 루트 또는 개발 전용 소스 루트로
+구분했다. 원본 SimonKStack의 `data-retention-planner`와
+`release-health-guard`도 활성 `SKILL.md`의 부모 경로에서 helper를
+찾도록 수정했다(원본 브랜치 `fix/skill-validation-260927`, 로컬 커밋
+`beb2a547`). `distribution/plugin-inputs.v1.json`은 해당 커밋을 고정한다.
+
+원본 SimonKCore 작업트리에는 추적되지 않는 기존 모델 캐시와 의미 인덱스가
+있어 번들러의 정확한 입력 목록 검사가 차단됐다. 원본 캐시는 삭제·이동하지
+않고, 다섯 원본의 고정 커밋을 별도 로컬 디렉터리
+`input-clones-v16-path-closure`에 복제하여 빌드했다. 이전 v15 후보와
+사용자 설치본도 변경하지 않았다.
+
+| 항목 | 격리 검증 결과 |
+|---|---|
+| 소스 패키지 | `source-v16-path-closure`, digest `e20dcc1e98e971411143fec50bd50dc743d1358455ff35582d68b5d9a085cb68`, 137스킬·409파일 |
+| 5-플러그인 후보 | `candidate-safety-v16-path-closure`, digest `5cbef02fbee7ee0777b694f44e3d6cdbe61f16ec28144c91a4ccbdef87f03d0a`, 182스킬·731파일 |
+| 원본 Stack 검증 | 저장소 검사 통과, 수정 2스킬 validator 오류·경고 0, eval 6케이스 dry-run 통과, 관련 스크립트 구문 검사 통과 |
+| 패키징 회귀 | 소스 릴리스 38건, 플러그인 번들 44건, 경로 감사 14건 통과 |
+| 정적 경로 감사 | 182스킬, 명시 참조 142건 모두 존재, 미해결 0·비이식 실행 명령 0 |
+| 오프라인 `/vibe` 회귀 | 영수증 검증 후 격리 복사에서 selftest·runtime unit·prepare unit·table sync 4단계 통과 |
+
+정적 경로 감사는 리터럴 참조와 알려진 프로젝트 상대 명령만 다룬다.
+동적 import, 외부 Gstack 실행 파일, 호스트 권한·안전 훅, 모델 선택 행동,
+Bot/Orca 실연결, 모든 스킬의 동작은 검증하지 않는다. 후보 manifest의
+`runtime_closure_verified`·`host_compatibility_verified`·
+`installation_ready`는 계속 모두 `false`다. 모델 실호출·추가 과금·
+사용자 설치 전환·`main` 머지는 수행하지 않았다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
