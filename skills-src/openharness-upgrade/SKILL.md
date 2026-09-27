@@ -15,7 +15,7 @@ Upgrade the vendored `OpenHarness` stack at `~/.simon-stack/vendor/OpenHarness/`
 
 - User says any of: "OpenHarness 최신화", "오픈하네스 업데이트", "upgrade openharness", "update openharness"
 - User asks "is OpenHarness up to date?"
-- Called by `/stack-update` as one step of a holistic refresh.
+- This is an explicit single-vendor request, not an automatic `/stack-update` step.
 
 ## What it does
 
@@ -28,13 +28,15 @@ Wraps `upgrade-vendor.sh OpenHarness` which:
 
 ## Execution
 
-Resolve the shared script (it gets copied to a stable location by
-`install.sh` / `setup-repo.sh` / SessionStart hook) and invoke it:
+This plugin does not bundle `upgrade-vendor.sh`. Resolve an existing helper,
+review its path and behavior before invoking it, and stop if it is absent.
+Never assume an install hook copied it or substitute an unreviewed download.
 
 ```bash
 SCRIPT="$HOME/.claude/scripts/upgrade-vendor.sh"
 [ -x "$SCRIPT" ] || SCRIPT="${CLAUDE_PROJECT_DIR:-$PWD}/scripts/upgrade-vendor.sh"
 [ -x "$SCRIPT" ] || SCRIPT="${CLAUDE_PROJECT_DIR:-$PWD}/.claude/scripts/upgrade-vendor.sh"
+[ -x "$SCRIPT" ] || { echo "upgrade-vendor.sh unavailable; no changes made"; exit 2; }
 bash "$SCRIPT" "OpenHarness"
 ```
 
@@ -56,7 +58,7 @@ without explicit user confirmation.
 
 ## Related skills
 
-- `/stack-update` — full holistic SimonK Stack refresh (calls this skill + 4 siblings + gstack-upgrade + SimonK-stack pull + Wiki pull + install.sh --force)
+- `/stack-update` — separate repository inventory and safe fast-forward plan; it does not auto-call this skill or force-reinstall profiles.
 - `/gstack-upgrade` — gstack-only upgrade
 - Sibling vendor upgrades: `/omc-upgrade`, `/omo-upgrade`, `/openharness-upgrade`, `/opencowork-upgrade`, `/designmd-upgrade`
 

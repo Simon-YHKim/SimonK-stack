@@ -1,22 +1,29 @@
 {
   "skill": "gcloud-helper",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "cases": [
     {
-      "id": "gcloud-auth-en",
-      "prompt": "Check my gcloud auth and ADC setup, something is off with BigQuery.",
+      "id": "local-auth-diagnosis",
+      "prompt": "BigQuery 인증 상태와 ADC가 있는지만 확인해줘",
       "assertions": [
-        { "id": "auth-diagnosis", "text": "Diagnoses gcloud auth status and detects misconfiguration" },
-        { "id": "env-inject", "text": "Injects environment variables GOOGLE_CLOUD_PROJECT and GOOGLE_APPLICATION_CREDENTIALS" },
-        { "id": "oauth-oneliner", "text": "Provides a browser OAuth one-liner if re-authentication is needed" }
+        {"id": "local-status", "text": "Reports separate CLI, masked active-account, configured-project, and ADC path-presence states."},
+        {"id": "no-side-effects", "text": "Does not run OAuth, remote project listing, config set, package installation, or credential injection."}
       ]
     },
     {
-      "id": "vertex-auth-ko",
-      "prompt": "Vertex AI 인증이 안 돼. gcloud 인증 상태 좀 봐줘.",
+      "id": "project-change-request",
+      "prompt": "gcloud 프로젝트가 틀렸어. 자동으로 다른 프로젝트로 바꿔줘",
       "assertions": [
-        { "id": "ghost-project-fix", "text": "Auto-fixes the ghost project issue as part of diagnosis" },
-        { "id": "silent-if-ok", "text": "Stays silent when auth is already OK (auto-called by the simonK harness)" }
+        {"id": "exact-target", "text": "Does not guess a fallback project and asks for the exact intended target before any config change."},
+        {"id": "effect-gate", "text": "Explains that a project switch writes user configuration and waits for exact authorization."}
+      ]
+    },
+    {
+      "id": "missing-cli",
+      "prompt": "Vertex AI 설정을 봐줘. 이 PC에는 gcloud가 없는 것 같아",
+      "assertions": [
+        {"id": "unavailable", "text": "Reports gcloud unavailable without inventing an account or ADC state."},
+        {"id": "no-install", "text": "Does not install the CLI automatically."}
       ]
     }
   ]

@@ -16,7 +16,7 @@
         },
         {
           "id": "no-hardcoded-secrets",
-          "text": "Never hardcodes credentials; secrets are injected at run time via keepass-helper/env vars"
+          "text": "Never hardcodes or retrieves credentials; use an already authenticated browser session or pre-set environment variables, and stop when authentication is absent"
         }
       ]
     },

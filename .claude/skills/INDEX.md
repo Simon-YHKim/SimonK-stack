@@ -21,7 +21,7 @@
 | `ai-debate` | 다관점 AI 토론 — 중요·비가역·충돌 결정을 패널→별도심판→합의/타이브레이크→`DECISIONS.md` 기록. PROTOCOL §35.1 트리거 필수(라우팅이 강제) |
 | `simonk` | 단일 자율 진입점 (6-phase + Boundary Check + multi-agent dispatch sprint v23 Phase B) |
 | `simonk-report` | simonK Phase 6 자동 호출 — `.simonk/reports/<TS>.html` 생성 + SendUserFile 자동 첨부. 명시 `/simonk-report` 도 가능 |
-| `stack-update` | SimonK Stack 전체 holistic 최신화 — 본체+Wiki+gstack+5 vendored+skill 재설치 위임 |
+| `stack-update` | 저장소별 상태 점검과 안전한 fast-forward 계획·실행; vendor 갱신·프로필 재설치는 별도 절차 |
 | `dev-orchestrator` | 일반 구현 7단계 파이프라인 (진단 → 구조 점검 → TDD → 시나리오 → 스캔 → 정리 → 커밋) |
 | `phase4-game-orchestrator` | 게임 트랙 (Q3 2026) orchestrator placeholder — Godot/Phaser/Three.js · ComfyUI · Suno |
 | `simon-ohmo` | OpenHarness Ohmo personal agent — Phase 6 (27Y Q1+) placeholder, 폐쇄망 운영 |
@@ -126,7 +126,7 @@
 | `careful` (Gstack) | 파괴적 명령 가드 |
 | `guard` (Gstack) | 디렉토리 freeze + careful 통합 |
 | `freeze` / `unfreeze` (Gstack) | 편집 범위 제한 |
-| `keepass-helper` | KeePassXC vault 시크릿 관리 — one-time inject, 키 노출 방지 |
+| `keepass-helper` | KeePassXC vault/CLI 존재 여부 진단; 금고 열기·시크릿 주입 미지원 |
 
 ## 🚀 Ship & Deploy
 
@@ -200,7 +200,7 @@
 | `office-docs` | Docx / Xlsx / Pptx / PDF 사무 문서 (Anthropic Big Four) |
 | `web-publisher` | 웹사이트 자동 로그인·폼 작성·업로드 (browse + auth) |
 | `defuddle` | 웹페이지 → 클린 마크다운 추출 (Defuddle CLI, WebFetch 대체) |
-| `gcloud-helper` | gcloud 인증 진단 + ghost project 자동 수정 + env vars inject |
+| `gcloud-helper` | gcloud 로컬 상태 진단; 프로젝트·계정 변경 및 자격증명 주입 미지원 |
 | `loop` (built-in/runtime) | 주기 작업 실행 |
 | `update-config` (built-in/runtime) | settings.json 구성 |
 | `keybindings-help` (built-in/runtime) | 키바인딩 커스터마이징 |
@@ -211,7 +211,7 @@
 | `open-gstack-browser` (Gstack) | GStack Browser 실행 |
 | `gstack-upgrade` (Gstack) | Gstack 버전 업데이트 (gstack-only) |
 | `ai-usage-widget-install` | `apps/ai-usage-widget`(Claude·Codex·Grok·Antigravity 사용량 작업 표시줄 위젯)를 소스에서 빌드·검증해 사용자 전용 설치, 상태 점검, 브리지 안전장치가 있는 제거 |
-| `stack-update` | **전체 SimonK Stack holistic 최신화** — SimonK-stack + Wiki + gstack + 5 vendored + skill 재설치 |
+| `stack-update` | **저장소별 안전 갱신** — 읽기 전용 inventory 후 승인 범위의 clean fast-forward만 수행 |
 | `omc-upgrade` | vendored oh-my-claudecode 단독 최신화 |
 | `omo-upgrade` | vendored oh-my-openagent 단독 최신화 |
 | `openharness-upgrade` | vendored OpenHarness 단독 최신화 |
