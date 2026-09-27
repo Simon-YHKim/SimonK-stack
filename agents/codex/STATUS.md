@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-27 16:53:52 KST
+updated: 2026-09-27 17:17:10 KST
 state: active
 source: user-direct
 ---
 
 # Codex STATUS
+
+[2026-09-27 / 17:17:10 KST] src: user-direct — 구독 포함 사용만 허용하며 유료 호출을 제외하는 최신 지시로 `/vibe` Antigravity CLI 1.2.12 메타데이터 계약을 최소 확장했다. `agy -p '/usage' --output-format json`은 성공·agent turns 0·모든 token counters 0; 계정/모델/과금은 미확인으로 생성 라우트 불허. SimonK-stack `feat/skill-context-budget-260925` 커밋 `e607858`, `5e74727` origin push, `/vibe` 2.11.12 source/candidate receipt digest `b6d95f00…2b347`/`ed02ba50…67ecc` PASS, 5 plugin/182 skill/729 file, 경로143 미해결0, eval182/182, Claude strict5/5 및 격리 Claude·Codex 각5 enabled, Codex 캐시729 해시 일치. collector27, orchestrate87, vibe212, source quality141 PASS. 격리 Codex 검사 중 예약 변수 충돌로 사용자 프로필 루트에 새 검사 홈3개를 잘못 생성했으나 기존 `.codex`는 변경되지 않았고 새 항목만 `Releases/SimonK-stack/20260927-vibe-helper-closure-candidate/diagnostics/codex-v21112-host/recovered-home`으로 이동 보존, 원래 경로 부재 확인. 보고 `E:/Coding Infra/reports/2026-09-27-vibe-skill-closure-status.html`. 모델/Bot/Orca 생성·결제변경·실사용 설치·main 머지 없음, 추가과금$0, readiness3=false, Claude-owned D-code 미기록.
 
 [2026-09-27 / 16:53:52 KST] src: user-direct — 유료 호출 제외·구독 포함 사용만 허용하는 최신 지시 반영. SimonK-stack 기능 브랜치 `feat/skill-context-budget-260925`에 포장된 Core/Stack 안전 런타임을 직접 검증하는 테스트 경로와 문서 추가(`554f668`, origin push). 소스·Core 후보·Stack 후보 각 21/21 PASS, 저장소 전체 247/247 PASS, diff/시크릿 점검 PASS. 현재 `runtime_collect` 관측은 Claude Max/Codex Pro 로그인, Codex 구독 사용 9%, Grok 주간 79%/on-demand cap 0, AGY 1.2.12는 버전 계약 미검증으로 중단. 구독 포함 모델·직접 CLI 안전 adapter 증거 없어서 모델/Bot/Orca 실호출0·추가과금$0, 결제설정/실사용 홈/main 불변. 후보 readiness3=false, Claude-owned D-code 요청 계속 open. outbox `20260927-165352-to-claude-safety-candidate-subscription-boundary.md`.
 
