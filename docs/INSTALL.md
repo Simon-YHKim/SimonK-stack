@@ -2136,6 +2136,23 @@ Node 플러그인 검증 68스킬, 오프라인 benchmark 회귀 19건 및 후�
 필수 D-code와 실사용 선택·readiness 검증 없이 `main`을
 이동하지 않는다.
 
+### Grok Bot 조직 스냅샷과 v20 후보 재대조 (2026-09-28)
+
+사용자 제공 `grok-bot-org-overview-2026-09-24.md`의 SHA-256은
+`3dbaba9585ecf01cdef216dae0eb74b367f4ac10e3d0e4bd8b2e83c9c8592dd3`로,
+`vibe-bot/references/relay-charter.md`와 `bots.json`에 고정된 원본과
+일치했다. 문서의 봇 19개와 팀 6개의 ID 25개는 v20 후보 명단과
+양방향 누락 없이 일치한다. 설치 중인 봇 명단도 후보와 같은 해시지만,
+설치 중인 `SKILL.md`는 0.9.1이고 v20 후보는 0.9.3이다.
+
+v20 후보에서 외부 프로세스·네트워크 차단을 먼저 건 테스트 27건
+(`test_execute_bot.py`)과 11건(`test_bus_watch.py`), 같은 차단을 건
+`selftest.py` 93개 점검이 모두 통과했다. `web-qa`는 독립 프로필이
+확인되지 않은 Relay 분류로 유지하고, 실제 봇 활성 상태·계정·구독
+비용·수신 여부는 이 원본 문서와 오프라인 테스트에서 추론하지 않는다.
+과제 전달·봇 실호출은 수행하지 않았고 사용자 설치본, 준비 플래그,
+`main`은 바꾸지 않았다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
