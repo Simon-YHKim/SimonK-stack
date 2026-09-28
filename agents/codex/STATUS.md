@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 06:39:59 KST
+updated: 2026-09-29 06:55:42 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 06:39:59 KST
+updated: 2026-09-29 06:55:42 KST
+
+- 2026-09-29 06:55:42 KST: src: Simon direct, subscription-only `/vibe` continuation. Current read-only Grok ACP billing metadata at 06:50:05 KST reports CLI weekly used100%, displayed reset 2026-10-03 23:12:19 KST, on-demand cap0/prepaid balance0, billing mode unknown and extra-usage flag null; Bot quota is separate/unknown. Grok CLI generation remains held. Claude claude.ai/firstParty/Max login and v23 digest5 plugins/182 skills verified; auto-selection attempt could not start PTY (twice) and pipe mode exited before prompt, so no new generation/selection result; `claude -p`/API not used. Source INSTALL docs `7377f84` pushed/clean, runtime collector tests27 pass; report HTML updated. Readiness3=false, overlay D-code pending; no user install/main/billing change.
 
 - 2026-09-29 06:39:59 KST: src: Simon direct, nonpaid `/vibe` continuation. New no-auth/no-network WSB attempt produced no result because existing `WindowsSandboxClient.exe --help` caused `CO_E_APPSINGLEUSE`; prior guest not forcibly closed. Separate host-state only (NOT OS isolation) verified pinned Gstack `01593aa` config update_check=false/telemetry=off/artifacts_sync_mode=off, learning log/search one fake record, brain enqueue and telemetry log rc0, state files only config+learning JSONL, no queue/analytics file. No host packet capture, so no no-egress/full-runtime claim. Source INSTALL docs `10f6dab` pushed/clean, repo tests330:327 pass/3 skip/fail0; v23 HTML updated. Codex overlay catalog still rc2; Claude D-code pending, readiness3=false. No model/Bot/Orca/paid call, user installation/main/billing change.
 
