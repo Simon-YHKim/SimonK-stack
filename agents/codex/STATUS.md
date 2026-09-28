@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 03:09:23 KST
+updated: 2026-09-29 03:35:53 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 03:09:23 KST
+updated: 2026-09-29 03:35:53 KST
+
+- 2026-09-29 03:35:53 KST: src: Simon direct, nonpaid continuation. A host Claude Code update 2.1.283→signed 2.1.284 caused the old pinned-hash synthetic-profile Sandbox to stop before candidate operations (`EXE_HASH_MISMATCH` preserved). New hash-pinned separate guests proved current Claude2.1.284 candidate init 5 plugins/182 skills/5 commands/errors0, fresh install 736/736 exact, and synthetic unrelated-plugin/personal-skill/settings preservation after candidate add/remove. Codex0.155.0 synthetic profile likewise preserved unrelated plugin/cache/personal skill; candidate cache0. Four passing guest network counts0 pre/post, IDs stopped. Raw result SHA-256 values are in INSTALL. Source README/INSTALL pushed `8802d19`, feature clean/remote-equal; candidates unchanged/reverified. No real user-profile migration, user install, main merge, model/Bot/Orca generation, payment change or extra spend. Readiness3=false; overlay default, Gstack, hook/billing gates remain.
 
 - 2026-09-29 03:09:23 KST: src: Simon direct, nonpaid continuation. Fresh separate no-network/no-auth Windows Sandbox guest installations of pinned v22 passed: Claude Code 2.1.283 5 enabled/736 of 736 candidate bytes exact, uninstall left plugins/marketplaces0 but 741 guest-only cache files; Codex CLI 0.155.0 5 installed/742 of 742 overlay bytes exact, uninstall left plugins/marketplaces/cache0. Both network adapters0 pre/post, both guest IDs stopped. Candidate and overlay receipts reverified unchanged. Source 329 tests=326 pass/3 candidate-gated skips, v22 preview6/6; docs/README pushed feature `6e70dee`, clean/remote-equal. User installs/main unchanged, readiness3=false, overlay default catalog/Gstack/host/model-billing gates remain. No model/Bot/Orca generation, extra spend or payment change.
 
