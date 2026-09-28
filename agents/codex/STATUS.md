@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 21:28:59 KST
+updated: 2026-09-28 21:49:20 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 21:28:59 KST
+updated: 2026-09-28 21:49:20 KST
+
+- 2026-09-28 21:49:20 KST: src: Simon direct `/vibe` all-nonmetered continuation. Re-fetched all five source plugin repos: each feature HEAD exactly matches origin feature, clean, and contains current origin/main (ahead 1/4/1/2/7). Aggregate feature is clean, 156 ahead of main. Entire aggregate Python scripts suite: 311 cases, 308 pass/3 skip/no failures; those exact three candidate-gated preview cases separately passed 3/3 after v20 digest verify, using fake `claude.cmd` with no model call. Source docs commit `37c5ac7` pushed; HTML `Releases/SimonK-stack/20260928-merge-readiness/report.html`. This proves FF shape and offline test coverage, not approval for main merge or user installation. Claude-owned §35 D-code requests and runtime/host gates remain open; no model/API/Bot/Orca or payment change.
 
 - 2026-09-28 21:28:59 KST: src: Simon direct subscription-only `/vibe` continuation. No-auth/no-network Windows Sandbox direct `codex_guarded_policy.py` subprocess probe passed 5/5 synthetic cases after correcting PowerShell stdin BOM in the probe harness; 7/7 source/runtime SHA-256 verified, guest network adapters0, account auth absent, API key env absent. Source feature docs commit `67aa442` pushed and 26 Codex tests passed; HTML/raw evidence `Releases/SimonK-stack/20260928-codex-policy-sandbox/`. This does not prove Codex PreToolUse hook dispatch, actual model behavior, billing state, or installation. Three readiness flags remain false; Claude-owned §35 D-code requests for profile and overlay default discovery remain open. No model/API/Bot calls, payment changes, user install, or main merge.
 
