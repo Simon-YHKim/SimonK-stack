@@ -1714,7 +1714,16 @@ Codex CLI 0.155.0은 5개 설치·활성, 오버레이 캐시 740파일 전부 �
 통과했다. 상세 증거는
 `E:/Coding Infra/Releases/SimonK-stack/20260928-gstack-batch-sandbox/report.html`에 있다.
 
-두 시험은 빈 게스트의 복사·등록·시작 절차 일부를 검증한 것일 뿐,
+Claude Code 2.1.283의 별도 `--init-only` 검사는 새 무인증·네트워크 차단
+Sandbox에서 대조군과 5플러그인 후보 모두 실제 CLI 종료 코드 0이었다.
+후보 로그는 플러그인 5개, 스킬 182개(중복·사용자 소유 제외 0개), 명령
+5개 로딩과 디버그 오류 0개를 기록했다. 처음 시도는 `Start-Process`
+객체의 빈 `ExitCode`를 실패로 오판했으므로 종료 판정에서 제외하고,
+게스트 안에서 직접 호출한 `$LASTEXITCODE`만 판정에 썼다. 원시 출력,
+스크립트, 격리 설정과 해석 경계는
+`E:/Coding Infra/Releases/SimonK-stack/20260928-v20-claude-init-probe/report.html`에 있다.
+
+이 시험들은 빈 게스트의 복사·등록·초기화·시작 절차 일부를 검증한 것일 뿐,
 기존 사용자 프로필의 무손실 갱신·복원, 전체 스킬 동작, 훅, Gstack
 외부 런타임 폐쇄, Windows CSO, Bot/Orca 연결, 모델 선택이나 구독 청구를
 입증하지 않는다. 따라서 `runtime_closure_verified`,

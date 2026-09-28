@@ -6,6 +6,7 @@
 ## [Unreleased]
 
 ### Added
+- **v20 Claude 초기화 검증** — 무인증·네트워크 차단 Sandbox에서 Claude Code 2.1.283의 대조군과 5플러그인 후보 `--init-only`가 모두 종료 0이었다. 후보 로그는 5플러그인·182스킬·5명령 로딩, 오류 0을 확인했다. 기존 사용자 프로필 호환성, 실제 스킬 동작, 모델·구독 과금 검증은 아니다.
 - **v20 격리 설치·철회 증거** — 네트워크 차단 Windows Sandbox의 새 무인증 Claude·Codex 프로필에서 5플러그인 설치·활성, 각각 734/740파일의 영수증 바이트 일치와 철회를 확인했다. Gstack 시작 절차 55개도 별도 격리 시험에서 통과했다. 이는 사용자 프로필 전환, 전체 스킬 실행, 외부 런타임 폐쇄 또는 구독 과금 검증이 아니다.
 - **Guarded `/vibe` Claude preview** — `scripts/preview-vibe-candidate.ps1` verifies the immutable five-plugin receipt by default without a model call. An explicit, subscription-confirmed `-Run` offers a Core-inline, plan-mode, Skill-only routing preview, blocks API/alternate-provider environment routes, and requests claude.ai MCP connector suppression only in that child process. This preview does not install plugins or certify billing, connector suppression, other host paths, actual tasks, or context savings.
 
