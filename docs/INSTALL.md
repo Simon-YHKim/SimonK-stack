@@ -2464,6 +2464,39 @@ Gstack 전이 런타임이나 과금 안전성의 증거가 아니다.
 시험 후 소스 전체 회귀는 329건 중 326통과·3건너뜀·실패 0이었고,
 같은 v22 후보 digest를 지정한 프리뷰 회귀 6/6도 통과했다.
 
+2026-09-29 **v22 합성 기존 프로필 보존·Claude 호스트 갱신 시험**:
+호스트 Claude Code의 파일 수정시각이 03:10 KST인 서명 유효한 2.1.284로 바뀌어 기존
+2.1.283 SHA-256을 고정한 첫 Sandbox는 후보 설치 전 `EXE_HASH_MISMATCH`로
+안전하게 종료됐다. 실패 기록은 `sandbox-profile-claude-v22/output/result.json`에
+그대로 보존했다. 새 실행 파일 SHA-256
+`0416631e846f743110da5282409776fa1313e65f33a588aae066eaf8db0fda7d`를
+고정한 **별도** Sandbox에서는 후보 `--init-only`가 5플러그인·182스킬·
+5명령·디버그 오류 0으로 통과했고, 빈 프로필 설치·철회도 736/736파일
+일치·오차 0으로 통과했다. 결과는 각각
+`sandbox-init-v22-284/output/result.json`(SHA-256
+`d1e36c1e2ae7b619e74b6f77ba49ee93785cd7a50e0b5636d3021e6d59424f7d`),
+`sandbox-install-claude-v22-284/output/result.json`(SHA-256
+`2bf221559f3dfb469f6606d76a97b778ce5597f4c05fb2542876b1f0a8f21fee`)에
+남겼다.
+
+또 다른 두 새 Sandbox에는 실제 사용자 프로필이나 인증정보를 복사하지 않고
+임의의 기존 플러그인·개인 스킬·설정 마커를 먼저 만든 뒤 v22 다섯 플러그인을
+함께 설치·철회했다. Claude 2.1.284와 Codex 0.155.0 모두 시험 중 플러그인
+6개를 관측했고, 철회 후 기존 플러그인·marketplace의 목록과 활성 상태,
+기존 플러그인 캐시·개인 스킬의 해시, 설정 마커(Claude)가 유지됐다.
+Codex의 후보 캐시는 0개,
+Claude의 후보 캐시는 게스트 안에 741개 남았다. 결과는
+`sandbox-profile-claude-v22-284/output/result.json`(SHA-256
+`a5a093a98b1cfcd8387136cadcb1ad2f72c0e294f50e5b27c1485bb25c8a01ce`),
+`sandbox-profile-codex-v22/output/result.json`(SHA-256
+`60d5ef76c2e0c6bbf30cb92f9f51d556344ae227f9b1ae44e41760fd28e86029`)이다.
+통과한 네 게스트의 전후 활성 네트워크 어댑터는 0개였고, 정확한 ID의
+Sandbox를 모두 종료했다. 후보·오버레이 영수증도 재검증했다.
+이는 **합성 기존 상태와 새 버전의 제한된 보존 시험**이지 실제 사용자
+프로필·인증정보·동시 실행·실패 중간 복구의 무손실 이관을 입증하지 않는다.
+기본 Codex catalog, Gstack 전이 런타임, 안전 훅, 모델·Bot·Orca 행동과
+청구 안전성도 여전히 미검증이다.
+
 Codex 오버레이 자체 영수증 검증과 다섯 명시적 루트 `inventory` 182건은
 통과했다. 그러나 오버레이 기본 `catalog`는 여전히
 `Candidate skill metadata differs from receipt`로 종료 2다. 이는 의도된
