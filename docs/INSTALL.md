@@ -2663,6 +2663,29 @@ Codex 인증 파일 부재를 확인했다. 사용자 홈 Gstack은 공유하거
 경로가 안전하다고 주장하지 않는다. `runtime_closure_verified`,
 `host_compatibility_verified`, `installation_ready`는 모두 `false`다.
 
+2026-09-29 **Gstack 학습·동기화·텔레메트리 가드의 호스트 제한 시험**:
+새 Sandbox 시작은 기존 `WindowsSandboxClient.exe --help` 프로세스와
+단일 인스턴스 충돌(`CO_E_APPSINGLEUSE`)로 결과 파일을 만들지 못했다.
+이전 게스트 소유권을 확인할 수 없어 강제 종료하지 않았다. 따라서 아래는
+OS·네트워크 격리 시험이 아니라, 별도 호스트 상태 폴더만 지정한 제한 시험이다.
+
+고정 원본 `01593aa`를 Git Bash로 실행하고 사용자 홈 Gstack 대신
+`E:/Coding Infra/Releases/SimonK-stack/20260929-gstack-learning-guard-probe/host-state`
+만 `GSTACK_HOME`/`GSTACK_STATE_DIR`로 지정했다. 이 폴더의 `config.yaml`에서
+`gstack-config get`은 `update_check=false`, `telemetry=off`,
+`artifacts_sync_mode=off`를 반환했다. 테스트용 `gstack-learnings-log`는
+`projects/guard-probe/learnings.jsonl`에 가짜 기록 1건을 남겼고,
+`gstack-learnings-search --query isolated-fixture --limit 1`은 그 기록
+1건을 읽었다. `gstack-brain-enqueue`와 `gstack-telemetry-log --no-sweep`은
+각각 종료 0이었다. 실행 후 분리 상태 폴더의 파일은 설정과 학습 기록
+2개뿐으로, 큐·analytics 파일은 생기지 않았다. 원본 Gstack 작업트리는
+clean이며 사용자 프로필 설치본·계정·결제 설정은 수정하지 않았다.
+
+이 결과는 **해당 설정·입력에서 관측된 로컬 파일 효과**만 입증한다.
+호스트 네트워크 패킷을 계측하지 않았으므로 무전송·전체 Gstack 런타임
+폐쇄·설치 호환성을 주장하지 않는다. `gstack-team-init`, 동기화 활성화,
+기본 업데이트 정책은 시험하지 않았고, 세 설치 준비 플래그는 계속 `false`다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
