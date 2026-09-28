@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 07:47:19 KST
+updated: 2026-09-29 08:16:19 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 07:47:19 KST
+updated: 2026-09-29 08:16:19 KST
+
+- 2026-09-29 08:16:19 KST: src: Simon direct, subscription-only `/vibe` continuation. Reproduced Windows CP949 Python CI crash in four original plugins, added failing-first UTF-8 regressions and fixed/committed/pushed AIHub `1aa3ced`, Core `bdd047c`, Design `e045400`, Market `54f757f`; four regression suites 4/4 each, Python quality gates 7/57/19/32 pass. All five Node skill validators 7/57/19/32/58 pass; Market9 and Stack11 tests pass. Pinned original commits in source `1c3b1c0`; documented v24 in source `51c7757`, both pushed feature/clean. New isolated v24 source/candidate/overlay receipts `c97a16e2`/`5f01d6cb`/`3b1f8d5` verified; 5 plugins/182 skills, builder regression45/45. Original Core ignored cache was preserved; build used five clean detached input checkouts. Codex explicit-root inventory182/0 issues, but default catalog still receipt mismatch exit1; Gstack path audit external_runtime_pending31 skills/646 refs/9 targets; readiness3=false. HTML `E:/Coding Infra/Releases/SimonK-stack/20260929-v24-plugin-ci-locale/report.html`. Three Claude-owned D-code requests absent from DECISIONS; existing Windows Sandbox `--help` instance not terminated; user installs/main unchanged. No model/Bot/Orca or extra paid call, no billing-setting change.
 
 - 2026-09-29 07:47:19 KST: src: Simon direct, nonpaid `/vibe` continuation. Corrected root `INFRA-MAP.md` stale count/flow: legacy source137+dev4=141, pinned five-plugin v23 candidate182, existing user install distinct/unpromoted. Reran exact v23 source/candidate/Codex-overlay receipt verifiers: 137/411, 5/182, overlay digest all PASS; candidate input commits equal current five original plugin branch HEADs 5/5. All original plugin worktrees clean, equal their origin feature branches, and contain origin/main. Claude TUI auto-selection probe did not start because exec PTY creation failed before `claude --version`; model usage0. Windows Sandbox PID100060 (`--help`, since Sep28) still holds single instance, user close permission requested asynchronously; not terminated. Existing D-codes absent, readiness3=false, installed profiles/main unchanged, no paid/model/Bot/Orca call or billing change. v23 HTML updated. Root map is non-Git.
 
