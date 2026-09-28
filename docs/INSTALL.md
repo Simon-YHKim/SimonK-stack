@@ -2043,6 +2043,14 @@ Codex flat `vibe`·`vibe-bot` 2개가 끊길 수 있다. 별도 패널·독립 �
 성패를 판정할 실행 증거가 **없다**. 자료는
 `E:/Coding Infra/Releases/SimonK-stack/20260928-plugin-only-split-bridge/`에
 보존했다. 이전 격리 시험의 PASS를 이 새 구조의 PASS로 확장하지 않는다.
+원인 분리를 위해 후보를 전혀 매핑하지 않은 2폴더 최소 Sandbox도
+시도했다. `LogonCommand` 스크립트의 첫 동작을 출력 폴더에 마커 쓰기로
+바꾼 재시험까지 마커가 없었다. 두 시험의 정확한 인스턴스만 종료했다.
+따라서 새 스킬 코드 실패로 단정할 수 없으며, 이 PC의 Sandbox 시작·
+명령 전달·폴더 매핑 경계 중 어느 지점인지도 아직 확정하지 못했다.
+자료는 `E:/Coding Infra/Releases/SimonK-stack/20260928-sandbox-boot-triage/`에
+있다. 이 격리 경로가 회복되거나 동등한 안전 경계가 생기기 전에는
+새 구조의 게스트 실행 PASS를 요구하는 게이트가 열리지 않는다.
 
 ## One-shot 설치
 
