@@ -2332,6 +2332,60 @@ v20 후보를 digest `9b0980aedf7af578b96eaba1d1586f6aab2a85cc7a708c640363c92572
 런타임, 구독 과금 또는 사용자 설치 준비의 증거가 아니다. 상세 기록은
 `E:/Coding Infra/Releases/SimonK-stack/20260928-merge-readiness/report.html`에 있다.
 
+## v21 페르소나 근거와 G5 안전 게이트 격리 후보 (2026-09-28)
+
+`feat/skill-context-budget-260925`의 `5887d8e`에서 v20 이후 추가된
+`persona-simulation` 근거 검사와 `/vibe`의 생략 쿼터 확인 G5 차단을
+새로운 격리 후보에 포함했다. 이전 v20 후보·사용자 설치본을 덮어쓰지
+않았다. 입력 원본 5개는 `distribution/plugin-inputs.v1.json`의 고정 HEAD와
+일치하고 clean이었다. Windows CRLF 체크아웃은 원본 설정을 바꾸지 않고
+별도 `core.autocrlf=false` 로컬 복제본 5개로 해결했다.
+
+| 산출물 | 전체 영수증 SHA-256 | 범위 |
+|---|---|---|
+| `source-v21` | `d3056d93e76cc44a9c0c43ad7ebf6c8460c83dc052c9a0935fe595575a3c756c` | 소스 소유 137스킬·411파일 |
+| `candidate-safety-v21` | `4e726c41e3c23029923f1bd44b439da18c71d2a7cf5ad5268f25ada052df5486` | 5플러그인·182스킬·736파일 |
+| `codex-overlay-v21` | `483d5147184e1838f920f69db033cd03ff5af2b25488202bdbbc654f44cb3d05` | 5개 Codex 호환 manifest를 별도 투영 |
+
+소스 릴리스의 v20 대비 차이는 `vibe`와 `persona-simulation`의
+기존 파일 변경 6개·신규 파일 2개다. 후보에는 이 8개와 소스 영수증을
+반영한 플러그인 metadata 10개만 바뀌었다. 두 스킬의 핵심 파일 4종은
+소스·후보·Codex 오버레이에서 SHA-256이 각각 일치한다. 원본 v20 후보도
+기존 digest로 재검증했다. 후보와 오버레이는 시험 후 같은 digest를
+다시 통과했다.
+
+오프라인 검증은 후보 `/vibe` 단위 220/220·자체 180/180,
+일회용 영수증 검증 복사본의 스모크 4/4, 관련 패키징·페르소나 회귀
+119/119, 스킬 validator 두 종 오류·경고 0, Codex manifest 5/5 통과다.
+기본 후보 카탈로그는 182개를 찾았다. 정적 경로 감사는 182스킬의
+143개 로컬 참조에서 미해결·이식 불가 명령 0개를 찾았지만,
+Gstack 직접 참조 31스킬·646회·고유 대상 9개 때문에 종료 1
+`external_runtime_pending`이다. 이를 통과로 바꾸거나 전체 런타임
+폐쇄로 해석하지 않는다.
+
+새 무인증·네트워크·클립보드 차단 Windows Sandbox에서 Claude Code
+2.1.283의 `--init-only` 대조군과 후보 모두 종료 0이었다. 후보는
+플러그인 5개·스킬 182개·명령 5개, 디버그 오류 0개를 로드했다.
+게스트 네트워크 활성 어댑터는 전후 0, API/OAuth 환경변수는 없었다.
+이번에 띄운 Sandbox 세션만 결과 수집 후 종료했다. 재현 스크립트,
+WSB 설정 및 원시 로그는
+`E:/Coding Infra/Releases/SimonK-stack/20260928-v21-g5-persona/sandbox-init-v21/`에
+보존한다. 초기화 성공은 실제 스킬 실행·훅·모델 응답·구독 청구 안전성을
+증명하지 않는다.
+
+Codex 오버레이의 5개 manifest는 유효하지만 **오버레이 기본 카탈로그는
+여전히 종료 2**다. `zoom-out`의 의도된 Codex 전용 투영 바이트가 기본
+원본 후보 영수증과 달라서 `Candidate skill metadata differs from receipt`로
+안전하게 차단된다. 명시적 루트·별도 오버레이 검증은 기본 경로의 해결을
+대체하지 않는다. 이 구조 선택은 Claude 소유 §35 결정 기록을 기다린다.
+PR #54 HTML 규칙, 기존 사용자 프로필 호환, Gstack 전이 런타임,
+구독 포함 경로·초과 과금 차단의 실측과 실제 Bot/Orca 연결도 남아 있다.
+`runtime_closure_verified`, `host_compatibility_verified`,
+`installation_ready`는 모두 `false`다. 사용자 설치·`main` 머지·모델/API/Bot
+실호출·결제 설정 변경은 없었다. 전체 증거와 명령은
+`E:/Coding Infra/Releases/SimonK-stack/20260928-v21-g5-persona/report.html`에
+정리했다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
