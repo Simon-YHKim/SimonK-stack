@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 18:47:10 KST
+updated: 2026-09-28 19:02:59 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 18:47:10 KST
+updated: 2026-09-28 19:02:59 KST
+
+- 2026-09-28 19:02:59 KST: src: user — fresh offline/no-auth Sandbox integrated Claude local marketplace5 install + split aliases + installed-plugin --init-only plugin182/user0/skip0/error0 + restore7 and uninstall installed0 PASS; first fixture had empty-JSON PowerShell null count false alarm, corrected fresh guest PASS. Separate Codex guest installed overlay plugins5 enabled during direct Core flat2 retarget, restored7, uninstall installed0 PASS. Exact guests stopped, no model/paid calls, host profile unchanged. Source INSTALL `ef107b1` pushed/clean; HTML/raw receipts in plugin-only-split-bridge. D-code, live command selection, full runtime closure and real install/main still pending.
 
 - 2026-09-28 18:47:10 KST: src: user — exact host-preflight/host-rollback scripts tested in yet another fresh offline/no-auth Sandbox with matching guest-only C:/Users/202502 profile paths. Preflight PASS; transition followed by Claude flat5/Codex flat2 restore and repeat rollback PASS; new Codex junctions quarantined, not deleted. Result `output-host-rehearsal/host-rollback-result.json`, source INSTALL `a9bc399` pushed/clean. Guest stopped, host preflight still PASS, host links untouched; D-code/real command choice/installation/main pending.
 
