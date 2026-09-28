@@ -2291,6 +2291,18 @@ v20 Codex 오버레이의 다섯 `.codex-plugin/plugin.json`은
 `catalog` 기본 경로의 영수증 결합이나 실제 모델 선택·설치 호환성을
 증명하지 않는다. 운영용 기본 카탈로그와 설치 전환은 여전히 보류한다.
 
+2026-09-28 **병합 전 오프라인 회귀**: 기능 브랜치에서
+`python -B -m unittest discover -s scripts/tests -p 'test_*.py'`는
+311건 중 308건 통과·3건 후보 환경변수 부재로 건너뜀, 실패 0이었다.
+v20 후보를 digest `9b0980aedf7af578b96eaba1d1586f6aab2a85cc7a708c640363c92572ba1318`
+로 다시 검증한 뒤 그 3건을 고정 후보 경로·digest를 제공해 별도로 실행했고
+모두 통과했다. 모델 대신 임시 `claude.cmd`를 사용하는 시험이며 실호출은
+없었다. 다섯 원본 플러그인 기능 브랜치는 각각 당시 `origin/main`을
+조상으로 포함하고 원격 기능 브랜치와 동기화된 깨끗한 작업트리였다.
+이 결과는 소스 회귀·fast-forward 가능성이지 운영 머지, Gstack 전이
+런타임, 구독 과금 또는 사용자 설치 준비의 증거가 아니다. 상세 기록은
+`E:/Coding Infra/Releases/SimonK-stack/20260928-merge-readiness/report.html`에 있다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
