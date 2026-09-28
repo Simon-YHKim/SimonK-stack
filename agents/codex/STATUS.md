@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 23:55:11 KST
+updated: 2026-09-29 00:01:52 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 23:55:11 KST
+updated: 2026-09-29 00:01:52 KST
+
+- 2026-09-29 00:01:52 KST: src: Simon direct, subscription-only/no extra paid calls. PR #54 instruction-source unit cherry-picked onto `feat/skill-context-budget-260925` as `002508e`, 4 files only, pushed. `python -B instructions/split.py --verify` PASS: source SHA matches all three generated outputs; baseline broken refs 3, increase 0. `git diff --check` PASS, feature clean. PR #54 remaining skills/template/CHANGELOG commit `709c1ed` is not integrated: preflight found only CHANGELOG conflict; deferred to next bounded unit because repo rule caps this session at 5 touched files. No main merge, installation, external model/Bot/API call or payment-setting change. HTML `agents/codex/outbox/preview/20260929-000152-pr54-instruction-unit.html`.
 
 - 2026-09-28 23:55:11 KST: src: Simon direct subscription-only `/vibe` continuation. Rebuilt v21 isolated source `d3056d93`, 5-plugin candidate `4e726c41`, Codex overlay `483d5147` from clean pinned sources; no v20/user overwrite. Candidate 5 plugins/182 skills/736 files, vibe220/selftest180, disposable smoke4, packaging/persona119, manifest5, baseline catalog182 PASS. Offline path audit unresolved0 but exits1 for Gstack external runtime31 skills/646 refs/9 targets; Codex overlay default catalog still exits2 on zoom-out projection. Fresh no-auth/network/clipboard Windows Sandbox Claude2.1.283 init control/candidate rc0, 5 plugins/182 skills/5 commands, errors0, network adapters0; own guest stopped. Three readiness flags false, no user install/main/model/API/Bot/Orca/payment change. Source docs `188d867` pushed/clean; report `Releases/SimonK-stack/20260928-v21-g5-persona/report.html`. PR #54 and Claude-owned overlay decision/runtime gates remain.
 
