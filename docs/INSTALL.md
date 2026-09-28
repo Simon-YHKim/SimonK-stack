@@ -1865,6 +1865,38 @@ Windows CSO 네이티브 launcher, 5플러그인 동시 설치, 기존 사용자
 올리지 않는다. Sandbox는 출력 보존 후 종료했고 사용자 설치본·`main`·
 결제 설정·모델/API/Bot/Orca 호출은 변경·실행하지 않았다.
 
+### Gstack 프로젝트 스킬과 v20 플러그인 동시 초기화
+
+위 로컬 설치 하네스를 새 Windows Sandbox에서 다시 실행하고,
+`postcheck.json`의 프로젝트 Gstack 엔트리 57/57을 통과 조건으로 삼았다.
+같은 게스트에서 Claude Code 2.1.283의 `--init-only`를 두 번 실행했다.
+첫 번째는 Gstack 프로젝트만, 두 번째는 검증된
+`candidate-safety-v20`의 5개 플러그인을 각각 `--plugin-dir`로 추가했다.
+Gstack 원본은 `01593aa67c94780528e8f5121e47362502410ced`, 후보
+영수증 SHA-256은
+`9b0980aedf7af578b96eaba1d1586f6aab2a85cc7a708c640363c92572ba1318`
+로 고정했다. 게스트에는 모델/API 인증정보를 넣지 않았고 모델 응답 생성은
+실행하지 않았다. 공개 Bun 패키지 다운로드를 위해 네트워크 어댑터 1개가
+활성화됐으며, Gstack 설정의 telemetry/update/sync/auto-upgrade는 꺼져
+있었다.
+
+두 초기화 모두 종료 0이었다. 첫 실행은 프로젝트 스킬 57개,
+플러그인 0개를 로딩했고, 합동 실행은 같은 프로젝트 스킬 57개와
+플러그인 스킬 182개·5개 플러그인을 로딩했다. 합동 실행에서
+`duplicate/user-owned entries skipped`는 0, 디버그 `[ERROR]`도 0이었다.
+첫 **단독** 실행에는 새 게스트의 아직 없는 `.claude.json` 잠금 저장
+시도에서 `ENOENT` 디버그 오류 1건이 있었으므로 무오류 실행으로
+기록하지 않는다. 합동 실행에는 같은 오류가 재발하지 않았다. 원시
+영수증·로그·하네스와 자체완결 보고서는
+`E:/Coding Infra/Releases/SimonK-stack/20260928-gstack-v20-coexistence/`에
+보존했다.
+
+이것은 Gstack **프로젝트 로컬** + v20 `--plugin-dir` 임시 로딩의
+**초기화 공존** 증거다. 5플러그인의 실제 marketplace 설치·철회,
+기존 사용자 프로필과의 호환, 31개 참조 스킬의 실행·전이 의존성,
+Playwright/CSO, 모델·Bot·Orca 및 구독 청구는 포함하지 않는다.
+따라서 원본 `main`, 사용자 설치본과 세 readiness 플래그는 그대로다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
