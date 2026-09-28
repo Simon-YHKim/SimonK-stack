@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 04:52:52 KST
+updated: 2026-09-29 05:28:08 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 04:52:52 KST
+updated: 2026-09-29 05:28:08 KST
+
+- 2026-09-29 05:28:08 KST: src: Simon direct, subscription-only continuation. Source feature `103853f` pushed/clean: preview launcher now allowlists exact Sonnet5/5.5 IDs and starts in a fresh empty temporary workspace, preserving prior default and blocking other models. Pinned v23 5-plugin/182-skill digest verified before/after. Claude Code2.1.284 auth was claude.ai/firstParty/Max, alternate API env absent; user confirmed extra usage/credits OFF. Interactive Sonnet5.5 low/Max returned one exact no-tool canary response, then a second session actually loaded `Skill(simonk-core:vibe)` and correctly reported no file/shell tool access. No `claude -p`/API/Bot/Orca path or billing-setting change. Actual provider charge ledger not observable; included subscription use was intended/observed via CLI. Tests source330 (327 pass/3 skip), pinned preview7/7, vibe validator0 errors/warnings, graphify local update PASS, secret-pattern diff0. HTML `E:/Coding Infra/Releases/SimonK-stack/20260929-v23-sonnet55/report.html` updated. Automatic selection, actual catalog/plan/dispatch, Codex default catalog, Gstack transitive effects, user install/main merge remain open; readiness3=false.
 
 - 2026-09-29 04:52:52 KST: src: Simon direct, nonpaid continuation. Fixed separate Gstack source 01593aa static audit: all 31 candidate-dependent skills reference `gstack-update-check`, whose config default is `update_check=true`; it can perform remote Git/VERSION queries and delete outdated skill description files. Egress receipt open mode can send on receipt failure. Telemetry and artifact sync default off but have conditional Supabase/spool/push paths; 30 skills mention `gstack-team-init` with vendored removal and repo/hook writes, while config render can relink skills. Source INSTALL commit `0b57aea` pushed/clean; local v23 HTML updated and Claude FYI prepared. This is static code evidence, not live runtime closure; user-home Gstack untouched, model/Bot/Orca calls and paid use0, installation/main unchanged, readiness3=false.
 
