@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 14:39:35 KST
+updated: 2026-09-28 14:57:34 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 14:39:35 KST
+updated: 2026-09-28 14:57:34 KST
+
+- 2026-09-28 14:57:34 KST: src: user — new no-auth Windows Sandbox guest-home Gstack `01593aa6` setup exit0, guest user skills57, candidate's 9 direct helper paths present and `gstack-config get telemetry=off` via `$HOME` path. Claude Code 2.1.283 `--init-only` with v20 5-plugin candidate loaded user57+plugin182, skip0, combined debug errors0; Gstack-only first init debug ENOENT1 documented. Source docs commit `bacf51b` pushed/clean; HTML/raw evidence `Releases/SimonK-stack/20260928-gstack-home-v20-probe/`. Guest closed, real user home Gstack untouched, model/API/Bot/Orca paid calls0, main/install/payment unchanged. D-code/runtime execution/user-profile rollback/readiness3=false remain.
 
 - 2026-09-28 14:39:35 KST: src: user — new no-auth Windows Sandbox installed pinned Gstack `01593aa6` project-local, then Claude Code 2.1.283 `--init-only` loaded 57 Gstack project skills alongside v20 five-plugin `--plugin-dir` 182 skills, skip0/combined debug errors0, both CLI exits0. Gstack-only first init had one missing new guest config lock ENOENT debug error but exit0; combined did not repeat. Candidate receipt hash unchanged. Source docs/README `ccbe491` origin pushed/clean; HTML/raw JSON `Releases/SimonK-stack/20260928-gstack-v20-coexistence/`. Guest closed; no model/API/Bot/Orca paid call, user install/main/payment change. D-code/runtime execution/user-profile rollback/readiness3=false remain.
 
