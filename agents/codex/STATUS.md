@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 11:52:48 KST
+updated: 2026-09-28 12:10:45 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 11:52:48 KST
+updated: 2026-09-28 12:10:45 KST
+
+- 2026-09-28 12:10:45 KST: src: user — v20 Claude/Codex local install rehearsal in two fresh no-network Windows Sandbox guests passed. Claude 5 enabled, 734/734 cache bytes, after uninstall plugins/markets0, residual guest cache739 unclassified; Codex 5 enabled, 740/740 bytes, after uninstall plugins/markets/cache0. No credentials, model/API/Bot calls, user install, main merge or payment change. SimonK-stack feature branch docs commit `3096bc3` pushed; HTML evidence and FYI delivered. Runtime/host/user-profile readiness still false; §35 D-code pending.
 
 - 2026-09-28 11:52:48 KST: src: user — SimonK-stack `/vibe` non-paid continuation. Pinned Gstack `01593aa6` Claude/Codex generated docs: Windows Sandbox network-off batch 62 combinations, 50 start passes + 1 30s timeout + 3 generated missing + 8 default-heading omissions; follow-up 5/5 pass (4 after-scope-gate preambles plus Claude health at 60s). Effective 55/55 available startup preambles passed, 3 generated docs absent, 4 docs have no startup preamble. External runtime/host/install gates remain false; no user install, main merge, model/API/Bot call, or payment change. HTML evidence and FYI sent to Claude; previous D-code requests remain open.
 
