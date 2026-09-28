@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 21:03:01 KST
+updated: 2026-09-28 21:12:02 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 21:03:01 KST
+updated: 2026-09-28 21:12:02 KST
+
+- 2026-09-28 21:12:02 KST: src: user — ai-debate panel A/B/C plus separate judge reviewed normal Codex overlay default catalog failure. Judge conditionally recommends strict overlay-aware default discovery (A 4.10/5), B existing pinned verify+explicit roots interim (3.75), C independent v3 bundle later (3.40); B minority preserved. Korean HTML `E:/Coding Infra/Releases/SimonK-stack/20260928-codex-overlay-debate/report.html`. Claude-owned D-code requested; no architecture code change until record. Source feature clean at `ca7353d`, hub fyi `fab8f06` pushed. No external provider CLI/model/Bot/paid calls or billing changes, readiness unchanged.
 
 - 2026-09-28 21:03:01 KST: src: user — v20 Codex overlay 5/5 plugin manifests passed validation and pinned overlay verify PASS. Embedded default `/vibe` catalog fails closed because base bundle expects original zoom-out SKILL byte; direct 182/182 skill hash comparison found only that intended projection differs. Explicit 5-root inventory complete, 182 records; separately pinned overlay verification is still required and does not authorize dispatch. Source INSTALL clarification `ca7353d` pushed feature; bundle/overlay regression 50/50 PASS, graphify local AST update PASS. Main/install/readiness remain untouched, no model/Bot/paid calls.
 
