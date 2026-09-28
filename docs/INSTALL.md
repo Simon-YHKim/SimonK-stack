@@ -1821,6 +1821,50 @@ Claude 전용이며 Codex에서는 거부된다(`setup:670–686`). 이 옵션�
 범위·별칭 소유권·롤백 계약은 허브 §35 결정 이후 확정한다. 이번 점검은
 `setup`을 실행하지 않았고 사용자 설치·결제·readiness 플래그를 바꾸지 않았다.
 
+### 고정 Gstack의 격리된 프로젝트 로컬 설치
+
+별도 네트워크 사용 Windows Sandbox의 **새 프로젝트·새 HOME**에서 위
+`01593aa`를 읽기 전용 매핑 후 게스트 내부 Git clone으로 복사했다. Bun도
+SHA-256 대조 후 게스트 내부로 복사했고, 모델/API 인증정보는 전달하지
+않았다. `telemetry=off`, `update_check=false`, `artifacts_sync_mode=off`,
+`auto_upgrade=false`를 먼저 설정했다. 공개 Bun 패키지 다운로드를 허용하되
+`GSTACK_SKIP_PLAYWRIGHT=1`로 Chromium bootstrap은 생략했다. 프로젝트
+루트에서 다음 명령을 실행했다.
+
+```bash
+bash .claude/skills/gstack/setup --local --host claude --no-team \
+  --prefix --no-plan-tune-hooks --no-timeline-stop-hook --quiet
+```
+
+최종 게스트에서 `setup` 종료 0, `browse`·`design`·`make-pdf`·
+`gstack-global-discover` Windows 실행 파일과 빌드 스탬프 존재,
+프로젝트 `.claude/skills`의 `SKILL.md` 보유 엔트리 57/57을 확인했다.
+구성은 로그의 `linked skills` 54개와 `gstack`, `_gstack-command`,
+`gstack-connect-chrome` 세 엔트리다. `gstack-qa`, `gstack-cso`,
+`gstack-open-gstack-browser`, 이름 재작성된 `gstack-connect-chrome`도
+실제 경로 검사를 통과했다. 원본 clone의 추적 파일 53개는 생성·이름
+패치로 변경됐으므로 이 설치 절차를 불변 패키지 입력에 직접 적용할 수
+없다. 원격 Gstack HEAD와 호스트 고정 원본은 같은 commit이며 호스트
+작업트리는 깨끗하다.
+
+첫 두 번의 `setup` 종료 0은 **시험 하네스의 작업 디렉터리 오류**로
+프로젝트가 아닌 Gstack 소스 내부의 중첩 `.claude/skills`에 등록됐다.
+그 결과 프로젝트 엔트리는 `gstack` 하나였으며 성공 판정에서 제외했다.
+명령을 프로젝트 루트로 수정한 세 번째 독립 게스트의 `output3/`만 위
+57/57 판정의 근거다. 첫 두 출력도 오류 이력으로 보존했다. 자체완결
+보고서와 결과 JSON·하네스는
+`E:/Coding Infra/Releases/SimonK-stack/20260928-gstack-setup-sandbox/`에 있다.
+
+생성 과정의 Codex-format `gstack-plan-ceo-review`·`gstack-ship` 문서는
+원본 생성기의 160,000바이트 token-ceiling 경고를 받았다. 이 경고는
+Codex 호스트가 실제 거절했다는 측정은 아니다. 이번 결과도 Gstack **단독
+Claude 프로젝트 로컬 설치**와 실행 파일 생성만 증명한다. Playwright,
+Windows CSO 네이티브 launcher, 5플러그인 동시 설치, 기존 사용자 프로필
+롤백, 스킬 본문 전이 실행, 구독 청구 안전성은 검증하지 않았다. Gstack을
+현 8 MiB/64 MiB 후보 영수증에 자동 포함하거나 세 readiness 플래그를
+올리지 않는다. Sandbox는 출력 보존 후 종료했고 사용자 설치본·`main`·
+결제 설정·모델/API/Bot/Orca 호출은 변경·실행하지 않았다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
