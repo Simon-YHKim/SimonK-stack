@@ -1282,9 +1282,10 @@ SHA-256은 호스트 생성본과 일치했고 모두 종료 0·시작 프로토
 별도의 소유권·별칭·훅 의미 검토 없이 진행할 수 없다.
 
 `scripts/gstack_migration_audit.py`는 검증된 후보와 별도 생성 폴더를
-읽기 전용으로 대조한다. 파일명 대신 생성 문서 frontmatter의 선언 이름을
-매칭하고, 없어진 로컬 정책 제목·500줄 초과 본문·생성 폴더 절대 링크·
-사용자 홈 Gstack 링크를 검토 항목으로
+읽기 전용으로 대조한다. 파일명 대신 생성 `SKILL.md` frontmatter의 선언 이름을
+매칭하고, 없어진 로컬 정책 제목·500줄 초과 본문을 확인한다. 경로 감사는
+선언된 스킬 폴더의 보조 Markdown까지 포함하여 생성 폴더 절대 링크·
+사용자 홈 Gstack 링크(`~`, `$HOME`, `${HOME}`)를 검토 항목으로
 보고한다. 비밀이 들어갈 수 있는 명령문이나 본문은 출력하지 않는다.
 
 ```powershell
@@ -1304,6 +1305,10 @@ python -B scripts/gstack_migration_audit.py `
 감사 결과는 `migration_review_required`/종료 1이며 검증기 단위 테스트
 9건이 통과했다. digest는 선택된 생성 `SKILL.md`의 상대 경로와 바이트를 고정하며
 런타임·보조 파일이나 원본 Git 커밋과의 생성 관계는 검증하지 않는다.
+전체 Markdown 바이트는 별도의 `generated_markdown_digests`로 고정하며,
+`--expected-claude-markdown-digest`와 `--expected-codex-markdown-digest`를
+함께 지정할 때만 `generated_markdown_bytes_verified=true`다. 이 플래그는
+제공한 digest와의 바이트 일치일 뿐 원본 출처나 실행 가능성 증명이 아니다.
 
 생성 관계의 별도 재현 확인(2026-09-28): 작업트리가 깨끗한 격리 Gstack
 `01593aa67c94780528e8f5121e47362502410ced`에서
@@ -1509,6 +1514,22 @@ v18 후보 digest `2f49c092d816802863b41ad6c194f066d5ae1bfbca30bd522d68c2fac8295
 `bin` 636, `scripts` 78, `docs` 78, 기타 자산·스킬 43,
 동적·루트 표현 49로 정확히 합산됐다(Codex 0). 이 집계는 명령 본문·
 경로값을 출력하지 않으며 각 링크의 실행성·이식 가능성을 증명하지 않는다.
+2026-09-28 보정: 위 47·884건과 구성요소 분류는 당시 `SKILL.md`만
+집계한 값이다. 감사 범위를 같은 생성 폴더의 보조 Markdown까지 넓혀
+Claude 102개(스킬 54·보조 48), Codex 55개를 검사했다. Claude에서는
+생성 폴더 절대 링크 51건/24파일, `~/.claude/skills/gstack/` 1,106건/79파일,
+`$HOME`·`${HOME}` 표현 합계 180건/69파일이 확인됐다(Codex는 각 0건).
+홈 리터럴 1,106건의 첫 구성요소는 `bin` 818, `scripts` 78, `docs` 78,
+기타 자산·스킬 83, 동적·루트 49이며, 서로 다른 경로 표현의 발생 횟수를
+독립 파일 수로 합산하면 안 된다. 전체 Markdown digest는 Claude
+`6ef0da0c230116654f723496d4439b7c294bea1d5b7765a8f6f0e9538bfa2383`,
+Codex `da8072df0d6a265bba065c9f5783898c8d964f5bae72455e2c8f94d7bbcad894`다.
+작업트리가 깨끗한 고정 원본 `01593aa67c94780528e8f5121e47362502410ced`에서
+`runGeneration`을 별도 `20260928-gstack-regenerated` 폴더에 다시 실행하고
+원래 `contentLinkRoot` 문자열을 지정한 뒤 두 전체 digest와 파일 수가
+일치함을 확인했다. 이는 해당 커밋·옵션의 정적 생성 재현이며 런타임·
+호스트 호환성 또는 이식 완료 증명이 아니다. 재감사도
+`migration_review_required`/종료 1이다.
 원본 생성기는 Claude 링크 루트를 절대 경로로 정규화하고 Claude 문서에는
 사용자 홈을, Codex 문서에는 별도 `$GSTACK_ROOT` 탐색을 사용한다. 현재
 5플러그인 후보 영수증에 고정 Gstack 런타임은 포함되지 않는다. 호스트별

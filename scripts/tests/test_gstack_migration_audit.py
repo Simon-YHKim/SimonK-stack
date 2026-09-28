@@ -58,7 +58,7 @@ class GstackMigrationAuditTests(unittest.TestCase):
             "review": ("review/SKILL.md", "No local link\n"),
         }
         self.assertEqual(audit.generated_root_links(docs, Path("E:/probe")),
-                         {"skills": 2, "occurrences": 2})
+                         {"files": 2, "occurrences": 2})
 
     def test_generated_user_home_gstack_counter_finds_legacy_links(self):
         docs = {
@@ -67,7 +67,7 @@ class GstackMigrationAuditTests(unittest.TestCase):
             "review": ("review/SKILL.md", "No legacy path\n"),
         }
         self.assertEqual(audit.generated_user_home_gstack_links(docs),
-                         {"skills": 2, "occurrences": 2})
+                         {"files": 2, "occurrences": 2})
 
     def test_generated_user_home_links_are_classified_without_exposing_paths(self):
         docs = {
@@ -83,6 +83,12 @@ class GstackMigrationAuditTests(unittest.TestCase):
                                  "other_asset_or_skill": 1, "dynamic_or_root": 2})
         self.assertEqual(sum(kinds.values()),
                          audit.generated_user_home_gstack_links(docs)["occurrences"])
+
+    def test_shell_home_spellings_are_counted_without_raw_paths(self):
+        docs = {"qa": ("qa/SKILL.md", "$HOME/.claude/skills/gstack/bin/run\n"
+                        "${HOME}/.claude/skills/gstack/docs/a.md\n")}
+        self.assertEqual(audit.generated_shell_home_gstack_links(docs),
+                         {"files": 1, "occurrences": 2})
 
     def test_compare_pair_reports_missing_policy_and_format_without_claiming_failure(self):
         legacy = ("---\nname: investigate\n---\n"
@@ -151,9 +157,9 @@ class GstackMigrationAuditTests(unittest.TestCase):
             with patch.object(audit.plugin_bundle, "verify_bundle", return_value=receipt):
                 report = audit.audit_candidate(source, "0" * 64, generated)
         self.assertEqual(report["generated_root_links"]["claude"],
-                         {"skills": 1, "occurrences": 1})
+                         {"files": 1, "occurrences": 1})
         self.assertEqual(report["generated_root_links"]["codex"],
-                         {"skills": 0, "occurrences": 0})
+                         {"files": 0, "occurrences": 0})
         self.assertEqual(report["status"], "migration_review_required")
 
     def test_legacy_user_home_link_prevents_static_mapping_pass(self):
@@ -178,10 +184,67 @@ class GstackMigrationAuditTests(unittest.TestCase):
             with patch.object(audit.plugin_bundle, "verify_bundle", return_value=receipt):
                 report = audit.audit_candidate(source, "0" * 64, generated)
         self.assertEqual(report["generated_user_home_gstack_links"]["claude"],
-                         {"skills": 1, "occurrences": 1})
+                         {"files": 1, "occurrences": 1})
         self.assertEqual(report["generated_root_links"]["claude"],
-                         {"skills": 0, "occurrences": 0})
+                         {"files": 0, "occurrences": 0})
         self.assertEqual(report["status"], "migration_review_required")
+
+    def test_support_markdown_only_paths_prevent_static_mapping_pass(self):
+        skill = "plugins/SimonKStack/skills/qa/SKILL.md"
+        body = b"---\nname: qa\n---\n~/.claude/skills/gstack/bin/gstack-skill-start\n"
+        receipt = {"files": [{"path": skill, "size": len(body),
+                              "sha256": audit.release.digest(body)}]}
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "source"
+            target = source / skill
+            target.parent.mkdir(parents=True)
+            target.write_bytes(body)
+            generated = root / "generated"
+            claude = generated / "qa"
+            codex = generated / ".agents" / "skills" / "gstack-qa"
+            for folder in (claude, codex):
+                folder.mkdir(parents=True)
+                (folder / "SKILL.md").write_text("---\nname: qa\n---\n", encoding="utf-8")
+            (claude / "sections").mkdir()
+            (claude / "sections" / "detail.md").write_text(
+                f"Read {generated.as_posix()}/qa/sections/detail.md\n"
+                "Run $HOME/.claude/skills/gstack/bin/gstack-skill-start\n",
+                encoding="utf-8")
+            with patch.object(audit.plugin_bundle, "verify_bundle", return_value=receipt):
+                report = audit.audit_candidate(source, "0" * 64, generated)
+        self.assertEqual(report["generated_markdown_files"], {"claude": 2, "codex": 1})
+        self.assertEqual(report["generated_root_links"]["claude"],
+                         {"files": 1, "occurrences": 1})
+        self.assertEqual(report["generated_shell_home_gstack_links"]["claude"],
+                         {"files": 1, "occurrences": 1})
+        self.assertEqual(report["status"], "migration_review_required")
+        self.assertFalse(report["generated_markdown_bytes_verified"])
+
+    def test_support_markdown_digest_changes_and_requires_matching_pin(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            generated = root / "generated"
+            folder = generated / "qa"
+            folder.mkdir(parents=True)
+            (folder / "SKILL.md").write_text("---\nname: qa\n---\n", encoding="utf-8")
+            support = folder / "detail.md"
+            support.write_text("first\n", encoding="utf-8")
+            with patch.object(audit.plugin_bundle, "verify_bundle", return_value={"files": []}):
+                first = audit.audit_candidate(root / "package", "0" * 64, generated)
+                support.write_text("second\n", encoding="utf-8")
+                second = audit.audit_candidate(root / "package", "0" * 64, generated)
+                self.assertEqual(first["generated_doc_digests"], second["generated_doc_digests"])
+                self.assertNotEqual(first["generated_markdown_digests"],
+                                    second["generated_markdown_digests"])
+                pinned = audit.audit_candidate(root / "package", "0" * 64, generated,
+                                               expected_generated_markdown_digests=
+                                               second["generated_markdown_digests"])
+                self.assertTrue(pinned["generated_markdown_bytes_verified"])
+                with self.assertRaisesRegex(ValueError, "Generated Markdown digest mismatch"):
+                    audit.audit_candidate(root / "package", "0" * 64, generated,
+                                          expected_generated_markdown_digests=
+                                          first["generated_markdown_digests"])
 
     def test_empty_legacy_set_is_not_a_migration_pass(self):
         skill = "plugins/SimonKStack/skills/qa/SKILL.md"

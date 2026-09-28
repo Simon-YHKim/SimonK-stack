@@ -92,10 +92,36 @@ def generated_digest(documents: dict[str, tuple[str, str]]) -> str:
     return release.digest(release.encoded(members))
 
 
+def generated_markdown_documents(root: Path,
+                                 skills: dict[str, tuple[str, str]]) -> dict[str, tuple[str, str]]:
+    """Read Markdown under declared skill folders, including support sections."""
+    root = release.no_links(Path(root))
+    documents = {}
+    for skill_path, _ in skills.values():
+        folder = release.safe_member(root, Path(skill_path).parent.as_posix())
+        for path in sorted(folder.rglob("*")):
+            if path.suffix.casefold() not in {".md", ".markdown"}:
+                continue
+            member = path.relative_to(root).as_posix()
+            body = release.read_file(release.safe_member(root, member)).decode("utf-8")
+            documents[member] = (member, body)
+    if any(documents.get(member, (None, None))[1] != body
+           for member, body in skills.values()):
+        raise ValueError("Generated SKILL.md changed during Markdown scan")
+    return documents
+
+
+def generated_markdown_digest(documents: dict[str, tuple[str, str]]) -> str:
+    """Pin all selected Markdown paths and bytes; this is not an origin proof."""
+    members = {member: release.digest(body.encode("utf-8"))
+               for member, body in sorted(documents.values())}
+    return release.digest(release.encoded(members))
+
+
 def _literal_link_counts(documents: dict[str, tuple[str, str]], prefix: str) -> dict:
     counts = [body.replace("\\", "/").casefold().count(prefix)
               for _, body in documents.values()]
-    return {"skills": sum(count > 0 for count in counts),
+    return {"files": sum(count > 0 for count in counts),
             "occurrences": sum(counts)}
 
 
@@ -108,6 +134,14 @@ def generated_root_links(documents: dict[str, tuple[str, str]], root: Path) -> d
 def generated_user_home_gstack_links(documents: dict[str, tuple[str, str]]) -> dict:
     """Count literal links to a separately installed user-home Gstack tree."""
     return _literal_link_counts(documents, "~/.claude/skills/gstack/")
+
+
+def generated_shell_home_gstack_links(documents: dict[str, tuple[str, str]]) -> dict:
+    """Count either shell HOME spelling without exposing file bodies."""
+    prefixes = ("$home/.claude/skills/gstack/", "${home}/.claude/skills/gstack/")
+    counts = [sum(body.replace("\\", "/").casefold().count(prefix)
+                  for prefix in prefixes) for _, body in documents.values()]
+    return {"files": sum(count > 0 for count in counts), "occurrences": sum(counts)}
 
 
 def generated_user_home_gstack_link_kinds(documents: dict[str, tuple[str, str]]) -> dict:
@@ -127,25 +161,38 @@ def generated_user_home_gstack_link_kinds(documents: dict[str, tuple[str, str]])
 
 
 def audit_candidate(package: Path, expected_digest: str, generated_root: Path,
-                    expected_generated_digests: dict[str, str] | None = None) -> dict:
+                    expected_generated_digests: dict[str, str] | None = None,
+                    expected_generated_markdown_digests: dict[str, str] | None = None) -> dict:
     package = release.no_links(Path(package))
     receipt = plugin_bundle.verify_bundle(package, expected_digest)
     generated_root = release.no_links(Path(generated_root))
     host_docs = {host: generated_index(generated_root, host)
                  for host in ("claude", "codex")}
     generated_digests = {host: generated_digest(docs) for host, docs in host_docs.items()}
+    markdown_docs = {host: generated_markdown_documents(generated_root, docs)
+                     for host, docs in host_docs.items()}
+    markdown_digests = {host: generated_markdown_digest(docs)
+                        for host, docs in markdown_docs.items()}
     root_links = {host: generated_root_links(docs, generated_root)
-                  for host, docs in host_docs.items()}
+                  for host, docs in markdown_docs.items()}
     home_links = {host: generated_user_home_gstack_links(docs)
-                  for host, docs in host_docs.items()}
+                  for host, docs in markdown_docs.items()}
+    shell_home_links = {host: generated_shell_home_gstack_links(docs)
+                        for host, docs in markdown_docs.items()}
     home_link_kinds = {host: generated_user_home_gstack_link_kinds(docs)
-                       for host, docs in host_docs.items()}
+                       for host, docs in markdown_docs.items()}
     if expected_generated_digests is not None:
         if (set(expected_generated_digests) != set(generated_digests)
                 or any(not re.fullmatch(r"[0-9a-f]{64}", value)
                        for value in expected_generated_digests.values())
                 or expected_generated_digests != generated_digests):
             raise ValueError("Generated document digest mismatch")
+    if expected_generated_markdown_digests is not None:
+        if (set(expected_generated_markdown_digests) != set(markdown_digests)
+                or any(not re.fullmatch(r"[0-9a-f]{64}", value)
+                       for value in expected_generated_markdown_digests.values())
+                or expected_generated_markdown_digests != markdown_digests):
+            raise ValueError("Generated Markdown digest mismatch")
     entries = []
     seen = set()
     for item in receipt["files"]:
@@ -184,22 +231,28 @@ def audit_candidate(package: Path, expected_digest: str, generated_root: Path,
                 issues.append({"host": host, **row})
     status = ("no_legacy_gstack_refs" if not entries else
               "migration_review_required" if issues or any(
-                  row["occurrences"] for row in (*root_links.values(), *home_links.values()))
+                  row["occurrences"] for row in (*root_links.values(), *home_links.values(),
+                                                  *shell_home_links.values()))
               else "static_mapping_present")
     return {"status": status,
             "bundle_digest": expected_digest, "skills_checked": len(entries),
             "generated_doc_digests": generated_digests,
             "generated_bytes_verified": expected_generated_digests is not None,
+            "generated_markdown_digests": markdown_digests,
+            "generated_markdown_files": {host: len(docs) for host, docs in markdown_docs.items()},
+            "generated_markdown_bytes_verified": expected_generated_markdown_digests is not None,
             "generated_root_links": root_links,
             "generated_user_home_gstack_links": home_links,
+            "generated_shell_home_gstack_links": shell_home_links,
             "generated_user_home_gstack_link_kinds": home_link_kinds,
             "matched": matched, "missing": missing, "over_500_body_lines": over_500,
             "policy_gap_counts": gap_counts, "issues": issues,
             "runtime_closure_verified": False, "host_compatibility_verified": False,
-            "scope": "Literal generated name, body length, render-root/user-home links and selected "
-                     "legacy headings only; "
+            "scope": "Literal generated name, body length, all generated Markdown "
+                     "render-root/user-home/shell-HOME links and selected legacy headings only; "
                      "home link kinds are first-component hints, not executable-path proof; "
-                     "no semantic equivalence, generated provenance, runtime or host proof"}
+                     "digest pins are byte equality, not generated provenance; "
+                     "no semantic equivalence, runtime or host proof"}
 
 
 def main(argv=None) -> int:
@@ -209,6 +262,8 @@ def main(argv=None) -> int:
     parser.add_argument("--generated-root", type=Path, required=True)
     parser.add_argument("--expected-claude-digest")
     parser.add_argument("--expected-codex-digest")
+    parser.add_argument("--expected-claude-markdown-digest")
+    parser.add_argument("--expected-codex-markdown-digest")
     args = parser.parse_args(argv)
     try:
         if bool(args.expected_claude_digest) != bool(args.expected_codex_digest):
@@ -216,8 +271,13 @@ def main(argv=None) -> int:
         generated_pins = ({"claude": args.expected_claude_digest,
                            "codex": args.expected_codex_digest}
                           if args.expected_claude_digest else None)
+        if bool(args.expected_claude_markdown_digest) != bool(args.expected_codex_markdown_digest):
+            raise ValueError("Both generated Markdown digests are required together")
+        markdown_pins = ({"claude": args.expected_claude_markdown_digest,
+                          "codex": args.expected_codex_markdown_digest}
+                         if args.expected_claude_markdown_digest else None)
         result = audit_candidate(args.package, args.expected_digest, args.generated_root,
-                                 generated_pins)
+                                 generated_pins, markdown_pins)
     except (ValueError, OSError, UnicodeError, KeyError, TypeError):
         print('{"status":"blocked","message":"Gstack migration audit failed"}', file=sys.stderr)
         return 2
