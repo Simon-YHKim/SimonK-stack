@@ -4,6 +4,7 @@
 param(
     [Parameter(Mandatory = $true)] [string] $CandidateRoot,
     [Parameter(Mandatory = $true)] [string] $ExpectedDigest,
+    [string] $Model = 'claude-sonnet-5',
     [switch] $Run,
     [switch] $AllPlugins,
     [switch] $SubscriptionOnlyConfirmed
@@ -15,6 +16,9 @@ $reason = 'PREVIEW_BLOCKED'
 try {
     if ($ExpectedDigest -cnotmatch '^[0-9a-fA-F]{64}$') {
         $reason = 'DIGEST_INVALID'; throw 'blocked'
+    }
+    if ($Model -cnotin @('claude-sonnet-5', 'claude-sonnet-5-5')) {
+        $reason = 'MODEL_NOT_ALLOWLISTED'; throw 'blocked'
     }
     $digest = $ExpectedDigest.ToLowerInvariant()
     if ($Run -and -not $SubscriptionOnlyConfirmed) {
@@ -62,7 +66,8 @@ try {
     if (-not $Run) {
         [Console]::Out.WriteLine((@{status='candidate_verified'; bundle_digest=$digest;
             plugins=$receipt.plugins; skills=$receipt.skills; model_called=$false;
-            preview_plugins=$pluginNames.Count; installation_ready=$false} | ConvertTo-Json -Compress))
+            preview_plugins=$pluginNames.Count; model=$Model;
+            installation_ready=$false} | ConvertTo-Json -Compress))
         exit 0
     }
 
@@ -82,18 +87,30 @@ try {
     }
 
     $oldMcp = [Environment]::GetEnvironmentVariable('ENABLE_CLAUDEAI_MCP_SERVERS', 'Process')
+    $previewWorkspace = Join-Path ([IO.Path]::GetTempPath()) ('simonk-vibe-preview-' + [guid]::NewGuid().ToString('N'))
+    $reason = 'TEMP_WORKSPACE_FAILED'
+    New-Item -ItemType Directory -Path $previewWorkspace -ErrorAction Stop | Out-Null
+    $pushed = $false
     try {
         # Session-local only: avoid unrelated claude.ai connector schemas during routing evaluation.
         $env:ENABLE_CLAUDEAI_MCP_SERVERS = 'false'
+        Push-Location -LiteralPath $previewWorkspace
+        $pushed = $true
         [Console]::Out.WriteLine('Tool-restricted candidate preview; included subscription usage is consumed.')
-        [Console]::Out.WriteLine('Only Skill is available to the model; plugin hooks and host startup are not an OS sandbox.')
+        [Console]::Out.WriteLine('Only Skill is available to the model, from a new empty temporary workspace.')
+        [Console]::Out.WriteLine('Plugin hooks and host startup are not an OS sandbox.')
         [Console]::Out.WriteLine('This launcher cannot verify the account overage toggle; it relies on the explicit confirmation for this run.')
         & $claude.Source --setting-sources '' --strict-mcp-config @pluginArgs `
-            --model claude-sonnet-5 --effort low --permission-mode dontAsk `
+            --model $Model --effort low --permission-mode dontAsk `
             --allowedTools Skill --tools Skill --disallowedTools 'mcp__*' `
             --permission-prompts none
         $sessionExit = $LASTEXITCODE
     } finally {
+        if ($pushed) { Pop-Location }
+        # Remove only our newly created empty workspace; preserve unexpected files for inspection.
+        if (-not (Get-ChildItem -LiteralPath $previewWorkspace -Force -ErrorAction SilentlyContinue | Select-Object -First 1)) {
+            Remove-Item -LiteralPath $previewWorkspace -Force -ErrorAction SilentlyContinue
+        }
         if ($null -eq $oldMcp) {
             Remove-Item Env:ENABLE_CLAUDEAI_MCP_SERVERS -ErrorAction SilentlyContinue
         } else {

@@ -894,10 +894,13 @@ pwsh -NoProfile -NonInteractive -File scripts/preview-vibe-candidate.ps1 `
 `-AllPlugins`도 추가한다. `-AllPlugins`만 주면 5개 플러그인의 파일 존재와
 후보 digest를 확인하고 모델을 호출하지 않는다. `-Run`은 대화형 세션으로
 열리며 사용자가 입력한 프롬프트가 구독 사용량을 소비한다.
+`-Model`은 기본 `claude-sonnet-5` 또는 명시적 `claude-sonnet-5-5`만 허용한다.
+실행 시 새 빈 임시 작업 폴더에서 시작해 호출 저장소의 프로젝트 지침·권한을
+시험에 섞지 않으며, 예기치 않은 파일이 생긴 임시 폴더는 지우지 않는다.
 정확한 Max 구독 로그인과 API/대체 제공자 환경변수 부재를 재검사하며,
 그 자식 프로세스에만
 `ENABLE_CLAUDEAI_MCP_SERVERS=false`를 설정하고 `--strict-mcp-config`,
-기본 Core-inline 한 개 또는 명시된 5-plugin, Sonnet 5 `low`,
+기본 Core-inline 한 개 또는 명시된 5-plugin, 허용 목록의 Sonnet 모델 `low`,
 `dontAsk` 권한 모드, `Skill` 도구만 사용한다. `Skill`만 사전 허용하고
 `mcp__*`는 명시 차단하고 권한 프롬프트도 사용하지 않는다.
 [Claude Code 권한 문서](https://code.claude.com/docs/en/permissions)의
@@ -2591,6 +2594,33 @@ receipt`(종료 2)로 재현됐다. Gstack 전이 런타임 결손도 이 레지
 실행에는 정확한 원본/버전 고정, 전이 파일·플랫폼 도구 검증,
 `update_check=false`·`telemetry=off`·`artifacts_sync_mode=off`의
 격리된 기본 정책, 전송·팀 초기화의 별도 명시적 게이트에 관한 결정이 필요하다.
+
+2026-09-29 **Sonnet 5.5 Max 대화형 canary**: 후보 바이트를 재검증한 뒤
+`scripts/preview-vibe-candidate.ps1`의 정확한 모델 허용 목록에
+`claude-sonnet-5-5`를 추가하고, 기존 `claude-sonnet-5` 기본값은 유지했다.
+새 빈 임시 작업 폴더에서만 시작하며, 사용자 소스 저장소 신뢰 프롬프트는
+거절했고 임시 폴더만 수락했다. 브라우저 연결은 거절했다. 회귀 검사 7/7과
+v23의 5플러그인·182스킬 영수증 검사가 통과했다. Claude Code 2.1.284의
+시작 화면은 `Sonnet 5.5 with low effort · Claude Max`를 표시했고,
+도구를 쓰지 않는 단일 요청에 `VIBE_CANARY_OK`를 반환했다. 세션은 정상 종료,
+후보 digest는 종료 후에도 일치했다. API·대체 공급자 인증 환경변수는
+비어 있었고 `claude auth status --json`은 `claude.ai`/`firstParty`/`max`였다.
+사용자가 usage credits/extra usage 비활성화를 확인했고, 공식
+[Claude Code 모델 설정](https://code.claude.com/docs/en/model-config)은 Sonnet 5.5의
+네이티브 1M 사용에 별도 usage credits가 필요 없다고 명시한다. 이 경로는
+`claude -p`/Agent SDK가 아닌 대화형 세션이다. 따라서 추가 과금 없이
+구독 포함 사용량만 소비하도록 제한했지만, CLI는 초과 과금 토글이나 실제
+청구 원장을 기계적으로 읽지 못하므로 청구액 실측은 주장하지 않는다.
+이 성공은 **Sonnet 5.5의 이 계정 대화형 생성 접근**만 입증한다. 실제
+라우팅 선택, 다른 모델/벤더, 기존 사용자 설치본 호환성, Gstack 전이 실행,
+Bot/Orca 및 운영 설치는 미검증이다. 이어 같은 조건의 두 번째 대화형
+세션에서 `Skill(simonk-core:vibe)`가 실제 호출돼 후보 지침 로드에 성공했다.
+모델은 사용할 수 있는 도구가 Skill뿐이라 로컬 파일을 읽거나 스크립트를
+실행하지 못했다고 명확히 답했다. 따라서 **명시적 Skill 로딩**만 추가로
+검증됐고, `/vibe`의 catalog·plan·dispatch·자동 선택은 여전히 미검증이다.
+변경 후 소스 전체 테스트는 330건 중 327통과·3건너뜀·실패 0이며,
+후보 경로를 지정한 preview 회귀는 7/7이다. 세 설치 준비 플래그는
+여전히 모두 `false`다.
 
 ## One-shot 설치
 

@@ -52,6 +52,12 @@ class PreviewVibeCandidateTests(unittest.TestCase):
         self.assertIn("CANDIDATE_MISSING", result.stderr)
         self.assertFalse(self.candidate.exists())
 
+    def test_unapproved_model_blocks_before_any_host_or_verifier_call(self):
+        result = self.run_preview("-Model", "sonnet", "-Run", "-SubscriptionOnlyConfirmed")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("MODEL_NOT_ALLOWLISTED", result.stderr)
+        self.assertFalse(self.candidate.exists())
+
     def test_run_requires_explicit_subscription_confirmation(self):
         result = self.run_preview("-Run")
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
@@ -70,6 +76,7 @@ class PreviewVibeCandidateTests(unittest.TestCase):
         self.assertEqual(payload["status"], "candidate_verified")
         self.assertEqual(payload["bundle_digest"], digest)
         self.assertFalse(payload["model_called"])
+        self.assertEqual(payload["model"], "claude-sonnet-5")
 
     @unittest.skipUnless(os.environ.get("VIBE_PREVIEW_CANDIDATE") and
                          os.environ.get("VIBE_PREVIEW_DIGEST"),
@@ -100,18 +107,22 @@ class PreviewVibeCandidateTests(unittest.TestCase):
             ")\n"
             "echo %* > \"%VIBE_TEST_ARGV%\"\n"
             "echo %ENABLE_CLAUDEAI_MCP_SERVERS% > \"%VIBE_TEST_MCP%\"\n"
+            "cd > \"%VIBE_TEST_CWD%\"\n"
             "exit /b 0\n", encoding="ascii",
         )
         argv_file = self.root / "argv.txt"
         mcp_file = self.root / "mcp.txt"
+        cwd_file = self.root / "cwd.txt"
         result = self.run_preview(
             "-Run", "-SubscriptionOnlyConfirmed", "-AllPlugins",
+            "-Model", "claude-sonnet-5-5",
             candidate=Path(os.environ["VIBE_PREVIEW_CANDIDATE"]),
             digest=os.environ["VIBE_PREVIEW_DIGEST"],
             env_overrides={
                 "PATH": str(fake_bin) + os.pathsep + os.environ["PATH"],
                 "VIBE_TEST_ARGV": str(argv_file),
                 "VIBE_TEST_MCP": str(mcp_file),
+                "VIBE_TEST_CWD": str(cwd_file),
             },
         )
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -120,12 +131,15 @@ class PreviewVibeCandidateTests(unittest.TestCase):
         for name in ("SimonKCore", "SimonKDesign", "SimonKStack", "SimonKMarket", "SimonKAIHub"):
             self.assertIn(name, argv)
         self.assertIn("--permission-mode dontAsk", argv)
+        self.assertIn("--model claude-sonnet-5-5", argv)
         self.assertIn("--allowedTools Skill", argv)
         self.assertIn("--tools Skill", argv)
         self.assertIn("--disallowedTools mcp__*", argv)
         self.assertIn("--permission-prompts none", argv)
         self.assertNotIn("--permission-mode plan", argv)
         self.assertEqual(mcp_file.read_text(encoding="utf-8").strip(), "false")
+        self.assertIn("simonk-vibe-preview-", cwd_file.read_text(encoding="utf-8"))
+        self.assertNotIn(str(ROOT), cwd_file.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":
