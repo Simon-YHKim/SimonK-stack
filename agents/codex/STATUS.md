@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 14:57:34 KST
+updated: 2026-09-28 15:23:45 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 14:57:34 KST
+updated: 2026-09-28 15:23:45 KST
+
+- 2026-09-28 15:23:45 KST: src: user — v20 candidate installed/uninstalled in two fresh offline/no-auth Windows Sandbox guests seeded with an unrelated fixture plugin and personal skill. Claude 2.1.283 preserved fixture plugin/marketplace/enabled, 3 fixture cache files hashes, personal skill and settings marker, but left 739 inactive candidate cache files. Codex CLI 0.155.0 preserved fixture plugin/marketplace/enabled, 4 fixture cache files hashes and personal skill, candidate cache0. Failed Codex fixture manifest attempt and null-name result preserved; final fresh guest passed. Source docs `6cee2b9` origin pushed/clean; HTML/raw receipts under Releases existing-profile-rollback dirs. No real profile/install/main/payment/model/API/Bot/Orca change; readiness3=false, D-code/runtime/user-profile restore pending.
 
 - 2026-09-28 14:57:34 KST: src: user — new no-auth Windows Sandbox guest-home Gstack `01593aa6` setup exit0, guest user skills57, candidate's 9 direct helper paths present and `gstack-config get telemetry=off` via `$HOME` path. Claude Code 2.1.283 `--init-only` with v20 5-plugin candidate loaded user57+plugin182, skip0, combined debug errors0; Gstack-only first init debug ENOENT1 documented. Source docs commit `bacf51b` pushed/clean; HTML/raw evidence `Releases/SimonK-stack/20260928-gstack-home-v20-probe/`. Guest closed, real user home Gstack untouched, model/API/Bot/Orca paid calls0, main/install/payment unchanged. D-code/runtime execution/user-profile rollback/readiness3=false remain.
 
