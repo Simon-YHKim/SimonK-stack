@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 02:21:03 KST
+updated: 2026-09-29 02:40:44 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 02:21:03 KST
+updated: 2026-09-29 02:40:44 KST
+
+- 2026-09-29 02:40:44 KST: src: Simon direct, nonpaid continuation. v22 isolated Windows Sandbox Claude Code 2.1.283 `--init-only` control/candidate exits0; 5 plugins/182 skills/5 commands, debug errors0, active network adapters0 before/after. Sandbox CLI start had no login session, so the pinned read-only fixture ran via `wsb.exe Execute -r System`; raw result/debug preserved in `Releases/SimonK-stack/20260929-v22-html-pr54/sandbox-init-v22/output/`. Own Sandbox ID stopped, v22 receipt digest unchanged. Source INSTALL proof committed/pushed `d7e7aac` on clean feature branch. No model/Bot/Orca generation, extra spend, billing change, user install or main merge. Readiness3=false; Claude-owned overlay D-code and Gstack/host gates remain.
 
 - 2026-09-29 02:21:03 KST: src: Simon direct, nonpaid continuation. Closed the report-template runtime proof gap from PR #54 with a new local Chrome/Node regression on a fully filled v22 candidate template: 18/18 checks for tabs, keyboard, selection/memo persistence, copy failure fallback, dark/mobile/print/PDF; page external requests and JS exceptions 0. Visually inspected four screenshots. Source suite329=326 pass/3 candidate-gated skip; pinned v22 preview6/6, simonk-report validator 0 errors/warnings and dry-run only. Candidate digest unchanged, installation_ready=false. Added test/INSTALL/CHANGELOG in `65a3998`, pushed clean feature branch. Report `Releases/SimonK-stack/20260929-v22-html-pr54/report.html`. No user installation, main merge, model/Bot/Orca generation, payment change or extra paid usage. Claude-owned overlay D-code and Gstack/host gates remain.
 
