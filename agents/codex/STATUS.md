@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 18:22:34 KST
+updated: 2026-09-28 18:31:04 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 18:22:34 KST
+updated: 2026-09-28 18:31:04 KST
+
+- 2026-09-28 18:31:04 KST: src: user — prepared read-only host manifest and preflight plus host rollback script for proposed split bridge; exact current Claude flat5/Codex flat2 junction targets and old/new SKILL hashes and v20 bundle digest pass preflight. Script syntax parses0, HTML links9 valid. No user-profile link changed, rollback not executed, command-selection and guest rollback remain unverified. Claude D-code request still open; source feature/main/install/payment unchanged; no model or paid calls.
 
 - 2026-09-28 18:22:34 KST: src: user — fresh no-candidate 2-mapped-folder Windows Sandbox triage: one boot probe and a corrected first-operation marker retry both produced no marker while the exact guest window process remained alive/responsive; exact test instances closed, no live Sandbox remains. Thus split-bridge guest code never reached an observable execution point; boot/LogonCommand/mapping cause unresolved, not a skill-code FAIL/PASS. Explicit home path audit shows Claude flat vibe/vibe-bot still old candidate junctions; Codex flat two still junction through them; no exact local command/synced/project vibe collision file at checked paths. Source INSTALL note `fbdd041` feature pushed/clean; HTML updated. D-code, command selection and install remain open; no model or paid calls.
 
