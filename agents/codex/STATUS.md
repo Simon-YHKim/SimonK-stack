@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 22:34:07 KST
+updated: 2026-09-28 22:48:51 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 22:34:07 KST
+updated: 2026-09-28 22:48:51 KST
+
+- 2026-09-28 22:48:51 KST: src: Simon direct subscription-only `/vibe` continuation. A second fresh no-network/no-auth Sandbox reran all 31 Gstack-dependent candidate cases: 30 preambles exited0; the 31st `gstack-upgrade` has none. New guest `events.json` proves each of 30 timelines has exactly one JSON `started` event with its own skill name. Host independently matched all 30 event keys to TSV cases, verified 30 unique valid SHA-256 strings, and reverified unchanged v20 candidate digest; Sandbox stopped and no instance remains. Source INSTALL commit `7a23234` pushed/clean, path-audit tests18 PASS, report/receipts `Releases/SimonK-stack/20260928-candidate-gstack-preambles/`. Readiness flags still false; full skill behavior, host hook/profile and Claude-owned D-code/main gates remain. No provider/model/Bot/Orca call, account/payment change, user install or main merge.
 
 - 2026-09-28 22:34:07 KST: src: Simon direct subscription-only `/vibe` continuation. Fresh no-network/no-auth Windows Sandbox ran all 30 available v20 candidate Gstack startup preambles, each exit0 with one distinct nonempty timeline; 31st `gstack-upgrade` has no preamble. Guest copied and SHA-256 checked 195 pinned Gstack `bin/lib/VERSION` files; postcheck network adapters0, timeline30, telemetry0, sync queues0. Candidate digest stayed `9b0980ae...ba1318` and installation_ready=false. Earlier exploratory false-pass/false-fail outputs are excluded. Source INSTALL evidence commit `a5bda13` pushed feature, targeted path-audit tests18 PASS, HTML/raw proof `Releases/SimonK-stack/20260928-candidate-gstack-preambles/`. Full skill/runtime closure, user-host compatibility, Codex hook, D-code and main/install gates remain open. No external model/API/Bot/Orca call, account/payment changes, user install, or main merge.
 
