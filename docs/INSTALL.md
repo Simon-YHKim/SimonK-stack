@@ -1955,6 +1955,41 @@ manifest/출력 필드를 고친 **최종 새 게스트 결과**만 판정에 �
 않는다. 특히 Claude 잔여 캐시를 실제 홈에서 자동 삭제하지 않는다.
 readiness 세 플래그와 사용자 설치본·`main`·결제 설정은 그대로다.
 
+### 현재 PC의 flat 스킬과 v20 후보 중복·진입점 감사
+
+`/vibe`의 실제 전환 경계를 찾기 위해 현재 PC에서 **내용 스캔을 허용한
+네 flat 스킬 루트만** `inventory`로 읽고, 금지된 홈 Gstack 경로를
+`--exclude-root`로 선제 제외했다. 결과는 선택된 이름 198개, 후보
+182개와 교집합 138개였다. 후보와 선택된 설치본의 `SKILL.md` 원시
+해시가 같은 이름은 `multi-terminal-dispatcher` 1개뿐이고, 137개는
+다르며 44개는 이 범위의 설치본에 없다. `coverage`의 후보 플러그인
+내용은 182개 모두 matched였다. 홈 inventory는 Gstack의 두 경로를
+의도적으로 제외해 `scope_complete=false`이므로 전 PC 또는 호스트
+네이티브 스킬 전체의 완전성 증거가 아니다. 이름 중복은 곧바로 런타임
+충돌이나 선택 우선순위를 뜻하지 않는다.
+
+현재 `.claude/skills`의 flat 핵심 진입점 5개(`vibe`, `vibe-bot`,
+`simonk`, `model-router`, `multi-terminal-dispatcher`)는 모두
+`20260926-selection-validation/candidate`의 Core 스킬로 향하는 정션이다.
+Codex의 flat `vibe`·`vibe-bot`은 다시 이 `.claude/skills` 정션을
+가리킨다. 현재 flat `vibe`는 2.11.6, v20 후보는 2.12.1이며 해시가
+다르다. `vibe-bot`은 0.9.1→0.9.3, `model-router`는 0.2.1→0.2.4다.
+Claude 플러그인 등록부에는 SimonK 0개(전체 설치 2개), Codex CLI
+플러그인 목록에도 SimonK 0개(전체 활성 20개)였다. **플러그인만
+설치하면 기존 flat `/vibe` 정션의 본문이 자동 교체된다는 증거는 없다.**
+
+별도 무인증·오프라인 Sandbox에서 기존 flat 핵심 스킬 5개를 게스트
+사용자 스킬로 복사하고 v20 5개 플러그인을 `--plugin-dir`로 동시에
+초기화했다. Claude Code 2.1.283 두 실행 모두 종료 0, flat user 스킬
+5개 유지, 플러그인 스킬 182개 로딩, duplicate/user-owned skip 0,
+합동 디버그 오류 0이었다. 첫 flat-only 초기화에는 새 게스트
+`.claude.json` lock-save `ENOENT` 디버그 오류 1건이 있었다. 이 결과는
+양쪽 **등록 공존**을 증명하지만 `/vibe` 실제 호출이 어느 본문을
+선택하는지는 증명하지 않는다. 새 후보 배포에는 flat 진입점 전환·
+복원 설계와 실제 명령 선택 검증이 별도로 필요하다. 원시 영수증과
+보고서는 `E:/Coding Infra/Releases/SimonK-stack/20260928-flat-v20-priority-probe/`에
+있다. 기존 정션·설치본·`main`·결제 설정은 변경하지 않았다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
