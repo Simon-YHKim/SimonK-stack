@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 14:04:29 KST
+updated: 2026-09-28 14:25:09 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 14:04:29 KST
+updated: 2026-09-28 14:25:09 KST
+
+- 2026-09-28 14:25:09 KST: src: user — fixed Gstack `01593aa6` project-local Claude setup in a fresh no-auth Windows Sandbox with public Bun package downloads, telemetry/update/sync/auto-upgrade off and Playwright skipped. Final third guest setup exit0, project `.claude/skills` 57/57 SKILL.md, browse/design/pdf/global-discover compiled; first two setup exit0 observations excluded due harness CWD error (nested source install). Source docs/README commit `f2adf59` origin pushed/clean; self-contained HTML and raw JSON `Releases/SimonK-stack/20260928-gstack-setup-sandbox/`. Guest closed, host Gstack clean; no user install/main/model/API/Bot/Orca/payment change. D-code/5-plugin coexistence/full runtime/rollback/readiness3=false remain.
 
 - 2026-09-28 14:04:29 KST: src: user — pinned Gstack `01593aa6` setup boundary reviewed read-only: `--local` Claude-only and not dry-run; preinstall migration, missing build artifacts and `bun install` fallback mean offline direct-helper 9/9 cannot be promoted to full install. Documented in SimonK-stack feature commit `f504f21`, origin pushed/clean. D-code/alias ownership and three readiness flags remain pending/false; no setup, user install/main, model/API/Bot/Orca call, or payment change. FYI sent to Claude.
 
