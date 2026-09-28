@@ -2082,6 +2082,19 @@ Codex flat `vibe`·`vibe-bot` 2개가 끊길 수 있다. 별도 패널·독립 �
 여전히 열려 있으므로 세 readiness 플래그는 false이고 사용자
 설치본·원본 `main`은 변경하지 않았다.
 
+호스트용 별도 사전 검사·역복원 스크립트도 또 다른 네트워크·인증정보
+없는 새 Sandbox에서 검사했다. 게스트 내부에만 실제 호스트와 동일한
+`C:/Users/202502/.claude`·`.codex` 경로 구조를 만들고, 후보를 읽기
+전용으로 공유했다. 게스트에 맞게 후보 대상만 치환한 매니페스트로
+`host-preflight.ps1`이 기존 7개 정션·구/신 본문 해시를 확인했고,
+`host-rollback.ps1`은 제안한 전환 후 Claude 5개·Codex 2개를 원상
+복원했다. 두 번째 역복원도 PASS였으며 새 Codex 정션 2개는 삭제하지
+않고 격리 폴더에 보존했다. 영수증은
+`E:/Coding Infra/Releases/SimonK-stack/20260928-plugin-only-split-bridge/output-host-rehearsal/host-rollback-result.json`에
+있다. 호스트용 스크립트의 로직을 게스트에서 확인한 것이며 실제
+호스트 링크를 이동하거나 복원한 것은 아니다. 정확한 게스트 ID는
+종료했고 현재 호스트 사전 검사도 PASS다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
