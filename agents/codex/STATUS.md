@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 19:02:59 KST
+updated: 2026-09-28 19:07:05 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 19:02:59 KST
+updated: 2026-09-28 19:07:05 KST
+
+- 2026-09-28 19:07:05 KST: src: user — fixed host rollback gap for Codex old junction saved before new junction creation. Fresh offline/no-auth guest injected Claude model-router and Codex vibe saved-old/current-missing states; host rollback restored both and all flat5+2 hashes, repeat rollback PASS. Guest stopped, host preflight still PASS. Source quality141/141, Node plugin68, benchmark19, candidate path regressions18 PASS; origin/main is feature ancestor but D-code/live command selection/readiness still block main/install. Source INSTALL `d6eb9d5` pushed/clean; no model or paid calls.
 
 - 2026-09-28 19:02:59 KST: src: user — fresh offline/no-auth Sandbox integrated Claude local marketplace5 install + split aliases + installed-plugin --init-only plugin182/user0/skip0/error0 + restore7 and uninstall installed0 PASS; first fixture had empty-JSON PowerShell null count false alarm, corrected fresh guest PASS. Separate Codex guest installed overlay plugins5 enabled during direct Core flat2 retarget, restored7, uninstall installed0 PASS. Exact guests stopped, no model/paid calls, host profile unchanged. Source INSTALL `ef107b1` pushed/clean; HTML/raw receipts in plugin-only-split-bridge. D-code, live command selection, full runtime closure and real install/main still pending.
 
