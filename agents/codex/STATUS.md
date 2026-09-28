@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 08:31:21 KST
+updated: 2026-09-29 08:36:41 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 08:31:21 KST
+updated: 2026-09-29 08:36:41 KST
+
+- 2026-09-29 08:36:41 KST: src: Simon direct, subscription-only `/vibe` continuation. Prepared `20260929-v24-plugin-ci-locale/sandbox-init-v24/{sandbox.wsb,input/run.ps1,output/.gitkeep}` as a separate no-auth/no-network v24 host-init fixture. XML verifies network+clipboard disabled and mapped input/candidate/binary read-only; all host mapped folders exist, PowerShell syntax errors0, v23 script equivalence differs only in pinned v24 bundle digest, pinned Claude executable hash still matches. v24 bundle verify and safety default catalog pass; `output/result.json` absent. WindowsSandboxClient PID100060 `--help` still live, so guest not started and process not terminated. Source docs `3638c13` pushed/clean; release HTML updated. No model/Bot/Orca/paid call, user install/main/billing-setting change; readiness3=false.
 
 - 2026-09-29 08:31:21 KST: src: Simon direct, subscription-only `/vibe` continuation. Reverified immutable v23/v24 safety receipts and compared all physical SHA-256 files: 737→741 including bundle.json; additions4 are CI encoding tests, changed13 are bundle receipt+four CI runners+four workflows+four READMEs, removed0. All 182 SKILL.md and remaining runtime files byte-equal; v24 safety default `/vibe catalog` exit0 with182 names. This transfers only the v23 host-test input-byte scope, not a v24 host run. Source complete scripts/tests334:331 pass/3 skip/fail0; docs evidence commit `ba28ef5` pushed/clean; release HTML updated. Codex overlay default catalog/Gstack closure/readiness3=false remain; D-codes absent, old Windows Sandbox PID100060 still live and not terminated. No model/Bot/Orca/paid call, user install/main/billing-setting change.
 
