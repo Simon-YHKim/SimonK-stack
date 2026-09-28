@@ -1772,6 +1772,32 @@ Git 원본 모드 기준으로 차단한다. 이 원본 전체를 링크 금지 
 영수증은 서명, 실행 가능성, 모델·호스트·구독 과금 증명이 아니므로
 `runtime_closure_verified`와 `installation_ready`는 계속 false다.
 
+### 직접 참조 Gstack helper 9종의 격리 실행
+
+고정 원본의 `bin/gstack-config`, `gstack-slug`, `gstack-repo-mode`,
+`gstack-learnings-log`, `gstack-learnings-search`, `gstack-timeline-log`,
+`gstack-telemetry-log`, `gstack-update-check`, `gstack-team-init`을
+네트워크·인증정보 없는 Windows Sandbox의 새 임시 Git 프로젝트에서
+각각 실행했다. 호스트 원본·Git·Bun은 읽기 전용으로 매핑했다. Bun이
+읽기 전용 공유 폴더의 TypeScript 모듈을 열 때 `EPERM`을 반환했으므로
+`bin`·`lib`·`VERSION`을 **게스트 내부**에 복사하고 9개 helper 바이트를
+원본과 재대조했다. JSON 인자는 고정 Bash fixture로 전달했다.
+
+최종 실행은 9/9 통과했다. `update_check=false`, `telemetry=off`,
+`artifacts_sync_mode=off`에서 활성 네트워크 어댑터 0, 동기화 큐 파일 0,
+텔레메트리 파일 0이었다. 학습 1건 기록·검색과 타임라인 1건 기록은
+게스트 상태 폴더 안에서 이뤄졌다. `gstack-team-init optional`은
+vendored Gstack이 **없는** 게스트 프로젝트의 `CLAUDE.md` 하나만 만들었고
+커밋은 하지 않았다. 세 번의 실패 시험과 최종 원시 결과·스크립트는
+`E:/Coding Infra/Releases/SimonK-stack/20260928-gstack-nine-helper-sandbox/`에
+보존했다.
+
+이 결과는 지정 입력·설정의 직접 helper 경로에 한정된다. 기본 설정의
+네트워크·동기화, `gstack-team-init`의 vendored 폴더 삭제 분기,
+31개 스킬의 전이 실행 의존성, GUI/CSO 빌드, 기존 사용자 설치본 및
+구독 청구를 검증하지 않았다. 세 readiness 플래그는 여전히 false이며
+사용자 설치본·원본 `main`·결제 설정을 변경하지 않았다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
