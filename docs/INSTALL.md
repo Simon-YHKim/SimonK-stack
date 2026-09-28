@@ -1750,6 +1750,28 @@ Sandbox에서 대조군과 5플러그인 후보 모두 실제 CLI 종료 코드 
 사용자 설치본과 원본 `main`은 변경하지 않았다. 모델/API/Bot 실호출과
 결제 설정 변경도 없었다.
 
+### 고정 Gstack 원본의 패키징 적합성 감사
+
+`scripts/gstack_source_inventory.py`는 **별도 격리된** Gstack Git 복제본의
+고정 커밋, tree/index와 실제 작업 파일을 읽기 전용으로 대조하고
+원시 바이트의 SHA-256 영수증을 산출한다. 사용자 홈의 설치된 Gstack을
+읽거나 변경하지 않는다.
+
+```powershell
+python -B scripts/gstack_source_inventory.py --source-root E:/reviewed/gstack --expected-commit <검토한-40자리-SHA>
+```
+
+출력의 `package_contract_compatible`은 현재 파일형식·크기 한도에 관한
+정적 판단만 뜻한다. 독립 복제본 `01593aa67c94780528e8f5121e47362502410ced`는
+2,821개 Git blob 중 `connect-chrome` 한 개가 mode `120000` 심볼릭 링크여서
+`unsupported_git_modes`로 차단됐다. Windows가 이를 일반 파일로 풀어도
+Git 원본 모드 기준으로 차단한다. 이 원본 전체를 링크 금지 계약에 그대로
+실을 수 없으며, 별도 소유권·별칭 변환 결정과 전이 helper 검증이 필요하다.
+관측한 tree OID는 `cef8a713eda67e50d8b8519eabefdd7590c76262`, 원시
+영수증 SHA-256은 `3b7818644e421635631ca08e6cbd374c821653de98e4fb359822f51ae009f77b`다.
+영수증은 서명, 실행 가능성, 모델·호스트·구독 과금 증명이 아니므로
+`runtime_closure_verified`와 `installation_ready`는 계속 false다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,

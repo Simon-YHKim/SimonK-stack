@@ -6,6 +6,7 @@
 ## [Unreleased]
 
 ### Added
+- **고정 Gstack 원본 감사** — 읽기 전용 Git/tree/index·작업 파일 영수증 검사가 mode `120000`의 `connect-chrome`을 패키징 차단 항목으로 확인한다. 원본 크기와 해시를 재현 가능하게 기록하지만 helper 전이 폐쇄·호스트 동작·설치 준비는 입증하지 않는다.
 - **Gstack 대표 종료 경로 격리 증거** — 고정 원본의 qa·retro·ship 시작→종료 3/3과 동기화 호출 6/6을 네트워크 차단 Sandbox에서 확인했다. 설정 OFF에서 로컬 텔레메트리·큐 0이며, 전체 Gstack 런타임 폐쇄나 사용자 설치 증거는 아니다.
 - **v20 Claude 초기화 검증** — 무인증·네트워크 차단 Sandbox에서 Claude Code 2.1.283의 대조군과 5플러그인 후보 `--init-only`가 모두 종료 0이었다. 후보 로그는 5플러그인·182스킬·5명령 로딩, 오류 0을 확인했다. 기존 사용자 프로필 호환성, 실제 스킬 동작, 모델·구독 과금 검증은 아니다.
 - **v20 격리 설치·철회 증거** — 네트워크 차단 Windows Sandbox의 새 무인증 Claude·Codex 프로필에서 5플러그인 설치·활성, 각각 734/740파일의 영수증 바이트 일치와 철회를 확인했다. Gstack 시작 절차 55개도 별도 격리 시험에서 통과했다. 이는 사용자 프로필 전환, 전체 스킬 실행, 외부 런타임 폐쇄 또는 구독 과금 검증이 아니다.
@@ -15,6 +16,7 @@
 - **`/vibe` 2.11.16 progressive disclosure** — moved the generated historical Orca lane table into a directly linked reference and retargeted its drift checker. Normal skill loading omits the legacy table; the generator, safety guards and frontier runtime routing are unchanged. This does not reduce the initial five-plugin description footprint or prove model/host behavior.
 
 ### Fixed
+- **프로필 계획 회귀 fixture** — 기존 무료 로컬 도구 사례에 필수 `nonmetered`·전이 효과 감사 선언을 추가해 강화된 비용 가드와 일치시켰다. 실제 판정 로직이나 사용자 과금 설정은 변경하지 않았다.
 - **`/vibe` 2.11.14–2.11.15 immutable-bundle CLI safety** — plain Python entrypoints now disable bytecode before their first local import; the six legacy/user CLIs have isolated subprocess regressions. Parent `-B` does not cover child Python, so bundle tests also set `PYTHONDONTWRITEBYTECODE=1` and reverify the receipt. v14 source and five-plugin candidate passed offline tests without digest drift. This does not verify actual host routing, subscription billing, live dispatch or installation readiness.
 - **`vibe-bot` 0.9.3 natural GUI over-trigger** — a bounded v10 Claude Max skill-name probe still selected `vibe-bot` for a fresh Play Console request without loading `Skill`. The adapter description now contains only explicit Bot requests or a verified internal `/vibe` handoff; the regression case uses the observed prompt. This changes discovery metadata only and needs a fresh host-selection measurement; no Bot work was dispatched.
 - **`vibe-bot` 0.9.2 implicit GUI routing boundary** — a single Claude Max Play Console skill-name probe answered `vibe-bot` without invoking `Skill`, although ordinary GUI requests should enter `/vibe`. The adapter description now reserves `vibe-bot` for explicit Bot requests or a GUI-only step already verified by `/vibe`; an evaluation case records the expected boundary. Offline validators and fixtures do not prove improved live selection, and no Bot task was sent.

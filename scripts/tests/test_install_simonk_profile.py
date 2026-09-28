@@ -189,6 +189,7 @@ class ProfileInstallerTests(unittest.TestCase):
         runtime.write_text(json.dumps({"candidates": [], "tools": ["python"], "observed_at": now,
             "tool_costs": [{"argv_sha256": hashlib.sha256(json.dumps(argv, sort_keys=True, separators=(",", ":")).encode()).hexdigest(),
                             "verified": True, "evidence": ["fixture command"], "observed_at": now,
+                            "transitive_effects_audited": True, "billing_mode": "nonmetered",
                             "upper_usd_per_attempt": 0}]}), encoding="utf-8")
         load = self.root / "plan.ps1"
         load.write_text("param([string]$Target,[string]$Request,[string]$Runtime,[string]$Catalog)\n"
