@@ -2,13 +2,15 @@
 
 > **스킬을 한 요청으로 조합하는 라이브러리.** `/vibe`가 메인 조정자이고, `simonk`는 그 아래의 스프린트 절차입니다. 사용자 = 목표와 권한의 결정자.
 
-![version](https://img.shields.io/badge/version-0.1.0-5b8cff) ![license](https://img.shields.io/badge/license-MIT-green) [![validate](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml/badge.svg)](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml) [![skills](https://img.shields.io/badge/skills-132-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]()
+![version](https://img.shields.io/badge/version-0.1.0-5b8cff) ![license](https://img.shields.io/badge/license-MIT-green) [![validate](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml/badge.svg)](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml) [![source skills](https://img.shields.io/badge/source%20skills-141-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]()
 
 **Site**: [simonk-stack.pages.dev](https://simonk-stack.pages.dev) · **English**: [README.en.md](README.en.md) · **자매 레포**: [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (PRIVATE) — 세션 간 학습 누적
 
 ---
 
 ## 설치 / Install
+
+> 현재 작업 브랜치의 v23 후보(5플러그인·182스킬)는 설치 준비 플래그 3개가 모두 `false`이며 사용자 프로필·`main`으로 승격되지 않았습니다. 아래 공개 설치 명령은 **v23 후보 시험 절차가 아닙니다**. 특히 레거시 `scripts/install.sh`는 원격 플러그인/Gstack 조회와 사용자 홈 변경 경로가 있으므로 후보를 시험하려고 실행하지 마세요. 격리 후보와 검증 범위는 [설치·후보 검증 절차](docs/INSTALL.md)를 확인하세요.
 
 Claude Code 마켓플레이스에서 바로 설치 (Install directly from the Claude Code marketplace):
 
@@ -283,7 +285,7 @@ git clone https://github.com/Simon-YHKim/SimonK-stack.git ~/SimonK-stack
 cd ~/SimonK-stack && ./scripts/install.sh
 ```
 
-global `~/.claude/skills/` 에 132 skill + shared scripts + instincts 배포. SessionStart hook 은 settings.json 에 수동 등록.
+이 레거시 설치기는 실행 시점에 가져온 플러그인에 따라 설치 수가 달라지며, 플러그인 소스가 전혀 없을 때만 이 브랜치의 `skills-src/` 137개와 개발용 4개로 폴백합니다. 사용자 홈을 변경하므로 위의 v23 승격 보류 상태에서 후보 검증용으로 실행하지 마세요. SessionStart hook 은 settings.json 에 수동 등록합니다.
 
 ### B. Vendor mode — "이 target repo 안에 통째로"
 
@@ -348,7 +350,7 @@ skills-src/<name>/
 
 | 문서 | 내용 |
 |---|---|
-| [`.claude/skills/INDEX.md`](.claude/skills/INDEX.md) | 132 skill 카탈로그 (이 README 의 부서 표보다 자세) |
+| [`.claude/skills/INDEX.md`](.claude/skills/INDEX.md) | 이 브랜치의 소스·개발 스킬 141개 맵 (5플러그인 후보 182개와 구분) |
 | [`CLAUDE.md`](CLAUDE.md) | 이 레포에서 작업할 때의 Claude 지침 (검증 도구, 컨벤션, 금기) |
 | [`CHANGELOG.md`](CHANGELOG.md) | Keep a Changelog 형식 |
 | [`docs/INSTALL.md`](docs/INSTALL.md) | 설치 상세 |

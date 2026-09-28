@@ -2,7 +2,7 @@
 
 > A skill library for outcome-driven work: **/vibe is the main coordinator**, and **simonk supplies its sprint procedure**, from planning through verified results.
 
-**[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![validator](https://img.shields.io/badge/skill--validator-132%20skills-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
+**[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![source skills](https://img.shields.io/badge/source%20skills-141-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
 
 🇰🇷 **한국어 README**: [README.md](README.md) (full version)
 
@@ -12,7 +12,7 @@
 
 **Problem**: AI coding assistants work in a different order every time you give them a large task, and they repeat the same mistakes.
 
-**Solution**: **132 skills** (work manuals, `validate_skill.py` reports 0 errors / 0 warnings as of 2026-05-28; sprint v36 added 11 absorbed from `zarazhangrui/frontend-slides`, `robonuggets/{design-system,html-it}`, `OpenSenseNova/SenseNova-Skills`, and the Claude Skills 2026 slide deck) + **/vibe main coordinator with the simonk sprint procedure** (one owner → guarded work → verified results). Combined with [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (private) for cross-session learning accumulation — no more re-reasoning from scratch every session.
+**Solution**: **141 skills in this branch's legacy source/development inventory** (`skills-src/` 137 + `.claude/skills/` 4), with **182 skills in the separately assembled five-plugin v23 candidate**. `/vibe` is the main coordinator and `simonk` supplies its sprint procedure (one owner → guarded work → verified results). [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (private) retains cross-session learning. These counts describe different inventories, not installed-user-profile parity.
 
 **Sprint v34 (2026-05-25)** — 5 external vendor integrations (user-level live clone + auto-update each session):
 - [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) · [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) · [OpenHarness](https://github.com/HKUDS/OpenHarness) — existing (sprint v22-EXT)
@@ -119,6 +119,8 @@ Offline tests use disposable profiles/clones, not the user's configuration:
 ---
 
 ## Install
+
+> The five-plugin v23 candidate (182 skills) is **not installation-ready**: all three readiness flags remain `false`, and no user profile or `main` promotion has occurred. The public commands below are not a v23 test path. In particular, legacy `scripts/install.sh` may fetch remote plugins/Gstack and modify the user home; do not run it to evaluate this candidate. See [candidate verification and installation gates](docs/INSTALL.md).
 
 ### Claude Code Web (easiest)
 1. Go to https://claude.ai/code → Open `Simon-YHKim/SimonK-stack` → Done
