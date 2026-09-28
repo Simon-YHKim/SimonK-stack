@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 21:49:20 KST
+updated: 2026-09-28 22:34:07 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 21:49:20 KST
+updated: 2026-09-28 22:34:07 KST
+
+- 2026-09-28 22:34:07 KST: src: Simon direct subscription-only `/vibe` continuation. Fresh no-network/no-auth Windows Sandbox ran all 30 available v20 candidate Gstack startup preambles, each exit0 with one distinct nonempty timeline; 31st `gstack-upgrade` has no preamble. Guest copied and SHA-256 checked 195 pinned Gstack `bin/lib/VERSION` files; postcheck network adapters0, timeline30, telemetry0, sync queues0. Candidate digest stayed `9b0980ae...ba1318` and installation_ready=false. Earlier exploratory false-pass/false-fail outputs are excluded. Source INSTALL evidence commit `a5bda13` pushed feature, targeted path-audit tests18 PASS, HTML/raw proof `Releases/SimonK-stack/20260928-candidate-gstack-preambles/`. Full skill/runtime closure, user-host compatibility, Codex hook, D-code and main/install gates remain open. No external model/API/Bot/Orca call, account/payment changes, user install, or main merge.
 
 - 2026-09-28 21:49:20 KST: src: Simon direct `/vibe` all-nonmetered continuation. Re-fetched all five source plugin repos: each feature HEAD exactly matches origin feature, clean, and contains current origin/main (ahead 1/4/1/2/7). Aggregate feature is clean, 156 ahead of main. Entire aggregate Python scripts suite: 311 cases, 308 pass/3 skip/no failures; those exact three candidate-gated preview cases separately passed 3/3 after v20 digest verify, using fake `claude.cmd` with no model call. Source docs commit `37c5ac7` pushed; HTML `Releases/SimonK-stack/20260928-merge-readiness/report.html`. This proves FF shape and offline test coverage, not approval for main merge or user installation. Claude-owned §35 D-code requests and runtime/host gates remain open; no model/API/Bot/Orca or payment change.
 
