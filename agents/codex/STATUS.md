@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 06:55:42 KST
+updated: 2026-09-29 07:19:11 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 06:55:42 KST
+updated: 2026-09-29 07:19:11 KST
+
+- 2026-09-29 07:19:11 KST: src: Simon direct, nonpaid `/vibe` continuation. Fixed SimonK-stack feature branch Windows skill quality gate locale failure: default CP949 parent output crash and UTF-8-parent/CP949-child decode errors. Child Python now explicitly UTF-8, stdout/stderr decoded strictly from bytes with invalid output fail-closed, summary output ASCII. Red regression3 failed before fix; final targeted4/4, real 141/141 quality gate PASS, source full unittest333=330 pass/3 skip/fail0. README verification command updated. Source commit `bfcf0087b8d44d8d8436eaecb39cab0c9a654f2b` pushed/clean; v23 HTML updated, candidate digest unchanged. Installed profile/main/readiness3=false unchanged. Claude D-code and Sandbox occupancy pending, Grok CLI weekly used100% as prior observation; no model/Bot/Orca/paid call or billing change.
 
 - 2026-09-29 06:55:42 KST: src: Simon direct, subscription-only `/vibe` continuation. Current read-only Grok ACP billing metadata at 06:50:05 KST reports CLI weekly used100%, displayed reset 2026-10-03 23:12:19 KST, on-demand cap0/prepaid balance0, billing mode unknown and extra-usage flag null; Bot quota is separate/unknown. Grok CLI generation remains held. Claude claude.ai/firstParty/Max login and v23 digest5 plugins/182 skills verified; auto-selection attempt could not start PTY (twice) and pipe mode exited before prompt, so no new generation/selection result; `claude -p`/API not used. Source INSTALL docs `7377f84` pushed/clean, runtime collector tests27 pass; report HTML updated. Readiness3=false, overlay D-code pending; no user install/main/billing change.
 
