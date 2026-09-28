@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 08:36:41 KST
+updated: 2026-09-29 08:39:29 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 08:36:41 KST
+updated: 2026-09-29 08:39:29 KST
+
+- 2026-09-29 08:39:29 KST: src: Simon direct, subscription-only `/vibe` continuation. Static candidate-wide eval input audit: all 182/182 skills have parseable nonempty `evals/cases.json`; total 468 cases and 1,153 textual assertions (AIHub17/39, Core196/485, Design50/125, Market68/169, Stack137/335). These are inputs only; no model response, per-skill mode quality/cost/latency or actual selection was measured. v24 release HTML updated with this distinction. Sandbox fixture remains unexecuted pending exact PID100060 closure approval; readiness3=false, no paid/model/Bot/Orca call or install/main change.
 
 - 2026-09-29 08:36:41 KST: src: Simon direct, subscription-only `/vibe` continuation. Prepared `20260929-v24-plugin-ci-locale/sandbox-init-v24/{sandbox.wsb,input/run.ps1,output/.gitkeep}` as a separate no-auth/no-network v24 host-init fixture. XML verifies network+clipboard disabled and mapped input/candidate/binary read-only; all host mapped folders exist, PowerShell syntax errors0, v23 script equivalence differs only in pinned v24 bundle digest, pinned Claude executable hash still matches. v24 bundle verify and safety default catalog pass; `output/result.json` absent. WindowsSandboxClient PID100060 `--help` still live, so guest not started and process not terminated. Source docs `3638c13` pushed/clean; release HTML updated. No model/Bot/Orca/paid call, user install/main/billing-setting change; readiness3=false.
 
