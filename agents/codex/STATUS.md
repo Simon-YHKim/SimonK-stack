@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 12:10:45 KST
+updated: 2026-09-28 12:31:03 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 12:10:45 KST
+updated: 2026-09-28 12:31:03 KST
+
+- 2026-09-28 12:31:03 KST: src: user — v20 Claude 5-plugin `--init-only` in a fresh no-auth/no-network Windows Sandbox completed with direct native `$LASTEXITCODE` 0 for control and candidate; 5 plugins/182 skills/5 commands, debug errors0. Earlier Start-Process null ExitCode was a measurement bug, excluded from verdict. Guest closed; no model/API/Bot calls, payment/user install/main changes. HTML evidence `Releases/SimonK-stack/20260928-v20-claude-init-probe/report.html`; source feature docs commit `462680f` origin pushed/clean. Candidate receipt verified, `installation_ready=false`; runtime/user-profile/§35 D-code pending.
 
 - 2026-09-28 12:10:45 KST: src: user — v20 Claude/Codex local install rehearsal in two fresh no-network Windows Sandbox guests passed. Claude 5 enabled, 734/734 cache bytes, after uninstall plugins/markets0, residual guest cache739 unclassified; Codex 5 enabled, 740/740 bytes, after uninstall plugins/markets/cache0. No credentials, model/API/Bot calls, user install, main merge or payment change. SimonK-stack feature branch docs commit `3096bc3` pushed; HTML evidence and FYI delivered. Runtime/host/user-profile readiness still false; §35 D-code pending.
 
