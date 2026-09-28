@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 23:11:05 KST
+updated: 2026-09-28 23:30:16 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 23:11:05 KST
+updated: 2026-09-28 23:30:16 KST
+
+- 2026-09-28 23:30:16 KST: src: Simon direct subscription-only `/vibe` continuation. PR #49 residual G5 fail-open was reproduced and fixed more strictly (no QUOTA_SKIP bypass): omitted/None/partial vendor checks block; iterator evidence is stable across guard stages. Source `5887d8e` pushed/clean, vibe 2.12.2. Targeted legacy21, vibe220, selftest180, repo323 (320 pass/3 candidate-gated skips), Skill-Gen24, vibe validator0 errors/warnings, eval21 dry-run PASS. Whole-skill sweep141 has 0 errors and 32 existing warnings in unrelated skills. PR #49 G12 cache/live preflight change is superseded by existing quarantine, proved by tests. Report `E:/Coding Infra/Releases/SimonK-stack/20260928-vibe-g5-gate/report.html`. Existing v20 candidate predates source; no new candidate, installation, main merge, model/Bot/Orca/API call or payment change. PR #54 HTML rules and Claude-owned D-code/runtime gates remain.
 
 - 2026-09-28 23:11:05 KST: src: Simon direct subscription-only `/vibe` continuation. Found open PR #49 fail-open persona checker absent from aggregate feature; ported its bounded persona unit with stronger per-finding visible-HTML checks and exact `--expect`, source `3bc3938` pushed/clean. TDD 12/12, repo 323 tests (320 pass/3 skipped), exactly those three separately passed 3/3 using pinned v20 and fake host, Skill-Gen Agent 24/24, all 141 skill quality gate PASS, persona validator 0 errors/warnings and 4 eval dry-run cases. Report `Releases/SimonK-stack/20260928-persona-gate-port/report.html`. Existing v20 candidate predates this change, and PR #49 remaining vibe safety gates and PR #54 HTML rules are not integrated. User install/main/readiness/payment unchanged; no external model/API/Bot/Orca call. Actual shared hub worktree remains dirty/diverged; matching Codex-owned local FYI written there without commit.
 
