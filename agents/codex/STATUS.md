@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 21:12:02 KST
+updated: 2026-09-28 21:28:59 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 21:12:02 KST
+updated: 2026-09-28 21:28:59 KST
+
+- 2026-09-28 21:28:59 KST: src: Simon direct subscription-only `/vibe` continuation. No-auth/no-network Windows Sandbox direct `codex_guarded_policy.py` subprocess probe passed 5/5 synthetic cases after correcting PowerShell stdin BOM in the probe harness; 7/7 source/runtime SHA-256 verified, guest network adapters0, account auth absent, API key env absent. Source feature docs commit `67aa442` pushed and 26 Codex tests passed; HTML/raw evidence `Releases/SimonK-stack/20260928-codex-policy-sandbox/`. This does not prove Codex PreToolUse hook dispatch, actual model behavior, billing state, or installation. Three readiness flags remain false; Claude-owned §35 D-code requests for profile and overlay default discovery remain open. No model/API/Bot calls, payment changes, user install, or main merge.
 
 - 2026-09-28 21:12:02 KST: src: user — ai-debate panel A/B/C plus separate judge reviewed normal Codex overlay default catalog failure. Judge conditionally recommends strict overlay-aware default discovery (A 4.10/5), B existing pinned verify+explicit roots interim (3.75), C independent v3 bundle later (3.40); B minority preserved. Korean HTML `E:/Coding Infra/Releases/SimonK-stack/20260928-codex-overlay-debate/report.html`. Claude-owned D-code requested; no architecture code change until record. Source feature clean at `ca7353d`, hub fyi `fab8f06` pushed. No external provider CLI/model/Bot/paid calls or billing changes, readiness unchanged.
 
