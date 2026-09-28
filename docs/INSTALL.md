@@ -2686,6 +2686,25 @@ clean이며 사용자 프로필 설치본·계정·결제 설정은 수정하지
 폐쇄·설치 호환성을 주장하지 않는다. `gstack-team-init`, 동기화 활성화,
 기본 업데이트 정책은 시험하지 않았고, 세 설치 준비 플래그는 계속 `false`다.
 
+2026-09-29 **구독 경로 재확인과 자동 선택 시험의 도구 경계**:
+`runtime_collect.py --surface grok`의 읽기 전용 ACP billing 관측
+(06:50:05 KST)은 Grok CLI 주간 사용량 **100%**, 다음 표시상 갱신 시각
+2026-10-03 23:12:19 KST, on-demand cap·prepaid balance 각각 0을 반환했다.
+`billing.mode=unknown`, `extra_usage_enabled=null`이고 이 수집기는 모델
+생성·모델별 구독 포함을 검증하지 않는다. 사용자 설명의 Grok Bot 사용량은
+별도 버킷이므로 이 CLI 관측으로 판단하지 않는다. 현재 Grok CLI 생성은
+추가 과금 $0 정책상 보류한다. reset 표시도 실제 쿼터 복구 증거가 아니다.
+
+Claude Code는 같은 날 `claude.ai`/`firstParty`/Max 로그인이었고 API·대체
+공급자 환경변수 부재, v23 후보 digest와 5플러그인·182스킬을 실행 전
+확인했다. 기존 도구 제한 대화형 프리뷰로 자동 Skill 선택을 확인하려 했으나
+현재 터미널 도구의 PTY 생성이 두 번 모두 프로세스 시작 전에 실패했다.
+표준 입력 파이프 시도는 CLI의 `Input must be provided either through stdin
+or as a prompt argument when using --print`로, 프롬프트 없이 종료 1이었다.
+자동 선택·스킬 실행의 새 증거는 없고 비대화형 `claude -p`나 API로
+우회하지 않았다. 구독 청구 원장도 확인하지 않았으며 준비 플래그는
+계속 모두 `false`다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
