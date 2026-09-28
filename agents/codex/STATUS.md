@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 04:24:37 KST
+updated: 2026-09-29 04:41:33 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 04:24:37 KST
+updated: 2026-09-29 04:41:33 KST
+
+- 2026-09-29 04:41:33 KST: src: Simon direct, nonpaid continuation. v23 no-auth/no-network/no-clipboard Windows Sandbox with pinned Claude2.1.284 and candidate digest passed control/candidate `--init-only` rc0, 5 inline+5 directory plugins, 182 skills, 5 commands, debug errors0, network adapters0 pre/post. Guest result SHA-256 `ee2e0e65c6c1026b8c5d2f9e759cfb6fd1a46abdcb065110f5a67aba69be0715`; exact guest ID stopped and candidate digest unchanged. Source README/INSTALL `f411778` pushed/clean. Existing-profile migration, Codex default catalog, Gstack transitive runtime, live model/account/billing and actual skill execution remain unproven; readiness3=false. No user install, main merge, model/Bot/Orca call or billing change.
 
 - 2026-09-29 04:24:37 KST: src: Simon direct, subscription-only/nonpaid continuation. Official Anthropic docs show Claude Sonnet 5.5 released Sep28. Registered public model/effort/price facts and pending Sonnet5 migration without authorizing alias dispatch, subscription access or model calls. Source feature `772d8d0` pushed clean; new isolated v23 source/candidate/overlay receipts `c97a16e2`/`9bcd45c8`/`3a9ff2f8` reverified. Registry source+packaged28 each, vibe selftest180, full suite329 (326 pass/3 skipped; preview6 separately pass), candidate smoke4 pass. v23 path audit still Gstack external31 skills/646 refs/9 direct targets, exit1; Codex default catalog still receipt mismatch, exit2. Report `E:/Coding Infra/Releases/SimonK-stack/20260929-v23-sonnet55/report.html`. No user install, main merge, model/Bot/Orca call, paid use or billing change; readiness3=false.
 
