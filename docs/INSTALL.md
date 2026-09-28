@@ -2263,6 +2263,31 @@ Windows Sandbox에 읽기 전용으로 매핑했다. 게스트는 활성 네트�
 **legacy 시작 절차**의 격리 호환성이지 본문 작업·CSO 네이티브 빌드·
 동적 의존성·실사용 Gstack 설치본 또는 Codex 훅 실행의 증거가 아니다.
 
+### v20 후보 Gstack 시작 절차의 실제 타임라인 확인 (2026-09-28)
+
+위 legacy 시험의 종료 코드만으로는 `|| true`가 가린 helper 실패를
+구별할 수 없었다. 같은 digest의 **v20 후보**에서 `gstack/bin/`을 직접
+참조하는 스킬 31개를 다시 골라, 새 Windows Sandbox의 게스트 전용 홈과
+프로젝트 상태에서 시작 절차를 각각 실행했다. Gstack 고정 원본
+`01593aa67c94780528e8f5121e47362502410ced`의 `bin/`·`lib/`·`VERSION`
+파일 195개를
+게스트로 복사해 SHA-256으로 대조했고, 사용자 홈 설치본·인증 파일은
+연결하지 않았다. 시작 절차가 있는 30개는 모두 구문 검사·종료 0에
+더해 **각각 실제 `timeline.jsonl` 1개 생성**을 확인했다.
+`gstack-upgrade` 1개는 시작 절차가 없어 실행 대상에서 제외했다.
+
+최종 게스트 사후 검사에서 활성 네트워크 어댑터·텔레메트리 파일·
+동기화 큐 파일은 각각 0개였고, 후보 digest는 실행 전후
+`9b0980aedf7af578b96eaba1d1586f6aab2a85cc7a708c640363c92572ba1318`로
+일치했다. 검증 도구와 원본 결과는
+`E:/Coding Infra/Releases/SimonK-stack/20260928-candidate-gstack-preambles/`의
+`input/`·`output-final/`에 있으며, 이전 탐색 실행은 별도 출력 폴더에
+보존하고 최종 증거에 합산하지 않는다. 이 결과는 **30개 시작 절차의
+동적 생성물**만 증명한다. 스킬 본문 전체 작업, 호스트 설치본과의
+호환성, 모델·Bot 동작 및 전이 런타임 폐쇄는 아직 검증되지 않았다.
+`runtime_closure_verified`, `host_compatibility_verified`,
+`installation_ready`는 계속 `false`다.
+
 또한 실제 호스트의 모델 생성 없는 Core v20 초기화에서
 `--strict-mcp-config --mcp-config '{"mcpServers":{}}'`를 지정하면 사용자
 스킬 0·Core 플러그인 스킬 61·중복 제외 0인 채 계정 MCP 원격 목록 조회가
