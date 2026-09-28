@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 08:47:15 KST
+updated: 2026-09-29 08:52:12 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 08:47:15 KST
+updated: 2026-09-29 08:52:12 KST
+
+- 2026-09-29 08:52:12 KST: src: Simon direct, subscription-only `/vibe` continuation. Compared existing Sep26 installed-candidate `vibe-bot` folder against immutable v24: 10 files each, no old-only/new-only; bots.json exact SHA match with 19 bots/6 teams. `bus_watch.py` and its test differ only in line endings. Four substantive changes are SKILL version0.9.1→0.9.3 discovery boundary, added trigger eval case, Relay-handshake TOC, stricter separate Bot subscription-inclusion test fixture. Packaged v24 Bot tests38/38 pass under subprocess/socket-denying hooks; candidate receipt reverify passes. Source docs `a226db8` pushed/clean, release HTML updated. Old installed receipt drift/default catalog failure remains; no link/install/main change or paid/model/Bot/Orca call.
 
 - 2026-09-29 08:47:15 KST: src: Simon direct, subscription-only `/vibe` continuation. Read-only v24↔installed flat-root coverage (explicit home Gstack exclusion => scope_complete=false) finds Claude .claude/skills matched1/drifted137/missing44/extra41; Codex .agents→.codex matched1/drifted136/missing45/extra51. Only `multi-terminal-dispatcher` matches SKILL bytes. Existing `.claude/skills/vibe` junction points to Sep26 candidate, version2.11.6 vs v24 2.12.2. Direct current installed default catalog exits2 `Candidate skill metadata differs from receipt`; old bundle verifier fails. Manual receipt byte audit: 707 declared, missing0, drift2 (`vibe`/`vibe-bot` SKILL), extra4 (bytecode1, Bot Relay assets3). Preserved all existing files/links. Source docs `ba01398` pushed/clean, release HTML updated. This blocks that exact default catalog path, not proof all host/native/explicit Skill paths fail. Three readiness flags false, D-codes absent, no model/Bot/Orca/paid call, install/main/billing change.
 
