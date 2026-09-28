@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 18:31:04 KST
+updated: 2026-09-28 18:43:08 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 18:31:04 KST
+updated: 2026-09-28 18:43:08 KST
+
+- 2026-09-28 18:43:08 KST: src: user — Windows Sandbox CLI ID-based start/share/exec System recovered isolated test execution without credentials or networking. Fresh split-bridge guest PASS receipt: Claude init0, plugin182/user0/skipped0/debug errors0, Codex direct links2/2, Claude old links restored5/5, Codex old links restored2/2, rollback twice; exact guest stopped, no model generation/paid call. Source INSTALL evidence `93025c6` pushed and clean; candidate bytes verifier and offline /vibe four-step smoke PASS. Host command selection, D-code, full runtime closure and actual install/main remain open; real profile unchanged.
 
 - 2026-09-28 18:31:04 KST: src: user — prepared read-only host manifest and preflight plus host rollback script for proposed split bridge; exact current Claude flat5/Codex flat2 junction targets and old/new SKILL hashes and v20 bundle digest pass preflight. Script syntax parses0, HTML links9 valid. No user-profile link changed, rollback not executed, command-selection and guest rollback remain unverified. Claude D-code request still open; source feature/main/install/payment unchanged; no model or paid calls.
 
