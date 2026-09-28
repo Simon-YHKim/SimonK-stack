@@ -2508,6 +2508,49 @@ Gstack 전이 실행 의존성, 기존 프로필 호환성, 실제 구독 포함
 명령·영수증·판정의 상세는
 `E:/Coding Infra/Releases/SimonK-stack/20260929-v22-html-pr54/report.html`에 기록했다.
 
+## v23 Claude Sonnet 5.5 공개 사실 갱신 후보 (2026-09-29)
+
+기능 브랜치 `feat/skill-context-budget-260925`의 `fcab5d2`에서
+2026-09-28 출시된 Claude Sonnet 5.5의 공개 사실만 `/vibe` 모델 레지스트리에
+반영했다. 공식 [모델 개요](https://platform.claude.com/docs/en/models/overview),
+[Sonnet 5.5 모델 문서](https://platform.claude.com/docs/en/models/sonnet-5-5/overview),
+[effort 문서](https://platform.claude.com/docs/en/build-with-claude/effort),
+[Claude Code 모델 설정](https://code.claude.com/docs/en/model-config)을 확인했다.
+API ID `claude-sonnet-5-5`, effort `low`·`medium`·`high`·`xhigh`·`max`,
+Claude Code 최소 2.1.284, API 기본 `high`와 CLI 기본 `medium`의 차이를 기록했다.
+표준 직접 API 가격은 구독 요금제가 아니므로 계정의 구독 포함 여부를
+추론하지 않는다. `sonnet` 별칭도 실제 해석이 관측되기 전에는 실행을 막고,
+기존 `claude-sonnet-5`의 전환 상태는 `pending-transport-and-canary`다.
+
+새 격리 폴더는
+`E:/Coding Infra/Releases/SimonK-stack/20260929-v23-sonnet55/`이다.
+고정된 5개 원본 플러그인 입력의 HEAD와 clean 상태를 확인한 뒤 빌드했으며,
+이전 v22 후보·사용자 설치본·`main`은 변경하지 않았다.
+
+| 산출물 | 전체 영수증 SHA-256 | 검증 범위 |
+|---|---|---|
+| `source-v23` | `c97a16e20c69344b8eef88c42a21b04055fcd9102c23a4f0ec201c7de28320c5` | 소스 소유 137스킬·411파일 |
+| `candidate-safety-v23` | `9bcd45c81366619308889b7e8454cc785060185198f986589ffbba4f03063d3d` | 5플러그인·182스킬·736파일 |
+| `codex-overlay-v23` | `3a9ff2f8c48f1829ac3b6815a3f8aa45d35515dc70a5559ce7457b90487269af` | Codex 호환 오버레이 |
+
+세 산출물을 각각 `skill_release.py verify`, `plugin_bundle.py verify`,
+`codex_overlay.py verify`로 재검증했다. 소스·포장 후보의 모델 레지스트리
+검사 각각 28/28, `/vibe` 자체 검사 180/180, 복사 후보의 오프라인
+스모크 테스트 4/4가 통과했다. 소스 전체 단위 테스트는 329건 중
+326통과·3건너뜀·실패 0이고, 기본 실행에서 후보 경로가 없어 건너뛴
+프리뷰 통합 검사는 v23 digest를 지정한 별도 실행에서 6/6 통과했다.
+모델·Bot·Orca 실호출, 추가 과금,
+결제 설정 변경, 실제 사용자 프로필 설치·전환, `main` 머지는 없었다.
+v23 정적 경로 감사는 182스킬·로컬 참조 143건에서 미해결·이식 불가 명령
+0건을 찾았지만, Gstack 외부 참조 31스킬·646회·9개 직접 대상 때문에
+`external_runtime_pending`(종료 1)이다. v22에서 확인된 Codex 기본
+catalog 실패는 v23 오버레이에서도 `Candidate skill metadata differs from
+receipt`(종료 2)로 재현됐다. Gstack 전이 런타임 결손도 이 레지스트리
+갱신으로 해결되지 않는다. 세 설치 준비 플래그는 계속
+`runtime_closure_verified=false`, `host_compatibility_verified=false`,
+`installation_ready=false`다. 위 바이트 검증은 모델 접근성·구독 청구 안전성이나
+실제 호스트 동작의 증거가 아니다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
