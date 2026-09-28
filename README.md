@@ -363,11 +363,9 @@ skills-src/<name>/
 # 단일 skill 검증
 python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py skills-src/<name>
 
-# 전체 repo 검증 (132 skill sweep)
-for d in skills-src/*/ .claude/skills/*/; do
-  [ -f "${d}SKILL.md" ] || continue
-  python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py "${d%/}" 2>&1 | grep Result
-done
+# 전체 skill CI 검증 (두 소스 루트)
+python3 .github/skill-ci/run_ci.py
+# Windows에서는 python .github/skill-ci/run_ci.py
 
 # 24-check 통합 테스트
 python3 .claude/skills/skill-gen-agent/scripts/tests/run_all.py
