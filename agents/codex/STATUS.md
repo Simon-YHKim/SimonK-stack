@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 15:23:45 KST
+updated: 2026-09-28 15:43:11 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 15:23:45 KST
+updated: 2026-09-28 15:43:11 KST
+
+- 2026-09-28 15:43:11 KST: src: user — read-only four-flat-root host audit with home Gstack excluded before content read: candidate 182, selected home198, common138, same SKILL bytes1, drift137, missing44; two expected EXCLUDED scope issues, no full-host claim. Current flat Core bridge five junctions target immutable 20260926 candidate; /vibe installed2.11.6 vs v20 2.12.1; Claude/Codex SimonK plugin registry each0. Fresh offline/no-auth Sandbox user flat5 + v20 plugin182 coexist, duplicate/user-owned skipped0, combined debug errors0; actual /vibe command-selection untested. Source docs `65b77ef` pushed/clean; HTML, host summary and guest logs under Releases flat-v20-priority-probe. No model/API/Bot/Orca calls, payment or explicit user-profile writes; D-code/bridge migration/readiness3=false remain.
 
 - 2026-09-28 15:23:45 KST: src: user — v20 candidate installed/uninstalled in two fresh offline/no-auth Windows Sandbox guests seeded with an unrelated fixture plugin and personal skill. Claude 2.1.283 preserved fixture plugin/marketplace/enabled, 3 fixture cache files hashes, personal skill and settings marker, but left 739 inactive candidate cache files. Codex CLI 0.155.0 preserved fixture plugin/marketplace/enabled, 4 fixture cache files hashes and personal skill, candidate cache0. Failed Codex fixture manifest attempt and null-name result preserved; final fresh guest passed. Source docs `6cee2b9` origin pushed/clean; HTML/raw receipts under Releases existing-profile-rollback dirs. No real profile/install/main/payment/model/API/Bot/Orca change; readiness3=false, D-code/runtime/user-profile restore pending.
 
