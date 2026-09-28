@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SimonK-stack v22 격리 후보</title>
+<style>:root{color-scheme:light dark;--a:#337d9e;--t:#17232b;--m:#52646e;background:#f8fafb;color:var(--t)}@media(prefers-color-scheme:dark){:root{--a:#8ed0e9;--t:#edf4f7;--m:#adbdc5;background:#12191e}}body{font:16px/1.6 system-ui,sans-serif;max-width:880px;margin:auto;padding:2rem 1rem 4rem}h1,h2{line-height:1.25}.muted{color:var(--m)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.7rem}.card,details{border:1px solid var(--m);border-radius:.7rem;padding:1rem}.card b{display:block;font-size:1.35rem;color:var(--a)}summary{cursor:pointer;font-weight:650}code{overflow-wrap:anywhere}a{color:var(--a)}:focus-visible{outline:3px solid var(--a)}</style>
+</head><body><main>
+<p class="muted">2026-09-29 01:32:01 KST · Codex → 4-AI hub</p>
+<h1>v22는 검증 후보, 설치 준비는 미완료</h1>
+<p>PR #54 HTML 규칙을 반영한 새 격리 후보를 만들었다. 기존 v21·설치본·main은 유지했고, 추가 과금과 모델·Bot·Orca 실호출은 없었다.</p>
+<section class="cards" aria-label="핵심 수치"><div class="card"><b>5 / 182</b>플러그인 / 스킬</div><div class="card"><b>220 + 180</b>/vibe 단위 / 자체검사</div><div class="card"><b>325 + 3</b>전체 회귀 통과 / 건너뜀</div><div class="card"><b>0 USD</b>추가 과금</div></section>
+<details open><summary>확인한 것과 남은 것</summary><p>세 새 후보의 바이트 영수증은 시험 후 다시 통과했다. 안전 후보 기본 catalog는 182개를 찾고, 프리뷰 회귀 6/6이 통과했다. 로컬 참조 결손은 0건이지만 Gstack 외부 런타임 31스킬은 미검증이다. Codex overlay는 별도 영수증과 명시적 루트 inventory가 통과해도 기본 catalog가 종료 2로 닫힌다.</p><p><code>runtime_closure_verified=false</code> · <code>host_compatibility_verified=false</code> · <code>installation_ready=false</code>. Claude 소유 구조 결정과 후속 런타임·호스트 검증 전에는 설치/머지를 하지 않는다.</p></details>
+<p>전체 영수증·명령·판정: <code>E:/Coding Infra/Releases/SimonK-stack/20260929-v22-html-pr54/report.html</code></p>
+</main></body></html>

@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 00:45:57 KST
+updated: 2026-09-29 01:32:01 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 00:45:57 KST
+updated: 2026-09-29 01:32:01 KST
+
+- 2026-09-29 01:32:01 KST: src: Simon direct, no paid calls and subscription usage only. Built isolated v22 from feature HEAD `977e3cf` and pinned clean five-plugin inputs; source 137 skills/411 files, safety candidate 5 plugins/182 skills/736 files, Codex overlay five manifests. All three new digests reverified after tests, v21 unchanged/reverified. Candidate catalog182 PASS, vibe unit220/selftest180 PASS, repo328=325 pass/3 candidate-gated skips, explicit preview6/6 PASS. Path audit unresolved0 but exits1 for Gstack external runtime31 skills/646 refs/9 targets. Overlay receipt/inventory182 PASS; default catalog exits2 on zoom-out projection. README/INSTALL recorded and pushed `da26231` on `feat/skill-context-budget-260925`; report `Releases/SimonK-stack/20260929-v22-html-pr54/report.html`. Readiness3=false, PR #54 OPEN, main and installed profile unchanged; no model/Bot/Orca call, payment change or extra cost. Claude-owned overlay architecture decision and runtime/host gates remain.
 
 - 2026-09-29 00:45:57 KST: src: Simon direct — corrected PR #54 no-JS runtime evidence. A disposable, separate-profile Chrome CDP run explicitly disabled script execution before navigating the source report template. DOM proved `class=no-js`, both summary/detail panels present and detail not hidden; 375px screenshot visibly includes summary and detail. This supersedes only the earlier inconclusive Chrome flag check, not full populated-report behavior. Script/screenshot are outside the source repo at `Releases/SimonK-stack/pr54-template-smoke-20260929/`. Source feature remains clean `977e3cf`; no user install, main merge, model/Bot/API call, payment change or extra cost. HTML `agents/codex/outbox/preview/20260929-004557-pr54-nojs-proof.html`.
 
