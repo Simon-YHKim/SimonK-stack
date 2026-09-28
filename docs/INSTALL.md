@@ -1530,6 +1530,27 @@ Codex `da8072df0d6a265bba065c9f5783898c8d964f5bae72455e2c8f94d7bbcad894`다.
 일치함을 확인했다. 이는 해당 커밋·옵션의 정적 생성 재현이며 런타임·
 호스트 호환성 또는 이식 완료 증명이 아니다. 재감사도
 `migration_review_required`/종료 1이다.
+고정 원본의 실제 파일과 대조한 추가 범위 제한 감사: Claude 생성 Markdown
+102개에서 `~`·`$HOME`·`${HOME}` 뒤의 `bin/`, `scripts/`, `docs/` 바로 다음
+정적 이름만 추출하면 1,089회, 고유 이름 60개(`bin` 56개)다. 이 중 원본
+트리에 없는 이름은 `gstack-cso-launcher`, Windows용
+`gstack-cso-launcher.exe`, `gstack-global-discover` 세 개다. 앞의 둘은
+CSO 네이티브 빌드 산출물이고, 마지막은 `bin/gstack-global-discover.ts`의
+Bun 컴파일 산출물이다. 이는 첫 경로 구성요소 감사일 뿐 중첩 경로·
+동적 표현·실행 조건·전이 의존성 전체의 폐쇄성 증명이 아니다.
+
+`gstack-global-discover.ts`를 원본을 수정하지 않는 별도 로컬 폴더에서
+`bun build --compile`한 결과 Windows 실행 파일 생성·`--help` 종료 0을
+확인했다. 파일 크기는 115,431,424바이트(약 110 MiB), SHA-256은
+`498c00e826f483cb3c5ae2f90452640bb303b216300c3816e2032a27ac6194fa`다.
+현재 overlay 영수증의 파일당 8 MiB·전체 64 MiB 한도를 이 **파일 하나가**
+초과한다. 고정 원본의 일반 `scripts/build.sh`는 이외에도 browse 2개,
+design·make-pdf 컴파일 파일과 CSO 빌드를 요구하며, 원본 트리에는 이
+배포 산출물이 없다. Windows CSO 빌드 검사도 위에서 기록한 MSVC/SDK
+부재로 통과하지 못했다. 따라서 현 포맷에 컴파일 산출물을 단순 복사하는
+방식은 불가능하며, 패키징 선택에는 포맷 한도·외부 런타임·플랫폼별
+빌드 및 완전성 영수증을 함께 결정해야 한다. 이 증거만으로 게이트를
+올리거나 기존 사용자 설치본을 바꾸지 않는다.
 원본 생성기는 Claude 링크 루트를 절대 경로로 정규화하고 Claude 문서에는
 사용자 홈을, Codex 문서에는 별도 `$GSTACK_ROOT` 탐색을 사용한다. 현재
 5플러그인 후보 영수증에 고정 Gstack 런타임은 포함되지 않는다. 호스트별
