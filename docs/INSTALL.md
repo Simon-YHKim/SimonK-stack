@@ -1113,6 +1113,19 @@ test_codex_guarded_policy.py -v`의 11개 사례와 전체 Codex 관련 26개
 `E:/Coding Infra/Releases/SimonK-stack/20260928-codex-profile-host-probe/output/result.json`에
 있다. 세 readiness 플래그는 여전히 `false`다.
 
+2026-09-28 **격리 정책 직접 실행**: 별도 Windows Sandbox에서
+`scripts/codex_guarded_policy.py`와 입력 파서·careful leaf 및 Python/Git Bash/Node
+실행 파일의 SHA-256 7개를 확인한 후, 합성 `PreToolUse` 입력 5개를 정책
+프로세스에 전달했다. 경계 안 패치·안전 Bash는 허용하고 경계 밖 패치·
+파괴적 Bash·안전 런타임이 빠진 Bash는 각각 차단해 5/5 기대 결과가
+일치했다. 게스트의 활성 네트워크 어댑터는 0개였고 계정 `auth.json`과
+주요 API 키 환경변수는 없었다. 이 검사는 정책 **직접 호출**에 한정된다.
+Codex의 `PreToolUse` 훅 등록·집행, 실제 모델 행동, 사용자 프로필,
+Shell을 통한 파일 쓰기 차단 또는 결제 상태를 입증하지 않는다.
+인증·모델 호출 없이 끝냈고 시험 게스트를 종료했다. 재현 스크립트와
+원시 결과는 `E:/Coding Infra/Releases/SimonK-stack/20260928-codex-policy-sandbox/`
+에 있으며 readiness 플래그는 계속 `false`다.
+
 ### Codex 호환 오버레이 v2 (2026-09-28, 설치 전 후보)
 
 `scripts/codex_overlay.py`는 고정된 v15 5-플러그인 후보를 **읽기 전용**으로
