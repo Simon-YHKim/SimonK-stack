@@ -2428,6 +2428,19 @@ v22 안전 후보의 기본 `/vibe catalog`는 182개 스킬을 읽었다. 후�
 후속 소스 전체 회귀는 329건 중 326통과·3건너뜀·실패 0이며, 건너뛴
 후보 경로 시험을 v22 digest로 다시 지정한 별도 프리뷰 6/6도 통과했다.
 
+2026-09-29 **v22 격리 호스트 초기화 실측**: 기존 v21 테스트와 별개의
+`sandbox-init-v22/`를 만들고, 네트워크·클립보드가 꺼진 Windows Sandbox에서
+고정 SHA-256의 Claude Code 2.1.283과 v22 안전 후보를 읽기 전용으로 매핑했다.
+CLI 시작만으로는 게스트 로그온 세션이 생성되지 않아 `LogonCommand`가
+실행되지 않았다. 따라서 해당 Sandbox ID를 확인한 뒤
+`wsb.exe Execute -r System`으로 동일한 `run.ps1`을 실행했다. 게스트 결과는 control과
+후보 `--init-only` 모두 종료 0, 인라인·디렉터리 플러그인 각 5개,
+스킬 182개·명령 5개, 디버그 오류 0, 전후 활성 네트워크 어댑터 0개다.
+결과는 `sandbox-init-v22/output/result.json`과 디버그 로그에 남겼으며,
+실행 후 해당 Sandbox만 종료하고 후보 영수증을 동일 digest로 재검증했다.
+이것은 **격리된 Claude 초기화·발견 증거**일 뿐 실제 명령 실행,
+사용자 프로필 호환, 모델 응답, 구독 청구 안전성의 증거가 아니다.
+
 Codex 오버레이 자체 영수증 검증과 다섯 명시적 루트 `inventory` 182건은
 통과했다. 그러나 오버레이 기본 `catalog`는 여전히
 `Candidate skill metadata differs from receipt`로 종료 2다. 이는 의도된
