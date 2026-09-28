@@ -2638,6 +2638,31 @@ v20·v23의 5플러그인 후보 영수증을 각각 원래 digest로 재검증�
 전체, 기본 `update_check=true`의 전송·삭제 경로, 실제 사용자 설치본,
 런타임 폐쇄를 증명하지 않는다. 세 설치 준비 플래그는 그대로 `false`다.
 
+2026-09-29 **v23 Gstack 업데이트 기본값의 격리 실행**: 별도 고정 Gstack
+원본 `01593aa`의 `bin/`·`lib/`·`VERSION` 195개 파일을 네트워크 차단
+Windows Sandbox 게스트에 복사하고 원본과 복사본의 SHA-256을 대조했다.
+v23 후보 digest `9bcd45c8...63d3d`, Git Bash·Bun 실행 파일 해시도
+시작 전에 확인했다. 활성 네트워크 어댑터 0, API 키 환경변수와 게스트
+Codex 인증 파일 부재를 확인했다. 사용자 홈 Gstack은 공유하거나 실행하지
+않았다. 동일 게스트의 독립 상태 디렉터리 두 곳에서 오직 테스트용
+1,100자 초과 설명 파일을 만들어 `gstack-update-check`를 실행했다.
+
+`update_check: false`인 경우 종료 0, 원격 조회 영수증 0, 캐시·healing
+마커 0이고 테스트 파일은 남았다. 설정 파일이 없는 **기본값**은 종료 0,
+`github.com`과 `raw.githubusercontent.com`에 대한 조회 **시도**
+영수증 2건, 캐시·healing 마커 생성 및 테스트 파일 삭제가 관측됐다.
+네트워크가 차단돼 실제 전송은 없었다. 결과는
+`E:/Coding Infra/Releases/SimonK-stack/20260929-gstack-update-guard-probe/output/result.json`
+(SHA-256 `a95ac180b68f5866fa89e40ffb2911d98a500ad79c03878043f351b15ec43a31`)
+이며 스크립트·Sandbox 구성·원시 빈 stdout/stderr도 같은 폴더에 보존했다.
+이번 `.wsb` 실행 프로세스는 종료됐다. 별도 CLI 목록에는 이전 시험의
+인스턴스 ID가 남아 있어 이번 게스트 ID로 간주하거나 종료하지 않았다.
+이 시험은 **업데이트 검사 하나의
+두 정책 분기**만 검증한다. 기본값을 안전하다고 승격할 수 없으며,
+`update_check=false`만으로 모든 Gstack 실행·텔레메트리·동기화·팀 초기화
+경로가 안전하다고 주장하지 않는다. `runtime_closure_verified`,
+`host_compatibility_verified`, `installation_ready`는 모두 `false`다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
