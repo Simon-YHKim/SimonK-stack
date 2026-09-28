@@ -2120,6 +2120,22 @@ flat 별칭 분리 + 복원·철회**를 결합 시험했다. Claude 게스트�
 구독 청구와 운영 설치 준비를 증명하지 않으므로 세 readiness 플래그와
 실사용 설치·`main` 상태는 바꾸지 않는다.
 
+호스트 복원 스크립트는 Codex 구 정션을 보관한 직후 새 정션 생성이
+실패한 중간 상태도 처리하도록 보완했다. 또 다른 새 Sandbox에서
+정상 전환·복원과 재실행 뒤, Claude `model-router` 및 Codex `vibe`의
+구 정션만 보관하고 새 링크는 만들지 않는 부분 실패를 주입했다.
+`host-rollback.ps1`이 두 링크를 원상 복구했고 최종 5+2 해시 검증이
+통과했다. 영수증은
+`E:/Coding Infra/Releases/SimonK-stack/20260928-plugin-only-split-bridge/output-host-partial/host-rollback-result.json`에
+있다. 실제 사용자 홈 링크는 변경하지 않았고 게스트는 종료했다.
+
+기능 브랜치의 최신 문서 반영 상태에서 소스 스킬 품질 141/141,
+Node 플러그인 검증 68스킬, 오프라인 benchmark 회귀 19건 및 후보
+경로 감사 회귀 18건이 다시 통과했다. `origin/main`은 이 기능 브랜치의
+조상이라 fast-forward가 가능한 그래프지만,
+필수 D-code와 실사용 선택·readiness 검증 없이 `main`을
+이동하지 않는다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
