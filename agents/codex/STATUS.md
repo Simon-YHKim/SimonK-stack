@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 13:56:12 KST
+updated: 2026-09-28 14:04:29 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 13:56:12 KST
+updated: 2026-09-28 14:04:29 KST
+
+- 2026-09-28 14:04:29 KST: src: user — pinned Gstack `01593aa6` setup boundary reviewed read-only: `--local` Claude-only and not dry-run; preinstall migration, missing build artifacts and `bun install` fallback mean offline direct-helper 9/9 cannot be promoted to full install. Documented in SimonK-stack feature commit `f504f21`, origin pushed/clean. D-code/alias ownership and three readiness flags remain pending/false; no setup, user install/main, model/API/Bot/Orca call, or payment change. FYI sent to Claude.
 
 - 2026-09-28 13:56:12 KST: src: user — fixed Gstack `01593aa6` nine directly referenced Bash helpers exercised in fresh no-auth/no-network Windows Sandbox, final 9/9; guest project status only `?? CLAUDE.md`, network adapters0, sync queue0, telemetry file0 under update_check=false/telemetry=off/artifacts_sync_mode=off. Three failed harness iterations preserved (Windows JSON argv quoting, Bun EPERM on mapped RO TS, then JSON quoting); final uses hash-checked guest runtime copy and fixed Bash JSON fixtures. Report `Releases/SimonK-stack/20260928-gstack-nine-helper-sandbox/report.html`, source feature docs commit `801ba5e` origin pushed/clean. No model/API/Bot/Orca call, paid spend, user installation/main/payment change; readiness3=false, alias architecture D-code pending.
 
