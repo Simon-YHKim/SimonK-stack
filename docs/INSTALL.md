@@ -2414,6 +2414,20 @@ v22 안전 후보의 기본 `/vibe catalog`는 182개 스킬을 읽었다. 후�
 직접 참조 31스킬·646회·고유 대상 9개가 남아 `external_runtime_pending`
 종료 1이다. 이 결과를 전체 런타임 검증으로 해석하지 않는다.
 
+후속 **브라우저 동작 회귀**에서는 v22 후보의 `simonk-report` 템플릿에
+모든 절의 테스트 값을 HTML 이스케이프해 채운 별도 fixture를 사용했다.
+새 로컬 Chrome 프로필·CDP에서 모바일 요약/상세 탭, 키보드 전환,
+드래그→메모, 메모 저장·새로고침 복원, 자동 복사 거부 시 화면 노출,
+데스크톱 다크 모드, 인쇄 시 상세 펼침과 PDF 생성을 확인했다.
+18/18 검사 통과, 가로 넘침·페이지의 외부 요청·JavaScript 예외는 0건이다.
+`scripts/tests/test_simonk_report_browser.py`가 Chrome/Node 가용 환경에서
+이를 반복한다. 스크린샷·JSON은 위 v22 폴더의 `interactive-rendered-v2-*`에
+보존했다. 이것은 **테스트 데이터로 채운 템플릿**의 브라우저 동작 증거이지
+실제 세션 보고 생성, `SendUserFile`, Safari/Firefox 또는 사용자 설치본의
+동작 증거는 아니다.
+후속 소스 전체 회귀는 329건 중 326통과·3건너뜀·실패 0이며, 건너뛴
+후보 경로 시험을 v22 digest로 다시 지정한 별도 프리뷰 6/6도 통과했다.
+
 Codex 오버레이 자체 영수증 검증과 다섯 명시적 루트 `inventory` 182건은
 통과했다. 그러나 오버레이 기본 `catalog`는 여전히
 `Candidate skill metadata differs from receipt`로 종료 2다. 이는 의도된
