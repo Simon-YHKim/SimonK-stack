@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 15:57:39 KST
+updated: 2026-09-28 16:00:47 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 15:57:39 KST
+updated: 2026-09-28 16:00:47 KST
+
+- 2026-09-28 16:00:47 KST: src: user — parsed final Claude debug to identify exact five skipped plugin entries: `simonk-core:model-router`, `simonk-core:multi-terminal-dispatcher`, `simonk-core:simonk`, `simonk-core:vibe`, `simonk-core:vibe-bot`. Loader reason: same SKILL.md already surfaced as user-level flat skill. Updated source INSTALL docs at `909b3b7` and external HTML, feature pushed/clean. This is load-time observation, not actual namespaced-command selection.
 
 - 2026-09-28 15:57:39 KST: src: user — separate offline/no-auth Windows Sandbox guest swapped five old Core flat junctions to v20 and restored them. Pre-move manifest plus reverse script hashes match receipt; Claude flat5/Codex bridge2 new and restored SKILL hashes matched; reverse script re-run idempotent. Claude Code 2.1.283 init exits0, new flat user5 + plugin177, duplicate/user-owned skip5, unique total182, debug errors0. Initial harness erroneously expected plugin182/skip0; first receipt retained, corrected fresh guest PASS. Source INSTALL docs `9b62f58` pushed/clean; HTML/raw receipts in Releases flat-bridge-rollback. No host profile/Gstack/install/main/payment changes or model generation; D-code, actual command selection, cache restore, readiness3=false remain.
 
