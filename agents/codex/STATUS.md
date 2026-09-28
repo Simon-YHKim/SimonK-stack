@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 00:01:52 KST
+updated: 2026-09-29 00:36:52 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 00:01:52 KST
+updated: 2026-09-29 00:36:52 KST
+
+- 2026-09-29 00:36:52 KST: src: Simon direct, subscription-only/no paid calls. Integrated PR #54 second unit into source feature as pushed `977e3cf`, resolving sole CHANGELOG conflict by keeping both prior skill-discovery and HTML-rule entries; 5 files including new report-template regression tests. Improved tab/button/summary touch targets to >=44px and removed card accent-left border. Target skill validators 0 errors/0 warnings, Skill-Gen24/24, new template tests5/5, repository328 tests 325 pass/3 candidate-gated skipped, all141 skill validation failures0 (33 existing warnings, changed skills0), strict YAML141/141. Chrome headless JS-init DOM confirmed tab/memo startup; attempted no-JS flag was ineffective, so no-JS runtime is not claimed. Feature clean and remote-equal. PR #54 still OPEN; main/install/candidate v21 unchanged. No external model/Bot/API call, billing-setting change or extra paid usage. HTML `agents/codex/outbox/preview/20260929-003652-pr54-skills-template.html`.
 
 - 2026-09-29 00:01:52 KST: src: Simon direct, subscription-only/no extra paid calls. PR #54 instruction-source unit cherry-picked onto `feat/skill-context-budget-260925` as `002508e`, 4 files only, pushed. `python -B instructions/split.py --verify` PASS: source SHA matches all three generated outputs; baseline broken refs 3, increase 0. `git diff --check` PASS, feature clean. PR #54 remaining skills/template/CHANGELOG commit `709c1ed` is not integrated: preflight found only CHANGELOG conflict; deferred to next bounded unit because repo rule caps this session at 5 touched files. No main merge, installation, external model/Bot/API call or payment-setting change. HTML `agents/codex/outbox/preview/20260929-000152-pr54-instruction-unit.html`.
 
