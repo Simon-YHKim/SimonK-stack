@@ -2767,6 +2767,40 @@ XML로 검사했고 PowerShell 구문 오류 0건이다. `output/result.json`은
 단일 인스턴스를 점유해 새 게스트를 시작하지 않았고, 이 프로세스를
 임의 종료하지 않았다. 따라서 v24 실제 초기화·스킬 발견은 **미검증**이다.
 
+2026-09-29 **기존 사용자 평면 스킬 홈과 v24의 SKILL 바이트 차이**:
+v24의 정확한 다섯 plugin `skills/`를 소스로 두고, 현재 관측한
+Claude `C:/Users/202502/.claude/skills` 및 Codex
+`C:/Users/202502/.agents/skills`→`.codex/skills` 순서의 평면 루트를
+각각 `orchestrate.py coverage`로 비교했다. 홈 Gstack은 읽기 금지 경계로
+명시적 제외했으므로 두 검사의 `scope_complete=false`이며 종료 2다.
+
+| 관측한 평면 루트 | v24와 동일 | 바이트 다름 | 이름 없음 | 범위 밖 고유 이름 |
+|---|---:|---:|---:|---:|
+| Claude `.claude/skills` | 1 | 137 | 44 | 41 |
+| Codex `.agents/skills`→`.codex/skills` | 1 | 136 | 45 | 51 |
+
+양쪽의 정확히 같은 스킬은 `multi-terminal-dispatcher` 하나다. 현재
+`~/.claude/skills/vibe`는 2026-09-26 후보를 가리키는 junction이고
+버전 2.11.6이며, `.agents/skills/vibe`·`.codex/skills/vibe`도 그 경로로
+이어진다. v24 후보 `/vibe`는 2.12.2다. 이 수치는 **선언한 평면 루트의
+SKILL.md 바이트**만 비교하며 Claude/Codex의 활성화, 네이티브 플러그인
+캐시·프로젝트 로컬 스킬·스크립트/자산 전체, 실제 스킬 선택을 판정하지
+않는다. 그러므로 v24가 현재 사용자 프로필에 설치됐거나 호스트 전체에서
+누락됐다는 어느 쪽 주장으로도 확대하지 않는다. 기존 링크는 변경하지 않았다.
+
+현재 설치 경로의 `/vibe`가 가리키는
+`E:/Coding Infra/Releases/SimonK-stack/20260926-selection-validation/candidate/`
+에서 **기본 catalog는** `Candidate skill metadata differs from receipt`
+(종료 2)로 실패했다. 그 후보의 `bundle.json` 전체 검증도 실패한다.
+영수증의 707파일을 실제 바이트로 대조하면 누락 0, 변경 2
+(`vibe/SKILL.md`, `vibe-bot/SKILL.md`), 추가 4
+(`model_registry` bytecode 1, `vibe-bot` Relay 참고·감시·검사 자산 3)다.
+이 파일들은 기존 사용자/에이전트 변경 가능성이 있으므로 삭제·복구·덮어쓰지
+않았다. 이 결과는 현재 **해당 설치 후보의 기본 catalog 사용 불가**를
+뜻하지만, 다른 호스트 경로나 명시적 스킬 로드까지 실패했다고 단정하지
+않는다. v24 safety 후보의 기본 catalog 통과는 이 설치 경로를 자동 수리하지
+않는다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
