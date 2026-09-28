@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 22:48:51 KST
+updated: 2026-09-28 23:11:05 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 22:48:51 KST
+updated: 2026-09-28 23:11:05 KST
+
+- 2026-09-28 23:11:05 KST: src: Simon direct subscription-only `/vibe` continuation. Found open PR #49 fail-open persona checker absent from aggregate feature; ported its bounded persona unit with stronger per-finding visible-HTML checks and exact `--expect`, source `3bc3938` pushed/clean. TDD 12/12, repo 323 tests (320 pass/3 skipped), exactly those three separately passed 3/3 using pinned v20 and fake host, Skill-Gen Agent 24/24, all 141 skill quality gate PASS, persona validator 0 errors/warnings and 4 eval dry-run cases. Report `Releases/SimonK-stack/20260928-persona-gate-port/report.html`. Existing v20 candidate predates this change, and PR #49 remaining vibe safety gates and PR #54 HTML rules are not integrated. User install/main/readiness/payment unchanged; no external model/API/Bot/Orca call. Actual shared hub worktree remains dirty/diverged; matching Codex-owned local FYI written there without commit.
 
 - 2026-09-28 22:48:51 KST: src: Simon direct subscription-only `/vibe` continuation. A second fresh no-network/no-auth Sandbox reran all 31 Gstack-dependent candidate cases: 30 preambles exited0; the 31st `gstack-upgrade` has none. New guest `events.json` proves each of 30 timelines has exactly one JSON `started` event with its own skill name. Host independently matched all 30 event keys to TSV cases, verified 30 unique valid SHA-256 strings, and reverified unchanged v20 candidate digest; Sandbox stopped and no instance remains. Source INSTALL commit `7a23234` pushed/clean, path-audit tests18 PASS, report/receipts `Releases/SimonK-stack/20260928-candidate-gstack-preambles/`. Readiness flags still false; full skill behavior, host hook/profile and Claude-owned D-code/main gates remain. No provider/model/Bot/Orca call, account/payment change, user install or main merge.
 
