@@ -30,7 +30,8 @@ OID = re.compile(r"[a-f0-9]{40}\Z")
 VERSION = re.compile(r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\Z")
 PLUGIN = ".claude-plugin/plugin.json"
 MARKET = ".claude-plugin/marketplace.json"
-ROOT_DOCS = {"LICENSE", "NOTICE", "README.md", "CHANGELOG.md", "CONTRIBUTING.md", "RELEASING.md"}
+ROOT_COMPONENTS = {"LICENSE", "NOTICE", "README.md", "CHANGELOG.md",
+                   "CONTRIBUTING.md", "RELEASING.md", ".gitignore"}
 LIMITATIONS = [
     "Candidate only; prerelease metadata is not an installation guard.",
     "Git commit/tree proves inventory only; raw working-tree bytes are not blob attestation.",
@@ -396,7 +397,7 @@ def classify(owner, path, paths, source):
         return "copied", "plugin-only"
     if path in {PLUGIN, MARKET}:
         return "transformed", "candidate-metadata"
-    if path in ROOT_DOCS or parts[0] in {".github", "agents", "commands"} and len(parts) >= 2:
+    if path in ROOT_COMPONENTS or parts[0] in {".github", "agents", "commands"} and len(parts) >= 2:
         if r.forbidden_member(r.relative(path)):
             raise ValueError("Unsafe base component")
         return "copied", "official-component"

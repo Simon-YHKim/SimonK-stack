@@ -1650,6 +1650,43 @@ v18 Codex 격리 게스트 리허설(2026-09-28): 네트워크·클립보드·vG
 증명하지 않는다. 사용자 설치·`main` 머지·결제 설정 변경·모델/API/Bot
 실호출은 수행하지 않았다.
 
+## v19 Stack 평가 스키마 검증 후보 (2026-09-28)
+
+원본 SimonKStack 기능 브랜치 `fix/skill-validation-260927`의 `7f866e7`은
+기존 선택 트리거 배열 파일 6개와 행동 assertion 스키마 파일 25개를 각각 검증하는
+오프라인 CI 단계를 추가했다. 평가 파일이 없는 27개 스킬은 숫자로 보고하지만
+이 검사는 모델 선택 정확도나 실제 스킬 동작을 실행하지 않는다. v18에 적용한
+Core 공통 평가 스키마의 `invalid` 6건은 서로 다른 레거시 스키마였으므로
+잘못된 케이스로 고쳐 쓰지 않았다. Stack README는 Core 동반 설치를 권장하고
+`skstack`은 Core·Design 스킬이 없을 때 기능을 축소한다고 명시한다.
+
+SimonK-stack 기능 브랜치의 `distribution/plugin-inputs.v1.json`을 새 Stack
+커밋으로 핀했다. 새 `.gitignore`를 공식 루트 구성요소로 분류하도록
+`plugin_bundle.py`를 확장하고 회귀 테스트를 추가했다. 초기 Windows 로컬
+복제본은 Git의 CRLF 체크아웃 때문에 후보 검증에서 거절됐다. 원본·v18은
+변경하지 않고 `core.autocrlf=false`인 별도 로컬 복제본으로 다시 빌드했다.
+격리 산출물은
+`E:/Coding Infra/Releases/SimonK-stack/20260928-v19-eval-schema/`에 있다.
+
+| 산출물 | 검증 digest | 범위 |
+|---|---|---|
+| 재빌드한 `source-v19` | `9f1abd11fa3b648fe12ed1dc78183881e236d957bde007002cda61ece69567f8` | v18 소스와 동일 digest·137스킬·409파일 |
+| `candidate-safety-v19` | `14bce7604f30190d2921de751c4f44687097890241cf80a06669b41defd33593` | 5플러그인·182스킬·734파일 |
+| `codex-overlay-v19` | `2bc9a908ea08057165a6680a208181206ce353b6dd1bedd31ee7c214aea81a71` | Codex 호환 manifest 추가 |
+
+후보 빌드에는 먼저 검증한 동일 digest의 `source-v18`을 사용했고, 현재
+기능 브랜치에서 `source-v19`를 독립 재빌드해 소스 digest 동일성을 확인했다.
+v18 대비 후보 추가 파일은 Stack `.github/validate-evals.mjs`, 그 단위테스트,
+`.gitignore`의 세 개이고 변경 파일은 Stack CI workflow와 README 두 개다.
+스킬 payload 변경은 0개다. 패키저 회귀 45개, 영수증 재검증과 격리 후보
+`/vibe` smoke 4단계, Codex overlay 5개 회귀 테스트가 통과했다.
+정적 경로 감사는 182스킬의
+경로 142곳에서 미해결·비이식 명령 0건을 확인했으나 Gstack 외부 런타임
+참조 31스킬·646문자열·9대상 때문에 예상대로 종료 1이다.
+`runtime_closure_verified`, `host_compatibility_verified`,
+`installation_ready`는 모두 `false`로 유지한다. 사용자 설치본·운영
+marketplace·`main`·결제 설정·모델/API/Bot 실호출은 변경하지 않았다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,

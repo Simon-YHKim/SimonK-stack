@@ -214,6 +214,18 @@ class PluginBundleTests(unittest.TestCase):
         f = next(f for f in receipt["files"] if f["path"].endswith("scripts/helper.py"))
         self.assertEqual(f["mode"], "100755")
 
+    def test_pinned_plugin_gitignore_is_copied_without_weakening_other_root_rules(self):
+        root = self.plugins / "SimonKStack"
+        self.put(root, ".gitignore", ".env\n.env.*\n")
+        self.repin("SimonKStack")
+        result = self.build()
+        receipt = self.m.verify_bundle(self.output, result["bundle_digest"])
+        self.assertEqual((self.output / "plugins/SimonKStack/.gitignore").read_bytes(),
+                         b".env\n.env.*\n")
+        record = next(f for f in receipt["bases"]["SimonKStack"]["records"]
+                      if f["path"] == ".gitignore")
+        self.assertEqual((record["action"], record["reason"]), ("copied", "official-component"))
+
     def test_safety_adapter_is_explicit_v2_opt_in(self):
         self.enable_safety_fixture()
         v1_output = self.base / "plain-candidate"
