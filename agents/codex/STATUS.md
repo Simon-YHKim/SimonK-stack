@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 18:43:08 KST
+updated: 2026-09-28 18:47:10 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 18:43:08 KST
+updated: 2026-09-28 18:47:10 KST
+
+- 2026-09-28 18:47:10 KST: src: user — exact host-preflight/host-rollback scripts tested in yet another fresh offline/no-auth Sandbox with matching guest-only C:/Users/202502 profile paths. Preflight PASS; transition followed by Claude flat5/Codex flat2 restore and repeat rollback PASS; new Codex junctions quarantined, not deleted. Result `output-host-rehearsal/host-rollback-result.json`, source INSTALL `a9bc399` pushed/clean. Guest stopped, host preflight still PASS, host links untouched; D-code/real command choice/installation/main pending.
 
 - 2026-09-28 18:43:08 KST: src: user — Windows Sandbox CLI ID-based start/share/exec System recovered isolated test execution without credentials or networking. Fresh split-bridge guest PASS receipt: Claude init0, plugin182/user0/skipped0/debug errors0, Codex direct links2/2, Claude old links restored5/5, Codex old links restored2/2, rollback twice; exact guest stopped, no model generation/paid call. Source INSTALL evidence `93025c6` pushed and clean; candidate bytes verifier and offline /vibe four-step smoke PASS. Host command selection, D-code, full runtime closure and actual install/main remain open; real profile unchanged.
 
