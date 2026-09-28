@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 17:52:15 KST
+updated: 2026-09-28 18:22:34 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 17:52:15 KST
+updated: 2026-09-28 18:22:34 KST
+
+- 2026-09-28 18:22:34 KST: src: user — fresh no-candidate 2-mapped-folder Windows Sandbox triage: one boot probe and a corrected first-operation marker retry both produced no marker while the exact guest window process remained alive/responsive; exact test instances closed, no live Sandbox remains. Thus split-bridge guest code never reached an observable execution point; boot/LogonCommand/mapping cause unresolved, not a skill-code FAIL/PASS. Explicit home path audit shows Claude flat vibe/vibe-bot still old candidate junctions; Codex flat two still junction through them; no exact local command/synced/project vibe collision file at checked paths. Source INSTALL note `fbdd041` feature pushed/clean; HTML updated. D-code, command selection and install remain open; no model or paid calls.
 
 - 2026-09-28 17:52:15 KST: src: user — current feature `a988efc` nonpaid quality gates rerun on Windows. Plain CP949 launch failed at print; output-only UTF-8 still emitted child decode tracebacks despite exit0. With PYTHONUTF8=1 and PYTHONIOENCODING=utf-8, 141 source skills quality gate PASS cleanly; Node plugin validator PASS (simonk-stack 68 skills); candidate path audit 18 tests and benchmark freshness 19 tests PASS. These are static/source regressions, not guest boot, live command routing, or installation readiness. Source tree remains clean.
 
