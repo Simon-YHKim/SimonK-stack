@@ -1,0 +1,8 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>v22 보고서 브라우저 검증</title>
+<style>:root{color-scheme:light dark;--a:#397d9b;--t:#19252d;--m:#5a6870;background:#f8fafb;color:var(--t)}@media(prefers-color-scheme:dark){:root{--a:#8dcde5;--t:#edf4f7;--m:#b3c1c8;background:#141c21}}body{font:16px/1.6 system-ui,sans-serif;max-width:840px;margin:auto;padding:2rem 1rem 4rem}h1{line-height:1.25}.muted{color:var(--m)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8rem}.card,details{border:1px solid var(--m);border-radius:.7rem;padding:1rem}.card b{display:block;color:var(--a);font-size:1.35rem}summary{cursor:pointer;font-weight:650}code{overflow-wrap:anywhere}:focus-visible{outline:3px solid var(--a)}</style></head><body><main>
+<p class="muted">2026-09-29 02:21:03 KST · Codex 검증</p><h1>v22 보고서: 브라우저 동작 확인</h1>
+<p>값을 채운 후보 템플릿을 새 로컬 Chrome 프로필에서 실행했다. 기존 설치본·main·결제 상태는 그대로다.</p>
+<section class="cards" aria-label="검증 지표"><div class="card"><b>18 / 18</b>브라우저 검사</div><div class="card"><b>0</b>페이지 외부 요청·JS 예외</div><div class="card"><b>326 + 3</b>전체 회귀 통과·건너뜀</div><div class="card"><b>0 USD</b>추가 과금</div></section>
+<details open><summary>검증 경계와 남은 게이트</summary><p>모바일 요약·상세, 키보드, 메모 저장/복원과 복사 거부 시 대체, 데스크톱 다크 모드, 인쇄/PDF를 확인했다. 실제 보고 생성·파일 발송·Safari/Firefox·설치된 호스트 동작은 아직 증명하지 못했다. Codex 오버레이 기본 catalog 결정, Gstack 전이 런타임, 프로필 호환성이 남아 있어 <code>installation_ready=false</code>다.</p></details>
+<p class="muted">상세 영수증: E:/Coding Infra/Releases/SimonK-stack/20260929-v22-html-pr54/report.html · 소스 커밋 <code>65a3998</code></p>
+</main></body></html>
