@@ -1084,6 +1084,19 @@ scripts/tests -p test_codex_hook_input.py -v`의 5개 회귀 테스트가 통과
 훅 등록·프로필 설치·실제 호스트 동작을 구현하지 않는다. 구독 모델이나
 Bot을 호출하지 않은 계약 파서 시험만으로 안전 집행을 주장하지 않는다.
 
+후속 오프라인 후보 `scripts/codex_guarded_policy.py`는 해당 파서를 사용해
+Codex `PreToolUse`가 지원하는 `deny` JSON만 반환한다. 명시적 `--bash`와
+`--careful-script`가 주어지면 기존 careful leaf를 격리 환경에서 실행하고
+Claude 전용 `ask`를 **차단**으로 바꾼다. 선택적 `--boundary`가 있으면
+`apply_patch`의 모든 선언 경로(이동 목적지 포함)의 실제 부모·링크를
+확인하고 경계 밖 또는 판단 불가 입력을 차단한다. 경계가 없으면
+패치는 제한하지 않으며, 검사가 실패하면 차단한다. 입력 명령 자체는
+실행하지 않는다. `python -B -m unittest discover -s scripts/tests -p
+test_codex_guarded_policy.py -v`의 11개 사례와 전체 Codex 관련 26개
+사례가 통과했다. 이 후보는 **고정 경계의 로컬 시험용**이며 세션별
+활성화·신뢰 영수증·프로필 등록·실제 호스트 집행 및 Shell을 통한
+파일 쓰기 차단은 제공하지 않는다. D-29·D-30의 미지원/보류 판정은 유지한다.
+
 ### Codex 호환 오버레이 v2 (2026-09-28, 설치 전 후보)
 
 `scripts/codex_overlay.py`는 고정된 v15 5-플러그인 후보를 **읽기 전용**으로
