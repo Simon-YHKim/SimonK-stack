@@ -67,6 +67,13 @@ def fixture_registry(candidates):
             "models": list(models.values()), "sources": sources}
 
 
+def production_registry_now():
+    """Keep packaged-registry integration checks valid after a reviewed refresh."""
+    path = SCRIPT.parent.parent / "references" / "model-registry.json"
+    checked_at = json.loads(path.read_text(encoding="utf-8"))["checked_at"]
+    return (datetime.fromisoformat(checked_at) + timedelta(hours=1)).isoformat()
+
+
 class OrchestrationTests(unittest.TestCase):
     def setUp(self):
         self.assertTrue(SCRIPT.is_file(), "The /vibe umbrella planner is not implemented")
@@ -876,7 +883,7 @@ class OrchestrationTests(unittest.TestCase):
         self.assertIn("MODEL_NOT_REGISTERED", str(p))
 
     def test_planner_locks_registry_and_does_not_invent_resolved_model(self):
-        now = "2026-09-23T13:00:00+00:00"
+        now = production_registry_now()
         c = candidate(model="gpt-6-sol", observed_at=now, quota={"used_pct": 10, "observed_at": now})
         p = self.m.make_plan({"run_id": "registry-check", "steps": [step()]}, self.catalog,
                              {"candidates": [c]}, now)
@@ -886,7 +893,7 @@ class OrchestrationTests(unittest.TestCase):
         self.assertIsNone(p["steps"][0]["route"]["resolved_model"])
 
     def test_harness_ultra_is_not_an_ordinary_worker_effort(self):
-        now = "2026-09-23T13:00:00+00:00"
+        now = production_registry_now()
         c = candidate(model="gpt-6-sol", observed_at=now, quota={"used_pct": 10, "observed_at": now},
                       provider_efforts=["ultra"], transport_efforts=["ultra"],
                       effort_by_demand={"routine": "ultra"})

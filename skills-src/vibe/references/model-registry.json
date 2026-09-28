@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "version": "2026-09-23.1",
-  "checked_at": "2026-09-23T21:24:38+09:00",
-  "data_as_of": "2026-09-23",
+  "version": "2026-09-28.1",
+  "checked_at": "2026-09-28T10:59:07+09:00",
+  "data_as_of": "2026-09-28",
   "notes": [
     "Public provider facts are not account, transport, billing or successful-execution evidence.",
     "API Standard USD / million tokens only. Tool, storage, transport, regional and priority charges are separate.",
@@ -86,7 +86,7 @@
       "id_namespace": "provider-api",
       "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": ["fable"],
       "retirement_not_before": "2027-09-01", "thinking": "adaptive_always_on",
-      "billing_note": "Claude Code subscription login does not establish included Fable usage; usage credits may apply.",
+      "billing_note": "Claude Code subscription login does not establish included Fable usage. Non-interactive Fable requests can bill usage credits without a consent prompt; require positive exact-model subscription inclusion and disabled overage evidence before dispatch.",
       "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "10", "cached_input": "0.25", "output": "50", "cache_write": null},
       "sources": ["cl_models", "cl_effort", "cl_pricing", "cl_lifecycle", "cl_billing"]
     },

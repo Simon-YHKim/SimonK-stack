@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Recheck current GPT, Claude, Gemini and Grok provider facts on 2026-09-28
+  and refresh the seven-day model-registry evidence window. Public model
+  support still does not establish subscription access or permit API billing.
+- Explicitly warn that non-interactive Claude Fable can charge usage credits
+  without a consent prompt; keep exact-model inclusion and overage gates.
+
 ## 2.12.0 - 2026-09-28
 
 - Block pinned Gstack design API-key setup, generation and checks under subscription-only USD 0; require transitive local-command cost evidence.

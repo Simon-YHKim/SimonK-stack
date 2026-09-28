@@ -222,6 +222,10 @@ the resolved exact LLM model (or requested exact ID without an alias), or
 `bot_usage_included=true` for the provider-managed Grok Bot. Missing or uncertain
 values block that route. A paid candidate supplies
 upper_usd_per_attempt including reasoning, tool use and transport charges.
+For Claude Fable, a subscription login and the model picker are not inclusion
+proof: Anthropic documents that non-interactive `-p`/SDK requests can bill
+usage credits without a consent prompt. Never dispatch that route until the
+exact model's included-usage and disabled-overage evidence is positive.
 The quote belongs to this task/run snapshot, not a permanent model price.
 With approved_usd=0, API and metered LLM routes are excluded even when their
 claimed per-attempt upper quote is zero. A positive metered grant is a separate
