@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 15:43:11 KST
+updated: 2026-09-28 15:57:39 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 15:43:11 KST
+updated: 2026-09-28 15:57:39 KST
+
+- 2026-09-28 15:57:39 KST: src: user — separate offline/no-auth Windows Sandbox guest swapped five old Core flat junctions to v20 and restored them. Pre-move manifest plus reverse script hashes match receipt; Claude flat5/Codex bridge2 new and restored SKILL hashes matched; reverse script re-run idempotent. Claude Code 2.1.283 init exits0, new flat user5 + plugin177, duplicate/user-owned skip5, unique total182, debug errors0. Initial harness erroneously expected plugin182/skip0; first receipt retained, corrected fresh guest PASS. Source INSTALL docs `9b62f58` pushed/clean; HTML/raw receipts in Releases flat-bridge-rollback. No host profile/Gstack/install/main/payment changes or model generation; D-code, actual command selection, cache restore, readiness3=false remain.
 
 - 2026-09-28 15:43:11 KST: src: user — read-only four-flat-root host audit with home Gstack excluded before content read: candidate 182, selected home198, common138, same SKILL bytes1, drift137, missing44; two expected EXCLUDED scope issues, no full-host claim. Current flat Core bridge five junctions target immutable 20260926 candidate; /vibe installed2.11.6 vs v20 2.12.1; Claude/Codex SimonK plugin registry each0. Fresh offline/no-auth Sandbox user flat5 + v20 plugin182 coexist, duplicate/user-owned skipped0, combined debug errors0; actual /vibe command-selection untested. Source docs `65b77ef` pushed/clean; HTML, host summary and guest logs under Releases flat-v20-priority-probe. No model/API/Bot/Orca calls, payment or explicit user-profile writes; D-code/bridge migration/readiness3=false remain.
 
