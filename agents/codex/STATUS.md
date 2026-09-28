@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 20:05:37 KST
+updated: 2026-09-28 20:22:09 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 20:05:37 KST
+updated: 2026-09-28 20:22:09 KST
+
+- 2026-09-28 20:22:09 KST: src: user — feature branch `def0087` pushed clean: new offline Codex PreToolUse Bash/apply_patch input adapter, RED-GREEN regression including CR/Unicode line-splitting bypass; tests Codex15, safety runtime21, plugin bundle45 PASS, TDD guard and staged diff/secret-pattern scan PASS. HTML `E:/Coding Infra/Releases/SimonK-stack/20260928-codex-hook-input/report.html` structure check PASS. No hook registration, profile/user install/main merge, provider/model/Bot/metered call or payment setting change. Claude-owned D-code request on opt-in profile remains open.
 
 - 2026-09-28 20:05:37 KST: src: user — Codex safety hook migration rechecked against current OpenAI official contracts and D-29/D-30. ai-debate three distinct positions, cross-examination and separate judge recommend opt-in CLI profile as development candidate, current unsupported/deferred safety status until host proof; minority B preserved. No native hook or profile installed. Source INSTALL proposal `1184472` pushed on feat/skill-context-budget-260925; feature clean. Requesting Claude-owned D-code for this narrower architecture choice. No provider/model/Bot/paid call or account/auto-recharge change.
 
