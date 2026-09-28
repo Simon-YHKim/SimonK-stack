@@ -2441,6 +2441,29 @@ CLI 시작만으로는 게스트 로그온 세션이 생성되지 않아 `LogonC
 이것은 **격리된 Claude 초기화·발견 증거**일 뿐 실제 명령 실행,
 사용자 프로필 호환, 모델 응답, 구독 청구 안전성의 증거가 아니다.
 
+2026-09-29 **v22 격리 설치·철회 실측**: 이전 v20 시험의 스크립트를
+v22 영수증에 맞춰 고정하고 Claude/Codex에 각각 별도의 새 Windows Sandbox를
+사용했다. 두 게스트 모두 네트워크·클립보드가 꺼져 있었고 인증정보 없이
+고정 후보와 실행 파일을 읽기 전용으로 매핑했다. 각 게스트의 격리된
+`System` 세션에서만 시험 프로필에 다섯 로컬 marketplace와 플러그인을
+설치·활성화하고 후보 영수증의 파일별 크기·SHA-256을 검사했다.
+Claude Code 2.1.283은 후보 **736/736파일 일치**, 오차 0, 철회 후
+설치 플러그인·marketplace 각 0개였다. Claude CLI가 게스트에 남긴
+캐시 741파일은 직접 삭제하지 않았고 Sandbox 종료와 함께 격리됐다.
+Codex CLI 0.155.0은 오버레이 **742/742파일 일치**, 오차 0, 철회 후
+플러그인·marketplace·캐시 모두 0개였다. 전후 활성 네트워크 어댑터는
+두 게스트 모두 0개였다. 원시 결과 SHA-256은 Claude
+`4c0d1c4641553a22a2568c73892fbbfcaa0eb3548a3b49bb4089cc866769c398`,
+Codex `a1bb8aa5620f4b990a8c1ce3ae3f045362c33018864be7489b62afd78c22b438`이며,
+각각 `sandbox-install-v22/output/result.json`,
+`sandbox-install-codex-v22/output/result.json`에 보존했다. 두 Sandbox는
+정확한 ID를 지정해 종료했고, 두 후보 영수증은 동일 digest로 재검증됐다.
+이는 **빈 게스트의 설치·바이트 복사·목록 철회** 증거이며 기존 사용자
+프로필의 무손실 교체·복구, 스킬 실행, Codex 기본 catalog, 안전 훅,
+Gstack 전이 런타임이나 과금 안전성의 증거가 아니다.
+시험 후 소스 전체 회귀는 329건 중 326통과·3건너뜀·실패 0이었고,
+같은 v22 후보 digest를 지정한 프리뷰 회귀 6/6도 통과했다.
+
 Codex 오버레이 자체 영수증 검증과 다섯 명시적 루트 `inventory` 182건은
 통과했다. 그러나 오버레이 기본 `catalog`는 여전히
 `Candidate skill metadata differs from receipt`로 종료 2다. 이는 의도된
