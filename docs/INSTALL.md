@@ -2026,6 +2026,24 @@ Sandbox**의 새 `.claude/skills`에 구 후보를 가리키는 핵심 정션 5�
 프로필 변경 승인이나 모델 실호출 검증이 아니다. Claude 소유권 D-code,
 실제 명령 선택·설치 캐시 복원, 세 readiness 플래그는 열려 있다.
 
+### flat 별칭 소유권의 후속 검토 (미결정)
+
+[Claude Code 공식 스킬 문서](https://code.claude.com/docs/en/skills#how-a-skill-gets-its-command-name)는
+플러그인 스킬의 이름공간 명령과, 다른 명령과 충돌하지 않을 때의 짧은
+명령을 구분한다. 위 격리 로그에서는 새 후보의 flat 정션 5개를 함께
+제공하면 그와 동일한 파일의 `simonk-core:*` 항목 5개가 제외됐다.
+반면 Claude flat 5개를 단순 철회하면 현재 그 정션을 재참조하는
+Codex flat `vibe`·`vibe-bot` 2개가 끊길 수 있다. 별도 패널·독립 심판은
+**Claude 플러그인 단독 + Codex 별도 고정 진입점**을 검토안으로 제시했다.
+이는 허브 D-code나 실제 설치 승인이 아니며, 짧은/이름공간 명령의
+실제 사용자 프로필 선택은 미측정이다.
+
+이 구조의 추가 Windows Sandbox 시험을 두 번 기동했으나 둘 다 최초
+게스트 부팅 마커조차 만들지 못했다. CLI 초기화·정션 전환 스크립트의
+성패를 판정할 실행 증거가 **없다**. 자료는
+`E:/Coding Infra/Releases/SimonK-stack/20260928-plugin-only-split-bridge/`에
+보존했다. 이전 격리 시험의 PASS를 이 새 구조의 PASS로 확장하지 않는다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
