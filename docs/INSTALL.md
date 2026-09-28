@@ -2705,6 +2705,41 @@ or as a prompt argument when using --print`로, 프롬프트 없이 종료 1이�
 우회하지 않았다. 구독 청구 원장도 확인하지 않았으며 준비 플래그는
 계속 모두 `false`다.
 
+## v24 원본 플러그인 Windows CI 로캘 수정 후보 (2026-09-29)
+
+기능 브랜치 `feat/skill-context-budget-260925`는 원본 AIHub·Core·Design·Market의
+Python 검증 게이트가 Windows 기본 CP949 환경에서 UTF-8 자식 출력을 읽다가
+실패하는 문제를 수정한 커밋을 `distribution/plugin-inputs.v1.json`에 고정했다.
+각 원본에서 Python 회귀 검사 4/4, 품질 게이트 7/57/19/32가 통과했다.
+다섯 원본의 Node 검증은 7/57/19/32/58스킬, Market 9개와 Stack 11개
+Node 검사가 통과했다. 이 결과는 각 원본 브랜치의 로컬 검증이며 사용자
+설치본의 동작 증거가 아니다.
+
+새 후보는 `E:/Coding Infra/Releases/SimonK-stack/20260929-v24-plugin-ci-locale/`에
+두었다. 원본 Core 작업트리에는 Git 무시 `.model-cache/`, `.semantic-index/`,
+`__pycache__/`가 남아 있어 엄격한 빌더의 실제 파일 인벤토리와 맞지 않았다.
+이를 삭제하거나 수정하지 않고, 다섯 고정 커밋을 별도 clean 체크아웃으로
+재현해 후보를 빌드했다. 첫 실패의 개별 내부 예외는 빌더가 숨기므로
+무시 파일이 그 실패의 단독 원인이라고 단정하지 않는다.
+
+| 산출물 | 전체 영수증 SHA-256 | 범위 |
+|---|---|---|
+| `source-v24` | `c97a16e20c69344b8eef88c42a21b04055fcd9102c23a4f0ec201c7de28320c5` | 소스 소유 137스킬·411파일 |
+| `candidate-safety-v24` | `5f01d6cb732598c305c3c30343bd824d518702ded6323ecc198943d358510a2b` | 5플러그인·182스킬·740파일 |
+| `codex-overlay-v24` | `3b1f8d5aa0f3596d504be57d5f793cd78d4f453a9ad147e5f287dc0c373a8990` | Codex 호환 오버레이 |
+
+세 산출물의 개별 `verify`, 5플러그인 입력 회귀 45/45, Claude 후보
+check-only 프리뷰가 통과했다. 명시적 다섯 루트 inventory는 182레코드·
+문제 0건이었다. 그러나 Codex 오버레이 **기본** catalog는
+`Candidate skill metadata differs from receipt`로 종료 1이며, 정적 경로
+감사는 미해결 로컬 참조 0건에도 Gstack 외부 런타임 31스킬·646참조·9대상으로
+`external_runtime_pending`(종료 1)이다. Inventory는 패키지·행동 평가가
+아니며, 새 v24 후보의 호스트 로딩·모델 라우팅·실제 작업은 시험하지 않았다.
+`runtime_closure_verified`, `host_compatibility_verified`,
+`installation_ready`는 모두 `false`다. 모델·Bot·Orca 실호출, 추가 과금,
+사용자 설치·`main` 머지는 없었다. 자세한 영수증과 재현 범위는 위 폴더의
+`report.html`에 기록한다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
