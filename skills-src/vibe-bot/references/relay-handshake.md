@@ -52,7 +52,11 @@ not at the next hourly scan. Three failures on 2026-09-26 set these rules:
    monitor started is still reported (a review result at 22:18 was missed by a
    monitor armed at 22:19 that took it as already present). The watcher
    re-reads that state on every tick, so a request tracked by a scan after
-   the monitor started still comes back as `ANSWER`.
+   the monitor started still comes back as `ANSWER`. A Codex session adds
+   `--agent codex`: it gets its own state file (`~/.codex/state/vibe-bot/`)
+   and self label, so two sessions never share a baseline. `--self-label`,
+   `--coding-label` and `--bus` override the defaults; tasks this session
+   published itself are not reported back to it as `CODING TASK`.
 3. **Catch up before sleeping.** Every time the loop wakes or re-arms, run one
    processing scan first and act on anything pending, then arm the watcher.
 

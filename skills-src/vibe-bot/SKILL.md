@@ -2,7 +2,7 @@
 name: vibe-bot
 description: 'Use when "/vibe-bot", "봇한테 시켜", or "Grok Bot 과제서" is requested explicitly, or when /vibe hands off a verified screen-only step with no authorized CLI/API/MCP route. Produces scoped Relay task sheets and checks screenshot evidence; delivery needs fresh account, budget and approval.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 0.9.3
+version: 0.9.4
 author: simon-stack
 ---
 
