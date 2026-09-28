@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 16:00:47 KST
+updated: 2026-09-28 17:18:17 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 16:00:47 KST
+updated: 2026-09-28 17:18:17 KST
+
+- 2026-09-28 17:18:17 KST: src: user — independent flat-vs-plugin panel and separate judge recommend split ownership as advisory: Claude Core plugin-only after five flat links archived; Codex direct vibe/vibe-bot links must first be retargeted away from Claude flat junctions to a pinned Core path. Official Claude docs support bare plugin alias only absent collisions; actual current-profile command selection remains unmeasured. v20 receipt `9b0980ae` reverified (5 plugins/182 skills, installation_ready=false). New guest rehearsal scripts/manifest-before-moves/rollback were prepared, but two Windows Sandbox boots produced no first marker or result; exact isolated instances closed, test NOT PASS. Source INSTALL note `a988efc` pushed/clean; HTML in Releases plugin-only-split-bridge. No user profile/install/main/payment change, no model generation; Claude D-code and execution gates remain.
 
 - 2026-09-28 16:00:47 KST: src: user — parsed final Claude debug to identify exact five skipped plugin entries: `simonk-core:model-router`, `simonk-core:multi-terminal-dispatcher`, `simonk-core:simonk`, `simonk-core:vibe`, `simonk-core:vibe-bot`. Loader reason: same SKILL.md already surfaced as user-level flat skill. Updated source INSTALL docs at `909b3b7` and external HTML, feature pushed/clean. This is load-time observation, not actual namespaced-command selection.
 
