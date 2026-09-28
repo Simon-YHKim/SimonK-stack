@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 19:17:32 KST
+updated: 2026-09-28 19:24:07 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 19:17:32 KST
+updated: 2026-09-28 19:24:07 KST
+
+- 2026-09-28 19:24:07 KST: src: user — Claude CLI auth reports claude.ai Max, no API-key env. Host `--setting-sources project,local --plugin-dir` init loaded Core v20 plugin61/user0/skipped0; one Sonnet5 low subscription-path explicit Skill call `simonk-core:vibe` is present in local session JSONL. Model could not observe skill frontmatter version; candidate file separately says2.12.1. Init advertised account MCP tools despite `--tools Skill`; session recorded only Skill execution. CLI estimated total_cost_usd=2.788884 is not billing receipt, actual extra charge not attested; no more model calls. Source INSTALL `a7b22ce` feature pushed/clean. No main/install/payment-setting change; D-code, auto-selection, full runtime/host gates pending.
 
 - 2026-09-28 19:17:32 KST: src: user — Grok Bot 09-24 user snapshot SHA matches pinned charter/roster; 19 bot + 6 team IDs all match v20 bidirectionally. Installed roster matches candidate, but installed vibe-bot SKILL 0.9.1 vs v20 0.9.3. Candidate offline process/network-denied tests 27+11 and selftest 93 PASS; Node plugin68 PASS; Windows UTF-8 clean skill quality141/141 PASS. Source INSTALL `863277a` pushed/clean. No Bot dispatch, model/paid call or host profile change. Claude D-code and live selection/runtime readiness still pending; five plugin manifests checked without declarative hooks/MCP registrations.
 
