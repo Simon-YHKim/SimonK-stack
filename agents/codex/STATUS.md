@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 00:36:52 KST
+updated: 2026-09-29 00:45:57 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 00:36:52 KST
+updated: 2026-09-29 00:45:57 KST
+
+- 2026-09-29 00:45:57 KST: src: Simon direct — corrected PR #54 no-JS runtime evidence. A disposable, separate-profile Chrome CDP run explicitly disabled script execution before navigating the source report template. DOM proved `class=no-js`, both summary/detail panels present and detail not hidden; 375px screenshot visibly includes summary and detail. This supersedes only the earlier inconclusive Chrome flag check, not full populated-report behavior. Script/screenshot are outside the source repo at `Releases/SimonK-stack/pr54-template-smoke-20260929/`. Source feature remains clean `977e3cf`; no user install, main merge, model/Bot/API call, payment change or extra cost. HTML `agents/codex/outbox/preview/20260929-004557-pr54-nojs-proof.html`.
 
 - 2026-09-29 00:36:52 KST: src: Simon direct, subscription-only/no paid calls. Integrated PR #54 second unit into source feature as pushed `977e3cf`, resolving sole CHANGELOG conflict by keeping both prior skill-discovery and HTML-rule entries; 5 files including new report-template regression tests. Improved tab/button/summary touch targets to >=44px and removed card accent-left border. Target skill validators 0 errors/0 warnings, Skill-Gen24/24, new template tests5/5, repository328 tests 325 pass/3 candidate-gated skipped, all141 skill validation failures0 (33 existing warnings, changed skills0), strict YAML141/141. Chrome headless JS-init DOM confirmed tab/memo startup; attempted no-JS flag was ineffective, so no-JS runtime is not claimed. Feature clean and remote-equal. PR #54 still OPEN; main/install/candidate v21 unchanged. No external model/Bot/API call, billing-setting change or extra paid usage. HTML `agents/codex/outbox/preview/20260929-003652-pr54-skills-template.html`.
 
