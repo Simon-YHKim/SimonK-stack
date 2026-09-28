@@ -1551,6 +1551,32 @@ design·make-pdf 컴파일 파일과 CSO 빌드를 요구하며, 원본 트리�
 방식은 불가능하며, 패키징 선택에는 포맷 한도·외부 런타임·플랫폼별
 빌드 및 완전성 영수증을 함께 결정해야 한다. 이 증거만으로 게이트를
 올리거나 기존 사용자 설치본을 바꾸지 않는다.
+
+Claude 보조 문서 경로 계약 추가 확인(2026-09-28): 생성 스킬 본문
+54개와 보조 Markdown 48개를 분리하면, 보조 파일 35개에도 기존 경로가
+남아 있다(`~/.claude/skills/gstack/` 222건, shell HOME 48건,
+렌더 폴더 절대 링크 4건). [Claude 플러그인 변수 공식 문서](https://code.claude.com/docs/en/plugins-reference#where-each-variable-resolves)는
+`${CLAUDE_PLUGIN_ROOT}` 치환을 **스킬·명령·에이전트 Markdown 본문**에
+명시하지만, Bash 도구 환경에 자동 전달하지 않는다. 보조 문서를 Read로
+열 때도 같은 치환을 한다는 계약은 여기서 확인되지 않으므로, 본문만
+바꾸거나 보조 파일에 리터럴 변수를 넣는 방식의 완전성을 가정하지 않는다.
+
+[Claude SessionStart 훅 공식 문서](https://code.claude.com/docs/en/hooks#persist-environment-variables)는
+`CLAUDE_ENV_FILE`에 export를 기록하면 후속 Bash 명령에서 사용할 수
+있다고 설명한다. 이 경로의 제한 실측으로 네트워크·클립보드·vGPU를
+차단한 Windows Sandbox의 새 무인증 프로필에서 Claude Code 2.1.283과
+최소 플러그인을 시험했다. 훅 없는 RED에서 `claude plugin validate`와
+`claude --init-only --plugin-dir`는 종료 0, 기대한 훅 마커는 없었다.
+`SessionStart` 훅을 추가한 GREEN에서 같은 두 명령이 종료 0, 훅이
+`CLAUDE_PLUGIN_ROOT=C:/probe-input/plugin`을 관측하고 세션 env 파일에
+`export SIMONK_GSTACK_ROOT='C:/probe-input/plugin'`을 실제로 기록했다.
+격리 출력은 `20260928-gstack-env-hook-probe/output-green`에 보존했고
+게스트는 종료됐다. 이는 플러그인 훅→Bash env 파일 전달만 증명한다.
+보조 Markdown 경로 재작성, CwdChanged 이후의 export 갱신(공식 문서는
+이때 이전 값을 지운다고 명시), PowerShell 도구·Codex 동작, Gstack
+런타임과 전체 설치는 여전히 미검증이다. 사용자 설치·main·결제 설정과
+세 readiness 플래그는 변경하지 않았다.
+
 원본 생성기는 Claude 링크 루트를 절대 경로로 정규화하고 Claude 문서에는
 사용자 홈을, Codex 문서에는 별도 `$GSTACK_ROOT` 탐색을 사용한다. 현재
 5플러그인 후보 영수증에 고정 Gstack 런타임은 포함되지 않는다. 호스트별
