@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 07:35:36 KST
+updated: 2026-09-29 07:47:19 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 07:35:36 KST
+updated: 2026-09-29 07:47:19 KST
+
+- 2026-09-29 07:47:19 KST: src: Simon direct, nonpaid `/vibe` continuation. Corrected root `INFRA-MAP.md` stale count/flow: legacy source137+dev4=141, pinned five-plugin v23 candidate182, existing user install distinct/unpromoted. Reran exact v23 source/candidate/Codex-overlay receipt verifiers: 137/411, 5/182, overlay digest all PASS; candidate input commits equal current five original plugin branch HEADs 5/5. All original plugin worktrees clean, equal their origin feature branches, and contain origin/main. Claude TUI auto-selection probe did not start because exec PTY creation failed before `claude --version`; model usage0. Windows Sandbox PID100060 (`--help`, since Sep28) still holds single instance, user close permission requested asynchronously; not terminated. Existing D-codes absent, readiness3=false, installed profiles/main unchanged, no paid/model/Bot/Orca call or billing change. v23 HTML updated. Root map is non-Git.
 
 - 2026-09-29 07:35:36 KST: src: Simon direct, nonpaid `/vibe` continuation. Current source feature inventory is `skills-src/` 137 + development 4 = 141; separately pinned v23 five-plugin candidate has 182 skills. Corrected stale 132/138 counts across source README/README.en/CLAUDE/INDEX and warned that legacy `install.sh` can fetch remote plugins/Gstack and mutate user home, so public install examples are not v23 test instructions. Windows-default skill quality gate 141/141 PASS; source docs commit `9b3ef6e` pushed/clean, v23 HTML updated. Claude-owned overlay/profile/Gstack D-code still absent; readiness3=false, current installed profiles and main unchanged. No model/Bot/Orca/paid call or billing-setting change.
 
