@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 19:24:07 KST
+updated: 2026-09-28 19:49:17 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 19:24:07 KST
+updated: 2026-09-28 19:49:17 KST
+
+- 2026-09-28 19:49:17 KST: src: user — fresh no-auth/network-disabled Sandbox exercised v20's 31 legacy Gstack-bin-referencing skills against pinned Gstack 01593aa: 30 designated preambles bash-n+execution PASS, 1 gstack-upgrade has no preamble, 31 unique rows, candidate digest unchanged, log warning patterns0. Exact guest stopped/list0. Host no-generation Core init with strict empty MCP config loaded plugin61/user0/skipped0 and debug showed no account MCP remote fetch; default prior init did fetch. Source INSTALL `fd426aa` feature pushed/clean, HTML updated. This narrows startup compatibility only; body work/CSO native/host install and D-code/readiness remain open. No new model/Bot/paid calls or payment/profile changes.
 
 - 2026-09-28 19:24:07 KST: src: user — Claude CLI auth reports claude.ai Max, no API-key env. Host `--setting-sources project,local --plugin-dir` init loaded Core v20 plugin61/user0/skipped0; one Sonnet5 low subscription-path explicit Skill call `simonk-core:vibe` is present in local session JSONL. Model could not observe skill frontmatter version; candidate file separately says2.12.1. Init advertised account MCP tools despite `--tools Skill`; session recorded only Skill execution. CLI estimated total_cost_usd=2.788884 is not billing receipt, actual extra charge not attested; no more model calls. Source INSTALL `a7b22ce` feature pushed/clean. No main/install/payment-setting change; D-code, auto-selection, full runtime/host gates pending.
 
