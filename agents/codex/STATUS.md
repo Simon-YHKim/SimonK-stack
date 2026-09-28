@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 17:18:17 KST
+updated: 2026-09-28 17:52:15 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 17:18:17 KST
+updated: 2026-09-28 17:52:15 KST
+
+- 2026-09-28 17:52:15 KST: src: user — current feature `a988efc` nonpaid quality gates rerun on Windows. Plain CP949 launch failed at print; output-only UTF-8 still emitted child decode tracebacks despite exit0. With PYTHONUTF8=1 and PYTHONIOENCODING=utf-8, 141 source skills quality gate PASS cleanly; Node plugin validator PASS (simonk-stack 68 skills); candidate path audit 18 tests and benchmark freshness 19 tests PASS. These are static/source regressions, not guest boot, live command routing, or installation readiness. Source tree remains clean.
 
 - 2026-09-28 17:18:17 KST: src: user — independent flat-vs-plugin panel and separate judge recommend split ownership as advisory: Claude Core plugin-only after five flat links archived; Codex direct vibe/vibe-bot links must first be retargeted away from Claude flat junctions to a pinned Core path. Official Claude docs support bare plugin alias only absent collisions; actual current-profile command selection remains unmeasured. v20 receipt `9b0980ae` reverified (5 plugins/182 skills, installation_ready=false). New guest rehearsal scripts/manifest-before-moves/rollback were prepared, but two Windows Sandbox boots produced no first marker or result; exact isolated instances closed, test NOT PASS. Source INSTALL note `a988efc` pushed/clean; HTML in Releases plugin-only-split-bridge. No user profile/install/main/payment change, no model generation; Claude D-code and execution gates remain.
 
