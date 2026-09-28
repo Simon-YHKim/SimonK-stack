@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 05:28:08 KST
+updated: 2026-09-29 05:41:03 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 05:28:08 KST
+updated: 2026-09-29 05:41:03 KST
+
+- 2026-09-29 05:41:03 KST: src: Simon direct, nonpaid `/vibe` continuation. Reverified original v20 and v23 five-plugin receipts; each has 31 direct `gstack/bin/` referencing SKILL files, identical relative paths and 31/31 exact SHA-256. Compared v20 isolated guest `results-execute.tsv` per-skill hashes to v23: 31/31 match, status30 passed/1 no preamble, events.json 30 exact started keys/30 unique timeline hashes/network adapters0, pinned Gstack source `01593aa` clean. This transfers the v20 startup-input evidence to v23's unchanged instructions, not a v23 dynamic test, full body or safe default update-check execution. Source INSTALL docs commit `d7793bd` pushed/clean; path-audit tests18 pass, graphify local no-LLM update. v23 HTML updated. No model/Bot/Orca or paid calls this turn; user install/main unchanged, readiness3=false. Claude-owned Gstack D-code still pending.
 
 - 2026-09-29 05:28:08 KST: src: Simon direct, subscription-only continuation. Source feature `103853f` pushed/clean: preview launcher now allowlists exact Sonnet5/5.5 IDs and starts in a fresh empty temporary workspace, preserving prior default and blocking other models. Pinned v23 5-plugin/182-skill digest verified before/after. Claude Code2.1.284 auth was claude.ai/firstParty/Max, alternate API env absent; user confirmed extra usage/credits OFF. Interactive Sonnet5.5 low/Max returned one exact no-tool canary response, then a second session actually loaded `Skill(simonk-core:vibe)` and correctly reported no file/shell tool access. No `claude -p`/API/Bot/Orca path or billing-setting change. Actual provider charge ledger not observable; included subscription use was intended/observed via CLI. Tests source330 (327 pass/3 skip), pinned preview7/7, vibe validator0 errors/warnings, graphify local update PASS, secret-pattern diff0. HTML `E:/Coding Infra/Releases/SimonK-stack/20260929-v23-sonnet55/report.html` updated. Automatic selection, actual catalog/plan/dispatch, Codex default catalog, Gstack transitive effects, user install/main merge remain open; readiness3=false.
 
