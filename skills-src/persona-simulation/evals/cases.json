@@ -1,6 +1,6 @@
 {
   "skill": "persona-simulation",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "cases": [
     {
       "id": "diversity-audit-ko",
@@ -25,6 +25,14 @@
       "assertions": [
         { "id": "html-report", "text": "Produces a self-contained HTML findings report (3 colors max, no slop) with the persona matrix and prioritized findings" },
         { "id": "routing-and-queue-block", "text": "Includes per-AI routing suggestions and a machine-readable queue block for the findings" }
+      ]
+    },
+    {
+      "id": "missing-report-fail-closed",
+      "prompt": "방금 페르소나 시뮬 리포트를 만들었는지 확인해줘. 이전 리포트는 있지만 이번 파일은 없을 수도 있어.",
+      "assertions": [
+        { "id": "exact-report", "text": "Uses the installed persona-simulation check_findings.py with --expect for the report from this run; an older report cannot replace it" },
+        { "id": "honest-zero", "text": "If this run has zero findings, requires a visible PERSONA-SCOPE declaration and does not claim source-code truth from syntax-only file:line checking" }
       ]
     }
   ]
