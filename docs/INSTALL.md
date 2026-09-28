@@ -1798,6 +1798,29 @@ vendored Gstack이 **없는** 게스트 프로젝트의 `CLAUDE.md` 하나만 �
 구독 청구를 검증하지 않았다. 세 readiness 플래그는 여전히 false이며
 사용자 설치본·원본 `main`·결제 설정을 변경하지 않았다.
 
+### Gstack 원본 `setup`의 오프라인 설치 경계
+
+같은 고정 원본 `01593aa`의 `setup`을 읽기 전용으로 추적했다. `--local`은
+Claude 전용이며 Codex에서는 거부된다(`setup:670–686`). 이 옵션도
+`gstack-migrate-claude-code` 호출(`setup:1070–1083`), 빌드 산출물 검사와
+필요 시 `bun install --frozen-lockfile` → 일반 `bun install` fallback 및
+`bun run build`(`setup:1090–1129`), Claude 스킬 등록 전의 생성 단계들을
+건너뛰는 **무변경 dry-run 옵션이 아니다**. `--no-team` 역시 팀 훅 등록
+선택이지 이 선행 작업의 생략 조건이 아니다. Windows 복사 helper는 대상
+삭제 뒤 재복사할 수 있고(`setup:280–299`), 사용자 소유권 판정·백업
+경로가 있는 실제 설치기이므로 기존 프로필에 시험 삼아 실행하지 않는다.
+
+고정 원본 작업트리에는 `node_modules`, `browse/dist/browse.exe`,
+`design/dist/design.exe`, `make-pdf/dist/pdf.exe`,
+`browse/dist/.build-complete`, `bin/gstack-global-discover.exe`,
+`bin/gstack-cso-launcher.exe`가 모두 없다. 따라서 **이 입력만으로**
+네트워크 차단 게스트에서 `setup`의 빌드·설치 성공을 기대할 수 없으며,
+앞의 helper 9/9 결과를 전체 설치 리허설로 승격할 수 없다. 일반 빌드는
+공개 패키지 의존성과 플랫폼별 생성물의 고정 입력·영수증·빌드 검증이
+선행돼야 한다. 이는 유료 모델 호출 필요성을 뜻하지 않는다. 패키징
+범위·별칭 소유권·롤백 계약은 허브 §35 결정 이후 확정한다. 이번 점검은
+`setup`을 실행하지 않았고 사용자 설치·결제·readiness 플래그를 바꾸지 않았다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
