@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 05:56:12 KST
+updated: 2026-09-29 06:39:59 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 05:56:12 KST
+updated: 2026-09-29 06:39:59 KST
+
+- 2026-09-29 06:39:59 KST: src: Simon direct, nonpaid `/vibe` continuation. New no-auth/no-network WSB attempt produced no result because existing `WindowsSandboxClient.exe --help` caused `CO_E_APPSINGLEUSE`; prior guest not forcibly closed. Separate host-state only (NOT OS isolation) verified pinned Gstack `01593aa` config update_check=false/telemetry=off/artifacts_sync_mode=off, learning log/search one fake record, brain enqueue and telemetry log rc0, state files only config+learning JSONL, no queue/analytics file. No host packet capture, so no no-egress/full-runtime claim. Source INSTALL docs `10f6dab` pushed/clean, repo tests330:327 pass/3 skip/fail0; v23 HTML updated. Codex overlay catalog still rc2; Claude D-code pending, readiness3=false. No model/Bot/Orca/paid call, user installation/main/billing change.
 
 - 2026-09-29 05:56:12 KST: src: Simon direct, nonpaid `/vibe` continuation. Network-disabled/no-auth Windows Sandbox executed pinned Gstack update checker in two isolated state directories after verifying 195 copied files and v23 candidate digest. `update_check:false`: rc0, receipt0, cache/heal marker0, fixture retained. Default no config: rc0, GitHub/raw GitHub attempted egress receipts2, cache/heal marker created, guest-only oversized description fixture removed. Guest network adapters0; no actual transmission. Raw result SHA-256 `a95ac180b68f5866fa89e40ffb2911d98a500ad79c03878043f351b15ec43a31`; new `.wsb` launcher exited; older CLI-list guest ID not attributed or stopped. Source INSTALL commit `3835270` pushed clean, path-audit18 PASS, graphify no-LLM update. v23 HTML updated. No model/Bot/Orca/paid call, user-home Gstack, install/main or billing change; readiness3=false; Claude-owned dependency/egress/mutation D-code pending.
 
