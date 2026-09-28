@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 08:16:19 KST
+updated: 2026-09-29 08:31:21 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 08:16:19 KST
+updated: 2026-09-29 08:31:21 KST
+
+- 2026-09-29 08:31:21 KST: src: Simon direct, subscription-only `/vibe` continuation. Reverified immutable v23/v24 safety receipts and compared all physical SHA-256 files: 737→741 including bundle.json; additions4 are CI encoding tests, changed13 are bundle receipt+four CI runners+four workflows+four READMEs, removed0. All 182 SKILL.md and remaining runtime files byte-equal; v24 safety default `/vibe catalog` exit0 with182 names. This transfers only the v23 host-test input-byte scope, not a v24 host run. Source complete scripts/tests334:331 pass/3 skip/fail0; docs evidence commit `ba28ef5` pushed/clean; release HTML updated. Codex overlay default catalog/Gstack closure/readiness3=false remain; D-codes absent, old Windows Sandbox PID100060 still live and not terminated. No model/Bot/Orca/paid call, user install/main/billing-setting change.
 
 - 2026-09-29 08:16:19 KST: src: Simon direct, subscription-only `/vibe` continuation. Reproduced Windows CP949 Python CI crash in four original plugins, added failing-first UTF-8 regressions and fixed/committed/pushed AIHub `1aa3ced`, Core `bdd047c`, Design `e045400`, Market `54f757f`; four regression suites 4/4 each, Python quality gates 7/57/19/32 pass. All five Node skill validators 7/57/19/32/58 pass; Market9 and Stack11 tests pass. Pinned original commits in source `1c3b1c0`; documented v24 in source `51c7757`, both pushed feature/clean. New isolated v24 source/candidate/overlay receipts `c97a16e2`/`5f01d6cb`/`3b1f8d5` verified; 5 plugins/182 skills, builder regression45/45. Original Core ignored cache was preserved; build used five clean detached input checkouts. Codex explicit-root inventory182/0 issues, but default catalog still receipt mismatch exit1; Gstack path audit external_runtime_pending31 skills/646 refs/9 targets; readiness3=false. HTML `E:/Coding Infra/Releases/SimonK-stack/20260929-v24-plugin-ci-locale/report.html`. Three Claude-owned D-code requests absent from DECISIONS; existing Windows Sandbox `--help` instance not terminated; user installs/main unchanged. No model/Bot/Orca or extra paid call, no billing-setting change.
 
