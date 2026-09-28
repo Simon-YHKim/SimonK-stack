@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 23:30:16 KST
+updated: 2026-09-28 23:55:11 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 23:30:16 KST
+updated: 2026-09-28 23:55:11 KST
+
+- 2026-09-28 23:55:11 KST: src: Simon direct subscription-only `/vibe` continuation. Rebuilt v21 isolated source `d3056d93`, 5-plugin candidate `4e726c41`, Codex overlay `483d5147` from clean pinned sources; no v20/user overwrite. Candidate 5 plugins/182 skills/736 files, vibe220/selftest180, disposable smoke4, packaging/persona119, manifest5, baseline catalog182 PASS. Offline path audit unresolved0 but exits1 for Gstack external runtime31 skills/646 refs/9 targets; Codex overlay default catalog still exits2 on zoom-out projection. Fresh no-auth/network/clipboard Windows Sandbox Claude2.1.283 init control/candidate rc0, 5 plugins/182 skills/5 commands, errors0, network adapters0; own guest stopped. Three readiness flags false, no user install/main/model/API/Bot/Orca/payment change. Source docs `188d867` pushed/clean; report `Releases/SimonK-stack/20260928-v21-g5-persona/report.html`. PR #54 and Claude-owned overlay decision/runtime gates remain.
 
 - 2026-09-28 23:30:16 KST: src: Simon direct subscription-only `/vibe` continuation. PR #49 residual G5 fail-open was reproduced and fixed more strictly (no QUOTA_SKIP bypass): omitted/None/partial vendor checks block; iterator evidence is stable across guard stages. Source `5887d8e` pushed/clean, vibe 2.12.2. Targeted legacy21, vibe220, selftest180, repo323 (320 pass/3 candidate-gated skips), Skill-Gen24, vibe validator0 errors/warnings, eval21 dry-run PASS. Whole-skill sweep141 has 0 errors and 32 existing warnings in unrelated skills. PR #49 G12 cache/live preflight change is superseded by existing quarantine, proved by tests. Report `E:/Coding Infra/Releases/SimonK-stack/20260928-vibe-g5-gate/report.html`. Existing v20 candidate predates source; no new candidate, installation, main merge, model/Bot/Orca/API call or payment change. PR #54 HTML rules and Claude-owned D-code/runtime gates remain.
 
