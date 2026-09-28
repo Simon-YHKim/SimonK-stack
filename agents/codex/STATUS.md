@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 10:16:57 KST
+updated: 2026-09-28 10:48:24 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 10:16:57 KST
+updated: 2026-09-28 10:48:24 KST
+
+- 2026-09-28 10:48:24 KST: Simon direct `/vibe` continuation with USD 0 extra cost. Corrected Stack's two eval formats (6 trigger + 25 behavior files; 27 without eval) rather than misclassifying six legacy cases as invalid. Added/pushed Stack offline dual-schema CI/test/README/.gitignore `7f866e7`, then pinned it in aggregate source `140ad83` and built verified v19 5-plugin/182-skill candidate and Codex overlay; payload skills unchanged. Package 45, overlay 5, Stack 11 tests and candidate smoke 4 passed. Readiness3=false/Gstack31 pending; no user install/main/payment/model/Bot change. Sent Codex-owned correction/evidence FYI and HTML path to Claude.
 
 - 2026-09-28 10:16:57 KST: Simon direct `/vibe` all-safe-work/no-extra-paid request. Audited clean FF-shaped feature branches in AIHub/Core/Design/Market/Stack; Node structural validation 5/5, four Python skill-ci suites, Market 9 and Stack 7 unit tests passed. Separate Stack common eval audit improved baseline 46 missing/invalid to 33 (zero new regression), but full host behavior is unproved. ai-debate panel A/B/C and separate judge recommend conditional per-plugin promotion, immediate main merges 0 pending Claude-owned D-code/downstream/rollback checks; aggregate install/main stays held, user install 2.11.6 unchanged. Sent Codex-owned outbox decision request and HTML; no paid/model/API/Bot calls or payment-setting changes.
 
