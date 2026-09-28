@@ -1552,6 +1552,23 @@ design·make-pdf 컴파일 파일과 CSO 빌드를 요구하며, 원본 트리�
 빌드 및 완전성 영수증을 함께 결정해야 한다. 이 증거만으로 게이트를
 올리거나 기존 사용자 설치본을 바꾸지 않는다.
 
+단, 위 `gstack-global-discover`의 **컴파일 바이너리**가 `retro global`
+경로의 필수 전제라는 뜻은 아니다. 고정 원본에서 생성된 `retro/SKILL.md`는
+현재 작업 폴더의 `bin/gstack-global-discover.ts`가 보이면
+`bun run bin/gstack-global-discover.ts`로 대체하는 fallback을 갖는다.
+2026-09-28 무인증·네트워크 차단 Windows Sandbox에서 SHA-256으로 확인한
+동일 소스를 게스트 내부 디스크에 복사해 이 정확한 명령을 실행했다.
+`--since 1d --format json` 종료 0, 세션·저장소 각 0개였으며
+`node_modules` 없이 동작했다. 읽기 전용 공유 폴더에서 Bun이 소스를 직접
+열려던 첫 시험은 `EPERM`이었고, 게스트 내부 복사 뒤의 재시험만 통과했다.
+원시 결과는 `20260928-gstack-source-probe/output-fallback/result.json`에
+보존했다. 이는 이 단일 스크립트와 빈 게스트 프로필의 기능 증거다.
+fallback은 **현재 작업 폴더**에 `bin/`이 있어야 하므로, 다른 프로젝트에서
+플러그인으로 호출될 때의 경로 계약은 해결하지 않는다. Bun 설치 자체도
+영수증 외부이며 browse·design·CSO 빌드 요구, 보조 문서 경로,
+네트워크·상태 부작용은 그대로 남는다. 따라서 전체 런타임 준비나
+readiness 플래그를 올리지 않는다.
+
 Claude 보조 문서 경로 계약 추가 확인(2026-09-28): 생성 스킬 본문
 54개와 보조 Markdown 48개를 분리하면, 보조 파일 35개에도 기존 경로가
 남아 있다(`~/.claude/skills/gstack/` 222건, shell HOME 48건,
