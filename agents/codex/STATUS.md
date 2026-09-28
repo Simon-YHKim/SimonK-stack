@@ -1,14 +1,18 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 20:35:17 KST
+updated: 2026-09-28 21:03:01 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 20:35:17 KST
+updated: 2026-09-28 21:03:01 KST
+
+- 2026-09-28 21:03:01 KST: src: user — v20 Codex overlay 5/5 plugin manifests passed validation and pinned overlay verify PASS. Embedded default `/vibe` catalog fails closed because base bundle expects original zoom-out SKILL byte; direct 182/182 skill hash comparison found only that intended projection differs. Explicit 5-root inventory complete, 182 records; separately pinned overlay verification is still required and does not authorize dispatch. Source INSTALL clarification `ca7353d` pushed feature; bundle/overlay regression 50/50 PASS, graphify local AST update PASS. Main/install/readiness remain untouched, no model/Bot/paid calls.
+
+- 2026-09-28 20:53:10 KST: src: user — no-auth/network-disabled Windows Sandbox Codex0.155.0 selected-profile host probe: default and untrusted selected CLI sessions did not run SessionStart; isolated one-off trust bypass did run marker. Debug prompt-input did not execute hooks. Three offline exec attempts timed out after 12s with no model response; 0 active adapters, no guest auth/API env. Exact guest stopped. Source INSTALL evidence `0debe35` pushed feature, Codex26 tests PASS, graphify local AST update PASS, HTML/result under `E:/Coding Infra/Releases/SimonK-stack/20260928-codex-profile-host-probe/`. No actual PreToolUse deny/profile installation/main merge/readiness promotion, provider success/Bot/metered call or payment change; Claude D-code request open.
 
 - 2026-09-28 20:35:17 KST: src: user — feature `41471de` pushed clean: offline Codex guarded policy maps real careful leaf ask to supported deny and bounds apply_patch against explicit static boundary; tests Codex26, source safety hooks28, runtime21 PASS (75 total), TDD guard/AST/diff/secret-pattern scan PASS. HTML `E:/Coding Infra/Releases/SimonK-stack/20260928-codex-guarded-policy/report.html` structure PASS. No installed hook/profile, active-session state or Codex host proof; D-29/D-30 and readiness=false unchanged. No model/Bot/metered call or payment/account edit. Claude-owned profile D-code request still open.
 
