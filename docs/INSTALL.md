@@ -2259,6 +2259,25 @@ Windows Sandbox에 읽기 전용으로 매핑했다. 게스트는 활성 네트�
 차단했다는 증거는 아니다. 추가 모델 호출·추가 과금·사용자 설치 전환은
 이 단계에서 수행하지 않았으며 세 준비 플래그는 false다.
 
+### Codex v20 오버레이의 `/vibe` 발견 경계 (2026-09-28)
+
+v20 Codex 오버레이의 다섯 `.codex-plugin/plugin.json`은
+`plugin-creator` 형식 검사를 각각 통과했다. 그러나 이 오버레이 내부의
+`vibe/scripts/orchestrate.py catalog` 기본 호출은
+`Candidate skill metadata differs from receipt`/종료 2로 닫힌다.
+오버레이가 `zoom-out/SKILL.md`를 투영했지만 원본 `bundle.json`은
+원본 바이트 영수증 그대로이기 때문이다. 182개 스킬 해시 중 불일치는
+이 파일 1개다. 이 실패를 원본 후보 변조나
+스킬 누락으로 해석하지 않는다. 고정된 오버레이 digest
+`08f85de1b88eff8e3057aa0139eca46cea28094aa9a450b5be6814edd32992c8`
+로 `scripts/codex_overlay.py verify`를 먼저 실행하면 종료 0이고,
+그 뒤 다섯 `plugins/<owner>/skills` 경로를 **명시적 `--root`**로 준
+`orchestrate.py inventory`는 182개 레코드·`status=complete`·종료 0이다.
+명시적 루트 인벤토리는 별도의 오버레이 바이트 검증을 대신하지 않으며,
+검증 후 후보 경로를 단일 작성자로 고정해야 한다. 이 조합은
+`catalog` 기본 경로의 영수증 결합이나 실제 모델 선택·설치 호환성을
+증명하지 않는다. 운영용 기본 카탈로그와 설치 전환은 여전히 보류한다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
