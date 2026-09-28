@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 12:39:33 KST
+updated: 2026-09-28 12:54:27 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 12:39:33 KST
+updated: 2026-09-28 12:54:27 KST
+
+- 2026-09-28 12:54:27 KST: src: user — pinned Gstack `01593aa6` isolated no-auth/no-network Sandbox end-path probe PASS 3/3 (`qa`/`retro`/`ship`); start/end and direct brain-sync 0, no local telemetry/queue/project Git changes. Gstack tracked blob bytes 58,741,859 plus v20 candidate payload 5,550,913 = 64,292,772 (<64 MiB by 2,816,092) but native CSO/compiled outputs/Bun/path closure remain missing. Report `Releases/SimonK-stack/20260928-gstack-end-sandbox/report.html`, source docs commit `6cab5b1` origin pushed/clean. No model/API/Bot call, paid spend, installed profile/main change; readiness3=false.
 
 - 2026-09-28 12:39:33 KST: src: user — v20 follow-up offline regressions PASS: plugin bundle 45/45 (392s), candidate runtime probe 1/1, candidate path audit 18/18, Codex overlay 5/5. Source feature and hub branches clean after evidence delivery; no metered/model calls or user install. Three readiness flags remain false and Gstack runtime/§35 decision remain open.
 
