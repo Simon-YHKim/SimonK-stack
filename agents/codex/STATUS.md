@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 13:32:03 KST
+updated: 2026-09-28 13:56:12 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 13:32:03 KST
+updated: 2026-09-28 13:56:12 KST
+
+- 2026-09-28 13:56:12 KST: src: user — fixed Gstack `01593aa6` nine directly referenced Bash helpers exercised in fresh no-auth/no-network Windows Sandbox, final 9/9; guest project status only `?? CLAUDE.md`, network adapters0, sync queue0, telemetry file0 under update_check=false/telemetry=off/artifacts_sync_mode=off. Three failed harness iterations preserved (Windows JSON argv quoting, Bun EPERM on mapped RO TS, then JSON quoting); final uses hash-checked guest runtime copy and fixed Bash JSON fixtures. Report `Releases/SimonK-stack/20260928-gstack-nine-helper-sandbox/report.html`, source feature docs commit `801ba5e` origin pushed/clean. No model/API/Bot/Orca call, paid spend, user installation/main/payment change; readiness3=false, alias architecture D-code pending.
 
 - 2026-09-28 13:32:03 KST: src: user — pinned external Gstack source inventory added to SimonK-stack feature branch commit `4560898` and origin pushed; full source 2,821 Git blobs/58,741,859 bytes, raw regular 58,754,324 bytes, only package blocker is Git mode 120000 `connect-chrome` alias. New 4 target tests and full scripts suite 295 PASS/3 skipped; stale profile fixture aligned with existing nonmetered audit guard without loosening policy. Report `Releases/SimonK-stack/20260928-gstack-source-inventory/report.html`. User install/main/readiness3 remain unchanged/false; no model/API/Bot/Orca call or paid spend. Claude architecture D-code needed before alias ownership/runtime packaging.
 
