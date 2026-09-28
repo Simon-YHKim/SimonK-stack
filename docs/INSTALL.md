@@ -1687,6 +1687,41 @@ v18 대비 후보 추가 파일은 Stack `.github/validate-evals.mjs`, 그 단�
 `installation_ready`는 모두 `false`로 유지한다. 사용자 설치본·운영
 marketplace·`main`·결제 설정·모델/API/Bot 실호출은 변경하지 않았다.
 
+## v20 모델 근거 및 격리 설치 리허설 (2026-09-28)
+
+기능 브랜치 `feat/skill-context-budget-260925`의 `ee40afb`는 최신 공식
+모델 근거를 재검증하고 `/vibe` 중앙 레지스트리의 관측 시각을 갱신했다.
+`candidate-safety-v20`은 5플러그인·182스킬·734파일이며 digest는
+`9b0980aedf7af578b96eaba1d1586f6aab2a85cc7a708c640363c92572ba1318`이다.
+Codex 오버레이 digest는
+`08f85de1b88eff8e3057aa0139eca46cea28094aa9a450b5be6814edd32992c8`이다.
+
+최신 후보를 네트워크·클립보드가 꺼진 Windows Sandbox의 새 무인증
+프로필에서 호스트별로 설치·철회했다. Claude Code 2.1.283은 5개
+플러그인 설치·활성, 캐시 734파일의 상대 경로·크기·SHA-256 일치,
+철회 후 설치·marketplace 각 0개를 확인했다. CLI가 남긴 게스트 캐시
+739파일은 구성 항목을 이번 시험에서 목록화하지 않았고 직접 삭제하지 않았다.
+Codex CLI 0.155.0은 5개 설치·활성, 오버레이 캐시 740파일 전부 일치,
+철회 후 설치·marketplace·캐시 각 0개를 확인했다. 양쪽 후보와 CLI
+실행 파일은 읽기 전용으로 매핑했고, 테스트 게스트는 결과 수집 후 닫았다.
+원시 JSON·스크립트·Sandbox 설정과 해석 범위는
+`E:/Coding Infra/Releases/SimonK-stack/20260928-v20-install-rehearsal.html`에 있다.
+
+별도 Gstack 시작 절차 검사에서는 고정 원본 `01593aa6`의 Claude·Codex
+생성 문서 62개 조합 중 존재하는 시작 절차 55개가 네트워크 차단
+게스트에서 통과했다. 생성 문서 부재 3개와 시작 절차가 없는 문서 4개가
+있고, Claude `health`는 첫 30초 제한을 넘긴 뒤 60초 재시험에서
+통과했다. 상세 증거는
+`E:/Coding Infra/Releases/SimonK-stack/20260928-gstack-batch-sandbox/report.html`에 있다.
+
+두 시험은 빈 게스트의 복사·등록·시작 절차 일부를 검증한 것일 뿐,
+기존 사용자 프로필의 무손실 갱신·복원, 전체 스킬 동작, 훅, Gstack
+외부 런타임 폐쇄, Windows CSO, Bot/Orca 연결, 모델 선택이나 구독 청구를
+입증하지 않는다. 따라서 `runtime_closure_verified`,
+`host_compatibility_verified`, `installation_ready`는 모두 `false`이고
+사용자 설치본과 원본 `main`은 변경하지 않았다. 모델/API/Bot 실호출과
+결제 설정 변경도 없었다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
