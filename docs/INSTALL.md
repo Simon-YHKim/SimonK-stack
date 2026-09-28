@@ -2040,17 +2040,47 @@ Codex flat `vibe`·`vibe-bot` 2개가 끊길 수 있다. 별도 패널·독립 �
 
 이 구조의 추가 Windows Sandbox 시험을 두 번 기동했으나 둘 다 최초
 게스트 부팅 마커조차 만들지 못했다. CLI 초기화·정션 전환 스크립트의
-성패를 판정할 실행 증거가 **없다**. 자료는
+성패를 판정할 실행 증거가 당시에는 **없었다**. 자료는
 `E:/Coding Infra/Releases/SimonK-stack/20260928-plugin-only-split-bridge/`에
 보존했다. 이전 격리 시험의 PASS를 이 새 구조의 PASS로 확장하지 않는다.
 원인 분리를 위해 후보를 전혀 매핑하지 않은 2폴더 최소 Sandbox도
 시도했다. `LogonCommand` 스크립트의 첫 동작을 출력 폴더에 마커 쓰기로
 바꾼 재시험까지 마커가 없었다. 두 시험의 정확한 인스턴스만 종료했다.
-따라서 새 스킬 코드 실패로 단정할 수 없으며, 이 PC의 Sandbox 시작·
-명령 전달·폴더 매핑 경계 중 어느 지점인지도 아직 확정하지 못했다.
+따라서 새 스킬 코드 실패로 단정할 수 없으며, `.wsb` 실행의 Sandbox 시작·
+명령 전달·폴더 매핑 경계 중 어느 지점인지도 확정하지 못했다.
 자료는 `E:/Coding Infra/Releases/SimonK-stack/20260928-sandbox-boot-triage/`에
-있다. 이 격리 경로가 회복되거나 동등한 안전 경계가 생기기 전에는
-새 구조의 게스트 실행 PASS를 요구하는 게이트가 열리지 않는다.
+있다.
+
+후속으로 [Microsoft의 Windows Sandbox CLI](https://learn.microsoft.com/en-us/windows/security/application-security/application-isolation/windows-sandbox/windows-sandbox-cli)의
+`start`·`share`·`exec --run-as System`을 이용해 인스턴스 ID가 있는
+새 무인증·네트워크 차단 게스트에서 명령을 직접 실행했다. 최소 2폴더
+시험은 첫 마커·JSON을 만들었고 게스트 활성 네트워크 어댑터 0이었다.
+정확한 인스턴스 ID를 `stop`으로 종료했다. 이는 앞선 `.wsb`의
+`LogonCommand` 무출력 원인을 규명한 것은 아니지만, 동등한 격리
+명령 실행 경로를 확보한 것이다.
+
+같은 CLI의 별도 새 게스트에 구 후보·v20 후보·Claude 실행 파일·Git은
+읽기 전용, 결과 폴더만 쓰기 가능으로 공유해 split bridge 전체
+스크립트를 실제 실행했다. 첫 실행은 전환·복원 수치가 맞았으나
+빈 게스트의 `.claude.json` 잠금 생성 `ENOENT` 디버그 오류 1건으로
+`incomplete`였다. 게스트 내부에 빈 `{}` 설정을 사전 생성한 뒤
+**또 다른 새 게스트**에서 재시험해 최종
+`guest_plugin_only_split_bridge_passed`를 받았다. Claude Code 2.1.283
+`--init-only` 종료 0, user 스킬 0·플러그인 스킬 182·중복 제외 0·
+디버그 오류 0, Codex 신규 직접 정션 해시 2/2, Claude 구 flat 정션
+복원 5/5, Codex 구 경유 정션 복원 2/2였고 역복원 재실행도 통과했다.
+후보 digest는 `9b0980ae...ba1318`, 최종 게스트 매니페스트 SHA-256은
+`E18CECF4...D50566`이다. 원시 결과·매니페스트·로그·스크립트는
+`E:/Coding Infra/Releases/SimonK-stack/20260928-plugin-only-split-bridge/output-rerun/`와
+그 부모의 `input/`에 보존했다. 두 게스트 모두 모델 생성·유료 호출이
+없었으며 정확한 시험 인스턴스만 종료했다.
+
+이 PASS는 **격리된 새 프로필의 전환·로더·복원 범위**에 한정된다.
+실사용 Claude `/vibe`·`/simonk-core:vibe`와 Codex 별칭의 명령 선택,
+기존 호스트 프로필의 캐시·훅, 182개 스킬 전체의 동작과 외부 런타임
+폐쇄는 입증하지 않는다. Claude 소유 D-code와 실제 설치 결정도
+여전히 열려 있으므로 세 readiness 플래그는 false이고 사용자
+설치본·원본 `main`은 변경하지 않았다.
 
 ## One-shot 설치
 
