@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 08:39:29 KST
+updated: 2026-09-29 08:47:15 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 08:39:29 KST
+updated: 2026-09-29 08:47:15 KST
+
+- 2026-09-29 08:47:15 KST: src: Simon direct, subscription-only `/vibe` continuation. Read-only v24↔installed flat-root coverage (explicit home Gstack exclusion => scope_complete=false) finds Claude .claude/skills matched1/drifted137/missing44/extra41; Codex .agents→.codex matched1/drifted136/missing45/extra51. Only `multi-terminal-dispatcher` matches SKILL bytes. Existing `.claude/skills/vibe` junction points to Sep26 candidate, version2.11.6 vs v24 2.12.2. Direct current installed default catalog exits2 `Candidate skill metadata differs from receipt`; old bundle verifier fails. Manual receipt byte audit: 707 declared, missing0, drift2 (`vibe`/`vibe-bot` SKILL), extra4 (bytecode1, Bot Relay assets3). Preserved all existing files/links. Source docs `ba01398` pushed/clean, release HTML updated. This blocks that exact default catalog path, not proof all host/native/explicit Skill paths fail. Three readiness flags false, D-codes absent, no model/Bot/Orca/paid call, install/main/billing change.
 
 - 2026-09-29 08:39:29 KST: src: Simon direct, subscription-only `/vibe` continuation. Static candidate-wide eval input audit: all 182/182 skills have parseable nonempty `evals/cases.json`; total 468 cases and 1,153 textual assertions (AIHub17/39, Core196/485, Design50/125, Market68/169, Stack137/335). These are inputs only; no model response, per-skill mode quality/cost/latency or actual selection was measured. v24 release HTML updated with this distinction. Sandbox fixture remains unexecuted pending exact PID100060 closure approval; readiness3=false, no paid/model/Bot/Orca call or install/main change.
 
