@@ -2566,6 +2566,32 @@ receipt`(종료 2)로 재현됐다. Gstack 전이 런타임 결손도 이 레지
 프로필 설치·전환, 모든 런타임 의존성, 모델 접근성 또는 구독 청구
 안전성의 증거가 아니다. 세 설치 준비 플래그는 그대로 `false`다.
 
+2026-09-29 **v23 Gstack 전이 효과 재감사(정적)**: 후보의 31개 Gstack 의존
+스킬 모두 `gstack-update-check`를 참조한다. 고정된 별도 Gstack 원본
+`01593aa67c94780528e8f5121e47362502410ced`의
+`bin/gstack-config:153-156`에서 `update_check` 기본값은 `true`이고,
+`bin/gstack-update-check:63-66`은 명시적 `false`일 때만 초기에 종료한다.
+그 밖의 경로는 `:73-80`에서 오래된 스킬 설명 파일을 삭제할 수 있고,
+`:235-250`에서 `git ls-remote` 및 원격 VERSION 조회를 시도한다.
+`bin/gstack-egress-lib.sh:93`은 이 업데이트 조회의 영수증 실패 시에도
+전송하는 fail-open 분기를 갖는다. 따라서 단순한 직접 helper 존재 확인이나
+기본 설정으로 시작하는 Sandbox 성공만으로 무전송·무변경을 주장할 수 없다.
+
+같은 원본에서 `telemetry=off`와 `artifacts_sync_mode=off`는 기본값이지만,
+30개 후보 스킬이 참조하는 `gstack-telemetry-log`는 설정에 따라
+`gstack-telemetry-sync`로 이어지고, `gstack-learnings-log`·
+`gstack-timeline-log`의 백그라운드 `gstack-brain-enqueue`는 동기화 설정 시
+큐를 쓴다. `gstack-brain-sync`는 큐를 원격에 push할 수 있다.
+30개 스킬이 제시하는 `gstack-team-init`은 **조건부 실행 옵션**이지만
+기존 vendored 디렉터리의 `git rm --cached`·`rm -rf`와 프로젝트 지침·훅
+변경 경로가 있다. `gstack-config`의 일부 설정/렌더 분기는
+`gstack-relink`를 호출해 스킬 링크도 바꾼다. 이 감사는 고정된 별도
+원본의 코드 경로를 읽은 것으로 실제 사용자 홈 Gstack을 실행·변경하지
+않았고, 모든 동적 분기나 전이 런타임 폐쇄를 입증하지 않는다. 안전한
+실행에는 정확한 원본/버전 고정, 전이 파일·플랫폼 도구 검증,
+`update_check=false`·`telemetry=off`·`artifacts_sync_mode=off`의
+격리된 기본 정책, 전송·팀 초기화의 별도 명시적 게이트에 관한 결정이 필요하다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
