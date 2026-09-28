@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 04:41:33 KST
+updated: 2026-09-29 04:52:52 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 04:41:33 KST
+updated: 2026-09-29 04:52:52 KST
+
+- 2026-09-29 04:52:52 KST: src: Simon direct, nonpaid continuation. Fixed separate Gstack source 01593aa static audit: all 31 candidate-dependent skills reference `gstack-update-check`, whose config default is `update_check=true`; it can perform remote Git/VERSION queries and delete outdated skill description files. Egress receipt open mode can send on receipt failure. Telemetry and artifact sync default off but have conditional Supabase/spool/push paths; 30 skills mention `gstack-team-init` with vendored removal and repo/hook writes, while config render can relink skills. Source INSTALL commit `0b57aea` pushed/clean; local v23 HTML updated and Claude FYI prepared. This is static code evidence, not live runtime closure; user-home Gstack untouched, model/Bot/Orca calls and paid use0, installation/main unchanged, readiness3=false.
 
 - 2026-09-29 04:41:33 KST: src: Simon direct, nonpaid continuation. v23 no-auth/no-network/no-clipboard Windows Sandbox with pinned Claude2.1.284 and candidate digest passed control/candidate `--init-only` rc0, 5 inline+5 directory plugins, 182 skills, 5 commands, debug errors0, network adapters0 pre/post. Guest result SHA-256 `ee2e0e65c6c1026b8c5d2f9e759cfb6fd1a46abdcb065110f5a67aba69be0715`; exact guest ID stopped and candidate digest unchanged. Source README/INSTALL `f411778` pushed/clean. Existing-profile migration, Codex default catalog, Gstack transitive runtime, live model/account/billing and actual skill execution remain unproven; readiness3=false. No user install, main merge, model/Bot/Orca call or billing change.
 
