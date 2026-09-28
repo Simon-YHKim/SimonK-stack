@@ -2167,6 +2167,34 @@ Core 플러그인 스킬 61·중복 제외 0이었다. 이어 Sonnet 5/low로
 추정치이지 실제 추가 청구 영수증이 아니며, 후속 모델 호출은 중지했다.
 계정·자동충전 설정을 변경하지 않았고 세 준비 플래그는 false다.
 
+### v20 legacy Gstack 시작 절차의 격리 일괄 실행 (2026-09-28)
+
+후보 digest `9b0980ae...ba1318`의 Gstack `bin/` 참조 스킬 31개를
+고정 원본 `01593aa67c94780528e8f5121e47362502410ced`와 함께 새
+Windows Sandbox에 읽기 전용으로 매핑했다. 게스트는 활성 네트워크
+어댑터 0개·인증 환경변수 없음이었고, 사용자 홈 Gstack은 연결하지 않았다.
+각 스킬에서 `## Preamble (run first)`의 첫 Bash 블록을 추출해 `bash -n`과
+실행을 검사했다. 30개가 구문·실행 종료 0 및 `BRANCH`·`REPO_MODE`·
+`TELEMETRY: off` 표식을 통과했고, `gstack-upgrade` 1개는 해당 preamble이
+없어 별도 분류했다. 31개 결과 행은 모두 고유하고 출력 로그의 명령 누락·
+권한 오류 패턴은 0건이었다. 후보 receipt digest는 실행 전후 같았다.
+결과 영수증은
+`E:/Coding Infra/Releases/SimonK-stack/20260928-legacy-gstack-preamble-sandbox/output/result.json`
+(SHA-256 `ee5645f6c42d577769b516bd0555a366daf65ab3da7b6167510cecb1060287d1`),
+입력 스크립트와 개별 결과는 같은 부모의 `input/`·`output/`에 있다.
+정확한 시험 Sandbox ID를 종료했고 남은 실행 인스턴스는 0개다. 이는
+**legacy 시작 절차**의 격리 호환성이지 본문 작업·CSO 네이티브 빌드·
+동적 의존성·실사용 Gstack 설치본 또는 Codex 훅 실행의 증거가 아니다.
+
+또한 실제 호스트의 모델 생성 없는 Core v20 초기화에서
+`--strict-mcp-config --mcp-config '{"mcpServers":{}}'`를 지정하면 사용자
+스킬 0·Core 플러그인 스킬 61·중복 제외 0인 채 계정 MCP 원격 목록 조회가
+디버그 로그에 나타나지 않았다. 앞선 기본 초기화에는 이 조회가 있었다.
+이는 후속 선택 평가의 도구 범위를 줄이는 재현 가능한 옵션이지,
+이미 수행한 실호출의 도구 목록을 소급 변경하거나 모든 외부 접근을
+차단했다는 증거는 아니다. 추가 모델 호출·추가 과금·사용자 설치 전환은
+이 단계에서 수행하지 않았으며 세 준비 플래그는 false다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
