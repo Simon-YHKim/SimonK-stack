@@ -1897,6 +1897,34 @@ Gstack 원본은 `01593aa67c94780528e8f5121e47362502410ced`, 후보
 Playwright/CSO, 모델·Bot·Orca 및 구독 청구는 포함하지 않는다.
 따라서 원본 `main`, 사용자 설치본과 세 readiness 플래그는 그대로다.
 
+### 격리 게스트 홈 Gstack 경로와 v20 후보 공존
+
+프로젝트 로컬 검사는 후보 스킬 31개의 `~/.claude/skills/gstack/bin/...`
+직접 참조를 증명하지 못한다. 이를 구분하기 위해 **새** Windows Sandbox의
+`C:/guest-home/.claude/skills/gstack`에 같은 고정 원본
+`01593aa67c94780528e8f5121e47362502410ced`을 복제하고,
+`setup --host claude --no-team --prefix`를 게스트에서 실행했다. 사용자 홈의
+설치된 Gstack은 마운트·열람·변경하지 않았다. 게스트에는 인증정보를
+전달하지 않았고, Gstack telemetry/update/sync/auto-upgrade는 꺼두었다.
+공개 Bun 의존성 설치를 위한 게스트 네트워크만 허용했다.
+
+설치 종료 0, 게스트 홈 스킬 엔트리 57개, 직접 참조 helper 9/9 파일이
+존재했다. 게스트 Bash에서 후보가 쓰는 `$HOME/.claude/skills/gstack/bin/`
+경로의 `gstack-config get telemetry`가 종료 0·`off`를 반환했다. 같은
+게스트의 Claude Code 2.1.283 `--init-only`는 Gstack 단독과 v20 후보
+5개 플러그인 동시 로딩 모두 종료 0이었다. 단독은 user 스킬 57개,
+합동은 user 스킬 57개 + 플러그인 스킬 182개/5개 플러그인,
+duplicate/user-owned skip 0, 합동 디버그 오류 0이었다. 첫 단독
+초기화에는 아직 없는 게스트 `.claude.json`의 lock-save `ENOENT`
+디버그 오류 1건이 있었고 합동 초기화에는 재발하지 않았다.
+
+원시 영수증·로그·하네스·보고서는
+`E:/Coding Infra/Releases/SimonK-stack/20260928-gstack-home-v20-probe/`에
+있다. 이는 **격리 게스트의 홈 경로·초기화 공존**만 증명한다. 31개 스킬
+본문 전이 실행, 실제 사용자 홈 설치·롤백, marketplace 전환, 모델 호출,
+구독 청구 안전성은 검증하지 않았다. 세 readiness 플래그는 올리지 않고
+기존 `main`·사용자 설치본·결제 설정을 유지한다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
