@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 19:07:05 KST
+updated: 2026-09-28 19:17:32 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 19:07:05 KST
+updated: 2026-09-28 19:17:32 KST
+
+- 2026-09-28 19:17:32 KST: src: user — Grok Bot 09-24 user snapshot SHA matches pinned charter/roster; 19 bot + 6 team IDs all match v20 bidirectionally. Installed roster matches candidate, but installed vibe-bot SKILL 0.9.1 vs v20 0.9.3. Candidate offline process/network-denied tests 27+11 and selftest 93 PASS; Node plugin68 PASS; Windows UTF-8 clean skill quality141/141 PASS. Source INSTALL `863277a` pushed/clean. No Bot dispatch, model/paid call or host profile change. Claude D-code and live selection/runtime readiness still pending; five plugin manifests checked without declarative hooks/MCP registrations.
 
 - 2026-09-28 19:07:05 KST: src: user — fixed host rollback gap for Codex old junction saved before new junction creation. Fresh offline/no-auth guest injected Claude model-router and Codex vibe saved-old/current-missing states; host rollback restored both and all flat5+2 hashes, repeat rollback PASS. Guest stopped, host preflight still PASS. Source quality141/141, Node plugin68, benchmark19, candidate path regressions18 PASS; origin/main is feature ancestor but D-code/live command selection/readiness still block main/install. Source INSTALL `d6eb9d5` pushed/clean; no model or paid calls.
 
