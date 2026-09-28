@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 02:40:44 KST
+updated: 2026-09-29 03:09:23 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 02:40:44 KST
+updated: 2026-09-29 03:09:23 KST
+
+- 2026-09-29 03:09:23 KST: src: Simon direct, nonpaid continuation. Fresh separate no-network/no-auth Windows Sandbox guest installations of pinned v22 passed: Claude Code 2.1.283 5 enabled/736 of 736 candidate bytes exact, uninstall left plugins/marketplaces0 but 741 guest-only cache files; Codex CLI 0.155.0 5 installed/742 of 742 overlay bytes exact, uninstall left plugins/marketplaces/cache0. Both network adapters0 pre/post, both guest IDs stopped. Candidate and overlay receipts reverified unchanged. Source 329 tests=326 pass/3 candidate-gated skips, v22 preview6/6; docs/README pushed feature `6e70dee`, clean/remote-equal. User installs/main unchanged, readiness3=false, overlay default catalog/Gstack/host/model-billing gates remain. No model/Bot/Orca generation, extra spend or payment change.
 
 - 2026-09-29 02:40:44 KST: src: Simon direct, nonpaid continuation. v22 isolated Windows Sandbox Claude Code 2.1.283 `--init-only` control/candidate exits0; 5 plugins/182 skills/5 commands, debug errors0, active network adapters0 before/after. Sandbox CLI start had no login session, so the pinned read-only fixture ran via `wsb.exe Execute -r System`; raw result/debug preserved in `Releases/SimonK-stack/20260929-v22-html-pr54/sandbox-init-v22/output/`. Own Sandbox ID stopped, v22 receipt digest unchanged. Source INSTALL proof committed/pushed `d7e7aac` on clean feature branch. No model/Bot/Orca generation, extra spend, billing change, user install or main merge. Readiness3=false; Claude-owned overlay D-code and Gstack/host gates remain.
 
