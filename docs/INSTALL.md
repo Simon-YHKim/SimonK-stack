@@ -2386,6 +2386,45 @@ PR #54 HTML 규칙, 기존 사용자 프로필 호환, Gstack 전이 런타임,
 `E:/Coding Infra/Releases/SimonK-stack/20260928-v21-g5-persona/report.html`에
 정리했다.
 
+## v22 PR #54 HTML 규칙 반영 격리 후보 (2026-09-29)
+
+기능 브랜치 `feat/skill-context-budget-260925`의 `977e3cf`에서 PR #54의
+`html-default-output`, `simonk-report`, 보고서 템플릿 변경을 새 격리 후보에
+반영했다. v21과 사용자 설치본을 덮어쓰지 않았고, 고정된 5개 원본 플러그인
+입력의 clean 상태와 HEAD를 재확인했다. 이 단계에는 모델·Bot·Orca 실호출,
+결제 설정 변경, 사용자 설치 전환 또는 `main` 머지가 없다.
+
+| 산출물 | 전체 영수증 SHA-256 | 검증 범위 |
+|---|---|---|
+| `source-v22` | `7c48991e484fedc40a477d0c0a4fddefd48e15c22526d7805c0919a45a0e9471` | 소스 소유 137스킬·411파일 |
+| `candidate-safety-v22` | `e0a491f30a0322b1903de9134fe20c13dcc7a0bb4bf6939040c635be5abb174e` | 5플러그인·182스킬·736파일 |
+| `codex-overlay-v22` | `f121d43dd0a92406101639a1c6b830b324063c29948501df0c0828970831aa96` | 5개 Codex 호환 오버레이 |
+
+v21 대비 소스 후보 411파일 중 변경은 HTML 규칙 관련 3파일이고, 안전 후보
+736파일 중 변경은 그 3파일과 플러그인 영수증을 반영한 metadata 10파일이다.
+기존 v21 세 산출물은 각각 원래 digest로 재검증했다. v22의 세 digest도
+시험 후 재검증했다.
+
+v22 안전 후보의 기본 `/vibe catalog`는 182개 스킬을 읽었다. 후보 `/vibe`
+단위 테스트 220/220, 자체 검사 180/180, 소스 전체 회귀 328건 중
+325통과·3건너뜀, 후보 경로를 지정한 프리뷰 회귀 6/6을 확인했다.
+건너뛴 3건은 기본 실행에서 후보 경로 환경변수가 없어 생긴 것으로,
+별도 6건 실행에 포함되어 통과했다. 정적 경로 감사는 182스킬의
+로컬 참조 143건에서 미해결·이식 불가 명령 0건을 찾았지만, Gstack
+직접 참조 31스킬·646회·고유 대상 9개가 남아 `external_runtime_pending`
+종료 1이다. 이 결과를 전체 런타임 검증으로 해석하지 않는다.
+
+Codex 오버레이 자체 영수증 검증과 다섯 명시적 루트 `inventory` 182건은
+통과했다. 그러나 오버레이 기본 `catalog`는 여전히
+`Candidate skill metadata differs from receipt`로 종료 2다. 이는 의도된
+`zoom-out` 투영 바이트와 원본 후보 영수증의 차이이며, 별도 검증과 명시적
+루트 우회가 운영용 기본 경로를 해결하지 않는다. 구조 결정과 수정,
+Gstack 전이 실행 의존성, 기존 프로필 호환성, 실제 구독 포함 경로의
+과금 안전 증거가 남아 있다. `runtime_closure_verified`,
+`host_compatibility_verified`, `installation_ready`는 모두 `false`다.
+명령·영수증·판정의 상세는
+`E:/Coding Infra/Releases/SimonK-stack/20260929-v22-html-pr54/report.html`에 기록했다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
