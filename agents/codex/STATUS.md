@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 11:12:26 KST
+updated: 2026-09-28 11:52:48 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 11:12:26 KST
+updated: 2026-09-28 11:52:48 KST
+
+- 2026-09-28 11:52:48 KST: src: user — SimonK-stack `/vibe` non-paid continuation. Pinned Gstack `01593aa6` Claude/Codex generated docs: Windows Sandbox network-off batch 62 combinations, 50 start passes + 1 30s timeout + 3 generated missing + 8 default-heading omissions; follow-up 5/5 pass (4 after-scope-gate preambles plus Claude health at 60s). Effective 55/55 available startup preambles passed, 3 generated docs absent, 4 docs have no startup preamble. External runtime/host/install gates remain false; no user install, main merge, model/API/Bot call, or payment change. HTML evidence and FYI sent to Claude; previous D-code requests remain open.
 
 - 2026-09-28 11:12:26 KST: Simon direct subscription-only `/vibe` continuation. Refreshed 15-model official registry evidence and documented non-interactive Claude Fable usage-credit risk, fixed clock-coupled test, pushed source feature commit `ee40afb`. Offline model/orchestrate 119, packaging 88, v20 receipts and smoke 4 passed. Candidate 5 plugins/182 skills/734 files, readiness3=false/Gstack31 pending; no user install/main/payment/model/API/Bot call. Delivered v20 HTML and Codex FYI to Claude; earlier D-code requests remain open.
 
