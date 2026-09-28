@@ -1097,6 +1097,22 @@ test_codex_guarded_policy.py -v`의 11개 사례와 전체 Codex 관련 26개
 활성화·신뢰 영수증·프로필 등록·실제 호스트 집행 및 Shell을 통한
 파일 쓰기 차단은 제공하지 않는다. D-29·D-30의 미지원/보류 판정은 유지한다.
 
+2026-09-28 **격리 호스트 실측**: Windows Sandbox의 Codex CLI 0.155.0에
+일회용 `simonk-guarded.config.toml`을 만들고 `SessionStart` 마커 훅만
+등록했다. 게스트의 활성 네트워크 어댑터 0개, `auth.json` 부재, 주요 API
+키 환경변수 부재를 확인했다. 실제 `codex exec` 세션에서 기본 프로필과
+신뢰되지 않은 선택형 프로필은 모두 마커가 없었고, 선택형 프로필에
+**그 게스트 호출 한 번에만** `--dangerously-bypass-hook-trust`를 준 경우
+`SessionStart` 이벤트 마커가 남았다. `codex debug prompt-input`에서는
+같은 우회 플래그를 줘도 훅이 실행되지 않아, 디버그 출력만으로는 훅
+집행을 검증할 수 없다. 세 `exec`는 네트워크 차단 때문에 응답 생성 없이
+12초 후 종료시켰다. 이는 프로필 선택과 신뢰 게이트의 부분 증거일 뿐,
+실제 사용자 프로필의 훅 신뢰, `PreToolUse` 차단, Desktop/IDE 동작,
+모델 응답 또는 요금 검증이 아니다. 실사용에 우회 플래그를 권장하지
+않으며 프로필·플러그인·설치본은 설치하지 않았다. 원시 결과는
+`E:/Coding Infra/Releases/SimonK-stack/20260928-codex-profile-host-probe/output/result.json`에
+있다. 세 readiness 플래그는 여전히 `false`다.
+
 ### Codex 호환 오버레이 v2 (2026-09-28, 설치 전 후보)
 
 `scripts/codex_overlay.py`는 고정된 v15 5-플러그인 후보를 **읽기 전용**으로
