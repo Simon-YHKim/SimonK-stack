@@ -1074,6 +1074,16 @@ Claude 안전 런타임을 그대로 연결하지 않는다. 향후 프로필 �
 분리해 검사해야 한다. 그 전에는 `/vibe`가 네 안전 스킬의 Codex 정책
 집행을 주장하지 않고 세 readiness 플래그도 `false`다.
 
+선행 오프라인 입력 어댑터 `scripts/codex_hook_input.py`는 현재
+`PreToolUse` JSON의 `Bash`·`apply_patch` `tool_input.command`를
+1 MiB 이하로 읽고, 패치의 Add/Update/Delete/Move 대상 경로를
+목록화한다. 중복 키·중복/빈 경로·알 수 없는 지시문·불완전한 패치는
+`HookInputError`로 거부한다. `python -B -m unittest discover -s
+scripts/tests -p test_codex_hook_input.py -v`의 5개 회귀 테스트가 통과했다.
+이 어댑터는 **도구 명령을 실행하지 않고**, 경로 정규화·안전 정책 결정·
+훅 등록·프로필 설치·실제 호스트 동작을 구현하지 않는다. 구독 모델이나
+Bot을 호출하지 않은 계약 파서 시험만으로 안전 집행을 주장하지 않는다.
+
 ### Codex 호환 오버레이 v2 (2026-09-28, 설치 전 후보)
 
 `scripts/codex_overlay.py`는 고정된 v15 5-플러그인 후보를 **읽기 전용**으로
