@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 10:48:24 KST
+updated: 2026-09-28 11:12:26 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 10:48:24 KST
+updated: 2026-09-28 11:12:26 KST
+
+- 2026-09-28 11:12:26 KST: Simon direct subscription-only `/vibe` continuation. Refreshed 15-model official registry evidence and documented non-interactive Claude Fable usage-credit risk, fixed clock-coupled test, pushed source feature commit `ee40afb`. Offline model/orchestrate 119, packaging 88, v20 receipts and smoke 4 passed. Candidate 5 plugins/182 skills/734 files, readiness3=false/Gstack31 pending; no user install/main/payment/model/API/Bot call. Delivered v20 HTML and Codex FYI to Claude; earlier D-code requests remain open.
 
 - 2026-09-28 10:48:24 KST: Simon direct `/vibe` continuation with USD 0 extra cost. Corrected Stack's two eval formats (6 trigger + 25 behavior files; 27 without eval) rather than misclassifying six legacy cases as invalid. Added/pushed Stack offline dual-schema CI/test/README/.gitignore `7f866e7`, then pinned it in aggregate source `140ad83` and built verified v19 5-plugin/182-skill candidate and Codex overlay; payload skills unchanged. Package 45, overlay 5, Stack 11 tests and candidate smoke 4 passed. Readiness3=false/Gstack31 pending; no user install/main/payment/model/Bot change. Sent Codex-owned correction/evidence FYI and HTML path to Claude.
 
