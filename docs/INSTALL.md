@@ -1714,6 +1714,25 @@ Codex CLI 0.155.0은 5개 설치·활성, 오버레이 캐시 740파일 전부 �
 통과했다. 상세 증거는
 `E:/Coding Infra/Releases/SimonK-stack/20260928-gstack-batch-sandbox/report.html`에 있다.
 
+고정 원본의 종료 경로도 별도 무인증·네트워크 차단 Sandbox에서
+`qa`·`retro`·`ship` 세 대표 스킬로 검사했다. 각각 시작 스크립트가
+출력한 세션 ID·시작 시각을 종료 스크립트에 전달했고,
+`gstack-brain-sync --discover-new`·`--once`를 포함한 네 호출이 모두
+종료 0이었다. `update_check=false`, `telemetry=off`,
+`artifacts_sync_mode=off`에서 게스트 텔레메트리 파일·동기화 큐 항목·
+프로젝트 Git 변경이 없었다. 원시 자료와 범위는
+`E:/Coding Infra/Releases/SimonK-stack/20260928-gstack-end-sandbox/report.html`에
+있다. 이것은 31개 legacy 스킬의 동작 또는 네트워크가 있는 호스트의
+송신 안전성 증거가 아니다.
+
+패키징 크기 참고값: v20 후보 영수증 734파일 합계 5,550,913바이트와
+고정 Gstack Git 트리 2,821 blob 합계 58,741,859바이트를 단순 합하면
+64,292,772바이트로 현 64 MiB 파일 합계 상한보다 2,816,092바이트
+작다. `bin`·`lib`·`scripts` 및 일부 루트 파일 299개 합계는
+13,018,800바이트다. 둘 다 **빌드/전이 의존성 폐쇄 증거가 아니다**.
+특히 Git 트리에 없는 네이티브 CSO·컴파일 산출물과 외부 Bun 의존성,
+기존 홈 링크 문제가 남는다. 크기만으로 Gstack 복사·설치를 결정하지 않는다.
+
 Claude Code 2.1.283의 별도 `--init-only` 검사는 새 무인증·네트워크 차단
 Sandbox에서 대조군과 5플러그인 후보 모두 실제 CLI 종료 코드 0이었다.
 후보 로그는 플러그인 5개, 스킬 182개(중복·사용자 소유 제외 0개), 명령
