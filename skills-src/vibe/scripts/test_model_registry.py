@@ -210,8 +210,27 @@ class ModelRegistryTests(unittest.TestCase):
         data = self.m.load_registry()
         ids = {m["id"] for m in data["models"]}
         self.assertTrue({"gpt-6-astra", "gpt-6-sol", "gpt-6-luna", "claude-opus-5-5",
-                         "claude-fable-5-1", "claude-sonnet-5", "gemini-3.8-flash", "grok-4.7"} <= ids)
+                         "claude-fable-5-1", "claude-sonnet-5-5", "claude-sonnet-5",
+                         "gemini-3.8-flash", "grok-4.7"} <= ids)
         self.assertEqual({m["vendor"] for m in data["models"]}, {"openai", "anthropic", "google", "xai"})
+
+    def test_sonnet_55_catalog_update_does_not_authorize_alias_dispatch(self):
+        data = self.m.load_registry()
+        models = {model["id"]: model for model in data["models"]}
+        new = models["claude-sonnet-5-5"]
+        self.assertEqual(new["released_at"], "2026-09-28")
+        self.assertEqual(new["api_efforts"], ["low", "medium", "high", "xhigh", "max"])
+        self.assertEqual(new["pricing"]["scope"], "direct-api-standard-usd-per-million-tokens")
+        self.assertIsNone(new["pricing"]["cache_write"])
+        self.assertEqual(data["legacy_lane_migration"]["claude-sonnet-5"],
+                         {"candidate": "claude-sonnet-5-5", "status": "pending-transport-and-canary"})
+        observed_at = data["checked_at"]
+        trial = candidate(surface="claude", model="sonnet", resolved_model=None, observed_at=observed_at,
+                          quota={"used_pct": None, "observed_at": observed_at})
+        result = self.m.constrain_runtime({"candidates": [trial]}, data, observed_at)["candidates"][0]
+        self.assertEqual(result["model"], "claude-sonnet-5-5")
+        self.assertFalse(result["available"])
+        self.assertIn("ALIAS_RESOLUTION_UNVERIFIED", result["registry_errors"])
 
     def test_every_legacy_lane_has_an_explicit_migration_disposition(self):
         tree = ast.parse(SCRIPT.with_name("routing.py").read_text(encoding="utf-8"))

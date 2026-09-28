@@ -15,6 +15,7 @@
 - **Guarded `/vibe` Claude preview** — `scripts/preview-vibe-candidate.ps1` verifies the immutable five-plugin receipt by default without a model call. An explicit, subscription-confirmed `-Run` offers a Core-inline, plan-mode, Skill-only routing preview, blocks API/alternate-provider environment routes, and requests claude.ai MCP connector suppression only in that child process. This preview does not install plugins or certify billing, connector suppression, other host paths, actual tasks, or context savings.
 
 ### Changed
+- **`/vibe` 공개 Claude Sonnet 5.5 사실 갱신** — 2026-09-28 출시 모델·API effort·Claude Code 최소 버전·직접 API 표준 가격을 레지스트리에 추가했다. `sonnet` 별칭을 이전 Sonnet 5의 확정 별칭으로 취급하지 않고 새 모델 후보로 옮겼으며, 이전 라인의 전환은 transport·canary 검증 대기로 유지한다. 구독 포함 여부·실제 모델 접근·호스트 라우팅·과금 안전은 확인하지 않았고 실호출도 하지 않았다.
 - **`/vibe` 2.11.16 progressive disclosure** — moved the generated historical Orca lane table into a directly linked reference and retargeted its drift checker. Normal skill loading omits the legacy table; the generator, safety guards and frontier runtime routing are unchanged. This does not reduce the initial five-plugin description footprint or prove model/host behavior.
 
 ### Fixed
