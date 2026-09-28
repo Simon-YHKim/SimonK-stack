@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "plugins": {
-    "SimonKAIHub": {"name": "simonk-aihub", "commit": "e37f07bf782e1295e5ec60befe0aa524d3aef30e"},
-    "SimonKCore": {"name": "simonk-core", "commit": "6527e8162d22d3d53339c4aae8aa7bd9af37fe05"},
-    "SimonKDesign": {"name": "simonk-design", "commit": "9decad2b263f9caa0fdfaf4f4a0c6be07f2ebdec"},
-    "SimonKMarket": {"name": "simonk-market", "commit": "257c2cde94891369307899dac95681a243aaee59"},
+    "SimonKAIHub": {"name": "simonk-aihub", "commit": "1aa3ced10e752c0c5233bd824905aea51d4fb1e8"},
+    "SimonKCore": {"name": "simonk-core", "commit": "bdd047c87e2a66d110bc682a04841e5d60dec6b1"},
+    "SimonKDesign": {"name": "simonk-design", "commit": "e045400de6fed810f38323ba6ab755e2572e64a3"},
+    "SimonKMarket": {"name": "simonk-market", "commit": "54f757f8f8f6cd73b2a470c4a13417c2e268b304"},
     "SimonKStack": {"name": "simonk-stack", "commit": "7f866e71e3e37e147410cdc55a5a786cf19fd2b6"}
   }
 }
