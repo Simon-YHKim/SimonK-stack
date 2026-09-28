@@ -22,6 +22,15 @@
       (전역 npm 패키지는 같은 머신의 다른 세션에 영향을 준다).
     - 읽기 실패는 "미확인"이다. "최신"으로 간주하지 않는다.
       (쿼터 규칙과 같은 규율 - 구분되는 상태를 같은 신호로 보고하지 않는다.)
+
+사용법:
+    python -B check_tooling.py              점검 (codex·orca·claude·agy·grok --version,
+                                            npm view, orca skills list 호출 ·
+                                            state/orca-skills.json 기록)
+    python -B check_tooling.py --json       같은 점검을 JSON 으로
+    python -B check_tooling.py --ack-skills 미확인 스킬 변경을 확인 처리 (state 기록)
+    python -B check_tooling.py -h|--help    이 설명만 출력. 네트워크·하위 프로세스·
+                                            state 기록 없음
 """
 import json
 import os
@@ -254,6 +263,16 @@ def report(as_json=False):
 
 
 if __name__ == "__main__":
+    # Windows 콘솔·파이프 기본(cp949)은 em-dash 에서 죽는다 - 출력 전에 고정한다.
+    for _stream in (sys.stdout, sys.stderr):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass
+    # 도움말은 네트워크·하위 프로세스·state 기록보다 먼저 끝낸다.
+    if "-h" in sys.argv[1:] or "--help" in sys.argv[1:]:
+        print(__doc__)
+        sys.exit(0)
     if "--ack-skills" in sys.argv:
         print(ack_skills())
         sys.exit(0)

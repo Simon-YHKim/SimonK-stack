@@ -1,0 +1,9 @@
+{"timestamp":"2026-09-28T01:50:10.000Z","type":"session_meta","payload":{"id":"thread-root-0003","session_id":"thread-root-0003","timestamp":"2026-09-28T01:50:10.000Z","cwd":"X:/Shared Project","originator":"codex-tui","cli_version":"0.155.0","source":"cli","thread_source":"user"}}
+{"timestamp":"2026-09-28T01:50:15.613Z","type":"event_msg","payload":{"type":"task_started","turn_id":"turn-a","root_turn_id":"turn-a","started_at":1790560215}}
+{"timestamp":"2026-09-28T01:50:15.700Z","type":"response_item","payload":{"type":"message","id":"msg-u1","role":"user","content":[{"type":"input_text","text":"Synthetic prompt A."}]}}
+{"timestamp":"2026-09-28T01:50:15.701Z","type":"event_msg","payload":{"type":"item_completed","thread_id":"thread-root-0003","turn_id":"turn-a","item":{"type":"UserMessage","id":"item-u1","content":[{"type":"text","text":"Synthetic prompt A.","text_elements":[]}]}}}
+{"timestamp":"2026-09-28T01:53:00.365Z","type":"event_msg","payload":{"type":"task_started","turn_id":"turn-b","root_turn_id":"turn-b","started_at":1790560380}}
+{"timestamp":"2026-09-28T01:53:00.400Z","type":"event_msg","payload":{"type":"item_completed","thread_id":"thread-root-0003","turn_id":"turn-b","item":{"type":"UserMessage","id":"item-u2","content":[{"type":"text","text":"Synthetic prompt B.","text_elements":[]}]}}}
+{"timestamp":"2026-09-28T01:56:26.072Z","type":"event_msg","payload":{"type":"task_complete","turn_id":"turn-b","started_at":1790560380,"completed_at":1790560586}}
+{"timestamp":"2026-09-28T01:57:00.000Z","type":"response_item","payload":{"type":"custom_tool_call","id":"ctc-9","call_id":"call-exec-9","name":"exec","input":"echo still working on A","status":"completed"}}
+{"timestamp":"2026-09-28T01:58:30.034Z","type":"event_msg","payload":{"type":"task_complete","turn_id":"turn-a","started_at":1790560215,"completed_at":1790560710}}

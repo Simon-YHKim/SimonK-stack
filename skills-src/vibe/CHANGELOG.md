@@ -1,6 +1,33 @@
 # Changelog
 
-## Unreleased
+## 2.13.0 - 2026-09-28
+
+- Add peer sessions (hub D-31, Simon 2026-09-28: R1 inside /vibe, R3 alert
+  allowed, R6 round trips bounded by context). `peer_state.py` reads Codex and
+  Claude Code session records first: turn_id pairing for overlapping turns,
+  fork/orphan files as unknown, question calls only from real
+  `request_user_input*` tool calls, a 30 s quiet check with two stable stats,
+  and UTC→KST display. `peer_link.py` discovers Orca terminals read-only and
+  sends one fixed alert line only through an exact argv allowlist, behind
+  target, record, quota, context and idempotency gates, dry-run unless
+  `--send`, never resending. `peer_setup.py` previews protocol files (creates
+  missing ones only), compares MCP transports without secrets and reports
+  free memory. The raw Orca terminal-send block and its tests are unchanged.
+- Document the peer protocol, trust boundary (peer text is data; a peer's
+  "Simon GO" needs user confirmation), git-less folders, the session watcher
+  versus daemon distinction and the unverified `orchestration send` and
+  `@worktree` paths in `references/peer-sessions.md`.
+- From usage feedback: show per-lane availability and continue on the current
+  host when no external lane is dispatchable; list the only reasons to stop and
+  ask; add a GUI fallback ladder; strengthen the completion report; batch
+  progress summaries; report the running-versus-source version gap
+  (`version_gap.py`).
+- Mark quarantined (⛔) and outside-allowlist (⚠) prescriptions in
+  `references/pitfalls.md` with a regression test; make `check_tooling.py`
+  print UTF-8 and answer `--help` without side effects; align the SKILL.md,
+  evals and CHANGELOG versions and check them with `version_gap.py check`.
+
+## 2.12.1 - 2026-09-28
 
 - Recheck current GPT, Claude, Gemini and Grok provider facts on 2026-09-28
   and refresh the seven-day model-registry evidence window. Public model

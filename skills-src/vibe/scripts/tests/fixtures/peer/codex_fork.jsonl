@@ -1,0 +1,6 @@
+{"timestamp":"2026-09-28T02:10:00.000Z","type":"session_meta","payload":{"id":"thread-child-0001","session_id":"thread-child-0001","timestamp":"2026-09-28T02:10:00.000Z","cwd":"X:/Shared Project","originator":"codex-tui","cli_version":"0.155.0","source":"cli","forked_from_id":"thread-parent-0001","parent_thread_id":"thread-parent-0001","thread_source":"subagent"}}
+{"timestamp":"2026-09-28T01:50:10.000Z","type":"session_meta","payload":{"id":"thread-parent-0001","session_id":"thread-parent-0001","timestamp":"2026-09-28T01:50:10.000Z","cwd":"X:/Shared Project","originator":"codex-tui","cli_version":"0.155.0","source":"cli","thread_source":"user"}}
+{"timestamp":"2026-09-28T01:55:00.000Z","type":"event_msg","payload":{"type":"task_complete","turn_id":"turn-parent-0","started_at":1790560200,"completed_at":1790560500}}
+{"timestamp":"2026-09-28T02:05:00.000Z","type":"event_msg","payload":{"type":"task_started","turn_id":"turn-parent-1","root_turn_id":"turn-parent-1","started_at":1790561100}}
+{"timestamp":"2026-09-28T02:10:01.000Z","type":"event_msg","payload":{"type":"task_started","turn_id":"turn-child-1","root_turn_id":"turn-parent-1","started_at":1790561401}}
+{"timestamp":"2026-09-28T02:12:00.000Z","type":"event_msg","payload":{"type":"task_complete","turn_id":"turn-child-1","started_at":1790561401,"completed_at":1790561520}}

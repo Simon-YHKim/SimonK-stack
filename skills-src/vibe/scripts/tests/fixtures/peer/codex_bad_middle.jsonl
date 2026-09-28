@@ -1,0 +1,4 @@
+{"timestamp":"2026-09-28T01:50:10.000Z","type":"session_meta","payload":{"id":"thread-root-0002","session_id":"thread-root-0002","timestamp":"2026-09-28T01:50:10.000Z","cwd":"X:/Shared Project","originator":"codex-tui","cli_version":"0.155.0","source":"cli","thread_source":"user"}}
+{"timestamp":"2026-09-28T01:50:15.613Z","type":"event_msg","payload":{"type":"task_started","turn_id":"turn-a","root_turn_id":"turn-a","started_at":1790560215}}
+{"timestamp":"2026-09-28T01:50:16.000Z","type":"event_msg","payload":{"type":"item_compl
+{"timestamp":"2026-09-28T01:56:26.123Z","type":"event_msg","payload":{"type":"task_complete","turn_id":"turn-a","started_at":1790560215,"completed_at":1790560586}}
