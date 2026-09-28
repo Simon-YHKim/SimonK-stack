@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use for /vibe, "알아서 진행", "오르카로 돌려", "스킬 조합", skill/model/effort/subscription-cost orchestration, and Play Console/GUI requests. Check CLI/API/MCP first; use vibe-bot only for GUI-only steps. Produces verified plans and artifacts; never invent specialist skills or assume paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.1
+version: 2.12.2
 author: simon-stack
 ---
 
@@ -229,7 +229,9 @@ usage, and remaining waiting/blocked work. Never call an accepted job complete.
 Legacy live entrypoints are quarantined: `run_dispatch`, `run_codex_exec`,
 `validate_and_dispatch`, `probe_orca_efforts`, and adversarial evaluation live
 `--preflight`/`--run`. Dry builders remain simulations, not execution or cost
-proof. The raw Orca helper accepts only a small exact read-only grammar; all
+proof. Legacy plan validation treats omitted quota checks as G5, never as
+permission to dispatch; a dry simulation is not evidence of checked quotas.
+The raw Orca helper accepts only a small exact read-only grammar; all
 writes, including `worker-stop`, are disabled. `kill_worker.py` is a retired,
 inert compatibility entrypoint: every request returns nonzero except standalone
 help. It does not scan processes, terminate, fence or verify cleanup. No flag or

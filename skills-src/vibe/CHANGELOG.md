@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 2.12.2 - 2026-09-28
+
+- Fail closed when legacy plan quota checks are omitted; preserve quarantine of live preflight paths.
+
+## 2.12.1 - 2026-09-28
 
 - Recheck current GPT, Claude, Gemini and Grok provider facts on 2026-09-28
   and refresh the seven-day model-registry evidence window. Public model

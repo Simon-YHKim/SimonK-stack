@@ -53,6 +53,29 @@ class LegacyExecutionTests(unittest.TestCase):
         self.assertFalse(result[0])
         self.assertIn(BLOCKED, result[2])
 
+    def test_plan_requires_explicit_checks_for_all_four_vendors(self):
+        for checked in [None, [], ['claude', 'codex', 'gemini']]:
+            with self.subTest(checked=checked):
+                ok, violations, notes = routing.validate_plan([], quota_checked_vendors=checked)
+                self.assertFalse(ok)
+                self.assertIn('G5', violations)
+                self.assertTrue(any('쿼터 미확인 벤더' in note for note in notes))
+        self.assertTrue(routing.validate_plan([], quota_checked_vendors=routing.VENDORS)[0])
+        self.assertTrue(routing.validate_plan([], quota_checked_vendors=iter(routing.VENDORS))[0])
+
+    def test_low_level_guard_treats_omitted_quota_as_unchecked(self):
+        plan = [{'proc': 'research-deep', 'lane': 'gpt-6-astra', 'class': 'B'}]
+        self.assertIn('G5', routing.check_guards(plan))
+        self.assertNotIn('G5', routing.check_guards(plan, quota_checked_vendors=routing.VENDORS))
+
+    def test_dry_legacy_dispatch_cannot_skip_quota_check_by_omission(self):
+        with patch.object(routing, 'run_dispatch') as sender:
+            ok, results, violations, _ = routing.validate_and_dispatch([], {}, 'current', dry=True)
+        self.assertFalse(ok)
+        self.assertEqual(results, [])
+        self.assertIn('G5', violations)
+        sender.assert_not_called()
+
     def test_raw_orca_generation_and_unknown_commands_are_disabled(self):
         for args in [('orchestration', 'worker-start'), ('orchestration', 'task-create'),
                      ('orchestration', 'worker-retry'), ('orchestration', 'worker-stop'),

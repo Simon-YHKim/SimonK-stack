@@ -899,11 +899,11 @@ def check_guards(assignments, quota_checked_vendors=None, spawn_counts=None):
         if any(c > SPAWN_CAP for c in spawn_counts.values()):
             v.append("G3")
 
-    # G5 — 4벤더 쿼터 미확인 상태로 디스패치
-    if quota_checked_vendors is not None:
-        used = {LANES[a["lane"]]["vendor"] for a in assignments if a.get("lane") in LANES}
-        if used - set(quota_checked_vendors):
-            v.append("G5")
+    # G5 — 생략/None 은 확인 완료가 아니다. 이 함수는 사용 벤더만 검사하고,
+    # validate_plan() 은 모든 4벤더를 검사한다.
+    used = {LANES[a["lane"]]["vendor"] for a in assignments if a.get("lane") in LANES}
+    if used - set(quota_checked_vendors or ()):
+        v.append("G5")
 
     # 탐색 슬롯이 D·보안·코딩에 배정 (코딩은 EXPLORE_EXCLUDE — D-28 C2)
     for a in assignments:
@@ -923,7 +923,9 @@ def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None, qu
     quota_checked_vendors=['claude'] 로 부르면 위반이 [] 로 나왔다.
     → 필수 게이트 존재와 4벤더 전체 쿼터를 여기서 강제한다.
     """
-    v = list(check_guards(assignments, quota_checked_vendors, spawn_counts))
+    # Iterator 입력도 두 검증 단계에서 동일하게 보도록 한 번만 고정한다.
+    checked_vendors = tuple(quota_checked_vendors or ())
+    v = list(check_guards(assignments, checked_vendors, spawn_counts))
     notes = []
 
     procs = {a.get("proc") for a in assignments}
@@ -953,13 +955,12 @@ def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None, qu
             v.append("A_VERIFY_WRITES")
             notes.append(f"{a.get('proc')}: A-verify 는 읽기 전용 — 파일을 바꾸면 coding 으로 재분류한다 (D-28 #4)")
 
-    # G5 는 '4벤더 각각' 이다 — 쓰는 벤더만 확인하는 것으로는 부족하다
-    if quota_checked_vendors is not None:
-        missing = set(VENDORS) - set(quota_checked_vendors)
-        if missing:
-            if "G5" not in v:
-                v.append("G5")
-            notes.append(f"쿼터 미확인 벤더: {sorted(missing)}")
+    # G5 는 '4벤더 각각' 이다. 인자 생략/None 도 미확인으로 fail closed.
+    missing = set(VENDORS) - set(checked_vendors)
+    if missing:
+        if "G5" not in v:
+            v.append("G5")
+        notes.append(f"쿼터 미확인 벤더: {sorted(missing)}")
 
     for a in assignments:
         lane = a.get("lane")
