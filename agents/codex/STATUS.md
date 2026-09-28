@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 07:19:11 KST
+updated: 2026-09-29 07:35:36 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 07:19:11 KST
+updated: 2026-09-29 07:35:36 KST
+
+- 2026-09-29 07:35:36 KST: src: Simon direct, nonpaid `/vibe` continuation. Current source feature inventory is `skills-src/` 137 + development 4 = 141; separately pinned v23 five-plugin candidate has 182 skills. Corrected stale 132/138 counts across source README/README.en/CLAUDE/INDEX and warned that legacy `install.sh` can fetch remote plugins/Gstack and mutate user home, so public install examples are not v23 test instructions. Windows-default skill quality gate 141/141 PASS; source docs commit `9b3ef6e` pushed/clean, v23 HTML updated. Claude-owned overlay/profile/Gstack D-code still absent; readiness3=false, current installed profiles and main unchanged. No model/Bot/Orca/paid call or billing-setting change.
 
 - 2026-09-29 07:19:11 KST: src: Simon direct, nonpaid `/vibe` continuation. Fixed SimonK-stack feature branch Windows skill quality gate locale failure: default CP949 parent output crash and UTF-8-parent/CP949-child decode errors. Child Python now explicitly UTF-8, stdout/stderr decoded strictly from bytes with invalid output fail-closed, summary output ASCII. Red regression3 failed before fix; final targeted4/4, real 141/141 quality gate PASS, source full unittest333=330 pass/3 skip/fail0. README verification command updated. Source commit `bfcf0087b8d44d8d8436eaecb39cab0c9a654f2b` pushed/clean; v23 HTML updated, candidate digest unchanged. Installed profile/main/readiness3=false unchanged. Claude D-code and Sandbox occupancy pending, Grok CLI weekly used100% as prior observation; no model/Bot/Orca/paid call or billing change.
 
