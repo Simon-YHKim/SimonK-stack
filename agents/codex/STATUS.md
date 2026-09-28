@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 12:31:03 KST
+updated: 2026-09-28 12:39:33 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 12:31:03 KST
+updated: 2026-09-28 12:39:33 KST
+
+- 2026-09-28 12:39:33 KST: src: user — v20 follow-up offline regressions PASS: plugin bundle 45/45 (392s), candidate runtime probe 1/1, candidate path audit 18/18, Codex overlay 5/5. Source feature and hub branches clean after evidence delivery; no metered/model calls or user install. Three readiness flags remain false and Gstack runtime/§35 decision remain open.
 
 - 2026-09-28 12:31:03 KST: src: user — v20 Claude 5-plugin `--init-only` in a fresh no-auth/no-network Windows Sandbox completed with direct native `$LASTEXITCODE` 0 for control and candidate; 5 plugins/182 skills/5 commands, debug errors0. Earlier Start-Process null ExitCode was a measurement bug, excluded from verdict. Guest closed; no model/API/Bot calls, payment/user install/main changes. HTML evidence `Releases/SimonK-stack/20260928-v20-claude-init-probe/report.html`; source feature docs commit `462680f` origin pushed/clean. Candidate receipt verified, `installation_ready=false`; runtime/user-profile/§35 D-code pending.
 
