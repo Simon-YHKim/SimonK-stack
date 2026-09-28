@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-28 14:25:09 KST
+updated: 2026-09-28 14:39:35 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-28 14:25:09 KST
+updated: 2026-09-28 14:39:35 KST
+
+- 2026-09-28 14:39:35 KST: src: user — new no-auth Windows Sandbox installed pinned Gstack `01593aa6` project-local, then Claude Code 2.1.283 `--init-only` loaded 57 Gstack project skills alongside v20 five-plugin `--plugin-dir` 182 skills, skip0/combined debug errors0, both CLI exits0. Gstack-only first init had one missing new guest config lock ENOENT debug error but exit0; combined did not repeat. Candidate receipt hash unchanged. Source docs/README `ccbe491` origin pushed/clean; HTML/raw JSON `Releases/SimonK-stack/20260928-gstack-v20-coexistence/`. Guest closed; no model/API/Bot/Orca paid call, user install/main/payment change. D-code/runtime execution/user-profile rollback/readiness3=false remain.
 
 - 2026-09-28 14:25:09 KST: src: user — fixed Gstack `01593aa6` project-local Claude setup in a fresh no-auth Windows Sandbox with public Bun package downloads, telemetry/update/sync/auto-upgrade off and Playwright skipped. Final third guest setup exit0, project `.claude/skills` 57/57 SKILL.md, browse/design/pdf/global-discover compiled; first two setup exit0 observations excluded due harness CWD error (nested source install). Source docs/README commit `f2adf59` origin pushed/clean; self-contained HTML and raw JSON `Releases/SimonK-stack/20260928-gstack-setup-sandbox/`. Guest closed, host Gstack clean; no user install/main/model/API/Bot/Orca/payment change. D-code/5-plugin coexistence/full runtime/rollback/readiness3=false remain.
 
