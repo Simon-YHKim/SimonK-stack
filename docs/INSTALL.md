@@ -2095,6 +2095,31 @@ Codex flat `vibe`·`vibe-bot` 2개가 끊길 수 있다. 별도 패널·독립 �
 호스트 링크를 이동하거나 복원한 것은 아니다. 정확한 게스트 ID는
 종료했고 현재 호스트 사전 검사도 PASS다.
 
+세션 한정 `--plugin-dir`과 영속 로컬 marketplace 설치가 동일하다고
+가정하지 않기 위해, 각각 새 Windows Sandbox에서 **플러그인 설치 +
+flat 별칭 분리 + 복원·철회**를 결합 시험했다. Claude 게스트는 후보
+5개를 로컬 marketplace에 등록·설치한 뒤 구 Claude flat 5개를
+보관하고 Codex 경유 2개를 v20 직접 정션으로 바꿨다. 플러그인 설치
+목록 5개, `--plugin-dir` 없이 `--init-only` 종료 0, user 스킬 0·
+플러그인 스킬 182·중복 제외 0·디버그 오류 0이었다. 링크 복원 5+2개와
+역복원 재실행이 통과했고 플러그인 철회 뒤 설치 목록은 0개였다.
+첫 시도는 빈 JSON 객체의 속성을 PowerShell이 `null` 1개로 센 시험
+판정식 오류로 `incomplete`였으며, 같은 게스트의 원시 설치 목록은
+비어 있었다. 판정식을 고친 **새 게스트**의 최종 영수증은
+`E:/Coding Infra/Releases/SimonK-stack/20260928-plugin-only-split-bridge/output-integrated-rerun/integrated-result.json`이다.
+
+별도 Codex 게스트는 v20 Codex 오버레이 digest `08f85de1...32992c8`의
+로컬 플러그인 5개를 설치·활성화하고 Core v20에 직접 연결된 flat
+`vibe`·`vibe-bot` 2개가 SKILL 해시와 일치함을 확인했다. 분리 중에도
+플러그인 5개 enabled였고, 구 Claude 5개·Codex 2개 정션 복원과
+역복원 재실행 뒤 설치 목록은 0개였다. 영수증은
+`E:/Coding Infra/Releases/SimonK-stack/20260928-plugin-only-split-bridge/output-codex-integrated/codex-integrated-result.json`이다.
+두 최종 시험은 인증정보·활성 네트워크 어댑터 없이 모델 생성·유료 호출
+0건으로 수행했고 정확한 Sandbox ID를 종료했다. 이 결과도 각 CLI의
+실제 `/vibe` 선택, 기존 호스트 사용자 설정·캐시, 훅·182스킬 실행,
+구독 청구와 운영 설치 준비를 증명하지 않으므로 세 readiness 플래그와
+실사용 설치·`main` 상태는 바꾸지 않는다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
