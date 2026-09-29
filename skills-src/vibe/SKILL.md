@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use for /vibe, "알아서 진행", "오르카로 돌려", "스킬 조합", skill/model/effort/subscription-cost orchestration, and Play Console/GUI requests. Check CLI/API/MCP first; use vibe-bot only for GUI-only steps. Produces verified plans and artifacts; never invent specialist skills or assume paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.10
+version: 2.12.11
 author: simon-stack
 ---
 
@@ -175,6 +175,15 @@ Choose among routes that meet the quality/capability floor, then minimize
 incremental cost and quota pressure. Lower unnecessary effort, trim context,
 reuse verified results, limit parallelism and cap retries before dropping
 quality. Never remove required verification to reduce cost.
+
+Before a Codex worker start, run `python -B scripts/check_tooling.py --local-codex`
+from this skill package. It compares the PATH-selected CLI
+version with an adjacent installed npm package without querying the registry
+or Orca. A newer local package with an older PATH shim blocks that lane even
+when npm is offline; inspect and verify the exact executable before using it.
+This check does not prove that the newer binary works or that the account route
+is included in a subscription. The full tooling report also queries npm and
+Orca, so do not use it merely to perform this local check.
 
 ## 3. Execute only ready work
 

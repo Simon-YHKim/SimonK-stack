@@ -95,15 +95,54 @@ def _cmp(a, b):
     return (pa > pb) - (pa < pb)
 
 
+def _local_codex_package_version():
+    """Read only the npm package adjacent to the resolved PATH shim, if any."""
+    shim = shutil.which("codex")
+    if not shim:
+        return None
+    package = os.path.join(os.path.dirname(shim), "node_modules", "@openai",
+                           "codex", "package.json")
+    try:
+        if os.path.islink(package) or os.path.getsize(package) > 65536:
+            return None
+        with open(package, "r", encoding="utf-8") as source:
+            doc = json.load(source)
+    except (OSError, UnicodeError, ValueError):
+        return None
+    version = (doc.get("version") if isinstance(doc, dict)
+               and doc.get("name") == "@openai/codex" else None)
+    if isinstance(version, str) and re.fullmatch(r"\d+\.\d+\.\d+", version):
+        return version
+    return None
+
+
+def check_codex_local():
+    """Detect a stale PATH shim without npm registry or Orca access."""
+    installed, _ = _version(["codex", "--version"])
+    local_package = _local_codex_package_version()
+    comparison = _cmp(installed, local_package)
+    state = ("뒤처짐" if comparison is not None and comparison < 0 else
+             "로컬 이상" if comparison is not None else
+             "설치본만 확인" if installed else UNKNOWN)
+    return {"tool": "codex", "installed": installed,
+            "local_package": local_package, "state": state}
+
+
 def check_clis():
     rows = []
 
-    cur, _ = _version(["codex", "--version"])
+    local_codex = check_codex_local()
+    cur = local_codex["installed"]
     latest = _npm_latest("@openai/codex")
-    rows.append(_row("codex", cur, latest,
+    codex_row = _row("codex", cur, latest,
                      "뒤처지면 `Agent startup blocked: codex-update-prompt` 로 "
                      "**모든 codex 워커가 안 뜬다**. 2026-09-12 실사고.",
-                     "npm install -g @openai/codex@latest"))
+                     "npm install -g @openai/codex@latest")
+    codex_row["local_package"] = local_codex["local_package"]
+    if local_codex["state"] == "뒤처짐":
+        codex_row["state"] = "뒤처짐"
+        codex_row["fix"] = "PATH shim을 확인하고 검증된 로컬 Codex 실행 경로를 사용"
+    rows.append(codex_row)
 
     cur, _ = _version(["orca", "--version"])
     rows.append(_row("orca", cur, None,
@@ -253,7 +292,16 @@ def report(as_json=False):
     return 1 if blocking else 0
 
 
+def report_local_codex():
+    """A side-effect-minimal probe: no registry, Orca, snapshot or account access."""
+    row = check_codex_local()
+    print(json.dumps(row, ensure_ascii=True))
+    return 1 if row["state"] == "뒤처짐" else 0
+
+
 if __name__ == "__main__":
+    if "--local-codex" in sys.argv:
+        sys.exit(report_local_codex())
     if "--ack-skills" in sys.argv:
         print(ack_skills())
         sys.exit(0)
