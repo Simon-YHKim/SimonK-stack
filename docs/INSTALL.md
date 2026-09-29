@@ -3522,6 +3522,31 @@ auth/credential/token 이름의 파일은 0개였으나 이는 인증정보 전�
 기록됐다. 관측된 API request 라인은 0개였다. 이 범위는 격리 프로필의
 초기화·발견이며 사용자 프로필의 자동 선택이나 모델 응답이 아니다.
 
+### Claude·Codex `281fc11` 후보 호스트 적재 (2026-09-30)
+
+`281fc11` 소스에서 생성한 새 안전 후보를 별도 무인증·네트워크 차단
+Windows Sandbox에서 검증했다. Claude Code 2.1.284는 `--init-only`에서
+플러그인 5개·스킬 182개를 발견했고 종료 0·디버그 오류 0·API 요청 기록
+0건이었다. Codex CLI 0.159.0은 일반 안전 subset의 플러그인 5개를
+활성 등록했고 캐시에 `SKILL.md` 177개가 있었다. 두 실행 모두 시험 전후
+활성 네트워크 어댑터 0개였고 모델 응답을 생성하지 않았다. 후보 영수증
+SHA-256은 Claude
+`fdb14bd7a29e99d1dca53566001d4d4b15773bd3148fd2b152163086cbab8211`,
+Codex
+`4d34fb541df48c1b0e2feffa9d59dff6e0af290c6554ecb0306fecd0ae6c3047`로
+시험 후에도 같았다. 게스트는 정확한 ID로 각각 종료했다. 독립 결과 파일은
+`E:/Coding Infra/Releases/SimonK-stack/20260930-host-parity-281fc11/`의
+`claude/output-v2/result.json`과 `codex/output-v2/result.json`이다.
+
+첫 Claude 게스트는 빈 설정 파일을 저장하려다 `ENOENT`를 기록했고, 첫
+Codex 게스트는 설정 홈 생성 전 PATH alias 경고로 중지했다. 두 실패 기록도
+각 `output/result.json`에 보존했다. 프로필 준비 단계를 보완한 **새**
+게스트에서 위 결과가 통과했다. 이는 후보 적재·발견/등록 증거이지 자동
+스킬 선택, 명령 실행 품질, 두 호스트 결과물의 동등성, 운영 프로필 전환,
+구독 포함 과금의 증거가 아니다. Codex의 안전 제외 5개와 Gstack·기본
+catalog·D-code 게이트도 남아 있으므로 `host_behavior_verified=false`,
+`selection_quality_verified=false`, `installation_ready=false`를 유지한다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
