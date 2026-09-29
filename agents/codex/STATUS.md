@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-30 05:15:01 KST
+updated: 2026-09-30 05:21:30 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
+
+- 2026-09-30 05:21:30 KST: src: user — clean `4a33d3e` parity candidate was independently loaded by actual local Claude Code 2.1.285 and Codex CLI 0.159.0 binaries in fresh unauthenticated test profiles. Claude first-run config-missing error was preserved, then a new profile used model-free `plugin list --json` preflight: `--init-only` exit0, 5 plugins/182 skills, debug errors0/API request log lines0. Codex local marketplace registered 5 enabled plugins/177 skills; source-cache 725/725 path+SHA match, cached `/vibe` five-root inventory 177/issues0. Real user Claude config and Codex config/auth SHA unchanged; test profiles had credential-named files0. Candidate receipts reverified, package pycache0. README/INSTALL commit `66fa533` pushed/clean. This is local CLI load/discovery, not OS network isolation, automatic selection, output quality, account-cost proof, real user install or main merge. No model/Bot/API calls; D-code/Gstack/billing gates remain.
 
 - 2026-09-30 05:15:01 KST: src: user — Claude/Codex SimonKStack performance-degradation prevention follow-up. Feature `4a33d3e` adds symmetric four-profile fixture regression for task effort/quality/subscription guards; source `/vibe` 231/231 and clean Claude/Codex packaged `/vibe` 231/231 each pass. Feature docs `ecb9b62` pushed/clean. New preserved clean candidate `E:/Coding Infra/Releases/SimonK-stack/20260930-parity-clean-4a33d3e/`: four receipts independently reverified after tests, Claude catalog182/Codex177, 176 shared SKILL bodies byte-identical + approved `zoom-out` projection1, model-registry SHA equal, no unreceipted `.pyc`. An initial candidate gained six unreceipted pycache files from test-spawned Python and is retained but excluded; the clean candidate tests inherited `PYTHONDONTWRITEBYTECODE=1`. Public Google/xAI/OpenAI/Anthropic model facts checked; no unverified X post or API benchmark became automatic rank. No model/API/Bot calls or user-profile installation. New candidate host loading and true output-quality parity remain unmeasured; Claude-owned task-fit D-code, subscription safety and Gstack closure still gate installation/main merge.
 
