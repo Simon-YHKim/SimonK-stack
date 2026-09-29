@@ -3409,7 +3409,12 @@ v30 대비 의도치 않은 바이트 차이를 만들었으므로, **첫 v31 �
 
 v30→v31b 실제 콘텐츠 변경은 Core의 `/vibe` 5파일뿐이며 AIHub·Design·
 Market·Stack은 0파일이다. 다섯 플러그인의 생성 manifest는 공통 소스
-지문 때문에 각각 2파일씩 바뀌었다. 플러그인별 버전 D-code 필요성을
+지문 때문에 각각 2파일씩 바뀌었다. 전용 버전 전이 감사도 Core를
+`updated`(5파일), 나머지 네 소유자를 `churn`(각 0파일)으로 판정해
+종료 0이었다. 정적 경로 감사는 182스킬·143참조에서 미해결 경로와
+이식 불가 명령 0건을 찾았지만, Gstack 외부 런타임 힌트 31스킬·646참조·
+9대상이 남아 `external_runtime_pending`/종료 1이었다. 플러그인별 버전
+D-code 필요성을
 해소하지 않았으며 `installation_ready`, `runtime_closure_verified`,
 `host_compatibility_verified`는 모두 false다. v31b 후보 복사본의
 오프라인 `/vibe` selftest·runtime unit·prepare unit·table sync 4단계는
