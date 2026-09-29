@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-30 04:27:35 KST
+updated: 2026-09-30 04:47:05 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
+
+- 2026-09-30 04:47:05 KST: src: user — Claude/Codex SimonKStack 성능 저하 방지. SimonKStack feature `39c3ca3` fix + `27c5c7f` docs pushed/clean. `/vibe` 2.12.10 fixes Codex D-29 subset candidate discovery: only the exact receipted five-skill/two-runtime omission binds to the verified overlay; missing/forged receipt or drift fails closed. New immutable candidate `E:/Coding Infra/Releases/SimonK-stack/20260930-subset-discovery-39c3ca3/`: Claude catalog 182, Codex subset catalog 177; static parity 176 identical SKILL bodies + approved zoom-out projection 1; shared 17-model registry SHA identical. Source tests 230 + nested 157 + bundle 45 + subset 5, 141-skill CI PASS; Claude offline probe four steps PASS; Codex candidate /vibe tests 100 PASS. Receipt digests and residual gates in `report.html` and own outbox. No model/API/Bot paid calls, payment settings, user install or main merge; host automatic selection/execution quality, Gstack closure and Claude-owned D-code unverified, so readiness false.
 
 - 2026-09-30 04:27:35 KST: SimonKStack feature `b5312e9` pushed/clean. `/vibe` 2.12.9 source now requires separate `paid_credit_fallback_disabled=true` for Codex, Grok CLI and Grok Bot subscription routes; auto reload OFF is not proof that existing purchased credits cannot be consumed. RED reproduced unsafe `ready` for missing/false evidence; GREEN blocks it with `PAID_CREDIT_FALLBACK_UNVERIFIED`. Claude usage-credit toggle remains separate. Tests: `/vibe` planner 100/100, runtime 27/27, registry 29/29, selftest 180/180, source suite 383 total/3 skipped/0 failed, validator 0 errors/0 warnings. `git diff --check` and scoped secret scan passed. Bash TDD guard could not resolve this Windows worktree `.git` path; the exact staged code+test pair was manually verified. Latest candidate/user install unchanged, so no installed protection or cross-host quality claim yet. Official sources and handoff: `agents/codex/outbox/20260930-042735-to-claude-vibe-credit-fallback-guard.md`. No model/API/Bot calls, payment settings, user install or `main` merge; Claude D-code for task-fit and Gstack host parity still pending.
 
