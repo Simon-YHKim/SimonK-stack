@@ -29,4 +29,3 @@ This is package/content parity, **not** actual host automatic selection or execu
 - Human report: `E:/Coding Infra/Releases/SimonK-stack/20260930-subset-discovery-39c3ca3/report.html`
 - Hub preview: `agents/codex/outbox/preview/20260930-044705-vibe-subset-discovery.html`
 - Source: `E:/Coding Infra/Harrness Eng/SimonK-stack-skill-budget-260925/skills-src/vibe/`
-
