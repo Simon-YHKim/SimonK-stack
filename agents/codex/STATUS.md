@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 13:30:41 KST
+updated: 2026-09-29 13:55:56 KST
 state: running
 source: user-direct
 ---
@@ -10,6 +10,7 @@ source: user-direct
 
 Current source: Simon direct. Continue SimonK-stack `/vibe` and five-plugin modernization using subscriptions only; additional metered spend is USD 0. No payment, overage or auto-topup setting changes.
 
+- 2026-09-29 13:55:56 KST: SimonK-stack feature `f3bb727` pushed/clean. Core original `a07a1e9` now pinned; Stack source-owned `obsidian-bases` progressive-disclosure EXAMPLES closure was required because a pin-only v29 build correctly failed on an unexplained supplementary file. New isolated v29b source/candidate/Codex overlay/general subset receipts independently verified, 182/182 candidate skills passed validator with 32 nonblocking warnings (v28:34), Codex plugin manifests 5/5, full 341 tests 338 pass/3 skip/0 fail; no-LLM graphify updated. Candidate readiness flags remain false. Core `json-canvas` source port, per-plugin version D-code and generator, Gstack runtime closure, actual installation and main remain pending.
 - 2026-09-29 13:30:41 KST: Canonical nested relative-path local marketplace probe in isolated unauthenticated Claude CLI 2.1.284 profile reproduced caching despite official local in-place language. Source-only A→B + marketplace/plugin update returned `up_to_date` and retained old cache; manifest 1.0.0→1.0.1 returned `updated` and new cache matched source SHA-256. Standalone HTML evidence saved outside hub; Stack feature `509fb2f` docs pushed/clean after diff check and no-LLM graphify. No model call, generator, candidate or user-install change.
 - 2026-09-29 13:23:59 KST: Stack feature `8886eb4` recorded official docs and SemVer migration hazard, without adopting a new contract. D-code remains Claude-owned and pending.
 - 2026-09-29 13:21:14 KST: Official Claude Code marketplace docs confirm cached remote updates require a changed computed plugin version, while true local in-place loads are a separate exception. SemVer prerelease rules reveal a migration trap: direct `-vibe.<numeric counter>` can sort below existing `-vibe.<hex>`; a `z.<numeric counter>` bridge sorts above every legacy hex identifier for the same base version. Decision supplement sent to Claude; no generator or installed-profile change.
