@@ -293,6 +293,9 @@ class PackagedSimonkEntrypointTests(SimonkEntrypointTests):
             target = skill_root / "vibe/scripts" / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(VIBE / name, target)
+        policy = skill_root / "vibe/references/task-fit-policy.json"
+        policy.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(VIBE.parent / "references/task-fit-policy.json", policy)
         params = self.inputs()
         rc, plan = self.run_wrapper(params, wrapper=wrapper)
         self.assertEqual(rc, 0, plan)
