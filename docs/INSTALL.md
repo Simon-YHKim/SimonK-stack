@@ -3014,6 +3014,33 @@ python scripts/candidate_path_audit.py --package E:/reviewed/candidate `
   --gstack-expected-commit <검토한-40자리-SHA>
 ```
 
+### v27 메타데이터·Gstack 전이 시험 준비 (2026-09-29)
+
+`runtime_collect.py`의 네 표면 메타데이터 조회는 모두 종료 0이었다.
+Codex는 ChatGPT 구독 인증과 8개 모델·주 버킷 66% 사용을,
+Claude는 claude.ai 구독 인증을 관측했다. Grok CLI는 주간 버킷
+**100% 사용**으로 다시 보고했고, Antigravity `/usage`는 0턴·0토큰으로
+4개 버킷을 반환했다. 이는 그 시각의 조회값이지 현재 가용성 보증이 아니다.
+네 표면 모두 `billing.verified=false`이며 모델별 구독 포함·초과 과금 차단·
+모델↔버킷 결속은 미확인이다. 메타데이터를 모델 실호출 허가나
+추가 과금 $0의 증거로 승격하지 않는다.
+
+독립 Gstack 원본에서 위 직접 헬퍼 9개를 정적으로 따라가니 `bin/` 외에
+`lib/`, Bun, Git Bash, 상태 파일 및 일부 보조 명령이 필요하다. 특히
+`gstack-team-init`은 대상 저장소 파일·hook을 변경할 수 있고,
+`gstack-update-check`의 활성 경로는 캐시·스킬 파일 삭제와 원격 조회를,
+`gstack-telemetry-log`의 opt-in 경로는 백그라운드 동기화를 수행한다.
+따라서 직접 파일 9/9 확인은 안전한 실행 묶음의 증거가 아니다.
+
+네트워크·클립보드 비활성 및 자격증명 검사 설정의 새 Windows Sandbox에서
+6종 헬퍼의 읽기·비활성 분기 8개 호출만 시험할 입력을
+`E:/Coding Infra/Releases/SimonK-stack/20260929-v27-gstack-runtime-sandbox/`에
+준비했다. PowerShell 구문 0오류, WSB 매핑 5개 존재, 소스·바이너리
+매핑 4개 읽기 전용과 결과 폴더 1개 쓰기 가능을 확인했다. 그러나 기존
+Sandbox 세션이 하나 실행 중이라 **새 게스트를 기동하지 않았고 결과
+영수증도 없다**. 파일 쓰기·동기화·업그레이드 분기는 이 시험에서
+제외한다. `runtime_closure_verified`와 `installation_ready`는 계속 false다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
