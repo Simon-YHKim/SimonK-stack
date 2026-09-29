@@ -3086,6 +3086,34 @@ OFF가 출력됐고, 대화형 동의·업그레이드 블록, 텔레메트리 �
 31개 Gstack 참조 스킬, Claude/Codex 실호스트 동작은 여전히 미검증이며
 `runtime_closure_verified=false`, `installation_ready=false`다.
 
+### Gstack 로컬 기록·팀 초기화 활성 경로 격리 실측 (2026-09-30)
+
+위 6개 helper의 안전 분기와 별도로, 새 무인증·네트워크/클립보드 차단
+Windows Sandbox에서 미실행 helper 3개의 활성 경로를 시험했다. 고정 원본
+`65bfb0ce49da807698359ca033a05709e342c684`와 Git Bash·Bun의
+해시를 게스트에서 확인했다. Bun이 읽기 전용 매핑 파일 접근에서 `EPERM`을
+반환해, 동일 커밋의 clean 원본을 **게스트 내부에만** 로컬 복제한 뒤 실행했다.
+PowerShell→Git Bash JSON 인수 손실은 게스트 전용 Bash 래퍼로 교정했다.
+앞선 실패 영수증 4개도 삭제하지 않았다.
+
+임시 Git 저장소 두 곳에서 `gstack-learnings-log`의 정상 입력(종료 0)과
+잘못된 유형 거부(종료 1), `gstack-timeline-log`(종료 0),
+`gstack-team-init optional|required`(각 종료 0)를 확인했다. 허용된 기록은
+학습·타임라인 각 1행이었고, optional은 `CLAUDE.md`만, required는
+`CLAUDE.md`·`.claude/hooks/check-gstack.sh`·`.claude/settings.json`을
+게스트 임시 저장소에 만들었다. 게스트 상태 파일은 `config.yaml`과 두
+JSONL 파일만 있었으며 활성 네트워크 어댑터·자격증명 환경변수·동기화 큐·
+텔레메트리 사용 파일은 0이었다. 원시 영수증은
+`E:/Coding Infra/Releases/SimonK-stack/20260930-gstack-writer-sandbox/output/result-v5.json`
+(SHA-256 `bca1af094e0291aa0ba85e3efa7fcbacc42a41b704e36f984c4f64ebdae1ea6a`)이며,
+해당 시험 게스트는 결과 보존 후 종료했다.
+
+이 결과는 **설정 OFF의 게스트 임시 저장소 5회 호출**에 한정된다. 원본의
+vendored-copy 삭제 분기, 설정 ON의 동기화/텔레메트리/업데이트 전이,
+31개 참조 스킬 전체 실행, 사용자 홈의 Claude·Codex 실제 로딩·행동·품질,
+운영 설치 호환성은 입증하지 않는다. `runtime_closure_verified=false`와
+`installation_ready=false`를 유지한다.
+
 ### v28 AIHub 제품 모델 선택 교정 후보 (2026-09-29)
 
 `distribution/plugin-inputs.v1.json`의 SimonKAIHub 핀을 별도 기능 브랜치
