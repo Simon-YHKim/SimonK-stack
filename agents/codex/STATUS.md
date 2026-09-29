@@ -1,13 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 15:31:09 KST
+updated: 2026-09-29 15:41:08 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
+- 2026-09-29 15:41:08 KST: Stack feature `ce1fd31` pushed/clean: Grok CLI `grok models` changed from unauthenticated to `grok.com` login with default grok-4.7. Login/model catalogue is **not** weekly quota, exact account binding or extra-usage/autotopup proof; no Grok model call, paid API, billing change or user-profile install. AI Usage Widget source confirms it obtains Grok quota via official CLI billing but keeps usage snapshots in memory (persistent store only settings/accounts), so no existing on-disk quota receipt to reuse. Simon was asked asynchronously to confirm same account and current weekly percentage; reply pending. v30 readiness flags remain false; plugin-version D-code and occupied Sandbox remain open.
 - 2026-09-29 15:31:09 KST: Stack feature f998baf pushed/clean with read-only full-file flat-skill package auditor, 7 new tests, INSTALL and CHANGELOG. Verified v30 receipt e312d41...; actual-home comparison per 182 names: .agents linked136/missing46; .codex linked2/missing180; .claude direct drift133/linked5/missing44; exact direct package matches0. Links and home Gstack were not read, no profile/install change. Positive Core candidate control matched61/61 applicable skills. Full offline suite 348 tests=345 pass/3 skip/0 fail (543.790s); no model call. Official Anthropic June15 correction says claude -p continues to draw subscription usage, unlike stale Wiki T-018 historical warning; support article recorded in v30 report. Wiki has other agents' dirty changes, so no Wiki edit. D-code still absent; old Sandbox still live; Grok CLI unauthenticated at last observation.
 - 2026-09-29 15:01:58 KST: Stack feature a451d6c and 76b2f35 pushed/clean. Read-only flat skill SHA audit recorded: .agents 131 same-name Codex subset skills, only 1 identical SKILL.md; .claude 138 same-name Claude skills, only 1 identical; direct directories/junctions preserved. Claude Max firstParty and Codex ChatGPT logins observed; no API-key env names. One session-only v30 --plugin-dir Claude synthetic read-only GUI routing response used claude-opus-5-5 and gave appropriate CLI-first/Grok hold/subscription guard; CLI reported USD 0.5720546 list-price estimate, not actual charged amount. User confirmed overage off. Grok CLI `grok models` reported unauthenticated, so no Grok model call. Candidate-only selection, actual billing, profile install still unproven. v30 report updated, readiness false, Sandbox and version D-code unchanged.
 - 2026-09-29 14:51:58 KST: v29b-to-v30 content-by-owner comparison excluding the two generated manifests found Core one changed reference and AIHub/Design/Market/Stack zero changed files. Current shared source-digest version still changes all five plugin manifest pairs. Stack feature documentation commit f96fdbe pushed; no generator or test changed before Claude-owned version D-code. Existing Sandbox still live. No paid/model call.
