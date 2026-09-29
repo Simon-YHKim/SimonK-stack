@@ -7,6 +7,7 @@ ready nodes, and verifies results. Prices/model IDs are inputs, not hidden defau
 from __future__ import annotations
 
 import argparse
+import base64
 import copy
 import hashlib
 import importlib.util
@@ -334,12 +335,73 @@ def candidate_inventory(exclude_roots=(), host_skills=None):
         return data
 
     checked("plugins/SimonKCore/skills/vibe/scripts/orchestrate.py")
+    # A Codex overlay intentionally changes one SKILL.md; bind that exception
+    # to its original bundle bytes and exact projection before inventory.
+    overlay = None
+    overlay_bytes = None
+    overlay_path = local("overlay.json")
+    if overlay_path.exists():
+        overlay_bytes = raw("overlay.json", 8 * 1024 * 1024)
+        overlay = decode(overlay_bytes)
+        zoom_path = "plugins/SimonKStack/skills/zoom-out/SKILL.md"
+        policy_path = "plugins/SimonKStack/skills/zoom-out/agents/openai.yaml"
+        projected_paths = {f"plugins/{owner}/.codex-plugin/plugin.json" for owner in owners}
+        projected_paths.update((zoom_path, policy_path))
+        if (not isinstance(overlay, dict)
+                or set(overlay) != {"schema_version", "scope", "candidate_digest",
+                                    "replacement_originals", "generated",
+                                    "host_compatibility_verified", "installation_ready", "limitations"}
+                or type(overlay["schema_version"]) is not int or overlay["schema_version"] != 2
+                or overlay["scope"] != "five-plugin-codex-compat-overlay-v2"
+                or overlay["candidate_digest"] != hashlib.sha256(receipt_bytes).hexdigest()
+                or overlay["host_compatibility_verified"] is not False
+                or overlay["installation_ready"] is not False
+                or not isinstance(overlay["limitations"], list)
+                or not isinstance(overlay["replacement_originals"], dict)
+                or set(overlay["replacement_originals"]) != {zoom_path}
+                or not isinstance(overlay["generated"], dict)
+                or set(overlay["generated"]) != projected_paths
+                or zoom_path not in members):
+            raise ValueError("Invalid Codex discovery overlay")
+        encoded_original = overlay["replacement_originals"][zoom_path]
+        if not isinstance(encoded_original, str):
+            raise ValueError("Invalid Codex discovery provenance")
+        try:
+            original_zoom = base64.b64decode(encoded_original, validate=True)
+        except ValueError as exc:
+            raise ValueError("Invalid Codex discovery provenance") from exc
+        if (base64.b64encode(original_zoom).decode("ascii") != encoded_original
+                or len(original_zoom) != members[zoom_path]["size"]
+                or hashlib.sha256(original_zoom).hexdigest() != members[zoom_path]["sha256"]):
+            raise ValueError("Codex discovery provenance differs")
+        manual_flag = b"disable-model-invocation: true\n"
+        frontmatter_end = original_zoom.find(b"\n---\n", 4)
+        if (not original_zoom.startswith(b"---\n") or frontmatter_end < 0
+                or original_zoom.count(manual_flag) != 1
+                or original_zoom.find(manual_flag) > frontmatter_end
+                or raw(zoom_path, MAX_SKILL_BYTES) != original_zoom.replace(manual_flag, b"", 1)
+                or raw(policy_path, MAX_SKILL_BYTES)
+                != (b"interface:\n  display_name: Zoom Out\n"
+                    b"  short_description: One-layer-up code map on explicit request.\n"
+                    b"policy:\n  allow_implicit_invocation: false\n")):
+            raise ValueError("Codex discovery projection differs")
+        for path, spec in overlay["generated"].items():
+            if (not isinstance(spec, dict) or set(spec) != {"sha256", "size"}
+                    or not isinstance(spec["sha256"], str)
+                    or not re.fullmatch(r"[a-f0-9]{64}", spec["sha256"])
+                    or type(spec["size"]) is not int or not 0 <= spec["size"] <= MAX_SKILL_BYTES):
+                raise ValueError("Invalid Codex discovery member")
+            data = raw(path, MAX_SKILL_BYTES)
+            if len(data) != spec["size"] or hashlib.sha256(data).hexdigest() != spec["sha256"]:
+                raise ValueError("Codex discovery member drift")
     expected_skills, roots = {}, []
     for name, owner in receipt["owners"].items():
         if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", name) or owner not in owners:
             raise ValueError("Invalid candidate skill ownership")
         member = f"plugins/{owner}/skills/{name}/SKILL.md"
-        expected_skills[str(local(member))] = (name, members[member]["sha256"])
+        expected_sha = (overlay["generated"][member]["sha256"]
+                        if overlay is not None and member == zoom_path else members[member]["sha256"])
+        expected_skills[str(local(member))] = (name, expected_sha)
     for owner in owners:
         names = {n for n, o in receipt["owners"].items() if o == owner}
         manifest = decode(checked(f"plugins/{owner}/.claude-plugin/plugin.json"))
@@ -361,6 +423,11 @@ def candidate_inventory(exclude_roots=(), host_skills=None):
         "scope": receipt["scope"], "hash_scope": "planner, plugin manifests and SKILL.md only",
         "installation_verified": False,
     }
+    if overlay_bytes is not None:
+        inventory["catalog"].discovery["overlay"] = {
+            "path": str(overlay_path), "sha256": hashlib.sha256(overlay_bytes).hexdigest(),
+            "scope": overlay["scope"], "installation_verified": False,
+        }
     return inventory
 
 

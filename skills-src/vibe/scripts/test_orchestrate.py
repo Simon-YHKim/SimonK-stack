@@ -1,6 +1,8 @@
 """Offline contract tests for the umbrella planner; no worker or Bot is launched."""
+import base64
 import copy
 import contextlib
+import hashlib
 import importlib.util
 import io
 import json
@@ -502,6 +504,88 @@ class OrchestrationTests(unittest.TestCase):
         bound.assert_called_once_with([], None)
         fallback.assert_not_called()
         self.assertEqual(json.loads(stream.getvalue()), inv["catalog"])
+
+    def test_receipt_bound_codex_overlay_accepts_only_verified_zoom_projection(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            script_root = base / "plugins/SimonKCore/skills/vibe/scripts"
+            owners = {
+                "vibe": "SimonKCore", "ai-helper": "SimonKAIHub",
+                "design-helper": "SimonKDesign", "market-helper": "SimonKMarket",
+                "zoom-out": "SimonKStack",
+            }
+            source_files = {}
+
+            def put(path, data):
+                target = base / path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(data)
+
+            script_path = "plugins/SimonKCore/skills/vibe/scripts/orchestrate.py"
+            source_files[script_path] = b"# fixture\n"
+            for owner in sorted(set(owners.values())):
+                names = sorted(name for name, home in owners.items() if home == owner)
+                source_files[f"plugins/{owner}/.claude-plugin/plugin.json"] = json.dumps(
+                    {"skills": [f"./skills/{name}/" for name in names]}
+                ).encode()
+                for name in names:
+                    body = f"---\nname: {name}\ndescription: Fixture\n---\nFixture\n".encode()
+                    if name == "zoom-out":
+                        body = body.replace(b"---\nFixture", b"disable-model-invocation: true\n---\nFixture")
+                    source_files[f"plugins/{owner}/skills/{name}/SKILL.md"] = body
+            for path, data in source_files.items():
+                put(path, data)
+            bundle = {"schema_version": 2, "scope": "five-plugin-candidate-safety-v2",
+                      "inputs": {"plugins": {owner: {} for owner in set(owners.values())}},
+                      "owners": owners,
+                      "files": [{"path": path, "sha256": hashlib.sha256(data).hexdigest(),
+                                 "size": len(data)} for path, data in sorted(source_files.items())]}
+            bundle_data = json.dumps(bundle).encode()
+            put("bundle.json", bundle_data)
+
+            zoom_path = "plugins/SimonKStack/skills/zoom-out/SKILL.md"
+            original_zoom = source_files[zoom_path]
+            projected_zoom = original_zoom.replace(b"disable-model-invocation: true\n", b"", 1)
+            generated = {zoom_path: projected_zoom,
+                         "plugins/SimonKStack/skills/zoom-out/agents/openai.yaml": (
+                             b"interface:\n  display_name: Zoom Out\n"
+                             b"  short_description: One-layer-up code map on explicit request.\n"
+                             b"policy:\n  allow_implicit_invocation: false\n")}
+            for owner in set(owners.values()):
+                generated[f"plugins/{owner}/.codex-plugin/plugin.json"] = b"{}\n"
+            for path, data in generated.items():
+                put(path, data)
+            overlay = {"schema_version": 2, "scope": "five-plugin-codex-compat-overlay-v2",
+                       "candidate_digest": hashlib.sha256(bundle_data).hexdigest(),
+                       "replacement_originals": {zoom_path: base64.b64encode(original_zoom).decode()},
+                       "generated": {path: {"sha256": hashlib.sha256(data).hexdigest(),
+                                            "size": len(data)} for path, data in generated.items()},
+                       "host_compatibility_verified": False, "installation_ready": False,
+                       "limitations": []}
+            put("overlay.json", json.dumps(overlay).encode())
+            with patch.object(self.m, "SCRIPT_ROOT", script_root):
+                found = self.m.candidate_inventory()
+                self.assertEqual(found["status"], "complete")
+                self.assertEqual(len(found["catalog"]), 5)
+                self.assertIn("overlay", found["catalog"].discovery)
+                put(zoom_path, projected_zoom + b"tamper")
+                with self.assertRaises(ValueError):
+                    self.m.candidate_inventory()
+                put(zoom_path, projected_zoom)
+                forged_zoom = projected_zoom + b"forged"
+                put(zoom_path, forged_zoom)
+                overlay["generated"][zoom_path] = {"sha256": hashlib.sha256(forged_zoom).hexdigest(),
+                                                   "size": len(forged_zoom)}
+                put("overlay.json", json.dumps(overlay).encode())
+                with self.assertRaises(ValueError):
+                    self.m.candidate_inventory()
+                put(zoom_path, projected_zoom)
+                overlay["generated"][zoom_path] = {"sha256": hashlib.sha256(projected_zoom).hexdigest(),
+                                                   "size": len(projected_zoom)}
+                overlay["replacement_originals"][zoom_path] = base64.b64encode(b"wrong").decode()
+                put("overlay.json", json.dumps(overlay).encode())
+                with self.assertRaises(ValueError):
+                    self.m.candidate_inventory()
 
     def test_coverage_compares_selected_install_not_a_matching_shadow(self):
         with tempfile.TemporaryDirectory() as tmp:

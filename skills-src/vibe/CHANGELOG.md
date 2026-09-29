@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.12.3 - 2026-09-29
+
+- Bind default catalog discovery in a Codex compatibility overlay to both
+  the original bundle and its exact manual-only `zoom-out` projection.
+- Reject altered overlay bytes or forged projection receipts without falling
+  back to a different skill root. This is offline discovery validation, not
+  host installation or model-routing certification.
+
 ## 2.12.2 - 2026-09-28
 
 - Fail closed when legacy plan quota checks are omitted; preserve quarantine of live preflight paths.
