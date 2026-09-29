@@ -3589,6 +3589,38 @@ Codex 게스트는 설정 홈 생성 전 PATH alias 경고로 중지했다. 두 
 catalog·D-code 게이트도 남아 있으므로 `host_behavior_verified=false`,
 `selection_quality_verified=false`, `installation_ready=false`를 유지한다.
 
+### `0a5c61e` GPT-6.1 Sol 새 후보와 격리 호스트 적재 (2026-09-30)
+
+기능 브랜치 `0a5c61e`에서 새 소스 패키지와 안전 5플러그인 후보를
+`E:/Coding Infra/Releases/SimonK-stack/20260930-gpt61-0a5c61e/`에 생성했다.
+원본 Core에 있던 Git 무시 모델 캐시 11개는 건드리지 않고, 현재 5개 원본의
+고정 HEAD를 새 로컬 복제본에 넣어 후보 입력으로 사용했다. 소스·Claude 후보·
+Codex 오버레이·안전 subset 영수증 SHA-256은 차례로
+`88ff1b35df00a171f2cb0b379adb59a2edf83bc04082114ff72b692adf5bce23`,
+`f4b32ffee723a7940ea7edd7ba0f510e790ecc1b289bb40e686b55aabf3e93d7`,
+`48578ce32f119b5fabdd0b1afc197a3551db1dd46a6677626c4effb19dc72d83`,
+`979381f5748573c384fe524f1376ac5dbc585b330e4581476246ff9e3575d882`다.
+독립 영수증 검증·격리 `/vibe` 4단계 smoke·정적 호스트 패리티가 통과했고,
+모델 레지스트리 SHA-256은 소스/Claude/Codex에서 동일했다(17모델,
+`gpt-6.1-sol` 포함). Claude 182스킬/Codex 177스킬 중 공통 176본문이
+바이트 동일, `zoom-out` 1개는 승인된 투영, 안전/종속 5개는 D-29대로 제외됐다.
+
+새 무인증·네트워크 차단 Windows Sandbox의 System 컨텍스트에서
+Claude Code 2.1.284 `--init-only`는 5플러그인·182스킬 발견, 종료 0,
+debug 오류와 API 요청 로그 각 0건이었다. Codex CLI 0.159.0은 별도 게스트에서
+5플러그인을 활성 등록하고 `SKILL.md` 177개를 캐시에 복사했다. 두 게스트 모두
+활성 네트워크 어댑터 0개였고 모델 생성을 호출하지 않았으며 정확한 ID로 종료했다.
+원시 JSON과 SHA-256, 보안 경계는 새 후보의 `report.html`에 있다. 정적 경로 감사는
+미해결/비이식 명령 0건이지만 Gstack 외부 런타임 힌트가 Claude 31스킬/646참조,
+Codex 30스킬/625참조로 남아 종료 1의 `external_runtime_pending`이다.
+
+이는 패키지 bytes·격리 호스트의 적재/등록만 증명한다. System 컨텍스트는
+실제 사용자 세션이 아니고, 자동 선택·스킬 명령 실행·효과적 model/effort·
+산출물 품질·구독 포함 과금·Gstack 전이 폐쇄는 미검증이다.
+`runtime_closure_verified=false`, `host_behavior_verified=false`,
+`selection_quality_verified=false`, `installation_ready=false`를 유지한다.
+기존 사용자 설치본·원본 플러그인·`main`·결제 설정은 변경하지 않았다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,

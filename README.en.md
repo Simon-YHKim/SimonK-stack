@@ -12,7 +12,7 @@
 
 **Problem**: AI coding assistants work in a different order every time you give them a large task, and they repeat the same mistakes.
 
-**Solution**: **141 skills in this branch's legacy source/development inventory** (`skills-src/` 137 + `.claude/skills/` 4), with **182 skills in the separately assembled five-plugin `281fc11` safety candidate** and **177 in its Codex general subset**. `/vibe` is the main coordinator and `simonk` supplies its sprint procedure (one owner → guarded work → verified results). [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (private) retains cross-session learning. These counts describe different inventories, not installed-user-profile parity.
+**Solution**: **141 skills in this branch's legacy source/development inventory** (`skills-src/` 137 + `.claude/skills/` 4), with **182 skills in the separately assembled five-plugin `0a5c61e` safety candidate** and **177 in its Codex general subset**. `/vibe` is the main coordinator and `simonk` supplies its sprint procedure (one owner → guarded work → verified results). [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (private) retains cross-session learning. These counts describe different inventories, not installed-user-profile parity.
 
 **Sprint v34 (2026-05-25)** — 5 external vendor integrations (user-level live clone + auto-update each session):
 - [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) · [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) · [OpenHarness](https://github.com/HKUDS/OpenHarness) — existing (sprint v22-EXT)
@@ -120,7 +120,7 @@ Offline tests use disposable profiles/clones, not the user's configuration:
 
 ## Install
 
-> The latest five-plugin `281fc11` safety candidate (`/vibe` 2.12.8, 182 Claude skills and 177 Codex general-subset skills) is **not installation-ready**: host-behavior, selection-quality and installation-readiness flags remain `false`, and no user profile or `main` promotion has occurred. Isolated Claude/Codex host loading passed, but automatic skill selection and result-quality parity are untested. The public commands below are not this candidate's test path. In particular, legacy `scripts/install.sh` may fetch remote plugins/Gstack and modify the user home; do not run it to evaluate the candidate. See [candidate verification and installation gates](docs/INSTALL.md).
+> The latest five-plugin `0a5c61e` safety candidate (`/vibe` 2.12.8, 182 Claude skills and 177 Codex general-subset skills) includes the official `gpt-6.1-sol` facts and an identical 17-model registry in both host packages. It is **not installation-ready**: host-behavior, selection-quality and installation-readiness flags remain `false`, and no user profile or `main` promotion has occurred. New isolated Claude/Codex host loading passed without model generation, but automatic skill selection and result-quality parity are untested. Its local `E:/Coding Infra/Releases/SimonK-stack/20260930-gpt61-0a5c61e/report.html` contains receipts and raw results. The public commands below are not this candidate's test path. In particular, legacy `scripts/install.sh` may fetch remote plugins/Gstack and modify the user home; do not run it to evaluate the candidate. See [candidate verification and installation gates](docs/INSTALL.md).
 
 ### Claude Code Web (easiest)
 1. Go to https://claude.ai/code → Open `Simon-YHKim/SimonK-stack` → Done
