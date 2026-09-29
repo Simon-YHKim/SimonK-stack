@@ -3062,6 +3062,30 @@ Sandbox 세션이 하나 실행 중이라 **새 게스트를 기동하지 않았
 계획 `ready`를 추가 과금 $0의 증거로 취급하지 않는다. 글로벌 설치본과
 활성 Claude·Codex 프로세스는 변경하지 않았다.
 
+### Gstack 격리 게스트의 안전 분기·프리앰블 실측 (2026-09-30)
+
+기존 v27 준비물의 별도 Windows Sandbox를 기동했다. `Networking`, 클립보드와
+장치 리디렉션은 WSB에서 껐고, 고정 원본 `65bfb0ce49da807698359ca033a05709e342c684`,
+Git Bash·Bun은 읽기 전용으로 매핑했다. 새 게스트 안에서 원본 커밋·clean 상태와
+실행 파일 SHA-256을 다시 검사한 뒤, 텔레메트리·업데이트·아티팩트 동기화
+OFF인 새 임시 상태로 6개 helper의 읽기/비활성 분기 8회를 실행했다. 결과는
+8/8 종료 0·기대 출력 일치, 활성 네트워크 어댑터 0, 자격증명 환경변수 0,
+상태 파일은 예상된 `config.yaml`·테스트 학습 파일 2개뿐이었다. 결과 파일은
+`E:/Coding Infra/Releases/SimonK-stack/20260929-v27-gstack-runtime-sandbox/output/result.json`
+(SHA-256 `35309de4c6d8f6978db6ff6cc4e3035439662a7c02cf794521f902fd96e148a2`)이다.
+
+별도 새 Sandbox에서 동일 고정 원본의 `gstack-skill-start`를 `spawned` 세션으로
+한 번 기동했다. 프로토콜 1·`SESSION_KIND: spawned`·동기화/텔레메트리/업데이트
+OFF가 출력됐고, 대화형 동의·업그레이드 블록, 텔레메트리 사용 로그 및 동기화
+큐는 없었다. 게스트 상태에는 설정·타임라인·세션 파일만 생성됐다. 결과는
+`E:/Coding Infra/Releases/SimonK-stack/20260930-gstack-preamble-sandbox/output/result.json`
+(SHA-256 `c3880e4e1afdc2f21da706585fd10933cd21e9467e934d4d5e8f22c841965453`)이다.
+두 게스트는 결과 보존 후 종료했고 고정 원본·소스 브랜치·사용자 홈 설치본은
+변경하지 않았다. 게스트 자가 보고와 WSB 설정은 호스트 패킷 계측이나
+운영 설치 실행의 증거가 아니다. 파일 쓰기·동기화·업그레이드 경로, 전체
+31개 Gstack 참조 스킬, Claude/Codex 실호스트 동작은 여전히 미검증이며
+`runtime_closure_verified=false`, `installation_ready=false`다.
+
 ### v28 AIHub 제품 모델 선택 교정 후보 (2026-09-29)
 
 `distribution/plugin-inputs.v1.json`의 SimonKAIHub 핀을 별도 기능 브랜치
