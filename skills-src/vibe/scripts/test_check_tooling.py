@@ -10,6 +10,7 @@ from unittest import mock
 
 
 SCRIPT = Path(__file__).with_name("check_tooling.py")
+ROUTING = SCRIPT.with_name("routing.py")
 
 
 class CodexPathChecks(unittest.TestCase):
@@ -97,6 +98,15 @@ class CodexPathChecks(unittest.TestCase):
                         exit_code = self.module.report_local_codex()
         self.assertEqual(exit_code, 1)
         self.assertEqual(json.loads(output.getvalue())["state"], "뒤처짐")
+
+    def test_legacy_g11_points_to_side_effect_minimal_local_probe(self):
+        spec = importlib.util.spec_from_file_location("vibe_routing_for_g11", ROUTING)
+        routing = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(routing)
+        guard = next(description for guard_id, description, _ in routing.GUARDS
+                     if guard_id == "G11")
+        self.assertIn("`python -B scripts/check_tooling.py --local-codex`", guard)
+        self.assertNotIn("`python scripts/check_tooling.py`", guard)
 
 
 if __name__ == "__main__":

@@ -98,7 +98,7 @@ are relative to the `/vibe` skill root.
 | G8 | 쓰기 라운드 전 검증된 종료 절차가 필요하다. legacy `kill_worker.py --kill --fence`는 handle/dispatch 결속 미검증으로 사용 금지이며 raw `worker-stop`도 차단된다. 별도 승인·정확한 대상 검증 없이 종료하거나 재발주하지 않는다 | — (오검출 방지) |
 | G9 | Move-Item 배치는 매니페스트 + 역방향 스크립트 선행 | — (오검출 방지) |
 | G10 | 적대적 평가에서 채점자는 두 생산자와 **벤더가 달라야** 한다. 벤더 3개를 못 채우면 그 문제는 건너뛴다 — 자기 벤더가 자기 답을 채점하느니 관측을 포기한다 (`adversarial_eval.py`) | — (오검출 방지) |
-| G11 | 디스패치 전에 툴체인 최신화를 확인한다 — codex 가 한 버전만 뒤처져도 `Agent startup blocked: codex-update-prompt` 로 **전 워커가 안 뜨는데 에러가 프롬프트 문제처럼 보인다** (2026-09-12 실사고). `python scripts/check_tooling.py` | — (오검출 방지) |
+| G11 | Codex 워커 기동 전에 PATH 실행본과 인접 npm 패키지를 로컬에서 비교한다. `python -B scripts/check_tooling.py --local-codex` (종료 0만 진행, 1=뒤처짐, 2=미확인). 전체 도구 보고서는 npm 원격·Orca 조회가 있어 이 게이트를 대체하지 못한다 | — (오검출 방지) |
 | G12 | 쿼터·metadata는 생성 성공이나 무료 사용 증거가 아니다. legacy `adversarial_eval.py --preflight` 실호출은 차단됐다. 실측도 중앙 계획·예산 예약·fresh 계정/비용 증명 뒤에만 가능하다. 과거 Grok HOLD는 영구 금지가 아니며 복구 시에도 최신 쿼터·선택 모델의 구독 포함·초과 과금 차단을 다시 확인한다 | — (오검출 방지) |
 | G13 | 재시도·대체도 중앙 planner/Store/guarded adapter를 거친다. 수락 불명은 lookup-only이며 raw `worker-start --retry-of`로 우회하지 않는다 | — (오검출 방지) |
 | G14 | 결정 시트(`make_decision_sheet.py`)를 만들지 않은 라운드는 **끝난 것으로 치지 않는다** — 손으로 조립한 시트는 `decisions_run_*.json` 을 내지 않아 채택률이 비고 스왑 규칙이 돌지 않는다 (D-28 #15) | — (오검출 방지) |

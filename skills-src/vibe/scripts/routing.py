@@ -428,10 +428,10 @@ GUARDS = [
     ("G10", "적대적 평가에서 채점자는 두 생산자와 **벤더가 달라야** 한다. "
             "벤더 3개를 못 채우면 그 문제는 건너뛴다 — 자기 벤더가 자기 답을 "
             "채점하느니 관측을 포기한다 (`adversarial_eval.py`)", False),
-    ("G11", "디스패치 전에 툴체인 최신화를 확인한다 — codex 가 한 버전만 뒤처져도 "
-            "`Agent startup blocked: codex-update-prompt` 로 **전 워커가 안 뜨는데 "
-            "에러가 프롬프트 문제처럼 보인다** (2026-09-12 실사고). "
-            "`python scripts/check_tooling.py`", False),
+    ("G11", "Codex 워커 기동 전에 PATH 실행본과 인접 npm 패키지를 로컬에서 비교한다. "
+            "`python -B scripts/check_tooling.py --local-codex` (종료 0만 진행, "
+            "1=뒤처짐, 2=미확인). 전체 도구 보고서는 npm 원격·Orca 조회가 있어 "
+            "이 게이트를 대체하지 못한다", False),
     ("G12", "쿼터·metadata는 생성 성공이나 무료 사용 증거가 아니다. legacy "
             "`adversarial_eval.py --preflight` 실호출은 차단됐다. 실측도 중앙 계획·예산 예약·"
             "fresh 계정/비용 증명 뒤에만 가능하다. 과거 Grok HOLD는 영구 금지가 아니며 "
