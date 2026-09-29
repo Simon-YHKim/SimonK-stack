@@ -1,6 +1,6 @@
 {
   "skill": "building-native-ui",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "cases": [
     {
       "id": "korean-flashlist-migration",
@@ -8,15 +8,15 @@
       "assertions": [
         {
           "id": "flashlist-v2",
-          "text": "Migrates the list to FlashList v2 and removes estimatedItemSize (v2 auto-measures)"
+          "text": "Checks the installed RN architecture and list version, measures the scroll problem, then migrates to FlashList v2 if compatible; removes estimatedItemSize only for v2."
         },
         {
           "id": "new-arch-required",
-          "text": "Notes that FlashList v2 requires New Architecture (newArchEnabled: true)"
+          "text": "Notes that FlashList v2 requires New Architecture; does not silently change the app architecture or migrate unrelated lists."
         },
         {
           "id": "expo-image-recyclingkey",
-          "text": "Uses expo-image with recyclingKey for list thumbnails to avoid ghosting"
+          "text": "If recycled thumbnails visibly show stale images, considers expo-image recyclingKey without replacing every RN Image by default."
         }
       ]
     },
@@ -26,11 +26,11 @@
       "assertions": [
         {
           "id": "package-exports-flag",
-          "text": "Sets config.resolver.unstable_enablePackageExports = false in metro.config.js"
+          "text": "Diagnoses the actual package/import path first; uses a narrow package export fix when possible and treats disabling Metro package exports globally as a measured fallback, not the default."
         },
         {
           "id": "local-export-precheck",
-          "text": "Recommends verifying locally with npx expo export before burning EAS credits"
+          "text": "Verifies the Android bundle locally before considering EAS, and does not start a cloud build without quota and overage evidence."
         }
       ]
     },
@@ -40,16 +40,54 @@
       "assertions": [
         {
           "id": "worklets-plugin",
-          "text": "Uses react-native-worklets/plugin (not reanimated/plugin) placed last in babel.config.js"
+          "text": "Checks installed Reanimated/Worklets compatibility; in Expo avoids duplicate manual Babel plugin setup, while RN CLI manual setup uses the matching Worklets plugin."
         },
         {
           "id": "scheduleonrn-api",
-          "text": "Uses the R4 scheduleOnRN API instead of runOnJS for the JS-thread callback"
+          "text": "For a confirmed Reanimated 4 project, uses the current Worklets scheduleOnRN API for a JS-thread callback without claiming older code always breaks."
         },
         {
           "id": "smooth-easing",
-          "text": "Uses withTiming/withSpring smooth easing and avoids bounce/elastic easing"
+          "text": "Uses smooth, reduced-motion-aware animation and avoids bounce/elastic effects for this product."
         }
+      ]
+    },
+    {
+      "id": "trigger-ko-1",
+      "prompt": "React Native 만들어",
+      "assertions": [
+        { "id": "native-intent", "text": "Treats this as a React Native implementation request, not a web React or platform-comparison task; inspects the project before choosing Expo or modules." }
+      ]
+    },
+    {
+      "id": "trigger-slash",
+      "prompt": "/building-native-ui",
+      "assertions": [
+        { "id": "explicit-invocation", "text": "Recognizes the explicit building-native-ui skill invocation; asks for the target app only if no repository or task context is available." }
+      ]
+    },
+    {
+      "id": "trigger-en-1",
+      "prompt": "react native",
+      "assertions": [
+        { "id": "native-context", "text": "Recognizes native mobile context without assuming a particular Expo SDK, navigation library or backend." }
+      ]
+    },
+    {
+      "id": "new-expo-camera-screen",
+      "prompt": "새 Expo 앱에 카메라 화면과 라우팅을 만들어줘. Expo Go에서 되지 않는 네이티브 기능도 필요해.",
+      "assertions": [
+        { "id": "router-conditional", "text": "For a new Expo app, selects Expo Router with compatible dependencies and verifies its entry point and route paths." },
+        { "id": "native-build-permissions", "text": "Checks camera permission/config-plugin requirements and uses a development build for features unavailable in Expo Go; does not submit to a store." }
+      ]
+    },
+    {
+      "id": "android-apk-without-store-submission",
+      "prompt": "Build and verify an Android APK for my existing React Native app. I am on Windows and have not approved any store submission or paid cloud build.",
+      "assertions": [
+        { "id": "existing-rn-path", "text": "Preserves the existing React Native app and uses the available Android Studio/Gradle or compatible local Expo build path without an unsupported Windows EAS local-build assumption." },
+        { "id": "apk-evidence", "text": "Distinguishes APK from AAB, reports the actual APK path and install result, and marks iOS as unverified unless independently tested." },
+        { "id": "store-and-cost-gate", "text": "Does not invoke EAS cloud build, EAS Submit, auto-submit, store publication or paid/overage use without separate authorization and verified zero-extra-spend conditions." }
       ]
     }
   ]
