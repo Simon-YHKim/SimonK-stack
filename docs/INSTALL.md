@@ -2813,6 +2813,38 @@ SKILL.md 바이트**만 비교하며 Claude/Codex의 활성화, 네이티브 플
 후보 영수증도 다시 통과했다. 이는 파일·오프라인 fixture 보존이지
 실제 Grok Bot 계정·Relay 전달·화면 작업의 성공 증거는 아니다.
 
+## v25 Codex 오버레이 기본 catalog 수정 후보 (2026-09-29)
+
+기능 브랜치의 `/vibe` 2.12.3 (`872b4c9`)는 Codex 오버레이가
+`zoom-out/SKILL.md`를 수동 호출 전용으로 투영하는 정확한 바이트 변경을
+원본 번들·오버레이 영수증 양쪽에 묶어 확인한다. 기존 기본 catalog는
+원본 해시만 읽어 정상 오버레이도 거부했다. 새 검사는 변조 파일뿐 아니라
+투영 파일과 영수증을 함께 재작성한 경우도 거부하도록 회귀 검사를 포함한다.
+기존 v24 후보와 설치본은 변경하지 않았다.
+
+새 후보는 `E:/Coding Infra/Releases/SimonK-stack/20260929-v25-overlay-catalog/`에
+보존한다. 다섯 원본 플러그인 입력 커밋은 v24와 같고, 소스 소유 `/vibe`
+변경만 반영했다.
+
+| 산출물 | 전체 영수증 SHA-256 | 결과 |
+|---|---|---|
+| `source-v25` | `72c43589dd569c7c5c81ad133fc6c1c0d0fb2929d66031e23ec6b6fb2dbd4238` | 137스킬·411파일, verify 0 |
+| `candidate-safety-v25` | `d30d0f7e2853a6a0caf39e46c30baaeea42b6014c02718613a2a7df04a9ec434` | 5플러그인·182스킬·740파일, verify 0 |
+| `codex-overlay-v25` | `cd3691dfa149bdde943d9fa7ab0909f2057bf4d3a088caa7d9187a8c8f57b6a8` | Codex 호환 오버레이, verify 0 |
+
+안전 후보와 Codex 오버레이의 **기본** `/vibe catalog`가 각각 종료 0,
+182개 이름을 반환했다. 포장된 `/vibe` 단위 검사 222/222, 소스 전체
+단위 검사 334건 중 331통과·3건너뜀·실패 0, 스킬 validator 오류·경고
+0이었다. Claude 후보의 다섯 플러그인 check-only 프리뷰도 모델 호출 없이
+통과했다. 정적 경로 감사에서는 로컬 누락·이식 불가 명령 0건이지만
+Gstack 외부 런타임 31스킬·646참조·9대상으로
+`external_runtime_pending`(종료 1)이 유지된다. Windows Sandbox의
+v25 초기화·실제 호스트 선택·모델 라우팅·Bot/Orca 실행은 시험하지
+않았다. `runtime_closure_verified`, `host_compatibility_verified`,
+`installation_ready`는 계속 `false`다. 추가 과금·모델 실호출·사용자 설치·
+`main` 머지는 없었다. 자세한 범위와 재현 결과는 같은 폴더의
+`report.html`을 본다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
