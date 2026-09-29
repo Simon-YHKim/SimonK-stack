@@ -137,6 +137,7 @@ Office     & Design               & Platform & Compl.   & Revenue  & Memory   De
 |---|---|
 | `/deploy-configurator` | 배포 플랫폼 선택 + CI/CD + custom domain + env 관리 |
 | `/app-platform-selector` | 기존 코드·기기 기능·비용 조건에 맞춰 PWA/Hybrid/Native를 비교합니다. Apple 심사 결과를 보장하지 않고 최신 공식 §4.2와 실제 앱 가치를 확인합니다. |
+| `/db-selector` | 기존 DB·마이그레이션과 사용량을 먼저 확인하고 공식 가격·무료 한도·초과 과금 조건으로 DB 후보를 비교합니다. 사용자 수만으로 비용을 확정하지 않습니다. |
 | `/setup-deploy` (gstack) | `/land-and-deploy` 용 deploy 설정을 CLAUDE.md 에 박음 |
 | `/land-and-deploy` (gstack) | 머지 → CI 대기 → 프로덕션 canary 검증 |
 | `/ship` (gstack) | VERSION + CHANGELOG + push + PR 한 흐름 |
