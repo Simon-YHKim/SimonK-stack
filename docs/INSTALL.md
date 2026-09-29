@@ -2949,6 +2949,25 @@ v25 하네스에서 v26 bundle 영수증과 매핑 경로만 교체했으며 Pow
 `output/result.json`은 없고 새 게스트를 시작하지 않았으므로 v26 호스트
 초기화·스킬 발견은 여전히 미검증이다. 기존 Sandbox 세션도 종료하지 않았다.
 
+### 최신 독립 Gstack 소스 재감사 (2026-09-29)
+
+사용자 홈의 Gstack 설치본을 읽거나 변경하지 않고, 별도 독립 복제본에서
+upstream `65bfb0ce49da807698359ca033a05709e342c684`(v1.91.6.0)을
+고정해 `gstack_source_inventory.py`로 재감사했다. 이전 고정 버전
+`01593aa67c94780528e8f5121e47362502410ced`와 비교할 때 `bin/`,
+`lib/`, `setup/`에는 차이가 없었다. 최신 원본의 tree OID는
+`15d6c6af3e09b5de60d311b04c94ff1b917dddcd`, 2,830개 Git blob의
+원시 영수증 SHA-256은
+`05bf0be403437e06d4fdfe9d8f2d18a382858b6ed5ea1e15e6554f631fa76e47`다.
+`connect-chrome`은 여전히 mode `120000`인 심볼릭 링크 1개여서 결과는
+`unsupported_git_modes`(종료 1)이다. 전체 원본을 현재 링크 금지 계약에
+그대로 넣을 수 없고, 전이 helper 폐쇄·호스트 호환도 미검증이다.
+
+처음 만든 Git worktree는 감사 도구가 Gitfile 기반 linked worktree를
+의도적으로 거부해 실패했다. 이어 일반 독립 복제본에서 재실행해 위와
+같은 구체적 판정을 얻었다. 이 재감사는 Gstack 설치, 사용자 프로필 변경,
+모델 호출, 추가 크레딧 소비 또는 v26 설치 준비 승인을 뜻하지 않는다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,

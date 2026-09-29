@@ -10,7 +10,7 @@
 
 ## 설치 / Install
 
-> 현재 작업 브랜치의 v25 안전 후보(5플러그인·182스킬)와 Codex 일반 subset(177스킬)은 설치 준비 플래그가 여전히 `false`이며 사용자 프로필·`main`으로 승격되지 않았습니다. 아래 공개 설치 명령은 **v25 후보 시험 절차가 아닙니다**. 특히 레거시 `scripts/install.sh`는 원격 플러그인/Gstack 조회와 사용자 홈 변경 경로가 있으므로 후보를 시험하려고 실행하지 마세요. 격리 후보와 검증 범위는 [설치·후보 검증 절차](docs/INSTALL.md)를 확인하세요.
+> 현재 작업 브랜치의 v26 안전 후보(5플러그인·182스킬)와 Codex 일반 subset(177스킬)은 설치 준비 플래그가 여전히 `false`이며 사용자 프로필·`main`으로 승격되지 않았습니다. 아래 공개 설치 명령은 **v26 후보 시험 절차가 아닙니다**. 특히 레거시 `scripts/install.sh`는 원격 플러그인/Gstack 조회와 사용자 홈 변경 경로가 있으므로 후보를 시험하려고 실행하지 마세요. 격리 후보와 검증 범위는 [설치·후보 검증 절차](docs/INSTALL.md)를 확인하세요.
 
 Claude Code 마켓플레이스에서 바로 설치 (Install directly from the Claude Code marketplace):
 
@@ -49,9 +49,9 @@ Codex의 [공식 설정 참조](https://learn.chatgpt.com/docs/config-file/confi
 
 분리 플러그인 후보의 명시적 로컬 파일 참조는 [설치·후보 검증 절차](docs/INSTALL.md#후보-경로-경고-분류-2026-09-27)의 정적 경로 검사로 재현할 수 있습니다. 경로 검사 통과만으로 설치·런타임 준비를 주장하지 않습니다.
 
-현재 `/vibe` 소스 2.12.3의 최신 격리 후보는 `E:/Coding Infra/Releases/SimonK-stack/20260929-v25-overlay-catalog/`입니다. [v25 검증 기록](docs/INSTALL.md#v25-codex-오버레이-기본-catalog-수정-후보-2026-09-29)에서 안전 후보와 Codex 오버레이의 기본 catalog 182개를 확인했고, [Codex 일반 subset 기록](docs/INSTALL.md#v25-codex-일반-subset-격리-설치철회-검증-2026-09-29)에서 177스킬·723파일의 격리 복사·철회를 확인했습니다. 이전 [v23 검증 기록](docs/INSTALL.md#v23-claude-sonnet-55-공개-사실-갱신-후보-2026-09-29)의 격리 Claude 초기화 및 Max 구독 대화형 Sonnet 5.5·명시적 Skill 로딩은 **v23에 한정된 증거**입니다. Gstack 전이 런타임과 실제 사용자 호스트 검증이 남아 세 설치 준비 플래그는 모두 `false`입니다. 사용자 설치본과 `main`은 바꾸지 않았습니다.
+현재 `/vibe` 소스 2.12.4의 최신 격리 후보는 `E:/Coding Infra/Releases/SimonK-stack/20260929-v26-credit-fallback/`입니다. [v26 검증 기록](docs/INSTALL.md#v26-구독-크레딧-폴백-경계-2026-09-29)에서 안전 후보와 Codex 오버레이의 기본 catalog 182개, 별도 Codex 일반 subset 177개를 확인했습니다. 177스킬·723파일의 격리 복사·철회는 [v25 검증 기록](docs/INSTALL.md#v25-codex-일반-subset-격리-설치철회-검증-2026-09-29)에 한정됩니다. 이전 [v23 검증 기록](docs/INSTALL.md#v23-claude-sonnet-55-공개-사실-갱신-후보-2026-09-29)의 격리 Claude 초기화 및 Max 구독 대화형 Sonnet 5.5·명시적 Skill 로딩 역시 **v23에 한정된 증거**입니다. Gstack 전이 런타임과 v26 실제 호스트 검증이 남아 세 설치 준비 플래그는 모두 `false`입니다. 사용자 설치본과 `main`은 바꾸지 않았습니다.
 
-v23에서는 Claude Code 2.1.284로 호스트 실행 파일이 바뀐 뒤에도 별도 격리 게스트의 초기화·736파일 설치를 재검증했고, Claude/Codex 합성 기존 프로필에서는 다른 테스트 플러그인·개인 스킬이 보존됐습니다. 이는 v25 호스트 시험이나 실제 사용자 프로필의 무손실 이관·운영 설치 준비를 뜻하지는 않습니다.
+v23에서는 Claude Code 2.1.284로 호스트 실행 파일이 바뀐 뒤에도 별도 격리 게스트의 초기화·736파일 설치를 재검증했고, Claude/Codex 합성 기존 프로필에서는 다른 테스트 플러그인·개인 스킬이 보존됐습니다. 이는 v26 호스트 시험이나 실제 사용자 프로필의 무손실 이관·운영 설치 준비를 뜻하지는 않습니다.
 
 이전 `/vibe` 2.12.1 격리 후보는 `E:/Coding Infra/Releases/SimonK-stack/20260928-v20-model-facts/`입니다. [v20 검증 기록](docs/INSTALL.md#v20-모델-근거-및-격리-설치-리허설-2026-09-28)에는 공식 모델 근거 갱신, Claude·Codex 무인증 Sandbox의 5플러그인 설치·철회와 734/740파일 해시 일치, Claude `--init-only`의 5플러그인·182스킬 로딩, 고정 Gstack 시작 절차 55개 분리 시험이 있습니다. 별도 [Gstack 격리 설치 기록](docs/INSTALL.md#고정-gstack의-격리된-프로젝트-로컬-설치)은 공개 의존성을 받은 새 게스트에서 Gstack 단독 Claude 프로젝트 로컬 엔트리 57/57과 일반 실행 파일 생성을 확인했습니다(Playwright bootstrap·CSO 제외). 모두 빈 게스트의 제한 검증입니다. Gstack helper를 직접 참조하는 31개 스킬의 전이 실행 의존성과 기존 사용자 프로필 호환성은 남아 있고, 정적 감사의 직접 참조 646곳·고유 대상 9개는 런타임 폐쇄를 뜻하지 않습니다. 사용자 설치본은 이 후보로 전환하지 않았으며, 패키지·Sandbox 테스트는 모델·Bot·Orca 실호출이나 구독 과금 안전성의 증거가 아닙니다. 특히 Claude Fable의 비대화형 호출은 사용량 크레딧을 동의창 없이 청구할 수 있으므로, 정확한 모델·계정 경로의 구독 포함과 초과 과금 차단 증거가 없으면 실행하지 않습니다.
 
