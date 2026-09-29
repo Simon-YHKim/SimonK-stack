@@ -2931,6 +2931,17 @@ SKILL·CHANGELOG·오케스트레이션 참조 3개와 다섯 플러그인의 �
 `installation_ready`는 모두 `false`다. 사용자 설치·`main` 머지·
 모델/API/Bot/Orca 실호출·결제 설정 변경은 없었다.
 
+2026-09-29 **v26 Codex 일반 subset**: 고정 v26 오버레이에서
+`codex-general-subset-v26`을 별도 생성했다. 전체 영수증 SHA-256은
+`422602c31c11a68d02cd442c00ee2a0841e04d63cfd49df0bf6fe3ceec7d0b46`이며,
+원본 오버레이와 함께 `source_provenance_verified=true`·종료 0으로
+독립 검증했다. 명시적 다섯 스킬 루트 inventory는 177레코드·문제 0,
+`vibe` 1개·제외 안전 스킬 0개다. 이 subset의 실제 Codex 호스트 등록,
+스킬 선택·정책 훅·사용자 프로필 호환은 시험하지 않았다. 출처
+`bundle.json`이 182개를 선언하므로 subset 기본 catalog 성공을
+주장하지 않는다. 설치 준비 플래그는 false이고 기존 v25 subset 및
+사용자 프로필은 보존했다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
