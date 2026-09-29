@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-30 05:01:20 KST
+updated: 2026-09-30 05:15:01 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
+
+- 2026-09-30 05:15:01 KST: src: user — Claude/Codex SimonKStack performance-degradation prevention follow-up. Feature `4a33d3e` adds symmetric four-profile fixture regression for task effort/quality/subscription guards; source `/vibe` 231/231 and clean Claude/Codex packaged `/vibe` 231/231 each pass. Feature docs `ecb9b62` pushed/clean. New preserved clean candidate `E:/Coding Infra/Releases/SimonK-stack/20260930-parity-clean-4a33d3e/`: four receipts independently reverified after tests, Claude catalog182/Codex177, 176 shared SKILL bodies byte-identical + approved `zoom-out` projection1, model-registry SHA equal, no unreceipted `.pyc`. An initial candidate gained six unreceipted pycache files from test-spawned Python and is retained but excluded; the clean candidate tests inherited `PYTHONDONTWRITEBYTECODE=1`. Public Google/xAI/OpenAI/Anthropic model facts checked; no unverified X post or API benchmark became automatic rank. No model/API/Bot calls or user-profile installation. New candidate host loading and true output-quality parity remain unmeasured; Claude-owned task-fit D-code, subscription safety and Gstack closure still gate installation/main merge.
 
 - 2026-09-30 05:01:20 KST: src: user — `39c3ca3` Claude/Codex parity candidate on isolated local host profiles. Feature docs `58b7ef7` pushed/clean. Claude Code 2.1.285 `--init-only` loaded five plugins/182 skills, exit0, debug errors0, API request lines0; user `.claude.json` hash unchanged. Codex CLI 0.159.0 installed five plugins/177 skills into a new CODEX_HOME; cached files 725/725 relative path+SHA match candidate, cached `/vibe` explicit five-root inventory complete 177/177/issues0, real user config/auth hashes unchanged. No auth copied or model generated. Candidate receipts independently reverified after tests. A separate network-disabled Windows Sandbox boot had a white screen and no output for >5 min; exact test instance terminated, so no OS-level isolation claim for this candidate. Source `/vibe` and `/vibe-bot` validators 0 errors/0 warnings. Standalone HTML/INSTALL clarify remaining automatic-selection, task-fit, Gstack, billing and actual user-install gates; readiness remains false. No paid calls, payment changes, actual user install or main merge.
 
