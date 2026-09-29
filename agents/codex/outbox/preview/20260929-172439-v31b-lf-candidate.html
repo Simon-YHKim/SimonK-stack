@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SimonK-stack v31b 격리 후보 검증</title>
+<style>
+:root{color-scheme:light dark;--accent:#3766b2;--text:#17212e;--muted:#566374;background:#f5f7fa;color:var(--text)}
+@media(prefers-color-scheme:dark){:root{--accent:#85b0fa;--text:#edf2f9;--muted:#a4b0bf;background:#10151d}}
+*{box-sizing:border-box}body{font:16px/1.6 system-ui,sans-serif;max-width:920px;margin:auto;padding:2rem 1.2rem}h1{font-size:clamp(1.5rem,4vw,2.25rem);line-height:1.2}h2{font-size:1.2rem}.muted{color:var(--muted)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.8rem;margin:1.5rem 0}.card,details{border:1px solid var(--muted);border-radius:.6rem;padding:1rem}.card strong{display:block;font-size:1.2rem;color:var(--accent)}.card span{color:var(--muted)}details{margin:.8rem 0}summary{cursor:pointer;font-weight:650}summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}code{overflow-wrap:anywhere}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid var(--muted);padding:.45rem;text-align:left}footer{margin-top:2rem;color:var(--muted);font-size:.9rem}
+</style>
+</head>
+<body><main>
+<p class="muted">SimonK-stack · feat/skill-context-budget-260925 @ 2039a4c · 2026-09-29 17:24:39 KST</p>
+<h1>v31b 격리 후보는 검증됐지만 설치 준비는 미완료</h1>
+<p>Antigravity CLI 1.2.13의 메타데이터 전용 조회 변경을 기존 5개 플러그인에 다시 포장했다. LF 줄바꿈을 고정한 입력 복제본으로 영수증과 오프라인 스모크를 검증했다. 운영 설치본·v30·원본 브랜치는 변경하지 않았다.</p>
+<div class="cards" aria-label="핵심 지표">
+<div class="card"><strong>5 / 182 / 741</strong><span>플러그인 / 스킬 / 파일</span></div>
+<div class="card"><strong>Core 5파일</strong><span>v30 대비 실제 콘텐츠 변경</span></div>
+<div class="card"><strong>4/4</strong><span>격리 후보 스모크 단계</span></div>
+<div class="card"><strong>false</strong><span>installation_ready</span></div>
+</div>
+<details><summary>후보와 검증 영수증</summary><table><thead><tr><th>산출물</th><th>SHA-256 영수증</th></tr></thead><tbody>
+<tr><td>source-v31 · 137스킬/412파일</td><td><code>a87dcc03cf4cb43c19bcc2df336f2707daa51477d8f4edeb2b89409da1577dba</code></td></tr>
+<tr><td>candidate-safety-v31b · 5플러그인/182스킬/741파일</td><td><code>9de4c02d0c2cf0e7df9b6e46abdb41d1bae00977864f096df6136364b3647822</code></td></tr>
+<tr><td>codex-overlay-v31b</td><td><code>185150bb336814b8dfd0a58d9cdd973ef501f062f01f678681f229a5903dba3e</code></td></tr>
+<tr><td>codex-general-subset-v31b · 177스킬</td><td><code>b15cff31810e1dfbfda4bf933780dab1a3bf068d7df4b19d7d063432d1410884</code></td></tr>
+</tbody></table><p>각 산출물의 자체 검증 명령은 종료 0이었다. Subset 검증의 <code>source_provenance_verified=false</code>는 별도 미해결 범위이며 원본 출처 전체를 인증했다고 해석하지 않는다.</p></details>
+<details><summary>실제 변경과 폐기 후보</summary><p>v30→v31b에서 Core의 <code>vibe/CHANGELOG.md</code>, <code>SKILL.md</code>, <code>references/orchestration.md</code>, <code>scripts/runtime_collect.py</code>, <code>scripts/test_runtime_collect.py</code>만 실제 콘텐츠가 달라졌다. 다른 네 플러그인의 실제 콘텐츠 변경은 0건이다. 다섯 플러그인의 생성 manifest는 공통 소스 지문 때문에 각각 2개씩 변경됐다.</p><p>첫 v31 후보는 Windows 자동 줄바꿈 변환으로 원본 텍스트 파일 다수에 의도치 않은 CRLF 차이가 생겨 폐기 판정했다. 그 후보는 설치·머지하지 않는다. 정리 명령이 정책에서 거부돼 첫 v31 임시 산출물은 보존 중이며 삭제는 일어나지 않았다.</p></details>
+<details><summary>오프라인 테스트와 남은 게이트</summary><p>영수증 검증 후 폐기 가능한 복사본에서 <code>vibe-selftest</code>, <code>vibe-runtime-unit</code>, <code>vibe-prepare-unit</code>, <code>vibe-table-sync</code> 모두 종료 0. Claude CLI strict manifest 5/5는 오류·경고 0, Codex plugin validator는 일반 subset 5/5에서 종료 0이었다. 소스 전체 회귀는 356건 중 353통과·3건너뜀·실패 0, vibe 소스 단위 222/222, selftest 180/180이다.</p><p>플러그인별 버전 D-code, Gstack/Orca 런타임 폐쇄, 호스트 설치 전환 검증이 남았다. <code>installation_ready</code>, <code>runtime_closure_verified</code>, <code>host_compatibility_verified</code>는 모두 false. 모델·Bot·Orca 실호출, 유료 API 호출, 결제 설정 변경은 하지 않았다.</p></details>
+</main><footer>v31b는 격리된 검증 후보이며 운영 배포 또는 사용자 프로필 설치를 승인하는 문서가 아니다.</footer></body></html>
