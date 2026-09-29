@@ -23,6 +23,7 @@
 - **`/vibe` 2.11.16 progressive disclosure** — moved the generated historical Orca lane table into a directly linked reference and retargeted its drift checker. Normal skill loading omits the legacy table; the generator, safety guards and frontier runtime routing are unchanged. This does not reduce the initial five-plugin description footprint or prove model/host behavior.
 
 ### Fixed
+- **`ship` 1.0.1 출시·과금·호스트 경계 교정** — 원본의 최신 재검증·추가 과금 $0 평가 사례를 보존하고, 자동 base 머지·모든 미커밋 파일 포함·유료 judge 필수 실행·Codex/Claude 무료 단정·무조건 push/PR·`git add -A` 문서 동기화를 사용자/저장소 권한과 구독 포함 증거에 종속시켰다. Claude 도구명을 Codex 호스트 기능에 대응시키되 동일 출시 게이트를 유지하는 사례를 추가하고 장문 참고문서에 목차를 넣었다. 정적 평가·저장소 회귀만 수행하며 실제 모델 행동, 유료 평가, 배포, 사용자 설치, 양 호스트 성능 동등성을 인증하지 않는다.
 - **`security-checklist` 1.0.1 보안 판단 교정** — 원본의 사용자/IP 제한·3계층 예산 누락 사례를 소스 평가에 복원하고, RLS 정책 존재와 활성화의 혼동, 행 정책의 열 보호 오인, 모든 TossPayments 웹훅 서명 가정, OpenAI soft budget을 hard cap으로 간주한 지침을 바로잡았다. SQL 예시는 운영 변형 실행을 금지하고 권한별 결과를 구분한다. 평가는 스키마 dry-run이며 운영 DB·실결제·유료 API·모델 행동 검증은 아니다.
 - **`paid-api-guard` 1.0.1 유료 API 감사·비용 경계 교정** — 원본의 Twilio SMS 유출 의심/비용 폭증 감사 사례를 소스 평가에 복원하고, Stripe 공개 키 `pk_` 오탐, 처리 전 웹훅 완료 표시, 브라우저 HMAC·BFF·고정 비율·실결제 중복 시험 강제 등 위험한 단정을 제거했다. 공급자 알림은 하드 지출 차단이 아님을 명시하고 추가 과금 $0 사례를 추가했다. 평가는 스키마 dry-run이며 모델 행동·운영 결제·문자 발송을 검증하지 않았다.
 - **`authz-designer` 1.0.1 설계·감사 경계 교정** — 원본의 교차 테넌트 IDOR 감사 사례를 소스 평가에 복원하고, 단순 소유자 비교를 무조건 취약점으로 판정하거나 감사 요청에 DDL·운영 변경을 요구하던 지침을 바로잡았다. 선택적 SQL 예시의 Supabase·PostgreSQL 15+ 전제를 표시하고 nullable UNIQUE 중복 위험을 줄였다. 평가 3건은 스키마 dry-run이며 실제 보안 감사·운영 DB 테스트·모델 행동 검증은 아니다.

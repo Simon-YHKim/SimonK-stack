@@ -144,7 +144,7 @@ Office     & Design               & Platform & Compl.   & Revenue  & Memory   De
 | `/stack-architect` | 기존 구성과 실측 부하에 맞춰 프론트/백/API·배포 후보를 비교합니다. 사용자 수만으로 서비스·월 비용·Kubernetes를 확정하지 않습니다. |
 | `/setup-deploy` (gstack) | `/land-and-deploy` 용 deploy 설정을 CLAUDE.md 에 박음 |
 | `/land-and-deploy` (gstack) | 머지 → CI 대기 → 프로덕션 canary 검증 |
-| `/ship` (gstack) | VERSION + CHANGELOG + push + PR 한 흐름 |
+| `/ship` (gstack) | 변경 범위·최신 검증·비용/권한을 확인하는 릴리스 흐름. VERSION·push·PR은 프로젝트 규칙과 명시된 승인 범위에서만 수행합니다. |
 | `/canary` (gstack) | 프로덕션 헬스 카나리 검증 |
 | `/stack-update` | SimonK Stack 본체 + Wiki + gstack + 5 vendored stacks 홀리스틱 최신화 |
 | `/multi-terminal-dispatcher` | 중앙 계획·상태·비용을 공유하는 준비된 작업 묶음 실행; 기본은 미리보기 |

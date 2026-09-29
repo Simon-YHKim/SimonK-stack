@@ -1,5 +1,46 @@
 # ship — Detailed Reference
 
+## Contents
+
+- [Release authorization and cost gate](#release-authorization-and-cost-gate)
+- [Claude and Codex host equivalence](#claude-and-codex-host-equivalence)
+- [Base branch and pre-flight](#step-0-detect-platform-and-base-branch)
+- [Base merge](#step-2-merge-the-base-branch-before-tests)
+- [Tests and eval suites](#step-3-run-tests-on-merged-code)
+- [Adversarial review](#step-38-adversarial-review-always-on)
+- [Version, changelog, and commit](#step-4-version-bump-auto-decide)
+- [Fresh verification](#step-65-verification-gate)
+- [Push and PR](#step-7-push)
+- [Documentation and completion](#step-85-auto-invoke-document-release)
+
+## Release authorization and cost gate
+
+Before any branch merge, model/subagent call, paid eval, push, PR, deployment, or
+external reply, apply the current user's constraints and the target repository's
+instructions. `/ship` requests a release workflow, not authority to override a
+more specific prohibition. Record the repository, branch, intended base, dirty
+files, permitted actions, and evidence for a subscription-included route with
+overage disabled. An unknown billing route is not free. If additional spend is
+zero, never use a direct metered API or a test lane whose billing cannot be
+shown to remain within the subscription. Do not change billing or auto-top-up.
+
+If an action or mandatory verification is disallowed, continue with safe local
+checks, mark the corresponding gate **not run/unverified**, and stop before any
+dependent release action. A prepared branch is not a shipped release. Existing
+changes from other agents are not part of the release without scope review.
+
+## Claude and Codex host equivalence
+
+Keep the same release scope, fresh tests, review findings, cost gates, and
+honest status on both hosts. The upstream examples name Claude tools (`Bash`,
+`Agent`, `AskUserQuestion`, `WebSearch`); on Codex map these to the available
+shell, agent, user-input, and browsing capabilities rather than treating the
+tool spelling as a missing workflow. Do not invoke a direct API or another
+paid CLI as a substitute. If a needed capability is unavailable, mark that
+specific verification not run and retain the same stop condition instead of
+quietly lowering the release gate. Compare actual output and host logs before
+claiming behavior parity; identical installed files alone are insufficient.
+
 ## Completion Status Protocol
 
 When completing a skill workflow, report status using one of:
@@ -196,12 +237,15 @@ branch name wherever the instructions say "the base branch" or `<default>`.
 
 ---
 
-# Ship: Fully Automated Ship Workflow
+# Ship: Gated Release Workflow
 
-You are running the `/ship` workflow. This is a **non-interactive, fully automated** workflow. Do NOT ask for confirmation at any step. The user said `/ship` which means DO IT. Run straight through and output the PR URL at the end.
+Run the authorized portion of `/ship` without repetitive confirmation. Stop at
+the user/repository approval and cost gates above; do not invent a PR URL when
+push or PR creation was not authorized or did not occur.
 
 **Only stop for:**
 - On the base branch (abort)
+- A user/repository no-merge, no-push, no-PR, no-deploy, or zero-spend gate that blocks a required step
 - Merge conflicts that can't be auto-resolved (stop, show conflicts)
 - In-branch test failures (pre-existing failures are triaged, not auto-blocking)
 - Pre-landing review finds ASK items that need user judgment
@@ -214,7 +258,7 @@ You are running the `/ship` workflow. This is a **non-interactive, fully automat
 - TODOS.md disorganized and user wants to reorganize (ask — see Step 5.5)
 
 **Never stop for:**
-- Uncommitted changes (always include them)
+- Uncommitted changes already identified as in scope (never stage unrelated files)
 - Version bump choice (auto-pick MICRO or PATCH — see Step 4)
 - CHANGELOG content (auto-generate from diff)
 - Commit message approval (auto-commit)
@@ -239,7 +283,7 @@ Never skip a verification step because a prior `/ship` run already performed it.
 
 1. Check the current branch. If on the base branch or the repo's default branch, **abort**: "You're on the base branch. Ship from a feature branch."
 
-2. Run `git status` (never use `-uall`). Uncommitted changes are always included — no need to ask.
+2. Run `git status` (never use `-uall`). Identify ownership and scope of every uncommitted path. Preserve unrelated or other-agent changes; do not auto-stage them.
 
 3. Run `git diff <base>...HEAD --stat` and `git log <base>..HEAD --oneline` to understand what's being shipped.
 
@@ -340,13 +384,18 @@ service with existing deployment — verify that a distribution pipeline exists.
 
 ## Step 2: Merge the base branch (BEFORE tests)
 
-Fetch and merge the base branch into the feature branch so tests run against the merged state:
+Fetch the base branch and inspect divergence. Merge only when the current task
+and repository permit it, the target branch is confirmed, and existing changes
+are protected. Otherwise perform read-only comparison and mark merged-state
+tests **not run**; do not treat branch-only tests as merged-state proof.
 
 ```bash
 git fetch origin <base> && git merge origin/<base> --no-edit
 ```
 
-**If there are merge conflicts:** Try to auto-resolve if they are simple (VERSION, schema.rb, CHANGELOG ordering). If conflicts are complex or ambiguous, **STOP** and show them.
+**If there are merge conflicts:** Stop when resolution could change release
+content, schema, version, or another agent's work. Review and resolve only
+conflicts clearly within authorized scope; never silently choose a side.
 
 **If already up to date:** Continue silently.
 
@@ -431,7 +480,10 @@ If multiple runtimes detected (monorepo) → ask which runtime to set up first, 
 3. Create directory structure (test/, spec/, etc.)
 4. Create one example test matching the project's code to verify setup works
 
-If package installation fails → debug once. If still failing → revert with `git checkout -- package.json package-lock.json` (or equivalent for the runtime). Warn user and continue without tests.
+If package installation fails → debug once. If still failing, inspect the exact
+files changed by this attempt and preserve any pre-existing edits. Do not run a
+blanket checkout/revert; report the incomplete bootstrap and stop before a
+release claim when testing remains unavailable.
 
 ### B4.5. First real tests
 
@@ -645,7 +697,8 @@ Evals are mandatory when prompt-related files change. Skip this step entirely if
 git diff origin/<base> --name-only
 ```
 
-Match against these patterns (from CLAUDE.md):
+Match the target project's prompt/eval dependency map first. The patterns below
+are examples from the original Rails project, not a universal file list:
 - `app/services/*_prompt_builder.rb`
 - `app/services/*_generation_service.rb`, `*_writer_service.rb`, `*_designer_service.rb`
 - `app/services/*_evaluator.rb`, `*_scorer.rb`, `*_classifier_service.rb`, `*_analyzer.rb`
@@ -671,9 +724,13 @@ Map runner → test file: `post_generation_eval_runner.rb` → `post_generation_
 - Changes to `config/system_prompts/*.txt` — grep eval runners for the prompt filename to find affected suites.
 - If unsure which suites are affected, run ALL suites that could plausibly be impacted. Over-testing is better than missing a regression.
 
-**3. Run affected suites at `EVAL_JUDGE_TIER=full`:**
+**3. Run affected suites at `EVAL_JUDGE_TIER=full` only when the call is authorized and proven subscription-included:**
 
-`/ship` is a pre-merge gate, so always use full tier (Sonnet structural + Opus persona judges).
+The full tier may use metered Sonnet/Opus judge APIs. Confirm the actual runner's
+credential and billing route, not just the model name or an account login. Under
+additional spend $0, an unknown or direct paid route must **not** run. Run only
+safe local/fixture checks, record affected suites and missing judge evidence,
+and stop before claiming the full eval or release gate passed.
 
 ```bash
 EVAL_JUDGE_TIER=full EVAL_VERBOSE=1 bin/test-lane --eval test/evals/<suite>_eval_test.rb 2>&1 | tee /tmp/ship_evals.txt
@@ -684,16 +741,15 @@ If multiple suites need to run, run them sequentially (each needs a test lane). 
 **4. Check results:**
 
 - **If any eval fails:** Show the failures, the cost dashboard, and **STOP**. Do not proceed.
-- **If all pass:** Note pass counts and cost. Continue to Step 3.5.
+- **If all authorized mandatory suites pass:** Note pass counts and billing evidence. Continue to Step 3.5.
+- **If mandatory suites are not run:** Mark the release gate unverified and stop before push/PR; do not present free structural checks as a full judge pass.
 
 **5. Save eval output** — include eval results and cost dashboard in the PR body (Step 8).
 
-**Tier reference (for context — /ship always uses `full`):**
-| Tier | When | Speed (cached) | Cost |
-|------|------|----------------|------|
-| `fast` (Haiku) | Dev iteration, smoke tests | ~5s (14x faster) | ~$0.07/run |
-| `standard` (Sonnet) | Default dev, `bin/test-lane --eval` | ~17s (4x faster) | ~$0.37/run |
-| `full` (Opus persona) | **`/ship` and pre-merge** | ~72s (baseline) | ~$1.27/run |
+Tier names, model mapping, speed, and prices are runner-specific and change.
+Read the current project's eval configuration and billing route. A `full` tier
+is a release requirement only when that project defines it; no tier is free
+merely because this reference once listed a small per-run cost.
 
 ---
 
@@ -1281,13 +1337,13 @@ source <(~/.claude/skills/gstack/bin/gstack-diff-scope <base> 2>/dev/null)
 
 Substitute: TIMESTAMP = ISO 8601 datetime, STATUS = "clean" if 0 findings or "issues_found", N = total findings, M = auto-fixed count, COMMIT = output of `git rev-parse --short HEAD`.
 
-7. **Codex design voice** (optional, automatic if available):
+7. **Codex design voice** (optional, only if the subscription route is authorized and verified):
 
 ```bash
 which codex 2>/dev/null && echo "CODEX_AVAILABLE" || echo "CODEX_NOT_AVAILABLE"
 ```
 
-If Codex is available, run a lightweight design check on the diff:
+If Codex is available and the release cost gate permits this exact invocation, run a lightweight design check on the diff:
 
 ```bash
 TMPERR_DRL=$(mktemp /tmp/codex-drl-XXXXXXXX)
@@ -1374,7 +1430,9 @@ Note which specialists were selected, gated, and skipped. Print the selection:
 
 ### Dispatch specialists in parallel
 
-For each selected specialist, launch an independent subagent via the Agent tool.
+For each selected specialist, launch an independent subagent via the Agent tool
+only if the actual worker route is verified within the user's subscription and
+quota. Otherwise record the specialist pass as not run and use local review.
 **Launch ALL selected specialists in a single message** (multiple Agent tool calls)
 so they run in parallel. Each subagent has fresh context — no prior review bias.
 
@@ -1489,7 +1547,9 @@ Remember these stats — you will need them for the review-log entry in Step 5.8
 
 **Activation:** Only if DIFF_LINES > 200 OR any specialist produced a CRITICAL finding.
 
-If activated, dispatch one more subagent via the Agent tool (foreground, not background).
+If activated and the worker route passes the subscription/quota gate, dispatch
+one more subagent via the Agent tool (foreground, not background). Otherwise
+record the red-team pass as not run.
 
 The Red Team subagent receives:
 1. The red-team checklist from `~/.claude/skills/gstack/review/specialists/red-team.md`
@@ -1618,7 +1678,10 @@ For each classified comment:
 
 ## Step 3.8: Adversarial review (always-on)
 
-Every diff gets adversarial review from both Claude and Codex. LOC is not a proxy for risk — a 5-line auth change can be critical.
+Every diff needs adversarial review, but Claude/Codex model passes run only when
+their subscription-included paths and quota are verified under the release cost
+gate. Otherwise perform a local review, label independent model passes not run,
+and do not claim cross-model synthesis. LOC is not a proxy for risk.
 
 **Detect diff size and tool availability:**
 
@@ -1633,15 +1696,18 @@ echo "DIFF_SIZE: $DIFF_TOTAL"
 echo "OLD_CFG: ${OLD_CFG:-not_set}"
 ```
 
-If `OLD_CFG` is `disabled`: skip Codex passes only. Claude adversarial subagent still runs (it's free and fast). Jump to the "Claude adversarial subagent" section.
+If `OLD_CFG` is `disabled`: skip Codex passes. Claude subagents still require a
+verified subscription route; do not infer they are free from tool availability.
 
-**User override:** If the user explicitly requested "full review", "structured review", or "P1 gate", also run the Codex structured review regardless of diff size.
+**User override:** If the user explicitly requested "full review", "structured review", or "P1 gate", consider the Codex structured review regardless of diff size, but never bypass the subscription/quota gate.
 
 ---
 
-### Claude adversarial subagent (always runs)
+### Claude adversarial subagent (when authorized)
 
-Dispatch via the Agent tool. The subagent has fresh context — no checklist bias from the structured review. This genuine independence catches things the primary reviewer is blind to.
+Dispatch via the Agent tool only when the worker route is proven subscription-
+included and the task authorizes delegation. The subagent has fresh context —
+no checklist bias from the structured review.
 
 Subagent prompt:
 "Read the diff for this branch with `git diff origin/<base>`. Think like an attacker and a chaos engineer. Your job is to find ways this code will fail in production. Look for: edge cases, race conditions, security holes, resource leaks, failure modes, silent data corruption, logic errors that produce wrong results silently, error handling that swallows failures, and trust boundary violations. Be adversarial. Be thorough. No compliments — just the problems. For each finding, classify as FIXABLE (you know how to fix it) or INVESTIGATE (needs human judgment)."
@@ -1654,7 +1720,8 @@ If the subagent fails or times out: "Claude adversarial subagent unavailable. Co
 
 ### Codex adversarial challenge (always runs when available)
 
-If Codex is available AND `OLD_CFG` is NOT `disabled`:
+If Codex is available, `OLD_CFG` is NOT `disabled`, and the actual invocation
+is verified to stay within the authorized subscription/quota:
 
 ```bash
 TMPERR_ADV=$(mktemp /tmp/codex-adv-XXXXXXXX)
@@ -1682,7 +1749,8 @@ If Codex is NOT available: "Codex CLI not found — running Claude adversarial o
 
 ### Codex structured review (large diffs only, 200+ lines)
 
-If `DIFF_TOTAL >= 200` AND Codex is available AND `OLD_CFG` is NOT `disabled`:
+If `DIFF_TOTAL >= 200`, Codex is available, `OLD_CFG` is NOT `disabled`, and
+the actual invocation is verified to stay within the authorized subscription/quota:
 
 ```bash
 TMPERR=$(mktemp /tmp/codex-review-XXXXXXXX)
@@ -1768,7 +1836,9 @@ already knows. A good test: would this insight save time in a future session? If
 
 ## Step 4: Version bump (auto-decide)
 
-**Idempotency check:** Before bumping, compare VERSION against the base branch.
+If the project does not use `VERSION`, skip its commands and follow the existing
+release-version convention. Do not create a file or infer `0.0.0.0` as a real
+version. Where `VERSION` is used, compare it against the base branch:
 
 ```bash
 BASE_VERSION=$(git show origin/<base>:VERSION 2>/dev/null || echo "0.0.0.0")
@@ -1779,7 +1849,9 @@ if [ "$CURRENT_VERSION" != "$BASE_VERSION" ]; then echo "ALREADY_BUMPED"; fi
 
 If output shows `ALREADY_BUMPED`, VERSION was already bumped on this branch (prior `/ship` run). Skip the bump action (do not modify VERSION), but read the current VERSION value — it is needed for CHANGELOG and PR body. Continue to the next step. Otherwise proceed with the bump.
 
-1. Read the current `VERSION` file (4-digit format: `MAJOR.MINOR.PATCH.MICRO`)
+1. If this project uses a `VERSION` file, read its established format. Do not
+   create or bump an unrelated version file just because this reference uses
+   four digits as an example.
 
 2. **Auto-decide the bump level based on the diff:**
    - Count lines changed (`git diff origin/<base>...HEAD --stat | tail -1`)
@@ -1963,7 +2035,9 @@ echo "LOCAL: $LOCAL  REMOTE: $REMOTE"
 [ "$LOCAL" = "$REMOTE" ] && echo "ALREADY_PUSHED" || echo "PUSH_NEEDED"
 ```
 
-If `ALREADY_PUSHED`, skip the push but continue to Step 8. Otherwise push with upstream tracking:
+If `ALREADY_PUSHED`, skip the push command. Otherwise push only if this
+repository, branch, and task authorize it and all required verification gates
+passed. If not, report a locally prepared branch; do not continue as shipped.
 
 ```bash
 git push -u origin <branch-name>
@@ -1985,9 +2059,13 @@ gh pr view --json url,number,state -q 'if .state == "OPEN" then "PR #\(.number):
 glab mr view -F json 2>/dev/null | jq -r 'if .state == "opened" then "MR_EXISTS" else "NO_MR" end' 2>/dev/null || echo "NO_MR"
 ```
 
-If an **open** PR/MR already exists: **update** the PR body using `gh pr edit --body "..."` (GitHub) or `glab mr update -d "..."` (GitLab). Always regenerate the PR body from scratch using this run's fresh results (test output, coverage audit, review findings, adversarial review, TODOS summary). Never reuse stale PR body content from a prior run. Print the existing URL and continue to Step 8.5.
+Edit an existing PR/MR body only when that external change is in scope. Use
+fresh, verified results and preserve user-authored content outside the agreed
+sections. An existing PR is not blanket edit authority.
 
-If no PR/MR exists: create a pull request (GitHub) or merge request (GitLab) using the platform detected in Step 0.
+If no PR/MR exists: create one only when explicitly requested and repository
+policy permits it; otherwise prepare the body locally and report **PR not
+created**. Never claim a URL that was not returned by the host.
 
 The PR/MR body should contain these sections:
 
@@ -2063,16 +2141,17 @@ EOF
 )"
 ```
 
-**If neither CLI is available:**
-Print the branch name, remote URL, and instruct the user to create the PR/MR manually via the web UI. Do not stop — the code is pushed and ready.
+**If neither CLI is available:** Report the confirmed branch and remote, and
+state whether an authorized push actually occurred. Offer PR text for manual
+use, without claiming a PR exists.
 
-**Output the PR/MR URL** — then proceed to Step 8.5.
+**Output the PR/MR URL only if the host returned one** — then proceed to Step 8.5.
 
 ---
 
 ## Step 8.5: Auto-invoke /document-release
 
-After the PR is created, automatically sync project documentation. Read the
+After an authorized PR is created, review whether documentation needs syncing. Read the
 `document-release/SKILL.md` skill file (adjacent to this skill's directory) and
 execute its full workflow:
 
@@ -2080,14 +2159,16 @@ execute its full workflow:
 2. Follow its instructions — it reads all .md files in the project, cross-references
    the diff, and updates anything that drifted (README, ARCHITECTURE, CONTRIBUTING,
    CLAUDE.md, TODOS, etc.)
-3. If any docs were updated, commit the changes and push to the same branch:
+3. If docs were updated, stage only reviewed in-scope paths and commit. Push
+   only if the Step 7 authorization and fresh verification still hold. Do not use
+   the following broad staging example in a shared worktree:
    ```bash
-   git add -A && git commit -m "docs: sync documentation with shipped changes" && git push
+   git add -- <reviewed-document-paths>
+   git commit -m "docs: sync documentation with shipped changes"
    ```
 4. If no docs needed updating, say "Documentation is current — no updates needed."
 
-This step is automatic. Do not ask the user for confirmation. The goal is zero-friction
-doc updates — the user runs `/ship` and documentation stays current without a separate command.
+This step stays within the release authorization and file-ownership boundary.
 
 If Step 8.5 created a docs commit, re-edit the PR/MR body to include the latest commit SHA in the summary. This ensures the PR body reflects the truly final state after document-release.
 
@@ -2124,12 +2205,12 @@ This step is automatic — never skip it, never ask for confirmation.
 - **Never skip tests.** If tests fail, stop.
 - **Never skip the pre-landing review.** If checklist.md is unreadable, stop.
 - **Never force push.** Use regular `git push` only.
-- **Never ask for trivial confirmations** (e.g., "ready to push?", "create PR?"). DO stop for: version bumps (MINOR/MAJOR), pre-landing review findings (ASK items), and Codex structured review [P1] findings (large diffs only).
-- **Always use the 4-digit version format** from the VERSION file.
+- **Do not ask for trivial confirmations.** DO stop when push, PR, merge, deployment, external reply, or model spending requires authority not yet granted by the user or repository, as well as version and review decision gates.
+- **Preserve the project's version format.** Use four digits only when its existing VERSION contract does.
 - **Date format in CHANGELOG:** `YYYY-MM-DD`
 - **Split commits for bisectability** — each commit = one logical change.
 - **TODOS.md completion detection must be conservative.** Only mark items as completed when the diff clearly shows the work is done.
 - **Use Greptile reply templates from greptile-triage.md.** Every reply includes evidence (inline diff, code references, re-rank suggestion). Never post vague replies.
 - **Never push without fresh verification evidence.** If code changed after Step 3 tests, re-run before pushing.
 - **Step 3.4 generates coverage tests.** They must pass before committing. Never commit failing tests.
-- **The goal is: user says `/ship`, next thing they see is the review + PR URL + auto-synced docs.**
+- **The goal is an honestly verified release state.** A PR URL and synced docs are reported only when those actions were authorized and observed.
