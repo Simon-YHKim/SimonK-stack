@@ -3390,6 +3390,35 @@ Stack 전체 오프라인 회귀 `python -X utf8 -B -m unittest discover -s
 scripts/tests -p 'test_*.py' -q`는 356건 중 353통과·3건너뜀·실패 0
 (553.695초)이었다. 이 검증은 실제 모델 호출·운영 설치 검증이 아니다.
 
+### v31b LF 고정 격리 후보 (2026-09-29)
+
+소스 2.12.5를 고정된 원본 5개 커밋으로 다시 포장했다. 원본 폴더의 현재
+브랜치를 전환하지 않고 독립 로컬 복제본을 사용했다. Windows 전역
+`core.autocrlf=true`가 첫 v31 복제본의 다수 텍스트 파일을 CRLF로 바꿔
+v30 대비 의도치 않은 바이트 차이를 만들었으므로, **첫 v31 후보는 폐기
+판정**하고 설치·머지에 사용하지 않는다. v31b 복제본은 첫 체크아웃 전
+`core.autocrlf=false`를 설정했고, 추적 파일의 `i/lf → w/crlf` 차이가
+5개 원본 모두 0임을 확인했다. 기존 원본·v30·사용자 설치본은 그대로다.
+
+| 산출물 | 영수증 SHA-256 | 독립 검증 |
+|---|---|---|
+| `20260929-v31-agy-1213/source-v31` | `a87dcc03cf4cb43c19bcc2df336f2707daa51477d8f4edeb2b89409da1577dba` | 137스킬·412파일 |
+| `20260929-v31b-agy-lf/candidate-safety-v31b` | `9de4c02d0c2cf0e7df9b6e46abdb41d1bae00977864f096df6136364b3647822` | 5플러그인·182스킬·741파일 |
+| `20260929-v31b-agy-lf/codex-overlay-v31b` | `185150bb336814b8dfd0a58d9cdd973ef501f062f01f678681f229a5903dba3e` | Codex 변환 바이트 |
+| `20260929-v31b-agy-lf/codex-general-subset-v31b` | `b15cff31810e1dfbfda4bf933780dab1a3bf068d7df4b19d7d063432d1410884` | 177스킬, 자체 subset 바이트; `source_provenance_verified=false` |
+
+v30→v31b 실제 콘텐츠 변경은 Core의 `/vibe` 5파일뿐이며 AIHub·Design·
+Market·Stack은 0파일이다. 다섯 플러그인의 생성 manifest는 공통 소스
+지문 때문에 각각 2파일씩 바뀌었다. 플러그인별 버전 D-code 필요성을
+해소하지 않았으며 `installation_ready`, `runtime_closure_verified`,
+`host_compatibility_verified`는 모두 false다. v31b 후보 복사본의
+오프라인 `/vibe` selftest·runtime unit·prepare unit·table sync 4단계는
+모두 종료 0이었다. Claude CLI strict manifest 5/5는 오류·경고 0,
+Codex plugin validator는 일반 subset의 5/5에서 종료 0이었다. 이는
+모델·Orca·Bot 실호출이나 운영 설치 검증이 아니다.
+정리 명령이 실행 정책에서 거부되어 첫 v31의 임시 worktree·복제본·후보
+파일은 아직 보존되어 있다. 삭제·이동은 실행되지 않았다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
