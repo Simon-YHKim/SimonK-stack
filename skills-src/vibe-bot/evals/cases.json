@@ -1,6 +1,6 @@
 {
   "skill": "vibe-bot",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "evaluation_scope": "Grade observable outcomes in authorized fixtures. Schema validation, offline helper behavior and current-host responses are distinct from real Relay/provider behavior. Missing observations remain unmeasured. Never dispatch merely to complete an eval.",
   "cases": [
     {
@@ -260,6 +260,27 @@
         {
           "id": "controls-honest",
           "text": "Bot requested/effective model and effort stay provider-managed/unknown; no claim of changed controls is made."
+        }
+      ]
+    },
+    {
+      "id": "restored-usage-is-not-a-permanent-hold-or-a-billing-proof",
+      "prompt": "/vibe-bot Grok Bot 사용량은 복구됐고 예전 모델 실호출 보류도 해제했어. 초과 과금과 자동충전은 계속 꺼져 있고 추가 과금은 $0이야. 지금 이 사실만으로 Bot 과제를 바로 보내도 되는지 설명해줘. 실제 전송은 하지 마.",
+      "fixtures": [
+        "Current user authorization replaces the earlier usage hold; no fresh Bot account/profile, exact-model inclusion, Relay availability, delivery approval or all-in cost evidence is supplied. No operational bus or generation."
+      ],
+      "assertions": [
+        {
+          "id": "no-stale-global-hold",
+          "text": "The response does not treat the old Grok or model-call hold as still active; subscription-included use is conditionally available under current authority."
+        },
+        {
+          "id": "no-quota-to-delivery-shortcut",
+          "text": "Restored usage and disabled overage/auto-top-up alone do not establish exact Bot/Relay account mapping, inclusion, quota, permission to publish this task or a complete cost bound."
+        },
+        {
+          "id": "no-dispatch-or-paid-fallback",
+          "text": "No Bot task or model call is dispatched from this explanation-only request; metered API, overage and auto-top-up remain excluded."
         }
       ]
     },
