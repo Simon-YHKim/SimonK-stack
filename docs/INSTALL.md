@@ -3077,6 +3077,12 @@ Windows 전역 Git 줄바꿈에 의존한 체크아웃을 거부하므로, 줄�
 9대상의 외부 런타임이 미검증이라 `external_runtime_pending`(종료 1)이다.
 `runtime_closure_verified`, `host_compatibility_verified`, `installation_ready`
 모두 false이며, 이 후보는 설치·main 머지·모델/API/Bot 호출 승인이 아니다.
+추가로 v26과 v28의 AIHub 스킬 바이트는 다르지만 생성된
+`.claude-plugin/plugin.json`·`marketplace.json` 버전은 둘 다
+`0.2.0-vibe.8fd80e4a53d4`다. 패키저가 플러그인 핀을 버전 접미사에
+반영하지 않기 때문이다. 실제 호스트의 갱신 누락은 아직 재현하지 않았으나,
+동일 버전·상이한 내용은 설치 전환 위험으로 취급한다. 버전 계약 수정은
+PROTOCOL §35.1 토론·별도 심판·결정 기록 전까지 보류한다.
 
 ## One-shot 설치
 
