@@ -1,5 +1,12 @@
 # JSON Canvas Complete Examples
 
+## Contents
+
+- [Simple Canvas with Text and Connections](#simple-canvas-with-text-and-connections)
+- [Project Board with Groups](#project-board-with-groups)
+- [Research Canvas with Files and Links](#research-canvas-with-files-and-links)
+- [Flowchart](#flowchart)
+
 ## Simple Canvas with Text and Connections
 
 ```json
