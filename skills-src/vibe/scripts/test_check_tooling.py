@@ -53,6 +53,37 @@ class CodexPathChecks(unittest.TestCase):
                 package.unlink()
                 self.assertIsNone(self.module._local_codex_package_version())
 
+    def test_failed_version_command_cannot_turn_error_text_into_a_version(self):
+        with mock.patch.object(self.module, "_run", return_value=(1, "codex-cli 0.159.0", "update blocked")):
+            version, _ = self.module._version(["codex", "--version"])
+        self.assertIsNone(version)
+
+    def test_prerelease_comparison_is_unknown_not_newer_than_stable(self):
+        self.assertIsNone(self.module._cmp("0.159.0-beta.1", "0.159.0"))
+
+    def test_local_mode_does_not_succeed_when_version_or_package_is_unknown(self):
+        for row in ({"tool": "codex", "installed": None, "local_package": None,
+                     "state": self.module.UNKNOWN},
+                    {"tool": "codex", "installed": "0.159.0", "local_package": None,
+                     "state": "설치본만 확인"}):
+            with self.subTest(state=row["state"]):
+                with mock.patch.object(self.module, "check_codex_local", return_value=row):
+                    output = io.StringIO()
+                    with contextlib.redirect_stdout(output):
+                        exit_code = self.module.report_local_codex()
+                self.assertEqual(exit_code, 2)
+                self.assertEqual(json.loads(output.getvalue())["state"], row["state"])
+
+    def test_local_mode_succeeds_for_matching_stable_versions(self):
+        with mock.patch.object(self.module, "_version", return_value=("0.159.0", "codex-cli")):
+            with mock.patch.object(self.module, "_local_codex_package_version",
+                                   return_value="0.159.0"):
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output):
+                    exit_code = self.module.report_local_codex()
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(json.loads(output.getvalue())["state"], "로컬 이상")
+
     def test_local_mode_never_queries_registry_or_orca(self):
         with mock.patch.object(self.module, "check_codex_local", return_value={
                 "tool": "codex", "installed": "0.155.0", "local_package": "0.159.0",

@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use for /vibe, "알아서 진행", "오르카로 돌려", "스킬 조합", skill/model/effort/subscription-cost orchestration, and Play Console/GUI requests. Check CLI/API/MCP first; use vibe-bot only for GUI-only steps. Produces verified plans and artifacts; never invent specialist skills or assume paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.11
+version: 2.12.12
 author: simon-stack
 ---
 
@@ -184,6 +184,11 @@ when npm is offline; inspect and verify the exact executable before using it.
 This check does not prove that the newer binary works or that the account route
 is included in a subscription. The full tooling report also queries npm and
 Orca, so do not use it merely to perform this local check.
+Only exit 0 establishes that the PATH version is not older than the adjacent
+stable npm package. Exit 1 means stale; exit 2 means an unavailable, failed or
+uncomparable version check. Both nonzero states hold a Codex worker until its
+actual launch executable is independently verified; never treat unknown as
+latest or route it through a paid fallback.
 
 ## 3. Execute only ready work
 
