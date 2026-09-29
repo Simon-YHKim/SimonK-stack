@@ -72,16 +72,20 @@ Codex 오버레이, D-29 일반 스킬 subset의 고정 SHA-256 영수증과 출
 `--codex-overlay`, `--overlay-digest`, `--codex-subset`, `--subset-digest`로
 전달한다. 소스 파일·설치본은 변경하지 않는다.
 
-2026-09-30 후보에서 Claude 182개와 Codex 177개 중 공통 본문 176개가
-바이트까지 동일했다. `zoom-out` 하나는 Claude 전용 수동 호출 frontmatter
+2026-09-30 `/vibe` 2.12.15 후보에서 Claude 182개와 Codex 177개 중 공통
+본문 176개와 공통 payload 파일 612개가 바이트까지 동일했다. payload 수에는
+본문 파일도 포함하며, `SKILL.md` 외의 공통 scripts/references/assets/evals도 검사한다.
+`zoom-out` 하나는 Claude 전용 수동 호출 frontmatter
 한 줄만 제거하고 Codex의 동등한 수동 호출 정책 파일로 투영됐다. D-29 결정에
 따라 안전 훅 미지원 4개와 종속 `unfreeze` 1개는 Codex 일반 subset에서
-명시적으로 제외된다. 공통 본문 변형, 추가·누락 스킬, `zoom-out`의 추가
-변형이나 출처 영수증 불일치는 검사 실패다.
+명시적으로 제외된다. 공통 본문·보조 파일 변형, 추가·누락 스킬,
+`zoom-out`의 추가 변형이나 출처 영수증 불일치는 검사 실패다.
 
 이 PASS는 **정적 콘텐츠 보존**만 뜻한다. 5개 제외 스킬의 안전 동등성,
-설명 축약에 따른 선택률, 실제 로딩·모델/effort·산출물 품질은 아래의
-호스트별 실측을 통과해야 한다. 검사 출력의 `host_behavior_verified`,
+설명 축약에 따른 선택률, 모델/effort·산출물 품질은 아래의 호스트별
+실측을 통과해야 한다. 새 후보의 격리 호스트 적재·등록은
+[설치 기록](INSTALL.md)에
+별도로 남겼으며 실제 작업 동작을 증명하지 않는다. 검사 출력의 `host_behavior_verified`,
 `selection_quality_verified`, `installation_ready`는 항상 `false`다.
 
 `--compare-hosts`는 호스트별 케이스·관측 파일 네 개를 **읽기만** 한다. 각 파일은

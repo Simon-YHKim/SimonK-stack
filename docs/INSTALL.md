@@ -3822,6 +3822,30 @@ linked worktree여서 패키저가 거절했으며 기존 입력·설치본은 �
 같은 과제의 Claude/Codex 실측도 남아 있다. 추가 과금·모델/API/Bot/Orca
 실호출, 운영 프로필·`main`·결제 설정 변경은 없었다.
 
+### `/vibe` 2.12.15 새 후보의 격리 호스트 적재 (2026-09-30)
+
+`E:/Coding Infra/Releases/SimonK-stack/20260930-opus-medium-host-probe/`의
+별도 Windows Sandbox 두 개에서 위 후보를 시험했다. 설정은 네트워크·클립보드·
+장치 리디렉션을 끄고 후보와 CLI 바이너리를 읽기 전용으로 매핑했으며, 새
+무인증 프로필을 사용했다. Claude Code 2.1.285는 `--init-only`로 플러그인
+5개·스킬 182개를 발견했다(종료 0, 디버그 오류 0, API 요청 기록 0).
+Codex CLI 0.159.0 바이너리는 플러그인 5개를 활성 등록하고 격리 캐시에
+`SKILL.md` 177개를 적재했다. 각 실행 전후 활성 네트워크 어댑터는 0개였고,
+모델 생성을 호출하지 않았다. 두 Sandbox는 각자의 ID로 종료했으며 실행 후
+`wsb.exe list --raw`에서 남은 인스턴스는 0개였다.
+
+원시 결과는 `claude/output/result.json` (SHA-256
+`2f22ab4146e0b1c07d78464c8ebd07a78c25da63d0c808aa60fabef0538d8fb1`)과
+`codex/output/result.json` (SHA-256
+`3fac544cdd8f7bf316719cb04e90b28a797536a3d7dca4e6718eece3827b0fee`)에
+있다. 시험 전후 Claude `bundle.json` 영수증과 Codex `subset.json` 영수증의
+SHA-256이 위 표와 같았다. 이는 새 후보의 **격리 적재·등록** 증거일 뿐,
+운영 PATH의 Codex 버전, 캐시 전체 바이트 동등성, 실제 자동 스킬 선택,
+모델/effort 적용, 답변 품질이나 구독 과금 검증이 아니다.
+`host_behavior_verified=false`, `selection_quality_verified=false`,
+`installation_ready=false`를 유지한다. 사용자 설치본·`main`·결제 설정은
+변경하지 않았다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
