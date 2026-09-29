@@ -4,7 +4,8 @@
 This is a conservative static audit, not runtime dependency closure. Unresolved
 paths need manual context review; they are not necessarily missing dependencies.
 Gstack bin references are reported as external-runtime hints, not proof of
-availability. Dynamic commands, imports and services are out of scope.
+availability. Optional pinned-source evidence checks direct helper files only.
+Dynamic commands, imports and services are out of scope.
 """
 from __future__ import annotations
 
@@ -15,6 +16,7 @@ import posixpath
 import re
 import sys
 
+import gstack_source_inventory as gstack_inventory
 import plugin_bundle
 import skill_release as release
 
@@ -52,6 +54,49 @@ def inspect_external_runtime_hints(skill_path: str, text: str) -> list[dict[str,
     if GSTACK_BIN_REF.search(text):
         return [{"skill": skill_path, "reason": "gstack_bin_reference"}]
     return []
+
+
+def inspect_pinned_gstack_targets(source_root: Path, expected_commit: str,
+                                  targets: set[str]) -> dict:
+    """Attest direct helper files in a separate pinned clone, never their behavior."""
+    if not isinstance(targets, set) or len(targets) > 64 or any(
+            not isinstance(name, str) or not re.fullmatch(r"[A-Za-z0-9._-]+", name)
+            or name in {".", ".."} for name in targets):
+        raise ValueError("Invalid direct helper target set")
+    if not targets:
+        return {"status": "no_direct_targets", "present": 0, "missing": 0,
+                "nonregular": 0, "source_inventory_verified": False,
+                "runtime_closure_verified": False}
+    root = release.no_links(Path(source_root))
+    source = gstack_inventory.audit_source(root, expected_commit)
+    records = {item["path"]: item for item in
+               gstack_inventory._tree_records(root, expected_commit)}
+    manifest = []
+    present = missing = nonregular = 0
+    for name in sorted(targets):
+        path = f"bin/{name}"
+        record = records.get(path)
+        if record is None:
+            missing += 1
+            manifest.append({"path": path, "state": "missing"})
+        elif record["mode"] not in gstack_inventory.REGULAR_MODES:
+            nonregular += 1
+            manifest.append({"path": path, "state": "nonregular"})
+        else:
+            data = release.read_file(release.safe_member(root, path))
+            present += 1
+            manifest.append({"path": path, "state": "present",
+                             "raw_sha256": release.digest(data)})
+    if gstack_inventory.audit_source(root, expected_commit) != source:
+        raise ValueError("Gstack source changed during direct helper inspection")
+    return {"status": "direct_targets_present" if present == len(targets)
+            else "direct_targets_incomplete", "present": present, "missing": missing,
+            "nonregular": nonregular, "source_inventory_verified": True,
+            "source_commit": expected_commit, "source_tree_oid": source["tree_oid"],
+            "source_manifest_sha256": source["raw_manifest_sha256"],
+            "source_package_compatible": source["package_contract_compatible"],
+            "target_manifest_sha256": release.digest(release.encoded(manifest)),
+            "runtime_closure_verified": False}
 
 
 def inspect_skill_references(skill_path: str, text: str, available: set[str]) -> list[dict[str, object]]:
@@ -93,8 +138,11 @@ def inspect_skill_references(skill_path: str, text: str, available: set[str]) ->
     return rows
 
 
-def audit_candidate(root: Path, expected_digest: str) -> dict:
+def audit_candidate(root: Path, expected_digest: str, *, gstack_source: Path | None = None,
+                    gstack_commit: str | None = None) -> dict:
     """Verify bytes first; report static refs without executing candidate code."""
+    if (gstack_source is None) != (gstack_commit is None):
+        raise ValueError("Gstack source root and commit must be supplied together")
     root = release.no_links(root)
     receipt = plugin_bundle.verify_bundle(root, expected_digest)
     records = {item["path"]: item for item in receipt["files"]}
@@ -124,7 +172,7 @@ def audit_candidate(root: Path, expected_digest: str) -> dict:
     unresolved = [row for row in rows if row["status"] != "present"]
     status = ("incomplete" if unresolved or unportable_commands else
               "external_runtime_pending" if external_runtime_hints else "static_paths_present")
-    return {"status": status,
+    report = {"status": status,
             "bundle_digest": expected_digest, "skills_checked": checked,
             "static_refs_checked": len(rows), "unresolved": unresolved,
             "unportable_commands": unportable_commands,
@@ -137,15 +185,23 @@ def audit_candidate(root: Path, expected_digest: str) -> dict:
             "scope": "literal ASCII backtick paths and source/project-relative skill command locations; "
                      "literal Gstack bin counts are lexical external-runtime hints, not calls; "
                      "findings need manual review; no execution, imports or services"}
+    if gstack_source is not None:
+        report["gstack_source_evidence"] = inspect_pinned_gstack_targets(
+            gstack_source, gstack_commit, external_runtime_targets)
+    return report
 
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--package", type=Path, required=True)
     parser.add_argument("--expected-digest", required=True)
+    parser.add_argument("--gstack-source-root", type=Path)
+    parser.add_argument("--gstack-expected-commit")
     args = parser.parse_args(argv)
     try:
-        report = audit_candidate(args.package, args.expected_digest)
+        report = audit_candidate(args.package, args.expected_digest,
+                                 gstack_source=args.gstack_source_root,
+                                 gstack_commit=args.gstack_expected_commit)
     except (ValueError, OSError, UnicodeError, KeyError, TypeError):
         # Avoid echoing untrusted candidate metadata, paths or secret-like text.
         print('{"status":"blocked","message":"Candidate path audit failed"}', file=sys.stderr)

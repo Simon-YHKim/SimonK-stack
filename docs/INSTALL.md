@@ -2998,6 +2998,22 @@ v26 안전 후보(`f2c5f9d2004c34e5430a9b6bfe985c6f3ac3cdd039049800b5c5d115ff097
 비교는 명령 호출·전이 import/서비스, Gstack 최신판의 전체 설치,
 v26 호스트 초기화 또는 구독 과금 안전성을 새로 검증한 것은 아니다.
 
+`candidate_path_audit.py`에 별도 고정 Gstack 소스의 **직접 헬퍼 존재**
+옵션을 추가했다. 후보 영수증과 독립 원본의 Git tree/index·작업 파일
+목록을 확인한 뒤, 참조 대상만 Git 일반 파일 모드와 원시 바이트로 대조하고
+원본 감사 영수증이 검사 전후 같지 않으면 중단한다.
+v26 안전 후보와 최신 `65bfb0c` 클론의 재실행은 646개 문자열 참조의
+서로 다른 대상 9개가 모두 존재(누락·비일반 모드 0)했고, 대상 원시
+영수증 SHA-256은 `eaf6bf74b676d0bb24b5bade2bd425aa634919f0143fd06420fe3ed7d5ccccaf`였다.
+감사는 여전히 `external_runtime_pending`(종료 1)이며, 전체 원본
+패키징 적합성과 런타임 폐쇄 플래그는 false다.
+
+```powershell
+python scripts/candidate_path_audit.py --package E:/reviewed/candidate `
+  --expected-digest <후보-영수증-SHA-256> --gstack-source-root E:/reviewed/gstack `
+  --gstack-expected-commit <검토한-40자리-SHA>
+```
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,

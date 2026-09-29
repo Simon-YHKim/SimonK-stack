@@ -5,6 +5,7 @@ from contextlib import redirect_stderr
 import io
 from pathlib import Path
 import sys
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -113,6 +114,99 @@ class CandidatePathAuditTests(unittest.TestCase):
             with patch("sys.stdout", new_callable=io.StringIO):
                 code = audit.main(["--package", "fixture", "--expected-digest", "0" * 64])
         self.assertEqual(code, 1)
+
+    def test_pinned_gstack_source_reports_regular_target_without_claiming_runtime(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            target = root / "bin/gstack-config"
+            target.parent.mkdir()
+            target.write_bytes(b"fixture helper\n")
+            source = {"status": "unsupported_git_modes", "tree_oid": "1" * 40,
+                      "raw_manifest_sha256": "2" * 64, "package_contract_compatible": False}
+            records = [{"path": "bin/gstack-config", "mode": "100755"}]
+            with patch.object(audit.gstack_inventory, "audit_source", return_value=source), \
+                 patch.object(audit.gstack_inventory, "_tree_records", return_value=records):
+                report = audit.inspect_pinned_gstack_targets(root, "3" * 40, {"gstack-config"})
+        self.assertEqual(report["status"], "direct_targets_present")
+        self.assertEqual(report["present"], 1)
+        self.assertEqual(report["missing"], 0)
+        self.assertEqual(report["nonregular"], 0)
+        self.assertEqual(len(report["target_manifest_sha256"]), 64)
+        self.assertFalse(report["source_package_compatible"])
+        self.assertFalse(report["runtime_closure_verified"])
+        self.assertNotIn("gstack-config", repr(report))
+
+    def test_pinned_gstack_source_missing_or_nonregular_targets_fail_closed(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            source = {"status": "unsupported_git_modes", "tree_oid": "1" * 40,
+                      "raw_manifest_sha256": "2" * 64, "package_contract_compatible": False}
+            with patch.object(audit.gstack_inventory, "audit_source", return_value=source), \
+                 patch.object(audit.gstack_inventory, "_tree_records", return_value=[]):
+                missing = audit.inspect_pinned_gstack_targets(root, "3" * 40, {"gstack-config"})
+            with patch.object(audit.gstack_inventory, "audit_source", return_value=source), \
+                 patch.object(audit.gstack_inventory, "_tree_records", return_value=[
+                     {"path": "bin/gstack-config", "mode": "120000"}]):
+                nonregular = audit.inspect_pinned_gstack_targets(root, "3" * 40, {"gstack-config"})
+        self.assertEqual((missing["status"], missing["missing"], missing["present"]),
+                         ("direct_targets_incomplete", 1, 0))
+        self.assertEqual((nonregular["status"], nonregular["nonregular"], nonregular["present"]),
+                         ("direct_targets_incomplete", 1, 0))
+
+    def test_pinned_gstack_source_rejects_invalid_targets_before_clone_read(self):
+        with patch.object(audit.gstack_inventory, "audit_source") as source:
+            with self.assertRaisesRegex(ValueError, "Invalid direct helper"):
+                audit.inspect_pinned_gstack_targets(Path("fixture"), "3" * 40,
+                                                    {"../credential"})
+            source.assert_not_called()
+
+    def test_pinned_gstack_source_inventory_failure_prevents_helper_read(self):
+        with patch.object(audit.gstack_inventory, "audit_source",
+                          side_effect=ValueError("dirty source")), \
+             patch.object(audit.gstack_inventory, "_tree_records") as tree:
+            with self.assertRaisesRegex(ValueError, "dirty source"):
+                audit.inspect_pinned_gstack_targets(Path("fixture"), "3" * 40,
+                                                    {"gstack-config"})
+            tree.assert_not_called()
+
+    def test_pinned_gstack_source_change_during_read_fails_closed(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            target = root / "bin/gstack-config"
+            target.parent.mkdir()
+            target.write_bytes(b"fixture helper\n")
+            before = {"status": "unsupported_git_modes", "tree_oid": "1" * 40,
+                      "raw_manifest_sha256": "2" * 64, "package_contract_compatible": False}
+            after = {**before, "raw_manifest_sha256": "4" * 64}
+            with patch.object(audit.gstack_inventory, "audit_source",
+                              side_effect=[before, after]), \
+                 patch.object(audit.gstack_inventory, "_tree_records", return_value=[
+                     {"path": "bin/gstack-config", "mode": "100755"}]):
+                with self.assertRaisesRegex(ValueError, "changed during direct helper inspection"):
+                    audit.inspect_pinned_gstack_targets(root, "3" * 40, {"gstack-config"})
+
+    def test_pinned_gstack_source_requires_both_arguments(self):
+        with self.assertRaisesRegex(ValueError, "must be supplied together"):
+            audit.audit_candidate(Path("fixture"), "0" * 64,
+                                  gstack_source=Path("source"))
+
+    def test_gstack_source_evidence_does_not_upgrade_candidate_runtime(self):
+        skill = "plugins/SimonKStack/skills/qa/SKILL.md"
+        body = b"~/.claude/skills/gstack/bin/gstack-config get telemetry\n"
+        receipt = {"files": [{"path": skill, "size": len(body),
+                              "sha256": audit.release.digest(body)}]}
+        evidence = {"status": "direct_targets_present", "present": 1,
+                    "runtime_closure_verified": False}
+        with patch.object(audit.release, "no_links", side_effect=lambda path: path), \
+             patch.object(audit.plugin_bundle, "verify_bundle", return_value=receipt), \
+             patch.object(audit.release, "safe_member", side_effect=lambda root, path: root / path), \
+             patch.object(audit.release, "read_file", return_value=body), \
+             patch.object(audit, "inspect_pinned_gstack_targets", return_value=evidence):
+            report = audit.audit_candidate(Path("fixture"), "0" * 64,
+                                           gstack_source=Path("source"), gstack_commit="1" * 40)
+        self.assertEqual(report["gstack_source_evidence"], evidence)
+        self.assertEqual(report["status"], "external_runtime_pending")
+        self.assertFalse(report["runtime_closure_verified"])
 
     def test_sibling_skill_reference_is_resolved_inside_same_plugin(self):
         skill = "plugins/SimonKAIHub/skills/rag-builder/SKILL.md"
