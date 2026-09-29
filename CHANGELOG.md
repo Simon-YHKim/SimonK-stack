@@ -22,6 +22,7 @@
 - **`/vibe` 2.11.16 progressive disclosure** — moved the generated historical Orca lane table into a directly linked reference and retargeted its drift checker. Normal skill loading omits the legacy table; the generator, safety guards and frontier runtime routing are unchanged. This does not reduce the initial five-plugin description footprint or prove model/host behavior.
 
 ### Fixed
+- **`stack-architect` 1.0.1 고정 배포비·인프라 단정 제거** — 사용자 수별 공급자·월 비용·Kubernetes 도입표를 요구량 기반 검토로 바꾸고, 기존 스택·실측 부하·공식 가격·초과 과금 조건을 먼저 확인한다. 로컬 AI·관리형 실시간 등 대안을 열어 두고, 아키텍처 문서를 배포 승인으로 취급하지 않는다. 원본 회귀 2건과 교정한 기존 사례 2건을 포함하되 모델 선택 행동·실제 배포를 검증한 것은 아니다.
 - **`db-selector` 1.0.1 무료 한도·비용 단정 제거** — 오래된 서비스별 무료 용량과 사용자 수별 고정 월 비용을 후보 검토 항목으로 바꾸고, 기존 DB·마이그레이션·실측 사용량·공식 가격 확인일을 요구한다. 추가 과금 $0 조건에서는 유료 DB 생성·초과 사용·자동충전을 실행하지 않으며 원본의 회귀 사례 2건을 더했다. 모델 선택 행동이나 실제 서비스 생성은 검증하지 않았다.
 - **`phase4-game-orchestrator` 0.1.1 과거 상태 제거** — 지난 Phase 4 일정·Godot 설치·Suno 가격·Android 출시·42morrow 자료 수를 현재 사실로 취급하던 문구를 관측 조건으로 바꿨다. 게임 구현 요청은 `/vibe`의 실제 빌드·검증으로 연결하고, 원본의 비용·라이선스 평가 2건과 교정한 기존 사례 2건을 유지한다. 모델 행동·에셋 생성·스토어 게시가 검증됐다는 뜻은 아니다.
 - **`app-platform-selector` 1.0.1 심사 단정 제거** — Apple 공식 §4.2의 최소 기능 요건에 맞춰 PWA·WKWebView의 승인·거절을 보장하던 문구를 위험 기반 검토로 교정하고, 기존·원본 평가 사례를 함께 유지했다. 플랫폼 비교와 유료 개발자 등록·스토어 제출을 분리한다. 실제 심사 승인이나 모델 행동 검증은 아니다.
