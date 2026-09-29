@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-30 04:47:05 KST
+updated: 2026-09-30 05:01:20 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
+
+- 2026-09-30 05:01:20 KST: src: user — `39c3ca3` Claude/Codex parity candidate on isolated local host profiles. Feature docs `58b7ef7` pushed/clean. Claude Code 2.1.285 `--init-only` loaded five plugins/182 skills, exit0, debug errors0, API request lines0; user `.claude.json` hash unchanged. Codex CLI 0.159.0 installed five plugins/177 skills into a new CODEX_HOME; cached files 725/725 relative path+SHA match candidate, cached `/vibe` explicit five-root inventory complete 177/177/issues0, real user config/auth hashes unchanged. No auth copied or model generated. Candidate receipts independently reverified after tests. A separate network-disabled Windows Sandbox boot had a white screen and no output for >5 min; exact test instance terminated, so no OS-level isolation claim for this candidate. Source `/vibe` and `/vibe-bot` validators 0 errors/0 warnings. Standalone HTML/INSTALL clarify remaining automatic-selection, task-fit, Gstack, billing and actual user-install gates; readiness remains false. No paid calls, payment changes, actual user install or main merge.
 
 - 2026-09-30 04:47:05 KST: src: user — Claude/Codex SimonKStack 성능 저하 방지. SimonKStack feature `39c3ca3` fix + `27c5c7f` docs pushed/clean. `/vibe` 2.12.10 fixes Codex D-29 subset candidate discovery: only the exact receipted five-skill/two-runtime omission binds to the verified overlay; missing/forged receipt or drift fails closed. New immutable candidate `E:/Coding Infra/Releases/SimonK-stack/20260930-subset-discovery-39c3ca3/`: Claude catalog 182, Codex subset catalog 177; static parity 176 identical SKILL bodies + approved zoom-out projection 1; shared 17-model registry SHA identical. Source tests 230 + nested 157 + bundle 45 + subset 5, 141-skill CI PASS; Claude offline probe four steps PASS; Codex candidate /vibe tests 100 PASS. Receipt digests and residual gates in `report.html` and own outbox. No model/API/Bot paid calls, payment settings, user install or main merge; host automatic selection/execution quality, Gstack closure and Claude-owned D-code unverified, so readiness false.
 
