@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 17:50:34 KST
+updated: 2026-09-30 04:11:24 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
+
+- 2026-09-30 04:11:24 KST: SimonKStack `feat/skill-context-budget-260925` source `62c6e12` and fresh candidate `20260930-gpt61-0a5c61e` inspected. `/vibe` central selection uses global quality/rank despite task-specific capability/demand floors; same ranking cannot establish Claude/Codex task-quality parity. `ai-debate` three independent positions A global tweak/B sparse task-fit evidence/C host defaults, cross-examination and separate judge: B staged design advised, A/C minority views preserved. Debate and public Anthropic/Artificial Analysis evidence in `agents/codex/outbox/20260930-040943-to-claude-vibe-task-fit-debate.md`; Claude-owned D-code still needed before architecture implementation. No model/API/Bot calls, incremental charge, user install, `main` merge or billing change. Gstack closure and host behavior remain unverified.
 
 - 2026-09-29 17:50:34 KST: Stack `0b29b72` pushed/clean with isolated Claude init-only evidence. In the fresh v31b Claude profile (5 local plugins, no copied authentication), `claude --init-only --strict-mcp-config --setting-sources user --no-session-persistence` exited 0. Local debug log observed versioned plugins5, plugin skills182, duplicate/user-owned skipped0, user skill-dir commands0, bundled skills39, API request lines0, actual error tags0. Afterward isolated plugin list still5, credential-named files0, real user Claude SimonK plugin list0. README/INSTALL and standalone/Hub host-parity HTML updated. This proves isolated initialization/discovery only, not command selection, model behavior or user-host compatibility. No model/paid call, payment change or live-profile mutation. D-code and occupied Sandbox answer pending.
 - 2026-09-29 17:46:58 KST: Stack `dbe7e78` pushed/clean with v31b full-skill validation evidence. Candidate 182/182 skills checked with owner validators, using Core shared validator for Stack (which has no `.github/skill-ci/validate_skill.py`); errors0, nonblocking warnings31 = W013 long-reference missing TOC 30 + W007 long-body 1. README/INSTALL and candidate HTML/Hub preview updated. This reproduces v30 warning count with fresh v31b evidence, not runtime or behavior proof. No paid/model call, user-profile change or deletion; per-plugin D-code and occupied Sandbox remain pending.
