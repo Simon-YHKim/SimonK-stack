@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 08:52:12 KST
+updated: 2026-09-29 09:23:10 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 08:52:12 KST
+updated: 2026-09-29 09:23:10 KST
+
+- 2026-09-29 09:23:10 KST: src: Simon direct, no additional paid calls. Fixed `/vibe` Codex overlay default catalog false rejection via exact original+projected Zoom/overlay receipt validation, regression RED→GREEN. Source `872b4c9` and docs `c3c19dd` pushed/clean on feature branch. New isolated v25 source/safety/overlay receipts verified; safety and overlay default catalog each exit0/182 names, packaged vibe222 PASS, source suite334=331 pass/3 skip/fail0, Claude five-plugin check-only preview pass/no model. Static path audit local0/unportable0 but Gstack external runtime31 skills/646 refs/9 targets remains `external_runtime_pending` exit1. Release HTML `E:/Coding Infra/Releases/SimonK-stack/20260929-v25-overlay-catalog/report.html`. Existing installed Sep26 receipt drift unresolved; Sandbox v25 host, real model/Bot/Orca, Gstack closure, D-codes and install/main gates pending. No user profile, billing setting, model/API/Bot/Orca call or main change.
 
 - 2026-09-29 08:52:12 KST: src: Simon direct, subscription-only `/vibe` continuation. Compared existing Sep26 installed-candidate `vibe-bot` folder against immutable v24: 10 files each, no old-only/new-only; bots.json exact SHA match with 19 bots/6 teams. `bus_watch.py` and its test differ only in line endings. Four substantive changes are SKILL version0.9.1→0.9.3 discovery boundary, added trigger eval case, Relay-handshake TOC, stricter separate Bot subscription-inclusion test fixture. Packaged v24 Bot tests38/38 pass under subprocess/socket-denying hooks; candidate receipt reverify passes. Source docs `a226db8` pushed/clean, release HTML updated. Old installed receipt drift/default catalog failure remains; no link/install/main change or paid/model/Bot/Orca call.
 
