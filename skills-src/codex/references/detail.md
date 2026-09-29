@@ -1,5 +1,28 @@
 # codex — Detailed Reference
 
+## Contents
+
+- [Completion Status Protocol](#completion-status-protocol)
+- [Operational Self-Improvement](#operational-self-improvement)
+- [Telemetry](#telemetry-run-last)
+- [Plan Mode Safe Operations](#plan-mode-safe-operations)
+- [Skill Invocation During Plan Mode](#skill-invocation-during-plan-mode)
+- [Plan Status Footer](#plan-status-footer)
+- [GSTACK REVIEW REPORT](#gstack-review-report)
+- [Step 0: Detect platform and base branch](#step-0-detect-platform-and-base-branch)
+- [Step 0: Check codex binary](#step-0-check-codex-binary)
+- [Step 1: Detect mode](#step-1-detect-mode)
+- [Filesystem Boundary](#filesystem-boundary)
+- [Step 2A: Review Mode](#step-2a-review-mode)
+- [Plan File Review Report](#plan-file-review-report)
+- [GSTACK REVIEW REPORT, mode output](#gstack-review-report-1)
+- [Step 2B: Challenge Mode](#step-2b-challenge-adversarial-mode)
+- [Step 2C: Consult Mode](#step-2c-consult-mode)
+- [Model and Reasoning](#model--reasoning)
+- [Cost Estimation](#cost-estimation)
+- [Error Handling](#error-handling)
+- [Important Rules](#important-rules)
+
 ## Completion Status Protocol
 
 When completing a skill workflow, report status using one of:
