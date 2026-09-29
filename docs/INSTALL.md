@@ -3109,6 +3109,15 @@ Claude Code CLI 2.1.284의 빈 `CLAUDE_CONFIG_DIR`에 v28 다섯 로컬
 `ai-debate` 독립 입장·교차검토·별도 심판은 플러그인별 콘텐츠 지문과
 증가하는 릴리스 번호의 조합을 권고했다. 다만 허브 `DECISIONS.md`의
 D-code가 아직 없어 생성기 계약·후보·사용자 설치본은 변경하지 않았다.
+[Claude Code 공식 마켓플레이스 문서](https://code.claude.com/docs/en/plugins/host-marketplace)는
+캐시 설치형 배포의 새 복사본은 계산된 플러그인 버전이 달라질 때만 전달되지만,
+공유 로컬 디렉터리를 제자리에서 읽는 경로는 버전과 무관하게 다음 세션 또는
+`/reload-plugins`에서 파일을 읽는다고 구분한다. 위 CLI 결과는 이번 격리
+설치 경로의 캐시 관측이지 모든 로컬 로딩 방식의 일반 법칙이 아니다.
+[SemVer 2.0.0](https://semver.org/)상 현행 `-vibe.<hex>`에서 단순
+`-vibe.<숫자>.h<지문>`으로 전환하면 같은 기본 버전의 첫 새 릴리스가
+낮은 우선순위가 될 수 있다. `-vibe.z.<숫자>.h<지문>`은 가능한 전환
+형식의 예시일 뿐이며, 판정·증가 번호 원장·회귀 시험 전에는 적용하지 않는다.
 Claude Max 구독의 세션 한정 `--plugin-dir`과 `--tools Skill`로 v28 Core의
 명시적 로딩 질문도 한 번 실행했다. 응답은 `simonk-core:vibe`와 본문의
 추가 계량 과금 기본 USD 0 규칙을 정확히 인용했으나, JSON 결과에
