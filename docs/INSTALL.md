@@ -3134,6 +3134,36 @@ Skill 도구 이벤트가 없고 frontmatter 버전도 응답에서 관측되지
 API 키·대체 엔드포인트도 사용하지 않았다.
 모든 테스트 프로필과 캐시는 삭제하지 않고 별도 릴리스 폴더에 보존했다.
 
+### v29b Core Obsidian Bases 소스 폐쇄 후보 (2026-09-29)
+
+Core 원본 기능 브랜치 `a07a1e9`를 `distribution/plugin-inputs.v1.json`에
+고정했다. 처음에는 원본 Core의 새 `obsidian-bases/references/EXAMPLES.md`가
+Stack 소스 소유 스킬의 파일 목록에 없어 빌더가 후보 생성을 차단했다.
+`skills-src/obsidian-bases`에도 해당 예시를 점진 공개 참조로 옮기고 긴 함수
+참조에 목차를 추가한 뒤, 별도 LF 로컬 클론 다섯 개와 새 출력 경로로 재빌드했다.
+검증기는 Stack 소스 스킬에 오류·경고 0건을 보고했고, 평가 케이스 3개의
+오프라인 형식 검사는 통과했다. 실제 모델 행동 평가는 실행하지 않았다.
+
+| 격리 산출물 | 영수증 SHA-256 | 검증 범위 |
+|---|---|---|
+| `source-v29b` | `8c8b94e724f8a7c485847095842719670dcbab88d831f18bc8b41c2f09645185` | 137스킬·412파일, 독립 verify 통과 |
+| `candidate-safety-v29b` | `05991d52e48f9aabbfca5b5d9afb04c82223e2c4ba11c5c49a8dce1a8137df0a` | 5플러그인·182스킬·741파일, 독립 verify 통과 |
+| `codex-overlay-v29b` | `74cbf8a1e904a701e730fe1d8f679536a1d8d20f0464b69dfcf3fce456f18bce` | Codex 호환 바이트 verify 통과 |
+| `codex-general-subset-v29b` | `dca759ac42e11c7e6ea15add2b9fda7792ef3f6c7b074d638ffcbd5c16039215` | 일반 스킬 출처 verify 통과 |
+
+네 산출물은 `E:/Coding Infra/Releases/SimonK-stack/20260929-v29-core-closure/`
+아래에 있다. v28과 비교하면 후보의 새 파일은 Core 예시 참조 1개이고,
+달라진 파일 13개는 Core 스킬·함수 참조 2개, 플러그인 메타데이터 10개,
+영수증 1개다. 후보 182개 스킬 검증은 실패 0, 비차단 경고 32개로
+v28의 34개보다 2개 줄었다. 저장소 전체 회귀 검사는 341건 중
+338통과·3건너뜀·실패 0으로 종료했고, Codex 플러그인 검증도 5/5 통과했다.
+Core의 `json-canvas` 참조 개선은 Stack이
+소유한 구버전 소스로 교체되므로 이 후보에는 아직 반영되지 않았다.
+공통 소스 지문 기반 플러그인 버전 계약·Gstack 전이 런타임·실제 호스트
+이관도 미완료다. `installation_ready`, `runtime_closure_verified`,
+`host_compatibility_verified`는 계속 false이며 사용자 설치본·`main`은
+변경하지 않았다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
