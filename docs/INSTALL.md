@@ -3050,6 +3050,34 @@ Sandbox 세션이 하나 실행 중이라 **새 게스트를 기동하지 않았
 계획 `ready`를 추가 과금 $0의 증거로 취급하지 않는다. 글로벌 설치본과
 활성 Claude·Codex 프로세스는 변경하지 않았다.
 
+### v28 AIHub 제품 모델 선택 교정 후보 (2026-09-29)
+
+`distribution/plugin-inputs.v1.json`의 SimonKAIHub 핀을 별도 기능 브랜치
+`feat/model-selector-current-260929`의 `d523b3e1cfa800ef60c690d40b7256abf5bcba1e`로
+갱신했다. 제품 API 모델 선택은 `ai-model-selector`로, 스택 내부 모델 라우팅은
+`model-router`로 분리하고 활성 AIHub 스킬의 구형/가짜 모델 ID 예시를 제거한
+원본이다. 다른 네 플러그인 핀은 변하지 않았다. 패키저가 linked worktree와
+Windows 전역 Git 줄바꿈에 의존한 체크아웃을 거부하므로, 줄바꿈을 명시한
+별도 **일반 로컬 클론** 5개를 검증 입력으로 사용했다. 기존 원본 브랜치와
+사용자 설치본은 건드리지 않았다.
+
+| 격리 산출물 | 영수증 SHA-256 | 검증 범위 |
+|---|---|---|
+| `source-v28` | `8fd80e4a53d494929008c9085e2562a5b1b92d5fdb738ed4a32fc50d8b1369ef` | 137스킬·411파일, 독립 verify 0 |
+| `candidate-safety-v28` | `ff06630960ecf295a62353572026957cbb767ee3818be0a248646e0d5b8badb5` | 5플러그인·182스킬·740파일, 독립 verify 0 |
+| `codex-overlay-v28` | `6992e5e8f9b64372b5661c14a487e247f71f0d4ba92c9c3e0094d8b4d5f412ee` | Codex 호환 바이트 verify 0 |
+| `codex-general-subset-v28` | `0be79256d3851c821855cce5191ed4c62c908c77aaeeb10dba88ecd374ab2aec` | 177스킬, 원본 출처 verify 0 |
+
+경로는 모두 `E:/Coding Infra/Releases/SimonK-stack/20260929-v28-aihub-current/`
+아래다. v26 안전 후보와 비교해 740개 파일의 경로는 동일하고 바뀐 15개
+파일은 전부 AIHub 교정 범위다. Claude 다섯 플러그인 check-only 프리뷰는
+`model_called=false`로 통과했고, 격리 복제본의 `/vibe` 오프라인 스모크
+4단계는 종료 0이다. 저장소 회귀 341건은 338통과·3건너뜀·실패 0이었다.
+정적 경로 감사는 누락·이식 불가 명령 0이지만 Gstack 31스킬·646참조·
+9대상의 외부 런타임이 미검증이라 `external_runtime_pending`(종료 1)이다.
+`runtime_closure_verified`, `host_compatibility_verified`, `installation_ready`
+모두 false이며, 이 후보는 설치·main 머지·모델/API/Bot 호출 승인이 아니다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
