@@ -3234,6 +3234,35 @@ SimonK 플러그인은 각각 0개였다. v30 고유 스킬 이름 182개를 현
 기존 flat 스킬을 일괄 비활성화하거나 지우면 사용자 소유 변경·Gstack
 원본을 잃을 수 있다. 현재 설정·링크·직접 디렉터리는 그대로 보존했다.
 
+전체 패키지의 경로·바이트 차이는 읽기 전용
+`scripts/audit_flat_skill_packages.py`로 따로 대조한다. 검증된 후보
+`bundle.json`의 SHA-256을 **외부 영수증으로 지정**해야 실행되며,
+후보와 같은 이름의 직접 디렉터리만 읽는다. 정션·심볼릭 링크 및 그
+대상, 관련 없는 스킬, 명시적 제외 경로는 읽지 않는다. 따라서 링크의
+동등성·소유권·호스트 로딩·행동은 판정하지 않는다. 본 사용자 프로필에서
+v30 182개 후보를 세 경로에 대해 검사한 결과는 아래와 같다.
+
+| 운영 flat 경로 | 전체 파일 일치 | 직접 디렉터리 상이 | 보존된 링크 | 없음 |
+|---|---:|---:|---:|---:|
+| `.agents/skills` | 0 | 0 | 136 | 46 |
+| `.codex/skills` | 0 | 0 | 2 | 180 |
+| `.claude/skills` | 0 | 133 | 5 | 44 |
+
+이는 각 경로마다 후보 182개를 대조한 수치로, 같은 링크가 두 경로에
+나타날 수 있다. 앞의 `SKILL.md`만의 결과(동일 1개)는 전체 패키지
+일치 1개를 뜻하지 않는다. 아래 명령은 검사 결과를 JSON stdout으로
+출력하며 차이가 있으면 종료코드 2를 반환한다. 출력에 파일 본문은 없다.
+
+```powershell
+python -B scripts/audit_flat_skill_packages.py `
+  --bundle 'E:\Coding Infra\Releases\SimonK-stack\20260929-v30-core-source-sync\candidate-safety-v30' `
+  --expected-digest e312d41b12b7413bd334ceba695eec561e459958ccb63a0f42394b5c13f44681 `
+  --root "$env:USERPROFILE\.agents\skills" `
+  --root "$env:USERPROFILE\.codex\skills" `
+  --root "$env:USERPROFILE\.claude\skills" `
+  --exclude-root "$env:USERPROFILE\.claude\skills\gstack"
+```
+
 후보 validator의 비차단 경고 31건은 W013(긴 Gstack 참조의 목차 부재)
 30건과 W007(`investigate` 본문 411줄) 1건으로 분류됐다. 대상은
 `SKILL.md.tmpl`에서 생성된 Gstack 스킬이므로 생성물을 직접 손보면
