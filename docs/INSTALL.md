@@ -3187,9 +3187,11 @@ v29b와 파일 집합은 동일하며 달라진 12개 파일은 Core
 격리된 Claude CLI 2.1.284의 manifest strict 검증과 Codex 로컬 플러그인
 검증은 각각 5/5 통과했고, 번들·Codex 오버레이·일반 subset 관련
 회귀 테스트는 55/55 통과했다. 두 manifest 검사는 스킬 동작·설치 성공의
-증거가 아니다. v29b의 전체 341건 검사를 v30에서 다시 실행했다고 주장하지 않는다.
+증거가 아니다. 이어 v30 브랜치에서 전체 오프라인 회귀
+`python -X utf8 -B -m unittest discover -s scripts/tests -p 'test_*.py' -q`를
+재실행해 341건 중 338통과·3건너뜀·실패 0(546.465초)을 확인했다.
 `installation_ready`, `runtime_closure_verified`,
-`host_compatibility_verified`는 모두 false이며, 실제 호스트 캐시·
+`host_compatibility_verified`는 모두 false이며, 기존 사용자 호스트 캐시·
 모델 행동·Gstack 전이 런타임·사용자 설치본 이관은 v30에서 검증하지 않았다.
 플러그인별 버전 계약도 아직 미적용이므로 v30을 설치 준비 완료로 해석하지 않는다.
 
