@@ -10,7 +10,7 @@
 </style>
 </head>
 <body><main>
-<p class="muted">SimonK-stack · feat/skill-context-budget-260925 @ 2039a4c · 2026-09-29 17:24:39 KST</p>
+<p class="muted">SimonK-stack · feat/skill-context-budget-260925 @ 1d432ae · 2026-09-29 17:28:19 KST</p>
 <h1>v31b 격리 후보는 검증됐지만 설치 준비는 미완료</h1>
 <p>Antigravity CLI 1.2.13의 메타데이터 전용 조회 변경을 기존 5개 플러그인에 다시 포장했다. LF 줄바꿈을 고정한 입력 복제본으로 영수증과 오프라인 스모크를 검증했다. 운영 설치본·v30·원본 브랜치는 변경하지 않았다.</p>
 <div class="cards" aria-label="핵심 지표">
@@ -26,5 +26,5 @@
 <tr><td>codex-general-subset-v31b · 177스킬</td><td><code>b15cff31810e1dfbfda4bf933780dab1a3bf068d7df4b19d7d063432d1410884</code></td></tr>
 </tbody></table><p>각 산출물의 자체 검증 명령은 종료 0이었다. Subset 검증의 <code>source_provenance_verified=false</code>는 별도 미해결 범위이며 원본 출처 전체를 인증했다고 해석하지 않는다.</p></details>
 <details><summary>실제 변경과 폐기 후보</summary><p>v30→v31b에서 Core의 <code>vibe/CHANGELOG.md</code>, <code>SKILL.md</code>, <code>references/orchestration.md</code>, <code>scripts/runtime_collect.py</code>, <code>scripts/test_runtime_collect.py</code>만 실제 콘텐츠가 달라졌다. 다른 네 플러그인의 실제 콘텐츠 변경은 0건이다. 다섯 플러그인의 생성 manifest는 공통 소스 지문 때문에 각각 2개씩 변경됐다.</p><p>첫 v31 후보는 Windows 자동 줄바꿈 변환으로 원본 텍스트 파일 다수에 의도치 않은 CRLF 차이가 생겨 폐기 판정했다. 그 후보는 설치·머지하지 않는다. 정리 명령이 정책에서 거부돼 첫 v31 임시 산출물은 보존 중이며 삭제는 일어나지 않았다.</p></details>
-<details><summary>오프라인 테스트와 남은 게이트</summary><p>영수증 검증 후 폐기 가능한 복사본에서 <code>vibe-selftest</code>, <code>vibe-runtime-unit</code>, <code>vibe-prepare-unit</code>, <code>vibe-table-sync</code> 모두 종료 0. Claude CLI strict manifest 5/5는 오류·경고 0, Codex plugin validator는 일반 subset 5/5에서 종료 0이었다. 소스 전체 회귀는 356건 중 353통과·3건너뜀·실패 0, vibe 소스 단위 222/222, selftest 180/180이다.</p><p>플러그인별 버전 D-code, Gstack/Orca 런타임 폐쇄, 호스트 설치 전환 검증이 남았다. <code>installation_ready</code>, <code>runtime_closure_verified</code>, <code>host_compatibility_verified</code>는 모두 false. 모델·Bot·Orca 실호출, 유료 API 호출, 결제 설정 변경은 하지 않았다.</p></details>
+<details><summary>오프라인 테스트와 남은 게이트</summary><p>영수증 검증 후 폐기 가능한 복사본에서 <code>vibe-selftest</code>, <code>vibe-runtime-unit</code>, <code>vibe-prepare-unit</code>, <code>vibe-table-sync</code> 모두 종료 0. Claude CLI strict manifest 5/5는 오류·경고 0, Codex plugin validator는 일반 subset 5/5에서 종료 0이었다. 소스 전체 회귀는 356건 중 353통과·3건너뜀·실패 0, vibe 소스 단위 222/222, selftest 180/180이다. 전용 버전 감사는 Core <code>updated</code> 5파일과 타 4개 소유자의 <code>churn</code> 0파일을 판정했다. 정적 경로 감사는 미해결 0·이식 불가 0이었지만 Gstack 외부 힌트 31스킬·646참조·9대상으로 <code>external_runtime_pending</code>이었다.</p><p>플러그인별 버전 D-code, Gstack/Orca 런타임 폐쇄, 호스트 설치 전환 검증이 남았다. <code>installation_ready</code>, <code>runtime_closure_verified</code>, <code>host_compatibility_verified</code>는 모두 false. 모델·Bot·Orca 실호출, 유료 API 호출, 결제 설정 변경은 하지 않았다.</p></details>
 </main><footer>v31b는 격리된 검증 후보이며 운영 배포 또는 사용자 프로필 설치를 승인하는 문서가 아니다.</footer></body></html>
