@@ -3014,6 +3014,18 @@ python scripts/candidate_path_audit.py --package E:/reviewed/candidate `
   --gstack-expected-commit <검토한-40자리-SHA>
 ```
 
+2026-09-30 현재 후보에 대해 경로 감사기는 단순 상대 Markdown 링크와 이미지
+자산(`references/`, `scripts/`, `templates/`, `assets/`, `../`)도 기존 백틱
+경로와 함께 중복 없이 검사한다. 새 감사의 오프라인 회귀 27건 통과 후, 최신
+5플러그인 후보 `713f38eb920966af471f269924b0b04a9d1c4bfb68d032fd62511bc5d2c22dd3`
+의 182개 `SKILL.md`에서 명시 경로 176건(기존 감사 144건)을 확인했고
+미해결 경로와 소스·프로젝트 상대 실행 명령은 각각 0건이었다. 고정 Gstack
+원본 `65bfb0ce49da807698359ca033a05709e342c684`의 직접 helper 9종도
+존재하나, 원본의 심볼릭 링크 때문에 전체 패키징 적합성은 `false`이고
+31개 스킬의 646개 Gstack 참조는 실행·전이 의존성 미검증이다. 감사 상태는
+계속 `external_runtime_pending`, `runtime_closure_verified=false`다. 이
+정적 검사에 동적 import·명령 분기·서비스·호스트 실행 성공을 포함하지 않는다.
+
 ### v27 메타데이터·Gstack 전이 시험 준비 (2026-09-29)
 
 `runtime_collect.py`의 네 표면 메타데이터 조회는 모두 종료 0이었다.

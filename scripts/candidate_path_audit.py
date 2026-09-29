@@ -5,7 +5,8 @@ This is a conservative static audit, not runtime dependency closure. Unresolved
 paths need manual context review; they are not necessarily missing dependencies.
 Gstack bin references are reported as external-runtime hints, not proof of
 availability. Optional pinned-source evidence checks direct helper files only.
-Dynamic commands, imports and services are out of scope.
+Literal backtick paths and simple Markdown link destinations are inspected;
+dynamic commands, imports and services remain out of scope.
 """
 from __future__ import annotations
 
@@ -21,9 +22,10 @@ import plugin_bundle
 import skill_release as release
 
 INLINE = re.compile(r"`([^`\r\n]+)`")
+MARKDOWN_LINK = re.compile(r"\]\(([^)\r\n]+)\)")
 SAFE_REFERENCE = re.compile(r"[A-Za-z0-9._/-]{1,240}\Z")
 LOCAL_PREFIXES = ("scripts/", "templates/", "references/", "./scripts/",
-                  "./templates/", "./references/", "../")
+                  "./templates/", "./references/", "assets/", "./assets/", "../")
 COMMAND_START = re.compile(r"(?:^|`)[ \t]*(?:bash|python(?:3)?|node|pwsh|powershell)\b")
 SOURCE_ROOT_ARG = re.compile(r"(?<![A-Za-z0-9_./-])(?:\./)?skills-src/[A-Za-z0-9_./-]+")
 PROJECT_SKILL_ARG = re.compile(
@@ -107,7 +109,9 @@ def inspect_skill_references(skill_path: str, text: str, available: set[str]) ->
     boundary = f"plugins/{parts[1]}/"
     seen: set[str] = set()
     rows = []
-    for match in INLINE.finditer(text):
+    matches = sorted([*INLINE.finditer(text), *MARKDOWN_LINK.finditer(text)],
+                     key=lambda match: match.start())
+    for match in matches:
         tokens = match.group(1).split()
         if not tokens:
             continue
@@ -182,7 +186,8 @@ def audit_candidate(root: Path, expected_digest: str, *, gstack_source: Path | N
                 "literal_references": external_runtime_ref_count,
                 "distinct_targets": len(external_runtime_targets)},
             "runtime_closure_verified": False,
-            "scope": "literal ASCII backtick paths and source/project-relative skill command locations; "
+            "scope": "literal ASCII backtick paths and simple Markdown link destinations, "
+                     "plus source/project-relative skill command locations; "
                      "literal Gstack bin counts are lexical external-runtime hints, not calls; "
                      "findings need manual review; no execution, imports or services"}
     if gstack_source is not None:

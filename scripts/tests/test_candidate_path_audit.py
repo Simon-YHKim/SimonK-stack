@@ -215,6 +215,32 @@ class CandidatePathAuditTests(unittest.TestCase):
         self.assertEqual(rows, [{"reference": "../llm-eval/scripts/gate.mjs",
                                  "resolved": target, "status": "present"}])
 
+    def test_markdown_links_cover_references_and_assets_without_double_counting(self):
+        skill = "plugins/SimonKCore/skills/example/SKILL.md"
+        parent = "plugins/SimonKCore/skills/example/"
+        text = ("Read [contract](references/plan.md#scope) and "
+                "![diagram](assets/flow.svg), then `scripts/check.py`. "
+                "Repeat [contract](references/plan.md#other). "
+                "Ignore [web](https://example.com/doc.md) and "
+                "[placeholder](references/<name>.md).")
+        available = {skill, parent + "references/plan.md",
+                     parent + "assets/flow.svg", parent + "scripts/check.py"}
+        rows = audit.inspect_skill_references(skill, text, available)
+        self.assertEqual([(row["reference"], row["status"]) for row in rows], [
+            ("references/plan.md", "present"),
+            ("assets/flow.svg", "present"),
+            ("scripts/check.py", "present"),
+        ])
+
+    def test_missing_or_escaping_markdown_links_fail_static_path_audit(self):
+        skill = "plugins/SimonKStack/skills/example/SKILL.md"
+        text = "Read [missing](references/needed.md) and [escape](../../../../secret.md)."
+        rows = audit.inspect_skill_references(skill, text, {skill})
+        self.assertEqual([(row["reference"], row["status"]) for row in rows], [
+            ("references/needed.md", "unresolved"),
+            ("../../../../secret.md", "outside-plugin"),
+        ])
+
     def test_missing_paths_reported_once_without_treating_placeholders_as_files(self):
         skill = "plugins/SimonKMarket/skills/referral-program-builder/SKILL.md"
         text = ("Run `scripts/check-referral-integrity.sh` and use "
