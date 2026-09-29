@@ -1129,13 +1129,43 @@ class OrchestrationTests(unittest.TestCase):
 
     def test_writing_requires_writing_capability_not_generic_reasoning(self):
         node = self.typed("WRITING")
-        blocked = self.plan([node])
+        reviewer = step("review", verify_of="read", depends_on=["read"])
+        review_route = candidate("reviewer", surface="claude")
+        blocked = self.plan([node, reviewer], [candidate(), review_route])
         self.assertEqual(blocked["status"], "blocked")
         self.assertIn("CAPABILITY_MISMATCH", str(blocked))
         eligible = candidate(capabilities=["writing", "reasoning"])
-        routed = self.plan([node], [eligible])
+        routed = self.plan([node, reviewer], [eligible, review_route])
         self.assertEqual(routed["status"], "ready")
         self.assertEqual(routed["steps"][0]["route"]["requested_effort"], "high")
+
+    def test_typed_writing_requires_independent_review_even_without_file_edits(self):
+        writer = self.typed("WRITING", writes=False)
+        writer_route = candidate("writer", surface="claude",
+                                 capabilities=["writing", "reasoning"])
+        without_review = self.plan([writer], [writer_route])
+        self.assertEqual(without_review["status"], "blocked")
+        self.assertIn("MISSING_REVIEW", without_review["steps"][0]["errors"])
+
+        reviewer = step("review", verify_of="read", depends_on=["read"])
+        consumer = step("consume", depends_on=["read"])
+        same_vendor = candidate("same-vendor-reviewer", surface="claude",
+                                capabilities=["reasoning", "research"])
+        not_independent = self.plan([writer, reviewer], [writer_route, same_vendor])
+        self.assertEqual(not_independent["status"], "blocked")
+        self.assertIn("SAME_VENDOR_REVIEW", str(not_independent))
+        independent = candidate("reviewer", surface="codex",
+                                capabilities=["reasoning", "research"])
+        reviewed = self.plan([writer, reviewer, consumer], [writer_route, independent])
+        self.assertEqual(reviewed["status"], "ready")
+        self.assertNotEqual(reviewed["steps"][0]["route"]["vendor"],
+                            reviewed["steps"][1]["route"]["vendor"])
+        written = self.events(reviewed, {"id": "read", "status": "done",
+                                         "verified": True, "evidence": ["fixture output"]})
+        self.assertEqual(self.m.ready_steps(reviewed, written, now=NOW), ["review"])
+        approved = written + self.events(reviewed, {"id": "review", "status": "done",
+                                                  "verified": True, "evidence": ["fixture review"]})
+        self.assertEqual(self.m.ready_steps(reviewed, approved, now=NOW), ["consume"])
 
     def test_untyped_requests_remain_backward_compatible(self):
         node = step()

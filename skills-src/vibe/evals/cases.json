@@ -1,6 +1,6 @@
 {
   "skill": "vibe",
-  "version": "2.12.7",
+  "version": "2.12.8",
   "cases": [
     {
       "id": "gui-natural-language-main-router",
@@ -455,7 +455,8 @@
       ],
       "assertions": [
         {"id": "different-demands", "text": "The focused bug fix uses CODE_SIMPLE/routine demand but retains quality tier 2 as a floor, while polished user-facing writing is a separate WRITING/reasoning-capable node; one blanket max-effort model is not assigned to both."},
-        {"id": "do-safe-work", "text": "Safe current-session implementation and tests may proceed, but an unverified external writer or reviewer is not dispatched and unfinished review is not called complete."}
+        {"id": "do-safe-work", "text": "Safe current-session implementation and tests may proceed, but an unverified external writer or reviewer is not dispatched and unfinished review is not called complete."},
+        {"id": "review-prose-too", "text": "The WRITING node requires a different-vendor LLM reviewer even if writes is false; a downstream user-facing announcement waits for that review rather than treating the prose as approved."}
       ]
     },
     {

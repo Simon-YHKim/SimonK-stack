@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.12.8 - 2026-09-30
+
+- Enforce the existing writing-review rule for typed `WRITING` outputs even
+  when they do not edit files. Require an independent LLM reviewer in the same
+  plan and hold downstream consumers until it passes on either host. Offline
+  tests cover the previously ready unreviewed path and reviewed recovery;
+  this does not establish live Claude/Codex behavior or permit paid calls.
+
 ## 2.12.5 - 2026-09-29
 
 - Admit locally measured Antigravity CLI 1.2.13 for metadata-only `/usage`:

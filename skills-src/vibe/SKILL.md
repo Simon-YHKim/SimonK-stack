@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use for /vibe, "알아서 진행", "오르카로 돌려", "스킬 조합", skill/model/effort/subscription-cost orchestration, and Play Console/GUI requests. Check CLI/API/MCP first; use vibe-bot only for GUI-only steps. Produces verified plans and artifacts; never invent specialist skills or assume paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.7
+version: 2.12.8
 author: simon-stack
 ---
 
@@ -210,7 +210,11 @@ dispatch, lookup and evidence collection. Do not start a monitoring daemon.
 
 Use a different model vendor for independent review. Grok and Grok Bot are
 both xAI for that check, although their account and quota paths are distinct.
-Writing work always needs review; an automated build does not replace it.
+`WRITING` work needs a different-vendor LLM review even when `writes:false`
+because its deliverable is prose, not a file edit. The planner blocks an
+unreviewed writing node and holds downstream consumers until that review passes;
+an automated build does not replace it. Apply the same contract in Claude and
+Codex; unavailable review is a reported blocker, not permission to downgrade.
 
 ## 4. Use vibe-bot internally for GUI-only work
 

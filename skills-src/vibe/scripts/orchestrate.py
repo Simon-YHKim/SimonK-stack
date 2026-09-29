@@ -535,6 +535,11 @@ def ordered_steps(steps):
     return ordered
 
 
+def requires_review(node):
+    """Writing output needs review even when it does not edit a file."""
+    return bool(node.get("writes")) or node.get("task_type") == "WRITING"
+
+
 def assess_candidate(c, step, policy, now, producer_vendor=None):
     errors = list(c.get("registry_errors", []))
     for binding in step.get("skill_bindings", []):
@@ -729,7 +734,7 @@ def make_plan(request, catalog, runtime, now=None, registry=None):
         vendor = (parent.get("route") or {}).get("vendor") if parent else None
         if parent and not parent.get("route"):
             errors.append("PRODUCER_UNROUTED")
-        if s.get("writes") and not any(n.get("verify_of") == s["id"] and n.get("kind") == "llm" for n in nodes):
+        if requires_review(s) and not any(n.get("verify_of") == s["id"] and n.get("kind") == "llm" for n in nodes):
             errors.append("MISSING_REVIEW")
         if s["kind"] == "local":
             argv = s.get("argv")
@@ -880,7 +885,7 @@ def ready_steps(plan, events, now=None):
         if not set(node.get("depends_on", [])) <= done:
             return False
         for dependency in ancestors(node):
-            if not by_id[dependency].get("writes") or node.get("verify_of") == dependency:
+            if not requires_review(by_id[dependency]) or node.get("verify_of") == dependency:
                 continue  # Reviewers need the producer's output before approval.
             reviewers = {s["id"] for s in plan["steps"]
                          if s.get("kind") == "llm" and s.get("verify_of") == dependency}
