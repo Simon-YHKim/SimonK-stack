@@ -128,7 +128,8 @@ Office     & Design               & Platform & Compl.   & Revenue  & Memory   De
 | `/simon-worktree` | 병렬 작업 시 git worktree 격리 |
 | `/phase4-game-orchestrator` | 게임 구현 요청을 과거 일정으로 미루지 않고 엔진·에셋·비용을 확인해 `/vibe` 빌드·검증으로 연결합니다. 초안이나 스토어 게시를 완료로 주장하지 않습니다. |
 | `/building-native-ui` | 기존 RN/Expo 구조·SDK를 확인해 네이티브 화면을 구현하고 Android APK/Studio·iOS 검증 범위를 구분합니다. EAS 클라우드 빌드·스토어 제출은 별도 게이트입니다. |
-| `/vercel-react` · `/vue-best-practices` · `/remotion-best-practices` · `/scientific-paper` | 도메인별 best practices (React/Vue/Remotion video/학술논문) |
+| `/vercel-react` | 기존 React/Next.js·라우터·Vercel 맥락을 확인하고 실측 오류에 맞는 경계·캐시·렌더링만 수정합니다. 프리뷰·운영 배포와 유료 설정은 별도 게이트입니다. |
+| `/vue-best-practices` · `/remotion-best-practices` · `/scientific-paper` | 도메인별 best practices (Vue/Remotion video/학술논문) |
 
 ### 4. DevEx & Platform (플랫폼) — 인프라·툴체인·배포
 
