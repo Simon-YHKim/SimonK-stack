@@ -3292,6 +3292,33 @@ CLI 모델 목록으로 증명되지 않는다. [xAI FAQ](https://docs.x.ai/grok
 변경하지 않았으며 시험 결과 영수증은 없다. 따라서 세 준비 플래그는
 여전히 false이고, 이 절은 운영 설치 또는 전체 런타임 폐쇄의 승인이 아니다.
 
+### 후보 간 플러그인 버전 충돌 감사 (2026-09-29)
+
+`scripts/audit_plugin_version_transition.py`는 **두 개의 SHA-256 영수증으로
+각각 검증한 후보**의 플러그인별 전체 패키지 파일을 비교한다. 생성된
+`plugin.json`·`marketplace.json`은 **버전 필드만 비운 정규화 JSON**으로
+비교해 설명·스킬 목록 같은 비버전 변경도 감지한다. 패키지 경로·해시·
+Git 실행 모드가 달라졌는데 버전이 같으면
+`collision`으로 종료코드 2를 반환한다. 내용은 같고 버전만 바뀌면
+`churn`으로 보고하되 현재는 경고(exit 0)다. 이 검사는 버전 명명 방식을
+선택하거나 호스트 업데이트·런타임 동작을 증명하지 않는다.
+
+```powershell
+python -B scripts/audit_plugin_version_transition.py `
+  --before 'E:\Coding Infra\Releases\SimonK-stack\20260929-v26-credit-fallback\candidate-safety-v26' `
+  --before-digest f2c5f9d2004c34e5430a9b6bfe985c6f3ac3cdd039049800b5c5d115ff097d89 `
+  --after 'E:\Coding Infra\Releases\SimonK-stack\20260929-v28-aihub-current\candidate-safety-v28' `
+  --after-digest ff06630960ecf295a62353572026957cbb767ee3818be0a248646e0d5b8badb5
+```
+
+실제 실행에서 v26→v28은 AIHub 파일 15개가 바뀌었지만 버전은
+`0.2.0-vibe.8fd80e4a53d4`로 동일해 `collision`/exit 2였다. v28→v30은
+Core 패키지 파일 4개가 바뀌고 버전도 바뀌었으나 AIHub·Design·Market·Stack
+네 패키지는 파일 변화 없이 버전만 바뀌어 `churn`/exit 0이었다. 이는
+플러그인별 버전 계약 결정을 대체하지 않으며 `installation_ready=false`를
+유지한다. 테스트는 두 증상과 경로 추가·모드 변경·비버전 manifest 변경·
+소유자 불일치를 다룬다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
