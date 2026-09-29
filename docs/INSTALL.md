@@ -3073,6 +3073,10 @@ Windows 전역 Git 줄바꿈에 의존한 체크아웃을 거부하므로, 줄�
 파일은 전부 AIHub 교정 범위다. Claude 다섯 플러그인 check-only 프리뷰는
 `model_called=false`로 통과했고, 격리 복제본의 `/vibe` 오프라인 스모크
 4단계는 종료 0이다. 저장소 회귀 341건은 338통과·3건너뜀·실패 0이었다.
+Claude CLI의 다섯 manifest `validate --strict --json`은 모두 종료 0·manifest
+오류/경고 0이지만 `contents=[]`라 스킬 본문 검증은 아니다. 별도
+`validate_skill.py`는 후보 182/182개 `Result: OK`, 비차단 경고 34개였고
+이번에 바뀐 AIHub 7개는 경고 0이다. 나머지 경고는 별도 품질 backlog로 둔다.
 정적 경로 감사는 누락·이식 불가 명령 0이지만 Gstack 31스킬·646참조·
 9대상의 외부 런타임이 미검증이라 `external_runtime_pending`(종료 1)이다.
 `runtime_closure_verified`, `host_compatibility_verified`, `installation_ready`
