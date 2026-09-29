@@ -1,7 +1,7 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 13:55:56 KST
+updated: 2026-09-29 14:09:40 KST
 state: running
 source: user-direct
 ---
@@ -10,6 +10,7 @@ source: user-direct
 
 Current source: Simon direct. Continue SimonK-stack `/vibe` and five-plugin modernization using subscriptions only; additional metered spend is USD 0. No payment, overage or auto-topup setting changes.
 
+- 2026-09-29 14:09:40 KST: Stack feature `18b6034` pushed/clean; source-owned `json-canvas` Core example TOC ported with strict YAML and skill validator 0 error/0 warning, dry-run eval schema 2/2. Isolated v30 source/candidate/Codex overlay/general subset receipts verified; v29b→v30 path set unchanged, only JSON Canvas reference + 10 metadata + receipt bytes changed. Candidate 182/182 skill validation, 31 nonblocking warnings (v28:34), Claude strict manifests 5/5, Codex manifests 5/5, package regressions 55/55. README/INSTALL and standalone HTML report updated. No model/API/Bot generation, extra spend or user install. Readiness 3 flags false; no per-plugin version D-code in hub as of this check.
 - 2026-09-29 13:55:56 KST: SimonK-stack feature `f3bb727` pushed/clean. Core original `a07a1e9` now pinned; Stack source-owned `obsidian-bases` progressive-disclosure EXAMPLES closure was required because a pin-only v29 build correctly failed on an unexplained supplementary file. New isolated v29b source/candidate/Codex overlay/general subset receipts independently verified, 182/182 candidate skills passed validator with 32 nonblocking warnings (v28:34), Codex plugin manifests 5/5, full 341 tests 338 pass/3 skip/0 fail; no-LLM graphify updated. Candidate readiness flags remain false. Core `json-canvas` source port, per-plugin version D-code and generator, Gstack runtime closure, actual installation and main remain pending.
 - 2026-09-29 13:30:41 KST: Canonical nested relative-path local marketplace probe in isolated unauthenticated Claude CLI 2.1.284 profile reproduced caching despite official local in-place language. Source-only A→B + marketplace/plugin update returned `up_to_date` and retained old cache; manifest 1.0.0→1.0.1 returned `updated` and new cache matched source SHA-256. Standalone HTML evidence saved outside hub; Stack feature `509fb2f` docs pushed/clean after diff check and no-LLM graphify. No model call, generator, candidate or user-install change.
 - 2026-09-29 13:23:59 KST: Stack feature `8886eb4` recorded official docs and SemVer migration hazard, without adopting a new contract. D-code remains Claude-owned and pending.
