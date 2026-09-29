@@ -22,6 +22,7 @@
 - **`/vibe` 2.11.16 progressive disclosure** — moved the generated historical Orca lane table into a directly linked reference and retargeted its drift checker. Normal skill loading omits the legacy table; the generator, safety guards and frontier runtime routing are unchanged. This does not reduce the initial five-plugin description footprint or prove model/host behavior.
 
 ### Fixed
+- **`vue-best-practices` 2.0.1 원본 계약 통합** — 기존 Options API·상태 소유권·실측 성능 작업을 보존하고, Pinia 직접 상태 변경 및 Vue 3.5+ props 구조분해에 대한 잘못된 오류 판정을 바로잡았다. 원본 라우팅·동작 사례 5건과 새 공식 동작 회귀 2건을 소스 평가에 포함했다. 모델 행동, 사용자 설치, 브라우저 성능은 아직 검증하지 않았다.
 - **`vercel-react` 0.1.3 라우터·캐시 모델·배포 경계 교정** — 원본의 React/Next.js 기존 프로젝트·실측 우선 원칙을 반영하고 Pages Router/React 단독 앱에 App Router 지침을 강제하지 않는다. Cache Components와 이전 캐시 모델을 분리하고 `updateTag`·Proxy/런타임·Suspense·Server Action 예시의 단정을 바로잡았다. 원본 트리거 3건과 새 회귀 3건을 소스 평가에 추가했으나 모델 행동·브라우저·운영 배포를 검증한 것은 아니다.
 - **`building-native-ui` 2.0.1 프로젝트 우선·빌드 경계 교정** — 고정 Expo 56·RN 버전과 FlashList/NativeWind/Expo Router 강제를 제거하고 원본의 기존 앱·Android APK/Studio·iOS 증거·EAS Submit 게이트를 반영했다. Expo Babel 자동 구성, Metro exports 전역 폴백, Windows EAS 로컬 빌드 제약도 공식 문서에 맞춰 조건부로 수정했다. 원본 5개 회귀 사례를 소스 평가에 이식했으나 모델 라우팅·실제 APK/스토어 동작을 검증한 것은 아니다.
 - **`stack-architect` 1.0.1 고정 배포비·인프라 단정 제거** — 사용자 수별 공급자·월 비용·Kubernetes 도입표를 요구량 기반 검토로 바꾸고, 기존 스택·실측 부하·공식 가격·초과 과금 조건을 먼저 확인한다. 로컬 AI·관리형 실시간 등 대안을 열어 두고, 아키텍처 문서를 배포 승인으로 취급하지 않는다. 원본 회귀 2건과 교정한 기존 사례 2건을 포함하되 모델 선택 행동·실제 배포를 검증한 것은 아니다.
