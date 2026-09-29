@@ -108,6 +108,40 @@ class GstackMigrationAuditTests(unittest.TestCase):
                 audit.audit_candidate(Path("package"), "0" * 64, Path("generated"))
             read_file.assert_not_called()
 
+    def test_codex_subset_requires_source_overlay_and_audits_only_codex(self):
+        skill = "plugins/SimonKStack/skills/qa/SKILL.md"
+        body = ("---\nname: qa\n---\n## Modern\n"
+                "~/.claude/skills/gstack/bin/gstack-skill-start\n").encode()
+        receipt = {"included_members": [{"path": skill, "size": len(body),
+                                         "sha256": audit.release.digest(body)}],
+                   "source_overlay_digest": "2" * 64,
+                   "excluded_skills": ["simonk-stack:investigate"]}
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "subset"
+            target = source / skill
+            target.parent.mkdir(parents=True)
+            target.write_bytes(body)
+            generated = root / "generated"
+            native = generated / ".agents" / "skills" / "gstack-qa"
+            native.mkdir(parents=True)
+            (native / "SKILL.md").write_text("---\nname: qa\n---\n## Modern\n",
+                                             encoding="utf-8")
+            with patch("codex_safe_subset.verify_subset", return_value=receipt) as verify:
+                report = audit.audit_candidate(source, "1" * 64, generated,
+                                               package_kind="codex-subset",
+                                               source_overlay=root / "overlay",
+                                               overlay_digest="2" * 64)
+            verify.assert_called_once_with(source, "1" * 64, root / "overlay", "2" * 64)
+            self.assertEqual(report["skills_checked"], 1)
+            self.assertEqual(report["matched"], {"codex": 1})
+            self.assertEqual(report["missing"], {"codex": []})
+            self.assertEqual(report["package_kind"], "codex-subset")
+            self.assertTrue(report["source_provenance_verified"])
+            with self.assertRaises(ValueError):
+                audit.audit_candidate(source, "1" * 64, generated,
+                                      package_kind="codex-subset")
+
     def test_audit_reports_host_mapping_gaps_from_verified_candidate(self):
         skill = "plugins/SimonKStack/skills/qa/SKILL.md"
         body = ("---\nname: qa\n---\n## 완료 보고 (HTML) — 표준\n"

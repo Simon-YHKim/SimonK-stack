@@ -13,6 +13,7 @@ import re
 import sys
 
 import candidate_path_audit as paths
+import codex_safe_subset
 import plugin_bundle
 import skill_release as release
 
@@ -162,12 +163,29 @@ def generated_user_home_gstack_link_kinds(documents: dict[str, tuple[str, str]])
 
 def audit_candidate(package: Path, expected_digest: str, generated_root: Path,
                     expected_generated_digests: dict[str, str] | None = None,
-                    expected_generated_markdown_digests: dict[str, str] | None = None) -> dict:
+                    expected_generated_markdown_digests: dict[str, str] | None = None,
+                    *, package_kind: str = "claude-candidate",
+                    source_overlay: Path | None = None,
+                    overlay_digest: str | None = None) -> dict:
     package = release.no_links(Path(package))
-    receipt = plugin_bundle.verify_bundle(package, expected_digest)
+    if package_kind == "claude-candidate":
+        if source_overlay is not None or overlay_digest is not None:
+            raise ValueError("Overlay pin requires a Codex subset")
+        receipt = plugin_bundle.verify_bundle(package, expected_digest)
+        members = receipt["files"]
+        hosts = ("claude", "codex")
+    elif package_kind == "codex-subset":
+        if source_overlay is None or overlay_digest is None:
+            raise ValueError("Codex subset needs its source overlay and digest")
+        source_overlay = release.no_links(Path(source_overlay))
+        receipt = codex_safe_subset.verify_subset(package, expected_digest,
+                                                  source_overlay, overlay_digest)
+        members = receipt["included_members"]
+        hosts = ("codex",)
+    else:
+        raise ValueError("Unsupported package kind")
     generated_root = release.no_links(Path(generated_root))
-    host_docs = {host: generated_index(generated_root, host)
-                 for host in ("claude", "codex")}
+    host_docs = {host: generated_index(generated_root, host) for host in hosts}
     generated_digests = {host: generated_digest(docs) for host, docs in host_docs.items()}
     markdown_docs = {host: generated_markdown_documents(generated_root, docs)
                      for host, docs in host_docs.items()}
@@ -195,7 +213,7 @@ def audit_candidate(package: Path, expected_digest: str, generated_root: Path,
             raise ValueError("Generated Markdown digest mismatch")
     entries = []
     seen = set()
-    for item in receipt["files"]:
+    for item in members:
         path = item["path"]
         if not ENTRYPOINT.fullmatch(path):
             continue
@@ -234,7 +252,8 @@ def audit_candidate(package: Path, expected_digest: str, generated_root: Path,
                   row["occurrences"] for row in (*root_links.values(), *home_links.values(),
                                                   *shell_home_links.values()))
               else "static_mapping_present")
-    return {"status": status,
+    return {"status": status, "package_kind": package_kind,
+            "source_provenance_verified": package_kind == "codex-subset",
             "bundle_digest": expected_digest, "skills_checked": len(entries),
             "generated_doc_digests": generated_digests,
             "generated_bytes_verified": expected_generated_digests is not None,
@@ -260,24 +279,39 @@ def main(argv=None) -> int:
     parser.add_argument("--package", type=Path, required=True)
     parser.add_argument("--expected-digest", required=True)
     parser.add_argument("--generated-root", type=Path, required=True)
+    parser.add_argument("--package-kind", choices=("claude-candidate", "codex-subset"),
+                        default="claude-candidate")
+    parser.add_argument("--source-overlay", type=Path)
+    parser.add_argument("--overlay-digest")
     parser.add_argument("--expected-claude-digest")
     parser.add_argument("--expected-codex-digest")
     parser.add_argument("--expected-claude-markdown-digest")
     parser.add_argument("--expected-codex-markdown-digest")
     args = parser.parse_args(argv)
     try:
-        if bool(args.expected_claude_digest) != bool(args.expected_codex_digest):
-            raise ValueError("Both generated digests are required together")
-        generated_pins = ({"claude": args.expected_claude_digest,
-                           "codex": args.expected_codex_digest}
-                          if args.expected_claude_digest else None)
-        if bool(args.expected_claude_markdown_digest) != bool(args.expected_codex_markdown_digest):
-            raise ValueError("Both generated Markdown digests are required together")
-        markdown_pins = ({"claude": args.expected_claude_markdown_digest,
-                          "codex": args.expected_codex_markdown_digest}
-                         if args.expected_claude_markdown_digest else None)
+        if args.package_kind == "codex-subset":
+            if args.expected_claude_digest or args.expected_claude_markdown_digest:
+                raise ValueError("Claude generated pins do not apply to a Codex subset")
+            generated_pins = ({"codex": args.expected_codex_digest}
+                              if args.expected_codex_digest else None)
+            markdown_pins = ({"codex": args.expected_codex_markdown_digest}
+                             if args.expected_codex_markdown_digest else None)
+        else:
+            if bool(args.expected_claude_digest) != bool(args.expected_codex_digest):
+                raise ValueError("Both generated digests are required together")
+            if bool(args.expected_claude_markdown_digest) != bool(args.expected_codex_markdown_digest):
+                raise ValueError("Both generated Markdown digests are required together")
+            generated_pins = ({"claude": args.expected_claude_digest,
+                               "codex": args.expected_codex_digest}
+                              if args.expected_claude_digest else None)
+            markdown_pins = ({"claude": args.expected_claude_markdown_digest,
+                              "codex": args.expected_codex_markdown_digest}
+                             if args.expected_claude_markdown_digest else None)
         result = audit_candidate(args.package, args.expected_digest, args.generated_root,
-                                 generated_pins, markdown_pins)
+                                 generated_pins, markdown_pins,
+                                 package_kind=args.package_kind,
+                                 source_overlay=args.source_overlay,
+                                 overlay_digest=args.overlay_digest)
     except (ValueError, OSError, UnicodeError, KeyError, TypeError):
         print('{"status":"blocked","message":"Gstack migration audit failed"}', file=sys.stderr)
         return 2

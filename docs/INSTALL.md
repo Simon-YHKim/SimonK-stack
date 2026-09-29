@@ -1394,6 +1394,31 @@ python -B scripts/gstack_migration_audit.py `
   --expected-codex-digest 852be775940075d52e5953ddc76a52ab4498266fa676bb6cc6fb99be7b8e87af
 ```
 
+Codex 일반 안전 subset만 대조하려면 `--package-kind codex-subset`과
+`--source-overlay`/`--overlay-digest`를 함께 전달한다. 이 모드는 subset 영수증과
+원본 overlay 출처를 검증한 뒤 **Codex에 실제 포함된 스킬만** Codex 네이티브
+생성 문서와 대조한다. Claude 생성 문서·digest는 받지 않으며, 선택적으로
+`--expected-codex-digest`와 `--expected-codex-markdown-digest`만 고정한다.
+출력의 `source_provenance_verified=true`는 subset→overlay 바이트 출처만
+뜻하며 Gstack 생성 원본·실행 호환성의 증거는 아니다.
+
+2026-09-30 `281fc11` 안전 subset과 별도 고정 Gstack v1.91.6 Codex 생성본의
+읽기 전용 대조: Gstack 실행 참조 스킬 30개 중 선언 이름 28개 대응,
+`checkpoint`·`codex` 2개 미대응, 대응 본문 중 23개가 500줄 초과.
+생성 Markdown의 Claude 홈 Gstack 링크·렌더 루트 절대 링크는 0건이었다.
+결과는 `migration_review_required`(종료 1)이며 실제 호스트 성능 동등성이나
+설치 승인을 뜻하지 않는다. 재현 명령은 다음과 같다.
+
+```powershell
+python -B scripts/gstack_migration_audit.py `
+  --package-kind codex-subset `
+  --package 'E:/Coding Infra/Releases/SimonK-stack/20260930-writing-review-281fc11/codex-subset-safety' `
+  --expected-digest 7ef52b6fa8706c286b852635eaf694732ee209d7be326f5b0f60308142a9586d `
+  --source-overlay 'E:/Coding Infra/Releases/SimonK-stack/20260930-writing-review-281fc11/codex-overlay-safety' `
+  --overlay-digest 4d34fb541df48c1b0e2feffa9d59dff6e0af290c6554ecb0306fecd0ae6c3047 `
+  --generated-root 'E:/Coding Infra/Releases/SimonK-stack/20260930-gstack-codex-native-v1916'
+```
+
 2026-09-28 실측: legacy 31개 중 Claude 생성 이름 30개·Codex 29개 대응,
 누락은 Claude `checkpoint`, Codex `checkpoint`·`codex`다. 각 호스트의
 생성 문서 24개가 500줄을 넘었다. 기존 문서에만 있는 선택 정책 제목은
