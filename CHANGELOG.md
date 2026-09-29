@@ -6,6 +6,7 @@
 ## [Unreleased]
 
 ### Added
+- **`/vibe` 2.12.16 새 격리 후보** — 고정 원본 5플러그인으로 Claude 182스킬·Codex 일반 subset 177스킬을 재조립했다. 네 영수증, 공통 본문 176개·payload 612개 정적 패리티, 일회용 오프라인 실행 4단계와 네트워크 차단 Sandbox의 양호스트 적재/등록을 확인했다. 모델 생성·자동 선택·실효 effort·사용자 설치·구독 청구·전체 Gstack 런타임은 검증하지 않았다.
 - **Gstack 로컬 기록·팀 초기화 활성 경로 격리 실측** — 고정 원본을 새 무인증·네트워크 차단 Windows Sandbox의 임시 저장소에 복제해 `learnings-log` 정상/거부 입력, `timeline-log`, `team-init` optional/required 5회 호출의 종료 코드와 예상 파일만 생성됨을 확인했다. 실패한 앞선 하네스 시도도 영수증으로 보존했다. 원본 사용자 저장소·설치본은 건드리지 않았으며 동기화/삭제 분기, 전체 전이 폐쇄성, Claude·Codex 호스트 동작 및 설치 준비는 인증하지 않는다.
 - **Gstack 격리 런타임 안전 분기 실측** — 네트워크·클립보드가 꺼진 두 Windows Sandbox에서 고정 독립 원본의 6개 helper 비활성/읽기 분기 8회와 `spawned` 스킬 시작 프리앰블 1회를 실행해 기대 출력·게스트 상태·자격증명 부재를 확인했다. 사용자 홈·모델·API·Bot은 사용하지 않았으며 전체 Gstack 전이 폐쇄성이나 호스트 성능·설치 준비를 주장하지 않는다.
 - **Claude·Codex 후보 정적 본문 패리티 게이트** — 5플러그인 Claude 후보와 출처가 검증된 Codex 일반 subset의 스킬 파일을 비교한다. 공통 176개는 완전 동일, `zoom-out` 1개는 수동 호출 정책에 필요한 정확한 frontmatter 투영만 허용하며, D-29 안전 스킬 5개 제외를 강제한다. 불일치·추가·누락은 실패한다. 정적 PASS를 실제 선택 품질·안전 훅 동등성 또는 설치 준비로 승격하지 않는다.
@@ -36,6 +37,7 @@
 - **`/vibe` 2.11.16 progressive disclosure** — moved the generated historical Orca lane table into a directly linked reference and retargeted its drift checker. Normal skill loading omits the legacy table; the generator, safety guards and frontier runtime routing are unchanged. This does not reduce the initial five-plugin description footprint or prove model/host behavior.
 
 ### Fixed
+- **이미지 생성 라우팅 경계와 독립 설치 fixture** — `IMAGE_GENERATION`을 텍스트 `VISION`과 구별되는 차단 계획 단계로 보존하고, 독립 설치 테스트 두 곳에 필수 `task-fit-policy.json`을 포함했다. 저장소 테스트 387건은 3건 조건부 skip 외 통과했다. 전용 구독 포함 이미지 도구나 실제 생성 기능을 추가한 것은 아니다.
 - **`ship` 1.0.1 출시·과금·호스트 경계 교정** — 원본의 최신 재검증·추가 과금 $0 평가 사례를 보존하고, 자동 base 머지·모든 미커밋 파일 포함·유료 judge 필수 실행·Codex/Claude 무료 단정·무조건 push/PR·`git add -A` 문서 동기화를 사용자/저장소 권한과 구독 포함 증거에 종속시켰다. Claude 도구명을 Codex 호스트 기능에 대응시키되 동일 출시 게이트를 유지하는 사례를 추가하고 장문 참고문서에 목차를 넣었다. 정적 평가·저장소 회귀만 수행하며 실제 모델 행동, 유료 평가, 배포, 사용자 설치, 양 호스트 성능 동등성을 인증하지 않는다.
 - **`security-checklist` 1.0.1 보안 판단 교정** — 원본의 사용자/IP 제한·3계층 예산 누락 사례를 소스 평가에 복원하고, RLS 정책 존재와 활성화의 혼동, 행 정책의 열 보호 오인, 모든 TossPayments 웹훅 서명 가정, OpenAI soft budget을 hard cap으로 간주한 지침을 바로잡았다. SQL 예시는 운영 변형 실행을 금지하고 권한별 결과를 구분한다. 평가는 스키마 dry-run이며 운영 DB·실결제·유료 API·모델 행동 검증은 아니다.
 - **`paid-api-guard` 1.0.1 유료 API 감사·비용 경계 교정** — 원본의 Twilio SMS 유출 의심/비용 폭증 감사 사례를 소스 평가에 복원하고, Stripe 공개 키 `pk_` 오탐, 처리 전 웹훅 완료 표시, 브라우저 HMAC·BFF·고정 비율·실결제 중복 시험 강제 등 위험한 단정을 제거했다. 공급자 알림은 하드 지출 차단이 아님을 명시하고 추가 과금 $0 사례를 추가했다. 평가는 스키마 dry-run이며 모델 행동·운영 결제·문자 발송을 검증하지 않았다.

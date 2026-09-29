@@ -3870,6 +3870,45 @@ Codex는 구매 크레딧 폴백 차단을 검증할 수 없어 실호출하지 
 **이 한 사례는 Claude의 `/vibe` 진입 증거만** 제공하며, 양호스트 30개
 선택 평가·실제 작업 품질·구독 경로 전체 검증을 대체하지 않는다.
 
+## `/vibe` 2.12.16 이미지 생성 경계 후보 (2026-09-30)
+
+기능 브랜치 `feat/skill-context-budget-260925`의 `d7d7ff4`에서 독립 격리 후보
+`E:/Coding Infra/Releases/SimonK-stack/20260930-image-boundary-d7d7ff4/`를 빌드했다.
+원본 다섯 플러그인은 `distribution/plugin-inputs.v1.json`의 고정 HEAD와 clean
+상태를 다시 확인했다. 소스 `/vibe`는 2.12.16, `/vibe-bot`은 0.9.4다.
+이미지 생성 typed 단계는 실제 도구가 확인될 때까지
+`IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL`로 차단된다.
+
+| 독립 검증 영수증 | SHA-256 |
+| --- | --- |
+| 소스 `source/release.json` | `5b36a00d76a7649cd0d0f310da042a7bb6b2e02cc8335231449683cd8ed39cec` |
+| Claude `candidate-safety/bundle.json` | `66da3d62d6b32e7ae2b812b3ba839080a45cf93c5f5f8ac754cabf19d435e41b` |
+| Codex `codex-overlay-safety/overlay.json` | `3226624872516b303766fcf6f6040bcc99e6bc2ca3c630d25f4826972b15a964` |
+| Codex `codex-subset-safety/subset.json` | `317a6496d06064fa17a7d170039ba87457a64ab624a2695d4ea0f24df903350e` |
+
+네 영수증의 독립 verify가 종료 0이었다. Claude 후보는 5플러그인/182스킬,
+Codex 일반 subset은 177스킬이고, 공통 스킬 본문 176개와 소유 payload
+612파일이 바이트 동일하다. `zoom-out` 1개의 승인 투영과 D-29 안전 스킬
+5개 제외는 그대로다. 저장소 공통 테스트 387건은 3건 조건부 skip 외 통과했고
+후보 일회용 실행 검사는 4/4 통과했다.
+
+`E:/Coding Infra/Releases/SimonK-stack/20260930-image-boundary-host-probe/`의
+새 무인증·네트워크/클립보드 차단 Sandbox에서 Claude Code 2.1.285의 5플러그인·
+182스킬 발견(종료0, 디버그 오류0, API 요청 기록0)과 Codex CLI 0.159.0의
+5플러그인 등록·177스킬 캐시를 관측했다. 두 게스트의 활성 네트워크 어댑터는
+각각 0개였고 모델 생성 호출은 없었다. 결과 JSON의 SHA-256은 Claude
+`83f9c20242e31b547dbf3dfacaee3a75aba7adbb1c855c737a64004b0b8c0c54`,
+Codex `61ba876a1f3675292751c3245b3664cb67c85aa782c51bdc4f36249a40528b1d`다.
+두 Sandbox는 각각 종료했고 마지막 목록에 남은 인스턴스는 0개다.
+
+이는 로컬 적재·등록과 정적 콘텐츠 보존 증거다. 실제 자동 스킬 선택,
+같은 과제의 Claude/Codex 답변 품질, 요청/실효 모델·effort, 구독 과금,
+Codex 안전 스킬 5개 기능 동등성 및 Gstack 전체 외부 런타임 폐쇄성은
+미검증이다. 따라서 `host_behavior_verified=false`,
+`selection_quality_verified=false`, `installation_ready=false`를 유지한다.
+현재 사용자 프로필의 `/vibe` 2.11.6, 운영 설정, `main`, 결제 설정은 불변이다.
+추가 유료 API·Bot·Orca 실호출은 하지 않았다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
