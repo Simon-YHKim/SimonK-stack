@@ -3105,6 +3105,14 @@ Claude Code CLI 2.1.284의 빈 `CLAUDE_CONFIG_DIR`에 v28 다섯 로컬
 `ai-debate` 독립 입장·교차검토·별도 심판은 플러그인별 콘텐츠 지문과
 증가하는 릴리스 번호의 조합을 권고했다. 다만 허브 `DECISIONS.md`의
 D-code가 아직 없어 생성기 계약·후보·사용자 설치본은 변경하지 않았다.
+Claude Max 구독의 세션 한정 `--plugin-dir`과 `--tools Skill`로 v28 Core의
+명시적 로딩 질문도 한 번 실행했다. 응답은 `simonk-core:vibe`와 본문의
+추가 계량 과금 기본 USD 0 규칙을 정확히 인용했으나, JSON 결과에
+Skill 도구 이벤트가 없고 frontmatter 버전도 응답에서 관측되지 않았다.
+따라서 v28의 실제 Skill 호출·모델/effort 자동 선택을 이 한 건으로
+입증하지 않는다. CLI `total_cost_usd`는 목록 단가 추정치이지 추가 청구
+영수증이 아니다. 이 세션은 파일·셸·웹·MCP 도구를 허용하지 않았고
+API 키·대체 엔드포인트도 사용하지 않았다.
 모든 테스트 프로필과 캐시는 삭제하지 않고 별도 릴리스 폴더에 보존했다.
 
 ## One-shot 설치
