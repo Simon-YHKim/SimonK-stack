@@ -3240,6 +3240,17 @@ SimonK 플러그인은 각각 0개였다. v30 고유 스킬 이름 182개를 현
 재생성 시 덮인다. 이 경고를 설치 런타임 통과로 오해하거나, 수치만 줄이려고
 생성 파일을 직접 바꾸지 않는다.
 
+운영 프로필의 인증 상태는 Claude Code `claude.ai` Max/firstParty,
+Codex ChatGPT 로그인으로 관측했고 API 키 환경변수는 발견되지 않았다.
+v30 디렉터리를 세션 한정 `--plugin-dir`로 지정한 Claude 읽기 전용
+가상 GUI 시나리오 1회는 `claude-opus-5-5`로 응답하며 CLI/API/MCP
+자격 선확인, Grok CLI 보류, 구독·초과 과금 증거 전 Relay 배달 차단을
+제시했다. CLI의 `total_cost_usd=0.5720546`은 `costBasis=list`인
+정가 추정치로, 실제 청구액의 증거는 아니다. 사용자는 초과 사용·자동충전
+비활성화를 확인했다. 홈 flat 스킬도 공존했으므로 이 1회 응답을 v30
+단독 자동 선택 정확도나 운영 설치 통과로 해석하지 않는다. `grok models`는
+`You are not authenticated`를 반환했으므로 Grok 실호출은 보류했다.
+
 별도 Gstack 6헬퍼·8호출 오프라인 시험의 WSB 설정에는 공식
 `LogonCommand`를 추가하고 XML·5개 매핑 경로·바이너리 해시를 확인했다.
 하지만 새 게스트 시작은 기존 Sandbox 인스턴스 때문에
