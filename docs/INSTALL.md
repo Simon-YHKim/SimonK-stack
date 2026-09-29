@@ -3442,6 +3442,12 @@ auth/credential/token 이름의 파일은 0개였으나 이는 인증정보 전�
 스킬 충돌·자동 선택·기존 세션 재로딩·구독 과금·모델 행동을 증명하지
 않는다. `host_compatibility_verified=false`와
 `installation_ready=false`를 유지한다.
+같은 격리 Claude 프로필에서 `--init-only --strict-mcp-config
+--setting-sources user --no-session-persistence`는 종료 0이었다.
+`claude-init-debug.log`에는 버전 플러그인 5개, 플러그인 스킬 182개,
+중복/user-owned 제외 0개, user skill-dir 명령 0개, bundled 스킬 39개가
+기록됐다. 관측된 API request 라인은 0개였다. 이 범위는 격리 프로필의
+초기화·발견이며 사용자 프로필의 자동 선택이나 모델 응답이 아니다.
 
 ## One-shot 설치
 
