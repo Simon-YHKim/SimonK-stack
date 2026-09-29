@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-30 05:21:30 KST
+updated: 2026-09-30 05:42:09 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
+
+- 2026-09-30 05:42:09 KST: src: user — SimonKStack Claude/Codex no-degradation follow-up. Feature `6cbef21` implements offline Codex PATH-shim check in `/vibe` 2.12.11 with RED→GREEN 4 tests: this PC reports PATH 0.155.0 vs adjacent package 0.159.0, exit1, without npm registry/Orca/model access. New clean candidate `E:/Coding Infra/Releases/SimonK-stack/20260930-path-6cbef21/` built from that commit and pinned five original plugins: source/Claude/Codex-overlay/subset receipts independently reverified, Claude182/Codex177, common176 SKILL bodies identical + approved zoom-out projection1, D-29 five omissions, candidate pycache0. Fresh unauthenticated local Claude2.1.285 init loaded 5/182 exit0/debug rg errors0/API request lines0; Codex0.159.0 registered 5/177, cache726/726 path+SHA match, actual user Codex config/auth unchanged. New Gstack audit still external_runtime_pending (Claude31/646, Codex30/625; direct helpers9 present, local missing/unportable0). README/INSTALL `37b2a43` pushed/clean, standalone HTML report linked in outbox. No model/API/Bot/Orca generation or extra charge; no user install, PATH change, payment setting or main merge. True automatic selection/quality parity, Gstack runtime closure, exact subscription credit fallback and Claude-owned task-fit D-code remain open; installation_ready=false.
 
 - 2026-09-30 05:21:30 KST: src: user — clean `4a33d3e` parity candidate was independently loaded by actual local Claude Code 2.1.285 and Codex CLI 0.159.0 binaries in fresh unauthenticated test profiles. Claude first-run config-missing error was preserved, then a new profile used model-free `plugin list --json` preflight: `--init-only` exit0, 5 plugins/182 skills, debug errors0/API request log lines0. Codex local marketplace registered 5 enabled plugins/177 skills; source-cache 725/725 path+SHA match, cached `/vibe` five-root inventory 177/issues0. Real user Claude config and Codex config/auth SHA unchanged; test profiles had credential-named files0. Candidate receipts reverified, package pycache0. README/INSTALL commit `66fa533` pushed/clean. This is local CLI load/discovery, not OS network isolation, automatic selection, output quality, account-cost proof, real user install or main merge. No model/Bot/API calls; D-code/Gstack/billing gates remain.
 
