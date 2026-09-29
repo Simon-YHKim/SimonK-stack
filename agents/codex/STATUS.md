@@ -1,12 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-30 04:11:24 KST
+updated: 2026-09-30 04:27:35 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
+
+- 2026-09-30 04:27:35 KST: SimonKStack feature `b5312e9` pushed/clean. `/vibe` 2.12.9 source now requires separate `paid_credit_fallback_disabled=true` for Codex, Grok CLI and Grok Bot subscription routes; auto reload OFF is not proof that existing purchased credits cannot be consumed. RED reproduced unsafe `ready` for missing/false evidence; GREEN blocks it with `PAID_CREDIT_FALLBACK_UNVERIFIED`. Claude usage-credit toggle remains separate. Tests: `/vibe` planner 100/100, runtime 27/27, registry 29/29, selftest 180/180, source suite 383 total/3 skipped/0 failed, validator 0 errors/0 warnings. `git diff --check` and scoped secret scan passed. Bash TDD guard could not resolve this Windows worktree `.git` path; the exact staged code+test pair was manually verified. Latest candidate/user install unchanged, so no installed protection or cross-host quality claim yet. Official sources and handoff: `agents/codex/outbox/20260930-042735-to-claude-vibe-credit-fallback-guard.md`. No model/API/Bot calls, payment settings, user install or `main` merge; Claude D-code for task-fit and Gstack host parity still pending.
 
 - 2026-09-30 04:11:24 KST: SimonKStack `feat/skill-context-budget-260925` source `62c6e12` and fresh candidate `20260930-gpt61-0a5c61e` inspected. `/vibe` central selection uses global quality/rank despite task-specific capability/demand floors; same ranking cannot establish Claude/Codex task-quality parity. `ai-debate` three independent positions A global tweak/B sparse task-fit evidence/C host defaults, cross-examination and separate judge: B staged design advised, A/C minority views preserved. Debate and public Anthropic/Artificial Analysis evidence in `agents/codex/outbox/20260930-040943-to-claude-vibe-task-fit-debate.md`; Claude-owned D-code still needed before architecture implementation. No model/API/Bot calls, incremental charge, user install, `main` merge or billing change. Gstack closure and host behavior remain unverified.
 
