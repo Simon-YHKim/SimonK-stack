@@ -4,7 +4,7 @@ description: >-
   Use when choosing model/effort assignments: "which model", "모델 추천",
   "route tasks". Returns an evidence-bound /vibe plan with quota, cost and
   blocked reasons; never launches workers or treats unknown billing as free.
-version: 0.2.4
+version: 0.2.5
 ---
 
 # Model Router — one typed request, one central plan
@@ -27,6 +27,9 @@ silently combine a development planner with an older installed skill home.
 - Wiki benchmarks are historical research, not dispatch authority. A fetch time
   or `last-updated` date alone does not prove that benchmark rows were updated.
   Do not run a fetcher to manufacture freshness or claim an unverified score.
+  Read [dated routing evidence](references/routing-evidence-20260929.md) when
+  comparing frontier candidates; manufacturer, independent and X claims are
+  different evidence types, not host or subscription proof.
 
 **Release status:** `simonk` and `multi-terminal-dispatcher` now have source
 entrypoints that consume the typed central plan; the repo-root terminal launcher
@@ -45,6 +48,10 @@ contract without `task_type`; its exact argv cost still needs verification.
 
 | Type | Meaning |
 |---|---|
+| PLAN_ARCHITECTURE | Architecture or ambiguous plan; `research-deep` is a legacy guard label, not proof of web research |
+| CODE_COMPLEX | Multi-file root cause or difficult implementation; reasoning effort and tier 3 quality floor |
+| CODE_SIMPLE | Focused code change; routine effort but tier 2 quality floor |
+| WRITING | Polished writing; `research-deep` is a legacy guard label, not a required web fetch |
 | CODE_NEW | Implement new code; writing scope must be explicit |
 | CODE_FIX | Diagnose or repair code; distinguish advice from edits |
 | CODE_REVIEW | Read-only code review; link `verify_of` when reviewing a writer |
@@ -57,6 +64,14 @@ contract without `task_type`; its exact argv cost still needs verification.
 | REASONING_ABSTRACT | Difficult abstract reasoning requiring the critical quality floor |
 | VISION | Image/OCR/diagram interpretation, not authority to control a screen |
 
+Use the four deliverable-specific profiles above when they fit; retain the
+older category IDs for compatible consumers. Effort demand and capability
+quality are separate. A caller may raise demand or quality, never lower the
+CODE_SIMPLE/CODE_COMPLEX floor to save quota. Actual image generation is not
+VISION: require a separately verified subscription-included image tool and
+guarded route, or leave that node unresolved rather than inventing a text-model
+or Bot dispatch.
+
 The planner fills omitted canonical fields from the following contract. Explicit
 `kind`, `proc` and `class` must agree; `needs` may only add capabilities, and
 `demand` may only increase. Contradictions or unknown types are errors. For work
@@ -66,6 +81,10 @@ step; never omit a type merely to bypass a rejected requirement.
 <!-- task-type-contract:start -->
 ```json
 {
+  "PLAN_ARCHITECTURE": {"kind": "llm", "needs": ["reasoning"], "demand": "reasoning", "proc": "research-deep", "class": "B"},
+  "CODE_COMPLEX": {"kind": "llm", "needs": ["code", "reasoning"], "demand": "reasoning", "proc": "coding", "class": "B"},
+  "CODE_SIMPLE": {"kind": "llm", "needs": ["code"], "demand": "routine", "proc": "coding", "class": "B"},
+  "WRITING": {"kind": "llm", "needs": ["writing"], "demand": "reasoning", "proc": "research-deep", "class": "B"},
   "CODE_NEW": {"kind": "llm", "needs": ["code"], "demand": "reasoning", "proc": "coding", "class": "B"},
   "CODE_FIX": {"kind": "llm", "needs": ["code"], "demand": "reasoning", "proc": "coding", "class": "B"},
   "CODE_REVIEW": {"kind": "llm", "needs": ["code", "reasoning"], "demand": "reasoning", "proc": "claim-verify", "class": "A-verify"},
@@ -150,8 +169,10 @@ or exit code is not a successful execution; `actual_usd: null` means unknown.
 - A subscription route requires positive exact-model (or Bot-usage) inclusion
   and disabled overage/API fallback evidence; `billing.included_model` must
   match the resolved LLM model, and `billing.verified=true` alone is insufficient.
-- Grok CLI stays on hold while quota is exhausted. A predicted reset time is
-  not recovery evidence. Do not top up, enable overage or change credentials.
+- Exhausted Grok CLI quota blocks generation; a predicted reset time is not
+  recovery evidence. Restored usage triggers fresh exact-account preflight,
+  not a permanent hold or automatic dispatch. Do not top up, enable overage or
+  change credentials.
 - No API key, environment file, password vault or login-cookie reads are needed
   for this classifier. No automatic fallback to the current host's model.
 - `economy`, `balanced` and `quality` use the central policy, not local scoring.
@@ -175,8 +196,15 @@ python -m unittest discover -s scripts -p test_model_router_integration.py
 python -m unittest discover -s "<stack-source-root>/skills-src/vibe/scripts" -p test_orchestrate.py
 ```
 
-The eleven-type positive fixtures use the CLI planning path, not eleven live
+The fifteen-type positive fixtures use the CLI planning path, not fifteen live
 Orca workers. Orca's existing process, lane and security gates still apply.
+
+Claude and Codex must use the same task and acceptance standard but may expose
+different exact skill names, models or efforts. Compare paired native-host
+observations of selected skill, full body/reference loading, effective effort,
+output, tests, review and quota before claiming no performance loss. Shortened
+discovery descriptions do not remove the body, but may alter selection;
+Codex's safety-hook-excluded subset is not behaviorally equivalent to Claude's.
 
 Natural-language classification, truthful `writes`, exact account-to-transport
 binding and final user authorization remain coordinator responsibilities. This

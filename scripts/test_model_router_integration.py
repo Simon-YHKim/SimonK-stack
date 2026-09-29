@@ -56,11 +56,11 @@ class ModelRouterIntegrationTests(unittest.TestCase):
         self.assertEqual(len(blocks), 1)
         mapping = json.loads(blocks[0])
         self.assertEqual(mapping, orchestrate.TASK_TYPE_MAP)
-        self.assertEqual(len(mapping), 11)
+        self.assertEqual(len(mapping), 15)
         for task_type, fields in mapping.items():
             with self.subTest(task_type=task_type):
                 node = self.node(task_type)
-                c = candidate(quality_tier=3, capabilities=["code", "reasoning", "research", "vision"])
+                c = candidate(quality_tier=3, capabilities=["code", "reasoning", "research", "vision", "writing"])
                 if fields["kind"] == "gui":
                     node.update(skills=["vibe-bot"], target="Offline Console", tool_route_available=False,
                                 gui_reason="No authorized tool route in fixture")
@@ -79,6 +79,22 @@ class ModelRouterIntegrationTests(unittest.TestCase):
                 self.assertEqual(p["budget"]["approved_usd"], "0")
                 self.assertIsNone(p["steps"][0]["route"]["actual_usd"])
                 self.assertIsNone(p["steps"][0]["route"]["effective_effort"])
+
+    def test_coding_task_quality_floor_is_independent_of_effort(self):
+        for task_type, low_tier, passing_tier, demand in (
+            ("CODE_SIMPLE", 1, 2, "routine"),
+            ("CODE_COMPLEX", 2, 3, "reasoning"),
+        ):
+            with self.subTest(task_type=task_type):
+                rc, plan = self.run_plan([self.node(task_type)],
+                                         [candidate(quality_tier=low_tier)])
+                self.assertEqual(rc, 2, plan)
+                self.assertIn("QUALITY_FLOOR", str(plan))
+                self.assertIsNone(plan["steps"][0]["route"])
+                rc, plan = self.run_plan([self.node(task_type)],
+                                         [candidate(quality_tier=passing_tier)])
+                self.assertEqual(rc, 0, plan)
+                self.assertEqual(plan["steps"][0]["demand"], demand)
 
     def test_registry_fingerprint_comes_from_consumed_registry(self):
         registry = fixture_registry([candidate()])
