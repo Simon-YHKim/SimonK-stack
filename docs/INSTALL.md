@@ -3764,10 +3764,26 @@ OS 네트워크 격리, Gstack 전이 실행, 정확한 구독 포함·구매 �
 4단계 모두 통과했고 후보 영수증은 재검증됐다. 경로 감사에서는 로컬 미해결·
 비이식 명령이 양쪽 0건이지만, 고정 Gstack 원본의 직접 헬퍼 9개가
 확인된 것과 별개로 Claude 31스킬/646참조와 Codex 30스킬/625참조가
-`external_runtime_pending`/종료 1이다. `routing.py`의 레거시 G11 문구는
-여전히 부작용 있는 전체 `check_tooling.py`를 가리킨다. 스킬 본문의
-`--local-codex` 우선 절차와 동기화하기 전에는 G11을 새 사전 점검의
-완전한 적용 증거로 해석하지 않는다.
+`external_runtime_pending`/종료 1이다. 이 후보 시점의 `routing.py` G11은
+아직 전체 `check_tooling.py`를 가리켰다. 이후 `6fd573b`에서
+`--local-codex` 사전 점검으로 정렬했으므로 최신 후보에서는 별도로 재검증한다.
+
+### Claude·Codex 공통 스킬 전체 파일 감사 (2026-09-30)
+
+`audit_host_skill_parity.py`는 이제 `SKILL.md`만이 아니라 공통 스킬의
+`scripts/`, `references/`, `assets/`, `evals/` 등을 포함한 **전체 소유 파일**을
+양쪽 검증 영수증과 대조한다. 공통 스킬에 파일이 빠지거나 추가되거나 해시가
+달라지면 감사가 실패한다. D-29 제외 5개와 `zoom-out`의 정확한 수동 호출
+투영(`SKILL.md` 변환 및 `agents/openai.yaml`)만 예외다.
+
+`5fdf545` 후보 `20260930-taskfit-5fdf545`에 새 감사를 적용한 결과 Claude
+182개/Codex 177개 중 공통 본문 176개, 공통 payload 파일 612개가 바이트
+동일했다. 12개 회귀 테스트에는 참조 문서 변조·누락, 추가 스크립트,
+`zoom-out` 정책 변조 차단을 포함한다. 감사는 영수증·로컬 파일의 **정적
+동등성**만 증명한다. Codex 안전 스킬 5개 제외로 기능 범위가 다르고,
+자동 선택·모델/effort 적용·실제 답변 품질·훅·Gstack 런타임은 아직
+양호스트 동일성 증거가 없다. `host_behavior_verified=false`,
+`selection_quality_verified=false`, `installation_ready=false`를 유지한다.
 
 ## One-shot 설치
 

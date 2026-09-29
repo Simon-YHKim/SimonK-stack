@@ -23,22 +23,50 @@ class HostSkillParityTests(unittest.TestCase):
         self.claude = {self.normal: sha(b"vibe"), self.zoom: sha(self.original_zoom)}
         self.claude.update({path: sha(path.encode()) for path in self.excluded})
         self.codex = {self.normal: sha(b"vibe"), self.zoom: sha(self.projected_zoom)}
+        self.reference = "plugins/SimonKCore/skills/vibe/references/orchestration.md"
+        self.claude_payload = {**self.claude, self.reference: sha(b"shared contract")}
+        self.codex_payload = {**self.codex, self.reference: sha(b"shared contract"),
+                              parity.codex_overlay.ZOOM_POLICY_PATH:
+                              sha(parity.codex_overlay.ZOOM_POLICY)}
 
     def compare(self):
         return parity.compare(self.claude, self.codex,
-                              self.original_zoom, self.projected_zoom)
+                              self.original_zoom, self.projected_zoom,
+                              self.claude_payload, self.codex_payload)
 
     def test_only_d29_exclusions_and_manual_zoom_projection_pass(self):
         report = self.compare()
         self.assertEqual(report["status"], "static_content_parity")
         self.assertEqual(report["identical_skills"], 1)
+        self.assertEqual(report["identical_payload_files"], 2)
         self.assertEqual(report["projected_skills"], [self.zoom])
         self.assertEqual(report["excluded_skills"], sorted(self.excluded))
         self.assertFalse(report["host_behavior_verified"])
 
     def test_changed_shared_skill_fails(self):
         self.codex[self.normal] = sha(b"weakened")
+        self.codex_payload[self.normal] = self.codex[self.normal]
         with self.assertRaisesRegex(ValueError, "Shared skill bytes differ"):
+            self.compare()
+
+    def test_changed_shared_reference_fails(self):
+        self.codex_payload[self.reference] = sha(b"weakened contract")
+        with self.assertRaisesRegex(ValueError, "Shared skill payload differs"):
+            self.compare()
+
+    def test_missing_shared_reference_fails(self):
+        del self.codex_payload[self.reference]
+        with self.assertRaisesRegex(ValueError, "Shared skill payload differs"):
+            self.compare()
+
+    def test_extra_shared_script_fails(self):
+        self.codex_payload["plugins/SimonKCore/skills/vibe/scripts/extra.py"] = sha(b"extra")
+        with self.assertRaisesRegex(ValueError, "Shared skill payload differs"):
+            self.compare()
+
+    def test_zoom_policy_must_be_exact_projection(self):
+        self.codex_payload[parity.codex_overlay.ZOOM_POLICY_PATH] = sha(b"implicit invocation")
+        with self.assertRaisesRegex(ValueError, "Shared skill payload differs"):
             self.compare()
 
     def test_unexpected_exclusion_fails(self):

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify candidate skill bytes are preserved across Claude and Codex packages.
+"""Verify candidate skill payload bytes across Claude and Codex packages.
 
 This is an offline package invariant, not host loading, routing or quality proof.
 Both receipts and the Codex subset's source-overlay provenance must validate.
@@ -25,9 +25,11 @@ EXPECTED_EXCLUDED = frozenset(
 
 
 def compare(claude: dict[str, str], codex: dict[str, str],
-            zoom_original: bytes, zoom_projected: bytes) -> dict:
-    """Check exact common bytes, the single host projection and D-29 omissions."""
-    if not isinstance(claude, dict) or not isinstance(codex, dict):
+            zoom_original: bytes, zoom_projected: bytes,
+            claude_payload: dict[str, str], codex_payload: dict[str, str]) -> dict:
+    """Check all shared skill files, the single host projection and D-29 omissions."""
+    if any(not isinstance(value, dict) for value in
+           (claude, codex, claude_payload, codex_payload)):
         raise ValueError("Skill inventories must be mappings")
     added = set(codex) - set(claude)
     if added:
@@ -51,8 +53,21 @@ def compare(claude: dict[str, str], codex: dict[str, str],
     shared = set(claude) & set(codex) - {ZOOM_PATH}
     if any(claude[path] != codex[path] for path in shared):
         raise ValueError("Shared skill bytes differ")
+    if not set(claude).issubset(claude_payload) or not set(codex).issubset(codex_payload):
+        raise ValueError("Shared skill payload differs")
+    shared_roots = tuple(path.removesuffix("SKILL.md") for path in set(claude) & set(codex))
+    common_claude = {path: digest for path, digest in claude_payload.items()
+                     if path.startswith(shared_roots)}
+    common_codex = {path: digest for path, digest in codex_payload.items()
+                    if path.startswith(shared_roots)}
+    expected_codex = dict(common_claude)
+    expected_codex[ZOOM_PATH] = release.digest(zoom_projected)
+    expected_codex[codex_overlay.ZOOM_POLICY_PATH] = release.digest(codex_overlay.ZOOM_POLICY)
+    if common_codex != expected_codex:
+        raise ValueError("Shared skill payload differs")
     return {"status": "static_content_parity", "claude_skills": len(claude),
             "codex_skills": len(codex), "identical_skills": len(shared),
+            "identical_payload_files": len(common_claude) - 1,
             "projected_skills": [ZOOM_PATH], "excluded_skills": sorted(excluded),
             "host_behavior_verified": False, "selection_quality_verified": False,
             "installation_ready": False}
@@ -61,6 +76,12 @@ def compare(claude: dict[str, str], codex: dict[str, str],
 def _skills(rows: list[dict]) -> dict[str, str]:
     return {row["path"]: row["sha256"] for row in rows
             if row["path"].startswith("plugins/") and row["path"].endswith("/SKILL.md")}
+
+
+def _payloads(rows: list[dict], skills: dict[str, str]) -> dict[str, str]:
+    roots = tuple(path.removesuffix("SKILL.md") for path in skills)
+    return {row["path"]: row["sha256"] for row in rows
+            if row["path"].startswith(roots)}
 
 
 def audit(claude_root: Path, claude_digest: str, codex_root: Path,
@@ -76,8 +97,11 @@ def audit(claude_root: Path, claude_digest: str, codex_root: Path,
         raise ValueError("Codex overlay is not derived from the Claude candidate")
     original = release.read_file(release.safe_member(claude_root, ZOOM_PATH))
     projected = release.read_file(release.safe_member(codex_root, ZOOM_PATH))
-    result = compare(_skills(candidate["files"]), _skills(subset["included_members"]),
-                     original, projected)
+    claude_skills = _skills(candidate["files"])
+    codex_skills = _skills(subset["included_members"])
+    result = compare(claude_skills, codex_skills, original, projected,
+                     _payloads(candidate["files"], claude_skills),
+                     _payloads(subset["included_members"], codex_skills))
     return {"claude_digest": claude_digest, "subset_digest": subset_digest,
             "overlay_digest": overlay_digest, **result}
 
