@@ -1,13 +1,14 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 14:21:06 KST
+updated: 2026-09-29 14:33:52 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
+- 2026-09-29 14:33:52 KST: v30 full offline regression completed in 546.465s: 341 tests, 338 passed, 3 skipped, 0 failed. Stack documentation commit ca15c4c pushed on feature branch; user profile/main unchanged. Isolated host parity report updated. Existing Sandbox still running and per-plugin version D-code still absent; no paid/model call.
 - 2026-09-29 14:21:06 KST: Stack feature 06784c3 pushed/clean with v30 isolated host cache evidence. Fresh, unauthenticated Codex/Claude profiles installed 5 plugins each; source/cache path+SHA-256 parity Codex 724/724 (177 skills), Claude 741/741 (182 skills), zero auth-named files and no model/API calls. Gstack 6-helper/8-call Windows Sandbox script gained LogonCommand and validated XML/mappings/hashes, but fresh guest start failed CO_E_APPSINGLEUSE due existing Sandbox 21e0a263-...; old session untouched. New report at E:/Coding Infra/Releases/SimonK-stack/20260929-v30-host-parity/report.html. This is cache-copy proof only; readiness flags false; plugin version D-code still absent.
 
 Current source: Simon direct. Continue SimonK-stack `/vibe` and five-plugin modernization using subscriptions only; additional metered spend is USD 0. No payment, overage or auto-topup setting changes.
