@@ -3649,6 +3649,32 @@ Gstack 전이 폐쇄, 구독 과금 안전성, 사용자 프로필 전환은 미
 `host_behavior_verified=false`, `selection_quality_verified=false`,
 `installation_ready=false`를 유지한다. 기존 설치본·`main`·결제 설정은 불변이다.
 
+### `4a33d3e` Claude·Codex 작업 유형 라우팅 회귀 방지 (2026-09-30)
+
+`/vibe`에 두 호스트 대칭 테스트를 추가했다. 기획·간단한 코딩·복잡한 코딩·
+문서 작성에 같은 effort 수요와 품질 하한을 적용하고, 문서 작성의 타 공급자
+검토 및 정확한 모델의 구독 포함 조건을 유지한다. 합성 런타임 fixture 테스트로
+소스와 양쪽 포장 후보의 `/vibe` 231/231건이 각각 통과했다. 이는 규칙 검증이지
+실제 모델 답변의 품질·속도 동등성 측정은 아니다.
+
+새 후보는
+`E:/Coding Infra/Releases/SimonK-stack/20260930-parity-clean-4a33d3e/`에
+있다. 소스·Claude 5플러그인·Codex 오버레이·D-29 일반 subset 영수증은
+각각 `7357abd6b929ef7c0436185665bce14a0d95c0a7966852fc2df0a3f16dad4a75`,
+`889eecbfb8f78021b4a8257d118fce922c863cf1ee410b3e4553b615462b3481`,
+`b29bf4336cde7276db92b61d843f54c50aaf580ae1b8485ca5e2759cfb586e87`,
+`785281dbf249b33a86931f0f6210e2faa871367caacd4ce22e84225005afeea6`다.
+시험 후 네 영수증 재검증과 Codex subset→오버레이 출처 검증이 통과했고,
+Claude 182개/Codex 177개의 기본 카탈로그가 열렸다. 공통 176개 스킬 본문은
+동일하며 `zoom-out` 1개만 승인 투영, 안전 스킬 5개는 D-29대로 제외된다.
+
+첫 후보 내부 테스트가 하위 Python 프로세스의 무영수증 `.pyc` 6개를
+만들어 해당 후보를 보존만 하고 승격 대상에서 제외했다. 새 후보에서는
+`PYTHONDONTWRITEBYTECODE=1`을 자식 프로세스까지 적용했고 재검증 후
+캐시 파일 0개다. 새 후보의 Claude/Codex 호스트 적재·자동 선택·산출물
+품질·추가 과금 차단·Gstack 런타임은 새로 검증하지 않았으므로
+`installation_ready=false`다. 기존 운영 설치본과 `main`은 변경하지 않았다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
