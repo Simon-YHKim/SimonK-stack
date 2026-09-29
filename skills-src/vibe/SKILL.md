@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use for /vibe, "알아서 진행", "오르카로 돌려", "스킬 조합", skill/model/effort/subscription-cost orchestration, and Play Console/GUI requests. Check CLI/API/MCP first; use vibe-bot only for GUI-only steps. Produces verified plans and artifacts; never invent specialist skills or assume paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.8
+version: 2.12.9
 author: simon-stack
 ---
 
@@ -160,7 +160,9 @@ Unknown price, billing mode or exhausted/stale quota excludes that route.
 Subscription usage is not free: report included quota separately from extra
 money. Zero incremental spend is valid only when the exact resolved LLM model (or
 provider-managed Bot usage) is included in the subscription and both overage
-and API fallback are verified disabled.
+and API fallback are verified disabled. Codex, Grok CLI and Grok Bot also need
+separate proof that purchased-credit fallback cannot spend existing credits;
+automatic reload OFF alone does not provide that proof.
 Unknown is blocked. Do not silently fall back to an API key, paid overage or
 a new subscription.
 With the default USD 0 grant, API/metered model routes stay blocked even when

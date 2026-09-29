@@ -608,9 +608,14 @@ def assess_candidate(c, step, policy, now, producer_vendor=None):
                           else "MODEL_INCLUSION_UNVERIFIED")
         if billing.get("api_fallback_disabled") is not True:
             errors.append("API_FALLBACK_UNVERIFIED")
+        credit_fallback_safe = (surface not in {"codex", "grok", "grok-bot"}
+                                or billing.get("paid_credit_fallback_disabled") is True)
+        if not credit_fallback_safe:
+            errors.append("PAID_CREDIT_FALLBACK_UNVERIFIED")
         if (billing.get("extra_usage_enabled") is False
                 and included
-                and billing.get("api_fallback_disabled") is True):
+                and billing.get("api_fallback_disabled") is True
+                and credit_fallback_safe):
             upper = Decimal(0)  # Incremental bill only; subscription usage is separate.
     elif billing.get("mode") in ("api", "metered"):
         if money(policy["approved_usd"]) == 0:

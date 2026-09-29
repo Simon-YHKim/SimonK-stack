@@ -32,7 +32,8 @@ def candidate(name="small", surface="codex", **changes):
         "effort_by_demand": {"routine": "low", "reasoning": "high", "critical": "xhigh"},
         "billing": {"mode": "subscription", "verified": True,
                     "extra_usage_enabled": False, "model_included": True, "included_model": model,
-                    "api_fallback_disabled": True, "account_ref": "test-account"},
+                    "api_fallback_disabled": True, "paid_credit_fallback_disabled": True,
+                    "account_ref": "test-account"},
         "quota": {"used_pct": 10, "observed_at": NOW, "bucket": "test-weekly"},
     }
     item.update(changes)
@@ -187,6 +188,25 @@ class OrchestrationTests(unittest.TestCase):
                 plan = self.plan(candidates=[candidate(billing=billing)])
                 self.assertEqual(plan["status"], "blocked")
                 self.assertIn(reason, str(plan))
+
+    def test_codex_and_grok_subscription_must_exclude_purchased_credit_fallback(self):
+        for surface in ("codex", "grok"):
+            for value in (None, False):
+                with self.subTest(surface=surface, value=value):
+                    billing = dict(candidate(surface=surface)["billing"])
+                    if value is None:
+                        billing.pop("paid_credit_fallback_disabled")
+                    else:
+                        billing["paid_credit_fallback_disabled"] = value
+                    plan = self.plan(candidates=[candidate(surface=surface, billing=billing)])
+                    self.assertEqual(plan["status"], "blocked")
+                    self.assertIn("PAID_CREDIT_FALLBACK_UNVERIFIED", str(plan))
+
+    def test_claude_uses_separate_usage_credits_toggle(self):
+        billing = dict(candidate(surface="claude")["billing"])
+        billing.pop("paid_credit_fallback_disabled")
+        self.assertEqual(self.plan(candidates=[candidate(surface="claude", billing=billing)])["status"],
+                         "ready")
 
     def test_subscription_inclusion_is_bound_to_resolved_model(self):
         for billing_change, reason in (({"included_model": "other-model"}, "MODEL_INCLUSION_UNVERIFIED"),
@@ -670,7 +690,9 @@ class OrchestrationTests(unittest.TestCase):
                       provider_efforts=[], transport_efforts=[], effort_by_demand={},
                       billing={"mode": "subscription", "verified": True,
                                "extra_usage_enabled": False, "bot_usage_included": True,
-                               "api_fallback_disabled": True, "account_ref": "test-bot-account"})
+                               "api_fallback_disabled": True,
+                               "paid_credit_fallback_disabled": True,
+                               "account_ref": "test-bot-account"})
         c.update(changes)
         return c
 
@@ -698,6 +720,13 @@ class OrchestrationTests(unittest.TestCase):
                 self.assertIn("BOT_USAGE_INCLUSION_UNVERIFIED", str(p))
         billing = dict(self.bot()["billing"], model_included=None)
         self.assertEqual(self.plan([self.gui()], [self.bot(billing=billing)])["status"], "ready")
+
+    def test_bot_purchased_credit_fallback_must_be_excluded(self):
+        billing = dict(self.bot()["billing"])
+        billing.pop("paid_credit_fallback_disabled")
+        p = self.plan([self.gui()], [self.bot(billing=billing)])
+        self.assertEqual(p["status"], "blocked")
+        self.assertIn("PAID_CREDIT_FALLBACK_UNVERIFIED", str(p))
 
     def test_held_bot_is_not_routed(self):
         p = self.plan([self.gui()], [self.bot(bot_status="ON HOLD")])
