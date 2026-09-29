@@ -1,6 +1,6 @@
 {
   "skill": "vibe",
-  "version": "2.12.6",
+  "version": "2.12.7",
   "cases": [
     {
       "id": "gui-natural-language-main-router",
@@ -434,6 +434,39 @@
           "id": "no-raw-preparation",
           "text": "No quarantined helper or manual provider call bypasses the missing guarded preparation lifecycle."
         }
+      ]
+    },
+    {
+      "id": "planning-versus-complex-coding",
+      "prompt": "/vibe 새 서비스 아키텍처를 기획하고 레거시 코드의 어려운 데이터 경합을 고쳐줘. 어떤 모델·effort를 쓸지도 골라줘. 추가 과금 $0.",
+      "fixtures": [
+        "Manufacturer and Artificial Analysis benchmarks are dated shortlist evidence only; this host has no fresh exact-model subscription, quota or effective-effort proof."
+      ],
+      "assertions": [
+        {"id": "separate-task-profiles", "text": "Planning and difficult coding become distinct nodes with reasoning demand; neither is automatically assigned the maximum effort solely because it is complex."},
+        {"id": "review-and-cost", "text": "The code writer retains tests and an independent vendor review; generation remains blocked until the exact host/model subscription and effort gates pass."}
+      ]
+    },
+    {
+      "id": "simple-coding-versus-writing",
+      "prompt": "/vibe 작은 파서 버그를 테스트와 함께 고치고, 사용자를 위한 한국어 변경 안내문도 써줘.",
+      "fixtures": [
+        "The current host can edit locally; external model availability and subscription inclusion are unverified."
+      ],
+      "assertions": [
+        {"id": "different-demands", "text": "The focused bug fix uses CODE_SIMPLE/routine demand but retains quality tier 2 as a floor, while polished user-facing writing is a separate WRITING/reasoning-capable node; one blanket max-effort model is not assigned to both."},
+        {"id": "do-safe-work", "text": "Safe current-session implementation and tests may proceed, but an unverified external writer or reviewer is not dispatched and unfinished review is not called complete."}
+      ]
+    },
+    {
+      "id": "image-generation-is-not-text-routing",
+      "prompt": "/vibe 앱의 실제 일러스트 2장을 만들어줘. 구독 사용량만 쓰고 추가 과금은 $0이야.",
+      "fixtures": [
+        "Only text-model metadata and metered image API documentation are visible; no image-generation tool's subscription inclusion, model control or quota has been verified."
+      ],
+      "assertions": [
+        {"id": "real-image-capability", "text": "Actual image creation requires a verified image-generation skill/tool; a text LLM or GUI Bot is not presented as if it can produce the two images."},
+        {"id": "no-paid-fallback", "text": "The image step remains blocked without subscription inclusion and disabled overage/API fallback; planning or critique may continue without claiming generated assets."}
       ]
     }
   ]

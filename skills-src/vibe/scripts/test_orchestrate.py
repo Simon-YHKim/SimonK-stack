@@ -1089,11 +1089,53 @@ class OrchestrationTests(unittest.TestCase):
         import routing
         expected = {"CODE_NEW", "CODE_FIX", "CODE_REVIEW", "RESEARCH", "AGENTIC",
                     "COMPUTER_USE", "DESIGN_UI", "KOREAN_DOC", "BULK_LIGHT",
-                    "REASONING_ABSTRACT", "VISION"}
+                    "REASONING_ABSTRACT", "VISION", "PLAN_ARCHITECTURE",
+                    "CODE_COMPLEX", "CODE_SIMPLE", "WRITING"}
         self.assertEqual(set(self.m.TASK_TYPE_MAP), expected)
         for mapping in self.m.TASK_TYPE_MAP.values():
             self.assertEqual(routing.PROC_BY_ID[mapping["proc"]][1], mapping["class"])
             self.assertEqual(set(mapping), {"kind", "needs", "demand", "proc", "class"})
+
+    def test_task_specific_demand_avoids_max_for_every_coding_and_planning_node(self):
+        for task_type, quality, expected_effort in (
+            ("CODE_SIMPLE", 2, "low"), ("CODE_COMPLEX", 3, "high"),
+            ("PLAN_ARCHITECTURE", 2, "high"),
+        ):
+            with self.subTest(task_type=task_type):
+                p = self.plan([self.typed(task_type)], [candidate(quality_tier=quality)])
+                self.assertEqual(p["status"], "ready")
+                self.assertEqual(p["steps"][0]["route"]["requested_effort"], expected_effort)
+        critical = self.typed("CODE_COMPLEX", demand="critical")
+        p = self.plan([critical], [candidate(quality_tier=3)])
+        self.assertEqual(p["steps"][0]["route"]["requested_effort"], "xhigh")
+
+    def test_coding_quality_floor_is_independent_of_requested_effort(self):
+        for task_type, insufficient_tier, required_floor in (
+            ("CODE_SIMPLE", 1, 2), ("CODE_COMPLEX", 2, 3),
+        ):
+            with self.subTest(task_type=task_type):
+                blocked = self.plan([self.typed(task_type)],
+                                    [candidate(quality_tier=insufficient_tier)])
+                self.assertEqual(blocked["status"], "blocked")
+                self.assertIn("QUALITY_FLOOR", str(blocked))
+                eligible = self.plan([self.typed(task_type)],
+                                     [candidate(quality_tier=required_floor)])
+                self.assertEqual(eligible["status"], "ready")
+                self.assertEqual(eligible["steps"][0]["quality_floor"], required_floor)
+                with self.assertRaises(ValueError):
+                    self.plan([self.typed(task_type, quality_floor=insufficient_tier)])
+        with self.assertRaises(ValueError):
+            self.plan([step(quality_floor="2")])
+
+    def test_writing_requires_writing_capability_not_generic_reasoning(self):
+        node = self.typed("WRITING")
+        blocked = self.plan([node])
+        self.assertEqual(blocked["status"], "blocked")
+        self.assertIn("CAPABILITY_MISMATCH", str(blocked))
+        eligible = candidate(capabilities=["writing", "reasoning"])
+        routed = self.plan([node], [eligible])
+        self.assertEqual(routed["status"], "ready")
+        self.assertEqual(routed["steps"][0]["route"]["requested_effort"], "high")
 
     def test_untyped_requests_remain_backward_compatible(self):
         node = step()

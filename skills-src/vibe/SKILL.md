@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use for /vibe, "알아서 진행", "오르카로 돌려", "스킬 조합", skill/model/effort/subscription-cost orchestration, and Play Console/GUI requests. Check CLI/API/MCP first; use vibe-bot only for GUI-only steps. Produces verified plans and artifacts; never invent specialist skills or assume paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.6
+version: 2.12.7
 author: simon-stack
 ---
 
@@ -101,6 +101,49 @@ cannot silently switch itself to the requested model or effort: reuse it only
 when its actual settings match, otherwise use a verified worker.
 Record requested effort separately from effective effort; unknown stays null.
 Bot model/effort remains provider-managed unless a real control is verified.
+
+Classify by deliverable before choosing a model. The planner accepts
+`PLAN_ARCHITECTURE`, `CODE_COMPLEX`, `CODE_SIMPLE` and `WRITING` as distinct
+task profiles in addition to its older category IDs. They set minimum
+capabilities and routine/reasoning demand; a high-stakes node may explicitly
+raise demand to critical. `proc` is a legacy Orca guard label, not a claim that
+planning or writing performed web research. A named, discovered Core
+`model-router` may supply a dated shortlist, but `/vibe` still owns eligibility,
+the single budget and execution. If it is absent, use the same criteria without
+inventing a skill binding.
+For coding, effort and quality are separate: `CODE_SIMPLE` starts at routine
+effort but requires observed quality tier 2 or higher; `CODE_COMPLEX` starts at
+reasoning effort and requires tier 3. A caller may strengthen but not lower
+these quality floors. This prevents quota optimization from silently choosing
+an underqualified model. Quality tiers are runtime evidence, not inferred from
+a model name or benchmark headline.
+
+| Deliverable | Advisory starting points, never active routes | Initial reasoning |
+| --- | --- | --- |
+| Architecture / ambiguous plan | Claude Opus 5.5 or GPT-6 Astra | reasoning; critical only for consequential, falsifiable decisions |
+| Difficult, multi-file coding | Claude Opus 5.5 or GPT-6 Astra; scoped Sonnet 5.5 if it meets the quality floor | reasoning; escalate after bounded failure or demonstrated risk |
+| Focused bug fix | Claude Sonnet 5.5 or GPT-6 Sol | routine, then raise only if tests or ambiguity require it |
+| Polished writing | Claude Sonnet 5.5; Opus 5.5 for complex judgment; GPT-6 Sol when eligible | reasoning, not automatic max |
+| Bulk transform | Deterministic software first; then an eligible light model such as GPT-6 Luna | routine |
+| Image creation/editing | A real image-generation skill/tool with verified subscription inclusion | tool-managed; text models only plan or critique |
+| Recent X discourse | Verified Grok CLI or current-host browsing, corroborated with primary sources | reasoning if controllable |
+
+This 2026-09-29 shortlist interprets [Anthropic's Opus 5.5](https://www.anthropic.com/claude-opus-5-5)
+and [Sonnet 5.5](https://www.anthropic.com/claude-sonnet-5-5) releases,
+[OpenAI's Astra](https://openai.com/index/gpt-6-astra/) and
+[Sol/Luna](https://openai.com/index/introducing-gpt-6-sol-and-luna/) releases,
+and [Artificial Analysis's Opus](https://artificialanalysis.ai/articles/claude-opus-5-5/)
+and [Sonnet](https://artificialanalysis.ai/articles/claude-sonnet-5-5) evaluations.
+Their benchmark harnesses and efforts differ; AA's API token use is a quota
+pressure clue, not subscription pricing. Recent direct X posts were not
+readable without access controls, so no unverified X opinion became a rule.
+Recheck sources and actual host transport after releases; never turn public
+model/API facts into exact-account subscription or effective-effort proof.
+Claude and Codex use the same task/acceptance standard but may have different
+eligible routes. An unsupported host capability is reported, not silently
+replaced by a lower-quality or paid path. Current planning has no guarded
+image-generation dispatch adapter: keep that node unresolved unless the
+current host exposes a separately verified included tool.
 
 Validate with:
 ```text

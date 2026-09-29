@@ -26,6 +26,10 @@ DEMAND_TIER = {"routine": 1, "reasoning": 2, "critical": 3}
 # Task semantics only. Models, scoring, effort and money stay in central policy.
 # model-router documents this contract; offline tests bind the mirror to it.
 TASK_TYPE_MAP = {
+    "PLAN_ARCHITECTURE": {"kind": "llm", "needs": ["reasoning"], "demand": "reasoning", "proc": "research-deep", "class": "B"},
+    "CODE_COMPLEX": {"kind": "llm", "needs": ["code", "reasoning"], "demand": "reasoning", "proc": "coding", "class": "B"},
+    "CODE_SIMPLE": {"kind": "llm", "needs": ["code"], "demand": "routine", "proc": "coding", "class": "B"},
+    "WRITING": {"kind": "llm", "needs": ["writing"], "demand": "reasoning", "proc": "research-deep", "class": "B"},
     "CODE_NEW": {"kind": "llm", "needs": ["code"], "demand": "reasoning", "proc": "coding", "class": "B"},
     "CODE_FIX": {"kind": "llm", "needs": ["code"], "demand": "reasoning", "proc": "coding", "class": "B"},
     "CODE_REVIEW": {"kind": "llm", "needs": ["code", "reasoning"], "demand": "reasoning", "proc": "claim-verify", "class": "A-verify"},
@@ -38,6 +42,9 @@ TASK_TYPE_MAP = {
     "REASONING_ABSTRACT": {"kind": "llm", "needs": ["reasoning"], "demand": "critical", "proc": "research-deep", "class": "B"},
     "VISION": {"kind": "llm", "needs": ["vision"], "demand": "reasoning", "proc": "ui-visual", "class": "C-platform"},
 }
+# Effort demand and capability quality are different axes. A short coding task
+# can use low reasoning without admitting an unproven low-quality model.
+TASK_QUALITY_FLOOR = {"CODE_SIMPLE": 2, "CODE_COMPLEX": 3}
 ORCHESTRATORS = {"vibe", "simonk", "app-dev-orchestrator", "dev-orchestrator"}
 SCRIPT_ROOT = Path(__file__).resolve().parent
 DEFAULT_TTL = 900  # Refresh availability, price quotes and quota before dispatch.
@@ -491,6 +498,12 @@ def compile_task_type(node):
             or DEMAND_TIER[demand] < DEMAND_TIER[contract["demand"]]):
         raise ValueError("task_type demand floor cannot be weakened")
     result["demand"] = demand
+    if name in TASK_QUALITY_FLOOR:
+        minimum = TASK_QUALITY_FLOOR[name]
+        quality_floor = result.get("quality_floor", minimum)
+        if type(quality_floor) is not int or not minimum <= quality_floor <= 3:
+            raise ValueError("task_type quality floor cannot be weakened")
+        result["quality_floor"] = quality_floor
     needs = result.get("needs", contract["needs"])
     if (not isinstance(needs, list) or any(not isinstance(n, str) or not n for n in needs)
             or not set(contract["needs"]) <= set(needs)):
@@ -546,7 +559,8 @@ def assess_candidate(c, step, policy, now, producer_vendor=None):
         errors.append("RUNTIME_STALE")
     if not set(step.get("needs", [])) <= set(c.get("capabilities", [])):
         errors.append("CAPABILITY_MISMATCH")
-    floor = max(DEMAND_TIER[demand], 2 if policy["mode"] == "quality" else 1)
+    floor = max(DEMAND_TIER[demand], step.get("quality_floor", 1),
+                2 if policy["mode"] == "quality" else 1)
     tier, rank = c.get("quality_tier"), c.get("resource_rank")
     if type(tier) is not int or not 1 <= tier <= 3 or tier < floor:
         errors.append("QUALITY_FLOOR")
@@ -683,6 +697,8 @@ def make_plan(request, catalog, runtime, now=None, registry=None):
         s["skill_bindings"] = []
         if s.get("kind") not in ("local", "llm", "gui") or s.get("demand", "routine") not in DEMAND_TIER:
             raise ValueError("Invalid step kind or demand")
+        if type(s.get("quality_floor", 1)) is not int or not 1 <= s.get("quality_floor", 1) <= 3:
+            raise ValueError("quality_floor must be an integer from 1 to 3")
         for name in s.get("skills", []):
             item = catalog.get(name)
             if (name in ancestor_names or (item and (item.get("canonical_name", name) in ancestor_names
