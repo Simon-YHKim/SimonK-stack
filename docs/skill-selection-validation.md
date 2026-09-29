@@ -7,6 +7,7 @@
 ```text
 python -B scripts/evaluate_skill_selection.py --cases docs/evals/skill-selection-cases.json
 python -B scripts/evaluate_skill_selection.py --cases docs/evals/skill-selection-cases.json --results path/to/observations.json
+python -B scripts/evaluate_skill_selection.py --compare-hosts --claude-cases path/to/claude-cases.json --claude-results path/to/claude-observations.json --codex-cases path/to/codex-cases.json --codex-results path/to/codex-observations.json
 python -B -m unittest discover -s scripts/tests -p test_evaluate_skill_selection.py
 ```
 
@@ -60,6 +61,30 @@ python -B -m unittest discover -s scripts/tests -p test_evaluate_skill_selection
 선택 실험), `static-review`(정적 검토)다. 종류를 섞어 같은 평가로 보고하지 않는다.
 각 Claude/GPT 및 reasoning 설정은 별도 결과 파일로 남긴다. 축약되지 않은 설명만
 제공한 실험을 호스트 컨텍스트 예산/설치/플러그인 활성화 검증으로 간주하지 않는다.
+
+## Claude·Codex 교차 호스트 비교
+
+`--compare-hosts`는 호스트별 케이스·관측 파일 네 개를 **읽기만** 한다. 각 파일은
+위와 같은 스키마를 쓰되 `evaluator.host`가 각각 `Claude...`, `Codex...`로
+시작해야 한다. 양쪽 케이스의 ID·요청 원문·`kind`가 같아야 하고
+`observation_kind`도 같아야 한다. 호스트마다 실제 등록 이름과 namespace가
+다를 수 있으므로 `acceptable`·`forbidden`은 호스트별로 작성한다. 대신 같은
+과제의 합격 여부를 비교한다. 서로 다른 이름을 무조건 같은 스킬로 간주하지 않는다.
+
+도구는 각 호스트의 `before`/`after`를 독립 채점한 뒤, 둘 다 모든 `after`
+케이스에 합격하고 회귀가 없어야 `recorded_host_comparison_passed`를 낸다.
+`claude_only_correct_case_ids`·`codex_only_correct_case_ids`는 한쪽만 통과한
+케이스를 드러낸다. 누락은 `incomplete`(종료코드 2), 오답·회귀는
+`recorded_host_comparison_failed`(1)다. 비교 통과는 기록된 **선택**의
+정답성만 뜻한다. 양쪽 모두 오답이면 통과시키지 않는다.
+
+실제 성능 저하 없음은 별도 검증이 필요하다. 동일한 대표 요청에서 각 호스트의
+스킬 로딩 본문·참조, 요청/실효 모델·effort, 실행 산출물, 테스트, 독립 리뷰,
+구독 포함·초과 과금 차단을 관측해야 한다. 이 채점기는 호스트 실행·원문 증거의
+진위·카탈로그 해시와 실제 로딩의 연결을 확인하지 않는다. 따라서 교차 호스트
+결과에서도 `native_compatibility_verified`, `evidence_authenticity_verified`,
+`catalog_binding_verified`는 항상 false다. 현재 저장소에 실제 Claude/Codex
+관측 파일은 동봉하지 않았으므로, 이 기능 추가만으로 성능 동등성을 선언하지 않는다.
 
 ## 판정과 제한
 

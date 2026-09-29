@@ -126,6 +126,44 @@ def evaluate(cases, results=None):
     return output
 
 
+def compare_hosts(claude_cases, claude_results, codex_cases, codex_results):
+    """Compare recorded selection correctness for aligned Claude/Codex tasks."""
+    claude = evaluate(claude_cases, claude_results)
+    codex = evaluate(codex_cases, codex_results)
+    for result, prefix in ((claude, "claude"), (codex, "codex")):
+        require(result["evaluator"]["host"].strip().lower().startswith(prefix),
+                f"{prefix} evaluator.host must identify its host")
+    require(claude["evaluator"]["observation_kind"] == codex["evaluator"]["observation_kind"],
+            "paired hosts require the same observation kind")
+    claude_tasks = {case["id"]: (case["prompt"], case["kind"])
+                    for case in claude_cases["cases"]}
+    codex_tasks = {case["id"]: (case["prompt"], case["kind"])
+                   for case in codex_cases["cases"]}
+    require(claude_tasks == codex_tasks, "paired hosts require the same prompts, IDs and kinds")
+    claude_correct = {record["case_id"] for record in claude["conditions"]["after"]["records"]
+                      if record["correct"]}
+    codex_correct = {record["case_id"] for record in codex["conditions"]["after"]["records"]
+                     if record["correct"]}
+    all_cases = set(claude_tasks)
+    complete = claude["status"] != "incomplete" and codex["status"] != "incomplete"
+    passed = (complete and claude_correct == all_cases and codex_correct == all_cases
+              and not claude["regressions"] and not codex["regressions"])
+    return {"schema_version": 1,
+            "status": ("incomplete" if not complete else
+                       "recorded_host_comparison_passed" if passed else
+                       "recorded_host_comparison_failed"),
+            "observation_kind": claude["evaluator"]["observation_kind"],
+            "case_alignment_verified": True,
+            "native_compatibility_verified": False,
+            "evidence_authenticity_verified": False,
+            "catalog_binding_verified": False,
+            "both_correct_case_ids": sorted(claude_correct & codex_correct),
+            "claude_only_correct_case_ids": sorted(claude_correct - codex_correct),
+            "codex_only_correct_case_ids": sorted(codex_correct - claude_correct),
+            "both_incorrect_case_ids": sorted(all_cases - claude_correct - codex_correct),
+            "claude": claude, "codex": codex}
+
+
 class JsonArgumentParser(argparse.ArgumentParser):
     def error(self, message):
         raise ValueError(message)
@@ -133,15 +171,26 @@ class JsonArgumentParser(argparse.ArgumentParser):
 
 def main(argv=None):
     parser = JsonArgumentParser(description=__doc__, add_help=False, allow_abbrev=False)
-    parser.add_argument("--cases", required=True)
+    parser.add_argument("--cases")
     parser.add_argument("--results")
+    parser.add_argument("--compare-hosts", action="store_true")
+    for host in ("claude", "codex"):
+        parser.add_argument(f"--{host}-cases")
+        parser.add_argument(f"--{host}-results")
     try:
         args = parser.parse_args(argv)
-        output = evaluate(load_json(args.cases), load_json(args.results) if args.results else None)
+        host_paths = (args.claude_cases, args.claude_results, args.codex_cases, args.codex_results)
+        if args.compare_hosts:
+            require(not args.cases and not args.results and all(host_paths),
+                    "compare-hosts requires four host files and no single-host arguments")
+            output = compare_hosts(*(load_json(path) for path in host_paths))
+        else:
+            require(args.cases and not any(host_paths), "single-host mode requires --cases only")
+            output = evaluate(load_json(args.cases), load_json(args.results) if args.results else None)
     except (OSError, ValueError, RecursionError) as error:
         output = {"schema_version": 1, "status": "invalid_input", "error": str(error)}
     print(json.dumps(output, ensure_ascii=True))
-    return (0 if output["status"] == "recorded_comparison_passed" else
+    return (0 if output["status"] in ("recorded_comparison_passed", "recorded_host_comparison_passed") else
             2 if output["status"] in ("pending", "incomplete") else 1)
 
 

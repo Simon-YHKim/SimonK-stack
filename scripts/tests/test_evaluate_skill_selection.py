@@ -220,6 +220,59 @@ class SelectionEvaluationTests(unittest.TestCase):
                          "catalog_sha256", "--cases", "81", "namespace"):
             self.assertIn(expected, doc)
 
+    def host_inputs(self):
+        claude_cases, codex_cases = copy.deepcopy(self.cases), copy.deepcopy(self.cases)
+        claude_results, codex_results = copy.deepcopy(self.results), copy.deepcopy(self.results)
+        claude_results["evaluator"]["host"] = "Claude Code 2.1.284"
+        codex_results["evaluator"]["host"] = "Codex CLI 0.155"
+        codex_cases["cases"][0]["acceptable"] = [["simonk-core:vibe"]]
+        for condition in codex_results["conditions"]:
+            condition["records"][0]["selected"] = ["simonk-core:vibe"]
+        return claude_cases, claude_results, codex_cases, codex_results
+
+    def test_paired_hosts_accept_distinct_native_namespaces_without_certifying_behavior(self):
+        out = M.compare_hosts(*self.host_inputs())
+        self.assertEqual(out["status"], "recorded_host_comparison_passed")
+        self.assertEqual(out["both_correct_case_ids"], ["one", "two"])
+        self.assertFalse(out["native_compatibility_verified"])
+        self.assertFalse(out["evidence_authenticity_verified"])
+
+    def test_paired_hosts_surface_one_host_selection_regression(self):
+        inputs = list(self.host_inputs())
+        inputs[3]["conditions"][1]["records"][0]["selected"] = []
+        out = M.compare_hosts(*inputs)
+        self.assertEqual(out["status"], "recorded_host_comparison_failed")
+        self.assertEqual(out["claude_only_correct_case_ids"], ["one"])
+        self.assertEqual(out["codex"]["regressions"], ["one"])
+
+    def test_paired_hosts_reject_different_prompts_or_observation_modes(self):
+        inputs = list(self.host_inputs())
+        inputs[2]["cases"][0]["prompt"] = "different task"
+        with self.assertRaisesRegex(ValueError, "same prompts"):
+            M.compare_hosts(*inputs)
+        inputs = list(self.host_inputs())
+        inputs[3]["evaluator"]["observation_kind"] = "native-session"
+        with self.assertRaisesRegex(ValueError, "same observation kind"):
+            M.compare_hosts(*inputs)
+
+    def test_paired_hosts_do_not_pass_with_incomplete_recordings(self):
+        inputs = list(self.host_inputs())
+        inputs[3]["conditions"][1]["records"].pop()
+        self.assertEqual(M.compare_hosts(*inputs)["status"], "incomplete")
+
+    def test_cli_paired_host_mode_is_read_only_and_reports_recorded_result(self):
+        with tempfile.TemporaryDirectory(prefix="host-selection-test-") as folder:
+            paths = [Path(folder) / f"input-{index}.json" for index in range(4)]
+            for path, value in zip(paths, self.host_inputs()):
+                path.write_text(json.dumps(value), encoding="utf-8")
+            args = ["--compare-hosts", "--claude-cases", str(paths[0]),
+                    "--claude-results", str(paths[1]), "--codex-cases", str(paths[2]),
+                    "--codex-results", str(paths[3])]
+            with contextlib.redirect_stdout(io.StringIO()) as output:
+                self.assertEqual(M.main(args), 0)
+                self.assertEqual(json.loads(output.getvalue())["status"],
+                                 "recorded_host_comparison_passed")
+
 
 if __name__ == "__main__":
     unittest.main()
