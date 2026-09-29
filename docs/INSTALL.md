@@ -3164,6 +3164,35 @@ Core의 `json-canvas` 참조 개선은 Stack이
 `host_compatibility_verified`는 계속 false이며 사용자 설치본·`main`은
 변경하지 않았다.
 
+### v30 Core JSON Canvas 소스 폐쇄 후보 (2026-09-29)
+
+Core 원본 `a07a1e9`의 `json-canvas/references/EXAMPLES.md` 목차 7줄을
+Stack이 소유하는 같은 스킬 소스에 반영했다. 두 파일은 Windows 줄바꿈을
+정규화하면 내용이 일치한다. Stack 소스 스킬의 strict YAML 파싱·
+`validate_skill.py`는 오류·경고 0건이고 기존 평가 2건의 오프라인
+형식 검사도 통과했다. 실제 모델 행동 평가는 수행하지 않았다.
+
+| 격리 산출물 | 영수증 SHA-256 | 검증 범위 |
+|---|---|---|
+| `source-v30` | `adfc5da90ad69aeab166466ff9c3e73e68ce1aad199fdc1cf25965b95bc7a2a4` | 137스킬·412파일, 독립 verify 통과 |
+| `candidate-safety-v30` | `e312d41b12b7413bd334ceba695eec561e459958ccb63a0f42394b5c13f44681` | 5플러그인·182스킬·741파일, 독립 verify 통과 |
+| `codex-overlay-v30` | `ad0521137ec754f8ca3524a8fdc6b8c3ba6156e8e8d24e7742657b8c7da6ada5` | Codex 호환 바이트 verify 통과 |
+| `codex-general-subset-v30` | `ee9c2942d4203834b006a3f26499be77bc67a43c59efb63e01b71ebf38ac2551` | 177스킬·원본 출처 verify 통과 |
+
+경로는 `E:/Coding Infra/Releases/SimonK-stack/20260929-v30-core-source-sync/`
+아래이며 같은 경로의 `report.html`에 사람이 읽는 요약을 두었다.
+v29b와 파일 집합은 동일하며 달라진 12개 파일은 Core
+`json-canvas` 참조 1개, 생성 메타데이터 10개, 영수증 1개다. 후보
+182개 스킬 검증은 실패 0·비차단 경고 31개(v29b 32개)다.
+격리된 Claude CLI 2.1.284의 manifest strict 검증과 Codex 로컬 플러그인
+검증은 각각 5/5 통과했고, 번들·Codex 오버레이·일반 subset 관련
+회귀 테스트는 55/55 통과했다. 두 manifest 검사는 스킬 동작·설치 성공의
+증거가 아니다. v29b의 전체 341건 검사를 v30에서 다시 실행했다고 주장하지 않는다.
+`installation_ready`, `runtime_closure_verified`,
+`host_compatibility_verified`는 모두 false이며, 실제 호스트 캐시·
+모델 행동·Gstack 전이 런타임·사용자 설치본 이관은 v30에서 검증하지 않았다.
+플러그인별 버전 계약도 아직 미적용이므로 v30을 설치 준비 완료로 해석하지 않는다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
