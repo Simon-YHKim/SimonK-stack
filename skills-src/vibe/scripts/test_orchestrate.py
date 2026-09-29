@@ -1271,6 +1271,23 @@ class OrchestrationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL"):
             self.plan([self.typed("IMAGE_GENERATION")])
 
+    def test_packaged_complex_coding_fit_can_advise_opus_medium_without_dispatch(self):
+        policy = self.m.load_task_fit_policy()
+        observed = (datetime.fromisoformat(policy["checked_at"])
+                    + timedelta(minutes=1)).isoformat()
+        active = candidate("generic", model="gpt-6-sol", quality_tier=3)
+        opus = candidate("opus-medium", surface="claude", model="claude-opus-5-5",
+                         quality_tier=3, resource_rank=9)
+        result = self.m.shadow_task_fit({"task_type": "CODE_COMPLEX"},
+                                        [(0, active, "high", 0),
+                                         (1, opus, "medium", 0)],
+                                        active, policy, observed)
+        self.assertEqual(result["status"], "ranked")
+        self.assertEqual(result["suggested_candidate_id"], "opus-medium")
+        self.assertEqual(result["suggested_effort"], "medium")
+        self.assertEqual(result["advisory_rank"], 0)
+        self.assertEqual(result["active_candidate_id"], "generic")
+
     def test_packaged_task_fit_policy_is_shadow_only_and_malformed_entries_fail_cleanly(self):
         policy = self.m.load_task_fit_policy()
         self.assertEqual(policy["status"], "shadow-only")

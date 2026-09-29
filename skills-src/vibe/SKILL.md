@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use for /vibe, "알아서 진행", "오르카로 돌려", "스킬 조합", skill/model/effort/subscription-cost orchestration, and Play Console/GUI requests. Check CLI/API/MCP first; use vibe-bot only for GUI-only steps. Produces verified plans and artifacts; never invent specialist skills or assume paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.14
+version: 2.12.15
 author: simon-stack
 ---
 
@@ -140,6 +140,11 @@ and [Sonnet](https://artificialanalysis.ai/articles/claude-sonnet-5-5) evaluatio
 Their benchmark harnesses and efforts differ; AA's API token use is a quota
 pressure clue, not subscription pricing. Recent direct X posts were not
 readable without access controls, so no unverified X opinion became a rule.
+For well-scoped complex coding, Opus 5.5 at `medium` is now a **shadow-only**
+effort hypothesis: Anthropic reports a strong FrontierCode result at its
+default effort, and Artificial Analysis places `medium` on its effort/cost
+frontier. Keep `high`/`xhigh` for harder or consequential cases; do not lower
+the active effort from a public benchmark without a same-task host comparison.
 Recheck sources and actual host transport after releases; never turn public
 model/API facts into exact-account subscription or effective-effort proof.
 Claude and Codex use the same task/acceptance standard but may have different

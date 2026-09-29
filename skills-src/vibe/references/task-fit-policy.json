@@ -1,13 +1,14 @@
 {
   "schema_version": 1,
-  "version": "2026-09-30-shadow.1",
+  "version": "2026-09-30-shadow.2",
   "status": "shadow-only",
-  "checked_at": "2026-09-30T06:20:00+09:00",
-  "valid_until": "2026-10-07T06:20:00+09:00",
+  "checked_at": "2026-09-30T06:57:00+09:00",
+  "valid_until": "2026-10-07T06:57:00+09:00",
   "notes": [
     "Public task fit is a hypothesis, not proof of host behavior or subscription inclusion.",
     "No entry changes dispatch; paired same-task Claude/Codex evaluation gates activation.",
-    "Image generation is excluded: VISION means image understanding, not creation."
+    "Image generation is excluded: VISION means image understanding, not creation.",
+    "For complex coding, Opus 5.5 medium is an evidence-backed shadow hypothesis: Anthropic reports a FrontierCode result at default medium, and Artificial Analysis places medium on its effort/cost frontier. This is not host-specific proof."
   ],
   "sources": {
     "anthropic_opus": "https://www.anthropic.com/claude-opus-5-5",
@@ -28,7 +29,8 @@
       {"model": "claude-sonnet-5-5", "efforts": ["high"], "rank": 2, "sources": ["anthropic_sonnet", "aa_sonnet"]}
     ],
     "CODE_COMPLEX": [
-      {"model": "claude-opus-5-5", "efforts": ["high", "xhigh"], "rank": 0, "sources": ["anthropic_opus", "aa_opus"]},
+      {"model": "claude-opus-5-5", "efforts": ["medium"], "rank": 0, "sources": ["anthropic_opus", "aa_opus"]},
+      {"model": "claude-opus-5-5", "efforts": ["high", "xhigh"], "rank": 1, "sources": ["anthropic_opus", "aa_opus"]},
       {"model": "gpt-6-astra", "efforts": ["high", "xhigh"], "rank": 0, "sources": ["openai_astra"]},
       {"model": "gpt-6.1-sol", "efforts": ["high", "xhigh"], "rank": 1, "sources": ["openai_sol61", "aa_sol61"]},
       {"model": "claude-sonnet-5-5", "efforts": ["high", "xhigh"], "rank": 1, "sources": ["anthropic_sonnet", "aa_sonnet"]}
