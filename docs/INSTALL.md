@@ -3367,6 +3367,29 @@ fixture는 없었고 모델 생성·유료 API 호출은 없었다. 재현물과
 있다. Claude 쪽에서 재현된 같은 버전 캐시 충돌은 이 결과로 해소되지
 않으므로 플러그인별 버전 D-code와 운영 준비 게이트는 그대로 유지한다.
 
+## Antigravity CLI 1.2.13 로컬 `/usage` 계약 (2026-09-29)
+
+현재 PC의 `agy --version`은 1.2.13이다. 로컬 CLI에서
+`agy -p '/help' --output-format json --print-timeout 30s`와 동일한 형태의
+`/usage` 명령이 모두 성공했고, 두 결과의 `num_turns`와 모든 토큰 카운터는
+0이었다. `/help`는 `/usage`를 로컬 명령으로 표시했다. 따라서 `/vibe`
+소스 2.12.5는 **1.2.13의 메타데이터 조회만** 정확한 버전 허용 목록에
+추가한다. 실제 collector 조회도 `zero_token_verified=true`와 quota bucket
+4개를 반환했다. 계정 식별, 초과 과금 차단, 모델별 구독 포함 여부는 여전히
+확인되지 않아 Antigravity 모델 생성/디스패치는 열지 않는다. 알려지지 않은
+CLI 버전은 기존대로 `/usage` 명령 전 차단한다. 이 소스 변경은 v30 후보
+2.12.4나 실제 사용자 설치본을 갱신하지 않는다.
+
+회귀 검증: `python -B skills-src/vibe/scripts/test_runtime_collect.py` 27/27,
+`python -B -m unittest discover -s skills-src/vibe/scripts -p 'test_*.py' -q`
+222/222, `python -B skills-src/vibe/scripts/selftest.py` 180/180, SimonKCore 프로젝트
+`validate_skill.py skills-src/vibe --format json` 오류·경고 0. 범용
+`skill-creator` quick validator는 이 프로젝트의 기존 `author`/`version`
+frontmatter 확장을 거부하므로 프로젝트 전용 validator를 판정 기준으로 쓴다.
+Stack 전체 오프라인 회귀 `python -X utf8 -B -m unittest discover -s
+scripts/tests -p 'test_*.py' -q`는 356건 중 353통과·3건너뜀·실패 0
+(553.695초)이었다. 이 검증은 실제 모델 호출·운영 설치 검증이 아니다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,

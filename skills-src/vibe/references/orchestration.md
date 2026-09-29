@@ -286,10 +286,12 @@ do not publish them as anonymous identifiers. Raw provider errors are omitted.
 Antigravity accepts only locally measured /usage contract versions. An unknown
 version stops before sending the slash command. A nonzero turn/token response
 fails closed without retry; it cannot undo usage already reported by that CLI.
-CLI 1.2.12 was measured on Windows with a successful `/usage` result, zero
-turns and zero in every token counter. The upstream changelog describes this
-slash command as quota-free; this observation adds 1.2.12 to the exact version
-allowlist, not to available model routes. On that installed CLI,
+CLI 1.2.12 and 1.2.13 were measured on Windows with a successful `/usage`
+result, zero turns and zero in every token counter. The CLI's `/help` also
+reported `/usage` as a local command on 1.2.13 with zero turns/tokens. The
+upstream documentation describes `/usage` as CLI-handled; these observations
+add only the measured versions to the exact allowlist, not to available model
+routes. On the earlier installed CLI,
 `agy models --output-format json` exits nonzero even though the upstream
 changelog describes a machine-readable subcommand; plain `agy models` lists
 slugs, but this collector does not parse them or infer account/model billing.

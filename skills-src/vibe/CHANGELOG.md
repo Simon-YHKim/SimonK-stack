@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.12.5 - 2026-09-29
+
+- Admit locally measured Antigravity CLI 1.2.13 for metadata-only `/usage`:
+  `/help` and `/usage` both exited successfully with zero turns and zero tokens.
+  Unknown versions still stop before the slash command; this does not verify
+  account identity, subscription billing, model inclusion or generation.
+
 ## 2.12.4 - 2026-09-29
 
 - Clarify that disabling auto-reload is not proof of disabled extra-credit
