@@ -86,12 +86,21 @@ class OrchestrationTests(unittest.TestCase):
         self.catalog = {name: {"name": name, "path": "/fixture/" + name + "/SKILL.md",
                               "description": name} for name in ("explain", "dev-orchestrator", "vibe-bot")}
 
-    def plan(self, steps=None, candidates=None, budget=None, **runtime_changes):
+    def plan(self, steps=None, candidates=None, budget=None, task_fit_policy=None, **runtime_changes):
         runtime = {"candidates": candidates if candidates is not None else [candidate()],
                    "tools": [], "observed_at": NOW}
         runtime.update(runtime_changes)
         request = {"run_id": "test-run", "steps": steps or [step()], "budget": budget or {}}
-        return self.m.make_plan(request, self.catalog, runtime, NOW, fixture_registry(runtime["candidates"]))
+        return self.m.make_plan(request, self.catalog, runtime, NOW,
+                                fixture_registry(runtime["candidates"]), task_fit_policy)
+
+    def task_fit_fixture(self, task_type="PLAN_ARCHITECTURE", model="claude-opus-5-5",
+                         efforts=None, rank=0, checked_at=NOW, valid_until="2026-09-24T10:00:00+00:00"):
+        return {"schema_version": 1, "version": "offline-shadow-1", "status": "shadow-only",
+                "checked_at": checked_at, "valid_until": valid_until,
+                "sources": {"manufacturer": "https://www.anthropic.com/claude-opus-5-5"},
+                "profiles": {task_type: [{"model": model, "efforts": efforts or ["high"],
+                                         "rank": rank, "sources": ["manufacturer"]}]}}
 
     def events(self, plan, *events):
         return [dict(run_id=plan["run_id"], plan_digest=plan["plan_digest"], **event) for event in events]
@@ -1196,6 +1205,86 @@ class OrchestrationTests(unittest.TestCase):
         critical = self.typed("CODE_COMPLEX", demand="critical")
         p = self.plan([critical], [candidate(quality_tier=3)])
         self.assertEqual(p["steps"][0]["route"]["requested_effort"], "xhigh")
+
+    def test_task_fit_shadow_records_different_winner_without_changing_dispatch(self):
+        opener = candidate("generic", model="gpt-6-sol", quality_tier=3,
+                           resource_rank=0, capabilities=["reasoning"])
+        opus = candidate("task-fit", surface="claude", model="claude-opus-5-5",
+                         quality_tier=3, resource_rank=9, capabilities=["reasoning"])
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [opener, opus],
+                      task_fit_policy=self.task_fit_fixture())
+        route = p["steps"][0]["route"]
+        shadow = p["steps"][0]["shadow_task_fit"]
+        self.assertEqual(p["status"], "ready")
+        self.assertEqual(route["candidate_id"], "generic")
+        self.assertEqual(shadow["status"], "ranked")
+        self.assertEqual(shadow["suggested_candidate_id"], "task-fit")
+        self.assertEqual(shadow["active_candidate_id"], "generic")
+        self.assertTrue(shadow["would_change"])
+        self.assertEqual(shadow["policy_version"], "offline-shadow-1")
+        self.assertEqual(shadow["evidence_scope"], "public-advisory-not-host-validation")
+
+    def test_task_fit_shadow_cannot_promote_unsafe_or_wrong_effort(self):
+        generic = candidate("generic", model="gpt-6-sol", quality_tier=3,
+                            resource_rank=0, capabilities=["reasoning"])
+        opus = candidate("task-fit", surface="claude", model="claude-opus-5-5",
+                         quality_tier=3, resource_rank=9, capabilities=["reasoning"])
+        no_overage = copy.deepcopy(opus)
+        no_overage["billing"]["model_included"] = False
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, no_overage],
+                      task_fit_policy=self.task_fit_fixture())
+        self.assertEqual(p["steps"][0]["route"]["candidate_id"], "generic")
+        self.assertNotEqual(p["steps"][0]["shadow_task_fit"].get("suggested_candidate_id"), "task-fit")
+        wrong_effort = self.task_fit_fixture(efforts=["low"])
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, opus],
+                      task_fit_policy=wrong_effort)
+        self.assertEqual(p["steps"][0]["shadow_task_fit"]["status"], "no-matched-evidence")
+        self.assertEqual(p["steps"][0]["route"]["candidate_id"], "generic")
+
+    def test_task_fit_shadow_never_outranks_money_or_high_quota_pressure(self):
+        generic = candidate("generic", model="gpt-6-sol", quality_tier=3,
+                            resource_rank=0, capabilities=["reasoning"])
+        opus = candidate("task-fit", surface="claude", model="claude-opus-5-5",
+                         quality_tier=3, resource_rank=9, capabilities=["reasoning"])
+        policy = self.task_fit_fixture()
+        quota_heavy = copy.deepcopy(opus)
+        quota_heavy["quota"]["used_pct"] = 90
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, quota_heavy],
+                      task_fit_policy=policy)
+        self.assertEqual(p["steps"][0]["shadow_task_fit"]["status"], "unranked-wins")
+        self.assertIsNone(p["steps"][0]["shadow_task_fit"]["suggested_candidate_id"])
+        metered = copy.deepcopy(opus)
+        metered["billing"] = {"mode": "api", "verified": True, "account_ref": "fixture-api"}
+        metered["upper_usd_per_attempt"] = 0.1
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, metered],
+                      budget={"approved_usd": 1}, task_fit_policy=policy)
+        self.assertEqual(p["steps"][0]["shadow_task_fit"]["status"], "unranked-wins")
+        self.assertIsNone(p["steps"][0]["shadow_task_fit"]["suggested_candidate_id"])
+
+    def test_task_fit_shadow_expiry_and_image_generation_boundary(self):
+        policy = self.task_fit_fixture(checked_at="2026-09-21T10:00:00+00:00",
+                                       valid_until="2026-09-22T10:00:00+00:00")
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [candidate(quality_tier=3)],
+                      task_fit_policy=policy)
+        self.assertEqual(p["steps"][0]["shadow_task_fit"]["status"], "expired")
+        self.assertEqual(p["status"], "ready")
+        with self.assertRaisesRegex(ValueError, "IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL"):
+            self.plan([self.typed("IMAGE_GENERATION")])
+
+    def test_packaged_task_fit_policy_is_shadow_only_and_malformed_entries_fail_cleanly(self):
+        policy = self.m.load_task_fit_policy()
+        self.assertEqual(policy["status"], "shadow-only")
+        self.assertEqual(set(policy["profiles"]),
+                         {"PLAN_ARCHITECTURE", "CODE_COMPLEX", "CODE_SIMPLE", "WRITING"})
+        self.assertNotIn("VISION", policy["profiles"])
+        self.assertNotIn("IMAGE_GENERATION", policy["profiles"])
+        for field, value in (("efforts", [["high"]]), ("sources", [["manufacturer"]]),
+                             ("rank", True)):
+            with self.subTest(field=field):
+                malformed = self.task_fit_fixture()
+                malformed["profiles"]["PLAN_ARCHITECTURE"][0][field] = value
+                with self.assertRaisesRegex(ValueError, "Invalid task-fit entry"):
+                    self.m.validate_task_fit_policy(malformed)
 
     def test_coding_quality_floor_is_independent_of_requested_effort(self):
         for task_type, insufficient_tier, required_floor in (

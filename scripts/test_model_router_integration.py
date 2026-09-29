@@ -69,8 +69,15 @@ class ModelRouterIntegrationTests(unittest.TestCase):
                                   provider_efforts=[], transport_efforts=[], effort_by_demand={},
                                   billing={"mode": "subscription", "verified": True,
                                            "extra_usage_enabled": False, "bot_usage_included": True,
-                                           "api_fallback_disabled": True, "account_ref": "fixture-bot"})
-                rc, p = self.run_plan([node], [c])
+                                           "api_fallback_disabled": True,
+                                           "paid_credit_fallback_disabled": True,
+                                           "account_ref": "fixture-bot"})
+                nodes, candidates = [node], [c]
+                if task_type == "WRITING":
+                    nodes.append(self.node("CODE_REVIEW", id="review", verify_of="task",
+                                           depends_on=["task"]))
+                    candidates.append(candidate("reviewer", surface="claude", quality_tier=3))
+                rc, p = self.run_plan(nodes, candidates)
                 self.assertEqual(rc, 0, p)
                 for key, expected in fields.items():
                     self.assertEqual(p["steps"][0][key], expected)

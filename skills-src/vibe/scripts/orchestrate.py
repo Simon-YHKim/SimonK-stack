@@ -47,6 +47,7 @@ TASK_TYPE_MAP = {
 TASK_QUALITY_FLOOR = {"CODE_SIMPLE": 2, "CODE_COMPLEX": 3}
 ORCHESTRATORS = {"vibe", "simonk", "app-dev-orchestrator", "dev-orchestrator"}
 SCRIPT_ROOT = Path(__file__).resolve().parent
+TASK_FIT_PATH = SCRIPT_ROOT.parent / "references" / "task-fit-policy.json"
 DEFAULT_TTL = 900  # Refresh availability, price quotes and quota before dispatch.
 # Direct CLI inspection of a receipt-bound candidate must not create an
 # unreceipted __pycache__ member and invalidate the bundle after the read.
@@ -86,6 +87,111 @@ def fresh(observed, now, ttl=DEFAULT_TTL):
         return 0 <= (instant(now) - instant(observed)).total_seconds() <= ttl
     except (TypeError, ValueError, AttributeError):
         return False
+
+
+def validate_task_fit_policy(policy):
+    """Validate a dated, source-bound hypothesis; it never authorizes dispatch."""
+    required = {"schema_version", "version", "status", "checked_at", "valid_until",
+                "sources", "profiles"}
+    if (not isinstance(policy, dict) or not required <= set(policy)
+            or set(policy) - required - {"notes"}
+            or type(policy["schema_version"]) is not int or policy["schema_version"] != 1
+            or policy["status"] != "shadow-only"
+            or not isinstance(policy["version"], str) or not policy["version"]):
+        raise ValueError("Invalid task-fit policy envelope")
+    start, end = instant(policy["checked_at"]), instant(policy["valid_until"])
+    if not start < end <= start + timedelta(days=14):
+        raise ValueError("Invalid task-fit policy validity")
+    sources = policy["sources"]
+    if (not isinstance(sources, dict) or not sources
+            or any(not isinstance(k, str) or not isinstance(v, str)
+                   or not v.startswith("https://") or any(ch.isspace() for ch in v)
+                   for k, v in sources.items())):
+        raise ValueError("Invalid task-fit sources")
+    profiles = policy["profiles"]
+    allowed = {"PLAN_ARCHITECTURE", "CODE_COMPLEX", "CODE_SIMPLE", "WRITING"}
+    efforts = {"none", "low", "medium", "high", "xhigh", "max"}
+    if not isinstance(profiles, dict) or not profiles or not set(profiles) <= allowed:
+        raise ValueError("Invalid task-fit profiles")
+    for entries in profiles.values():
+        if not isinstance(entries, list) or not entries:
+            raise ValueError("Empty task-fit profile")
+        seen = set()
+        for entry in entries:
+            if (not isinstance(entry, dict) or set(entry) != {"model", "efforts", "rank", "sources"}
+                    or not isinstance(entry["model"], str) or not entry["model"].strip()
+                    or type(entry["rank"]) is not int or not 0 <= entry["rank"] <= 9
+                    or not isinstance(entry["efforts"], list) or not entry["efforts"]
+                    or any(not isinstance(e, str) for e in entry["efforts"])
+                    or not set(entry["efforts"]) <= efforts
+                    or len(entry["efforts"]) != len(set(entry["efforts"]))
+                    or not isinstance(entry["sources"], list) or not entry["sources"]
+                    or any(not isinstance(source, str) for source in entry["sources"])
+                    or not set(entry["sources"]) <= set(sources)):
+                raise ValueError("Invalid task-fit entry")
+            for effort in entry["efforts"]:
+                key = (entry["model"], effort)
+                if key in seen:
+                    raise ValueError("Duplicate task-fit model/effort")
+                seen.add(key)
+    return policy
+
+
+def load_task_fit_policy(path=None):
+    def unique_keys(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError("Duplicate task-fit policy key")
+            result[key] = value
+        return result
+    return validate_task_fit_policy(json.loads(Path(path or TASK_FIT_PATH).read_text(encoding="utf-8"),
+                                               object_pairs_hook=unique_keys))
+
+
+def shadow_task_fit(step, choices, active, fit_policy, now):
+    """Show the advisory alternative after eligibility, without changing selection."""
+    task_type = step.get("task_type")
+    if task_type not in fit_policy["profiles"]:
+        return None
+    result = {"policy_version": fit_policy["version"], "policy_sha256": digest(fit_policy),
+              "evidence_scope": "public-advisory-not-host-validation",
+              "active_candidate_id": active["id"], "suggested_candidate_id": None,
+              "would_change": False}
+    instant_now = instant(now)
+    if instant_now < instant(fit_policy["checked_at"]):
+        result["status"] = "not-yet-effective"
+        return result
+    if instant_now > instant(fit_policy["valid_until"]):
+        result["status"] = "expired"
+        return result
+    ranks = {}
+    for entry in fit_policy["profiles"][task_type]:
+        for effort in entry["efforts"]:
+            ranks[(entry["model"], effort)] = entry
+    scored = []
+    match_count = 0
+    for _, candidate, effort, amount in choices:
+        exact_model = candidate.get("resolved_model") or candidate.get("model")
+        entry = ranks.get((exact_model, effort))
+        match_count += entry is not None
+        score = (amount, candidate["quota"]["used_pct"] > 80,
+                 entry["rank"] if entry is not None else 99,
+                 candidate["resource_rank"], candidate["quota"]["used_pct"], candidate["id"])
+        scored.append((score, candidate, effort, entry))
+    if not match_count:
+        result["status"] = "no-matched-evidence"
+        return result
+    _, suggested, effort, entry = min(scored, key=lambda item: item[0])
+    if entry is None:
+        result["status"] = "unranked-wins"
+        return result
+    result.update(status="ranked", suggested_candidate_id=suggested["id"],
+                  suggested_model=suggested.get("resolved_model") or suggested.get("model"),
+                  suggested_effort=effort, advisory_rank=entry["rank"],
+                  source_urls=[fit_policy["sources"][key] for key in entry["sources"]],
+                  would_change=suggested["id"] != active["id"])
+    return result
 
 
 # Bounds apply to metadata collection only; no recursive package/body imports.
@@ -544,6 +650,8 @@ def compile_task_type(node):
     if "task_type" not in result:
         return result
     name = result["task_type"]
+    if name == "IMAGE_GENERATION":
+        raise ValueError("IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL")
     if not isinstance(name, str) or name not in TASK_TYPE_MAP:
         raise ValueError("Unknown task_type")
     if type(result.get("writes")) is not bool:
@@ -731,9 +839,10 @@ def _legacy_validation(nodes, runtime):
     return [] if ok else ["ORCA_" + v for v in violations]
 
 
-def make_plan(request, catalog, runtime, now=None, registry=None):
+def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_policy=None):
     now = now or datetime.now(timezone.utc).isoformat()
     instant(now)
+    fit_policy = validate_task_fit_policy(task_fit_policy) if task_fit_policy is not None else load_task_fit_policy()
     runtime = constrain_runtime(runtime, registry if registry is not None else load_registry(), now)
     budget = request.get("budget", {})
     policy = {"mode": budget.get("mode", "balanced"),
@@ -859,6 +968,9 @@ def make_plan(request, catalog, runtime, now=None, registry=None):
                 errors.append("NO_ELIGIBLE_ROUTE")
             else:
                 _, c, effort, amount = min(choices, key=lambda v: v[0])
+                shadow = shadow_task_fit(s, choices, c, fit_policy, now)
+                if shadow is not None:
+                    s["shadow_task_fit"] = shadow
                 reserved += amount
                 s["route"] = {"candidate_id": c["id"], "surface": c["surface"],
                               "vendor": SURFACES[c["surface"]], "transport": c["transport"],

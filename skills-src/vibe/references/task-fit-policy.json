@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "version": "2026-09-30-shadow.1",
+  "status": "shadow-only",
+  "checked_at": "2026-09-30T06:20:00+09:00",
+  "valid_until": "2026-10-07T06:20:00+09:00",
+  "notes": [
+    "Public task fit is a hypothesis, not proof of host behavior or subscription inclusion.",
+    "No entry changes dispatch; paired same-task Claude/Codex evaluation gates activation.",
+    "Image generation is excluded: VISION means image understanding, not creation."
+  ],
+  "sources": {
+    "anthropic_opus": "https://www.anthropic.com/claude-opus-5-5",
+    "anthropic_sonnet": "https://www.anthropic.com/claude-sonnet-5-5",
+    "openai_astra": "https://openai.com/index/gpt-6-astra/",
+    "openai_sol": "https://developers.openai.com/api/docs/models/gpt-6-sol",
+    "openai_sol61": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+    "openai_luna": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+    "aa_opus": "https://artificialanalysis.ai/articles/claude-opus-5-5/",
+    "aa_sonnet": "https://artificialanalysis.ai/articles/claude-sonnet-5-5",
+    "aa_sol61": "https://artificialanalysis.ai/articles/gpt-6-1-sol-replaces-gpt-6-sol-after-just-7-days-with-near-astra-intelligence"
+  },
+  "profiles": {
+    "PLAN_ARCHITECTURE": [
+      {"model": "claude-opus-5-5", "efforts": ["high", "xhigh"], "rank": 0, "sources": ["anthropic_opus", "aa_opus"]},
+      {"model": "gpt-6-astra", "efforts": ["high", "xhigh"], "rank": 0, "sources": ["openai_astra"]},
+      {"model": "gpt-6.1-sol", "efforts": ["high", "xhigh"], "rank": 1, "sources": ["openai_sol61", "aa_sol61"]},
+      {"model": "claude-sonnet-5-5", "efforts": ["high"], "rank": 2, "sources": ["anthropic_sonnet", "aa_sonnet"]}
+    ],
+    "CODE_COMPLEX": [
+      {"model": "claude-opus-5-5", "efforts": ["high", "xhigh"], "rank": 0, "sources": ["anthropic_opus", "aa_opus"]},
+      {"model": "gpt-6-astra", "efforts": ["high", "xhigh"], "rank": 0, "sources": ["openai_astra"]},
+      {"model": "gpt-6.1-sol", "efforts": ["high", "xhigh"], "rank": 1, "sources": ["openai_sol61", "aa_sol61"]},
+      {"model": "claude-sonnet-5-5", "efforts": ["high", "xhigh"], "rank": 1, "sources": ["anthropic_sonnet", "aa_sonnet"]}
+    ],
+    "CODE_SIMPLE": [
+      {"model": "claude-sonnet-5-5", "efforts": ["low", "medium"], "rank": 0, "sources": ["anthropic_sonnet", "aa_sonnet"]},
+      {"model": "gpt-6-sol", "efforts": ["low", "medium"], "rank": 0, "sources": ["openai_sol"]},
+      {"model": "gpt-6.1-sol", "efforts": ["low", "medium"], "rank": 1, "sources": ["openai_sol61", "aa_sol61"]},
+      {"model": "gpt-6-luna", "efforts": ["low", "medium"], "rank": 2, "sources": ["openai_luna"]}
+    ],
+    "WRITING": [
+      {"model": "claude-sonnet-5-5", "efforts": ["medium", "high"], "rank": 0, "sources": ["anthropic_sonnet", "aa_sonnet"]},
+      {"model": "claude-opus-5-5", "efforts": ["medium", "high"], "rank": 1, "sources": ["anthropic_opus", "aa_opus"]},
+      {"model": "gpt-6.1-sol", "efforts": ["medium", "high"], "rank": 2, "sources": ["openai_sol61", "aa_sol61"]},
+      {"model": "gpt-6-sol", "efforts": ["medium", "high"], "rank": 2, "sources": ["openai_sol"]}
+    ]
+  }
+}

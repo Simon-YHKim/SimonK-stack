@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use for /vibe, "알아서 진행", "오르카로 돌려", "스킬 조합", skill/model/effort/subscription-cost orchestration, and Play Console/GUI requests. Check CLI/API/MCP first; use vibe-bot only for GUI-only steps. Produces verified plans and artifacts; never invent specialist skills or assume paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.13
+version: 2.12.14
 author: simon-stack
 ---
 
@@ -147,6 +147,22 @@ eligible routes. An unsupported host capability is reported, not silently
 replaced by a lower-quality or paid path. Current planning has no guarded
 image-generation dispatch adapter: keep that node unresolved unless the
 current host exposes a separately verified included tool.
+
+The source-dated [task-fit hypothesis](references/task-fit-policy.json) is
+deliberately **shadow-only**. For `PLAN_ARCHITECTURE`, `CODE_COMPLEX`,
+`CODE_SIMPLE` and `WRITING`, the planner checks its exact model/effort entry
+only after all route-eligibility guards, preserves monetary and >80% quota
+priority, then emits `shadow_task_fit` with the policy digest, source URLs,
+active candidate and advisory alternative. It does **not** change `route` or
+authorize a worker. Expired, unmatched or unranked-winning evidence produces
+no advisory alternative. `IMAGE_GENERATION` explicitly requires a verified
+subscription-included image tool and must not be routed through text `VISION`.
+Public manufacturer/Artificial Analysis claims are hypotheses across different
+harnesses; direct X posts were inaccessible, so X contributes no rank. Promote
+each task profile only after the same skill bundle, task, tools and rubric are
+compared on Claude and Codex with exact model/effort and $0-extra-cost proof.
+Until then `selection_quality_verified=false` and installation readiness stay
+unproven even when the shadow alternative differs.
 
 Validate with:
 ```text
