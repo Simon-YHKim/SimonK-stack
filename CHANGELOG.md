@@ -22,6 +22,7 @@
 - **`/vibe` 2.11.16 progressive disclosure** — moved the generated historical Orca lane table into a directly linked reference and retargeted its drift checker. Normal skill loading omits the legacy table; the generator, safety guards and frontier runtime routing are unchanged. This does not reduce the initial five-plugin description footprint or prove model/host behavior.
 
 ### Fixed
+- **`app-platform-selector` 1.0.1 심사 단정 제거** — Apple 공식 §4.2의 최소 기능 요건에 맞춰 PWA·WKWebView의 승인·거절을 보장하던 문구를 위험 기반 검토로 교정하고, 기존·원본 평가 사례를 함께 유지했다. 플랫폼 비교와 유료 개발자 등록·스토어 제출을 분리한다. 실제 심사 승인이나 모델 행동 검증은 아니다.
 - **`/vibe` 2.12.6 레거시 실행 안내 정정** — 과거 함정·Astra effort 참고문서의 raw worker 재시도·종료·터미널 전송, 직접 Codex 실행, 무료라고 단정한 effort 탐침을 사고 기록으로 분리했다. 현재 중앙 계획·구독 포함·비용·조회 전용 복구 계약을 명시했으며 실행 어댑터, 사용자 설치본, 결제 설정은 변경하지 않았다.
 - **원본 플러그인 Windows CI 로캘** — AIHub·Core·Design·Market의 Python 품질 게이트가 기본 CP949 콘솔에서 UTF-8 자식 출력을 읽다가 실패하던 경로를 고쳤다. 각 원본의 회귀 검사 4/4와 품질 게이트 7/57/19/32를 통과한 커밋을 고정 입력에 반영했고 v24 격리 후보의 바이트 영수증을 재검증했다. Codex 기본 catalog·Gstack 전이 런타임·사용자 설치 준비는 아직 미해결이다.
 - **프로필 계획 회귀 fixture** — 기존 무료 로컬 도구 사례에 필수 `nonmetered`·전이 효과 감사 선언을 추가해 강화된 비용 가드와 일치시켰다. 실제 판정 로직이나 사용자 과금 설정은 변경하지 않았다.
