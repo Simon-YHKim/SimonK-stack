@@ -3687,6 +3687,46 @@ Codex CLI 0.159.0은 로컬 marketplace 5개를 등록·활성화했고
 이것은 로컬 CLI 초기화·복사·발견 증거이지 OS 수준 네트워크 차단, 실제
 사용자 설치·자동 스킬 선택, 모델 생성이나 결과 품질의 증거는 아니다.
 
+### `6cbef21` Codex PATH 구버전 차단과 새 양호스트 후보 (2026-09-30)
+
+`/vibe` 2.12.11은 Codex 워커 기동 전에
+`python -B scripts/check_tooling.py --local-codex`로 PATH 실행 버전과 같은
+shim 위치의 npm 패키지 버전을 비교한다. 이 모드는 npm 원격 조회·Orca
+조회·스냅샷 변경 없이 실행된다. 현재 PC에서는 PATH의 0.155.0과 인접
+패키지의 0.159.0을 관측해 `뒤처짐`/종료 1로 차단했다. newer 패키지의
+실행 가능성이나 구독 포함 과금을 증명하는 검사는 아니며, 전역 PATH·shim은
+변경하지 않았다. RED→GREEN 회귀 테스트 4건은 소스와 양쪽 패키지에서
+각각 통과했고, 스킬 validator는 오류·경고 0건이다.
+
+새 격리 후보는
+`E:/Coding Infra/Releases/SimonK-stack/20260930-path-6cbef21/`이다.
+소스·Claude 번들·Codex 오버레이·D-29 subset 영수증은 각각
+`f11f24aa3a837b99147a3079765a619272f466764356d254b3f4133ad57a8be9`,
+`4721e4e2fc763df74a51b6487eceee4f30be60f9fe6c97b7e1cb7ba29e787559`,
+`cb48af0707087cbd9d34ea4a8d8981f9082473729669a2aa01a607862ed6a686`,
+`dc76822bbbcd27b62dbe29a444665c882f9b51516a1e3192e9f7c1dd8d6232dc`다.
+네 영수증 재검증과 subset→오버레이 출처 검증이 통과했다. Claude 182개와
+Codex 177개 중 공통 본문 176개가 바이트 동일하고 `zoom-out` 1개는 승인
+투영, 5개 안전 스킬은 D-29대로 제외됐다. 후보 패키지의 `.pyc`는 0개다.
+
+새 분리 무인증 로컬 프로필에서 Claude Code 2.1.285의 `--init-only`는
+5플러그인·182스킬, 종료 0, 디버그 `rg error`·API request 로그 각 0건을
+기록했다. 첫 빈 캐시 디렉터리 프로필은 `rg error` 1건을 남겨 보존했다.
+Codex CLI 0.159.0은 로컬 marketplace 5개를 활성 등록, 177스킬을
+캐시에 복사했고 후보와 캐시 726/726파일의 상대경로·SHA-256이 일치했다.
+실제 사용자 Codex config·auth 해시는 불변이며 시험 프로필에는 auth.json이
+없었다. 양쪽 기본 카탈로그는 각각 182·177개를 반환했다.
+
+고정 Gstack 원본의 직접 헬퍼 9개는 있지만, 전이 런타임 감사는 Claude
+31스킬/646참조와 Codex 30스킬/625참조에서 계속
+`external_runtime_pending`/종료 1이다(로컬 누락·이식 불가 명령 0).
+로컬 프로필 적재는 OS 네트워크 격리, 실제 사용자 설치, 자동 스킬 선택·
+산출물 품질, Gstack 전이 실행, 정확한 구독 포함·구매 크레딧 폴백 차단을
+증명하지 않는다. 모델·Bot·Orca 실호출, 추가 과금, `main` 머지, 결제 설정·
+기존 설치본 변경은 없었다. 따라서 `host_behavior_verified=false`,
+`selection_quality_verified=false`, `installation_ready=false`를 유지한다.
+원시 요약·영수증 링크는 후보의 `report.html`에 있다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
