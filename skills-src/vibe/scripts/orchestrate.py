@@ -41,6 +41,8 @@ TASK_TYPE_MAP = {
     "BULK_LIGHT": {"kind": "llm", "needs": ["reasoning"], "demand": "routine", "proc": "bulk-transform", "class": "A"},
     "REASONING_ABSTRACT": {"kind": "llm", "needs": ["reasoning"], "demand": "critical", "proc": "research-deep", "class": "B"},
     "VISION": {"kind": "llm", "needs": ["vision"], "demand": "reasoning", "proc": "ui-visual", "class": "C-platform"},
+    # Image output needs a dedicated tool transport; text-model vision cannot satisfy it.
+    "IMAGE_GENERATION": {"kind": "image", "needs": ["image_generation"], "demand": "routine", "proc": "ui-visual", "class": "C-platform"},
 }
 # Effort demand and capability quality are different axes. A short coding task
 # can use low reasoning without admitting an unproven low-quality model.
@@ -650,8 +652,6 @@ def compile_task_type(node):
     if "task_type" not in result:
         return result
     name = result["task_type"]
-    if name == "IMAGE_GENERATION":
-        raise ValueError("IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL")
     if not isinstance(name, str) or name not in TASK_TYPE_MAP:
         raise ValueError("Unknown task_type")
     if type(result.get("writes")) is not bool:
@@ -876,7 +876,9 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
         s["route"], s["handoff"] = None, None
         s["skill_paths"] = []
         s["skill_bindings"] = []
-        if s.get("kind") not in ("local", "llm", "gui") or s.get("demand", "routine") not in DEMAND_TIER:
+        if (s.get("kind") not in ("local", "llm", "gui", "image")
+                or (s["kind"] == "image" and s.get("task_type") != "IMAGE_GENERATION")
+                or s.get("demand", "routine") not in DEMAND_TIER):
             raise ValueError("Invalid step kind or demand")
         if type(s.get("quality_floor", 1)) is not int or not 1 <= s.get("quality_floor", 1) <= 3:
             raise ValueError("quality_floor must be an integer from 1 to 3")
@@ -906,6 +908,11 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
                 errors.append("GUI_TARGET_REQUIRED")
             if "vibe-bot" not in s.get("skills", []):
                 errors.append("BOT_SKILL_REQUIRED")
+        if s["kind"] == "image":
+            # There is no guarded, subscription-included image adapter yet.
+            # Preserve the typed task in a blocked plan instead of raising or
+            # ever misrouting it through an LLM/local-command candidate.
+            errors.append("IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL")
         parent = by_id.get(s.get("verify_of"))
         vendor = (parent.get("route") or {}).get("vendor") if parent else None
         if parent and not parent.get("route"):

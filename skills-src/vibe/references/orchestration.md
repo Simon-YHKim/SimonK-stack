@@ -179,7 +179,13 @@ not manufacture a host snapshot to force an executable plan.
 }
 ```
 
-`kind`: local, llm or gui. A local node supplies an `argv` list and `software`
+`kind`: local, llm, gui or the typed-only `image` placeholder. An
+`IMAGE_GENERATION` step compiles to `kind=image` with the
+`image_generation` capability but always returns a blocked plan with
+`IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL`; no executable image adapter or
+subscription-inclusion certificate is implemented. An untyped `kind=image`
+is invalid. Text-model `vision`, a local API wrapper, or a GUI Bot must not
+silently substitute for it. A local node supplies an `argv` list and `software`
 names checked against runtime tools. Runtime tool_costs must include the exact
 argv_sha256 (`orchestrate.digest(argv)`), verified=true, evidence, observed_at
 and upper_usd_per_attempt. It must also set `transitive_effects_audited=true`

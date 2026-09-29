@@ -1187,7 +1187,7 @@ class OrchestrationTests(unittest.TestCase):
         expected = {"CODE_NEW", "CODE_FIX", "CODE_REVIEW", "RESEARCH", "AGENTIC",
                     "COMPUTER_USE", "DESIGN_UI", "KOREAN_DOC", "BULK_LIGHT",
                     "REASONING_ABSTRACT", "VISION", "PLAN_ARCHITECTURE",
-                    "CODE_COMPLEX", "CODE_SIMPLE", "WRITING"}
+                    "CODE_COMPLEX", "CODE_SIMPLE", "WRITING", "IMAGE_GENERATION"}
         self.assertEqual(set(self.m.TASK_TYPE_MAP), expected)
         for mapping in self.m.TASK_TYPE_MAP.values():
             self.assertEqual(routing.PROC_BY_ID[mapping["proc"]][1], mapping["class"])
@@ -1268,8 +1268,20 @@ class OrchestrationTests(unittest.TestCase):
                       task_fit_policy=policy)
         self.assertEqual(p["steps"][0]["shadow_task_fit"]["status"], "expired")
         self.assertEqual(p["status"], "ready")
-        with self.assertRaisesRegex(ValueError, "IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL"):
-            self.plan([self.typed("IMAGE_GENERATION")])
+        image = self.typed("IMAGE_GENERATION")
+        for surface in ("claude", "codex"):
+            with self.subTest(surface=surface):
+                fake = candidate(surface=surface, capabilities=["image_generation", "vision"])
+                blocked = self.plan([image], [fake])
+                self.assertEqual(blocked["status"], "blocked")
+                node = blocked["steps"][0]
+                self.assertEqual(node["kind"], "image")
+                self.assertEqual(node["needs"], ["image_generation"])
+                self.assertIn("IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL", node["errors"])
+                self.assertIsNone(node["route"])
+                self.assertIsNone(node["handoff"])
+        with self.assertRaisesRegex(ValueError, "Invalid step kind"):
+            self.plan([step(kind="image")])
 
     def test_packaged_complex_coding_fit_can_advise_opus_medium_without_dispatch(self):
         policy = self.m.load_task_fit_policy()

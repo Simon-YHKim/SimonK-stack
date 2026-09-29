@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use for /vibe, "알아서 진행", "오르카로 돌려", "스킬 조합", skill/model/effort/subscription-cost orchestration, and Play Console/GUI requests. Check CLI/API/MCP first; use vibe-bot only for GUI-only steps. Produces verified plans and artifacts; never invent specialist skills or assume paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.15
+version: 2.12.16
 author: simon-stack
 ---
 
@@ -107,7 +107,8 @@ Bot model/effort remains provider-managed unless a real control is verified.
 
 Classify by deliverable before choosing a model. The planner accepts
 `PLAN_ARCHITECTURE`, `CODE_COMPLEX`, `CODE_SIMPLE` and `WRITING` as distinct
-task profiles in addition to its older category IDs. They set minimum
+model-fit profiles in addition to its older category IDs. `IMAGE_GENERATION`
+is a separate blocked tool profile. Typed profiles set minimum
 capabilities and routine/reasoning demand; a high-stakes node may explicitly
 raise demand to critical. `proc` is a legacy Orca guard label, not a claim that
 planning or writing performed web research. A named, discovered Core
@@ -150,8 +151,11 @@ model/API facts into exact-account subscription or effective-effort proof.
 Claude and Codex use the same task/acceptance standard but may have different
 eligible routes. An unsupported host capability is reported, not silently
 replaced by a lower-quality or paid path. Current planning has no guarded
-image-generation dispatch adapter: keep that node unresolved unless the
-current host exposes a separately verified included tool.
+image-generation dispatch adapter: `IMAGE_GENERATION` compiles to a distinct
+`kind=image` node and reports `IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL` in a
+blocked plan. Neither Claude nor Codex may satisfy it with text-model `VISION`,
+a local API wrapper or an unverified subscription tool. Do not execute that
+node until a guarded image adapter and exact subscription/cost evidence exist.
 
 The source-dated [task-fit hypothesis](references/task-fit-policy.json) is
 deliberately **shadow-only**. For `PLAN_ARCHITECTURE`, `CODE_COMPLEX`,
