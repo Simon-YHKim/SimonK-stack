@@ -2845,6 +2845,37 @@ v25 초기화·실제 호스트 선택·모델 라우팅·Bot/Orca 실행은 시
 `main` 머지는 없었다. 자세한 범위와 재현 결과는 같은 폴더의
 `report.html`을 본다.
 
+## v25 Codex 일반 subset 격리 설치·철회 검증 (2026-09-29)
+
+v25 Codex 오버레이 digest `cd3691dfa149bdde943d9fa7ab0909f2057bf4d3a088caa7d9187a8c8f57b6a8`에서
+별도 `codex-general-subset-v25`를 생성했다. subset digest는
+`4cfdce3dada51af3e5351aca271e9b98df5913cf076a6d260d6e8694d03b78c6`이며,
+원본 오버레이를 함께 넣은 검증이 생성 직후와 격리 호스트 시험 뒤 모두
+`source_provenance_verified=true`·종료 0이었다. D-29의 다섯 스킬
+(`careful`, `freeze`, `guard`, `investigate`, `unfreeze`)과 Core/Stack 안전
+런타임은 제외되고, 명시적 다섯 `--root` 인벤토리는 177개·문제 0건,
+`vibe` 1개·제외 스킬 0개다. 원본 `bundle.json`이 182개 출처를 보존하므로
+이 subset의 기본 번들 catalog 성공을 주장하지 않는다.
+
+새 무인증 `CODEX_HOME`을
+`E:/Coding Infra/Releases/SimonK-stack/20260929-v25-overlay-catalog/codex-hostprobe-v25/`
+에만 만들고, Codex CLI 0.155.0으로 로컬 마켓플레이스 다섯 개와 플러그인
+다섯 개를 등록했다. 캐시 723파일은 subset의 동일 상대 경로·SHA-256과
+모두 일치했고, 실제 캐시 `SKILL.md`는 177개, 제외 대상 파일 0개였다.
+이후 정확한 테스트 프로필에서만 다섯 플러그인과 마켓플레이스를 철회해
+설치 목록·가용 목록·마켓플레이스·캐시 파일이 각각 0개임을 확인했다.
+삭제된 것은 생성한 테스트 캐시 복사본뿐이며 원본 subset은 보존했다.
+기존 사용자 Codex 프로필은 SimonK 플러그인 0개(전체 20개), flat
+`vibe`는 여전히 2.11.6이었다. 테스트 프로필에는 인증 파일이 없고
+`config.toml`만 남았다.
+
+이는 **복사 바이트·등록·철회**의 격리 검증이다. 실제 177개 스킬 선택,
+Codex 정책 훅 집행, Gstack 런타임 폐쇄, 사용자 홈 무손실 전환, 모델/Bot/
+Orca 사용은 입증하지 않는다. 모델 호출과 추가 과금은 없었다.
+`host_compatibility_verified`와 `installation_ready`는 계속 `false`이며,
+설치 전환·`main` 머지는 하지 않았다. 상세는 같은 릴리스 폴더의
+`report-subset.html`에 둔다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,

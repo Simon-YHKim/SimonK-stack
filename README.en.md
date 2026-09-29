@@ -12,7 +12,7 @@
 
 **Problem**: AI coding assistants work in a different order every time you give them a large task, and they repeat the same mistakes.
 
-**Solution**: **141 skills in this branch's legacy source/development inventory** (`skills-src/` 137 + `.claude/skills/` 4), with **182 skills in the separately assembled five-plugin v23 candidate**. `/vibe` is the main coordinator and `simonk` supplies its sprint procedure (one owner → guarded work → verified results). [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (private) retains cross-session learning. These counts describe different inventories, not installed-user-profile parity.
+**Solution**: **141 skills in this branch's legacy source/development inventory** (`skills-src/` 137 + `.claude/skills/` 4), with **182 skills in the separately assembled five-plugin v25 safety candidate** and **177 in its Codex general subset**. `/vibe` is the main coordinator and `simonk` supplies its sprint procedure (one owner → guarded work → verified results). [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (private) retains cross-session learning. These counts describe different inventories, not installed-user-profile parity.
 
 **Sprint v34 (2026-05-25)** — 5 external vendor integrations (user-level live clone + auto-update each session):
 - [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) · [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) · [OpenHarness](https://github.com/HKUDS/OpenHarness) — existing (sprint v22-EXT)
@@ -120,7 +120,7 @@ Offline tests use disposable profiles/clones, not the user's configuration:
 
 ## Install
 
-> The five-plugin v23 candidate (182 skills) is **not installation-ready**: all three readiness flags remain `false`, and no user profile or `main` promotion has occurred. The public commands below are not a v23 test path. In particular, legacy `scripts/install.sh` may fetch remote plugins/Gstack and modify the user home; do not run it to evaluate this candidate. See [candidate verification and installation gates](docs/INSTALL.md).
+> The five-plugin v25 safety candidate (182 skills) and Codex general subset (177 skills) are **not installation-ready**: the readiness flags remain `false`, and no user profile or `main` promotion has occurred. The public commands below are not a v25 test path. In particular, legacy `scripts/install.sh` may fetch remote plugins/Gstack and modify the user home; do not run it to evaluate these candidates. See [candidate verification and installation gates](docs/INSTALL.md).
 
 ### Claude Code Web (easiest)
 1. Go to https://claude.ai/code → Open `Simon-YHKim/SimonK-stack` → Done
