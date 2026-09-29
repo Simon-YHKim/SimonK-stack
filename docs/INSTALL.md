@@ -3424,6 +3424,22 @@ Codex plugin validator는 일반 subset의 5/5에서 종료 0이었다. 이는
 정리 명령이 실행 정책에서 거부되어 첫 v31의 임시 worktree·복제본·후보
 파일은 아직 보존되어 있다. 삭제·이동은 실행되지 않았다.
 
+### v31b Claude·Codex 격리 캐시 (2026-09-29)
+
+새 무인증 설정 폴더 `E:/Coding Infra/Releases/SimonK-stack/20260929-v31b-host-parity/`
+아래에서 Claude Code 2.1.284는 v31b safety 후보의 로컬 marketplace
+5개를, Codex CLI 0.155.0은 v31b general subset의 로컬 marketplace
+5개를 각각 설치했다. 각 원본과 설치 캐시의 상대 경로·SHA-256을 전수
+비교한 결과 Claude **741/741파일·182 SKILL.md**, Codex
+**724/724파일·177 SKILL.md**가 일치했다. 격리 프로필에서
+auth/credential/token 이름의 파일은 0개였으나 이는 인증정보 전체
+부재 증명이 아니다. 작업 후 운영 프로필을 다시 조회해 SimonK 플러그인
+등록이 Claude·Codex 모두 0개임을 확인했다. 상세는 같은 폴더의
+`report.html`에 있다. 이 결과는 **복사 정확성**만 검증하며 운영 flat
+스킬 충돌·자동 선택·기존 세션 재로딩·구독 과금·모델 행동을 증명하지
+않는다. `host_compatibility_verified=false`와
+`installation_ready=false`를 유지한다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
