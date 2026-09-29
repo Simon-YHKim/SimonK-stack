@@ -226,6 +226,25 @@ For Claude Fable, a subscription login and the model picker are not inclusion
 proof: Anthropic documents that non-interactive `-p`/SDK requests can bill
 usage credits without a consent prompt. Never dispatch that route until the
 exact model's included-usage and disabled-overage evidence is positive.
+Do not set `extra_usage_enabled=false` merely because **automatic top-up/reload**
+is off. Existing purchased credits can still be spent after included usage:
+OpenAI documents this for Codex and xAI for Grok. Claude's *usage credits*
+toggle must be off separately from auto-reload, and an `ANTHROPIC_API_KEY`
+can make Claude Code use metered API authentication instead of the subscription.
+Antigravity's applicable **AI Credit Overages = Never** / CLI
+`useG1Credits=false` must be observed for the actual account and transport;
+an absent setting is unknown, not false. For Codex, a positive credit balance
+or an unverified account-level credit fallback blocks the zero-extra-spend
+route even when auto-reload is off. For Grok/Grok Bot, check purchased
+Extra Usage Credits/on-demand fallback separately from Auto Top Up and keep
+the CLI and Bot account/quota evidence distinct. None of these settings is
+changed by the planner or collector. Sources:
+https://help.openai.com/en/articles/12642688-using-credits-for-flexible-usage-in-chatgpt-personal-plans ;
+https://support.claude.com/en/articles/11145838-use-claude-code-with-your-pro-or-max-plan ;
+https://support.claude.com/en/articles/12429409-manage-usage-credits-for-paid-claude-plans ;
+https://docs.x.ai/grok/faq ;
+https://antigravity.google/docs/plans ;
+https://www.antigravity.google/docs/cli/credits/ .
 The quote belongs to this task/run snapshot, not a permanent model price.
 With approved_usd=0, API and metered LLM routes are excluded even when their
 claimed per-attempt upper quote is zero. A positive metered grant is a separate

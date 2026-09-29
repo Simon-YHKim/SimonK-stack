@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.12.4 - 2026-09-29
+
+- Clarify that disabling auto-reload is not proof of disabled extra-credit
+  consumption for Codex or Grok. Require account/transport-specific overage
+  evidence for Claude, Codex, Antigravity, Grok and Grok Bot before treating
+  subscription usage as zero additional spend. No payment setting is changed.
+
 ## 2.12.3 - 2026-09-29
 
 - Bind default catalog discovery in a Codex compatibility overlay to both
