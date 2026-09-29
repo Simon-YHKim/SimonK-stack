@@ -3354,6 +3354,19 @@ Core 패키지 파일 4개가 바뀌고 버전도 바뀌었으나 AIHub·Design�
 유지한다. 테스트는 두 증상과 경로 추가·모드 변경·비버전 manifest 변경·
 소유자 불일치를 다룬다.
 
+Codex CLI 0.155.0의 **별도 무인증 프로필**에서도 로컬 테스트
+플러그인으로 명시적 재설치를 관찰했다. 버전 `0.1.0`에서 원본 스킬을
+A→B로 바꾸고 같은 `codex plugin add`를 다시 실행하자 캐시가 B SHA로
+갱신됐다. 이어 플러그인 생성 도구의 `+codex.<cachebuster>`로 버전만
+바꾸고 재설치하자 새 캐시 경로·설치 목록 버전이 일치했고 격리 프로필의
+구 `0.1.0` 캐시는 사라졌다. 이는 **Codex CLI의 명시적 add 경로**에
+한정하며 자동 갱신, ChatGPT 데스크톱, 실제 SimonK 전체 패키지 또는
+Claude의 같은 버전 갱신을 증명하지 않는다. 실제 사용자 Codex 목록에
+fixture는 없었고 모델 생성·유료 API 호출은 없었다. 재현물과 전체 SHA는
+`E:/Coding Infra/Releases/SimonK-stack/20260929-codex-version-probe/report.html`에
+있다. Claude 쪽에서 재현된 같은 버전 캐시 충돌은 이 결과로 해소되지
+않으므로 플러그인별 버전 D-code와 운영 준비 게이트는 그대로 유지한다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
