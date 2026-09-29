@@ -159,7 +159,7 @@ Office     & Design               & Platform & Compl.   & Revenue  & Memory   De
 | `/security-checklist` | RLS / 구독 변조 / dual-layer rate-limit / 예산 cap 4 pillar |
 | `/authz-designer` | 기존 서버·DB 권한 경계를 확인해 역할·관계 정책을 설계하거나 교차 테넌트/IDOR를 읽기 전용으로 감사합니다. DDL·운영 권한 변경은 별도 게이트입니다. |
 | `/cso` (gstack) | Chief Security Officer 모드 — 종합 보안 결정 |
-| `/paid-api-guard` | 유료 API 호출 가드 (예산 cap) |
+| `/paid-api-guard` | 결제·SMS 등 종량제 API의 키·서명·남용·비용 경계를 점검합니다. 유료 실호출·메시지 전송·키 회전·결제 설정은 별도 승인입니다. |
 | `/keepass-helper` | 시크릿 매니지먼트 |
 
 ### 6. Growth & Revenue (그로스·재무) — 사용자·돈·시장

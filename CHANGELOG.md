@@ -22,6 +22,7 @@
 - **`/vibe` 2.11.16 progressive disclosure** — moved the generated historical Orca lane table into a directly linked reference and retargeted its drift checker. Normal skill loading omits the legacy table; the generator, safety guards and frontier runtime routing are unchanged. This does not reduce the initial five-plugin description footprint or prove model/host behavior.
 
 ### Fixed
+- **`paid-api-guard` 1.0.1 유료 API 감사·비용 경계 교정** — 원본의 Twilio SMS 유출 의심/비용 폭증 감사 사례를 소스 평가에 복원하고, Stripe 공개 키 `pk_` 오탐, 처리 전 웹훅 완료 표시, 브라우저 HMAC·BFF·고정 비율·실결제 중복 시험 강제 등 위험한 단정을 제거했다. 공급자 알림은 하드 지출 차단이 아님을 명시하고 추가 과금 $0 사례를 추가했다. 평가는 스키마 dry-run이며 모델 행동·운영 결제·문자 발송을 검증하지 않았다.
 - **`authz-designer` 1.0.1 설계·감사 경계 교정** — 원본의 교차 테넌트 IDOR 감사 사례를 소스 평가에 복원하고, 단순 소유자 비교를 무조건 취약점으로 판정하거나 감사 요청에 DDL·운영 변경을 요구하던 지침을 바로잡았다. 선택적 SQL 예시의 Supabase·PostgreSQL 15+ 전제를 표시하고 nullable UNIQUE 중복 위험을 줄였다. 평가 3건은 스키마 dry-run이며 실제 보안 감사·운영 DB 테스트·모델 행동 검증은 아니다.
 - **`vue-best-practices` 2.0.1 원본 계약 통합** — 기존 Options API·상태 소유권·실측 성능 작업을 보존하고, Pinia 직접 상태 변경 및 Vue 3.5+ props 구조분해에 대한 잘못된 오류 판정을 바로잡았다. 원본 라우팅·동작 사례 5건과 새 공식 동작 회귀 2건을 소스 평가에 포함했다. 모델 행동, 사용자 설치, 브라우저 성능은 아직 검증하지 않았다.
 - **`vercel-react` 0.1.3 라우터·캐시 모델·배포 경계 교정** — 원본의 React/Next.js 기존 프로젝트·실측 우선 원칙을 반영하고 Pages Router/React 단독 앱에 App Router 지침을 강제하지 않는다. Cache Components와 이전 캐시 모델을 분리하고 `updateTag`·Proxy/런타임·Suspense·Server Action 예시의 단정을 바로잡았다. 원본 트리거 3건과 새 회귀 3건을 소스 평가에 추가했으나 모델 행동·브라우저·운영 배포를 검증한 것은 아니다.
