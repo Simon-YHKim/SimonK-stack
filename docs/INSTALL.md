@@ -3621,6 +3621,34 @@ Codex 30스킬/625참조로 남아 종료 1의 `external_runtime_pending`이다.
 `selection_quality_verified=false`, `installation_ready=false`를 유지한다.
 기존 사용자 설치본·원본 플러그인·`main`·결제 설정은 변경하지 않았다.
 
+### `39c3ca3` D-29 제외본 발견 수정 후보와 별도 로컬 호스트 적재 (2026-09-30)
+
+`/vibe` 2.12.10은 `subset.json`의 D-29 제외 5스킬·2런타임,
+포함/제외 파일 해시 목록과 원본 Codex 오버레이 digest가 일치할 때만
+Codex 일반 subset을 기본 발견 대상으로 인정한다. 영수증 누락·변조와
+안전 제어 재등장은 실패한다. 새 격리 후보는
+`E:/Coding Infra/Releases/SimonK-stack/20260930-subset-discovery-39c3ca3/`이며,
+Claude `bundle.json` digest는 `604c7a76f406763e97f28d9d8440139680ee46b85a8e31d9e2321fb9c1e30993`,
+Codex `subset.json` digest는 `790173a02d0fb4241da2d9a9ba9b73244412aba705148f1eaeb7540e104cb3a6`다.
+공통 176개 스킬 본문은 바이트 동일하고 `zoom-out`만 승인된 투영이다.
+
+별도 빈 로컬 프로필에서 Claude Code 2.1.285의 `--init-only`는
+5플러그인·182스킬을 적재했다(종료 0, 디버그 오류·API 요청 로그 각 0).
+Codex CLI 0.159.0은 5플러그인·177스킬을 등록했고 후보 대비 캐시
+725/725파일의 상대 경로·SHA-256이 일치했다. 그 캐시의 `/vibe` 명시적
+5루트 인벤토리는 177개·이슈 0이었다. 프로필에 인증정보를 복사하지 않았고
+실제 사용자 Claude/Codex 핵심 설정 파일 해시는 불변이었다.
+후보 패키지 영수증은 시험 후에도 검증됐다. 모델 응답은 생성하지 않았다.
+
+새 네트워크 차단 Windows Sandbox 시험은 게스트 창이 5분 이상 흰 화면에
+머물고 결과 파일이 생성되지 않아 완료하지 못했다. 해당 시험 인스턴스만
+종료했으며, 이를 후보 실패나 성공으로 해석하지 않는다. 위 로컬 프로필
+시험은 OS 수준 네트워크 격리 증거가 아니다. 원시 범위·SHA-256·실패와
+남은 게이트는 후보의 `report.html`에 있다. 자동 스킬 선택·실행 품질,
+Gstack 전이 폐쇄, 구독 과금 안전성, 사용자 프로필 전환은 미검증이므로
+`host_behavior_verified=false`, `selection_quality_verified=false`,
+`installation_ready=false`를 유지한다. 기존 설치본·`main`·결제 설정은 불변이다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
