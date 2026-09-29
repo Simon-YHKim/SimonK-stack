@@ -5,8 +5,9 @@ This is a conservative static audit, not runtime dependency closure. Unresolved
 paths need manual context review; they are not necessarily missing dependencies.
 Gstack bin references are reported as external-runtime hints, not proof of
 availability. Optional pinned-source evidence checks direct helper files only.
-Literal backtick paths and simple Markdown link destinations are inspected;
-dynamic commands, imports and services remain out of scope.
+Literal backtick paths and simple Markdown link destinations are inspected in
+SKILL.md and reachable Markdown references; dynamic commands, imports and
+services remain out of scope.
 """
 from __future__ import annotations
 
@@ -101,17 +102,21 @@ def inspect_pinned_gstack_targets(source_root: Path, expected_commit: str,
             "runtime_closure_verified": False}
 
 
-def inspect_skill_references(skill_path: str, text: str, available: set[str]) -> list[dict[str, object]]:
-    """Resolve only explicit local references against the same plugin's file list."""
-    parts = skill_path.split("/")
-    if len(parts) != 5 or parts[0] != "plugins" or parts[2] != "skills" or parts[4] != "SKILL.md":
-        raise ValueError("Expected a plugin skill entrypoint")
+def inspect_document_references(document_path: str, text: str,
+                                available: set[str]) -> list[dict[str, object]]:
+    """Resolve explicit local references in a skill or reachable Markdown file."""
+    parts = document_path.split("/")
+    if (len(parts) < 5 or parts[0] != "plugins" or parts[2] != "skills"
+            or not parts[-1].endswith(".md")):
+        raise ValueError("Expected a plugin skill Markdown document")
     boundary = f"plugins/{parts[1]}/"
     seen: set[str] = set()
     rows = []
-    matches = sorted([*INLINE.finditer(text), *MARKDOWN_LINK.finditer(text)],
-                     key=lambda match: match.start())
-    for match in matches:
+    matches = sorted([*((match, True) for match in INLINE.finditer(text)),
+                      *((match, False) for match in MARKDOWN_LINK.finditer(text))],
+                     key=lambda item: item[0].start())
+    skill_root = "/".join(parts[:4])
+    for match, is_inline in matches:
         tokens = match.group(1).split()
         if not tokens:
             continue
@@ -120,10 +125,15 @@ def inspect_skill_references(skill_path: str, text: str, available: set[str]) ->
                 or not SAFE_REFERENCE.fullmatch(reference)
                 or not posixpath.splitext(reference)[1]):
             continue
-        if reference in seen:
+        # Prose code spans name skill-root resources; Markdown link destinations
+        # are relative to the document containing the link.
+        base = (skill_root if is_inline and reference.startswith(
+            ("scripts/", "templates/", "references/", "assets/"))
+            else posixpath.dirname(document_path))
+        resolved = posixpath.normpath(posixpath.join(base, reference))
+        if resolved in seen:
             continue
-        seen.add(reference)
-        resolved = posixpath.normpath(posixpath.join(posixpath.dirname(skill_path), reference))
+        seen.add(resolved)
         if not resolved.startswith(boundary):
             status = "outside-plugin"
         elif resolved in available:
@@ -142,6 +152,15 @@ def inspect_skill_references(skill_path: str, text: str, available: set[str]) ->
     return rows
 
 
+def inspect_skill_references(skill_path: str, text: str,
+                             available: set[str]) -> list[dict[str, object]]:
+    """Compatibility entrypoint for direct SKILL.md reference inspection."""
+    parts = skill_path.split("/")
+    if len(parts) != 5 or parts[4] != "SKILL.md":
+        raise ValueError("Expected a plugin skill entrypoint")
+    return inspect_document_references(skill_path, text, available)
+
+
 def audit_candidate(root: Path, expected_digest: str, *, gstack_source: Path | None = None,
                     gstack_commit: str | None = None) -> dict:
     """Verify bytes first; report static refs without executing candidate code."""
@@ -156,17 +175,27 @@ def audit_candidate(root: Path, expected_digest: str, *, gstack_source: Path | N
     external_runtime_hints = []
     external_runtime_ref_count = 0
     external_runtime_targets: set[str] = set()
-    checked = 0
-    for path in sorted(available):
-        if not re.fullmatch(r"plugins/[^/]+/skills/[^/]+/SKILL\.md", path):
+    skill_paths = {path for path in available if re.fullmatch(
+        r"plugins/[^/]+/skills/[^/]+/SKILL\.md", path)}
+    pending = sorted(skill_paths)
+    visited: set[str] = set()
+    while pending:
+        path = pending.pop(0)
+        if path in visited:
             continue
-        checked += 1
+        visited.add(path)
         data = release.read_file(release.safe_member(root, path))
         if len(data) != records[path]["size"] or release.digest(data) != records[path]["sha256"]:
-            raise ValueError("Skill changed after candidate verification")
+            raise ValueError("Skill document changed after candidate verification")
         text = data.decode("utf-8")
-        for row in inspect_skill_references(path, text, available):
+        for row in inspect_document_references(path, text, available):
             rows.append({"skill": path, **row})
+            target = row["resolved"]
+            if (row["status"] == "present" and target not in visited
+                    and re.fullmatch(r"plugins/[^/]+/skills/[^/]+/.+\.md", target)):
+                pending.append(target)
+        if path not in skill_paths:
+            continue
         unportable_commands.extend(inspect_unportable_commands(path, text))
         external_runtime_hints.extend(inspect_external_runtime_hints(path, text))
         for match in GSTACK_BIN_REF.finditer(text):
@@ -177,7 +206,8 @@ def audit_candidate(root: Path, expected_digest: str, *, gstack_source: Path | N
     status = ("incomplete" if unresolved or unportable_commands else
               "external_runtime_pending" if external_runtime_hints else "static_paths_present")
     report = {"status": status,
-            "bundle_digest": expected_digest, "skills_checked": checked,
+            "bundle_digest": expected_digest, "skills_checked": len(skill_paths),
+            "markdown_documents_checked": len(visited),
             "static_refs_checked": len(rows), "unresolved": unresolved,
             "unportable_commands": unportable_commands,
             "external_runtime_hints": external_runtime_hints,
@@ -186,7 +216,8 @@ def audit_candidate(root: Path, expected_digest: str, *, gstack_source: Path | N
                 "literal_references": external_runtime_ref_count,
                 "distinct_targets": len(external_runtime_targets)},
             "runtime_closure_verified": False,
-            "scope": "literal ASCII backtick paths and simple Markdown link destinations, "
+            "scope": "literal ASCII backtick paths and simple Markdown link destinations "
+                     "in skill entrypoints and reachable Markdown references, "
                      "plus source/project-relative skill command locations; "
                      "literal Gstack bin counts are lexical external-runtime hints, not calls; "
                      "findings need manual review; no execution, imports or services"}

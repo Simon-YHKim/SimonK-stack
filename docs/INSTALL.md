@@ -305,12 +305,17 @@ Android referrer 정규화 단계, `k-factor-queries.sql`은 추천 성과 계�
 내용을 임의로 존재한다고 가정하거나 해당 검증 단계를 통과로 표시하지 마세요.
 
 후보의 정적 경로 재검사는 번들 digest를 먼저 검증한 뒤 실행합니다. 로컬
-`scripts/candidate_path_audit.py`는 SKILL 본문의 백틱으로 감싼 명시적 **ASCII 파일**
-상대경로만 검사하며, 형제 스킬 경로(`../llm-eval/...`)도 같은 플러그인 안에서
-해석합니다. 종료 1은 미해결 경로·비이식 명령 또는 외부 Gstack 런타임 참조의
+`scripts/candidate_path_audit.py`는 `SKILL.md`와 거기서 도달 가능한 Markdown
+보조 문서의 백틱 파일 경로·단순 Markdown 링크를 검사합니다. 백틱의
+`scripts/`·`templates/`·`references/`·`assets/`는 스킬 루트 기준,
+Markdown 링크와 `../` 경로는 해당 문서 기준으로 해석합니다. 같은 플러그인
+안의 형제 스킬 경로(`../llm-eval/...`)도 확인합니다. 2026-09-30
+`281fc11` 안전 후보에서는 스킬 182개에서 도달한 Markdown 문서 264개와
+명시적 정적 참조 189개를 확인했고 미해결 참조·비이식 명령은 0건이었습니다.
+종료 1은 미해결 경로·비이식 명령 또는 외부 Gstack 런타임 참조의
 **문맥 검토 필요**이지 파일 누락 확정이나 실행 실패 증명이 아닙니다.
 정적 경로만 충족하고 외부 참조가 남으면 `external_runtime_pending`을 반환합니다.
-동적 경로·절대 호스트 경로·import·서비스·
+동적 경로·일반 상대 링크 전체·절대 호스트 경로·import·서비스·
 자격증명·hook 동작은 범위 밖이고 `runtime_closure_verified`는 항상 false입니다.
 `unresolved`에 `possible_targets`가 있으면 같은 플러그인 안의 동일 파일명
 후보를 최대 5개 제시한 것입니다. 상대경로가 실제로 작동한다는 증거가 아니며

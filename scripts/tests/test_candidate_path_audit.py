@@ -62,6 +62,90 @@ class CandidatePathAuditTests(unittest.TestCase):
         self.assertEqual(report["external_runtime_counts"], {
             "skill_documents": 0, "literal_references": 0, "distinct_targets": 0})
 
+    def test_reachable_reference_document_reports_nested_missing_asset(self):
+        skill = "plugins/SimonKCore/skills/example/SKILL.md"
+        reference = "plugins/SimonKCore/skills/example/references/guide.md"
+        bodies = {
+            skill: b"Read [guide](references/guide.md).\n",
+            reference: b"Use [template](../assets/missing.svg).\n",
+        }
+        receipt = {"files": [{"path": path, "size": len(body),
+                              "sha256": audit.release.digest(body)}
+                             for path, body in bodies.items()]}
+        with patch.object(audit.release, "no_links", side_effect=lambda path: path), \
+             patch.object(audit.plugin_bundle, "verify_bundle", return_value=receipt), \
+             patch.object(audit.release, "safe_member", side_effect=lambda root, path: root / path), \
+             patch.object(audit.release, "read_file",
+                          side_effect=lambda path: bodies[path.as_posix().removeprefix("fixture/")]):
+            report = audit.audit_candidate(Path("fixture"), "0" * 64)
+        self.assertEqual(report["status"], "incomplete")
+        self.assertEqual(report["markdown_documents_checked"], 2)
+        self.assertEqual(report["static_refs_checked"], 2)
+        self.assertEqual(report["unresolved"], [{"skill": reference,
+            "reference": "../assets/missing.svg",
+            "resolved": "plugins/SimonKCore/skills/example/assets/missing.svg",
+            "status": "unresolved"}])
+
+    def test_reference_cycle_is_scanned_once(self):
+        skill = "plugins/SimonKCore/skills/example/SKILL.md"
+        reference = "plugins/SimonKCore/skills/example/references/guide.md"
+        bodies = {
+            skill: b"[guide](references/guide.md)\n",
+            reference: b"[entry](../SKILL.md)\n",
+        }
+        receipt = {"files": [{"path": path, "size": len(body),
+                              "sha256": audit.release.digest(body)}
+                             for path, body in bodies.items()]}
+        with patch.object(audit.release, "no_links", side_effect=lambda path: path), \
+             patch.object(audit.plugin_bundle, "verify_bundle", return_value=receipt), \
+             patch.object(audit.release, "safe_member", side_effect=lambda root, path: root / path), \
+             patch.object(audit.release, "read_file",
+                          side_effect=lambda path: bodies[path.as_posix().removeprefix("fixture/")]) as read_file:
+            report = audit.audit_candidate(Path("fixture"), "0" * 64)
+        self.assertEqual(report["markdown_documents_checked"], 2)
+        self.assertEqual(report["static_refs_checked"], 2)
+        self.assertEqual(read_file.call_count, 2)
+
+    def test_plugin_readme_link_is_resolved_without_expanding_skill_document_walk(self):
+        skill = "plugins/SimonKCore/skills/example/SKILL.md"
+        readme = "plugins/SimonKCore/README.md"
+        body = b"Read [plugin overview](../../README.md).\n"
+        receipt = {"files": [{"path": skill, "size": len(body),
+                              "sha256": audit.release.digest(body)},
+                             {"path": readme, "size": 7,
+                              "sha256": audit.release.digest(b"ignored")}]}
+        with patch.object(audit.release, "no_links", side_effect=lambda path: path), \
+             patch.object(audit.plugin_bundle, "verify_bundle", return_value=receipt), \
+             patch.object(audit.release, "safe_member", side_effect=lambda root, path: root / path), \
+             patch.object(audit.release, "read_file", return_value=body) as read_file:
+            report = audit.audit_candidate(Path("fixture"), "0" * 64)
+        self.assertEqual(report["status"], "static_paths_present")
+        self.assertEqual(report["markdown_documents_checked"], 1)
+        self.assertEqual(read_file.call_count, 1)
+
+    def test_nested_prose_asset_paths_use_skill_root_but_links_use_document_dir(self):
+        doc = "plugins/SimonKCore/skills/example/references/guide.md"
+        root = "plugins/SimonKCore/skills/example/"
+        available = {doc, root + "scripts/check.py",
+                     root + "references/detail.md"}
+        rows = audit.inspect_document_references(
+            doc, "Use `scripts/check.py` and [detail](../references/detail.md).", available)
+        self.assertEqual([(row["resolved"], row["status"]) for row in rows], [
+            (root + "scripts/check.py", "present"),
+            (root + "references/detail.md", "present"),
+        ])
+
+    def test_same_spelling_with_different_reference_base_is_not_deduplicated(self):
+        doc = "plugins/SimonKCore/skills/example/references/guide.md"
+        root = "plugins/SimonKCore/skills/example/"
+        rows = audit.inspect_document_references(
+            doc, "Read `scripts/check.py` and [link](scripts/check.py).",
+            {doc, root + "scripts/check.py"})
+        self.assertEqual([(row["resolved"], row["status"]) for row in rows], [
+            (root + "scripts/check.py", "present"),
+            (root + "references/scripts/check.py", "unresolved"),
+        ])
+
     def test_gstack_runtime_hint_is_reported_once_without_exposing_commands(self):
         skill = "plugins/SimonKStack/skills/qa/SKILL.md"
         text = ("~/.claude/skills/gstack/bin/gstack-config get telemetry --token SENSITIVE\n"
