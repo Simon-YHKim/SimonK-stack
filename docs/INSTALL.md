@@ -2876,6 +2876,21 @@ Orca 사용은 입증하지 않는다. 모델 호출과 추가 과금은 없었�
 설치 전환·`main` 머지는 하지 않았다. 상세는 같은 릴리스 폴더의
 `report-subset.html`에 둔다.
 
+2026-09-29 **v25 Claude 격리 호스트 입력 준비 — 미실행**:
+`E:/Coding Infra/Releases/SimonK-stack/20260929-v25-overlay-catalog/sandbox-init-v25/`
+에 v24에서 검증한 `run.ps1`·`sandbox.wsb`를 별도로 복제하고, 안전 후보
+`bundle.json`의 실제 SHA-256
+`d30d0f7e2853a6a0caf39e46c30baaeea42b6014c02718613a2a7df04a9ec434`
+및 v25 전용 읽기 전용 매핑 경로로 갱신했다. PowerShell 파서 오류 0,
+Sandbox 네트워크·클립보드 비활성, 매핑 5개 중 4개 읽기 전용·1개 전용
+출력 폴더, 누락 매핑 0개를 확인했다. 결과 `output/result.json`은 없다.
+기존 `WindowsSandboxClient.exe` 창이 실행 중이어서 그 세션을 종료하거나
+새 게스트를 시작하지 않았다. 따라서 Claude 후보의 실제 초기화·발견은
+**미검증**이고 설치 준비 플래그는 여전히 `false`다. 별도로
+`runtime_collect`·`orchestrate` 오프라인 테스트 120/120을 통과했지만
+이는 구독 계정의 모델별 포함 여부·쿼터·실호출·청구 안전성을 증명하지 않는다.
+모델/API/Bot/Orca 호출, 결제 설정 변경, 사용자 설치·`main` 머지는 없었다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
