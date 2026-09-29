@@ -2891,6 +2891,46 @@ Sandbox 네트워크·클립보드 비활성, 매핑 5개 중 4개 읽기 전용
 이는 구독 계정의 모델별 포함 여부·쿼터·실호출·청구 안전성을 증명하지 않는다.
 모델/API/Bot/Orca 호출, 결제 설정 변경, 사용자 설치·`main` 머지는 없었다.
 
+## v26 구독 크레딧 폴백 경계 (2026-09-29)
+
+`/vibe` 2.12.4는 자동충전 OFF를 추가 크레딧 소비 차단의 증거로
+해석하지 않도록 `references/orchestration.md`의 계약을 명확히 했다.
+공식 제공자 문서에 따르면 Codex·Grok은 구독 제공량 뒤에 기존 구매
+크레딧을 사용할 수 있으며, Claude Code는 API 키 환경변수가 있으면
+구독 대신 API 과금 경로로 인증할 수 있다. Antigravity의
+`AI Credit Overages = Never`와 CLI `useG1Credits=false`도 실제 계정·
+전송에 맞게 관측해야 한다. 이 PC에서 로컬 Antigravity CLI 설정의 해당
+키는 **미설정**으로 관측됐으므로 false로 간주하지 않는다. 이 변경은
+과금 설정을 조작하지 않고, 증거가 불충분한 경로를 계속 보류한다.
+공식 출처 URL은 `/vibe` 오케스트레이션 참조에 기록했다.
+
+고정된 다섯 원본 플러그인을 유지한 새 격리 산출물은
+`E:/Coding Infra/Releases/SimonK-stack/20260929-v26-credit-fallback/`에 있다.
+
+| 산출물 | 영수증 SHA-256 | 범위 |
+|---|---|---|
+| `source-v26` | `8fd80e4a53d494929008c9085e2562a5b1b92d5fdb738ed4a32fc50d8b1369ef` | 137스킬·411파일, verify 0 |
+| `candidate-safety-v26` | `f2c5f9d2004c34e5430a9b6bfe985c6f3ac3cdd039049800b5c5d115ff097d89` | 5플러그인·182스킬·740파일, verify 0 |
+| `codex-overlay-v26` | `77cbcc0c238e373336506112e37b3aff52e39b9428e0aa6c518c4521cba2c82e` | Codex 호환 오버레이, verify 0 |
+
+v25 대비 후보 파일 경로 추가·삭제는 0개다. 바뀐 13개 파일은 `/vibe`
+SKILL·CHANGELOG·오케스트레이션 참조 3개와 다섯 플러그인의 생성
+메타데이터 10개뿐이다. 안전 후보와 Codex 오버레이의 기본 catalog는
+각각 종료 0·182개 이름을 반환했고, Claude 다섯 플러그인 check-only
+프리뷰는 모델 호출 없이 통과했다. `/vibe` validator는 오류·경고 0,
+비용·수집기 관련 단위 테스트는 120/120, 포장된 `/vibe` 단위 테스트는
+222/222 통과했다. 소스 전체 회귀는 334건 중 331통과·3건너뜀·실패
+0건이다. 정적 경로 감사는
+로컬 누락·이식 불가 명령 0이지만 Gstack 외부 런타임 31스킬·646참조·
+9대상으로 `external_runtime_pending`(종료 1)이다.
+
+이 결과는 **문서화된 비용 게이트와 패키지/오프라인 발견**의 증거다.
+실제 사용자 계정의 추가 크레딧 차단, 모델별 포함·쿼터, native CLI
+기동 부작용, 호스트 선택·Gstack 런타임은 증명하지 못한다. 따라서
+`runtime_closure_verified`, `host_compatibility_verified`,
+`installation_ready`는 모두 `false`다. 사용자 설치·`main` 머지·
+모델/API/Bot/Orca 실호출·결제 설정 변경은 없었다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
