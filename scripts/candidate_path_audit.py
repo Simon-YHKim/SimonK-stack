@@ -18,6 +18,7 @@ import posixpath
 import re
 import sys
 
+import codex_safe_subset
 import gstack_source_inventory as gstack_inventory
 import plugin_bundle
 import skill_release as release
@@ -161,14 +162,11 @@ def inspect_skill_references(skill_path: str, text: str,
     return inspect_document_references(skill_path, text, available)
 
 
-def audit_candidate(root: Path, expected_digest: str, *, gstack_source: Path | None = None,
-                    gstack_commit: str | None = None) -> dict:
-    """Verify bytes first; report static refs without executing candidate code."""
-    if (gstack_source is None) != (gstack_commit is None):
-        raise ValueError("Gstack source root and commit must be supplied together")
-    root = release.no_links(root)
-    receipt = plugin_bundle.verify_bundle(root, expected_digest)
-    records = {item["path"]: item for item in receipt["files"]}
+def _audit_verified_paths(root: Path, expected_digest: str, members: list[dict],
+                          digest_key: str, gstack_source: Path | None,
+                          gstack_commit: str | None) -> dict:
+    """Inspect already receipt-verified members without executing package code."""
+    records = {item["path"]: item for item in members}
     available = set(records)
     rows = []
     unportable_commands = []
@@ -206,7 +204,7 @@ def audit_candidate(root: Path, expected_digest: str, *, gstack_source: Path | N
     status = ("incomplete" if unresolved or unportable_commands else
               "external_runtime_pending" if external_runtime_hints else "static_paths_present")
     report = {"status": status,
-            "bundle_digest": expected_digest, "skills_checked": len(skill_paths),
+            digest_key: expected_digest, "skills_checked": len(skill_paths),
             "markdown_documents_checked": len(visited),
             "static_refs_checked": len(rows), "unresolved": unresolved,
             "unportable_commands": unportable_commands,
@@ -227,17 +225,60 @@ def audit_candidate(root: Path, expected_digest: str, *, gstack_source: Path | N
     return report
 
 
+def audit_candidate(root: Path, expected_digest: str, *, gstack_source: Path | None = None,
+                    gstack_commit: str | None = None) -> dict:
+    """Verify Claude candidate bytes first, then report static references."""
+    if (gstack_source is None) != (gstack_commit is None):
+        raise ValueError("Gstack source root and commit must be supplied together")
+    root = release.no_links(root)
+    receipt = plugin_bundle.verify_bundle(root, expected_digest)
+    return _audit_verified_paths(root, expected_digest, receipt["files"],
+                                 "bundle_digest", gstack_source, gstack_commit)
+
+
+def audit_codex_subset(root: Path, expected_digest: str, overlay_root: Path,
+                       overlay_digest: str, *, gstack_source: Path | None = None,
+                       gstack_commit: str | None = None) -> dict:
+    """Audit only the verified Codex subset, bound to its source overlay."""
+    if overlay_root is None or overlay_digest is None:
+        raise ValueError("Codex subset requires a source overlay and digest")
+    if (gstack_source is None) != (gstack_commit is None):
+        raise ValueError("Gstack source root and commit must be supplied together")
+    root = release.no_links(root)
+    overlay_root = release.no_links(overlay_root)
+    receipt = codex_safe_subset.verify_subset(root, expected_digest,
+                                               overlay_root, overlay_digest)
+    report = _audit_verified_paths(root, expected_digest, receipt["included_members"],
+                                   "subset_digest", gstack_source, gstack_commit)
+    report.update(source_overlay_digest=receipt["source_overlay_digest"],
+                  excluded_skills=receipt["excluded_skills"],
+                  source_provenance_verified=True)
+    return report
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--package", type=Path, required=True)
     parser.add_argument("--expected-digest", required=True)
+    parser.add_argument("--package-kind", choices=("claude-candidate", "codex-subset"),
+                        default="claude-candidate")
+    parser.add_argument("--source-overlay", type=Path)
+    parser.add_argument("--overlay-digest")
     parser.add_argument("--gstack-source-root", type=Path)
     parser.add_argument("--gstack-expected-commit")
     args = parser.parse_args(argv)
     try:
-        report = audit_candidate(args.package, args.expected_digest,
-                                 gstack_source=args.gstack_source_root,
-                                 gstack_commit=args.gstack_expected_commit)
+        if args.package_kind == "codex-subset":
+            report = audit_codex_subset(args.package, args.expected_digest,
+                                        args.source_overlay, args.overlay_digest,
+                                        gstack_source=args.gstack_source_root,
+                                        gstack_commit=args.gstack_expected_commit)
+        else:
+            if args.source_overlay is not None or args.overlay_digest is not None:
+                raise ValueError("Overlay arguments require a Codex subset")
+            report = audit_candidate(args.package, args.expected_digest,
+                                     gstack_source=args.gstack_source_root,
+                                     gstack_commit=args.gstack_expected_commit)
     except (ValueError, OSError, UnicodeError, KeyError, TypeError):
         # Avoid echoing untrusted candidate metadata, paths or secret-like text.
         print('{"status":"blocked","message":"Candidate path audit failed"}', file=sys.stderr)

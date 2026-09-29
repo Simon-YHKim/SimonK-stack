@@ -123,6 +123,48 @@ class CandidatePathAuditTests(unittest.TestCase):
         self.assertEqual(report["markdown_documents_checked"], 1)
         self.assertEqual(read_file.call_count, 1)
 
+    def test_codex_subset_audit_detects_reference_to_excluded_skill(self):
+        skill = "plugins/SimonKCore/skills/example/SKILL.md"
+        body = b"Read [careful](../careful/SKILL.md).\n"
+        receipt = {"included_members": [{"path": skill, "size": len(body),
+                                         "sha256": audit.release.digest(body)}],
+                   "excluded_skills": ["simonk-core:careful"],
+                   "source_overlay_digest": "1" * 64}
+        with patch.object(audit.release, "no_links", side_effect=lambda path: path), \
+             patch.object(audit.codex_safe_subset, "verify_subset", return_value=receipt) as verify, \
+             patch.object(audit.release, "safe_member", side_effect=lambda root, path: root / path), \
+             patch.object(audit.release, "read_file", return_value=body):
+            report = audit.audit_codex_subset(Path("subset"), "0" * 64,
+                                              Path("overlay"), "1" * 64)
+        verify.assert_called_once_with(Path("subset"), "0" * 64,
+                                       Path("overlay"), "1" * 64)
+        self.assertEqual(report["status"], "incomplete")
+        self.assertEqual(report["skills_checked"], 1)
+        self.assertEqual(report["unresolved"][0]["resolved"],
+                         "plugins/SimonKCore/skills/careful/SKILL.md")
+        self.assertTrue(report["source_provenance_verified"])
+        self.assertFalse(report["runtime_closure_verified"])
+
+    def test_codex_subset_requires_verified_overlay_before_skill_reads(self):
+        with patch.object(audit.codex_safe_subset, "verify_subset",
+                          side_effect=ValueError("wrong source")) as verify, \
+             patch.object(audit.release, "read_file") as read_file:
+            with self.assertRaisesRegex(ValueError, "wrong source"):
+                audit.audit_codex_subset(Path("subset"), "0" * 64,
+                                         Path("overlay"), "1" * 64)
+            verify.assert_called_once()
+            read_file.assert_not_called()
+
+    def test_codex_subset_cli_without_overlay_fails_closed(self):
+        output = io.StringIO()
+        with patch.object(audit.codex_safe_subset, "verify_subset") as verify, \
+             redirect_stderr(output):
+            code = audit.main(["--package-kind", "codex-subset", "--package", "subset",
+                               "--expected-digest", "0" * 64])
+        self.assertEqual(code, 2)
+        self.assertIn('"status":"blocked"', output.getvalue())
+        verify.assert_not_called()
+
     def test_nested_prose_asset_paths_use_skill_root_but_links_use_document_dir(self):
         doc = "plugins/SimonKCore/skills/example/references/guide.md"
         root = "plugins/SimonKCore/skills/example/"

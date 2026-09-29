@@ -312,10 +312,17 @@ Markdown 링크와 `../` 경로는 해당 문서 기준으로 해석합니다. �
 안의 형제 스킬 경로(`../llm-eval/...`)도 확인합니다. 2026-09-30
 `281fc11` 안전 후보에서는 스킬 182개에서 도달한 Markdown 문서 264개와
 명시적 정적 참조 189개를 확인했고 미해결 참조·비이식 명령은 0건이었습니다.
+동일 후보의 Codex 일반 안전 subset은 `subset.json`·원본 오버레이 영수증을
+함께 검증한 뒤 177스킬·258문서·188참조를 확인했고 미해결 참조·비이식
+명령은 0건이었습니다. 두 쪽 모두 외부 Gstack 참조가 남아
+`external_runtime_pending`입니다. Codex의 D-29 안전/종속 스킬 5개 제외는
+의도된 차이이며, 이 수치나 공통 스킬 본문 일치가 행동·품질 동등성 증거는
+아닙니다.
 종료 1은 미해결 경로·비이식 명령 또는 외부 Gstack 런타임 참조의
 **문맥 검토 필요**이지 파일 누락 확정이나 실행 실패 증명이 아닙니다.
 정적 경로만 충족하고 외부 참조가 남으면 `external_runtime_pending`을 반환합니다.
-동적 경로·일반 상대 링크 전체·절대 호스트 경로·import·서비스·
+동적 경로·일반 상대 링크 전체·이름만 적힌 스킬 호출·Claude 전용 명령·
+절대 호스트 경로·import·서비스·
 자격증명·hook 동작은 범위 밖이고 `runtime_closure_verified`는 항상 false입니다.
 `unresolved`에 `possible_targets`가 있으면 같은 플러그인 안의 동일 파일명
 후보를 최대 5개 제시한 것입니다. 상대경로가 실제로 작동한다는 증거가 아니며
@@ -327,7 +334,12 @@ Core의 `skills/simonk/scripts/simonk.ps1`은 패키지 전용 계획 진입점�
 
 ```powershell
 python -B scripts/candidate_path_audit.py --package '<candidate>' --expected-digest '<bundle_digest>'
+python -B scripts/candidate_path_audit.py --package-kind codex-subset --package '<codex_subset>' --expected-digest '<subset_digest>' --source-overlay '<codex_overlay>' --overlay-digest '<overlay_digest>'
 ```
+
+Codex subset 모드는 출처 오버레이가 없거나 일치하지 않으면 스킬 본문 감사 전에 차단합니다.
+두 명령 모두 외부 Gstack 참조가 남은 현재 후보에서는 종료 1을 반환하므로
+JSON `status`·`unresolved`·`unportable_commands`를 함께 검토하세요.
 
 2.11.7 후보 digest `a26903c3…ec6da` 실측에서는 182개 스킬의 정적 참조 150개를
 대조하고, 중복 제거된 `unresolved` 11개를 보고했습니다. 이 중 AIHub의
