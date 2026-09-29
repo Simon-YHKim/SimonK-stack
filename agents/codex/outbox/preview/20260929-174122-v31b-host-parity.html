@@ -6,7 +6,7 @@
 @media(prefers-color-scheme:dark){:root{--accent:#85b0fa;--text:#edf2f9;--muted:#a4b0bf;background:#10151d}}
 *{box-sizing:border-box}body{font:16px/1.6 system-ui,sans-serif;max-width:900px;margin:auto;padding:2rem 1.2rem}h1{font-size:clamp(1.5rem,4vw,2.25rem);line-height:1.2}.muted{color:var(--muted)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.8rem;margin:1.5rem 0}.card,details{border:1px solid var(--muted);border-radius:.6rem;padding:1rem}.card strong{display:block;font-size:1.25rem;color:var(--accent)}.card span{color:var(--muted)}details{margin:.8rem 0}summary{cursor:pointer;font-weight:650}summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid var(--muted);padding:.45rem;text-align:left}code{overflow-wrap:anywhere}a{color:var(--accent)}footer{margin-top:2rem;color:var(--muted);font-size:.9rem}
 </style></head><body><main>
-<p class="muted">SimonK-stack · feat/skill-context-budget-260925 @ 54158f3 · 2026-09-29 17:41:22 KST</p>
+<p class="muted">SimonK-stack · feat/skill-context-budget-260925 @ 0b29b72 · 2026-09-29 17:50:34 KST</p>
 <h1>v31b 격리 설치 캐시는 원본과 일치했습니다</h1>
 <p>새 무인증 Claude·Codex 프로필에 로컬 후보 플러그인을 각각 5개 설치하고, 후보와 캐시의 상대 경로·SHA-256을 전수 비교했습니다. 실제 사용자 프로필은 바꾸지 않았습니다.</p>
 <div class="cards" aria-label="검증 요약">
@@ -19,6 +19,6 @@
 <tr><td>Claude Code</td><td>v31b safety candidate · 5플러그인</td><td>741/741파일, 182개 SKILL.md</td></tr>
 <tr><td>Codex CLI</td><td>v31b general subset · 5플러그인</td><td>724/724파일, 177개 SKILL.md</td></tr>
 </tbody></table><p>로컬 marketplace만 등록했고 command-source 설치나 모델 생성은 실행하지 않았습니다. 후보 영수증은 <a href="../20260929-v31b-agy-lf/report.html">v31b 후보 보고서</a>에 있습니다. 격리 프로필의 파일명에서 auth/credential/token 패턴은 0건이었지만, 이 검사만으로 인증정보 부재 전체를 증명하지는 않습니다.</p></details>
-<details><summary>검증 방법과 한계</summary><p>각 플러그인 소스와 캐시를 상대 경로로 대조해 파일 수·SHA-256을 모두 맞췄고, 대조한 파일이 링크/재분석 파일이 아님도 확인했습니다. 이 결과는 설치 복사 정확성만 증명합니다. 자동 스킬 선택, 모델·Bot·Orca 동작, 기존 flat 스킬과의 충돌, 기존 세션 재로딩, 추가 과금 안전성은 검증하지 않았습니다.</p></details>
+<details><summary>검증 방법과 한계</summary><p>각 플러그인 소스와 캐시를 상대 경로로 대조해 파일 수·SHA-256을 모두 맞췄고, 대조한 파일이 링크/재분석 파일이 아님도 확인했습니다. 동일 격리 Claude 프로필의 <code>--init-only --strict-mcp-config --setting-sources user --no-session-persistence</code>는 종료 0이었다. 로컬 디버그 기록에는 플러그인 5개, 플러그인 스킬 182개, 중복 제외 0개, user skill-dir 명령 0개, bundled 스킬 39개가 표시됐고 API request 라인은 0개였다.</p><p>이 결과는 격리 복사·초기화·발견만 증명합니다. 자동 스킬 선택, 모델·Bot·Orca 동작, 기존 flat 스킬과의 충돌, 기존 세션 재로딩, 추가 과금 안전성은 검증하지 않았습니다.</p></details>
 <details><summary>운영 전환 게이트</summary><p>운영 Claude·Codex 플러그인 목록에는 SimonK 등록이 각각 0개입니다. 플러그인별 버전 계약 D-code, Gstack·Orca 런타임 폐쇄, 운영 flat 스킬의 무손실 이관과 구독 포함 모델 검증이 남았습니다. <code>installation_ready=false</code>와 <code>host_compatibility_verified=false</code>는 유지합니다. 사용자 프로필·<code>main</code>·결제 설정을 변경하지 않았습니다.</p></details>
 </main><footer>격리 캐시의 바이트 검증은 운영 설치 승인이 아닙니다.</footer></body></html>
