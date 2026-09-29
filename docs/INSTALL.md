@@ -3182,8 +3182,13 @@ Stack이 소유하는 같은 스킬 소스에 반영했다. 두 파일은 Window
 경로는 `E:/Coding Infra/Releases/SimonK-stack/20260929-v30-core-source-sync/`
 아래이며 같은 경로의 `report.html`에 사람이 읽는 요약을 두었다.
 v29b와 파일 집합은 동일하며 달라진 12개 파일은 Core
-`json-canvas` 참조 1개, 생성 메타데이터 10개, 영수증 1개다. 후보
-182개 스킬 검증은 실패 0·비차단 경고 31개(v29b 32개)다.
+`json-canvas` 참조 1개, 생성 메타데이터 10개, 영수증 1개다.
+다섯 플러그인을 소유자별로 다시 대조하면 두 생성 manifest를 제외한
+실제 콘텐츠 변경은 Core의 해당 참조 1개뿐이고 AIHub·Design·Market·Stack은
+각각 0개다. 현재 공통 소스 지문 버전 때문에 다른 네 플러그인의
+생성 manifest도 바뀐 것이며, 이는 플러그인별 버전 계약의 필요성을
+보여준다. 그 계약의 D-code 전에는 생성기를 수정하지 않는다.
+후보의 182개 스킬 검증은 실패 0·비차단 경고 31개(v29b 32개)다.
 격리된 Claude CLI 2.1.284의 manifest strict 검증과 Codex 로컬 플러그인
 검증은 각각 5/5 통과했고, 번들·Codex 오버레이·일반 subset 관련
 회귀 테스트는 55/55 통과했다. 두 manifest 검사는 스킬 동작·설치 성공의
