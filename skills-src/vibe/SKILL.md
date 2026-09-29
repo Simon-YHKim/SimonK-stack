@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use for /vibe, "알아서 진행", "오르카로 돌려", "스킬 조합", skill/model/effort/subscription-cost orchestration, and Play Console/GUI requests. Check CLI/API/MCP first; use vibe-bot only for GUI-only steps. Produces verified plans and artifacts; never invent specialist skills or assume paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.5
+version: 2.12.6
 author: simon-stack
 ---
 
@@ -238,10 +238,10 @@ help. It does not scan processes, terminate, fence or verify cleanup. No flag or
 environment variable re-enables it. The G8 safe-stop requirement is still unmet;
 retirement is not an implemented or authorized replacement stop adapter.
 
-The Orca workflow and evaluation reference now follow this quarantine.
-This still overrides live-call examples in the historical pitfalls and
-effort-cap documents; those documents need migration before activation. Do not
-copy raw CLI examples around the quarantine. Use the guarded adapter only where
+The Orca workflow, evaluation reference, pitfalls and effort-cap history now
+mark retired live-call examples as non-executable. Historical observations are
+not current cost or transport evidence. Do not copy raw CLI examples around the
+quarantine. Use the guarded adapter only where
 its actual capabilities and fresh account/cost evidence permit it. A schema2
 preparation journal and host-injected protocol core now exist. There is no
 operational preparation bridge or CLI: `prepare_orca.py` requires a reviewed
