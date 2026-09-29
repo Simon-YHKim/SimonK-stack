@@ -533,6 +533,9 @@ class OrchestrationTests(unittest.TestCase):
                 "vibe": "SimonKCore", "ai-helper": "SimonKAIHub",
                 "design-helper": "SimonKDesign", "market-helper": "SimonKMarket",
                 "zoom-out": "SimonKStack",
+                "careful": "SimonKCore", "unfreeze": "SimonKCore",
+                "freeze": "SimonKStack", "guard": "SimonKStack",
+                "investigate": "SimonKStack",
             }
             source_files = {}
 
@@ -543,6 +546,8 @@ class OrchestrationTests(unittest.TestCase):
 
             script_path = "plugins/SimonKCore/skills/vibe/scripts/orchestrate.py"
             source_files[script_path] = b"# fixture\n"
+            for owner in ("SimonKCore", "SimonKStack"):
+                source_files[f"plugins/{owner}/.simonk-runtime/safety_runtime.py"] = b"# fixture\n"
             for owner in sorted(set(owners.values())):
                 names = sorted(name for name, home in owners.items() if home == owner)
                 source_files[f"plugins/{owner}/.claude-plugin/plugin.json"] = json.dumps(
@@ -586,7 +591,7 @@ class OrchestrationTests(unittest.TestCase):
             with patch.object(self.m, "SCRIPT_ROOT", script_root):
                 found = self.m.candidate_inventory()
                 self.assertEqual(found["status"], "complete")
-                self.assertEqual(len(found["catalog"]), 5)
+                self.assertEqual(len(found["catalog"]), 10)
                 self.assertIn("overlay", found["catalog"].discovery)
                 put(zoom_path, projected_zoom + b"tamper")
                 with self.assertRaises(ValueError):
@@ -597,6 +602,60 @@ class OrchestrationTests(unittest.TestCase):
                 overlay["generated"][zoom_path] = {"sha256": hashlib.sha256(forged_zoom).hexdigest(),
                                                    "size": len(forged_zoom)}
                 put("overlay.json", json.dumps(overlay).encode())
+                with self.assertRaises(ValueError):
+                    self.m.candidate_inventory()
+
+                # D-29 keeps manifests unmodified but removes five skill roots
+                # and two safety runtimes from the Codex subset.
+                put(zoom_path, projected_zoom)
+                overlay["generated"][zoom_path] = {"sha256": hashlib.sha256(projected_zoom).hexdigest(),
+                                                  "size": len(projected_zoom)}
+                overlay["replacement_originals"][zoom_path] = base64.b64encode(original_zoom).decode()
+                put("overlay.json", json.dumps(overlay).encode())
+                before_subset = {p.relative_to(base).as_posix(): p.read_bytes()
+                                 for p in base.rglob("*") if p.is_file()}
+                excluded_skills = (("SimonKCore", "careful"), ("SimonKStack", "freeze"),
+                                   ("SimonKStack", "guard"), ("SimonKStack", "investigate"),
+                                   ("SimonKCore", "unfreeze"))
+                excluded_prefixes = tuple(f"plugins/{owner}/skills/{name}/"
+                                          for owner, name in excluded_skills) + tuple(
+                    f"plugins/{owner}/.simonk-runtime/" for owner in ("SimonKCore", "SimonKStack"))
+                excluded_paths = {p for p in before_subset if p.startswith(excluded_prefixes)}
+                for owner, name in excluded_skills:
+                    shutil.rmtree(base / f"plugins/{owner}/skills/{name}")
+                for owner in ("SimonKCore", "SimonKStack"):
+                    shutil.rmtree(base / f"plugins/{owner}/.simonk-runtime")
+                rows = lambda paths: [{"path": p, "sha256": hashlib.sha256(before_subset[p]).hexdigest(),
+                                       "size": len(before_subset[p])} for p in sorted(paths)]
+                subset = {"schema_version": 1, "scope": "five-plugin-codex-general-skills-only-v2",
+                          "decision_ref": "D-29",
+                          "source_overlay_digest": hashlib.sha256((base / "overlay.json").read_bytes()).hexdigest(),
+                          "excluded_skills": [f"simonk-{owner.removeprefix('SimonK').lower()}:{name}"
+                                              for owner, name in excluded_skills],
+                          "included_members": rows(set(before_subset) - excluded_paths),
+                          "excluded_members": rows(excluded_paths),
+                          "host_compatibility_verified": False, "installation_ready": False,
+                          "limitations": []}
+                with self.assertRaises(ValueError):
+                    self.m.candidate_inventory()  # Omission without receipt is never a fallback.
+                put("subset.json", json.dumps(subset).encode())
+                found = self.m.candidate_inventory()
+                self.assertEqual(found["status"], "complete")
+                self.assertEqual(len(found["catalog"]), 5)
+                self.assertNotIn("careful", found["catalog"])
+                self.assertIn("subset", found["catalog"].discovery)
+                removed_row = subset["included_members"].pop()
+                put("subset.json", json.dumps(subset).encode())
+                with self.assertRaises(ValueError):
+                    self.m.candidate_inventory()
+                subset["included_members"].append(removed_row)
+                put("subset.json", json.dumps(subset).encode())
+                put("plugins/SimonKCore/skills/careful/SKILL.md", b"unreceipted safety control")
+                with self.assertRaises(ValueError):
+                    self.m.candidate_inventory()
+                shutil.rmtree(base / "plugins/SimonKCore/skills/careful")
+                subset["source_overlay_digest"] = "0" * 64
+                put("subset.json", json.dumps(subset).encode())
                 with self.assertRaises(ValueError):
                     self.m.candidate_inventory()
                 put(zoom_path, projected_zoom)

@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use for /vibe, "알아서 진행", "오르카로 돌려", "스킬 조합", skill/model/effort/subscription-cost orchestration, and Play Console/GUI requests. Check CLI/API/MCP first; use vibe-bot only for GUI-only steps. Produces verified plans and artifacts; never invent specialist skills or assume paid routes.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.9
+version: 2.12.10
 author: simon-stack
 ---
 
@@ -37,6 +37,9 @@ Own this step; do not ask Simon to maintain paths already supplied by the host. 
 Inside an intact five-plugin candidate, default catalog/plan uses that bundle's
 five skill roots only. Its receipt, planner, manifests and SKILL metadata must
 match; missing/drifted inputs stop discovery without falling back to home.
+For the D-29 Codex general-skill subset, accept the five documented safety-skill
+omissions only when `subset.json` matches the verified overlay's exact members.
+This metadata check is not full package, installation or host-behavior verification.
 This is candidate discovery, not approval to install or execute its skills.
 For other layouts, root order is the current skill's sibling directory, then .agents,
 .codex, .claude and .codex/skills/.system roots. Supply repeated `--root` flags

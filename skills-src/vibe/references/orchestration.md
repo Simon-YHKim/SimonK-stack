@@ -43,6 +43,14 @@ fallback occurs. The plan's discovery records the receipt path/hash and narrow
 verification scope. This is not a signature, a full scripts/assets verifier,
 host compatibility proof or an installation/dispatch grant. Use the existing
 bundle verifier before use; keep the trusted single-writer boundary throughout.
+For a Codex overlay, `overlay.json` must bind the sole allowed `zoom-out`
+projection and generated manifests. For its D-29 general-skill subset,
+`subset.json` must bind the same overlay digest and exact included/excluded
+member lists. The only accepted omissions are Core `careful`/`unfreeze`, Stack
+`freeze`/`guard`/`investigate`, and the two Core/Stack safety runtimes; Claude
+manifests remain unchanged. Discovery exposes a separate subset receipt hash,
+but full subset byte verification and host policy/selection checks remain
+separate gates. A missing, forged or extra omission fails closed.
 Invoke candidate Python helpers with `python -B`. For test suites or helpers
 that spawn child Python processes, also set `PYTHONDONTWRITEBYTECODE=1` in the
 parent environment: `-B` is not inherited by children. Re-verify the receipt

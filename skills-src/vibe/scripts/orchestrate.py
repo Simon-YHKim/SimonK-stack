@@ -401,11 +401,68 @@ def candidate_inventory(exclude_roots=(), host_skills=None):
             data = raw(path, MAX_SKILL_BYTES)
             if len(data) != spec["size"] or hashlib.sha256(data).hexdigest() != spec["sha256"]:
                 raise ValueError("Codex discovery member drift")
+    # The D-29 Codex subset omits Claude-only safety controls. Accept those
+    # omissions only when the exact source-overlay membership is receipted;
+    # an arbitrary missing skill must never become a successful discovery.
+    subset = None
+    subset_bytes = None
+    excluded_skills = (("SimonKCore", "careful"), ("SimonKStack", "freeze"),
+                       ("SimonKStack", "guard"), ("SimonKStack", "investigate"),
+                       ("SimonKCore", "unfreeze"))
+    excluded_names = set()
+    subset_path = local("subset.json")
+    if subset_path.exists():
+        if overlay_bytes is None:
+            raise ValueError("Codex subset requires a verified overlay")
+        subset_bytes = raw("subset.json", 8 * 1024 * 1024)
+        subset = decode(subset_bytes)
+        prefixes = (tuple(f"plugins/{owner}/skills/{name}/" for owner, name in excluded_skills)
+                    + tuple(f"plugins/{owner}/.simonk-runtime/"
+                            for owner in ("SimonKCore", "SimonKStack")))
+        required = (tuple(f"plugins/{owner}/skills/{name}/SKILL.md"
+                          for owner, name in excluded_skills)
+                    + tuple(f"plugins/{owner}/.simonk-runtime/safety_runtime.py"
+                            for owner in ("SimonKCore", "SimonKStack")))
+        if (any(receipt["owners"].get(name) != owner for owner, name in excluded_skills)
+                or any(path not in members for path in required)
+                or any(local(prefix[:-1]).exists() for prefix in prefixes)):
+            raise ValueError("Codex subset safety exclusion differs")
+        specs = {path: {"path": path, "sha256": row["sha256"], "size": row["size"]}
+                 for path, row in members.items()}
+        specs.update({path: {"path": path, "sha256": row["sha256"], "size": row["size"]}
+                      for path, row in overlay["generated"].items()})
+        for path, data in (("bundle.json", receipt_bytes), ("overlay.json", overlay_bytes)):
+            specs[path] = {"path": path, "sha256": hashlib.sha256(data).hexdigest(),
+                           "size": len(data)}
+        omitted = {path for path in specs if path.startswith(prefixes)}
+        included = [specs[path] for path in sorted(specs.keys() - omitted)]
+        excluded = [specs[path] for path in sorted(omitted)]
+        expected_keys = {"schema_version", "scope", "decision_ref", "source_overlay_digest",
+                         "excluded_skills", "included_members", "excluded_members",
+                         "host_compatibility_verified", "installation_ready", "limitations"}
+        if (not isinstance(subset, dict) or set(subset) != expected_keys
+                or type(subset["schema_version"]) is not int or subset["schema_version"] != 1
+                or subset["scope"] != "five-plugin-codex-general-skills-only-v2"
+                or subset["decision_ref"] != "D-29"
+                or subset["source_overlay_digest"] != hashlib.sha256(overlay_bytes).hexdigest()
+                or subset["excluded_skills"]
+                != [f"simonk-{owner.removeprefix('SimonK').lower()}:{name}"
+                    for owner, name in excluded_skills]
+                or subset["included_members"] != included
+                or subset["excluded_members"] != excluded
+                or subset["host_compatibility_verified"] is not False
+                or subset["installation_ready"] is not False
+                or not isinstance(subset["limitations"], list)
+                or any(not isinstance(item, str) for item in subset["limitations"])):
+            raise ValueError("Invalid Codex discovery subset")
+        excluded_names = {name for _, name in excluded_skills}
     expected_skills, roots = {}, []
     for name, owner in receipt["owners"].items():
         if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", name) or owner not in owners:
             raise ValueError("Invalid candidate skill ownership")
         member = f"plugins/{owner}/skills/{name}/SKILL.md"
+        if name in excluded_names:
+            continue
         expected_sha = (overlay["generated"][member]["sha256"]
                         if overlay is not None and member == zoom_path else members[member]["sha256"])
         expected_skills[str(local(member))] = (name, expected_sha)
@@ -418,7 +475,7 @@ def candidate_inventory(exclude_roots=(), host_skills=None):
             raise ValueError("Candidate manifest membership mismatch")
         root = local(f"plugins/{owner}/skills")
         children = list(islice(root.iterdir(), MAX_SKILL_ENTRIES + 1))
-        if len(children) > MAX_SKILL_ENTRIES or {p.name for p in children} != names:
+        if len(children) > MAX_SKILL_ENTRIES or {p.name for p in children} != names - excluded_names:
             raise ValueError("Candidate physical skill membership mismatch")
         roots.append(root)
     inventory = skill_inventory(roots, exclude_roots, host_skills)
@@ -434,6 +491,11 @@ def candidate_inventory(exclude_roots=(), host_skills=None):
         inventory["catalog"].discovery["overlay"] = {
             "path": str(overlay_path), "sha256": hashlib.sha256(overlay_bytes).hexdigest(),
             "scope": overlay["scope"], "installation_verified": False,
+        }
+    if subset_bytes is not None:
+        inventory["catalog"].discovery["subset"] = {
+            "path": str(subset_path), "sha256": hashlib.sha256(subset_bytes).hexdigest(),
+            "scope": subset["scope"], "installation_verified": False,
         }
     return inventory
 
