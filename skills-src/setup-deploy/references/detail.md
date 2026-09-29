@@ -1,5 +1,13 @@
 # setup-deploy — Detailed Reference
 
+## Contents
+
+- Completion Status Protocol and Escalation
+- Operational Self-Improvement and Telemetry
+- Plan Mode Safe Operations and Skill Invocation
+- User-invocable Setup Instructions (Steps 1–6)
+- Important Rules
+
 ## Completion Status Protocol
 
 When completing a skill workflow, report status using one of:
