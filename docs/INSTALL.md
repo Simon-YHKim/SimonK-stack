@@ -3747,10 +3747,16 @@ npm 패키지가 비교 가능한 안정 버전이며 PATH가 뒤처지지 않�
 소스 단위 139건과 두 패키지의 로컬 검사 각 8건이 통과했고 `.pyc`는 0개다.
 현재 PC는 PATH 0.155.0/인접 패키지 0.159.0으로 종료 1을 반환했다.
 
-이번 후보의 Claude·Codex 실제 호스트 적재, 자동 선택·결과 품질,
+새 후보를 별도 무인증 로컬 프로필에 실제 적재했다. Claude Code 2.1.285의
+`--init-only`는 5플러그인·182스킬, 종료 0이었다. 첫 빈 캐시 경로 프로필은
+`rg error` 1건을 남겨 보존하고, 캐시 디렉터리를 미리 만든 **두 번째 새**
+프로필에서는 `rg error`·API request 로그 각 0건이었다. Codex CLI 0.159.0은
+5개 로컬 marketplace·플러그인을 등록했고 후보·캐시 726/726파일의
+상대경로·SHA-256과 177스킬이 일치했다. 두 최종 프로필에서
+auth/credential/token/secret 이름 파일은 0개다. 이것은 로컬 CLI
+초기화·복사·발견 증거다. 실제 사용자 설치·자동 선택·결과 품질,
 OS 네트워크 격리, Gstack 전이 실행, 정확한 구독 포함·구매 크레딧 폴백
-차단은 **미검증**이다. 이전 후보의 별도 무인증 프로필 적재 증거를 새 후보의
-증거로 승계하지 않는다. 따라서 `host_behavior_verified=false`,
+차단은 **미검증**이다. 따라서 `host_behavior_verified=false`,
 `selection_quality_verified=false`, `installation_ready=false`다.
 운영 설치본·전역 PATH·`main`·결제 설정은 변경하지 않았다.
 

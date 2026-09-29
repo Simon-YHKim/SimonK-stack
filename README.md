@@ -10,7 +10,7 @@
 
 ## 설치 / Install
 
-> 최신 격리 후보 `E:/Coding Infra/Releases/SimonK-stack/20260930-local-preflight-ddfe97c/`는 `/vibe` 2.12.12의 Codex PATH 구버전·알 수 없는 버전 사전 차단과 기존 크레딧 폴백 가드, Claude·Codex 작업 유형 대칭 회귀 테스트를 포함합니다. Claude용 5플러그인·182스킬, Codex 일반 안전 subset 177스킬이며 공통 176스킬 본문은 바이트 동일합니다. 이번 후보는 배포 영수증·로컬 검사·정적 동등성만 검증했으며 별도 호스트 적재는 **이전 후보**에서만 통과했습니다. `host_behavior_verified=false`, `selection_quality_verified=false`, `installation_ready=false`이고 사용자 프로필·`main`으로 승격되지 않았습니다. 아래 공개 설치 명령은 **이 격리 후보의 시험 절차가 아닙니다**. 특히 레거시 `scripts/install.sh`는 원격 플러그인/Gstack 조회와 사용자 홈 변경 경로가 있으므로 후보를 시험하려고 실행하지 마세요. 범위는 [설치·후보 검증 절차](docs/INSTALL.md)를 확인하세요.
+> 최신 격리 후보 `E:/Coding Infra/Releases/SimonK-stack/20260930-local-preflight-ddfe97c/`는 `/vibe` 2.12.12의 Codex PATH 구버전·알 수 없는 버전 사전 차단과 기존 크레딧 폴백 가드, Claude·Codex 작업 유형 대칭 회귀 테스트를 포함합니다. Claude용 5플러그인·182스킬, Codex 일반 안전 subset 177스킬이며 공통 176스킬 본문은 바이트 동일합니다. 배포 영수증·정적 동등성뿐 아니라 별도 무인증 로컬 프로필의 CLI 초기화·등록도 통과했지만 자동 선택·답변 품질과 OS 네트워크 격리는 검증하지 않았습니다. `host_behavior_verified=false`, `selection_quality_verified=false`, `installation_ready=false`이고 사용자 프로필·`main`으로 승격되지 않았습니다. 아래 공개 설치 명령은 **이 격리 후보의 시험 절차가 아닙니다**. 특히 레거시 `scripts/install.sh`는 원격 플러그인/Gstack 조회와 사용자 홈 변경 경로가 있으므로 후보를 시험하려고 실행하지 마세요. 범위는 [설치·후보 검증 절차](docs/INSTALL.md)를 확인하세요.
 
 현재 사용자 홈의 `/vibe` 2.11.6은 최신 소스·격리 후보 2.12.12가 아닙니다. v30의 오프라인 재현에서 구독 검증·초과 사용 OFF만 참이고 **선택 모델의 구독 포함·API 폴백 차단이 미확인**인 입력을 2.11.6은 `ready`, 2.12.4는 `blocked`로 판정했습니다. 2.12.12 소스는 Codex·Grok CLI·Grok Bot의 기존 구매 크레딧 폴백 차단 증거도 추가로 요구합니다. 이는 운영 호스트의 과금·자동 선택 품질을 새로 증명한 것이 아니며 실제 과금이 발생했다는 뜻도 아닙니다. 운영 설치본의 `ready`를 추가 과금 $0 보증으로 사용하지 마세요. 버전·호스트 게이트가 미완료라 설치 경로는 변경하지 않았습니다.
 
