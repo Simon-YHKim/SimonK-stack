@@ -3760,6 +3760,15 @@ OS 네트워크 격리, Gstack 전이 실행, 정확한 구독 포함·구매 �
 `selection_quality_verified=false`, `installation_ready=false`다.
 운영 설치본·전역 PATH·`main`·결제 설정은 변경하지 않았다.
 
+추가 오프라인 런타임 회귀 `candidate_runtime_probe.py`는 일회용 복사본에서
+4단계 모두 통과했고 후보 영수증은 재검증됐다. 경로 감사에서는 로컬 미해결·
+비이식 명령이 양쪽 0건이지만, 고정 Gstack 원본의 직접 헬퍼 9개가
+확인된 것과 별개로 Claude 31스킬/646참조와 Codex 30스킬/625참조가
+`external_runtime_pending`/종료 1이다. `routing.py`의 레거시 G11 문구는
+여전히 부작용 있는 전체 `check_tooling.py`를 가리킨다. 스킬 본문의
+`--local-codex` 우선 절차와 동기화하기 전에는 G11을 새 사전 점검의
+완전한 적용 증거로 해석하지 않는다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
