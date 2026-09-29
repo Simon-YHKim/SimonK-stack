@@ -3405,7 +3405,16 @@ v30 대비 의도치 않은 바이트 차이를 만들었으므로, **첫 v31 �
 | `20260929-v31-agy-1213/source-v31` | `a87dcc03cf4cb43c19bcc2df336f2707daa51477d8f4edeb2b89409da1577dba` | 137스킬·412파일 |
 | `20260929-v31b-agy-lf/candidate-safety-v31b` | `9de4c02d0c2cf0e7df9b6e46abdb41d1bae00977864f096df6136364b3647822` | 5플러그인·182스킬·741파일 |
 | `20260929-v31b-agy-lf/codex-overlay-v31b` | `185150bb336814b8dfd0a58d9cdd973ef501f062f01f678681f229a5903dba3e` | Codex 변환 바이트 |
-| `20260929-v31b-agy-lf/codex-general-subset-v31b` | `b15cff31810e1dfbfda4bf933780dab1a3bf068d7df4b19d7d063432d1410884` | 177스킬, 자체 subset 바이트; `source_provenance_verified=false` |
+| `20260929-v31b-agy-lf/codex-general-subset-v31b` | `b15cff31810e1dfbfda4bf933780dab1a3bf068d7df4b19d7d063432d1410884` | 177스킬, 초기 자체 subset 바이트 검증만 수행; 아래 후속 출처 검증 통과 |
+
+2026-09-29 18:51 KST 후속 읽기 전용 검증에서는 같은 subset과 고정된
+`codex-overlay-v31b`를 함께 전달해 `codex_safe_subset.py verify`를 다시
+실행했다. subset digest `b15cff31810e1dfbfda4bf933780dab1a3bf068d7df4b19d7d063432d1410884`,
+overlay digest `185150bb336814b8dfd0a58d9cdd973ef501f062f01f678681f229a5903dba3e`로
+종료 코드 0, `source_provenance_verified=true`, `installation_ready=false`였다.
+이 검증은 원본 오버레이와 subset의 포함·제외 파일 바이트 출처를 확인한
+것이며, 후보와 다른 SimonKStack 최신 원본 브랜치의 42개 파일을
+반영하거나 후보를 재빌드·설치했다는 뜻은 아니다.
 
 v30→v31b 실제 콘텐츠 변경은 Core의 `/vibe` 5파일뿐이며 AIHub·Design·
 Market·Stack은 0파일이다. 다섯 플러그인의 생성 manifest는 공통 소스
