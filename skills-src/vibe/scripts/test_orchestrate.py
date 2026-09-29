@@ -1215,6 +1215,40 @@ class OrchestrationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.plan([step(quality_floor="2")])
 
+    def test_claude_and_codex_share_task_quality_and_subscription_guards(self):
+        profiles = (("PLAN_ARCHITECTURE", 2, "high"),
+                    ("CODE_SIMPLE", 2, "low"),
+                    ("CODE_COMPLEX", 3, "high"),
+                    ("WRITING", 2, "high"))
+        for surface in ("claude", "codex"):
+            other = "codex" if surface == "claude" else "claude"
+            for task_type, minimum_tier, effort in profiles:
+                with self.subTest(surface=surface, task_type=task_type):
+                    node = self.typed(task_type, surface=surface)
+                    steps = [node]
+                    candidates = [candidate("writer", surface=surface, quality_tier=minimum_tier,
+                                            capabilities=["code", "reasoning", "writing"])]
+                    if task_type == "WRITING":
+                        steps.append(step("review", surface=other, verify_of="read",
+                                          depends_on=["read"]))
+                        candidates.append(candidate("reviewer", surface=other,
+                                                    capabilities=["reasoning", "research"]))
+                    ready = self.plan(steps, candidates)
+                    self.assertEqual(ready["status"], "ready")
+                    self.assertEqual(ready["steps"][0]["route"]["requested_effort"], effort)
+                    self.assertEqual(ready["steps"][0]["route"]["surface"], surface)
+                    self.assertEqual(ready["budget"]["reserved_upper_usd"], 0)
+                    if task_type == "WRITING":
+                        self.assertEqual(ready["steps"][1]["route"]["surface"], other)
+                    if task_type.startswith("CODE_"):
+                        self.assertEqual(ready["steps"][0]["quality_floor"], minimum_tier)
+                    weak = copy.deepcopy(candidates)
+                    weak[0]["quality_tier"] = minimum_tier - 1
+                    self.assertIn("QUALITY_FLOOR", str(self.plan(steps, weak)))
+                    unsafe = copy.deepcopy(candidates)
+                    unsafe[0]["billing"]["model_included"] = False
+                    self.assertIn("MODEL_INCLUSION_UNVERIFIED", str(self.plan(steps, unsafe)))
+
     def test_writing_requires_writing_capability_not_generic_reasoning(self):
         node = self.typed("WRITING")
         reviewer = step("review", verify_of="read", depends_on=["read"])
