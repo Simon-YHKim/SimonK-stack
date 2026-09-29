@@ -3285,6 +3285,20 @@ CLI 모델 목록으로 증명되지 않는다. [xAI FAQ](https://docs.x.ai/grok
 주간 포함 사용량이 소진되면 별도 크레딧 또는 상위 플랜을 선택할 수
 있다고 설명한다. Grok 실호출은 여전히 보류했다.
 
+16:23 KST에 추가한 두 번째 Claude 구독 시험은 v30 플러그인 경로를
+세션 한정으로 지정하고 `--restricted --strict-mcp-config --tools Skill`
+및 세션 기록 비활성화로 파일 변경·외부 전송 도구를 허용하지 않았다.
+명시적 `/simonk-core:vibe`를 포함한 가상 Play Console 초안 질문에
+Sonnet 5.5/low가 단일 턴으로 답했으며, 텍스트 초안은 현재 세션에서
+검토하고 Bot/Relay 계정·쿼터가 불명확한 GUI 단계는 전송 보류로
+분류했다. `total_cost_usd=0.086902`도 실제 청구가 아닌 CLI 정가
+표시다. 이 출력만으로 Skill 도구 호출·자동 선택·실제 설치를 증명하지
+않는다. [Claude 공식 기능 안내](https://code.claude.com/docs/en/features-overview)는
+플러그인 스킬이 이름공간을 사용한다고 설명한다. 운영 flat `/vibe`는
+여전히 2.11.6, v30 후보는 2.12.4이므로 명시적 namespaced 응답을
+flat 단축 명령의 무손실 전환 증거로 간주하지 않는다. 세 준비 플래그는
+false다. 상세 판정은 v30 단일 HTML 보고서에 남겼다.
+
 별도 Gstack 6헬퍼·8호출 오프라인 시험의 WSB 설정에는 공식
 `LogonCommand`를 추가하고 XML·5개 매핑 경로·바이너리 해시를 확인했다.
 하지만 새 게스트 시작은 기존 Sandbox 인스턴스 때문에
