@@ -126,6 +126,7 @@ Office     & Design               & Platform & Compl.   & Revenue  & Memory   De
 | `/refactor` | 구조 개선 |
 | `/explain` | 모듈·시스템 walkthrough (entry points, data flow, invariants) |
 | `/simon-worktree` | 병렬 작업 시 git worktree 격리 |
+| `/phase4-game-orchestrator` | 게임 구현 요청을 과거 일정으로 미루지 않고 엔진·에셋·비용을 확인해 `/vibe` 빌드·검증으로 연결합니다. 초안이나 스토어 게시를 완료로 주장하지 않습니다. |
 | `/vercel-react` · `/vue-best-practices` · `/building-native-ui` · `/remotion-best-practices` · `/scientific-paper` | 도메인별 best practices (React/Vue/RN/Remotion video/학술논문) |
 
 ### 4. DevEx & Platform (플랫폼) — 인프라·툴체인·배포
