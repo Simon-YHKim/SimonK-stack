@@ -88,6 +88,14 @@ Codex 오버레이, D-29 일반 스킬 subset의 고정 SHA-256 영수증과 출
 별도로 남겼으며 실제 작업 동작을 증명하지 않는다. 검사 출력의 `host_behavior_verified`,
 `selection_quality_verified`, `installation_ready`는 항상 `false`다.
 
+2.12.15 후보의 Claude 구독 프로필에서는 `--restricted` 실행에 후보 경로를
+`--add-dir`로 명시한 뒤 자연어 한 건이 실제 `simonk-core:vibe` Skill 호출로
+이어졌다. 처음에 경로를 허용하지 않은 실험은 Skill 도구 오류였고,
+허용 범위가 원인이라는 해석은 재시험에 근거한 추정이다. 정확한
+호출 조건·원시 로그 해시·비용 한계는 [설치 기록](INSTALL.md)에 남겼다.
+이 한 건의 성공을 30개 케이스 선택률, Codex 동작, 응답 품질이나 실효 effort의
+통과로 확대 해석하지 않는다.
+
 `--compare-hosts`는 호스트별 케이스·관측 파일 네 개를 **읽기만** 한다. 각 파일은
 위와 같은 스키마를 쓰되 `evaluator.host`가 각각 `Claude...`, `Codex...`로
 시작해야 한다. 양쪽 케이스의 ID·요청 원문·`kind`가 같아야 하고

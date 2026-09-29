@@ -3846,6 +3846,30 @@ SHA-256이 위 표와 같았다. 이는 새 후보의 **격리 적재·등록** 
 `installation_ready=false`를 유지한다. 사용자 설치본·`main`·결제 설정은
 변경하지 않았다.
 
+같은 후보의 Claude Code 2.1.285를 실제 Max 구독 로그인(`authMethod=claude.ai`,
+프로세스 API 키·대체 제공자 환경변수 없음)에서 **읽기 전용 한 사례**로
+추가 시험했다. 자연어로 여러 스킬을 조합해 로그인 화면 설계·구현·접근성
+검증을 요청하되 파일 변경은 금지했다. 첫 실행에서는 작업 폴더 밖의 후보
+경로가 `--restricted` 허용 범위에 없어 `Skill` 실행이 실패한 것으로
+추정한다. `--add-dir`로 정확한
+후보 경로를 허용하고 `--tools Read,Skill`, `dontAsk`, `--strict-mcp-config`,
+`--no-session-persistence`를 유지한 재시험에서는 Opus 5.5 요청 모델이
+`simonk-core:vibe`를 선택해 실제 `Skill` 도구를 호출했고 로그의
+`SkillTool ... outcome=ok`를 확인했다. 요청 effort는 `medium`이었지만
+서버에 적용된 실효 effort는 관측하지 못했다. 후보 5플러그인·182스킬이
+적재됐고 해당 실행에서 작업 파일 변경과 Bot 위임은 없었다.
+
+원시 디버그 로그는 격리 보고 폴더의 `claude-choice-debug.log` (SHA-256
+`f51044d1e14f40b0ddbf8dde6a6aa808ae43f0dc2787ae8fda70f688646427e0`)에
+보존했다. 첫 실패와 재시험의 CLI `total_cost_usd`는 각각 `0.1259156`,
+`0.1883756`이었다. 이 값은
+[Anthropic 비용 추적 문서](https://code.claude.com/docs/en/agent-sdk/cost-tracking)에
+따르면 클라이언트 추정치이지 청구 증거가 아니다. 구독 로그인과 사용자가
+확인한 추가 사용 OFF 외에 이번 호출의 청구 내역은 독립 조회하지 못했다.
+Codex는 구매 크레딧 폴백 차단을 검증할 수 없어 실호출하지 않았다.
+**이 한 사례는 Claude의 `/vibe` 진입 증거만** 제공하며, 양호스트 30개
+선택 평가·실제 작업 품질·구독 경로 전체 검증을 대체하지 않는다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
