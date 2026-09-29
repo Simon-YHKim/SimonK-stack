@@ -1,8 +1,8 @@
 ---
 name: app-dev-orchestrator
-description: Use when the user asks to build a new app from scratch—"새 앱 만들자", "MVP 기획", "scaffold a new project", "처음부터 만들어줘", "let's build X"—and delegate the 21-stage pipeline (office-hours → research → plan → design → TDD → security → ship → deploy → retro → instincts) to Gstack and simon-stack skills. Produces a populated repo with CLAUDE.md, tests, security audit, and a first deploy. Do NOT use for bug fixes, refactors, or improving existing code—delegate to simon-tdd, investigate, or refactor instead.
+description: Use when the user asks to build a new app from scratch—"새 앱 만들자", "MVP 기획", "scaffold a new project", "처음부터 만들어줘", "let's build X"—and delegate the 21-stage pipeline (office-hours → research → plan → design → TDD → security → ship → deploy → retro → instincts) to Gstack and simon-stack skills. Produces a populated repo with CLAUDE.md, tests, security audit, and an authorization-gated deployment plan. Do NOT use for bug fixes, refactors, or improving existing code—delegate to simon-tdd, investigate, or refactor instead.
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 1.1.0
+version: 1.1.1
 author: simon
 ---
 
@@ -17,6 +17,13 @@ author: simon
 - 플랫폼이 명확히 지정되지 않았거나, 지정돼도 전체 라이프사이클 지원이 필요한 경우
 
 **발동 안 되는 경우**: 버그 수정, 기존 기능 개선, 리팩토링, 단일 파일 작업 → 해당 전용 스킬 사용
+
+## Host parity and routing authority
+
+- 이 스킬은 `/vibe`의 단일 실행 계획에 21단계 절차를 제공한다. 별도 코디네이터·예산·모델 표를 만들지 않는다. 모델·effort 배정은 `/vibe` 중앙 planner의 현재 호스트 관측, 작업별 품질 하한, 구독 쿼터와 비용 게이트에 따른다. 특정 Claude·Codex 모델을 버전명만으로 자동 선택하지 않는다.
+- 호출 전 현재 호스트의 스킬 목록과 각 단계의 필수 의존성을 확인한다. 스킬이 없거나 다른 호스트의 기능이면 그 단계는 명시적으로 대기시키고, 이름이 비슷한 스킬로 조용히 대체하지 않는다.
+- Codex D-29 일반 스킬 후보에는 `careful`, `guard`, `freeze`, `investigate`, `unfreeze`가 없다. 이 스킬들을 Codex에서 호출하거나 호스트 정책 집행과 동등하다고 주장하지 않는다. Claude에서도 실제 설치·hook 신뢰가 확인된 경우에만 사용한다. 필요한 안전 제어가 없으면 해당 위험 단계는 진행하지 않는다.
+- 단계 목록은 권한 목록이 아니다. 저장소 생성·push·PR·merge·배포·결제·시크릿 변경은 현재 사용자 승인과 프로젝트 게이트를 각각 따른다. 호스트별 누락 기능을 이유로 검증이나 안전 게이트를 생략하지 않는다.
 
 ## Workflow — 21 단계 파이프라인
 
@@ -164,7 +171,7 @@ author: simon
 3. **CLAUDE.md 팀 체크인**: 프로젝트 `CLAUDE.md` 는 git 에 포함, PR 마다 갱신.
 4. **검증 루프 = 도구 제공**: Claude 에게 서버 시작 방법·브라우저 URL·테스트 실행 명령을 명시적으로 알려줄 것.
 5. **Permission allowlist 우선**: `--dangerously-skip-permissions` 는 쓰지 말고 `/permissions` 로 allowlist 를 관리 — 한 번의 사고가 전체 세션을 돌릴 가치보다 크다.
-6. **최신 모델**: Opus 4.6 자동 사용.
+6. **모델·effort**: `/vibe`의 최신 검증된 중앙 라우팅과 현재 호스트·구독 경계를 따른다. 고정 모델명이나 최고 effort를 이 파이프라인이 강제하지 않는다.
 7. **슬래시 명령어 = 스킬**: Gstack `/ship` 도 `ship` 스킬과 동일 개념으로 취급.
 
 ---
@@ -198,7 +205,7 @@ author: simon
 - **Gstack 파이프라인**: `/office-hours`, `/plan-ceo-review`, `/plan-eng-review`, `/autoplan`, `/design-consultation`, `/design-shotgun`, `/design-review`, `/design-html`, `/qa`, `/cso`, `/benchmark`, `/review`, `/ship`, `/land-and-deploy`, `/canary`, `/document-release`, `/retro`, `/checkpoint`, `/codex`
 - **simon-stack**: `simon-research`, `simon-tdd`, `simon-worktree`, `simon-instincts`, `simon-design-first`, `security-checklist`, `authz-designer`, `paid-api-guard`, `stitch-design-flow`, `code-health-guard`, `agent-delegate`, `ai-debate`
 - **diversity-gate (단계 15.5)**: `i18n-localizer`, `accessibility-audit`, `persona-simulation`, `inclusive-ux`, `offline-first`
-- **유틸리티**: `/careful`, `/guard`, `/freeze`, `/unfreeze`
+- **호스트별 안전 유틸리티**: `/careful`, `/guard`, `/freeze`, `/unfreeze` — 위 Host parity 절의 가용성·hook 신뢰 게이트를 통과한 경우에만 사용한다.
 
 ## 완료 보고 (HTML) — 표준
 작업을 끝내면 **HTML 완료 보고서**를 생성한다 (SimonKCore `completion-report` 표준).
