@@ -157,7 +157,7 @@ Office     & Design               & Platform & Compl.   & Revenue  & Memory   De
 |---|---|
 | `/security-orchestrator` | 4 단계 보안 감사 순차 실행 (checklist → authz → rate-limit → budget cap) |
 | `/security-checklist` | RLS / 구독 변조 / dual-layer rate-limit / 예산 cap 4 pillar |
-| `/authz-designer` | 역할·권한 설계 |
+| `/authz-designer` | 기존 서버·DB 권한 경계를 확인해 역할·관계 정책을 설계하거나 교차 테넌트/IDOR를 읽기 전용으로 감사합니다. DDL·운영 권한 변경은 별도 게이트입니다. |
 | `/cso` (gstack) | Chief Security Officer 모드 — 종합 보안 결정 |
 | `/paid-api-guard` | 유료 API 호출 가드 (예산 cap) |
 | `/keepass-helper` | 시크릿 매니지먼트 |
