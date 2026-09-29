@@ -1,14 +1,16 @@
 ---
 agent: codex
 role: image + UI/UX
-updated: 2026-09-29 09:23:10 KST
+updated: 2026-09-29 09:35:24 KST
 state: running
 source: user-direct
 ---
 
 # Codex STATUS
 
-updated: 2026-09-29 09:23:10 KST
+updated: 2026-09-29 09:35:24 KST
+
+- 2026-09-29 09:35:24 KST: src: Simon direct, subscription-only/no extra paid calls. Built v25 Codex general subset from pinned overlay, receipt `4cfdce3d` with source provenance verified before/after host probe. Explicit 5-root inventory177/0 issues, excluded safety skills0. Fresh no-auth CODEX_HOME on Codex0.155.0 locally registered 5 marketplaces/plugins; all 723 cached files matched subset SHA/path, SKILL177, excluded0. Test-only plugins+marketplaces then removed: installed0/available0/marketplaces0/cache0; candidate preserved. Actual user Codex profile remains 20 plugins, SimonK0, flat vibe2.11.6. Source README/INSTALL evidence commit `520e4b7` pushed/clean, local HTML `E:/Coding Infra/Releases/SimonK-stack/20260929-v25-overlay-catalog/report-subset.html`. No model/API/Bot/Orca call, additional paid usage, user-profile change, or main merge. Actual skill selection/hook/Gstack/user-home migration still unverified; readiness flags false.
 
 - 2026-09-29 09:23:10 KST: src: Simon direct, no additional paid calls. Fixed `/vibe` Codex overlay default catalog false rejection via exact original+projected Zoom/overlay receipt validation, regression RED→GREEN. Source `872b4c9` and docs `c3c19dd` pushed/clean on feature branch. New isolated v25 source/safety/overlay receipts verified; safety and overlay default catalog each exit0/182 names, packaged vibe222 PASS, source suite334=331 pass/3 skip/fail0, Claude five-plugin check-only preview pass/no model. Static path audit local0/unportable0 but Gstack external runtime31 skills/646 refs/9 targets remains `external_runtime_pending` exit1. Release HTML `E:/Coding Infra/Releases/SimonK-stack/20260929-v25-overlay-catalog/report.html`. Existing installed Sep26 receipt drift unresolved; Sandbox v25 host, real model/Bot/Orca, Gstack closure, D-codes and install/main gates pending. No user profile, billing setting, model/API/Bot/Orca call or main change.
 
