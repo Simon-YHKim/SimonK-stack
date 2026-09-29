@@ -3727,6 +3727,33 @@ Codex CLI 0.159.0은 로컬 marketplace 5개를 활성 등록, 177스킬을
 `selection_quality_verified=false`, `installation_ready=false`를 유지한다.
 원시 요약·영수증 링크는 후보의 `report.html`에 있다.
 
+### `ddfe97c` 알 수 없는 Codex 버전 fail-closed 후보 (2026-09-30)
+
+`/vibe` 2.12.12의 `check_tooling.py --local-codex`는 CLI 버전 명령 실패나
+prerelease/비교 불가 버전을 정상으로 간주하지 않는다. 종료 0은 PATH와 인접
+npm 패키지가 비교 가능한 안정 버전이며 PATH가 뒤처지지 않을 때만 가능하다.
+종료 1은 뒤처짐, 종료 2는 알 수 없음·패키지 부재·비교 불가다. 둘 다 Codex
+워커 기동을 보류하고 실제 실행 파일을 별도로 확인해야 한다. 이 검사는
+네트워크·Orca·계정·모델 호출을 하지 않고, 정확한 구독 과금 경로를 증명하지 않는다.
+
+새 격리 후보는 `E:/Coding Infra/Releases/SimonK-stack/20260930-local-preflight-ddfe97c/`에
+있다. 소스·Claude 번들·Codex 오버레이·Codex 일반 subset 영수증은 순서대로
+`4a13ecf1b9b9af6030ba158f0fdfac9b9fff622f2301096cb909a16d6f080434`,
+`0ef26640392c4e55a6e589d597c1fe2d451d200bd00f77357927ef33dc05750f`,
+`f9b8f0dd55c57d2f84f93427919cbb015eb89695efc20640bfe31b0cb8f21773`,
+`c92602e8c549bf7e2b0ef9c92f261efaad8bffa453ad9c308c34c1b0c8d12a02`다.
+각 영수증·subset 출처 독립 검증 통과, Claude 182/Codex 177스킬 중
+공통 본문 176개 바이트 동일, `zoom-out` 승인 투영 1개, D-29 안전 제외 5개다.
+소스 단위 139건과 두 패키지의 로컬 검사 각 8건이 통과했고 `.pyc`는 0개다.
+현재 PC는 PATH 0.155.0/인접 패키지 0.159.0으로 종료 1을 반환했다.
+
+이번 후보의 Claude·Codex 실제 호스트 적재, 자동 선택·결과 품질,
+OS 네트워크 격리, Gstack 전이 실행, 정확한 구독 포함·구매 크레딧 폴백
+차단은 **미검증**이다. 이전 후보의 별도 무인증 프로필 적재 증거를 새 후보의
+증거로 승계하지 않는다. 따라서 `host_behavior_verified=false`,
+`selection_quality_verified=false`, `installation_ready=false`다.
+운영 설치본·전역 PATH·`main`·결제 설정은 변경하지 않았다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
