@@ -3277,8 +3277,13 @@ v30 디렉터리를 세션 한정 `--plugin-dir`로 지정한 Claude 읽기 전�
 제시했다. CLI의 `total_cost_usd=0.5720546`은 `costBasis=list`인
 정가 추정치로, 실제 청구액의 증거는 아니다. 사용자는 초과 사용·자동충전
 비활성화를 확인했다. 홈 flat 스킬도 공존했으므로 이 1회 응답을 v30
-단독 자동 선택 정확도나 운영 설치 통과로 해석하지 않는다. `grok models`는
-`You are not authenticated`를 반환했으므로 Grok 실호출은 보류했다.
+단독 자동 선택 정확도나 운영 설치 통과로 해석하지 않는다. 첫 `grok models`
+조회는 `You are not authenticated`였지만 후속 조회는 `grok.com` 로그인과
+기본 `grok-4.7`을 표시했다. 인증 변화만 관측했으며 이 계정의 최신 주간
+사용량·Extra Usage Credits·자동충전 상태나 선택 모델의 구독 포함은
+CLI 모델 목록으로 증명되지 않는다. [xAI FAQ](https://docs.x.ai/grok/faq)는
+주간 포함 사용량이 소진되면 별도 크레딧 또는 상위 플랜을 선택할 수
+있다고 설명한다. Grok 실호출은 여전히 보류했다.
 
 별도 Gstack 6헬퍼·8호출 오프라인 시험의 WSB 설정에는 공식
 `LogonCommand`를 추가하고 XML·5개 매핑 경로·바이너리 해시를 확인했다.
