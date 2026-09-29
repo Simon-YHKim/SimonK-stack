@@ -3785,6 +3785,43 @@ OS 네트워크 격리, Gstack 전이 실행, 정확한 구독 포함·구매 �
 양호스트 동일성 증거가 없다. `host_behavior_verified=false`,
 `selection_quality_verified=false`, `installation_ready=false`를 유지한다.
 
+### `/vibe` 2.12.15 Opus effort shadow 후보 (2026-09-30)
+
+새 격리 후보 `E:/Coding Infra/Releases/SimonK-stack/20260930-opus-medium-9add9fb/`는
+기능 브랜치 `9add9fb`의 `/vibe` 2.12.15를 포장한다. Anthropic의
+[Opus 5.5 공개 평가](https://www.anthropic.com/claude-opus-5-5)는
+FrontierCode의 기본 `medium` effort 결과를 명시하고,
+[Artificial Analysis](https://artificialanalysis.ai/articles/claude-opus-5-5/)는
+`medium`을 effort 대비 비용 frontier에 포함한다. 이를 복잡한 코딩의
+**shadow-only** 후보로 추가했다. `high`/`xhigh`도 보존하고, 활성
+`route`·실효 effort·구독/쿼터 게이트는 바꾸지 않았다. 서로 다른 벤치마크
+하네스의 수치와 API 단가는 현재 계정의 구독 포함 또는 호스트별 품질 증거가 아니다.
+
+| 영수증 | SHA-256 |
+| --- | --- |
+| source | `f4fe7a34ee95e958555e1964563ae3bfbe9e2ded690843c3c4c67e4ee3a2765a` |
+| Claude safety bundle | `162bdb81714472ff8f5e6b9f9a1ff56f9d1e571a01b262292043f605bdf41e34` |
+| Codex overlay | `50e852ce6badad5e28505f08d69819a2d52395fa09ff6a3dfb036a96d6db170f` |
+| Codex general subset | `1b098ed5e3e39e0f612668a1292d7f75516a7b8c03496e60a0cb1cf432fd0f3e` |
+
+원본 5개 플러그인의 고정 HEAD를 일반 로컬 clone으로 새로 준비했다. 첫 입력이
+linked worktree여서 패키저가 거절했으며 기존 입력·설치본은 수정하지 않았다.
+네 영수증 재검증, Claude/Codex 공통 본문 176개·payload 612개 동등성,
+소스·포장본 planner 107건, selftest 180건, 4단계 일회용 후보 실행 점검,
+스킬 validator 0 error/0 warning과 평가 dry-run 25건이 통과했다.
+이들은 모델 호출·실제 작업 품질·호스트 자동 선택을 증명하지 않는다.
+
+현재 사용자 홈의 `/vibe`는 양쪽 모두 2.11.6이고 이번 후보는 설치되지 않았다.
+[OpenAI 공식 크레딧 설명](https://help.openai.com/en/articles/12642688)은
+포함 사용량 소진 후 잔여 크레딧이 사용될 수 있다고 명시하므로 자동충전 OFF만으로
+구독 전용 호출을 증명할 수 없다. Codex의
+[플러그인 훅 문서](https://learn.chatgpt.com/docs/hooks)는 hook trust가 필요하고
+훅 오류 시 도구 호출이 계속될 수 있다고 명시한다. 따라서 D-29 안전 스킬
+5개 제외와 `host_behavior_verified=false`, `selection_quality_verified=false`,
+`installation_ready=false`를 유지한다. Gstack 31스킬의 외부 런타임 의존과
+같은 과제의 Claude/Codex 실측도 남아 있다. 추가 과금·모델/API/Bot/Orca
+실호출, 운영 프로필·`main`·결제 설정 변경은 없었다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
