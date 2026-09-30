@@ -334,10 +334,11 @@ def main(out_path=None, argv=None):
         defaults[cls] = lane
         lanes = routing.lanes_for(cls)
         alt = " → ".join(f"<code>{esc(l)}</code>" for l in lanes) if lanes else "—"
+        note_html = f"<br><span class='note'>{esc(note)}</span>" if note else ""
         drows.append(
             f"<tr><td><b>{esc(cls)}</b><br><span class='note'>{esc(routing.CLASS_LABEL[cls])}</span></td>"
             f"<td><span class='tag lane'>{esc(lane or '—')}</span>"
-            f"{f'<br><span class=\"note\">{esc(note)}</span>' if note else ''}</td>"
+            f"{note_html}</td>"
             f"<td class='note'>{alt}</td></tr>")
 
     # D-28 #5·#14 — 코딩은 공정 전용 목록. 게이트 벤더가 사용 금지면 코딩 라운드 불가.
