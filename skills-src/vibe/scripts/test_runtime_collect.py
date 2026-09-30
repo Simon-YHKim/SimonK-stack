@@ -110,6 +110,29 @@ class RuntimeCollectionTests(unittest.TestCase):
         self.assertEqual(out["billing"]["on_demand_cap"], "0")
         self.assertFalse(out["billing"]["verified"])
 
+    def test_grok_official_outer_overage_flag_is_preserved_without_authorizing(self):
+        # xAI's ACP billing response places onDemandEnabled beside config.
+        for observed, expected in ((False, False), (True, True), (None, None),
+                                   (0, None), ("false", None)):
+            with self.subTest(observed=observed):
+                raw = {"subscriptionTier": "SuperGrok Heavy",
+                       "onDemandEnabled": observed,
+                       "config": copy.deepcopy(grok_raw()["billing"])}
+                # A stale/legacy nested value must not override the outer flag.
+                raw["config"]["onDemandEnabled"] = not observed
+                out = self.parse("grok", raw)
+                self.assertIs(out["billing"]["extra_usage_enabled"], expected)
+                self.assertFalse(out["billing"]["verified"])
+                self.assertFalse(out["account_verified"])
+                self.assertFalse(out["generation_verified"])
+
+    def test_grok_legacy_nested_overage_flag_remains_supported(self):
+        raw = grok_raw()
+        raw["billing"]["onDemandEnabled"] = False
+        out = self.parse("grok", raw)
+        self.assertIs(out["billing"]["extra_usage_enabled"], False)
+        self.assertFalse(out["billing"]["verified"])
+
     def test_grok_cli_model_list_is_metadata_not_execution_authority(self):
         raw = grok_raw()
         raw["_grok_models_text"] = GROK_MODEL_LIST

@@ -256,12 +256,17 @@ an absent setting is unknown, not false. For Codex, a positive credit balance
 or an unverified account-level credit fallback blocks the zero-extra-spend
 route even when auto-reload is off. For Grok/Grok Bot, check purchased
 Extra Usage Credits/on-demand fallback separately from Auto Top Up and keep
-the CLI and Bot account/quota evidence distinct. None of these settings is
-changed by the planner or collector. Sources:
+the CLI and Bot account/quota evidence distinct. Grok ACP billing places
+`onDemandEnabled` beside `config`; the collector prefers that outer boolean,
+falling back to a legacy nested value only when the outer field is absent.
+Missing/nonboolean values remain unknown, and even `false` does not prove
+account identity, model inclusion or purchased-credit fallback safety. None of
+these settings is changed by the planner or collector. Sources:
 https://help.openai.com/en/articles/12642688-using-credits-for-flexible-usage-in-chatgpt-personal-plans ;
 https://support.claude.com/en/articles/11145838-use-claude-code-with-your-pro-or-max-plan ;
 https://support.claude.com/en/articles/12429409-manage-usage-credits-for-paid-claude-plans ;
 https://docs.x.ai/grok/faq ;
+https://github.com/xai-org/grok-build/blob/main/crates/codegen/xai-grok-shell/src/extensions/billing.rs ;
 https://antigravity.google/docs/plans ;
 https://www.antigravity.google/docs/cli/credits/ .
 The quote belongs to this task/run snapshot, not a permanent model price.

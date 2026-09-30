@@ -214,7 +214,15 @@ def normalize(surface, raw, now, profile):
         for source, target in (("onDemandCap", "on_demand_cap"), ("onDemandUsed", "on_demand_used"),
                                ("prepaidBalance", "prepaid_balance")):
             result["billing"][target] = amount(root.get(source))
-        enabled = root.get("onDemandEnabled", root.get("on_demand_enabled"))
+        # ACP billing places this flag beside config; only legacy envelopes
+        # carried it inside the selected credit bucket. An explicit outer null
+        # stays unknown rather than borrowing a contradictory nested value.
+        if "onDemandEnabled" in raw:
+            enabled = raw["onDemandEnabled"]
+        elif "on_demand_enabled" in raw:
+            enabled = raw["on_demand_enabled"]
+        else:
+            enabled = root.get("onDemandEnabled", root.get("on_demand_enabled"))
         result["billing"]["extra_usage_enabled"] = enabled if type(enabled) is bool else None
         if "_grok_models_text" in raw:
             result["models"] = [{"model": model, "transport_efforts": []}
