@@ -170,8 +170,11 @@ def spec_digest(plan):
     # Route evidence can refresh; task intent, review dependencies and policy cannot.
     nodes = [{k: v for k, v in n.items() if k not in
               {"route", "handoff", "errors", "rejected_candidates", "skill_paths"}} for n in plan["steps"]]
-    return orchestrate.digest({"steps": nodes, "budget": {k: plan["budget"][k] for k in
-        ("mode", "approved_usd", "spent_usd", "external_reserved_usd", "max_attempts", "max_parallel")}})
+    spec = {"steps": nodes, "budget": {k: plan["budget"][k] for k in
+        ("mode", "approved_usd", "spent_usd", "external_reserved_usd", "max_attempts", "max_parallel")}}
+    if "debate" in plan:
+        spec["debate"] = plan["debate"]
+    return orchestrate.digest(spec)
 
 
 def task_spec(node):
@@ -312,6 +315,17 @@ def validate_plan(plan, now):
             raise StateError("PLAN_BLOCKED")
         if plan["plan_digest"] != orchestrate.digest({k: v for k, v in plan.items() if k != "plan_digest"}):
             raise StateError("PLAN_CHANGED")
+        if "debate" in plan:
+            try:
+                debate = orchestrate.debate_contract(plan["debate"], plan["steps"])
+                if debate is None:
+                    raise ValueError("Empty debate")
+                debate_errors = orchestrate.debate_route_errors(
+                    debate, {node["id"]: node for node in plan["steps"]})
+            except (ValueError, KeyError, TypeError):
+                raise StateError("DEBATE_PLAN_INVALID") from None
+            if debate_errors:
+                raise StateError("DEBATE_PLAN_INVALID")
         if not orchestrate.ready_steps(plan, [], now):
             raise StateError("PLAN_STALE_OR_BLOCKED")
         for node in plan["steps"]:

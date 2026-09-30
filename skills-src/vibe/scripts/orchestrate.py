@@ -710,6 +710,48 @@ def requires_review(node):
     return bool(node.get("writes")) or node.get("task_type") == "WRITING"
 
 
+DEBATE_ROLES = ("proposer", "challenger", "proposer_rebuttal", "challenger_rebuttal", "judge")
+
+
+def debate_contract(value, nodes):
+    """A debate is five distinct executable nodes, not five simulated voices."""
+    if value is None:
+        return None
+    if not isinstance(value, dict) or set(value) != set(DEBATE_ROLES):
+        raise ValueError("Debate requires the five exact roles")
+    ids = [value[role] for role in DEBATE_ROLES]
+    if any(not isinstance(i, str) for i in ids) or len(set(ids)) != len(ids):
+        raise ValueError("Debate roles require distinct node IDs")
+    by_id = {n["id"]: n for n in nodes}
+    if any(i not in by_id or by_id[i]["kind"] != "llm" for i in ids):
+        raise ValueError("Debate roles require existing LLM nodes")
+    openings = {value["proposer"], value["challenger"]}
+    for role in ("proposer_rebuttal", "challenger_rebuttal"):
+        if not openings <= set(by_id[value[role]].get("depends_on", [])):
+            raise ValueError("Each rebuttal must depend on both opening positions")
+    rebuttals = {value["proposer_rebuttal"], value["challenger_rebuttal"]}
+    if not rebuttals <= set(by_id[value["judge"]].get("depends_on", [])):
+        raise ValueError("The separate judge must depend on both rebuttals")
+    return copy.deepcopy(value)
+
+
+def debate_route_errors(debate, by_id):
+    if debate is None:
+        return []
+    routes = {role: (by_id[node_id].get("route") or {}) for role, node_id in debate.items()}
+    if any(not route for route in routes.values()):
+        return ["DEBATE_ROUTE_UNAVAILABLE"]
+    errors = []
+    if routes["proposer"]["vendor"] == routes["challenger"]["vendor"]:
+        errors.append("DEBATE_REQUIRES_TWO_VENDORS")
+    for opening, rebuttal in (("proposer", "proposer_rebuttal"),
+                             ("challenger", "challenger_rebuttal")):
+        if (routes[opening]["surface"], routes[opening]["billing"]["account_ref"]) != (
+                routes[rebuttal]["surface"], routes[rebuttal]["billing"]["account_ref"]):
+            errors.append("DEBATE_REBUTTAL_ROUTE_MISMATCH")
+    return sorted(set(errors))
+
+
 def assess_candidate(c, step, policy, now, producer_vendor=None):
     errors = list(c.get("registry_errors", []))
     for binding in step.get("skill_bindings", []):
@@ -869,6 +911,7 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
             or any(not isinstance(name, str) or not name.strip() for name in ancestors)):
         raise ValueError("ancestor_skills must be a list of nonempty skill names")
     nodes = ordered_steps([compile_task_type(s) for s in request.get("steps", [])])
+    debate = debate_contract(request.get("debate"), nodes)
     candidates = runtime.get("candidates", [])
     candidate_ids = [c.get("id") for c in candidates]
     if len(set(candidate_ids)) != len(candidate_ids) or any(not i for i in candidate_ids):
@@ -1017,6 +1060,7 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
         by_id[s["id"]] = s
     total = reserved + money(policy["spent_usd"]) + money(policy["external_reserved_usd"])
     global_errors = _legacy_validation(nodes, runtime)
+    global_errors.extend(debate_route_errors(debate, by_id))
     if total > money(policy["approved_usd"]):
         global_errors.append("RUN_BUDGET_EXCEEDED")
     policy.update({"reserved_upper_usd": float(reserved), "committed_upper_usd": float(total),
@@ -1027,6 +1071,8 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
             "planned_at": now, "status": "blocked" if global_errors or any(s["errors"] for s in nodes) else "ready",
             "errors": global_errors, "budget": policy, "steps": nodes,
             "model_registry": runtime["model_registry"]}
+    if debate is not None:
+        result["debate"] = debate
     if getattr(catalog, "discovery", None) is not None:
         result["discovery"] = copy.deepcopy(catalog.discovery)
     result["plan_digest"] = digest(result)

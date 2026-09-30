@@ -90,13 +90,86 @@ class OrchestrationTests(unittest.TestCase):
         self.catalog = {name: {"name": name, "path": "/fixture/" + name + "/SKILL.md",
                               "description": name} for name in ("explain", "dev-orchestrator", "vibe-bot")}
 
-    def plan(self, steps=None, candidates=None, budget=None, task_fit_policy=None, **runtime_changes):
+    def plan(self, steps=None, candidates=None, budget=None, task_fit_policy=None, debate=None, **runtime_changes):
         runtime = {"candidates": candidates if candidates is not None else [candidate()],
                    "tools": [], "observed_at": NOW}
         runtime.update(runtime_changes)
         request = {"run_id": "test-run", "steps": steps or [step()], "budget": budget or {}}
+        if debate is not None:
+            request["debate"] = debate
         return self.m.make_plan(request, self.catalog, runtime, NOW,
                                 fixture_registry(runtime["candidates"]), task_fit_policy)
+
+    @staticmethod
+    def debate_fixture():
+        roles = {"proposer": "opening-gpt", "challenger": "opening-claude",
+                 "proposer_rebuttal": "rebuttal-gpt", "challenger_rebuttal": "rebuttal-claude",
+                 "judge": "judge-gpt"}
+        steps = [step("opening-gpt", surface="codex"),
+                 step("opening-claude", surface="claude"),
+                 step("rebuttal-gpt", surface="codex", depends_on=["opening-gpt", "opening-claude"]),
+                 step("rebuttal-claude", surface="claude", depends_on=["opening-gpt", "opening-claude"]),
+                 step("judge-gpt", surface="codex", depends_on=["rebuttal-gpt", "rebuttal-claude"])]
+        candidates = [candidate("gpt", surface="codex"), candidate("claude", surface="claude")]
+        return roles, steps, candidates
+
+    def test_debate_routes_two_vendors_and_waits_for_verified_rebuttals(self):
+        roles, steps, candidates = self.debate_fixture()
+        plan = self.plan(steps, candidates, debate=roles)
+        self.assertEqual(plan["status"], "ready", plan["errors"])
+        self.assertEqual(plan["debate"], roles)
+        self.assertEqual(self.m.ready_steps(plan, [], NOW), ["opening-gpt", "opening-claude"])
+        openings = self.events(plan, *({"id": role, "status": "done", "verified": True,
+                                        "evidence": ["fixture-dispatch"]}
+                                       for role in ("opening-gpt", "opening-claude")))
+        self.assertEqual(self.m.ready_steps(plan, openings, NOW), ["rebuttal-gpt", "rebuttal-claude"])
+        unverified = openings + self.events(plan, {"id": "rebuttal-gpt", "status": "done",
+                                              "verified": False, "evidence": ["fixture"]},
+                                            {"id": "rebuttal-claude", "status": "done",
+                                              "verified": True, "evidence": ["fixture"]})
+        self.assertEqual(self.m.ready_steps(plan, unverified, NOW), [])
+        unverified[-2]["verified"] = True
+        self.assertEqual(self.m.ready_steps(plan, unverified, NOW), ["judge-gpt"])
+
+    def test_debate_rejects_same_vendor_or_rebuttal_account_switch(self):
+        roles, steps, candidates = self.debate_fixture()
+        same = copy.deepcopy(steps)
+        for node in same:
+            node["surface"] = "codex"
+        self.assertIn("DEBATE_REQUIRES_TWO_VENDORS", self.plan(same, candidates, debate=roles)["errors"])
+        switched = candidates + [candidate("claude-other", surface="claude",
+                                            billing={**candidates[1]["billing"], "account_ref": "other",
+                                                     "included_model": "fixture-claude-other"},
+                                            quality_tier=3, resource_rank=2)]
+        changed = copy.deepcopy(steps)
+        changed[3]["quality_floor"] = 3
+        # A coordinator cannot silently turn a rebuttal into a different account.
+        result = self.plan(changed, switched, debate=roles)
+        self.assertIn("DEBATE_REBUTTAL_ROUTE_MISMATCH", result["errors"])
+
+    def test_debate_requires_distinct_real_nodes_and_complete_dependencies(self):
+        roles, steps, candidates = self.debate_fixture()
+        repeated = dict(roles, judge=roles["proposer"])
+        with self.assertRaisesRegex(ValueError, "distinct"):
+            self.plan(steps, candidates, debate=repeated)
+        incomplete = copy.deepcopy(steps)
+        incomplete[-1]["depends_on"] = ["rebuttal-gpt"]
+        with self.assertRaisesRegex(ValueError, "judge"):
+            self.plan(incomplete, candidates, debate=roles)
+
+    def test_debate_roles_are_part_of_durable_immutable_intent(self):
+        import run_state
+        roles, steps, candidates = self.debate_fixture()
+        plan = self.plan(steps, candidates, debate=roles)
+        changed = copy.deepcopy(plan)
+        changed["debate"]["judge"] = roles["proposer_rebuttal"]
+        self.assertNotEqual(run_state.spec_digest(plan), run_state.spec_digest(changed))
+        changed["plan_digest"] = self.m.digest({k: v for k, v in changed.items() if k != "plan_digest"})
+        with tempfile.TemporaryDirectory(prefix="vibe-debate-state-") as folder:
+            store = run_state.Store(Path(folder) / "state.sqlite3")
+            store.initialize()
+            with self.assertRaisesRegex(run_state.StateError, "DEBATE_PLAN_INVALID"):
+                store.register(changed, now=NOW)
 
     def task_fit_fixture(self, task_type="PLAN_ARCHITECTURE", model="claude-opus-5-5",
                          efforts=None, rank=0, checked_at=NOW, valid_until="2026-09-24T10:00:00+00:00"):

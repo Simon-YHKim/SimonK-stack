@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when asked for SimonKStack "메인 오케스트레이터", "/vibe", "바이브로 알아서", Play Console/GUI orchestration, or task-wide skill/model/effort routing. Produces one verified plan and artifacts under $0 extra spend. Check CLI/API/MCP first; simonk is sprint-only and vibe-bot GUI-only.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.18
+version: 2.12.19
 author: simon-stack
 ---
 
@@ -178,6 +178,21 @@ Validate with:
 python -B "<skill>/scripts/orchestrate.py" plan --input request.json --runtime runtime.json
 python -B "<skill>/scripts/orchestrate.py" ready --input plan.json --events events.json
 ```
+
+For consequential `ai-debate`, supply a `debate` object with five distinct LLM
+step IDs: `proposer`, `challenger`, `proposer_rebuttal`, `challenger_rebuttal`,
+`judge`. Both rebuttals depend on both openings; the judge depends on both
+rebuttals. The two openings need different vendors, and each rebuttal retains
+its opening surface/account. The judge is a separate invocation even if its
+vendor matches an opening. Give both openings the same question, evidence and
+rubric; feed verified actual outputs into the rebuttals and judge.
+`ready` releases successors only after verified predecessor evidence. A
+five-node plan or simulated personas are **not** a completed model debate:
+record the five actual dispatch/session identities, output evidence, minority
+view and separate judge verdict. Missing subscription-safe execution for any
+node blocks that debate; do not relabel a single-host simulation as Claude↔GPT
+or borrow another vendor's quota. Formal hub D-code recording remains the
+`ai-debate`/PROTOCOL requirement, not something this planner performs.
 
 The output is a preflight decision, not proof of dispatch. Refresh runtime and
 budget immediately before external execution. Reserve the entire run's upper
