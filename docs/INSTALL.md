@@ -4056,13 +4056,22 @@ Claude 182/Codex 177, 공통 스킬 본문 176개·payload 617파일은 바이�
 명령은 각 0건이나 Gstack 외부 런타임은 각각 31·30스킬의
 `external_runtime_pending`으로 남는다.
 
-이 후보는 추적된 working-tree bytes의 snapshot이므로 커밋 연결은 별도
-확인해야 한다. 실제 Bot/Relay 발주, 모델/이미지 생성, 사용자 설치·과금
-검증은 수행하지 않았고 `installation_ready=false`다. 앞 절의 격리 호스트
-적재·롤백은 **이전 후보**의 증거이며, 이 보정 후보의 호스트 적재·복원은
-별도 검증 전까지 주장하지 않는다. Cloudflare 운영 자동 배포는 Simon이
-이번 `main` 머지에 한해 허용했지만, 정확한 HEAD CI·독립 수정 재검토·
-소스 전용 머지 결정은 여전히 필요하다.
+이 후보의 소스 420파일은 PR #63의 보정 당시 HEAD
+`c8245ef8a275eca19dc0fab73677a84a69f31472` Git archive와 전부
+SHA-256 일치한다. 해당 HEAD의 PR/branch CI 6개 검사와 Cloudflare Pages
+preview check도 success다. 서로 다른 네트워크·클립보드 차단 Sandbox 두 곳에서
+Claude Code 2.1.285는 플러그인 5개·182스킬·사용자 중복/디버그 오류 0,
+Codex CLI 0.159.0은 플러그인 5개 enabled를 확인했다. 두 호스트 모두
+이전 링크 5+2개를 두 번 복원하고 설치 플러그인을 0개로 철회했다.
+증거는 `E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-bot-gate-host-rehearsal/output/`
+의 `integrated-result.json`, `codex-integrated-result.json`에 보존했다.
+모델/이미지/Bot 실호출이나 실제 사용자 홈 변경은 없었다.
+
+이 격리 설치·복원은 Gstack 외부 런타임, 자동 스킬 선택·실효 effort·결과
+품질, 실제 사용자 홈 백업·복구, 구독 포함 과금을 입증하지 않는다.
+`installation_ready=false`와 `host_compatibility_verified=false`를 유지한다.
+Cloudflare 운영 자동 배포는 Simon이 이번 `main` 머지에 한해 허용했지만,
+독립 수정 재검토와 소스 전용 머지 결정 기록은 여전히 필요하다.
 
 ## One-shot 설치
 
