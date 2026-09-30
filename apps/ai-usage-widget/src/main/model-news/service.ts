@@ -7,6 +7,8 @@ import { anthropicNewsUrls, classifyAnnouncement, rssItems, xaiReleaseItems } fr
 import { MODEL_CATALOGS, parseCatalog } from './catalog';
 
 const CHECK_INTERVAL_MS = 6 * 60 * 60_000;
+/** One early re-check after a check with failed sources (only while the periodic timer runs). */
+export const RETRY_AFTER_FAILURE_MS = 15 * 60_000;
 const FETCH_TIMEOUT_MS = 12_000;
 const MAX_RESPONSE_CHARS = 1_000_000;
 const FEEDS = {
@@ -205,19 +207,30 @@ export async function createModelNewsService(options: ModelNewsOptions) {
       options.logger.warn('model news health listener failed', { error });
     }
     await save().catch((error: unknown) => options.logger.warn('model news save failed', { error }));
+    // A failure right after start-up (a slow network, 26.09.30) should not sit in the settings
+    // tab for the whole 6 h interval: look again soon, once.
+    if (failing.size > 0 && retryTimer === null && timer !== null) {
+      retryTimer = setTimeout(() => {
+        retryTimer = null;
+        void checkNow();
+      }, RETRY_AFTER_FAILURE_MS);
+    }
+  };
+
+  let retryTimer: ReturnType<typeof setTimeout> | null = null;
+  const checkNow = (): Promise<void> => {
+    running ??= check().finally(() => { running = null; });
+    return running;
   };
 
   return {
     start(): void {
       if (timer !== null || stopped) return;
       options.onChange(active());
-      void this.checkNow();
-      timer = setInterval(() => { void this.checkNow(); }, CHECK_INTERVAL_MS);
+      timer = setInterval(() => { void checkNow(); }, CHECK_INTERVAL_MS);
+      void checkNow();
     },
-    checkNow(): Promise<void> {
-      running ??= check().finally(() => { running = null; });
-      return running;
-    },
+    checkNow,
     async dismiss(provider: ProviderId): Promise<void> {
       const notice = active().find((item) => item.provider === provider);
       if (notice === undefined) return;
@@ -226,6 +239,12 @@ export async function createModelNewsService(options: ModelNewsOptions) {
     },
     current: active,
     health,
-    stop(): void { stopped = true; if (timer !== null) clearInterval(timer); timer = null; },
+    stop(): void {
+      stopped = true;
+      if (timer !== null) clearInterval(timer);
+      timer = null;
+      if (retryTimer !== null) clearTimeout(retryTimer);
+      retryTimer = null;
+    },
   };
 }
