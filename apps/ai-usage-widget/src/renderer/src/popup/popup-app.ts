@@ -275,7 +275,7 @@ export class PopupApp {
     for (const tab of POPUP_TABS) setText(this.tabs[tab], t(TAB_LABEL_KEYS[tab]));
     this.renderHeader();
 
-    this.usage.update(views, ctx);
+    this.usage.update(views, ctx, state.settings);
     this.accounts.update(state, ctx);
     this.settings.update(state.settings, ctx, state.effectivePlacementMode);
   }

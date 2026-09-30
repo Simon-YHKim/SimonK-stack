@@ -527,7 +527,15 @@ export function createAppController(deps: AppControllerDeps) {
     },
 
     updateSettings(patch: Partial<Settings>): Promise<Settings> {
-      return settingsQueue(() => applySettings(applySettingsPatch(settings, patch)));
+      return settingsQueue(() => {
+        if ('grokBotRecordedAt' in patch) throw new IpcHandlerError('invalid-request');
+        // A manual quota entry is timestamped by main, so the UI cannot present an old
+        // reading as a fresh automatic measurement. Other settings preserve its timestamp.
+        const next = 'grokBotUsedPercent' in patch
+          ? { ...patch, grokBotRecordedAt: patch.grokBotUsedPercent === null ? null : now() }
+          : patch;
+        return applySettings(applySettingsPatch(settings, next));
+      });
     },
 
     listAccounts: (): AccountDTO[] => store.getAccounts().map(dtoFor),

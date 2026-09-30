@@ -497,6 +497,20 @@ describe('app controller', () => {
     await until(() => h.windows.last()?.effectivePlacementMode === 'floating');
   });
 
+  it('timestamps a manually entered Grok Bot percentage in main and preserves it through other settings changes', async () => {
+    const h = await setup();
+    await h.controller.start();
+    const recorded = await h.controller.updateSettings({ grokBotUsedPercent: 68 });
+    expect(recorded.grokBotUsedPercent).toBe(68);
+    expect(recorded.grokBotRecordedAt).toBeTypeOf('number');
+    const changed = await h.controller.updateSettings({ language: 'en' });
+    expect(changed.grokBotRecordedAt).toBe(recorded.grokBotRecordedAt);
+    await expect(h.controller.updateSettings({ grokBotRecordedAt: 1 })).rejects.toMatchObject({ code: 'invalid-request' });
+    const saved = JSON.parse(await readFile(path.join(h.dir, 'settings.json'), 'utf8')) as Settings;
+    expect(saved.grokBotUsedPercent).toBe(68);
+    expect(saved.grokBotRecordedAt).toBe(recorded.grokBotRecordedAt);
+  });
+
   it('serializes settings updates so back-to-back changes all persist (RR-02)', async () => {
     const h = await setup({ autostartSupported: true });
     await h.controller.start();

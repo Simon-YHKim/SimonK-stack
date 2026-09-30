@@ -48,6 +48,10 @@ export interface Settings {
   openAtLogin: boolean;
   material: Material;
   language: Language;
+  /** Grok Bot's separate weekly meter, transcribed by the user from its official UI. */
+  grokBotUsedPercent: number | null;
+  /** Main-process time when the user recorded that meter; never an automatic reading. */
+  grokBotRecordedAt: number | null;
 }
 
 export const SETTING_KEYS = [
@@ -67,6 +71,8 @@ export const SETTING_KEYS = [
   'openAtLogin',
   'material',
   'language',
+  'grokBotUsedPercent',
+  'grokBotRecordedAt',
 ] as const satisfies readonly (keyof Settings)[];
 
 export const DEFAULT_SETTINGS: Readonly<Settings> = Object.freeze({
@@ -86,6 +92,8 @@ export const DEFAULT_SETTINGS: Readonly<Settings> = Object.freeze({
   openAtLogin: false,
   material: 'none',
   language: 'auto',
+  grokBotUsedPercent: null,
+  grokBotRecordedAt: null,
 });
 
 const isBoolean = (value: unknown): value is boolean => typeof value === 'boolean';
@@ -108,6 +116,8 @@ const SETTING_GUARDS: { readonly [K in keyof Settings]: (value: unknown) => valu
   openAtLogin: isBoolean,
   material: (v): v is Material => isOneOf(MATERIALS, v),
   language: (v): v is Language => isOneOf(LANGUAGES, v),
+  grokBotUsedPercent: (v): v is number | null => v === null || isIntInRange(v, 0, 100),
+  grokBotRecordedAt: (v): v is number | null => v === null || isIntInRange(v, 0, Number.MAX_SAFE_INTEGER),
 };
 
 export function isValidSettingValue<K extends keyof Settings>(key: K, value: unknown): value is Settings[K] {

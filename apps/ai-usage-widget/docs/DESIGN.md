@@ -117,6 +117,8 @@ v1 키(SPEC §1-2) 중 의미가 남은 것 + v2 추가. mock 관련 키는 없�
 | `openAtLogin` | **false** | bool | v1 기본 ON 동의 없음(V1-14) |
 | `material` | `none` | `none`,`mica`,`acrylic` | |
 | `language` | `auto` | `auto`,`ko`,`en` | `auto`: OS 로케일이 `ko*`면 ko, 아니면 en |
+| `grokBotUsedPercent` | null | null 또는 정수 0~100 | 별도 Grok Bot 주간 사용률의 수동 기록. xAI Grok CLI 값과 구분(26.09.30 결정) |
+| `grokBotRecordedAt` | null | null 또는 epoch ms | 사용자 기록 시 main이 채운다. 렌더러의 직접 변경은 거부 |
 
 - `parseSettingsPatch(input)`: 알 수 없는 키·잘못된 값이 하나라도 있으면 전체 거부. 빈 patch도 거부.
 - `normalizeSettings(raw)`: 디스크 값 로드용. 기본값에서 시작해 유효한 키만 덮는다. 절대 throw하지 않는다.

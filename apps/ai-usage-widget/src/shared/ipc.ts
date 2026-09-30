@@ -134,6 +134,7 @@ export const EXTERNAL_LINK_KEYS = [
   'codex-cli-install',
   'codex-usage',
   'grok-cli-install',
+  'grok-bot-usage',
   'antigravity-cli-install',
 ] as const;
 export type ExternalLinkKey = (typeof EXTERNAL_LINK_KEYS)[number];

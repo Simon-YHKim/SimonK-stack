@@ -101,6 +101,23 @@ describe('PopupApp shell', () => {
 });
 
 describe('Usage tab', () => {
+  it('records the separate Grok Bot weekly meter as manual data and opens the official account page', async () => {
+    const { root, api, app } = setup(appState());
+    const card = root.querySelector('.grok-bot-card') as HTMLElement;
+    expect(card.textContent).toContain('SuperGrok Heavy');
+    expect(card.textContent).toContain('does not update automatically');
+    expect(card.textContent).toContain('No usage entered');
+    app.usage.grokBot.input.value = '68';
+    app.usage.grokBot.saveButton.click();
+    await flush();
+    expect(api.callsTo('settings:update')).toContainEqual({ patch: { grokBotUsedPercent: 68 } });
+    app.update(appState({ settings: { grokBotUsedPercent: 68, grokBotRecordedAt: NOW } }));
+    expect(card.textContent).toContain('68% used');
+    expect(card.textContent).toContain('32% left');
+    (root.querySelector('.grok-bot-open') as HTMLButtonElement).click();
+    expect(api.callsTo('shell:open-external')).toContainEqual({ kind: 'link', key: 'grok-bot-usage' });
+  });
+
   it('offers one Codex reset only for a fresh measured count and routes use through main', async () => {
     const api = new FakeApi().reply('usage:redeem-reset-credit', () => ({ ok: true, value: 'cancelled' }));
     const state = appState({ accounts: [account({ id: 'a1', provider: 'codex' })],

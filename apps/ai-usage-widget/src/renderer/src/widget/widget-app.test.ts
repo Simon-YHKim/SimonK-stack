@@ -45,6 +45,16 @@ describe('WidgetApp', () => {
     expect(api.callsTo('window:show-popup')).toEqual([{ tab: 'accounts' }]);
   });
 
+  it('shows a separately labelled manual Grok Bot balance and opens its usage card', () => {
+    const { api, app } = setup(appState({ settings: { grokBotUsedPercent: 68, grokBotRecordedAt: NOW } }));
+    const item = app.main.querySelector('.grok-bot-item') as HTMLElement;
+    expect(item.textContent).toContain('32% left');
+    expect(item.textContent).toContain('Manual entry');
+    expect(app.refreshButton.hidden).toBe(true);
+    app.main.click();
+    expect(api.callsTo('window:show-popup')).toEqual([{ tab: 'usage' }]);
+  });
+
   it('clicking the bar toggles the popup with a 300ms debounce', () => {
     const { api, app } = setup(withAccounts());
     app.main.click();

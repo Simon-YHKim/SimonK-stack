@@ -16,6 +16,8 @@ import {
 } from '../model';
 import { syncChildren } from './keyed';
 import type { Api } from '../api';
+import type { Settings } from '../../../shared/settings';
+import { GrokBotCard } from './grok-bot-card';
 
 function quotaBox(view: AccountView, row: RowView, index: number, ctx: RenderContext): HTMLElement {
   const { t, settings } = ctx;
@@ -96,28 +98,24 @@ export function cardContent(view: AccountView, ctx: RenderContext): HTMLElement[
 
 export class UsageTab {
   readonly el: HTMLElement;
-  private readonly emptyEl: HTMLElement;
   private readonly listEl: HTMLElement;
   private readonly cards = new Map<string, HTMLElement>();
   private readonly pending = new Set<string>();
   private latestViews: readonly AccountView[] = [];
   private latestContext: RenderContext | null = null;
+  readonly grokBot: GrokBotCard;
 
   constructor(private readonly deps: { api: Api; report(message: string): void }) {
-    this.emptyEl = h('div', { class: 'usage-empty', hidden: true });
+    this.grokBot = new GrokBotCard(deps);
     this.listEl = h('div', { class: 'usage-list' });
-    this.el = h('div', { class: 'usage-tab' }, [this.emptyEl, this.listEl]);
+    this.el = h('div', { class: 'usage-tab' }, [this.listEl]);
   }
 
-  update(views: readonly AccountView[], ctx: RenderContext): void {
+  update(views: readonly AccountView[], ctx: RenderContext, settings: Settings = ctx.settings): void {
     this.latestViews = views;
     this.latestContext = ctx;
     const { t } = ctx;
-    this.emptyEl.hidden = views.length > 0;
-    this.emptyEl.replaceChildren(
-      h('p', {}, [t('noActiveAccounts')]),
-      h('p', { class: 'muted' }, [t('addAccountHint')]),
-    );
+    this.grokBot.update(settings, ctx);
     const seen = new Set<string>();
     const cards = views.map((view) => {
       seen.add(view.account.id);
@@ -152,7 +150,7 @@ export class UsageTab {
       return card;
     });
     for (const id of [...this.cards.keys()]) if (!seen.has(id)) this.cards.delete(id);
-    syncChildren(this.listEl, cards);
+    syncChildren(this.listEl, [this.grokBot.el, ...cards]);
   }
 
   private redeem(accountId: string, button: HTMLButtonElement): void {
@@ -170,7 +168,7 @@ export class UsageTab {
       this.deps.report(t(key[result.value]));
     }).catch(() => this.deps.report(this.latestContext?.t('resetCreditUnavailable') ?? '')).finally(() => {
       this.pending.delete(accountId);
-      if (this.latestContext !== null) this.update(this.latestViews, this.latestContext);
+      if (this.latestContext !== null) this.update(this.latestViews, this.latestContext, this.latestContext.settings);
     });
   }
 }

@@ -50,6 +50,14 @@ describe('settings', () => {
     expect(parsed).toEqual({ ok: true, value: { refreshIntervalSec: 120, material: 'mica' } });
   });
 
+  it('accepts only whole manual Grok Bot percentages in range', () => {
+    expect(parseSettingsPatch({ grokBotUsedPercent: 0 }).ok).toBe(true);
+    expect(parseSettingsPatch({ grokBotUsedPercent: 100 }).ok).toBe(true);
+    expect(parseSettingsPatch({ grokBotUsedPercent: 33.5 }).ok).toBe(false);
+    expect(parseSettingsPatch({ grokBotUsedPercent: -1 }).ok).toBe(false);
+    expect(parseSettingsPatch({ grokBotUsedPercent: 101 }).ok).toBe(false);
+  });
+
   it('parseSettingsPatch rejects NaN interval, unknown keys, empty and out-of-range values (V1-20)', () => {
     expect(parseSettingsPatch({ refreshIntervalSec: Number.NaN }).ok).toBe(false);
     expect(parseSettingsPatch({ refreshIntervalSec: 45 }).ok).toBe(false);

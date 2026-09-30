@@ -17,6 +17,7 @@ export const EXTERNAL_LINKS: Readonly<Partial<Record<ExternalLinkKey, string>>> 
   'codex-cli-install': 'https://developers.openai.com/codex/cli',
   'codex-usage': 'https://chatgpt.com/codex/settings/usage',
   'grok-cli-install': 'https://docs.x.ai/build/overview',
+  'grok-bot-usage': 'https://cursor.com/dashboard',
   'antigravity-cli-install': 'https://antigravity.google/docs/getting-started?tab=cli',
 });
 
@@ -26,5 +27,6 @@ export const EXTERNAL_LINK_HOSTS: Readonly<Record<ExternalLinkKey, readonly stri
   'codex-cli-install': ['developers.openai.com'],
   'codex-usage': ['chatgpt.com'],
   'grok-cli-install': ['docs.x.ai'],
+  'grok-bot-usage': ['cursor.com'],
   'antigravity-cli-install': ['antigravity.google'],
 });

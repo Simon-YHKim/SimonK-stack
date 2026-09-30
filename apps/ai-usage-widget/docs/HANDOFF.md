@@ -2,6 +2,12 @@
 > prepend 전용 로그. 새 블록을 맨 위에 얹고 직전 `## Latest`는 날짜 헤더로 강등한다. 덮어쓰지 않는다.
 
 ## Latest
+- **목적**: Grok Bot의 SuperGrok Heavy 주간 사용량을 AI Usage Widget에서 확인
+- **최종 갱신**: 26.09.30 15:37 KST · Codex
+- **지금까지**: 사용자의 직접 요청으로 Grok Bot 주간 미터를 별도 카드로 추가했다. 공식 앱에서 수동 입력한 사용률과 남음을 작업표시줄에 표시하고 출처·기록 시각·24시간 오래됨·7일 만료를 표시한다. Grok Build CLI 사용량과 섞지 않는다. 사용법은 `docs/GROK-BOT.md`.
+- **다음 1개**: 개인 계정용 공식 주간 사용량 인터페이스가 나오면 수동 입력을 자동 조회로 교체한다.
+
+## 26.09.20 17:16 KST
 - **목적**: v1 위젯을 소스 프로젝트로 재구성. 위젯 새로고침 버튼, Grok 구독 한도, 공식 CLI 로그인 위임 기반 다중 계정, Windows 테마, v1 문제 전부 해결
 - **최종 갱신**: 26.09.20 17:16 KST · Claude Code(E:\Coding Infra 세션)
 - **지금까지**: 사용자 T8 전 항목 OK·결정 4건 확정. **설치 완료**(`%LOCALAPPDATA%\Programs\ai-usage-widget`, 자동 시작 경로 자동 교정), **v1 정리 완료**(Run 값 제거, 폴더·userData 휴지통). 원인 규명 2건: Codex 2번째 `login-failed` = 로그인 완료 직후 account/read가 옛 상태(재조회 + 성공 신뢰, 정황 근거), agy 1회 실패 = 규명 불가(진단 로그 보강). **리포 통합**: 이 폴더는 이제 공개 리포 SimonK-stack의 `apps/ai-usage-widget/`이고 설치는 `skills-src/ai-usage-widget-install`이 한다. `pnpm verify` 0(577테스트), 스택 CI 게이트 PASS
