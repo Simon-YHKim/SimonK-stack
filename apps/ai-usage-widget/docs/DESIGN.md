@@ -207,7 +207,7 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 | `run(cmd, args, {env, cwd?, timeoutMs, signal?, stdin?, maxOutputBytes?})` | `shell:false`, `windowsHide:true`. 종료·타임아웃·중단 시 resolve, 실행 실패만 `SpawnError('cli-not-found'|'spawn-failed'|'invalid-command')`로 reject. `.cmd/.bat/.ps1`·상대 경로·NUL 인수 거부. stdin EPIPE 무시(V1-19) |
 | `spawnLongLived(cmd, args, opts)` | spawn 이벤트 후 핸들 반환: `writeLine/writeJson`, `onStdoutLine/onStderrLine`(UTF-8 안전 줄 분할, 1MiB 상한), `closeStdin`, `exited`(reject 안 함), `kill()`. `timeoutMs`는 전체 수명 상한 |
 | `killProcessTree(pid)` | Windows `%SystemRoot%\System32\taskkill.exe /PID n /T /F`(spawn 헬퍼 자체 경유), 실패 시 `process.kill` |
-| `resolveCommand(nameOrPath)` | PATH+PATHEXT 탐색(`where` 미사용). `.exe` 직접, npm `.cmd` shim은 파싱해 `node.exe + <shim폴더 내부 JS 엔트리>`(shim 옆 node.exe 우선), `.ps1`/폴더 밖 엔트리는 `unsupported-shim` |
+| `resolveCommand(nameOrPath)` | PATH+PATHEXT 탐색(`where` 미사용). `.exe` 직접, npm `.cmd` shim은 파싱해 `node.exe + <shim폴더 내부 JS 엔트리>`(shim 옆 node.exe 우선). 버전 관리자가 만든 단순 `call "<절대경로 cmd/bat/exe>" %*` 연결은 최대 4단계만 따라간다(순환·추가 명령·환경변수 확장 거부). `.ps1`/폴더 밖 JS 엔트리는 `unsupported-shim` |
 | `createJsonRpcClient(transport, {dialect, defaultTimeoutMs})` | `dialect:'codex'`는 `"jsonrpc"` 필드 생략, `'jsonrpc2'`는 포함. id 매칭, 요청별 타임아웃·AbortSignal, 알림 구독, 서버→클라이언트 요청 핸들러(미등록은 -32601), 전송 종료 시 대기 요청 전부 reject. JSON이 아닌 줄은 무시 |
 | `stripAnsi`, `createLineSplitter` | CSI·OSC 8 제거(Claude 출력), CRLF·UTF-8 경계 처리 |
 
@@ -255,7 +255,7 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 ### 7-2. Codex (`providers/codex`) — DECISIONS 02:23
 | 단계 | 방법 |
 |---|---|
-| CLI 탐지 | `resolveCommand('codex')` → npm shim이면 `node.exe + …\@openai\codex\bin\codex.js`. `--version` |
+| CLI 탐지 | `resolveCommand('codex')` → npm shim이면 `node.exe + …\@openai\codex\bin\codex.js`; 버전 변경 후 PATH shim이 다른 Codex 설치 폴더의 `.cmd`로 전달하면 그 대상을 다시 해석. `--version` |
 | 폴더 | `CODEX_HOME` 폴더를 **spawn 전에 생성**(keyring 키가 canonicalize 경로 해시라서, RESEARCH 3-2) |
 | env | set `CODEX_HOME=<profileDir>`, remove `OPENAI_API_KEY` `CODEX_API_KEY` 계열 |
 | 연결 | `spawnLongLived(codex, ['app-server'])` + `createJsonRpcClient(dialect:'codex')` → `initialize {clientInfo:{name:'ai-usage-widget', version}}`(`experimentalApi` 없음) → 응답의 `codexHome`이 `profileDir`와 같은지 검증(다르면 `protocol-error`로 중단) → `initialized` 알림. 제한 init 30초 / rpc 10초 |
