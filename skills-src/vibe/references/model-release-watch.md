@@ -61,9 +61,12 @@ Across at least 24 hours, inspect public user reports (X when publicly
 accessible, otherwise accessible public forums such as Reddit or Hacker News).
 The daily pending scan also searches public Reddit Atom posts for the exact
 candidate model name and stores matching post links as **unreviewed captures**.
-Hyphen and space spellings such as `GPT-4o-mini` / `GPT-4o mini` are treated as
-the same model, while base-model posts do not count for a mini variant. Reviewed
-post URLs stay deduplicated through subsequent scans even after capture pruning.
+Hyphen and space spellings such as `GPT-4o-mini` / `GPT-4o mini`, optional
+`GPT` separators and the optional `Claude` family prefix are treated as the
+same model, while base-model posts do not count for a mini variant. Reviewed
+post URLs stay deduplicated through subsequent scans even after capture pruning;
+schema-v1 default-port and trailing-dot URL aliases do not become separate
+observations for the 24-hour review gate.
 It does not read them as a verdict or auto-grade sentiment. Inspect the post
 before calling `add-feedback --key K --url URL --sentiment LABEL`; for a captured
 post the first observation timestamp is retained, while an uncaptured public

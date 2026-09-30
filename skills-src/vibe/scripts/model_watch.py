@@ -167,8 +167,20 @@ def feedback_query(item: dict) -> str | None:
 
 
 def model_label(value: str) -> str:
-    """Treat separator spellings alike without conflating model variants."""
-    return re.sub(r"[-\s]+", "-", value.casefold())
+    """Normalize accepted aliases without conflating model variants."""
+    label = re.sub(r"[-\s]+", "-", value.casefold())
+    label = re.sub(r"^claude-(?=(?:sonnet|opus|haiku|fable|mythos)-)", "", label)
+    return re.sub(r"^gpt-(?=\d)", "gpt", label)
+
+
+def feedback_identity(url: str) -> str:
+    """Compare current and schema-v1 URLs without rewriting stored evidence."""
+    parsed = urllib.parse.urlsplit(url)
+    hostname = (parsed.hostname or "").rstrip(".")
+    if (parsed.scheme != "https" or not hostname or parsed.username or parsed.password
+            or parsed.port not in (None, 443)):
+        raise ValueError("invalid stored feedback URL")
+    return urllib.parse.urlunsplit(("https", hostname, parsed.path, parsed.query, ""))
 
 
 def extract_public_feedback(feed: str, item: dict) -> list[dict]:
@@ -291,7 +303,7 @@ def scan_state(state: dict, fetch, now: datetime, force: bool = False,
                 continue
             captures = item.setdefault("captures", [])
             existing = ({post["url"] for post in captures}
-                        | {post["url"] for post in item.get("feedback", [])})
+                        | {feedback_identity(post["url"]) for post in item.get("feedback", [])})
             for post in posts:
                 if post["url"] not in existing:
                     captures.append({**post, "observed_at": iso(now), "reviewed": False})
@@ -344,8 +356,8 @@ def add_feedback(state: dict, key: str, now: datetime, url: str, sentiment: str)
         raise ValueError("public HTTPS feedback URL without credentials required")
     if sentiment not in {"positive", "mixed", "negative"}:
         raise ValueError("invalid sentiment label")
-    canonical = urllib.parse.urlunsplit(("https", hostname, parsed.path, parsed.query, ""))
-    if any(entry["url"] == canonical for entry in item["feedback"]):
+    canonical = feedback_identity(url)
+    if any(feedback_identity(entry["url"]) == canonical for entry in item["feedback"]):
         raise ValueError("duplicate feedback URL")
     capture = next((entry for entry in item.get("captures", []) if entry["url"] == canonical), None)
     observed_at = capture["observed_at"] if capture else iso(now)
@@ -358,7 +370,13 @@ def add_feedback(state: dict, key: str, now: datetime, url: str, sentiment: str)
 def candidate_status(item: dict, now: datetime) -> str:
     if item["status"] != "released":
         return "waiting_official_review"
-    observations = [parse_time(entry["observed_at"]) for entry in item["feedback"]]
+    observations_by_url: dict[str, datetime] = {}
+    for entry in item["feedback"]:
+        url = feedback_identity(entry["url"])
+        observed_at = parse_time(entry["observed_at"])
+        if url not in observations_by_url or observed_at < observations_by_url[url]:
+            observations_by_url[url] = observed_at
+    observations = list(observations_by_url.values())
     release = parse_time(item["release_verified_at"])
     if (now - release < timedelta(hours=24) or len(observations) < 2
             or max(observations) - min(observations) < timedelta(hours=20)):

@@ -143,6 +143,14 @@ class ModelWatchTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             model_watch.add_feedback(state, key, now + timedelta(hours=1),
                                      "https://x.com/example/status/1", "negative")
+        first_feedback = copy.deepcopy(state["candidates"][key]["feedback"][0])
+        for legacy_url in ("https://x.com:443/example/status/1",
+                           "https://x.com.:443/example/status/1"):
+            state["candidates"][key]["feedback"] = [{**first_feedback, "url": legacy_url}]
+            with self.subTest(legacy_url=legacy_url), self.assertRaises(ValueError):
+                model_watch.add_feedback(state, key, now + timedelta(hours=23),
+                                         "https://x.com/example/status/1", "negative")
+            self.assertEqual(len(state["candidates"][key]["feedback"]), 1)
         with self.assertRaises(ValueError):
             model_watch.add_feedback(state, key, now + timedelta(hours=1),
                                      "https://127.0.0.1/internal", "positive")
@@ -220,6 +228,36 @@ class ModelWatchTests(unittest.TestCase):
                     [post["title"] for post in model_watch.extract_public_feedback(feed, item)],
                     [f"{base}-{suffix} impressions"])
 
+    def test_model_aliases_match_without_admitting_other_variants(self):
+        for candidate, alias, unrelated in (
+                ("Sonnet 5.5", "Claude Sonnet 5.5", "Claude Sonnet 5.6"),
+                ("Claude Opus 5.5", "Opus 5.5", "Opus 5.6"),
+                ("GPT4o", "GPT-4o", "GPT-4o mini"),
+                ("GPT-4o mini", "GPT4o mini", "GPT-4o")):
+            with self.subTest(candidate=candidate, alias=alias):
+                item = {"title": f"Introducing {candidate}",
+                        "release_verified_at": model_watch.iso(FRIDAY)}
+                feed = ('<feed xmlns="http://www.w3.org/2005/Atom">'
+                        f'<entry><title>{unrelated} impressions</title>'
+                        '<link href="https://www.reddit.com/r/AI/comments/other" />'
+                        '<published>2026-10-02T01:00:00+00:00</published></entry>'
+                        f'<entry><title>{alias} impressions</title>'
+                        '<link href="https://www.reddit.com/r/AI/comments/alias" />'
+                        '<published>2026-10-02T01:00:00+00:00</published></entry></feed>')
+                self.assertEqual(
+                    [post["title"] for post in model_watch.extract_public_feedback(feed, item)],
+                    [f"{alias} impressions"])
+
+    def test_legacy_duplicate_feedback_urls_do_not_satisfy_review_gate(self):
+        item = {"status": "released", "release_verified_at": model_watch.iso(FRIDAY),
+                "feedback": [
+                    {"url": "https://x.com:443/u/status/1",
+                     "observed_at": model_watch.iso(FRIDAY + timedelta(hours=1))},
+                    {"url": "https://x.com./u/status/1",
+                     "observed_at": model_watch.iso(FRIDAY + timedelta(hours=23))}]}
+        self.assertEqual(model_watch.candidate_status(item, FRIDAY + timedelta(hours=25)),
+                         "monitoring")
+
     def test_public_feedback_feed_is_captured_but_not_auto_graded(self):
         state, _ = model_watch.scan_state({}, self.fetch, FRIDAY)
         self.pages["xai"] += '<a href="/news/grok-4-8">Grok 4.8</a>'
@@ -250,6 +288,7 @@ class ModelWatchTests(unittest.TestCase):
         model_watch.add_feedback(state, key, first + timedelta(hours=2),
                                  "https://www.reddit.com/r/grok/comments/post1", "mixed")
         self.assertEqual(item["feedback"][0]["observed_at"], model_watch.iso(first))
+        item["feedback"][0]["url"] = "https://www.reddit.com:443/r/grok/comments/post1"
         state, next_report = model_watch.scan_state(state, self.fetch,
                                                      first + timedelta(hours=3),
                                                      feedback_fetch=public_feed)
