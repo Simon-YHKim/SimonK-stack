@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_SETTINGS } from '../../shared/settings';
 import {
+  computeModelBubbleBounds,
   computePopupBounds,
   computeWidgetBounds,
   detectTaskbar,
@@ -21,6 +22,16 @@ const base: PlacementSettings = {
   offsetPx: DEFAULT_SETTINGS.offsetPx,
   verticalOffsetPx: 0,
 };
+
+describe('computeModelBubbleBounds', () => {
+  it('anchors over the icon and stays inside the display', () => {
+    expect(computeModelBubbleBounds({ x: 300, y: 1395, width: 240, height: 40 }, { x: 20, y: 10, width: 18, height: 18 }, PRIMARY.bounds))
+      .toEqual({ x: 197, y: 1315, width: 264, height: 74 });
+    const top = computeModelBubbleBounds({ x: 0, y: 0, width: 240, height: 40 }, { x: 4, y: 10, width: 18, height: 18 }, PRIMARY.bounds);
+    expect(top.x).toBe(0);
+    expect(top.y).toBe(46);
+  });
+});
 
 describe('detectTaskbar', () => {
   it('reads the reserved edge from bounds vs work area', () => {

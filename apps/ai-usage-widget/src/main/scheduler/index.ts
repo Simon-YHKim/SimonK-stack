@@ -22,9 +22,10 @@ export const SOURCE_BY_PROVIDER: Readonly<Record<ProviderId, UsageSource>> = {
 
 /**
  * Backstop for one slot (identity + usage). At least the sum of adapter budgets:
- * codex identity session 50 s + usage session 60 s; each adapter still enforces its own limits.
+ * codex identity session 50 s + usage session 70 s (rateLimits/read has 20 s, 26.09.30);
+ * each adapter still enforces its own limits.
  */
-export const DEFAULT_FETCH_TIMEOUT_MS = 120_000;
+export const DEFAULT_FETCH_TIMEOUT_MS = 130_000;
 export const MANUAL_MIN_INTERVAL_MS = 5_000;
 export const RESUME_DELAY_MS = 3_000;
 export const BATTERY_INTERVAL_MULTIPLIER = 2;

@@ -10,8 +10,11 @@ export type AgyUsageParse =
   | { kind: 'ok'; windows: QuotaWindow[] }
   /** Valid JSON that is not a zero-turn `/usage` command result: the slash command was not expanded. */
   | { kind: 'not-usage-command' }
-  /** The CLI answered but reported a failure status. `reason` is the CLI's own short text, for masked logging only. */
-  | { kind: 'failed'; status: string; reason?: string }
+  /**
+   * The CLI answered but reported a failure status. `reason` is the CLI's own short text, for masked
+   * logging only; `reasonField` names the JSON key it came from so the real failure shape can be pinned.
+   */
+  | { kind: 'failed'; status: string; reason?: string; reasonField?: string }
   | { kind: 'malformed' };
 
 const WINDOW_MINUTES: Readonly<Record<string, number>> = {
@@ -71,13 +74,15 @@ export function parseAgyUsage(stdout: string): AgyUsageParse {
   }
   if (!isRecord(root)) return { kind: 'malformed' };
   if (typeof root.status === 'string' && root.status !== 'SUCCESS') {
-    const failed: { kind: 'failed'; status: string; reason?: string } = { kind: 'failed', status: root.status.slice(0, 40) };
-    // Field name unknown (no failure has been captured yet): take the first short text the CLI offers.
+    const failed: { kind: 'failed'; status: string; reason?: string; reasonField?: string } = { kind: 'failed', status: root.status.slice(0, 40) };
+    // Seen 7 times (26.09.20–26): status "ERROR" with "/usage failed: … UNKNOWN (code 500) …". Which key
+    // carried that text was not recorded, so take the first short text and report the key with it.
     for (const key of ['error', 'message', 'response']) {
       const field = root[key];
       const value = isRecord(field) ? field.message : field;
       if (typeof value === 'string' && value.trim() !== '') {
         failed.reason = value.replace(/\s+/g, ' ').trim().slice(0, 160);
+        failed.reasonField = isRecord(field) ? `${key}.message` : key;
         break;
       }
     }

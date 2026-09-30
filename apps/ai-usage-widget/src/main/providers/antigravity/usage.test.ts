@@ -64,6 +64,13 @@ describe('parseAgyUsage', () => {
 
   it('reports a non-success status as failed and bad shapes as malformed', () => {
     expect(parseAgyUsage(JSON.stringify({ status: 'ERROR' }))).toEqual({ kind: 'failed', status: 'ERROR' });
+    expect(parseAgyUsage(JSON.stringify({ status: 'ERROR', error: { message: 'boom  now' } }))).toEqual({
+      kind: 'failed',
+      status: 'ERROR',
+      reason: 'boom now',
+      reasonField: 'error.message',
+    });
+    expect(parseAgyUsage(JSON.stringify({ status: 'ERROR', response: 'x (code 500)' }))).toMatchObject({ reasonField: 'response' });
     expect(parseAgyUsage('<<not json>>')).toEqual({ kind: 'malformed' });
     expect(parseAgyUsage('[]')).toEqual({ kind: 'malformed' });
     expect(parseAgyUsage(JSON.stringify({ status: 'SUCCESS', num_turns: 0, command: { name: 'usage', data: { groups: 'x' } } }))).toEqual({

@@ -7,7 +7,7 @@ import path from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 import type { Account, LoginEvent } from '../../../shared/types';
 import type { ResolveResult } from '../../cli/resolve';
-import { nullLogger } from '../../log';
+import { createLogger, nullLogger, type Logger } from '../../log';
 import { profileDirFor } from '../../paths';
 import type { ProviderDeps } from '../types';
 import { createCodexAdapter, type CodexAdapterOptions } from './index';
@@ -115,6 +115,7 @@ const NOW = 1_800_000_000_000;
 const TIMEOUTS: NonNullable<CodexAdapterOptions['timeouts']> = {
   initMs: 10_000,
   rpcMs: 5_000,
+  rateLimitsMs: 5_000,
   loginStartMs: 5_000,
   loginMs: 10_000,
   loginCancelMs: 2_000,
@@ -127,12 +128,12 @@ const TEST_TIMEOUT = 30_000;
 
 let counter = 0;
 
-function setup(options: CodexAdapterOptions = {}) {
+function setup(options: CodexAdapterOptions = {}, logger: Logger = nullLogger) {
   counter += 1;
   const caseRoot = path.join(root, `case${counter}`);
   const profilesRoot = path.join(caseRoot, 'profiles');
   const deps: ProviderDeps = {
-    logger: nullLogger,
+    logger,
     now: () => NOW,
     appVersion: '2.0.0-test',
     localDataRoot: caseRoot,
@@ -260,6 +261,7 @@ describe('codex adapter: fetchUsage', () => {
         lastSuccessAt: NOW,
         source: 'codex-app-server',
         plan: 'pro',
+        resetCreditsAvailable: 0,
       });
 
       const messages = received(account.profileDir);
@@ -346,13 +348,36 @@ describe('codex adapter: fetchUsage', () => {
   it(
     'maps rpc and initialize timeouts to error/timeout',
     async () => {
-      const rpc = setup({ timeouts: { rpcMs: 300 } });
+      const rpc = setup({ timeouts: { rpcMs: 300, rateLimitsMs: 300 } });
       writeScenario(rpc.account, { responses: { 'account/read': ACCOUNT_PRO, 'account/rateLimits/read': { hang: true } } });
       expect(await rpc.adapter.fetchUsage(rpc.account, signal())).toMatchObject({ state: 'error', errorCode: 'timeout' });
 
       const init = setup({ timeouts: { initMs: 300 } });
       writeScenario(init.account, { responses: { initialize: { hang: true } } });
       expect(await init.adapter.fetchUsage(init.account, signal())).toMatchObject({ state: 'error', errorCode: 'timeout' });
+    },
+    TEST_TIMEOUT,
+  );
+
+  it(
+    'gives rateLimits/read its own longer limit and logs the phase and elapsed time of a failure',
+    async () => {
+      // Slower than the plain rpc limit but inside the rateLimits one: still a reading. The margins
+      // leave account/read (answered at once) a full second even on a loaded machine.
+      const slow = setup({ timeouts: { rpcMs: 1_000, rateLimitsMs: 5_000 } });
+      writeScenario(slow.account, {
+        responses: { 'account/read': ACCOUNT_PRO, 'account/rateLimits/read': { ...RATE_LIMITS, delayMs: 1_800 } },
+      });
+      expect(await slow.adapter.fetchUsage(slow.account, signal())).toMatchObject({ state: 'ok' });
+
+      const lines: string[] = [];
+      const logger = createLogger({ sinks: [{ write: (line) => lines.push(line) }], minLevel: 'debug', scope: 'test' });
+      const hung = setup({ timeouts: { rpcMs: 2_000, rateLimitsMs: 300 } }, logger);
+      writeScenario(hung.account, { responses: { 'account/read': ACCOUNT_PRO, 'account/rateLimits/read': { hang: true } } });
+      expect(await hung.adapter.fetchUsage(hung.account, signal())).toMatchObject({ state: 'error', errorCode: 'timeout' });
+      const warn = lines.find((line) => line.includes('codex usage read failed')) ?? '';
+      expect(warn).toContain('"phase":"rateLimits"');
+      expect(warn).toMatch(/"elapsedMs":\d+/);
     },
     TEST_TIMEOUT,
   );
@@ -457,6 +482,76 @@ describe('codex adapter: fetchUsage', () => {
     expect(existsSync(foreign.profileDir)).toBe(false);
     await expect(adapter.ensureProfileDir({ ...account, provider: 'grok' })).rejects.toMatchObject({ code: 'internal' });
   });
+});
+
+describe('codex adapter: banked resets', () => {
+  const detailed = (accountId: string) => ({ result: {
+    ...RATE_LIMITS.result,
+    accountId,
+    rateLimitResetCredits: { availableCount: 1, credits: [
+      { id: 'reset-1', resetType: 'codexRateLimits', status: 'available', expiresAt: 1_800_100_000 },
+    ] },
+  } });
+
+  it('shows the count but keeps the consuming method out of background reads', async () => {
+    const { account, adapter } = setup();
+    writeScenario(account, { responses: { 'account/read': ACCOUNT_PRO, 'account/rateLimits/read': detailed('backend-1') } });
+    expect((await adapter.fetchUsage(account, signal())).resetCreditsAvailable).toBe(1);
+    expect(received(account.profileDir).find((entry) => entry.method === 'account/rateLimits/read')?.params)
+      .toEqual({ excludeResetCreditDetails: true });
+    expect(received(account.profileDir).map((entry) => entry.method)).not.toContain('account/rateLimitResetCredit/consume');
+  }, TEST_TIMEOUT);
+
+  it('never consumes when native confirmation is declined', async () => {
+    const { account, adapter } = setup();
+    writeScenario(account, { responses: { 'account/read': ACCOUNT_PRO, 'account/rateLimits/read': detailed('backend-1') } });
+    const seen: Array<{ availableCount: number; expiresAt: number | null }> = [];
+    const result = await adapter.redeemResetCredit!(account, (offer) => { seen.push(offer); return Promise.resolve(false); }, signal());
+    expect(result).toBe('cancelled');
+    expect(seen).toEqual([{ availableCount: 1, expiresAt: 1_800_100_000_000 }]);
+    expect(received(account.profileDir).map((entry) => entry.method)).not.toContain('account/rateLimitResetCredit/consume');
+  }, TEST_TIMEOUT);
+
+  it('does not open a second app-server for periodic usage while confirmation is pending', async () => {
+    const { account, adapter } = setup();
+    writeScenario(account, { responses: { 'account/read': ACCOUNT_PRO, 'account/rateLimits/read': detailed('backend-1') } });
+    let entered!: () => void;
+    const pending = new Promise<void>((resolve) => { entered = resolve; });
+    let decline!: () => void;
+    const answer = new Promise<boolean>((resolve) => { decline = () => resolve(false); });
+    const redeem = adapter.redeemResetCredit!(account, () => { entered(); return answer; }, signal());
+    await pending;
+    expect((await adapter.fetchUsage(account, signal())).errorCode).toBe('cancelled');
+    expect(readLog(account.profileDir).filter((entry) => entry.kind === 'start')).toHaveLength(1);
+    decline();
+    expect(await redeem).toBe('cancelled');
+  }, TEST_TIMEOUT);
+
+  it('blocks use if the backend account changes before consumption', async () => {
+    const { account, adapter } = setup();
+    writeScenario(account, { responses: { 'account/read': ACCOUNT_PRO,
+      'account/rateLimits/read': { sequence: [detailed('backend-1'), detailed('backend-2')] },
+      'account/rateLimitResetCredit/consume': { result: { outcome: 'reset' } },
+    } });
+    expect(await adapter.redeemResetCredit!(account, () => Promise.resolve(true), signal())).toBe('unavailable');
+    expect(received(account.profileDir).map((entry) => entry.method)).not.toContain('account/rateLimitResetCredit/consume');
+  }, TEST_TIMEOUT);
+
+  it('consumes exactly one selected credit after confirmation and a matching re-read', async () => {
+    const { account, adapter } = setup();
+    writeScenario(account, { responses: { 'account/read': ACCOUNT_PRO,
+      'account/rateLimits/read': detailed('backend-1'),
+      'account/rateLimitResetCredit/consume': { result: { outcome: 'reset' } },
+    } });
+    expect(await adapter.redeemResetCredit!(account, () => Promise.resolve(true), signal())).toBe('reset');
+    const calls = received(account.profileDir);
+    expect(calls.filter((entry) => entry.method === 'account/rateLimits/read')).toHaveLength(2);
+    const consume = calls.filter((entry) => entry.method === 'account/rateLimitResetCredit/consume');
+    expect(consume).toHaveLength(1);
+    expect(consume[0]?.params).toMatchObject({ creditId: 'reset-1' });
+    const params = consume[0]?.params as { idempotencyKey?: unknown } | undefined;
+    expect(params?.idempotencyKey).toMatch(/^[0-9a-f-]{36}$/);
+  }, TEST_TIMEOUT);
 });
 
 describe('codex adapter: identity and profile', () => {

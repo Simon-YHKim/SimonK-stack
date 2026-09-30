@@ -8,8 +8,11 @@ import {
   type OpenExternalRequest,
   type PlacementPreview,
   type RendererReadyRequest,
+  type ResetCreditResult,
   type ResizeWidgetRequest,
+  type ShowPaceBubbleRequest,
 } from '../../shared/ipc';
+import { GROK_BOT_MAX_RESET_AHEAD_MS } from '../../shared/grok-bot';
 import { applySettingsPatch, type Material, type PlacementMode, type Settings } from '../../shared/settings';
 import {
   PROVIDER_IDS,
@@ -24,6 +27,8 @@ import {
   type ErrorCode,
   type Locale,
   type LoginState,
+  type ModelNewsHealth,
+  type ModelNotice,
   type PopupTab,
   type ProviderId,
   type RefreshStatus,
@@ -50,6 +55,36 @@ export const REDETECT_MIN_INTERVAL_MS = 30_000;
 export const IDENTITY_MAX_AGE_MS = 30 * 60_000;
 export const STALE_CHECK_INTERVAL_MS = 30_000;
 
+/** Failures that normally clear on the next refresh (DECISIONS 26.09.30 16:50, commit 1d70eba). */
+export const TRANSIENT_ERROR_CODES: ReadonlySet<ErrorCode> = new Set<ErrorCode>(['timeout', 'network', 'provider-error', 'rate-limited']);
+
+/**
+ * Transient failures while the last good reading is still fresh keep that reading untouched instead
+ * of flipping the account to an error (26.09.28: 34 one-off Codex timeouts, each fine 30–60 s later,
+ * each shown as a dimmed ⚠ card). Every such failure inside the freshness window is ridden out, not
+ * only the first. Nothing new is claimed: the values, measuredAt and lastSuccessAt stay the real
+ * last measurement; once it ages past staleAfterMs markStale shows it as stale and the next failure
+ * shows the error. A used reset or a new sign-in marks the reading stale first, so it never
+ * qualifies.
+ */
+export function keepsReadingThroughBlip(
+  previous: UsageSnapshot | undefined,
+  failed: UsageSnapshot,
+  now: number,
+  refreshIntervalSec: number,
+): boolean {
+  return (
+    previous !== undefined &&
+    previous.accountId === failed.accountId &&
+    previous.state === 'ok' &&
+    previous.windows.length > 0 &&
+    previous.lastSuccessAt !== null &&
+    failed.errorCode !== undefined &&
+    TRANSIENT_ERROR_CODES.has(failed.errorCode) &&
+    now - previous.lastSuccessAt <= staleAfterMs(refreshIntervalSec)
+  );
+}
+
 /** Providers without isolated profiles accept a limited number of accounts (PROVIDER_TRAITS). */
 export function providerIsFull(accounts: readonly Account[], provider: ProviderId): boolean {
   const max = PROVIDER_TRAITS[provider].maxAccounts;
@@ -62,6 +97,7 @@ export interface WindowsPort {
   hidePopup(): void;
   setPopupLock(locked: boolean): void;
   resizeWidget(size: ResizeWidgetRequest): void;
+  showPaceBubble?(alert: ShowPaceBubbleRequest & { label: string }): void;
   /** Re-places the widget with unsaved offsets; null returns to the saved settings. */
   previewPlacement(patch: PlacementPreview | null): void;
   showWidget(): void;
@@ -89,6 +125,9 @@ export interface AppControllerDeps {
   newAccountId?: () => string;
   onRendererReady?(request: RendererReadyRequest): void;
   onSnapshot?(snapshot: AppStateSnapshot): void;
+  onAuthRequired?(account: Pick<Account, 'id' | 'provider' | 'label'>): void;
+  confirmResetCredit?(input: { label: string; emailMasked?: string; availableCount: number; expiresAt: number | null; locale: Locale }): Promise<boolean>;
+  dismissModelNotice?(provider: ProviderId): Promise<void>;
   scheduler?: Partial<Pick<SchedulerOptions, 'timeoutMs' | 'manualMinIntervalMs' | 'resumeDelayMs' | 'random'>>;
   loginTimeoutMs?: number;
 }
@@ -117,10 +156,14 @@ export function createAppController(deps: AppControllerDeps) {
   const usage = new Map<string, UsageSnapshot>();
   const identities = new Map<string, AccountIdentityInfo & { at: number }>();
   const needsIdentity = new Set<string>();
+  const authAlerted = new Set<string>();
+  const redeeming = new Set<string>();
   const cli: Record<ProviderId, CliInfo | null> = { claude: null, codex: null, grok: null, antigravity: null };
   const lastDetectAt: Record<ProviderId, number> = { claude: 0, codex: 0, grok: 0, antigravity: 0 };
   const detecting = new Set<ProviderId>();
   let effectivePlacementMode: PlacementMode | null = null;
+  let modelNotices: ModelNotice[] = [];
+  let modelNewsHealth: ModelNewsHealth = { checkedAt: null, sources: 0, failing: [] };
   let broadcastPending = false;
   let stopped = false;
   /** Set by stop() and never cleared: a start() still awaiting must not revive the scheduler. */
@@ -178,6 +221,8 @@ export function createAppController(deps: AppControllerDeps) {
       refresh: { ...refresh, accountIds: [...refresh.accountIds] },
       theme: { ...theme },
       cli: { claude: cliDto('claude'), codex: cliDto('codex'), grok: cliDto('grok'), antigravity: cliDto('antigravity') },
+      modelNotices: modelNotices.map((notice) => ({ ...notice })),
+      modelNewsHealth: { ...modelNewsHealth, failing: modelNewsHealth.failing.map((entry) => ({ ...entry })) },
       effectivePlacementMode,
     };
   };
@@ -268,13 +313,29 @@ export function createAppController(deps: AppControllerDeps) {
   const onResult = (account: Account, raw: UsageSnapshot): void => {
     if (store.getAccount(account.id) === undefined) return;
     const clean = sanitizeSnapshot(account, raw);
-    const merged = clean.state === 'error' ? applyFetchFailure(usage.get(account.id), clean) : clean;
+    const previous = usage.get(account.id);
+    if (clean.state === 'error' && keepsReadingThroughBlip(previous, clean, now(), settings.refreshIntervalSec)) {
+      // The last good reading is still fresh; the next refresh (with back-off) retries. Stale
+      // marking takes over if the failures outlast the freshness window.
+      scheduleBroadcast();
+      return;
+    }
+    const merged = clean.state === 'error' ? applyFetchFailure(previous, clean) : clean;
     usage.set(account.id, merged);
     const identity = identities.get(account.id);
     if (clean.state === 'logged-out' && identity?.loginState !== 'logged-out') {
       setIdentity(account.id, { loginState: 'logged-out' });
     } else if (clean.state === 'ok' && identity?.loginState !== 'logged-in') {
       needsIdentity.add(account.id);
+    }
+    if (clean.state === 'ok') authAlerted.delete(account.id);
+    if (clean.state === 'logged-out' && !stopped && !authAlerted.has(account.id) && deps.onAuthRequired !== undefined) {
+      authAlerted.add(account.id);
+      try {
+        deps.onAuthRequired({ id: account.id, provider: account.provider, label: account.label });
+      } catch (error) {
+        logger.warn('auth-required alert failed', { provider: account.provider, error });
+      }
     }
     scheduleBroadcast();
   };
@@ -313,6 +374,10 @@ export function createAppController(deps: AppControllerDeps) {
     onStarted: () => scheduleBroadcast(),
     onSettled: ({ accountId, event }) => {
       if (event.type === 'success') {
+        authAlerted.delete(accountId);
+        // A new sign-in may be a different account: earlier readings no longer count as fresh.
+        const previous = usage.get(accountId);
+        if (previous?.state === 'ok') usage.set(accountId, { ...previous, state: 'stale' });
         const info: AccountIdentityInfo = { loginState: 'logged-in' };
         if (event.emailMasked !== undefined) info.emailMasked = event.emailMasked;
         if (event.plan !== undefined) info.plan = event.plan;
@@ -460,6 +525,29 @@ export function createAppController(deps: AppControllerDeps) {
     },
 
     snapshot,
+    setModelNotices(notices: ModelNotice[]): void {
+      modelNotices = notices.map((notice) => ({ ...notice }));
+      scheduleBroadcast();
+    },
+    setModelNewsHealth(health: ModelNewsHealth): void {
+      modelNewsHealth = { ...health, failing: health.failing.map((entry) => ({ ...entry })) };
+      scheduleBroadcast();
+    },
+    async openModelNotice(provider: ProviderId): Promise<void> {
+      const notice = modelNotices.find((item) => item.provider === provider);
+      if (notice === undefined) return;
+      await deps.openExternal(notice.url);
+      await deps.dismissModelNotice?.(provider);
+    },
+    showPaceBubble(request: ShowPaceBubbleRequest): null {
+      const account = store.getAccounts().find((entry) => entry.id === request.accountId && entry.enabled);
+      const reading = usage.get(request.accountId);
+      if (account !== undefined && reading?.state === 'ok' && reading.measuredAt !== null &&
+        now() - reading.measuredAt <= 5 * 60_000) {
+        windows.showPaceBubble?.({ ...request, label: account.label });
+      }
+      return null;
+    },
     markStale,
     getSettings: (): Settings => ({ ...settings }),
     getLocale: (): Locale => locale,
@@ -487,7 +575,27 @@ export function createAppController(deps: AppControllerDeps) {
     },
 
     updateSettings(patch: Partial<Settings>): Promise<Settings> {
-      return settingsQueue(() => applySettings(applySettingsPatch(settings, patch)));
+      return settingsQueue(() => {
+        if ('grokBotRecordedAt' in patch) throw new IpcHandlerError('invalid-request');
+        const at = now();
+        const resetAt = patch.grokBotResetAt;
+        // The entered weekly reset must lie ahead, within the longest possible weekly window.
+        if (resetAt !== undefined && resetAt !== null && (resetAt < at - 60_000 || resetAt - at > GROK_BOT_MAX_RESET_AHEAD_MS)) {
+          throw new IpcHandlerError('invalid-request');
+        }
+        // A manual quota entry is timestamped by main, so the UI cannot present an old
+        // reading as a fresh automatic measurement. Other settings preserve its timestamp.
+        let next: Partial<Settings> = patch;
+        if ('grokBotUsedPercent' in patch) {
+          const cleared = patch.grokBotUsedPercent === null;
+          next = { ...patch, grokBotRecordedAt: cleared ? null : at };
+          // A reset that has already passed belonged to the previous reading.
+          if (cleared || (!('grokBotResetAt' in patch) && settings.grokBotResetAt !== null && settings.grokBotResetAt <= at)) {
+            next.grokBotResetAt = null;
+          }
+        }
+        return applySettings(applySettingsPatch(settings, next));
+      });
     },
 
     listAccounts: (): AccountDTO[] => store.getAccounts().map(dtoFor),
@@ -528,6 +636,7 @@ export function createAppController(deps: AppControllerDeps) {
     removeAccount: (accountId: string): Promise<null> =>
       serialized(async () => {
         const account = requireAccount(accountId);
+        if (redeeming.has(accountId)) throw new IpcHandlerError('busy');
         login.cancelForAccount(accountId);
         scheduler.cancel(accountId);
         try {
@@ -541,6 +650,7 @@ export function createAppController(deps: AppControllerDeps) {
         usage.delete(accountId);
         identities.delete(accountId);
         needsIdentity.delete(accountId);
+        authAlerted.delete(accountId);
         scheduler.sync();
         scheduleBroadcast();
         return null;
@@ -622,6 +732,43 @@ export function createAppController(deps: AppControllerDeps) {
         .catch((error: unknown) => logger.warn('redetect failed', { error }))
         .then(() => scheduler.refreshNow(accountId));
       return Promise.resolve(null);
+    },
+
+    async redeemResetCredit(accountId: string): Promise<ResetCreditResult> {
+      const account = store.getAccounts().find((item) => item.id === accountId);
+      if (account === undefined || account.provider !== 'codex' || !account.enabled) throw new IpcHandlerError('not-found');
+      if (redeeming.has(accountId)) throw new IpcHandlerError('busy');
+      const adapter = registry.get('codex');
+      if (adapter.redeemResetCredit === undefined || deps.confirmResetCredit === undefined) return 'unavailable';
+      redeeming.add(accountId);
+      scheduler.cancel(accountId);
+      try {
+        const result = await adapter.redeemResetCredit({ ...account }, (offer) => {
+          const current = store.getAccounts().find((item) => item.id === accountId);
+          if (current === undefined || !current.enabled || current.provider !== 'codex') return Promise.resolve(false);
+          return deps.confirmResetCredit!({ label: current.label, emailMasked: identities.get(accountId)?.emailMasked,
+            availableCount: offer.availableCount, expiresAt: offer.expiresAt, locale });
+        }, new AbortController().signal);
+        if (result === 'reset' || result === 'noCredit' || result === 'alreadyRedeemed') {
+          const previous = usage.get(accountId);
+          if (previous !== undefined) {
+            const next = { ...previous };
+            delete next.resetCreditsAvailable;
+            // A used reset makes the stored windows wrong: show them as stale, which also keeps
+            // a failing follow-up read from riding them out as a fresh 'ok' (keepsReadingThroughBlip).
+            if (result === 'reset' && next.state === 'ok') next.state = 'stale';
+            usage.set(accountId, next);
+            scheduleBroadcast();
+          }
+          void scheduler.refreshNow(accountId);
+        }
+        return result;
+      } catch (error) {
+        logger.warn('codex reset redemption failed', { accountId, code: errorCodeOf(error) });
+        throw new IpcHandlerError('internal', errorCodeOf(error));
+      } finally {
+        redeeming.delete(accountId);
+      }
     },
 
     async openExternal(request: OpenExternalRequest): Promise<null> {

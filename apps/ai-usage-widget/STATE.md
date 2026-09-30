@@ -1,23 +1,24 @@
 # STATE — AI Usage Widget v2
-> 덮어쓰기. 네 절만. 갱신 26.09.20 17:16 KST · Claude Code(E:\Coding Infra 세션)
+> 덮어쓰기. 네 절만. 갱신 26.09.30 18:36 KST · Claude Code(E:\Coding Infra 세션, 워크트리 `SimonK-stack-aiuw-improve-260930`)
 
 ## 완료
-- v1 전수 분석 → docs/SPEC-v1-baseline.md(V1-01~43), 조사 → docs/RESEARCH-auth-quota.md, 결정 → DECISIONS.md
-- 뼈대·모듈 5개·통합·리뷰 1·2차(09.15)
-- 09.19 CLI 설치 안내 URL 확정, **Antigravity 공급자 추가**(공식 `agy -p "/usage"`, 계정 1개·위젯 로그인 없음, 요청 소모 차단기), Grok Bot 조사 → 카드 미추가
-- 09.19~20 **실사용 실측 통과**(사용자): 계정 4개 로그인, 기본 `~/.claude` 브리지(Orca statusLine을 감쌈), 공급자 4종 수치 표시(T1·T2·T3·T4·T6b), **T8 GUI 전 항목 OK**(팝업 blur·전체화면 숨김·테마 전환·슬라이더·자동 시작)
-- 09.20 수정·규명: Grok 0% 해석(확증), Codex 주간 창만 오는 것은 정상, Codex 첫 로그인 `protocol-error`(app-server 2개 경합 → `quiesce`), Codex 2번째 `login-failed`(로그인 완료 직후 account/read가 옛 상태 → 재조회 + 성공 신뢰, 정황 근거), agy 1회 실패(규명 불가 → 진단 로그 보강), 자동 조회 공급자별 최소 간격, 아이콘(공식 SVG·투명 배경·테마색, 사용자 확인), 자동 시작 Run 값이 옛 실행 파일을 가리키던 문제
-- 09.20 **설치 완료**: NSIS 사용자 전용 설치본 `%LOCALAPPDATA%\Programs\ai-usage-widget`(설치 파일 sha256 052A7F515C47C777…, 서명 없음), 실행 중, Run 값이 설치본 경로로 자동 교정됨(로그 `autostart re-registered`)
-- 09.20 **v1 정리**: v1 자동 실행 값 제거, v1 폴더·userData는 휴지통(복구 가능). 결정 4건 확정(SEC-06 자동 복원 없음·P-08 보류·코드 서명 제외·Antigravity 첫 그룹)
-- 09.20 **리포 통합**: 공개 리포 SimonK-stack의 `apps/ai-usage-widget/`로 이력 포함 이전 + 설치 스킬 `skills-src/ai-usage-widget-install`(DECISIONS 26.09.20 12:05). 공개 전 전체 이력 스캔 0건
-- 검증(26.09.20 17:15, 새 위치의 통합 브랜치): `pnpm install --frozen-lockfile` 0, `pnpm verify` exit 0(52파일·577테스트). 스택 CI 게이트(`run_ci.py`) PASS 141 skills, 플러그인 검증 OK. 설치 스크립트는 PowerShell 5.1에서 `-Status`·`-DryRun`·`-Uninstall` 거절(exit 3) 실측
+- 09.15~20: v1 분석·재구성, 공급자 4종 실계정 실측, T8 GUI, NSIS 설치, v1 정리, SimonK-stack `apps/ai-usage-widget/` 통합(PR #48). 세부는 DECISIONS·HANDOFF의 09.20 블록
+- **main 밖 스택(원격 push, PR 없음)**: `feat/aiuw-auth-recovery-260923` → `feat/aiuw-usage-clarity-260925` → `feat/aiuw-banked-reset-260926` → `feat/aiuw-model-notice-260930` → `feat/aiuw-improve-260930`(끝). origin/main 위 커밋 22개(다른 세션 10 + 이 세션 12)
+  - 09.23~30 다른 세션: 재인증 알림, 수치 단위·빠른 소모 강조, Codex 초기화권, Codex 실행 파일 해석, 새 모델 알림·급증 말풍선, Grok Bot 수동 카드
+  - **09.30 이 세션**: Antigravity 서버 5xx 1회 재시도 · Codex rateLimits 20초 한도+실패 단계 로그 · 신선한 직전 값이 있으면 일시 오류는 경고 없이 유지(초기화권 사용·재로그인 직후는 제외) · Grok Bot 카드를 사용자 화면에 맞춤(리셋=grok.com 정확한 일시, grok.com·Cursor Spending 링크, On-demand 월 한도 "없음"=꺼짐→"리셋까지 멈춤", 직접 고친 칸만 저장, 지난 값은 입력칸에 채우지 않음) · 새 모델 알림 출처별 상태를 설정 탭에 표시(Anthropic 기사 전부 실패=실패, 실패 기사 재시도) · grok billing 새 필드 이름 감시 로그 · 불안정하던 Claude 테스트 2묶음 30초 제한
+- **사용자 캡처 대조 완료(26.09.30 17:30경)**: grok.com Usage와 Grok Bot 앱 "사용량 및 청구". 위젯 Grok 카드 값 = grok.com "Weekly SuperGrok Heavy Limit"(100%, 10.03 오후 11:12 리셋) 일치. grok.com에 "Weekly Grok Bot Limit"이 따로 있음(앞선 "다른 미터" 문구는 틀려서 고침). Cursor Spending 캡처는 받지 못함
+- **Grok Bot 자동 조회 조사 완료(18:30)**: 값은 Cursor 계정 쪽. 개인용 공식 API·CLI·로컬 통로 없음 → 규칙 안에서 자동화 불가, 수동 유지 + 감시 로그. 근거와 기각 사유는 `docs/GROK-BOT.md` "자동으로 읽을 수 있나"와 DECISIONS 18:35
+- 검토: 5관점 워크플로(에이전트 41개, 지적 40건 중 상위 18건 이중 검증) → 확정 14건·분할 1건 반영(`f9f7253` 외)
+- 검증(26.09.30 18:3x): `pnpm verify` exit 0(57파일·646테스트), `pnpm build` 0, `--smoke` ok(17:1x 기준), 오프스크린 캡처로 카드·작업 표시줄·설정 줄 확인(스크립트는 세션 스크래치패드, 리포 밖)
+- 설치본 = 09.30 15:49 빌드(`3a19dd1` 무렵). **이 브랜치 변경은 아직 설치 안 됨**
 
 ## 진행중
 - 없음
 
 ## 다음
-- 실패가 다시 나오면 로그로 확정: agy 실패 JSON의 실제 필드(현재 error·message·response 순 추정), Codex 로그인 완료 직후 account/read 지연(정황 근거)
-- 보류 중인 계약 필드(codex credits/blocked, grok overageAvailable, `onStdoutChunk`) 필요성 재검토
+- 사용자 결정 대기: ① 스택 22개를 main으로 올릴 PR(merge commit, 스쿼시 금지) ② 이 브랜치 설치(`skills-src/ai-usage-widget-install`) ③ Cursor CLI 설치·`/usage` 1회 시험 여부 ④ xai-org/grok-build·Cursor 포럼에 Grok Bot 사용량 노출 공개 요청 여부
+- 설치 후 관찰: `grok billing has unrecognized fields` 로그(생기면 재실측→자동 조회), Codex timeout의 `phase`·`elapsedMs`, Antigravity 실패의 `reasonField`
+- 검토에서 미검증으로 남긴 하위 지적 22건 중 남은 것: 새 모델 알림 끄기 설정 없음, Grok CLI `unified.jsonl` 누적(각 약 3.9MB), Codex 원격 플러그인 카탈로그(캐시 27MB) 비활성 옵션 유무
 
 ## 막힌 것
-- 없음. 미확인으로 남긴 것: agy 로그아웃 상태의 출력 문구(정규식은 추정), Orca가 나중에 `~/.claude` statusLine을 덮어쓰는지(09.20 10:48까지는 유지)
+- 없음(위 "다음" ①~④는 사용자 결정). 미확인: Grok Bot 리셋 주기 규칙, grok.com·앱에 100% 초과 값이 보이는지(수동 입력은 100까지), Cursor Spending에서 Grok Bot On-demand가 어떻게 보이는지, agy 로그아웃 문구, Orca의 `~/.claude` statusLine 덮어쓰기 여부

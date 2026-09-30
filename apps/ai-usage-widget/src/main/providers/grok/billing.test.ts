@@ -1,7 +1,40 @@
 // Fixtures follow field names found in grok.exe 1.0.30 (extensions/billing.rs serde strings)
 // and RESEARCH-auth-quota §3-3; the real `_x.ai/billing` payload is still pending live test T4.
 import { describe, expect, it } from 'vitest';
-import { normalizeTier, parseAmount, parseBillingResponse, parsePeriodType, parseTimestamp } from './billing';
+import { normalizeTier, parseAmount, parseBillingResponse, parsePeriodType, parseTimestamp, unrecognizedBillingKeys } from './billing';
+
+describe('unrecognizedBillingKeys', () => {
+  // Shape measured with grok 1.0.41 on 26.09.30 (values replaced by neutral ones).
+  const MEASURED = {
+    config: {
+      creditUsagePercent: 100,
+      currentPeriod: { type: 'USAGE_PERIOD_TYPE_WEEKLY', start: '2026-09-26T14:12:19Z', end: '2026-10-03T14:12:19Z' },
+      onDemandCap: { val: 0 },
+      onDemandUsed: { val: 0 },
+      prepaidBalance: { val: 0 },
+      isUnifiedBillingUser: true,
+      billingPeriodStart: '2026-09-26T14:12:19Z',
+      billingPeriodEnd: '2026-10-03T14:12:19Z',
+    },
+    subscription_tier: 'SuperGrok Heavy',
+  };
+
+  it('finds nothing new in the measured payload', () => {
+    expect(unrecognizedBillingKeys(MEASURED)).toEqual([]);
+  });
+
+  it('names new top-level and config fields without their values, sorted and capped', () => {
+    const grown = { ...MEASURED, botUsage: { usagePercent: 73 }, config: { ...MEASURED.config, productUsage: [{ product: 'PRODUCT_GROK_BOT', usagePercent: 73 }] } };
+    const keys = unrecognizedBillingKeys(grown);
+    expect(keys).toEqual(['botUsage', 'productUsage']);
+    expect(JSON.stringify(keys)).not.toContain('73');
+
+    const many = Object.fromEntries(Array.from({ length: 30 }, (_, i) => [`field_${String(i).padStart(2, '0')}`, i]));
+    expect(unrecognizedBillingKeys({ ...MEASURED, ...many })).toHaveLength(20);
+    expect(unrecognizedBillingKeys({ ...MEASURED, 'not a name!': 1, ['x'.repeat(65)]: 1 })).toEqual([]);
+    expect(unrecognizedBillingKeys(null)).toEqual([]);
+  });
+});
 
 const WEEKLY_END = '2026-09-17T07:51:00Z';
 

@@ -46,12 +46,15 @@ export const INVOKE = {
   loginCancel: 'login:cancel',
   loginSubmitPaste: 'login:submit-paste',
   usageRefreshNow: 'usage:refresh-now',
+  usageRedeemResetCredit: 'usage:redeem-reset-credit',
+  modelNoticeOpen: 'model-notice:open',
   shellOpenExternal: 'shell:open-external',
   windowTogglePopup: 'window:toggle-popup',
   windowShowPopup: 'window:show-popup',
   windowHidePopup: 'window:hide-popup',
   windowSetPopupLock: 'window:set-popup-lock',
   windowResizeWidget: 'window:resize-widget',
+  windowShowPaceBubble: 'window:show-pace-bubble',
   windowPreviewPlacement: 'window:preview-placement',
   cliRedetect: 'cli:redetect',
   claudeBridgeStatus: 'claude-bridge:status',
@@ -124,11 +127,15 @@ export interface RefreshNowRequest {
   /** null refreshes every enabled account. */
   accountId: string | null;
 }
+export type ResetCreditResult = 'reset' | 'cancelled' | 'unavailable' | 'nothingToReset' | 'noCredit' | 'alreadyRedeemed';
 
 export const EXTERNAL_LINK_KEYS = [
   'claude-cli-install',
   'codex-cli-install',
+  'codex-usage',
   'grok-cli-install',
+  'grok-bot-usage',
+  'grok-usage',
   'antigravity-cli-install',
 ] as const;
 export type ExternalLinkKey = (typeof EXTERNAL_LINK_KEYS)[number];
@@ -152,6 +159,13 @@ export interface SetPopupLockRequest {
 export interface ResizeWidgetRequest {
   width: number;
   height: number;
+}
+
+export interface ShowPaceBubbleRequest {
+  accountId: string;
+  recent: number;
+  usual: number | null;
+  locale: 'ko' | 'en';
 }
 
 /** Unsaved placement values applied while a slider is dragged; `patch: null` drops the preview. */
@@ -194,12 +208,15 @@ export interface InvokeContract {
   'login:cancel': { req: LoginSessionRef; res: null };
   'login:submit-paste': { req: LoginSubmitPasteRequest; res: null };
   'usage:refresh-now': { req: RefreshNowRequest; res: null };
+  'usage:redeem-reset-credit': { req: AccountRef; res: ResetCreditResult };
+  'model-notice:open': { req: { provider: ProviderId }; res: null };
   'shell:open-external': { req: OpenExternalRequest; res: null };
   'window:toggle-popup': { req: null; res: null };
   'window:show-popup': { req: ShowPopupRequest; res: null };
   'window:hide-popup': { req: null; res: null };
   'window:set-popup-lock': { req: SetPopupLockRequest; res: null };
   'window:resize-widget': { req: ResizeWidgetRequest; res: null };
+  'window:show-pace-bubble': { req: ShowPaceBubbleRequest; res: null };
   'window:preview-placement': { req: PreviewPlacementRequest; res: null };
   'cli:redetect': { req: CliRedetectRequest; res: null };
   'claude-bridge:status': { req: null; res: ClaudeBridgeStatus };
@@ -351,6 +368,12 @@ export const INVOKE_VALIDATORS: Validators = {
     if (!isId(accountId)) return fail('invalid accountId');
     return ok({ accountId });
   },
+  'usage:redeem-reset-credit': parseAccountRef,
+  'model-notice:open': (input) => {
+    const rec = parseRecord(input, ['provider']);
+    if (!rec.ok) return rec;
+    return isProviderId(rec.value.provider) ? ok({ provider: rec.value.provider }) : fail('invalid provider');
+  },
   'shell:open-external': (input) => {
     const rec = parseRecord(input, ['kind', 'key', 'sessionId', 'url']);
     if (!rec.ok) return rec;
@@ -393,6 +416,15 @@ export const INVOKE_VALIDATORS: Validators = {
       return fail('invalid size');
     }
     return ok({ width, height });
+  },
+  'window:show-pace-bubble': (input) => {
+    const rec = parseRecord(input, ['accountId', 'recent', 'usual', 'locale']);
+    if (!rec.ok) return rec;
+    const { accountId, recent, usual, locale } = rec.value;
+    if (!isId(accountId) || !isFiniteNumber(recent) || recent < 0 || recent > 6000 ||
+      (usual !== null && (!isFiniteNumber(usual) || usual < 0 || usual > 6000)) ||
+      (locale !== 'ko' && locale !== 'en')) return fail('invalid pace alert');
+    return ok({ accountId, recent, usual, locale });
   },
   'window:preview-placement': (input) => {
     const rec = parseRecord(input, ['patch']);

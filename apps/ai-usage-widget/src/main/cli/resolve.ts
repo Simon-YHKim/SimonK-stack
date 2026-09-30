@@ -84,6 +84,18 @@ export function parseCmdShim(content: string): string | null {
   return rel.replace(/^[\\/]+/, '');
 }
 
+/** Accept only a plain Windows launcher that forwards every argument to one absolute executable. */
+function parseCmdForwarder(content: string): string | null {
+  const lines = content.replace(/^\uFEFF/, '').split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const [header, launch] = lines;
+  if (lines.length !== 2 || header === undefined || launch === undefined || !/^@echo off$/i.test(header)) return null;
+  const target = /^call "([^"]+)" %\*$/i.exec(launch)?.[1];
+  if (target === undefined || !/^[A-Za-z]:\\/.test(target) || !/\.(?:cmd|bat|exe)$/i.test(target)) return null;
+  // Never interpret shell expansion, metacharacters, or another command from a wrapper.
+  // eslint-disable-next-line no-control-regex
+  return /[<>|?*%!^&\u0000-\u001f]/.test(target) ? null : target;
+}
+
 export type ResolveFailure = 'cli-not-found' | 'node-not-found' | 'unsupported-shim';
 
 export type ResolveResult =
@@ -114,38 +126,52 @@ function isInside(p: path.PlatformPath, parent: string, child: string, platform:
  */
 export function resolveCommand(nameOrPath: string, deps: ResolveDeps = defaultResolveDeps()): ResolveResult {
   const p = pathApi(deps.platform);
-  const found = findOnPath(nameOrPath, deps);
-  if (found === null) return { ok: false, code: 'cli-not-found' };
-  const ext = p.extname(found).toLowerCase();
+  const source = findOnPath(nameOrPath, deps);
+  if (source === null) return { ok: false, code: 'cli-not-found' };
+  let found = source;
+  const visited = new Set<string>();
+  // Version managers may leave a small .cmd forwarder on PATH. Bound traversal and reject cycles.
+  for (let hops = 0; hops <= 4; hops += 1) {
+    const key = deps.platform === 'win32' ? p.resolve(found).toLowerCase() : p.resolve(found);
+    if (visited.has(key)) return { ok: false, code: 'unsupported-shim' };
+    visited.add(key);
+    const ext = p.extname(found).toLowerCase();
 
-  if (ext === '.exe' || ext === '.com' || (deps.platform !== 'win32' && ext === '')) {
-    return { ok: true, command: { file: found, prefixArgs: [] }, kind: 'exe', source: found };
-  }
-
-  if (ext === '.js' || ext === '.cjs' || ext === '.mjs') {
-    const node = resolveNode(null, deps);
-    if (node === null) return { ok: false, code: 'node-not-found' };
-    return { ok: true, command: { file: node, prefixArgs: [found] }, kind: 'node-script', source: found };
-  }
-
-  if (ext === '.cmd' || ext === '.bat') {
-    let content: string;
-    try {
-      content = deps.readText(found);
-    } catch {
-      return { ok: false, code: 'unsupported-shim' };
+    if (ext === '.exe' || ext === '.com' || (deps.platform !== 'win32' && ext === '')) {
+      return { ok: true, command: { file: found, prefixArgs: [] }, kind: 'exe', source };
     }
-    const rel = parseCmdShim(content);
-    if (rel === null) return { ok: false, code: 'unsupported-shim' };
-    const shimDir = p.dirname(found);
-    const entry = p.resolve(shimDir, rel);
-    if (!isInside(p, shimDir, entry, deps.platform) || !deps.isFile(entry)) {
-      return { ok: false, code: 'unsupported-shim' };
-    }
-    const node = resolveNode(shimDir, deps);
-    if (node === null) return { ok: false, code: 'node-not-found' };
-    return { ok: true, command: { file: node, prefixArgs: [entry] }, kind: 'node-script', source: found };
-  }
 
+    if (ext === '.js' || ext === '.cjs' || ext === '.mjs') {
+      const node = resolveNode(null, deps);
+      if (node === null) return { ok: false, code: 'node-not-found' };
+      return { ok: true, command: { file: node, prefixArgs: [found] }, kind: 'node-script', source };
+    }
+
+    if (ext === '.cmd' || ext === '.bat') {
+      let content: string;
+      try {
+        content = deps.readText(found);
+      } catch {
+        return { ok: false, code: 'unsupported-shim' };
+      }
+      const rel = parseCmdShim(content);
+      if (rel !== null) {
+        const shimDir = p.dirname(found);
+        const entry = p.resolve(shimDir, rel);
+        if (!isInside(p, shimDir, entry, deps.platform) || !deps.isFile(entry)) {
+          return { ok: false, code: 'unsupported-shim' };
+        }
+        const node = resolveNode(shimDir, deps);
+        if (node === null) return { ok: false, code: 'node-not-found' };
+        return { ok: true, command: { file: node, prefixArgs: [entry] }, kind: 'node-script', source };
+      }
+      const forwarded = deps.platform === 'win32' ? parseCmdForwarder(content) : null;
+      if (forwarded === null || !deps.isFile(forwarded)) return { ok: false, code: 'unsupported-shim' };
+      found = forwarded;
+      continue;
+    }
+
+    return { ok: false, code: 'unsupported-shim' };
+  }
   return { ok: false, code: 'unsupported-shim' };
 }

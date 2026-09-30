@@ -105,6 +105,14 @@ describe('ipc contract', () => {
     });
   });
 
+  it('pace bubble accepts only a bounded account reading', () => {
+    const alert = { accountId: 'g1', recent: 192, usual: null, locale: 'ko' };
+    expect(validateInvokeRequest('window:show-pace-bubble', alert).ok).toBe(true);
+    expect(validateInvokeRequest('window:show-pace-bubble', { ...alert, recent: Number.POSITIVE_INFINITY }).ok).toBe(false);
+    expect(validateInvokeRequest('window:show-pace-bubble', { ...alert, accountId: '<script>' }).ok).toBe(false);
+    expect(validateInvokeRequest('window:show-pace-bubble', { ...alert, locale: 'fr' }).ok).toBe(false);
+  });
+
   it('window:preview-placement accepts only placement offsets, or null', () => {
     expect(validateInvokeRequest('window:preview-placement', { patch: null })).toEqual({ ok: true, value: { patch: null } });
     expect(validateInvokeRequest('window:preview-placement', { patch: { offsetPx: 40, verticalOffsetPx: -3 } })).toEqual({

@@ -80,6 +80,8 @@ export function appState(overrides: AppStateOverrides = {}): AppStateSnapshot {
       antigravity: { state: 'found', version: '1.2.6' },
     },
     effectivePlacementMode: null,
+    modelNotices: [],
+    modelNewsHealth: { checkedAt: null, sources: 0, failing: [] },
     ...rest,
     settings: { ...DEFAULT_SETTINGS, ...settings },
   };
