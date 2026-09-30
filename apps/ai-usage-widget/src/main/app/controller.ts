@@ -12,6 +12,7 @@ import {
   type ResizeWidgetRequest,
   type ShowPaceBubbleRequest,
 } from '../../shared/ipc';
+import { GROK_BOT_MAX_RESET_AHEAD_MS } from '../../shared/grok-bot';
 import { applySettingsPatch, type Material, type PlacementMode, type Settings } from '../../shared/settings';
 import {
   PROVIDER_IDS,
@@ -564,11 +565,23 @@ export function createAppController(deps: AppControllerDeps) {
     updateSettings(patch: Partial<Settings>): Promise<Settings> {
       return settingsQueue(() => {
         if ('grokBotRecordedAt' in patch) throw new IpcHandlerError('invalid-request');
+        const at = now();
+        const resetAt = patch.grokBotResetAt;
+        // The entered weekly reset must lie ahead, within the longest possible weekly window.
+        if (resetAt !== undefined && resetAt !== null && (resetAt < at - 60_000 || resetAt - at > GROK_BOT_MAX_RESET_AHEAD_MS)) {
+          throw new IpcHandlerError('invalid-request');
+        }
         // A manual quota entry is timestamped by main, so the UI cannot present an old
         // reading as a fresh automatic measurement. Other settings preserve its timestamp.
-        const next = 'grokBotUsedPercent' in patch
-          ? { ...patch, grokBotRecordedAt: patch.grokBotUsedPercent === null ? null : now() }
-          : patch;
+        let next: Partial<Settings> = patch;
+        if ('grokBotUsedPercent' in patch) {
+          const cleared = patch.grokBotUsedPercent === null;
+          next = { ...patch, grokBotRecordedAt: cleared ? null : at };
+          // A reset that has already passed belonged to the previous reading.
+          if (cleared || (!('grokBotResetAt' in patch) && settings.grokBotResetAt !== null && settings.grokBotResetAt <= at)) {
+            next.grokBotResetAt = null;
+          }
+        }
         return applySettings(applySettingsPatch(settings, next));
       });
     },

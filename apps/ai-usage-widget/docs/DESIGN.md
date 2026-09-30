@@ -119,6 +119,9 @@ v1 키(SPEC §1-2) 중 의미가 남은 것 + v2 추가. mock 관련 키는 없�
 | `language` | `auto` | `auto`,`ko`,`en` | `auto`: OS 로케일이 `ko*`면 ko, 아니면 en |
 | `grokBotUsedPercent` | null | null 또는 정수 0~100 | 별도 Grok Bot 주간 사용률의 수동 기록. xAI Grok CLI 값과 구분(26.09.30 결정) |
 | `grokBotRecordedAt` | null | null 또는 epoch ms | 사용자 기록 시 main이 채운다. 렌더러의 직접 변경은 거부 |
+| `grokBotResetAt` | null | null 또는 epoch ms | 앱의 Weekly usage 카운트다운을 사용자가 "N일 N시간"으로 옮긴 다음 주간 리셋 시각(선택). main은 지금−1분~지금+8일 밖을 거부. 사용률만 새로 기록할 때 이미 지난 리셋은 지우고, 사용률을 지우면 함께 지운다. 기록 시각 이후·8일 이내일 때만 유효하며 지나면 카드가 `reset` 상태(숫자 숨김·재입력 안내) (26.09.30) |
+| `grokBotOnDemandSpentCents` | null | null 또는 정수 0~100,000,000 | Cursor가 청구하는 Grok Bot On-demand 사용액(센트, 선택). Spending 화면 또는 앱의 On-demand usage 값 |
+| `grokBotOnDemandLimitCents` | null | null 또는 정수 0~100,000,000 | Cursor Spending의 Monthly Limit(센트, 선택) |
 
 - `parseSettingsPatch(input)`: 알 수 없는 키·잘못된 값이 하나라도 있으면 전체 거부. 빈 patch도 거부.
 - `normalizeSettings(raw)`: 디스크 값 로드용. 기본값에서 시작해 유효한 키만 덮는다. 절대 throw하지 않는다.

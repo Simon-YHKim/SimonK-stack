@@ -539,6 +539,25 @@ describe('app controller', () => {
     expect(saved.grokBotRecordedAt).toBe(recorded.grokBotRecordedAt);
   });
 
+  it('accepts a Grok Bot reset only within the next weekly window, keeps a pending one and clears it with the reading', async () => {
+    const h = await setup();
+    await h.controller.start();
+    const hour = 3_600_000;
+    await expect(h.controller.updateSettings({ grokBotUsedPercent: 10, grokBotResetAt: Date.now() - 2 * hour }))
+      .rejects.toMatchObject({ code: 'invalid-request' });
+    await expect(h.controller.updateSettings({ grokBotUsedPercent: 10, grokBotResetAt: Date.now() + 9 * 24 * hour }))
+      .rejects.toMatchObject({ code: 'invalid-request' });
+
+    const resetAt = Date.now() + 30 * hour;
+    const first = await h.controller.updateSettings({ grokBotUsedPercent: 40, grokBotResetAt: resetAt, grokBotOnDemandSpentCents: 250 });
+    expect(first).toMatchObject({ grokBotResetAt: resetAt, grokBotOnDemandSpentCents: 250 });
+    // A new percentage without a new countdown keeps a reset that is still ahead.
+    expect((await h.controller.updateSettings({ grokBotUsedPercent: 55 })).grokBotResetAt).toBe(resetAt);
+    // Clearing the reading clears its reset too.
+    const cleared = await h.controller.updateSettings({ grokBotUsedPercent: null });
+    expect(cleared).toMatchObject({ grokBotUsedPercent: null, grokBotRecordedAt: null, grokBotResetAt: null });
+  });
+
   it('serializes settings updates so back-to-back changes all persist (RR-02)', async () => {
     const h = await setup({ autostartSupported: true });
     await h.controller.start();

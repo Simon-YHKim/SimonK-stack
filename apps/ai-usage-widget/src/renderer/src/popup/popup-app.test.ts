@@ -107,15 +107,78 @@ describe('Usage tab', () => {
     expect(card.textContent).toContain('SuperGrok Heavy');
     expect(card.textContent).toContain('does not update automatically');
     expect(card.textContent).toContain('No usage entered');
+    // grok.com's usage page is the SuperGrok pool, not this meter.
+    expect(card.textContent).toContain('different meter from Grok Bot');
     app.usage.grokBot.input.value = '68';
     app.usage.grokBot.saveButton.click();
     await flush();
-    expect(api.callsTo('settings:update')).toContainEqual({ patch: { grokBotUsedPercent: 68 } });
+    // The reset countdown was not touched, so it is not sent; empty amounts clear to null.
+    expect(api.callsTo('settings:update')).toContainEqual({
+      patch: { grokBotUsedPercent: 68, grokBotOnDemandSpentCents: null, grokBotOnDemandLimitCents: null },
+    });
     app.update(appState({ settings: { grokBotUsedPercent: 68, grokBotRecordedAt: NOW } }));
     expect(card.textContent).toContain('68% used');
     expect(card.textContent).toContain('32% left');
     (root.querySelector('.grok-bot-open') as HTMLButtonElement).click();
     expect(api.callsTo('shell:open-external')).toContainEqual({ kind: 'link', key: 'grok-bot-usage' });
+  });
+
+  it('records the Grok Bot reset countdown and on-demand amounts and shows them back', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(NOW);
+    try {
+      const { root, api, app } = setup(appState());
+      const bot = app.usage.grokBot;
+      bot.input.value = '100';
+      typeInto(bot.resetDays, '2');
+      typeInto(bot.resetHours, '5');
+      bot.spentInput.value = '12.3';
+      bot.limitInput.value = '50';
+      bot.saveButton.click();
+      await flush();
+      const resetAt = NOW + (2 * 24 + 5) * 3_600_000;
+      expect(api.callsTo('settings:update')).toContainEqual({
+        patch: { grokBotUsedPercent: 100, grokBotResetAt: resetAt, grokBotOnDemandSpentCents: 1230, grokBotOnDemandLimitCents: 5000 },
+      });
+      app.update(appState({ settings: {
+        grokBotUsedPercent: 100, grokBotRecordedAt: NOW, grokBotResetAt: resetAt,
+        grokBotOnDemandSpentCents: 1230, grokBotOnDemandLimitCents: 5000,
+      } }));
+      const card = root.querySelector('.grok-bot-card') as HTMLElement;
+      expect(card.querySelector('.grok-bot-reset')?.textContent).toBe('Resets in 2d 5h');
+      expect(card.querySelector('.grok-bot-ondemand')?.textContent).toBe('On-demand $12.30 / monthly limit $50.00 · billed by Cursor');
+      expect((card.querySelector('.grok-bot-spill') as HTMLElement).hidden).toBe(false);
+      expect(bot.spentInput.value).toBe('12.30');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('stops showing a Grok Bot percentage once the entered weekly reset has passed', () => {
+    const { root } = setup(appState({ settings: {
+      grokBotUsedPercent: 90, grokBotRecordedAt: NOW - 3 * 3_600_000, grokBotResetAt: NOW - 3_600_000,
+    } }));
+    const card = root.querySelector('.grok-bot-card') as HTMLElement;
+    expect(card.dataset.state).toBe('reset');
+    expect(card.querySelector('.grok-bot-used')?.textContent).toBe('—');
+    expect(card.textContent).toContain('Weekly reset passed');
+    expect((card.querySelector('.grok-bot-reset') as HTMLElement).hidden).toBe(true);
+  });
+
+  it('rejects an unreadable reset countdown or amount without saving', async () => {
+    const { api, app } = setup(appState());
+    const bot = app.usage.grokBot;
+    bot.input.value = '40';
+    typeInto(bot.resetDays, '9');
+    bot.saveButton.click();
+    await flush();
+    expect(app.statusEl.textContent).toBe(en.grokBotInvalidReset);
+    typeInto(bot.resetDays, '');
+    bot.spentInput.value = '1.234';
+    bot.saveButton.click();
+    await flush();
+    expect(app.statusEl.textContent).toBe(en.grokBotInvalidMoney);
+    expect(api.callsTo('settings:update')).toHaveLength(0);
   });
 
   it('offers one Codex reset only for a fresh measured count and routes use through main', async () => {

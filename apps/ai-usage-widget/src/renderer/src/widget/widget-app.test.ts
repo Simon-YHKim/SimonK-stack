@@ -55,6 +55,16 @@ describe('WidgetApp', () => {
     expect(api.callsTo('window:show-popup')).toEqual([{ tab: 'usage' }]);
   });
 
+  it('adds the Grok Bot reset countdown and marks a used-up weekly allowance', () => {
+    const resetAt = NOW + (26 * 60 + 5) * 60_000;
+    const { app } = setup(appState({ settings: { grokBotUsedPercent: 100, grokBotRecordedAt: NOW, grokBotResetAt: resetAt } }));
+    const item = app.main.querySelector('.grok-bot-item') as HTMLElement;
+    expect(item.querySelector('.grok-bot-widget-reset')?.textContent).toBe('1d 2h');
+    expect(item.classList.contains('is-exhausted')).toBe(true);
+    expect(item.getAttribute('title')).toContain('Resets in 1d 2h');
+    expect(item.getAttribute('title')).toContain('on-demand');
+  });
+
   it('clicking the bar toggles the popup with a 300ms debounce', () => {
     const { api, app } = setup(withAccounts());
     app.main.click();

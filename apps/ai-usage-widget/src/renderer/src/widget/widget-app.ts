@@ -8,7 +8,8 @@ import { buildEnabledViews, type RenderContext } from '../model';
 import { applyDocumentTheme, skinFor } from '../theme';
 import { renderWidgetItem } from './themes';
 import { modelNoticeText } from '../../../shared/model-notice';
-import { grokBotReading } from '../../../shared/grok-bot';
+import { GROK_BOT_STATUS_KEYS, grokBotReading, grokBotWeeklyExhausted } from '../../../shared/grok-bot';
+import { formatCountdown } from '../../../shared/usage';
 
 /** Clicks within this window after a toggle are ignored (v1 SPEC §2-5). */
 export const TOGGLE_DEBOUNCE_MS = 300;
@@ -250,15 +251,22 @@ export class WidgetApp {
     const numeric = reading.state === 'fresh' || reading.state === 'stale';
     const percent = numeric ? (state.settings.showUsedPercent ? reading.usedPercent : reading.leftPercent) : null;
     const value = percent === null ? '—' : `${percent}% ${ctx.t(state.settings.showUsedPercent ? 'unitUsed' : 'unitLeft')}`;
-    const status = ctx.t(reading.state === 'stale' ? 'grokBotStale' : reading.state === 'expired' ? 'grokBotExpired' : reading.state === 'unknown' ? 'grokBotUnknown' : 'grokBotManual');
+    const status = ctx.t(GROK_BOT_STATUS_KEYS[reading.state]);
+    const resetsAt = numeric ? reading.resetsAt : null;
+    const countdown = resetsAt === null ? null : formatCountdown(resetsAt - ctx.now);
+    const exhausted = grokBotWeeklyExhausted(reading);
+    const titleParts = [ctx.t('grokBotTitle'), value, status];
+    if (countdown !== null) titleParts.push(ctx.t('grokBotResetsIn', { time: countdown }));
+    if (exhausted) titleParts.push(ctx.t('grokBotSpill'));
     return h('div', {
-      class: `account-item grok-bot-item${reading.state === 'fresh' ? '' : ' is-stale'}`,
+      class: `account-item grok-bot-item${reading.state === 'fresh' ? '' : ' is-stale'}${exhausted ? ' is-exhausted' : ''}`,
       'data-provider': 'grok-bot',
-      title: `${ctx.t('grokBotTitle')} · ${value} · ${status}`,
+      title: titleParts.join(' · '),
     }, [
       providerIcon('grok', 16, state.settings.iconStyle === 'monochrome'),
       h('span', { class: 'grok-bot-widget-name' }, [ctx.t('grokBotWidget')]),
       h('strong', { class: 'grok-bot-widget-value' }, [value]),
+      countdown === null ? null : h('small', { class: 'grok-bot-widget-reset' }, [countdown]),
       h('small', { class: 'grok-bot-widget-manual' }, [ctx.t('grokBotManual')]),
     ]);
   }

@@ -11,13 +11,15 @@ import type { ExternalLinkKey } from '../../shared/ipc';
  * - grok: xAI "Getting Started - Grok Build", lists `irm https://x.ai/cli/install.ps1 | iex`.
  * - antigravity: Google "Getting Started" CLI tab (`/docs/cli/` redirects here), lists
  *   `irm https://antigravity.google/cli/install.ps1 | iex`; the query selects that tab.
+ * - grok-bot-usage (26.09.30): Cursor's Spending tab, linked from cursor.com/help/account-and-billing/spend-limits.
+ *   It shows on-demand charges and the Monthly Limit; the Grok Bot weekly meter itself is only in the Grok Bot app.
  */
 export const EXTERNAL_LINKS: Readonly<Partial<Record<ExternalLinkKey, string>>> = Object.freeze({
   'claude-cli-install': 'https://code.claude.com/docs/en/setup',
   'codex-cli-install': 'https://developers.openai.com/codex/cli',
   'codex-usage': 'https://chatgpt.com/codex/settings/usage',
   'grok-cli-install': 'https://docs.x.ai/build/overview',
-  'grok-bot-usage': 'https://cursor.com/dashboard',
+  'grok-bot-usage': 'https://cursor.com/dashboard/spending',
   'antigravity-cli-install': 'https://antigravity.google/docs/getting-started?tab=cli',
 });
 

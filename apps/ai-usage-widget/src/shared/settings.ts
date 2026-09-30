@@ -52,6 +52,12 @@ export interface Settings {
   grokBotUsedPercent: number | null;
   /** Main-process time when the user recorded that meter; never an automatic reading. */
   grokBotRecordedAt: number | null;
+  /** Next weekly reset, from the countdown the user read in the Grok Bot app (epoch ms). Optional. */
+  grokBotResetAt: number | null;
+  /** On-demand spend billed through Cursor, as read by the user (US cents). Optional. */
+  grokBotOnDemandSpentCents: number | null;
+  /** On-demand monthly limit set on Cursor's Spending page (US cents). Optional. */
+  grokBotOnDemandLimitCents: number | null;
 }
 
 export const SETTING_KEYS = [
@@ -73,6 +79,9 @@ export const SETTING_KEYS = [
   'language',
   'grokBotUsedPercent',
   'grokBotRecordedAt',
+  'grokBotResetAt',
+  'grokBotOnDemandSpentCents',
+  'grokBotOnDemandLimitCents',
 ] as const satisfies readonly (keyof Settings)[];
 
 export const DEFAULT_SETTINGS: Readonly<Settings> = Object.freeze({
@@ -94,7 +103,13 @@ export const DEFAULT_SETTINGS: Readonly<Settings> = Object.freeze({
   language: 'auto',
   grokBotUsedPercent: null,
   grokBotRecordedAt: null,
+  grokBotResetAt: null,
+  grokBotOnDemandSpentCents: null,
+  grokBotOnDemandLimitCents: null,
 });
+
+/** Upper bound for manually entered Grok Bot dollar amounts ($1,000,000). */
+export const GROK_BOT_MAX_CENTS = 100_000_000;
 
 const isBoolean = (value: unknown): value is boolean => typeof value === 'boolean';
 
@@ -118,6 +133,9 @@ const SETTING_GUARDS: { readonly [K in keyof Settings]: (value: unknown) => valu
   language: (v): v is Language => isOneOf(LANGUAGES, v),
   grokBotUsedPercent: (v): v is number | null => v === null || isIntInRange(v, 0, 100),
   grokBotRecordedAt: (v): v is number | null => v === null || isIntInRange(v, 0, Number.MAX_SAFE_INTEGER),
+  grokBotResetAt: (v): v is number | null => v === null || isIntInRange(v, 0, Number.MAX_SAFE_INTEGER),
+  grokBotOnDemandSpentCents: (v): v is number | null => v === null || isIntInRange(v, 0, GROK_BOT_MAX_CENTS),
+  grokBotOnDemandLimitCents: (v): v is number | null => v === null || isIntInRange(v, 0, GROK_BOT_MAX_CENTS),
 };
 
 export function isValidSettingValue<K extends keyof Settings>(key: K, value: unknown): value is Settings[K] {

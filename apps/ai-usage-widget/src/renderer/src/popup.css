@@ -286,13 +286,23 @@
 .grok-bot-used { font-size: 20px; }
 .grok-bot-left { font-size: 13px; color: var(--p-fg2); }
 .grok-bot-guide { margin: 0; font-size: 11px; line-height: 1.5; }
-.grok-bot-form { display: flex; align-items: end; gap: 8px; }
+.grok-bot-form { display: flex; flex-direction: column; gap: 8px; }
+.grok-bot-form-row { display: flex; align-items: end; gap: 8px; }
 .grok-bot-label { display: flex; flex: 1; flex-direction: column; gap: 4px; font-size: 11px; }
 .grok-bot-input { min-width: 0; width: 100%; padding: 6px 8px; border: 1px solid var(--p-border); border-radius: 5px; color: var(--p-fg); background: var(--p-surface); }
 .grok-bot-save { padding: 6px 12px; border: 1px solid var(--p-border); border-radius: 5px; background: var(--p-surface-2); color: var(--p-fg); cursor: pointer; }
-.grok-bot-input:focus-visible, .grok-bot-save:focus-visible { outline: 2px solid var(--p-accent); outline-offset: 2px; }
+.grok-bot-input:focus-visible, .grok-bot-save:focus-visible, .grok-bot-more-summary:focus-visible { outline: 2px solid var(--p-accent); outline-offset: 2px; }
+.grok-bot-line { margin: 0; font-size: 12px; font-variant-numeric: tabular-nums; }
+.grok-bot-spill { color: var(--p-danger); }
+.grok-bot-more { font-size: 11px; }
+.grok-bot-more-summary { cursor: pointer; color: var(--p-fg2); padding: 2px 0; }
+.grok-bot-more-body { display: flex; flex-direction: column; gap: 8px; padding-top: 6px; }
+.grok-bot-reset-row { display: flex; align-items: center; gap: 4px; }
+.grok-bot-reset-row .grok-bot-input { width: 56px; flex: 0 0 auto; }
+.grok-bot-unit { color: var(--p-fg2); margin-right: 6px; }
 .grok-bot-card[data-state='stale'] .grok-bot-status,
-.grok-bot-card[data-state='expired'] .grok-bot-status { color: var(--p-danger); }
+.grok-bot-card[data-state='expired'] .grok-bot-status,
+.grok-bot-card[data-state='reset'] .grok-bot-status { color: var(--p-danger); }
 .grok-bot-recorded { color: var(--p-fg2); }
 .grok-bot-open { align-self: flex-start; border: 0; background: transparent; color: var(--p-accent); cursor: pointer; padding: 2px 0; text-decoration: underline; }
 .grok-bot-open:focus-visible { outline: 2px solid var(--p-accent); outline-offset: 2px; }
