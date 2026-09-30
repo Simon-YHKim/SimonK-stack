@@ -323,6 +323,10 @@ class OrchestrationTests(unittest.TestCase):
                 plan = self.plan(candidates=[candidate(billing=billing)])
                 self.assertEqual(plan["status"], "blocked")
                 self.assertIn("PAID_CREDIT_EXPOSURE", str(plan))
+        billing = dict(candidate()["billing"], buckets={"codex": {}})
+        plan = self.plan(candidates=[candidate(billing=billing)])
+        self.assertEqual(plan["status"], "blocked")
+        self.assertIn("PAID_CREDIT_EXPOSURE", str(plan))
         for credits in (None,
                         {"has_credits": True, "balance": "3.25"},
                         {"has_credits": True, "balance": None},

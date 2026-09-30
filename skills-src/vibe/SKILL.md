@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when asked for SimonKStack "메인 오케스트레이터", "/vibe", "바이브로 알아서", Play Console/GUI orchestration, or task-wide skill/model/effort routing. Produces one verified plan and artifacts under $0 extra spend. Check CLI/API/MCP first; simonk is sprint-only and vibe-bot GUI-only.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.30
+version: 2.12.31
 author: simon-stack
 ---
 

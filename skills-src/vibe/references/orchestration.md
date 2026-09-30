@@ -257,6 +257,8 @@ or an unverified account-level credit fallback blocks the zero-extra-spend
 route even when auto-reload is off. An explicitly present Codex credit record
 must report `has_credits=false`, `unlimited=false` and a zero balance; null,
 malformed or contradictory records hold both planning and the final CLI gate.
+Every named Codex limit bucket must include its own credit record; an empty or
+omitted bucket credit field is unresolved even if a top-level record says zero.
 For Grok/Grok Bot, check purchased
 Extra Usage Credits/on-demand fallback separately from Auto Top Up and keep
 the CLI and Bot account/quota evidence distinct. Grok ACP billing places
