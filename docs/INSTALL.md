@@ -3909,6 +3909,54 @@ Codex 안전 스킬 5개 기능 동등성 및 Gstack 전체 외부 런타임 폐
 현재 사용자 프로필의 `/vibe` 2.11.6, 운영 설정, `main`, 결제 설정은 불변이다.
 추가 유료 API·Bot·Orca 실호출은 하지 않았다.
 
+## `/vibe` 2.12.17 메인 진입 재현 후보 (2026-09-30)
+
+기능 브랜치 `feat/skill-context-budget-260925`의 `d77def6`에서
+`E:/Coding Infra/Releases/SimonK-stack/20260930-main-entry-d77def6/`를 새로 만들었다.
+현재 원본 플러그인 HEAD가 고정 입력과 달라진 곳은 원본을 움직이지 않고,
+고정 커밋을 별도 clean clone(`core.autocrlf=false`)으로 재현해 조립했다.
+그 전에 만든 `c6b7164` 후보는 GUI 탐색 키워드 누락으로 후보 내부 테스트가
+실패한 과거 실패 사례이며 운영 후보가 아니다.
+
+| 영수증 | SHA-256 |
+| --- | --- |
+| 소스 `source/release.json` | `7776331971d4ea93979e99680fcc0b66ea732005df593f3d720aa6c89fd75779` |
+| Claude `candidate-safety/bundle.json` | `88e8ab086082c2c8ff237a836b80d9955abe688d85963a2e587b41bdd4efed86` |
+| Codex `codex-overlay-safety/overlay.json` | `497238d373438517d8c73d1ce280caa497df7a61441b5b035fbcc3d936095488` |
+| Codex `codex-subset-safety/subset.json` | `668ed575f2643f9491c5940f1b5fd483f2ec930a400cf5458fa4161f809e69e0` |
+
+네 영수증의 독립 검증, 후보의 오프라인 실행 검사 4/4,
+Claude 182스킬·Codex 일반 subset 177스킬의 공통 본문 176개와
+payload 612파일 정적 패리티가 통과했다. GUI 경계 수정 후 후보 내부
+`vibe-runtime-unit` 234건과 나머지 3단계가 통과했다. 마지막 설명 수정 및
+문서 반영 후 저장소 전체 테스트 387건도 통과했다(3건 조건부 skip).
+
+같은 요청·모델(`claude-sonnet-5-5`)·요청 effort(`low`)·제한 도구(`Read,Skill`)
+및 빈 임시 작업 공간의 별도 후보 세션에서 실제 `Skill` 호출은 이전
+2.12.16 후보 `simonk-stack:skstack` → 새 2.12.17 후보
+`simonk-core:vibe`였다. 원시 stream-json SHA-256은 각각
+`3ebe7f5218b125200c85ce6456f7fd53e135f3260423af0c09c0d6e4c7a68a70`,
+`608aeb2d66c8eb2825d27313afe00eaa0e3cee5bf30a1d8fcfc3b4038b957db1`이다.
+처음의 임시 폴더 생성 실패가 있었던 별도 ad-hoc 호출은 이 전후 비교에
+포함하지 않았다. CLI `total_cost_usd`는 목록가 기반 추정치이며 실제
+추가 청구액의 증거가 아니다. 사용자 확인상 추가 사용·자동 충전은 꺼져 있고
+API 키·대체 제공자 환경변수 없이 Claude Max 구독 로그인으로 호출했다.
+결제 설정 변경이나 유료 API 폴백은 없었다.
+
+한 사례의 Claude 진입 개선을 30개 대표 요청 전체의 선택률,
+Codex 실제 Skill 호출, 요청/실효 effort 일치, 답변 품질 또는 구독 청구
+증명으로 확대하지 않는다. Codex 일반 사용자 프로필에는 다른 플러그인
+28개와 전역 flat 스킬이 있어 새 후보를 그대로 더하면 중복·설명 예산 영향이
+미검증이다. 전체 Codex subset 177개를 일회용 프로젝트 로컬 스킬로 노출한
+읽기 전용 시험에서는 CLI가 `Exceeded skills context budget` 오류와 함께 모든
+스킬 설명을 제거하고 추가 141개를 모델 가시 목록에서 제외했다. 별도 3스킬
+시험에서는 `/vibe`를 선택했으나 `SKILL.md` 읽기 명령이 실행 정책에 막혔다.
+이 두 시험은 후보의 Codex 본문 적재/실행 합격 근거가 아니다. 추가 모델 호출로
+예산을 소모하지 않고 설치 게이트를 닫는다. 실제 사용자 설치, `main` 머지,
+Bot/Orca 발주를 하지 않았으며
+`host_behavior_verified=false`, `selection_quality_verified=false`,
+`installation_ready=false`를 유지한다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
