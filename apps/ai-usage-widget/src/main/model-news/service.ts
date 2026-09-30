@@ -9,7 +9,11 @@ import { MODEL_CATALOGS, parseCatalog } from './catalog';
 const CHECK_INTERVAL_MS = 6 * 60 * 60_000;
 /** One early re-check after a check with failed sources (only while the periodic timer runs). */
 export const RETRY_AFTER_FAILURE_MS = 15 * 60_000;
-const FETCH_TIMEOUT_MS = 12_000;
+/**
+ * Background page fetches, so generous: ai.google.dev usually answers in 0.5–1.5 s but stalled
+ * 19.7 s and 30 s+ in 2 of 12 timed requests (26.09.30). Longer stalls fall to the 15 min re-check.
+ */
+const FETCH_TIMEOUT_MS = 30_000;
 const MAX_RESPONSE_CHARS = 1_000_000;
 const FEEDS = {
   codex: 'https://openai.com/news/rss.xml',
