@@ -285,8 +285,6 @@ def scan_state(state: dict, fetch, now: datetime, force: bool = False,
         if previous:
             previous_links = {canonical_link(url, old) for old in previous.get("links", [])}
             for link, title in links.items():
-                if link in previous_links:
-                    continue
                 if url.endswith(".xml"):
                     published_at = publication_times.get(link)
                     previous_check = parse_time(previous["checked_at"])
@@ -294,6 +292,8 @@ def scan_state(state: dict, fetch, now: datetime, force: bool = False,
                             published_at < previous_check - timedelta(days=2) or
                             published_at > now.astimezone(timezone.utc) + timedelta(hours=1)):
                         continue
+                elif link in previous_links:
+                    continue
                 key = hashlib.sha256(f"{provider}\n{link}".encode("utf-8")).hexdigest()[:20]
                 if key not in current["candidates"]:
                     current["candidates"][key] = {

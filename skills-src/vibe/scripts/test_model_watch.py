@@ -85,6 +85,21 @@ class ModelWatchTests(unittest.TestCase):
                          "Introducing GPT-7 Sol")
         self.assertEqual(len(updated["sources"]["openai"]["links"]), 2)
 
+    def test_recent_rss_release_in_initial_baseline_is_caught_on_followup(self):
+        self.pages["openai"] = (
+            "<rss><channel><item><title>Introducing GPT-7 Sol</title>"
+            "<link>https://openai.com/index/gpt-7-sol</link>"
+            "<pubDate>Thu, 01 Oct 2026 10:00:00 GMT</pubDate>"
+            "</item></channel></rss>"
+        )
+        state, first_report = model_watch.scan_state({}, self.fetch, FRIDAY)
+        self.assertEqual(first_report["new_candidates"], [])
+        state, second_report = model_watch.scan_state(state, self.fetch,
+                                                      FRIDAY + timedelta(hours=1), force=True)
+        self.assertEqual(len(second_report["new_candidates"]), 1)
+        self.assertEqual(state["candidates"][second_report["new_candidates"][0]]["title"],
+                         "Introducing GPT-7 Sol")
+
     def test_new_model_heading_without_article_link_is_unreviewed(self):
         state, _ = model_watch.scan_state({}, self.fetch, FRIDAY)
         self.pages["google"] += "<h2>Gemini 4 Pro and Gemini 4 Flash</h2>"
