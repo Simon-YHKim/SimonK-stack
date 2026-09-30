@@ -47,6 +47,11 @@ export function rendererEntryUrl(view: ViewId, devServerUrl: string | undefined)
   return `${APP_ORIGIN}/index.html?view=${view}`;
 }
 
+export function modelBubbleEntryUrl(devServerUrl: string | undefined): string {
+  if (devServerUrl !== undefined) return new URL('model-bubble.html', devServerUrl.endsWith('/') ? devServerUrl : `${devServerUrl}/`).toString();
+  return `${APP_ORIGIN}/model-bubble.html`;
+}
+
 export function viewFromUrl(value: string): ViewId | null {
   try {
     const view = new URL(value).searchParams.get('view');

@@ -23,6 +23,7 @@ const NPM_SHIM = [
 ].join('\r\n');
 
 const LEGACY_SHIM = '@IF EXIST "%~dp0\\node.exe" (\r\n  "%~dp0\\node.exe"  "%~dp0\\node_modules\\pkg\\cli.js" %*\r\n)';
+const FORWARD_SHIM = '@echo off\r\ncall "C:\\Programs\\Codex-0.155.0\\codex.cmd" %*\r\n';
 
 function fakeDeps(files: Record<string, string>, env: Record<string, string>): ResolveDeps {
   const map = new Map(Object.entries(files).map(([k, v]) => [k.toLowerCase(), v]));
@@ -98,6 +99,56 @@ describe('resolveCommand', () => {
     );
     const result = resolveCommand('codex', deps);
     expect(result.ok && result.command.file).toBe('C:\\npm\\node.exe');
+  });
+
+  it('follows a versioned Windows launcher to the npm shim after a Codex version change', () => {
+    const deps = fakeDeps(
+      {
+        'C:\\npm\\codex.cmd': FORWARD_SHIM,
+        'C:\\Programs\\Codex-0.155.0\\codex.cmd': NPM_SHIM,
+        'C:\\Programs\\Codex-0.155.0\\node_modules\\@openai\\codex\\bin\\codex.js': '',
+        'C:\\nodejs\\node.exe': '',
+      },
+      ENV,
+    );
+    expect(resolveCommand('codex', deps)).toEqual({
+      ok: true,
+      kind: 'node-script',
+      source: 'C:\\npm\\codex.cmd',
+      command: {
+        file: 'C:\\nodejs\\node.exe',
+        prefixArgs: ['C:\\Programs\\Codex-0.155.0\\node_modules\\@openai\\codex\\bin\\codex.js'],
+      },
+    });
+  });
+
+  it('rejects unsafe or cyclic launcher chains', () => {
+    const invalid = fakeDeps({
+      'C:\\npm\\codex.cmd': '@echo off\r\ncall "C:\\Programs\\codex.cmd" %* & echo unsafe',
+      'C:\\Programs\\codex.cmd': NPM_SHIM,
+      'C:\\nodejs\\node.exe': '',
+    }, ENV);
+    expect(resolveCommand('codex', invalid)).toEqual({ ok: false, code: 'unsupported-shim' });
+    const cyclic = fakeDeps({
+      'C:\\npm\\codex.cmd': '@echo off\r\ncall "C:\\Programs\\codex.cmd" %*',
+      'C:\\Programs\\codex.cmd': '@echo off\r\ncall "C:\\npm\\codex.cmd" %*',
+    }, ENV);
+    expect(resolveCommand('codex', cyclic)).toEqual({ ok: false, code: 'unsupported-shim' });
+    const missing = fakeDeps({ 'C:\\npm\\codex.cmd': FORWARD_SHIM }, ENV);
+    expect(resolveCommand('codex', missing)).toEqual({ ok: false, code: 'unsupported-shim' });
+  });
+
+  it('follows a simple versioned launcher to a native CLI binary', () => {
+    const deps = fakeDeps({
+      'C:\\npm\\codex.cmd': '@echo off\r\ncall "C:\\Programs\\Codex-0.154.0\\codex.exe" %*',
+      'C:\\Programs\\Codex-0.154.0\\codex.exe': '',
+    }, ENV);
+    expect(resolveCommand('codex', deps)).toEqual({
+      ok: true,
+      kind: 'exe',
+      source: 'C:\\npm\\codex.cmd',
+      command: { file: 'C:\\Programs\\Codex-0.154.0\\codex.exe', prefixArgs: [] },
+    });
   });
 
   it('reports node-not-found, cli-not-found and unsupported shims', () => {

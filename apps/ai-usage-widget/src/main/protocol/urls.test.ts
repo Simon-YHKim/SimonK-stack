@@ -5,6 +5,7 @@ import {
   contentTypeFor,
   devCsp,
   isTrustedRendererUrl,
+  modelBubbleEntryUrl,
   rendererEntryUrl,
   resolveBundlePath,
   viewFromUrl,
@@ -43,6 +44,8 @@ describe('protocol urls', () => {
   it('builds entry URLs and reads the view back', () => {
     expect(rendererEntryUrl('widget', undefined)).toBe('app://bundle/index.html?view=widget');
     expect(rendererEntryUrl('popup', 'http://localhost:5173')).toBe('http://localhost:5173/index.html?view=popup');
+    expect(modelBubbleEntryUrl(undefined)).toBe('app://bundle/model-bubble.html');
+    expect(modelBubbleEntryUrl('http://localhost:5173')).toBe('http://localhost:5173/model-bubble.html');
     expect(viewFromUrl('app://bundle/index.html?view=popup')).toBe('popup');
     expect(viewFromUrl('app://bundle/index.html?view=admin')).toBeNull();
     expect(viewFromUrl('nonsense')).toBeNull();

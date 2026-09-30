@@ -44,6 +44,7 @@ interface Harness {
   controller: ReturnType<typeof createAppController>;
   windows: ReturnType<typeof fakeWindows>;
   calls: string[];
+  authRequired: { id: string; provider: ProviderId; label: string }[];
   logins: { emit: (event: LoginEvent) => void; signal: AbortSignal }[];
   opened: string[];
   writes: unknown[];
@@ -172,6 +173,7 @@ async function setup(
   }
   if (config.savedOpenAtLogin !== undefined) await store.saveSettings({ ...store.getSettings(), openAtLogin: config.savedOpenAtLogin });
   const calls: string[] = [];
+  const authRequired: Harness['authRequired'] = [];
   const logins: Harness['logins'] = [];
   const bridgeCalls: string[] = [];
   const registry = createProviderRegistry(
@@ -227,11 +229,12 @@ async function setup(
     profilesRoot,
     logger: nullLogger,
     externalLinks: {},
+    onAuthRequired: (account) => authRequired.push(account),
     newAccountId: () => `n${(counter += 1)}`,
     scheduler: { manualMinIntervalMs: 0, random: () => 0.5, timeoutMs: 2_000 },
   });
   controllers.push(controller);
-  return { controller, windows, calls, logins, opened, writes, profilesRoot, dir, store };
+  return { controller, windows, calls, authRequired, logins, opened, writes, profilesRoot, dir, store };
 }
 
 describe('sanitizeSnapshot', () => {
@@ -270,6 +273,13 @@ describe('sanitizeSnapshot', () => {
   it('turns unknown states into error with a code', () => {
     const bad = { state: 'ready', windows: 'nope', source: 'mock' } as unknown as UsageSnapshot;
     expect(sanitizeSnapshot(account, bad)).toMatchObject({ state: 'error', errorCode: 'internal', windows: [], source: 'grok-acp' });
+  });
+
+  it('keeps only a bounded Codex banked reset count', () => {
+    const codex = { ...account, provider: 'codex' as const };
+    expect(sanitizeSnapshot(codex, { ...okUsage(codex), resetCreditsAvailable: 2 }).resetCreditsAvailable).toBe(2);
+    expect(sanitizeSnapshot(codex, { ...okUsage(codex), resetCreditsAvailable: -1 }).resetCreditsAvailable).toBeUndefined();
+    expect(sanitizeSnapshot(account, { ...okUsage(account), resetCreditsAvailable: 2 }).resetCreditsAvailable).toBeUndefined();
   });
 });
 
@@ -316,7 +326,7 @@ describe('app controller', () => {
           usage: (account, call) =>
             call === 1
               ? okUsage(account)
-              : { ...okUsage(account), state: 'error', windows: [], measuredAt: null, lastSuccessAt: null, errorCode: 'network' },
+              : { ...okUsage(account), state: 'error', windows: [], measuredAt: null, lastSuccessAt: null, errorCode: 'parse-error' },
         },
       },
     });
@@ -325,9 +335,37 @@ describe('app controller', () => {
     await h.controller.refreshNow('a1');
     await until(() => h.windows.last()?.usage[0]?.state === 'error');
     const failed = h.windows.last()!.usage[0]!;
-    expect(failed.errorCode).toBe('network');
+    expect(failed.errorCode).toBe('parse-error');
     expect(failed.windows[0]?.usedPercent).toBe(42);
     expect(failed.lastSuccessAt).not.toBeNull();
+  });
+
+  it('rides out a one-off transient failure after a fresh reading, but not after an old one', async () => {
+    let failures = 0;
+    const h = await setup({
+      accounts: [{ id: 'x1', provider: 'codex' }, { id: 'x2', provider: 'codex' }],
+      adapters: {
+        codex: {
+          usage: (account, call) => {
+            // x1: fresh reading, then a timeout. x2: a reading older than the stale window, then a timeout.
+            const first = account.id === 'x1' ? okUsage(account) : okUsage(account, Date.now() - 60 * 60_000);
+            if (call <= 2) return first;
+            failures += 1;
+            return { ...okUsage(account), state: 'error', windows: [], measuredAt: null, lastSuccessAt: null, errorCode: 'timeout' };
+          },
+        },
+      },
+    });
+    await h.controller.start();
+    await until(() => h.windows.last()?.usage.length === 2 && h.windows.last()!.usage.every((u) => u.state !== 'loading'));
+    const before = h.windows.last()!.usage.find((u) => u.accountId === 'x1')!;
+    await h.controller.refreshNow(null);
+    await until(() => failures >= 2 && h.windows.last()!.usage.some((u) => u.accountId === 'x2' && u.state === 'error'));
+    const [x1, x2] = ['x1', 'x2'].map((id) => h.windows.last()!.usage.find((u) => u.accountId === id)!);
+    expect(x1).toMatchObject({ state: 'ok', measuredAt: before.measuredAt, lastSuccessAt: before.lastSuccessAt });
+    expect(x1?.errorCode).toBeUndefined();
+    expect(x2).toMatchObject({ state: 'error', errorCode: 'timeout' });
+    expect(x2?.windows[0]?.usedPercent).toBe(42);
   });
 
   it('skips usage for logged-out accounts and marks old successes stale', async () => {
@@ -344,6 +382,41 @@ describe('app controller', () => {
     expect(h.calls).not.toContain('claude:usage:c1');
     h.controller.markStale();
     await until(() => h.windows.last()?.usage[1]?.state === 'stale');
+  });
+
+  it('alerts once per confirmed signed-out account across providers', async () => {
+    const providers: ProviderId[] = ['claude', 'codex', 'grok', 'antigravity'];
+    const h = await setup({
+      accounts: providers.map((provider) => ({ id: provider, provider })),
+      adapters: Object.fromEntries(providers.map((provider) => [provider, { loggedIn: false }])),
+    });
+    await h.controller.start();
+    await until(() => h.authRequired.length === providers.length);
+    expect(h.authRequired.map(({ provider }) => provider)).toEqual(providers);
+
+    await h.controller.refreshNow(null);
+    await until(() => h.calls.filter((call) => call.endsWith(':identity:antigravity')).length >= 2);
+    await until(() => h.windows.last()?.refresh.inFlight === false);
+    expect(h.authRequired).toHaveLength(providers.length);
+  });
+
+  it('alerts again only after an account recovers and later signs out', async () => {
+    const h = await setup({
+      accounts: [{ id: 'a1', provider: 'codex' }],
+      adapters: {
+        codex: {
+          usage: (account, call) =>
+            call === 2 ? okUsage(account) : { ...okUsage(account), state: 'logged-out', windows: [], errorCode: 'login-expired' },
+        },
+      },
+    });
+    await h.controller.start();
+    await until(() => h.authRequired.length === 1);
+    await h.controller.refreshNow('a1');
+    await until(() => h.windows.last()?.usage[0]?.state === 'ok');
+    await h.controller.refreshNow('a1');
+    await until(() => h.authRequired.length === 2);
+    expect(h.authRequired.map(({ id }) => id)).toEqual(['a1', 'a1']);
   });
 
   it('adds and removes accounts through the adapters, persisting without profile paths', async () => {
@@ -428,6 +501,31 @@ describe('app controller', () => {
     });
   });
 
+  it('marks the previous reading stale on a new sign-in so a failing follow-up read cannot ride it out', async () => {
+    const h = await setup({ accounts: [{ id: 'a1', provider: 'codex' }], adapters: { codex: { loginHosts: ['openai.com'] } } });
+    await h.controller.start();
+    await until(() => h.windows.last()?.usage[0]?.state === 'ok');
+    h.controller.startLogin('a1');
+    await until(() => h.logins.length === 1);
+    h.logins[0]!.emit({ type: 'success', emailMasked: 'n***@e***.com', plan: 'plus' });
+    await until(() => h.windows.states().some((s) => s.usage[0]?.state === 'stale'));
+    // The refresh the login triggers brings a fresh reading back.
+    await until(() => h.windows.last()?.usage[0]?.state === 'ok');
+  });
+
+  it('passes model-news health to the renderer snapshot', async () => {
+    const h = await setup();
+    await h.controller.start();
+    expect(h.controller.snapshot().modelNewsHealth).toEqual({ checkedAt: null, sources: 0, failing: [] });
+    const health = { checkedAt: 1_800_000_000_000, sources: 8, failing: [{ provider: 'antigravity' as const, kind: 'catalog' as const, since: 1_799_990_000_000, count: 2 }] };
+    h.controller.setModelNewsHealth(health);
+    await until(() => h.windows.last()?.modelNewsHealth.failing.length === 1);
+    expect(h.windows.last()?.modelNewsHealth).toEqual(health);
+    // A copy: later changes to the service's object do not leak into the broadcast state.
+    health.failing[0]!.count = 99;
+    expect(h.controller.snapshot().modelNewsHealth.failing[0]?.count).toBe(2);
+  });
+
   it('applies settings: persistence, autostart registration, locale, windows and material', async () => {
     const h = await setup({ autostartSupported: true });
     await h.controller.start();
@@ -450,6 +548,39 @@ describe('app controller', () => {
     expect(h.windows.previews).toEqual([{ offsetPx: 20 }, null]);
     h.controller.setEffectivePlacementMode('floating');
     await until(() => h.windows.last()?.effectivePlacementMode === 'floating');
+  });
+
+  it('timestamps a manually entered Grok Bot percentage in main and preserves it through other settings changes', async () => {
+    const h = await setup();
+    await h.controller.start();
+    const recorded = await h.controller.updateSettings({ grokBotUsedPercent: 68 });
+    expect(recorded.grokBotUsedPercent).toBe(68);
+    expect(recorded.grokBotRecordedAt).toBeTypeOf('number');
+    const changed = await h.controller.updateSettings({ language: 'en' });
+    expect(changed.grokBotRecordedAt).toBe(recorded.grokBotRecordedAt);
+    await expect(h.controller.updateSettings({ grokBotRecordedAt: 1 })).rejects.toMatchObject({ code: 'invalid-request' });
+    const saved = JSON.parse(await readFile(path.join(h.dir, 'settings.json'), 'utf8')) as Settings;
+    expect(saved.grokBotUsedPercent).toBe(68);
+    expect(saved.grokBotRecordedAt).toBe(recorded.grokBotRecordedAt);
+  });
+
+  it('accepts a Grok Bot reset only within the next weekly window, keeps a pending one and clears it with the reading', async () => {
+    const h = await setup();
+    await h.controller.start();
+    const hour = 3_600_000;
+    await expect(h.controller.updateSettings({ grokBotUsedPercent: 10, grokBotResetAt: Date.now() - 2 * hour }))
+      .rejects.toMatchObject({ code: 'invalid-request' });
+    await expect(h.controller.updateSettings({ grokBotUsedPercent: 10, grokBotResetAt: Date.now() + 9 * 24 * hour }))
+      .rejects.toMatchObject({ code: 'invalid-request' });
+
+    const resetAt = Date.now() + 30 * hour;
+    const first = await h.controller.updateSettings({ grokBotUsedPercent: 40, grokBotResetAt: resetAt, grokBotOnDemandSpentCents: 250 });
+    expect(first).toMatchObject({ grokBotResetAt: resetAt, grokBotOnDemandSpentCents: 250 });
+    // A new percentage without a new countdown keeps a reset that is still ahead.
+    expect((await h.controller.updateSettings({ grokBotUsedPercent: 55 })).grokBotResetAt).toBe(resetAt);
+    // Clearing the reading clears its reset too.
+    const cleared = await h.controller.updateSettings({ grokBotUsedPercent: null });
+    expect(cleared).toMatchObject({ grokBotUsedPercent: null, grokBotRecordedAt: null, grokBotResetAt: null });
   });
 
   it('serializes settings updates so back-to-back changes all persist (RR-02)', async () => {

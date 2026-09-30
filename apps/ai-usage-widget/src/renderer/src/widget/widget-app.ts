@@ -2,11 +2,14 @@ import { createTranslator } from '../../../shared/i18n';
 import type { AppStateSnapshot, ThemeTokens } from '../../../shared/types';
 import type { Api } from '../api';
 import { h, setAttr, setStyles, uniqueId } from '../dom';
-import { refreshGlyph } from '../icons';
+import { providerIcon, refreshGlyph } from '../icons';
 import { currentNavigatorLanguage, pickLocale } from '../locale';
-import { buildEnabledViews, type RenderContext } from '../model';
+import { V1_COLORS, buildEnabledViews, type RenderContext } from '../model';
 import { applyDocumentTheme, skinFor } from '../theme';
 import { renderWidgetItem } from './themes';
+import { modelNoticeText } from '../../../shared/model-notice';
+import { GROK_BOT_STATUS_KEYS, grokBotReading, grokBotSpillKey, grokBotWeeklyExhausted } from '../../../shared/grok-bot';
+import { formatCountdown } from '../../../shared/usage';
 
 /** Clicks within this window after a toggle are ignored (v1 SPEC §2-5). */
 export const TOGGLE_DEBOUNCE_MS = 300;
@@ -15,6 +18,59 @@ export const REFRESH_COOLDOWN_MS = 5000;
 export const TICK_MS = 30_000;
 const SIZE_MARGIN = 4;
 const MIN_HEIGHT = 34;
+const MINUTE_MS = 60_000;
+
+interface PaceSample {
+  at: number;
+  used: number;
+  resetsAt: number | null;
+}
+
+interface FastPace {
+  recent: number;
+  usual: number | null;
+}
+
+/** Detect a short quota burst, or a sustained rise against earlier readings. */
+function fastPace(samples: readonly PaceSample[]): FastPace | null {
+  const latest = samples.at(-1);
+  if (latest === undefined || samples.length < 2) return null;
+  const burstStart = [...samples].reverse().find((sample) => {
+    const age = latest.at - sample.at;
+    return age >= 2 * MINUTE_MS && age <= 15 * MINUTE_MS && latest.used - sample.used >= 12;
+  });
+  if (burstStart !== undefined) {
+    const usualStart = samples.find((sample) => sample.at <= burstStart.at - 10 * MINUTE_MS);
+    const usual = usualStart === undefined ? null :
+      (burstStart.used - usualStart.used) * 3_600_000 / (burstStart.at - usualStart.at);
+    return { recent: (latest.used - burstStart.used) * 3_600_000 / (latest.at - burstStart.at), usual };
+  }
+  const recentStart = samples.find((sample) => {
+    const age = latest.at - sample.at;
+    return age >= 2 * MINUTE_MS && age <= 20 * MINUTE_MS;
+  });
+  if (recentStart === undefined) return null;
+  const increase = latest.used - recentStart.used;
+  if (increase < 3) return null;
+  const usualStart = samples.find((sample) => sample.at <= recentStart.at - 10 * MINUTE_MS);
+  const usual = usualStart === undefined ? null :
+    (recentStart.used - usualStart.used) * 3_600_000 / (recentStart.at - usualStart.at);
+  const recent = increase * 3_600_000 / (latest.at - recentStart.at);
+  let positiveSteps = 0;
+  let largestStep = 0;
+  let previous = recentStart;
+  for (const sample of samples) {
+    if (sample.at <= recentStart.at) continue;
+    const step = sample.used - previous.used;
+    if (step > 0) {
+      positiveSteps += 1;
+      largestStep = Math.max(largestStep, step);
+    }
+    previous = sample;
+  }
+  if (positiveSteps < 2 || increase - largestStep < 2) return null;
+  return recent >= Math.max(12, (usual ?? 0) * 2.5) ? { recent, usual } : null;
+}
 
 export interface Size {
   width: number;
@@ -58,6 +114,9 @@ export class WidgetApp {
   private lastSignature = '';
   private lastSize: Size | null = null;
   private tickTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly paceHistory = new Map<string, Map<string, PaceSample[]>>();
+  private readonly fastAccounts = new Map<string, FastPace>();
+  private readonly announcedFastAccounts = new Set<string>();
 
   readonly bar: HTMLDivElement;
   readonly main: HTMLDivElement;
@@ -84,7 +143,7 @@ export class WidgetApp {
       this.activateMain();
     });
     this.main.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
+      if (event.target === this.main && (event.key === 'Enter' || event.key === ' ')) {
         event.preventDefault();
         this.activateMain();
       }
@@ -108,7 +167,64 @@ export class WidgetApp {
 
   update(state: AppStateSnapshot): WidgetRendered {
     this.state = state;
-    return this.render();
+    this.observePace(state);
+    const rendered = this.render();
+    const locale = this.context(state).locale;
+    for (const [accountId, pace] of this.fastAccounts) {
+      if (this.announcedFastAccounts.has(accountId)) continue;
+      this.announcedFastAccounts.add(accountId);
+      void this.api.invoke('window:show-pace-bubble', { accountId, recent: pace.recent, usual: pace.usual, locale });
+    }
+    for (const accountId of this.announcedFastAccounts) {
+      if (!this.fastAccounts.has(accountId)) this.announcedFastAccounts.delete(accountId);
+    }
+    return rendered;
+  }
+
+  private observePace(state: AppStateSnapshot): void {
+    this.fastAccounts.clear();
+    const accountIds = new Set(state.accounts.map((account) => account.id));
+    for (const id of this.paceHistory.keys()) if (!accountIds.has(id)) this.paceHistory.delete(id);
+    for (const snapshot of state.usage) {
+      const at = snapshot.measuredAt;
+      if (snapshot.state !== 'ok' || at === null || !Number.isFinite(at) || at > this.now() + MINUTE_MS) continue;
+      let windows = this.paceHistory.get(snapshot.accountId);
+      if (windows === undefined) {
+        windows = new Map();
+        this.paceHistory.set(snapshot.accountId, windows);
+      }
+      const seen = new Set<string>();
+      snapshot.windows.forEach((window, index) => {
+        const used = window.usedPercent;
+        if (used === null || !Number.isFinite(used) || used < 0 || used > 100) return;
+        if (window.resetsAt !== null && window.resetsAt <= at) return;
+        const key = JSON.stringify([index, window.kind, window.label ?? '']);
+        seen.add(key);
+        let samples = windows.get(key) ?? [];
+        const last = samples.at(-1);
+        if (last !== undefined && at <= last.at) {
+          const pace = this.now() - last.at <= 25 * MINUTE_MS ? fastPace(samples) : null;
+          if (pace !== null && pace.recent > (this.fastAccounts.get(snapshot.accountId)?.recent ?? 0)) {
+            this.fastAccounts.set(snapshot.accountId, pace);
+          }
+          return;
+        }
+        const resetChanged = last !== undefined && (
+          (last.resetsAt === null) !== (window.resetsAt === null) ||
+          (last.resetsAt !== null && window.resetsAt !== null && Math.abs(last.resetsAt - window.resetsAt) > 2 * MINUTE_MS)
+        );
+        if (last !== undefined && (used < last.used || resetChanged)) samples = [];
+        samples = [...samples, { at, used, resetsAt: window.resetsAt }]
+          .filter((sample) => at - sample.at <= 2 * 3_600_000)
+          .slice(-50);
+        windows.set(key, samples);
+        const pace = this.now() - at <= 25 * MINUTE_MS ? fastPace(samples) : null;
+        if (pace !== null && pace.recent > (this.fastAccounts.get(snapshot.accountId)?.recent ?? 0)) {
+          this.fastAccounts.set(snapshot.accountId, pace);
+        }
+      });
+      for (const key of windows.keys()) if (!seen.has(key)) windows.delete(key);
+    }
   }
 
   updateTheme(theme: ThemeTokens): void {
@@ -127,7 +243,36 @@ export class WidgetApp {
   }
 
   private isEmpty(): boolean {
-    return this.state === null || !this.state.accounts.some((account) => account.enabled);
+    return this.state === null || (!this.state.accounts.some((account) => account.enabled) && this.state.settings.grokBotUsedPercent === null);
+  }
+
+  private grokBotItem(state: AppStateSnapshot, ctx: RenderContext): HTMLElement {
+    const reading = grokBotReading(state.settings, ctx.now);
+    const numeric = reading.state === 'fresh' || reading.state === 'stale';
+    const percent = numeric ? (state.settings.showUsedPercent ? reading.usedPercent : reading.leftPercent) : null;
+    const value = percent === null ? '—' : `${percent}% ${ctx.t(state.settings.showUsedPercent ? 'unitUsed' : 'unitLeft')}`;
+    const status = ctx.t(GROK_BOT_STATUS_KEYS[reading.state]);
+    const resetsAt = numeric ? reading.resetsAt : null;
+    const countdown = resetsAt === null ? null : formatCountdown(resetsAt - ctx.now);
+    const exhausted = grokBotWeeklyExhausted(reading);
+    const titleParts = [ctx.t('grokBotTitle'), value, status];
+    if (countdown !== null) titleParts.push(ctx.t('grokBotResetsIn', { time: countdown }));
+    if (exhausted) titleParts.push(ctx.t(grokBotSpillKey(state.settings.grokBotOnDemandLimitCents)));
+    // Same colour rule as the measured rows: only with "Color by Usage" and never in monochrome.
+    const flagged = exhausted && state.settings.colorByUsage && state.settings.iconStyle !== 'monochrome';
+    const valueEl = h('strong', { class: 'grok-bot-widget-value' }, [value]);
+    if (flagged && state.settings.theme !== 'windows') setStyles(valueEl, { color: V1_COLORS.critical });
+    return h('div', {
+      class: `account-item grok-bot-item${reading.state === 'fresh' ? '' : ' is-stale'}${flagged ? ' is-exhausted' : ''}`,
+      'data-provider': 'grok-bot',
+      title: titleParts.join(' · '),
+    }, [
+      providerIcon('grok', 16, state.settings.iconStyle === 'monochrome'),
+      h('span', { class: 'grok-bot-widget-name' }, [ctx.t('grokBotWidget')]),
+      valueEl,
+      countdown === null ? null : h('small', { class: 'grok-bot-widget-reset' }, [countdown]),
+      h('small', { class: 'grok-bot-widget-manual' }, [ctx.t('grokBotManual')]),
+    ]);
   }
 
   private render(): WidgetRendered {
@@ -156,20 +301,44 @@ export class WidgetApp {
     setAttr(this.main, 'aria-label', title);
 
     // Rebuild items only when their rendered form would change (keeps the refresh button and focus stable).
-    const signature = JSON.stringify({ empty, views, settings, locale: ctx.locale, scheme: state.theme.taskbarScheme, minute: Math.floor(ctx.now / 60_000) });
+    const signature = JSON.stringify({ empty, views, settings, notices: state.modelNotices, pace: [...this.fastAccounts], locale: ctx.locale, scheme: state.theme.taskbarScheme, minute: Math.floor(ctx.now / 60_000) });
     if (signature !== this.lastSignature) {
       this.lastSignature = signature;
       if (empty) {
         this.main.replaceChildren(h('span', { class: 'white-circle-dot', 'aria-hidden': 'true' }));
         this.summary.textContent = title;
       } else {
-        const items = views.map((view) => renderWidgetItem(view, ctx));
+        const items = views.map((view) => {
+          const item = renderWidgetItem(view, ctx);
+          const notice = state.modelNotices.find((entry) => entry.provider === view.account.provider);
+          if (notice !== undefined) {
+            const message = modelNoticeText(notice, ctx.locale, ctx.now);
+            const badge = h('button', {
+              type: 'button', class: 'model-notice-badge', title: message,
+              'aria-label': `${message}. ${ctx.locale === 'ko' ? '공식 발표 열기' : 'Open official announcement'}`,
+            }, ['✦']);
+            badge.addEventListener('click', (event) => {
+              event.stopPropagation();
+              void this.api.invoke('model-notice:open', { provider: notice.provider });
+            });
+            item.append(badge);
+            item.title += `\n${message}`;
+          }
+          const pace = view.state === 'ok' ? this.fastAccounts.get(view.account.id) : undefined;
+          if (pace !== undefined) {
+            item.classList.add('is-fast');
+            item.title += `\n${pace.usual === null ? t('quotaPaceBurst', { recent: pace.recent.toFixed(1) }) :
+              t('quotaPaceFast', { recent: pace.recent.toFixed(1), usual: pace.usual.toFixed(1) })}`;
+          }
+          return item;
+        });
+        if (state.settings.grokBotUsedPercent !== null) items.push(this.grokBotItem(state, ctx));
         this.main.replaceChildren(...items);
         this.summary.textContent = items.map((item) => item.getAttribute('title') ?? '').join('. ');
       }
     }
 
-    this.refreshButton.hidden = empty;
+    this.refreshButton.hidden = !state.accounts.some((account) => account.enabled);
     this.updateRefreshButton();
     this.schedule(() => this.reportSize());
     return empty ? 'empty' : 'accounts';
@@ -202,11 +371,12 @@ export class WidgetApp {
     if (now - this.lastToggleAt < TOGGLE_DEBOUNCE_MS) return;
     this.lastToggleAt = now;
     if (this.isEmpty()) void this.api.invoke('window:show-popup', { tab: 'accounts' });
+    else if (this.state !== null && !this.state.accounts.some((account) => account.enabled)) void this.api.invoke('window:show-popup', { tab: 'usage' });
     else void this.api.invoke('window:toggle-popup', null);
   }
 
   requestRefresh(): void {
-    if (this.isEmpty() || this.isRefreshDisabled()) return;
+    if (this.isEmpty() || this.state === null || !this.state.accounts.some((account) => account.enabled) || this.isRefreshDisabled()) return;
     const now = this.now();
     this.cooldownUntil = now + REFRESH_COOLDOWN_MS;
     this.pendingRefresh = true;

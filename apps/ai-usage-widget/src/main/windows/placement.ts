@@ -41,6 +41,18 @@ export const FLOATING_GAP = 4;
 export const POPUP_GAP = 8;
 export const POPUP_EDGE_MARGIN = 12;
 export const ASSUMED_TASKBAR_THICKNESS = 48;
+export const MODEL_BUBBLE_SIZE = { width: 264, height: 74 } as const;
+
+/** Place a transient callout over its vendor icon and keep it on-screen. */
+export function computeModelBubbleBounds(widget: Rect, icon: Rect, display: Rect): Rect {
+  const width = Math.min(MODEL_BUBBLE_SIZE.width, display.width);
+  const height = MODEL_BUBBLE_SIZE.height;
+  const center = widget.x + icon.x + icon.width / 2;
+  const x = Math.round(Math.max(display.x, Math.min(center - width / 2, display.x + display.width - width)));
+  const above = widget.y - height - 6;
+  const y = above >= display.y ? above : Math.min(widget.y + widget.height + 6, display.y + display.height - height);
+  return { x, y, width, height };
+}
 
 export type PlacementSettings = Pick<Settings, 'placementMode' | 'alignment' | 'offsetPx' | 'verticalOffsetPx'>;
 

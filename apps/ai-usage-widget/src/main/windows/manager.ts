@@ -1,7 +1,7 @@
-import { screen, type BrowserWindow, type Display } from 'electron';
-import type { EventChannel, EventContract, PlacementPreview, ResizeWidgetRequest } from '../../shared/ipc';
+import { BrowserWindow, screen, type Display } from 'electron';
+import type { EventChannel, EventContract, PlacementPreview, ResizeWidgetRequest, ShowPaceBubbleRequest } from '../../shared/ipc';
 import type { Settings } from '../../shared/settings';
-import type { PopupTab, ThemeTokens, ViewId } from '../../shared/types';
+import type { Locale, ModelNotice, PopupTab, ThemeTokens, ViewId } from '../../shared/types';
 import type { WindowsPort } from '../app/controller';
 import { sendEvent } from '../ipc/register';
 import type { Logger } from '../log';
@@ -10,6 +10,7 @@ import type { NativeWindowOps } from '../platform/user32';
 import { POPUP_SIZE, WIDGET_INITIAL_SIZE, applyMaterial, createPopupWindow, createWidgetWindow, hwndOf } from '.';
 import {
   computePopupBounds,
+  computeModelBubbleBounds,
   computeWidgetBounds,
   detectTaskbar,
   type AppBarInfo,
@@ -23,6 +24,7 @@ export interface WindowManagerOptions {
   preloadPath: string;
   devTools: boolean;
   entryUrl(view: ViewId): string;
+  bubbleEntryUrl(): string;
   settings: Settings;
   theme: ThemeTokens;
   native: NativeWindowOps | null;
@@ -41,6 +43,14 @@ export interface WindowSmokeInfo {
   widgetInsideDisplay: boolean;
 }
 
+type BubbleEntry =
+  | { kind: 'model'; notice: ModelNotice; locale: Locale; attempts: number }
+  | { kind: 'pace'; id: string; alert: ShowPaceBubbleRequest & { label: string }; attempts: number };
+
+function bubbleId(entry: BubbleEntry): string {
+  return entry.kind === 'model' ? entry.notice.id : entry.id;
+}
+
 function sameRect(a: Rect, b: Rect): boolean {
   return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
 }
@@ -48,6 +58,14 @@ function sameRect(a: Rect, b: Rect): boolean {
 export class WindowManager implements WindowsPort {
   private widget: BrowserWindow | null = null;
   private popup: BrowserWindow | null = null;
+  private modelBubble: BrowserWindow | null = null;
+  private modelBubbleId: string | null = null;
+  private modelBubbleTimer: ReturnType<typeof setTimeout> | null = null;
+  private modelBubbleLoading = false;
+  private readonly modelBubbleQueue: BubbleEntry[] = [];
+  private readonly modelBubbleShown = new Set<string>();
+  private readonly lastPaceBubbleAt = new Map<string, number>();
+  private activeModelNoticeIds = new Set<string>();
   private settings: Settings;
   private theme: ThemeTokens;
   private widgetSize: ResizeWidgetRequest = { ...WIDGET_INITIAL_SIZE };
@@ -77,7 +95,7 @@ export class WindowManager implements WindowsPort {
       onFullscreenChange: (fullscreen) => this.onFullscreenChange(fullscreen),
       target: {
         widgetHwnd: () => hwndOf(this.widget),
-        ownHwnds: () => [hwndOf(this.widget), hwndOf(this.popup)].filter((h): h is bigint => h !== null),
+        ownHwnds: () => [hwndOf(this.widget), hwndOf(this.popup), hwndOf(this.modelBubble)].filter((h): h is bigint => h !== null),
         isWidgetShown: () => this.widget !== null && !this.widget.isDestroyed() && this.widget.isVisible(),
         moveTop: () => this.widget?.moveTop(),
       },
@@ -184,6 +202,7 @@ export class WindowManager implements WindowsPort {
     const next = this.computePlacement();
     this.setPlacement(next);
     if (!sameRect(widget.getBounds(), next.bounds)) widget.setBounds(next.bounds);
+    if (this.modelBubble?.isVisible()) this.hideModelBubble();
     const popup = this.popup;
     // The popup stays put while its offset slider previews: moving it with the widget would shift
     // the track under a still pointer and feed back into the value. It follows once the preview ends.
@@ -253,6 +272,7 @@ export class WindowManager implements WindowsPort {
     if (widget === null || widget.isDestroyed()) return;
     this.reposition();
     if (!this.fullscreenHidden) widget.showInactive();
+    if (!this.fullscreenHidden && this.modelBubbleQueue.length > 0) void this.showNextModelBubble();
     this.applyTopmost();
   }
 
@@ -260,6 +280,7 @@ export class WindowManager implements WindowsPort {
     this.userHidden = true;
     this.options.onWidgetVisibilityChange?.(false);
     this.popupState.hide();
+    this.hideModelBubble();
     if (this.widget !== null && !this.widget.isDestroyed()) this.widget.hide();
     this.applyTopmost();
   }
@@ -279,11 +300,13 @@ export class WindowManager implements WindowsPort {
     if (widget === null || widget.isDestroyed()) return;
     if (fullscreen) {
       this.popupState.hide();
+      this.hideModelBubble();
       if (widget.isVisible()) widget.hide();
     } else if (!this.userHidden) {
       // Restore without stealing focus from the app that left fullscreen (V1-30).
       widget.showInactive();
       this.reposition();
+      if (this.modelBubbleQueue.length > 0) void this.showNextModelBubble();
     }
   }
 
@@ -327,6 +350,107 @@ export class WindowManager implements WindowsPort {
     }
   }
 
+  /** A short, click-through speech bubble appears above each vendor icon once per new notice. */
+  showModelBubbles(notices: readonly ModelNotice[], locale: Locale): void {
+    const activeIds = new Set(notices.map((notice) => notice.id));
+    this.activeModelNoticeIds = activeIds;
+    for (let index = this.modelBubbleQueue.length - 1; index >= 0; index -= 1) {
+      const entry = this.modelBubbleQueue[index];
+      if (entry?.kind === 'model' && !activeIds.has(entry.notice.id)) this.modelBubbleQueue.splice(index, 1);
+    }
+    if (this.modelBubbleId !== null && !this.modelBubbleId.startsWith('pace:') && !activeIds.has(this.modelBubbleId)) this.hideModelBubble();
+    for (const notice of notices) {
+      if (this.modelBubbleShown.has(notice.id)) continue;
+      this.modelBubbleShown.add(notice.id);
+      this.modelBubbleQueue.push({ kind: 'model', notice, locale, attempts: 0 });
+    }
+    if (this.modelBubble === null && !this.modelBubbleLoading) void this.showNextModelBubble();
+  }
+
+  showPaceBubble(alert: ShowPaceBubbleRequest & { label: string }): void {
+    const now = Date.now();
+    if (now - (this.lastPaceBubbleAt.get(alert.accountId) ?? -Infinity) < 15 * 60_000) return;
+    this.lastPaceBubbleAt.set(alert.accountId, now);
+    this.modelBubbleQueue.push({ kind: 'pace', id: `pace:${alert.accountId}:${now}`, alert, attempts: 0 });
+    if (this.modelBubble === null && !this.modelBubbleLoading) void this.showNextModelBubble();
+  }
+
+  private async showNextModelBubble(): Promise<void> {
+    if (this.closing || this.modelBubble !== null || this.modelBubbleLoading) return;
+    const next = this.modelBubbleQueue.shift();
+    if (next === undefined) return;
+    this.modelBubbleLoading = true;
+    const widget = this.widget;
+    if (widget === null || widget.isDestroyed() || !widget.isVisible() || this.fullscreenHidden) {
+      this.modelBubbleLoading = false;
+      this.modelBubbleQueue.unshift(next);
+      return;
+    }
+    // The renderer lays out variable-width themes and accounts; query the target icon's
+    // geometry. Provider IDs are fixed; account IDs pass through the IPC ID validator.
+    await new Promise((resolve) => setTimeout(resolve, 180));
+    const script = next.kind === 'model'
+      ? `(() => { const el = document.querySelector('.account-item[data-provider="${next.notice.provider}"] .ai-brand-icon'); if (!el) return null; const r = el.getBoundingClientRect(); return {x:r.x,y:r.y,width:r.width,height:r.height}; })()`
+      : `(() => { const item = [...document.querySelectorAll('.account-item')].find(el => el.dataset.accountId === ${JSON.stringify(next.alert.accountId)}); const el = item?.querySelector('.ai-brand-icon'); if (!el) return null; const r = el.getBoundingClientRect(); return {x:r.x,y:r.y,width:r.width,height:r.height}; })()`;
+    let icon: Rect | null = null;
+    try { icon = await widget.webContents.executeJavaScript(script) as Rect | null; }
+    catch (error) { this.options.logger.warn('model bubble anchor failed', { error }); }
+    if (next.kind === 'model' && !this.activeModelNoticeIds.has(next.notice.id)) {
+      this.modelBubbleLoading = false;
+      void this.showNextModelBubble();
+      return;
+    }
+    if (icon === null || widget.isDestroyed() || !widget.isVisible()) {
+      this.modelBubbleLoading = false;
+      if (icon === null && next.attempts < 2 && !widget.isDestroyed() && widget.isVisible()) {
+        this.modelBubbleQueue.unshift({ ...next, attempts: next.attempts + 1 });
+        setTimeout(() => { void this.showNextModelBubble(); }, 350);
+        return;
+      }
+      if (next.kind === 'model') this.modelBubbleShown.delete(next.notice.id);
+      void this.showNextModelBubble();
+      return;
+    }
+    const bounds = computeModelBubbleBounds(widget.getBounds(), icon, screen.getDisplayMatching(widget.getBounds()).bounds);
+    const below = bounds.y > widget.getBounds().y;
+    const url = new URL(this.options.bubbleEntryUrl());
+    url.searchParams.set('locale', next.kind === 'model' ? next.locale : next.alert.locale);
+    if (next.kind === 'model') {
+      url.searchParams.set('status', next.notice.status);
+      url.searchParams.set('model', next.notice.model);
+      if (next.notice.releaseDate !== null) url.searchParams.set('date', next.notice.releaseDate);
+    } else {
+      url.searchParams.set('kind', 'pace');
+      url.searchParams.set('model', next.alert.label.slice(0, 90));
+      url.searchParams.set('recent', next.alert.recent.toFixed(1));
+      if (next.alert.usual !== null) url.searchParams.set('usual', next.alert.usual.toFixed(1));
+    }
+    url.searchParams.set('scheme', this.theme.taskbarScheme);
+    url.searchParams.set('below', String(below));
+    const bubble = new BrowserWindow({ ...bounds, frame: false, transparent: true, backgroundColor: '#00000000',
+      resizable: false, skipTaskbar: true, focusable: false, alwaysOnTop: true, show: false,
+      webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false, webSecurity: true, devTools: false } });
+    this.modelBubble = bubble;
+    this.modelBubbleId = bubbleId(next);
+    this.modelBubbleLoading = false;
+    bubble.setIgnoreMouseEvents(true, { forward: true });
+    bubble.setAlwaysOnTop(true, 'screen-saver');
+    try { await bubble.loadURL(url.toString()); }
+    catch (error) { this.options.logger.warn('model bubble load failed', { error }); this.hideModelBubble(); return; }
+    if (this.closing || this.userHidden || this.fullscreenHidden) { this.hideModelBubble(); return; }
+    bubble.showInactive();
+    this.modelBubbleTimer = setTimeout(() => this.hideModelBubble(), 8_000);
+  }
+
+  private hideModelBubble(): void {
+    if (this.modelBubbleTimer !== null) clearTimeout(this.modelBubbleTimer);
+    this.modelBubbleTimer = null;
+    if (this.modelBubble !== null && !this.modelBubble.isDestroyed()) this.modelBubble.destroy();
+    this.modelBubble = null;
+    this.modelBubbleId = null;
+    if (!this.closing && this.modelBubbleQueue.length > 0) void this.showNextModelBubble();
+  }
+
   // ---------------------------------------------------------------------------
 
   smokeInfo(): WindowSmokeInfo {
@@ -354,6 +478,7 @@ export class WindowManager implements WindowsPort {
 
   private destroyWindows(): void {
     this.closing = true;
+    this.hideModelBubble();
     this.popupState.dispose();
     for (const win of [this.widget, this.popup]) {
       if (win !== null && !win.isDestroyed()) win.destroy();

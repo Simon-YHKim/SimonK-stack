@@ -9,6 +9,12 @@ import { CLIENT_NAME, METHOD, parseInitializeResult, samePath, type InitializeIn
 export interface CodexTimeouts {
   initMs: number;
   rpcMs: number;
+  /**
+   * `account/rateLimits/read` waits on ChatGPT's usage backend. On 26.09.28 it missed the plain
+   * 10 s rpc limit 34 times while initialize/account/read answered in 0.1 s and `/codex/models`
+   * in 0.2–3.9 s from the same process, so this one call gets a longer limit.
+   */
+  rateLimitsMs: number;
   /** `account/login/start` contacts the auth server, so it gets more than a plain rpc. */
   loginStartMs: number;
   /** Waiting for the user to finish device-code sign-in. */
@@ -25,6 +31,7 @@ export interface CodexTimeouts {
 export const DEFAULT_TIMEOUTS: Readonly<CodexTimeouts> = {
   initMs: 30_000,
   rpcMs: 10_000,
+  rateLimitsMs: 20_000,
   loginStartMs: 30_000,
   loginMs: 10 * 60_000,
   loginCancelMs: 3_000,

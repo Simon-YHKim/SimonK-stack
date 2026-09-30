@@ -62,7 +62,7 @@ export class PopupApp {
     const translator = (): Translator => this.translator;
     const report = (message: string): void => this.report(message);
 
-    this.usage = new UsageTab();
+    this.usage = new UsageTab({ api: this.api, report });
     this.accounts = new AccountsTab({ api: this.api, translator, report, now: this.now });
     this.settings = new SettingsTab({
       api: this.api,
@@ -275,8 +275,8 @@ export class PopupApp {
     for (const tab of POPUP_TABS) setText(this.tabs[tab], t(TAB_LABEL_KEYS[tab]));
     this.renderHeader();
 
-    this.usage.update(views, ctx);
+    this.usage.update(views, ctx, state.settings);
     this.accounts.update(state, ctx);
-    this.settings.update(state.settings, ctx, state.effectivePlacementMode);
+    this.settings.update(state.settings, ctx, state.effectivePlacementMode, state.modelNewsHealth);
   }
 }

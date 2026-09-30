@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { en } from '../../../shared/i18n/en';
 import type { AppStateSnapshot, LoginEvent } from '../../../shared/types';
 import { FakeApi, NOW, account, appState, flush, quotaWindow, usage } from '../testing/fixtures';
+import { fromLocalDateTimeValue, toLocalDateTimeValue } from './grok-bot-card';
 import { isValidPaste } from './login-panel';
 import { PopupApp } from './popup-app';
 import { PREVIEW_THROTTLE_MS, RANGE_COMMIT_DELAY_MS } from './settings-tab';
@@ -89,6 +90,21 @@ describe('PopupApp shell', () => {
     expect(app.getActiveTab()).toBe('usage');
   });
 
+  it('settings tab states when model alerts were last checked and names sources that could not be read', () => {
+    const { root, app } = setup(appState());
+    const status = root.querySelector('.model-news-status') as HTMLElement;
+    expect(status.textContent).toBe(en.modelNewsNever);
+    app.update(appState({ modelNewsHealth: { checkedAt: NOW, sources: 8, failing: [] } }));
+    expect(status.textContent).toContain('all 8 official sources read');
+    expect(status.classList.contains('is-warning')).toBe(false);
+    app.update(appState({ modelNewsHealth: { checkedAt: NOW, sources: 8, failing: [
+      { provider: 'antigravity', kind: 'catalog', since: NOW, count: 3 },
+      { provider: 'codex', kind: 'news', since: NOW, count: 1 },
+    ] } }));
+    expect(status.textContent).toContain('could not read: Antigravity model list, Codex announcements');
+    expect(status.classList.contains('is-warning')).toBe(true);
+  });
+
   it('header badge counts enabled accounts; locale follows explicit language', () => {
     const state = appState({
       accounts: [account({ id: 'a1' }), account({ id: 'a2', enabled: false })],
@@ -101,6 +117,179 @@ describe('PopupApp shell', () => {
 });
 
 describe('Usage tab', () => {
+  it('records the separate Grok Bot weekly meter as manual data and opens the official account page', async () => {
+    const { root, api, app } = setup(appState());
+    const card = root.querySelector('.grok-bot-card') as HTMLElement;
+    expect(card.textContent).toContain('SuperGrok Heavy');
+    expect(card.textContent).toContain('does not update automatically');
+    expect(card.textContent).toContain('No usage entered');
+    // Where the meter is read (grok.com and the app) and why the Grok card cannot fill it.
+    expect(card.textContent).toContain('Weekly Grok Bot Limit');
+    expect(card.textContent).toContain('not in the CLI response');
+    typeInto(app.usage.grokBot.input, '68');
+    app.usage.grokBot.saveButton.click();
+    await flush();
+    // Only touched fields are sent.
+    expect(api.callsTo('settings:update')).toEqual([{ patch: { grokBotUsedPercent: 68 } }]);
+    const guide = card.querySelector('.grok-bot-guide-box') as HTMLElement;
+    expect(guide.parentElement).toBe(card);
+    app.update(appState({ settings: { grokBotUsedPercent: 68, grokBotRecordedAt: NOW } }));
+    expect(card.textContent).toContain('68% used');
+    expect(card.textContent).toContain('32% left');
+    // With a current reading the where-to-read guide folds into the collapsed section.
+    expect(guide.closest('.grok-bot-more')).not.toBeNull();
+    app.usage.grokBot.openGrokButton.click();
+    app.usage.grokBot.openCursorButton.click();
+    expect(api.callsTo('shell:open-external')).toEqual([{ kind: 'link', key: 'grok-usage' }, { kind: 'link', key: 'grok-bot-usage' }]);
+  });
+
+  it('records the exact Grok Bot reset time and on-demand amounts and shows them back', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(NOW);
+    try {
+      const { root, api, app } = setup(appState());
+      const bot = app.usage.grokBot;
+      typeInto(bot.input, '100');
+      const resetAt = NOW + (2 * 24 + 5) * 3_600_000;
+      typeInto(bot.resetInput, toLocalDateTimeValue(resetAt));
+      typeInto(bot.spentInput, '12.3');
+      typeInto(bot.limitInput, '$50');
+      bot.saveButton.click();
+      await flush();
+      expect(api.callsTo('settings:update')).toContainEqual({
+        patch: { grokBotUsedPercent: 100, grokBotResetAt: resetAt, grokBotOnDemandSpentCents: 1230, grokBotOnDemandLimitCents: 5000 },
+      });
+      app.update(appState({ settings: {
+        grokBotUsedPercent: 100, grokBotRecordedAt: NOW, grokBotResetAt: resetAt,
+        grokBotOnDemandSpentCents: 1230, grokBotOnDemandLimitCents: 5000,
+      } }));
+      const card = root.querySelector('.grok-bot-card') as HTMLElement;
+      expect(card.querySelector('.grok-bot-reset')?.textContent).toBe('Resets in 2d 5h');
+      expect(card.querySelector('.grok-bot-ondemand')?.textContent).toBe('On-demand $12.30 / monthly limit $50.00 · billed by Cursor');
+      expect(card.querySelector('.grok-bot-spill')?.textContent).toBe(en.grokBotSpillOnDemand);
+      expect(bot.spentInput.value).toBe('12.30');
+      expect(bot.resetInput.value).toBe(toLocalDateTimeValue(resetAt));
+
+      // The app's on-demand limit "none" (0): the week stops at the limit instead of billing.
+      app.update(appState({ settings: { grokBotUsedPercent: 100, grokBotRecordedAt: NOW, grokBotOnDemandLimitCents: 0 } }));
+      expect(card.querySelector('.grok-bot-spill')?.textContent).toBe(en.grokBotSpillStop);
+      expect(card.querySelector('.grok-bot-ondemand')?.textContent).toBe('On-demand monthly limit none (off)');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('reads the reset field as local wall-clock time and rejects impossible dates', () => {
+    const at = fromLocalDateTimeValue('2026-10-03T08:11');
+    expect(at).toBe(new Date(2026, 9, 3, 8, 11).getTime());
+    expect(toLocalDateTimeValue(at!)).toBe('2026-10-03T08:11');
+    expect(fromLocalDateTimeValue('2026-02-30T08:00')).toBeUndefined();
+    expect(fromLocalDateTimeValue('2026-10-03 08:11')).toBeUndefined();
+    expect(fromLocalDateTimeValue('')).toBeUndefined();
+  });
+
+  it('stops showing a Grok Bot percentage once the entered weekly reset has passed, without prefilling it for re-saving', async () => {
+    const { root, api, app } = setup(appState({ settings: {
+      grokBotUsedPercent: 90, grokBotRecordedAt: NOW - 3 * 3_600_000, grokBotResetAt: NOW - 3_600_000, grokBotOnDemandSpentCents: 700,
+    } }));
+    const card = root.querySelector('.grok-bot-card') as HTMLElement;
+    expect(card.dataset.state).toBe('reset');
+    expect(card.querySelector('.grok-bot-used')?.textContent).toBe('—');
+    expect(card.textContent).toContain('Weekly reset passed');
+    expect((card.querySelector('.grok-bot-reset') as HTMLElement).hidden).toBe(true);
+    // Last week's spend aged out with its percentage.
+    expect((card.querySelector('.grok-bot-ondemand') as HTMLElement).hidden).toBe(true);
+    // The old value is a hint only; one click on Record cannot turn it into a new reading.
+    const bot = app.usage.grokBot;
+    expect(bot.input.value).toBe('');
+    expect(bot.input.getAttribute('placeholder')).toBe('last: 90%');
+    bot.saveButton.click();
+    await flush();
+    expect(api.callsTo('settings:update')).toHaveLength(0);
+    expect(app.statusEl.textContent).toBe(en.grokBotInvalid);
+  });
+
+  it('saves only the edited optional field and never re-sends the prefilled percentage', async () => {
+    const { api, app } = setup(appState({ settings: { grokBotUsedPercent: 67, grokBotRecordedAt: NOW - 30 * 3_600_000 } }));
+    const bot = app.usage.grokBot;
+    expect(bot.input.value).toBe('67');
+    bot.saveButton.click();
+    await flush();
+    expect(app.statusEl.textContent).toBe(en.grokBotNoChange);
+    typeInto(bot.limitInput, '0');
+    bot.saveButton.click();
+    await flush();
+    // The stale 67% keeps its old recording time: main only re-stamps a sent percentage.
+    expect(api.callsTo('settings:update')).toEqual([{ patch: { grokBotOnDemandLimitCents: 0 } }]);
+  });
+
+  it('opens the collapsed section and flags the field when a hidden field is invalid', async () => {
+    const { app } = setup(appState());
+    const bot = app.usage.grokBot;
+    typeInto(bot.input, '40');
+    typeInto(bot.spentInput, '1.234');
+    expect(bot.more.open).toBe(false);
+    bot.saveButton.click();
+    await flush();
+    expect(bot.more.open).toBe(true);
+    expect(bot.spentInput.getAttribute('aria-invalid')).toBe('true');
+    expect(document.activeElement).toBe(bot.spentInput);
+    typeInto(bot.spentInput, '1.23');
+    expect(bot.spentInput.hasAttribute('aria-invalid')).toBe(false);
+  });
+
+  it('rejects a past or too-distant reset time or an unreadable amount without saving', async () => {
+    const { api, app } = setup(appState());
+    const bot = app.usage.grokBot;
+    typeInto(bot.input, '40');
+    typeInto(bot.resetInput, toLocalDateTimeValue(Date.now() - 3_600_000));
+    bot.saveButton.click();
+    await flush();
+    expect(app.statusEl.textContent).toBe(en.grokBotInvalidReset);
+    typeInto(bot.resetInput, toLocalDateTimeValue(Date.now() + 9 * 24 * 3_600_000));
+    bot.saveButton.click();
+    await flush();
+    expect(app.statusEl.textContent).toBe(en.grokBotInvalidReset);
+    typeInto(bot.resetInput, '');
+    typeInto(bot.spentInput, '1.234');
+    bot.saveButton.click();
+    await flush();
+    expect(app.statusEl.textContent).toBe(en.grokBotInvalidMoney);
+    expect(api.callsTo('settings:update')).toHaveLength(0);
+  });
+
+  it('offers one Codex reset only for a fresh measured count and routes use through main', async () => {
+    const api = new FakeApi().reply('usage:redeem-reset-credit', () => ({ ok: true, value: 'cancelled' }));
+    const state = appState({ accounts: [account({ id: 'a1', provider: 'codex' })],
+      usage: [usage('a1', { resetCreditsAvailable: 2 })] });
+    const { root, app } = setup(state, api);
+    expect(root.querySelector('.reset-credit-row')?.textContent).toContain('2 Codex banked resets');
+    (root.querySelector('.reset-credit-button') as HTMLButtonElement).click();
+    await flush();
+    expect(api.callsTo('usage:redeem-reset-credit')).toEqual([{ accountId: 'a1' }]);
+    expect(root.textContent).toContain('Reset use cancelled.');
+    (root.querySelector('.reset-credit-link') as HTMLButtonElement).click();
+    expect(api.callsTo('shell:open-external')).toContainEqual({ kind: 'link', key: 'codex-usage' });
+    app.update(appState({ accounts: [account({ id: 'a1', provider: 'codex' })],
+      usage: [usage('a1', { state: 'error', resetCreditsAvailable: 2, errorCode: 'network' })] }));
+    expect(root.querySelector('.reset-credit-label')?.textContent).toBe('Codex banked resets unavailable');
+    expect(root.querySelector('.reset-credit-button')).toBeNull();
+    expect(root.querySelector('.reset-credit-link')).not.toBeNull();
+  });
+
+  it('shows zero without offering redemption, and keeps unknown distinct from zero', () => {
+    const codex = account({ id: 'a1', provider: 'codex' });
+    const { root, app } = setup(appState({ accounts: [codex], usage: [usage('a1', { resetCreditsAvailable: 0 })] }));
+    expect(root.querySelector('.reset-credit-label')?.textContent).toBe('0 Codex banked resets');
+    expect(root.querySelector('.reset-credit-button')).toBeNull();
+    app.update(appState({ accounts: [codex], usage: [usage('a1')] }));
+    expect(root.querySelector('.reset-credit-label')?.textContent).toBe('Codex banked resets unavailable');
+    expect(root.querySelector('.reset-credit-button')).toBeNull();
+    app.update(appState({ accounts: [account({ id: 'g1', provider: 'grok' })],
+      usage: [usage('g1', { provider: 'grok', source: 'grok-acp' })] }));
+    expect(root.querySelector('.reset-credit-row')).toBeNull();
+  });
+
   it('shows used %, reset countdown, measured time and source per account', () => {
     const state = appState({
       accounts: [account({ id: 'a1', label: 'Work', emailMasked: 'j***@e***.com' })],
@@ -110,7 +299,7 @@ describe('Usage tab', () => {
     const card = root.querySelector('.usage-card');
     expect(card?.querySelector('.card-account-name')?.textContent).toBe('Work');
     expect(card?.querySelector('.card-account-email')?.textContent).toBe('j***@e***.com');
-    expect([...(card?.querySelectorAll('.quota-box-percent') ?? [])].map((el) => el.textContent)).toEqual(['25%', '90%']);
+    expect([...(card?.querySelectorAll('.quota-box-percent') ?? [])].map((el) => el.textContent)).toEqual(['25% used', '90% used']);
     expect(card?.querySelector('.quota-box-reset')?.textContent).toBe('Resets in 2h 07m');
     expect(card?.querySelector('.card-measured')?.textContent).toBe('Last measured now');
     expect(card?.querySelector('.card-source')?.textContent).toBe('Source: Official Codex app-server');
@@ -146,7 +335,7 @@ describe('Usage tab', () => {
     });
     const { root } = setup(state);
     expect(root.querySelector('.card-quota-grid')?.classList.contains('is-dim')).toBe(true);
-    expect([...root.querySelectorAll('.quota-box-percent')].map((el) => el.textContent)).toEqual(['30%', 'Unknown']);
+    expect([...root.querySelectorAll('.quota-box-percent')].map((el) => el.textContent)).toEqual(['30% used', 'Unknown']);
     expect(root.querySelector('.card-measured')?.textContent).toBe('Last measured 10 minutes ago');
     expect(root.querySelector('.card-reason')?.textContent).toBe('Error: Network error');
   });
@@ -199,6 +388,24 @@ describe('Accounts tab', () => {
   });
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  it('adopts a login started from a Windows notification without starting another session', () => {
+    const api = new FakeApi();
+    const state = appState({ accounts: [account({ id: 'a1', provider: 'codex', loginState: 'logged-out' })] });
+    const { app } = setup(state, api);
+    app.selectTab('accounts', false);
+
+    loginEvent(api, 'a1', 'notification-session', {
+      type: 'device-code',
+      userCode: 'WXYZ-9876',
+      verificationUrl: 'https://auth.openai.com/codex/device',
+    });
+
+    const panel = app.accounts.sections.codex.el.querySelector<HTMLElement>('.login-panel[data-account-id="a1"]');
+    expect(panel?.hidden).toBe(false);
+    expect(panel?.querySelector('.login-code')?.textContent).toBe('WXYZ-9876');
+    expect(api.callsTo('login:start')).toEqual([]);
   });
 
   it('add account -> label -> login with device code, copy target and open login page', async () => {

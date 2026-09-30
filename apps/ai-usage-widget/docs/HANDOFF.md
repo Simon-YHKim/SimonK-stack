@@ -2,6 +2,49 @@
 > prepend 전용 로그. 새 블록을 맨 위에 얹고 직전 `## Latest`는 날짜 헤더로 강등한다. 덮어쓰지 않는다.
 
 ## Latest
+- **목적**: 설치본에서 나온 결함 마무리(새 모델 알림 재확인·테스트 경쟁·요청 제한)
+- **최종 갱신**: 26.09.30 20:3x KST · Claude Code(E:\Coding Infra 세션)
+- **지금까지**: PR #60(15분 재확인)·#61(테스트 경쟁 상태, 설치 스킬 검증에서 1회 실패해 설치가 멈춘 원인) 머지 후 20:27 설치. 설치본에서 Antigravity 5xx 재시도 성공 확인. Gemini 목록은 서버 간헐 지연(12회 중 19.7초·30초+ 각 1회) → 요청 제한 30초(이번 PR). main = #58~#61 머지 반영
+- **다음 1개**: 이번 PR 머지·재설치 후 시작 직후 로그에 Gemini 실패가 없는지 확인
+- **막힌 것**: 없음
+- **작업 규칙 변화**: 설치 스킬은 설치 전에 `pnpm verify`를 다시 돌린다 — 부하에 민감한 테스트는 여기서 먼저 드러난다(#61). 새 시간 의존 테스트는 전체 병렬 실행과 겹쳐 반복 돌려 본다
+
+## 26.09.30 20:2x KST
+- **목적**: 사용자 승인(1 PR·머지, 2 설치, 3 Cursor CLI 시험; 4 공개 요청은 안 함) 실행과 설치 뒤 발견한 결함 수정
+- **최종 갱신**: 26.09.30 20:2x KST · Claude Code(E:\Coding Infra 세션)
+- **지금까지**: PR #58(`2bc9961`)·#59(`7e04e54`) main 머지(merge commit, CI 통과 확인 후). 설치 2회(20:04, 20:13), 프로세스 정상. 설치 직후 Gemini 모델 목록이 또 비어 원인 규명 — Google이 가끔 `?hl=pt-br` 번역 페이지로 리다이렉트 → 영어 고정+패턴 확장(#59). 재설치 뒤엔 12초 시간 초과 1회 → 실패 출처 15분 뒤 재확인(이번 PR). Cursor CLI 설치·시험: 사용량 조회 명령·JSON 항목 없음, `/usage`는 대화형 → 자동 조회 경로 아님
+- **다음 1개**: 이번 PR 머지·재설치 후 설정 탭 "새 모델 알림" 줄이 전부 읽음으로 바뀌는지 확인
+- **막힌 것**: 없음
+- **작업 규칙 변화**: 설치 스크립트는 위젯을 강제 종료하므로 "renderer process gone: crashed" 한 줄이 남을 수 있다(Windows 이벤트 로그로 실제 충돌 여부 확인). Cursor CLI는 `cursor-agent`로 부른다(`agent`는 PATH상 grok 사본)
+
+## 26.09.30 18:36 KST
+- **목적**: 위젯 개선(안정성·UX·Grok Bot·빠진 기록) + 사용자 캡처로 Grok Bot 대조 + "커서에서 알 수 있나" 조사(사용자 지시 26.09.30)
+- **최종 갱신**: 26.09.30 18:36 KST · Claude Code(E:\Coding Infra 세션)
+- **어디서**: `feat/aiuw-improve-260930`(워크트리 `SimonK-stack-aiuw-improve-260930`), origin/main 위 22개(이 세션 12개). main 병합·설치 안 함
+- **지금까지**: 캡처 2장(grok.com Usage, Grok Bot 앱) 대조 완료 — 위젯 Grok 카드 값 일치, grok.com에 "Weekly Grok Bot Limit" 별도 존재, 앱 리셋은 일 단위라 카드는 grok.com 정확한 일시를 받게 바꿈(`30612f2`·`17830c6`). 5관점 검토 워크플로 확정 14건 반영(`f9f7253`: 직접 고친 칸만 저장, 지난 값 미리 채우기 금지, 초기화권·재로그인 뒤 유예 해제, 모델 알림 Anthropic 실패 판정 등). Claude 테스트 불안정 해소(`acb80be`). Grok Bot 자동 조회: 값은 Cursor 계정 쪽이나 개인용 공식 통로 없음 → 수동 유지 + grok billing 새 필드 이름 감시 로그(DECISIONS 18:35, `docs/GROK-BOT.md`). `pnpm verify` 0(646)
+- **다음 1개**: 사용자에게 PR·설치·Cursor CLI 시험·공개 요청 4가지 결정 받기(STATE "다음" ①~④)
+- **막힌 것**: 없음(사용자 결정 대기). REQ-260930-01(캡처)은 grok.com·앱 2장으로 닫음, Cursor Spending 캡처는 선택
+- **작업 규칙 변화**: 다른 앱의 설치본·데이터를 풀어 보는 조사는 결과를 공개 리포 문서에 옮기지 않는다(공개 출처만 인용, 스크래치 사본은 삭제). 워크플로 검증자는 raw JSON을 받아 수동 종합(스키마 미사용)
+
+## 26.09.30 17:17 KST
+- **목적**: 위젯 개선 — 로그로 드러난 안정성 문제(Codex 조회 시간 초과, Antigravity 서버 500), 화면·UX, 새 기능, Grok Bot 보완, 빠진 기록 정리(사용자 지시 26.09.30)
+- **최종 갱신**: 26.09.30 17:17 KST · Claude Code(E:\Coding Infra 세션)
+- **어디서**: 브랜치 `feat/aiuw-improve-260930`, 워크트리 `E:\Coding Infra\Harrness Eng\SimonK-stack-aiuw-improve-260930`(node_modules는 그 워크트리에 따로 설치, junction 아님). `3a19dd1`(아래 Codex 블록) 위에 커밋 6개. main은 09.20 이후 위젯 커밋 0개 — 09.23~30 스택 16개 전부 브랜치에만 있다
+- **지금까지**: 09.23~30 다른 세션 커밋 10개가 이 파일·STATE에 없어서 복원해 STATE에 적었다. 이번 세션: Antigravity 5xx 1회 재시도(`51aee9b`), Codex rateLimits 20초 한도·실패 단계 로그·일시 오류 1건 유예(`1d70eba`, 09.28 34건의 원인 = rateLimits 응답만 10초 초과), Grok Bot 리셋 카운트다운·On-demand·소진 경고·Spending 링크·미터 구분 안내(`f7e411b`, `docs/GROK-BOT.md` 전면 갱신), 새 모델 알림 출처별 상태 표시(`9ff57d3`), Grok Bot 안내 접기(`bf5dd38`). `pnpm verify` 0(638테스트)·build 0·smoke ok, 오프스크린 캡처로 화면 확인. DECISIONS에 결정 5줄 + 시각 정정 1줄(추정 시각을 적었던 것을 정정)
+- **다음 1개**: 사용자가 다시 붙일 Cursor Spending·grok 화면 캡처로 Grok Bot 카드 필드·라벨과 위젯 Grok 카드 값을 대조
+- **막힌 것**: 캡처 미수신. PR(스택 16개 → main, merge commit)·설치는 사용자 확인 대기
+- **TODO**: STATE "다음" 절 그대로(설치 후 Codex `phase`·Antigravity `reasonField` 관찰, 새 모델 알림 끄기 설정 검토, Grok CLI `unified.jsonl` 누적, Codex 플러그인 카탈로그 27MB)
+- **미해결 질문**: Q-260930-01 새 모델 알림 끄기 설정을 넣을까(지금은 끌 수 없음, 공개 페이지 8곳을 6시간마다 조회) — 안 정하면 막히는 것 없음, 3회 이월 시 폐기 제안
+- **작업 규칙 변화**: 화면 확인은 리포 밖 오프스크린 캡처(보이지 않는 Electron 창 + 번들을 127.0.0.1로 서빙 + 가짜 preload로 상태 주입, `window-all-closed` 무시 필요). 커밋 메시지·DECISIONS를 PowerShell 큰따옴표 문자열로 쓰면 `` `a `` 같은 이스케이프가 제어 문자를 넣는다 — 작은따옴표 문자열 또는 Edit 도구
+- **요청**: REQ-260930-01 Cursor Spending·grok 화면 캡처 2장을 `/goal` 인자가 아닌 일반 메시지로 첨부(`/goal` 인자에 붙인 이미지는 텍스트만 남음)
+
+## 26.09.30 15:37 KST
+- **목적**: Grok Bot의 SuperGrok Heavy 주간 사용량을 AI Usage Widget에서 확인
+- **최종 갱신**: 26.09.30 15:37 KST · Codex
+- **지금까지**: 사용자의 직접 요청으로 Grok Bot 주간 미터를 별도 카드로 추가했다. 공식 앱에서 수동 입력한 사용률과 남음을 작업표시줄에 표시하고 출처·기록 시각·24시간 오래됨·7일 만료를 표시한다. Grok Build CLI 사용량과 섞지 않는다. 사용법은 `docs/GROK-BOT.md`.
+- **다음 1개**: 개인 계정용 공식 주간 사용량 인터페이스가 나오면 수동 입력을 자동 조회로 교체한다.
+
+## 26.09.20 17:16 KST
 - **목적**: v1 위젯을 소스 프로젝트로 재구성. 위젯 새로고침 버튼, Grok 구독 한도, 공식 CLI 로그인 위임 기반 다중 계정, Windows 테마, v1 문제 전부 해결
 - **최종 갱신**: 26.09.20 17:16 KST · Claude Code(E:\Coding Infra 세션)
 - **지금까지**: 사용자 T8 전 항목 OK·결정 4건 확정. **설치 완료**(`%LOCALAPPDATA%\Programs\ai-usage-widget`, 자동 시작 경로 자동 교정), **v1 정리 완료**(Run 값 제거, 폴더·userData 휴지통). 원인 규명 2건: Codex 2번째 `login-failed` = 로그인 완료 직후 account/read가 옛 상태(재조회 + 성공 신뢰, 정황 근거), agy 1회 실패 = 규명 불가(진단 로그 보강). **리포 통합**: 이 폴더는 이제 공개 리포 SimonK-stack의 `apps/ai-usage-widget/`이고 설치는 `skills-src/ai-usage-widget-install`이 한다. `pnpm verify` 0(577테스트), 스택 CI 게이트 PASS

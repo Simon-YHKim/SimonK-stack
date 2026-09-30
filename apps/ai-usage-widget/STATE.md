@@ -1,23 +1,26 @@
 # STATE — AI Usage Widget v2
-> 덮어쓰기. 네 절만. 갱신 26.09.20 17:16 KST · Claude Code(E:\Coding Infra 세션)
+> 덮어쓰기. 네 절만. 갱신 26.09.30 20:3x KST · Claude Code(E:\Coding Infra 세션, 워크트리 `SimonK-stack-aiuw-improve-260930`)
 
 ## 완료
-- v1 전수 분석 → docs/SPEC-v1-baseline.md(V1-01~43), 조사 → docs/RESEARCH-auth-quota.md, 결정 → DECISIONS.md
-- 뼈대·모듈 5개·통합·리뷰 1·2차(09.15)
-- 09.19 CLI 설치 안내 URL 확정, **Antigravity 공급자 추가**(공식 `agy -p "/usage"`, 계정 1개·위젯 로그인 없음, 요청 소모 차단기), Grok Bot 조사 → 카드 미추가
-- 09.19~20 **실사용 실측 통과**(사용자): 계정 4개 로그인, 기본 `~/.claude` 브리지(Orca statusLine을 감쌈), 공급자 4종 수치 표시(T1·T2·T3·T4·T6b), **T8 GUI 전 항목 OK**(팝업 blur·전체화면 숨김·테마 전환·슬라이더·자동 시작)
-- 09.20 수정·규명: Grok 0% 해석(확증), Codex 주간 창만 오는 것은 정상, Codex 첫 로그인 `protocol-error`(app-server 2개 경합 → `quiesce`), Codex 2번째 `login-failed`(로그인 완료 직후 account/read가 옛 상태 → 재조회 + 성공 신뢰, 정황 근거), agy 1회 실패(규명 불가 → 진단 로그 보강), 자동 조회 공급자별 최소 간격, 아이콘(공식 SVG·투명 배경·테마색, 사용자 확인), 자동 시작 Run 값이 옛 실행 파일을 가리키던 문제
-- 09.20 **설치 완료**: NSIS 사용자 전용 설치본 `%LOCALAPPDATA%\Programs\ai-usage-widget`(설치 파일 sha256 052A7F515C47C777…, 서명 없음), 실행 중, Run 값이 설치본 경로로 자동 교정됨(로그 `autostart re-registered`)
-- 09.20 **v1 정리**: v1 자동 실행 값 제거, v1 폴더·userData는 휴지통(복구 가능). 결정 4건 확정(SEC-06 자동 복원 없음·P-08 보류·코드 서명 제외·Antigravity 첫 그룹)
-- 09.20 **리포 통합**: 공개 리포 SimonK-stack의 `apps/ai-usage-widget/`로 이력 포함 이전 + 설치 스킬 `skills-src/ai-usage-widget-install`(DECISIONS 26.09.20 12:05). 공개 전 전체 이력 스캔 0건
-- 검증(26.09.20 17:15, 새 위치의 통합 브랜치): `pnpm install --frozen-lockfile` 0, `pnpm verify` exit 0(52파일·577테스트). 스택 CI 게이트(`run_ci.py`) PASS 141 skills, 플러그인 검증 OK. 설치 스크립트는 PowerShell 5.1에서 `-Status`·`-DryRun`·`-Uninstall` 거절(exit 3) 실측
+- 09.15~20: v1 분석·재구성, 공급자 4종 실계정 실측, T8 GUI, NSIS 설치, v1 정리, SimonK-stack `apps/ai-usage-widget/` 통합(PR #48). 세부는 DECISIONS·HANDOFF의 09.20 블록
+- **09.23~30 스택 main 반영(사용자 승인 26.09.30)**, 모두 merge commit·CI 통과 후:
+  - PR #58(`2bc9961`): 재인증 알림, 수치 단위·빠른 소모, Codex 초기화권, Codex 실행 파일 해석, 새 모델 알림, Grok Bot 카드 + 이 세션의 안정성(Antigravity 5xx 재시도, Codex rateLimits 20초, 일시 오류 유예)·Grok Bot 캡처 대조·5관점 검토 반영·grok billing 새 필드 감시
+  - PR #59(`7e04e54`): 새 모델 알림 영어 고정(Gemini `?hl=pt-br` 번역 페이지 리다이렉트가 원인)
+  - PR #60(`a4c52ae`): 실패 출처 15분 뒤 재확인 / PR #61(`1864f92`): 그 테스트의 경쟁 상태 수정
+  - 스택 CI(skills-ci·validate-plugin·Cloudflare Pages)는 위젯 테스트를 돌리지 않음 → 위젯 근거는 로컬·설치 스킬 안의 `pnpm verify`
+- **설치**: 설치 스킬로 20:04·20:13·20:27 재설치(20:22 1회는 검증 실패로 설치 전 중단 → #61로 해결). 설치 스킬 안 검증 648 통과, 프로세스 정상. "renderer process gone: crashed" 로그는 설치 스크립트 강제 종료 시각과 겹치고 Windows 이벤트 로그 앱 오류 0건 → 실제 충돌 아님
+- **설치본 실측**: Antigravity 서버 500 → 3초 뒤 재시도 성공(20:16 로그 `serverError`·`retry`, 뒤 실패 없음). Gemini 목록은 서버가 가끔 20~30초+ 멈춤(12회 중 2회) → 요청 제한 12→30초(이번 PR)
+- **Grok Bot**: 위젯 Grok 카드 = grok.com SuperGrok 한도 일치. Grok Bot 주간 사용량은 Cursor 계정 계량, 개인용 공식 통로 없음 → 수동 유지 + grok billing 새 필드 감시(DECISIONS 18:35, `docs/GROK-BOT.md`)
+- **Cursor CLI 시험(사용자 승인)**: 공식 설치(`%LOCALAPPDATA%\cursor-agent`, 2026.09.28-64d2043, `cursor-agent`로 호출 — PATH상 `agent`는 grok 사본). 사용량 명령·JSON 항목 없음, `/usage`는 대화형 → 위젯 자동 조회 경로 아님. 로그인 안 함
 
 ## 진행중
 - 없음
 
 ## 다음
-- 실패가 다시 나오면 로그로 확정: agy 실패 JSON의 실제 필드(현재 error·message·response 순 추정), Codex 로그인 완료 직후 account/read 지연(정황 근거)
-- 보류 중인 계약 필드(codex credits/blocked, grok overageAvailable, `onStdoutChunk`) 필요성 재검토
+- 이번 PR(요청 제한 30초) 머지·재설치 후 시작 직후 로그와 설정 탭 "새 모델 알림" 줄 확인
+- 관찰: `grok billing has unrecognized fields` 로그(생기면 재실측→Grok Bot 자동 조회), Codex timeout의 `phase`·`elapsedMs`, Antigravity 실패의 `reasonField`(지금까지 `error`)
+- 후보: 새 모델 알림 끄기 설정 없음, Grok CLI `unified.jsonl` 누적(각 약 3.9MB), Codex 원격 플러그인 카탈로그(캐시 27MB), 설치 스크립트가 위젯을 강제 종료해 남기는 "crashed" 로그
+- 업스트림 공개 요청(xai-org/grok-build·Cursor 포럼)은 하지 않음(사용자 결정 26.09.30)
 
 ## 막힌 것
-- 없음. 미확인으로 남긴 것: agy 로그아웃 상태의 출력 문구(정규식은 추정), Orca가 나중에 `~/.claude` statusLine을 덮어쓰는지(09.20 10:48까지는 유지)
+- 없음. 미확인: Grok Bot 리셋 주기 규칙, grok.com·앱의 100% 초과 표시 여부(수동 입력은 100까지), Cursor Spending의 Grok Bot On-demand 표시, agy 로그아웃 문구, Orca의 `~/.claude` statusLine 덮어쓰기 여부

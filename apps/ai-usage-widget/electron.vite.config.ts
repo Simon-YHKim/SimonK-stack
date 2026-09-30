@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { defineConfig } from 'electron-vite';
 
 // Default layout: src/main/index.ts, src/preload/index.ts, src/renderer/index.html -> out/.
@@ -22,6 +23,12 @@ export default defineConfig({
   },
   renderer: {
     root: 'src/renderer',
-    build: { sourcemap: false },
+    build: {
+      sourcemap: false,
+      rollupOptions: { input: {
+        index: path.resolve('src/renderer/index.html'),
+        'model-bubble': path.resolve('src/renderer/model-bubble.html'),
+      } },
+    },
   },
 });

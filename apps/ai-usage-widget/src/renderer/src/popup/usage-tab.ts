@@ -15,13 +15,16 @@ import {
   type RowView,
 } from '../model';
 import { syncChildren } from './keyed';
+import type { Api } from '../api';
+import type { Settings } from '../../../shared/settings';
+import { GrokBotCard } from './grok-bot-card';
 
 function quotaBox(view: AccountView, row: RowView, index: number, ctx: RenderContext): HTMLElement {
   const { t, settings } = ctx;
   // The popup always shows used % (v1 SPEC §1-2).
   const percent =
     row.status === 'value' && row.usedPercent !== null
-      ? `${Math.round(clampPercent(row.usedPercent))}%`
+      ? `${Math.round(clampPercent(row.usedPercent))}% ${t('unitUsed')}`
       : row.status === 'reset'
         ? t('state_reset')
         : t('percentUnknown');
@@ -95,23 +98,24 @@ export function cardContent(view: AccountView, ctx: RenderContext): HTMLElement[
 
 export class UsageTab {
   readonly el: HTMLElement;
-  private readonly emptyEl: HTMLElement;
   private readonly listEl: HTMLElement;
   private readonly cards = new Map<string, HTMLElement>();
+  private readonly pending = new Set<string>();
+  private latestViews: readonly AccountView[] = [];
+  private latestContext: RenderContext | null = null;
+  readonly grokBot: GrokBotCard;
 
-  constructor() {
-    this.emptyEl = h('div', { class: 'usage-empty', hidden: true });
+  constructor(private readonly deps: { api: Api; report(message: string): void }) {
+    this.grokBot = new GrokBotCard(deps);
     this.listEl = h('div', { class: 'usage-list' });
-    this.el = h('div', { class: 'usage-tab' }, [this.emptyEl, this.listEl]);
+    this.el = h('div', { class: 'usage-tab' }, [this.listEl]);
   }
 
-  update(views: readonly AccountView[], ctx: RenderContext): void {
+  update(views: readonly AccountView[], ctx: RenderContext, settings: Settings = ctx.settings): void {
+    this.latestViews = views;
+    this.latestContext = ctx;
     const { t } = ctx;
-    this.emptyEl.hidden = views.length > 0;
-    this.emptyEl.replaceChildren(
-      h('p', {}, [t('noActiveAccounts')]),
-      h('p', { class: 'muted' }, [t('addAccountHint')]),
-    );
+    this.grokBot.update(settings, ctx);
     const seen = new Set<string>();
     const cards = views.map((view) => {
       seen.add(view.account.id);
@@ -121,10 +125,50 @@ export class UsageTab {
         this.cards.set(view.account.id, card);
       }
       card.dataset.state = view.state;
-      card.replaceChildren(...cardContent(view, ctx));
+      const content = cardContent(view, ctx);
+      if (view.account.provider === 'codex') {
+        const count = view.resetCreditsAvailable;
+        const resetControls: HTMLElement[] = [
+          h('span', { class: 'reset-credit-label' }, [
+            count === undefined ? t('resetCreditUnknown') : t('resetCreditCount', { count }),
+          ]),
+        ];
+        if (count !== undefined && count > 0) {
+          const use = h('button', { type: 'button', class: 'reset-credit-button' }, [t('resetCreditUse')]);
+          use.disabled = this.pending.has(view.account.id);
+          use.addEventListener('click', () => this.redeem(view.account.id, use));
+          resetControls.push(use);
+        }
+        const official = h('button', { type: 'button', class: 'reset-credit-link' }, [t('resetCreditUsagePage')]);
+        official.addEventListener('click', () => {
+          void this.deps.api.invoke('shell:open-external', { kind: 'link', key: 'codex-usage' });
+        });
+        resetControls.push(official);
+        content.push(h('div', { class: 'reset-credit-row' }, resetControls));
+      }
+      card.replaceChildren(...content);
       return card;
     });
     for (const id of [...this.cards.keys()]) if (!seen.has(id)) this.cards.delete(id);
-    syncChildren(this.listEl, cards);
+    syncChildren(this.listEl, [this.grokBot.el, ...cards]);
+  }
+
+  private redeem(accountId: string, button: HTMLButtonElement): void {
+    if (this.pending.has(accountId)) return;
+    this.pending.add(accountId);
+    button.disabled = true;
+    void this.deps.api.invoke('usage:redeem-reset-credit', { accountId }).then((result) => {
+      const t = this.latestContext?.t;
+      if (t === undefined) return;
+      if (!result.ok) { this.deps.report(t('resetCreditUnavailable')); return; }
+      const key = {
+        reset: 'resetCreditSuccess', cancelled: 'resetCreditCancelled', unavailable: 'resetCreditUnavailable',
+        nothingToReset: 'resetCreditNothingToReset', noCredit: 'resetCreditNoCredit', alreadyRedeemed: 'resetCreditAlreadyRedeemed',
+      } as const;
+      this.deps.report(t(key[result.value]));
+    }).catch(() => this.deps.report(this.latestContext?.t('resetCreditUnavailable') ?? '')).finally(() => {
+      this.pending.delete(accountId);
+      if (this.latestContext !== null) this.update(this.latestViews, this.latestContext, this.latestContext.settings);
+    });
   }
 }

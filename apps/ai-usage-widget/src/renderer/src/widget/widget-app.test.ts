@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AppStateSnapshot } from '../../../shared/types';
-import { FakeApi, NOW, account, appState, flush, usage, type AppStateOverrides } from '../testing/fixtures';
+import { FakeApi, NOW, account, appState, flush, quotaWindow, usage, type AppStateOverrides } from '../testing/fixtures';
 import { REFRESH_COOLDOWN_MS, TOGGLE_DEBOUNCE_MS, WidgetApp } from './widget-app';
 
 function withAccounts(overrides: AppStateOverrides = {}): AppStateSnapshot {
@@ -43,6 +43,26 @@ describe('WidgetApp', () => {
     expect(app.main.getAttribute('aria-label')).toBe('No AI account connected (click to open Accounts)');
     app.main.click();
     expect(api.callsTo('window:show-popup')).toEqual([{ tab: 'accounts' }]);
+  });
+
+  it('shows a separately labelled manual Grok Bot balance and opens its usage card', () => {
+    const { api, app } = setup(appState({ settings: { grokBotUsedPercent: 68, grokBotRecordedAt: NOW } }));
+    const item = app.main.querySelector('.grok-bot-item') as HTMLElement;
+    expect(item.textContent).toContain('32% left');
+    expect(item.textContent).toContain('Manual entry');
+    expect(app.refreshButton.hidden).toBe(true);
+    app.main.click();
+    expect(api.callsTo('window:show-popup')).toEqual([{ tab: 'usage' }]);
+  });
+
+  it('adds the Grok Bot reset countdown and marks a used-up weekly allowance', () => {
+    const resetAt = NOW + (26 * 60 + 5) * 60_000;
+    const { app } = setup(appState({ settings: { grokBotUsedPercent: 100, grokBotRecordedAt: NOW, grokBotResetAt: resetAt } }));
+    const item = app.main.querySelector('.grok-bot-item') as HTMLElement;
+    expect(item.querySelector('.grok-bot-widget-reset')?.textContent).toBe('1d 2h');
+    expect(item.classList.contains('is-exhausted')).toBe(true);
+    expect(item.getAttribute('title')).toContain('Resets in 1d 2h');
+    expect(item.getAttribute('title')).toContain('on-demand');
   });
 
   it('clicking the bar toggles the popup with a 300ms debounce', () => {
@@ -101,6 +121,22 @@ describe('WidgetApp', () => {
     expect(document.activeElement).toBe(button);
   });
 
+  it('puts an actionable model notice only on its vendor icon', () => {
+    const state = withAccounts({ modelNotices: [{
+      id: 'released:codex:gpt7sol', provider: 'codex', model: 'GPT-7 Sol', status: 'released',
+      releaseDate: null, url: 'https://openai.com/index/gpt-7-sol', observedAt: NOW,
+    }] });
+    const { api, app } = setup(state);
+    const codexBadge = app.main.querySelector('.account-item[data-provider="codex"] .model-notice-badge');
+    expect(codexBadge?.getAttribute('title')).toContain('Try it');
+    expect(app.main.querySelector('.account-item[data-provider="claude"] .model-notice-badge')).toBeNull();
+    (codexBadge as HTMLButtonElement).click();
+    expect(api.callsTo('model-notice:open')).toEqual([{ provider: 'codex' }]);
+    expect(api.callsTo('window:toggle-popup')).toHaveLength(0);
+    codexBadge?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    expect(api.callsTo('window:toggle-popup')).toHaveLength(0);
+  });
+
   it('requests a resize only when the measured size changes', () => {
     const { api, app } = setup(withAccounts());
     expect(api.callsTo('window:resize-widget')).toEqual([{ width: 204, height: 34 }]);
@@ -144,5 +180,107 @@ describe('WidgetApp', () => {
     expect(html.style.getPropertyValue('--accent-fg')).toBe('#000000');
     expect(app.bar.classList.contains('no-card-bg')).toBe(true);
     expect(app.bar.style.getPropertyValue('--bg-alpha')).toBe('0.4');
+  });
+
+  it('highlights only the account whose recent quota pace exceeds its earlier pace', () => {
+    const { app, root } = setup(appState());
+    const feed = (minute: number, used: number, otherUsed = 5) => {
+      const at = NOW + minute * 60_000;
+      vi.setSystemTime(at);
+      app.update(appState({
+        accounts: [account({ id: 'a1' }), account({ id: 'a2', order: 1 })],
+        usage: [
+          usage('a1', { windows: [quotaWindow('session', used, 5 * 3_600_000)], measuredAt: at, lastSuccessAt: at }),
+          usage('a2', { windows: [quotaWindow('session', otherUsed, 5 * 3_600_000)], measuredAt: at, lastSuccessAt: at }),
+        ],
+      }));
+    };
+    for (const [minute, used] of [[0, 0], [15, 1], [30, 2], [45, 3], [60, 4], [65, 6]] as const) {
+      feed(minute, used);
+      expect(root.querySelector('.account-item.is-fast')).toBeNull();
+    }
+    feed(70, 8);
+    expect(root.querySelectorAll('.account-item.is-fast')).toHaveLength(1);
+    feed(75, 10);
+    expect(root.querySelectorAll('.account-item.is-fast')).toHaveLength(1);
+    expect(root.querySelector('.account-item.is-fast')?.getAttribute('data-account-id')).toBe('a1');
+    expect(root.querySelector('.account-item.is-fast')?.getAttribute('title')).toContain('Quota usage is rising faster');
+    expect(app.main.getAttribute('aria-describedby')).toBe(app.bar.querySelector('.sr-only')?.id);
+    expect(app.bar.querySelector('.sr-only')?.textContent).toContain('Quota usage is rising faster');
+
+    feed(80, 1); // quota reset: old history must not trigger an alert
+    expect(root.querySelector('.account-item.is-fast')).toBeNull();
+  });
+
+  it('does not infer a fast pace from stale or unknown quota readings', () => {
+    const { app, root } = setup(appState());
+    for (const minute of [0, 15, 30, 45, 60, 65, 70, 75]) {
+      const at = NOW + minute * 60_000;
+      vi.setSystemTime(at);
+      app.update(appState({
+        accounts: [account({ id: 'a1' })],
+        usage: [usage('a1', {
+          state: minute === 75 ? 'error' : 'ok',
+          windows: [quotaWindow('session', minute === 75 ? 30 : null, 5 * 3_600_000)],
+          measuredAt: at,
+          lastSuccessAt: at,
+        })],
+      }));
+    }
+    expect(root.querySelector('.account-item.is-fast')).toBeNull();
+  });
+
+  it('ignores one delayed quota jump without a sustained increase', () => {
+    const { app, root } = setup(appState());
+    for (const [minute, used] of [[0, 0], [15, 1], [30, 2], [45, 3], [60, 4], [65, 12], [70, 12], [75, 12]] as const) {
+      const at = NOW + minute * 60_000;
+      vi.setSystemTime(at);
+      app.update(appState({
+        accounts: [account({ id: 'a1' })],
+        usage: [usage('a1', {
+          windows: [quotaWindow('session', used, 5 * 3_600_000)],
+          measuredAt: at,
+          lastSuccessAt: at,
+        })],
+      }));
+      expect(root.querySelector('.account-item.is-fast')).toBeNull();
+    }
+  });
+
+  it('alerts once for a rapid Grok weekly-credit burst and clears on reset', () => {
+    const { app, root, api } = setup(appState());
+    const feed = (minute: number, used: number) => {
+      const at = NOW + minute * 60_000;
+      vi.setSystemTime(at);
+      app.update(appState({
+        accounts: [account({ id: 'g1', provider: 'grok', label: 'Grok work' })],
+        usage: [usage('g1', { provider: 'grok', source: 'grok-acp',
+          windows: [quotaWindow('weekly', used, 7 * 24 * 3_600_000)], measuredAt: at, lastSuccessAt: at })],
+      }));
+    };
+    feed(0, 2);
+    expect(api.callsTo('window:show-pace-bubble')).toHaveLength(0);
+    feed(5, 18);
+    expect(root.querySelector('.account-item[data-account-id="g1"]')?.classList.contains('is-fast')).toBe(true);
+    expect(api.callsTo('window:show-pace-bubble')).toEqual([{ accountId: 'g1', recent: 192, usual: null, locale: 'en' }]);
+    feed(6, 18);
+    expect(api.callsTo('window:show-pace-bubble')).toHaveLength(1);
+    feed(8, 0);
+    expect(root.querySelector('.account-item.is-fast')).toBeNull();
+  });
+
+  it('catches a Grok burst after a long idle history', () => {
+    const { app, root, api } = setup(appState());
+    for (let minute = 0; minute <= 31; minute += 1) {
+      const at = NOW + minute * 60_000;
+      vi.setSystemTime(at);
+      app.update(appState({
+        accounts: [account({ id: 'g1', provider: 'grok' })],
+        usage: [usage('g1', { provider: 'grok', source: 'grok-acp',
+          windows: [quotaWindow('weekly', minute === 31 ? 18 : 2, 7 * 24 * 3_600_000)], measuredAt: at, lastSuccessAt: at })],
+      }));
+    }
+    expect(root.querySelector('.account-item[data-account-id="g1"]')?.classList.contains('is-fast')).toBe(true);
+    expect(api.callsTo('window:show-pace-bubble')).toHaveLength(1);
   });
 });

@@ -175,12 +175,62 @@ describe('antigravity adapter', () => {
   it(
     'classifies a connectivity failure as network and logs a masked reason for the next diagnosis',
     async () => {
-      const { adapter, account } = setup('network-error');
+      const { adapter, account, calls } = setup('network-error');
       expect(await adapter.fetchUsage(account, never)).toMatchObject({ state: 'error', errorCode: 'network', windows: [] });
       const line = logLines.find((entry) => entry.includes('agy usage run failed')) ?? '';
       expect(line).toContain('"status":"ERROR"');
+      expect(line).toContain('"reasonField":"error"');
       expect(line).toContain('connection reset by peer');
       expect(line).not.toContain('someone@example.com');
+      // Only a quota-service 5xx is retried.
+      expect(await calls()).toHaveLength(1);
+    },
+    TEST_TIMEOUT,
+  );
+
+  it(
+    'retries once inside the same refresh when the quota service answered 5xx',
+    async () => {
+      const { adapter, account, calls } = setup('server-error-once', { timeouts: { serverRetryDelayMs: 20 } });
+      const snapshot = await adapter.fetchUsage(account, never);
+      expect(snapshot).toMatchObject({ state: 'ok', lastSuccessAt: NOW });
+      expect(snapshot.windows.length).toBeGreaterThan(0);
+      expect(await calls()).toHaveLength(2);
+      const line = logLines.find((entry) => entry.includes('agy usage run failed')) ?? '';
+      expect(line).toContain('"attempt":1');
+      expect(line).toContain('"serverError":true');
+      expect(line).toContain('"retry":true');
+    },
+    TEST_TIMEOUT,
+  );
+
+  it(
+    'gives up after one retry and reports a service error',
+    async () => {
+      const { adapter, account, calls } = setup('server-error', { timeouts: { serverRetryDelayMs: 20 } });
+      expect(await adapter.fetchUsage(account, never)).toMatchObject({ state: 'error', errorCode: 'provider-error', windows: [] });
+      expect(await calls()).toHaveLength(2);
+      expect(logLines.filter((entry) => entry.includes('"retry":true'))).toHaveLength(1);
+      expect(logLines.filter((entry) => entry.includes('"attempt":2'))).toHaveLength(1);
+    },
+    TEST_TIMEOUT,
+  );
+
+  it(
+    'cancels without a second run when aborted during the retry pause',
+    async () => {
+      const { adapter, account, calls } = setup('server-error', { timeouts: { serverRetryDelayMs: 20_000 } });
+      const controller = new AbortController();
+      const pending = adapter.fetchUsage(account, controller.signal);
+      for (let i = 0; i < 200 && !logLines.some((entry) => entry.includes('"retry":true')); i += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+      const abortedAt = Date.now();
+      controller.abort();
+      expect(await pending).toMatchObject({ state: 'error', errorCode: 'cancelled' });
+      // The pause itself ends on abort: nowhere near the 20 s delay.
+      expect(Date.now() - abortedAt).toBeLessThan(5_000);
+      expect(await calls()).toHaveLength(1);
     },
     TEST_TIMEOUT,
   );

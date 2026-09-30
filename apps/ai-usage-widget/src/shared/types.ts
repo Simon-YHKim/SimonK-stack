@@ -166,6 +166,8 @@ export interface UsageSnapshot {
   state: UsageState;
   windows: QuotaWindow[];
   plan?: string;
+  /** Codex banked rate-limit resets available; separate from purchased credits. */
+  resetCreditsAvailable?: number;
   /** Epoch ms when `windows` were measured, null if never. */
   measuredAt: number | null;
   /** Epoch ms of the last successful fetch, null if never. */
@@ -250,6 +252,30 @@ export interface ClaudeBridgeStatus {
   errorCode?: ErrorCode;
 }
 
+export interface ModelNotice {
+  id: string;
+  provider: ProviderId;
+  model: string;
+  status: 'upcoming' | 'released';
+  /** YYYY-MM-DD from an official announcement, or null if the date was not stated. */
+  releaseDate: string | null;
+  url: string;
+  observedAt: number;
+}
+
+/** `catalog` = the vendor's model list page, `news` = its announcement feed. */
+export type ModelNewsSourceKind = 'catalog' | 'news';
+
+/** Result of the latest model-news check, so a source that silently stopped parsing is visible. */
+export interface ModelNewsHealth {
+  /** Epoch ms of the last finished check, or null before the first one. */
+  checkedAt: number | null;
+  /** Number of sources each check reads. */
+  sources: number;
+  /** Sources whose latest check failed: first failure time and consecutive failures. */
+  failing: { provider: ProviderId; kind: ModelNewsSourceKind; since: number; count: number }[];
+}
+
 export interface AppStateSnapshot {
   locale: Locale;
   settings: Settings;
@@ -258,6 +284,8 @@ export interface AppStateSnapshot {
   refresh: RefreshStatus;
   theme: ThemeTokens;
   cli: Record<ProviderId, CliStatusDTO>;
+  modelNotices: ModelNotice[];
+  modelNewsHealth: ModelNewsHealth;
   /**
    * Placement actually in use; differs from `settings.placementMode` when docked falls
    * back to floating (side or auto-hide taskbar). null until the widget is placed.

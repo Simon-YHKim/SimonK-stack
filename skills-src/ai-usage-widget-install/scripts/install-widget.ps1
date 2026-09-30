@@ -158,7 +158,7 @@ try {
   $setup = Get-ChildItem -LiteralPath (Join-Path $src 'release') -Filter ($AppName + '-setup-*.exe') | Sort-Object LastWriteTime -Descending | Select-Object -First 1
   if (-not $setup) { Fail 1 'installer was not produced' }
   Say ('installer: ' + $setup.Name + ' sha256 ' + (Get-FileHash -LiteralPath $setup.FullName -Algorithm SHA256).Hash.Substring(0, 16) + ' (unsigned, per-user)')
-  $p = Start-Process -FilePath $setup.FullName -ArgumentList '/S' -PassThru -Wait
+  $p = Start-Process -FilePath $setup.FullName -ArgumentList '/S' -WindowStyle Hidden -PassThru -Wait
   if ($p.ExitCode -ne 0) { Fail 1 ('installer exited with ' + $p.ExitCode) }
 } finally {
   Pop-Location

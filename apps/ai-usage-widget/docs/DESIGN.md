@@ -94,7 +94,7 @@
 - `ErrorCode`(21종, 통합 때 `cli-unsupported-install` 추가 — CLI는 있으나 npm shim 등 실행기를 셸 없이 해석할 수 없음): 렌더러는 코드만 받아 i18n 문구로 바꾼다. 공급자 원문 오류는 UI로 가지 않는다.
 - `LoginEvent`: `url` / `device-code {userCode, verificationUrl, expiresAt?}` / `needs-paste` / `progress {stage}` / `success {emailMasked?, plan?}` / `error {code}`. IPC에서는 `LoginEventMessage { sessionId, accountId, at, event }`.
 - `ThemeTokens { scheme, taskbarScheme, highContrast, accent('#rrggbb'), reducedTransparency, effectiveMaterial }`.
-- `AppStateSnapshot { locale, settings, accounts, usage, refresh, theme, cli, effectivePlacementMode }` — 렌더러가 받는 유일한 상태. `effectivePlacementMode`는 실제 적용된 배치(docked가 좌우·자동 숨김 작업 표시줄에서 floating으로 폴백하면 floating, 배치 전 null).
+- `AppStateSnapshot { locale, settings, accounts, usage, refresh, theme, cli, modelNotices, modelNewsHealth, effectivePlacementMode }` — 렌더러가 받는 유일한 상태. `modelNotices`는 제조사별 활성 새 모델 알림, `modelNewsHealth {checkedAt, sources, failing[]}`는 마지막 조회 결과(§17). `effectivePlacementMode`는 실제 적용된 배치(docked가 좌우·자동 숨김 작업 표시줄에서 floating으로 폴백하면 floating, 배치 전 null).
 
 ### 5-2. `src/shared/settings.ts`
 v1 키(SPEC §1-2) 중 의미가 남은 것 + v2 추가. mock 관련 키는 없다.
@@ -117,6 +117,11 @@ v1 키(SPEC §1-2) 중 의미가 남은 것 + v2 추가. mock 관련 키는 없�
 | `openAtLogin` | **false** | bool | v1 기본 ON 동의 없음(V1-14) |
 | `material` | `none` | `none`,`mica`,`acrylic` | |
 | `language` | `auto` | `auto`,`ko`,`en` | `auto`: OS 로케일이 `ko*`면 ko, 아니면 en |
+| `grokBotUsedPercent` | null | null 또는 정수 0~100 | 별도 Grok Bot 주간 사용률의 수동 기록. xAI Grok CLI 값과 구분(26.09.30 결정) |
+| `grokBotRecordedAt` | null | null 또는 epoch ms | 사용자 기록 시 main이 채운다. 렌더러의 직접 변경은 거부 |
+| `grokBotResetAt` | null | null 또는 epoch ms | grok.com Usage "Weekly Grok Bot Limit"의 `Resets …` 일시를 사용자가 `datetime-local`(로컬 시각)로 옮긴 다음 주간 리셋 시각(선택, 앱의 "N일 후"는 일 단위 올림이라 쓰지 않음, 26.09.30 사용자 화면 확인). main은 지금−1분~지금+8일 밖을 거부. 사용률만 새로 기록할 때 이미 지난 리셋은 지우고, 사용률을 지우면 함께 지운다. 기록 시각 이후·8일 이내일 때만 유효하며 지나면 카드가 `reset` 상태(숫자 숨김·재입력 안내) (26.09.30) |
+| `grokBotOnDemandSpentCents` | null | null 또는 정수 0~100,000,000 | Cursor가 청구하는 Grok Bot On-demand 사용액(센트, 선택). Cursor 청구 화면의 값(앱 "사용량 및 청구"에는 월 한도가 "없음"일 때 사용액 행이 없음, 26.09.30 화면). 사용률과 함께 기록되므로 사용률이 최신(fresh·stale)일 때만 표시 |
+| `grokBotOnDemandLimitCents` | null | null 또는 정수 0~100,000,000 | Grok Bot On-demand 월 한도(센트, 선택). 앱의 "없음" = 0 → 주간 한도 도달 시 "리셋까지 멈춤", 0보다 크면 "추가 크레딧 → On-demand 청구", null이면 둘 다 가능하다고 표시(`grokBotSpillKey`) |
 
 - `parseSettingsPatch(input)`: 알 수 없는 키·잘못된 값이 하나라도 있으면 전체 거부. 빈 patch도 거부.
 - `normalizeSettings(raw)`: 디스크 값 로드용. 기본값에서 시작해 유효한 키만 덮는다. 절대 throw하지 않는다.
@@ -163,7 +168,7 @@ v1 키(SPEC §1-2) 중 의미가 남은 것 + v2 추가. mock 관련 키는 없�
 - `IpcErrorCode`: `invalid-request` `forbidden-sender` `not-found` `conflict` `busy` `not-implemented` `internal`.
 - 뷰 제한(`ipc/handlers.ts`): 상태를 바꾸는 채널(`settings:update`, `accounts:add·remove·rename·toggle·reorder`, `login:*`, `shell:open-external`, `window:hide-popup·set-popup-lock·preview-placement`, `cli:redetect`, `claude-bridge:install-default·uninstall-default`)은 팝업 뷰만, `window:resize-widget`은 위젯 뷰만 허용. 나머지(상태 읽기·새로고침·팝업 열기·브리지 상태)는 두 뷰 모두(DECISIONS 26.09.15 04:49).
 - 발신자 검증(`ipc/dispatch.ts`): 최상위 프레임 URL이 `app://bundle/…`(개발 시 dev server origin)일 때만 처리한다. 하위 프레임은 거부.
-- `EXTERNAL_LINK_KEYS`(`claude-cli-install` `codex-cli-install` `grok-cli-install` `antigravity-cli-install`)의 실제 URL 표는 셸이 main에 두며(`src/main/platform/links.ts`), 공식 문서에서 확인한 https 주소만 넣는다. 세 키 모두 확정(DECISIONS 26.09.19 11:20). 같은 파일의 `EXTERNAL_LINK_HOSTS`가 키별 허용 호스트이고 `links.test.ts`가 https·호스트·자격증명/포트/프래그먼트 없음을 강제한다(antigravity 주소는 CLI 탭을 고르는 쿼리를 쓴다). 표에 없는 키는 `not-found`.
+- `EXTERNAL_LINK_KEYS`(설치 안내 `claude-cli-install` `codex-cli-install` `grok-cli-install` `antigravity-cli-install`, 사용량 화면 `codex-usage` `grok-bot-usage`(Cursor Spending) `grok-usage`(grok.com Settings → Usage, 26.09.30 사용자 화면의 주소))의 실제 URL 표는 셸이 main에 두며(`src/main/platform/links.ts`), 공식 문서나 사용자 화면에서 확인한 https 주소만 넣는다. 설치 안내 키는 DECISIONS 26.09.19 11:20에 확정. 같은 파일의 `EXTERNAL_LINK_HOSTS`가 키별 허용 호스트이고 `links.test.ts`가 https·호스트·자격증명/포트/프래그먼트 없음을 강제한다(antigravity 주소는 CLI 탭을 고르는 쿼리를 쓴다). 표에 없는 키는 `not-found`.
 
 ### 5-4. `src/shared/i18n/`
 - `ko.ts`가 키 집합의 원본, `en.ts`는 `Record<keyof typeof ko, string>`이라 키가 어긋나면 typecheck가 실패한다. 테스트가 키 집합·자리표시자 일치·빈 문구 0건을 확인한다.
@@ -207,7 +212,7 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 | `run(cmd, args, {env, cwd?, timeoutMs, signal?, stdin?, maxOutputBytes?})` | `shell:false`, `windowsHide:true`. 종료·타임아웃·중단 시 resolve, 실행 실패만 `SpawnError('cli-not-found'|'spawn-failed'|'invalid-command')`로 reject. `.cmd/.bat/.ps1`·상대 경로·NUL 인수 거부. stdin EPIPE 무시(V1-19) |
 | `spawnLongLived(cmd, args, opts)` | spawn 이벤트 후 핸들 반환: `writeLine/writeJson`, `onStdoutLine/onStderrLine`(UTF-8 안전 줄 분할, 1MiB 상한), `closeStdin`, `exited`(reject 안 함), `kill()`. `timeoutMs`는 전체 수명 상한 |
 | `killProcessTree(pid)` | Windows `%SystemRoot%\System32\taskkill.exe /PID n /T /F`(spawn 헬퍼 자체 경유), 실패 시 `process.kill` |
-| `resolveCommand(nameOrPath)` | PATH+PATHEXT 탐색(`where` 미사용). `.exe` 직접, npm `.cmd` shim은 파싱해 `node.exe + <shim폴더 내부 JS 엔트리>`(shim 옆 node.exe 우선), `.ps1`/폴더 밖 엔트리는 `unsupported-shim` |
+| `resolveCommand(nameOrPath)` | PATH+PATHEXT 탐색(`where` 미사용). `.exe` 직접, npm `.cmd` shim은 파싱해 `node.exe + <shim폴더 내부 JS 엔트리>`(shim 옆 node.exe 우선). 버전 관리자가 만든 단순 `call "<절대경로 cmd/bat/exe>" %*` 연결은 최대 4단계만 따라간다(순환·추가 명령·환경변수 확장 거부). `.ps1`/폴더 밖 JS 엔트리는 `unsupported-shim` |
 | `createJsonRpcClient(transport, {dialect, defaultTimeoutMs})` | `dialect:'codex'`는 `"jsonrpc"` 필드 생략, `'jsonrpc2'`는 포함. id 매칭, 요청별 타임아웃·AbortSignal, 알림 구독, 서버→클라이언트 요청 핸들러(미등록은 -32601), 전송 종료 시 대기 요청 전부 reject. JSON이 아닌 줄은 무시 |
 | `stripAnsi`, `createLineSplitter` | CSI·OSC 8 제거(Claude 출력), CRLF·UTF-8 경계 처리 |
 
@@ -222,7 +227,7 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 1. 앱 시작: store 로드 → 계정마다 `ensureProfileDir` → `detectCli`(공급자당 1회, `cli` 상태 `unknown→found|missing`, V1-37) → 활성 계정 `getIdentity` → 첫 `fetchUsage`(state `loading`).
 2. 주기 조회: `settings.refreshIntervalSec`. 계정별 병렬(공급자당 동시 1개), 계정 하나가 끝날 때마다 스냅샷을 합쳐 `state:changed` **1회** 브로드캐스트(V1-16·39).
 3. 수동 새로고침(위젯 버튼·트레이·팝업): 같은 계정이 조회 중이면 합류하고 새로 띄우지 않는다. 연타는 계정당 최소 5초 간격. 진행 중에는 `refresh.inFlight=true`, `refresh.accountIds`에 계정이 들어가 위젯 버튼이 회전한다(V1-23).
-4. 실패: `applyFetchFailure`로 마지막 실측값 유지 + `errorCode`. 백오프 `min(30초·2^(n-1), 15분)` + 지터, `rate-limited`는 최소 5분. 성공하면 초기화(V1-11).
+4. 실패: `applyFetchFailure`로 마지막 실측값 유지 + `errorCode`. 단 직전 상태가 `ok`이고 마지막 성공이 `staleAfterMs` 안이며 코드가 일시 오류(`timeout`·`network`·`provider-error`·`rate-limited`)면 직전 스냅숏을 그대로 둔다(`keepsReadingThroughBlip`, 경고 표시 없음, 수치·측정 시각은 실제 마지막 측정 그대로, DECISIONS 26.09.30 16:50). 실패가 길어지면 stale 표시와 그 다음 실패의 `error`가 이어받는다. 백오프 `min(30초·2^(n-1), 15분)` + 지터, `rate-limited`는 최소 5분. 성공하면 초기화(V1-11).
 5. 표시: 렌더러는 `deriveDisplayState`로 `stale`/`reset`을 계산하고, `usedPercent:null`은 "미확인"으로 표시한다(0% 금지).
 6. 절전 복귀(`powerMonitor` resume)·디스플레이 변경 시 즉시 1회 조회·재배치.
 
@@ -234,7 +239,7 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 - 자식 환경 = `BASE_ENV_ALLOW` + 공급자 HOME 변수 set + 자격증명 계열 변수 remove. 부모의 사용자 설정 폴더(`~/.claude`, `~/.codex`, `~/.grok`)는 절대 계정 폴더로 쓰지 않는다.
 - 위젯 코드는 CLI 자격증명 파일(`.credentials.json`, `auth.json`)을 **읽지도 쓰지도 않는다.** 공급자 HTTP API를 사용자 토큰으로 직접 부르지 않는다. 사칭 헤더·client ID 없음.
 - 로그인 이벤트의 URL·코드는 렌더러에 보여 주되 로그에는 남기지 않는다(`userCode`는 redact 키).
-- 모든 호출에 타임아웃. 로그인 전체 10분. 셸 스케줄러는 계정 조회 1회(`getIdentity` + `fetchUsage`가 같은 슬롯에서 연달아 실행)에 120초 AbortSignal을 건다(어댑터 예산 합: codex identity 세션 50초 + usage 세션 60초, DECISIONS 04:49). 어댑터 내부 제한: codex init 30초·rpc 10초, grok init 30초·요청 20초·수명 60초, claude auth status 30초·`--version` 15초. 실측 시간이 나오면 조정한다.
+- 모든 호출에 타임아웃. 로그인 전체 10분. 셸 스케줄러는 계정 조회 1회(`getIdentity` + `fetchUsage`가 같은 슬롯에서 연달아 실행)에 130초 AbortSignal을 건다(어댑터 예산 합: codex identity 세션 50초 + usage 세션 70초, DECISIONS 04:49·26.09.30 16:50). 어댑터 내부 제한: codex init 30초·rpc 10초·`account/rateLimits/read` 20초, grok init 30초·요청 20초·수명 60초, claude auth status 30초·`--version` 15초. 실측 시간이 나오면 조정한다.
 - 자동 조회 간격 = max(설정 `refreshIntervalSec`, `PROVIDER_TRAITS[provider].minRefreshSec`) × 배터리 배수. 최소값: claude 15초(로컬 브리지 파일만 읽음), codex·grok 60초, antigravity 120초(`agy` 1회 7~9초). 수동 새로고침은 이 하한과 무관하게 즉시 조회한다. 설정 탭 `refreshIntervalHint`가 같은 상수로 안내한다(DECISIONS 26.09.20 10:54).
 - 실측(T1·T2·T4) 전 추정으로 확정할 수 없는 응답 필드는 알 수 없는 필드를 허용하는 파서로 처리하고, 파서 테스트에 근거(스키마 파일·문서 경로)를 주석 1줄로 남긴다.
 
@@ -255,13 +260,14 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 ### 7-2. Codex (`providers/codex`) — DECISIONS 02:23
 | 단계 | 방법 |
 |---|---|
-| CLI 탐지 | `resolveCommand('codex')` → npm shim이면 `node.exe + …\@openai\codex\bin\codex.js`. `--version` |
+| CLI 탐지 | `resolveCommand('codex')` → npm shim이면 `node.exe + …\@openai\codex\bin\codex.js`; 버전 변경 후 PATH shim이 다른 Codex 설치 폴더의 `.cmd`로 전달하면 그 대상을 다시 해석. `--version` |
 | 폴더 | `CODEX_HOME` 폴더를 **spawn 전에 생성**(keyring 키가 canonicalize 경로 해시라서, RESEARCH 3-2) |
 | env | set `CODEX_HOME=<profileDir>`, remove `OPENAI_API_KEY` `CODEX_API_KEY` 계열 |
-| 연결 | `spawnLongLived(codex, ['app-server'])` + `createJsonRpcClient(dialect:'codex')` → `initialize {clientInfo:{name:'ai-usage-widget', version}}`(`experimentalApi` 없음) → 응답의 `codexHome`이 `profileDir`와 같은지 검증(다르면 `protocol-error`로 중단) → `initialized` 알림. 제한 init 30초 / rpc 10초 |
+| 연결 | `spawnLongLived(codex, ['app-server'])` + `createJsonRpcClient(dialect:'codex')` → `initialize {clientInfo:{name:'ai-usage-widget', version}}`(`experimentalApi` 없음) → 응답의 `codexHome`이 `profileDir`와 같은지 검증(다르면 `protocol-error`로 중단) → `initialized` 알림. 제한 init 30초 / rpc 10초 / `account/rateLimits/read`만 20초(26.09.28 이 호출만 10초를 34회 넘김, 같은 프로세스의 initialize·account/read는 0.1초). 실패 로그에 `phase`(start·account·rateLimits)와 `elapsedMs` |
 | 로그인 | `account/login/start {type:'chatgptDeviceCode'}` → `{loginId, userCode, verificationUrl}` → `device-code` 이벤트 → `account/login/completed` 알림 대기 → `account/read`로 email(마스킹)·planType → `success`. device code가 계정 설정에서 꺼져 있으면 `device-auth-disabled` |
 | 수치 | `account/rateLimits/read` → `rateLimitsByLimitId` 각 버킷의 primary/secondary `{usedPercent, windowDurationMins, resetsAt(초)}` → `QuotaWindow`(kind는 분 단위로 분류, 버킷 id는 `label`). 결과를 받으면 프로세스 종료. `planType`은 모르는 값도 허용 |
-| 금지 | `chatgptAuthTokens`, `apiKey`, `account/rateLimitResetCredit/consume`, `account/sendAddCreditsNudgeEmail`, `logout`, `~/.codex`·Orca 폴더 공유, `wham/usage` 직접 호출 |
+| 금지 | `chatgptAuthTokens`, `apiKey`, 초기화권 자동 소비, `account/sendAddCreditsNudgeEmail`, `logout`, `~/.codex`·Orca 폴더 공유, `wham/usage` 직접 호출 |
+| 초기화권(26.09.26) | 평소 `account/rateLimits/read {excludeResetCreditDetails:true}`의 `rateLimitResetCredits.availableCount`만 읽고 사용량 카드에 표시한다(구매형 credits와 구분). Codex 카드의 초기화권 줄은 수량이 0개거나 미확인이어도 보이되, 사용 버튼은 정상·최신 조회에서 1개 이상일 때만 보인다. 사용 버튼을 누르면 같은 격리 CODEX_HOME의 상세 내역·backend `accountId`·유효한 `codexRateLimits` 권리를 확인하고 Windows 기본 취소 확인창에 계정·만료·5시간/주간 한도 갱신 영향을 표시한다. 승인 후 동일 계정·권리 재조회가 일치할 때만 공식 `account/rateLimitResetCredit/consume`에 UUID idempotencyKey와 creditId를 전송한다. 자동 사용·불확실한 결과의 자동 재시도는 없다. 상세·계정 식별자가 없으면 소비를 막고 공식 사용량 페이지를 제공한다. |
 | 확인된 스키마(codex-cli 0.154.0, 빈 CODEX_HOME) | `account/read`는 params 필수(`{}` 전송). 미인증 `rateLimits/read` → -32600 'codex account authentication required…'. `rateLimitsByLimitId`는 nullable이라 없으면 단일 `rateLimits` 사용. `account/login/cancel {loginId}` → `{status: canceled|notFound}`(중단·타임아웃 시 호출). `--version`도 CODEX_HOME을 초기화하므로 `<localDataRoot>\cli-detect\codex`에서 실행. shim 해석 불가는 `cli-unsupported-install` |
 | 실측(T1, 26.09.20, codex 0.155.1, plan pro) | `account/rateLimits/read` = 버킷 `codex` 하나, `primary{usedPercent, windowDurationMins:10080, resetsAt(초)}`, **`secondary:null`**(5시간 창 없음 → 위젯은 주간 한 줄), `credits{hasCredits,unlimited,balance:'0'}`, 추가 필드 `ordinaryUsageAllowed`·`normalModelSlug`·`individualLimit`·`spendControlReached`·`rateLimitUpsell`·`accountId`(무시). 조회 약 1초. 로그인: `startLogin`은 세션을 열기 전에 같은 계정의 진행 중 작업을 중단하고 그 app-server 종료를 기다린다(`quiesce`) — 새 CODEX_HOME을 두 프로세스가 동시에 초기화하면 `protocol-error`(DECISIONS 26.09.20 10:51) |
 | 미결 | verificationUrl 호스트(실계정 로그인은 성공했으나 호스트 기록 없음), 2번째 시도 `login-failed`의 원인, 조회가 auth.json을 다시 쓰는지, device-auth-disabled·login-expired·rate-limited·network 판정 문구(정규식 추정). credits·한도 도달 차단(`rateLimitReachedType`) 표시는 T1 후 계약 필드 추가 여부 결정. libuv가 HOMEDRIVE·HOMEPATH·USERNAME 등을 자식에 자동으로 다시 넣는다(자격증명 아님) |
@@ -286,6 +292,7 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 | env | `BASE_ENV_ALLOW` + set `AGY_CLI_DISABLE_AUTO_UPDATE=1`(자동 업데이터의 UAC 권한 상승 방지)·`NO_COLOR=1`, remove `GEMINI_API_KEY`·`GOOGLE_API_KEY` 계열. cwd는 위젯 소유의 빈 `profileDir` |
 | 수치 | `run(agy, ['-p','/usage','--output-format','json','--print-timeout','30s'])`(하드 타임아웃 45초) → `command.data.groups[].buckets[]`의 `window`(`5h`→session, `weekly`→weekly, 그 외 other)·`remaining_fraction`(used = (1−x)×100, 범위 밖·비숫자는 null)·`reset_time`(ISO). 그룹 순서 유지, 그룹 안에서는 session→weekly, 버킷마다 `label`=그룹 이름(제어 문자 제거·40자 제한). 사람이 읽는 `response` 문자열은 파싱하지 않는다. 실측(agy 1.2.6·1.2.7): 6.9~8.6초, `num_turns:0`·토큰 0 |
 | 차단기 | 응답이 `command.name==='usage'` + `num_turns===0`이 아니면(슬래시가 AI 프롬프트로 처리됨) 앱을 다시 켤 때까지 agy를 호출하지 않고 `unavailable`+`cli-unsupported-version`. 요청 소모를 1회로 제한한다 |
+| 실패(26.09.30) | 실측 7회(09.20~26): `status:"ERROR"` + `/usage failed: … UNKNOWN (code 500): Unknown Error.`(stderr 첫 줄에도 같은 문구), 매번 다음 주기에 복구. 이 문구(`/usage failed:` + `(code 5xx)`)면 같은 조회 안에서 3초 뒤 **1회만** 다시 실행한다(`/usage`는 요청을 쓰지 않음, 중단 신호는 대기 중에도 즉시 반영). 두 번째도 실패하면 `error`+`provider-error`(이전 수치 유지). 실패 로그에 `attempt`·`reasonField`(사유가 담긴 JSON 키)·`serverError`·`retry`를 남긴다. 연결 계열 문구는 재시도 없이 `network` |
 | 신원 | `/usage` 성공 = `loggedIn:true`(e-mail·plan은 제공되지 않음). 로그아웃 문구가 보이면 `logged-out`, 그 외 실패는 `ProviderError`(unknown). identity·usage가 15초 안에 이어지면 agy 실행 1회를 공유하고, 같은 계정의 동시 호출도 한 실행을 공유한다 |
 | 금지 | wincred(`gemini:antigravity`) 읽기, 로컬 language server RPC, `cloudcode-pa` 직접 호출, Orca 값(RESEARCH 3-5) |
 | 미결 | 로그아웃 상태의 실제 출력 문구(현재 정규식은 추정), 위젯 막대에 표시할 그룹 선택(현재 첫 그룹) |
@@ -297,6 +304,7 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 - **부트스트랩**(`index.ts`, 스캐폴드 구현됨): `configureUserData` → `setAppUserModelId('local.aiusagewidget')` → `registerSchemesAsPrivileged(app: standard+secure)` → 단일 인스턴스 락 → `hardenApp` → ready 후 `hardenSession`·`protocol.handle('app')`·registry·창 생성·IPC 등록. `--smoke`는 두 렌더러의 `app:renderer-ready`(CSP eval 차단 확인 포함)를 기다려 JSON 보고서를 쓰고 스스로 종료(0 성공 / 1 실패 / 2 강제 타임아웃).
 - **store**: 쓰기는 `<file>.<ts>.tmp` → rename. 로드는 `normalizeSettings`·계정 검증. 빈 계정 배열을 존중(기본 계정 부활 없음, V1-15). 계정 객체는 복사해서 넘긴다(V1-04). 쓰기가 성공한 뒤에만 메모리를 바꾸고, 파싱 안 되는 본 파일은 `.bak`을 덮지 않는다. 계정 변경(add·remove·rename·toggle·reorder)은 컨트롤러에서 한 번에 하나씩 실행한다. 로그인 여부는 identity가 기준이라 logged-out으로 확인된 계정은 identity 재조회(30분·로그인 성공·수동 새로고침) 전까지 수치를 조회하지 않는다(DECISIONS 04:49).
 - **login 세션**: `sessionId = randomUUID()` 기반 id, 세션마다 AbortController, 계정당 동시 1개. 방출된 URL 목록을 세션에 보관해 `shell:open-external {kind:'login'}` 검증에 쓴다. 세션 종료 시 목록 폐기.
+- **재인증 알림**: 공급자 identity/사용량 조회가 확정된 `logged-out`을 반환하면 계정당 한 번 Windows 알림을 보낸다. 알림 클릭은 기존 계정 관리 탭을 열고 Claude·Codex·Grok의 공식 CLI 로그인 세션을 시작한다(이미 복구된 계정은 열기만 함). Antigravity는 자체 CLI 터미널 로그인 안내만 보여 준다. 네트워크 오류·상태 미확인에는 알리지 않으며 로그인 성공 또는 정상 수치 복귀 후 다시 만료되면 재알림한다. `--smoke`에서는 알림을 내지 않는다.
 - **창·위치**: 위젯은 `screen` workArea/bounds 차이 + `display-added/removed/metrics-changed`로 재배치, 자동 숨김·좌우 작업 표시줄은 koffi `SHAppBarMessage`(실패 시 해당 기능만 끄고 폴백, V1-18·29). docked 최상위 유지는 koffi `SetWindowPos(HWND_TOPMOST)`를 같은 HWND에 재기동 없이(V1-12·28), 전체화면 감지는 koffi로 전경 창·모니터 비교 후 `showInactive()` 복원(V1-30). TaskbarDock.exe는 쓰지 않는다.
 - **팝업**: 위젯/트레이 클릭은 잠금 없이 열고 blur 시 숨김. 설정 조작 중에만 `window:set-popup-lock`(V1-09). 잠금 중에 온 blur는 기억했다가 잠금이 풀리면 숨긴다. 재질 전환으로 창을 다시 만들면 열려 있던 팝업을 설정 탭으로 다시 연다. 위젯 이동·디스플레이 변경 시 열린 팝업도 재배치(V1-27). 단 위치 미리보기 중에는 팝업을 옮기지 않고 미리보기 해제·설정 저장 때 재배치한다(슬라이더 되먹임 방지, DECISIONS 26.09.15 05:10).
 - **트레이**: 메뉴 `trayToggleWidget`·`trayOpenPopup`·`trayAutoLaunch`·`trayRefreshNow`·`trayAccounts`·`trayQuit`. 문구는 `shared/i18n`.
@@ -310,6 +318,8 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 - 프레임워크 없는 TS/DOM. HTML 문자열 금지: `h()`(`src/renderer/src/dom.ts`)처럼 `createElement`·`textContent`만 쓴다. ESLint가 `innerHTML`·`outerHTML`·`insertAdjacentHTML`·`document.write`를 막는다(V1-06).
 - 상태 변경 시 전체 재렌더 대신 키 기반 부분 갱신, 입력·포커스·스크롤 보존, 애니메이션은 표시할 때만(V1-25·26).
 - 위젯 막대: 계정별 아이콘·5H/주간 값·리셋 카운트다운(매초가 아니라 분 단위로 로컬 재계산), **새로고침 버튼**(회전 표시, `refresh` 상태 기준 비활성). 빈 상태 클릭 → 팝업 계정 탭.
+- 수치 단위는 위젯 값 옆에 `남음`/`left` 또는 `소모`/`used`로 직접 표시한다. 팝업 수치는 항상 소모율이므로 `소모`/`used`를 붙인다.
+- 빠른 소모 강조는 실제 토큰 개수가 아닌 **계정별 한도 사용률 증가**를 비교한다. 위젯 실행 중 같은 한도 창에서 모은 최근 2~20분의 관측치를 사용한다. 15분 이내 12%p 이상 뛰면 이전 이력 없이도 즉시 경고한다. 그보다 작은 증가(최소 3%p)는 둘 이상의 증가 관측치와 시간당 최소 12%p, 이전 관측 구간 대비 2.5배를 요구한다. 단일 지연 업데이트가 12%p 미만이면 제외하고, 리셋·조회 실패·미확인 수치에서도 경고하지 않는다. 해당 계정을 강조하고 아이콘 위의 별도 투명 창에 8초간 말풍선을 표시하며, 같은 계정은 15분 동안 반복하지 않는다. 강조는 최근 증가가 관측 창에서 빠지면 사라진다. 이력은 앱 실행 중 메모리에만 저장하며, 수치는 사용률 기반 추정임을 툴팁과 말풍선에 밝힌다.
 - 테마 1a~1d의 v1 수치·색 규칙(SPEC §2)을 유지하되 조건 통일(V1-22), 모노크롬 규칙 단일 정의(V1-33), SVG gradient id는 인스턴스별 고유(V1-42). `windows` 테마는 `ThemeTokens` CSS 변수만 쓴다.
 - 접근성: `role=tablist/tab`, 화살표 키 이동, 아이콘 버튼 `aria-label`, `:focus-visible`, `forced-colors`, `prefers-reduced-motion`(V1-36).
 - 로그인 UI: `url`→"브라우저에서 열기"(`shell:open-external {kind:'login'}`) + 붙여넣기 입력, `device-code`→코드 크게 표시 + 주소 열기, `progress`/`error` 문구는 i18n 표.
@@ -444,3 +454,15 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 ## 16. 실측 대기(사용자 참관, DECISIONS 02:23)
 
 T1 Codex device code 로그인·버킷 / T2 Claude 파이프 로그인 / T3 statusline `rate_limits` 기록 / T4 Grok ACP `x.ai/billing` / T8 재질·강조색·koffi 패키징·NSIS 퓨즈. 결과는 `DECISIONS.md`에 결정으로 남기고 이 문서의 해당 절을 갱신한다.
+
+---
+
+## 17. 새 모델 알림 (26.09.30)
+
+- **출시 확인**: [Claude 모델 목록](https://platform.claude.com/docs/en/models/overview), [OpenAI 모델 목록](https://developers.openai.com/api/docs/models), [xAI 모델 목록](https://docs.x.ai/developers/models), [Gemini 모델 목록](https://ai.google.dev/gemini-api/docs/models?hl=en)의 모델 ID가 전회 성공 조회 이후 새로 추가되면 `released`. 공개 문서 기준이며 해당 구독 계정의 선택 가능 여부는 보장하지 않는다. 이미지·음성·영상·임베딩·preview 등 비대화형/미출시 항목을 제외한다.
+- **공식 발표**: [OpenAI RSS](https://openai.com/news/rss.xml), [Google AI RSS](https://blog.google/technology/ai/rss/), [Anthropic 뉴스 사이트맵](https://www.anthropic.com/sitemap.xml), [xAI 릴리스 노트](https://docs.x.ai/developers/release-notes)를 사용한다. 모델명이 제목에 있고 본문 요약에 미래 출시가 명시돼야 `upcoming`; 날짜가 명시돼야 달력 일수 `D-n`을 계산한다. 날짜만 있을 때 임의의 시각을 만들지 않는다. D-day가 지나도 공식 출시 확인 전에는 `released`로 자동 전환하지 않는다. 명확하지 않은 홍보 글은 건너뛴다.
+- **표시**: 메인 프로세스가 처음 성공한 각 출처를 기준선으로 `model-news.json`에 기록한다(자격증명 없음). 6시간 간격으로 재확인하고, 신규 항목은 제조사별 아이콘 위 8초 말풍선과 아이콘 배지로 알린다. 배지의 키보드 포커스/툴팁에서 문구를 확인하고 누르면 검증된 공식 URL이 열린 뒤 해당 알림을 해제한다. 하나의 제조사에 복수 계정이 있어도 첫 아이콘에만 표시한다.
+- **한계**: 공식 출처의 HTML/RSS 형식이 바뀌거나 네트워크가 막히면 해당 출처만 건너뛰고 다음 주기에 재시도한다. 특히 발표 상태를 명시적으로 판독할 수 없는 글은 알림으로 만들지 않는다. CLI 계정 로그인이나 유료 모델 API를 이 기능에 사용하지 않는다.
+- **상태 표시(26.09.30 보완)**: 출처 8곳(목록 4 + 발표 4)의 조회가 끝날 때마다 `onHealth`로 `ModelNewsHealth {checkedAt, sources, failing[{provider, kind:'catalog'|'news', since, count}]}`를 셸에 넘기고, 스냅숏 `modelNewsHealth`로 렌더러에 간다. 설정 탭 맨 아래 "새 모델 알림" 줄이 마지막 확인 시각과 읽지 못한 출처를 보여 준다(경고색). 형식이 바뀌어 모델 ID가 0개인 목록도 실패로 센다. Anthropic 기사 1건 실패는 출처 실패가 아니다. 상태는 메모리에만 있고 앱 시작 직후 첫 조회에서 다시 채워진다. 도입 이유: 09.30 오전 Antigravity(Gemini) 목록이 4회 "empty model catalog"로 실패했는데 로그에만 남았다.
+- **언어 고정(26.09.30 원인 확인)**: 그 실패의 원인은 Google이 같은 주소를 가끔 기계 번역 페이지(`?hl=pt-br`)로 돌려보내는 것이었다(Electron main fetch 4회 중 1회). 번역 페이지는 링크가 절대 주소 + `?hl=…`라 패턴에 0개 맞았다. 이제 모든 조회에 `Accept-Language: en`을 붙이고 Gemini 목록은 `?hl=en`으로 요청하며(8회 모두 영어, 64개), 모델 목록 패턴은 상대·절대 주소와 쿼리를 모두 받는다(다른 호스트 링크는 여전히 무시).
+- **이른 재확인(26.09.30)**: 조회에서 실패한 출처가 있으면 6시간을 기다리지 않고 15분 뒤 한 번 더 전체 조회한다(`RETRY_AFTER_FAILURE_MS`, 주기 타이머가 도는 동안만, 대기 중인 재확인은 하나, `stop()`에서 해제). 설치 직후 Gemini 목록이 12초 시간 초과로 한 번 실패한 것이 계기. 요청 제한은 12초 → 30초(ai.google.dev가 12회 중 2회 19.7초·30초+ 멈춤, `?hl` 무관).

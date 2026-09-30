@@ -53,6 +53,10 @@ export function sanitizeSnapshot(account: Account, input: UsageSnapshot): UsageS
   };
   const plan = normalizeLabel(raw.plan);
   if (plan !== null) snapshot.plan = plan;
+  if (account.provider === 'codex' && typeof raw.resetCreditsAvailable === 'number' &&
+      Number.isSafeInteger(raw.resetCreditsAvailable) && raw.resetCreditsAvailable >= 0 && raw.resetCreditsAvailable <= 1_000) {
+    snapshot.resetCreditsAvailable = raw.resetCreditsAvailable;
+  }
   if (isErrorCode(raw.errorCode)) snapshot.errorCode = raw.errorCode;
   else if (state === 'error') snapshot.errorCode = 'internal';
   return snapshot;

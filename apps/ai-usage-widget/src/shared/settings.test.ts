@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_SETTINGS,
+  GROK_BOT_MAX_CENTS,
   SETTING_KEYS,
   applySettingsPatch,
   isValidSettingValue,
@@ -48,6 +49,23 @@ describe('settings', () => {
   it('parseSettingsPatch accepts valid partial updates', () => {
     const parsed = parseSettingsPatch({ refreshIntervalSec: 120, material: 'mica' });
     expect(parsed).toEqual({ ok: true, value: { refreshIntervalSec: 120, material: 'mica' } });
+  });
+
+  it('accepts only whole manual Grok Bot percentages in range', () => {
+    expect(parseSettingsPatch({ grokBotUsedPercent: 0 }).ok).toBe(true);
+    expect(parseSettingsPatch({ grokBotUsedPercent: 100 }).ok).toBe(true);
+    expect(parseSettingsPatch({ grokBotUsedPercent: 33.5 }).ok).toBe(false);
+    expect(parseSettingsPatch({ grokBotUsedPercent: -1 }).ok).toBe(false);
+    expect(parseSettingsPatch({ grokBotUsedPercent: 101 }).ok).toBe(false);
+  });
+
+  it('accepts Grok Bot reset times and whole-cent on-demand amounts, nothing fractional or negative', () => {
+    expect(parseSettingsPatch({ grokBotResetAt: 1_800_000_000_000, grokBotOnDemandSpentCents: 1230, grokBotOnDemandLimitCents: null }).ok).toBe(true);
+    expect(parseSettingsPatch({ grokBotOnDemandSpentCents: 12.3 }).ok).toBe(false);
+    expect(parseSettingsPatch({ grokBotOnDemandLimitCents: -1 }).ok).toBe(false);
+    expect(parseSettingsPatch({ grokBotOnDemandLimitCents: GROK_BOT_MAX_CENTS + 1 }).ok).toBe(false);
+    expect(parseSettingsPatch({ grokBotResetAt: '2026-10-01' }).ok).toBe(false);
+    expect(normalizeSettings({ grokBotOnDemandSpentCents: 'x' }).grokBotOnDemandSpentCents).toBeNull();
   });
 
   it('parseSettingsPatch rejects NaN interval, unknown keys, empty and out-of-range values (V1-20)', () => {
