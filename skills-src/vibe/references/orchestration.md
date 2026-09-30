@@ -321,10 +321,12 @@ not implemented. On the earlier installed CLI,
 `agy models --output-format json` exits nonzero even though the upstream
 changelog describes a machine-readable subcommand; plain `agy models` lists
 slugs, but this collector does not parse them or infer account/model billing.
-Grok billing metadata may be read while generation is suspended, but quota
-recovery must be observed again before reconsidering a route. A reset timestamp
-is not proof of recovery. Grok Bot has no collector here and never inherits the
-CLI account/quota. Claude Widget bridge data is not joined without identity and
+Grok billing metadata may be read while generation is suspended. The 1.0.41
+ACP display tiers `SuperGrok Plus` and `SuperGrok Heavy` normalize to stable
+identifiers; account identity, overage controls and model inclusion remain unverified.
+Quota recovery must be observed again before reconsidering a route. A reset
+timestamp is not proof of recovery. Grok Bot has no collector here and never
+inherits the CLI account/quota. Claude Widget bridge data is not joined without identity and
 bucket-binding evidence. No provider's subscription label proves a free model.
 
 Only models actually returned by Codex model/list and present in the registry

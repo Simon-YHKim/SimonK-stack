@@ -36,6 +36,10 @@ if str(SCRIPT_ROOT) not in sys.path:
 from model_registry import load_registry
 
 SURFACES = ("codex", "claude", "antigravity", "grok")
+GROK_TIER_ALIASES = {
+    "SuperGrok Plus": "SuperGrokPlus",
+    "SuperGrok Heavy": "SuperGrokHeavy",
+}
 MAX_BYTES = 1024 * 1024  # Catalogs fit well below 1 MiB; stop unsolicited floods.
 RPC_METHODS = {"initialize", "model/list", "account/read", "account/rateLimits/read",
                "_x.ai/billing", "x.ai/billing"}
@@ -175,7 +179,9 @@ def normalize(surface, raw, now, profile):
             raise CollectorError("billing-shape-unknown")
         root, period = roots[0], obj(roots[0].get("currentPeriod"))
         identity = raw.get("accountId")  # May be absent: a profile is not an identity.
-        tier = identifier(raw.get("subscriptionTier", raw.get("subscription_tier")))
+        raw_tier = raw.get("subscriptionTier", raw.get("subscription_tier"))
+        tier = GROK_TIER_ALIASES.get(raw_tier) if isinstance(raw_tier, str) else None
+        tier = tier or identifier(raw_tier)
         result["auth"] = {"logged_in": True, "plan": tier}
         result["billing"]["mode"] = "subscription" if tier else "unknown"
         result["quota_windows"].append(window("grok-credits", identifier(period.get("type")) or "unknown",
