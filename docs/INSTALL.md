@@ -4073,6 +4073,29 @@ Codex CLI 0.159.0은 플러그인 5개 enabled를 확인했다. 두 호스트 �
 Cloudflare 운영 자동 배포는 Simon이 이번 `main` 머지에 한해 허용했지만,
 독립 수정 재검토와 소스 전용 머지 결정 기록은 여전히 필요하다.
 
+2026-10-01 **PR #65–#67 소스 HEAD 격리 후보**: `8798774a946e16aac17a0721fbff76b8fd1a2cc9`
+소스에서 `E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr67-current-candidate/`
+아래 새 후보를 만들었다. 입력은 `distribution/plugin-inputs.v1.json`에 고정된
+5개 커밋의 깨끗한 별도 로컬 복제본이며, 원본 플러그인과 사용자 설치본은 바꾸지 않았다.
+
+| 산출물 | 검증한 전체 digest | 범위 |
+|---|---|---|
+| `source` | `a8d9613b5286d916dfd3c3e591a81288abec148157dead599b6c30397aa8ac69` | 137스킬·423파일 |
+| `candidate-safety` | `421d0f98666f05aacee9c66dcc47d430374aed4af0358000e529b75694f92fcc` | 5플러그인·Claude 182스킬 |
+| `codex-overlay-safety` | `8262450952e45e7f3b2ea34eae421f892a788cf23943be0889ade13fe7c26737` | Codex 호환 오버레이 |
+| `codex-subset-safety` | `8c918ac9b3a3bb406edba4b2b09bf5a0b23b01ce0ff79a609ba9293a162eb44e` | Codex 안전 부분집합 177스킬 |
+
+네 영수증의 별도 `verify`가 모두 종료 0이고, Claude 후보의 일회용
+`candidate_runtime_probe.py` 네 단계(`/vibe` selftest·runtime·prepare·table-sync)도
+모두 종료 0이다. `preview-vibe-candidate.ps1 -AllPlugins` 기본 CheckOnly는
+5개 플러그인·182스킬을 확인하고 `model_called=false`로 종료 0이었다.
+정적 경로 감사에서 누락·비이식 명령은 양쪽 모두 0건이지만, Gstack 외부
+런타임 힌트는 Claude 31스킬·Codex 30스킬로 남아 감사 종료 코드는 1이다.
+이 후보는 실제 호스트 설치·자동 선택·이미지/Bot/모델 실호출이나 추가 과금
+차단을 증명하지 않는다. `installation_ready=false`와
+`host_compatibility_verified=false`를 유지하며, PR #65–#67의 새 §35 토론
+D-code와 정확한 머지 대상 재검토 전에는 `main` 머지하지 않는다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
