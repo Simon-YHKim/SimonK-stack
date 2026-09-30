@@ -303,7 +303,7 @@ def scan_state(state: dict, fetch, now: datetime, force: bool = False,
                 report["feedback_errors"][key] = type(exc).__name__
                 continue
             captures = item.setdefault("captures", [])
-            existing = ({post["url"] for post in captures}
+            existing = ({feedback_identity(post["url"]) for post in captures}
                         | {feedback_identity(post["url"]) for post in item.get("feedback", [])})
             for post in posts:
                 if post["url"] not in existing:

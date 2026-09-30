@@ -295,6 +295,12 @@ class ModelWatchTests(unittest.TestCase):
         self.assertEqual(item["feedback"], [])
         self.assertFalse(item["routing_ready"])
         item["captures"][0]["url"] = "https://www.reddit.com:443/r/grok/comments/post1"
+        state, alias_report = model_watch.scan_state(state, self.fetch,
+                                                     first + timedelta(hours=1),
+                                                     feedback_fetch=public_feed)
+        self.assertEqual(alias_report["feedback_captures"], [])
+        item = state["candidates"][key]
+        self.assertEqual(len(item["captures"]), 1)
         model_watch.add_feedback(state, key, first + timedelta(hours=2),
                                  "https://www.reddit.com/r/grok/comments/post1", "mixed")
         self.assertEqual(item["feedback"][0]["observed_at"], model_watch.iso(first))
