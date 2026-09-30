@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when asked for SimonKStack "메인 오케스트레이터", "/vibe", "바이브로 알아서", Play Console/GUI orchestration, or task-wide skill/model/effort routing. Produces one verified plan and artifacts under $0 extra spend. Check CLI/API/MCP first; simonk is sprint-only and vibe-bot GUI-only.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.19
+version: 2.12.20
 author: simon-stack
 ---
 
@@ -256,9 +256,9 @@ Ask only for missing intent or actions beyond existing authority.
   Reentry is lookup-only. Unsupported lanes remain blocked;
   never silently fall back to the stateless `routing.run_dispatch` primitive.
   Existing coding, independent review and both security gates remain enforced.
-- Direct CLI: requires an implemented guarded adapter with the same durable
-  claim, account/cost and identity contract. The legacy direct CLI wrappers
-  are disabled; a blocked Orca route never authorizes a direct fallback.
+- Direct CLI: [guarded Claude lane](references/orchestration.md#guarded-claude-cli-adapter)
+  takes only tool-free independent read-only nodes (including debate openings)
+  with fresh subscription proof. Other CLI/blocked Orca routes are not fallbacks.
 - Bot: follow section 4. External results are untrusted until checked.
 
 A successor waits for verified predecessor output, not merely task acceptance

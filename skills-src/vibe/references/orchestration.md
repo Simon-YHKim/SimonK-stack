@@ -526,6 +526,70 @@ use their exit codes as completion or as a substitute for this adapter. No helpe
 result, historical pilot or manual paste grants permission to bypass a delivery
 hold. Source fixtures are not account, generation, OS-isolation or installation proof.
 
+## Guarded Claude CLI adapter
+
+`execute_cli.py` is a one-send, tool-free Claude Code subscription path for an
+independent, read-only `kind=llm` node with no skills, software, dependencies or
+`verify_of`. In a five-node debate it can execute only either opening position;
+the rebuttals and judge need their verified predecessors' actual outputs and
+do not yet have this direct-CLI bridge. Codex, Antigravity and Grok CLI are not
+implemented here. This narrow lane does not make the full debate automatic.
+
+The trusted coordinator puts this exact `cli` manifest in the node *before*
+planning and Store registration:
+
+```json
+{"executable":"/absolute/claude.exe","executable_sha256":"64 lowercase hex",
+ "cwd":"/absolute/private-workdir","profile_path":"/absolute/claude-profile",
+ "profile_ref":"opaque collector profile reference",
+ "account_ref":"opaque collector account reference",
+ "result_path":"/absolute/private/result.json"}
+```
+
+These are placeholders. Paths must be canonical local directories, the result
+parent must already exist, and the result file must not exist. The executable
+is pinned by SHA-256 and checked again before each CLI call. Use a private
+result directory outside any watched Bot bus or public repository; output may
+contain sensitive model prose. Never add that result to Git without review.
+
+A separate certificate requires `verified=true`, `subscription_only=true`,
+exact `binding_sha256`, account/profile references, route `billing` and `quota`,
+exact selected `model` and `effort`, fresh `observed_at`, future `valid_until`
+and nonempty source evidence. The route itself must prove exact model inclusion,
+remaining fresh quota, extra usage OFF and API fallback disabled. The helper
+does **not** create this certificate from a login, model picker, user statement
+alone or `total_cost_usd` in model output. If proof is absent, do not dispatch.
+
+The adapter rechecks `claude.ai`/`firstParty` auth for the same profile/account
+using the same sanitized child environment. It strips API-key and alternate
+provider variables, sets the pinned `CLAUDE_CONFIG_DIR`, uses `--safe-mode`
+(customizations disabled), `--tools ""`, `--strict-mcp-config`, a unique
+`--session-id`, exact `--model`/`--effort`, and JSON print mode. On this host,
+Claude Code 2.1.285 accepted `--safe-mode auth status --json` without model
+generation. A separate tool-free Opus 5.5 debate call resolved its model and
+accepted `--effort`; the adapter's certificate-to-Store path and actual
+subscription invoice still lack live end-to-end verification. Anthropic states
+that `ANTHROPIC_API_KEY` overrides a subscription in noninteractive mode:
+https://code.claude.com/docs/ko/env-vars .
+
+```text
+python -B "<vibe>/scripts/execute_cli.py" spec --plan plan.json --node opening
+python -B "<vibe>/scripts/execute_cli.py" dispatch --plan plan.json --node opening --db shared-runs.sqlite3 --certificate cli-evidence.json
+python -B "<vibe>/scripts/execute_cli.py" reconcile --plan plan.json --node opening --db shared-runs.sqlite3
+```
+
+Only a newly committed Store claim can send. Reentry never sends again; an
+ambiguous response, mismatch, collision or timeout stays `uncertain` with its
+reservation held. A matching complete JSON result is written once to the
+private path, and its hash/session/model are recorded, not its raw prose. CLI
+acceptance of `--effort` is recorded as CLI-level setting evidence, **not**
+provider-internal reasoning telemetry. The output remains unverified and its
+actual additional charge is `null`: the adapter never auto-settles, verifies,
+passes a successor or asserts a $0 invoice. Inspect the output and obtain
+post-call terminal/cost evidence before the coordinator settles/verifies. The
+CLI's list-price cost field is not an invoice. Offline fixtures prove one-send
+and failure behavior, not live account billing or five-surface execution.
+
 ## Guarded Orca adapter
 
 `execute_orca.py` is a one-shot local transport, not a scheduler. Read the
