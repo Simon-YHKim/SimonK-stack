@@ -528,12 +528,17 @@ hold. Source fixtures are not account, generation, OS-isolation or installation 
 
 ## Guarded Claude CLI adapter
 
-`execute_cli.py` is a one-send, tool-free Claude Code subscription path for an
-independent, read-only `kind=llm` node with no skills, software, dependencies or
-`verify_of`. In a five-node debate it can execute only either opening position;
-the rebuttals and judge need their verified predecessors' actual outputs and
-do not yet have this direct-CLI bridge. Codex, Antigravity and Grok CLI are not
-implemented here. This narrow lane does not make the full debate automatic.
+`execute_cli.py` is a one-send, tool-free Claude Code subscription path for a
+read-only `kind=llm` node with no skills, software or `verify_of`. An ordinary
+node has no dependencies. In a five-node debate, Claude may take an opening,
+its own rebuttal, or the separate judge node. Rebuttal and judge prompts are
+constructed only from the registered Store's verified, settled predecessor
+artifacts; the judge sees both openings and both rebuttals. The judge is a
+different call, but a same-vendor judge is not independent vendor review.
+This adapter accepts only canonical debate dependencies (no auxiliary edges),
+even if the broader planner accepts them.
+Codex, Antigravity and Grok CLI execution are not implemented here, so this
+lane alone does not make the full cross-vendor debate automatic.
 
 The trusted coordinator puts this exact `cli` manifest in the node *before*
 planning and Store registration:
@@ -559,6 +564,24 @@ and nonempty source evidence. The route itself must prove exact model inclusion,
 remaining fresh quota, extra usage OFF and API fallback disabled. The helper
 does **not** create this certificate from a login, model picker, user statement
 alone or `total_cost_usd` in model output. If proof is absent, do not dispatch.
+For a rebuttal or judge, the certificate additionally needs exact
+`inputs_sha256=execute_cli.input_digest(plan,node_id,store)` and
+`cross_vendor_transfer_authorized=true`. This is a coordinator's actual
+authorization to pass those inspected predecessor answers to Claude, not a
+flag the helper manufactures from user prose. Recompute after the claim and
+block a changed input before send.
+
+Each predecessor must be a successful, verified and cost-settled attempt under
+the same registered plan. Claude CLI predecessors retain their pinned JSON
+result file and SHA-256; a different reviewed executor can record a canonical
+local UTF-8 `.txt` file with `content_path`, `content_sha256` and
+`content_format="text/plain;charset=utf-8"` in its Store observation. The
+adapter rehashes and bounds each artifact, checks Claude session/model identity
+when applicable, screens it for sensitive content, and treats prose as untrusted
+data rather than instructions. A file path or `verified=true` without a real
+independent execution and acceptance check is not evidence. Store settlement
+needs a real additional-charge receipt; never insert fixture zero receipts in
+an operational run. Do not put these artifacts in a watched Bot bus or Git.
 
 The adapter rechecks `claude.ai`/`firstParty` auth for the same profile/account
 using the same sanitized child environment. It strips API-key and alternate
@@ -577,6 +600,15 @@ python -B "<vibe>/scripts/execute_cli.py" spec --plan plan.json --node opening
 python -B "<vibe>/scripts/execute_cli.py" dispatch --plan plan.json --node opening --db shared-runs.sqlite3 --certificate cli-evidence.json
 python -B "<vibe>/scripts/execute_cli.py" reconcile --plan plan.json --node opening --db shared-runs.sqlite3
 ```
+
+`spec` is opening-only; it does not print dependent model prose to stdout.
+For a dependent node, dispatch builds the prompt privately after verifying its
+certificate and Store inputs. The registered task and input digest are bound to
+the send's handle. The bounded prompt is piped over standard input, not placed
+in the Windows command line; its input digest is persisted before the send.
+Reentry never resends even when an upstream artifact later
+disappears or changes. A same-vendor judge is marked in the observation, not
+misreported as an independent third-vendor verdict.
 
 Only a newly committed Store claim can send. Reentry never sends again; an
 ambiguous response, mismatch, collision or timeout stays `uncertain` with its

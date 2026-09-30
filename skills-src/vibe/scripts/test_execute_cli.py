@@ -36,8 +36,8 @@ class FakeClaude:
             self.after_auth(self.auth_reads)
         return self.auth_result
 
-    def send(self, argv, binding, env):
-        self.sends.append((copy.deepcopy(argv), dict(env)))
+    def send(self, argv, binding, env, prompt):
+        self.sends.append((copy.deepcopy(argv), dict(env), prompt))
         if self.failure:
             raise self.failure
         if isinstance(self.response, dict):
@@ -91,13 +91,77 @@ class ClaudeCliAdapterTests(unittest.TestCase):
         self.cli.response = {"type": "result", "is_error": False,
             "result": "Independent position", "modelUsage": {"fixture-claude": {"inputTokens": 1}}}
 
+    def debate_plan(self):
+        root = Path(self.tmp.name).resolve()
+        claude = candidate("claude", surface="claude", model="fixture-claude",
+            billing=copy.deepcopy(self.certificate["billing"]))
+        gpt = candidate("gpt", surface="codex", model="fixture-gpt",
+            billing={**candidate("gpt")["billing"], "account_ref": "gpt-account"})
+        roles = {"proposer": "gpt-open", "challenger": "claude-open",
+                 "proposer_rebuttal": "gpt-rebuttal", "challenger_rebuttal": "claude-rebuttal",
+                 "judge": "claude-judge"}
+        def claude_step(node_id, dependencies):
+            binding = {**self.binding, "result_path": str(root / (node_id + ".json"))}
+            return step(node_id, surface="claude", skills=[], software=[],
+                        task="Debate the supplied positions", depends_on=dependencies, cli=binding)
+        steps = [step("gpt-open", surface="codex", skills=[]),
+                 claude_step("claude-open", []),
+                 step("gpt-rebuttal", surface="codex", skills=[],
+                      depends_on=["gpt-open", "claude-open"]),
+                 claude_step("claude-rebuttal", ["gpt-open", "claude-open"]),
+                 claude_step("claude-judge", ["gpt-rebuttal", "claude-rebuttal"])]
+        self.plan = orchestrate.make_plan({"run_id": "test-debate-cli", "steps": steps,
+            "debate": roles, "budget": {"max_attempts": 1}}, {},
+            {"candidates": [claude, gpt], "tools": []}, NOW, fixture_registry([claude, gpt]))
+        self.assertEqual(self.plan["status"], "ready", self.plan["errors"])
+        self.store = run_state.Store(root / "debate-state.sqlite3")
+        self.store.initialize()
+        self.store.register(self.plan, now=NOW)
+        self.adapter = self.m.Adapter(self.store, self.cli, clock=lambda: NOW)
+        return roles
+
+    def record_gpt(self, node_id, text):
+        root = Path(self.tmp.name).resolve()
+        path = root / (node_id + ".txt")
+        raw = text.encode("utf-8")
+        path.write_bytes(raw)
+        attempt = self.store.claim(self.plan["run_id"], node_id, "req-" + node_id,
+                                   self.plan["plan_digest"], now=NOW)
+        handle = {"kind": "fixture-gpt", "id": node_id, "identity": "fixture"}
+        self.store.bind(attempt["dispatch_id"], handle, now=NOW)
+        self.store.observe(attempt["dispatch_id"], {"state": "succeeded", "handle": handle,
+            "observed_at": NOW, "evidence": ["fixture content checked"],
+            "resolved_model": "fixture-gpt", "effective_effort": "low",
+            "content_path": str(path), "content_sha256": hashlib.sha256(raw).hexdigest(),
+            "content_format": "text/plain;charset=utf-8"}, now=NOW)
+        self.store.settle(attempt["dispatch_id"], "0", ["fixture nonmetered receipt"], now=NOW)
+        self.store.verify(attempt["dispatch_id"], ["fixture content accepted"], now=NOW)
+        return path
+
+    def debate_certificate(self, node_id):
+        node = next(n for n in self.plan["steps"] if n["id"] == node_id)
+        certificate = {**self.certificate,
+            "binding_sha256": self.m.binding_digest(self.plan, node_id),
+            "billing": node["route"]["billing"], "quota": node["route"]["quota"]}
+        if node["depends_on"]:
+            certificate["inputs_sha256"] = self.m.input_digest(self.plan, node_id, self.store)
+            certificate["cross_vendor_transfer_authorized"] = True
+        return certificate
+
+    def record_claude_opening(self, text="Claude independent position"):
+        self.cli.response["result"] = text
+        self.adapter.dispatch(self.plan, "claude-open", self.debate_certificate("claude-open"))
+        opening = next(a for a in self.store.snapshot()["attempts"] if a["node_id"] == "claude-open")
+        self.store.settle(opening["dispatch_id"], "0", ["fixture included-use receipt"], now=NOW)
+        self.store.verify(opening["dispatch_id"], ["fixture position accepted"], now=NOW)
+
     def test_one_send_same_intent_reentry_never_resends(self):
         result = self.adapter.dispatch(self.plan, "opening", self.certificate)
         self.assertEqual(result["state"], "succeeded")
         self.assertEqual(result["verified"], False)
         self.assertIsNone(result["actual_usd"])
         self.assertEqual(len(self.cli.sends), 1)
-        argv, env = self.cli.sends[0]
+        argv, env, prompt = self.cli.sends[0]
         self.assertIn("--safe-mode", argv)
         self.assertIn("--strict-mcp-config", argv)
         self.assertEqual(argv[argv.index("--tools") + 1], "")
@@ -105,6 +169,7 @@ class ClaudeCliAdapterTests(unittest.TestCase):
         self.assertEqual(argv[argv.index("--effort") + 1], "low")
         self.assertNotEqual(argv[argv.index("--session-id") + 1], self.m.request_id(self.plan, "opening"))
         self.assertNotIn("ANTHROPIC_API_KEY", env)
+        self.assertIn("Argue the independent position", prompt)
         self.assertEqual(self.adapter.dispatch(self.plan, "opening", None)["state"], "succeeded")
         self.assertEqual(len(self.cli.sends), 1)
         self.assertTrue(Path(self.binding["result_path"]).is_file())
@@ -160,6 +225,112 @@ class ClaudeCliAdapterTests(unittest.TestCase):
         with self.assertRaises(run_state.StateError):
             self.adapter.dispatch(self.plan, "opening", None)
         self.assertEqual(len(self.cli.sends), 1)
+
+    def test_debate_rebuttal_uses_verified_cross_vendor_outputs(self):
+        self.debate_plan()
+        self.record_gpt("gpt-open", "GPT independent objection")
+        self.record_claude_opening()
+        certificate = self.debate_certificate("claude-rebuttal")
+        self.cli.response["result"] = "Claude rebuttal"
+        result = self.adapter.dispatch(self.plan, "claude-rebuttal", certificate)
+        self.assertEqual(result["state"], "succeeded")
+        argv, _, prompt = self.cli.sends[-1]
+        self.assertNotIn("GPT independent objection", str(argv))
+        self.assertIn("GPT independent objection", prompt)
+        self.assertIn("Claude independent position", prompt)
+        self.assertIn("challenger_rebuttal", prompt)
+        self.assertEqual(result["observation"]["inputs_sha256"], certificate["inputs_sha256"])
+        self.assertEqual(self.adapter.dispatch(self.plan, "claude-rebuttal", None)["state"], "succeeded")
+        self.assertEqual(len(self.cli.sends), 2)
+
+    def test_unverified_or_tampered_debate_input_never_sends(self):
+        self.debate_plan()
+        path = self.record_gpt("gpt-open", "GPT opening")
+        with self.assertRaises(run_state.StateError):
+            self.adapter.dispatch(self.plan, "claude-rebuttal", self.debate_certificate("claude-open"))
+        self.assertEqual(self.cli.sends, [])
+        path.write_text("changed", encoding="utf-8")
+        with self.assertRaises(run_state.StateError):
+            self.m.input_digest(self.plan, "claude-rebuttal", self.store)
+        self.assertEqual(self.cli.sends, [])
+
+    def test_judge_reads_both_positions_and_rebuttals_only_after_verification(self):
+        self.debate_plan()
+        self.record_gpt("gpt-open", "GPT opening")
+        self.record_claude_opening("Claude opening")
+        self.record_gpt("gpt-rebuttal", "GPT rebuttal")
+        with self.assertRaises(run_state.StateError):
+            self.m.input_digest(self.plan, "claude-judge", self.store)
+        self.cli.response["result"] = "Claude rebuttal"
+        self.adapter.dispatch(self.plan, "claude-rebuttal", self.debate_certificate("claude-rebuttal"))
+        rebuttal = next(a for a in self.store.snapshot()["attempts"] if a["node_id"] == "claude-rebuttal")
+        self.store.settle(rebuttal["dispatch_id"], "0", ["fixture included-use receipt"], now=NOW)
+        self.store.verify(rebuttal["dispatch_id"], ["fixture rebuttal accepted"], now=NOW)
+        certificate = self.debate_certificate("claude-judge")
+        withheld = {**certificate, "cross_vendor_transfer_authorized": False}
+        with self.assertRaises(run_state.StateError):
+            self.adapter.dispatch(self.plan, "claude-judge", withheld)
+        self.assertEqual(len(self.cli.sends), 2)
+        self.cli.response["result"] = "Separate judge verdict"
+        result = self.adapter.dispatch(self.plan, "claude-judge", certificate)
+        self.assertEqual(result["state"], "succeeded")
+        self.assertTrue(result["observation"]["judge_vendor_overlap"])
+        prompt = self.cli.sends[-1][2]
+        for expected in ("GPT opening", "Claude opening", "GPT rebuttal", "Claude rebuttal", '"role":"judge"'):
+            self.assertIn(expected, prompt)
+        self.assertEqual(len(self.cli.sends), 3)
+
+    def test_dependent_spec_never_prints_prior_model_prose(self):
+        self.debate_plan()
+        self.record_gpt("gpt-open", "GPT private prose")
+        self.record_claude_opening("Claude private prose")
+        plan_file = Path(self.tmp.name) / "plan.json"
+        plan_file.write_text(json.dumps(self.plan), encoding="utf-8")
+        with patch("builtins.print") as output:
+            code = self.m.main(["spec", "--plan", str(plan_file),
+                                "--node", "claude-rebuttal", "--db", str(self.store.path)])
+        self.assertEqual(code, 2)
+        self.assertNotIn("prior_positions", str(output.call_args_list))
+        self.assertNotIn("private prose", str(output.call_args_list))
+
+    def test_dependent_prose_quote_and_long_stdin_are_supported(self):
+        self.debate_plan()
+        self.record_gpt("gpt-open", '"Quoted opening prose, not a JSON document.')
+        self.record_claude_opening("C" * 14000)
+        self.cli.response["result"] = "rebuttal"
+        result = self.adapter.dispatch(self.plan, "claude-rebuttal",
+                                       self.debate_certificate("claude-rebuttal"))
+        self.assertEqual(result["state"], "succeeded")
+        argv, _, prompt = self.cli.sends[-1]
+        self.assertLess(len(" ".join(argv)), 2000)
+        self.assertGreater(len(prompt), 14000)
+        self.assertIn('"Quoted opening prose', prompt)
+
+    def test_quoted_prose_cannot_hide_structured_sensitive_key(self):
+        for content in ('"Note {"session":"abc"}',
+                        '"Note accessToken=abc1234', '"Note session: abc',
+                        '"Note "session" = abc'):
+            with self.subTest(content=content), self.assertRaises(run_state.StateError) as error:
+                self.m.checked_position(content)
+            self.assertEqual(error.exception.code, "SENSITIVE_PAYLOAD")
+
+    def test_reconcile_uses_persisted_digest_after_predecessor_disappears(self):
+        self.debate_plan()
+        path = self.record_gpt("gpt-open", "GPT opening")
+        self.record_claude_opening()
+        self.cli.response["result"] = "Claude rebuttal"
+        result = self.adapter.dispatch(self.plan, "claude-rebuttal",
+                                       self.debate_certificate("claude-rebuttal"))
+        self.assertEqual(result["state"], "succeeded")
+        path.rename(path.with_suffix(".moved"))
+        self.assertEqual(self.adapter.reconcile(self.plan, "claude-rebuttal")["state"], "succeeded")
+        self.assertEqual(len(self.cli.sends), 2)
+
+    def test_opening_spec_identity_unchanged(self):
+        task = "Argue the independent position from supplied evidence"
+        expected = ("Independent read-only /vibe node. Do not claim to have used tools or other models. State uncertainty and evidence.\n"
+                    + self.m.safe_json({"role": None, "task": task, "acceptance": []}))
+        self.assertEqual(self.m.render_spec(self.plan, "opening"), expected)
 
 
 if __name__ == "__main__":
