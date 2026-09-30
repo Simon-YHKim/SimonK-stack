@@ -43,6 +43,21 @@ switch (scenario) {
     process.stdout.write(JSON.stringify({ status: 'ERROR', error: 'request failed for someone@example.com: connection reset by peer' }));
     process.exitCode = 1;
     break;
+  case 'server-error':
+  case 'server-error-once': {
+    // Wording seen in the widget log 26.09.20–26 (stderr line and reason text). The JSON key that
+    // carried the reason was not recorded; `error` is a stand-in.
+    const text = '/usage failed: retrieving quota summary: failed to retrieve user quota summary: UNKNOWN (code 500): Unknown Error.';
+    const usageRuns = fs.readFileSync(callLog, 'utf8').split('\n').filter((line) => line.includes('"/usage"')).length;
+    if (scenario === 'server-error-once' && usageRuns > 1) {
+      process.stdout.write(fixture);
+      break;
+    }
+    process.stdout.write(JSON.stringify({ status: 'ERROR', error: text }));
+    process.stderr.write(`error: ${text}\n`);
+    process.exitCode = 1;
+    break;
+  }
   case 'garbage':
     process.stdout.write('<<not json>>');
     break;

@@ -20,12 +20,15 @@ export interface AntigravityTimeouts {
   /** Hard kill limit of one `/usage` run; agy's own `--print-timeout` is set below it. */
   usageMs: number;
   printTimeoutSec: number;
+  /** Pause before the single retry after the quota service answered 5xx. */
+  serverRetryDelayMs: number;
 }
 
 export const DEFAULT_ANTIGRAVITY_TIMEOUTS: AntigravityTimeouts = {
   versionMs: 20_000,
   usageMs: 45_000,
   printTimeoutSec: 30,
+  serverRetryDelayMs: 3_000,
 };
 
 export type AgyCliResolution = { ok: true; command: ResolvedCommand; source: string } | { ok: false; code: ErrorCode };
@@ -81,6 +84,31 @@ const SIGNED_OUT_PATTERN = /\b(not (?:logged|signed) in|sign in required|login r
 /** Connectivity wording; shown as a network error and retried with the normal back-off. */
 const NETWORK_PATTERN = /\b(network|dns|econn\w*|enotfound|etimedout|timed? ?out|connection (?:refused|reset|closed)|unreachable|tls|socket hang up|offline)\b/i;
 
+/**
+ * `/usage` itself ran but Google's quota service answered 5xx (seen 7 times 26.09.20–26 as
+ * "/usage failed: … UNKNOWN (code 500) …", each time fine on the next refresh). The slash command
+ * spends no request (`num_turns:0`), so one short retry inside the same refresh is free.
+ */
+const SERVER_ERROR_PATTERN = /\/usage failed:[^\n]*\(code 5\d\d\)/i;
+
+function pause(ms: number, signal: AbortSignal): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (signal.aborted) {
+      resolve(false);
+      return;
+    }
+    const onAbort = (): void => {
+      clearTimeout(timer);
+      resolve(false);
+    };
+    const timer = setTimeout(() => {
+      signal.removeEventListener('abort', onAbort);
+      resolve(true);
+    }, ms);
+    signal.addEventListener('abort', onAbort, { once: true });
+  });
+}
+
 type ProbeResult =
   | { kind: 'ok'; windows: UsageSnapshot['windows'] }
   | { kind: 'failed'; state: 'error' | 'unavailable' | 'logged-out'; code: ErrorCode };
@@ -130,48 +158,59 @@ export function createAntigravityAdapter(deps: ProviderDeps, options: Antigravit
     const cli = resolveCli();
     if (!cli.ok) return fail('error', cli.code);
 
-    let result;
-    try {
-      result = await run(
-        cli.command,
-        ['-p', '/usage', '--output-format', 'json', '--print-timeout', `${timeouts.printTimeoutSec}s`],
-        // An empty widget-owned cwd: agy must not pick up a project from wherever the app started.
-        { env: AGY_ENV_POLICY, parentEnv: deps.env, cwd: dir, timeoutMs: timeouts.usageMs, signal },
-      );
-    } catch (error) {
-      if (signal.aborted) return fail('error', 'cancelled');
-      return fail('error', error instanceof SpawnError && error.code === 'cli-not-found' ? 'cli-not-found' : 'spawn-failed');
-    }
-    if (result.aborted) return fail('error', 'cancelled');
-    if (result.timedOut) return fail('error', 'timeout');
+    for (let attempt = 1; ; attempt += 1) {
+      let result;
+      try {
+        result = await run(
+          cli.command,
+          ['-p', '/usage', '--output-format', 'json', '--print-timeout', `${timeouts.printTimeoutSec}s`],
+          // An empty widget-owned cwd: agy must not pick up a project from wherever the app started.
+          { env: AGY_ENV_POLICY, parentEnv: deps.env, cwd: dir, timeoutMs: timeouts.usageMs, signal },
+        );
+      } catch (error) {
+        if (signal.aborted) return fail('error', 'cancelled');
+        return fail('error', error instanceof SpawnError && error.code === 'cli-not-found' ? 'cli-not-found' : 'spawn-failed');
+      }
+      if (result.aborted) return fail('error', 'cancelled');
+      if (result.timedOut) return fail('error', 'timeout');
 
-    const parsed = parseAgyUsage(result.stdout);
-    if (parsed.kind === 'ok') {
-      if (parsed.windows.length === 0) return fail('unavailable', 'quota-unavailable');
-      return { kind: 'ok', windows: parsed.windows };
+      const parsed = parseAgyUsage(result.stdout);
+      if (parsed.kind === 'ok') {
+        if (parsed.windows.length === 0) return fail('unavailable', 'quota-unavailable');
+        return { kind: 'ok', windows: parsed.windows };
+      }
+      if (parsed.kind === 'not-usage-command') {
+        slashCommandUnsupported = true;
+        logger.warn('agy did not expand /usage as a command; antigravity polling is off until restart', { accountId: account.id });
+        return fail('unavailable', 'cli-unsupported-version');
+      }
+      const text = stripAnsi(`${result.stdout}\n${result.stderr}`);
+      if (SIGNED_OUT_PATTERN.test(text)) return fail('logged-out', 'not-logged-in');
+      // Output may name the account, so only the status, a masked short reason, the key it came
+      // from and the first stderr line are kept.
+      const serverError = parsed.kind === 'failed' && SERVER_ERROR_PATTERN.test(text);
+      const retry = serverError && attempt === 1;
+      const stderrLine = stripAnsi(result.stderr).split(/\r?\n/).find((line) => line.trim() !== '');
+      logger.info('agy usage run failed', {
+        accountId: account.id,
+        attempt,
+        exitCode: result.exitCode,
+        parse: parsed.kind,
+        status: parsed.kind === 'failed' ? parsed.status : undefined,
+        reason: parsed.kind === 'failed' && parsed.reason !== undefined ? maskSecrets(parsed.reason) : undefined,
+        reasonField: parsed.kind === 'failed' ? parsed.reasonField : undefined,
+        stderr: stderrLine === undefined ? undefined : maskSecrets(stderrLine.trim().slice(0, 160)),
+        durationMs: result.durationMs,
+        serverError: serverError || undefined,
+        retry: retry || undefined,
+      });
+      if (retry) {
+        if (!(await pause(timeouts.serverRetryDelayMs, signal))) return fail('error', 'cancelled');
+        continue;
+      }
+      if (NETWORK_PATTERN.test(text)) return fail('error', 'network');
+      return fail('error', parsed.kind === 'failed' ? 'provider-error' : 'parse-error');
     }
-    if (parsed.kind === 'not-usage-command') {
-      slashCommandUnsupported = true;
-      logger.warn('agy did not expand /usage as a command; antigravity polling is off until restart', { accountId: account.id });
-      return fail('unavailable', 'cli-unsupported-version');
-    }
-    const text = stripAnsi(`${result.stdout}\n${result.stderr}`);
-    if (SIGNED_OUT_PATTERN.test(text)) return fail('logged-out', 'not-logged-in');
-    // Output may name the account, so only the status, a masked short reason and the first stderr
-    // line are kept. The one failure seen so far (26.09.20 08:12) could not be explained because
-    // nothing but "failed" had been recorded.
-    const stderrLine = stripAnsi(result.stderr).split(/\r?\n/).find((line) => line.trim() !== '');
-    logger.info('agy usage run failed', {
-      accountId: account.id,
-      exitCode: result.exitCode,
-      parse: parsed.kind,
-      status: parsed.kind === 'failed' ? parsed.status : undefined,
-      reason: parsed.kind === 'failed' && parsed.reason !== undefined ? maskSecrets(parsed.reason) : undefined,
-      stderr: stderrLine === undefined ? undefined : maskSecrets(stderrLine.trim().slice(0, 160)),
-      durationMs: result.durationMs,
-    });
-    if (NETWORK_PATTERN.test(text)) return fail('error', 'network');
-    return fail('error', parsed.kind === 'failed' ? 'provider-error' : 'parse-error');
   };
 
   /** One agy process per account at a time; concurrent callers share the run. */
