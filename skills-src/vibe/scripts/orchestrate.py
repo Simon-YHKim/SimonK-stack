@@ -87,18 +87,19 @@ def codex_paid_credit_risk(billing):
     for item in (billing, *buckets.values()):
         if not isinstance(item, dict):
             return True
-        credits = item.get("credits")
-        if credits is None:
+        if "credits" not in item:
             continue
-        if not isinstance(credits, dict) or credits.get("unlimited") is True:
+        credits = item["credits"]
+        if (not isinstance(credits, dict)
+                or type(credits.get("has_credits")) is not bool
+                or type(credits.get("unlimited")) is not bool
+                or credits["has_credits"] or credits["unlimited"]):
             return True
         balance = credits.get("balance")
         if balance is None:
-            if credits.get("has_credits") is True:
-                return True
-            continue
+            return True
         try:
-            if money(balance) > 0:
+            if money(balance) != 0:
                 return True
         except ValueError:
             return True
