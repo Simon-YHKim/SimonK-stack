@@ -161,6 +161,8 @@ class Adapter:
         execute_cli.exact_directory(binding["profile_path"])
         result = artifact_path(binding["result_path"], ".jsonl")
         content = artifact_path(binding["content_path"], ".txt")
+        require(result.parent == cwd and content.parent == cwd,
+                "PRIVATE_CODEX_RESULTS_REQUIRED")
         require(result != content and binding["profile_ref"] == runtime_collect.opaque(
                     "codex", binding["profile_path"])
                 and binding["account_ref"] == route["billing"]["account_ref"],

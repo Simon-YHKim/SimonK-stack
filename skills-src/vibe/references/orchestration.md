@@ -686,8 +686,9 @@ task/acceptance and Store as Claude, not a second budget.
 
 The node's `cli` manifest pins absolute `codex.exe` bytes, private canonical
 `cwd`, actual `CODEX_HOME` profile path, opaque profile/account references,
-and separate private `result_path` (`.jsonl`) and `content_path` (`.txt`). The
-result directory must preexist outside a watched Bot bus and public repository.
+and separate private `result_path` (`.jsonl`) and `content_path` (`.txt`). Both
+artifacts must be directly inside the verified private `cwd`; nested or external
+directories, including a watched Bot bus or public repository, are rejected.
 Use the same certificate shape as the Claude adapter, but Codex additionally
 requires `billing.paid_credit_fallback_disabled=true` for this exact account,
 profile, model and CLI transport. `codex login status` or auto-reload OFF is not
