@@ -62,7 +62,7 @@ function render1a(view: AccountView, ctx: RenderContext): HTMLElement[] {
     const color = v1RowColor(row, index, ctx.settings, view.account.provider);
     const fill = h('div', { class: 'progress-fill' });
     setStyles(fill, { width: `${fillPercent(row)}%`, 'background-color': color });
-    return h('div', { class: 'row', 'data-status': row.status }, [
+    return h('div', { class: 'row', 'data-status': row.status, 'data-stale': row.isStale ? 'true' : null }, [
       h('span', { class: 'label' }, [row.tag]),
       h('div', { class: 'progress-track' }, [fill]),
       colored(h('span', { class: 'percent' }, [rowText(row, ctx)]), color),
@@ -98,7 +98,8 @@ export function segmentMeter(percent: number, color: string, segments = 10): SVG
 function render1b(view: AccountView, ctx: RenderContext): HTMLElement[] {
   const rows = view.rows.map((row, index) => {
     const color = v1RowColor(row, index, ctx.settings, view.account.provider);
-    return h('div', { class: 'row', 'data-status': row.status }, [
+    return h('div', { class: 'row', 'data-status': row.status, 'data-stale': row.isStale ? 'true' : null }, [
+      h('span', { class: 'row-tag' }, [row.tag]),
       colored(h('span', { class: 'percent-mono' }, [rowText(row, ctx)]), color),
       segmentMeter(fillPercent(row), color),
       h('span', { class: 'reset-mono' }, [row.countdown]),
@@ -154,7 +155,7 @@ function render1c(view: AccountView, ctx: RenderContext): HTMLElement[] {
   ]);
   const rows = view.rows.map((row, index) => {
     const color = v1RowColor(row, index, ctx.settings, view.account.provider);
-    return h('div', { class: 'row', 'data-status': row.status }, [
+    return h('div', { class: 'row', 'data-status': row.status, 'data-stale': row.isStale ? 'true' : null }, [
       colored(h('span', { class: 'percent' }, [rowText(row, ctx)]), color),
       h('span', { class: 'tag' }, [row.tag]),
       h('span', { class: 'reset' }, [row.countdown]),
@@ -172,8 +173,9 @@ function render1d(view: AccountView, ctx: RenderContext): HTMLElement[] {
   if (top !== undefined) {
     const color = v1RowColor(top, 0, ctx.settings, view.account.provider);
     children.push(
-      h('div', { class: 'top-line', 'data-status': top.status }, [
+      h('div', { class: 'top-line', 'data-status': top.status, 'data-stale': top.isStale ? 'true' : null }, [
         icon(view, ctx, ICON_SIZE['1d']),
+        h('span', { class: 'quota-tag' }, [top.tag]),
         colored(h('strong', { class: 'quota-val' }, [rowText(top, ctx)]), color),
         h('span', { class: 'quota-time' }, [top.countdown]),
       ]),
@@ -182,7 +184,8 @@ function render1d(view: AccountView, ctx: RenderContext): HTMLElement[] {
   if (sub !== undefined) {
     const color = v1RowColor(sub, 1, ctx.settings, view.account.provider);
     children.push(
-      h('div', { class: 'sub-line', 'data-status': sub.status }, [
+      h('div', { class: 'sub-line', 'data-status': sub.status, 'data-stale': sub.isStale ? 'true' : null }, [
+        h('span', { class: 'quota-tag' }, [sub.tag]),
         colored(h('span', { class: 'quota-val-sub' }, [rowText(sub, ctx)]), color),
         h('span', { class: 'quota-time-sub' }, [sub.countdown]),
       ]),
@@ -206,7 +209,8 @@ function renderWindows(view: AccountView, ctx: RenderContext): HTMLElement[] {
   const rows = view.rows.map((row) => {
     const fill = h('span', { class: 'w-fill' });
     setStyles(fill, { width: `${fillPercent(row)}%` });
-    return h('div', { class: 'w-row', 'data-status': row.status, 'data-level': windowsRowLevel(row, ctx.settings) }, [
+    return h('div', { class: 'w-row', 'data-status': row.status, 'data-level': windowsRowLevel(row, ctx.settings),
+      'data-stale': row.isStale ? 'true' : null }, [
       h('span', { class: 'w-tag' }, [row.tag]),
       h('span', { class: 'w-pct' }, [rowText(row, ctx)]),
       h('span', { class: 'w-bar' }, [fill]),

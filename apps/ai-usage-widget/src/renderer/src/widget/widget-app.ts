@@ -4,7 +4,7 @@ import type { Api } from '../api';
 import { h, setAttr, setStyles, uniqueId } from '../dom';
 import { providerIcon, refreshGlyph } from '../icons';
 import { currentNavigatorLanguage, pickLocale } from '../locale';
-import { buildEnabledViews, type RenderContext } from '../model';
+import { buildEnabledViews, itemTooltip, toRow, type AccountView, type RenderContext, type RowView } from '../model';
 import { applyDocumentTheme, skinFor } from '../theme';
 import { renderWidgetItem } from './themes';
 import { modelNoticeText } from '../../../shared/model-notice';
@@ -248,7 +248,31 @@ export class WidgetApp {
       grokBotReading(this.state.settings, this.now(), this.state.grokBotAuto).state !== 'automatic');
   }
 
-  private grokBotItem(state: AppStateSnapshot, ctx: RenderContext, grouped = false): HTMLElement {
+  private grokBotRow(state: AppStateSnapshot, ctx: RenderContext): RowView {
+    const reading = grokBotReading(state.settings, ctx.now, state.grokBotAuto);
+    const numeric = reading.state === 'fresh' || reading.state === 'stale' || reading.state === 'automatic';
+    return {
+      ...toRow({ kind: 'weekly', usedPercent: numeric ? reading.usedPercent : null,
+        resetsAt: reading.state === 'automatic' ? reading.resetsAt : null,
+        windowMinutes: 10_080, label: 'Grok Bot' }, ctx.now, state.settings.showUsedPercent),
+      tag: 'Bot',
+      isStale: reading.state === 'stale' || reading.state === 'expired',
+    };
+  }
+
+  private grokWithBotView(view: AccountView, state: AppStateSnapshot, ctx: RenderContext): AccountView {
+    const cliRow = view.rows.find((row) => row.kind === 'weekly') ??
+      (view.rows.length > 0 ? view.windows.find((row) => row.kind === 'weekly') : undefined) ?? view.rows[0] ??
+      toRow({ kind: 'weekly', usedPercent: null, resetsAt: null, windowMinutes: 10_080 }, ctx.now,
+        state.settings.showUsedPercent);
+    // A failed Grok CLI fetch must not hide a valid, independently measured Bot quota.
+    return { ...view, state: 'ok', rows: [
+      { ...cliRow, isStale: view.state === 'stale' || view.state === 'error' },
+      this.grokBotRow(state, ctx),
+    ] };
+  }
+
+  private grokBotItem(state: AppStateSnapshot, ctx: RenderContext): HTMLElement {
     const reading = grokBotReading(state.settings, ctx.now, state.grokBotAuto);
     const numeric = reading.state === 'fresh' || reading.state === 'stale' || reading.state === 'automatic';
     const percent = numeric ? (state.settings.showUsedPercent ? reading.usedPercent : reading.leftPercent) : null;
@@ -257,11 +281,11 @@ export class WidgetApp {
       reading.state === 'expired' ? 'grokBotExpired' : reading.state === 'unknown' ? 'grokBotUnknown' : 'grokBotManual');
     const reset = reading.state === 'automatic' && reading.resetsAt !== null ? ` · ${ctx.t('resetLabel', { time: formatCountdown(reading.resetsAt - ctx.now) })}` : '';
     return h('div', {
-      class: `${grouped ? 'grok-bot-inline' : 'account-item grok-bot-item'}${reading.state === 'fresh' || reading.state === 'automatic' ? '' : ' is-stale'}`,
+      class: `account-item grok-bot-item${reading.state === 'fresh' || reading.state === 'automatic' ? '' : ' is-stale'}`,
       'data-provider': 'grok-bot',
       title: `${ctx.t('grokBotTitle')} · ${value} · ${status}${reset}`,
     }, [
-      grouped ? null : providerIcon('grok', 16, state.settings.iconStyle === 'monochrome'),
+      providerIcon('grok', 16, state.settings.iconStyle === 'monochrome'),
       h('span', { class: 'grok-bot-widget-name' }, [ctx.t('grokBotWidget')]),
       h('strong', { class: 'grok-bot-widget-value' }, [value]),
       h('small', { class: 'grok-bot-widget-manual' }, [status]),
@@ -304,9 +328,16 @@ export class WidgetApp {
       } else {
         const showGrokBot = state.settings.grokBotUsedPercent !== null ||
           grokBotReading(state.settings, ctx.now, state.grokBotAuto).state === 'automatic';
+        const botItem = showGrokBot ? this.grokBotItem(state, ctx) : null;
         let groupedGrokBot = false;
         const items = views.map((view) => {
-          const item = renderWidgetItem(view, ctx);
+          const groupBot = botItem !== null && !groupedGrokBot && view.account.provider === 'grok';
+          const item = renderWidgetItem(groupBot ? this.grokWithBotView(view, state, ctx) : view, ctx);
+          if (groupBot) {
+            item.dataset.state = view.state;
+            item.title = `${itemTooltip(view, ctx)}\n${botItem.title}`;
+            groupedGrokBot = true;
+          }
           const notice = state.modelNotices.find((entry) => entry.provider === view.account.provider);
           if (notice !== undefined) {
             const message = modelNoticeText(notice, ctx.locale, ctx.now);
@@ -327,16 +358,9 @@ export class WidgetApp {
             item.title += `\n${pace.usual === null ? t('quotaPaceBurst', { recent: pace.recent.toFixed(1) }) :
               t('quotaPaceFast', { recent: pace.recent.toFixed(1), usual: pace.usual.toFixed(1) })}`;
           }
-          if (showGrokBot && !groupedGrokBot && view.account.provider === 'grok') {
-            const bot = this.grokBotItem(state, ctx, true);
-            item.classList.add('has-grok-bot');
-            item.append(bot);
-            item.title += `\n${bot.title}`;
-            groupedGrokBot = true;
-          }
           return item;
         });
-        if (showGrokBot && !groupedGrokBot) items.push(this.grokBotItem(state, ctx));
+        if (botItem !== null && !groupedGrokBot) items.push(botItem);
         this.main.replaceChildren(...items);
         this.summary.textContent = items.map((item) => item.getAttribute('title') ?? '').join('. ');
       }

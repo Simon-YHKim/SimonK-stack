@@ -48,6 +48,8 @@ export interface RowView {
   windowMinutes: number | null;
   /** Provider qualifier (bucket id or model group) that tells same-kind windows apart; popup only. */
   label: string | null;
+  /** Dims an individual row when another quota in the same widget item is still current. */
+  isStale?: boolean;
 }
 
 export interface AccountView {
