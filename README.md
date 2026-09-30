@@ -10,13 +10,17 @@
 
 ## 설치 / Install
 
-> 최신 격리 후보 `E:/Coding Infra/Releases/SimonK-stack/20260930-main-entry-d77def6/`는 `/vibe` 2.12.17과 `/vibe-bot` 0.9.4를 포함합니다. Claude용 5플러그인·182스킬, Codex 일반 subset 177스킬이며 공통 본문 176개와 payload 612파일이 바이트 동일합니다. 네 영수증과 일회용 후보 실행 4단계를 통과했습니다. 같은 읽기 전용 Claude Sonnet 5.5 요청 한 건에서 이전 후보는 `simonk-stack:skstack`, 새 후보는 의도한 `simonk-core:vibe`를 실제 `Skill` 도구로 호출했습니다. 반면 Codex 전체 subset 임시 노출은 스킬 설명 예산을 초과했고, 3스킬 시험에서는 `/vibe`를 골랐지만 본문 읽기가 정책에 막혔습니다. 따라서 **한 사례의 Claude 진입 개선**만 확인됐고 Codex 본문 실행·선택률·산출물 품질·실효 effort·구독 청구·Gstack 전체 런타임은 증명되지 않았습니다. `selection_quality_verified=false`, `installation_ready=false`이며 사용자 프로필과 `main`은 변경하지 않았습니다. 아래 레거시 `scripts/install.sh`는 원격 조회와 홈 변경 경로가 있어 이 후보 시험용으로 실행하지 마세요. 범위는 [설치·후보 검증 절차](docs/INSTALL.md)를 확인하세요.
+> **소스 전용 머지 안전 경계(D-33):** 현재 통합 소스와 최신 정적 격리 후보의 `/vibe`는 2.12.24입니다. `distribution/main-source-only.hold`가 있는 체크아웃의 SessionStart 훅은 사용자 홈·업데이트 확인을 건드리지 않고 종료하며, `main` push의 자동 GitHub 릴리스도 보류합니다. 루트 Claude marketplace의 기존 `simonk-stack` 플러그인도 머지 전 `main` 커밋 `313c04b`에 고정했습니다. 이 장치들은 다섯 플러그인 후보를 설치하거나 자동 라우팅의 실사용 품질을 증명하지 않습니다. 새 릴리스 전에는 보류 파일 제거와 marketplace 핀·버전 변경을 별도 검증하세요.
 
-현재 사용자 홈의 `/vibe` 2.11.6은 최신 격리 후보 2.12.17이 아닙니다. v30의 오프라인 재현에서 구독 검증·초과 사용 OFF만 참이고 **선택 모델의 구독 포함·API 폴백 차단이 미확인**인 입력을 2.11.6은 `ready`, 2.12.4는 `blocked`로 판정했습니다. 최신 소스는 Codex·Grok CLI·Grok Bot의 기존 구매 크레딧 폴백 차단 증거도 추가로 요구합니다. 이는 운영 호스트의 과금·자동 선택 품질을 새로 증명한 것이 아니며 실제 과금이 발생했다는 뜻도 아닙니다. 운영 설치본의 `ready`를 추가 과금 $0 보증으로 사용하지 마세요. 버전·호스트 게이트가 미완료라 설치 경로는 변경하지 않았습니다.
+> **최신 정적 후보:** `E:/Coding Infra/Releases/SimonK-stack/20260930-vibe-main-release-fence/`는 `/vibe` 2.12.24와 `/vibe-bot` 0.9.4를 포함합니다. Claude 182스킬·Codex 일반 subset 177스킬, 공통 본문 176개·payload 617파일의 바이트 일치, 네 영수증과 오프라인 후보 검사 4단계가 통과했습니다. Gstack 외부 런타임과 실제 호스트·선택 품질·과금은 미검증이며 `installation_ready=false`입니다. [상세 영수증·한계](docs/INSTALL.md#vibe-21224-정적-격리-후보-2026-09-30)를 확인하세요.
+
+> 이전 호스트 진입 재현 후보 `E:/Coding Infra/Releases/SimonK-stack/20260930-main-entry-d77def6/`는 `/vibe` 2.12.17입니다. 같은 읽기 전용 Claude Sonnet 5.5 요청 한 건에서 이전 후보의 `simonk-stack:skstack` 대신 의도한 `simonk-core:vibe`가 실제 `Skill` 도구로 호출됐습니다. 반면 Codex 전체 subset 임시 노출은 스킬 설명 예산을 초과했고, 3스킬 시험에서는 `/vibe`를 골랐지만 본문 읽기가 정책에 막혔습니다. 따라서 **한 사례의 Claude 진입 개선**만 확인됐고 최신 2.12.24 후보의 호스트 선택·Codex 본문 실행·실효 effort·구독 청구는 증명되지 않았습니다. 사용자 프로필은 변경하지 않았으며 아래 레거시 `scripts/install.sh`는 원격 조회와 홈 변경 경로가 있어 이 후보 시험용으로 실행하지 마세요.
+
+현재 사용자 홈의 `/vibe` 2.11.6은 최신 소스·정적 후보 2.12.24와 다릅니다. v30의 오프라인 재현에서 구독 검증·초과 사용 OFF만 참이고 **선택 모델의 구독 포함·API 폴백 차단이 미확인**인 입력을 2.11.6은 `ready`, 2.12.4는 `blocked`로 판정했습니다. 최신 소스는 Codex·Grok CLI·Grok Bot의 기존 구매 크레딧 폴백 차단 증거도 추가로 요구합니다. 이는 운영 호스트의 과금·자동 선택 품질을 새로 증명한 것이 아니며 실제 과금이 발생했다는 뜻도 아닙니다. 운영 설치본의 `ready`를 추가 과금 $0 보증으로 사용하지 마세요. 버전·호스트 게이트가 미완료라 설치 경로는 변경하지 않았습니다.
 
 2026-09-29 운영 프로필 조회에서는 Claude·Codex의 SimonK 플러그인 등록이 각각 0개이고, 세 flat 스킬 경로에 v30 고유 182스킬 중 138개 이름만 존재합니다. 나머지 44개가 다른 호스트 자원에 없다는 뜻은 아니지만, **현재 프로필에서 다섯 플러그인 전체가 설치·호출 가능하다는 증거는 아닙니다.** 별도 무인증 프로필의 v31b 설치 캐시는 Claude 741/741파일·Codex 724/724파일 해시가 일치했고, 격리 Claude 초기화에서 플러그인 스킬 182개가 로드됐습니다. 이 결과는 실제 사용자 프로필 설치나 자동 스킬 선택의 증거가 아닙니다. 범위는 [v31b 격리 캐시 기록](docs/INSTALL.md#v31b-claudecodex-격리-캐시-2026-09-29)에 있습니다.
 
-Claude Code 마켓플레이스에서 바로 설치 (Install directly from the Claude Code marketplace):
+Claude Code 마켓플레이스에서 **고정된 기존 루트 플러그인** 설치 (새 다섯 플러그인 후보 설치 명령이 아님):
 
 ```
 /plugin marketplace add Simon-YHKim/SimonK-stack

@@ -43,6 +43,7 @@
 - **`/vibe` 2.11.16 progressive disclosure** — moved the generated historical Orca lane table into a directly linked reference and retargeted its drift checker. Normal skill loading omits the legacy table; the generator, safety guards and frontier runtime routing are unchanged. This does not reduce the initial five-plugin description footprint or prove model/host behavior.
 
 ### Fixed
+- **D-33 `main` 소스 전용 릴리스 펜스** — 추후 `main`에 미출시 `/vibe` 소스를 반영해도 SessionStart가 사용자 홈 스킬을 자동 복사·교체하지 않도록 추적 보류 파일을 맨 앞에서 검사한다. Windows Bash 훅 체크아웃 줄바꿈은 LF로 고정한다. 루트 Claude marketplace의 기존 플러그인은 머지 전 `main` SHA에 고정하고, `main` push의 자동 GitHub Release도 보류한다. 통합 브랜치 push에서 기존 검증 두 워크플로를 실행하고 릴리스 펜스 회귀를 추가했다. 보류 해제·핀/버전 승격·사용자 설치는 별도 검증과 결정이 필요하다.
 - **`/vibe` 2.12.24 Grok Bot 상태 위양성** — 명단의 `active - reported ... live access unverified` 문구를 플래너가 실제 `active`로 잘못 수락하던 경로를 차단했다. 상태가 문자열이 아닌 경우에도 예외 대신 `BOT_INACTIVE`로 차단한다. 정확한 `active`와 별도 계정·쿼터·Relay 증거가 있어야 후보가 되며, 이 수정은 현재 Bot 실접속이나 과금 안전을 증명하지 않는다.
 - **후보 경로 감사 GitHub CI 플랫폼 정합** — Windows 전용 보호 패키지 I/O에 의존하는 `test_candidate_path_audit.py`를 Ubuntu 품질 작업에서 분리해 Windows 작업으로 실행한다. 패키지 경로 보호나 테스트 자체는 완화하지 않는다.
 - **이미지 생성 라우팅 경계와 독립 설치 fixture** — `IMAGE_GENERATION`을 텍스트 `VISION`과 구별되는 차단 계획 단계로 보존하고, 독립 설치 테스트 두 곳에 필수 `task-fit-policy.json`을 포함했다. 저장소 테스트 387건은 3건 조건부 skip 외 통과했다. 전용 구독 포함 이미지 도구나 실제 생성 기능을 추가한 것은 아니다.

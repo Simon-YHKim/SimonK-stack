@@ -3957,6 +3957,66 @@ Bot/Orca 발주를 하지 않았으며
 `host_behavior_verified=false`, `selection_quality_verified=false`,
 `installation_ready=false`를 유지한다.
 
+## D-33 `main` 소스 전용 릴리스 펜스 (2026-09-30)
+
+현재 통합 브랜치에는 `distribution/main-source-only.hold`가 있다. 이 파일이
+있는 체크아웃에서 `.claude/hooks/session-start.sh`는 시작 직후 종료하며
+사용자 홈 스킬 설치·갱신, Git 업데이트 검사, 외부 vendor 설치를 시작하지
+않는다. 기존 설치본을 바꾸지 않는 소스 머지의 한 경계다. 별도의 루트
+Claude marketplace 항목은 기존 `main` 커밋
+`313c04b8a1d9c9a623ae5571d70b5d10ef873ced`의 레거시 플러그인을
+`github` source/`sha`로 고정했다. 따라서 후보가 `main`에 들어가더라도
+이 카탈로그의 업데이트가 새 다섯 플러그인을 배포하는 경로가 아니다.
+Claude의 [marketplace 운영 문서](https://code.claude.com/docs/en/plugins/host-marketplace)는
+원격 설치가 새 버전 또는 commit 추적일 때 갱신되며, Git 소스의
+`sha` 고정을 지원한다고 설명한다.
+`main` push의 `.github/workflows/release.yml`도 이 보류 파일이 있으면
+`gh release` 호출 전에 종료해 태그와 GitHub Release 생성을 보류한다.
+
+이는 **모든 설치 경로를 봉쇄했다는 뜻이 아니다**. 로컬 디렉터리의
+`--plugin-dir`/in-place 로드, 수동 `scripts/install.sh`, 다른 마켓플레이스,
+직접 파일 복사는 이 세 펜스의 범위 밖이다. 보류 파일을 제거하거나
+marketplace 핀·플러그인 버전을 올리는 변경은 정확한 HEAD의 후보·롤백,
+Claude/Codex 호스트 행동·과금 경계, CI, D-30/D-33 재판정 후 별도
+릴리스로 처리한다. 현 `installation_ready=false`, 사용자 설치와 `main`
+머지 보류는 그대로다.
+
+`integration/vibe-release-*` push에는 공개 저장소의 표준 GitHub-hosted
+러너에서 `validate-plugin`과 `skills-ci`를 실행한다. CI에 추가한
+`test_main_release_fence.py`는 보류 중인 훅이 같은 프로젝트와 다른
+프로젝트에서 모두 홈을 건드리지 않고 끝나는지, marketplace 고정 SHA와
+자동 릴리스 보류가 유지되는지 검사한다. 워크플로 파일 추가나 로컬 통과만으로 원격 실행이
+성공했다고 주장하지 않는다.
+
+## `/vibe` 2.12.24 정적 격리 후보 (2026-09-30)
+
+`E:/Coding Infra/Releases/SimonK-stack/20260930-vibe-main-release-fence/`에
+고정 원본 플러그인 5개를 clean·detached 복사해 새 후보를 만들었다.
+원본 작업 폴더·사용자 설치본은 그대로다. 입력 소스는 통합 브랜치의
+`/vibe` 2.12.24와 `/vibe-bot` 0.9.4이며, 소스 overlay는 추적된
+working-tree bytes의 snapshot이다. 아래 영수증은 Git commit attestation이
+아니므로 이후 정확 HEAD·원격 CI 판정과 구분한다.
+
+| 격리 영수증 | SHA-256 |
+| --- | --- |
+| `source/release.json` | `2643c60166e8a157ac917fa06de3d6dac6fcdf797961092963621921aa3c657d` |
+| `candidate-safety/bundle.json` | `57a55dd04fa1c0e68edaf0a69d1edba3bf41571de0300a8d6e302e0a1b434358` |
+| `codex-overlay-safety/overlay.json` | `afa80ebe9109f15a9b17258a8a0251d2c8b23db3b13f3a1a1d08386f06712084` |
+| `codex-subset-safety/subset.json` | `9d52163031a48d0f0b285a813d02836e43939394543e21bb525ad68620cf7327` |
+
+네 영수증의 별도 verify가 모두 종료 0이고, Claude 후보 5플러그인·182스킬과
+Codex 일반 subset 5플러그인·177스킬의 공통 본문 176개·payload 617파일이
+바이트 동일하다. Codex의 안전/종속 스킬 5개 제외와 `zoom-out` 1개 투영은
+의도된 차이다. 일회용 후보의 오프라인 `/vibe` 검사 4단계도 종료 0이었다.
+정적 경로 감사에서는 Claude 182스킬·265문서·191참조, Codex 177스킬·
+259문서·190참조를 검사했고 누락 경로·비이식 명령은 각 0건이다. 그러나
+Gstack 외부 참조가 각각 31·30스킬에 남아 결과는 종료 1의
+`external_runtime_pending`이며 전체 실행 의존성 폐쇄를 의미하지 않는다.
+이 후보의 실제 Claude/Codex 호스트 적재·자동 선택·모델/effort 효력·
+구독 포함 과금과 사용자 홈 롤백은 확인하지 않았다. 세 영수증의
+`installation_ready=false`, `host_compatibility_verified=false`와 정적
+패리티 결과의 `selection_quality_verified=false`를 그대로 유지한다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,

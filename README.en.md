@@ -2,6 +2,8 @@
 
 > A skill library for outcome-driven work: **/vibe is the main coordinator**, and **simonk supplies its sprint procedure**, from planning through verified results.
 
+> **Source-only release hold (D-33):** this branch and its newest static isolated candidate have `/vibe` 2.12.24. `distribution/main-source-only.hold` prevents the SessionStart hook from changing user-home skills and suppresses the automatic GitHub release on `main` push. The root Claude marketplace entry is pinned to pre-integration `main` commit `313c04b`. These guards do not install the new five-plugin candidate. Removing the hold and advancing the marketplace pin/version require a separately verified release.
+
 **[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![source skills](https://img.shields.io/badge/source%20skills-141-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
 
 🇰🇷 **한국어 README**: [README.md](README.md) (full version)
@@ -12,13 +14,13 @@
 
 **Problem**: AI coding assistants work in a different order every time you give them a large task, and they repeat the same mistakes.
 
-**Solution**: **141 skills in this branch's legacy source/development inventory** (`skills-src/` 137 + `.claude/skills/` 4), with **182 skills in the separately assembled five-plugin `0a5c61e` safety candidate** and **177 in its Codex general subset**. `/vibe` is the main coordinator and `simonk` supplies its sprint procedure (one owner → guarded work → verified results). [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (private) retains cross-session learning. These counts describe different inventories, not installed-user-profile parity.
+**Solution**: **141 skills in this branch's legacy source/development inventory** (`skills-src/` 137 + `.claude/skills/` 4), with **182 skills in the separately assembled five-plugin `/vibe` 2.12.24 static candidate** and **177 in its Codex general subset**. `/vibe` is the main coordinator and `simonk` supplies its sprint procedure (one owner → guarded work → verified results). [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (private) retains cross-session learning. These counts describe different inventories, not installed-user-profile parity or host behavior.
 
 **Sprint v34 (2026-05-25)** — 5 external vendor integrations (user-level live clone + auto-update each session):
 - [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) · [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) · [OpenHarness](https://github.com/HKUDS/OpenHarness) — existing (sprint v22-EXT)
 - [open-cowork](https://github.com/OpenCoworkAI/open-cowork) · [design.md](https://github.com/google-labs-code/design.md) — new (sprint v34)
 
-Location: `~/.simon-stack/vendor/<repo>/` — `.claude/hooks/session-start.sh` §7b runs `git pull --ff-only` (safety conditions) every session.
+Location: `~/.simon-stack/vendor/<repo>/` — `.claude/hooks/session-start.sh` §7b runs `git pull --ff-only` only when the source-only release hold is absent and its normal safety conditions pass.
 
 ```
 "build a new app"      → app-dev-orchestrator    → 21-stage pipeline

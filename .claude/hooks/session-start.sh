@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# SessionStart hook — bootstraps simon-stack on every Claude Code session.
+# SessionStart hook — bootstraps simon-stack on Claude Code sessions unless
+# the source-only main release hold is present.
 #
 # What it does (idempotent):
 #   1. Backup existing ~/.claude (if present)
@@ -19,7 +20,26 @@ set -euo pipefail
 # echo '{"async": true, "asyncTimeout": 300000}'
 
 # --- Paths ---
-REPO_DIR="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "$0")/../.." && pwd)}"
+case "${BASH_SOURCE[0]}" in
+  */*) HOOK_DIR="${BASH_SOURCE[0]%/*}" ;;
+  *) HOOK_DIR="." ;;
+esac
+if ! HOOK_REPO_DIR="$(cd "$HOOK_DIR/../.." 2>/dev/null && pwd -P)"; then
+  printf '%s\n' '[simon-stack-hook] source-only release hold: hook source cannot be resolved; installed skills unchanged'
+  exit 0
+fi
+REPO_DIR="${CLAUDE_PROJECT_DIR:-$HOOK_REPO_DIR}"
+
+# D-33: main can carry unreleased source. Check before git, logging, or any
+# home/network side effect, including the marker-match auto-update branch.
+# Removing this tracked hold is a separate release decision, not an install
+# shortcut. Local candidate testing can use an isolated copy without the hold.
+if [ -e "$HOOK_REPO_DIR/distribution/main-source-only.hold" ] ||
+   [ -e "$REPO_DIR/distribution/main-source-only.hold" ]; then
+  printf '%s\n' '[simon-stack-hook] source-only release hold: SessionStart bootstrap and update checks skipped; installed skills unchanged'
+  exit 0
+fi
+
 LOG_PREFIX="[simon-stack-hook]"
 LOG_FILE="/tmp/simon-stack-session-start-$(date +%s).log"
 

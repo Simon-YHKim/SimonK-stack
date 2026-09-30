@@ -20,6 +20,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          if [ -f distribution/main-source-only.hold ]; then
+            echo "source-only release hold: no tag or GitHub release"
+            exit 0
+          fi
           TAG="v${{ steps.ver.outputs.version }}"
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "release $TAG already exists - skipping"
