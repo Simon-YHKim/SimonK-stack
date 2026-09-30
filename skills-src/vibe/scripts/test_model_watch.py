@@ -49,6 +49,40 @@ class ModelWatchTests(unittest.TestCase):
         self.assertNotIn("released_at", candidate)
         self.assertFalse(candidate["routing_ready"])
 
+    def test_false_positive_can_be_dismissed_and_reopened_without_deletion(self):
+        state, _ = model_watch.scan_state({}, self.fetch, FRIDAY)
+        self.pages["anthropic"] += (
+            '<a href="/news/claude-haiku-5-5">Claude Haiku 5.5 coming soon</a>'
+        )
+        state, report = model_watch.scan_state(state, self.fetch, FRIDAY + timedelta(days=7))
+        key = report["new_candidates"][0]
+        original = copy.deepcopy(state["candidates"][key])
+        dismissed_at = FRIDAY + timedelta(days=7, minutes=1)
+        model_watch.dismiss_candidate(state, key, dismissed_at, "not_release")
+        item = state["candidates"][key]
+        self.assertEqual(model_watch.candidate_status(item, dismissed_at), "dismissed")
+        self.assertEqual(item["official_url"], original["official_url"])
+        self.assertEqual(item["dismissals"][0]["reason"], "not_release")
+        with self.assertRaises(ValueError):
+            model_watch.confirm_release(state, key, dismissed_at,
+                                        item["official_url"])
+        with self.assertRaises(ValueError):
+            model_watch.dismiss_candidate(state, key, dismissed_at, "historical_article")
+        model_watch.reopen_candidate(state, key, dismissed_at + timedelta(minutes=1))
+        self.assertEqual(model_watch.candidate_status(item, dismissed_at),
+                         "waiting_official_review")
+        self.assertEqual(item["dismissals"][0]["reason"], "not_release")
+        self.assertIn("reopened_at", item["dismissals"][0])
+        with self.assertRaises(ValueError):
+            model_watch.dismiss_candidate(state, key, dismissed_at, "unsupported")
+        with self.assertRaises(ValueError):
+            model_watch.dismiss_candidate(state, key, dismissed_at, "historical_article")
+        model_watch.dismiss_candidate(state, key, dismissed_at + timedelta(minutes=2),
+                                      "historical_article")
+        self.assertEqual(len(item["dismissals"]), 2)
+        self.assertEqual(item["dismissals"][0]["reason"], "not_release")
+        self.assertEqual(item["dismissals"][1]["reason"], "historical_article")
+
     def test_legacy_default_port_source_link_is_not_new_candidate(self):
         self.pages["xai"] += '<a href="/news/grok-4-8">Grok 4.8</a>'
         state, _ = model_watch.scan_state({}, self.fetch, FRIDAY)
@@ -450,6 +484,33 @@ class ModelWatchTests(unittest.TestCase):
                 self.assertEqual(model_watch.main(), 0)
             self.assertEqual(json.loads(output.getvalue())["last_report"]["status"], "scanned")
             self.assertIn("candidate_details", json.loads(output.getvalue()))
+
+    def test_cli_dismiss_and_reopen_preserve_candidate_history(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "watch.json"
+            state = model_watch.empty_state()
+            state["candidates"]["historical"] = {
+                "provider": "openai", "title": "Introducing GPT-4o",
+                "official_url": "https://openai.com/index/hello-gpt-4o",
+                "first_seen_at": model_watch.iso(datetime.now(UTC) - timedelta(hours=1)),
+                "status": "official_unreviewed", "routing_ready": False,
+            }
+            model_watch.write_json(path, state)
+            with (mock.patch("sys.argv", ["model_watch.py", "dismiss-candidate",
+                                         "--state", str(path), "--key", "historical",
+                                         "--reason", "historical_article"]),
+                  contextlib.redirect_stdout(io.StringIO()) as output):
+                self.assertEqual(model_watch.main(), 0)
+            self.assertEqual(json.loads(output.getvalue())["status"], "dismissed")
+            with (mock.patch("sys.argv", ["model_watch.py", "reopen-candidate",
+                                         "--state", str(path), "--key", "historical"]),
+                  contextlib.redirect_stdout(io.StringIO()) as output):
+                self.assertEqual(model_watch.main(), 0)
+            self.assertEqual(json.loads(output.getvalue())["status"],
+                             "waiting_official_review")
+            item = model_watch.read_state(path)["candidates"]["historical"]
+            self.assertEqual(item["status"], "official_unreviewed")
+            self.assertIn("reopened_at", item["dismissals"][0])
 
     def test_cli_returns_failure_for_feedback_fetch_errors(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -44,6 +44,12 @@ undated items, remain in the source snapshot but do not become new-release
 candidates. A recent article already present in the initial baseline is admitted
 on the next scan, preventing a just-launched model from being silently missed.
 A manual official-page check is still needed for ambiguous items.
+After checking an older article, non-release case study or duplicate alias,
+`dismiss-candidate --key K --reason historical_article|not_release|duplicate_alias`
+removes that unreviewed candidate from the pending-scan trigger without deleting
+its title, URL or discovery time. `reopen-candidate --key K` reverses the status
+and retains the full dismissal history. Neither command may change a
+confirmed release or route; preserve a separate state backup before bulk triage.
 
 On every `/vibe` invocation, run `scan --force` and `status` before changing a
 model route. If the network is unavailable, retain the last verified routing

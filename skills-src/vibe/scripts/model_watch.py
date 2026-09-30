@@ -32,6 +32,7 @@ MAX_PAGE_BYTES = 2 * 1024 * 1024
 MAX_STATE_BYTES = 4 * 1024 * 1024
 MAX_CAPTURED_POSTS = 128
 MAX_FEEDBACK_URL_LENGTH = 2048
+DISMISS_REASONS = {"historical_article", "not_release", "duplicate_alias"}
 SOURCES = {
     "openai": "https://openai.com/news/rss.xml",
     "anthropic": "https://www.anthropic.com/news",
@@ -360,6 +361,39 @@ def confirm_release(state: dict, key: str, now: datetime, official_url: str) -> 
                 captures=[], routing_ready=False)
 
 
+def dismiss_candidate(state: dict, key: str, now: datetime, reason: str) -> None:
+    """Retain a false positive as auditable state without making it pending."""
+    item = state["candidates"][key]
+    if (item["status"] != "official_unreviewed" or reason not in DISMISS_REASONS
+            or now < parse_time(item["first_seen_at"])):
+        raise ValueError("candidate cannot be dismissed")
+    records = item.setdefault("dismissals", [])
+    if not isinstance(records, list):
+        raise ValueError("invalid dismissal history")
+    if records:
+        previous = records[-1]
+        if (not isinstance(previous, dict) or "reopened_at" not in previous
+                or now < parse_time(previous["reopened_at"])):
+            raise ValueError("dismissal history is not reopened")
+    records.append({"reason": reason, "dismissed_at": iso(now)})
+    item["status"] = "dismissed"
+
+
+def reopen_candidate(state: dict, key: str, now: datetime) -> None:
+    """Restore an unreviewed candidate while retaining its dismissal record."""
+    item = state["candidates"][key]
+    records = item.get("dismissals")
+    if item["status"] != "dismissed" or not isinstance(records, list) or not records:
+        raise ValueError("candidate cannot be reopened")
+    dismissal = records[-1]
+    if (not isinstance(dismissal, dict) or "reopened_at" in dismissal
+            or now < parse_time(dismissal["dismissed_at"])):
+        raise ValueError("candidate cannot be reopened")
+    reopened_at = iso(now)
+    item["status"] = "official_unreviewed"
+    dismissal["reopened_at"] = reopened_at
+
+
 def add_feedback(state: dict, key: str, now: datetime, url: str, sentiment: str) -> None:
     item = state["candidates"][key]
     parsed = urllib.parse.urlsplit(url)
@@ -398,6 +432,8 @@ def add_feedback(state: dict, key: str, now: datetime, url: str, sentiment: str)
 
 
 def candidate_status(item: dict, now: datetime) -> str:
+    if item["status"] == "dismissed":
+        return "dismissed"
     if item["status"] != "released":
         return "waiting_official_review"
     observations_by_url: dict[str, datetime] = {}
@@ -492,12 +528,14 @@ def state_lock(path: Path, timeout: float = 120):
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=["scan", "status", "confirm-release", "add-feedback"])
+    parser.add_argument("action", choices=["scan", "status", "confirm-release",
+                                           "add-feedback", "dismiss-candidate", "reopen-candidate"])
     parser.add_argument("--state", type=Path)
     parser.add_argument("--force", action="store_true", help="scan outside Friday/pending follow-up")
     parser.add_argument("--key")
     parser.add_argument("--url")
     parser.add_argument("--sentiment", choices=["positive", "mixed", "negative"])
+    parser.add_argument("--reason", choices=sorted(DISMISS_REASONS))
     args = parser.parse_args()
     path = args.state or default_state_path()
     with state_lock(path):
@@ -523,6 +561,19 @@ def main() -> int:
             confirm_release(state, args.key, now, args.url)
             write_json(path, state)
             result = {"status": "monitoring", "key": args.key, "routing_changed": False}
+        elif args.action == "dismiss-candidate":
+            if not args.key or not args.reason:
+                parser.error("--key and --reason are required")
+            dismiss_candidate(state, args.key, now, args.reason)
+            write_json(path, state)
+            result = {"status": "dismissed", "key": args.key, "routing_changed": False}
+        elif args.action == "reopen-candidate":
+            if not args.key:
+                parser.error("--key is required")
+            reopen_candidate(state, args.key, now)
+            write_json(path, state)
+            result = {"status": "waiting_official_review", "key": args.key,
+                      "routing_changed": False}
         else:
             if not args.key or not args.url or not args.sentiment:
                 parser.error("--key, --url and --sentiment are required")
