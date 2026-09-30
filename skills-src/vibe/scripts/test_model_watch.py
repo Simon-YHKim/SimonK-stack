@@ -200,6 +200,26 @@ class ModelWatchTests(unittest.TestCase):
         self.assertEqual([post["title"] for post in model_watch.extract_public_feedback(feed, item)],
                          ["GPT-4o-mini impressions"])
 
+    def test_spaced_o_series_variants_do_not_admit_base_model_posts(self):
+        for base, suffix in (("o4", "mini"), ("o3", "pro"), ("o1", "preview")):
+            with self.subTest(base=base, suffix=suffix):
+                variant = f"{base} {suffix}"
+                item = {"title": f"Introducing {variant}",
+                        "release_verified_at": model_watch.iso(FRIDAY)}
+                self.assertEqual(model_watch.MODEL_NAME.search(item["title"]).group(0),
+                                 variant)
+                self.assertIn(f"{base}+{suffix}", model_watch.feedback_query(item))
+                feed = ('<feed xmlns="http://www.w3.org/2005/Atom">'
+                        f'<entry><title>{base} impressions</title>'
+                        '<link href="https://www.reddit.com/r/OpenAI/comments/base" />'
+                        '<published>2026-10-02T01:00:00+00:00</published></entry>'
+                        f'<entry><title>{base}-{suffix} impressions</title>'
+                        '<link href="https://www.reddit.com/r/OpenAI/comments/variant" />'
+                        '<published>2026-10-02T01:00:00+00:00</published></entry></feed>')
+                self.assertEqual(
+                    [post["title"] for post in model_watch.extract_public_feedback(feed, item)],
+                    [f"{base}-{suffix} impressions"])
+
     def test_public_feedback_feed_is_captured_but_not_auto_graded(self):
         state, _ = model_watch.scan_state({}, self.fetch, FRIDAY)
         self.pages["xai"] += '<a href="/news/grok-4-8">Grok 4.8</a>'
