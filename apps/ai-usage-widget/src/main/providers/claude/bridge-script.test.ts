@@ -71,7 +71,8 @@ async function writeWrap(key: string, command: string): Promise<void> {
   );
 }
 
-describe.runIf(node.ok)('node bridge script', () => {
+// Every case spawns node (one case seven times); the 5 s default ran out once under a full parallel run (26.09.30).
+describe.runIf(node.ok)('node bridge script', { timeout: 30_000 }, () => {
   it('stores only rate limits and model, prints nothing without a wrapped command', async () => {
     const result = await runNodeBridge(JSON.stringify(INPUT), ['--key', KEY, '--out', dir]);
     expect(result).toMatchObject({ exitCode: 0, stdout: '', stderr: '' });

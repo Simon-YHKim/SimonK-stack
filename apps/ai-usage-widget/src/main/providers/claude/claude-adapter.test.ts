@@ -94,7 +94,9 @@ const USER_SETTINGS = `{
 }
 `;
 
-describe('default profile bridge', () => {
+// Real settings.json writes, backups and script hashing; the SEC-02 case (eight install/uninstall
+// cycles) passed the 5 s default at 5044 ms once under a full parallel run (26.09.30).
+describe('default profile bridge', { timeout: 30_000 }, () => {
   it('backs up, wraps the existing command and restores it on uninstall', async () => {
     const claudeDir = path.join(deps.homeDir, '.claude');
     const settingsPath = path.join(claudeDir, 'settings.json');
