@@ -131,9 +131,13 @@ describe('Usage tab', () => {
     expect(api.callsTo('settings:update')).toContainEqual({
       patch: { grokBotUsedPercent: 68, grokBotOnDemandSpentCents: null, grokBotOnDemandLimitCents: null },
     });
+    const guide = card.querySelector('.grok-bot-guide-box') as HTMLElement;
+    expect(guide.parentElement).toBe(card);
     app.update(appState({ settings: { grokBotUsedPercent: 68, grokBotRecordedAt: NOW } }));
     expect(card.textContent).toContain('68% used');
     expect(card.textContent).toContain('32% left');
+    // With a current reading the where-to-read guide folds into the collapsed section.
+    expect(guide.closest('.grok-bot-more')).not.toBeNull();
     (root.querySelector('.grok-bot-open') as HTMLButtonElement).click();
     expect(api.callsTo('shell:open-external')).toContainEqual({ kind: 'link', key: 'grok-bot-usage' });
   });

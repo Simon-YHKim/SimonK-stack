@@ -50,6 +50,8 @@ export class GrokBotCard {
   private readonly spill: HTMLElement;
   private readonly guide: HTMLElement;
   private readonly separate: HTMLElement;
+  private readonly guideBox: HTMLElement;
+  private readonly moreBody: HTMLElement;
   private readonly label: HTMLElement;
   private readonly moreSummary: HTMLElement;
   private readonly resetLabel: HTMLElement;
@@ -96,17 +98,16 @@ export class GrokBotCard {
         this.resetDirty = true;
       });
     }
-    const more = h('details', { class: 'grok-bot-more' }, [
-      this.moreSummary,
-      h('div', { class: 'grok-bot-more-body' }, [
-        h('div', { class: 'grok-bot-label', role: 'group' }, [
-          this.resetLabel,
-          h('div', { class: 'grok-bot-reset-row' }, [this.resetDays, this.daysUnit, this.resetHours, this.hoursUnit]),
-        ]),
-        h('label', { class: 'grok-bot-label' }, [this.spentLabel, this.spentInput]),
-        h('label', { class: 'grok-bot-label' }, [this.limitLabel, this.limitInput]),
+    this.guideBox = h('div', { class: 'grok-bot-guide-box' }, [this.guide, this.separate]);
+    this.moreBody = h('div', { class: 'grok-bot-more-body' }, [
+      h('div', { class: 'grok-bot-label', role: 'group' }, [
+        this.resetLabel,
+        h('div', { class: 'grok-bot-reset-row' }, [this.resetDays, this.daysUnit, this.resetHours, this.hoursUnit]),
       ]),
+      h('label', { class: 'grok-bot-label' }, [this.spentLabel, this.spentInput]),
+      h('label', { class: 'grok-bot-label' }, [this.limitLabel, this.limitInput]),
     ]);
+    const more = h('details', { class: 'grok-bot-more' }, [this.moreSummary, this.moreBody]);
 
     // novalidate: the card reports its own messages (native constraint bubbles would block the
     // submit silently for an out-of-range field and never reach save()).
@@ -136,11 +137,22 @@ export class GrokBotCard {
       this.resetLine,
       this.onDemandLine,
       this.spill,
-      this.guide,
-      this.separate,
+      this.guideBox,
       this.form,
       this.openButton,
     ]);
+  }
+
+  /**
+   * Where to read the values matters until a current reading exists; after that the two
+   * paragraphs move into the collapsed section so the everyday card stays short.
+   */
+  private placeGuide(current: boolean): void {
+    if (current) {
+      if (this.guideBox.parentElement !== this.moreBody) this.moreBody.prepend(this.guideBox);
+    } else if (this.guideBox.parentElement !== this.el) {
+      this.el.insertBefore(this.guideBox, this.form);
+    }
   }
 
   update(settings: Settings, ctx: RenderContext): void {
@@ -148,6 +160,7 @@ export class GrokBotCard {
     const { t } = ctx;
     const reading = grokBotReading(settings, ctx.now);
     this.el.dataset.state = reading.state;
+    this.placeGuide(reading.state === 'fresh' || reading.state === 'stale');
     setText(this.name, t('grokBotTitle'));
     setText(this.plan, t('grokBotPlan'));
     setText(this.badge, t('grokBotManual'));
