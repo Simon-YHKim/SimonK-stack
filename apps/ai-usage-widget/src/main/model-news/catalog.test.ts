@@ -12,4 +12,17 @@ describe('official model catalogs', () => {
     expect(parseCatalog('antigravity', '<a href="/gemini-api/docs/models/gemini-3.8-flash">Gemini</a>'))
       .toEqual([{ id: 'gemini-3.8-flash', url: 'https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash' }]);
   });
+
+  it('still reads a localized page with absolute, query-carrying links (Google ?hl=pt-br redirect, 26.09.30)', () => {
+    const localized = [
+      '<a href="https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash?hl=pt-br">Gemini</a>',
+      '<a href="https://ai.google.dev/gemini-api/docs/models/gemini-3.8-live?hl=pt-br">Live</a>',
+      '<a href="https://aistudio.google.com/prompts/new_chat?model=gemini-3.9-pro&hl=pt-br">AI Studio</a>',
+    ].join('');
+    // Links to other hosts never count; the notice URL stays the plain vendor page.
+    expect(parseCatalog('antigravity', localized))
+      .toEqual([{ id: 'gemini-3.8-flash', url: 'https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash' }]);
+    expect(parseCatalog('codex', '<a href="https://developers.openai.com/api/docs/models/gpt-6.1-sol?lang=ja">GPT</a><a href="https://evil.example/api/docs/models/gpt-9">x</a>'))
+      .toEqual([{ id: 'gpt-6.1-sol', url: 'https://developers.openai.com/api/docs/models/gpt-6.1-sol' }]);
+  });
 });
