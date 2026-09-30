@@ -59,7 +59,9 @@ def image_tool(**changes):
                     "provider_hard_cap_usd": 0, "provider_hard_cap_enforced": True,
                     "observed_at": NOW,
                     "evidence": ["fixture provider-enforced cap"]},
-        "quota": {"used_pct": 10, "observed_at": NOW, "bucket": "fixture-image"},
+        "quota": {"used_pct": 10, "observed_at": NOW, "bucket": "fixture-image",
+                  "account_ref": "fixture-image-account", "surface": "codex",
+                  "transport": "host-image", "evidence": ["fixture account-bound image quota"]},
     }
     item.update(changes)
     return item
@@ -1445,6 +1447,21 @@ class OrchestrationTests(unittest.TestCase):
         self.assertEqual(self.plan([image], image_tools=[no_lookup], host_ref="fixture-host",
                                    interaction_ref="fixture-interaction")["status"], "blocked")
 
+    def test_image_quota_requires_account_bound_evidence(self):
+        image = self.typed("IMAGE_GENERATION")
+        for change in ({"evidence": []}, {"account_ref": None},
+                       {"account_ref": "other-account"},
+                       {"surface": "claude"}, {"transport": "cli"}):
+            with self.subTest(change=change):
+                tool = image_tool()
+                tool["quota"].update(change)
+                blocked = self.plan([image], image_tools=[tool], host_ref="fixture-host",
+                                    interaction_ref="fixture-interaction")
+                self.assertEqual(blocked["status"], "blocked")
+                self.assertIn("IMAGE_QUOTA_UNVERIFIED", self.m.assess_image_tool(
+                    tool, {"host_ref": "fixture-host", "interaction_ref": "fixture-interaction"},
+                    image, NOW))
+
     def test_image_host_adapter_claims_once_and_never_auto_settles(self):
         import execute_image
         import run_state
@@ -1459,6 +1476,7 @@ class OrchestrationTests(unittest.TestCase):
                    "state": "succeeded", "observed_at": NOW,
                    "evidence": ["fixture output receipt"],
                    "result_sha256": hashlib.sha256(b"fixture image").hexdigest()}
+        later = (datetime.fromisoformat(NOW) + timedelta(minutes=1)).isoformat()
 
         class Host:
             sends = 0
@@ -1474,7 +1492,9 @@ class OrchestrationTests(unittest.TestCase):
 
             def lookup_by_request(self, request_id):
                 self.lookups += 1
-                return copy.deepcopy(receipt)
+                updated = copy.deepcopy(receipt)
+                updated["observed_at"] = later
+                return updated
 
         host = Host()
         with tempfile.TemporaryDirectory() as directory:
@@ -1482,7 +1502,7 @@ class OrchestrationTests(unittest.TestCase):
             store.initialize()
             store.register(plan, NOW)
             first = execute_image.dispatch(plan, "read", store, host, NOW)
-            second = execute_image.dispatch(plan, "read", store, host, NOW)
+            second = execute_image.dispatch(plan, "read", store, host, later)
             self.assertEqual(first["status"], "succeeded")
             self.assertEqual(second["status"], "succeeded")
             self.assertEqual((host.sends, host.lookups), (1, 1))
@@ -1490,6 +1510,11 @@ class OrchestrationTests(unittest.TestCase):
             self.assertEqual(host.assert_args["provider_hard_cap_usd"], 0)
             self.assertFalse(first["verified"])
             self.assertIsNone(first["actual_usd"])
+            receipt["result_sha256"] = hashlib.sha256(b"different image").hexdigest()
+            with self.assertRaisesRegex(execute_image.ImageDispatchError,
+                                        "IMAGE_TERMINAL_RECEIPT_CHANGED"):
+                execute_image.dispatch(plan, "read", store, host, later)
+            self.assertEqual(host.sends, 1)
 
     def test_image_host_adapter_rechecks_after_claim_and_holds_changed_cost(self):
         import execute_image

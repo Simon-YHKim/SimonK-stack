@@ -907,7 +907,12 @@ def assess_image_tool(tool, runtime, step, now):
     used = quota.get("used_pct") if isinstance(quota, dict) else None
     if (isinstance(used, bool) or not isinstance(used, (int, float))
             or not 0 <= used < 100 or not quota.get("bucket")
-            or not fresh(quota.get("observed_at"), now)):
+            or not fresh(quota.get("observed_at"), now)
+            or quota.get("account_ref") != billing.get("account_ref")
+            or quota.get("surface") != tool.get("surface")
+            or quota.get("transport") != "host-image"
+            or not isinstance(quota.get("evidence"), list)
+            or not quota["evidence"]):
         errors.append("IMAGE_QUOTA_UNVERIFIED")
     return sorted(set(errors))
 
