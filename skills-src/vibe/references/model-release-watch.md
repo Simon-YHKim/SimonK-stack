@@ -53,12 +53,17 @@ not general availability. Only after this check call `confirm-release --key K
 --url OFFICIAL_URL`. The watch starts its **prospective** window at that
 confirmation time; backdating is forbidden.
 Equivalent same-host official URLs with trailing slash, query or fragment are
-accepted after canonicalization; a different host or insecure scheme is not.
+accepted after canonicalizing both stored and supplied URLs; a different host
+or insecure scheme is not. This also applies when a heading-only candidate
+points to an official listing page ending in `/`.
 
 Across at least 24 hours, inspect public user reports (X when publicly
 accessible, otherwise accessible public forums such as Reddit or Hacker News).
 The daily pending scan also searches public Reddit Atom posts for the exact
 candidate model name and stores matching post links as **unreviewed captures**.
+Hyphen and space spellings such as `GPT-4o-mini` / `GPT-4o mini` are treated as
+the same model, while base-model posts do not count for a mini variant. Reviewed
+post URLs stay deduplicated through subsequent scans even after capture pruning.
 It does not read them as a verdict or auto-grade sentiment. Inspect the post
 before calling `add-feedback --key K --url URL --sentiment LABEL`; for a captured
 post the first observation timestamp is retained, while an uncaptured public

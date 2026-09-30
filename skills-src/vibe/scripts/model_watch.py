@@ -38,7 +38,7 @@ SOURCES = {
     "xai": "https://x.ai/news",
 }
 MODEL_NAME = re.compile(
-    r"\b(?:GPT[-\s]?\d+(?:\.\d+)*(?:[-\s]?(?:o(?:-mini)?|mini|nano|turbo|Astra|Sol|Luna|Terra))?|"
+    r"\b(?:GPT[-\s]?\d+(?:\.\d+)*(?:[-\s]?(?:o(?:[-\s]mini)?|mini|nano|turbo|Astra|Sol|Luna|Terra))?|"
     r"o\d+(?:-(?:mini|preview|pro))?|"
     r"(?:Claude\s+)?(?:Sonnet|Opus|Haiku|Fable|Mythos)\s+\d+(?:\.\d+)?|"
     r"Gemini\s+\d+(?:\.\d+)?(?:\s+(?:Pro|Flash))?|Grok\s+\d+(?:\.\d+)?)\b",
@@ -166,6 +166,11 @@ def feedback_query(item: dict) -> str | None:
         {"q": model.group(0), "sort": "new", "t": "week"})
 
 
+def model_label(value: str) -> str:
+    """Treat separator spellings alike without conflating model variants."""
+    return re.sub(r"[-\s]+", "-", value.casefold())
+
+
 def extract_public_feedback(feed: str, item: dict) -> list[dict]:
     root = ET.fromstring(feed)
     namespace = "{http://www.w3.org/2005/Atom}"
@@ -175,7 +180,7 @@ def extract_public_feedback(feed: str, item: dict) -> list[dict]:
     found: list[dict] = []
     for entry in root.findall(f"{namespace}entry")[:30]:
         title = " ".join((entry.findtext(f"{namespace}title") or "").split())[:240]
-        if not any(match.group(0).casefold() == model.group(0).casefold()
+        if not any(model_label(match.group(0)) == model_label(model.group(0))
                    for match in MODEL_NAME.finditer(title)):
             continue
         link = entry.find(f"{namespace}link[@rel='alternate']")
@@ -186,8 +191,14 @@ def extract_public_feedback(feed: str, item: dict) -> list[dict]:
         if not url or not published:
             continue
         parsed = urllib.parse.urlsplit(url)
+        try:
+            port = parsed.port
+        except ValueError:
+            continue
         if (len(url) > MAX_FEEDBACK_URL_LENGTH or parsed.scheme != "https"
-                or parsed.hostname != "www.reddit.com" or parsed.query):
+                or parsed.hostname != "www.reddit.com" or parsed.query
+                or parsed.username or parsed.password or port not in (None, 443)
+                or not parsed.path):
             continue
         try:
             posted_at = parse_time(published)
@@ -195,7 +206,8 @@ def extract_public_feedback(feed: str, item: dict) -> list[dict]:
             continue
         if posted_at < parse_time(item["release_verified_at"]):
             continue
-        found.append({"url": url, "title": title, "published_at": iso(posted_at)})
+        canonical_url = urllib.parse.urlunsplit(("https", "www.reddit.com", parsed.path, "", ""))
+        found.append({"url": canonical_url, "title": title, "published_at": iso(posted_at)})
     return found
 
 
@@ -278,7 +290,8 @@ def scan_state(state: dict, fetch, now: datetime, force: bool = False,
                 report["feedback_errors"][key] = type(exc).__name__
                 continue
             captures = item.setdefault("captures", [])
-            existing = {post["url"] for post in captures}
+            existing = ({post["url"] for post in captures}
+                        | {post["url"] for post in item.get("feedback", [])})
             for post in posts:
                 if post["url"] not in existing:
                     captures.append({**post, "observed_at": iso(now), "reviewed": False})
@@ -297,8 +310,9 @@ def scan_state(state: dict, fetch, now: datetime, force: bool = False,
 def confirm_release(state: dict, key: str, now: datetime, official_url: str) -> None:
     item = state["candidates"][key]
     parsed = urllib.parse.urlsplit(official_url)
+    stored = canonical_link(item["official_url"], item["official_url"])
     canonical = canonical_link(item["official_url"], official_url) if parsed.scheme == "https" else None
-    if item["status"] != "official_unreviewed" or canonical != item["official_url"]:
+    if item["status"] != "official_unreviewed" or stored is None or canonical != stored:
         raise ValueError("official release evidence does not match candidate")
     if now < parse_time(item["first_seen_at"]):
         raise ValueError("release confirmation predates discovery")
@@ -330,7 +344,7 @@ def add_feedback(state: dict, key: str, now: datetime, url: str, sentiment: str)
         raise ValueError("public HTTPS feedback URL without credentials required")
     if sentiment not in {"positive", "mixed", "negative"}:
         raise ValueError("invalid sentiment label")
-    canonical = urllib.parse.urlunsplit(("https", parsed.netloc.lower(), parsed.path, parsed.query, ""))
+    canonical = urllib.parse.urlunsplit(("https", hostname, parsed.path, parsed.query, ""))
     if any(entry["url"] == canonical for entry in item["feedback"]):
         raise ValueError("duplicate feedback URL")
     capture = next((entry for entry in item.get("captures", []) if entry["url"] == canonical), None)

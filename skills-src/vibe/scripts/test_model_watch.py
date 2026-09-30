@@ -65,6 +65,10 @@ class ModelWatchTests(unittest.TestCase):
         candidate = updated["candidates"][report["new_candidates"][0]]
         self.assertEqual(candidate["status"], "official_unreviewed")
         self.assertEqual(candidate["official_url"], model_watch.SOURCES["google"])
+        model_watch.confirm_release(updated, report["new_candidates"][0],
+                                    FRIDAY + timedelta(days=7, minutes=1),
+                                    model_watch.SOURCES["google"])
+        self.assertEqual(candidate["status"], "released")
 
     def test_non_friday_without_pending_does_not_fetch(self):
         state, _ = model_watch.scan_state({}, self.fetch, FRIDAY)
@@ -175,12 +179,26 @@ class ModelWatchTests(unittest.TestCase):
         self.assertEqual(headings, set())
 
     def test_common_openai_model_names_are_detected(self):
-        for name in ("GPT-4o", "o3", "o4-mini", "GPT-4.1-mini"):
+        for name in ("GPT-4o", "GPT-4o mini", "o3", "o4-mini", "GPT-4.1-mini"):
             with self.subTest(name=name):
                 feed = ("<rss><channel><item><title>Introducing " + name + "</title>"
                         "<link>https://openai.com/index/release/</link></item></channel></rss>")
                 links, _ = model_watch.extract_model_mentions(feed, model_watch.SOURCES["openai"])
                 self.assertEqual(len(links), 1)
+
+    def test_gpt_4o_mini_feedback_does_not_admit_base_model_posts(self):
+        item = {"title": "Introducing GPT-4o mini", "release_verified_at": model_watch.iso(FRIDAY)}
+        self.assertEqual(model_watch.MODEL_NAME.search(item["title"]).group(0), "GPT-4o mini")
+        self.assertIn("GPT-4o+mini", model_watch.feedback_query(item))
+        feed = ('<feed xmlns="http://www.w3.org/2005/Atom">'
+                '<entry><title>GPT-4o impressions</title>'
+                '<link href="https://www.reddit.com/r/OpenAI/comments/base" />'
+                '<published>2026-10-02T01:00:00+00:00</published></entry>'
+                '<entry><title>GPT-4o-mini impressions</title>'
+                '<link href="https://www.reddit.com/r/OpenAI/comments/mini" />'
+                '<published>2026-10-02T01:00:00+00:00</published></entry></feed>')
+        self.assertEqual([post["title"] for post in model_watch.extract_public_feedback(feed, item)],
+                         ["GPT-4o-mini impressions"])
 
     def test_public_feedback_feed_is_captured_but_not_auto_graded(self):
         state, _ = model_watch.scan_state({}, self.fetch, FRIDAY)
@@ -193,7 +211,10 @@ class ModelWatchTests(unittest.TestCase):
         def public_feed(_provider, _url):
             return ('<feed xmlns="http://www.w3.org/2005/Atom"><entry>'
                     '<title>Grok 4.8 coding impressions</title>'
-                    '<link href="https://www.reddit.com/r/grok/comments/post1" />'
+                    '<link href="https://www.reddit.com/r/grok/comments/post1#context" />'
+                    '<published>2026-10-09T00:02:00+00:00</published>'
+                    '</entry><entry><title>Grok 4.8 invalid redirect</title>'
+                    '<link href="https://www.reddit.com:8443/r/grok/comments/invalid" />'
                     '<published>2026-10-09T00:02:00+00:00</published>'
                     '</entry></feed>')
 
@@ -202,11 +223,23 @@ class ModelWatchTests(unittest.TestCase):
         self.assertEqual(report["feedback_captures"], [key])
         item = state["candidates"][key]
         self.assertEqual(len(item["captures"]), 1)
+        self.assertEqual(item["captures"][0]["url"],
+                         "https://www.reddit.com/r/grok/comments/post1")
         self.assertEqual(item["feedback"], [])
         self.assertFalse(item["routing_ready"])
         model_watch.add_feedback(state, key, first + timedelta(hours=2),
                                  "https://www.reddit.com/r/grok/comments/post1", "mixed")
         self.assertEqual(item["feedback"][0]["observed_at"], model_watch.iso(first))
+        state, next_report = model_watch.scan_state(state, self.fetch,
+                                                     first + timedelta(hours=3),
+                                                     feedback_fetch=public_feed)
+        self.assertEqual(next_report["feedback_captures"], [])
+        self.assertEqual(state["candidates"][key]["captures"], [])
+        state, later_report = model_watch.scan_state(state, self.fetch,
+                                                      first + timedelta(hours=4),
+                                                      feedback_fetch=public_feed)
+        self.assertEqual(later_report["feedback_captures"], [])
+        self.assertEqual(state["candidates"][key]["captures"], [])
 
     def test_feedback_filter_keeps_exact_model_version(self):
         item = {"title": "Grok 4.8", "release_verified_at": model_watch.iso(FRIDAY)}
