@@ -4096,6 +4096,33 @@ Cloudflare 운영 자동 배포는 Simon이 이번 `main` 머지에 한해 허�
 `host_compatibility_verified=false`를 유지하며, PR #65–#67의 새 §35 토론
 D-code와 정확한 머지 대상 재검토 전에는 `main` 머지하지 않는다.
 
+같은 후보의 격리 호스트 시험은
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr67-host-rehearsal/`에
+원시 결과와 시험 설정을 보존했다. 소스 영수증 423파일은 문서만 추가된 HEAD
+`a1d84b7b8f76336207b7a50b655cea812acc8138`의 Git archive와 전부 SHA-256
+일치했다(누락·불일치 각 0). 별도 Windows Sandbox 두 개는 네트워크·클립보드·
+장치 리디렉션을 끄고 후보와 실행 파일을 읽기 전용으로 매핑했으며 사용자 홈·
+자격증명은 매핑하지 않았다. Windows Sandbox CLI로 각 게스트를 기동하고
+준비한 스크립트를 System 컨텍스트에서 1회 실행했다. 첫 GUI 클라이언트
+기동은 5분 이상 게스트 ID·결과가 없어 미완료로 기록하고 해당 클라이언트만
+종료한 뒤 CLI 경로로 재시험했다.
+
+Claude Code 2.1.285의 `integrated-result.json`은 플러그인 5개·스킬 182개,
+사용자 중복·디버그 오류 0, 기존 링크 Claude 5개/Codex 2개 두 번 복원,
+시험 플러그인 최종 0개로 `guest_integrated_marketplace_split_passed`다.
+Codex CLI 0.159.0의 `codex-integrated-result.json`은 5개 플러그인 모두
+활성, 별도 링크 전환 후 같은 복원·철회로
+`guest_codex_plugin_alias_coexistence_passed`다. 두 결과 모두 인증 환경변수
+없음·활성 네트워크 어댑터 0·모델 생성 미실행을 기록한다. 종료한 두 게스트의
+`wsb.exe list --raw`에는 남은 인스턴스가 0개였고, 시험 전후 후보 영수증
+SHA-256은 변하지 않았다. 원시 결과 SHA-256은 Claude
+`455a7089ccde5d4e56cceb34a1984326d4120ddfcb6ab6da6d31cadaa4a1db78`,
+Codex `1b45ae6c0a9ad491f5c87e64a1c9eb8323aeeda271f0ac1174794134b41a94cb`다.
+이는 빈 게스트의 호스트 적재·복원 증거이지
+Codex 177스킬의 실제 선택·전체 실행이나 사용자 홈 무손실 이관은 아니다.
+Gstack 외부 런타임·모델/effort 선택 품질·이미지/Bot 실제 작업·구독 청구
+경로는 여전히 미검증이므로 readiness 플래그는 `false`다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
