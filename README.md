@@ -12,7 +12,7 @@
 
 > **소스 전용 머지 안전 경계(D-33):** 현재 통합 소스와 최신 정적 격리 후보의 `/vibe`는 2.12.24입니다. `distribution/main-source-only.hold`가 있는 체크아웃의 SessionStart 훅은 사용자 홈·업데이트 확인을 건드리지 않고 종료하며, `main` push의 자동 GitHub 릴리스도 보류합니다. 루트 Claude marketplace의 기존 `simonk-stack` 플러그인도 머지 전 `main` 커밋 `313c04b`에 고정했습니다. 이 장치들은 다섯 플러그인 후보를 설치하거나 자동 라우팅의 실사용 품질을 증명하지 않습니다. 새 릴리스 전에는 보류 파일 제거와 marketplace 핀·버전 변경을 별도 검증하세요.
 
-> **최신 정적 후보:** `E:/Coding Infra/Releases/SimonK-stack/20260930-vibe-main-release-fence/`는 `/vibe` 2.12.24와 `/vibe-bot` 0.9.4를 포함합니다. Claude 182스킬·Codex 일반 subset 177스킬, 공통 본문 176개·payload 617파일의 바이트 일치, 네 영수증과 오프라인 후보 검사 4단계가 통과했습니다. Gstack 외부 런타임과 실제 호스트·선택 품질·과금은 미검증이며 `installation_ready=false`입니다. [상세 영수증·한계](docs/INSTALL.md#vibe-21224-정적-격리-후보-2026-09-30)를 확인하세요.
+> **최신 격리 후보:** `E:/Coding Infra/Releases/SimonK-stack/20260930-vibe-main-release-fence/`는 `/vibe` 2.12.24와 `/vibe-bot` 0.9.4를 포함합니다. Claude 182스킬·Codex 일반 subset 177스킬, 공통 본문 176개·payload 617파일의 바이트 일치, 네 영수증과 오프라인 후보 검사 4단계가 통과했습니다. PR #63의 후보 제작 당시 HEAD와 소스 420파일 해시 일치, 별도 네트워크 차단 Sandbox의 Claude/Codex 플러그인 적재·롤백도 통과했습니다. Gstack 외부 런타임·자동 선택 품질·과금·실제 사용자 홈 이관은 미검증이고 `installation_ready=false`입니다. [상세 영수증·한계](docs/INSTALL.md#vibe-21224-정적-격리-후보-2026-09-30)를 확인하세요.
 
 > 이전 호스트 진입 재현 후보 `E:/Coding Infra/Releases/SimonK-stack/20260930-main-entry-d77def6/`는 `/vibe` 2.12.17입니다. 같은 읽기 전용 Claude Sonnet 5.5 요청 한 건에서 이전 후보의 `simonk-stack:skstack` 대신 의도한 `simonk-core:vibe`가 실제 `Skill` 도구로 호출됐습니다. 반면 Codex 전체 subset 임시 노출은 스킬 설명 예산을 초과했고, 3스킬 시험에서는 `/vibe`를 골랐지만 본문 읽기가 정책에 막혔습니다. 따라서 **한 사례의 Claude 진입 개선**만 확인됐고 최신 2.12.24 후보의 호스트 선택·Codex 본문 실행·실효 effort·구독 청구는 증명되지 않았습니다. 사용자 프로필은 변경하지 않았으며 아래 레거시 `scripts/install.sh`는 원격 조회와 홈 변경 경로가 있어 이 후보 시험용으로 실행하지 마세요.
 

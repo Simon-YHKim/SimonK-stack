@@ -4012,10 +4012,24 @@ Codex 일반 subset 5플러그인·177스킬의 공통 본문 176개·payload 61
 259문서·190참조를 검사했고 누락 경로·비이식 명령은 각 0건이다. 그러나
 Gstack 외부 참조가 각각 31·30스킬에 남아 결과는 종료 1의
 `external_runtime_pending`이며 전체 실행 의존성 폐쇄를 의미하지 않는다.
-이 후보의 실제 Claude/Codex 호스트 적재·자동 선택·모델/effort 효력·
-구독 포함 과금과 사용자 홈 롤백은 확인하지 않았다. 세 영수증의
+후속 격리 검증(2026-10-01): `source/release.json`의 소스 420파일은
+PR #63의 후보 제작 당시 HEAD `289294d26787ef52daacf1001a88601e4e5c1bb1`의
+Git archive와 SHA-256이 전부 일치했다. 네트워크·클립보드가 차단되고
+인증정보가 없는 별도 Windows Sandbox 두 곳에서 Claude Code 2.1.285는
+플러그인 5개·스킬 182개(사용자 중복 0·디버그 오류 0)를, Codex CLI
+0.159.0은 플러그인 5개 enabled를 확인했다. 양쪽 모두 기존 링크 5+2개를
+두 번 연속 복원하고 플러그인 제거 후 0개를 확인했다. 결과는
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-main-host-rehearsal/output/`
+의 `integrated-result.json`과 `codex-integrated-result.json`에 보존했다.
+모델 생성·유료 호출·실제 사용자 홈 변경은 없었다.
+
+이 검증은 빈 격리 프로필의 설치·복원 증거일 뿐 자동 스킬 선택,
+모델/effort 효력, Gstack 외부 런타임, 실제 사용자 홈 백업·복원,
+구독 포함 과금을 입증하지 않는다. 세 영수증의
 `installation_ready=false`, `host_compatibility_verified=false`와 정적
 패리티 결과의 `selection_quality_verified=false`를 그대로 유지한다.
+PR 독립 코드 리뷰와 `main` 갱신 시 Cloudflare Pages의 운영 자동 배포 여부도
+미확인이다. 운영 배포 확인 전 `main` 머지 판정은 NO-GO다.
 
 ## One-shot 설치
 
