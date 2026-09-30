@@ -37,6 +37,11 @@ for coordinator inspection. Fetch/parse failures remain errors, not a claim of
 "no updates". A page can change without an actual model release; releases in
 scripts or inaccessible markup can be missed. Check official release notes
 directly before drawing conclusions.
+For RSS sources, a previously unseen link is a candidate only when its dated
+item was published since the preceding check (with a two-day feed-delay
+allowance). Old articles that reappear in a changing full-history feed, and
+undated items, remain in the source snapshot but do not become new-release
+candidates. A manual official-page check is still needed for ambiguous items.
 
 On every `/vibe` invocation, run `scan --force` and `status` before changing a
 model route. If the network is unavailable, retain the last verified routing

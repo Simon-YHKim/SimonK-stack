@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 from contextlib import contextmanager
 import copy
+from email.utils import parsedate_to_datetime
 import errno
 import hashlib
 import ipaddress
@@ -132,6 +133,23 @@ def extract_model_mentions(page: str, base: str) -> tuple[dict[str, str], set[st
     return parser.links, parser.headings
 
 
+def rss_publication_times(page: str, base: str) -> dict[str, datetime]:
+    """Read dated RSS links; an old article rediscovered in the feed is not new."""
+    published: dict[str, datetime] = {}
+    for item in ET.fromstring(page).findall(".//item"):
+        link = canonical_link(base, item.findtext("link") or "")
+        date = item.findtext("pubDate")
+        if not link or not date:
+            continue
+        try:
+            timestamp = parsedate_to_datetime(date)
+        except (TypeError, ValueError, IndexError):
+            continue
+        if timestamp.tzinfo is not None:
+            published[link] = timestamp.astimezone(timezone.utc)
+    return published
+
+
 class OfficialRedirect(urllib.request.HTTPRedirectHandler):
     def __init__(self, hostname: str):
         self.hostname = hostname
@@ -250,16 +268,18 @@ def scan_state(state: dict, fetch, now: datetime, force: bool = False,
               "candidate_details": {}, "changed_sources": [], "errors": {}, "feedback_captures": [],
               "feedback_errors": {}, "routing_changed": False}
     for provider, url in SOURCES.items():
+        previous = current["sources"].get(provider)
         try:
             page = fetch(provider, url)
             if not isinstance(page, str):
                 raise ValueError("invalid page")
             digest = hashlib.sha256(page.encode("utf-8")).hexdigest()
             links, headings = extract_model_mentions(page, url)
+            publication_times = (rss_publication_times(page, url)
+                                 if previous and url.endswith(".xml") else {})
         except (OSError, ValueError, TimeoutError, ET.ParseError) as exc:
             report["errors"][provider] = type(exc).__name__
             continue
-        previous = current["sources"].get(provider)
         if previous and previous["sha256"] != digest:
             report["changed_sources"].append(provider)
         if previous:
@@ -267,6 +287,13 @@ def scan_state(state: dict, fetch, now: datetime, force: bool = False,
             for link, title in links.items():
                 if link in previous_links:
                     continue
+                if url.endswith(".xml"):
+                    published_at = publication_times.get(link)
+                    previous_check = parse_time(previous["checked_at"])
+                    if (published_at is None or
+                            published_at < previous_check - timedelta(days=2) or
+                            published_at > now.astimezone(timezone.utc) + timedelta(hours=1)):
+                        continue
                 key = hashlib.sha256(f"{provider}\n{link}".encode("utf-8")).hexdigest()[:20]
                 if key not in current["candidates"]:
                     current["candidates"][key] = {
