@@ -6,6 +6,7 @@
 ## [Unreleased]
 
 ### Added
+- **`/vibe` 2.12.23 금요일 공식 모델 감시의 첫 단계** — 고정된 공식 발표 페이지 네 곳을 무모델 호출로 금요일에 확인하고, 새 링크·제목을 출시 미확인 후보로 기록한다. 확인된 출시 후보의 공개 Reddit 게시물 링크는 미평가 상태로 수집하되 감성·품질을 자동 판정하지 않는다. 정식 출시 확인 뒤에도 향후 24시간과 시간차 있는 검토된 공개 평가 두 건이 없으면 검토 준비 상태가 되지 않는다. `review_ready`는 라우팅 승격·설치·머지 허가가 아니다. 운영 예약 작업·사용자 설치·이미지 실행 어댑터·실제 모델 비교·`main` 머지는 별도 게이트다.
 - **`/vibe` 2.12.22 Antigravity 1.2.14 메타데이터 관측** — 현재 호스트에서 `/usage`가 성공·0턴·0토큰으로 끝나는 것을 확인하고 정확한 CLI 버전만 수집기 허용 목록에 추가했다. 계정·구독 포함 모델·AI 크레딧 초과 사용 차단·실행 어댑터는 확인되지 않았으므로 AGY 생성 라우트는 여전히 차단한다.
 - **`/vibe` 2.12.21 Claude 실토론 후속 노드** — 단발 구독 CLI 어댑터가 검증·비용 정산된 양측 실제 답변을 해시로 묶어 Claude 반박과 별도 심판 호출에 전달하도록 확장했다. 다른 벤더 결과는 검증된 UTF-8 아티팩트와 별도 교차 전달 증거가 있어야 하며, 누락·변조·미검증·전달 미승인은 호출 전 차단한다. 다섯 노드 자동 실행, Codex/AGY/xAI 어댑터, 실제 청구/사용량·D-code·설치는 여전히 별도 게이트다.
 - **`/vibe` 2.12.20 Claude 구독 CLI 단발 실행 경로** — 독립·읽기 전용·도구 없는 LLM 노드(토론 첫 입장 포함)에 한해 등록 계획/Store 새 claim, 고정 실행 파일·프로필·계정·모델·effort·쿼터 증거를 묶은 `execute_cli.py`를 추가했다. 같은 격리 환경의 `claude.ai` 인증 재확인, API/대체 공급자 환경 제거, 결과 파일의 배타적 생성과 재진입 조회 전용을 테스트한다. 응답은 자동 비용 정산·검증/후속 노드 허가가 아니며, 반박·심판과 Codex/AGY/xAI 직접 경로·실제 과금/실효 effort 검증은 미완료다. 사용자 설치와 `main`은 변경하지 않는다.
@@ -42,6 +43,7 @@
 - **`/vibe` 2.11.16 progressive disclosure** — moved the generated historical Orca lane table into a directly linked reference and retargeted its drift checker. Normal skill loading omits the legacy table; the generator, safety guards and frontier runtime routing are unchanged. This does not reduce the initial five-plugin description footprint or prove model/host behavior.
 
 ### Fixed
+- **후보 경로 감사 GitHub CI 플랫폼 정합** — Windows 전용 보호 패키지 I/O에 의존하는 `test_candidate_path_audit.py`를 Ubuntu 품질 작업에서 분리해 Windows 작업으로 실행한다. 패키지 경로 보호나 테스트 자체는 완화하지 않는다.
 - **이미지 생성 라우팅 경계와 독립 설치 fixture** — `IMAGE_GENERATION`을 텍스트 `VISION`과 구별되는 차단 계획 단계로 보존하고, 독립 설치 테스트 두 곳에 필수 `task-fit-policy.json`을 포함했다. 저장소 테스트 387건은 3건 조건부 skip 외 통과했다. 전용 구독 포함 이미지 도구나 실제 생성 기능을 추가한 것은 아니다.
 - **`ship` 1.0.1 출시·과금·호스트 경계 교정** — 원본의 최신 재검증·추가 과금 $0 평가 사례를 보존하고, 자동 base 머지·모든 미커밋 파일 포함·유료 judge 필수 실행·Codex/Claude 무료 단정·무조건 push/PR·`git add -A` 문서 동기화를 사용자/저장소 권한과 구독 포함 증거에 종속시켰다. Claude 도구명을 Codex 호스트 기능에 대응시키되 동일 출시 게이트를 유지하는 사례를 추가하고 장문 참고문서에 목차를 넣었다. 정적 평가·저장소 회귀만 수행하며 실제 모델 행동, 유료 평가, 배포, 사용자 설치, 양 호스트 성능 동등성을 인증하지 않는다.
 - **`security-checklist` 1.0.1 보안 판단 교정** — 원본의 사용자/IP 제한·3계층 예산 누락 사례를 소스 평가에 복원하고, RLS 정책 존재와 활성화의 혼동, 행 정책의 열 보호 오인, 모든 TossPayments 웹훅 서명 가정, OpenAI soft budget을 hard cap으로 간주한 지침을 바로잡았다. SQL 예시는 운영 변형 실행을 금지하고 권한별 결과를 구분한다. 평가는 스키마 dry-run이며 운영 DB·실결제·유료 API·모델 행동 검증은 아니다.
