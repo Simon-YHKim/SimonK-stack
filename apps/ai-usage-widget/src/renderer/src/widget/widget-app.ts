@@ -8,7 +8,7 @@ import { buildEnabledViews, type RenderContext } from '../model';
 import { applyDocumentTheme, skinFor } from '../theme';
 import { renderWidgetItem } from './themes';
 import { modelNoticeText } from '../../../shared/model-notice';
-import { GROK_BOT_STATUS_KEYS, grokBotReading, grokBotWeeklyExhausted } from '../../../shared/grok-bot';
+import { GROK_BOT_STATUS_KEYS, grokBotReading, grokBotSpillKey, grokBotWeeklyExhausted } from '../../../shared/grok-bot';
 import { formatCountdown } from '../../../shared/usage';
 
 /** Clicks within this window after a toggle are ignored (v1 SPEC §2-5). */
@@ -257,7 +257,7 @@ export class WidgetApp {
     const exhausted = grokBotWeeklyExhausted(reading);
     const titleParts = [ctx.t('grokBotTitle'), value, status];
     if (countdown !== null) titleParts.push(ctx.t('grokBotResetsIn', { time: countdown }));
-    if (exhausted) titleParts.push(ctx.t('grokBotSpill'));
+    if (exhausted) titleParts.push(ctx.t(grokBotSpillKey(state.settings.grokBotOnDemandLimitCents)));
     return h('div', {
       class: `account-item grok-bot-item${reading.state === 'fresh' ? '' : ' is-stale'}${exhausted ? ' is-exhausted' : ''}`,
       'data-provider': 'grok-bot',

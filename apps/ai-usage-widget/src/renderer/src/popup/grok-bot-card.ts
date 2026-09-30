@@ -1,41 +1,63 @@
 import {
+  GROK_BOT_MAX_RESET_AHEAD_MS,
   GROK_BOT_STATUS_KEYS,
   formatUsdCents,
   grokBotOnDemand,
   grokBotReading,
+  grokBotSpillKey,
   grokBotWeeklyExhausted,
   parseUsdToCents,
   type GrokBotReading,
 } from '../../../shared/grok-bot';
 import { GROK_BOT_MAX_CENTS, type Settings } from '../../../shared/settings';
 import { formatCountdown } from '../../../shared/usage';
-import { h, setAttr, setStyles, setText } from '../dom';
+import { h, setStyles, setText } from '../dom';
 import type { Api } from '../api';
 import { providerIcon } from '../icons';
 import type { RenderContext } from '../model';
-
-const HOUR_MS = 60 * 60 * 1000;
-const DAY_MS = 24 * HOUR_MS;
-/** The Grok Bot countdown never runs past a week (see GROK_BOT_MAX_RESET_AHEAD_MS). */
-const MAX_RESET_DAYS = 7;
 
 function centsText(cents: number | null): string {
   return cents === null ? '' : (cents / 100).toFixed(2);
 }
 
+function pad(value: number): string {
+  return String(value).padStart(2, '0');
+}
+
+/** Epoch ms -> `YYYY-MM-DDTHH:mm` in local time, the value format of `<input type="datetime-local">`. */
+export function toLocalDateTimeValue(ms: number): string {
+  const d = new Date(ms);
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+/** `YYYY-MM-DDTHH:mm` read as local time (grok.com shows the reset in the viewer's time zone); else undefined. */
+export function fromLocalDateTimeValue(value: string): number | undefined {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value.trim());
+  if (match === null) return undefined;
+  const [year, month, day, hour, minute] = match.slice(1).map(Number) as [number, number, number, number, number];
+  const d = new Date(year, month - 1, day, hour, minute);
+  // Reject rollovers such as 02-30 that Date would silently move to March.
+  if (d.getFullYear() !== year || d.getMonth() !== month - 1 || d.getDate() !== day || d.getHours() !== hour || d.getMinutes() !== minute) {
+    return undefined;
+  }
+  return d.getTime();
+}
+
 /**
- * A user-entered reading, kept separate from the Grok Build CLI account and its meter.
- * Grok Bot is metered on the Cursor account (cursor.com/help/grok-bot/plans); no public API
- * returns it for personal accounts, so every value here is transcribed by the user.
+ * A user-entered reading, kept separate from the Grok Build CLI account and its meter. The CLI's
+ * `_x.ai/billing` answers the SuperGrok weekly limit only (probe 26.09.30); grok.com shows
+ * "Weekly Grok Bot Limit" as its own meter and no public API returns it, so the values here
+ * are transcribed by the user.
  */
 export class GrokBotCard {
   readonly el: HTMLElement;
   readonly input: HTMLInputElement;
   readonly saveButton: HTMLButtonElement;
-  readonly resetDays: HTMLInputElement;
-  readonly resetHours: HTMLInputElement;
+  readonly resetInput: HTMLInputElement;
   readonly spentInput: HTMLInputElement;
   readonly limitInput: HTMLInputElement;
+  readonly openGrokButton: HTMLButtonElement;
+  readonly openCursorButton: HTMLButtonElement;
   private readonly form: HTMLFormElement;
   private readonly name: HTMLElement;
   private readonly plan: HTMLElement;
@@ -55,14 +77,11 @@ export class GrokBotCard {
   private readonly label: HTMLElement;
   private readonly moreSummary: HTMLElement;
   private readonly resetLabel: HTMLElement;
-  private readonly daysUnit: HTMLElement;
-  private readonly hoursUnit: HTMLElement;
   private readonly spentLabel: HTMLElement;
   private readonly limitLabel: HTMLElement;
-  private readonly openButton: HTMLButtonElement;
   private context: RenderContext | null = null;
   private pending = false;
-  /** The reset countdown is only sent when the user touched it; otherwise the saved one stays. */
+  /** The reset time is only sent when the user touched it; otherwise the saved one stays. */
   private resetDirty = false;
 
   constructor(private readonly deps: { api: Api; report(message: string): void }) {
@@ -84,26 +103,18 @@ export class GrokBotCard {
     this.saveButton = h('button', { type: 'submit', class: 'grok-bot-save' });
 
     this.resetLabel = h('span');
-    this.daysUnit = h('span', { class: 'grok-bot-unit' });
-    this.hoursUnit = h('span', { class: 'grok-bot-unit' });
-    this.resetDays = h('input', { type: 'number', min: 0, max: MAX_RESET_DAYS, step: 1, inputmode: 'numeric', class: 'grok-bot-input grok-bot-reset-days' });
-    this.resetHours = h('input', { type: 'number', min: 0, max: 23, step: 1, inputmode: 'numeric', class: 'grok-bot-input grok-bot-reset-hours' });
+    this.resetInput = h('input', { type: 'datetime-local', step: 60, class: 'grok-bot-input grok-bot-reset-at' });
+    this.resetInput.addEventListener('input', () => {
+      this.resetDirty = true;
+    });
     this.spentLabel = h('span');
     this.limitLabel = h('span');
     this.spentInput = h('input', { type: 'text', inputmode: 'decimal', autocomplete: 'off', class: 'grok-bot-input grok-bot-spent' });
     this.limitInput = h('input', { type: 'text', inputmode: 'decimal', autocomplete: 'off', class: 'grok-bot-input grok-bot-limit' });
     this.moreSummary = h('summary', { class: 'grok-bot-more-summary' });
-    for (const field of [this.resetDays, this.resetHours]) {
-      field.addEventListener('input', () => {
-        this.resetDirty = true;
-      });
-    }
     this.guideBox = h('div', { class: 'grok-bot-guide-box' }, [this.guide, this.separate]);
     this.moreBody = h('div', { class: 'grok-bot-more-body' }, [
-      h('div', { class: 'grok-bot-label', role: 'group' }, [
-        this.resetLabel,
-        h('div', { class: 'grok-bot-reset-row' }, [this.resetDays, this.daysUnit, this.resetHours, this.hoursUnit]),
-      ]),
+      h('label', { class: 'grok-bot-label' }, [this.resetLabel, this.resetInput]),
       h('label', { class: 'grok-bot-label' }, [this.spentLabel, this.spentInput]),
       h('label', { class: 'grok-bot-label' }, [this.limitLabel, this.limitInput]),
     ]);
@@ -119,8 +130,12 @@ export class GrokBotCard {
       event.preventDefault();
       void this.save();
     });
-    this.openButton = h('button', { type: 'button', class: 'grok-bot-open' });
-    this.openButton.addEventListener('click', () => {
+    this.openGrokButton = h('button', { type: 'button', class: 'grok-bot-open grok-bot-open-grok' });
+    this.openGrokButton.addEventListener('click', () => {
+      void this.deps.api.invoke('shell:open-external', { kind: 'link', key: 'grok-usage' });
+    });
+    this.openCursorButton = h('button', { type: 'button', class: 'grok-bot-open grok-bot-open-cursor' });
+    this.openCursorButton.addEventListener('click', () => {
       void this.deps.api.invoke('shell:open-external', { kind: 'link', key: 'grok-bot-usage' });
     });
     this.el = h('article', { class: 'card grok-bot-card', 'data-provider': 'grok-bot' }, [
@@ -139,7 +154,7 @@ export class GrokBotCard {
       this.spill,
       this.guideBox,
       this.form,
-      this.openButton,
+      h('div', { class: 'grok-bot-links' }, [this.openGrokButton, this.openCursorButton]),
     ]);
   }
 
@@ -168,18 +183,15 @@ export class GrokBotCard {
     setText(this.separate, t('grokBotSeparateMeter'));
     setText(this.label, t('grokBotUsedInput'));
     setText(this.saveButton, t('grokBotSave'));
-    setText(this.openButton, t('grokBotOpen'));
+    setText(this.openGrokButton, t('grokBotOpenGrok'));
+    setText(this.openCursorButton, t('grokBotOpen'));
     setText(this.moreSummary, t('grokBotMore'));
     setText(this.resetLabel, t('grokBotResetInput'));
-    setText(this.daysUnit, t('grokBotResetDays'));
-    setText(this.hoursUnit, t('grokBotResetHours'));
     setText(this.spentLabel, t('grokBotSpentInput'));
     setText(this.limitLabel, t('grokBotLimitInput'));
-    setAttr(this.resetDays, 'aria-label', `${t('grokBotResetInput')} · ${t('grokBotResetDays')}`);
-    setAttr(this.resetHours, 'aria-label', `${t('grokBotResetInput')} · ${t('grokBotResetHours')}`);
 
     // Never overwrite what the user is typing.
-    if (!this.form.contains(this.form.ownerDocument.activeElement)) this.fillInputs(settings, reading, ctx.now);
+    if (!this.form.contains(this.form.ownerDocument.activeElement)) this.fillInputs(settings, reading);
 
     if (reading.state === 'fresh' || reading.state === 'stale') {
       setText(this.used, `${reading.usedPercent}% ${t('unitUsed')}`);
@@ -217,21 +229,14 @@ export class GrokBotCard {
 
     const exhausted = grokBotWeeklyExhausted(reading);
     this.spill.hidden = !exhausted;
-    setText(this.spill, exhausted ? t('grokBotSpill') : '');
+    setText(this.spill, exhausted ? t(grokBotSpillKey(settings.grokBotOnDemandLimitCents)) : '');
   }
 
-  private fillInputs(settings: Settings, reading: GrokBotReading, now: number): void {
+  private fillInputs(settings: Settings, reading: GrokBotReading): void {
     if (settings.grokBotUsedPercent !== null) this.input.value = String(settings.grokBotUsedPercent);
     if (!this.resetDirty) {
       const resetsAt = reading.state === 'fresh' || reading.state === 'stale' ? reading.resetsAt : null;
-      if (resetsAt === null) {
-        this.resetDays.value = '';
-        this.resetHours.value = '';
-      } else {
-        const remaining = Math.max(0, resetsAt - now);
-        this.resetDays.value = String(Math.floor(remaining / DAY_MS));
-        this.resetHours.value = String(Math.floor((remaining % DAY_MS) / HOUR_MS));
-      }
+      this.resetInput.value = resetsAt === null ? '' : toLocalDateTimeValue(resetsAt);
     }
     this.spentInput.value = centsText(settings.grokBotOnDemandSpentCents);
     this.limitInput.value = centsText(settings.grokBotOnDemandLimitCents);
@@ -245,16 +250,14 @@ export class GrokBotCard {
     return cents === undefined || cents > GROK_BOT_MAX_CENTS ? undefined : cents;
   }
 
-  /** undefined = invalid, null = cleared, number = epoch ms of the next reset. */
+  /** undefined = invalid, null = cleared, number = epoch ms of the next reset (future, within the weekly bound). */
   private resetField(): number | null | undefined {
-    const daysText = this.resetDays.value.trim();
-    const hoursText = this.resetHours.value.trim();
-    if (daysText === '' && hoursText === '') return null;
-    const days = daysText === '' ? 0 : Number(daysText);
-    const hours = hoursText === '' ? 0 : Number(hoursText);
-    if (!Number.isInteger(days) || !Number.isInteger(hours) || days < 0 || days > MAX_RESET_DAYS || hours < 0 || hours > 23) return undefined;
-    if (days === 0 && hours === 0) return undefined;
-    return Date.now() + days * DAY_MS + hours * HOUR_MS;
+    const text = this.resetInput.value.trim();
+    if (text === '') return null;
+    const at = fromLocalDateTimeValue(text);
+    const now = Date.now();
+    if (at === undefined || at <= now || at - now > GROK_BOT_MAX_RESET_AHEAD_MS) return undefined;
+    return at;
   }
 
   private async save(): Promise<void> {
@@ -271,7 +274,7 @@ export class GrokBotCard {
       const resetAt = this.resetField();
       if (resetAt === undefined) {
         this.deps.report(t('grokBotInvalidReset'));
-        this.resetDays.focus();
+        this.resetInput.focus();
         return;
       }
       patch.grokBotResetAt = resetAt;

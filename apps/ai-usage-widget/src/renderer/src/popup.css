@@ -299,9 +299,7 @@
 .grok-bot-more { font-size: 11px; }
 .grok-bot-more-summary { cursor: pointer; color: var(--p-fg2); padding: 2px 0; }
 .grok-bot-more-body { display: flex; flex-direction: column; gap: 8px; padding-top: 6px; }
-.grok-bot-reset-row { display: flex; align-items: center; gap: 4px; }
-.grok-bot-reset-row .grok-bot-input { width: 56px; flex: 0 0 auto; }
-.grok-bot-unit { color: var(--p-fg2); margin-right: 6px; }
+.grok-bot-links { display: flex; flex-wrap: wrap; gap: 4px 14px; }
 .grok-bot-card[data-state='stale'] .grok-bot-status,
 .grok-bot-card[data-state='expired'] .grok-bot-status,
 .grok-bot-card[data-state='reset'] .grok-bot-status { color: var(--p-danger); }

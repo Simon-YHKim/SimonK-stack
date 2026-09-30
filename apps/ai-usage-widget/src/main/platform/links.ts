@@ -12,7 +12,10 @@ import type { ExternalLinkKey } from '../../shared/ipc';
  * - antigravity: Google "Getting Started" CLI tab (`/docs/cli/` redirects here), lists
  *   `irm https://antigravity.google/cli/install.ps1 | iex`; the query selects that tab.
  * - grok-bot-usage (26.09.30): Cursor's Spending tab, linked from cursor.com/help/account-and-billing/spend-limits.
- *   It shows on-demand charges and the Monthly Limit; the Grok Bot weekly meter itself is only in the Grok Bot app.
+ *   It shows on-demand charges and the Monthly Limit set for Grok Bot's on-demand usage.
+ * - grok-usage (26.09.30): grok.com Settings → Usage, the address the user's own browser showed. It lists the
+ *   SuperGrok weekly limit (what the Grok card reads through the CLI) and, separately, "Weekly Grok Bot Limit"
+ *   with its exact reset time.
  */
 export const EXTERNAL_LINKS: Readonly<Partial<Record<ExternalLinkKey, string>>> = Object.freeze({
   'claude-cli-install': 'https://code.claude.com/docs/en/setup',
@@ -20,6 +23,7 @@ export const EXTERNAL_LINKS: Readonly<Partial<Record<ExternalLinkKey, string>>> 
   'codex-usage': 'https://chatgpt.com/codex/settings/usage',
   'grok-cli-install': 'https://docs.x.ai/build/overview',
   'grok-bot-usage': 'https://cursor.com/dashboard/spending',
+  'grok-usage': 'https://grok.com/?_s=usage',
   'antigravity-cli-install': 'https://antigravity.google/docs/getting-started?tab=cli',
 });
 
@@ -30,5 +34,6 @@ export const EXTERNAL_LINK_HOSTS: Readonly<Record<ExternalLinkKey, readonly stri
   'codex-usage': ['chatgpt.com'],
   'grok-cli-install': ['docs.x.ai'],
   'grok-bot-usage': ['cursor.com'],
+  'grok-usage': ['grok.com'],
   'antigravity-cli-install': ['antigravity.google'],
 });

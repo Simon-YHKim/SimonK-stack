@@ -5,8 +5,8 @@ import type { Settings } from './settings';
 export const GROK_BOT_STALE_MS = 24 * 60 * 60 * 1000;
 export const GROK_BOT_EXPIRE_MS = 7 * GROK_BOT_STALE_MS;
 /**
- * A weekly window never resets more than a week ahead; one extra day absorbs a countdown
- * transcribed as whole days. Later values are ignored rather than trusted.
+ * A weekly window never resets more than a week ahead; one extra day of slack covers clock and
+ * time-zone slips in a hand-entered time. Later values are ignored rather than trusted.
  */
 export const GROK_BOT_MAX_RESET_AHEAD_MS = 8 * GROK_BOT_STALE_MS;
 
@@ -82,11 +82,18 @@ export function grokBotOnDemand(settings: Partial<Pick<GrokBotFields, 'grokBotOn
 }
 
 /**
- * The weekly included usage is used up. Per Cursor's plan page, usage then draws on credits and
- * then on paid on-demand usage when it is enabled, so the card says so instead of implying a stop.
+ * The weekly limit is used up. grok.com then offers extra credits ("Buy extra credits to continue",
+ * user screen 26.09.30) and Cursor bills on-demand usage only when a monthly limit is set.
  */
 export function grokBotWeeklyExhausted(reading: GrokBotReading): boolean {
   return (reading.state === 'fresh' || reading.state === 'stale') && reading.usedPercent >= 100;
+}
+
+/** What happens after the weekly limit, as far as the entered on-demand limit tells: 0 = the app's "none". */
+export function grokBotSpillKey(onDemandLimitCents: number | null): MessageKey {
+  if (onDemandLimitCents === 0) return 'grokBotSpillStop';
+  if (onDemandLimitCents !== null) return 'grokBotSpillOnDemand';
+  return 'grokBotSpill';
 }
 
 /** `$12.30`. Cents are integers, so no floating-point rounding reaches the UI. */

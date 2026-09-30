@@ -119,9 +119,9 @@ v1 키(SPEC §1-2) 중 의미가 남은 것 + v2 추가. mock 관련 키는 없�
 | `language` | `auto` | `auto`,`ko`,`en` | `auto`: OS 로케일이 `ko*`면 ko, 아니면 en |
 | `grokBotUsedPercent` | null | null 또는 정수 0~100 | 별도 Grok Bot 주간 사용률의 수동 기록. xAI Grok CLI 값과 구분(26.09.30 결정) |
 | `grokBotRecordedAt` | null | null 또는 epoch ms | 사용자 기록 시 main이 채운다. 렌더러의 직접 변경은 거부 |
-| `grokBotResetAt` | null | null 또는 epoch ms | 앱의 Weekly usage 카운트다운을 사용자가 "N일 N시간"으로 옮긴 다음 주간 리셋 시각(선택). main은 지금−1분~지금+8일 밖을 거부. 사용률만 새로 기록할 때 이미 지난 리셋은 지우고, 사용률을 지우면 함께 지운다. 기록 시각 이후·8일 이내일 때만 유효하며 지나면 카드가 `reset` 상태(숫자 숨김·재입력 안내) (26.09.30) |
+| `grokBotResetAt` | null | null 또는 epoch ms | grok.com Usage "Weekly Grok Bot Limit"의 `Resets …` 일시를 사용자가 `datetime-local`(로컬 시각)로 옮긴 다음 주간 리셋 시각(선택, 앱의 "N일 후"는 일 단위 올림이라 쓰지 않음, 26.09.30 사용자 화면 확인). main은 지금−1분~지금+8일 밖을 거부. 사용률만 새로 기록할 때 이미 지난 리셋은 지우고, 사용률을 지우면 함께 지운다. 기록 시각 이후·8일 이내일 때만 유효하며 지나면 카드가 `reset` 상태(숫자 숨김·재입력 안내) (26.09.30) |
 | `grokBotOnDemandSpentCents` | null | null 또는 정수 0~100,000,000 | Cursor가 청구하는 Grok Bot On-demand 사용액(센트, 선택). Spending 화면 또는 앱의 On-demand usage 값 |
-| `grokBotOnDemandLimitCents` | null | null 또는 정수 0~100,000,000 | Cursor Spending의 Monthly Limit(센트, 선택) |
+| `grokBotOnDemandLimitCents` | null | null 또는 정수 0~100,000,000 | Grok Bot On-demand 월 한도(센트, 선택). 앱의 "없음" = 0 → 주간 한도 도달 시 "리셋까지 멈춤", 0보다 크면 "추가 크레딧 → On-demand 청구", null이면 둘 다 가능하다고 표시(`grokBotSpillKey`) |
 
 - `parseSettingsPatch(input)`: 알 수 없는 키·잘못된 값이 하나라도 있으면 전체 거부. 빈 patch도 거부.
 - `normalizeSettings(raw)`: 디스크 값 로드용. 기본값에서 시작해 유효한 키만 덮는다. 절대 throw하지 않는다.
@@ -168,7 +168,7 @@ v1 키(SPEC §1-2) 중 의미가 남은 것 + v2 추가. mock 관련 키는 없�
 - `IpcErrorCode`: `invalid-request` `forbidden-sender` `not-found` `conflict` `busy` `not-implemented` `internal`.
 - 뷰 제한(`ipc/handlers.ts`): 상태를 바꾸는 채널(`settings:update`, `accounts:add·remove·rename·toggle·reorder`, `login:*`, `shell:open-external`, `window:hide-popup·set-popup-lock·preview-placement`, `cli:redetect`, `claude-bridge:install-default·uninstall-default`)은 팝업 뷰만, `window:resize-widget`은 위젯 뷰만 허용. 나머지(상태 읽기·새로고침·팝업 열기·브리지 상태)는 두 뷰 모두(DECISIONS 26.09.15 04:49).
 - 발신자 검증(`ipc/dispatch.ts`): 최상위 프레임 URL이 `app://bundle/…`(개발 시 dev server origin)일 때만 처리한다. 하위 프레임은 거부.
-- `EXTERNAL_LINK_KEYS`(`claude-cli-install` `codex-cli-install` `grok-cli-install` `antigravity-cli-install`)의 실제 URL 표는 셸이 main에 두며(`src/main/platform/links.ts`), 공식 문서에서 확인한 https 주소만 넣는다. 세 키 모두 확정(DECISIONS 26.09.19 11:20). 같은 파일의 `EXTERNAL_LINK_HOSTS`가 키별 허용 호스트이고 `links.test.ts`가 https·호스트·자격증명/포트/프래그먼트 없음을 강제한다(antigravity 주소는 CLI 탭을 고르는 쿼리를 쓴다). 표에 없는 키는 `not-found`.
+- `EXTERNAL_LINK_KEYS`(설치 안내 `claude-cli-install` `codex-cli-install` `grok-cli-install` `antigravity-cli-install`, 사용량 화면 `codex-usage` `grok-bot-usage`(Cursor Spending) `grok-usage`(grok.com Settings → Usage, 26.09.30 사용자 화면의 주소))의 실제 URL 표는 셸이 main에 두며(`src/main/platform/links.ts`), 공식 문서나 사용자 화면에서 확인한 https 주소만 넣는다. 설치 안내 키는 DECISIONS 26.09.19 11:20에 확정. 같은 파일의 `EXTERNAL_LINK_HOSTS`가 키별 허용 호스트이고 `links.test.ts`가 https·호스트·자격증명/포트/프래그먼트 없음을 강제한다(antigravity 주소는 CLI 탭을 고르는 쿼리를 쓴다). 표에 없는 키는 `not-found`.
 
 ### 5-4. `src/shared/i18n/`
 - `ko.ts`가 키 집합의 원본, `en.ts`는 `Record<keyof typeof ko, string>`이라 키가 어긋나면 typecheck가 실패한다. 테스트가 키 집합·자리표시자 일치·빈 문구 0건을 확인한다.
