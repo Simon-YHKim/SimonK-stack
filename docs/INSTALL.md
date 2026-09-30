@@ -4264,6 +4264,36 @@ Gstack 실행·청구 경로·사용자 설치는 미검증으로
 `runtime_closure_verified=false`, `host_compatibility_verified=false`,
 `installation_ready=false`를 유지한다.
 
+## PR #69 크레딧 누락 차단 후보 (2026-10-01)
+
+실제 Codex 계정의 읽기 전용 한도 메타데이터에서 사용 가능한 구매 크레딧이
+관측됐다. 실제 청구가 발생했다는 뜻은 아니다. 구독 포함 사용량 소진 뒤
+기존 크레딧이 사용될 수 있으므로 모델 실호출은 보류한다. 코드 검토 중에는
+`credits` 필드가 완전히 빠진 계획·최종 CLI 관측값을 안전하다고 통과시키는
+별도 결손도 찾았다. 누락·빈 버킷 회귀 테스트가 수정 전 실패했고, 지금은
+크레딧 상태가 하나도 확인되지 않으면 `PAID_CREDIT_EXPOSURE`로 차단한다.
+
+새 후보 `E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr69-missing-credit-guard-candidate/`
+는 고정된 다섯 원본 커밋을 LF 줄바꿈의 별도 로컬 복제본에서 읽었다.
+원본 저장소와 기존 후보·사용자 홈은 변경하지 않았다. 네 영수증의 바이트
+검증과 오프라인 probe 4/4가 통과했다.
+
+| 산출물 | 전체 digest | 검증 범위 |
+|---|---|---|
+| `source` | `6750801afdddfa9d5b74a02b4644b8eb1968dabd62dd92933168d7722f305e64` | 137스킬·423파일 |
+| `candidate-safety` | `0091dda445f6a753a5366d855ef6eb941828082f56787e7b150f4a3b371a8ad7` | Claude 5플러그인·182스킬 |
+| `codex-overlay-safety` | `9bc995533c9acfd6b9dff83c88b2f6dc3b2d39c095636b5fff69eec37768637c` | Codex 호환 투영 |
+| `codex-subset-safety` | `80e2c7e2cc201d725045399612f9947f959fc8a6e7cc9ba833b3557154b22fc1` | Codex 177스킬·출처 검증 |
+
+`/vibe` 단위 테스트 327건, 자체 점검 180항목, Bot 자체 점검 93항목,
+스킬 품질 141/141이 통과했다. 이 정확한 새 후보의 Windows Sandbox
+호스트 적재·복원은 아직 재실행하지 않았다. 이전 후보의 호스트 리허설을
+새 후보의 증거로 대체하지 않는다. 실제 모델·이미지·Bot 호출, 계정의
+크레딧 폴백 차단, 자동 선택 품질, 사용자 설치와 과금 검증도 미완이며
+`installation_ready=false`, `host_compatibility_verified=false`,
+`runtime_closure_verified=false`를 유지한다. PR #68·#69의 독립 리뷰·
+별도 심판 D-code 역시 아직 없어 `main` 머지 근거가 아니다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,

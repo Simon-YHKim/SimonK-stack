@@ -36,6 +36,9 @@ def candidate(name="small", surface="codex", **changes):
                     "account_ref": "test-account"},
         "quota": {"used_pct": 10, "observed_at": NOW, "bucket": "test-weekly"},
     }
+    if surface == "codex":
+        item["billing"]["credits"] = {"has_credits": False, "unlimited": False,
+                                       "balance": "0"}
     item.update(changes)
     if surface in {"grok", "grok-bot"} and "quota" not in changes:
         item["quota"].update({"surface": surface, "transport": item["transport"],
@@ -312,6 +315,14 @@ class OrchestrationTests(unittest.TestCase):
                     self.assertIn("PAID_CREDIT_FALLBACK_UNVERIFIED", str(plan))
 
     def test_codex_positive_or_unknown_purchased_credits_block_claimed_zero_spend(self):
+        missing = dict(candidate()["billing"])
+        missing.pop("credits")
+        for buckets in ({}, {"codex": {}}):
+            with self.subTest(buckets=buckets):
+                billing = dict(missing, buckets=buckets)
+                plan = self.plan(candidates=[candidate(billing=billing)])
+                self.assertEqual(plan["status"], "blocked")
+                self.assertIn("PAID_CREDIT_EXPOSURE", str(plan))
         for credits in (None,
                         {"has_credits": True, "balance": "3.25"},
                         {"has_credits": True, "balance": None},

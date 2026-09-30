@@ -131,7 +131,7 @@ class CodexCliAdapterTests(unittest.TestCase):
         self.assertEqual(self.cli.sends, [])
 
     def test_fresh_account_purchased_credits_block_even_with_zero_spend_certificate(self):
-        for billing_change in ({"credits": None},
+        for billing_change in ({}, {"credits": None},
                                {"credits": {"has_credits": True, "unlimited": False,
                                             "balance": "3.25"}},
                                {"buckets": {"codex": {"credits": {
