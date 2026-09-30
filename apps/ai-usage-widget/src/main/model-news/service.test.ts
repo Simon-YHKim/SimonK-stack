@@ -124,16 +124,21 @@ describe('model news service', () => {
           return body === undefined ? Promise.reject(new Error('timeout')) : Promise.resolve(body);
         } });
       service.start();
-      await vi.waitFor(() => expect(reports).toHaveLength(1));
+      // checkNow() hands back the check start() began; it settles only after the save (real file
+      // I/O) and the retry scheduling, so the fake clock is never moved before the timer exists.
+      await service.checkNow();
+      expect(reports).toHaveLength(1);
       expect(reports[0]?.failing).toHaveLength(1);
       pages.set(MODEL_CATALOGS.antigravity, basePages.get(MODEL_CATALOGS.antigravity)!);
       await vi.advanceTimersByTimeAsync(RETRY_AFTER_FAILURE_MS - 1_000);
       expect(catalogFetches).toBe(1);
       await vi.advanceTimersByTimeAsync(1_000);
-      await vi.waitFor(() => expect(reports).toHaveLength(2));
+      // The retry started a new check. Poll in real time (calling checkNow() here could start a
+      // third check if the retry already finished); generous timeout for a loaded machine.
+      await vi.waitFor(() => expect(reports).toHaveLength(2), { timeout: 10_000 });
       expect(catalogFetches).toBe(2);
       expect(reports[1]?.failing).toEqual([]);
-      // A clean check schedules no further early retry.
+      // A clean check schedules no further early retry (the 6 h interval is still far away).
       await vi.advanceTimersByTimeAsync(RETRY_AFTER_FAILURE_MS * 2);
       expect(reports).toHaveLength(2);
       service.stop();
