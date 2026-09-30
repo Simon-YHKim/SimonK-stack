@@ -60,6 +60,7 @@ export const ko = {
   grokBotOnDemand: 'On-demand {spent} / 월 한도 {limit} · Cursor 청구',
   grokBotOnDemandSpentOnly: 'On-demand {spent} · Cursor 청구',
   grokBotOnDemandLimitOnly: 'On-demand 월 한도 {limit}',
+  grokBotLimitNone: '없음',
   grokBotSpill: '주간 한도 도달 · 추가 크레딧이나 On-demand 한도가 없으면 리셋까지 멈춤',
   grokBotSpillStop: '주간 한도 도달 · On-demand 한도 없음이라 리셋까지 멈춤(grok.com에서 추가 크레딧을 사면 계속)',
   grokBotSpillOnDemand: '주간 한도 도달 · 이후 사용은 추가 크레딧, 그다음 On-demand로 Cursor에 청구될 수 있음',

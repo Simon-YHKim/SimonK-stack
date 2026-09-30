@@ -59,6 +59,7 @@ export const en: Record<keyof typeof ko, string> = {
   grokBotOnDemand: 'On-demand {spent} / monthly limit {limit} · billed by Cursor',
   grokBotOnDemandSpentOnly: 'On-demand {spent} · billed by Cursor',
   grokBotOnDemandLimitOnly: 'On-demand monthly limit {limit}',
+  grokBotLimitNone: 'none',
   grokBotSpill: 'Weekly limit reached · without extra credits or an on-demand limit it stops until the reset',
   grokBotSpillStop: 'Weekly limit reached · no on-demand limit, so it stops until the reset (buying extra credits on grok.com continues it)',
   grokBotSpillOnDemand: 'Weekly limit reached · further use draws on extra credits, then on-demand usage billed by Cursor',

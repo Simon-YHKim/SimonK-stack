@@ -217,12 +217,14 @@ export class GrokBotCard {
     let onDemandText = '';
     if (onDemand !== null) {
       const { spentCents, limitCents } = onDemand;
-      if (spentCents !== null && limitCents !== null) {
-        onDemandText = t('grokBotOnDemand', { spent: formatUsdCents(spentCents), limit: formatUsdCents(limitCents) });
+      // 0 is the app's "none", shown with the app's word rather than as $0.00.
+      const limit = limitCents === 0 ? t('grokBotLimitNone') : limitCents === null ? null : formatUsdCents(limitCents);
+      if (spentCents !== null && limit !== null) {
+        onDemandText = t('grokBotOnDemand', { spent: formatUsdCents(spentCents), limit });
       } else if (spentCents !== null) {
         onDemandText = t('grokBotOnDemandSpentOnly', { spent: formatUsdCents(spentCents) });
-      } else if (limitCents !== null) {
-        onDemandText = t('grokBotOnDemandLimitOnly', { limit: formatUsdCents(limitCents) });
+      } else if (limit !== null) {
+        onDemandText = t('grokBotOnDemandLimitOnly', { limit });
       }
     }
     setText(this.onDemandLine, onDemandText);

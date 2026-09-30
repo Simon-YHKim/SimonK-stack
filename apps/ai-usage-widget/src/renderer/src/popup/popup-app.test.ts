@@ -175,6 +175,7 @@ describe('Usage tab', () => {
       // The app's on-demand limit "none" (0): the week stops at the limit instead of billing.
       app.update(appState({ settings: { grokBotUsedPercent: 100, grokBotRecordedAt: NOW, grokBotOnDemandLimitCents: 0 } }));
       expect(card.querySelector('.grok-bot-spill')?.textContent).toBe(en.grokBotSpillStop);
+      expect(card.querySelector('.grok-bot-ondemand')?.textContent).toBe('On-demand monthly limit none');
     } finally {
       vi.useRealTimers();
     }
