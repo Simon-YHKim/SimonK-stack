@@ -21,7 +21,7 @@ DEFAULT_STEPS = (
     ("vibe-selftest", (sys.executable, "-B", "selftest.py"), SCRIPT_DIR),
     ("vibe-runtime-unit", (sys.executable, "-B", "-m", "unittest", "test_runtime_collect",
                             "test_run_state", "test_execute_orca", "test_model_registry",
-                            "test_orchestrate", "-q"), SCRIPT_DIR),
+                            "test_orchestrate", "test_model_watch", "-q"), SCRIPT_DIR),
     ("vibe-prepare-unit", (sys.executable, "-B", "-m", "unittest", "discover", "-s",
                             "tests", "-p", "test_prepare*.py", "-q"), SCRIPT_DIR),
     ("vibe-table-sync", (sys.executable, "-B", "sync_skill_table.py", "--check"), SCRIPT_DIR),

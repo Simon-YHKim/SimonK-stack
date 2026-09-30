@@ -23,12 +23,33 @@ source check when `/vibe` is invoked. It uses no LLM, Bot, payment or API key.
 Its state is `%LOCALAPPDATA%/SimonK/vibe/model-watch.json`; first run is a
 baseline, not retroactive discovery. The state and stdout report record changed
 pages and newly linked/headlined model mentions as `official_unreviewed` only.
+The scan report includes `candidate_details` with each new title, provider,
+official URL and status; `status` includes details for all tracked candidates.
+CLI invocations lock the state across read/scan/write (up to 120 seconds), so
+overlapping scheduler and manual runs cannot overwrite each other's evidence.
 `status` includes the last scheduled scan report, including source fetch errors.
+Source or public-feedback fetch errors make the scheduler command exit nonzero;
+the next invocation retries. Public Reddit captures are limited to 128 pending
+posts per candidate; reviewed observations remain in `feedback` after capture
+pruning. Public links longer than 2048 characters are ignored/rejected.
 HTML changes without a detected model mention still appear in `changed_sources`
 for coordinator inspection. Fetch/parse failures remain errors, not a claim of
 "no updates". A page can change without an actual model release; releases in
 scripts or inaccessible markup can be missed. Check official release notes
 directly before drawing conclusions.
+For RSS sources, a dated article is a candidate only when it was published
+since the preceding check (with a two-day feed-delay
+allowance). Old articles that reappear in a changing full-history feed, and
+undated items, remain in the source snapshot but do not become new-release
+candidates. A recent article already present in the initial baseline is admitted
+on the next scan, preventing a just-launched model from being silently missed.
+A manual official-page check is still needed for ambiguous items.
+After checking an older article, non-release case study or duplicate alias,
+`dismiss-candidate --key K --reason historical_article|not_release|duplicate_alias`
+removes that unreviewed candidate from the pending-scan trigger without deleting
+its title, URL or discovery time. `reopen-candidate --key K` reverses the status
+and retains the full dismissal history. Neither command may change a
+confirmed release or route; preserve a separate state backup before bulk triage.
 
 On every `/vibe` invocation, run `scan --force` and `status` before changing a
 model route. If the network is unavailable, retain the last verified routing
@@ -44,16 +65,35 @@ and exact model/effort control. An announcement, preview or rollout promise is
 not general availability. Only after this check call `confirm-release --key K
 --url OFFICIAL_URL`. The watch starts its **prospective** window at that
 confirmation time; backdating is forbidden.
+Equivalent same-host official URLs with trailing slash, query or fragment are
+accepted after canonicalizing both stored and supplied URLs; a different host
+or insecure scheme is not. This also applies when a heading-only candidate
+points to an official listing page ending in `/`.
 
 Across at least 24 hours, inspect public user reports (X when publicly
 accessible, otherwise accessible public forums such as Reddit or Hacker News).
 The daily pending scan also searches public Reddit Atom posts for the exact
 candidate model name and stores matching post links as **unreviewed captures**.
+Hyphen and space spellings such as `GPT-4o-mini` / `GPT-4o mini`, optional
+`GPT` separators and the optional `Claude` family prefix are treated as the
+same model. Hyphenated suffixes and dotted version segments remain part of the
+model label, so base-model posts do not count for a distinct variant.
+Unknown slash or dotted text suffixes are not silently treated as the base
+model; they require manual inspection before counting as feedback. Reviewed
+post URLs stay deduplicated through subsequent scans even after capture pruning;
+schema-v1 default-port and trailing-dot URL aliases do not become separate
+observations for the 24-hour review gate. Legacy captured Reddit URLs are not
+re-captured and retain their original observation time when reviewed. Official
+links with an explicit default port are not rediscovered as new releases.
+If aliases were already stored as multiple captures, reviewing one canonical
+URL retains the earliest observation and marks all matching captures reviewed.
 It does not read them as a verdict or auto-grade sentiment. Inspect the post
 before calling `add-feedback --key K --url URL --sentiment LABEL`; for a captured
 post the first observation timestamp is retained, while an uncaptured public
-URL gets the command's current time. Keep
-the original date, task, model and effort in the coordinator's evidence notes;
+URL gets the command's current time. Feedback URLs must be public HTTPS names;
+local, intranet, internal and IP
+addresses are rejected. This is a syntax guard, not a DNS or network sandbox.
+Keep the original date, task, model and effort in the coordinator's evidence notes;
 the watch state alone cannot authenticate a post or detect astroturfing.
 Do not bypass login, CAPTCHA or paid X API access. Two distinct observations
 at least 20 hours apart and 24 hours after official confirmation are the
