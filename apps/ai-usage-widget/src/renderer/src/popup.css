@@ -293,6 +293,7 @@
 .grok-bot-save { padding: 6px 12px; border: 1px solid var(--p-border); border-radius: 5px; background: var(--p-surface-2); color: var(--p-fg); cursor: pointer; }
 .grok-bot-input:focus-visible, .grok-bot-save:focus-visible, .grok-bot-more-summary:focus-visible { outline: 2px solid var(--p-accent); outline-offset: 2px; }
 .grok-bot-line { margin: 0; font-size: 12px; font-variant-numeric: tabular-nums; }
+.model-news-status.is-warning { color: var(--p-danger); }
 .grok-bot-spill { color: var(--p-danger); }
 .grok-bot-more { font-size: 11px; }
 .grok-bot-more-summary { cursor: pointer; color: var(--p-fg2); padding: 2px 0; }

@@ -89,6 +89,21 @@ describe('PopupApp shell', () => {
     expect(app.getActiveTab()).toBe('usage');
   });
 
+  it('settings tab states when model alerts were last checked and names sources that could not be read', () => {
+    const { root, app } = setup(appState());
+    const status = root.querySelector('.model-news-status') as HTMLElement;
+    expect(status.textContent).toBe(en.modelNewsNever);
+    app.update(appState({ modelNewsHealth: { checkedAt: NOW, sources: 8, failing: [] } }));
+    expect(status.textContent).toContain('all 8 official sources read');
+    expect(status.classList.contains('is-warning')).toBe(false);
+    app.update(appState({ modelNewsHealth: { checkedAt: NOW, sources: 8, failing: [
+      { provider: 'antigravity', kind: 'catalog', since: NOW, count: 3 },
+      { provider: 'codex', kind: 'news', since: NOW, count: 1 },
+    ] } }));
+    expect(status.textContent).toContain('could not read: Antigravity model list, Codex announcements');
+    expect(status.classList.contains('is-warning')).toBe(true);
+  });
+
   it('header badge counts enabled accounts; locale follows explicit language', () => {
     const state = appState({
       accounts: [account({ id: 'a1' }), account({ id: 'a2', enabled: false })],

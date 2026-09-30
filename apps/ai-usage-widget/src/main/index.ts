@@ -209,6 +209,9 @@ async function start(args: LaunchArgs, isolated: boolean, devServerUrl: string |
     onChange: (notices) => {
       controller.setModelNotices(notices);
     },
+    onHealth: (health) => {
+      controller.setModelNewsHealth(health);
+    },
   });
   controller.setEffectivePlacementMode(initialMode);
   const unsubscribeTheme = theme.onChange((tokens) => controller.onThemeChanged(tokens));

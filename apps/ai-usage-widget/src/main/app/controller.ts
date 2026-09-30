@@ -27,6 +27,7 @@ import {
   type ErrorCode,
   type Locale,
   type LoginState,
+  type ModelNewsHealth,
   type ModelNotice,
   type PopupTab,
   type ProviderId,
@@ -160,6 +161,7 @@ export function createAppController(deps: AppControllerDeps) {
   const detecting = new Set<ProviderId>();
   let effectivePlacementMode: PlacementMode | null = null;
   let modelNotices: ModelNotice[] = [];
+  let modelNewsHealth: ModelNewsHealth = { checkedAt: null, sources: 0, failing: [] };
   let broadcastPending = false;
   let stopped = false;
   /** Set by stop() and never cleared: a start() still awaiting must not revive the scheduler. */
@@ -218,6 +220,7 @@ export function createAppController(deps: AppControllerDeps) {
       theme: { ...theme },
       cli: { claude: cliDto('claude'), codex: cliDto('codex'), grok: cliDto('grok'), antigravity: cliDto('antigravity') },
       modelNotices: modelNotices.map((notice) => ({ ...notice })),
+      modelNewsHealth: { ...modelNewsHealth, failing: modelNewsHealth.failing.map((entry) => ({ ...entry })) },
       effectivePlacementMode,
     };
   };
@@ -519,6 +522,10 @@ export function createAppController(deps: AppControllerDeps) {
     snapshot,
     setModelNotices(notices: ModelNotice[]): void {
       modelNotices = notices.map((notice) => ({ ...notice }));
+      scheduleBroadcast();
+    },
+    setModelNewsHealth(health: ModelNewsHealth): void {
+      modelNewsHealth = { ...health, failing: health.failing.map((entry) => ({ ...entry })) };
       scheduleBroadcast();
     },
     async openModelNotice(provider: ProviderId): Promise<void> {

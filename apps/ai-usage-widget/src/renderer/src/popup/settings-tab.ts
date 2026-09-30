@@ -1,6 +1,7 @@
 import {
   LANGUAGE_KEYS,
   MATERIAL_KEYS,
+  PROVIDER_NAME_KEYS,
   REFRESH_INTERVAL_KEYS,
   THEME_KEYS,
   type MessageKey,
@@ -22,7 +23,7 @@ import {
   type Settings,
 } from '../../../shared/settings';
 import type { PlacementPreview } from '../../../shared/ipc';
-import { PROVIDER_TRAITS } from '../../../shared/types';
+import { PROVIDER_TRAITS, type ModelNewsHealth } from '../../../shared/types';
 import { ipcErrorCode, describeError, type Api } from '../api';
 import { h, setAttr, setText, uniqueId } from '../dom';
 import type { RenderContext } from '../model';
@@ -58,6 +59,7 @@ export class SettingsTab {
   private settings: Settings | null = null;
   private ctx: RenderContext | null = null;
   private effectiveMode: PlacementMode | null = null;
+  private readonly modelNewsStatus: HTMLElement;
 
   constructor(private readonly deps: SettingsTabDeps) {
     this.el = h('div', { class: 'settings-tab' });
@@ -98,13 +100,37 @@ export class SettingsTab {
     });
     this.addSelect('language', LANGUAGES, (v) => LANGUAGE_KEYS[v], 'languageLabel');
     this.addSwitch('openAtLogin', 'launchAtLogin');
+    this.modelNewsStatus = h('p', { class: 'form-hint model-news-status', role: 'status' });
+    this.group('modelNewsLabel', [this.modelNewsStatus]);
   }
 
-  update(settings: Settings, ctx: RenderContext, effectiveMode: PlacementMode | null = null): void {
+  update(settings: Settings, ctx: RenderContext, effectiveMode: PlacementMode | null = null, modelNewsHealth?: ModelNewsHealth): void {
     this.settings = settings;
     this.ctx = ctx;
     this.effectiveMode = effectiveMode;
     for (const run of this.updaters) run(settings, ctx, effectiveMode);
+    if (modelNewsHealth !== undefined) this.renderModelNews(modelNewsHealth, ctx);
+  }
+
+  /** Last model-news check and any source that could not be read (e.g. a changed page layout). */
+  private renderModelNews(health: ModelNewsHealth, ctx: RenderContext): void {
+    const { t } = ctx;
+    this.modelNewsStatus.classList.toggle('is-warning', health.failing.length > 0);
+    if (health.checkedAt === null) {
+      setText(this.modelNewsStatus, t('modelNewsNever'));
+      return;
+    }
+    const time = new Date(health.checkedAt).toLocaleString(ctx.locale === 'ko' ? 'ko-KR' : 'en-US', {
+      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+    });
+    if (health.failing.length === 0) {
+      setText(this.modelNewsStatus, t('modelNewsOk', { time, count: health.sources }));
+      return;
+    }
+    const sources = health.failing
+      .map((entry) => t(entry.kind === 'catalog' ? 'modelNewsSourceCatalog' : 'modelNewsSourceNews', { provider: t(PROVIDER_NAME_KEYS[entry.provider]) }))
+      .join(', ');
+    setText(this.modelNewsStatus, t('modelNewsFailing', { time, sources }));
   }
 
   private revert(): void {

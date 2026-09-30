@@ -277,6 +277,6 @@ export class PopupApp {
 
     this.usage.update(views, ctx, state.settings);
     this.accounts.update(state, ctx);
-    this.settings.update(state.settings, ctx, state.effectivePlacementMode);
+    this.settings.update(state.settings, ctx, state.effectivePlacementMode, state.modelNewsHealth);
   }
 }

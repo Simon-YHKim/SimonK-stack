@@ -74,4 +74,36 @@ describe('model news service', () => {
     expect(service.current()).toEqual([]);
     service.stop();
   });
+
+  it('reports each check and which sources failed, counting repeats and clearing on recovery', async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'aiuw-model-news-'));
+    dirs.push(dir);
+    const pages = new Map(basePages);
+    // A page whose layout changed: fetched fine, but no model IDs match any more.
+    pages.set(MODEL_CATALOGS.antigravity, '<main>redesigned</main>');
+    let clock = Date.UTC(2026, 8, 30, 1);
+    const reports: { checkedAt: number | null; sources: number; failing: { provider: string; kind: string; since: number; count: number }[] }[] = [];
+    const service = await createModelNewsService({ userData: dir, logger: createLogger({ sinks: [] }), onChange: () => {},
+      onHealth: (health) => reports.push(health), now: () => clock,
+      fetchText: (url) => { const body = pages.get(url); return body === undefined ? Promise.reject(new Error('offline')) : Promise.resolve(body); } });
+    expect(service.health()).toEqual({ checkedAt: null, sources: 8, failing: [] });
+
+    await service.checkNow();
+    expect(reports.at(-1)).toEqual({ checkedAt: clock, sources: 8, failing: [{ provider: 'antigravity', kind: 'catalog', since: clock, count: 1 }] });
+    const firstFailure = clock;
+    clock += 6 * 3_600_000;
+    pages.delete('https://openai.com/news/rss.xml');
+    await service.checkNow();
+    expect(reports.at(-1)?.failing).toEqual([
+      { provider: 'antigravity', kind: 'catalog', since: firstFailure, count: 2 },
+      { provider: 'codex', kind: 'news', since: clock, count: 1 },
+    ]);
+
+    clock += 6 * 3_600_000;
+    pages.set(MODEL_CATALOGS.antigravity, basePages.get(MODEL_CATALOGS.antigravity)!);
+    pages.set('https://openai.com/news/rss.xml', basePages.get('https://openai.com/news/rss.xml')!);
+    await service.checkNow();
+    expect(reports.at(-1)).toEqual({ checkedAt: clock, sources: 8, failing: [] });
+    service.stop();
+  });
 });

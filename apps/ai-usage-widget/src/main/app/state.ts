@@ -24,5 +24,6 @@ export function createInitialSnapshot(input: InitialSnapshotInput): AppStateSnap
     },
     effectivePlacementMode: null,
     modelNotices: [],
+    modelNewsHealth: { checkedAt: null, sources: 0, failing: [] },
   };
 }

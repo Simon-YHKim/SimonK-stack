@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { PROVIDER_IDS, isProviderId, type ProviderId } from '../../shared/types';
-import type { ModelNotice } from '../../shared/types';
+import type { ModelNewsHealth, ModelNewsSourceKind, ModelNotice } from '../../shared/types';
 import type { Logger } from '../log';
 import { readJsonWithBackup, writeFileAtomic } from '../store/atomic';
 import { anthropicNewsUrls, classifyAnnouncement, rssItems, xaiReleaseItems } from './announcement';
@@ -65,6 +65,8 @@ export interface ModelNewsOptions {
   userData: string;
   logger: Logger;
   onChange(notices: ModelNotice[]): void;
+  /** After every finished check: when it ran and which sources failed (a page layout change shows up here). */
+  onHealth?(health: ModelNewsHealth): void;
   fetchText?: (url: string) => Promise<string>;
   now?: () => number;
 }
@@ -87,6 +89,22 @@ export async function createModelNewsService(options: ModelNewsOptions) {
   let running: Promise<void> | null = null;
   let saveQueue: Promise<void> = Promise.resolve();
   let stopped = false;
+  /** Failing sources keyed `kind:provider`; cleared by that source's next success. Memory only. */
+  const failing = new Map<string, ModelNewsHealth['failing'][number]>();
+  let checkedAt: number | null = null;
+  const sourceOk = (kind: ModelNewsSourceKind, provider: ProviderId): void => {
+    failing.delete(`${kind}:${provider}`);
+  };
+  const sourceFailed = (kind: ModelNewsSourceKind, provider: ProviderId): void => {
+    const key = `${kind}:${provider}`;
+    const previous = failing.get(key);
+    failing.set(key, { provider, kind, since: previous?.since ?? now(), count: (previous?.count ?? 0) + 1 });
+  };
+  const health = (): ModelNewsHealth => ({
+    checkedAt,
+    sources: PROVIDER_IDS.length + Object.keys(FEEDS).length,
+    failing: [...failing.values()].map((entry) => ({ ...entry })),
+  });
 
   const active = (): ModelNotice[] => PROVIDER_IDS.flatMap((provider) => {
     const latest = state.notices.filter((item) => item.provider === provider)
@@ -124,7 +142,11 @@ export async function createModelNewsService(options: ModelNewsOptions) {
         for (const model of models) if (newIds.includes(model.id)) {
           addNotice({ provider, model: model.id, status: 'released', releaseDate: null, url: model.url });
         }
-      } catch (error) { options.logger.warn('model catalog check failed', { provider, error }); }
+        sourceOk('catalog', provider);
+      } catch (error) {
+        sourceFailed('catalog', provider);
+        options.logger.warn('model catalog check failed', { provider, error });
+      }
     });
     const feeds = (Object.entries(FEEDS) as [keyof typeof FEEDS, string][]).map(async ([provider, url]) => {
       try {
@@ -142,6 +164,8 @@ export async function createModelNewsService(options: ModelNewsOptions) {
               if (announcement !== null) addNotice(announcement);
             } catch (error) { options.logger.warn('model news article failed', { provider, error }); }
           }));
+          // One unreadable article is not a broken source; the sitemap itself was read.
+          sourceOk('news', provider);
           return;
         }
         const items = provider === 'grok' ? xaiReleaseItems(xml) :
@@ -153,10 +177,21 @@ export async function createModelNewsService(options: ModelNewsOptions) {
           const announcement = classifyAnnouncement(provider, item.title, item.description, item.url);
           if (announcement !== null) addNotice(announcement);
         }
-      } catch (error) { options.logger.warn('model announcement check failed', { provider, error }); }
+        sourceOk('news', provider);
+      } catch (error) {
+        sourceFailed('news', provider);
+        options.logger.warn('model announcement check failed', { provider, error });
+      }
     });
     await Promise.all([...jobs, ...feeds]);
-    if (!stopped) await save().catch((error: unknown) => options.logger.warn('model news save failed', { error }));
+    checkedAt = now();
+    if (stopped) return;
+    try {
+      options.onHealth?.(health());
+    } catch (error) {
+      options.logger.warn('model news health listener failed', { error });
+    }
+    await save().catch((error: unknown) => options.logger.warn('model news save failed', { error }));
   };
 
   return {
@@ -177,6 +212,7 @@ export async function createModelNewsService(options: ModelNewsOptions) {
       await save();
     },
     current: active,
+    health,
     stop(): void { stopped = true; if (timer !== null) clearInterval(timer); timer = null; },
   };
 }

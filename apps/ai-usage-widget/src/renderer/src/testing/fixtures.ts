@@ -81,6 +81,7 @@ export function appState(overrides: AppStateOverrides = {}): AppStateSnapshot {
     },
     effectivePlacementMode: null,
     modelNotices: [],
+    modelNewsHealth: { checkedAt: null, sources: 0, failing: [] },
     ...rest,
     settings: { ...DEFAULT_SETTINGS, ...settings },
   };

@@ -263,6 +263,19 @@ export interface ModelNotice {
   observedAt: number;
 }
 
+/** `catalog` = the vendor's model list page, `news` = its announcement feed. */
+export type ModelNewsSourceKind = 'catalog' | 'news';
+
+/** Result of the latest model-news check, so a source that silently stopped parsing is visible. */
+export interface ModelNewsHealth {
+  /** Epoch ms of the last finished check, or null before the first one. */
+  checkedAt: number | null;
+  /** Number of sources each check reads. */
+  sources: number;
+  /** Sources whose latest check failed: first failure time and consecutive failures. */
+  failing: { provider: ProviderId; kind: ModelNewsSourceKind; since: number; count: number }[];
+}
+
 export interface AppStateSnapshot {
   locale: Locale;
   settings: Settings;
@@ -272,6 +285,7 @@ export interface AppStateSnapshot {
   theme: ThemeTokens;
   cli: Record<ProviderId, CliStatusDTO>;
   modelNotices: ModelNotice[];
+  modelNewsHealth: ModelNewsHealth;
   /**
    * Placement actually in use; differs from `settings.placementMode` when docked falls
    * back to floating (side or auto-hide taskbar). null until the widget is placed.
