@@ -134,6 +134,22 @@ class ModelWatchTests(unittest.TestCase):
         self.assertEqual(state["candidates"][second_report["new_candidates"][0]]["title"],
                          "Introducing GPT-7 Sol")
 
+    def test_recent_xai_release_in_initial_baseline_is_caught_without_old_posts(self):
+        self.pages["xai"] = (
+            '<html><a href="/news/grok-4-8">Introducing Grok 4.8 Oct 1, 2026</a>'
+            '<a href="/news/grok-4-7">Introducing Grok 4.7 Sep 21, 2026</a>'
+            '<a href="/news/grok-4-9">Grok 4.9 preview, date unknown</a></html>'
+        )
+        state, first_report = model_watch.scan_state({}, self.fetch, FRIDAY)
+        self.assertEqual(first_report["new_candidates"], [])
+        state, second_report = model_watch.scan_state(state, self.fetch,
+                                                      FRIDAY + timedelta(hours=1), force=True)
+        self.assertEqual(len(second_report["new_candidates"]), 1)
+        candidate = state["candidates"][second_report["new_candidates"][0]]
+        self.assertEqual(candidate["official_url"], "https://x.ai/news/grok-4-8")
+        self.assertEqual(candidate["status"], "official_unreviewed")
+        self.assertFalse(candidate["routing_ready"])
+
     def test_new_model_heading_without_article_link_is_unreviewed(self):
         state, _ = model_watch.scan_state({}, self.fetch, FRIDAY)
         self.pages["google"] += "<h2>Gemini 4 Pro and Gemini 4 Flash</h2>"
