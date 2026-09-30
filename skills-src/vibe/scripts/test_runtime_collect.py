@@ -102,6 +102,28 @@ class RuntimeCollectionTests(unittest.TestCase):
         self.assertEqual(out["billing"]["on_demand_cap"], "0")
         self.assertFalse(out["billing"]["verified"])
 
+    def test_grok_live_display_tier_is_recognized_without_authorizing_dispatch(self):
+        # Grok 1.0.41 ACP returns a spaced tier and a nested config object.
+        for display, normalized in (("SuperGrok Plus", "SuperGrokPlus"),
+                                    ("SuperGrok Heavy", "SuperGrokHeavy")):
+            with self.subTest(display=display):
+                raw = {"subscription_tier": display,
+                       "config": copy.deepcopy(grok_raw()["billing"])}
+                out = self.parse("grok", raw)
+                self.assertEqual(out["auth"]["plan"], normalized)
+                self.assertEqual(out["billing"]["mode"], "subscription")
+                self.assertEqual(out["quota_windows"][0]["used_pct"], 100)
+                self.assertFalse(out["account_verified"])
+                self.assertFalse(out["billing"]["verified"])
+                self.assertIsNone(out["billing"]["extra_usage_enabled"])
+
+    def test_grok_unknown_spaced_tier_stays_unverified(self):
+        raw = {"subscription_tier": "SuperGrok Heavy API",
+               "config": copy.deepcopy(grok_raw()["billing"])}
+        out = self.parse("grok", raw)
+        self.assertIsNone(out["auth"]["plan"])
+        self.assertEqual(out["billing"]["mode"], "unknown")
+
     def test_grok_absent_percent_is_not_assumed_zero(self):
         raw = grok_raw()
         del raw["billing"]["creditUsagePercent"]
