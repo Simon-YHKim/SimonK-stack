@@ -287,7 +287,8 @@ class BotAdapterTests(unittest.TestCase):
         self.assertFalse(result["bot_acceptance_verified"])
 
     def test_inactive_roster_is_rejected_even_with_matching_hash(self):
-        for status in ("ON HOLD", "WITHDRAWN", "to create", "inactive"):
+        for status in ("ON HOLD", "WITHDRAWN", "to create", "inactive",
+                       "active - reported in user-supplied snapshot; live access unverified"):
             with self.subTest(status=status):
                 changed = copy.deepcopy(self.plan)
                 roster = self.bot_root / "bots.json"
@@ -298,7 +299,7 @@ class BotAdapterTests(unittest.TestCase):
                 store.initialize()
                 store.register(changed, now=NOW)
                 proof = {**self.proof, "binding_sha256": self.m.binding_digest(changed, "screen")}
-                with self.assertRaises(StateError):
+                with self.assertRaisesRegex(StateError, "BOT_NOT_ACTIVE"):
                     self.m.Adapter(store, lambda: NOW).dispatch(changed, "screen", proof)
                 self.assertEqual(store.snapshot()["attempts"], [])
 
@@ -414,7 +415,8 @@ class SpecialistPublicationTests(unittest.TestCase):
     sha = staticmethod(BotAdapterTests.sha)
 
     def test_missing_or_held_relay_blocks_specialist_before_claim(self):
-        for status in (None, "ON HOLD", "inactive"):
+        for status in (None, "ON HOLD", "inactive",
+                       "active - reported in user-supplied snapshot; live access unverified"):
             with self.subTest(relay_status=status):
                 bots = [{"id": "analytics", "status": "active"}]
                 if status is not None:

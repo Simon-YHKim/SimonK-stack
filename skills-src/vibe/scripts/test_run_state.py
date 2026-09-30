@@ -208,6 +208,21 @@ class RunStateTests(unittest.TestCase):
         self.assertEqual(self.store.snapshot()["budget"]["held_usd"], "0.3")
         self.assertEqual(self.store.snapshot()["budget"]["known_spent_usd"], "0.1")
 
+    def test_shadow_task_fit_refresh_is_not_new_task_intent(self):
+        self.init()
+        first = plan()
+        first["steps"][0]["shadow_task_fit"] = {"status": "ranked", "suggested_model": "fixture-a"}
+        first["plan_digest"] = orchestrate.digest({k: v for k, v in first.items() if k != "plan_digest"})
+        refreshed = plan(now=LATER)
+        refreshed["steps"][0]["shadow_task_fit"] = {"status": "expired"}
+        refreshed["plan_digest"] = orchestrate.digest({k: v for k, v in refreshed.items() if k != "plan_digest"})
+
+        self.store.register(first, now=NOW)
+        self.store.refresh(refreshed, now=LATER)
+        self.assertEqual(self.store.snapshot()["runs"][0]["plan_digest"], refreshed["plan_digest"])
+        self.assertEqual(self.m.spec_digest(first), self.m.spec_digest(refreshed))
+        self.assertEqual(self.m.task_spec(first["steps"][0]), self.m.task_spec(refreshed["steps"][0]))
+
     def test_refresh_cannot_forget_an_uncertain_dispatch(self):
         self.init()
         self.register_claim()

@@ -199,9 +199,11 @@ class Adapter:
         roster = strict_loads(read_bytes(paths["bot_root"] / "bots.json", binding["roster_sha256"]).decode("utf-8"))
         safe_json(roster)
         matches = [b for b in roster["bots"] if b.get("id") == node["handoff"]["bot_id"]]
-        require(len(matches) == 1 and re.match(r"^active(?:\s|$)", matches[0].get("status", ""), re.I), "BOT_NOT_ACTIVE")
+        require(len(matches) == 1 and isinstance(matches[0].get("status"), str)
+                and matches[0]["status"].strip().lower() == "active", "BOT_NOT_ACTIVE")
         relays = [b for b in roster["bots"] if b.get("id") == "relay"]
-        require(len(relays) == 1 and re.match(r"^active(?:\s|$)", relays[0].get("status", ""), re.I), "RELAY_NOT_ACTIVE")
+        require(len(relays) == 1 and isinstance(relays[0].get("status"), str)
+                and relays[0]["status"].strip().lower() == "active", "RELAY_NOT_ACTIVE")
         module = pinned_builder(paths["bot_root"], binding["helper_sha256"])
         spec, _ = self.payload(plan, node_id)
         require(not module.check_request(node["task"])["blocks"], "BOT_REQUEST_BLOCKED")
