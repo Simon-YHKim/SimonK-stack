@@ -4031,6 +4031,39 @@ Git archive와 SHA-256이 전부 일치했다. 네트워크·클립보드가 차
 PR 독립 코드 리뷰와 `main` 갱신 시 Cloudflare Pages의 운영 자동 배포 여부도
 미확인이다. 운영 배포 확인 전 `main` 머지 판정은 NO-GO다.
 
+## `/vibe` 2.12.24 게시·재계획 보정 후보 (2026-10-01)
+
+독립 PR 검토에서 플래너의 정확한 Bot 상태 검사와 게시 어댑터의 접두어
+검사 불일치를 확인했다. 현재 `vibe-bot/bots.json`의 `active - reported ...
+live access unverified`는 실행 권한이 아닌 과거 스냅샷이며, 이제 Bot·Relay
+양쪽 게시 게이트에서 정확한 `active`만 인정한다. 또 실행을 바꾸지 않는
+`shadow_task_fit` 권고의 만료/순위 변화는 불변 작업 의도와 Orca Task
+본문에서 제외해 정상적인 `Store.refresh`를 허용한다. 두 회귀는 수정 전
+각각 실패했고 수정 후 Bot 38건·`/vibe` 302건·저장소 공통 390건
+(3건 조건부 skip)과 스킬 품질 141/141이 통과했다.
+
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-bot-gate-fix/`의 네
+영수증은 별도 verify 종료 0이다. `source/release.json` =
+`044c466e27a3ae08fd09d6d45a92d29a9b01107ddc1180c746cb80283186598f`,
+`candidate-safety/bundle.json` =
+`410a0e0e7e7d7c206cf227295a410062215f9ae65872cfe104c6c48769851189`,
+`codex-overlay-safety/overlay.json` =
+`728a50460ef59a84a2d251a43956f100e7b8ff40d7425ecab46044f2eb045133`,
+`codex-subset-safety/subset.json` =
+`e24a9dcfa4608d209de7d4725a8fce28e9b190780495001497edcb2c343bfb1a`.
+Claude 182/Codex 177, 공통 스킬 본문 176개·payload 617파일은 바이트가
+같고 일회용 오프라인 probe 네 단계가 통과했다. 정적 경로 누락·비이식
+명령은 각 0건이나 Gstack 외부 런타임은 각각 31·30스킬의
+`external_runtime_pending`으로 남는다.
+
+이 후보는 추적된 working-tree bytes의 snapshot이므로 커밋 연결은 별도
+확인해야 한다. 실제 Bot/Relay 발주, 모델/이미지 생성, 사용자 설치·과금
+검증은 수행하지 않았고 `installation_ready=false`다. 앞 절의 격리 호스트
+적재·롤백은 **이전 후보**의 증거이며, 이 보정 후보의 호스트 적재·복원은
+별도 검증 전까지 주장하지 않는다. Cloudflare 운영 자동 배포는 Simon이
+이번 `main` 머지에 한해 허용했지만, 정확한 HEAD CI·독립 수정 재검토·
+소스 전용 머지 결정은 여전히 필요하다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,

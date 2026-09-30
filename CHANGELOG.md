@@ -43,6 +43,7 @@
 - **`/vibe` 2.11.16 progressive disclosure** — moved the generated historical Orca lane table into a directly linked reference and retargeted its drift checker. Normal skill loading omits the legacy table; the generator, safety guards and frontier runtime routing are unchanged. This does not reduce the initial five-plugin description footprint or prove model/host behavior.
 
 ### Fixed
+- **`/vibe` Bot 게시·재계획 경계 보정** — 독립 PR 검토가 발견한 두 회귀를 수정했다. 게시 어댑터도 플래너처럼 Bot·Relay 로스터의 상태가 정확히 `active`일 때만 수락해 `active - reported ... live access unverified` 스냅샷의 실제 과제 게시를 차단한다. 실행 경로와 무관한 `shadow_task_fit` 권고는 불변 작업 의도와 Orca Task 본문에서 제외해 권고 만료만으로 정상 재계획이 막히지 않게 했다. 실패 재현 테스트와 격리 회귀를 추가했으며, 실제 Bot 전송·모델 호출·사용자 설치·과금은 하지 않았다.
 - **D-33 `main` 소스 전용 릴리스 펜스** — 추후 `main`에 미출시 `/vibe` 소스를 반영해도 SessionStart가 사용자 홈 스킬을 자동 복사·교체하지 않도록 추적 보류 파일을 맨 앞에서 검사한다. Windows Bash 훅 체크아웃 줄바꿈은 LF로 고정한다. 루트 Claude marketplace의 기존 플러그인은 머지 전 `main` SHA에 고정하고, `main` push의 자동 GitHub Release도 보류한다. 통합 브랜치 push에서 기존 검증 두 워크플로를 실행하고 릴리스 펜스 회귀를 추가했다. 보류 해제·핀/버전 승격·사용자 설치는 별도 검증과 결정이 필요하다.
 - **`/vibe` 2.12.24 Grok Bot 상태 위양성** — 명단의 `active - reported ... live access unverified` 문구를 플래너가 실제 `active`로 잘못 수락하던 경로를 차단했다. 상태가 문자열이 아닌 경우에도 예외 대신 `BOT_INACTIVE`로 차단한다. 정확한 `active`와 별도 계정·쿼터·Relay 증거가 있어야 후보가 되며, 이 수정은 현재 Bot 실접속이나 과금 안전을 증명하지 않는다.
 - **후보 경로 감사 GitHub CI 플랫폼 정합** — Windows 전용 보호 패키지 I/O에 의존하는 `test_candidate_path_audit.py`를 Ubuntu 품질 작업에서 분리해 Windows 작업으로 실행한다. 패키지 경로 보호나 테스트 자체는 완화하지 않는다.
