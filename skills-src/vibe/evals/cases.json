@@ -1,7 +1,24 @@
 {
   "skill": "vibe",
-  "version": "2.12.16",
+  "version": "2.12.17",
   "cases": [
+    {
+      "id": "main-orchestrator-not-sprint",
+      "prompt": "SimonKStack 메인 오케스트레이터로 이 과제를 맡아줘. 필요한 스킬과 모델·effort를 정하되, 지금은 읽기 전용 계획과 검증 게이트만 알려줘. 스프린트 실행은 요청하지 않았어.",
+      "fixtures": [
+        "The host catalog exposes both vibe and simonk. No provider account, quota or billing certificate is supplied."
+      ],
+      "assertions": [
+        {
+          "id": "vibe-owns-entry",
+          "text": "Selects /vibe as the main orchestration owner rather than treating simonk as a second or top-level coordinator."
+        },
+        {
+          "id": "no-unverified-worker",
+          "text": "Reports the missing runtime and subscription-cost evidence without starting a model worker, sprint, Bot delivery or file change."
+        }
+      ]
+    },
     {
       "id": "gui-natural-language-main-router",
       "prompt": "Play Console의 현재 심사 상태를 GUI에서 확인해줘. 실행 전 어떤 SimonK 스킬을 써야 해?",
