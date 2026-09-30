@@ -42,6 +42,8 @@ class ModelWatchTests(unittest.TestCase):
         )
         updated, report = model_watch.scan_state(state, self.fetch, FRIDAY + timedelta(days=7))
         self.assertEqual(len(report["new_candidates"]), 1)
+        self.assertEqual(report["candidate_details"][report["new_candidates"][0]]["title"],
+                         "Claude Haiku 5.5 coming soon")
         candidate = next(iter(updated["candidates"].values()))
         self.assertEqual(candidate["status"], "official_unreviewed")
         self.assertNotIn("released_at", candidate)
@@ -140,6 +142,23 @@ class ModelWatchTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             model_watch.add_feedback(state, key, now + timedelta(hours=1),
                                      "https://127.0.0.1/internal", "positive")
+        for host in ("localhost", "localhost.", "intranet", "host.internal",
+                     "host.internal.", "host.local"):
+            with self.subTest(host=host), self.assertRaises(ValueError):
+                model_watch.add_feedback(state, key, now + timedelta(hours=1),
+                                         f"https://{host}/post", "positive")
+
+    def test_release_url_accepts_canonical_same_host_variants(self):
+        state, _ = model_watch.scan_state({}, self.fetch, FRIDAY)
+        self.pages["xai"] += '<a href="/news/grok-4-8">Grok 4.8</a>'
+        state, report = model_watch.scan_state(state, self.fetch, FRIDAY + timedelta(days=7))
+        key = report["new_candidates"][0]
+        now = FRIDAY + timedelta(days=7, minutes=1)
+        with self.assertRaises(ValueError):
+            model_watch.confirm_release(state, key, now, "https://other.example/news/grok-4-8")
+        model_watch.confirm_release(state, key, now,
+                                    "https://x.ai/news/grok-4-8/?source=watch#release")
+        self.assertEqual(state["candidates"][key]["status"], "released")
 
     def test_official_link_cannot_escape_source_host_or_use_extra_port(self):
         base = model_watch.SOURCES["xai"]
@@ -154,6 +173,14 @@ class ModelWatchTests(unittest.TestCase):
         links, headings = model_watch.extract_model_mentions(feed, model_watch.SOURCES["openai"])
         self.assertEqual(links, {"https://openai.com/index/gpt-7-sol": "Introducing GPT-7 Sol"})
         self.assertEqual(headings, set())
+
+    def test_common_openai_model_names_are_detected(self):
+        for name in ("GPT-4o", "o3", "o4-mini", "GPT-4.1-mini"):
+            with self.subTest(name=name):
+                feed = ("<rss><channel><item><title>Introducing " + name + "</title>"
+                        "<link>https://openai.com/index/release/</link></item></channel></rss>")
+                links, _ = model_watch.extract_model_mentions(feed, model_watch.SOURCES["openai"])
+                self.assertEqual(len(links), 1)
 
     def test_public_feedback_feed_is_captured_but_not_auto_graded(self):
         state, _ = model_watch.scan_state({}, self.fetch, FRIDAY)
@@ -189,9 +216,37 @@ class ModelWatchTests(unittest.TestCase):
                 '<published>2026-10-02T01:00:00+00:00</published></entry>'
                 '<entry><title>Grok 4.8 impressions</title>'
                 '<link href="https://www.reddit.com/r/grok/comments/new" />'
+                '<published>2026-10-02T01:00:00+00:00</published></entry>'
+                '<entry><title>Grok 4.80 impressions</title>'
+                '<link href="https://www.reddit.com/r/grok/comments/newer" />'
                 '<published>2026-10-02T01:00:00+00:00</published></entry></feed>')
         posts = model_watch.extract_public_feedback(feed, item)
         self.assertEqual([post["title"] for post in posts], ["Grok 4.8 impressions"])
+
+    def test_feedback_captures_are_bounded_without_losing_reviewed_feedback(self):
+        state, _ = model_watch.scan_state({}, self.fetch, FRIDAY)
+        self.pages["xai"] += '<a href="/news/grok-4-8">Grok 4.8</a>'
+        state, report = model_watch.scan_state(state, self.fetch, FRIDAY + timedelta(days=7))
+        key = report["new_candidates"][0]
+        release = FRIDAY + timedelta(days=7, minutes=1)
+        model_watch.confirm_release(state, key, release, "https://x.ai/news/grok-4-8")
+        item = state["candidates"][key]
+        item["feedback"].append({"url": "https://www.reddit.com/r/grok/comments/old",
+                                 "observed_at": model_watch.iso(release),
+                                 "reviewed_at": model_watch.iso(release), "sentiment": "mixed"})
+        item["captures"] = [
+            {"url": f"https://www.reddit.com/r/grok/comments/{number}",
+             "title": "Grok 4.8", "observed_at": model_watch.iso(release),
+             "published_at": model_watch.iso(release), "reviewed": False}
+            for number in range(200)
+        ]
+        item["captures"].append({"url": "https://www.reddit.com/r/grok/comments/old",
+                                 "reviewed": True})
+        state, _ = model_watch.scan_state(state, self.fetch, release + timedelta(days=1),
+                                           feedback_fetch=lambda *_: "<feed />")
+        self.assertLessEqual(len(state["candidates"][key]["captures"]),
+                             model_watch.MAX_CAPTURED_POSTS)
+        self.assertEqual(len(state["candidates"][key]["feedback"]), 1)
 
     def test_cli_persists_last_scan_report_for_scheduler_diagnostics(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -206,6 +261,44 @@ class ModelWatchTests(unittest.TestCase):
                   contextlib.redirect_stdout(io.StringIO()) as output):
                 self.assertEqual(model_watch.main(), 0)
             self.assertEqual(json.loads(output.getvalue())["last_report"]["status"], "scanned")
+            self.assertIn("candidate_details", json.loads(output.getvalue()))
+
+    def test_cli_returns_failure_for_feedback_fetch_errors(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "watch.json"
+            state, _ = model_watch.scan_state({}, self.fetch, FRIDAY)
+            self.pages["xai"] += '<a href="/news/grok-4-8">Grok 4.8</a>'
+            state, report = model_watch.scan_state(state, self.fetch, FRIDAY + timedelta(days=7))
+            model_watch.confirm_release(state, report["new_candidates"][0],
+                                        FRIDAY + timedelta(days=7, minutes=1),
+                                        "https://x.ai/news/grok-4-8")
+            model_watch.write_json(path, state)
+
+            def broken(provider, url):
+                if provider == "reddit":
+                    raise TimeoutError("feed unavailable")
+                return self.fetch(provider, url)
+
+            with (mock.patch("sys.argv", ["model_watch.py", "scan", "--force", "--state", str(path)]),
+                  mock.patch.object(model_watch, "fetch_public_page", side_effect=broken),
+                  contextlib.redirect_stdout(io.StringIO()) as output):
+                self.assertEqual(model_watch.main(), 2)
+            self.assertTrue(json.loads(output.getvalue())["feedback_errors"])
+
+    def test_state_lock_is_exclusive(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "watch.json"
+            with model_watch.state_lock(path):
+                with self.assertRaises(TimeoutError):
+                    with model_watch.state_lock(path, timeout=0.02):
+                        pass
+
+    def test_oversized_state_is_rejected_before_write(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "watch.json"
+            with self.assertRaises(ValueError):
+                model_watch.write_json(path, {"content": "x" * model_watch.MAX_STATE_BYTES})
+            self.assertFalse(path.exists())
 
 
 if __name__ == "__main__":

@@ -23,7 +23,15 @@ source check when `/vibe` is invoked. It uses no LLM, Bot, payment or API key.
 Its state is `%LOCALAPPDATA%/SimonK/vibe/model-watch.json`; first run is a
 baseline, not retroactive discovery. The state and stdout report record changed
 pages and newly linked/headlined model mentions as `official_unreviewed` only.
+The scan report includes `candidate_details` with each new title, provider,
+official URL and status; `status` includes details for all tracked candidates.
+CLI invocations lock the state across read/scan/write (up to 120 seconds), so
+overlapping scheduler and manual runs cannot overwrite each other's evidence.
 `status` includes the last scheduled scan report, including source fetch errors.
+Source or public-feedback fetch errors make the scheduler command exit nonzero;
+the next invocation retries. Public Reddit captures are limited to 128 pending
+posts per candidate; reviewed observations remain in `feedback` after capture
+pruning. Public links longer than 2048 characters are ignored/rejected.
 HTML changes without a detected model mention still appear in `changed_sources`
 for coordinator inspection. Fetch/parse failures remain errors, not a claim of
 "no updates". A page can change without an actual model release; releases in
@@ -44,6 +52,8 @@ and exact model/effort control. An announcement, preview or rollout promise is
 not general availability. Only after this check call `confirm-release --key K
 --url OFFICIAL_URL`. The watch starts its **prospective** window at that
 confirmation time; backdating is forbidden.
+Equivalent same-host official URLs with trailing slash, query or fragment are
+accepted after canonicalization; a different host or insecure scheme is not.
 
 Across at least 24 hours, inspect public user reports (X when publicly
 accessible, otherwise accessible public forums such as Reddit or Hacker News).
@@ -52,8 +62,10 @@ candidate model name and stores matching post links as **unreviewed captures**.
 It does not read them as a verdict or auto-grade sentiment. Inspect the post
 before calling `add-feedback --key K --url URL --sentiment LABEL`; for a captured
 post the first observation timestamp is retained, while an uncaptured public
-URL gets the command's current time. Keep
-the original date, task, model and effort in the coordinator's evidence notes;
+URL gets the command's current time. Feedback URLs must be public HTTPS names;
+local, intranet, internal and IP
+addresses are rejected. This is a syntax guard, not a DNS or network sandbox.
+Keep the original date, task, model and effort in the coordinator's evidence notes;
 the watch state alone cannot authenticate a post or detect astroturfing.
 Do not bypass login, CAPTCHA or paid X API access. Two distinct observations
 at least 20 hours apart and 24 hours after official confirmation are the

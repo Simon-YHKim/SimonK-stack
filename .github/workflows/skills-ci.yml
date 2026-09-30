@@ -13,6 +13,8 @@ jobs:
         run: python3 .github/skill-ci/run_ci.py
       - name: Offline benchmark freshness regressions (no network or real Wiki)
         run: python3 -m unittest discover -s scripts/tests -p test_fetch_model_benchmarks.py
+      - name: Offline model release watch regressions (no network or model calls)
+        run: python3 -B -m unittest discover -s skills-src/vibe/scripts -p test_model_watch.py -q
   candidate-path-audit-windows:
     # The guarded package reader intentionally rejects non-Windows paths.
     runs-on: windows-latest

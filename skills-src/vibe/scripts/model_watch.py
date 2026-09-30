@@ -8,13 +8,16 @@ This script never invokes an LLM, Bot, API key, installer, Git or payment path.
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
 import copy
+import errno
 import hashlib
 import ipaddress
 import json
 import os
 import re
 import tempfile
+import time
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -25,6 +28,9 @@ from pathlib import Path
 
 KST = timezone(timedelta(hours=9))
 MAX_PAGE_BYTES = 2 * 1024 * 1024
+MAX_STATE_BYTES = 4 * 1024 * 1024
+MAX_CAPTURED_POSTS = 128
+MAX_FEEDBACK_URL_LENGTH = 2048
 SOURCES = {
     "openai": "https://openai.com/news/rss.xml",
     "anthropic": "https://www.anthropic.com/news",
@@ -32,7 +38,8 @@ SOURCES = {
     "xai": "https://x.ai/news",
 }
 MODEL_NAME = re.compile(
-    r"\b(?:GPT[-\s]?\d+(?:\.\d+)?(?:\s+(?:Astra|Sol|Luna|Terra))?|"
+    r"\b(?:GPT[-\s]?\d+(?:\.\d+)*(?:[-\s]?(?:o(?:-mini)?|mini|nano|turbo|Astra|Sol|Luna|Terra))?|"
+    r"o\d+(?:-(?:mini|preview|pro))?|"
     r"(?:Claude\s+)?(?:Sonnet|Opus|Haiku|Fable|Mythos)\s+\d+(?:\.\d+)?|"
     r"Gemini\s+\d+(?:\.\d+)?(?:\s+(?:Pro|Flash))?|Grok\s+\d+(?:\.\d+)?)\b",
     re.IGNORECASE,
@@ -60,7 +67,8 @@ def canonical_link(base: str, href: str) -> str | None:
         return None
     if parsed.username or parsed.password or not parsed.path:
         return None
-    return urllib.parse.urlunsplit(("https", parsed.netloc.lower(), parsed.path.rstrip("/") or "/", "", ""))
+    return urllib.parse.urlunsplit(("https", parsed.hostname.lower(),
+                                   parsed.path.rstrip("/") or "/", "", ""))
 
 
 class LinkParser(HTMLParser):
@@ -167,7 +175,8 @@ def extract_public_feedback(feed: str, item: dict) -> list[dict]:
     found: list[dict] = []
     for entry in root.findall(f"{namespace}entry")[:30]:
         title = " ".join((entry.findtext(f"{namespace}title") or "").split())[:240]
-        if model.group(0).casefold() not in title.casefold():
+        if not any(match.group(0).casefold() == model.group(0).casefold()
+                   for match in MODEL_NAME.finditer(title)):
             continue
         link = entry.find(f"{namespace}link[@rel='alternate']")
         if link is None:
@@ -177,7 +186,8 @@ def extract_public_feedback(feed: str, item: dict) -> list[dict]:
         if not url or not published:
             continue
         parsed = urllib.parse.urlsplit(url)
-        if parsed.scheme != "https" or parsed.hostname != "www.reddit.com" or parsed.query:
+        if (len(url) > MAX_FEEDBACK_URL_LENGTH or parsed.scheme != "https"
+                or parsed.hostname != "www.reddit.com" or parsed.query):
             continue
         try:
             posted_at = parse_time(published)
@@ -210,9 +220,10 @@ def scan_state(state: dict, fetch, now: datetime, force: bool = False,
     last_check = previous_report.get("checked_at")
     weekly_due = not last_check or parse_time(last_check).astimezone(KST).date() < latest_friday
     if not force and not weekly_due and not pending and not retry_errors:
-        return current, {"status": "not_due", "new_candidates": [], "changed_sources": [], "errors": {}}
+        return current, {"status": "not_due", "new_candidates": [], "candidate_details": {},
+                         "changed_sources": [], "errors": {}}
     report = {"status": "scanned", "checked_at": iso(now), "new_candidates": [],
-              "changed_sources": [], "errors": {}, "feedback_captures": [],
+              "candidate_details": {}, "changed_sources": [], "errors": {}, "feedback_captures": [],
               "feedback_errors": {}, "routing_changed": False}
     for provider, url in SOURCES.items():
         try:
@@ -273,12 +284,21 @@ def scan_state(state: dict, fetch, now: datetime, force: bool = False,
                     captures.append({**post, "observed_at": iso(now), "reviewed": False})
                     existing.add(post["url"])
                     report["feedback_captures"].append(key)
+            # Reviewed evidence already lives in feedback; bound unreviewed queue growth.
+            captures[:] = [post for post in captures if not post.get("reviewed")][-MAX_CAPTURED_POSTS:]
+    report["candidate_details"] = {
+        key: {field: current["candidates"][key][field]
+              for field in ("provider", "title", "official_url", "status")}
+        for key in report["new_candidates"]
+    }
     return current, report
 
 
 def confirm_release(state: dict, key: str, now: datetime, official_url: str) -> None:
     item = state["candidates"][key]
-    if item["status"] != "official_unreviewed" or official_url != item["official_url"]:
+    parsed = urllib.parse.urlsplit(official_url)
+    canonical = canonical_link(item["official_url"], official_url) if parsed.scheme == "https" else None
+    if item["status"] != "official_unreviewed" or canonical != item["official_url"]:
         raise ValueError("official release evidence does not match candidate")
     if now < parse_time(item["first_seen_at"]):
         raise ValueError("release confirmation predates discovery")
@@ -293,15 +313,19 @@ def add_feedback(state: dict, key: str, now: datetime, url: str, sentiment: str)
         raise ValueError("release is not in the observation window")
     safe_query = (not parsed.query or
                   (parsed.hostname == "news.ycombinator.com" and re.fullmatch(r"id=\d+", parsed.query)))
-    public_host = bool(parsed.hostname and not parsed.hostname.endswith((".local", ".localhost")))
+    hostname = (parsed.hostname or "").rstrip(".")
+    public_host = bool(hostname and "." in hostname and
+                       not hostname.endswith((".local", ".localhost", ".internal",
+                                                  ".lan", ".test", ".example", ".invalid")))
     if public_host:
         try:
-            ipaddress.ip_address(parsed.hostname)
+            ipaddress.ip_address(hostname)
         except ValueError:
             pass
         else:
             public_host = False
-    if (parsed.scheme != "https" or not public_host or parsed.username or parsed.password
+    if (len(url) > MAX_FEEDBACK_URL_LENGTH or parsed.scheme != "https" or not public_host
+            or parsed.username or parsed.password
             or parsed.port not in (None, 443) or not safe_query):
         raise ValueError("public HTTPS feedback URL without credentials required")
     if sentiment not in {"positive", "mixed", "negative"}:
@@ -338,7 +362,7 @@ def default_state_path() -> Path:
 def read_state(path: Path) -> dict:
     if not path.exists():
         return empty_state()
-    if path.stat().st_size > 4 * 1024 * 1024:
+    if path.stat().st_size > MAX_STATE_BYTES:
         raise ValueError("watch state too large")
     data = json.loads(path.read_text(encoding="utf-8"))
     if data.get("schema_version") != 1:
@@ -349,6 +373,8 @@ def read_state(path: Path) -> dict:
 def write_json(path: Path, data: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = (json.dumps(data, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode("utf-8")
+    if len(payload) > MAX_STATE_BYTES:
+        raise ValueError("watch state too large")
     with tempfile.NamedTemporaryFile(dir=path.parent, prefix=".model-watch-", delete=False) as temp:
         temporary = Path(temp.name)
         temp.write(payload)
@@ -361,6 +387,47 @@ def write_json(path: Path, data: dict) -> None:
         raise
 
 
+@contextmanager
+def state_lock(path: Path, timeout: float = 120):
+    """Serialize a complete read/scan/write transaction across CLI processes."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lock_path = path.with_name(path.name + ".lock")
+    fd = os.open(lock_path, os.O_CREAT | os.O_RDWR, 0o600)
+    acquired = False
+    try:
+        if os.fstat(fd).st_size == 0:
+            os.write(fd, b"\0")
+        deadline = time.monotonic() + timeout
+        while True:
+            try:
+                if os.name == "nt":
+                    import msvcrt
+                    os.lseek(fd, 0, os.SEEK_SET)
+                    msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                acquired = True
+                break
+            except OSError as exc:
+                if exc.errno not in (errno.EACCES, errno.EAGAIN):
+                    raise
+                if time.monotonic() >= deadline:
+                    raise TimeoutError("model watch state is locked") from exc
+                time.sleep(min(0.05, max(0, deadline - time.monotonic())))
+        yield
+    finally:
+        try:
+            if acquired:
+                if os.name == "nt":
+                    os.lseek(fd, 0, os.SEEK_SET)
+                    msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+                else:
+                    fcntl.flock(fd, fcntl.LOCK_UN)
+        finally:
+            os.close(fd)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=["scan", "status", "confirm-release", "add-feedback"])
@@ -371,33 +438,38 @@ def main() -> int:
     parser.add_argument("--sentiment", choices=["positive", "mixed", "negative"])
     args = parser.parse_args()
     path = args.state or default_state_path()
-    state = read_state(path)
-    now = datetime.now(timezone.utc)
-    if args.action == "scan":
-        state, result = scan_state(state, fetch_public_page, now, force=args.force,
-                                   feedback_fetch=fetch_public_page)
-        if result["status"] == "scanned":
-            state["last_report"] = result
+    with state_lock(path):
+        state = read_state(path)
+        now = datetime.now(timezone.utc)
+        if args.action == "scan":
+            state, result = scan_state(state, fetch_public_page, now, force=args.force,
+                                       feedback_fetch=fetch_public_page)
+            if result["status"] == "scanned":
+                state["last_report"] = result
+                write_json(path, state)
+        elif args.action == "status":
+            result = {"checked_at": iso(now), "candidates": {
+                key: candidate_status(item, now) for key, item in state["candidates"].items()},
+                "candidate_details": {
+                    key: {"provider": item["provider"], "title": item["title"],
+                          "official_url": item["official_url"]}
+                    for key, item in state["candidates"].items()},
+                "last_report": state.get("last_report")}
+        elif args.action == "confirm-release":
+            if not args.key or not args.url:
+                parser.error("--key and --url are required")
+            confirm_release(state, args.key, now, args.url)
             write_json(path, state)
-    elif args.action == "status":
-        result = {"checked_at": iso(now), "candidates": {
-            key: candidate_status(item, now) for key, item in state["candidates"].items()},
-            "last_report": state.get("last_report")}
-    elif args.action == "confirm-release":
-        if not args.key or not args.url:
-            parser.error("--key and --url are required")
-        confirm_release(state, args.key, now, args.url)
-        write_json(path, state)
-        result = {"status": "monitoring", "key": args.key, "routing_changed": False}
-    else:
-        if not args.key or not args.url or not args.sentiment:
-            parser.error("--key, --url and --sentiment are required")
-        add_feedback(state, args.key, now, args.url, args.sentiment)
-        write_json(path, state)
-        result = {"status": candidate_status(state["candidates"][args.key], now),
-                  "key": args.key, "routing_changed": False}
+            result = {"status": "monitoring", "key": args.key, "routing_changed": False}
+        else:
+            if not args.key or not args.url or not args.sentiment:
+                parser.error("--key, --url and --sentiment are required")
+            add_feedback(state, args.key, now, args.url, args.sentiment)
+            write_json(path, state)
+            result = {"status": candidate_status(state["candidates"][args.key], now),
+                      "key": args.key, "routing_changed": False}
     print(json.dumps(result, ensure_ascii=False, sort_keys=True))
-    return 0 if not result.get("errors") else 2
+    return 0 if not (result.get("errors") or result.get("feedback_errors")) else 2
 
 
 if __name__ == "__main__":
