@@ -2,9 +2,38 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
-## 2026-10-01 PR #68·#69 누적 `/vibe` 2.12.29 후보
+## 2026-10-01 `/vibe` 2.12.30 이미지 청구 관측값 가드 후보
 
-최신 검증 후보는 `E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr69-credit-failclosed-candidate/`이다. PR #68 코드 커밋 `c17ba6b`의 Codex 구매 크레딧 fail-closed 수정과 종속 PR #69 검증 기준 코드 커밋 `0207301`의 Grok ACP 초과 과금 필드 수정이 누적됐다. 이 절의 문서 전용 후속 커밋은 후보의 `skills-src` 바이트를 바꾸지 않는다. 두 PR은 Draft이며 이번 변경의 독립 코드 리뷰와 §35 별도 심판 D-code가 없어 `main`에는 반영하지 않았다. Simon의 Cloudflare Pages 운영 자동 배포 허용은 유효하지만 이 품질 게이트를 면제하지 않는다.
+`fix/vibe-grok-billing-261001`의 `2ec27c7`은 이미지 호스트 도구의
+`billing` 관측값이 `null`·배열·문자열일 때 쿼터 대조에서 예외가 나던
+경로를 차단 판정으로 바꾼다. 회귀 테스트에서 수정 전 세 예외를 재현하고
+수정 후 `IMAGE_SUBSCRIPTION_HARD_CAP_UNVERIFIED` 및
+`IMAGE_QUOTA_UNVERIFIED`로 차단되는 것을 확인했다. 새 후보는
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr69-image-billing-guard-candidate/`이며,
+이전 2.12.29 후보와 사용자 홈은 그대로 보존했다.
+
+| 산출물 | 검증된 전체 digest | 범위 |
+|---|---|---|
+| `source` | `86ecf72755a5481fae387168b71b369cb53f0bb455a831ad8654961cd4a4ce6c` | 137스킬·423파일 |
+| `candidate-safety` | `d95f12754bc5215cc3037484fc0364ef0aee23250aa934417be006225cb149b7` | Claude 5플러그인·182스킬 |
+| `codex-overlay-safety` | `5d935f47215fffc657e252f77c158d2ebe50f47ce7dd2256457f88675079052d` | Codex 호환 오버레이 |
+| `codex-subset-safety` | `db86739d0a71ee713e1d9a09ce12b482be778abac84aa4416d4af6a3683bdcb3` | Codex 안전 부분집합 177스킬 |
+
+네 영수증 재검증과 Claude 후보의 오프라인 probe **4/4 단계**가 통과했다.
+이 probe는 Claude 후보 구조를 요구하므로 `source`·Codex 오버레이·부분집합에
+직접 실행한 세 건은 입력 종류 불일치로 차단됐으며 통과 건수에 넣지 않는다.
+`test_orchestrate.py` 119개, 이번에 실행한 오프라인 단위 테스트 합계 387개,
+`selftest.py` 180항목, 스킬 품질 141/141, Node 플러그인 검증 68스킬이 통과했다.
+이번 버전의 호스트 격리 적재·복원, 실제 이미지 생성·Grok Bot 배달,
+모델/effort 자동 선택 품질, 구독 청구는 실행·입증하지 않았다.
+`installation_ready=false`, `host_compatibility_verified=false`,
+`runtime_closure_verified=false`, `selection_quality_verified=false`를 유지한다.
+PR #69의 독립 리뷰와 §35 별도 심판 D-code가 없으므로 운영 자동 배포 허용에도
+`main` 머지는 보류한다.
+
+## 2026-10-01 PR #68·#69 누적 `/vibe` 2.12.29 이전 후보
+
+이전 검증 후보는 `E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr69-credit-failclosed-candidate/`이다. PR #68 코드 커밋 `c17ba6b`의 Codex 구매 크레딧 fail-closed 수정과 종속 PR #69 검증 기준 코드 커밋 `0207301`의 Grok ACP 초과 과금 필드 수정이 누적됐다. 이 절의 문서 전용 후속 커밋은 후보의 `skills-src` 바이트를 바꾸지 않는다. 두 PR은 Draft이며 이번 변경의 독립 코드 리뷰와 §35 별도 심판 D-code가 없어 `main`에는 반영하지 않았다. Simon의 Cloudflare Pages 운영 자동 배포 허용은 유효하지만 이 품질 게이트를 면제하지 않는다.
 
 후보의 source 137스킬·423파일 digest는 `2fb0fa29881a1f9f8607d33eec0db923bbab10a47f212cfa59fbde330ee6de98`, Claude 5플러그인·182스킬 digest는 `eb55167bac1dab41b9c93203cd3400f41121c7eb49c7a08c8f73df1dd8310e1d`, Codex overlay digest는 `563fb61b8cd1b4b9530b842d6a660e9bba3f62724ff356983603d9d22ac052f0`, Codex 안전 부분집합 177스킬 digest는 `f12c0f280aa6c455323f91aa0111b2fcb65701f8e350dbac5d6c61b20a9a9ffa`다. 네 영수증과 오프라인 probe 4/4, `/vibe` 누적 테스트 326/326, 스킬 품질 141/141이 통과했다. PR #68의 `c17ba6b` 및 PR #69의 `0207301` 코드 커밋에서 CI는 각각 4/4 성공했다. 문서 전용 후속 HEAD의 CI는 별도 확인 대상이다.
 
