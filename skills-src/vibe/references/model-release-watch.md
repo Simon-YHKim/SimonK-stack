@@ -63,8 +63,8 @@ The daily pending scan also searches public Reddit Atom posts for the exact
 candidate model name and stores matching post links as **unreviewed captures**.
 Hyphen and space spellings such as `GPT-4o-mini` / `GPT-4o mini`, optional
 `GPT` separators and the optional `Claude` family prefix are treated as the
-same model. Hyphenated suffixes remain part of the model label, so base-model
-posts do not count for a distinct variant. Reviewed
+same model. Hyphenated suffixes and dotted version segments remain part of the
+model label, so base-model posts do not count for a distinct variant. Reviewed
 post URLs stay deduplicated through subsequent scans even after capture pruning;
 schema-v1 default-port and trailing-dot URL aliases do not become separate
 observations for the 24-hour review gate. Legacy captured Reddit URLs are not

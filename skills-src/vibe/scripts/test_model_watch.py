@@ -237,10 +237,14 @@ class ModelWatchTests(unittest.TestCase):
                     [post["title"] for post in model_watch.extract_public_feedback(feed, item)],
                     [f"{base}-{suffix} impressions"])
 
-    def test_hyphenated_model_variants_do_not_count_for_base_models(self):
+    def test_extended_model_variants_do_not_count_for_base_models(self):
         for base, variant in (("o3", "o3-deep-research"),
                               ("GPT-4o", "GPT-4o-voice"),
-                              ("Grok 4.8", "Grok 4.8-fast")):
+                              ("Grok 4.8", "Grok 4.8-fast"),
+                              ("o3", "o3.1"),
+                              ("Sonnet 5.5", "Sonnet 5.5.1"),
+                              ("Gemini 3.1", "Gemini 3.1.2"),
+                              ("Grok 4.8", "Grok 4.8.1")):
             with self.subTest(base=base, variant=variant):
                 self.assertEqual(model_watch.MODEL_NAME.search(variant).group(0), variant)
                 feed = ('<feed xmlns="http://www.w3.org/2005/Atom">'
