@@ -104,6 +104,7 @@ export class UsageTab {
   private readonly pending = new Set<string>();
   private latestViews: readonly AccountView[] = [];
   private latestContext: RenderContext | null = null;
+  private latestAutomatic?: GrokBotAutoUsage;
   readonly grokBot: GrokBotCard;
 
   constructor(private readonly deps: { api: Api; report(message: string): void }) {
@@ -115,8 +116,12 @@ export class UsageTab {
   update(views: readonly AccountView[], ctx: RenderContext, settings: Settings = ctx.settings, automatic?: GrokBotAutoUsage): void {
     this.latestViews = views;
     this.latestContext = ctx;
+    this.latestAutomatic = automatic;
     const { t } = ctx;
     this.grokBot.update(settings, ctx, automatic);
+    const groupAccountId = views.find((view) => view.account.provider === 'grok')?.account.id;
+    this.grokBot.el.classList.toggle('is-grouped', groupAccountId !== undefined);
+    this.grokBot.el.classList.toggle('card', groupAccountId === undefined);
     const seen = new Set<string>();
     const cards = views.map((view) => {
       seen.add(view.account.id);
@@ -147,11 +152,12 @@ export class UsageTab {
         resetControls.push(official);
         content.push(h('div', { class: 'reset-credit-row' }, resetControls));
       }
+      if (view.account.id === groupAccountId) content.push(this.grokBot.el);
       card.replaceChildren(...content);
       return card;
     });
     for (const id of [...this.cards.keys()]) if (!seen.has(id)) this.cards.delete(id);
-    syncChildren(this.listEl, [this.grokBot.el, ...cards]);
+    syncChildren(this.listEl, groupAccountId === undefined ? [this.grokBot.el, ...cards] : cards);
   }
 
   private redeem(accountId: string, button: HTMLButtonElement): void {
@@ -169,7 +175,7 @@ export class UsageTab {
       this.deps.report(t(key[result.value]));
     }).catch(() => this.deps.report(this.latestContext?.t('resetCreditUnavailable') ?? '')).finally(() => {
       this.pending.delete(accountId);
-      if (this.latestContext !== null) this.update(this.latestViews, this.latestContext, this.latestContext.settings);
+      if (this.latestContext !== null) this.update(this.latestViews, this.latestContext, this.latestContext.settings, this.latestAutomatic);
     });
   }
 }

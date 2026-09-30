@@ -67,6 +67,21 @@ describe('WidgetApp', () => {
     expect(api.callsTo('usage:refresh-now')).toEqual([{ accountId: null }]);
   });
 
+  it('keeps Grok and Grok Bot in one widget item with distinct values', () => {
+    const grok = account({ id: 'g1', provider: 'grok', label: 'Grok' });
+    const base = { accounts: [grok], usage: [usage('g1', { provider: 'grok', source: 'grok-acp' })] };
+    const { app } = setup(appState({ ...base, grokBotAuto: { state: 'ok', usedPercent: 41,
+      resetsAt: NOW + 2 * 86_400_000, measuredAt: NOW } }));
+    const grokItem = app.main.querySelector('.account-item[data-provider="grok"]') as HTMLElement;
+    expect(app.main.querySelectorAll(':scope > .account-item')).toHaveLength(1);
+    expect(grokItem.querySelector('.grok-bot-inline')?.textContent).toContain('59% left');
+    expect(grokItem.querySelector('.grok-bot-inline')?.textContent).toContain('Bot');
+    expect(app.main.querySelector('.grok-bot-item')).toBeNull();
+    app.update(appState({ ...base, grokBotAuto: { state: 'ok', usedPercent: 50,
+      resetsAt: NOW + 2 * 86_400_000, measuredAt: NOW + 1000 } }));
+    expect(app.main.querySelector('.grok-bot-inline')?.textContent).toContain('50% left');
+  });
+
   it('clicking the bar toggles the popup with a 300ms debounce', () => {
     const { api, app } = setup(withAccounts());
     app.main.click();

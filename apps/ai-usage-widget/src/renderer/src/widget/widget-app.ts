@@ -248,7 +248,7 @@ export class WidgetApp {
       grokBotReading(this.state.settings, this.now(), this.state.grokBotAuto).state !== 'automatic');
   }
 
-  private grokBotItem(state: AppStateSnapshot, ctx: RenderContext): HTMLElement {
+  private grokBotItem(state: AppStateSnapshot, ctx: RenderContext, grouped = false): HTMLElement {
     const reading = grokBotReading(state.settings, ctx.now, state.grokBotAuto);
     const numeric = reading.state === 'fresh' || reading.state === 'stale' || reading.state === 'automatic';
     const percent = numeric ? (state.settings.showUsedPercent ? reading.usedPercent : reading.leftPercent) : null;
@@ -257,11 +257,11 @@ export class WidgetApp {
       reading.state === 'expired' ? 'grokBotExpired' : reading.state === 'unknown' ? 'grokBotUnknown' : 'grokBotManual');
     const reset = reading.state === 'automatic' && reading.resetsAt !== null ? ` · ${ctx.t('resetLabel', { time: formatCountdown(reading.resetsAt - ctx.now) })}` : '';
     return h('div', {
-      class: `account-item grok-bot-item${reading.state === 'fresh' || reading.state === 'automatic' ? '' : ' is-stale'}`,
+      class: `${grouped ? 'grok-bot-inline' : 'account-item grok-bot-item'}${reading.state === 'fresh' || reading.state === 'automatic' ? '' : ' is-stale'}`,
       'data-provider': 'grok-bot',
       title: `${ctx.t('grokBotTitle')} · ${value} · ${status}${reset}`,
     }, [
-      providerIcon('grok', 16, state.settings.iconStyle === 'monochrome'),
+      grouped ? null : providerIcon('grok', 16, state.settings.iconStyle === 'monochrome'),
       h('span', { class: 'grok-bot-widget-name' }, [ctx.t('grokBotWidget')]),
       h('strong', { class: 'grok-bot-widget-value' }, [value]),
       h('small', { class: 'grok-bot-widget-manual' }, [status]),
@@ -294,13 +294,17 @@ export class WidgetApp {
     setAttr(this.main, 'aria-label', title);
 
     // Rebuild items only when their rendered form would change (keeps the refresh button and focus stable).
-    const signature = JSON.stringify({ empty, views, settings, notices: state.modelNotices, pace: [...this.fastAccounts], locale: ctx.locale, scheme: state.theme.taskbarScheme, minute: Math.floor(ctx.now / 60_000) });
+    const signature = JSON.stringify({ empty, views, settings, grokBotAuto: state.grokBotAuto, notices: state.modelNotices,
+      pace: [...this.fastAccounts], locale: ctx.locale, scheme: state.theme.taskbarScheme, minute: Math.floor(ctx.now / 60_000) });
     if (signature !== this.lastSignature) {
       this.lastSignature = signature;
       if (empty) {
         this.main.replaceChildren(h('span', { class: 'white-circle-dot', 'aria-hidden': 'true' }));
         this.summary.textContent = title;
       } else {
+        const showGrokBot = state.settings.grokBotUsedPercent !== null ||
+          grokBotReading(state.settings, ctx.now, state.grokBotAuto).state === 'automatic';
+        let groupedGrokBot = false;
         const items = views.map((view) => {
           const item = renderWidgetItem(view, ctx);
           const notice = state.modelNotices.find((entry) => entry.provider === view.account.provider);
@@ -323,10 +327,16 @@ export class WidgetApp {
             item.title += `\n${pace.usual === null ? t('quotaPaceBurst', { recent: pace.recent.toFixed(1) }) :
               t('quotaPaceFast', { recent: pace.recent.toFixed(1), usual: pace.usual.toFixed(1) })}`;
           }
+          if (showGrokBot && !groupedGrokBot && view.account.provider === 'grok') {
+            const bot = this.grokBotItem(state, ctx, true);
+            item.classList.add('has-grok-bot');
+            item.append(bot);
+            item.title += `\n${bot.title}`;
+            groupedGrokBot = true;
+          }
           return item;
         });
-        if (state.settings.grokBotUsedPercent !== null ||
-          grokBotReading(state.settings, ctx.now, state.grokBotAuto).state === 'automatic') items.push(this.grokBotItem(state, ctx));
+        if (showGrokBot && !groupedGrokBot) items.push(this.grokBotItem(state, ctx));
         this.main.replaceChildren(...items);
         this.summary.textContent = items.map((item) => item.getAttribute('title') ?? '').join('. ');
       }

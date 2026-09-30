@@ -47,6 +47,8 @@
 }
 
 .grok-bot-item { gap: 4px; padding-left: 8px; border-left: 1px solid currentColor; }
+.grok-bot-inline { display: flex; align-items: center; gap: 4px; padding-left: 7px; border-left: 1px solid currentColor; }
+.grok-bot-inline.is-stale { opacity: 0.5; }
 .grok-bot-widget-name { font-size: 10px; font-weight: 600; }
 .grok-bot-widget-value { font-size: 11px; font-variant-numeric: tabular-nums; }
 .grok-bot-widget-manual { font-size: 8px; opacity: 0.7; }
@@ -54,6 +56,11 @@
 .account-item.is-error > :not(.state-mark) {
   opacity: 0.5;
 }
+
+/* Grok CLI and Grok Bot share one visual cell, but each meter keeps its own state. */
+.account-item.has-grok-bot.is-stale { opacity: 1; }
+.account-item.has-grok-bot.is-stale > :not(.grok-bot-inline) { opacity: 0.5; }
+.account-item.has-grok-bot.is-error > .grok-bot-inline { opacity: 1; }
 
 .account-item.is-fast {
   border-radius: 4px;

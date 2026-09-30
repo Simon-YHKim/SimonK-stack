@@ -86,3 +86,5 @@
 26.09.30 15:37 · (Codex, ai-debate 별도 심판 판정) 09.19의 Grok Bot 카드 미추가 결정을 사용자의 직접 요청에 따라 수동 기록 카드로 변경한다. 개인 계정+SuperGrok Heavy 주간 미터의 공식 공개 API/CLI/SDK가 여전히 없으므로, 공식 UI의 값을 사용자가 입력한 시각과 함께 별도 보관한다. 24시간 뒤 오래됨, 7일 뒤 숫자 만료. Grok CLI 수치를 재사용하거나 내부 RPC/화면 스크레이핑을 하지 않는다. Cursor가 개인 주간 사용량 인터페이스를 공식 제공하면 자동 조회로 교체한다 · 근거: cursor.com/docs/grok-bot/settings, cursor.com/help/grok-bot/plans, forum.cursor.com/t/usage-api-cli-command/160967, cursor.com/terms-of-service §1.5
 
 26.09.30 22:16 · (Codex) 사용자가 공개 GitHub 구현 사례를 지정하며 Grok Bot 자동 사용량 추적을 다시 요청했다. 앞선 수동 전용 결정을 이 범위에서 변경한다. Windows Grok Bot 로컬 로그인 세션의 access token만 읽고, 문서화되지 않은 Cursor `GetSandUsageStatus`를 5분마다 읽기 전용 조회한다. refresh token은 읽지 않고, 수치·리셋 시각만 렌더러에 전달하며, 실패하면 수동 기록으로 폴백한다. 비공식 경로와 공급자 정책·형식 변경 위험을 UI/문서에 명시한다. 공식 인터페이스가 나오면 교체한다 · 근거: github.com/lqiaoqing/grok-usage-hud, github.com/nuno/grokbot-meter, cursor.com/terms-of-service
+
+26.09.30 22:39 · (Codex) 사용자 요청으로 Grok CLI와 Grok Bot의 **표시**를 한 위젯 칸·팝업 카드로 묶는다. 실제 계량·로그인·오류 상태는 합치지 않고 이름을 붙여 구분한다. Grok CLI 활성 계정이 없으면 Bot 단독 표시를 유지한다. 여러 Grok CLI 계정이 있으면 첫 활성 카드에 Bot을 둔다.

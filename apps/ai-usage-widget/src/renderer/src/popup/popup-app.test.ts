@@ -128,6 +128,20 @@ describe('Usage tab', () => {
     expect(card.textContent).toContain('2d 0h');
   });
 
+  it('groups the separate Grok Bot meter inside the Grok popup card', () => {
+    const grok = account({ id: 'g1', provider: 'grok', label: 'Grok' });
+    const auto = { state: 'ok' as const, usedPercent: 41, resetsAt: NOW + 2 * 86_400_000, measuredAt: NOW };
+    const { root, app } = setup(appState({ accounts: [grok], usage: [usage('g1', { provider: 'grok', source: 'grok-acp' })],
+      grokBotAuto: auto }));
+    const list = root.querySelector('.usage-list') as HTMLElement;
+    expect(list.children).toHaveLength(1);
+    expect(list.querySelector('[data-account-id="g1"] .grok-bot-card')?.textContent).toContain('41% used');
+    expect(list.querySelector('.grok-bot-card')?.classList.contains('card')).toBe(false);
+    app.update(appState({ grokBotAuto: auto }));
+    expect(list.children).toHaveLength(1);
+    expect(list.firstElementChild?.classList.contains('grok-bot-card')).toBe(true);
+  });
+
   it('offers one Codex reset only for a fresh measured count and routes use through main', async () => {
     const api = new FakeApi().reply('usage:redeem-reset-credit', () => ({ ok: true, value: 'cancelled' }));
     const state = appState({ accounts: [account({ id: 'a1', provider: 'codex' })],

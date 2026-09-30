@@ -50,7 +50,7 @@ export class GrokBotCard {
     this.openButton.addEventListener('click', () => {
       void this.deps.api.invoke('shell:open-external', { kind: 'link', key: 'grok-bot-usage' });
     });
-    this.el = h('article', { class: 'card grok-bot-card', 'data-provider': 'grok-bot' }, [
+    this.el = h('section', { class: 'card grok-bot-card', 'data-provider': 'grok-bot' }, [
       h('div', { class: 'card-header' }, [
         h('div', { class: 'card-account-info' }, [
           providerIcon('grok', 24, false),
