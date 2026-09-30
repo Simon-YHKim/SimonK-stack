@@ -70,6 +70,31 @@ def identifier(value):
     return value if isinstance(value, str) and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,119}", value) else None
 
 
+def grok_model_catalog(text):
+    """Accept only the local CLI's model-list section, never arbitrary prose."""
+    if not isinstance(text, str) or len(text.encode("utf-8")) > MAX_BYTES:
+        raise CollectorError("model-catalog-invalid")
+    in_list, models = False, []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped == "Available models:":
+            if in_list:
+                raise CollectorError("model-catalog-invalid")
+            in_list = True
+            continue
+        if not in_list:
+            continue
+        if not stripped:
+            continue
+        match = re.fullmatch(r"[-*]\s+(grok-[a-z0-9][a-z0-9._-]{0,100})(?:\s+\(default\))?", stripped)
+        if match is None or match[1] in models:
+            raise CollectorError("model-catalog-invalid")
+        models.append(match[1])
+    if not in_list or not models:
+        raise CollectorError("model-catalog-invalid")
+    return models
+
+
 def opaque(*parts):
     return hashlib.sha256(json.dumps(parts, ensure_ascii=False).encode("utf-8")).hexdigest()[:24]
 
@@ -191,6 +216,10 @@ def normalize(surface, raw, now, profile):
             result["billing"][target] = amount(root.get(source))
         enabled = root.get("onDemandEnabled", root.get("on_demand_enabled"))
         result["billing"]["extra_usage_enabled"] = enabled if type(enabled) is bool else None
+        if "_grok_models_text" in raw:
+            result["models"] = [{"model": model, "transport_efforts": []}
+                                for model in grok_model_catalog(raw["_grok_models_text"])]
+            result["collection"]["model_catalog_requested"] = True
     elif surface == "claude":
         if type(raw.get("loggedIn")) is not bool:
             raise CollectorError("auth-shape-unknown")
@@ -526,6 +555,10 @@ class LocalBackend:
                         if exc.rpc_code != -32601:
                             raise
                         raw = rpc.request("x.ai/billing", {})
+                catalog, rc = run_text([*command, "--no-auto-update", "models"], cwd, env)
+                if rc != 0 or not isinstance(raw, dict):
+                    raise CollectorError("model-catalog-unavailable")
+                raw["_grok_models_text"] = catalog
             elif surface == "claude":
                 text, _ = run_text([*command, "auth", "status", "--json"], cwd, env)
                 raw = strict_json(text)
