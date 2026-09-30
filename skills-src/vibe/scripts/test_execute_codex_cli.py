@@ -128,6 +128,20 @@ class CodexCliAdapterTests(unittest.TestCase):
         self.assertEqual(self.store.snapshot()["attempts"], [])
         self.assertEqual(self.cli.sends, [])
 
+    def test_fresh_account_purchased_credits_block_even_with_zero_spend_certificate(self):
+        for billing_change in ({"credits": {"has_credits": True, "unlimited": False,
+                                            "balance": "3.25"}},
+                               {"buckets": {"codex": {"credits": {
+                                   "has_credits": True, "unlimited": False,
+                                   "balance": "3.25"}}}}):
+            with self.subTest(billing_change=billing_change):
+                self.cli.observed["billing"] = {"mode": "subscription", **billing_change}
+                with self.assertRaisesRegex(run_state.StateError,
+                                            "CODEX_PAID_CREDIT_EXPOSURE"):
+                    self.adapter.dispatch(self.plan, "opening", self.certificate)
+        self.assertEqual(self.store.snapshot()["attempts"], [])
+        self.assertEqual(self.cli.sends, [])
+
     def test_api_key_environment_is_never_forwarded(self):
         with patch.dict(os.environ, {"OPENAI_API_KEY": "fixture-only",
                                      "CODEX_API_KEY": "fixture-only"}):

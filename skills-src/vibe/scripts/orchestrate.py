@@ -77,6 +77,34 @@ def money(value):
     return amount
 
 
+def codex_paid_credit_risk(billing):
+    """Reject observed spendable or unresolved credits, including named buckets."""
+    if not isinstance(billing, dict):
+        return True
+    buckets = billing.get("buckets", {})
+    if not isinstance(buckets, dict):
+        return True
+    for item in (billing, *buckets.values()):
+        if not isinstance(item, dict):
+            return True
+        credits = item.get("credits")
+        if credits is None:
+            continue
+        if not isinstance(credits, dict) or credits.get("unlimited") is True:
+            return True
+        balance = credits.get("balance")
+        if balance is None:
+            if credits.get("has_credits") is True:
+                return True
+            continue
+        try:
+            if money(balance) > 0:
+                return True
+        except ValueError:
+            return True
+    return False
+
+
 def instant(value):
     result = datetime.fromisoformat(value.replace("Z", "+00:00"))
     if result.tzinfo is None:
@@ -823,8 +851,12 @@ def assess_candidate(c, step, policy, now, producer_vendor=None):
                           else "MODEL_INCLUSION_UNVERIFIED")
         if billing.get("api_fallback_disabled") is not True:
             errors.append("API_FALLBACK_UNVERIFIED")
+        paid_credit_risk = surface == "codex" and codex_paid_credit_risk(billing)
+        if paid_credit_risk:
+            errors.append("PAID_CREDIT_EXPOSURE")
         credit_fallback_safe = (surface not in {"codex", "grok", "grok-bot"}
-                                or billing.get("paid_credit_fallback_disabled") is True)
+                                or (billing.get("paid_credit_fallback_disabled") is True
+                                    and not paid_credit_risk))
         if not credit_fallback_safe:
             errors.append("PAID_CREDIT_FALLBACK_UNVERIFIED")
         if (billing.get("extra_usage_enabled") is False

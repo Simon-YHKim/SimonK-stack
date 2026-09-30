@@ -311,6 +311,21 @@ class OrchestrationTests(unittest.TestCase):
                     self.assertEqual(plan["status"], "blocked")
                     self.assertIn("PAID_CREDIT_FALLBACK_UNVERIFIED", str(plan))
 
+    def test_codex_positive_or_unknown_purchased_credits_block_claimed_zero_spend(self):
+        for credits in ({"has_credits": True, "balance": "3.25"},
+                        {"has_credits": True, "balance": None},
+                        {"has_credits": False, "balance": "3.25"}):
+            with self.subTest(credits=credits):
+                billing = dict(candidate()["billing"], credits=credits)
+                plan = self.plan(candidates=[candidate(billing=billing)])
+                self.assertEqual(plan["status"], "blocked")
+                self.assertIn("PAID_CREDIT_EXPOSURE", str(plan))
+        billing = dict(candidate()["billing"], buckets={"codex": {
+            "credits": {"has_credits": True, "balance": "3.25"}}})
+        plan = self.plan(candidates=[candidate(billing=billing)])
+        self.assertEqual(plan["status"], "blocked")
+        self.assertIn("PAID_CREDIT_EXPOSURE", str(plan))
+
     def test_claude_uses_separate_usage_credits_toggle(self):
         billing = dict(candidate(surface="claude")["billing"])
         billing.pop("paid_credit_fallback_disabled")
