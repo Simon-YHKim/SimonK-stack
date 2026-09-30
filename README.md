@@ -2,7 +2,7 @@
 
 > **스킬을 한 요청으로 조합하는 라이브러리.** `/vibe`가 메인 조정자이고, `simonk`는 그 아래의 스프린트 절차입니다. 사용자 = 목표와 권한의 결정자.
 
-![version](https://img.shields.io/badge/version-0.1.0-5b8cff) ![license](https://img.shields.io/badge/license-MIT-green) [![validate](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml/badge.svg)](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml) [![skills](https://img.shields.io/badge/skills-132-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]()
+![version](https://img.shields.io/badge/version-0.1.0-5b8cff) ![license](https://img.shields.io/badge/license-MIT-green) [![validate](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml/badge.svg)](https://github.com/Simon-YHKim/SimonK-stack/actions/workflows/validate-plugin.yml) [![source skills](https://img.shields.io/badge/source%20skills-141-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]()
 
 **Site**: [simonk-stack.pages.dev](https://simonk-stack.pages.dev) · **English**: [README.en.md](README.en.md) · **자매 레포**: [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (PRIVATE) — 세션 간 학습 누적
 
@@ -10,7 +10,17 @@
 
 ## 설치 / Install
 
-Claude Code 마켓플레이스에서 바로 설치 (Install directly from the Claude Code marketplace):
+> **소스 전용 머지 안전 경계(D-33):** 현재 통합 소스와 최신 정적 격리 후보의 `/vibe`는 2.12.24입니다. `distribution/main-source-only.hold`가 있는 체크아웃의 SessionStart 훅은 사용자 홈·업데이트 확인을 건드리지 않고 종료하며, `main` push의 자동 GitHub 릴리스도 보류합니다. 루트 Claude marketplace의 기존 `simonk-stack` 플러그인도 머지 전 `main` 커밋 `313c04b`에 고정했습니다. 이 장치들은 다섯 플러그인 후보를 설치하거나 자동 라우팅의 실사용 품질을 증명하지 않습니다. 새 릴리스 전에는 보류 파일 제거와 marketplace 핀·버전 변경을 별도 검증하세요.
+
+> **최신 격리 후보:** `E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-bot-gate-fix/`는 `/vibe` 2.12.24와 `/vibe-bot` 0.9.4의 미출시 보정판입니다. Claude 182스킬·Codex 일반 subset 177스킬, 공통 본문 176개·payload 617파일의 바이트 일치, 네 영수증과 오프라인 후보 검사 4단계가 통과했습니다. Bot·Relay의 미검증 `active - reported` 상태 게시 차단과 권고 만료 시 재계획 회귀를 수정했습니다. 정확한 PR HEAD 소스 420파일과 후보 해시가 일치하고, 별도 네트워크 차단 Sandbox의 Claude/Codex 플러그인 적재·두 번의 롤백도 통과했습니다. Gstack 외부 런타임·자동 선택 품질·과금·실제 사용자 홈 이관은 미검증이고 `installation_ready=false`입니다. [새 영수증·한계](docs/INSTALL.md#vibe-21224-게시재계획-보정-후보-2026-10-01)를 확인하세요.
+
+> 이전 호스트 진입 재현 후보 `E:/Coding Infra/Releases/SimonK-stack/20260930-main-entry-d77def6/`는 `/vibe` 2.12.17입니다. 같은 읽기 전용 Claude Sonnet 5.5 요청 한 건에서 이전 후보의 `simonk-stack:skstack` 대신 의도한 `simonk-core:vibe`가 실제 `Skill` 도구로 호출됐습니다. 반면 Codex 전체 subset 임시 노출은 스킬 설명 예산을 초과했고, 3스킬 시험에서는 `/vibe`를 골랐지만 본문 읽기가 정책에 막혔습니다. 따라서 **한 사례의 Claude 진입 개선**만 확인됐고 최신 2.12.24 후보의 호스트 선택·Codex 본문 실행·실효 effort·구독 청구는 증명되지 않았습니다. 사용자 프로필은 변경하지 않았으며 아래 레거시 `scripts/install.sh`는 원격 조회와 홈 변경 경로가 있어 이 후보 시험용으로 실행하지 마세요.
+
+현재 사용자 홈의 `/vibe` 2.11.6은 최신 소스·정적 후보 2.12.24와 다릅니다. v30의 오프라인 재현에서 구독 검증·초과 사용 OFF만 참이고 **선택 모델의 구독 포함·API 폴백 차단이 미확인**인 입력을 2.11.6은 `ready`, 2.12.4는 `blocked`로 판정했습니다. 최신 소스는 Codex·Grok CLI·Grok Bot의 기존 구매 크레딧 폴백 차단 증거도 추가로 요구합니다. 이는 운영 호스트의 과금·자동 선택 품질을 새로 증명한 것이 아니며 실제 과금이 발생했다는 뜻도 아닙니다. 운영 설치본의 `ready`를 추가 과금 $0 보증으로 사용하지 마세요. 호스트·과금 게이트가 미완료라 설치 경로는 변경하지 않았습니다.
+
+2026-09-29 운영 프로필 조회에서는 Claude·Codex의 SimonK 플러그인 등록이 각각 0개이고, 세 flat 스킬 경로에 v30 고유 182스킬 중 138개 이름만 존재합니다. 나머지 44개가 다른 호스트 자원에 없다는 뜻은 아니지만, **현재 프로필에서 다섯 플러그인 전체가 설치·호출 가능하다는 증거는 아닙니다.** 별도 무인증 프로필의 v31b 설치 캐시는 Claude 741/741파일·Codex 724/724파일 해시가 일치했고, 격리 Claude 초기화에서 플러그인 스킬 182개가 로드됐습니다. 이 결과는 실제 사용자 프로필 설치나 자동 스킬 선택의 증거가 아닙니다. 범위는 [v31b 격리 캐시 기록](docs/INSTALL.md#v31b-claudecodex-격리-캐시-2026-09-29)에 있습니다.
+
+Claude Code 마켓플레이스에서 **고정된 기존 루트 플러그인** 설치 (새 다섯 플러그인 후보 설치 명령이 아님):
 
 ```
 /plugin marketplace add Simon-YHKim/SimonK-stack
@@ -18,6 +28,44 @@ Claude Code 마켓플레이스에서 바로 설치 (Install directly from the Cl
 ```
 
 > git clone 기반 3-모드 설치(Direct / Vendor / Bootstrap)는 아래 [빠른 시작](#-빠른-시작--3-가지-설치-모드) 참고.
+
+### Codex 스킬 설명 예산
+
+`Skill descriptions were shortened ...`는 초기 선택 목록의 설명이 줄었다는 경고이며, 선택한 `SKILL.md` 본문을 삭제하지 않습니다. 설명은 고유 목적·호출 조건·산출물 위주로 짧게 유지합니다. `/vibe` 진입을 확실히 지정하려면 Codex의 스킬 목록에서 실제 등록 이름을 선택하세요. 플러그인이 namespace를 붙였다면 `$simonk-core:vibe`, 독립 스킬로 등록됐다면 `$vibe`처럼 이름이 다를 수 있습니다.
+
+동일 패키지가 `.agents/skills`와 `.codex/skills`에 따로 복사돼 있으면, 파일·참조를 비교한 뒤 한 경로만 `~/.codex/config.toml`에서 비활성화할 수 있습니다. 이름이 같다는 이유만으로 다른 구현이나 플러그인을 끄지 마세요.
+
+```toml
+[[skills.config]]
+path = "/absolute/path/to/redundant/skill/SKILL.md"
+enabled = false
+```
+
+설정 원본을 백업하고 **새 Codex 세션**에서 확인하세요. 선택 경로의 파일은 그대로 두며, 해당 비활성화 항목을 제거하면 복구됩니다. 다른 플러그인 수에 따라 경고가 남을 수 있습니다. [공식 스킬 로딩·비활성화 안내](https://learn.chatgpt.com/docs/build-skills)
+
+Codex의 [공식 설정 참조](https://learn.chatgpt.com/docs/config-file/config-reference)에 따르면 `skills.max_context_tokens`는 초기 스킬 목록 예산이며 기본값은 모델 컨텍스트의 2%, 명시적 상한은 10,000토큰입니다. 격리 프로필에서만 `-c skills.max_context_tokens=10000`을 시험한 결과, 후보 182개는 전역 스킬을 모두 끈 짧은 홈에서만 초기 목록에 전부 표시됐습니다. 이 설정은 본문 로드·자동 선택 품질·훅 동작을 증명하지 않으며, 전역 고유 스킬을 숨기는 일괄 비활성화는 권장하지 않습니다. 실제 사용자 프로필은 변경하지 않았습니다.
+
+본문 보존과 자동 선택 정확도는 별개입니다. [선택 전후 비교 절차](docs/skill-selection-validation.md)는 대표 요청 30개와 오프라인 채점 도구를 제공하며, 실제 Claude/GPT 관측이 없으면 `pending`으로 남깁니다. 단위 테스트 통과를 모델 정확도 통과로 해석하지 마세요.
+
+`/vibe`의 과거 버전 기록을 스킬 본문에서 제거한 2.11.10 변경은 **선택 후 본문 로드량**을 줄입니다. 초기 목록의 description 축약 경고 자체나 자동 선택 정확도 개선을 입증하지는 않습니다.
+
+2.11.11은 과거 Grok 사용량 HOLD를 영구 금지로 취급하지 않습니다. 새 실호출은 최신 쿼터, 선택 모델의 구독 포함 여부, 초과 과금 차단과 지원되는 안전 실행 경로가 확인된 경우에만 가능합니다. 이 버전은 추가 과금·모델 실호출 권한을 만들지 않습니다.
+
+2.11.12는 Antigravity CLI 1.2.12의 `/usage`가 실제로 0턴·0토큰인 것을 확인해 메타데이터 수집만 다시 허용합니다. 모델 목록·계정 과금 방식·실행 권한은 여전히 별도 증거가 필요하며, 구독 포함 경로가 확인되지 않은 모델 실호출은 시작하지 않습니다.
+
+2.11.13은 `/vibe` 설명에 GUI 자연어 진입점, `CLI/API/MCP` 우선 확인과 실제 `vibe-bot` 어댑터 이름을 명시했습니다. 초기 Play Console 평가의 존재하지 않는 스킬 답변은 `--tools ''`로 `Skill`도 제거한 비대표 조건에서 나왔습니다. `Skill` 허용 조건의 단일 후속 응답은 `/vibe`를 선택했고, v9 후보의 명시적 Skill 로드도 관측됐지만 반복 자동 선택 정확도나 다섯 표면 실행을 증명하지는 않습니다. 자세한 평가 조건과 호스트 훅·배포 테스트 범위는 [설치·후보 검증 절차](docs/INSTALL.md)를 보세요. Claude CLI의 USD 필드는 실제 추가 청구 영수증이 아닙니다.
+
+분리 플러그인 후보의 명시적 로컬 파일 참조는 [설치·후보 검증 절차](docs/INSTALL.md#후보-경로-경고-분류-2026-09-27)의 정적 경로 검사로 재현할 수 있습니다. 경로 검사 통과만으로 설치·런타임 준비를 주장하지 않습니다.
+
+이전 `/vibe` 2.12.10 안전 후보는 `E:/Coding Infra/Releases/SimonK-stack/20260930-subset-discovery-39c3ca3/`입니다. Claude·Codex 양쪽의 중앙 17모델 파일 해시는 같고, 공통 176스킬 본문은 바이트까지 같으며 `zoom-out`은 승인된 호스트별 투영 1건입니다. Codex 안전 정책 제외 5개는 D-29대로 유지하되, `subset.json`이 정확할 때만 기본 카탈로그가 177개를 반환하도록 수정했습니다. Claude 기본 카탈로그 182개, Codex 기본 카탈로그 177개, 후보 오프라인 실행 점검과 단위 테스트가 통과했습니다. **이 후보의 실제 호스트 자동 선택·실행 결과 품질과 사용자 프로필 설치는 검증하지 않았습니다.** 이전 후보의 Sandbox 결과는 이 후보의 호스트 검증으로 이월하지 않습니다. 원시 SHA-256·남은 게이트는 후보 폴더의 `report.html`과 [설치·후보 검증 절차](docs/INSTALL.md)에 있습니다. Gstack 전이 런타임, 플러그인별 버전 계약, 실제 사용자 프로필 이관이 남아 설치 준비 플래그는 계속 `false`입니다. 이전 `281fc11`·[v31b](docs/INSTALL.md#v31b-lf-고정-격리-후보-2026-09-29)·[v23 Sonnet 5.5 시험](docs/INSTALL.md#v23-claude-sonnet-55-공개-사실-갱신-후보-2026-09-29)은 과거 후보에 한정됩니다.
+
+그 이전 후보의 별도 빈 로컬 프로필에서는 Claude Code 2.1.285가 5플러그인·182스킬을 초기화했고, Codex CLI 0.159.0은 5플러그인·177스킬을 등록해 캐시 725/725파일 해시가 후보와 일치했습니다. 사용자 핵심 설정 파일 해시는 변하지 않았습니다. 새 Windows Sandbox 시험은 흰 화면에서 결과 없이 멈춰 OS 네트워크 차단 검증으로 인정하지 않았습니다. 자세한 범위는 [설치·후보 검증 절차](docs/INSTALL.md#39c3ca3-d-29-제외본-발견-수정-후보와-별도-로컬-호스트-적재-2026-09-30)를 보세요. 자동 선택·실행 품질과 구독 과금 안전성은 여전히 미검증입니다.
+
+v23에서는 Claude Code 2.1.284로 호스트 실행 파일이 바뀐 뒤에도 별도 격리 게스트의 초기화·736파일 설치를 재검증했고, Claude/Codex 합성 기존 프로필에서는 다른 테스트 플러그인·개인 스킬이 보존됐습니다. 이는 v28의 모델 선택·호스트 런타임 검증이나 실제 사용자 프로필의 무손실 이관·운영 설치 준비를 뜻하지는 않습니다.
+
+이전 `/vibe` 2.12.1 격리 후보는 `E:/Coding Infra/Releases/SimonK-stack/20260928-v20-model-facts/`입니다. [v20 검증 기록](docs/INSTALL.md#v20-모델-근거-및-격리-설치-리허설-2026-09-28)에는 공식 모델 근거 갱신, Claude·Codex 무인증 Sandbox의 5플러그인 설치·철회와 734/740파일 해시 일치, Claude `--init-only`의 5플러그인·182스킬 로딩, 고정 Gstack 시작 절차 55개 분리 시험이 있습니다. 별도 [Gstack 격리 설치 기록](docs/INSTALL.md#고정-gstack의-격리된-프로젝트-로컬-설치)은 공개 의존성을 받은 새 게스트에서 Gstack 단독 Claude 프로젝트 로컬 엔트리 57/57과 일반 실행 파일 생성을 확인했습니다(Playwright bootstrap·CSO 제외). 모두 빈 게스트의 제한 검증입니다. Gstack helper를 직접 참조하는 31개 스킬의 전이 실행 의존성과 기존 사용자 프로필 호환성은 남아 있고, 정적 감사의 직접 참조 646곳·고유 대상 9개는 런타임 폐쇄를 뜻하지 않습니다. 사용자 설치본은 이 후보로 전환하지 않았으며, 패키지·Sandbox 테스트는 모델·Bot·Orca 실호출이나 구독 과금 안전성의 증거가 아닙니다. 특히 Claude Fable의 비대화형 호출은 사용량 크레딧을 동의창 없이 청구할 수 있으므로, 정확한 모델·계정 경로의 구독 포함과 초과 과금 차단 증거가 없으면 실행하지 않습니다.
+
+추가 [동시 초기화 기록](docs/INSTALL.md#gstack-프로젝트-스킬과-v20-플러그인-동시-초기화)은 새 게스트에서 Gstack 프로젝트 스킬 57개와 v20 플러그인 스킬 182개를 함께 로딩하고 중복 건너뜀 0을 확인했습니다. 이는 임시 `--plugin-dir` 초기화 시험이며 실제 설치·전체 동작 검증은 아닙니다.
 
 ---
 
@@ -84,7 +132,11 @@ Office     & Design               & Platform & Compl.   & Revenue  & Memory   De
 | `/refactor` | 구조 개선 |
 | `/explain` | 모듈·시스템 walkthrough (entry points, data flow, invariants) |
 | `/simon-worktree` | 병렬 작업 시 git worktree 격리 |
-| `/vercel-react` · `/vue-best-practices` · `/building-native-ui` · `/remotion-best-practices` · `/scientific-paper` | 도메인별 best practices (React/Vue/RN/Remotion video/학술논문) |
+| `/phase4-game-orchestrator` | 게임 구현 요청을 과거 일정으로 미루지 않고 엔진·에셋·비용을 확인해 `/vibe` 빌드·검증으로 연결합니다. 초안이나 스토어 게시를 완료로 주장하지 않습니다. |
+| `/building-native-ui` | 기존 RN/Expo 구조·SDK를 확인해 네이티브 화면을 구현하고 Android APK/Studio·iOS 검증 범위를 구분합니다. EAS 클라우드 빌드·스토어 제출은 별도 게이트입니다. |
+| `/vercel-react` | 기존 React/Next.js·라우터·Vercel 맥락을 확인하고 실측 오류에 맞는 경계·캐시·렌더링만 수정합니다. 프리뷰·운영 배포와 유료 설정은 별도 게이트입니다. |
+| `/vue-best-practices` | 기존 Vue/Options·Composition API와 Pinia 규약을 보존하며 반응성 진단·실측 성능 개선·프로젝트 검증을 수행합니다. Vue 버전별 기능과 유료/자동 다운로드 경계를 확인합니다. |
+| `/remotion-best-practices` · `/scientific-paper` | 도메인별 best practices (Remotion video/학술논문) |
 
 ### 4. DevEx & Platform (플랫폼) — 인프라·툴체인·배포
 
@@ -93,9 +145,12 @@ Office     & Design               & Platform & Compl.   & Revenue  & Memory   De
 | 핵심 skill | 역할 |
 |---|---|
 | `/deploy-configurator` | 배포 플랫폼 선택 + CI/CD + custom domain + env 관리 |
+| `/app-platform-selector` | 기존 코드·기기 기능·비용 조건에 맞춰 PWA/Hybrid/Native를 비교합니다. Apple 심사 결과를 보장하지 않고 최신 공식 §4.2와 실제 앱 가치를 확인합니다. |
+| `/db-selector` | 기존 DB·마이그레이션과 사용량을 먼저 확인하고 공식 가격·무료 한도·초과 과금 조건으로 DB 후보를 비교합니다. 사용자 수만으로 비용을 확정하지 않습니다. |
+| `/stack-architect` | 기존 구성과 실측 부하에 맞춰 프론트/백/API·배포 후보를 비교합니다. 사용자 수만으로 서비스·월 비용·Kubernetes를 확정하지 않습니다. |
 | `/setup-deploy` (gstack) | `/land-and-deploy` 용 deploy 설정을 CLAUDE.md 에 박음 |
 | `/land-and-deploy` (gstack) | 머지 → CI 대기 → 프로덕션 canary 검증 |
-| `/ship` (gstack) | VERSION + CHANGELOG + push + PR 한 흐름 |
+| `/ship` (gstack) | 변경 범위·최신 검증·비용/권한을 확인하는 릴리스 흐름. VERSION·push·PR은 프로젝트 규칙과 명시된 승인 범위에서만 수행합니다. |
 | `/canary` (gstack) | 프로덕션 헬스 카나리 검증 |
 | `/stack-update` | SimonK Stack 본체 + Wiki + gstack + 5 vendored stacks 홀리스틱 최신화 |
 | `/multi-terminal-dispatcher` | 중앙 계획·상태·비용을 공유하는 준비된 작업 묶음 실행; 기본은 미리보기 |
@@ -107,10 +162,10 @@ Office     & Design               & Platform & Compl.   & Revenue  & Memory   De
 | 핵심 skill | 역할 |
 |---|---|
 | `/security-orchestrator` | 4 단계 보안 감사 순차 실행 (checklist → authz → rate-limit → budget cap) |
-| `/security-checklist` | RLS / 구독 변조 / dual-layer rate-limit / 예산 cap 4 pillar |
-| `/authz-designer` | 역할·권한 설계 |
+| `/security-checklist` | RLS·GRANT, 민감 열·웹훅, 사용자/IP 제한, 공급자·앱·사용자 비용 게이트를 증거별로 감사합니다. 유료 호출·운영 변경 없이 미확인 상태를 구분합니다. |
+| `/authz-designer` | 기존 서버·DB 권한 경계를 확인해 역할·관계 정책을 설계하거나 교차 테넌트/IDOR를 읽기 전용으로 감사합니다. DDL·운영 권한 변경은 별도 게이트입니다. |
 | `/cso` (gstack) | Chief Security Officer 모드 — 종합 보안 결정 |
-| `/paid-api-guard` | 유료 API 호출 가드 (예산 cap) |
+| `/paid-api-guard` | 결제·SMS 등 종량제 API의 키·서명·남용·비용 경계를 점검합니다. 유료 실호출·메시지 전송·키 회전·결제 설정은 별도 승인입니다. |
 | `/keepass-helper` | 시크릿 매니지먼트 |
 
 ### 6. Growth & Revenue (그로스·재무) — 사용자·돈·시장
@@ -192,6 +247,8 @@ Claude Code 안에서는 `/ai-usage-widget-install` 또는 "AI 사용량 위젯 
 반영 → 결과 보고. 무조건 병렬 실행하거나 모든 저장소를 자동 push하지 않습니다.
 추가 과금 기본값은 $0이며, 미확인 과금이나 사용량을 0으로 간주하지 않습니다.
 GUI가 꼭 필요한 일만 내부 vibe-bot 경로로 전달합니다.
+Bot 명단의 `active - reported`는 실접속 확인이 아니므로 `/vibe`는 정확한 실측 `active`와 별도 계정·쿼터·Relay 증거가 없으면 발주하지 않습니다.
+승인된 Relay 협업 루프에서는 `vibe-bot/scripts/bus_watch.py --watch`로 저장된 상태부터 읽기 전용 감시하고, 작업 발송·운영 변경은 기존 승인 게이트를 따릅니다.
 
 PowerShell의 `simonK`는 슬래시 명령과 다르게 **구조화된 오프라인 계획 전용**입니다.
 이전의 `simonK "task"`와 인자 없는 Claude 실행은 차단됩니다.
@@ -250,7 +307,7 @@ git clone https://github.com/Simon-YHKim/SimonK-stack.git ~/SimonK-stack
 cd ~/SimonK-stack && ./scripts/install.sh
 ```
 
-global `~/.claude/skills/` 에 132 skill + shared scripts + instincts 배포. SessionStart hook 은 settings.json 에 수동 등록.
+이 레거시 설치기는 실행 시점에 가져온 플러그인에 따라 설치 수가 달라지며, 플러그인 소스가 전혀 없을 때만 이 브랜치의 `skills-src/` 137개와 개발용 4개로 폴백합니다. 사용자 홈을 변경하므로 위의 v23 승격 보류 상태에서 후보 검증용으로 실행하지 마세요. SessionStart hook 은 settings.json 에 수동 등록합니다.
 
 ### B. Vendor mode — "이 target repo 안에 통째로"
 
@@ -315,7 +372,7 @@ skills-src/<name>/
 
 | 문서 | 내용 |
 |---|---|
-| [`.claude/skills/INDEX.md`](.claude/skills/INDEX.md) | 132 skill 카탈로그 (이 README 의 부서 표보다 자세) |
+| [`.claude/skills/INDEX.md`](.claude/skills/INDEX.md) | 이 브랜치의 소스·개발 스킬 141개 맵 (5플러그인 후보 182개와 구분) |
 | [`CLAUDE.md`](CLAUDE.md) | 이 레포에서 작업할 때의 Claude 지침 (검증 도구, 컨벤션, 금기) |
 | [`CHANGELOG.md`](CHANGELOG.md) | Keep a Changelog 형식 |
 | [`docs/INSTALL.md`](docs/INSTALL.md) | 설치 상세 |
@@ -330,11 +387,9 @@ skills-src/<name>/
 # 단일 skill 검증
 python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py skills-src/<name>
 
-# 전체 repo 검증 (132 skill sweep)
-for d in skills-src/*/ .claude/skills/*/; do
-  [ -f "${d}SKILL.md" ] || continue
-  python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py "${d%/}" 2>&1 | grep Result
-done
+# 전체 skill CI 검증 (두 소스 루트)
+python3 .github/skill-ci/run_ci.py
+# Windows에서는 python .github/skill-ci/run_ci.py
 
 # 24-check 통합 테스트
 python3 .claude/skills/skill-gen-agent/scripts/tests/run_all.py
@@ -342,9 +397,21 @@ python3 .claude/skills/skill-gen-agent/scripts/tests/run_all.py
 # 벤치마크 수집기 회귀 검사 (네트워크 없이 임시 Wiki/cache만 사용)
 python3 -m unittest discover -s scripts/tests -p test_fetch_model_benchmarks.py
 
+# /vibe 오프라인 테스트: 상위 스크립트와 tests/를 각각 발견 (실제 모델·Orca 호출 없음)
+(cd skills-src/vibe/scripts && PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -s . -p 'test_*.py' -q)
+(cd skills-src/vibe/scripts && PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -s tests -p 'test_*.py' -q)
+
+# 5-plugin 후보 빌더 회귀 검사 (격리된 임시 Git 입력만 사용)
+PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -s scripts/tests -p test_plugin_bundle.py -q
+
 # Bash 스크립트 문법
 for f in scripts/*.sh .claude/hooks/*.sh; do bash -n "$f" && echo "OK: $f"; done
 ```
+
+5-plugin 후보의 모든 `.sh` 파일은 LF 줄바꿈이어야 합니다. Windows의 Git
+`core.autocrlf=true` 체크아웃은 CRLF 스크립트를 만들 수 있으며, 후보 빌드·검증은
+이 입력을 차단합니다. 원본 저장소 설정을 바꾸지 말고 격리된 빌드 입력에서
+줄바꿈을 확인하세요. 원본 플러그인 작업트리에 Git 무시 캐시가 있으면 빌더의 엄격한 파일 인벤토리와 충돌할 수 있으므로, 고정 커밋을 깨끗한 임시 체크아웃으로 재현하세요. 후보 영수증은 파일 바이트 검증이지 설치·실행 승인서가 아닙니다.
 
 **원칙** (Boris Cherny): Claude 가 *눈으로 확인 가능* 한 검증 명령을 명시. "확인해 주세요" 가 아니라 자신이 실행.
 

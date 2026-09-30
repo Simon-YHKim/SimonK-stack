@@ -27,17 +27,24 @@ from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
+# Plain CLI invocation must not create an unreceipted registry cache in a bundle.
+if __name__ == "__main__":
+    sys.dont_write_bytecode = True
 SCRIPT_ROOT = Path(__file__).resolve().parent
 if str(SCRIPT_ROOT) not in sys.path:
     sys.path.insert(0, str(SCRIPT_ROOT))
 from model_registry import load_registry
 
 SURFACES = ("codex", "claude", "antigravity", "grok")
+GROK_TIER_ALIASES = {
+    "SuperGrok Plus": "SuperGrokPlus",
+    "SuperGrok Heavy": "SuperGrokHeavy",
+}
 MAX_BYTES = 1024 * 1024  # Catalogs fit well below 1 MiB; stop unsolicited floods.
 RPC_METHODS = {"initialize", "model/list", "account/read", "account/rateLimits/read",
                "_x.ai/billing", "x.ai/billing"}
 TOKEN_FIELDS = {"input_tokens", "output_tokens", "thinking_tokens", "cache_read_tokens", "total_tokens"}
-AGY_USAGE_VERSIONS = {"1.2.6", "1.2.7", "1.2.9"}  # Zero-turn command contract measured locally.
+AGY_USAGE_VERSIONS = {"1.2.6", "1.2.7", "1.2.9", "1.2.12", "1.2.13", "1.2.14"}  # Zero-turn command contract measured locally.
 BASE_ENV = {"SYSTEMROOT", "SYSTEMDRIVE", "WINDIR", "COMSPEC", "PATH", "PATHEXT", "TEMP", "TMP", "TMPDIR",
             "HOME", "USERPROFILE", "HOMEDRIVE", "HOMEPATH", "APPDATA", "LOCALAPPDATA", "PROGRAMDATA",
             "PROGRAMFILES", "PROGRAMFILES(X86)", "PROGRAMW6432", "COMMONPROGRAMFILES", "COMMONPROGRAMFILES(X86)",
@@ -130,7 +137,8 @@ def normalize(surface, raw, now, profile):
               "account_ref": None, "account_verified": False, "generation_verified": False,
               "models": [], "quota_windows": [], "auth": {},
               "billing": {"mode": "unknown", "verified": False, "extra_usage_enabled": None,
-                          "model_included": None, "api_fallback_disabled": None,
+                          "model_included": None, "included_model": None,
+                          "api_fallback_disabled": None,
                           "provider_hard_cap": None, "actual_cost_usd": None},
               "collection": {"generation_requested": False, "zero_token_verified": None}}
     identity = None
@@ -171,7 +179,9 @@ def normalize(surface, raw, now, profile):
             raise CollectorError("billing-shape-unknown")
         root, period = roots[0], obj(roots[0].get("currentPeriod"))
         identity = raw.get("accountId")  # May be absent: a profile is not an identity.
-        tier = identifier(raw.get("subscriptionTier", raw.get("subscription_tier")))
+        raw_tier = raw.get("subscriptionTier", raw.get("subscription_tier"))
+        tier = GROK_TIER_ALIASES.get(raw_tier) if isinstance(raw_tier, str) else None
+        tier = tier or identifier(raw_tier)
         result["auth"] = {"logged_in": True, "plan": tier}
         result["billing"]["mode"] = "subscription" if tier else "unknown"
         result["quota_windows"].append(window("grok-credits", identifier(period.get("type")) or "unknown",

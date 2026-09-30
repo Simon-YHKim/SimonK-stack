@@ -1,14 +1,14 @@
 ---
 name: phase4-game-orchestrator
-description: "Use when the user invokes \"게임 만들자\", \"미니게임\", \"바이브코딩\", \"Godot\", \"Phaser\", \"Three.js\", \"ComfyUI 이미지\", \"Suno BGM\", or \"/phase4-game-orchestrator\". Phase 4 (Q3 2026 게임 트랙) orchestrator placeholder. Produces (1) Godot 게임 scaffold + asset list, (2) 42morrow 바이브코딩 시리즈 reference 추천, (3) ComfyUI 이미지 + Suno BGM 자동 생성 파이프라인 sketch, (4) Play Store ASO sketch (안드 출시 후 release notes 톤 유지). Do NOT use before Phase 4 (7월). 현재 placeholder, Phase 4 진입 시 본격 작성."
+description: "Use when asked to \"게임 만들자\", \"미니게임\", \"바이브코딩\", \"Godot\", \"Phaser\", \"Three.js\", \"ComfyUI 이미지\", \"Suno BGM\", or /phase4-game-orchestrator. Produces a game feasibility check, playable-prototype scope and asset plan, then continues requested implementation through /vibe. Never assumes an old phase date, installed tools, free music credits or store publishing authority."
 allowed-tools: Read, Bash, Write
-version: 0.1.0
+version: 0.1.1
 author: simon-stack
 ---
 
-# phase4-game-orchestrator (Phase 4 placeholder)
+# phase4-game-orchestrator (game-track draft)
 
-> **상태**: ⏳ Phase 4 (Q3 2026, 7월~9월) 진입 시 본격 작성. *현재 placeholder*.
+> **상태**: 게임 트랙 절차 초안. 과거 일정만으로 작업을 막지 않는다. 실제 게임·에셋 생성 및 스토어 제출은 도구·권한·비용·결과를 각각 확인한다. 이 문서만으로 제작 자동화가 구현된 것은 아니다.
 
 ## 발동 조건
 
@@ -17,17 +17,17 @@ author: simon-stack
 - `ComfyUI 이미지`, `Suno BGM`
 - `/phase4-game-orchestrator`
 
-## Phase 4 진입 전 점검
+## 착수 전 실측
 
-| # | 조건 | 현재 상태 |
+| # | 확인할 것 | 판정 기준 |
 |---|---|---|
-| 1 | Godot 4.6.3+ 설치 | ✅ (winget) |
-| 2 | ComfyUI 활성 (데스크톱 GPU) | ⏳ install 확인 / 활용 X |
-| 3 | Suno Pro 구독 ($10/월) | 🚫 Phase 4 시점 결정 |
-| 4 | 5/30 안드 앱 출시 후 Play Console 학습 데이터 | 🚫 5/30 이후 |
-| 5 | 42morrow 바이브코딩 시리즈 13+ 글 reference | ✅ raw/clipped/blog-42morrow/DIY-테스트/ |
+| 1 | 선택 엔진 | 현재 프로젝트 선호와 실제 CLI·에디터 설치·버전을 확인한다. |
+| 2 | ComfyUI·GPU | 로컬 워크플로와 자산 사용 권한을 확인한다. 미확인이면 생성 가능하다고 말하지 않는다. |
+| 3 | Suno 등 음악 서비스 | 구독 포함 사용·추가 과금 차단·라이선스를 확인하기 전 호출·구독·결제를 하지 않는다. 불명확하면 사용 가능한 로컬 임시 오디오를 확인하거나 무음 에셋으로 진행한다. |
+| 4 | Play Console·출시 데이터 | 실제 계정·앱 상태를 관측하기 전 출시·게시 가능 상태라고 가정하지 않는다. |
+| 5 | 42morrow 참고 자료 | 허용된 로컬 경로에 파일이 실제 존재할 때만 읽고 추천한다. 문서 수를 가정하지 않는다. |
 
-## 본격 활성 시 산출물 (예정)
+## 요청에 따른 산출물 (도구 검증 후)
 
 ### 1. Godot 게임 scaffold
 
@@ -41,14 +41,14 @@ project_name/
 │   ├── player.gd
 │   └── enemy.gd
 ├── assets/
-│   ├── images/  (ComfyUI 생성)
-│   └── audio/   (Suno 생성)
+│   ├── images/  (확인된 로컬 워크플로 또는 임시 에셋)
+│   └── audio/   (사용권이 확인된 오디오 또는 임시 에셋)
 └── export_presets.cfg
 ```
 
 ### 2. 42morrow 바이브코딩 시리즈 reference 추천
 
-본인 raw/clipped/blog-42morrow/DIY-테스트/ 의 *13+ 바이브코딩 시리즈*:
+접근 가능한 `raw/clipped/blog-42morrow/DIY-테스트/` 자료가 있을 때 참고할 수 있는 주제 예시:
 - 온라인 빙고 게임
 - 루빅스 큐브
 - 스틱맨 댄스
@@ -58,39 +58,34 @@ project_name/
 - 보석 십자수
 - ... 등
 
-→ 사용자 의도 매칭 후 *해당 글 본문 + 기술 스택 + 게임 logic 추출*.
+→ 실제 파일 존재·열람 권한을 확인한 뒤 사용자 의도에 맞는 글의 기술 스택과 게임 로직을 참고한다.
 
-### 3. ComfyUI 이미지 + Suno BGM 파이프라인
+### 3. 이미지·음악 파이프라인 초안
 
 ```
-[게임 컨셉] → ComfyUI workflow → asset images (PNG/sprite)
-            → Suno API → BGM (loop / SFX)
-            → Godot import 자동 (asset 폴더 watcher)
+[게임 컨셉] → 확인된 로컬 이미지 워크플로 또는 임시 에셋
+            → 사용권·비용이 확인된 오디오 또는 로컬 임시 오디오
+            → 선택 엔진의 에셋 import 및 라이선스 기록
 ```
 
-### 4. Play Store ASO sketch
+### 4. Play Store ASO 초안 (게시 전 별도 확인)
 
-5/30 안드 앱 출시 후 *release notes 톤 유지* + 게임 ASO:
+실제 앱·계정·게시 권한을 확인한 뒤 *release notes 톤 유지* + 게임 ASO 초안:
 - title + keywords + screenshots 최적화
 - *human-voice-guard* 스킬 연동 (AI tell 제거)
 - *viral-launch* 4채널 (인앱 / 인스타 / 커뮤니티 / 입소문)
 
-## 현재 placeholder 동작
+## 현재 초안의 동작 경계
 
 ```
 사용자: /phase4-game-orchestrator "스틱맨 게임 만들고 싶어"
 → 본 skill 응답:
 
-  ## Phase 4 진입 전 상태
-  Phase 4는 7월~9월 (Q3) 본격 활성. 현재 (5월) 진입 전.
-
-  대신 진행 가능:
-  - 42morrow 바이브코딩 스틱맨 댄스 글 fetch:
-    raw/clipped/blog-42morrow/DIY-테스트/[바이브코딩] 스틱맨 댄스 만들기.md
-  - Godot install 확인: godot --version
-  - ComfyUI 활성: 데스크톱 GPU 호스트
-
-  본격 작업은 Phase 4 진입 (7월) 후 진행 권장.
+  - 현재 프로젝트·선호 엔진과 로컬 설치를 확인한다.
+  - 접근 가능한 42morrow 자료가 있으면 실제 내용을 읽어 참고한다.
+  - 추가 과금 없이 가능한 플레이어 이동·충돌·재시작의 최소 플레이 루프와 에셋 목록을 정한다.
+  - 사용자가 구현을 요청했다면 초안만 제출하고 완료라고 하지 않는다. /vibe의 빌드·검증 절차로 이어간다.
+  - ComfyUI·Suno 생성 또는 Play Store 게시를 준비·실행했다고 주장하지 않는다.
 ```
 
 ## 교차참조
@@ -102,7 +97,7 @@ project_name/
 
 ---
 
-*v0.1.0 placeholder 2026-05-25. v1.0 정식 활성: Phase 4 진입 (7월 1주차) 시.*
+*v0.1.1: 오래된 일정·설치·가격 단정을 제거했다. 실제 게임 제작 자동화는 별도 구현·검증이 필요하다.*
 
 ## 완료 보고 (HTML) — 표준
 작업을 끝내면 **HTML 완료 보고서**를 생성한다 (SimonKCore `completion-report` 표준).

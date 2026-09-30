@@ -1,6 +1,6 @@
 {
   "skill": "vercel-react",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "cases": [
     {
       "id": "ko-server-client-boundary",
@@ -8,11 +8,11 @@
       "assertions": [
         {
           "id": "boundary-table",
-          "text": "Produces a Server/Client boundary decision table and a precheck grep for boundary smells"
+          "text": "Inspects the actual Next.js router, import graph and browser/build evidence before changing Server/Client boundaries; does not infer a defect from use-client file counts."
         },
         {
           "id": "fix-hydration",
-          "text": "Addresses the hydration mismatch by moving 'use client' down the tree"
+          "text": "Reproduces and fixes the specific hydration mismatch while preserving legitimate client providers and verifying browser behavior after the change."
         }
       ]
     },
@@ -22,16 +22,62 @@
       "assertions": [
         {
           "id": "caching-patterns",
-          "text": "Gives data-fetching + caching patterns (fetch revalidate, use cache, cacheLife/cacheTag)"
+          "text": "Checks Next.js version and cacheComponents before choosing either previous fetch/segment caching or the use-cache/cacheLife/cacheTag model, without mixing incompatible options."
         },
         {
           "id": "suspense-streaming",
-          "text": "Shows Suspense streaming and Server Action snippets plus edge-vs-node runtime guidance"
+          "text": "Uses Suspense around genuinely async subtrees, parallelizes only independent requests, and treats Server Action/Route Handler and Node/Edge selection as conditional."
         },
         {
           "id": "verify-build",
-          "text": "Verifies via next build / Lighthouse"
+          "text": "Runs available build and relevant tests, compares measured browser or Lighthouse data only when available, and marks unmeasured behavior as unverified."
         }
+      ]
+    },
+    {
+      "id": "trigger-ko-1",
+      "prompt": "React 최적화",
+      "assertions": [
+        { "id": "react-context", "text": "Recognizes React performance intent and inspects the framework and actual Vercel context before applying Next.js App Router rules or proposing migration." }
+      ]
+    },
+    {
+      "id": "trigger-slash",
+      "prompt": "/vercel-react",
+      "assertions": [
+        { "id": "explicit-invocation", "text": "Recognizes the explicit vercel-react invocation and requests a target project only if no repository or task context exists." }
+      ]
+    },
+    {
+      "id": "trigger-en-1",
+      "prompt": "react best practices",
+      "assertions": [
+        { "id": "scope", "text": "Does not assume App Router, Vercel deployment, a particular Next.js version, or permission to add packages." }
+      ]
+    },
+    {
+      "id": "pages-router-preservation",
+      "prompt": "우리 Vercel Next.js Pages Router 앱에서 하이드레이션 경고가 납니다. App Router로 옮기지 말고 고쳐줘.",
+      "assertions": [
+        { "id": "router-preserved", "text": "Reproduces the hydration issue in the Pages Router and preserves the existing router without introducing App Router-only use-client or Cache Components directives." },
+        { "id": "verified-fix", "text": "Runs available build/test and verifies the browser warning is gone under the same conditions, or marks that check unverified." }
+      ]
+    },
+    {
+      "id": "cache-components-mutation",
+      "prompt": "Next.js App Router에서 cacheComponents를 켠 뒤 저장 폼이 예전 목록을 보여요. 사용자에겐 바로 새 글이 보여야 합니다.",
+      "assertions": [
+        { "id": "cache-model", "text": "Confirms the enabled cache model and cache tag scope; does not combine segment revalidate config with Cache Components." },
+        { "id": "read-your-writes", "text": "For supported Next.js versions, uses Server Action updateTag or another verified immediate invalidation path rather than a deprecated one-argument revalidateTag or stale-while-revalidate when immediate visibility is required." },
+        { "id": "authz", "text": "Revalidates authentication, authorization and input on the server before mutation." }
+      ]
+    },
+    {
+      "id": "zero-extra-cost-preview",
+      "prompt": "Vercel의 현재 앱 성능을 고치되 추가 과금은 0달러로 하고, 바로 운영에 배포하지 마세요.",
+      "assertions": [
+        { "id": "baseline", "text": "Measures the current issue and implements a scoped change in the existing stack without inventing LCP or cost figures." },
+        { "id": "release-gate", "text": "Does not deploy to production, enable paid settings or overage, or create new services; a preview also requires confirmed workflow authority and billing/quota evidence." }
       ]
     }
   ]

@@ -154,8 +154,16 @@ class BotAdapterTests(unittest.TestCase):
             "spec_path": str(self.spec), "meta_path": str(self.meta),
             "spec_sha256": self.sha(self.spec), "meta_sha256": self.sha(self.meta),
             "helper_sha256": self.sha(helper), "roster_sha256": self.sha(self.bot_root / "bots.json")}
+        # Bot usage has its own subscription-inclusion proof; the generic LLM
+        # fixture's model_included flag must never stand in for it.
         c = candidate("bot", "grok-bot", transport="bot", model=None, bot_id=self.bot_id,
-                      bot_status="active", capabilities=["gui"])
+                      bot_status="active", capabilities=["gui"], provider_efforts=[],
+                      transport_efforts=[], effort_by_demand={},
+                      billing={"mode": "subscription", "verified": True,
+                               "extra_usage_enabled": False, "bot_usage_included": True,
+                               "api_fallback_disabled": True,
+                               "paid_credit_fallback_disabled": True,
+                               "account_ref": "test-bot-account"})
         request = {"run_id": "bot-fixture", "steps": [{"id": "screen", "kind": "gui",
             "task": self.task, "target": self.target, "skills": ["vibe-bot"], "needs": ["gui"],
             "gui_reason": "fixture screen only", "tool_route_available": False,
@@ -279,7 +287,8 @@ class BotAdapterTests(unittest.TestCase):
         self.assertFalse(result["bot_acceptance_verified"])
 
     def test_inactive_roster_is_rejected_even_with_matching_hash(self):
-        for status in ("ON HOLD", "WITHDRAWN", "to create", "inactive"):
+        for status in ("ON HOLD", "WITHDRAWN", "to create", "inactive",
+                       "active - reported in user-supplied snapshot; live access unverified"):
             with self.subTest(status=status):
                 changed = copy.deepcopy(self.plan)
                 roster = self.bot_root / "bots.json"
@@ -290,7 +299,7 @@ class BotAdapterTests(unittest.TestCase):
                 store.initialize()
                 store.register(changed, now=NOW)
                 proof = {**self.proof, "binding_sha256": self.m.binding_digest(changed, "screen")}
-                with self.assertRaises(StateError):
+                with self.assertRaisesRegex(StateError, "BOT_NOT_ACTIVE"):
                     self.m.Adapter(store, lambda: NOW).dispatch(changed, "screen", proof)
                 self.assertEqual(store.snapshot()["attempts"], [])
 
@@ -406,7 +415,8 @@ class SpecialistPublicationTests(unittest.TestCase):
     sha = staticmethod(BotAdapterTests.sha)
 
     def test_missing_or_held_relay_blocks_specialist_before_claim(self):
-        for status in (None, "ON HOLD", "inactive"):
+        for status in (None, "ON HOLD", "inactive",
+                       "active - reported in user-supplied snapshot; live access unverified"):
             with self.subTest(relay_status=status):
                 bots = [{"id": "analytics", "status": "active"}]
                 if status is not None:

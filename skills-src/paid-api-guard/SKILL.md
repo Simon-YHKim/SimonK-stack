@@ -1,181 +1,58 @@
 ---
 name: paid-api-guard
-description: Use when the user integrates or audits paid third-party APIs (Stripe, Toss, Iamport, Twilio, SendGrid, Google/Naver/Kakao Maps)—triggers include "Stripe 연동", "토스 결제", "Twilio SMS", "결제 API 보안", "webhook signature", "idempotency", "prevent API cost explosion", "protect against leaked keys". Produces a 6-layer defense checklist (network boundary, signing/idempotency, abuse detection, payment hardening, key-leak response, observability) plus 5 adversarial tests and an API design review.
+description: >
+  Use when integrating or auditing metered third-party APIs (payments, SMS, email, maps): "Stripe 연동", "Twilio SMS 비용 폭탄", "웹훅 서명", "API 키 유출", "prevent API cost explosion", or /paid-api-guard. Produces a scoped six-area risk review and test plan, separating read-only diagnosis from actions that send messages, charge money, rotate credentials, or change billing.
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 1.0.0
+version: 1.0.1
 author: simon
 ---
 
 # Paid API Guard
 
-LLM 외 유료 API (결제·SMS·지도·금융·이메일) 에 대한 6층 방어 및 API 설계 리뷰.
+Review or implement controls for APIs whose misuse can send messages, move money, or incur metered charges. A checklist is evidence, not proof of containment or a substitute for the provider's current contract.
 
-## When to use
+## Scope and authority
 
-- Stripe / Toss / Iamport / PayPal 결제 통합 시
-- Twilio / NCP SENS / Aligo SMS
-- 네이버·카카오·구글 Maps (유료 tier)
-- SendGrid / Postmark / Resend 이메일
-- 외부 API 키가 프론트엔드 번들에 들어갈 위험
-- 사용자가 "API 보안", "결제 연동 안전하게", "비용 폭탄 방지" 요청
+1. Inspect the existing app, provider and SDK versions, test/live mode, credential storage, authorization path, request volume, retries, and billing/usage controls. Read only the presence and location of credentials; never print or copy their values into prompts, logs, reports, or code.
+2. Classify the request as **audit**, **implementation**, or **incident response**. An audit is read-only. A suspected leak is urgent but not confirmed containment; inspect available logs and propose rotation/revocation without performing credential or billing changes unless separately authorized.
+3. Before any test, enumerate external effects and price. Prefer mocks, fixtures, local failure injection, and provider sandboxes whose nonbilling status is confirmed. If the user requires extra cost `$0`, do not send live SMS/email, create live charges, make metered calls, or turn on overage/auto-top-up. A subscription login or usage alert alone does not prove a hard billing cap.
+4. Preserve the app's stack and existing security controls. Choose only relevant controls from the six areas below; record evidence, changes, commands/tests actually run, unverified claims, and rollback needs. Live payment, bulk message, production credential, customer data, or billing changes require explicit authorization.
 
-## Workflow — 6층 방어
+## Six review areas
 
-### Layer 1. 네트워크 경계
-
-- 유료 API egress 는 **단일 서브넷** 에서만 (Vercel/Fly 기본 아님 → BFF 계층 도입)
-- **브라우저 직접 호출은 피하라** — 항상 BFF (Backend-for-Frontend) 경유. 프론트에서 직접 호출하면 키가 번들에 포함되거나 CORS 우회 공격이 가능해진다
-- Cloudflare WAF 로 선차단: 알려진 봇 UA, 국가 제한(서비스 지역 외)
-- API 키는 서버 환경변수만 (`process.env.STRIPE_SECRET_KEY`), `NEXT_PUBLIC_*` 절대 금지
-
-### Layer 2. 서명·멱등성
-
-- 클라이언트 → BFF 는 HMAC + nonce + timestamp (5분 window)
-- 결제·비용 요청은 `Idempotency-Key` 헤더 필수 (Stripe 표준)
-- 웹훅은 **raw body** 로 서명 검증. JSON 파싱 후 재직렬화 금지 (서명 깨짐)
-- nonce 는 Redis 에 5분 TTL 저장, 중복 시 거부
-
-```ts
-// 예시: Stripe 웹훅 (Next.js App Router)
-export async function POST(req: Request) {
-  const rawBody = await req.text();
-  const sig = req.headers.get('stripe-signature')!;
-  try {
-    const event = stripe.webhooks.constructEvent(
-      rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET!
-    );
-    // idempotency: event.id 로 중복 체크
-    const already = await redis.get(`stripe:evt:${event.id}`);
-    if (already) return new Response('ok', { status: 200 });
-    await redis.setex(`stripe:evt:${event.id}`, 86400, '1');
-    // ... 처리
-  } catch { return new Response('bad sig', { status: 400 }); }
-}
-```
-
-### Layer 3. 남용 탐지
-
-- 사용자별 비용 대시보드 (일·월 누적)
-- 이상 패턴 자동 감지:
-  - 평소 대비 10배 이상 호출 → 자동 일시정지 + 이메일
-  - 신규 계정 24시간 내 결제 시도 3회 이상 → 수동 승인
-  - 동일 IP 에서 여러 계정 빠른 결제 → 차단
-- Cloudflare Turnstile / hCaptcha (로그인·회원가입·결제)
-- 신규 계정 24시간 한도 축소 (정상치 10%)
-
-### Layer 4. 결제 전용
-
-- 시크릿 매니저 별도 네임스페이스 (`stripe/*`, `toss/*`)
-- 카드번호 취급 금지: Stripe Elements / Toss SDK 로 tokenize 후 서버에는 token 만
-- 환불·취소는 2차 승인 (OTP 또는 관리자 승인)
-- **금액 서버 재계산**: 클라이언트가 보낸 amount 는 신뢰하지 말고, 서버가 DB 의 상품 가격 × 수량으로 재계산한다. 프론트 조작 한 번으로 0원 결제가 가능해지는 가장 흔한 실수
-  ```ts
-  // 금액은 DB 의 상품 가격 × 수량으로 서버가 재계산
-  const amount = products[productId].price * quantity;
-  stripe.paymentIntents.create({ amount, currency: 'krw' });
-  ```
-
-### Layer 5. 키 탈취 대응
-
-- **Canary 키** 배치: 가짜 키 (유효하지 않음) 를 의도적으로 노출 → 사용 감지 시 알림
-- `docs/INCIDENT-PLAYBOOK.md` 작성:
-  - 탐지 경로 (Stripe 대시보드 알림·CloudWatch·사용자 신고)
-  - 1차 대응 (키 즉시 로테이션)
-  - 2차 대응 (피해 범위 산정)
-  - 3차 대응 (사용자 공지)
-- GitHub push protection ON + trufflehog pre-commit
-- 90일 키 로테이션 자동화 (캘린더 리마인더 + 스크립트)
-
-### Layer 6. 관측
-
-모든 외부 API 호출 로깅:
-```json
-{
-  "user_id": "uuid",
-  "endpoint": "stripe.paymentIntents.create",
-  "cost_estimate_krw": 1000,
-  "status": "succeeded",
-  "latency_ms": 234,
-  "idempotency_key": "...",
-  "request_id": "..."
-}
-```
-저장소: BigQuery / ClickHouse / Datadog.
-주간 `/retro` 에 `external_api_cost` 섹션 추가 → 이상 추세 검출.
-
----
-
-## 적대적 테스트 5종
-
-1. **프론트 번들 grep**:
-   ```bash
-   npm run build && grep -rE "(sk_live|pk_live|STRIPE_SECRET|TOSS_SECRET)" .next/static/ dist/
-   ```
-   → **0건** 기대
-2. **BFF 우회 직접 호출**: 브라우저에서 Stripe API 직접 fetch → **네트워크 차단 또는 403**
-3. **Idempotency 중복 결제**: 동일 `Idempotency-Key` 10회 → **1회만** 성공
-4. **웹훅 서명 조작**: 랜덤 signature → **400**
-5. **토큰 탈취 시뮬레이션**: 평소 10배 호출 → **이상 탐지 발동·자동 일시정지**
-
----
-
-## API 설계 리뷰 (설계 단계에서 사용)
-
-### 프로토콜 선택
-| 옵션 | 언제 |
+| Area | Inspect and decide |
 |---|---|
-| REST | 캐싱·CDN 친화, 공개 API, 대부분 기본 |
-| GraphQL | 복잡한 중첩·페이로드 최적화, 클라이언트 주도 |
-| tRPC | 풀스택 TS, 내부 API, 타입 안전 |
-| gRPC | 서비스 간 내부 통신, 낮은 지연 |
+| 1. Key and network boundary | Keep secret/restricted provider credentials server-side in a vault or environment variables. A provider's **publishable** key may belong in a client SDK; do not flag it as a secret. Limit provider key permissions and egress where the platform and risk justify it. A BFF, single subnet, WAF, or country block is not universally mandatory. |
+| 2. Request and event integrity | Authenticate/authorize the caller; use CSRF protection where applicable. Apply the provider's signature and retry/idempotency contract to the specific operation. Verify Stripe webhooks against the unmodified raw body. A browser cannot keep a shared HMAC secret, so do not prescribe browser→BFF HMAC as a general defense. |
+| 3. Abuse and spend control | Check per-principal and aggregate rate limits, destination rules, quotas, concurrency, retry storms, and a server-side circuit breaker when a hard budget is required. Set alerts for detection, but distinguish delayed usage notifications from a pre-charge hard stop. |
+| 4. Payment-specific integrity | Calculate amount, currency, discounts, tax, and order ownership from trusted server data. Use the provider's client-side tokenization/payment SDK for card entry; do not store raw card data. Reconcile provider and order state, and gate refunds or captures according to the application's approval policy. |
+| 5. Leak and incident response | Check exposure scope, provider request history, active keys, and containment evidence. Alert the owner promptly; propose least-privilege replacement, rotation/revocation, and downstream updates. Do not claim a suspected leak is contained merely because a local endpoint was patched, and do not rotate production credentials or send public notices without authority. |
+| 6. Observability | Record operation, actor/tenant reference, request/event ID, decision, status, latency, and estimated/actual cost where available. Avoid raw credentials, full payment data, message content, sensitive user identifiers, and unnecessary idempotency keys in logs. Compare provider usage with local counters and define alert ownership. |
 
-### 체크리스트
-- [ ] **N+1 쿼리** 탐지: GraphQL 은 DataLoader 필수, REST 는 JOIN 프리로드
-- [ ] **Cursor 페이지네이션**: offset 금지 (성능·중복 이슈)
-- [ ] **ETag + stale-while-revalidate**: 정적 리소스·읽기 전용 데이터
-- [ ] **배치 엔드포인트**: N개 ID 를 한 번에 (`POST /users/batch`)
-- [ ] **OpenAPI 자동 생성**: 소스 코드 주석 → 스키마. Swagger UI
-- [ ] **에러 포맷 통일**: RFC 7807 (`application/problem+json`) 또는 자체 표준
-- [ ] **버전 전략**: `/v1`, `/v2` 또는 `Accept: application/vnd.app.v2+json`
+### Provider-specific details that change the decision
 
----
+- Stripe distinguishes publishable (`pk_`) from restricted (`rk_`) and secret (`sk_`) keys. Only the publishable key is safe in distributed client code. Never classify `pk_live_` by prefix alone as a leaked secret; live mode still matters because real payments can occur.
+- Stripe mutating API retries can use a stable idempotency key per logical operation. Scope the key to the authenticated operation and validate repeated requests; do not replay live payment requests just to test a skill.
+- Stripe webhooks may be duplicated or reordered. After raw-body signature verification, persist receipt/queue state durably before acknowledging, and make downstream processing idempotent. Mark an event **completed only after the effect succeeds**; setting a `processed` flag before work can silently lose a failed payment event. Check the actual queue/transaction semantics instead of copying a Redis sketch.
+- Twilio UsageTriggers notify after observed usage and may lag; they are not a guaranteed spending cutoff. If a strict limit matters, apply an app-side budget gate before the send and verify any provider-specific account or subaccount controls. A suspected credential leak calls for urgent owner action and evidence review, not a claim of containment.
 
-## Checklist (전체)
+## Tests without surprise charges
 
-- [ ] Layer 1. BFF 계층 분리, 브라우저 직접 호출 0건
-- [ ] Layer 1. 프론트 번들 grep 결과 시크릿 0건
-- [ ] Layer 2. 웹훅 raw body 서명 검증
-- [ ] Layer 2. Idempotency-Key 전 결제 엔드포인트 적용
-- [ ] Layer 3. 사용자별 비용 대시보드
-- [ ] Layer 3. Turnstile/hCaptcha 적용
-- [ ] Layer 4. 금액 서버 재계산
-- [ ] Layer 4. 환불 2차 승인
-- [ ] Layer 5. `docs/INCIDENT-PLAYBOOK.md` 작성
-- [ ] Layer 5. trufflehog + push protection
-- [ ] Layer 6. 호출 로깅 + BigQuery/ClickHouse
-- [ ] 적대적 테스트 5종 통과
-- [ ] API 설계 체크리스트 완료
+- Inspect source and built assets for **secret/restricted** credentials, with values masked. A `pk_` publishable key is not a secret finding. Confirm environment files and logs are excluded from commits.
+- Use sandbox or signed local fixtures to test invalid webhook signatures, duplicate delivery, reordering, and a failure between receipt and side effect. Verify a failed effect is retried or recoverable and never pre-marked complete.
+- Use a fake provider and deterministic clock to test authentication, rate limits, concurrent retries, recipient/destination rules, and the hard budget circuit breaker before the provider call.
+- In payment test mode, verify server-side amount derivation and repeat-request behavior using the provider's documented sandbox only after confirming no live charge or extra metered spend. Do not run ten duplicate live payments or send test SMS to prove idempotency.
+- In a suspected leak, inspect permitted usage evidence without revealing the key. Report what is verified, what remains unknown, and the exact authorized response needed; do not mark the incident resolved before revocation and post-rotation observation are proven.
 
-## Anti-patterns
+If API design review is separately requested, evaluate the current transport, authorization, rate limit, error contract, and OpenAPI/Swagger artifacts in that project. Do not require a new protocol, database, analytics vendor, captcha, key-rotation cadence, or pagination style merely to satisfy this skill.
 
-- ❌ Stripe secret key 를 `NEXT_PUBLIC_STRIPE_SECRET` 로 노출
-- ❌ 클라이언트에서 amount 를 서버로 전송하고 그대로 결제
-- ❌ 웹훅 JSON.parse 후 서명 검증 (서명 깨짐)
-- ❌ Idempotency-Key 없이 결제 API 반복 호출
-- ❌ 90일 넘도록 키 로테이션 안 함
-- ❌ 사용자별 비용 상한 없이 production 오픈
-- ❌ 카드번호를 서버 DB 에 저장 (PCI DSS 위반)
+## Official references
 
-## Related skills
-
-- `security-checklist` — C(RateLimit), D(예산) 섹션 교차
-- `authz-designer` — 결제 엔드포인트 인가
-- `/cso comprehensive` — 전체 인프라 감사
-- `simon-tdd` — 적대적 테스트 작성
+- [Stripe key types and sandbox/live boundary](https://docs.stripe.com/keys)
+- [Stripe webhooks: signatures, duplicates, delivery](https://docs.stripe.com/webhooks)
+- [Stripe idempotent requests](https://docs.stripe.com/api/idempotent_requests)
+- [Twilio UsageTriggers](https://www.twilio.com/docs/usage/api/usage-trigger)
+- [Twilio anti-fraud guidance](https://www.twilio.com/docs/usage/anti-fraud-developer-guide)
 
 ## 완료 보고 (HTML) — 표준
-작업을 끝내면 **HTML 완료 보고서**를 생성한다 (SimonKCore `completion-report` 표준).
-- 첫 화면은 **심플 요약**(한눈 카드 한 줄) + 직관 그래픽/차트(인라인 SVG)·이미지.
-- 각 항목 옆 **[자세히] 버튼**(`<details>`)을 펼치면 상세 — 처음부터 쏟지 않는다(progressive disclosure).
-- 자체완결 1파일(인라인 CSS/SVG, 무JS) · 사용자 언어 · 현지시간 스탬프.
-- Core 있으면 `completion-report` 호출, 없으면 동일 형식으로 인라인 생성.
+공유·결정용 완료 보고가 필요하면 설치된 SimonKCore `completion-report`를 사용하고, 없으면 자체완결 단일 HTML로 목적·검증 상태·남은 비용/운영 게이트를 첫 화면에 요약한다. 단순 감사 답변에 HTML 파일을 강제하지 않는다.

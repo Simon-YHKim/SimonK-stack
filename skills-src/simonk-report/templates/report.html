@@ -1,173 +1,450 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" class="no-js">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>simonK Report — {{TASK_TITLE}}</title>
+<title>{{TASK_TITLE}} — simonK 보고서</title>
+<!--
+  simonk-report 템플릿 · 전역 지침 §6 S 등급 바닥선을 그대로 구현한다.
+  - 값은 전부 HTML 이스케이프해서 넣는다(특히 <pre> 안의 커밋 로그).
+  - 비어 있는 {{#HAS_*}} 절은 통째로 지운다.
+  - status_class / sev_class 는 ok · err · 빈 값(주의 = 중립 배지 + 글자) 셋 중 하나. 넷째 색은 없다.
+  - 탭·메모 사이드바·배너를 빼지 않는다. JS 가 꺼져도 모든 절은 위아래로 보인다.
+-->
 <style>
   :root {
-    --bg: #0F0E1A;
-    --bg-elev: #1A1828;
-    --text: #E8E6F0;
-    --text-dim: #9690AE;
-    --accent: #7B68EE;
-    --border: #2A2740;
-    --ok: #5BBC73;
-    --warn: #E0A458;
-    --err: #D67B7B;
+    color-scheme: light dark;
+    --bg: #FAFAFC;
+    --surface: #FFFFFF;
+    --text: #1C1B22;
+    --dim: #5A566B;
+    --border: #E2E0EA;
+    --accent: #5B48D9;
+    --on-accent: #FFFFFF;
+    --ok: #2E7D46;
+    --err: #B23B3B;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0F0E1A;
+      --surface: #1A1828;
+      --text: #E8E6F0;
+      --dim: #A29DB8;
+      --border: #2A2740;
+      --accent: #9D8FF5;
+      --on-accent: #0F0E1A;
+      --ok: #6FCF8A;
+      --err: #E08A8A;
+    }
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    padding: 24px 16px;
     background: var(--bg);
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
     line-height: 1.6;
     font-size: 15px;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
   }
-  .container { max-width: 720px; margin: 0 auto; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .banner { background: var(--surface); border-bottom: 1px solid var(--border); color: var(--dim); font-size: 0.85rem; padding: 8px 16px; text-align: center; }
+  .container { max-width: 720px; margin: 0 auto; padding: 24px 16px 96px; }
   h1 { font-size: 1.5rem; margin: 0 0 4px; font-weight: 600; }
-  h2 { font-size: 1.05rem; margin: 32px 0 12px; font-weight: 600; color: var(--accent); letter-spacing: 0.02em; }
-  h3 { font-size: 0.95rem; margin: 18px 0 8px; font-weight: 600; color: var(--text-dim); }
-  .meta { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 24px; }
-  .meta span + span::before { content: " · "; margin: 0 6px; color: var(--border); }
-  .summary { background: var(--bg-elev); border-left: 3px solid var(--accent); padding: 16px 20px; border-radius: 4px; margin-bottom: 8px; }
-  .summary ul { margin: 0; padding-left: 20px; }
-  .summary li { margin: 6px 0; }
-  table { width: 100%; border-collapse: collapse; margin: 8px 0 16px; font-size: 0.9rem; }
-  th { text-align: left; padding: 8px 10px; background: var(--bg-elev); color: var(--text-dim); font-weight: 500; border-bottom: 1px solid var(--border); }
+  h2 { font-size: 1.05rem; margin: 0; font-weight: 600; display: inline; }
+  h3 { font-size: 0.95rem; margin: 18px 0 8px; font-weight: 600; color: var(--dim); }
+  .meta { color: var(--dim); font-size: 0.85rem; margin: 0; }
+  header { margin-bottom: 20px; }
+  [role="tablist"] { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .no-js [role="tablist"] { display: none; }
+  [role="tab"] { font: inherit; background: none; border: 0; border-bottom: 2px solid transparent; color: var(--dim); padding: 8px 14px; min-height: 44px; cursor: pointer; }
+  [role="tab"][aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
+  .no-js [role="tabpanel"] + [role="tabpanel"] { margin-top: 32px; }
+  .cards { display: grid; gap: 10px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; }
+  .card .label { color: var(--dim); font-size: 0.8rem; letter-spacing: 0.04em; }
+  .card p { margin: 4px 0 0; }
+  .card ul { margin: 8px 0 0; padding-left: 20px; }
+  dl.terms { margin: 14px 0 0; font-size: 0.88rem; color: var(--dim); }
+  dl.terms dt { display: inline; font-weight: 600; color: var(--text); }
+  dl.terms dd { display: inline; margin: 0; }
+  dl.terms dd::after { content: ""; display: block; }
+  details.sec { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; margin: 0 0 10px; }
+  details.sec > summary { cursor: pointer; list-style-position: inside; min-height: 44px; display: flex; align-items: center; }
+  details.sec[open] > summary { margin-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th { text-align: left; padding: 8px 10px; color: var(--dim); font-weight: 500; border-bottom: 1px solid var(--border); }
   td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
   td.num { text-align: right; font-variant-numeric: tabular-nums; }
-  .phase-card { background: var(--bg-elev); padding: 14px 16px; border-radius: 4px; margin-bottom: 10px; }
-  .phase-card .label { color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
-  .phase-card .title { font-weight: 600; margin: 4px 0 6px; }
-  .phase-card .body { font-size: 0.92rem; color: var(--text); }
-  code, pre { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.85rem; background: var(--bg-elev); padding: 1px 6px; border-radius: 3px; }
-  pre { padding: 12px 14px; overflow-x: auto; line-height: 1.5; }
+  .step { border-top: 1px solid var(--border); padding: 10px 0; }
+  .step:first-of-type { border-top: 0; }
+  .step .label { color: var(--dim); font-size: 0.8rem; }
+  .step .title { font-weight: 600; margin: 2px 0 4px; }
+  code, pre { font-family: ui-monospace, "SF Mono", Consolas, Menlo, monospace; font-size: 0.85rem; background: var(--bg); border-radius: 3px; }
+  code { padding: 1px 5px; }
+  pre { padding: 12px 14px; overflow-x: auto; line-height: 1.5; margin: 0; }
   .ok { color: var(--ok); }
-  .warn { color: var(--warn); }
   .err { color: var(--err); }
-  .badge { display: inline-block; padding: 2px 8px; font-size: 0.78rem; border-radius: 10px; background: var(--bg-elev); color: var(--text-dim); border: 1px solid var(--border); }
-  .badge.ok { background: rgba(91,188,115,0.12); color: var(--ok); border-color: rgba(91,188,115,0.3); }
-  .badge.warn { background: rgba(224,164,88,0.12); color: var(--warn); border-color: rgba(224,164,88,0.3); }
-  .badge.err { background: rgba(214,123,123,0.12); color: var(--err); border-color: rgba(214,123,123,0.3); }
-  details { margin: 12px 0; }
-  details summary { cursor: pointer; color: var(--text-dim); font-size: 0.9rem; padding: 6px 0; }
-  details summary:hover { color: var(--text); }
-  details[open] summary { color: var(--accent); margin-bottom: 8px; }
-  .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.8rem; text-align: center; }
-  .footer a { color: var(--text-dim); }
+  .badge { display: inline-block; padding: 1px 8px; font-size: 0.78rem; border-radius: 10px; border: 1px solid var(--border); color: var(--dim); }
+  .badge.ok { color: var(--ok); border-color: var(--ok); }
+  .badge.err { color: var(--err); border-color: var(--err); }
+  footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--border); color: var(--dim); font-size: 0.8rem; text-align: center; }
+  .btn { font: inherit; font-size: 0.88rem; border-radius: 6px; padding: 6px 12px; min-height: 44px; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  .btn.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  #memo-toggle { position: fixed; right: 16px; bottom: 16px; z-index: 30; }
+  .no-js #memo-toggle, .no-js #memo-float { display: none; }
+  #memo-float { position: absolute; z-index: 40; }
+  #memo-panel { position: fixed; top: 0; right: 0; height: 100vh; width: min(340px, 92vw); z-index: 50; background: var(--surface); border-left: 1px solid var(--border); box-shadow: -8px 0 24px rgba(0, 0, 0, 0.18); display: flex; flex-direction: column; }
+  #memo-panel[hidden] { display: none; }
+  .memo-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+  .memo-head strong { font-size: 0.95rem; }
+  #memo-list { list-style: none; margin: 0; padding: 10px 14px; overflow-y: auto; flex: 1; }
+  #memo-list li { border-bottom: 1px solid var(--border); padding: 10px 0; }
+  #memo-list blockquote { margin: 0 0 4px; padding-left: 8px; border-left: 2px solid var(--accent); font-size: 0.85rem; }
+  #memo-list .where { color: var(--dim); font-size: 0.78rem; }
+  #memo-list textarea, #memo-out { width: 100%; font: inherit; font-size: 0.85rem; margin-top: 6px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; padding: 6px; }
+  .memo-empty { color: var(--dim); font-size: 0.85rem; }
+  .memo-foot { padding: 12px 14px; border-top: 1px solid var(--border); display: grid; gap: 8px; }
+  #memo-status, #memo-store { color: var(--dim); font-size: 0.8rem; margin: 0; }
   @media (max-width: 600px) {
-    body { padding: 16px 12px; font-size: 14px; }
+    body { font-size: 14px; }
     h1 { font-size: 1.3rem; }
     table { font-size: 0.82rem; }
     th, td { padding: 6px 8px; }
   }
+  @media print {
+    .banner, [role="tablist"], #memo-toggle, #memo-float, #memo-panel { display: none !important; }
+    [role="tabpanel"] { display: block !important; }
+    body { background: #FFFFFF; color: #000000; }
+  }
 </style>
 </head>
 <body>
-<div class="container">
+<p class="banner" role="note">다운로드해서 브라우저로 열어야 메모·복사가 동작합니다.</p>
 
-  <h1>{{TASK_TITLE}}</h1>
-  <div class="meta">
-    <span>{{TIMESTAMP_LOCAL}}</span>
-    <span>{{DURATION}}</span>
-    <span>{{REPO_NAME}} · <code>{{BRANCH}}</code></span>
+<div class="container" id="main">
+
+  <header data-memo="헤더">
+    <h1>{{TASK_TITLE}}</h1>
+    <p class="meta">작성 {{WRITTEN_KST}} KST{{#UPDATED_KST}} / 갱신 {{UPDATED_KST}} KST{{/UPDATED_KST}} · 발행 {{SESSION}} · 등급 {{GRADE}}</p>
+    <p class="meta">{{REPO_NAME}} · <code>{{BRANCH}}</code> · 소요 {{DURATION}}</p>
+  </header>
+
+  <div role="tablist" aria-label="보고서 보기">
+    <button type="button" role="tab" id="tab-summary" aria-controls="panel-summary" aria-selected="true">요약</button>
+    <button type="button" role="tab" id="tab-detail" aria-controls="panel-detail" aria-selected="false">상세</button>
   </div>
 
-  <div class="summary">
-    <ul>
-      {{#EXEC_SUMMARY_BULLETS}}
-      <li>{{.}}</li>
-      {{/EXEC_SUMMARY_BULLETS}}
-    </ul>
-  </div>
+  <section role="tabpanel" id="panel-summary" aria-labelledby="tab-summary">
+    <div class="cards">
+      <div class="card" data-memo="요약 · 무엇을">
+        <div class="label">무엇을</div>
+        <p>{{WHAT}}</p>
+      </div>
+      <div class="card" data-memo="요약 · 왜">
+        <div class="label">왜</div>
+        <p>{{WHY}}</p>
+      </div>
+      <div class="card" data-memo="요약 · 지금 어디까지">
+        <div class="label">지금 어디까지</div>
+        <p>{{STATUS}}</p>
+        <ul>
+          {{#EXEC_SUMMARY_BULLETS}}
+          <li>{{.}}</li>
+          {{/EXEC_SUMMARY_BULLETS}}
+        </ul>
+      </div>
+    </div>
+    {{#HAS_TERMS}}
+    <dl class="terms" data-memo="요약 · 용어">
+      {{#TERMS}}
+      <dt>{{term}}</dt> <dd>— {{meaning}}</dd>
+      {{/TERMS}}
+    </dl>
+    {{/HAS_TERMS}}
+  </section>
 
-  {{#HAS_DECISIONS}}
-  <h2>◆ Decisions Log</h2>
-  <table>
-    <thead><tr><th>When</th><th>Decision</th><th>Reasoning</th></tr></thead>
-    <tbody>
-      {{#DECISIONS}}
-      <tr><td><code>{{phase}}</code></td><td>{{decision}}</td><td>{{reasoning}}</td></tr>
-      {{/DECISIONS}}
-    </tbody>
-  </table>
-  {{/HAS_DECISIONS}}
+  <section role="tabpanel" id="panel-detail" aria-labelledby="tab-detail">
 
-  {{#HAS_PHASES}}
-  <h2>▸ Phase Trace</h2>
-  {{#PHASES}}
-  <div class="phase-card">
-    <div class="label">Phase {{n}} · {{duration}}</div>
-    <div class="title">{{name}}</div>
-    <div class="body">{{body}}</div>
-  </div>
-  {{/PHASES}}
-  {{/HAS_PHASES}}
+    {{#HAS_DECISIONS}}
+    <details class="sec" data-memo="상세 · 결정 기록">
+      <summary><h2>◆ 결정 기록</h2></summary>
+      <table>
+        <thead><tr><th>시점</th><th>결정</th><th>이유</th></tr></thead>
+        <tbody>
+          {{#DECISIONS}}
+          <tr><td><code>{{phase}}</code></td><td>{{decision}}</td><td>{{reasoning}}</td></tr>
+          {{/DECISIONS}}
+        </tbody>
+      </table>
+    </details>
+    {{/HAS_DECISIONS}}
 
-  {{#HAS_DIFF}}
-  <h2>● Diff Summary</h2>
-  <table>
-    <thead><tr><th>Area</th><th>Files</th><th class="num">+</th><th class="num">−</th></tr></thead>
-    <tbody>
-      {{#DIFF_GROUPS}}
-      <tr><td>{{area}}</td><td>{{files}}</td><td class="num ok">+{{added}}</td><td class="num err">−{{removed}}</td></tr>
-      {{/DIFF_GROUPS}}
-    </tbody>
-  </table>
+    {{#HAS_PHASES}}
+    <details class="sec" data-memo="상세 · 단계 추적">
+      <summary><h2>▸ 단계 추적</h2></summary>
+      {{#PHASES}}
+      <div class="step">
+        <div class="label">{{n}}단계 · {{duration}}</div>
+        <div class="title">{{name}}</div>
+        <div>{{body}}</div>
+      </div>
+      {{/PHASES}}
+    </details>
+    {{/HAS_PHASES}}
 
-  <h3>Commits</h3>
-  <pre>{{COMMITS}}</pre>
-  {{/HAS_DIFF}}
+    {{#HAS_DIFF}}
+    <details class="sec" data-memo="상세 · 변경 요약">
+      <summary><h2>● 변경 요약</h2></summary>
+      <table>
+        <thead><tr><th>영역</th><th>파일</th><th class="num">+</th><th class="num">−</th></tr></thead>
+        <tbody>
+          {{#DIFF_GROUPS}}
+          <tr><td>{{area}}</td><td>{{files}}</td><td class="num ok">+{{added}}</td><td class="num err">−{{removed}}</td></tr>
+          {{/DIFF_GROUPS}}
+        </tbody>
+      </table>
+      <h3>커밋</h3>
+      <pre>{{COMMITS}}</pre>
+    </details>
+    {{/HAS_DIFF}}
 
-  {{#HAS_VERIFICATION}}
-  <h2>◆ Verification</h2>
-  <table>
-    <thead><tr><th>Check</th><th>Result</th><th>Details</th></tr></thead>
-    <tbody>
-      {{#VERIFICATIONS}}
-      <tr><td><code>{{check}}</code></td><td><span class="badge {{status_class}}">{{status}}</span></td><td>{{details}}</td></tr>
-      {{/VERIFICATIONS}}
-    </tbody>
-  </table>
-  {{/HAS_VERIFICATION}}
+    {{#HAS_VERIFICATION}}
+    <details class="sec" data-memo="상세 · 검증">
+      <summary><h2>◆ 검증</h2></summary>
+      <table>
+        <thead><tr><th>검사</th><th>결과</th><th>내용</th></tr></thead>
+        <tbody>
+          {{#VERIFICATIONS}}
+          <tr><td><code>{{check}}</code></td><td><span class="badge {{status_class}}">{{status}}</span></td><td>{{details}}</td></tr>
+          {{/VERIFICATIONS}}
+        </tbody>
+      </table>
+    </details>
+    {{/HAS_VERIFICATION}}
 
-  {{#HAS_PERSPECTIVES}}
-  <h2>● Perspectives Audit</h2>
-  <p style="color:var(--text-dim); font-size:0.9rem; margin-bottom:12px;">From <code>/perspectives</code> run during this session.</p>
-  <table>
-    <thead><tr><th>Stakeholder</th><th>Missed</th><th>Severity</th></tr></thead>
-    <tbody>
-      {{#PERSPECTIVES}}
-      <tr><td>{{stakeholder}}</td><td>{{missed}}</td><td><span class="badge {{sev_class}}">{{severity}}</span></td></tr>
-      {{/PERSPECTIVES}}
-    </tbody>
-  </table>
-  {{/HAS_PERSPECTIVES}}
+    {{#HAS_PERSPECTIVES}}
+    <details class="sec" data-memo="상세 · 관점 점검">
+      <summary><h2>● 관점 점검</h2></summary>
+      <p class="meta">이번 세션에 돌린 <code>/perspectives</code> 결과.</p>
+      <table>
+        <thead><tr><th>이해관계자</th><th>놓친 것</th><th>심각도</th></tr></thead>
+        <tbody>
+          {{#PERSPECTIVES}}
+          <tr><td>{{stakeholder}}</td><td>{{missed}}</td><td><span class="badge {{sev_class}}">{{severity}}</span></td></tr>
+          {{/PERSPECTIVES}}
+        </tbody>
+      </table>
+    </details>
+    {{/HAS_PERSPECTIVES}}
 
-  {{#HAS_NEXTUP}}
-  <h2>▸ Next-up</h2>
-  <ul>
-    {{#NEXTUP}}
-    <li><strong>{{label}}</strong> — {{desc}}</li>
-    {{/NEXTUP}}
-  </ul>
-  {{/HAS_NEXTUP}}
+    {{#HAS_NEXTUP}}
+    <details class="sec" data-memo="상세 · 다음 할 일">
+      <summary><h2>▸ 다음 할 일</h2></summary>
+      <ul>
+        {{#NEXTUP}}
+        <li><strong>{{label}}</strong> — {{desc}}</li>
+        {{/NEXTUP}}
+      </ul>
+    </details>
+    {{/HAS_NEXTUP}}
 
-  <details>
-    <summary>Appendix — raw commit log + file list</summary>
-    <h3>Commit log</h3>
-    <pre>{{RAW_COMMIT_LOG}}</pre>
-    <h3>Files touched</h3>
-    <pre>{{RAW_FILE_LIST}}</pre>
-  </details>
+    <details class="sec" data-memo="상세 · 부록">
+      <summary><h2>부록 — 커밋 로그 · 파일 목록</h2></summary>
+      <h3>커밋 로그</h3>
+      <pre>{{RAW_COMMIT_LOG}}</pre>
+      <h3>건드린 파일</h3>
+      <pre>{{RAW_FILE_LIST}}</pre>
+    </details>
 
-  <div class="footer">
-    Generated by <code>/simonk-report</code> · simonk-stack
-  </div>
+  </section>
 
+  <footer>생성 <code>/simonk-report</code> · simonk-stack</footer>
 </div>
+
+<button type="button" class="btn" id="memo-float" hidden>메모</button>
+<button type="button" class="btn primary" id="memo-toggle" aria-expanded="false" aria-controls="memo-panel">메모 <span id="memo-count">0</span></button>
+
+<aside id="memo-panel" aria-label="메모" hidden>
+  <div class="memo-head">
+    <strong>메모</strong>
+    <button type="button" class="btn" id="memo-close">닫기</button>
+  </div>
+  <ul id="memo-list"></ul>
+  <div class="memo-foot">
+    <button type="button" class="btn primary" id="memo-copy">메모 → 프롬프트 복사</button>
+    <p id="memo-status" aria-live="polite"></p>
+    <textarea id="memo-out" rows="6" aria-label="복사할 프롬프트" hidden readonly></textarea>
+    <p id="memo-store"></p>
+  </div>
+</aside>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  root.className = root.className.replace('no-js', 'js');
+
+  // 탭 — JS 가 없으면 두 패널이 위아래로 모두 보인다
+  var tabs = [].slice.call(document.querySelectorAll('[role="tab"]'));
+  function select(tab, focus) {
+    tabs.forEach(function (t) {
+      var on = t === tab;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+    if (focus) tab.focus();
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener('click', function () { select(t, false); });
+    t.addEventListener('keydown', function (e) {
+      var d = e.key === 'ArrowRight' ? 1 : (e.key === 'ArrowLeft' ? -1 : 0);
+      if (d) { e.preventDefault(); select(tabs[(i + d + tabs.length) % tabs.length], true); }
+    });
+  });
+  if (tabs.length) select(tabs[0], false);
+
+  // 인쇄 — 접힌 상세를 모두 펼친다
+  window.addEventListener('beforeprint', function () {
+    [].forEach.call(document.querySelectorAll('details'), function (d) { d.open = true; });
+  });
+
+  // 메모 저장 — localStorage(파일명 키), 막히면 메모리
+  var KEY = 'simonk-memo:' + (location.pathname.split('/').pop() || 'report');
+  var store = 'memory';
+  var memos = [];
+  try { memos = JSON.parse(localStorage.getItem(KEY) || '[]'); store = 'browser'; } catch (e) { memos = []; }
+  if (!Array.isArray(memos)) memos = [];
+  memos = memos.filter(function (m) { return m && typeof m.quote === 'string'; }).map(function (m) {
+    return { quote: m.quote, where: String(m.where || '본문'), note: String(m.note || '') };
+  });
+
+  var $ = function (id) { return document.getElementById(id); };
+  var panel = $('memo-panel'), toggle = $('memo-toggle'), list = $('memo-list');
+  var floatBtn = $('memo-float'), out = $('memo-out');
+  var pending = null;
+
+  function persist() {
+    try { localStorage.setItem(KEY, JSON.stringify(memos)); store = 'browser'; } catch (e) { store = 'memory'; }
+    $('memo-count').textContent = String(memos.length);
+    $('memo-store').textContent = store === 'browser'
+      ? '저장: 이 브라우저'
+      : '저장: 메모리 — 새로고침하면 사라집니다';
+  }
+  function render() {
+    list.textContent = '';
+    if (!memos.length) {
+      var empty = document.createElement('li');
+      empty.className = 'memo-empty';
+      empty.textContent = '본문을 드래그해 선택하고 [메모]를 누르세요.';
+      list.appendChild(empty);
+    }
+    memos.forEach(function (m) {
+      var li = document.createElement('li');
+      var q = document.createElement('blockquote');
+      q.textContent = m.quote;
+      var w = document.createElement('div');
+      w.className = 'where';
+      w.textContent = m.where;
+      var ta = document.createElement('textarea');
+      ta.rows = 3;
+      ta.value = m.note;
+      ta.setAttribute('aria-label', '메모 — ' + m.where);
+      ta.addEventListener('input', function () { m.note = ta.value; persist(); });
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'btn';
+      del.textContent = '지우기';
+      del.addEventListener('click', function () {
+        memos = memos.filter(function (x) { return x !== m; });
+        persist(); render();
+      });
+      li.appendChild(q); li.appendChild(w); li.appendChild(ta); li.appendChild(del);
+      list.appendChild(li);
+    });
+  }
+  function openPanel(open) {
+    panel.hidden = !open;
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  // 드래그 선택 → 플로팅 [메모]
+  function onSelect() {
+    var sel = window.getSelection();
+    var text = sel ? sel.toString().trim() : '';
+    if (!text || !sel.rangeCount || !$('main').contains(sel.anchorNode)) { floatBtn.hidden = true; pending = null; return; }
+    var node = sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement;
+    var anchor = node && node.closest('[data-memo]');
+    pending = { quote: text.slice(0, 500), where: anchor ? anchor.getAttribute('data-memo') : '본문' };
+    var r = sel.getRangeAt(0).getBoundingClientRect();
+    floatBtn.style.top = (window.scrollY + r.bottom + 6) + 'px';
+    floatBtn.style.left = (window.scrollX + r.left) + 'px';
+    floatBtn.hidden = false;
+  }
+  document.addEventListener('mouseup', function (e) { if (e.target !== floatBtn) setTimeout(onSelect, 0); });
+  document.addEventListener('keyup', function (e) { if (e.shiftKey) onSelect(); });
+  floatBtn.addEventListener('mousedown', function (e) { e.preventDefault(); });
+  floatBtn.addEventListener('click', function () {
+    if (!pending) return;
+    memos.push({ quote: pending.quote, where: pending.where, note: '' });
+    pending = null;
+    floatBtn.hidden = true;
+    if (window.getSelection()) window.getSelection().removeAllRanges();
+    persist(); render(); openPanel(true);
+    var boxes = list.querySelectorAll('textarea');
+    if (boxes.length) boxes[boxes.length - 1].focus();
+  });
+  toggle.addEventListener('click', function () { openPanel(panel.hidden); });
+  $('memo-close').addEventListener('click', function () { openPanel(false); toggle.focus(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !panel.hidden) { openPanel(false); toggle.focus(); } });
+
+  // [메모 → 프롬프트 복사] — clipboard → execCommand → 화면에 텍스트 노출
+  function say(msg) { $('memo-status').textContent = msg; }
+  function buildPrompt() {
+    var title = document.querySelector('h1').textContent.trim();
+    var lines = ['아래는 보고서 「' + title + '」에 남긴 메모다.', ''];
+    memos.forEach(function (m, i) {
+      lines.push('[' + (i + 1) + '] 위치: ' + m.where);
+      lines.push('인용: "' + m.quote + '"');
+      lines.push('메모: ' + (m.note.trim() || '(없음)'));
+      lines.push('');
+    });
+    lines.push('상충 항목은 먼저 짚고 우선순위를 제시한 뒤 진행할 것.');
+    return lines.join('\n');
+  }
+  function showText(text) {
+    out.hidden = false;
+    out.value = text;
+    out.focus();
+    out.select();
+    say('자동 복사가 막혀 있습니다 — 아래 텍스트를 직접 복사하세요.');
+  }
+  function legacyCopy(text) {
+    var ok = false;
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    if (ok) say('복사했습니다.'); else showText(text);
+  }
+  $('memo-copy').addEventListener('click', function () {
+    if (!memos.length) { say('메모가 없습니다.'); return; }
+    var text = buildPrompt();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { say('복사했습니다.'); }, function () { legacyCopy(text); });
+    } else {
+      legacyCopy(text);
+    }
+  });
+
+  persist(); render();
+})();
+</script>
 </body>
 </html>

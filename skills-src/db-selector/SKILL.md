@@ -1,14 +1,14 @@
 ---
 name: db-selector
-description: "Use when the user needs to choose a database or data storage solution—triggers \"DB 뭐 쓰지\", \"데이터베이스 선택\", \"Supabase vs Firebase\", \"PostgreSQL vs MongoDB\", \"DB 필요해?\", \"choose database\", \"which DB\", \"data storage\". Produces database selection based on pre-cataloged service list, scale/requirements matching, migration guide, and cost projection."
+description: "Use when the user needs to choose a database or data storage solution—triggers \"DB 뭐 쓰지\", \"데이터베이스 선택\", \"Supabase vs Firebase\", \"PostgreSQL vs MongoDB\", \"DB 필요해?\", \"choose database\", \"which DB\", \"data storage\". Produces a database choice and migration guide from existing and candidate workloads, with cost estimates only when current official prices and usage assumptions are known."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
-version: 1.0.0
+version: 1.0.1
 author: simon-stack
 ---
 
 # db-selector
 
-최적 DB를 선택하는 skill. 사전 리스트업된 서비스 카탈로그 기반.
+요구사항에 맞는 DB를 비교하는 skill. 아래 카탈로그는 후보 예시이며 가격·무료 한도·기능 보장표가 아니다. 기존 프로젝트의 DB와 마이그레이션 비용을 먼저 확인한다.
 
 ## 발동 조건
 
@@ -20,32 +20,32 @@ author: simon-stack
 
 ### 관계형 (SQL)
 
-| 서비스 | 관리형 | 무료 티어 | 적합 규모 | 특징 |
-|---|---|---|---|---|
-| **Supabase** (PostgreSQL) | ✓ | 500MB | MVP~중규모 | Auth+Storage+Realtime 통합 |
-| **PlanetScale** (MySQL) | ✓ | 5GB | 중~대규모 | Branching, 무정지 스키마 변경 |
-| **Neon** (PostgreSQL) | ✓ | 512MB | MVP~중규모 | 서버리스, 브랜칭, 자동 스케일 |
-| **Railway PostgreSQL** | ✓ | $5 크레딧 | 소~중규모 | 간편 배포 |
-| **AWS RDS / Cloud SQL** | ✓ | 프리티어 12개월 | 대규모 | 엔터프라이즈 |
-| **셀프호스팅 PostgreSQL** | ✗ | - | 모든 규모 | 완전 제어, 운영 부담 |
+| 서비스 | 관리형 | 검토할 특성 |
+|---|---|---|
+| **Supabase** (PostgreSQL) | ✓ | Auth·Storage·Realtime 통합 필요성 |
+| **PlanetScale** | ✓ | 선택 엔진·브랜칭·유료 시작 조건 |
+| **Neon** (PostgreSQL) | ✓ | 서버리스·브랜칭·사용량 과금 |
+| **Railway PostgreSQL** | ✓ | 배포 편의·리소스 과금 |
+| **AWS RDS / Cloud SQL** | ✓ | 운영형 DB·리전·가용성·과금 |
+| **셀프호스팅 PostgreSQL** | ✗ | 운영 책임·백업·복구 |
 
 ### NoSQL / Document
 
-| 서비스 | 유형 | 무료 티어 | 적합 | 특징 |
-|---|---|---|---|---|
-| **Firebase Firestore** | Document | 관대 | 모바일 앱 | 실시간, 오프라인 sync |
-| **MongoDB Atlas** | Document | 512MB | 유연한 스키마 | 범용 NoSQL |
-| **DynamoDB** | Key-Value | 25 RCU/WCU | 초대규모 | 무한 스케일 |
+| 서비스 | 유형 | 검토할 특성 |
+|---|---|---|
+| **Firebase Firestore** | Document | 실시간·오프라인 동기화 요구 |
+| **MongoDB Atlas** | Document | 유연한 스키마·운영형 클러스터 |
+| **DynamoDB** | Key-Value | 액세스 패턴·온디맨드/프로비저닝 과금 |
 
 ### 특수 목적
 
-| 서비스 | 용도 | 무료 티어 |
-|---|---|---|
-| **Redis (Upstash)** | 캐시, 세션, Rate Limit | 10K 명령/일 |
-| **Pinecone / Qdrant** | 벡터 DB (AI/RAG) | 제한적 |
-| **ClickHouse (Tinybird)** | 분석/OLAP | 제한적 |
-| **Cloudflare D1** | Edge SQLite | 5GB |
-| **Turso (libSQL)** | Edge SQLite | 8GB |
+| 서비스 | 용도 |
+|---|---|
+| **Redis (Upstash)** | 캐시, 세션, Rate Limit |
+| **Pinecone / Qdrant** | 벡터 DB (AI/RAG) |
+| **ClickHouse (Tinybird)** | 분석/OLAP |
+| **Cloudflare D1** | Edge SQLite |
+| **Turso (libSQL)** | Edge SQLite |
 
 ## Decision Tree
 
@@ -53,7 +53,7 @@ author: simon-stack
 데이터 특성?
 ├─ 관계형 (유저, 주문, 구독) → SQL
 │   ├─ BaaS 원함 (Auth 포함) → Supabase
-│   ├─ MySQL 선호 / 무정지 마이그레이션 → PlanetScale
+│   ├─ MySQL 선호 / 스키마 브랜칭 필요 → PlanetScale 등 현재 제품 비교
 │   ├─ 서버리스 / 브랜칭 → Neon
 │   └─ 엔터프라이즈 / 멀티 리전 → AWS RDS
 ├─ 유연한 스키마 / 모바일 → NoSQL
@@ -65,15 +65,17 @@ author: simon-stack
 └─ Edge 경량 → D1 / Turso
 ```
 
-## 규모별 추천
+## 선택·비용 검증
 
-| 규모 | DB | 이유 | 월 비용 |
-|---|---|---|---|
-| MVP (0-100 유저) | Supabase Free | 통합 BaaS, 빠른 시작 | $0 |
-| 소규모 (100-1K) | Supabase Pro | 8GB, 백업 | $25 |
-| 중규모 (1K-10K) | Neon / PlanetScale | 스케일링, 브랜칭 | $39-79 |
-| 대규모 (10K-100K) | AWS RDS + Redis | 리플리카, 고가용성 | $200-500 |
-| 초대규모 (100K+) | Multi-DB 아키텍처 | 용도별 분리 | $1000+ |
+- 유저 수만으로 DB나 월 비용을 확정하지 않는다. 저장량, 읽기·쓰기, 컴퓨트, 트래픽, 백업, 리전, 가용성, 초과 과금 한도를 산정한다.
+- 현재 가격·무료 플랜·기능은 각 [Supabase](https://supabase.com/pricing), [PlanetScale](https://planetscale.com/pricing), [Neon](https://neon.com/pricing) 등 공식 페이지에서 선택 시점에 확인하고 확인일·가정·출처를 남긴다. PlanetScale에 무료 5GB 플랜이 있다고 전제하지 않는다.
+- 비용에 필요한 입력이 없으면 금액을 미산정으로 남기고 필요한 사용량을 묻는다. 기존 DB의 이전·운영 위험도 선택 근거에 포함한다.
+- 추가 과금 $0 조건에서는 유료 플랜·초과 사용·자동충전 활성화를 실행하지 않는다. 유료 서비스 생성은 별도 승인 대상이다.
+
+## 선택 결과
+
+- 기존 DB 유지 또는 전환 권고, 후보별 근거와 제외 이유, 확인하지 못한 가격·기능을 구분한다.
+- 전환을 권고할 때는 백업·스키마/데이터 이전·읽기/쓰기 전환·검증·롤백의 개요를 제시한다. 운영 데이터 마이그레이션은 별도 승인과 실행 검증 전까지 시작하지 않는다.
 
 ## Related Skills
 

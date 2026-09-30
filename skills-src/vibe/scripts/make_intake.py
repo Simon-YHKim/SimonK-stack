@@ -16,6 +16,9 @@ import subprocess
 import time
 import sys
 
+# Plain CLI runs inside receipt-bound candidates must not cache local imports.
+if __name__ == "__main__":
+    sys.dont_write_bytecode = True
 _HERE = os.path.dirname(os.path.abspath(__file__))
 if _HERE not in sys.path:
     sys.path.insert(0, _HERE)
@@ -477,7 +480,7 @@ def main(out_path=None, argv=None):
       L.push('vibe 스킬대로 진행할 것:');
       L.push('1) 현재 /vibe와 orchestration 계약을 읽고 필요한 스킬·소프트웨어·의존·검증을 계획한다.');
       L.push('2) 중앙 registry와 fresh runtime으로 모델/effort/계정/과금/쿼터를 확인한다. 미확인은 0이 아니다.');
-      L.push('3) 추가 과금 기본 $0. Grok HOLD 등 사용자 제한을 유지하고 비용 미확인 경로는 보류한다.');
+      L.push('3) 추가 과금 기본 $0. Grok도 최신 쿼터·선택 모델의 구독 포함·초과 과금 차단 확인 전에는 실호출을 보류한다.');
       L.push('4) orchestrate.py plan → run_state.py의 동일 DB/예약 → 지원되는 execute_orca.py adapter만 실발주한다.');
       L.push('5) legacy live preflight·raw worker-start·direct CLI는 차단됐다. 미지원 transport를 우회하지 않는다.');
       L.push('6) 검증된 선행 결과를 기다린다. 수락/비용 불명은 재발주하지 않고 원래 핸들을 조회한다.');

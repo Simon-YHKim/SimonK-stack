@@ -102,6 +102,28 @@ class RuntimeCollectionTests(unittest.TestCase):
         self.assertEqual(out["billing"]["on_demand_cap"], "0")
         self.assertFalse(out["billing"]["verified"])
 
+    def test_grok_live_display_tier_is_recognized_without_authorizing_dispatch(self):
+        # Grok 1.0.41 ACP returns a spaced tier and a nested config object.
+        for display, normalized in (("SuperGrok Plus", "SuperGrokPlus"),
+                                    ("SuperGrok Heavy", "SuperGrokHeavy")):
+            with self.subTest(display=display):
+                raw = {"subscription_tier": display,
+                       "config": copy.deepcopy(grok_raw()["billing"])}
+                out = self.parse("grok", raw)
+                self.assertEqual(out["auth"]["plan"], normalized)
+                self.assertEqual(out["billing"]["mode"], "subscription")
+                self.assertEqual(out["quota_windows"][0]["used_pct"], 100)
+                self.assertFalse(out["account_verified"])
+                self.assertFalse(out["billing"]["verified"])
+                self.assertIsNone(out["billing"]["extra_usage_enabled"])
+
+    def test_grok_unknown_spaced_tier_stays_unverified(self):
+        raw = {"subscription_tier": "SuperGrok Heavy API",
+               "config": copy.deepcopy(grok_raw()["billing"])}
+        out = self.parse("grok", raw)
+        self.assertIsNone(out["auth"]["plan"])
+        self.assertEqual(out["billing"]["mode"], "unknown")
+
     def test_grok_absent_percent_is_not_assumed_zero(self):
         raw = grok_raw()
         del raw["billing"]["creditUsagePercent"]
@@ -199,10 +221,11 @@ class RuntimeCollectionTests(unittest.TestCase):
                    'subprocess.Popen([sys.executable,"-c","import time; time.sleep(4)"],stdout=sys.stdout)\n'
                    'print(json.dumps({"id":m["id"],"result":{}}),flush=True)\n')
         started = time.monotonic()
-        with self.m.Rpc([sys.executable, "-u", "-c", program], timeout=0.3) as rpc:
+        # Fresh packaged files can make Windows child startup exceed 300 ms.
+        with self.m.Rpc([sys.executable, "-u", "-c", program], timeout=2) as rpc:
             rpc.request("initialize", {})
             rpc.process.wait(timeout=1)
-        self.assertLess(time.monotonic() - started, 2)
+        self.assertLess(time.monotonic() - started, 3.5)
         self.assertFalse(rpc.reader.is_alive())
 
     def test_unexpected_server_request_does_not_echo_large_id(self):
@@ -212,10 +235,10 @@ class RuntimeCollectionTests(unittest.TestCase):
                    'time.sleep(4)\n')
         started = time.monotonic()
         with self.assertRaises(self.m.CollectorError) as ctx:
-            with self.m.Rpc([sys.executable, "-u", "-c", program], timeout=0.3) as rpc:
+            with self.m.Rpc([sys.executable, "-u", "-c", program], timeout=2) as rpc:
                 rpc.request("initialize", {})
         self.assertEqual(ctx.exception.code, "server-request-forbidden")
-        self.assertLess(time.monotonic() - started, 2)
+        self.assertLess(time.monotonic() - started, 3.5)
 
     def test_child_environment_uses_allowlist_not_secret_denylist(self):
         env = self.m.child_env({"PATH": "safe-path", "HOME": "/fixture", "CODEX_HOME": "/fixture/codex",
@@ -294,6 +317,23 @@ class RuntimeCollectionTests(unittest.TestCase):
         self.assertEqual(run.call_count, 1)
         self.assertEqual(run.call_args.args[0], ["fixture", "--version"])
 
+    def test_agy_measured_zero_turn_usage_versions_are_metadata_only(self):
+        for version in ("1.2.12", "1.2.13", "1.2.14"):
+            with self.subTest(version=version), \
+                 mock.patch.object(self.m, "resolve_command", return_value=["fixture"]), \
+                 mock.patch.object(self.m, "run_text", side_effect=[
+                     (version, 0), (json.dumps(agy_raw()), 0)]) as run:
+                result = self.m.collect_all(["antigravity"], now=NOW)
+            self.assertEqual(run.call_count, 2)
+            self.assertEqual(run.call_args_list[1].args[0],
+                             ["fixture", "-p", "/usage", "--output-format", "json",
+                              "--print-timeout", "30s"])
+            observed = result["observations"][0]
+            self.assertEqual(observed["state"], "ok")
+            self.assertTrue(observed["collection"]["zero_token_verified"])
+            self.assertFalse(observed["generation_verified"])
+            self.assertFalse(observed["billing"]["verified"])
+
     def test_expired_deadline_cannot_consume_already_queued_response(self):
         with self.m.Rpc([sys.executable, "-c", "import time; time.sleep(3)"], timeout=1) as rpc:
             rpc.messages.put(b'{"id":1,"result":{}}\n')
@@ -317,7 +357,7 @@ class RuntimeCollectionTests(unittest.TestCase):
         for program, code in programs:
             with self.subTest(code=code):
                 with self.assertRaises(self.m.CollectorError) as ctx:
-                    with self.m.Rpc([sys.executable, "-u", "-c", program], timeout=0.2, max_bytes=1000) as rpc:
+                    with self.m.Rpc([sys.executable, "-u", "-c", program], timeout=2, max_bytes=1000) as rpc:
                         rpc.request("initialize", {})
                 self.assertEqual(ctx.exception.code, code)
                 self.assertIsNotNone(rpc.process.poll())

@@ -17,8 +17,9 @@ Unlike the SimonKAIHub copy, this gate does NOT vendor the validator/test
 scripts — it calls the canonical in-repo pair under
 ``.claude/skills/skill-gen-agent/scripts/`` (resolved relative to repo root).
 
-Stdlib only; safe to run in CI without ``pip install``. Exits non-zero if
-any skill fails any check, printing a per-skill PASS/FAIL table.
+Stdlib only; safe to run in CI without ``pip install``. Child validators use
+UTF-8 independently of the Windows console locale. Exits non-zero if any
+skill fails any check, printing a per-skill PASS/FAIL table.
 """
 from __future__ import annotations
 
@@ -36,15 +37,19 @@ TEST = SCRIPTS / "test_skill.py"
 
 
 def run(cmd: list[str]) -> tuple[int, str]:
-    p = subprocess.run(cmd, capture_output=True, text=True)
-    return p.returncode, (p.stdout or "") + (p.stderr or "")
+    p = subprocess.run(cmd, capture_output=True)
+    try:
+        output = p.stdout.decode("utf-8") + p.stderr.decode("utf-8")
+    except UnicodeDecodeError:
+        return 2, "invalid UTF-8 child output"
+    return p.returncode, output
 
 
 def check_skill(d: Path) -> tuple[bool, list[str]]:
     fails: list[str] = []
 
     # 1. validate_skill.py — 0 errors (rc==0 means report.ok)
-    rc, out = run([sys.executable, str(VALIDATE), str(d), "--format", "json"])
+    rc, out = run([sys.executable, "-X", "utf8", str(VALIDATE), str(d), "--format", "json"])
     if rc != 0:
         # surface the error codes for the log
         codes = ""
@@ -69,7 +74,7 @@ def check_skill(d: Path) -> tuple[bool, list[str]]:
     else:
         # 3. cases must parse (dry-run)
         rc2, _ = run(
-            [sys.executable, str(TEST), str(d), "--cases", str(cases), "--dry-run"]
+            [sys.executable, "-X", "utf8", str(TEST), str(d), "--cases", str(cases), "--dry-run"]
         )
         if rc2 != 0:
             fails.append("cases.json failed dry-run")
@@ -108,19 +113,19 @@ def main() -> int:
 
     roots = ", ".join(r.relative_to(ROOT).as_posix() for r in SKILL_ROOTS
                       if r.is_dir())
-    print(f"skills quality gate — {len(skills)} skills under {roots}\n")
+    print(f"skills quality gate - {len(skills)} skills under {roots}\n")
     any_fail = False
     for label, d in skills:
         ok, fails = check_skill(d)
         mark = "PASS" if ok else "FAIL"
-        print(f"  [{mark}] {label}" + ("" if ok else "  — " + "; ".join(fails)))
+        print(f"  [{mark}] {label}" + ("" if ok else "  - " + "; ".join(fails)))
         any_fail = any_fail or not ok
 
     print()
     if any_fail:
-        print("RESULT: FAIL — fix the items above before merging.")
+        print("RESULT: FAIL - fix the items above before merging.")
         return 1
-    print(f"RESULT: PASS — all {len(skills)} skills clean "
+    print(f"RESULT: PASS - all {len(skills)} skills clean "
           f"(lint + evals + quality).")
     return 0
 

@@ -1,10 +1,13 @@
 """Offline contract tests for the umbrella planner; no worker or Bot is launched."""
+import base64
 import copy
 import contextlib
+import hashlib
 import importlib.util
 import io
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -18,19 +21,26 @@ NOW = "2026-09-23T10:00:00+00:00"
 
 
 def candidate(name="small", surface="codex", **changes):
+    model = changes.get("model", "fixture-" + name)
     item = {
         "id": name, "surface": surface, "transport": "cli",
-        "model": "fixture-" + name, "lifecycle": "active", "available": True,
+        "model": model, "lifecycle": "active", "available": True,
         "observed_at": NOW, "evidence": "offline test fixture", "quality_tier": 2,
         "capabilities": ["reasoning", "code", "research"], "resource_rank": 1,
         "provider_efforts": ["low", "high", "xhigh"],
         "transport_efforts": ["low", "high", "xhigh"],
         "effort_by_demand": {"routine": "low", "reasoning": "high", "critical": "xhigh"},
         "billing": {"mode": "subscription", "verified": True,
-                    "extra_usage_enabled": False, "account_ref": "test-account"},
+                    "extra_usage_enabled": False, "model_included": True, "included_model": model,
+                    "api_fallback_disabled": True, "paid_credit_fallback_disabled": True,
+                    "account_ref": "test-account"},
         "quota": {"used_pct": 10, "observed_at": NOW, "bucket": "test-weekly"},
     }
     item.update(changes)
+    if surface in {"grok", "grok-bot"} and "quota" not in changes:
+        item["quota"].update({"surface": surface, "transport": item["transport"],
+                              "account_ref": item["billing"]["account_ref"],
+                              "state": "observed", "evidence": "fixture account-bound quota"})
     return item
 
 
@@ -64,6 +74,13 @@ def fixture_registry(candidates):
             "models": list(models.values()), "sources": sources}
 
 
+def production_registry_now():
+    """Keep packaged-registry integration checks valid after a reviewed refresh."""
+    path = SCRIPT.parent.parent / "references" / "model-registry.json"
+    checked_at = json.loads(path.read_text(encoding="utf-8"))["checked_at"]
+    return (datetime.fromisoformat(checked_at) + timedelta(hours=1)).isoformat()
+
+
 class OrchestrationTests(unittest.TestCase):
     def setUp(self):
         self.assertTrue(SCRIPT.is_file(), "The /vibe umbrella planner is not implemented")
@@ -73,19 +90,109 @@ class OrchestrationTests(unittest.TestCase):
         self.catalog = {name: {"name": name, "path": "/fixture/" + name + "/SKILL.md",
                               "description": name} for name in ("explain", "dev-orchestrator", "vibe-bot")}
 
-    def plan(self, steps=None, candidates=None, budget=None, **runtime_changes):
+    def plan(self, steps=None, candidates=None, budget=None, task_fit_policy=None, debate=None, **runtime_changes):
         runtime = {"candidates": candidates if candidates is not None else [candidate()],
                    "tools": [], "observed_at": NOW}
         runtime.update(runtime_changes)
         request = {"run_id": "test-run", "steps": steps or [step()], "budget": budget or {}}
-        return self.m.make_plan(request, self.catalog, runtime, NOW, fixture_registry(runtime["candidates"]))
+        if debate is not None:
+            request["debate"] = debate
+        return self.m.make_plan(request, self.catalog, runtime, NOW,
+                                fixture_registry(runtime["candidates"]), task_fit_policy)
+
+    @staticmethod
+    def debate_fixture():
+        roles = {"proposer": "opening-gpt", "challenger": "opening-claude",
+                 "proposer_rebuttal": "rebuttal-gpt", "challenger_rebuttal": "rebuttal-claude",
+                 "judge": "judge-gpt"}
+        steps = [step("opening-gpt", surface="codex"),
+                 step("opening-claude", surface="claude"),
+                 step("rebuttal-gpt", surface="codex", depends_on=["opening-gpt", "opening-claude"]),
+                 step("rebuttal-claude", surface="claude", depends_on=["opening-gpt", "opening-claude"]),
+                 step("judge-gpt", surface="codex", depends_on=["rebuttal-gpt", "rebuttal-claude"])]
+        candidates = [candidate("gpt", surface="codex"), candidate("claude", surface="claude")]
+        return roles, steps, candidates
+
+    def test_debate_routes_two_vendors_and_waits_for_verified_rebuttals(self):
+        roles, steps, candidates = self.debate_fixture()
+        plan = self.plan(steps, candidates, debate=roles)
+        self.assertEqual(plan["status"], "ready", plan["errors"])
+        self.assertEqual(plan["debate"], roles)
+        self.assertEqual(self.m.ready_steps(plan, [], NOW), ["opening-gpt", "opening-claude"])
+        openings = self.events(plan, *({"id": role, "status": "done", "verified": True,
+                                        "evidence": ["fixture-dispatch"]}
+                                       for role in ("opening-gpt", "opening-claude")))
+        self.assertEqual(self.m.ready_steps(plan, openings, NOW), ["rebuttal-gpt", "rebuttal-claude"])
+        unverified = openings + self.events(plan, {"id": "rebuttal-gpt", "status": "done",
+                                              "verified": False, "evidence": ["fixture"]},
+                                            {"id": "rebuttal-claude", "status": "done",
+                                              "verified": True, "evidence": ["fixture"]})
+        self.assertEqual(self.m.ready_steps(plan, unverified, NOW), [])
+        unverified[-2]["verified"] = True
+        self.assertEqual(self.m.ready_steps(plan, unverified, NOW), ["judge-gpt"])
+
+    def test_debate_rejects_same_vendor_or_rebuttal_account_switch(self):
+        roles, steps, candidates = self.debate_fixture()
+        same = copy.deepcopy(steps)
+        for node in same:
+            node["surface"] = "codex"
+        self.assertIn("DEBATE_REQUIRES_TWO_VENDORS", self.plan(same, candidates, debate=roles)["errors"])
+        switched = candidates + [candidate("claude-other", surface="claude",
+                                            billing={**candidates[1]["billing"], "account_ref": "other",
+                                                     "included_model": "fixture-claude-other"},
+                                            quality_tier=3, resource_rank=2)]
+        changed = copy.deepcopy(steps)
+        changed[3]["quality_floor"] = 3
+        # A coordinator cannot silently turn a rebuttal into a different account.
+        result = self.plan(changed, switched, debate=roles)
+        self.assertIn("DEBATE_REBUTTAL_ROUTE_MISMATCH", result["errors"])
+
+    def test_debate_requires_distinct_real_nodes_and_complete_dependencies(self):
+        roles, steps, candidates = self.debate_fixture()
+        repeated = dict(roles, judge=roles["proposer"])
+        with self.assertRaisesRegex(ValueError, "distinct"):
+            self.plan(steps, candidates, debate=repeated)
+        incomplete = copy.deepcopy(steps)
+        incomplete[-1]["depends_on"] = ["rebuttal-gpt"]
+        with self.assertRaisesRegex(ValueError, "judge"):
+            self.plan(incomplete, candidates, debate=roles)
+
+    def test_debate_roles_are_part_of_durable_immutable_intent(self):
+        import run_state
+        roles, steps, candidates = self.debate_fixture()
+        plan = self.plan(steps, candidates, debate=roles)
+        changed = copy.deepcopy(plan)
+        changed["debate"]["judge"] = roles["proposer_rebuttal"]
+        self.assertNotEqual(run_state.spec_digest(plan), run_state.spec_digest(changed))
+        changed["plan_digest"] = self.m.digest({k: v for k, v in changed.items() if k != "plan_digest"})
+        with tempfile.TemporaryDirectory(prefix="vibe-debate-state-") as folder:
+            store = run_state.Store(Path(folder) / "state.sqlite3")
+            store.initialize()
+            with self.assertRaisesRegex(run_state.StateError, "DEBATE_PLAN_INVALID"):
+                store.register(changed, now=NOW)
+
+    def task_fit_fixture(self, task_type="PLAN_ARCHITECTURE", model="claude-opus-5-5",
+                         efforts=None, rank=0, checked_at=NOW, valid_until="2026-09-24T10:00:00+00:00"):
+        return {"schema_version": 1, "version": "offline-shadow-1", "status": "shadow-only",
+                "checked_at": checked_at, "valid_until": valid_until,
+                "sources": {"manufacturer": "https://www.anthropic.com/claude-opus-5-5"},
+                "profiles": {task_type: [{"model": model, "efforts": efforts or ["high"],
+                                         "rank": rank, "sources": ["manufacturer"]}]}}
 
     def events(self, plan, *events):
         return [dict(run_id=plan["run_id"], plan_digest=plan["plan_digest"], **event) for event in events]
 
     def tool_cost(self, argv):
-        return {"argv_sha256": self.m.digest(argv), "verified": True, "evidence": "Inspected offline command",
-                "observed_at": NOW, "upper_usd_per_attempt": 0}
+        return {"argv_sha256": self.m.digest(argv), "verified": True, "evidence": "Reviewed fixture command",
+                "observed_at": NOW, "upper_usd_per_attempt": 0,
+                "transitive_effects_audited": True, "billing_mode": "nonmetered"}
+
+    def test_gui_request_is_discoverable_from_main_skill_description(self):
+        text = (SCRIPT.parent.parent / "SKILL.md").read_text(encoding="utf-8")
+        description = text.split("description:", 1)[1].splitlines()[0]
+        for keyword in ("Play Console", "CLI/API/MCP", "vibe-bot"):
+            with self.subTest(keyword=keyword):
+                self.assertIn(keyword, description)
 
     def test_subscription_and_effort_are_explicit(self):
         p = self.plan()
@@ -114,6 +221,15 @@ class OrchestrationTests(unittest.TestCase):
         c = candidate(billing={"mode": "api", "verified": True})
         p = self.plan(candidates=[c], budget={"approved_usd": 1})
         self.assertIn("COST_UNKNOWN", str(p))
+
+    def test_zero_budget_never_routes_metered_api_even_with_zero_quote(self):
+        for mode in ("api", "metered"):
+            with self.subTest(mode=mode):
+                c = candidate(billing={"mode": mode, "verified": True,
+                                       "account_ref": "fixture-api"}, upper_usd_per_attempt=0)
+                p = self.plan(candidates=[c])
+                self.assertEqual(p["status"], "blocked")
+                self.assertIn("SUBSCRIPTION_ONLY", str(p))
 
     def test_retry_and_review_reservations_are_in_total(self):
         c = candidate(billing={"mode": "api", "verified": True, "account_ref": "test-api"}, upper_usd_per_attempt=0.3)
@@ -147,6 +263,45 @@ class OrchestrationTests(unittest.TestCase):
         for changes in ({"quota": {"used_pct": 100, "observed_at": NOW}},
                         {"billing": {"mode": "subscription", "verified": True}}):
             self.assertEqual(self.plan(candidates=[candidate(**changes)])["status"], "blocked")
+
+    def test_subscription_needs_model_inclusion_and_no_api_fallback(self):
+        for billing_change, reason in (({"model_included": None}, "MODEL_INCLUSION_UNVERIFIED"),
+                                       ({"model_included": False}, "MODEL_INCLUSION_UNVERIFIED"),
+                                       ({"api_fallback_disabled": None}, "API_FALLBACK_UNVERIFIED"),
+                                       ({"api_fallback_disabled": False}, "API_FALLBACK_UNVERIFIED")):
+            with self.subTest(billing_change=billing_change):
+                billing = dict(candidate()["billing"], **billing_change)
+                plan = self.plan(candidates=[candidate(billing=billing)])
+                self.assertEqual(plan["status"], "blocked")
+                self.assertIn(reason, str(plan))
+
+    def test_codex_and_grok_subscription_must_exclude_purchased_credit_fallback(self):
+        for surface in ("codex", "grok"):
+            for value in (None, False):
+                with self.subTest(surface=surface, value=value):
+                    billing = dict(candidate(surface=surface)["billing"])
+                    if value is None:
+                        billing.pop("paid_credit_fallback_disabled")
+                    else:
+                        billing["paid_credit_fallback_disabled"] = value
+                    plan = self.plan(candidates=[candidate(surface=surface, billing=billing)])
+                    self.assertEqual(plan["status"], "blocked")
+                    self.assertIn("PAID_CREDIT_FALLBACK_UNVERIFIED", str(plan))
+
+    def test_claude_uses_separate_usage_credits_toggle(self):
+        billing = dict(candidate(surface="claude")["billing"])
+        billing.pop("paid_credit_fallback_disabled")
+        self.assertEqual(self.plan(candidates=[candidate(surface="claude", billing=billing)])["status"],
+                         "ready")
+
+    def test_subscription_inclusion_is_bound_to_resolved_model(self):
+        for billing_change, reason in (({"included_model": "other-model"}, "MODEL_INCLUSION_UNVERIFIED"),
+                                       ({"included_model": None}, "MODEL_INCLUSION_UNVERIFIED")):
+            with self.subTest(billing_change=billing_change):
+                billing = dict(candidate()["billing"], **billing_change)
+                plan = self.plan(candidates=[candidate(billing=billing)])
+                self.assertEqual(plan["status"], "blocked")
+                self.assertIn(reason, str(plan))
 
     def test_quality_floor_wins_over_cheapest_candidate(self):
         p = self.plan([step(demand="critical")],
@@ -429,11 +584,173 @@ class OrchestrationTests(unittest.TestCase):
                 self.assertEqual(self.m.main(["inventory"]), 2)
             scanner.assert_not_called()
 
-    def test_default_catalog_includes_system_root_without_scanning_home_in_test(self):
+    def test_default_catalog_uses_candidate_receipt_or_system_root(self):
+        bound = self.m.candidate_inventory()
+        if bound is not None:
+            stream = io.StringIO()
+            with contextlib.redirect_stdout(stream):
+                self.assertEqual(self.m.main(["catalog"]), 0)
+            catalog = json.loads(stream.getvalue())
+            self.assertEqual(set(catalog), set(bound["catalog"]))
+            self.assertIn("vibe", catalog)
+            self.assertIn("vibe-bot", catalog)
+            return
         inv = self.inventory([])
         with contextlib.redirect_stdout(io.StringIO()), patch.object(self.m, "skill_inventory", return_value=inv) as scan:
             self.assertEqual(self.m.main(["catalog"]), 0)
         self.assertIn(Path.home() / ".codex" / "skills" / ".system", scan.call_args.args[0])
+
+    def test_default_catalog_does_not_fallback_from_a_bound_candidate(self):
+        inv = self.inventory([])
+        stream = io.StringIO()
+        with contextlib.redirect_stdout(stream), \
+                patch.object(self.m, "candidate_inventory", return_value=inv) as bound, \
+                patch.object(self.m, "skill_inventory") as fallback:
+            self.assertEqual(self.m.main(["catalog"]), 0)
+        bound.assert_called_once_with([], None)
+        fallback.assert_not_called()
+        self.assertEqual(json.loads(stream.getvalue()), inv["catalog"])
+
+    def test_receipt_bound_codex_overlay_accepts_only_verified_zoom_projection(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            script_root = base / "plugins/SimonKCore/skills/vibe/scripts"
+            owners = {
+                "vibe": "SimonKCore", "ai-helper": "SimonKAIHub",
+                "design-helper": "SimonKDesign", "market-helper": "SimonKMarket",
+                "zoom-out": "SimonKStack",
+                "careful": "SimonKCore", "unfreeze": "SimonKCore",
+                "freeze": "SimonKStack", "guard": "SimonKStack",
+                "investigate": "SimonKStack",
+            }
+            source_files = {}
+
+            def put(path, data):
+                target = base / path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(data)
+
+            script_path = "plugins/SimonKCore/skills/vibe/scripts/orchestrate.py"
+            source_files[script_path] = b"# fixture\n"
+            for owner in ("SimonKCore", "SimonKStack"):
+                source_files[f"plugins/{owner}/.simonk-runtime/safety_runtime.py"] = b"# fixture\n"
+            for owner in sorted(set(owners.values())):
+                names = sorted(name for name, home in owners.items() if home == owner)
+                source_files[f"plugins/{owner}/.claude-plugin/plugin.json"] = json.dumps(
+                    {"skills": [f"./skills/{name}/" for name in names]}
+                ).encode()
+                for name in names:
+                    body = f"---\nname: {name}\ndescription: Fixture\n---\nFixture\n".encode()
+                    if name == "zoom-out":
+                        body = body.replace(b"---\nFixture", b"disable-model-invocation: true\n---\nFixture")
+                    source_files[f"plugins/{owner}/skills/{name}/SKILL.md"] = body
+            for path, data in source_files.items():
+                put(path, data)
+            bundle = {"schema_version": 2, "scope": "five-plugin-candidate-safety-v2",
+                      "inputs": {"plugins": {owner: {} for owner in set(owners.values())}},
+                      "owners": owners,
+                      "files": [{"path": path, "sha256": hashlib.sha256(data).hexdigest(),
+                                 "size": len(data)} for path, data in sorted(source_files.items())]}
+            bundle_data = json.dumps(bundle).encode()
+            put("bundle.json", bundle_data)
+
+            zoom_path = "plugins/SimonKStack/skills/zoom-out/SKILL.md"
+            original_zoom = source_files[zoom_path]
+            projected_zoom = original_zoom.replace(b"disable-model-invocation: true\n", b"", 1)
+            generated = {zoom_path: projected_zoom,
+                         "plugins/SimonKStack/skills/zoom-out/agents/openai.yaml": (
+                             b"interface:\n  display_name: Zoom Out\n"
+                             b"  short_description: One-layer-up code map on explicit request.\n"
+                             b"policy:\n  allow_implicit_invocation: false\n")}
+            for owner in set(owners.values()):
+                generated[f"plugins/{owner}/.codex-plugin/plugin.json"] = b"{}\n"
+            for path, data in generated.items():
+                put(path, data)
+            overlay = {"schema_version": 2, "scope": "five-plugin-codex-compat-overlay-v2",
+                       "candidate_digest": hashlib.sha256(bundle_data).hexdigest(),
+                       "replacement_originals": {zoom_path: base64.b64encode(original_zoom).decode()},
+                       "generated": {path: {"sha256": hashlib.sha256(data).hexdigest(),
+                                            "size": len(data)} for path, data in generated.items()},
+                       "host_compatibility_verified": False, "installation_ready": False,
+                       "limitations": []}
+            put("overlay.json", json.dumps(overlay).encode())
+            with patch.object(self.m, "SCRIPT_ROOT", script_root):
+                found = self.m.candidate_inventory()
+                self.assertEqual(found["status"], "complete")
+                self.assertEqual(len(found["catalog"]), 10)
+                self.assertIn("overlay", found["catalog"].discovery)
+                put(zoom_path, projected_zoom + b"tamper")
+                with self.assertRaises(ValueError):
+                    self.m.candidate_inventory()
+                put(zoom_path, projected_zoom)
+                forged_zoom = projected_zoom + b"forged"
+                put(zoom_path, forged_zoom)
+                overlay["generated"][zoom_path] = {"sha256": hashlib.sha256(forged_zoom).hexdigest(),
+                                                   "size": len(forged_zoom)}
+                put("overlay.json", json.dumps(overlay).encode())
+                with self.assertRaises(ValueError):
+                    self.m.candidate_inventory()
+
+                # D-29 keeps manifests unmodified but removes five skill roots
+                # and two safety runtimes from the Codex subset.
+                put(zoom_path, projected_zoom)
+                overlay["generated"][zoom_path] = {"sha256": hashlib.sha256(projected_zoom).hexdigest(),
+                                                  "size": len(projected_zoom)}
+                overlay["replacement_originals"][zoom_path] = base64.b64encode(original_zoom).decode()
+                put("overlay.json", json.dumps(overlay).encode())
+                before_subset = {p.relative_to(base).as_posix(): p.read_bytes()
+                                 for p in base.rglob("*") if p.is_file()}
+                excluded_skills = (("SimonKCore", "careful"), ("SimonKStack", "freeze"),
+                                   ("SimonKStack", "guard"), ("SimonKStack", "investigate"),
+                                   ("SimonKCore", "unfreeze"))
+                excluded_prefixes = tuple(f"plugins/{owner}/skills/{name}/"
+                                          for owner, name in excluded_skills) + tuple(
+                    f"plugins/{owner}/.simonk-runtime/" for owner in ("SimonKCore", "SimonKStack"))
+                excluded_paths = {p for p in before_subset if p.startswith(excluded_prefixes)}
+                for owner, name in excluded_skills:
+                    shutil.rmtree(base / f"plugins/{owner}/skills/{name}")
+                for owner in ("SimonKCore", "SimonKStack"):
+                    shutil.rmtree(base / f"plugins/{owner}/.simonk-runtime")
+                rows = lambda paths: [{"path": p, "sha256": hashlib.sha256(before_subset[p]).hexdigest(),
+                                       "size": len(before_subset[p])} for p in sorted(paths)]
+                subset = {"schema_version": 1, "scope": "five-plugin-codex-general-skills-only-v2",
+                          "decision_ref": "D-29",
+                          "source_overlay_digest": hashlib.sha256((base / "overlay.json").read_bytes()).hexdigest(),
+                          "excluded_skills": [f"simonk-{owner.removeprefix('SimonK').lower()}:{name}"
+                                              for owner, name in excluded_skills],
+                          "included_members": rows(set(before_subset) - excluded_paths),
+                          "excluded_members": rows(excluded_paths),
+                          "host_compatibility_verified": False, "installation_ready": False,
+                          "limitations": []}
+                with self.assertRaises(ValueError):
+                    self.m.candidate_inventory()  # Omission without receipt is never a fallback.
+                put("subset.json", json.dumps(subset).encode())
+                found = self.m.candidate_inventory()
+                self.assertEqual(found["status"], "complete")
+                self.assertEqual(len(found["catalog"]), 5)
+                self.assertNotIn("careful", found["catalog"])
+                self.assertIn("subset", found["catalog"].discovery)
+                removed_row = subset["included_members"].pop()
+                put("subset.json", json.dumps(subset).encode())
+                with self.assertRaises(ValueError):
+                    self.m.candidate_inventory()
+                subset["included_members"].append(removed_row)
+                put("subset.json", json.dumps(subset).encode())
+                put("plugins/SimonKCore/skills/careful/SKILL.md", b"unreceipted safety control")
+                with self.assertRaises(ValueError):
+                    self.m.candidate_inventory()
+                shutil.rmtree(base / "plugins/SimonKCore/skills/careful")
+                subset["source_overlay_digest"] = "0" * 64
+                put("subset.json", json.dumps(subset).encode())
+                with self.assertRaises(ValueError):
+                    self.m.candidate_inventory()
+                put(zoom_path, projected_zoom)
+                overlay["generated"][zoom_path] = {"sha256": hashlib.sha256(projected_zoom).hexdigest(),
+                                                   "size": len(projected_zoom)}
+                overlay["replacement_originals"][zoom_path] = base64.b64encode(b"wrong").decode()
+                put("overlay.json", json.dumps(overlay).encode())
+                with self.assertRaises(ValueError):
+                    self.m.candidate_inventory()
 
     def test_coverage_compares_selected_install_not_a_matching_shadow(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -515,7 +832,12 @@ class OrchestrationTests(unittest.TestCase):
     def bot(self, **changes):
         c = candidate("bot", surface="grok-bot", transport="bot", model=None,
                       capabilities=["gui"], bot_id="grok-bot", bot_status="active",
-                      provider_efforts=[], transport_efforts=[], effort_by_demand={})
+                      provider_efforts=[], transport_efforts=[], effort_by_demand={},
+                      billing={"mode": "subscription", "verified": True,
+                               "extra_usage_enabled": False, "bot_usage_included": True,
+                               "api_fallback_disabled": True,
+                               "paid_credit_fallback_disabled": True,
+                               "account_ref": "test-bot-account"})
         c.update(changes)
         return c
 
@@ -533,9 +855,51 @@ class OrchestrationTests(unittest.TestCase):
         self.assertEqual(p["steps"][0]["route"]["vendor"], "xai")
         self.assertEqual(p["steps"][0]["handoff"]["mode"], "console")
 
+    def test_bot_needs_included_subscription_usage_not_a_model_claim(self):
+        for included in (None, False):
+            with self.subTest(included=included):
+                billing = dict(self.bot()["billing"], bot_usage_included=included,
+                               model_included=True)
+                p = self.plan([self.gui()], [self.bot(billing=billing)])
+                self.assertEqual(p["status"], "blocked")
+                self.assertIn("BOT_USAGE_INCLUSION_UNVERIFIED", str(p))
+        billing = dict(self.bot()["billing"], model_included=None)
+        self.assertEqual(self.plan([self.gui()], [self.bot(billing=billing)])["status"], "ready")
+
+    def test_bot_purchased_credit_fallback_must_be_excluded(self):
+        billing = dict(self.bot()["billing"])
+        billing.pop("paid_credit_fallback_disabled")
+        p = self.plan([self.gui()], [self.bot(billing=billing)])
+        self.assertEqual(p["status"], "blocked")
+        self.assertIn("PAID_CREDIT_FALLBACK_UNVERIFIED", str(p))
+
+    def test_xai_quota_must_match_exact_surface_transport_and_account(self):
+        for surface, node, good in (("grok", step(surface="grok"), candidate("grok", surface="grok")),
+                                    ("grok-bot", self.gui(), self.bot())):
+            self.assertEqual(self.plan([node], [good])["status"], "ready")
+            for field, wrong in (("surface", "grok-bot" if surface == "grok" else "grok"),
+                                 ("transport", "cli" if surface == "grok-bot" else "bot"),
+                                 ("account_ref", "other-account"), ("evidence", ""),
+                                 ("state", "reset-unobserved")):
+                with self.subTest(surface=surface, field=field):
+                    bad = copy.deepcopy(good)
+                    bad["quota"][field] = wrong
+                    p = self.plan([node], [bad])
+                    self.assertEqual(p["status"], "blocked")
+                    self.assertIn("QUOTA_BINDING_UNVERIFIED", str(p))
+
     def test_held_bot_is_not_routed(self):
         p = self.plan([self.gui()], [self.bot(bot_status="ON HOLD")])
         self.assertIn("BOT_INACTIVE", str(p))
+
+    def test_reported_roster_status_is_not_live_bot_evidence(self):
+        reported = "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+        for status in (reported, "ACTIVE (reported)", None, 1):
+            with self.subTest(status=status):
+                p = self.plan([self.gui()], [self.bot(bot_status=status)])
+                self.assertEqual(p["status"], "blocked")
+                self.assertIn("BOT_INACTIVE", p["steps"][0]["rejected_candidates"][0]["reasons"])
+        self.assertEqual(self.plan([self.gui()], [self.bot(bot_status="active")])["status"], "ready")
 
     def test_grok_cli_and_bot_are_not_independent_verifiers(self):
         steps = [step(surface="grok"), self.gui(id="review", verify_of="read", depends_on=["read"])]
@@ -579,6 +943,39 @@ class OrchestrationTests(unittest.TestCase):
         p = self.plan([step(kind="local", skills=[], argv=["python", "api.py"], software=["python"])],
                       [], tools=["python"])
         self.assertIn("LOCAL_COST_UNVERIFIED", str(p))
+
+    def test_local_zero_quote_requires_explicit_transitive_effects_and_nonmetered_billing(self):
+        argv = ["python", "fixed-local-fixture.py"]
+        local = step(kind="local", skills=[], argv=argv, software=["python"])
+        quote = self.tool_cost(argv)
+        for change, reason in (({"transitive_effects_audited": False}, "LOCAL_EFFECTS_UNVERIFIED"),
+                               ({"billing_mode": "metered"}, "SUBSCRIPTION_ONLY"),
+                               ({"billing_mode": "unknown"}, "LOCAL_BILLING_UNVERIFIED"),
+                               ({"billing_mode": "nonmetered", "upper_usd_per_attempt": 1},
+                                "LOCAL_BILLING_UNVERIFIED")):
+            with self.subTest(change=change):
+                plan = self.plan([local], [], tools=["python"], tool_costs=[dict(quote, **change)])
+                self.assertEqual(plan["status"], "blocked")
+                self.assertIn(reason, plan["steps"][0]["errors"])
+        for removed, reason in (("transitive_effects_audited", "LOCAL_EFFECTS_UNVERIFIED"),
+                                ("billing_mode", "LOCAL_BILLING_UNVERIFIED")):
+            with self.subTest(removed=removed):
+                incomplete = dict(quote)
+                incomplete.pop(removed)
+                plan = self.plan([local], [], tools=["python"], tool_costs=[incomplete])
+                self.assertIn(reason, plan["steps"][0]["errors"])
+        self.assertEqual(self.plan([local], [], tools=["python"], tool_costs=[quote])["status"], "ready")
+
+    def test_metered_local_quote_requires_positive_authorized_budget(self):
+        argv = ["python", "api.py"]
+        local = step(kind="local", skills=[], argv=argv, software=["python"])
+        quote = dict(self.tool_cost(argv), billing_mode="metered", upper_usd_per_attempt="0.25")
+        blocked = self.plan([local], [], tools=["python"], tool_costs=[quote])
+        self.assertIn("SUBSCRIPTION_ONLY", blocked["steps"][0]["errors"])
+        allowed = self.plan([local], [], budget={"approved_usd": "0.5"},
+                            tools=["python"], tool_costs=[quote])
+        self.assertEqual(allowed["status"], "ready")
+        self.assertEqual(allowed["budget"]["reserved_upper_usd"], 0.5)
 
     def test_local_test_cannot_replace_independent_review(self):
         argv = ["echo", "PASS"]
@@ -656,13 +1053,82 @@ class OrchestrationTests(unittest.TestCase):
             registry_path = root / "registry.json"
             registry_path.write_text(json.dumps(fixture_registry([candidate()])), encoding="utf-8")
             before = sorted(p.name for p in root.iterdir())
-            result = subprocess.run([sys.executable, str(SCRIPT), "plan", "--input", str(request),
+            cache_dir = SCRIPT.parent / "__pycache__"
+            before_cache = sorted(p.name for p in cache_dir.glob("*.pyc"))
+            result = subprocess.run([sys.executable, "-B", str(SCRIPT), "plan", "--input", str(request),
                                      "--runtime", str(runtime), "--root", str(root), "--now", NOW,
                                      "--registry", str(registry_path)],
                                     capture_output=True, text=True, encoding="utf-8", timeout=15)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(json.loads(result.stdout)["status"], "ready")
             self.assertEqual(sorted(p.name for p in root.iterdir()), before)
+            self.assertEqual(sorted(p.name for p in cache_dir.glob("*.pyc")), before_cache)
+
+    def test_cli_inventory_plain_python_does_not_write_bytecode(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            scripts = root / "scripts"
+            scripts.mkdir()
+            for name in ("orchestrate.py", "model_registry.py"):
+                shutil.copyfile(SCRIPT.with_name(name), scripts / name)
+            skills = root / "skills"
+            (skills / "explain").mkdir(parents=True)
+            (skills / "explain" / "SKILL.md").write_text(
+                "---\nname: explain\ndescription: Explain\n---\n", encoding="utf-8")
+            result = subprocess.run(
+                [sys.executable, str(scripts / "orchestrate.py"), "inventory", "--root", str(skills)],
+                capture_output=True, text=True, encoding="utf-8", timeout=15)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(json.loads(result.stdout)["status"], "complete")
+            self.assertFalse(list(scripts.rglob("*.pyc")))
+
+    def test_packaged_cli_entrypoints_do_not_create_unreceipted_bytecode(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            scripts = Path(tmp) / "scripts"
+            scripts.mkdir()
+            for source in SCRIPT.parent.glob("*.py"):
+                shutil.copyfile(source, scripts / source.name)
+            env = os.environ.copy()
+            env.pop("PYTHONDONTWRITEBYTECODE", None)
+            env.pop("PYTHONPYCACHEPREFIX", None)
+            for name in ("orchestrate.py", "runtime_collect.py", "run_state.py",
+                         "execute_orca.py", "execute_bot.py"):
+                with self.subTest(entrypoint=name):
+                    result = subprocess.run([sys.executable, str(scripts / name), "--help"],
+                                            capture_output=True, text=True, encoding="utf-8",
+                                            cwd=tmp, env=env, timeout=15)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertFalse(list(scripts.rglob("*.pyc")))
+
+    def test_legacy_user_entrypoints_import_without_bytecode_or_effects(self):
+        probe = (
+            "import runpy, sys\n"
+            "class StopProbe(Exception): pass\n"
+            "def trace(frame, event, arg):\n"
+            "    if event == 'call' and frame.f_code.co_filename == sys.argv[1] "
+            "and frame.f_code.co_name in ('main', 'run'):\n"
+            "        raise StopProbe\n"
+            "    return trace\n"
+            "sys.settrace(trace)\n"
+            "try: runpy.run_path(sys.argv[1], run_name='__main__')\n"
+            "except StopProbe: print('STOPPED')\n"
+        )
+        for name in ("make_intake.py", "make_decision_sheet.py", "selftest.py",
+                     "aggregate_ledger.py", "adversarial_eval.py", "sync_skill_table.py"):
+            with self.subTest(entrypoint=name), tempfile.TemporaryDirectory() as tmp:
+                scripts = Path(tmp) / "scripts"
+                scripts.mkdir()
+                for source in SCRIPT.parent.glob("*.py"):
+                    shutil.copyfile(source, scripts / source.name)
+                env = os.environ.copy()
+                env.pop("PYTHONDONTWRITEBYTECODE", None)
+                env.pop("PYTHONPYCACHEPREFIX", None)
+                result = subprocess.run([sys.executable, "-c", probe, str(scripts / name)],
+                                        capture_output=True, text=True, encoding="utf-8",
+                                        cwd=tmp, env=env, timeout=15)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout.strip(), "STOPPED")
+                self.assertFalse(list(scripts.rglob("*.pyc")))
 
     def test_ready_requires_fresh_dispatch_time(self):
         p = self.plan()
@@ -699,7 +1165,7 @@ class OrchestrationTests(unittest.TestCase):
         self.assertIn("MODEL_NOT_REGISTERED", str(p))
 
     def test_planner_locks_registry_and_does_not_invent_resolved_model(self):
-        now = "2026-09-23T13:00:00+00:00"
+        now = production_registry_now()
         c = candidate(model="gpt-6-sol", observed_at=now, quota={"used_pct": 10, "observed_at": now})
         p = self.m.make_plan({"run_id": "registry-check", "steps": [step()]}, self.catalog,
                              {"candidates": [c]}, now)
@@ -709,7 +1175,7 @@ class OrchestrationTests(unittest.TestCase):
         self.assertIsNone(p["steps"][0]["route"]["resolved_model"])
 
     def test_harness_ultra_is_not_an_ordinary_worker_effort(self):
-        now = "2026-09-23T13:00:00+00:00"
+        now = production_registry_now()
         c = candidate(model="gpt-6-sol", observed_at=now, quota={"used_pct": 10, "observed_at": now},
                       provider_efforts=["ultra"], transport_efforts=["ultra"],
                       effort_by_demand={"routine": "ultra"})
@@ -821,11 +1287,226 @@ class OrchestrationTests(unittest.TestCase):
         import routing
         expected = {"CODE_NEW", "CODE_FIX", "CODE_REVIEW", "RESEARCH", "AGENTIC",
                     "COMPUTER_USE", "DESIGN_UI", "KOREAN_DOC", "BULK_LIGHT",
-                    "REASONING_ABSTRACT", "VISION"}
+                    "REASONING_ABSTRACT", "VISION", "PLAN_ARCHITECTURE",
+                    "CODE_COMPLEX", "CODE_SIMPLE", "WRITING", "IMAGE_GENERATION"}
         self.assertEqual(set(self.m.TASK_TYPE_MAP), expected)
         for mapping in self.m.TASK_TYPE_MAP.values():
             self.assertEqual(routing.PROC_BY_ID[mapping["proc"]][1], mapping["class"])
             self.assertEqual(set(mapping), {"kind", "needs", "demand", "proc", "class"})
+
+    def test_task_specific_demand_avoids_max_for_every_coding_and_planning_node(self):
+        for task_type, quality, expected_effort in (
+            ("CODE_SIMPLE", 2, "low"), ("CODE_COMPLEX", 3, "high"),
+            ("PLAN_ARCHITECTURE", 2, "high"),
+        ):
+            with self.subTest(task_type=task_type):
+                p = self.plan([self.typed(task_type)], [candidate(quality_tier=quality)])
+                self.assertEqual(p["status"], "ready")
+                self.assertEqual(p["steps"][0]["route"]["requested_effort"], expected_effort)
+        critical = self.typed("CODE_COMPLEX", demand="critical")
+        p = self.plan([critical], [candidate(quality_tier=3)])
+        self.assertEqual(p["steps"][0]["route"]["requested_effort"], "xhigh")
+
+    def test_task_fit_shadow_records_different_winner_without_changing_dispatch(self):
+        opener = candidate("generic", model="gpt-6-sol", quality_tier=3,
+                           resource_rank=0, capabilities=["reasoning"])
+        opus = candidate("task-fit", surface="claude", model="claude-opus-5-5",
+                         quality_tier=3, resource_rank=9, capabilities=["reasoning"])
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [opener, opus],
+                      task_fit_policy=self.task_fit_fixture())
+        route = p["steps"][0]["route"]
+        shadow = p["steps"][0]["shadow_task_fit"]
+        self.assertEqual(p["status"], "ready")
+        self.assertEqual(route["candidate_id"], "generic")
+        self.assertEqual(shadow["status"], "ranked")
+        self.assertEqual(shadow["suggested_candidate_id"], "task-fit")
+        self.assertEqual(shadow["active_candidate_id"], "generic")
+        self.assertTrue(shadow["would_change"])
+        self.assertEqual(shadow["policy_version"], "offline-shadow-1")
+        self.assertEqual(shadow["evidence_scope"], "public-advisory-not-host-validation")
+
+    def test_task_fit_shadow_cannot_promote_unsafe_or_wrong_effort(self):
+        generic = candidate("generic", model="gpt-6-sol", quality_tier=3,
+                            resource_rank=0, capabilities=["reasoning"])
+        opus = candidate("task-fit", surface="claude", model="claude-opus-5-5",
+                         quality_tier=3, resource_rank=9, capabilities=["reasoning"])
+        no_overage = copy.deepcopy(opus)
+        no_overage["billing"]["model_included"] = False
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, no_overage],
+                      task_fit_policy=self.task_fit_fixture())
+        self.assertEqual(p["steps"][0]["route"]["candidate_id"], "generic")
+        self.assertNotEqual(p["steps"][0]["shadow_task_fit"].get("suggested_candidate_id"), "task-fit")
+        wrong_effort = self.task_fit_fixture(efforts=["low"])
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, opus],
+                      task_fit_policy=wrong_effort)
+        self.assertEqual(p["steps"][0]["shadow_task_fit"]["status"], "no-matched-evidence")
+        self.assertEqual(p["steps"][0]["route"]["candidate_id"], "generic")
+
+    def test_task_fit_shadow_never_outranks_money_or_high_quota_pressure(self):
+        generic = candidate("generic", model="gpt-6-sol", quality_tier=3,
+                            resource_rank=0, capabilities=["reasoning"])
+        opus = candidate("task-fit", surface="claude", model="claude-opus-5-5",
+                         quality_tier=3, resource_rank=9, capabilities=["reasoning"])
+        policy = self.task_fit_fixture()
+        quota_heavy = copy.deepcopy(opus)
+        quota_heavy["quota"]["used_pct"] = 90
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, quota_heavy],
+                      task_fit_policy=policy)
+        self.assertEqual(p["steps"][0]["shadow_task_fit"]["status"], "unranked-wins")
+        self.assertIsNone(p["steps"][0]["shadow_task_fit"]["suggested_candidate_id"])
+        metered = copy.deepcopy(opus)
+        metered["billing"] = {"mode": "api", "verified": True, "account_ref": "fixture-api"}
+        metered["upper_usd_per_attempt"] = 0.1
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, metered],
+                      budget={"approved_usd": 1}, task_fit_policy=policy)
+        self.assertEqual(p["steps"][0]["shadow_task_fit"]["status"], "unranked-wins")
+        self.assertIsNone(p["steps"][0]["shadow_task_fit"]["suggested_candidate_id"])
+
+    def test_task_fit_shadow_expiry_and_image_generation_boundary(self):
+        policy = self.task_fit_fixture(checked_at="2026-09-21T10:00:00+00:00",
+                                       valid_until="2026-09-22T10:00:00+00:00")
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [candidate(quality_tier=3)],
+                      task_fit_policy=policy)
+        self.assertEqual(p["steps"][0]["shadow_task_fit"]["status"], "expired")
+        self.assertEqual(p["status"], "ready")
+        image = self.typed("IMAGE_GENERATION")
+        for surface in ("claude", "codex"):
+            with self.subTest(surface=surface):
+                fake = candidate(surface=surface, capabilities=["image_generation", "vision"])
+                blocked = self.plan([image], [fake])
+                self.assertEqual(blocked["status"], "blocked")
+                node = blocked["steps"][0]
+                self.assertEqual(node["kind"], "image")
+                self.assertEqual(node["needs"], ["image_generation"])
+                self.assertIn("IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL", node["errors"])
+                self.assertIsNone(node["route"])
+                self.assertIsNone(node["handoff"])
+        with self.assertRaisesRegex(ValueError, "Invalid step kind"):
+            self.plan([step(kind="image")])
+
+    def test_packaged_complex_coding_fit_can_advise_opus_medium_without_dispatch(self):
+        policy = self.m.load_task_fit_policy()
+        observed = (datetime.fromisoformat(policy["checked_at"])
+                    + timedelta(minutes=1)).isoformat()
+        active = candidate("generic", model="gpt-6-sol", quality_tier=3)
+        opus = candidate("opus-medium", surface="claude", model="claude-opus-5-5",
+                         quality_tier=3, resource_rank=9)
+        result = self.m.shadow_task_fit({"task_type": "CODE_COMPLEX"},
+                                        [(0, active, "high", 0),
+                                         (1, opus, "medium", 0)],
+                                        active, policy, observed)
+        self.assertEqual(result["status"], "ranked")
+        self.assertEqual(result["suggested_candidate_id"], "opus-medium")
+        self.assertEqual(result["suggested_effort"], "medium")
+        self.assertEqual(result["advisory_rank"], 0)
+        self.assertEqual(result["active_candidate_id"], "generic")
+
+    def test_packaged_task_fit_policy_is_shadow_only_and_malformed_entries_fail_cleanly(self):
+        policy = self.m.load_task_fit_policy()
+        self.assertEqual(policy["status"], "shadow-only")
+        self.assertEqual(set(policy["profiles"]),
+                         {"PLAN_ARCHITECTURE", "CODE_COMPLEX", "CODE_SIMPLE", "WRITING"})
+        self.assertNotIn("VISION", policy["profiles"])
+        self.assertNotIn("IMAGE_GENERATION", policy["profiles"])
+        for field, value in (("efforts", [["high"]]), ("sources", [["manufacturer"]]),
+                             ("rank", True)):
+            with self.subTest(field=field):
+                malformed = self.task_fit_fixture()
+                malformed["profiles"]["PLAN_ARCHITECTURE"][0][field] = value
+                with self.assertRaisesRegex(ValueError, "Invalid task-fit entry"):
+                    self.m.validate_task_fit_policy(malformed)
+
+    def test_coding_quality_floor_is_independent_of_requested_effort(self):
+        for task_type, insufficient_tier, required_floor in (
+            ("CODE_SIMPLE", 1, 2), ("CODE_COMPLEX", 2, 3),
+        ):
+            with self.subTest(task_type=task_type):
+                blocked = self.plan([self.typed(task_type)],
+                                    [candidate(quality_tier=insufficient_tier)])
+                self.assertEqual(blocked["status"], "blocked")
+                self.assertIn("QUALITY_FLOOR", str(blocked))
+                eligible = self.plan([self.typed(task_type)],
+                                     [candidate(quality_tier=required_floor)])
+                self.assertEqual(eligible["status"], "ready")
+                self.assertEqual(eligible["steps"][0]["quality_floor"], required_floor)
+                with self.assertRaises(ValueError):
+                    self.plan([self.typed(task_type, quality_floor=insufficient_tier)])
+        with self.assertRaises(ValueError):
+            self.plan([step(quality_floor="2")])
+
+    def test_claude_and_codex_share_task_quality_and_subscription_guards(self):
+        profiles = (("PLAN_ARCHITECTURE", 2, "high"),
+                    ("CODE_SIMPLE", 2, "low"),
+                    ("CODE_COMPLEX", 3, "high"),
+                    ("WRITING", 2, "high"))
+        for surface in ("claude", "codex"):
+            other = "codex" if surface == "claude" else "claude"
+            for task_type, minimum_tier, effort in profiles:
+                with self.subTest(surface=surface, task_type=task_type):
+                    node = self.typed(task_type, surface=surface)
+                    steps = [node]
+                    candidates = [candidate("writer", surface=surface, quality_tier=minimum_tier,
+                                            capabilities=["code", "reasoning", "writing"])]
+                    if task_type == "WRITING":
+                        steps.append(step("review", surface=other, verify_of="read",
+                                          depends_on=["read"]))
+                        candidates.append(candidate("reviewer", surface=other,
+                                                    capabilities=["reasoning", "research"]))
+                    ready = self.plan(steps, candidates)
+                    self.assertEqual(ready["status"], "ready")
+                    self.assertEqual(ready["steps"][0]["route"]["requested_effort"], effort)
+                    self.assertEqual(ready["steps"][0]["route"]["surface"], surface)
+                    self.assertEqual(ready["budget"]["reserved_upper_usd"], 0)
+                    if task_type == "WRITING":
+                        self.assertEqual(ready["steps"][1]["route"]["surface"], other)
+                    if task_type.startswith("CODE_"):
+                        self.assertEqual(ready["steps"][0]["quality_floor"], minimum_tier)
+                    weak = copy.deepcopy(candidates)
+                    weak[0]["quality_tier"] = minimum_tier - 1
+                    self.assertIn("QUALITY_FLOOR", str(self.plan(steps, weak)))
+                    unsafe = copy.deepcopy(candidates)
+                    unsafe[0]["billing"]["model_included"] = False
+                    self.assertIn("MODEL_INCLUSION_UNVERIFIED", str(self.plan(steps, unsafe)))
+
+    def test_writing_requires_writing_capability_not_generic_reasoning(self):
+        node = self.typed("WRITING")
+        reviewer = step("review", verify_of="read", depends_on=["read"])
+        review_route = candidate("reviewer", surface="claude")
+        blocked = self.plan([node, reviewer], [candidate(), review_route])
+        self.assertEqual(blocked["status"], "blocked")
+        self.assertIn("CAPABILITY_MISMATCH", str(blocked))
+        eligible = candidate(capabilities=["writing", "reasoning"])
+        routed = self.plan([node, reviewer], [eligible, review_route])
+        self.assertEqual(routed["status"], "ready")
+        self.assertEqual(routed["steps"][0]["route"]["requested_effort"], "high")
+
+    def test_typed_writing_requires_independent_review_even_without_file_edits(self):
+        writer = self.typed("WRITING", writes=False)
+        writer_route = candidate("writer", surface="claude",
+                                 capabilities=["writing", "reasoning"])
+        without_review = self.plan([writer], [writer_route])
+        self.assertEqual(without_review["status"], "blocked")
+        self.assertIn("MISSING_REVIEW", without_review["steps"][0]["errors"])
+
+        reviewer = step("review", verify_of="read", depends_on=["read"])
+        consumer = step("consume", depends_on=["read"])
+        same_vendor = candidate("same-vendor-reviewer", surface="claude",
+                                capabilities=["reasoning", "research"])
+        not_independent = self.plan([writer, reviewer], [writer_route, same_vendor])
+        self.assertEqual(not_independent["status"], "blocked")
+        self.assertIn("SAME_VENDOR_REVIEW", str(not_independent))
+        independent = candidate("reviewer", surface="codex",
+                                capabilities=["reasoning", "research"])
+        reviewed = self.plan([writer, reviewer, consumer], [writer_route, independent])
+        self.assertEqual(reviewed["status"], "ready")
+        self.assertNotEqual(reviewed["steps"][0]["route"]["vendor"],
+                            reviewed["steps"][1]["route"]["vendor"])
+        written = self.events(reviewed, {"id": "read", "status": "done",
+                                         "verified": True, "evidence": ["fixture output"]})
+        self.assertEqual(self.m.ready_steps(reviewed, written, now=NOW), ["review"])
+        approved = written + self.events(reviewed, {"id": "review", "status": "done",
+                                                  "verified": True, "evidence": ["fixture review"]})
+        self.assertEqual(self.m.ready_steps(reviewed, approved, now=NOW), ["consume"])
 
     def test_untyped_requests_remain_backward_compatible(self):
         node = step()
@@ -863,7 +1544,10 @@ class OrchestrationTests(unittest.TestCase):
 
 class TddGuardRegression(unittest.TestCase):
     def test_nested_python_tests_are_tests_without_weakening_source_gate(self):
-        guard = SCRIPT.parents[3] / "skills-src/simon-tdd/scripts/tdd-guard-check.sh"
+        source_guard = SCRIPT.parents[3] / "skills-src/simon-tdd/scripts/tdd-guard-check.sh"
+        bundle_guard = SCRIPT.parents[4] / "SimonKStack/skills/simon-tdd/scripts/tdd-guard-check.sh"
+        guard = source_guard if source_guard.is_file() else bundle_guard
+        self.assertTrue(guard.is_file(), "TDD guard must be present in source or candidate")
         bash = "C:/Program Files/Git/bin/bash.exe" if os.name == "nt" else "bash"
         source = guard.read_text(encoding="utf-8").replace("\r", "")
         fixtures = (

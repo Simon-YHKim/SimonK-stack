@@ -1,19 +1,10 @@
 ---
 name: persona-simulation
 description: >-
-  Use when the user wants to stress-test a product's screens against a diverse
-  user cohort — triggers "페르소나 시뮬", "페르소나 검증", "페르소나 시뮬레이션",
-  "다양성 검증", "유아부터 90대", "누가 막히나", "persona simulation",
-  "diversity audit", "accessibility cohort", "who gets stuck". Builds a 4-axis
-  persona matrix (age infant/guardian→90s, job, income very-poor→wealthy,
-  culture KR/US/JP/SEA/EU/MENA/LATAM), walks EACH persona through the actual
-  first-run + core loop by reading the REAL screen code, and flags
-  blocker/dropout/distrust/confusion grounded in file:line. PRODUCES a prioritized
-  code-grounded findings report (HTML, sorted by frequency × severity) plus a queue
-  block and per-AI routing. Can fan out via agent-delegate for large cohorts —
-  the reusable form of hub PROTOCOL §26.2 / §27.9. Different from design-review
-  (one eye) and grill-me (plan); NOT for picking a direction (simon-design-first).
-version: 0.1.0
+  Use when stress-testing screen code with "persona simulation" or "페르소나 시뮬"
+  across age, job, income and culture. Produces prioritized HTML findings from
+  first-run/core-loop file:line evidence; not visual QA, plan review or design direction.
+version: 0.1.2
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch
 compatibility: [claude-code]
 author: simon-stack
@@ -223,13 +214,20 @@ start "" "persona-sim-$(date +%Y%m%d-%H%M).html" 2>/dev/null \
 - [ ] 리포트가 HTML(§27.5)이고 색 3개 이내·slop 없는가?
 - [ ] 큐 적재용 블록(§25 E.UX) + 라우팅 제안(§26.3) 포함?
 
+리포트 생성 후 이 스킬에 포함된 `scripts/check_findings.py`를 **그 스킬의
+실제 설치 경로로 지정**해 실행한다. 프로젝트 작업 폴더의 `scripts/`로
+착각하지 말 것. 현재 실행의 보고서만 검증하도록 `--expect`를 준다.
+
 ```bash
-# 발견 리포트에 근거 없는 항목이 없는지 마지막 그렙 (file:line 패턴 강제)
-grep -nE "BLOCKER|DROPOUT|DISTRUST|CONFUSION" persona-sim-*.html 2>/dev/null \
-  | grep -vE "\.tsx:[0-9]+|\.ts:[0-9]+|\.jsx?:[0-9]+" \
-  && echo "⚠ 근거(file:line) 없는 발견 존재 — 보강 필요" \
-  || echo "OK — 모든 발견에 코드 근거 있음"
+python "<persona-simulation-skill-dir>/scripts/check_findings.py" \
+  --expect "<이번 실행에서 생성한 persona-sim 보고서>.html"
 ```
+
+종료 0만 통과. 파일 부재·읽기 실패·근거 없는 발견은 종료 1이다. 발견이
+정말 0건이면 HTML 본문에 `PERSONA-SCOPE: <검사한 화면과 페르소나 범위>`를
+기록한다. 검사기는 **보이는 본문**의 각 발견에 `file:line` 표기가 있는지만
+확인한다. 인용이 실제 코드와 맞는지, 첫 실행·핵심 루프를 실제로 걸었는지는
+위 체크리스트와 원본 화면 코드로 별도 대조해야 한다.
 
 ## 완료 보고 (HTML) — 표준
 작업을 끝내면 **HTML 완료 보고서**를 생성한다 (SimonKCore `completion-report` 표준).

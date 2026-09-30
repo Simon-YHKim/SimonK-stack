@@ -5,6 +5,7 @@ Pinned Git commit/tree objects authenticate the tracked path/mode/blob inventory
 NOT copied bytes: those are raw working-tree snapshots, not blob attestation.
 Excluded payload is not read/copied by the packager; Git status may hash it.
 Keep the full receipt SHA-256 separately. It is not a signature.
+Shell scripts with CR/CRLF bytes are rejected for portable execution.
 """
 from __future__ import annotations
 
@@ -29,7 +30,8 @@ OID = re.compile(r"[a-f0-9]{40}\Z")
 VERSION = re.compile(r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\Z")
 PLUGIN = ".claude-plugin/plugin.json"
 MARKET = ".claude-plugin/marketplace.json"
-ROOT_DOCS = {"LICENSE", "NOTICE", "README.md", "CHANGELOG.md", "CONTRIBUTING.md", "RELEASING.md"}
+ROOT_COMPONENTS = {"LICENSE", "NOTICE", "README.md", "CHANGELOG.md",
+                   "CONTRIBUTING.md", "RELEASING.md", ".gitignore"}
 LIMITATIONS = [
     "Candidate only; prerelease metadata is not an installation guard.",
     "Git commit/tree proves inventory only; raw working-tree bytes are not blob attestation.",
@@ -395,7 +397,7 @@ def classify(owner, path, paths, source):
         return "copied", "plugin-only"
     if path in {PLUGIN, MARKET}:
         return "transformed", "candidate-metadata"
-    if path in ROOT_DOCS or parts[0] in {".github", "agents", "commands"} and len(parts) >= 2:
+    if path in ROOT_COMPONENTS or parts[0] in {".github", "agents", "commands"} and len(parts) >= 2:
         if r.forbidden_member(r.relative(path)):
             raise ValueError("Unsafe base component")
         return "copied", "official-component"
@@ -581,6 +583,8 @@ def derive(source, source_digest, inputs, bases, safety_projection=None):
 
 def check_content(path, data, owners, origin):
     parts = r.relative(path).parts
+    if Path(path).suffix.lower() == ".sh" and b"\r" in data:
+        raise ValueError("Shell script has CRLF or CR line endings")
     if len(parts) == 5 and parts[2] == "skills" and parts[-1] == "SKILL.md":
         text = data.decode("utf-8").replace("\r\n", "\n")
         header = text.split("\n---\n", 1)[0] if text.startswith("---\n") else ""
@@ -596,10 +600,18 @@ def check_content(path, data, owners, origin):
             raise ValueError("Active component explicitly references excluded legacy/cache")
 
 
-def verify_bundle(root, expected_digest):
+def verify_bundle(root, expected_digest, *, allowed_extra=(), base_overrides=None):
     root = r.no_links(root)
     if not isinstance(expected_digest, str) or not r.HEX.fullmatch(expected_digest):
         raise ValueError("A pinned bundle SHA-256 is required")
+    extra = tuple(allowed_extra)
+    overrides = {} if base_overrides is None else base_overrides
+    if (len(extra) != len(set(extra))
+            or any(not isinstance(path, str) or str(r.relative(path)) != path for path in extra)
+            or not isinstance(overrides, dict)
+            or any(not isinstance(path, str) or str(r.relative(path)) != path
+                   or not isinstance(blob, bytes) for path, blob in overrides.items())):
+        raise ValueError("Invalid permitted overlay members")
     with r.pinned(root, directory=True):
         data = r.read_file(root / "bundle.json")
         if r.digest(data) != expected_digest:
@@ -620,10 +632,13 @@ def verify_bundle(root, expected_digest):
                                  m["safety_projection"] if safety else None)
         if r.encoded(m["owners"]) != r.encoded(owners) or r.encoded(m["files"]) != r.encoded(files):
             raise ValueError("Candidate does not match its source/base closure")
-        if r.files_under(root) != {f["path"] for f in files} | {"bundle.json"}:
+        base_paths = {f["path"] for f in files} | {"bundle.json"}
+        if (set(extra) & base_paths or not set(overrides) <= base_paths - {"bundle.json"}
+                or r.files_under(root) != base_paths | set(extra)):
             raise ValueError("Missing or extra candidate files")
         for f in files:
-            data = r.read_file(r.safe_member(root, f["path"]))
+            actual = r.read_file(r.safe_member(root, f["path"]))
+            data = overrides.get(f["path"], actual)
             if len(data) != f["size"] or r.digest(data) != f["sha256"]:
                 raise ValueError("Candidate member differs from pinned receipt")
             check_content(f["path"], data, owners, f["origin"])

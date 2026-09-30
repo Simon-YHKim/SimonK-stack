@@ -3,7 +3,7 @@
 **curated simon-stack** skill 세트의 카테고리별 맵. 세션 시작 시 참고용.
 이 표는 simon-stack 큐레이션 셋(skills-src + 개발용 dev skill)을 매핑한다. gstack 홈 설치본(`~/.claude/skills/gstack/` 및 약 21개 gstack 홈 skill — `skillify`, `spec`, `scrape`, `diagram`, `make-pdf`, `ios-*` 등)은 여기에 카탈로그하지 않으며, 전체 목록은 `/gstack` 진입점으로 조회한다. 일부 자주 쓰는 gstack 홈 skill 은 아래 카테고리 표에 `(Gstack)` 표기로 교차 등재돼 있고, 나머지는 부록(맨 아래 "Gstack 홈 설치본" 표) 참고.
 
-**skills-src/ 134개** + `.claude/skills/` 개발용 4개 = **총 138개** (simon-stack 큐레이션 셋 기준 — 약 21개 gstack 홈 skill 은 이 137 카운트에서 제외). (2026-06-13 cycle-2 갱신 — 빈 스텁 11종 실내용 채움 + 다양성 신규 5종 등재: `i18n-localizer`·`accessibility-audit`·`persona-simulation`·`inclusive-ux`·`offline-first`. preamble rescope, gstack 홈 skill 부록, `agent-delegate` 등재.)
+**`skills-src/` 배포 소스 137개** + `.claude/skills/` 개발용 4개 = **총 141개** (2026-09-29 작업 브랜치의 `SKILL.md` 실측). 이 인덱스는 레거시 소스·개발 스킬의 맵이며, 별도로 조립한 5플러그인 v23 후보의 182개 스킬이나 Gstack 홈 설치본은 이 카운트에 포함하지 않는다. 아래 카테고리 표는 2026-06-13 cycle-2 분류를 기반으로 하므로 최신 파일 목록 확인은 실제 두 소스 디렉터리 또는 후보 영수증을 기준으로 한다.
 
 > **검증**: `python3 .claude/skills/skill-gen-agent/scripts/validate_skill.py <path>` (Windows는 `PYTHONIOENCODING=utf-8` 또는 검증기 UTF-8 패치 필요). **2026-06-13 재검증**: simon-stack 스킬 전부 통과(`wiki-query` E013 수정). 검증기 cp949 크래시·E008 "Todo-list" 오탐 수정(SimonK-stack `4aacecd`). Gstack 스킬은 긴 커맨드-doc 포맷이라 E007/E008 평가 제외.
 > **신규 (PR #8)**: `session-context-tracker` · `html-default-output` (+ `context-guardian` 1.1.0 / `agent-delegate` 1.1.0 보강)
@@ -21,7 +21,7 @@
 | `ai-debate` | 다관점 AI 토론 — 중요·비가역·충돌 결정을 패널→별도심판→합의/타이브레이크→`DECISIONS.md` 기록. PROTOCOL §35.1 트리거 필수(라우팅이 강제) |
 | `simonk` | 단일 자율 진입점 (6-phase + Boundary Check + multi-agent dispatch sprint v23 Phase B) |
 | `simonk-report` | simonK Phase 6 자동 호출 — `.simonk/reports/<TS>.html` 생성 + SendUserFile 자동 첨부. 명시 `/simonk-report` 도 가능 |
-| `stack-update` | SimonK Stack 전체 holistic 최신화 — 본체+Wiki+gstack+5 vendored+skill 재설치 위임 |
+| `stack-update` | 저장소별 상태 점검과 안전한 fast-forward 계획·실행; vendor 갱신·프로필 재설치는 별도 절차 |
 | `dev-orchestrator` | 일반 구현 7단계 파이프라인 (진단 → 구조 점검 → TDD → 시나리오 → 스캔 → 정리 → 커밋) |
 | `phase4-game-orchestrator` | 게임 트랙 (Q3 2026) orchestrator placeholder — Godot/Phaser/Three.js · ComfyUI · Suno |
 | `simon-ohmo` | OpenHarness Ohmo personal agent — Phase 6 (27Y Q1+) placeholder, 폐쇄망 운영 |
@@ -126,7 +126,7 @@
 | `careful` (Gstack) | 파괴적 명령 가드 |
 | `guard` (Gstack) | 디렉토리 freeze + careful 통합 |
 | `freeze` / `unfreeze` (Gstack) | 편집 범위 제한 |
-| `keepass-helper` | KeePassXC vault 시크릿 관리 — one-time inject, 키 노출 방지 |
+| `keepass-helper` | KeePassXC vault/CLI 존재 여부 진단; 금고 열기·시크릿 주입 미지원 |
 
 ## 🚀 Ship & Deploy
 
@@ -200,7 +200,7 @@
 | `office-docs` | Docx / Xlsx / Pptx / PDF 사무 문서 (Anthropic Big Four) |
 | `web-publisher` | 웹사이트 자동 로그인·폼 작성·업로드 (browse + auth) |
 | `defuddle` | 웹페이지 → 클린 마크다운 추출 (Defuddle CLI, WebFetch 대체) |
-| `gcloud-helper` | gcloud 인증 진단 + ghost project 자동 수정 + env vars inject |
+| `gcloud-helper` | gcloud 로컬 상태 진단; 프로젝트·계정 변경 및 자격증명 주입 미지원 |
 | `loop` (built-in/runtime) | 주기 작업 실행 |
 | `update-config` (built-in/runtime) | settings.json 구성 |
 | `keybindings-help` (built-in/runtime) | 키바인딩 커스터마이징 |
@@ -211,7 +211,7 @@
 | `open-gstack-browser` (Gstack) | GStack Browser 실행 |
 | `gstack-upgrade` (Gstack) | Gstack 버전 업데이트 (gstack-only) |
 | `ai-usage-widget-install` | `apps/ai-usage-widget`(Claude·Codex·Grok·Antigravity 사용량 작업 표시줄 위젯)를 소스에서 빌드·검증해 사용자 전용 설치, 상태 점검, 브리지 안전장치가 있는 제거 |
-| `stack-update` | **전체 SimonK Stack holistic 최신화** — SimonK-stack + Wiki + gstack + 5 vendored + skill 재설치 |
+| `stack-update` | **저장소별 안전 갱신** — 읽기 전용 inventory 후 승인 범위의 clean fast-forward만 수행 |
 | `omc-upgrade` | vendored oh-my-claudecode 단독 최신화 |
 | `omo-upgrade` | vendored oh-my-openagent 단독 최신화 |
 | `openharness-upgrade` | vendored OpenHarness 단독 최신화 |
@@ -221,9 +221,9 @@
 
 ---
 
-## 부록 — Gstack 홈 설치본 (이 132 카운트 제외)
+## 부록 — Gstack 홈 설치본 (위 141개 소스 카운트 제외)
 
-> 아래는 **gstack 홈 설치본**(`~/.claude/skills/`)에 함께 깔리는 gstack skill 로, simon-stack 큐레이션 셋이 아니다 (위 132 카운트에 미포함). 전체 목록·진입점은 `/gstack` 로 조회. 여기 등재는 가시성 용도이며, **gstack skill 자체는 SimonK-stack 에서 수정하지 않는다** (upstream garrytan/gstack 책임 도메인).
+> 아래는 **gstack 홈 설치본**(`~/.claude/skills/`)에 함께 깔리는 gstack skill 로, simon-stack 큐레이션 셋이 아니다 (위 141개 소스 카운트에 미포함). 전체 목록·진입점은 `/gstack` 로 조회. 여기 등재는 가시성 용도이며, **gstack skill 자체는 SimonK-stack 에서 수정하지 않는다** (upstream garrytan/gstack 책임 도메인).
 
 | Skill | 역할 |
 |---|---|

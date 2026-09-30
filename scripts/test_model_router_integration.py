@@ -56,18 +56,33 @@ class ModelRouterIntegrationTests(unittest.TestCase):
         self.assertEqual(len(blocks), 1)
         mapping = json.loads(blocks[0])
         self.assertEqual(mapping, orchestrate.TASK_TYPE_MAP)
-        self.assertEqual(len(mapping), 11)
+        self.assertEqual(len(mapping), 16)
         for task_type, fields in mapping.items():
             with self.subTest(task_type=task_type):
                 node = self.node(task_type)
-                c = candidate(quality_tier=3, capabilities=["code", "reasoning", "research", "vision"])
+                c = candidate(quality_tier=3, capabilities=["code", "reasoning", "research", "vision", "writing"])
                 if fields["kind"] == "gui":
                     node.update(skills=["vibe-bot"], target="Offline Console", tool_route_available=False,
                                 gui_reason="No authorized tool route in fixture")
                     c = candidate("bot", surface="grok-bot", transport="bot", model=None,
                                   capabilities=["gui"], bot_id="fixture-bot", bot_status="active",
-                                  provider_efforts=[], transport_efforts=[], effort_by_demand={})
-                rc, p = self.run_plan([node], [c])
+                                  provider_efforts=[], transport_efforts=[], effort_by_demand={},
+                                  billing={"mode": "subscription", "verified": True,
+                                           "extra_usage_enabled": False, "bot_usage_included": True,
+                                           "api_fallback_disabled": True,
+                                           "paid_credit_fallback_disabled": True,
+                                           "account_ref": "fixture-bot"})
+                nodes, candidates = [node], [c]
+                if task_type == "WRITING":
+                    nodes.append(self.node("CODE_REVIEW", id="review", verify_of="task",
+                                           depends_on=["task"]))
+                    candidates.append(candidate("reviewer", surface="claude", quality_tier=3))
+                rc, p = self.run_plan(nodes, candidates)
+                if task_type == "IMAGE_GENERATION":
+                    self.assertEqual(rc, 2, p)
+                    self.assertIn("IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL", p["steps"][0]["errors"])
+                    self.assertIsNone(p["steps"][0]["route"])
+                    continue
                 self.assertEqual(rc, 0, p)
                 for key, expected in fields.items():
                     self.assertEqual(p["steps"][0][key], expected)
@@ -76,6 +91,22 @@ class ModelRouterIntegrationTests(unittest.TestCase):
                 self.assertEqual(p["budget"]["approved_usd"], "0")
                 self.assertIsNone(p["steps"][0]["route"]["actual_usd"])
                 self.assertIsNone(p["steps"][0]["route"]["effective_effort"])
+
+    def test_coding_task_quality_floor_is_independent_of_effort(self):
+        for task_type, low_tier, passing_tier, demand in (
+            ("CODE_SIMPLE", 1, 2, "routine"),
+            ("CODE_COMPLEX", 2, 3, "reasoning"),
+        ):
+            with self.subTest(task_type=task_type):
+                rc, plan = self.run_plan([self.node(task_type)],
+                                         [candidate(quality_tier=low_tier)])
+                self.assertEqual(rc, 2, plan)
+                self.assertIn("QUALITY_FLOOR", str(plan))
+                self.assertIsNone(plan["steps"][0]["route"])
+                rc, plan = self.run_plan([self.node(task_type)],
+                                         [candidate(quality_tier=passing_tier)])
+                self.assertEqual(rc, 0, plan)
+                self.assertEqual(plan["steps"][0]["demand"], demand)
 
     def test_registry_fingerprint_comes_from_consumed_registry(self):
         registry = fixture_registry([candidate()])
@@ -105,6 +136,16 @@ class ModelRouterIntegrationTests(unittest.TestCase):
             (candidate(billing={"mode": "unknown", "verified": False}), "BILLING_UNVERIFIED"),
             (candidate(billing={"mode": "subscription", "verified": True,
                                 "extra_usage_enabled": False, "account_ref": None}), "ACCOUNT_UNVERIFIED"),
+            (candidate(billing={"mode": "subscription", "verified": True,
+                                "extra_usage_enabled": False, "model_included": None,
+                                "api_fallback_disabled": True, "account_ref": "test-account"}),
+             "MODEL_INCLUSION_UNVERIFIED"),
+            (candidate(billing={"mode": "subscription", "verified": True,
+                                "extra_usage_enabled": False, "model_included": True,
+                                "api_fallback_disabled": None, "account_ref": "test-account"}),
+             "API_FALLBACK_UNVERIFIED"),
+            (candidate(billing={**candidate()["billing"], "included_model": "different-model"}),
+             "MODEL_INCLUSION_UNVERIFIED"),
             (candidate(quota={"used_pct": None, "observed_at": NOW}), "QUOTA_UNKNOWN"),
             (candidate("grok", surface="grok", quota={"used_pct": 100, "observed_at": NOW}),
              "QUOTA_EXHAUSTED"),

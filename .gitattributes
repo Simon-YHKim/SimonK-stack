@@ -11,3 +11,4 @@
 /LICENSE text eol=lf
 /NOTICE text eol=lf
 /scripts/install.sh text eol=lf
+/.claude/hooks/session-start.sh text eol=lf

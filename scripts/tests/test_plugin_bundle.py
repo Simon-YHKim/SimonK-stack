@@ -214,6 +214,18 @@ class PluginBundleTests(unittest.TestCase):
         f = next(f for f in receipt["files"] if f["path"].endswith("scripts/helper.py"))
         self.assertEqual(f["mode"], "100755")
 
+    def test_pinned_plugin_gitignore_is_copied_without_weakening_other_root_rules(self):
+        root = self.plugins / "SimonKStack"
+        self.put(root, ".gitignore", ".env\n.env.*\n")
+        self.repin("SimonKStack")
+        result = self.build()
+        receipt = self.m.verify_bundle(self.output, result["bundle_digest"])
+        self.assertEqual((self.output / "plugins/SimonKStack/.gitignore").read_bytes(),
+                         b".env\n.env.*\n")
+        record = next(f for f in receipt["bases"]["SimonKStack"]["records"]
+                      if f["path"] == ".gitignore")
+        self.assertEqual((record["action"], record["reason"]), ("copied", "official-component"))
+
     def test_safety_adapter_is_explicit_v2_opt_in(self):
         self.enable_safety_fixture()
         v1_output = self.base / "plain-candidate"
@@ -580,6 +592,22 @@ class PluginBundleTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     self.m.verify_bundle(output, result["bundle_digest"])
 
+    def test_overlay_exception_requires_exact_declared_members_and_original_bytes(self):
+        result = self.build()
+        base_path = "plugins/SimonKCore/commands/inspect.md"
+        base_file = self.output / base_path
+        original = base_file.read_bytes()
+        base_file.write_bytes(b"Codex-only projected fixture\n")
+        extra_path = "plugins/SimonKCore/compat.txt"
+        (self.output / extra_path).write_bytes(b"compat\n")
+        with self.assertRaises(ValueError):
+            self.m.verify_bundle(self.output, result["bundle_digest"])
+        with self.assertRaises(ValueError):
+            self.m.verify_bundle(self.output, result["bundle_digest"],
+                                 allowed_extra={extra_path}, base_overrides={base_path: b"wrong"})
+        self.m.verify_bundle(self.output, result["bundle_digest"],
+                             allowed_extra={extra_path}, base_overrides={base_path: original})
+
     def test_source_digest_mismatch_and_protected_target_are_rejected(self):
         with self.assertRaises(ValueError):
             self.m.build_bundle(self.source, "0" * 64, self.plugins, self.inputs, self.output)
@@ -656,6 +684,15 @@ class PluginBundleTests(unittest.TestCase):
             self.repin("SimonKAIHub")
             with self.subTest(text=text), self.assertRaises(ValueError):
                 self.build()
+
+    def test_crlf_shell_script_blocks_candidate_before_publication(self):
+        root = self.plugins / "SimonKAIHub"
+        self.put(root, "skills/extra-simonk-aihub/scripts/runner.sh",
+                 "#!/bin/sh\r\nprintf 'fixture only\\n'\r\n")
+        self.repin("SimonKAIHub")
+        with self.assertRaisesRegex(ValueError, "CRLF"):
+            self.build()
+        self.assertFalse(self.output.exists())
 
     def test_embedded_source_manifest_is_cryptographically_checked(self):
         self.forge(lambda m: m["source_manifest"]["files"][0].update(sha256="0" * 64))

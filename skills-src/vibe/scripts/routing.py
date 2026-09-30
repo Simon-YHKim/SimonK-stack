@@ -428,13 +428,14 @@ GUARDS = [
     ("G10", "적대적 평가에서 채점자는 두 생산자와 **벤더가 달라야** 한다. "
             "벤더 3개를 못 채우면 그 문제는 건너뛴다 — 자기 벤더가 자기 답을 "
             "채점하느니 관측을 포기한다 (`adversarial_eval.py`)", False),
-    ("G11", "디스패치 전에 툴체인 최신화를 확인한다 — codex 가 한 버전만 뒤처져도 "
-            "`Agent startup blocked: codex-update-prompt` 로 **전 워커가 안 뜨는데 "
-            "에러가 프롬프트 문제처럼 보인다** (2026-09-12 실사고). "
-            "`python scripts/check_tooling.py`", False),
+    ("G11", "Codex 워커 기동 전에 PATH 실행본과 인접 npm 패키지를 로컬에서 비교한다. "
+            "`python -B scripts/check_tooling.py --local-codex` (종료 0만 진행, "
+            "1=뒤처짐, 2=미확인). 전체 도구 보고서는 npm 원격·Orca 조회가 있어 "
+            "이 게이트를 대체하지 못한다", False),
     ("G12", "쿼터·metadata는 생성 성공이나 무료 사용 증거가 아니다. legacy "
             "`adversarial_eval.py --preflight` 실호출은 차단됐다. 실측도 중앙 계획·예산 예약·"
-            "fresh 계정/비용 증명 뒤에만 가능하며 Grok HOLD를 우회하지 않는다", False),
+            "fresh 계정/비용 증명 뒤에만 가능하다. 과거 Grok HOLD는 영구 금지가 아니며 "
+            "복구 시에도 최신 쿼터·선택 모델의 구독 포함·초과 과금 차단을 다시 확인한다", False),
     ("G13", "재시도·대체도 중앙 planner/Store/guarded adapter를 거친다. "
             "수락 불명은 lookup-only이며 raw `worker-start --retry-of`로 우회하지 않는다", False),
     ("G14", "결정 시트(`make_decision_sheet.py`)를 만들지 않은 라운드는 **끝난 것으로 치지 않는다** — "
@@ -898,11 +899,11 @@ def check_guards(assignments, quota_checked_vendors=None, spawn_counts=None):
         if any(c > SPAWN_CAP for c in spawn_counts.values()):
             v.append("G3")
 
-    # G5 — 4벤더 쿼터 미확인 상태로 디스패치
-    if quota_checked_vendors is not None:
-        used = {LANES[a["lane"]]["vendor"] for a in assignments if a.get("lane") in LANES}
-        if used - set(quota_checked_vendors):
-            v.append("G5")
+    # G5 — 생략/None 은 확인 완료가 아니다. 이 함수는 사용 벤더만 검사하고,
+    # validate_plan() 은 모든 4벤더를 검사한다.
+    used = {LANES[a["lane"]]["vendor"] for a in assignments if a.get("lane") in LANES}
+    if used - set(quota_checked_vendors or ()):
+        v.append("G5")
 
     # 탐색 슬롯이 D·보안·코딩에 배정 (코딩은 EXPLORE_EXCLUDE — D-28 C2)
     for a in assignments:
@@ -922,7 +923,9 @@ def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None, qu
     quota_checked_vendors=['claude'] 로 부르면 위반이 [] 로 나왔다.
     → 필수 게이트 존재와 4벤더 전체 쿼터를 여기서 강제한다.
     """
-    v = list(check_guards(assignments, quota_checked_vendors, spawn_counts))
+    # Iterator 입력도 두 검증 단계에서 동일하게 보도록 한 번만 고정한다.
+    checked_vendors = tuple(quota_checked_vendors or ())
+    v = list(check_guards(assignments, checked_vendors, spawn_counts))
     notes = []
 
     procs = {a.get("proc") for a in assignments}
@@ -952,13 +955,12 @@ def validate_plan(assignments, quota_checked_vendors=None, spawn_counts=None, qu
             v.append("A_VERIFY_WRITES")
             notes.append(f"{a.get('proc')}: A-verify 는 읽기 전용 — 파일을 바꾸면 coding 으로 재분류한다 (D-28 #4)")
 
-    # G5 는 '4벤더 각각' 이다 — 쓰는 벤더만 확인하는 것으로는 부족하다
-    if quota_checked_vendors is not None:
-        missing = set(VENDORS) - set(quota_checked_vendors)
-        if missing:
-            if "G5" not in v:
-                v.append("G5")
-            notes.append(f"쿼터 미확인 벤더: {sorted(missing)}")
+    # G5 는 '4벤더 각각' 이다. 인자 생략/None 도 미확인으로 fail closed.
+    missing = set(VENDORS) - set(checked_vendors)
+    if missing:
+        if "G5" not in v:
+            v.append("G5")
+        notes.append(f"쿼터 미확인 벤더: {sorted(missing)}")
 
     for a in assignments:
         lane = a.get("lane")

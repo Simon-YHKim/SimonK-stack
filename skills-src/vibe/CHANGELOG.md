@@ -1,5 +1,82 @@
 # Changelog
 
+## 2.12.18 - 2026-09-30
+
+- Bind Grok CLI and Grok Bot quota evidence to their distinct surface,
+  transport and account, and require a freshly observed state. A reset timestamp
+  or the other xAI path's quota cannot reopen a held route. Offline tests cover
+  wrong surface, transport, account, missing evidence and unobserved reset.
+- Align the `model-router` image-generation contract and Bot fixture with the
+  already enforced planner gates. This is source-only: no provider generation,
+  Relay delivery, user installation or subscription billing proof is claimed.
+
+## 2.12.8 - 2026-09-30
+
+- Enforce the existing writing-review rule for typed `WRITING` outputs even
+  when they do not edit files. Require an independent LLM reviewer in the same
+  plan and hold downstream consumers until it passes on either host. Offline
+  tests cover the previously ready unreviewed path and reviewed recovery;
+  this does not establish live Claude/Codex behavior or permit paid calls.
+
+## 2.12.5 - 2026-09-29
+
+- Admit locally measured Antigravity CLI 1.2.13 for metadata-only `/usage`:
+  `/help` and `/usage` both exited successfully with zero turns and zero tokens.
+  Unknown versions still stop before the slash command; this does not verify
+  account identity, subscription billing, model inclusion or generation.
+
+## 2.12.4 - 2026-09-29
+
+- Clarify that disabling auto-reload is not proof of disabled extra-credit
+  consumption for Codex or Grok. Require account/transport-specific overage
+  evidence for Claude, Codex, Antigravity, Grok and Grok Bot before treating
+  subscription usage as zero additional spend. No payment setting is changed.
+
+## 2.12.3 - 2026-09-29
+
+- Bind default catalog discovery in a Codex compatibility overlay to both
+  the original bundle and its exact manual-only `zoom-out` projection.
+- Reject altered overlay bytes or forged projection receipts without falling
+  back to a different skill root. This is offline discovery validation, not
+  host installation or model-routing certification.
+
+## 2.12.2 - 2026-09-28
+
+- Fail closed when legacy plan quota checks are omitted; preserve quarantine of live preflight paths.
+
+## 2.12.1 - 2026-09-28
+
+- Recheck current GPT, Claude, Gemini and Grok provider facts on 2026-09-28
+  and refresh the seven-day model-registry evidence window. Public model
+  support still does not establish subscription access or permit API billing.
+- Explicitly warn that non-interactive Claude Fable can charge usage credits
+  without a consent prompt; keep exact-model inclusion and overage gates.
+
+## 2.12.0 - 2026-09-28
+
+- Block pinned Gstack design API-key setup, generation and checks under subscription-only USD 0; require transitive local-command cost evidence.
+
+## 2.11.13 - 2026-09-27
+
+- Make Play Console and other GUI requests discover the `/vibe` coordinator
+  even without a slash invocation. Check authorized CLI/API/MCP first and name
+  only the actual `vibe-bot` adapter for GUI-only steps.
+- Add a natural-language GUI routing evaluation and a description regression
+  after a tool-less Claude subscription probe invented a nonexistent specialist.
+  This metadata change is not a measured improvement in live selection accuracy.
+- Add the exact skill-name question as a second evaluation. A follow-up
+  isolated probe with `Skill` available selected the real `/vibe` on both the
+  old and revised metadata. The tool-less probe disabled automatic skill use;
+  it cannot establish a regression or a metadata-driven improvement.
+
+## 2.11.12 - 2026-09-27
+
+- Admit only locally measured Antigravity CLI 1.2.12 for zero-turn, zero-token
+  `/usage` metadata collection. Keep account, model and billing verification
+  unavailable; the observed quota buckets do not authorize generation.
+- Record the installed CLI's rejection of `agy models --output-format json`;
+  do not infer executable model routes from the text-only listing.
+
 ## 2.8.0 - 2026-09-23
 
 - Add durable local run/account reservations and dispatch intents in one SQLite

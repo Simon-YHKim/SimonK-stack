@@ -1,6 +1,6 @@
 name: validate-plugin
 on:
-  push: { branches: [ main, plugin/simonk-stack ] }
+  push: { branches: [ main, plugin/simonk-stack, 'integration/vibe-release-*' ] }
   pull_request:
 jobs:
   validate:

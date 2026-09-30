@@ -1,8 +1,8 @@
 ---
 name: vibe-bot
-description: "Use when a task needs Grok Bot's cloud computer for a GUI-only step, or the user invokes \"/vibe-bot\", \"봇한테 시켜\", \"그록 봇으로 돌려\", or \"console task\". Works inside the current /vibe run: drafts a scoped console task, selects an active roster entry, publishes through the shared budget and durable-claim adapter only with fresh account/Relay/delivery evidence, and checks the exact nonce and screen evidence on return. Produces a task sheet and an honest queued/uncertain/verified result. NOT for work an authorized CLI/API/MCP can perform, direct webhook sends, or local repository changes."
+description: 'Use when "/vibe-bot", "봇한테 시켜", or "Grok Bot 과제서" is requested explicitly, or when /vibe hands off a verified screen-only step with no authorized CLI/API/MCP route. Produces scoped Relay task sheets and checks screenshot evidence; delivery needs fresh account, budget and approval.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 0.9.0
+version: 0.9.4
 author: simon-stack
 ---
 
@@ -226,4 +226,9 @@ Run tests with process/network denial before imports, using only disposable
 local drafts, buses and DBs. Never substitute operational hub/project paths.
 The source adapter and fixtures do not establish native host compatibility,
 installation parity, real Relay receipt, generation success, screenshots,
-account costs or all-skill optimization. Keep user $0/Grok/no-model-call holds.
+account costs or all-skill optimization. Apply the user's current authority:
+restored Grok/Bot usage supersedes an earlier temporary usage or model-call
+hold, but does not itself prove this Bot route is included or authorize delivery.
+Allow only verified subscription-included usage with additional spend $0;
+overage, automatic top-up and metered API fallback remain forbidden. Do not
+reimpose an expired hold or infer a paid route from restored quota.

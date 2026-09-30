@@ -1,7 +1,10 @@
 ---
 name: simonk
-description: "Use when planning and executing a bounded multi-step sprint. Triggers on 'simonK', '/simonK', 'ultrawork', '팀으로 진행해', '자율로 끝까지', or '스프린트 시작'. Supplies the six-phase sprint procedure inside the current /vibe coordinator and consumes its central model/effort, account/quota and shared cost policy. The PowerShell command accepts prepared request.json and runtime.json for offline planning only, without launching a second LLM. Produces a dependency-aware plan, evidence-linked verification and scoped Git status. Do not use for casual conversation or a single lookup."
-version: 2.1.0
+description: >-
+  Use when running a bounded sprint: "/simonK", "ultrawork", "팀으로 진행해".
+  Produces a six-phase /vibe plan, verified results and scoped Git status under
+  the same budget/approval gates; not single lookups or a second coordinator.
+version: 2.1.1
 ---
 
 # simonk — Sprint procedure under /vibe
@@ -171,11 +174,13 @@ of the separate multi-terminal entry remains a distinct release gate.
 
 ## Validation
 
-Run the executable offline integration suite from the stack root:
+Run these development-only checks from the verified SimonK-stack source root;
+`<stack-source-root>` is that checkout's absolute path, not an installed
+project or a plugin cache:
 
 ```text
 python -m unittest discover -s scripts/tests -p test_simonk_entrypoint.py
-python .claude/skills/skill-gen-agent/scripts/validate_skill.py skills-src/simonk
+python "<stack-source-root>/.claude/skills/skill-gen-agent/scripts/validate_skill.py" "<stack-source-root>/skills-src/simonk"
 ```
 
 The PowerShell tests exercise both entries and the real central planner with

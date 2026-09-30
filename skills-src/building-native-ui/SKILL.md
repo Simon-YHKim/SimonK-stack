@@ -1,8 +1,8 @@
 ---
 name: building-native-ui
 description: >
-  Use when implementing React Native + Expo UI (Simon 2nd-B stack — Expo SDK 56, RN 0.85, React 19) — triggers "React Native 만들어", "Expo 화면 짜줘", "FlashList로 바꿔", "Reanimated 애니메이션", "Hermes 빌드 깨짐", "EAS 빌드", "react native screen", "expo router", "flashlist perf", "reanimated worklet", "native list optimization", or /building-native-ui. Produces expo-router file-routed screens, FlashList v2 lists (no estimatedItemSize), Reanimated 4 + react-native-worklets gestures, NativeWind styling, safe-area + keyboard handling, platform-specific files, and the Hermes dynamic-import metro fix that 2nd-B hit (unstable_enablePackageExports=false). Includes precheck (expo-doctor), perf budgets, and EAS build/submit verification. Different from /vercel-react (web React) and /app-platform-selector (hybrid-vs-native decision) — this assumes RN/Expo is already chosen.
-version: 2.0.0
+  Use when implementing or debugging React Native/Expo UI after the native path is chosen — "React Native 만들어", "Expo 화면 짜줘", "FlashList로 바꿔", "Android APK", "Hermes 빌드 깨짐", or /building-native-ui. Produces project-compatible screens and Android/iOS verification evidence; excludes web React, platform selection, unapproved cloud builds and store submission.
+version: 2.0.1
 allowed-tools:
   - Bash
   - Read
@@ -15,13 +15,13 @@ compatibility: [claude-code]
 
 # /building-native-ui
 
-React Native + Expo 네이티브 UI를 **현재 스택 기준**(Expo SDK 56 · RN 0.85 · React 19 · New Architecture)으로 구현한다. 2nd-B(`E:\2ndB`)에서 실제로 밟은 함정(Hermes 동적 import, Reanimated 4 worklets 분리)을 미리 막는다.
+React Native/Expo UI를 **작업 대상의 실제 스택**에 맞춰 구현한다. 2nd-B의 과거 오류는 진단 단서이지 다른 앱의 기본 버전·설정이 아니다.
 
 ## When to use / boundaries
 
 - RN/Expo 화면·리스트·제스처·애니메이션 구현 또는 성능 개선 요청
 - "FlatList 느려", "리스트 스크롤 끊김", "키보드가 입력창 가림" 류 증상
-- `expo run:android` / EAS 빌드가 Hermes "Invalid expression" 으로 깨질 때
+- Android/Hermes 빌드 오류 또는 설치 가능한 APK 검증이 필요할 때
 - `app-dev-orchestrator` 구현 단계에서 RN 트랙으로 분기됐을 때
 
 쓰지 않는 경우:
@@ -30,26 +30,19 @@ React Native + Expo 네이티브 UI를 **현재 스택 기준**(Expo SDK 56 · R
 - 디자인 시스템·토큰 → `/design-system-keeper`
 - iOS 실기기 QA → `/ios-qa`, 시각 리뷰 → `/design-review`
 
-## 선행 체크 (precheck)
+## 선행 체크와 구현 순서
 
-```bash
-# 1) Expo 프로젝트인지 + New Architecture 켜졌는지
-test -f package.json && grep -q '"expo"' package.json && echo "EXPO_OK" || { echo "NOT_EXPO — skip"; exit 0; }
-grep -q '"newArchEnabled": *true' app.json 2>/dev/null && echo "NEW_ARCH_ON" || echo "NEW_ARCH: check app.json (FlashList v2 / Reanimated 4 require it)"
+1. 작업 위치·브랜치·변경사항, `package.json`/lockfile, `app.json` 또는 `app.config.*`, `eas.json`, `app/`·`src/app/`·`android/`·`ios/`를 확인한다. 실제 Expo SDK/RN 버전, 라우터, 상태 관리, 패키지 매니저, 테스트 명령, Android/iOS 도구를 파악한다. Expo가 없는 RN 앱도 이 스킬의 대상이며, 요청 없이 Expo로 이식하거나 네이티브 디렉터리를 재생성하지 않는다.
+2. UI 코드 작성 전에 `simon-design-first` 진단을 수행하고 화면의 주 행동, 접근성, 로딩·오류·빈 상태를 정한다. 기존 라우터·저장소·스타일 패턴을 유지한다. 새 Expo 앱에만 Expo Router를 우선 검토하고, 기존 React Navigation의 이식은 별도 요청이 있을 때만 한다.
+3. 카메라·알림·위치처럼 네이티브 기능이 필요하면 OS별 권한·config plugin·Expo Go 지원 여부를 확인한다. development build가 필요하거나 네이티브 설정이 바뀌면 해당 플랫폼에서 다시 빌드한다. 직접 수정된 `android/`·`ios/`에는 `prebuild --clean`을 적용하지 않는다.
+4. 기존 스크립트로 lint·typecheck·테스트를 실행하고 변경 화면의 진입·뒤로 가기·딥링크·권한 거절·오류 상태를 기기에서 확인한다. Expo 프로젝트라면 설치된 CLI로 `expo install --check`와 `expo-doctor`를 실행해 SDK 정합성을 점검한다. `npx`의 자동 패키지 다운로드가 필요한 환경에서는 먼저 확인한다.
+5. Android SDK/Android Studio가 준비되면 로컬 `expo run:android` 또는 기존 Gradle 경로를 검증한다. 네이티브 프로젝트가 있으면 Android Studio 열기·동기화·빌드 가능 여부를 확인한다. APK 요청에는 실제 `.apk` 경로와 기기/에뮬레이터 설치 결과를 제시한다. AAB를 설치 가능한 APK로 부르지 않는다. iOS는 macOS/Xcode·실기기·허가된 빌드 경로가 없으면 미검증으로 남긴다.
 
-# 2) 설치 정합성 — 버전 mismatch 가 런타임 크래시의 1순위 원인
-npx expo install --check        # SDK 와 안 맞는 패키지 리포트
-npx expo-doctor                 # 17개 항목 헬스체크
-
-# 3) 핵심 의존성 버전 확인 (2nd-B 기준값)
-node -e "const p=require('./package.json').dependencies; ['react-native','react-native-reanimated','react-native-worklets','@shopify/flash-list','nativewind','expo-router'].forEach(k=>console.log(k, p[k]||'(none)'))"
-```
-
-기준 스택(2nd-B): `react-native@0.85`, `react@19.2`, `react-native-reanimated@4.3`, `react-native-worklets@0.8`, `nativewind@4.2`, `expo-router@56`. Reanimated 4는 **worklets 가 별도 패키지**다 — `react-native-worklets` 없으면 빌드 실패.
+아래는 **프로젝트에 해당 의존성이 있고 요구가 있을 때만** 적용하는 구현·진단 참고다. 버전과 호환성은 프로젝트 파일과 해당 버전의 공식 문서에서 다시 확인한다.
 
 ## Workflow
 
-### 1. 네비게이션 — expo-router (파일 기반)
+### 1. 네비게이션 — Expo Router가 이미 있거나 도입을 선택한 경우
 
 라우트 = 파일. `app/` 폴더 구조가 곧 네비게이션 트리.
 
@@ -93,16 +86,16 @@ router.push(`/note/${id}`);              // 명령형
 const { id } = useLocalSearchParams<{ id: string }>();  // 수신
 ```
 
-규칙: `GestureHandlerRootView` 는 **앱 최상단 1회만**. `Stack.Screen` 의 `name` 은 파일명과 정확히 일치(`note/[id]` 처럼 대괄호 포함). 과거 `<Stack.Screen>` 프레임워크 오해로 위양성 리뷰 난 적 있음(MEMORY 참조) — name 매칭을 반드시 확인.
+이 예시는 프로젝트에 Gesture Handler가 있을 때의 루트 구성이다. `GestureHandlerRootView` 중복을 피하고 `Stack.Screen`의 `name`을 실제 파일 경로와 대조한다. 신규 도입 시 현재 SDK에 맞는 패키지·진입점·딥링크를 확인한다. 기존 다른 라우터의 경로를 자동 교체하지 않는다.
 
-### 2. 리스트 — FlashList v2 (FlatList 금지)
+### 2. 리스트 — 측정 결과가 교체를 뒷받침할 때 FlashList 검토
 
 | | FlatList | FlashList v2 |
 |---|---|---|
 | 재활용 | 화면 밖 뷰 unmount/remount | 셀 재활용(recycling) |
 | 사이즈 추정 | 수동 `getItemLayout` | **자동** (estimate 불필요) |
 | New Arch | 무관 | **필수** |
-| 권장 | ❌ 긴 리스트 | ✅ 기본값 |
+| 선택 | 기존 리스트가 요구를 충족하면 유지 | 큰/복잡한 리스트에서 측정 후 검토 |
 
 ```tsx
 import { FlashList } from '@shopify/flash-list';
@@ -111,7 +104,7 @@ import { FlashList } from '@shopify/flash-list';
   data={notes}
   renderItem={({ item }) => <NoteRow note={item} />}
   keyExtractor={(item) => item.id}
-  // v2: estimatedItemSize 제거됨 (있으면 deprecation 경고). 자동 측정.
+  // FlashList v2라면 estimatedItemSize를 쓰지 않는다. 자동 측정.
   // 높이가 종류별로 다르면 getItemType 으로 재활용 풀 분리:
   getItemType={(item) => item.kind}     // 'text' | 'image' | 'divider'
   drawDistance={250}                     // 미리 그릴 거리(px)
@@ -120,9 +113,9 @@ import { FlashList } from '@shopify/flash-list';
 />
 ```
 
-마이그레이션 시: `estimatedItemSize` / `estimatedListSize` 제거, New Architecture 확인(`newArchEnabled: true`). v2는 구아키텍처에서 동작 안 함.
+v2 마이그레이션에만 기존 size-estimation props 제거와 New Architecture 활성 상태 확인이 필요하다. v1·다른 리스트 구현에는 v2 규칙을 강요하지 않는다. 스크롤 성능은 실제 기기에서 전후 비교한다.
 
-### 3. 이미지 — expo-image (RN Image 금지)
+### 3. 이미지 — 재활용 셀의 잔상이 관측될 때
 
 ```tsx
 import { Image } from 'expo-image';
@@ -132,34 +125,34 @@ import { Image } from 'expo-image';
   style={{ width: 80, height: 80, borderRadius: 12 }}
   contentFit="cover"
   transition={150}                                  // fade-in (cut 금지)
-  placeholder={{ blurhash: 'L6Pj0^...' }}           // LQIP
+  // 실제 유효한 BlurHash가 있을 때만 placeholder를 추가한다.
   cachePolicy="memory-disk"
   recyclingKey={item.id}                            // FlashList 셀 재활용 시 잔상 방지
 />
 ```
 
-`recyclingKey` 는 FlashList 안에서 이미지 쓸 때 필수 — 없으면 스크롤 시 이전 이미지가 새 셀에 잠깐 남는다.
+`expo-image`를 사용하는 재활용 셀에서 이전 이미지가 비치는 경우 `recyclingKey`를 검토한다. RN `Image`의 일괄 교체나 새 의존성 추가는 요구·측정·기존 패턴에 맞춰 결정한다.
 
-### 4. 애니메이션·제스처 — Reanimated 4 + worklets
+### 4. 애니메이션·제스처 — 설치된 Reanimated 버전에 맞춰
 
-**핵심 변경(R3→R4)**: worklet 런타임이 `react-native-worklets` 로 분리됨. `runOnJS`/`runOnUI` 가 `scheduleOnRN`/`scheduleOnUI` 로 바뀜(구 API는 점진 deprecate). import 경로 주의.
+R3→R4 이행 시 worklet 런타임이 `react-native-worklets`로 분리된다. 설치된 버전과 호환 표를 확인하고, 새 코드의 스레드 간 호출은 해당 버전의 API를 사용한다. 기존 API를 무조건 고장으로 간주하지 않는다.
 
-`babel.config.js` — worklets 플러그인은 **반드시 마지막**:
+Expo의 `babel-preset-expo`는 호환 버전의 플러그인을 자동 구성하므로 중복 등록하지 않는다. React Native Community CLI나 사용자 지정 Babel 설정에서 수동 플러그인이 필요한 경우에만 현재 설치 문서를 따라 마지막에 둔다:
 
 ```js
 module.exports = (api) => {
   api.cache(true);
   return {
-    presets: ['babel-preset-expo'],
-    plugins: ['react-native-worklets/plugin'],  // R4: reanimated/plugin 아님. 항상 last.
+    presets: ['module:@react-native/babel-preset'],
+    plugins: ['react-native-worklets/plugin'],  // 수동 구성이 필요한 RN CLI + R4 예시
   };
 };
 ```
 
 ```tsx
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { scheduleOnRN } from 'react-native-worklets';   // R4 신 API (구 runOnJS)
+import { scheduleOnRN } from 'react-native-worklets';   // R4 예시
 
 function Card({ onDismiss }: { onDismiss: () => void }) {
   const x = useSharedValue(0);
@@ -171,7 +164,7 @@ function Card({ onDismiss }: { onDismiss: () => void }) {
         x.value = withTiming(e.translationX > 0 ? 400 : -400);
         scheduleOnRN(onDismiss);                          // JS 스레드 콜백
       } else {
-        x.value = withSpring(0);                          // 부드러운 ease (bounce/elastic 금지)
+        x.value = withTiming(0);                          // 바운스 없는 복귀 예시
       }
     });
 
@@ -184,9 +177,9 @@ function Card({ onDismiss }: { onDismiss: () => void }) {
 }
 ```
 
-규칙(제품 UX 4원칙): `withTiming`/`withSpring(부드러운 config)` 사용, **bounce/elastic easing 금지**, press 피드백은 즉각 cut 말고 짧은 transition. 무거운 JS 계산을 worklet 안에서 하지 말 것(UI 스레드 블록).
+제품 UX 4원칙에 따라 bounce/elastic 효과를 피하고 reduced-motion 설정도 고려한다. 무거운 계산을 UI worklet 안에 두지 않는다. React Native/Expo 버전별 사용 가능 여부를 먼저 확인한다.
 
-### 5. 스타일 — NativeWind v4
+### 5. 스타일 — NativeWind가 기존 스택일 때
 
 ```tsx
 import { View, Text, Pressable } from 'react-native';
@@ -196,7 +189,7 @@ import { View, Text, Pressable } from 'react-native';
 </Pressable>
 ```
 
-`global.css` 입력 + `metro.config.js` 의 `withNativeWind(config, { input: './global.css' })` 필요. 색은 tinted-neutral(약간 violet/blue tint), 전체 3색 이내(accent+text+bg). pure black/gray 금지.
+설정은 설치된 NativeWind 버전과 프로젝트의 `global.css`·Metro 구성에 맞춘다. 기존 StyleSheet·디자인 토큰을 요청 없이 NativeWind로 이식하지 않는다.
 
 ### 6. Safe-area + 키보드
 
@@ -215,7 +208,7 @@ const insets = useSafeAreaInsets();
 </KeyboardAvoidingView>
 ```
 
-Android 는 `app.json` 의 `android.softwareKeyboardLayoutMode: "resize"`(2nd-B 가 이미 설정) 로 대부분 해결.
+Android 키보드 동작은 현재 앱 설정·화면 구조에서 확인한다. 과거 2nd-B의 `resize` 설정을 다른 앱의 기본값으로 가정하지 않는다.
 
 ### 7. 플랫폼별 파일
 
@@ -226,67 +219,67 @@ Button.android.tsx  # Android 전용
 Button.web.tsx      # expo web 전용
 ```
 
-코드 분기는 `Platform.OS === 'ios'` 보다 파일 분리가 깔끔. import 는 확장자 없이 `import Button from './Button'`.
+분기가 반복되고 플랫폼 구현이 의미 있게 다를 때 파일 분리를 고려한다. 작은 분기는 `Platform.OS`도 가능하다.
 
-### 8. Hermes 동적 import 함정 (2nd-B 실제 사고)
+### 8. Hermes 동적 import 오류 (2nd-B에서 관측된 사례)
 
-증상: `expo run:android` 또는 EAS 빌드가 **"Invalid expression encountered"** (Hermes bytecode 컴파일 실패). 원인: `@supabase/supabase-js`(OTEL 로더), `pdfjs-dist`(fake-worker) 등이 exports map 에서 **런타임 값으로 `import()`** 하는 ESM 변형을 노출 → Metro 가 정적 변환 못 함 → 번들에 살아남아 Hermes 가 거부.
+`Invalid expression encountered`를 만나면 로그·번들·의존성의 실제 `import()` 경로를 추적한다. 2nd-B에서는 패키지 exports 해석과 동적 import가 원인이었지만, 다른 프로젝트의 동일 문구가 같은 원인이라는 보장은 없다.
 
-해결(`metro.config.js`): 패키지 exports 맵 해석을 끄고 CJS/UMD 폴백:
+특정 패키지의 exports 조건 교정이 가능하면 그 범위에서 해결한다. 그 방법이 불가능하고 원인이 재현될 때만 Metro의 광역 폴백을 검토한다. 영향받는 다른 의존성과 타입 해석도 재검증한다:
 
 ```js
 const { getDefaultConfig } = require('expo/metro-config');
-const { withNativeWind } = require('nativewind/metro');
 const config = getDefaultConfig(__dirname);
 
-// Hermes 가 거부하는 동적 import() 회피 — exports map 대신 main/react-native/browser 필드 사용
+// 재현된 package exports 충돌을 진단할 때만 임시 비교한다.
 config.resolver.unstable_enablePackageExports = false;
 
-module.exports = withNativeWind(config, { input: './global.css' });
+module.exports = config;
 ```
 
-pdfjs 워커 잔여 이슈는 `patch-package`(2nd-B 의 `postinstall: patch-package`) 로 봉합. 로컬 `npx expo export` 로 먼저 검증한 뒤 EAS 에 태운다(EAS 크레딧/시간 절약).
+2nd-B의 `pdfjs-dist` patch-package 사례를 다른 앱에 복사하지 않는다. 해당 플랫폼의 로컬 export/빌드로 수정 효과를 확인하고, EAS 호출은 별도 비용·권한 게이트를 따른다.
 
 ## 검증 (verification)
 
 ```bash
-# 1) 정적 — 2nd-B 의 verify 게이트 통과 필수 (push/merge 전)
-npx expo install --check        # 0 mismatch
-npx expo-doctor                 # 0 issue
-npm run type-check              # tsc --noEmit
-npm run lint
+# 1) 정적 — 프로젝트에 실제 정의된 스크립트와 설치된 도구만 실행
+npx expo install --check        # Expo 프로젝트에서만
+npx expo-doctor                 # Expo 프로젝트에서만; 자동 다운로드 여부 확인
+npm run type-check              # 스크립트가 있을 때
+npm run lint                    # 스크립트가 있을 때
 
-# 2) 번들이 Hermes 에서 컴파일되는지 — EAS 안 태우고 로컬 선검증
-npx expo export --platform android    # 성공 = Invalid-expression 없음
+# 2) EAS 이전의 로컬 번들 선검증; Hermes 네이티브 컴파일까지 증명하지는 않음
+npx expo export --platform android    # Expo 프로젝트에서만
 
-# 3) 라이브 동작 (택1)
-npm run web                                   # 빠른 UI/스크린샷
-npx expo run:android                          # 에뮬 Pixel_9_Pro_XL (adb reverse 8081 필요)
+# 3) 화면 동작: 지원 플랫폼의 실제 기기/에뮬레이터에서 핵심 흐름 확인
+npx expo run:android                          # Expo + Android SDK가 준비됐을 때
 
-# 4) EAS 빌드 프로필 검증
-npx eas build --profile preview --platform android --local   # 또는 클라우드
-npx eas build --profile production --platform ios            # 스토어용
-npx eas submit --profile production --platform ios
+# 4) 빌드 산출물: 기존 Gradle 또는 Expo 경로로 APK 생성·설치 확인
+# EAS Build/Submit은 여기서 자동 실행하지 않는다.
 ```
 
-성능 예산:
-- 리스트 스크롤 60fps 유지(Reanimated/FlashList devtools 의 dropped-frame 0 목표)
-- 이미지: `expo-image` + `recyclingKey`, 원본 풀해상도 직접 렌더 금지(`image-manipulator` 로 리사이즈)
-- JS 번들 초기 화면 < 화면당 의미 있는 코드만(무거운 모듈은 라우트 단위 lazy)
+성능은 대상 기기에서 프레임 시간·스크롤 끊김·메모리와 초기 화면 체감 시간을 전후 측정한다. 수치 목표는 제품 요구와 기기 범위에서 정하며, 도구 실행만으로 라이브 동작이나 APK 설치를 검증했다고 하지 않는다.
+
+EAS가 필요한 경우 CLI·로그인·프로젝트 연결·현재 구독 사용량·초과 과금 차단·서명 자격을 먼저 확인한다. 구독 포함분이라는 추정만으로 클라우드 빌드를 호출하지 않는다. Windows에서는 `eas build --local`이 공식 지원 경로가 아니므로 로컬 Android Studio/Gradle 등 실제 가능한 경로를 우선한다. 추가 과금, 자동충전, 계정·자격증명 변경, `eas submit`·`--auto-submit`·스토어 공개는 별도 승인 없이 실행하지 않는다. APK 생성, 스토어 업로드, 공개 심사는 서로 다른 상태다.
 
 ## Anti-patterns
 
-- ❌ 긴 리스트에 `FlatList`/`ScrollView+map` → FlashList v2 로
-- ❌ FlashList v2 에 `estimatedItemSize` 남김 → 제거(v2는 자동)
-- ❌ New Architecture 끄고 FlashList v2/Reanimated 4 → 런타임 크래시
-- ❌ Reanimated 4 에서 `reanimated/plugin` 사용 → `react-native-worklets/plugin` (그리고 항상 last)
-- ❌ `runOnJS` import 깨짐 방치 → R4 는 `scheduleOnRN`(`react-native-worklets`)
+- ❌ 성능 측정 없이 리스트 라이브러리 전체 교체
+- ❌ FlashList v2에서 제거된 size-estimation props 유지 또는 구아키텍처와 v2 혼용
+- ❌ Expo의 자동 Babel 구성에 Worklets 플러그인 중복 등록
+- ❌ Reanimated 4에서 Worklets 호환 버전·마이그레이션 경로 미확인
 - ❌ worklet 안에서 무거운 JS 연산 → UI 스레드 블록, 프레임 드랍
 - ❌ bounce/elastic easing → 부드러운 `withTiming`/`withSpring`
-- ❌ RN `Image` 로 리스트 썸네일 → `expo-image` + `recyclingKey`(잔상)
-- ❌ `GestureHandlerRootView` 여러 군데/누락 → 루트 1회만
-- ❌ EAS 에 바로 태워서 Hermes 에러 디버깅 → `expo export` 로 로컬 선검증
+- ❌ 이미지 잔상 원인 확인 없이 모든 RN `Image` 일괄 교체
+- ❌ Gesture Handler 사용 시 루트 wrapper 중복·누락
+- ❌ 원인 확인 없이 Metro exports 전역 비활성화 또는 EAS 클라우드 빌드 호출
 - ❌ 버전 mismatch 방치 → `expo install --check` 로 SDK 정합 맞추기
+
+## 공식 근거 (버전·요금은 실행 시 재확인)
+
+- [Expo SDK 호환표](https://docs.expo.dev/versions/latest/), [Expo Router 기존 앱 도입](https://docs.expo.dev/router/installation/), [Reanimated Expo 설치](https://docs.expo.dev/versions/latest/sdk/reanimated/)
+- [FlashList v2 마이그레이션](https://shopify.github.io/flash-list/docs/v2-migration/), [Reanimated 3→4 이행](https://docs.swmansion.com/react-native-reanimated/docs/guides/migration-from-3.x/), [Metro exports 설정](https://docs.expo.dev/versions/latest/config/metro/)
+- [APK/AAB 구분](https://docs.expo.dev/build-reference/apk/), [Windows 로컬 EAS 제약](https://docs.expo.dev/build-reference/local-builds/), [EAS 과금 경계](https://docs.expo.dev/billing/plans/)
 
 ## Related skills
 

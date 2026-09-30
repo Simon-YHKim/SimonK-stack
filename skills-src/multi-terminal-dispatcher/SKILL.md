@@ -1,14 +1,10 @@
 ---
 name: multi-terminal-dispatcher
 description: >-
-  Use when the user asks for parallel tasks, team dispatch, multiple terminals,
-  or when simonk needs a ready wave under /vibe. Triggers on "병렬로 진행",
-  "다중 터미널", "여러 창에서", "parallel terminals", "team mode", and
-  "best model dispatch". Preview or dispatch a bounded ready wave through the
-  existing /vibe plan, shared state and guarded adapter; reconcile previous
-  attempts without replay. Returns per-node handles, evidence and unresolved
-  costs. Does not open terminal windows or bypass account and budget gates.
-version: 1.1.0
+  Use when dispatching parallel ready tasks: "parallel terminals", "team mode",
+  "병렬로 진행". Returns /vibe wave handles, evidence and unresolved costs under
+  shared account/budget gates; never opens terminal windows or replays uncertain attempts.
+version: 1.1.1
 ---
 
 # Multi-terminal dispatcher — bounded /vibe ready wave

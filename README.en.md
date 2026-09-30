@@ -2,7 +2,9 @@
 
 > A skill library for outcome-driven work: **/vibe is the main coordinator**, and **simonk supplies its sprint procedure**, from planning through verified results.
 
-**[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![validator](https://img.shields.io/badge/skill--validator-132%20skills-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
+> **Source-only release hold (D-33):** this branch and its newest static isolated candidate have `/vibe` 2.12.24. `distribution/main-source-only.hold` prevents the SessionStart hook from changing user-home skills and suppresses the automatic GitHub release on `main` push. The root Claude marketplace entry is pinned to pre-integration `main` commit `313c04b`. These guards do not install the new five-plugin candidate. Removing the hold and advancing the marketplace pin/version require a separately verified release.
+
+**[simonk-stack.pages.dev](https://simonk-stack.pages.dev)** · [![source skills](https://img.shields.io/badge/source%20skills-141-brightgreen)]() [![harness](https://img.shields.io/badge/simonK-autonomous-blueviolet)]() [![license](https://img.shields.io/badge/license-MIT-blue)]()
 
 🇰🇷 **한국어 README**: [README.md](README.md) (full version)
 
@@ -12,13 +14,13 @@
 
 **Problem**: AI coding assistants work in a different order every time you give them a large task, and they repeat the same mistakes.
 
-**Solution**: **132 skills** (work manuals, `validate_skill.py` reports 0 errors / 0 warnings as of 2026-05-28; sprint v36 added 11 absorbed from `zarazhangrui/frontend-slides`, `robonuggets/{design-system,html-it}`, `OpenSenseNova/SenseNova-Skills`, and the Claude Skills 2026 slide deck) + **/vibe main coordinator with the simonk sprint procedure** (one owner → guarded work → verified results). Combined with [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (private) for cross-session learning accumulation — no more re-reasoning from scratch every session.
+**Solution**: **141 skills in this branch's legacy source/development inventory** (`skills-src/` 137 + `.claude/skills/` 4), with **182 skills in the separately assembled five-plugin `/vibe` 2.12.24 static candidate** and **177 in its Codex general subset**. `/vibe` is the main coordinator and `simonk` supplies its sprint procedure (one owner → guarded work → verified results). [SimonKWiki](https://github.com/Simon-YHKim/SimonKWiki) (private) retains cross-session learning. These counts describe different inventories, not installed-user-profile parity or host behavior.
 
 **Sprint v34 (2026-05-25)** — 5 external vendor integrations (user-level live clone + auto-update each session):
 - [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) · [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) · [OpenHarness](https://github.com/HKUDS/OpenHarness) — existing (sprint v22-EXT)
 - [open-cowork](https://github.com/OpenCoworkAI/open-cowork) · [design.md](https://github.com/google-labs-code/design.md) — new (sprint v34)
 
-Location: `~/.simon-stack/vendor/<repo>/` — `.claude/hooks/session-start.sh` §7b runs `git pull --ff-only` (safety conditions) every session.
+Location: `~/.simon-stack/vendor/<repo>/` — `.claude/hooks/session-start.sh` §7b runs `git pull --ff-only` only when the source-only release hold is absent and its normal safety conditions pass.
 
 ```
 "build a new app"      → app-dev-orchestrator    → 21-stage pipeline
@@ -119,6 +121,8 @@ Offline tests use disposable profiles/clones, not the user's configuration:
 ---
 
 ## Install
+
+> The latest five-plugin `0a5c61e` safety candidate (`/vibe` 2.12.8, 182 Claude skills and 177 Codex general-subset skills) includes the official `gpt-6.1-sol` facts and an identical 17-model registry in both host packages. It is **not installation-ready**: host-behavior, selection-quality and installation-readiness flags remain `false`, and no user profile or `main` promotion has occurred. New isolated Claude/Codex host loading passed without model generation, but automatic skill selection and result-quality parity are untested. Its local `E:/Coding Infra/Releases/SimonK-stack/20260930-gpt61-0a5c61e/report.html` contains receipts and raw results. The public commands below are not this candidate's test path. In particular, legacy `scripts/install.sh` may fetch remote plugins/Gstack and modify the user home; do not run it to evaluate the candidate. See [candidate verification and installation gates](docs/INSTALL.md).
 
 ### Claude Code Web (easiest)
 1. Go to https://claude.ai/code → Open `Simon-YHKim/SimonK-stack` → Done

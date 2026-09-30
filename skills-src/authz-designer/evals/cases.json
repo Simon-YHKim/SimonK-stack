@@ -1,18 +1,50 @@
 {
   "skill": "authz-designer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "cases": [
     {
       "id": "notion-like-sharing",
       "prompt": "우리 앱에 Notion 처럼 문서 공유 기능 넣으려고 하는데 권한 시스템 어떻게 설계해?",
       "assertions": [
         {
-          "id": "picks-rebac",
-          "text": "The agent recommends ReBAC (relationship-based) because the use case is document-sharing with a permission graph."
+          "id": "scopes-sharing-model",
+          "text": "The agent maps subject, resource, tenant, sharing and revocation rules before deciding whether ReBAC, RBAC, ABAC or an existing policy is sufficient."
         },
         {
-          "id": "provides-ddl",
-          "text": "The agent provides DDL templates for authz_roles, authz_role_assignments, authz_policies, authz_audit_log."
+          "id": "conditional-schema",
+          "text": "If it provides DDL, the agent labels provider/version assumptions and keeps the proposal separate from applying a migration or changing live permissions."
+        }
+      ]
+    },
+    {
+      "id": "audit-cross-tenant-idor",
+      "prompt": "Audit our multi-tenant document API for IDOR. The admin button is hidden in the UI, but a viewer can guess another workspace's document ID. Report findings only; do not change production permissions.",
+      "assertions": [
+        {
+          "id": "server-authority",
+          "text": "Inspects server-side authorization at each relevant endpoint and resource scope, including read, write and share paths; does not treat a hidden frontend button or a matching user_id alone as protection."
+        },
+        {
+          "id": "adversarial-evidence",
+          "text": "Describes concrete cross-workspace IDOR and viewer-to-editor privilege-escalation checks with expected denials, distinguishing tests actually run from proposed regression tests."
+        },
+        {
+          "id": "audit-only-boundary",
+          "text": "Reports verified findings and uncertainty without applying a migration, changing live permissions or claiming that the vulnerability has been fixed."
+        }
+      ]
+    },
+    {
+      "id": "owner-check-not-automatically-idor",
+      "prompt": "Our private notes API queries WHERE owner_id = current_user.id. Is that automatically IDOR because there is no role table? Review only.",
+      "assertions": [
+        {
+          "id": "policy-context",
+          "text": "Does not flag an owner check as IDOR solely because it lacks a role lookup; evaluates the intended resource policy and all relevant request paths."
+        },
+        {
+          "id": "read-only",
+          "text": "Keeps the review read-only and distinguishes a verified authorization bypass from a hypothesis."
         }
       ]
     }

@@ -1,16 +1,17 @@
 {
   "schema_version": 1,
-  "version": "2026-09-23.1",
-  "checked_at": "2026-09-23T21:24:38+09:00",
-  "data_as_of": "2026-09-23",
+  "version": "2026-09-30.1",
+  "checked_at": "2026-09-29T04:03:23+09:00",
+  "data_as_of": "2026-09-30",
   "notes": [
     "Public provider facts are not account, transport, billing or successful-execution evidence.",
     "API Standard USD / million tokens only. Tool, storage, transport, regional and priority charges are separate.",
     "ultra and ultracode are harness delegation modes, not ordinary provider reasoning effort.",
     "Grok Bot has no verified model/effort control here and has a distinct account/quota/billing path.",
-    "checked_at records the actual source inspection; data_as_of is this snapshot date, not a release date."
+    "checked_at is a conservative catalog-wide inspection floor; data_as_of is this snapshot date, not a release date."
   ],
   "sources": {
+    "oa_sol61": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
     "oa_astra": "https://developers.openai.com/api/docs/models/gpt-6-astra",
     "oa_sol": "https://developers.openai.com/api/docs/models/gpt-6-sol",
     "oa_luna": "https://developers.openai.com/api/docs/models/gpt-6-luna",
@@ -21,6 +22,7 @@
     "oa_daybreak": "https://developers.openai.com/api/docs/models/gpt-daybreak-blue-latest",
     "oa_pricing": "https://developers.openai.com/api/docs/pricing",
     "cl_models": "https://platform.claude.com/docs/en/models/overview",
+    "cl_sonnet55": "https://platform.claude.com/docs/en/models/sonnet-5-5/overview",
     "cl_effort": "https://platform.claude.com/docs/en/build-with-claude/effort",
     "cl_pricing": "https://platform.claude.com/docs/en/about-claude/pricing",
     "cl_lifecycle": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
@@ -39,7 +41,7 @@
   "legacy_lane_migration": {
     "claude-opus-5": {"candidate": "claude-opus-5-5", "status": "pending-transport-and-canary"},
     "claude-fable-5-1": {"candidate": "claude-fable-5-1", "status": "keep-model-check-billing"},
-    "claude-sonnet-5": {"candidate": "claude-sonnet-5", "status": "keep-model"},
+    "claude-sonnet-5": {"candidate": "claude-sonnet-5-5", "status": "pending-transport-and-canary"},
     "gpt-6-astra": {"candidate": "gpt-6-astra", "status": "keep-model-check-transport"},
     "gpt-5.6-sol": {"candidate": "gpt-6-sol", "status": "pending-transport-and-canary"},
     "gpt-5.6-terra": {"candidate": "gpt-6-sol", "status": "pending-evaluation-not-equivalent-tier"},
@@ -49,6 +51,14 @@
     "grok-4.6": {"candidate": "grok-4.7", "status": "pending-quota-and-canary"}
   },
   "models": [
+    {
+      "id": "gpt-6.1-sol", "surface": "codex", "vendor": "openai", "lifecycle": "active",
+      "id_namespace": "provider-api",
+      "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": [],
+      "context_tokens": 1050000, "max_output_tokens": 128000,
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "2", "cached_input": "0.1", "output": "10", "cache_write": "2.5", "tiers": [{"above_input_tokens": 272000, "input": "4", "cached_input": "0.2", "output": "15", "cache_write": null}]},
+      "sources": ["oa_sol61"]
+    },
     {
       "id": "gpt-6-astra", "surface": "codex", "vendor": "openai", "lifecycle": "active",
       "id_namespace": "provider-api",
@@ -86,14 +96,24 @@
       "id_namespace": "provider-api",
       "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": ["fable"],
       "retirement_not_before": "2027-09-01", "thinking": "adaptive_always_on",
-      "billing_note": "Claude Code subscription login does not establish included Fable usage; usage credits may apply.",
+      "billing_note": "Claude Code subscription login does not establish included Fable usage. Non-interactive Fable requests can bill usage credits without a consent prompt; require positive exact-model subscription inclusion and disabled overage evidence before dispatch.",
       "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "10", "cached_input": "0.25", "output": "50", "cache_write": null},
       "sources": ["cl_models", "cl_effort", "cl_pricing", "cl_lifecycle", "cl_billing"]
     },
     {
+      "id": "claude-sonnet-5-5", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
+      "id_namespace": "provider-api",
+      "released_at": "2026-09-28", "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": ["sonnet"],
+      "context_tokens": 1000000, "max_output_tokens": 128000,
+      "retirement_not_before": "2027-09-28", "thinking": "adaptive",
+      "transport_note": "Claude Code 2.1.284+ is required; its default effort is medium while the API default is high. The sonnet alias varies by provider. Recalibrate against Sonnet 5 instead of inheriting its effort; public facts do not prove this account's included usage or model access.",
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "2", "cached_input": "0.2", "output": "10", "cache_write": null, "note": "5-minute cache write is $2.50/MTok and 1-hour cache write is $4/MTok; the single cache_write field cannot safely represent both."},
+      "sources": ["cl_sonnet55", "cl_models", "cl_effort", "cl_pricing", "cl_billing"]
+    },
+    {
       "id": "claude-sonnet-5", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
       "id_namespace": "provider-api",
-      "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": ["sonnet"],
+      "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": [],
       "retirement_not_before": "2027-06-30",
       "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "2", "cached_input": "0.2", "output": "10", "cache_write": null},
       "sources": ["cl_models", "cl_effort", "cl_pricing", "cl_lifecycle"]

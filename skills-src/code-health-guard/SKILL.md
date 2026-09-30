@@ -68,8 +68,12 @@ author: simon-stack
 
 ### 순환 의존성 스캔
 
+호스트에서 이 스킬의 `SKILL.md` 실제 경로를 확인하고, 그 부모 디렉터리를
+`<code-health-guard-dir>`로 치환한다. 배포된 프로젝트에 `skills-src/`가
+있다고 가정하지 않는다.
+
 ```bash
-bash skills-src/code-health-guard/scripts/check-circular-deps.sh
+bash "<code-health-guard-dir>/scripts/check-circular-deps.sh"
 # 또는 madge가 설치돼 있으면:
 npx madge --circular src/
 ```

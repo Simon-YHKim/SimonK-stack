@@ -1,5 +1,20 @@
 # Functions Reference
 
+## Contents
+
+- [Global Functions](#global-functions)
+- [Any Type Functions](#any-type-functions)
+- [Date Functions and Fields](#date-functions-and-fields)
+- [Duration Type](#duration-type)
+- [Date Arithmetic](#date-arithmetic)
+- [String Functions](#string-functions)
+- [Number Functions](#number-functions)
+- [List Functions](#list-functions)
+- [File Functions](#file-functions)
+- [Link Functions](#link-functions)
+- [Object Functions](#object-functions)
+- [Regular Expression Functions](#regular-expression-functions)
+
 ## Global Functions
 
 | Function | Signature | Description |
@@ -28,7 +43,7 @@
 | `isType()` | `any.isType(type): boolean` | Check type |
 | `toString()` | `any.toString(): string` | Convert to string |
 
-## Date Functions & Fields
+## Date Functions and Fields
 
 **Fields:** `date.year`, `date.month`, `date.day`, `date.hour`, `date.minute`, `date.second`, `date.millisecond`
 

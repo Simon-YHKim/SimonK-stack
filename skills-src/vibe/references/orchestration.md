@@ -43,6 +43,18 @@ fallback occurs. The plan's discovery records the receipt path/hash and narrow
 verification scope. This is not a signature, a full scripts/assets verifier,
 host compatibility proof or an installation/dispatch grant. Use the existing
 bundle verifier before use; keep the trusted single-writer boundary throughout.
+For a Codex overlay, `overlay.json` must bind the sole allowed `zoom-out`
+projection and generated manifests. For its D-29 general-skill subset,
+`subset.json` must bind the same overlay digest and exact included/excluded
+member lists. The only accepted omissions are Core `careful`/`unfreeze`, Stack
+`freeze`/`guard`/`investigate`, and the two Core/Stack safety runtimes; Claude
+manifests remain unchanged. Discovery exposes a separate subset receipt hash,
+but full subset byte verification and host policy/selection checks remain
+separate gates. A missing, forged or extra omission fails closed.
+Invoke candidate Python helpers with `python -B`. For test suites or helpers
+that spawn child Python processes, also set `PYTHONDONTWRITEBYTECODE=1` in the
+parent environment: `-B` is not inherited by children. Re-verify the receipt
+afterward. Bytecode is an extra package file even when the scan is read-only.
 
 Repeated explicit `--root` flags override candidate inference entirely. This
 is also required for plugin homes installed separately (e.g. separate cache
@@ -80,9 +92,9 @@ their URIs into filesystem roots. Explicit split roots do not carry candidate
 receipt validation, so full release/installation verification remains separate.
 
 ```text
-python scripts/orchestrate.py inventory --root /source/skills-src --root /source/.claude/skills --exclude-root /protected
-python scripts/orchestrate.py coverage --source-root /source/skills-src --source-root /source/.claude/skills --root /installed/skills --plugin-root /plugin/skills --exclude-root /protected
-python scripts/orchestrate.py plan --root /installed/skills --host-skills host-skills.json --input request.json --runtime runtime.json
+python -B scripts/orchestrate.py inventory --root /source/skills-src --root /source/.claude/skills --exclude-root /protected
+python -B scripts/orchestrate.py coverage --source-root /source/skills-src --source-root /source/.claude/skills --root /installed/skills --plugin-root /plugin/skills --exclude-root /protected
+python -B scripts/orchestrate.py plan --root /installed/skills --host-skills host-skills.json --input request.json --runtime runtime.json
 ```
 
 Repeat root/exclusion flags as needed. Supply every expected source/install/plugin
@@ -167,14 +179,43 @@ not manufacture a host snapshot to force an executable plan.
 }
 ```
 
-`kind`: local, llm or gui. A local node supplies an `argv` list and `software`
+`kind`: local, llm, gui or the typed-only `image` placeholder. An
+`IMAGE_GENERATION` step compiles to `kind=image` with the
+`image_generation` capability but always returns a blocked plan with
+`IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL`; no executable image adapter or
+subscription-inclusion certificate is implemented. An untyped `kind=image`
+is invalid. Text-model `vision`, a local API wrapper, or a GUI Bot must not
+silently substitute for it. A local node supplies an `argv` list and `software`
 names checked against runtime tools. Runtime tool_costs must include the exact
 argv_sha256 (`orchestrate.digest(argv)`), verified=true, evidence, observed_at
-and upper_usd_per_attempt. Local execution does not imply zero cost. A GUI node supplies target, gui_reason,
+and upper_usd_per_attempt. It must also set `transitive_effects_audited=true`
+after reviewing the command and nested setup/smoke-test calls, and set
+`billing_mode` to `nonmetered` or `metered`. `nonmetered` requires a zero upper
+quote and means no incremental billable effect was found; it does not require
+the command to be network-free. `metered` requires a positive upper quote and
+an explicit nonzero approved budget. Missing/unknown classification, a zero
+metered quote, or an unaudited effect chain blocks planning. Existing quotes
+without these fields must be re-audited; do not label an opaque wrapper
+`nonmetered` just to pass preflight. This is a host-supplied audit assertion,
+not automatic proof that arbitrary nested programs are free.
+Local execution does not imply zero cost. A GUI node supplies target, gui_reason,
 tool_route_available=false and vibe-bot in its skill list. `verify_of` names
 the predecessor being independently reviewed and must also be a dependency.
 The host includes scope and acceptance evidence in each task handoff. It must
 include every billed coordinator, review and synthesis call in the plan.
+
+Audit the exact local command's transitive effects before assigning a zero-cost
+contract; `setup`, smoke tests and validation commands can themselves call an
+API. In pinned Gstack `01593aa` (v1.91.2.0), `design/src/cli.ts` runs image
+generation during `setup`; `generate.ts` posts to OpenAI Responses API with an
+API key, and `check.ts` posts to OpenAI Chat Completions API. An installed CLI
+or a ChatGPT subscription does not convert those API-key calls into included
+subscription use. For Simon's USD 0 subscription-only grant, keep these
+Gstack `design` setup/generate/check commands unavailable, do not collect or
+reuse an API key, and do not label them free local tools. Other design work may
+continue locally; image generation requires separately observed subscription
+inclusion and disabled overage on the exact alternative surface. Inspect any
+other Gstack command separately instead of treating the whole suite as paid.
 
 ## Runtime snapshot
 
@@ -187,12 +228,53 @@ These are observed/configured facts, not inferred from a model name. Candidate
 observations and quota have a conservative 15-minute validity window.
 
 Billing fields are `mode` (subscription/api/metered/unknown), `verified`,
-`account_ref`, and `extra_usage_enabled`. Included subscription routing requires
-verified=true and extra_usage_enabled=false. A paid candidate supplies
+`account_ref`, `extra_usage_enabled`, `model_included`, `included_model`, `bot_usage_included`,
+`api_fallback_disabled`, and `paid_credit_fallback_disabled`. Included subscription routing requires all of
+`verified=true`, `extra_usage_enabled=false`, `api_fallback_disabled=true` for
+the account/transport, plus `model_included=true` and `included_model` equal to
+the resolved exact LLM model (or requested exact ID without an alias), or
+`bot_usage_included=true` for the provider-managed Grok Bot. Missing or uncertain
+values block that route. Codex, Grok CLI and Grok Bot additionally require
+`paid_credit_fallback_disabled=true` for their **exact account and transport**.
+This field needs current evidence that existing purchased credits cannot be
+drawn when included usage is exhausted; automatic reload OFF and a nonzero
+quota snapshot are insufficient. Missing or contradictory credit evidence is
+`PAID_CREDIT_FALLBACK_UNVERIFIED`, not a zero-cost route. A paid candidate supplies
 upper_usd_per_attempt including reasoning, tool use and transport charges.
+For Claude Fable, a subscription login and the model picker are not inclusion
+proof: Anthropic documents that non-interactive `-p`/SDK requests can bill
+usage credits without a consent prompt. Never dispatch that route until the
+exact model's included-usage and disabled-overage evidence is positive.
+Do not set `extra_usage_enabled=false` merely because **automatic top-up/reload**
+is off. Existing purchased credits can still be spent after included usage:
+OpenAI documents this for Codex and xAI for Grok. Claude's *usage credits*
+toggle must be off separately from auto-reload, and an `ANTHROPIC_API_KEY`
+can make Claude Code use metered API authentication instead of the subscription.
+Antigravity's applicable **AI Credit Overages = Never** / CLI
+`useG1Credits=false` must be observed for the actual account and transport;
+an absent setting is unknown, not false. For Codex, a positive credit balance
+or an unverified account-level credit fallback blocks the zero-extra-spend
+route even when auto-reload is off. For Grok/Grok Bot, check purchased
+Extra Usage Credits/on-demand fallback separately from Auto Top Up and keep
+the CLI and Bot account/quota evidence distinct. None of these settings is
+changed by the planner or collector. Sources:
+https://help.openai.com/en/articles/12642688-using-credits-for-flexible-usage-in-chatgpt-personal-plans ;
+https://support.claude.com/en/articles/11145838-use-claude-code-with-your-pro-or-max-plan ;
+https://support.claude.com/en/articles/12429409-manage-usage-credits-for-paid-claude-plans ;
+https://docs.x.ai/grok/faq ;
+https://antigravity.google/docs/plans ;
+https://www.antigravity.google/docs/cli/credits/ .
 The quote belongs to this task/run snapshot, not a permanent model price.
+With approved_usd=0, API and metered LLM routes are excluded even when their
+claimed per-attempt upper quote is zero. A positive metered grant is a separate
+user decision; it is never inferred from a free-tier claim.
 Quota supplies used_pct, observed_at and an optional bucket ID. Unknown is null,
-never zero. Both quota exhaustion and unverified billing exclude the route.
+never zero. For Grok CLI and Grok Bot, quota must additionally bind its own
+`surface`, `transport`, billing `account_ref`, `state=observed` and nonempty
+observation `evidence`. A CLI quota cannot unlock a Bot route or vice versa;
+an elapsed reset time with `state=reset-unobserved` is not recovery evidence.
+These are coordinator-supplied assertions, not provider attestations. Both quota
+exhaustion and unverified billing exclude the route.
 
 Demand maps to an actual provider-specific effort. Its value must appear in
 both effort allowlists. Host reuse additionally requires a matching observed
@@ -228,10 +310,23 @@ do not publish them as anonymous identifiers. Raw provider errors are omitted.
 Antigravity accepts only locally measured /usage contract versions. An unknown
 version stops before sending the slash command. A nonzero turn/token response
 fails closed without retry; it cannot undo usage already reported by that CLI.
-Grok billing metadata may be read while generation is suspended, but quota
-recovery must be observed again before reconsidering a route. A reset timestamp
-is not proof of recovery. Grok Bot has no collector here and never inherits the
-CLI account/quota. Claude Widget bridge data is not joined without identity and
+CLI 1.2.12, 1.2.13 and 1.2.14 were measured on Windows with a successful `/usage`
+result, zero turns and zero in every token counter. The CLI's `/help` also
+reported `/usage` as a local command on 1.2.13 with zero turns/tokens. The
+upstream documentation describes `/usage` as CLI-handled; these observations
+add only the measured versions to the exact allowlist, not to available model
+routes. Version 1.2.14 still supplies no verified account, subscription-included
+model or disabled credit-overage evidence; a guarded AGY generation adapter is
+not implemented. On the earlier installed CLI,
+`agy models --output-format json` exits nonzero even though the upstream
+changelog describes a machine-readable subcommand; plain `agy models` lists
+slugs, but this collector does not parse them or infer account/model billing.
+Grok billing metadata may be read while generation is suspended. The 1.0.41
+ACP display tiers `SuperGrok Plus` and `SuperGrok Heavy` normalize to stable
+identifiers; account identity, overage controls and model inclusion remain unverified.
+Quota recovery must be observed again before reconsidering a route. A reset
+timestamp is not proof of recovery. Grok Bot has no collector here and never
+inherits the CLI account/quota. Claude Widget bridge data is not joined without identity and
 bucket-binding evidence. No provider's subscription label proves a free model.
 
 Only models actually returned by Codex model/list and present in the registry
@@ -400,8 +495,9 @@ account binding or user authorization is genuine.
 Offline crash/concurrency tests and a real local Python fixture cover this
 state lifecycle. They do not establish provider adapters, five-surface live
 generation, true provider spend caps or installation parity. Keep those gates
-separate; Grok generation stays on hold while the user's USD 0 constraint and
-exhausted quota apply.
+separate. A past Grok quota hold is not permanent, but a reset timestamp or
+user report alone does not verify current quota, model inclusion or disabled
+overage for a new generation request under the USD 0 additional-spend limit.
 
 ## Guarded Bot adapter
 
@@ -433,6 +529,102 @@ unbound helpers; they do not check the registered plan/Store/pinned helper. Do n
 use their exit codes as completion or as a substitute for this adapter. No helper
 result, historical pilot or manual paste grants permission to bypass a delivery
 hold. Source fixtures are not account, generation, OS-isolation or installation proof.
+
+## Guarded Claude CLI adapter
+
+`execute_cli.py` is a one-send, tool-free Claude Code subscription path for a
+read-only `kind=llm` node with no skills, software or `verify_of`. An ordinary
+node has no dependencies. In a five-node debate, Claude may take an opening,
+its own rebuttal, or the separate judge node. Rebuttal and judge prompts are
+constructed only from the registered Store's verified, settled predecessor
+artifacts; the judge sees both openings and both rebuttals. The judge is a
+different call, but a same-vendor judge is not independent vendor review.
+This adapter accepts only canonical debate dependencies (no auxiliary edges),
+even if the broader planner accepts them.
+Codex, Antigravity and Grok CLI execution are not implemented here, so this
+lane alone does not make the full cross-vendor debate automatic.
+
+The trusted coordinator puts this exact `cli` manifest in the node *before*
+planning and Store registration:
+
+```json
+{"executable":"/absolute/claude.exe","executable_sha256":"64 lowercase hex",
+ "cwd":"/absolute/private-workdir","profile_path":"/absolute/claude-profile",
+ "profile_ref":"opaque collector profile reference",
+ "account_ref":"opaque collector account reference",
+ "result_path":"/absolute/private/result.json"}
+```
+
+These are placeholders. Paths must be canonical local directories, the result
+parent must already exist, and the result file must not exist. The executable
+is pinned by SHA-256 and checked again before each CLI call. Use a private
+result directory outside any watched Bot bus or public repository; output may
+contain sensitive model prose. Never add that result to Git without review.
+
+A separate certificate requires `verified=true`, `subscription_only=true`,
+exact `binding_sha256`, account/profile references, route `billing` and `quota`,
+exact selected `model` and `effort`, fresh `observed_at`, future `valid_until`
+and nonempty source evidence. The route itself must prove exact model inclusion,
+remaining fresh quota, extra usage OFF and API fallback disabled. The helper
+does **not** create this certificate from a login, model picker, user statement
+alone or `total_cost_usd` in model output. If proof is absent, do not dispatch.
+For a rebuttal or judge, the certificate additionally needs exact
+`inputs_sha256=execute_cli.input_digest(plan,node_id,store)` and
+`cross_vendor_transfer_authorized=true`. This is a coordinator's actual
+authorization to pass those inspected predecessor answers to Claude, not a
+flag the helper manufactures from user prose. Recompute after the claim and
+block a changed input before send.
+
+Each predecessor must be a successful, verified and cost-settled attempt under
+the same registered plan. Claude CLI predecessors retain their pinned JSON
+result file and SHA-256; a different reviewed executor can record a canonical
+local UTF-8 `.txt` file with `content_path`, `content_sha256` and
+`content_format="text/plain;charset=utf-8"` in its Store observation. The
+adapter rehashes and bounds each artifact, checks Claude session/model identity
+when applicable, screens it for sensitive content, and treats prose as untrusted
+data rather than instructions. A file path or `verified=true` without a real
+independent execution and acceptance check is not evidence. Store settlement
+needs a real additional-charge receipt; never insert fixture zero receipts in
+an operational run. Do not put these artifacts in a watched Bot bus or Git.
+
+The adapter rechecks `claude.ai`/`firstParty` auth for the same profile/account
+using the same sanitized child environment. It strips API-key and alternate
+provider variables, sets the pinned `CLAUDE_CONFIG_DIR`, uses `--safe-mode`
+(customizations disabled), `--tools ""`, `--strict-mcp-config`, a unique
+`--session-id`, exact `--model`/`--effort`, and JSON print mode. On this host,
+Claude Code 2.1.285 accepted `--safe-mode auth status --json` without model
+generation. A separate tool-free Opus 5.5 debate call resolved its model and
+accepted `--effort`; the adapter's certificate-to-Store path and actual
+subscription invoice still lack live end-to-end verification. Anthropic states
+that `ANTHROPIC_API_KEY` overrides a subscription in noninteractive mode:
+https://code.claude.com/docs/ko/env-vars .
+
+```text
+python -B "<vibe>/scripts/execute_cli.py" spec --plan plan.json --node opening
+python -B "<vibe>/scripts/execute_cli.py" dispatch --plan plan.json --node opening --db shared-runs.sqlite3 --certificate cli-evidence.json
+python -B "<vibe>/scripts/execute_cli.py" reconcile --plan plan.json --node opening --db shared-runs.sqlite3
+```
+
+`spec` is opening-only; it does not print dependent model prose to stdout.
+For a dependent node, dispatch builds the prompt privately after verifying its
+certificate and Store inputs. The registered task and input digest are bound to
+the send's handle. The bounded prompt is piped over standard input, not placed
+in the Windows command line; its input digest is persisted before the send.
+Reentry never resends even when an upstream artifact later
+disappears or changes. A same-vendor judge is marked in the observation, not
+misreported as an independent third-vendor verdict.
+
+Only a newly committed Store claim can send. Reentry never sends again; an
+ambiguous response, mismatch, collision or timeout stays `uncertain` with its
+reservation held. A matching complete JSON result is written once to the
+private path, and its hash/session/model are recorded, not its raw prose. CLI
+acceptance of `--effort` is recorded as CLI-level setting evidence, **not**
+provider-internal reasoning telemetry. The output remains unverified and its
+actual additional charge is `null`: the adapter never auto-settles, verifies,
+passes a successor or asserts a $0 invoice. Inspect the output and obtain
+post-call terminal/cost evidence before the coordinator settles/verifies. The
+CLI's list-price cost field is not an invoice. Offline fixtures prove one-send
+and failure behavior, not live account billing or five-surface execution.
 
 ## Guarded Orca adapter
 

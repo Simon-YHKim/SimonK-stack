@@ -1,8 +1,8 @@
 ---
 name: ship
 preamble-tier: 4
-version: 1.0.0
-description: "Use when asked to \"ship\", \"deploy\", \"push to main\", \"create a PR\", \"merge and push\", or \"get it deployed\". Proactively invoke this skill (do NOT push/PR directly) when the user says code is ready, asks about deploying, wants to push code up, or asks to create a PR. (gstack). Ship workflow: detect + merge base branch, run tests, review diff, bump VERSION, update CHANGELOG, commit, push, create PR"
+version: 1.0.1
+description: "Use when asked to: \"ship\", \"push\", \"create a PR\", \"deploy\", or \"prepare a release\". Reviews scoped changes and fresh tests, then performs merge, push, PR, or deployment only with repository authorization. Produces a verified release status; paid evals require a proven subscription-included route."
 allowed-tools:
   - Bash
   - Read
@@ -16,6 +16,7 @@ allowed-tools:
 ---
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
 <!-- Regenerate: bun run gen:skill-docs -->
+SimonK release boundary: user/repository limits override upstream automation; `/ship` alone does not authorize base merges, push, PR, deployment, paid calls, or unrelated files. Follow the [detailed authorization, cost, and host-equivalence gates](references/detail.md#release-authorization-and-cost-gate); report unverified gates and the actual unshipped state.
 
 ## Preamble (run first)
 

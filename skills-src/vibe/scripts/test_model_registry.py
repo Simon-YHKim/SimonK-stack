@@ -209,9 +209,44 @@ class ModelRegistryTests(unittest.TestCase):
     def test_packaged_registry_contains_current_four_vendors(self):
         data = self.m.load_registry()
         ids = {m["id"] for m in data["models"]}
-        self.assertTrue({"gpt-6-astra", "gpt-6-sol", "gpt-6-luna", "claude-opus-5-5",
-                         "claude-fable-5-1", "claude-sonnet-5", "gemini-3.8-flash", "grok-4.7"} <= ids)
+        self.assertTrue({"gpt-6-astra", "gpt-6.1-sol", "gpt-6-sol", "gpt-6-luna", "claude-opus-5-5",
+                         "claude-fable-5-1", "claude-sonnet-5-5", "claude-sonnet-5",
+                         "gemini-3.8-flash", "grok-4.7"} <= ids)
         self.assertEqual({m["vendor"] for m in data["models"]}, {"openai", "anthropic", "google", "xai"})
+
+    def test_gpt_61_sol_catalog_does_not_promote_unavailable_runtime(self):
+        data = self.m.load_registry()
+        model = next(m for m in data["models"] if m["id"] == "gpt-6.1-sol")
+        self.assertEqual(model["api_efforts"], ["low", "medium", "high", "xhigh", "max"])
+        self.assertEqual(model["context_tokens"], 1050000)
+        self.assertEqual(model["max_output_tokens"], 128000)
+        self.assertEqual(model["pricing"]["scope"], "direct-api-standard-usd-per-million-tokens")
+        self.assertEqual(model["pricing"]["cached_input"], "0.1")
+        observed_at = data["checked_at"]
+        trial = candidate(model="gpt-6.1-sol", available=False, observed_at=observed_at,
+                          billing={"mode": "unknown", "verified": False},
+                          quota={"used_pct": None, "observed_at": observed_at})
+        constrained = self.m.constrain_runtime({"candidates": [trial]}, data, observed_at)["candidates"][0]
+        self.assertFalse(constrained["available"])
+        self.assertFalse(constrained["billing"]["verified"])
+
+    def test_sonnet_55_catalog_update_does_not_authorize_alias_dispatch(self):
+        data = self.m.load_registry()
+        models = {model["id"]: model for model in data["models"]}
+        new = models["claude-sonnet-5-5"]
+        self.assertEqual(new["released_at"], "2026-09-28")
+        self.assertEqual(new["api_efforts"], ["low", "medium", "high", "xhigh", "max"])
+        self.assertEqual(new["pricing"]["scope"], "direct-api-standard-usd-per-million-tokens")
+        self.assertIsNone(new["pricing"]["cache_write"])
+        self.assertEqual(data["legacy_lane_migration"]["claude-sonnet-5"],
+                         {"candidate": "claude-sonnet-5-5", "status": "pending-transport-and-canary"})
+        observed_at = data["checked_at"]
+        trial = candidate(surface="claude", model="sonnet", resolved_model=None, observed_at=observed_at,
+                          quota={"used_pct": None, "observed_at": observed_at})
+        result = self.m.constrain_runtime({"candidates": [trial]}, data, observed_at)["candidates"][0]
+        self.assertEqual(result["model"], "claude-sonnet-5-5")
+        self.assertFalse(result["available"])
+        self.assertIn("ALIAS_RESOLUTION_UNVERIFIED", result["registry_errors"])
 
     def test_every_legacy_lane_has_an_explicit_migration_disposition(self):
         tree = ast.parse(SCRIPT.with_name("routing.py").read_text(encoding="utf-8"))

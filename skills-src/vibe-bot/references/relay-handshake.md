@@ -5,6 +5,18 @@ Source: Simon's requests through Relay on 2026-09-26 (`vb-handshake-improve`
 This is operating guidance for an **already authorized** collaboration loop. It
 does not authorize delivery, schedulers, production writes or spending.
 
+## Contents
+
+- [Channels](#1-channels)
+- [Watching without gaps](#1a-watching-without-gaps)
+- [Waiting for a reply](#2-waiting-for-a-reply)
+- [Bus traffic classes](#3-bus-traffic-classes)
+- [Result format](#4-result-format-both-directions)
+- [Production writes in two channels](#5-production-writes-approved-in-two-channels)
+- [Attested Simon GO](#6-attested-simon-go--do-not-ask-again)
+- [Lessons in both directions](#7-lessons-in-both-directions)
+- [Publication integrity](#8-publication-integrity-coding-side)
+
 ## 1. Channels
 
 | Direction | Task | Result |

@@ -1,21 +1,11 @@
 ---
 name: founder-context
-description: >
-  Use when the user wants the four founder-context files (me.md,
-  vision.md, design.md, workingstyle.md) at a project root — triggers
-  "/founder-context", "/personal-bootstrap", "4 파일 만들어",
-  "프로젝트 컨텍스트 세팅", "founder context", "bootstrap project
-  foundation". Produces all four via per-file grilling-style interview
-  (3-4 questions each), pre-populating from existing SimonK Stack
-  assets when present: me.md from SimonKWiki entities/simon-yhkim,
-  workingstyle.md from LESSONS_LEARNED + instincts, design.md from
-  prior simon-design-first outputs. vision.md is interview-only.
-  Supports single-file mode (`/founder-context vision`) and refresh
-  with overwrite confirm. Different from /project-context-md (creates
-  CLAUDE.md for Claude verification) and /domain-glossary (creates
-  CONTEXT.md term dictionary) — these four files are HUMAN-facing
-  founder docs: identity, vision, design principles, work patterns.
-version: 1.0.0
+description: >-
+  Use when creating founder docs: "/founder-context", "founder context",
+  "4 파일 만들어". Produces me.md, vision.md, design.md and workingstyle.md at the
+  project root via interviews; supports one-file updates, confirms overwrites.
+  Not CLAUDE.md or a glossary.
+version: 1.0.1
 allowed-tools:
   - Bash
   - Read

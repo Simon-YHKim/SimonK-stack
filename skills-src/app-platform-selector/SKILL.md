@@ -1,14 +1,14 @@
 ---
 name: app-platform-selector
-description: "Use when the user needs to decide between hybrid app, PWA, or native development—triggers \"하이브리드 앱 좋을까\", \"PWA vs 네이티브\", \"앱 플랫폼 선택\", \"웹앱으로 할까\", \"React Native vs Flutter\", \"hybrid or native\", \"should I build a PWA\", \"app wrapper rejection\". Produces platform decision (Hybrid/PWA/Native) with pros-cons analysis, store approval strategy for web-wrapped apps, and technology recommendation (React Native/Flutter/Expo/Capacitor)."
+description: "Use when the user needs to decide between hybrid app, PWA, or native development—triggers \"하이브리드 앱 좋을까\", \"PWA vs 네이티브\", \"앱 플랫폼 선택\", \"웹앱으로 할까\", \"React Native vs Flutter\", \"hybrid or native\", \"should I build a PWA\", \"app wrapper rejection\". Produces platform decision (Hybrid/PWA/Native), store-review risk assessment without approval guarantees, and a technology recommendation (React Native/Flutter/Expo/Capacitor)."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
-version: 1.0.0
+version: 1.0.1
 author: simon-stack
 ---
 
 # app-platform-selector
 
-Hybrid/PWA/Native 판단 + 스토어 통과 전략.
+Hybrid/PWA/Native 판단 + 스토어 심사 위험 검토.
 
 ## 발동 조건
 
@@ -22,7 +22,7 @@ Hybrid/PWA/Native 판단 + 스토어 통과 전략.
 |---|---|---|---|---|
 | 개발 속도 | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐ | ⭐ |
 | 성능 | ⭐ | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
-| 스토어 등록 | ❌~△ | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
+| 스토어 등록 | 배포 방식 확인 | 심사 대상 | 심사 대상 | 심사 대상 |
 | 네이티브 API | 제한적 | 플러그인 | 대부분 | 전체 |
 | 업데이트 속도 | 즉시 (웹) | OTA 가능 | OTA 가능 | 스토어 심사 |
 | 1인 개발 | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐ | ⭐ |
@@ -40,12 +40,11 @@ Hybrid/PWA/Native 판단 + 스토어 통과 전략.
         └─ YES → Native (Swift + Kotlin)
 ```
 
-## ⚠️ 웹 래퍼 리젝 방지 전략
+## ⚠️ 웹 래퍼 심사 위험 검토
 
-Apple 4.2 "Minimum Functionality" 리젝 사유:
-> "Your app is primarily a repackaged website"
+Apple [App Review Guidelines §4.2](https://developer.apple.com/app-store/review/guidelines/)는 재포장된 웹사이트를 넘어서는 기능·콘텐츠·UI를 요구한다. 특정 기술 채택만으로 승인·거절이 확정되지는 않는다. 실제 출시 전 최신 지침과 대상 스토어의 배포 요건을 다시 확인한다.
 
-**통과 전략**:
+**심사 위험을 낮추는 검토 항목** (통과 보장 아님):
 
 | 방법 | 설명 |
 |---|---|
@@ -55,10 +54,12 @@ Apple 4.2 "Minimum Functionality" 리젝 사유:
 | 고유 콘텐츠 | 앱 전용 기능 1개 이상 |
 | Capacitor 플러그인 | Camera, Filesystem, LocalNotification |
 
-**절대 안 되는 것**:
-- WKWebView 하나에 URL 로드만 (100% 리젝)
-- 웹과 100% 동일한 경험 (차별화 없음)
-- 로그인 후 빈 WebView
+**고위험 신호**:
+- WKWebView 하나로 웹 URL만 로드하고 앱다운 기능·콘텐츠·UI가 없음
+- 웹과 동일한 경험이며 모바일 사용성 개선이나 고유 가치가 없음
+- 로그인 후 빈 WebView가 표시됨
+
+플랫폼 비교는 유료 개발자 등록·스토어 제출과 별개다. 추가 비용 허용 여부와 계정·심사 요건을 확인하기 전에는 등록이나 제출을 진행하지 않는다.
 
 ## 기술 스택 추천
 

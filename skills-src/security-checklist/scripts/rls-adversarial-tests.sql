@@ -1,13 +1,14 @@
--- rls-adversarial-tests.sql — 5 adversarial test queries for Row Level Security.
+-- rls-adversarial-tests.sql — example RLS checks; adapt to the real schema.
 --
--- Copy this into your regression test suite (e.g. tests/security/rls.sql or
--- a Vitest test that runs these via Supabase client). Each query should FAIL
--- when RLS is working correctly. If any succeeds, your RLS is broken.
+-- Do not run UPDATE examples on production. A SELECT returning zero rows and
+-- an UPDATE affecting zero rows can be the expected result; SQL need not error.
+-- Audit actual grants, exposed schemas, roles and intended sharing separately.
 --
 -- Prerequisites:
 --   - Two test users: user_a (id: $UUID_A) and user_b (id: $UUID_B)
 --   - JWT tokens for each user (Supabase `supabase.auth.signInWithPassword`)
---   - Run as the `anon` role with user's JWT attached, NOT service_role
+--   - Run authenticated requests with each user's JWT, and anonymous requests
+--     without one. Never test through service_role/BYPASSRLS as an end user.
 
 -- =============================================================================
 -- Test 1: Cross-user SELECT
@@ -15,7 +16,7 @@
 -- =============================================================================
 -- Run as user_a:
 SELECT * FROM profiles WHERE user_id = '$UUID_B';
--- Expected: 0 rows. If any row returned, RLS SELECT policy is missing or broken.
+-- Expected: 0 rows for a private profile; allowed sharing needs a separate test.
 
 -- =============================================================================
 -- Test 2: Cross-user UPDATE
@@ -23,7 +24,7 @@ SELECT * FROM profiles WHERE user_id = '$UUID_B';
 -- =============================================================================
 -- Run as user_a:
 UPDATE profiles SET display_name = 'HACKED' WHERE user_id = '$UUID_B';
--- Expected: UPDATE 0. If "UPDATE 1", RLS UPDATE policy or WITH CHECK is broken.
+-- Expected: UPDATE 0 or access denied, for a non-shared private profile.
 
 -- =============================================================================
 -- Test 3: Privilege escalation — self-promotion to admin
@@ -31,9 +32,9 @@ UPDATE profiles SET display_name = 'HACKED' WHERE user_id = '$UUID_B';
 -- =============================================================================
 -- Run as user_a:
 UPDATE users SET role = 'admin' WHERE id = auth.uid();
--- Expected: UPDATE 0 (role column excluded from user's UPDATE policy) OR
--- policy rejects the update entirely. If "UPDATE 1", sensitive field is not
--- on the RLS WITH CHECK exclusion list. Add `role` to the blocked columns.
+-- Expected: UPDATE 0 or access denied. RLS WITH CHECK limits rows, not columns.
+-- Protect role with a separate privileged table or restricted UPDATE grants;
+-- verify that the stored value is unchanged even if the API returns success.
 
 -- =============================================================================
 -- Test 4: Anon role access
@@ -41,36 +42,32 @@ UPDATE users SET role = 'admin' WHERE id = auth.uid();
 -- =============================================================================
 -- Run as anon (no auth header):
 SELECT * FROM profiles LIMIT 10;
--- Expected: 0 rows. If rows returned, the table has a policy that lets anon
--- read. Review the USING clause of the SELECT policy.
+-- Expected: 0 rows or access denied for a private profile. A public table may
+-- intentionally return rows; judge against the intended authorization contract.
 
 -- =============================================================================
--- Test 5: Policy coverage audit
--- List all tables in the public schema that have ZERO RLS policies.
--- Any table in this list is a potential data leak.
+-- Test 5: RLS state and policy inventory (read-only)
+-- A policy may exist while RLS is disabled. Zero policies with RLS enabled
+-- means default deny, not automatic data exposure.
 -- =============================================================================
 SELECT
-  schemaname,
-  tablename,
-  CASE WHEN relrowsecurity THEN 'enabled' ELSE 'DISABLED' END AS rls_enabled,
-  CASE WHEN relforcerowsecurity THEN 'forced' ELSE 'NOT_FORCED' END AS rls_forced
-FROM pg_tables pt
-JOIN pg_class pc ON pc.relname = pt.tablename
-WHERE pt.schemaname = 'public'
-  AND pt.tablename NOT IN (
-    SELECT DISTINCT tablename FROM pg_policies WHERE schemaname = 'public'
-  )
-ORDER BY tablename;
--- Expected: 0 rows. Any listed table either (a) has RLS enabled but no
--- policies (blocks everything), or (b) has RLS disabled entirely. Case (b)
--- is a data leak. Case (a) is usually a mistake — you probably wanted at
--- least one SELECT policy.
+  n.nspname AS schema_name,
+  c.relname AS table_name,
+  c.relrowsecurity AS rls_enabled,
+  c.relforcerowsecurity AS force_owner_rls,
+  count(p.oid) AS policy_count
+FROM pg_class c
+JOIN pg_namespace n ON n.oid = c.relnamespace
+LEFT JOIN pg_policy p ON p.polrelid = c.oid
+WHERE n.nspname = 'public' AND c.relkind IN ('r', 'p')
+GROUP BY n.nspname, c.relname, c.relrowsecurity, c.relforcerowsecurity
+ORDER BY n.nspname, c.relname;
+-- Review every exposed row with rls_enabled=false and any unexpected grants.
 
 -- =============================================================================
 -- Bonus: JWT replay / forged claim test
 -- This is not a SQL query but a client-side check. Save a copy of an admin
--- JWT, then try to reuse it after the admin logs out. Expected: 401.
--- Also try modifying the JWT payload (via any JWT tool) to inject
--- {"role": "service_role"} and replay. Expected: 401 (Supabase rejects
--- unsigned or wrong-signature JWTs at the gateway).
+-- JWT, then check whether the application's revocation/expiry policy actually
+-- rejects it. Logout alone does not guarantee immediate JWT revocation.
+-- A payload modified without a valid signature must be rejected by the API.
 -- =============================================================================

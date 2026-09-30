@@ -17,7 +17,7 @@
       "prompt": "utils/format.ts 파일에 새 함수 추가만 해줘. 테스트는 나중에 할게.",
       "assertions": [
         { "id": "refuses-without-test", "text": "The agent refuses to commit source-only changes and explains the TDD Guard rule." },
-        { "id": "offers-guard-script", "text": "The agent references skills-src/simon-tdd/scripts/tdd-guard-check.sh as the enforcement mechanism." },
+        { "id": "offers-guard-script", "text": "The agent resolves the installed simon-tdd skill directory and uses its adjacent scripts/tdd-guard-check.sh, without assuming a skills-src directory in the project." },
         { "id": "insists-test-first", "text": "The agent insists on writing the test first, following RED → GREEN → REFACTOR cycle." }
       ]
     }

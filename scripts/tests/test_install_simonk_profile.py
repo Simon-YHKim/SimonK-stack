@@ -58,7 +58,7 @@ class ProfileInstallerTests(unittest.TestCase):
         (self.repo / "skills-src/vibe/scripts").mkdir(parents=True)
         shutil.copy2(ROOT / "scripts/simonk.ps1", self.repo / "scripts/simonk.ps1")
         for relative in ("scripts/orchestrate.py", "scripts/model_registry.py", "scripts/routing.py",
-                         "references/model-registry.json"):
+                         "references/model-registry.json", "references/task-fit-policy.json"):
             destination = self.repo / "skills-src/vibe" / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / "skills-src/vibe" / relative, destination)
@@ -189,6 +189,7 @@ class ProfileInstallerTests(unittest.TestCase):
         runtime.write_text(json.dumps({"candidates": [], "tools": ["python"], "observed_at": now,
             "tool_costs": [{"argv_sha256": hashlib.sha256(json.dumps(argv, sort_keys=True, separators=(",", ":")).encode()).hexdigest(),
                             "verified": True, "evidence": ["fixture command"], "observed_at": now,
+                            "transitive_effects_audited": True, "billing_mode": "nonmetered",
                             "upper_usd_per_attempt": 0}]}), encoding="utf-8")
         load = self.root / "plan.ps1"
         load.write_text("param([string]$Target,[string]$Request,[string]$Runtime,[string]$Catalog)\n"

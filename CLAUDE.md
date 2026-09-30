@@ -1,6 +1,6 @@
 # CLAUDE.md — Gstack-Ultraplan-Superpowers (simon-stack)
 
-Claude Code reads this file at session start. This is a **skill development repo** — the 132 skills here (skills-src 128 + dev 4) are shipped to downstream projects via the SessionStart hook. You are not building an app; you are curating a skill library.
+Claude Code reads this file at session start. This is a **skill development repo** — this branch has 137 `skills-src/` skills plus 4 development skills (141 source/development skills). The separately assembled five-plugin v23 candidate has 182 skills; neither count proves what is installed in a user profile. You are not building an app; you are curating a skill library.
 
 ## 🎯 작업 맥락
 
@@ -10,7 +10,7 @@ Claude Code reads this file at session start. This is a **skill development repo
 - **README·docs 유지보수**
 - **Instincts seed 갱신** (`.claude/instincts/`)
 
-앱 코드는 한 군데뿐입니다 — `apps/ai-usage-widget/`(2026-09-20 통합, 아래 "apps/" 절). 그 밖에는 *다른 프로젝트가 이 레포를 import 해서* 132개 skill 을 자동 장착하게 만드는 것이 목표.
+앱 코드는 한 군데뿐입니다 — `apps/ai-usage-widget/`(2026-09-20 통합, 아래 "apps/" 절). 그 밖에는 141개 소스·개발 스킬과 별도 5플러그인 후보를 관리하며, 다른 프로젝트에는 검증된 배포 절차로 스킬을 공급하는 것이 목표입니다.
 
 ## 📦 apps/ — 이 레포에 같이 사는 앱
 
@@ -106,7 +106,9 @@ LICENSE                        ← MIT + upstream credits
   - `"Use when..."` 으로 시작
   - 한국어 + 영어 트리거 문구 병기
   - 구체 사용자 구문 포함 ("새 앱 만들자", "debug this" 등)
-  - 400-900 자 사이, state the output
+  - 보통 160-280 자를 목표로 하되 필요한 선택 경계는 보존한다. 최소 글자 수를 채우려고 늘리지 않는다.
+  - 첫 문장에 고유 목적·트리거, 이어서 산출물과 중요한 제외 조건을 둔다. 절차·예시·모델 목록은 본문으로 유지한다.
+  - 설명 축약은 본문·권한·비용 가드 변경이 아니다. 중복 노출은 동일 패키지 확인 후 경로별 비활성화하고 파일은 보존한다.
 - **Commit**: Conventional Commits (`feat(skills):`, `fix(hook):`, `docs(readme):`, `chore:`, `test:`)
 - **Skill 이름**: kebab-case, ≤ 64 자, `claude`/`anthropic` 예약어 금지
 - **SKILL.md 본문**: < 500 줄 (400 에서 warning). 넘으면 `references/*.md` 로 분리 + TOC
@@ -130,7 +132,7 @@ SessionStart hook 이 매 세션 시작 시 이 블록 존재를 확인하고, �
 ### 작업 요청 방식
 - 광범위 요청 ("전체 skill 개선") → 작은 단위로 분해 후 사용자 확인
 - Plan 모드로 먼저 계획 수립 → 승인 후 실행
-- **이 레포 특이 사항**: tool call 마다 132개 skill description 이 system-reminder 로 반복되어 컨텍스트가 빠르게 쌓임. 따라서:
+- **이 레포 특이 사항**: 활성화된 스킬 description 이 컨텍스트에 많이 노출되면 빠르게 쌓일 수 있음. 초기 목록 축약은 본문 손실과 다르며, 설치 수는 현재 호스트에서 확인한다. 따라서:
   - Bash 호출 **최소화** — 여러 작업을 하나의 Bash 로 배치
   - `python3 <<PY ... PY` heredoc 으로 여러 파일 생성 batch 처리
   - Write tool 이 Bash 보다 reminder 가 적음 — 복잡 content 는 Write 선호

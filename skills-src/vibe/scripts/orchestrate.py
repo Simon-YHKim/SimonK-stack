@@ -7,6 +7,7 @@ ready nodes, and verifies results. Prices/model IDs are inputs, not hidden defau
 from __future__ import annotations
 
 import argparse
+import base64
 import copy
 import hashlib
 import importlib.util
@@ -25,6 +26,10 @@ DEMAND_TIER = {"routine": 1, "reasoning": 2, "critical": 3}
 # Task semantics only. Models, scoring, effort and money stay in central policy.
 # model-router documents this contract; offline tests bind the mirror to it.
 TASK_TYPE_MAP = {
+    "PLAN_ARCHITECTURE": {"kind": "llm", "needs": ["reasoning"], "demand": "reasoning", "proc": "research-deep", "class": "B"},
+    "CODE_COMPLEX": {"kind": "llm", "needs": ["code", "reasoning"], "demand": "reasoning", "proc": "coding", "class": "B"},
+    "CODE_SIMPLE": {"kind": "llm", "needs": ["code"], "demand": "routine", "proc": "coding", "class": "B"},
+    "WRITING": {"kind": "llm", "needs": ["writing"], "demand": "reasoning", "proc": "research-deep", "class": "B"},
     "CODE_NEW": {"kind": "llm", "needs": ["code"], "demand": "reasoning", "proc": "coding", "class": "B"},
     "CODE_FIX": {"kind": "llm", "needs": ["code"], "demand": "reasoning", "proc": "coding", "class": "B"},
     "CODE_REVIEW": {"kind": "llm", "needs": ["code", "reasoning"], "demand": "reasoning", "proc": "claim-verify", "class": "A-verify"},
@@ -36,10 +41,20 @@ TASK_TYPE_MAP = {
     "BULK_LIGHT": {"kind": "llm", "needs": ["reasoning"], "demand": "routine", "proc": "bulk-transform", "class": "A"},
     "REASONING_ABSTRACT": {"kind": "llm", "needs": ["reasoning"], "demand": "critical", "proc": "research-deep", "class": "B"},
     "VISION": {"kind": "llm", "needs": ["vision"], "demand": "reasoning", "proc": "ui-visual", "class": "C-platform"},
+    # Image output needs a dedicated tool transport; text-model vision cannot satisfy it.
+    "IMAGE_GENERATION": {"kind": "image", "needs": ["image_generation"], "demand": "routine", "proc": "ui-visual", "class": "C-platform"},
 }
+# Effort demand and capability quality are different axes. A short coding task
+# can use low reasoning without admitting an unproven low-quality model.
+TASK_QUALITY_FLOOR = {"CODE_SIMPLE": 2, "CODE_COMPLEX": 3}
 ORCHESTRATORS = {"vibe", "simonk", "app-dev-orchestrator", "dev-orchestrator"}
 SCRIPT_ROOT = Path(__file__).resolve().parent
+TASK_FIT_PATH = SCRIPT_ROOT.parent / "references" / "task-fit-policy.json"
 DEFAULT_TTL = 900  # Refresh availability, price quotes and quota before dispatch.
+# Direct CLI inspection of a receipt-bound candidate must not create an
+# unreceipted __pycache__ member and invalidate the bundle after the read.
+if __name__ == "__main__":
+    sys.dont_write_bytecode = True
 if str(SCRIPT_ROOT) not in sys.path:
     sys.path.insert(0, str(SCRIPT_ROOT))
 from model_registry import constrain_runtime, load_registry
@@ -74,6 +89,111 @@ def fresh(observed, now, ttl=DEFAULT_TTL):
         return 0 <= (instant(now) - instant(observed)).total_seconds() <= ttl
     except (TypeError, ValueError, AttributeError):
         return False
+
+
+def validate_task_fit_policy(policy):
+    """Validate a dated, source-bound hypothesis; it never authorizes dispatch."""
+    required = {"schema_version", "version", "status", "checked_at", "valid_until",
+                "sources", "profiles"}
+    if (not isinstance(policy, dict) or not required <= set(policy)
+            or set(policy) - required - {"notes"}
+            or type(policy["schema_version"]) is not int or policy["schema_version"] != 1
+            or policy["status"] != "shadow-only"
+            or not isinstance(policy["version"], str) or not policy["version"]):
+        raise ValueError("Invalid task-fit policy envelope")
+    start, end = instant(policy["checked_at"]), instant(policy["valid_until"])
+    if not start < end <= start + timedelta(days=14):
+        raise ValueError("Invalid task-fit policy validity")
+    sources = policy["sources"]
+    if (not isinstance(sources, dict) or not sources
+            or any(not isinstance(k, str) or not isinstance(v, str)
+                   or not v.startswith("https://") or any(ch.isspace() for ch in v)
+                   for k, v in sources.items())):
+        raise ValueError("Invalid task-fit sources")
+    profiles = policy["profiles"]
+    allowed = {"PLAN_ARCHITECTURE", "CODE_COMPLEX", "CODE_SIMPLE", "WRITING"}
+    efforts = {"none", "low", "medium", "high", "xhigh", "max"}
+    if not isinstance(profiles, dict) or not profiles or not set(profiles) <= allowed:
+        raise ValueError("Invalid task-fit profiles")
+    for entries in profiles.values():
+        if not isinstance(entries, list) or not entries:
+            raise ValueError("Empty task-fit profile")
+        seen = set()
+        for entry in entries:
+            if (not isinstance(entry, dict) or set(entry) != {"model", "efforts", "rank", "sources"}
+                    or not isinstance(entry["model"], str) or not entry["model"].strip()
+                    or type(entry["rank"]) is not int or not 0 <= entry["rank"] <= 9
+                    or not isinstance(entry["efforts"], list) or not entry["efforts"]
+                    or any(not isinstance(e, str) for e in entry["efforts"])
+                    or not set(entry["efforts"]) <= efforts
+                    or len(entry["efforts"]) != len(set(entry["efforts"]))
+                    or not isinstance(entry["sources"], list) or not entry["sources"]
+                    or any(not isinstance(source, str) for source in entry["sources"])
+                    or not set(entry["sources"]) <= set(sources)):
+                raise ValueError("Invalid task-fit entry")
+            for effort in entry["efforts"]:
+                key = (entry["model"], effort)
+                if key in seen:
+                    raise ValueError("Duplicate task-fit model/effort")
+                seen.add(key)
+    return policy
+
+
+def load_task_fit_policy(path=None):
+    def unique_keys(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError("Duplicate task-fit policy key")
+            result[key] = value
+        return result
+    return validate_task_fit_policy(json.loads(Path(path or TASK_FIT_PATH).read_text(encoding="utf-8"),
+                                               object_pairs_hook=unique_keys))
+
+
+def shadow_task_fit(step, choices, active, fit_policy, now):
+    """Show the advisory alternative after eligibility, without changing selection."""
+    task_type = step.get("task_type")
+    if task_type not in fit_policy["profiles"]:
+        return None
+    result = {"policy_version": fit_policy["version"], "policy_sha256": digest(fit_policy),
+              "evidence_scope": "public-advisory-not-host-validation",
+              "active_candidate_id": active["id"], "suggested_candidate_id": None,
+              "would_change": False}
+    instant_now = instant(now)
+    if instant_now < instant(fit_policy["checked_at"]):
+        result["status"] = "not-yet-effective"
+        return result
+    if instant_now > instant(fit_policy["valid_until"]):
+        result["status"] = "expired"
+        return result
+    ranks = {}
+    for entry in fit_policy["profiles"][task_type]:
+        for effort in entry["efforts"]:
+            ranks[(entry["model"], effort)] = entry
+    scored = []
+    match_count = 0
+    for _, candidate, effort, amount in choices:
+        exact_model = candidate.get("resolved_model") or candidate.get("model")
+        entry = ranks.get((exact_model, effort))
+        match_count += entry is not None
+        score = (amount, candidate["quota"]["used_pct"] > 80,
+                 entry["rank"] if entry is not None else 99,
+                 candidate["resource_rank"], candidate["quota"]["used_pct"], candidate["id"])
+        scored.append((score, candidate, effort, entry))
+    if not match_count:
+        result["status"] = "no-matched-evidence"
+        return result
+    _, suggested, effort, entry = min(scored, key=lambda item: item[0])
+    if entry is None:
+        result["status"] = "unranked-wins"
+        return result
+    result.update(status="ranked", suggested_candidate_id=suggested["id"],
+                  suggested_model=suggested.get("resolved_model") or suggested.get("model"),
+                  suggested_effort=effort, advisory_rank=entry["rank"],
+                  source_urls=[fit_policy["sources"][key] for key in entry["sources"]],
+                  would_change=suggested["id"] != active["id"])
+    return result
 
 
 # Bounds apply to metadata collection only; no recursive package/body imports.
@@ -330,12 +450,130 @@ def candidate_inventory(exclude_roots=(), host_skills=None):
         return data
 
     checked("plugins/SimonKCore/skills/vibe/scripts/orchestrate.py")
+    # A Codex overlay intentionally changes one SKILL.md; bind that exception
+    # to its original bundle bytes and exact projection before inventory.
+    overlay = None
+    overlay_bytes = None
+    overlay_path = local("overlay.json")
+    if overlay_path.exists():
+        overlay_bytes = raw("overlay.json", 8 * 1024 * 1024)
+        overlay = decode(overlay_bytes)
+        zoom_path = "plugins/SimonKStack/skills/zoom-out/SKILL.md"
+        policy_path = "plugins/SimonKStack/skills/zoom-out/agents/openai.yaml"
+        projected_paths = {f"plugins/{owner}/.codex-plugin/plugin.json" for owner in owners}
+        projected_paths.update((zoom_path, policy_path))
+        if (not isinstance(overlay, dict)
+                or set(overlay) != {"schema_version", "scope", "candidate_digest",
+                                    "replacement_originals", "generated",
+                                    "host_compatibility_verified", "installation_ready", "limitations"}
+                or type(overlay["schema_version"]) is not int or overlay["schema_version"] != 2
+                or overlay["scope"] != "five-plugin-codex-compat-overlay-v2"
+                or overlay["candidate_digest"] != hashlib.sha256(receipt_bytes).hexdigest()
+                or overlay["host_compatibility_verified"] is not False
+                or overlay["installation_ready"] is not False
+                or not isinstance(overlay["limitations"], list)
+                or not isinstance(overlay["replacement_originals"], dict)
+                or set(overlay["replacement_originals"]) != {zoom_path}
+                or not isinstance(overlay["generated"], dict)
+                or set(overlay["generated"]) != projected_paths
+                or zoom_path not in members):
+            raise ValueError("Invalid Codex discovery overlay")
+        encoded_original = overlay["replacement_originals"][zoom_path]
+        if not isinstance(encoded_original, str):
+            raise ValueError("Invalid Codex discovery provenance")
+        try:
+            original_zoom = base64.b64decode(encoded_original, validate=True)
+        except ValueError as exc:
+            raise ValueError("Invalid Codex discovery provenance") from exc
+        if (base64.b64encode(original_zoom).decode("ascii") != encoded_original
+                or len(original_zoom) != members[zoom_path]["size"]
+                or hashlib.sha256(original_zoom).hexdigest() != members[zoom_path]["sha256"]):
+            raise ValueError("Codex discovery provenance differs")
+        manual_flag = b"disable-model-invocation: true\n"
+        frontmatter_end = original_zoom.find(b"\n---\n", 4)
+        if (not original_zoom.startswith(b"---\n") or frontmatter_end < 0
+                or original_zoom.count(manual_flag) != 1
+                or original_zoom.find(manual_flag) > frontmatter_end
+                or raw(zoom_path, MAX_SKILL_BYTES) != original_zoom.replace(manual_flag, b"", 1)
+                or raw(policy_path, MAX_SKILL_BYTES)
+                != (b"interface:\n  display_name: Zoom Out\n"
+                    b"  short_description: One-layer-up code map on explicit request.\n"
+                    b"policy:\n  allow_implicit_invocation: false\n")):
+            raise ValueError("Codex discovery projection differs")
+        for path, spec in overlay["generated"].items():
+            if (not isinstance(spec, dict) or set(spec) != {"sha256", "size"}
+                    or not isinstance(spec["sha256"], str)
+                    or not re.fullmatch(r"[a-f0-9]{64}", spec["sha256"])
+                    or type(spec["size"]) is not int or not 0 <= spec["size"] <= MAX_SKILL_BYTES):
+                raise ValueError("Invalid Codex discovery member")
+            data = raw(path, MAX_SKILL_BYTES)
+            if len(data) != spec["size"] or hashlib.sha256(data).hexdigest() != spec["sha256"]:
+                raise ValueError("Codex discovery member drift")
+    # The D-29 Codex subset omits Claude-only safety controls. Accept those
+    # omissions only when the exact source-overlay membership is receipted;
+    # an arbitrary missing skill must never become a successful discovery.
+    subset = None
+    subset_bytes = None
+    excluded_skills = (("SimonKCore", "careful"), ("SimonKStack", "freeze"),
+                       ("SimonKStack", "guard"), ("SimonKStack", "investigate"),
+                       ("SimonKCore", "unfreeze"))
+    excluded_names = set()
+    subset_path = local("subset.json")
+    if subset_path.exists():
+        if overlay_bytes is None:
+            raise ValueError("Codex subset requires a verified overlay")
+        subset_bytes = raw("subset.json", 8 * 1024 * 1024)
+        subset = decode(subset_bytes)
+        prefixes = (tuple(f"plugins/{owner}/skills/{name}/" for owner, name in excluded_skills)
+                    + tuple(f"plugins/{owner}/.simonk-runtime/"
+                            for owner in ("SimonKCore", "SimonKStack")))
+        required = (tuple(f"plugins/{owner}/skills/{name}/SKILL.md"
+                          for owner, name in excluded_skills)
+                    + tuple(f"plugins/{owner}/.simonk-runtime/safety_runtime.py"
+                            for owner in ("SimonKCore", "SimonKStack")))
+        if (any(receipt["owners"].get(name) != owner for owner, name in excluded_skills)
+                or any(path not in members for path in required)
+                or any(local(prefix[:-1]).exists() for prefix in prefixes)):
+            raise ValueError("Codex subset safety exclusion differs")
+        specs = {path: {"path": path, "sha256": row["sha256"], "size": row["size"]}
+                 for path, row in members.items()}
+        specs.update({path: {"path": path, "sha256": row["sha256"], "size": row["size"]}
+                      for path, row in overlay["generated"].items()})
+        for path, data in (("bundle.json", receipt_bytes), ("overlay.json", overlay_bytes)):
+            specs[path] = {"path": path, "sha256": hashlib.sha256(data).hexdigest(),
+                           "size": len(data)}
+        omitted = {path for path in specs if path.startswith(prefixes)}
+        included = [specs[path] for path in sorted(specs.keys() - omitted)]
+        excluded = [specs[path] for path in sorted(omitted)]
+        expected_keys = {"schema_version", "scope", "decision_ref", "source_overlay_digest",
+                         "excluded_skills", "included_members", "excluded_members",
+                         "host_compatibility_verified", "installation_ready", "limitations"}
+        if (not isinstance(subset, dict) or set(subset) != expected_keys
+                or type(subset["schema_version"]) is not int or subset["schema_version"] != 1
+                or subset["scope"] != "five-plugin-codex-general-skills-only-v2"
+                or subset["decision_ref"] != "D-29"
+                or subset["source_overlay_digest"] != hashlib.sha256(overlay_bytes).hexdigest()
+                or subset["excluded_skills"]
+                != [f"simonk-{owner.removeprefix('SimonK').lower()}:{name}"
+                    for owner, name in excluded_skills]
+                or subset["included_members"] != included
+                or subset["excluded_members"] != excluded
+                or subset["host_compatibility_verified"] is not False
+                or subset["installation_ready"] is not False
+                or not isinstance(subset["limitations"], list)
+                or any(not isinstance(item, str) for item in subset["limitations"])):
+            raise ValueError("Invalid Codex discovery subset")
+        excluded_names = {name for _, name in excluded_skills}
     expected_skills, roots = {}, []
     for name, owner in receipt["owners"].items():
         if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", name) or owner not in owners:
             raise ValueError("Invalid candidate skill ownership")
         member = f"plugins/{owner}/skills/{name}/SKILL.md"
-        expected_skills[str(local(member))] = (name, members[member]["sha256"])
+        if name in excluded_names:
+            continue
+        expected_sha = (overlay["generated"][member]["sha256"]
+                        if overlay is not None and member == zoom_path else members[member]["sha256"])
+        expected_skills[str(local(member))] = (name, expected_sha)
     for owner in owners:
         names = {n for n, o in receipt["owners"].items() if o == owner}
         manifest = decode(checked(f"plugins/{owner}/.claude-plugin/plugin.json"))
@@ -345,7 +583,7 @@ def candidate_inventory(exclude_roots=(), host_skills=None):
             raise ValueError("Candidate manifest membership mismatch")
         root = local(f"plugins/{owner}/skills")
         children = list(islice(root.iterdir(), MAX_SKILL_ENTRIES + 1))
-        if len(children) > MAX_SKILL_ENTRIES or {p.name for p in children} != names:
+        if len(children) > MAX_SKILL_ENTRIES or {p.name for p in children} != names - excluded_names:
             raise ValueError("Candidate physical skill membership mismatch")
         roots.append(root)
     inventory = skill_inventory(roots, exclude_roots, host_skills)
@@ -357,6 +595,16 @@ def candidate_inventory(exclude_roots=(), host_skills=None):
         "scope": receipt["scope"], "hash_scope": "planner, plugin manifests and SKILL.md only",
         "installation_verified": False,
     }
+    if overlay_bytes is not None:
+        inventory["catalog"].discovery["overlay"] = {
+            "path": str(overlay_path), "sha256": hashlib.sha256(overlay_bytes).hexdigest(),
+            "scope": overlay["scope"], "installation_verified": False,
+        }
+    if subset_bytes is not None:
+        inventory["catalog"].discovery["subset"] = {
+            "path": str(subset_path), "sha256": hashlib.sha256(subset_bytes).hexdigest(),
+            "scope": subset["scope"], "installation_verified": False,
+        }
     return inventory
 
 
@@ -420,6 +668,12 @@ def compile_task_type(node):
             or DEMAND_TIER[demand] < DEMAND_TIER[contract["demand"]]):
         raise ValueError("task_type demand floor cannot be weakened")
     result["demand"] = demand
+    if name in TASK_QUALITY_FLOOR:
+        minimum = TASK_QUALITY_FLOOR[name]
+        quality_floor = result.get("quality_floor", minimum)
+        if type(quality_floor) is not int or not minimum <= quality_floor <= 3:
+            raise ValueError("task_type quality floor cannot be weakened")
+        result["quality_floor"] = quality_floor
     needs = result.get("needs", contract["needs"])
     if (not isinstance(needs, list) or any(not isinstance(n, str) or not n for n in needs)
             or not set(contract["needs"]) <= set(needs)):
@@ -451,6 +705,53 @@ def ordered_steps(steps):
     return ordered
 
 
+def requires_review(node):
+    """Writing output needs review even when it does not edit a file."""
+    return bool(node.get("writes")) or node.get("task_type") == "WRITING"
+
+
+DEBATE_ROLES = ("proposer", "challenger", "proposer_rebuttal", "challenger_rebuttal", "judge")
+
+
+def debate_contract(value, nodes):
+    """A debate is five distinct executable nodes, not five simulated voices."""
+    if value is None:
+        return None
+    if not isinstance(value, dict) or set(value) != set(DEBATE_ROLES):
+        raise ValueError("Debate requires the five exact roles")
+    ids = [value[role] for role in DEBATE_ROLES]
+    if any(not isinstance(i, str) for i in ids) or len(set(ids)) != len(ids):
+        raise ValueError("Debate roles require distinct node IDs")
+    by_id = {n["id"]: n for n in nodes}
+    if any(i not in by_id or by_id[i]["kind"] != "llm" for i in ids):
+        raise ValueError("Debate roles require existing LLM nodes")
+    openings = {value["proposer"], value["challenger"]}
+    for role in ("proposer_rebuttal", "challenger_rebuttal"):
+        if not openings <= set(by_id[value[role]].get("depends_on", [])):
+            raise ValueError("Each rebuttal must depend on both opening positions")
+    rebuttals = {value["proposer_rebuttal"], value["challenger_rebuttal"]}
+    if not rebuttals <= set(by_id[value["judge"]].get("depends_on", [])):
+        raise ValueError("The separate judge must depend on both rebuttals")
+    return copy.deepcopy(value)
+
+
+def debate_route_errors(debate, by_id):
+    if debate is None:
+        return []
+    routes = {role: (by_id[node_id].get("route") or {}) for role, node_id in debate.items()}
+    if any(not route for route in routes.values()):
+        return ["DEBATE_ROUTE_UNAVAILABLE"]
+    errors = []
+    if routes["proposer"]["vendor"] == routes["challenger"]["vendor"]:
+        errors.append("DEBATE_REQUIRES_TWO_VENDORS")
+    for opening, rebuttal in (("proposer", "proposer_rebuttal"),
+                             ("challenger", "challenger_rebuttal")):
+        if (routes[opening]["surface"], routes[opening]["billing"]["account_ref"]) != (
+                routes[rebuttal]["surface"], routes[rebuttal]["billing"]["account_ref"]):
+            errors.append("DEBATE_REBUTTAL_ROUTE_MISMATCH")
+    return sorted(set(errors))
+
+
 def assess_candidate(c, step, policy, now, producer_vendor=None):
     errors = list(c.get("registry_errors", []))
     for binding in step.get("skill_bindings", []):
@@ -475,7 +776,8 @@ def assess_candidate(c, step, policy, now, producer_vendor=None):
         errors.append("RUNTIME_STALE")
     if not set(step.get("needs", [])) <= set(c.get("capabilities", [])):
         errors.append("CAPABILITY_MISMATCH")
-    floor = max(DEMAND_TIER[demand], 2 if policy["mode"] == "quality" else 1)
+    floor = max(DEMAND_TIER[demand], step.get("quality_floor", 1),
+                2 if policy["mode"] == "quality" else 1)
     tier, rank = c.get("quality_tier"), c.get("resource_rank")
     if type(tier) is not int or not 1 <= tier <= 3 or tier < floor:
         errors.append("QUALITY_FLOOR")
@@ -486,7 +788,10 @@ def assess_candidate(c, step, policy, now, producer_vendor=None):
     if step["kind"] == "gui":
         if surface != "grok-bot" or c.get("transport") != "bot":
             errors.append("GUI_REQUIRES_BOT")
-        if not re.match(r"^active(?:\s|$)", c.get("bot_status", ""), re.IGNORECASE) or not c.get("bot_id"):
+        status = c.get("bot_status")
+        # Roster prose such as "active - reported ... live access unverified"
+        # is not a fresh observation of an executable Bot profile.
+        if not isinstance(status, str) or status.strip().lower() != "active" or not c.get("bot_id"):
             errors.append("BOT_INACTIVE")
         effort = None  # Grok Bot has no verified model/effort control surface.
     else:
@@ -507,11 +812,29 @@ def assess_candidate(c, step, policy, now, producer_vendor=None):
     if billing.get("verified") is not True:
         errors.append("BILLING_UNVERIFIED")
     elif billing.get("mode") == "subscription":
+        included_key = "bot_usage_included" if surface == "grok-bot" else "model_included"
         if billing.get("extra_usage_enabled") is not False:
             errors.append("OVERAGE_UNVERIFIED")
-        else:
+        included = billing.get(included_key) is True
+        if surface != "grok-bot":
+            included = included and billing.get("included_model") == (c.get("resolved_model") or c.get("model"))
+        if not included:
+            errors.append("BOT_USAGE_INCLUSION_UNVERIFIED" if surface == "grok-bot"
+                          else "MODEL_INCLUSION_UNVERIFIED")
+        if billing.get("api_fallback_disabled") is not True:
+            errors.append("API_FALLBACK_UNVERIFIED")
+        credit_fallback_safe = (surface not in {"codex", "grok", "grok-bot"}
+                                or billing.get("paid_credit_fallback_disabled") is True)
+        if not credit_fallback_safe:
+            errors.append("PAID_CREDIT_FALLBACK_UNVERIFIED")
+        if (billing.get("extra_usage_enabled") is False
+                and included
+                and billing.get("api_fallback_disabled") is True
+                and credit_fallback_safe):
             upper = Decimal(0)  # Incremental bill only; subscription usage is separate.
     elif billing.get("mode") in ("api", "metered"):
+        if money(policy["approved_usd"]) == 0:
+            errors.append("SUBSCRIPTION_ONLY")
         try:
             upper = money(c.get("upper_usd_per_attempt"))
         except ValueError:
@@ -519,6 +842,14 @@ def assess_candidate(c, step, policy, now, producer_vendor=None):
     else:
         errors.append("BILLING_UNVERIFIED")
     quota = c.get("quota", {})
+    if surface in {"grok", "grok-bot"} and (
+            quota.get("surface") != surface
+            or quota.get("transport") != c.get("transport")
+            or quota.get("account_ref") != account_ref
+            or quota.get("state") != "observed"
+            or not isinstance(quota.get("evidence"), str)
+            or not quota["evidence"].strip()):
+        errors.append("QUOTA_BINDING_UNVERIFIED")
     used = quota.get("used_pct")
     if isinstance(used, bool) or not isinstance(used, (int, float)) or not 0 <= used <= 100:
         errors.append("QUOTA_UNKNOWN")
@@ -561,9 +892,10 @@ def _legacy_validation(nodes, runtime):
     return [] if ok else ["ORCA_" + v for v in violations]
 
 
-def make_plan(request, catalog, runtime, now=None, registry=None):
+def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_policy=None):
     now = now or datetime.now(timezone.utc).isoformat()
     instant(now)
+    fit_policy = validate_task_fit_policy(task_fit_policy) if task_fit_policy is not None else load_task_fit_policy()
     runtime = constrain_runtime(runtime, registry if registry is not None else load_registry(), now)
     budget = request.get("budget", {})
     policy = {"mode": budget.get("mode", "balanced"),
@@ -582,6 +914,7 @@ def make_plan(request, catalog, runtime, now=None, registry=None):
             or any(not isinstance(name, str) or not name.strip() for name in ancestors)):
         raise ValueError("ancestor_skills must be a list of nonempty skill names")
     nodes = ordered_steps([compile_task_type(s) for s in request.get("steps", [])])
+    debate = debate_contract(request.get("debate"), nodes)
     candidates = runtime.get("candidates", [])
     candidate_ids = [c.get("id") for c in candidates]
     if len(set(candidate_ids)) != len(candidate_ids) or any(not i for i in candidate_ids):
@@ -597,8 +930,12 @@ def make_plan(request, catalog, runtime, now=None, registry=None):
         s["route"], s["handoff"] = None, None
         s["skill_paths"] = []
         s["skill_bindings"] = []
-        if s.get("kind") not in ("local", "llm", "gui") or s.get("demand", "routine") not in DEMAND_TIER:
+        if (s.get("kind") not in ("local", "llm", "gui", "image")
+                or (s["kind"] == "image" and s.get("task_type") != "IMAGE_GENERATION")
+                or s.get("demand", "routine") not in DEMAND_TIER):
             raise ValueError("Invalid step kind or demand")
+        if type(s.get("quality_floor", 1)) is not int or not 1 <= s.get("quality_floor", 1) <= 3:
+            raise ValueError("quality_floor must be an integer from 1 to 3")
         for name in s.get("skills", []):
             item = catalog.get(name)
             if (name in ancestor_names or (item and (item.get("canonical_name", name) in ancestor_names
@@ -625,11 +962,16 @@ def make_plan(request, catalog, runtime, now=None, registry=None):
                 errors.append("GUI_TARGET_REQUIRED")
             if "vibe-bot" not in s.get("skills", []):
                 errors.append("BOT_SKILL_REQUIRED")
+        if s["kind"] == "image":
+            # There is no guarded, subscription-included image adapter yet.
+            # Preserve the typed task in a blocked plan instead of raising or
+            # ever misrouting it through an LLM/local-command candidate.
+            errors.append("IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL")
         parent = by_id.get(s.get("verify_of"))
         vendor = (parent.get("route") or {}).get("vendor") if parent else None
         if parent and not parent.get("route"):
             errors.append("PRODUCER_UNROUTED")
-        if s.get("writes") and not any(n.get("verify_of") == s["id"] and n.get("kind") == "llm" for n in nodes):
+        if requires_review(s) and not any(n.get("verify_of") == s["id"] and n.get("kind") == "llm" for n in nodes):
             errors.append("MISSING_REVIEW")
         if s["kind"] == "local":
             argv = s.get("argv")
@@ -647,9 +989,25 @@ def make_plan(request, catalog, runtime, now=None, registry=None):
                     errors.append("LOCAL_COST_UNVERIFIED")
                 else:
                     try:
-                        local_upper = money(quote.get("upper_usd_per_attempt")) * policy["max_attempts"]
+                        per_attempt = money(quote.get("upper_usd_per_attempt"))
                     except ValueError:
                         errors.append("LOCAL_COST_UNVERIFIED")
+                    else:
+                        # The host must audit nested effects; a zero quote alone is not a free-tool certificate.
+                        if quote.get("transitive_effects_audited") is not True:
+                            errors.append("LOCAL_EFFECTS_UNVERIFIED")
+                        billing_mode = quote.get("billing_mode")
+                        if billing_mode == "nonmetered":
+                            if per_attempt != 0:
+                                errors.append("LOCAL_BILLING_UNVERIFIED")
+                        elif billing_mode == "metered":
+                            if per_attempt == 0:
+                                errors.append("LOCAL_BILLING_UNVERIFIED")
+                            if money(policy["approved_usd"]) == 0:
+                                errors.append("SUBSCRIPTION_ONLY")
+                        else:
+                            errors.append("LOCAL_BILLING_UNVERIFIED")
+                        local_upper = per_attempt * policy["max_attempts"]
             if not errors:
                 reserved += local_upper
                 s["route"] = {"surface": "local", "transport": "tool", "model": None,
@@ -671,6 +1029,9 @@ def make_plan(request, catalog, runtime, now=None, registry=None):
                 errors.append("NO_ELIGIBLE_ROUTE")
             else:
                 _, c, effort, amount = min(choices, key=lambda v: v[0])
+                shadow = shadow_task_fit(s, choices, c, fit_policy, now)
+                if shadow is not None:
+                    s["shadow_task_fit"] = shadow
                 reserved += amount
                 s["route"] = {"candidate_id": c["id"], "surface": c["surface"],
                               "vendor": SURFACES[c["surface"]], "transport": c["transport"],
@@ -702,6 +1063,7 @@ def make_plan(request, catalog, runtime, now=None, registry=None):
         by_id[s["id"]] = s
     total = reserved + money(policy["spent_usd"]) + money(policy["external_reserved_usd"])
     global_errors = _legacy_validation(nodes, runtime)
+    global_errors.extend(debate_route_errors(debate, by_id))
     if total > money(policy["approved_usd"]):
         global_errors.append("RUN_BUDGET_EXCEEDED")
     policy.update({"reserved_upper_usd": float(reserved), "committed_upper_usd": float(total),
@@ -712,6 +1074,8 @@ def make_plan(request, catalog, runtime, now=None, registry=None):
             "planned_at": now, "status": "blocked" if global_errors or any(s["errors"] for s in nodes) else "ready",
             "errors": global_errors, "budget": policy, "steps": nodes,
             "model_registry": runtime["model_registry"]}
+    if debate is not None:
+        result["debate"] = debate
     if getattr(catalog, "discovery", None) is not None:
         result["discovery"] = copy.deepcopy(catalog.discovery)
     result["plan_digest"] = digest(result)
@@ -764,7 +1128,7 @@ def ready_steps(plan, events, now=None):
         if not set(node.get("depends_on", [])) <= done:
             return False
         for dependency in ancestors(node):
-            if not by_id[dependency].get("writes") or node.get("verify_of") == dependency:
+            if not requires_review(by_id[dependency]) or node.get("verify_of") == dependency:
                 continue  # Reviewers need the producer's output before approval.
             reviewers = {s["id"] for s in plan["steps"]
                          if s.get("kind") == "llm" and s.get("verify_of") == dependency}

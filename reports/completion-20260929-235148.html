@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Claude·Codex 교차 선택 평가 — 단위 완료</title>
+<style>
+:root{color-scheme:light dark;--bg:#f7f8fb;--card:#fff;--text:#17212d;--muted:#526273;--accent:#245fc2;--line:#d6dfe9}
+@media(prefers-color-scheme:dark){:root{--bg:#10151c;--card:#19212c;--text:#edf3fb;--muted:#b0c0d0;--accent:#86b4ff;--line:#3d4b5c}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 system-ui,sans-serif}main{max-width:900px;margin:auto;padding:24px}h1{font-size:1.6rem;margin:.3em 0}h2{font-size:1.1rem;margin:1.5em 0 .5em}.meta,small{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:10px 0}.value{font-size:1.6rem;font-weight:700;color:var(--accent)}.toolbar{display:flex;gap:8px;flex-wrap:wrap}.toolbar button,summary{border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);padding:7px 12px;cursor:pointer}.toolbar button[aria-pressed=true]{outline:2px solid var(--accent)}details{margin-top:12px}summary{display:inline-block}table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line)}a{color:var(--accent)}body:not(.en) .en,body.en .ko,body:not(.expert) .expert,body.expert .easy{display:none}svg{max-width:100%;height:auto}svg text{fill:var(--text);font:13px system-ui,sans-serif}
+</style></head>
+<body class="ko easy"><main>
+<div class="toolbar" aria-label="Report display controls"><button type="button" data-lang="ko" aria-pressed="true" onclick="setLang('ko')">한국어</button><button type="button" data-lang="en" aria-pressed="false" onclick="setLang('en')">English</button><button type="button" data-mode="easy" aria-pressed="true" onclick="setMode('easy')"><span class="ko">쉬운 설명</span><span class="en">Simple</span></button><button type="button" data-mode="expert" aria-pressed="false" onclick="setMode('expert')"><span class="ko">전문가</span><span class="en">Expert</span></button></div>
+<h1><span class="ko">Claude·Codex 교차 선택 평가</span><span class="en">Claude–Codex selection comparison</span></h1>
+<p class="meta">SimonKStack · 2026-09-29 23:51:48 KST · <span class="ko">평가기 단위 완료, 실제 호스트 성능 검증 대기</span><span class="en">Evaluator unit complete; live host performance remains unverified</span></p>
+<div class="grid">
+<div class="card"><span class="ko">교차 평가기</span><span class="en">Paired evaluator</span><div class="value">완료 / Done</div></div>
+<div class="card"><span class="ko">관련 테스트</span><span class="en">Focused tests</span><div class="value">31/31</div></div>
+<div class="card"><span class="ko">전체 스크립트 테스트</span><span class="en">Script suite</span><div class="value">361</div><small><span class="ko">성공, 3개 건너뜀</span><span class="en">Passed, 3 skipped</span></small></div>
+<div class="card"><span class="ko">실제 호스트 관측</span><span class="en">Native observations</span><div class="value">대기 / Pending</div></div>
+</div>
+<h2><span class="ko">비교 경계</span><span class="en">Comparison boundary</span></h2>
+<div class="card"><svg viewBox="0 0 780 112" role="img" aria-label="호스트별 관측 입력에서 선택 비교까지 완료; 실제 성능 검증은 별도 대기">
+<rect x="10" y="25" width="208" height="58" rx="10" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="114" y="59" text-anchor="middle">Claude · Codex 기록</text>
+<path d="M218 54 H286" stroke="var(--muted)" stroke-width="2"/><path d="M286 54 l-9 -5 v10z" fill="var(--muted)"/>
+<rect x="288" y="25" width="208" height="58" rx="10" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="392" y="59" text-anchor="middle">선택 정답 비교</text>
+<path d="M496 54 H564" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 4"/><path d="M564 54 l-9 -5 v10z" fill="var(--muted)"/>
+<rect x="566" y="25" width="208" height="58" rx="10" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 4"/><text x="670" y="59" text-anchor="middle">실제 성능 검증 대기</text>
+</svg></div>
+<div class="card"><strong><span class="ko">왜 만들었나</span><span class="en">Why it exists</span></strong>: <span class="ko">두 호스트 중 한쪽에서 스킬 선택이 나빠지는 일을 찾아내기 위해서입니다.</span><span class="en">To detect when one host selects skills less reliably than the other.</span>
+<details><summary><span class="ko">자세히</span><span class="en">Details</span></summary>
+<p class="ko easy">같은 부탁을 두 환경에서 해 보고, 둘 다 알맞은 스킬을 고르는지 비교합니다. 이름이 달라도 각 환경에 맞는 정답을 쓸 수 있습니다. 실제 답변 품질까지 같다는 뜻은 아닙니다.</p>
+<p class="en easy">The tool checks whether both environments choose an acceptable skill for the same request, allowing different local names. It does not prove equal answer quality.</p>
+<p class="ko expert">목적은 호스트별 선택 회귀를 잡는 것입니다. 이유는 기존 평가기가 한 호스트의 before/after만 채점했기 때문입니다. 동일 ID·프롬프트·kind·observation_kind를 강제하고, namespace별 허용 집합을 독립 채점합니다. 증거 진위·실제 로딩·결과 품질 플래그는 계속 false입니다.</p>
+<p class="en expert">Purpose: detect host-specific selection regressions. Reason: the existing scorer only compared before/after within one host. This mode aligns task ID, prompt, kind, and observation kind while scoring host-native namespaces separately. Authenticity, actual loading, and output quality remain unverified.</p>
+</details></div>
+<h2><span class="ko">검증·남은 일</span><span class="en">Verification and remaining work</span></h2>
+<div class="card"><table><thead><tr><th><span class="ko">항목</span><span class="en">Item</span></th><th><span class="ko">상태</span><span class="en">Status</span></th></tr></thead><tbody>
+<tr><td><span class="ko">오프라인 단위·전체 테스트</span><span class="en">Offline unit and full script tests</span></td><td>31/31 · 361 tests OK (3 skipped)</td></tr>
+<tr><td><span class="ko">실제 30개 요청 Claude/Codex 관측</span><span class="en">Native observations for 30 prompts</span></td><td>pending</td></tr>
+<tr><td><span class="ko">구독 포함·초과 과금 차단 확인</span><span class="en">Subscription inclusion and overage gate</span></td><td><span class="ko">실호출 전 재확인</span><span class="en">Recheck before generation</span></td></tr>
+<tr><td><span class="ko">설치본·main 적용</span><span class="en">Installed profile and main promotion</span></td><td><span class="ko">미실행</span><span class="en">Not run</span></td></tr>
+</tbody></table></div>
+<p class="meta"><span class="ko">추가 과금 $0 · 모델/API/Bot 실호출 없음 · 운영 설치본 변경 없음.</span><span class="en">USD 0 additional spend; no model/API/Bot generation or operating-profile change.</span></p>
+</main><script>
+function mark(a,v){document.querySelectorAll('[data-'+a+']').forEach(x=>x.setAttribute('aria-pressed',String(x.getAttribute('data-'+a)===v)))}
+function setLang(v){document.body.classList.toggle('en',v==='en');document.body.classList.toggle('ko',v==='ko');document.documentElement.lang=v;mark('lang',v)}
+function setMode(v){document.body.classList.toggle('expert',v==='expert');document.body.classList.toggle('easy',v==='easy');mark('mode',v)}
+</script></body></html>

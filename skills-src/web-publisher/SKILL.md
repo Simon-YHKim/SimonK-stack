@@ -1,8 +1,11 @@
 ---
 name: web-publisher
-description: >
-  Use when the user wants to automate publishing to a website they already log into — triggers "웹사이트에 올려", "자동 로그인 후 게시", "폼 자동 작성", "글 자동 발행", "publish to website", "auto-login and post", "fill the form and submit", "automate the upload", or /web-publisher. Drives the gstack browse headless Chromium against a per-site form-schema JSON (url, selectors, fields, files, submit, confirm) — loading cookies via setup-browser-cookies, navigating, filling, uploading, submitting, then verifying a success signal. Produces a reusable site-schema file under .web-publisher/, the browse command sequence, and a pass/fail verification. Credentials are NEVER hardcoded — secrets come from keepass-helper inject or env vars at run time. Different from /browse (one-off headless browsing) and /scrape (read-only extraction); this is repeatable write automation against a stored per-site mapping.
-version: 0.1.0
+description: >-
+  Use when automating repeated website form publishing: "publish to website",
+  "웹사이트에 올려", "/web-publisher". Produces a reusable site-schema JSON and
+  verified results; prefer usable APIs, keep secrets out of files, confirm
+  public/paid submits. Not app deployment.
+version: 0.1.1
 allowed-tools:
   - Bash
   - Read
@@ -35,7 +38,7 @@ Do NOT use when:
 
 Safety rails (always):
 - Never write a password, token, or cookie value into the schema JSON or any committed file.
-- Secrets are injected at run time only (keepass-helper -> env var, or pre-set env).
+- Use an already authenticated browser session or environment variables pre-set outside this skill. Never open a vault or inject credentials here.
 - A publish that creates public content or costs money STOPS for user confirm before `submit`.
 
 ## Form-schema file format
@@ -118,17 +121,9 @@ $B forms                # dumps form fields as JSON (name/id/type) — fast sele
 
 Prefer `name=`, `id`, or `data-test*` selectors over `@e` refs in the saved schema — `@e` refs are re-numbered on every navigation, so they are fine for discovery but brittle when stored. Write the result to `.web-publisher/<site>.json` (see format above).
 
-### 3. Inject credentials (run time, never stored)
+### 3. Check existing authentication (never retrieve or inject secrets)
 
-```bash
-# Preferred: pull from the KeePassXC vault into the current process env
-keepass-inject                          # or: Invoke-KeepassInject  (PowerShell)
-# Or set per-run, scoped to this process only:
-export GHOST_USER='someone@example.com'
-export GHOST_PASS="$(keepassxc-cli show -a Password 'E:/Coding Infra/vault.kdbx' 'Ghost Blog' 2>/dev/null)"
-```
-
-The schema references `secretEnv` names only. If a referenced env var is missing at run time, STOP and tell the user which one — do not prompt for the secret inline and do not fall back to a default.
+Prefer a browser session that is already authenticated. If form login is required, check only whether the schema's `secretEnv` variable names are present in the current process; do not print their values. The user or a separately reviewed authentication integration must prepare those variables before this skill runs. If any are absent, STOP and name only the missing variables. Do not open a vault, prompt for secrets in chat, run a legacy injection helper, or fall back to defaults.
 
 ### 4. Authenticate (cookies first, form login fallback)
 
@@ -209,7 +204,7 @@ Report PASS only when at least one `verify` signal matched. Otherwise report whi
 ## Anti-patterns
 
 - Storing `@e` refs in the saved schema. They renumber on navigation; use `id`/`name`/`data-*` CSS selectors in the file, `@e` only during discovery.
-- Putting a password, API token, or cookie string in the schema JSON or any tracked file. Use `secretEnv` + keepass-helper inject. A leaked key is treated as a critical failure.
+- Putting a password, API token, or cookie string in the schema JSON or any tracked file. Use `secretEnv` names with pre-existing authentication only. A leaked key is treated as a critical failure.
 - Clicking submit without `snapshot -D` first. You publish garbage when a selector silently missed and a field stayed empty.
 - Auto-confirming public or paid publishes. `submit.confirm: true` exists so the user approves irreversible/visible actions.
 - `fill` on a contenteditable / rich-text editor. It appears to work, then submits empty. Use `click` + `type`.
@@ -240,7 +235,7 @@ Report format: `PASS` (with the result URL + screenshot) or `FAIL: blocked at st
 
 - `browse` skill — the headless Chromium daemon and full command list (`$B snapshot`, `fill`, `upload`, `select`, `handoff`).
 - `setup-browser-cookies` skill — imports your real logged-in session (`$B cookie-import-browser --domain ...`).
-- `keepass-helper` skill — injects secrets from the KeePassXC vault into env vars (`keepass-inject`).
+- `keepass-helper` skill — reports vault/CLI presence only; it cannot unlock a vault or inject secrets for this workflow.
 - `scrape` / `/scrape` — for the read-only inverse (pulling content out instead of publishing in).
 
 ## 완료 보고 (HTML) — 표준

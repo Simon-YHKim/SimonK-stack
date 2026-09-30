@@ -1,6 +1,6 @@
 ---
 name: dev-orchestrator
-description: "Use when the user asks to implement a feature, fix a bug, or refactor code—triggers \"기능 구현해줘\", \"버그 고쳐줘\", \"리팩토링 해줘\", \"implement this\", \"fix this\", \"add feature\". Produces a 7-step pipeline: diagnose → structure check (code-health-guard) → TDD test-first (simon-tdd Guard) → scenario testing (test-gen) → code health reactive scan → pre-merge cleanup (review) → conventional commit. Chains all recently added skills into one automatic flow for day-to-day coding. For NEW apps use app-dev-orchestrator, for security use security-orchestrator."
+description: "Use when the user asks to implement a feature, fix a bug, or refactor code—triggers \"기능 구현해줘\", \"버그 고쳐줘\", \"리팩토링 해줘\", \"implement this\", \"fix this\", \"add feature\". Produces a 7-step pipeline: diagnose → structure check (code-health-guard) → TDD test-first (simon-tdd Guard) → scenario testing (test-gen) → code health reactive scan → pre-merge cleanup (review when available) → conventional commit. Chains the available skills into one flow for day-to-day coding. For NEW apps use app-dev-orchestrator, for security use security-orchestrator."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
 version: 1.0.0
 author: simon-stack
@@ -42,11 +42,13 @@ author: simon-stack
 ### 단계 2. 구조 점검 (Structure Check) — `code-health-guard`
 
 코드 작성 전 아키텍처 확인.
+호스트의 스킬 목록에서 `code-health-guard`의 실제 `SKILL.md`를 찾아
+`<code-health-guard-dir>`을 그 부모 디렉터리의 절대 경로로 치환한다.
 
 1. 새 파일이 필요하면: file placement decision tree로 위치 결정
 2. 기존 코드면: import direction 확인 (상위 의존 없는지)
 3. 함수 size > 40 lines? → 분리 후보 표시
-4. 순환 의존 스캔 (있으면): `bash skills-src/code-health-guard/scripts/check-circular-deps.sh`
+4. 순환 의존 스캔 (있으면): `bash "<code-health-guard-dir>/scripts/check-circular-deps.sh"`
 
 이 단계는 30초면 끝남. 스킵 유혹 금지.
 
@@ -59,7 +61,8 @@ RED → GREEN → REFACTOR 사이클. 테스트 먼저.
 **리팩토링**: 기존 테스트 통과 확인 후 구조 변경
 
 Guard Mode: source 변경 시 대응 test 변경이 없으면 BLOCKER.
-`bash skills-src/simon-tdd/scripts/tdd-guard-check.sh`
+설치된 `simon-tdd`의 `SKILL.md` 부모를 확인한 뒤
+`bash "<simon-tdd-dir>/scripts/tdd-guard-check.sh"`를 실행한다.
 
 ### 단계 4. 시나리오 확장 — `test-gen` (Scenario Planning)
 
@@ -68,7 +71,8 @@ Guard Mode: source 변경 시 대응 test 변경이 없으면 BLOCKER.
 기준: 변경이 2개 이상 state를 가지거나, 외부 API를 호출하거나, 권한 분기가 있을 때.
 
 7개 카테고리 (Happy/Sad/Bad/Race/Boundary/Permission/State) 중 관련 카테고리만 적용.
-상세: `skills-src/test-gen/references/scenario-matrix.md`
+상세: 설치된 `test-gen`의 `SKILL.md` 옆
+`<test-gen-dir>/references/scenario-matrix.md`를 읽는다.
 
 ### 단계 5. 코드 품질 재점검 — `code-health-guard` (Reactive)
 
@@ -86,7 +90,10 @@ Guard Mode: source 변경 시 대응 test 변경이 없으면 BLOCKER.
 1. unused imports 제거
 2. 주석 처리된 코드 > 3줄 삭제
 3. dead code 확인
-4. `bash .claude/skills/review/scripts/pre-merge-scan.sh`
+4. `review` 스킬과 인접 `<review-dir>/scripts/pre-merge-scan.sh`가 실제로 있으면 그
+   검증된 절대 경로로 실행한다. 배포 후보에는 개발 전용 `review` 스킬이
+   없을 수 있다. 없으면 `git diff --check`, 프로젝트 lint·test와 전체
+   diff의 보안·회귀 검토를 수행한다. 검토 단계를 생략하지 않는다.
 
 ### 단계 7. 커밋 — `commit`
 
