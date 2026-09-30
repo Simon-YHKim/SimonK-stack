@@ -304,7 +304,7 @@ do not publish them as anonymous identifiers. Raw provider errors are omitted.
 | --- | --- | --- |
 | Codex | Same app-server connection: profile match, account before/after, model/list, rate-limit and credit buckets | Generation, model-to-quota binding, disabled overage/API fallback |
 | Claude | auth status --json; observed identity and subscription type | Model access, quota, per-model inclusion, extra usage |
-| Grok | ACP billing; alternate method only after method-not-found | Missing account identity or overage flag; no session/prompt |
+| Grok | ACP billing; alternate method only after method-not-found; separate `--no-auto-update models` list | Model-to-account/usage binding, supported CLI efforts, subscription inclusion or overage safety; no session/prompt |
 | Antigravity | Version-gated /usage, successful command, zero turns and all token counters zero | Account identity, model access and billing authorization |
 
 Antigravity accepts only locally measured /usage contract versions. An unknown
@@ -324,13 +324,18 @@ slugs, but this collector does not parse them or infer account/model billing.
 Grok billing metadata may be read while generation is suspended. The 1.0.41
 ACP display tiers `SuperGrok Plus` and `SuperGrok Heavy` normalize to stable
 identifiers; account identity, overage controls and model inclusion remain unverified.
+The separate CLI model list is parsed as metadata only. It can populate
+registry-matched Grok candidates, but each stays `available=false` with empty
+transport effort evidence and no account/usage-bucket binding. A listed model
+does not authorize generation, even when the CLI offers it as its default.
 Quota recovery must be observed again before reconsidering a route. A reset
 timestamp is not proof of recovery. Grok Bot has no collector here and never
 inherits the CLI account/quota. Claude Widget bridge data is not joined without identity and
 bucket-binding evidence. No provider's subscription label proves a free model.
 
-Only models actually returned by Codex model/list and present in the registry
-become candidates; this is not an exhaustive cross-provider model inventory.
+Only models actually returned by Codex model/list or Grok CLI models and present
+in the registry become their respective candidates; this is not an exhaustive
+cross-provider model inventory.
 All collected candidates have available=false, billing.verified=false, unknown
 model quota and no effective model/effort. Keep those gates until separate
 evidence establishes them. The planner reads the central registry by default;

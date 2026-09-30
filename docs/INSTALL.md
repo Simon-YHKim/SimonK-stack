@@ -4073,6 +4073,141 @@ Codex CLI 0.159.0은 플러그인 5개 enabled를 확인했다. 두 호스트 �
 Cloudflare 운영 자동 배포는 Simon이 이번 `main` 머지에 한해 허용했지만,
 독립 수정 재검토와 소스 전용 머지 결정 기록은 여전히 필요하다.
 
+2026-10-01 **PR #65–#67 소스 HEAD 격리 후보**: `8798774a946e16aac17a0721fbff76b8fd1a2cc9`
+소스에서 `E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr67-current-candidate/`
+아래 새 후보를 만들었다. 입력은 `distribution/plugin-inputs.v1.json`에 고정된
+5개 커밋의 깨끗한 별도 로컬 복제본이며, 원본 플러그인과 사용자 설치본은 바꾸지 않았다.
+
+| 산출물 | 검증한 전체 digest | 범위 |
+|---|---|---|
+| `source` | `a8d9613b5286d916dfd3c3e591a81288abec148157dead599b6c30397aa8ac69` | 137스킬·423파일 |
+| `candidate-safety` | `421d0f98666f05aacee9c66dcc47d430374aed4af0358000e529b75694f92fcc` | 5플러그인·Claude 182스킬 |
+| `codex-overlay-safety` | `8262450952e45e7f3b2ea34eae421f892a788cf23943be0889ade13fe7c26737` | Codex 호환 오버레이 |
+| `codex-subset-safety` | `8c918ac9b3a3bb406edba4b2b09bf5a0b23b01ce0ff79a609ba9293a162eb44e` | Codex 안전 부분집합 177스킬 |
+
+네 영수증의 별도 `verify`가 모두 종료 0이고, Claude 후보의 일회용
+`candidate_runtime_probe.py` 네 단계(`/vibe` selftest·runtime·prepare·table-sync)도
+모두 종료 0이다. `preview-vibe-candidate.ps1 -AllPlugins` 기본 CheckOnly는
+5개 플러그인·182스킬을 확인하고 `model_called=false`로 종료 0이었다.
+정적 경로 감사에서 누락·비이식 명령은 양쪽 모두 0건이지만, Gstack 외부
+런타임 힌트는 Claude 31스킬·Codex 30스킬로 남아 감사 종료 코드는 1이다.
+이 후보는 실제 호스트 설치·자동 선택·이미지/Bot/모델 실호출이나 추가 과금
+차단을 증명하지 않는다. `installation_ready=false`와
+`host_compatibility_verified=false`를 유지하며, PR #65–#67의 새 §35 토론
+D-code와 정확한 머지 대상 재검토 전에는 `main` 머지하지 않는다.
+
+같은 후보의 격리 호스트 시험은
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr67-host-rehearsal/`에
+원시 결과와 시험 설정을 보존했다. 소스 영수증 423파일은 문서만 추가된 HEAD
+`a1d84b7b8f76336207b7a50b655cea812acc8138`의 Git archive와 전부 SHA-256
+일치했다(누락·불일치 각 0). 별도 Windows Sandbox 두 개는 네트워크·클립보드·
+장치 리디렉션을 끄고 후보와 실행 파일을 읽기 전용으로 매핑했으며 사용자 홈·
+자격증명은 매핑하지 않았다. Windows Sandbox CLI로 각 게스트를 기동하고
+준비한 스크립트를 System 컨텍스트에서 1회 실행했다. 첫 GUI 클라이언트
+기동은 5분 이상 게스트 ID·결과가 없어 미완료로 기록하고 해당 클라이언트만
+종료한 뒤 CLI 경로로 재시험했다.
+
+Claude Code 2.1.285의 `integrated-result.json`은 플러그인 5개·스킬 182개,
+사용자 중복·디버그 오류 0, 기존 링크 Claude 5개/Codex 2개 두 번 복원,
+시험 플러그인 최종 0개로 `guest_integrated_marketplace_split_passed`다.
+Codex CLI 0.159.0의 `codex-integrated-result.json`은 5개 플러그인 모두
+활성, 별도 링크 전환 후 같은 복원·철회로
+`guest_codex_plugin_alias_coexistence_passed`다. 두 결과 모두 인증 환경변수
+없음·활성 네트워크 어댑터 0·모델 생성 미실행을 기록한다. 종료한 두 게스트의
+`wsb.exe list --raw`에는 남은 인스턴스가 0개였고, 시험 전후 후보 영수증
+SHA-256은 변하지 않았다. 원시 결과 SHA-256은 Claude
+`455a7089ccde5d4e56cceb34a1984326d4120ddfcb6ab6da6d31cadaa4a1db78`,
+Codex `1b45ae6c0a9ad491f5c87e64a1c9eb8323aeeda271f0ac1174794134b41a94cb`다.
+이는 빈 게스트의 호스트 적재·복원 증거이지
+Codex 177스킬의 실제 선택·전체 실행이나 사용자 홈 무손실 이관은 아니다.
+Gstack 외부 런타임·모델/effort 선택 품질·이미지/Bot 실제 작업·구독 청구
+경로는 여전히 미검증이므로 readiness 플래그는 `false`다.
+
+## PR #67 툴링 옵션 안전성 수정 후보 (2026-10-01)
+
+`9bd305f`에서 `check_tooling.py --help` 또는 알 수 없는 옵션이 전체
+점검으로 빠져 npm 원격 조회와 기존 Orca `skills list`를 실행하던 경로를
+차단했다. `--help`/`-h`는 도움말만 출력하고, 알 수 없는 옵션은 종료 2로
+실패한다. 인자 없는 호출과 `--json`은 여전히 전체 점검이므로 운영 Orca
+격리 조건에서는 호출하지 않는다. 수정 전 재현 테스트 3개 실패, 수정 후
+`test_check_tooling.py` 11개·`/vibe` 스크립트 테스트 320개 통과,
+`validate_skill.py skills-src/vibe` 0오류·0경고였다.
+
+새 격리 후보는 `E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr67-help-safe-candidate/`
+에 있다. 기존 후보와 사용자 홈은 바꾸지 않았다. 고정된 다섯 플러그인
+커밋을 독립 로컬 복제본(`inputs-lf/`, Git 자동 CRLF 변환 OFF)으로 읽었고,
+실패한 초기 입력(`inputs/`)은 후보 payload가 아니다.
+
+| 산출물 | 전체 digest | 검증 범위 |
+|---|---|---|
+| `source` | `84083a33a2c61e3f7ec7a10ca5c25a290132ecc74d718a26ef369da338159854` | 소스 소유 137스킬·423파일, verify 0 |
+| `candidate-safety` | `428233bb651658a81d145413df34d2275f8ed5646a6c7ca38a0babdf5f68c4c5` | Claude 5플러그인·182스킬, verify 0 |
+| `codex-overlay-safety` | `e5139b761e4e97498d638b91b5ea0fd1d9c8951d4370dd49527f9b3a00890ec1` | Codex 호환 오버레이, verify 0 |
+| `codex-subset-safety` | `83c32157ccf3ef5f793404abc1ededf2328df7b0de32b75316e05e5c10f51732` | Codex 안전 부분집합 177스킬, verify 0 |
+
+Claude 후보의 격리 복사에서 오프라인 `/vibe` probe 4/4가 통과했고,
+5플러그인 CheckOnly는 `model_called=false`였다. 정적 경로 감사의 누락·
+비이식 명령은 두 호스트 모두 0건이지만 Gstack 외부 런타임 힌트가
+Claude 31/Codex 30스킬에 남아 두 감사 모두 `external_runtime_pending`
+(종료 1)이다. 문서·CI만 더한 `b0a7400`에서 소스 패키지를 다시 빌드해
+423파일의 전체 digest가 위 `source`와 정확히 같음을 확인했다.
+
+이 정확한 후보의 호스트 리허설은
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr67-help-host-rehearsal/`
+에 보존했다. 별도 Windows Sandbox 두 개에서 네트워크·클립보드·장치
+리디렉션을 끄고 사용자 홈·인증정보를 매핑하지 않았다. Claude Code
+2.1.285는 5플러그인·182스킬 적재, 중복·디버그 오류 0, 이전 링크
+Claude 5/Codex 2개 두 번 복원, 시험 플러그인 최종 0개로 통과했다.
+Codex CLI 0.159.0은 5플러그인 활성 등록과 같은 링크 복원·철회로
+통과했다. 두 게스트 모두 `no_auth_env=true`, 네트워크 어댑터 0,
+`model_generation_executed=false`였고 종료 뒤 `wsb.exe list --raw`는
+남은 인스턴스 0개였다. 원시 결과 SHA-256은 Claude
+`25a13b38b1b66ffdbaa29e3726ec1b626f481abbb3724dba47287aa12fe75e18`,
+Codex `8a94db308f152d6c1d1a5fb306b1af7a7e50d68c40d38d7a370add8e2d5c3d2a`다.
+이는 빈 게스트의 적재·복원 시험이다. 모델/effort 자동 선택 품질,
+전체 스킬 행동, Gstack 외부 런타임, 구독 청구 경로, 실제 사용자 홈 이관은
+검증하지 않았으므로 `installation_ready=false`,
+`host_compatibility_verified=false`, `runtime_closure_verified=false`를
+유지한다. 모델·이미지·Bot 생성, 운영 Orca 조회, 사용자 홈 설치는
+이 후보 검증에서 실행하지 않았다.
+
+## PR #65–#67 재검토 후보 (2026-10-01)
+
+독립 리뷰의 이미지 quota 바인딩·terminal 불변성·Codex 산출물 private
+경계·Grok collector CI 네 지적을 수정했다. 추가 리뷰의 성공 후 거절된
+이미지 재진입 오류도 재현 테스트로 고쳤다. #65 `cf86d14` → #66
+`8c6d1aa` → #67 `25863bc` 순서로 통합했고, 이 정확한 #67 소스에서
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr67-reviewed-candidate/`
+를 새로 빌드했다. 이전 후보와 사용자 홈은 보존했다.
+
+| 산출물 | 전체 digest | 오프라인 결과 |
+|---|---|---|
+| `source-final` | `d598124cd41ebaed62d24b401c557f1f129b59f9cb3d6c39f20e456142f804d8` | 137스킬·423파일, verify 0 |
+| `candidate-safety` | `f79e24ba7f32d217a3372182468fa071735bf52a95e4e7202f59e75d633dd950` | Claude 5플러그인·182스킬, verify 0 |
+| `codex-overlay-safety` | `2654446c832dd4f162caac53cb073d184a7a1e74586143e1152c6aca5e030ee5` | Codex 변환, verify 0 |
+| `codex-subset-safety` | `3bf17ba8a2b181f7cc8d07149cbe497ac5b827f12057908c623270ec77bde433` | Codex 177스킬, verify 0 |
+
+최종 `/vibe` 스크립트 테스트 322개, 스킬 quality 141/141, 오프라인 후보
+probe 4/4가 통과했다. 정적 경로 감사는 Claude/Codex 모두 누락·비이식
+명령 0이지만 Gstack 외부 런타임 힌트가 각각 31/30스킬에 남아
+`external_runtime_pending`(종료 1)이다. 이는 통과 판정이 아니다.
+
+정확한 후보의 무인증 Windows Sandbox 리허설은
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr67-reviewed-host-rehearsal/`
+에 보존했다. 네트워크·클립보드·장치 리디렉션을 끄고 사용자 홈·인증정보를
+매핑하지 않았다. Claude Code 2.1.285는 5플러그인·182스킬 적재,
+디버그 오류 0, 이전 링크 Claude 5/Codex 2개 두 번 복원을 확인했다.
+Codex CLI 0.159.0은 5플러그인 활성 등록 및 같은 복원을 확인했다.
+두 게스트 모두 `no_auth_env=true`, 네트워크 어댑터 0,
+`model_generation_executed=false`였고 종료 후 `wsb.exe list --raw`에
+남은 인스턴스는 0개였다. 원시 결과 SHA-256은 Claude
+`f3aca9f0d00b5d06461dc6895972ab48c7997568d26125e64b31a373ea404b25`,
+Codex `c04a86133e10ec35609b0df1fef49dd24aa74f77cf9ac4709382ca119d7ee430`이다.
+이 결과는 적재·복원만 검증한다. 실제 선택·이미지 생성·Grok Bot 배달·
+Gstack 실행·청구 경로·사용자 설치는 미검증으로
+`runtime_closure_verified=false`, `host_compatibility_verified=false`,
+`installation_ready=false`를 유지한다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,

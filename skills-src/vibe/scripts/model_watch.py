@@ -46,6 +46,10 @@ MODEL_NAME = re.compile(
     r"Gemini\s+\d+(?:\.\d+)*(?:\s+(?:Pro|Flash))?|Grok\s+\d+(?:\.\d+)*)(?:-[a-z0-9]+)*\b(?![-./_][a-z0-9])",
     re.IGNORECASE,
 )
+XAI_DATE = re.compile(r"\b(?P<month>Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+"
+                      r"(?P<day>\d{1,2}),\s+(?P<year>20\d{2})\b", re.IGNORECASE)
+MONTHS = {name.lower(): number for number, name in enumerate(
+    ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 1)}
 
 
 def iso(value: datetime) -> str:
@@ -149,6 +153,18 @@ def rss_publication_times(page: str, base: str) -> dict[str, datetime]:
         if timestamp.tzinfo is not None:
             published[link] = timestamp.astimezone(timezone.utc)
     return published
+
+
+def xai_publication_time(title: str) -> datetime | None:
+    """Only xAI news titles with an explicit year can escape a fresh baseline."""
+    match = XAI_DATE.search(title)
+    if match is None:
+        return None
+    try:
+        return datetime(int(match["year"]), MONTHS[match["month"].lower()],
+                        int(match["day"]), tzinfo=timezone.utc)
+    except ValueError:
+        return None
 
 
 class OfficialRedirect(urllib.request.HTTPRedirectHandler):
@@ -294,7 +310,14 @@ def scan_state(state: dict, fetch, now: datetime, force: bool = False,
                             published_at > now.astimezone(timezone.utc) + timedelta(hours=1)):
                         continue
                 elif link in previous_links:
-                    continue
+                    if provider != "xai":
+                        continue
+                    published_at = xai_publication_time(title)
+                    previous_check = parse_time(previous["checked_at"])
+                    if (published_at is None or
+                            published_at < previous_check - timedelta(days=2) or
+                            published_at > now.astimezone(timezone.utc) + timedelta(hours=1)):
+                        continue
                 key = hashlib.sha256(f"{provider}\n{link}".encode("utf-8")).hexdigest()[:20]
                 if key not in current["candidates"]:
                     current["candidates"][key] = {

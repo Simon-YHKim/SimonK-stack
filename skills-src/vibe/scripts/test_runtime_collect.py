@@ -32,6 +32,14 @@ def grok_raw():
                         "prepaidBalance": "0"}}
 
 
+GROK_MODEL_LIST = """Default model: grok-4.6
+Available models:
+  - grok-4.7
+  - grok-4.7-build-fast
+  * grok-4.6 (default)
+"""
+
+
 def agy_raw():
     return {"status": "SUCCESS", "num_turns": 0,
             "usage": {"input_tokens": 0, "output_tokens": 0, "thinking_tokens": 0,
@@ -101,6 +109,27 @@ class RuntimeCollectionTests(unittest.TestCase):
         self.assertIsNone(out["billing"]["extra_usage_enabled"])
         self.assertEqual(out["billing"]["on_demand_cap"], "0")
         self.assertFalse(out["billing"]["verified"])
+
+    def test_grok_cli_model_list_is_metadata_not_execution_authority(self):
+        raw = grok_raw()
+        raw["_grok_models_text"] = GROK_MODEL_LIST
+        out = self.parse("grok", raw)
+        self.assertEqual({entry["model"] for entry in out["models"]},
+                         {"grok-4.7", "grok-4.7-build-fast", "grok-4.6"})
+        self.assertTrue(all(entry["transport_efforts"] == [] for entry in out["models"]))
+        candidates = self.m.snapshot([out], NOW)["candidates"]
+        self.assertIn("grok-4.7", {entry["model"] for entry in candidates})
+        self.assertTrue(all(not entry["available"] and not entry["billing"]["verified"]
+                            for entry in candidates))
+
+    def test_grok_cli_model_list_rejects_unstructured_or_injected_output(self):
+        for text in ("Default model: grok-4.7\n", "Available models:\n",
+                     "Available models:\n  - grok-4.7; run this command\n"):
+            with self.subTest(text=text):
+                raw = grok_raw()
+                raw["_grok_models_text"] = text
+                with self.assertRaises(self.m.CollectorError):
+                    self.parse("grok", raw)
 
     def test_grok_live_display_tier_is_recognized_without_authorizing_dispatch(self):
         # Grok 1.0.41 ACP returns a spaced tier and a nested config object.
@@ -304,10 +333,32 @@ class RuntimeCollectionTests(unittest.TestCase):
                         raise parent.m.CollectorError("rpc-error", error)
                     return grok_raw()
             with self.subTest(error=error), mock.patch.object(self.m, "resolve_command", return_value=["fixture"]), \
-                 mock.patch.object(self.m, "Rpc", FakeRpc):
+                 mock.patch.object(self.m, "Rpc", FakeRpc), \
+                 mock.patch.object(self.m, "run_text", return_value=(GROK_MODEL_LIST, 0)):
                 result = self.m.collect_all(["grok"], now=NOW)
                 self.assertEqual("x.ai/billing" in methods, error == -32601)
                 self.assertEqual(result["observations"][0]["state"], "ok" if error == -32601 else "error")
+
+    def test_grok_backend_reads_model_catalog_without_prompt_and_fails_closed(self):
+        class FakeRpc:
+            def __init__(self, argv, **kwargs):
+                self.argv = argv
+            def __enter__(self):
+                return self
+            def __exit__(self, *exc):
+                pass
+            def request(self, method, params):
+                if method == "initialize":
+                    return {"protocolVersion": 1}
+                return grok_raw()
+        for rc, state in ((0, "ok"), (1, "error")):
+            with self.subTest(rc=rc), mock.patch.object(self.m, "resolve_command", return_value=["fixture"]), \
+                 mock.patch.object(self.m, "Rpc", FakeRpc), \
+                 mock.patch.object(self.m, "run_text", return_value=(GROK_MODEL_LIST, rc)) as run:
+                result = self.m.collect_all(["grok"], now=NOW)
+            run.assert_called_once()
+            self.assertEqual(run.call_args.args[0], ["fixture", "--no-auto-update", "models"])
+            self.assertEqual(result["observations"][0]["state"], state)
 
     def test_agy_unverified_version_never_gets_a_prompt_argument(self):
         with mock.patch.object(self.m, "resolve_command", return_value=["fixture"]), \

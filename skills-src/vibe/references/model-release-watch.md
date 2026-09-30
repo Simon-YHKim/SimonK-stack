@@ -38,11 +38,14 @@ for coordinator inspection. Fetch/parse failures remain errors, not a claim of
 scripts or inaccessible markup can be missed. Check official release notes
 directly before drawing conclusions.
 For RSS sources, a dated article is a candidate only when it was published
-since the preceding check (with a two-day feed-delay
-allowance). Old articles that reappear in a changing full-history feed, and
-undated items, remain in the source snapshot but do not become new-release
-candidates. A recent article already present in the initial baseline is admitted
-on the next scan, preventing a just-launched model from being silently missed.
+since the preceding check (with a two-day feed-delay allowance). Old articles
+that reappear in a changing full-history feed, and undated items, remain in
+the source snapshot but do not become new-release candidates. The xAI news
+listing also admits an already-baselined model link on the next scan only when
+its link text has an explicit English month/day/year within two days of that
+baseline; older or undated xAI links remain historical. This catches a
+just-launched model present at first setup without retroactively treating
+Grok 4.7 or the whole news archive as new releases.
 A manual official-page check is still needed for ambiguous items.
 After checking an older article, non-release case study or duplicate alias,
 `dismiss-candidate --key K --reason historical_article|not_release|duplicate_alias`

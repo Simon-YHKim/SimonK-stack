@@ -3,6 +3,8 @@ import contextlib
 import importlib.util
 import io
 import json
+import runpy
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -18,6 +20,32 @@ class CodexPathChecks(unittest.TestCase):
         spec = importlib.util.spec_from_file_location("check_tooling", SCRIPT)
         self.module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(self.module)
+
+    def test_help_does_not_probe_orca_registry_or_write_snapshot(self):
+        for flag in ("--help", "-h"):
+            with self.subTest(flag=flag):
+                output = io.StringIO()
+                with mock.patch.object(sys, "argv", [str(SCRIPT), flag]):
+                    with mock.patch("subprocess.run") as child:
+                        with mock.patch("os.makedirs") as write:
+                            with contextlib.redirect_stdout(output):
+                                with self.assertRaises(SystemExit) as done:
+                                    runpy.run_path(str(SCRIPT), run_name="__main__")
+                self.assertEqual(done.exception.code, 0)
+                self.assertIn("--local-codex", output.getvalue())
+                child.assert_not_called()
+                write.assert_not_called()
+
+    def test_unknown_option_fails_closed_without_probes(self):
+        output = io.StringIO()
+        with mock.patch.object(sys, "argv", [str(SCRIPT), "--unknown"]):
+            with mock.patch("subprocess.run") as child:
+                with contextlib.redirect_stderr(output):
+                    with self.assertRaises(SystemExit) as done:
+                        runpy.run_path(str(SCRIPT), run_name="__main__")
+        self.assertEqual(done.exception.code, 2)
+        self.assertIn("--unknown", output.getvalue())
+        child.assert_not_called()
 
     def test_adjacent_npm_package_exposes_newer_version_than_path_shim(self):
         with tempfile.TemporaryDirectory() as temporary:

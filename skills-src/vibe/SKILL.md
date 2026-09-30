@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when asked for SimonKStack "메인 오케스트레이터", "/vibe", "바이브로 알아서", Play Console/GUI orchestration, or task-wide skill/model/effort routing. Produces one verified plan and artifacts under $0 extra spend. Check CLI/API/MCP first; simonk is sprint-only and vibe-bot GUI-only.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.26
+version: 2.12.27
 author: simon-stack
 ---
 
@@ -95,6 +95,8 @@ snapshot section of the orchestration contract for its safety boundaries.
 Metadata-only candidates stay unavailable until separate generation, billing,
 model-to-quota and task-policy evidence is verified. This collector does not
 dispatch tasks, change payment settings or prove zero-cost model access.
+Grok's no-auto-update model list is metadata only: listed models have no
+verified CLI effort, account binding or subscription inclusion.
 Do not turn a newly announced model into an active route without availability
 and transport evidence. Do not inherit an old model's effort mapping blindly.
 
@@ -369,12 +371,10 @@ validated central plan; never edit timestamps to bypass expired evidence.
 Registry/model/account/budget changes and operational migration remain outside
 this renewal path. Expired or unresolved work never authorizes a replacement run.
 
-The generated table is historical compatibility policy, not the frontier
-registry or present-day availability. It cannot bypass central guards.
+The generated table is historical compatibility policy, not present-day availability, and cannot bypass central guards.
 
-Read the [generated legacy Orca routing table](references/legacy-routing.md) only when
-reviewing historical lane policy. The current registry, fresh runtime and
-transport/account guards decide present-day routes.
+Read the [generated legacy Orca routing table](references/legacy-routing.md) only for historical policy.
+The current registry, runtime and transport/account guards decide present-day routes.
 
 ## Verification and references
 
