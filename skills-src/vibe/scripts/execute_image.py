@@ -152,5 +152,20 @@ def reconcile(plan, node_id, store, host, now=None):
     if len(attempts) != 1 or attempts[0]["route"] != route:
         raise ImageDispatchError("IMAGE_ORIGINAL_INTENT_NOT_FOUND")
     _lookup_host(host, route, now)
-    return _record(store, attempts[0]["dispatch_id"],
-                   host.lookup_by_request(request_id), request_id, now)
+    receipt = host.lookup_by_request(request_id)
+    attempt = attempts[0]
+    if attempt["state"] in {"succeeded", "failed"}:
+        proof = attempt["observation"] or {}
+        if (not isinstance(receipt, dict) or receipt.get("request_id") != request_id
+                or receipt.get("handle") != attempt["handle"]
+                or receipt.get("state") != attempt["state"]
+                or receipt.get("result_sha256") != proof.get("result_sha256")
+                or not orchestrate.fresh(receipt.get("observed_at"), now)
+                or not isinstance(receipt.get("evidence"), list)
+                or not receipt["evidence"]):
+            raise ImageDispatchError("IMAGE_TERMINAL_RECEIPT_CHANGED")
+        # Store proof is immutable after completion; a fresher lookup is not a new observation.
+        return {"status": attempt["state"], "dispatch_id": attempt["dispatch_id"],
+                "result_sha256": proof.get("result_sha256"),
+                "verified": attempt["verified"], "actual_usd": attempt["actual_usd"]}
+    return _record(store, attempt["dispatch_id"], receipt, request_id, now)

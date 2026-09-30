@@ -144,6 +144,32 @@ class CodexCliAdapterTests(unittest.TestCase):
         self.assertEqual(self.store.snapshot()["attempts"], [])
         self.assertEqual(self.cli.sends, [])
 
+    def test_artifacts_outside_private_cwd_are_rejected_before_claim(self):
+        nested_repo = Path(self.binding["cwd"]) / "public-repo"
+        (nested_repo / ".git").mkdir(parents=True)
+        for key, name in (("result_path", "result.jsonl"),
+                          ("content_path", "result.txt")):
+            with self.subTest(key=key):
+                binding = {**self.binding, key: str(nested_repo / name)}
+                node = step("opening", surface="codex", skills=[], software=[],
+                            task="Argue the independent position from supplied evidence",
+                            cli=binding)
+                plan = orchestrate.make_plan({"run_id": "test-" + key,
+                    "steps": [node], "budget": {"max_attempts": 1}}, {},
+                    {"candidates": [self.candidate], "tools": []}, NOW,
+                    fixture_registry([self.candidate]))
+                self.assertEqual(plan["status"], "ready")
+                store = run_state.Store(Path(self.binding["cwd"]) / ("state-" + key + ".sqlite3"))
+                store.initialize()
+                store.register(plan, now=NOW)
+                adapter = self.m.Adapter(store, self.cli, clock=lambda: NOW)
+                with self.assertRaisesRegex(run_state.StateError,
+                                            "PRIVATE_CODEX_RESULTS_REQUIRED"):
+                    adapter.context(plan, "opening")
+                self.assertEqual(store.snapshot()["attempts"], [])
+        self.assertEqual(self.store.snapshot()["attempts"], [])
+        self.assertEqual(self.cli.sends, [])
+
     def test_tool_activity_is_not_accepted_or_retried(self):
         self.cli.events.insert(-1, {"type": "item.completed", "item": {"id": "item_x",
                                   "type": "command_execution", "command": "echo unsafe"}})
