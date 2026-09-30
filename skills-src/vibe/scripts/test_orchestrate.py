@@ -1510,6 +1510,10 @@ class OrchestrationTests(unittest.TestCase):
             self.assertEqual(host.assert_args["provider_hard_cap_usd"], 0)
             self.assertFalse(first["verified"])
             self.assertIsNone(first["actual_usd"])
+            store.reject(first["dispatch_id"], ["fixture rejection"], later)
+            rejected = execute_image.dispatch(plan, "read", store, host, later)
+            self.assertEqual(rejected["status"], "rejected")
+            self.assertEqual((host.sends, host.lookups), (1, 2))
             receipt["result_sha256"] = hashlib.sha256(b"different image").hexdigest()
             with self.assertRaisesRegex(execute_image.ImageDispatchError,
                                         "IMAGE_TERMINAL_RECEIPT_CHANGED"):

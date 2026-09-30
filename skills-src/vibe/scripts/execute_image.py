@@ -154,11 +154,13 @@ def reconcile(plan, node_id, store, host, now=None):
     _lookup_host(host, route, now)
     receipt = host.lookup_by_request(request_id)
     attempt = attempts[0]
-    if attempt["state"] in {"succeeded", "failed"}:
+    if attempt["state"] in {"succeeded", "failed", "rejected"}:
         proof = attempt["observation"] or {}
+        receipt_state = "succeeded" if attempt["state"] == "rejected" else attempt["state"]
         if (not isinstance(receipt, dict) or receipt.get("request_id") != request_id
                 or receipt.get("handle") != attempt["handle"]
-                or receipt.get("state") != attempt["state"]
+                or proof.get("state") != receipt_state
+                or receipt.get("state") != receipt_state
                 or receipt.get("result_sha256") != proof.get("result_sha256")
                 or not orchestrate.fresh(receipt.get("observed_at"), now)
                 or not isinstance(receipt.get("evidence"), list)
