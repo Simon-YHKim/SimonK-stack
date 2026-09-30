@@ -243,6 +243,7 @@ Claude Code 안에서는 `/ai-usage-widget-install` 또는 "AI 사용량 위젯 
 반영 → 결과 보고. 무조건 병렬 실행하거나 모든 저장소를 자동 push하지 않습니다.
 추가 과금 기본값은 $0이며, 미확인 과금이나 사용량을 0으로 간주하지 않습니다.
 GUI가 꼭 필요한 일만 내부 vibe-bot 경로로 전달합니다.
+Bot 명단의 `active - reported`는 실접속 확인이 아니므로 `/vibe`는 정확한 실측 `active`와 별도 계정·쿼터·Relay 증거가 없으면 발주하지 않습니다.
 승인된 Relay 협업 루프에서는 `vibe-bot/scripts/bus_watch.py --watch`로 저장된 상태부터 읽기 전용 감시하고, 작업 발송·운영 변경은 기존 승인 게이트를 따릅니다.
 
 PowerShell의 `simonK`는 슬래시 명령과 다르게 **구조화된 오프라인 계획 전용**입니다.

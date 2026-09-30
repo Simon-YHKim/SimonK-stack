@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when asked for SimonKStack "메인 오케스트레이터", "/vibe", "바이브로 알아서", Play Console/GUI orchestration, or task-wide skill/model/effort routing. Produces one verified plan and artifacts under $0 extra spend. Check CLI/API/MCP first; simonk is sprint-only and vibe-bot GUI-only.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.23
+version: 2.12.24
 author: simon-stack
 ---
 
@@ -280,6 +280,8 @@ Read the discovered vibe-bot SKILL.md for its draft, immutable `bot_delivery`
 descriptor and fresh delivery/account/Relay certificate. Keep the current run,
 whole-plan reservation and shared Store. No authorized CLI/API/MCP alternative
 may be available; execution needs an observed active exact roster entry.
+The planner accepts only the exact live status `active`; a roster snapshot
+description beginning with "active - reported" is not live availability.
 Use the current Bot organization reference: all new deliveries/results use
 Relay, while the selected specialist remains bound in the plan. Team requests
 go through Relay; historical specialist runs retain their original adapter.

@@ -788,7 +788,10 @@ def assess_candidate(c, step, policy, now, producer_vendor=None):
     if step["kind"] == "gui":
         if surface != "grok-bot" or c.get("transport") != "bot":
             errors.append("GUI_REQUIRES_BOT")
-        if not re.match(r"^active(?:\s|$)", c.get("bot_status", ""), re.IGNORECASE) or not c.get("bot_id"):
+        status = c.get("bot_status")
+        # Roster prose such as "active - reported ... live access unverified"
+        # is not a fresh observation of an executable Bot profile.
+        if not isinstance(status, str) or status.strip().lower() != "active" or not c.get("bot_id"):
             errors.append("BOT_INACTIVE")
         effort = None  # Grok Bot has no verified model/effort control surface.
     else:

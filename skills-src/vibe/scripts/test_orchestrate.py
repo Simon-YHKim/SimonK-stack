@@ -892,6 +892,15 @@ class OrchestrationTests(unittest.TestCase):
         p = self.plan([self.gui()], [self.bot(bot_status="ON HOLD")])
         self.assertIn("BOT_INACTIVE", str(p))
 
+    def test_reported_roster_status_is_not_live_bot_evidence(self):
+        reported = "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+        for status in (reported, "ACTIVE (reported)", None, 1):
+            with self.subTest(status=status):
+                p = self.plan([self.gui()], [self.bot(bot_status=status)])
+                self.assertEqual(p["status"], "blocked")
+                self.assertIn("BOT_INACTIVE", p["steps"][0]["rejected_candidates"][0]["reasons"])
+        self.assertEqual(self.plan([self.gui()], [self.bot(bot_status="active")])["status"], "ready")
+
     def test_grok_cli_and_bot_are_not_independent_verifiers(self):
         steps = [step(surface="grok"), self.gui(id="review", verify_of="read", depends_on=["read"])]
         p = self.plan(steps, [candidate("grok", surface="grok"), self.bot()])
