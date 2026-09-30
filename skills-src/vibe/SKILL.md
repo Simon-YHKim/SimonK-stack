@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when asked for SimonKStack "메인 오케스트레이터", "/vibe", "바이브로 알아서", Play Console/GUI orchestration, or task-wide skill/model/effort routing. Produces one verified plan and artifacts under $0 extra spend. Check CLI/API/MCP first; simonk is sprint-only and vibe-bot GUI-only.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.22
+version: 2.12.23
 author: simon-stack
 ---
 
@@ -132,25 +132,10 @@ a model name or benchmark headline.
 | Image creation/editing | A real image-generation skill/tool with verified subscription inclusion | tool-managed; text models only plan or critique |
 | Recent X discourse | Verified Grok CLI or current-host browsing, corroborated with primary sources | reasoning if controllable |
 
-This 2026-09-29 shortlist interprets [Anthropic's Opus 5.5](https://www.anthropic.com/claude-opus-5-5)
-and [Sonnet 5.5](https://www.anthropic.com/claude-sonnet-5-5) releases,
-[OpenAI's Astra](https://openai.com/index/gpt-6-astra/) and
-[Sol/Luna](https://openai.com/index/introducing-gpt-6-sol-and-luna/) releases,
-and [Artificial Analysis's Opus](https://artificialanalysis.ai/articles/claude-opus-5-5/)
-and [Sonnet](https://artificialanalysis.ai/articles/claude-sonnet-5-5) evaluations.
-Their benchmark harnesses and efforts differ; AA's API token use is a quota
-pressure clue, not subscription pricing. Recent direct X posts were not
-readable without access controls, so no unverified X opinion became a rule.
-For well-scoped complex coding, Opus 5.5 at `medium` is now a **shadow-only**
-effort hypothesis: Anthropic reports a strong FrontierCode result at its
-default effort, and Artificial Analysis places `medium` on its effort/cost
-frontier. Keep `high`/`xhigh` for harder or consequential cases; do not lower
-the active effort from a public benchmark without a same-task host comparison.
-Recheck sources and actual host transport after releases; never turn public
-model/API facts into exact-account subscription or effective-effort proof.
-Claude and Codex use the same task/acceptance standard but may have different
-eligible routes. An unsupported host capability is reported, not silently
-replaced by a lower-quality or paid path. Current planning has no guarded
+The [model-release watch](references/model-release-watch.md) records the dated
+sources and shadow-effort limits behind this shortlist. Claude and Codex use
+the same task/acceptance standard but may have different eligible routes.
+Current planning has no guarded
 image-generation dispatch adapter: `IMAGE_GENERATION` compiles to a distinct
 `kind=image` node and reports `IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL` in a
 blocked plan. Neither Claude nor Codex may satisfy it with text-model `VISION`,
@@ -172,6 +157,15 @@ each task profile only after the same skill bundle, task, tools and rubric are
 compared on Claude and Codex with exact model/effort and $0-extra-cost proof.
 Until then `selection_quality_verified=false` and installation readiness stay
 unproven even when the shadow alternative differs.
+
+At invocation, use the [model-release watch](references/model-release-watch.md)
+to refresh official-release evidence without model calls. A Friday local check
+and subsequent pending checks only create candidates and unreviewed public-post captures; they do not alter a
+route. For a newly released model, require a prospective 24-hour public
+feedback window, exact subscription/effort evidence and same-task host tests
+before updating the routing policy. A `review_ready` watch record is not a
+validated model, installation or merge authorization. Existing work continues
+on verified routes while a new model is pending.
 
 Validate with:
 ```text
