@@ -9,6 +9,7 @@ import { applyDocumentTheme, skinFor } from '../theme';
 import { renderWidgetItem } from './themes';
 import { modelNoticeText } from '../../../shared/model-notice';
 import { grokBotReading } from '../../../shared/grok-bot';
+import { formatCountdown } from '../../../shared/usage';
 
 /** Clicks within this window after a toggle are ignored (v1 SPEC §2-5). */
 export const TOGGLE_DEBOUNCE_MS = 300;
@@ -242,24 +243,28 @@ export class WidgetApp {
   }
 
   private isEmpty(): boolean {
-    return this.state === null || (!this.state.accounts.some((account) => account.enabled) && this.state.settings.grokBotUsedPercent === null);
+    return this.state === null || (!this.state.accounts.some((account) => account.enabled) &&
+      this.state.settings.grokBotUsedPercent === null &&
+      grokBotReading(this.state.settings, this.now(), this.state.grokBotAuto).state !== 'automatic');
   }
 
   private grokBotItem(state: AppStateSnapshot, ctx: RenderContext): HTMLElement {
-    const reading = grokBotReading(state.settings, ctx.now);
-    const numeric = reading.state === 'fresh' || reading.state === 'stale';
+    const reading = grokBotReading(state.settings, ctx.now, state.grokBotAuto);
+    const numeric = reading.state === 'fresh' || reading.state === 'stale' || reading.state === 'automatic';
     const percent = numeric ? (state.settings.showUsedPercent ? reading.usedPercent : reading.leftPercent) : null;
     const value = percent === null ? '—' : `${percent}% ${ctx.t(state.settings.showUsedPercent ? 'unitUsed' : 'unitLeft')}`;
-    const status = ctx.t(reading.state === 'stale' ? 'grokBotStale' : reading.state === 'expired' ? 'grokBotExpired' : reading.state === 'unknown' ? 'grokBotUnknown' : 'grokBotManual');
+    const status = ctx.t(reading.state === 'automatic' ? 'grokBotAutomatic' : reading.state === 'stale' ? 'grokBotStale' :
+      reading.state === 'expired' ? 'grokBotExpired' : reading.state === 'unknown' ? 'grokBotUnknown' : 'grokBotManual');
+    const reset = reading.state === 'automatic' && reading.resetsAt !== null ? ` · ${ctx.t('resetLabel', { time: formatCountdown(reading.resetsAt - ctx.now) })}` : '';
     return h('div', {
-      class: `account-item grok-bot-item${reading.state === 'fresh' ? '' : ' is-stale'}`,
+      class: `account-item grok-bot-item${reading.state === 'fresh' || reading.state === 'automatic' ? '' : ' is-stale'}`,
       'data-provider': 'grok-bot',
-      title: `${ctx.t('grokBotTitle')} · ${value} · ${status}`,
+      title: `${ctx.t('grokBotTitle')} · ${value} · ${status}${reset}`,
     }, [
       providerIcon('grok', 16, state.settings.iconStyle === 'monochrome'),
       h('span', { class: 'grok-bot-widget-name' }, [ctx.t('grokBotWidget')]),
       h('strong', { class: 'grok-bot-widget-value' }, [value]),
-      h('small', { class: 'grok-bot-widget-manual' }, [ctx.t('grokBotManual')]),
+      h('small', { class: 'grok-bot-widget-manual' }, [status]),
     ]);
   }
 
@@ -320,13 +325,15 @@ export class WidgetApp {
           }
           return item;
         });
-        if (state.settings.grokBotUsedPercent !== null) items.push(this.grokBotItem(state, ctx));
+        if (state.settings.grokBotUsedPercent !== null ||
+          grokBotReading(state.settings, ctx.now, state.grokBotAuto).state === 'automatic') items.push(this.grokBotItem(state, ctx));
         this.main.replaceChildren(...items);
         this.summary.textContent = items.map((item) => item.getAttribute('title') ?? '').join('. ');
       }
     }
 
-    this.refreshButton.hidden = !state.accounts.some((account) => account.enabled);
+    this.refreshButton.hidden = !state.accounts.some((account) => account.enabled) &&
+      grokBotReading(state.settings, ctx.now, state.grokBotAuto).state !== 'automatic';
     this.updateRefreshButton();
     this.schedule(() => this.reportSize());
     return empty ? 'empty' : 'accounts';
@@ -364,7 +371,7 @@ export class WidgetApp {
   }
 
   requestRefresh(): void {
-    if (this.isEmpty() || this.state === null || !this.state.accounts.some((account) => account.enabled) || this.isRefreshDisabled()) return;
+    if (this.isEmpty() || this.state === null || this.refreshButton.hidden || this.isRefreshDisabled()) return;
     const now = this.now();
     this.cooldownUntil = now + REFRESH_COOLDOWN_MS;
     this.pendingRefresh = true;

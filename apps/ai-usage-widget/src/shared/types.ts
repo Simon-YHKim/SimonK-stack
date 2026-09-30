@@ -1,4 +1,5 @@
 import type { Material, PlacementMode, Settings } from './settings';
+import type { GrokBotAutoUsage } from './grok-bot';
 
 export const PROVIDER_IDS = ['claude', 'codex', 'grok', 'antigravity'] as const;
 export type ProviderId = (typeof PROVIDER_IDS)[number];
@@ -272,6 +273,8 @@ export interface AppStateSnapshot {
   theme: ThemeTokens;
   cli: Record<ProviderId, CliStatusDTO>;
   modelNotices: ModelNotice[];
+  /** Credential-free Grok Bot weekly meter. Separate from the Grok Build CLI account. */
+  grokBotAuto?: GrokBotAutoUsage;
   /**
    * Placement actually in use; differs from `settings.placementMode` when docked falls
    * back to floating (side or auto-hide taskbar). null until the widget is placed.

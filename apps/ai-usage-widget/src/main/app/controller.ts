@@ -34,6 +34,7 @@ import {
   type UsageSnapshot,
 } from '../../shared/types';
 import { maskSecrets } from '../../shared/mask';
+import type { GrokBotAutoUsage } from '../../shared/grok-bot';
 import { applyFetchFailure, createEmptySnapshot, staleAfterMs } from '../../shared/usage';
 import { IpcHandlerError } from '../ipc/dispatch';
 import type { Logger } from '../log';
@@ -96,6 +97,7 @@ export interface AppControllerDeps {
   onAuthRequired?(account: Pick<Account, 'id' | 'provider' | 'label'>): void;
   confirmResetCredit?(input: { label: string; emailMasked?: string; availableCount: number; expiresAt: number | null; locale: Locale }): Promise<boolean>;
   dismissModelNotice?(provider: ProviderId): Promise<void>;
+  refreshGrokBot?(): Promise<void>;
   scheduler?: Partial<Pick<SchedulerOptions, 'timeoutMs' | 'manualMinIntervalMs' | 'resumeDelayMs' | 'random'>>;
   loginTimeoutMs?: number;
 }
@@ -131,6 +133,7 @@ export function createAppController(deps: AppControllerDeps) {
   const detecting = new Set<ProviderId>();
   let effectivePlacementMode: PlacementMode | null = null;
   let modelNotices: ModelNotice[] = [];
+  let grokBotAuto: GrokBotAutoUsage | undefined;
   let broadcastPending = false;
   let stopped = false;
   /** Set by stop() and never cleared: a start() still awaiting must not revive the scheduler. */
@@ -189,6 +192,7 @@ export function createAppController(deps: AppControllerDeps) {
       theme: { ...theme },
       cli: { claude: cliDto('claude'), codex: cliDto('codex'), grok: cliDto('grok'), antigravity: cliDto('antigravity') },
       modelNotices: modelNotices.map((notice) => ({ ...notice })),
+      ...(grokBotAuto === undefined ? {} : { grokBotAuto: { ...grokBotAuto } }),
       effectivePlacementMode,
     };
   };
@@ -503,6 +507,10 @@ export function createAppController(deps: AppControllerDeps) {
     markStale,
     getSettings: (): Settings => ({ ...settings }),
     getLocale: (): Locale => locale,
+    setGrokBotAuto(value: GrokBotAutoUsage): void {
+      grokBotAuto = { ...value };
+      scheduleBroadcast();
+    },
     cliSummary: (): Record<ProviderId, CliSummary | null> => ({
       claude: cli.claude === null ? null : { ...cli.claude },
       codex: cli.codex === null ? null : { ...cli.codex },
@@ -671,6 +679,7 @@ export function createAppController(deps: AppControllerDeps) {
       void redetectMissing(providers)
         .catch((error: unknown) => logger.warn('redetect failed', { error }))
         .then(() => scheduler.refreshNow(accountId));
+      if (accountId === null) void deps.refreshGrokBot?.();
       return Promise.resolve(null);
     },
 

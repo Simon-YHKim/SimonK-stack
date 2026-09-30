@@ -55,6 +55,18 @@ describe('WidgetApp', () => {
     expect(api.callsTo('window:show-popup')).toEqual([{ tab: 'usage' }]);
   });
 
+  it('shows a signed-in Grok Bot weekly balance without any manual entry', () => {
+    const { app, api } = setup(appState({ grokBotAuto: { state: 'ok', usedPercent: 41, resetsAt: NOW + 2 * 86_400_000,
+      measuredAt: NOW } }));
+    const item = app.main.querySelector('.grok-bot-item') as HTMLElement;
+    expect(item.textContent).toContain('59% left');
+    expect(item.textContent).toContain('Unofficial auto');
+    expect(item.title).toContain('Reset');
+    expect(app.refreshButton.hidden).toBe(false);
+    app.refreshButton.click();
+    expect(api.callsTo('usage:refresh-now')).toEqual([{ accountId: null }]);
+  });
+
   it('clicking the bar toggles the popup with a 300ms debounce', () => {
     const { api, app } = setup(withAccounts());
     app.main.click();

@@ -94,7 +94,7 @@
 - `ErrorCode`(21종, 통합 때 `cli-unsupported-install` 추가 — CLI는 있으나 npm shim 등 실행기를 셸 없이 해석할 수 없음): 렌더러는 코드만 받아 i18n 문구로 바꾼다. 공급자 원문 오류는 UI로 가지 않는다.
 - `LoginEvent`: `url` / `device-code {userCode, verificationUrl, expiresAt?}` / `needs-paste` / `progress {stage}` / `success {emailMasked?, plan?}` / `error {code}`. IPC에서는 `LoginEventMessage { sessionId, accountId, at, event }`.
 - `ThemeTokens { scheme, taskbarScheme, highContrast, accent('#rrggbb'), reducedTransparency, effectiveMaterial }`.
-- `AppStateSnapshot { locale, settings, accounts, usage, refresh, theme, cli, effectivePlacementMode }` — 렌더러가 받는 유일한 상태. `effectivePlacementMode`는 실제 적용된 배치(docked가 좌우·자동 숨김 작업 표시줄에서 floating으로 폴백하면 floating, 배치 전 null).
+- `AppStateSnapshot { locale, settings, accounts, usage, refresh, theme, cli, effectivePlacementMode, grokBotAuto? }` — 렌더러가 받는 유일한 상태. `grokBotAuto`는 Grok Bot 주간 사용률·리셋 시각·조회 상태만 담고 로그인 비밀은 담지 않는다. `effectivePlacementMode`는 실제 적용된 배치(docked가 좌우·자동 숨김 작업 표시줄에서 floating으로 폴백하면 floating, 배치 전 null).
 
 ### 5-2. `src/shared/settings.ts`
 v1 키(SPEC §1-2) 중 의미가 남은 것 + v2 추가. mock 관련 키는 없다.
@@ -117,7 +117,7 @@ v1 키(SPEC §1-2) 중 의미가 남은 것 + v2 추가. mock 관련 키는 없�
 | `openAtLogin` | **false** | bool | v1 기본 ON 동의 없음(V1-14) |
 | `material` | `none` | `none`,`mica`,`acrylic` | |
 | `language` | `auto` | `auto`,`ko`,`en` | `auto`: OS 로케일이 `ko*`면 ko, 아니면 en |
-| `grokBotUsedPercent` | null | null 또는 정수 0~100 | 별도 Grok Bot 주간 사용률의 수동 기록. xAI Grok CLI 값과 구분(26.09.30 결정) |
+| `grokBotUsedPercent` | null | null 또는 정수 0~100 | 자동 조회 실패 시 별도 Grok Bot 주간 사용률의 수동 기록. xAI Grok CLI 값과 구분(26.09.30 결정) |
 | `grokBotRecordedAt` | null | null 또는 epoch ms | 사용자 기록 시 main이 채운다. 렌더러의 직접 변경은 거부 |
 
 - `parseSettingsPatch(input)`: 알 수 없는 키·잘못된 값이 하나라도 있으면 전체 거부. 빈 patch도 거부.

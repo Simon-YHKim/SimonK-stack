@@ -1,11 +1,12 @@
-import { grokBotReading } from '../../../shared/grok-bot';
+import { grokBotReading, type GrokBotAutoUsage } from '../../../shared/grok-bot';
+import { formatCountdown } from '../../../shared/usage';
 import type { Settings } from '../../../shared/settings';
 import { h, setStyles, setText } from '../dom';
 import type { Api } from '../api';
 import { providerIcon } from '../icons';
 import type { RenderContext } from '../model';
 
-/** A user-entered reading, kept separate from the Grok Build CLI account and its meter. */
+/** Grok Bot's weekly meter, separate from the Grok Build CLI account. */
 export class GrokBotCard {
   readonly el: HTMLElement;
   readonly input: HTMLInputElement;
@@ -66,14 +67,14 @@ export class GrokBotCard {
     ]);
   }
 
-  update(settings: Settings, ctx: RenderContext): void {
+  update(settings: Settings, ctx: RenderContext, automatic?: GrokBotAutoUsage): void {
     this.context = ctx;
     const { t } = ctx;
-    const reading = grokBotReading(settings, ctx.now);
+    const reading = grokBotReading(settings, ctx.now, automatic);
     this.el.dataset.state = reading.state;
     setText(this.name, t('grokBotTitle'));
-    setText(this.plan, t('grokBotPlan'));
-    setText(this.badge, t('grokBotManual'));
+    setText(this.plan, reading.state === 'automatic' ? (reading.plan ?? t('grokBotPlan')) : t('grokBotPlan'));
+    setText(this.badge, t(reading.state === 'automatic' ? 'grokBotAutomatic' : 'grokBotManual'));
     setText(this.guide, t('grokBotGuide'));
     setText(this.label, t('grokBotUsedInput'));
     setText(this.saveButton, t('grokBotSave'));
@@ -81,7 +82,7 @@ export class GrokBotCard {
     if (this.input.ownerDocument.activeElement !== this.input && settings.grokBotUsedPercent !== null) {
       this.input.value = String(settings.grokBotUsedPercent);
     }
-    if (reading.state === 'fresh' || reading.state === 'stale') {
+    if (reading.state === 'fresh' || reading.state === 'stale' || reading.state === 'automatic') {
       setText(this.used, `${reading.usedPercent}% ${t('unitUsed')}`);
       setText(this.left, `${reading.leftPercent}% ${t('unitLeft')}`);
       setStyles(this.fill, { width: `${reading.usedPercent}%` });
@@ -90,11 +91,16 @@ export class GrokBotCard {
       setText(this.left, '');
       setStyles(this.fill, { width: '0%' });
     }
-    setText(this.status, t(reading.state === 'stale' ? 'grokBotStale' : reading.state === 'expired' ? 'grokBotExpired' : reading.state === 'unknown' ? 'grokBotUnknown' : 'grokBotManual'));
+    const statusKey = reading.state === 'automatic' ? 'grokBotAutomatic' : reading.state === 'stale' ? 'grokBotStale' :
+      reading.state === 'expired' ? 'grokBotExpired' : reading.state !== 'unknown' ? 'grokBotManual' :
+      automatic?.state === 'login-expired' ? 'grokBotAutoExpired' : automatic?.state === 'unavailable' ? 'grokBotAutoUnavailable' :
+      automatic?.state === 'error' ? 'grokBotAutoError' : 'grokBotUnknown';
+    setText(this.status, reading.state === 'automatic' && reading.resetsAt !== null ?
+      `${t(statusKey)} · ${t('resetLabel', { time: formatCountdown(reading.resetsAt - ctx.now) })}` : t(statusKey));
     const time = reading.recordedAt === null ? '' : new Date(reading.recordedAt).toLocaleString(ctx.locale === 'ko' ? 'ko-KR' : 'en-US', {
       month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
     });
-    setText(this.recorded, time === '' ? '' : t('grokBotRecorded', { time }));
+    setText(this.recorded, time === '' ? '' : t(reading.state === 'automatic' ? 'grokBotMeasured' : 'grokBotRecorded', { time }));
   }
 
   private async save(): Promise<void> {

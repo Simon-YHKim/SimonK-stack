@@ -8,6 +8,7 @@ import { PROVIDER_TRAITS, type AppStateSnapshot } from '../shared/types';
 import { parseLaunchArgs, type LaunchArgs } from './app/args';
 import { createAppController, type AppController } from './app/controller';
 import { createModelNewsService } from './model-news/service';
+import { createGrokBotService } from './grok-bot/service';
 import { SmokeTracker } from './app/smoke';
 import { createInvokeHandlers } from './ipc/handlers';
 import { registerInvokeHandlers } from './ipc/register';
@@ -125,6 +126,7 @@ async function start(args: LaunchArgs, isolated: boolean, devServerUrl: string |
 
   let controllerRef: AppController | null = null;
   let modelNews: Awaited<ReturnType<typeof createModelNewsService>> | null = null;
+  let grokBotService: ReturnType<typeof createGrokBotService> | null = null;
   let initialMode: Parameters<AppController['setEffectivePlacementMode']>[0] = null;
   const windows = new WindowManager({
     preloadPath: path.join(__dirname, '../preload/index.js'),
@@ -153,6 +155,7 @@ async function start(args: LaunchArgs, isolated: boolean, devServerUrl: string |
     autostart,
     openExternal: (url) => shell.openExternal(url),
     dismissModelNotice: (provider) => modelNews?.dismiss(provider) ?? Promise.resolve(),
+    refreshGrokBot: () => grokBotService?.refresh() ?? Promise.resolve(),
     confirmResetCredit: async ({ label, emailMasked, availableCount, expiresAt, locale }) => {
       const expiry = expiresAt === null ? t(locale, 'resetCreditExpiryUnknown') :
         new Intl.DateTimeFormat(locale === 'ko' ? 'ko-KR' : 'en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(expiresAt);
@@ -203,6 +206,7 @@ async function start(args: LaunchArgs, isolated: boolean, devServerUrl: string |
     },
   });
   controllerRef = controller;
+  if (!args.smoke) grokBotService = createGrokBotService({ onChange: (value) => controller.setGrokBotAuto(value) });
   modelNews = await createModelNewsService({
     userData,
     logger: logger.child('model-news'),
@@ -280,6 +284,7 @@ async function start(args: LaunchArgs, isolated: boolean, devServerUrl: string |
       powerMonitor.removeListener('on-battery', onBattery);
       powerMonitor.removeListener('on-ac', onAc);
       controller.stop();
+      grokBotService?.stop();
       modelNews?.stop();
       for (const notice of authNotices.values()) notice.close();
       authNotices.clear();
@@ -298,6 +303,7 @@ async function start(args: LaunchArgs, isolated: boolean, devServerUrl: string |
   tray.create(trayStateOf(controller.snapshot(), autostart.supported));
   const starting = controller.start().catch((error: unknown) => logger.error('controller start failed', { error }));
   if (tracker === null) modelNews.start();
+  if (tracker === null) grokBotService?.start();
 
   if (tracker === null) {
     windows.showWidget();

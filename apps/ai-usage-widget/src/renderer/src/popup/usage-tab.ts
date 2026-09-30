@@ -17,6 +17,7 @@ import {
 import { syncChildren } from './keyed';
 import type { Api } from '../api';
 import type { Settings } from '../../../shared/settings';
+import type { GrokBotAutoUsage } from '../../../shared/grok-bot';
 import { GrokBotCard } from './grok-bot-card';
 
 function quotaBox(view: AccountView, row: RowView, index: number, ctx: RenderContext): HTMLElement {
@@ -111,11 +112,11 @@ export class UsageTab {
     this.el = h('div', { class: 'usage-tab' }, [this.listEl]);
   }
 
-  update(views: readonly AccountView[], ctx: RenderContext, settings: Settings = ctx.settings): void {
+  update(views: readonly AccountView[], ctx: RenderContext, settings: Settings = ctx.settings, automatic?: GrokBotAutoUsage): void {
     this.latestViews = views;
     this.latestContext = ctx;
     const { t } = ctx;
-    this.grokBot.update(settings, ctx);
+    this.grokBot.update(settings, ctx, automatic);
     const seen = new Set<string>();
     const cards = views.map((view) => {
       seen.add(view.account.id);

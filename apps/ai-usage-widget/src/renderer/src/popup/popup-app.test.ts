@@ -105,7 +105,7 @@ describe('Usage tab', () => {
     const { root, api, app } = setup(appState());
     const card = root.querySelector('.grok-bot-card') as HTMLElement;
     expect(card.textContent).toContain('SuperGrok Heavy');
-    expect(card.textContent).toContain('does not update automatically');
+    expect(card.textContent).toContain('automatic weekly usage');
     expect(card.textContent).toContain('No usage entered');
     app.usage.grokBot.input.value = '68';
     app.usage.grokBot.saveButton.click();
@@ -116,6 +116,16 @@ describe('Usage tab', () => {
     expect(card.textContent).toContain('32% left');
     (root.querySelector('.grok-bot-open') as HTMLButtonElement).click();
     expect(api.callsTo('shell:open-external')).toContainEqual({ kind: 'link', key: 'grok-bot-usage' });
+  });
+
+  it('shows automatically fetched Grok Bot weekly usage and reset time', () => {
+    const { root } = setup(appState({ grokBotAuto: { state: 'ok', usedPercent: 41, resetsAt: NOW + 2 * 86_400_000,
+      measuredAt: NOW, plan: 'SuperGrok Heavy' } }));
+    const card = root.querySelector('.grok-bot-card') as HTMLElement;
+    expect(card.textContent).toContain('41% used');
+    expect(card.textContent).toContain('59% left');
+    expect(card.textContent).toContain('Unofficial auto');
+    expect(card.textContent).toContain('2d 0h');
   });
 
   it('offers one Codex reset only for a fresh measured count and routes use through main', async () => {
