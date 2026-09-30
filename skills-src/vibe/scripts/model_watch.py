@@ -263,8 +263,9 @@ def scan_state(state: dict, fetch, now: datetime, force: bool = False,
         if previous and previous["sha256"] != digest:
             report["changed_sources"].append(provider)
         if previous:
+            previous_links = {canonical_link(url, old) for old in previous.get("links", [])}
             for link, title in links.items():
-                if link in previous.get("links", []):
+                if link in previous_links:
                     continue
                 key = hashlib.sha256(f"{provider}\n{link}".encode("utf-8")).hexdigest()[:20]
                 if key not in current["candidates"]:
@@ -359,7 +360,8 @@ def add_feedback(state: dict, key: str, now: datetime, url: str, sentiment: str)
     canonical = feedback_identity(url)
     if any(feedback_identity(entry["url"]) == canonical for entry in item["feedback"]):
         raise ValueError("duplicate feedback URL")
-    capture = next((entry for entry in item.get("captures", []) if entry["url"] == canonical), None)
+    capture = next((entry for entry in item.get("captures", [])
+                    if feedback_identity(entry["url"]) == canonical), None)
     observed_at = capture["observed_at"] if capture else iso(now)
     item["feedback"].append({"url": canonical, "observed_at": observed_at,
                              "reviewed_at": iso(now), "sentiment": sentiment})

@@ -49,6 +49,15 @@ class ModelWatchTests(unittest.TestCase):
         self.assertNotIn("released_at", candidate)
         self.assertFalse(candidate["routing_ready"])
 
+    def test_legacy_default_port_source_link_is_not_new_candidate(self):
+        self.pages["xai"] += '<a href="/news/grok-4-8">Grok 4.8</a>'
+        state, _ = model_watch.scan_state({}, self.fetch, FRIDAY)
+        state["sources"]["xai"]["links"] = ["https://x.ai:443/news/grok-4-8"]
+        state, report = model_watch.scan_state(state, self.fetch, FRIDAY + timedelta(days=7))
+        self.assertEqual(report["new_candidates"], [])
+        self.assertEqual(state["sources"]["xai"]["links"],
+                         ["https://x.ai/news/grok-4-8"])
+
     def test_changed_page_without_model_link_is_reported_not_promoted(self):
         state, _ = model_watch.scan_state({}, self.fetch, FRIDAY)
         self.pages["openai"] = self.pages["openai"].replace(
@@ -285,9 +294,11 @@ class ModelWatchTests(unittest.TestCase):
                          "https://www.reddit.com/r/grok/comments/post1")
         self.assertEqual(item["feedback"], [])
         self.assertFalse(item["routing_ready"])
+        item["captures"][0]["url"] = "https://www.reddit.com:443/r/grok/comments/post1"
         model_watch.add_feedback(state, key, first + timedelta(hours=2),
                                  "https://www.reddit.com/r/grok/comments/post1", "mixed")
         self.assertEqual(item["feedback"][0]["observed_at"], model_watch.iso(first))
+        self.assertTrue(item["captures"][0]["reviewed"])
         item["feedback"][0]["url"] = "https://www.reddit.com:443/r/grok/comments/post1"
         state, next_report = model_watch.scan_state(state, self.fetch,
                                                      first + timedelta(hours=3),
