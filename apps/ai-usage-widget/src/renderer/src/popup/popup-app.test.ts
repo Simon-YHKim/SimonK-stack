@@ -121,11 +121,11 @@ describe('Usage tab', () => {
     const { root, api, app } = setup(appState());
     const card = root.querySelector('.grok-bot-card') as HTMLElement;
     expect(card.textContent).toContain('SuperGrok Heavy');
-    expect(card.textContent).toContain('does not update automatically');
+    expect(card.textContent).toContain('automatic weekly usage');
     expect(card.textContent).toContain('No usage entered');
     // Where the meter is read (grok.com and the app) and why the Grok card cannot fill it.
     expect(card.textContent).toContain('Weekly Grok Bot Limit');
-    expect(card.textContent).toContain('not in the CLI response');
+    expect(card.textContent).toContain('not in the Grok CLI response');
     typeInto(app.usage.grokBot.input, '68');
     app.usage.grokBot.saveButton.click();
     await flush();
@@ -256,6 +256,30 @@ describe('Usage tab', () => {
     await flush();
     expect(app.statusEl.textContent).toBe(en.grokBotInvalidMoney);
     expect(api.callsTo('settings:update')).toHaveLength(0);
+  });
+
+  it('shows automatically fetched Grok Bot weekly usage and reset time', () => {
+    const { root } = setup(appState({ grokBotAuto: { state: 'ok', usedPercent: 41, resetsAt: NOW + 2 * 86_400_000,
+      measuredAt: NOW, plan: 'SuperGrok Heavy' } }));
+    const card = root.querySelector('.grok-bot-card') as HTMLElement;
+    expect(card.textContent).toContain('41% used');
+    expect(card.textContent).toContain('59% left');
+    expect(card.textContent).toContain('Unofficial auto');
+    expect(card.textContent).toContain('2d 0h');
+  });
+
+  it('groups the separate Grok Bot meter inside the Grok popup card', () => {
+    const grok = account({ id: 'g1', provider: 'grok', label: 'Grok' });
+    const auto = { state: 'ok' as const, usedPercent: 41, resetsAt: NOW + 2 * 86_400_000, measuredAt: NOW };
+    const { root, app } = setup(appState({ accounts: [grok], usage: [usage('g1', { provider: 'grok', source: 'grok-acp' })],
+      grokBotAuto: auto }));
+    const list = root.querySelector('.usage-list') as HTMLElement;
+    expect(list.children).toHaveLength(1);
+    expect(list.querySelector('[data-account-id="g1"] .grok-bot-card')?.textContent).toContain('41% used');
+    expect(list.querySelector('.grok-bot-card')?.classList.contains('card')).toBe(false);
+    app.update(appState({ grokBotAuto: auto }));
+    expect(list.children).toHaveLength(1);
+    expect(list.firstElementChild?.classList.contains('grok-bot-card')).toBe(true);
   });
 
   it('offers one Codex reset only for a fresh measured count and routes use through main', async () => {

@@ -257,7 +257,7 @@ export class PopupApp {
     setAttr(this.refreshButton, 'aria-label', label);
     setAttr(this.refreshButton, 'title', label);
     setAttr(this.refreshButton, 'aria-busy', String(spinning));
-    setAttr(this.refreshButton, 'aria-disabled', String(spinning || !state.accounts.some((a) => a.enabled)));
+    setAttr(this.refreshButton, 'aria-disabled', String(spinning || (!state.accounts.some((a) => a.enabled) && state.grokBotAuto === undefined)));
   }
 
   private render(): void {
@@ -275,7 +275,7 @@ export class PopupApp {
     for (const tab of POPUP_TABS) setText(this.tabs[tab], t(TAB_LABEL_KEYS[tab]));
     this.renderHeader();
 
-    this.usage.update(views, ctx, state.settings);
+    this.usage.update(views, ctx, state.settings, state.grokBotAuto);
     this.accounts.update(state, ctx);
     this.settings.update(state.settings, ctx, state.effectivePlacementMode, state.modelNewsHealth);
   }

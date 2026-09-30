@@ -1,6 +1,14 @@
 import type { MessageKey } from './i18n';
 import type { Settings } from './settings';
 
+export interface GrokBotAutoUsage {
+  state: 'ok' | 'unavailable' | 'login-expired' | 'error';
+  usedPercent: number | null;
+  resetsAt: number | null;
+  measuredAt: number;
+  plan?: string;
+}
+
 /** Manual readings are no longer treated as current after a day or as numeric after a week. */
 export const GROK_BOT_STALE_MS = 24 * 60 * 60 * 1000;
 export const GROK_BOT_EXPIRE_MS = 7 * GROK_BOT_STALE_MS;
@@ -34,7 +42,9 @@ export type GrokBotReading =
   /** Older than a week: the number is hidden. */
   | { state: 'expired'; recordedAt: number }
   /** The weekly reset the user entered has passed since the reading: the number no longer applies. */
-  | { state: 'reset'; recordedAt: number; resetAt: number };
+  | { state: 'reset'; recordedAt: number; resetAt: number }
+  /** Live reading from the signed-in Grok Bot app; independent of manual reset entries. */
+  | { state: 'automatic'; usedPercent: number; leftPercent: number; recordedAt: number; resetsAt: number | null; plan?: string };
 
 /** Status text per reading state, shared by the popup card and the taskbar item. */
 export const GROK_BOT_STATUS_KEYS: Readonly<Record<GrokBotReading['state'], MessageKey>> = {
@@ -43,6 +53,7 @@ export const GROK_BOT_STATUS_KEYS: Readonly<Record<GrokBotReading['state'], Mess
   stale: 'grokBotStale',
   expired: 'grokBotExpired',
   reset: 'grokBotResetPassed',
+  automatic: 'grokBotAutomatic',
 };
 
 /** The entered reset time only counts when it lies after the reading and within a week of it. */
@@ -54,7 +65,13 @@ function plausibleReset(resetAt: number | null, recordedAt: number): number | nu
 export function grokBotReading(
   settings: Pick<GrokBotFields, 'grokBotUsedPercent' | 'grokBotRecordedAt'> & Partial<Pick<GrokBotFields, 'grokBotResetAt'>>,
   now: number,
+  automatic?: GrokBotAutoUsage,
 ): GrokBotReading {
+  if (automatic?.state === 'ok' && automatic.usedPercent !== null && now - automatic.measuredAt < GROK_BOT_STALE_MS &&
+    (automatic.resetsAt === null || automatic.resetsAt > now)) {
+    return { state: 'automatic', usedPercent: automatic.usedPercent, leftPercent: 100 - automatic.usedPercent,
+      recordedAt: automatic.measuredAt, resetsAt: automatic.resetsAt, ...(automatic.plan ? { plan: automatic.plan } : {}) };
+  }
   const used = settings.grokBotUsedPercent;
   const at = settings.grokBotRecordedAt;
   if (used === null || at === null || !Number.isInteger(used) || used < 0 || used > 100 || !Number.isSafeInteger(at)) {
@@ -86,7 +103,7 @@ export function grokBotOnDemand(settings: Partial<Pick<GrokBotFields, 'grokBotOn
  * user screen 26.09.30) and Cursor bills on-demand usage only when a monthly limit is set.
  */
 export function grokBotWeeklyExhausted(reading: GrokBotReading): boolean {
-  return (reading.state === 'fresh' || reading.state === 'stale') && reading.usedPercent >= 100;
+  return (reading.state === 'fresh' || reading.state === 'stale' || reading.state === 'automatic') && reading.usedPercent >= 100;
 }
 
 /** What happens after the weekly limit, as far as the entered on-demand limit tells: 0 = the app's "none". */
