@@ -10,6 +10,7 @@
 - Execution and evidence
 - Durable state and recovery
 - Guarded Bot adapter
+- Conditional host image adapter
 - Guarded Orca adapter
 - Preparation journal and host-injected core
 - Completion boundary
@@ -179,13 +180,12 @@ not manufacture a host snapshot to force an executable plan.
 }
 ```
 
-`kind`: local, llm, gui or the typed-only `image` placeholder. An
-`IMAGE_GENERATION` step compiles to `kind=image` with the
-`image_generation` capability but always returns a blocked plan with
-`IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL`; no executable image adapter or
-subscription-inclusion certificate is implemented. An untyped `kind=image`
-is invalid. Text-model `vision`, a local API wrapper, or a GUI Bot must not
-silently substitute for it. A local node supplies an `argv` list and `software`
+`kind`: local, llm, gui or typed-only `image`. An `IMAGE_GENERATION` step
+compiles to `kind=image` with the `image_generation` capability. Without a
+current-host atomic subscription-only image tool it returns a blocked plan
+with `IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL`. Untyped `kind=image` is invalid.
+Text-model `vision`, a local API wrapper, or a GUI Bot must not silently
+substitute for it. A local node supplies an `argv` list and `software`
 names checked against runtime tools. Runtime tool_costs must include the exact
 argv_sha256 (`orchestrate.digest(argv)`), verified=true, evidence, observed_at
 and upper_usd_per_attempt. It must also set `transitive_effects_audited=true`
@@ -529,6 +529,60 @@ unbound helpers; they do not check the registered plan/Store/pinned helper. Do n
 use their exit codes as completion or as a substitute for this adapter. No helper
 result, historical pilot or manual paste grants permission to bypass a delivery
 hold. Source fixtures are not account, generation, OS-isolation or installation proof.
+
+## Conditional host image adapter (D-32)
+
+The planner accepts `runtime.image_tools` only from the trusted *current host*.
+Each observed tool needs a unique `id`, `surface=codex|claude`,
+`transport=host-image`, exact `tool_ref`, `host_ref`, `interaction_ref`, fresh
+`observed_at`, availability and evidence. `runtime.host_ref` and
+`runtime.interaction_ref` must match. The tool must expose
+`adapter_contract=image-host-atomic-subscription-v1`, `idempotent_request=true`
+and `lookup_by_request=true`. Its billing object must prove `mode=subscription`,
+the exact account, `image_included=true`, extra usage off, API and purchased-credit
+fallback disabled, and a **provider-enforced** hard cap of USD 0 for the image
+request. The billing proof itself needs a fresh `observed_at` and evidence;
+route expiry uses the oldest tool, billing or quota observation. A fresh
+nonexhausted image quota bucket must carry evidence and the same account,
+surface and `host-image` transport as the billing/tool observation.
+Generic login, local boolean assertions, auto-top-up OFF, a dated quota snapshot
+or a text-model capability are not that provider proof. The host must review the
+actual tool contract and provide its own trusted observation; worker prose may
+not populate this snapshot. No currently exposed Codex/Claude image tool on this
+PC meets the atomic cap/lookup contract, so normal plans remain blocked.
+
+`execute_image.py` is an **in-process integration point, not a usable CLI or
+provider implementation**. A reviewed host injects methods to reobserve the
+same account/tool/interaction, atomically generate with `subscription_only=true`
+and `provider_hard_cap_usd=0`, and look up a stable request ID without resend.
+The host must ensure the provider enforces these flags in the same generation
+operation. The adapter registers no account and changes no payment setting.
+After a shared-Store registration, it checks the plan and host, commits one
+claim, rechecks the host, then sends once. `reconcile()` looks up the original
+request without requiring remaining generation quota or a fresh generation plan;
+it still requires the exact host/tool/account identity and never resends. For
+an already terminal request, a fresh lookup must match the stored request,
+handle, state and result digest; the immutable Store proof is returned without
+writing a newer observation. A rejected successful image remains rejected on
+reentry while its original success receipt is checked; rejection never triggers
+a resend or rewrites the proof. A changed account/cap after claim or ambiguous
+send leaves the original
+intent/reservation unresolved; never mint a replacement ID to try again.
+Returned image bytes and task acceptance are checked separately; an output
+digest is not verification.
+Actual extra charge remains null and the Store does not settle or verify it.
+Claude-to-Codex handoff needs a fresh recipient-host plan and evidence; the
+Claude host's image proof cannot be inherited by a Codex recipient.
+
+OpenAI currently documents that Codex image generation uses included limits
+but may draw from purchased credits after exhaustion, while an API-key route
+uses API pricing. Neither `image_gen__imagegen`'s present tool contract nor
+an automatic-reload-OFF setting supplies the required per-request hard cap or
+idempotent lookup. Do **not** wrap or call that tool through this adapter under
+the USD 0 subscription-only grant. Sources:
+https://learn.chatgpt.com/docs/image-generation ;
+https://learn.chatgpt.com/docs/pricing ;
+https://help.openai.com/en/articles/12642688-using-credits-for-flexible-usage-in-chatgpt-personal-plans .
 
 ## Guarded Claude CLI adapter
 
