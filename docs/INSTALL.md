@@ -4286,10 +4286,22 @@ Gstack 실행·청구 경로·사용자 설치는 미검증으로
 | `codex-subset-safety` | `80e2c7e2cc201d725045399612f9947f959fc8a6e7cc9ba833b3557154b22fc1` | Codex 177스킬·출처 검증 |
 
 `/vibe` 단위 테스트 327건, 자체 점검 180항목, Bot 자체 점검 93항목,
-스킬 품질 141/141이 통과했다. 이 정확한 새 후보의 Windows Sandbox
-호스트 적재·복원은 아직 재실행하지 않았다. 이전 후보의 호스트 리허설을
-새 후보의 증거로 대체하지 않는다. 실제 모델·이미지·Bot 호출, 계정의
-크레딧 폴백 차단, 자동 선택 품질, 사용자 설치와 과금 검증도 미완이며
+스킬 품질 141/141이 통과했다. 정확한 새 후보는 별도 Windows Sandbox
+두 곳에서 네트워크·클립보드·장치 리디렉션과 인증정보 없이 적재·복원을
+재실행했다. 결과는
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr69-missing-credit-host-rehearsal/`
+에 보존했다. Claude Code 2.1.285는 플러그인 스킬 182개·디버그 오류 0,
+고정 Codex CLI 0.155.0은 플러그인 5개 활성, 양쪽 모두 기존 링크
+Claude 5개·Codex 2개를 두 번 복원하고 시험 플러그인 최종 0개였다.
+두 게스트의 인증 환경변수·활성 네트워크·모델 생성은 0이고 종료 뒤
+Sandbox 실행 인스턴스도 0개다. 원시 결과 SHA-256은 Claude
+`aa6637f0074256a65bb65d04df3e39fd242d7fec70632792512204ea55a469cb`,
+Codex `a4263a8a24c5bad6eb4f65b13ff481493d6cbee4cea94ce0153d9d5a48a243ea`이다.
+Claude 시작 설정의 첫 자동 실행은 `GUEST_RESULT_error`를 남겼으므로
+이 기록을 보존했다. 살아 있는 동일 게스트에서 명시적으로 단발 재실행한
+최종 종료 코드 0과 통과 결과만 적재·복원 증거로 사용한다. 시험 후
+네 후보 영수증을 다시 검증했고 모두 일치했다. 실제 모델·이미지·Bot
+호출, 계정의 크레딧 폴백 차단, 자동 선택 품질, 사용자 설치와 과금 검증은 미완이며
 `installation_ready=false`, `host_compatibility_verified=false`,
 `runtime_closure_verified=false`를 유지한다. PR #68·#69의 독립 리뷰·
 별도 심판 D-code 역시 아직 없어 `main` 머지 근거가 아니다.
