@@ -24,8 +24,23 @@
 직접 실행한 세 건은 입력 종류 불일치로 차단됐으며 통과 건수에 넣지 않는다.
 `test_orchestrate.py` 119개, 이번에 실행한 오프라인 단위 테스트 합계 387개,
 `selftest.py` 180항목, 스킬 품질 141/141, Node 플러그인 검증 68스킬이 통과했다.
-이번 버전의 호스트 격리 적재·복원, 실제 이미지 생성·Grok Bot 배달,
-모델/effort 자동 선택 품질, 구독 청구는 실행·입증하지 않았다.
+새 후보의 무인증·네트워크 차단 Windows Sandbox 두 곳에서 Claude Code
+2.1.285는 플러그인 스킬 182개를 오류 0으로 로드했고, 고정 Codex CLI
+0.155.0은 플러그인 5개를 활성화했다. 이전 Claude 5개·Codex 2개 링크의
+두 차례 복원과 시험 플러그인 최종 0개가 양쪽에서 통과했다. 원시 결과는
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr69-image-host-rehearsal/`
+의 `claude-output/integrated-result.json`(SHA-256
+`6aff5b4562fce02024837c03bdd01c6e8c7f71917a199d56dc8b1115fbbba2ec`)과
+`codex-output/codex-integrated-result.json`(SHA-256
+`9612c5a3e369e78911df135b07a6a1571f8990b467932ea1bef441fe4e1cce15`)다.
+게스트 인증 환경변수·활성 네트워크·모델 생성은 0, 종료 후 Sandbox도 0개였다.
+후보 번들·subset 영수증은 격리 시험 후에도 일치했다. 정적 콘텐츠 대조는
+공통 스킬 176개·payload 620파일 동일, Codex 안전 제외 5개·투영 1개이며,
+경로 감사의 내부 누락·비이식 명령은 양쪽 0이다. 다만 외부 Gstack 런타임
+힌트는 Claude 31/Codex 30스킬에 남아 `external_runtime_pending`(종료 1)이다.
+이 호스트 시험은 빈 게스트의 적재·복원 증거에 한정된다. 실제 사용자
+프로필의 스킬 선택, 이미지 생성·Grok Bot 배달, 모델/effort 선택 품질과
+구독 청구는 실행·입증하지 않았다.
 `installation_ready=false`, `host_compatibility_verified=false`,
 `runtime_closure_verified=false`, `selection_quality_verified=false`를 유지한다.
 PR #69의 독립 리뷰와 §35 별도 심판 D-code가 없으므로 운영 자동 배포 허용에도
