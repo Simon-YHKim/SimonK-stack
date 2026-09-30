@@ -7,6 +7,7 @@ import { currentNavigatorLanguage, pickLocale } from '../locale';
 import { buildEnabledViews, type RenderContext } from '../model';
 import { applyDocumentTheme, skinFor } from '../theme';
 import { renderWidgetItem } from './themes';
+import { modelNoticeText } from '../../../shared/model-notice';
 
 /** Clicks within this window after a toggle are ignored (v1 SPEC §2-5). */
 export const TOGGLE_DEBOUNCE_MS = 300;
@@ -25,23 +26,34 @@ interface PaceSample {
 
 interface FastPace {
   recent: number;
-  usual: number;
+  usual: number | null;
 }
 
-/** Compare two measured slopes; a single delayed provider update cannot trigger the indicator. */
+/** Detect a short quota burst, or a sustained rise against earlier readings. */
 function fastPace(samples: readonly PaceSample[]): FastPace | null {
   const latest = samples.at(-1);
-  if (latest === undefined) return null;
-  const recentStart = [...samples].reverse().find((sample) => {
+  if (latest === undefined || samples.length < 2) return null;
+  const burstStart = [...samples].reverse().find((sample) => {
     const age = latest.at - sample.at;
-    return age >= 15 * MINUTE_MS && age <= 30 * MINUTE_MS;
+    return age >= 2 * MINUTE_MS && age <= 15 * MINUTE_MS && latest.used - sample.used >= 12;
+  });
+  if (burstStart !== undefined) {
+    const usualStart = samples.find((sample) => sample.at <= burstStart.at - 10 * MINUTE_MS);
+    const usual = usualStart === undefined ? null :
+      (burstStart.used - usualStart.used) * 3_600_000 / (burstStart.at - usualStart.at);
+    return { recent: (latest.used - burstStart.used) * 3_600_000 / (latest.at - burstStart.at), usual };
+  }
+  const recentStart = samples.find((sample) => {
+    const age = latest.at - sample.at;
+    return age >= 2 * MINUTE_MS && age <= 20 * MINUTE_MS;
   });
   if (recentStart === undefined) return null;
-  const usualStart = [...samples].reverse().find((sample) => {
-    const age = recentStart.at - sample.at;
-    return age >= 45 * MINUTE_MS && age <= 90 * MINUTE_MS;
-  });
-  if (usualStart === undefined || latest.used - recentStart.used < 3) return null;
+  const increase = latest.used - recentStart.used;
+  if (increase < 3) return null;
+  const usualStart = samples.find((sample) => sample.at <= recentStart.at - 10 * MINUTE_MS);
+  const usual = usualStart === undefined ? null :
+    (recentStart.used - usualStart.used) * 3_600_000 / (recentStart.at - usualStart.at);
+  const recent = increase * 3_600_000 / (latest.at - recentStart.at);
   let positiveSteps = 0;
   let largestStep = 0;
   let previous = recentStart;
@@ -54,10 +66,8 @@ function fastPace(samples: readonly PaceSample[]): FastPace | null {
     }
     previous = sample;
   }
-  if (positiveSteps < 2 || latest.used - recentStart.used - largestStep < 2 || recentStart.used < usualStart.used) return null;
-  const recent = (latest.used - recentStart.used) * 3_600_000 / (latest.at - recentStart.at);
-  const usual = (recentStart.used - usualStart.used) * 3_600_000 / (recentStart.at - usualStart.at);
-  return recent >= Math.max(6, usual * 2) ? { recent, usual } : null;
+  if (positiveSteps < 2 || increase - largestStep < 2) return null;
+  return recent >= Math.max(12, (usual ?? 0) * 2.5) ? { recent, usual } : null;
 }
 
 export interface Size {
@@ -104,6 +114,7 @@ export class WidgetApp {
   private tickTimer: ReturnType<typeof setInterval> | null = null;
   private readonly paceHistory = new Map<string, Map<string, PaceSample[]>>();
   private readonly fastAccounts = new Map<string, FastPace>();
+  private readonly announcedFastAccounts = new Set<string>();
 
   readonly bar: HTMLDivElement;
   readonly main: HTMLDivElement;
@@ -130,7 +141,7 @@ export class WidgetApp {
       this.activateMain();
     });
     this.main.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
+      if (event.target === this.main && (event.key === 'Enter' || event.key === ' ')) {
         event.preventDefault();
         this.activateMain();
       }
@@ -155,7 +166,17 @@ export class WidgetApp {
   update(state: AppStateSnapshot): WidgetRendered {
     this.state = state;
     this.observePace(state);
-    return this.render();
+    const rendered = this.render();
+    const locale = this.context(state).locale;
+    for (const [accountId, pace] of this.fastAccounts) {
+      if (this.announcedFastAccounts.has(accountId)) continue;
+      this.announcedFastAccounts.add(accountId);
+      void this.api.invoke('window:show-pace-bubble', { accountId, recent: pace.recent, usual: pace.usual, locale });
+    }
+    for (const accountId of this.announcedFastAccounts) {
+      if (!this.fastAccounts.has(accountId)) this.announcedFastAccounts.delete(accountId);
+    }
+    return rendered;
   }
 
   private observePace(state: AppStateSnapshot): void {
@@ -180,7 +201,7 @@ export class WidgetApp {
         let samples = windows.get(key) ?? [];
         const last = samples.at(-1);
         if (last !== undefined && at <= last.at) {
-          const pace = fastPace(samples);
+          const pace = this.now() - last.at <= 25 * MINUTE_MS ? fastPace(samples) : null;
           if (pace !== null && pace.recent > (this.fastAccounts.get(snapshot.accountId)?.recent ?? 0)) {
             this.fastAccounts.set(snapshot.accountId, pace);
           }
@@ -195,7 +216,7 @@ export class WidgetApp {
           .filter((sample) => at - sample.at <= 2 * 3_600_000)
           .slice(-50);
         windows.set(key, samples);
-        const pace = fastPace(samples);
+        const pace = this.now() - at <= 25 * MINUTE_MS ? fastPace(samples) : null;
         if (pace !== null && pace.recent > (this.fastAccounts.get(snapshot.accountId)?.recent ?? 0)) {
           this.fastAccounts.set(snapshot.accountId, pace);
         }
@@ -249,7 +270,7 @@ export class WidgetApp {
     setAttr(this.main, 'aria-label', title);
 
     // Rebuild items only when their rendered form would change (keeps the refresh button and focus stable).
-    const signature = JSON.stringify({ empty, views, settings, locale: ctx.locale, scheme: state.theme.taskbarScheme, minute: Math.floor(ctx.now / 60_000) });
+    const signature = JSON.stringify({ empty, views, settings, notices: state.modelNotices, pace: [...this.fastAccounts], locale: ctx.locale, scheme: state.theme.taskbarScheme, minute: Math.floor(ctx.now / 60_000) });
     if (signature !== this.lastSignature) {
       this.lastSignature = signature;
       if (empty) {
@@ -258,10 +279,25 @@ export class WidgetApp {
       } else {
         const items = views.map((view) => {
           const item = renderWidgetItem(view, ctx);
+          const notice = state.modelNotices.find((entry) => entry.provider === view.account.provider);
+          if (notice !== undefined) {
+            const message = modelNoticeText(notice, ctx.locale, ctx.now);
+            const badge = h('button', {
+              type: 'button', class: 'model-notice-badge', title: message,
+              'aria-label': `${message}. ${ctx.locale === 'ko' ? '공식 발표 열기' : 'Open official announcement'}`,
+            }, ['✦']);
+            badge.addEventListener('click', (event) => {
+              event.stopPropagation();
+              void this.api.invoke('model-notice:open', { provider: notice.provider });
+            });
+            item.append(badge);
+            item.title += `\n${message}`;
+          }
           const pace = view.state === 'ok' ? this.fastAccounts.get(view.account.id) : undefined;
           if (pace !== undefined) {
             item.classList.add('is-fast');
-            item.title += `\n${t('quotaPaceFast', { recent: pace.recent.toFixed(1), usual: pace.usual.toFixed(1) })}`;
+            item.title += `\n${pace.usual === null ? t('quotaPaceBurst', { recent: pace.recent.toFixed(1) }) :
+              t('quotaPaceFast', { recent: pace.recent.toFixed(1), usual: pace.usual.toFixed(1) })}`;
           }
           return item;
         });

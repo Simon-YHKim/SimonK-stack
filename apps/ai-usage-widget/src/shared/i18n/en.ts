@@ -160,6 +160,7 @@ export const en: Record<keyof typeof ko, string> = {
   resetCreditNoCredit: 'No banked reset is available.',
   resetCreditAlreadyRedeemed: 'This reset was already used. Refresh usage.',
   quotaPaceFast: 'Quota usage is rising faster: {recent} pp/hour now vs {usual} pp/hour earlier. Based on limits, not token counts.',
+  quotaPaceBurst: 'Quota usage jumped quickly: {recent} pp/hour recently. Based on limits, not token counts.',
   widgetTooltip: '{name} | 5H: {p}% {unit} ({pr}) | Weekly: {w}% {unit} ({wr})',
   widgetTooltipNoWeekly: '{name} | {p}% {unit} ({pr})',
   widgetTooltipWeeklyOnly: '{name} | Weekly: {p}% {unit} ({pr})',

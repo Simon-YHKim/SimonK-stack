@@ -7,6 +7,7 @@ import { INVOKE_CHANNELS } from '../shared/ipc';
 import { PROVIDER_TRAITS, type AppStateSnapshot } from '../shared/types';
 import { parseLaunchArgs, type LaunchArgs } from './app/args';
 import { createAppController, type AppController } from './app/controller';
+import { createModelNewsService } from './model-news/service';
 import { SmokeTracker } from './app/smoke';
 import { createInvokeHandlers } from './ipc/handlers';
 import { registerInvokeHandlers } from './ipc/register';
@@ -18,7 +19,7 @@ import { systemThemeSource } from './platform/theme';
 import { ThemeService } from './platform/theme-core';
 import { loadNativeWindowOps } from './platform/user32';
 import { handleAppProtocol, registerAppSchemePrivileges } from './protocol';
-import { PROD_CSP, devCsp, isTrustedRendererUrl, rendererEntryUrl } from './protocol/urls';
+import { PROD_CSP, devCsp, isTrustedRendererUrl, modelBubbleEntryUrl, rendererEntryUrl } from './protocol/urls';
 import { createProviderRegistry } from './providers/registry';
 import { hardenApp, hardenSession } from './security';
 import { openStore } from './store';
@@ -123,11 +124,13 @@ async function start(args: LaunchArgs, isolated: boolean, devServerUrl: string |
   });
 
   let controllerRef: AppController | null = null;
+  let modelNews: Awaited<ReturnType<typeof createModelNewsService>> | null = null;
   let initialMode: Parameters<AppController['setEffectivePlacementMode']>[0] = null;
   const windows = new WindowManager({
     preloadPath: path.join(__dirname, '../preload/index.js'),
     devTools: !app.isPackaged,
     entryUrl: (view) => rendererEntryUrl(view, devServerUrl),
+    bubbleEntryUrl: () => modelBubbleEntryUrl(devServerUrl),
     settings: initialSettings,
     theme: theme.current(),
     native: native.ops,
@@ -149,6 +152,7 @@ async function start(args: LaunchArgs, isolated: boolean, devServerUrl: string |
     theme,
     autostart,
     openExternal: (url) => shell.openExternal(url),
+    dismissModelNotice: (provider) => modelNews?.dismiss(provider) ?? Promise.resolve(),
     confirmResetCredit: async ({ label, emailMasked, availableCount, expiresAt, locale }) => {
       const expiry = expiresAt === null ? t(locale, 'resetCreditExpiryUnknown') :
         new Intl.DateTimeFormat(locale === 'ko' ? 'ko-KR' : 'en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(expiresAt);
@@ -169,7 +173,10 @@ async function start(args: LaunchArgs, isolated: boolean, devServerUrl: string |
       logger.info('renderer ready', { view: request.view, rendered: request.rendered });
       tracker?.markReady(request, Date.now());
     },
-    onSnapshot: (snapshot) => tray?.update(trayStateOf(snapshot, autostart.supported)),
+    onSnapshot: (snapshot) => {
+      tray?.update(trayStateOf(snapshot, autostart.supported));
+      windows.showModelBubbles(snapshot.modelNotices, snapshot.locale);
+    },
     onAuthRequired: (account) => {
       if (tracker !== null || !Notification.isSupported()) return;
       const locale = resolveLocale(store.getSettings().language, app.getLocale());
@@ -196,6 +203,13 @@ async function start(args: LaunchArgs, isolated: boolean, devServerUrl: string |
     },
   });
   controllerRef = controller;
+  modelNews = await createModelNewsService({
+    userData,
+    logger: logger.child('model-news'),
+    onChange: (notices) => {
+      controller.setModelNotices(notices);
+    },
+  });
   controller.setEffectivePlacementMode(initialMode);
   const unsubscribeTheme = theme.onChange((tokens) => controller.onThemeChanged(tokens));
 
@@ -266,6 +280,7 @@ async function start(args: LaunchArgs, isolated: boolean, devServerUrl: string |
       powerMonitor.removeListener('on-battery', onBattery);
       powerMonitor.removeListener('on-ac', onAc);
       controller.stop();
+      modelNews?.stop();
       for (const notice of authNotices.values()) notice.close();
       authNotices.clear();
       unsubscribeTheme();
@@ -282,6 +297,7 @@ async function start(args: LaunchArgs, isolated: boolean, devServerUrl: string |
   await windows.create();
   tray.create(trayStateOf(controller.snapshot(), autostart.supported));
   const starting = controller.start().catch((error: unknown) => logger.error('controller start failed', { error }));
+  if (tracker === null) modelNews.start();
 
   if (tracker === null) {
     windows.showWidget();

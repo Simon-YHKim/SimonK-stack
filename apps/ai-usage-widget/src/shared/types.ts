@@ -252,6 +252,17 @@ export interface ClaudeBridgeStatus {
   errorCode?: ErrorCode;
 }
 
+export interface ModelNotice {
+  id: string;
+  provider: ProviderId;
+  model: string;
+  status: 'upcoming' | 'released';
+  /** YYYY-MM-DD from an official announcement, or null if the date was not stated. */
+  releaseDate: string | null;
+  url: string;
+  observedAt: number;
+}
+
 export interface AppStateSnapshot {
   locale: Locale;
   settings: Settings;
@@ -260,6 +271,7 @@ export interface AppStateSnapshot {
   refresh: RefreshStatus;
   theme: ThemeTokens;
   cli: Record<ProviderId, CliStatusDTO>;
+  modelNotices: ModelNotice[];
   /**
    * Placement actually in use; differs from `settings.placementMode` when docked falls
    * back to floating (side or auto-hide taskbar). null until the widget is placed.

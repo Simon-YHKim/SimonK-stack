@@ -160,6 +160,7 @@ export const ko = {
   resetCreditNoCredit: '사용 가능한 초기화권이 없습니다.',
   resetCreditAlreadyRedeemed: '이미 사용한 초기화권입니다. 사용량을 새로고침해 주세요.',
   quotaPaceFast: '최근 한도 소모가 빨라졌습니다: 최근 {recent}%p/시간 · 이전 {usual}%p/시간. 실제 토큰 개수가 아닌 사용률 기준입니다.',
+  quotaPaceBurst: '짧은 시간에 한도 사용률이 크게 증가했습니다: 최근 {recent}%p/시간. 실제 토큰 개수가 아닌 사용률 기준입니다.',
   widgetTooltip: '{name} | 5시간: {p}% {unit} ({pr}) | 주간: {w}% {unit} ({wr})',
   widgetTooltipNoWeekly: '{name} | {p}% {unit} ({pr})',
   widgetTooltipWeeklyOnly: '{name} | 주간: {p}% {unit} ({pr})',

@@ -10,6 +10,7 @@ import {
   type RendererReadyRequest,
   type ResetCreditResult,
   type ResizeWidgetRequest,
+  type ShowPaceBubbleRequest,
 } from '../../shared/ipc';
 import { applySettingsPatch, type Material, type PlacementMode, type Settings } from '../../shared/settings';
 import {
@@ -25,6 +26,7 @@ import {
   type ErrorCode,
   type Locale,
   type LoginState,
+  type ModelNotice,
   type PopupTab,
   type ProviderId,
   type RefreshStatus,
@@ -63,6 +65,7 @@ export interface WindowsPort {
   hidePopup(): void;
   setPopupLock(locked: boolean): void;
   resizeWidget(size: ResizeWidgetRequest): void;
+  showPaceBubble?(alert: ShowPaceBubbleRequest & { label: string }): void;
   /** Re-places the widget with unsaved offsets; null returns to the saved settings. */
   previewPlacement(patch: PlacementPreview | null): void;
   showWidget(): void;
@@ -92,6 +95,7 @@ export interface AppControllerDeps {
   onSnapshot?(snapshot: AppStateSnapshot): void;
   onAuthRequired?(account: Pick<Account, 'id' | 'provider' | 'label'>): void;
   confirmResetCredit?(input: { label: string; emailMasked?: string; availableCount: number; expiresAt: number | null; locale: Locale }): Promise<boolean>;
+  dismissModelNotice?(provider: ProviderId): Promise<void>;
   scheduler?: Partial<Pick<SchedulerOptions, 'timeoutMs' | 'manualMinIntervalMs' | 'resumeDelayMs' | 'random'>>;
   loginTimeoutMs?: number;
 }
@@ -126,6 +130,7 @@ export function createAppController(deps: AppControllerDeps) {
   const lastDetectAt: Record<ProviderId, number> = { claude: 0, codex: 0, grok: 0, antigravity: 0 };
   const detecting = new Set<ProviderId>();
   let effectivePlacementMode: PlacementMode | null = null;
+  let modelNotices: ModelNotice[] = [];
   let broadcastPending = false;
   let stopped = false;
   /** Set by stop() and never cleared: a start() still awaiting must not revive the scheduler. */
@@ -183,6 +188,7 @@ export function createAppController(deps: AppControllerDeps) {
       refresh: { ...refresh, accountIds: [...refresh.accountIds] },
       theme: { ...theme },
       cli: { claude: cliDto('claude'), codex: cliDto('codex'), grok: cliDto('grok'), antigravity: cliDto('antigravity') },
+      modelNotices: modelNotices.map((notice) => ({ ...notice })),
       effectivePlacementMode,
     };
   };
@@ -475,6 +481,25 @@ export function createAppController(deps: AppControllerDeps) {
     },
 
     snapshot,
+    setModelNotices(notices: ModelNotice[]): void {
+      modelNotices = notices.map((notice) => ({ ...notice }));
+      scheduleBroadcast();
+    },
+    async openModelNotice(provider: ProviderId): Promise<void> {
+      const notice = modelNotices.find((item) => item.provider === provider);
+      if (notice === undefined) return;
+      await deps.openExternal(notice.url);
+      await deps.dismissModelNotice?.(provider);
+    },
+    showPaceBubble(request: ShowPaceBubbleRequest): null {
+      const account = store.getAccounts().find((entry) => entry.id === request.accountId && entry.enabled);
+      const reading = usage.get(request.accountId);
+      if (account !== undefined && reading?.state === 'ok' && reading.measuredAt !== null &&
+        now() - reading.measuredAt <= 5 * 60_000) {
+        windows.showPaceBubble?.({ ...request, label: account.label });
+      }
+      return null;
+    },
     markStale,
     getSettings: (): Settings => ({ ...settings }),
     getLocale: (): Locale => locale,

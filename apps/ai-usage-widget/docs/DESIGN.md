@@ -313,7 +313,7 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 - 상태 변경 시 전체 재렌더 대신 키 기반 부분 갱신, 입력·포커스·스크롤 보존, 애니메이션은 표시할 때만(V1-25·26).
 - 위젯 막대: 계정별 아이콘·5H/주간 값·리셋 카운트다운(매초가 아니라 분 단위로 로컬 재계산), **새로고침 버튼**(회전 표시, `refresh` 상태 기준 비활성). 빈 상태 클릭 → 팝업 계정 탭.
 - 수치 단위는 위젯 값 옆에 `남음`/`left` 또는 `소모`/`used`로 직접 표시한다. 팝업 수치는 항상 소모율이므로 `소모`/`used`를 붙인다.
-- 빠른 소모 강조는 실제 토큰 개수가 아닌 **계정별 한도 사용률 증가**를 비교한다. 위젯 실행 중 쌓인 같은 창의 관측치로 최근 15~30분과 앞선 45~90분을 비교해 최근 증가가 3%p 이상·시간당 6%p 이상·이전의 2배 이상이고, 여러 번 나누어 증가한 경우에만 계정 테두리와 hover 말풍선을 표시한다. 리셋·조회 실패·미확인 수치·단일 지연 업데이트는 제외한다. 이력은 메모리에만 있어 재시작 후 약 1시간의 학습이 필요하며, 말풍선은 한도 사용률 추정임을 밝힌다.
+- 빠른 소모 강조는 실제 토큰 개수가 아닌 **계정별 한도 사용률 증가**를 비교한다. 위젯 실행 중 같은 한도 창에서 모은 최근 2~20분의 관측치를 사용한다. 15분 이내 12%p 이상 뛰면 이전 이력 없이도 즉시 경고한다. 그보다 작은 증가(최소 3%p)는 둘 이상의 증가 관측치와 시간당 최소 12%p, 이전 관측 구간 대비 2.5배를 요구한다. 단일 지연 업데이트가 12%p 미만이면 제외하고, 리셋·조회 실패·미확인 수치에서도 경고하지 않는다. 해당 계정을 강조하고 아이콘 위의 별도 투명 창에 8초간 말풍선을 표시하며, 같은 계정은 15분 동안 반복하지 않는다. 강조는 최근 증가가 관측 창에서 빠지면 사라진다. 이력은 앱 실행 중 메모리에만 저장하며, 수치는 사용률 기반 추정임을 툴팁과 말풍선에 밝힌다.
 - 테마 1a~1d의 v1 수치·색 규칙(SPEC §2)을 유지하되 조건 통일(V1-22), 모노크롬 규칙 단일 정의(V1-33), SVG gradient id는 인스턴스별 고유(V1-42). `windows` 테마는 `ThemeTokens` CSS 변수만 쓴다.
 - 접근성: `role=tablist/tab`, 화살표 키 이동, 아이콘 버튼 `aria-label`, `:focus-visible`, `forced-colors`, `prefers-reduced-motion`(V1-36).
 - 로그인 UI: `url`→"브라우저에서 열기"(`shell:open-external {kind:'login'}`) + 붙여넣기 입력, `device-code`→코드 크게 표시 + 주소 열기, `progress`/`error` 문구는 i18n 표.
@@ -448,3 +448,12 @@ interface ClaudeProviderAdapter extends ProviderAdapter { id:'claude'; bridge: C
 ## 16. 실측 대기(사용자 참관, DECISIONS 02:23)
 
 T1 Codex device code 로그인·버킷 / T2 Claude 파이프 로그인 / T3 statusline `rate_limits` 기록 / T4 Grok ACP `x.ai/billing` / T8 재질·강조색·koffi 패키징·NSIS 퓨즈. 결과는 `DECISIONS.md`에 결정으로 남기고 이 문서의 해당 절을 갱신한다.
+
+---
+
+## 17. 새 모델 알림 (26.09.30)
+
+- **출시 확인**: [Claude 모델 목록](https://platform.claude.com/docs/en/models/overview), [OpenAI 모델 목록](https://developers.openai.com/api/docs/models), [xAI 모델 목록](https://docs.x.ai/developers/models), [Gemini 모델 목록](https://ai.google.dev/gemini-api/docs/models)의 모델 ID가 전회 성공 조회 이후 새로 추가되면 `released`. 공개 문서 기준이며 해당 구독 계정의 선택 가능 여부는 보장하지 않는다. 이미지·음성·영상·임베딩·preview 등 비대화형/미출시 항목을 제외한다.
+- **공식 발표**: [OpenAI RSS](https://openai.com/news/rss.xml), [Google AI RSS](https://blog.google/technology/ai/rss/), [Anthropic 뉴스 사이트맵](https://www.anthropic.com/sitemap.xml), [xAI 릴리스 노트](https://docs.x.ai/developers/release-notes)를 사용한다. 모델명이 제목에 있고 본문 요약에 미래 출시가 명시돼야 `upcoming`; 날짜가 명시돼야 달력 일수 `D-n`을 계산한다. 날짜만 있을 때 임의의 시각을 만들지 않는다. D-day가 지나도 공식 출시 확인 전에는 `released`로 자동 전환하지 않는다. 명확하지 않은 홍보 글은 건너뛴다.
+- **표시**: 메인 프로세스가 처음 성공한 각 출처를 기준선으로 `model-news.json`에 기록한다(자격증명 없음). 6시간 간격으로 재확인하고, 신규 항목은 제조사별 아이콘 위 8초 말풍선과 아이콘 배지로 알린다. 배지의 키보드 포커스/툴팁에서 문구를 확인하고 누르면 검증된 공식 URL이 열린 뒤 해당 알림을 해제한다. 하나의 제조사에 복수 계정이 있어도 첫 아이콘에만 표시한다.
+- **한계**: 공식 출처의 HTML/RSS 형식이 바뀌거나 네트워크가 막히면 해당 출처만 건너뛰고 다음 주기에 재시도한다. 특히 발표 상태를 명시적으로 판독할 수 없는 글은 알림으로 만들지 않는다. CLI 계정 로그인이나 유료 모델 API를 이 기능에 사용하지 않는다.

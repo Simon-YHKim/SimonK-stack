@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_SETTINGS, type Settings } from '../../shared/settings';
-import type { ThemeTokens } from '../../shared/types';
+import type { ModelNotice, ThemeTokens } from '../../shared/types';
 import { nullLogger } from '../log';
 import { WindowManager } from './manager';
 import type { Rect } from './placement';
@@ -9,7 +9,9 @@ const fakes = vi.hoisted(() => {
   interface FakeWindow {
     bounds: Rect;
     visible: boolean;
+    destroyed: boolean;
     setBoundsCalls: Rect[];
+    loadedUrls: string[];
     getBounds(): Rect;
     setBounds(rect: Rect): void;
     isDestroyed(): boolean;
@@ -19,24 +21,27 @@ const fakes = vi.hoisted(() => {
     focus(): void;
     hide(): void;
     on(): void;
-    loadURL(): Promise<void>;
+    loadURL(url: string): Promise<void>;
+    setIgnoreMouseEvents(): void;
     setAlwaysOnTop(): void;
     moveTop(): void;
     destroy(): void;
-    webContents: { on(): void; send(): void; isDestroyed(): boolean };
+    webContents: { on(): void; send(): void; isDestroyed(): boolean; executeJavaScript(): Promise<Rect> };
   }
   const made: FakeWindow[] = [];
   const make = (initial: Rect): FakeWindow => {
     const win: FakeWindow = {
       bounds: { ...initial },
       visible: false,
+      destroyed: false,
       setBoundsCalls: [],
+      loadedUrls: [],
       getBounds: () => ({ ...win.bounds }),
       setBounds: (rect) => {
         win.bounds = { ...rect };
         win.setBoundsCalls.push({ ...rect });
       },
-      isDestroyed: () => false,
+      isDestroyed: () => win.destroyed,
       isVisible: () => win.visible,
       show: () => {
         win.visible = true;
@@ -49,11 +54,13 @@ const fakes = vi.hoisted(() => {
         win.visible = false;
       },
       on: () => undefined,
-      loadURL: () => Promise.resolve(),
+      loadURL: (url: string) => { win.loadedUrls.push(url); return Promise.resolve(); },
+      setIgnoreMouseEvents: () => undefined,
       setAlwaysOnTop: () => undefined,
       moveTop: () => undefined,
-      destroy: () => undefined,
-      webContents: { on: () => undefined, send: () => undefined, isDestroyed: () => false },
+      destroy: () => { win.destroyed = true; win.visible = false; },
+      webContents: { on: () => undefined, send: () => undefined, isDestroyed: () => false,
+        executeJavaScript: () => Promise.resolve({ x: 20, y: 10, width: 18, height: 18 }) },
     };
     made.push(win);
     return win;
@@ -66,12 +73,47 @@ const fakes = vi.hoisted(() => {
 });
 
 vi.mock('electron', () => ({
+  BrowserWindow: class { constructor(options: Rect) { return fakes.make(options); } },
   screen: {
     getPrimaryDisplay: () => fakes.display,
     getDisplayMatching: () => fakes.display,
     screenToDipRect: (_win: unknown, rect: Rect) => rect,
   },
 }));
+
+describe('WindowManager model bubble', () => {
+  it('loads a trusted bubble page above the vendor icon without taking focus', async () => {
+    vi.useFakeTimers();
+    try {
+      const { manager } = await openWithPopup();
+      manager.showWidget();
+      const notice: ModelNotice = { id: 'released:grok:grok5', provider: 'grok', model: 'Grok 5',
+        status: 'released', releaseDate: null, url: 'https://docs.x.ai/developers/models', observedAt: 1 };
+      manager.showModelBubbles([notice], 'ko');
+      await vi.advanceTimersByTimeAsync(200);
+      const bubble = fakes.made[2];
+      expect(bubble?.loadedUrls[0]).toContain('app://bundle/model-bubble.html?');
+      expect(bubble?.loadedUrls[0]).toContain('model=Grok+5');
+      expect(bubble?.isVisible()).toBe(true);
+      manager.showModelBubbles([], 'ko');
+      expect(bubble?.isDestroyed()).toBe(true);
+    } finally { vi.useRealTimers(); }
+  });
+  it('anchors a pace warning to its account and limits repeated callouts', async () => {
+    vi.useFakeTimers();
+    try {
+      const { manager } = await openWithPopup();
+      manager.showWidget();
+      manager.showPaceBubble({ accountId: 'g1', label: 'Grok work', recent: 192, usual: null, locale: 'ko' });
+      await vi.advanceTimersByTimeAsync(200);
+      expect(fakes.made[2]?.loadedUrls[0]).toContain('kind=pace');
+      expect(fakes.made[2]?.loadedUrls[0]).toContain('model=Grok+work');
+      expect(fakes.made[2]?.isVisible()).toBe(true);
+      manager.showPaceBubble({ accountId: 'g1', label: 'Grok work', recent: 200, usual: null, locale: 'ko' });
+      expect(fakes.made).toHaveLength(3);
+    } finally { vi.useRealTimers(); }
+  });
+});
 
 vi.mock('./index', () => ({
   POPUP_SIZE: { width: 380, height: 440 },
@@ -104,6 +146,7 @@ async function openWithPopup(settings: Settings = { ...DEFAULT_SETTINGS }) {
     preloadPath: 'preload.js',
     devTools: false,
     entryUrl: (view) => `app://${view}/index.html`,
+    bubbleEntryUrl: () => 'app://bundle/model-bubble.html',
     settings,
     theme: THEME,
     native: null,

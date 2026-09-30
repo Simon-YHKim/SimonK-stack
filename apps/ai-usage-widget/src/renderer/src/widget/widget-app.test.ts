@@ -101,6 +101,22 @@ describe('WidgetApp', () => {
     expect(document.activeElement).toBe(button);
   });
 
+  it('puts an actionable model notice only on its vendor icon', () => {
+    const state = withAccounts({ modelNotices: [{
+      id: 'released:codex:gpt7sol', provider: 'codex', model: 'GPT-7 Sol', status: 'released',
+      releaseDate: null, url: 'https://openai.com/index/gpt-7-sol', observedAt: NOW,
+    }] });
+    const { api, app } = setup(state);
+    const codexBadge = app.main.querySelector('.account-item[data-provider="codex"] .model-notice-badge');
+    expect(codexBadge?.getAttribute('title')).toContain('Try it');
+    expect(app.main.querySelector('.account-item[data-provider="claude"] .model-notice-badge')).toBeNull();
+    (codexBadge as HTMLButtonElement).click();
+    expect(api.callsTo('model-notice:open')).toEqual([{ provider: 'codex' }]);
+    expect(api.callsTo('window:toggle-popup')).toHaveLength(0);
+    codexBadge?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    expect(api.callsTo('window:toggle-popup')).toHaveLength(0);
+  });
+
   it('requests a resize only when the measured size changes', () => {
     const { api, app } = setup(withAccounts());
     expect(api.callsTo('window:resize-widget')).toEqual([{ width: 204, height: 34 }]);
@@ -209,5 +225,42 @@ describe('WidgetApp', () => {
       }));
       expect(root.querySelector('.account-item.is-fast')).toBeNull();
     }
+  });
+
+  it('alerts once for a rapid Grok weekly-credit burst and clears on reset', () => {
+    const { app, root, api } = setup(appState());
+    const feed = (minute: number, used: number) => {
+      const at = NOW + minute * 60_000;
+      vi.setSystemTime(at);
+      app.update(appState({
+        accounts: [account({ id: 'g1', provider: 'grok', label: 'Grok work' })],
+        usage: [usage('g1', { provider: 'grok', source: 'grok-acp',
+          windows: [quotaWindow('weekly', used, 7 * 24 * 3_600_000)], measuredAt: at, lastSuccessAt: at })],
+      }));
+    };
+    feed(0, 2);
+    expect(api.callsTo('window:show-pace-bubble')).toHaveLength(0);
+    feed(5, 18);
+    expect(root.querySelector('.account-item[data-account-id="g1"]')?.classList.contains('is-fast')).toBe(true);
+    expect(api.callsTo('window:show-pace-bubble')).toEqual([{ accountId: 'g1', recent: 192, usual: null, locale: 'en' }]);
+    feed(6, 18);
+    expect(api.callsTo('window:show-pace-bubble')).toHaveLength(1);
+    feed(8, 0);
+    expect(root.querySelector('.account-item.is-fast')).toBeNull();
+  });
+
+  it('catches a Grok burst after a long idle history', () => {
+    const { app, root, api } = setup(appState());
+    for (let minute = 0; minute <= 31; minute += 1) {
+      const at = NOW + minute * 60_000;
+      vi.setSystemTime(at);
+      app.update(appState({
+        accounts: [account({ id: 'g1', provider: 'grok' })],
+        usage: [usage('g1', { provider: 'grok', source: 'grok-acp',
+          windows: [quotaWindow('weekly', minute === 31 ? 18 : 2, 7 * 24 * 3_600_000)], measuredAt: at, lastSuccessAt: at })],
+      }));
+    }
+    expect(root.querySelector('.account-item[data-account-id="g1"]')?.classList.contains('is-fast')).toBe(true);
+    expect(api.callsTo('window:show-pace-bubble')).toHaveLength(1);
   });
 });

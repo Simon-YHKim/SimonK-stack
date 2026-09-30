@@ -23,5 +23,6 @@ export function createInitialSnapshot(input: InitialSnapshotInput): AppStateSnap
       antigravity: { state: 'unknown' },
     },
     effectivePlacementMode: null,
+    modelNotices: [],
   };
 }
