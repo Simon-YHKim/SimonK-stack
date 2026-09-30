@@ -203,7 +203,13 @@ def scan_state(state: dict, fetch, now: datetime, force: bool = False,
     pending = any(item.get("status") == "official_unreviewed" or
                   (item.get("status") == "released" and candidate_status(item, now) != "review_ready")
                   for item in current["candidates"].values())
-    if not force and now.astimezone(KST).weekday() != 4 and not pending:
+    previous_report = current.get("last_report") or {}
+    retry_errors = bool(previous_report.get("errors") or previous_report.get("feedback_errors"))
+    today = now.astimezone(KST).date()
+    latest_friday = today - timedelta(days=(today.weekday() - 4) % 7)
+    last_check = previous_report.get("checked_at")
+    weekly_due = not last_check or parse_time(last_check).astimezone(KST).date() < latest_friday
+    if not force and not weekly_due and not pending and not retry_errors:
         return current, {"status": "not_due", "new_candidates": [], "changed_sources": [], "errors": {}}
     report = {"status": "scanned", "checked_at": iso(now), "new_candidates": [],
               "changed_sources": [], "errors": {}, "feedback_captures": [],

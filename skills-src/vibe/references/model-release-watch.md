@@ -16,8 +16,9 @@ until measured and reviewed changes pass the normal release gates.
 ## Local watch
 
 Run `python -B <vibe>/scripts/model_watch.py scan` at 09:00 KST daily. The
-program fetches four fixed public official pages on Fridays, or on subsequent
-days while a candidate is pending. `scan --force` performs the same read-only
+program fetches four fixed public official pages on Fridays, after a missed
+Friday, after source errors, or on subsequent days while a candidate is pending.
+`scan --force` performs the same read-only
 source check when `/vibe` is invoked. It uses no LLM, Bot, payment or API key.
 Its state is `%LOCALAPPDATA%/SimonK/vibe/model-watch.json`; first run is a
 baseline, not retroactive discovery. The state and stdout report record changed

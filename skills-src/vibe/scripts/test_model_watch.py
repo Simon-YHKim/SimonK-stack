@@ -66,6 +66,7 @@ class ModelWatchTests(unittest.TestCase):
 
     def test_non_friday_without_pending_does_not_fetch(self):
         state, _ = model_watch.scan_state({}, self.fetch, FRIDAY)
+        state["last_report"] = {"checked_at": model_watch.iso(FRIDAY), "errors": {}}
 
         def forbidden(*_args):
             raise AssertionError("network should not be used")
@@ -73,6 +74,20 @@ class ModelWatchTests(unittest.TestCase):
         updated, report = model_watch.scan_state(state, forbidden, FRIDAY + timedelta(days=1))
         self.assertEqual(report["status"], "not_due")
         self.assertEqual(updated, state)
+
+    def test_missed_friday_is_checked_on_next_available_day(self):
+        state, _ = model_watch.scan_state({}, self.fetch, FRIDAY)
+        state["last_report"] = {"checked_at": model_watch.iso(FRIDAY), "errors": {}}
+        later, report = model_watch.scan_state(state, self.fetch, FRIDAY + timedelta(days=8))
+        self.assertEqual(report["status"], "scanned")
+        self.assertEqual(len(later["sources"]), len(model_watch.SOURCES))
+
+    def test_source_error_retries_next_day(self):
+        state, _ = model_watch.scan_state({}, self.fetch, FRIDAY)
+        state["last_report"] = {"checked_at": model_watch.iso(FRIDAY),
+                                "errors": {"anthropic": "TimeoutError"}}
+        _, report = model_watch.scan_state(state, self.fetch, FRIDAY + timedelta(days=1))
+        self.assertEqual(report["status"], "scanned")
 
     def test_failed_fetch_keeps_existing_evidence_and_reports_error(self):
         state, _ = model_watch.scan_state({}, self.fetch, FRIDAY)
