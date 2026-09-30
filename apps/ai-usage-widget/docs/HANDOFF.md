@@ -2,6 +2,15 @@
 > prepend 전용 로그. 새 블록을 맨 위에 얹고 직전 `## Latest`는 날짜 헤더로 강등한다. 덮어쓰지 않는다.
 
 ## Latest
+- **목적**: 위젯 개선(안정성·UX·Grok Bot·빠진 기록) + 사용자 캡처로 Grok Bot 대조 + "커서에서 알 수 있나" 조사(사용자 지시 26.09.30)
+- **최종 갱신**: 26.09.30 18:36 KST · Claude Code(E:\Coding Infra 세션)
+- **어디서**: `feat/aiuw-improve-260930`(워크트리 `SimonK-stack-aiuw-improve-260930`), origin/main 위 22개(이 세션 12개). main 병합·설치 안 함
+- **지금까지**: 캡처 2장(grok.com Usage, Grok Bot 앱) 대조 완료 — 위젯 Grok 카드 값 일치, grok.com에 "Weekly Grok Bot Limit" 별도 존재, 앱 리셋은 일 단위라 카드는 grok.com 정확한 일시를 받게 바꿈(`30612f2`·`17830c6`). 5관점 검토 워크플로 확정 14건 반영(`f9f7253`: 직접 고친 칸만 저장, 지난 값 미리 채우기 금지, 초기화권·재로그인 뒤 유예 해제, 모델 알림 Anthropic 실패 판정 등). Claude 테스트 불안정 해소(`acb80be`). Grok Bot 자동 조회: 값은 Cursor 계정 쪽이나 개인용 공식 통로 없음 → 수동 유지 + grok billing 새 필드 이름 감시 로그(DECISIONS 18:35, `docs/GROK-BOT.md`). `pnpm verify` 0(646)
+- **다음 1개**: 사용자에게 PR·설치·Cursor CLI 시험·공개 요청 4가지 결정 받기(STATE "다음" ①~④)
+- **막힌 것**: 없음(사용자 결정 대기). REQ-260930-01(캡처)은 grok.com·앱 2장으로 닫음, Cursor Spending 캡처는 선택
+- **작업 규칙 변화**: 다른 앱의 설치본·데이터를 풀어 보는 조사는 결과를 공개 리포 문서에 옮기지 않는다(공개 출처만 인용, 스크래치 사본은 삭제). 워크플로 검증자는 raw JSON을 받아 수동 종합(스키마 미사용)
+
+## 26.09.30 17:17 KST
 - **목적**: 위젯 개선 — 로그로 드러난 안정성 문제(Codex 조회 시간 초과, Antigravity 서버 500), 화면·UX, 새 기능, Grok Bot 보완, 빠진 기록 정리(사용자 지시 26.09.30)
 - **최종 갱신**: 26.09.30 17:17 KST · Claude Code(E:\Coding Infra 세션)
 - **어디서**: 브랜치 `feat/aiuw-improve-260930`, 워크트리 `E:\Coding Infra\Harrness Eng\SimonK-stack-aiuw-improve-260930`(node_modules는 그 워크트리에 따로 설치, junction 아님). `3a19dd1`(아래 Codex 블록) 위에 커밋 6개. main은 09.20 이후 위젯 커밋 0개 — 09.23~30 스택 16개 전부 브랜치에만 있다

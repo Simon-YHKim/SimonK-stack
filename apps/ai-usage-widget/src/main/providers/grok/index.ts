@@ -20,7 +20,7 @@ import { stripAnsi } from '../../cli/text';
 import { isPathInside } from '../../paths';
 import { ProviderError, type CliInfo, type ProviderAdapter, type ProviderDeps, type ProviderIdentity } from '../types';
 import { acpFailure, queryAcpBilling, type AcpFailure } from './acp';
-import { parseBillingResponse, type GrokBilling } from './billing';
+import { parseBillingResponse, unrecognizedBillingKeys, type GrokBilling } from './billing';
 import { classifyLoginFailure, createDeviceAuthParser } from './device-auth';
 
 export interface GrokTimeouts {
@@ -141,6 +141,25 @@ export function createGrokAdapter(deps: ProviderDeps, options: GrokAdapterOption
 
   const fail = (state: AcpFailure['state'], code: ErrorCode): ProbeResult => ({ kind: 'failed', failure: acpFailure(state, code) });
 
+  /** Field names already reported, so each new combination is logged once per run. */
+  const reportedBillingFields = new Set<string>();
+  /**
+   * Logs the names (never values) of billing fields the parser does not know. The Grok Bot weekly
+   * limit is not in this payload today; a new name such as a bot or product usage field is the cue
+   * to measure again and switch the manual Grok Bot card to this official source.
+   */
+  const noteNewBillingFields = (account: Account, result: unknown): void => {
+    try {
+      const keys = unrecognizedBillingKeys(result);
+      const signature = keys.join(',');
+      if (keys.length === 0 || reportedBillingFields.has(signature)) return;
+      reportedBillingFields.add(signature);
+      logger.info('grok billing has unrecognized fields', { accountId: account.id, keys, productLike: keys.some((key) => /bot|product/i.test(key)) });
+    } catch (error) {
+      logger.debug('grok billing field check failed', { error });
+    }
+  };
+
   const probe = (account: Account, signal: AbortSignal): Promise<ProbeResult> =>
     track(account.id, signal, (opSignal) => probeOnce(account, opSignal));
 
@@ -176,6 +195,7 @@ export function createGrokAdapter(deps: ProviderDeps, options: GrokAdapterOption
       logger.warn('grok billing result is not an object', { accountId: account.id });
       return fail('error', 'parse-error');
     }
+    noteNewBillingFields(account, outcome.result);
     return { kind: 'ok', billing };
   };
 

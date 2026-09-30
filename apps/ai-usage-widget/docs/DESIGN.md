@@ -94,7 +94,7 @@
 - `ErrorCode`(21종, 통합 때 `cli-unsupported-install` 추가 — CLI는 있으나 npm shim 등 실행기를 셸 없이 해석할 수 없음): 렌더러는 코드만 받아 i18n 문구로 바꾼다. 공급자 원문 오류는 UI로 가지 않는다.
 - `LoginEvent`: `url` / `device-code {userCode, verificationUrl, expiresAt?}` / `needs-paste` / `progress {stage}` / `success {emailMasked?, plan?}` / `error {code}`. IPC에서는 `LoginEventMessage { sessionId, accountId, at, event }`.
 - `ThemeTokens { scheme, taskbarScheme, highContrast, accent('#rrggbb'), reducedTransparency, effectiveMaterial }`.
-- `AppStateSnapshot { locale, settings, accounts, usage, refresh, theme, cli, effectivePlacementMode }` — 렌더러가 받는 유일한 상태. `effectivePlacementMode`는 실제 적용된 배치(docked가 좌우·자동 숨김 작업 표시줄에서 floating으로 폴백하면 floating, 배치 전 null).
+- `AppStateSnapshot { locale, settings, accounts, usage, refresh, theme, cli, modelNotices, modelNewsHealth, effectivePlacementMode }` — 렌더러가 받는 유일한 상태. `modelNotices`는 제조사별 활성 새 모델 알림, `modelNewsHealth {checkedAt, sources, failing[]}`는 마지막 조회 결과(§17). `effectivePlacementMode`는 실제 적용된 배치(docked가 좌우·자동 숨김 작업 표시줄에서 floating으로 폴백하면 floating, 배치 전 null).
 
 ### 5-2. `src/shared/settings.ts`
 v1 키(SPEC §1-2) 중 의미가 남은 것 + v2 추가. mock 관련 키는 없다.
@@ -120,7 +120,7 @@ v1 키(SPEC §1-2) 중 의미가 남은 것 + v2 추가. mock 관련 키는 없�
 | `grokBotUsedPercent` | null | null 또는 정수 0~100 | 별도 Grok Bot 주간 사용률의 수동 기록. xAI Grok CLI 값과 구분(26.09.30 결정) |
 | `grokBotRecordedAt` | null | null 또는 epoch ms | 사용자 기록 시 main이 채운다. 렌더러의 직접 변경은 거부 |
 | `grokBotResetAt` | null | null 또는 epoch ms | grok.com Usage "Weekly Grok Bot Limit"의 `Resets …` 일시를 사용자가 `datetime-local`(로컬 시각)로 옮긴 다음 주간 리셋 시각(선택, 앱의 "N일 후"는 일 단위 올림이라 쓰지 않음, 26.09.30 사용자 화면 확인). main은 지금−1분~지금+8일 밖을 거부. 사용률만 새로 기록할 때 이미 지난 리셋은 지우고, 사용률을 지우면 함께 지운다. 기록 시각 이후·8일 이내일 때만 유효하며 지나면 카드가 `reset` 상태(숫자 숨김·재입력 안내) (26.09.30) |
-| `grokBotOnDemandSpentCents` | null | null 또는 정수 0~100,000,000 | Cursor가 청구하는 Grok Bot On-demand 사용액(센트, 선택). Spending 화면 또는 앱의 On-demand usage 값 |
+| `grokBotOnDemandSpentCents` | null | null 또는 정수 0~100,000,000 | Cursor가 청구하는 Grok Bot On-demand 사용액(센트, 선택). Cursor 청구 화면의 값(앱 "사용량 및 청구"에는 월 한도가 "없음"일 때 사용액 행이 없음, 26.09.30 화면). 사용률과 함께 기록되므로 사용률이 최신(fresh·stale)일 때만 표시 |
 | `grokBotOnDemandLimitCents` | null | null 또는 정수 0~100,000,000 | Grok Bot On-demand 월 한도(센트, 선택). 앱의 "없음" = 0 → 주간 한도 도달 시 "리셋까지 멈춤", 0보다 크면 "추가 크레딧 → On-demand 청구", null이면 둘 다 가능하다고 표시(`grokBotSpillKey`) |
 
 - `parseSettingsPatch(input)`: 알 수 없는 키·잘못된 값이 하나라도 있으면 전체 거부. 빈 patch도 거부.

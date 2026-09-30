@@ -99,6 +99,34 @@ export function normalizeTier(value: unknown): string | undefined {
 
 const BILLING_KEYS = ['creditUsagePercent', 'currentPeriod', 'monthlyLimit', 'used', 'billingPeriodEnd'];
 
+/**
+ * Every field name the billing payload is known to carry (measured 26.09.20/26.09.30 plus the
+ * serde names above). Anything else is new: the Grok Bot weekly limit that grok.com shows is not
+ * in this payload today (DECISIONS 26.09.30 17:42), so a new name is the signal to look again.
+ */
+const KNOWN_BILLING_KEYS: ReadonlySet<string> = new Set([
+  'config', 'subscription_tier', 'subscriptionTier',
+  ...BILLING_KEYS,
+  'billingPeriodStart', 'onDemandCap', 'onDemandUsed', 'prepaidBalance', 'isUnifiedBillingUser',
+  'on_demand_enabled', 'onDemandEnabled', 'billingCycle', 'includedUsed', 'totalUsed', 'history',
+  'topupAmount', 'maxAmountPerMonth',
+]);
+const KEY_NAME_RE = /^[A-Za-z0-9_]{1,64}$/;
+
+/**
+ * Names (never values) of top-level and billing-config fields this parser does not know,
+ * sorted, at most 20. Used only to log that the payload grew.
+ */
+export function unrecognizedBillingKeys(result: unknown): string[] {
+  if (!isRecord(result)) return [];
+  const root = findBillingRoot(result);
+  const names = new Set<string>();
+  for (const key of [...Object.keys(result), ...(root === result ? [] : Object.keys(root))]) {
+    if (!KNOWN_BILLING_KEYS.has(key) && KEY_NAME_RE.test(key)) names.add(key);
+  }
+  return [...names].sort().slice(0, 20);
+}
+
 function hasBillingKeys(value: JsonObject): boolean {
   return BILLING_KEYS.some((key) => key in value);
 }
