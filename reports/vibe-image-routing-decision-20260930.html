@@ -18,7 +18,7 @@
 <body>
   <header>
     <h1>/vibe 이미지 생성 라우팅 결정 시트</h1>
-    <p>판정 전 초안 · 2026-09-30 19:21:38 KST · SimonK-stack <code>feat/vibe-image-routing-260930</code></p>
+    <p>판정 전 초안 · 2026-09-30 20:55:30 KST · SimonK-stack <code>feat/vibe-image-routing-260930</code></p>
   </header>
   <section class="cards" aria-label="핵심 현황">
     <div class="card"><div class="metric">차단 중</div><div>현재 <code>IMAGE_GENERATION</code> 계획은 항상 <code>IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL</code>.</div></div>
@@ -37,7 +37,7 @@
   <p class="flow-text">이미지 요청 → 현재 호스트 도구 확인 → 계정·한도·비용 증빙 → 1회 실행 또는 보류 → 결과·비용 대조</p>
   <details open><summary>옵션과 판단 기준</summary>
     <table><thead><tr><th>옵션</th><th>이점</th><th>핵심 위험·조건</th></tr></thead><tbody>
-      <tr><td>A. 내장 도구 연결</td><td>Codex의 <code>imagegen</code> 스킬이 기본으로 지정한 내장 도구를 이미지 전용 경로로 사용. API 키 불필요.</td><td>도구 존재만으로 현 계정의 구독 포함·잔여 한도·크레딧 폴백 차단은 입증되지 않음. 계획·Store·정확한 1회 호출·실제 결과/비용 관측을 함께 구현해야 함.</td></tr>
+      <tr><td>A. 내장 도구 연결</td><td>Codex의 <code>imagegen</code> 스킬이 기본으로 지정한 내장 도구를 이미지 전용 경로로 사용. API 키 불필요.</td><td>도구 존재나 ChatGPT 이미지 한도만으로 현 Codex 계정의 구독 포함·잔여 한도·기존 구매 크레딧 폴백 차단은 입증되지 않음. 계획·Store·정확한 1회 호출·실제 결과/비용 관측을 함께 구현해야 함.</td></tr>
       <tr><td>B. 현 차단 유지</td><td>추가 과금 위험이 확인되지 않은 상황에서 안전함.</td><td>이미지 자동화 요구는 미충족. A의 증빙·어댑터 구현을 끝낼 때까지 임시 상태로만 허용.</td></tr>
       <tr><td>C. API/CLI</td><td>모델·파일 경로 제어가 명시적.</td><td>OpenAI API 사용은 ChatGPT 구독과 별도 청구. 사용자의 추가 과금 $0·구독 전용 조건상 실행 불가.</td></tr>
     </tbody></table>
@@ -53,7 +53,7 @@
   </details>
   <details><summary>근거·미검증 범위</summary>
     <p>소스 기준: <code>skills-src/vibe/scripts/orchestrate.py</code>의 이미지 분기와 <code>references/orchestration.md</code>. 설치된 Codex <code>imagegen</code> 스킬은 내장 도구를 기본 경로, API-key CLI를 명시적 fallback으로 지정한다. 이는 현재 계정의 청구 증명이 아니다.</p>
-    <p>OpenAI 공식 문서는 <a href="https://help.openai.com/en/articles/6950777-wh">ChatGPT Plus 이미지 생성 포함·API 별도 청구</a>, <a href="https://help.openai.com/en/articles/12642688">지원 기능의 포함 한도 이후 크레딧 사용</a>, <a href="https://help.openai.com/en/articles/11084440-images-in-chatgpt">ChatGPT Images 제공 범위</a>를 설명한다. <a href="https://help.openai.com/en/articles/20001478">Work·Codex 사용량 안내</a>는 이미지 도구 사용량이 개별 채팅 표시에서 빠질 수 있다고 경고한다. 이 사실만으로 이 Codex 세션의 <code>image_gen</code> 경로가 개인 ChatGPT 이미지 한도에 결속됐다고 추정하지 않는다.</p>
+    <p>OpenAI의 <a href="https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan">Codex 요금제 안내</a>는 ChatGPT의 이미지 생성 한도·배너가 Codex에 적용되지 않는다고 명시한다. <a href="https://help.openai.com/en/articles/12642688-using-credits-for-flexible-usage-in-chatgpt-personal-plans">개인 요금제 크레딧 안내</a>에 따르면 포함 사용량을 소진하면 지원 기능의 기존 구매 크레딧 잔액을 사용할 수 있으므로 자동 충전 OFF만으로 기존 잔액 소비가 차단되지는 않는다. <a href="https://help.openai.com/en/articles/20001478-reviewing-work-and-codex-usage-and-using-personal-analytics-in-chatgpt-desktop">Work·Codex 사용량 안내</a>는 이미지 등 도구 사용량이 개별 채팅 합계에서 빠져도 한도 또는 크레딧을 소비할 수 있다고 경고한다. 이 자료는 일반 정책이며 이 세션의 <code>image_gen</code> 도구가 어느 계정·한도·청구 경로에 결속됐는지는 증명하지 않는다.</p>
     <p class="muted">본 시트는 옵션 비교 자료이지 D-code 판정, 실호출 허가, 설치 또는 머지 승인이 아니다. 독립 패널·별도 심판과 Claude 소유 원장의 기록이 필요하다.</p>
   </details>
 </body>
