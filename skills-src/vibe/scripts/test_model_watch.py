@@ -264,6 +264,19 @@ class ModelWatchTests(unittest.TestCase):
         self.assertEqual(model_watch.MODEL_NAME.search("o3 deep research").group(0),
                          "o3 deep research")
 
+    def test_unknown_separator_suffix_does_not_count_for_base_model(self):
+        for base, variant in (("o3", "o3/research"),
+                              ("GPT-4o", "GPT-4o/voice"),
+                              ("Grok 4.8", "Grok 4.8.beta")):
+            with self.subTest(base=base, variant=variant):
+                item = {"title": f"Introducing {base}",
+                        "release_verified_at": model_watch.iso(FRIDAY)}
+                feed = ('<feed xmlns="http://www.w3.org/2005/Atom">'
+                        f'<entry><title>{variant} impressions</title>'
+                        '<link href="https://www.reddit.com/r/AI/comments/variant" />'
+                        '<published>2026-10-02T01:00:00+00:00</published></entry></feed>')
+                self.assertEqual(model_watch.extract_public_feedback(feed, item), [])
+
     def test_model_aliases_match_without_admitting_other_variants(self):
         for candidate, alias, unrelated in (
                 ("Sonnet 5.5", "Claude Sonnet 5.5", "Claude Sonnet 5.6"),
@@ -329,10 +342,14 @@ class ModelWatchTests(unittest.TestCase):
         self.assertEqual(alias_report["feedback_captures"], [])
         item = state["candidates"][key]
         self.assertEqual(len(item["captures"]), 1)
+        duplicate = copy.deepcopy(item["captures"][0])
+        duplicate.update(url="https://www.reddit.com/r/grok/comments/post1",
+                         observed_at=model_watch.iso(first + timedelta(minutes=30)))
+        item["captures"].insert(0, duplicate)
         model_watch.add_feedback(state, key, first + timedelta(hours=2),
                                  "https://www.reddit.com/r/grok/comments/post1", "mixed")
         self.assertEqual(item["feedback"][0]["observed_at"], model_watch.iso(first))
-        self.assertTrue(item["captures"][0]["reviewed"])
+        self.assertTrue(all(capture["reviewed"] for capture in item["captures"]))
         item["feedback"][0]["url"] = "https://www.reddit.com:443/r/grok/comments/post1"
         state, next_report = model_watch.scan_state(state, self.fetch,
                                                      first + timedelta(hours=3),

@@ -64,12 +64,16 @@ candidate model name and stores matching post links as **unreviewed captures**.
 Hyphen and space spellings such as `GPT-4o-mini` / `GPT-4o mini`, optional
 `GPT` separators and the optional `Claude` family prefix are treated as the
 same model. Hyphenated suffixes and dotted version segments remain part of the
-model label, so base-model posts do not count for a distinct variant. Reviewed
+model label, so base-model posts do not count for a distinct variant.
+Unknown slash or dotted text suffixes are not silently treated as the base
+model; they require manual inspection before counting as feedback. Reviewed
 post URLs stay deduplicated through subsequent scans even after capture pruning;
 schema-v1 default-port and trailing-dot URL aliases do not become separate
 observations for the 24-hour review gate. Legacy captured Reddit URLs are not
 re-captured and retain their original observation time when reviewed. Official
 links with an explicit default port are not rediscovered as new releases.
+If aliases were already stored as multiple captures, reviewing one canonical
+URL retains the earliest observation and marks all matching captures reviewed.
 It does not read them as a verdict or auto-grade sentiment. Inspect the post
 before calling `add-feedback --key K --url URL --sentiment LABEL`; for a captured
 post the first observation timestamp is retained, while an uncaptured public

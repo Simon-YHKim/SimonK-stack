@@ -41,7 +41,7 @@ MODEL_NAME = re.compile(
     r"\b(?:GPT[-\s]?\d+(?:\.\d+)*(?:[-\s]?(?:o(?:[-\s]mini)?|mini|nano|turbo|Astra|Sol|Luna|Terra))?|"
     r"o\d+(?:\.\d+)*(?:[-\s](?:deep[-\s]research|mini|preview|pro))?|"
     r"(?:Claude\s+)?(?:Sonnet|Opus|Haiku|Fable|Mythos)\s+\d+(?:\.\d+)*|"
-    r"Gemini\s+\d+(?:\.\d+)*(?:\s+(?:Pro|Flash))?|Grok\s+\d+(?:\.\d+)*)(?:-[a-z0-9]+)*\b",
+    r"Gemini\s+\d+(?:\.\d+)*(?:\s+(?:Pro|Flash))?|Grok\s+\d+(?:\.\d+)*)(?:-[a-z0-9]+)*\b(?![-./_][a-z0-9])",
     re.IGNORECASE,
 )
 
@@ -360,12 +360,13 @@ def add_feedback(state: dict, key: str, now: datetime, url: str, sentiment: str)
     canonical = feedback_identity(url)
     if any(feedback_identity(entry["url"]) == canonical for entry in item["feedback"]):
         raise ValueError("duplicate feedback URL")
-    capture = next((entry for entry in item.get("captures", [])
-                    if feedback_identity(entry["url"]) == canonical), None)
-    observed_at = capture["observed_at"] if capture else iso(now)
+    captures = [entry for entry in item.get("captures", [])
+                if feedback_identity(entry["url"]) == canonical]
+    observed_at = (iso(min(parse_time(entry["observed_at"]) for entry in captures))
+                   if captures else iso(now))
     item["feedback"].append({"url": canonical, "observed_at": observed_at,
                              "reviewed_at": iso(now), "sentiment": sentiment})
-    if capture:
+    for capture in captures:
         capture["reviewed"] = True
 
 
