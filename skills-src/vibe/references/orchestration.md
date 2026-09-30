@@ -541,7 +541,9 @@ Each observed tool needs a unique `id`, `surface=codex|claude`,
 and `lookup_by_request=true`. Its billing object must prove `mode=subscription`,
 the exact account, `image_included=true`, extra usage off, API and purchased-credit
 fallback disabled, and a **provider-enforced** hard cap of USD 0 for the image
-request. A fresh nonexhausted image quota bucket and evidence are required.
+request. The billing proof itself needs a fresh `observed_at` and evidence;
+route expiry uses the oldest tool, billing or quota observation. A fresh
+nonexhausted image quota bucket and evidence are required.
 Generic login, local boolean assertions, auto-top-up OFF, a dated quota snapshot
 or a text-model capability are not that provider proof. The host must review the
 actual tool contract and provide its own trusted observation; worker prose may

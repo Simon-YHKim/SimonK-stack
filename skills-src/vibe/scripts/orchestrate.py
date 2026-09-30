@@ -900,6 +900,7 @@ def assess_image_tool(tool, runtime, step, now):
             or billing.get("provider_hard_cap_enforced") is not True
             or type(billing.get("provider_hard_cap_usd")) not in (int, float)
             or billing["provider_hard_cap_usd"] != 0
+            or not fresh(billing.get("observed_at"), now)
             or not isinstance(billing.get("evidence"), list) or not billing["evidence"]):
         errors.append("IMAGE_SUBSCRIPTION_HARD_CAP_UNVERIFIED")
     quota = tool.get("quota", {})
@@ -912,7 +913,8 @@ def assess_image_tool(tool, runtime, step, now):
 
 
 def image_tool_route(tool):
-    valid_until = min(instant(tool["observed_at"]), instant(tool["quota"]["observed_at"]))
+    valid_until = min(instant(tool["observed_at"]), instant(tool["billing"]["observed_at"]),
+                      instant(tool["quota"]["observed_at"]))
     valid_until += timedelta(seconds=DEFAULT_TTL)
     return {"candidate_id": tool["id"], "surface": tool["surface"],
             "vendor": SURFACES[tool["surface"]], "transport": "host-image",

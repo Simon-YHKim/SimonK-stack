@@ -57,6 +57,7 @@ def image_tool(**changes):
                     "extra_usage_enabled": False, "api_fallback_disabled": True,
                     "paid_credit_fallback_disabled": True,
                     "provider_hard_cap_usd": 0, "provider_hard_cap_enforced": True,
+                    "observed_at": NOW,
                     "evidence": ["fixture provider-enforced cap"]},
         "quota": {"used_pct": 10, "observed_at": NOW, "bucket": "fixture-image"},
     }
@@ -1416,9 +1417,18 @@ class OrchestrationTests(unittest.TestCase):
         self.assertEqual(node["route"]["model"], None)
         self.assertEqual(node["handoff"]["kind"], "host-image")
         self.assertEqual(self.m.ready_steps(p, [], NOW), ["read"])
+        older_billing = copy.deepcopy(tool)
+        older_billing["billing"]["observed_at"] = (
+            datetime.fromisoformat(NOW) - timedelta(minutes=10)).isoformat()
+        older_plan = self.plan([image], image_tools=[older_billing],
+                               host_ref="fixture-host", interaction_ref="fixture-interaction")
+        self.assertEqual(older_plan["steps"][0]["route"]["valid_until"],
+                         (datetime.fromisoformat(NOW) + timedelta(minutes=5)).isoformat())
         for billing_change in ({"paid_credit_fallback_disabled": False},
                                {"provider_hard_cap_enforced": False},
                                {"provider_hard_cap_usd": 1},
+                               {"observed_at": None},
+                               {"observed_at": "2026-09-01T00:00:00+00:00"},
                                {"image_included": False}):
             with self.subTest(billing_change=billing_change):
                 unsafe = copy.deepcopy(tool)
