@@ -563,7 +563,9 @@ request without requiring remaining generation quota or a fresh generation plan;
 it still requires the exact host/tool/account identity and never resends. For
 an already terminal request, a fresh lookup must match the stored request,
 handle, state and result digest; the immutable Store proof is returned without
-writing a newer observation. A changed account/cap after claim or ambiguous
+writing a newer observation. A rejected successful image remains rejected on
+reentry while its original success receipt is checked; rejection never triggers
+a resend or rewrites the proof. A changed account/cap after claim or ambiguous
 send leaves the original
 intent/reservation unresolved; never mint a replacement ID to try again.
 Returned image bytes and task acceptance are checked separately; an output
