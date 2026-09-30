@@ -1,10 +1,10 @@
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createLogger } from '../log';
 import { MODEL_CATALOGS } from './catalog';
-import { allowedUrl, createModelNewsService } from './service';
+import { RETRY_AFTER_FAILURE_MS, allowedUrl, createModelNewsService } from './service';
 
 const dirs: string[] = [];
 afterEach(async () => { await Promise.all(dirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true }))); });
@@ -105,6 +105,41 @@ describe('model news service', () => {
     await service.checkNow();
     expect(reports.at(-1)).toEqual({ checkedAt: clock, sources: 8, failing: [] });
     service.stop();
+  });
+
+  it('looks again 15 minutes after a check with failed sources instead of waiting the full interval', async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'aiuw-model-news-'));
+    dirs.push(dir);
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] });
+    try {
+      const pages = new Map(basePages);
+      pages.delete(MODEL_CATALOGS.antigravity);
+      let catalogFetches = 0;
+      const reports: { failing: unknown[] }[] = [];
+      const service = await createModelNewsService({ userData: dir, logger: createLogger({ sinks: [] }), onChange: () => {},
+        onHealth: (health) => reports.push(health),
+        fetchText: (url) => {
+          if (url === MODEL_CATALOGS.antigravity) catalogFetches += 1;
+          const body = pages.get(url);
+          return body === undefined ? Promise.reject(new Error('timeout')) : Promise.resolve(body);
+        } });
+      service.start();
+      await vi.waitFor(() => expect(reports).toHaveLength(1));
+      expect(reports[0]?.failing).toHaveLength(1);
+      pages.set(MODEL_CATALOGS.antigravity, basePages.get(MODEL_CATALOGS.antigravity)!);
+      await vi.advanceTimersByTimeAsync(RETRY_AFTER_FAILURE_MS - 1_000);
+      expect(catalogFetches).toBe(1);
+      await vi.advanceTimersByTimeAsync(1_000);
+      await vi.waitFor(() => expect(reports).toHaveLength(2));
+      expect(catalogFetches).toBe(2);
+      expect(reports[1]?.failing).toEqual([]);
+      // A clean check schedules no further early retry.
+      await vi.advanceTimersByTimeAsync(RETRY_AFTER_FAILURE_MS * 2);
+      expect(reports).toHaveLength(2);
+      service.stop();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('counts the Anthropic source as failed when every new article fails, and retries those articles later', async () => {

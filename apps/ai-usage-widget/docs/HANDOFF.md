@@ -2,6 +2,14 @@
 > prepend 전용 로그. 새 블록을 맨 위에 얹고 직전 `## Latest`는 날짜 헤더로 강등한다. 덮어쓰지 않는다.
 
 ## Latest
+- **목적**: 사용자 승인(1 PR·머지, 2 설치, 3 Cursor CLI 시험; 4 공개 요청은 안 함) 실행과 설치 뒤 발견한 결함 수정
+- **최종 갱신**: 26.09.30 20:2x KST · Claude Code(E:\Coding Infra 세션)
+- **지금까지**: PR #58(`2bc9961`)·#59(`7e04e54`) main 머지(merge commit, CI 통과 확인 후). 설치 2회(20:04, 20:13), 프로세스 정상. 설치 직후 Gemini 모델 목록이 또 비어 원인 규명 — Google이 가끔 `?hl=pt-br` 번역 페이지로 리다이렉트 → 영어 고정+패턴 확장(#59). 재설치 뒤엔 12초 시간 초과 1회 → 실패 출처 15분 뒤 재확인(이번 PR). Cursor CLI 설치·시험: 사용량 조회 명령·JSON 항목 없음, `/usage`는 대화형 → 자동 조회 경로 아님
+- **다음 1개**: 이번 PR 머지·재설치 후 설정 탭 "새 모델 알림" 줄이 전부 읽음으로 바뀌는지 확인
+- **막힌 것**: 없음
+- **작업 규칙 변화**: 설치 스크립트는 위젯을 강제 종료하므로 "renderer process gone: crashed" 한 줄이 남을 수 있다(Windows 이벤트 로그로 실제 충돌 여부 확인). Cursor CLI는 `cursor-agent`로 부른다(`agent`는 PATH상 grok 사본)
+
+## 26.09.30 18:36 KST
 - **목적**: 위젯 개선(안정성·UX·Grok Bot·빠진 기록) + 사용자 캡처로 Grok Bot 대조 + "커서에서 알 수 있나" 조사(사용자 지시 26.09.30)
 - **최종 갱신**: 26.09.30 18:36 KST · Claude Code(E:\Coding Infra 세션)
 - **어디서**: `feat/aiuw-improve-260930`(워크트리 `SimonK-stack-aiuw-improve-260930`), origin/main 위 22개(이 세션 12개). main 병합·설치 안 함
