@@ -4123,6 +4123,38 @@ Codex 177스킬의 실제 선택·전체 실행이나 사용자 홈 무손실 �
 Gstack 외부 런타임·모델/effort 선택 품질·이미지/Bot 실제 작업·구독 청구
 경로는 여전히 미검증이므로 readiness 플래그는 `false`다.
 
+## PR #67 툴링 옵션 안전성 수정 후보 (2026-10-01)
+
+`9bd305f`에서 `check_tooling.py --help` 또는 알 수 없는 옵션이 전체
+점검으로 빠져 npm 원격 조회와 기존 Orca `skills list`를 실행하던 경로를
+차단했다. `--help`/`-h`는 도움말만 출력하고, 알 수 없는 옵션은 종료 2로
+실패한다. 인자 없는 호출과 `--json`은 여전히 전체 점검이므로 운영 Orca
+격리 조건에서는 호출하지 않는다. 수정 전 재현 테스트 3개 실패, 수정 후
+`test_check_tooling.py` 11개·`/vibe` 스크립트 테스트 320개 통과,
+`validate_skill.py skills-src/vibe` 0오류·0경고였다.
+
+새 격리 후보는 `E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr67-help-safe-candidate/`
+에 있다. 기존 후보와 사용자 홈은 바꾸지 않았다. 고정된 다섯 플러그인
+커밋을 독립 로컬 복제본(`inputs-lf/`, Git 자동 CRLF 변환 OFF)으로 읽었고,
+실패한 초기 입력(`inputs/`)은 후보 payload가 아니다.
+
+| 산출물 | 전체 digest | 검증 범위 |
+|---|---|---|
+| `source` | `84083a33a2c61e3f7ec7a10ca5c25a290132ecc74d718a26ef369da338159854` | 소스 소유 137스킬·423파일, verify 0 |
+| `candidate-safety` | `428233bb651658a81d145413df34d2275f8ed5646a6c7ca38a0babdf5f68c4c5` | Claude 5플러그인·182스킬, verify 0 |
+| `codex-overlay-safety` | `e5139b761e4e97498d638b91b5ea0fd1d9c8951d4370dd49527f9b3a00890ec1` | Codex 호환 오버레이, verify 0 |
+| `codex-subset-safety` | `83c32157ccf3ef5f793404abc1ededf2328df7b0de32b75316e05e5c10f51732` | Codex 안전 부분집합 177스킬, verify 0 |
+
+Claude 후보의 격리 복사에서 오프라인 `/vibe` probe 4/4가 통과했고,
+5플러그인 CheckOnly는 `model_called=false`였다. 정적 경로 감사의 누락·
+비이식 명령은 두 호스트 모두 0건이지만 Gstack 외부 런타임 힌트가
+Claude 31/Codex 30스킬에 남아 두 감사 모두 `external_runtime_pending`
+(종료 1)이다. 이전 후보의 Windows Sandbox 적재·복원 시험은 이 후보의
+정확한 바이트에 대한 호스트 검증을 대신하지 않는다. `installation_ready=false`,
+`host_compatibility_verified=false`, `runtime_closure_verified=false`를
+유지한다. 모델·이미지·Bot 생성, 운영 Orca 조회, 사용자 홈 설치는
+이 후보 검증에서 실행하지 않았다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
