@@ -7,7 +7,7 @@ import path from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 import type { Account, LoginEvent } from '../../../shared/types';
 import type { ResolveResult } from '../../cli/resolve';
-import { nullLogger } from '../../log';
+import { createLogger, nullLogger, type Logger } from '../../log';
 import { profileDirFor } from '../../paths';
 import type { ProviderDeps } from '../types';
 import { createCodexAdapter, type CodexAdapterOptions } from './index';
@@ -115,6 +115,7 @@ const NOW = 1_800_000_000_000;
 const TIMEOUTS: NonNullable<CodexAdapterOptions['timeouts']> = {
   initMs: 10_000,
   rpcMs: 5_000,
+  rateLimitsMs: 5_000,
   loginStartMs: 5_000,
   loginMs: 10_000,
   loginCancelMs: 2_000,
@@ -127,12 +128,12 @@ const TEST_TIMEOUT = 30_000;
 
 let counter = 0;
 
-function setup(options: CodexAdapterOptions = {}) {
+function setup(options: CodexAdapterOptions = {}, logger: Logger = nullLogger) {
   counter += 1;
   const caseRoot = path.join(root, `case${counter}`);
   const profilesRoot = path.join(caseRoot, 'profiles');
   const deps: ProviderDeps = {
-    logger: nullLogger,
+    logger,
     now: () => NOW,
     appVersion: '2.0.0-test',
     localDataRoot: caseRoot,
@@ -347,13 +348,35 @@ describe('codex adapter: fetchUsage', () => {
   it(
     'maps rpc and initialize timeouts to error/timeout',
     async () => {
-      const rpc = setup({ timeouts: { rpcMs: 300 } });
+      const rpc = setup({ timeouts: { rpcMs: 300, rateLimitsMs: 300 } });
       writeScenario(rpc.account, { responses: { 'account/read': ACCOUNT_PRO, 'account/rateLimits/read': { hang: true } } });
       expect(await rpc.adapter.fetchUsage(rpc.account, signal())).toMatchObject({ state: 'error', errorCode: 'timeout' });
 
       const init = setup({ timeouts: { initMs: 300 } });
       writeScenario(init.account, { responses: { initialize: { hang: true } } });
       expect(await init.adapter.fetchUsage(init.account, signal())).toMatchObject({ state: 'error', errorCode: 'timeout' });
+    },
+    TEST_TIMEOUT,
+  );
+
+  it(
+    'gives rateLimits/read its own longer limit and logs the phase and elapsed time of a failure',
+    async () => {
+      // Slower than the plain rpc limit but inside the rateLimits one: still a reading.
+      const slow = setup({ timeouts: { rpcMs: 300, rateLimitsMs: 3_000 } });
+      writeScenario(slow.account, {
+        responses: { 'account/read': ACCOUNT_PRO, 'account/rateLimits/read': { ...RATE_LIMITS, delayMs: 800 } },
+      });
+      expect(await slow.adapter.fetchUsage(slow.account, signal())).toMatchObject({ state: 'ok' });
+
+      const lines: string[] = [];
+      const logger = createLogger({ sinks: [{ write: (line) => lines.push(line) }], minLevel: 'debug', scope: 'test' });
+      const hung = setup({ timeouts: { rpcMs: 2_000, rateLimitsMs: 300 } }, logger);
+      writeScenario(hung.account, { responses: { 'account/read': ACCOUNT_PRO, 'account/rateLimits/read': { hang: true } } });
+      expect(await hung.adapter.fetchUsage(hung.account, signal())).toMatchObject({ state: 'error', errorCode: 'timeout' });
+      const warn = lines.find((line) => line.includes('codex usage read failed')) ?? '';
+      expect(warn).toContain('"phase":"rateLimits"');
+      expect(warn).toMatch(/"elapsedMs":\d+/);
     },
     TEST_TIMEOUT,
   );

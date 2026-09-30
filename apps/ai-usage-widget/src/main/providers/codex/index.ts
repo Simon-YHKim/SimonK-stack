@@ -105,6 +105,8 @@ export function createCodexAdapter(deps: ProviderDeps, options: CodexAdapterOpti
   };
 
   const sessionLifetime = (rpcCount: number): number => timeouts.initMs + rpcCount * timeouts.rpcMs + 10_000;
+  /** Usage session: account/read on the plain rpc limit, rateLimits/read on its own longer one. */
+  const usageLifetime = (): number => sessionLifetime(1) + timeouts.rateLimitsMs;
 
   /** Adds process-exit context to failures (lifetime timeout vs. crash). */
   const explainFailure = (error: unknown, session: CodexSession | null, signal: AbortSignal): CodexFailure => {
@@ -384,28 +386,34 @@ export function createCodexAdapter(deps: ProviderDeps, options: CodexAdapterOpti
 
       return trackOperation(account, signal, async (opSignal) => {
         let session: CodexSession | null = null;
+        // Which step was running when a read fails, so the next timeout needs no log archaeology
+        // (26.09.28 had to be traced back through Codex's own sqlite log).
+        let phase: 'start' | 'account' | 'rateLimits' = 'start';
+        const startedAt = Date.now();
         try {
           session = await openCodexSession({
             command: resolved.command,
             codexHome,
             appVersion: deps.appVersion,
             parentEnv: deps.env,
-            lifetimeMs: sessionLifetime(2),
+            lifetimeMs: usageLifetime(),
             timeouts,
             signal: opSignal,
             killOnAbort: true,
             logger,
           });
+          phase = 'account';
           const identity = await readAccount(session, opSignal);
           if (identity.kind === 'none') return failedSnapshot(account, { state: 'logged-out', code: 'not-logged-in' });
           if (identity.kind === 'other') {
             return failedSnapshot(account, { state: 'unavailable', code: 'quota-unavailable' });
           }
 
+          phase = 'rateLimits';
           const raw = await session.client.request(
             METHOD.rateLimitsRead,
             { excludeResetCreditDetails: true },
-            { timeoutMs: timeouts.rpcMs, signal: opSignal },
+            { timeoutMs: timeouts.rateLimitsMs, signal: opSignal },
           );
           const limits = parseRateLimits(raw);
           if (limits === null) throw new ProviderError('parse-error', 'invalid account/rateLimits/read response');
@@ -436,7 +444,7 @@ export function createCodexAdapter(deps: ProviderDeps, options: CodexAdapterOpti
           return snapshot;
         } catch (error) {
           const failure = explainFailure(error, session, opSignal);
-          logger.warn('codex usage read failed', { accountId: account.id, code: failure.code });
+          logger.warn('codex usage read failed', { accountId: account.id, code: failure.code, phase, elapsedMs: Date.now() - startedAt });
           return failedSnapshot(account, failure);
         } finally {
           await session?.close();
@@ -458,14 +466,16 @@ export function createCodexAdapter(deps: ProviderDeps, options: CodexAdapterOpti
           try {
             session = await openCodexSession({
               command: resolved.command, codexHome, appVersion: deps.appVersion, parentEnv: deps.env,
-              lifetimeMs: sessionLifetime(5) + 120_000, timeouts, signal: opSignal,
+              // Two of the five rpcs are rateLimits/read on their own longer limit.
+              lifetimeMs: sessionLifetime(5) + 2 * Math.max(0, timeouts.rateLimitsMs - timeouts.rpcMs) + 120_000,
+              timeouts, signal: opSignal,
               killOnAbort: true, logger,
             });
             const identity = await readAccount(session, opSignal);
             if (identity.kind !== 'chatgpt') return 'unavailable';
             const readOffer = async () => parseResetOffer(await session!.client.request(
               METHOD.rateLimitsRead, { excludeResetCreditDetails: false },
-              { timeoutMs: timeouts.rpcMs, signal: opSignal },
+              { timeoutMs: timeouts.rateLimitsMs, signal: opSignal },
             ), deps.now());
             const offer = await readOffer();
             if (offer === null) return 'unavailable';

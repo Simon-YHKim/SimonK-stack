@@ -326,7 +326,7 @@ describe('app controller', () => {
           usage: (account, call) =>
             call === 1
               ? okUsage(account)
-              : { ...okUsage(account), state: 'error', windows: [], measuredAt: null, lastSuccessAt: null, errorCode: 'network' },
+              : { ...okUsage(account), state: 'error', windows: [], measuredAt: null, lastSuccessAt: null, errorCode: 'parse-error' },
         },
       },
     });
@@ -335,9 +335,37 @@ describe('app controller', () => {
     await h.controller.refreshNow('a1');
     await until(() => h.windows.last()?.usage[0]?.state === 'error');
     const failed = h.windows.last()!.usage[0]!;
-    expect(failed.errorCode).toBe('network');
+    expect(failed.errorCode).toBe('parse-error');
     expect(failed.windows[0]?.usedPercent).toBe(42);
     expect(failed.lastSuccessAt).not.toBeNull();
+  });
+
+  it('rides out a one-off transient failure after a fresh reading, but not after an old one', async () => {
+    let failures = 0;
+    const h = await setup({
+      accounts: [{ id: 'x1', provider: 'codex' }, { id: 'x2', provider: 'codex' }],
+      adapters: {
+        codex: {
+          usage: (account, call) => {
+            // x1: fresh reading, then a timeout. x2: a reading older than the stale window, then a timeout.
+            const first = account.id === 'x1' ? okUsage(account) : okUsage(account, Date.now() - 60 * 60_000);
+            if (call <= 2) return first;
+            failures += 1;
+            return { ...okUsage(account), state: 'error', windows: [], measuredAt: null, lastSuccessAt: null, errorCode: 'timeout' };
+          },
+        },
+      },
+    });
+    await h.controller.start();
+    await until(() => h.windows.last()?.usage.length === 2 && h.windows.last()!.usage.every((u) => u.state !== 'loading'));
+    const before = h.windows.last()!.usage.find((u) => u.accountId === 'x1')!;
+    await h.controller.refreshNow(null);
+    await until(() => failures >= 2 && h.windows.last()!.usage.some((u) => u.accountId === 'x2' && u.state === 'error'));
+    const [x1, x2] = ['x1', 'x2'].map((id) => h.windows.last()!.usage.find((u) => u.accountId === id)!);
+    expect(x1).toMatchObject({ state: 'ok', measuredAt: before.measuredAt, lastSuccessAt: before.lastSuccessAt });
+    expect(x1?.errorCode).toBeUndefined();
+    expect(x2).toMatchObject({ state: 'error', errorCode: 'timeout' });
+    expect(x2?.windows[0]?.usedPercent).toBe(42);
   });
 
   it('skips usage for logged-out accounts and marks old successes stale', async () => {

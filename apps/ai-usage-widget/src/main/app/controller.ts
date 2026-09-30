@@ -53,6 +53,34 @@ export const REDETECT_MIN_INTERVAL_MS = 30_000;
 export const IDENTITY_MAX_AGE_MS = 30 * 60_000;
 export const STALE_CHECK_INTERVAL_MS = 30_000;
 
+/** Failures that normally clear on the next refresh (DECISIONS 26.09.30 16:50). */
+export const TRANSIENT_ERROR_CODES: ReadonlySet<ErrorCode> = new Set<ErrorCode>(['timeout', 'network', 'provider-error', 'rate-limited']);
+
+/**
+ * A single transient failure right after a good reading keeps that reading untouched instead of
+ * flipping the account to an error (26.09.28: 34 one-off Codex timeouts, each fine 30–60 s later,
+ * each shown as a dimmed ⚠ card). Nothing new is claimed: the values, measuredAt and lastSuccessAt
+ * stay the real last measurement, and once it ages past staleAfterMs the normal stale marking and
+ * the next failure's error state take over.
+ */
+export function keepsReadingThroughBlip(
+  previous: UsageSnapshot | undefined,
+  failed: UsageSnapshot,
+  now: number,
+  refreshIntervalSec: number,
+): boolean {
+  return (
+    previous !== undefined &&
+    previous.accountId === failed.accountId &&
+    previous.state === 'ok' &&
+    previous.windows.length > 0 &&
+    previous.lastSuccessAt !== null &&
+    failed.errorCode !== undefined &&
+    TRANSIENT_ERROR_CODES.has(failed.errorCode) &&
+    now - previous.lastSuccessAt <= staleAfterMs(refreshIntervalSec)
+  );
+}
+
 /** Providers without isolated profiles accept a limited number of accounts (PROVIDER_TRAITS). */
 export function providerIsFull(accounts: readonly Account[], provider: ProviderId): boolean {
   const max = PROVIDER_TRAITS[provider].maxAccounts;
@@ -279,7 +307,14 @@ export function createAppController(deps: AppControllerDeps) {
   const onResult = (account: Account, raw: UsageSnapshot): void => {
     if (store.getAccount(account.id) === undefined) return;
     const clean = sanitizeSnapshot(account, raw);
-    const merged = clean.state === 'error' ? applyFetchFailure(usage.get(account.id), clean) : clean;
+    const previous = usage.get(account.id);
+    if (clean.state === 'error' && keepsReadingThroughBlip(previous, clean, now(), settings.refreshIntervalSec)) {
+      // The last good reading is still fresh; the next refresh (with back-off) retries. Stale
+      // marking takes over if the failures outlast the freshness window.
+      scheduleBroadcast();
+      return;
+    }
+    const merged = clean.state === 'error' ? applyFetchFailure(previous, clean) : clean;
     usage.set(account.id, merged);
     const identity = identities.get(account.id);
     if (clean.state === 'logged-out' && identity?.loginState !== 'logged-out') {
