@@ -13,5 +13,12 @@ jobs:
         run: python3 .github/skill-ci/run_ci.py
       - name: Offline benchmark freshness regressions (no network or real Wiki)
         run: python3 -m unittest discover -s scripts/tests -p test_fetch_model_benchmarks.py
+  candidate-path-audit-windows:
+    # The guarded package reader intentionally rejects non-Windows paths.
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
       - name: Candidate static path audit regressions (fixtures only)
-        run: python3 -B -m unittest discover -s scripts/tests -p test_candidate_path_audit.py
+        run: python -B -m unittest discover -s scripts/tests -p test_candidate_path_audit.py
