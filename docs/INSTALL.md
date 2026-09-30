@@ -4149,8 +4149,24 @@ Claude 후보의 격리 복사에서 오프라인 `/vibe` probe 4/4가 통과했
 5플러그인 CheckOnly는 `model_called=false`였다. 정적 경로 감사의 누락·
 비이식 명령은 두 호스트 모두 0건이지만 Gstack 외부 런타임 힌트가
 Claude 31/Codex 30스킬에 남아 두 감사 모두 `external_runtime_pending`
-(종료 1)이다. 이전 후보의 Windows Sandbox 적재·복원 시험은 이 후보의
-정확한 바이트에 대한 호스트 검증을 대신하지 않는다. `installation_ready=false`,
+(종료 1)이다. 문서·CI만 더한 `b0a7400`에서 소스 패키지를 다시 빌드해
+423파일의 전체 digest가 위 `source`와 정확히 같음을 확인했다.
+
+이 정확한 후보의 호스트 리허설은
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr67-help-host-rehearsal/`
+에 보존했다. 별도 Windows Sandbox 두 개에서 네트워크·클립보드·장치
+리디렉션을 끄고 사용자 홈·인증정보를 매핑하지 않았다. Claude Code
+2.1.285는 5플러그인·182스킬 적재, 중복·디버그 오류 0, 이전 링크
+Claude 5/Codex 2개 두 번 복원, 시험 플러그인 최종 0개로 통과했다.
+Codex CLI 0.159.0은 5플러그인 활성 등록과 같은 링크 복원·철회로
+통과했다. 두 게스트 모두 `no_auth_env=true`, 네트워크 어댑터 0,
+`model_generation_executed=false`였고 종료 뒤 `wsb.exe list --raw`는
+남은 인스턴스 0개였다. 원시 결과 SHA-256은 Claude
+`25a13b38b1b66ffdbaa29e3726ec1b626f481abbb3724dba47287aa12fe75e18`,
+Codex `8a94db308f152d6c1d1a5fb306b1af7a7e50d68c40d38d7a370add8e2d5c3d2a`다.
+이는 빈 게스트의 적재·복원 시험이다. 모델/effort 자동 선택 품질,
+전체 스킬 행동, Gstack 외부 런타임, 구독 청구 경로, 실제 사용자 홈 이관은
+검증하지 않았으므로 `installation_ready=false`,
 `host_compatibility_verified=false`, `runtime_closure_verified=false`를
 유지한다. 모델·이미지·Bot 생성, 운영 Orca 조회, 사용자 홈 설치는
 이 후보 검증에서 실행하지 않았다.
