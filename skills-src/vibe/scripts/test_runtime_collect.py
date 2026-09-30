@@ -296,7 +296,7 @@ class RuntimeCollectionTests(unittest.TestCase):
         self.assertEqual(run.call_args.args[0], ["fixture", "--version"])
 
     def test_agy_measured_zero_turn_usage_versions_are_metadata_only(self):
-        for version in ("1.2.12", "1.2.13"):
+        for version in ("1.2.12", "1.2.13", "1.2.14"):
             with self.subTest(version=version), \
                  mock.patch.object(self.m, "resolve_command", return_value=["fixture"]), \
                  mock.patch.object(self.m, "run_text", side_effect=[
