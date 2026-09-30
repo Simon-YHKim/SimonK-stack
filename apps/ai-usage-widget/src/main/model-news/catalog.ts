@@ -5,7 +5,9 @@ export const MODEL_CATALOGS: Readonly<Record<ProviderId, string>> = {
   claude: 'https://platform.claude.com/docs/en/models/overview',
   codex: 'https://developers.openai.com/api/docs/models',
   grok: 'https://docs.x.ai/developers/models',
-  antigravity: 'https://ai.google.dev/gemini-api/docs/models',
+  // hl=en: without it Google sometimes redirects to a machine-translated page (seen: ?hl=pt-br,
+  // 26.09.30) whose links carry the locale, and the list then parsed as empty.
+  antigravity: 'https://ai.google.dev/gemini-api/docs/models?hl=en',
 };
 
 export interface CatalogModel {
@@ -20,9 +22,10 @@ export interface CatalogModel {
 export function parseCatalog(provider: ProviderId, html: string): CatalogModel[] {
   const patterns: Record<ProviderId, RegExp> = {
     claude: /aria-label="Copy model ID (claude-(?:opus|sonnet|haiku|fable|mythos)-[a-z0-9-]+)"/g,
-    codex: /href="\/api\/docs\/models\/((?:gpt-[a-z0-9.-]+|o[1-9](?:-[a-z0-9.-]+)?))"/g,
+    // Relative or absolute links, with or without a query (localized pages append ?hl=...).
+    codex: /href="(?:https:\/\/developers\.openai\.com)?\/api\/docs\/models\/((?:gpt-[a-z0-9.-]+|o[1-9](?:-[a-z0-9.-]+)?))(?:\?[^"]*)?"/g,
     grok: /"name":"(grok-[0-9][a-z0-9.-]*)"/g,
-    antigravity: /href="\/gemini-api\/docs\/models\/(gemini-[0-9][a-z0-9.-]*)"/g,
+    antigravity: /href="(?:https:\/\/ai\.google\.dev)?\/gemini-api\/docs\/models\/(gemini-[0-9][a-z0-9.-]*)(?:\?[^"]*)?"/g,
   };
   const exclude = /(?:image|video|voice|audio|speech|transcrib|tts|embed|live|realtime|latest|preview|system-card|\.(?:png|webp|svg))/.source;
   const filtered = new RegExp(exclude);

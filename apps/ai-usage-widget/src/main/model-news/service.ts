@@ -77,7 +77,12 @@ export async function createModelNewsService(options: ModelNewsOptions) {
   const state = normalizeState(loaded.value);
   const now = options.now ?? Date.now;
   const fetchText = options.fetchText ?? (async (url: string): Promise<string> => {
-    const response = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS), headers: { Accept: 'text/html, application/xml, text/xml' } });
+    // English pages: the parsers read English link and announcement shapes, and some vendors
+    // otherwise redirect to a machine-translated page.
+    const response = await fetch(url, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      headers: { Accept: 'text/html, application/xml, text/xml', 'Accept-Language': 'en' },
+    });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const length = Number(response.headers.get('content-length'));
     if (Number.isFinite(length) && length > MAX_RESPONSE_CHARS) throw new Error('response too large');
