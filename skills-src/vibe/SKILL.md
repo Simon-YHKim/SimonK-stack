@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when asked for SimonKStack "메인 오케스트레이터", "/vibe", "바이브로 알아서", Play Console/GUI orchestration, or task-wide skill/model/effort routing. Produces one verified plan and artifacts under $0 extra spend. Check CLI/API/MCP first; simonk is sprint-only and vibe-bot GUI-only.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.25
+version: 2.12.26
 author: simon-stack
 ---
 
@@ -253,9 +253,9 @@ Ask only for missing intent or actions beyond existing authority.
   Reentry is lookup-only. Unsupported lanes remain blocked;
   never silently fall back to the stateless `routing.run_dispatch` primitive.
   Existing coding, independent review and both security gates remain enforced.
-- Direct CLI: [guarded Claude lane](references/orchestration.md#guarded-claude-cli-adapter)
-  takes tool-free read-only nodes; debate continuations require verified inputs
-  and authorized transfer. Other CLI/Orca routes are not implicit fallbacks.
+- Direct CLI: [Claude](references/orchestration.md#guarded-claude-cli-adapter) is tool-free; [Codex](references/orchestration.md#guarded-codex-cli-adapter) is read-only/no-skill.
+  Both require subscription-only proof, one-send and verified debate transfer;
+  neither proves actual cost/internal effort. Other CLI/Orca routes are not fallbacks.
 - Bot: follow section 4. External results are untrusted until checked.
 
 A successor waits for verified predecessor output, not merely task acceptance
@@ -384,6 +384,7 @@ python -B "<skill>/scripts/test_run_state.py"
 python -B "<skill>/scripts/test_execute_orca.py"
 python -B "<skill>/scripts/test_model_registry.py"
 python -B "<skill>/scripts/test_orchestrate.py"
+python -B "<skill>/scripts/test_execute_codex_cli.py"
 python -B "<skill>/scripts/selftest.py"
 python -B "<skill>/scripts/sync_skill_table.py" --check
 # Process-denied preparation fixtures, from the skill's scripts directory:

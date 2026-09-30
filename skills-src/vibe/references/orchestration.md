@@ -589,8 +589,9 @@ artifacts; the judge sees both openings and both rebuttals. The judge is a
 different call, but a same-vendor judge is not independent vendor review.
 This adapter accepts only canonical debate dependencies (no auxiliary edges),
 even if the broader planner accepts them.
-Codex, Antigravity and Grok CLI execution are not implemented here, so this
-lane alone does not make the full cross-vendor debate automatic.
+Codex has a separate guarded source adapter below. Antigravity and Grok CLI
+execution are not implemented here, so a full five-surface debate is not
+automatic. Neither adapter manufactures account/billing proof.
 
 The trusted coordinator puts this exact `cli` manifest in the node *before*
 planning and Store registration:
@@ -673,6 +674,59 @@ passes a successor or asserts a $0 invoice. Inspect the output and obtain
 post-call terminal/cost evidence before the coordinator settles/verifies. The
 CLI's list-price cost field is not an invoice. Offline fixtures prove one-send
 and failure behavior, not live account billing or five-surface execution.
+
+## Guarded Codex CLI adapter
+
+`execute_codex_cli.py` is a source-only, one-send read-only `kind=llm` path for
+Codex. It accepts no skill/software binding, writes, independent reviewer node
+or arbitrary dependent node. A canonical debate opening, own rebuttal or judge
+may use it after the registered, verified, settled predecessor artifacts and
+explicit cross-vendor transfer authorization are bound. It reuses the same
+task/acceptance and Store as Claude, not a second budget.
+
+The node's `cli` manifest pins absolute `codex.exe` bytes, private canonical
+`cwd`, actual `CODEX_HOME` profile path, opaque profile/account references,
+and separate private `result_path` (`.jsonl`) and `content_path` (`.txt`). The
+result directory must preexist outside a watched Bot bus and public repository.
+Use the same certificate shape as the Claude adapter, but Codex additionally
+requires `billing.paid_credit_fallback_disabled=true` for this exact account,
+profile, model and CLI transport. `codex login status` or auto-reload OFF is not
+that proof. A fresh model/list and ChatGPT account observation must agree with
+the pinned profile and route; their metadata does not establish model inclusion,
+credit fallback or a USD 0 invoice.
+
+After a Store claim, the adapter repeats the account/model and certificate
+checks, persists the original predecessor-input digest, then runs the pinned
+native CLI once with `codex exec --json --ephemeral --ignore-user-config
+--skip-git-repo-check --sandbox read-only -C <private-cwd> -m <model>
+-c model_reasoning_effort=<effort> -`. The bounded task is piped on stdin,
+not put in the process command line. The child environment is allowlisted and
+sets the pinned `CODEX_HOME`, never forwarding an API key. No wrapper, API/OSS
+fallback, broad workspace grant or approval bypass is permitted. This is a
+read-only sandbox, not a guarantee that the model cannot attempt a read or
+network tool; select only reviewed transferable input. Unknown JSONL items,
+tool activity, failed turns, changed account or ambiguous output stay uncertain
+without a new request ID or automatic retry.
+
+Only a single JSONL `thread.started`/`turn.started`/final assistant message/
+`turn.completed` sequence is accepted. The private raw trace and final UTF-8
+content are hashed into the Store; on reentry only those original artifacts are
+inspected. CLI flag acceptance is recorded as such, **not** proof of the
+provider-internal resolved model or reasoning effort. Output remains unverified,
+additional charge remains null and successors stay blocked until a separate
+real billing receipt, output acceptance and any required independent reviews
+are recorded. The current source tests use a fake transport only; there has
+been no operational Codex generation or subscription invoice verification.
+
+```text
+python -B "<vibe>/scripts/execute_codex_cli.py" spec --plan plan.json --node opening
+python -B "<vibe>/scripts/execute_codex_cli.py" dispatch --plan plan.json --node opening --db shared-runs.sqlite3 --certificate codex-cli-evidence.json
+python -B "<vibe>/scripts/execute_codex_cli.py" reconcile --plan plan.json --node opening --db shared-runs.sqlite3
+```
+
+Codex CLI JSONL event shapes and tool-event caveats are documented by the
+[OpenAI Codex SDK](https://github.com/openai/codex/blob/main/sdk/typescript/src/thread.ts)
+and [OpenAI skill-eval guide](https://developers.openai.com/blog/eval-skills).
 
 ## Guarded Orca adapter
 
