@@ -4171,6 +4171,43 @@ Codex `8a94db308f152d6c1d1a5fb306b1af7a7e50d68c40d38d7a370add8e2d5c3d2a`다.
 유지한다. 모델·이미지·Bot 생성, 운영 Orca 조회, 사용자 홈 설치는
 이 후보 검증에서 실행하지 않았다.
 
+## PR #65–#67 재검토 후보 (2026-10-01)
+
+독립 리뷰의 이미지 quota 바인딩·terminal 불변성·Codex 산출물 private
+경계·Grok collector CI 네 지적을 수정했다. 추가 리뷰의 성공 후 거절된
+이미지 재진입 오류도 재현 테스트로 고쳤다. #65 `cf86d14` → #66
+`8c6d1aa` → #67 `25863bc` 순서로 통합했고, 이 정확한 #67 소스에서
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr67-reviewed-candidate/`
+를 새로 빌드했다. 이전 후보와 사용자 홈은 보존했다.
+
+| 산출물 | 전체 digest | 오프라인 결과 |
+|---|---|---|
+| `source-final` | `d598124cd41ebaed62d24b401c557f1f129b59f9cb3d6c39f20e456142f804d8` | 137스킬·423파일, verify 0 |
+| `candidate-safety` | `f79e24ba7f32d217a3372182468fa071735bf52a95e4e7202f59e75d633dd950` | Claude 5플러그인·182스킬, verify 0 |
+| `codex-overlay-safety` | `2654446c832dd4f162caac53cb073d184a7a1e74586143e1152c6aca5e030ee5` | Codex 변환, verify 0 |
+| `codex-subset-safety` | `3bf17ba8a2b181f7cc8d07149cbe497ac5b827f12057908c623270ec77bde433` | Codex 177스킬, verify 0 |
+
+최종 `/vibe` 스크립트 테스트 322개, 스킬 quality 141/141, 오프라인 후보
+probe 4/4가 통과했다. 정적 경로 감사는 Claude/Codex 모두 누락·비이식
+명령 0이지만 Gstack 외부 런타임 힌트가 각각 31/30스킬에 남아
+`external_runtime_pending`(종료 1)이다. 이는 통과 판정이 아니다.
+
+정확한 후보의 무인증 Windows Sandbox 리허설은
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr67-reviewed-host-rehearsal/`
+에 보존했다. 네트워크·클립보드·장치 리디렉션을 끄고 사용자 홈·인증정보를
+매핑하지 않았다. Claude Code 2.1.285는 5플러그인·182스킬 적재,
+디버그 오류 0, 이전 링크 Claude 5/Codex 2개 두 번 복원을 확인했다.
+Codex CLI 0.159.0은 5플러그인 활성 등록 및 같은 복원을 확인했다.
+두 게스트 모두 `no_auth_env=true`, 네트워크 어댑터 0,
+`model_generation_executed=false`였고 종료 후 `wsb.exe list --raw`에
+남은 인스턴스는 0개였다. 원시 결과 SHA-256은 Claude
+`f3aca9f0d00b5d06461dc6895972ab48c7997568d26125e64b31a373ea404b25`,
+Codex `c04a86133e10ec35609b0df1fef49dd24aa74f77cf9ac4709382ca119d7ee430`이다.
+이 결과는 적재·복원만 검증한다. 실제 선택·이미지 생성·Grok Bot 배달·
+Gstack 실행·청구 경로·사용자 설치는 미검증으로
+`runtime_closure_verified=false`, `host_compatibility_verified=false`,
+`installation_ready=false`를 유지한다.
+
 ## One-shot 설치
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
