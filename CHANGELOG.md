@@ -43,6 +43,7 @@
 - **`/vibe` 2.11.16 progressive disclosure** — moved the generated historical Orca lane table into a directly linked reference and retargeted its drift checker. Normal skill loading omits the legacy table; the generator, safety guards and frontier runtime routing are unchanged. This does not reduce the initial five-plugin description footprint or prove model/host behavior.
 
 ### Fixed
+- **후보 경로 감사 GitHub CI 플랫폼 정합** — Windows 전용 보호 패키지 I/O에 의존하는 `test_candidate_path_audit.py`를 Ubuntu 품질 작업에서 분리해 Windows 작업으로 실행한다. 패키지 경로 보호나 테스트 자체는 완화하지 않는다.
 - **이미지 생성 라우팅 경계와 독립 설치 fixture** — `IMAGE_GENERATION`을 텍스트 `VISION`과 구별되는 차단 계획 단계로 보존하고, 독립 설치 테스트 두 곳에 필수 `task-fit-policy.json`을 포함했다. 저장소 테스트 387건은 3건 조건부 skip 외 통과했다. 전용 구독 포함 이미지 도구나 실제 생성 기능을 추가한 것은 아니다.
 - **`ship` 1.0.1 출시·과금·호스트 경계 교정** — 원본의 최신 재검증·추가 과금 $0 평가 사례를 보존하고, 자동 base 머지·모든 미커밋 파일 포함·유료 judge 필수 실행·Codex/Claude 무료 단정·무조건 push/PR·`git add -A` 문서 동기화를 사용자/저장소 권한과 구독 포함 증거에 종속시켰다. Claude 도구명을 Codex 호스트 기능에 대응시키되 동일 출시 게이트를 유지하는 사례를 추가하고 장문 참고문서에 목차를 넣었다. 정적 평가·저장소 회귀만 수행하며 실제 모델 행동, 유료 평가, 배포, 사용자 설치, 양 호스트 성능 동등성을 인증하지 않는다.
 - **`security-checklist` 1.0.1 보안 판단 교정** — 원본의 사용자/IP 제한·3계층 예산 누락 사례를 소스 평가에 복원하고, RLS 정책 존재와 활성화의 혼동, 행 정책의 열 보호 오인, 모든 TossPayments 웹훅 서명 가정, OpenAI soft budget을 hard cap으로 간주한 지침을 바로잡았다. SQL 예시는 운영 변형 실행을 금지하고 권한별 결과를 구분한다. 평가는 스키마 dry-run이며 운영 DB·실결제·유료 API·모델 행동 검증은 아니다.
