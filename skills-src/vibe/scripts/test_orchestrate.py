@@ -1484,6 +1484,20 @@ class OrchestrationTests(unittest.TestCase):
                     tool, {"host_ref": "fixture-host", "interaction_ref": "fixture-interaction"},
                     image, NOW))
 
+    def test_image_tool_malformed_billing_fails_closed(self):
+        image = self.typed("IMAGE_GENERATION")
+        for billing in (None, [], "subscription"):
+            with self.subTest(billing=billing):
+                tool = image_tool(billing=billing)
+                blocked = self.plan([image], image_tools=[tool], host_ref="fixture-host",
+                                    interaction_ref="fixture-interaction")
+                self.assertEqual(blocked["status"], "blocked")
+                self.assertIsNone(blocked["steps"][0]["route"])
+                self.assertIn("IMAGE_SUBSCRIPTION_HARD_CAP_UNVERIFIED",
+                              blocked["steps"][0]["rejected_candidates"][0]["reasons"])
+                self.assertIn("IMAGE_QUOTA_UNVERIFIED",
+                              blocked["steps"][0]["rejected_candidates"][0]["reasons"])
+
     def test_image_host_adapter_claims_once_and_never_auto_settles(self):
         import execute_image
         import run_state
