@@ -2,6 +2,18 @@
 > prepend 전용 로그. 새 블록을 맨 위에 얹고 직전 `## Latest`는 날짜 헤더로 강등한다. 덮어쓰지 않는다.
 
 ## Latest
+- **목적**: 위젯 개선 — 로그로 드러난 안정성 문제(Codex 조회 시간 초과, Antigravity 서버 500), 화면·UX, 새 기능, Grok Bot 보완, 빠진 기록 정리(사용자 지시 26.09.30)
+- **최종 갱신**: 26.09.30 17:17 KST · Claude Code(E:\Coding Infra 세션)
+- **어디서**: 브랜치 `feat/aiuw-improve-260930`, 워크트리 `E:\Coding Infra\Harrness Eng\SimonK-stack-aiuw-improve-260930`(node_modules는 그 워크트리에 따로 설치, junction 아님). `3a19dd1`(아래 Codex 블록) 위에 커밋 6개. main은 09.20 이후 위젯 커밋 0개 — 09.23~30 스택 16개 전부 브랜치에만 있다
+- **지금까지**: 09.23~30 다른 세션 커밋 10개가 이 파일·STATE에 없어서 복원해 STATE에 적었다. 이번 세션: Antigravity 5xx 1회 재시도(`51aee9b`), Codex rateLimits 20초 한도·실패 단계 로그·일시 오류 1건 유예(`1d70eba`, 09.28 34건의 원인 = rateLimits 응답만 10초 초과), Grok Bot 리셋 카운트다운·On-demand·소진 경고·Spending 링크·미터 구분 안내(`f7e411b`, `docs/GROK-BOT.md` 전면 갱신), 새 모델 알림 출처별 상태 표시(`9ff57d3`), Grok Bot 안내 접기(`bf5dd38`). `pnpm verify` 0(638테스트)·build 0·smoke ok, 오프스크린 캡처로 화면 확인. DECISIONS에 결정 5줄 + 시각 정정 1줄(추정 시각을 적었던 것을 정정)
+- **다음 1개**: 사용자가 다시 붙일 Cursor Spending·grok 화면 캡처로 Grok Bot 카드 필드·라벨과 위젯 Grok 카드 값을 대조
+- **막힌 것**: 캡처 미수신. PR(스택 16개 → main, merge commit)·설치는 사용자 확인 대기
+- **TODO**: STATE "다음" 절 그대로(설치 후 Codex `phase`·Antigravity `reasonField` 관찰, 새 모델 알림 끄기 설정 검토, Grok CLI `unified.jsonl` 누적, Codex 플러그인 카탈로그 27MB)
+- **미해결 질문**: Q-260930-01 새 모델 알림 끄기 설정을 넣을까(지금은 끌 수 없음, 공개 페이지 8곳을 6시간마다 조회) — 안 정하면 막히는 것 없음, 3회 이월 시 폐기 제안
+- **작업 규칙 변화**: 화면 확인은 리포 밖 오프스크린 캡처(보이지 않는 Electron 창 + 번들을 127.0.0.1로 서빙 + 가짜 preload로 상태 주입, `window-all-closed` 무시 필요). 커밋 메시지·DECISIONS를 PowerShell 큰따옴표 문자열로 쓰면 `` `a `` 같은 이스케이프가 제어 문자를 넣는다 — 작은따옴표 문자열 또는 Edit 도구
+- **요청**: REQ-260930-01 Cursor Spending·grok 화면 캡처 2장을 `/goal` 인자가 아닌 일반 메시지로 첨부(`/goal` 인자에 붙인 이미지는 텍스트만 남음)
+
+## 26.09.30 15:37 KST
 - **목적**: Grok Bot의 SuperGrok Heavy 주간 사용량을 AI Usage Widget에서 확인
 - **최종 갱신**: 26.09.30 15:37 KST · Codex
 - **지금까지**: 사용자의 직접 요청으로 Grok Bot 주간 미터를 별도 카드로 추가했다. 공식 앱에서 수동 입력한 사용률과 남음을 작업표시줄에 표시하고 출처·기록 시각·24시간 오래됨·7일 만료를 표시한다. Grok Build CLI 사용량과 섞지 않는다. 사용법은 `docs/GROK-BOT.md`.
