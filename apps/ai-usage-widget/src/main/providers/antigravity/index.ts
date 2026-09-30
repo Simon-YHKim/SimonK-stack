@@ -188,7 +188,8 @@ export function createAntigravityAdapter(deps: ProviderDeps, options: Antigravit
       if (SIGNED_OUT_PATTERN.test(text)) return fail('logged-out', 'not-logged-in');
       // Output may name the account, so only the status, a masked short reason, the key it came
       // from and the first stderr line are kept.
-      const serverError = parsed.kind === 'failed' && SERVER_ERROR_PATTERN.test(text);
+      // Connectivity wording wins over a 5xx code: those are not retried (DECISIONS 26.09.30, commit 51aee9b).
+      const serverError = parsed.kind === 'failed' && SERVER_ERROR_PATTERN.test(text) && !NETWORK_PATTERN.test(text);
       const retry = serverError && attempt === 1;
       const stderrLine = stripAnsi(result.stderr).split(/\r?\n/).find((line) => line.trim() !== '');
       logger.info('agy usage run failed', {

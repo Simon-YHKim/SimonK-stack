@@ -94,8 +94,7 @@ const USER_SETTINGS = `{
 }
 `;
 
-// Real settings.json writes, backups and script hashing; the SEC-02 case (eight install/uninstall
-// cycles) passed the 5 s default at 5044 ms once under a full parallel run (26.09.30).
+// Real settings.json writes, backups and script hashing: slower than the 5 s default under a full parallel run.
 describe('default profile bridge', { timeout: 30_000 }, () => {
   it('backs up, wraps the existing command and restores it on uninstall', async () => {
     const claudeDir = path.join(deps.homeDir, '.claude');
@@ -249,7 +248,9 @@ describe('widget profile', () => {
   });
 });
 
-describe('default profile bridge: recovery and hygiene', () => {
+// The SEC-02 case here (eight install/uninstall cycles) passed the 5 s default at 5044 ms once
+// under a full parallel run (26.09.30).
+describe('default profile bridge: recovery and hygiene', { timeout: 30_000 }, () => {
   const ORIGINAL_STATUS_LINE = { type: 'command', command: '~/.claude/statusline.sh', padding: 1 };
   const ORIGINAL_SIDECAR = JSON.stringify({ v: 1, previous: { present: true, value: ORIGINAL_STATUS_LINE } });
 

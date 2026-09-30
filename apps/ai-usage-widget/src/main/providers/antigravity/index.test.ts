@@ -219,14 +219,17 @@ describe('antigravity adapter', () => {
   it(
     'cancels without a second run when aborted during the retry pause',
     async () => {
-      const { adapter, account, calls } = setup('server-error', { timeouts: { serverRetryDelayMs: 5_000 } });
+      const { adapter, account, calls } = setup('server-error', { timeouts: { serverRetryDelayMs: 20_000 } });
       const controller = new AbortController();
       const pending = adapter.fetchUsage(account, controller.signal);
       for (let i = 0; i < 200 && !logLines.some((entry) => entry.includes('"retry":true')); i += 1) {
         await new Promise((resolve) => setTimeout(resolve, 50));
       }
+      const abortedAt = Date.now();
       controller.abort();
       expect(await pending).toMatchObject({ state: 'error', errorCode: 'cancelled' });
+      // The pause itself ends on abort: nowhere near the 20 s delay.
+      expect(Date.now() - abortedAt).toBeLessThan(5_000);
       expect(await calls()).toHaveLength(1);
     },
     TEST_TIMEOUT,

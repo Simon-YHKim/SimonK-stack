@@ -501,6 +501,31 @@ describe('app controller', () => {
     });
   });
 
+  it('marks the previous reading stale on a new sign-in so a failing follow-up read cannot ride it out', async () => {
+    const h = await setup({ accounts: [{ id: 'a1', provider: 'codex' }], adapters: { codex: { loginHosts: ['openai.com'] } } });
+    await h.controller.start();
+    await until(() => h.windows.last()?.usage[0]?.state === 'ok');
+    h.controller.startLogin('a1');
+    await until(() => h.logins.length === 1);
+    h.logins[0]!.emit({ type: 'success', emailMasked: 'n***@e***.com', plan: 'plus' });
+    await until(() => h.windows.states().some((s) => s.usage[0]?.state === 'stale'));
+    // The refresh the login triggers brings a fresh reading back.
+    await until(() => h.windows.last()?.usage[0]?.state === 'ok');
+  });
+
+  it('passes model-news health to the renderer snapshot', async () => {
+    const h = await setup();
+    await h.controller.start();
+    expect(h.controller.snapshot().modelNewsHealth).toEqual({ checkedAt: null, sources: 0, failing: [] });
+    const health = { checkedAt: 1_800_000_000_000, sources: 8, failing: [{ provider: 'antigravity' as const, kind: 'catalog' as const, since: 1_799_990_000_000, count: 2 }] };
+    h.controller.setModelNewsHealth(health);
+    await until(() => h.windows.last()?.modelNewsHealth.failing.length === 1);
+    expect(h.windows.last()?.modelNewsHealth).toEqual(health);
+    // A copy: later changes to the service's object do not leak into the broadcast state.
+    health.failing[0]!.count = 99;
+    expect(h.controller.snapshot().modelNewsHealth.failing[0]?.count).toBe(2);
+  });
+
   it('applies settings: persistence, autostart registration, locale, windows and material', async () => {
     const h = await setup({ autostartSupported: true });
     await h.controller.start();

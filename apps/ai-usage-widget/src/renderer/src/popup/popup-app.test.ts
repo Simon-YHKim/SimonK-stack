@@ -126,13 +126,11 @@ describe('Usage tab', () => {
     // Where the meter is read (grok.com and the app) and why the Grok card cannot fill it.
     expect(card.textContent).toContain('Weekly Grok Bot Limit');
     expect(card.textContent).toContain('not in the CLI response');
-    app.usage.grokBot.input.value = '68';
+    typeInto(app.usage.grokBot.input, '68');
     app.usage.grokBot.saveButton.click();
     await flush();
-    // The reset time was not touched, so it is not sent; empty amounts clear to null.
-    expect(api.callsTo('settings:update')).toContainEqual({
-      patch: { grokBotUsedPercent: 68, grokBotOnDemandSpentCents: null, grokBotOnDemandLimitCents: null },
-    });
+    // Only touched fields are sent.
+    expect(api.callsTo('settings:update')).toEqual([{ patch: { grokBotUsedPercent: 68 } }]);
     const guide = card.querySelector('.grok-bot-guide-box') as HTMLElement;
     expect(guide.parentElement).toBe(card);
     app.update(appState({ settings: { grokBotUsedPercent: 68, grokBotRecordedAt: NOW } }));
@@ -151,11 +149,11 @@ describe('Usage tab', () => {
     try {
       const { root, api, app } = setup(appState());
       const bot = app.usage.grokBot;
-      bot.input.value = '100';
+      typeInto(bot.input, '100');
       const resetAt = NOW + (2 * 24 + 5) * 3_600_000;
       typeInto(bot.resetInput, toLocalDateTimeValue(resetAt));
-      bot.spentInput.value = '12.3';
-      bot.limitInput.value = '50';
+      typeInto(bot.spentInput, '12.3');
+      typeInto(bot.limitInput, '$50');
       bot.saveButton.click();
       await flush();
       expect(api.callsTo('settings:update')).toContainEqual({
@@ -175,7 +173,7 @@ describe('Usage tab', () => {
       // The app's on-demand limit "none" (0): the week stops at the limit instead of billing.
       app.update(appState({ settings: { grokBotUsedPercent: 100, grokBotRecordedAt: NOW, grokBotOnDemandLimitCents: 0 } }));
       expect(card.querySelector('.grok-bot-spill')?.textContent).toBe(en.grokBotSpillStop);
-      expect(card.querySelector('.grok-bot-ondemand')?.textContent).toBe('On-demand monthly limit none');
+      expect(card.querySelector('.grok-bot-ondemand')?.textContent).toBe('On-demand monthly limit none (off)');
     } finally {
       vi.useRealTimers();
     }
@@ -190,21 +188,60 @@ describe('Usage tab', () => {
     expect(fromLocalDateTimeValue('')).toBeUndefined();
   });
 
-  it('stops showing a Grok Bot percentage once the entered weekly reset has passed', () => {
-    const { root } = setup(appState({ settings: {
-      grokBotUsedPercent: 90, grokBotRecordedAt: NOW - 3 * 3_600_000, grokBotResetAt: NOW - 3_600_000,
+  it('stops showing a Grok Bot percentage once the entered weekly reset has passed, without prefilling it for re-saving', async () => {
+    const { root, api, app } = setup(appState({ settings: {
+      grokBotUsedPercent: 90, grokBotRecordedAt: NOW - 3 * 3_600_000, grokBotResetAt: NOW - 3_600_000, grokBotOnDemandSpentCents: 700,
     } }));
     const card = root.querySelector('.grok-bot-card') as HTMLElement;
     expect(card.dataset.state).toBe('reset');
     expect(card.querySelector('.grok-bot-used')?.textContent).toBe('—');
     expect(card.textContent).toContain('Weekly reset passed');
     expect((card.querySelector('.grok-bot-reset') as HTMLElement).hidden).toBe(true);
+    // Last week's spend aged out with its percentage.
+    expect((card.querySelector('.grok-bot-ondemand') as HTMLElement).hidden).toBe(true);
+    // The old value is a hint only; one click on Record cannot turn it into a new reading.
+    const bot = app.usage.grokBot;
+    expect(bot.input.value).toBe('');
+    expect(bot.input.getAttribute('placeholder')).toBe('last: 90%');
+    bot.saveButton.click();
+    await flush();
+    expect(api.callsTo('settings:update')).toHaveLength(0);
+    expect(app.statusEl.textContent).toBe(en.grokBotInvalid);
+  });
+
+  it('saves only the edited optional field and never re-sends the prefilled percentage', async () => {
+    const { api, app } = setup(appState({ settings: { grokBotUsedPercent: 67, grokBotRecordedAt: NOW - 30 * 3_600_000 } }));
+    const bot = app.usage.grokBot;
+    expect(bot.input.value).toBe('67');
+    bot.saveButton.click();
+    await flush();
+    expect(app.statusEl.textContent).toBe(en.grokBotNoChange);
+    typeInto(bot.limitInput, '0');
+    bot.saveButton.click();
+    await flush();
+    // The stale 67% keeps its old recording time: main only re-stamps a sent percentage.
+    expect(api.callsTo('settings:update')).toEqual([{ patch: { grokBotOnDemandLimitCents: 0 } }]);
+  });
+
+  it('opens the collapsed section and flags the field when a hidden field is invalid', async () => {
+    const { app } = setup(appState());
+    const bot = app.usage.grokBot;
+    typeInto(bot.input, '40');
+    typeInto(bot.spentInput, '1.234');
+    expect(bot.more.open).toBe(false);
+    bot.saveButton.click();
+    await flush();
+    expect(bot.more.open).toBe(true);
+    expect(bot.spentInput.getAttribute('aria-invalid')).toBe('true');
+    expect(document.activeElement).toBe(bot.spentInput);
+    typeInto(bot.spentInput, '1.23');
+    expect(bot.spentInput.hasAttribute('aria-invalid')).toBe(false);
   });
 
   it('rejects a past or too-distant reset time or an unreadable amount without saving', async () => {
     const { api, app } = setup(appState());
     const bot = app.usage.grokBot;
-    bot.input.value = '40';
+    typeInto(bot.input, '40');
     typeInto(bot.resetInput, toLocalDateTimeValue(Date.now() - 3_600_000));
     bot.saveButton.click();
     await flush();
@@ -214,7 +251,7 @@ describe('Usage tab', () => {
     await flush();
     expect(app.statusEl.textContent).toBe(en.grokBotInvalidReset);
     typeInto(bot.resetInput, '');
-    bot.spentInput.value = '1.234';
+    typeInto(bot.spentInput, '1.234');
     bot.saveButton.click();
     await flush();
     expect(app.statusEl.textContent).toBe(en.grokBotInvalidMoney);

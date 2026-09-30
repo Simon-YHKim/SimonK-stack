@@ -11,7 +11,7 @@ import {
 } from '../../../shared/grok-bot';
 import { GROK_BOT_MAX_CENTS, type Settings } from '../../../shared/settings';
 import { formatCountdown } from '../../../shared/usage';
-import { h, setStyles, setText } from '../dom';
+import { h, setAttr, setStyles, setText } from '../dom';
 import type { Api } from '../api';
 import { providerIcon } from '../icons';
 import type { RenderContext } from '../model';
@@ -43,11 +43,17 @@ export function fromLocalDateTimeValue(value: string): number | undefined {
   return d.getTime();
 }
 
+type Field = 'used' | 'reset' | 'spent' | 'limit';
+
 /**
  * A user-entered reading, kept separate from the Grok Build CLI account and its meter. The CLI's
  * `_x.ai/billing` answers the SuperGrok weekly limit only (probe 26.09.30); grok.com shows
  * "Weekly Grok Bot Limit" as its own meter and no public API returns it, so the values here
  * are transcribed by the user.
+ *
+ * Only fields the user touched are sent. Re-sending the prefilled percentage would let main
+ * stamp an unchecked old value as a fresh reading (DECISIONS 26.09.30 15:37: a manual value's
+ * age is when the user entered it).
  */
 export class GrokBotCard {
   readonly el: HTMLElement;
@@ -58,6 +64,7 @@ export class GrokBotCard {
   readonly limitInput: HTMLInputElement;
   readonly openGrokButton: HTMLButtonElement;
   readonly openCursorButton: HTMLButtonElement;
+  readonly more: HTMLDetailsElement;
   private readonly form: HTMLFormElement;
   private readonly name: HTMLElement;
   private readonly plan: HTMLElement;
@@ -81,8 +88,8 @@ export class GrokBotCard {
   private readonly limitLabel: HTMLElement;
   private context: RenderContext | null = null;
   private pending = false;
-  /** The reset time is only sent when the user touched it; otherwise the saved one stays. */
-  private resetDirty = false;
+  private readonly dirty: Record<Field, boolean> = { used: false, reset: false, spent: false, limit: false };
+  private readonly fields: Record<Field, HTMLInputElement>;
 
   constructor(private readonly deps: { api: Api; report(message: string): void }) {
     this.name = h('div', { class: 'card-account-name' });
@@ -95,7 +102,7 @@ export class GrokBotCard {
     this.recorded = h('span', { class: 'grok-bot-recorded' });
     this.resetLine = h('p', { class: 'grok-bot-line grok-bot-reset', hidden: true });
     this.onDemandLine = h('p', { class: 'grok-bot-line grok-bot-ondemand', hidden: true });
-    this.spill = h('p', { class: 'grok-bot-line grok-bot-spill', role: 'status', hidden: true });
+    this.spill = h('p', { class: 'grok-bot-line grok-bot-spill', hidden: true });
     this.guide = h('p', { class: 'muted grok-bot-guide' });
     this.separate = h('p', { class: 'muted grok-bot-guide grok-bot-separate' });
     this.label = h('span');
@@ -104,13 +111,20 @@ export class GrokBotCard {
 
     this.resetLabel = h('span');
     this.resetInput = h('input', { type: 'datetime-local', step: 60, class: 'grok-bot-input grok-bot-reset-at' });
-    this.resetInput.addEventListener('input', () => {
-      this.resetDirty = true;
-    });
     this.spentLabel = h('span');
     this.limitLabel = h('span');
     this.spentInput = h('input', { type: 'text', inputmode: 'decimal', autocomplete: 'off', class: 'grok-bot-input grok-bot-spent' });
     this.limitInput = h('input', { type: 'text', inputmode: 'decimal', autocomplete: 'off', class: 'grok-bot-input grok-bot-limit' });
+    this.fields = { used: this.input, reset: this.resetInput, spent: this.spentInput, limit: this.limitInput };
+    for (const [key, field] of Object.entries(this.fields) as [Field, HTMLInputElement][]) {
+      const touched = (): void => {
+        this.dirty[key] = true;
+        field.removeAttribute('aria-invalid');
+      };
+      field.addEventListener('input', touched);
+      // Some date pickers commit only on change.
+      field.addEventListener('change', touched);
+    }
     this.moreSummary = h('summary', { class: 'grok-bot-more-summary' });
     this.guideBox = h('div', { class: 'grok-bot-guide-box' }, [this.guide, this.separate]);
     this.moreBody = h('div', { class: 'grok-bot-more-body' }, [
@@ -118,13 +132,13 @@ export class GrokBotCard {
       h('label', { class: 'grok-bot-label' }, [this.spentLabel, this.spentInput]),
       h('label', { class: 'grok-bot-label' }, [this.limitLabel, this.limitInput]),
     ]);
-    const more = h('details', { class: 'grok-bot-more' }, [this.moreSummary, this.moreBody]);
+    this.more = h('details', { class: 'grok-bot-more' }, [this.moreSummary, this.moreBody]);
 
     // novalidate: the card reports its own messages (native constraint bubbles would block the
     // submit silently for an out-of-range field and never reach save()).
     this.form = h('form', { class: 'grok-bot-form', novalidate: true }, [
       h('div', { class: 'grok-bot-form-row' }, [h('label', { class: 'grok-bot-label' }, [this.label, this.input]), this.saveButton]),
-      more,
+      this.more,
     ]);
     this.form.addEventListener('submit', (event) => {
       event.preventDefault();
@@ -159,11 +173,11 @@ export class GrokBotCard {
   }
 
   /**
-   * Where to read the values matters until a current reading exists; after that the two
-   * paragraphs move into the collapsed section so the everyday card stays short.
+   * Where to read the values matters until a reading exists; after that the two paragraphs
+   * move into the collapsed section (whose summary then names them) so the card stays short.
    */
-  private placeGuide(current: boolean): void {
-    if (current) {
+  private placeGuide(hasReading: boolean): void {
+    if (hasReading) {
       if (this.guideBox.parentElement !== this.moreBody) this.moreBody.prepend(this.guideBox);
     } else if (this.guideBox.parentElement !== this.el) {
       this.el.insertBefore(this.guideBox, this.form);
@@ -174,8 +188,9 @@ export class GrokBotCard {
     this.context = ctx;
     const { t } = ctx;
     const reading = grokBotReading(settings, ctx.now);
+    const current = reading.state === 'fresh' || reading.state === 'stale';
     this.el.dataset.state = reading.state;
-    this.placeGuide(reading.state === 'fresh' || reading.state === 'stale');
+    this.placeGuide(current);
     setText(this.name, t('grokBotTitle'));
     setText(this.plan, t('grokBotPlan'));
     setText(this.badge, t('grokBotManual'));
@@ -185,15 +200,21 @@ export class GrokBotCard {
     setText(this.saveButton, t('grokBotSave'));
     setText(this.openGrokButton, t('grokBotOpenGrok'));
     setText(this.openCursorButton, t('grokBotOpen'));
-    setText(this.moreSummary, t('grokBotMore'));
+    setText(this.moreSummary, t(current ? 'grokBotMoreWithGuide' : 'grokBotMore'));
     setText(this.resetLabel, t('grokBotResetInput'));
     setText(this.spentLabel, t('grokBotSpentInput'));
     setText(this.limitLabel, t('grokBotLimitInput'));
+    // The picker offers only what save() accepts: from now up to the weekly bound.
+    setAttr(this.resetInput, 'min', toLocalDateTimeValue(ctx.now));
+    setAttr(this.resetInput, 'max', toLocalDateTimeValue(ctx.now + GROK_BOT_MAX_RESET_AHEAD_MS));
+    // An old percentage is a hint, never a prefilled value that one click would record as new.
+    const last = settings.grokBotUsedPercent;
+    setAttr(this.input, 'placeholder', !current && last !== null ? t('grokBotLastValue', { value: last }) : null);
 
     // Never overwrite what the user is typing.
     if (!this.form.contains(this.form.ownerDocument.activeElement)) this.fillInputs(settings, reading);
 
-    if (reading.state === 'fresh' || reading.state === 'stale') {
+    if (current) {
       setText(this.used, `${reading.usedPercent}% ${t('unitUsed')}`);
       setText(this.left, `${reading.leftPercent}% ${t('unitLeft')}`);
       setStyles(this.fill, { width: `${reading.usedPercent}%` });
@@ -208,15 +229,16 @@ export class GrokBotCard {
     });
     setText(this.recorded, time === '' ? '' : t('grokBotRecorded', { time }));
 
-    const resetsAt = reading.state === 'fresh' || reading.state === 'stale' ? reading.resetsAt : null;
+    const resetsAt = current ? reading.resetsAt : null;
     this.resetLine.hidden = resetsAt === null;
     setText(this.resetLine, resetsAt === null ? '' : t('grokBotResetsIn', { time: formatCountdown(resetsAt - ctx.now) }));
 
     const onDemand = grokBotOnDemand(settings);
-    this.onDemandLine.hidden = onDemand === null;
     let onDemandText = '';
     if (onDemand !== null) {
-      const { spentCents, limitCents } = onDemand;
+      // The spend was entered together with the percentage and ages with it; the limit is a setting.
+      const spentCents = current ? onDemand.spentCents : null;
+      const { limitCents } = onDemand;
       // 0 is the app's "none", shown with the app's word rather than as $0.00.
       const limit = limitCents === 0 ? t('grokBotLimitNone') : limitCents === null ? null : formatUsdCents(limitCents);
       if (spentCents !== null && limit !== null) {
@@ -227,6 +249,7 @@ export class GrokBotCard {
         onDemandText = t('grokBotOnDemandLimitOnly', { limit });
       }
     }
+    this.onDemandLine.hidden = onDemandText === '';
     setText(this.onDemandLine, onDemandText);
 
     const exhausted = grokBotWeeklyExhausted(reading);
@@ -235,13 +258,11 @@ export class GrokBotCard {
   }
 
   private fillInputs(settings: Settings, reading: GrokBotReading): void {
-    if (settings.grokBotUsedPercent !== null) this.input.value = String(settings.grokBotUsedPercent);
-    if (!this.resetDirty) {
-      const resetsAt = reading.state === 'fresh' || reading.state === 'stale' ? reading.resetsAt : null;
-      this.resetInput.value = resetsAt === null ? '' : toLocalDateTimeValue(resetsAt);
-    }
-    this.spentInput.value = centsText(settings.grokBotOnDemandSpentCents);
-    this.limitInput.value = centsText(settings.grokBotOnDemandLimitCents);
+    const current = reading.state === 'fresh' || reading.state === 'stale';
+    if (!this.dirty.used) this.input.value = current ? String(reading.usedPercent) : '';
+    if (!this.dirty.reset) this.resetInput.value = current && reading.resetsAt !== null ? toLocalDateTimeValue(reading.resetsAt) : '';
+    if (!this.dirty.spent) this.spentInput.value = centsText(settings.grokBotOnDemandSpentCents);
+    if (!this.dirty.limit) this.limitInput.value = centsText(settings.grokBotOnDemandLimitCents);
   }
 
   /** undefined = invalid, null = cleared, number = cents. */
@@ -254,6 +275,8 @@ export class GrokBotCard {
 
   /** undefined = invalid, null = cleared, number = epoch ms of the next reset (future, within the weekly bound). */
   private resetField(): number | null | undefined {
+    // A half-typed date reads as '' from .value; badInput tells it apart from a cleared field.
+    if (this.resetInput.validity.badInput) return undefined;
     const text = this.resetInput.value.trim();
     if (text === '') return null;
     const at = fromLocalDateTimeValue(text);
@@ -262,39 +285,56 @@ export class GrokBotCard {
     return at;
   }
 
+  private reject(field: HTMLInputElement, message: string): void {
+    this.deps.report(message);
+    setAttr(field, 'aria-invalid', 'true');
+    if (this.moreBody.contains(field)) this.more.open = true;
+    field.focus();
+  }
+
   private async save(): Promise<void> {
     if (this.pending || this.context === null) return;
     const t = this.context.t;
-    const used = Number(this.input.value);
-    if (this.input.value.trim() === '' || !Number.isInteger(used) || used < 0 || used > 100) {
-      this.deps.report(t('grokBotInvalid'));
-      this.input.focus();
-      return;
+    const patch: Partial<Settings> = {};
+    if (this.dirty.used) {
+      const used = Number(this.input.value);
+      if (this.input.value.trim() === '' || !Number.isInteger(used) || used < 0 || used > 100) {
+        this.reject(this.input, t('grokBotInvalid'));
+        return;
+      }
+      patch.grokBotUsedPercent = used;
     }
-    const patch: Partial<Settings> = { grokBotUsedPercent: used };
-    if (this.resetDirty) {
+    if (this.dirty.reset) {
       const resetAt = this.resetField();
       if (resetAt === undefined) {
-        this.deps.report(t('grokBotInvalidReset'));
-        this.resetInput.focus();
+        this.reject(this.resetInput, t('grokBotInvalidReset'));
         return;
       }
       patch.grokBotResetAt = resetAt;
     }
-    for (const [key, field] of [['grokBotOnDemandSpentCents', this.spentInput], ['grokBotOnDemandLimitCents', this.limitInput]] as const) {
+    for (const [key, field, name] of [
+      ['grokBotOnDemandSpentCents', this.spentInput, 'spent'],
+      ['grokBotOnDemandLimitCents', this.limitInput, 'limit'],
+    ] as const) {
+      if (!this.dirty[name]) continue;
       const cents = this.moneyField(field);
       if (cents === undefined) {
-        this.deps.report(t('grokBotInvalidMoney'));
-        field.focus();
+        this.reject(field, t('grokBotInvalidMoney'));
         return;
       }
       patch[key] = cents;
+    }
+    if (Object.keys(patch).length === 0) {
+      // Nothing was edited: a first entry needs a percentage, otherwise say there is nothing new.
+      if (this.input.value.trim() === '') this.reject(this.input, t('grokBotInvalid'));
+      else this.deps.report(t('grokBotNoChange'));
+      return;
     }
     this.pending = true;
     this.saveButton.disabled = true;
     try {
       const result = await this.deps.api.invoke('settings:update', { patch });
-      if (result.ok) this.resetDirty = false;
+      if (result.ok) for (const key of Object.keys(this.dirty) as Field[]) this.dirty[key] = false;
       this.deps.report(t(result.ok ? 'grokBotSaved' : 'grokBotSaveFailed'));
     } catch {
       this.deps.report(t('grokBotSaveFailed'));

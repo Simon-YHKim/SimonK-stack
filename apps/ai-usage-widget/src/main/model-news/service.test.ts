@@ -106,4 +106,27 @@ describe('model news service', () => {
     expect(reports.at(-1)).toEqual({ checkedAt: clock, sources: 8, failing: [] });
     service.stop();
   });
+
+  it('counts the Anthropic source as failed when every new article fails, and retries those articles later', async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'aiuw-model-news-'));
+    dirs.push(dir);
+    const pages = new Map(basePages);
+    const fetched: string[] = [];
+    const reports: { failing: { provider: string; kind: string }[] }[] = [];
+    const service = await createModelNewsService({ userData: dir, logger: createLogger({ sinks: [] }), onChange: () => {},
+      onHealth: (health) => reports.push(health),
+      fetchText: (url) => { fetched.push(url); const body = pages.get(url); return body === undefined ? Promise.reject(new Error('offline')) : Promise.resolve(body); } });
+    await service.checkNow();
+    const article = 'https://www.anthropic.com/news/claude-opus-6';
+    pages.set('https://www.anthropic.com/sitemap.xml', `<loc>https://www.anthropic.com/news/claude-opus-5</loc><loc>${article}</loc>`);
+    await service.checkNow();
+    expect(reports.at(-1)?.failing).toEqual([expect.objectContaining({ provider: 'claude', kind: 'news' })]);
+
+    pages.set(article, '<meta property="og:title" content="Claude Opus 6"><meta name="description" content="Claude Opus 6 is now available.">');
+    await service.checkNow();
+    expect(fetched.filter((url) => url === article)).toHaveLength(2);
+    expect(reports.at(-1)?.failing).toEqual([]);
+    expect(service.current().map((item) => [item.provider, item.status])).toContainEqual(['claude', 'released']);
+    service.stop();
+  });
 });

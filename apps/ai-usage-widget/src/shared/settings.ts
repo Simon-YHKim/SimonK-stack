@@ -52,11 +52,11 @@ export interface Settings {
   grokBotUsedPercent: number | null;
   /** Main-process time when the user recorded that meter; never an automatic reading. */
   grokBotRecordedAt: number | null;
-  /** Next weekly reset, from the countdown the user read in the Grok Bot app (epoch ms). Optional. */
+  /** Next weekly reset copied from grok.com "Weekly Grok Bot Limit → Resets" (local time, epoch ms). Optional. */
   grokBotResetAt: number | null;
   /** On-demand spend billed through Cursor, as read by the user (US cents). Optional. */
   grokBotOnDemandSpentCents: number | null;
-  /** On-demand monthly limit set on Cursor's Spending page (US cents). Optional. */
+  /** On-demand monthly limit as shown in the Grok Bot app or Cursor billing; the app's "none" = 0 (US cents). Optional. */
   grokBotOnDemandLimitCents: number | null;
 }
 

@@ -362,10 +362,11 @@ describe('codex adapter: fetchUsage', () => {
   it(
     'gives rateLimits/read its own longer limit and logs the phase and elapsed time of a failure',
     async () => {
-      // Slower than the plain rpc limit but inside the rateLimits one: still a reading.
-      const slow = setup({ timeouts: { rpcMs: 300, rateLimitsMs: 3_000 } });
+      // Slower than the plain rpc limit but inside the rateLimits one: still a reading. The margins
+      // leave account/read (answered at once) a full second even on a loaded machine.
+      const slow = setup({ timeouts: { rpcMs: 1_000, rateLimitsMs: 5_000 } });
       writeScenario(slow.account, {
-        responses: { 'account/read': ACCOUNT_PRO, 'account/rateLimits/read': { ...RATE_LIMITS, delayMs: 800 } },
+        responses: { 'account/read': ACCOUNT_PRO, 'account/rateLimits/read': { ...RATE_LIMITS, delayMs: 1_800 } },
       });
       expect(await slow.adapter.fetchUsage(slow.account, signal())).toMatchObject({ state: 'ok' });
 

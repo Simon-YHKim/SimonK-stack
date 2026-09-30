@@ -4,7 +4,7 @@ import type { Api } from '../api';
 import { h, setAttr, setStyles, uniqueId } from '../dom';
 import { providerIcon, refreshGlyph } from '../icons';
 import { currentNavigatorLanguage, pickLocale } from '../locale';
-import { buildEnabledViews, type RenderContext } from '../model';
+import { V1_COLORS, buildEnabledViews, type RenderContext } from '../model';
 import { applyDocumentTheme, skinFor } from '../theme';
 import { renderWidgetItem } from './themes';
 import { modelNoticeText } from '../../../shared/model-notice';
@@ -258,14 +258,18 @@ export class WidgetApp {
     const titleParts = [ctx.t('grokBotTitle'), value, status];
     if (countdown !== null) titleParts.push(ctx.t('grokBotResetsIn', { time: countdown }));
     if (exhausted) titleParts.push(ctx.t(grokBotSpillKey(state.settings.grokBotOnDemandLimitCents)));
+    // Same colour rule as the measured rows: only with "Color by Usage" and never in monochrome.
+    const flagged = exhausted && state.settings.colorByUsage && state.settings.iconStyle !== 'monochrome';
+    const valueEl = h('strong', { class: 'grok-bot-widget-value' }, [value]);
+    if (flagged && state.settings.theme !== 'windows') setStyles(valueEl, { color: V1_COLORS.critical });
     return h('div', {
-      class: `account-item grok-bot-item${reading.state === 'fresh' ? '' : ' is-stale'}${exhausted ? ' is-exhausted' : ''}`,
+      class: `account-item grok-bot-item${reading.state === 'fresh' ? '' : ' is-stale'}${flagged ? ' is-exhausted' : ''}`,
       'data-provider': 'grok-bot',
       title: titleParts.join(' · '),
     }, [
       providerIcon('grok', 16, state.settings.iconStyle === 'monochrome'),
       h('span', { class: 'grok-bot-widget-name' }, [ctx.t('grokBotWidget')]),
-      h('strong', { class: 'grok-bot-widget-value' }, [value]),
+      valueEl,
       countdown === null ? null : h('small', { class: 'grok-bot-widget-reset' }, [countdown]),
       h('small', { class: 'grok-bot-widget-manual' }, [ctx.t('grokBotManual')]),
     ]);

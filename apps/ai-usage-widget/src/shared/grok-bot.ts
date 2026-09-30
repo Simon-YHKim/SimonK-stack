@@ -103,10 +103,13 @@ export function formatUsdCents(cents: number): string {
   return `$${whole.toLocaleString('en-US')}.${rest}`;
 }
 
-/** `"12.3"` / `"12"` / `"0.05"` → cents; anything else (negative, 3+ decimals, text) → undefined. */
+/**
+ * `"12.3"`, `"$12.30"`, `"1,200"`, `"0.05"` → cents: the same forms the card and Cursor display.
+ * Anything else (negative, 3+ decimals, misplaced commas, text) → undefined.
+ */
 export function parseUsdToCents(text: string): number | undefined {
-  const trimmed = text.trim();
-  if (!/^\d{1,7}(?:\.\d{1,2})?$/.test(trimmed)) return undefined;
-  const [whole = '0', fraction = ''] = trimmed.split('.');
+  const trimmed = text.trim().replace(/^\$\s*/, '');
+  if (!/^(?:\d{1,7}|\d{1,3}(?:,\d{3}){1,2})(?:\.\d{1,2})?$/.test(trimmed)) return undefined;
+  const [whole = '0', fraction = ''] = trimmed.replace(/,/g, '').split('.');
   return Number(whole) * 100 + Number(fraction.padEnd(2, '0'));
 }

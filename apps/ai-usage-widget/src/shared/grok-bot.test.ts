@@ -62,7 +62,12 @@ describe('Grok Bot on-demand amounts', () => {
     expect(parseUsdToCents(' 0.05 ')).toBe(5);
     expect(parseUsdToCents('40')).toBe(4000);
     expect(parseUsdToCents('0.29')).toBe(29);
-    for (const bad of ['', '-1', '1.234', 'abc', '1,000', '$5']) expect(parseUsdToCents(bad), bad).toBeUndefined();
+    // The forms the card itself and Cursor display.
+    expect(parseUsdToCents('$12.30')).toBe(1230);
+    expect(parseUsdToCents('$ 5')).toBe(500);
+    expect(parseUsdToCents('1,200')).toBe(120_000);
+    expect(parseUsdToCents('$1,234,567.89')).toBe(123_456_789);
+    for (const bad of ['', '-1', '1.234', 'abc', '1,00', '12,3456', ',100', '$', '$-5', '5$']) expect(parseUsdToCents(bad), bad).toBeUndefined();
     expect(formatUsdCents(1230)).toBe('$12.30');
     expect(formatUsdCents(5)).toBe('$0.05');
     expect(formatUsdCents(123_456_789)).toBe('$1,234,567.89');

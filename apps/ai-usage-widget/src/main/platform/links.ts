@@ -1,9 +1,9 @@
 import type { ExternalLinkKey } from '../../shared/ipc';
 
 /**
- * Fixed install-guide URLs opened by key. Only https addresses confirmed in
- * official documentation belong here; keys without a verified URL answer
- * `not-found` instead of guessing.
+ * Fixed install-guide and usage-page URLs opened by key. Only https addresses confirmed in
+ * official documentation or seen on the user's own screen belong here; keys without a
+ * verified URL answer `not-found` instead of guessing.
  *
  * Verified 26.09.19 (DECISIONS 26.09.19 11:20):
  * - claude: Anthropic "Advanced setup" page, lists the Windows PowerShell/CMD/WinGet installs.
@@ -12,7 +12,8 @@ import type { ExternalLinkKey } from '../../shared/ipc';
  * - antigravity: Google "Getting Started" CLI tab (`/docs/cli/` redirects here), lists
  *   `irm https://antigravity.google/cli/install.ps1 | iex`; the query selects that tab.
  * - grok-bot-usage (26.09.30): Cursor's Spending tab, linked from cursor.com/help/account-and-billing/spend-limits.
- *   It shows on-demand charges and the Monthly Limit set for Grok Bot's on-demand usage.
+ *   Per those docs it shows on-demand charges and the Monthly Limit; how Grok Bot appears there is not yet
+ *   seen on the user's screen.
  * - grok-usage (26.09.30): grok.com Settings → Usage, the address the user's own browser showed. It lists the
  *   SuperGrok weekly limit (what the Grok card reads through the CLI) and, separately, "Weekly Grok Bot Limit"
  *   with its exact reset time.

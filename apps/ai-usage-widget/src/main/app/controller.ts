@@ -55,15 +55,17 @@ export const REDETECT_MIN_INTERVAL_MS = 30_000;
 export const IDENTITY_MAX_AGE_MS = 30 * 60_000;
 export const STALE_CHECK_INTERVAL_MS = 30_000;
 
-/** Failures that normally clear on the next refresh (DECISIONS 26.09.30 16:50). */
+/** Failures that normally clear on the next refresh (DECISIONS 26.09.30 16:50, commit 1d70eba). */
 export const TRANSIENT_ERROR_CODES: ReadonlySet<ErrorCode> = new Set<ErrorCode>(['timeout', 'network', 'provider-error', 'rate-limited']);
 
 /**
- * A single transient failure right after a good reading keeps that reading untouched instead of
- * flipping the account to an error (26.09.28: 34 one-off Codex timeouts, each fine 30–60 s later,
- * each shown as a dimmed ⚠ card). Nothing new is claimed: the values, measuredAt and lastSuccessAt
- * stay the real last measurement, and once it ages past staleAfterMs the normal stale marking and
- * the next failure's error state take over.
+ * Transient failures while the last good reading is still fresh keep that reading untouched instead
+ * of flipping the account to an error (26.09.28: 34 one-off Codex timeouts, each fine 30–60 s later,
+ * each shown as a dimmed ⚠ card). Every such failure inside the freshness window is ridden out, not
+ * only the first. Nothing new is claimed: the values, measuredAt and lastSuccessAt stay the real
+ * last measurement; once it ages past staleAfterMs markStale shows it as stale and the next failure
+ * shows the error. A used reset or a new sign-in marks the reading stale first, so it never
+ * qualifies.
  */
 export function keepsReadingThroughBlip(
   previous: UsageSnapshot | undefined,
@@ -373,6 +375,9 @@ export function createAppController(deps: AppControllerDeps) {
     onSettled: ({ accountId, event }) => {
       if (event.type === 'success') {
         authAlerted.delete(accountId);
+        // A new sign-in may be a different account: earlier readings no longer count as fresh.
+        const previous = usage.get(accountId);
+        if (previous?.state === 'ok') usage.set(accountId, { ...previous, state: 'stale' });
         const info: AccountIdentityInfo = { loginState: 'logged-in' };
         if (event.emailMasked !== undefined) info.emailMasked = event.emailMasked;
         if (event.plan !== undefined) info.plan = event.plan;
@@ -749,6 +754,9 @@ export function createAppController(deps: AppControllerDeps) {
           if (previous !== undefined) {
             const next = { ...previous };
             delete next.resetCreditsAvailable;
+            // A used reset makes the stored windows wrong: show them as stale, which also keeps
+            // a failing follow-up read from riding them out as a fresh 'ok' (keepsReadingThroughBlip).
+            if (result === 'reset' && next.state === 'ok') next.state = 'stale';
             usage.set(accountId, next);
             scheduleBroadcast();
           }

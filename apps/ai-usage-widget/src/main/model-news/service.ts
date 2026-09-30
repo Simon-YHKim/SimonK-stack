@@ -154,7 +154,9 @@ export async function createModelNewsService(options: ModelNewsOptions) {
         if (provider === 'claude') {
           const urls = anthropicNewsUrls(xml);
           if (urls.length === 0) throw new Error('empty news sitemap');
-          const newUrls = markSeen(`news:${provider}`, urls).slice(-12);
+          const seenKey = `news:${provider}`;
+          const newUrls = markSeen(seenKey, urls).slice(-12);
+          const failedUrls: string[] = [];
           await Promise.all(newUrls.map(async (articleUrl) => {
             try {
               const html = await fetchText(articleUrl);
@@ -162,9 +164,15 @@ export async function createModelNewsService(options: ModelNewsOptions) {
               const summary = /<meta[^>]+(?:name|property)="(?:description|og:description)"[^>]+content="([^"]+)"/i.exec(html)?.[1] ?? '';
               const announcement = classifyAnnouncement(provider, title, summary, articleUrl);
               if (announcement !== null) addNotice(announcement);
-            } catch (error) { options.logger.warn('model news article failed', { provider, error }); }
+            } catch (error) {
+              failedUrls.push(articleUrl);
+              options.logger.warn('model news article failed', { provider, error });
+            }
           }));
-          // One unreadable article is not a broken source; the sitemap itself was read.
+          // Unread articles go back to unseen so the next check tries them again.
+          if (failedUrls.length > 0) state.seen[seenKey] = (state.seen[seenKey] ?? []).filter((url) => !failedUrls.includes(url));
+          // One unreadable article is not a broken source; every new article failing is.
+          if (newUrls.length > 0 && failedUrls.length === newUrls.length) throw new Error('every new article failed');
           sourceOk('news', provider);
           return;
         }
