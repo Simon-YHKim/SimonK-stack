@@ -2,6 +2,16 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
+## 2026-10-01 PR #68·#69 누적 `/vibe` 2.12.29 후보
+
+최신 검증 후보는 `E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr69-credit-failclosed-candidate/`이다. PR #68 코드 커밋 `c17ba6b`의 Codex 구매 크레딧 fail-closed 수정과 종속 PR #69 검증 기준 코드 커밋 `0207301`의 Grok ACP 초과 과금 필드 수정이 누적됐다. 이 절의 문서 전용 후속 커밋은 후보의 `skills-src` 바이트를 바꾸지 않는다. 두 PR은 Draft이며 이번 변경의 독립 코드 리뷰와 §35 별도 심판 D-code가 없어 `main`에는 반영하지 않았다. Simon의 Cloudflare Pages 운영 자동 배포 허용은 유효하지만 이 품질 게이트를 면제하지 않는다.
+
+후보의 source 137스킬·423파일 digest는 `2fb0fa29881a1f9f8607d33eec0db923bbab10a47f212cfa59fbde330ee6de98`, Claude 5플러그인·182스킬 digest는 `eb55167bac1dab41b9c93203cd3400f41121c7eb49c7a08c8f73df1dd8310e1d`, Codex overlay digest는 `563fb61b8cd1b4b9530b842d6a660e9bba3f62724ff356983603d9d22ac052f0`, Codex 안전 부분집합 177스킬 digest는 `f12c0f280aa6c455323f91aa0111b2fcb65701f8e350dbac5d6c61b20a9a9ffa`다. 네 영수증과 오프라인 probe 4/4, `/vibe` 누적 테스트 326/326, 스킬 품질 141/141이 통과했다. PR #68의 `c17ba6b` 및 PR #69의 `0207301` 코드 커밋에서 CI는 각각 4/4 성공했다. 문서 전용 후속 HEAD의 CI는 별도 확인 대상이다.
+
+격리 호스트 원시 기록은 `E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr69-credit-host-rehearsal/`에 있다. 네트워크·클립보드·장치 리디렉션 OFF, 인증·사용자 홈 비매핑의 별도 Windows Sandbox에서 Claude Code 2.1.285가 5플러그인·182스킬, Codex CLI 0.159.0이 5플러그인을 로드했다. 양쪽 모두 이전 Claude 5개·Codex 2개 링크를 두 번 복원하고 시험 플러그인을 제거했으며, 모델 생성 0·종료 후 게스트 0이었다. 실제 사용자 Codex 0.155 고정 버전이나 운영 프로필의 자동 선택 결과를 입증하는 시험은 아니다.
+
+2026-10-01 06:59 KST 확인한 Bot 명단은 2026-09-24 사용자 제공 스냅샷 19개 전부가 `active - reported … live access unverified`로, 정확한 `active`는 0개였다. Relay STATUS의 마지막 시각은 2026-09-27 17:35 KST다. 중앙 발송 어댑터는 이 상태를 거부하며 관련 27개 테스트가 통과했다. 현재 이미지 도구에는 구독 전용 USD 0 제공자 하드캡·요청 ID 재조회 계약이 없고, Gstack 외부 런타임은 Claude 31/Codex 30스킬에서 pending이다. 따라서 사용자 홈 설치·실제 모델/effort 자동 선택·구독 청구·이미지 생성·Bot 배달은 **미검증**이다. `runtime_closure_verified=false`, `host_compatibility_verified=false`, `selection_quality_verified=false`, `installation_ready=false`를 유지한다. 상세는 후보 `report.html`에 있다.
+
 ## 검증된 소스 오버레이 — 격리·오프라인 경로
 
 `/vibe` 이관의 새 배포 경로는 **source-owned overlay**입니다. 아래 명령은 실제
