@@ -797,6 +797,14 @@ def assess_candidate(c, step, policy, now, producer_vendor=None):
     else:
         errors.append("BILLING_UNVERIFIED")
     quota = c.get("quota", {})
+    if surface in {"grok", "grok-bot"} and (
+            quota.get("surface") != surface
+            or quota.get("transport") != c.get("transport")
+            or quota.get("account_ref") != account_ref
+            or quota.get("state") != "observed"
+            or not isinstance(quota.get("evidence"), str)
+            or not quota["evidence"].strip()):
+        errors.append("QUOTA_BINDING_UNVERIFIED")
     used = quota.get("used_pct")
     if isinstance(used, bool) or not isinstance(used, (int, float)) or not 0 <= used <= 100:
         errors.append("QUOTA_UNKNOWN")

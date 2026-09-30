@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.12.18 - 2026-09-30
+
+- Bind Grok CLI and Grok Bot quota evidence to their distinct surface,
+  transport and account, and require a freshly observed state. A reset timestamp
+  or the other xAI path's quota cannot reopen a held route. Offline tests cover
+  wrong surface, transport, account, missing evidence and unobserved reset.
+- Align the `model-router` image-generation contract and Bot fixture with the
+  already enforced planner gates. This is source-only: no provider generation,
+  Relay delivery, user installation or subscription billing proof is claimed.
+
 ## 2.12.8 - 2026-09-30
 
 - Enforce the existing writing-review rule for typed `WRITING` outputs even

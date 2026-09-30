@@ -162,6 +162,7 @@ class BotAdapterTests(unittest.TestCase):
                       billing={"mode": "subscription", "verified": True,
                                "extra_usage_enabled": False, "bot_usage_included": True,
                                "api_fallback_disabled": True,
+                               "paid_credit_fallback_disabled": True,
                                "account_ref": "test-bot-account"})
         request = {"run_id": "bot-fixture", "steps": [{"id": "screen", "kind": "gui",
             "task": self.task, "target": self.target, "skills": ["vibe-bot"], "needs": ["gui"],

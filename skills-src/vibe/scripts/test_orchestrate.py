@@ -37,6 +37,10 @@ def candidate(name="small", surface="codex", **changes):
         "quota": {"used_pct": 10, "observed_at": NOW, "bucket": "test-weekly"},
     }
     item.update(changes)
+    if surface in {"grok", "grok-bot"} and "quota" not in changes:
+        item["quota"].update({"surface": surface, "transport": item["transport"],
+                              "account_ref": item["billing"]["account_ref"],
+                              "state": "observed", "evidence": "fixture account-bound quota"})
     return item
 
 
@@ -795,6 +799,21 @@ class OrchestrationTests(unittest.TestCase):
         p = self.plan([self.gui()], [self.bot(billing=billing)])
         self.assertEqual(p["status"], "blocked")
         self.assertIn("PAID_CREDIT_FALLBACK_UNVERIFIED", str(p))
+
+    def test_xai_quota_must_match_exact_surface_transport_and_account(self):
+        for surface, node, good in (("grok", step(surface="grok"), candidate("grok", surface="grok")),
+                                    ("grok-bot", self.gui(), self.bot())):
+            self.assertEqual(self.plan([node], [good])["status"], "ready")
+            for field, wrong in (("surface", "grok-bot" if surface == "grok" else "grok"),
+                                 ("transport", "cli" if surface == "grok-bot" else "bot"),
+                                 ("account_ref", "other-account"), ("evidence", ""),
+                                 ("state", "reset-unobserved")):
+                with self.subTest(surface=surface, field=field):
+                    bad = copy.deepcopy(good)
+                    bad["quota"][field] = wrong
+                    p = self.plan([node], [bad])
+                    self.assertEqual(p["status"], "blocked")
+                    self.assertIn("QUOTA_BINDING_UNVERIFIED", str(p))
 
     def test_held_bot_is_not_routed(self):
         p = self.plan([self.gui()], [self.bot(bot_status="ON HOLD")])

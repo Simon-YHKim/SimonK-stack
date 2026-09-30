@@ -269,7 +269,12 @@ With approved_usd=0, API and metered LLM routes are excluded even when their
 claimed per-attempt upper quote is zero. A positive metered grant is a separate
 user decision; it is never inferred from a free-tier claim.
 Quota supplies used_pct, observed_at and an optional bucket ID. Unknown is null,
-never zero. Both quota exhaustion and unverified billing exclude the route.
+never zero. For Grok CLI and Grok Bot, quota must additionally bind its own
+`surface`, `transport`, billing `account_ref`, `state=observed` and nonempty
+observation `evidence`. A CLI quota cannot unlock a Bot route or vice versa;
+an elapsed reset time with `state=reset-unobserved` is not recovery evidence.
+These are coordinator-supplied assertions, not provider attestations. Both quota
+exhaustion and unverified billing exclude the route.
 
 Demand maps to an actual provider-specific effort. Its value must appear in
 both effort allowlists. Host reuse additionally requires a matching observed

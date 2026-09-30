@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when asked for SimonKStack "메인 오케스트레이터", "/vibe", "바이브로 알아서", Play Console/GUI orchestration, or task-wide skill/model/effort routing. Produces one verified plan and artifacts under $0 extra spend. Check CLI/API/MCP first; simonk is sprint-only and vibe-bot GUI-only.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.17
+version: 2.12.18
 author: simon-stack
 ---
 
@@ -191,6 +191,9 @@ provider-managed Bot usage) is included in the subscription and both overage
 and API fallback are verified disabled. Codex, Grok CLI and Grok Bot also need
 separate proof that purchased-credit fallback cannot spend existing credits;
 automatic reload OFF alone does not provide that proof.
+For xAI, bind quota evidence to the exact Grok CLI or Grok Bot surface,
+transport and account. A reset clock or the other surface's quota cannot lift a
+hold; reobserve the selected account and bucket before planning.
 Unknown is blocked. Do not silently fall back to an API key, paid overage or
 a new subscription.
 With the default USD 0 grant, API/metered model routes stay blocked even when
