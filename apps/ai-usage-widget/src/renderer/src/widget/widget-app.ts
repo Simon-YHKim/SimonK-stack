@@ -112,6 +112,7 @@ export class WidgetApp {
   private cooldownTimer: ReturnType<typeof setTimeout> | null = null;
   private pendingRefresh = false;
   private lastSignature = '';
+  private hasSeenGrokBot = false;
   private lastSize: Size | null = null;
   private tickTimer: ReturnType<typeof setInterval> | null = null;
   private readonly paceHistory = new Map<string, Map<string, PaceSample[]>>();
@@ -167,6 +168,8 @@ export class WidgetApp {
 
   update(state: AppStateSnapshot): WidgetRendered {
     this.state = state;
+    // Keep the Bot row visible after an automatic session fails or is removed.
+    if (state.grokBotAuto !== undefined && state.grokBotAuto.state !== 'unavailable') this.hasSeenGrokBot = true;
     this.observePace(state);
     const rendered = this.render();
     const locale = this.context(state).locale;
@@ -244,8 +247,11 @@ export class WidgetApp {
 
   private isEmpty(): boolean {
     return this.state === null || (!this.state.accounts.some((account) => account.enabled) &&
-      this.state.settings.grokBotUsedPercent === null &&
-      grokBotReading(this.state.settings, this.now(), this.state.grokBotAuto).state !== 'automatic');
+      !this.showGrokBot(this.state));
+  }
+
+  private showGrokBot(state: AppStateSnapshot): boolean {
+    return state.settings.grokBotUsedPercent !== null || this.hasSeenGrokBot;
   }
 
   private grokBotRow(state: AppStateSnapshot, ctx: RenderContext): RowView {
@@ -277,7 +283,11 @@ export class WidgetApp {
     const numeric = reading.state === 'fresh' || reading.state === 'stale' || reading.state === 'automatic';
     const percent = numeric ? (state.settings.showUsedPercent ? reading.usedPercent : reading.leftPercent) : null;
     const value = percent === null ? '—' : `${percent}% ${ctx.t(state.settings.showUsedPercent ? 'unitUsed' : 'unitLeft')}`;
-    const status = ctx.t(GROK_BOT_STATUS_KEYS[reading.state]);
+    const automaticStatus = state.grokBotAuto?.state === 'login-expired' ? 'grokBotAutoExpired' :
+      state.grokBotAuto?.state === 'unavailable' ? 'grokBotAutoUnavailable' :
+      state.grokBotAuto?.state === 'error' ? 'grokBotAutoError' : null;
+    const status = reading.state === 'unknown' && automaticStatus !== null ? ctx.t(automaticStatus) :
+      ctx.t(GROK_BOT_STATUS_KEYS[reading.state]);
     const resetsAt = numeric ? reading.resetsAt : null;
     const countdown = resetsAt === null ? null : formatCountdown(resetsAt - ctx.now);
     const exhausted = grokBotWeeklyExhausted(reading);
@@ -335,9 +345,7 @@ export class WidgetApp {
         this.main.replaceChildren(h('span', { class: 'white-circle-dot', 'aria-hidden': 'true' }));
         this.summary.textContent = title;
       } else {
-        const showGrokBot = state.settings.grokBotUsedPercent !== null ||
-          grokBotReading(state.settings, ctx.now, state.grokBotAuto).state === 'automatic';
-        const botItem = showGrokBot ? this.grokBotItem(state, ctx) : null;
+        const botItem = this.showGrokBot(state) ? this.grokBotItem(state, ctx) : null;
         let groupedGrokBot = false;
         const items = views.map((view) => {
           const groupBot = botItem !== null && !groupedGrokBot && view.account.provider === 'grok';
@@ -376,7 +384,7 @@ export class WidgetApp {
     }
 
     this.refreshButton.hidden = !state.accounts.some((account) => account.enabled) &&
-      grokBotReading(state.settings, ctx.now, state.grokBotAuto).state !== 'automatic';
+      !this.hasSeenGrokBot;
     this.updateRefreshButton();
     this.schedule(() => this.reportSize());
     return empty ? 'empty' : 'accounts';

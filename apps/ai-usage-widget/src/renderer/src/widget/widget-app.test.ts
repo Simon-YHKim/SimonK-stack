@@ -77,6 +77,29 @@ describe('WidgetApp', () => {
     expect(api.callsTo('usage:refresh-now')).toEqual([{ accountId: null }]);
   });
 
+  it('keeps a Bot-only widget visible when an automatic session expires or disappears', () => {
+    const { app } = setup(appState({ grokBotAuto: { state: 'ok', usedPercent: 41,
+      resetsAt: NOW + 2 * 86_400_000, measuredAt: NOW } }));
+    app.update(appState({ grokBotAuto: { state: 'login-expired', usedPercent: null,
+      resetsAt: null, measuredAt: NOW + 1_000 } }));
+    expect(app.main.querySelector('.grok-bot-item')?.textContent).toContain('Sign in again in the Grok Bot app');
+    expect(app.main.querySelector('.grok-bot-item')?.textContent).toContain('—');
+    expect(app.refreshButton.hidden).toBe(false);
+
+    app.update(appState({ grokBotAuto: { state: 'unavailable', usedPercent: null,
+      resetsAt: null, measuredAt: NOW + 2_000 } }));
+    expect(app.main.querySelector('.grok-bot-item')?.textContent).toContain('Grok Bot sign-in was not found');
+    expect(app.bar.classList.contains('is-empty')).toBe(false);
+    expect(app.refreshButton.hidden).toBe(false);
+  });
+
+  it('does not show a Bot row for a first-time user without a Grok Bot session', () => {
+    const { app, rendered } = setup(appState({ grokBotAuto: { state: 'unavailable', usedPercent: null,
+      resetsAt: null, measuredAt: NOW } }));
+    expect(rendered).toBe('empty');
+    expect(app.main.querySelector('.grok-bot-item')).toBeNull();
+  });
+
   it.each(['windows', '1a', '1b', '1c', '1d'] as const)('stacks Grok WK and Bot rows in one %s item', (theme) => {
     const grok = account({ id: 'g1', provider: 'grok', label: 'Grok' });
     const base = { accounts: [grok], usage: [usage('g1', { provider: 'grok', source: 'grok-acp',
@@ -95,6 +118,23 @@ describe('WidgetApp', () => {
     app.update(appState({ ...base, grokBotAuto: { state: 'ok', usedPercent: 50,
       resetsAt: NOW + 2 * 86_400_000, measuredAt: NOW + 1000 } }));
     expect(app.main.querySelector('.account-item[data-provider="grok"]')?.textContent).toContain('50% left');
+  });
+
+  it('keeps the grouped WK/Bot item and explains a failed Bot refresh', () => {
+    const grok = account({ id: 'g1', provider: 'grok', label: 'Grok' });
+    const base = { accounts: [grok], usage: [usage('g1', { provider: 'grok', source: 'grok-acp',
+      windows: [quotaWindow('weekly', 37, 3 * 86_400_000)] })] };
+    const { app } = setup(appState({ ...base, grokBotAuto: { state: 'ok', usedPercent: 41,
+      resetsAt: NOW + 2 * 86_400_000, measuredAt: NOW } }));
+    app.update(appState({ ...base, grokBotAuto: { state: 'error', usedPercent: null,
+      resetsAt: null, measuredAt: NOW + 1_000 } }));
+    const item = app.main.querySelector('.account-item[data-provider="grok"]') as HTMLElement;
+    const rows = item.querySelectorAll('.w-row');
+    expect(app.main.querySelectorAll(':scope > .account-item')).toHaveLength(1);
+    expect(rows).toHaveLength(2);
+    expect(rows[1]?.textContent).toContain('Bot');
+    expect(rows[1]?.textContent).toContain('—');
+    expect(item.title).toContain('Automatic refresh failed');
   });
 
   it('keeps Bot readable when the Grok CLI is signed out, and marks only a stale manual Bot row', () => {
