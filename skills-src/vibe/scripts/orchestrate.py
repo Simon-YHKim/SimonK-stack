@@ -863,6 +863,67 @@ def assess_candidate(c, step, policy, now, producer_vendor=None):
     return errors, effort, reserved
 
 
+def assess_image_tool(tool, runtime, step, now):
+    """Require a current-host atomic subscription-only transport, not text vision.
+
+    These are trusted coordinator observations for planning only. The executing
+    host must repeat the account/cap check inside its atomic image operation.
+    """
+    errors = []
+    if (tool.get("surface") not in {"codex", "claude"}
+            or tool.get("transport") != "host-image"
+            or not isinstance(tool.get("tool_ref"), str) or not tool["tool_ref"].strip()):
+        errors.append("IMAGE_HOST_TOOL_UNSUPPORTED")
+    if (not isinstance(tool.get("host_ref"), str) or not tool["host_ref"]
+            or not isinstance(tool.get("interaction_ref"), str) or not tool["interaction_ref"]
+            or tool.get("host_ref") != runtime.get("host_ref")
+            or tool.get("interaction_ref") != runtime.get("interaction_ref")):
+        errors.append("IMAGE_HOST_CONTEXT_MISMATCH")
+    if step.get("surface") and step["surface"] != tool.get("surface"):
+        errors.append("SURFACE_MISMATCH")
+    if (tool.get("available") is not True or not fresh(tool.get("observed_at"), now)
+            or not isinstance(tool.get("evidence"), list) or not tool["evidence"]):
+        errors.append("IMAGE_TOOL_UNOBSERVED")
+    if (tool.get("adapter_contract") != "image-host-atomic-subscription-v1"
+            or tool.get("idempotent_request") is not True
+            or tool.get("lookup_by_request") is not True):
+        errors.append("IMAGE_ATOMIC_ADAPTER_UNAVAILABLE")
+    billing = tool.get("billing", {})
+    if (not isinstance(billing, dict) or billing.get("mode") != "subscription"
+            or billing.get("verified") is not True
+            or not isinstance(billing.get("account_ref"), str)
+            or not billing["account_ref"].strip()
+            or billing.get("image_included") is not True
+            or billing.get("extra_usage_enabled") is not False
+            or billing.get("api_fallback_disabled") is not True
+            or billing.get("paid_credit_fallback_disabled") is not True
+            or billing.get("provider_hard_cap_enforced") is not True
+            or type(billing.get("provider_hard_cap_usd")) not in (int, float)
+            or billing["provider_hard_cap_usd"] != 0
+            or not isinstance(billing.get("evidence"), list) or not billing["evidence"]):
+        errors.append("IMAGE_SUBSCRIPTION_HARD_CAP_UNVERIFIED")
+    quota = tool.get("quota", {})
+    used = quota.get("used_pct") if isinstance(quota, dict) else None
+    if (isinstance(used, bool) or not isinstance(used, (int, float))
+            or not 0 <= used < 100 or not quota.get("bucket")
+            or not fresh(quota.get("observed_at"), now)):
+        errors.append("IMAGE_QUOTA_UNVERIFIED")
+    return sorted(set(errors))
+
+
+def image_tool_route(tool):
+    valid_until = min(instant(tool["observed_at"]), instant(tool["quota"]["observed_at"]))
+    valid_until += timedelta(seconds=DEFAULT_TTL)
+    return {"candidate_id": tool["id"], "surface": tool["surface"],
+            "vendor": SURFACES[tool["surface"]], "transport": "host-image",
+            "tool_ref": tool["tool_ref"], "host_ref": tool["host_ref"],
+            "interaction_ref": tool["interaction_ref"], "model": None,
+            "requested_effort": None, "effective_effort": None,
+            "billing": copy.deepcopy(tool["billing"]), "quota": copy.deepcopy(tool["quota"]),
+            "reserved_upper_usd": 0.0, "actual_usd": None,
+            "valid_until": valid_until.isoformat(), "runtime_observed_at": tool["observed_at"]}
+
+
 def _legacy_validation(nodes, runtime):
     """Retain the full Orca guard. This is preflight, never worker-start."""
     orca_nodes = [s for s in nodes if (s.get("route") or {}).get("transport") == "orca"]
@@ -963,10 +1024,30 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
             if "vibe-bot" not in s.get("skills", []):
                 errors.append("BOT_SKILL_REQUIRED")
         if s["kind"] == "image":
-            # There is no guarded, subscription-included image adapter yet.
-            # Preserve the typed task in a blocked plan instead of raising or
-            # ever misrouting it through an LLM/local-command candidate.
-            errors.append("IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL")
+            image_tools = runtime.get("image_tools", [])
+            if not isinstance(image_tools, list):
+                image_tools = []
+            eligible = []
+            for tool in image_tools:
+                if not isinstance(tool, dict) or not isinstance(tool.get("id"), str) or not tool["id"]:
+                    continue
+                reasons = assess_image_tool(tool, runtime, s, now)
+                if reasons:
+                    rejected.append({"candidate_id": tool["id"], "reasons": reasons})
+                else:
+                    eligible.append(tool)
+            if len({tool["id"] for tool in image_tools if isinstance(tool, dict) and tool.get("id")}) != len(
+                    [tool for tool in image_tools if isinstance(tool, dict) and tool.get("id")]):
+                errors.append("IMAGE_TOOL_ID_AMBIGUOUS")
+            if not eligible or errors:
+                errors.append("IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL")
+            else:
+                tool = min(eligible, key=lambda item: (item["quota"]["used_pct"], item["id"]))
+                s["route"] = image_tool_route(tool)
+                s["handoff"] = {"kind": "host-image", "tool_ref": tool["tool_ref"],
+                                "read_skills": s["skill_paths"],
+                                "atomic_subscription_only": True,
+                                "idempotent_lookup_required": True}
         parent = by_id.get(s.get("verify_of"))
         vendor = (parent.get("route") or {}).get("vendor") if parent else None
         if parent and not parent.get("route"):
@@ -1014,7 +1095,7 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
                               "vendor": None, "requested_effort": None, "effective_effort": None,
                               "reserved_upper_usd": float(local_upper), "actual_usd": None}
                 s["handoff"] = {"kind": "tool", "argv": argv, "shell": False}
-        elif not errors:
+        elif s["kind"] != "image" and not errors:
             for c in candidates:
                 reasons, effort, amount = assess_candidate(c, s, policy, now, vendor)
                 if reasons:

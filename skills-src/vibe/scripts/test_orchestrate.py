@@ -44,6 +44,26 @@ def candidate(name="small", surface="codex", **changes):
     return item
 
 
+def image_tool(**changes):
+    item = {
+        "id": "fixture-image", "surface": "codex", "transport": "host-image",
+        "tool_ref": "fixture.image", "host_ref": "fixture-host",
+        "interaction_ref": "fixture-interaction", "available": True,
+        "observed_at": NOW, "evidence": ["fixture current-host catalog"],
+        "adapter_contract": "image-host-atomic-subscription-v1",
+        "idempotent_request": True, "lookup_by_request": True,
+        "billing": {"mode": "subscription", "verified": True,
+                    "account_ref": "fixture-image-account", "image_included": True,
+                    "extra_usage_enabled": False, "api_fallback_disabled": True,
+                    "paid_credit_fallback_disabled": True,
+                    "provider_hard_cap_usd": 0, "provider_hard_cap_enforced": True,
+                    "evidence": ["fixture provider-enforced cap"]},
+        "quota": {"used_pct": 10, "observed_at": NOW, "bucket": "fixture-image"},
+    }
+    item.update(changes)
+    return item
+
+
 def step(name="read", **changes):
     item = {"id": name, "task": "Inspect the supplied input", "kind": "llm",
             "skills": ["explain"], "needs": ["reasoning"], "demand": "routine",
@@ -1383,6 +1403,128 @@ class OrchestrationTests(unittest.TestCase):
                 self.assertIsNone(node["handoff"])
         with self.assertRaisesRegex(ValueError, "Invalid step kind"):
             self.plan([step(kind="image")])
+
+    def test_image_generation_requires_atomic_subscription_host_tool(self):
+        image = self.typed("IMAGE_GENERATION", task="Draw an original blue circle")
+        tool = image_tool()
+        p = self.plan([image], image_tools=[tool], host_ref="fixture-host",
+                      interaction_ref="fixture-interaction")
+        self.assertEqual(p["status"], "ready", p["steps"][0]["errors"])
+        node = p["steps"][0]
+        self.assertEqual(node["kind"], "image")
+        self.assertEqual(node["route"]["tool_ref"], "fixture.image")
+        self.assertEqual(node["route"]["model"], None)
+        self.assertEqual(node["handoff"]["kind"], "host-image")
+        self.assertEqual(self.m.ready_steps(p, [], NOW), ["read"])
+        for billing_change in ({"paid_credit_fallback_disabled": False},
+                               {"provider_hard_cap_enforced": False},
+                               {"provider_hard_cap_usd": 1},
+                               {"image_included": False}):
+            with self.subTest(billing_change=billing_change):
+                unsafe = copy.deepcopy(tool)
+                unsafe["billing"].update(billing_change)
+                blocked = self.plan([image], image_tools=[unsafe], host_ref="fixture-host",
+                                    interaction_ref="fixture-interaction")
+                self.assertEqual(blocked["status"], "blocked")
+                self.assertIsNone(blocked["steps"][0]["route"])
+        wrong_host = self.plan([image], image_tools=[tool], host_ref="other-host",
+                               interaction_ref="fixture-interaction")
+        self.assertEqual(wrong_host["status"], "blocked")
+        no_lookup = copy.deepcopy(tool)
+        no_lookup["lookup_by_request"] = False
+        self.assertEqual(self.plan([image], image_tools=[no_lookup], host_ref="fixture-host",
+                                   interaction_ref="fixture-interaction")["status"], "blocked")
+
+    def test_image_host_adapter_claims_once_and_never_auto_settles(self):
+        import execute_image
+        import run_state
+
+        tool = image_tool()
+        image = self.typed("IMAGE_GENERATION", task="Draw an original blue circle")
+        plan = self.plan([image], image_tools=[tool], host_ref="fixture-host",
+                         interaction_ref="fixture-interaction")
+        receipt = {"request_id": execute_image.request_identity(plan, "read"),
+                   "handle": {"kind": "host-image", "id": "fixture-job",
+                              "identity": execute_image.request_identity(plan, "read")},
+                   "state": "succeeded", "observed_at": NOW,
+                   "evidence": ["fixture output receipt"],
+                   "result_sha256": hashlib.sha256(b"fixture image").hexdigest()}
+
+        class Host:
+            sends = 0
+            lookups = 0
+
+            def observe_image_tool(self):
+                return copy.deepcopy(tool)
+
+            def generate_once(self, **kwargs):
+                self.sends += 1
+                self.assert_args = kwargs
+                return copy.deepcopy(receipt)
+
+            def lookup_by_request(self, request_id):
+                self.lookups += 1
+                return copy.deepcopy(receipt)
+
+        host = Host()
+        with tempfile.TemporaryDirectory() as directory:
+            store = run_state.Store(Path(directory) / "image.sqlite3")
+            store.initialize()
+            store.register(plan, NOW)
+            first = execute_image.dispatch(plan, "read", store, host, NOW)
+            second = execute_image.dispatch(plan, "read", store, host, NOW)
+            self.assertEqual(first["status"], "succeeded")
+            self.assertEqual(second["status"], "succeeded")
+            self.assertEqual((host.sends, host.lookups), (1, 1))
+            self.assertTrue(host.assert_args["subscription_only"])
+            self.assertEqual(host.assert_args["provider_hard_cap_usd"], 0)
+            self.assertFalse(first["verified"])
+            self.assertIsNone(first["actual_usd"])
+
+    def test_image_host_adapter_rechecks_after_claim_and_holds_changed_cost(self):
+        import execute_image
+        import run_state
+
+        tool = image_tool()
+        image = self.typed("IMAGE_GENERATION", task="Draw an original blue circle")
+        plan = self.plan([image], image_tools=[tool], host_ref="fixture-host",
+                         interaction_ref="fixture-interaction")
+
+        class ChangedHost:
+            observations = 0
+            sends = 0
+            lookups = 0
+
+            def observe_image_tool(self):
+                self.observations += 1
+                result = copy.deepcopy(tool)
+                if self.observations > 1:
+                    result["billing"]["provider_hard_cap_enforced"] = False
+                return result
+
+            def generate_once(self, **kwargs):
+                self.sends += 1
+                raise AssertionError("must not send")
+
+            def lookup_by_request(self, request_id):
+                self.lookups += 1
+                return None
+
+        host = ChangedHost()
+        with tempfile.TemporaryDirectory() as directory:
+            store = run_state.Store(Path(directory) / "image.sqlite3")
+            store.initialize()
+            store.register(plan, NOW)
+            with self.assertRaisesRegex(execute_image.ImageDispatchError,
+                                        "IMAGE_HOST_REVALIDATION_FAILED"):
+                execute_image.dispatch(plan, "read", store, host, NOW)
+            self.assertEqual(host.sends, 0)
+            self.assertEqual(store.ready("test-run", NOW), [])
+            recovered = execute_image.reconcile(plan, "read", store, host, NOW)
+            self.assertEqual(recovered["status"], "uncertain")
+            repeat = execute_image.dispatch(plan, "read", store, host, NOW)
+            self.assertEqual(repeat["status"], "uncertain")
+            self.assertEqual((host.sends, host.lookups), (0, 2))
 
     def test_packaged_complex_coding_fit_can_advise_opus_medium_without_dispatch(self):
         policy = self.m.load_task_fit_policy()

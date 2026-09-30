@@ -108,7 +108,7 @@ Bot model/effort remains provider-managed unless a real control is verified.
 Classify by deliverable before choosing a model. The planner accepts
 `PLAN_ARCHITECTURE`, `CODE_COMPLEX`, `CODE_SIMPLE` and `WRITING` as distinct
 model-fit profiles in addition to its older category IDs. `IMAGE_GENERATION`
-is a separate blocked tool profile. Typed profiles set minimum
+is a separate image-tool profile. Typed profiles set minimum
 capabilities and routine/reasoning demand; a high-stakes node may explicitly
 raise demand to critical. `proc` is a legacy Orca guard label, not a claim that
 planning or writing performed web research. A named, discovered Core
@@ -135,12 +135,15 @@ a model name or benchmark headline.
 The [model-release watch](references/model-release-watch.md) records the dated
 sources and shadow-effort limits behind this shortlist. Claude and Codex use
 the same task/acceptance standard but may have different eligible routes.
-Current planning has no guarded
-image-generation dispatch adapter: `IMAGE_GENERATION` compiles to a distinct
-`kind=image` node and reports `IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL` in a
-blocked plan. Neither Claude nor Codex may satisfy it with text-model `VISION`,
-a local API wrapper or an unverified subscription tool. Do not execute that
-node until a guarded image adapter and exact subscription/cost evidence exist.
+`IMAGE_GENERATION` compiles to `kind=image`, never text-model `VISION`.
+The planner accepts a current-host `host-image` route only with exact account,
+interaction, entitlement, quota, disabled API/credit fallback, a provider-enforced
+$0 hard cap and an atomic/idempotent host adapter. In-process `execute_image.py`
+claims once and rechecks before send; it has no default host or CLI and never
+settles or verifies output. See [orchestration](references/orchestration.md).
+The exposed `image_gen__imagegen` lacks that hard cap and request lookup, so
+`IMAGE_GENERATION_REQUIRES_VERIFIED_TOOL` remains blocked. Do not fake an
+observation, substitute an API wrapper or call it under the $0 policy.
 
 The source-dated [task-fit hypothesis](references/task-fit-policy.json) is
 deliberately **shadow-only**. For `PLAN_ARCHITECTURE`, `CODE_COMPLEX`,
