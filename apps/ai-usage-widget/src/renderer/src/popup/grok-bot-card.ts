@@ -7,6 +7,7 @@ import {
   grokBotSpillKey,
   grokBotWeeklyExhausted,
   parseUsdToCents,
+  type GrokBotAutoUsage,
   type GrokBotReading,
 } from '../../../shared/grok-bot';
 import { GROK_BOT_MAX_CENTS, type Settings } from '../../../shared/settings';
@@ -46,10 +47,8 @@ export function fromLocalDateTimeValue(value: string): number | undefined {
 type Field = 'used' | 'reset' | 'spent' | 'limit';
 
 /**
- * A user-entered reading, kept separate from the Grok Build CLI account and its meter. The CLI's
- * `_x.ai/billing` answers the SuperGrok weekly limit only (probe 26.09.30); grok.com shows
- * "Weekly Grok Bot Limit" as its own meter and no public API returns it, so the values here
- * are transcribed by the user.
+ * Grok Bot's weekly meter is separate from the Grok Build CLI account. A current automatic
+ * reading is shown when available; otherwise the user can record the value manually.
  *
  * Only fields the user touched are sent. Re-sending the prefilled percentage would let main
  * stamp an unchecked old value as a fresh reading (DECISIONS 26.09.30 15:37: a manual value's
@@ -152,7 +151,7 @@ export class GrokBotCard {
     this.openCursorButton.addEventListener('click', () => {
       void this.deps.api.invoke('shell:open-external', { kind: 'link', key: 'grok-bot-usage' });
     });
-    this.el = h('article', { class: 'card grok-bot-card', 'data-provider': 'grok-bot' }, [
+    this.el = h('section', { class: 'card grok-bot-card', 'data-provider': 'grok-bot' }, [
       h('div', { class: 'card-header' }, [
         h('div', { class: 'card-account-info' }, [
           providerIcon('grok', 24, false),
@@ -184,16 +183,18 @@ export class GrokBotCard {
     }
   }
 
-  update(settings: Settings, ctx: RenderContext): void {
+  update(settings: Settings, ctx: RenderContext, automatic?: GrokBotAutoUsage): void {
     this.context = ctx;
     const { t } = ctx;
-    const reading = grokBotReading(settings, ctx.now);
-    const current = reading.state === 'fresh' || reading.state === 'stale';
+    const manualReading = grokBotReading(settings, ctx.now);
+    const reading = grokBotReading(settings, ctx.now, automatic);
+    const manualCurrent = manualReading.state === 'fresh' || manualReading.state === 'stale';
+    const current = manualCurrent || reading.state === 'automatic';
     this.el.dataset.state = reading.state;
     this.placeGuide(current);
     setText(this.name, t('grokBotTitle'));
-    setText(this.plan, t('grokBotPlan'));
-    setText(this.badge, t('grokBotManual'));
+    setText(this.plan, reading.state === 'automatic' ? (reading.plan ?? t('grokBotPlan')) : t('grokBotPlan'));
+    setText(this.badge, t(reading.state === 'automatic' ? 'grokBotAutomatic' : 'grokBotManual'));
     setText(this.guide, t('grokBotGuide'));
     setText(this.separate, t('grokBotSeparateMeter'));
     setText(this.label, t('grokBotUsedInput'));
@@ -209,12 +210,12 @@ export class GrokBotCard {
     setAttr(this.resetInput, 'max', toLocalDateTimeValue(ctx.now + GROK_BOT_MAX_RESET_AHEAD_MS));
     // An old percentage is a hint, never a prefilled value that one click would record as new.
     const last = settings.grokBotUsedPercent;
-    setAttr(this.input, 'placeholder', !current && last !== null ? t('grokBotLastValue', { value: last }) : null);
+    setAttr(this.input, 'placeholder', !manualCurrent && last !== null ? t('grokBotLastValue', { value: last }) : null);
 
     // Never overwrite what the user is typing.
-    if (!this.form.contains(this.form.ownerDocument.activeElement)) this.fillInputs(settings, reading);
+    if (!this.form.contains(this.form.ownerDocument.activeElement)) this.fillInputs(settings, manualReading);
 
-    if (current) {
+    if (reading.state === 'fresh' || reading.state === 'stale' || reading.state === 'automatic') {
       setText(this.used, `${reading.usedPercent}% ${t('unitUsed')}`);
       setText(this.left, `${reading.leftPercent}% ${t('unitLeft')}`);
       setStyles(this.fill, { width: `${reading.usedPercent}%` });
@@ -223,13 +224,18 @@ export class GrokBotCard {
       setText(this.left, '');
       setStyles(this.fill, { width: '0%' });
     }
-    setText(this.status, t(GROK_BOT_STATUS_KEYS[reading.state]));
+    const automaticStatus = automatic?.state === 'login-expired' ? 'grokBotAutoExpired' :
+      automatic?.state === 'unavailable' ? 'grokBotAutoUnavailable' :
+      automatic?.state === 'error' ? 'grokBotAutoError' : null;
+    const status = t(GROK_BOT_STATUS_KEYS[reading.state]);
+    setText(this.status, automaticStatus === null ? status : reading.state === 'unknown' ? t(automaticStatus) :
+      `${status} · ${t(automaticStatus)}`);
     const time = reading.recordedAt === null ? '' : new Date(reading.recordedAt).toLocaleString(ctx.locale === 'ko' ? 'ko-KR' : 'en-US', {
       month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
     });
-    setText(this.recorded, time === '' ? '' : t('grokBotRecorded', { time }));
+    setText(this.recorded, time === '' ? '' : t(reading.state === 'automatic' ? 'grokBotMeasured' : 'grokBotRecorded', { time }));
 
-    const resetsAt = current ? reading.resetsAt : null;
+    const resetsAt = current && 'resetsAt' in reading ? reading.resetsAt : null;
     this.resetLine.hidden = resetsAt === null;
     setText(this.resetLine, resetsAt === null ? '' : t('grokBotResetsIn', { time: formatCountdown(resetsAt - ctx.now) }));
 
@@ -237,7 +243,7 @@ export class GrokBotCard {
     let onDemandText = '';
     if (onDemand !== null) {
       // The spend was entered together with the percentage and ages with it; the limit is a setting.
-      const spentCents = current ? onDemand.spentCents : null;
+      const spentCents = manualCurrent ? onDemand.spentCents : null;
       const { limitCents } = onDemand;
       // 0 is the app's "none", shown with the app's word rather than as $0.00.
       const limit = limitCents === 0 ? t('grokBotLimitNone') : limitCents === null ? null : formatUsdCents(limitCents);

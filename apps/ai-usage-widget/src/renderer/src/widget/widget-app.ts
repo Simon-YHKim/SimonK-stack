@@ -4,7 +4,7 @@ import type { Api } from '../api';
 import { h, setAttr, setStyles, uniqueId } from '../dom';
 import { providerIcon, refreshGlyph } from '../icons';
 import { currentNavigatorLanguage, pickLocale } from '../locale';
-import { V1_COLORS, buildEnabledViews, type RenderContext } from '../model';
+import { V1_COLORS, buildEnabledViews, itemTooltip, toRow, type AccountView, type RenderContext, type RowView } from '../model';
 import { applyDocumentTheme, skinFor } from '../theme';
 import { renderWidgetItem } from './themes';
 import { modelNoticeText } from '../../../shared/model-notice';
@@ -243,12 +243,38 @@ export class WidgetApp {
   }
 
   private isEmpty(): boolean {
-    return this.state === null || (!this.state.accounts.some((account) => account.enabled) && this.state.settings.grokBotUsedPercent === null);
+    return this.state === null || (!this.state.accounts.some((account) => account.enabled) &&
+      this.state.settings.grokBotUsedPercent === null &&
+      grokBotReading(this.state.settings, this.now(), this.state.grokBotAuto).state !== 'automatic');
+  }
+
+  private grokBotRow(state: AppStateSnapshot, ctx: RenderContext): RowView {
+    const reading = grokBotReading(state.settings, ctx.now, state.grokBotAuto);
+    const numeric = reading.state === 'fresh' || reading.state === 'stale' || reading.state === 'automatic';
+    return {
+      ...toRow({ kind: 'weekly', usedPercent: numeric ? reading.usedPercent : null,
+        resetsAt: numeric ? reading.resetsAt : null,
+        windowMinutes: 10_080, label: 'Grok Bot' }, ctx.now, state.settings.showUsedPercent),
+      tag: 'Bot',
+      isStale: reading.state === 'stale' || reading.state === 'expired',
+    };
+  }
+
+  private grokWithBotView(view: AccountView, state: AppStateSnapshot, ctx: RenderContext): AccountView {
+    const cliRow = view.rows.find((row) => row.kind === 'weekly') ??
+      (view.rows.length > 0 ? view.windows.find((row) => row.kind === 'weekly') : undefined) ?? view.rows[0] ??
+      toRow({ kind: 'weekly', usedPercent: null, resetsAt: null, windowMinutes: 10_080 }, ctx.now,
+        state.settings.showUsedPercent);
+    // A failed Grok CLI fetch must not hide a valid, independently measured Bot quota.
+    return { ...view, state: 'ok', rows: [
+      { ...cliRow, isStale: view.state === 'stale' || view.state === 'error' },
+      this.grokBotRow(state, ctx),
+    ] };
   }
 
   private grokBotItem(state: AppStateSnapshot, ctx: RenderContext): HTMLElement {
-    const reading = grokBotReading(state.settings, ctx.now);
-    const numeric = reading.state === 'fresh' || reading.state === 'stale';
+    const reading = grokBotReading(state.settings, ctx.now, state.grokBotAuto);
+    const numeric = reading.state === 'fresh' || reading.state === 'stale' || reading.state === 'automatic';
     const percent = numeric ? (state.settings.showUsedPercent ? reading.usedPercent : reading.leftPercent) : null;
     const value = percent === null ? '—' : `${percent}% ${ctx.t(state.settings.showUsedPercent ? 'unitUsed' : 'unitLeft')}`;
     const status = ctx.t(GROK_BOT_STATUS_KEYS[reading.state]);
@@ -263,7 +289,7 @@ export class WidgetApp {
     const valueEl = h('strong', { class: 'grok-bot-widget-value' }, [value]);
     if (flagged && state.settings.theme !== 'windows') setStyles(valueEl, { color: V1_COLORS.critical });
     return h('div', {
-      class: `account-item grok-bot-item${reading.state === 'fresh' ? '' : ' is-stale'}${flagged ? ' is-exhausted' : ''}`,
+      class: `account-item grok-bot-item${reading.state === 'fresh' || reading.state === 'automatic' ? '' : ' is-stale'}${flagged ? ' is-exhausted' : ''}`,
       'data-provider': 'grok-bot',
       title: titleParts.join(' · '),
     }, [
@@ -271,7 +297,7 @@ export class WidgetApp {
       h('span', { class: 'grok-bot-widget-name' }, [ctx.t('grokBotWidget')]),
       valueEl,
       countdown === null ? null : h('small', { class: 'grok-bot-widget-reset' }, [countdown]),
-      h('small', { class: 'grok-bot-widget-manual' }, [ctx.t('grokBotManual')]),
+      h('small', { class: 'grok-bot-widget-manual' }, [status]),
     ]);
   }
 
@@ -301,15 +327,26 @@ export class WidgetApp {
     setAttr(this.main, 'aria-label', title);
 
     // Rebuild items only when their rendered form would change (keeps the refresh button and focus stable).
-    const signature = JSON.stringify({ empty, views, settings, notices: state.modelNotices, pace: [...this.fastAccounts], locale: ctx.locale, scheme: state.theme.taskbarScheme, minute: Math.floor(ctx.now / 60_000) });
+    const signature = JSON.stringify({ empty, views, settings, grokBotAuto: state.grokBotAuto, notices: state.modelNotices,
+      pace: [...this.fastAccounts], locale: ctx.locale, scheme: state.theme.taskbarScheme, minute: Math.floor(ctx.now / 60_000) });
     if (signature !== this.lastSignature) {
       this.lastSignature = signature;
       if (empty) {
         this.main.replaceChildren(h('span', { class: 'white-circle-dot', 'aria-hidden': 'true' }));
         this.summary.textContent = title;
       } else {
+        const showGrokBot = state.settings.grokBotUsedPercent !== null ||
+          grokBotReading(state.settings, ctx.now, state.grokBotAuto).state === 'automatic';
+        const botItem = showGrokBot ? this.grokBotItem(state, ctx) : null;
+        let groupedGrokBot = false;
         const items = views.map((view) => {
-          const item = renderWidgetItem(view, ctx);
+          const groupBot = botItem !== null && !groupedGrokBot && view.account.provider === 'grok';
+          const item = renderWidgetItem(groupBot ? this.grokWithBotView(view, state, ctx) : view, ctx);
+          if (groupBot) {
+            item.dataset.state = view.state;
+            item.title = `${itemTooltip(view, ctx)}\n${botItem.title}`;
+            groupedGrokBot = true;
+          }
           const notice = state.modelNotices.find((entry) => entry.provider === view.account.provider);
           if (notice !== undefined) {
             const message = modelNoticeText(notice, ctx.locale, ctx.now);
@@ -332,13 +369,14 @@ export class WidgetApp {
           }
           return item;
         });
-        if (state.settings.grokBotUsedPercent !== null) items.push(this.grokBotItem(state, ctx));
+        if (botItem !== null && !groupedGrokBot) items.push(botItem);
         this.main.replaceChildren(...items);
         this.summary.textContent = items.map((item) => item.getAttribute('title') ?? '').join('. ');
       }
     }
 
-    this.refreshButton.hidden = !state.accounts.some((account) => account.enabled);
+    this.refreshButton.hidden = !state.accounts.some((account) => account.enabled) &&
+      grokBotReading(state.settings, ctx.now, state.grokBotAuto).state !== 'automatic';
     this.updateRefreshButton();
     this.schedule(() => this.reportSize());
     return empty ? 'empty' : 'accounts';
@@ -376,7 +414,7 @@ export class WidgetApp {
   }
 
   requestRefresh(): void {
-    if (this.isEmpty() || this.state === null || !this.state.accounts.some((account) => account.enabled) || this.isRefreshDisabled()) return;
+    if (this.isEmpty() || this.state === null || this.refreshButton.hidden || this.isRefreshDisabled()) return;
     const now = this.now();
     this.cooldownUntil = now + REFRESH_COOLDOWN_MS;
     this.pendingRefresh = true;

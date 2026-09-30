@@ -303,6 +303,8 @@
 .grok-bot-card[data-state='stale'] .grok-bot-status,
 .grok-bot-card[data-state='expired'] .grok-bot-status,
 .grok-bot-card[data-state='reset'] .grok-bot-status { color: var(--p-danger); }
+.grok-bot-card.is-grouped { border-top: 1px solid var(--p-border); padding-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.grok-bot-card.is-grouped .card-account-info > :first-child { display: none; }
 .grok-bot-recorded { color: var(--p-fg2); }
 .grok-bot-open { align-self: flex-start; border: 0; background: transparent; color: var(--p-accent); cursor: pointer; padding: 2px 0; text-decoration: underline; }
 .grok-bot-open:focus-visible { outline: 2px solid var(--p-accent); outline-offset: 2px; }

@@ -65,6 +65,81 @@ describe('WidgetApp', () => {
     expect(item.getAttribute('title')).toContain('on-demand');
   });
 
+  it('shows a signed-in Grok Bot weekly balance without any manual entry', () => {
+    const { app, api } = setup(appState({ grokBotAuto: { state: 'ok', usedPercent: 41, resetsAt: NOW + 2 * 86_400_000,
+      measuredAt: NOW } }));
+    const item = app.main.querySelector('.grok-bot-item') as HTMLElement;
+    expect(item.textContent).toContain('59% left');
+    expect(item.textContent).toContain('Unofficial auto');
+    expect(item.title).toContain('Reset');
+    expect(app.refreshButton.hidden).toBe(false);
+    app.refreshButton.click();
+    expect(api.callsTo('usage:refresh-now')).toEqual([{ accountId: null }]);
+  });
+
+  it.each(['windows', '1a', '1b', '1c', '1d'] as const)('stacks Grok WK and Bot rows in one %s item', (theme) => {
+    const grok = account({ id: 'g1', provider: 'grok', label: 'Grok' });
+    const base = { accounts: [grok], usage: [usage('g1', { provider: 'grok', source: 'grok-acp',
+      windows: [quotaWindow('weekly', 37, 3 * 86_400_000)] })], settings: { theme } };
+    const { app } = setup(appState({ ...base, grokBotAuto: { state: 'ok', usedPercent: 41,
+      resetsAt: NOW + 2 * 86_400_000, measuredAt: NOW } }));
+    const grokItem = app.main.querySelector('.account-item[data-provider="grok"]') as HTMLElement;
+    expect(app.main.querySelectorAll(':scope > .account-item')).toHaveLength(1);
+    expect(grokItem.querySelectorAll('[data-status]')).toHaveLength(2);
+    expect(grokItem.textContent).toContain('WK');
+    expect(grokItem.textContent).toContain('Bot');
+    expect(grokItem.textContent).toContain('63% left');
+    expect(grokItem.textContent).toContain('59% left');
+    expect(grokItem.title).toContain('Grok Bot');
+    expect(app.main.querySelector('.grok-bot-item')).toBeNull();
+    app.update(appState({ ...base, grokBotAuto: { state: 'ok', usedPercent: 50,
+      resetsAt: NOW + 2 * 86_400_000, measuredAt: NOW + 1000 } }));
+    expect(app.main.querySelector('.account-item[data-provider="grok"]')?.textContent).toContain('50% left');
+  });
+
+  it('keeps Bot readable when the Grok CLI is signed out, and marks only a stale manual Bot row', () => {
+    const grok = account({ id: 'g1', provider: 'grok', label: 'Grok', loginState: 'logged-out' });
+    const { app } = setup(appState({ accounts: [grok], settings: {
+      grokBotUsedPercent: 41, grokBotRecordedAt: NOW - 2 * 86_400_000,
+    } }));
+    const grokItem = app.main.querySelector('.account-item[data-provider="grok"]') as HTMLElement;
+    const rows = grokItem.querySelectorAll('.w-row');
+    expect(rows).toHaveLength(2);
+    expect(rows[0]?.textContent).toContain('WK');
+    expect(rows[0]?.textContent).toContain('—');
+    expect(rows[1]?.textContent).toContain('Bot');
+    expect(rows[1]?.textContent).toContain('59% left');
+    expect(rows[0]?.getAttribute('data-stale')).toBeNull();
+    expect(rows[1]?.getAttribute('data-stale')).toBe('true');
+    expect(grokItem.title).toContain('Sign-in required');
+  });
+
+  it('shows Grok WK with Bot even when the global weekly-row setting is off', () => {
+    const grok = account({ id: 'g1', provider: 'grok', label: 'Grok' });
+    const { app } = setup(appState({ accounts: [grok], usage: [usage('g1', { provider: 'grok',
+      windows: [quotaWindow('session', 20, 2 * 3_600_000), quotaWindow('weekly', 37, 3 * 86_400_000)],
+    })], settings: { showWeeklyLimit: false }, grokBotAuto: {
+      state: 'ok', usedPercent: 41, resetsAt: NOW + 2 * 86_400_000, measuredAt: NOW,
+    } }));
+    const rows = app.main.querySelectorAll('.account-item[data-provider="grok"] .w-row');
+    expect([...rows].map((row) => row.querySelector('.w-tag')?.textContent)).toEqual(['WK', 'Bot']);
+    expect(rows[0]?.textContent).toContain('63% left');
+  });
+
+  it('keeps the manual Bot reset and on-demand warning when grouped with Grok', () => {
+    const grok = account({ id: 'g1', provider: 'grok', label: 'Grok' });
+    const resetAt = NOW + (26 * 60 + 5) * 60_000;
+    const { app } = setup(appState({ accounts: [grok], usage: [usage('g1', { provider: 'grok',
+      windows: [quotaWindow('weekly', 37, 3 * 86_400_000)],
+    })], settings: { grokBotUsedPercent: 100, grokBotRecordedAt: NOW, grokBotResetAt: resetAt } }));
+    const grokItem = app.main.querySelector('.account-item[data-provider="grok"]') as HTMLElement;
+    const botRow = grokItem.querySelectorAll('.w-row')[1];
+    expect(botRow?.querySelector('.w-tag')?.textContent).toBe('Bot');
+    expect(botRow?.textContent).toContain('0% left');
+    expect(botRow?.textContent).toContain('1d 2h');
+    expect(grokItem.title).toContain('on-demand');
+  });
+
   it('clicking the bar toggles the popup with a 300ms debounce', () => {
     const { api, app } = setup(withAccounts());
     app.main.click();
