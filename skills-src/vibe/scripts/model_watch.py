@@ -39,9 +39,9 @@ SOURCES = {
 }
 MODEL_NAME = re.compile(
     r"\b(?:GPT[-\s]?\d+(?:\.\d+)*(?:[-\s]?(?:o(?:[-\s]mini)?|mini|nano|turbo|Astra|Sol|Luna|Terra))?|"
-    r"o\d+(?:[-\s](?:mini|preview|pro))?|"
+    r"o\d+(?:[-\s](?:deep[-\s]research|mini|preview|pro))?|"
     r"(?:Claude\s+)?(?:Sonnet|Opus|Haiku|Fable|Mythos)\s+\d+(?:\.\d+)?|"
-    r"Gemini\s+\d+(?:\.\d+)?(?:\s+(?:Pro|Flash))?|Grok\s+\d+(?:\.\d+)?)\b",
+    r"Gemini\s+\d+(?:\.\d+)?(?:\s+(?:Pro|Flash))?|Grok\s+\d+(?:\.\d+)?)(?:-[a-z0-9]+)*\b",
     re.IGNORECASE,
 )
 

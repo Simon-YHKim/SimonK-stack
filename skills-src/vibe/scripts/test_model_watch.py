@@ -237,10 +237,34 @@ class ModelWatchTests(unittest.TestCase):
                     [post["title"] for post in model_watch.extract_public_feedback(feed, item)],
                     [f"{base}-{suffix} impressions"])
 
+    def test_hyphenated_model_variants_do_not_count_for_base_models(self):
+        for base, variant in (("o3", "o3-deep-research"),
+                              ("GPT-4o", "GPT-4o-voice"),
+                              ("Grok 4.8", "Grok 4.8-fast")):
+            with self.subTest(base=base, variant=variant):
+                self.assertEqual(model_watch.MODEL_NAME.search(variant).group(0), variant)
+                feed = ('<feed xmlns="http://www.w3.org/2005/Atom">'
+                        f'<entry><title>{variant} impressions</title>'
+                        '<link href="https://www.reddit.com/r/AI/comments/variant" />'
+                        '<published>2026-10-02T01:00:00+00:00</published></entry>'
+                        f'<entry><title>{base} impressions</title>'
+                        '<link href="https://www.reddit.com/r/AI/comments/base" />'
+                        '<published>2026-10-02T01:00:00+00:00</published></entry></feed>')
+                for candidate, expected in ((base, f"{base} impressions"),
+                                            (variant, f"{variant} impressions")):
+                    item = {"title": f"Introducing {candidate}",
+                            "release_verified_at": model_watch.iso(FRIDAY)}
+                    self.assertEqual(
+                        [post["title"] for post in model_watch.extract_public_feedback(feed, item)],
+                        [expected])
+        self.assertEqual(model_watch.MODEL_NAME.search("o3 deep research").group(0),
+                         "o3 deep research")
+
     def test_model_aliases_match_without_admitting_other_variants(self):
         for candidate, alias, unrelated in (
                 ("Sonnet 5.5", "Claude Sonnet 5.5", "Claude Sonnet 5.6"),
                 ("Claude Opus 5.5", "Opus 5.5", "Opus 5.6"),
+                ("o3-deep-research", "o3 deep research", "o3"),
                 ("GPT4o", "GPT-4o", "GPT-4o mini"),
                 ("GPT-4o mini", "GPT4o mini", "GPT-4o")):
             with self.subTest(candidate=candidate, alias=alias):
