@@ -301,9 +301,22 @@ def report_local_codex():
 
 
 if __name__ == "__main__":
-    if "--local-codex" in sys.argv:
+    args = sys.argv[1:]
+    if args in (["--help"], ["-h"]):
+        print("Usage: check_tooling.py [--local-codex | --ack-skills | --json | --help]")
+        print("  --local-codex  Local Codex PATH/package check; no registry or Orca access")
+        print("  --ack-skills   Acknowledge the existing Orca skills snapshot")
+        print("  --json         Full report as JSON (queries registry and Orca)")
+        print("  no arguments   Full report (queries registry and Orca)")
+        sys.exit(0)
+    if args == ["--local-codex"]:
         sys.exit(report_local_codex())
-    if "--ack-skills" in sys.argv:
+    if args == ["--ack-skills"]:
         print(ack_skills())
         sys.exit(0)
-    sys.exit(report(as_json="--json" in sys.argv))
+    if args == ["--json"]:
+        sys.exit(report(as_json=True))
+    if args:
+        print("Unknown option(s): %s; use --help" % " ".join(args), file=sys.stderr)
+        sys.exit(2)
+    sys.exit(report(as_json=False))
