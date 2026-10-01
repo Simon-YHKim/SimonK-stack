@@ -11,6 +11,7 @@ import json
 import os
 from pathlib import Path
 import re
+import stat
 import tempfile
 
 import vibe_host_preflight as preflight
@@ -21,6 +22,8 @@ class TransitionError(ValueError):
 
 
 HEX = re.compile(r"[0-9a-f]{64}\Z")
+JOURNAL_NAME = "vibe-flat-transition.json"
+MAX_JOURNAL_BYTES = 32 * 1024
 NAMES = (("claude", preflight.CLAUDE_NAMES, "candidate-safety"),
          ("codex", preflight.CODEX_NAMES, "codex-subset-safety"))
 
@@ -108,13 +111,7 @@ def _validate(plan: dict) -> None:
 
 
 def _isolated(plan: dict, isolated_root: Path) -> None:
-    if os.name != "nt":
-        raise TransitionError("WINDOWS_REHEARSAL_ONLY")
-    root = Path(isolated_root).absolute()
-    temp = Path(tempfile.gettempdir()).absolute()
-    if (root.parent != temp or not root.name.startswith("vibe-flat-test-")
-            or not root.is_dir() or preflight._is_directory_link(root)):
-        raise TransitionError("ISOLATED_ROOT_REQUIRED")
+    root = _journal_path(isolated_root).parent
     for key in ("candidate_root", "current_root", "claude_root", "codex_root", "agents_root"):
         child = Path(plan[key]).absolute()
         if child.parent != root or preflight._is_directory_link(child):
@@ -126,6 +123,17 @@ def _isolated(plan: dict, isolated_root: Path) -> None:
             _plain_ancestors(Path(entry[key]), root)
         for key in ("archive", "quarantine"):
             _plain_ancestors(Path(entry[key]).parent, root)
+
+
+def _journal_path(isolated_root: Path) -> Path:
+    if os.name != "nt":
+        raise TransitionError("WINDOWS_REHEARSAL_ONLY")
+    root = Path(isolated_root).absolute()
+    temp = Path(tempfile.gettempdir()).absolute()
+    if (root.parent != temp or not root.name.startswith("vibe-flat-test-")
+            or not root.is_dir() or preflight._is_directory_link(root)):
+        raise TransitionError("ISOLATED_ROOT_REQUIRED")
+    return root / JOURNAL_NAME
 
 
 def _plain_ancestors(path: Path, root: Path) -> None:
@@ -197,6 +205,51 @@ def _private_parent(path: Path, root: Path) -> None:
         part.mkdir(exist_ok=True)
 
 
+def _write_journal(plan: dict, isolated_root: Path) -> None:
+    path = _journal_path(isolated_root)
+    payload = json.dumps(plan, sort_keys=True, separators=(",", ":"),
+                         ensure_ascii=False).encode("utf-8")
+    if len(payload) > MAX_JOURNAL_BYTES:
+        raise TransitionError("JOURNAL_TOO_LARGE")
+    try:
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    except OSError as exc:
+        raise TransitionError("JOURNAL_EXISTS_OR_UNWRITABLE") from exc
+    try:
+        with os.fdopen(fd, "wb") as file:
+            file.write(payload)
+            file.flush()
+            os.fsync(file.fileno())
+    except OSError as exc:
+        # A partial journal is retained for inspection; no link has moved yet.
+        raise TransitionError("JOURNAL_NOT_DURABLE") from exc
+
+
+def _unique_pairs(pairs: list[tuple[str, object]]) -> dict:
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate journal key")
+        result[key] = value
+    return result
+
+
+def recover_isolated(isolated_root: Path) -> None:
+    """Restore an interrupted isolated switch using its pre-move disk journal."""
+    path = _journal_path(isolated_root)
+    try:
+        info = path.lstat()
+        if (not stat.S_ISREG(info.st_mode) or info.st_nlink != 1
+                or info.st_size == 0 or info.st_size > MAX_JOURNAL_BYTES):
+            raise TransitionError("JOURNAL_UNSAFE")
+        plan = json.loads(path.read_bytes().decode("utf-8"), object_pairs_hook=_unique_pairs)
+    except (OSError, UnicodeError, ValueError, RecursionError) as exc:
+        raise TransitionError("JOURNAL_UNREADABLE") from exc
+    _validate(plan)
+    _isolated(plan, isolated_root)
+    rollback_isolated(plan, isolated_root)
+
+
 def apply_isolated(plan: dict, isolated_root: Path, native_snapshot: dict) -> None:
     _validate(plan)
     _isolated(plan, isolated_root)
@@ -204,6 +257,7 @@ def apply_isolated(plan: dict, isolated_root: Path, native_snapshot: dict) -> No
     _alias(plan)
     for entry in plan["entries"]:
         _old_ready(entry)
+    _write_journal(plan, isolated_root)
     try:
         for entry in plan["entries"]:
             root = Path(plan[entry["host"] + "_root"])
