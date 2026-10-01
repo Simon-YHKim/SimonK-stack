@@ -1,5 +1,6 @@
 """Persistent run/budget contracts. Fake providers only; real local processes race."""
 import copy
+import hashlib
 import importlib.util
 import json
 import os
@@ -12,6 +13,7 @@ import unittest
 from contextlib import closing
 from datetime import datetime, timedelta
 from pathlib import Path
+from unittest.mock import patch
 
 import orchestrate
 from test_orchestrate import candidate, fixture_registry, step, NOW
@@ -525,6 +527,171 @@ class RunStateTests(unittest.TestCase):
         done = cli("complete", "--run", "local-cli", "--input", data("complete.json", {"evidence": ["local-fixture-criteria-passed"]}))
         self.assertEqual(done["runs"][0]["status"], "completed")
         self.assertEqual(done["budget"]["actual_total_usd"], "0")
+
+
+class GstackIsolationTests(unittest.TestCase):
+    def setUp(self):
+        spec = importlib.util.spec_from_file_location("run_state", SCRIPT)
+        self.m = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.m)
+        self.tmp = tempfile.TemporaryDirectory(prefix="vibe-gstack-test-")
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+
+    def home(self, run):
+        return self.root.resolve() / "gstack-runs" / hashlib.sha256(run.encode("utf-8")).hexdigest()[:32]
+
+    def test_gstack_env_isolates_state_without_home_reads(self):
+        def forbidden(*_args, **_kwargs):
+            raise AssertionError("personal home must not be read")
+        with patch.object(Path, "home", side_effect=forbidden), \
+                patch("os.path.expanduser", side_effect=forbidden):
+            env = self.m.gstack_state("run-one", self.root)
+        home = self.home("run-one")
+        self.assertEqual(env["GSTACK_HOME"], home.as_posix())
+        self.assertTrue(home.is_relative_to(self.root.resolve()))
+        self.assertEqual(sorted(p.name for p in self.root.iterdir()), ["gstack-runs"])
+        self.assertEqual(sorted(p.name for p in home.iterdir()),
+                         sorted(["config.yaml", *self.m.GSTACK_MARKERS]))
+
+    def test_gstack_env_sets_all_three_dir_vars_identically(self):
+        env = self.m.gstack_state("run-one", self.root)
+        self.assertEqual(set(env), {"GSTACK_HOME", "GSTACK_STATE_DIR", "GSTACK_STATE_ROOT", "GSTACK_TELEMETRY_OFF"})
+        self.assertEqual(env["GSTACK_HOME"], env["GSTACK_STATE_DIR"])
+        self.assertEqual(env["GSTACK_HOME"], env["GSTACK_STATE_ROOT"])
+        self.assertEqual(env["GSTACK_TELEMETRY_OFF"], "1")
+        self.assertNotIn("\\", env["GSTACK_HOME"])
+        self.assertTrue(Path(env["GSTACK_HOME"]).is_dir())
+
+    def test_gstack_env_config_turns_off_telemetry_and_update_check(self):
+        self.m.gstack_state("run-one", self.root)
+        raw = (self.home("run-one") / "config.yaml").read_bytes()
+        self.assertNotIn(b"\r", raw)
+        config = dict(line.split(": ", 1) for line in raw.decode("utf-8").splitlines())
+        self.assertEqual(config, {"telemetry": "off", "update_check": "false", "auto_upgrade": "false",
+                                  "routing_declined": "true", "artifacts_sync_mode": "off",
+                                  "artifacts_sync_mode_prompted": "true",
+                                  "cross_project_learnings": "false", "repo_mode": "unknown"})
+        self.assertEqual(list(self.home("run-one").glob("*.tmp")), [])
+
+    def test_gstack_env_seeds_onboarding_markers(self):
+        self.m.gstack_state("run-one", self.root)
+        for marker in (".telemetry-prompted", ".completeness-intro-seen", ".proactive-prompted",
+                       ".activated", ".first-loop-tip-shown", ".feature-prompted-model-overlay"):
+            with self.subTest(marker=marker):
+                self.assertTrue((self.home("run-one") / marker).is_file())
+
+    def test_gstack_env_reentry_detects_flipped_telemetry(self):
+        first = self.m.gstack_state("run-one", self.root)
+        config = self.home("run-one") / "config.yaml"
+        original = config.read_bytes()
+        self.assertEqual(self.m.gstack_state("run-one", self.root), first)
+        self.assertEqual(config.read_bytes(), original)
+        for flipped in ("telemetry: community\n", "update_check: true\n", "telemetry: 'community'\n"):
+            with self.subTest(flipped=flipped):
+                config.write_bytes(original + flipped.encode("utf-8"))
+                with self.assertRaises(self.m.StateError) as caught:
+                    self.m.gstack_state("run-one", self.root)
+                self.assertEqual(caught.exception.code, "GSTACK_ISOLATION_CHANGED")
+                self.assertEqual(config.read_bytes(), original + flipped.encode("utf-8"))
+        config.write_bytes(original.replace(b"telemetry: off\n", b""))
+        with self.assertRaises(self.m.StateError):
+            self.m.gstack_state("run-one", self.root)
+
+    def test_gstack_env_reentry_reads_values_like_gstack_config(self):
+        # gstack-config: grep "^key:" | tail -1, "\n" lines only, quotes kept, exact compare.
+        self.m.gstack_state("run-one", self.root)
+        config = self.home("run-one") / "config.yaml"
+        original = config.read_bytes()
+        for flipped in (b"update_check: 'false'\n", b'telemetry: "off"\n',
+                        b"update_check: true\rupdate_check: false\n",
+                        "telemetry: community\u0085telemetry: off\n".encode("utf-8"),
+                        "update_check: false \n".encode("utf-8")):  # Stricter than Gstack: fail closed.
+            with self.subTest(flipped=flipped):
+                config.write_bytes(original + flipped)
+                with self.assertRaises(self.m.StateError) as caught:
+                    self.m.gstack_state("run-one", self.root)
+                self.assertEqual(caught.exception.code, "GSTACK_ISOLATION_CHANGED")
+        config.write_bytes(original + b"telemetry:\toff \r\nupdate_check:false\x0b\x0c\n  update_check: true\n")
+        self.assertEqual(self.m.gstack_state("run-one", self.root)["GSTACK_HOME"], self.home("run-one").as_posix())
+
+    def test_gstack_env_distinct_runs_distinct_homes_no_colon(self):
+        first = self.m.gstack_state("run:one", self.root)["GSTACK_HOME"]
+        second = self.m.gstack_state("run:two", self.root)["GSTACK_HOME"]
+        self.assertNotEqual(first, second)
+        for value in (first, second):
+            name = value.rsplit("/", 1)[1]
+            self.assertRegex(name, r"\A[0-9a-f]{32}\Z")
+            self.assertNotIn(":", value.split(":", 1)[1] if os.name == "nt" else value)
+
+    def test_gstack_env_rejects_invalid_run_id(self):
+        for bad in ("", "../escape", "a b", "-leading", "x" * 161, None, 7):
+            with self.subTest(bad=bad), self.assertRaises(self.m.StateError) as caught:
+                self.m.gstack_state(bad, self.root)
+            self.assertEqual(caught.exception.code, "INVALID_IDENTIFIER")
+        self.assertEqual(list(self.root.iterdir()), [])
+
+    def test_gstack_env_refuses_linked_run_folder(self):
+        personal = self.root / "personal-gstack"
+        personal.mkdir()
+        link = self.root / "state" / "gstack-runs"
+        link.parent.mkdir()
+        if os.name == "nt":
+            import _winapi
+            _winapi.CreateJunction(str(personal), str(link))  # No symlink privilege needed.
+            self.addCleanup(os.rmdir, link)  # Remove only the junction, never its target.
+        else:
+            os.symlink(personal, link, target_is_directory=True)
+            self.addCleanup(os.unlink, link)
+        with self.assertRaises(self.m.StateError) as caught:
+            self.m.gstack_state("run-one", link.parent)
+        self.assertEqual(caught.exception.code, "GSTACK_HOME_REDIRECTED")
+        self.assertEqual(list(personal.iterdir()), [])
+
+    def test_gstack_env_cli_does_not_create_db(self):
+        db = self.root / "nested" / "state.sqlite3"
+        result = subprocess.run([sys.executable, "-B", "-X", "utf8", str(SCRIPT), "gstack-env",
+                                 "--run", "run:one", "--db", str(db)],
+                                capture_output=True, text=True, encoding="utf-8", timeout=20)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        out = json.loads(result.stdout)
+        self.assertFalse(db.exists())
+        self.assertEqual(sorted(p.name for p in db.parent.iterdir()), ["gstack-runs"])
+        home = out["env"]["GSTACK_HOME"]
+        self.assertEqual(home, (db.parent.resolve() / "gstack-runs" /
+                                hashlib.sha256(b"run:one").hexdigest()[:32]).as_posix())
+        self.assertEqual(out["export"], f"export GSTACK_HOME='{home}'; export GSTACK_STATE_DIR='{home}'; "
+                         f"export GSTACK_STATE_ROOT='{home}'; export GSTACK_TELEMETRY_OFF=1")
+        self.assertEqual(out["powershell"], f"$env:GSTACK_HOME='{home}'; $env:GSTACK_STATE_DIR='{home}'; "
+                         f"$env:GSTACK_STATE_ROOT='{home}'; $env:GSTACK_TELEMETRY_OFF='1'")
+        bad = subprocess.run([sys.executable, "-B", "-X", "utf8", str(SCRIPT), "--db", str(db),
+                                 "gstack-env", "--run", "bad id"], capture_output=True, text=True,
+                                encoding="utf-8", timeout=20)
+        self.assertEqual((bad.returncode, json.loads(bad.stdout)), (2, {"error": "INVALID_IDENTIFIER"}))
+        self.assertFalse(db.exists())
+
+    def test_gstack_exports_quote_shell_metacharacters(self):
+        env = {"GSTACK_HOME": "C:/it's $x", "GSTACK_STATE_DIR": "C:/it's $x",
+               "GSTACK_STATE_ROOT": "C:/it's $x", "GSTACK_TELEMETRY_OFF": "1"}
+        out = self.m.gstack_exports(env)
+        self.assertTrue(out["export"].startswith("export GSTACK_HOME='C:/it'\\''s $x';"))
+        self.assertTrue(out["powershell"].startswith("$env:GSTACK_HOME='C:/it''s $x';"))
+
+    def test_gstack_handoff_flags_do_not_change_spec_digest(self):
+        catalog = {"review": {"name": "review", "path": "/fixture/review/SKILL.md",
+                              "description": "Pre-landing PR review. (gstack)"}}
+        c = candidate(transport="orca")
+        p = orchestrate.make_plan({"run_id": "gstack-run", "steps": [step(skills=["review"])]},
+                                  catalog, {"candidates": [c], "tools": [], "observed_at": NOW},
+                                  NOW, fixture_registry([c]))
+        node = p["steps"][0]
+        self.assertEqual(node["handoff"]["gstack_isolation"], "best-effort")
+        # The handoff is part of the native Orca Task spec, so the brief reaches the worker.
+        self.assertIn("gstack-env --run 'gstack-run'", self.m.task_spec(node))
+        plain = copy.deepcopy(p)
+        for key in ("gstack_isolation", "gstack_brief"):
+            plain["steps"][0]["handoff"].pop(key)
+        self.assertEqual(self.m.spec_digest(plain), self.m.spec_digest(p))
 
 
 if __name__ == "__main__":

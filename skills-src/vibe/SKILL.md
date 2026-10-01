@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan and reports blocked coding or image routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.41
+version: 2.12.42
 author: simon-stack
 ---
 
@@ -178,20 +178,17 @@ python -B "<skill>/scripts/orchestrate.py" plan --input request.json --runtime r
 python -B "<skill>/scripts/orchestrate.py" ready --input plan.json --events events.json
 ```
 
-For consequential `ai-debate`, supply a `debate` object with five distinct LLM
-step IDs: `proposer`, `challenger`, `proposer_rebuttal`, `challenger_rebuttal`,
-`judge`. Both rebuttals depend on both openings; the judge depends on both
-rebuttals. The two openings need different vendors, and each rebuttal retains
-its opening surface/account. The judge is a separate invocation even if its
-vendor matches an opening. Give both openings the same question, evidence and
-rubric; feed verified actual outputs into the rebuttals and judge.
-`ready` releases successors only after verified predecessor evidence. A
-five-node plan or simulated personas are **not** a completed model debate:
-record the five actual dispatch/session identities, output evidence, minority
-view and separate judge verdict. Missing subscription-safe execution for any
-node blocks that debate; do not relabel a single-host simulation as Claude↔GPT
-or borrow another vendor's quota. Formal hub D-code recording remains the
-`ai-debate`/PROTOCOL requirement, not something this planner performs.
+A PROTOCOL §35 decision record must come from `/ai-debate` >= 0.2.0, which
+seats all four vendors (Claude, Codex, Grok, Gemini via Antigravity) and records
+absent seats instead of simulating them; an older `/ai-debate` may simulate
+positions in one host and does not qualify. The planner's five-node `debate`
+graph is an execution contract, not a record: distinct LLM step IDs `proposer`,
+`challenger`, `proposer_rebuttal`, `challenger_rebuttal`, `judge`; rebuttals
+depend on both openings, the judge on both rebuttals. Openings need different
+vendors and the same question, evidence and rubric; each rebuttal keeps its
+opening surface/account; the judge is a separate invocation. Feed verified
+outputs forward; record dispatch identities, minority view and judge verdict.
+Missing subscription-safe execution blocks the node; never relabel a single-host simulation or borrow another vendor's quota.
 
 The output is a preflight decision, not proof of dispatch. Refresh runtime and
 budget immediately before external execution. Reserve the entire run's upper
@@ -243,9 +240,14 @@ Ask only for missing intent or actions beyond existing authority.
   Supply a fresh cost contract for that exact argv, including nested API effects
   in setup and smoke tests. An explicit transitive-effects audit and
   `nonmetered`/`metered` classification are required; a zero quote is not enough.
-  Local does not mean free. See the pinned Gstack
-  design-helper example in [orchestration](references/orchestration.md).
+  Local does not mean free. See the pinned Gstack design-helper example in
+  [orchestration](references/orchestration.md). Start a `gstack_isolation`
+  handoff's process with the `env` printed by `gstack-env`; no runner does it.
 - Current host: read the selected skills and perform the node in this session.
+  For Gstack skills run `python -B "<skill>/scripts/run_state.py" gstack-env --run <run-id>`
+  and prefix each Gstack bash block with its printed `export` line. Continue only
+  if the preamble shows `TELEMETRY: off` and, when printed, `UPDATE_CHECK: false`;
+  else stop the node. Nothing enforces this; see [Gstack per-run isolation](references/orchestration.md#gstack-per-run-isolation).
 - Orca: read [Orca workflow](references/orca-workflow.md). Validate the entire
   assignment plan, then use `scripts/execute_orca.py` with the guarded adapter
   contract in [orchestration](references/orchestration.md). Its first version

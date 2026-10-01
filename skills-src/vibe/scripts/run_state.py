@@ -8,6 +8,7 @@ Plans/observations/receipts come from the trusted coordinator, not raw workers.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import os
@@ -41,6 +42,18 @@ SCHEMA = (
 )
 PREPARATIONS_SCHEMA = "CREATE TABLE preparations (run_id TEXT PRIMARY KEY, draft_digest TEXT NOT NULL, draft TEXT NOT NULL, caller TEXT NOT NULL, ops TEXT NOT NULL, state TEXT NOT NULL, cap INTEGER NOT NULL CHECK(cap>=0), held INTEGER NOT NULL CHECK(held>=0), spent INTEGER NOT NULL CHECK(spent>=0), prior_unknown INTEGER NOT NULL, final_plan TEXT)"
 PREPARATION_REFRESH_SCHEMA = "CREATE TABLE preparation_validations (run_id TEXT PRIMARY KEY REFERENCES preparations, plan TEXT NOT NULL, revision INTEGER NOT NULL CHECK(revision>0), proof TEXT NOT NULL)"
+# Config keys are Gstack's only off switches for bash update checks/telemetry;
+# the markers stop a fresh state folder from re-asking onboarding questions.
+GSTACK_CONFIG = ("telemetry: off\n"
+                 "update_check: false\n"
+                 "auto_upgrade: false\n"
+                 "routing_declined: true\n"
+                 "artifacts_sync_mode: off\n"
+                 "artifacts_sync_mode_prompted: true\n"
+                 "cross_project_learnings: false\n"
+                 "repo_mode: unknown\n")
+GSTACK_MARKERS = (".telemetry-prompted", ".completeness-intro-seen", ".proactive-prompted",
+                  ".activated", ".first-loop-tip-shown", ".feature-prompted-model-overlay")
 
 
 class StateError(ValueError):
@@ -998,6 +1011,7 @@ class Store:
                 raise StateError("RECONCILIATION_REQUIRED")
             self._budget_guard(db)
             db.execute("UPDATE runs SET plan=?,plan_digest=? WHERE run_id=?", (safe_json(plan), plan["plan_digest"], run))
+            registered = {n["id"]: n for n in old["steps"]}
             for node in plan["steps"]:
                 history = [a for a in attempts if a["node_id"] == node["id"]]
                 latest = history[-1] if history else None
@@ -1007,6 +1021,9 @@ class Store:
                     if any(previous.get(k) != node["route"].get(k) for k in fields) or previous.get("billing") != node["route"].get("billing"):
                         raise StateError("COMPLETED_ROUTE_CHANGED")
                     continue
+                if isinstance(node.get("orca"), dict) and task_spec(node) != task_spec(registered[node["id"]]):
+                    # The native Task holds the registered spec; dispatch would fail TASK_SPEC_MISMATCH.
+                    raise StateError("TASK_SPEC_CHANGED")
                 self._node(db, run, node, len(history))
             self._budget_guard(db)
             self._event(db, run, None, "replanned", now, {"plan_digest": plan["plan_digest"]})
@@ -1066,6 +1083,63 @@ class Store:
                 "accounts": accounts, "attempts": [self._public_attempt(a) for a in self._attempts(db)]}
 
 
+def _gstack_setting(text, key):
+    # Like gstack-config (`grep "^key:" | tail -1`): "\n" lines only, last one
+    # wins, quotes kept; callers compare the value exactly.
+    values = [line[len(key) + 1:].strip(" \t\n\v\f\r") for line in text.split("\n")
+              if line.startswith(key + ":")]
+    return values[-1] if values else None
+
+
+def gstack_state(run_id, root):
+    """Create or recheck one run's Gstack state folder; returns its env.
+
+    Never reads, copies or writes the personal ~/.gstack. Gstack scripts read
+    different state-dir variables, so all three get the same folder.
+    """
+    name = hashlib.sha256(identifier(run_id).encode("utf-8")).hexdigest()[:32]
+    base = Path(root).resolve()
+    home = base / "gstack-runs" / name  # Run IDs may contain ':' (invalid on Windows).
+    for path in (base, home.parent, home):
+        path.mkdir(parents=True, exist_ok=True)
+        if path.resolve() != path:
+            raise StateError("GSTACK_HOME_REDIRECTED")  # A link could reach ~/.gstack.
+    if any((home / item).is_symlink() for item in ("config.yaml", *GSTACK_MARKERS)):
+        raise StateError("GSTACK_HOME_REDIRECTED")
+    config = home / "config.yaml"
+    if config.exists():
+        try:
+            text = config.read_bytes().decode("utf-8")
+        except UnicodeDecodeError:
+            raise StateError("GSTACK_ISOLATION_CHANGED") from None
+        if _gstack_setting(text, "telemetry") != "off" or _gstack_setting(text, "update_check") != "false":
+            raise StateError("GSTACK_ISOLATION_CHANGED")
+    else:
+        temp = home / (".config.yaml." + uuid.uuid4().hex + ".tmp")
+        with open(temp, "x", encoding="utf-8", newline="\n") as stream:
+            stream.write(GSTACK_CONFIG)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temp, config)
+    for marker in GSTACK_MARKERS:
+        (home / marker).touch(exist_ok=True)
+    value = home.resolve().as_posix()
+    return {"GSTACK_HOME": value, "GSTACK_STATE_DIR": value, "GSTACK_STATE_ROOT": value,
+            "GSTACK_TELEMETRY_OFF": "1"}
+
+
+def gstack_exports(env):
+    def sh(value):
+        return "'" + value.replace("'", "'\\''") + "'"
+
+    def ps(value):
+        return "'" + value.replace("'", "''") + "'"
+    dirs = ("GSTACK_HOME", "GSTACK_STATE_DIR", "GSTACK_STATE_ROOT")
+    return {"env": env,
+            "export": "; ".join([f"export {k}={sh(env[k])}" for k in dirs] + ["export GSTACK_TELEMETRY_OFF=1"]),
+            "powershell": "; ".join([f"$env:{k}={ps(env[k])}" for k in dirs] + ["$env:GSTACK_TELEMETRY_OFF='1'"])}
+
+
 def read_payload(path):
     if Path(path).stat().st_size > 1024 * 1024:
         raise StateError("PAYLOAD_TOO_LARGE")
@@ -1099,8 +1173,18 @@ def main(argv=None):
         p = sub.add_parser(name)
         p.add_argument("--run", required=True)
         p.add_argument("--input", required=True)
+    p = sub.add_parser("gstack-env")
+    p.add_argument("--run", required=True)
+    p.add_argument("--db", default=argparse.SUPPRESS)  # Also accepted after the action.
     args = parser.parse_args(argv)
     try:
+        if args.action == "gstack-env":
+            # Handled before Store(): Gstack isolation never creates or opens the DB.
+            if str(args.db) == ":memory:":
+                raise StateError("LOCAL_DURABLE_PATH_REQUIRED")
+            result = gstack_exports(gstack_state(args.run, Path(args.db).expanduser().parent))
+            print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))
+            return 0
         store, result = Store(args.db), None
         if args.action == "init":
             store.initialize(args.approved_usd, args.approval_ref)

@@ -52,6 +52,8 @@ TASK_TYPE_MAP = {
 # can use low reasoning without admitting an unproven low-quality model.
 TASK_QUALITY_FLOOR = {"CODE_SIMPLE": 2, "CODE_COMPLEX": 3}
 ORCHESTRATORS = {"vibe", "simonk", "app-dev-orchestrator", "dev-orchestrator"}
+# Hosts can prefix exports per bash block; Orca worker-start cannot pass env.
+GSTACK_ISOLATION = {"host": "required", "orca": "best-effort"}
 SCRIPT_ROOT = Path(__file__).resolve().parent
 TASK_FIT_PATH = SCRIPT_ROOT.parent / "references" / "task-fit-policy.json"
 DEFAULT_TTL = 900  # Refresh availability, price quotes and quota before dispatch.
@@ -232,6 +234,10 @@ def shadow_task_fit(step, choices, active, fit_policy, now):
 MAX_SKILL_BYTES = 2 * 1024 * 1024
 MAX_SKILL_ENTRIES = 10000
 SKILL_NAME = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_.:-]{0,127}\Z")
+# Gstack-derived preambles run its bin scripts or write its state folder directly.
+GSTACK_BIN = re.compile(r"(?<![A-Za-z0-9_.-])skills[/\\]+gstack[/\\]+bin[/\\]", re.I)
+GSTACK_REFERENCE = re.compile(rb"(?<![A-Za-z0-9_.-])skills[/\\]+gstack[/\\]+bin[/\\]"
+                              rb"|(?:~|\$HOME|\$\{HOME\})[/\\]+\.gstack", re.I)
 
 
 class _SkillCatalog(dict):
@@ -348,6 +354,8 @@ def skill_inventory(roots, exclude_roots=(), host_skills=None):
                 record = dict(metadata, canonical_name=metadata["name"], origin="filesystem",
                               path=str(real), resource_uri=None, root=str(root), aliases=[str(path)],
                               sha256=hashlib.sha256(raw).hexdigest())
+                if GSTACK_REFERENCE.search(raw):
+                    record["gstack"] = True
                 records.append(record)
                 seen[real] = record
             except (OSError, UnicodeError, RuntimeError):
@@ -395,7 +403,12 @@ def skill_inventory(roots, exclude_roots=(), host_skills=None):
               "host_snapshot_supplied": host_skills is not None, "records": records,
               "catalog": catalog, "issues": issues, "hash_scope": "SKILL.md bytes only",
               "package_evaluated": False, "behavior_evaluated": False}
-    result["inventory_digest"] = digest(result)
+    # `gstack` is derived from the hashed bytes; leaving it out keeps earlier
+    # inventory digests, and so prepared plan digests, unchanged.
+    def plain(record):
+        return {k: v for k, v in record.items() if k != "gstack"}
+    result["inventory_digest"] = digest(dict(result, records=[plain(r) for r in records], catalog={
+        n: dict(plain(i), alternatives=[plain(a) for a in i["alternatives"]]) for n, i in catalog.items()}))
     catalog.discovery = {k: result[k] for k in ("inventory_digest", "status", "roots", "issues", "scope")}
     return result
 
@@ -1039,6 +1052,36 @@ def _legacy_validation(nodes, runtime):
     return [] if ok else ["ORCA_" + v for v in violations]
 
 
+def gstack_command(argv):
+    """Any argv element naming a Gstack bin script (lexical, offline): direct,
+    bun/node/env/python launchers or a `bash -c` string."""
+    return any(GSTACK_BIN.search(arg) for arg in argv)
+
+
+def gstack_skill(item):
+    """The inventory flag from SKILL.md bytes, a gstack path part or a "(gstack)"
+    description, on the selected record or any shadowed alternative."""
+    def one(record):
+        location = str(record.get("resource_uri") or record.get("path") or "")
+        return (record.get("gstack") is True
+                or "gstack" in [p.lower() for p in re.split(r"[/\\]+", location)]
+                or "(gstack)" in str(record.get("description") or ""))
+    alternatives = item.get("alternatives")
+    return any(one(r) for r in [item, *(alternatives if isinstance(alternatives, list) else [])]
+               if isinstance(r, dict))
+
+
+def gstack_brief(run_id, transport):
+    # Skill-relative, so the Orca Task spec does not depend on the install path.
+    text = ("Gstack per-run isolation: run `python -B \"<vibe skill folder>/scripts/run_state.py\" "
+            f"gstack-env --run '{run_id}'` and prefix every Gstack bash block with its printed export "
+            "line. Continue only if the Gstack preamble shows TELEMETRY: off and, when it prints one, "
+            "UPDATE_CHECK: false; otherwise stop this node.")
+    if transport == "orca":
+        text = "Orca cannot pass environment variables, so this is best-effort. " + text
+    return text
+
+
 def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_policy=None):
     now = now or datetime.now(timezone.utc).isoformat()
     instant(now)
@@ -1181,6 +1224,9 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
                               "vendor": None, "requested_effort": None, "effective_effort": None,
                               "reserved_upper_usd": float(local_upper), "actual_usd": None}
                 s["handoff"] = {"kind": "tool", "argv": argv, "shell": False}
+                if gstack_command(argv):
+                    # The runner applies `run_state.py gstack-env` output to this process.
+                    s["handoff"]["gstack_isolation"] = True
         elif s["kind"] != "image" and not errors:
             for c in candidates:
                 reasons, effort, amount = assess_candidate(c, s, policy, now, vendor, debate)
@@ -1217,6 +1263,11 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
                     s["handoff"]["host_skills"] = copy.deepcopy(host_bindings)
                     s["route"]["valid_until"] = min([instant(s["route"]["valid_until"])] +
                         [instant(b["observed_at"]) + timedelta(seconds=DEFAULT_TTL) for b in host_bindings]).isoformat()
+                if c["transport"] in GSTACK_ISOLATION and any(
+                        gstack_skill(catalog[name]) for name in s.get("skills", []) if name in catalog):
+                    # Advisory only; the Orca brief is the native Task spec, so it travels with it.
+                    s["handoff"].update(gstack_isolation=GSTACK_ISOLATION[c["transport"]],
+                                        gstack_brief=gstack_brief(request.get("run_id"), c["transport"]))
                 if s["kind"] == "gui":
                     s["handoff"].update({"mode": "console", "bot_id": c["bot_id"],
                                          "target": s["target"], "require_nonce_result": True})

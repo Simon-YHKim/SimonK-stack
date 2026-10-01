@@ -5,6 +5,7 @@
 - Ownership
 - Skill discovery and scoped coverage
 - Request schema
+- Gstack per-run isolation
 - Runtime snapshot
 - Budget and selection
 - Execution and evidence
@@ -216,6 +217,121 @@ reuse an API key, and do not label them free local tools. Other design work may
 continue locally; image generation requires separately observed subscription
 inclusion and disabled overage on the exact alternative surface. Inspect any
 other Gstack command separately instead of treating the whole suite as paid.
+
+## Gstack per-run isolation
+
+`gstack-env` gives each /vibe run its own Gstack state folder with telemetry and
+update checks off, and never reads, copies or changes Simon's personal
+`~/.gstack` (telemetry `community`, `update_check` default true). The isolation
+is instruction-level: no /vibe runtime reads `gstack_isolation` or
+`gstack_brief`; the host or worker applies the exports by following the brief,
+and parts of Gstack still use `$HOME` directly (Known limits below).
+
+```text
+python -B "<skill>/scripts/run_state.py" gstack-env --run <run-id> [--db PATH]
+```
+
+The command validates the run ID like the Store does and uses
+`<DB folder>/gstack-runs/<first 32 hex of sha256(run ID)>`; a run ID may contain
+`:`, which Windows folder names reject. Pass the same `--db` as the run's other
+`run_state.py` commands; the default is the canonical DB location below. On
+first use it writes `config.yaml` atomically (temp file + replace):
+`telemetry: off`, `update_check: false`, `auto_upgrade: false`,
+`routing_declined: true`, `artifacts_sync_mode: off`,
+`artifacts_sync_mode_prompted: true`, `cross_project_learnings: false` and
+`repo_mode: unknown`. It also creates the onboarding markers
+`.telemetry-prompted`, `.completeness-intro-seen`, `.proactive-prompted`,
+`.activated`, `.first-loop-tip-shown` and `.feature-prompted-model-overlay`.
+Without these keys and markers a fresh folder re-asks telemetry consent
+(recommending community), nags about routing (a CLAUDE.md edit and commit) and
+asks about artifact sync. Without `repo_mode` the repo-mode helper writes the
+personal `~/.gstack`. The non-empty `unknown` also turns the repo classifier off
+(per the `gstack-config` comment) and the skills treat `unknown` like
+collaborative, so a solo repository gets collaborative behavior under /vibe.
+
+It prints JSON with `env`, a POSIX `export` line and a `powershell` line, and
+never opens or creates the run DB. Re-entry rechecks the folder and reads each
+key like `gstack-config get` (`grep "^key:" | tail -1`): lines split on LF
+only, the last matching line wins, only space, tab, VT, FF and CR are trimmed
+and quotes are kept. Unless the values are exactly `off` and `false` it fails
+with `GSTACK_ISOLATION_CHANGED` (`'false'`, `"off"` and lines joined by CR or
+U+0085 all fail). Stop that node and report it; do not rewrite the config,
+because telemetry may already have been sent. A symlinked or junctioned
+`gstack-runs` or run folder fails with `GSTACK_HOME_REDIRECTED` before writing.
+
+Gstack v1.91.9.0 scripts read different variables: `gstack-config` reads
+`GSTACK_STATE_ROOT`, then `GSTACK_HOME`, then `GSTACK_STATE_DIR`; update check
+and telemetry log/sync read only `GSTACK_STATE_DIR`; skill start/end, timeline,
+learnings, review log and slug read only `GSTACK_HOME`. All three get the same
+folder. No variable disables the bash update check or telemetry; only the
+config keys do. `GSTACK_TELEMETRY_OFF=1` reaches only the browse daemon.
+
+A selected skill counts as Gstack when its SKILL.md bytes, or those of a
+shadowed alternative, reference `skills/gstack/bin/`, `~/.gstack`,
+`$HOME/.gstack` or `${HOME}/.gstack` (inventory field `gstack: true`), when its
+location has a `gstack` path part, or when its description contains
+`(gstack)`. Gstack skills packaged into SimonK plugins keep the Gstack preamble
+but have neither the path part nor a trailing `(gstack)`, so the byte check is
+what finds them. The match is lexical, so a SKILL.md that only mentions
+`~/.gstack` (for example `simon-handoff`) also gets the brief. The flag is
+derived from the hashed bytes and is left out of `inventory_digest`, so plans
+that select no Gstack skill keep their digests.
+
+- Current host: Bash environment does not persist between tool calls, so prefix
+  every Gstack bash block with the printed `export` line. Continue only if the
+  preamble shows `TELEMETRY: off` and, when it prints one, `UPDATE_CHECK: false`;
+  otherwise stop that node. The planner marks host nodes that select a Gstack
+  skill with `gstack_isolation: "required"` and the command in `gstack_brief`:
+  `python -B "<vibe skill folder>/scripts/run_state.py" gstack-env --run '<run id>'`.
+- Local tool: a handoff whose argv has any element naming a `skills/gstack/bin/`
+  script (run directly, through bun, node, env, bash, sh or python, or inside a
+  `bash -c` string) carries `gstack_isolation: true`. The match is lexical; the
+  offline planner does not resolve links or `PATH`. The argv handoff has no env
+  field and no runner reads the flag, so the host must start that process with
+  the printed `env` itself.
+- Orca: `orca orchestration worker-start` has no env option. Gstack skill nodes
+  are not blocked; their handoff, and therefore the native Task spec, carries
+  `gstack_isolation: "best-effort"` and a `gstack_brief` telling the worker to
+  run the same command and prefix every Gstack bash block. Compliance is not
+  enforced or verified.
+
+`spec_digest` excludes the handoff, so these fields do not change registered
+intent. They do change `plan_digest` and the Orca Task spec of nodes that select
+a Gstack skill. The brief names `<vibe skill folder>` instead of an absolute
+path, so the Task spec does not depend on where /vibe is installed.
+
+Upgrade impact for Orca nodes that select a Gstack skill (now including
+plugin-packaged ones):
+
+- Drafted preparations: finalize them before upgrading. A preparation drafted by
+  2.12.41 or earlier cannot be renewed from a plan with the new brief
+  (`PREPARATION_INTENT_CHANGED`), cannot be begun again under the same run
+  (`PREPARATION_IMMUTABLE`), and its caller cannot begin another
+  (`PREPARATION_CALLER_BUSY`); there is no public cancel for a preparation.
+- Registered runs: a native Task created from an older spec fails closed.
+  `refresh` rejects a changed Task spec on a bound, unfinished Orca node with
+  `TASK_SPEC_CHANGED` and keeps the registered plan; dispatching a mismatched
+  spec fails `TASK_SPEC_MISMATCH` before any worker start. Cancel that run and
+  plan a new one.
+
+Known limits:
+
+- This repository's 35 Gstack-derived SKILL.md files use an older preamble
+  without `gstack-skill-start` and without an `UPDATE_CHECK:` line; 31 of them
+  run `gstack-update-check` before anything else, so a missed export is only
+  visible afterwards. They have 274 lines where a write command or redirect
+  (mkdir, touch, rm, cp, mv, tee, `>`, `>>`) precedes a `~/.gstack` path, and
+  492 lines that reference `~/.gstack`; all of these ignore the variables.
+- Review of the Gstack v1.91.9.0 bin scripts found direct `$HOME` use that the
+  variables do not redirect: `gstack-detach:72` (lock files),
+  `gstack-skill-start:217-221` (reads `~/.gstack-artifacts-remote.txt` and prints
+  its URL) and `gstack-repo-mode:44`.
+- The Claude Code timeline Stop hook inherits the session environment, not
+  per-block exports. Orca workers cannot receive env, so isolation there is
+  best-effort through the brief. The browse daemon gets a fresh profile,
+  without the personal cookies.
+- This version never cleans up `gstack-runs`; old run folders stay until
+  removed manually after review.
 
 ## Runtime snapshot
 
@@ -429,6 +545,9 @@ the same canonical local fixed-disk DB. `--db` is for an explicitly scoped
 alternative or isolated tests, never a way to bypass an exhausted grant.
 Network paths, symlink files, unsupported journals/schema and corrupt DBs fail
 closed. Never reset a failed DB or copy it while active to clear reservations.
+`gstack-env` keeps per-run Gstack state beside the DB in `gstack-runs/` (see
+Gstack per-run isolation). Those folders are not DB state and are not cleaned
+up automatically in this version.
 
 SQLite rollback journal, synchronous=FULL and BEGIN IMMEDIATE make the run,
 account, reservation and intent update one transaction. The grant is immutable:
