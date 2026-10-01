@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Read-only snapshot of the flat Core links before any /vibe host change.
+"""Read-only snapshot of flat skill topology before any /vibe host change.
 
 With four externally pinned digests it verifies candidate receipts and their
-provenance. It does not verify host command precedence, billing, or runtime
-quality. It never changes a profile and never grants installation.
+provenance. Physical skill folders are compared by relative file names only;
+contents, host command precedence, billing, and runtime quality remain
+unverified. It never changes a profile and never grants installation.
 """
 
 from __future__ import annotations
@@ -133,6 +134,7 @@ def _flat_coverage(candidate_root: Path, host_roots: tuple[Path, ...],
     result = orchestrate.skill_coverage(source, installed)
     counts = Counter(row["installation"] for row in result["rows"])
     topology = Counter()
+    asset_delta = Counter()
     source_names = {row["name"] for row in result["rows"]}
     exposures = Counter()
     for record in installed["records"]:
@@ -149,6 +151,14 @@ def _flat_coverage(candidate_root: Path, host_roots: tuple[Path, ...],
         kind = ("reparse" if _is_directory_link(path) else
                 "physical" if path.is_dir() else "other")
         topology["selected_" + kind] += 1
+        if kind == "physical":
+            candidate_path = Path(source["catalog"][row["name"]]["path"]).parent
+            installed_files, installed_links = _file_paths_without_links(path)
+            candidate_files, candidate_links = _file_paths_without_links(candidate_path)
+            asset_delta["physical_dirs_scanned"] += 1
+            asset_delta["installed_only_files"] += len(installed_files - candidate_files)
+            asset_delta["candidate_only_files"] += len(candidate_files - installed_files)
+            asset_delta["skipped_directory_links"] += installed_links + candidate_links
         if row["installation"] in ("matched", "drifted"):
             topology[kind + "_" + row["installation"]] += 1
     topology_keys = ("selected_physical", "selected_reparse", "selected_missing",
@@ -157,8 +167,29 @@ def _flat_coverage(candidate_root: Path, host_roots: tuple[Path, ...],
     return {"status": result["status"], "scope_complete": result["scope_complete"],
             "source_skills": len(result["rows"]),
             "topology": {key: topology[key] for key in topology_keys},
+            "asset_delta": {key: asset_delta[key] for key in
+                            ("physical_dirs_scanned", "installed_only_files",
+                             "candidate_only_files", "skipped_directory_links")},
             **{state: counts[state] for state in
                ("matched", "drifted", "missing", "ambiguous_source", "host_only")}}
+
+
+def _file_paths_without_links(root: Path) -> tuple[set[str], int]:
+    """Count relative file names without following nested directory links."""
+    paths: set[str] = set()
+    skipped = 0
+
+    def fail_on_walk_error(error: OSError) -> None:
+        raise error
+
+    for current, directories, files in os.walk(root, onerror=fail_on_walk_error,
+                                               followlinks=False):
+        current_path = Path(current)
+        linked = [name for name in directories if _is_directory_link(current_path / name)]
+        skipped += len(linked)
+        directories[:] = [name for name in directories if name not in linked]
+        paths.update((current_path / name).relative_to(root).as_posix() for name in files)
+    return paths, skipped
 
 
 def _digest(path: Path) -> str:

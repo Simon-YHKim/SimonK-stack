@@ -14,13 +14,13 @@ svg{width:100%;height:auto;margin:1rem 0}svg rect{fill:var(--surface);stroke:var
 </style>
 </head>
 <body><main>
-<p class="muted">2026-10-01 12:21:37 KST · 고정 후보와 현재 사용자 프로필의 읽기 전용 비교</p>
+<p class="muted">2026-10-01 12:35:22 KST · 고정 후보와 현재 사용자 프로필의 읽기 전용 비교</p>
 <h1>7개 링크가 아니라 전체 182/177개를 기준으로 설치를 판단</h1>
 <p>후보 4영수증이 모두 일치하는 상태에서 Claude·Codex flat 스킬의 선택 경로 유형을 집계했다. 사용자 홈은 읽기만 했고 설치·이동·삭제·모델 호출은 하지 않았다.</p>
 <div class="cards" aria-label="핵심 결과">
   <div class="card"><strong>133</strong>Claude 물리 폴더 변경</div>
   <div class="card"><strong>128</strong>Codex 링크 변경</div>
-  <div class="card"><strong>89</strong>두 호스트 미설치 합계</div>
+  <div class="card"><strong>224</strong>후보에 없는 기존 Claude 파일</div>
   <div class="card"><strong>NO-GO</strong>전체 사용자 설치</div>
 </div>
 <svg viewBox="0 0 760 150" role="img" aria-label="Claude 후보 182개는 물리 변경 133, 링크 변경 1, 일치 4, 미설치 44이고 Codex 후보 177개는 링크 변경 128, 일치 4, 미설치 45">
@@ -28,7 +28,7 @@ svg{width:100%;height:auto;margin:1rem 0}svg rect{fill:var(--surface);stroke:var
   <text x="6" y="44">Claude 182</text><text x="135" y="44">물리 변경 133 · 링크 변경 1 · 일치 4 · 미설치 44</text>
   <text x="6" y="110">Codex 177</text><text x="135" y="110">링크 변경 128 · 일치 4 · 미설치 45</text>
 </svg>
-<details><summary>새 검사와 검증</summary><p>기존 검사는 후보 SKILL.md의 일치·변경·누락만 셌다. 이제 스캐너가 선택한 첫 flat 별칭을 기준으로 물리 폴더/정션·심볼릭 링크/미설치를 구분하고, 후보 이름의 중복 노출도 집계한다. 경로는 보고서에 넣지 않는다. 합성 프로필에서 물리 폴더와 그림자 이름을 RED→GREEN 재현했다. 로컬 관련 테스트 37/37 통과; CI는 PR에서 별도 확인한다.</p></details>
-<details><summary>왜 일괄 전환하지 않는가</summary><p>Claude 물리 폴더 133개 중 69개는 이전 후보와 줄바꿈을 정규화한 SKILL.md가 같지만 64개는 내용도 다르다. 그 원인은 사용자 편집인지 다른 배포 버전인지 확정되지 않았다. 기존 7개 Core 링크 복원기는 물리 폴더를 다루지 않는다. Codex에는 후보 이름 중 중복 flat 노출도 1개 있다. 전체 캐시 자산·호스트 명령 우선순위·네이티브 플러그인 등록·구독 과금도 아직 별도 게이트다.</p></details>
+<details><summary>새 검사와 검증</summary><p>스캐너가 선택한 첫 flat 별칭을 기준으로 물리 폴더/정션·심볼릭 링크/미설치를 구분한다. 이번에는 물리 폴더의 상대 파일명 차이도 중첩 링크를 따라가지 않고 집계한다. 파일 내용·출처·필요성은 판정하지 않는다. 합성 프로필에서 물리 폴더와 설치본·후보 전용 파일을 RED→GREEN 재현했다. 고정 후보 4영수증 재검증과 실제 사용자 프로필 읽기 전용 검사를 통과했다. 로컬 관련 테스트 37/37 통과; 이 추가 커밋의 CI는 PR에서 별도 확인한다.</p></details>
+<details><summary>왜 일괄 전환하지 않는가</summary><p>Claude 물리 폴더 133개 중 69개는 이전 후보와 줄바꿈을 정규화한 SKILL.md가 같지만 64개는 내용도 다르다. 현 설치본에만 224파일, 후보에만 8파일이 있다. 그 원인은 사용자 편집·상위 버전·후보 패키징 중 무엇인지 확정되지 않았다. 기존 7개 Core 링크 복원기는 물리 폴더를 다루지 않는다. Codex에는 후보 이름 중 중복 flat 노출도 1개 있다. 전체 파일 내용·호스트 명령 우선순위·네이티브 플러그인 등록·구독 과금도 별도 게이트다.</p></details>
 <details><summary>다음 단계</summary><p>물리 폴더의 출처·자산 파일을 무손실로 식별하고, 전체 182/177개와 네이티브 5플러그인을 함께 다루는 설치·복원 계약을 격리 환경에서 검증해야 한다. 그 후 D-39 설치 NO-GO를 새 결정으로 재판정한다. 이미지 생성과 Grok Bot 전달 역시 구독 전용 실행 증거가 있어야 활성화할 수 있다. <a href="../docs/INSTALL.md">설치 검사 문서</a>에 제한을 명시했다.</p></details>
 </main></body></html>

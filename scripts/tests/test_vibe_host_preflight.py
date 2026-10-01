@@ -282,6 +282,9 @@ class VibeHostPreflightTests(unittest.TestCase):
         physical.mkdir()
         (physical / "SKILL.md").write_text(
             "---\nname: extra\ndescription: Installed extra\n---\nold\n", encoding="utf-8")
+        (physical / "legacy-helper.py").write_text("print('legacy')\n", encoding="utf-8")
+        (self.candidate / "candidate-safety/plugins/SimonKDesign/skills/extra" /
+         "new-helper.py").write_text("print('new')\n", encoding="utf-8")
         os.symlink(physical, self.agents / "skills/extra", target_is_directory=True)
         shadow = self.codex / "skills/extra"
         shadow.mkdir()
@@ -294,6 +297,9 @@ class VibeHostPreflightTests(unittest.TestCase):
         self.assertEqual(claude["source_skills"], 6)
         self.assertEqual(claude["topology"]["physical_drifted"], 1, claude)
         self.assertEqual(claude["topology"]["reparse_drifted"], 5)
+        self.assertEqual(claude["asset_delta"]["physical_dirs_scanned"], 1)
+        self.assertEqual(claude["asset_delta"]["installed_only_files"], 1)
+        self.assertEqual(claude["asset_delta"]["candidate_only_files"], 1)
         self.assertEqual(codex["source_skills"], 3)
         self.assertEqual(codex["topology"]["reparse_drifted"], 3)
         self.assertEqual(codex["topology"]["shadowed_names"], 2)
