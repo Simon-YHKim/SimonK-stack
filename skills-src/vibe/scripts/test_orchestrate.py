@@ -1086,7 +1086,7 @@ class OrchestrationTests(unittest.TestCase):
             self.assertIn("BOT_SCREENSHOT_MISSING_OR_OUTSIDE_RUN",
                           self.m.verify_bot_result(bot_root, meta, result, "vb-1234abcd", evidence))
 
-    def test_only_supported_transports_are_ready_with_complete_fixture_evidence(self):
+    def test_registered_transports_pass_planner_fixture_preflight(self):
         for surface in ("claude", "codex", "grok-bot"):
             with self.subTest(surface=surface):
                 c = self.bot() if surface == "grok-bot" else candidate(surface=surface)

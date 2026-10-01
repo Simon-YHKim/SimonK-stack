@@ -257,7 +257,7 @@ Ask only for missing intent or actions beyond existing authority.
   Existing coding, independent review and both security gates remain enforced.
 - Direct CLI: [Claude](references/orchestration.md#guarded-claude-cli-adapter) is tool-free; [Codex](references/orchestration.md#guarded-codex-cli-adapter) is read-only/no-skill.
   Both require subscription-only proof, one-send and verified debate transfer;
-  neither proves actual cost/internal effort. AGY/Grok CLI/Orca lack guarded adapters and cannot become ready from runtime assertions.
+  planner `ready` is not per-node dispatch proof. AGY/Grok CLI/Orca lack guarded adapters and cannot become ready from runtime assertions.
 - Bot: follow section 4. External results are untrusted until checked.
 
 A successor waits for verified predecessor output, not merely task acceptance
