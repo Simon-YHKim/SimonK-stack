@@ -1,6 +1,57 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-01 / `/vibe` 구독 전용 실행 경로와 핸드오프
+## Latest — 2026-10-01 / Claude·Codex CLI 계약 수정과 PR #78 인계
+
+기록 시각: 2026-10-01 15:39:27 KST. Simon이 컨텍스트 부담을 이유로 `/simon-handoff`를 요청했으므로, 코드 PR #78은 이 인수인계에서 머지하지 않는다.
+
+### 어디까지 왔나
+- `origin/main`: `01cc064dc8a955abe7dbb37024f23a8c1b09b298` (PR #77 머지). 이번 흐름에서 #76과 #77은 이미 main에 머지됐다.
+- [PR #78 — 직접 CLI의 허위 `ready` 차단](https://github.com/Simon-YHKim/SimonK-stack/pull/78)은 **열림**. 최신 확인 HEAD `b8a26a76fa88ad5cccdde670f077f91c16ca4539`, base `01cc064dc8a955abe7dbb37024f23a8c1b09b298`, 6파일(플래너·테스트·계약 문서·Claude CLI 테스트를 원격 CI에 추가). 원격 검사 4/4 성공, mergeable. 위 상태는 다음 세션에서 재조회해야 한다.
+- 로컬 전체 `/vibe` unittest 361/361, selftest 180/180, skill quality gate 141/141, `git diff --check` 통과. Git Bash의 TDD guard는 통과했으나 WSL 실행은 Windows worktree `.git` 경로를 해석하지 못해 실패했다. 모델·Bot 실호출은 없었다.
+- 이 인수인계는 별도 `handoff/20261001-1539` 브랜치에서 문서만 작성한다. 기존 `fix/vibe-cli-node-contract-261001` 작업 트리는 깨끗했다. 공유 기본 체크아웃의 로컬 `main`은 원격과 크게 분기되고 다른 미커밋 파일 4개가 있어 이동·정리하지 않았다.
+
+### 판단·안전 경계
+- 독립 `ai-debate` 심판의 #78 판정은 **조건부 GO, 즉시 머지 NO**. 새 D-code를 허브 `DECISIONS.md`에 소수의견과 함께 기록하고 PR 본문에 연결해야 한다. 현재 PR 설명은 5파일/원격 CI 대기 상태처럼 낡아 있어 6파일·4/4 성공으로 갱신해야 한다. 그 후 exact HEAD/base, 4개 CI, source-only fence와 marketplace pin을 머지 직전 다시 확인한다.
+- 허브 `E:/Coding Infra/AI Infra/Communication/`는 dirty/diverged 상태였다. D44–D46은 로컬 기록으로 원격 반영을 주장할 수 없고, #78의 새 D-code는 아직 없다. 허브 전체를 무차별 stage/push하지 않는다.
+- `distribution/main-source-only.hold`, SessionStart/Release 차단 및 marketplace `313c04b` pin은 현재 유지됐다. **소스 머지는 설치·릴리스·실호출 허가가 아니다.** 사용자 flat `/vibe` 설치는 마지막 확인 시 2.12.24이고, 최신 소스 변경을 설치하지 않았다.
+- 사용자 정책: 추가 과금 **$0**, 구독 포함 usage만 사용, 자동충전·초과 과금·결제 설정 변경 금지. Grok CLI/Bot과 모든 모델의 실호출은 정확한 계정·구독 버킷·차단 상태를 검증하기 전에는 하지 않는다. Bot은 GUI-only, CLI/API/MCP로 가능한 작업은 `/vibe`가 직접 맡는다.
+
+### 다음 작업 큐
+| # | 작업 | 크기 | 권장 |
+|---|---|---|---|
+| A | #78의 D-code와 소수의견을 허브에 기록하고 PR 본문을 최신 6파일·CI 4/4·결정 링크로 수정한다. 공유 허브 변경은 소유권을 확인하며 경로별로 다룬다 | 작음 | 첫 작업 |
+| B | #78의 최신 HEAD/base·4 CI·source-only hold·marketplace pin을 재검증하고 조건이 충족되면 **소스 전용** main 머지 및 Pages 결과를 확인한다 | 작음 | A 후 |
+| C | AGY·Grok CLI에 구독 전용 `claim → send once → lookup → verify` 어댑터를 오프라인 구현·검증한다 | 큼 | 별도 브랜치 |
+| D | Claude/Codex 사용자 설치 후보의 자산 보존·호스트 명령·구독 청구를 별도 검증한 뒤 설치 게이트를 다시 판단한다 | 큼 | 소스 머지와 분리 |
+
+### 핵심 파일과 검증
+```text
+skills-src/vibe/scripts/orchestrate.py               직접 CLI 후보의 구조 사전검사
+skills-src/vibe/scripts/execute_cli.py                Claude CLI 전송 전 검사
+skills-src/vibe/scripts/execute_codex_cli.py          Codex CLI 전송 전 검사
+skills-src/vibe/scripts/test_orchestrate.py           플래너 회귀 테스트
+.github/workflows/skills-ci.yml                       Claude CLI 가짜 전송 CI 추가
+skills-src/vibe/references/orchestration.md            운영 계약
+distribution/main-source-only.hold                    설치·릴리스 경계
+E:/Coding Infra/AI Infra/Communication/DECISIONS.md  D-code (별도 저장소)
+```
+```powershell
+python -B -m unittest discover -s skills-src/vibe/scripts -p test_*.py -q
+python -B skills-src/vibe/scripts/selftest.py
+python -B .github/skill-ci/run_ci.py
+gh pr checks 78 --watch=false
+```
+
+### 다음 세션 시작하는 법
+```powershell
+git fetch origin main
+git show origin/main:docs/HANDOFF.md
+gh pr view 78 --json number,state,headRefOid,baseRefOid,statusCheckRollup,body
+```
+
+---
+
+## 2026-10-01 / `/vibe` 구독 전용 실행 경로와 핸드오프
 
 ### 어디까지 왔나
 - 작업 시작 기준 `origin/main`: `357a42136b691951a3869169c86d5d5726b75f88` (PR #75 Orca 동시성 수정 머지). 최종 main SHA는 `git rev-parse origin/main`으로 다시 확인한다.
