@@ -18,7 +18,7 @@
 | `model-router` | task type → best LLM 모델 자동 매핑 (2026-05 매트릭스, sprint v23 Phase A) |
 | `multi-terminal-dispatcher` | model-router + Windows Terminal/psmux/VS Code tasks 병렬 launcher (sprint v23 Phase B) |
 | `agent-delegate` | sub-agent 위임 플랜 — task 분해 + context envelope(파일 경로만) + output contract + 패턴(Fan-out/Pipeline/Supervisor). app-dev-orchestrator·simon-worktree 가 사용 |
-| `ai-debate` | 다관점 AI 토론 — 중요·비가역·충돌 결정을 패널→별도심판→합의/타이브레이크→`DECISIONS.md` 기록. PROTOCOL §35.1 트리거 필수(라우팅이 강제) |
+| `ai-debate` | 4벤더(Claude·Codex·Grok·Gemini) 실착석 토론 — 중요·비가역·충돌 결정을 입장→교차검증→블라인드 별도심판→비준→`DECISIONS.md` 기록. 결석은 증거와 함께 기록하고 catch-up, $0 쿼터 게이트. 오래 걸리는 작업엔 겐세이(중간 개입) 모드. PROTOCOL §35.1 트리거 필수(라우팅이 강제) |
 | `simonk` | 단일 자율 진입점 (6-phase + Boundary Check + multi-agent dispatch sprint v23 Phase B) |
 | `simonk-report` | simonK Phase 6 자동 호출 — `.simonk/reports/<TS>.html` 생성 + SendUserFile 자동 첨부. 명시 `/simonk-report` 도 가능 |
 | `stack-update` | 저장소별 상태 점검과 안전한 fast-forward 계획·실행; vendor 갱신·프로필 재설치는 별도 절차 |
