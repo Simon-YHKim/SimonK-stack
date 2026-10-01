@@ -23,7 +23,7 @@ NOW = "2026-09-23T10:00:00+00:00"
 def candidate(name="small", surface="codex", **changes):
     model = changes.get("model", "fixture-" + name)
     item = {
-        "id": name, "surface": surface, "transport": "cli",
+        "id": name, "surface": surface, "transport": "host", "effective_effort": "low",
         "model": model, "lifecycle": "active", "available": True,
         "observed_at": NOW, "evidence": "offline test fixture", "quality_tier": 2,
         "capabilities": ["reasoning", "code", "research"], "resource_rank": 1,
@@ -76,6 +76,18 @@ def step(name="read", **changes):
             "depends_on": [], "writes": False}
     item.update(changes)
     return item
+
+
+def cli_binding(surface):
+    """Structural preflight fixture only; paths are not dispatch evidence."""
+    binding = {"executable": "/fixture/worker.exe", "executable_sha256": "a" * 64,
+               "cwd": "/fixture/private", "profile_path": "/fixture/profile",
+               "profile_ref": "fixture-profile", "account_ref": "test-account",
+               "result_path": "/fixture/private/result.json"}
+    if surface == "codex":
+        binding.update(content_path="/fixture/private/content.txt",
+                       result_path="/fixture/private/result.jsonl")
+    return binding
 
 
 def fixture_registry(candidates):
@@ -224,7 +236,7 @@ class OrchestrationTests(unittest.TestCase):
         p = self.plan()
         self.assertEqual(p["status"], "ready")
         self.assertEqual(p["steps"][0]["route"]["requested_effort"], "low")
-        self.assertIsNone(p["steps"][0]["route"]["effective_effort"])
+        self.assertEqual(p["steps"][0]["route"]["effective_effort"], "low")
         self.assertEqual(p["budget"]["reserved_upper_usd"], 0)
 
     def test_paid_default_is_zero(self):
@@ -366,7 +378,8 @@ class OrchestrationTests(unittest.TestCase):
 
     def test_quality_floor_wins_over_cheapest_candidate(self):
         p = self.plan([step(demand="critical")],
-                      [candidate("cheap", quality_tier=1), candidate("strong", quality_tier=3)])
+                      [candidate("cheap", quality_tier=1, effective_effort="xhigh"),
+                       candidate("strong", quality_tier=3, effective_effort="xhigh")])
         self.assertEqual(p["steps"][0]["route"]["candidate_id"], "strong")
 
     def test_mechanical_step_uses_no_extra_model(self):
@@ -529,7 +542,7 @@ class OrchestrationTests(unittest.TestCase):
         self.assertEqual(inv["catalog"]["docs:documents"]["origin"], "host")
         self.assertIsNone(inv["catalog"]["docs:documents"]["sha256"])
         req = {"run_id": "native-test", "steps": [step(skills=["docs:documents"])]}
-        runtime = {"candidates": [candidate("cli"), candidate("host", transport="host", effective_effort="low",
+        runtime = {"candidates": [candidate("cli", transport="cli"), candidate("host", transport="host", effective_effort="low",
                                                                 host_ref="fixture-host")],
                    "observed_at": NOW, "tools": []}
         p = self.m.make_plan(req, inv["catalog"], runtime, NOW, fixture_registry(runtime["candidates"]))
@@ -1089,9 +1102,49 @@ class OrchestrationTests(unittest.TestCase):
     def test_registered_transports_pass_planner_fixture_preflight(self):
         for surface in ("claude", "codex", "grok-bot"):
             with self.subTest(surface=surface):
-                c = self.bot() if surface == "grok-bot" else candidate(surface=surface)
-                s = self.gui() if surface == "grok-bot" else step(surface=surface)
+                c = self.bot() if surface == "grok-bot" else candidate(surface=surface, transport="cli")
+                s = self.gui() if surface == "grok-bot" else step(
+                    surface=surface, skills=[], cli=cli_binding(surface))
                 self.assertEqual(self.plan([s], [c])["status"], "ready")
+
+    def test_direct_cli_preflight_rejects_nodes_its_adapter_cannot_execute(self):
+        policy = {"mode": "balanced", "approved_usd": "0", "max_attempts": 2}
+        for surface in ("claude", "codex"):
+            with self.subTest(surface=surface):
+                c = candidate(surface=surface, transport="cli")
+                for change in ({"skills": ["explain"]}, {"software": ["rg"]},
+                               {"writes": True}, {"verify_of": "producer"},
+                               {"depends_on": ["producer"]}):
+                    with self.subTest(change=change):
+                        node = step(surface=surface, **dict({"skills": []}, **change))
+                        errors, _, _ = self.m.assess_candidate(c, node, policy, NOW)
+                        self.assertIn("CLI_NODE_UNSUPPORTED", errors)
+
+    def test_direct_cli_preflight_requires_exact_binding_shape(self):
+        for surface in ("claude", "codex"):
+            with self.subTest(surface=surface):
+                plan = self.plan([step(surface=surface, skills=[])], [candidate(surface=surface, transport="cli")])
+                self.assertEqual(plan["status"], "blocked")
+                self.assertIn("CLI_BINDING_REQUIRED", str(plan))
+                bad = dict(cli_binding(surface), account_ref="other-account")
+                plan = self.plan([step(surface=surface, skills=[], cli=bad)],
+                                 [candidate(surface=surface, transport="cli")])
+                self.assertIn("CLI_BINDING_REQUIRED", str(plan))
+
+    def test_direct_cli_preflight_allows_only_canonical_debate_edges(self):
+        roles, _, _ = self.debate_fixture()
+        policy = {"mode": "balanced", "approved_usd": "0", "max_attempts": 2}
+        for surface, node_id in (("codex", "rebuttal-gpt"), ("claude", "rebuttal-claude")):
+            with self.subTest(surface=surface):
+                c = candidate(surface=surface, transport="cli")
+                good = step(node_id, skills=[], cli=cli_binding(surface),
+                            depends_on=[roles["proposer"], roles["challenger"]])
+                errors, _, _ = self.m.assess_candidate(c, good, policy, NOW, debate=roles)
+                self.assertNotIn("CLI_NODE_UNSUPPORTED", errors)
+                extra = step(node_id, skills=[], cli=cli_binding(surface),
+                             depends_on=[roles["proposer"], roles["challenger"], roles["judge"]])
+                errors, _, _ = self.m.assess_candidate(c, extra, policy, NOW, debate=roles)
+                self.assertIn("CLI_NODE_UNSUPPORTED", errors)
 
     def test_unimplemented_cli_and_orca_adapters_never_become_ready(self):
         for surface in ("antigravity", "grok"):
@@ -1134,9 +1187,10 @@ class OrchestrationTests(unittest.TestCase):
             (root / "explain" / "SKILL.md").write_text("---\nname: explain\ndescription: Explain\n---\n", encoding="utf-8")
             request, runtime = root / "request.json", root / "runtime.json"
             request.write_text(json.dumps({"run_id": "cli-test", "steps": [step()]}), encoding="utf-8")
-            runtime.write_text(json.dumps({"candidates": [candidate()], "observed_at": NOW}), encoding="utf-8")
+            host = candidate(transport="host", effective_effort="low")
+            runtime.write_text(json.dumps({"candidates": [host], "observed_at": NOW}), encoding="utf-8")
             registry_path = root / "registry.json"
-            registry_path.write_text(json.dumps(fixture_registry([candidate()])), encoding="utf-8")
+            registry_path.write_text(json.dumps(fixture_registry([host])), encoding="utf-8")
             before = sorted(p.name for p in root.iterdir())
             cache_dir = SCRIPT.parent / "__pycache__"
             before_cache = sorted(p.name for p in cache_dir.glob("*.pyc"))
@@ -1316,7 +1370,7 @@ class OrchestrationTests(unittest.TestCase):
     def test_typed_request_is_compiled_on_the_actual_plan_path(self):
         node = self.typed()
         before = copy.deepcopy(node)
-        p = self.plan([node])
+        p = self.plan([node], [candidate(effective_effort="high")])
         self.assertEqual(node, before)
         self.assertEqual(p["status"], "ready")
         out = p["steps"][0]
@@ -1342,7 +1396,7 @@ class OrchestrationTests(unittest.TestCase):
     def test_typed_contract_allows_stronger_requirements_and_preserves_metadata(self):
         node = self.typed(demand="critical", needs=["code", "reasoning"],
                           parent_run_id="parent", orca={"task_id": "native-task"})
-        p = self.plan([node], [candidate(quality_tier=3)])
+        p = self.plan([node], [candidate(quality_tier=3, effective_effort="xhigh")])
         self.assertEqual(p["status"], "ready")
         out = p["steps"][0]
         self.assertEqual(out["route"]["requested_effort"], "xhigh")
@@ -1354,7 +1408,9 @@ class OrchestrationTests(unittest.TestCase):
         self.assertIn("MISSING_REVIEW", str(self.plan([writer])))
         reviewer = self.typed("CODE_REVIEW", id="review", depends_on=["read"], verify_of="read")
         self.assertEqual(self.plan([writer, reviewer])["status"], "blocked")
-        p = self.plan([writer, reviewer], [candidate(), candidate("reviewer", surface="claude")])
+        p = self.plan([writer, reviewer], [candidate(effective_effort="high"),
+                                           candidate("reviewer", surface="claude",
+                                                     effective_effort="high")])
         self.assertEqual(p["status"], "ready")
         self.assertEqual(p["steps"][1]["verify_of"], "read")
         self.assertNotEqual(p["steps"][0]["route"]["vendor"], p["steps"][1]["route"]["vendor"])
@@ -1385,18 +1441,20 @@ class OrchestrationTests(unittest.TestCase):
             ("PLAN_ARCHITECTURE", 2, "high"),
         ):
             with self.subTest(task_type=task_type):
-                p = self.plan([self.typed(task_type)], [candidate(quality_tier=quality)])
+                p = self.plan([self.typed(task_type)],
+                              [candidate(quality_tier=quality, effective_effort=expected_effort)])
                 self.assertEqual(p["status"], "ready")
                 self.assertEqual(p["steps"][0]["route"]["requested_effort"], expected_effort)
         critical = self.typed("CODE_COMPLEX", demand="critical")
-        p = self.plan([critical], [candidate(quality_tier=3)])
+        p = self.plan([critical], [candidate(quality_tier=3, effective_effort="xhigh")])
         self.assertEqual(p["steps"][0]["route"]["requested_effort"], "xhigh")
 
     def test_task_fit_shadow_records_different_winner_without_changing_dispatch(self):
         opener = candidate("generic", model="gpt-6-sol", quality_tier=3,
-                           resource_rank=0, capabilities=["reasoning"])
+                           resource_rank=0, capabilities=["reasoning"], effective_effort="high")
         opus = candidate("task-fit", surface="claude", model="claude-opus-5-5",
-                         quality_tier=3, resource_rank=9, capabilities=["reasoning"])
+                         quality_tier=3, resource_rank=9, capabilities=["reasoning"],
+                         effective_effort="high")
         p = self.plan([self.typed("PLAN_ARCHITECTURE")], [opener, opus],
                       task_fit_policy=self.task_fit_fixture())
         route = p["steps"][0]["route"]
@@ -1412,9 +1470,10 @@ class OrchestrationTests(unittest.TestCase):
 
     def test_task_fit_shadow_cannot_promote_unsafe_or_wrong_effort(self):
         generic = candidate("generic", model="gpt-6-sol", quality_tier=3,
-                            resource_rank=0, capabilities=["reasoning"])
+                            resource_rank=0, capabilities=["reasoning"], effective_effort="high")
         opus = candidate("task-fit", surface="claude", model="claude-opus-5-5",
-                         quality_tier=3, resource_rank=9, capabilities=["reasoning"])
+                         quality_tier=3, resource_rank=9, capabilities=["reasoning"],
+                         effective_effort="high")
         no_overage = copy.deepcopy(opus)
         no_overage["billing"]["model_included"] = False
         p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, no_overage],
@@ -1429,9 +1488,10 @@ class OrchestrationTests(unittest.TestCase):
 
     def test_task_fit_shadow_never_outranks_money_or_high_quota_pressure(self):
         generic = candidate("generic", model="gpt-6-sol", quality_tier=3,
-                            resource_rank=0, capabilities=["reasoning"])
+                            resource_rank=0, capabilities=["reasoning"], effective_effort="high")
         opus = candidate("task-fit", surface="claude", model="claude-opus-5-5",
-                         quality_tier=3, resource_rank=9, capabilities=["reasoning"])
+                         quality_tier=3, resource_rank=9, capabilities=["reasoning"],
+                         effective_effort="high")
         policy = self.task_fit_fixture()
         quota_heavy = copy.deepcopy(opus)
         quota_heavy["quota"]["used_pct"] = 90
@@ -1450,7 +1510,8 @@ class OrchestrationTests(unittest.TestCase):
     def test_task_fit_shadow_expiry_and_image_generation_boundary(self):
         policy = self.task_fit_fixture(checked_at="2026-09-21T10:00:00+00:00",
                                        valid_until="2026-09-22T10:00:00+00:00")
-        p = self.plan([self.typed("PLAN_ARCHITECTURE")], [candidate(quality_tier=3)],
+        p = self.plan([self.typed("PLAN_ARCHITECTURE")],
+                      [candidate(quality_tier=3, effective_effort="high")],
                       task_fit_policy=policy)
         self.assertEqual(p["steps"][0]["shadow_task_fit"]["status"], "expired")
         self.assertEqual(p["status"], "ready")
@@ -1683,7 +1744,8 @@ class OrchestrationTests(unittest.TestCase):
                 self.assertEqual(blocked["status"], "blocked")
                 self.assertIn("QUALITY_FLOOR", str(blocked))
                 eligible = self.plan([self.typed(task_type)],
-                                     [candidate(quality_tier=required_floor)])
+                                     [candidate(quality_tier=required_floor,
+                                                effective_effort="high" if task_type == "CODE_COMPLEX" else "low")])
                 self.assertEqual(eligible["status"], "ready")
                 self.assertEqual(eligible["steps"][0]["quality_floor"], required_floor)
                 with self.assertRaises(ValueError):
@@ -1703,7 +1765,8 @@ class OrchestrationTests(unittest.TestCase):
                     node = self.typed(task_type, surface=surface)
                     steps = [node]
                     candidates = [candidate("writer", surface=surface, quality_tier=minimum_tier,
-                                            capabilities=["code", "reasoning", "writing"])]
+                                            capabilities=["code", "reasoning", "writing"],
+                                            effective_effort=effort)]
                     if task_type == "WRITING":
                         steps.append(step("review", surface=other, verify_of="read",
                                           depends_on=["read"]))
@@ -1732,7 +1795,7 @@ class OrchestrationTests(unittest.TestCase):
         blocked = self.plan([node, reviewer], [candidate(), review_route])
         self.assertEqual(blocked["status"], "blocked")
         self.assertIn("CAPABILITY_MISMATCH", str(blocked))
-        eligible = candidate(capabilities=["writing", "reasoning"])
+        eligible = candidate(capabilities=["writing", "reasoning"], effective_effort="high")
         routed = self.plan([node, reviewer], [eligible, review_route])
         self.assertEqual(routed["status"], "ready")
         self.assertEqual(routed["steps"][0]["route"]["requested_effort"], "high")
@@ -1740,7 +1803,7 @@ class OrchestrationTests(unittest.TestCase):
     def test_typed_writing_requires_independent_review_even_without_file_edits(self):
         writer = self.typed("WRITING", writes=False)
         writer_route = candidate("writer", surface="claude",
-                                 capabilities=["writing", "reasoning"])
+                                 capabilities=["writing", "reasoning"], effective_effort="high")
         without_review = self.plan([writer], [writer_route])
         self.assertEqual(without_review["status"], "blocked")
         self.assertIn("MISSING_REVIEW", without_review["steps"][0]["errors"])

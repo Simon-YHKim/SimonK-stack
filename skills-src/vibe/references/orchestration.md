@@ -621,9 +621,13 @@ Codex has a separate guarded source adapter below. Antigravity and Grok CLI
 execution are not implemented here: the planner rejects their `cli`/`orca`
 candidates with `EXECUTION_ADAPTER_UNAVAILABLE`, even if synthetic runtime
 assertions claim fresh billing and quota. A full five-surface debate is not
-automatic. Claude/Codex CLI planning can still select a node with skills, while
-their tool-free adapters reject it at dispatch; planner `ready` is not execution
-proof. Neither implemented adapter manufactures account/billing proof.
+automatic. Claude/Codex direct CLI preflight now rejects skill/software nodes,
+writes, reviewer nodes, arbitrary dependencies, noncanonical debate edges and
+missing or malformed exact `cli` manifest shapes before `ready`. This is a
+structural filter only: the adapters still recheck real paths, executable bytes,
+profile/account, fresh subscription evidence and Store state before any send.
+Planner `ready` is not execution or billing proof. Neither implemented adapter
+manufactures account/billing proof.
 
 The trusted coordinator puts this exact `cli` manifest in the node *before*
 planning and Store registration:

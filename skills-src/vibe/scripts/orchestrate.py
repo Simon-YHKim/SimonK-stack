@@ -784,8 +784,48 @@ def debate_route_errors(debate, by_id):
     return sorted(set(errors))
 
 
-def assess_candidate(c, step, policy, now, producer_vendor=None):
+def direct_cli_contract(c, step, debate):
+    """Preflight only the node shape the guarded direct CLI adapters accept."""
+    surface = c.get("surface")
+    if (surface, c.get("transport")) not in {("claude", "cli"), ("codex", "cli")}:
+        return []
+    errors = []
+    if (step.get("kind") != "llm" or step.get("writes") is not False
+            or step.get("skills") or step.get("software") or step.get("verify_of")):
+        errors.append("CLI_NODE_UNSUPPORTED")
+    dependencies = set(step.get("depends_on", []))
+    if debate is None:
+        if dependencies:
+            errors.append("CLI_NODE_UNSUPPORTED")
+    else:
+        roles = [role for role, ident in debate.items() if ident == step.get("id")]
+        if len(roles) != 1:
+            errors.append("CLI_NODE_UNSUPPORTED")
+        else:
+            role = roles[0]
+            direct = {"proposer": [], "challenger": [],
+                      "proposer_rebuttal": ["proposer", "challenger"],
+                      "challenger_rebuttal": ["proposer", "challenger"],
+                      "judge": ["proposer_rebuttal", "challenger_rebuttal"]}[role]
+            if dependencies != {debate[item] for item in direct}:
+                errors.append("CLI_NODE_UNSUPPORTED")
+    required = {"executable", "executable_sha256", "cwd", "profile_path",
+                "profile_ref", "account_ref", "result_path"}
+    if surface == "codex":
+        required.add("content_path")
+    binding = step.get("cli")
+    if (not isinstance(binding, dict) or set(binding) != required
+            or any(not isinstance(binding[key], str) or not binding[key].strip()
+                   for key in required)
+            or not re.fullmatch(r"[0-9a-f]{64}", binding["executable_sha256"])
+            or binding["account_ref"] != c.get("billing", {}).get("account_ref")):
+        errors.append("CLI_BINDING_REQUIRED")
+    return errors
+
+
+def assess_candidate(c, step, policy, now, producer_vendor=None, debate=None):
     errors = list(c.get("registry_errors", []))
+    errors.extend(direct_cli_contract(c, step, debate))
     for binding in step.get("skill_bindings", []):
         if binding.get("origin") != "host":
             continue
@@ -1143,7 +1183,7 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
                 s["handoff"] = {"kind": "tool", "argv": argv, "shell": False}
         elif s["kind"] != "image" and not errors:
             for c in candidates:
-                reasons, effort, amount = assess_candidate(c, s, policy, now, vendor)
+                reasons, effort, amount = assess_candidate(c, s, policy, now, vendor, debate)
                 if reasons:
                     rejected.append({"candidate_id": c["id"], "reasons": reasons})
                     continue
