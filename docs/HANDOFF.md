@@ -1,6 +1,53 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-01 / Claude·Codex CLI 계약 수정과 PR #78 인계
+## Latest — 2026-10-01 / `/vibe` 2.12.41 소스 머지와 실행별 Gstack 정책
+
+갱신 시각: 2026-10-01 18:11:33 KST. Simon은 PR 머지 뒤 작업을 멈추고 `/simon-handoff`를 요청했다. 이 블록은 후속 구현이 아니라 다음 세션을 위한 상태 기록이다.
+
+### 어디까지 왔나
+- `origin/main`: `ccad7423a48b7d63e6826d074bd147fb9a45f5d4` — [PR #82 `/vibe` 설명 축약 대응](https://github.com/Simon-YHKim/SimonK-stack/pull/82) 소스 전용 일반 머지. 변경 5파일(스킬 설명·CI 회귀 테스트·README/INSTALL/CHANGELOG). 정확한 PR HEAD `fb79284870654eea5a8f759c6c332fa4dad3fe25`의 4/4 검사가 통과했고, main의 Cloudflare Pages·skills-quality·Windows path audit·validate·tag-release 5/5도 성공했다.
+- `/vibe` 소스 2.12.41은 Codex가 설명을 48자로 축약해도 `/vibe`·SimonKStack·라우팅 목적을 앞에 남긴다. 품질 게이트 141/141, 오케스트레이션 회귀 131/131, 최종 격리 후보 네 SHA-256 영수증 및 오프라인 runtime probe 4/4가 통과했다. 후보는 `E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-21241-quality-candidate/`; 정확한 digest는 `docs/INSTALL.md` 첫 절에 있다.
+- Claude·Codex·`.agents` 사용자 flat `/vibe` 세 경로의 SHA-256은 모두 `3b1cc7b001ecc432a9fb300ef0083d7162de536ef3eb9cf122167264a4f08e08`로 불변이고 버전은 2.12.24다. 앞선 격리 Codex 프로필의 무모델 입력에서는 namespaced `simonk-core:vibe`·`simonk-core:vibe-bot`가 각 1회 노출됐지만 새 최종 후보의 자연어 자동 선택·실호출 품질은 미검증이다.
+- 현재 전용 소스 브랜치 `fix/vibe-description-routing-261001`와 기존 기본 체크아웃은 정리·삭제하지 않았다. 허브의 D-52 결정은 기존 dirty/diverged 저장소에 로컬 기록했고 원격 push하지 않았다.
+
+### 안전 경계와 사용자 결정
+- D-52는 소스 전용 main 머지와 운영 Cloudflare Pages 자동 배포만 허용했다. `distribution/main-source-only.hold`, SessionStart/Release 차단, marketplace `313c04b` pin 및 D-39/D-50 사용자 홈 설치 HOLD를 유지한다. 이번 작업에서 모델·이미지·Grok Bot 호출, 결제 설정·자동충전 변경, 추가 과금은 없었다.
+- Simon은 구매 크레딧 잔액/사용 허용 설정을 더 묻거나 조회하지 말라고 했다. 사용 가능하다고 답했더라도 구매 크레딧을 사용해도 된다는 승인이 아니다. 추가 과금 $0, 구독 포함 usage만 사용하며 후속 실호출은 하지 않는다.
+- Simon은 Gstack 개인 설정을 바꾸지 않고 **각 `/vibe` 실행별 별도 상태 폴더에서 telemetry와 업데이트 확인을 OFF**로 하기를 선택했다. 이 실행별 격리는 **아직 구현하지 않았다**. 개인 Gstack 설정·시작/종료 telemetry 절차는 실행하지 않았다.
+- Simon은 약 5GB 로컬 이미지 모델 설치가 불필요하다고 했다. D: 다운로드·ComfyUI 모델 설치는 하지 않는다. 검증된 구독 포함 이미지 도구가 없으면 이미지 실생성 경로는 차단한다.
+
+### 다음 작업 큐
+| # | 작업 | 크기 | 권장 |
+|---|---|---|---|
+| A | Gstack의 `GSTACK_HOME`·업데이트 검사 경로를 읽기 전용으로 확인하고, 개인 설정을 보존하는 `/vibe` 실행별 telemetry/update OFF 격리 구현·오프라인 테스트 | 중간 | Simon이 선택한 다음 구현. 새 브랜치·별도 검증 후 결정 |
+| B | 실제 사용자 홈에 2.12.41을 설치할지 D-39/D-50의 자산 보존·명령 수락·롤백 게이트로 재판정 | 큼 | 소스 머지를 설치 완료로 오인 금지 |
+| C | 자연어 자동 선택·모델/effort·Grok Bot·이미지 경로의 실제 사용자 품질 검증 | 큼 | 구독 포함과 구매 크레딧 폴백 차단이 검증되지 않으면 실호출 금지 |
+
+### 핵심 파일과 검증
+```text
+skills-src/vibe/SKILL.md                         2.12.41 메인 스킬 설명·안전 경계
+skills-src/vibe/scripts/test_orchestrate.py       CI가 실행하는 48자 발견성 회귀
+docs/INSTALL.md                                   최종 후보 SHA-256과 설치 HOLD
+distribution/main-source-only.hold               자동 설치·릴리스 차단
+E:/Coding Infra/AI Infra/Communication/DECISIONS.md  D-52(로컬 기록)
+```
+```powershell
+git fetch origin main
+git show origin/main:docs/HANDOFF.md
+python -B .github/skill-ci/run_ci.py
+python -B skills-src/vibe/scripts/test_orchestrate.py
+```
+
+### 다음 세션 시작하는 법
+```powershell
+git fetch origin main
+git show origin/main:docs/HANDOFF.md
+# A부터 진행하되, Simon의 중단 요청 이후 자동 실호출·설치·결제 설정 변경은 하지 않는다.
+```
+
+---
+
+## 2026-10-01 / Claude·Codex CLI 계약 수정과 PR #78 인계
 
 갱신 시각: 2026-10-01 15:41:53 KST. Simon이 컨텍스트 부담을 이유로 `/simon-handoff`를 요청했다. 문서 작성 중 별도 작업 흐름에서 코드 PR #78이 머지되어 아래 상태를 다시 반영했다.
 
