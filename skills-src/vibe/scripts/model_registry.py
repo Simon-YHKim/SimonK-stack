@@ -162,6 +162,8 @@ def constrain_runtime(runtime, registry, now=None):
                                 "checked_at": registry["checked_at"]}
     for c in result.get("candidates", []):
         errors = []
+        # Only the registry may label a generation; a runtime claim never survives.
+        c.pop("generation", None)
         observations = [(c.get("observed_at"), RUNTIME_TTL_SECONDS),
                         (c.get("quota", {}).get("observed_at"), RUNTIME_TTL_SECONDS)]
         requested = c.get("requested_model", c.get("model"))
@@ -209,6 +211,9 @@ def constrain_runtime(runtime, registry, now=None):
                 c["requested_model"] = requested
                 c["model"] = model["id"]
                 c["model_id_namespace"] = model["id_namespace"]
+                if model.get("generation"):
+                    # Among equally ranked routes the planner prefers non-legacy.
+                    c["generation"] = model["generation"]
                 # Exact requested IDs do not prove which model actually ran.
                 c.setdefault("resolved_model", None)
                 c["registry_sources"] = [registry["sources"][name] for name in model["sources"]]

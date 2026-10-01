@@ -39,6 +39,18 @@ Available models:
   * grok-4.6 (default)
 """
 
+# Shape printed by grok 1.0.46 `--no-auto-update models` on 2026-10-02.
+GROK_1046_MODEL_LIST = """You are logged in with grok.com.
+
+Default model: grok-4.7
+
+Available models:
+  * grok-4.7 (default)
+  - grok-4.7-build-fast
+  - grok-4.6
+  - grok-4.5
+"""
+
 
 def agy_raw():
     return {"status": "SUCCESS", "num_turns": 0,
@@ -158,6 +170,21 @@ class RuntimeCollectionTests(unittest.TestCase):
         self.assertTrue(all(entry["transport_efforts"] == [] for entry in out["models"]))
         candidates = self.m.snapshot([out], NOW)["candidates"]
         self.assertIn("grok-4.7", {entry["model"] for entry in candidates})
+        self.assertTrue(all(not entry["available"] and not entry["billing"]["verified"]
+                            for entry in candidates))
+
+    def test_grok_1046_listing_yields_only_registered_public_api_models(self):
+        raw = grok_raw()
+        raw["_grok_models_text"] = GROK_1046_MODEL_LIST
+        out = self.parse("grok", raw)
+        self.assertEqual([entry["model"] for entry in out["models"]],
+                         ["grok-4.7", "grok-4.7-build-fast", "grok-4.6", "grok-4.5"])
+        candidates = self.m.snapshot([out], NOW)["candidates"]
+        # grok-4.7-build-fast is a CLI-only 2x-price serving tier, not a registry ID.
+        self.assertEqual({entry["model"] for entry in candidates}, {"grok-4.7", "grok-4.6", "grok-4.5"})
+        legacy = next(entry for entry in candidates if entry["model"] == "grok-4.5")
+        self.assertEqual(legacy["provider_efforts"], ["low", "medium", "high"])
+        self.assertEqual(legacy["transport_efforts"], [])
         self.assertTrue(all(not entry["available"] and not entry["billing"]["verified"]
                             for entry in candidates))
 

@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan and reports blocked coding or image routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.42
+version: 2.12.43
 author: simon-stack
 ---
 
@@ -126,10 +126,10 @@ a model name or benchmark headline.
 
 | Deliverable | Advisory starting points, never active routes | Initial reasoning |
 | --- | --- | --- |
-| Architecture / ambiguous plan | Claude Opus 5.5 or GPT-6 Astra | reasoning; critical only for consequential, falsifiable decisions |
-| Difficult, multi-file coding | Claude Opus 5.5 or GPT-6 Astra; scoped Sonnet 5.5 if it meets the quality floor | reasoning; escalate after bounded failure or demonstrated risk |
-| Focused bug fix | Claude Sonnet 5.5 or GPT-6 Sol | routine, then raise only if tests or ambiguity require it |
-| Polished writing | Claude Sonnet 5.5; Opus 5.5 for complex judgment; GPT-6 Sol when eligible | reasoning, not automatic max |
+| Architecture / ambiguous plan | Claude Opus 5.5 or GPT-6 Astra; GPT-6.1 Sol as the lower-cost near-Astra option | reasoning; critical only for consequential, falsifiable decisions |
+| Difficult, multi-file coding | Claude Opus 5.5 or GPT-6 Astra; GPT-6.1 Sol or scoped Sonnet 5.5 if it meets the quality floor | reasoning; escalate after bounded failure or demonstrated risk |
+| Focused bug fix | Claude Sonnet 5.5, GPT-6.1 Sol or GPT-6 Sol | routine, then raise only if tests or ambiguity require it |
+| Polished writing | Claude Sonnet 5.5; Opus 5.5 for complex judgment; GPT-6.1 Sol or GPT-6 Sol when eligible | reasoning, not automatic max |
 | Bulk transform | Deterministic software first; then an eligible light model such as GPT-6 Luna | routine |
 | Image creation/editing | A real image-generation skill/tool with verified subscription inclusion | tool-managed; text models only plan or critique |
 | Recent X discourse | Verified Grok CLI or current-host browsing, corroborated with primary sources | reasoning if controllable |
@@ -373,8 +373,7 @@ this renewal path. Expired or unresolved work never authorizes a replacement run
 
 The generated table is historical compatibility policy, not present-day availability, and cannot bypass central guards.
 
-Read the [generated legacy Orca routing table](references/legacy-routing.md) only for historical policy.
-The current registry, runtime and transport/account guards decide present-day routes.
+Read the [generated legacy Orca routing table](references/legacy-routing.md) only for historical policy; the current registry, runtime and transport/account guards decide present-day routes.
 
 ## Verification and references
 
@@ -400,6 +399,7 @@ legacy CLI entrypoints now blocks bytecode before their first local import;
 module imports by other callers still need the caller's own no-bytecode policy.
 
 - [Orchestration schema and cost policy](references/orchestration.md)
+- [Model catalog map, 2026-10-02 refresh and pending Orca lane migration](references/model-catalog-map.md)
 - [Guarded Orca workflow and preparation limits](references/orca-workflow.md)
 - [D-28 route decisions](references/d28-routing.md)
 - [Astra effort transport cap](references/v2.2-astra-effort-cap.md)

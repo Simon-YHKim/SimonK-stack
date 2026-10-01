@@ -212,8 +212,8 @@ def shadow_task_fit(step, choices, active, fit_policy, now):
         entry = ranks.get((exact_model, effort))
         match_count += entry is not None
         score = (amount, candidate["quota"]["used_pct"] > 80,
-                 entry["rank"] if entry is not None else 99,
-                 candidate["resource_rank"], candidate["quota"]["used_pct"], candidate["id"])
+                 entry["rank"] if entry is not None else 99, candidate["resource_rank"],
+                 candidate.get("generation") == "legacy", candidate["quota"]["used_pct"], candidate["id"])
         scored.append((score, candidate, effort, entry))
     if not match_count:
         result["status"] = "no-matched-evidence"
@@ -1235,8 +1235,9 @@ def make_plan(request, catalog, runtime, now=None, registry=None, task_fit_polic
                     continue
                 # Monetary bounds first. Within a subscription, prefer low quota
                 # pressure and the declared resource rank, not fabricated prices.
-                score = (amount, c["quota"]["used_pct"] > 80,
-                         c.get("resource_rank", 100), c["quota"]["used_pct"], c["id"])
+                # A registry "legacy" label loses to an equally ranked current model.
+                score = (amount, c["quota"]["used_pct"] > 80, c.get("resource_rank", 100),
+                         c.get("generation") == "legacy", c["quota"]["used_pct"], c["id"])
                 choices.append((score, c, effort, amount))
             if not choices:
                 errors.append("NO_ELIGIBLE_ROUTE")

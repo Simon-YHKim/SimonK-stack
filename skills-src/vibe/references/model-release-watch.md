@@ -114,7 +114,9 @@ and [Sonnet 5.5](https://www.anthropic.com/claude-sonnet-5-5) releases,
 and [Artificial Analysis's Opus](https://artificialanalysis.ai/articles/claude-opus-5-5/)
 and [Sonnet](https://artificialanalysis.ai/articles/claude-sonnet-5-5) evaluations.
 Their benchmark harnesses and efforts differ; AA's API token use is a quota
-pressure clue, not subscription pricing. Recent direct X posts were not
+pressure clue, not subscription pricing. On 2026-10-02 the policy's nine sources,
+including GPT-6.1 Sol's model page and AA article, were re-read without a model
+call; the cited claims and the shadow ranks are unchanged. Recent direct X posts were not
 readable without access controls, so no unverified X opinion became a rule.
 For well-scoped complex coding, Opus 5.5 at `medium` is a **shadow-only**
 effort hypothesis: Anthropic reports a strong FrontierCode result at its

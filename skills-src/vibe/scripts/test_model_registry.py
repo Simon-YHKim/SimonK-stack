@@ -9,7 +9,29 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 SCRIPT = Path(__file__).with_name("model_registry.py")
+REFERENCES = SCRIPT.parent.parent / "references"
 NOW = "2026-09-23T13:00:00+00:00"
+
+
+def catalog_map_section(heading):
+    text = (REFERENCES / "model-catalog-map.md").read_text(encoding="utf-8")
+    return text.split("## " + heading, 1)[1].split("\n## ", 1)[0]
+
+
+def catalog_map_rows():
+    """CLI-name table rows: surface, CLI catalog name, registry ID, effort carried by the name."""
+    rows = []
+    for line in catalog_map_section("CLI name map").splitlines():
+        if line.startswith("| `"):
+            rows.append([cell.strip().strip("`") for cell in line.strip().strip("|").split("|")][:4])
+    return rows
+
+
+def routing_lanes():
+    tree = ast.parse(SCRIPT.with_name("routing.py").read_text(encoding="utf-8"))
+    lanes = next(node.value for node in tree.body if isinstance(node, ast.Assign)
+                 and any(isinstance(target, ast.Name) and target.id == "LANES" for target in node.targets))
+    return {key.value for key in lanes.keys}
 
 
 def registry():
@@ -249,10 +271,7 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertIn("ALIAS_RESOLUTION_UNVERIFIED", result["registry_errors"])
 
     def test_every_legacy_lane_has_an_explicit_migration_disposition(self):
-        tree = ast.parse(SCRIPT.with_name("routing.py").read_text(encoding="utf-8"))
-        lanes = next(node.value for node in tree.body if isinstance(node, ast.Assign)
-                     and any(isinstance(target, ast.Name) and target.id == "LANES" for target in node.targets))
-        expected = {key.value for key in lanes.keys}
+        expected = routing_lanes()
         data = self.m.load_registry()
         self.assertEqual(set(data["legacy_lane_migration"]), expected)
         self.assertTrue(expected <= {m["id"] for m in data["models"]})
@@ -279,6 +298,117 @@ class ModelRegistryTests(unittest.TestCase):
             wrong = copy.deepcopy(c)
             wrong["access_proof"].update(change)
             self.assertFalse(self.bind(wrong, data)["candidates"][0]["available"])
+
+    def test_registry_and_task_fit_windows_cover_the_2026_10_02_recheck(self):
+        # The 2026-09-29 facts expired REGISTRY_STALE on 2026-10-06 04:03 KST.
+        data = self.m.load_registry()
+        policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
+        floor = datetime.fromisoformat("2026-10-02T00:00:00+09:00")
+        checked = datetime.fromisoformat(data["checked_at"])
+        self.assertGreaterEqual(checked, floor)
+        self.assertGreaterEqual(datetime.fromisoformat(policy["checked_at"]), floor)
+        earliest = min(checked + timedelta(seconds=self.m.MAX_FACT_AGE_SECONDS),
+                       datetime.fromisoformat(policy["valid_until"]))
+        self.assertGreaterEqual(earliest, datetime.fromisoformat("2026-10-09T00:00:00+09:00"))
+
+    def test_grok_45_is_registered_without_its_unverified_xhigh(self):
+        data = self.m.load_registry()
+        model = next(m for m in data["models"] if m["id"] == "grok-4.5")
+        self.assertEqual((model["surface"], model["lifecycle"], model["generation"]),
+                         ("grok", "active", "legacy"))
+        self.assertEqual(model["api_efforts"], ["low", "medium", "high"])
+        observed_at = data["checked_at"]
+        trial = candidate(surface="grok", model="grok-4.5", observed_at=observed_at,
+                          provider_efforts=["low", "high", "xhigh"], transport_efforts=["high", "xhigh"],
+                          quota={"used_pct": None, "observed_at": observed_at})
+        out = self.m.constrain_runtime({"candidates": [trial]}, data, observed_at)["candidates"][0]
+        self.assertEqual(out["registry_errors"], [])
+        self.assertEqual(out["provider_efforts"], ["low", "high"])
+        self.assertEqual(out["transport_efforts"], ["high"])
+
+    def test_registry_generation_reaches_the_candidate_and_replaces_runtime_claims(self):
+        # The planner can prefer a current model only if the registry label survives binding.
+        data = self.m.load_registry()
+        observed_at = data["checked_at"]
+        for model_id, claimed, expected in (("grok-4.5", None, "legacy"), ("grok-4.5", "current", "legacy"),
+                                            ("grok-4.7", None, None), ("grok-4.7", "legacy", None)):
+            with self.subTest(model=model_id, claimed=claimed):
+                trial = candidate(surface="grok", model=model_id, observed_at=observed_at,
+                                  quota={"used_pct": None, "observed_at": observed_at})
+                if claimed is not None:
+                    trial["generation"] = claimed
+                out = self.m.constrain_runtime({"candidates": [trial]}, data, observed_at)["candidates"][0]
+                self.assertEqual(out["registry_errors"], [])
+                if expected is None:
+                    self.assertNotIn("generation", out)
+                else:
+                    self.assertEqual(out["generation"], expected)
+        for trial in (candidate(model="gpt-made-up", generation="current"),
+                      candidate(surface="grok-bot", model=None, generation="legacy")):
+            with self.subTest(surface=trial["surface"], model=trial["model"]):
+                self.assertNotIn("generation", self.bind(trial)["candidates"][0])
+
+    def test_previous_generations_stay_active_and_are_labelled_legacy(self):
+        models = {m["id"]: m for m in self.m.load_registry()["models"]}
+        for model_id in ("claude-opus-5", "claude-sonnet-5", "gpt-5.6-sol", "gpt-5.6-terra",
+                         "gpt-5.6-luna", "grok-4.6", "grok-4.5"):
+            with self.subTest(model=model_id):
+                self.assertEqual(models[model_id].get("generation"), "legacy")
+                self.assertEqual(models[model_id]["lifecycle"], "active")
+        for model_id in ("claude-fable-5-1", "claude-opus-5-5", "claude-sonnet-5-5",
+                         "gpt-6.1-sol", "gpt-6-astra", "grok-4.7"):
+            with self.subTest(model=model_id):
+                self.assertNotIn("generation", models[model_id])
+
+    def test_cli_only_catalog_names_are_mapped_but_never_registered(self):
+        data = self.m.load_registry()
+        models = {m["id"]: m for m in data["models"]}
+        keys = {key for m in data["models"] for key in [m["id"], *m.get("aliases", [])]}
+        rows = catalog_map_rows()
+        self.assertTrue({"grok-4.7-build-fast", "gemini-3.8-flash-high", "gemini-3.8-flash-medium",
+                         "gemini-3.8-flash-low", "gemini-3.1-pro-high", "gemini-3.1-pro-low",
+                         "claude-haiku-4-5-20251001"} <= {row[1] for row in rows})
+        for surface, name, target, effort in rows:
+            with self.subTest(name=name):
+                self.assertNotIn(name, keys)
+                if target != "unregistered":
+                    self.assertEqual(models[target]["surface"], surface)
+                    self.assertIn(effort, models[target]["api_efforts"])
+        observed_at = data["checked_at"]
+        for surface, name in (("grok", "grok-4.7-build-fast"), ("antigravity", "gemini-3.8-flash-high"),
+                              ("claude", "claude-haiku-4-5-20251001")):
+            with self.subTest(runtime=name):
+                trial = candidate(surface=surface, model=name, observed_at=observed_at,
+                                  quota={"used_pct": None, "observed_at": observed_at})
+                out = self.m.constrain_runtime({"candidates": [trial]}, data, observed_at)["candidates"][0]
+                self.assertFalse(out["available"])
+                self.assertIn("MODEL_NOT_REGISTERED", out["registry_errors"])
+
+    def test_pending_lane_migration_names_every_active_model_without_an_orca_lane(self):
+        data = self.m.load_registry()
+        unlaned = {m["id"] for m in data["models"] if m["lifecycle"] == "active"} - routing_lanes()
+        self.assertTrue({"claude-opus-5-5", "claude-sonnet-5-5", "gpt-6.1-sol", "grok-4.7"} <= unlaned)
+        pending = catalog_map_section("Lane migration pending")
+        self.assertIn("ORCA_UNREGISTERED_PROCESS_OR_MODEL", pending)
+        for model_id in sorted(unlaned):
+            with self.subTest(model=model_id):
+                self.assertIn("`" + model_id + "`", pending)
+
+    def test_catalog_map_states_lane_dispositions_and_legacy_routing_as_built(self):
+        migration = self.m.load_registry()["legacy_lane_migration"]
+        keep = sorted(k for k, v in migration.items() if v["status"].startswith("keep-"))
+        self.assertEqual(len(keep) + sum(v["status"].startswith("pending-") for v in migration.values()),
+                         len(migration))
+        self.assertTrue(keep)
+        pending = " ".join(catalog_map_section("Lane migration pending").split())
+        self.assertNotIn("every `legacy_lane_migration` entry is still pending", pending)
+        for model_id in keep:
+            with self.subTest(keep=model_id):
+                self.assertIn("`" + model_id + "`", pending)
+        # Host routes can pick a legacy model; the map must not say registration never routes.
+        text = (REFERENCES / "model-catalog-map.md").read_text(encoding="utf-8")
+        self.assertNotIn("Registration is not routing", text)
+        self.assertIn("generation: legacy", " ".join(catalog_map_section("Registered legacy entries").split()))
 
 
 if __name__ == "__main__":

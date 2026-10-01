@@ -29,6 +29,10 @@ work within its actual capabilities, without claiming a model/effort switch.
 For example, an Orca plan requiring the legacy fixed ultracode synthesis lane
 cannot currently pass the supported-adapter boundary. Do not substitute another
 lane to claim the whole plan is executable; report the policy/adapter mismatch.
+Lane migration to current-generation models is pending a separate decision
+(`references/model-catalog-map.md`); until `routing.LANES` changes, Orca
+dispatch to claude-opus-5-5, claude-sonnet-5-5, gpt-6.1-sol, gpt-6-sol,
+gpt-6-luna, grok-4.7 or grok-4.5 is rejected as ORCA_UNREGISTERED_PROCESS_OR_MODEL.
 
 Legacy live functions `run_dispatch`, `run_codex_exec`,
 `validate_and_dispatch`, `probe_orca_efforts` and adversarial live
