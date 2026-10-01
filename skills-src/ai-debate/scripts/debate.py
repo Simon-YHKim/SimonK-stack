@@ -1707,7 +1707,10 @@ def status_text(st):
     for issue in st["judge"]["issues"]:
         lines.append("  JUDGE INVALID: " + issue)
     for row in st["absent"]:
-        lines.append("  catch-up duty: %s (%s)" % (row["display"], row["reason"]))
+        if row["vendor"] in st["catchup"]:
+            lines.append("  catch-up done: %s %s" % (row["display"], st["catchup"][row["vendor"]]))
+        else:
+            lines.append("  catch-up duty: %s (%s)" % (row["display"], row["reason"]))
     for row in st["objections"]:
         lines.append("  OBJECTION %s/%s: %s" % (row["round"], DISPLAY[row["vendor"]], row["text"]))
     for row in st["unresolved"]:

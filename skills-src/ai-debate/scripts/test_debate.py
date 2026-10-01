@@ -883,6 +883,19 @@ class DebateTests(unittest.TestCase):
         current = self.status()
         self.assertEqual((current["state"], current["via"], current["attendance"]), ("FINAL", "catch-up", 3))
 
+    def test_status_text_separates_finished_and_pending_catchup(self):
+        self.new()
+        for vendor in ("anthropic", "google"):
+            self.answer("dbt-test", "r1", vendor, r1_answer(vendor))
+        self.write_codex(100, NOW + timedelta(days=5), True)
+        self.run_cli("call", "--id", "dbt-test", "--round", "r1", "--vendor", "openai")
+        self.answer("dbt-test", "judge", "google", JUDGE_ANSWER)
+        self.answer("dbt-test", "catchup", "xai", "ACCEPT\n## 내 독립 입장\n선택지 1\n")
+        text = self.run_cli("status", "--id", "dbt-test")[1]
+        self.assertIn("catch-up done: Grok ACCEPT", text)
+        self.assertIn("catch-up duty: Codex", text)
+        self.assertNotIn("catch-up duty: Grok", text)
+
     def test_tiebreak_resolves_one_objection_and_two_reopen(self):
         self.new(mode="quick")
         for vendor in ("anthropic", "xai", "google"):
