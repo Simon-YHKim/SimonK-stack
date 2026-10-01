@@ -4,23 +4,24 @@
 
 ## 2026-10-01 `/vibe` 2.12.41 설명 축약 대응 후보 — 기본 설치 보류
 
-소스 커밋 `997b2a82971a1f81aaa9a96bf119be87ed016240`에서 이전 후보와 별도의
-`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-21241-candidate/`를 조립했다.
+소스 커밋 `493c659`에서 이전 후보와 별도의
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-21241-ci-candidate/`를 조립했다.
 고정한 다섯 원본 플러그인 커밋은 `distribution/plugin-inputs.v1.json`과 같다.
 원본 저장소와 기존 2.12.40 후보·격리 프로필은 변경하지 않았다.
 
 | 패키지 | SHA-256 영수증 | 범위 |
 | --- | --- | --- |
-| `source` | `a95d90f051a5d1e8f9a383a0d06e4528c473d679319aeebea0a2e66c2872efe4` | 137스킬·424파일 |
-| `candidate-safety` | `d933f01c4c7d7c1135f06c7930acb59d4357d10fb84928ca59f2d64cf7030449` | Claude 5플러그인·182스킬·753파일 |
-| `codex-overlay-safety` | `e3a7f4db49537bb8f5ad0a838b1a0c4aeda4346669bace8966d385cb16d9a8ce` | Codex 호환 오버레이 |
-| `codex-subset-safety` | `879de7b7fd82d084f8151267ed131a68cf9bd3617ff4b3a441a6303f02170f72` | Codex 안전 부분집합 177스킬 |
+| `source` | `cbcaca111c0cfe88cf81d94dac2541c3239ec219d2a7c7d5c3b464b3d6b4d5f6` | 137스킬·424파일 |
+| `candidate-safety` | `88992ae8b699b63758a324c06c2cc050613b0c31698f37cd5411f740edeea800` | Claude 5플러그인·182스킬·753파일 |
+| `codex-overlay-safety` | `70267105f73a76547fcbd4fac3a0ee1903063bb2e3226b0fd34a1ef274ac7fb9` | Codex 호환 오버레이 |
+| `codex-subset-safety` | `9231afee8009321b7dd0748d2af9d8b2b2c25a23dd74087ca5cc804e035be7ca` | Codex 안전 부분집합 177스킬 |
 
 네 영수증을 각 검증기로 다시 확인했다. `/vibe` 오프라인 라우팅 검사
 131/131, 자체검사 180/180, 후보 런타임 probe 4/4 및 스킬 validator
 0 error/0 warning이 통과했다. 이전 2.12.40 후보와의 버전 정규화 비교에서
-실제 스킬 파일 변경은 Core `skills/vibe/SKILL.md` 하나뿐이었다. 현재 PC의
-별도 Codex 무인증 프로필에 새 후보 플러그인 5개를 설치해 모델 미호출
+실제 스킬 파일 변경은 Core `skills/vibe/SKILL.md`와 회귀 테스트
+`skills/vibe/scripts/test_orchestrate.py` 두 개뿐이었다. 현재 PC의
+별도 Codex 무인증 프로필에 앞선 2.12.41 후보 플러그인 5개를 설치해 모델 미호출
 `debug prompt-input`을 검사한 결과 181개 스킬 중 namespaced
 `simonk-core:vibe`·`simonk-core:vibe-bot`가
 각각 한 번 노출됐고, 축약된 `/vibe` 설명은
