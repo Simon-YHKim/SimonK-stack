@@ -4,17 +4,17 @@
 
 ## 2026-10-01 `/vibe` 2.12.41 설명 축약 대응 후보 — 기본 설치 보류
 
-소스 커밋 `493c659`에서 이전 후보와 별도의
-`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-21241-ci-candidate/`를 조립했다.
+소스 커밋 `9a49365`에서 이전 후보와 별도의
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-21241-quality-candidate/`를 조립했다.
 고정한 다섯 원본 플러그인 커밋은 `distribution/plugin-inputs.v1.json`과 같다.
 원본 저장소와 기존 2.12.40 후보·격리 프로필은 변경하지 않았다.
 
 | 패키지 | SHA-256 영수증 | 범위 |
 | --- | --- | --- |
-| `source` | `cbcaca111c0cfe88cf81d94dac2541c3239ec219d2a7c7d5c3b464b3d6b4d5f6` | 137스킬·424파일 |
-| `candidate-safety` | `88992ae8b699b63758a324c06c2cc050613b0c31698f37cd5411f740edeea800` | Claude 5플러그인·182스킬·753파일 |
-| `codex-overlay-safety` | `70267105f73a76547fcbd4fac3a0ee1903063bb2e3226b0fd34a1ef274ac7fb9` | Codex 호환 오버레이 |
-| `codex-subset-safety` | `9231afee8009321b7dd0748d2af9d8b2b2c25a23dd74087ca5cc804e035be7ca` | Codex 안전 부분집합 177스킬 |
+| `source` | `8beeada95c0a0c7a7581701bc394d65bfeffa6e2fce7cfd7975479ced7b3fb4a` | 137스킬·424파일 |
+| `candidate-safety` | `09ff36f49f15a2ac92426e889eaf7b4fb2b6d9ffe043b2b8a0668f541e149782` | Claude 5플러그인·182스킬·753파일 |
+| `codex-overlay-safety` | `b852e17df14f14c027a5d3059ba7ec299e1b8800b44f294b6633a5dde2896bbc` | Codex 호환 오버레이 |
+| `codex-subset-safety` | `b6930526b3118e53cf890b934a47da6ceb0e818fd897a544e5bd4683f29b6970` | Codex 안전 부분집합 177스킬 |
 
 네 영수증을 각 검증기로 다시 확인했다. `/vibe` 오프라인 라우팅 검사
 131/131, 자체검사 180/180, 후보 런타임 probe 4/4 및 스킬 validator
