@@ -124,7 +124,7 @@ CALL: CONTINUE | CALL: RESCOPE | CALL: SHIP_NOW | CALL: STOP | CALL: ASK_USER
 
 """
 R2_INSTR = """## 지시
-당신은 1라운드에서 위 렌즈로 독립 입장을 냈다. 그 원문은 싣지 않았다. 다른 위원의 입장만 보고 다시 판단한다.
+당신은 1라운드에서 위 렌즈로 "당신의 1라운드 입장"을 냈다. 다른 위원의 익명 입장을 보고 다시 판단한다.
 첫 줄: 렌즈에 따른 입장을 유지하면 "UNCHANGED", 바꾸면 "REVISED: <새 입장 한 줄 + 확신도>".
 이어서 다음 섹션을 쓴다.
 
@@ -1266,6 +1266,11 @@ def build_prompt(folder, agenda, rnd, vendor, cap=PROMPT_CAP):
                                       % (lens, LENS_KO[lens])), False),
                   ("lens", "## 렌즈\n" + LENS_TEXT[lens] + "\n\n", False)]
         blocks += agenda_blocks(agenda)
+        # A fresh-session seat cannot remember round 1, so its own stance travels in its own
+        # section; it never joins the anonymized list.
+        own = take("r1", vendor)
+        if own is not None:
+            blocks.append(("own", "## 당신의 1라운드 입장\n%s\n\n" % own.strip(), True))
         blocks.append(("positions_head", "## 다른 위원의 1라운드 입장 (익명)\n", False))
         mapping = {}
         for i, other in enumerate(others):

@@ -689,18 +689,24 @@ class DebateTests(unittest.TestCase):
                      "90분째 열린 턴"):
             self.assertIn(item, text)
 
-    def test_r2_prompt_hides_own_text_and_vendor_names(self):
+    def test_r2_prompt_shows_own_position_apart_and_hides_vendor_names(self):
         self.new()
         for vendor in ("anthropic", "openai", "google"):
             self.answer("dbt-test", "r1", vendor, r1_answer(MARK[vendor]))
         self.run_cli("prompt", "--id", "dbt-test", "--round", "r2", "--vendor", "openai")
         path = self.folder() / "rounds" / "r2" / "openai.prompt.md"
         text = path.read_text(encoding="utf-8")
-        self.assertNotIn(MARK["openai"], text)
-        self.assertIn(MARK["anthropic"], text)
-        self.assertIn(MARK["google"], text)
+        # A fresh-session seat must see its own round-1 stance to answer UNCHANGED/REVISED,
+        # but only in its own section, never among the anonymized positions.
+        own, others = text.split("## 다른 위원의 1라운드 입장 (익명)", 1)
+        self.assertIn("## 당신의 1라운드 입장", own)
+        self.assertIn(MARK["openai"], own)
+        self.assertNotIn(MARK["openai"], others)
+        self.assertIn(MARK["anthropic"], others)
+        self.assertIn(MARK["google"], others)
         self.assertIn("### 입장 A", text)
         self.assertIn("### 입장 B", text)
+        self.assertNotIn("### 입장 C", text)
         self.assertIsNone(VENDOR_WORDS.search(text))
         expected = sorted(["anthropic", "google"],
                           key=lambda v: hashlib.sha256(("dbt-test:openai:r2:" + v).encode()).hexdigest())
@@ -782,7 +788,8 @@ class DebateTests(unittest.TestCase):
         self.run_cli("prompt", "--id", "dbt-test", "--round", "r2", "--vendor", "anthropic")
         rc, _out, err = self.run_cli(*argv)
         self.assertEqual(rc, 0, err)
-        self.assertEqual(self.meta("r2", "anthropic")["inputs"]["present"], ["google", "openai"])
+        # The seat's own round-1 answer is an input too (shown in its own section).
+        self.assertEqual(self.meta("r2", "anthropic")["inputs"]["present"], ["anthropic", "google", "openai"])
 
     # ------------------------------------------------------------ parsing
     def test_call_and_verdict_parsing_tolerates_markdown(self):
