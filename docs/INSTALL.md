@@ -2,6 +2,39 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
+## 2026-10-01 `/vibe` 2.12.40 정확한 main 격리 후보 — 설치 보류
+
+[PR #80](https://github.com/Simon-YHKim/SimonK-stack/pull/80)의 일반 머지
+`102b48740f68f446dca6fab4ecc97d1bd96d149c`에서 별도 격리 소스
+worktree를 만들고, 고정된 5개 플러그인 입력으로 새 후보를 조립했다.
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-main-102b487-candidate/`
+아래에 있으며 이전 후보와 사용자 프로필은 보존했다.
+
+| 패키지 | SHA-256 영수증 | 범위 |
+| --- | --- | --- |
+| `source` | `85e9fd2767cdf83d7ee5e8b217ed813e4089322f64d94736c747b8c3ad84d815` | 137스킬·424파일 |
+| `candidate-safety` | `3d5661efb3126656049a6111497f4ff5893e2a7e88a1d7119ba9f3743f850310` | Claude 5플러그인·182스킬·753파일 |
+| `codex-overlay-safety` | `11ae3f533f34dfeaa38355be24f0f573f60d888ba2a59125d14e24451888f09a` | Codex 호환 오버레이 |
+| `codex-subset-safety` | `a63f24560927c6950f9fa2669a03600e5e617a9dd6b15d7164d8afc41a9ff603` | Codex 안전 부분집합 177스킬 |
+
+이 영수증은 복사된 후보 바이트와 출처 연결을 확인하지만 Git 커밋 자체의
+독립 서명은 아니다. 빌드 전 작업트리는 위 `main` 커밋에서 깨끗했고,
+소스 매니페스트의 424개 `source_path`는 현재 체크아웃과 해시가 일치한다.
+
+네 패키지의 별도 바이트 재검증과 subset 출처 검증, 오프라인 `/vibe`
+selftest·runtime·prepare·table-sync 4단계가 통과했다. 실제 사용자 프로필의
+읽기 전용 사전검사는 핵심 링크 8/8과 후보 바이트 4/4를 확인했으나 전체
+flat 본문 일치는 Claude 4/182·Codex 4/177이다. 기존 Claude 물리 폴더에는
+후보에 없는 보조 파일 224개가 있어 일괄 교체하면 자산 손실 위험이 있다.
+현재 네이티브 플러그인 등록은 Claude·Codex 모두 후보 5개 중 0개다.
+
+`installation_ready=false`, `host_compatibility_verified=false`,
+`runtime_closure_verified=false`, `billing_verified=false`다. 이 후보는
+Claude/Codex 실제 선택·모델/effort·구독 청구, 이미지 생성, Grok Bot 전달,
+Antigravity/Grok CLI 실행을 입증하지 않는다. D-39의 사용자 홈 설치 NO-GO와
+소스 전용 release/SessionStart hold, marketplace pin을 유지한다. 사용자 flat
+정션·플러그인 등록·결제 설정은 변경하지 않았다.
+
 ## 2026-10-01 `/vibe` 2.12.37 동시 Orca 기준선 갱신 보호
 
 Claude·Codex가 같은 외부 기준선을 동시에 보고하거나 확인할 때 2.12.36은
