@@ -23,9 +23,18 @@
 네 영수증 재검증, 오프라인 probe 4/4, `/vibe` 단위 테스트 327건,
 자체 점검 180항목, 스킬 품질 141/141, 라우팅 표 동기화가 통과했다.
 고정 플러그인 커밋을 별도 복제본에서 포장했으며 원본 저장소의 브랜치나
-사용자 설치본을 바꾸지 않았다. 새 후보의 무인증 Sandbox 적재·복원은
-아직 실행하지 않았고 이전 2.12.31 결과를 이월하지 않는다. 실제 구독 청구,
-모델·이미지·Bot 호출, 자동 선택 품질과 전체 외부 런타임도 미검증이다.
+사용자 설치본을 바꾸지 않았다. 정확한 새 후보의 별도 Windows Sandbox
+두 곳에서 네트워크·클립보드·장치 리디렉션과 인증정보 없이 적재·복원을
+단발 검증했다. Claude Code 2.1.285는 5플러그인·182스킬·디버그 오류0,
+Codex CLI 0.155.0은 5플러그인 활성. 두 게스트 모두 이전 링크 Claude5·
+Codex2개를 두 번 복원하고 시험 플러그인 최종0, 활성 네트워크0·모델 생성0이었다.
+두 게스트 종료 후 `wsb.exe list --raw`는 빈 목록이고 네 후보 영수증도
+다시 일치했다. 원시 결과는 후보 `host-rehearsal/claude-output/integrated-result.json`
+(SHA-256 `36855567b0c16b691de5806fbdfe94dd925204884138cdf2a0b7624f708e4651`)과
+`host-rehearsal/codex-output/codex-integrated-result.json`
+(SHA-256 `69db36700cbadd2ef02f1a7a84c33c738b1d4dbebe6da8bf2e7e8e52c960ae8f`)이다.
+이것은 무인증 호스트 적재·복원만 증명하며 실제 구독 청구,
+모델·이미지·Bot 호출, 자동 선택 품질과 전체 외부 런타임은 미검증이다.
 `installation_ready=false`, `host_compatibility_verified=false`,
 `runtime_closure_verified=false`를 유지한다. PR #68·#69의 독립 리뷰와
 §35 별도 심판 D-code 없이 `main` 머지하지 않는다.
