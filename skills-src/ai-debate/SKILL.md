@@ -1,7 +1,7 @@
 ---
 name: ai-debate
 description: Use when a decision is important, contested or irreversible, or when an agent has been handling one task too long and needs a mid-course challenge — triggers "토론 붙여", "다관점으로 결정", "이거 합의 보자", "찬반 검토", "AI들끼리 토론", "겐세이", "중간 점검", "너무 오래 걸려", "debate this", "interject", or /ai-debate. MANDATORY for PROTOCOL §35.1 triggers. Always seats all four vendors — Claude, Codex (OpenAI), Grok (xAI) and Gemini (Google, via the Antigravity agy CLI) — through scripts/debate.py at $0 extra cost; an unreachable seat is recorded as absent with evidence and must catch up later, never simulated by another vendor. Runs positions, cross-examination, a blind separate judge and ratification, then Produces a D-code entry in the hub DECISIONS.md; interject mode Produces a 겐세이 card.md for the running agent.
-version: 0.2.0
+version: 0.2.1
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Agent
 compatibility:
   - claude-code
