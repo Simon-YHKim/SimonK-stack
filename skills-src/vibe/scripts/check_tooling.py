@@ -30,13 +30,49 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 
 SKILL_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATE_DIR = os.path.join(SKILL_ROOT, "state")
-SNAPSHOT = os.path.join(STATE_DIR, "orca-skills.json")
 
 UNKNOWN = "미확인"
+
+
+def _snapshot_path():
+    """Keep mutable Orca state outside the versioned, receipt-verified skill."""
+    base = (os.environ.get("LOCALAPPDATA") if os.name == "nt" else
+            os.environ.get("XDG_STATE_HOME") or
+            os.path.join(os.path.expanduser("~"), ".local", "state"))
+    if not base or not os.path.isabs(base):
+        raise OSError("사용자 상태 폴더를 확인할 수 없다")
+    path = os.path.realpath(os.path.join(base, "SimonKStack", "vibe", "orca-skills.json"))
+    skill = os.path.realpath(SKILL_ROOT)
+    try:
+        if os.path.commonpath((os.path.normcase(path), os.path.normcase(skill))) == os.path.normcase(skill):
+            raise OSError("스킬 패키지 안에는 상태를 기록할 수 없다")
+    except ValueError:  # different Windows drives cannot have a common path
+        pass
+    return path
+
+
+def _read_snapshot(path):
+    if os.path.islink(path) or os.path.getsize(path) > 65536:
+        raise ValueError("스냅샷이 링크이거나 너무 크다")
+    with open(path, "r", encoding="utf-8") as source:
+        doc = json.load(source)
+    if (not isinstance(doc, dict) or not isinstance(doc.get("skills"), dict)
+            or not all(isinstance(k, str) and isinstance(v, str)
+                       for k, v in doc["skills"].items())
+            or not isinstance(doc.get("pending", {}), dict)):
+        raise ValueError("스냅샷 형식이 잘못됐다")
+    pending = doc.get("pending") or {}
+    if pending and (not isinstance(pending.get("first_seen"), str)
+                    or not isinstance(pending.get("seen_count"), int)
+                    or any(not isinstance(pending.get(key), list)
+                           or not all(isinstance(item, str) for item in pending[key])
+                           for key in ("added", "removed", "changed"))):
+        raise ValueError("미확인 변경 형식이 잘못됐다")
+    return doc
 
 
 def _resolve(argv):
@@ -188,16 +224,23 @@ def check_orca_skills():
         return {"state": UNKNOWN, "detail": "파싱 결과 0건 (형식이 바뀌었을 수 있다)",
                 "added": [], "removed": [], "changed": []}
 
-    os.makedirs(STATE_DIR, exist_ok=True)
-    if not os.path.isfile(SNAPSHOT):
-        _write_snapshot(current, {})
+    try:
+        snapshot = _snapshot_path()
+        os.makedirs(os.path.dirname(snapshot), exist_ok=True)
+        if os.path.isfile(snapshot):
+            prev_doc = _read_snapshot(snapshot)
+        else:
+            _write_snapshot(snapshot, current, {})
+            prev_doc = None
+    except (OSError, ValueError, UnicodeError) as exc:
+        return {"state": UNKNOWN, "detail": "상태 저장 실패: %s" % exc,
+                "added": [], "removed": [], "changed": []}
+
+    if prev_doc is None:
         return {"state": "스냅샷 생성", "detail": "%d개 기록. 다음 실행부터 대조한다." % len(current),
                 "added": sorted(current), "removed": [], "changed": []}
 
-    try:
-        prev = json.load(open(SNAPSHOT, encoding="utf-8")).get("skills", {})
-    except Exception:  # noqa: BLE001
-        prev = {}
+    prev = prev_doc["skills"]
 
     added = sorted(set(current) - set(prev))
     removed = sorted(set(prev) - set(current))
@@ -207,10 +250,6 @@ def check_orca_skills():
     # 사라진다. 그 한 번을 놓치면 "바뀐 적 없음"과 "바뀌었는데 아무도 안 봄"이
     # 같은 출력이 된다 — 모든 입력에 같은 답을 주는 신호는 신호가 아니다.
     # 그래서 확인(`--ack-skills`)할 때까지 남는 pending 을 둔다.
-    try:
-        prev_doc = json.load(open(SNAPSHOT, encoding="utf-8"))
-    except Exception:  # noqa: BLE001
-        prev_doc = {}
     pending = prev_doc.get("pending") or {}
     if added or removed or changed:
         pending = {
@@ -220,7 +259,11 @@ def check_orca_skills():
             "removed": sorted(set(pending.get("removed") or []) | set(removed)),
             "changed": sorted(set(pending.get("changed") or []) | set(changed)),
         }
-    _write_snapshot(current, pending)
+    try:
+        _write_snapshot(snapshot, current, pending)
+    except OSError as exc:
+        return {"state": UNKNOWN, "detail": "상태 저장 실패: %s" % exc,
+                "added": [], "removed": [], "changed": []}
 
     if pending:
         state = "미확인 변경"
@@ -235,22 +278,64 @@ def check_orca_skills():
 
 def ack_skills():
     """미확인 변경을 확인 처리한다. 사람이 그 스킬 문서를 다시 읽은 뒤 부른다."""
-    if not os.path.isfile(SNAPSHOT):
+    snapshot = _snapshot_path()
+    if not os.path.isfile(snapshot):
         return "스냅샷이 없다"
-    doc = json.load(open(SNAPSHOT, encoding="utf-8"))
+    doc = _read_snapshot(snapshot)
     p = doc.get("pending") or {}
     if not p:
         return "미확인 변경 없음"
-    _write_snapshot(doc.get("skills") or {}, {})
+    _write_snapshot(snapshot, doc.get("skills") or {}, {})
     return "확인 처리: 추가 %d · 삭제 %d · 설명변경 %d (최초 %s)" % (
         len(p.get("added") or []), len(p.get("removed") or []),
         len(p.get("changed") or []), p.get("first_seen"))
 
 
-def _write_snapshot(skills, pending=None):
-    json.dump({"generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
-               "skills": skills, "pending": pending or {}},
-              open(SNAPSHOT, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+def _write_snapshot(path, skills, pending=None):
+    directory = os.path.dirname(path)
+    os.makedirs(directory, exist_ok=True)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=directory,
+                                         prefix=".orca-skills-", suffix=".tmp",
+                                         delete=False) as target:
+            temporary = target.name
+            json.dump({"generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+                       "skills": skills, "pending": pending or {}},
+                      target, ensure_ascii=False, indent=2)
+        os.replace(temporary, path)
+    finally:
+        if temporary and os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+def migrate_snapshot(source):
+    """Explicit, one-time byte-preserving move of a legacy bundle snapshot."""
+    temporary = None
+    try:
+        if not os.path.isfile(source) or os.path.islink(source):
+            return 1
+        _read_snapshot(source)
+        target = _snapshot_path()
+        directory = os.path.dirname(target)
+        os.makedirs(directory, exist_ok=True)
+        with open(source, "rb") as old:
+            data = old.read(65537)
+        if len(data) > 65536:
+            return 1
+        with tempfile.NamedTemporaryFile("wb", dir=directory, prefix=".orca-skills-",
+                                         suffix=".tmp", delete=False) as staged:
+            temporary = staged.name
+            staged.write(data)
+            staged.flush()
+            os.fsync(staged.fileno())
+        os.link(temporary, target)  # atomic create-if-absent; never a partial target
+        return 0
+    except (OSError, ValueError, UnicodeError):
+        return 1
+    finally:
+        if temporary and os.path.exists(temporary):
+            os.unlink(temporary)
 
 
 def report(as_json=False):
@@ -303,9 +388,10 @@ def report_local_codex():
 if __name__ == "__main__":
     args = sys.argv[1:]
     if args in (["--help"], ["-h"]):
-        print("Usage: check_tooling.py [--local-codex | --ack-skills | --json | --help]")
+        print("Usage: check_tooling.py [--local-codex | --ack-skills | --migrate-snapshot FILE | --json | --help]")
         print("  --local-codex  Local Codex PATH/package check; no registry or Orca access")
         print("  --ack-skills   Acknowledge the existing Orca skills snapshot")
+        print("  --migrate-snapshot FILE  Copy one legacy snapshot to external user state; never overwrite")
         print("  --json         Full report as JSON (queries registry and Orca)")
         print("  no arguments   Full report (queries registry and Orca)")
         sys.exit(0)
@@ -314,6 +400,10 @@ if __name__ == "__main__":
     if args == ["--ack-skills"]:
         print(ack_skills())
         sys.exit(0)
+    if len(args) == 2 and args[0] == "--migrate-snapshot":
+        result = migrate_snapshot(args[1])
+        print("기존 기준선 이전 완료" if result == 0 else "기준선 이전 실패 또는 대상이 이미 존재함")
+        sys.exit(result)
     if args == ["--json"]:
         sys.exit(report(as_json=True))
     if args:

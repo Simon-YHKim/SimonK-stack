@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when asked for SimonKStack "메인 오케스트레이터", "/vibe", "바이브로 알아서", Play Console/GUI orchestration, or task-wide skill/model/effort routing. Produces one verified plan and artifacts under $0 extra spend. Check CLI/API/MCP first; simonk is sprint-only and vibe-bot GUI-only.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.35
+version: 2.12.36
 author: simon-stack
 ---
 
@@ -218,21 +218,19 @@ incremental cost and quota pressure. Lower unnecessary effort, trim context,
 reuse verified results, limit parallelism and cap retries before dropping
 quality. Never remove required verification to reduce cost.
 
-Before a Codex worker start, run `python -B scripts/check_tooling.py --local-codex`
-from this skill package. It compares the PATH-selected CLI
-version with an adjacent installed npm package without querying the registry
-or Orca. A newer local package with an older PATH shim blocks that lane even
-when npm is offline; inspect and verify the exact executable before using it.
-This check does not prove that the newer binary works or that the account route
-is included in a subscription. The full tooling report also queries npm and
-Orca, so do not use it merely to perform this local check.
-Only exit 0 establishes that the PATH version is not older than the adjacent
-stable npm package. Exit 1 means stale; exit 2 means an unavailable, failed or
-uncomparable version check. Both nonzero states hold a Codex worker until its
-actual launch executable is independently verified; never treat unknown as
-latest or route it through a paid fallback.
-The legacy G11 reference now names this same local-only command; the full
-tooling report is not a substitute for this preflight.
+Before a Codex worker start, run `python -B scripts/check_tooling.py --local-codex`.
+It compares the PATH-selected CLI with its adjacent npm package without npm
+registry or Orca access. A newer package and older shim blocks the lane even
+offline; inspect the exact executable. Exit 0 means only "not older than the
+adjacent stable package," not that the binary or subscription works. Exit 1
+means stale, exit 2 unknown; both hold the worker. The full tooling report
+queries npm/Orca and cannot replace this local G11 preflight.
+
+The full Orca skills report stores snapshots in external user state
+(`LOCALAPPDATA/SimonKStack/vibe` on Windows), never the receipt-bound skill.
+Before its first run, migrate an old baseline with
+`python -B scripts/check_tooling.py --migrate-snapshot <old-file>`; it refuses
+overwrite. Never copy into the candidate or acknowledge changes before review.
 
 ## 3. Execute only ready work
 

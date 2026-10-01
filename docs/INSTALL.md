@@ -2,6 +2,55 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
+## 2026-10-01 `/vibe` 2.12.36 Orca 기준선 외부 저장 격리 후보
+
+2.12.35 후보는 전체 툴링 보고 또는 `--ack-skills`가 후보의
+`vibe/state/orca-skills.json`을 기록해 해시 영수증을 깨뜨린다. 따라서
+2.12.35의 사용자 Core flat 링크 7개 승격은 D-41에서 보류했다.
+2.12.36은 이 가변 파일을 Windows의
+`%LOCALAPPDATA%/SimonKStack/vibe/orca-skills.json`(다른 OS는
+`XDG_STATE_HOME` 또는 `~/.local/state/SimonKStack/vibe`)에 둔다.
+패키지 내부 경로로 해석되거나 기존 JSON이 손상되면 새 기준선으로
+조용히 덮지 않고 `미확인`으로 실패한다.
+
+기존 설치본의 기준선은 읽기 전용으로 먼저 확인한다. 실제 사용자 PC에서
+새 후보의 첫 전체 보고 전에, 확인된 기존 파일 경로를 다음 명령에 명시해
+외부 상태로 한 번만 이전한다. 대상이 이미 있으면 덮어쓰지 않고 실패한다.
+이전 파일은 먼저 임시 파일에 완전히 쓴 뒤 배타적으로 게시하므로 중간
+쓰기 실패가 부분 대상 파일을 남기지 않는다.
+`--local-codex`는 계속 Orca·npm 원격 조회와 상태 기록을 하지 않는다.
+
+```powershell
+python -B skills-src/vibe/scripts/check_tooling.py --migrate-snapshot '<확인된 기존 설치본>/state/orca-skills.json'
+```
+
+격리 후보 경로는
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-external-state-v2-candidate/`다.
+앞선 2.12.36 후보는 보존했지만 PR #74의 Ubuntu CI가 테스트의 OS별
+상태 폴더 격리 누락을 검출해 사용하지 않는다. 새 후보의 소스 137스킬·
+423파일 digest는 `393a690ea2b4f2ff1759cd23cee8ecf9d85c4b4a639f90a01f30eb5a260e8146`,
+Claude 5플러그인·182스킬 `595c8bd928d2f043a5e443054eb34d193eb397478ce7b9b5cbb0b83f1259a15a`,
+Codex 오버레이 `0a52d5bcacd6526401153e135e104f74a3ac55870d66f1dd4674863a31bb1f4f`,
+Codex 안전 subset 177스킬 `49d66bd93f46b8b84eaba043ffbf516e2e6ca0da117fa245aad2f19519a66f9e`다.
+네 영수증 모두 재검증됐고 현 HEAD의 `/vibe` 스크립트 테스트 338건·
+자체 점검 180항목·WSL Ubuntu의 `test_check_tooling.py` 16건이 통과했다.
+직전 HEAD의 저장소 테스트 427건(3건 skip)도 통과했으나 이번 수정 후
+전체 저장소 테스트를 다시 실행했다고 주장하지 않는다. 후보 코드의
+오프라인 Orca 보고→미확인 변경→확인 처리 후 Claude/Codex 영수증도
+동일했다. 기존 Codex 설치본의 8스킬 기준선은 원본 SHA-256을 유지한 채
+사용자 외부 상태로 동일 SHA-256으로 복사했다.
+실제 프로필의 읽기 전용 사전검사는 8/8 링크·후보 바이트를 확인했고
+문제 0건이었으나 네이티브 플러그인 등록 상태는 이번에 관측하지 않았다.
+
+이 결과는 패키지 바이트와 오프라인 동작 증거이지 실제 사용자 프로필
+선택·구독 청구·모델/Bot 실행 증명이 아니다. `installation_ready=false`,
+`host_compatibility_verified=false`, `runtime_closure_verified=false`를 유지한다.
+Claude·Codex가 같은 외부 기준선을 공유하므로 동시 보고/확인 처리의
+잠금·CAS는 아직 없다. 동시 실행 중 변경 유실 가능성을 사용자 설치 승격 전
+별도 테스트·보강한다.
+사용자 링크 전환·`main` 머지·모델/이미지/Bot 실호출은 별도 판정이며,
+추가 과금 $0 및 구독 포함 경로 한정은 그대로다.
+
 ## 2026-10-01 `/vibe` 2.12.35 과금 관측 정합성 최종 격리 후보
 
 독립 검토에서 2.12.32 수집기가 비표준 Codex 한도 버킷을 조용히 버려
