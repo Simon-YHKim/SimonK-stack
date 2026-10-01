@@ -2,10 +2,10 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
-## 2026-10-01 `/vibe` 2.12.36 Orca 기준선 외부 저장 (기능 브랜치)
+## 2026-10-01 `/vibe` 2.12.36 Orca 기준선 외부 저장 격리 후보
 
 2.12.35 후보는 전체 툴링 보고 또는 `--ack-skills`가 후보의
-`vibe/state/orca-skills.json`을 기록해 서명 영수증을 깨뜨린다. 따라서
+`vibe/state/orca-skills.json`을 기록해 해시 영수증을 깨뜨린다. 따라서
 2.12.35의 사용자 Core flat 링크 7개 승격은 D-41에서 보류했다.
 2.12.36은 이 가변 파일을 Windows의
 `%LOCALAPPDATA%/SimonKStack/vibe/orca-skills.json`(다른 OS는
@@ -22,10 +22,23 @@
 python -B skills-src/vibe/scripts/check_tooling.py --migrate-snapshot '<확인된 기존 설치본>/state/orca-skills.json'
 ```
 
-이 절은 기능 브랜치의 코드 계약이다. 사용자 링크 전환·`main` 머지·
-모델/이미지/Bot 실호출 허가는 아니며, 새 후보 영수증과 반복 보고·
-확인 처리 검증을 마친 뒤 별도 판정한다. 추가 과금 $0 및 구독 포함 경로
-한정은 그대로다.
+격리 후보 경로는
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-external-state-candidate/`다.
+소스 137스킬·423파일 digest `be330be9f4c452edfb072a3a420bfd3f989aab3b35612183e9431a136d9745b2`,
+Claude 5플러그인·182스킬 `779c5512599d100e6d425eee1ce22faf3715d585e62364f22bcb655acdce6012`,
+Codex 오버레이 `c26997682329f7af1fe20d020d1aa0129a6b754795cf5b48411a62709f4215d8`,
+Codex 안전 subset 177스킬 `33fe57e3a2e95f43cd11fb49b59210b8f101ecc8c34573b222839475a14464fd`다.
+네 영수증 모두 재검증됐고 `/vibe` 스크립트 테스트 337건·자체 점검
+180항목·저장소 테스트 427건(3건 skip)이 통과했다. 후보 코드의
+오프라인 Orca 보고→미확인 변경→확인 처리 후 Claude/Codex 영수증도
+동일했다. 기존 Codex 설치본의 8스킬 기준선은 원본 SHA-256을 유지한 채
+사용자 외부 상태로 동일 SHA-256으로 복사했다.
+
+이 결과는 패키지 바이트와 오프라인 동작 증거이지 실제 사용자 프로필
+선택·구독 청구·모델/Bot 실행 증명이 아니다. `installation_ready=false`,
+`host_compatibility_verified=false`, `runtime_closure_verified=false`를 유지한다.
+사용자 링크 전환·`main` 머지·모델/이미지/Bot 실호출은 별도 판정이며,
+추가 과금 $0 및 구독 포함 경로 한정은 그대로다.
 
 ## 2026-10-01 `/vibe` 2.12.35 과금 관측 정합성 최종 격리 후보
 
