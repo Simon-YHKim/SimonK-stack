@@ -132,8 +132,31 @@ def _flat_coverage(candidate_root: Path, host_roots: tuple[Path, ...],
     installed = orchestrate.skill_inventory(host_roots)
     result = orchestrate.skill_coverage(source, installed)
     counts = Counter(row["installation"] for row in result["rows"])
+    topology = Counter()
+    source_names = {row["name"] for row in result["rows"]}
+    exposures = Counter()
+    for record in installed["records"]:
+        if record["name"] in source_names:
+            exposures[record["name"]] += len(record["aliases"])
+    topology["shadowed_names"] = sum(number > 1 for number in exposures.values())
+    for row in result["rows"]:
+        selected = installed["catalog"].get(row["name"])
+        if selected is None or not selected["aliases"]:
+            topology["selected_missing"] += 1
+            continue
+        # record.path is resolved; its first alias preserves the selected flat entry.
+        path = Path(selected["aliases"][0]).parent
+        kind = ("reparse" if _is_directory_link(path) else
+                "physical" if path.is_dir() else "other")
+        topology["selected_" + kind] += 1
+        if row["installation"] in ("matched", "drifted"):
+            topology[kind + "_" + row["installation"]] += 1
+    topology_keys = ("selected_physical", "selected_reparse", "selected_missing",
+                     "selected_other", "physical_matched", "physical_drifted",
+                     "reparse_matched", "reparse_drifted", "shadowed_names")
     return {"status": result["status"], "scope_complete": result["scope_complete"],
             "source_skills": len(result["rows"]),
+            "topology": {key: topology[key] for key in topology_keys},
             **{state: counts[state] for state in
                ("matched", "drifted", "missing", "ambiguous_source", "host_only")}}
 

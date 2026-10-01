@@ -272,6 +272,33 @@ class VibeHostPreflightTests(unittest.TestCase):
         self.assertEqual(report["rollout_gate"], "blocked")
         self.assertFalse(report["full_skill_set_verified"])
 
+    def test_full_scope_topology_exposes_physical_conflicts_and_shadowed_names(self):
+        for package in ("candidate-safety", "codex-subset-safety"):
+            source = self.candidate / package / "plugins/SimonKDesign/skills/extra"
+            source.mkdir(parents=True)
+            (source / "SKILL.md").write_text(
+                "---\nname: extra\ndescription: Candidate extra\n---\nnew\n", encoding="utf-8")
+        physical = self.claude / "skills/extra"
+        physical.mkdir()
+        (physical / "SKILL.md").write_text(
+            "---\nname: extra\ndescription: Installed extra\n---\nold\n", encoding="utf-8")
+        os.symlink(physical, self.agents / "skills/extra", target_is_directory=True)
+        shadow = self.codex / "skills/extra"
+        shadow.mkdir()
+        (shadow / "SKILL.md").write_text(
+            "---\nname: extra\ndescription: Codex shadow\n---\nshadow\n", encoding="utf-8")
+
+        report = self.scan()
+        claude = report["flat_coverage"]["claude"]
+        codex = report["flat_coverage"]["codex"]
+        self.assertEqual(claude["source_skills"], 6)
+        self.assertEqual(claude["topology"]["physical_drifted"], 1, claude)
+        self.assertEqual(claude["topology"]["reparse_drifted"], 5)
+        self.assertEqual(codex["source_skills"], 3)
+        self.assertEqual(codex["topology"]["reparse_drifted"], 3)
+        self.assertEqual(codex["topology"]["shadowed_names"], 2)
+        self.assertFalse(report["installation_ready"])
+
     def test_partial_candidate_pins_fail_before_host_scan(self):
         report = preflight.scan(self.candidate, self.old_candidate,
                                 self.claude, self.codex, self.agents,
