@@ -2,6 +2,31 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
+## 2026-10-01 `/vibe` 2.12.36 Orca 기준선 외부 저장 (기능 브랜치)
+
+2.12.35 후보는 전체 툴링 보고 또는 `--ack-skills`가 후보의
+`vibe/state/orca-skills.json`을 기록해 서명 영수증을 깨뜨린다. 따라서
+2.12.35의 사용자 Core flat 링크 7개 승격은 D-41에서 보류했다.
+2.12.36은 이 가변 파일을 Windows의
+`%LOCALAPPDATA%/SimonKStack/vibe/orca-skills.json`(다른 OS는
+`XDG_STATE_HOME` 또는 `~/.local/state/SimonKStack/vibe`)에 둔다.
+패키지 내부 경로로 해석되거나 기존 JSON이 손상되면 새 기준선으로
+조용히 덮지 않고 `미확인`으로 실패한다.
+
+기존 설치본의 기준선은 읽기 전용으로 먼저 확인한다. 실제 사용자 PC에서
+새 후보의 첫 전체 보고 전에, 확인된 기존 파일 경로를 다음 명령에 명시해
+외부 상태로 한 번만 이전한다. 대상이 이미 있으면 덮어쓰지 않고 실패한다.
+`--local-codex`는 계속 Orca·npm 원격 조회와 상태 기록을 하지 않는다.
+
+```powershell
+python -B skills-src/vibe/scripts/check_tooling.py --migrate-snapshot '<확인된 기존 설치본>/state/orca-skills.json'
+```
+
+이 절은 기능 브랜치의 코드 계약이다. 사용자 링크 전환·`main` 머지·
+모델/이미지/Bot 실호출 허가는 아니며, 새 후보 영수증과 반복 보고·
+확인 처리 검증을 마친 뒤 별도 판정한다. 추가 과금 $0 및 구독 포함 경로
+한정은 그대로다.
+
 ## 2026-10-01 `/vibe` 2.12.35 과금 관측 정합성 최종 격리 후보
 
 독립 검토에서 2.12.32 수집기가 비표준 Codex 한도 버킷을 조용히 버려

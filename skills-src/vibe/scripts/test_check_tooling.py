@@ -1,8 +1,10 @@
 """Offline checks for a stale Codex PATH shim; no Orca or npm access."""
 import contextlib
+import hashlib
 import importlib.util
 import io
 import json
+import os
 import runpy
 import sys
 import tempfile
@@ -135,6 +137,65 @@ class CodexPathChecks(unittest.TestCase):
                      if guard_id == "G11")
         self.assertIn("`python -B scripts/check_tooling.py --local-codex`", guard)
         self.assertNotIn("`python scripts/check_tooling.py`", guard)
+
+    def test_orca_snapshot_stays_outside_skill_bundle_and_pending_persists(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            signed_state = root / "signed-skill" / "state"
+            external = root / "host-state"
+            output = [(0, "alpha: first", ""), (0, "alpha: updated", "")]
+            with mock.patch.dict(os.environ, {"LOCALAPPDATA": str(external)}):
+                with mock.patch.object(self.module, "SKILL_ROOT", str(root / "signed-skill")):
+                    with mock.patch.object(self.module, "_run", side_effect=output):
+                        first = self.module.check_orca_skills()
+                        second = self.module.check_orca_skills()
+            snapshot = external / "SimonKStack" / "vibe" / "orca-skills.json"
+            self.assertEqual(first["state"], "스냅샷 생성")
+            self.assertEqual(second["state"], "미확인 변경")
+            self.assertTrue(second["pending"])
+            self.assertFalse(signed_state.exists())
+            self.assertEqual(json.loads(snapshot.read_text(encoding="utf-8"))["skills"],
+                             {"alpha": "updated"})
+
+    def test_legacy_snapshot_migration_preserves_source_and_refuses_overwrite(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            legacy = root / "old-bundle" / "state" / "orca-skills.json"
+            legacy.parent.mkdir(parents=True)
+            legacy.write_text(json.dumps({"generated_at": "2026-10-01T00:00:00",
+                                          "skills": {"alpha": "first"}, "pending": {}}),
+                              encoding="utf-8")
+            original_hash = hashlib.sha256(legacy.read_bytes()).hexdigest()
+            with mock.patch.dict(os.environ, {"LOCALAPPDATA": str(root / "host-state")}):
+                first = self.module.migrate_snapshot(str(legacy))
+                second = self.module.migrate_snapshot(str(legacy))
+            target = root / "host-state" / "SimonKStack" / "vibe" / "orca-skills.json"
+            self.assertEqual(first, 0)
+            self.assertEqual(second, 1)
+            self.assertEqual(legacy.read_bytes(), target.read_bytes())
+            self.assertEqual(hashlib.sha256(legacy.read_bytes()).hexdigest(), original_hash)
+
+    def test_snapshot_refuses_state_root_inside_signed_skill(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            skill = Path(temporary) / "signed-skill"
+            with mock.patch.dict(os.environ, {"LOCALAPPDATA": str(skill / "state")}):
+                with mock.patch.object(self.module, "SKILL_ROOT", str(skill)):
+                    with mock.patch.object(self.module, "_run", return_value=(0, "alpha: first", "")):
+                        result = self.module.check_orca_skills()
+            self.assertEqual(result["state"], self.module.UNKNOWN)
+            self.assertFalse(skill.exists())
+
+    def test_invalid_existing_snapshot_is_not_replaced(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            snapshot = root / "SimonKStack" / "vibe" / "orca-skills.json"
+            snapshot.parent.mkdir(parents=True)
+            snapshot.write_text("{broken", encoding="utf-8")
+            with mock.patch.dict(os.environ, {"LOCALAPPDATA": str(root)}):
+                with mock.patch.object(self.module, "_run", return_value=(0, "alpha: first", "")):
+                    result = self.module.check_orca_skills()
+            self.assertEqual(result["state"], self.module.UNKNOWN)
+            self.assertEqual(snapshot.read_text(encoding="utf-8"), "{broken")
 
 
 if __name__ == "__main__":
