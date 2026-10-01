@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when asked for SimonKStack "메인 오케스트레이터", "/vibe", "바이브로 알아서", Play Console/GUI orchestration, or task-wide skill/model/effort routing. Produces one verified plan and artifacts under $0 extra spend. Check CLI/API/MCP first; simonk is sprint-only and vibe-bot GUI-only.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.36
+version: 2.12.37
 author: simon-stack
 ---
 
@@ -230,7 +230,9 @@ The full Orca skills report stores snapshots in external user state
 (`LOCALAPPDATA/SimonKStack/vibe` on Windows), never the receipt-bound skill.
 Before its first run, migrate an old baseline with
 `python -B scripts/check_tooling.py --migrate-snapshot <old-file>`; it refuses
-overwrite. Never copy into the candidate or acknowledge changes before review.
+overwrite. Collection, migration and acknowledgement share an OS lock; timeout blocks.
+After reviewing `pending_digest`, use `--ack-skills <digest>`; stale tokens fail.
+Never copy into the candidate or acknowledge changes before review.
 
 ## 3. Execute only ready work
 
