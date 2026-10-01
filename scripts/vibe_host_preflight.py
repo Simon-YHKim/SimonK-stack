@@ -21,6 +21,66 @@ CODEX_NAMES = ("vibe", "vibe-bot")
 PLUGIN_NAMES = ("SimonKCore", "SimonKDesign", "SimonKStack", "SimonKMarket", "SimonKAIHub")
 
 
+def _native_plugin_coverage(candidate_root: Path, snapshot: dict | None) -> dict:
+    """Compare supplied CLI list metadata only; never equate it with loaded bytes."""
+    if snapshot is None:
+        return {"status": "not_observed", "scope_complete": False}
+    if not isinstance(snapshot, dict) or set(snapshot) != {"claude", "codex"}:
+        raise ValueError("invalid native plugin snapshot")
+
+    coverage = {}
+    for host, package in (("claude", "candidate-safety"),
+                          ("codex", "codex-subset-safety")):
+        expected = {}
+        for plugin in PLUGIN_NAMES:
+            manifest_path = (candidate_root / package / "plugins" / plugin /
+                             (".claude-plugin" if host == "claude" else ".codex-plugin") /
+                             "plugin.json")
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            name, version = manifest.get("name"), manifest.get("version")
+            if not isinstance(name, str) or not name or not isinstance(version, str) or not version:
+                raise ValueError("invalid native plugin manifest")
+            if name in expected:
+                raise ValueError("duplicate native plugin name")
+            expected[name] = version
+
+        raw = snapshot[host]
+        if host == "codex":
+            if not isinstance(raw, dict) or not isinstance(raw.get("installed"), list):
+                raise ValueError("invalid Codex plugin list")
+            entries = raw["installed"]
+            key = "pluginId"
+        else:
+            if not isinstance(raw, list):
+                raise ValueError("invalid Claude plugin list")
+            entries = raw
+            key = "id"
+        if any(not isinstance(entry, dict) for entry in entries):
+            raise ValueError("invalid native plugin entry")
+
+        counts = Counter()
+        for name, version in expected.items():
+            matches = [entry for entry in entries if entry.get(key) == f"{name}@{name}"]
+            if len(matches) > 1:
+                counts["ambiguous"] += 1
+            elif not matches:
+                counts["missing"] += 1
+            elif matches[0].get("version") != version:
+                counts["drifted"] += 1
+            elif matches[0].get("enabled") is not True or (host == "codex" and
+                                                              matches[0].get("installed") is not True):
+                counts["disabled"] += 1
+            else:
+                counts["matched"] += 1
+        coverage[host] = {"status": "metadata_matched" if counts["matched"] == len(expected)
+                          else "gaps", "scope_complete": True, "expected": len(expected),
+                          **{state: counts[state] for state in
+                             ("matched", "drifted", "missing", "disabled", "ambiguous")}}
+    return {"status": "metadata_matched" if all(row["status"] == "metadata_matched"
+              for row in coverage.values()) else "gaps", "scope_complete": True,
+            **coverage}
+
+
 def _flat_coverage(candidate_root: Path, host_roots: tuple[Path, ...],
                    package: str) -> dict:
     """Reuse the repo's bounded metadata scanner; this is not host loading proof."""
@@ -58,7 +118,7 @@ def _direct_target(link: Path) -> Path:
 
 
 def scan(candidate_root: Path, current_root: Path, claude_root: Path, codex_root: Path,
-         agents_root: Path) -> dict:
+         agents_root: Path, native_snapshot: dict | None = None) -> dict:
     issues: list[str] = []
     entries: list[dict] = []
     checked_links = 0
@@ -120,11 +180,17 @@ def scan(candidate_root: Path, current_root: Path, claude_root: Path, codex_root
         "codex": _flat_coverage(candidate_root, (agents_root / "skills", codex_root / "skills"),
                                 "codex-subset-safety"),
     }
+    try:
+        native_coverage = _native_plugin_coverage(candidate_root, native_snapshot)
+    except (OSError, ValueError, TypeError):
+        native_coverage = {"status": "invalid_snapshot", "scope_complete": False}
+        issues.append("NATIVE_SNAPSHOT_INVALID")
     return {"status": "blocked" if issues else "host_snapshot_complete",
             "scope": "seven_flat_core_links_and_one_agents_alias",
             "checked_links": checked_links, "different_skills": different_skills,
             "issues": sorted(set(issues)), "entries": entries,
             "flat_coverage": flat_coverage, "rollout_gate": "blocked",
+            "native_plugin_coverage": native_coverage,
             "candidate_bytes_verified": False, "host_command_precedence_verified": False,
             "full_skill_set_verified": False, "billing_verified": False,
             "installation_ready": False,
@@ -135,12 +201,22 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("candidate-root", "expected-current-root", "claude-root", "codex-root", "agents-root"):
         parser.add_argument("--" + name, type=Path, required=True)
+    parser.add_argument("--native-json-stdin", action="store_true",
+                        help="Read combined Claude/Codex plugin-list JSON from stdin (metadata only)")
     args = parser.parse_args(argv)
     try:
+        native_snapshot = None
+        if args.native_json_stdin:
+            raw = sys.stdin.read(1048577)
+            if len(raw) > 1048576:
+                raise ValueError("native snapshot too large")
+            native_snapshot = json.loads(raw)
+            if not isinstance(native_snapshot, dict):
+                raise ValueError("native snapshot must be an object")
         report = scan(args.candidate_root, args.expected_current_root,
                       args.claude_root, args.codex_root,
-                      args.agents_root)
-    except OSError as exc:
+                      args.agents_root, native_snapshot=native_snapshot)
+    except (OSError, ValueError) as exc:
         report = {"status": "blocked", "issues": ["READ_FAILED"],
                   "error_type": type(exc).__name__, "installation_ready": False,
                   "profile_changed": False}

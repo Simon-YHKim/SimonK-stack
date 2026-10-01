@@ -71,6 +71,28 @@ python -B scripts/vibe_host_preflight.py --candidate-root $vibeCandidate `
 python -B -m unittest scripts.tests.test_vibe_host_preflight -v
 ```
 
+네이티브 플러그인 등록 상태도 보려면 같은 후보·프로필 인수에
+`--native-json-stdin`을 추가하고 아래처럼 각 호스트의 현재 목록을 메모리에서
+전달한다. 이 옵션은 `claude plugin list --json`의 배열과
+`codex plugin list --json`의 `installed` 배열에서 후보 5개 플러그인의
+정확한 `name@marketplace`·버전·활성 상태만 집계한다. 원본 목록·로컬
+경로는 보고서에 출력하지 않는다.
+
+```powershell
+$claudePlugins = claude plugin list --json | ConvertFrom-Json -Depth 30
+$codexPlugins = codex plugin list --json | ConvertFrom-Json -Depth 30
+@{claude=$claudePlugins;codex=$codexPlugins} | ConvertTo-Json -Depth 30 -Compress |
+  python -B scripts/vibe_host_preflight.py --candidate-root $vibeCandidate `
+    --expected-current-root $vibeCurrent --claude-root "$env:USERPROFILE\.claude" `
+    --codex-root "$env:USERPROFILE\.codex" --agents-root "$env:USERPROFILE\.agents" `
+    --native-json-stdin
+```
+
+2026-10-01 실제 목록은 Claude·Codex 모두 후보 5개 중 등록·활성 일치 0개,
+미등록 5개였다. 목록 없이 실행하면 `native_plugin_coverage.status=not_observed`이고,
+형식이 틀리면 차단한다. `metadata_matched`가 되더라도 캐시 바이트·명령
+우선순위·실행·과금은 검증하지 않으며 설치 허가가 아니다.
+
 출력의 `host_snapshot_complete`는 위 8개 링크의 관측 성공만 뜻한다.
 `flat_coverage`는 SKILL.md 메타데이터 감사이며 현재 양쪽 모두
 `status=gaps`, `rollout_gate=blocked`다.

@@ -1,11 +1,15 @@
 """Read-only host topology checks for a staged /vibe candidate."""
 
 import os
+import json
+import io
 from pathlib import Path
 import shutil
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -45,7 +49,18 @@ class VibeHostPreflightTests(unittest.TestCase):
                     self.skipTest(f"directory symlinks unavailable: {exc}")
         for package in ("candidate-safety", "codex-subset-safety"):
             for plugin in ("SimonKCore", "SimonKDesign", "SimonKStack", "SimonKMarket", "SimonKAIHub"):
-                (self.candidate / package / "plugins" / plugin / "skills").mkdir(parents=True, exist_ok=True)
+                plugin_root = self.candidate / package / "plugins" / plugin
+                (plugin_root / "skills").mkdir(parents=True, exist_ok=True)
+                manifest = plugin_root / ".claude-plugin/plugin.json"
+                manifest.parent.mkdir(parents=True)
+                manifest.write_text(json.dumps({"name": plugin.lower(), "version": "0.3.0-test"}),
+                                    encoding="utf-8")
+                if package == "codex-subset-safety":
+                    codex_manifest = plugin_root / ".codex-plugin/plugin.json"
+                    codex_manifest.parent.mkdir(parents=True)
+                    codex_manifest.write_text(json.dumps({"name": plugin.lower(),
+                                                          "version": "0.3.0-test"}),
+                                              encoding="utf-8")
         (self.agents / "skills").mkdir(parents=True)
         os.symlink(self.claude / "skills" / "vibe",
                    self.agents / "skills" / "vibe", target_is_directory=True)
@@ -53,6 +68,86 @@ class VibeHostPreflightTests(unittest.TestCase):
     def scan(self):
         return preflight.scan(self.candidate, self.old_candidate,
                               self.claude, self.codex, self.agents)
+
+    def native_snapshot(self, enabled=True):
+        names = [name.lower() for name in preflight.PLUGIN_NAMES]
+        return {
+            "claude": [{"id": f"{name}@{name}", "version": "0.3.0-test",
+                        "enabled": enabled} for name in names],
+            "codex": {"installed": [{"pluginId": f"{name}@{name}",
+                                      "version": "0.3.0-test", "installed": True,
+                                      "enabled": enabled} for name in names],
+                      "available": []},
+        }
+
+    def test_native_plugin_snapshot_reports_all_five_missing_on_both_hosts(self):
+        report = preflight.scan(self.candidate, self.old_candidate, self.claude,
+                                self.codex, self.agents,
+                                native_snapshot={"claude": [], "codex": {"installed": [], "available": []}})
+        self.assertEqual(report["native_plugin_coverage"]["claude"]["missing"], 5)
+        self.assertEqual(report["native_plugin_coverage"]["codex"]["missing"], 5)
+        self.assertEqual(report["rollout_gate"], "blocked")
+
+    def test_native_plugin_metadata_match_is_not_installation_approval(self):
+        report = preflight.scan(self.candidate, self.old_candidate, self.claude,
+                                self.codex, self.agents, native_snapshot=self.native_snapshot())
+        self.assertEqual(report["native_plugin_coverage"]["claude"]["matched"], 5)
+        self.assertEqual(report["native_plugin_coverage"]["codex"]["matched"], 5)
+        self.assertFalse(report["full_skill_set_verified"])
+        self.assertFalse(report["installation_ready"])
+
+    def test_codex_registry_is_compared_with_codex_manifest_version(self):
+        manifest = (self.candidate / "codex-subset-safety/plugins/SimonKCore/"
+                    ".codex-plugin/plugin.json")
+        manifest.write_text(json.dumps({"name": "simonkcore", "version": "0.4.0-codex"}),
+                            encoding="utf-8")
+        snapshot = self.native_snapshot()
+        snapshot["codex"]["installed"][0]["version"] = "0.4.0-codex"
+        report = preflight.scan(self.candidate, self.old_candidate, self.claude,
+                                self.codex, self.agents, native_snapshot=snapshot)
+        self.assertEqual(report["native_plugin_coverage"]["codex"]["matched"], 5)
+
+    def test_disabled_and_duplicate_native_entries_fail_closed(self):
+        disabled = preflight.scan(self.candidate, self.old_candidate, self.claude,
+                                  self.codex, self.agents,
+                                  native_snapshot=self.native_snapshot(enabled=False))
+        self.assertEqual(disabled["native_plugin_coverage"]["claude"]["disabled"], 5)
+        self.assertEqual(disabled["native_plugin_coverage"]["codex"]["disabled"], 5)
+        duplicate = self.native_snapshot()
+        duplicate["claude"].append(dict(duplicate["claude"][0]))
+        report = preflight.scan(self.candidate, self.old_candidate, self.claude,
+                                self.codex, self.agents, native_snapshot=duplicate)
+        self.assertEqual(report["native_plugin_coverage"]["claude"]["ambiguous"], 1)
+        self.assertEqual(report["rollout_gate"], "blocked")
+
+    def test_version_drift_and_wrong_marketplace_are_not_matches(self):
+        snapshot = self.native_snapshot()
+        snapshot["claude"][0]["version"] = "0.2.0-old"
+        snapshot["codex"]["installed"][0]["pluginId"] = "simonkcore@untrusted-marketplace"
+        report = preflight.scan(self.candidate, self.old_candidate, self.claude,
+                                self.codex, self.agents, native_snapshot=snapshot)
+        self.assertEqual(report["native_plugin_coverage"]["claude"]["drifted"], 1)
+        self.assertEqual(report["native_plugin_coverage"]["codex"]["missing"], 1)
+        self.assertFalse(report["installation_ready"])
+
+    def test_malformed_native_snapshot_blocks_even_when_links_are_valid(self):
+        report = preflight.scan(self.candidate, self.old_candidate, self.claude,
+                                self.codex, self.agents,
+                                native_snapshot={"claude": [], "codex": ["not-a-registry"]})
+        self.assertEqual(report["status"], "blocked")
+        self.assertIn("NATIVE_SNAPSHOT_INVALID", report["issues"])
+        self.assertEqual(report["native_plugin_coverage"]["status"], "invalid_snapshot")
+
+    def test_explicit_null_native_stdin_cannot_be_treated_as_unobserved(self):
+        argv = ["--candidate-root", str(self.candidate), "--expected-current-root",
+                str(self.old_candidate), "--claude-root", str(self.claude),
+                "--codex-root", str(self.codex), "--agents-root", str(self.agents),
+                "--native-json-stdin"]
+        output = io.StringIO()
+        with patch.object(sys, "stdin", io.StringIO("null")), redirect_stdout(output):
+            code = preflight.main(argv)
+        self.assertEqual(code, 2)
+        self.assertEqual(json.loads(output.getvalue())["status"], "blocked")
 
     def test_valid_old_links_are_snapshotted_without_install_approval(self):
         report = self.scan()
