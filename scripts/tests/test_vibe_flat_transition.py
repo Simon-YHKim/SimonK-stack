@@ -1,5 +1,6 @@
 """Isolated flat-link switch and recovery; never touch a user profile."""
 
+import json
 import os
 from pathlib import Path
 import stat
@@ -180,6 +181,83 @@ class FlatTransitionTests(unittest.TestCase):
         with self.assertRaises(transition.TransitionError):
             transition.rollback_isolated(plan, self.root)
         for entry in plan["entries"][1:]:
+            self.assertEqual(transition.preflight._direct_target(Path(entry["link"])),
+                             Path(entry["new_target"]))
+
+    def test_interrupted_switch_recovers_from_persisted_plan(self):
+        plan = self.plan()
+        real_symlink = os.symlink
+        calls = 0
+
+        def interrupt_second(target, link, *, target_is_directory):
+            nonlocal calls
+            calls += 1
+            if calls == 2:
+                raise KeyboardInterrupt("simulated process interruption")
+            return real_symlink(target, link, target_is_directory=target_is_directory)
+
+        with (patch.object(transition.preflight, "scan", return_value=self.report),
+              patch.object(transition.os, "symlink", side_effect=interrupt_second)):
+            with self.assertRaises(KeyboardInterrupt):
+                transition.apply_isolated(plan, self.root, self.native)
+        journal = self.root / "vibe-flat-transition.json"
+        self.assertTrue(journal.is_file())
+        self.assertEqual(json.loads(journal.read_text(encoding="utf-8"))["plan_digest"],
+                         plan["plan_digest"])
+        transition.recover_isolated(self.root)
+        for entry in plan["entries"]:
+            self.assertEqual(transition.preflight._direct_target(Path(entry["link"])),
+                             Path(entry["old_target"]))
+        self.assertTrue(Path(plan["entries"][0]["quarantine"]).is_symlink())
+        transition.recover_isolated(self.root)
+
+    def test_tampered_journal_cannot_move_links_during_recovery(self):
+        plan = self.plan()
+        with patch.object(transition.preflight, "scan", return_value=self.report):
+            transition.apply_isolated(plan, self.root, self.native)
+        journal = self.root / "vibe-flat-transition.json"
+        forged = json.loads(journal.read_text(encoding="utf-8"))
+        forged["entries"][-1]["old_target"] = str(self.root / "alien")
+        journal.write_text(json.dumps(forged), encoding="utf-8")
+        with self.assertRaises(transition.TransitionError):
+            transition.recover_isolated(self.root)
+        for entry in plan["entries"]:
+            self.assertEqual(transition.preflight._direct_target(Path(entry["link"])),
+                             Path(entry["new_target"]))
+
+    def test_apply_rejects_existing_journal_before_first_move(self):
+        plan = self.plan()
+        (self.root / "vibe-flat-transition.json").write_text("stale", encoding="utf-8")
+        with patch.object(transition.preflight, "scan", return_value=self.report):
+            with self.assertRaises(transition.TransitionError):
+                transition.apply_isolated(plan, self.root, self.native)
+        for entry in plan["entries"]:
+            self.assertEqual(transition.preflight._direct_target(Path(entry["link"])),
+                             Path(entry["old_target"]))
+
+    def test_recovery_rejects_missing_and_linked_journal(self):
+        plan = self.plan()
+        with self.assertRaises(transition.TransitionError):
+            transition.recover_isolated(self.root)
+        outsider = self.root / "outsider.json"
+        outsider.write_text(json.dumps(plan), encoding="utf-8")
+        os.symlink(outsider, self.root / "vibe-flat-transition.json")
+        with self.assertRaises(transition.TransitionError):
+            transition.recover_isolated(self.root)
+        for entry in plan["entries"]:
+            self.assertEqual(transition.preflight._direct_target(Path(entry["link"])),
+                             Path(entry["old_target"]))
+
+    def test_recovery_rejects_duplicate_json_keys(self):
+        plan = self.plan()
+        with patch.object(transition.preflight, "scan", return_value=self.report):
+            transition.apply_isolated(plan, self.root, self.native)
+        journal = self.root / "vibe-flat-transition.json"
+        journal.write_text(journal.read_text(encoding="utf-8")[:-1] + ',"scope":"forged"}',
+                           encoding="utf-8")
+        with self.assertRaises(transition.TransitionError):
+            transition.recover_isolated(self.root)
+        for entry in plan["entries"]:
             self.assertEqual(transition.preflight._direct_target(Path(entry["link"])),
                              Path(entry["new_target"]))
 

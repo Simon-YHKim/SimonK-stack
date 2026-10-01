@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SimonK-stack 격리 링크 중단 복구 검증</title>
+<style>
+:root{color-scheme:light dark;--accent:#2563a6;--text:#202a35;--muted:#586879;--surface:#f2f5f8}
+@media(prefers-color-scheme:dark){:root{--accent:#92c5ff;--text:#eef4fa;--muted:#aab9c7;--surface:#202b35}}
+body{max-width:880px;margin:auto;padding:2rem 1rem 4rem;font:1rem/1.6 system-ui,sans-serif;color:var(--text)}
+h1{line-height:1.2}.muted{color:var(--muted)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:.7rem;margin:1.5rem 0}
+.card,details{background:var(--surface);border-radius:.8rem;padding:1rem}.card strong{display:block;color:var(--accent);font-size:1.45rem}
+details{margin:.7rem 0}summary{cursor:pointer;font-weight:650}a{color:var(--accent)}code{overflow-wrap:anywhere}
+svg{width:100%;height:auto;margin:1rem 0}svg rect{fill:var(--surface);stroke:var(--accent);stroke-width:2}
+svg path{fill:none;stroke:var(--accent);stroke-width:2}svg text{fill:var(--text);font:14px system-ui,sans-serif}
+</style>
+</head>
+<body>
+<main>
+<p class="muted">2026-10-01 12:09:43 KST · 격리 테스트 결과</p>
+<h1>중간에 끊긴 링크 전환을 저장된 계획으로 복원</h1>
+<p>Windows 임시 테스트 프로필에서만 전환 전에 계획을 디스크에 기록한다. 중간 중단을 주입한 뒤 기록을 다시 읽어 기존 Claude·Codex 링크 7개를 복원했다. 실제 사용자 홈과 플러그인 등록은 변경하지 않았다.</p>
+<div class="cards" aria-label="핵심 결과">
+  <div class="card"><strong>7/7</strong>중단 후 기존 링크 복원</div>
+  <div class="card"><strong>36/36</strong>관련 테스트 통과</div>
+  <div class="card"><strong>0</strong>실제 사용자 프로필 변경</div>
+  <div class="card"><strong>NO-GO</strong>운영 설치·실호출</div>
+</div>
+<svg viewBox="0 0 760 120" role="img" aria-label="계획 검증, 디스크 기록, 링크 전환 중단, 기록 재검증과 원복 순서">
+  <rect x="2" y="28" width="160" height="64" rx="10"/><text x="16" y="65">계획·바이트 확인</text>
+  <path d="M163 60h29m-8-7 8 7-8 7"/>
+  <rect x="193" y="28" width="160" height="64" rx="10"/><text x="210" y="65">기록 확정</text>
+  <path d="M354 60h29m-8-7 8 7-8 7"/>
+  <rect x="384" y="28" width="160" height="64" rx="10"/><text x="403" y="65">중간 중단</text>
+  <path d="M545 60h29m-8-7 8 7-8 7"/>
+  <rect x="575" y="28" width="183" height="64" rx="10"/><text x="588" y="65">기록 검증·원복</text>
+</svg>
+<details><summary>검증 내용</summary><p>기록의 계획 SHA-256, 대상 경로, 링크·SKILL.md 바이트를 검증한다. 중단·재호출·기록 변조·중복 JSON 키·심볼릭 링크 기록·기존 기록 충돌을 거부하거나 복구한다. Python 3.12·3.14 로컬에서 신규 14건과 기존 사전검사 22건, 각각 36/36 통과했다. Python 3.11은 현재 로컬 런처에서 찾지 못했으며 PR Windows CI 결과로 별도 확인한다.</p></details>
+<details><summary>범위와 남은 위험</summary><p>이것은 단일 작성자·프로세스 중단 리허설이다. 파일 동기화가 전원 장애 내구성을 증명하지 않으며, 실제 사용자 홈 적용 CLI·네이티브 플러그인 설치·전체 캐시 바이트·명령 선택·구독 청구·이미지 생성·Grok Bot 전달을 구현하거나 검증하지 않는다. 기존 D-39 설치 NO-GO와 PR #70/#71 main 머지 보류는 유지한다.</p></details>
+<details><summary>실행 방법</summary><p>격리 테스트는 <code>python -B -m unittest scripts.tests.test_vibe_flat_transition scripts.tests.test_vibe_host_preflight -q</code>로 재현할 수 있다. 운영 프로필에 이 라이브러리를 직접 적용하지 않는다. 설명은 <a href="../docs/INSTALL.md">INSTALL.md</a>에 있다.</p></details>
+</main>
+</body>
+</html>
