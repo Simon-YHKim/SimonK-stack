@@ -617,13 +617,14 @@ artifacts; the judge sees both openings and both rebuttals. The judge is a
 different call, but a same-vendor judge is not independent vendor review.
 This adapter accepts only canonical debate dependencies (no auxiliary edges),
 even if the broader planner accepts them.
-Codex has a separate guarded source adapter below. Antigravity and Grok CLI
-execution are not implemented here: the planner rejects their `cli`/`orca`
-candidates with `EXECUTION_ADAPTER_UNAVAILABLE`, even if synthetic runtime
-assertions claim fresh billing and quota. A full five-surface debate is not
-automatic. Claude/Codex CLI planning can still select a node with skills, while
-their tool-free adapters reject it at dispatch; planner `ready` is not execution
-proof. Neither implemented adapter manufactures account/billing proof.
+Codex has a guarded source adapter below. Grok CLI has a disabled source
+experiment only; Antigravity CLI and Grok/Antigravity Orca execution remain
+unimplemented. The planner rejects these candidates with
+`EXECUTION_ADAPTER_UNAVAILABLE`, even if synthetic runtime assertions claim
+fresh billing and quota. A full five-surface debate is not automatic.
+Claude/Codex CLI planning can still select a node with skills, while their
+tool-free adapters reject it at dispatch; planner `ready` is not execution
+proof. No adapter manufactures account/billing proof.
 
 The trusted coordinator puts this exact `cli` manifest in the node *before*
 planning and Store registration:
@@ -760,6 +761,41 @@ python -B "<vibe>/scripts/execute_codex_cli.py" reconcile --plan plan.json --nod
 Codex CLI JSONL event shapes and tool-event caveats are documented by the
 [OpenAI Codex SDK](https://github.com/openai/codex/blob/main/sdk/typescript/src/thread.ts)
 and [OpenAI skill-eval guide](https://developers.openai.com/blog/eval-skills).
+
+## Guarded Grok CLI source experiment
+
+`execute_grok_cli.py` contains offline one-send and trace-parsing mechanics for
+future review. `NATIVE_DISPATCH_ENABLED=False` prevents native construction and
+the planner excludes `grok/cli`, so this is **not an operational adapter**.
+Synthetic fake-transport tests exercise a registered plan and Store without
+spending usage. No Grok generation or subscription invoice was verified.
+
+The prototype pins native executable bytes, profile and account references,
+private prompt/trace/content paths, and a fresh certificate. It repeats
+pre-send checks, writes the prompt privately, records a transport capture hash
+before accepting a trace, and never retries an uncertain send. Its synthetic
+result remains unverified with `actual_usd=null`; CLI effort flags do not prove
+the provider's internal effort or a zero-dollar bill.
+
+Operational activation is blocked by five unresolved facts:
+
+1. The public ACP billing response lacks an account ID, so the existing
+   collector cannot bind the current account to the certificate.
+2. An effective model `api_key` override can supersede OAuth. The prototype's
+   after-send `apiKeySource` check is too late to prevent a paid request.
+3. Effective hooks may execute commands or HTTP requests even with an empty
+   model tool allowlist. MCP/plugin listing is not a hook/config proof.
+4. Windows `--sandbox read-only` may fail open, and canonical non-Git paths do
+   not prove private ACLs for `cwd` or `GROK_HOME` session transcripts.
+5. `streaming-messages-json` can zero-fill incomplete usage; numeric token
+   fields are not a complete ledger or billing receipt.
+
+Do not remove the native hold or add `grok/cli` to the planner until these
+are solved with pre-send evidence, regression tests and independent review.
+See xAI's official [headless](https://github.com/xai-org/grok-build/blob/main/crates/codegen/xai-grok-pager/docs/user-guide/14-headless-mode.md),
+[configuration](https://github.com/xai-org/grok-build/blob/main/crates/codegen/xai-grok-pager/docs/user-guide/05-configuration.md),
+[hooks](https://github.com/xai-org/grok-build/blob/main/crates/codegen/xai-grok-pager/docs/user-guide/10-hooks.md) and
+[sandbox](https://github.com/xai-org/grok-build/blob/main/crates/codegen/xai-grok-pager/docs/user-guide/18-sandbox.md) guides.
 
 ## Guarded Orca adapter
 
