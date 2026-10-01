@@ -288,6 +288,23 @@ class OrcaAdapterTests(unittest.TestCase):
             self.dispatch()
         self.assertEqual(self.starts(), 0)
 
+    def test_refresh_rejects_changed_task_spec_for_bound_node(self):
+        # E.g. a newer planner adds a Gstack brief to a node whose native Task already exists.
+        c = candidate(model="gpt-5.6-luna", transport="orca")
+        s = step(proc="inventory-schema", **{"class": "A"}, orca=self.binding)
+        catalog = {"explain": {"path": "/fixture/SKILL.md", "description": "Pre-landing PR review. (gstack)"}}
+        new = orchestrate.make_plan({"run_id": "vibe-fixture", "steps": [s]}, catalog,
+                                    {"candidates": [c], "tools": [], **self.binding["guards"]}, NOW, fixture_registry([c]))
+        self.assertEqual(new["status"], "ready", new["errors"])
+        self.assertEqual(run_state.spec_digest(new), run_state.spec_digest(self.plan))
+        self.assertNotEqual(self.m.render_spec(new["steps"][0]), self.transport.spec)
+        with self.assertRaisesRegex(run_state.StateError, "TASK_SPEC_CHANGED"):
+            self.store.refresh(new, now=NOW)
+        self.assertEqual([r["plan_digest"] for r in self.store.snapshot()["runs"]], [self.plan["plan_digest"]])
+        self.store.refresh(copy.deepcopy(self.plan), now=NOW)  # An unchanged Task spec still refreshes.
+        self.assertEqual(self.dispatch()["state"], "running")
+        self.assertEqual(self.starts(), 1)
+
     def test_wrong_runtime_blocks_send(self):
         self.transport.runtime = "different-runtime"
         with self.assertRaises(run_state.StateError):

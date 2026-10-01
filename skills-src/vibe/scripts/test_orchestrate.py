@@ -7,6 +7,7 @@ import importlib.util
 import io
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -1048,6 +1049,143 @@ class OrchestrationTests(unittest.TestCase):
                 plan = self.plan([local], [], tools=["python"], tool_costs=[incomplete])
                 self.assertIn(reason, plan["steps"][0]["errors"])
         self.assertEqual(self.plan([local], [], tools=["python"], tool_costs=[quote])["status"], "ready")
+
+    def test_gstack_bin_local_tool_handoff_requests_isolation(self):
+        script = "C:/Users/fixture/.claude/skills/gstack/bin/gstack-config"
+        for argv, software, flagged in (
+                ([script, "get", "telemetry"], script, True),
+                (["bash", script.replace("/", "\\"), "get", "telemetry"], "bash", True),
+                (["sh", "/home/fixture/.claude/skills/gstack/bin/gstack-slug"], "sh", True),
+                (["python", "/home/fixture/skills/gstack/bin"], "python", False),
+                (["bash", "/fixture/skills/not-gstack/bin/tool"], "bash", False),
+                (["python", "fixed-local-fixture.py"], "python", False)):
+            with self.subTest(argv=argv):
+                p = self.plan([step(kind="local", skills=[], argv=argv, software=[software])], [],
+                              tools=[software], tool_costs=[self.tool_cost(argv)])
+                self.assertEqual(p["status"], "ready", p["steps"][0]["errors"])
+                handoff = p["steps"][0]["handoff"]
+                self.assertEqual(handoff.get("gstack_isolation"), True if flagged else None)
+                self.assertEqual(handoff["argv"], argv)
+
+    def test_gstack_skill_host_and_orca_handoffs_carry_isolation_brief(self):
+        self.catalog["review"] = {"name": "review", "path": "/fixture/review/SKILL.md",
+                                  "description": "Pre-landing PR review. (gstack)"}
+        self.catalog["qa"] = {"name": "qa", "path": "/home/fixture/.claude/skills/gstack/qa/SKILL.md",
+                              "description": "QA"}
+        for skills, transport, expected in ((["review"], "host", "required"),
+                                            (["explain", "qa"], "host", "required"),
+                                            (["review"], "orca", "best-effort"),
+                                            (["explain"], "host", None),
+                                            (["explain"], "orca", None)):
+            with self.subTest(skills=skills, transport=transport):
+                p = self.plan([step(skills=skills)], [candidate(transport=transport)])
+                handoff = p["steps"][0]["handoff"]
+                self.assertEqual(handoff.get("gstack_isolation"), expected)
+                if expected is None:
+                    self.assertNotIn("gstack_brief", handoff)
+                    continue
+                brief = handoff["gstack_brief"]
+                for text in ("run_state.py\" gstack-env --run 'test-run'", "export line",
+                             "TELEMETRY: off", "UPDATE_CHECK: false", "stop this node"):
+                    self.assertIn(text, brief)
+                self.assertEqual(brief.startswith("Orca cannot pass environment"), transport == "orca")
+                if transport == "host":
+                    self.assertEqual(p["status"], "ready", p["errors"])
+
+    def test_gstack_bin_in_any_argv_element_requests_isolation(self):
+        bin_dir = "/home/fixture/.claude/skills/gstack/bin/"
+        for argv in (["bun", bin_dir + "gstack-gbrain-sync.ts"],
+                     ["node", bin_dir + "gstack-render.ts"],
+                     ["env", "bash", bin_dir + "gstack-config", "get", "telemetry"],
+                     ["bash", "-c", bin_dir + "gstack-config get telemetry"],
+                     ["bash", "-c", "cd /repo && ~/.claude/skills/gstack/bin/gstack-slug"],
+                     ["python", "C:\\fixture\\.claude\\skills\\gstack\\bin\\gstack-detach"]):
+            with self.subTest(argv=argv):
+                p = self.plan([step(kind="local", skills=[], argv=argv, software=[argv[0]])], [],
+                              tools=[argv[0]], tool_costs=[self.tool_cost(argv)])
+                self.assertEqual(p["status"], "ready", p["steps"][0]["errors"])
+                self.assertIs(p["steps"][0]["handoff"].get("gstack_isolation"), True)
+        for argv in (["bash", "-c", "echo myskills/gstack/bin/x"], ["node", "/fixture/skills/gstack/binary/x.ts"]):
+            self.assertFalse(self.m.gstack_command(argv))
+
+    def gstack_root(self, folder):
+        # Gstack-derived preambles as packaged in a plugin: no "(gstack)" suffix, no gstack path part.
+        root = Path(folder) / "simonk-stack" / "skills"
+        for name, body in (("qa", "_UPD=$(~/.claude/skills/gstack/bin/gstack-update-check || true)\n"),
+                           ("ship", "mkdir -p ~/.gstack/sessions\n"),
+                           ("learn", 'cat "${GSTACK_HOME:-$HOME/.gstack}/projects/x/learnings.jsonl"\n'),
+                           ("explain", "Read the code and explain it.\n")):
+            (root / name).mkdir(parents=True)
+            (root / name / "SKILL.md").write_text(
+                f"---\nname: {name}\ndescription: Use when {name} is requested.\n---\n\n```bash\n{body}```\n",
+                encoding="utf-8", newline="\n")
+        return root
+
+    def gstack_plan(self, catalog, name, transport="host"):
+        c = candidate(transport=transport)
+        return self.m.make_plan({"run_id": "r1", "steps": [step(skills=[name])], "budget": {}}, catalog,
+                                {"candidates": [c], "tools": [], "observed_at": NOW}, NOW, fixture_registry([c]))
+
+    def test_inventory_flags_gstack_preamble_skills_for_isolation(self):
+        with tempfile.TemporaryDirectory(prefix="vibe-inventory-") as folder:
+            root = self.gstack_root(folder)
+            catalog = self.m.skill_inventory([root])["catalog"]
+            shadow = Path(folder) / "shadow"
+            (shadow / "explain").mkdir(parents=True)
+            (shadow / "explain" / "SKILL.md").write_text(
+                "---\nname: explain\ndescription: Shadowed copy.\n---\n\ntouch ~/.gstack/x\n", encoding="utf-8")
+            shadowed = self.m.skill_inventory([root, shadow])["catalog"]["explain"]
+        for name in ("qa", "ship", "learn"):
+            self.assertIs(catalog[name].get("gstack"), True)
+            for transport, level in (("host", "required"), ("orca", "best-effort")):
+                with self.subTest(name=name, transport=transport):
+                    handoff = self.gstack_plan(catalog, name, transport)["steps"][0]["handoff"]
+                    self.assertEqual(handoff.get("gstack_isolation"), level)
+                    self.assertIn("gstack-env --run 'r1'", handoff["gstack_brief"])
+        self.assertNotIn("gstack", catalog["explain"])
+        self.assertNotIn("gstack_isolation", self.gstack_plan(catalog, "explain")["steps"][0]["handoff"])
+        self.assertNotIn("gstack", shadowed)
+        self.assertIs(shadowed["alternatives"][0]["gstack"], True)
+        self.assertTrue(self.m.gstack_skill(shadowed))
+        self.assertTrue(self.m.gstack_skill({"path": "/x/qa/SKILL.md",
+                                             "description": "Use for QA. (gstack) Voice triggers: run QA."}))
+
+    def test_gstack_flag_keeps_inventory_and_non_gstack_plan_digests(self):
+        with tempfile.TemporaryDirectory(prefix="vibe-inventory-") as folder:
+            root = self.gstack_root(folder)
+            after = self.m.skill_inventory([root])
+            with patch.object(self.m, "GSTACK_REFERENCE", re.compile(rb"(?!)")):
+                before = self.m.skill_inventory([root])  # Detection as it was before the flag.
+        self.assertNotIn("gstack", before["catalog"]["qa"])
+        self.assertIs(after["catalog"]["qa"]["gstack"], True)
+        self.assertEqual(after["inventory_digest"], before["inventory_digest"])
+        for transport in ("host", "orca"):
+            with self.subTest(transport=transport):
+                self.assertEqual(self.gstack_plan(after["catalog"], "explain", transport)["plan_digest"],
+                                 self.gstack_plan(before["catalog"], "explain", transport)["plan_digest"])
+                self.assertNotEqual(self.gstack_plan(after["catalog"], "qa", transport)["plan_digest"],
+                                    self.gstack_plan(before["catalog"], "qa", transport)["plan_digest"])
+
+    def test_gstack_brief_does_not_depend_on_install_path(self):
+        self.catalog["review"] = {"name": "review", "path": "/fixture/review/SKILL.md",
+                                  "description": "Pre-landing PR review. (gstack)"}
+        first = self.plan([step(skills=["review"])], [candidate(transport="orca")])
+        with patch.object(self.m, "SCRIPT_ROOT", Path("/other/install/vibe/scripts")):
+            second = self.plan([step(skills=["review"])], [candidate(transport="orca")])
+        brief = first["steps"][0]["handoff"]["gstack_brief"]
+        self.assertEqual(second["steps"][0]["handoff"], first["steps"][0]["handoff"])
+        self.assertNotIn(self.m.SCRIPT_ROOT.as_posix(), brief)
+        self.assertIn("python -B \"<vibe skill folder>/scripts/run_state.py\" gstack-env --run 'test-run'", brief)
+
+    def test_docs_pin_debate_version_and_state_gstack_limits(self):
+        skill = (SCRIPT.parent.parent / "SKILL.md").read_text(encoding="utf-8")
+        self.assertTrue("`/ai-debate` >= 0.2.0" in skill)
+        doc = (SCRIPT.parent.parent / "references" / "orchestration.md").read_text(encoding="utf-8")
+        for text in ("instruction-level", "274 lines", "gstack-detach", "gstack-repo-mode",
+                     "repo classifier", "TASK_SPEC_CHANGED", "TASK_SPEC_MISMATCH"):
+            with self.subTest(text=text):
+                self.assertTrue(text in doc, text)
+        self.assertFalse("46 lines" in doc)
 
     def test_metered_local_quote_requires_positive_authorized_budget(self):
         argv = ["python", "api.py"]

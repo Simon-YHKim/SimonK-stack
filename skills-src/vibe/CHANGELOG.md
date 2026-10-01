@@ -1,5 +1,32 @@
 # Changelog
 
+## 2.12.42 - 2026-10-01
+
+- Give each /vibe run its own Gstack state folder with telemetry, update checks
+  and onboarding prompts off. `run_state.py gstack-env --run <id>` creates
+  `gstack-runs/<sha256 prefix>` beside the run DB without creating the DB or
+  touching the personal `~/.gstack`, and prints the env, an `export` line and a
+  PowerShell line. Re-entry reads the config like `gstack-config get` (last
+  `key:` line, LF-split lines only, quotes kept, exact `off`/`false`) and fails
+  closed otherwise.
+- Plans mark Gstack bin tool handoffs when any argv element names a
+  `skills/gstack/bin/` script, and Gstack-skill host/Orca nodes. Inventory flags
+  a skill `gstack: true` when its SKILL.md bytes (or a shadowed alternative's)
+  reference `skills/gstack/bin/` or `~/.gstack`/`$HOME/.gstack`, which catches
+  plugin-packaged Gstack skills; the flag stays out of `inventory_digest`.
+- The brief names `<vibe skill folder>` instead of an absolute path, so Orca Task
+  specs do not depend on the install path. `refresh` rejects a changed Task spec
+  on a bound, unfinished Orca node with `TASK_SPEC_CHANGED`. Finalize drafted
+  preparations before upgrading; cancel and re-plan registered runs whose Task
+  spec changed.
+- Isolation is instruction-level: nothing reads `gstack_isolation` at runtime,
+  Orca is best-effort, and Gstack-derived skills and some bin scripts still use
+  `~/.gstack`/`$HOME` directly (see the orchestration reference).
+- Require a PROTOCOL §35 decision record to come from `/ai-debate` >= 0.2.0 with
+  all four vendor seats; the five-node debate graph is an execution contract only.
+- Offline tests only. No Gstack, model, Orca worker or Bot call was made, and
+  `gstack-runs` folders are not cleaned up automatically.
+
 ## 2.12.18 - 2026-09-30
 
 - Bind Grok CLI and Grok Bot quota evidence to their distinct surface,
