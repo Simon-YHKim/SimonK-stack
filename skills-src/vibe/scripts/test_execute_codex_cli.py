@@ -150,6 +150,37 @@ class CodexCliAdapterTests(unittest.TestCase):
         self.assertEqual(self.store.snapshot()["attempts"], [])
         self.assertEqual(self.cli.sends, [])
 
+    def test_unrepresentable_fresh_billing_buckets_block_before_send(self):
+        for buckets in ({"premium/credits": {"credits": {"hasCredits": True,
+                            "unlimited": False, "balance": "3.25"}}},
+                        {"premium": ["malformed"]}, ["malformed"]):
+            with self.subTest(buckets=buckets):
+                raw = {"limits": {"rateLimits": {"limitId": "codex", "credits": {
+                    "hasCredits": False, "unlimited": False, "balance": "0"}},
+                    "rateLimitsByLimitId": buckets}}
+                self.cli.auth = lambda binding, env, now: runtime_collect.normalize(
+                    "codex", raw, now, binding["profile_path"])
+                with self.assertRaisesRegex(runtime_collect.CollectorError,
+                                            "billing-shape-unknown"):
+                    self.adapter.dispatch(self.plan, "opening", self.certificate)
+        self.assertEqual(self.store.snapshot()["attempts"], [])
+        self.assertEqual(self.cli.sends, [])
+
+    def test_conflicting_fresh_credit_balance_aliases_block_before_send(self):
+        raw = {"account": {"account": {"type": "chatgpt", "planType": "plus",
+                                    "email": "fixture@example.test"}},
+               "models": {"data": [{"model": "fixture-gpt",
+                                    "supportedReasoningEfforts": [{"reasoningEffort": "low"}]}]},
+               "limits": {"rateLimits": {"limitId": "codex", "credits": {
+                   "hasCredits": False, "unlimited": False,
+                   "balance": {"val": "0", "value": "3.25"}}}}}
+        self.cli.auth = lambda binding, env, now: runtime_collect.normalize(
+            "codex", raw, now, binding["profile_path"])
+        with self.assertRaisesRegex(run_state.StateError, "CODEX_PAID_CREDIT_EXPOSURE"):
+            self.adapter.dispatch(self.plan, "opening", self.certificate)
+        self.assertEqual(self.store.snapshot()["attempts"], [])
+        self.assertEqual(self.cli.sends, [])
+
     def test_api_key_environment_is_never_forwarded(self):
         with patch.dict(os.environ, {"OPENAI_API_KEY": "fixture-only",
                                      "CODEX_API_KEY": "fixture-only"}):

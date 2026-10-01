@@ -126,6 +126,22 @@ class RuntimeCollectionTests(unittest.TestCase):
                 self.assertFalse(out["account_verified"])
                 self.assertFalse(out["generation_verified"])
 
+    def test_grok_conflicting_outer_overage_aliases_stay_unknown(self):
+        raw = grok_raw()
+        raw["onDemandEnabled"] = False
+        raw["on_demand_enabled"] = True
+        out = self.parse("grok", raw)
+        self.assertIsNone(out["billing"]["extra_usage_enabled"])
+        self.assertFalse(out["billing"]["verified"])
+
+    def test_grok_conflicting_legacy_overage_aliases_stay_unknown(self):
+        raw = grok_raw()
+        raw["billing"]["onDemandEnabled"] = False
+        raw["billing"]["on_demand_enabled"] = True
+        out = self.parse("grok", raw)
+        self.assertIsNone(out["billing"]["extra_usage_enabled"])
+        self.assertFalse(out["billing"]["verified"])
+
     def test_grok_legacy_nested_overage_flag_remains_supported(self):
         raw = grok_raw()
         raw["billing"]["onDemandEnabled"] = False
@@ -307,6 +323,27 @@ class RuntimeCollectionTests(unittest.TestCase):
         billing = self.parse("codex", raw)["billing"]["buckets"]
         self.assertEqual(billing["premium"]["credits"]["balance"], "5")
         self.assertTrue(billing["premium"]["spend_control_reached"])
+
+    def test_codex_rejects_unrepresentable_billing_buckets(self):
+        # Silently dropping a paid bucket can make a clear legacy bucket look safe.
+        for buckets in (
+            {"premium/credits": {"credits": {"hasCredits": True,
+                "unlimited": False, "balance": "5"}}},
+            {"premium": "malformed"},
+            ["malformed"],
+        ):
+            with self.subTest(buckets=buckets):
+                raw = codex_raw()
+                raw["limits"]["rateLimitsByLimitId"] = buckets
+                with self.assertRaisesRegex(self.m.CollectorError, "billing-shape-unknown"):
+                    self.parse("codex", raw)
+
+    def test_codex_conflicting_balance_aliases_do_not_appear_zero(self):
+        raw = codex_raw()
+        raw["limits"]["rateLimits"]["credits"]["balance"] = {"val": "0", "value": "5"}
+        out = self.parse("codex", raw)
+        self.assertIsNone(out["billing"]["credits"]["balance"])
+        self.assertEqual(self.m.amount({"val": "0", "value": "0.00"}), "0")
 
     def test_codex_backend_uses_same_connection_and_detects_account_change(self):
         parent = self

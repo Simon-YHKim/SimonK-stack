@@ -259,6 +259,13 @@ named limit bucket must each report `has_credits=false`, `unlimited=false`
 and a zero balance. Missing, null, malformed or contradictory records hold both
 planning and the final CLI gate. A zero-valued named bucket cannot stand in
 for missing top-level credit evidence.
+The Codex metadata collector also rejects unrepresentable named billing bucket
+IDs, non-object buckets, and non-object bucket collections. It must never drop
+an unknown bucket: doing so can conceal spendable purchased credits from both
+the planner and the final CLI re-observation guard.
+Conflicting numeric aliases (`val` and `value`) resolve to unknown, never a
+preferred zero. Conflicting Grok outer or legacy nested overage booleans
+likewise stay unknown.
 For Grok/Grok Bot, check purchased
 Extra Usage Credits/on-demand fallback separately from Auto Top Up and keep
 the CLI and Bot account/quota evidence distinct. Grok ACP billing places

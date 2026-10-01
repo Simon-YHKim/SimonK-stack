@@ -70,6 +70,12 @@ def identifier(value):
     return value if isinstance(value, str) and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,119}", value) else None
 
 
+def consistent_bool_alias(source, first, second):
+    values = [source[key] for key in (first, second) if key in source]
+    return (values[0] if values and all(type(value) is bool and value == values[0]
+                                        for value in values) else None)
+
+
 def grok_model_catalog(text):
     """Accept only the local CLI's model-list section, never arbitrary prose."""
     if not isinstance(text, str) or len(text.encode("utf-8")) > MAX_BYTES:
@@ -101,6 +107,9 @@ def opaque(*parts):
 
 def amount(value, depth=0):
     if isinstance(value, dict) and depth < 2:
+        if "val" in value and "value" in value:
+            left, right = amount(value["val"], depth + 1), amount(value["value"], depth + 1)
+            return left if left is not None and right is not None and Decimal(left) == Decimal(right) else None
         return amount(value.get("val", value.get("value")), depth + 1)
     if isinstance(value, bool) or value is None:
         return None
@@ -182,14 +191,18 @@ def normalize(surface, raw, now, profile):
                 result["models"].append({"model": key, "transport_efforts": sorted(set(filter(None, efforts)))})
         limits = obj(raw.get("limits"))
         legacy = obj(limits.get("rateLimits"))
-        buckets = dict(obj(limits.get("rateLimitsByLimitId")))
+        raw_buckets = limits.get("rateLimitsByLimitId", {})
+        if not isinstance(raw_buckets, dict):
+            raise CollectorError("billing-shape-unknown")
+        buckets = dict(raw_buckets)
         if legacy:
             # Keep an unnamed bucket separate; do not guess its model membership.
             buckets.setdefault(identifier(legacy.get("limitId")) or "unnamed", legacy)
         result["billing"]["buckets"] = {}
         for name, bucket in buckets.items():
             if not identifier(name) or not isinstance(bucket, dict):
-                continue
+                # Dropping an unknown bucket could hide spendable credits.
+                raise CollectorError("billing-shape-unknown")
             result["billing"]["buckets"][name] = codex_billing(bucket)
             for slot in ("primary", "secondary"):
                 w = obj(bucket.get(slot))
@@ -217,13 +230,9 @@ def normalize(surface, raw, now, profile):
         # ACP billing places this flag beside config; only legacy envelopes
         # carried it inside the selected credit bucket. An explicit outer null
         # stays unknown rather than borrowing a contradictory nested value.
-        if "onDemandEnabled" in raw:
-            enabled = raw["onDemandEnabled"]
-        elif "on_demand_enabled" in raw:
-            enabled = raw["on_demand_enabled"]
-        else:
-            enabled = root.get("onDemandEnabled", root.get("on_demand_enabled"))
-        result["billing"]["extra_usage_enabled"] = enabled if type(enabled) is bool else None
+        source = raw if "onDemandEnabled" in raw or "on_demand_enabled" in raw else root
+        result["billing"]["extra_usage_enabled"] = consistent_bool_alias(
+            source, "onDemandEnabled", "on_demand_enabled")
         if "_grok_models_text" in raw:
             result["models"] = [{"model": model, "transport_efforts": []}
                                 for model in grok_model_catalog(raw["_grok_models_text"])]

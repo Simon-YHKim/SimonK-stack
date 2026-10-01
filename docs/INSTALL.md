@@ -2,6 +2,51 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
+## 2026-10-01 `/vibe` 2.12.35 과금 관측 정합성 최종 격리 후보
+
+독립 검토에서 2.12.32 수집기가 비표준 Codex 한도 버킷을 조용히 버려
+구매 크레딧을 숨길 수 있음이 재현됐다. 2.12.35는 비표준 ID·비객체 버킷·
+비객체 버킷 모음을 `billing-shape-unknown`으로 거부한다. 중첩 금액의
+`val`·`value`가 충돌하면 잔액을 알 수 없음으로 처리해 계획 및 최종 CLI
+가드에서 차단한다. Grok의 외부·레거시 중첩 `onDemandEnabled`·
+`on_demand_enabled`가 모순이어도 어느 쪽을 우선하지 않는다.
+
+새 후보는
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr69-billing-consistency-candidate/`에
+있으며 이전 2.12.32~2.12.34 후보와 사용자 설치본을 보존했다.
+
+| 산출물 | 검증된 전체 digest | 범위 |
+|---|---|---|
+| `source` | `97699b4d074b5fe09a9080dc2b7364c2c5fb68733a02381ad99a51ac855f28ce` | 137스킬·423파일 |
+| `candidate-safety` | `1aa454151c48cbe64f7734479739e8d637d885200d10837580e4b03c8330109e` | Claude 5플러그인·182스킬 |
+| `codex-overlay-safety` | `355db0e5c2a36f7a3ba39fc21c25b5287c2f54f44da5beaec61775b9620416b8` | Codex 호환 오버레이 |
+| `codex-subset-safety` | `e3e366d488a8a9f0475dcb7f0e94aad500257e69f841598a1afcd495db05c698` | Codex 177스킬·출처 검증 |
+
+네 영수증을 별도 재검증했고, 오프라인 probe 4/4, `/vibe` 단위 테스트
+333건, 자체 점검 180항목, 전체 스킬 품질 141/141, 라우팅 표 동기화가
+통과했다. 저장소 `runtime_collect.py`와 후보 소스의 SHA-256이
+`0b7c31c05543e20e590124c5a2dbdcdf480375a7d655f4de200b3b80ae70cf95`로
+일치한다. 실제 계정이나 모델을 호출한 테스트는 없다.
+
+정확한 2.12.35 후보를 네트워크·클립보드·장치 리디렉션과 사용자 인증정보가
+없는 별도 Windows Sandbox 두 곳에서 적재·복원했다. Claude Code 2.1.285는
+5플러그인·182스킬·디버그 오류0, 고정 Codex CLI 0.155.0은 5플러그인
+활성화가 통과했다. 양쪽 모두 이전 Claude5·Codex2 링크를 두 번 복원하고
+시험 플러그인 최종0, 네트워크 어댑터0·모델 생성0이었다. 원시 결과는
+`host-rehearsal/claude-output/integrated-result.json`(SHA-256
+`e4fd8b902a6f0833128223dafc7e11e805db4ae8364da726ae6d539c90a77c71`)과
+`host-rehearsal/codex-output/codex-integrated-result.json`(SHA-256
+`d41fbfd3ffd05ff7ae809df18ce1c9ec3b4615d8c21afc050ca15ea467a7553b`)이다.
+두 게스트는 종료됐다.
+
+이 결과는 격리 호스트 적재·복원에 한정된다. 실제 사용자 홈 설치,
+모델·effort 자동 선택 품질, 이미지 생성, Grok Bot 배달, Gstack 전체
+외부 런타임 및 구독 청구는 검증하지 않았다. `installation_ready=false`,
+`host_compatibility_verified=false`, `runtime_closure_verified=false`를 유지한다.
+독립 심판 D-code와 정확한 PR HEAD의 CI 전에는 `main` 머지하지 않는다.
+운영 Cloudflare Pages 자동 배포는 사용자가 허용했으나 설치·실호출 허가는
+아니다.
+
 ## 2026-10-01 `/vibe` 2.12.32 최상위 Codex 크레딧 증거 가드 후보
 
 `fix/vibe-grok-billing-261001`에서 최상위 `credits` 기록이 빠지고 명명된
