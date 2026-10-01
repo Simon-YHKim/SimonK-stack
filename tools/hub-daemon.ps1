@@ -110,8 +110,8 @@ function Get-ModelCfg([string]$ai,[string]$key,[string]$default){
 # fallback_model/fallback_effort). Has=$false when a fallback tier was asked for but no
 # fallback_model is defined -> caller then just backs off (no model to switch to).
 function Get-AIModelTier([string]$ai,[string]$tier){
-  $defModel = switch($ai){ 'codex' {'gpt-5.5'} 'grok' {'grok-build'} 'antigravity' {'gemini-3.1-pro-preview'} default {''} }
-  $defEff   = switch($ai){ 'codex' {'medium'} 'grok' {'high'} 'antigravity' {'high'} default {'high'} }
+  $defModel = switch($ai){ 'codex' {'gpt-6.1-sol'} 'grok' {'grok-4.7'} 'antigravity' {'gemini-3.1-pro-preview'} default {''} }
+  $defEff   = switch($ai){ 'codex' {'xhigh'} 'grok' {'high'} 'antigravity' {'high'} default {'high'} }
   if($tier -eq 'fallback'){
     $fm = Get-ModelCfg $ai 'fallback_model' ''
     if(-not $fm){ return [pscustomobject]@{ Model=''; Effort=''; Has=$false } }

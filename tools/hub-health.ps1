@@ -264,12 +264,12 @@ Check 'Models' 'models.json best-model contract' {
   # presence-only check and reach the daemon = silent death (grok-4.3 incident). Bump this
   # map when the contract is intentionally upgraded.
   $expect = @{
-    claude      = @('claude-fable-5','max')   # re-pinned 2026-07-03: fable available again (was opus-4-8 while fable was down)
-    codex       = @('gpt-5.5','medium')
-    grok        = @('grok-build','high')
+    claude      = @('claude-opus-5-5','max')  # re-pinned 2026-10-02 from local catalogs (fable-5 retired in favour of the 5.5 family)
+    codex       = @('gpt-6.1-sol','xhigh')
+    grok        = @('grok-4.7','high')
     antigravity = @('gemini-3.1-pro-preview','high')
   }
-  $deny = @('grok-4.3','grok-4','gemini-3.5-flash','gpt-6')
+  $deny = @('grok-4.3','grok-4','gemini-3.5-flash','gpt-6','grok-build','grok-composer-2.5-fast','claude-fable-5')
   $bad = @()
   foreach ($ai in $expect.Keys) {
     if (-not $m.$ai -or -not $m.$ai.model -or -not $m.$ai.effort) { $bad += ($ai + ':missing'); continue }
@@ -279,7 +279,7 @@ Check 'Models' 'models.json best-model contract' {
   }
   if ([string]$m.antigravity.agy_model -ne 'Gemini 3.1 Pro (High)') { $bad += ('antigravity:agy_model=' + $m.antigravity.agy_model) }
   if ($bad.Count -gt 0) { Res 'FAIL' (($bad | Select-Object -First 4) -join ' | ') }
-  else { Res 'PASS' 'contract OK: codex=gpt-5.5/medium grok=grok-build/high AG=gemini-3.1-pro-preview/high claude=fable-5/max' }
+  else { Res 'PASS' 'contract OK: codex=gpt-6.1-sol/xhigh grok=grok-4.7/high AG=gemini-3.1-pro-preview/high claude=opus-5-5/max' }
 }
 Check 'Models' 'MODELS.md present' {
   if (Test-Path (Join-Path $root 'MODELS.md')) { Res 'PASS' 'doc present' } else { Res 'WARN' 'MODELS.md missing (json is source of truth)' }

@@ -1,45 +1,45 @@
 {
   "_meta": {
     "purpose": "Single source of truth for the highest-benchmark model + max reasoning effort each hub AI must use, PLUS the verified fallback model each AI switches to when its primary hits usage/quota exhaustion. hub-daemon.ps1 reads this to build spawn flags and to auto-switch model on QUOTA (see fallback_model/fallback_effort + MODELS.md 'usage-exhaustion fallback'). Refreshed daily by the model-benchmark-refresh schedule.",
-    "fallback_contract": "On a 429/QUOTA_EXHAUSTED/TerminalQuotaError from an AI's primary model, the daemon retries the SAME cycle once with fallback_model@fallback_effort, then sticks with the fallback for ~6 cycles before re-probing primary. fallback_model MUST be a real model id callable by that CLI (a hallucinated id silently kills the daemon, cf. the grok-4.3 incident) - all fallbacks below were probe-verified 2026-06-15.",
+    "fallback_contract": "On a 429/QUOTA_EXHAUSTED/TerminalQuotaError from an AI's primary model, the daemon retries the SAME cycle once with fallback_model@fallback_effort, then sticks with the fallback for ~6 cycles before re-probing primary. fallback_model MUST be a real model id callable by that CLI (a hallucinated id silently kills the daemon, cf. the grok-4.3 incident) - all ids below were verified 2026-10-02 against the LOCAL CLI catalogs (codex models_cache.json, grok models, agy models, Claude Code model-catalog cache): catalog-listed, NOT spawn-probed (no model calls).",
     "generated": "2026-06-14",
-    "last_checked": "2026-07-03",
-    "method": "hub-upgrade-research workflow (parallel per-provider web search + adversarial cross-verify)",
+    "last_checked": "2026-10-02 00:45 KST",
+    "method": "2026-10-02 refresh: local catalog cross-check with zero model calls (codex models_cache.json fetched 2026-10-01, `grok --no-auto-update models`, `agy models` with AGY_CLI_DISABLE_AUTO_UPDATE=1, Claude Code model-catalog cache fetched 2026-10-01). Original 2026-06-14: hub-upgrade-research workflow (parallel per-provider web search + adversarial cross-verify)",
     "next_refresh": "daily ~09:00 KST cloud schedule"
   },
   "claude": {
     "provider": "Anthropic",
-    "model": "claude-fable-5",
+    "model": "claude-opus-5-5",
     "effort": "max",
-    "cli_select": "/model -> Fable 5 (or claude --model fable) ; then /effort max (persist: env CLAUDE_CODE_EFFORT_LEVEL=max)",
-    "fallback_model": "claude-opus-4-8",
+    "cli_select": "/model -> Opus 5.5 (or claude --model opus) ; then /effort max (persist: env CLAUDE_CODE_EFFORT_LEVEL=max)",
+    "fallback_model": "claude-sonnet-5-5",
     "fallback_effort": "max",
-    "benchmark_basis": "Claude Fable 5 (Claude 5 family, Mythos-class tier above Opus) = the most capable model usable on this account. RE-PINNED 2026-07-03: fable became AVAILABLE again and Simon set /model Fable 5 as his default (this session verified running claude-fable-5). Effort scale low|medium|high|xhigh|max; max = no token-spend cap.",
-    "caveat": "Persist max effort via env CLAUDE_CODE_EFFORT_LEVEL=max. Interactive Claude Code is flat-rate (not per-token metered). Fallback = claude-opus-4-8 @ max (previous pin, verified in daily use 06-17..07-03). If fable becomes unavailable again, re-pin opus-4-8 as primary (sonnet-4-6@high as its fallback)."
+    "benchmark_basis": "RE-PINNED 2026-10-02 to Claude Opus 5.5: the local Claude Code catalog (fetched 2026-10-01) lists claude-opus-5-5 first in its main section and as the account's current model, and ~/.claude/settings.json model=opus resolves to it. claude-fable-5-1 (Fable 5.1) is labelled more capable but 'draws down usage much faster than Opus'; not pinned (refresh target = opus-5-5). claude-fable-5 and claude-opus-4-8 moved to the catalog overflow section (superseded). Effort scale low|medium|high|xhigh|max; max = no token-spend cap.",
+    "caveat": "Persist max effort via env CLAUDE_CODE_EFFORT_LEVEL=max. Interactive Claude Code is flat-rate (not per-token metered). No hub-daemon lane spawns claude: this entry feeds hub-health, gen-agent-card, hub-usage and refresh-models only. Fallback = claude-sonnet-5-5 @ max, the catalog's 'most efficient' main model, so it CUTS usage on exhaustion as fallback_contract intends (fable-5-1 would burn usage faster, so it is not a quota fallback)."
   },
   "codex": {
     "provider": "OpenAI",
-    "model": "gpt-5.5",
-    "effort": "medium",
-    "spawn_flags": "-m gpt-5.5 -c model_reasoning_effort=\"medium\"",
+    "model": "gpt-6.1-sol",
+    "effort": "xhigh",
+    "spawn_flags": "-m gpt-6.1-sol -c model_reasoning_effort=\"xhigh\"",
     "fallback_model": "gpt-5.5",
     "fallback_effort": "low",
     "reroute_to": "claude",
-    "fallback_basis": "On usage exhaustion the daemon retries the SAME model at a reduced reasoning tier (medium->low) to cut per-call spend. PRIMARY EFFORT pinned to MEDIUM by Simon (2026-06-17, down from xhigh) to slow premium-pool burn. OBSERVED (account Pro Lite): gpt-5.5 hit a PREMIUM/credit-pool 'usage limit' (retry ~Jul 17) while the standard 5h/weekly pools showed 100% left, and `/status` exposed a SEPARATE 'GPT-5.3-Codex-Spark' pool also at 100%. Lowering effort cuts per-call burn (delays the limit) but does NOT escape an ALREADY-exhausted premium pool. Once exhausted: park this lane + reroute its UI/image work to Claude (flat-rate) until reset, upgrade the plan, or probe-verify `codex -m gpt-5.3-codex-spark` runs BEFORE pinning (never pin an unverified id — grok-4.3 lesson).",
-    "benchmark_basis": "GPT-5.5 (2026-04-23) = OpenAI's newest frontier model and Codex CLI default; highest OpenAI model usable from Codex CLI. NOTE: no 'gpt-5.5-codex' variant exists — pass -m gpt-5.5. xhigh is the max reasoning tier, but Simon pinned MEDIUM (2026-06-17) to reduce premium-pool burn on the Pro Lite plan.",
-    "caveat": "Verifier note: GPT-5.5 SWE-bench Verified ~82.6% (below Claude Opus 4.8 88.6% / Fable 5), but it is the best OpenAI model for the Codex lane. Watch for gpt-5.6 (rumored, no official id yet)."
+    "fallback_basis": "On usage exhaustion the daemon retries with gpt-5.5@low: kept from the previous pin and still listed in models_cache.json (2026-10-01, efforts low|medium|high|xhigh), i.e. an older model at its lowest tier to cut per-call spend. HISTORY: on 2026-06-17 (account Pro Lite) gpt-5.5 hit a PREMIUM/credit-pool 'usage limit' while the standard 5h/weekly pools showed 100% left, so Simon pinned gpt-5.5 to MEDIUM. UNVERIFIED: whether gpt-6.1-sol and gpt-5.5 draw from the same pool; if the fallback also reports quota the daemon backs off and reroutes this lane's orders to claude. Never pin an unverified id (grok-4.3 lesson).",
+    "benchmark_basis": "GPT-6.1-Sol (gpt-6.1-sol) = priority 1 in the local Codex catalog (models_cache.json, client 0.159.2, fetched 2026-10-01) and the model + effort already set in ~/.codex/config.toml (model=gpt-6.1-sol, model_reasoning_effort=xhigh). Supported efforts: low|medium|high|xhigh|max|ultra. Pinned xhigh (= config.toml), not max/ultra, to bound premium-pool burn; raise only after checking usage.",
+    "caveat": "The 2026-06-17 MEDIUM pin applied to gpt-5.5 and is superseded by this re-pin (2026-10-02). hub-health.ps1 asserts model+effort by value: its expect map must be bumped together with this file or its Models check FAILs. Running daemons cache this file at START: restart them to apply."
   },
   "grok": {
     "provider": "xAI",
-    "model": "grok-build",
+    "model": "grok-4.7",
     "effort": "high",
-    "spawn_flags": "-m grok-build",
-    "env": { "GROK_MODEL": "grok-build", "GROK_REASONING_EFFORT": "high" },
-    "fallback_model": "grok-composer-2.5-fast",
+    "spawn_flags": "-m grok-4.7",
+    "env": { "GROK_MODEL": "grok-4.7", "GROK_REASONING_EFFORT": "high" },
+    "fallback_model": "grok-4.6",
     "fallback_effort": "high",
-    "fallback_basis": "grok-composer-2.5-fast is the grok CLI default and the ONLY other model `grok models` exposes (verified callable 2026-06-15). Used when grok-build hits a usage/quota limit.",
-    "benchmark_basis": "grok-build is the default + top model actually CALLABLE from the installed grok CLI (grok.com login). `grok models` (verified 2026-06-14) exposes only grok-build (default) + grok-composer-2.5-fast. grok-4.3 is NOT in this build and was rejected at spawn every cycle ('Couldn't set model grok-4.3: Invalid params: unknown'), silently killing the grok daemon. Policy = best model the CLI can actually call, so grok-build.",
-    "caveat": "Re-pin to a grok-4.x id only after `grok models` shows it. reasoning_effort exposure varies by build; GROK_REASONING_EFFORT may be ignored by grok-build (the model id, not effort, was the blocker)."
+    "fallback_basis": "grok-4.6 = the previous generation listed by `grok --no-auto-update models` (2026-10-02: grok-4.7 default, grok-4.7-build-fast, grok-4.6, grok-4.5). Used when grok-4.7 hits a usage/quota limit. grok-build and grok-composer-2.5-fast are no longer in the CLI list.",
+    "benchmark_basis": "grok-4.7 is the default and newest model listed by `grok --no-auto-update models` on this account (grok.com login, checked 2026-10-02). Policy = best model the CLI can actually call; catalog-listed, not spawn-probed.",
+    "caveat": "Re-pin only to ids that `grok models` lists (grok-4.3 lesson: an unlisted id was rejected at spawn every cycle - 'Couldn't set model grok-4.3: Invalid params: unknown' - and silently killed the grok daemon). GROK_REASONING_EFFORT may be ignored by the CLI; the model id is what matters."
   },
   "antigravity": {
     "provider": "Google",
@@ -47,12 +47,12 @@
     "effort": "high",
     "spawn_flags": "in-window: agy --dangerously-skip-permissions --model \"Gemini 3.1 Pro (High)\" -i <prompt>  |  daemon (headless): node tools/agy-pty/agy-headless.js <prompt> with env AGY_MODEL=\"Gemini 3.1 Pro (High)\" (needs node + node-pty)",
     "agy_model": "Gemini 3.1 Pro (High)",
-    "agy_fallback_model": "Gemini 3.5 Flash (High)",
-    "fallback_model": "gemini-3.5-flash",
+    "agy_fallback_model": "Gemini 3.8 Flash (High)",
+    "fallback_model": "gemini-3.8-flash-high",
     "fallback_effort": "high",
     "reroute_to": "claude",
-    "fallback_basis": "2026-07-04 rewire: the daemon spawns AG via the agy PICKER LABEL (agy_model / agy_fallback_model), never the raw model id - the id fields here are display/log only. Fallback label 'Gemini 3.5 Flash (High)' is agy's OWN DEFAULT picker entry (see caveat), so it exists by construction. The old note 'gemini-3.5-flash returns 404' applied to the raw API/gemini-CLI namespace (probe 2026-06-15, pre-agy) - picker labels are a different namespace. Flash is the cheap fallback when 3.1 Pro hits TerminalQuotaError (8h reset). Before 07-04 the fallback was cosmetic: only the log label switched while the exhausted primary label was re-spawned.",
-    "benchmark_basis": "Gemini 3.1 Pro (2026-02-19) = Google's #1 model on aggregate (SWE-bench Verified 80.6%, ARC-AGI-2 77.1%, leads 13/16 benchmarks). thinkingLevel HIGH is both the max and the default for 3.1 Pro.",
-    "caveat": "Gemini CLI is DEPRECATED 2026-06-18 — AG migrated to Antigravity CLI (agy). agy's model picker label 'Gemini 3.1 Pro (High)' encodes max thinking (agy default is 'Gemini 3.5 Flash (High)', so override). DAEMON FIX 2026-06-17: hub-daemon.ps1 AG lane now spawns agy HEADLESS via tools/agy-pty/agy-headless.js (ConPTY) — plain `agy -p`/`gemini -p` emits ~0 bytes under redirected stdout and silently no-op'd the seat (exit 0, empty transcript). Requires `npm install` in tools/agy-pty (node-pty). Gemini 3.5 Flash beats 3.1 Pro on some agentic-coding benchmarks at lower cost (defensible alt)."
+    "fallback_basis": "The daemon spawns AG via the agy PICKER LABEL (agy_model / agy_fallback_model -> env AGY_MODEL -> agy --model <label>); the id fields are display/log only, but fallback_model must differ from model or the daemon's switch-on-quota never engages. 2026-10-02: 'Gemini 3.5 Flash (High)' is no longer in `agy models`; fallback re-pinned to 'Gemini 3.8 Flash (High)' (agy id gemini-3.8-flash-high, newest Flash entry). Primary id stays gemini-3.1-pro-preview (legacy raw-API id kept for the hub-health contract; its agy id is gemini-3.1-pro-high). Label evidence: the primary label reached agy's quota check on 2026-08-02 (tools/live/antigravity.log); the fallback label is catalog-listed but not spawn-probed.",
+    "benchmark_basis": "Gemini 3.1 Pro (2026-02-19) = Google's #1 model on aggregate (SWE-bench Verified 80.6%, ARC-AGI-2 77.1%, leads 13/16 benchmarks) per the 2026-06 research. thinkingLevel HIGH is both the max and the default for 3.1 Pro. 2026-10-02: still the only Pro (High) label in `agy models`; the newer entries are Flash only (3.8/3.7/3.6).",
+    "caveat": "Gemini CLI is DEPRECATED 2026-06-18 - AG migrated to Antigravity CLI (agy). The label 'Gemini 3.1 Pro (High)' encodes max thinking; agy's own default is not guaranteed to be Pro, so the daemon always passes --model. DAEMON FIX 2026-06-17: hub-daemon.ps1 AG lane spawns agy HEADLESS via tools/agy-pty/agy-headless.js (ConPTY) - plain `agy -p`/`gemini -p` emits ~0 bytes under redirected stdout and silently no-op'd the seat (exit 0, empty transcript). Requires `npm install` in tools/agy-pty (node-pty). Re-verify labels with `agy models` under AGY_CLI_DISABLE_AUTO_UPDATE=1 (the auto-updater elevates via UAC)."
   }
 }

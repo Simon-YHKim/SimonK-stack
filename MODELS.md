@@ -3,11 +3,24 @@
 > **목적**: 4-AI 허브의 모든 AI가 **항상 가장 높은 벤치마크 모델 + 최대 reasoning effort**를 쓰도록 강제한다.
 > **기계 판독 정본 = `tools/models.json`** (hub-daemon.ps1이 읽어 spawn 플래그를 만든다). 이 문서는 사람용 요약.
 > **갱신**: `model-benchmark-refresh` 일일 cloud schedule이 제공사별 최신 최고모델을 재조사해 둘 다 갱신한다(§ 갱신 절차).
-> **마지막 점검**: 2026-06-14 (hub-upgrade-research workflow — 제공사별 병렬 웹검색 + 적대적 교차검증) · **2026-07-03 Claude fable-5 재핀**(재가용 확인, 세션 실구동 검증).
+> **마지막 점검**: **2026-10-02 00:45 KST 재핀**(로컬 카탈로그 대조: Codex `models_cache.json`, `grok --no-auto-update models`, `agy models`, Claude Code 모델 목록 — 모델 호출 없이 목록만 확인) · 이전: 2026-06-14 조사, 2026-07-03 fable-5 재핀.
 
 ---
 
-## 정본 표 (2026-06-14)
+## 정본 표 (2026-10-02 재핀 — `tools/models.json`과 `hub-health.ps1` 기대값 동일)
+
+| AI | primary | 소진 시 fallback | 비고 |
+|---|---|---|---|
+| **Claude** | `claude-opus-5-5` @ max | `claude-sonnet-5-5` @ max | fable-5 계열은 사용량을 더 빨리 소모해 폴백 목적과 맞지 않음 |
+| **Codex** | `gpt-6.1-sol` @ xhigh | `gpt-5.5` @ low | 사용자 Codex `config.toml`(gpt-6.1-sol·xhigh)과 일치. 06-17의 `gpt-5.5@medium` Simon 핀은 Pro Lite 시절 값 |
+| **Grok** | `grok-4.7` @ high | `grok-4.6` @ high | `grok-build`·`grok-composer-2.5-fast`는 현재 목록에 없어 금지 목록으로 이동 |
+| **Antigravity** | `gemini-3.1-pro-preview` @ high (agy 표시 `Gemini 3.1 Pro (High)`) | `gemini-3.8-flash-high` (agy 표시 `Gemini 3.8 Flash (High)`) | 실제 호출 검증은 아직 없음(목록 확인만) |
+
+/vibe의 라우팅 정본은 SimonK-stack `skills-src/vibe/references/model-registry.json`(사실 유효기간 7일)이고, 이 표는 허브 데몬용이다.
+
+---
+
+## (이전) 정본 표 (2026-06-14)
 
 | AI | CLI | 최고모델 | effort 최대 | 선택/플래그 |
 |---|---|---|---|---|
