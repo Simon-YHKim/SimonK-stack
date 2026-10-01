@@ -122,6 +122,26 @@ Core 링크 8/8 관측이지만, 전체 flat 감사의 Claude 4/182·Codex 4/177
 증거로 사용하지 않는다. 실제 명령 선택, 호스트 적재, 구독 청구,
 이미지·Grok Bot 전달은 이 검사의 범위 밖이다.
 
+### 격리 flat 링크 전환·복원 리허설
+
+`scripts/vibe_flat_transition.py`는 운영 설치기가 아닌 내부 테스트 라이브러리다.
+고정 후보 4영수증·기존 링크 8/8·Claude/Codex 네이티브 5플러그인 등록
+메타데이터가 모두 일치할 때에만 7개 flat 링크의 전환 계획을 만든다.
+전환·복원 함수는 Windows 임시 디렉터리의 `vibe-flat-test-*` 바로 아래에
+있는 격리 프로필만 허용한다. 기존 링크는 호스트별 archive로 이동하고
+복원 시 새 링크를 quarantine에 남겨 삭제하지 않는다. `.agents` 별칭은
+이동하지 않으며 Claude `/vibe` 링크를 따라간다. 중간 실패·재호출·계획
+변조·부모 정션 충돌을 테스트한다.
+
+```powershell
+python -B -m unittest scripts.tests.test_vibe_flat_transition -v
+```
+
+이 코드는 실제 사용자 홈 적용 CLI, 네이티브 플러그인 설치, 설치 캐시 바이트
+검증, 호스트 명령 선택, 프로세스 충돌 뒤 영속 복구를 제공하지 않는다.
+현재 실제 등록은 두 호스트 모두 0/5이므로 계획 단계부터 차단된다.
+따라서 D-39 사용자 설치 NO-GO와 `installation_ready=false`를 변경하지 않는다.
+
 ## 2026-10-01 `/vibe` 2.12.32 최상위 Codex 크레딧 증거 가드 후보
 
 `fix/vibe-grok-billing-261001`에서 최상위 `credits` 기록이 빠지고 명명된

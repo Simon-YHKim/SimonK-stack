@@ -38,3 +38,5 @@ jobs:
         run: python -B -m unittest discover -s scripts/tests -p test_candidate_path_audit.py
       - name: Vibe host preflight regressions (Python 3.11; no profile changes)
         run: python -B -m unittest discover -s scripts/tests -p test_vibe_host_preflight.py -q
+      - name: Vibe flat-link rehearsal and rollback (isolated temp profile only)
+        run: python -B -m unittest discover -s scripts/tests -p test_vibe_flat_transition.py -q
