@@ -66,7 +66,7 @@ class ClaudeCliAdapterTests(unittest.TestCase):
         self.binding = {"executable": str(executable), "executable_sha256": sha256,
             "cwd": str(root), "profile_path": str(profile), "profile_ref": observed["profile_ref"],
             "account_ref": observed["account_ref"], "result_path": str(root / "result.json")}
-        c = candidate("claude", surface="claude", model="fixture-claude",
+        c = candidate("claude", surface="claude", transport="cli", model="fixture-claude",
                       billing={"mode": "subscription", "verified": True,
                           "extra_usage_enabled": False, "model_included": True,
                           "included_model": "fixture-claude", "api_fallback_disabled": True,
@@ -93,7 +93,7 @@ class ClaudeCliAdapterTests(unittest.TestCase):
 
     def debate_plan(self):
         root = Path(self.tmp.name).resolve()
-        claude = candidate("claude", surface="claude", model="fixture-claude",
+        claude = candidate("claude", surface="claude", transport="cli", model="fixture-claude",
             billing=copy.deepcopy(self.certificate["billing"]))
         gpt = candidate("gpt", surface="codex", model="fixture-gpt",
             billing={**candidate("gpt")["billing"], "account_ref": "gpt-account"})

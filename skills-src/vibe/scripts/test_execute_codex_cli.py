@@ -66,7 +66,7 @@ class CodexCliAdapterTests(unittest.TestCase):
                         "profile_ref": profile_ref, "account_ref": account_ref,
                         "result_path": str(root / "result.jsonl"),
                         "content_path": str(root / "result.txt")}
-        self.candidate = candidate("gpt", model="fixture-gpt", billing={
+        self.candidate = candidate("gpt", transport="cli", model="fixture-gpt", billing={
             "mode": "subscription", "verified": True, "extra_usage_enabled": False,
             "model_included": True, "included_model": "fixture-gpt",
             "api_fallback_disabled": True, "paid_credit_fallback_disabled": True,
@@ -266,7 +266,7 @@ class CodexCliAdapterTests(unittest.TestCase):
                  "challenger_rebuttal": "claude-rebuttal", "judge": "claude-judge"}
         binding = {**self.binding, "result_path": str(root / "rebuttal.jsonl"),
                    "content_path": str(root / "rebuttal.txt")}
-        steps = [step("gpt-open", surface="codex", skills=[]),
+        steps = [step("gpt-open", surface="codex", skills=[], cli=self.binding),
                  step("claude-open", surface="claude", skills=[]),
                  step("gpt-rebuttal", surface="codex", skills=[], software=[],
                       task="Rebut the other opening", depends_on=["gpt-open", "claude-open"],
