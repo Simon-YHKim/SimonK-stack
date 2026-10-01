@@ -663,9 +663,12 @@ block a changed input before send.
 
 Each predecessor must be a successful, verified and cost-settled attempt under
 the same registered plan. Claude CLI predecessors retain their pinned JSON
-result file and SHA-256; a different reviewed executor can record a canonical
-local UTF-8 `.txt` file with `content_path`, `content_sha256` and
-`content_format="text/plain;charset=utf-8"` in its Store observation. The
+result file and SHA-256. Codex CLI predecessors retain both pinned JSONL trace
+and extracted UTF-8 text; before transfer the adapter rechecks both hashes,
+the thread identity and the extracted answer against the trace. A different
+reviewed executor can record a canonical local UTF-8 `.txt` file with
+`content_path`, `content_sha256` and `content_format="text/plain;charset=utf-8"`
+in its Store observation. The
 adapter rehashes and bounds each artifact, checks Claude session/model identity
 when applicable, screens it for sensitive content, and treats prose as untrusted
 data rather than instructions. A file path or `verified=true` without a real

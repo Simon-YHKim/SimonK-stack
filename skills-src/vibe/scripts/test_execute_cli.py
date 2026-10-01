@@ -10,8 +10,10 @@ import unittest
 from unittest.mock import patch
 
 import orchestrate
+import execute_codex_cli
 import run_state
 import runtime_collect
+from test_execute_codex_cli import FakeCodex
 from test_orchestrate import NOW, candidate, fixture_registry, step
 
 SCRIPT = Path(__file__).with_name("execute_cli.py")
@@ -279,6 +281,148 @@ class ClaudeCliAdapterTests(unittest.TestCase):
         for expected in ("GPT opening", "Claude opening", "GPT rebuttal", "Claude rebuttal", '"role":"judge"'):
             self.assertIn(expected, prompt)
         self.assertEqual(len(self.cli.sends), 3)
+
+    def test_five_node_claude_codex_debate_uses_one_store_and_five_offline_adapter_paths(self):
+        """Synthetic transport/receipts only: no provider call or billing proof."""
+        root = Path(self.tmp.name).resolve()
+        codex_executable = root / "codex.exe"
+        codex_executable.write_bytes(b"offline fixture only")
+        codex_sha = hashlib.sha256(codex_executable.read_bytes()).hexdigest()
+        codex_profile = root / "codex-profile"
+        codex_profile.mkdir()
+        codex_profile_ref = runtime_collect.opaque("codex", str(codex_profile))
+        codex_account_ref = runtime_collect.opaque(
+            "codex", codex_profile_ref, "fixture@example.test")
+        codex_billing = {"mode": "subscription", "verified": True,
+            "extra_usage_enabled": False, "model_included": True,
+            "included_model": "fixture-gpt", "api_fallback_disabled": True,
+            "paid_credit_fallback_disabled": True, "account_ref": codex_account_ref,
+            "credits": {"has_credits": False, "unlimited": False, "balance": "0"}}
+        codex_observed = {"account_verified": True,
+            "account_ref": codex_account_ref, "profile_ref": codex_profile_ref,
+            "billing": {"mode": "subscription", "credits": codex_billing["credits"]},
+            "auth": {"method": "chatgpt", "plan": "plus"},
+            "models": [{"model": "fixture-gpt", "transport_efforts": ["low"]}]}
+        codex_binding = {"executable": str(codex_executable),
+            "executable_sha256": codex_sha, "cwd": str(root),
+            "profile_path": str(codex_profile), "profile_ref": codex_profile_ref,
+            "account_ref": codex_account_ref}
+        candidates = [candidate("claude", surface="claude", transport="cli",
+            model="fixture-claude", billing=copy.deepcopy(self.certificate["billing"])),
+            candidate("gpt", surface="codex", transport="cli",
+                      model="fixture-gpt", billing=codex_billing)]
+        roles = {"proposer": "gpt-open", "challenger": "claude-open",
+                 "proposer_rebuttal": "gpt-rebuttal",
+                 "challenger_rebuttal": "claude-rebuttal", "judge": "claude-judge"}
+        question = "Should the supplied evidence support the proposed route?"
+        rubric = ["State supporting evidence, uncertainty, and a minority view"]
+
+        def node(node_id, surface, dependencies):
+            if surface == "codex":
+                binding = {**codex_binding,
+                    "result_path": str(root / (node_id + ".jsonl")),
+                    "content_path": str(root / (node_id + ".txt"))}
+            else:
+                binding = {**self.binding,
+                    "result_path": str(root / (node_id + ".json"))}
+            return step(node_id, surface=surface, skills=[], software=[], cli=binding,
+                task=question, acceptance=rubric, depends_on=dependencies)
+
+        steps = [node("gpt-open", "codex", []), node("claude-open", "claude", []),
+            node("gpt-rebuttal", "codex", ["gpt-open", "claude-open"]),
+            node("claude-rebuttal", "claude", ["gpt-open", "claude-open"]),
+            node("claude-judge", "claude", ["gpt-rebuttal", "claude-rebuttal"])]
+        plan = orchestrate.make_plan({"run_id": "fixture-five-node-debate",
+            "steps": steps, "debate": roles, "budget": {"max_attempts": 1}}, {},
+            {"candidates": candidates, "tools": []}, NOW, fixture_registry(candidates))
+        self.assertEqual(plan["status"], "ready", plan["errors"])
+        store = run_state.Store(root / "five-node.sqlite3")
+        store.initialize()
+        store.register(plan, now=NOW)
+        codex_cli = FakeCodex(str(codex_executable), codex_sha, codex_observed)
+        adapters = {"claude": self.m.Adapter(store, self.cli, clock=lambda: NOW),
+                    "codex": execute_codex_cli.Adapter(store, codex_cli, clock=lambda: NOW)}
+
+        def certificate(node_id):
+            selected = next(item for item in plan["steps"] if item["id"] == node_id)
+            route, binding = selected["route"], selected["cli"]
+            digest = (self.m.binding_digest if route["surface"] == "claude" else
+                      execute_codex_cli.binding_digest)(plan, node_id)
+            proof = {"verified": True, "subscription_only": True,
+                "binding_sha256": digest, "account_ref": binding["account_ref"],
+                "profile_ref": binding["profile_ref"], "billing": route["billing"],
+                "quota": route["quota"], "model": route["model"],
+                "effort": route["requested_effort"], "observed_at": NOW,
+                "valid_until": LATER, "evidence": ["synthetic account proof"]}
+            if selected["depends_on"]:
+                proof["inputs_sha256"] = self.m.input_digest(plan, node_id, store)
+                proof["cross_vendor_transfer_authorized"] = True
+            return proof
+
+        def send(node_id, answer):
+            surface = next(item["route"]["surface"] for item in plan["steps"]
+                           if item["id"] == node_id)
+            if surface == "codex":
+                codex_cli.events = [
+                    {"type": "thread.started", "thread_id": "thread-" + node_id},
+                    {"type": "turn.started"},
+                    {"type": "item.completed", "item": {"id": "answer", "type": "agent_message",
+                                                       "text": answer}},
+                    {"type": "turn.completed", "usage": {"input_tokens": 12,
+                                                           "output_tokens": 4}}]
+            else:
+                self.cli.response = {"type": "result", "is_error": False,
+                    "result": answer, "modelUsage": {"fixture-claude": {"inputTokens": 1}}}
+            result = adapters[surface].dispatch(plan, node_id, certificate(node_id))
+            self.assertEqual(result["state"], "succeeded")
+            self.assertFalse(result["verified"])
+            self.assertIsNone(result["actual_usd"])
+            return result
+
+        def accept(result):
+            store.settle(result["dispatch_id"], "0", ["synthetic fixture receipt"], now=NOW)
+            store.verify(result["dispatch_id"], ["synthetic output inspection"], now=NOW)
+
+        self.assertEqual(store.ready(plan["run_id"], now=NOW), ["gpt-open", "claude-open"])
+        gpt_open = send("gpt-open", "GPT opening position")
+        self.assertEqual(store.ready(plan["run_id"], now=NOW), [])
+        accept(gpt_open)
+        claude_open = send("claude-open", "Claude opening position")
+        accept(claude_open)
+        self.assertEqual(store.ready(plan["run_id"], now=NOW),
+                         ["gpt-rebuttal", "claude-rebuttal"])
+        gpt_trace = root / "gpt-open.jsonl"
+        intact_trace = gpt_trace.read_bytes()
+        gpt_trace.write_bytes(intact_trace + b" ")
+        with self.assertRaises(run_state.StateError):
+            self.m.input_digest(plan, "gpt-rebuttal", store)
+        gpt_trace.write_bytes(intact_trace)
+        rejected = {**certificate("gpt-rebuttal"),
+                    "cross_vendor_transfer_authorized": False}
+        with self.assertRaises(run_state.StateError):
+            adapters["codex"].dispatch(plan, "gpt-rebuttal", rejected)
+        self.assertEqual(len(codex_cli.sends), 1)
+        gpt_rebuttal = send("gpt-rebuttal", "GPT rebuttal position")
+        accept(gpt_rebuttal)
+        self.assertNotIn("claude-judge", store.ready(plan["run_id"], now=NOW))
+        claude_rebuttal = send("claude-rebuttal", "Claude rebuttal position")
+        accept(claude_rebuttal)
+        self.assertEqual(store.ready(plan["run_id"], now=NOW), ["claude-judge"])
+        judge = send("claude-judge", "Separate judge verdict with minority view")
+        self.assertTrue(judge["observation"]["judge_vendor_overlap"])
+        with self.assertRaises(run_state.StateError):
+            store.complete(plan["run_id"], ["synthetic full-run acceptance"], now=NOW)
+        accept(judge)
+        store.complete(plan["run_id"], ["synthetic full-run acceptance"], now=NOW)
+        self.assertEqual(len(self.cli.sends), 3)
+        self.assertEqual(len(codex_cli.sends), 2)
+        for answer in ("GPT opening position", "Claude opening position",
+                       "GPT rebuttal position", "Claude rebuttal position"):
+            self.assertIn(answer, self.cli.sends[-1][2])
+            self.assertNotIn(answer, str(self.cli.sends[-1][0]))
+        self.assertIn("Claude opening position", codex_cli.sends[-1][2])
+        self.assertNotIn("Claude opening position", str(codex_cli.sends[-1][0]))
+        self.assertEqual(store.snapshot()["runs"][0]["closed"], 2)
 
     def test_dependent_spec_never_prints_prior_model_prose(self):
         self.debate_plan()

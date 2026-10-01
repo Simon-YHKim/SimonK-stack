@@ -172,8 +172,9 @@ def resolved_inputs(plan, node_id, store):
                 "DEBATE_INPUT_NOT_VERIFIED")
         row = rows[0]
         observed = row["observation"] or {}
-        if "output_path" in observed:
-            require((row["handle"] or {}).get("kind") == "claude-cli", "DEBATE_INPUT_FORMAT_UNVERIFIED")
+        handle_kind = (row["handle"] or {}).get("kind")
+        if handle_kind == "claude-cli":
+            require("output_path" in observed, "DEBATE_INPUT_FORMAT_UNVERIFIED")
             path = output_path(observed["output_path"])
             require(path.is_file() and path.stat().st_size <= LIMIT, "DEBATE_INPUT_MISSING")
             raw = path.read_bytes()
@@ -187,8 +188,31 @@ def resolved_inputs(plan, node_id, store):
                                                           or row["route"]["model"]},
                     "DEBATE_INPUT_IDENTITY_UNVERIFIED")
             content = data.get("result")
-        else:
+        elif handle_kind == "codex-cli":
+            # Codex records both a JSONL trace and extracted text. Recheck both:
+            # output_path alone must not be mistaken for Claude's JSON result.
+            import execute_codex_cli
             require(observed.get("content_format") == "text/plain;charset=utf-8",
+                    "DEBATE_INPUT_FORMAT_UNVERIFIED")
+            trace_path = execute_codex_cli.artifact_path(observed.get("output_path"), ".jsonl")
+            text_path = execute_codex_cli.artifact_path(observed.get("content_path"), ".txt")
+            require(trace_path.is_file() and trace_path.stat().st_size <= LIMIT
+                    and text_path.is_file() and text_path.stat().st_size <= 16384,
+                    "DEBATE_INPUT_MISSING")
+            trace = trace_path.read_bytes()
+            raw = text_path.read_bytes()
+            require(hashlib.sha256(trace).hexdigest() == observed.get("output_sha256")
+                    and hashlib.sha256(raw).hexdigest() == observed.get("content_sha256"),
+                    "DEBATE_INPUT_CHANGED")
+            thread_id, content, _ = execute_codex_cli.parse_result(trace)
+            require(thread_id == row["handle"]["id"] == observed.get("thread_id")
+                    and observed.get("resolved_model") == (row["route"].get("resolved_model")
+                                                          or row["route"]["model"])
+                    and raw.decode("utf-8") == content,
+                    "DEBATE_INPUT_IDENTITY_UNVERIFIED")
+        else:
+            require("output_path" not in observed
+                    and observed.get("content_format") == "text/plain;charset=utf-8",
                     "DEBATE_INPUT_FORMAT_UNVERIFIED")
             path = input_path(observed.get("content_path"))
             require(path.stat().st_size <= 16384, "DEBATE_INPUT_TOO_LARGE")
