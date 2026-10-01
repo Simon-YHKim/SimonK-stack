@@ -134,6 +134,9 @@ class CodexCliAdapterTests(unittest.TestCase):
         for billing_change in ({}, {"credits": None},
                                {"credits": {"has_credits": False, "unlimited": False,
                                             "balance": "0"}, "buckets": {"codex": {}}},
+                               {"buckets": {"codex": {"credits": {
+                                   "has_credits": False, "unlimited": False,
+                                   "balance": "0"}}}},
                                {"credits": {"has_credits": True, "unlimited": False,
                                             "balance": "3.25"}},
                                {"buckets": {"codex": {"credits": {

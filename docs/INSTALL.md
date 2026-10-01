@@ -2,6 +2,34 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
+## 2026-10-01 `/vibe` 2.12.32 최상위 Codex 크레딧 증거 가드 후보
+
+`fix/vibe-grok-billing-261001`에서 최상위 `credits` 기록이 빠지고 명명된
+한도 버킷에만 `has_credits=false`·`unlimited=false`·잔액 0이 있을 때,
+계획이 `ready`가 되고 가짜 Codex CLI 전송도 진행되는 결손을 재현했다.
+최상위와 각 명명된 버킷의 기록을 모두 요구하도록 고쳤고 두 회귀 테스트는
+수정 전 실패, 수정 후 통과했다. 실제 계정·모델·구매 크레딧은 호출하지 않았다.
+
+새 오프라인 후보는
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-pr69-top-credit-candidate/`이다.
+
+| 산출물 | 검증된 전체 digest | 범위 |
+|---|---|---|
+| `source` | `da3ec9e8fb20bfc591e2f5e2175db09b50b356a7d72fd3727ef2dfcb8bcce06f` | 137스킬·423파일 |
+| `candidate-safety` | `59c4f1ef087e9b0e9ee32bc20eb7de75d1b08ab2417db053ed1772f8be0aaea6` | Claude 5플러그인·182스킬 |
+| `codex-overlay-safety` | `2ace57dacc842acd147b74c4f5909ca7496a25b9c79c582d4afde6507deef481` | Codex 호환 오버레이 |
+| `codex-subset-safety` | `4ef543c0223f938a9127ce9c6bbca3ac3565e9b79f04e3eddd538e935e59b486` | Codex 177스킬·출처 검증 |
+
+네 영수증 재검증, 오프라인 probe 4/4, `/vibe` 단위 테스트 327건,
+자체 점검 180항목, 스킬 품질 141/141, 라우팅 표 동기화가 통과했다.
+고정 플러그인 커밋을 별도 복제본에서 포장했으며 원본 저장소의 브랜치나
+사용자 설치본을 바꾸지 않았다. 새 후보의 무인증 Sandbox 적재·복원은
+아직 실행하지 않았고 이전 2.12.31 결과를 이월하지 않는다. 실제 구독 청구,
+모델·이미지·Bot 호출, 자동 선택 품질과 전체 외부 런타임도 미검증이다.
+`installation_ready=false`, `host_compatibility_verified=false`,
+`runtime_closure_verified=false`를 유지한다. PR #68·#69의 독립 리뷰와
+§35 별도 심판 D-code 없이 `main` 머지하지 않는다.
+
 ## 2026-10-01 `/vibe` 2.12.30 이미지 청구 관측값 가드 후보
 
 `fix/vibe-grok-billing-261001`의 `2ec27c7`은 이미지 호스트 도구의

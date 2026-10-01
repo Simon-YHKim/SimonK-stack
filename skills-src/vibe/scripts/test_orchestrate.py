@@ -317,7 +317,8 @@ class OrchestrationTests(unittest.TestCase):
     def test_codex_positive_or_unknown_purchased_credits_block_claimed_zero_spend(self):
         missing = dict(candidate()["billing"])
         missing.pop("credits")
-        for buckets in ({}, {"codex": {}}):
+        for buckets in ({}, {"codex": {}}, {"codex": {"credits": {
+                "has_credits": False, "unlimited": False, "balance": "0"}}}):
             with self.subTest(buckets=buckets):
                 billing = dict(missing, buckets=buckets)
                 plan = self.plan(candidates=[candidate(billing=billing)])

@@ -79,7 +79,7 @@ def money(value):
 
 def codex_paid_credit_risk(billing):
     """Reject observed spendable or unresolved credits, including named buckets."""
-    if not isinstance(billing, dict):
+    if not isinstance(billing, dict) or "credits" not in billing:
         return True
     buckets = billing.get("buckets", {})
     if not isinstance(buckets, dict):
@@ -87,13 +87,7 @@ def codex_paid_credit_risk(billing):
     if any(not isinstance(item, dict) or "credits" not in item
            for item in buckets.values()):
         return True
-    observed_credits = False
     for item in (billing, *buckets.values()):
-        if not isinstance(item, dict):
-            return True
-        if "credits" not in item:
-            continue
-        observed_credits = True
         credits = item["credits"]
         if (not isinstance(credits, dict)
                 or type(credits.get("has_credits")) is not bool
@@ -108,7 +102,7 @@ def codex_paid_credit_risk(billing):
                 return True
         except ValueError:
             return True
-    return not observed_credits
+    return False
 
 
 def instant(value):
