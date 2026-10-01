@@ -5,16 +5,41 @@ import json
 import io
 from pathlib import Path
 import shutil
+import stat
+import subprocess
 import sys
 import tempfile
 import unittest
 from contextlib import redirect_stdout
+from types import SimpleNamespace
 from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
 import vibe_host_preflight as preflight
+
+
+class DirectoryLinkCompatibilityTests(unittest.TestCase):
+    def test_windows_junction_tag_is_recognized_without_path_is_junction(self):
+        class Junction:
+            def lstat(self):
+                return SimpleNamespace(st_mode=stat.S_IFDIR,
+                                       st_reparse_tag=0xA0000003)
+
+        self.assertTrue(preflight._is_directory_link(Junction()))
+
+    @unittest.skipUnless(os.name == "nt", "Windows junction fixture")
+    def test_real_windows_junction_is_recognized(self):
+        with tempfile.TemporaryDirectory(prefix="vibe-junction-") as temporary:
+            root = Path(temporary)
+            target = root / "target"
+            target.mkdir()
+            link = root / "link"
+            subprocess.run(["cmd", "/c", "mklink", "/J", str(link), str(target)],
+                           check=True, capture_output=True, text=True)
+            self.assertTrue(preflight._is_directory_link(link))
+            self.assertEqual(preflight._direct_target(link), target)
 
 
 class VibeHostPreflightTests(unittest.TestCase):
@@ -46,7 +71,7 @@ class VibeHostPreflightTests(unittest.TestCase):
                 try:
                     os.symlink(old, host / "skills" / name, target_is_directory=True)
                 except OSError as exc:
-                    self.skipTest(f"directory symlinks unavailable: {exc}")
+                    self.fail(f"directory symlinks unavailable: {exc}")
         for package in ("candidate-safety", "codex-subset-safety"):
             for plugin in ("SimonKCore", "SimonKDesign", "SimonKStack", "SimonKMarket", "SimonKAIHub"):
                 plugin_root = self.candidate / package / "plugins" / plugin
@@ -138,6 +163,19 @@ class VibeHostPreflightTests(unittest.TestCase):
         self.assertIn("NATIVE_SNAPSHOT_INVALID", report["issues"])
         self.assertEqual(report["native_plugin_coverage"]["status"], "invalid_snapshot")
 
+    def test_non_object_native_manifest_blocks_with_json_result(self):
+        manifest = (self.candidate / "candidate-safety/plugins/SimonKCore/"
+                    ".claude-plugin/plugin.json")
+        manifest.write_text("[]", encoding="utf-8")
+        report = self.scan_with_native_snapshot()
+        self.assertEqual(report["status"], "blocked")
+        self.assertIn("NATIVE_SNAPSHOT_INVALID", report["issues"])
+
+    def scan_with_native_snapshot(self):
+        return preflight.scan(self.candidate, self.old_candidate, self.claude,
+                              self.codex, self.agents,
+                              native_snapshot=self.native_snapshot())
+
     def test_explicit_null_native_stdin_cannot_be_treated_as_unobserved(self):
         argv = ["--candidate-root", str(self.candidate), "--expected-current-root",
                 str(self.old_candidate), "--claude-root", str(self.claude),
@@ -164,6 +202,25 @@ class VibeHostPreflightTests(unittest.TestCase):
         self.assertFalse(report["candidate_bytes_verified"])
         self.assertTrue((self.claude / "skills/vibe/SKILL.md").read_text().endswith(
             "installed vibe\n"))
+
+    def test_report_does_not_expose_profile_or_candidate_paths(self):
+        report = self.scan_with_native_snapshot()
+
+        def strings(value):
+            if isinstance(value, dict):
+                for key, item in value.items():
+                    yield key
+                    yield from strings(item)
+            elif isinstance(value, list):
+                for item in value:
+                    yield from strings(item)
+            elif isinstance(value, str):
+                yield value
+
+        report_values = "\n".join(strings(report))
+        for root in (self.candidate, self.old_candidate, self.claude,
+                     self.codex, self.agents):
+            self.assertNotIn(str(root), report_values)
 
     def test_ordinary_skill_directory_is_rejected(self):
         link = self.claude / "skills" / "vibe"

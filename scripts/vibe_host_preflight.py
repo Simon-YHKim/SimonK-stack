@@ -13,6 +13,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import stat
 import sys
 
 
@@ -37,6 +38,8 @@ def _native_plugin_coverage(candidate_root: Path, snapshot: dict | None) -> dict
                              (".claude-plugin" if host == "claude" else ".codex-plugin") /
                              "plugin.json")
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            if not isinstance(manifest, dict):
+                raise ValueError("invalid native plugin manifest")
             name, version = manifest.get("name"), manifest.get("version")
             if not isinstance(name, str) or not name or not isinstance(version, str) or not version:
                 raise ValueError("invalid native plugin manifest")
@@ -117,6 +120,16 @@ def _direct_target(link: Path) -> Path:
     return Path(os.path.abspath(raw if raw.is_absolute() else link.parent / raw))
 
 
+def _is_directory_link(path: Path) -> bool:
+    """Recognize symlinks and Windows junctions on Python 3.11 and newer."""
+    try:
+        info = path.lstat()
+    except OSError:
+        return False
+    mount_point_tag = getattr(stat, "IO_REPARSE_TAG_MOUNT_POINT", 0xA0000003)
+    return stat.S_ISLNK(info.st_mode) or getattr(info, "st_reparse_tag", None) == mount_point_tag
+
+
 def scan(candidate_root: Path, current_root: Path, claude_root: Path, codex_root: Path,
          agents_root: Path, native_snapshot: dict | None = None) -> dict:
     issues: list[str] = []
@@ -130,21 +143,21 @@ def scan(candidate_root: Path, current_root: Path, claude_root: Path, codex_root
         for name in names:
             link = root / "skills" / name
             candidate = candidate_root / package / "plugins" / "SimonKCore" / "skills" / name / "SKILL.md"
-            entry = {"host": host, "name": name, "link": str(link),
-                     "candidate_skill": str(candidate)}
+            entry = {"host": host, "name": name}
             entries.append(entry)
             if not candidate.is_file():
                 issues.append("CANDIDATE_SKILL_MISSING")
                 continue
             entry["candidate_sha256"] = _digest(candidate)
-            if not (link.is_symlink() or link.is_junction()):
+            if not _is_directory_link(link):
                 issues.append("NOT_LINK")
                 continue
             try:
-                entry["target"] = str(_direct_target(link))
+                target = _direct_target(link)
                 expected = current_root / package / "plugins" / "SimonKCore" / "skills" / name
-                entry["expected_target"] = str(expected.absolute())
-                if os.path.normcase(entry["target"]) != os.path.normcase(entry["expected_target"]):
+                entry["target_matches_expected"] = (os.path.normcase(str(target)) ==
+                                                    os.path.normcase(str(expected.absolute())))
+                if not entry["target_matches_expected"]:
                     issues.append("LINK_TARGET_MISMATCH")
                 installed = link / "SKILL.md"
                 if not installed.is_file():
@@ -159,15 +172,17 @@ def scan(candidate_root: Path, current_root: Path, claude_root: Path, codex_root
             different_skills += not entry["same_bytes"]
 
     alias = agents_root / "skills" / "vibe"
-    alias_entry = {"host": "agents", "name": "vibe", "link": str(alias)}
+    alias_entry = {"host": "agents", "name": "vibe"}
     entries.append(alias_entry)
     if not alias.is_symlink():
         issues.append("ALIAS_NOT_SYMLINK")
     else:
         try:
-            alias_entry["target"] = str(_direct_target(alias))
+            target = _direct_target(alias)
             expected = claude_root / "skills" / "vibe"
-            if os.path.normcase(alias_entry["target"]) != os.path.normcase(str(expected.absolute())):
+            alias_entry["target_matches_expected"] = (os.path.normcase(str(target)) ==
+                                                      os.path.normcase(str(expected.absolute())))
+            if not alias_entry["target_matches_expected"]:
                 issues.append("ALIAS_TARGET_MISMATCH")
             else:
                 checked_links += 1
