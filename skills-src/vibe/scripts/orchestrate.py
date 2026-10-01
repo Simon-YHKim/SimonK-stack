@@ -22,6 +22,10 @@ from pathlib import Path
 
 SURFACES = {"claude": "anthropic", "codex": "openai", "antigravity": "google",
             "grok": "xai", "grok-bot": "xai"}
+# Only source adapters that can perform a guarded dispatch. A runtime candidate
+# cannot certify an adapter that does not exist in this package.
+GUARDED_EXECUTION_ADAPTERS = {("claude", "cli"), ("codex", "cli"),
+                              ("claude", "orca"), ("codex", "orca")}
 DEMAND_TIER = {"routine": 1, "reasoning": 2, "critical": 3}
 # Task semantics only. Models, scoring, effort and money stay in central policy.
 # model-router documents this contract; offline tests bind the mirror to it.
@@ -825,6 +829,9 @@ def assess_candidate(c, step, policy, now, producer_vendor=None):
     else:
         if surface == "grok-bot" or c.get("transport") not in ("host", "cli", "orca"):
             errors.append("TRANSPORT_MISMATCH")
+        if c.get("transport") in {"cli", "orca"} and (
+                surface, c.get("transport")) not in GUARDED_EXECUTION_ADAPTERS:
+            errors.append("EXECUTION_ADAPTER_UNAVAILABLE")
         if not c.get("model"):
             errors.append("MODEL_UNRESOLVED")
         if (not effort or effort not in c.get("provider_efforts", [])
@@ -854,7 +861,7 @@ def assess_candidate(c, step, policy, now, producer_vendor=None):
         paid_credit_risk = surface == "codex" and codex_paid_credit_risk(billing)
         if paid_credit_risk:
             errors.append("PAID_CREDIT_EXPOSURE")
-        credit_fallback_safe = (surface not in {"codex", "grok", "grok-bot"}
+        credit_fallback_safe = (surface not in {"codex", "antigravity", "grok", "grok-bot"}
                                 or (billing.get("paid_credit_fallback_disabled") is True
                                     and not paid_credit_risk))
         if not credit_fallback_safe:
@@ -874,7 +881,7 @@ def assess_candidate(c, step, policy, now, producer_vendor=None):
     else:
         errors.append("BILLING_UNVERIFIED")
     quota = c.get("quota", {})
-    if surface in {"grok", "grok-bot"} and (
+    if surface in {"antigravity", "grok", "grok-bot"} and (
             quota.get("surface") != surface
             or quota.get("transport") != c.get("transport")
             or quota.get("account_ref") != account_ref

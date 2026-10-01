@@ -234,7 +234,7 @@ Billing fields are `mode` (subscription/api/metered/unknown), `verified`,
 the account/transport, plus `model_included=true` and `included_model` equal to
 the resolved exact LLM model (or requested exact ID without an alias), or
 `bot_usage_included=true` for the provider-managed Grok Bot. Missing or uncertain
-values block that route. Codex, Grok CLI and Grok Bot additionally require
+values block that route. Codex, Antigravity, Grok CLI and Grok Bot additionally require
 `paid_credit_fallback_disabled=true` for their **exact account and transport**.
 This field needs current evidence that existing purchased credits cannot be
 drawn when included usage is exhausted; automatic reload OFF and a nonzero
@@ -286,7 +286,7 @@ With approved_usd=0, API and metered LLM routes are excluded even when their
 claimed per-attempt upper quote is zero. A positive metered grant is a separate
 user decision; it is never inferred from a free-tier claim.
 Quota supplies used_pct, observed_at and an optional bucket ID. Unknown is null,
-never zero. For Grok CLI and Grok Bot, quota must additionally bind its own
+never zero. For Antigravity, Grok CLI and Grok Bot, quota must additionally bind its own
 `surface`, `transport`, billing `account_ref`, `state=observed` and nonempty
 observation `evidence`. A CLI quota cannot unlock a Bot route or vice versa;
 an elapsed reset time with `state=reset-unobserved` is not recovery evidence.
@@ -618,8 +618,10 @@ different call, but a same-vendor judge is not independent vendor review.
 This adapter accepts only canonical debate dependencies (no auxiliary edges),
 even if the broader planner accepts them.
 Codex has a separate guarded source adapter below. Antigravity and Grok CLI
-execution are not implemented here, so a full five-surface debate is not
-automatic. Neither adapter manufactures account/billing proof.
+execution are not implemented here: the planner rejects their `cli`/`orca`
+candidates with `EXECUTION_ADAPTER_UNAVAILABLE`, even if synthetic runtime
+assertions claim fresh billing and quota. A full five-surface debate is not
+automatic. Neither implemented adapter manufactures account/billing proof.
 
 The trusted coordinator puts this exact `cli` manifest in the node *before*
 planning and Store registration:

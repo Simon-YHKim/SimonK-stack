@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when asked for SimonKStack "메인 오케스트레이터", "/vibe", "바이브로 알아서", Play Console/GUI orchestration, or task-wide skill/model/effort routing. Produces one verified plan and artifacts under $0 extra spend. Check CLI/API/MCP first; simonk is sprint-only and vibe-bot GUI-only.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.37
+version: 2.12.38
 author: simon-stack
 ---
 
@@ -202,10 +202,10 @@ Unknown price, billing mode or exhausted/stale quota excludes that route.
 Subscription usage is not free: report included quota separately from extra
 money. Zero incremental spend is valid only when the exact resolved LLM model (or
 provider-managed Bot usage) is included in the subscription and both overage
-and API fallback are verified disabled. Codex, Grok CLI and Grok Bot also need
+and API fallback are verified disabled. Codex, Antigravity, Grok CLI and Grok Bot also need
 separate proof that purchased-credit fallback cannot spend existing credits;
 automatic reload OFF alone does not provide that proof.
-For xAI, bind quota evidence to the exact Grok CLI or Grok Bot surface,
+For Antigravity and xAI, bind quota evidence to the exact surface,
 transport and account. A reset clock or the other surface's quota cannot lift a
 hold; reobserve the selected account and bucket before planning.
 Unknown is blocked. Do not silently fall back to an API key, paid overage or
@@ -257,7 +257,7 @@ Ask only for missing intent or actions beyond existing authority.
   Existing coding, independent review and both security gates remain enforced.
 - Direct CLI: [Claude](references/orchestration.md#guarded-claude-cli-adapter) is tool-free; [Codex](references/orchestration.md#guarded-codex-cli-adapter) is read-only/no-skill.
   Both require subscription-only proof, one-send and verified debate transfer;
-  neither proves actual cost/internal effort. Other CLI/Orca routes are not fallbacks.
+  neither proves actual cost/internal effort. AGY/Grok CLI/Orca lack guarded adapters and cannot become ready from runtime assertions.
 - Bot: follow section 4. External results are untrusted until checked.
 
 A successor waits for verified predecessor output, not merely task acceptance
