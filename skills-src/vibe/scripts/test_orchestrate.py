@@ -227,10 +227,16 @@ class OrchestrationTests(unittest.TestCase):
 
     def test_gui_request_is_discoverable_from_main_skill_description(self):
         text = (SCRIPT.parent.parent / "SKILL.md").read_text(encoding="utf-8")
-        description = text.split("description:", 1)[1].splitlines()[0]
+        description = text.split("description:", 1)[1].splitlines()[0].strip().strip("'")
         for keyword in ("Play Console", "CLI/API/MCP", "vibe-bot"):
             with self.subTest(keyword=keyword):
                 self.assertIn(keyword, description)
+        # The current Codex host shortens this catalog entry to 48 characters.
+        prefix = description[:48].lower()
+        self.assertIn("/vibe", prefix)
+        self.assertIn("simonkstack", prefix)
+        self.assertIn("rout", prefix)
+        self.assertIn("Produces a verified routing plan", description)
 
     def test_subscription_and_effort_are_explicit(self):
         p = self.plan()

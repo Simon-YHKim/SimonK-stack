@@ -1,8 +1,8 @@
 ---
 name: vibe
-description: 'Use when asked for SimonKStack "메인 오케스트레이터", "/vibe", "바이브로 알아서", Play Console/GUI orchestration, or task-wide skill/model/effort routing. Produces one verified plan and artifacts under $0 extra spend. Check CLI/API/MCP first; simonk is sprint-only and vibe-bot GUI-only.'
+description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan and reports blocked coding or image routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.40
+version: 2.12.41
 author: simon-stack
 ---
 
