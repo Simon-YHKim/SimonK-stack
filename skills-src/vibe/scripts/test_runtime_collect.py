@@ -110,6 +110,45 @@ class RuntimeCollectionTests(unittest.TestCase):
         self.assertEqual(out["billing"]["on_demand_cap"], "0")
         self.assertFalse(out["billing"]["verified"])
 
+    def test_grok_official_outer_overage_flag_is_preserved_without_authorizing(self):
+        # xAI's ACP billing response places onDemandEnabled beside config.
+        for observed, expected in ((False, False), (True, True), (None, None),
+                                   (0, None), ("false", None)):
+            with self.subTest(observed=observed):
+                raw = {"subscriptionTier": "SuperGrok Heavy",
+                       "onDemandEnabled": observed,
+                       "config": copy.deepcopy(grok_raw()["billing"])}
+                # A stale/legacy nested value must not override the outer flag.
+                raw["config"]["onDemandEnabled"] = not observed
+                out = self.parse("grok", raw)
+                self.assertIs(out["billing"]["extra_usage_enabled"], expected)
+                self.assertFalse(out["billing"]["verified"])
+                self.assertFalse(out["account_verified"])
+                self.assertFalse(out["generation_verified"])
+
+    def test_grok_conflicting_outer_overage_aliases_stay_unknown(self):
+        raw = grok_raw()
+        raw["onDemandEnabled"] = False
+        raw["on_demand_enabled"] = True
+        out = self.parse("grok", raw)
+        self.assertIsNone(out["billing"]["extra_usage_enabled"])
+        self.assertFalse(out["billing"]["verified"])
+
+    def test_grok_conflicting_legacy_overage_aliases_stay_unknown(self):
+        raw = grok_raw()
+        raw["billing"]["onDemandEnabled"] = False
+        raw["billing"]["on_demand_enabled"] = True
+        out = self.parse("grok", raw)
+        self.assertIsNone(out["billing"]["extra_usage_enabled"])
+        self.assertFalse(out["billing"]["verified"])
+
+    def test_grok_legacy_nested_overage_flag_remains_supported(self):
+        raw = grok_raw()
+        raw["billing"]["onDemandEnabled"] = False
+        out = self.parse("grok", raw)
+        self.assertIs(out["billing"]["extra_usage_enabled"], False)
+        self.assertFalse(out["billing"]["verified"])
+
     def test_grok_cli_model_list_is_metadata_not_execution_authority(self):
         raw = grok_raw()
         raw["_grok_models_text"] = GROK_MODEL_LIST
@@ -284,6 +323,27 @@ class RuntimeCollectionTests(unittest.TestCase):
         billing = self.parse("codex", raw)["billing"]["buckets"]
         self.assertEqual(billing["premium"]["credits"]["balance"], "5")
         self.assertTrue(billing["premium"]["spend_control_reached"])
+
+    def test_codex_rejects_unrepresentable_billing_buckets(self):
+        # Silently dropping a paid bucket can make a clear legacy bucket look safe.
+        for buckets in (
+            {"premium/credits": {"credits": {"hasCredits": True,
+                "unlimited": False, "balance": "5"}}},
+            {"premium": "malformed"},
+            ["malformed"],
+        ):
+            with self.subTest(buckets=buckets):
+                raw = codex_raw()
+                raw["limits"]["rateLimitsByLimitId"] = buckets
+                with self.assertRaisesRegex(self.m.CollectorError, "billing-shape-unknown"):
+                    self.parse("codex", raw)
+
+    def test_codex_conflicting_balance_aliases_do_not_appear_zero(self):
+        raw = codex_raw()
+        raw["limits"]["rateLimits"]["credits"]["balance"] = {"val": "0", "value": "5"}
+        out = self.parse("codex", raw)
+        self.assertIsNone(out["billing"]["credits"]["balance"])
+        self.assertEqual(self.m.amount({"val": "0", "value": "0.00"}), "0")
 
     def test_codex_backend_uses_same_connection_and_detects_account_change(self):
         parent = self

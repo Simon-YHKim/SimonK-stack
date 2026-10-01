@@ -79,16 +79,15 @@ def money(value):
 
 def codex_paid_credit_risk(billing):
     """Reject observed spendable or unresolved credits, including named buckets."""
-    if not isinstance(billing, dict):
+    if not isinstance(billing, dict) or "credits" not in billing:
         return True
     buckets = billing.get("buckets", {})
     if not isinstance(buckets, dict):
         return True
+    if any(not isinstance(item, dict) or "credits" not in item
+           for item in buckets.values()):
+        return True
     for item in (billing, *buckets.values()):
-        if not isinstance(item, dict):
-            return True
-        if "credits" not in item:
-            continue
         credits = item["credits"]
         if (not isinstance(credits, dict)
                 or type(credits.get("has_credits")) is not bool
@@ -939,7 +938,7 @@ def assess_image_tool(tool, runtime, step, now):
     quota = tool.get("quota", {})
     used = quota.get("used_pct") if isinstance(quota, dict) else None
     if (isinstance(used, bool) or not isinstance(used, (int, float))
-            or not 0 <= used < 100 or not quota.get("bucket")
+            or not 0 <= used < 100 or not isinstance(billing, dict) or not quota.get("bucket")
             or not fresh(quota.get("observed_at"), now)
             or quota.get("account_ref") != billing.get("account_ref")
             or quota.get("surface") != tool.get("surface")
