@@ -22,8 +22,8 @@ from pathlib import Path
 
 SURFACES = {"claude": "anthropic", "codex": "openai", "antigravity": "google",
             "grok": "xai", "grok-bot": "xai"}
-# Only source adapters that can perform a guarded dispatch. A runtime candidate
-# cannot certify an adapter that does not exist in this package.
+# Surface/transport pairs with a guarded adapter. Per-node restrictions remain
+# dispatch gates; runtime assertions cannot certify a missing adapter.
 GUARDED_EXECUTION_ADAPTERS = {("claude", "cli"), ("codex", "cli"),
                               ("claude", "orca"), ("codex", "orca")}
 DEMAND_TIER = {"routine": 1, "reasoning": 2, "critical": 3}

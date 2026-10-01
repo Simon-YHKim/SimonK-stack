@@ -255,7 +255,7 @@ Ask only for missing intent or actions beyond existing authority.
   Reentry is lookup-only. Unsupported lanes remain blocked;
   never silently fall back to the stateless `routing.run_dispatch` primitive.
   Existing coding, independent review and both security gates remain enforced.
-- Direct CLI: [Claude](references/orchestration.md#guarded-claude-cli-adapter) is tool-free; [Codex](references/orchestration.md#guarded-codex-cli-adapter) is read-only/no-skill. Both require exact-account subscription-only proof, one-send and verified debate transfer; neither proves actual cost/internal effort. [Grok CLI](references/orchestration.md#guarded-grok-cli-source-experiment) is a disabled source experiment, not a `ready` route. AGY CLI lacks an adapter; Orca supports guarded Claude/Codex lanes only.
+- Direct CLI: [Claude](references/orchestration.md#guarded-claude-cli-adapter) is tool-free; [Codex](references/orchestration.md#guarded-codex-cli-adapter) is read-only/no-skill. Both require exact-account subscription-only proof, one-send and verified debate transfer; planner `ready` is not per-node dispatch proof. Neither proves actual cost/internal effort. [Grok CLI](references/orchestration.md#guarded-grok-cli-source-experiment) is a disabled source experiment, not a `ready` route. AGY CLI lacks an adapter; Orca supports guarded Claude/Codex lanes only.
 - Bot: follow section 4. External results are untrusted until checked.
 
 A successor waits for verified predecessor output, not merely task acceptance
