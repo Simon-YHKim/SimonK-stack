@@ -43,9 +43,84 @@
 모델·effort 자동 선택 품질, 이미지 생성, Grok Bot 배달, Gstack 전체
 외부 런타임 및 구독 청구는 검증하지 않았다. `installation_ready=false`,
 `host_compatibility_verified=false`, `runtime_closure_verified=false`를 유지한다.
-독립 심판 D-code와 정확한 PR HEAD의 CI 전에는 `main` 머지하지 않는다.
-운영 Cloudflare Pages 자동 배포는 사용자가 허용했으나 설치·실호출 허가는
-아니다.
+이후 독립 심판 D-38과 정확한 PR HEAD CI를 거쳐 #68·#69가 소스 전용으로
+`main`에 머지됐다. 운영 Cloudflare Pages 자동 배포는 사용자가 허용했으나
+설치·실호출 허가는 아니다. D-39는 실제 사용자 홈 전환을 계속 보류하고
+오프라인 shadow 검증만 허용했다.
+
+### 사용자 flat 링크 읽기 전용 사전검사
+
+`scripts/vibe_host_preflight.py`는 후보와 현재 프로필에서 Claude Core 정션
+5개, Codex 정션 2개, `.agents`의 `/vibe` 별칭 1개만 읽는다. 이전 후보 루트를
+명시적으로 받아 각 직접 대상·링크 종류·`SKILL.md` 해시를 비교한다. 이어서
+후보의 다섯 플러그인 스킬 루트와 각 호스트의 flat 스킬 루트를 기존
+`/vibe` 메타데이터 스캐너로 대조한다. 어느 단계도 링크를 이동하거나 바꾸지 않는다.
+Windows 정션은 Python 3.11에서도 지원하며 Windows CI가 해당 회귀 테스트를
+실행한다. 출력 JSON에는 절대 프로필·후보 경로 대신 대상 일치 여부와 해시만 담는다.
+실제 프로필에서 8/8 링크 구조가 일치했고, `/vibe`의 Claude·Codex 두
+본문만 후보와 달랐다. 전체 SKILL.md 감사에서는 Claude 후보 182개 중
+일치 4·변경 134·미설치 44, Codex 안전 부분집합 177개 중 일치 4·변경 128·
+미설치 45다. 플러그인 등록·실제 호스트 적재와 명령 우선순위, 스크립트·
+자산 파일, 모델·effort 선택, 계정 청구와 이미지·Bot 전달은 범위 밖이다.
+
+```powershell
+$vibeCandidate = 'E:\Coding Infra\Releases\SimonK-stack\20261001-vibe-pr69-billing-consistency-candidate'
+$vibeCurrent = 'E:\Coding Infra\Releases\SimonK-stack\20261001-vibe-bot-gate-fix'
+python -B scripts/vibe_host_preflight.py --candidate-root $vibeCandidate `
+  --expected-current-root $vibeCurrent `
+  --claude-root "$env:USERPROFILE\.claude" --codex-root "$env:USERPROFILE\.codex" `
+  --agents-root "$env:USERPROFILE\.agents" `
+  --source-digest 97699b4d074b5fe09a9080dc2b7364c2c5fb68733a02381ad99a51ac855f28ce `
+  --claude-digest 1aa454151c48cbe64f7734479739e8d637d885200d10837580e4b03c8330109e `
+  --overlay-digest 355db0e5c2a36f7a3ba39fc21c25b5287c2f54f44da5beaec61775b9620416b8 `
+  --codex-digest e3e366d488a8a9f0475dcb7f0e94aad500257e69f841598a1afcd495db05c698
+python -B -m unittest scripts.tests.test_vibe_host_preflight -v
+```
+
+네 digest는 위 배포 표의 **별도 고정값**이다. 하나라도 누락·불일치하면
+호스트 스캔 전에 `CANDIDATE_VERIFICATION_FAILED`로 차단한다. 네 값이 모두
+맞으면 기존 source·Claude bundle·Codex overlay·안전 부분집합 검증기로
+파일 바이트와 출처 연결을 확인해 `candidate_bytes_verified=true`로 보고한다.
+이는 SHA-256 고정 후보 확인이지 서명이나 실행 중 파일 불변성 증명이 아니다.
+digest 인수를 생략한 종전 호출은 `candidate_verification.status=not_requested`와
+`candidate_bytes_verified=false`로 남는다.
+
+네이티브 플러그인 등록 상태도 보려면 같은 후보·프로필 인수에
+`--native-json-stdin`을 추가하고 아래처럼 각 호스트의 현재 목록을 메모리에서
+전달한다. 이 옵션은 `claude plugin list --json`의 배열과
+`codex plugin list --json`의 `installed` 배열에서 후보 5개 플러그인의
+정확한 `name@marketplace`·버전·활성 상태만 집계한다. 원본 목록·로컬
+경로는 보고서에 출력하지 않는다.
+
+```powershell
+$claudePlugins = claude plugin list --json | ConvertFrom-Json -Depth 30
+$codexPlugins = codex plugin list --json | ConvertFrom-Json -Depth 30
+@{claude=$claudePlugins;codex=$codexPlugins} | ConvertTo-Json -Depth 30 -Compress |
+  python -B scripts/vibe_host_preflight.py --candidate-root $vibeCandidate `
+    --expected-current-root $vibeCurrent --claude-root "$env:USERPROFILE\.claude" `
+    --codex-root "$env:USERPROFILE\.codex" --agents-root "$env:USERPROFILE\.agents" `
+    --source-digest 97699b4d074b5fe09a9080dc2b7364c2c5fb68733a02381ad99a51ac855f28ce `
+    --claude-digest 1aa454151c48cbe64f7734479739e8d637d885200d10837580e4b03c8330109e `
+    --overlay-digest 355db0e5c2a36f7a3ba39fc21c25b5287c2f54f44da5beaec61775b9620416b8 `
+    --codex-digest e3e366d488a8a9f0475dcb7f0e94aad500257e69f841598a1afcd495db05c698 `
+    --native-json-stdin
+```
+
+2026-10-01 실제 목록은 Claude·Codex 모두 후보 5개 중 등록·활성 일치 0개,
+미등록 5개였다. 목록 없이 실행하면 `native_plugin_coverage.status=not_observed`이고,
+형식이 틀리면 차단한다. `metadata_matched`가 되더라도 캐시 바이트·명령
+우선순위·실행·과금은 검증하지 않으며 설치 허가가 아니다.
+
+출력의 `host_snapshot_complete`는 위 8개 링크의 관측 성공만 뜻한다.
+`flat_coverage`는 SKILL.md 메타데이터 감사이며 현재 양쪽 모두
+`status=gaps`, `rollout_gate=blocked`다.
+위 네 고정 digest로 실행한 현재 결과는 후보 4/4 바이트 검증 성공과
+Core 링크 8/8 관측이지만, 전체 flat 감사의 Claude 4/182·Codex 4/177 일치,
+네이티브 등록 양쪽 0/5라는 결손은 그대로다. `full_skill_set_verified=false`,
+`host_command_precedence_verified=false`, `billing_verified=false`,
+`installation_ready=false`가 유지되므로 설치 승인이나 실사용 품질
+증거로 사용하지 않는다. 실제 명령 선택, 호스트 적재, 구독 청구,
+이미지·Grok Bot 전달은 이 검사의 범위 밖이다.
 
 ## 2026-10-01 `/vibe` 2.12.32 최상위 Codex 크레딧 증거 가드 후보
 
