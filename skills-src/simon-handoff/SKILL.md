@@ -13,7 +13,7 @@ description: >
   (commit+push alone is not enough — the next session's `git pull origin
   main` won't see it until merge). Includes fallback URLs (PR URL, raw
   URL, branch checkout) for the case where merge can't complete.
-version: 1.0.0
+version: 1.0.1
 allowed-tools:
   - Bash
   - Read
@@ -181,13 +181,13 @@ cat docs/HANDOFF.md
 
 The trailing `---` separates this block from prior blocks.
 
-### Step 2-B — 100KB 를 넘으면 **굴린다**. 요약하지 않는다
+### Step 2-B — 400KB 를 넘으면 **굴린다**. 요약하지 않는다
 
 `docs/HANDOFF.md` 는 **활성 창**이고, 밀려난 블록은 기간 파일에 원문 그대로 남는다.
-Simon 지침 §0-1: *"100KB 에 닿으면 요약하지 않고 기간으로 쪼갠다. 압축은 선택지가 아니다."*
+Simon 지침 §0-1: *"400KB 에 닿으면 요약하지 않고 기간으로 쪼갠다. 압축은 선택지가 아니다."*
 
 ```
-docs/HANDOFF.md                      활성 창 (예산 80KB · 상한 100KB)
+docs/HANDOFF.md                      활성 창 (예산 320KB · 상한 400KB)
 docs/handoff/HANDOFF-YYYY-MM.md      월 보관
 docs/handoff/HANDOFF-YYYY-MM-pN.md   월이 넘칠 때의 부분. **p1 이 가장 오래된 쪽**
 ```
@@ -201,11 +201,11 @@ docs/handoff/HANDOFF-YYYY-MM-pN.md   월이 넘칠 때의 부분. **p1 이 가�
 **번호가 가장 큰 부분의 맨 위**로 들어간다. 최신 쪽부터 번호를 매기면 굴릴 때마다
 전부 개명해야 한다.
 
-**절차** — prepend 후 활성 파일이 100KB 를 넘으면:
+**절차** — prepend 후 활성 파일이 400KB 를 넘으면:
 
-1. 가장 오래된 H2 블록부터, 활성 파일이 **80KB 아래**로 내려갈 때까지 떼어낸다.
+1. 가장 오래된 H2 블록부터, 활성 파일이 **320KB 아래**로 내려갈 때까지 떼어낸다.
 2. 뗀 블록을 그 달의 보관 파일(부분이 있으면 번호가 가장 큰 것) **맨 위**에 얹는다.
-   그 파일이 90KB 를 넘으면 번호 하나 큰 새 부분을 만든다.
+   그 파일이 360KB 를 넘으면 번호 하나 큰 새 부분을 만든다.
 3. 활성 파일 머리의 색인 표(기간·파일·블록 수·크기)를 갱신한다.
 4. **아래 Step 2-C 검사를 돌린다.** 블록 수가 보존되지 않으면 되돌린다.
 
@@ -332,7 +332,7 @@ The skill is only complete when **all four** are true:
    accompany the resume command.
 5. **실행 전 게이트 3개를 실제로 돌렸고 머지 범위를 보고했다.**
 6. **`## Latest` 가 활성 파일에 정확히 1개이고 그것이 맨 위 블록이다.**
-7. **`docs/HANDOFF.md` 와 모든 `docs/handoff/HANDOFF-*.md` 가 100KB 미만이다.**
+7. **`docs/HANDOFF.md` 와 모든 `docs/handoff/HANDOFF-*.md` 가 400KB 미만이다.**
 8. **굴렸다면 블록 수가 보존됐다**(Step 2-C ④). 요약·병합·삭제 0건.
 
 If any of these is false, do not declare success.
