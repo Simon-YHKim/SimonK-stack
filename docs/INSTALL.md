@@ -2,6 +2,53 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
+## 2026-10-01 `/vibe` 2.12.42 · `ai-debate` 0.2.0 — 사용자 홈 설치 완료
+
+Simon의 직접 지시("스킬 업데이트를 완료해줘")와 §35 4벤더 토론 D-53(PROVISIONAL 2/4,
+블라인드 심판 조건부 GO, 비준 ACCEPT 2/2)에 따라 D-39/D-50의 사용자 홈 HOLD를 해제하고
+평면 Core 링크만 전환했다. 네이티브 플러그인 등록과 133개 물리 폴더는 바꾸지 않았다.
+
+후보는 main `bfee665`의 깨끗한 detached 워크트리에서 조립했다
+(`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-21242-candidate/`,
+플러그인 입력은 `20261001-vibe-21241-candidate/plugin-pins-lf`의 고정 커밋).
+
+| 패키지 | SHA-256 영수증 | 범위 |
+| --- | --- | --- |
+| `source` | `fdf49700c59b415737c17daa1432707e886cf04bf8f89fbfa5e7ddeaa5d6d42c` | 137스킬·429파일 |
+| `candidate-safety` | `9b4cf24efd9feb495018717128f45dd40f4c8a1c9e1c7e38a57634cee482138c` | Claude 5플러그인·182스킬·758파일 |
+| `codex-overlay-safety` | `a8afac169e53d9eca714d3e4a1a63d1a98dfd7ca28f118137e5ba282ad23f38a` | Codex 호환 오버레이 |
+| `codex-subset-safety` | `80659a1ca7be652c975914fa0ee9a9441061c79f010f67194aeed7b2f636582f` | Codex 안전 부분집합 177스킬 |
+
+설치 단계(같은 날 두 번, 같은 방식): 2.12.24 → 2.12.41 → 2.12.42.
+
+1. 전환 직전 `%LOCALAPPDATA%/SimonK/vibe/runs.sqlite3` 부재로 진행 중 preparation·바인딩된
+   Orca 실행 0건을 확인했다.
+2. Claude 정션 5개(`model-router`, `multi-terminal-dispatcher`, `simonk`, `vibe`, `vibe-bot`)와
+   Codex 정션 2개(`vibe`, `vibe-bot`)를 같은 볼륨에서 `<host>/flat-link-archive/<run>/<name>`으로
+   이동 보관하고 새 후보를 가리키는 정션을 만들었다. 기존 대상 폴더는 삭제하지 않았다.
+3. `~/.codex/config.toml`의 `/vibe` 중복 제거 `[[skills.config]]` 경로 한 줄만 새 후보로 바꿨다.
+4. `~/.claude/skills/ai-debate` 물리 폴더(0.1.0)를 보관 이동하고 후보의 0.2.0 사본으로 교체했다.
+   `~/.agents/skills/ai-debate` 심링크를 거쳐 Codex도 0.2.0을 읽는다.
+
+매니페스트와 사전 이미지는 `~/.claude/flat-link-archive/vibe-09ff36f49f15/`(2.12.41)과
+`~/.claude/flat-link-archive/vibe-9b4cf24efd9f/`(2.12.42)에 있다. 되돌리기는 매니페스트의 보관
+링크를 원위치로 이동하고 config 한 줄을 역치환한 뒤, `ai-debate-0.1.0` 보관 폴더를 복원한다.
+
+검증: 영수증 4/4(빌드 직후·후보 경로 테스트 뒤·설치 뒤), 런타임 probe 통과, 후보 경로
+`test_orchestrate` 138·`test_run_state` 53·ai-debate 77 OK, 호스트 사전검사
+`different_skills=0`·`issues=[]`, 설치 경로 selftest 180/180(Claude·Codex), 표 동기 OK,
+설치본 `run_state.py gstack-env` 스모크(telemetry off·update_check false, DB 미생성), 개인
+`~/.gstack` 불변. 사전검사는 간헐적으로 7개 링크 전부를 `LINK_TARGET_MISMATCH`로 오판했고
+(직접 readlink 492회는 동일), 2.12.42 전환 직후 한 번 영수증·사전검사가 rc 2를 냈으나
+재실행에서 재현되지 않았다. 판정은 직접 readlink와 영수증을 함께 본다.
+
+`installation_ready`·`host_compatibility_verified`·`billing_verified` 필드는 패키지 수준 값이라
+여전히 false다. 이 설치는 실사용 자동 선택·구독 청구·이미지·Grok Bot 경로를 증명하지 않는다.
+Codex·Grok 좌석은 쿼터 소진으로 D-53에 결석했으며 복귀 후 `ai-debate` catch-up이 남아 있다.
+이미 열린 Claude·Codex 세션은 이전 스킬 목록을 캐시하므로 새 세션에서 반영된다. 로컬 기본 체크아웃
+(`E:/Coding Infra/Harrness Eng/SimonK-stack`, 오래된 main)을 프로젝트로 열면 hold 검사가 없는
+구 SessionStart 훅이 스킬을 실폴더로 덮을 수 있다.
+
 ## 2026-10-01 `/vibe` 2.12.41 설명 축약 대응 후보 — 기본 설치 보류
 
 소스 커밋 `9a49365`에서 이전 후보와 별도의
