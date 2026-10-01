@@ -52,11 +52,14 @@
 
 `scripts/vibe_host_preflight.py`는 후보와 현재 프로필에서 Claude Core 정션
 5개, Codex 정션 2개, `.agents`의 `/vibe` 별칭 1개만 읽는다. 이전 후보 루트를
-명시적으로 받아 각 직접 대상·링크 종류·`SKILL.md` 해시를 비교하지만
-링크를 이동하거나 바꾸지 않는다.
+명시적으로 받아 각 직접 대상·링크 종류·`SKILL.md` 해시를 비교한다. 이어서
+후보의 다섯 플러그인 스킬 루트와 각 호스트의 flat 스킬 루트를 기존
+`/vibe` 메타데이터 스캐너로 대조한다. 어느 단계도 링크를 이동하거나 바꾸지 않는다.
 실제 프로필에서 8/8 링크 구조가 일치했고, `/vibe`의 Claude·Codex 두
-본문만 후보와 달랐다. 다른 사용자 flat 스킬 전체, 플러그인 등록, 명령
-우선순위, 모델·effort 선택, 계정 청구와 이미지·Bot 전달은 이 검사 범위 밖이다.
+본문만 후보와 달랐다. 전체 SKILL.md 감사에서는 Claude 후보 182개 중
+일치 4·변경 134·미설치 44, Codex 안전 부분집합 177개 중 일치 4·변경 128·
+미설치 45다. 플러그인 등록·실제 호스트 적재와 명령 우선순위, 스크립트·
+자산 파일, 모델·effort 선택, 계정 청구와 이미지·Bot 전달은 범위 밖이다.
 
 ```powershell
 $vibeCandidate = 'E:\Coding Infra\Releases\SimonK-stack\20261001-vibe-pr69-billing-consistency-candidate'
@@ -69,6 +72,8 @@ python -B -m unittest scripts.tests.test_vibe_host_preflight -v
 ```
 
 출력의 `host_snapshot_complete`는 위 8개 링크의 관측 성공만 뜻한다.
+`flat_coverage`는 SKILL.md 메타데이터 감사이며 현재 양쪽 모두
+`status=gaps`, `rollout_gate=blocked`다.
 `candidate_bytes_verified=false`, `full_skill_set_verified=false`,
 `host_command_precedence_verified=false`, `billing_verified=false`,
 `installation_ready=false`가 유지되므로 설치 승인이나 실사용 품질

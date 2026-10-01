@@ -8,14 +8,37 @@ runtime quality. It never changes a profile and never grants installation.
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import hashlib
 import json
 import os
 from pathlib import Path
+import sys
 
 
 CLAUDE_NAMES = ("model-router", "multi-terminal-dispatcher", "simonk", "vibe", "vibe-bot")
 CODEX_NAMES = ("vibe", "vibe-bot")
+PLUGIN_NAMES = ("SimonKCore", "SimonKDesign", "SimonKStack", "SimonKMarket", "SimonKAIHub")
+
+
+def _flat_coverage(candidate_root: Path, host_roots: tuple[Path, ...],
+                   package: str) -> dict:
+    """Reuse the repo's bounded metadata scanner; this is not host loading proof."""
+    scanner_root = Path(__file__).resolve().parents[1] / "skills-src" / "vibe" / "scripts"
+    if str(scanner_root) not in sys.path:
+        sys.path.insert(0, str(scanner_root))
+    import orchestrate
+
+    source_roots = tuple(candidate_root / package / "plugins" / name / "skills"
+                         for name in PLUGIN_NAMES)
+    source = orchestrate.skill_inventory(source_roots)
+    installed = orchestrate.skill_inventory(host_roots)
+    result = orchestrate.skill_coverage(source, installed)
+    counts = Counter(row["installation"] for row in result["rows"])
+    return {"status": result["status"], "scope_complete": result["scope_complete"],
+            "source_skills": len(result["rows"]),
+            **{state: counts[state] for state in
+               ("matched", "drifted", "missing", "ambiguous_source", "host_only")}}
 
 
 def _digest(path: Path) -> str:
@@ -91,10 +114,17 @@ def scan(candidate_root: Path, current_root: Path, claude_root: Path, codex_root
         except (OSError, RuntimeError):
             issues.append("ALIAS_READ_FAILED")
 
+    flat_coverage = {
+        "claude": _flat_coverage(candidate_root, (claude_root / "skills",),
+                                 "candidate-safety"),
+        "codex": _flat_coverage(candidate_root, (agents_root / "skills", codex_root / "skills"),
+                                "codex-subset-safety"),
+    }
     return {"status": "blocked" if issues else "host_snapshot_complete",
             "scope": "seven_flat_core_links_and_one_agents_alias",
             "checked_links": checked_links, "different_skills": different_skills,
             "issues": sorted(set(issues)), "entries": entries,
+            "flat_coverage": flat_coverage, "rollout_gate": "blocked",
             "candidate_bytes_verified": False, "host_command_precedence_verified": False,
             "full_skill_set_verified": False, "billing_verified": False,
             "installation_ready": False,

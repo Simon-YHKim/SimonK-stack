@@ -2,6 +2,7 @@
 
 import os
 from pathlib import Path
+import shutil
 import sys
 import tempfile
 import unittest
@@ -30,14 +31,21 @@ class VibeHostPreflightTests(unittest.TestCase):
             for name in names:
                 source = self.candidate / package / "plugins/SimonKCore/skills" / name
                 source.mkdir(parents=True)
-                (source / "SKILL.md").write_text(f"candidate {name}\n", encoding="utf-8")
+                (source / "SKILL.md").write_text(
+                    f"---\nname: {name}\ndescription: Candidate {name}\n---\ncandidate {name}\n",
+                    encoding="utf-8")
                 old = self.old_candidate / package / "plugins/SimonKCore/skills" / name
                 old.mkdir(parents=True)
-                (old / "SKILL.md").write_text(f"installed {name}\n", encoding="utf-8")
+                (old / "SKILL.md").write_text(
+                    f"---\nname: {name}\ndescription: Installed {name}\n---\ninstalled {name}\n",
+                    encoding="utf-8")
                 try:
                     os.symlink(old, host / "skills" / name, target_is_directory=True)
                 except OSError as exc:
                     self.skipTest(f"directory symlinks unavailable: {exc}")
+        for package in ("candidate-safety", "codex-subset-safety"):
+            for plugin in ("SimonKCore", "SimonKDesign", "SimonKStack", "SimonKMarket", "SimonKAIHub"):
+                (self.candidate / package / "plugins" / plugin / "skills").mkdir(parents=True, exist_ok=True)
         (self.agents / "skills").mkdir(parents=True)
         os.symlink(self.claude / "skills" / "vibe",
                    self.agents / "skills" / "vibe", target_is_directory=True)
@@ -53,11 +61,14 @@ class VibeHostPreflightTests(unittest.TestCase):
         self.assertEqual(report["different_skills"], 7)
         self.assertEqual(report["scope"], "seven_flat_core_links_and_one_agents_alias")
         self.assertFalse(report["full_skill_set_verified"])
+        self.assertEqual(report["rollout_gate"], "blocked")
+        self.assertEqual(report["flat_coverage"]["claude"]["drifted"], 5)
+        self.assertEqual(report["flat_coverage"]["codex"]["drifted"], 2)
         self.assertFalse(report["installation_ready"])
         self.assertFalse(report["profile_changed"])
         self.assertFalse(report["candidate_bytes_verified"])
-        self.assertEqual((self.claude / "skills/vibe/SKILL.md").read_text(),
-                         "installed vibe\n")
+        self.assertTrue((self.claude / "skills/vibe/SKILL.md").read_text().endswith(
+            "installed vibe\n"))
 
     def test_ordinary_skill_directory_is_rejected(self):
         link = self.claude / "skills" / "vibe"
@@ -93,6 +104,21 @@ class VibeHostPreflightTests(unittest.TestCase):
         report = self.scan()
         self.assertEqual(report["status"], "blocked")
         self.assertIn("CANDIDATE_SKILL_MISSING", report["issues"])
+
+    def test_flat_metadata_match_does_not_authorize_installation(self):
+        for host, names, package in (
+            (self.claude, preflight.CLAUDE_NAMES, "candidate-safety"),
+            (self.codex, preflight.CODEX_NAMES, "codex-subset-safety"),
+        ):
+            for name in names:
+                candidate = self.candidate / package / "plugins/SimonKCore/skills" / name / "SKILL.md"
+                shutil.copyfile(candidate, self.old_candidate / package /
+                                "plugins/SimonKCore/skills" / name / "SKILL.md")
+        report = self.scan()
+        self.assertEqual(report["flat_coverage"]["claude"]["matched"], 5)
+        self.assertEqual(report["flat_coverage"]["codex"]["matched"], 2)
+        self.assertEqual(report["rollout_gate"], "blocked")
+        self.assertFalse(report["full_skill_set_verified"])
 
 
 if __name__ == "__main__":
