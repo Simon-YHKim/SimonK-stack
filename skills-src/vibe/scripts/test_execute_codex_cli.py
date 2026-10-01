@@ -57,7 +57,8 @@ class CodexCliAdapterTests(unittest.TestCase):
         profile_ref = runtime_collect.opaque("codex", str(profile))
         account_ref = runtime_collect.opaque("codex", profile_ref, "fixture@example.test")
         self.observed = {"account_verified": True, "account_ref": account_ref,
-                         "profile_ref": profile_ref, "billing": {"mode": "subscription"},
+                         "profile_ref": profile_ref, "billing": {"mode": "subscription",
+                             "credits": {"has_credits": False, "unlimited": False, "balance": "0"}},
                          "auth": {"method": "chatgpt", "plan": "plus"},
                          "models": [{"model": "fixture-gpt", "transport_efforts": ["low"]}]}
         self.binding = {"executable": str(executable), "executable_sha256": sha256,
@@ -69,6 +70,7 @@ class CodexCliAdapterTests(unittest.TestCase):
             "mode": "subscription", "verified": True, "extra_usage_enabled": False,
             "model_included": True, "included_model": "fixture-gpt",
             "api_fallback_disabled": True, "paid_credit_fallback_disabled": True,
+            "credits": {"has_credits": False, "unlimited": False, "balance": "0"},
             "account_ref": account_ref})
         node = step("opening", surface="codex", skills=[], software=[],
                     task="Argue the independent position from supplied evidence", cli=self.binding)
@@ -125,6 +127,21 @@ class CodexCliAdapterTests(unittest.TestCase):
         self.cli.observed["account_ref"] = "different"
         with self.assertRaises(run_state.StateError):
             self.adapter.dispatch(self.plan, "opening", self.certificate)
+        self.assertEqual(self.store.snapshot()["attempts"], [])
+        self.assertEqual(self.cli.sends, [])
+
+    def test_fresh_account_purchased_credits_block_even_with_zero_spend_certificate(self):
+        for billing_change in ({"credits": None},
+                               {"credits": {"has_credits": True, "unlimited": False,
+                                            "balance": "3.25"}},
+                               {"buckets": {"codex": {"credits": {
+                                   "has_credits": True, "unlimited": False,
+                                   "balance": "3.25"}}}}):
+            with self.subTest(billing_change=billing_change):
+                self.cli.observed["billing"] = {"mode": "subscription", **billing_change}
+                with self.assertRaisesRegex(run_state.StateError,
+                                            "CODEX_PAID_CREDIT_EXPOSURE"):
+                    self.adapter.dispatch(self.plan, "opening", self.certificate)
         self.assertEqual(self.store.snapshot()["attempts"], [])
         self.assertEqual(self.cli.sends, [])
 

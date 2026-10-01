@@ -254,7 +254,10 @@ Antigravity's applicable **AI Credit Overages = Never** / CLI
 `useG1Credits=false` must be observed for the actual account and transport;
 an absent setting is unknown, not false. For Codex, a positive credit balance
 or an unverified account-level credit fallback blocks the zero-extra-spend
-route even when auto-reload is off. For Grok/Grok Bot, check purchased
+route even when auto-reload is off. An explicitly present Codex credit record
+must report `has_credits=false`, `unlimited=false` and a zero balance; null,
+malformed or contradictory records hold both planning and the final CLI gate.
+For Grok/Grok Bot, check purchased
 Extra Usage Credits/on-demand fallback separately from Auto Top Up and keep
 the CLI and Bot account/quota evidence distinct. None of these settings is
 changed by the planner or collector. Sources:
