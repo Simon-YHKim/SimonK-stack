@@ -1,6 +1,34 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-01 / `/vibe` 2.12.42·`ai-debate` 0.2.0 설치 완료와 4벤더 토론
+## Latest — 2026-10-02 / Grok catch-up 완료 · 파일 상한 400KB · ai-debate 0.2.1
+
+갱신 시각: 2026-10-02 00:05 KST · 갱신자: Claude Code(Opus 5.5).
+
+### 어디까지 왔나
+- Simon이 Grok을 다른 계정으로 다시 로그인했다. 무모델 ACP billing 조회(`runtime_collect.py --surface grok`): SuperGrok, 주간 78%(2026-10-08 16:51 KST 리셋), on-demand 한도 0·사용 0·선불 0.
+- D-53 Grok catch-up 실호출 성공: grok-4.7 xhigh, 166초, **ACCEPT**(독립 입장 조건부 선택지 1, 확신도 76). 허브 `DECISIONS.md`에 AMEND 줄 추가. D-53은 PROVISIONAL 유지, **남은 의무는 Codex catch-up 하나**(2026-10-07 09:03 KST 이후).
+- [PR #87](https://github.com/Simon-YHKim/SimonK-stack/pull/87) ai-debate 0.2.1: `status`가 catch-up을 마친 좌석을 "catch-up done"으로 표시(78/78).
+- [PR #88](https://github.com/Simon-YHKim/SimonK-stack/pull/88) Simon 지시로 단일 파일 상한 100KB → **400KB**(지침 단일본 5곳, `split.py` 재생성·`--apply`, simon-handoff 1.0.1 굴리기 예산 320KB·상한 400KB). 100KB 넘는 파일은 offset/limit·tail·grep으로 읽는다.
+- 설치본 갱신: `~/.claude/skills/ai-debate` 0.2.1, `~/.claude/skills/simon-handoff` 1.0.1(main `10a6cfb`와 바이트 동일, 이전 사본은 `~/.claude/flat-link-archive/skills-261002/`).
+
+### 다음 작업 큐
+| # | 작업 | 크기 | 권장 |
+|---|---|---|---|
+| A | 2026-10-07 09:03 KST 이후 Codex catch-up: `debate.py catchup` → `call --round catchup --vendor openai` → `record --id dbt-261001-201826 --amend` | 작음 | 남은 유일한 D-53 의무 |
+| B | claude.ai 개인 프로필 지침·Cowork 상시 지시사항에 `instructions/out/` 사본 붙여 넣기(400KB 반영) | 작음 | 사람 단계 |
+| C | ai-debate `seats`의 Grok 근거를 로그 마지막 줄 대신 ACP billing 조회로(계정 전환 직후 옛 수치 방지) | 작음 | |
+| D | 2.12.42 첫 실제 `/vibe` 실행 결과를 기준점으로 기록 · `\SimonK-Vibe-ModelWatch` 예약 작업 갱신 | 작음 | 이전 블록 B·D |
+
+### 다음 세션 시작하는 법
+```powershell
+git fetch origin main
+git show origin/main:docs/HANDOFF.md
+python -B "$env:USERPROFILE\.claude\skills\ai-debate\scripts\debate.py" catchup
+```
+
+---
+
+## 2026-10-01 / `/vibe` 2.12.42·`ai-debate` 0.2.0 설치 완료와 4벤더 토론
 
 갱신 시각: 2026-10-01 20:40 KST · 갱신자: Claude Code(Opus 5.5). Simon이 Codex의 장시간 작업을 넘기며 "스킬 업데이트 완료"와 "ai-debate를 항상 4개 벤더(Claude·Codex·Grok·Gemini)로, 오래 걸리면 중간에 겐세이"를 지시했다.
 
