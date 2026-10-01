@@ -272,6 +272,81 @@ class VibeHostPreflightTests(unittest.TestCase):
         self.assertEqual(report["rollout_gate"], "blocked")
         self.assertFalse(report["full_skill_set_verified"])
 
+    def test_partial_candidate_pins_fail_before_host_scan(self):
+        report = preflight.scan(self.candidate, self.old_candidate,
+                                self.claude, self.codex, self.agents,
+                                candidate_pins={"source": "a" * 64})
+        self.assertEqual(report["status"], "blocked")
+        self.assertIn("CANDIDATE_VERIFICATION_FAILED", report["issues"])
+        self.assertFalse(report["candidate_bytes_verified"])
+        self.assertFalse(report["profile_changed"])
+
+    def test_verified_candidate_bytes_do_not_authorize_installation(self):
+        pins = {name: char * 64 for name, char in (
+            ("source", "a"), ("candidate-safety", "b"),
+            ("codex-overlay-safety", "c"), ("codex-subset-safety", "d"))}
+        with patch.object(preflight, "_verify_candidate_receipts",
+                          return_value={"status": "verified", "packages": 4}):
+            report = preflight.scan(self.candidate, self.old_candidate,
+                                    self.claude, self.codex, self.agents,
+                                    candidate_pins=pins)
+        self.assertTrue(report["candidate_bytes_verified"])
+        self.assertEqual(report["candidate_verification"]["packages"], 4)
+        self.assertFalse(report["installation_ready"])
+        self.assertEqual(report["rollout_gate"], "blocked")
+
+    def test_four_receipts_and_provenance_must_match_the_supplied_pins(self):
+        pins = {name: char * 64 for name, char in (
+            ("source", "a"), ("candidate-safety", "b"),
+            ("codex-overlay-safety", "c"), ("codex-subset-safety", "d"))}
+        with (patch("skill_release.verify_release") as source,
+              patch("plugin_bundle.verify_bundle") as claude,
+              patch("codex_overlay.verify_overlay") as overlay,
+              patch("codex_safe_subset.verify_subset") as subset):
+            claude.return_value = {"source_digest": pins["source"]}
+            overlay.return_value = {"candidate_digest": pins["candidate-safety"]}
+            subset.return_value = {"source_overlay_digest": pins["codex-overlay-safety"]}
+            result = preflight._verify_candidate_receipts(self.candidate, pins)
+            self.assertEqual(result, {"status": "verified", "packages": 4})
+            source.assert_called_once_with(self.candidate / "source", pins["source"])
+            claude.assert_called_once_with(self.candidate / "candidate-safety",
+                                           pins["candidate-safety"])
+            overlay.assert_called_once_with(self.candidate / "codex-overlay-safety",
+                                            pins["codex-overlay-safety"])
+            subset.assert_called_once_with(
+                self.candidate / "codex-subset-safety", pins["codex-subset-safety"],
+                source=self.candidate / "codex-overlay-safety",
+                source_digest=pins["codex-overlay-safety"])
+
+            overlay.return_value = {"candidate_digest": "e" * 64}
+            self.assertEqual(preflight._verify_candidate_receipts(self.candidate, pins)["status"],
+                             "invalid")
+            overlay.return_value = {"candidate_digest": pins["candidate-safety"]}
+            claude.side_effect = ValueError("tampered bytes")
+            self.assertEqual(preflight._verify_candidate_receipts(self.candidate, pins)["status"],
+                             "invalid")
+
+    def test_invalid_candidate_bytes_stop_before_host_inventory(self):
+        pins = {name: char * 64 for name, char in (
+            ("source", "a"), ("candidate-safety", "b"),
+            ("codex-overlay-safety", "c"), ("codex-subset-safety", "d"))}
+        with (patch("skill_release.verify_release", side_effect=ValueError("tampered")),
+              patch.object(preflight, "_flat_coverage", side_effect=AssertionError("host read"))):
+            report = preflight.scan(self.candidate, self.old_candidate,
+                                    self.claude, self.codex, self.agents,
+                                    candidate_pins=pins)
+        self.assertEqual(report["status"], "blocked")
+        self.assertEqual(report["issues"], ["CANDIDATE_VERIFICATION_FAILED"])
+        self.assertFalse(report["profile_changed"])
+
+    def test_unavailable_local_verifier_fails_closed(self):
+        pins = {name: char * 64 for name, char in (
+            ("source", "a"), ("candidate-safety", "b"),
+            ("codex-overlay-safety", "c"), ("codex-subset-safety", "d"))}
+        with patch.dict(sys.modules, {"skill_release": None}):
+            result = preflight._verify_candidate_receipts(self.candidate, pins)
+        self.assertEqual(result, {"status": "invalid", "packages": 0})
+
 
 if __name__ == "__main__":
     unittest.main()

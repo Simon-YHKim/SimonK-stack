@@ -25,14 +25,15 @@
 </head>
 <body>
 <main>
-<p class="muted">2026-10-01 11:11:45 KST · 읽기 전용 검증 및 Python 3.11 회귀 수정</p>
+<p class="muted">2026-10-01 11:46:20 KST · 읽기 전용 검증 및 고정 후보 바이트 검사</p>
 <h1>/vibe 실제 프로필 링크는 확인, 설치는 보류</h1>
 <p>최신 2.12.35 후보와 현재 사용자 프로필의 Core 링크·네이티브 플러그인 목록을 비교했다. Claude·Codex의 <code>/vibe</code> 본문은 이전 버전이고 후보 플러그인 5개는 양쪽 모두 미등록이다. 사용자 스킬 링크·플러그인 등록은 변경하지 않았다.</p>
 <div class="cards" aria-label="핵심 결과">
   <div class="card"><strong>8/8</strong>Core 링크·별칭 구조 확인</div>
+  <div class="card"><strong>4/4</strong>고정 후보 영수증 검증</div>
   <div class="card"><strong>2개</strong>후보와 다른 /vibe 본문</div>
   <div class="card"><strong>0/5</strong>양쪽 호스트 네이티브 등록</div>
-  <div class="card"><strong>36/36</strong>관련 단위 테스트 통과</div>
+  <div class="card"><strong>22/22</strong>최종 검사기 회귀, Python 3.11·3.12 각각 통과</div>
   <div class="card"><strong>NO-GO</strong>사용자 설치·실호출</div>
 </div>
 <svg viewBox="0 0 760 120" role="img" aria-label="소스는 main에 머지됐고 후보 바이트 및 호스트 링크는 관측했으나 설치 게이트는 닫혀 있다">
@@ -49,13 +50,14 @@
   <p>후보의 전체 SKILL.md와 flat 설치본을 비교하면 Claude 182개 중 일치 4·변경 134·미설치 44, Codex 안전 부분집합 177개 중 일치 4·변경 128·미설치 45다. 따라서 링크 구조가 정상이어도 전체 스킬은 현재 후보로 설치되지 않았다.</p>
   <p><code>claude plugin list --json</code>와 <code>codex plugin list --json</code>의 현재 관측값에서는 후보 네이티브 플러그인이 각 0/5였다. 검사기는 목록을 메모리에서 받아 후보의 정확한 이름·버전·활성 상태와 대조하고 원본 목록이나 사용자 경로를 보고하지 않는다. 목록 일치가 곧 캐시 바이트 검증은 아니다.</p>
   <p>Windows Python 3.11의 정션 판별 오류를 수정했다. 결과 JSON은 절대 경로를 출력하지 않고 대상 일치 여부와 해시만 남긴다. 손상된 네이티브 manifest는 차단 결과로 처리한다.</p>
+  <p>네 SHA-256 digest를 별도 고정값으로 입력하면 source·Claude bundle·Codex overlay·안전 부분집합의 전체 파일 바이트와 출처 연결을 호스트 스캔 전에 확인한다. 2.12.35 후보는 4/4 일치했고 잘못된 source pin은 즉시 차단됐다. digest를 생략하거나 일부만 주면 바이트 검증 성공으로 보고하지 않는다. 이 검사는 서명·실행 중 불변성·설치된 플러그인 캐시 검증이 아니다.</p>
 </details>
 <details><summary>검증과 한계</summary>
-  <p>새 검사기의 RED 실패를 관측한 뒤 구현했고 검사기·정적 패리티·인코딩·main 릴리스 펜스 테스트 36개가 Python 3.11과 현재 Python에서 각각 통과했다. Windows 실제 정션 fixture를 포함하고, 심볼릭 링크 생성 불가를 성공적인 skip으로 처리하지 않는다. Claude 후보 패키지 영수증은 5플러그인·182스킬, digest <code>1aa454151c48cbe64f7734479739e8d637d885200d10837580e4b03c8330109e</code>로 재검증했다. 더 넓은 기존 패키지 테스트 묶음은 장시간 무출력으로 중단했으므로 통과로 기록하지 않는다.</p>
+  <p>새 검사기의 RED 실패를 관측한 뒤 구현했다. 검사기·패키지·main 릴리스 펜스 107개가 Python 3.11과 3.12에서 각각 통과했고, 마지막 검증기 누락 예외 처리 후에는 검사기 집중 회귀 22개가 두 버전에서 각각 통과했다. 마지막 변경 후 108개 전체 묶음을 재실행했다고 주장하지 않는다. Windows 실제 정션 fixture를 포함하고, 심볼릭 링크 생성 불가를 성공적인 skip으로 처리하지 않는다. 정확한 source·Claude·Codex overlay·안전 부분집합 영수증 4/4를 기존 검증기로 확인했고 잘못된 digest는 차단했다. 전체 저장소 테스트나 모델·Bot·이미지 실호출은 수행하지 않았다.</p>
   <p>전체 flat 감사는 SKILL.md 바이트, 네이티브 감사는 목록 메타데이터에 한정된다. 실제 명령 우선순위·적재, 스크립트와 자산, 모델·effort 선택 품질, 계정 청구, 이미지·Bot 전달은 확인하지 않았다. 따라서 <code>rollout_gate=blocked</code>와 <code>installation_ready=false</code>다. 자동충전·결제 설정은 변경하지 않았다. 별도 사용량 확인을 위해 만든 빈 임시 디렉터리의 Claude 로컬 신뢰 승인과 세션 메타데이터는 생겼으며, 앞선 실패한 제한 평가 1건의 실제 청구액은 확인되지 않았다.</p>
 </details>
 <details><summary>다음 게이트</summary>
-  <p>후보 네 영수증, 실제 프로필 전체 스킬·명령 우선순위, 무손실 롤백 계획, 구독 전용 실행 경로를 각각 확인한 뒤 별도 설치 판단이 필요하다. 이 보고서는 설치 지시가 아니다. 명령과 한계는 <a href="../docs/INSTALL.md">INSTALL.md</a>에 있다.</p>
+  <p>후보 네 영수증은 확인했다. 실제 프로필 전체 스킬·명령 우선순위, 무손실 롤백 계획, 구독 전용 실행 경로는 여전히 별도 증거가 필요하다. PR #70은 아직 main에 머지되지 않았고 이 보고서는 설치 지시가 아니다. 명령과 한계는 <a href="../docs/INSTALL.md">INSTALL.md</a>에 있다.</p>
 </details>
 </main>
 </body>

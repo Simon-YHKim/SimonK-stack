@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Read-only snapshot of the flat Core links before any /vibe host change.
 
-This does not verify candidate receipts, host command precedence, billing, or
-runtime quality. It never changes a profile and never grants installation.
+With four externally pinned digests it verifies candidate receipts and their
+provenance. It does not verify host command precedence, billing, or runtime
+quality. It never changes a profile and never grants installation.
 """
 
 from __future__ import annotations
@@ -20,6 +21,39 @@ import sys
 CLAUDE_NAMES = ("model-router", "multi-terminal-dispatcher", "simonk", "vibe", "vibe-bot")
 CODEX_NAMES = ("vibe", "vibe-bot")
 PLUGIN_NAMES = ("SimonKCore", "SimonKDesign", "SimonKStack", "SimonKMarket", "SimonKAIHub")
+PIN_NAMES = frozenset(("source", "candidate-safety", "codex-overlay-safety",
+                       "codex-subset-safety"))
+
+
+def _verify_candidate_receipts(candidate_root: Path, pins: dict) -> dict:
+    """Authenticate all four pinned packages and their provenance, not host loading."""
+    if (not isinstance(pins, dict) or set(pins) != PIN_NAMES
+            or any(not isinstance(value, str) or len(value) != 64
+                   or any(char not in "0123456789abcdef" for char in value)
+                   for value in pins.values())):
+        return {"status": "invalid", "packages": 0}
+    try:
+        import skill_release
+        import plugin_bundle
+        import codex_overlay
+        import codex_safe_subset
+
+        skill_release.verify_release(candidate_root / "source", pins["source"])
+        claude = plugin_bundle.verify_bundle(candidate_root / "candidate-safety",
+                                              pins["candidate-safety"])
+        overlay = codex_overlay.verify_overlay(candidate_root / "codex-overlay-safety",
+                                                pins["codex-overlay-safety"])
+        subset = codex_safe_subset.verify_subset(
+            candidate_root / "codex-subset-safety", pins["codex-subset-safety"],
+            source=candidate_root / "codex-overlay-safety",
+            source_digest=pins["codex-overlay-safety"])
+        if (claude["source_digest"] != pins["source"]
+                or overlay["candidate_digest"] != pins["candidate-safety"]
+                or subset["source_overlay_digest"] != pins["codex-overlay-safety"]):
+            raise ValueError("candidate provenance mismatch")
+    except (OSError, ValueError, TypeError, KeyError, ImportError):
+        return {"status": "invalid", "packages": 0}
+    return {"status": "verified", "packages": 4}
 
 
 def _native_plugin_coverage(candidate_root: Path, snapshot: dict | None) -> dict:
@@ -131,7 +165,16 @@ def _is_directory_link(path: Path) -> bool:
 
 
 def scan(candidate_root: Path, current_root: Path, claude_root: Path, codex_root: Path,
-         agents_root: Path, native_snapshot: dict | None = None) -> dict:
+         agents_root: Path, native_snapshot: dict | None = None,
+         candidate_pins: dict | None = None) -> dict:
+    candidate_verification = ({"status": "not_requested", "packages": 0}
+                              if candidate_pins is None else
+                              _verify_candidate_receipts(candidate_root, candidate_pins))
+    if candidate_verification["status"] == "invalid":
+        return {"status": "blocked", "issues": ["CANDIDATE_VERIFICATION_FAILED"],
+                "candidate_verification": candidate_verification,
+                "candidate_bytes_verified": False, "rollout_gate": "blocked",
+                "installation_ready": False, "profile_changed": False}
     issues: list[str] = []
     entries: list[dict] = []
     checked_links = 0
@@ -206,7 +249,9 @@ def scan(candidate_root: Path, current_root: Path, claude_root: Path, codex_root
             "issues": sorted(set(issues)), "entries": entries,
             "flat_coverage": flat_coverage, "rollout_gate": "blocked",
             "native_plugin_coverage": native_coverage,
-            "candidate_bytes_verified": False, "host_command_precedence_verified": False,
+            "candidate_verification": candidate_verification,
+            "candidate_bytes_verified": candidate_verification["status"] == "verified",
+            "host_command_precedence_verified": False,
             "full_skill_set_verified": False, "billing_verified": False,
             "installation_ready": False,
             "profile_changed": False}
@@ -218,6 +263,8 @@ def main(argv: list[str] | None = None) -> int:
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--native-json-stdin", action="store_true",
                         help="Read combined Claude/Codex plugin-list JSON from stdin (metadata only)")
+    for name in ("source", "claude", "overlay", "codex"):
+        parser.add_argument("--" + name + "-digest")
     args = parser.parse_args(argv)
     try:
         native_snapshot = None
@@ -228,9 +275,16 @@ def main(argv: list[str] | None = None) -> int:
             native_snapshot = json.loads(raw)
             if not isinstance(native_snapshot, dict):
                 raise ValueError("native snapshot must be an object")
+        digest_values = {"source": args.source_digest,
+                         "candidate-safety": args.claude_digest,
+                         "codex-overlay-safety": args.overlay_digest,
+                         "codex-subset-safety": args.codex_digest}
+        candidate_pins = ({name: value for name, value in digest_values.items() if value is not None}
+                          if any(value is not None for value in digest_values.values()) else None)
         report = scan(args.candidate_root, args.expected_current_root,
                       args.claude_root, args.codex_root,
-                      args.agents_root, native_snapshot=native_snapshot)
+                      args.agents_root, native_snapshot=native_snapshot,
+                      candidate_pins=candidate_pins)
     except (OSError, ValueError) as exc:
         report = {"status": "blocked", "issues": ["READ_FAILED"],
                   "error_type": type(exc).__name__, "installation_ready": False,

@@ -69,9 +69,21 @@ $vibeCurrent = 'E:\Coding Infra\Releases\SimonK-stack\20261001-vibe-bot-gate-fix
 python -B scripts/vibe_host_preflight.py --candidate-root $vibeCandidate `
   --expected-current-root $vibeCurrent `
   --claude-root "$env:USERPROFILE\.claude" --codex-root "$env:USERPROFILE\.codex" `
-  --agents-root "$env:USERPROFILE\.agents"
+  --agents-root "$env:USERPROFILE\.agents" `
+  --source-digest 97699b4d074b5fe09a9080dc2b7364c2c5fb68733a02381ad99a51ac855f28ce `
+  --claude-digest 1aa454151c48cbe64f7734479739e8d637d885200d10837580e4b03c8330109e `
+  --overlay-digest 355db0e5c2a36f7a3ba39fc21c25b5287c2f54f44da5beaec61775b9620416b8 `
+  --codex-digest e3e366d488a8a9f0475dcb7f0e94aad500257e69f841598a1afcd495db05c698
 python -B -m unittest scripts.tests.test_vibe_host_preflight -v
 ```
+
+네 digest는 위 배포 표의 **별도 고정값**이다. 하나라도 누락·불일치하면
+호스트 스캔 전에 `CANDIDATE_VERIFICATION_FAILED`로 차단한다. 네 값이 모두
+맞으면 기존 source·Claude bundle·Codex overlay·안전 부분집합 검증기로
+파일 바이트와 출처 연결을 확인해 `candidate_bytes_verified=true`로 보고한다.
+이는 SHA-256 고정 후보 확인이지 서명이나 실행 중 파일 불변성 증명이 아니다.
+digest 인수를 생략한 종전 호출은 `candidate_verification.status=not_requested`와
+`candidate_bytes_verified=false`로 남는다.
 
 네이티브 플러그인 등록 상태도 보려면 같은 후보·프로필 인수에
 `--native-json-stdin`을 추가하고 아래처럼 각 호스트의 현재 목록을 메모리에서
@@ -87,6 +99,10 @@ $codexPlugins = codex plugin list --json | ConvertFrom-Json -Depth 30
   python -B scripts/vibe_host_preflight.py --candidate-root $vibeCandidate `
     --expected-current-root $vibeCurrent --claude-root "$env:USERPROFILE\.claude" `
     --codex-root "$env:USERPROFILE\.codex" --agents-root "$env:USERPROFILE\.agents" `
+    --source-digest 97699b4d074b5fe09a9080dc2b7364c2c5fb68733a02381ad99a51ac855f28ce `
+    --claude-digest 1aa454151c48cbe64f7734479739e8d637d885200d10837580e4b03c8330109e `
+    --overlay-digest 355db0e5c2a36f7a3ba39fc21c25b5287c2f54f44da5beaec61775b9620416b8 `
+    --codex-digest e3e366d488a8a9f0475dcb7f0e94aad500257e69f841598a1afcd495db05c698 `
     --native-json-stdin
 ```
 
@@ -98,10 +114,13 @@ $codexPlugins = codex plugin list --json | ConvertFrom-Json -Depth 30
 출력의 `host_snapshot_complete`는 위 8개 링크의 관측 성공만 뜻한다.
 `flat_coverage`는 SKILL.md 메타데이터 감사이며 현재 양쪽 모두
 `status=gaps`, `rollout_gate=blocked`다.
-`candidate_bytes_verified=false`, `full_skill_set_verified=false`,
+위 네 고정 digest로 실행한 현재 결과는 후보 4/4 바이트 검증 성공과
+Core 링크 8/8 관측이지만, 전체 flat 감사의 Claude 4/182·Codex 4/177 일치,
+네이티브 등록 양쪽 0/5라는 결손은 그대로다. `full_skill_set_verified=false`,
 `host_command_precedence_verified=false`, `billing_verified=false`,
 `installation_ready=false`가 유지되므로 설치 승인이나 실사용 품질
-증거로 사용하지 않는다. 후보 바이트는 위 네 영수증 검증 도구로 별도 확인한다.
+증거로 사용하지 않는다. 실제 명령 선택, 호스트 적재, 구독 청구,
+이미지·Grok Bot 전달은 이 검사의 범위 밖이다.
 
 ## 2026-10-01 `/vibe` 2.12.32 최상위 Codex 크레딧 증거 가드 후보
 
