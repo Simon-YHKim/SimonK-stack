@@ -2,6 +2,36 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
+## 2026-10-01 `/vibe` 2.12.41 설명 축약 대응 후보 — 기본 설치 보류
+
+소스 커밋 `997b2a82971a1f81aaa9a96bf119be87ed016240`에서 이전 후보와 별도의
+`E:/Coding Infra/Releases/SimonK-stack/20261001-vibe-21241-candidate/`를 조립했다.
+고정한 다섯 원본 플러그인 커밋은 `distribution/plugin-inputs.v1.json`과 같다.
+원본 저장소와 기존 2.12.40 후보·격리 프로필은 변경하지 않았다.
+
+| 패키지 | SHA-256 영수증 | 범위 |
+| --- | --- | --- |
+| `source` | `a95d90f051a5d1e8f9a383a0d06e4528c473d679319aeebea0a2e66c2872efe4` | 137스킬·424파일 |
+| `candidate-safety` | `d933f01c4c7d7c1135f06c7930acb59d4357d10fb84928ca59f2d64cf7030449` | Claude 5플러그인·182스킬·753파일 |
+| `codex-overlay-safety` | `e3a7f4db49537bb8f5ad0a838b1a0c4aeda4346669bace8966d385cb16d9a8ce` | Codex 호환 오버레이 |
+| `codex-subset-safety` | `879de7b7fd82d084f8151267ed131a68cf9bd3617ff4b3a441a6303f02170f72` | Codex 안전 부분집합 177스킬 |
+
+네 영수증을 각 검증기로 다시 확인했다. `/vibe` 오프라인 라우팅 검사
+131/131, 자체검사 180/180, 후보 런타임 probe 4/4 및 스킬 validator
+0 error/0 warning이 통과했다. 이전 2.12.40 후보와의 버전 정규화 비교에서
+실제 스킬 파일 변경은 Core `skills/vibe/SKILL.md` 하나뿐이었다. 현재 PC의
+별도 Codex 무인증 프로필에 새 후보 플러그인 5개를 설치해 모델 미호출
+`debug prompt-input`을 검사한 결과 181개 스킬 중 namespaced
+`simonk-core:vibe`·`simonk-core:vibe-bot`가
+각각 한 번 노출됐고, 축약된 `/vibe` 설명은
+`Use when "/vibe" routes SimonKStack work acros`로 시작했다.
+
+이것은 설명 발견성·패키지 바이트 검증이지 자연어 자동 선택, Claude 새 후보의
+실제 명령 수락, 모델/effort 실행, 구독 청구, 이미지 생성 또는 Grok Bot 전달의
+증거가 아니다. 기본 사용자 홈 `/vibe`는 여전히 2.12.24이며 D-39/D-50
+설치 보류와 `installation_ready=false`를 유지한다. 이미지·모델·Bot 실호출,
+결제·자동충전 설정 변경 및 추가 과금은 없었다.
+
 ## 2026-10-01 `/vibe` 2.12.40 정확한 main 격리 후보 — 설치 보류
 
 [PR #80](https://github.com/Simon-YHKim/SimonK-stack/pull/80)의 일반 머지
