@@ -1,23 +1,50 @@
 {
   "skill": "ai-debate",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "cases": [
     {
       "id": "ko-architecture-debate",
       "prompt": "DB 스택 선택이 비가역적이라 AI들끼리 토론 붙여서 결정하자. 다관점으로 합의 보자.",
       "assertions": [
-        { "id": "divergent-panel", "text": "Frames one sharp question and spawns N independent positions arguing distinct stances (proponent, skeptic, alt, user-interest), not identical copies." },
-        { "id": "separate-judge", "text": "Uses a separate judge that authored none of the positions (proposer != judge) and says why the losers lost." },
-        { "id": "decision-record", "text": "Records a D-code entry to DECISIONS.md with positions, judge rationale, verdict, and a preserved minority view." }
+        { "id": "four-vendor-seats", "text": "Checks readiness of all four vendor seats (Claude, Codex, Grok, Gemini via agy) with debate.py seats before arguing, and shows the attendance in one line." },
+        { "id": "distinct-lenses", "text": "Each present vendor argues a distinct lens (proponent, skeptic, alternative, user-interest) from real evidence, not identical copies or same-vendor personas." },
+        { "id": "blind-separate-judge", "text": "Uses a separate blind judge call on anonymized positions, preferably a vendor other than the orchestrator, and says why the losers lost." },
+        { "id": "decision-record", "text": "Records a hub-format D-code entry in DECISIONS.md with the attendance line, positions, judge rationale, verdict and a preserved minority view." }
       ]
     },
     {
       "id": "en-contested-decision",
       "prompt": "This naming decision is contested and irreversible — debate this and get multiple positions before we merge.",
       "assertions": [
-        { "id": "cross-examination", "text": "Runs adversarial cross-examination where each position rebuts the others' strongest point and surfaces hidden shared assumptions." },
+        { "id": "full-mode", "text": "Chooses full mode for an irreversible decision: positions, cross-examination with UNCHANGED/REVISED, blind judge, then ACCEPT/OBJECT ratification by every present seat." },
         { "id": "resolve-or-tiebreak", "text": "Resolves by consensus or a Claude tiebreak with written rationale, escalating safety-rail decisions to Simon." },
         { "id": "gate-link", "text": "Links the D-code from the gated artifact (PR/merge/spec) so the merge gate can verify the debate record exists." }
+      ]
+    },
+    {
+      "id": "ko-absent-seat-zero-cost",
+      "prompt": "Codex 주간 한도가 100%고 Grok도 소진됐어. 그래도 4개 벤더로 토론해서 이 머지 결정해줘. 추가 과금은 절대 안 돼.",
+      "assertions": [
+        { "id": "no-paid-call", "text": "Does not call the Codex or Grok seats while their quota evidence shows exhaustion or purchased-credit billing risk; records them as absent with the evidence and reset time." },
+        { "id": "no-simulation", "text": "Never fills the absent seats with personas from another vendor and never reports the debate as 4/4." },
+        { "id": "provisional-catchup", "text": "Marks the verdict PROVISIONAL with the present vendor count, limits action to reversible steps, and lists the catch-up duty for the absent vendors via debate.py catchup." }
+      ]
+    },
+    {
+      "id": "ko-interject-long-run",
+      "prompt": "codex가 이 스킬 업데이트를 몇 시간째 붙잡고 있어. 너무 오래 걸려. 중간에 겐세이 좀 넣어줘.",
+      "assertions": [
+        { "id": "detect", "text": "Runs interject_scan.py scan to find the long-running session and names the triggers found (long turn, HOLD loop, user frustration, quota)." },
+        { "id": "interject-debate", "text": "Builds a snapshot and runs an interject-mode debate across the available vendor seats whose answers start with CALL: CONTINUE/RESCOPE/SHIP_NOW/STOP/ASK_USER." },
+        { "id": "card-delivery", "text": "Produces a short card.md with one next action and a time box, shows it to the user, and only types into the agent's Orca terminal with an explicit --orca-terminal and --send." }
+      ]
+    },
+    {
+      "id": "en-interject-self",
+      "prompt": "You have been stuck on the same release gate for an hour. Interject before you spend more time.",
+      "assertions": [
+        { "id": "self-interject", "text": "Applies interject mode to the orchestrator itself instead of continuing the loop, summarizing the goal, elapsed time and blockers as evidence." },
+        { "id": "act-on-call", "text": "Acts on the judge CALL (for example RESCOPE or SHIP_NOW) with the single next action, or asks the user when the call is ASK_USER or a safety rail applies." }
       ]
     }
   ]
