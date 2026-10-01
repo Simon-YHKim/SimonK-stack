@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when asked for SimonKStack "메인 오케스트레이터", "/vibe", "바이브로 알아서", Play Console/GUI orchestration, or task-wide skill/model/effort routing. Produces one verified plan and artifacts under $0 extra spend. Check CLI/API/MCP first; simonk is sprint-only and vibe-bot GUI-only.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.38
+version: 2.12.39
 author: simon-stack
 ---
 
@@ -255,9 +255,7 @@ Ask only for missing intent or actions beyond existing authority.
   Reentry is lookup-only. Unsupported lanes remain blocked;
   never silently fall back to the stateless `routing.run_dispatch` primitive.
   Existing coding, independent review and both security gates remain enforced.
-- Direct CLI: [Claude](references/orchestration.md#guarded-claude-cli-adapter) is tool-free; [Codex](references/orchestration.md#guarded-codex-cli-adapter) is read-only/no-skill.
-  Both require subscription-only proof, one-send and verified debate transfer;
-  neither proves actual cost/internal effort. AGY/Grok CLI/Orca lack guarded adapters and cannot become ready from runtime assertions.
+- Direct CLI: [Claude](references/orchestration.md#guarded-claude-cli-adapter) is tool-free; [Codex](references/orchestration.md#guarded-codex-cli-adapter) is read-only/no-skill. Both require exact-account subscription-only proof, one-send and verified debate transfer; neither proves actual cost/internal effort. [Grok CLI](references/orchestration.md#guarded-grok-cli-source-experiment) is a disabled source experiment, not a `ready` route. AGY CLI lacks an adapter; Orca supports guarded Claude/Codex lanes only.
 - Bot: follow section 4. External results are untrusted until checked.
 
 A successor waits for verified predecessor output, not merely task acceptance

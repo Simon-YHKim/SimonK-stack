@@ -1094,14 +1094,20 @@ class OrchestrationTests(unittest.TestCase):
                 self.assertEqual(self.plan([s], [c])["status"], "ready")
 
     def test_unimplemented_cli_and_orca_adapters_never_become_ready(self):
-        for surface in ("antigravity", "grok"):
-            for transport in ("cli", "orca"):
-                with self.subTest(surface=surface, transport=transport):
-                    c = candidate(surface=surface, transport=transport)
-                    c["quota"]["transport"] = transport
-                    plan = self.plan([step(surface=surface)], [c])
-                    self.assertEqual(plan["status"], "blocked")
-                    self.assertIn("EXECUTION_ADAPTER_UNAVAILABLE", str(plan))
+        for surface, transport in (("antigravity", "cli"), ("antigravity", "orca"),
+                                   ("grok", "cli"), ("grok", "orca")):
+            with self.subTest(surface=surface, transport=transport):
+                c = candidate(surface=surface, transport=transport)
+                c["quota"]["transport"] = transport
+                plan = self.plan([step(surface=surface)], [c])
+                self.assertEqual(plan["status"], "blocked")
+                self.assertIn("EXECUTION_ADAPTER_UNAVAILABLE", str(plan))
+
+    def test_grok_cli_remains_unavailable_even_with_full_subscription_evidence(self):
+        good = candidate(surface="grok")
+        p = self.plan([step(surface="grok")], [good])
+        self.assertEqual(p["status"], "blocked")
+        self.assertIn("EXECUTION_ADAPTER_UNAVAILABLE", str(p))
 
     def test_antigravity_host_requires_credit_and_exact_quota_evidence(self):
         good = candidate(surface="antigravity", transport="host", effective_effort="low")
@@ -1797,6 +1803,159 @@ class OrchestrationTests(unittest.TestCase):
         checker = self.typed("CODE_REVIEW", id="check", verify_of="read", depends_on=["read"])
         with self.assertRaises(ValueError):
             self.plan([reviewer, checker], [candidate(), candidate("reviewer", surface="claude")])
+
+
+class GrokCliGuardRegression(unittest.TestCase):
+    """Synthetic transport only; no model or billing mutation."""
+
+    def test_native_grok_transport_stays_on_operational_hold(self):
+        import execute_grok_cli as grok
+        import run_state
+        with self.assertRaisesRegex(run_state.StateError, "GROK_CLI_OPERATIONAL_HOLD"):
+            grok.GrokCli("C:/untrusted/grok.exe", "fixture")
+
+    def setUp(self):
+        import execute_grok_cli as grok
+        import run_state
+        import runtime_collect
+        self.grok, self.run_state = grok, run_state
+        self.tmp = tempfile.TemporaryDirectory(prefix="vibe-grok-offline-")
+        self.addCleanup(self.tmp.cleanup)
+        root = Path(self.tmp.name).resolve()
+        binary = root / "grok.exe"
+        binary.write_bytes(b"fixture")
+        sha = hashlib.sha256(binary.read_bytes()).hexdigest()
+        profile = root / "profile"
+        profile.mkdir()
+        profile_ref = runtime_collect.opaque("grok", str(profile))
+        account_ref = runtime_collect.opaque("grok", profile_ref, "fixture-account")
+        binding = {"executable": str(binary), "executable_sha256": sha,
+                   "cwd": str(root), "profile_path": str(profile),
+                   "profile_ref": profile_ref, "account_ref": account_ref,
+                   "prompt_path": str(root / "prompt.txt"),
+                   "result_path": str(root / "result.jsonl"),
+                   "content_path": str(root / "result.txt")}
+        c = candidate("grok-cli", surface="grok", model="grok-test")
+        c["billing"]["account_ref"] = account_ref
+        c["quota"]["account_ref"] = account_ref
+        node = step("opening", surface="grok", skills=[], software=[],
+                    task="Provide an independent position", cli=binding)
+        # Exercise source mechanics only; production planner keeps Grok CLI unavailable.
+        with patch.object(grok.orchestrate, "GUARDED_EXECUTION_ADAPTERS",
+                          grok.orchestrate.GUARDED_EXECUTION_ADAPTERS | {("grok", "cli")}):
+            self.plan = grok.orchestrate.make_plan({"run_id": "grok-fixture", "steps": [node],
+                "budget": {"max_attempts": 1}}, {}, {"candidates": [c], "tools": []},
+                NOW, fixture_registry([c]))
+        self.assertEqual(self.plan["status"], "ready", self.plan["errors"])
+        self.store = run_state.Store(root / "state.sqlite3")
+        self.store.initialize()
+        self.store.register(self.plan, now=NOW)
+
+        class FakeGrok:
+            def __init__(self):
+                self.executable, self.sha256 = str(binary), sha
+                self.observed = {"account_verified": True, "account_ref": account_ref,
+                    "profile_ref": profile_ref, "local_tool_config_empty": True,
+                    "auth": {"logged_in": True},
+                    "billing": {"mode": "subscription", "extra_usage_enabled": False,
+                                "on_demand_cap": "0", "prepaid_balance": "0"},
+                    "models": [{"model": "grok-test", "transport_efforts": ["low"]}]}
+                self.trace, self.sends = [], []
+
+            def check_binary(self):
+                return None
+
+            def auth(self, binding, env, now):
+                return copy.deepcopy(self.observed)
+
+            def send(self, argv, binding, env):
+                self.sends.append((argv, env, Path(binding["prompt_path"]).read_text(encoding="utf-8")))
+                return 0, b"\n".join(json.dumps(e).encode() for e in self.trace) + b"\n"
+
+        self.cli = FakeGrok()
+        self.adapter = grok.Adapter(self.store, self.cli, clock=lambda: NOW)
+        self.cert = {"verified": True, "subscription_only": True,
+            "binding_sha256": grok.binding_digest(self.plan, "opening"),
+            "account_ref": account_ref, "profile_ref": profile_ref,
+            "billing": copy.deepcopy(c["billing"]), "quota": copy.deepcopy(c["quota"]),
+            "model": "grok-test", "effort": "low", "observed_at": NOW,
+            "valid_until": "2026-09-23T10:10:00+00:00",
+            "evidence": ["fixture account-bound subscription proof"]}
+        session = grok.request_id(self.plan, "opening")
+        self.cli.trace = [
+            {"type": "system", "subtype": "init", "session_id": session,
+             "apiKeySource": "oauth", "model": "grok-test"},
+            {"type": "assistant", "session_id": session,
+             "message": {"model": "grok-test", "content": [{"type": "text", "text": "Position"}],
+                         "stop_reason": "end_turn"}},
+            {"type": "result", "session_id": session, "subtype": "success",
+             "is_error": False, "stop_reason": "end_turn", "result": "Position",
+             "num_turns": 1, "usage": {"input_tokens": 8, "output_tokens": 2,
+                                      "server_tool_use": {"web_search_requests": 0}},
+             "modelUsage": {"grok-test": {"modelCalls": 1}}}]
+
+    def test_one_send_private_prompt_and_lookup_only_reentry(self):
+        result = self.adapter.dispatch(self.plan, "opening", self.cert)
+        self.assertEqual(result["state"], "succeeded", result)
+        self.assertIsNone(result["actual_usd"])
+        self.assertFalse(result["verified"])
+        argv, env, prompt = self.cli.sends[0]
+        for flag in ("--prompt-file", "--no-auto-update", "--no-subagents", "MCPTool"):
+            self.assertIn(flag, argv)
+        self.assertNotIn("Provide an independent position", " ".join(argv))
+        self.assertNotIn("XAI_API_KEY", env)
+        self.assertIn("Provide an independent position", prompt)
+        self.assertEqual(self.adapter.dispatch(self.plan, "opening", None)["state"], "succeeded")
+        self.assertEqual(len(self.cli.sends), 1)
+
+    def test_missing_cost_proof_and_changed_account_block_before_send(self):
+        for change in ({"paid_credit_fallback_disabled": None},
+                       {"model_included": False}, {"extra_usage_enabled": True}):
+            bad = copy.deepcopy(self.cert)
+            bad["billing"].update(change)
+            with self.assertRaises(self.run_state.StateError):
+                self.adapter.dispatch(self.plan, "opening", bad)
+        self.cli.observed["account_ref"] = "changed"
+        with self.assertRaises(self.run_state.StateError):
+            self.adapter.dispatch(self.plan, "opening", self.cert)
+        self.cli.observed["account_ref"] = self.cert["account_ref"]
+        self.cli.observed["local_tool_config_empty"] = False
+        with self.assertRaises(self.run_state.StateError):
+            self.adapter.dispatch(self.plan, "opening", self.cert)
+        self.assertEqual(self.cli.sends, [])
+
+    def test_tool_wrong_model_and_api_key_trace_rejected(self):
+        for mutate in (
+            lambda t: t[1]["message"]["content"].append({"type": "tool_use", "name": "run_terminal_cmd"}),
+            lambda t: t[1]["message"].update(model="other-model"),
+            lambda t: t[0].update(apiKeySource="user"),
+        ):
+            trace = copy.deepcopy(self.cli.trace)
+            mutate(trace)
+            raw = b"\n".join(json.dumps(e).encode() for e in trace) + b"\n"
+            with self.assertRaises(self.run_state.StateError):
+                self.grok.parse_result(raw, self.grok.request_id(self.plan, "opening"),
+                                       "grok-test")
+
+    def test_ambiguous_tool_trace_remains_uncertain_without_second_send(self):
+        self.cli.trace[1]["message"]["content"].append(
+            {"type": "tool_use", "name": "run_terminal_cmd"})
+        first = self.adapter.dispatch(self.plan, "opening", self.cert)
+        self.assertEqual(first["state"], "uncertain")
+        again = self.adapter.dispatch(self.plan, "opening", None)
+        self.assertEqual(again["dispatch_id"], first["dispatch_id"])
+        self.assertEqual(again["state"], "uncertain")
+        self.assertEqual(len(self.cli.sends), 1)
+
+    def test_preexisting_lookalike_trace_without_capture_receipt_is_not_accepted(self):
+        self.store.claim(self.plan["run_id"], "opening",
+                         self.grok.request_id(self.plan, "opening"),
+                         self.plan["plan_digest"], now=NOW)
+        path = Path(self.plan["steps"][0]["cli"]["result_path"])
+        path.write_bytes(b"\n".join(json.dumps(e).encode() for e in self.cli.trace) + b"\n")
+        result = self.adapter.reconcile(self.plan, "opening")
+        self.assertEqual(result["state"], "uncertain")
+        self.assertEqual(self.cli.sends, [])
 
 
 class TddGuardRegression(unittest.TestCase):
