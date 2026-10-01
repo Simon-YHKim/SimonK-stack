@@ -236,6 +236,7 @@ class OrchestrationTests(unittest.TestCase):
         self.assertIn("/vibe", prefix)
         self.assertIn("simonkstack", prefix)
         self.assertIn("rout", prefix)
+        self.assertIn("Produces a verified routing plan", description)
 
     def test_subscription_and_effort_are_explicit(self):
         p = self.plan()
