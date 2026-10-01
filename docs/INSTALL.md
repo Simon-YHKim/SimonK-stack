@@ -17,6 +17,10 @@ worktree를 만들고, 고정된 5개 플러그인 입력으로 새 후보를 �
 | `codex-overlay-safety` | `11ae3f533f34dfeaa38355be24f0f573f60d888ba2a59125d14e24451888f09a` | Codex 호환 오버레이 |
 | `codex-subset-safety` | `a63f24560927c6950f9fa2669a03600e5e617a9dd6b15d7164d8afc41a9ff603` | Codex 안전 부분집합 177스킬 |
 
+이 영수증은 복사된 후보 바이트와 출처 연결을 확인하지만 Git 커밋 자체의
+독립 서명은 아니다. 빌드 전 작업트리는 위 `main` 커밋에서 깨끗했고,
+소스 매니페스트의 424개 `source_path`는 현재 체크아웃과 해시가 일치한다.
+
 네 패키지의 별도 바이트 재검증과 subset 출처 검증, 오프라인 `/vibe`
 selftest·runtime·prepare·table-sync 4단계가 통과했다. 실제 사용자 프로필의
 읽기 전용 사전검사는 핵심 링크 8/8과 후보 바이트 4/4를 확인했으나 전체
