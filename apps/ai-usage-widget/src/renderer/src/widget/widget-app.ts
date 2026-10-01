@@ -19,6 +19,8 @@ export const TICK_MS = 30_000;
 const SIZE_MARGIN = 4;
 const MIN_HEIGHT = 34;
 const MINUTE_MS = 60_000;
+const VALUE_FLASH_MS = 1_400;
+const VALUE_FLASH_TONES = ['sky', 'mint', 'violet'] as const;
 
 interface PaceSample {
   at: number;
@@ -118,6 +120,9 @@ export class WidgetApp {
   private readonly paceHistory = new Map<string, Map<string, PaceSample[]>>();
   private readonly fastAccounts = new Map<string, FastPace>();
   private readonly announcedFastAccounts = new Set<string>();
+  private visiblePercent = new Map<string, number>();
+  private lastShowUsedPercent: boolean | null = null;
+  private flashSequence = 0;
 
   readonly bar: HTMLDivElement;
   readonly main: HTMLDivElement;
@@ -245,6 +250,19 @@ export class WidgetApp {
     return { t: createTranslator(locale), locale, settings: state.settings, theme: state.theme, now: this.now() };
   }
 
+  private markChangedPercent(key: string, percent: number, next: Map<string, number>,
+    target: HTMLElement | null, eligible: boolean, showUsedPercent: boolean): void {
+    next.set(key, percent);
+    if (!eligible || target === null || this.lastShowUsedPercent !== showUsedPercent ||
+      this.visiblePercent.get(key) === undefined || this.visiblePercent.get(key) === percent) return;
+    const tone = VALUE_FLASH_TONES[this.flashSequence % VALUE_FLASH_TONES.length];
+    this.flashSequence += 1;
+    target.dataset.valueFlash = tone;
+    setTimeout(() => {
+      if (target.dataset.valueFlash === tone) delete target.dataset.valueFlash;
+    }, VALUE_FLASH_MS);
+  }
+
   private isEmpty(): boolean {
     return this.state === null || (!this.state.accounts.some((account) => account.enabled) &&
       !this.showGrokBot(this.state));
@@ -341,6 +359,7 @@ export class WidgetApp {
       pace: [...this.fastAccounts], locale: ctx.locale, scheme: state.theme.taskbarScheme, minute: Math.floor(ctx.now / 60_000) });
     if (signature !== this.lastSignature) {
       this.lastSignature = signature;
+      const nextVisiblePercent = new Map<string, number>();
       if (empty) {
         this.main.replaceChildren(h('span', { class: 'white-circle-dot', 'aria-hidden': 'true' }));
         this.summary.textContent = title;
@@ -349,7 +368,16 @@ export class WidgetApp {
         let groupedGrokBot = false;
         const items = views.map((view) => {
           const groupBot = botItem !== null && !groupedGrokBot && view.account.provider === 'grok';
-          const item = renderWidgetItem(groupBot ? this.grokWithBotView(view, state, ctx) : view, ctx);
+          const displayView = groupBot ? this.grokWithBotView(view, state, ctx) : view;
+          const item = renderWidgetItem(displayView, ctx);
+          const rowElements = item.querySelectorAll<HTMLElement>('[data-status]');
+          displayView.rows.forEach((row, index) => {
+            if (row.status !== 'value' || row.shownPercent === null) return;
+            const isBot = groupBot && row.tag === 'Bot';
+            const key = isBot ? 'grok-bot' : JSON.stringify([view.account.id, row.kind, row.label, row.windowMinutes]);
+            this.markChangedPercent(key, Math.round(row.shownPercent), nextVisiblePercent,
+              rowElements.item(index), isBot || view.state === 'ok', settings.showUsedPercent);
+          });
           if (groupBot) {
             item.dataset.state = view.state;
             item.title = `${itemTooltip(view, ctx)}\n${botItem.title}`;
@@ -377,10 +405,21 @@ export class WidgetApp {
           }
           return item;
         });
-        if (botItem !== null && !groupedGrokBot) items.push(botItem);
+        if (botItem !== null && !groupedGrokBot) {
+          const reading = grokBotReading(settings, ctx.now, state.grokBotAuto);
+          if (reading.state === 'fresh' || reading.state === 'stale' || reading.state === 'automatic') {
+            const shown = settings.showUsedPercent ? reading.usedPercent : reading.leftPercent;
+            this.markChangedPercent('grok-bot', Math.round(shown), nextVisiblePercent,
+              botItem.querySelector<HTMLElement>('.grok-bot-widget-value'),
+              reading.state !== 'stale', settings.showUsedPercent);
+          }
+          items.push(botItem);
+        }
         this.main.replaceChildren(...items);
         this.summary.textContent = items.map((item) => item.getAttribute('title') ?? '').join('. ');
       }
+      this.visiblePercent = nextVisiblePercent;
+      this.lastShowUsedPercent = settings.showUsedPercent;
     }
 
     this.refreshButton.hidden = !state.accounts.some((account) => account.enabled) &&
