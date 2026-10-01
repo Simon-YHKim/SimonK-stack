@@ -17,6 +17,8 @@ jobs:
         run: python3 -B -m unittest discover -s skills-src/vibe/scripts -p test_model_watch.py -q
       - name: Offline Grok runtime metadata regressions (no network or model calls)
         run: python3 -B -m unittest discover -s skills-src/vibe/scripts -p test_runtime_collect.py -q
+      - name: Offline model registry regressions (no network or model calls)
+        run: python3 -B -m unittest discover -s skills-src/vibe/scripts -p test_model_registry.py -q
       - name: Offline vibe orchestration regressions (no model, image or Bot calls)
         run: python3 -B -m unittest discover -s skills-src/vibe/scripts -p test_orchestrate.py -q
       - name: Offline vibe run-state regressions (no model, image or Bot calls)

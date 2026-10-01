@@ -1,5 +1,38 @@
 # Changelog
 
+## 2.12.43 - 2026-10-02
+
+- Refresh the model registry before its seven-day window closed: every
+  official source was re-read over HTTPS and model IDs/efforts were compared
+  with the local Codex, Grok, agy and Claude CLI catalogs, without a model call.
+  `checked_at` is now the earliest observation, 2026-10-02 00:39:26 KST, so the
+  facts stay fresh until 2026-10-09 00:39:26 KST instead of becoming
+  `REGISTRY_STALE` on 2026-10-06 04:03 KST.
+- Register `grok-4.5` as a legacy entry with low, medium and high only: xAI's
+  reasoning guide says it treats `xhigh` as `high`. Label `claude-sonnet-5`
+  legacy, as Anthropic does, while it stays active.
+- Leave CLI-only names unregistered and map them in
+  `references/model-catalog-map.md`: `grok-4.7-build-fast` (2x token rates,
+  Cursor/Grok Build only), agy effort-suffixed Gemini names, and Haiku 4.5,
+  which has no effort parameter. Requests for them still fail with
+  `MODEL_NOT_REGISTERED`.
+- Re-read the nine task-fit sources; claims and ranks are unchanged and the
+  shadow policy is valid until 2026-10-09 00:42:30 KST.
+- Orca lanes are unchanged. Orca dispatch to current-generation models is still
+  rejected until a separate lane-migration decision. The advisory table now
+  names GPT-6.1 Sol.
+- Offline tests cover the refreshed windows, the new and legacy entries, the
+  unregistered CLI names, the Grok 1.0.46 listing and the Orca rejection.
+- Make the legacy label count in routing. `constrain_runtime` now copies the
+  registry's `generation` onto the candidate and drops any runtime claim. The
+  planner and the shadow task-fit score put `generation: legacy` after resource
+  rank and the 80% quota guard, before quota percentage. Before this,
+  candidate-ID order let `grok-4.5` beat an equally ranked `grok-4.7` on a host
+  route. Plans without a legacy candidate keep the same routes and digests.
+- CI now runs `test_model_registry.py`, where most of the refresh tests live.
+- `references/model-catalog-map.md` no longer says every lane migration is
+  pending (four are `keep-*`) or that a registered legacy model never routes.
+
 ## 2.12.42 - 2026-10-01
 
 - Give each /vibe run its own Gstack state folder with telemetry, update checks

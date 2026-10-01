@@ -1327,6 +1327,16 @@ class OrchestrationTests(unittest.TestCase):
         p = self.plan([step(proc="research-deep", **{"class": "B"})], [candidate(transport="orca")])
         self.assertIn("ORCA_UNREGISTERED_PROCESS_OR_MODEL", p["errors"])
 
+    def test_current_generation_models_stay_off_orca_until_lane_migration(self):
+        # Lane migration is a separate decision; registering a model must not open an Orca lane.
+        for model in ("claude-opus-5-5", "claude-sonnet-5-5", "gpt-6.1-sol", "gpt-6-sol",
+                      "gpt-6-luna", "grok-4.7", "grok-4.5"):
+            with self.subTest(model=model):
+                node = {"id": "n", "proc": "research-deep", "class": "B",
+                        "route": {"transport": "orca", "model": model, "requested_effort": "high"}}
+                self.assertEqual(self.m._legacy_validation([node], {}),
+                                 ["ORCA_UNREGISTERED_PROCESS_OR_MODEL"])
+
     def test_cli_plan_round_trip_is_read_only(self):
         import json
         import subprocess
@@ -1868,6 +1878,87 @@ class OrchestrationTests(unittest.TestCase):
         self.assertEqual(result["suggested_effort"], "medium")
         self.assertEqual(result["advisory_rank"], 0)
         self.assertEqual(result["active_candidate_id"], "generic")
+
+    def test_packaged_task_fit_entries_use_registered_models_and_api_efforts(self):
+        policy = self.m.load_task_fit_policy()
+        models = {m["id"]: m for m in self.m.load_registry()["models"]}
+        for profile, entries in policy["profiles"].items():
+            for entry in entries:
+                with self.subTest(profile=profile, model=entry["model"]):
+                    model = models[entry["model"]]
+                    self.assertIn(model["surface"], {"claude", "codex"})
+                    self.assertNotIn("generation", model)
+                    self.assertLessEqual(set(entry["efforts"]), set(model["api_efforts"]))
+
+    def test_legacy_generation_loses_only_to_an_equally_ranked_current_model(self):
+        # Candidate-ID order let a legacy model beat an equally ranked current one.
+        def seat(name, rank=1, used=10, **changes):
+            c = candidate(name, model=name, resource_rank=rank, **changes)
+            c["quota"]["used_pct"] = used
+            return c
+
+        def chosen(*seats):
+            registry = fixture_registry(list(seats))
+            for model in registry["models"]:
+                if model["id"] == "a-old":
+                    model["generation"] = "legacy"
+            p = self.m.make_plan({"run_id": "tie", "steps": [step()], "budget": {}}, self.catalog,
+                                 {"candidates": list(seats), "tools": [], "observed_at": NOW}, NOW, registry)
+            self.assertEqual(p["status"], "ready", p["steps"][0]["errors"])
+            return p["steps"][0]["route"]["candidate_id"]
+
+        self.assertEqual(chosen(seat("a-old"), seat("b-new")), "b-new")
+        self.assertEqual(chosen(seat("a-old", generation="current"), seat("b-new", generation="legacy")), "b-new")
+        # Quota pressure under the 80% line no longer outranks the label.
+        self.assertEqual(chosen(seat("a-old", used=5), seat("b-new", used=50)), "b-new")
+        # Declared resource rank and the 80% quota guard still decide first.
+        self.assertEqual(chosen(seat("a-old"), seat("b-new", rank=2)), "a-old")
+        self.assertEqual(chosen(seat("a-old"), seat("b-new", used=90)), "a-old")
+
+    def test_packaged_grok_47_beats_an_equally_ranked_legacy_grok_45(self):
+        now = production_registry_now()
+
+        def grok(model):
+            c = candidate("grok:" + model, surface="grok", model=model, observed_at=now,
+                          effective_effort="high")
+            c["quota"]["observed_at"] = now
+            return c
+
+        steps = [{"id": "fix", "task": "t", "task_type": "CODE_FIX", "skills": ["explain"],
+                  "depends_on": [], "writes": False},
+                 {"id": "plan", "task": "t", "task_type": "PLAN_ARCHITECTURE", "skills": ["explain"],
+                  "depends_on": [], "writes": False}]
+        p = self.m.make_plan({"run_id": "grok-tie", "steps": steps}, self.catalog,
+                             {"candidates": [grok("grok-4.7"), grok("grok-4.5")]}, now)
+        self.assertEqual(p["status"], "ready")
+        self.assertEqual([s["route"]["candidate_id"] for s in p["steps"]], ["grok:grok-4.7"] * 2)
+
+    def test_shadow_task_fit_prefers_current_generation_on_an_exact_tie(self):
+        policy = copy.deepcopy(self.m.load_task_fit_policy())
+        observed = (datetime.fromisoformat(policy["checked_at"]) + timedelta(minutes=1)).isoformat()
+        source = next(iter(policy["sources"]))
+        policy["profiles"]["CODE_COMPLEX"] = [
+            {"model": "old-model", "efforts": ["high"], "rank": 0, "sources": [source]},
+            {"model": "new-model", "efforts": ["high"], "rank": 0, "sources": [source]}]
+        old = candidate("a-old", model="old-model", generation="legacy")
+        new = candidate("b-new", model="new-model")
+        result = self.m.shadow_task_fit({"task_type": "CODE_COMPLEX"},
+                                        [(0, old, "high", 0), (0, new, "high", 0)], new, policy, observed)
+        self.assertEqual(result["status"], "ranked")
+        self.assertEqual(result["suggested_candidate_id"], "b-new")
+        self.assertFalse(result["would_change"])
+
+    def test_advisory_table_names_gpt_61_sol_within_the_body_budget(self):
+        text = (SCRIPT.parent.parent / "SKILL.md").read_text(encoding="utf-8")
+        body = text.split("\n---\n", 1)[1].splitlines()
+        self.assertLessEqual(len(body), 400)
+        start = body.index("| Deliverable | Advisory starting points, never active routes | Initial reasoning |")
+        rows = body[start + 2:body.index("", start)]
+        for deliverable in ("Architecture", "Difficult, multi-file coding", "Focused bug fix",
+                            "Polished writing"):
+            with self.subTest(deliverable=deliverable):
+                row = next(line for line in rows if line.startswith("| " + deliverable))
+                self.assertIn("GPT-6.1 Sol", row)
 
     def test_packaged_task_fit_policy_is_shadow_only_and_malformed_entries_fail_cleanly(self):
         policy = self.m.load_task_fit_policy()
