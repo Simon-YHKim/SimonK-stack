@@ -311,21 +311,31 @@ def _write_snapshot(path, skills, pending=None):
 
 def migrate_snapshot(source):
     """Explicit, one-time byte-preserving move of a legacy bundle snapshot."""
+    temporary = None
     try:
         if not os.path.isfile(source) or os.path.islink(source):
             return 1
         _read_snapshot(source)
         target = _snapshot_path()
-        os.makedirs(os.path.dirname(target), exist_ok=True)
+        directory = os.path.dirname(target)
+        os.makedirs(directory, exist_ok=True)
         with open(source, "rb") as old:
             data = old.read(65537)
         if len(data) > 65536:
             return 1
-        with open(target, "xb") as new:
-            new.write(data)
+        with tempfile.NamedTemporaryFile("wb", dir=directory, prefix=".orca-skills-",
+                                         suffix=".tmp", delete=False) as staged:
+            temporary = staged.name
+            staged.write(data)
+            staged.flush()
+            os.fsync(staged.fileno())
+        os.link(temporary, target)  # atomic create-if-absent; never a partial target
         return 0
     except (OSError, ValueError, UnicodeError):
         return 1
+    finally:
+        if temporary and os.path.exists(temporary):
+            os.unlink(temporary)
 
 
 def report(as_json=False):

@@ -17,6 +17,10 @@ SCRIPT = Path(__file__).with_name("check_tooling.py")
 ROUTING = SCRIPT.with_name("routing.py")
 
 
+def _state_env(path):
+    return {"LOCALAPPDATA" if os.name == "nt" else "XDG_STATE_HOME": str(path)}
+
+
 class CodexPathChecks(unittest.TestCase):
     def setUp(self):
         spec = importlib.util.spec_from_file_location("check_tooling", SCRIPT)
@@ -144,7 +148,7 @@ class CodexPathChecks(unittest.TestCase):
             signed_state = root / "signed-skill" / "state"
             external = root / "host-state"
             output = [(0, "alpha: first", ""), (0, "alpha: updated", "")]
-            with mock.patch.dict(os.environ, {"LOCALAPPDATA": str(external)}):
+            with mock.patch.dict(os.environ, _state_env(external)):
                 with mock.patch.object(self.module, "SKILL_ROOT", str(root / "signed-skill")):
                     with mock.patch.object(self.module, "_run", side_effect=output):
                         first = self.module.check_orca_skills()
@@ -166,7 +170,7 @@ class CodexPathChecks(unittest.TestCase):
                                           "skills": {"alpha": "first"}, "pending": {}}),
                               encoding="utf-8")
             original_hash = hashlib.sha256(legacy.read_bytes()).hexdigest()
-            with mock.patch.dict(os.environ, {"LOCALAPPDATA": str(root / "host-state")}):
+            with mock.patch.dict(os.environ, _state_env(root / "host-state")):
                 first = self.module.migrate_snapshot(str(legacy))
                 second = self.module.migrate_snapshot(str(legacy))
             target = root / "host-state" / "SimonKStack" / "vibe" / "orca-skills.json"
@@ -178,7 +182,7 @@ class CodexPathChecks(unittest.TestCase):
     def test_snapshot_refuses_state_root_inside_signed_skill(self):
         with tempfile.TemporaryDirectory() as temporary:
             skill = Path(temporary) / "signed-skill"
-            with mock.patch.dict(os.environ, {"LOCALAPPDATA": str(skill / "state")}):
+            with mock.patch.dict(os.environ, _state_env(skill / "state")):
                 with mock.patch.object(self.module, "SKILL_ROOT", str(skill)):
                     with mock.patch.object(self.module, "_run", return_value=(0, "alpha: first", "")):
                         result = self.module.check_orca_skills()
@@ -191,11 +195,25 @@ class CodexPathChecks(unittest.TestCase):
             snapshot = root / "SimonKStack" / "vibe" / "orca-skills.json"
             snapshot.parent.mkdir(parents=True)
             snapshot.write_text("{broken", encoding="utf-8")
-            with mock.patch.dict(os.environ, {"LOCALAPPDATA": str(root)}):
+            with mock.patch.dict(os.environ, _state_env(root)):
                 with mock.patch.object(self.module, "_run", return_value=(0, "alpha: first", "")):
                     result = self.module.check_orca_skills()
             self.assertEqual(result["state"], self.module.UNKNOWN)
             self.assertEqual(snapshot.read_text(encoding="utf-8"), "{broken")
+
+    def test_migration_publish_failure_leaves_no_partial_target(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            legacy = root / "legacy.json"
+            legacy.write_text(json.dumps({"skills": {"alpha": "first"}, "pending": {}}),
+                              encoding="utf-8")
+            target_dir = root / "host-state" / "SimonKStack" / "vibe"
+            with mock.patch.dict(os.environ, _state_env(root / "host-state")):
+                with mock.patch.object(self.module.os, "link", side_effect=OSError("denied")):
+                    result = self.module.migrate_snapshot(str(legacy))
+            self.assertEqual(result, 1)
+            self.assertFalse((target_dir / "orca-skills.json").exists())
+            self.assertEqual(list(target_dir.glob(".orca-skills-*")), [])
 
 
 if __name__ == "__main__":
