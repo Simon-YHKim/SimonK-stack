@@ -1,6 +1,35 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-02 / Grok catch-up 완료 · 파일 상한 400KB · ai-debate 0.2.1
+## Latest — 2026-10-02 / 4개 CLI 동일 사용: /vibe 2.12.43 · ai-debate 0.2.2
+
+갱신 시각: 2026-10-02 02:25 KST · 갱신자: Claude Code(Opus 5.5). Simon 요청: "codex, claude, grok, agy 모두 이 스킬을 동일하게 사용하게, ai-debate·오케스트레이션·모델/effort 라우팅 모두 최신화. 나보고 시키지 말고 직접."
+
+### 어디까지 왔나
+- main `9e88140`: [PR #90](https://github.com/Simon-YHKim/SimonK-stack/pull/90) ai-debate 0.2.2(호스트 중립: `--orchestrator` 필수, 호스트 자기 좌석 세션 내, 다른 벤더 라이브 세션의 `--host-session` 증명·결합, Grok·agy 겐세이 감지), [PR #91](https://github.com/Simon-YHKim/SimonK-stack/pull/91) /vibe 2.12.43(레지스트리 만료 10-06 → **10-09 00:39 KST**, grok-4.5 legacy, legacy 동점 보정).
+- **설치 완료**: /vibe 2.12.43(정션 7개), ai-debate 0.2.2(리플레이 게이트 4벤더 18건 통과 후). 상세·영수증·되돌리기는 `docs/INSTALL.md` 첫 절.
+- **4개 CLI 동일**: Claude Code·Codex·Grok·agy가 같은 스킬 파일을 읽는다. agy는 `~/.gemini/config/skills.json` + Core 5개 심링크로 182/182(이번에 신설).
+- SimonK 자체 스킬 31개를 main과 동기화. 허브 `tools/models.json`·`hub-health.ps1`·`hub-daemon.ps1` 기본값·`MODELS.md`를 현재 모델로 재핀(로컬 커밋 `351c0828`). ModelWatch 예약 작업은 설치 경로를 실행.
+- 결정: D-55(4벤더 토론, PROVISIONAL 3/4, Codex 결석). D-54(Codex가 연 토론)의 Claude 좌석을 이 세션이 `--host-session`으로 실제 catch-up(대화형 증명 `entrypoint cli`, `bound_by fingerprint`) — 교차 호스트 경로 실증.
+
+### 다음 작업 큐
+| # | 작업 | 크기 | 권장 |
+|---|---|---|---|
+| A | **2026-10-08 중**(만료 10-09 00:39 KST 전) /vibe 레지스트리 사실 재확인·갱신 → PR → 후보 → 정션 전환. 알림 = 예약 작업 `\SimonK-Vibe-RegistryRefresh-Reminder` | 중간 | 놓치면 /vibe 라우팅 전부 정지 |
+| B | 2026-10-07 09:03 KST 이후 Codex catch-up: `debate.py catchup --orchestrator <호스트>` → D-53·D-55 Codex 좌석, 그리고 Codex 호스트 라이브 E2E 1회. 알림 = `\SimonK-AiDebate-CodexCatchup-Reminder` | 작음 | Codex 쿼터 95% 미만 먼저 확인 |
+| C | Orca 레인(routing.LANES 등)을 현행 세대로 이전 — Orca로 claude-opus-5-5·gpt-6.1-sol·grok-4.7 보내면 지금은 거부 | 중간 | 별도 §35 토론 |
+| D | gstack 원본으로 덮인 34개 중 안전 계열 5개(careful·freeze·guard·unfreeze·investigate)의 SimonK 강화판 복원 여부 결정 | 작음 | |
+| E | claude.ai 개인 프로필·Cowork 지시사항에 `instructions/out/` 사본 반영(400KB) — 브라우저 제어 도구가 연결된 세션에서 | 작음 | |
+
+### 다음 세션 시작하는 법
+```powershell
+git fetch origin main
+git show origin/main:docs/HANDOFF.md
+python -B "$env:USERPROFILE\.claude\skills\ai-debate\scripts\debate.py" catchup --orchestrator anthropic
+```
+
+---
+
+## 2026-10-02 / Grok catch-up 완료 · 파일 상한 400KB · ai-debate 0.2.1
 
 갱신 시각: 2026-10-02 00:05 KST · 갱신자: Claude Code(Opus 5.5).
 

@@ -2,6 +2,41 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
+## 2026-10-02 `/vibe` 2.12.43 · `ai-debate` 0.2.2 — 4개 CLI 동일 설치
+
+D-55(4벤더 토론 `dbt-261002-020448`, 블라인드 심판 대안 4 · 확신도 92)에 따라 main `9e88140`에서
+조립한 후보를 설치했다. ai-debate 0.2.2는 판정 조건인 오프라인 리플레이 게이트(4벤더 실기록,
+18건 기대대로)를 통과한 뒤 교체했다.
+
+| 패키지 | SHA-256 영수증 |
+| --- | --- |
+| `source` | `de193be5b2c1256ce9ecd5c2db926e98054174e740ae3be21c9093116b99fc2d` (137스킬·430파일) |
+| `candidate-safety` | `24fe0d33e17094a6d275784d4eca12c554ba53522d62f0737473bd32b6adb7fb` (182스킬·759파일) |
+| `codex-overlay-safety` | `87fea4e405f1f2e18baf0a25a1f6b60d8f729401403b2f18e6f2fde3eaa10c9d` |
+| `codex-subset-safety` | `7fd63cc8e45cce9a0dc80ac9301a11815d00c95be7a47ba0e36fc81906060eee` |
+
+후보: `E:/Coding Infra/Releases/SimonK-stack/20261002-vibe-21243-candidate/`. 매니페스트·되돌리기:
+`~/.claude/flat-link-archive/vibe-24fe0d33e170/`(정션 7개, Codex config 사전 이미지, `ai-debate-0.2.1`).
+
+4개 CLI가 같은 파일을 읽는 구조:
+
+| CLI | 스킬 경로 | 비고 |
+| --- | --- | --- |
+| Claude Code | `~/.claude/skills` | Core 7개는 후보 정션 |
+| Codex | `~/.codex/skills` + `~/.agents/skills` | `~/.agents`는 대부분 `~/.claude/skills` 심링크, 플러그인 경유분은 `simonk-core:` 접두어 |
+| Grok CLI | `~/.grok/skills` + `~/.claude/skills` 호환 | |
+| agy 1.2.14 | `~/.gemini/antigravity-cli/skills` + `~/.gemini/config/skills.json` | agy는 정션을 따라가지 않고 `~/`를 거부한다. `skills.json`에 절대 경로 `C:\Users\202502\.claude\skills`(hyperframes 11개·정션 7개 제외)와 `~/.agents/skills`(Orca 2개)를 두고, Core 5개는 agy 폴더에 `~/.claude/skills/<이름>` 심볼릭 링크로 둔다. 확인 = 무턴 `agy -p "/skills" --output-format json` |
+
+같은 날 `~/.claude/skills`의 SimonK 자체 스킬 31개를 main과 바이트 동일하게 동기화했다(이전 사본
+`~/.claude/flat-link-archive/skills-261002-sync/`). gstack 원본으로 덮인 34개는 gstack-upgrade 관리 영역이라
+그대로 두었다. 검증: 영수증 4/4, 런타임 probe 통과, 후보 경로 orchestrate 144·model_registry 36·
+run_state 53, 사전검사 `different_skills=0`, selftest 180/180(Claude·Codex), agy가 Claude의 182개를
+접두어·중복 없이 인식. 설치 직후 첫 영수증·사전검사가 rc 2를 내는 일시 현상이 두 번 재현됐고
+재실행에서는 정상이다(스킬 목록 재로딩 시점으로 추정).
+
+레지스트리 사실 유효기간은 2026-10-09 00:39 KST까지다. 그 전에 다시 확인해 갱신해야 한다
+(예약 작업 `\SimonK-Vibe-RegistryRefresh-Reminder` 10-08 09:00).
+
 ## 2026-10-01 `/vibe` 2.12.42 · `ai-debate` 0.2.0 — 사용자 홈 설치 완료
 
 Simon의 직접 지시("스킬 업데이트를 완료해줘")와 §35 4벤더 토론 D-53(PROVISIONAL 2/4,
