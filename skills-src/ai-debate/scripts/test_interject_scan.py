@@ -8,6 +8,7 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
+from urllib.parse import quote
 
 import debate
 import interject_scan
@@ -118,7 +119,81 @@ def replied(minutes_ago, stop="end_turn", text="답", sid="c-1"):
 
 
 def tiny_tail(first=4096, step=4096, cap=1 << 20):
-    return patch.multiple(interject_scan, CODEX_TAIL=first, CLAUDE_TAIL=first, TAIL_STEP=step, TAIL_CAP=cap)
+    return patch.multiple(interject_scan, CODEX_TAIL=first, CLAUDE_TAIL=first, GROK_TAIL=first, AGY_TAIL=first,
+                          TAIL_STEP=step, TAIL_CAP=cap)
+
+
+# Grok CLI: ~/.grok/sessions/<urlencoded cwd>/<session id>/updates.jsonl (+ summary.json)
+def ms(minutes_ago):
+    return int((NOW - timedelta(minutes=minutes_ago)).timestamp() * 1000)
+
+
+def gk(minutes_ago, kind, prompt=None, start_min=None, sid="g-1", **update):
+    meta = {"eventId": sid + "-e", "agentTimestampMs": ms(minutes_ago)}
+    if prompt:
+        meta["promptId"] = prompt
+    if start_min is not None:
+        meta["turnStartMs"] = ms(start_min)
+    method = "_x.ai/session/update" if kind in ("hook_execution", "turn_completed", "retry_state") \
+        else "session/update"
+    return {"timestamp": ms(minutes_ago) // 1000, "method": method,
+            "params": {"sessionId": sid, "update": dict(sessionUpdate=kind, **update), "_meta": meta}}
+
+
+def g_user(minutes_ago, text):
+    return gk(minutes_ago, "user_message_chunk", content={"type": "text", "text": text},
+              _meta={"modelId": "grok-4.7", "promptIndex": 0})
+
+
+def g_agent(minutes_ago, text, prompt="p-1", start_min=None):
+    return gk(minutes_ago, "agent_message_chunk", prompt, start_min, content={"type": "text", "text": text})
+
+
+def g_tool(minutes_ago, prompt="p-1", start_min=None, size=40):
+    return gk(minutes_ago, "tool_call", prompt, start_min, toolCallId="t", title="x" * size)
+
+
+def g_hook(minutes_ago, event):
+    return gk(minutes_ago, "hook_execution", event_name=event, runs=[])
+
+
+def g_done(minutes_ago, prompt="p-1"):
+    return gk(minutes_ago, "turn_completed", prompt_id=prompt, stop_reason="end_turn", elapsed_ms=1000)
+
+
+# agy: ~/.gemini/antigravity-cli/brain/<conversation>/.system_generated/logs/transcript.jsonl
+def step(minutes_ago, kind, source="MODEL", status="DONE", content=None, tools=None):
+    row = {"step_index": 0, "source": source, "type": kind, "status": status,
+           "created_at": (NOW - timedelta(minutes=minutes_ago)).strftime("%Y-%m-%dT%H:%M:%SZ")}
+    if content is not None:
+        row["content"] = content
+    if tools:
+        row["tool_calls"] = tools
+    return row
+
+
+def a_user(minutes_ago, text):
+    return step(minutes_ago, "USER_INPUT", "USER_EXPLICIT", content=(
+        "<USER_REQUEST>\n%s\n</USER_REQUEST>\n<ADDITIONAL_METADATA>\nThe current local time is: x.\n"
+        "</ADDITIONAL_METADATA>" % text))
+
+
+def a_tool(minutes_ago, text=None):
+    return step(minutes_ago, "PLANNER_RESPONSE", content=text, tools=[{"name": "run_command", "args": {}}])
+
+
+def a_result(minutes_ago, status="DONE"):
+    return step(minutes_ago, "GENERIC", status=status, content="Created At: x")
+
+
+def a_final(minutes_ago, text="완료"):
+    return step(minutes_ago, "PLANNER_RESPONSE", content=text)
+
+
+def a_system(minutes_ago, text):
+    return step(minutes_ago, "SYSTEM_MESSAGE", "SYSTEM", content=(
+        "The following is a <SYSTEM_MESSAGE> not actually sent by the user.\n<SYSTEM_MESSAGE>\n%s\n"
+        "</SYSTEM_MESSAGE>" % text))
 
 
 class InterjectScanTests(unittest.TestCase):
@@ -128,10 +203,15 @@ class InterjectScanTests(unittest.TestCase):
         self.root = Path(self.tmp.name).resolve()
         self.codex = self.root / "codex"
         self.claude = self.root / "claude"
-        self.codex.mkdir()
-        self.claude.mkdir()
+        self.grok = self.root / "grok"
+        self.agy = self.root / "agy" / "brain"
+        for folder in (self.codex, self.claude, self.grok, self.agy):
+            folder.mkdir(parents=True)
         env = {"AI_DEBATE_NOW": NOW.isoformat(), "AI_DEBATE_HOME": str(self.root / "home"),
                "AI_DEBATE_CODEX_SESSIONS": str(self.root / "none"),
+               "AI_DEBATE_CLAUDE_PROJECTS": str(self.root / "none"),
+               "AI_DEBATE_GROK_SESSIONS": str(self.root / "none"),
+               "AI_DEBATE_AGY_BRAIN": str(self.root / "none"),
                "AI_DEBATE_GROK_LOG": str(self.root / "none.jsonl"),
                "AI_DEBATE_CLAUDE_BRIDGE": str(self.root / "none")}
         for key in ("OPENAI", "XAI", "GOOGLE", "ANTHROPIC", "ORCA"):
@@ -155,11 +235,37 @@ class InterjectScanTests(unittest.TestCase):
     def transcript(self, name, records, idle_min=0):
         return self.write(self.claude / "E--work" / (name + ".jsonl"), records, idle_min)
 
+    def grok_session(self, sid, records, idle_min=0, title="", cwd="E:\\work", kind=None):
+        folder = self.grok / quote(cwd, safe="") / sid
+        folder.mkdir(parents=True, exist_ok=True)
+        summary = {"info": {"id": sid, "cwd": cwd}, "generated_title": title, "session_summary": title,
+                   "current_model_id": "grok-4.7", "reasoning_effort": "xhigh",
+                   "created_at": iso(NOW - timedelta(hours=3)), "last_active_at": iso(NOW)}
+        if kind:
+            summary["session_kind"] = kind
+        (folder / "summary.json").write_text(json.dumps(summary), encoding="utf-8")
+        (folder / "chat_history.jsonl").write_text('{"type": "system", "content": "x"}\n', encoding="utf-8")
+        return self.write(folder / "updates.jsonl", records, idle_min)
+
+    def agy_session(self, cid, records, idle_min=0, workspace=None):
+        if workspace:
+            with open(self.agy.parent / "history.jsonl", "a", encoding="utf-8") as stream:
+                stream.write(json.dumps({"display": "요청", "timestamp": ms(100), "workspace": workspace,
+                                         "conversationId": cid}, ensure_ascii=False) + "\n")
+        return self.write(self.agy / cid / ".system_generated" / "logs" / "transcript.jsonl", records, idle_min)
+
+    def grok_billing(self, pct, end):
+        record = {"ts": "2026-10-01T09:00:00.000Z", "msg": "billing: fetched credits config",
+                  "ctx": {"config": {"creditUsagePercent": float(pct), "currentPeriod": {"end": end.isoformat()},
+                                     "onDemandCap": {"val": 0}, "prepaidBalance": {"val": 0}}}}
+        (self.root / "none.jsonl").write_text('{"msg": "other"}\n' + json.dumps(record) + "\n", encoding="utf-8")
+
     def scan(self, *extra):
         out, err = io.StringIO(), io.StringIO()
         with redirect_stdout(out), redirect_stderr(err):
             rc = interject_scan.main(["scan", "--json", "--codex-root", str(self.codex),
-                                      "--claude-root", str(self.claude), *extra])
+                                      "--claude-root", str(self.claude), "--grok-root", str(self.grok),
+                                      "--agy-root", str(self.agy), *extra])
         return rc, json.loads(out.getvalue())
 
     def rows(self, *extra):
@@ -287,7 +393,7 @@ class InterjectScanTests(unittest.TestCase):
         with redirect_stdout(quiet), redirect_stderr(io.StringIO()):
             rc = debate.main(["new", "--id", "dbt-int", "--title", "겐세이", "--question",
                               "지금 무엇을 하라고 할까?", "--mode", "interject", "--evidence-file",
-                              str(out_path), "--no-probe"])
+                              str(out_path), "--no-probe", "--orchestrator", "anthropic"])
         self.assertEqual(rc, 0)
         agenda = json.loads((self.root / "home" / "debates" / "dbt-int" / "agenda.json")
                             .read_text(encoding="utf-8"))
@@ -587,6 +693,131 @@ class InterjectScanTests(unittest.TestCase):
             row = self.rows()["s-far"]
         self.assertAlmostEqual(row["goal_minutes"], 129, delta=0.5)
         self.assertEqual(row["triggers"], ["T6_GOAL_LONG"])
+
+    # 10. Grok CLI sessions
+    def stuck_grok(self):
+        return self.grok_session("g-1", [
+            g_hook(91, "session_start"), g_hook(90, "user_prompt_submit"), g_user(90, "캐시 리팩터링 해줘"),
+            g_agent(60, "진행 중", start_min=90), g_tool(59), g_user(10, "왜 이렇게 오래 걸려?"),
+            g_agent(8, "판정 HOLD — 증거 부족"), g_tool(7), g_agent(6, "다시 HOLD 유지"), g_tool(5),
+            gk(5, "agent_thought_chunk", "p-1", content={"type": "text", "text": "HOLD?"}),
+            g_agent(4, "여전히 HOLD"), g_tool(3)], title="캐시 계층 리팩터링")
+
+    def test_grok_open_turn_fires_triggers(self):
+        self.stuck_grok()
+        self.grok_billing(100, NOW + timedelta(days=2))
+        rc, result = self.scan("--fail-on-trigger")
+        self.assertEqual(rc, 10)
+        self.assertIn("grok", result["roots"])
+        row = self.only(result, "grok")
+        self.assertEqual((row["agent"], row["session_id"], row["cwd"], row["status"]), ("grok", "g-1", "E:\\work", "ok"))
+        self.assertTrue(row["turn_open"])
+        self.assertAlmostEqual(row["elapsed_min"], 90, delta=0.5)
+        self.assertEqual(row["triggers"], ["T1_LONG_TURN", "T2_LOOP", "T3_USER_FRUSTRATION", "T5_QUOTA"])
+        self.assertEqual(row["detail"]["loop_matches"], 3)
+        self.assertEqual(row["detail"]["quota"]["credits"]["used_percent"], 100.0)
+        self.assertEqual(row["goal"], "캐시 계층 리팩터링")
+        self.assertEqual(row["last_user_text"], "왜 이렇게 오래 걸려?")
+        self.grok_billing(78, NOW + timedelta(days=2))
+        self.assertNotIn("T5_QUOTA", self.only(self.scan()[1], "grok")["triggers"])
+        self.grok_billing(100, NOW - timedelta(minutes=1))
+        self.assertNotIn("T5_QUOTA", self.only(self.scan()[1], "grok")["triggers"])
+
+    def test_grok_closed_ended_and_stale_turns_do_not_trigger(self):
+        self.grok_session("g-done", [g_user(120, "작업해"), g_agent(60, "HOLD"), g_tool(59), g_agent(58, "HOLD"),
+                                     g_tool(57), g_agent(56, "HOLD"), g_hook(31, "stop"), g_done(30)])
+        self.grok_session("g-end", [g_user(100, "작업해"), g_agent(99, "진행"), g_hook(98, "session_end")])
+        self.grok_session("g-idle", [g_user(100, "작업해"), g_agent(40, "진행")], idle_min=40)
+        self.grok_session("g-next", [g_user(200, "첫 요청"), g_done(150), g_user(20, "둘째 요청"),
+                                     g_agent(2, "진행", prompt="p-2", start_min=20)])
+        self.grok_billing(100, NOW + timedelta(days=2))
+        rows = self.rows("--fail-on-trigger")
+        for sid in ("g-done", "g-end"):
+            self.assertFalse(rows[sid]["turn_open"], sid)
+            self.assertEqual(rows[sid]["triggers"], [], sid)
+        self.assertEqual((rows["g-idle"]["status"], rows["g-idle"]["triggers"]), ("stale", []))
+        self.assertTrue(rows["g-next"]["turn_open"])
+        self.assertAlmostEqual(rows["g-next"]["elapsed_min"], 20, delta=0.5)
+        self.assertEqual(rows["g-next"]["triggers"], ["T5_QUOTA"])
+
+    def test_grok_turn_start_beyond_the_tail_comes_from_turn_start_ms(self):
+        records = [g_user(110, "긴 작업 해줘")] + [g_tool(100 - i / 10, size=500) for i in range(80)]
+        self.grok_session("g-long", records + [g_agent(5, "진행 중", start_min=110)])
+        with tiny_tail(cap=12288):
+            row = self.rows()["g-long"]
+        self.assertTrue(row["turn_open"])
+        self.assertAlmostEqual(row["elapsed_min"], 110, delta=0.5)
+        self.assertFalse(row["start_before_tail"])
+        self.assertEqual(row["triggers"], ["T1_LONG_TURN"])
+
+    # 11. agy (Antigravity CLI) sessions
+    def stuck_agy(self):
+        return self.agy_session("a-1", [
+            a_user(70, "번역 파일 정리해줘"), a_tool(69), a_result(68), a_tool(8, "판정 HOLD 유지"), a_result(7),
+            a_tool(6, "다시 보류"), a_result(5), a_tool(4, "여전히 HOLD"), a_result(3, "RUNNING")],
+            workspace="E:\\2ndB")
+
+    def test_agy_open_turn_fires_triggers(self):
+        self.stuck_agy()
+        _rc, result = self.scan()
+        self.assertIn("agy", result["roots"])
+        row = self.only(result, "agy")
+        self.assertEqual((row["agent"], row["session_id"], row["cwd"], row["status"]), ("agy", "a-1", "E:\\2ndB", "ok"))
+        self.assertTrue(row["turn_open"])
+        self.assertAlmostEqual(row["elapsed_min"], 70, delta=0.5)
+        self.assertEqual(row["triggers"], ["T1_LONG_TURN", "T2_LOOP"])
+        self.assertEqual(row["last_user_text"], "번역 파일 정리해줘")
+        self.assertEqual(row["goal"], "번역 파일 정리해줘")
+
+    def test_agy_final_answer_closes_and_system_messages_are_not_human(self):
+        self.agy_session("a-done", [a_user(100, "작업해"), a_tool(99, "HOLD"), a_result(98), a_final(90)])
+        self.agy_session("a-sys", [a_user(200, "작업해"), a_final(150), a_system(50, "Task done. 멈춰 답답"),
+                                   a_tool(49), a_result(2, "RUNNING")])
+        self.agy_session("a-idle", [a_user(100, "작업해"), a_tool(40)], idle_min=40)
+        self.agy_session("a-stop", [a_user(30, "작업해"), a_tool(29), a_user(12, "멈춰"), a_tool(3)])
+        clipped = dict(step(20, "USER_INPUT", "USER_EXPLICIT", content="<USER_REQUEST>\n/plan 잘린 긴 요청 본문"),
+                       truncated_fields=["content"])  # agy cuts long prompts before the closing tag
+        self.agy_session("a-clip", [clipped, a_final(19)])
+        rows = self.rows()
+        self.assertEqual(rows["a-clip"]["last_user_text"], "/plan 잘린 긴 요청 본문")
+        self.assertEqual(rows["a-clip"]["goal"], "/plan 잘린 긴 요청 본문")
+        self.assertFalse(rows["a-done"]["turn_open"])
+        self.assertEqual(rows["a-done"]["triggers"], [])
+        self.assertIsNone(rows["a-done"]["cwd"])
+        self.assertTrue(rows["a-sys"]["turn_open"])
+        self.assertAlmostEqual(rows["a-sys"]["elapsed_min"], 50, delta=0.5)
+        self.assertEqual(rows["a-sys"]["triggers"], ["T1_LONG_TURN"])
+        self.assertEqual(rows["a-sys"]["last_user_text"], "작업해")
+        self.assertEqual((rows["a-idle"]["status"], rows["a-idle"]["triggers"]), ("stale", []))
+        self.assertEqual(rows["a-stop"]["triggers"], ["T4_IGNORED_STOP"])
+
+    def test_grok_and_agy_snapshots(self):
+        grok = self.stuck_grok()
+        agy = self.stuck_agy()
+        text, meta = self.snapshot(grok)
+        for item in ("# 작업 중 에이전트 스냅숏", "에이전트: grok", "세션: g-1", "E:\\work", "캐시 계층 리팩터링",
+                     "모델: grok-4.7 · xhigh", "T1_LONG_TURN", "왜 이렇게 오래 걸려?", "여전히 HOLD"):
+            self.assertIn(item, text)
+        self.assertEqual(meta["status"], "ok")
+        text, meta = self.snapshot(agy)
+        for item in ("에이전트: agy", "세션: a-1", "E:\\2ndB", "번역 파일 정리해줘", "T2_LOOP"):
+            self.assertIn(item, text)
+        self.assertNotIn("USER_REQUEST", text)
+
+    def test_snapshot_takes_a_shallow_or_relative_agy_path(self):
+        """P2-4: a copied transcript.jsonl outside brain/<id>/.system_generated/logs raised IndexError."""
+        shallow = self.root / "shallow"
+        self.write(shallow / "transcript.jsonl", [a_user(70, "번역 파일 정리해줘"), a_tool(69), a_result(68)])
+        cwd = os.getcwd()
+        os.chdir(shallow)
+        self.addCleanup(os.chdir, cwd)
+        for name in ("transcript.jsonl", str(shallow / "transcript.jsonl")):
+            out, err = io.StringIO(), io.StringIO()
+            with redirect_stdout(out), redirect_stderr(err):
+                rc = interject_scan.main(["snapshot", "--file", name])
+            self.assertEqual(rc, 0, err.getvalue())
+            self.assertIn("에이전트: agy", out.getvalue())
+            self.assertIn("번역 파일 정리해줘", out.getvalue())
 
 
 if __name__ == "__main__":

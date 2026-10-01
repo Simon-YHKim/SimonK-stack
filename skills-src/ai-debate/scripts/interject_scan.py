@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Read-only scan for agents stuck on one task too long; feeds ai-debate interject.
 
-Reads bounded tails of Codex rollouts and Claude Code transcripts. No agent or
-model is contacted and nothing is written except an optional snapshot file.
+Reads bounded tails of Codex rollouts, Claude Code transcripts, Grok CLI session
+updates and agy (Antigravity CLI) step transcripts. No agent or model is
+contacted and nothing is written except an optional snapshot file.
 """
 from __future__ import annotations
 
@@ -13,11 +14,15 @@ import os
 from pathlib import Path
 import re
 import sys
+from urllib.parse import unquote
 
 KST = timezone(timedelta(hours=9))
 CODEX_HEAD = 64 * 1024
 CODEX_TAIL = 16 * 1024 * 1024
 CLAUDE_TAIL = 8 * 1024 * 1024
+GROK_TAIL = 8 * 1024 * 1024
+AGY_TAIL = 8 * 1024 * 1024
+SIDE_TAIL = 4 * 1024 * 1024  # Grok billing log, agy prompt history
 TAIL_STEP = 16 * 1024 * 1024  # grow backwards by this much while the open turn's start is missing
 TAIL_CAP = 128 * 1024 * 1024
 SNAPSHOT_CHARS = 6000
@@ -42,6 +47,14 @@ GOAL_HINT_RE = re.compile(r'(timeUsedSeconds|createdAt)"?\s*[:=]\s*"?(\d+(?:\.\d
 INTERRUPTED = "[Request interrupted by user"
 GOAL_SEEN = "goal turns in read window (lower bound)"
 MASK = "[REDACTED]"
+# agy cuts long prompts (truncated_fields) before the closing tag, so the end of the text also closes it.
+USER_REQUEST_RE = re.compile(r"<USER_REQUEST>\s*(.*?)\s*(?:</USER_REQUEST>|\Z)", re.S)
+GROK_GLOB = "*/*/updates.jsonl"  # <urlencoded cwd>/<session id>/updates.jsonl
+AGY_GLOB = "*/.system_generated/logs/transcript.jsonl"  # <conversation id>/...
+# Grok records that only happen inside a running turn, and the ones that end it.
+GROK_ACTIVITY = frozenset({"agent_message_chunk", "agent_thought_chunk", "tool_call", "tool_call_update", "plan",
+                           "hook:pre_tool_use", "hook:post_tool_use"})
+GROK_TURN_END = frozenset({"turn_completed", "hook:stop", "hook:stop_failure", "hook:session_end"})
 SECRET_RES = [re.compile(p) for p in (
     r"(?<![\w-])sk-ant-[\w-]{20,}", r"(?<![\w-])sk-[\w-]{20,}", r"(?<![\w-])gh[pousr]_\w{30,}",
     r"(?<![\w-])xai-[\w-]{20,}", r"(?<![\w-])AIza[\w-]{30,}", r"Bearer\s+\S{20,}")]
@@ -186,7 +199,7 @@ class Session:
         self.turn_open, self.turn_start = False, None
         self.start_before_tail = self.unresolved = False
         self.turns = {}
-        self.limits = None
+        self.limits = self.billing = self.model = None
         self.mtime = self.first_seen = self.last_seen = None
 
     def seen(self, moment):
@@ -422,6 +435,226 @@ def parse_claude(path, deep=False):
     return load(path, CLAUDE_TAIL, read_claude, deep)
 
 
+_SIDE_CACHE = {}
+
+
+def side_lines(path):
+    """Bounded tail of a small side file (billing log, prompt history), re-read only when it changes."""
+    path = Path(path)
+    try:
+        info = path.stat()
+    except OSError:
+        return []
+    key = (info.st_mtime_ns, info.st_size)
+    cached = _SIDE_CACHE.get(str(path))
+    if cached and cached[0] == key:
+        return cached[1]
+    with open(path, "rb") as stream:
+        stream.seek(max(0, info.st_size - SIDE_TAIL))
+        data = stream.read(SIDE_TAIL)
+    if info.st_size > SIDE_TAIL:
+        data = data.split(b"\n", 1)[-1]  # drop the partial first line
+    lines = data.split(b"\n")
+    _SIDE_CACHE[str(path)] = (key, lines)
+    return lines
+
+
+def grok_billing():
+    """Latest Grok 'billing: fetched credits config' line: used percent and period end, or None."""
+    home = Path(os.environ.get("GROK_HOME") or Path.home() / ".grok")
+    log = Path(os.environ.get("AI_DEBATE_GROK_LOG") or home / "logs" / "unified.jsonl")
+    for line in reversed(side_lines(log)):
+        if b"billing: fetched credits config" not in line:
+            continue
+        try:
+            record = json.loads(line)
+            config = record["ctx"]["config"]
+            used = float(config["creditUsagePercent"])
+        except (ValueError, KeyError, TypeError):
+            continue
+        end = (config.get("currentPeriod") or {}).get("end") or config.get("billingPeriodEnd")
+        try:
+            reset = parse_iso(end) if end else None
+        except (TypeError, ValueError):
+            reset = None
+        return {"used_percent": used, "reset": reset, "observed": record.get("ts"), "source": log.as_posix()}
+    return None
+
+
+def grok_info(path):
+    folder = Path(path).parent
+    try:
+        with open(folder / "summary.json", "rb") as stream:
+            summary = json.loads(stream.read(256 * 1024))
+    except (OSError, ValueError):
+        summary = {}
+    summary = summary if isinstance(summary, dict) else {}
+    info = summary.get("info") if isinstance(summary.get("info"), dict) else {}
+    title = next((summary[k] for k in ("generated_title", "session_summary")
+                  if isinstance(summary.get(k), str) and summary[k].strip()), None)
+    model = " · ".join(str(summary[k]) for k in ("current_model_id", "reasoning_effort") if summary.get(k))
+    return {"id": info.get("id") or folder.name, "cwd": info.get("cwd") or unquote(folder.parent.name),
+            "title": title, "model": model or None}
+
+
+def grok_moment(record, meta):
+    stamp_ms = number(meta.get("agentTimestampMs"))
+    return from_epoch(stamp_ms / 1000.0) if stamp_ms else from_epoch(number(record.get("timestamp")))
+
+
+def read_grok(path, window, info):
+    """Grok updates.jsonl: user_message_chunk opens a turn, turn_completed (or a stop/session_end hook) ends it."""
+    session = Session("grok", path)
+    session.session_id, session.cwd, session.model = info.get("id"), info.get("cwd"), info.get("model")
+    opened = ended = known = False
+    start = prompt = None
+    begun = {}  # promptId -> earliest turnStartMs, which survives when the opening record is cut off
+    user_parts, agent_parts = [], []
+
+    def flush(parts, kind):
+        if parts:
+            if kind == "user":
+                session.add_human(parts[0][0], "".join(t for _m, t in parts))
+            else:
+                session.add("agent", parts[0][0], "".join(t for _m, t in parts))
+            parts.clear()
+
+    for record in window.records:
+        params = record.get("params") if isinstance(record.get("params"), dict) else {}
+        update = params.get("update") if isinstance(params.get("update"), dict) else {}
+        meta = params.get("_meta") if isinstance(params.get("_meta"), dict) else {}
+        kind = update.get("sessionUpdate")
+        if not isinstance(kind, str):
+            continue
+        if kind == "hook_execution":
+            kind = "hook:%s" % update.get("event_name")
+        moment = session.seen(grok_moment(record, meta))
+        pid = meta.get("promptId") or update.get("prompt_id")
+        pid = pid if isinstance(pid, str) else None
+        turn_ms = number(meta.get("turnStartMs"))
+        if pid and turn_ms:
+            begun[pid] = min(begun.get(pid, turn_ms), turn_ms)
+        content = update.get("content") if isinstance(update.get("content"), dict) else {}
+        text = content.get("text") if isinstance(content.get("text"), str) else None
+        if kind != "user_message_chunk":
+            flush(user_parts, "user")
+        if kind not in ("agent_message_chunk", "agent_thought_chunk"):
+            flush(agent_parts, "agent")
+        if kind == "user_message_chunk":
+            if not opened:
+                opened, start, known, prompt = True, moment, True, None
+            if text:
+                user_parts.append((moment, text))
+        elif kind in GROK_TURN_END:
+            opened, ended, start, prompt = False, True, None, None
+        elif kind in GROK_ACTIVITY:
+            if not opened:  # woken by a background task, or the turn began before the window
+                opened, known = True, ended or not window.truncated
+                start = moment if known else None
+            if kind == "agent_message_chunk" and text:
+                agent_parts.append((moment, text))
+        if opened and pid:
+            prompt = pid
+    flush(user_parts, "user")
+    flush(agent_parts, "agent")
+    session.turn_open = opened
+    if opened and not known and begun.get(prompt):
+        start, known = from_epoch(begun[prompt] / 1000.0), True
+    if opened and known and start:
+        session.turn_start = start
+    elif opened:
+        session.unresolved = session.start_before_tail = True
+        session.turn_start = session.first_seen
+    session.goal = info.get("title") or (session.users()[-1][2] if session.users() else None)
+    return session
+
+
+def parse_grok(path, deep=False):
+    info = grok_info(path)
+    session = load(path, GROK_TAIL, lambda p, w: read_grok(p, w, info), deep)
+    session.billing = grok_billing()
+    return session
+
+
+def agy_workspace(history, conversation):
+    """Latest workspace that agy's prompt history recorded for this conversation, or None."""
+    for line in reversed(side_lines(history)):
+        if conversation.encode("utf-8") not in line:
+            continue
+        try:
+            record = json.loads(line)
+        except ValueError:
+            continue
+        if not isinstance(record, dict) or record.get("conversationId") != conversation:
+            continue
+        if isinstance(record.get("workspace"), str):
+            return record["workspace"]
+    return None
+
+
+def agy_info(path):
+    path = Path(path)  # <brain>/<conversation>/.system_generated/logs/transcript.jsonl
+    full = path.absolute()
+    parents = full.parents
+    if len(parents) >= 4 and parents[0].name == "logs" and parents[1].name == ".system_generated":
+        conversation, brain = parents[2].name, parents[3]
+        return {"id": conversation, "cwd": agy_workspace(brain.parent / "history.jsonl", conversation)}
+    # A copied or shallow transcript: no brain layout, so no workspace lookup.
+    return {"id": full.parent.name or None, "cwd": None}
+
+
+def created_at(record):
+    try:
+        return parse_iso(record.get("created_at"))
+    except (TypeError, ValueError):
+        return None
+
+
+def agy_request(text):
+    if not isinstance(text, str):
+        return None
+    match = USER_REQUEST_RE.search(text)
+    return match.group(1) if match else text
+
+
+def read_agy(path, window, info):
+    """agy steps: USER_INPUT opens a turn; a DONE PLANNER_RESPONSE without tool calls is the final answer."""
+    session = Session("agy", path)
+    session.session_id, session.cwd = info.get("id"), info.get("cwd")
+    opened = ended = known = False
+    start = None
+    for record in window.records:
+        kind, status = record.get("type"), record.get("status")
+        moment = session.seen(created_at(record))
+        content = record.get("content") if isinstance(record.get("content"), str) else None
+        if kind == "USER_INPUT":
+            if not opened:
+                opened, start, known = True, moment, True
+            session.add_human(moment, agy_request(content))
+            continue
+        final = kind == "PLANNER_RESPONSE" and status == "DONE" and not record.get("tool_calls")
+        if not opened and not final:  # a system message (task notice) or a turn begun before the window
+            opened, known = True, ended or not window.truncated
+            start = moment if known else None
+        if kind == "PLANNER_RESPONSE" and content:
+            session.add("agent", moment, content)
+        if final:
+            opened, ended = False, True
+    session.turn_open = opened
+    if opened and known and start:
+        session.turn_start = start
+    elif opened:
+        session.unresolved = session.start_before_tail = True
+        session.turn_start = session.first_seen
+    session.goal = session.users()[-1][2] if session.users() else None
+    return session
+
+
+def parse_agy(path, deep=False):
+    info = agy_info(path)
+    return load(path, AGY_TAIL, lambda p, w: read_agy(p, w, info), deep)
+
+
 def quota_windows(limits, current):
     rows = []
     for name in ("primary", "secondary"):
@@ -431,6 +664,16 @@ def quota_windows(limits, current):
             if reset is None or reset > current:
                 rows.append((name, float(window["used_percent"]), reset))
     return rows
+
+
+def spent_quota(session, current):
+    """Windows at 100% with a future reset: Codex rate limits or the Grok billing line (no evidence elsewhere)."""
+    if session.agent == "codex":
+        return [w for w in quota_windows(session.limits, current) if w[1] >= 100]
+    billing = session.billing if session.agent == "grok" else None
+    if billing and billing["used_percent"] >= 100 and (billing["reset"] is None or billing["reset"] > current):
+        return [("credits", billing["used_percent"], billing["reset"])]
+    return []
 
 
 def covered_seconds(spans, since=None):
@@ -501,11 +744,10 @@ def evaluate(session, current, threshold):
                 detail["stop_ignored_min"] = round(waited, 1)
         elif any(FRUSTRATION_RE.search(own_words(e[2])) for e in mid_turn):
             triggers.append("T3_USER_FRUSTRATION")
-        if session.agent == "codex":
-            spent = [w for w in quota_windows(session.limits, current) if w[1] >= 100]
-            if spent:
-                triggers.append("T5_QUOTA")
-                detail["quota"] = {w[0]: {"used_percent": w[1], "resets_kst": kst(w[2])} for w in spent}
+        spent = spent_quota(session, current)
+        if spent:
+            triggers.append("T5_QUOTA")
+            detail["quota"] = {w[0]: {"used_percent": w[1], "resets_kst": kst(w[2])} for w in spent}
         if goal_minutes is not None and goal_minutes >= GOAL_LONG_MIN:
             triggers.append("T6_GOAL_LONG")
     if stopped and (not session.turn_open or status == "stale"):
@@ -556,10 +798,32 @@ def claude_ok(path, root):
     return path.suffix == ".jsonl" and path.parent.parent == Path(root)
 
 
+def recent_matches(root, pattern, hours, current):
+    """Files at a fixed depth under root (Grok and agy layouts) modified in the last `hours`."""
+    cutoff = (current - timedelta(hours=hours)).timestamp()
+    if not root or not Path(root).is_dir():
+        return []
+    found = []
+    for path in Path(root).glob(pattern):
+        try:
+            if path.is_file() and path.stat().st_mtime >= cutoff:
+                found.append(path)
+        except OSError:
+            continue
+    return sorted(found)
+
+
 def default_roots():
-    codex = Path(os.environ.get("CODEX_HOME") or Path.home() / ".codex") / "sessions"
-    claude = Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude") / "projects"
-    return codex, claude
+    """codex, claude, grok, agy session roots; AI_DEBATE_* overrides match debate.py's host-session proof."""
+    home = Path.home()
+    codex = Path(os.environ.get("CODEX_HOME") or home / ".codex") / "sessions"
+    claude = Path(os.environ.get("CLAUDE_CONFIG_DIR") or home / ".claude") / "projects"
+    grok = Path(os.environ.get("GROK_HOME") or home / ".grok") / "sessions"
+    agy = home / ".gemini" / "antigravity-cli" / "brain"
+    return (Path(os.environ.get("AI_DEBATE_CODEX_SESSIONS") or codex),
+            Path(os.environ.get("AI_DEBATE_CLAUDE_PROJECTS") or claude),
+            Path(os.environ.get("AI_DEBATE_GROK_SESSIONS") or grok),
+            Path(os.environ.get("AI_DEBATE_AGY_BRAIN") or agy))
 
 
 def elapsed_label(row):
@@ -570,13 +834,16 @@ def elapsed_label(row):
 
 def scan(args):
     current = now()
-    codex_root, claude_root = default_roots()
-    codex_root = Path(args.codex_root) if args.codex_root else codex_root
-    claude_root = Path(args.claude_root) if args.claude_root else claude_root
+    _SIDE_CACHE.clear()
+    defaults = dict(zip(("codex", "claude", "grok", "agy"), default_roots()))
+    roots = {agent: Path(getattr(args, agent + "_root") or defaults[agent]) for agent in defaults}
+    sources = (("codex", lambda r: recent_files(r, codex_ok, args.hours, current), parse_codex),
+               ("claude", lambda r: recent_files(r, claude_ok, args.hours, current), parse_claude),
+               ("grok", lambda r: recent_matches(r, GROK_GLOB, args.hours, current), parse_grok),
+               ("agy", lambda r: recent_matches(r, AGY_GLOB, args.hours, current), parse_agy))
     rows = []
-    for agent, root, pattern_ok, parse in (("codex", codex_root, codex_ok, parse_codex),
-                                           ("claude", claude_root, claude_ok, parse_claude)):
-        for path in recent_files(root, pattern_ok, args.hours, current):
+    for agent, find, parse in sources:
+        for path in find(roots[agent]):
             try:
                 rows.append(evaluate(parse(path), current, args.threshold_min))
             except Exception as exc:  # one unreadable or drifted transcript must not hide the rest
@@ -586,7 +853,7 @@ def scan(args):
     triggered = [r for r in rows if r.get("triggers")]
     result = {"scanned_at": current.astimezone(KST).isoformat(timespec="seconds"),
               "hours": args.hours, "threshold_min": args.threshold_min,
-              "roots": {"codex": codex_root.as_posix(), "claude": claude_root.as_posix()},
+              "roots": {agent: root.as_posix() for agent, root in roots.items()},
               "sessions": rows, "triggered": len(triggered)}
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))
@@ -631,6 +898,8 @@ def snapshot_text(session, row, current, user_cap, agent_cap):
                                                   session.cwd or "?"),
              "- 파일: %s" % session.path.as_posix(),
              "- 목표: %s" % (safe(session.goal, 400) if session.goal else "(확인 불가)")]
+    if session.model:
+        lines.append("- 모델: %s" % session.model)
     if session.turn_open:
         lines.append("- 진행: 턴 열림 · %s분 경과%s · 마지막 기록 %s분 전" % (
             elapsed_label(row), " (시작 기록이 읽은 범위 밖, 하한값)" if row["elapsed_lower_bound"] else "",
@@ -648,6 +917,9 @@ def snapshot_text(session, row, current, user_cap, agent_cap):
         credits = (session.limits.get("credits") or {}).get("has_credits") is True
         quota = ", ".join("%s %g%% (~%s 리셋)" % (n, u, kst(r)) for n, u, r in windows) or "근거 없음"
         lines.append("- 쿼터: %s%s" % (quota, " · 구매 크레딧 보유(소진 후 과금 위험)" if credits else ""))
+    elif session.agent == "grok" and session.billing:
+        lines.append("- 쿼터: Grok credits %g%% (~%s 리셋, %s)" % (
+            session.billing["used_percent"], kst(session.billing["reset"]), session.billing["source"]))
     lines.append("- 트리거: %s" % (", ".join(row["triggers"]) or "없음"))
     lines.append("- 스냅숏 시각: %s" % kst(current))
     lines += ["", "## 최근 사용자 메시지 (최대 3)"]
@@ -664,10 +936,17 @@ def snapshot_text(session, row, current, user_cap, agent_cap):
 
 def snapshot(args):
     path = Path(args.file)
+    _SIDE_CACHE.clear()
     with open(path, "rb") as stream:
         head = stream.read(4096)
-    is_codex = path.name.startswith("rollout-") or b'"type":"session_meta"' in head
-    session = parse_codex(path, deep=True) if is_codex else parse_claude(path, deep=True)
+    if path.name == "updates.jsonl":
+        session = parse_grok(path, deep=True)
+    elif path.name == "transcript.jsonl":
+        session = parse_agy(path, deep=True)
+    elif path.name.startswith("rollout-") or b'"type":"session_meta"' in head:
+        session = parse_codex(path, deep=True)
+    else:
+        session = parse_claude(path, deep=True)
     current = now()
     row = evaluate(session, current, args.threshold_min)
     text, hidden = "", 0
@@ -699,9 +978,12 @@ def parser():
     p.add_argument("--json", action="store_true")
     p.add_argument("--codex-root")
     p.add_argument("--claude-root")
+    p.add_argument("--grok-root", help="Grok CLI sessions folder (default ~/.grok/sessions)")
+    p.add_argument("--agy-root", help="agy brain folder (default ~/.gemini/antigravity-cli/brain)")
     p.add_argument("--fail-on-trigger", action="store_true")
     p = sub.add_parser("snapshot", help="write interject evidence for one session")
-    p.add_argument("--file", required=True)
+    p.add_argument("--file", required=True, help="Codex rollout, Claude transcript, Grok updates.jsonl "
+                                                 "or agy transcript.jsonl")
     p.add_argument("--out")
     p.add_argument("--threshold-min", type=float, default=45)
     return top

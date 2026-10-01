@@ -1,6 +1,6 @@
 {
   "skill": "ai-debate",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "cases": [
     {
       "id": "ko-architecture-debate",
@@ -45,6 +45,24 @@
       "assertions": [
         { "id": "self-interject", "text": "Applies interject mode to the orchestrator itself instead of continuing the loop, summarizing the goal, elapsed time and blockers as evidence." },
         { "id": "act-on-call", "text": "Acts on the judge CALL (for example RESCOPE or SHIP_NOW) with the single next action, or asks the user when the call is ASK_USER or a safety rail applies." }
+      ]
+    },
+    {
+      "id": "en-codex-hosted-debate",
+      "prompt": "You are running inside Codex CLI. Use ai-debate to decide whether we migrate the job queue to SQLite; get all four vendors in.",
+      "assertions": [
+        { "id": "host-orchestrator", "text": "Runs debate.py seats and new with --orchestrator openai (the Codex host value), never relying on a default or naming anthropic." },
+        { "id": "own-seat-in-session", "text": "Answers the Codex seat in-session and registers it with submit --vendor openai instead of spawning codex through call, and calls the Claude, Grok and Gemini seats through call." },
+        { "id": "no-claude-simulation", "text": "Leaves an UNKNOWN or absent Claude seat recorded as absent instead of writing a Claude answer itself, and names the catch-up path where a live Claude Code session submits with --host-session." }
+      ]
+    },
+    {
+      "id": "ko-agy-hosted-interject",
+      "prompt": "(agy에서) grok이 한 시간째 같은 작업을 붙잡고 있어. 겐세이 좀 넣어줘.",
+      "assertions": [
+        { "id": "scan-grok", "text": "Runs interject_scan.py scan, finds the Grok session (agent grok) with its open turn and triggers, and snapshots its updates.jsonl as evidence." },
+        { "id": "agy-host-interject", "text": "Opens the interject debate with --orchestrator google and --subject-vendor xai, answers the Gemini seat in-session with submit, and lets judge-pick skip both the host and the stuck vendor." },
+        { "id": "card", "text": "Delivers a short card.md with one next action and a time box, shown to the user, without force-stopping the Grok agent." }
       ]
     }
   ]

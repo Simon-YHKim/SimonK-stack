@@ -6,6 +6,11 @@ marked ABSENT and its CLI is never spawned, so purchased credits or on-demand
 balances are not touched. Headless Claude draws a credit that cannot be read
 locally, so it is UNKNOWN and runs only with --accept-unknown. Prompts are
 text-only and capped at 24000 characters.
+
+Any of the four CLIs can host: the host names its own vendor with
+--orchestrator, answers its own seat in-session and registers it with submit.
+Another vendor's live interactive session can answer that vendor's seat with
+submit --host-session <id>, proven by its local transcript.
 """
 from __future__ import annotations
 
@@ -74,6 +79,33 @@ SECRET_ASSIGN_RE = re.compile(r"(?i)(api[_-]?key|token|secret|password)(\s*[=:]\
 PROMPT_KEYS = ("truncated", "prompt", "anon", "inputs", "positions_count", "judge_wrote_position",
                "cmdline_chars")
 SCRIPT = Path(__file__).resolve()
+HOST_TABLE = "Claude Code → anthropic · Codex → openai · Grok CLI → xai · agy (Antigravity) → google"
+HOST_SESSION_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{7,127}")
+UUID_RE = re.compile(r"[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}")
+HOST_LIVE = timedelta(minutes=30)
+HOST_SKEW = timedelta(minutes=5)
+HOST_SCAN_BYTES = 4 * 1024 * 1024  # Claude entrypoint / Codex session_meta are read line by line up to here
+HOST_SCAN_LINES = 2000
+HOST_BIND_TAIL = 16 * 1024 * 1024  # tail of the session's own transcript searched for the binding
+HOST_BIND_EXTRA = 2 * 1024 * 1024  # per side file (Claude subagent transcripts, tool-results)
+HOST_BIND_FILES = 64
+HOST_BIND_BUDGET = 48 * 1024 * 1024
+BIND_PREFIX, BIND_MIN = 200, 40
+# Interactive values confirmed on this machine's real transcripts (2026-10-02, bounded reads).
+CLAUDE_INTERACTIVE = ("cli", "claude-desktop")
+CODEX_INTERACTIVE = ("cli", "vscode")
+HOST_LAYOUT = {"anthropic": "<projects>/*/<id>.jsonl", "openai": "<sessions>/**/rollout-*-<id>.jsonl",
+               "xai": "<sessions>/*/<id>/updates.jsonl",
+               "google": "<brain>/<id>/.system_generated/logs/transcript.jsonl"}
+# Variables a host CLI exports to the shells it spawns. Claude Code: seen in this environment.
+# Codex: CODEX_THREAD_ID / CODEX_SANDBOX per a local note of a live `codex exec` env capture (0.147.0)
+# and present in codex.exe 0.155.0. Grok and agy exports are unconfirmed, so their names are recorded only.
+HOST_MARKERS = {"anthropic": ("CLAUDECODE", "CLAUDE_CODE_ENTRYPOINT"), "openai": ("CODEX_THREAD_ID", "CODEX_SANDBOX")}
+MARKER_PREFIXES = ("GROK_", "ANTIGRAVITY_", "AGY_")
+MARKER_SKIP = frozenset({"GROK_HOME"})
+QUOTA_GATED = ("openai", "xai")  # their spent windows bill purchased credit, even in an interactive session
+UNDECLARED = "미신고"
+AGY_EFFORTS = ("minimal", "low", "medium", "high", "xhigh", "max")
 
 LENS_TEXT = {
     "proponent": "옹호자. 선택지 중 가장 유력한 하나를 골라 그것이 이기는 가장 강한 논거를 세운다. "
@@ -674,7 +706,7 @@ def seat_openai(cmd):
         if has_credits:
             reason += "; further calls would bill purchased credits"
             short += ", 구매 크레딧 과금 위험"
-        return seat_row("openai", "ABSENT", reason, short, reset, evidence, cmd)
+        return seat_row("openai", "ABSENT", reason, short, reset, evidence, cmd, spent=True)
     if any(u >= threshold for u, _r, _m in windows.values()):
         return seat_row("openai", "READY", "window reset since snapshot", "리셋됨",
                         evidence=evidence, cli=cmd)
@@ -738,7 +770,7 @@ def seat_xai(cmd):
         if paid:
             reason += "; on-demand or prepaid balance present, further calls could bill it"
         return seat_row("xai", "ABSENT", reason, "402" + (" ~" + kst(end) if end else ""),
-                        end, evidence, cmd)
+                        end, evidence, cmd, spent=True)
     note = "; on-demand or prepaid balance present" if paid else ""
     return seat_row("xai", "READY", "credit usage %g%%%s" % (pct, note), "쿼터 %g%%" % pct,
                     evidence=evidence, cli=cmd)
@@ -829,7 +861,7 @@ def seat_google(cmd, probe):
     names = ", ".join(str(b.get("id") or b["kind"]) for b in spent)
     return seat_row("google", "ABSENT", "Gemini %s exhausted%s" % (
         names, " until " + kst(reset) if reset else ""),
-        "쿼터 0" + (" ~" + kst(reset) if reset else ""), reset, evidence, cmd)
+        "쿼터 0" + (" ~" + kst(reset) if reset else ""), reset, evidence, cmd, spent=True)
 
 
 def bridge_time(data, path):
@@ -865,10 +897,7 @@ def latest_bridge():
     return best
 
 
-def seat_anthropic(cmd, orchestrator):
-    if orchestrator == "anthropic":
-        return seat_row("anthropic", "READY", "in-session subagent; register with submit",
-                        "세션 내", in_session=True)
+def seat_anthropic(cmd):
     if not cmd:
         return seat_row("anthropic", "ABSENT", "claude CLI not found", "CLI 없음")
     note = "headless claude -p draws the separate headless credit, which is not verifiable locally"
@@ -894,7 +923,7 @@ def seat_anthropic(cmd, orchestrator):
         used, end, window = max(spent, key=lambda s: s[0])
         return seat_row("anthropic", "ABSENT", "%s %g%% used (>= %g%%)%s" % (
             window, used, threshold, " until " + kst(end) if end else ""),
-            "쿼터 %g%%%s" % (used, " ~" + kst(end) if end else ""), end, evidence, cmd)
+            "쿼터 %g%%%s" % (used, " ~" + kst(end) if end else ""), end, evidence, cmd, spent=True)
     if not fresh:
         detail = "bridge captured %s is older than 6h" % kst(captured)
     elif len(seen) < 2:
@@ -905,15 +934,355 @@ def seat_anthropic(cmd, orchestrator):
                     evidence=evidence, cli=cmd)
 
 
+def quota_seat(vendor, probe=True):
+    """Quota evidence for `vendor` whoever hosts and whether or not its CLI is installed (no model call)."""
+    cmd = resolve_cmd(vendor)
+    stand_in = cmd or [BINARIES[vendor]]
+    if vendor == "openai":
+        return seat_openai(stand_in)
+    if vendor == "xai":
+        return seat_xai(stand_in)
+    if vendor == "google":
+        return seat_google(stand_in, probe and bool(cmd))
+    return seat_anthropic(stand_in)
+
+
+def host_seat(vendor):
+    """The host CLI answers its own seat in-session (nothing is spawned), but a Codex or Grok host still
+    spends its own subscription: a spent window there bills purchased credit, so that seat is ABSENT."""
+    row = seat_row(vendor, "READY", "in-session (host vendor); register with submit", "세션 내", in_session=True)
+    if vendor not in QUOTA_GATED:
+        return row
+    quota = quota_seat(vendor)
+    row["evidence"] = quota.get("evidence") or {}
+    row["quota"] = {k: quota.get(k) for k in ("status", "reason", "short", "reset_kst")}
+    if quota["status"] == "ABSENT":
+        row.update(status="ABSENT", spent=True, host_over_quota=True, reset_kst=quota.get("reset_kst"),
+                   short="호스트 " + (quota.get("short") or "쿼터 소진"),
+                   reason="WARNING the host is over quota: this %s session itself would spend purchased credit "
+                          "(%s); do not answer in-session until the reset" % (DISPLAY[vendor], quota["reason"]))
+    return row
+
+
 def seat_for(vendor, orchestrator, probe=True):
-    cmd = resolve_cmd(vendor) if not (vendor == "anthropic" and orchestrator == "anthropic") else None
+    if vendor == orchestrator:
+        return host_seat(vendor)
+    cmd = resolve_cmd(vendor)
     if vendor == "openai":
         return seat_openai(cmd)
     if vendor == "xai":
         return seat_xai(cmd)
     if vendor == "google":
         return seat_google(cmd, probe)
-    return seat_anthropic(cmd, orchestrator)
+    return seat_anthropic(cmd)
+
+
+def require_orchestrator(value):
+    if value not in VENDORS:
+        raise DebateError("--orchestrator is required: name the vendor of the CLI that runs this debate "
+                          "(%s)" % HOST_TABLE)
+    return value
+
+
+def env_markers(env=None):
+    """Host CLI variables in this shell. Confirmed markers keep their values; other vendor-prefixed names are
+    recorded by name only (they may hold tokens)."""
+    env = os.environ if env is None else env
+    vendors, values = [], {}
+    for vendor, names in HOST_MARKERS.items():
+        hit = {name: condense(env[name], 80) for name in names if env.get(name)}
+        if hit:
+            vendors.append(vendor)
+            values.update(hit)
+    others = sorted(k for k in env if k.upper().startswith(MARKER_PREFIXES) and k.upper() not in MARKER_SKIP)
+    return {"vendors": vendors, "values": values, "other_names": others}
+
+
+def marker_vendor(markers):
+    """The one vendor the markers clearly name, else None (none, or nested CLIs with inherited markers)."""
+    return markers["vendors"][0] if len(markers["vendors"]) == 1 else None
+
+
+def check_host(orchestrator, override):
+    """--orchestrator against this shell's host markers: a clear mismatch exits 2 unless overridden."""
+    markers = env_markers()
+    seen = marker_vendor(markers)
+    if seen and seen != orchestrator and not override:
+        raise DebateError("--orchestrator %s does not match this shell: %s says the running CLI is %s. Use "
+                          "--orchestrator %s, or pass --orchestrator-override if those variables were inherited "
+                          "from another CLI" % (orchestrator, ", ".join("%s=%s" % kv for kv in
+                                                                         sorted(markers["values"].items())),
+                                                DISPLAY[seen], seen))
+    return markers
+
+
+def check_plain_submit(agenda, vendor):
+    """A plain submit registers the stored host's own seat. A shell whose markers clearly name another CLI must
+    prove a live session of that vendor instead (--host-session), unless the debate was opened overriding them."""
+    seen = marker_vendor(env_markers())
+    if seen and seen != vendor and not agenda.get("orchestrator_override"):
+        raise DebateError("this shell's environment says the running CLI is %s, but %s is the stored host's own "
+                          "seat (orchestrator %s): register it from a live %s session with --host-session <its "
+                          "session id>" % (DISPLAY[seen], DISPLAY[vendor], agenda["orchestrator"], DISPLAY[vendor]))
+
+
+# ---------------------------------------------------------------- host sessions (no model calls)
+
+def host_roots():
+    home = Path.home()
+    claude = Path(os.environ.get("CLAUDE_CONFIG_DIR") or home / ".claude") / "projects"
+    codex = Path(os.environ.get("CODEX_HOME") or home / ".codex") / "sessions"
+    grok = Path(os.environ.get("GROK_HOME") or home / ".grok") / "sessions"
+    agy = home / ".gemini" / "antigravity-cli" / "brain"
+    return {"anthropic": Path(os.environ.get("AI_DEBATE_CLAUDE_PROJECTS") or claude),
+            "openai": Path(os.environ.get("AI_DEBATE_CODEX_SESSIONS") or codex),
+            "xai": Path(os.environ.get("AI_DEBATE_GROK_SESSIONS") or grok),
+            "google": Path(os.environ.get("AI_DEBATE_AGY_BRAIN") or agy)}
+
+
+def host_candidates(vendor, root, sid):
+    if not root.is_dir():
+        return []
+    if vendor == "anthropic":
+        return [folder / (sid + ".jsonl") for folder in root.iterdir() if folder.is_dir()]
+    if vendor == "xai":
+        return [folder / sid / "updates.jsonl" for folder in root.iterdir() if folder.is_dir()]
+    if vendor == "google":
+        return [root / sid / ".system_generated" / "logs" / "transcript.jsonl"]
+    suffix = ("-" + sid + ".jsonl").lower()  # rollout-<time>-<uuid>.jsonl: the name ends with the exact id
+    found = []
+    for dirpath, _dirs, names in os.walk(root):
+        for name in names:
+            if name.startswith("rollout-") and name.lower().endswith(suffix):
+                found.append(Path(dirpath) / name)
+    return found
+
+
+def first_entrypoint(path):
+    """`entrypoint` of the first Claude record that carries one, read line by line within the scan bound."""
+    budget = HOST_SCAN_BYTES
+    with open(path, "rb") as stream:
+        for _count in range(HOST_SCAN_LINES):
+            if budget <= 0:
+                break
+            line = stream.readline(budget)
+            if not line:
+                break
+            budget -= len(line)
+            if b'"entrypoint"' not in line:
+                continue
+            try:
+                record = json.loads(line)
+            except ValueError:
+                continue
+            if isinstance(record, dict) and "entrypoint" in record:
+                return record["entrypoint"]
+    return None
+
+
+def codex_session_meta(path):
+    """Payload of the session_meta record that opens a rollout (its first line, within the scan bound)."""
+    with open(path, "rb") as stream:
+        line = stream.readline(HOST_SCAN_BYTES)
+    try:
+        record = json.loads(line)
+    except ValueError:
+        return None
+    if isinstance(record, dict) and record.get("type") == "session_meta" and isinstance(record.get("payload"), dict):
+        return record["payload"]
+    return None
+
+
+def interactive_proof(vendor, path, root, sid):
+    """(proof, None) on positive evidence of an interactive session, else (None, reason): fails closed."""
+    if vendor == "anthropic":
+        entry = first_entrypoint(path)
+        if entry in CLAUDE_INTERACTIVE:
+            return "entrypoint %s" % entry, None
+        if entry is None:
+            return None, ("no entrypoint record in the first %d lines / %d MB"
+                          % (HOST_SCAN_LINES, HOST_SCAN_BYTES >> 20))
+        if isinstance(entry, str) and entry.startswith("sdk-"):
+            return None, "entrypoint %s (claude -p / SDK)" % entry
+        return None, "entrypoint %r is not a confirmed interactive value (%s)" % (entry, ", ".join(CLAUDE_INTERACTIVE))
+    if vendor == "openai":
+        payload = codex_session_meta(path)
+        if payload is None:
+            return None, "the rollout does not open with a readable session_meta record"
+        if payload.get("thread_source") == "subagent":
+            return None, "Codex thread_source subagent"
+        source = payload.get("source")
+        if isinstance(source, str) and source in CODEX_INTERACTIVE:
+            return "source %s" % source, None
+        kind = "{%s}" % ",".join(source) if isinstance(source, dict) else source
+        return None, "Codex session source %s (interactive: %s)" % (kind, ", ".join(CODEX_INTERACTIVE))
+    if vendor == "xai":
+        summary = read_json(path.parent / "summary.json")
+        if not isinstance(summary, dict):
+            return None, "no readable summary.json next to updates.jsonl"
+        kind = summary.get("session_kind")
+        if kind is None:  # interactive Grok sessions carry no session_kind; headless runs record "headless"
+            return "summary.json without session_kind", None
+        if kind == "headless":
+            return None, "Grok session_kind headless"
+        return None, "Grok session_kind %r is not a confirmed interactive value" % (kind,)
+    if agy_history_lists(root, sid):
+        return "listed in history.jsonl", None
+    return None, ("conversation not listed in %s (a one-shot agy --print run)"
+                  % (root.parent / "history.jsonl").as_posix())
+
+
+def agy_history_lists(root, sid):
+    history = root.parent / "history.jsonl"
+    try:
+        lines = tail_lines(history, 4 * 1024 * 1024)
+    except OSError:
+        return False
+    for line in lines:
+        try:
+            record = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(record, dict) and record.get("conversationId") == sid:
+            return True
+    return False
+
+
+def squash(text):
+    return " ".join(text.split())
+
+
+def leaf_strings(node, depth=0):
+    """Every string in a JSON record; JSON-encoded strings (Codex arguments, agy args) are unwrapped too."""
+    if isinstance(node, str):
+        yield node
+        inner = node.strip()
+        if depth < 2 and len(inner) > 1 and inner[0] in "{[\"" and inner[-1] in "}]\"":
+            try:
+                value = json.loads(inner)
+            except ValueError:
+                return
+            yield from leaf_strings(value, depth + 1)
+    elif isinstance(node, dict):
+        for value in node.values():
+            yield from leaf_strings(value, depth)
+    elif isinstance(node, list):
+        for value in node:
+            yield from leaf_strings(value, depth)
+
+
+def binding_files(vendor, path):
+    """The session's own record: its transcript, plus Claude Code's per-session subagent and tool-result files."""
+    files = [(path, HOST_BIND_TAIL)]
+    side = path.with_suffix("") if vendor == "anthropic" else None
+    if side is not None and side.is_dir():
+        extra = []
+        for item in side.rglob("*"):
+            if item.suffix not in (".jsonl", ".txt"):
+                continue
+            try:
+                if item.is_file():
+                    extra.append((item.stat().st_mtime, item))
+            except OSError:
+                continue
+        files += [(item, HOST_BIND_EXTRA) for _m, item in sorted(extra, reverse=True)[:HOST_BIND_FILES]]
+    return files
+
+
+def session_binding(vendor, path, inputs_sha, answer_text):
+    """('fingerprint' | 'answer', file) when the session's own record holds this prompt's input fingerprint or
+    the answer's first 200 characters (whitespace-normalized, at least 40); (None, None) otherwise."""
+    token = inputs_sha.encode("ascii") if inputs_sha else None
+    needle = squash(answer_text)[:BIND_PREFIX]
+    needle = needle if len(needle) >= BIND_MIN else None
+    budget = HOST_BIND_BUDGET
+    for item, limit in binding_files(vendor, path):
+        if budget <= 0:
+            break
+        try:
+            lines = tail_lines(item, min(limit, budget))
+        except OSError:
+            continue
+        budget -= sum(len(line) + 1 for line in lines)
+        if token and any(token in line for line in lines):
+            return "fingerprint", item
+        if not needle:
+            continue
+        if item.suffix == ".txt":
+            if needle in squash(b"\n".join(lines).decode("utf-8", "replace")):
+                return "answer", item
+            continue
+        for line in lines:
+            try:
+                record = json.loads(line)
+            except ValueError:
+                continue
+            if any(needle in squash(text) for text in leaf_strings(record)):
+                return "answer", item
+    return None, None
+
+
+def prove_host_session(vendor, sid, inputs_sha, answer_text):
+    """A live interactive `vendor` session on this machine (transcript written in the last 30 min) whose own
+    record is bound to this answer. Every check fails closed."""
+    if not isinstance(sid, str) or not HOST_SESSION_RE.fullmatch(sid) or sid.endswith("."):
+        raise DebateError("--host-session must be the live session id (8-128 of A-Z a-z 0-9 . _ -, "
+                          "alphanumeric first): %r" % (sid,))
+    if vendor == "openai" and not UUID_RE.fullmatch(sid):
+        raise DebateError("a Codex --host-session is the rollout UUID (the 36-character id that ends "
+                          "rollout-<time>-<id>.jsonl): %r" % (sid,))
+    root = host_roots()[vendor]
+    best = None
+    for path in host_candidates(vendor, root, sid):
+        try:
+            mtime = datetime.fromtimestamp(path.stat().st_mtime, timezone.utc)
+        except (OSError, ValueError, OverflowError):
+            continue
+        if best is None or mtime > best[0]:
+            best = (mtime, path)
+    if best is None:
+        raise DebateError("no live %s session %s on this machine: expected %s under %s"
+                          % (DISPLAY[vendor], sid, HOST_LAYOUT[vendor], root.as_posix()))
+    mtime, path = best
+    age = now() - mtime
+    if age > HOST_LIVE or age < -HOST_SKEW:
+        raise DebateError("%s session %s is not live: %s was last written %s (%.0f min ago; must be within %d min)"
+                          % (DISPLAY[vendor], sid, path.as_posix(), kst(mtime), age.total_seconds() / 60,
+                             HOST_LIVE.total_seconds() // 60))
+    try:
+        proof, problem = interactive_proof(vendor, path, root, sid)
+    except OSError as exc:
+        proof, problem = None, "unreadable transcript: %s" % (exc.strerror or exc)
+    if problem:
+        raise DebateError("%s session %s is not interactive (%s); only a live interactive session can answer "
+                          "a seat in-session" % (DISPLAY[vendor], sid, problem))
+    bound_by, bound_in = session_binding(vendor, path, inputs_sha, answer_text)
+    if not bound_by:
+        raise DebateError("%s session %s is not bound to this answer: its own record holds neither this prompt's "
+                          "input fingerprint (%s..., printed by prompt and written in the prompt file) nor the "
+                          "answer's first %d characters; run prompt and write the answer from that session"
+                          % (DISPLAY[vendor], sid, (inputs_sha or "")[:12], BIND_PREFIX))
+    evidence = {"vendor": vendor, "path": path.as_posix(), "modified_at": stamp(mtime),
+                "age_min": round(age.total_seconds() / 60, 1), "interactive": proof,
+                "bound_by": bound_by, "bound_in": bound_in.as_posix()}
+    if vendor == "google":
+        evidence["history_listed"] = True
+    return evidence
+
+
+def session_conflict(folder, vendor, ids):
+    """(vendor, round, id) when another vendor's answer in this debate already used one of `ids`."""
+    for rnd in ROUNDS:
+        for other in VENDORS:
+            if other == vendor:
+                continue
+            row = meta(folder, rnd, other)
+            if row.get("status") != "ok":
+                continue
+            hit = {row.get("host_session"), row.get("session_id")} & ids
+            if hit:
+                return other, rnd, sorted(hit)[0]
+    return None
 
 
 def compute_seats(orchestrator, probe=True):
@@ -985,6 +1354,24 @@ def judge_vendor(folder):
         return vendor
     done = ok_vendors(folder, "judge")
     return done[0] if done else (vendor if vendor in VENDORS else None)
+
+
+def check_judge_seat(folder, agenda, vendor, require_pick):
+    """The judge round belongs to the vendor judge-pick recorded; the interject subject never judges."""
+    if vendor == agenda.get("subject_vendor"):
+        raise DebateError("%s is the interject subject (the agent under review): it never judges its own case"
+                          % DISPLAY[vendor])
+    picked = read_json(folder / "judge.json")
+    chosen = picked.get("vendor") if isinstance(picked, dict) else None
+    if chosen not in VENDORS:
+        if require_pick:
+            raise DebateError("no judge chosen yet: run judge-pick first; only the seat it picks answers the "
+                              "judge round")
+        return {}
+    if chosen != vendor:
+        raise DebateError("judge-pick chose %s for this debate; %s cannot answer the judge round (re-run "
+                          "judge-pick if that seat became unavailable)" % (DISPLAY[chosen], DISPLAY[vendor]))
+    return picked
 
 
 def check_round_open(folder, rnd):
@@ -1187,17 +1574,20 @@ def fit(blocks, cap=PROMPT_CAP):
     return text, truncated
 
 
-def fingerprint(used):
-    digest = hashlib.sha256()
+def fingerprint(used, seat):
+    """Input fingerprint of one prompt. The seat (debate/round/vendor) salts it, so even an r1 prompt with no
+    answers behind it has its own value, which binds a --host-session answer to this prompt."""
+    digest = hashlib.sha256(("%s\0" % seat).encode("utf-8"))
     for rnd, vendor, text in sorted(used):
         digest.update(("%s/%s\0%s\0" % (rnd, vendor, text)).encode("utf-8"))
     return {"present": sorted({v for _r, v, _t in used}), "sha256": digest.hexdigest()}
 
 
-def seat_card(agenda, label, role):
+def seat_card(agenda, label, role, inputs_sha):
     return ("# 좌석 카드\n- 토론 ID: %s\n- 모드: %s\n- 라운드: %s\n- 역할: %s\n"
             "- 원칙: 다른 위원의 정체는 가려져 있다. 근거 자료에 없는 사실을 지어내지 말고 "
-            "추정은 추정이라고 표시한다.\n\n" % (agenda["id"], agenda["mode"], label, role))
+            "추정은 추정이라고 표시한다.\n- 입력 지문: %s\n\n" % (agenda["id"], agenda["mode"], label, role,
+                                                         inputs_sha))
 
 
 def agenda_blocks(agenda, with_evidence=True):
@@ -1241,6 +1631,9 @@ def build_prompt(folder, agenda, rnd, vendor, cap=PROMPT_CAP):
     footer = ("footer", "\n" + FOOTER + "\n", False)
     extra, used = {}, []
 
+    def card(label, role):  # filled in once the input fingerprint is known
+        return (label, role)
+
     def take(r, v):
         text = answer(folder, r, v)
         if text is not None:
@@ -1249,8 +1642,7 @@ def build_prompt(folder, agenda, rnd, vendor, cap=PROMPT_CAP):
 
     if rnd == "r1":
         lens_text = (INTERJECT_LENS_TEXT if mode == "interject" else LENS_TEXT)[lens]
-        blocks = [("card", seat_card(agenda, "r1 (독립 입장)", "패널 위원 · 렌즈: %s (%s)"
-                                      % (lens, LENS_KO[lens])), False),
+        blocks = [("card", card("r1 (독립 입장)", "패널 위원 · 렌즈: %s (%s)" % (lens, LENS_KO[lens])), False),
                   ("lens", "## 렌즈\n" + lens_text + "\n\n", False)]
         blocks += agenda_blocks(agenda)
         blocks += [("instructions", INTERJECT_R1_INSTR if mode == "interject" else R1_INSTR, False),
@@ -1262,8 +1654,7 @@ def build_prompt(folder, agenda, rnd, vendor, cap=PROMPT_CAP):
         if not others:
             raise DebateError("r2 needs at least one other r1 answer")
         others.sort(key=lambda v: order_key(agenda["id"], vendor, "r2", v))
-        blocks = [("card", seat_card(agenda, "r2 (교차검증)", "패널 위원 · 렌즈: %s (%s)"
-                                      % (lens, LENS_KO[lens])), False),
+        blocks = [("card", card("r2 (교차검증)", "패널 위원 · 렌즈: %s (%s)" % (lens, LENS_KO[lens])), False),
                   ("lens", "## 렌즈\n" + LENS_TEXT[lens] + "\n\n", False)]
         blocks += agenda_blocks(agenda)
         # A fresh-session seat cannot remember round 1, so its own stance travels in its own
@@ -1285,7 +1676,7 @@ def build_prompt(folder, agenda, rnd, vendor, cap=PROMPT_CAP):
         if len(positions) < 2:
             raise DebateError("judge needs at least 2 r1 positions (have %d): not a debate"
                               % len(positions))
-        blocks = [("card", seat_card(agenda, "judge (판정)", "심판 · 새 세션 · 블라인드"), False)]
+        blocks = [("card", card("judge (판정)", "심판 · 새 세션 · 블라인드"), False)]
         blocks += agenda_blocks(agenda)
         blocks.append(("positions_head", "## 입장 (익명, 순서 무작위)\n", False))
         blocks += positions
@@ -1300,8 +1691,7 @@ def build_prompt(folder, agenda, rnd, vendor, cap=PROMPT_CAP):
             raise DebateError("%s needs a completed judge answer" % rnd)
         positions, mapping = anon_positions(folder, agenda, take)
         role = "추인 위원" if rnd == "ratify" else "후속 합류 위원 (토론 당시 불참)"
-        blocks = [("card", seat_card(agenda, "%s (%s)" % (rnd, "추인" if rnd == "ratify" else "후속 합류"),
-                                     role), False)]
+        blocks = [("card", card("%s (%s)" % (rnd, "추인" if rnd == "ratify" else "후속 합류"), role), False)]
         blocks += agenda_blocks(agenda)
         blocks += [("verdict_head", "## 판정\n", False), ("verdict", verdict.strip() + "\n\n", True),
                    ("positions_head", "## 입장 (익명)\n", False)]
@@ -1310,8 +1700,10 @@ def build_prompt(folder, agenda, rnd, vendor, cap=PROMPT_CAP):
         extra["anon"] = mapping
     else:
         raise DebateError("unknown round %s" % rnd)
+    extra["inputs"] = fingerprint(used, "%s/%s/%s" % (agenda["id"], rnd, vendor))
+    blocks = [(name, seat_card(agenda, *text, extra["inputs"]["sha256"]) if name == "card" else text, flag)
+              for name, text, flag in blocks]
     text, truncated = fit(blocks, cap)
-    extra["inputs"] = fingerprint(used)
     return text, truncated, extra
 
 
@@ -1327,7 +1719,8 @@ def write_prompt(folder, agenda, rnd, vendor, cap=PROMPT_CAP):
     row.update(extra)
     row.setdefault("status", "prompted")
     write_json(rpath(folder, rnd, vendor, ".meta.json"), row)
-    return {"vendor": vendor, "path": path.as_posix(), "chars": len(text), "truncated": truncated}
+    return {"vendor": vendor, "path": path.as_posix(), "chars": len(text), "truncated": truncated,
+            "inputs_sha256": extra["inputs"]["sha256"]}
 
 
 def default_vendors(folder, agenda, rnd):
@@ -1366,11 +1759,10 @@ def vendor_argv(vendor, cmd, work, folder, rnd, model, effort, timeout, prompt_t
                       "--no-subagents", "--disable-web-search", "--tools", "",
                       "--disallowed-tools", "Agent", "--deny", "MCPTool", "--sandbox", "read-only"]
     elif vendor == "google":
+        # agy has no effort flag; the effort already sits in the model name (agy_model).
         limit = max(30, int(timeout) - 30)
         argv = cmd + ["--print", prompt_text, "--model", model, "--mode", "plan", "--sandbox",
                       "--output-format", "json", "--print-timeout", "%ds" % limit]
-        if effort:
-            argv += ["--effort", effort]
         info["redact"] = len(cmd) + 1
     else:
         info["stdin"] = prompt_path
@@ -1379,6 +1771,20 @@ def vendor_argv(vendor, cmd, work, folder, rnd, model, effort, timeout, prompt_t
                       "--output-format", "json", "-p",
                       "Follow only the task supplied via standard input."]
     return argv, info
+
+
+def agy_model(model, effort):
+    """agy takes the effort as the model-name suffix (gemini-3.1-pro-high); returns (model, effort)."""
+    base, current = model, None
+    for level in AGY_EFFORTS:
+        if model.endswith("-" + level):
+            base, current = model[:-len(level) - 1], level
+            break
+    if not effort:
+        return model, current
+    if not re.fullmatch(r"[a-z][a-z0-9]{0,15}", effort):
+        raise DebateError("agy effort is a model-name suffix such as low or high, not %r" % effort)
+    return base + "-" + effort, effort
 
 
 def cmdline_units(argv):
@@ -1473,9 +1879,12 @@ def settle(folder, rnd, vendor, row, status, reason):
 def do_call(args):
     folder, agenda = load(args.id)
     rnd, vendor = args.round, args.vendor
-    if vendor == "anthropic" and agenda["orchestrator"] == "anthropic":
-        raise DebateError("the Claude seat is an in-session subagent when Claude orchestrates; "
-                          "answer in-session and register it with submit")
+    if vendor == agenda["orchestrator"]:
+        raise DebateError("the %s seat is the host's own seat (orchestrator %s): answer it in-session "
+                          "(a fresh subagent where the host has one) and register it with submit"
+                          % (DISPLAY[vendor], vendor))
+    if rnd == "judge":
+        check_judge_seat(folder, agenda, vendor, require_pick=False)
     if meta(folder, rnd, vendor).get("status") == "ok":
         raise DebateError("%s %s already answered; remove its files to redo" % (rnd, vendor))
     check_round_open(folder, rnd)
@@ -1492,6 +1901,8 @@ def call_locked(args, folder, agenda):
         raise DebateError("%s %s already answered; remove its files to redo" % (rnd, vendor))
     model = args.model or DEFAULTS[vendor][0]
     effort = args.effort or DEFAULTS[vendor][1]
+    if vendor == "google":
+        model, effort = agy_model(model, args.effort)
     seat = seat_for(vendor, orchestrator, probe=True)
     row = meta(folder, rnd, vendor)
     row.update({"vendor": vendor, "round": rnd, "model": model, "effort": effort,
@@ -1572,9 +1983,15 @@ def call_locked(args, folder, agenda):
 def do_submit(args):
     folder, agenda = load(args.id)
     rnd, vendor, orchestrator = args.round, args.vendor, agenda["orchestrator"]
-    if vendor != orchestrator:
-        raise DebateError("submit registers only the orchestrator's in-session answer (orchestrator %s); "
-                          "seat %s must answer through call" % (orchestrator, vendor))
+    if vendor != orchestrator and not args.host_session:
+        raise DebateError("submit registers the host's own seat (orchestrator %s) in-session; seat %s answers "
+                          "through call, or from a live %s session with --host-session <its session id>"
+                          % (orchestrator, vendor, DISPLAY[vendor]))
+    if args.host_session and args.session and args.session != args.host_session:
+        raise DebateError("--session and --host-session name different sessions; pass one id")
+    if not args.host_session:
+        check_plain_submit(agenda, vendor)
+    picked = check_judge_seat(folder, agenda, vendor, require_pick=True) if rnd == "judge" else None
     if meta(folder, rnd, vendor).get("status") == "ok":
         raise DebateError("%s %s already answered; remove its files to redo" % (rnd, vendor))
     check_round_open(folder, rnd)
@@ -1588,19 +2005,38 @@ def do_submit(args):
     text = read_input(args.file, "answer file").strip()
     if not text:
         raise DebateError("submitted answer is empty")
+    session = args.host_session or args.session
+    evidence = (prove_host_session(vendor, args.host_session, current["sha256"], text)
+                if args.host_session else None)
+    clash = session_conflict(folder, vendor, {session}) if session else None
+    if clash:
+        raise DebateError("session %s already answered the %s seat (%s) in this debate; one session cannot "
+                          "answer for two vendors" % (clash[2], DISPLAY[clash[0]], clash[1]))
     lock = acquire_lock(folder, rnd, vendor)
     try:
+        if vendor in QUOTA_GATED:  # the answering session spends this subscription: re-read its quota now
+            quota = quota_seat(vendor)
+            if quota["status"] == "ABSENT":
+                row.update({"vendor": vendor, "round": rnd, "cli": "in-session", "short": quota.get("short"),
+                            "readiness": {k: quota.get(k) for k in ("status", "reason", "short", "reset_kst")},
+                            "host_session": args.host_session, "host_session_evidence": evidence})
+                return settle(folder, rnd, vendor, row, "absent",
+                              "quota: %s; the %s session answering in-session would spend purchased credit, so "
+                              "nothing was registered" % (quota["reason"], DISPLAY[vendor]))
         write_text(rpath(folder, rnd, vendor, ".md"), text + "\n")
         moment = stamp(now())
-        row.update({"vendor": vendor, "round": rnd, "cli": "in-session",
-                    "model": args.model or DEFAULTS[vendor][0], "model_declared": bool(args.model),
+        row.update({"vendor": vendor, "round": rnd, "cli": "in-session", "host_vendor": vendor == orchestrator,
+                    "model": args.model or UNDECLARED, "model_declared": bool(args.model),
                     "effort": None, "argv": None, "rc": 0, "started": moment, "ended": moment,
-                    "seconds": None, "status": "ok", "reason": "", "session_id": args.session,
+                    "seconds": None, "status": "ok", "reason": "", "session_id": session,
+                    "host_session": args.host_session, "host_session_evidence": evidence,
                     "source_file": Path(args.file).as_posix(), "answer_inputs": current,
                     "format_warnings": format_warnings(rnd, agenda["mode"], text)})
         row.setdefault("truncated", [])
-        if rnd == "judge":
-            row["independence"] = "same-vendor"
+        if rnd == "judge":  # independence is what judge-pick decided; the host's own vendor is never independent
+            chosen = picked.get("independence")
+            row["independence"] = ("same-vendor" if vendor == orchestrator
+                                   else chosen if chosen in ("independent", "same-vendor") else "independent")
             row["in_session"] = True
         write_json(rpath(folder, rnd, vendor, ".meta.json"), row)
     finally:
@@ -1960,6 +2396,7 @@ def amend_record(args, folder, agenda, st, saved):
 # ---------------------------------------------------------------- commands
 
 def do_seats(args):
+    require_orchestrator(args.orchestrator)
     seats = compute_seats(args.orchestrator, probe=not args.no_probe)
     seats["summary"] = seat_summary(seats["vendors"])
     if args.json:
@@ -1984,8 +2421,8 @@ def record_evidence(evidence, record):
 
 
 def do_new(args):
-    if args.orchestrator not in VENDORS:
-        raise DebateError("unknown orchestrator %s" % args.orchestrator)
+    require_orchestrator(args.orchestrator)
+    markers = check_host(args.orchestrator, args.orchestrator_override)
     prior = None
     if args.reopen_of:
         prior = load(args.reopen_of)
@@ -2039,7 +2476,8 @@ def do_new(args):
               "criteria": criteria, "evidence": evidence, "evidence_file": evidence_file,
               "redacted": redacted, "mode": mode, "orchestrator": args.orchestrator,
               "subject_vendor": subject, "reopen_of": prior[1]["id"] if prior else None,
-              "created_at": stamp(now()), "lenses": lenses}
+              "created_at": stamp(now()), "lenses": lenses, "host_env": markers,
+              "orchestrator_override": bool(args.orchestrator_override)}
     (folder / "rounds").mkdir(parents=True, exist_ok=True)
     write_json(folder / "agenda.json", agenda)
     seats = compute_seats(args.orchestrator, probe=not args.no_probe)
@@ -2081,9 +2519,8 @@ def do_judge_pick(args):
         candidates += [v for v in eligible if seats[v]["status"] == "UNKNOWN"]
     if candidates:
         vendor, independence, in_session = candidates[0], "independent", False
-    else:
-        vendor, independence = orchestrator, "same-vendor"
-        in_session = orchestrator == "anthropic"
+    else:  # the host's own vendor judges in-session, in a fresh subagent where the host has one
+        vendor, independence, in_session = orchestrator, "same-vendor", True
     result = {"vendor": vendor, "independence": independence, "in_session": in_session}
     write_json(folder / "judge.json", dict(result, picked_at=stamp(now()), order=order,
                                            candidates=candidates, subject_vendor=subject,
@@ -2116,37 +2553,60 @@ def all_debates():
 
 
 def do_catchup(args):
-    cache, ready, waiting = {}, [], []
+    """Returned seats of PROVISIONAL debates, judged from the CLI running catchup now (--orchestrator).
+
+    A plain submit is offered only when this CLI is that vendor and the debate's own host. Any other seat is
+    reached by `call` (when the stored host can spawn it) or by a live session of that vendor proving itself
+    with --host-session, and never when that vendor's quota evidence says it is spent."""
+    host = require_orchestrator(args.orchestrator)
+    check_host(host, args.orchestrator_override)
+    seats, quotas, ready, waiting = {}, {}, [], []
     script = 'python -B "%s"' % SCRIPT.as_posix()
+    probe = not args.no_probe
     for folder, agenda in all_debates():
         st = debate_status(folder, agenda)
         if st["state"] != "PROVISIONAL" or not st["catchup_pending"]:
             continue
+        stored = agenda["orchestrator"]
         for vendor in st["catchup_pending"]:
-            key = (vendor, agenda["orchestrator"])
-            if key not in cache:
-                cache[key] = seat_for(vendor, agenda["orchestrator"], probe=not args.no_probe)
-            seat = cache[key]
+            key = (vendor, stored)
+            if key not in seats:
+                seats[key] = seat_for(vendor, stored, probe=probe)
+            seat = seats[key]
+            if vendor not in quotas:  # reuse a CLI seat's own quota reading; else read the evidence directly
+                quotas[vendor] = seat if vendor != stored and seat.get("cli") else quota_seat(vendor, probe)
+            quota = quotas[vendor]
+            own = vendor == host == stored
             item = {"id": agenda["id"], "title": agenda["title"], "vendor": vendor,
-                    "display": DISPLAY[vendor], "readiness": seat["status"],
-                    "reason": seat["reason"], "judge_ok": st["judge"]["ok"]}
-            if seat["status"] != "READY":
-                waiting.append(item)
-                continue
+                    "display": DISPLAY[vendor], "readiness": seat["status"], "reason": seat["reason"],
+                    "judge_ok": st["judge"]["ok"], "debate_orchestrator": stored, "current_host": host}
+            if vendor == stored and not own:
+                item["readiness"] = "ABSENT" if quota["status"] == "ABSENT" else "HOST_SESSION"
+                item["reason"] = (quota["reason"] if quota["status"] == "ABSENT" else
+                                  "the debate host's own seat (orchestrator %s) and the current host is %s: only "
+                                  "a live %s session can answer it (--host-session)"
+                                  % (stored, host, DISPLAY[vendor]))
+            base = "%s %%s --id %s --round catchup --vendor %s" % (script, agenda["id"], vendor)
+            if (folder / "record.json").is_file():
+                item["then"] = "%s record --id %s --amend" % (script, agenda["id"])
             if not st["judge"]["ok"]:
                 item["note"] = "judge pending: run judge-pick and the judge round first"
                 waiting.append(item)
                 continue
-            base = "%s %%s --id %s --round catchup --vendor %s" % (script, agenda["id"], vendor)
-            if vendor == agenda["orchestrator"]:
-                item["commands"] = [base % "prompt",
-                                    base % "submit" + " --file <in-session answer .md>"]
-            else:
+            if not own and quota["status"] != "ABSENT":
+                item["host_session_commands"] = [
+                    base % "prompt",
+                    base % "submit" + " --host-session <that live %s session's id> --file <answer .md>"
+                    % DISPLAY[vendor]]
+            if own and seat["status"] == "READY":
+                item["commands"] = [base % "prompt", base % "submit" + " --file <in-session answer .md>"]
+                ready.append(item)
+            elif vendor != stored and seat["status"] == "READY":
                 item["commands"] = [base % "prompt", base % "call"]
-            if (folder / "record.json").is_file():
-                item["then"] = "%s record --id %s --amend" % (script, agenda["id"])
-            ready.append(item)
-    result = {"checked_at": stamp(now()), "ready": ready, "waiting": waiting}
+                ready.append(item)
+            else:
+                waiting.append(item)
+    result = {"checked_at": stamp(now()), "host": host, "ready": ready, "waiting": waiting}
     if args.json:
         emit(result)
         return 0
@@ -2156,6 +2616,14 @@ def do_catchup(args):
         print("%s  %s is READY for catch-up (%s)" % (item["id"], item["display"], item["reason"]))
         for command in item["commands"] + ([item["then"]] if item.get("then") else []):
             print("    " + command)
+    for item in waiting:
+        if item.get("host_session_commands"):
+            who = ("this %s session (its own session id)" % item["display"] if item["vendor"] == host
+                   else "a live %s session" % item["display"])
+            print("%s  %s seat is %s; %s can catch up in-session:" % (
+                item["id"], item["display"], item["readiness"], who))
+            for command in item["host_session_commands"] + ([item["then"]] if item.get("then") else []):
+                print("    " + command)
     return 0
 
 
@@ -2233,9 +2701,12 @@ def do_deliver(args):
 def parser():
     top = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = top.add_subparsers(dest="command", required=True)
+    host_help = "required: the vendor of the CLI running this debate (%s)" % HOST_TABLE
+    override_help = ("accept --orchestrator although this shell's host variables name another CLI "
+                     "(they were inherited); recorded in agenda.json")
     p = sub.add_parser("seats", help="vendor readiness without model calls")
     p.add_argument("--json", action="store_true")
-    p.add_argument("--orchestrator", choices=VENDORS, default="anthropic")
+    p.add_argument("--orchestrator", choices=VENDORS, help=host_help)
     p.add_argument("--no-probe", action="store_true")
     p = sub.add_parser("new", help="open a debate")
     p.add_argument("--title", help="required unless --reopen-of")
@@ -2243,7 +2714,8 @@ def parser():
     p.add_argument("--option", action="append")
     p.add_argument("--criterion", action="append")
     p.add_argument("--evidence-file")
-    p.add_argument("--orchestrator", choices=VENDORS, default="anthropic")
+    p.add_argument("--orchestrator", choices=VENDORS, help=host_help)
+    p.add_argument("--orchestrator-override", action="store_true", help=override_help)
     p.add_argument("--mode", choices=MODES, help="default quick (or the reopened debate's mode)")
     p.add_argument("--subject-vendor", choices=VENDORS, help="interject: the stuck agent's vendor")
     p.add_argument("--reopen-of", metavar="ID", help="copy that debate's agenda and attach its record")
@@ -2265,13 +2737,16 @@ def parser():
     p.add_argument("--effort")
     p.add_argument("--timeout", type=int, default=600)
     p.add_argument("--accept-unknown", action="store_true")
-    p = sub.add_parser("submit", help="register the orchestrator's in-session answer")
+    p = sub.add_parser("submit", help="register an in-session answer (the host's seat, or --host-session)")
     p.add_argument("--id", required=True)
     p.add_argument("--round", choices=ROUNDS, required=True)
     p.add_argument("--vendor", choices=VENDORS, required=True)
     p.add_argument("--file", required=True)
     p.add_argument("--model")
-    p.add_argument("--session")
+    p.add_argument("--session", help="label of the answering session (not verified)")
+    p.add_argument("--host-session", metavar="ID",
+                   help="id of a live interactive session of --vendor on this machine; required when --vendor "
+                        "is not the orchestrator, verified from its local transcript")
     p = sub.add_parser("status", help="attendance and debate state")
     p.add_argument("--id", required=True)
     p.add_argument("--json", action="store_true")
@@ -2285,6 +2760,9 @@ def parser():
     p = sub.add_parser("catchup", help="PROVISIONAL debates whose absent vendor is back")
     p.add_argument("--json", action="store_true")
     p.add_argument("--no-probe", action="store_true")
+    p.add_argument("--orchestrator", choices=VENDORS, help="required: the vendor of the CLI running catchup "
+                                                            "now (%s)" % HOST_TABLE)
+    p.add_argument("--orchestrator-override", action="store_true", help=override_help)
     p = sub.add_parser("deliver", help="hand the interject card to the running agent")
     p.add_argument("--id", required=True)
     p.add_argument("--orca-terminal")
