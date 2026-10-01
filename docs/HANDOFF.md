@@ -1,6 +1,56 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-01 / `/vibe` 2.12.41 소스 머지와 실행별 Gstack 정책
+## Latest — 2026-10-01 / `/vibe` 2.12.42·`ai-debate` 0.2.0 설치 완료와 4벤더 토론
+
+갱신 시각: 2026-10-01 20:40 KST · 갱신자: Claude Code(Opus 5.5). Simon이 Codex의 장시간 작업을 넘기며 "스킬 업데이트 완료"와 "ai-debate를 항상 4개 벤더(Claude·Codex·Grok·Gemini)로, 오래 걸리면 중간에 겐세이"를 지시했다.
+
+### 어디까지 왔나
+- `origin/main` `bfee665`: [PR #84](https://github.com/Simon-YHKim/SimonK-stack/pull/84)(ai-debate 0.2.0) → `9c11992`, [PR #85](https://github.com/Simon-YHKim/SimonK-stack/pull/85)(/vibe 2.12.42) → `bfee665`. 두 PR 모두 정확 HEAD 검사 4/4, main 머지 커밋의 skills-ci·release·validate-plugin 성공, 새 태그 없음(source-only hold 유지).
+- **사용자 홈 설치 완료**: `/vibe` 2.12.24 → 2.12.41 → 2.12.42(정션 7개 + Codex config 한 줄), `ai-debate` 0.1.0 → 0.2.0(물리 폴더 교체). 후보·영수증·검증·되돌리기는 `docs/INSTALL.md` 첫 절.
+- **ai-debate 0.2.0**: `scripts/debate.py`(4벤더 좌석 러너, 무모델 쿼터 증거로 착석 판정, 결석 기록, 블라인드 심판·비준·catch-up, append-only 허브 기록)와 `scripts/interject_scan.py`(T1~T6 겐세이 감지, 읽기 전용). 적대적 검토 P0 4건·P1 다수 수정, 테스트 77/77.
+- **/vibe 2.12.42**: Simon이 고른 Gstack 실행별 상태 폴더(telemetry off·update_check false, 개인 설정 불변). 호스트 격리는 지시 수준, Orca는 best-effort라고 문서에 명시.
+- **첫 실제 4벤더 토론 D-53**(`dbt-261001-201826`, full): Claude ✓ · Codex ✗(주간 100%, 구매 크레딧 과금 위험) · Grok ✗(402) · Gemini ✓(실호출). 블라인드 심판(Gemini) 조건부 GO 90, 비준 ACCEPT 2/2, **PROVISIONAL 2/4**. 허브 `DECISIONS.md`에 append.
+- 루트 `CLAUDE.md`·`AGENTS.md`·`GEMINI.md` §21과 허브 `PROTOCOL.md` §35.2·§35.7을 4벤더·겐세이 규칙으로 갱신(허브는 로컬 커밋).
+
+### 안전 경계
+- 추가 과금 $0: Codex·Grok 호출 0회. Gemini는 agy 무턴 `/usage`로 100% 남음 확인 후 4회 호출, Claude 좌석은 세션 내 서브에이전트.
+- 관찰: 다른 Codex 세션들이 주간 한도 소진 뒤 구매 크레딧을 실제로 차감 중이었다(18:07→18:38 KST 55,940→55,741). 설정은 건드리지 않았다.
+- 이미 열린 세션은 이전 스킬 목록을 캐시한다. 로컬 기본 체크아웃(오래된 main)을 프로젝트로 열지 말 것 — 구 SessionStart 훅이 스킬을 실폴더로 덮을 수 있다.
+
+### 다음 작업 큐
+| # | 작업 | 크기 | 권장 |
+|---|---|---|---|
+| A | Grok(2026-10-03 23:12 KST 이후)·Codex(2026-10-07 09:03 KST 이후) 복귀 시 `debate.py catchup` → `call --round catchup` → `record --id dbt-261001-201826 --amend` | 작음 | 일정에 박기 |
+| B | 2.12.42 설치 뒤 첫 실제 `/vibe` 실행 결과를 기준점으로 기록, 실패 시 41로 되돌려 원인 분리 | 작음 | D-53 소수의견 |
+| C | `debate.py` 106KB 모듈 분할(100KB 지침) · 허브 `DECISIONS.md` 170KB 기간 분할 | 중간 | 지침 위반 해소 |
+| D | 예약 작업 `\SimonK-Vibe-ModelWatch`가 pr67 후보의 구 `model_watch.py`를 실행 — 새 후보로 갱신 | 작음 | |
+
+### 핵심 파일과 검증
+```text
+skills-src/ai-debate/SKILL.md                     4벤더·결석·겐세이 계약 (0.2.0)
+skills-src/ai-debate/scripts/debate.py            좌석 러너
+skills-src/ai-debate/scripts/interject_scan.py    겐세이 감지
+skills-src/ai-debate/references/seats.md          벤더별 호출·쿼터 증거
+skills-src/vibe/scripts/run_state.py              gstack-env
+docs/INSTALL.md                                   2.12.42 후보 영수증·설치·되돌리기
+```
+```powershell
+python -B -m unittest discover -s skills-src/ai-debate/scripts -p "test_*.py"
+python -B skills-src/ai-debate/scripts/debate.py seats --orchestrator anthropic
+python -B skills-src/ai-debate/scripts/debate.py catchup
+python -B .github/skill-ci/run_ci.py
+```
+
+### 다음 세션 시작하는 법
+```powershell
+git fetch origin main
+git show origin/main:docs/HANDOFF.md
+python -B "$env:USERPROFILE\.claude\skills\ai-debate\scripts\debate.py" catchup
+```
+
+---
+
+## 2026-10-01 / `/vibe` 2.12.41 소스 머지와 실행별 Gstack 정책
 
 갱신 시각: 2026-10-01 18:11:33 KST. Simon은 PR 머지 뒤 작업을 멈추고 `/simon-handoff`를 요청했다. 이 블록은 후속 구현이 아니라 다음 세션을 위한 상태 기록이다.
 
