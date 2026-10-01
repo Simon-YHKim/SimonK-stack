@@ -46,6 +46,52 @@
   opacity: 0.5;
 }
 
+/* A brief two-beat cue on the value that changed; palette is independent of quota severity. */
+.widget-root {
+  --value-flash-sky: #69d3ff;
+  --value-flash-mint: #71e3b7;
+  --value-flash-violet: #c2a5ff;
+}
+
+:root[data-scheme='light'] .skin-windows {
+  --value-flash-sky: #006f9b;
+  --value-flash-mint: #007a53;
+  --value-flash-violet: #7045a6;
+}
+
+[data-value-flash='sky'] { --value-flash-color: var(--value-flash-sky); }
+[data-value-flash='mint'] { --value-flash-color: var(--value-flash-mint); }
+[data-value-flash='violet'] { --value-flash-color: var(--value-flash-violet); }
+
+.account-item [data-value-flash] :is(.percent, .percent-mono, .quota-val, .quota-val-sub, .w-pct),
+.grok-bot-widget-value[data-value-flash] {
+  border-radius: 2px;
+  animation: value-flash 1.4s ease-in-out 1;
+}
+
+@keyframes value-flash {
+  0%, 42%, 82%, 100% {
+    background-color: transparent;
+    box-shadow: none;
+    text-shadow: none;
+  }
+  18%, 60% {
+    color: var(--value-flash-color);
+    background-color: color-mix(in srgb, var(--value-flash-color) 24%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--value-flash-color) 24%, transparent);
+    text-shadow: 0 0 5px var(--value-flash-color);
+  }
+}
+
+@media (prefers-reduced-motion: reduce), (forced-colors: active) {
+  .account-item [data-value-flash] :is(.percent, .percent-mono, .quota-val, .quota-val-sub, .w-pct),
+  .grok-bot-widget-value[data-value-flash] {
+    animation: none;
+    text-decoration: underline 2px solid currentColor;
+    text-underline-offset: 2px;
+  }
+}
+
 .grok-bot-item { gap: 4px; padding-left: 8px; border-left: 1px solid currentColor; }
 .grok-bot-widget-name { font-size: 10px; font-weight: 600; }
 .grok-bot-widget-value { font-size: 11px; font-variant-numeric: tabular-nums; }
