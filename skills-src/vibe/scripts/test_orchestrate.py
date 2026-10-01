@@ -40,7 +40,7 @@ def candidate(name="small", surface="codex", **changes):
         item["billing"]["credits"] = {"has_credits": False, "unlimited": False,
                                        "balance": "0"}
     item.update(changes)
-    if surface in {"grok", "grok-bot"} and "quota" not in changes:
+    if surface in {"antigravity", "grok", "grok-bot"} and "quota" not in changes:
         item["quota"].update({"surface": surface, "transport": item["transport"],
                               "account_ref": item["billing"]["account_ref"],
                               "state": "observed", "evidence": "fixture account-bound quota"})
@@ -935,7 +935,9 @@ class OrchestrationTests(unittest.TestCase):
         self.assertIn("PAID_CREDIT_FALLBACK_UNVERIFIED", str(p))
 
     def test_xai_quota_must_match_exact_surface_transport_and_account(self):
-        for surface, node, good in (("grok", step(surface="grok"), candidate("grok", surface="grok")),
+        # A synthetic host route isolates quota binding from the unavailable CLI adapter.
+        for surface, node, good in (("grok", step(surface="grok"), candidate(
+                                        "grok", surface="grok", transport="host", effective_effort="low")),
                                     ("grok-bot", self.gui(), self.bot())):
             self.assertEqual(self.plan([node], [good])["status"], "ready")
             for field, wrong in (("surface", "grok-bot" if surface == "grok" else "grok"),
@@ -962,9 +964,10 @@ class OrchestrationTests(unittest.TestCase):
                 self.assertIn("BOT_INACTIVE", p["steps"][0]["rejected_candidates"][0]["reasons"])
         self.assertEqual(self.plan([self.gui()], [self.bot(bot_status="active")])["status"], "ready")
 
-    def test_grok_cli_and_bot_are_not_independent_verifiers(self):
+    def test_grok_and_bot_are_not_independent_verifiers(self):
         steps = [step(surface="grok"), self.gui(id="review", verify_of="read", depends_on=["read"])]
-        p = self.plan(steps, [candidate("grok", surface="grok"), self.bot()])
+        p = self.plan(steps, [candidate("grok", surface="grok", transport="host",
+                                        effective_effort="low"), self.bot()])
         self.assertIn("SAME_VENDOR_REVIEW", str(p))
 
     def test_writes_require_independent_review(self):
@@ -1083,12 +1086,33 @@ class OrchestrationTests(unittest.TestCase):
             self.assertIn("BOT_SCREENSHOT_MISSING_OR_OUTSIDE_RUN",
                           self.m.verify_bot_result(bot_root, meta, result, "vb-1234abcd", evidence))
 
-    def test_all_five_surfaces_have_a_route_when_observed(self):
-        for surface in self.m.SURFACES:
+    def test_registered_transports_pass_planner_fixture_preflight(self):
+        for surface in ("claude", "codex", "grok-bot"):
             with self.subTest(surface=surface):
                 c = self.bot() if surface == "grok-bot" else candidate(surface=surface)
                 s = self.gui() if surface == "grok-bot" else step(surface=surface)
                 self.assertEqual(self.plan([s], [c])["status"], "ready")
+
+    def test_unimplemented_cli_and_orca_adapters_never_become_ready(self):
+        for surface in ("antigravity", "grok"):
+            for transport in ("cli", "orca"):
+                with self.subTest(surface=surface, transport=transport):
+                    c = candidate(surface=surface, transport=transport)
+                    c["quota"]["transport"] = transport
+                    plan = self.plan([step(surface=surface)], [c])
+                    self.assertEqual(plan["status"], "blocked")
+                    self.assertIn("EXECUTION_ADAPTER_UNAVAILABLE", str(plan))
+
+    def test_antigravity_host_requires_credit_and_exact_quota_evidence(self):
+        good = candidate(surface="antigravity", transport="host", effective_effort="low")
+        good["quota"]["transport"] = "host"
+        billing = dict(good["billing"])
+        billing.pop("paid_credit_fallback_disabled")
+        p = self.plan([step(surface="antigravity")], [dict(good, billing=billing)])
+        self.assertIn("PAID_CREDIT_FALLBACK_UNVERIFIED", str(p))
+        wrong_quota = dict(good["quota"], account_ref="other-account")
+        p = self.plan([step(surface="antigravity")], [dict(good, quota=wrong_quota)])
+        self.assertIn("QUOTA_BINDING_UNVERIFIED", str(p))
 
     def test_independent_review_succeeds_across_model_vendors(self):
         p = self.plan([step(writes=True), step("review", verify_of="read", depends_on=["read"])],
