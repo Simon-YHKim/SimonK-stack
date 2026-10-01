@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SimonK-stack 격리 flat 링크 전환·복원</title>
+<style>
+:root{color-scheme:light dark;--accent:#2563a6;--text:#202a35;--muted:#586879;--surface:#f2f5f8}
+@media(prefers-color-scheme:dark){:root{--accent:#92c5ff;--text:#eef4fa;--muted:#aab9c7;--surface:#202b35}}
+body{max-width:880px;margin:auto;padding:2rem 1rem 4rem;font:1rem/1.6 system-ui,sans-serif;color:var(--text)}
+h1{line-height:1.2}.muted{color:var(--muted)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:.7rem;margin:1.5rem 0}
+.card,details{background:var(--surface);border-radius:.8rem;padding:1rem}.card strong{display:block;color:var(--accent);font-size:1.45rem}
+details{margin:.7rem 0}summary{cursor:pointer;font-weight:650}a{color:var(--accent)}code{overflow-wrap:anywhere}
+svg{width:100%;height:auto;margin:1rem 0}svg rect{fill:var(--surface);stroke:var(--accent);stroke-width:2}
+svg path{fill:none;stroke:var(--accent);stroke-width:2}svg text{fill:var(--text);font:14px system-ui,sans-serif}
+</style>
+</head>
+<body>
+<main>
+<p class="muted">2026-10-01 12:00:40 KST · 기능 브랜치의 격리 테스트 결과</p>
+<h1>7개 링크의 전환·복원을 격리 프로필에서 재현</h1>
+<p>기존 Claude 5개·Codex 2개 flat 링크를 보관한 뒤 후보 링크로 바꾸고, 원래 링크를 되돌리는 코드를 추가했다. 적용 함수는 Windows 임시 테스트 루트만 허용한다. 실제 사용자 설치본·플러그인·결제 설정은 바꾸지 않았다.</p>
+<div class="cards" aria-label="핵심 결과">
+  <div class="card"><strong>7/7</strong>격리 링크 전환·복원</div>
+  <div class="card"><strong>31/31</strong>Python 3.11·3.12 각각 통과</div>
+  <div class="card"><strong>0</strong>실제 사용자 프로필 변경</div>
+  <div class="card"><strong>NO-GO</strong>운영 설치·실호출</div>
+</div>
+<svg viewBox="0 0 760 126" role="img" aria-label="기존 링크 확인, 보관 및 새 링크 생성, 새 링크 격리와 기존 링크 복원 순서">
+  <rect x="2" y="32" width="175" height="62" rx="10"/><text x="18" y="68">사전검사 · 7개 상태</text>
+  <path d="M178 63H211m-8-7 8 7-8 7"/>
+  <rect x="212" y="32" width="175" height="62" rx="10"/><text x="230" y="68">기존 링크 보관</text>
+  <path d="M388 63H421m-8-7 8 7-8 7"/>
+  <rect x="422" y="32" width="150" height="62" rx="10"/><text x="437" y="68">새 링크 검증</text>
+  <path d="M573 63H606m-8-7 8 7-8 7"/>
+  <rect x="607" y="32" width="151" height="62" rx="10"/><text x="619" y="68">격리 · 원복</text>
+</svg>
+<details><summary>검증한 안전 경계</summary>
+<p>후보 네 영수증·Core 링크 8/8·네이티브 플러그인 등록 메타데이터가 맞아야 계획을 만든다. 계획 해시와 링크·대상·SKILL.md 해시를 다시 확인한다. Windows 정션도 보존해 복원했고, 중간 실패 시 새 링크를 삭제하지 않고 quarantine에 남겼다. 기존 링크가 바뀌거나 부모 디렉터리가 정션/심볼릭 링크로 바뀌면 이동 전 차단한다. 롤백도 7개 상태를 모두 검사한 뒤 이동한다.</p>
+</details>
+<details><summary>검증 범위와 남은 위험</summary>
+<p>새 테스트 9건과 기존 호스트 사전검사 22건이 Python 3.11.15·3.12.10에서 각각 통과했다. 실제 후보의 격리 호스트 설치는 앞선 별도 Sandbox 결과이며 이번 코드는 그 네이티브 설치를 수행하지 않는다. 이 함수에는 사용자 프로필 적용 CLI·설치 캐시 바이트 검증·명령 우선순위 실측·프로세스 충돌 뒤 영속 복구가 없다. 현재 실제 네이티브 등록은 두 호스트 모두 0/5이므로 실제 프로필 계획도 차단된다. 이미지 도구는 요청별 구독 전용 $0 한도/재조회가 없고 Grok Bot Relay는 현재 active 증거가 없어 실호출하지 않았다.</p>
+</details>
+<details><summary>다음 게이트</summary>
+<p>PR #70의 사전검사를 기반으로 네이티브 설치·전체 캐시 바이트·명령 선택·영속 복원을 검증해야 한다. 그 뒤 사용자 설치 보류 D-39를 별도 재판정하고, 실제 구독 전용 모델·이미지·Bot 경로를 확인해야 한다. 운영 자동 배포 허용은 이 게이트를 면제하지 않는다. 실행 범위는 <a href="../docs/INSTALL.md">INSTALL.md</a>에 정리했다.</p>
+</details>
+</main>
+</body>
+</html>
