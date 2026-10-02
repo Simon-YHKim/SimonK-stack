@@ -742,9 +742,10 @@ class QaCompletionTests(unittest.TestCase):
                     "sha256": hashlib.sha256(self.artifact.read_bytes()).hexdigest()}]}]}
         self.results_path = root / "results.json"
         self.save_results()
-        qa_root = SCRIPT.parents[2] / "qa"
+        script_root = SCRIPT.resolve()  # Installed /vibe may be a home junction.
+        qa_root = script_root.parents[2] / "qa"
         if not qa_root.is_dir():  # Intact Core/Stack split-plugin test bundle.
-            qa_root = SCRIPT.parents[4] / "SimonKStack" / "skills" / "qa"
+            qa_root = script_root.parents[4] / "SimonKStack" / "skills" / "qa"
         self.binding = {"qa_skill": str(qa_root),
             "contract": str(self.contract_path), "results": str(self.results_path),
             "evidence_root": str(root), "contract_sha256": self.pin, **target}
