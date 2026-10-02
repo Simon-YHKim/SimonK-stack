@@ -10,6 +10,7 @@
 - Budget and selection
 - Execution and evidence
 - Durable state and recovery
+- QA completion gate
 - Guarded Bot adapter
 - Conditional host image adapter
 - Guarded Orca adapter
@@ -596,7 +597,9 @@ successful claim grants permission to send, after the intent is committed.
 | verify --dispatch ID --input acceptance.json | evidence after inspecting output; observed model/effort must match the requested route |
 | reject --dispatch ID --input rejection.json | evidence explaining why an unverified succeeded result failed acceptance |
 | refresh --plan refreshed-plan.json | Same task intent/policy; refreshed route and runtime evidence, new plan digest |
-| cancel or complete --run ID --input evidence.json | Nonempty evidence list, terminal execution and settled costs |
+| cancel or complete --run ID --input evidence.json | Nonempty evidence list, terminal execution and settled costs; complete additionally rechecks bound QA for changes/coding/QA nodes |
+| bind-qa --run ID --input qa-binding.json | Immutable coordinator-owned QA paths, target and independently approved contract digest |
+| check-qa --run ID | Execute the pinned QA gate against current inputs; exit 0 pass, 1 blocked, 2 invalid |
 
 Input files contain JSON objects, with an evidence array where listed. Observe
 accepts running, unknown, succeeded, failed or not_started; unknown becomes
@@ -639,6 +642,82 @@ generation, true provider spend caps or installation parity. Keep those gates
 separate. A past Grok quota hold is not permanent, but a reset timestamp or
 user report alone does not verify current quota, model inclusion or disabled
 overage for a new generation request under the USD 0 additional-spend limit.
+
+## QA completion gate
+
+`/vibe` 2.13.0 and `/qa` 2.1.0 add an executable final acceptance boundary.
+`Store.complete` requires it whenever any node has `writes:true`, a `coding`
+proc, a CODE_NEW/FIX/SIMPLE/COMPLEX profile or the selected `qa` skill. A bound
+contract is also enforced for an otherwise read-only run. Ordinary read-only
+research keeps its existing evidence contract. No skip/legacy opt-out exists.
+Existing open coding runs need a binding before completion; the DB schema,
+reservation/recovery semantics and already-closed history are unchanged.
+
+1. Independently extract requirements from user/spec/issue/policy sources,
+   including negative, authorization, recovery and boundary behavior. Read the
+   discovered `/qa` skill's `references/detail.md` acceptance contract. Inspect
+   requirement completeness separately: no validator can infer an omitted spec.
+2. The trusted coordinator identifies the exact immutable build and environment,
+   approves the contract digest and keeps both outside worker-controlled results.
+   Bind those inputs before QA execution. If the build changes, retain this run's
+   failed evidence and use a newly scoped acceptance run for the new target;
+   never retarget an old contract merely to make it pass. A dirty HEAD alone is
+   not an immutable build identifier. Runtime/budget refresh preserves the binding.
+3. Execute tests and write results using the `/qa` schema. `check-qa` is a
+   validator, not a test runner. Use independently owned tests where possible;
+   unit mocks/screenshots do not prove integration, E2E or authorization.
+4. Inspect `check-qa` output, then finish every required independent review,
+   terminal observation and cost settlement. Call `complete` with its ordinary
+   evidence array. It reopens the pinned inputs and checks artifact hashes again
+   in the completion transaction; a cached pass report is never sufficient.
+
+```json
+{
+  "qa_skill": "/absolute/approved/SimonKStack/skills/qa",
+  "contract": "/absolute/run/contract.json",
+  "contract_sha256": "<independently approved 64-character lowercase SHA-256>",
+  "results": "/absolute/run/results.json",
+  "evidence_root": "/absolute/run/evidence",
+  "revision": "immutable-tested-build-id",
+  "environment": "test"
+}
+```
+
+Add `approval` with an absolute separately controlled human approval JSON path
+for high-risk work. Its path can be bound before the file exists. Contract and
+helper must exist when binding; results/evidence/approval may arrive later.
+All fields are strings; other keys are rejected. A repeated identical binding
+is idempotent, a different binding is rejected. Bindings are scoped to the run
+and immutable task intent in the existing event journal, not global flags.
+
+```text
+python -B "<vibe>/scripts/run_state.py" bind-qa --run RUN --input qa-binding.json
+python -B "<vibe>/scripts/run_state.py" check-qa --run RUN
+python -B "<vibe>/scripts/run_state.py" complete --run RUN --input acceptance.json
+```
+
+Use the same canonical DB/`--db` as registration. `acceptance.json` contains
+`{"evidence":["inspected output and independent review references"]}`.
+Failures leave the run active; inspect `check-qa` for issues and fix the
+tests/product or reconcile/cancel the run honestly. Never turn a failed result
+into a pass by removing assertions, weakening the contract or deleting a test.
+An error in `complete` is nonzero; CI must propagate it without continue-on-error.
+
+QA belongs to SimonKStack while vibe belongs to SimonKCore. Supply the actual
+observed source/plugin QA root explicitly; the bridge does not scan protected
+gstack, home directories or pick a shadowed package. `qa_acceptance.py` pins
+the reviewed QA helper's LF-normalized SHA-256, verifies it on binding and each
+check, and compiles those exact bytes. Missing or drifted helper code fails
+closed. Updating the QA helper requires a reviewed pin update and regression
+tests; a hash supplied by a worker cannot select executable code.
+
+The gate does not authenticate who ran a test or approved high-risk work.
+Protect the coordinator, DB, target/build evidence and acceptance files with
+the host/CI trust boundary; do not pass raw worker JSON as coordinator authority.
+The same process can still forge files if it controls this boundary. Hashes are
+point-in-time consistency checks, not OS isolation or deployment attestation.
+`release_authorized:false` is retained in QA reports and completion events.
+Existing vendor-review, security, budget and separate release approvals remain.
 
 ## Guarded Bot adapter
 

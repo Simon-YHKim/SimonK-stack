@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan and reports blocked coding or image routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.12.43
+version: 2.13.0
 author: simon-stack
 ---
 
@@ -327,14 +327,15 @@ Provider costs can exceed estimates. Set real provider output/spend caps when
 available; pause new paid work if observed spend breaches the run budget.
 The planner's reservation is not a provider-enforced billing hard cap.
 
-Mark a node done only after checking its own output and attaching evidence.
-For a writer this means output-ready, not approved: only its explicit verifiers
-may consume it until all required LLM reviews pass. General and transitive
-successors remain blocked. Declare the whole task complete only after those
-reviews and the user's acceptance criteria pass.
-For Orca rounds retain the existing decision sheet, ledger and release steps.
-Report the result, verification, selected routes, additional spend, subscription
-usage, and remaining waiting/blocked work. Never call an accepted job complete.
+Inspect node output and attach evidence; writers become output-ready only for explicit verifiers.
+General/transitive successors wait for all LLM reviews; completion also requires the user's criteria.
+For changes, coding or `qa` nodes, `Store.complete` requires a pinned QA 2.1
+contract and rechecks artifact hashes. Read [QA completion gate](references/orchestration.md#qa-completion-gate):
+discover the QA root, `bind-qa`, `check-qa`, then `complete`. Missing/skipped/failed
+results, stale targets or validator drift block closure. Node `verify`, scores,
+prose and cached pass flags cannot replace it. Retain negative/boundary checks
+and high-risk human approval evidence; the gate never grants release authority.
+Keep Orca decision sheets/ledgers/release steps. Report verification, routes, extra spend, subscription usage and blocked work.
 
 ## Legacy Orca routing
 
@@ -371,9 +372,7 @@ validated central plan; never edit timestamps to bypass expired evidence.
 Registry/model/account/budget changes and operational migration remain outside
 this renewal path. Expired or unresolved work never authorizes a replacement run.
 
-The generated table is historical compatibility policy, not present-day availability, and cannot bypass central guards.
-
-Read the [generated legacy Orca routing table](references/legacy-routing.md) only for historical policy; the current registry, runtime and transport/account guards decide present-day routes.
+The [generated legacy Orca routing table](references/legacy-routing.md) is historical policy; current registry, runtime and transport/account guards decide present-day routes.
 
 ## Verification and references
 
