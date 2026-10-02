@@ -11,6 +11,8 @@ jobs:
         with: { python-version: '3.11' }
       - name: Skills quality gate (lint + evals + description score, both roots)
         run: python3 .github/skill-ci/run_ci.py
+      - name: QA acceptance evidence regressions (offline fixtures only)
+        run: python3 -B -m unittest discover -s skills-src/qa/scripts -p test_qa_gate.py -q
       - name: Offline benchmark freshness regressions (no network or real Wiki)
         run: python3 -m unittest discover -s scripts/tests -p test_fetch_model_benchmarks.py
       - name: Offline model release watch regressions (no network or model calls)
@@ -42,6 +44,8 @@ jobs:
         with: { python-version: '3.11' }
       - name: Candidate static path audit regressions (fixtures only)
         run: python -B -m unittest discover -s scripts/tests -p test_candidate_path_audit.py
+      - name: QA acceptance evidence paths on Windows (offline fixtures only)
+        run: python -B -m unittest discover -s skills-src/qa/scripts -p test_qa_gate.py -q
       - name: Vibe host preflight regressions (Python 3.11; no profile changes)
         run: python -B -m unittest discover -s scripts/tests -p test_vibe_host_preflight.py -q
       - name: Vibe flat-link rehearsal and rollback (isolated temp profile only)

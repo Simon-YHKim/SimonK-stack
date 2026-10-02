@@ -1,8 +1,8 @@
 ---
 name: qa
 preamble-tier: 4
-version: 2.0.0
-description: "Use when asked to \"qa\", \"QA\", \"test this site\", \"find bugs\", \"test and fix\", or \"fix what's broken\". Proactively suggest when the user says a feature is ready for testing or asks \"does this work?\". Three tiers: Quick (critical/high only), Standard (+ medium), Exhaustive (+ cosmetic). Produces before/after health scores, fix evidence, and a ship-readiness summary. For report-only mode, use /qa-only. (gstack) Voice triggers (speech-to-text aliases): \"quality check\", \"test the app\", \"run QA\". Systematically QA test a web application and fix bugs found. Runs QA testing, then iteratively fixes bugs in source code, committing each fix atomically and re-verifying"
+version: 2.1.0
+description: "Use when asked to \"qa\", \"QA 돌려줘\", \"test this site\", \"find bugs\", \"test and fix\", or \"does this work?\". Test and fix web applications in Quick, Standard or Exhaustive mode. Produces requirement-linked checks, fix evidence, health scores and a scoped acceptance verdict. Fails closed on missing, unexecuted or stale evidence; high-risk boundaries need negative tests and a separate human review record. For report-only mode use /qa-only. Gstack-derived workflow with a SimonK acceptance gate."
 allowed-tools:
   - Bash
   - Read
@@ -13,8 +13,22 @@ allowed-tools:
   - AskUserQuestion
   - WebSearch
 ---
-<!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
-<!-- Regenerate: bun run gen:skill-docs -->
+<!-- Gstack-derived workflow. Preserve the SimonK acceptance extension and its tests during upstream refreshes. -->
+
+## SimonK acceptance gate
+
+Read the [acceptance contract](references/detail.md#simonk-acceptance-contract) before baseline testing.
+It governs every tier, including Quick, ahead of score, mocking and deferral shortcuts.
+Freeze requirement sources, expected results and risk before judging implementation.
+
+Use [qa_gate.py](scripts/qa_gate.py) to check the pinned contract, exact target
+and executed evidence before claiming acceptance. Missing, failed, skipped,
+blocked or not-run mandatory checks cannot pass. Scores and screenshots cannot
+replace authorization, data-integrity or recovery checks. High-risk changes
+need separately supplied human review evidence; an AI review is supplementary.
+
+Preserve failing tests and existing authorization. This checks consistency, not identity,
+execution authenticity or deployment authority. Report CI execution and enforcement separately.
 
 ## Preamble (run first)
 
@@ -391,20 +405,7 @@ Before building anything unfamiliar, **search first.** See `~/.claude/skills/gst
 jq -n --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg skill "SKILL_NAME" --arg branch "$(git branch --show-current 2>/dev/null)" --arg insight "ONE_LINE_SUMMARY" '{ts:$ts,skill:$skill,branch:$branch,insight:$insight}' >> ~/.gstack/analytics/eureka.jsonl 2>/dev/null || true
 ```
 
-## References
-
-Detailed implementation in [`references/detail.md`](references/detail.md):
-- Completion Status Protocol
-- Escalation
-- Operational Self-Improvement
-- Telemetry (run last)
-- Plan Mode Safe Operations
-- Skill Invocation During Plan Mode
-- Plan Status Footer
-- GSTACK REVIEW REPORT
-- Step 0: Detect platform and base branch
-- Setup
-
+Read [`references/detail.md`](references/detail.md) for the schema, setup, QA/fix loop and completion protocol.
 
 ## 완료 보고 (HTML) — 표준
 작업을 끝내면 **HTML 완료 보고서**를 생성한다 (SimonKCore `completion-report` 표준).
