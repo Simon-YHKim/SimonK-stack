@@ -1,6 +1,19 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-02 / 4개 CLI 동일 사용: /vibe 2.12.43 · ai-debate 0.2.2
+## Latest — 2026-10-03 / QA 2.1.0 + vibe 2.13.0 설치
+
+Simon 요청: AI 코딩 QA 강화안을 `/vibe`까지 연동해 최종 개선하고 PC 종료.
+
+- 소스: `feat/qa-evidence-261003`, QA `32efde8`, vibe `f607bff`, 설치 경로 회귀 보완 `cf139c3` push 완료. main 병합·PR 생성·운영 배포 없음.
+- QA는 독립 계약/대상 핀, 필수 positive/negative/boundary/recovery 검사, 실제 증거 해시, 고위험 사람 검토를 대조한다. 누락·미실행·실패·오래된 증거를 차단한다.
+- vibe `Store.complete`는 변경/coding/qa 노드가 있으면 `bind-qa`와 실제 게이트 통과가 필수다. 완료 직전 재검사하며 기존 LLM 리뷰·비용 정산 조건도 유지한다. node `verify`는 리뷰용 출력 준비 상태다.
+- **실제 설치**: Claude vibe·Codex vibe·공용 Claude QA 세 경로만 새 후보로 전환. `.agents`는 기존 연결로 갱신. 다른 Core 링크는 이전 후보이므로 설치 루트가 혼합돼 있다. [설치 기록·영수증·백업](INSTALL.md) 첫 절을 기준으로 한다.
+- 검증: 설치된 Codex 전체410 / Claude 상태관리67 / 공용QA33 PASS, 소스 selftest180 / Skill-Gen24 / 141 skill gate PASS. 네 패키지 영수증도 PASS. 원격 feature push는 CI 트리거가 아니며, 실제 앱 E2E·모델 비용·전체 호스트 행동은 증명하지 않는다.
+- 결정: 앞선 사용자 정족수 예외를 유지. Claude/Codex 쿼터와 Grok 실제 잔액 거절 때문에 Google advisory만 참여했다. 최종 재검토에서 즉시 차단 결함 없음. 4벤더 합의나 새 D번호를 주장하지 않는다.
+- 보고서: `E:/Coding Infra/reports/simonk-vibe-qa-completion-20261003.html`. 종료 전 작업/검증 기록을 저장한다. 예약된 종료의 실제 실행 여부는 후보 루트의 `shutdown-status.json`을 확인한다.
+- 남은 경계: 계약의 완전성·테스트 실행자·사람 신원은 해시로 인증되지 않는다. 신뢰하는 coordinator/CI가 기준과 immutable build를 관리해야 한다. 레지스트리 만료 갱신 등 이전 후속 큐는 유지한다.
+
+## Previous — 2026-10-02 / 4개 CLI 동일 사용: /vibe 2.12.43 · ai-debate 0.2.2
 
 갱신 시각: 2026-10-02 02:25 KST · 갱신자: Claude Code(Opus 5.5). Simon 요청: "codex, claude, grok, agy 모두 이 스킬을 동일하게 사용하게, ai-debate·오케스트레이션·모델/effort 라우팅 모두 최신화. 나보고 시키지 말고 직접."
 

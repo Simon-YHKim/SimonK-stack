@@ -10,7 +10,7 @@
 
 ## 설치 / Install
 
-> **현 상태 (2026-10-02):** 이 브랜치의 `/vibe` 소스는 2.12.43이고, Claude·Codex·`.agents` 사용자 flat 설치본은 2.12.42입니다(2026-10-02 각 SKILL.md `version` 확인). 2.12.43은 모델 레지스트리·task-fit 근거를 모델 호출 없이 다시 확인해 만료를 2026-10-09로 늦춥니다. 2.12.41은 Codex가 많은 스킬 설명을 축약해도 첫 48자 안에 `/vibe`·SimonKStack·라우팅 목적이 남도록 설명을 고칩니다. 격리 Codex 프로필의 무모델 입력 검사에서 181개 스킬 중 namespaced `simonk-core:vibe`·`simonk-core:vibe-bot`가 각각 한 번 노출됐지만, 자연어 자동 선택 품질·실제 모델/effort 실행·구독 청구·이미지 생성·Grok Bot 전달을 증명하지는 않습니다. [설치 게이트](docs/INSTALL.md)를 유지합니다.
+> **현 상태 (2026-10-03):** 이 브랜치의 `/vibe` 2.13.0·`/qa` 2.1.0을 Claude·Codex·공용 `.agents` 경로에 반영했습니다. 변경/coding/qa run은 독립 계약과 검사 대상을 고정하고 실제 증거를 재검사해야 완료됩니다. 설치 경로의 vibe 410개·QA 33개 오프라인 회귀 테스트가 통과했습니다. 기능 소스는 `feat/qa-evidence-261003`에 push됐으며 main 병합·운영 배포는 하지 않았습니다. 실제 모델/effort 실행·구독 청구·제품 E2E와 전체 플러그인 호스트 동작은 별도 검증입니다. [설치 기록·백업](docs/INSTALL.md)과 [QA 완료 계약](skills-src/vibe/references/orchestration.md#qa-completion-gate)을 참고하세요. 모델 레지스트리 만료는 기존 2026-10-09 기준을 유지합니다.
 
 > **소스 전용 머지 안전 경계(D-33 당시):** 당시 `/vibe` 2.12.35는 조건부 호스트 이미지 어댑터와 Codex CLI 읽기 전용 어댑터를 포함하지만, 둘 다 소스·검증 경로이며 사용자 설치본이 아닙니다. Grok CLI 모델 목록도 메타데이터로만 읽으며 계정·쿼터·effort·구독 포함이 확인된 실행 경로는 아닙니다. 당시 격리 후보는 2.12.35였고 사용자 flat 설치본은 2.12.24였습니다. 이미지 어댑터에는 실제 호스트 구현이 없고, 현재 노출된 이미지 도구는 구독 전용 USD 0 하드캡·요청 조회를 증명하지 못해 이미지 생성은 계속 차단됩니다. Codex CLI 어댑터도 정확한 계정·모델·effort·구독 포함·크레딧 폴백 차단 증거 없이는 실행하지 않습니다. `distribution/main-source-only.hold`가 있는 체크아웃의 SessionStart 훅은 사용자 홈·업데이트 확인을 건드리지 않고 종료하며, `main` push의 자동 GitHub 릴리스도 보류합니다. 루트 Claude marketplace의 기존 `simonk-stack` 플러그인도 머지 전 `main` 커밋 `313c04b`에 고정했습니다. 이 장치들은 다섯 플러그인 후보를 설치하거나 자동 라우팅의 실사용 품질을 증명하지 않습니다. 새 릴리스 전에는 보류 파일 제거와 marketplace 핀·버전 변경을 별도 검증하세요.
 

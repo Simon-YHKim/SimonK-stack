@@ -2,6 +2,49 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
+## 2026-10-03 `/vibe` 2.13.0 · `/qa` 2.1.0 — QA 완료 게이트 설치
+
+Simon의 `/vibe` 연동·최종 개선 요청에 따라 `feat/qa-evidence-261003`의 소스
+`cf139c3837d071e7113cf837d6d03b935f4332f6`를 패키징하고 아래 세 경로만 전환했다.
+기능 소스는 feature 브랜치에 push됐으며 main 병합·운영 배포·자동 PR은 하지 않았다.
+
+| 설치 경로 | 대상 |
+| --- | --- |
+| `~/.claude/skills/vibe` | 아래 후보 `candidate-safety/plugins/SimonKCore/skills/vibe` (2.13.0) |
+| `~/.codex/skills/vibe` | 아래 후보 `codex-subset-safety/plugins/SimonKCore/skills/vibe` (2.13.0) |
+| `~/.claude/skills/qa` | 아래 후보 `candidate-safety/plugins/SimonKStack/skills/qa` (2.1.0) |
+
+`.agents/skills/{vibe,qa}`는 기존 `.claude` 연결을 통해 새 버전을 읽는다.
+다른 Core 링크·ai-debate·호스트 설정·자격증명·gstack 홈은 변경하지 않았다.
+따라서 모든 Core 링크가 같은 후보 루트를 가리킨다고 가정하면 안 된다.
+
+후보: `E:/Coding Infra/Releases/SimonK-stack/20261003-vibe-2130-qa-final/`.
+이전 정션 두 개와 물리 QA 폴더, 파일 해시·전환 기록은
+`~/.claude/flat-link-archive/vibe-qa-261003-2130/manifest.json`과 같은 폴더에 보존했다.
+복구 시 새 연결도 별도 보존한 뒤 해당 이름의 백업을 원래 경로로 이동한다.
+현재 연결을 통해 재귀 삭제하지 않는다.
+
+| 패키지 | SHA-256 영수증 |
+| --- | --- |
+| `source` | `4d7c26c9e74730d13d884649a95fb404d5b16849d356a7e6ffe947452eb49bfb` |
+| `candidate-safety` | `dc14805d096da2edc243d1c0e44b76dca87b9d305d8c2ab728ab7b06e6debfe5` |
+| `codex-overlay-safety` | `a4d114ac0e4bcd9a613c3ad02ca0d3da06db789d39ca63abaec6366fd8b12af9` |
+| `codex-subset-safety` | `dda20051135eaee70a419f0b01c80f7acdc8f4bd016b888023c9946de797aa4f` |
+
+네 영수증 재검증 PASS. 실제 Codex 설치 경로 410 tests, Claude 설치 경로
+run-state 67 tests, `.agents` QA 경로 33 tests PASS. 소스 selftest 180,
+Skill-Gen 통합 24, 전체 141 skill 품질 검사도 PASS. 이는 오프라인 계약/경로 검증이며
+모델 생성·비용·제품 E2E·전체 플러그인 설치 준비를 증명하지 않는다.
+
+완료 게이트 사용법은 [QA completion gate](../skills-src/vibe/references/orchestration.md#qa-completion-gate).
+열린 변경/coding/qa run은 `bind-qa`가 없으면 완료되지 않는다. 검증할 빌드와 계약
+해시를 독립적으로 고정하고, 명시 QA 경로를 사용한다. 이 PC의 공용 QA 경로는
+`C:/Users/202502/.agents/skills/qa`다. 고위험 검토·독립 벤더 리뷰·배포 권한은 별도다.
+
+토론은 앞선 사용자 정족수 예외 승인 아래 Google advisory로 검토했다.
+최종 재검토 `dbt-261003-vibeqa-check`는 즉시 차단 결함 없음으로 판단했고,
+핀으로 제한한 동적 로딩의 신뢰 경계는 문서화했다. 정식 4벤더 합의로 기록하지 않는다.
+
 ## 2026-10-02 `/vibe` 2.12.43 · `ai-debate` 0.2.2 — 4개 CLI 동일 설치
 
 D-55(4벤더 토론 `dbt-261002-020448`, 블라인드 심판 대안 4 · 확신도 92)에 따라 main `9e88140`에서
