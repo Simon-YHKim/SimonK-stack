@@ -100,7 +100,13 @@ SCOPE_WORDS = re.compile(
     r"scope|looked at|checked \d|"
     # 이 시스템의 관측 단위는 한 번의 기동이다. "이번 턴에 웹훅 블록 없음" 은 어디를 봤는지를
     # 말한 것이다 - 2026-09-20 vb-bd0ba78c 에서 이 문장이 범위 없는 부재로 걸렸다.
-    r"이번 (?:턴|프롬프트|기동|실행|회수|점검))")
+    r"이번 (?:턴|프롬프트|기동|실행|회수|점검)|"
+    # 콘솔 과제의 범위는 사이트가 아니라 열어 본 메뉴다. "## 확인한 메뉴 경로" 아래에 메뉴를
+    # 나열한 결과가 G6 에 걸렸다 - 2026-10-04 vb-0f14a5a0.
+    r"확인한 (?:메뉴|화면|페이지|경로)|메뉴 경로|checked (?:menus?|pages?|screens?))")
+# A breadcrumb names the console screen a line was read from, the way a URL names a page:
+# "| Monthly limit | Disabled | Dashboard > Spending |" (0.9.6).
+MENU_PATH_RE = re.compile(r"[A-Za-z가-힣][\w ()-]* > [A-Za-z가-힣]")
 # A line that names its own source (URL or bare domain) is scoped by that source,
 # e.g. a table row "| Cursor | 변경일 없음 | cursor.com/pricing |" (2026-09-19 pilot).
 SOURCE_RE = re.compile(
@@ -313,7 +319,7 @@ def _absence_unscoped(text: str) -> bool:
         if in_self_section or not ABSENCE_WORDS.search(line):
             continue
         if not (SOURCE_RE.search(line) or PATH_RE.search(line)
-                or SELF_STATUS_RE.search(line)):
+                or MENU_PATH_RE.search(line) or SELF_STATUS_RE.search(line)):
             return True
     return False
 

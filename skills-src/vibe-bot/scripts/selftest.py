@@ -117,6 +117,20 @@ def main() -> int:
     still = f"{nonce}\n결과: 해당 항목 0건"
     check("a bare absence is still caught after those two",
           any("G6" in f for f in m.verify_result(still, nonce)))
+    # 0.9.6 - measured on vb-0f14a5a0: a console task's scope is the menus it opened.
+    menus = (f"{nonce}\n## 확인한 메뉴 경로\n- Dashboard > Overview\n- Dashboard > Spending\n"
+             "- Billing / Invoices 링크는 일반 탐색에서 없음")
+    check("a 확인한 메뉴 경로 section scopes an absence",
+          m.verify_result(menus, nonce) == [], str(m.verify_result(menus, nonce)))
+    crumb_row = f"{nonce}\n| Auto top-up | 해당 설정 없음 | Dashboard > Spending |"
+    check("a breadcrumb on the row scopes that row",
+          m.verify_result(crumb_row, nonce) == [], str(m.verify_result(crumb_row, nonce)))
+    math_row = f"{nonce}\n- 취약점 0건 (5 > 3 기준)"
+    check("a numeric comparison is not a breadcrumb",
+          any("G6" in f for f in m.verify_result(math_row, nonce)))
+    menus_no_list = f"{nonce}\n- 자동 충전 메뉴 없음"
+    check("naming 메뉴 alone is not a scope",
+          any("G6" in f for f in m.verify_result(menus_no_list, nonce)))
     domain_conclusion = f"{nonce}\n결론: 가격이 올랐다 (cursor.com/pricing)"
     check("domain counts as evidence for a conclusion",
           m.verify_result(domain_conclusion, nonce) == [],
