@@ -264,7 +264,7 @@ def run():
         check("R1 — 반증 예인 A 작업은 A-verify 로 승격 (D-28 #11 본 규칙)",
               routing.lanes_for_proc("inventory-schema", falsifiable=True) == routing.lanes_for("A-verify"))
         check("A-verify = astra → fable → opus (D-28 #4)",
-              routing.lanes_for("A-verify") == ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5"],
+              routing.lanes_for("A-verify") == ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5-5"],
               str(routing.lanes_for("A-verify")))
         gate_a = [{"proc": "security-artifact-gate", "lane": routing.fixed_for("security-artifact-gate")[0], "class": "B"},
                   {"proc": "security-bizlogic-2nd", "lane": routing.fixed_for("security-bizlogic-2nd")[0], "class": "B"}]
@@ -274,12 +274,12 @@ def run():
         check("writes 공정이 codex 면 G1 + CODING_LANE_NOT_ALLOWED (Q-09)",
               not ok_w1 and "G1" in v_w1 and "CODING_LANE_NOT_ALLOWED" in v_w1, str(v_w1))
         ok_w2, v_w2, _nw2 = routing.validate_plan(
-            [{"proc": "terminal-ci-git", "lane": "claude-opus-5", "class": "B", "writes": True}],
+            [{"proc": "terminal-ci-git", "lane": default_coding, "class": "B", "writes": True}],
             quota_checked_vendors=routing.VENDORS)
         check("writes 공정만 있고 게이트가 없으면 MISSING_SECURITY_GATE (Q-09)",
               not ok_w2 and "MISSING_SECURITY_GATE" in v_w2, str(v_w2))
         ok_w3, v_w3, _nw3 = routing.validate_plan(
-            [{"proc": "terminal-ci-git", "lane": "claude-opus-5", "class": "B", "writes": True}] + gate_a,
+            [{"proc": "terminal-ci-git", "lane": default_coding, "class": "B", "writes": True}] + gate_a,
             quota_checked_vendors=routing.VENDORS)
         check("writes 공정이 claude 코딩 레인 + 게이트면 통과 (Q-09)", ok_w3, str(v_w3))
         check("writes 는 lanes_for_proc 도 코딩 목록 (Q-09)",
@@ -351,7 +351,7 @@ def run():
         check("fable 쿼터 버킷은 fableWeekly",
               routing.LANES["claude-fable-5-1"].get("quota_bucket") == "fableWeekly")
         check("fable 은 코딩·B 비코딩 2순위 (D-28 2단계 · M1 통과)",
-              routing.PROCESS_LANES["coding"] == ["claude-opus-5", "claude-fable-5-1"]
+              routing.PROCESS_LANES["coding"] == ["claude-opus-5-5", "claude-fable-5-1"]
               and routing.lanes_for("B")[1] == "claude-fable-5-1",
               f"coding={routing.PROCESS_LANES['coding']} B={routing.lanes_for('B')}")
         # 이름이 실제로 전달되는 것은 '새 워크트리' 뿐이다 —
@@ -542,11 +542,11 @@ def run():
         q_ok = {v: _q(10) for v in routing.VENDORS}
         lane_cp, note_cp = MI.pick_default("C-platform", q_ok)
         check("dispatch unavailable 인 gemini 는 기본 채움에서 건너뛴다 (D-28 #12)",
-              lane_cp == "gpt-5.6-sol", f"{lane_cp} {note_cp}")
+              lane_cp == "gpt-6.1-sol", f"{lane_cp} {note_cp}")
         live_bad = {"at": "t", "age_sec": 10, "stale": False,
                     "vendors": {"grok": False, "codex": True, "claude": True, "gemini": True}}
         lane_rt, _nrt = MI.pick_default("C-realtime", q_ok, live=live_bad)
-        check("실호출 실패 벤더는 쿼터와 무관하게 건너뛴다 (D-28 #13③)", lane_rt == "gpt-5.6-sol", str(lane_rt))
+        check("실호출 실패 벤더는 쿼터와 무관하게 건너뛴다 (D-28 #13③)", lane_rt == "gpt-6.1-sol", str(lane_rt))
         lane_rt2, note_rt2 = MI.pick_default("C-realtime", q_ok, live=dict(live_bad, stale=True))
         check("오래된 실호출 실패는 막지 않는다 (D-28 #13③)", lane_rt2 == "grok-4.6", f"{lane_rt2} {note_rt2}")
         st_f, why_f = MI.lane_state_for("claude-fable-5-1", q_ok, fable_pct=100)
@@ -555,7 +555,7 @@ def run():
         check("M2 미확정 — claude 주간 100% 면 fableWeekly 0% 여도 fable 은 blocked", st_f2 == "blocked",
               f"{st_f2} {wf2}")
         lane_cd, _ncd = MI.pick_default("B", q_ok, proc="coding")
-        check("코딩 기본 채움은 공정 전용 목록 (D-28 #5)", lane_cd == "claude-opus-5", str(lane_cd))
+        check("코딩 기본 채움은 공정 전용 목록 (D-28 #5)", lane_cd == "claude-opus-5-5", str(lane_cd))
 
         print()
         print("=== 2026-09-04 최종 감사 반영분 ===")
@@ -625,12 +625,12 @@ def run():
         check("B 클래스 1순위에 luna 없음", "gpt-5.6-luna" not in routing.lanes_for("B"))
         check("코디네이터가 B 워커 겸임 → 경고",
               routing.coordinator_conflict(
-                  [{"proc": "coding", "lane": "gpt-5.6-sol", "class": "B"}]))
+                  [{"proc": "coding", "lane": routing.COORDINATOR[0], "class": "B"}]))
         check("코디네이터 겸임은 클래스와 무관하게 경고 (D-28 #6)",
               routing.coordinator_conflict(
                   [{"proc": "research-collect", "lane": routing.COORDINATOR[0], "class": "C-realtime"}]))
-        check("코디네이터 effort 는 xhigh (D-28 #8)",
-              routing.COORDINATOR == ("gpt-5.6-sol", "xhigh"), str(routing.COORDINATOR))
+        check("코디네이터는 gpt-6.1-sol · effort 는 xhigh (D-28 #8 · D-67)",
+              routing.COORDINATOR == ("gpt-6.1-sol", "xhigh"), str(routing.COORDINATOR))
         check("terra 사다리 medium/max (D-28 #9)",
               routing.ladder_for("gpt-5.6-terra") == ("medium", "max"), str(routing.ladder_for("gpt-5.6-terra")))
         check("luna 사다리는 low/medium 유지 (D-28 #10 보류)",
@@ -650,7 +650,8 @@ def run():
         check("코딩 목록에는 codex 가 끝까지 없다 (D-28 #5)",
               all(routing.LANES[l]["vendor"] == "claude" for l in routing.PROCESS_LANES["coding"]))
         check("코디네이터(sol)가 B 목록에 없다 — 겸임이 구조적으로 불가",
-              "gpt-5.6-sol" not in routing.lanes_for("B"))
+              routing.COORDINATOR[0] not in routing.lanes_for("B")
+              and "gpt-5.6-sol" not in routing.lanes_for("B"))
         check("인가 게이트가 astra @xhigh 로 올라갔다 (Simon 결정 2026-09-06)",
               routing.fixed_for("security-bizlogic-2nd") == ("gpt-6-astra", "xhigh"),
               str(routing.fixed_for("security-bizlogic-2nd")))
@@ -668,6 +669,36 @@ def run():
         check("codex 레인 목록이 minimal 로 시작한다 (Orca CODEX_EFFORT_CHOICES[0])",
               routing.orca_efforts_for("gpt-6-astra")[0] == "minimal")
         check("은퇴 모델 gpt-5.4-mini 는 배정 금지", "gpt-5.4-mini" in routing.FORBIDDEN_LANES)
+
+        # D-67 (2026-10-04) — 현행 세대 레인을 옛 레인 옆에 추가 (ADD_ALONGSIDE_KEEP_LEGACY)
+        check("D-67 새 레인은 flag · orca · 상한 opus-5-5=max / 6.1-sol=xhigh",
+              all(routing.LANES[l]["effort_style"] == "flag" and routing.LANES[l]["dispatch"] == "orca"
+                  for l in ("claude-opus-5-5", "gpt-6.1-sol"))
+              and routing.ceiling_for("claude-opus-5-5") == "max"
+              and routing.ceiling_for("gpt-6.1-sol") == "xhigh")
+        check("D-67 옛 키는 원장 호환용으로 LANES 에 남는다",
+              all(l in routing.LANES and routing.ledger_efforts(l)
+                  for l in ("claude-opus-5", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna",
+                            "claude-sonnet-5", "grok-4.6")))
+        listed = {l for v in routing.CLASS_LANES.values() for l in v} | set(routing.PROCESS_LANES["coding"])
+        check("D-67 claude-opus-5(prompt-keyword)는 어떤 우선순위 목록·고정 공정에도 없다",
+              "claude-opus-5" not in listed
+              and all(f[0] != "claude-opus-5" for f in (routing.fixed_for(p[0]) for p in routing.PROCESSES) if f))
+        check("D-67 종합 고정 = claude-opus-5-5 @max (ultracode 는 flag 레인이 못 받는다)",
+              routing.fixed_for("synthesis") == ("claude-opus-5-5", "max"), str(routing.fixed_for("synthesis")))
+        check("D-67 gpt-5.6-sol 은 gpt-6.1-sol 뒤 폴백",
+              all(routing.lanes_for(c).index("gpt-6.1-sol") < routing.lanes_for(c).index("gpt-5.6-sol")
+                  for c in ("C-realtime", "C-platform")), str(routing.CLASS_LANES))
+        for bad in ("max", "ultra"):
+            try:
+                routing.dispatch_argv("gpt-6.1-sol", bad, "t", "n", "current", allow_off_ladder=True)
+                check(f"6.1-sol@{bad} → 차단 (Orca 미등록 id 상한 xhigh)", False, "통과되어 버렸다")
+            except ValueError:
+                check(f"6.1-sol@{bad} → 차단 (Orca 미등록 id 상한 xhigh)", True)
+        argv_o = routing.dispatch_argv("claude-opus-5-5", "max", "t", "n", "current")
+        check("opus-5-5 는 --model·--effort max 로 나가고 ultracode 키워드를 붙이지 않는다",
+              "claude-opus-5-5" in argv_o and argv_o[argv_o.index("--effort") + 1] == "max"
+              and routing.prompt_prefix("claude-opus-5-5", "max") == "", str(argv_o))
 
         # Orca 가 거부하는 값은 allow_off_ladder 로도 열리지 않는다.
         for bad in ("ultra", "max"):

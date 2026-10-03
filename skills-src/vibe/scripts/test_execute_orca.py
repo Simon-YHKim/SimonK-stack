@@ -388,6 +388,30 @@ class OrcaAdapterTests(unittest.TestCase):
                 self.adapter.dispatch(altered, "read", self.certificate)
         self.assertEqual(self.starts(), 0)
 
+    def test_d67_current_lanes_still_need_the_launch_certificate(self):
+        # D-67 minority guard: a ready plan on a newly registered lane is not a launch.
+        # Without the account/billing certificate the adapter stops before any native read.
+        for surface, model in (("claude", "claude-opus-5-5"), ("codex", "gpt-6.1-sol")):
+            with self.subTest(model=model):
+                store = run_state.Store(Path(self.tmp.name) / f"{model}.sqlite3")
+                store.initialize()
+                adapter = self.m.Adapter(store, self.transport, clock=lambda: self.clock)
+                c = candidate(model=model, surface=surface, transport="orca")
+                s = step(proc="research-deep", demand="reasoning", **{"class": "B"}, orca=self.binding)
+                plan = orchestrate.make_plan({"run_id": "vibe-d67", "steps": [s]},
+                    {"explain": {"path": "/fixture/SKILL.md"}},
+                    {"candidates": [c], "tools": [], **self.binding["guards"]}, NOW, fixture_registry([c]))
+                self.assertEqual(plan["status"], "ready", plan["errors"])
+                self.assertEqual(plan["steps"][0]["route"]["requested_effort"], "high")
+                store.register(plan, now=NOW)
+                before = len(self.transport.calls)
+                for certificate in (None, {**self.certificate, "verified": False}):
+                    with self.assertRaisesRegex(run_state.StateError, "TRANSPORT_ACCOUNT_UNVERIFIED"):
+                        adapter.dispatch(plan, "read", certificate)
+                self.assertEqual(len(self.transport.calls), before)
+                self.assertEqual(store.snapshot()["attempts"], [])
+        self.assertEqual(self.starts(), 0)
+
     def test_native_client_bounds_output_without_temporary_disk_spool(self):
         started = time.monotonic()
         with self.assertRaisesRegex(run_state.StateError, "TOO_LARGE"):
