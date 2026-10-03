@@ -1,6 +1,36 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-03 / 남은 일 전부 처리: vibe 2.13.1 · ai-debate 0.2.4 · careful 0.2.0 · Grok Bot 증거 레인
+## Latest — 2026-10-04 / 토론 4건 이행: 안전 훅 Windows·PowerShell · 위젯 D-54 재토론 · Grok Bot 첫 과제
+
+갱신 시각: 2026-10-04 01:17 KST · 갱신자: Claude Code(Opus 5.5). Simon 요청: "6분 뒤 grok 작업 마저, D-54는 너가 다시, 토론할 것이 있으면 멈추지 말고 진행, cursor 초과 과금은 꺼져 있고 양방향으로 승인 중, 승인 기록은 봐도 됨."
+
+### 어디까지 왔나
+- **결정(모두 PROVISIONAL 3/4, Grok CLI 결석)**: D-60(Grok Bot 레인 조건부 단계 개통, 자문 불허), D-61(D-54 재토론: 조건부 KEEP_AND_LAND), D-62(안전 스킬 2단계: A1 → 실측 D → A2·최소 B), D-63(위젯 REINSTALL_THEN_FIX). D-58에 Simon 게이트 증언 AMEND.
+- **안전 훅(D-62)**: PR #103 freeze·guard·unfreeze 0.2.0(Windows 경로 정규화, cwd 대체 판정 제거), #104 careful 0.2.2(Windows 루트·홈 HIGH 52형, PowerShell 매처 deny 전용). 후보 `20261004-vibe-21310b` 설치(정션 8 + 실폴더 4). **새 대화형 세션 종단 6/6 PASS**(Bash·PowerShell force-push deny, freeze 경계 밖 Write deny).
+- **실측 결론**: PowerShell 매처 발화, deny는 bypass에서도 차단, **ask도 bypass에서 확인창**, Edit 경로는 `C:\...`, 새 세션은 PowerShell 도구에 `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` 필요.
+- **위젯(D-61·D-63)**: 데이터 백업(`~/.claude/flat-link-archive/aiuw-backup-261003`, 7,683파일·210.6MB, ACL 좁힘)·사본 복원 리허설 일치. d767272 경고는 일반·모션 감소에서 구분 불가(FAIL) → PR #102로 2c21eec만 main, PR #105로 경고를 모양 단서(삼각형·밑줄)로 고쳐 세 모드 PASS, `094da97` 고정 소스로 최종 재설치(계정·인증 파일 해시 불변).
+- **Grok Bot(D-60)**: PR #101로 Relay만 `active`. 첫 과제(Cursor 초과 과금·자동 충전 화면 확인, 읽기 전용) `vb-c594b4d8`를 /vibe 정식 경로(Store USD 0 init·register·인증서·`execute_bot.py dispatch`)로 01:07:51 발행. 할당량 근거 = 위젯 Bot 행 자동 관측(96% 남음). 결과 대기(Relay 마지막 점검 00:38).
+- **Grok 계정**: Simon이 말한 리셋은 SuperGrok **Heavy** 계정(위젯 첫 Grok 칸, 10-03 23:12 KST 리셋, WK 89% 남음). Grok CLI는 10-01부터 다른 계정(10-08 16:51 리셋)이라 xai 좌석은 계속 결석.
+
+### 다음 작업 큐
+| # | 작업 | 크기 | 권장 |
+|---|---|---|---|
+| A | Grok catch-up D-56~D-63(8건). CLI를 Heavy 계정으로 다시 로그인하면 바로 가능(Simon이 `! grok login`), 아니면 10-08 16:51 KST 이후 | 작음 | 감시 스크립트가 READY 시 자동 실행 |
+| B | Grok Bot `vb-c594b4d8` 결과 회수 → `execute_bot.py check-result` → 스크린샷 직접 확인. PASS 전에는 다른 Bot 과제 금지(D-60) | 작음 | |
+| C | investigate 스킬(아직 gstack) 처리, careful PS 미판정 형태(변수·splatting·EncodedCommand), 플러그인 `safety_runtime.py` deny→ask 강등 수정 | 중간 | §35 |
+| D | 레지스트리 재갱신 2026-10-10 21:42 KST 전(알림 10-10 09:00) | 중간 | |
+| E | Orca 레인 현행 세대 이전(§35) · claude.ai/Cowork 지시사항 400KB 반영 · `docs/INSTALL.md` 400KB 근접 → 기간 분할 | 중간 | |
+
+### 다음 세션 시작하는 법
+```powershell
+git fetch origin main
+git show origin/main:docs/HANDOFF.md
+python -B "$env:USERPROFILE\.claude\skills\ai-debate\scripts\debate.py" catchup --orchestrator anthropic
+```
+
+---
+
+## 2026-10-03 22:53 / 남은 일 전부 처리: vibe 2.13.1 · ai-debate 0.2.4 · careful 0.2.0 · Grok Bot 증거 레인
 
 갱신 시각: 2026-10-03 22:53 KST · 갱신자: Claude Code(Opus 5.5). Simon 요청: "남은 일 모두 진행해줘. 토론에 그록 봇도 포함시키자. 그록은 2시간 뒤 리셋될꺼야. 그록은 한번 테스트 하지 않았나? 꼭 필요한가?"
 

@@ -2,6 +2,22 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
+## 2026-10-04 00:5x 안전 훅·vibe-bot 0.9.5 — D-60·D-62 설치, 위젯 D-63 재설치
+
+main `edd9864`(PR #101 vibe-bot Relay active, #103 freeze·guard·unfreeze 0.2.0, #104 careful 0.2.2)에서 조립한 후보를 설치했다.
+
+| 패키지 | SHA-256 영수증 |
+| --- | --- |
+| `source` | `d98daaf701b0c42e8b61c2a4166f06a3facc87adf3697b1141e3412a9ae1b513` (137스킬) |
+| `candidate-safety` | `8e49a803c6e31cd4bdb9844d1f52fc1de9234d2eb70ed395b2176ba6b13ae6ac` (182스킬) |
+| `codex-overlay-safety` | `50ebaab3a477704ec3725841b72334f3d980d8273a3872444e0f4b9a5a036e07` |
+| `codex-subset-safety` | `d6d26538bf07d12e6620c69db1c370d759cb0e78ffdadde4b8af59b0fb37c7cf` (177스킬) |
+
+- 후보 `E:/Coding Infra/Releases/SimonK-stack/20261004-vibe-21310b-candidate/`, 영수증 파일 `20261004-vibe-21310b-receipts.json`. 정션 8개 + Codex config 줄 전환, 되돌리기 `~/.claude/flat-link-archive/vibe-20261004-vibe-21310b/`.
+- 실폴더: `careful` 0.2.2, `freeze`·`guard`·`unfreeze` 0.2.0을 main blob에서 복사(전부 일치). 이전본 `~/.claude/flat-link-archive/{careful,freeze,guard,unfreeze}-261004/`(freeze·guard·unfreeze 이전본은 gstack 1.91.9 사본).
+- 검증: 설치본 selftest 180/0. 새 대화형 Claude Code 세션(Orca 터미널, `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`)에서 종단 6/6 — Bash·PowerShell force-push(로컬 bare 원격) deny, PS 정상 명령 통과, freeze 경계 밖 Write deny·안 허용, unfreeze 후 허용, 원격 ref 불변.
+- AI Usage Widget(D-61·D-63): 데이터 백업 `~/.claude/flat-link-archive/aiuw-backup-261003/`(base + incr-261004-003827, manifest 해시). fb5c9cf로 임시 재설치 후 `094da97`(PR #105 경고 수정) 고정 소스로 최종 재설치, app.asar `01115E890CEA…`, 계정·설정·인증 파일 해시 불변. 설치 스크립트는 반드시 `-Source <고정 워크트리>`(기본 체크아웃은 크게 뒤처짐).
+
 ## 2026-10-03 22:4x `/vibe` 2.13.1 · `ai-debate` 0.2.4 · `careful` 0.2.0 — D-59 설치
 
 D-59(4벤더 토론 `dbt-261003-221019`, full, 블라인드 심판 Gemini 조건부 ALL · 확신도 85, 비준 3/3 ACCEPT, Grok 결석)에 따라
