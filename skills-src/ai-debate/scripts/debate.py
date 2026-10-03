@@ -882,6 +882,10 @@ def seat_xai(cmd, probe=True):
                 "tier": tier, "on_demand_cap": _val(cfg.get("onDemandCap")),
                 "prepaid_balance": _val(cfg.get("prepaidBalance"))}
     if end is not None and end <= current:
+        if stale:  # a new period started after the line; nothing shows how much of it is already spent
+            return seat_row("xai", "UNKNOWN", "logged billing period ended %s and the live probe %s; the new "
+                            "period's usage is unknown" % (kst(end), live_error), "쿼터 근거 오래됨",
+                            evidence=evidence, cli=cmd)
         return seat_row("xai", "READY", "period reset since snapshot", "리셋됨",
                         evidence=evidence, cli=cmd)
     if pct >= threshold:

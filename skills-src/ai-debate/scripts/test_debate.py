@@ -400,6 +400,11 @@ class DebateTests(unittest.TestCase):
         # A stale line that already shows the week spent still keeps the seat out.
         self.write_grok(100, NOW + timedelta(days=5), ts="2026-10-01T07:00:00.000Z")
         self.assertEqual(debate.seat_for("xai", "anthropic")["status"], "ABSENT")
+        # A stale line whose period has ended says nothing about the new period.
+        self.write_grok(100, NOW - timedelta(hours=1), ts="2026-10-01T07:00:00.000Z")
+        seat = debate.seat_for("xai", "anthropic")
+        self.assertEqual(seat["status"], "UNKNOWN")
+        self.assertIn("new period's usage is unknown", seat["reason"])
         # A fresh line is still enough when the probe is unavailable.
         self.write_grok(30, NOW + timedelta(days=5))
         self.assertEqual(debate.seat_for("xai", "anthropic")["status"], "READY")
