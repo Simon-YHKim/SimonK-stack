@@ -1,6 +1,27 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-04 / 토론 4건 이행: 안전 훅 Windows·PowerShell · 위젯 D-54 재토론 · Grok Bot 첫 과제
+## Latest — 2026-10-04 / 결정 3단 도입(PROTOCOL §35.8) · ai-debate 0.2.5
+
+갱신 시각: 2026-10-04 01:55 KST · 갱신자: Claude Code(Opus 5.5). Simon: "이거 왜 이렇게 오래 걸리지? 결정 주체의 권한이 약한가? 의견 합치가 안 될 때는?" → 진단 보고 후 "제안하는대로 진행하자".
+
+### 어디까지 왔나
+- **진단**: 판정권은 약하지 않았다(블라인드 심판 1회로 매번 결정, 비준 18/18 동의). 느린 원인은 토론을 너무 자주·무겁게 연 것(9건 중 full 6건, 토론만 약 102분). 보고: https://claude.ai/artifact/7qTM85ez1JGyLapvHcoTMM
+- **결정 3단(허브 D-65, PROTOCOL §35.8)**: 1단 오케스트레이터 단독(되돌릴 수 있는 운영 판단, 기계적 근거 + DECISIONS 한 줄, 이의 시 승격) · 2단 quick(설계·머지·설치, R1 + 블라인드 심판) · 3단 full(삭제·결제·보안·프로덕션·스키마) · 심판 확신도 70 미만만 Simon 질문. 루트 CLAUDE/AGENTS/GEMINI §21 동기화.
+- **ai-debate 0.2.5**(PR #107, main 8afa150, 홈 설치 = D-66 첫 1단 단독 기록): SKILL.md에 3단 표, `status`가 확신도 70 미만이면 `ASK SIMON`, 기록에 경고. 테스트 112/112.
+- **D-64 이행(1단)**: Grok Bot 첫 발행 비용 0 정산 + 자동 충전 확인용 Settings 화면 캡처 2차 과제 진행 중(결과 오면 check-result·정산, 통과 시 D-60 PASS AMEND).
+
+### 다음 작업 큐
+| # | 작업 | 크기 | 단 |
+|---|---|---|---|
+| A | Grok Bot 2차 과제 결과 회수·check-result·정산 → D-60 PASS AMEND | 작음 | 1단 |
+| B | Grok catch-up D-56~D-64(9건): CLI를 Heavy 계정으로 다시 로그인(Simon `! grok login`)하거나 10-08 16:51 KST 이후 | 작음 | - |
+| C | investigate 스킬(gstack 판), careful PS 미판정 형태, 플러그인 `safety_runtime.py` deny→ask | 중간 | 2단 |
+| D | 레지스트리 재갱신 2026-10-10 21:42 KST 전 | 중간 | 1단(절차 반복) |
+| E | Orca 레인 현행 세대 이전 · claude.ai/Cowork 지시사항 400KB 반영 · `docs/INSTALL.md` 기간 분할 | 중간 | 2단 |
+
+---
+
+## 2026-10-04 01:17 / 토론 4건 이행: 안전 훅 Windows·PowerShell · 위젯 D-54 재토론 · Grok Bot 첫 과제
 
 갱신 시각: 2026-10-04 01:17 KST · 갱신자: Claude Code(Opus 5.5). Simon 요청: "6분 뒤 grok 작업 마저, D-54는 너가 다시, 토론할 것이 있으면 멈추지 말고 진행, cursor 초과 과금은 꺼져 있고 양방향으로 승인 중, 승인 기록은 봐도 됨."
 

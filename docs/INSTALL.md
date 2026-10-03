@@ -2,6 +2,11 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
+## 2026-10-04 01:5x `ai-debate` 0.2.5 — 결정 3단(D-65·D-66)
+
+- PR #107(main `8afa150`). 홈 `~/.claude/skills/ai-debate` 물리 사본을 main blob에서 교체(7/7 일치), 설치본 테스트 통과. 이전 0.2.4 → `~/.claude/flat-link-archive/ai-debate-0.2.4-261004/`. Codex는 `~/.agents/skills/ai-debate` 심링크, Grok·agy는 `~/.claude/skills` 경로로 같은 폴더를 읽는다.
+- 허브 D-66을 PROTOCOL §35.8 1단(오케스트레이터 단독)으로 기록한 첫 사례다.
+
 ## 2026-10-04 00:5x 안전 훅·vibe-bot 0.9.5 — D-60·D-62 설치, 위젯 D-63 재설치
 
 main `edd9864`(PR #101 vibe-bot Relay active, #103 freeze·guard·unfreeze 0.2.0, #104 careful 0.2.2)에서 조립한 후보를 설치했다.
