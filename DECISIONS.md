@@ -406,3 +406,25 @@ last-sync: 2026-07-05
   - **원문**: C:/Users/202502/AppData/Local/SimonKStack/ai-debate/debates/dbt-261003-210004
 
 - 2026-10-03 21:08:29 KST | AMEND | **D-57 PR #93 ai-debate 0.2.3 머지와 홈 설치** — 조건 이행: 리셋 분기 수정+테스트(029365b, 104/104), CI 4/4, main 머지 5e4cae8, 홈 ~/.claude/skills/ai-debate 0.2.3 교체(main blob 7/7 일치, 이전본 ~/.claude/flat-link-archive/ai-debate-0.2.2-261003) | claude
+
+- 2026-10-03 21:41:31 KST | AMEND | **D-54 AI Usage Widget 색상 변경 알림 로컬 갱신** — catch-up: Claude ACCEPT · Codex OBJECT: 계정·설정·인증 데이터가 손상됐을 때 이전 설치 파일 재설치만으로 복구할 수 있다는 근거가 없어, 판정의 데이터 보존 실패 대응이 불충분하다. · 상태 PROVISIONAL 2/4 · 차단(OBJECT 1건) | codex
+
+- 2026-10-03 21:46:40 KST | DECIDE | **D-58 Grok Bot의 ai-debate 편입 방식** (§35 4벤더 토론 · PROVISIONAL 3/4) | claude
+  - **안건**: Simon이 Grok Bot을 토론에 포함하라고 지시했다. Grok Bot은 xAI 계열 추정(모델 고정·확인 불가), Cursor 계정 별도 계량, 로컬 무모델 쿼터 증거 없음, Relay 파일 버스 왕복 중앙 7분(꼬리 수 시간~일), PC 파일을 상시 읽고 클라우드에 사본. 어떤 방식으로 포함할 것인가? — 선택지: 1) FIFTH_SEAT: 5번째 독립 좌석(투표·심판 후보 포함) / 2) XAI_FALLBACK: Grok CLI가 결석일 때만 xAI 좌석을 Grok Bot이 Relay로 대신 답한다(쿼터는 Simon 증언+유효기간 또는 위젯 브리지 파일, 모델 미신고 표시) / 3) VERIFIER: 투표하지 않는 사실 검증 역할(R1 전 증거의 웹·화면 사실 확인) / 4) FALLBACK_PLUS_VERIFIER: 2와 3을 모두
+  - **참석**: Claude ✓(claude-opus-5-5, 세션 내) · Codex ✓(gpt-6.1-sol) · Grok ✗(402 ~2026-10-08 16:51 KST) · Gemini ✓(gemini-3.1-pro-high)
+  - **입장**: Claude[대안]: 선택지 밖 대안 EVIDENCE_LANE(좌석 아님·비투표·비차단 증거 레인: 로그인 화면 사실만 다루고, 호스트 검증을 거쳐 기존 `--evidence-file`·`--reopen-of`로만 들어온다) — 확신도 68 · Codex[사용자 이익]: 선택지 3: VERIFIER — 확신도 90. 비투표 검증 역할로 편입하되, 현재는 비용·전달·접근권한 증거가 없어 실행 대기한다. · Gemini[회의]: 선택지 3 — 확신도 40
+  - **교차검증**: quick 모드 생략
+  - **심판**: Gemini (블라인드·새 세션·자기 벤더 입장 포함) — VERDICT: P2의 대안(EVIDENCE_LANE)을 채택하여 비투표·비차단 증거 레인으로 제한 편입한다. · CONFIDENCE 95
+  - **소수의견**: 가장 강력한 반론: Simon이 "코덱스, 그록 봇 제미나이 사용량 차있어"라는 맥락에서 포함을 지시한 것은 단순한 '사실 검증'이 아니라 결석한 xAI의 '목소리와 관점'을 원했기 때문일 가능성이 높습니다. 따라서 화면 사실 확인 레인으로만 편입하는 것은 실질적으로 지시(포함)를 포장한 거부(미포함)에 가깝습니다. 만약 사용자의 진의가 '의견 청취'라면, 투표 가중치에서는 배제하되 "미신고 자문" 형태로 의견을 남기게 하는 선택지 2의 변형이 불변규칙을 지키면서도 지시에 부합하는 길일 수 있습니다.
+  - **후속**: Grok Bot 편입 게이트 개방 조건으로, 연결된 Cursor 계정의 '자동 충전 및 초과 과금 꺼짐'을 증명하는 화면 캡처와 `approval_ref`를 호스트에게 요구합니다. `debate.py` 코드는 수정하지 않고 기존의 3 벤더(Claude, Codex, Gemini) 체제로 토론을 진행하되, xAI 좌석은 결석(PROVISIONAL) 처리합니다. 봇에게 검증을 요청할 경우 15분 타임박스를 설정하고, 시간 내 도착 시 `--evidence-file`로 첨부하며 지연 도착 시 결과에 따라 `--reopen-of`로 재토… · Grok 복귀 시 catchup 라운드 의무 (`debate.py catchup`)
+  - **원문**: C:/Users/202502/AppData/Local/SimonKStack/ai-debate/debates/dbt-261003-214200
+
+- 2026-10-03 22:32:10 KST | DECIDE | **D-59 PR #96·#97·#98·#99 머지와 홈 설치** (§35 4벤더 토론 · PROVISIONAL 3/4) | claude
+  - **안건**: CI 4/4를 통과한 PR 4개(vibe 2.13.0·qa 2.1.0, vibe 2.13.1 레지스트리, ai-debate 0.2.4, careful 0.2.0)를 main에 머지하고 사용자 홈에 설치할 것인가? 레지스트리는 2026-10-09 00:39 KST에 만료된다. — 선택지: 1) ALL: 4개 모두 머지하고 모두 설치(정션·사본 교체, 이전본 보관) / 2) ALL_BUT_CAREFUL: 4개 머지, vibe·qa·ai-debate만 설치, careful은 guard·freeze·PowerShell 공백까지 다음 단계에서 / 3) STAGED: 지금은 #96·#98(레지스트리 만료 대응)만 머지·설치, #97·#99는 Grok catch-up 뒤 / 4) MERGE_ONLY: 4개 머지만, 설치는 다음 묶음 릴리스
+  - **참석**: Claude ✓(claude-opus-5-5, 세션 내) · Codex ✓(gpt-6.1-sol) · Grok ✗(402 ~2026-10-08 16:51 KST) · Gemini ✓(gemini-3.1-pro-high)
+  - **입장**: Claude[회의]: 선택지 2 — 확신도 55 · Codex[대안]: 선택지 5 — 4개 머지, 설치는 분리하고 careful은 실제 훅 차단 검증 후 승격 — 확신도 82 · Gemini[찬성]: 선택지 1 (ALL) — 확신도 90
+  - **교차검증**: Claude REVISED: 조건부 선택지 1(입장 B의 선택지 5와 절차 동일) — 4개 머지, vibe·qa 즉시 설치, ai-debate는 이 토론 비준 뒤 교체, careful은 마지막에 설치하고 즉시 무해 deny 실… · Codex UNCHANGED · Gemini UNCHANGED
+  - **심판**: Gemini (블라인드·새 세션·자기 벤더 입장 포함) — VERDICT: 조건부 선택지 1 (4개 PR 모두 머지 및 설치하되, ai-debate는 현재 런 종료 후, careful은 훅 실측 후 실패 시 단독 복구) · CONFIDENCE 85 · 추인: Claude ACCEPT · Codex ACCEPT · Gemini ACCEPT
+  - **소수의견**: **거짓 안전감(False Sense of Security) 경계:** PR #99가 설치되더라도 Windows의 주력 셸인 PowerShell 환경은 여전히 감시 공백 상태이며, 파괴적 명령(루트 삭제 등) 중 일부가 deny가 아닌 ask로 처리된다는 한계가 있습니다. careful 설치가 시스템이 완전히 보호받고 있다는 착각을 유발해서는 안 됩니다. **CI 및 런(Run) 검증의 시스템적 한계:** "CI 4/4 통과"가 최종 머지된 main 브랜치의 설치물 조합 전체의 무결성까지 완벽히 증명하지는 않으며, 진행 중인 런(…
+  - **후속**: **머지 및 단계적 설치:** #96 → #98 → #97 → #99 순으로 PR을 머지하고 각 커밋의 CI 통과를 확인한 뒤, main 브랜치에서 후보를 빌드하여 영수증과 해시를 대조합니다. **vibe 및 qa 1차 롤아웃:** 진행 중인 `/vibe` 런이 0건임을 확인한 후 Core 정션 7개와 qa 정션을 새 버전으로 교체합니다 (이전 정션은 보관). **careful 검증 기반 승격:** careful 0.2.0을 홈에 설치한 직후, 로컬 임시 repo에서 `git push --force origin main`과 같은… · Grok 복귀 시 catchup 라운드 의무 (`debate.py catchup`)
+  - **원문**: C:/Users/202502/AppData/Local/SimonKStack/ai-debate/debates/dbt-261003-221019
