@@ -1,7 +1,7 @@
 ---
 name: ai-debate
 description: Use when "/ai-debate", "토론 붙여" or "겐세이" — Claude·Codex·Grok·Gemini debate a decision that is important, contested or irreversible, or challenge an agent stuck on one task too long. Also triggers "다관점으로 결정", "이거 합의 보자", "찬반 검토", "AI들끼리 토론", "중간 점검", "너무 오래 걸려", "debate this", "interject". MANDATORY for PROTOCOL §35.1 triggers. Always seats all four vendors — Claude, Codex (OpenAI), Grok (xAI) and Gemini (Google, via the Antigravity agy CLI) — through scripts/debate.py at $0 extra cost, hosted identically from Claude Code, Codex, Grok CLI or agy; an unreachable seat is recorded as absent with evidence and must catch up later, never simulated by another vendor. Runs positions, cross-examination, a blind separate judge and ratification, then Produces a D-code entry in the hub DECISIONS.md; interject mode Produces a 겐세이 card.md for the running agent.
-version: 0.2.3
+version: 0.2.4
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Agent
 compatibility:
   - claude-code
@@ -58,7 +58,7 @@ compatibility:
 | 좌석 | 호출 | 착석 전 증거 (모델 호출 없음) |
 |---|---|---|
 | Claude | 호스트가 아니면 `claude -p` (safe-mode, 도구 끔). 기본 UNKNOWN, `--accept-unknown`일 때만. 또는 살아 있는 Claude Code 세션이 `--host-session`으로 | AI Usage Widget 브리지의 5시간·7일 사용률(6시간 안 기록). 사용률이 기준 이상이면 ABSENT |
-| Codex | `codex exec --sandbox read-only --ignore-user-config`, 프롬프트는 stdin | 최신 rollout의 `token_count.rate_limits` (used_percent, resets_at, credits) |
+| Codex | `codex exec --sandbox read-only --ignore-user-config`, 프롬프트는 stdin | 실시간 조회 `codex app-server --stdio` → `account/rateLimits/read`(모델 턴 없음, usedPercent·resetsAt·hasCredits). 실패할 때만 최신 rollout의 `token_count.rate_limits`, 10분이 지난 기록은 여유 근거로 쓰지 않음(UNKNOWN) |
 | Grok | `grok --prompt-file ... --sandbox read-only --tools ""` | 실시간 ACP billing 조회 `grok agent --no-leader stdio` → `_x.ai/billing`(모델 턴 없음, creditUsagePercent·주기 종료). 실패할 때만 `~/.grok/logs/unified.jsonl`의 billing 기록, 10분이 지난 기록은 여유 근거로 쓰지 않음(UNKNOWN) |
 | Gemini | `agy --print ... --mode plan --sandbox --output-format json` | 무턴 `/usage` 조회의 Gemini 그룹 주간·5시간 버킷 remaining_fraction |
 
@@ -117,6 +117,25 @@ compatibility:
    - 착석한 벤더 셋 이상이 `STOP`이면 카드에 `⚠ STOP n/m — Simon에게 일시정지 권고` 줄이 붙는다. 그대로 Simon에게 일시정지를 권한다.
 
 **자기 자신에게도 적용한다.** 오케스트레이터가 같은 목표에서 45분 넘게 사용자에게 보이는 결과를 못 냈다면 스스로 겐세이를 요청한다.
+
+## Grok Bot 증거 레인 (D-58, 2026-10-03)
+
+Grok Bot은 좌석이 아니다. 투표하지 않고 토론을 막지도 않는 **증거 레인**으로만 쓴다.
+
+**좌석이 아닌 이유**
+- 모델을 고정할 수 없고 답마다 확인할 수도 없다(xAI 계열로 추정).
+- 로컬에서 모델 호출 없이 사용량을 읽을 방법이 없다.
+- Relay 왕복이 중앙값 7분이지만 꼬리는 몇 시간에서 며칠이다.
+
+**맡기는 일**: 로그인한 화면이나 웹에서만 볼 수 있는 사실 확인.
+
+**절차**
+1. **열기 전에 확인한다.** Cursor 계정의 초과 과금·자동 충전이 꺼져 있다는 화면 증거와 Simon의 `approval_ref`가 있어야 한다. 둘 다 없으면 쓰지 않는다(unknown is not free).
+2. **보낸다.** 요청은 확인할 사실 한 줄만 vibe-bot의 Relay 경로로 보낸다. 토론 프롬프트·증거 전체·회사 정보는 보내지 않는다.
+3. **15분 기다린다.** 그 안에 온 결과는 호스트가 검증한 뒤 `new --evidence-file`로 넣는다. 15분이 지나 도착한 결과는 판정을 바꿀 만한 경우에만 `new --reopen-of <id>`로 다시 연다.
+4. **좌석과 섞지 않는다.** xAI 좌석은 Grok CLI만 채운다. CLI가 결석이면 결석으로 남기고 catch-up한다. Bot 결과를 xAI 표로 세지 않는다.
+
+**보존한 소수의견**: Simon은 결석한 xAI의 관점 자체를 원했을 수 있다. 그렇다면 투표에서 빠지는 "미신고 자문 의견" 형태가 다음 후보다. Simon이 정한다.
 
 ## DECISIONS.md 기록 형식 (허브 실제 형식)
 

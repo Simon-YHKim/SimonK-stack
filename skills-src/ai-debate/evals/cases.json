@@ -1,6 +1,6 @@
 {
   "skill": "ai-debate",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "cases": [
     {
       "id": "ko-architecture-debate",

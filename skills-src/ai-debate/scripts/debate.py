@@ -56,10 +56,11 @@ RECORD_EVIDENCE_CAP = 6000
 QUESTION_CAP, ITEM_CAP, ITEM_COUNT = 2000, 300, 10
 BRIDGE_FRESH = timedelta(hours=6)
 CODEX_TAIL = 4 * 1024 * 1024
+CODEX_FRESH = timedelta(minutes=10)  # a rollout rate-limit snapshot older than this no longer proves headroom
 GROK_TAIL = 4 * 1024 * 1024
 GROK_FRESH = timedelta(minutes=10)  # a logged billing line older than this no longer proves headroom
-GROK_PROBE_SECONDS = 25
-GROK_PROBE_LINE = 1024 * 1024
+RPC_PROBE_SECONDS = 25  # live quota probes (Codex app-server, Grok ACP): the whole exchange
+RPC_PROBE_LINE = 1024 * 1024
 FOOTER = "도구를 쓰지 말고 파일을 수정하지 말 것. 자기 벤더·모델 정체를 밝히지 말 것. 텍스트로만 답할 것."
 QUOTA_RE = re.compile(r"(?:status|HTTP)\s*(?:402|429)|402 Payment Required|\b429\b|rate[ _-]?limit"
                       r"|usage balance exhausted|usage limit|add credits|RESOURCE_EXHAUSTED|quota", re.I)
@@ -675,32 +676,168 @@ def latest_codex_limits(root):
     return best
 
 
-def seat_openai(cmd):
+def rpc_probe(argv, vendor, label, talk):
+    """Run `argv` in a throwaway folder speaking JSON-RPC lines on stdio and return talk(request, notify).
+    Only what `talk` sends is sent: server notifications and requests are ignored, never answered or
+    executed. ValueError on any failure or after RPC_PROBE_SECONDS. The whole tree is killed afterwards
+    (an agent may start MCP servers)."""
+    base = state_root() / "probe"
+    base.mkdir(parents=True, exist_ok=True)
+    work = Path(tempfile.mkdtemp(prefix="%s-rpc-" % vendor, dir=str(base)))
+    if os.name == "nt":
+        kwargs = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP | getattr(subprocess, "CREATE_NO_WINDOW", 0)}
+    else:
+        kwargs = {"start_new_session": True}
+    job, proc, lines = new_job(), None, queue.Queue()
+    try:
+        proc = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                                cwd=str(work), env=child_env(vendor), shell=False, **kwargs)
+        join_job(job, proc)
+
+        def pump():
+            try:
+                for raw in iter(lambda: proc.stdout.readline(RPC_PROBE_LINE), b""):
+                    lines.put(raw)
+            except (OSError, ValueError):
+                pass
+            lines.put(b"")
+
+        threading.Thread(target=pump, daemon=True).start()
+        deadline = time.monotonic() + RPC_PROBE_SECONDS
+
+        def send(message):
+            try:
+                proc.stdin.write((json.dumps(message) + "\n").encode("utf-8"))
+                proc.stdin.flush()
+            except (OSError, ValueError):
+                raise ValueError("%s closed its input before %s" % (label, message["method"])) from None
+
+        def notify(method, params):
+            send({"jsonrpc": "2.0", "method": method, "params": params})
+
+        def request(rid, method, params):
+            send({"jsonrpc": "2.0", "id": rid, "method": method, "params": params})
+            while True:
+                left = deadline - time.monotonic()
+                try:
+                    raw = lines.get(timeout=left) if left > 0 else None
+                except queue.Empty:
+                    raw = None
+                if raw is None:
+                    raise ValueError("timed out waiting for %s" % method)
+                if not raw:
+                    raise ValueError("%s exited before answering %s" % (label, method))
+                try:
+                    msg = json.loads(raw)
+                except ValueError:
+                    continue
+                if not isinstance(msg, dict) or "method" in msg or msg.get("id") != rid:
+                    continue  # notifications and server requests are ignored, never executed
+                if "error" in msg:
+                    error = msg["error"] if isinstance(msg["error"], dict) else {}
+                    raise ValueError("%s failed (code %s)" % (method, error.get("code")))
+                return msg.get("result")
+
+        return talk(request, notify)
+    except OSError as exc:
+        raise ValueError("could not start %s (%s)" % (label, type(exc).__name__)) from None
+    finally:
+        if proc is not None:
+            kill_tree(proc)
+            for stream in (proc.stdin, proc.stdout):
+                try:
+                    stream.close()
+                except (OSError, ValueError):
+                    pass
+            try:
+                proc.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                pass
+        if job:
+            kernel32().CloseHandle(job)
+        shutil.rmtree(work, ignore_errors=True)
+
+
+def codex_live_limits(cmd):
+    """Codex rate limits over the app-server protocol with no model turn: `codex app-server --stdio`,
+    `initialize`, the `initialized` notification, then `account/rateLimits/read`. No thread, turn or
+    prompt method is ever sent. Returns {"limits": result, "codex_home": initialize's codexHome}; the
+    result carries `rateLimits` (primary/secondary `usedPercent`, `windowDurationMins`, `resetsAt`,
+    `credits.hasCredits`, `planType`, `rateLimitReachedType`), `rateLimitsByLimitId` and
+    `ordinaryUsageAllowed`. ValueError on any failure."""
+    def talk(request, notify):
+        init = request(1, "initialize", {"clientInfo": {"name": "ai-debate-seats", "version": "1"},
+                                         "capabilities": {"experimentalApi": False}})
+        if not isinstance(init, dict):
+            raise ValueError("initialize returned no object")
+        notify("initialized", {})
+        result = request(2, "account/rateLimits/read", {})
+        if not isinstance(result, dict) or not isinstance(result.get("rateLimits"), dict):
+            raise ValueError("rate-limit reply has no rateLimits object")
+        home = init.get("codexHome")
+        return {"limits": result, "codex_home": home if isinstance(home, str) else None}
+
+    return rpc_probe(cmd + ["app-server", "--stdio"], "openai", "codex app-server", talk)
+
+
+def codex_live_snapshot(bucket):
+    """The live `rateLimits` bucket in the rollout `token_count.rate_limits` shape."""
+    credits = bucket.get("credits") if isinstance(bucket.get("credits"), dict) else {}
+    snap = {"plan_type": bucket.get("planType"), "credits": {"has_credits": credits.get("hasCredits")}}
+    for name in ("primary", "secondary"):
+        window = bucket.get(name)
+        if isinstance(window, dict):
+            snap[name] = {"used_percent": window.get("usedPercent"), "resets_at": window.get("resetsAt"),
+                          "window_minutes": window.get("windowDurationMins")}
+    return snap
+
+
+def seat_openai(cmd, probe=True):
+    """Live app-server rate limits first. The rollout snapshot is only a fallback, and a stale one never
+    proves headroom: rollouts record `token_count` only for this machine's own Codex turns, so usage from
+    other machines or clients is invisible to them, and a spent window with credits bills purchased credit."""
     if not cmd:
         return seat_row("openai", "ABSENT", "codex CLI not found", "CLI 없음")
-    home = Path(os.environ.get("CODEX_HOME") or Path.home() / ".codex")
-    root = Path(os.environ.get("AI_DEBATE_CODEX_SESSIONS") or home / "sessions")
-    snap = latest_codex_limits(root) if root.is_dir() else None
-    if not snap:
-        return seat_row("openai", "UNKNOWN", "no Codex token_count evidence under %s" % root.as_posix(),
-                        "쿼터 근거 없음", cli=cmd)
-    observed, limits, path = snap
     current, threshold = now(), max_used()
+    live_error = None if probe else "skipped (--no-probe)"
+    flags = {}
+    if probe:
+        try:
+            live = codex_live_limits(cmd)
+            bucket = live["limits"]["rateLimits"]
+            limits, observed = codex_live_snapshot(bucket), current
+            source = "codex app-server account/rateLimits/read (live, no model turn)"
+            reached = bucket.get("rateLimitReachedType")
+            flags = {"codex_home": live["codex_home"],
+                     "ordinary_usage_allowed": live["limits"].get("ordinaryUsageAllowed"),
+                     "rate_limit_reached_type": str(reached)[:40] if reached else None}
+        except ValueError as exc:
+            live_error = "failed: %s" % str(exc)[:160]
+    if live_error:
+        home = Path(os.environ.get("CODEX_HOME") or Path.home() / ".codex")
+        root = Path(os.environ.get("AI_DEBATE_CODEX_SESSIONS") or home / "sessions")
+        snap = latest_codex_limits(root) if root.is_dir() else None
+        if not snap:
+            return seat_row("openai", "UNKNOWN", "live rate-limit probe %s; no Codex token_count evidence "
+                            "under %s" % (live_error, root.as_posix()), "쿼터 근거 없음", cli=cmd)
+        observed, limits, path = snap
+        source = path.as_posix()
     credits = limits.get("credits") if isinstance(limits.get("credits"), dict) else {}
     has_credits = credits.get("has_credits") is True
     windows = {}
     for name in ("primary", "secondary"):
         window = limits.get(name)
-        if isinstance(window, dict) and isinstance(window.get("used_percent"), (int, float)):
-            reset = from_epoch(window.get("resets_at"))
-            windows[name] = (float(window["used_percent"]), reset, window.get("window_minutes"))
-    evidence = {"source": path.as_posix(), "observed_at": stamp(observed),
+        used = window.get("used_percent") if isinstance(window, dict) else None
+        if isinstance(used, (int, float)) and not isinstance(used, bool) and math.isfinite(used):
+            windows[name] = (float(used), from_epoch(window.get("resets_at")), window.get("window_minutes"))
+    stale = bool(live_error) and current - observed > CODEX_FRESH
+    evidence = {"source": source, "observed_at": stamp(observed), "live_probe": live_error or "ok",
+                "stale": stale,
                 "windows": {k: {"used_percent": u, "resets_kst": kst(r) if r else None,
                                 "window_minutes": m} for k, (u, r, m) in windows.items()},
                 "has_credits": has_credits, "plan_type": limits.get("plan_type")}
-    if not windows:
-        return seat_row("openai", "UNKNOWN", "token_count has no usage windows", "쿼터 근거 없음",
-                        evidence=evidence, cli=cmd)
+    evidence.update(flags)
+    bill = ("; further calls would bill purchased credits", ", 구매 크레딧 과금 위험") if has_credits else ("", "")
     blocking = [(u, r, k) for k, (u, r, _m) in windows.items()
                 if u >= threshold and (r is None or r > current)]
     if blocking:
@@ -708,10 +845,29 @@ def seat_openai(cmd):
         reason = "%s window %g%% used (>= %g%%)%s" % (
             name, used, threshold, " until " + kst(reset) if reset else "")
         short = "쿼터 %g%%%s" % (used, " ~" + kst(reset) if reset else "")
-        if has_credits:
-            reason += "; further calls would bill purchased credits"
-            short += ", 구매 크레딧 과금 위험"
-        return seat_row("openai", "ABSENT", reason, short, reset, evidence, cmd, spent=True)
+        return seat_row("openai", "ABSENT", reason + bill[0], short + bill[1], reset, evidence, cmd, spent=True)
+    if flags.get("rate_limit_reached_type") or flags.get("ordinary_usage_allowed") is False:
+        what = ("rateLimitReachedType %s" % flags["rate_limit_reached_type"]
+                if flags.get("rate_limit_reached_type") else "ordinaryUsageAllowed false")
+        resets = [r for _u, r, _m in windows.values() if r and r > current]
+        reset = max(resets) if resets else None
+        return seat_row("openai", "ABSENT", "live reply says the usage limit is reached (%s)%s" % (what, bill[0]),
+                        "쿼터 소진" + bill[1], reset, evidence, cmd, spent=True)
+    if not windows:
+        return seat_row("openai", "UNKNOWN", "%s has no usage windows" % (
+            "token_count" if live_error else "live rate-limit reply"), "쿼터 근거 없음", evidence=evidence, cli=cmd)
+    if stale:  # usage from elsewhere since the snapshot is invisible to it
+        passed = [(k, r) for k, (_u, r, _m) in windows.items() if r is not None and r <= current]
+        if passed:
+            name, reset = passed[0]
+            return seat_row("openai", "UNKNOWN", "rollout snapshot's %s window reset at %s and the live probe %s; "
+                            "the new window's usage is unknown" % (name, kst(reset), live_error), "쿼터 근거 오래됨",
+                            evidence=evidence, cli=cmd)
+        name, (used, _r, _m) = max(windows.items(), key=lambda item: item[1][0])
+        return seat_row("openai", "UNKNOWN", "rollout snapshot (%s window %g%%) is %d min old and the live probe "
+                        "%s; usage may have grown since" % (
+                            name, used, (current - observed).total_seconds() // 60, live_error),
+                        "쿼터 근거 오래됨", evidence=evidence, cli=cmd)
     if any(u >= threshold for u, _r, _m in windows.values()):
         return seat_row("openai", "READY", "window reset since snapshot", "리셋됨",
                         evidence=evidence, cli=cmd)
@@ -731,62 +887,9 @@ def _val(node):
 
 def grok_live_billing(cmd):
     """Grok billing over ACP with no model turn: `grok agent --no-leader stdio`, `initialize`, then
-    `_x.ai/billing` (older CLIs: `x.ai/billing`). No prompt is sent and server requests are never
-    answered. Returns the result object ({"config": {...}, "subscription_tier": ...}); ValueError on
-    any failure. The whole tree is killed afterwards (the agent may start MCP servers)."""
-    base = state_root() / "probe"
-    base.mkdir(parents=True, exist_ok=True)
-    work = Path(tempfile.mkdtemp(prefix="grok-billing-", dir=str(base)))
-    if os.name == "nt":
-        kwargs = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP | getattr(subprocess, "CREATE_NO_WINDOW", 0)}
-    else:
-        kwargs = {"start_new_session": True}
-    job, proc, lines = new_job(), None, queue.Queue()
-    try:
-        proc = subprocess.Popen(cmd + ["agent", "--no-leader", "stdio"], stdin=subprocess.PIPE,
-                                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, cwd=str(work),
-                                env=child_env("xai"), shell=False, **kwargs)
-        join_job(job, proc)
-
-        def pump():
-            try:
-                for raw in iter(lambda: proc.stdout.readline(GROK_PROBE_LINE), b""):
-                    lines.put(raw)
-            except (OSError, ValueError):
-                pass
-            lines.put(b"")
-
-        threading.Thread(target=pump, daemon=True).start()
-        deadline = time.monotonic() + GROK_PROBE_SECONDS
-
-        def request(rid, method, params):
-            try:
-                proc.stdin.write((json.dumps({"jsonrpc": "2.0", "id": rid, "method": method,
-                                              "params": params}) + "\n").encode("utf-8"))
-                proc.stdin.flush()
-            except (OSError, ValueError):
-                raise ValueError("agent closed its input before %s" % method) from None
-            while True:
-                left = deadline - time.monotonic()
-                try:
-                    raw = lines.get(timeout=left) if left > 0 else None
-                except queue.Empty:
-                    raw = None
-                if raw is None:
-                    raise ValueError("timed out waiting for %s" % method)
-                if not raw:
-                    raise ValueError("agent exited before answering %s" % method)
-                try:
-                    msg = json.loads(raw)
-                except ValueError:
-                    continue
-                if not isinstance(msg, dict) or "method" in msg or msg.get("id") != rid:
-                    continue  # notifications and server requests are ignored, never executed
-                if "error" in msg:
-                    error = msg["error"] if isinstance(msg["error"], dict) else {}
-                    raise ValueError("%s failed (code %s)" % (method, error.get("code")))
-                return msg.get("result")
-
+    `_x.ai/billing` (older CLIs: `x.ai/billing`). No prompt is sent. Returns the result object
+    ({"config": {...}, "subscription_tier": ...}); ValueError on any failure."""
+    def talk(request, _notify):
         init = request(1, "initialize", {"protocolVersion": 1, "clientCapabilities": {
             "fs": {"readTextFile": False, "writeTextFile": False}, "terminal": False},
             "clientInfo": {"name": "ai-debate-seats", "version": "1"}})
@@ -802,23 +905,8 @@ def grok_live_billing(cmd):
                 or "creditUsagePercent" not in result["config"]:
             raise ValueError("billing reply has no config.creditUsagePercent")
         return result
-    except OSError as exc:
-        raise ValueError("could not start grok agent (%s)" % type(exc).__name__) from None
-    finally:
-        if proc is not None:
-            kill_tree(proc)
-            for stream in (proc.stdin, proc.stdout):
-                try:
-                    stream.close()
-                except (OSError, ValueError):
-                    pass
-            try:
-                proc.wait(timeout=10)
-            except subprocess.TimeoutExpired:
-                pass
-        if job:
-            kernel32().CloseHandle(job)
-        shutil.rmtree(work, ignore_errors=True)
+
+    return rpc_probe(cmd + ["agent", "--no-leader", "stdio"], "xai", "grok agent", talk)
 
 
 def grok_logged_billing(log):
@@ -1068,7 +1156,7 @@ def quota_seat(vendor, probe=True):
     cmd = resolve_cmd(vendor)
     stand_in = cmd or [BINARIES[vendor]]
     if vendor == "openai":
-        return seat_openai(stand_in)
+        return seat_openai(stand_in, probe and bool(cmd))
     if vendor == "xai":
         return seat_xai(stand_in, probe and bool(cmd))
     if vendor == "google":
@@ -1098,7 +1186,7 @@ def seat_for(vendor, orchestrator, probe=True):
         return host_seat(vendor)
     cmd = resolve_cmd(vendor)
     if vendor == "openai":
-        return seat_openai(cmd)
+        return seat_openai(cmd, probe)
     if vendor == "xai":
         return seat_xai(cmd, probe)
     if vendor == "google":
