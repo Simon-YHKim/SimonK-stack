@@ -1,7 +1,7 @@
 import { createTranslator } from '../../../shared/i18n';
 import type { AppStateSnapshot, ThemeTokens } from '../../../shared/types';
 import type { Api } from '../api';
-import { h, setAttr, setStyles, uniqueId } from '../dom';
+import { h, s, setAttr, setStyles, uniqueId } from '../dom';
 import { providerIcon, refreshGlyph } from '../icons';
 import { currentNavigatorLanguage, pickLocale } from '../locale';
 import { V1_COLORS, buildEnabledViews, itemTooltip, toRow, type AccountView, type RenderContext, type RowView } from '../model';
@@ -400,6 +400,10 @@ export class WidgetApp {
           const pace = view.state === 'ok' ? this.fastAccounts.get(view.account.id) : undefined;
           if (pace !== undefined) {
             item.classList.add('is-fast');
+            // Shape cue (triangle by the icon) so the warning never depends on colour alone; the
+            // value-change cue is an underline on the number instead (widget.css, DECISIONS 26.10.04).
+            item.append(s('svg', { class: 'pace-mark', viewBox: '0 0 10 9', width: 10, height: 9,
+              'aria-hidden': 'true', focusable: 'false' }, [s('path', { d: 'M5 .8 9.4 8.3H.6Z' })]));
             item.title += `\n${pace.usual === null ? t('quotaPaceBurst', { recent: pace.recent.toFixed(1) }) :
               t('quotaPaceFast', { recent: pace.recent.toFixed(1), usual: pace.usual.toFixed(1) })}`;
           }
