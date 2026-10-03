@@ -1,6 +1,31 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-04 / 결정 3단 도입(PROTOCOL §35.8) · ai-debate 0.2.5
+## Latest — 2026-10-04 / D-60 PASS · quick 토론 2건(D-67·D-68) · 후보 2140 설치(D-70)
+
+갱신 시각: 2026-10-04 04:35 KST · 갱신자: Claude Code(Opus 5.5). Simon: "debate.py 실행중이고, heavy 로그인 했고, 그록봇은 시간이 됐으니 다음 작업 진행해줘" → "작업 완료 하면 머지 하자".
+
+### 어디까지 왔나
+- **Grok Bot D-60 PASS**(D-64 이행, 1단): `vb-c594b4d8`·`vb-0f14a5a0` 모두 succeeded·verified·0원. 자동 충전 컨트롤은 없고 On-Demand·월 한도는 Disabled. run 2건은 `run_state.py complete`로 닫았다. Cursor Settings에 `Share Data: Active`가 보였다(바꾸지 않았고 Simon에게 보고).
+- **vibe-bot 0.9.6**(PR #109): G6가 콘솔 과제의 메뉴 범위("확인한 메뉴 경로", `Dashboard > Spending` 같은 경로)를 범위로 인정한다.
+- **Grok catch-up 9건(D-56~D-64)**: 다른 세션이 끝냈고 모두 FINAL(허브 37a7ffb7). D-58의 Grok OBJECT는 D-60 판정을 근거로 호스트가 타이브레이크했다.
+- **quick 토론 2건**(각 약 10분, 4/4):
+  - D-67 Orca 레인: ADD_ALONGSIDE_KEEP_LEGACY(PR #110, vibe 2.14.0). `claude-opus-5-5`·`gpt-6.1-sol`은 **등록만** 됐고, canary 전에는 '동작'으로 보지 않는다.
+  - D-68 investigate: SimonK 소스를 설치 대상에서 뺐다(PR #111, 표식 파일과 설치 가드). freeze·guard 0.2.1에 Windows 경고를 넣었다.
+- **안전 런타임**(PR #112, careful 0.2.3, D-62 후속 5): 플러그인 런타임이 deny를 ask로 낮추지 않는다. 런타임 자체 실패도 deny다.
+- **후보 `20261004-vibe-2140` 설치**(D-70, 1단): 정션 8개와 실폴더 careful·freeze·guard. 설치본 selftest는 vibe 188/0, vibe-bot 97/0. careful 훅 스모크 3/3.
+
+### 다음 작업 큐
+| # | 작업 | 크기 | 단 |
+|---|---|---|---|
+| A | 레지스트리 재갱신, 2026-10-10 21:42 KST 전 | 중간 | 1단(절차 반복) |
+| B | Orca canary(읽기 전용 1회, launch.requested와 effective 대조) + 계정/과금 인증서 → D-67 레인 '동작' 판정 | 중간 | 2단 |
+| C | `adversarial_eval.py` VENDOR_OF·`eval/probes.json`의 옛 레인명 정리, sonnet-5-5·6-luna 레인 여부 | 작음 | 2단 |
+| D | 안전 런타임 5초 제한(부하가 걸리면 deny), `codex_guarded_policy.py`가 ask만 받음 | 작음 | 2단 |
+| E | Cursor Share Data 설정(Simon 판단) · claude.ai/Cowork 400KB 지시 · `docs/INSTALL.md` 기간 분할(400KB 도달 시) | - | - |
+
+---
+
+## 2026-10-04 01:55 / 결정 3단 도입(PROTOCOL §35.8) · ai-debate 0.2.5
 
 갱신 시각: 2026-10-04 01:55 KST · 갱신자: Claude Code(Opus 5.5). Simon: "이거 왜 이렇게 오래 걸리지? 결정 주체의 권한이 약한가? 의견 합치가 안 될 때는?" → 진단 보고 후 "제안하는대로 진행하자".
 
