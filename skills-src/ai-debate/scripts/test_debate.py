@@ -59,6 +59,32 @@ if vendor == "xai" and argv[:3] == ["agent", "--no-leader", "stdio"]:
             reply = {"result": json.loads(setting("grok-billing-old"))}
         out(json.dumps(dict(reply, jsonrpc="2.0", id=req["id"])) + "\n")
     sys.exit(0)
+if vendor == "openai" and argv[:1] == ["app-server"]:
+    # Zero-turn app-server rate-limit probe; every line received is logged, so an answered server
+    # request or a prompt method would show. No setting = the probe fails (rollout fallback).
+    def probe_log(entry):
+        with open(state / "probes-openai.jsonl", "a", encoding="utf-8") as log:
+            log.write(json.dumps(entry) + "\n")
+    probe_log({"argv": argv})
+    limits = setting("codex-limits")
+    if not limits:
+        sys.exit(1)
+    for line in iter(sys.stdin.readline, ""):
+        req = json.loads(line)
+        probe_log({"method": req.get("method"), "id": req.get("id")})
+        if "id" not in req:
+            continue  # the initialized notification
+        out(json.dumps({"jsonrpc": "2.0", "method": "account/updated", "params": {}}) + "\n")
+        out(json.dumps({"jsonrpc": "2.0", "id": req["id"], "method": "item/tool/requestUserInput",
+                        "params": {}}) + "\n")
+        if req["method"] == "initialize":
+            reply = {"result": {"codexHome": str(state / "codex-home"), "platformOs": "windows"}}
+        elif req["method"] == "account/rateLimits/read":
+            reply = {"result": json.loads(limits)}
+        else:
+            reply = {"error": {"code": -32601, "message": "Method not found"}}
+        out(json.dumps(dict(reply, jsonrpc="2.0", id=req["id"])) + "\n")
+    sys.exit(0)
 stdin_text = sys.stdin.buffer.read().decode("utf-8")
 with open(state / ("calls-" + vendor + ".jsonl"), "a", encoding="utf-8") as log:
     log.write(json.dumps({"argv": argv, "stdin": stdin_text, "cwd": os.getcwd(),
@@ -165,10 +191,12 @@ class DebateTests(unittest.TestCase):
         self.write_grok(10, NOW + timedelta(days=2))
 
     # ------------------------------------------------------------ fixtures
-    def write_codex(self, used, reset, has_credits):
+    def write_codex(self, used, reset, has_credits, observed=None):
+        """A rollout token_count snapshot, fresh (NOW-5min) unless `observed` says otherwise."""
         folder = self.root / "codex" / "2026" / "10" / "01"
         folder.mkdir(parents=True, exist_ok=True)
-        record = {"timestamp": "2026-10-01T09:00:00.000Z", "type": "event_msg",
+        when = (observed or NOW - timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        record = {"timestamp": when, "type": "event_msg",
                   "payload": {"type": "token_count", "info": {}, "rate_limits": {
                       "primary": {"used_percent": float(used), "window_minutes": 10080,
                                   "resets_at": int(reset.timestamp())},
@@ -352,6 +380,96 @@ class DebateTests(unittest.TestCase):
     def test_codex_without_evidence_is_unknown(self):
         os.environ["AI_DEBATE_CODEX_SESSIONS"] = str(self.root / "missing")
         self.assertEqual(debate.seat_for("openai", "anthropic")["status"], "UNKNOWN")
+
+    def codex_live(self, used, reset, has_credits=True, reached=None, ordinary=True):
+        """An account/rateLimits/read result in the shape codex-cli 0.160.0 returned (2026-10-03)."""
+        bucket = {"limitId": "codex", "limitName": None, "normalModelSlug": None,
+                  "primary": {"usedPercent": used, "windowDurationMins": 10080, "resetsAt": int(reset.timestamp())},
+                  "secondary": None, "credits": {"hasCredits": has_credits, "unlimited": False, "balance": "5"},
+                  "individualLimit": None, "spendControlReached": False, "planType": "pro",
+                  "rateLimitReachedType": reached}
+        return json.dumps({"ordinaryUsageAllowed": ordinary, "rateLimits": bucket,
+                           "rateLimitsByLimitId": {"codex": bucket}, "accountId": "acct-test"})
+
+    def codex_probes(self):
+        path = self.state / "probes-openai.jsonl"
+        lines = path.read_text(encoding="utf-8").splitlines() if path.exists() else []
+        return [json.loads(x) for x in lines if x.strip()]
+
+    def test_codex_live_limits_override_a_fresh_looking_rollout(self):
+        # Rollouts only see this machine's own turns; the account may be spent from elsewhere.
+        self.write_codex(10, NOW + timedelta(days=5), True)
+        self.setting("codex-limits", self.codex_live(100, NOW + timedelta(days=5)))
+        seat = debate.seat_for("openai", "anthropic")
+        self.assertEqual(seat["status"], "ABSENT")
+        self.assertIn("further calls would bill purchased credits", seat["reason"])
+        self.assertEqual(seat["reset_kst"], debate.kst(NOW + timedelta(days=5)))
+        self.assertEqual((seat["evidence"]["live_probe"], seat["evidence"]["stale"]), ("ok", False))
+        self.assertIn("live", seat["evidence"]["source"])
+        self.assertEqual(seat["evidence"]["codex_home"], str(self.state / "codex-home"))
+        probes = self.codex_probes()
+        self.assertEqual(probes[0], {"argv": ["app-server", "--stdio"]})
+        # The handshake only: no thread/turn/prompt method, and the server's own request is never answered.
+        self.assertEqual([p["method"] for p in probes[1:]],
+                         ["initialize", "initialized", "account/rateLimits/read"])
+        self.assertEqual(self.calls("openai"), [])
+
+    def test_codex_live_limits_with_room_are_ready(self):
+        self.write_codex(100, NOW + timedelta(days=5), True)
+        self.setting("codex-limits", self.codex_live(30, NOW + timedelta(days=5)))
+        seat = debate.seat_for("openai", "anthropic")
+        self.assertEqual((seat["status"], seat["reason"]), ("READY", "primary window 30% used"))
+        self.assertEqual(seat["evidence"]["windows"]["primary"]["window_minutes"], 10080)
+        self.assertTrue(seat["evidence"]["has_credits"])
+        # A reached limit or no ordinary usage keeps the seat out even below the threshold.
+        self.setting("codex-limits", self.codex_live(30, NOW + timedelta(days=5), reached="rate_limit_reached"))
+        seat = debate.seat_for("openai", "anthropic")
+        self.assertEqual(seat["status"], "ABSENT")
+        self.assertIn("rateLimitReachedType rate_limit_reached", seat["reason"])
+        self.setting("codex-limits", self.codex_live(30, NOW + timedelta(days=5), ordinary=False))
+        self.assertIn("ordinaryUsageAllowed false", debate.seat_for("openai", "anthropic")["reason"])
+        # host_seat reads the same live quota for a Codex host.
+        self.setting("codex-limits", self.codex_live(100, NOW + timedelta(days=5)))
+        seat = debate.seat_for("openai", "openai")
+        self.assertEqual((seat["status"], seat.get("host_over_quota")), ("ABSENT", True))
+        self.assertEqual(seat["evidence"]["live_probe"], "ok")
+
+    def test_codex_stale_rollout_without_live_probe_is_not_ready(self):
+        self.write_codex(10, NOW + timedelta(days=5), True, observed=NOW - timedelta(hours=3))
+        seat = debate.seat_for("openai", "anthropic")  # probe fails (no fake limits) -> rollout fallback
+        self.assertEqual(seat["status"], "UNKNOWN")
+        self.assertIn("180 min old", seat["reason"])
+        self.assertTrue(seat["evidence"]["stale"])
+        self.assertTrue(seat["evidence"]["live_probe"].startswith("failed: "))
+        seat = debate.seat_for("openai", "anthropic", probe=False)
+        self.assertEqual(seat["status"], "UNKNOWN")
+        self.assertIn("skipped (--no-probe)", seat["reason"])
+        self.assertEqual(len([p for p in self.codex_probes() if "argv" in p]), 1)  # --no-probe spawned nothing
+        # A fresh snapshot is still enough when the probe is unavailable.
+        self.write_codex(10, NOW + timedelta(days=5), True)
+        seat = debate.seat_for("openai", "anthropic")
+        self.assertEqual((seat["status"], seat["evidence"]["stale"]), ("READY", False))
+
+    def test_codex_stale_rollout_after_a_window_reset_is_unknown(self):
+        self.write_codex(100, NOW - timedelta(hours=1), True, observed=NOW - timedelta(hours=3))
+        seat = debate.seat_for("openai", "anthropic")
+        self.assertEqual(seat["status"], "UNKNOWN")
+        self.assertIn("new window's usage is unknown", seat["reason"])
+
+    def test_codex_stale_rollout_over_threshold_stays_absent(self):
+        self.write_codex(100, NOW + timedelta(days=5), True, observed=NOW - timedelta(hours=3))
+        seat = debate.seat_for("openai", "anthropic")
+        self.assertEqual(seat["status"], "ABSENT")
+        self.assertTrue(seat["evidence"]["stale"])
+
+    def test_codex_call_rechecks_live_limits_before_spawning(self):
+        self.new()
+        self.write_codex(10, NOW + timedelta(days=5), True)
+        self.setting("codex-limits", self.codex_live(100, NOW + timedelta(days=5)))
+        rc, out, err = self.run_cli("call", "--id", "dbt-test", "--round", "r1", "--vendor", "openai")
+        self.assertEqual(rc, 3, err)
+        self.assertEqual(json.loads(out)["status"], "absent")
+        self.assertEqual(self.calls("openai"), [])
 
     def test_grok_spent_until_period_end_is_absent(self):
         self.write_grok(100, NOW + timedelta(days=2))

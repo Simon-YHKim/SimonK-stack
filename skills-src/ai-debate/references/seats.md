@@ -107,10 +107,14 @@ replaces the model-name suffix (`--effort low` → `gemini-3.1-pro-low`) and no 
 
 - Invocation: `codex exec --ephemeral --ignore-user-config --skip-git-repo-check --sandbox read-only -C <work> -m M -c model_reasoning_effort="E" -o <round>/openai.last.txt -`.
   - `--ignore-user-config` drops the user's `service_tier="priority"`, full-access sandbox and MCP servers.
-- Readiness evidence: the 3 newest `$CODEX_HOME/sessions/**/rollout-*.jsonl` by mtime, last 4 MB of each (files reach ~900 MB). The latest `event_msg` / `token_count` `rate_limits` gives `primary`/`secondary` `used_percent`, `resets_at` and `credits.has_credits`.
-  - `resets_at` passed → READY ("window reset since snapshot").
-  - used ≥ threshold → ABSENT until reset; with `has_credits` the reason adds "further calls would bill purchased credits".
+- Readiness evidence, live first: `codex app-server --stdio` (JSON-RPC lines, same scrubbed env and `CODEX_HOME` as the call) → `initialize` (clientInfo `ai-debate-seats`, `experimentalApi` false) → `initialized` notification → `account/rateLimits/read`. No thread, turn or prompt, no model turn; server notifications and requests are ignored, never answered; the process tree is killed afterwards (25 s cap, ~1 s measured). Reply (codex-cli 0.160.0, 2026-10-03): `rateLimits.primary`/`secondary` `usedPercent`, `windowDurationMins`, `resetsAt` (epoch s), `rateLimits.credits.hasCredits`, `planType`, `rateLimitReachedType`, plus `rateLimitsByLimitId` and `ordinaryUsageAllowed`. The `rateLimits` bucket is read; the others are not.
+  - Fallback only when the probe fails or `--no-probe`: the 3 newest `$CODEX_HOME/sessions/**/rollout-*.jsonl` by mtime, last 4 MB of each (files reach ~900 MB); the latest `event_msg` / `token_count` `rate_limits` (same fields, snake_case). Rollouts record only this machine's own Codex turns, so usage from other machines or clients is invisible to them.
+  - used ≥ threshold → ABSENT until reset; with `has_credits` the reason adds "further calls would bill purchased credits". This holds for a stale snapshot too.
+  - a live `rateLimitReachedType` or `ordinaryUsageAllowed: false` → ABSENT even below the threshold.
+  - `resets_at` passed → READY ("window reset since snapshot"), except from a stale snapshot → UNKNOWN (the new window's usage is unknown).
+  - a snapshot older than 10 minutes below the threshold → UNKNOWN ("usage may have grown since"), never READY.
   - no record → UNKNOWN.
+  - `evidence.live_probe` is `ok`, `failed: …` or `skipped (--no-probe)`; `evidence.stale` marks an old snapshot; a live row also carries `codex_home`.
 - $0 guard: a spent Codex window silently bills purchased credits, so ABSENT never spawns.
 - Failure → absent: "usage limit", HTTP 402 or 429, "rate limit"/`rate_limit_exceeded`, "quota" or "add credits".
 - Other non-zero exits are failed. The session id comes from `session id: <uuid>`.
