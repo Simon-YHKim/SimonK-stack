@@ -1,7 +1,7 @@
 ---
 name: ai-debate
 description: Use when "/ai-debate", "토론 붙여" or "겐세이" — Claude·Codex·Grok·Gemini debate a decision that is important, contested or irreversible, or challenge an agent stuck on one task too long. Also triggers "다관점으로 결정", "이거 합의 보자", "찬반 검토", "AI들끼리 토론", "중간 점검", "너무 오래 걸려", "debate this", "interject". MANDATORY for PROTOCOL §35.1 triggers. Always seats all four vendors — Claude, Codex (OpenAI), Grok (xAI) and Gemini (Google, via the Antigravity agy CLI) — through scripts/debate.py at $0 extra cost, hosted identically from Claude Code, Codex, Grok CLI or agy; an unreachable seat is recorded as absent with evidence and must catch up later, never simulated by another vendor. Runs positions, cross-examination, a blind separate judge and ratification, then Produces a D-code entry in the hub DECISIONS.md; interject mode Produces a 겐세이 card.md for the running agent.
-version: 0.2.4
+version: 0.2.5
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Agent
 compatibility:
   - claude-code
@@ -33,6 +33,19 @@ compatibility:
 | ⑤ 겐세이 | 한 에이전트가 45분 넘게 사용자에게 보이는 결과 없이 같은 목표를 붙잡음, HOLD·보류 반복, 사용자가 "왜 이렇게 오래 걸려"라고 함 |
 
 사소하거나 되돌리기 쉬운 일, 답이 하나뿐인 일에는 쓰지 않는다.
+
+### 결정 3단 (PROTOCOL §35.8, 2026-10-04 Simon)
+
+토론이 결정을 늦추지 않게 무게를 셋으로 나눈다.
+
+| 단 | 대상 | 방법 |
+|---|---|---|
+| 1 오케스트레이터 단독 | 되돌릴 수 있는 운영 판단: 검사·실측 결과 인정, 비용 정산, 버전·문서, 이미 토론·승인된 절차의 반복(CI 통과 PR 머지 → 후보 빌드 → 설치 → 새 세션 실측), 결정의 이행 세부 | 이 스킬을 쓰지 않는다. 근거는 기계적 증거(테스트·CI·실측·로그)여야 하고, DECISIONS.md에 `\| DECIDE \| **D-n …** (오케스트레이터 단독 · 35.8 1단) \| <벤더>` 한 줄과 근거를 남긴다. 누구든 이의를 내면 2단 이상으로 올린다. |
+| 2 quick | 설계·아키텍처·네이밍, AI 간 충돌, 되돌릴 수 있는 머지·설치·사용자 홈 변경 | `--mode quick`: 4벤더 입장 → 블라인드 심판. 교차검증·비준 없음. 15분 안에 기록. |
+| 3 full | 데이터 삭제, 결제·과금·수익화, 권한·인증·보안, 프로덕션 배포·라이브 사용자 영향, DB 스키마 | `--mode full`: 입장 → 교차검증 → 심판 → 비준. 30분 안에 기록. §11-5 안전 레일은 그대로 Simon. |
+
+- **불합치**: 입장이 갈려도 블라인드 심판이 고른 것이 결정이다. 심판 확신도가 **70 미만**이면 `status`가 `ASK SIMON` 줄을, 기록이 `⚠ 확신도 70 미만 — Simon 확인 필요`를 붙인다. 그때만 Simon에게 선택지와 권고를 한 줄로 묻는다.
+- 결석 좌석은 기다리지 않고 catch-up한다.
 
 ## 호스트 — 넷 중 어느 CLI든 같은 방법으로 지휘한다
 
@@ -98,7 +111,7 @@ compatibility:
    - 그다음 `debate.py record --id <id> --amend`로 같은 D-code에 AMEND 줄 하나를 덧붙인다(기존 줄은 고치지 않는다).
    - catch-up OBJECT는 6단계와 같은 규칙(1건 타이브레이크, 2건 이상 재토론)을 따른다.
 
-모드: `quick`(R1+심판, 최대 5회 호출)이 기본값이며 되돌릴 수 있는 결정에 쓴다. `full`(R1+R2+심판+비준, 최대 13회)은 ③ 비가역 결정에 쓴다.
+모드: `quick`(R1+심판, 최대 5회 호출)이 기본값이며 결정 3단의 2단에 쓴다. `full`(R1+R2+심판+비준, 최대 13회)은 3단(삭제·결제·보안·프로덕션·스키마)에만 쓴다. 1단은 이 스킬 없이 기록만 한다.
 
 ## 겐세이 모드 (중간 개입)
 

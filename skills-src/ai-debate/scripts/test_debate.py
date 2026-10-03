@@ -935,6 +935,32 @@ class DebateTests(unittest.TestCase):
         rc, _out, err = self.host_submit("dbt-test", "r1", "openai", r1_answer("HOST"), None)
         self.assertEqual(rc, 0, err)
 
+    def test_low_judge_confidence_asks_simon(self):
+        """PROTOCOL 35.8: a verdict below confidence 70 goes to Simon as a one-line question."""
+        self.new(mode="quick", orchestrator="anthropic")
+        for vendor in ("openai", "xai", "google"):
+            self.answer("dbt-test", "r1", vendor, r1_answer(vendor))
+        self.answer("dbt-test", "judge", "xai", JUDGE_ANSWER.replace("CONFIDENCE: 80", "CONFIDENCE: 65"))
+        st = self.status()
+        self.assertTrue(st["ask_simon"])
+        self.assertEqual(st["confidence_value"], 65)
+        text = self.run_cli("status", "--id", "dbt-test")[1]
+        self.assertIn("ASK SIMON: judge confidence 65 is below 70", text)
+        rendered = self.run_cli("record", "--id", "dbt-test")[1]
+        self.assertIn("Simon 확인 필요(§35.8)", rendered)
+
+    def test_judge_confidence_at_or_above_70_does_not_ask_simon(self):
+        self.new(mode="quick", orchestrator="anthropic")
+        for vendor in ("openai", "xai", "google"):
+            self.answer("dbt-test", "r1", vendor, r1_answer(vendor))
+        self.answer("dbt-test", "judge", "xai", JUDGE_ANSWER.replace("CONFIDENCE: 80", "CONFIDENCE: 70"))
+        st = self.status()
+        self.assertFalse(st["ask_simon"])
+        self.assertNotIn("ASK SIMON", self.run_cli("status", "--id", "dbt-test")[1])
+        self.assertEqual(debate.confidence_value("85 (조건부)"), 85)
+        self.assertIsNone(debate.confidence_value("높음"))
+        self.assertIsNone(debate.confidence_value("250"))
+
     def test_catchup_needs_the_current_host_and_offers_plain_submit_only_to_it(self):
         """P1-4: review S7 — catch-up told any CLI to plain-submit the stored host's seat."""
         self.new(mode="quick", orchestrator="anthropic")
