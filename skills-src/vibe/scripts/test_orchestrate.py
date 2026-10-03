@@ -1329,13 +1329,79 @@ class OrchestrationTests(unittest.TestCase):
 
     def test_current_generation_models_stay_off_orca_until_lane_migration(self):
         # Lane migration is a separate decision; registering a model must not open an Orca lane.
-        for model in ("claude-opus-5-5", "claude-sonnet-5-5", "gpt-6.1-sol", "gpt-6-sol",
-                      "gpt-6-luna", "grok-4.7", "grok-4.5"):
+        # D-67 added only claude-opus-5-5 and gpt-6.1-sol; these remain without a lane.
+        for model in ("claude-sonnet-5-5", "gpt-6-sol", "gpt-6-luna", "grok-4.7", "grok-4.5"):
             with self.subTest(model=model):
                 node = {"id": "n", "proc": "research-deep", "class": "B",
                         "route": {"transport": "orca", "model": model, "requested_effort": "high"}}
                 self.assertEqual(self.m._legacy_validation([node], {}),
                                  ["ORCA_UNREGISTERED_PROCESS_OR_MODEL"])
+
+    def test_d67_lanes_pass_registration_and_stop_at_the_quota_gate(self):
+        # Registered is not runnable: with no quota evidence the next gate (G5) still fails closed.
+        all_vendors = {"quota_checked_vendors": ["claude", "codex", "gemini", "grok"]}
+        for model, effort in (("claude-opus-5-5", "high"), ("claude-opus-5-5", "max"),
+                              ("gpt-6.1-sol", "high"), ("gpt-6.1-sol", "xhigh")):
+            with self.subTest(model=model, effort=effort):
+                node = {"id": "n", "proc": "research-deep", "class": "B",
+                        "route": {"transport": "orca", "model": model, "requested_effort": effort}}
+                self.assertEqual(self.m._legacy_validation([node], {}), ["ORCA_G5"])
+                self.assertEqual(self.m._legacy_validation([node], all_vendors), [])
+        # Orca caps gpt-6.1-sol at xhigh (unknown-model fallback); ultracode is a prompt keyword
+        # that a flag lane cannot carry. Neither opens with off_ladder either.
+        for model, effort in (("gpt-6.1-sol", "max"), ("gpt-6.1-sol", "ultra"),
+                              ("claude-opus-5-5", "ultracode")):
+            for off_ladder in (False, True):
+                with self.subTest(model=model, effort=effort, off_ladder=off_ladder):
+                    node = {"id": "n", "proc": "research-deep", "class": "B", "off_ladder": off_ladder,
+                            "route": {"transport": "orca", "model": model, "requested_effort": effort}}
+                    self.assertEqual(self.m._legacy_validation([node], all_vendors),
+                                     ["ORCA_DISPATCH_UNSUPPORTED"])
+
+    def test_d67_lanes_keep_every_zero_spend_gate_of_the_existing_flag_lanes(self):
+        # D-67 minority guard: the new lanes must fail closed exactly like the existing flag lanes.
+        pairs = ((("claude", "claude-fable-5-1"), ("claude", "claude-opus-5-5")),
+                 (("codex", "gpt-5.6-sol"), ("codex", "gpt-6.1-sol")))
+        all_vendors = ["claude", "codex", "gemini", "grok"]
+
+        def orca_plan(surface, model, billing_changes=None, drop=(), **runtime):
+            c = candidate(model=model, surface=surface, transport="orca")
+            c["billing"].update(billing_changes or {})
+            for key in drop:
+                c["billing"].pop(key)
+            return self.plan([step(proc="research-deep", demand="reasoning", **{"class": "B"})], [c], **runtime)
+
+        def reasons(plan):
+            self.assertEqual(plan["status"], "blocked")
+            return sorted({r for c in plan["steps"][0]["rejected_candidates"] for r in c["reasons"]})
+
+        for legacy, new in pairs:
+            with self.subTest(legacy=legacy[1], new=new[1]):
+                # No model-inclusion or extra-usage-off evidence: rejected before any route exists.
+                drop = ("model_included", "included_model", "extra_usage_enabled")
+                got = reasons(orca_plan(*new, drop=drop, quota_checked_vendors=all_vendors))
+                self.assertIn("MODEL_INCLUSION_UNVERIFIED", got)
+                self.assertIn("OVERAGE_UNVERIFIED", got)
+                self.assertEqual(got, reasons(orca_plan(*legacy, drop=drop, quota_checked_vendors=all_vendors)))
+                # Inclusion recorded for a different model (e.g. the predecessor) does not carry over.
+                other = {"included_model": legacy[1]}
+                self.assertIn("MODEL_INCLUSION_UNVERIFIED",
+                              reasons(orca_plan(*new, other, quota_checked_vendors=all_vendors)))
+                for changes in ({"extra_usage_enabled": True}, {"api_fallback_disabled": None}):
+                    self.assertEqual(reasons(orca_plan(*new, changes, quota_checked_vendors=all_vendors)),
+                                     reasons(orca_plan(*legacy, changes, quota_checked_vendors=all_vendors)))
+                # Complete fixture billing but no quota evidence: still blocked by the Orca G5 gate.
+                for surface, model in (legacy, new):
+                    p = orca_plan(surface, model)
+                    self.assertEqual(p["status"], "blocked")
+                    self.assertEqual(p["errors"], ["ORCA_G5"])
+                # Planner parity only; dispatch still needs the Orca launch certificate
+                # (test_execute_orca covers its absence for these lanes).
+                for surface, model in (legacy, new):
+                    p = orca_plan(surface, model, quota_checked_vendors=all_vendors)
+                    self.assertEqual(p["status"], "ready", p["errors"])
+                    self.assertEqual(p["steps"][0]["route"]["model"], model)
+                    self.assertEqual(p["steps"][0]["route"]["reserved_upper_usd"], 0.0)
 
     def test_cli_plan_round_trip_is_read_only(self):
         import json

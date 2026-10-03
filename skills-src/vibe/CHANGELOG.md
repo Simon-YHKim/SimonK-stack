@@ -1,5 +1,37 @@
 # Changelog
 
+## 2.14.0 - 2026-10-04
+
+- 허브 결정 D-67(토론 `dbt-261004-033902`, ADD_ALONGSIDE_KEEP_LEGACY, 4/4,
+  심판 확신도 92)에 따라 현행 세대 Orca 레인 두 개를 옛 레인 옆에 추가했다.
+  `claude-opus-5-5` 는 flag 레인(정책 high/max, Orca low~max)이고 `gpt-6.1-sol` 은
+  flag 레인(정책 high/xhigh, Orca minimal~xhigh)이다. 근거는 Orca 1.4.218 번들의
+  검증 코드(claude 미등록 id → low~max, codex 미등록 모델 → xhigh 상한)이며 모델 호출은 0회다.
+- 이 두 레인은 **등록만 됐다.** registry `legacy_lane_migration` 상태는
+  `pending-transport-and-canary` 이고, 읽기 전용 canary(`launch.requested` ↔
+  `launch.effective`)와 Orca 런치 계정/과금 인증서 전까지 동작 레인이 아니다.
+  native send 보류와 준비 브리지 미구현도 그대로다.
+- 우선순위 목록(A·B·A-verify·C-realtime·C-platform·D)과 `PROCESS_LANES.coding` 의
+  `claude-opus-5` 를 `claude-opus-5-5` 로 바꿨다. 옛 opus 레인은 prompt-keyword 라
+  guarded Orca 로 실행되지 않아 코딩 1순위와 종합 고정이 실행 경로가 없었다.
+- 종합 고정을 `(claude-opus-5, ultracode)` 에서 `(claude-opus-5-5, max)` 로 옮겼다.
+  ultracode 는 프롬프트 키워드라 flag 레인이 받을 수 없고, max 는 opus-5-5 의 Orca
+  상한이자 허브 핀이다. 코디네이터는 `gpt-6.1-sol` @xhigh 다(종합과 다른 벤더,
+  D-28 #8 의 effort 유지, 6.1-sol 의 Orca 상한). C 클래스 2순위도 `gpt-6.1-sol` 이다.
+- 옛 키는 지우지 않았다. `ledger.py` 가 `LANES` 에 없는 레인의 원장 행을 거부하므로
+  `claude-opus-5`·`gpt-5.6-sol` 등은 원장 호환용으로 남고, `gpt-5.6-sol` 은 C 클래스
+  목록 끝의 폴백이다. sol 후속은 `gpt-6.1-sol` 로 통일했다(registry 의 `gpt-6-sol` 표기 정리).
+  레지스트리 version 은 2026-10-04.1 이 됐지만 제공사 사실과 `checked_at` 은 그대로다.
+- `claude-sonnet-5-5`·`gpt-6-luna`·`gpt-6-sol`·`grok-4.7` 은 레인을 만들지 않았다.
+  sonnet-5-5 는 effort 재보정이 필요하고, 6-luna 는 A 클래스 1순위를 바꾸는 별도 결정이며,
+  grok 은 Orca 가 모델을 고정하지 못한다. 이들로의 Orca 발주는 여전히
+  `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 이다.
+- 소수의견 방어 테스트를 추가했다. 모델 포함·초과과금 OFF 증거가 없으면 새 레인도 기존
+  flag 레인과 같은 사유(`MODEL_INCLUSION_UNVERIFIED`·`OVERAGE_UNVERIFIED`)로 막히고,
+  쿼터 증거가 없으면 `ORCA_G5` 로, 런치 인증서가 없으면 `TRANSPORT_ACCOUNT_UNVERIFIED`
+  로 막힌다. `gpt-6.1-sol` @max·ultra 와 `claude-opus-5-5` @ultracode 는
+  `ORCA_DISPATCH_UNSUPPORTED` 다. 오프라인 테스트만 실행했다.
+
 ## 2.13.1 - 2026-10-03
 
 - Refresh the model registry before its seven-day window closed: all 28

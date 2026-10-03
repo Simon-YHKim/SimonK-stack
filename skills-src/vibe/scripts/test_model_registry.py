@@ -390,12 +390,32 @@ class ModelRegistryTests(unittest.TestCase):
     def test_pending_lane_migration_names_every_active_model_without_an_orca_lane(self):
         data = self.m.load_registry()
         unlaned = {m["id"] for m in data["models"] if m["lifecycle"] == "active"} - routing_lanes()
-        self.assertTrue({"claude-opus-5-5", "claude-sonnet-5-5", "gpt-6.1-sol", "grok-4.7"} <= unlaned)
+        self.assertTrue({"claude-sonnet-5-5", "gpt-6-sol", "gpt-6-luna", "grok-4.7"} <= unlaned)
         pending = catalog_map_section("Lane migration pending")
         self.assertIn("ORCA_UNREGISTERED_PROCESS_OR_MODEL", pending)
         for model_id in sorted(unlaned):
             with self.subTest(model=model_id):
                 self.assertIn("`" + model_id + "`", pending)
+
+    def test_d67_lanes_are_registered_but_still_pending_canary(self):
+        # D-67 adds lanes alongside the legacy keys; registration is not a working route.
+        data = self.m.load_registry()
+        migration = data["legacy_lane_migration"]
+        for lane in ("claude-opus-5-5", "gpt-6.1-sol"):
+            with self.subTest(lane=lane):
+                self.assertIn(lane, routing_lanes())
+                self.assertEqual(migration[lane], {"candidate": lane, "status": "pending-transport-and-canary"})
+        for legacy in ("claude-opus-5", "gpt-5.6-sol", "gpt-5.6-terra", "grok-4.6"):
+            self.assertIn(legacy, routing_lanes())  # ledger.py rejects rows whose lane is not in LANES.
+        self.assertEqual(migration["claude-opus-5"]["candidate"], "claude-opus-5-5")
+        self.assertEqual(migration["gpt-5.6-sol"]["candidate"], "gpt-6.1-sol")
+        self.assertNotIn("gpt-6-sol", {v["candidate"] for v in migration.values()})
+        self.assertEqual(migration["grok-4.6"], {"candidate": "grok-4.7", "status": "pending-quota-and-canary"})
+        pending = " ".join(catalog_map_section("Lane migration pending").split())
+        self.assertIn("pending-transport-and-canary", pending)
+        self.assertIn("launch.requested", pending)
+        for lane in ("claude-opus-5-5", "gpt-6.1-sol"):
+            self.assertIn("`" + lane + "`", pending)
 
     def test_catalog_map_states_lane_dispositions_and_legacy_routing_as_built(self):
         migration = self.m.load_registry()["legacy_lane_migration"]

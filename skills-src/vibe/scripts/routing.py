@@ -59,6 +59,26 @@
 #     (c) Orca 에 astra 를 seed 에 넣어달라고 올린다(업스트림 변경).
 #   · CODEX_EFFORT_CHOICES 의 0번은 'minimal' 이다 — 그래서 codex 레인은
 #     minimal 도 받는다(실측 확인). 정책으로는 안 쓰지만 목록에는 사실대로 적는다.
+#
+# ── 2026-10-04 D-67 — 현행 세대 레인을 옛 레인 옆에 추가한다 (ADD_ALONGSIDE_KEEP_LEGACY) ──
+#   허브 토론 dbt-261004-033902 (4벤더 FINAL 4/4 · 심판 Gemini · 확신도 92) 의 조건부 채택.
+#   근거는 Orca 1.4.218 app.asar 검증 코드를 읽은 것이다(모델 호출·worker-start 0회):
+#   · claude 카탈로그는 별칭 fable·opus·sonnet·haiku 만 안다. claude-opus-5-5 같은 정식 id 는
+#     '모르는 모델'이라 low~max 를 받고 --model 을 그대로 넘긴다.
+#   · codex 카탈로그는 위의 다섯 모델만 하드코딩한다. gpt-6.1-sol 은 모르는 모델이라
+#     minimal~xhigh 만 받는다 — max·ultra 는 거부된다(astra 와 같은 상한).
+#   · grok 은 launch-time 모델 선택을 지원하지 않아 grok-4.7 을 고정할 수 없다 → grok 레인은 그대로.
+#   그래서 claude-opus-5-5(flag · low~max)와 gpt-6.1-sol(flag · minimal~xhigh)을 새 키로 넣고
+#   우선순위 목록·고정 공정·코디네이터를 새 키로 옮긴다. 옛 키는 지우지 않는다 —
+#   ledger.py 가 LANES 에 없는 레인의 원장 행을 거부하므로 지우면 과거 원장·스왑 분석이 깨진다.
+#   ⚠ '등록'이지 '동작'이 아니다. native send 보류 · 준비 브리지 미구현 · 계정/과금 인증서 부재가
+#     그대로다. 읽기 전용 canary(launch.requested ↔ launch.effective 대조)와 인증서 전까지
+#     registry 의 legacy_lane_migration 상태는 pending-transport-and-canary 다.
+#     $0 게이트(모델 포함·초과과금 OFF·API 폴백 OFF)와 G5·Orca 인증서는 새 레인에도 똑같이 걸린다.
+#   넣지 않은 것: claude-sonnet-5-5 는 이 근거가 opus-5-5 만 직접 확인했고 registry 가
+#     effort 재보정(Claude Code 기본 medium ↔ API 기본 high)을 요구해 sonnet-5 사다리를 물려받을 수 없다.
+#     gpt-6-luna 는 Orca 가 6.1-sol 과 같은 폴백으로 받지만 D-67 판정의 후속 조치에 없고,
+#     A 클래스 1순위를 바꾸는 별도 결정이다. gpt-6-sol 은 sol 후속을 6.1-sol 로 통일해서 뺐다.
 import hashlib
 import json
 import os
@@ -99,9 +119,21 @@ except Exception:
 #   맡기지 않기로 한 결정이다(그래서 max 도 받지만 정책상 안 쓴다).
 #   off-ladder(정책 밖) 값은 dispatch_argv(..., allow_off_ladder=True) 로만 쓴다.
 LANES = {
+    "claude-opus-5-5": {
+        # D-67 (2026-10-04) — claude-opus-5 의 후속. prompt-keyword(ultracode)가 아니라
+        #   --effort 플래그로 전달한다: Orca claude 카탈로그는 이 id 를 모르는 모델로 보고 low~max 를 받는다.
+        #   허브 핀 claude-opus-5-5@max 와 같은 상한이다.
+        # ⚠ 등록만 됐다. 읽기 전용 canary · 계정/과금 인증서 전까지 동작 레인이 아니다
+        #   (registry legacy_lane_migration = pending-transport-and-canary).
+        "cli": "claude", "vendor": "claude", "effort_style": "flag", "dispatch": "orca",
+        "top": "max", "std": "high", "ctx": "canary 전 · Orca 미등록 id → low~max",
+        "orca_efforts": ("low", "medium", "high", "xhigh", "max"),
+    },
     "claude-opus-5": {
+        # D-67: 원장 호환용으로만 남긴다. 우선순위 목록·고정 공정에서 뺐다 —
+        #   prompt-keyword 레인이라 guarded Orca(execute_orca: flag 전용)로는 실행되지 않는다.
         "cli": "claude", "vendor": "claude", "effort_style": "prompt-keyword",
-        "top": "ultracode", "std": "standard", "ctx": "1M", "dispatch": "orca",
+        "top": "ultracode", "std": "standard", "ctx": "1M · D-67 원장 호환용(우선순위 밖)", "dispatch": "orca",
         # claude 는 effort 를 프롬프트 키워드로 받으므로 여기 값은 '정책 라벨'이고
         # 와이어로 나가는 값은 항상 --effort max 다 (dispatch_argv 참조).
         # 참고 실측: agent claude 의 와이어 허용목록은 low·medium·high·xhigh·max.
@@ -149,9 +181,19 @@ LANES = {
         "top": "xhigh", "std": "high", "ctx": "272K(최대 872K) · Orca 상한 xhigh",
         "orca_efforts": ("minimal", "low", "medium", "high", "xhigh"),
     },
-    "gpt-5.6-sol": {
+    "gpt-6.1-sol": {
+        # D-67 (2026-10-04) — sol 의 후속(registry 의 gpt-6-sol ↔ gpt-6.1-sol 불일치는 6.1-sol 로 통일).
+        #   Codex 카탈로그 priority 1. Orca codex 카탈로그에 없는 모델이라 astra 와 같은
+        #   폴백(codexEffort('xhigh'))을 받는다 → minimal~xhigh 만, max·ultra 는 거부. 허브 핀 @xhigh.
+        # ⚠ 등록만 됐다. 읽기 전용 canary · 계정/과금 인증서 전까지 동작 레인이 아니다.
         "cli": "codex", "vendor": "codex", "effort_style": "flag", "dispatch": "orca",
-        "top": "ultra", "std": "high", "ctx": "272K(최대 872K)",   # D-28 #16: 1.5M 은 옛 값
+        "top": "xhigh", "std": "high", "ctx": "canary 전 · Orca 상한 xhigh",
+        "orca_efforts": ("minimal", "low", "medium", "high", "xhigh"),
+    },
+    "gpt-5.6-sol": {
+        # D-67: gpt-6.1-sol 뒤 폴백으로 남긴다(C 클래스 목록 끝). 원장 호환도 이 키로 유지한다.
+        "cli": "codex", "vendor": "codex", "effort_style": "flag", "dispatch": "orca",
+        "top": "ultra", "std": "high", "ctx": "272K(최대 872K) · D-67 6.1-sol 뒤 폴백",   # D-28 #16: 1.5M 은 옛 값
         "orca_efforts": ("minimal", "low", "medium", "high", "xhigh", "max", "ultra"),
     },
     "gpt-5.6-terra": {
@@ -249,7 +291,11 @@ CLASS_LANES = {
     #   아니라 산출물 제약(CSV·카운트·분류 라벨만)이기 때문이다. grok 은 C-realtime 1순위로만 쓴다.
     #   검증 전 목록 = luna → opus. claude-sonnet-5 는 M1 실워커 1회 통과 뒤 2순위로 들어간다.
     #   2단계(2026-09-16 M1 통과): sonnet 을 2순위로 넣었다.
-    "A":          ["gpt-5.6-luna", "claude-sonnet-5", "claude-opus-5"],
+    # D-67 (2026-10-04): 모든 목록에서 claude-opus-5(prompt-keyword · guarded Orca 불가)를
+    #   claude-opus-5-5 로 바꿨다. sol 은 gpt-6.1-sol 을 같은 자리에 두고 gpt-5.6-sol 은 목록 끝 폴백으로 남긴다 —
+    #   끝에 두는 이유: 같은 codex 벤더라 쿼터 강등(pick_default)에서는 둘이 함께 건너뛰어지고,
+    #   2·3순위의 벤더 교차(탐색 슬롯 · 스왑 비교 · 표의 3후보)를 바꾸지 않기 위해서다.
+    "A":          ["gpt-5.6-luna", "claude-sonnet-5", "claude-opus-5-5"],
     # 2026-09-06: 2순위를 sol → gpt-6-astra 로 올린다.
     #   · astra 가 codex 계열 최상위 모델이다(models_cache priority 1).
     #   · sol 을 목록에서 빼면 코디네이터 좌석과 B 워커가 **구조적으로** 겹칠 수
@@ -263,18 +309,18 @@ CLASS_LANES = {
     #   검증 전 목록 = astra → opus. fable 은 M1 통과 뒤 2순위로 들어간다.
     #   위 09-06 주석의 "1순위 claude" 근거는 D-28 로 대체됐다(판정 원문 reports/vibe-d28-debate-260913).
     #   2단계(2026-09-16 M1 통과): fable 을 2순위로 넣었다.
-    "B":          ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5"],
+    "B":          ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5-5"],
     # D-28 #4 (Q-260913-08 승인 2026-09-16) — 대조·판정. 심판안 순서 그대로: astra → fable → opus.
     #   읽기 전용 클래스라 G1 과 무관하다(코딩이 아니다). 파일을 바꾸면 validate_plan 이 A_VERIFY_WRITES 로 막는다.
-    "A-verify":   ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5"],
+    "A-verify":   ["gpt-6-astra", "claude-fable-5-1", "claude-opus-5-5"],
     # D-28 #6: grok 은 새 계정 실호출 통과 전 blocked(make_intake 가 건너뛴다) → sol → opus.
     #   2026-09-20 08:33 실호출 OK(41.5초) — M3 해소. 상태는 여전히 make_intake 가 실호출로 판정한다
     #   (여기에 고정하지 않는다: G12 창이 24시간이라 하루 지나면 다시 미확인이다).
-    "C-realtime": ["grok-4.6", "gpt-5.6-sol", "claude-opus-5"],
+    "C-realtime": ["grok-4.6", "gpt-6.1-sol", "claude-opus-5-5", "gpt-5.6-sol"],
     # D-28 #7: gemini 는 dispatch "unavailable" 이라 기본 채움이 건너뛴다(#12) — 오늘 기본은 sol.
     #   sol·opus 가 BigQuery·Firebase 작업을 대신할 수 있는지는 미확인.
-    "C-platform": ["gemini-3.8-flash", "gpt-5.6-sol", "claude-opus-5"],
-    "D":          ["claude-opus-5"],              # 고정
+    "C-platform": ["gemini-3.8-flash", "gpt-6.1-sol", "claude-opus-5-5", "gpt-5.6-sol"],
+    "D":          ["claude-opus-5-5"],            # 고정
     "N":          [],                             # 모델 미사용 — orca CLI
 }
 
@@ -284,8 +330,9 @@ CLASS_LANES = {
 #   codex 폴백은 두지 않는다 — claude 가 막히면 코딩 없는 라운드로 줄인다(#14).
 #   불변식: PROCESS_LANES["coding"] 의 벤더 ∩ 보안 게이트 벤더 = ∅ (selftest 가 잡는다).
 #   fable 은 M1 실워커 1회 통과 뒤 2순위로 들어간다.
+#   D-67 (2026-10-04): 1순위 opus 를 claude-opus-5 → claude-opus-5-5 로 옮겼다(옛 레인은 guarded Orca 로 못 뜬다).
 PROCESS_LANES = {
-    "coding": ["claude-opus-5", "claude-fable-5-1"],   # 2단계: fable 은 M1 통과 뒤 2순위 (D-28 갈린 쟁점 ① = opus 먼저)
+    "coding": ["claude-opus-5-5", "claude-fable-5-1"],   # 2단계: fable 은 M1 통과 뒤 2순위 (D-28 갈린 쟁점 ① = opus 먼저)
 }
 
 CLASS_LABEL = {
@@ -346,7 +393,10 @@ PROCESSES = [
     ("research-collect",      "C-realtime", "웹 리서치 — 수집",            None),
     ("google-platform",       "C-platform", "Google 플랫폼 (BigQuery/Firebase/Workspace)", None),
     ("ui-visual",             "C-platform", "UI 시각 검증",                None),
-    ("synthesis",             "D", "다레인 산출물 조립",                   ("claude-opus-5", "ultracode")),
+    # D-67 (2026-10-04): (claude-opus-5, ultracode) → (claude-opus-5-5, max).
+    #   ultracode 는 프롬프트 키워드라 flag 레인이 받을 수 없고, guarded Orca 는 flag 레인만 띄운다 —
+    #   옛 고정값은 그래서 실행 경로가 없었다. max 는 opus-5-5 의 Orca 상한이자 허브 핀(@max)이다.
+    ("synthesis",             "D", "다레인 산출물 조립",                   ("claude-opus-5-5", "max")),
     ("worktree-run-mgmt",     "N", "워크트리 · run 관리 (orca CLI)",       None),
 ]
 
@@ -362,7 +412,11 @@ PROC_BY_ID = {p[0]: p for p in PROCESSES}
 #   ⚠ D-28 #6 이후 sol 이 C-realtime·C-platform 2순위에 들어가 ①은 더 이상 참이 아니다 —
 #     coordinator_conflict() 가 클래스와 무관하게 겸임을 경고한다.
 #   이 상수는 표시·안내용이고 validate_effort 를 거치지 않는다(D-28 N7b 실측).
-COORDINATOR = ("gpt-5.6-sol", "xhigh")
+#   D-67 (2026-10-04): gpt-5.6-sol → gpt-6.1-sol, effort 는 xhigh 그대로.
+#     · 종합(D = claude-opus-5-5)과 벤더가 달라야 하므로 codex 에 둔다.
+#     · sol 의 후속이 6.1-sol 이고(허브 핀 gpt-6.1-sol@xhigh) xhigh 는 D-28 #8 의 값이자 6.1-sol 의 Orca 상한이다.
+#     · 6.1-sol 이 C-realtime·C-platform 2순위라 겸임 가능성은 5.6-sol 때와 같다 — coordinator_conflict() 가 경고한다.
+COORDINATOR = ("gpt-6.1-sol", "xhigh")
 
 # 탐색 슬롯 제외 (발주 §11)
 # D-28 C2: 코딩은 공정 전용 목록 하나뿐이라 탐색할 2순위가 없다 → 제외에 넣는다.
@@ -387,7 +441,7 @@ OUTPUT_RULES = {
         "why":   "최저가 레인 — 판단을 맡기면 싼 값에 틀린다. "
                  "범위 요구는 Simon 결정(2026-09-04, luna03 채택)으로 A 클래스 전체에 적용된다",
     },
-    "claude-opus-5": {
+    "claude-opus-5-5": {   # D-67: 종합(D) 레인 규칙이라 종합 레인과 함께 옮겼다 (옛 키 claude-opus-5)
         "allow": "항목별 확신도 표기 필수 (강=기계검증 / 약=판단)",
         "deny":  "리포트만 내고 끝내기 — 사람이 읽는 것은 결정 시트 1장이다",
         "why":   "종합 레인이므로 사람의 결정으로 이어져야 한다",
@@ -1141,16 +1195,24 @@ def emit_md():
              "fable·sonnet 은 M1 통과(2026-09-16) 뒤 2순위 편입 · A-verify = astra → fable → opus(읽기 전용 · `writes` 면 A_VERIFY_WRITES) · 반증 \"예\"인 A 작업은 A-verify 로 승격 · gemini `unavailable`(M6) "
              "→ `references/d28-routing.md`")
     L.append("")
+    L.append("**D-67 (2026-10-04)**: `claude-opus-5-5`(flag · low~max)·`gpt-6.1-sol`(flag · minimal~xhigh)을 "
+             "옛 레인 옆에 **등록만** 했다 — 우선순위·코딩·종합 고정·코디네이터가 새 키로 옮겨졌다. "
+             "읽기 전용 canary(`launch.requested` ↔ `launch.effective` 대조)와 계정/과금 인증서 전까지는 "
+             "동작 레인이 아니며 $0 게이트·G5·Orca 인증서가 똑같이 걸린다. 옛 키(`claude-opus-5` 등)는 "
+             "원장 호환용으로 남고 `gpt-5.6-sol` 은 C 클래스 끝 폴백이다. grok 은 Orca 가 모델을 고정하지 못해 그대로다.")
+    L.append("")
     L.append("### 공정 → 클래스 → 레인")
     L.append("")
-    L.append("| 공정 | 클래스 | 1순위 | 2순위 | 3후보 |")
+    L.append("| 공정 | 클래스 | 1순위 | 2순위 | 3후보 (이후 폴백) |")
     L.append("|---|---|---|---|---|")
     for pid, cls, label, fixed in PROCESSES:
         lanes = lanes_for_proc(pid, cls)
         if fixed:
             cells = [f"**`{fixed[0]}` @{fixed[1]} 고정**", "—", "—"]
         else:
-            cells = [f"`{l}`" for l in lanes[:3]] + ["—"] * (3 - len(lanes[:3]))
+            # D-67: 4번째 이후(같은 벤더 옛 세대 폴백)도 표에서 사라지지 않게 3후보 칸에 잇는다.
+            cells = [f"`{l}`" for l in lanes[:2]] + ["—"] * (2 - len(lanes[:2]))
+            cells.append(" → ".join(f"`{l}`" for l in lanes[2:]) or "—")
         if pid in PROCESS_LANES:
             label = f"{label} **(공정 전용 목록)**"
         L.append(f"| {label} | {cls} | {cells[0]} | {cells[1]} | {cells[2]} |")
