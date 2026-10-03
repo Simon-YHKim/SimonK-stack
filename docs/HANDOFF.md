@@ -1,6 +1,39 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-03 / QA 2.1.0 + vibe 2.13.0 설치
+## Latest — 2026-10-03 / 4벤더 토론 실전 테스트 · ai-debate 0.2.3
+
+갱신 시각: 2026-10-03 21:10 KST · 갱신자: Claude Code(Opus 5.5). Simon 요청: "코덱스, 그록, 제미나이 사용량 차있어. 한번 테스트 해볼래?"
+
+### 어디까지 왔나
+- **Codex catch-up 완료**: D-53·D-55의 Codex 좌석을 실호출(gpt-6.1-sol xhigh, 84초·100초) → 둘 다 ACCEPT. 두 결정 모두 **FINAL via catch-up**, 허브 AMEND 기록. D-54(Codex가 연 토론)의 Codex 좌석은 살아 있는 대화형 Codex 세션만 채울 수 있어 남겨 둠.
+- **새 full 토론 D-56**(`dbt-261003-204651`, 안전 스킬 5개 gstack 원본 vs SimonK 판): R1·R2·블라인드 심판(Codex)·비준 3/3 ACCEPT → **REBASE**(확신도 84), PROVISIONAL 3/4.
+- **테스트에서 결함 발견 → ai-debate 0.2.3**: `seats`가 Grok을 READY(78%)로 냈다. 근거는 이틀 전 로그 줄이었고, 실제 계정은 100%라 R1이 402로 거절됐다(과금 0, on-demand·선불 0). [PR #93](https://github.com/Simon-YHKim/SimonK-stack/pull/93)으로 고침.
+  - Grok 좌석이 `grok agent --no-leader stdio` → `_x.ai/billing`으로 실시간 조회를 먼저 한다(모델 턴 없음, 약 0.4초).
+  - 오래된 로그는 여유 근거로 쓰지 않는다.
+  - D-57 토론에서 Codex·Claude 좌석이 따로 찾은 "기간 종료 + 오래된 로그 = READY" 빈틈도 같은 PR에서 막았다.
+  - 머지 `5e4cae8`, 홈 설치 완료(`docs/INSTALL.md` 첫 절).
+- 허브 `DECISIONS.md`: D-53·D-55 AMEND, D-56, D-57(+조건 이행 AMEND). 로컬 커밋 `0db9c2da`.
+
+### 다음 작업 큐
+| # | 작업 | 크기 | 권장 |
+|---|---|---|---|
+| A | **2026-10-08 중**(만료 10-09 00:39 KST 전) /vibe 레지스트리 재확인·갱신. 홈 /vibe는 지금 2.13.0(야간 QA 브랜치 후보)이라 갱신은 2.13.0 기준 소스에서 할 것 | 중간 | 놓치면 /vibe 라우팅 정지 |
+| B | Grok catch-up: D-56·D-57(그리고 같은 계정이 리셋되는 **2026-10-08 16:51 KST** 이후). `debate.py catchup --orchestrator <호스트>` | 작음 | Grok CLI 계정은 지금 주간 100% |
+| C | D-56 이행: careful부터 REBASE. `${CLAUDE_SKILL_DIR}`가 스킬 훅에서 전개되는지 로컬 실측이 먼저다(gstack 주석 #2469는 안 된다고 함 → SimonK 판 훅이 아예 안 돌 수 있음). freeze는 gstack 공용 작성기 보존 | 중간 | |
+| D | Codex 좌석도 실시간 조회(`codex app-server` `account/rateLimits/read`) — D-57 소수의견 | 작음 | |
+| E | `feat/qa-evidence-261003`(/vibe 2.13.0) PR·머지 여부 — 홈에는 이미 설치됨, main에는 없음 | 작음 | |
+| F | Orca 레인 현행 세대 이전(§35 토론) · claude.ai/Cowork 지시사항 400KB 반영 | 중간 | 이전 블록 C·E |
+
+### 다음 세션 시작하는 법
+```powershell
+git fetch origin main
+git show origin/main:docs/HANDOFF.md
+python -B "$env:USERPROFILE\.claude\skills\ai-debate\scripts\debate.py" catchup --orchestrator anthropic
+```
+
+---
+
+## 2026-10-03 03:43 / QA 2.1.0 + vibe 2.13.0 설치
 
 Simon 요청: AI 코딩 QA 강화안을 `/vibe`까지 연동해 최종 개선하고 PC 종료.
 
@@ -13,7 +46,9 @@ Simon 요청: AI 코딩 QA 강화안을 `/vibe`까지 연동해 최종 개선하
 - 보고서: `E:/Coding Infra/reports/simonk-vibe-qa-completion-20261003.html`. 종료 전 작업/검증 기록을 저장한다. 예약된 종료의 실제 실행 여부는 후보 루트의 `shutdown-status.json`을 확인한다.
 - 남은 경계: 계약의 완전성·테스트 실행자·사람 신원은 해시로 인증되지 않는다. 신뢰하는 coordinator/CI가 기준과 immutable build를 관리해야 한다. 레지스트리 만료 갱신 등 이전 후속 큐는 유지한다.
 
-## Previous — 2026-10-02 / 4개 CLI 동일 사용: /vibe 2.12.43 · ai-debate 0.2.2
+---
+
+## 2026-10-02 / 4개 CLI 동일 사용: /vibe 2.12.43 · ai-debate 0.2.2
 
 갱신 시각: 2026-10-02 02:25 KST · 갱신자: Claude Code(Opus 5.5). Simon 요청: "codex, claude, grok, agy 모두 이 스킬을 동일하게 사용하게, ai-debate·오케스트레이션·모델/effort 라우팅 모두 최신화. 나보고 시키지 말고 직접."
 
