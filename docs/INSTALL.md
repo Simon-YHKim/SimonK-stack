@@ -2,6 +2,30 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
+## 2026-10-04 04:2x `/vibe` 2.14.0 · `vibe-bot` 0.9.6 · `careful` 0.2.3 · `freeze`·`guard` 0.2.1 — D-70 설치
+
+main `4c7a152`에서 조립한 후보를 설치했다. 반영된 PR: #109 vibe-bot G6 메뉴 범위, #110 Orca 현행 레인(D-67), #111 investigate 비설치(D-68), #112 안전 런타임 deny 통과(D-62 후속 5).
+
+| 패키지 | SHA-256 영수증 |
+| --- | --- |
+| `source` | `54aafc2a18d0211cae0478354a282c230658bd4e1c5c2aad8d8e7336d8bd6626` (137스킬) |
+| `candidate-safety` | `78af5d308fca7ea2f45c1cac8851ad75b2e7163201c7628b6a0db4aa42b6b43e` (182스킬) |
+| `codex-overlay-safety` | `ee79ae52bb0d7bf0542b8fb7fe3d81a3b7705830802903a3cded720bd17323d3` |
+| `codex-subset-safety` | `9e9c4a71452ebc531a30d23912031b459365cc7414321060b13f2644352ad89c` (177스킬) |
+
+- 후보: `E:/Coding Infra/Releases/SimonK-stack/20261004-vibe-2140-candidate/`
+  - 영수증 파일: `20261004-vibe-2140-receipts.json`
+  - 정션 8개와 Codex config 줄을 전환했다. 되돌리기: `~/.claude/flat-link-archive/vibe-20261004-vibe-2140/`
+- 실폴더: `careful` 0.2.3과 `freeze`·`guard` 0.2.1을 main blob에서 복사했다(mismatch 0).
+  - 이전본: `~/.claude/flat-link-archive/{careful,freeze,guard}-261004-d70/`
+  - `unfreeze` 0.2.0은 그대로 뒀다.
+- 설치 전에 열린 vibe run 2건(D-60·D-64 Grok Bot, 0원)을 `run_state.py complete`로 닫았다. 설치 스크립트는 열린 run, 진행 중 시도, halted 상태가 있을 때만 거부한다.
+- 검증:
+  - 설치본 selftest: vibe 188/0, vibe-bot 97/0
+  - careful 훅 스모크: Bash HIGH deny, 일반 명령 allow, PowerShell HIGH deny
+  - 훅 명령 자체는 바뀌지 않아서 새 세션 종단 시험은 생략했다.
+- investigate: 홈 `~/.claude/skills/investigate`는 gstack 1.91.9 사본 그대로다(D-68). SimonK 소스(`skills-src/investigate/.simonk-no-install`)는 설치 대상이 아니다.
+
 ## 2026-10-04 01:5x `ai-debate` 0.2.5 — 결정 3단(D-65·D-66)
 
 - PR #107(main `8afa150`). 홈 `~/.claude/skills/ai-debate` 물리 사본을 main blob에서 교체(7/7 일치), 설치본 테스트 통과. 이전 0.2.4 → `~/.claude/flat-link-archive/ai-debate-0.2.4-261004/`. Codex는 `~/.agents/skills/ai-debate` 심링크, Grok·agy는 `~/.claude/skills` 경로로 같은 폴더를 읽는다.
