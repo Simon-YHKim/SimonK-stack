@@ -300,7 +300,7 @@ class PluginBundleTests(unittest.TestCase):
         self.m.verify_bundle(self.output, result["bundle_digest"])
         runtime = "${CLAUDE_PLUGIN_ROOT}/.simonk-runtime/safety_runtime.py"
         expected = {
-            "careful": {"careful": 1}, "freeze": {"freeze": 2},
+            "careful": {"careful": 1, "careful-powershell": 1}, "freeze": {"freeze": 2},
             "guard": {"careful": 1, "freeze": 2}, "investigate": {"freeze": 2},
         }
         homes = {**self.SAFETY_OWNERS}
@@ -409,21 +409,29 @@ class PluginBundleTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     self.m.safety_document("careful", drifted)
 
-    def test_careful_powershell_entry_is_dropped_from_projection(self):
-        # D-62 minimal B: the flat skill adds a PowerShell-matcher entry. The
-        # safety runtime has no PowerShell kind, so the projection removes that
-        # exact entry and the Bash entry projects as before.
+    def test_careful_powershell_entry_is_wrapped_by_the_safety_runtime(self):
+        # D-62 minimal B added a PowerShell-matcher entry to the flat skill.
+        # D-62 follow-up 5: the projection keeps that exact entry and runs it
+        # through the runtime's careful-powershell policy (leaf argument
+        # "powershell"); the Bash entry projects as before.
         source = (ROOT / "skills-src/careful/SKILL.md").read_bytes().replace(b"\r\n", b"\n")
         block = self.m.CAREFUL_POWERSHELL_HOOK.encode("utf-8")
         self.assertEqual(source.count(block), 1)
         front = self.m.safety_document("careful", source).decode("utf-8").split("---", 2)[1]
-        args = json.dumps(["-B", "${CLAUDE_PLUGIN_ROOT}/.simonk-runtime/safety_runtime.py",
-                           "check", "careful", "--project", "${CLAUDE_PROJECT_DIR}"])
+        runtime = "${CLAUDE_PLUGIN_ROOT}/.simonk-runtime/safety_runtime.py"
+        args = json.dumps(["-B", runtime, "check", "careful", "--project", "${CLAUDE_PROJECT_DIR}"])
+        ps_args = json.dumps(["-B", runtime, "check", "careful-powershell", "--project",
+                              "${CLAUDE_PROJECT_DIR}"])
         self.assertEqual(front[front.index("hooks:\n"):],
                          'hooks:\n  PreToolUse:\n    - matcher: "Bash"\n      hooks:\n'
                          '        - type: command\n          command: "python"\n'
                          '          args: ' + args + '\n'
-                         '          statusMessage: "Checking for destructive commands..."\n')
+                         '          statusMessage: "Checking for destructive commands..."\n'
+                         '    - matcher: "PowerShell"\n      hooks:\n'
+                         '        - type: command\n          command: "python"\n'
+                         '          args: ' + ps_args + '\n'
+                         '          statusMessage: "Checking PowerShell for catastrophic commands..."\n')
+        self.assertNotIn("$HOME", front)
         for drifted in (source.replace(block, b""), source + b"\n" + block,
                         source.replace(b"check-careful.sh\" powershell", b"check-careful.sh\" pwsh")):
             with self.subTest(drifted=len(drifted)):
@@ -637,6 +645,17 @@ class PluginBundleTests(unittest.TestCase):
         self.assertEqual(decision(invoke(core, "check", "careful", "--project", str(project),
                                          session=first, command="rm -rf /var/data",
                                          plugin_data=core_data)), "ask")
+        # D-62 follow-up 5: a careful leaf deny (HIGH) is not downgraded to ask,
+        # and the projected PowerShell hook's policy runs the deny-only leaf mode.
+        for policy, command, expected in (
+            ("careful", "rm -rf /", "deny"),
+            ("careful-powershell", "Remove-Item -Recurse -Force C:\\", "deny"),
+            ("careful-powershell", "git reset --hard", "allow"),
+        ):
+            with self.subTest(policy=policy, command=command):
+                self.assertEqual(decision(invoke(core, "check", policy, "--project", str(project),
+                                                 session=first, command=command,
+                                                 plugin_data=core_data)), expected)
 
     def test_repeated_builds_equal_but_existing_output_is_preserved(self):
         first = self.build()

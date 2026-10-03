@@ -7,6 +7,13 @@ host hooks, execute tool commands, or make a candidate install-ready.  Timeout
 kills Git Bash itself, not an independently escaped descendant tree.  Atomic
 replacement assumes one same-user writer for a project/session key; concurrent
 writers are outside this deliberately small v1 contract.
+
+Decisions (hub decision D-62 follow-up 5): a leaf's own decision passes
+through unchanged with its reason -- `{}` allow, careful `ask`, careful or
+freeze `deny` (careful 0.2.2 denies HIGH commands and its own failures; freeze
+denies outside the boundary and whatever it cannot judge). Anything the bridge
+itself cannot do or read (no Git Bash, bad state, bad or oversized leaf output,
+timeout) is a fail-closed `deny`; it is never downgraded to `ask`.
 """
 
 from __future__ import annotations
@@ -32,6 +39,15 @@ MAX_OUTPUT = 64 * 1024
 PROCESS_TIMEOUT = 5
 SESSION_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}\Z", re.ASCII)
 REPARSE_POINT = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+# careful-powershell runs the careful leaf in its deny-only PowerShell-tool
+# mode (leaf argument "powershell", careful 0.2.2).
+POLICIES = ("careful", "careful-powershell", "freeze")
+# Decisions a leaf may emit besides `{}`. Anything else is invalid output.
+LEAF_DECISIONS = {
+    "careful": ("ask", "deny"),
+    "careful-powershell": ("ask", "deny"),
+    "freeze": ("deny",),
+}
 
 
 class SafetyRuntimeError(Exception):
@@ -39,14 +55,17 @@ class SafetyRuntimeError(Exception):
 
 
 def _decision(policy: str) -> dict[str, Any]:
-    decision = "ask" if policy == "careful" else "deny"
-    reason = ("[careful] Safety runtime unavailable; review before approving."
-              if policy == "careful"
-              else "[freeze] Safety runtime unavailable; blocked, fail closed.")
+    """Fail-closed decision for a check the runtime itself could not complete."""
+    reason = ("[freeze] Safety runtime unavailable; blocked, fail closed."
+              if policy == "freeze"
+              else "[careful][RUNTIME FAILURE] Safety runtime failed, command not "
+                   "checked, so it is blocked (fail closed). Way out: repair the "
+                   "plugin safety runtime (Python, Git Bash and Node on PATH), or "
+                   "start a new session without /careful.")
     return {
         "hookSpecificOutput": {
             "hookEventName": "PreToolUse",
-            "permissionDecision": decision,
+            "permissionDecision": "deny",
             "permissionDecisionReason": reason,
         }
     }
@@ -443,8 +462,9 @@ def _tool_path(cwd: str, raw: Any) -> Path:
 def _run_leaf(policy: str, payload: dict[str, Any], boundary: str | None) -> dict[str, Any]:
     runtime = Path(__file__).resolve(strict=True).parent
     bash, cygpath = _locate_bash()
-    helper = (runtime / "careful/bin/check-careful.sh" if policy == "careful"
-              else runtime / "freeze/bin/check-freeze.sh")
+    helper = (runtime / "freeze/bin/check-freeze.sh" if policy == "freeze"
+              else runtime / "careful/bin/check-careful.sh")
+    leaf_args = ["powershell"] if policy == "careful-powershell" else []
     helper = _safe_resource(helper)
     _safe_resource(runtime / "careful/bin/hook-extract.sh")
 
@@ -477,7 +497,7 @@ def _run_leaf(policy: str, payload: dict[str, Any], boundary: str | None) -> dic
         try:
             with tempfile.TemporaryFile() as output:
                 process = subprocess.Popen(
-                    [str(bash), "--noprofile", "--norc", posix_helper],
+                    [str(bash), "--noprofile", "--norc", posix_helper, *leaf_args],
                     stdin=subprocess.PIPE,
                     stdout=output,
                     stderr=subprocess.DEVNULL,
@@ -506,12 +526,14 @@ def _run_leaf(policy: str, payload: dict[str, Any], boundary: str | None) -> dic
     if not isinstance(result, dict) or set(result) != {"hookSpecificOutput"}:
         raise SafetyRuntimeError
     hook = result["hookSpecificOutput"]
-    allowed = "ask" if policy == "careful" else "deny"
+    # Pass the leaf's decision and reason through unchanged; never downgrade a
+    # deny. Tuple membership compares with ==, so a non-string value is just
+    # invalid output (fail-closed deny), not a TypeError.
     if (not isinstance(hook, dict)
             or set(hook) != {"hookEventName", "permissionDecision",
                              "permissionDecisionReason"}
             or hook.get("hookEventName") != "PreToolUse"
-            or hook.get("permissionDecision") != allowed
+            or hook.get("permissionDecision") not in LEAF_DECISIONS[policy]
             or not isinstance(hook.get("permissionDecisionReason"), str)
             or not hook["permissionDecisionReason"]):
         raise SafetyRuntimeError
@@ -522,7 +544,7 @@ def _check(policy: str, project_raw: str) -> dict[str, Any]:
     project = _canonical_directory(project_raw)
     payload = _read_hook_input()
     session = payload["session_id"]
-    if policy == "careful":
+    if policy != "freeze":
         return _run_leaf(policy, payload, None)
     state = _load_state(project, session)
     if state["status"] == "inactive":
@@ -539,7 +561,7 @@ def _parser() -> argparse.ArgumentParser:
         command.add_argument("--session", required=True)
         command.add_argument("--boundary")
     check = commands.add_parser("check")
-    check.add_argument("policy", choices=("careful", "freeze"))
+    check.add_argument("policy", choices=POLICIES)
     check.add_argument("--project", required=True)
     return parser
 
