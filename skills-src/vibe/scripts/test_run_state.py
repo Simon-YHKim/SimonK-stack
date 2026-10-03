@@ -694,5 +694,229 @@ class GstackIsolationTests(unittest.TestCase):
         self.assertEqual(self.m.spec_digest(plain), self.m.spec_digest(p))
 
 
+class QaCompletionTests(unittest.TestCase):
+    """Real QA validator + real Store; synthetic provider/test observations only."""
+    setUp = RunStateTests.setUp
+    init = RunStateTests.init
+
+    def prepare(self, finish=True):
+        self.init()
+        candidates = [candidate(), candidate("critic", "claude", resource_rank=2)]
+        self.plan = orchestrate.make_plan({"run_id": "qa-run", "steps": [
+            step("write", writes=True),
+            step("review", verify_of="write", depends_on=["write"])]},
+            {"explain": {"path": "/fixture/SKILL.md"}},
+            {"candidates": candidates, "tools": [], "observed_at": NOW},
+            NOW, fixture_registry(candidates))
+        self.assertEqual(self.plan["status"], "ready")
+        self.store.register(self.plan, now=NOW)
+        if finish:
+            for node in self.plan["steps"]:
+                a = self.store.claim("qa-run", node["id"], node["id"], self.plan["plan_digest"], now=NOW)
+                self.store.bind(a["dispatch_id"], HANDLE, now=NOW)
+                route = a["route"]
+                self.store.observe(a["dispatch_id"], {"state": "succeeded", "handle": HANDLE,
+                    "observed_at": NOW, "evidence": ["synthetic provider exit"],
+                    "resolved_model": route.get("resolved_model") or route["model"],
+                    "effective_effort": route["requested_effort"]}, now=NOW)
+                self.store.settle(a["dispatch_id"], 0, ["fixture receipt"], now=NOW)
+                self.store.verify(a["dispatch_id"], ["inspected fixture output"], now=NOW)
+        root = Path(self.tmp.name)
+        self.artifact = root / "assertions.txt"
+        self.artifact.write_bytes(b"fixture: one assertion passed\n")
+        target = {"revision": "fixture-build-123", "environment": "test"}
+        self.contract = {"schema_version": 1, "created_at": "2026-01-01T00:00:00Z",
+            "target": target, "requirements": [{"id": "R1", "source_type": "spec",
+                "source": "spec.md#label", "expected": "Exact label", "risk": "low",
+                "category": "functional", "negative_testing": "not_applicable",
+                "negative_reason": "Static label without input or state transition",
+                "checks": [{"id": "C1", "kind": "positive", "level": "unit", "expected": "Exact label"}]}]}
+        self.contract_path = root / "contract.json"
+        self.contract_path.write_text(json.dumps(self.contract), encoding="utf-8")
+        self.pin = hashlib.sha256(self.contract_path.read_bytes()).hexdigest()
+        self.results = {"schema_version": 1, "contract_sha256": self.pin, "target": target,
+            "checks": [{"id": "C1", "status": "passed", "level": "unit", "mocked": True,
+                "command": "fixture test-runner", "exit_code": 0, "observed_at": NOW,
+                "actual": "Exact label observed", "counts": {"passed": 1, "failed": 0, "skipped": 0},
+                "evidence": [{"path": self.artifact.name,
+                    "sha256": hashlib.sha256(self.artifact.read_bytes()).hexdigest()}]}]}
+        self.results_path = root / "results.json"
+        self.save_results()
+        script_root = SCRIPT.resolve()  # Installed /vibe may be a home junction.
+        qa_root = script_root.parents[2] / "qa"
+        if not qa_root.is_dir():  # Intact Core/Stack split-plugin test bundle.
+            qa_root = script_root.parents[4] / "SimonKStack" / "skills" / "qa"
+        self.binding = {"qa_skill": str(qa_root),
+            "contract": str(self.contract_path), "results": str(self.results_path),
+            "evidence_root": str(root), "contract_sha256": self.pin, **target}
+
+    def save_results(self):
+        self.results_path.write_text(json.dumps(self.results), encoding="utf-8")
+
+    def bind(self):
+        self.store.bind_qa("qa-run", self.binding, now=NOW)
+
+    def complete(self):
+        self.store.complete("qa-run", ["all requirements inspected"], now=NOW)
+
+    def assert_active(self):
+        self.assertEqual(self.store.snapshot()["runs"][0]["status"], "active")
+
+    def test_writer_cannot_complete_with_only_prose_evidence(self):
+        self.prepare()
+        with self.assertRaisesRegex(self.m.StateError, "QA_BINDING_REQUIRED"):
+            self.complete()
+        self.assert_active()
+
+    def test_real_gate_pass_closes_run_and_records_no_release_authority(self):
+        self.prepare()
+        self.bind()
+        report = self.store.check_qa("qa-run", now=NOW)
+        self.assertEqual(report["decision"], "pass")
+        self.assertFalse(report["release_authorized"])
+        self.assertEqual(report["run_id"], "qa-run")
+        self.complete()
+        self.assertEqual(self.store.snapshot()["runs"][0]["status"], "completed")
+        with closing(sqlite3.connect(self.path)) as db:
+            event = json.loads(db.execute("SELECT payload FROM events WHERE kind='completed'").fetchone()[0])
+        self.assertEqual(event["qa"]["contract_sha256"], self.pin)
+        self.assertFalse(event["qa"]["release_authorized"])
+
+    def test_missing_failed_skipped_and_invalid_results_never_close_run(self):
+        self.prepare()
+        self.bind()
+        for mode in ("missing", "failed", "skipped", "invalid"):
+            with self.subTest(mode=mode):
+                self.results["checks"] = [] if mode == "missing" else [{"id": "C1", "status": mode}]
+                self.save_results()
+                with self.assertRaisesRegex(self.m.StateError, "QA_(BLOCKED|INVALID)"):
+                    self.complete()
+                self.assert_active()
+
+    def test_cached_pass_does_not_survive_changed_artifact(self):
+        self.prepare()
+        self.bind()
+        self.assertEqual(self.store.check_qa("qa-run", now=NOW)["decision"], "pass")
+        self.artifact.write_bytes(b"changed after checking")
+        with self.assertRaisesRegex(self.m.StateError, "QA_BLOCKED"):
+            self.complete()
+        self.assert_active()
+
+    def test_contract_and_target_are_pinned_across_restart(self):
+        self.prepare()
+        self.bind()
+        self.store = self.m.Store(self.path)
+        self.results["target"] = {"revision": "old-build", "environment": "test"}
+        self.save_results()
+        with self.assertRaisesRegex(self.m.StateError, "QA_BLOCKED"):
+            self.complete()
+        self.contract_path.write_text("{}", encoding="utf-8")
+        with self.assertRaisesRegex(self.m.StateError, "QA_(BLOCKED|INVALID)"):
+            self.complete()
+        self.assert_active()
+
+    def test_binding_is_idempotent_but_cannot_retarget(self):
+        self.prepare()
+        self.bind()
+        self.bind()
+        self.binding["revision"] = "another-build"
+        with self.assertRaisesRegex(self.m.StateError, "QA_BINDING_IMMUTABLE"):
+            self.bind()
+
+    def test_bind_requires_independent_matching_contract_pin(self):
+        self.prepare()
+        self.binding["contract_sha256"] = "0" * 64
+        with self.assertRaisesRegex(self.m.StateError, "QA_CONTRACT_CHANGED"):
+            self.bind()
+
+    def test_changed_helper_is_not_executed(self):
+        self.prepare()
+        other = Path(self.tmp.name) / "other-qa" / "scripts"
+        other.mkdir(parents=True)
+        marker = Path(self.tmp.name) / "should-not-exist"
+        (other / "qa_gate.py").write_text("from pathlib import Path\nPath(" + repr(str(marker)) + ").touch()\n", encoding="utf-8")
+        self.binding["qa_skill"] = str(other.parent)
+        with self.assertRaisesRegex(self.m.StateError, "QA_HELPER_(CHANGED|UNAVAILABLE)"):
+            self.bind()
+        self.assertFalse(marker.exists())
+
+    def test_no_binding_reuse_between_runs(self):
+        self.prepare()
+        self.bind()
+        other = copy.deepcopy(self.plan)
+        other["run_id"] = "qa-other"
+        other["plan_digest"] = orchestrate.digest({k: v for k, v in other.items() if k != "plan_digest"})
+        self.store.register(other, now=NOW)
+        with self.assertRaisesRegex(self.m.StateError, "QA_BINDING_REQUIRED"):
+            self.store.check_qa("qa-other", now=NOW)
+
+    def test_passing_qa_cannot_replace_independent_review_or_settlement(self):
+        self.prepare(finish=False)
+        self.bind()
+        self.assertEqual(self.store.check_qa("qa-run", now=NOW)["decision"], "pass")
+        with self.assertRaisesRegex(self.m.StateError, "ACCEPTANCE_INCOMPLETE"):
+            self.complete()
+        self.assert_active()
+
+    def test_cli_complete_cannot_supply_its_own_qa_pass(self):
+        self.prepare()
+        payload = Path(self.tmp.name) / "acceptance.json"
+        payload.write_text(json.dumps({"evidence": ["pass"], "qa": {"decision": "pass"}}), encoding="utf-8")
+        result = subprocess.run([sys.executable, "-B", str(SCRIPT), "--db", str(self.path),
+            "complete", "--run", "qa-run", "--input", str(payload)], capture_output=True,
+            text=True, encoding="utf-8", timeout=30)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertEqual(json.loads(result.stdout)["error"], "QA_BINDING_REQUIRED")
+        self.assert_active()
+
+    def test_cli_bind_and_check_return_nonzero_for_bad_evidence(self):
+        self.prepare()
+        payload = Path(self.tmp.name) / "binding.json"
+        payload.write_text(json.dumps(self.binding), encoding="utf-8")
+        argv = [sys.executable, "-B", str(SCRIPT), "--db", str(self.path)]
+        bound = subprocess.run([*argv, "bind-qa", "--run", "qa-run", "--input", str(payload)],
+            capture_output=True, text=True, timeout=30)
+        self.assertEqual(bound.returncode, 0, bound.stdout + bound.stderr)
+        for mode, expected in (("passed", 0), ("skipped", 1), ("invalid", 2)):
+            with self.subTest(mode=mode):
+                self.results["checks"][0]["status"] = mode
+                self.save_results()
+                checked = subprocess.run([*argv, "check-qa", "--run", "qa-run"],
+                    capture_output=True, text=True, timeout=30)
+                self.assertEqual(checked.returncode, expected, checked.stdout + checked.stderr)
+        self.assert_active()
+
+    def test_absent_results_and_changed_helper_after_binding_block(self):
+        self.prepare()
+        self.bind()
+        self.results_path.rename(self.results_path.with_suffix(".saved"))
+        with self.assertRaisesRegex(self.m.StateError, "QA_INVALID"):
+            self.complete()
+        with patch("qa_acceptance.QA_GATE_SHA256", "0" * 64):
+            with self.assertRaisesRegex(self.m.StateError, "QA_HELPER_CHANGED"):
+                self.complete()
+        self.assert_active()
+
+    def test_high_risk_missing_human_approval_is_not_complete(self):
+        self.prepare()
+        req = self.contract["requirements"][0]
+        req.update(risk="high", category="authorization", negative_testing="required")
+        req.pop("negative_reason")
+        for kind in ("negative", "boundary"):
+            req["checks"].append({"id": kind, "kind": kind, "level": "integration", "expected": "Access denied"})
+            result = copy.deepcopy(self.results["checks"][0])
+            result.update(id=kind, level="integration", mocked=False, actual="Access denied")
+            self.results["checks"].append(result)
+        self.contract_path.write_text(json.dumps(self.contract), encoding="utf-8")
+        self.pin = hashlib.sha256(self.contract_path.read_bytes()).hexdigest()
+        self.binding["contract_sha256"] = self.results["contract_sha256"] = self.pin
+        self.save_results()
+        self.bind()
+        self.assertIn("high-risk human", " ".join(self.store.check_qa("qa-run")["issues"]))
+        with self.assertRaisesRegex(self.m.StateError, "QA_BLOCKED"):
+            self.complete()
+        self.assert_active()
+
+
 if __name__ == "__main__":
     unittest.main()

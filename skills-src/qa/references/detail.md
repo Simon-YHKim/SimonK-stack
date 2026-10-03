@@ -1,5 +1,213 @@
 # qa — Detailed Reference
 
+## Contents
+
+- SimonK acceptance contract
+- Completion Status Protocol
+- Operational Self-Improvement
+- Telemetry (run last)
+- Plan Mode Safe Operations
+- Skill Invocation During Plan Mode
+- Plan Status Footer
+- GSTACK REVIEW REPORT
+- Step 0: Detect platform and base branch
+- Setup
+- SETUP (run this check BEFORE any browse command)
+- Test Framework Bootstrap
+- Prior Learnings
+- Test Plan Context
+- Phases 1-6: QA Baseline
+- Modes
+- Workflow
+- Health Score Rubric
+- Framework-Specific Guidance
+- Important Rules
+- Output Structure
+- Phase 7: Triage
+- Phase 8: Fix Loop
+- Phase 9: Final QA
+- Phase 10: Report
+- Phase 11: TODOS.md Update
+- Capture Learnings
+- Additional Rules (qa-specific)
+
+
+## SimonK acceptance contract
+
+This extension applies to `/qa` in Quick, Standard and Exhaustive mode. It takes
+precedence over later score, mock and deferral shortcuts. `/qa-only` remains its
+existing read-only reporting workflow; do not silently grant it source changes.
+
+### Freeze the expected behavior
+
+Before judging implementation, create `contract.json` from the user's request,
+an approved specification, an issue or an existing policy. Record each source
+and expected result. Generated code, generated tests and model agreement are
+not independent sources of correctness. If the requirement is only inferred,
+resolve consequential ambiguity or report it as unverified before acceptance.
+
+Use one row per requirement: ID, source, expected result, risk, category and
+mandatory check IDs. State the changed scope; unrelated screens do not establish
+coverage. A trusted coordinator/reviewer fixes the contract's SHA-256 before
+running checks and supplies it independently of the result document. Changes to
+requirements need review and a new pinned contract; never edit expectations or
+omit checks merely to make an existing implementation pass.
+
+Bind the contract and results to the exact build/revision and environment.
+For a dirty checkout, HEAD alone is insufficient: use a reviewed immutable
+build/content identifier covering those changes. Run all required checks against
+that artifact. An environment name alone does not identify its deployed build.
+After any source/fix/build change, pin the new target and rerun affected required
+checks; do not relabel old evidence with a new revision.
+
+### Risk and test depth
+
+All requirements need a positive check and an explicit negative-testing decision.
+A low-risk exemption needs a concrete `negative_reason`, such as a static label
+with no inputs or state transition. Missing test accounts or tools are blockers,
+not reasons to mark a relevant test inapplicable. Quick may reduce unrelated
+exploration; it cannot remove mandatory high-risk checks or review.
+
+| Category | Minimum high-risk evidence |
+| --- | --- |
+| authorization, privacy | Negative and boundary integration/E2E checks: anonymous, other-user and other-tenant access where applicable; deny access without returning or changing protected data. |
+| payment | Negative and recovery integration/E2E checks: failed/cancelled/retried operations preserve balances; include duplicate/concurrent requests where applicable. Use authorized sandbox transactions. |
+| deletion, migration | Negative and recovery integration/E2E checks: scope/ownership, failed or interrupted operation, data preservation and tested recovery in a disposable environment. |
+| functional marked high | Negative and boundary integration/E2E checks selected from the actual failure impact. |
+
+Sensitive categories cannot be marked low risk. Every high-risk requirement also
+needs a separately supplied, scoped human review record covering requirements
+and core implementation. This is acceptance evidence, not a request to interrupt
+every low-risk edit. Existing human approval is reusable only when it explicitly
+covers the same target and contract. An agent cannot produce that approval on a
+human's behalf or treat another AI's agreement as a human review.
+
+Unit tests and mocks can verify local logic, but cannot prove the real boundary
+under test. The `mocked` flag describes that boundary: mocked payment/permission
+enforcement is insufficient even when unrelated services use test doubles.
+An isolated real test database or provider sandbox can exercise a real boundary;
+production access is not required. Screenshot/Figma matches establish visual
+behavior only. If credentials, sandbox or service access are missing, preserve
+the blocker and continue other authorized checks without inventing evidence.
+
+### Input format and command
+
+The helper uses Python 3.9+ standard library only. It reads JSON and evidence
+files, executes no input commands, makes no network calls and modifies no files.
+Use separate contract, results and, for high risk, human approval documents.
+Unknown fields/statuses, duplicate JSON keys, malformed values and duplicate IDs
+fail closed. All declared checks are mandatory; there is no result-side override.
+
+Contract structure (illustrative values; replace them with the reviewed scope):
+
+```json
+{
+  "schema_version": 1,
+  "created_at": "2026-10-03T00:00:00+09:00",
+  "target": {"revision": "immutable-build-id", "environment": "test"},
+  "requirements": [{
+    "id": "R-label", "source_type": "spec", "source": "spec.md#heading",
+    "expected": "Heading matches the approved wording.",
+    "risk": "low", "category": "functional",
+    "negative_testing": "not_applicable",
+    "negative_reason": "Static label with no input or state transition.",
+    "checks": [{"id": "C-label", "kind": "positive", "level": "unit",
+                "expected": "Rendered heading equals the specified text."}]
+  }]
+}
+```
+
+`source_type`: `user`, `spec`, `issue`, `policy`. `risk`: `low` or `high`.
+`category`: a row above or `functional`. `negative_testing`: `required` or
+`not_applicable` (with reason). Check `kind`: `positive`, `negative`, `boundary`,
+`recovery`, `concurrency`. Check `level`: `unit`, `integration`, `e2e`, `visual`.
+Expected results must assert behavior, not merely rendering or lack of crashes.
+
+Results contain `schema_version: 1`, `contract_sha256`, the same `target`, and
+`checks`. Each check identifies its declared `id` and a status: `passed`,
+`failed`, `blocked`, `not_run` or `skipped`. Every status except `passed` blocks.
+A missing check is reported as `not_run`. A passed check also requires:
+
+- `level` matching its contract and a boolean `mocked` flag;
+- `command` identifying the actual invocation, integer `exit_code: 0`,
+  timezone-aware `observed_at`, and nonempty `actual` observed behavior;
+- `counts: {"passed": 1, "failed": 0, "skipped": 0}` using the real assertion
+  counts for that check. Zero collected/asserted cases are not success;
+- `evidence: [{"path": "logs/check.txt", "sha256": "SHA256_OF_REAL_FILE"}]`.
+  Replace the illustrative hash with the real 64-character lowercase hash.
+
+Evidence must be nonempty regular files up to 64 MiB inside `--evidence-root`.
+Use forward-slash relative paths; absolute paths, traversal, alternate data
+streams and symlinks escaping that root are rejected. JSON files are limited
+to 1 MiB. Redact secrets and private data before storing evidence, then hash the
+redacted files. Preserve their meaning; do not replace actual failures with prose.
+Timestamps must be timezone-aware, at/after contract creation and no more than
+five minutes in the future. Timestamps are declarations, not independent clocks.
+
+For high risk, the trusted reviewer supplies `approval.json` separately with:
+`schema_version: 1`, `contract_sha256`, `target`, `decision: "approved"`,
+`reviewer_type: "human"`, `reviewer`, `observed_at`, and the same `evidence` array
+format. Evidence can be an exported review/change-control record supplied by the
+authorized reviewer or trusted CI. Missing, stale, mismatched or AI review blocks.
+
+```text
+python -B <qa-skill>/scripts/qa_gate.py --contract contract.json --results results.json --evidence-root qa-evidence --contract-sha256 TRUSTED_CONTRACT_SHA256 --revision TRUSTED_BUILD_ID --environment test
+```
+
+Add `--approval approval.json` for high risk. The pin and target arguments must
+come from reviewed/trusted coordinator state, never solely from the candidate
+results. JSON output always says `release_authorized: false`:
+
+| Exit | Decision | Meaning |
+| --- | --- | --- |
+| 0 | pass | Required declarations and artifact integrity are consistent. |
+| 1 | blocked | Checks failed, were omitted/not run, or required evidence is absent/mismatched. |
+| 2 | invalid | Inputs are unreadable, malformed or outside the schema. |
+
+Report all three separately from health scores. An empty issue list from a
+browser exploration or a high health score is not a substitute for this gate.
+
+### Trust boundary and CI enforcement
+
+This helper does not authenticate the reviewer, run tests, parse every test
+framework's logs, prove test completeness, or attest that a command was executed.
+Hashes detect inconsistent artifacts; a fabricated document and matching hash
+can still be internally consistent. A trusted runner must produce results from
+actual checks, and a trusted reviewer must own the scope, pin and approval.
+Do not allow an implementation agent to rewrite those authoritative inputs.
+Run against a stable evidence directory; this is not a hostile filesystem sandbox.
+
+The SimonK repository runs the helper's offline regression tests in its own CI.
+Downstream apps must separately run it after collecting their real evidence and
+propagate its exit code. On POSIX, run it as the job step or propagate `$?`;
+PowerShell batch jobs must use `exit $LASTEXITCODE`. Do not use `|| true`,
+`continue-on-error`, or a later successful command to mask failure. An output
+file or a job named QA does not prove the gate is mandatory.
+
+Report these facts independently: workflow configured, job actually executed,
+job result, and branch protection/ruleset requiring that check. Inspect existing
+rules read-only where authorized. Changing enforcement or promoting a release
+requires the applicable authorization and is not performed by this helper.
+Retain the project's independent review, deployment and rollback procedures.
+
+### Completion and development checks
+
+Include a requirement ledger, counts of passed/failed/blocked/not_run/skipped,
+contract pin, exact target, evidence paths, human-review status, and gate exit
+code in the report. Unknown or untested is never relabeled passed. Keep optional
+exploration findings separate from mandatory acceptance checks.
+
+From the verified SimonK-stack source checkout:
+
+```text
+python -B -m unittest discover -s skills-src/qa/scripts -p test_qa_gate.py -q
+```
+
+These are synthetic offline gate tests, not tests of a user's application or
+evidence that a live model followed the skill. Existing `evals/cases.json`
+dry-run still validates case syntax only. Version 2.1.0 adds the pinned evidence
+gate, risk-specific coverage, preserved failures and CI regression coverage.
+
 ## Completion Status Protocol
 
 When completing a skill workflow, report status using one of:
@@ -899,7 +1107,10 @@ Test type decision:
 - Visual bug with JS behavior (broken dropdown, animation) → component test
 - Pure CSS → skip (caught by QA reruns)
 
-Generate unit tests. Mock all external dependencies (DB, API, Redis, file system).
+Generate the smallest test that proves the required behavior. Mock unrelated
+dependencies in unit tests, but exercise the actual boundary in an authorized
+test/sandbox integration or E2E check when permissions, money or data integrity
+depend on it. Record unavailable boundary checks as blocked, never passed.
 
 Use auto-incrementing names to avoid collisions: check existing `{name}.regression-*.test.{ext}` files, take max number + 1.
 
@@ -911,8 +1122,11 @@ Use auto-incrementing names to avoid collisions: check existing `{name}.regressi
 
 **4. Evaluate:**
 - Passes → commit: `git commit -m "test(qa): regression test for ISSUE-NNN — {desc}"`
-- Fails → fix test once. Still failing → delete test, defer.
-- Taking >2 min exploration → skip and defer.
+- Fails → investigate whether the implementation or test contradicts the approved
+  requirement. Preserve the failing test and report blocked acceptance if it
+  remains unresolved. Never delete it or weaken its assertion to obtain a pass.
+- Taking >2 min exploration → reassess scope; deferred mandatory checks remain
+  blocked/not_run and cannot produce a passing acceptance verdict.
 
 **5. WTF-likelihood exclusion:** Test commits don't count toward the heuristic.
 
@@ -943,6 +1157,8 @@ After all fixes are applied:
 1. Re-run QA on all affected pages
 2. Compute final health score
 3. **If final score is WORSE than baseline:** WARN prominently — something regressed
+4. Run the SimonK acceptance gate against the final exact build and pinned
+   contract. A nonzero exit blocks acceptance regardless of the health score.
 
 ---
 
@@ -1014,5 +1230,7 @@ already knows. A good test: would this insight save time in a future session? If
 11. **Clean working tree required.** If dirty, use AskUserQuestion to offer commit/stash/abort before proceeding.
 12. **One commit per fix.** Never bundle multiple fixes into one commit.
 13. **Only modify tests when generating regression tests in Phase 8e.5.** Never modify CI configuration. Never modify existing tests — only create new test files.
-14. **Revert on regression.** If a fix makes things worse, `git revert HEAD` immediately.
+14. **Preserve regression evidence.** Restore only this task's authorized changes,
+    preserving pre-existing work and failing tests. Follow the project's approval
+    rules for destructive restoration; do not blindly revert the current HEAD.
 15. **Self-regulate.** Follow the WTF-likelihood heuristic. When in doubt, stop and ask.

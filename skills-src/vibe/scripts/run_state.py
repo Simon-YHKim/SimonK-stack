@@ -26,6 +26,7 @@ if __name__ == "__main__":
     sys.dont_write_bytecode = True
 import orchestrate
 import model_registry
+import qa_acceptance
 from ledger import scan_secrets, _is_sensitive_key
 
 SCALE = 1_000_000_000
@@ -1038,6 +1039,51 @@ class Store:
             db.execute("UPDATE runs SET closed=1 WHERE run_id=?", (run,))
             self._event(db, run, None, "cancelled", moment(now), {"evidence": reason})
 
+    @staticmethod
+    def _qa_binding(db, run):
+        row = db.execute("SELECT payload FROM events WHERE run_id=? AND kind='qa_bound' ORDER BY seq LIMIT 1", (run,)).fetchone()
+        return json.loads(row[0]) if row else None
+
+    def bind_qa(self, run, binding, now=None):
+        """Pin coordinator-owned QA inputs once; no worker may replace this record."""
+        try:
+            binding = qa_acceptance.binding(binding)
+            safe_json(binding)
+            with self._transaction() as db:
+                row, _ = self._run(db, run)
+                payload = {"spec_digest": row["spec_digest"], "binding": binding}
+                old = self._qa_binding(db, run)
+                if old:
+                    if old != payload:
+                        raise StateError("QA_BINDING_IMMUTABLE")
+                    return
+                qa_acceptance.validate_binding(binding)
+                self._event(db, run, None, "qa_bound", moment(now), payload)
+        except qa_acceptance.QaError as exc:
+            raise StateError(str(exc)) from None
+
+    def _check_qa(self, db, run, row, plan):
+        payload = self._qa_binding(db, run)
+        if payload is None:
+            raise StateError("QA_BINDING_REQUIRED")
+        if payload["spec_digest"] != row["spec_digest"]:
+            raise StateError("QA_INTENT_CHANGED")
+        try:
+            code, report = qa_acceptance.audit(payload["binding"])
+        except qa_acceptance.QaError as exc:
+            raise StateError(str(exc)) from None
+        report.update(run_id=run, plan_digest=plan["plan_digest"],
+            contract_sha256=payload["binding"]["contract_sha256"],
+            target={k: payload["binding"][k] for k in ("revision", "environment")})
+        return code, report
+
+    def check_qa(self, run, now=None):
+        with self._transaction() as db:
+            row, plan = self._run(db, run)
+            _, report = self._check_qa(db, run, row, plan)
+            self._event(db, run, None, "qa_checked", moment(now), report)
+            return report
+
     def complete(self, run, acceptance_evidence, now=None):
         evidence(acceptance_evidence)
         with self._transaction() as db:
@@ -1051,8 +1097,15 @@ class Store:
             spent, held, _, _ = self._totals(db, run)
             if spent + held > row["cap"]:
                 raise StateError("RUN_BUDGET_EXCEEDED")
+            proof = {"evidence": acceptance_evidence}
+            if qa_acceptance.required(plan) or self._qa_binding(db, run) is not None:
+                # Re-read evidence now. A saved report/verified flag never authorizes closure.
+                code, report = self._check_qa(db, run, row, plan)
+                if code:
+                    raise StateError("QA_BLOCKED" if code == 1 else "QA_INVALID")
+                proof["qa"] = report
             db.execute("UPDATE runs SET closed=2 WHERE run_id=?", (run,))
-            self._event(db, run, None, "completed", moment(now), {"evidence": acceptance_evidence})
+            self._event(db, run, None, "completed", moment(now), proof)
 
     def snapshot(self):
         with self._transaction() as db:
@@ -1162,6 +1215,7 @@ def main(argv=None):
         sub.add_parser(name).add_argument("--plan", required=True)
     sub.add_parser("status")
     sub.add_parser("ready").add_argument("--run", required=True)
+    sub.add_parser("check-qa").add_argument("--run", required=True)
     p = sub.add_parser("claim")
     for name in ("run", "node", "request", "plan-digest"):
         p.add_argument("--" + name, required=True)
@@ -1169,7 +1223,7 @@ def main(argv=None):
         p = sub.add_parser(name)
         p.add_argument("--dispatch", required=True)
         p.add_argument("--input", required=True)
-    for name in ("cancel", "complete"):
+    for name in ("cancel", "complete", "bind-qa"):
         p = sub.add_parser(name)
         p.add_argument("--run", required=True)
         p.add_argument("--input", required=True)
@@ -1198,6 +1252,10 @@ def main(argv=None):
             result = store.claim(args.run, args.node, args.request, args.plan_digest)
         elif args.action == "ready":
             result = store.ready(args.run)
+        elif args.action == "bind-qa":
+            store.bind_qa(args.run, read_payload(args.input))
+        elif args.action == "check-qa":
+            result = store.check_qa(args.run)
         elif args.action in {"bind", "observe"}:
             getattr(store, args.action)(args.dispatch, read_payload(args.input))
         elif args.action == "settle":
@@ -1210,6 +1268,8 @@ def main(argv=None):
         if result is None:
             result = store.snapshot()
         print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))
+        if args.action == "check-qa" and result["decision"] != "pass":
+            return 1 if result["decision"] == "blocked" else 2
         return 0
     except (StateError, OSError, ValueError, TypeError, KeyError) as exc:
         print(json.dumps({"error": exc.code if isinstance(exc, StateError) else "STATE_COMMAND_FAILED"}))
