@@ -516,3 +516,21 @@ last-sync: 2026-07-05
   - **소수의견**: 경고 문장은 훅을 끄지 못한다. 스킬 본문은 오류 보고 때 선제 호출하라고 되어 있고, `/guard`는 라이브 디버깅 때 쓰라고 되어 있다. 그 둘이 겹치면 cwd 하나에 따라 정상 편집이 전부 막히거나, 사용자가 켜 둔 경계 밖 편집이 허용된다. 사용 0은 남은 기록의 과거값이고 정리된 기록과 다른 PC는 빠져 있다. 에이전트는 경고를 읽지 않은 채 로드할 수 있다. 훅이 세션 끝까지 남으면 한 번의 로드가 이후 freeze·guard를 오염시킨다. 이 경우 D는 위험을 줄인 것이 아니라 유지비를 미룬 것이다. 그 반론이 맞는…
   - **후속**: skills-src/investigate를 비설치로 표시한다. 배너 있는 구판이 설치 목록으로 다시 올라오지 않게 한다. gstack 설치본은 수동 편집하지 않는다. 경고 1줄은 investigate 전용 문서가 아니라 freeze·guard·unfreeze 중 실제로 읽히는 본문, 또는 INFRA-MAP에 둔다. 문구는 “Windows에서 investigate 잠금 금지. 편집이 전부 막히면 `/unfreeze`.”로 고정한다. 설치 폴더의 고아 `references/detail.md`, `evals/cases.json`은 본문…
   - **원문**: C:/Users/202502/AppData/Local/SimonKStack/ai-debate/debates/dbt-261004-033806
+
+- 2026-10-04 03:57:41 KST | AMEND | **D-56 안전 스킬 5개 gstack 원본 vs SimonK 판** — catch-up: Grok ACCEPT · 상태 FINAL 3/4 (catch-up) | claude
+
+- 2026-10-04 03:57:41 KST | AMEND | **D-57 PR #93 ai-debate 0.2.3 머지와 홈 설치** — catch-up: Grok ACCEPT · 상태 FINAL 3/4 (catch-up) | claude
+
+- 2026-10-04 03:57:41 KST | AMEND | **D-58 Grok Bot의 ai-debate 편입 방식** — catch-up: Grok OBJECT: P2를 채택했다고 하면서, P2가 둔 "목소리를 원하면 비투표 미신고 자문으로 전환" 조건을 빼고 사실 레인과 xAI 결석으로 포함을 고정했다. · 타이브레이크(Claude): D-58 판정 유지. Grok OBJECT(P2의 '목소리를 원하면 비투표 미신고 자문' 조건이 후속에서 빠짐)는 D-58 소수의견으로 보존돼 있었고, 그 분기는 D-60(dbt-261003-232157)이 선택지 2·3(자문 기록·자문 심판 노출)으로 정식 안건화해 '자문 불허'로 판정했으며 Grok은 이번 catch-up에서 D-60을 ACCEPT했다. 차단 사유는 후속 결정으로 해소. 자문 허용은 Simon이 언제든 재개할 수 있다(스킬 '보존한 소수의견'). · 상태 FINAL 3/4 (catch-up) | claude
+
+- 2026-10-04 03:57:41 KST | AMEND | **D-59 PR #96·#97·#98·#99 머지와 홈 설치** — catch-up: Grok ACCEPT · 상태 FINAL 3/4 (catch-up) | claude
+
+- 2026-10-04 03:57:41 KST | AMEND | **D-61 D-54 재토론: 이미 설치된 AI Usage Widget 갱신의 처리** — catch-up: Grok ACCEPT · 상태 FINAL 3/4 (catch-up) | claude
+
+- 2026-10-04 03:57:42 KST | AMEND | **D-62 안전 스킬 D-56 2단계: guard·freeze·Windows·PowerShell** — catch-up: Grok ACCEPT · 상태 FINAL 3/4 (catch-up) | claude
+
+- 2026-10-04 03:57:42 KST | AMEND | **D-60 Grok Bot 증거 레인 개통과 자문 의견** — catch-up: Grok ACCEPT · 상태 FINAL 3/4 (catch-up) | claude
+
+- 2026-10-04 03:57:42 KST | AMEND | **D-63 설치된 AI Usage Widget d767272 후속 처리** — catch-up: Grok ACCEPT · 상태 FINAL 3/4 (catch-up) | claude
+
+- 2026-10-04 03:57:42 KST | AMEND | **D-64 D-60 첫 Grok Bot 과제 결과 판정과 비용 정산** — catch-up: Grok ACCEPT · 상태 FINAL 3/4 (catch-up) | claude
