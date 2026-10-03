@@ -1,6 +1,6 @@
 ---
 name: guard
-version: 0.2.0
+version: 0.2.1
 description: "Use when asked for \"guard mode\", \"full safety\", \"lock it down\", \"maximum safety\", \"가드 모드\", \"풀 세이프티\", or before touching prod or debugging live systems. Combines /careful and /freeze: a PreToolUse Bash hook produces deny for HIGH destructive commands and ask for MEDIUM ones, and an Edit/Write hook produces deny outside the chosen directory, including Windows drive paths."
 allowed-tools:
   - Bash
@@ -45,6 +45,8 @@ echo '{"skill":"guard","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","repo":"'$(basena
 ```
 
 ## Setup
+
+Windows에서 investigate 잠금 금지. 편집이 전부 막히면 /unfreeze.
 
 Ask the user which directory to restrict edits to. Use AskUserQuestion:
 

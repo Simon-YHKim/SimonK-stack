@@ -158,6 +158,13 @@ for src_dir in "${PLUGIN_SKILL_DIRS[@]}"; do
   for d in "$src_dir"/*/; do
     name=$(basename "$d")
     [ -f "$d/SKILL.md" ] || continue
+    # D-68: a name whose skills-src folder carries .simonk-no-install is never
+    # installed from any source (root skills/, plugin caches or the fallback),
+    # so --force cannot replace the gstack copy of that name.
+    if [ -e "$REPO_DIR/skills-src/$name/.simonk-no-install" ]; then
+      log "  skip (no-install marker, D-68): $name"
+      continue
+    fi
     if [ -e "$SKILLS_TARGET"/"$name" ]; then
       if [ "$FORCE" = "1" ]; then
         run rm -rf "$SKILLS_TARGET"/"$name"

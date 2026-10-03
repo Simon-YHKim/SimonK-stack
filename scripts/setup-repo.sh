@@ -141,6 +141,8 @@ for src_dir in "$REPO_DIR"/skills-src "$REPO_DIR"/.claude/skills; do
   for d in "$src_dir"/*/; do
     name=$(basename "$d")
     [ -f "$d/SKILL.md" ] || continue
+    # D-68: a folder carrying .simonk-no-install is never copied.
+    [ -e "$d/.simonk-no-install" ] && continue
     [ -e ~/.claude/skills/"$name" ] && continue
     cp -r "$d" ~/.claude/skills/"$name"
   done
@@ -188,6 +190,12 @@ HOOK_EOF
     for d in "$src_dir"/*/; do
       name=$(basename "$d")
       [ -f "$d/SKILL.md" ] || continue
+      # D-68: a name whose skills-src folder carries .simonk-no-install is
+      # never copied into the target repo.
+      if [ -e "$SIMON_STACK_DIR/skills-src/$name/.simonk-no-install" ]; then
+        log "  skip (no-install marker, D-68): $name"
+        continue
+      fi
       if [ -e ".claude/skills/$name" ]; then
         log "  skip (exists): $name"
         continue

@@ -1,6 +1,6 @@
 ---
 name: freeze
-version: 0.2.0
+version: 0.2.1
 description: "Use when debugging to keep edits inside one module, or asked to \"freeze\", \"restrict edits\", \"only edit this folder\", \"lock down edits\", \"이 폴더만 수정\", \"편집 잠금\". Sets a session edit boundary: a PreToolUse Edit/Write hook produces deny for paths outside the chosen directory and for paths it cannot judge (relative, UNC, '..', failed conversion), handling Windows drive paths and /c/ paths."
 allowed-tools:
   - Bash
@@ -35,6 +35,8 @@ echo '{"skill":"freeze","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","repo":"'$(basen
 ```
 
 ## Setup
+
+Windows에서 investigate 잠금 금지. 편집이 전부 막히면 /unfreeze.
 
 Ask the user which directory to restrict edits to. Use AskUserQuestion:
 
