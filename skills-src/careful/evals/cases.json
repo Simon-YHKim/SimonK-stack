@@ -1,6 +1,6 @@
 {
   "skill": "careful",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "cases": [
     {
       "id": "en-prod-mode",
@@ -27,6 +27,25 @@
         { "id": "high-deny", "text": "States that a simple rm -rf of /, ~ or $HOME and a simple force-push to the default branch return permissionDecision 'deny', not 'ask'." },
         { "id": "lease-not-high", "text": "States that --force-with-lease is never HIGH (it falls to the MEDIUM ask) and that compound commands fall to MEDIUM ask." },
         { "id": "escape-hatch", "text": "Explains the only way past a HIGH deny is ending the /careful session." }
+      ]
+    },
+    {
+      "id": "windows-high-deny",
+      "prompt": "Git Bash에서 careful 켜고 rm -rf /c/ 나 rm -rf ~/* , cmd //c rd /s /q C:\\ , powershell -c \"Remove-Item -Recurse -Force C:\\\" 를 실행하면 어떻게 돼? rm -rf /c/Users/me/project/build 는?",
+      "assertions": [
+        { "id": "windows-root-deny", "text": "States that a simple recursive delete of a Windows/MSYS drive root (/c, /c/, /c/*, /mnt/c, C:, C:\\, C:/*) or of the home directory's direct contents (~/*, $HOME/*, \"$HOME\"/*) returns permissionDecision 'deny' (HIGH)." },
+        { "id": "windows-deleters-deny", "text": "States that cmd rd/rmdir/del with /s and powershell/pwsh -Command Remove-Item -Recurse aimed at a drive root or home, launched from the Bash tool, are also HIGH deny." },
+        { "id": "near-miss-unchanged", "text": "States that project subfolders keep their previous tier (rm -rf /c/Users/me/project/build stays allowed via the build-artifact allowlist; ./C and \"$HOME/project/tmp\" stay ask) and that variables other than HOME, deeper globs and compound commands are not HIGH." }
+      ]
+    },
+    {
+      "id": "powershell-deny-only",
+      "prompt": "careful 켜진 상태에서 PowerShell 도구로 Remove-Item -Recurse -Force C:\\ 나 Format-Volume, git push --force origin main 을 실행하면? Remove-Item -Recurse .\\build 나 git reset --hard 는?",
+      "assertions": [
+        { "id": "ps-hook-wired", "text": "States that careful registers a second PreToolUse entry with matcher PowerShell running bash \"$HOME/.claude/skills/careful/bin/check-careful.sh\" powershell." },
+        { "id": "ps-deny-shapes", "text": "States that recursive delete of a drive root or home (C:\\, C:\\*, $HOME, ~, $env:USERPROFILE and their \\* forms), Format-Volume/Clear-Disk/Initialize-Disk/Remove-Partition, cmd /c rd /s at a root and force-push to the default branch return permissionDecision 'deny' on the PowerShell tool." },
+        { "id": "ps-never-asks", "text": "States that every other PowerShell command, including Remove-Item -Recurse .\\build, git reset --hard and git push --force-with-lease, is allowed rather than asked (deny-only)." },
+        { "id": "ps-gaps", "text": "Names the documented gaps: other variables, splatting, -EncodedCommand, Invoke-Expression and pipeline input are not guessed, and internal hook failure still denies." }
       ]
     },
     {

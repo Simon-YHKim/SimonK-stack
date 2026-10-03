@@ -90,6 +90,19 @@ HOME_ANCHORED_HOOKS = {
     "freeze": "          command: 'bash \"$HOME/.claude/skills/freeze/bin/check-freeze.sh\"'",
 }
 
+# careful 0.2.2 (D-62 minimal B) adds a PowerShell-matcher entry that runs the
+# same $HOME-anchored leaf in "powershell" mode. The safety runtime has no
+# PowerShell kind, so the candidate projection removes exactly this entry
+# (any drift is an error) instead of shipping a flat-install $HOME path inside
+# a plugin. The Bash entry projects exactly as before.
+CAREFUL_POWERSHELL_HOOK = (
+    '    - matcher: "PowerShell"\n'
+    '      hooks:\n'
+    '        - type: command\n'
+    "          command: 'bash \"$HOME/.claude/skills/careful/bin/check-careful.sh\" powershell'\n"
+    '          statusMessage: "Checking PowerShell for catastrophic commands..."\n'
+)
+
 # Reviewed setup/clear spellings. Legacy: the pre-D-62 SKILL.md writers. D-62:
 # freeze and guard record the boundary with the vendored gstack writer
 # freeze/bin/freeze-state.sh and unfreeze clears it there. Every reviewed form
@@ -215,6 +228,8 @@ def safety_document(name, data):
             or eol == "\r\n" and "\n" in raw.replace("\r\n", "")):
         raise ValueError("Safety projection requires consistent source line endings")
     text = raw.replace("\r\n", "\n")
+    if name == "careful":
+        text = replace_exact(text, CAREFUL_POWERSHELL_HOOK, "")
     commands = {
         "careful": [("bin/check-careful.sh", "careful", 1)],
         "freeze": [("bin/check-freeze.sh", "freeze", 2)],

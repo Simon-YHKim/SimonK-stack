@@ -28,8 +28,125 @@ else:
     BASH = Path(shutil.which("bash") or "/missing/bash")
 GIT_ROOT = BASH.parent.parent
 EXPECTED_HOOK = 'bash "$HOME/.claude/skills/careful/bin/check-careful.sh"'
+EXPECTED_PS_HOOK = 'bash "$HOME/.claude/skills/careful/bin/check-careful.sh" powershell'
 BANNER_A = "<!-- AUTO-GENERATED from "
 BANNER_B = "<!-- Regenerate: bun run gen:skill-docs -->"
+
+# Hub decision D-62 A1: Windows/MSYS-shaped catastrophic deletes in a SIMPLE
+# command are HIGH (deny). Before 0.2.1 the rm forms were MEDIUM ask and the
+# cmd.exe/PowerShell forms were allowed with no warning at all.
+WINDOWS_HIGH_DENY = (
+    # MSYS / WSL / Cygwin drive roots and one-level globs
+    "rm -rf /c", "rm -rf /c/", "rm -rf /c/*", "rm -rf /e/", "rm -rf /C/",
+    "rm -rf /mnt/c", "rm -rf /mnt/c/", "rm -rf /mnt/c/*", "rm -rf /cygdrive/d",
+    # Windows drive spellings (quoted or not)
+    "rm -rf C:", "rm -rf C:/", "rm -rf C:\\", "rm -rf C:\\*", "rm -rf C:/*",
+    "rm -rf 'C:\\'", 'rm -rf "C:/"', "rm -rf c:\\\\",
+    # home and its direct contents
+    "rm -rf ~/*", "rm -rf ~/.*", 'rm -rf "$HOME"/*', "rm -rf $HOME/*",
+    "rm -rf ${HOME}", "rm -rf ${HOME}/*", 'rm -rf "${HOME}"',
+    # root variants and flag spellings
+    "rm -rf /.*", "rm -rf //", "rm -rf -- /", "rm -rf -- /c/", "rm -fr /c/",
+    "rm -r -f C:/", "rm -Rf /mnt/d", "rm --recursive --force ~/*",
+    "sudo rm -rf /c/", "sudo rm -rf --no-preserve-root /", "rm -rf /c/ /d/",
+    "rm -rf /c/ 2>/dev/null",
+    # cmd.exe launched from the Bash tool
+    "cmd /c rd /s /q C:\\", "cmd //c rd /s /q C:\\", "cmd.exe /c rmdir /s /q C:\\",
+    'cmd.exe /c "rmdir /s /q C:\\"', "cmd /C RD /S /Q D:\\", "cmd //c rd //s //q C:/",
+    "cmd /c rd /s /q C:", "cmd /c del /s /q C:\\*", "cmd /c del /f /s /q C:\\*.*",
+    "cmd /c rd /s /q ~", "C:/Windows/System32/cmd.exe /c rd /s /q C:\\",
+    # PowerShell launched from the Bash tool
+    'powershell -c "Remove-Item -Recurse -Force C:\\"',
+    'powershell -Command "Remove-Item -Recurse -Force C:\\"',
+    'powershell.exe -NoProfile -Command "Remove-Item -Path C:\\* -Recurse -Force"',
+    "pwsh -c 'Remove-Item -Recurse -Force ~'", 'pwsh -Command "rm -r -fo C:/"',
+    "pwsh -NoProfile -ExecutionPolicy Bypass -Command \"Remove-Item -LiteralPath 'C:\\' -Recurse -Force\"",
+    'powershell -c "ri -rec -force $HOME"', "pwsh -c 'Remove-Item -Recurse -Force $HOME\\*'",
+    "powershell -c 'Remove-Item -Recurse -Force \\'",
+    'powershell -c "Remove-Item -Recurse -Force C:\\ -ErrorAction SilentlyContinue"',
+    # 0.2.2: cmd/PowerShell spell home as %USERPROFILE% / $env:USERPROFILE too
+    "cmd /c rd /s /q %USERPROFILE%", "powershell -c 'Remove-Item -Recurse $env:USERPROFILE'",
+)
+
+# Near misses keep exactly the tier they had on 0.2.0 (measured 2026-10-03):
+# project subfolders, the build-artifact allowlist, ambiguous variables (any
+# but HOME), literal profile paths, globs deeper than one level, relative
+# targets, compound commands and deleters outside rm/rd/del/Remove-Item.
+NEAR_MISS = (
+    ("rm -rf /c/Users/me/project/build", "allow"),  # build-artifact allowlist
+    ("rm -rf C:/project/dist", "allow"), ("rm -rf ~/*/build", "allow"),
+    ("rm -rf node_modules", "allow"), ("rm -rf build dist", "allow"),
+    ("rm -rf ./C", "ask"), ('rm -rf "$HOME/project/tmp"', "ask"),
+    ('rm -rf "$HOME"/project', "ask"), ("rm -rf /c/Users/202502", "ask"),
+    ("rm -rf /c/Windows", "ask"), ('rm -rf "E:/Coding Infra"', "ask"),
+    ("rm -rf ~/.claude", "ask"), ("rm -rf $USERPROFILE", "ask"),
+    ("rm -rf ${USERPROFILE}", "ask"), ("rm -rf $TMPDIR", "ask"),
+    ("rm -rf .", "ask"), ("rm -rf ..", "ask"), ("rm -rf *", "ask"),
+    ("rm -rf \\*", "ask"), ("rm -rf /c/*/*", "ask"), ("rm -rf ~/*/", "ask"),
+    ("rm -rf $HOME/*.log", "ask"), ("rm -rf /mnt", "ask"), ("rm -rf /mnt/*", "ask"),
+    ("rm -rf /mnt/c/Users/me/proj", "ask"), ("rm -rf /cache", "ask"),
+    ("rm -rf C:*", "ask"), ("rm -rf /c/ ./build", "ask"),
+    ("rm -rf /c/ && echo done", "ask"), ("rm -f /c", "allow"),
+    ("cmd /c rd /s /q C:\\Users\\me\\project\\build", "allow"),
+    ('cmd.exe /c "rmdir /s /q C:\\Users"', "allow"), ("cmd /c rd /q C:\\", "allow"),
+    ("cmd /c del /q C:\\*", "allow"), ("cmd /c dir C:\\", "allow"),
+    ('cmd /c "rd /s /q C:\\ & echo done"', "allow"),
+    ('powershell -c "Remove-Item -Recurse -Force .\\build"', "allow"),
+    ('powershell -c "Remove-Item -Force C:\\"', "allow"),
+    ('powershell -c "Get-ChildItem C:\\"', "allow"),
+    ('powershell -c "Remove-Item -Recurse -Force C:\\; echo"', "allow"),
+    ('powershell -c "Remove-Item -Recurse $env:SystemDrive\\"', "allow"),
+    ("powershell -File wipe.ps1 C:\\", "allow"),
+    ("powershell -EncodedCommand UgBlAG0A", "allow"),
+    ('pwsh -c "Get-ChildItem C:\\ | Remove-Item -Recurse"', "allow"),
+    ('pwsh -c "Remove-Item -Recurse -Force C:\\ -WhatIf"', "allow"),
+    ("find / -delete", "allow"), ("git clean -fdx", "allow"),
+    ("chmod -R 000 ~", "allow"), ("mv ~ /tmp/x", "allow"),
+)
+
+# Hub decision D-62 minimal B: the PowerShell tool is checked DENY-ONLY.
+# Literal catastrophic shapes in any simple command (; | && { } ( ) split).
+PS_HIGH_DENY = (
+    "Remove-Item -Recurse -Force C:\\", "Remove-Item -Recurse -Force C:\\*",
+    "Remove-Item C:/ -Recurse", "Remove-Item -Path C: -Recurse -Force",
+    "ri -r -fo $HOME", "Remove-Item -Recurse -Force $HOME\\*", "Remove-Item -Recurse -Force ~",
+    "rm -r -fo ~\\*", "Remove-Item -Recurse -Force $env:USERPROFILE",
+    'Remove-Item -Recurse -Force "$env:USERPROFILE\\*"',
+    "Remove-Item -Recurse -Force ${env:USERPROFILE}", "rmdir -Recurse D:\\",
+    "del -Recurse -Force E:\\*", "erase -r C:\\", "rd /s /q C:\\", "rmdir /s C:\\",
+    "Remove-Item -LiteralPath 'C:\\' -Recurse -Force -ErrorAction SilentlyContinue",
+    "Remove-Item -Path:C:\\ -Recurse", "Remove-Item -Recurse -Force C:\\,D:\\",
+    "Microsoft.PowerShell.Management\\Remove-Item -Recurse C:\\",
+    "& Remove-Item -Recurse C:\\", "cd E:\\x; Remove-Item -Recurse -Force C:\\",
+    "Get-Date\nRemove-Item -Recurse -Force C:\\",
+    "Get-ChildItem x | ForEach-Object { Remove-Item -Recurse -Force $HOME }",
+    "cmd /c rd /s /q C:\\", 'cmd /c "rmdir /s /q C:\\"', "cmd.exe /c rd /s /q %USERPROFILE%",
+    "cmd /c del /s /q C:\\*", 'pwsh -c "Remove-Item -Recurse -Force C:\\"',
+    'powershell -NoProfile -Command "Remove-Item -Recurse $HOME"',
+    "Format-Volume -DriveLetter D", "Clear-Disk -Number 1 -RemoveData -Confirm:$false",
+    "Initialize-Disk -Number 2", "Remove-Partition -DriveLetter E",
+    "Storage\\Format-Volume -DriveLetter D",
+)
+
+# Everything else is ALLOWED on the PowerShell tool (never ask): ordinary
+# deletes, dry runs, other destroyers and the documented string-matching gaps.
+PS_ALLOW = (
+    "Remove-Item -Recurse .\\build", "Remove-Item -Recurse -Force .\\build",
+    "Remove-Item C:\\Users\\me\\project\\tmp -Recurse",
+    'Remove-Item -Recurse -Force "E:\\Coding Infra\\x\\node_modules"',
+    "Remove-Item C:\\", "Remove-Item -Force C:\\", "Remove-Item -Recurse -Force C:\\ -WhatIf",
+    "Format-Volume -DriveLetter D -WhatIf", "Get-Help Format-Volume", "Get-ChildItem C:\\",
+    "Remove-Item -Recurse /c", "Remove-Item -Recurse C:\\Users",
+    "Remove-Item -Recurse -Include *.log C:\\", "cmd /c rd /q C:\\",
+    "cmd /c rd /s /q C:\\Users\\me\\build", "rm -rf C:\\",
+    'Write-Output "Remove-Item -Recurse -Force C:\\"', "# Remove-Item -Recurse -Force C:\\",
+    "git reset --hard", "git status", "robocopy a b /MIR", 'Set-Content -Path x.txt -Value "a; b"',
+    # gaps: other variables, splatting, pipeline input, encoded / indirect commands
+    "Remove-Item -Recurse -Force $env:TEMP\\x", "Remove-Item -Recurse -Force $env:SystemDrive\\",
+    "Remove-Item -Recurse -Force $sp", "Remove-Item @params",
+    "Get-ChildItem C:\\ | Remove-Item -Recurse -Force", "powershell -EncodedCommand UgBlAG0A",
+    'Invoke-Expression "Remove-Item -Recurse C:\\"',
+)
 
 
 def posix(path):
@@ -39,13 +156,15 @@ def posix(path):
     return str(path)
 
 
-def frontmatter_hook_command():
+def frontmatter_hooks():
+    """(matcher, command) pairs of the PreToolUse entries, in order."""
     text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
     front = text.split("---", 2)[1]
-    found = re.findall(r"^\s*command:\s*'([^']*)'\s*$", front, re.M)
-    if len(found) != 1:
-        raise AssertionError("expected exactly one single-quoted hook command, got %r" % found)
-    return found[0]
+    found = re.findall(r'^\s*- matcher:\s*"([^"]+)"\s*\n\s*hooks:\s*\n\s*- type: command\s*\n'
+                       r"\s*command:\s*'([^']*)'\s*$", front, re.M)
+    if len(found) != len(re.findall(r"^\s*command:", front, re.M)):
+        raise AssertionError("unparsed hook command in frontmatter: %r" % found)
+    return found
 
 
 @unittest.skipUnless(BASH.is_file(), "Git Bash / POSIX bash is required")
@@ -74,7 +193,8 @@ class CarefulHookTests(unittest.TestCase):
         else:
             self.git_paths = ["/usr/bin", "/bin"]
         self.env = self.make_env([str(self.shims)] + self.git_paths)
-        self.hook_command = frontmatter_hook_command()
+        hooks = dict(frontmatter_hooks())
+        self.hook_command, self.ps_hook_command = hooks.get("Bash"), hooks.get("PowerShell")
 
     def make_env(self, path_entries, **extra):
         env = {k: v for k, v in os.environ.items()
@@ -91,9 +211,9 @@ class CarefulHookTests(unittest.TestCase):
         path.write_text(body, encoding="utf-8", newline="\n")
         return posix(path)
 
-    def run_hook(self, payload, *, env=None, cwd=None):
+    def run_hook(self, payload, *, env=None, cwd=None, hook=None):
         data = payload if isinstance(payload, str) else json.dumps(payload, ensure_ascii=False)
-        p = subprocess.run([str(BASH), "--noprofile", "--norc", "-c", self.hook_command],
+        p = subprocess.run([str(BASH), "--noprofile", "--norc", "-c", hook or self.hook_command],
                            input=data.encode("utf-8"), capture_output=True,
                            cwd=str(cwd or self.work), env=env or self.env, timeout=60)
         self.assertEqual(p.returncode, 0, p.stderr.decode("utf-8", "replace"))
@@ -110,6 +230,12 @@ class CarefulHookTests(unittest.TestCase):
 
     def bash_cmd(self, command, **kw):
         return self.run_hook({"tool_name": "Bash", "tool_input": {"command": command}}, **kw)
+
+    def ps_cmd(self, command, **kw):
+        # Payload shape measured live 2026-10-03: tool_input {command, description}.
+        return self.run_hook({"tool_name": "PowerShell",
+                              "tool_input": {"command": command, "description": "d"}},
+                             hook=self.ps_hook_command, **kw)
 
     def assert_failure_deny(self, outcome, detail=None):
         decision, reason = outcome
@@ -141,11 +267,12 @@ class CarefulHookTests(unittest.TestCase):
 
     # --- hook wiring -----------------------------------------------------
     def test_frontmatter_hook_is_home_anchored_and_banner_free(self):
-        self.assertEqual(self.hook_command, EXPECTED_HOOK)
+        self.assertEqual(frontmatter_hooks(), [("Bash", EXPECTED_HOOK),
+                                               ("PowerShell", EXPECTED_PS_HOOK)])
         text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
         self.assertNotIn("CLAUDE_SKILL_DIR}/bin", text.split("---", 2)[1])
         self.assertNotIn("/gstack/careful", self.hook_command)
-        self.assertRegex(text.split("---", 2)[1], r"(?m)^version: 0\.2\.0$")
+        self.assertRegex(text.split("---", 2)[1], r"(?m)^version: 0\.2\.2$")
         head = text.encode("utf-8")[:8192].decode("utf-8", "ignore")
         self.assertFalse(BANNER_A in head and BANNER_B in head,
                          "gstack banner would make setup treat this folder as gstack-owned")
@@ -173,6 +300,87 @@ class CarefulHookTests(unittest.TestCase):
                 decision, reason = self.bash_cmd(command)
                 self.assertEqual(decision, "deny", reason)
                 self.assertIn("[careful][HIGH]", reason)
+
+    def test_windows_shaped_high_denies(self):
+        for command in WINDOWS_HIGH_DENY:
+            with self.subTest(command=command):
+                decision, reason = self.bash_cmd(command)
+                self.assertEqual(decision, "deny", reason)
+                self.assertIn("[careful][HIGH]", reason)
+                if re.match(r"(?i)^(\S*[/\\])?(cmd|powershell|pwsh)", command):
+                    self.assertIn("cmd.exe/PowerShell", reason)
+                else:
+                    self.assertIn("drive root", reason)
+
+    def test_windows_shaped_near_misses_keep_previous_tier(self):
+        for command, expected in NEAR_MISS:
+            with self.subTest(command=command):
+                decision, reason = self.bash_cmd(command)
+                self.assertEqual(decision, expected, reason)
+                self.assertNotIn("[HIGH]", reason)
+
+    # --- PowerShell tool: deny-only -------------------------------------------
+    def test_powershell_high_denies(self):
+        for command in PS_HIGH_DENY:
+            with self.subTest(command=command):
+                decision, reason = self.ps_cmd(command)
+                self.assertEqual(decision, "deny", reason)
+                self.assertIn("[careful][HIGH]", reason)
+
+    def test_powershell_everything_else_allows_never_asks(self):
+        for command in PS_ALLOW:
+            with self.subTest(command=command):
+                decision, reason = self.ps_cmd(command)
+                self.assertEqual(decision, "allow", reason)
+
+    def test_powershell_force_push_to_default_branch(self):
+        repo = self.make_repo("ps repo main")
+        for command in ("git push --force origin main", "git push -f origin HEAD:main",
+                        "git push origin +main", "git push --force"):
+            with self.subTest(command=command):
+                decision, reason = self.ps_cmd(command, cwd=repo)
+                self.assertEqual(decision, "deny", reason)
+                self.assertIn("default branch (main)", reason)
+        # --force-with-lease, feature branches and compound commands (a
+        # Set-Location could change the repo) are allowed, not asked.
+        for command in ("git push --force-with-lease origin main", "git push --force origin feature-x",
+                        "git push -f origin topic", "cd ..\\other; git push -f origin main"):
+            with self.subTest(command=command):
+                self.assertEqual(self.ps_cmd(command, cwd=repo)[0], "allow")
+
+    def test_powershell_internal_failure_denies(self):
+        for tool_input in ({}, {"command": ""}, {"command": 7}, {"command": "ls\u0000x"},
+                           {"description": "only"}):
+            with self.subTest(tool_input=tool_input):
+                outcome = self.run_hook({"tool_name": "PowerShell", "tool_input": tool_input},
+                                        hook=self.ps_hook_command)
+                self.assert_failure_deny(outcome, "PowerShell payload has no usable tool_input.command")
+        for payload in ("", '{"tool_input":', "not json", "[]"):
+            with self.subTest(payload=payload):
+                self.assert_failure_deny(self.run_hook(payload, hook=self.ps_hook_command))
+        for name, body in (("ps tr fails.sh", "tr() { return 3; }\n"),
+                           ("ps sed fails.sh", "sed() { return 4; }\n")):
+            with self.subTest(failure=name):
+                env = self.make_env([str(self.shims)] + self.git_paths,
+                                    BASH_ENV=self.startup(name, body))
+                self.assert_failure_deny(self.ps_cmd("Get-Date", env=env), "unexpected script error")
+        (self.install / "bin/hook-extract.sh").unlink()
+        self.assert_failure_deny(self.ps_cmd("Get-Date"), "hook-extract.sh is missing or broken")
+
+    def test_hook_mode_argument_and_absent_tool_name(self):
+        # No tool_name: the entry that ran the script decides the tool.
+        rd = {"tool_input": {"command": "Remove-Item -Recurse C:\\"}}
+        reset = {"tool_input": {"command": "git reset --hard"}}
+        self.assertEqual(self.run_hook(rd, hook=self.ps_hook_command)[0], "deny")
+        self.assertEqual(self.run_hook(reset, hook=self.ps_hook_command)[0], "allow")
+        self.assertEqual(self.run_hook(rd)[0], "allow")
+        self.assertEqual(self.run_hook(reset)[0], "ask")
+        # tool_name wins over the entry; an unknown mode argument fails closed.
+        self.assertEqual(self.run_hook({"tool_name": "PowerShell", **rd})[0], "deny")
+        self.assertEqual(self.run_hook({"tool_name": "Bash", **reset}, hook=self.ps_hook_command)[0], "ask")
+        self.assert_failure_deny(self.run_hook({"tool_name": "Bash", **reset},
+                                               hook=self.hook_command + " powrshell"),
+                                 "unknown hook mode argument")
 
     def test_high_force_push_to_default_branch_denies(self):
         repo = self.make_repo("repo main")

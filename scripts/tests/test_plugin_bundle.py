@@ -409,6 +409,27 @@ class PluginBundleTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     self.m.safety_document("careful", drifted)
 
+    def test_careful_powershell_entry_is_dropped_from_projection(self):
+        # D-62 minimal B: the flat skill adds a PowerShell-matcher entry. The
+        # safety runtime has no PowerShell kind, so the projection removes that
+        # exact entry and the Bash entry projects as before.
+        source = (ROOT / "skills-src/careful/SKILL.md").read_bytes().replace(b"\r\n", b"\n")
+        block = self.m.CAREFUL_POWERSHELL_HOOK.encode("utf-8")
+        self.assertEqual(source.count(block), 1)
+        front = self.m.safety_document("careful", source).decode("utf-8").split("---", 2)[1]
+        args = json.dumps(["-B", "${CLAUDE_PLUGIN_ROOT}/.simonk-runtime/safety_runtime.py",
+                           "check", "careful", "--project", "${CLAUDE_PROJECT_DIR}"])
+        self.assertEqual(front[front.index("hooks:\n"):],
+                         'hooks:\n  PreToolUse:\n    - matcher: "Bash"\n      hooks:\n'
+                         '        - type: command\n          command: "python"\n'
+                         '          args: ' + args + '\n'
+                         '          statusMessage: "Checking for destructive commands..."\n')
+        for drifted in (source.replace(block, b""), source + b"\n" + block,
+                        source.replace(b"check-careful.sh\" powershell", b"check-careful.sh\" pwsh")):
+            with self.subTest(drifted=len(drifted)):
+                with self.assertRaises(ValueError):
+                    self.m.safety_document("careful", drifted)
+
     def test_freeze_guard_unfreeze_state_writer_and_legacy_forms_project_identically(self):
         # D-62: freeze/guard hooks are $HOME-anchored and the setup/clear blocks
         # use freeze-state.sh. Each reviewed source form must emit exactly the
