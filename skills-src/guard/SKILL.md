@@ -1,7 +1,7 @@
 ---
 name: guard
-version: 0.1.0
-description: "Use when asked to: \"guard mode\", \"full safety\", \"lock it down\", or \"maximum safety\". (gstack). Full safety mode: destructive command warnings + directory-scoped edits. Combines /careful (warns before rm -rf, DROP TABLE, force-push, etc.) with /freeze (blocks edits outside a specified directory). Use for maximum safety when touching prod or debugging live systems. Produces combined safety guardrails (destructive warnings + edit scope lock)."
+version: 0.2.0
+description: "Use when asked for \"guard mode\", \"full safety\", \"lock it down\", \"maximum safety\", \"가드 모드\", \"풀 세이프티\", or before touching prod or debugging live systems. Combines /careful and /freeze: a PreToolUse Bash hook produces deny for HIGH destructive commands and ask for MEDIUM ones, and an Edit/Write hook produces deny outside the chosen directory, including Windows drive paths."
 allowed-tools:
   - Bash
   - Read
@@ -11,30 +11,33 @@ hooks:
     - matcher: "Bash"
       hooks:
         - type: command
-          command: "bash ${CLAUDE_SKILL_DIR}/../careful/bin/check-careful.sh"
+          command: 'bash "$HOME/.claude/skills/careful/bin/check-careful.sh"'
           statusMessage: "Checking for destructive commands..."
     - matcher: "Edit"
       hooks:
         - type: command
-          command: "bash ${CLAUDE_SKILL_DIR}/../freeze/bin/check-freeze.sh"
+          command: 'bash "$HOME/.claude/skills/freeze/bin/check-freeze.sh"'
           statusMessage: "Checking freeze boundary..."
     - matcher: "Write"
       hooks:
         - type: command
-          command: "bash ${CLAUDE_SKILL_DIR}/../freeze/bin/check-freeze.sh"
+          command: 'bash "$HOME/.claude/skills/freeze/bin/check-freeze.sh"'
           statusMessage: "Checking freeze boundary..."
 ---
-<!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
-<!-- Regenerate: bun run gen:skill-docs -->
 
 # /guard — Full Safety Mode
 
 Activates both destructive command warnings and directory-scoped edit restrictions.
 This is the combination of `/careful` + `/freeze` in a single command.
 
-**Dependency note:** This skill references hook scripts from the sibling `/careful`
-and `/freeze` skill directories. Both must be installed (they are installed together
-by the gstack setup script).
+Based on gstack 1.91.9 `/guard` (MIT, Garry Tan). SimonK runs the hook scripts
+of its own `careful` and `freeze` skills through `$HOME`-anchored commands
+(hub decisions D-56 and D-62, 2026-10-03).
+
+**Dependency note:** guard runs the hook scripts of the flat home installs
+`~/.claude/skills/careful` and `~/.claude/skills/freeze`. Both must be
+installed there; gstack setup does not manage these SimonK folders. If a script
+is missing its hook cannot start, and a hook that cannot start blocks nothing.
 
 ```bash
 mkdir -p ~/.gstack/analytics
@@ -50,31 +53,78 @@ Ask the user which directory to restrict edits to. Use AskUserQuestion:
 
 Once the user provides a directory path:
 
-1. Resolve it to an absolute path:
+1. Check that both hook folders are installed. A hook whose script is missing
+cannot start, and a hook that cannot start does not block anything:
 ```bash
-FREEZE_DIR=$(cd "<user-provided-path>" 2>/dev/null && pwd)
-echo "$FREEZE_DIR"
+for f in freeze/bin/check-freeze.sh freeze/bin/freeze-state.sh careful/bin/hook-extract.sh careful/bin/check-careful.sh; do [ -f "$HOME/.claude/skills/$f" ] || echo "FREEZE_MISSING: ~/.claude/skills/$f"; done
+```
+If anything printed `FREEZE_MISSING`, stop: tell the user the boundary would
+not be enforced until `careful` and `freeze` are installed under
+`~/.claude/skills`, and do not run step 2.
+
+2. Record the boundary with the shared state writer. Put the path on the line
+between the markers exactly as the user typed it (`C:\...`, `C:/...` or
+`/c/...`); the quoted heredoc keeps spaces, `$`, quotes and a trailing
+backslash literal:
+```bash
+IFS= read -r FREEZE_INPUT <<'FREEZE_PATH'
+<user-provided-path>
+FREEZE_PATH
+bash "$HOME/.claude/skills/freeze/bin/freeze-state.sh" set "$FREEZE_INPUT"
 ```
 
-2. Ensure trailing slash and save to the freeze state file:
-```bash
-FREEZE_DIR="${FREEZE_DIR%/}/"
-STATE_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}"
-mkdir -p "$STATE_DIR"
-echo "$FREEZE_DIR" > "$STATE_DIR/freeze-dir.txt"
-echo "Freeze boundary set: $FREEZE_DIR"
-```
+3. Read the result before telling the user anything:
+   - `FREEZE_DIR=<dir>` (exit 0): the boundary is active at `<dir>/`.
+   - `FREEZE_BUSY: ...` (exit 1): another writer holds the state lock and
+     nothing changed. Say the boundary is NOT set and retry once. If it
+     repeats, show the user the `.freeze-mutation.lock` directory next to
+     `freeze-dir.txt` (default `~/.gstack/`) and let them decide before anyone
+     removes it.
+   - Any other failure (`No such file or directory`, exit 2): NOT set. Ask for
+     an existing directory.
 
 Tell the user:
 - "**Guard mode active.** Two protections are now running:"
-- "1. **Destructive command warnings** — rm -rf, DROP TABLE, force-push, etc. will warn before executing (you can override)"
+- "1. **Destructive command checks** — HIGH commands (rm -r of / or ~, force-push to the default branch) are blocked; MEDIUM ones (rm -rf, DROP TABLE, git reset --hard, ...) ask first."
 - "2. **Edit boundary** — file edits restricted to `<path>/`. Edits outside this directory are blocked."
 - "To remove the edit boundary, run `/unfreeze`. To deactivate everything, end the session."
 
-## What's protected
+## 결정 표 (Decision table)
 
-See `/careful` for the full list of destructive command patterns and safe exceptions.
-See `/freeze` for how edit boundary enforcement works.
+| Tool | Case | Decision |
+|------|------|----------|
+| Bash | safe command | allow |
+| Bash | MEDIUM destructive family (see `/careful`) | `ask` (confirmation prompt) |
+| Bash | HIGH: simple `rm -r` of `/`, `~`, `$HOME`; force-push to the default branch | `deny` |
+| Bash | careful hook failure (bad payload, missing helper, ...) | `deny` |
+| Edit/Write | inside the boundary, or no boundary set | allow |
+| Edit/Write | outside the boundary, in any path form or letter case | `deny` |
+| Edit/Write | relative, UNC, `..`, missing parent, failed conversion | `deny` |
+| Edit/Write | freeze hook failure or invalid state | `deny` |
+
+Full rules: `/careful` for commands, `/freeze` for the edit boundary.
+
+## Measured facts (2026-10-03, this machine, Claude Code bypassPermissions)
+
+1. `${CLAUDE_SKILL_DIR}` is unset in frontmatter hooks, so the gstack form
+   `bash ${CLAUDE_SKILL_DIR}/../careful/bin/check-careful.sh` never ran and was
+   non-blocking. The commands above are anchored to `$HOME` instead.
+2. `deny` blocks the call; `ask` shows a confirmation prompt (both measured in
+   bypassPermissions mode).
+3. Edit/Write send Windows paths (`C:\...`); `/freeze` normalizes them.
+
+## Install and gstack setup ownership
+
+No gstack banner and no `.gstack-owned` marker, so gstack `./setup` prints
+"skipped guard: existing entry is not gstack-managed" and leaves this folder
+alone. Do not add the marker.
+
+## Verify
+
+```bash
+python -B skills-src/freeze/bin/test_check_freeze.py     # freeze + guard wiring
+python -B skills-src/careful/bin/test_check_careful.py   # careful hook
+```
 
 ## 완료 보고 (HTML) — 표준
 작업을 끝내면 **HTML 완료 보고서**를 생성한다 (SimonKCore `completion-report` 표준).

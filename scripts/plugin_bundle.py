@@ -81,13 +81,103 @@ def replace_forms(text, forms, new, count=1):
 
 
 # Reviewed source spellings of a leaf hook command, per policy. The legacy
-# ${CLAUDE_SKILL_DIR} form is still used by freeze/guard/investigate. careful
-# (D-56, 2026-10-03) is anchored to its own installed copy because
-# ${CLAUDE_SKILL_DIR} was measured unset in frontmatter hooks. Both spellings
-# project to the same ${CLAUDE_PLUGIN_ROOT} safety runtime command.
+# ${CLAUDE_SKILL_DIR} form is still used by investigate. careful (D-56) and
+# freeze/guard (D-62, 2026-10-03) are anchored to their own installed copies
+# because ${CLAUDE_SKILL_DIR} was measured unset in frontmatter hooks. Both
+# spellings project to the same ${CLAUDE_PLUGIN_ROOT} safety runtime command.
 HOME_ANCHORED_HOOKS = {
     "careful": "          command: 'bash \"$HOME/.claude/skills/careful/bin/check-careful.sh\"'",
+    "freeze": "          command: 'bash \"$HOME/.claude/skills/freeze/bin/check-freeze.sh\"'",
 }
+
+# Reviewed setup/clear spellings. Legacy: the pre-D-62 SKILL.md writers. D-62:
+# freeze and guard record the boundary with the vendored gstack writer
+# freeze/bin/freeze-state.sh and unfreeze clears it there. Every reviewed form
+# projects to the SAME candidate block, so the emitted plugin documents do not
+# depend on which spelling the source uses.
+LEGACY_FREEZE_SET = '''1. Resolve it to an absolute path:
+```bash
+FREEZE_DIR=$(cd "<user-provided-path>" 2>/dev/null && pwd)
+echo "$FREEZE_DIR"
+```
+
+2. Ensure trailing slash and save to the freeze state file:
+```bash
+FREEZE_DIR="${FREEZE_DIR%/}/"
+STATE_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}"
+mkdir -p "$STATE_DIR"
+echo "$FREEZE_DIR" > "$STATE_DIR/freeze-dir.txt"
+echo "Freeze boundary set: $FREEZE_DIR"
+```
+'''
+STATE_WRITER_FREEZE_SET = '''1. Check that both hook folders are installed. A hook whose script is missing
+cannot start, and a hook that cannot start does not block anything:
+```bash
+for f in freeze/bin/check-freeze.sh freeze/bin/freeze-state.sh careful/bin/hook-extract.sh careful/bin/check-careful.sh; do [ -f "$HOME/.claude/skills/$f" ] || echo "FREEZE_MISSING: ~/.claude/skills/$f"; done
+```
+If anything printed `FREEZE_MISSING`, stop: tell the user the boundary would
+not be enforced until `careful` and `freeze` are installed under
+`~/.claude/skills`, and do not run step 2.
+
+2. Record the boundary with the shared state writer. Put the path on the line
+between the markers exactly as the user typed it (`C:\\...`, `C:/...` or
+`/c/...`); the quoted heredoc keeps spaces, `$`, quotes and a trailing
+backslash literal:
+```bash
+IFS= read -r FREEZE_INPUT <<'FREEZE_PATH'
+<user-provided-path>
+FREEZE_PATH
+bash "$HOME/.claude/skills/freeze/bin/freeze-state.sh" set "$FREEZE_INPUT"
+```
+
+3. Read the result before telling the user anything:
+   - `FREEZE_DIR=<dir>` (exit 0): the boundary is active at `<dir>/`.
+   - `FREEZE_BUSY: ...` (exit 1): another writer holds the state lock and
+     nothing changed. Say the boundary is NOT set and retry once. If it
+     repeats, show the user the `.freeze-mutation.lock` directory next to
+     `freeze-dir.txt` (default `~/.gstack/`) and let them decide before anyone
+     removes it.
+   - Any other failure (`No such file or directory`, exit 2): NOT set. Ask for
+     an existing directory.
+'''
+LEGACY_UNFREEZE_CLEAR = '''```bash
+STATE_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}"
+if [ -f "$STATE_DIR/freeze-dir.txt" ]; then
+  PREV=$(cat "$STATE_DIR/freeze-dir.txt")
+  rm -f "$STATE_DIR/freeze-dir.txt"
+  echo "Freeze boundary cleared (was: $PREV). Edits are now allowed everywhere."
+else
+  echo "No freeze boundary was set."
+fi
+```
+'''
+STATE_WRITER_UNFREEZE_CLEAR = '''```bash
+bash "$HOME/.claude/skills/freeze/bin/freeze-state.sh" clear
+```
+
+Read the result before telling the user anything:
+- `FREEZE_CLEARED: ...` (exit 0): edits are allowed everywhere again.
+- `FREEZE_BUSY: ...` (exit 1): another writer holds the state lock, so the
+  boundary is still active. Say so and retry once; if it repeats, show the
+  user the `.freeze-mutation.lock` directory next to `freeze-dir.txt`
+  (default `~/.gstack/`) and let them decide before anyone removes it.
+- `FREEZE_PRESERVED: unexpected state type ...` (exit 1): `freeze-dir.txt` is
+  a symlink or a directory and was left in place. Show it to the user; do not
+  delete it on your own.
+- `No such file or directory`: `/freeze` is not installed at
+  `~/.claude/skills/freeze`; nothing was cleared.
+'''
+LEGACY_GUARD_DEPENDENCY = (
+    '**Dependency note:** This skill references hook scripts from the sibling `/careful`\n'
+    'and `/freeze` skill directories. Both must be installed (they are installed together\n'
+    'by the gstack setup script).'
+)
+HOME_GUARD_DEPENDENCY = (
+    '**Dependency note:** guard runs the hook scripts of the flat home installs\n'
+    '`~/.claude/skills/careful` and `~/.claude/skills/freeze`. Both must be\n'
+    'installed there; gstack setup does not manage these SimonK folders. If a script\n'
+    'is missing its hook cannot start, and a hook that cannot start blocks nothing.'
+)
 
 
 def safety_setup(action):
@@ -145,42 +235,15 @@ def safety_document(name, data):
                   "multi-line text or shell code. Leave host placeholders for the host to render.\n"
                   "If the launcher fails, STOP: do not report that the boundary is active.\n\n")
     if name in {"freeze", "guard"}:
-        old = '''1. Resolve it to an absolute path:
-```bash
-FREEZE_DIR=$(cd "<user-provided-path>" 2>/dev/null && pwd)
-echo "$FREEZE_DIR"
-```
-
-2. Ensure trailing slash and save to the freeze state file:
-```bash
-FREEZE_DIR="${FREEZE_DIR%/}/"
-STATE_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}"
-mkdir -p "$STATE_DIR"
-echo "$FREEZE_DIR" > "$STATE_DIR/freeze-dir.txt"
-echo "Freeze boundary set: $FREEZE_DIR"
-```
-'''
-        text = replace_exact(text, old, setup_note + safety_setup("set"))
+        text = replace_forms(text, (LEGACY_FREEZE_SET, STATE_WRITER_FREEZE_SET),
+                             setup_note + safety_setup("set"))
     if name == "guard":
-        text = replace_exact(text,
-            '**Dependency note:** This skill references hook scripts from the sibling `/careful`\n'
-            'and `/freeze` skill directories. Both must be installed (they are installed together\n'
-            'by the gstack setup script).',
+        text = replace_forms(text, (LEGACY_GUARD_DEPENDENCY, HOME_GUARD_DEPENDENCY),
             '**Candidate dependency:** This plugin carries reviewed safety runtime resources.\n'
             'Python and Git Bash are required; native host activation remains unverified.')
     if name == "unfreeze":
-        old = '''```bash
-STATE_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}"
-if [ -f "$STATE_DIR/freeze-dir.txt" ]; then
-  PREV=$(cat "$STATE_DIR/freeze-dir.txt")
-  rm -f "$STATE_DIR/freeze-dir.txt"
-  echo "Freeze boundary cleared (was: $PREV). Edits are now allowed everywhere."
-else
-  echo "No freeze boundary was set."
-fi
-```
-'''
-        text = replace_exact(text, old, safety_setup("clear"))
+        text = replace_forms(text, (LEGACY_UNFREEZE_CLEAR, STATE_WRITER_UNFREEZE_CLEAR),
+                             safety_setup("clear"))
         text = replace_exact(text,
             'session — they will just allow everything since no state file exists. To re-freeze,',
             'session — only an explicit inactive tombstone permits edits. Missing state denies. To re-freeze,')
