@@ -299,17 +299,19 @@ class ModelRegistryTests(unittest.TestCase):
             wrong["access_proof"].update(change)
             self.assertFalse(self.bind(wrong, data)["candidates"][0]["available"])
 
-    def test_registry_and_task_fit_windows_cover_the_2026_10_02_recheck(self):
-        # The 2026-09-29 facts expired REGISTRY_STALE on 2026-10-06 04:03 KST.
+    def test_registry_and_task_fit_windows_cover_the_2026_10_03_recheck(self):
+        # The 2026-10-02 facts expired REGISTRY_STALE on 2026-10-09 00:39 KST.
         data = self.m.load_registry()
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
-        floor = datetime.fromisoformat("2026-10-02T00:00:00+09:00")
+        floor = datetime.fromisoformat("2026-10-03T21:00:00+09:00")
         checked = datetime.fromisoformat(data["checked_at"])
         self.assertGreaterEqual(checked, floor)
         self.assertGreaterEqual(datetime.fromisoformat(policy["checked_at"]), floor)
+        # checked_at is the earliest evidence, never later than the policy's own reading.
+        self.assertLessEqual(checked, datetime.fromisoformat(policy["checked_at"]))
         earliest = min(checked + timedelta(seconds=self.m.MAX_FACT_AGE_SECONDS),
                        datetime.fromisoformat(policy["valid_until"]))
-        self.assertGreaterEqual(earliest, datetime.fromisoformat("2026-10-09T00:00:00+09:00"))
+        self.assertGreaterEqual(earliest, datetime.fromisoformat("2026-10-10T21:00:00+09:00"))
 
     def test_grok_45_is_registered_without_its_unverified_xhigh(self):
         data = self.m.load_registry()
@@ -367,7 +369,8 @@ class ModelRegistryTests(unittest.TestCase):
         rows = catalog_map_rows()
         self.assertTrue({"grok-4.7-build-fast", "gemini-3.8-flash-high", "gemini-3.8-flash-medium",
                          "gemini-3.8-flash-low", "gemini-3.1-pro-high", "gemini-3.1-pro-low",
-                         "claude-haiku-4-5-20251001"} <= {row[1] for row in rows})
+                         "claude-haiku-4-5-20251001", "claude-opus-5-5-high",
+                         "claude-sonnet-5-5-medium"} <= {row[1] for row in rows})
         for surface, name, target, effort in rows:
             with self.subTest(name=name):
                 self.assertNotIn(name, keys)
@@ -376,7 +379,7 @@ class ModelRegistryTests(unittest.TestCase):
                     self.assertIn(effort, models[target]["api_efforts"])
         observed_at = data["checked_at"]
         for surface, name in (("grok", "grok-4.7-build-fast"), ("antigravity", "gemini-3.8-flash-high"),
-                              ("claude", "claude-haiku-4-5-20251001")):
+                              ("claude", "claude-haiku-4-5-20251001"), ("antigravity", "claude-opus-5-5-high")):
             with self.subTest(runtime=name):
                 trial = candidate(surface=surface, model=name, observed_at=observed_at,
                                   quota={"used_pct": None, "observed_at": observed_at})

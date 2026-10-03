@@ -1,5 +1,47 @@
 # Changelog
 
+## 2.13.1 - 2026-10-03
+
+- Refresh the model registry before its seven-day window closed: all 28
+  registry sources and the nine task-fit sources were re-read over HTTPS
+  (HTTP 200), and model IDs/efforts were compared with the local Codex, Grok,
+  agy and Claude CLI catalogs, without a model call. No provider fact changed:
+  IDs, API efforts, context, prices, long-context tiers, retirement dates, the
+  Daybreak alias target and the Claude Code notes all match.
+- `checked_at` is the earliest evidence timestamp, the Grok models cache fetch
+  at 2026-10-03 21:42:01 KST, so the facts stay fresh until
+  2026-10-10 21:42:01 KST instead of becoming `REGISTRY_STALE` on
+  2026-10-09 00:39:26 KST. The shadow task-fit policy is valid until
+  2026-10-10 21:47:06 KST; its cited claims and ranks are unchanged.
+- `gpt-6-sol` stays active: OpenAI's model page points to GPT-6.1 Sol as the
+  newer Sol model, but its 2026-10-01 deprecation notice names `gpt-6-sol` as a
+  replacement, not a deprecated model. `gemini-3.1-pro-preview` stays preview
+  with no shutdown date.
+- agy 1.2.16 now lists `claude-opus-5-5-*` and `claude-sonnet-5-5-*` (low,
+  medium, high) instead of `claude-sonnet-4-6` and `claude-opus-4-6-thinking`.
+  The map in `references/model-catalog-map.md` records them as unregistered,
+  because the schema binds the antigravity surface to Google.
+- Codex 0.160.0 and Claude Code 2.1.288 were observed; their model and effort
+  lists are unchanged. Orca lanes are unchanged.
+
+## 2.13.0 - 2026-10-03
+
+- A run that writes code (a node with `writes`, `proc=coding`, a CODE_* task
+  type or the `qa` skill) can no longer complete without a pinned QA binding:
+  `run_state.py bind-qa` records the QA contract and target once
+  (`QA_BINDING_IMMUTABLE`, absolute paths only, `QA_INTENT_CHANGED` when the
+  spec digest moves), and `Store.complete` reruns the QA gate before it marks
+  the run done (`QA_BINDING_REQUIRED` otherwise). There is no opt-out, so an
+  already open coding run also needs `bind-qa`. `check-qa` runs the gate alone.
+- `scripts/qa_acceptance.py` executes the qa skill's `qa_gate.py` only when its
+  LF-normalized SHA-256 matches the pinned constant; changing `qa_gate.py`
+  needs the same constant change here. The complete event payload carries the
+  QA report; the database schema is unchanged.
+- Pairs with qa 2.1.0 (contract hash, exact revision/environment and evidence
+  file hashes, fail-closed on missing, skipped, failed or stale evidence).
+  Installed on 2026-10-03 03:43 from `feat/qa-evidence-261003` before it
+  reached main; landed on main through PR #96.
+
 ## 2.12.43 - 2026-10-02
 
 - Refresh the model registry before its seven-day window closed: every
