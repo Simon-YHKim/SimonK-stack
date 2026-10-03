@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-24",
+  "updated": "2026-10-03",
   "source": {
     "file": "grok-bot-org-overview-2026-09-24.md",
     "sha256": "3dbaba9585ecf01cdef216dae0eb74b367f4ac10e3d0e4bd8b2e83c9c8592dd3",
@@ -132,7 +132,8 @@
         "web qa",
         "웹 qa"
       ],
-      "status": "active - reported in user-supplied 2026-09-24 snapshot; live access unverified",
+      "status": "active",
+      "status_evidence": "Observed live 2026-10-03: hub bots/STATUS.md refreshed 23:06 KST (inbox scan, machine connected) and E:/2ndB/.bots/relay/outbox results 21:34-22:30 KST. Activated by hub D-60 (conditional staged opening: first task only the Cursor overage/auto top-up screen check; no other tasks until it passes). Specialists keep their reported status.",
       "default": true
     },
     {

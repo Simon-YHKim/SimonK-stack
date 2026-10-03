@@ -2,7 +2,7 @@
 name: vibe-bot
 description: 'Use when "/vibe-bot", "봇한테 시켜", or "Grok Bot 과제서" is requested explicitly, or when /vibe hands off a verified screen-only step with no authorized CLI/API/MCP route. Produces scoped Relay task sheets and checks screenshot evidence; delivery needs fresh account, budget and approval.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 0.9.4
+version: 0.9.5
 author: simon-stack
 ---
 
@@ -25,6 +25,9 @@ select the exact owning bot. The 2026-09-24 snapshot describes 19 bots and six
 teams; reported status is not live availability. Keyword matching is a draft
 suggestion only: it can return inactive entries. For execution require an
 observed active bot and account; reject HOLD, WITHDRAWN and not-created entries.
+Since 2026-10-03 (hub D-60) only Relay is `active`, with its observation in
+`status_evidence`; its first task is the Cursor overage/auto top-up screen
+check, and nothing else is sent until that result passes.
 Target/URL keyword hits weigh more than incidental tool names in task prose.
 The project belongs to the task, not to the bot. All new tasks and results pass
 through `relay/inbox` and `relay/outbox`; the specialist remains the pinned
