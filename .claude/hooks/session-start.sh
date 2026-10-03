@@ -291,6 +291,12 @@ for src_dir in "$REPO_DIR"/skills-src "$REPO_DIR"/.claude/skills; do
   for d in "$src_dir"/*/; do
     name=$(basename "$d")
     [ -f "$d/SKILL.md" ] || continue
+    # D-68: a source folder carrying .simonk-no-install is never copied or
+    # re-synced, even when it changed or SIMON_STACK_FORCE_SYNC=1.
+    if [ -e "$d/.simonk-no-install" ]; then
+      log "  skip (no-install marker, D-68): $name"
+      continue
+    fi
 
     FORCE_THIS=0
     if [ "${SIMON_STACK_FORCE_SYNC:-0}" = "1" ]; then

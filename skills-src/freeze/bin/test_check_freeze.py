@@ -37,6 +37,9 @@ CAREFUL_HOOK = 'bash "$HOME/.claude/skills/careful/bin/check-careful.sh"'
 STATE_WRITER_UPSTREAM_SHA256 = "ee14660e8dd6fedb1e6673fccffa9ff1740047955ef5b59d58d246ad1dccebf5"
 BANNER_A = "<!-- AUTO-GENERATED from "
 BANNER_B = "<!-- Regenerate: bun run gen:skill-docs -->"
+# D-68 fixed warning: investigate stays the gstack copy, whose Windows scope lock is broken.
+INVESTIGATE_WARNING = "Windows에서 investigate 잠금 금지. 편집이 전부 막히면 /unfreeze."
+SKILL_VERSIONS = {"freeze": "0.2.1", "unfreeze": "0.2.0", "guard": "0.2.1"}
 HIDE_CYGPATH = ('command() { if [ "${1-}" = -v ] && [ "${2-}" = cygpath ]; then return 1; fi; '
                 'builtin command "$@"; }\n')
 
@@ -184,13 +187,21 @@ class FreezeHookTests(unittest.TestCase):
         self.assertEqual(hooks_of("unfreeze"), [])
         for skill in ("freeze", "unfreeze", "guard"):
             with self.subTest(skill=skill):
-                self.assertRegex(front(skill), r"(?m)^version: 0\.2\.0$")
+                self.assertRegex(front(skill), r"(?m)^version: %s$" % re.escape(SKILL_VERSIONS[skill]))
                 self.assertNotIn("CLAUDE_SKILL_DIR", front(skill))
                 self.assertNotIn("/gstack/", front(skill))
                 head = (SKILLS_SRC / skill / "SKILL.md").read_bytes()[:8192].decode("utf-8", "ignore")
                 self.assertFalse(BANNER_A in head and BANNER_B in head,
                                  "gstack banner would make setup treat this folder as gstack-owned")
                 self.assertFalse((SKILLS_SRC / skill / ".gstack-owned").exists())
+
+    def test_investigate_warning_is_the_first_setup_line(self):
+        for skill in ("freeze", "guard"):
+            with self.subTest(skill=skill):
+                text = (SKILLS_SRC / skill / "SKILL.md").read_text(encoding="utf-8")
+                setup = text.split("\n## Setup\n", 1)[1]
+                first = next(line for line in setup.splitlines() if line.strip())
+                self.assertEqual(first, INVESTIGATE_WARNING)
 
     def test_vendored_state_writer_is_upstream_plus_attribution(self):
         lines = (FREEZE / "bin/freeze-state.sh").read_bytes().split(b"\n")
