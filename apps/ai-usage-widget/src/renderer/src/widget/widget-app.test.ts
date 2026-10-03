@@ -383,6 +383,10 @@ describe('WidgetApp', () => {
     }
     feed(70, 8);
     expect(root.querySelectorAll('.account-item.is-fast')).toHaveLength(1);
+    // The warning carries a shape cue of its own, not only a colour; the calm account has none.
+    const mark = root.querySelector('.account-item[data-account-id="a1"] > .pace-mark');
+    expect(mark?.getAttribute('aria-hidden')).toBe('true');
+    expect(root.querySelectorAll('.pace-mark')).toHaveLength(1);
     feed(75, 10);
     expect(root.querySelectorAll('.account-item.is-fast')).toHaveLength(1);
     expect(root.querySelector('.account-item.is-fast')?.getAttribute('data-account-id')).toBe('a1');
@@ -392,6 +396,36 @@ describe('WidgetApp', () => {
 
     feed(80, 1); // quota reset: old history must not trigger an alert
     expect(root.querySelector('.account-item.is-fast')).toBeNull();
+    expect(root.querySelector('.pace-mark')).toBeNull();
+  });
+
+  it('keeps the fast-pace mark and the value-change cue on different elements', () => {
+    const { app, root } = setup(appState());
+    const feed = (minute: number, used: number, otherUsed: number) => {
+      const at = NOW + minute * 60_000;
+      vi.setSystemTime(at);
+      app.update(appState({
+        accounts: [account({ id: 'a1' }), account({ id: 'a2', order: 1 })],
+        usage: [
+          usage('a1', { windows: [quotaWindow('session', used, 5 * 3_600_000)], measuredAt: at, lastSuccessAt: at }),
+          usage('a2', { windows: [quotaWindow('session', otherUsed, 5 * 3_600_000)], measuredAt: at, lastSuccessAt: at }),
+        ],
+      }));
+    };
+    feed(0, 2, 5);
+    feed(5, 18, 6); // a1 bursts (fast + changed value), a2 only changes its value
+    const fast = root.querySelector<HTMLElement>('.account-item[data-account-id="a1"]');
+    const calm = root.querySelector<HTMLElement>('.account-item[data-account-id="a2"]');
+    expect(fast?.classList.contains('is-fast')).toBe(true);
+    expect(fast?.querySelectorAll(':scope > .pace-mark')).toHaveLength(1);
+    expect(calm?.classList.contains('is-fast')).toBe(false);
+    expect(calm?.querySelector('.pace-mark')).toBeNull();
+    expect(calm?.querySelector('[data-status]')?.getAttribute('data-value-flash')).toMatch(/^(sky|mint|violet)$/);
+    // The value cue lives on the row; the mark is a direct child of the item, outside every row.
+    for (const row of root.querySelectorAll('[data-value-flash]')) expect(row.querySelector('.pace-mark')).toBeNull();
+    vi.advanceTimersByTime(1_500);
+    expect(root.querySelectorAll('[data-value-flash]')).toHaveLength(0);
+    expect(fast?.querySelectorAll(':scope > .pace-mark')).toHaveLength(1);
   });
 
   it('does not infer a fast pace from stale or unknown quota readings', () => {
