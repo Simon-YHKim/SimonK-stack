@@ -380,3 +380,29 @@ last-sync: 2026-07-05
   - **원문**: C:/Users/202502/AppData/Local/SimonKStack/ai-debate/debates/dbt-261002-020448
 
 - 2026-10-02 02:22:05 KST | AMEND | **D-54 AI Usage Widget 색상 변경 알림 로컬 갱신** — catch-up: Claude ACCEPT · 상태 PROVISIONAL 2/4 | codex
+
+- 2026-10-03 20:47:37 KST | AMEND | **D-53 ai-debate 0.2.0·/vibe 2.12.42 머지와 사용자 홈 설치** — catch-up: Codex ACCEPT · Grok ACCEPT · 상태 FINAL 2/4 (catch-up) | claude
+
+- 2026-10-03 20:47:37 KST | AMEND | **D-55 PR #90·#91 머지와 2.12.43·ai-debate 0.2.2 설치** — catch-up: Codex ACCEPT · 상태 FINAL 3/4 (catch-up) | claude
+
+- 2026-10-03 21:02:09 KST | DECIDE | **D-56 안전 스킬 5개 gstack 원본 vs SimonK 판** (§35 4벤더 토론 · PROVISIONAL 3/4) | claude
+  - **안건**: 사용자 홈의 안전 스킬 5개(careful·freeze·guard·unfreeze·investigate)가 gstack 1.91.9 원본 사본으로 덮여 있다. SimonK 판(skills-src)과 동작이 다르다(특히 careful의 실패 시 열림/닫힘, HIGH 등급 deny/ask, freeze 상태 작성기). 무엇을 설치본으로 둘 것인가? — 선택지: 1) RESTORE: 5개 모두 SimonK 판으로 교체(기존 폴더는 보관), gstack-upgrade 뒤 다시 덮이지 않게 재동기화 단계 추가 / 2) KEEP_GSTACK: gstack 1.91.9 원본 유지, SimonK 판은 은퇴하거나 gstack 추적용으로만 둠 / 3) REBASE: SimonK 판을 gstack 1.91.9 위에 다시 만든다(실패 시 닫힘·ask 계약 등 SimonK 차이만 얹음) → 검증·PR 후 설치. 그때까지 현 상태 유지 / 4) SPLIT: careful(·guard)만 SimonK 판으로 즉시 교체, freeze·unfreeze·investigate는 gstack 유지
+  - **참석**: Claude ✓(claude-opus-5-5, 세션 내) · Codex ✓(gpt-6.1-sol) · Grok ✗(quota: Internal error: { "message": "API error (status 402 Payment Required): G…) · Gemini ✓(gemini-3.1-pro-high)
+  - **입장**: Claude[찬성]: 선택지 3 (REBASE) — 확신도 68 · Codex[회의]: 선택지 3 — 확신도 74 · Gemini[사용자 이익]: 선택지 1 — 확신도 90
+  - **교차검증**: Claude UNCHANGED · Codex UNCHANGED · Gemini REVISED: 선택지 3 (REBASE) — 확신도 85
+  - **심판**: Codex (블라인드·새 세션·자기 벤더 입장 포함) — VERDICT: 선택지 3(REBASE) 채택. careful을 먼저 검증하고, freeze 공용 작성기를 보존하며, 검증 후 단계적으로 설치한다. · CONFIDENCE 84 · 추인: Claude ACCEPT · Codex ACCEPT · Gemini ACCEPT
+  - **소수의견**: **REBASE를 기다리는 동안 기존 careful의 fail-open 경로가 남는다**는 반론이 가장 강하다. 따라서 다섯 개의 완벽한 통합을 기다리지 말고 careful을 첫 검증·설치 단위로 삼아야 한다. 기한 없이 현 상태를 유지하는 REBASE는 지지하지 않는다.
+  - **후속**: **careful부터 검증한다.** 실제 훅 경로, 스크립트 시작 실패, matcher 오류, command 누락, 추출 실패, HIGH 입력을 무해한 시험 명령으로 확인한다. JSON 출력뿐 아니라 승인 전 실행 보류를 확인한다. **확인 계약을 확정한다.** `ask`가 자동 승인되는 환경이라면 HIGH를 `ask`로 완화하지 않는다. 차단을 유지하면서 명시적 확인 후 실행하는 절차를 마련한다. **freeze 계열은 하나의 상태 계약으로 맞춘다.** 공용 작성기를 보존하고 Windows 경로·상태 루트·`FREEZE_BUSY… · Grok 복귀 시 catchup 라운드 의무 (`debate.py catchup`)
+  - **원문**: C:/Users/202502/AppData/Local/SimonKStack/ai-debate/debates/dbt-261003-204651
+
+- 2026-10-03 21:05:11 KST | DECIDE | **D-57 PR #93 ai-debate 0.2.3 머지와 홈 설치** (§35 4벤더 토론 · PROVISIONAL 3/4) | claude
+  - **안건**: 4벤더 토론 테스트에서 Grok 좌석이 오래된 로그(78%)로 READY 오판 후 402가 났다. 실시간 ACP billing 조회를 먼저 하는 수정(PR #93, 테스트 104/104, CI 4/4, 실제 CLI에서 ABSENT 100% 확인)을 지금 main에 머지하고 사용자 홈 ai-debate를 0.2.3으로 교체할 것인가? — 선택지: 1) MERGE_INSTALL: 지금 머지하고 홈 사본을 0.2.3으로 교체(기존 폴더 보관) / 2) MERGE_ONLY: 머지만 하고 홈 설치는 다음 묶음 릴리스 때 / 3) HOLD: Codex 좌석도 실시간 조회(account/rateLimits/read)로 고친 뒤 함께 머지·설치
+  - **참석**: Claude ✓(claude-opus-5-5, 세션 내) · Codex ✓(gpt-6.1-sol) · Grok ✗(402 ~2026-10-08 16:51 KST) · Gemini ✓(gemini-3.1-pro-high)
+  - **입장**: Claude[찬성]: 선택지 1 (MERGE_INSTALL) — 확신도 72. 단, 아래 반론의 reset 분기 순서 결함(debate.py:884-894)은 머지 전에 같은 PR에 넣거나(3줄 순서 변경 + 테스트 1개) 0.2.4로 바로 이어 고친다는 조건. · Codex[회의]: 선택지 3 HOLD — 확신도 88 · Gemini[사용자 이익]: 선택지 1 — 확신도 95
+  - **교차검증**: quick 모드 생략
+  - **심판**: Gemini (블라인드·새 세션·자기 벤더 입장 포함) — VERDICT: 조건부 선택지 1 (MERGE_INSTALL) — 리셋 분기(reset branch) 순서 결함을 수정하여 머지하고 즉시 설치한다. · CONFIDENCE 92
+  - **소수의견**: **과금 위험의 잔존**: 실시간 조회가 실패한 상태에서 로그의 주기가 만료되었을 때 덮어놓고 READY를 반환하는 경로는 새 주기 초반에 타 환경에서 잔액을 소진했을 경우 여전히 과금 오판으로 이어질 수 있습니다(P2, P3 공통 지적). **Codex 좌석의 사각지대**: Grok에 대한 조치만으로 전체 좌석의 실시간 과금 안전성이 확보되는 것은 아니며, Codex의 외부 사용량 미반영 문제는 여전히 남아있습니다(P2 지적).
+  - **후속**: **PR #93 수정 (필수)**: 머지 전(또는 즉각적인 후속 PR로) `debate.py`의 리셋 분기 로직(`if end is not None and end <= current:`)을 `if stale:` 블록 아래로 내리거나, `stale` 조건 시 리셋 분기에서도 UNKNOWN을 반환하도록 로직 순서를 수정합니다. **테스트 케이스 추가**: "실시간 조회 실패 + 오래된 로그 + 기간 종료" 조합에 대한 단위 테스트를 추가하여 회귀를 방지합니다. **즉시 교체 설치**: 위 수정이 반영된 버전으로 `~/.claude/s… · Grok 복귀 시 catchup 라운드 의무 (`debate.py catchup`)
+  - **원문**: C:/Users/202502/AppData/Local/SimonKStack/ai-debate/debates/dbt-261003-210004
+
+- 2026-10-03 21:08:29 KST | AMEND | **D-57 PR #93 ai-debate 0.2.3 머지와 홈 설치** — 조건 이행: 리셋 분기 수정+테스트(029365b, 104/104), CI 4/4, main 머지 5e4cae8, 홈 ~/.claude/skills/ai-debate 0.2.3 교체(main blob 7/7 일치, 이전본 ~/.claude/flat-link-archive/ai-debate-0.2.2-261003) | claude
