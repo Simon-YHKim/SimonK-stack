@@ -58,16 +58,26 @@ that commit, unchanged except for a leading attribution comment block:
 These files reside under skills-src/. They are adapted, not byte-identical
 copies. Local changes preserve the current SimonK skill contracts:
 
-- careful follows upstream tiers: HIGH patterns (simple rm -r of / or the home
-  directory, simple force-push to the default branch) deny; MEDIUM destructive
-  families and shell obfuscation ask. Every internal hook failure denies: the
+- careful follows upstream tiers: HIGH patterns deny; MEDIUM destructive
+  families and shell obfuscation ask. HIGH (simple commands only) covers
+  recursive delete of the filesystem root, a drive root (also the Windows/MSYS
+  spellings /c, /c/*, /mnt/c, C:, C:\, C:/*) or the home directory or its direct
+  contents (~/*, $HOME/*), including cmd.exe rd|del /s and PowerShell
+  Remove-Item -Recurse launched from Bash against a drive root or home, plus
+  force-push to the default branch (D-62 A1). The PowerShell tool (D-62
+  minimal B) is checked deny-only: recursive delete of a drive root or home
+  (HOME or USERPROFILE spellings), Format-Volume, Clear-Disk, Initialize-Disk,
+  Remove-Partition and a force-push to the default branch deny; everything
+  else is allowed, never asked. Every internal hook failure denies: the
   EXIT-trap backstop on unexpected runtime errors, a missing/broken/outdated
-  helper, empty or invalid JSON, no JSON parser, a Bash payload without a usable
-  command, baseline matcher errors (distinguished from clean non-matches) and an
-  unresolvable per-project slug. A non-Bash payload is recognised by tool_name
-  and allowed. The SKILL hook command is anchored to
-  $HOME/.claude/skills/careful because ${CLAUDE_SKILL_DIR} was measured unset in
-  frontmatter hooks. This is not a security sandbox and never grants permission
+  helper, empty or invalid JSON, no JSON parser, a Bash or PowerShell payload
+  without a usable command, an unknown hook mode argument, baseline matcher
+  errors (distinguished from clean non-matches) and an unresolvable
+  per-project slug. Other tools are recognised by tool_name and allowed. Both
+  SKILL hook commands are anchored to $HOME/.claude/skills/careful because
+  ${CLAUDE_SKILL_DIR} was measured unset in frontmatter hooks; the plugin
+  candidate projection drops the PowerShell entry (no PowerShell kind in the
+  safety runtime). This is not a security sandbox and never grants permission
   to execute a destructive action.
 - The shared state reader matches existing writers exactly:
   ${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}. GSTACK_HOME remains analytics-only for

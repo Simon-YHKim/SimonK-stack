@@ -16,6 +16,17 @@
 #   3. _careful_match: grep rc>1 is a matcher error, not a clean non-match.
 #   4. Per-project slug comes from the vendored bin/gstack-slug.sh (upstream
 #      evaluated ../../bin/gstack-slug, absent outside the gstack tree).
+#   5. (hub decision D-62 A1, 2026-10-03) The HIGH recursive-delete check also
+#      knows Windows/MSYS spellings of a drive root (/c /c/ /c/* /mnt/c C: C:\
+#      C:/*) and one-level "everything" globs of root or home (~/* $HOME/*),
+#      removes every quote character before classifying (shell quote removal),
+#      and covers cmd.exe rd|rmdir|del /s and PowerShell Remove-Item -Recurse
+#      launched from the Bash tool against a drive root or home. Same SIMPLE
+#      command rule; ambiguous shapes keep their previous tier.
+#   6. (hub decision D-62 minimal B) A PowerShell-tool payload (second
+#      frontmatter entry, argument "powershell") is checked DENY-ONLY:
+#      literal recursive delete of a drive root or home, disk cmdlets and
+#      force-push to the default branch deny; everything else allows.
 # check-careful.sh — PreToolUse hook for /careful skill
 # Reads JSON from stdin, checks Bash command for destructive patterns.
 # Two tiers:
@@ -79,14 +90,23 @@ if [ "$TOOL_RC" -ne 0 ]; then
   _careful_fail "could not parse the tool payload (invalid JSON or no python3/node parser)."
 fi
 
-# A different tool is outside this hook's scope (the frontmatter matcher is
-# Bash, so this only happens if the hook is wired to more tools) — allow.
-# An absent tool_name is treated as Bash: Bash is the only matcher.
+# SimonK (D-62 minimal B): two frontmatter entries run this script. The Bash
+# matcher passes no argument; the PowerShell matcher passes "powershell". An
+# absent tool_name means the tool of the entry that ran us. Any other argument
+# is a wiring error, so fail closed. A tool other than Bash or PowerShell is
+# outside this hook's scope — allow.
+case "${1:-}" in
+  '') _HOOK_TOOL=bash ;;
+  powershell) _HOOK_TOOL=powershell ;;
+  *) _careful_fail "unknown hook mode argument (expected none or powershell)." ;;
+esac
 _TOOL_LC=$(printf '%s' "$TOOL_NAME" | tr '[:upper:]' '[:lower:]')
-if [ -n "$_TOOL_LC" ] && [ "$_TOOL_LC" != "bash" ]; then
-  echo '{}'
-  exit 0
-fi
+[ -n "$_TOOL_LC" ] || _TOOL_LC="$_HOOK_TOOL"
+case "$_TOOL_LC" in
+  bash) _TOOL_LABEL=Bash ;;
+  powershell) _TOOL_LABEL=PowerShell ;;
+  *) echo '{}'; exit 0 ;;
+esac
 
 # Extract the "command" field value from tool_input with a real JSON parser.
 #
@@ -106,9 +126,9 @@ CMD=$(gstack_hook_extract_field "$INPUT" command)
 EXTRACT_RC=$?
 set -e
 
-# A Bash call whose command is missing, empty, non-string or carries NUL.
+# A Bash/PowerShell call whose command is missing, empty, non-string or carries NUL.
 if [ "$EXTRACT_RC" -ne 0 ] || [ -z "$CMD" ]; then
-  _careful_fail "the Bash payload has no usable tool_input.command (missing, empty, non-string or NUL)."
+  _careful_fail "the $_TOOL_LABEL payload has no usable tool_input.command (missing, empty, non-string or NUL)."
 fi
 
 # A matcher error is unknown, not a clean non-match. Calls run in this shell
@@ -128,6 +148,245 @@ _careful_log_fire() { gstack_hook_log_fire careful "$1"; }
 
 # Normalize: lowercase for case-insensitive SQL matching
 CMD_LOWER=$(printf '%s' "$CMD" | tr '[:upper:]' '[:lower:]')
+
+# --- Shared HIGH-tier helpers (SimonK, hub decision D-62) -------------------
+# None of these call an external program except through _careful_match (whose
+# error path exits with a deny itself) or a `|| true`-guarded git probe: they
+# run as `if` conditions, where errexit is suspended, so an unguarded failure
+# inside them would silently read as "no match".
+
+# Is $1 a root-class delete target? $1 has every quote character removed
+# already. $2 is the shell that performs the delete:
+#   sh  — rm run by bash (case-sensitive, / separators, MSYS drive spellings)
+#   win — cmd.exe / PowerShell launched from the Bash tool ($1 lowercased;
+#         / or \ separators; MSYS spellings still apply, Git Bash converts them)
+#   ps  — the PowerShell tool itself ($1 lowercased; no MSYS spellings)
+# Root class = the filesystem root, a drive root, or the home directory, each
+# optionally followed by ONE level of "everything" glob (*  .*  *.*). Home is
+# spelled the way the deleting shell spells it: bash ~ $HOME ${HOME}; cmd and
+# PowerShell add %USERPROFILE% and $env:USERPROFILE. Deeper globs, relative
+# paths (. .. *), literal profile paths (/c/Users/<name>) and other variables
+# are NOT root class: they are ambiguous, so they keep their previous tier.
+# Brackets instead of backslash escapes keep the EREs portable across regcomp
+# implementations.
+_careful_root_target() {
+  local t="$1" g='([*]|[.][*]|[*][.][*])' sep='/' msys=1
+  local home='(~|[$]HOME|[$][{]HOME[}])'
+  if [ "$2" = win ] || [ "$2" = ps ]; then
+    sep='/\\'
+    home='(~|[$]home|[$][{]home[}]|[$]env:userprofile|[$][{]env:userprofile[}]|%userprofile%)'
+  fi
+  if [ "$2" = ps ]; then msys=0; fi
+  local re_root='^['"$sep"']+'"$g"'?$'                          # / // /* /.*
+  local re_msys='^/((mnt|cygdrive)/)?[a-zA-Z](/+'"$g"'?)?$'     # /c /c/ /c/* /mnt/c
+  local re_drive='^[a-zA-Z]:([/\\]+'"$g"'?)?$'                  # C: C:/ C:\ C:\*
+  local re_home='^'"$home"'(['"$sep"']+'"$g"'?)?$'              # ~ ~/* $HOME/* ${HOME}
+  if [[ $t =~ $re_root || $t =~ $re_drive || $t =~ $re_home ]]; then return 0; fi
+  [ "$msys" -eq 1 ] && [[ $t =~ $re_msys ]]
+}
+
+# cmd.exe / PowerShell recursive delete. $1 = ONE lowercased simple command,
+# $2 = win (launched from the Bash tool) or ps (the PowerShell tool itself).
+# Returns 0 only when the command is
+#   cmd[.exe] [switches] /c (rd|rmdir|del|erase) ... /s ... <targets>
+#   powershell|pwsh[.exe] [host options] -c|-Command (Remove-Item|ri|rm|del|
+#     rd|rmdir|erase) ... -Recurse ... <targets>
+#   (ps only) Remove-Item|ri|rm|del|rd|rmdir|erase ... -Recurse|/s ... <targets>
+# and EVERY target is root class (same rule as rm). Anything else in the
+# argument list (a second command after cmd's &, -Include *.log, a subfolder)
+# counts as a non-root target, so the call keeps its previous tier. -WhatIf is
+# a dry run and never HIGH. Encoded commands, variables, pipes and splatting
+# are out of reach of string matching.
+_careful_win_delete_root() {
+  local tok base kind="" stage=lead recurse=0 root=0 safe=0 skipnext=0 bs='\' mode="$2"
+  local re_cmdflag='^[-/]c(o(m(m(a(n(d)?)?)?)?)?)?$'
+  local re_recurse='^-r(e(c(u(r(s(e)?)?)?)?)?)?(:[$]true)?$'
+  set -f
+  for tok in $1; do
+    tok="${tok//\"/}"; tok="${tok//\'/}"
+    case "$stage" in
+      lead)
+        # PowerShell call / dot-source operator in front of the command name.
+        case "$mode:$tok" in 'ps:&'|'ps:.') continue ;; esac
+        # basename, either separator: C:\Windows\System32\cmd.exe -> cmd.exe
+        base=${tok##*/}; base=${base##*"$bs"}
+        case "$mode:$base" in
+          *:cmd|*:cmd.exe) kind=cmd; stage=cmdsw ;;
+          *:powershell|*:powershell.exe|*:pwsh|*:pwsh.exe) kind=ps; stage=psopt ;;
+          ps:remove-item|ps:ri|ps:rm|ps:del|ps:rd|ps:rmdir|ps:erase) kind=ps; stage=args ;;
+          *) break ;;
+        esac ;;
+      cmdsw)  # cmd's own switches; /c or /k (MSYS spelling //c) runs the rest
+        case "$tok" in
+          /c|//c|/k|//k) stage=verb ;;
+          /?|//?|/?:*|//?:*) : ;;
+          *) break ;;
+        esac ;;
+      psopt)  # host options (-NoProfile, -ExecutionPolicy Bypass) until -Command
+        if [[ $tok =~ $re_cmdflag ]]; then stage=verb; fi ;;
+      verb)
+        case "$kind:$tok" in
+          cmd:rd|cmd:rmdir|cmd:del|cmd:erase) stage=args ;;
+          ps:remove-item|ps:ri|ps:rm|ps:del|ps:rd|ps:rmdir|ps:erase) stage=args ;;
+          *) break ;;
+        esac ;;
+      args)
+        if [ "$skipnext" -eq 1 ]; then skipnext=0; continue; fi
+        case "$kind:$tok" in
+          # cmd's /s; in PowerShell `rmdir /s /q C:\` is the same intent.
+          cmd:/s|cmd://s|ps:/s|ps://s) recurse=1 ;;
+          cmd:/?|cmd://?|cmd:/?:*|cmd://?:*|ps:/?|ps://?) : ;;
+          ps:-whatif|'ps:-whatif:$true') safe=1 ;;
+          ps:-erroraction|ps:-ea|ps:-warningaction|ps:-wa) skipnext=1 ;;
+          ps:-path:*|ps:-literalpath:*|ps:-lp:*)
+            if _careful_root_target "${tok#*:}" "$mode"; then root=1; else safe=1; fi ;;
+          ps:-*) if [[ $tok =~ $re_recurse ]]; then recurse=1; fi ;;
+          *:[0-9]'>'*|*:'>'*|*:'*>'*|*:'<'*|*:'&') : ;;
+          *) if _careful_root_target "$tok" "$mode"; then root=1; else safe=1; fi ;;
+        esac ;;
+    esac
+  done
+  set +f
+  [ "$stage" = args ] && [ "$recurse" -eq 1 ] && [ "$root" -eq 1 ] && [ "$safe" -eq 0 ]
+}
+
+# Force-push to the repo's default branch (the shared history everyone pulls).
+# $1 = ONE simple command (original case: branch names are case-sensitive).
+# Force is carried by -f/--force OR by git's plus-refspec syntax (+main,
+# +HEAD:main) which needs no flag at all. --force-with-lease never matches.
+# Sets _DEFAULT_BRANCH for the deny message.
+_careful_push_targets_default() {
+  local cmd="$1" has_force=0 hit=0 tok ref current
+  _DEFAULT_BRANCH=""
+  _careful_match -qE '^[[:space:]]*git[[:space:]]+push([[:space:]]|$)' <<< "$cmd" 2>/dev/null || return 1
+  if _careful_match -qE '(^|[[:space:]])(-f|--force)($|[[:space:]])' <<< "$cmd" 2>/dev/null; then
+    has_force=1
+  elif _careful_match -qE '(^|[[:space:]])\+[^[:space:]]' <<< "$cmd" 2>/dev/null; then
+    has_force=1
+  fi
+  [ "$has_force" -eq 1 ] || return 1
+  # Full branch path (slashed defaults like release/2.0 stay intact) and
+  # FIXED-STRING token comparison — never interpolate a branch name into
+  # an ERE (metacharacters would over/under-match).
+  _DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|^refs/remotes/origin/||' || true)
+  # Conductor worktrees often lack the origin/HEAD symbolic ref — without a
+  # fallback the HIGH tier would be silently inert in the primary deploy
+  # environment. Probe the two conventional defaults.
+  if [ -z "$_DEFAULT_BRANCH" ]; then
+    if git show-ref --verify -q refs/remotes/origin/main 2>/dev/null; then
+      _DEFAULT_BRANCH="main"
+    elif git show-ref --verify -q refs/remotes/origin/master 2>/dev/null; then
+      _DEFAULT_BRANCH="master"
+    fi
+  fi
+  [ -n "$_DEFAULT_BRANCH" ] || return 1
+  set -f
+  for tok in $cmd; do
+    # Strip one layer of surrounding quotes: `git push -f origin "main"`
+    # must not dodge the deny just because the ref is quoted.
+    tok="${tok#\"}"; tok="${tok%\"}"; tok="${tok#\'}"; tok="${tok%\'}"
+    case "$tok" in git|push|sudo|-*) continue ;; esac
+    ref="${tok#+}"            # +main -> main
+    ref="${ref##*:}"          # HEAD:main / src:main -> main
+    if [ "$ref" = "$_DEFAULT_BRANCH" ]; then
+      hit=1
+      break
+    fi
+  done
+  set +f
+  if [ "$hit" -eq 0 ] && _careful_match -qE '^[[:space:]]*git[[:space:]]+push([[:space:]]+(-f|--force))*[[:space:]]*$' <<< "$cmd" 2>/dev/null; then
+    # Bare `git push --force` (force flags only, no remote/ref): targets
+    # the current branch's upstream — the default branch only when ON it.
+    current=$(git branch --show-current 2>/dev/null || true)
+    if [ -n "$current" ] && [ "$current" = "$_DEFAULT_BRANCH" ]; then hit=1; fi
+  fi
+  [ "$hit" -eq 1 ]
+}
+
+# PowerShell disk destroyers. $1 = ONE lowercased simple command. The cmdlet
+# must be the command name (Get-Help Format-Volume does not match); -WhatIf
+# is a dry run.
+_careful_ps_disk() {
+  local tok first="" base whatif=0 bs='\'
+  set -f
+  for tok in $1; do
+    tok="${tok//\"/}"; tok="${tok//\'/}"
+    if [ -z "$first" ]; then
+      case "$tok" in '&'|'.') continue ;; esac
+      first="$tok"
+      continue
+    fi
+    case "$tok" in -whatif|'-whatif:$true') whatif=1 ;; esac
+  done
+  set +f
+  base=${first##*/}; base=${base##*"$bs"}   # Storage\Format-Volume -> format-volume
+  case "$base" in
+    format-volume|clear-disk|initialize-disk|remove-partition) [ "$whatif" -eq 0 ] ;;
+    *) return 1 ;;
+  esac
+}
+
+# Split a PowerShell command into simple commands, one per line (pure bash):
+# backtick line continuations are joined; ; | || && newlines and the block
+# delimiters { } ( ) separate; a comma (array of paths) becomes a space. A
+# single & (call operator, 2>&1) does not separate. Result in _PS_SPLIT.
+_careful_ps_split() {
+  local s="$1" nl=$'\n'
+  s=${s//$'\r'/}
+  s=${s//\`$nl/ }
+  s=${s//&&/$nl}
+  s=${s//;/$nl}; s=${s//|/$nl}
+  s=${s//\{/$nl}; s=${s//\}/$nl}; s=${s//\(/$nl}; s=${s//\)/$nl}
+  s=${s//,/ }
+  _PS_SPLIT="$s"
+}
+
+# --- PowerShell tool: deny-only (SimonK, hub decision D-62 minimal B) --------
+# PowerShell carries ~80% of this machine's commands, so this branch never
+# asks: a handful of literal catastrophic shapes deny, everything else allows.
+# Each simple command (see _careful_ps_split) is checked on its own:
+#   - recursive delete of a drive root or home (Remove-Item & aliases with
+#     -Recurse, cmd /c rd|rmdir|del /s, nested powershell|pwsh -Command);
+#   - Format-Volume, Clear-Disk, Initialize-Disk, Remove-Partition;
+#   - force-push to the default branch, only when the whole command is ONE
+#     simple command (a Set-Location earlier would change which repo it is).
+# Gaps (string matching cannot see them): variables other than HOME and
+# USERPROFILE, splatting, -EncodedCommand, Invoke-Expression, Start-Process,
+# pipeline input (gci C:\ | Remove-Item -Recurse), here-strings.
+if [ "$_TOOL_LC" = powershell ]; then
+  # ${name} -> $name, so ${env:USERPROFILE} survives the { } split. Top level
+  # on purpose: a sed/tr failure here hits the EXIT backstop (deny).
+  _PS_NORM=$(printf '%s' "$CMD" | sed -E 's/[$][{]([^}]*)[}]/$\1/g')
+  _PS_LOW=$(printf '%s' "$_PS_NORM" | tr '[:upper:]' '[:lower:]')
+  _careful_ps_split "$_PS_NORM"; _PS_SEGS="$_PS_SPLIT"
+  _careful_ps_split "$_PS_LOW"; _PS_LSEGS="$_PS_SPLIT"
+  _PS_N=0
+  while IFS= read -r _SEG; do
+    case "$_SEG" in *[![:space:]]*) _PS_N=$((_PS_N + 1)) ;; esac
+  done <<< "$_PS_LSEGS"
+  _PS_HIT=""
+  while IFS= read -r _SEG <&3 && IFS= read -r _LSEG <&4; do
+    case "$_LSEG" in *[![:space:]]*) : ;; *) continue ;; esac
+    if _careful_ps_disk "$_LSEG"; then _PS_HIT=disk; break; fi
+    if _careful_win_delete_root "$_LSEG" ps; then _PS_HIT=delete; break; fi
+    if [ "$_PS_N" -eq 1 ] && _careful_push_targets_default "$_SEG"; then _PS_HIT=push; break; fi
+  done 3<<< "$_PS_SEGS" 4<<< "$_PS_LSEGS"
+  case "$_PS_HIT" in
+    disk)
+      _careful_log_fire "ps_high_disk"
+      gstack_hook_decision deny "[careful][HIGH] PowerShell: Format-Volume, Clear-Disk, Initialize-Disk and Remove-Partition are blocked while /careful is active. If you truly mean it, end the /careful session first." ;;
+    delete)
+      _careful_log_fire "ps_high_delete_root"
+      gstack_hook_decision deny "[careful][HIGH] PowerShell: recursive delete of a drive root or the home directory (or all of its direct contents) is blocked while /careful is active. If you truly mean it, end the /careful session first." ;;
+    push)
+      _careful_log_fire "ps_high_force_push_default"
+      gstack_hook_decision deny "[careful][HIGH] Force-push to the default branch ($_DEFAULT_BRANCH) is blocked while /careful is active. Use --force-with-lease on a feature branch, or end the /careful session if you truly mean it." ;;
+    *) echo '{}' ;;
+  esac
+  exit 0
+fi
+
+# Everything below is the Bash tool.
 
 # --- Shell-obfuscation tripwire ---
 # Every check below inspects the command as a STRING, but bash executes what the
@@ -159,88 +418,46 @@ case "$CMD" in
   *';'*|*'&&'*|*'||'*|*'|'*|*$'\n'*) _IS_SIMPLE=0 ;;
 esac
 if [ "$_IS_SIMPLE" -eq 1 ]; then
-  # Recursive delete aimed at the filesystem root or the whole home directory.
+  # Recursive delete aimed at the filesystem root, a drive root or the whole
+  # home directory (or every direct entry of one of them).
   # Tokenized: options (long or short, any position — --no-preserve-root may
   # trail the target) are skipped; EVERY non-option token must be a root-class
-  # target (/, ~, $HOME, /*), and a recursive flag must be present. noglob is
-  # forced around word-splitting so a literal /* token never expands.
+  # target (see _careful_root_target), and a recursive flag must be present.
+  # noglob is forced around word-splitting so a literal /* token never expands.
   if _careful_match -qE '^[[:space:]]*(sudo[[:space:]]+)?rm[[:space:]]' <<< "$CMD" 2>/dev/null \
     && _careful_match -qE '(^|[[:space:]])(-[a-zA-Z]*[rR][a-zA-Z]*|--recursive)([[:space:]]|$)' <<< "$CMD" 2>/dev/null; then
     _ROOT_TARGETS=0
     _SAFE_TARGETS=0
     set -f
     for _TOK in $CMD; do
-      # Strip one layer of surrounding quotes: rm -rf "/" is still rm -rf /.
-      _TOK="${_TOK#\"}"; _TOK="${_TOK%\"}"; _TOK="${_TOK#\'}"; _TOK="${_TOK%\'}"
+      # SimonK: remove EVERY quote character (shell quote removal), not just
+      # one surrounding layer: rm -rf "/" is rm -rf /, "$HOME"/* is $HOME/*.
+      # Word splitting still ignores quotes, so "E:/Coding Infra" stays two
+      # non-root tokens (string matching, not a shell parser).
+      _TOK="${_TOK//\"/}"; _TOK="${_TOK//\'/}"
       case "$_TOK" in
         # Skip non-target decoration: options, `--`, redirections (2>/dev/null
         # is the most common suffix on agent-generated commands), backgrounding.
         sudo|rm|-*|--|[0-9]'>'*|'>'*|'<'*|'&') continue ;;
-        '/'|'~'|'~/'|'$HOME'|'$HOME/'|'${HOME}'|'${HOME}/'|'/*'|'//') _ROOT_TARGETS=1 ;;
-        *) _SAFE_TARGETS=1 ;;
       esac
+      if _careful_root_target "$_TOK" sh; then _ROOT_TARGETS=1; else _SAFE_TARGETS=1; fi
     done
     set +f
     if [ "$_ROOT_TARGETS" -eq 1 ] && [ "$_SAFE_TARGETS" -eq 0 ]; then
       _careful_log_fire "high_rm_root"
-      gstack_hook_decision deny "[careful][HIGH] Recursive delete of / or the home directory is blocked while /careful is active. If you truly mean it, end the /careful session first."
+      gstack_hook_decision deny "[careful][HIGH] Recursive delete of a filesystem or drive root, or of the home directory (or all of its direct contents), is blocked while /careful is active. If you truly mean it, end the /careful session first."
       exit 0
     fi
   fi
-  # Force-push to the repo's default branch (the shared history everyone pulls).
-  # Force is carried by -f/--force OR by git's plus-refspec syntax (+main,
-  # +HEAD:main) which needs no flag at all. --force-with-lease never matches.
-  if _careful_match -qE '^[[:space:]]*git[[:space:]]+push([[:space:]]|$)' <<< "$CMD" 2>/dev/null; then
-    _HAS_FORCE=0
-    if _careful_match -qE '(^|[[:space:]])(-f|--force)($|[[:space:]])' <<< "$CMD" 2>/dev/null; then
-      _HAS_FORCE=1
-    elif _careful_match -qE '(^|[[:space:]])\+[^[:space:]]' <<< "$CMD" 2>/dev/null; then
-      _HAS_FORCE=1
-    fi
-    if [ "$_HAS_FORCE" -eq 1 ]; then
-      # Full branch path (slashed defaults like release/2.0 stay intact) and
-      # FIXED-STRING token comparison — never interpolate a branch name into
-      # an ERE (metacharacters would over/under-match).
-      _DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|^refs/remotes/origin/||' || true)
-      # Conductor worktrees often lack the origin/HEAD symbolic ref — without a
-      # fallback the HIGH tier would be silently inert in the primary deploy
-      # environment. Probe the two conventional defaults.
-      if [ -z "$_DEFAULT_BRANCH" ]; then
-        if git show-ref --verify -q refs/remotes/origin/main 2>/dev/null; then
-          _DEFAULT_BRANCH="main"
-        elif git show-ref --verify -q refs/remotes/origin/master 2>/dev/null; then
-          _DEFAULT_BRANCH="master"
-        fi
-      fi
-      if [ -n "$_DEFAULT_BRANCH" ]; then
-        _TARGETS_DEFAULT=0
-        set -f
-        for _TOK in $CMD; do
-          # Strip one layer of surrounding quotes: `git push -f origin "main"`
-          # must not dodge the deny just because the ref is quoted.
-          _TOK="${_TOK#\"}"; _TOK="${_TOK%\"}"; _TOK="${_TOK#\'}"; _TOK="${_TOK%\'}"
-          case "$_TOK" in git|push|sudo|-*) continue ;; esac
-          _REF="${_TOK#+}"          # +main -> main
-          _REF="${_REF##*:}"        # HEAD:main / src:main -> main
-          if [ "$_REF" = "$_DEFAULT_BRANCH" ]; then
-            _TARGETS_DEFAULT=1
-            break
-          fi
-        done
-        set +f
-        if [ "$_TARGETS_DEFAULT" -eq 0 ] && _careful_match -qE '^[[:space:]]*git[[:space:]]+push([[:space:]]+(-f|--force))*[[:space:]]*$' <<< "$CMD" 2>/dev/null; then
-          # Bare `git push --force` (force flags only, no remote/ref): targets
-          # the current branch's upstream — the default branch only when ON it.
-          _CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || true)
-          [ -n "$_CURRENT_BRANCH" ] && [ "$_CURRENT_BRANCH" = "$_DEFAULT_BRANCH" ] && _TARGETS_DEFAULT=1
-        fi
-        if [ "$_TARGETS_DEFAULT" -eq 1 ]; then
-          _careful_log_fire "high_force_push_default"
-          gstack_hook_decision deny "[careful][HIGH] Force-push to the default branch ($_DEFAULT_BRANCH) is blocked while /careful is active. Use --force-with-lease on a feature branch, or end the /careful session if you truly mean it."
-          exit 0
-        fi
-      fi
-    fi
+  if _careful_win_delete_root "$CMD_LOWER" win; then
+    _careful_log_fire "high_win_delete_root"
+    gstack_hook_decision deny "[careful][HIGH] Recursive cmd.exe/PowerShell delete of a drive root or the home directory is blocked while /careful is active. If you truly mean it, end the /careful session first."
+    exit 0
+  fi
+  if _careful_push_targets_default "$CMD"; then
+    _careful_log_fire "high_force_push_default"
+    gstack_hook_decision deny "[careful][HIGH] Force-push to the default branch ($_DEFAULT_BRANCH) is blocked while /careful is active. Use --force-with-lease on a feature branch, or end the /careful session if you truly mean it."
+    exit 0
   fi
 fi
 
