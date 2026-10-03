@@ -39,6 +39,26 @@ def out(text, stream=None):
     (stream or sys.stdout).flush()
 
 
+if vendor == "xai" and argv[:3] == ["agent", "--no-leader", "stdio"]:
+    # Zero-turn ACP billing probe: answer line by line; no setting = the probe fails (log fallback).
+    with open(state / "probes-xai.jsonl", "a", encoding="utf-8") as log:
+        log.write(json.dumps({"argv": argv}) + "\n")
+    billing = setting("grok-billing")
+    if not billing:
+        sys.exit(1)
+    for line in iter(sys.stdin.readline, ""):
+        req = json.loads(line)
+        out(json.dumps({"jsonrpc": "2.0", "method": "_x.ai/mcp/servers_updated", "params": {}}) + "\n")
+        if req["method"] == "initialize":
+            reply = {"result": {"protocolVersion": 1}}
+        elif req["method"] == "_x.ai/billing" and billing != "old-method":
+            reply = {"result": json.loads(billing)}
+        elif req["method"] == "_x.ai/billing":
+            reply = {"error": {"code": -32601, "message": "Method not found"}}
+        else:
+            reply = {"result": json.loads(setting("grok-billing-old"))}
+        out(json.dumps(dict(reply, jsonrpc="2.0", id=req["id"])) + "\n")
+    sys.exit(0)
 stdin_text = sys.stdin.buffer.read().decode("utf-8")
 with open(state / ("calls-" + vendor + ".jsonl"), "a", encoding="utf-8") as log:
     log.write(json.dumps({"argv": argv, "stdin": stdin_text, "cwd": os.getcwd(),
@@ -158,8 +178,8 @@ class DebateTests(unittest.TestCase):
         (folder / "rollout-2026-10-01T08-00-00-x.jsonl").write_text(
             json.dumps(noise) + "\n" + json.dumps(record) + "\n", encoding="utf-8")
 
-    def write_grok(self, pct, end):
-        record = {"ts": "2026-10-01T02:23:00.475Z", "msg": "billing: fetched credits config",
+    def write_grok(self, pct, end, ts="2026-10-01T09:55:00.475Z"):
+        record = {"ts": ts, "msg": "billing: fetched credits config",
                   "ctx": {"config": {"creditUsagePercent": float(pct), "currentPeriod": {
                       "type": "USAGE_PERIOD_TYPE_WEEKLY", "start": "2026-09-26T14:12:19+00:00",
                       "end": end.isoformat()}, "onDemandCap": {"val": 0}, "onDemandUsed": {"val": 0},
@@ -342,6 +362,61 @@ class DebateTests(unittest.TestCase):
     def test_grok_period_ended_is_ready(self):
         self.write_grok(100, NOW - timedelta(minutes=5))
         self.assertEqual(debate.seat_for("xai", "anthropic")["status"], "READY")
+
+    def grok_billing(self, pct, end):
+        return json.dumps({"config": {"creditUsagePercent": float(pct), "currentPeriod": {
+            "type": "USAGE_PERIOD_TYPE_WEEKLY", "end": end.isoformat()}, "onDemandCap": {"val": 0},
+            "onDemandUsed": {"val": 0}, "prepaidBalance": {"val": 0}}, "subscription_tier": "SuperGrok"})
+
+    def test_grok_live_billing_overrides_an_older_log_line(self):
+        # 10-03: the newest log line said 78% while the account was at 100%; the call then hit 402.
+        self.write_grok(78, NOW + timedelta(days=5))
+        self.setting("grok-billing", self.grok_billing(100, NOW + timedelta(days=5)))
+        seat = debate.seat_for("xai", "anthropic")
+        self.assertEqual(seat["status"], "ABSENT")
+        self.assertEqual(seat["evidence"]["live_probe"], "ok")
+        self.assertIn("live", seat["evidence"]["source"])
+        probes = (self.state / "probes-xai.jsonl").read_text(encoding="utf-8").splitlines()
+        self.assertEqual([json.loads(p)["argv"] for p in probes], [["agent", "--no-leader", "stdio"]])
+        self.assertEqual(self.calls("xai"), [])  # the probe never reaches the prompt path
+
+    def test_grok_live_billing_with_room_is_ready_and_old_method_falls_back(self):
+        self.write_grok(100, NOW + timedelta(days=5))
+        self.setting("grok-billing", self.grok_billing(40, NOW + timedelta(days=5)))
+        self.assertEqual(debate.seat_for("xai", "anthropic")["reason"], "credit usage 40%")
+        self.setting("grok-billing", "old-method")
+        self.setting("grok-billing-old", self.grok_billing(55, NOW + timedelta(days=5)))
+        self.assertEqual(debate.seat_for("xai", "anthropic")["reason"], "credit usage 55%")
+
+    def test_grok_stale_log_without_live_probe_is_not_ready(self):
+        self.write_grok(78, NOW + timedelta(days=5), ts="2026-10-01T07:00:00.000Z")
+        seat = debate.seat_for("xai", "anthropic")  # probe fails (no fake billing) -> log fallback
+        self.assertEqual(seat["status"], "UNKNOWN")
+        self.assertIn("180 min old", seat["reason"])
+        self.assertTrue(seat["evidence"]["stale"])
+        seat = debate.seat_for("xai", "anthropic", probe=False)
+        self.assertEqual(seat["status"], "UNKNOWN")
+        self.assertIn("skipped (--no-probe)", seat["reason"])
+        # A stale line that already shows the week spent still keeps the seat out.
+        self.write_grok(100, NOW + timedelta(days=5), ts="2026-10-01T07:00:00.000Z")
+        self.assertEqual(debate.seat_for("xai", "anthropic")["status"], "ABSENT")
+        # A stale line whose period has ended says nothing about the new period.
+        self.write_grok(100, NOW - timedelta(hours=1), ts="2026-10-01T07:00:00.000Z")
+        seat = debate.seat_for("xai", "anthropic")
+        self.assertEqual(seat["status"], "UNKNOWN")
+        self.assertIn("new period's usage is unknown", seat["reason"])
+        # A fresh line is still enough when the probe is unavailable.
+        self.write_grok(30, NOW + timedelta(days=5))
+        self.assertEqual(debate.seat_for("xai", "anthropic")["status"], "READY")
+
+    def test_grok_call_rechecks_live_billing_before_spawning(self):
+        self.new()
+        self.write_grok(20, NOW + timedelta(days=5))
+        self.setting("grok-billing", self.grok_billing(100, NOW + timedelta(days=5)))
+        rc, out, err = self.run_cli("call", "--id", "dbt-test", "--round", "r1", "--vendor", "xai")
+        self.assertEqual(rc, 3, err)
+        self.assertEqual(json.loads(out)["status"], "absent")
+        self.assertEqual(self.calls("xai"), [])
 
     def test_agy_probe_states(self):
         self.setting("usage", "1")

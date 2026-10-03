@@ -1,7 +1,7 @@
 ---
 name: ai-debate
 description: Use when "/ai-debate", "토론 붙여" or "겐세이" — Claude·Codex·Grok·Gemini debate a decision that is important, contested or irreversible, or challenge an agent stuck on one task too long. Also triggers "다관점으로 결정", "이거 합의 보자", "찬반 검토", "AI들끼리 토론", "중간 점검", "너무 오래 걸려", "debate this", "interject". MANDATORY for PROTOCOL §35.1 triggers. Always seats all four vendors — Claude, Codex (OpenAI), Grok (xAI) and Gemini (Google, via the Antigravity agy CLI) — through scripts/debate.py at $0 extra cost, hosted identically from Claude Code, Codex, Grok CLI or agy; an unreachable seat is recorded as absent with evidence and must catch up later, never simulated by another vendor. Runs positions, cross-examination, a blind separate judge and ratification, then Produces a D-code entry in the hub DECISIONS.md; interject mode Produces a 겐세이 card.md for the running agent.
-version: 0.2.2
+version: 0.2.3
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Agent
 compatibility:
   - claude-code
@@ -59,7 +59,7 @@ compatibility:
 |---|---|---|
 | Claude | 호스트가 아니면 `claude -p` (safe-mode, 도구 끔). 기본 UNKNOWN, `--accept-unknown`일 때만. 또는 살아 있는 Claude Code 세션이 `--host-session`으로 | AI Usage Widget 브리지의 5시간·7일 사용률(6시간 안 기록). 사용률이 기준 이상이면 ABSENT |
 | Codex | `codex exec --sandbox read-only --ignore-user-config`, 프롬프트는 stdin | 최신 rollout의 `token_count.rate_limits` (used_percent, resets_at, credits) |
-| Grok | `grok --prompt-file ... --sandbox read-only --tools ""` | `~/.grok/logs/unified.jsonl`의 billing 기록 (creditUsagePercent, 주기 종료) |
+| Grok | `grok --prompt-file ... --sandbox read-only --tools ""` | 실시간 ACP billing 조회 `grok agent --no-leader stdio` → `_x.ai/billing`(모델 턴 없음, creditUsagePercent·주기 종료). 실패할 때만 `~/.grok/logs/unified.jsonl`의 billing 기록, 10분이 지난 기록은 여유 근거로 쓰지 않음(UNKNOWN) |
 | Gemini | `agy --print ... --mode plan --sandbox --output-format json` | 무턴 `/usage` 조회의 Gemini 그룹 주간·5시간 버킷 remaining_fraction |
 
 호스트 벤더 좌석은 위 표와 관계없이 세션 안에서 답한다. 호출 형식·실패 문구·결석 처리·`--host-session` 증거 경로·환경변수 제거 목록은 `references/seats.md`. 쿼터가 리셋되면 같은 명령이 자동으로 착석시킨다(통로는 항상 열어 둔다).
