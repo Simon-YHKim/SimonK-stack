@@ -52,6 +52,7 @@ PROMPT_CAP = 24000
 MIN_PROMPT_CAP = 4000
 CMDLINE_CAP = 32000  # UTF-16 units; CreateProcess allows 32767
 EVIDENCE_CAP = 16384
+ASK_SIMON_BELOW = 70  # PROTOCOL 35.8: a verdict below this confidence goes to Simon as a one-line question
 RECORD_EVIDENCE_CAP = 6000
 QUESTION_CAP, ITEM_CAP, ITEM_COUNT = 2000, 300, 10
 BRIDGE_FRESH = timedelta(hours=6)
@@ -1672,6 +1673,14 @@ def tagged(text, tag):
     return None
 
 
+def confidence_value(raw):
+    """The judge's CONFIDENCE as an int 0-100, or None when it is missing or unreadable."""
+    match = re.match(r"\s*(\d{1,3})\b", raw or "")
+    if not match or int(match.group(1)) > 100:
+        return None
+    return int(match.group(1))
+
+
 def section(text, name):
     out, inside = [], False
     for line in (text or "").splitlines():
@@ -2291,6 +2300,8 @@ def debate_status(folder, agenda):
         verdict = {"vendor": jv, "line": parsed or first_line(jtext),
                    "confidence": tagged(jtext, "CONFIDENCE"), "independence": jrow.get("independence")}
     judge_ok = jtext is not None and not issues
+    level = confidence_value(verdict["confidence"]) if verdict else None
+    ask_simon = judge_ok and (level is None or level < ASK_SIMON_BELOW)
     seats = (read_json(folder / "seats.json") or {}).get("vendors", {})
     absent = []
     for vendor in VENDORS:
@@ -2342,7 +2353,7 @@ def debate_status(folder, agenda):
             "catchup_pending": pending if state == "PROVISIONAL" else [],
             "ratify": reviews["ratify"], "catchup": reviews["catchup"], "objections": objections,
             "unresolved": unresolved, "tiebreak": tiebreak, "tiebreak_applies": applies,
-            "blocked": blocked, "dir": folder.as_posix()}
+            "blocked": blocked, "ask_simon": ask_simon, "confidence_value": level, "dir": folder.as_posix()}
 
 
 def status_text(st):
@@ -2359,6 +2370,11 @@ def status_text(st):
             st["verdict"]["line"], st["verdict"]["confidence"], DISPLAY[st["verdict"]["vendor"]]))
     for issue in st["judge"]["issues"]:
         lines.append("  JUDGE INVALID: " + issue)
+    if st.get("ask_simon"):
+        lines.append("  ASK SIMON: judge confidence %s is below %d (PROTOCOL 35.8) — ask Simon one line with the "
+                     "options and your recommendation before acting" % (
+                         st.get("confidence_value") if st.get("confidence_value") is not None else "unreadable",
+                         ASK_SIMON_BELOW))
     for row in st["absent"]:
         if row["vendor"] in st["catchup"]:
             lines.append("  catch-up done: %s %s" % (row["display"], st["catchup"][row["vendor"]]))
@@ -2449,6 +2465,8 @@ def render_record(folder, agenda, st, label, forced=None):
             condense(verdict["confidence"] or "?", 20))
         if not st["judge"]["ok"]:
             judge = "⚠ 무효(%s) " % "; ".join(st["judge"]["issues"]) + judge
+        elif st.get("ask_simon"):
+            judge += " · ⚠ 확신도 %d 미만 — Simon 확인 필요(§35.8)" % ASK_SIMON_BELOW
         reviews = ["%s %s" % (DISPLAY[v], condense(t, 80)) for v, t in st["ratify"].items()]
         if reviews:
             judge += " · 추인: " + " · ".join(reviews)
