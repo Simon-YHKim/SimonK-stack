@@ -312,6 +312,7 @@ class PluginBundleTests(unittest.TestCase):
                                    "${CLAUDE_PROJECT_DIR}"])
                 self.assertEqual(text.count('command: "python"\n          args: ' + args), count)
             self.assertNotIn("command: \"bash ${CLAUDE_SKILL_DIR}/", text)
+            self.assertNotIn("command: 'bash \"$HOME/.claude/skills/", text)
 
         for skill in ("freeze", "guard", "investigate", "unfreeze"):
             text = (self.output / "plugins" / homes[skill] / "skills" / skill / "SKILL.md").read_text(
@@ -386,6 +387,27 @@ class PluginBundleTests(unittest.TestCase):
         mixed = lf.replace(b"\n", b"\r\n", 1)
         with self.assertRaises(ValueError):
             self.m.safety_document("careful", mixed)
+
+    def test_careful_home_anchored_and_legacy_hook_project_identically(self):
+        # D-56: source careful is $HOME-anchored; the projection must emit the
+        # same ${CLAUDE_PLUGIN_ROOT} runtime command it emitted for the legacy form.
+        home = b"          command: 'bash \"$HOME/.claude/skills/careful/bin/check-careful.sh\"'"
+        legacy = b'          command: "bash ${CLAUDE_SKILL_DIR}/bin/check-careful.sh"'
+        source = (ROOT / "skills-src/careful/SKILL.md").read_bytes().replace(b"\r\n", b"\n")
+        self.assertEqual(source.count(home), 1)
+        self.assertEqual(source.count(legacy), 0)
+        projected = self.m.safety_document("careful", source)
+        self.assertEqual(projected, self.m.safety_document("careful", source.replace(home, legacy)))
+        args = json.dumps(["-B", "${CLAUDE_PLUGIN_ROOT}/.simonk-runtime/safety_runtime.py",
+                           "check", "careful", "--project", "${CLAUDE_PROJECT_DIR}"])
+        text = projected.decode("utf-8")
+        self.assertEqual(text.count('          command: "python"\n          args: ' + args), 1)
+        self.assertNotIn("check-careful.sh", text.split("---", 2)[1])
+        for drifted in (source + b"\n" + legacy + b"\n", source + b"\n" + home + b"\n",
+                        source.replace(home, b"          command: \"bash $HOME/x.sh\"")):
+            with self.subTest(drifted=drifted[-60:]):
+                with self.assertRaises(ValueError):
+                    self.m.safety_document("careful", drifted)
 
     def test_safety_setup_quoted_data_survives_shell_metacharacters(self):
         bash = Path(os.environ.get("ProgramFiles", "C:/Program Files")) / "Git/bin/bash.exe"

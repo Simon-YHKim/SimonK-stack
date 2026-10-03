@@ -47,17 +47,32 @@ Original LF-byte SHA-256 (before the explicitly described SimonK adaptations):
 - careful/bin/hook-extract.sh: 5be66386d4945f27ba52ac3df720a8f84755634de1713eacbd239376050106c9
 - freeze/bin/check-freeze.sh: 97e6013a990911ef544e4e80fc464560286e298d85ffbdf391b860e9910376f4
 
+Careful rebase (2026-10-03, hub decision D-56): careful was re-based on gstack
+v1.91.9.0, commit 96764e80a641e28141ec8297223768029f5bf483, whose two careful
+files above are byte-identical (same SHA-256) to the pinned commit. Added from
+that commit, unchanged except for a leading attribution comment block:
+
+- bin/gstack-slug: 67bb219bc2e57dedbf33421802607b5e6e639e5905f21caa18af56398058a5c8
+  (vendored as skills-src/careful/bin/gstack-slug.sh)
+
 These files reside under skills-src/. They are adapted, not byte-identical
 copies. Local changes preserve the current SimonK skill contracts:
 
-- careful keeps advisory ask decisions (including upstream HIGH patterns),
-  with an ask JSON backstop on unexpected runtime errors; baseline matcher
-  errors are distinguished from clean non-matches and also ask. This is not a
-  security sandbox and never grants permission to execute a destructive action.
+- careful follows upstream tiers: HIGH patterns (simple rm -r of / or the home
+  directory, simple force-push to the default branch) deny; MEDIUM destructive
+  families and shell obfuscation ask. Every internal hook failure denies: the
+  EXIT-trap backstop on unexpected runtime errors, a missing/broken/outdated
+  helper, empty or invalid JSON, no JSON parser, a Bash payload without a usable
+  command, baseline matcher errors (distinguished from clean non-matches) and an
+  unresolvable per-project slug. A non-Bash payload is recognised by tool_name
+  and allowed. The SKILL hook command is anchored to
+  $HOME/.claude/skills/careful because ${CLAUDE_SKILL_DIR} was measured unset in
+  frontmatter hooks. This is not a security sandbox and never grants permission
+  to execute a destructive action.
 - The shared state reader matches existing writers exactly:
   ${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}. GSTACK_HOME remains analytics-only for
   these hooks; it does not override the boundary writer's chosen state root.
-- Missing/empty/wrong-type required input and NUL fail closed (ask for careful,
+- Missing/empty/wrong-type required input and NUL fail closed (deny for careful,
   deny for an active freeze). File paths reject control characters before Bash
   can silently strip trailing newlines. Only an absent state file is an inactive freeze;
   invalid state, unreadable state, broken links and unresolved paths deny.
@@ -73,7 +88,11 @@ Validated scope: scripts/tests/test_safety_hooks.py exercises actual Bash
 subprocesses, isolated home/state and flat source-package materialization.
 It only passes commands as stdin data; it never executes them. Dependencies:
 Bash and POSIX utilities, plus python3 or Node for JSON parsing. Optional
-per-project custom patterns still require upstream bin/gstack-slug (not restored).
+per-project custom patterns use the vendored careful/bin/gstack-slug.sh;
+skills-src/careful/bin/test_check_careful.py covers the careful contract.
+The plugin candidate's freeze/bin/safety_runtime.py still accepts only an ask
+from the careful leaf (a leaf deny becomes its ask fallback); aligning it with
+D-56 is a separate decision.
 
 NOT a completed activation or installation: separated Core/Stack plugin sibling
 dependencies, plugin-specific state sharing with unfreeze, session ownership and
@@ -82,7 +101,7 @@ paths, and Claude/Codex host enforcement remain unverified or known incomplete.
 The candidate runtime/host/installation readiness flags therefore remain false.
 Current SKILL activation claims must not be treated as host-verification evidence.
 
-Upstream license (applies to the three adapted runtime files):
+Upstream license (applies to the three adapted runtime files and gstack-slug.sh):
 
 MIT License
 

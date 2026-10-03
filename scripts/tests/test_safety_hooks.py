@@ -107,8 +107,10 @@ class SafetyHookTests(unittest.TestCase):
             with self.subTest(command=command):
                 self.assertEqual(self.hook("careful", {"tool_input": {"command": command}}), "ask")
 
-    def test_careful_catastrophic_command_keeps_documented_ask_policy(self):
-        self.assertEqual(self.hook("careful", {"tool_input": {"command": "rm -rf /"}}), "ask")
+    def test_careful_catastrophic_command_is_high_deny(self):
+        # D-56: HIGH tier = deny (rm -r of / or ~); compound forms stay MEDIUM ask.
+        for command in ("rm -rf /", "rm -rf ~"):
+            self.assertEqual(self.hook("careful", {"tool_input": {"command": command}}), "deny")
 
     def test_careful_build_exception_does_not_hide_compound_or_quoted_command(self):
         self.assertEqual(self.hook("careful", {"tool_input": {"command": "rm -rf node_modules"}}), "allow")
@@ -124,7 +126,7 @@ class SafetyHookTests(unittest.TestCase):
 
     def test_malformed_nonempty_json_is_not_allowed(self):
         self.freeze()
-        self.assertEqual(self.hook("careful", '{"tool_input":'), "ask")
+        self.assertEqual(self.hook("careful", '{"tool_input":'), "deny")  # D-56 internal failure
         self.assertEqual(self.hook("freeze", '{"tool_input":'), "deny")
 
     def test_missing_empty_or_wrong_type_required_field_is_not_allowed(self):
@@ -133,7 +135,7 @@ class SafetyHookTests(unittest.TestCase):
                         '{"tool_input":{"command":7,"file_path":7}}',
                         '{"tool_input":{"command":"","file_path":""}}'):
             with self.subTest(payload=payload):
-                self.assertEqual(self.hook("careful", payload), "ask")
+                self.assertEqual(self.hook("careful", payload), "deny")  # D-56 internal failure
                 self.assertEqual(self.hook("freeze", payload), "deny")
 
     def test_malformed_present_state_is_not_inactive(self):
@@ -175,7 +177,7 @@ class SafetyHookTests(unittest.TestCase):
     def test_missing_helper_is_not_allowed(self):
         (self.flat / RUNTIMES[1]).unlink()  # Disposable fixture, never source/user files.
         self.freeze()
-        self.assertEqual(self.hook("careful", {"tool_input": {"command": "git status"}}), "ask")
+        self.assertEqual(self.hook("careful", {"tool_input": {"command": "git status"}}), "deny")
         self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": "src/new.py"}}), "deny")
 
     def test_missing_parsers_are_not_allowed(self):
@@ -184,7 +186,7 @@ class SafetyHookTests(unittest.TestCase):
         startup = self.base / "no parsers.sh"
         startup.write_text("python3() { return 127; }\nnode() { return 127; }\n", encoding="utf-8")
         env = {**self.env, "BASH_ENV": self.posix(startup)}
-        self.assertEqual(self.hook("careful", {"tool_input": {"command": "git status"}}, env=env), "ask")
+        self.assertEqual(self.hook("careful", {"tool_input": {"command": "git status"}}, env=env), "deny")
         self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": "src/new.py"}}, env=env), "deny")
 
     def test_inactive_freeze_allows(self):
@@ -210,17 +212,17 @@ class SafetyHookTests(unittest.TestCase):
         (self.state / "freeze-dir.txt").write_text(self.posix(self.inside) + "/\n", encoding="utf-8")
         self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": "src/new.py"}}), "allow")
 
-    def test_careful_unexpected_runtime_failure_returns_ask_json(self):
+    def test_careful_unexpected_runtime_failure_returns_deny_json(self):
         startup = self.base / "stdin failure.sh"
         startup.write_text("cat() { return 13; }\n", encoding="utf-8")
         self.assertEqual(self.hook("careful", {"tool_input": {"command": "git status"}},
-                                  env={**self.env, "BASH_ENV": self.posix(startup)}), "ask")
+                                  env={**self.env, "BASH_ENV": self.posix(startup)}), "deny")
 
     def test_careful_matcher_failure_is_not_a_nonmatch(self):
         startup = self.base / "matcher failure.sh"
         startup.write_text("grep() { return 2; }\n", encoding="utf-8")
         self.assertEqual(self.hook("careful", {"tool_input": {"command": "rm -rf /var/data"}},
-                                  env={**self.env, "BASH_ENV": self.posix(startup)}), "ask")
+                                  env={**self.env, "BASH_ENV": self.posix(startup)}), "deny")
 
     def test_python_only_parser_preserves_decisions(self):
         self.freeze()
