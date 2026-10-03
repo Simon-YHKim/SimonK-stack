@@ -534,3 +534,8 @@ last-sync: 2026-07-05
 - 2026-10-04 03:57:42 KST | AMEND | **D-63 설치된 AI Usage Widget d767272 후속 처리** — catch-up: Grok ACCEPT · 상태 FINAL 3/4 (catch-up) | claude
 
 - 2026-10-04 03:57:42 KST | AMEND | **D-64 D-60 첫 Grok Bot 과제 결과 판정과 비용 정산** — catch-up: Grok ACCEPT · 상태 FINAL 3/4 (catch-up) | claude
+
+- 2026-10-04 04:01:10 KST | DECIDE | **D-69 허브 로컬/원격 split-brain 머지** (Simon 지시 · 35.8 1단 이행) | claude
+  - **근거**: Simon "작업 완료 하면 머지 하자"(2026-10-04 03:3x KST). 로컬 master(base 2ce1c0eb 07-30 이후 353커밋)와 origin/master(730커밋, 13b39468 09-30)를 머지 커밋 b6df69c0으로 합쳐 일반 push(13b39468..b6df69c0, force 없음). 시크릿 패턴 0·민감 파일명 0, 원격 쪽 삭제 0, 로컬 쪽 삭제 1(원격이 지운 Legacy-inbox/native-qa-graph-crash.md), DECISIONS·PROTOCOL·CONTROL·BOARD 불변, 충돌 마커 0.
+  - **충돌 3건**: agents/codex/STATUS.md·agents/antigravity/STATUS.md = 로컬 유지(라이브 트리에 각 에이전트의 미커밋 수정이 있어 건드리지 않음, 원격본은 두 번째 부모에 보존) · agents/antigravity/agent-card.json = 원격 채택(08-14, 더 최신).
+  - **후속**: 로컬 master fast-forward(0/0), 겹친 미추적 19개는 동일 해시 확인 후 복원, 타 에이전트 미커밋 4파일 불변. 머지 전 tip = 로컬 ref backup/master-pre-merge-261004(37a7ffb7). 이의 시 2단 이상으로 승격.
