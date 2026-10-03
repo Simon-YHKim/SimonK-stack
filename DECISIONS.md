@@ -494,3 +494,5 @@ last-sync: 2026-07-05
 
 - 2026-10-04 01:55:27 KST | DECIDE | **D-66 ai-debate 0.2.5 머지·홈 설치** (오케스트레이터 단독 · 35.8 1단) | claude
   - **근거**: D-65(Simon 결정) 이행 세부. PR #107 테스트 112/112·CI 4/4, main 8afa150, 홈 사본 main blob 7/7 일치·설치본 테스트 OK, 이전본 `~/.claude/flat-link-archive/ai-debate-0.2.4-261004`. 이의 시 2단 이상으로 승격.
+
+- 2026-10-04 03:33:45 KST | AMEND | **D-64 D-60 첫 Grok Bot 과제 결과 판정과 비용 정산** — 이행: 증거 보완 vb-0f14a5a0(같은 대상·읽기 전용, 02:33 KST, 별도 nonce·run d64-relay-cursor-autotopup-261004로 수행 — 후속 문구의 '새 과제 없이'와 형식만 다르고 대상·범위는 같음): Overview·Settings·Spending·User menu 확인, 자동 충전 컨트롤 없음, On-Demand Disabled·Monthly Limit Disabled, SuperGrok Heavy 4%(10-09 리셋), 누른 버튼 0. verify: vb-c594b4d8·vb-0f14a5a0 둘 다 succeeded·actual 0·verified, 공유 DB 승인·지출·보류 0. G6 지적은 어휘 오탐으로 판정(SimonK-stack PR #109, vibe-bot 0.9.6). 단서: 화면 기반 PASS, Settings 하단·Integrations 미캡처. 관찰: Settings에 Share Data Active(설정 변경 안 함, Simon에게 보고) → **D-60 PASS** (오케스트레이터 단독 · 35.8 1단) | claude
