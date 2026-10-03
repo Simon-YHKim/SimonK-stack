@@ -1,21 +1,65 @@
 {
   "skill": "freeze",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "cases": [
     {
       "id": "lock-edits-en",
       "prompt": "Freeze edits so I only touch the src/billing folder this session.",
       "assertions": [
-        { "id": "scoped-boundary", "text": "Restricts file edits to the specified directory for the session" },
-        { "id": "blocks-outside", "text": "Blocks Edit and Write outside the allowed path via the PreToolUse freeze check" }
+        {
+          "id": "scoped-boundary",
+          "text": "Restricts file edits to the specified directory for the session"
+        },
+        {
+          "id": "blocks-outside",
+          "text": "Blocks Edit and Write outside the allowed path via the PreToolUse freeze check"
+        }
       ]
     },
     {
       "id": "restrict-edits-ko",
       "prompt": "이 폴더만 수정하게 잠가줘. 다른 코드 건드리지 않게.",
       "assertions": [
-        { "id": "edit-boundary", "text": "Produces a session-scoped edit boundary restriction" },
-        { "id": "prevents-unrelated-fixes", "text": "Prevents accidentally editing unrelated code outside the chosen module" }
+        {
+          "id": "edit-boundary",
+          "text": "Produces a session-scoped edit boundary restriction"
+        },
+        {
+          "id": "prevents-unrelated-fixes",
+          "text": "Prevents accidentally editing unrelated code outside the chosen module"
+        }
+      ]
+    },
+    {
+      "id": "windows-path-boundary",
+      "prompt": "Freeze edits to E:/work/app/src. My session cwd is inside src, so will an Edit to the Windows path of E:/work/app/README.md still be allowed?",
+      "assertions": [
+        {
+          "id": "windows-normalized",
+          "text": "Explains that Windows drive paths (backslash or forward-slash form) and /e/ paths are normalized to one form and compared case-insensitively before the boundary check."
+        },
+        {
+          "id": "cwd-not-used",
+          "text": "States that an Edit outside the boundary is denied even when the session cwd is inside the boundary, and that relative paths are denied rather than joined to the cwd."
+        },
+        {
+          "id": "home-anchored-hook",
+          "text": "Runs the hook through bash \"$HOME/.claude/skills/freeze/bin/check-freeze.sh\" because ${CLAUDE_SKILL_DIR} is unset in frontmatter hooks."
+        }
+      ]
+    },
+    {
+      "id": "state-writer-busy",
+      "prompt": "freeze 설정하는데 FREEZE_BUSY 가 나왔어. 잠긴 거야?",
+      "assertions": [
+        {
+          "id": "busy-not-set",
+          "text": "Explains that FREEZE_BUSY from freeze-state.sh means another writer holds the state lock and the boundary was NOT changed or set."
+        },
+        {
+          "id": "no-silent-lock-removal",
+          "text": "Retries once and otherwise shows the user the .freeze-mutation.lock directory instead of deleting it on its own."
+        }
       ]
     }
   ]

@@ -55,6 +55,16 @@ that commit, unchanged except for a leading attribution comment block:
 - bin/gstack-slug: 67bb219bc2e57dedbf33421802607b5e6e639e5905f21caa18af56398058a5c8
   (vendored as skills-src/careful/bin/gstack-slug.sh)
 
+Freeze/unfreeze/guard rebase (2026-10-03, hub decision D-62 step A2): based on
+the installed gstack v1.91.9 copies (the release D-56 pins to the commit above).
+Upstream LF-byte SHA-256 of the files taken:
+
+- freeze/bin/check-freeze.sh: fa1ee8bf2e7d7d2bb95b3cf81b5bdd65967e9c92c9d9cd2eb90bdd94969c33b4
+  (adapted; SimonK deltas listed in its header and below)
+- freeze/bin/freeze-state.sh: ee14660e8dd6fedb1e6673fccffa9ff1740047955ef5b59d58d246ad1dccebf5
+  (vendored as skills-src/freeze/bin/freeze-state.sh, unchanged except for a
+  leading attribution comment block)
+
 These files reside under skills-src/. They are adapted, not byte-identical
 copies. Local changes preserve the current SimonK skill contracts:
 
@@ -91,15 +101,28 @@ copies. Local changes preserve the current SimonK skill contracts:
   does not fall back to lexical prefix matching after a resolution failure.
   Existing directory/root boundaries resolve directly, with root-aware joining.
 - After physical resolution, Git Bash mount aliases use cygpath for comparison
-  (/tmp and /c can denote the same directory). This does not certify native
-  Windows input paths or host hook dispatch.
+  (/tmp and /c can denote the same directory).
+- freeze (D-62) normalizes the boundary and the Edit/Write file_path the same
+  way: Windows drive paths (C:\ and C:/) become /c/ via cygpath -u (pure-bash
+  fallback without cygpath), the parent is resolved physically, mount aliases
+  are folded with cygpath -am, and the comparison is case-insensitive on
+  Windows. Relative, drive-relative, root-relative, UNC/device paths, a ".."
+  segment and any failed conversion deny instead of falling back to the cwd
+  (upstream joined such paths to the cwd and so allowed out-of-boundary edits
+  while the cwd was inside the boundary). An empty boundary denies (upstream
+  allowed it). The freeze, unfreeze and guard SKILL hook/setup commands are
+  anchored to $HOME/.claude/skills/<skill> because ${CLAUDE_SKILL_DIR} was
+  measured unset in frontmatter hooks; boundaries are written and cleared only
+  through the vendored freeze-state.sh. This does not certify host hook dispatch.
 
 Validated scope: scripts/tests/test_safety_hooks.py exercises actual Bash
 subprocesses, isolated home/state and flat source-package materialization.
 It only passes commands as stdin data; it never executes them. Dependencies:
 Bash and POSIX utilities, plus python3 or Node for JSON parsing. Optional
 per-project custom patterns use the vendored careful/bin/gstack-slug.sh;
-skills-src/careful/bin/test_check_careful.py covers the careful contract.
+skills-src/careful/bin/test_check_careful.py covers the careful contract and
+skills-src/freeze/bin/test_check_freeze.py the freeze, unfreeze and guard
+contract (Windows path forms, freeze-state.sh busy lock and clear).
 The plugin candidate's freeze/bin/safety_runtime.py still accepts only an ask
 from the careful leaf (a leaf deny becomes its ask fallback); aligning it with
 D-56 is a separate decision.
@@ -111,7 +134,8 @@ paths, and Claude/Codex host enforcement remain unverified or known incomplete.
 The candidate runtime/host/installation readiness flags therefore remain false.
 Current SKILL activation claims must not be treated as host-verification evidence.
 
-Upstream license (applies to the three adapted runtime files and gstack-slug.sh):
+Upstream license (applies to the three adapted runtime files, gstack-slug.sh
+and freeze-state.sh):
 
 MIT License
 

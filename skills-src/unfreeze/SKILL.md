@@ -1,17 +1,20 @@
 ---
 name: unfreeze
-version: 0.1.0
-description: "Use when you want to widen edit scope without ending the session. Use when asked to: \"unfreeze\", \"unlock edits\", \"remove freeze\", or \"allow all edits\". (gstack). Clear the freeze boundary set by /freeze, allowing edits to all directories again. Produces removal of the freeze boundary, allowing edits to all directories."
+version: 0.2.0
+description: "Use when widening edit scope without ending the session, or asked to \"unfreeze\", \"unlock edits\", \"remove freeze\", \"allow all edits\", \"잠금 해제\", \"편집 제한 풀어\". Clears the boundary set by /freeze or /guard through the shared freeze-state.sh writer, which produces FREEZE_CLEARED, or FREEZE_BUSY with nothing changed while another writer holds the lock."
 allowed-tools:
   - Bash
   - Read
 ---
-<!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
-<!-- Regenerate: bun run gen:skill-docs -->
 
 # /unfreeze — Clear Freeze Boundary
 
-Remove the edit restriction set by `/freeze`, allowing edits to all directories.
+Remove the edit restriction set by `/freeze` or `/guard`, allowing edits to all
+directories.
+
+Based on gstack 1.91.9 `/unfreeze` (MIT, Garry Tan). It uses the state writer of
+the SimonK `/freeze` skill, `~/.claude/skills/freeze/bin/freeze-state.sh`
+(hub decision D-62, 2026-10-03), so `freeze` must be installed there.
 
 ```bash
 mkdir -p ~/.gstack/analytics
@@ -21,19 +24,43 @@ echo '{"skill":"unfreeze","ts":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","repo":"'$(bas
 ## Clear the boundary
 
 ```bash
-STATE_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}"
-if [ -f "$STATE_DIR/freeze-dir.txt" ]; then
-  PREV=$(cat "$STATE_DIR/freeze-dir.txt")
-  rm -f "$STATE_DIR/freeze-dir.txt"
-  echo "Freeze boundary cleared (was: $PREV). Edits are now allowed everywhere."
-else
-  echo "No freeze boundary was set."
-fi
+bash "$HOME/.claude/skills/freeze/bin/freeze-state.sh" clear
 ```
+
+Read the result before telling the user anything:
+- `FREEZE_CLEARED: ...` (exit 0): edits are allowed everywhere again.
+- `FREEZE_BUSY: ...` (exit 1): another writer holds the state lock, so the
+  boundary is still active. Say so and retry once; if it repeats, show the
+  user the `.freeze-mutation.lock` directory next to `freeze-dir.txt`
+  (default `~/.gstack/`) and let them decide before anyone removes it.
+- `FREEZE_PRESERVED: unexpected state type ...` (exit 1): `freeze-dir.txt` is
+  a symlink or a directory and was left in place. Show it to the user; do not
+  delete it on your own.
+- `No such file or directory`: `/freeze` is not installed at
+  `~/.claude/skills/freeze`; nothing was cleared.
 
 Tell the user the result. Note that `/freeze` hooks are still registered for the
 session — they will just allow everything since no state file exists. To re-freeze,
 run `/freeze` again.
+
+## 결정 표 (Decision table)
+
+| State before | Output | Boundary after |
+|--------------|--------|----------------|
+| boundary set (any writer) | `FREEZE_CLEARED` | none: hooks allow every edit |
+| no boundary | `FREEZE_CLEARED` | none |
+| lock held by another writer | `FREEZE_BUSY` | unchanged |
+| state is a symlink or directory | `FREEZE_PRESERVED` | unchanged; edits stay denied |
+
+The clear is unconditional for a regular state file: an owner token written by
+another run (for example an investigation scope) is removed as well, because
+the user asked for it.
+
+## Install and gstack setup ownership
+
+No gstack banner and no `.gstack-owned` marker, so gstack `./setup` prints
+"skipped unfreeze: existing entry is not gstack-managed" and leaves this folder
+alone. Do not add the marker.
 
 ## 완료 보고 (HTML) — 표준
 작업을 끝내면 **HTML 완료 보고서**를 생성한다 (SimonKCore `completion-report` 표준).

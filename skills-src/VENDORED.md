@@ -23,9 +23,14 @@ Validation: relaxed (line count, description format exempt).
 - `design-shotgun`
 - `devex-review`
 - `document-release`
-- `freeze`
+- `freeze` — adapted, not as-is: gstack v1.91.9 + SimonK Windows-path and
+  fail-closed deltas ($HOME-anchored hooks, C:\ / C:/ / /c/ normalization,
+  relative and unjudgeable paths deny; D-62, 2026-10-03). Its bin/ also vendors
+  gstack `freeze/bin/freeze-state.sh` unchanged. Provenance and SHA-256:
+  repository LICENSE.
 - `gstack-upgrade`
-- `guard`
+- `guard` — adapted, not as-is: gstack v1.91.9 wiring to the SimonK `careful`
+  and `freeze` hook scripts through $HOME-anchored commands (D-62).
 - `health`
 - `investigate`
 - `land-and-deploy`
@@ -43,6 +48,7 @@ Validation: relaxed (line count, description format exempt).
 - `setup-browser-cookies`
 - `setup-deploy`
 - `ship`
-- `unfreeze`
+- `unfreeze` — adapted, not as-is: gstack v1.91.9, clears the boundary through
+  the vendored `freeze/bin/freeze-state.sh` (D-62).
 
 **Total**: 36 vendored / 49 native / 85 total

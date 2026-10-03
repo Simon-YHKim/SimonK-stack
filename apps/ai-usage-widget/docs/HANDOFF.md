@@ -2,6 +2,22 @@
 > prepend 전용 로그. 새 블록을 맨 위에 얹고 직전 `## Latest`는 날짜 헤더로 강등한다. 덮어쓰지 않는다.
 
 ## Latest
+- **목적**: D-61(허브 D-54 재개 판정) 이행. 이미 설치된 값 변경 표시 갱신은 유지하고, 사용자 데이터 백업·사본 복원 리허설을 마친 뒤 경고 구분 검증 결과로 main 반영 범위를 정한다
+- **최종 갱신**: 26.10.04 00:16 KST · Claude Code(워크트리 `SimonK-stack-aiuw-land-261003`, 브랜치 `feat/aiuw-value-flash-land-261003`)
+- **지금까지**:
+  - 설치본은 `d767272` 빌드 그대로다(app.asar sha256 앞 12자리 `77D19EE5FC5D`, 이번 작업 재설치 0회).
+  - 백업 위치는 `%USERPROFILE%\.claude\flat-link-archive\aiuw-backup-261003`이다. 상속을 끊고 사용자·SYSTEM·Administrators만 접근하게 했다. 내용은 3폴더 7,683파일(210,591,478바이트), `~/.claude/settings.json`의 statusLine 값, Run 값 1개, setup 2개(현재 `3DA00E69…`, 직전 후보 `52BD8014…`), `manifest.json`이다.
+  - 일관된 복사를 위해 위젯을 26.10.03 23:45:59~23:46:26 KST 동안 정지했다. 재시작 뒤 프로세스 5개가 돌고 로그에 `rendered:"accounts"`가 찍혔다.
+  - 사본 복원 리허설은 임시 폴더에서 했다(라이브 경로 미접촉). 파일 수·바이트·해시가 전부 일치했다. Run 값은 임시 키로 가져와 일치를 확인한 뒤 그 키를 지웠다. 바이트 일치는 토큰 유효성이나 재로그인 없는 복구를 증명하지 않는다.
+  - 경고 구분 게이트 결과 `d767272`는 일반 FAIL·모션 감소 FAIL·고대비 PASS였다. 그래서 PR에는 `2c21eec`만 cherry-pick했다. 근거는 DECISIONS 26.10.04 00:16이다. `pnpm verify` exit 0(58파일·674테스트).
+- **다음 1개**: `d767272`의 경고 표시를 값 변경 표시와 다른 색·모양으로 고칠지 후속 판단한다. 판단 전에는 main 기반 재설치를 보류한다. main으로 설치하면 경고는 `2c21eec`의 노란 상자로, 값 변경 표시는 `2c21eec`식(글자색)으로 돌아간다.
+- **막힌 것**: PR 머지는 사용자 승인 대기다.
+- **작업 규칙 변화**:
+  - 화면 구분 검증 절차: 임시 vitest 프로브로 실제 WidgetApp DOM을 덤프한다. 격리 Electron(임시 `--user-data-dir`, offscreen)에서 CDP `Emulation.setEmulatedMedia`로 모션 감소·forced-colors를 켠다. 애니메이션 시각을 고정해 캡처하고 ΔE00을 잰다.
+  - forced-colors를 검증할 때는 `data-high-contrast='true'`도 함께 준다. 실제 고대비에서는 둘이 같이 켜지고 `.widget-root`가 `forced-color-adjust: none`이다.
+  - CDP 명령은 페이지를 로드한 뒤에 보낸다. 창을 여러 번 열 때는 `window-all-closed`를 무시해야 한다.
+
+## 26.09.30 22:41 KST
 - **목적**: Grok CLI와 Grok Bot 사용량을 한 칸의 `WK`·`Bot` 두 행으로 구분 표시
 - **최종 갱신**: 26.09.30 22:41 KST · Codex
 - **지금까지**: 작업표시줄 Grok 칸과 팝업 Grok 카드 안에 Bot 주간 계량을 묶었다. 별도 계량·로그인·오류 상태는 유지하며 Grok 계정이 없으면 Bot만 표시한다. `docs/GROK-BOT.md` 참고.

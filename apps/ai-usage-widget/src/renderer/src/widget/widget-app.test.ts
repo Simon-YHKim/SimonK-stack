@@ -45,6 +45,50 @@ describe('WidgetApp', () => {
     expect(api.callsTo('window:show-popup')).toEqual([{ tab: 'accounts' }]);
   });
 
+  it.each(['windows', '1a', '1b', '1c', '1d'] as const)(
+    'flashes only the changed displayed percentage in the %s theme', (theme) => {
+      const state = (sessionUsed: number, weeklyUsed = 90) => appState({
+        accounts: [account({ id: 'a1' })],
+        usage: [usage('a1', { windows: [quotaWindow('session', sessionUsed, 2 * 3_600_000),
+          quotaWindow('weekly', weeklyUsed, 4 * 86_400_000)] })],
+        settings: { theme },
+      });
+      const { app } = setup(state(25));
+      expect(app.main.querySelectorAll('[data-value-flash]')).toHaveLength(0);
+
+      app.update(state(26));
+      const rows = app.main.querySelectorAll('.account-item [data-status]');
+      const firstTone = rows[0]?.getAttribute('data-value-flash');
+      expect(firstTone).toMatch(/^(sky|mint|violet)$/);
+      expect(rows[1]?.hasAttribute('data-value-flash')).toBe(false);
+
+      app.update(state(26));
+      expect(app.main.querySelector('.account-item [data-status]')).toBe(rows[0]);
+      expect(rows[0]?.getAttribute('data-value-flash')).toBe(firstTone);
+      app.update(state(27));
+      const secondTone = app.main.querySelector('.account-item [data-status]')?.getAttribute('data-value-flash');
+      expect(secondTone).toMatch(/^(sky|mint|violet)$/);
+      expect(secondTone).not.toBe(firstTone);
+      vi.advanceTimersByTime(1_500);
+      expect(app.main.querySelectorAll('[data-value-flash]')).toHaveLength(0);
+    },
+  );
+
+  it('does not flash for a smaller-than-displayed change, view-mode switch, or failed fetch', () => {
+    const state = (used: number, showUsedPercent = false, status: 'ok' | 'error' = 'ok') => appState({
+      accounts: [account({ id: 'a1' })],
+      usage: [usage('a1', { state: status, windows: [quotaWindow('session', used, 2 * 3_600_000)] })],
+      settings: { showUsedPercent },
+    });
+    const { app } = setup(state(25));
+    app.update(state(25.1));
+    expect(app.main.querySelectorAll('[data-value-flash]')).toHaveLength(0);
+    app.update(state(25.1, true));
+    expect(app.main.querySelectorAll('[data-value-flash]')).toHaveLength(0);
+    app.update(state(25.1, true, 'error'));
+    expect(app.main.querySelectorAll('[data-value-flash]')).toHaveLength(0);
+  });
+
   it('shows a separately labelled manual Grok Bot balance and opens its usage card', () => {
     const { api, app } = setup(appState({ settings: { grokBotUsedPercent: 68, grokBotRecordedAt: NOW } }));
     const item = app.main.querySelector('.grok-bot-item') as HTMLElement;
@@ -75,6 +119,16 @@ describe('WidgetApp', () => {
     expect(app.refreshButton.hidden).toBe(false);
     app.refreshButton.click();
     expect(api.callsTo('usage:refresh-now')).toEqual([{ accountId: null }]);
+  });
+
+  it('flashes a standalone Grok Bot percentage when its weekly reading changes', () => {
+    const state = (usedPercent: number) => appState({ grokBotAuto: { state: 'ok', usedPercent,
+      resetsAt: NOW + 2 * 86_400_000, measuredAt: NOW } });
+    const { app } = setup(state(41));
+    expect(app.main.querySelectorAll('[data-value-flash]')).toHaveLength(0);
+    app.update(state(42));
+    expect(app.main.querySelector('.grok-bot-widget-value')?.getAttribute('data-value-flash'))
+      .toMatch(/^(sky|mint|violet)$/);
   });
 
   it('keeps a Bot-only widget visible when an automatic session expires or disappears', () => {
@@ -118,6 +172,19 @@ describe('WidgetApp', () => {
     app.update(appState({ ...base, grokBotAuto: { state: 'ok', usedPercent: 50,
       resetsAt: NOW + 2 * 86_400_000, measuredAt: NOW + 1000 } }));
     expect(app.main.querySelector('.account-item[data-provider="grok"]')?.textContent).toContain('50% left');
+  });
+
+  it('flashes only Bot when its percentage changes in a grouped Grok item', () => {
+    const grok = account({ id: 'g1', provider: 'grok', label: 'Grok' });
+    const state = (usedPercent: number) => appState({ accounts: [grok], usage: [usage('g1', {
+      provider: 'grok', source: 'grok-acp', windows: [quotaWindow('weekly', 37, 3 * 86_400_000)],
+    })], grokBotAuto: { state: 'ok', usedPercent, resetsAt: NOW + 2 * 86_400_000, measuredAt: NOW } });
+    const { app } = setup(state(41));
+    app.update(state(42));
+    const rows = app.main.querySelectorAll('.account-item[data-provider="grok"] [data-status]');
+    expect(rows).toHaveLength(2);
+    expect(rows[0]?.hasAttribute('data-value-flash')).toBe(false);
+    expect(rows[1]?.getAttribute('data-value-flash')).toMatch(/^(sky|mint|violet)$/);
   });
 
   it('keeps the grouped WK/Bot item and explains a failed Bot refresh', () => {
