@@ -27,6 +27,10 @@ RESOURCES = (
     "freeze/bin/check-freeze.sh",
 )
 BASH = Path(os.environ.get("ProgramFiles", "C:/Program Files")) / "Git/bin/bash.exe"
+# The runtime's own fail-closed reasons (D-62 follow-up 5: careful no longer
+# falls back to ask).
+CAREFUL_RUNTIME_FAILURE = "[careful][RUNTIME FAILURE] Safety runtime failed, command not checked"
+FREEZE_RUNTIME_FAILURE = "[freeze] Safety runtime unavailable; blocked, fail closed."
 
 
 @unittest.skipUnless(os.name == "nt" and BASH.is_file(), "Windows Git Bash is required")
@@ -107,6 +111,21 @@ class SafetyRuntimeTests(unittest.TestCase):
             raise AssertionError(data)
         return hook["permissionDecision"]
 
+    @staticmethod
+    def reason(result: subprocess.CompletedProcess[str]) -> str:
+        return json.loads(result.stdout)["hookSpecificOutput"]["permissionDecisionReason"]
+
+    def leaf_fixture(self, relative: str, decision: str, reason: str) -> None:
+        """Replace a copied leaf with one that prints a fixed decision."""
+        (self.runtime / relative).write_text(
+            "#!/usr/bin/env bash\nprintf '%s\\n' '" + json.dumps({
+                "hookSpecificOutput": {
+                    "hookEventName": "PreToolUse",
+                    "permissionDecision": decision,
+                    "permissionDecisionReason": reason,
+                }
+            }, separators=(",", ":")) + "'\n", encoding="utf-8")
+
     def payload(self, session="session-A", *, cwd=None, command=None, file_path=None):
         tool_input = {}
         if command is not None:
@@ -174,6 +193,82 @@ class SafetyRuntimeTests(unittest.TestCase):
         self.assertFalse(sentinel.exists())
         self.assertFalse(self.state_root.exists(), "careful check must not initialize freeze state")
 
+    def test_careful_high_deny_passes_through_with_leaf_reason(self):
+        # careful 0.2.2 HIGH tier: the real leaf denies; the runtime must not
+        # downgrade it to ask or replace the leaf's reason.
+        for command in ("rm -rf /", 'rm -rf "C:/"', "rm -rf ~"):
+            with self.subTest(command=command):
+                decision, result = self.check("careful", payload=self.payload(command=command))
+                self.assertEqual(decision, "deny")
+                self.assertTrue(self.reason(result).startswith("[careful][HIGH] "),
+                                self.reason(result))
+
+    def test_careful_leaf_internal_failure_deny_passes_through(self):
+        # A sourced helper without the required functions is a careful HOOK
+        # FAILURE (deny). The runtime keeps that deny and its reason.
+        (self.runtime / "careful/bin/hook-extract.sh").write_text(
+            "# fixture: outdated helper\n", encoding="utf-8")
+        decision, result = self.check("careful", payload=self.payload(command="git status"))
+        self.assertEqual(decision, "deny")
+        self.assertIn("[careful][HOOK FAILURE]", self.reason(result))
+
+    def test_fixture_leaf_decisions_pass_through_exactly(self):
+        for relative, policy, decision in (
+            ("careful/bin/check-careful.sh", "careful", "deny"),
+            ("careful/bin/check-careful.sh", "careful", "ask"),
+            ("careful/bin/check-careful.sh", "careful-powershell", "deny"),
+            ("freeze/bin/check-freeze.sh", "freeze", "deny"),
+        ):
+            with self.subTest(policy=policy, decision=decision):
+                if policy == "freeze":
+                    self.set_boundary()
+                self.leaf_fixture(relative, decision, "fixture reason " + decision)
+                payload = (self.payload(file_path="src/new.py") if policy == "freeze"
+                           else self.payload(command="git status"))
+                got, result = self.check(policy, payload=payload)
+                self.assertEqual(got, decision)
+                self.assertEqual(self.reason(result), "fixture reason " + decision)
+
+    def test_out_of_contract_leaf_decisions_fail_closed_as_deny(self):
+        # freeze never asks and no leaf emits an explicit allow; either is
+        # invalid output, which the runtime denies with its own reason.
+        self.set_boundary()
+        for relative, policy, decision, expected in (
+            ("freeze/bin/check-freeze.sh", "freeze", "ask", FREEZE_RUNTIME_FAILURE),
+            ("freeze/bin/check-freeze.sh", "freeze", "allow", FREEZE_RUNTIME_FAILURE),
+            ("careful/bin/check-careful.sh", "careful", "allow", CAREFUL_RUNTIME_FAILURE),
+            ("careful/bin/check-careful.sh", "careful", "block", CAREFUL_RUNTIME_FAILURE),
+        ):
+            with self.subTest(policy=policy, decision=decision):
+                self.leaf_fixture(relative, decision, "fixture")
+                payload = (self.payload(file_path="src/new.py") if policy == "freeze"
+                           else self.payload(command="git status"))
+                got, result = self.check(policy, payload=payload)
+                self.assertEqual(got, "deny")
+                self.assertTrue(self.reason(result).startswith(expected), self.reason(result))
+
+    def test_careful_powershell_policy_runs_deny_only_powershell_leaf(self):
+        # The payload carries no tool_name, so only the runtime's leaf argument
+        # selects the PowerShell mode: MEDIUM Bash shapes must not ask there.
+        sentinel = self.worktree / "must-not-exist"
+        for command, expected in (
+            ("Get-ChildItem -Force", "allow"),
+            ("git reset --hard", "allow"),
+            ("New-Item must-not-exist; Remove-Item -Recurse -Force C:\\", "deny"),
+            ("Format-Volume -DriveLetter D", "deny"),
+        ):
+            with self.subTest(command=command):
+                decision, result = self.check("careful-powershell",
+                                              payload=self.payload(command=command))
+                self.assertEqual(decision, expected)
+                if expected == "deny":
+                    self.assertTrue(self.reason(result).startswith("[careful][HIGH] PowerShell"),
+                                    self.reason(result))
+        careful, _ = self.check("careful", payload=self.payload(command="git reset --hard"))
+        self.assertEqual(careful, "ask")
+        self.assertFalse(sentinel.exists())
+        self.assertFalse(self.state_root.exists())
+
     def test_missing_malformed_and_wrong_type_state_fail_closed(self):
         missing, _ = self.check("freeze", payload=self.payload(file_path="src/new.py"))
         self.assertEqual(missing, "deny")
@@ -189,7 +284,7 @@ class SafetyRuntimeTests(unittest.TestCase):
         decision, _ = self.check("freeze", payload=self.payload(file_path="src/new.py"))
         self.assertEqual(decision, "deny")
 
-    def test_invalid_identity_and_payload_use_policy_specific_fallback(self):
+    def test_invalid_identity_and_payload_use_fail_closed_fallback(self):
         cases = (
             '{"session_id":',
             {"session_id": "${CLAUDE_SESSION_ID}", "cwd": str(self.worktree), "tool_input": {}},
@@ -198,10 +293,13 @@ class SafetyRuntimeTests(unittest.TestCase):
         )
         for payload in cases:
             with self.subTest(payload=payload):
-                careful, _ = self.check("careful", payload=payload)
-                freeze, _ = self.check("freeze", payload=payload)
-                self.assertEqual(careful, "ask")
+                for policy in ("careful", "careful-powershell"):
+                    careful, result = self.check(policy, payload=payload)
+                    self.assertEqual(careful, "deny")
+                    self.assertTrue(self.reason(result).startswith(CAREFUL_RUNTIME_FAILURE))
+                freeze, result = self.check("freeze", payload=payload)
                 self.assertEqual(freeze, "deny")
+                self.assertEqual(self.reason(result), FREEZE_RUNTIME_FAILURE)
         for session in ("", "bad/session", "${CLAUDE_SESSION_ID}"):
             result = self.run_cli("set", "--project", self.project, "--session", session,
                                   "--boundary", self.inside)
@@ -213,7 +311,7 @@ class SafetyRuntimeTests(unittest.TestCase):
                      + ',"tool_input":{"command":"git status","file_path":"src/new.py"}}')
         careful, _ = self.check("careful", payload=duplicate)
         freeze, _ = self.check("freeze", payload=duplicate)
-        self.assertEqual(careful, "ask")
+        self.assertEqual(careful, "deny")
         self.assertEqual(freeze, "deny")
 
         self.set_boundary()
@@ -229,7 +327,7 @@ class SafetyRuntimeTests(unittest.TestCase):
                   + "[" * 100000 + "0" + "]" * 100000 + "}}")
         careful, _ = self.check("careful", payload=nested)
         freeze, _ = self.check("freeze", payload=nested)
-        self.assertEqual(careful, "ask")
+        self.assertEqual(careful, "deny")
         self.assertEqual(freeze, "deny")
 
     def test_duplicate_state_keys_are_not_a_valid_inactive_tombstone(self):
@@ -249,7 +347,8 @@ class SafetyRuntimeTests(unittest.TestCase):
         payload = self.payload(command="git status")
         payload["cwd"] = str(self.worktree) + "\0hidden"
         careful, result = self.check("careful", payload=payload)
-        self.assertEqual(careful, "ask")
+        self.assertEqual(careful, "deny")
+        self.assertTrue(self.reason(result).startswith(CAREFUL_RUNTIME_FAILURE))
         self.assertNotIn("Traceback", result.stderr)
 
     def test_hook_cwd_is_valid_but_independent_of_project_identity(self):
@@ -315,24 +414,28 @@ class SafetyRuntimeTests(unittest.TestCase):
             (self.runtime / "careful").symlink_to(real, target_is_directory=True)
         except OSError as exc:
             self.skipTest("OS cannot create this owned directory symlink: " + type(exc).__name__)
-        decision, _ = self.check("careful", payload=self.payload(command="git status"))
-        self.assertEqual(decision, "ask")
+        decision, result = self.check("careful", payload=self.payload(command="git status"))
+        self.assertEqual(decision, "deny")
+        self.assertTrue(self.reason(result).startswith(CAREFUL_RUNTIME_FAILURE))
 
     def test_shared_extract_hardlink_is_rejected_by_careful_too(self):
         helper = self.runtime / "careful/bin/hook-extract.sh"
         saved = helper.with_name("saved-extract.sh")
         helper.replace(saved)
         os.link(saved, helper)
-        decision, _ = self.check("careful", payload=self.payload(command="git status"))
-        self.assertEqual(decision, "ask")
+        decision, result = self.check("careful", payload=self.payload(command="git status"))
+        self.assertEqual(decision, "deny")
+        self.assertTrue(self.reason(result).startswith(CAREFUL_RUNTIME_FAILURE))
 
-    def test_missing_helper_or_bash_failure_uses_policy_fallback_without_path_dump(self):
+    def test_missing_helper_or_bash_failure_uses_fail_closed_fallback_without_path_dump(self):
         secret_marker = "private-path-marker"
         (self.runtime / "careful/bin/check-careful.sh").unlink()
         payload = self.payload(command="echo " + secret_marker)
-        decision, result = self.check("careful", payload=payload)
-        self.assertEqual(decision, "ask")
-        self.assertNotIn(secret_marker, result.stdout + result.stderr)
+        for policy in ("careful", "careful-powershell"):
+            decision, result = self.check(policy, payload=payload)
+            self.assertEqual(decision, "deny")
+            self.assertTrue(self.reason(result).startswith(CAREFUL_RUNTIME_FAILURE))
+            self.assertNotIn(secret_marker, result.stdout + result.stderr)
         self.set_boundary()
         env = {**self.env, "SIMONK_SAFETY_BASH": str(self.base / "missing/bash.exe")}
         decision, result = self.check("freeze", payload=self.payload(file_path="src/new.py"), env=env)
@@ -343,14 +446,15 @@ class SafetyRuntimeTests(unittest.TestCase):
         huge = "x" * (1024 * 1024 + 1)
         careful, _ = self.check("careful", payload=huge)
         freeze, _ = self.check("freeze", payload=huge)
-        self.assertEqual(careful, "ask")
+        self.assertEqual(careful, "deny")
         self.assertEqual(freeze, "deny")
 
         helper = self.runtime / "careful/bin/check-careful.sh"
         helper.write_text("#!/usr/bin/env bash\nhead -c 70000 /dev/zero | tr '\\0' x\n",
                           encoding="utf-8")
-        decision, _ = self.check("careful", payload=self.payload(command="git status"))
-        self.assertEqual(decision, "ask")
+        decision, result = self.check("careful", payload=self.payload(command="git status"))
+        self.assertEqual(decision, "deny")
+        self.assertTrue(self.reason(result).startswith(CAREFUL_RUNTIME_FAILURE))
 
     def test_leaf_cannot_inject_additional_hook_controls(self):
         helper = self.runtime / "careful/bin/check-careful.sh"
@@ -367,7 +471,9 @@ class SafetyRuntimeTests(unittest.TestCase):
             encoding="utf-8",
         )
         decision, result = self.check("careful", payload=self.payload(command="git status"))
-        self.assertEqual(decision, "ask")
+        # Invalid leaf output is a runtime failure: deny, never the leaf's ask.
+        self.assertEqual(decision, "deny")
+        self.assertTrue(self.reason(result).startswith(CAREFUL_RUNTIME_FAILURE))
         parsed = json.loads(result.stdout)
         self.assertEqual(set(parsed["hookSpecificOutput"]),
                          {"hookEventName", "permissionDecision", "permissionDecisionReason"})
@@ -390,7 +496,7 @@ class SafetyRuntimeTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self.decision(result), "ask")
 
-    def test_atomic_collision_does_not_delete_preexisting_file(self):
+    def load_runtime_module(self):
         spec = importlib.util.spec_from_file_location("candidate_safety_runtime", self.source_runtime)
         self.assertIsNotNone(spec)
         self.assertIsNotNone(spec.loader)
@@ -401,6 +507,23 @@ class SafetyRuntimeTests(unittest.TestCase):
             spec.loader.exec_module(module)
         finally:
             sys.dont_write_bytecode = previous_no_bytecode
+        return module
+
+    def test_non_windows_host_denies_every_check_policy(self):
+        import io
+        from unittest.mock import patch
+        module = self.load_runtime_module()
+        for policy in module.POLICIES:
+            with self.subTest(policy=policy):
+                with patch.object(module.os, "name", "posix"), \
+                        patch.object(module.sys, "stdout", io.StringIO()) as stdout:
+                    code = module.main(["check", policy, "--project", str(self.project)])
+                self.assertEqual(code, 0)
+                hook = json.loads(stdout.getvalue())["hookSpecificOutput"]
+                self.assertEqual(hook["permissionDecision"], "deny")
+
+    def test_atomic_collision_does_not_delete_preexisting_file(self):
+        module = self.load_runtime_module()
         parent = self.base / "collision state"
         parent.mkdir()
         target = parent / "state.json"

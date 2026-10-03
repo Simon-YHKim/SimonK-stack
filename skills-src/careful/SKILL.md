@@ -1,6 +1,6 @@
 ---
 name: careful
-version: 0.2.2
+version: 0.2.3
 description: "Use when touching prod, live systems or a shared machine, or asked to \"be careful\", \"safety mode\", \"careful mode\", \"조심해\", \"신중 모드\", \"위험한 명령 경고\". Installs session PreToolUse Bash and PowerShell hooks; the check produces deny for HIGH commands (recursive delete of /, a drive root or ~, force-push to the default branch), ask for MEDIUM Bash ones (rm -r, DROP, git reset --hard), and always deny when the hook itself fails."
 allowed-tools:
   - Bash
@@ -150,9 +150,10 @@ HOME and USERPROFILE (`$env:SystemDrive\`, `$sp`), splatting (`@params`),
 `-EncodedCommand`, `Invoke-Expression`, `Start-Process`, pipeline input
 (`gci C:\ | Remove-Item -Recurse`), array syntax `@('C:\')`, here-strings,
 `diskpart`/`format.com`, and disk cmdlets inside a nested `powershell -Command`.
-The plugin candidate (SimonKCore) drops this entry: its safety runtime has no
-PowerShell kind, so only the flat install (`~/.claude/skills/careful`) checks
-the PowerShell tool.
+The plugin candidate (SimonKCore) keeps this entry: its safety runtime runs the
+plugin's copy of this script with `powershell` (`check careful-powershell`).
+That runtime passes the script's deny through unchanged and denies when it
+cannot run the check itself (hub decision D-62 follow-up 5).
 
 ## Internal failure = deny (SimonK fail-closed delta)
 

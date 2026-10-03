@@ -91,17 +91,28 @@ HOME_ANCHORED_HOOKS = {
 }
 
 # careful 0.2.2 (D-62 minimal B) adds a PowerShell-matcher entry that runs the
-# same $HOME-anchored leaf in "powershell" mode. The safety runtime has no
-# PowerShell kind, so the candidate projection removes exactly this entry
-# (any drift is an error) instead of shipping a flat-install $HOME path inside
-# a plugin. The Bash entry projects exactly as before.
+# same $HOME-anchored leaf in "powershell" mode. The candidate projection wraps
+# exactly this entry (any drift is an error) with the safety runtime's
+# careful-powershell policy, which runs the plugin's own leaf copy with that
+# argument (D-62 follow-up 5), so no flat-install $HOME path ships inside a
+# plugin. The Bash entry projects exactly as before.
+CAREFUL_POWERSHELL_COMMAND = (
+    "          command: 'bash \"$HOME/.claude/skills/careful/bin/check-careful.sh\" powershell'\n")
 CAREFUL_POWERSHELL_HOOK = (
     '    - matcher: "PowerShell"\n'
     '      hooks:\n'
     '        - type: command\n'
-    "          command: 'bash \"$HOME/.claude/skills/careful/bin/check-careful.sh\" powershell'\n"
+    + CAREFUL_POWERSHELL_COMMAND +
     '          statusMessage: "Checking PowerShell for catastrophic commands..."\n'
 )
+
+
+def runtime_hook_command(kind):
+    """Exec-form hook command running the candidate safety runtime for KIND."""
+    args = ["-B", "${CLAUDE_PLUGIN_ROOT}/.simonk-runtime/safety_runtime.py",
+            "check", kind, "--project", "${CLAUDE_PROJECT_DIR}"]
+    return '          command: "python"\n          args: ' + json.dumps(args)
+
 
 # Reviewed setup/clear spellings. Legacy: the pre-D-62 SKILL.md writers. D-62:
 # freeze and guard record the boundary with the vendored gstack writer
@@ -229,7 +240,8 @@ def safety_document(name, data):
         raise ValueError("Safety projection requires consistent source line endings")
     text = raw.replace("\r\n", "\n")
     if name == "careful":
-        text = replace_exact(text, CAREFUL_POWERSHELL_HOOK, "")
+        text = replace_exact(text, CAREFUL_POWERSHELL_HOOK, CAREFUL_POWERSHELL_HOOK.replace(
+            CAREFUL_POWERSHELL_COMMAND, runtime_hook_command("careful-powershell") + "\n"))
     commands = {
         "careful": [("bin/check-careful.sh", "careful", 1)],
         "freeze": [("bin/check-freeze.sh", "freeze", 2)],
@@ -241,10 +253,7 @@ def safety_document(name, data):
         forms = ['          command: "bash ${CLAUDE_SKILL_DIR}/' + relative + '"']
         if kind in HOME_ANCHORED_HOOKS:
             forms.append(HOME_ANCHORED_HOOKS[kind])
-        args = ["-B", "${CLAUDE_PLUGIN_ROOT}/.simonk-runtime/safety_runtime.py",
-                "check", kind, "--project", "${CLAUDE_PROJECT_DIR}"]
-        new = '          command: "python"\n          args: ' + json.dumps(args)
-        text = replace_forms(text, forms, new, count)
+        text = replace_forms(text, forms, runtime_hook_command(kind), count)
     setup_note = ("Use only an existing, one-line absolute Windows directory. Replace the\n"
                   "boundary placeholder in the raw-data block below; do not paste arbitrary\n"
                   "multi-line text or shell code. Leave host placeholders for the host to render.\n"

@@ -272,7 +272,7 @@ class CarefulHookTests(unittest.TestCase):
         text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
         self.assertNotIn("CLAUDE_SKILL_DIR}/bin", text.split("---", 2)[1])
         self.assertNotIn("/gstack/careful", self.hook_command)
-        self.assertRegex(text.split("---", 2)[1], r"(?m)^version: 0\.2\.2$")
+        self.assertRegex(text.split("---", 2)[1], r"(?m)^version: 0\.2\.3$")
         head = text.encode("utf-8")[:8192].decode("utf-8", "ignore")
         self.assertFalse(BANNER_A in head and BANNER_B in head,
                          "gstack banner would make setup treat this folder as gstack-owned")
