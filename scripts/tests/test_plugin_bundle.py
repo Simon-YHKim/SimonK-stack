@@ -409,6 +409,60 @@ class PluginBundleTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     self.m.safety_document("careful", drifted)
 
+    def test_freeze_guard_unfreeze_state_writer_and_legacy_forms_project_identically(self):
+        # D-62: freeze/guard hooks are $HOME-anchored and the setup/clear blocks
+        # use freeze-state.sh. Each reviewed source form must emit exactly the
+        # candidate document the legacy ${CLAUDE_SKILL_DIR}/inline-writer form emits.
+        m = self.m
+        home = {kind: form.encode("utf-8") for kind, form in m.HOME_ANCHORED_HOOKS.items()}
+        legacy_hooks = {
+            "freeze": {"freeze": (b'          command: "bash ${CLAUDE_SKILL_DIR}/bin/check-freeze.sh"', 2)},
+            "guard": {
+                "careful": (b'          command: "bash ${CLAUDE_SKILL_DIR}/../careful/bin/check-careful.sh"', 1),
+                "freeze": (b'          command: "bash ${CLAUDE_SKILL_DIR}/../freeze/bin/check-freeze.sh"', 2),
+            },
+        }
+        set_forms = (m.STATE_WRITER_FREEZE_SET.encode("utf-8"), m.LEGACY_FREEZE_SET.encode("utf-8"))
+        blocks = {
+            "freeze": [set_forms],
+            "guard": [set_forms, (m.HOME_GUARD_DEPENDENCY.encode("utf-8"),
+                                  m.LEGACY_GUARD_DEPENDENCY.encode("utf-8"))],
+            "unfreeze": [(m.STATE_WRITER_UNFREEZE_CLEAR.encode("utf-8"),
+                          m.LEGACY_UNFREEZE_CLEAR.encode("utf-8"))],
+        }
+        runtime = "${CLAUDE_PLUGIN_ROOT}/.simonk-runtime/safety_runtime.py"
+        for name in ("freeze", "guard", "unfreeze"):
+            with self.subTest(skill=name):
+                source = (ROOT / "skills-src" / name / "SKILL.md").read_bytes().replace(b"\r\n", b"\n")
+                legacy = source
+                for kind, (old, count) in legacy_hooks.get(name, {}).items():
+                    self.assertEqual(source.count(home[kind]), count)
+                    self.assertEqual(source.count(old), 0)
+                    legacy = legacy.replace(home[kind], old)
+                for new, old in blocks[name]:
+                    self.assertEqual(source.count(new), 1)
+                    self.assertEqual(source.count(old), 0)
+                    legacy = legacy.replace(new, old)
+                projected = m.safety_document(name, source)
+                self.assertEqual(projected, m.safety_document(name, legacy))
+                text = projected.decode("utf-8")
+                for kind, (_, count) in legacy_hooks.get(name, {}).items():
+                    args = json.dumps(["-B", runtime, "check", kind, "--project", "${CLAUDE_PROJECT_DIR}"])
+                    self.assertEqual(text.count('          command: "python"\n          args: ' + args), count)
+                front = text.split("---", 2)[1]
+                self.assertNotIn("check-freeze.sh", front)
+                self.assertNotIn("check-careful.sh", front)
+                self.assertNotIn('freeze-state.sh" set', text)
+                self.assertNotIn('freeze-state.sh" clear', text)
+                self.assertIn("SIMONK_SAFETY_INPUT", text)
+                drifted = [source + b"\n" + new + b"\n" for new, _ in blocks[name]]
+                drifted += [source + b"\n" + old + b"\n" for _, old in blocks[name]]
+                for kind, (old, _) in legacy_hooks.get(name, {}).items():
+                    drifted += [source + b"\n" + old + b"\n", source + b"\n" + home[kind] + b"\n"]
+                for bad in drifted:
+                    with self.assertRaises(ValueError):
+                        m.safety_document(name, bad)
+
     def test_safety_setup_quoted_data_survives_shell_metacharacters(self):
         bash = Path(os.environ.get("ProgramFiles", "C:/Program Files")) / "Git/bin/bash.exe"
         if not bash.is_file():

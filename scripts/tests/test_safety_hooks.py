@@ -70,6 +70,11 @@ class SafetyHookTests(unittest.TestCase):
             return "/" + path.drive[0].lower() + path.as_posix()[2:]
         return str(path)
 
+    def at(self, relative):
+        # D-62: freeze denies relative payload paths instead of joining the cwd,
+        # so fixtures send absolute paths (MSYS /c/... form on Windows).
+        return self.posix(self.cwd) + "/" + relative
+
     def hook(self, skill, payload, *, env=None, flat=None):
         runtime = (flat or self.flat) / skill / "bin" / ("check-" + skill + ".sh")
         p = subprocess.run([str(BASH), "--noprofile", "--norc", self.posix(runtime)],
@@ -85,8 +90,9 @@ class SafetyHookTests(unittest.TestCase):
         return result.get("hookSpecificOutput", {}).get("permissionDecision", "allow")
 
     def freeze(self):
-        # Execute the current SKILL.md writer with only an owned fixture path.
-        # This is not skill invocation/host hook activation.
+        # Legacy one-line writer (pre-D-62 SKILL.md, still read for compatibility);
+        # the current freeze-state.sh writer is covered by
+        # skills-src/freeze/bin/test_check_freeze.py. Not host hook activation.
         writer = ('set -eu; FREEZE_DIR=$(cd "$1" && pwd); '
                   'FREEZE_DIR="${FREEZE_DIR%/}/"; '
                   'STATE_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}"; '
@@ -142,21 +148,22 @@ class SafetyHookTests(unittest.TestCase):
         for content in ("", "   \n", "relative-boundary\n"):
             (self.state / "freeze-dir.txt").write_text(content, encoding="utf-8")
             with self.subTest(content=content):
-                self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": "outside.py"}}), "deny")
+                self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at("src/new.py")}}), "deny")
         (self.state / "freeze-dir.txt").unlink()
         (self.state / "freeze-dir.txt").mkdir()
-        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": "outside.py"}}), "deny")
+        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at("src/new.py")}}), "deny")
 
     def test_missing_parent_traversal_cannot_ride_boundary_prefix(self):
         self.freeze()
-        for path in ("src/missing/../../outside.py", "src/missing/deep/new.py"):
-            self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": path}}), "deny")
+        for path in ("src/missing/../../outside.py", "src/missing/deep/new.py",
+                     "src/missing/../new.py"):
+            self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at(path)}}), "deny")
 
     def test_file_path_control_characters_are_not_silently_stripped(self):
         self.freeze()
         for suffix in ("\n", "\r", "\t", "\0", "\x7f"):
             with self.subTest(code=ord(suffix)):
-                self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": "src/new.py" + suffix}}), "deny")
+                self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at("src/new.py") + suffix}}), "deny")
 
     def test_root_boundary_does_not_introduce_double_slashes(self):
         # Only state in this owned fixture is written; /usr/bin is not modified.
@@ -172,13 +179,13 @@ class SafetyHookTests(unittest.TestCase):
             link.symlink_to(outside)
         except OSError as exc:
             self.skipTest("OS cannot create this owned symlink fixture: " + type(exc).__name__)
-        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": "src/linked.py"}}), "deny")
+        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at("src/linked.py")}}), "deny")
 
     def test_missing_helper_is_not_allowed(self):
         (self.flat / RUNTIMES[1]).unlink()  # Disposable fixture, never source/user files.
         self.freeze()
         self.assertEqual(self.hook("careful", {"tool_input": {"command": "git status"}}), "deny")
-        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": "src/new.py"}}), "deny")
+        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at("src/new.py")}}), "deny")
 
     def test_missing_parsers_are_not_allowed(self):
         self.freeze()
@@ -187,7 +194,7 @@ class SafetyHookTests(unittest.TestCase):
         startup.write_text("python3() { return 127; }\nnode() { return 127; }\n", encoding="utf-8")
         env = {**self.env, "BASH_ENV": self.posix(startup)}
         self.assertEqual(self.hook("careful", {"tool_input": {"command": "git status"}}, env=env), "deny")
-        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": "src/new.py"}}, env=env), "deny")
+        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at("src/new.py")}}, env=env), "deny")
 
     def test_inactive_freeze_allows(self):
         self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": "other.py"}}), "allow")
@@ -197,20 +204,32 @@ class SafetyHookTests(unittest.TestCase):
         for path, decision in (("src/new.py", "allow"), ("other.py", "deny"),
                                ("src-other/new.py", "deny"), ("src/../other.py", "deny")):
             with self.subTest(path=path):
-                self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": path}}), decision)
+                self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at(path)}}), decision)
+
+    def test_relative_paths_deny_without_cwd_fallback(self):
+        # D-62: upstream joined relative paths to the hook cwd; now they deny,
+        # even when the cwd-joined path would be inside the boundary.
+        self.freeze()
+        for path in ("src/new.py", "new.py", "./src/new.py", "~/new.py"):
+            with self.subTest(path=path):
+                self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": path}}), "deny")
 
     def test_writer_plugin_state_takes_precedence_over_unrelated_gstack_home(self):
         self.freeze()
         self.assertNotEqual(self.env["GSTACK_HOME"], self.env["CLAUDE_PLUGIN_DATA"])
-        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": "outside.py"}}), "deny")
+        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at("outside.py")}}), "deny")
 
     def test_absolute_posix_path_and_cwd_mount_alias_agree(self):
         self.freeze()
-        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.posix(self.inside / "new.py")}}), "allow")
-        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": "src/new.py"}}), "allow")
-        # Also exercise the inverse /c-state versus cwd /tmp alias, if present.
+        native = [str(self.inside / "new.py"), (self.inside / "new.py").as_posix()]
+        for path in [self.posix(self.inside / "new.py")] + (native if os.name == "nt" else []):
+            with self.subTest(path=path):
+                self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": path}}), "allow")
+        # Also exercise the inverse /c-state versus a /tmp-written state, if present.
         (self.state / "freeze-dir.txt").write_text(self.posix(self.inside) + "/\n", encoding="utf-8")
-        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": "src/new.py"}}), "allow")
+        for path in [self.posix(self.inside / "new.py")] + (native if os.name == "nt" else []):
+            with self.subTest(state="posix", path=path):
+                self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": path}}), "allow")
 
     def test_careful_unexpected_runtime_failure_returns_deny_json(self):
         startup = self.base / "stdin failure.sh"
@@ -232,8 +251,8 @@ class SafetyHookTests(unittest.TestCase):
         env = {**self.env, "BASH_ENV": self.posix(startup)}
         self.assertEqual(self.hook("careful", {"tool_input": {"command": "git status"}}, env=env), "allow")
         self.assertEqual(self.hook("careful", {"tool_input": {"command": "rm -rf /var/data"}}, env=env), "ask")
-        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": "src/new.py"}}, env=env), "allow")
-        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": "outside.py"}}, env=env), "deny")
+        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at("src/new.py")}}, env=env), "allow")
+        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at("outside.py")}}, env=env), "deny")
 
     def test_home_state_fallback_matches_current_writer(self):
         self.freeze()
@@ -242,7 +261,7 @@ class SafetyHookTests(unittest.TestCase):
         shutil.copyfile(self.state / "freeze-dir.txt", fallback / "freeze-dir.txt")
         env = dict(self.env)
         del env["CLAUDE_PLUGIN_DATA"]
-        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": "outside.py"}}, env=env), "deny")
+        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at("outside.py")}}, env=env), "deny")
 
     def test_removing_fixture_state_unfreezes(self):
         self.freeze()
@@ -252,13 +271,14 @@ class SafetyHookTests(unittest.TestCase):
     def test_failing_state_read_is_deny_not_silent_exit(self):
         self.freeze()
         startup = self.base / "unreadable state.sh"
-        startup.write_text("head() { return 13; }\n", encoding="utf-8")
-        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": "src/new.py"}},
+        # The upstream reader uses the read builtin (older SimonK used head).
+        startup.write_text("head() { return 13; }\nread() { return 13; }\n", encoding="utf-8")
+        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at("src/new.py")}},
                                   env={**self.env, "BASH_ENV": self.posix(startup)}), "deny")
 
     def test_decision_reason_escapes_quotes(self):
         self.freeze()
-        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": 'outside"file.py'}}), "deny")
+        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at('outside"file.py')}}), "deny")
 
     def test_analytics_contain_patterns_not_commands(self):
         marker = "private-payload-marker"
@@ -306,8 +326,8 @@ class SafetyHookTests(unittest.TestCase):
             self.assertEqual(record["sha256"], hashlib.sha256(original).hexdigest())
         self.freeze()
         self.assertEqual(self.hook("careful", {"tool_input": {"command": "git reset --hard"}}, flat=target), "ask")
-        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": "src/new.py"}}, flat=target), "allow")
-        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": "outside.py"}}, flat=target), "deny")
+        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at("src/new.py")}}, flat=target), "allow")
+        self.assertEqual(self.hook("freeze", {"tool_input": {"file_path": self.at("outside.py")}}, flat=target), "deny")
 
 
 if __name__ == "__main__":
