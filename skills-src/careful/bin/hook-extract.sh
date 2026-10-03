@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
-# SimonK adaptation of garrytan/gstack@b9706f3635b6a545f46fae607ae9d6bcbfb69b91.
+# SimonK adaptation of garrytan/gstack v1.91.9.0 careful/bin/hook-extract.sh
+# Upstream commit for v1.91.9.0: 96764e80a641e28141ec8297223768029f5bf483.
+# (upstream LF bytes sha256 5be66386d4945f27ba52ac3df720a8f84755634de1713eacbd239376050106c9,
+# byte-identical to the earlier pin b9706f3635b6a545f46fae607ae9d6bcbfb69b91).
 # Copyright (c) 2026 Garry Tan. MIT terms and local delta: repository LICENSE.
+# SimonK deltas (everything else is upstream):
+#   - gstack_hook_extract_field is STRICT: missing/empty/wrong-type field or NUL
+#     returns 1 (upstream printed "" and returned 0). freeze relies on this.
+#   - gstack_hook_extract_tool_name (new, additive): lets careful tell a non-Bash
+#     payload from a Bash payload whose command is missing.
+#   - gstack_hook_state_root uses the SimonK writer expression
+#     ${CLAUDE_PLUGIN_DATA:-$HOME/.gstack} (shared with freeze).
 # hook-extract.sh — SHARED JSON helpers for gstack PreToolUse hooks.
 # Sourced (never executed) by careful/bin/check-careful.sh and
 # freeze/bin/check-freeze.sh via a path relative to each hook script.
@@ -15,7 +25,7 @@
 #   fields and NUL are invalid; file paths additionally reject control chars.
 #   These hooks are bound to specific tool types.
 #   Returns 1 when no parser is available or input is invalid — the CALLER decides the
-#   polarity for that case (careful asks, freeze denies).
+#   polarity for that case (careful denies, freeze denies).
 #
 #   python3 is tried first because it ships with macOS and most Linux distros
 #   and is reliably on PATH in a hook environment; node is the fallback.
@@ -33,6 +43,29 @@ sys.stdout.write(c)' "$_ghef_field" 2>/dev/null && return 0
   fi
   if command -v node >/dev/null 2>&1; then
     printf '%s' "$_ghef_payload" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);const f=process.argv[1];const c=j&&j.tool_input&&j.tool_input[f];if(typeof c!=="string"||!c||c.includes("\0")||(f==="file_path"&&/[\x00-\x1f\x7f]/.test(c)))process.exit(3);process.stdout.write(c)}catch(e){process.exit(3)}})' "$_ghef_field" 2>/dev/null && return 0
+  fi
+  return 1
+}
+
+# gstack_hook_extract_tool_name PAYLOAD   (SimonK addition)
+#   Prints the top-level tool_name ("" when absent or null). Returns 1 when no
+#   parser is available, the payload is not a JSON object, or tool_name is not
+#   a string. Upstream careful treated "no command field" as "not a Bash call"
+#   and allowed it; that also let a Bash payload WITHOUT a command through.
+#   tool_name is what actually identifies the tool.
+gstack_hook_extract_tool_name() {
+  _ghtn_payload="$1"
+  if command -v python3 >/dev/null 2>&1; then
+    printf '%s' "$_ghtn_payload" | python3 -c 'import sys,json
+d = json.loads(sys.stdin.read())
+if not isinstance(d, dict): sys.exit(1)
+t = d.get("tool_name")
+if t is None: t = ""
+if not isinstance(t, str) or "\0" in t: sys.exit(1)
+sys.stdout.write(t)' 2>/dev/null && return 0
+  fi
+  if command -v node >/dev/null 2>&1; then
+    printf '%s' "$_ghtn_payload" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);if(j===null||typeof j!=="object"||Array.isArray(j))process.exit(3);let t=j.tool_name;if(t===undefined||t===null)t="";if(typeof t!=="string"||t.includes("\0"))process.exit(3);process.stdout.write(t)}catch(e){process.exit(3)}})' 2>/dev/null && return 0
   fi
   return 1
 }

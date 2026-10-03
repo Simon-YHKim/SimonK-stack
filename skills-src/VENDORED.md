@@ -9,7 +9,10 @@ Validation: relaxed (line count, description format exempt).
 - `benchmark`
 - `browse`
 - `canary`
-- `careful`
+- `careful` — adapted, not as-is: gstack v1.91.9.0 + SimonK fail-closed deltas
+  (HIGH deny, MEDIUM ask, internal hook failure deny; D-56, 2026-10-03). Its
+  bin/ also vendors gstack `bin/gstack-slug` as `gstack-slug.sh`. File-level
+  provenance and SHA-256: repository LICENSE.
 - `checkpoint`
 - `codex`
 - `connect-chrome`

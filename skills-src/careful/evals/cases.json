@@ -1,23 +1,42 @@
 {
   "skill": "careful",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "cases": [
     {
       "id": "en-prod-mode",
       "prompt": "I'm about to touch production, turn on careful mode / safety mode.",
       "assertions": [
-        { "id": "activates-guardrails", "text": "Activates safety guardrails so every bash command is checked for destructive patterns via the PreToolUse hook." },
-        { "id": "protected-patterns", "text": "Warns before destructive operations like rm -rf, DROP TABLE/DATABASE, git push --force, git reset --hard, and kubectl delete." },
-        { "id": "override-and-exceptions", "text": "Lets the user override each warning and allows safe exceptions like rm -rf node_modules/.next/dist." }
+        { "id": "activates-guardrails", "text": "Activates safety guardrails so every Bash command is checked for destructive patterns via the PreToolUse hook bash \"$HOME/.claude/skills/careful/bin/check-careful.sh\"." },
+        { "id": "protected-patterns", "text": "Asks before MEDIUM destructive operations like rm -rf, DROP TABLE/DATABASE, TRUNCATE, git push --force to a feature branch, git reset --hard, and kubectl delete." },
+        { "id": "override-and-exceptions", "text": "Lets the user override each MEDIUM ask and allows safe exceptions like rm -rf node_modules/.next/dist without a prompt." }
       ]
     },
     {
       "id": "ko-safety-mode",
       "prompt": "공유 서버에서 작업하니까 조심해줘. 위험한 명령 실행 전에 경고하는 모드 켜줘.",
       "assertions": [
-        { "id": "ask-decision", "text": "Returns permissionDecision 'ask' with a warning message when a destructive command is matched." },
+        { "id": "ask-decision", "text": "Returns permissionDecision 'ask' with a warning message when a MEDIUM destructive command is matched." },
         { "id": "session-scoped", "text": "Notes the guardrails are session-scoped and deactivate when the conversation ends." },
-        { "id": "warns-before-running", "text": "Produces a warning prompt before each destructive command rather than blocking outright." }
+        { "id": "warns-before-running", "text": "Warns (ask) before MEDIUM destructive commands rather than blocking them; only HIGH patterns and hook failures are blocked." }
+      ]
+    },
+    {
+      "id": "high-tier-deny",
+      "prompt": "careful 모드에서 git push --force origin main 이랑 rm -rf ~ 는 어떻게 처리돼?",
+      "assertions": [
+        { "id": "high-deny", "text": "States that a simple rm -rf of /, ~ or $HOME and a simple force-push to the default branch return permissionDecision 'deny', not 'ask'." },
+        { "id": "lease-not-high", "text": "States that --force-with-lease is never HIGH (it falls to the MEDIUM ask) and that compound commands fall to MEDIUM ask." },
+        { "id": "escape-hatch", "text": "Explains the only way past a HIGH deny is ending the /careful session." }
+      ]
+    },
+    {
+      "id": "internal-failure-deny",
+      "prompt": "What happens under /careful if the hook script breaks, the payload is not valid JSON, or grep itself errors?",
+      "assertions": [
+        { "id": "failure-is-deny", "text": "States that every internal hook failure (EXIT-trap backstop, missing helper, empty or invalid JSON, no parser, Bash payload without command, grep exit > 1) returns permissionDecision 'deny', not 'ask'." },
+        { "id": "reason-text", "text": "States the deny reason says the careful hook itself failed, the command was NOT safety-checked, and the way out is to fix the hook or start a session without /careful." },
+        { "id": "measured-basis", "text": "Grounds the choice in the 2026-10-03 measurement that deny blocks under bypassPermissions while ask is unmeasured there." },
+        { "id": "non-bash-allowed", "text": "Notes that a non-Bash payload (tool_name other than Bash) is still allowed." }
       ]
     }
   ]

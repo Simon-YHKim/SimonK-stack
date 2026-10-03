@@ -1,22 +1,45 @@
 #!/usr/bin/env bash
-# SimonK adaptation of garrytan/gstack@b9706f3635b6a545f46fae607ae9d6bcbfb69b91.
+# SimonK adaptation of garrytan/gstack v1.91.9.0 careful/bin/check-careful.sh
+# Upstream commit for v1.91.9.0: 96764e80a641e28141ec8297223768029f5bf483.
+# (upstream LF bytes sha256 7b04f0b8f409d4ecf166ef45e72eb95ed7c2f37434bd7125e6b403d0f7bf5d42,
+# byte-identical to the earlier pin b9706f3635b6a545f46fae607ae9d6bcbfb69b91).
 # Copyright (c) 2026 Garry Tan. MIT terms and local delta: repository LICENSE.
+# SimonK deltas (hub decision D-56, 2026-10-03). Everything else is upstream:
+#   1. Every INTERNAL failure returns "deny", never "ask" and never silence:
+#      EXIT-trap backstop, missing/broken/outdated helper, empty or invalid
+#      JSON, no JSON parser, Bash payload without a usable command, pattern
+#      matcher error (grep rc>1), unresolvable per-project slug. Only deny was
+#      measured to block under bypassPermissions (2026-10-03); ask was not.
+#   2. A non-Bash payload is recognised by tool_name. Upstream allowed ANY
+#      payload without tool_input.command (and an empty payload), which also
+#      let a Bash call whose command could not be read through.
+#   3. _careful_match: grep rc>1 is a matcher error, not a clean non-match.
+#   4. Per-project slug comes from the vendored bin/gstack-slug.sh (upstream
+#      evaluated ../../bin/gstack-slug, absent outside the gstack tree).
 # check-careful.sh — PreToolUse hook for /careful skill
 # Reads JSON from stdin, checks Bash command for destructive patterns.
 # Two tiers:
-#   HIGH   — catastrophic SIMPLE commands return "ask", preserving SimonK's
-#            documented user-override contract (not a policy boundary).
+#   HIGH   — a tiny set of catastrophic SIMPLE commands returns "deny"
+#            (best-effort advisory hard-stop, not a policy boundary).
 #   MEDIUM — the destructive families below return "ask" (always overridable).
 # The decision MUST be nested under hookSpecificOutput — Claude Code ignores a
 # top-level permissionDecision, which silently no-ops the warning.
 set -euo pipefail
 
-# Unexpected runtime failure must not silently bypass the advisory hook.
+# --- SimonK: internal failure = deny ---------------------------------------
+# Pure printf with fixed ASCII text (no quotes/backslashes in any caller's
+# message): the failure path must not depend on the JSON encoder or parser
+# that may be the very thing that failed.
+_careful_fail() {
+  printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"[careful][HOOK FAILURE] The careful hook itself failed: %s This command was NOT safety-checked, so it is blocked. Way out: fix the hook in ~/.claude/skills/careful/bin, or start a new session without /careful."}}\n' "$1"
+  exit 0
+}
+# Unexpected runtime failure (set -e/-u/pipefail) must not exit without a
+# decision: a hook that dies is non-blocking, so the call would just run.
 _careful_backstop() {
   local rc=$?
   if [ "$rc" -ne 0 ]; then
-    printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask","permissionDecisionReason":"[careful] Hook failed unexpectedly - cannot safety-check this command. Review before approving."}}\n'
-    exit 0
+    _careful_fail "unexpected script error (exit $rc)."
   fi
 }
 trap _careful_backstop EXIT
@@ -28,11 +51,40 @@ INPUT=$(cat)
 # See hook-extract.sh for the drift history that motivated the shared file.
 _HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=careful/bin/hook-extract.sh
-# bash treats `.` on a MISSING file as fatal non-interactively; a partial
-# install must degrade to an ASK (this is the ask-tier hook), never silence.
+# bash treats `.` on a MISSING file as fatal non-interactively — the existence
+# check must come first. A partial install must DENY, never fall silent.
 _HOOK_HELPER="$_HOOK_DIR/hook-extract.sh"
 if [ ! -f "$_HOOK_HELPER" ] || ! . "$_HOOK_HELPER" 2>/dev/null; then
-  printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask","permissionDecisionReason":"[careful] Hook helpers unavailable (broken install?) - cannot safety-check this command. Approve only if you know what it does."}}\n'
+  _careful_fail "hook-extract.sh is missing or broken (partial install?)."
+fi
+# A helper from an older install sources fine but lacks the functions this
+# script needs; calling one would exit 127 mid-run.
+for _FN in gstack_hook_extract_tool_name gstack_hook_extract_field gstack_hook_decision gstack_hook_log_fire gstack_hook_state_root; do
+  command -v "$_FN" >/dev/null 2>&1 || _careful_fail "hook-extract.sh is out of date (no $_FN)."
+done
+
+# Empty input is not a non-Bash payload; it is an unreadable one.
+if [ -z "$INPUT" ]; then
+  _careful_fail "the hook received an empty payload."
+fi
+
+# Identify the tool. Invalid JSON, a non-object payload, or no python3/node
+# parser all land here. Fail closed — a hook that gates destructive commands
+# must not allow-by-default on unreadable input.
+set +e
+TOOL_NAME=$(gstack_hook_extract_tool_name "$INPUT")
+TOOL_RC=$?
+set -e
+if [ "$TOOL_RC" -ne 0 ]; then
+  _careful_fail "could not parse the tool payload (invalid JSON or no python3/node parser)."
+fi
+
+# A different tool is outside this hook's scope (the frontmatter matcher is
+# Bash, so this only happens if the hook is wired to more tools) — allow.
+# An absent tool_name is treated as Bash: Bash is the only matcher.
+_TOOL_LC=$(printf '%s' "$TOOL_NAME" | tr '[:upper:]' '[:lower:]')
+if [ -n "$_TOOL_LC" ] && [ "$_TOOL_LC" != "bash" ]; then
+  echo '{}'
   exit 0
 fi
 
@@ -48,34 +100,24 @@ fi
 #   bash -c "rm -rf /"                ->  CMD='bash -c \'         -> allowed
 #   echo "x"; rm -rf ~                ->  CMD='echo \'            -> allowed
 #
-# Parse the payload properly instead, and fail CLOSED when it cannot be parsed
-# at all — a hook that gates destructive commands must not allow-by-default on
-# unreadable input.
+# Parse the payload properly instead, and fail CLOSED when it cannot be parsed.
 set +e
 CMD=$(gstack_hook_extract_field "$INPUT" command)
 EXTRACT_RC=$?
 set -e
 
-# No parser available, or the payload is not parseable JSON. Fail closed.
-if [ "$EXTRACT_RC" -ne 0 ]; then
-  gstack_hook_decision ask "[careful] Could not parse the tool payload to safety-check this command. Approve only if you know what it does."
-  exit 0
+# A Bash call whose command is missing, empty, non-string or carries NUL.
+if [ "$EXTRACT_RC" -ne 0 ] || [ -z "$CMD" ]; then
+  _careful_fail "the Bash payload has no usable tool_input.command (missing, empty, non-string or NUL)."
 fi
 
-# Defense against an incompatible older extractor: required command is missing.
-if [ -z "$CMD" ]; then
-  gstack_hook_decision ask "[careful] Missing command in Bash payload. Review before approving."
-  exit 0
-fi
-
-# A matcher error is unknown, not a clean non-match. Baseline calls run in
-# this shell (not a pipeline), so the error decision exits the hook itself.
+# A matcher error is unknown, not a clean non-match. Calls run in this shell
+# (not a pipeline or subshell), so the failure decision exits the hook itself.
 _careful_match() {
   local rc=0
   grep "$@" || rc=$?
   if [ "$rc" -gt 1 ]; then
-    gstack_hook_decision ask "[careful] Pattern matcher failed. Cannot safety-check this command; review before approving."
-    exit 0
+    _careful_fail "the pattern matcher (grep) errored with exit $rc."
   fi
   return "$rc"
 }
@@ -104,7 +146,7 @@ if _careful_match -qE '\$\{IFS\}|\$IFS|\$\(echo[^)]*base64[^)]*\)|base64[[:space
   exit 0
 fi
 
-# --- HIGH tier: advisory ask (SimonK user-override contract) ---
+# --- HIGH tier: hard deny (best-effort advisory hard-stop, NOT a policy boundary) ---
 # Only SIMPLE commands are eligible: string matching cannot resolve what a
 # compound command does (`cd X && git push --force` — whose cwd? which repo?),
 # so anything containing ; && || | or a newline falls through to the MEDIUM ask
@@ -141,7 +183,7 @@ if [ "$_IS_SIMPLE" -eq 1 ]; then
     set +f
     if [ "$_ROOT_TARGETS" -eq 1 ] && [ "$_SAFE_TARGETS" -eq 0 ]; then
       _careful_log_fire "high_rm_root"
-      gstack_hook_decision ask "[careful][HIGH] Recursive delete of / or the home directory. This may destroy all user data. Review the exact target before approving."
+      gstack_hook_decision deny "[careful][HIGH] Recursive delete of / or the home directory is blocked while /careful is active. If you truly mean it, end the /careful session first."
       exit 0
     fi
   fi
@@ -175,7 +217,7 @@ if [ "$_IS_SIMPLE" -eq 1 ]; then
         set -f
         for _TOK in $CMD; do
           # Strip one layer of surrounding quotes: `git push -f origin "main"`
-          # must not dodge the warning just because the ref is quoted.
+          # must not dodge the deny just because the ref is quoted.
           _TOK="${_TOK#\"}"; _TOK="${_TOK%\"}"; _TOK="${_TOK#\'}"; _TOK="${_TOK%\'}"
           case "$_TOK" in git|push|sudo|-*) continue ;; esac
           _REF="${_TOK#+}"          # +main -> main
@@ -194,7 +236,7 @@ if [ "$_IS_SIMPLE" -eq 1 ]; then
         fi
         if [ "$_TARGETS_DEFAULT" -eq 1 ]; then
           _careful_log_fire "high_force_push_default"
-          gstack_hook_decision ask "[careful][HIGH] Force-push to the default branch ($_DEFAULT_BRANCH) rewrites shared history. Review before approving."
+          gstack_hook_decision deny "[careful][HIGH] Force-push to the default branch ($_DEFAULT_BRANCH) is blocked while /careful is active. Use --force-with-lease on a feature branch, or end the /careful session if you truly mean it."
           exit 0
         fi
       fi
@@ -289,26 +331,29 @@ fi
 # ERE per line; blank lines and #-comments skipped; an invalid regex is
 # skipped (never fatal — the hook must not break on a typo in config).
 if [ -z "$WARN" ]; then
-  # Same state root the writer (/careful via gstack-paths) uses — see
-  # gstack_hook_state_root in hook-extract.sh (#1459 class).
-  if command -v gstack_hook_state_root >/dev/null 2>&1; then
-    _GSTACK_HOME_DIR="$(gstack_hook_state_root; printf x)"; _GSTACK_HOME_DIR="${_GSTACK_HOME_DIR%x}"
-  else
-    # Older hook-extract.sh (partial upgrade): the plain chain beats dying
-    # under set -e with no decision JSON — rules under $HOME/.gstack still load.
-    _GSTACK_HOME_DIR="${GSTACK_HOME:-$HOME/.gstack}"
-  fi
+  # Same state root the writers use — see gstack_hook_state_root in
+  # hook-extract.sh (SimonK: ${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}).
+  _GSTACK_HOME_DIR="$(gstack_hook_state_root; printf x)"; _GSTACK_HOME_DIR="${_GSTACK_HOME_DIR%x}"
   _PATTERN_FILES="$_GSTACK_HOME_DIR/careful-patterns.txt"
   # Short-circuit: resolving the project slug costs a subprocess + git call on
   # EVERY Bash command while /careful is active — only pay it when some
   # per-project pattern file actually exists anywhere.
   _ANY_PROJ_PAT=$(find "$_GSTACK_HOME_DIR/projects" -maxdepth 2 -name careful-patterns.txt -print -quit 2>/dev/null || true)
   if [ -n "$_ANY_PROJ_PAT" ]; then
-    eval "$("$_HOOK_DIR/../../bin/gstack-slug" 2>/dev/null)" 2>/dev/null || true
-    if [ -n "${SLUG:-}" ]; then
-      _PATTERN_FILES="$_PATTERN_FILES
+    # SimonK: vendored helper, and its output is parsed, not eval'd. A rule the
+    # user configured but the hook cannot locate is a hook failure (deny),
+    # not a silent skip.
+    _SLUG_HELPER="$_HOOK_DIR/gstack-slug.sh"
+    [ -f "$_SLUG_HELPER" ] || _careful_fail "gstack-slug.sh is missing, so per-project careful patterns cannot be applied."
+    _SLUG_RC=0
+    _SLUG_OUT=$(bash "$_SLUG_HELPER" 2>/dev/null) || _SLUG_RC=$?
+    # gstack-slug prints exactly one sanitized SLUG= line; accept only that shape.
+    SLUG=$(printf '%s\n' "$_SLUG_OUT" | sed -n 's/^SLUG=\([a-zA-Z0-9._-]*\)$/\1/p')
+    case "$_SLUG_RC:$SLUG" in
+      0:|0:.|0:..|[1-9]*) _careful_fail "gstack-slug.sh could not resolve the project slug for per-project careful patterns." ;;
+    esac
+    _PATTERN_FILES="$_PATTERN_FILES
 $_GSTACK_HOME_DIR/projects/$SLUG/careful-patterns.txt"
-    fi
   fi
   while IFS= read -r _PF; do
     [ -f "$_PF" ] || continue

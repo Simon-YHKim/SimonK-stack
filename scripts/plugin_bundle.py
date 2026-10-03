@@ -68,9 +68,26 @@ SAFETY_INPUTS = set(SAFETY_DOCS.values()) | set(SAFETY_RESOURCES.values())
 
 
 def replace_exact(text, old, new, count=1):
-    if text.count(old) != count:
+    return replace_forms(text, (old,), new, count)
+
+
+def replace_forms(text, forms, new, count=1):
+    """Replace reviewed source spellings of ONE hook; their total must be exact."""
+    if sum(text.count(form) for form in forms) != count:
         raise ValueError("Safety projection input drift; review required")
-    return text.replace(old, new)
+    for form in forms:
+        text = text.replace(form, new)
+    return text
+
+
+# Reviewed source spellings of a leaf hook command, per policy. The legacy
+# ${CLAUDE_SKILL_DIR} form is still used by freeze/guard/investigate. careful
+# (D-56, 2026-10-03) is anchored to its own installed copy because
+# ${CLAUDE_SKILL_DIR} was measured unset in frontmatter hooks. Both spellings
+# project to the same ${CLAUDE_PLUGIN_ROOT} safety runtime command.
+HOME_ANCHORED_HOOKS = {
+    "careful": "          command: 'bash \"$HOME/.claude/skills/careful/bin/check-careful.sh\"'",
+}
 
 
 def safety_setup(action):
@@ -116,11 +133,13 @@ def safety_document(name, data):
         "investigate": [("../freeze/bin/check-freeze.sh", "freeze", 2)],
     }
     for relative, kind, count in commands.get(name, []):
-        old = '          command: "bash ${CLAUDE_SKILL_DIR}/' + relative + '"'
+        forms = ['          command: "bash ${CLAUDE_SKILL_DIR}/' + relative + '"']
+        if kind in HOME_ANCHORED_HOOKS:
+            forms.append(HOME_ANCHORED_HOOKS[kind])
         args = ["-B", "${CLAUDE_PLUGIN_ROOT}/.simonk-runtime/safety_runtime.py",
                 "check", kind, "--project", "${CLAUDE_PROJECT_DIR}"]
         new = '          command: "python"\n          args: ' + json.dumps(args)
-        text = replace_exact(text, old, new, count)
+        text = replace_forms(text, forms, new, count)
     setup_note = ("Use only an existing, one-line absolute Windows directory. Replace the\n"
                   "boundary placeholder in the raw-data block below; do not paste arbitrary\n"
                   "multi-line text or shell code. Leave host placeholders for the host to render.\n"
