@@ -2,6 +2,16 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
+## 2026-10-03 `ai-debate` 0.2.3 — Grok 좌석 실시간 billing 조회
+
+D-57(4벤더 토론 `dbt-261003-210004`, quick, 블라인드 심판 Gemini 조건부 MERGE_INSTALL · 확신도 92)에 따라
+[PR #93](https://github.com/Simon-YHKim/SimonK-stack/pull/93)을 머지(`5e4cae8`)하고 홈 사본을 교체했다.
+
+- 교체: `~/.claude/skills/ai-debate`(물리 폴더). main blob에서 7개 파일을 그대로 꺼내 `git hash-object`로 7/7 일치 확인. 설치본 테스트 104/104.
+- 되돌리기: 이전 0.2.2는 `~/.claude/flat-link-archive/ai-debate-0.2.2-261003/`(7개 파일)으로 옮겨 두었다. 되돌릴 때는 현재 폴더를 다른 보관 폴더로 옮긴 뒤 이 폴더를 원래 자리로 옮긴다.
+- 4개 CLI: Codex는 `~/.agents/skills/ai-debate` 심링크, Grok은 `~/.claude/skills` 호환 경로, agy는 `skills.json`의 `~/.claude/skills` 항목으로 같은 폴더를 읽는다(경로 변경 없음).
+- 같은 시점 홈의 `/vibe`는 **2.13.0**이다. 이 버전은 10-03 03:43 야간 QA 세션이 `feat/qa-evidence-261003` 브랜치 후보(`E:/Coding Infra/Releases/SimonK-stack/20261003-vibe-2130-qa-final`)로 `vibe` 정션 2개와 `qa`만 바꾼 것이다(되돌리기 `~/.claude/flat-link-archive/vibe-qa-261003-2130/`). main에는 아직 2.12.43이 있다. 나머지 Core 5개 정션은 2.12.43 후보에 그대로 있다.
+
 ## 2026-10-02 `/vibe` 2.12.43 · `ai-debate` 0.2.2 — 4개 CLI 동일 설치
 
 D-55(4벤더 토론 `dbt-261002-020448`, 블라인드 심판 대안 4 · 확신도 92)에 따라 main `9e88140`에서
