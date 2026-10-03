@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>프리미엄 그래프 접근성 보강 보고서</title>
+  <style>
+    :root { --bg: #101214; --text: #e8ecef; --accent: #6fd0c5; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.6; }
+    main { width: min(980px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 48px; }
+    header, section { border: 1px solid var(--accent); padding: 20px; margin: 0 0 16px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { border-top: 1px solid var(--accent); margin-top: 12px; padding-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>프리미엄 그래프 접근성 보강 보고서</h1>
+      <p>이번 사이클은 새 worktree에서 공용 프리미엄 그래프 요소의 비활성 상태를 스크린리더가 알 수 있게 보강했다.</p>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>결과</td><td>완료</td></tr>
+        <tr><td>앱 브랜치</td><td><code>codex/qa-cycle-20260814-162717</code></td></tr>
+        <tr><td>앱 커밋</td><td><code>eeac771bb5b8dc38da8c98643185d352cd99ac07</code></td></tr>
+        <tr><td>기준</td><td><code>origin/main 5ba0cdd905ec3e9e2d5aac0fceb17830c556ab09</code></td></tr>
+      </table>
+    </header>
+
+    <section>
+      <h2>수정 내용</h2>
+      <p><code>ReferenceShardCard</code>와 <code>GraphNodeChip</code>이 누를 수 없을 때 <code>accessibilityState.disabled</code>를 노출하도록 했다. 활성 칩은 선택 상태도 함께 전달한다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p>변경 파일은 <code>src/components/premium/graph-bits.tsx</code>와 <code>src/components/premium/__tests__/graph-bits-a11y.test.ts</code> 두 개다. 동작, 라우팅, 데이터 구조는 바꾸지 않았다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <tr><th>검증</th><th>상태</th></tr>
+        <tr><td>대상 Jest</td><td>통과</td></tr>
+        <tr><td>대상 ESLint</td><td>통과</td></tr>
+        <tr><td>TypeScript</td><td>통과</td></tr>
+        <tr><td>i18n, lexicon, constraints, emdash, anti-anthro, mascot voice, require cycles</td><td>통과</td></tr>
+        <tr><td>diff 공백 검사</td><td>통과</td></tr>
+        <tr><td>diff 민감 패턴 검사</td><td>매칭 없음</td></tr>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p><code>graph-bits.tsx</code> 전체 파일 Prettier는 기존 파일 포맷 드리프트 때문에 실패했다. 새 테스트 파일은 Prettier를 통과했다. 불필요한 대량 포맷 변경은 하지 않았다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>자기 패널</h2>
+      <p>찬성 관점: 공용 요소의 상태 노출을 보강해 여러 그래프 표면에서 같은 접근성 누락을 줄인다.</p>
+      <p>반대 관점: <code>onPress</code>가 없을 때 역할도 없으므로 상태 노출 효과가 제한적일 수 있다.</p>
+      <p>판정: 작은 범위의 접근성 메타데이터 보강이며 고위험 결정이 아니므로 별도 토론 게이트 없이 제출한다.</p>
+    </section>
+
+    <section>
+      <h2>위험과 남은 일</h2>
+      <p>2nd-B에는 push하지 않았다. Claude가 필요하면 해당 로컬 커밋을 검토해 통합한다.</p>
+      <p>남은 위험은 기존 <code>graph-bits.tsx</code> 파일 전체 포맷 드리프트다. 이번 변경 범위 밖이라 손대지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>

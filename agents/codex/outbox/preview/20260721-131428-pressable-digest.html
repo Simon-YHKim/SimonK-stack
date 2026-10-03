@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>오늘의 정리 프레서블 스윕 보고</title>
+  <style>
+    :root { --bg: #101214; --text: #eef2f3; --accent: #62d2c8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 20px; }
+    header { border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); padding: 24px; border-radius: 8px; }
+    h1, h2 { margin: 0 0 12px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 20px 0; }
+    .card { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 8px; padding: 14px; min-height: 96px; }
+    .label { color: color-mix(in srgb, var(--text) 70%, transparent); font-size: 12px; }
+    .value { font-size: 20px; font-weight: 700; color: var(--accent); margin-top: 8px; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border-bottom: 1px solid color-mix(in srgb, var(--text) 16%, transparent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    details { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 8px; padding: 12px 14px; margin: 12px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    svg { max-width: 100%; height: auto; display: block; margin-top: 10px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } h1 { font-size: 23px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>오늘의 정리 프레서블 스윕 보고</h1>
+      <p>생성 시각: 2026-07-21 13:14:28 KST</p>
+      <p>이번 사이클은 <code>src/app/digest.tsx</code>의 검토 행 카드에서 함수형 <code>Pressable</code> 스타일을 제거하고, Fabric에서 시각 스타일이 사라질 수 있는 위험을 줄였습니다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">변환 수</div><div class="value">1</div></div>
+      <div class="card"><div class="label">보류 수</div><div class="value">0</div></div>
+      <div class="card"><div class="label">앱 커밋</div><div class="value">c919be02</div></div>
+      <div class="card"><div class="label">검증</div><div class="value">EXIT=0</div></div>
+    </section>
+
+    <section>
+      <h2>변경 요약</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>대상</th><th>변경</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/app/digest.tsx</code></td>
+            <td>오늘의 정리 검토 행</td>
+            <td>바깥 <code>View</code>가 카드 비주얼을 담당하고 안쪽 <code>Pressable</code>은 상세 열기와 리플만 담당하도록 분리</td>
+            <td>함수형 스타일 제거, 중첩 버튼 구조 완화</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details open>
+      <summary>검증 결과</summary>
+      <p><code>git diff --check</code> 통과. 줄끝 변환 경고만 표시되었습니다.</p>
+      <p><code>npm run verify</code> 통과. lint, type-check, i18n, lexicon, legal review, LLM boundary, constraints, em dash, anti-anthro, mascot voice, Jest 전체 테스트가 성공했습니다.</p>
+      <svg role="img" aria-label="검증 항목 막대 차트" viewBox="0 0 640 130">
+        <rect x="0" y="0" width="640" height="130" fill="none"></rect>
+        <text x="0" y="22" fill="#eef2f3" font-size="14">검증 항목</text>
+        <rect x="0" y="40" width="610" height="18" fill="#62d2c8"></rect>
+        <text x="0" y="80" fill="#eef2f3" font-size="14">전체 테스트</text>
+        <rect x="0" y="98" width="610" height="18" fill="#62d2c8"></rect>
+      </svg>
+    </details>
+
+    <details>
+      <summary>위험과 남은 작업</summary>
+      <p>이번 변경은 단일 UI 패턴 변환이며 보안, 결제, 데이터 스키마, 배포를 건드리지 않았습니다.</p>
+      <p>브랜치에는 아직 다른 함수형 <code>Pressable</code> 스타일 후보가 남아 있습니다. 다음 사이클에서 한 화면 그룹씩 계속 처리해야 합니다.</p>
+      <p>푸시는 하지 않았습니다. Claude 머지 게이트가 검토 후 처리해야 합니다.</p>
+    </details>
+
+    <details>
+      <summary>자체 패널 판단</summary>
+      <p>찬성 관점: 기존 확립 패턴과 일치하고 변경 범위가 작아 회귀 위험이 낮습니다.</p>
+      <p>반대 관점: 눌림 시 opacity 표현은 ripple 중심으로 바뀌므로 픽셀 단위로 완전 동일하다고 단정하지 않습니다.</p>
+      <p>판정: Fabric 안전성 확보가 더 중요하며, 비주얼 차이는 제한적입니다. 고위험 교차검증 요청 대상은 아닙니다.</p>
+    </details>
+  </main>
+</body>
+</html>

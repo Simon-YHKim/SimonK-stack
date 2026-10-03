@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>리커트 선택 버튼 표면 정리 보고서</title>
+  <style>
+    :root { --bg: #101214; --text: #e8edf2; --accent: #8ec8ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.58; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 48px; }
+    header, section { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 8px; padding: 18px; margin-bottom: 16px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 28px; color: var(--accent); }
+    h2 { font-size: 18px; }
+    p { margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: left; vertical-align: top; padding: 10px; border-top: 1px solid color-mix(in srgb, var(--text) 14%, transparent); }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .card { border: 1px solid color-mix(in srgb, var(--text) 14%, transparent); border-radius: 8px; padding: 12px; }
+    .status { color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>리커트 선택 버튼 표면 정리 보고서</h1>
+      <p>작성 시각: 2026-07-30 09:30:53 KST</p>
+      <p>이번 사이클은 새 codex 오더가 없어, 현재 레인 목표인 2nd-B UI 안티슬롭 개선 중 하나만 수행했다.</p>
+    </header>
+
+    <section>
+      <h2>한눈에 보는 결과</h2>
+      <div class="grid">
+        <div class="card"><p class="status">결과</p><p>리커트 선택 버튼의 시각 표면과 터치 표면을 분리했다.</p></div>
+        <div class="card"><p class="status">범위</p><p><code>LikertChoiceGroup.tsx</code> 한 파일만 변경했다.</p></div>
+        <div class="card"><p class="status">검증</p><p>파일 포맷, 파일 린트, 공백 검사를 통과했다.</p></div>
+        <div class="card"><p class="status">제한</p><p>전체 타입 검사는 기존 의존성 타입 문제로 막혔다.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 요약</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>앱 브랜치</td><td><code>codex/pressable-sweep-k</code></td></tr>
+          <tr><td>앱 커밋</td><td><code>433fb5b0</code> <code>fix(ui): normalize likert choice pressables</code></td></tr>
+          <tr><td>변경 파일</td><td><code>src/components/quant/LikertChoiceGroup.tsx</code></td></tr>
+          <tr><td>핵심 변경</td><td>선택 버튼의 배경, 테두리, 크기는 <code>View</code>가 맡고, <code>Pressable</code>은 절대 위치 터치 레이어와 접근성, 안드로이드 ripple만 맡도록 바꿨다.</td></tr>
+          <tr><td>푸시 여부</td><td>푸시하지 않았다. Claude가 병합 게이트다.</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>기존 구조는 <code>Pressable</code>이 시각 스타일을 직접 들고 있었다. 이번 변경은 이전 Pressable 정규화 흐름과 맞춰, 화면에 보이는 버튼과 실제 터치 레이어를 분리했다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <table>
+        <thead>
+          <tr><th>검증</th><th>결과</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npx prettier --check src/components/quant/LikertChoiceGroup.tsx</code></td><td>통과</td><td>포맷 적용 후 통과</td></tr>
+          <tr><td><code>npx eslint src/components/quant/LikertChoiceGroup.tsx</code></td><td>통과</td><td>출력 오류 없음</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과</td><td>줄끝 변환 경고만 표시</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>차단</td><td>기존 <code>madge</code>, 광고, Firebase native module 타입 해석 문제에서 실패했다. 이번 파일 관련 오류는 없다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>위험과 롤백</h2>
+      <p>영향 범위는 리커트 척도를 쓰는 설문 선택 버튼이다. 접근성 라벨과 선택 상태는 유지했다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p>문제가 보이면 앱 커밋 <code>433fb5b0</code>을 되돌리면 된다. 이 변경은 데이터 구조, 네트워크, 시크릿, 비용 작업을 건드리지 않는다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>35항 자체 패널</h2>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>사용성</td><td>선택 영역 크기와 접근성 상태를 유지하면서 안드로이드 터치 피드백을 명확히 했다.</td></tr>
+          <tr><td>구현 안정성</td><td>공용 컴포넌트 한 곳만 수정해 영향 범위를 작게 유지했다.</td></tr>
+          <tr><td>검증 정직성</td><td>통과한 검증과 기존 차단 요인을 분리해 기록했다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

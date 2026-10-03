@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서: 기록 카드 Pressable 정규화</title>
+  <style>
+    :root { color-scheme: dark; --bg:#111318; --fg:#e7e9ee; --muted:#9aa3b2; --accent:#6fb7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 44px; }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 25px; line-height: 1.25; }
+    h2 { margin-top: 28px; font-size: 17px; color: var(--accent); }
+    h3 { margin-top: 16px; font-size: 14px; }
+    p { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+    .card, details { border: 1px solid color-mix(in srgb, var(--muted) 34%, transparent); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--fg) 4%, transparent); }
+    .label { color: var(--muted); font-size: 12px; }
+    .value { margin-top: 4px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border-bottom: 1px solid color-mix(in srgb, var(--muted) 25%, transparent); padding: 9px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--fg); background: color-mix(in srgb, var(--fg) 7%, transparent); padding: 2px 5px; border-radius: 5px; }
+    summary { cursor: pointer; color: var(--fg); font-weight: 700; }
+    .bar { display: grid; grid-template-columns: 180px 1fr; gap: 10px; align-items: center; margin-top: 10px; }
+    .track { height: 12px; border: 1px solid color-mix(in srgb, var(--muted) 35%, transparent); border-radius: 999px; overflow: hidden; }
+    .fill { height: 100%; background: var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } .bar { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p>4-AI 허브 자율 폴 사이클 보고</p>
+      <h1>기록 카드 Pressable 정규화</h1>
+      <p>작성 시각: 2026-07-30 17:36:25 KST</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">대상</div><div class="value">2nd-B</div></div>
+      <div class="card"><div class="label">브랜치</div><div class="value">codex/pressable-sweep-ai-20260730-173239</div></div>
+      <div class="card"><div class="label">푸시</div><div class="value">없음</div></div>
+    </section>
+
+    <section>
+      <h2>작업 내용</h2>
+      <table>
+        <thead><tr><th>항목</th><th>내용</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td>기록 카드</td><td><code>RecordCard</code>의 시각 스타일을 내부 <code>View</code>로 옮기고 <code>Pressable</code>에는 터치와 ripple만 남김</td><td>완료</td></tr>
+          <tr><td>분류 카드</td><td><code>RecordsTriageCard</code>를 추가해 두 triage 카드의 패턴을 공통화</td><td>완료</td></tr>
+          <tr><td>접근성</td><td>기록 카드의 자식 텍스트 병합 읽기 방식을 유지하고, triage 카드는 기존 라벨 유지</td><td>완료</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <div class="bar"><span>파일 lint</span><div class="track"><div class="fill" style="width:100%"></div></div></div>
+      <div class="bar"><span>Pressable guard Jest</span><div class="track"><div class="fill" style="width:100%"></div></div></div>
+      <div class="bar"><span>lexicon</span><div class="track"><div class="fill" style="width:100%"></div></div></div>
+      <div class="bar"><span>type-check</span><div class="track"><div class="fill" style="width:35%"></div></div></div>
+      <details>
+        <summary>검증 상세</summary>
+        <table>
+          <thead><tr><th>명령</th><th>결과</th></tr></thead>
+          <tbody>
+            <tr><td><code>npm exec eslint -- src/screens/deepspace/dds-wiki-records-screens.tsx</code></td><td>오류 없음. 기존 미사용 import 경고 2건 유지.</td></tr>
+            <tr><td><code>npm test -- --runTestsByPath src/lib/__tests__/no-function-form-pressable-style.test.ts --runInBand</code></td><td>10개 테스트 통과.</td></tr>
+            <tr><td><code>npm run check:lexicon</code></td><td>통과.</td></tr>
+            <tr><td><code>npm run check:emdash</code></td><td>통과.</td></tr>
+            <tr><td><code>git diff --check</code></td><td>통과. 줄끝 변환 경고만 표시.</td></tr>
+            <tr><td><code>npm run type-check</code></td><td>기존 <code>madge</code>, 광고, Firebase analytics 타입 해석 문제로 실패.</td></tr>
+          </tbody>
+        </table>
+      </details>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <details open>
+        <summary>판정</summary>
+        <p>이번 변경은 설계 결정이나 고위험 변경이 아니라 기존 Pressable anti-slop 패턴의 국소 적용이다. 새 의존성, 데이터 변경, 결제, 배포, push는 없다. 따라서 별도 MoA 검증 요청 없이 Codex lane 산출로 제출한다.</p>
+      </details>
+      <details>
+        <summary>위험</summary>
+        <p>기록 카드에서 명시적 접근성 라벨을 추가하지 않는 기존 의도를 유지했다. 내부 View 래핑으로 TalkBack 자식 텍스트 병합이 바뀌는지는 네이티브 기기에서 추가 확인 가치가 있다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>링크</h2>
+      <p>2nd-B 로컬 커밋: <code>e45b9ffd</code></p>
+      <p>수정 파일: <code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></p>
+    </section>
+  </main>
+</body>
+</html>

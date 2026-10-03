@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 폴 사이클 보고서</title>
+  <style>
+    :root { --bg:#101214; --text:#e7e3d8; --accent:#7cc7b2; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Malgun Gothic", sans-serif; line-height:1.6; }
+    main { max-width:980px; margin:0 auto; padding:40px 20px 56px; }
+    h1, h2, h3 { line-height:1.25; margin:0 0 14px; }
+    h1 { font-size:30px; }
+    h2 { font-size:20px; margin-top:28px; color:var(--accent); }
+    h3 { font-size:16px; margin-top:18px; }
+    p { margin:0 0 12px; }
+    a { color:var(--accent); }
+    .summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin:24px 0; }
+    .card, details, table { border:1px solid var(--accent); background:rgba(124,199,178,.08); }
+    .card { padding:14px; }
+    .label { color:var(--accent); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+    .value { font-size:16px; font-weight:700; margin-top:4px; overflow-wrap:anywhere; }
+    details { padding:14px; margin:12px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin:12px 0 20px; }
+    th, td { padding:10px; border-bottom:1px solid rgba(124,199,178,.35); text-align:left; vertical-align:top; }
+    th { color:var(--accent); }
+    code { color:var(--accent); overflow-wrap:anywhere; }
+    .bar { width:100%; height:12px; border:1px solid var(--accent); margin-top:6px; }
+    .fill { width:100%; height:100%; background:var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex 자율 폴 사이클 보고서</h1>
+    <p>작성 시각: 2026-08-21 21:05:29 KST</p>
+    <p>이번 사이클은 열린 Codex 요청이 없어, Codex 레인의 UI 접근성 및 중복 실행 방지 작업을 하나만 수행했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">대상</div><div class="value">근거 DOI 링크</div></div>
+      <div class="card"><div class="label">앱 커밋</div><div class="value">7a4b64dd</div></div>
+      <div class="card"><div class="label">푸시</div><div class="value">수행하지 않음</div></div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>문제</td><td>Advisor 근거 목록의 DOI 링크가 외부 브라우저를 여는 동안 중복 탭을 막지 않고, 보조기술에도 바쁜 상태를 알리지 않았다.</td></tr>
+        <tr><td>수정</td><td><code>openingDoi</code> 상태를 추가해 링크 열기 중 재진입을 막고, 현재 눌린 링크에 <code>busy</code> 상태를 노출했다.</td></tr>
+        <tr><td>테스트</td><td>기존 follow-up UI 계약 테스트에 busy 상태와 disabled 상태 회귀 검사를 추가했다.</td></tr>
+        <tr><td>범위</td><td>앱 코드 2파일, hub 산출물은 <code>agents/codex/</code> 하위만 작성했다.</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>변경 파일 자세히</summary>
+      <ul>
+        <li><code>src/components/records/AdvisorFollowupNote.tsx</code>: DOI 링크 열기 guard, disabled, accessibilityState 추가.</li>
+        <li><code>src/lib/records/__tests__/followup-ui-contract.test.ts</code>: 정적 회귀 검사 추가.</li>
+      </ul>
+    </details>
+
+    <h2>검증</h2>
+    <div class="bar" aria-label="검증 완료율"><div class="fill"></div></div>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>대상 Jest</td><td>통과: 1개 suite, 4개 test.</td></tr>
+        <tr><td>Prettier</td><td>통과: 변경 파일 2개.</td></tr>
+        <tr><td>ESLint</td><td>통과: 변경 파일 2개.</td></tr>
+        <tr><td>TypeScript</td><td>통과: <code>tsc --noEmit</code>.</td></tr>
+        <tr><td>전체 검증</td><td>통과: 492개 suite, 4607개 test. 기존 lint warning 70개와 알려진 Jest worker 종료 warning이 있었다.</td></tr>
+        <tr><td>diff 검사</td><td>통과: 공백 오류 없음.</td></tr>
+        <tr><td>민감 패턴 검사</td><td>실제 secret 없음. <code>tokens</code> import 경로만 false positive로 잡혔다.</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>작업 기준 자세히</summary>
+      <p>허브 브랜치는 <code>master</code>에서 전환하지 않았다. 2nd-B 작업은 <code>origin/main fafb9e0b</code> 기준 격리 worktree에서 수행했다. Codex는 2nd-B push, PR 생성, merge를 하지 않았다.</p>
+      <p>작업 브랜치: <code>codex/qa-cycle-20260821-205711-advisor-doi-busy</code></p>
+      <p>작업 경로: <code>C:\2ndB\.worktrees\codex-qa-20260821-205711-account-export-busy</code></p>
+      <p>앱 커밋: <code>7a4b64dd211bbbddca6197053c4507f06322441a</code></p>
+    </details>
+
+    <h2>35 자체 패널</h2>
+    <table>
+      <thead><tr><th>관점</th><th>판단</th></tr></thead>
+      <tbody>
+        <tr><td>찬성</td><td>외부 링크 중복 실행은 작은 표면이지만 사용자 경험과 접근성에 직접 영향을 준다. 변경은 국소적이고 검증 가능하다.</td></tr>
+        <tr><td>반대</td><td>공유 링크 컴포넌트를 새로 만들면 범위가 커지고 이번 한 사이클의 단일 작업 원칙을 넘는다.</td></tr>
+        <tr><td>판정</td><td>컴포넌트 추출은 보류하고, 현재 결함이 있는 DOI 링크 표면에만 guard와 회귀 테스트를 추가하는 것이 적절하다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>남은 위험</h2>
+    <p>실기기 브라우저 hand-off는 실행하지 않았다. 다만 <code>Linking.openURL</code> 호출 경로와 접근성 상태 계약은 정적 테스트와 전체 검증으로 확인했다.</p>
+  </main>
+</body>
+</html>

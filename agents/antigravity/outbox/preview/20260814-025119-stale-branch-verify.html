@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>브랜치 검증 보고서: 감사 잔여 2건</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .highlight {
+    color: #ff5555;
+  }
+  button {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<h1>브랜치 검증 보고서: 감사 잔여 2건</h1>
+
+<h2>개요</h2>
+<p>요청된 브랜치 원형(origin/Simon-YHKim/260811_감사-잔여-2건)과 origin/main 간의 상태를 검증한 결과입니다.</p>
+
+<h2>검증 항목 및 결과</h2>
+<table>
+  <thead>
+    <tr>
+      <th>항목</th>
+      <th>검증 결과</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0121_provider_supersedes_our_cancel.sql 파일 동일성</td>
+      <td>두 브랜치 간 해당 파일의 차이점은 없습니다(완전 일치).</td>
+    </tr>
+    <tr>
+      <td>마이그레이션 삭제 위험성</td>
+      <td>브랜치 병합 시 0122부터 0125까지의 마이그레이션 파일과 청구 관련 후속 변경사항이 삭제될 <span class="highlight">심각한 위험</span>이 확인되었습니다.</td>
+    </tr>
+    <tr>
+      <td>브랜치 종료 권고</td>
+      <td>해당 브랜치의 병합을 금지하고 즉시 닫기 처리할 것을 권고합니다.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div>
+  <button type="button">확인 완료</button>
+</div>
+
+</body>
+</html>

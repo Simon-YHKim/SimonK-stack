@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WeeklyGrowth Pressable 정규화 보고</title>
+  <style>
+    :root { --bg: #101316; --text: #e7edf0; --accent: #77e9cf; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { width: min(920px, calc(100% - 32px)); margin: 0 auto; padding: 36px 0 48px; }
+    h1, h2 { margin: 0 0 12px; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section { border: 1px solid var(--accent); padding: 18px; margin-top: 16px; }
+    p { margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .card { border: 1px solid var(--accent); padding: 14px; }
+    .label { color: var(--accent); font-weight: 700; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 23px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>WeeklyGrowth Pressable 정규화 보고</h1>
+    <p>작성 시각: 2026-07-30 14:25:10 KST</p>
+    <p>이번 사이클은 Codex 레인에서 2nd-B의 주간 성장 화면 안 reason chip 터치 표면을 한 건만 정규화했다.</p>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="card"><p class="label">결과</p><p>로컬 커밋 <code>4ef93211</code> 생성. 푸시는 하지 않았다.</p></div>
+        <div class="card"><p class="label">범위</p><p><code>src/screens/deepspace/growth/WeeklyGrowthScreen.tsx</code> 한 파일.</p></div>
+        <div class="card"><p class="label">변경</p><p>함수형 <code>Pressable</code> style을 제거하고, 외부 <code>View</code>가 비주얼을 소유하게 분리했다.</p></div>
+        <div class="card"><p class="label">검증</p><p><code>npm run verify</code> 통과. 테스트 295개 스위트와 2212개 테스트 통과.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead><tr><th>파일</th><th>수정 내용</th><th>영향</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>WeeklyGrowthScreen.tsx</code></td>
+            <td>reason chip의 styled <code>Pressable</code>을 <code>View</code> wrapper와 plain style <code>Pressable</code>로 분리하고 Android ripple을 추가했다.</td>
+            <td>Fabric에서 함수형 style이 무시되는 위험을 줄이고 Android 터치 피드백을 명시했다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th><th>비고</th></tr></thead>
+        <tbody>
+          <tr><td><code>npm exec -- eslint src/screens/deepspace/growth/WeeklyGrowthScreen.tsx</code></td><td>통과</td><td>대상 파일 오류 없음.</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td><td><code>tsc --noEmit</code> 성공.</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td><td>금지 어휘 회귀 없음.</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td><td>locale 문자열 em dash 없음.</td></tr>
+          <tr><td><code>npm run verify</code></td><td>통과</td><td>전체 lint, 타입, 가드, 테스트 통과. 기존 lint warning 56개는 error가 아니며 이번 파일에서 발생하지 않았다.</td></tr>
+          <tr><td><code>npm exec -- prettier --check</code></td><td>보류</td><td>해당 파일의 기존 압축 포맷 전체를 재정렬하려 해 이번 한 건 범위에서 제외했다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>35 자기 패널</h2>
+      <table>
+        <thead><tr><th>관점</th><th>판단</th></tr></thead>
+        <tbody>
+          <tr><td>찬성</td><td>Fabric Pressable 함수형 style 잔여를 줄이고 기존 Pressable 스윕 패턴과 맞춘다.</td></tr>
+          <tr><td>반대</td><td>pressed opacity가 사라져 미세한 시각 변화가 줄어든다.</td></tr>
+          <tr><td>판정</td><td>Android ripple을 추가했으므로 터치 피드백은 유지된다. 설계 결정이나 비가역 변경이 아니므로 정식 토론 게이트 없이 진행했다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>남은 위험</h2>
+      <p>실기기 렌더링은 이번 헤드리스 사이클에서 확인하지 않았다. Claude가 cherry-pick 후 필요하면 Android QA 레인에서 시각 확인하면 된다.</p>
+    </section>
+  </main>
+</body>
+</html>

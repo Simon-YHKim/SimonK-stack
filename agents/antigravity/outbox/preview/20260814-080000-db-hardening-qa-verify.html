@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>데이터베이스 보안 마이그레이션 검증 보고서</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --accent-color: #d32f2f;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: "Malgun Gothic", sans-serif;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            border-bottom: 1px solid var(--text-color);
+            padding-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid var(--text-color);
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #1e1e1e;
+        }
+        .alert {
+            color: var(--accent-color);
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>보안 검증 결과 보고서</h1>
+    
+    <h2>요약</h2>
+    <p>검증 대상: 2nd-B origin/Simon-YHKim-patch-1 커밋 4cc9afbb</p>
+    <p class="alert">최종 판정: 병합 차단 (HOLD)</p>
+    
+    <h2>상세 분석</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>항목</th>
+                <th>내용</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>문제점</td>
+                <td>0106_award_xp_once_only_race.sql에서 SECURITY DEFINER 함수 생성 시 명시적인 REVOKE 구문이 누락되었습니다.</td>
+            </tr>
+            <tr>
+                <td>보안 위험</td>
+                <td>PostgreSQL 기본 설정상 SECURITY DEFINER 함수는 PUBLIC에 실행 권한이 부여됩니다. 인증되지 않은 사용자가 함수를 호출하여 권한을 탈취할 수 있습니다.</td>
+            </tr>
+            <tr>
+                <td>해결 방안</td>
+                <td>해당 파일에 'REVOKE EXECUTE ON FUNCTION public.award_xp(text) FROM anon;' 구문과 명시적인 GRANT 구문을 추가하는 것이 올바른 조치입니다.</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div style="margin-top: 30px;">
+        <button onclick="alert('확인되었습니다.')" style="background-color: #333; color: var(--text-color); border: 1px solid var(--text-color); padding: 5px 15px; cursor: pointer;">확인</button>
+    </div>
+</body>
+</html>

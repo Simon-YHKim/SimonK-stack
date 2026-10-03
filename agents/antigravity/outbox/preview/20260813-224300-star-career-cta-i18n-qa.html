@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>QA 보고서: 커리어 스타 보조 액션 한국어화</title>
+  <style>
+    body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; margin: 40px auto; max-width: 800px; padding: 0 20px; }
+    h1, h2 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 8px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+    th { background-color: #1e1e1e; color: #ffffff; }
+    a, .button { color: #64b5f6; text-decoration: none; }
+    .button { display: inline-block; padding: 8px 16px; border: 1px solid #64b5f6; border-radius: 4px; margin-top: 20px; }
+    .status-pass { color: #81c784; }
+  </style>
+</head>
+<body>
+  <h1>QA 검증 보고서: 커리어 스타 보조 액션 한국어화</h1>
+  <p>해당 작업(commit: 182419aa)에 대한 네이티브 호환성 및 정적 QA 검토 결과를 보고합니다.</p>
+  
+  <h2>검토 대상</h2>
+  <ul>
+    <li>브랜치: codex/qa-cycle-20260813-223122</li>
+    <li>커밋: 182419aa</li>
+    <li>변경 사항: /star/career 보조 액션 한국어 텍스트 변경 ("Drill Down" -> "더 파고들기") 및 회귀 테스트 추가</li>
+  </ul>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 앱 호환성</td>
+        <td class="status-pass">통과</td>
+        <td>UI/로직상 네이티브 앱을 중단시키는 요소 없음</td>
+      </tr>
+      <tr>
+        <td>안드로이드 렌더링 힌트</td>
+        <td class="status-pass">통과</td>
+        <td>단순 텍스트 교체로 성능이나 렌더링에 영향 없음</td>
+      </tr>
+      <tr>
+        <td>접근성 및 로컬라이제이션</td>
+        <td class="status-pass">통과</td>
+        <td>한국어 로컬라이제이션이 정상적으로 적용되었으며 회귀 테스트 통과</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>안전하게 병합 가능합니다 (MERGE-SAFE). 추가적인 네이티브 회귀 위험이 발견되지 않았습니다.</p>
+  <a href="#" class="button">보고서 닫기</a>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>주간 성장 접근성 사이클 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --text: #e6edf3; --accent: #58a6ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.6; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-bottom: 10px; color: var(--accent); }
+    section { border: 1px solid var(--accent); padding: 18px; margin: 16px 0; border-radius: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); word-break: break-all; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+    .card { border: 1px solid var(--accent); padding: 14px; border-radius: 6px; }
+    .label { color: var(--accent); font-weight: 700; display: block; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>주간 성장 화면 접근성 보강 보고</h1>
+    <p>이번 자율 폴 사이클에서는 열린 codex 대상 요청이 없어, 2nd-B UI 접근성 레인에서 한 가지 새 결함을 찾아 수정했다.</p>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="card"><span class="label">결과</span>주간 성장 화면의 주요 행동 버튼에 버튼 역할, 읽기 라벨, 저장 완료 비활성 상태를 추가했다.</div>
+        <div class="card"><span class="label">위치</span><code>C:\2ndB\.worktrees\codex-qa-20260814-044927</code></div>
+        <div class="card"><span class="label">브랜치</span><code>codex/qa-cycle-20260814-044927</code></div>
+        <div class="card"><span class="label">커밋</span><code>c041d1864317ad63d8f59fe7beccc1b8ea637e77</code></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>변경 내용</th><th>영향</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/screens/deepspace/growth/WeeklyGrowthScreen.tsx</code></td>
+            <td>렌즈 이동 칩, 루틴 저장 버튼, 다시 분석 버튼, 첫 주 캡처와 루틴 시작 버튼에 접근성 속성을 추가했다.</td>
+            <td>스크린리더가 해당 조작을 버튼으로 읽고 저장 완료 상태를 비활성으로 전달한다.</td>
+          </tr>
+          <tr>
+            <td><code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code></td>
+            <td>주간 성장 행동 버튼의 역할, 라벨, 비활성 상태 계약을 source-scan 테스트로 고정했다.</td>
+            <td>후속 변경에서 같은 접근성 속성이 빠지면 대상 테스트가 실패한다.</td>
+          </tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>화면 로직, 라우팅, 저장 동작, 데이터 계산은 변경하지 않았다. 기본 Prettier 적용으로 화면 파일의 기존 줄바꿈 드리프트도 함께 정리되어 diff가 실제 속성 추가보다 크게 보인다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr><th>검증</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npm test -- --runTestsByPath src/lib/__tests__/deep-space-controls-a11y.test.ts --runInBand</code></td><td>통과, 9개 테스트 통과</td></tr>
+          <tr><td><code>npx eslint src/screens/deepspace/growth/WeeklyGrowthScreen.tsx src/lib/__tests__/deep-space-controls-a11y.test.ts</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npx prettier --check ...</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code>, <code>check:i18n-untranslated</code>, <code>check:lexicon</code>, <code>check:constraints</code>, <code>check:emdash</code>, <code>check:anti-anthro</code>, <code>check:mascot-voice</code>, <code>check:cycles</code></td><td>모두 통과. <code>check:constraints</code>의 <code>C11 PART</code>는 기존 정보성 출력이며 명령 결과는 성공이다.</td></tr>
+          <tr><td><code>git diff --check</code>와 변경 diff 민감 패턴 스캔</td><td>통과, 새 민감값 없음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>운영 가드</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>상태</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>허브 브랜치</td><td><code>master</code> 유지, checkout 또는 switch 미실행</td></tr>
+          <tr><td>허브 쓰기 범위</td><td><code>agents/codex/</code> 아래 파일만 작성</td></tr>
+          <tr><td>2nd-B push</td><td>실행하지 않음</td></tr>
+          <tr><td>파괴, 비용, secret 작업</td><td>실행하지 않음</td></tr>
+          <tr><td>고위험 교차검증</td><td>단일 UI 접근성 패치라 요청하지 않음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>남은 위험</h2>
+      <p>화면 파일에 기본 Prettier가 적용되어 diff가 큰 편이다. 병합자는 의미 변경이 접근성 속성 추가와 테스트 보강에 국한되는지 확인하면 된다. 런타임 기기 스크린리더 실측은 이번 헤드리스 사이클에서 수행하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>

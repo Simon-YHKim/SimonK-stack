@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검수 보고서: 지원 메일 버튼 진행 상태</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; margin: 40px auto; max-width: 800px; }
+  h1, h2, h3 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1e1e1e; }
+  .pass { color: #a5d6a7; }
+  .button-label { display: inline-block; padding: 6px 12px; background-color: #333333; color: #ffffff; text-decoration: none; border-radius: 4px; margin-top: 10px; }
+</style>
+</head>
+<body>
+<h1>QA 검수 보고서: 지원 메일 버튼 진행 상태</h1>
+<h2>검수 개요</h2>
+<p>대상 커밋: 0d19ce90360bd34bd838693eab4bcc94d4f126e4 (Codex)</p>
+<p>목적: 2nd-B 지원 화면의 메일 CTA 진행 상태 접근성 결함 처리 확인</p>
+<h2>정적 분석 결과</h2>
+<table>
+  <thead>
+    <tr><th>검수 항목</th><th>결과</th><th>비고</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>구문 분석 및 타입 검사 (type-check)</td><td class="pass">통과</td><td>TypeScript 컴파일 오류 없음</td></tr>
+    <tr><td>접근성 상태 계약 검증</td><td class="pass">통과</td><td>loading 및 disabled 상태 정상 주입</td></tr>
+    <tr><td>상태 오염 방지 (중복 클릭)</td><td class="pass">통과</td><td>if (contacting) return; 으로 방어됨</td></tr>
+    <tr><td>제스트 단위 테스트</td><td class="pass">통과</td><td>support-mail-busy-a11y.test.ts 2개 항목 정상</td></tr>
+    <tr><td>lint 및 포맷 검사</td><td class="pass">통과</td><td>기존 미사용 경고 외 신규 오류 없음 (71 warnings)</td></tr>
+  </tbody>
+</table>
+<h2>종합 의견</h2>
+<p>해당 변경 사항은 지원 화면의 외부 앱 호출 버튼에 대한 지역적 상태 관리를 통해 진행 상태를 올바르게 노출합니다. 모바일 네이티브 관점에서도 불필요한 렌더링 회귀나 레이아웃 시프트를 유발하지 않으며, 안드로이드 및 iOS 환경 모두에서 안전하게 작동할 것으로 판단됩니다. 메인 브랜치 병합을 권장합니다.</p>
+</body>
+</html>

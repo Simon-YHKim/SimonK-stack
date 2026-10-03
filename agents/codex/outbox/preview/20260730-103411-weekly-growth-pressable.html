@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>주간 성장 터치 표면 정리 보고</title>
+  <style>
+    :root { --bg:#0b1020; --fg:#e8edf7; --muted:#9aa6bd; --accent:#62d6c5; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.55; }
+    main { width:min(960px, calc(100% - 32px)); margin:0 auto; padding:32px 0 48px; }
+    header { border:1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius:8px; padding:20px; }
+    h1 { margin:0 0 8px; font-size:24px; letter-spacing:0; }
+    h2 { margin:28px 0 10px; font-size:17px; color:var(--accent); }
+    p { margin:8px 0; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid color-mix(in srgb, var(--fg) 16%, transparent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:650; }
+    code { color:var(--fg); background:color-mix(in srgb, var(--fg) 10%, transparent); padding:1px 5px; border-radius:4px; }
+    details { border:1px solid color-mix(in srgb, var(--fg) 14%, transparent); border-radius:8px; padding:10px 12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:650; }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-top:14px; }
+    .card { border:1px solid color-mix(in srgb, var(--fg) 14%, transparent); border-radius:8px; padding:12px; min-height:96px; }
+    .label { color:var(--muted); font-size:12px; }
+    .value { font-size:18px; font-weight:700; margin-top:6px; }
+    .bar { height:8px; background:color-mix(in srgb, var(--fg) 12%, transparent); border-radius:8px; overflow:hidden; margin-top:12px; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+    .muted { color:var(--muted); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } h1 { font-size:21px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>주간 성장 터치 표면 정리 보고</h1>
+      <p class="muted">작성 시각: 2026-07-30 10:34:16 KST</p>
+      <p>이번 사이클은 열린 codex 요청이 없어, codex 레인에 맞춰 2nd-B의 주간 성장 화면에서 남아 있던 터치 표면 문제 한 건을 처리했다.</p>
+      <div class="grid" aria-label="요약">
+        <section class="card"><div class="label">작업</div><div class="value">완료</div><div class="bar"><span style="width:100%"></span></div></section>
+        <section class="card"><div class="label">브랜치</div><div class="value"><code>codex/pressable-sweep-l</code></div></section>
+        <section class="card"><div class="label">커밋</div><div class="value"><code>86e9cb1d</code></div></section>
+        <section class="card"><div class="label">푸시</div><div class="value">안 함</div></section>
+      </div>
+    </header>
+
+    <h2>결과</h2>
+    <table>
+      <tr><th>항목</th><th>내용</th></tr>
+      <tr><td>수정 파일</td><td><code>src/screens/deepspace/growth/WeeklyGrowthScreen.tsx</code></td></tr>
+      <tr><td>핵심 변경</td><td>주요 CTA의 시각 스타일을 안쪽 <code>View</code>로 옮기고, 바깥 <code>Pressable</code>은 터치 영역, 접근성 역할, Android ripple을 담당하게 분리했다.</td></tr>
+      <tr><td>추가 정리</td><td>꿈 연결 행의 장식 emoji를 제거하고 토큰 기반 점 표시로 교체했다.</td></tr>
+      <tr><td>범위</td><td>레이아웃 구조와 문구 의미는 바꾸지 않았다. 허브에서는 <code>agents/codex/</code> 안에만 기록했다.</td></tr>
+    </table>
+
+    <details>
+      <summary>검증 자세히</summary>
+      <table>
+        <tr><th>검증</th><th>결과</th></tr>
+        <tr><td><code>npx prettier --check src/screens/deepspace/growth/WeeklyGrowthScreen.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npx eslint src/screens/deepspace/growth/WeeklyGrowthScreen.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>실패. 변경 파일이 아니라 기존 의존성 타입 해석 문제에서 중단됐다: <code>madge</code>, <code>react-native-google-mobile-ads</code>, <code>@react-native-firebase/analytics</code>.</td></tr>
+      </table>
+    </details>
+
+    <details>
+      <summary>위험과 영향</summary>
+      <p>위험은 낮다. 변경은 한 화면의 CTA 터치 표면에 한정되며 데이터, 결제, 동의, 인증, 외부 API, schema를 건드리지 않았다.</p>
+      <p>Prettier가 기존 파일 포맷까지 정리해 diff 줄 수는 커졌지만, 동작 변경 지점은 CTA wrapper 분리와 장식 표식 교체에 한정된다.</p>
+    </details>
+
+    <details>
+      <summary>자체 패널</summary>
+      <table>
+        <tr><th>관점</th><th>판단</th></tr>
+        <tr><td>구현자</td><td>Fabric Android에서 스타일이 있는 <code>Pressable</code>이 불안정한 패턴을 줄였다.</td></tr>
+        <tr><td>검토자</td><td>시각 스타일은 <code>View</code>에 남아 있어 화면 밀도와 문구 흐름은 유지된다.</td></tr>
+        <tr><td>검증자</td><td>파일 단위 lint와 포맷은 통과했고, 전체 type-check는 기존 의존성 문제로 막혔다.</td></tr>
+      </table>
+    </details>
+
+    <h2>다음 인계</h2>
+    <p>Claude merge gate가 필요하면 2nd-B 브랜치 <code>codex/pressable-sweep-l</code>의 로컬 커밋 <code>86e9cb1d</code>를 검토하면 된다. Codex는 push하지 않았다.</p>
+  </main>
+</body>
+</html>

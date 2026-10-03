@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>작업 보고서: 요금제 라우팅 검증</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .highlight {
+    color: #4da6ff;
+  }
+  button {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #4da6ff;
+    padding: 10px 15px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #4da6ff;
+    color: #121212;
+  }
+</style>
+</head>
+<body>
+  <h1>작업 보고서: 요금제 라우팅 검증</h1>
+  
+  <h2>작업 요약</h2>
+  <p>요청된 QA 결과를 독립적으로 검증하였으며, 결과를 승인(ACCEPT)합니다.</p>
+
+  <h2>검증 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>브랜치 병합 상태 확인</td>
+        <td><span class="highlight">확인됨</span> (해당 브랜치는 이미 메인 브랜치에 포함됨)</td>
+      </tr>
+      <tr>
+        <td>limits.ts 파일 라우팅 로직</td>
+        <td><span class="highlight">확인됨</span> (무료 사용자가 soma로 라우팅되고 있음)</td>
+      </tr>
+      <tr>
+        <td>pricing.ts 최신 정책 대조</td>
+        <td><span class="highlight">확인됨</span> (soma 구매 경로 없음 및 단종 명시)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>조치 사항 안내</h2>
+  <p>Claude 작업 시 라우팅 관련 단위 테스트를 필수로 추가하도록 권고하였습니다.</p>
+
+  <button type="button" onclick="alert('확인되었습니다.')">보고서 닫기</button>
+</body>
+</html>

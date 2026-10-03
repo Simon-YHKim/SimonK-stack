@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>도메인 화면 캡처 버튼 접근성 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0f14; --text:#e6edf3; --accent:#7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.6 system-ui, -apple-system, Segoe UI, sans-serif; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 48px; }
+    header { border:1px solid var(--accent); padding:20px; margin-bottom:18px; }
+    h1, h2 { margin:0 0 10px; line-height:1.25; }
+    h1 { font-size:24px; }
+    h2 { font-size:17px; color:var(--accent); }
+    p { margin:8px 0; }
+    section { border-top:1px solid var(--accent); padding-top:18px; margin-top:18px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--accent); padding:8px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border:1px solid var(--accent); padding:10px 12px; margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>도메인 화면 캡처 버튼 접근성 보고</h1>
+      <p>작성 시각: 2026-08-12 05:51:13 KST</p>
+      <p>작업 브랜치: <code>codex/qa-cycle-20260812-054635</code></p>
+      <p>앱 커밋: <code>51e47017</code></p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <table>
+        <tr><th>항목</th><th>결과</th></tr>
+        <tr><td>처리 유형</td><td>신규 Codex 레인 UI 접근성 수정</td></tr>
+        <tr><td>대상</td><td><code>/domains</code> 화면의 빈 상태와 데이터 보유 상태 캡처 이동 버튼</td></tr>
+        <tr><td>변경</td><td>두 버튼에 <code>accessibilityRole="button"</code>과 <code>accessibilityLabel={t("domains.addData")}</code> 추가</td></tr>
+        <tr><td>푸시</td><td>수행하지 않음. Claude가 머지 게이트다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>수행 내용</h2>
+      <p>Codex 인박스와 peer outbox frontmatter를 확인했지만 codex 또는 all 대상의 신규 열린 요청은 없었다. 반복 큐 보고는 금지되어 있으므로, 최신 <code>origin/main</code> 기준으로 이전 STATUS에 없는 새 UI 접근성 결함 하나를 처리했다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p><code>DeepSpaceDomainsScreen</code>은 데이터가 없을 때와 데이터가 있을 때 모두 캡처 화면으로 보내는 같은 CTA를 제공한다. 시각 텍스트는 있었지만 보조기술용 버튼 역할과 명시 라벨이 없어, 탐색 맥락에 따라 목적 전달이 약해질 수 있었다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <tr><th>파일</th><th>변경 요약</th></tr>
+        <tr><td><code>src/screens/deepspace/DeepSpaceDesignScreens.tsx</code></td><td><code>/domains</code> 캡처 CTA 두 곳에 버튼 역할과 지역화 라벨을 추가했다.</td></tr>
+        <tr><td><code>src/lib/__tests__/domains-capture-cta-a11y.test.ts</code></td><td>두 상태의 CTA가 지역화된 접근성 라벨을 유지하는지 source-scan 회귀 테스트를 추가했다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <tr><th>명령</th><th>결과</th></tr>
+        <tr><td><code>npx jest src/lib/__tests__/domains-capture-cta-a11y.test.ts --runInBand</code></td><td>통과</td></tr>
+        <tr><td><code>npx eslint src/screens/deepspace/DeepSpaceDesignScreens.tsx src/lib/__tests__/domains-capture-cta-a11y.test.ts</code></td><td>오류 없음. 기존 대형 파일의 미사용 import 경고 40건만 존재</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:constraints</code></td><td>통과. C11은 기존 PART 상태</td></tr>
+        <tr><td><code>npm run check:safety-consent-locale</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+        <tr><td>diff 시크릿 패턴 검사</td><td>매치 없음</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>35 자기 패널</h2>
+      <table>
+        <tr><th>관점</th><th>판단</th></tr>
+        <tr><td>찬성</td><td>같은 화면의 핵심 이동 버튼 두 곳이 동일한 보조기술 의미를 갖게 되어 접근성 일관성이 좋아진다.</td></tr>
+        <tr><td>반대</td><td>시각 텍스트가 이미 있으므로 영향은 작고, 대형 화면 파일을 더 건드리는 비용이 있다.</td></tr>
+        <tr><td>판정</td><td>두 줄 변경과 회귀 테스트 하나로 닫히는 저위험 접근성 개선이므로 진행했다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>위험 및 다음 단계</h2>
+      <p>고위험 산출물이 아니므로 MoA 교차검증 요청은 만들지 않았다. Claude가 필요하면 브랜치 <code>codex/qa-cycle-20260812-054635</code>의 커밋 <code>51e47017</code>을 검토해 머지하면 된다.</p>
+    </section>
+  </main>
+</body>
+</html>

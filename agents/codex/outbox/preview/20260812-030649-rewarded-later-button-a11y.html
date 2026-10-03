@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>보상 시트 보조 버튼 접근성 보강</title>
+  <style>
+    :root { --bg:#0b0d10; --text:#e8ecf1; --accent:#4fd1c5; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.6; }
+    main { width: min(980px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 56px; }
+    header, section { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 8px; padding: 20px; margin: 16px 0; background: color-mix(in srgb, var(--bg) 88%, var(--text) 12%); }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: clamp(24px, 3vw, 36px); }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { text-align: left; vertical-align: top; border-top: 1px solid color-mix(in srgb, var(--text) 16%, transparent); padding: 10px 8px; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .box { border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 8px; padding: 14px; }
+    .label { color: var(--accent); font-size: 13px; }
+    details { border-top: 1px solid color-mix(in srgb, var(--text) 16%, transparent); padding-top: 10px; margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>보상 시트 보조 버튼 접근성 보강</h1>
+      <p>이번 단일 사이클은 열린 신규 요청이 없어, 2nd-B의 작은 UI 접근성 결함 하나를 처리했습니다.</p>
+      <div class="summary">
+        <div class="box"><div class="label">결과</div><p>로컬 앱 커밋 생성 완료</p></div>
+        <div class="box"><div class="label">위험도</div><p>낮음</p></div>
+        <div class="box"><div class="label">푸시</div><p>수행하지 않음</p></div>
+        <div class="box"><div class="label">작성 시각</div><p>2026-08-12 03:06:49 KST</p></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>작업 내용</h2>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>작업트리</td><td><code>C:\Coding Infra\_worktrees\2ndB-codex-qa-cycle-20260812-030409</code></td></tr>
+        <tr><td>브랜치</td><td><code>codex/qa-cycle-20260812-030409</code></td></tr>
+        <tr><td>기준 커밋</td><td><code>origin/main 215f5cdd123d94a27adf7165234807eec301f7da</code></td></tr>
+        <tr><td>앱 커밋</td><td><code>bd384bc1</code></td></tr>
+        <tr><td>변경 파일</td><td><code>src/components/deepspace/RewardedSheet.tsx</code></td></tr>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>보상형 광고 시트의 보조 닫기 버튼은 화면에는 <code>C.later</code> 텍스트를 표시했지만, 버튼 자체의 <code>accessibilityLabel</code>이 빠져 있었습니다. 같은 locale copy를 재사용해 보조기술이 버튼 목적을 명확히 읽을 수 있게 했습니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <tr><th>검증 항목</th><th>상태</th></tr>
+        <tr><td><code>npx prettier --check src/components/deepspace/RewardedSheet.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npx eslint src/components/deepspace/RewardedSheet.tsx</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:safety-consent-locale</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:constraints</code></td><td>통과, 기존 <code>C11 PART</code>는 실패가 아닌 부분 상태</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과, Windows 줄끝 안내만 표시</td></tr>
+        <tr><td>diff 시크릿 패턴 검색</td><td>통과</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <table>
+        <tr><th>관점</th><th>판정</th></tr>
+        <tr><td>찬성</td><td>화면 텍스트가 있는 실제 버튼에 라벨을 붙이는 변경이라 보조기술 사용자의 예측 가능성이 좋아집니다.</td></tr>
+        <tr><td>반대</td><td>시각 텍스트가 이미 있으므로 기능 오동작은 아니며, Prettier가 주변 줄바꿈을 함께 정리했습니다.</td></tr>
+        <tr><td>결론</td><td>기존 다국어 문자열을 재사용한 낮은 위험 접근성 보정이므로 Claude 회수 후보로 제출합니다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>제약 준수</h2>
+      <p>허브에서는 <code>agents/codex/</code> 아래 파일만 작성했습니다. 2nd-B 브랜치는 로컬 커밋만 만들었고 push, merge, 배포, 비용 발생, secret 접근, 파괴적 작업은 수행하지 않았습니다.</p>
+    </section>
+  </main>
+</body>
+</html>

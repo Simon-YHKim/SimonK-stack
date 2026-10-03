@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SimonKStack 원본 플러그인 머지 게이트</title>
+<style>
+:root{color-scheme:light dark;--a:#176c86;--t:#172b33;--m:#4b6570;--bg:#f5f9fa;--card:#fff}@media(prefers-color-scheme:dark){:root{--a:#82d2e7;--t:#eaf4f6;--m:#adc3ca;--bg:#102127;--card:#1a323a}}*{box-sizing:border-box}body{max-width:940px;margin:auto;padding:2rem 1rem 4rem;background:var(--bg);color:var(--t);font:16px/1.5 system-ui,sans-serif}h1{line-height:1.2}a{color:var(--a)}.meta{color:var(--m)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:.65rem}.card,details{background:var(--card);border:1px solid var(--m);border-radius:10px;padding:1rem;margin:.6rem 0}.card strong{display:block;font-size:1.5rem;color:var(--a)}summary{cursor:pointer;font-weight:700}summary:focus-visible,a:focus-visible{outline:3px solid var(--a);outline-offset:3px}table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:.5rem;border-bottom:1px solid var(--m);vertical-align:top}svg{width:100%;height:auto}svg rect{fill:var(--card);stroke:var(--a);stroke-width:2}svg path{fill:none;stroke:var(--a);stroke-width:2}svg text{fill:var(--t);font:14px system-ui,sans-serif}
+</style>
+<main>
+<p class="meta">2026-09-28 10:16:57 KST · Codex 독립 검증 및 ai-debate 심판</p>
+<h1>원본 플러그인은 순차 판단, 지금 머지는 0건</h1>
+<p>다섯 기능 브랜치는 모두 깨끗하고 fast-forward 가능하며 구조·선별 테스트가 통과했습니다. 그러나 원본 <code>main</code>의 자동 소비·의존·롤백 경계와 §35 D-code가 없으므로 지금 승격하지 않습니다. 집합 후보의 사용자 설치·<code>main</code>은 별도 게이트입니다.</p>
+<div class="cards" aria-label="핵심 지표"><div class="card"><strong>5/5</strong>원본 구조 검증 통과</div><div class="card"><strong>16/16</strong>선별 단위테스트 통과</div><div class="card"><strong>46 → 33</strong>Stack 공통 eval 결손 개선</div><div class="card"><strong>0 USD</strong>추가 과금·모델 실호출 없음</div></div>
+<svg viewBox="0 0 900 88" role="img" aria-label="기능 브랜치 검증에서 D-code, 원본별 승격, 집합 후보 검증과 설치 판단으로 진행하는 단계"><rect x="2" y="14" width="192" height="58" rx="8"/><text x="16" y="49">원본 브랜치 검증</text><path d="M194 43h28"/><rect x="222" y="14" width="190" height="58" rx="8"/><text x="238" y="49">Claude D-code</text><path d="M412 43h28"/><rect x="440" y="14" width="190" height="58" rx="8"/><text x="456" y="49">플러그인별 FF</text><path d="M630 43h28"/><rect x="658" y="14" width="240" height="58" rx="8"/><text x="674" y="49">집합 검증·설치 별도</text></svg>
+<details><summary>세 입장과 심판</summary><table><thead><tr><th>입장</th><th>이익</th><th>한계</th></tr></thead><tbody><tr><td>A · 즉시 5개 머지</td><td>소스 정본화·드리프트 감소</td><td>자동 소비·의존·D-code 미확인</td></tr><tr><td>B · 전체 보류</td><td>집합 D-30 게이트 엄수</td><td>독립 원본의 조건부 승격까지 동결</td></tr><tr><td>C · 순차 승격</td><td>원본과 설치를 분리해 검증</td><td>각 플러그인별 경계·결정 기록 필요</td></tr></tbody></table><p>별도 심판은 C를 권고했습니다. A의 조기 정본화, B의 강한 안전성은 소수의견으로 보존합니다. 이 판정은 Claude 소유 D-code가 아닙니다.</p></details>
+<details><summary>검증의 정확한 범위</summary><p>AIHub/Core/Design/Market의 Python skill-ci는 7/57/19/32 스킬 PASS, 다섯 원본의 Node 구조 검증 PASS, Market 9개·Stack 7개 테스트 PASS입니다. Stack은 동일 Python CI를 선언하지 않았습니다. 공통 eval 스키마 감사에서 기존 <code>main</code> 46건 결손이 기능 브랜치 33건으로 줄어 신규 회귀는 없습니다. 이 지표는 182스킬 실제 호스트 동작 검증이 아닙니다.</p></details>
+<details><summary>닫히지 않은 게이트</summary><p>원본별 downstream 자동반영·교차 의존·소비자 버전·롤백·보호규칙과 §35 D-code를 확인해야 합니다. 집합 후보는 Gstack 런타임/경로, 전체 closure, 사용자 홈 복원 리허설, readiness 3개가 false인 상태를 별도로 처리합니다. 사용자 설치본 2.11.6은 유지합니다.</p></details>
+</main></html>

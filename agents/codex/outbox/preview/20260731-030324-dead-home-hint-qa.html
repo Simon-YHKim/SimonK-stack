@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>죽은 홈 힌트 키 병합 검토</title>
+  <style>
+    :root { --bg:#111318; --text:#e8edf2; --accent:#7cc7b2; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 44px; }
+    h1,h2,h3,p { margin-top:0; }
+    h1 { font-size:28px; letter-spacing:0; margin-bottom:10px; }
+    h2 { font-size:18px; color:var(--accent); margin:28px 0 10px; }
+    h3 { font-size:15px; color:var(--accent); margin:14px 0 6px; }
+    .summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:22px 0; }
+    .card, details { border:1px solid var(--accent); padding:14px; background:rgba(124,199,178,.08); }
+    .label { color:var(--accent); font-size:12px; margin-bottom:6px; }
+    .value { font-size:18px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin:12px 0; }
+    th,td { border:1px solid var(--accent); padding:9px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bars { width:100%; height:86px; margin:10px 0; }
+    .small { font-size:13px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>죽은 홈 힌트 키 병합 검토</h1>
+  <p>작성 시각: 2026-07-31 03:03:24 KST. 대상은 2nd-B 원격 후보 <code>origin/chore/s7-dead-home-hint</code>입니다.</p>
+
+  <section class="summary" aria-label="요약">
+    <div class="card"><div class="label">판정</div><div class="value">조건부 안전</div></div>
+    <div class="card"><div class="label">권장 병합 방식</div><div class="value">단일 커밋 선별</div></div>
+    <div class="card"><div class="label">앱 코드 변경</div><div class="value">없음</div></div>
+    <div class="card"><div class="label">푸시</div><div class="value">하지 않음</div></div>
+  </section>
+
+  <h2>결론</h2>
+  <p>브랜치 전체를 그대로 병합하는 것은 보류가 맞습니다. 현재 <code>origin/main</code>보다 뒤처진 병합 상태 때문에 홈 힌트 삭제 외에 이미 병합된 가격 미러 데이터가 다시 diff에 나타납니다. 반면 실제 의도 커밋 <code>89e5526f</code>만 <code>origin/main</code> 위에 cherry-pick한 결과는 locale 5개에서 <code>ds.home.hint</code> 한 줄씩 제거하는 diff뿐이라 병합 가능합니다.</p>
+
+  <svg class="bars" role="img" aria-label="검증 결과 막대">
+    <rect x="0" y="10" width="100%" height="14" fill="rgba(124,199,178,.18)"></rect>
+    <rect x="0" y="10" width="100%" height="14" fill="#7cc7b2"></rect>
+    <text x="8" y="21" fill="#111318" font-size="11">핵심 검증 통과</text>
+    <rect x="0" y="40" width="100%" height="14" fill="rgba(124,199,178,.18)"></rect>
+    <rect x="0" y="40" width="20%" height="14" fill="#7cc7b2"></rect>
+    <text x="8" y="51" fill="#111318" font-size="11">서식 경고 있음</text>
+  </svg>
+
+  <h2>검증 표</h2>
+  <table>
+    <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>격리 적용</td><td>통과</td><td><code>origin/main</code> 기준 QA 브랜치 <code>codex/qa-dead-home-hint-20260731-0300</code>에 <code>89e5526f</code>만 적용해 <code>36563518</code> 생성.</td></tr>
+      <tr><td>변경 범위</td><td>통과</td><td><code>locales/en|es|id|ko|pt/home.json</code>에서 총 5줄 삭제만 존재.</td></tr>
+      <tr><td>죽은 키 참조</td><td>통과</td><td><code>ds.home.hint</code>, <code>home.hint</code>, <code>deepSpace.home.hint</code> 직접 참조 0건.</td></tr>
+      <tr><td>JSON 파싱</td><td>통과</td><td>5개 변경 locale 파일 파싱 및 <code>ds.home.hint</code> 부재 확인.</td></tr>
+      <tr><td>i18n parity</td><td>통과</td><td><code>npm run check:i18n</code>: 3224개 키, 44개 namespace, 5개 locale 정렬.</td></tr>
+      <tr><td>문구 가드</td><td>통과</td><td><code>check:emdash</code>, <code>check:lexicon</code> 통과.</td></tr>
+      <tr><td>merge-tree</td><td>통과</td><td>충돌 표식 없음.</td></tr>
+      <tr><td>Prettier</td><td>경고</td><td>5개 변경 JSON 파일에서 기존 서식 경고. 이번 diff는 줄 삭제뿐이라 자동 서식 변경은 하지 않음.</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>자세히: 원격 브랜치 주의점</summary>
+    <p><code>origin/chore/s7-dead-home-hint</code> 자체 diff에는 <code>star-lenses.json</code> 가격 미러 변경도 보입니다. 이는 이 사이클의 의도 변경이 아니며, 현재 <code>origin/main</code>의 최신 가격 정정과 섞이면 회귀 위험이 있습니다. Claude는 브랜치 전체 merge 대신 <code>89e5526f</code>만 선별 적용하는 편이 안전합니다.</p>
+  </details>
+
+  <details>
+    <summary>자세히: 35 자기 패널</summary>
+    <h3>찬성 관점</h3>
+    <p>죽은 locale 키는 유지 비용만 만들며, 참조 0건과 i18n parity 통과가 확인됐으므로 제거가 맞습니다.</p>
+    <h3>반대 관점</h3>
+    <p>브랜치 전체 diff에 의도 밖 가격 데이터가 보이므로 일반 merge는 위험합니다.</p>
+    <h3>판정</h3>
+    <p>단일 커밋 <code>89e5526f</code> 선별 적용만 병합 가능으로 봅니다. 전체 브랜치 병합은 보류입니다.</p>
+  </details>
+
+  <h2>다음 조치</h2>
+  <p>Claude는 <code>89e5526f</code> 또는 QA 커밋 <code>36563518</code>만 cherry-pick하고, 브랜치 전체 merge는 피하는 것이 좋습니다. MOA 교차검증은 Antigravity에 요청했습니다.</p>
+</main>
+</body>
+</html>

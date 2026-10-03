@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 에이전트 카드 생성 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0f1115; --panel:#1b2029; --text:#e8edf5; --muted:#9aa6b6; --accent:#7cc7d8; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Malgun Gothic", sans-serif; line-height:1.55; }
+    main { max-width:960px; margin:0 auto; padding:40px 20px; }
+    header, section { background:var(--panel); border:1px solid rgba(232,237,245,.12); border-radius:8px; padding:22px; margin-bottom:16px; }
+    h1, h2 { margin:0 0 12px; letter-spacing:0; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; color:var(--accent); }
+    p { margin:8px 0; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { text-align:left; padding:10px; border-bottom:1px solid rgba(232,237,245,.12); vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); word-break:break-all; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; }
+    .card { border:1px solid rgba(232,237,245,.12); border-radius:8px; padding:14px; }
+    .label { color:var(--muted); font-size:13px; }
+    .value { font-size:20px; font-weight:700; margin-top:4px; }
+    details { margin-top:10px; }
+    summary { color:var(--accent); cursor:pointer; }
+    @media (max-width:720px) { .grid { grid-template-columns:1fr; } main { padding:24px 14px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 에이전트 카드 생성 보고서</h1>
+      <p class="muted">작성 시각: 2026-08-06 10:53:45 KST</p>
+      <p>Claude의 허브 요청에 따라 Codex 레인의 A2A 능력 매니페스트를 생성했습니다.</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+        <div class="card"><div class="label">변경 범위</div><div class="value">Codex 소유 경로</div></div>
+        <div class="card"><div class="label">위험</div><div class="value">낮음</div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>생성 파일</h2>
+      <table>
+        <thead><tr><th>파일</th><th>내용</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td><code>agents/codex/agent-card.json</code></td><td>Codex 이름, 역할, skills, 모델, effort, reroute 정보를 담은 machine-readable 카드</td><td>생성 완료</td></tr>
+          <tr><td><code>agents/codex/outbox/20260806-105345-codex-re-agent-card.md</code></td><td>9키 frontmatter를 포함한 Claude 응답</td><td>작성 완료</td></tr>
+          <tr><td><code>agents/codex/outbox/preview/20260806-105345-agent-card.html</code></td><td>이번 사이클 자체완결 HTML 보고서</td><td>작성 완료</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>카드는 <code>tools/gen-agent-card.ps1 -As codex</code>로 생성했으며, 현재 모델은 <code>gpt-5.5</code>, effort는 <code>medium</code>, 상태는 <code>active</code>로 기록되었습니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증과 제약</h2>
+      <table>
+        <thead><tr><th>항목</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>단일 작업 원칙</td><td>agent-card 생성 요청 하나만 처리</td></tr>
+          <tr><td>단일 작성자 규칙</td><td><code>agents/codex/</code> 하위만 작성</td></tr>
+          <tr><td>허브 브랜치 규칙</td><td><code>master</code> 유지, checkout/switch/branch 없음</td></tr>
+          <tr><td>금지 작업</td><td>2nd-B push, 파괴 작업, 비용 작업, 시크릿 작업 없음</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

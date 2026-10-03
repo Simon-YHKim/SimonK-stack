@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+body { background-color: #111111; color: #CCCCCC; font-family: sans-serif; line-height: 1.6; margin: 40px; }
+h1, h2, h3 { color: #66B2FF; }
+a { color: #66B2FF; text-decoration: none; }
+table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+th { color: #66B2FF; }
+button { background-color: #333333; color: #CCCCCC; border: 1px solid #66B2FF; padding: 10px 20px; cursor: pointer; }
+.container { max-width: 800px; margin: 0 auto; }
+.code { background-color: #222222; padding: 15px; border-left: 3px solid #66B2FF; font-family: monospace; margin-bottom: 20px; }
+</style>
+<title>DB 마이그레이션 보안 검증 결과</title>
+</head>
+<body>
+<div class="container">
+  <h1>DB 마이그레이션 보안 검증 결과</h1>
+  
+  <h2>요약</h2>
+  <p>제출된 요청에 따라 2nd-B 레포지토리의 0106 마이그레이션 파일에 대한 보안 검증을 수행했습니다. 해당 코밋(4cc9afbb)은 레포지토리의 보안 규칙에 따라 병합 차단 사유(HOLD)에 해당합니다.</p>
+  
+  <h2>상세 내용</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>병합 차단 여부</td>
+        <td>실제 병합 차단 사유가 맞음. 정적 분석 도구(check:definer-grants)가 실패함.</td>
+      </tr>
+      <tr>
+        <td>해결 방안의 정확성</td>
+        <td>명시적인 권한 철회 구문을 0106 파일에 추가하는 것이 올바른 해결책임.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>기술적 근거</h2>
+  <div class="code">
+    SECURITY FAIL DEFINER-grant footgun (see db/migrations/0036, 0082):<br>
+    - db\migrations\0106_award_xp_once_only_race.sql: creates a SECURITY DEFINER function but has no REVOKE EXECUTE ON FUNCTION ... FROM anon in the same file.
+  </div>
+  <p>CREATE OR REPLACE FUNCTION 구문이 기존의 권한 철회를 유지할지라도, 보안 린터(scripts/check-definer-grants.ts)는 SECURITY DEFINER 함수가 생성될 때 같은 파일 내에 명시적인 REVOKE 구문이 존재하는지를 정적으로 검사합니다. 린터를 통과하기 위해서는 동일 파일 내에 명시적인 권한 제어 구문이 반드시 포함되어야 합니다.</p>
+  
+  <h2>결론</h2>
+  <p>Codex의 판정(HOLD)은 정확하며, 0106_award_xp_once_only_race.sql 파일에 권한 철회 구문을 추가하여 문제를 해결해야 합니다.</p>
+  
+  <button type="button">확인 완료</button>
+</div>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백그라운드 작업 독 접근성 사이클 보고</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --text: #e6edf3;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 18px 56px;
+    }
+    header, section {
+      border: 1px solid var(--accent);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 26px; line-height: 1.25; }
+    h2 { font-size: 18px; color: var(--accent); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+    }
+    th, td {
+      border: 1px solid var(--accent);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      word-break: break-all;
+    }
+    button {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--accent);
+      padding: 8px 12px;
+      cursor: pointer;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+    button[aria-pressed="true"] {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    .mode-easy .expert,
+    .mode-expert .easy { display: none; }
+    details { margin-top: 10px; }
+    summary { color: var(--accent); cursor: pointer; }
+  </style>
+</head>
+<body class="mode-easy">
+  <main>
+    <header>
+      <h1>백그라운드 작업 독 접근성 사이클 보고</h1>
+      <p>생성 시각: 2026-08-13 21:09:23 KST</p>
+      <p>이번 사이클은 신규 OPEN 오더가 없어 codex 레인에서 단일 UI 접근성 수정을 수행했다.</p>
+      <button type="button" id="easy" aria-pressed="true">쉬운 설명</button>
+      <button type="button" id="expert" aria-pressed="false">전문가 설명</button>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="easy">
+        <p>앱에서 백그라운드 작업이 진행될 때 보이는 작은 독 버튼이 접기와 펼치기를 같은 이름으로 읽고 있었다. 이제 화면 읽기 도구가 현재 버튼을 누르면 어떤 일이 일어나는지 더 분명하게 말한다.</p>
+      </div>
+      <div class="expert">
+        <p><code>BackgroundTaskDock</code>의 토글 accessible name을 고정 라벨에서 상태별 라벨로 바꿨다. 접힌 상태에서는 펼치기, 펼쳐진 상태에서는 접기 액션을 노출하며 기존 <code>accessibilityState.expanded</code>는 유지했다.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>2nd-B 브랜치</td><td><code>codex/qa-cycle-20260813-210645</code></td></tr>
+          <tr><td>기준</td><td><code>origin/main 5ba0cdd905ec3e9e2d5aac0fceb17830c556ab09</code></td></tr>
+          <tr><td>로컬 앱 커밋</td><td><code>ee2d6672191e8cc3d7f31800a8476b4522fc9236</code></td></tr>
+          <tr><td>push</td><td>하지 않음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>변경</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>src/components/deepspace/BackgroundTaskDock.tsx</code></td><td>접기와 펼치기 상태별 라벨을 5개 언어 copy 객체에 추가하고 토글 라벨에 연결했다.</td></tr>
+          <tr><td><code>src/components/deepspace/__tests__/background-task-dock-a11y.test.ts</code></td><td>상태별 라벨과 expanded 상태 노출을 소스 스캔으로 고정했다.</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>기존 독은 버튼 역할과 expanded 상태를 제공했지만 라벨은 늘 백그라운드 작업이었다. 변경 후 접힌 상태에서는 펼치기, 펼쳐진 상태에서는 접기라는 동작명이 노출된다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr><th>검증</th><th>상태</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npx prettier --check</code> 대상 파일</td><td>통과</td></tr>
+          <tr><td><code>npx jest src/components/deepspace/__tests__/background-task-dock-a11y.test.ts --runInBand</code></td><td>통과</td></tr>
+          <tr><td><code>npx eslint</code> 대상 파일</td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n-untranslated</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:constraints</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+          <tr><td>diff 민감 패턴 스캔</td><td>일치 없음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>접근성</td><td>상태만이 아니라 다음 동작을 라벨에 담아 토글 의미를 분명히 했다.</td></tr>
+          <tr><td>통합 위험</td><td>작은 컴포넌트와 신규 테스트만 변경해 충돌 범위를 낮췄다.</td></tr>
+          <tr><td>문구 위험</td><td>새 문구는 화면에 보이는 본문이 아니라 보조기술 라벨이며 5개 언어를 모두 채웠다.</td></tr>
+          <tr><td>운영 가드</td><td>2nd-B push, hub 브랜치 전환, 비용 작업, 파괴 작업, 민감정보 처리를 하지 않았다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <script>
+    const body = document.body;
+    for (const id of ["easy", "expert"]) document.getElementById(id).onclick = () => {
+      body.className = id === "easy" ? "mode-easy" : "mode-expert";
+      document.getElementById("easy").setAttribute("aria-pressed", String(id === "easy"));
+      document.getElementById("expert").setAttribute("aria-pressed", String(id === "expert"));
+    };
+  </script>
+</body>
+</html>

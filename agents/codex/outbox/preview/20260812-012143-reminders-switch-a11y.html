@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>리마인더 스위치 접근성 점검</title>
+  <style>
+    :root{--bg:#0b1020;--text:#e6edf7;--accent:#7dd3fc}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif;line-height:1.58}
+    main{max-width:980px;margin:0 auto;padding:32px 18px 48px}
+    header{border:1px solid color-mix(in srgb,var(--accent) 38%,transparent);padding:22px;border-radius:8px}
+    h1{margin:0 0 8px;font-size:26px;letter-spacing:0}
+    h2{margin:28px 0 10px;font-size:18px;letter-spacing:0}
+    p{margin:8px 0}
+    .muted{opacity:.72}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:16px}
+    .card{border:1px solid color-mix(in srgb,var(--text) 16%,transparent);border-radius:8px;padding:14px;background:color-mix(in srgb,var(--text) 4%,transparent)}
+    .label{display:block;font-size:12px;color:var(--accent);margin-bottom:6px}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{border-top:1px solid color-mix(in srgb,var(--text) 14%,transparent);padding:10px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent);font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+    details{border:1px solid color-mix(in srgb,var(--text) 14%,transparent);border-radius:8px;padding:12px;margin-top:10px}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    .bar{height:10px;border-radius:999px;background:color-mix(in srgb,var(--text) 10%,transparent);overflow:hidden}
+    .bar span{display:block;height:100%;background:var(--accent)}
+    @media (max-width:720px){.grid{grid-template-columns:1fr 1fr} h1{font-size:22px}}
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>리마인더 스위치 접근성 점검</h1>
+      <p>이번 사이클은 열린 codex 요청이 없어, 2nd-B의 비서 리마인더 화면에서 새 접근성 결함 1건을 정적 검토로 확인했다.</p>
+      <p class="muted">기준: <code>origin/main@215f5cdd123d94a27adf7165234807eec301f7da</code>, worktree <code>C:\2ndB\.worktrees\codex-uiqa-20260812-012039</code>, 작성 시각 2026-08-12 01:21:43 KST</p>
+      <div class="grid">
+        <div class="card"><span class="label">결과</span>새 결함 1건</div>
+        <div class="card"><span class="label">위험도</span>중간</div>
+        <div class="card"><span class="label">범위</span><code>/reminders</code> 루틴 토글</div>
+        <div class="card"><span class="label">검증</span>정적 코드 근거</div>
+      </div>
+    </header>
+
+    <h2>핵심 발견</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>내용</th><th>근거</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>문제</td>
+          <td>리마인더 카드의 토글이 <code>accessibilityRole="switch"</code>와 checked 상태만 제공하고, 어떤 루틴의 알림을 켜거나 끄는지 알려 주는 라벨이 없다.</td>
+          <td><code>src/screens/deepspace/ops/screens.tsx:1138</code></td>
+        </tr>
+        <tr>
+          <td>영향</td>
+          <td>스크린리더 사용자는 여러 루틴이 있을 때 각 스위치가 어느 리마인더에 연결되는지 구분하기 어렵다.</td>
+          <td><code>ReminderCard</code>의 토글은 제목 옆에 있지만 토글 자체의 접근성 이름이 비어 있다.</td>
+        </tr>
+        <tr>
+          <td>수정 방향</td>
+          <td><code>accessibilityLabel</code>에 루틴 제목과 켜기 또는 끄기 의도를 함께 넣고, 가능하면 <code>accessibilityHint</code>에도 기기 알림 토글임을 설명한다.</td>
+          <td>예: <code>${vm.title} 리마인더 켜기</code> 또는 <code>${vm.title} 리마인더 끄기</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증 상태</h2>
+    <div class="bar" aria-label="검증 완료 비율"><span style="width:66%"></span></div>
+    <p>코드 위치, 호출 경로, 실제 rows 생성 경로를 확인했다. 앱 실행과 스크린리더 실기 검증은 이번 단일 사이클 범위에서 수행하지 않았다.</p>
+    <details>
+      <summary>자세히</summary>
+      <p><code>RemindersScreen</code>은 실제 <code>ops_routines</code> 중 <code>reminder_time</code>이 있는 항목을 카드로 렌더링하고, 지원 환경에서는 <code>onToggle</code>을 전달한다. 이때 <code>ReminderCard</code>의 스위치에는 <code>accessibilityState</code>만 있고 루틴별 이름이 없다.</p>
+    </details>
+
+    <h2>자체 패널</h2>
+    <table>
+      <thead>
+        <tr><th>관점</th><th>판정</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>사용자 관점</td><td>알림 목록에서 같은 모양의 스위치가 반복되므로 라벨 없는 토글은 방향 감각을 잃게 만든다.</td></tr>
+        <tr><td>접근성 관점</td><td>시각적 인접성에 의존한 이름 추론은 안정적인 접근성 이름이 아니다.</td></tr>
+        <tr><td>유지보수 관점</td><td>기존 <code>vm.title</code>과 상태값만으로 수정 가능해 범위가 작고 회귀 위험이 낮다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>권장 후속 작업</h2>
+    <p>Claude 머지 레인에서 <code>ReminderCard</code> 토글에 루틴별 <code>accessibilityLabel</code>을 추가하고, 소스 스캔 테스트에 해당 문자열 계약을 보강하는 것이 적절하다.</p>
+  </main>
+</body>
+</html>

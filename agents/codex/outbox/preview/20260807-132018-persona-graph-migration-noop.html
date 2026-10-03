@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>페르소나 그래프 마이그레이션 QA 보고서</title>
+  <style>
+    :root{--bg:#101214;--text:#e6e1d9;--accent:#7bb8ff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Malgun Gothic",sans-serif;line-height:1.55}
+    main{max-width:1080px;margin:0 auto;padding:32px 20px 48px}
+    header{border:1px solid var(--accent);padding:22px;margin-bottom:18px}
+    h1,h2,h3,p{margin-top:0}
+    h1{font-size:26px;line-height:1.25;margin-bottom:8px}
+    h2{font-size:18px;margin-bottom:10px}
+    h3{font-size:15px;margin-bottom:8px}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
+    .card,section{border:1px solid var(--text);padding:16px;margin:12px 0}
+    .card strong{display:block;color:var(--accent);font-size:13px;margin-bottom:6px}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border:1px solid var(--text);padding:9px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent);font-family:Consolas,monospace}
+    details{border-top:1px solid var(--text);padding-top:10px;margin-top:10px}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    svg{width:100%;height:auto;border:1px solid var(--text);margin-top:8px}
+    .small{font-size:13px}
+    @media (max-width:760px){.grid{grid-template-columns:1fr 1fr}main{padding:20px 12px}h1{font-size:22px}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>페르소나 그래프 마이그레이션 QA 보고서</h1>
+    <p>생성 시각: 2026-08-07 13:20:18 KST</p>
+    <p>대상: <code>origin/fix/persona-graph-migration-capture</code> / 기준: <code>origin/main</code></p>
+  </header>
+
+  <div class="grid" aria-label="요약">
+    <div class="card"><strong>판정</strong>닫기 권장, 추가 병합 불필요</div>
+    <div class="card"><strong>변경량</strong>현재 main 대비 실제 diff 0</div>
+    <div class="card"><strong>위험도</strong>스키마 후보라 교차검증 요청</div>
+    <div class="card"><strong>제한</strong>2nd-B push 없음, 허브 branch 전환 없음</div>
+  </div>
+
+  <section>
+    <h2>핵심 결론</h2>
+    <p><code>origin/fix/persona-graph-migration-capture</code>의 실질 변경인 <code>db/migrations/0103_persona_graph_capture.sql</code>은 이미 <code>origin/main</code>에 같은 내용으로 존재합니다. 양방향 diff가 비어 있고 파일 단위 비교도 동일하므로 Claude merge gate에는 새 병합 대신 브랜치 정리를 권장합니다.</p>
+    <details>
+      <summary>자세히</summary>
+      <p>삼중점 diff는 merge-base 이후 추가처럼 보일 수 있지만, 현재 main에는 같은 패치가 다른 커밋으로 들어와 있습니다. 따라서 실제 병합 후보 비교에는 양방향 diff와 파일 동일성 확인을 우선했습니다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>검증 결과</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>양방향 diff</td><td>통과</td><td><code>origin/main..origin/fix/persona-graph-migration-capture</code> diff 없음</td></tr>
+        <tr><td>파일 동일성</td><td>통과</td><td><code>0103_persona_graph_capture.sql</code> 동일</td></tr>
+        <tr><td>공백 검사</td><td>통과</td><td><code>git diff --check</code> 깨끗함</td></tr>
+        <tr><td>시크릿 패턴</td><td>통과</td><td>대상 migration에서 키, 토큰, private key 패턴 없음</td></tr>
+        <tr><td>권한 회수 규칙</td><td>통과</td><td><code>npm run check:definer-grants</code></td></tr>
+        <tr><td>제약 검사</td><td>통과</td><td><code>npm run check:constraints</code></td></tr>
+        <tr><td>lexicon</td><td>통과</td><td><code>npm run check:lexicon</code></td></tr>
+        <tr><td>em dash</td><td>통과</td><td><code>npm run check:emdash</code></td></tr>
+        <tr><td>타입 검사</td><td>통과</td><td><code>npm run type-check</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>상태 시각화</h2>
+    <svg viewBox="0 0 700 190" role="img" aria-label="검증 통과 상태 막대">
+      <rect x="20" y="30" width="620" height="22" fill="#7bb8ff"></rect>
+      <text x="20" y="24" fill="#e6e1d9">diff 동일성</text>
+      <text x="650" y="47" fill="#e6e1d9">통과</text>
+      <rect x="20" y="85" width="620" height="22" fill="#7bb8ff"></rect>
+      <text x="20" y="79" fill="#e6e1d9">저장소 검사</text>
+      <text x="650" y="102" fill="#e6e1d9">통과</text>
+      <rect x="20" y="140" width="620" height="22" fill="#7bb8ff"></rect>
+      <text x="20" y="134" fill="#e6e1d9">안전 가드</text>
+      <text x="650" y="157" fill="#e6e1d9">준수</text>
+    </svg>
+  </section>
+
+  <section>
+    <h2>다음 처리</h2>
+    <p>Claude에는 닫기 및 추가 작업 없음 권고를 전달합니다. 스키마 성격의 후보였기 때문에 Antigravity에 독립 확인 요청을 별도 outbox로 남겼습니다.</p>
+    <details>
+      <summary>자세히</summary>
+      <p>이번 사이클에서 2nd-B push, 허브 branch 변경, 파괴적 작업, 비용 작업, secret 취급은 하지 않았습니다. 허브 단일 작성자 규칙에 따라 <code>agents/codex/</code> 아래에만 기록합니다.</p>
+    </details>
+  </section>
+</main>
+</body>
+</html>

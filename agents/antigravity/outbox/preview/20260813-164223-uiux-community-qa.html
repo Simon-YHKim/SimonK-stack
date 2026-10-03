@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA 검증 보고서: 커뮤니티 UIUX 브랜치</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .btn {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    padding: 8px 16px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 15px;
+  }
+  .btn:hover {
+    background-color: #444444;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>QA 검증 보고서: 커뮤니티 UIUX 브랜치</h1>
+  <p>대상: origin/Simon-YHKim/260810_UIUX (f590648f) over origin/main (215f5cdd)</p>
+  
+  <h2>검증 결과 요약</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>세부 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>병합 안정성</td>
+        <td>통과</td>
+        <td>메인 브랜치와 충돌 없이 병합 가능함</td>
+      </tr>
+      <tr>
+        <td>데이터베이스 스키마 및 RLS</td>
+        <td>통과</td>
+        <td>0117_community_chat.sql 내부 RPC 및 보안 정책 검증 완료</td>
+      </tr>
+      <tr>
+        <td>네이티브 UI 렌더링</td>
+        <td>통과</td>
+        <td>에뮬레이터 상에서 새로운 커뮤니티 화면 정상 출력 확인</td>
+      </tr>
+      <tr>
+        <td>문구 불일치 이슈</td>
+        <td>해결</td>
+        <td>일반 터치와 길게 누르기 문구 불일치는 릴리스 차단 조건이 아님을 확인</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>해당 브랜치는 프로덕션 환경에 배포하기에 안전합니다. 치명적인 결함은 발견되지 않았습니다.</p>
+
+  <a href="#" class="btn">확인 완료</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 자율 폴 사이클 보고서</title>
+  <style>
+    :root { --bg:#101316; --text:#e6edf3; --accent:#6ee7b7; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; }
+    main { max-width: 980px; margin: 0 auto; padding: 40px 20px 64px; }
+    header, section { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding: 20px; margin-bottom: 16px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { font-size: 18px; color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border-top: 1px solid color-mix(in srgb, var(--text) 16%, transparent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { border-top: 1px solid color-mix(in srgb, var(--text) 16%, transparent); padding-top: 12px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .metric { border: 1px solid color-mix(in srgb, var(--text) 16%, transparent); padding: 14px; }
+    .metric strong { display: block; color: var(--accent); font-size: 13px; }
+    .metric span { display: block; font-size: 18px; font-weight: 700; margin-top: 4px; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 자율 폴 사이클 보고서</h1>
+      <p>작성 시각: 2026-08-14 01:14:38 KST</p>
+      <p>이번 사이클은 codex inbox와 peer outbox를 확인한 뒤, 미응답 신규 오더가 없어 2nd-B UI 접근성 레인에서 한 가지 실제 수정만 수행했다.</p>
+      <div class="grid" aria-label="요약 지표">
+        <div class="metric"><strong>작업 수</strong><span>1건</span></div>
+        <div class="metric"><strong>2nd-B 푸시</strong><span>없음</span></div>
+        <div class="metric"><strong>허브 브랜치 변경</strong><span>없음</span></div>
+        <div class="metric"><strong>검증 결과</strong><span>통과</span></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>수행 내용</h2>
+      <table>
+        <thead><tr><th>항목</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td>대상</td><td>2nd-B records 빈 상태와 오류 상태의 주요 CTA</td></tr>
+          <tr><td>변경</td><td>오류 재시도 버튼과 조각 추가 버튼 두 곳에 기존 i18n 문구 기반 접근성 이름을 추가했다.</td></tr>
+          <tr><td>브랜치</td><td><code>codex/qa-cycle-20260814-011003</code></td></tr>
+          <tr><td>로컬 커밋</td><td><code>63bf2c9987e0a2a31ecebb89cb3105efec4905cf</code></td></tr>
+          <tr><td>기준</td><td><code>origin/main 5ba0cdd905ec3e9e2d5aac0fceb17830c556ab09</code></td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code>의 records 로드 실패 재시도, list 빈 상태 조각 추가, graph 빈 상태 조각 추가 버튼에 각각 <code>accessibilityLabel</code>을 연결했다.</p>
+        <p><code>src/lib/__tests__/records-empty-cta-a11y.test.ts</code>를 추가해 해당 라벨 배선이 사라지면 테스트가 실패하도록 했다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>대상 Jest</td><td>통과: <code>records-empty-cta-a11y.test.ts</code></td></tr>
+          <tr><td>대상 ESLint</td><td>통과</td></tr>
+          <tr><td>TypeScript</td><td>통과: <code>tsc --noEmit</code></td></tr>
+          <tr><td>i18n 키 정합</td><td>통과</td></tr>
+          <tr><td>미번역 i18n 검사</td><td>통과</td></tr>
+          <tr><td>금지 어휘 검사</td><td>통과</td></tr>
+          <tr><td>제약 검사</td><td>통과</td></tr>
+          <tr><td>emdash 검사</td><td>통과</td></tr>
+          <tr><td>안전 동의 로케일 검사</td><td>통과</td></tr>
+          <tr><td>anti-anthro, mascot voice, require cycles</td><td>통과</td></tr>
+          <tr><td>diff whitespace와 민감정보 패턴</td><td>통과, 민감정보 매칭 없음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>제약 준수</h2>
+      <table>
+        <thead><tr><th>제약</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td>single-writer</td><td>허브에서는 <code>agents/codex/</code> 아래만 작성했다.</td></tr>
+          <tr><td>2nd-B push 금지</td><td>로컬 branch commit만 만들고 push하지 않았다.</td></tr>
+          <tr><td>파괴, 비용, 민감정보 작업 금지</td><td>해당 작업 없음.</td></tr>
+          <tr><td>허브 branch 고정</td><td>허브에서 checkout, switch, branch 명령을 실행하지 않았다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>섹션 35 자기 패널</h2>
+      <table>
+        <thead><tr><th>관점</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>사용자 경험</td><td>화면상 보이는 CTA 문구와 스크린리더 이름이 같아 조작 대상이 명확하다.</td></tr>
+          <tr><td>품질 보증</td><td>정적 테스트가 records 빈 상태 CTA 라벨 누락을 회귀로 잡는다.</td></tr>
+          <tr><td>안전</td><td>데이터, 결제, 인증, 외부 API 경로를 건드리지 않았다.</td></tr>
+          <tr><td>범위</td><td>실제 소스 변경은 접근성 속성 3개 추가로 제한했다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>남은 위험</h2>
+      <p>이 변경은 로컬 브랜치 커밋 상태다. Claude가 merge gate에서 최신 main과 중복 여부를 다시 확인해야 한다.</p>
+    </section>
+  </main>
+</body>
+</html>

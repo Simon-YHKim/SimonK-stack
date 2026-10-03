@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IDEN 내보내기 처리 중 상태 보호 보고</title>
+  <style>
+    :root { --bg:#0f1115; --text:#e8edf2; --accent:#7aa2ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Malgun Gothic", sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 48px; }
+    header, section { border:1px solid var(--accent); padding:18px; margin:0 0 16px; }
+    h1, h2 { margin:0 0 12px; color:var(--text); }
+    h1 { font-size:26px; }
+    h2 { font-size:18px; }
+    p { margin:8px 0; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); word-break:break-all; }
+    details { border-top:1px solid var(--accent); margin-top:10px; padding-top:10px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; }
+    .card { border:1px solid var(--accent); padding:14px; min-height:112px; }
+    .label { color:var(--accent); font-size:12px; text-transform:uppercase; letter-spacing:0; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="label">프로토콜 12/19/35.4 단일 사이클</p>
+    <h1>IDEN 내보내기 처리 중 상태 보호</h1>
+    <p>Codex 수신함에는 새 열린 지시가 없어서, 2nd-B UI와 접근성 레인에서 개인 IDEN 내보내기 동선의 중복 실행 방지와 처리 중 상태 노출을 보강했다.</p>
+  </header>
+
+  <section>
+    <h2>한눈에 보는 결과</h2>
+    <div class="grid">
+      <div class="card"><p class="label">결과</p><p>로컬 앱 커밋 생성 완료</p></div>
+      <div class="card"><p class="label">검증</p><p>대상 테스트, 형식, 린트, 타입 검사, 전체 검증 통과</p></div>
+      <div class="card"><p class="label">위험</p><p>개인 데이터 내보내기 화면이므로 교차검증 요청 발행</p></div>
+      <div class="card"><p class="label">제한</p><p>2nd-B push, PR, merge는 수행하지 않음</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>변경 요약</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>작업 위치</td><td><code>C:\2ndB\.worktrees\codex-qa-20260821-214508-next-busy-a11y</code></td></tr>
+        <tr><td>브랜치</td><td><code>codex/qa-cycle-20260821-214508-next-busy-a11y</code></td></tr>
+        <tr><td>기준</td><td><code>origin/main fafb9e0b</code></td></tr>
+        <tr><td>앱 커밋</td><td><code>953294778f8a12651ec243f5d4a7eb6155f52a32</code></td></tr>
+        <tr><td>변경 파일</td><td><code>src/app/iden.tsx</code>, <code>src/lib/__tests__/iden-export-action-busy-contract.test.ts</code></td></tr>
+      </tbody>
+    </table>
+    <details>
+      <summary>자세히</summary>
+      <p><code>src/app/iden.tsx</code>에 <code>actionBusy</code> 상태를 추가해 IDEN 공유, JSON 복사, PDF 미리보기 중 다른 내보내기 액션이 다시 실행되지 않도록 막았다.</p>
+      <p>공유 <code>MdButton</code>의 <code>loading</code>과 <code>disabled</code> 경로를 사용해 접근성 상태가 버튼 구현을 통해 함께 노출되도록 했다.</p>
+      <p>기존 대상 파일의 형식 drift 때문에 Prettier가 의미 변경보다 많은 줄바꿈을 정리했다. 의미 변경은 처리 중 guard와 테스트 추가에 한정된다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>검증 항목</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td>대상 Jest 테스트</td><td>통과, 1 suite, 2 tests</td></tr>
+        <tr><td>대상 Prettier 검사</td><td>통과</td></tr>
+        <tr><td>대상 ESLint 검사</td><td>통과</td></tr>
+        <tr><td>TypeScript 검사</td><td>통과</td></tr>
+        <tr><td><code>npm run check:constraints</code></td><td>통과</td></tr>
+        <tr><td><code>npm run verify</code></td><td>통과, 493 suites, 4609 tests. 기존 lint warning 71개와 알려진 Jest worker 종료 경고만 관찰</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+        <tr><td>민감 패턴 스캔</td><td>실제 secret 없음. <code>tokens</code> import 경로명만 false positive</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>35 자체 패널</h2>
+    <table>
+      <thead><tr><th>관점</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>찬성</td><td>IDEN은 개인 데이터 내보내기 화면이므로 중복 공유, 중복 복사, 중복 미리보기 방지가 신뢰와 접근성에 직접 연결된다.</td></tr>
+        <tr><td>반대</td><td>파일 전체 형식 drift가 있어 작은 의미 변경보다 큰 줄바꿈 diff가 생길 수 있다.</td></tr>
+        <tr><td>결론</td><td>처리 중 상태 guard와 정적 회귀 테스트만 추가하고, 코드 diff 제출물이므로 Antigravity 검증 요청을 발행한다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>

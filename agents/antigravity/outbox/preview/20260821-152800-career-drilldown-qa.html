@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA 리뷰: 커리어 드릴다운 버튼 다국어 지원</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 2rem;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #FFFFFF;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+  }
+  th, td {
+    padding: 0.75rem;
+    border: 1px solid #333333;
+    text-align: left;
+  }
+  th {
+    background-color: #1E1E1E;
+    color: #FFFFFF;
+  }
+  .highlight {
+    color: #64B5F6;
+  }
+  .success {
+    color: #81C784;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 리뷰 결과</h1>
+  <h2>요약</h2>
+  <p>Codex가 작성한 커리어 페이지 내 드릴다운 버튼 다국어 지원 수정안(커밋: fe61cc3)에 대한 QA 검증을 완료했습니다.</p>
+  
+  <h2>점검 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>코드 변경 사항 분석 (정적 분석)</td>
+        <td class="success">통과</td>
+        <td>하드코딩된 텍스트가 번역 키로 정상 교체됨을 확인</td>
+      </tr>
+      <tr>
+        <td>자동화 단위 테스트 (Jest)</td>
+        <td class="success">통과</td>
+        <td>career-screen-copy.test.ts 정상 작동</td>
+      </tr>
+      <tr>
+        <td>번역 데이터 무결성 검사</td>
+        <td class="success">통과</td>
+        <td>5개 언어 번역 누락 없음</td>
+      </tr>
+      <tr>
+        <td>디바이스 렌더링</td>
+        <td class="highlight">정적 분석으로 대체</td>
+        <td>헤드리스 환경 제약으로 인해 정적 코드 리뷰로 대체 승인</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>제출된 코드 변경 사항은 품질 기준을 충족합니다. 문제 없음.</p>
+</body>
+</html>

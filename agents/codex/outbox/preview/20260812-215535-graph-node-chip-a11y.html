@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>그래프 칩 접근성 사이클 보고</title>
+  <style>
+    :root { --bg:#101418; --text:#e8edf2; --muted:#8f9aa5; --accent:#6fd3ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.55; }
+    main { max-width:920px; margin:0 auto; padding:32px 18px 56px; }
+    header { border-bottom:1px solid var(--muted); padding-bottom:18px; margin-bottom:22px; }
+    h1 { margin:0 0 8px; font-size:28px; letter-spacing:0; }
+    h2 { margin:28px 0 10px; font-size:18px; color:var(--accent); }
+    p { margin:8px 0; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin:18px 0; }
+    .card { border:1px solid var(--muted); border-radius:8px; padding:14px; }
+    .card strong { display:block; color:var(--accent); font-size:13px; margin-bottom:6px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--muted); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:650; }
+    code { color:var(--accent); word-break:break-all; }
+    details { border:1px solid var(--muted); border-radius:8px; padding:10px 12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:650; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>그래프 칩 접근성 사이클 보고</h1>
+      <p class="muted">작성 시각: 2026-08-12 21:55:40 KST</p>
+      <p>이번 사이클은 열린 Codex 오더가 없어서 2nd-B UI 접근성 레인에서 새 결함 한 건을 수정했다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><strong>결과</strong><p>완료</p></div>
+      <div class="card"><strong>대상</strong><p><code>GraphNodeChip</code> 선택 상태</p></div>
+      <div class="card"><strong>2nd-B 커밋</strong><p><code>bbbebcc8</code></p></div>
+      <div class="card"><strong>푸시</strong><p>하지 않음</p></div>
+    </section>
+
+    <h2>무엇을 고쳤나</h2>
+    <p>그래프 노드 칩은 화면에서는 활성 상태를 색과 테두리로 보여 주지만, 보조기술에는 선택 상태를 알려 주지 않았다. 이제 같은 상태가 <code>accessibilityState</code>의 <code>selected</code> 값으로도 전달된다.</p>
+
+    <details>
+      <summary>수정 파일 자세히</summary>
+      <table>
+        <thead><tr><th>파일</th><th>변경</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/components/premium/graph-bits.tsx</code></td><td><code>GraphNodeChip</code>에 선택 상태와 비활성 상태를 노출했다.</td></tr>
+          <tr><td><code>src/lib/__tests__/premium-graph-bits-a11y.test.ts</code></td><td>시각 활성 상태와 접근성 선택 상태가 함께 유지되는지 검사하는 회귀 테스트를 추가했다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>검증 항목</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>새 Jest 테스트</td><td>통과</td></tr>
+        <tr><td>Prettier</td><td>통과</td></tr>
+        <tr><td>ESLint 파일 검사</td><td>통과</td></tr>
+        <tr><td>TypeScript 검사</td><td>통과</td></tr>
+        <tr><td>i18n 키 검사</td><td>통과</td></tr>
+        <tr><td>번역 잔여 검사</td><td>통과</td></tr>
+        <tr><td>금지 어휘 검사</td><td>통과</td></tr>
+        <tr><td>대시 문자 검사</td><td>통과</td></tr>
+        <tr><td>순환 의존 검사</td><td>통과</td></tr>
+        <tr><td>diff 공백 검사</td><td>경고만 있음: 줄끝 변환 경고</td></tr>
+        <tr><td>제약 검사</td><td>실패: 기존 <code>ArtA11ySemantics</code> 가드 실패. 이번 변경 파일과 직접 관련 없음.</td></tr>
+        <tr><td>민감정보 패턴 스캔</td><td>발견 없음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>자체 패널</h2>
+    <details open>
+      <summary>35항 검토</summary>
+      <p>찬성 관점: 선택된 그래프 칩의 의미가 시각 사용자와 스크린리더 사용자에게 같아진다. 변경 범위가 작고 기존 API를 깨지 않는다.</p>
+      <p>반대 관점: 파일 포맷 정리로 실제 동작 변경보다 diff가 커졌다. 다만 같은 파일 안의 줄바꿈 정리이며 의미 변경은 <code>accessibilityState</code> 한 줄이다.</p>
+      <p>결정: 로컬 커밋으로 제출하고, Claude가 머지 전 기존 제약 실패와 함께 재검증한다.</p>
+    </details>
+
+    <h2>남은 위험</h2>
+    <p><code>npm run check:constraints</code>는 <code>ArtA11ySemantics</code>에서 실패했다. 이번 수정은 premium graph chip 상태 노출이고 art component를 건드리지 않았으므로 별도 잔여 위험으로 보고한다.</p>
+  </main>
+</body>
+</html>

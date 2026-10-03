@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SimonK-stack v25 · Codex catalog</title>
+<style>:root{color-scheme:light dark;--a:#176a9a;--t:#172331;--m:#566573;background:#f5f8fa;color:var(--t);font:16px/1.5 system-ui,sans-serif}@media(prefers-color-scheme:dark){:root{--a:#7bc5f3;--t:#e9f1f7;--m:#a6b7c4;background:#101820}}body{max-width:850px;margin:auto;padding:2rem}h1{line-height:1.2}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.7rem}.cards p,details{border:1px solid var(--m);border-radius:.7rem;padding:1rem}.cards strong{display:block;font-size:1.4rem;color:var(--a)}small{color:var(--m)}summary{cursor:pointer;min-height:44px;display:flex;align-items:center}summary:focus-visible{outline:3px solid var(--a)}code{overflow-wrap:anywhere}</style></head>
+<body><small>2026-09-29 09:23:10 KST · 추가 과금 $0</small><h1>Codex 기본 catalog 수정</h1>
+<p>기존에는 정상 Codex 오버레이도 원본 Zoom 해시와 달라 거부됐다. v25는 원본과 정확한 투영을 모두 대조한 뒤 182개 스킬을 발견한다. 기존 설치본은 변경하지 않았다.</p>
+<div class="cards"><p><strong>182</strong>안전·Codex catalog 각각 발견</p><p><strong>331 + 3</strong>전체 테스트 통과 + 건너뜀</p><p><strong>0</strong>모델 실호출·추가 과금</p></div>
+<details><summary>검증 및 남은 게이트</summary><p>v25 source/safety/overlay 영수증 verify 통과, 포장된 vibe222/222, Claude 5플러그인 check-only 통과. Gstack 외부 런타임 31스킬·646참조·9대상으로 static audit exit1, 준비 플래그 3개 false. v25 Sandbox 호스트 실행·실제 모델/Bot/Orca·설치 전환·main 머지는 미실행이다.</p><p>소스 커밋 <code>872b4c9</code>, 문서 <code>c3c19dd</code>. 상세 원시 근거는 <code>E:/Coding Infra/Releases/SimonK-stack/20260929-v25-overlay-catalog/report.html</code>.</p></details>
+</body></html>

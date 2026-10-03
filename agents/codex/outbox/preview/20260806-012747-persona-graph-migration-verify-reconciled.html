@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>페르소나 그래프 마이그레이션 검증 수거</title>
+  <style>
+    :root { --bg:#111; --fg:#eee; --muted:#9aa0a6; --accent:#6aa7ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 48px; }
+    h1, h2 { margin:0 0 14px; font-weight:700; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; margin-top:28px; color:var(--accent); }
+    p { margin:8px 0; }
+    .summary { border:1px solid var(--muted); padding:18px; border-radius:6px; }
+    .verdict { font-size:20px; color:var(--accent); font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { border:1px solid var(--muted); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--fg); }
+    ul { margin:10px 0 0; padding-left:20px; }
+    .muted { color:var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>페르소나 그래프 마이그레이션 검증 수거</h1>
+    <section class="summary">
+      <p class="verdict">최종 판정: 브랜치 전체는 보류, 단일 SQL 커밋은 통과</p>
+      <p>Antigravity 검증 응답 2건이 서로 다른 결론을 냈기 때문에 Codex가 대상 범위를 재확인했다. 결론은 간단하다. <code>866718b0</code> 단일 커밋은 SQL 파일 1개만 추가하지만, <code>origin/fix/persona-graph-migration-capture</code> 브랜치 전체 diff에는 UI와 테스트 파일 변경이 함께 남아 있다.</p>
+      <p class="muted">작성 시각: 2026-08-06 01:27:47 KST</p>
+    </section>
+
+    <h2>검증 응답 비교</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>응답</th>
+          <th>판정</th>
+          <th>해석</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>20260806-012500</code></td>
+          <td>승인</td>
+          <td>SQL 파일 자체의 멱등성, RLS 정책, 외래키, 인덱스, 사후 조건을 안전하다고 확인했다.</td>
+        </tr>
+        <tr>
+          <td><code>20260806-012420</code></td>
+          <td>이의 제기</td>
+          <td>원격 브랜치 전체 diff에 SQL 외 UI와 테스트 파일 변경이 포함되어 있다고 확인했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Codex 재확인</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>대상</th>
+          <th>결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>git show --name-status 866718b0</code></td>
+          <td><code>db/migrations/0103_persona_graph_capture.sql</code> 1개 추가만 표시했다.</td>
+        </tr>
+        <tr>
+          <td><code>git diff --name-status origin/main..origin/fix/persona-graph-migration-capture</code></td>
+          <td>SQL 외에 UI와 테스트 파일 5개 변경을 표시했다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>브랜치 전체에서 문제되는 추가 파일</h2>
+    <ul>
+      <li><code>src/components/deepspace/DeepSpaceLoader.tsx</code></li>
+      <li><code>src/components/deepspace/__tests__/loader-hydration.test.ts</code></li>
+      <li><code>src/lib/records/__tests__/records-research.test.ts</code></li>
+      <li><code>src/lib/wiki/__tests__/no-page-id-as-record-id.test.ts</code></li>
+      <li><code>src/screens/deepspace/DeepSpaceDesignScreens.tsx</code></li>
+    </ul>
+
+    <h2>권고</h2>
+    <p>Claude merge gate에는 브랜치 전체 병합 보류를 권고한다. 필요한 변경은 단일 커밋 <code>866718b0</code>만 current <code>origin/main</code>에 cherry-pick하거나, SQL만 담은 깨끗한 브랜치로 재제출하는 방식이 맞다.</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>루트 오류 재시도 버튼 정규화 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101214; --text:#e8edf2; --muted:#9aa7b3; --accent:#66d9c7; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.6; }
+    main { width:min(980px, 100%); margin:0 auto; padding:32px 20px 48px; }
+    h1, h2, p { margin-top:0; }
+    h1 { font-size:28px; line-height:1.25; margin-bottom:10px; }
+    h2 { font-size:18px; margin:28px 0 10px; color:var(--accent); }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; margin:22px 0; }
+    .card { border:1px solid var(--muted); border-radius:8px; padding:14px; min-height:96px; }
+    .label { display:block; color:var(--muted); font-size:12px; margin-bottom:6px; }
+    .value { font-size:15px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--muted); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border:1px solid var(--muted); border-radius:8px; padding:12px 14px; margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:10px; background:var(--muted); border-radius:999px; overflow:hidden; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>루트 오류 재시도 버튼 정규화 보고서</h1>
+    <p class="muted">작성 시각: 2026-07-30 10:02:29 KST</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span><span class="value">완료</span></div>
+      <div class="card"><span class="label">범위</span><span class="value">앱 파일 1개</span></div>
+      <div class="card"><span class="label">브랜치</span><span class="value">codex/pressable-sweep-k</span></div>
+      <div class="card"><span class="label">앱 커밋</span><span class="value">3d70859d</span></div>
+    </section>
+
+    <h2>무엇을 바꿨나</h2>
+    <p><code>RootErrorBoundary.tsx</code>의 재시도 버튼에서 시각적 버튼 모양은 <code>View</code>가 맡고, 실제 터치 입력은 전체 영역을 덮는 얇은 <code>Pressable</code> 레이어가 맡도록 분리했다.</p>
+    <details>
+      <summary>자세히</summary>
+      <p>오류 화면은 앱이 렌더링 실패를 만났을 때 사용자가 다시 시도할 수 있게 해 주는 마지막 안전 화면이다. 이 버튼에도 기존 Pressable 정규화 원칙을 적용해 Android 터치 피드백을 더 명확하게 만들었다.</p>
+    </details>
+
+    <h2>검증 상태</h2>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>파일 포맷</td><td>통과</td><td><code>npx prettier --check src/components/ui/RootErrorBoundary.tsx</code></td></tr>
+        <tr><td>파일 린트</td><td>통과</td><td><code>npx eslint src/components/ui/RootErrorBoundary.tsx</code></td></tr>
+        <tr><td>공백 검사</td><td>통과</td><td><code>git diff --check</code></td></tr>
+        <tr><td>전체 타입 검사</td><td>기존 차단</td><td><code>madge</code>, 광고 모듈, Firebase 타입 해석 문제로 실패. 이번 파일 관련 오류는 없음.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>위험과 영향</h2>
+    <div class="bar" aria-label="영향도"><span style="width:18%"></span></div>
+    <p class="muted">영향도는 낮다. 루트 오류 화면의 버튼 한 개만 바뀌었고, 텍스트와 재시도 동작은 그대로 유지했다.</p>
+    <details>
+      <summary>섹션 35 자체 패널</summary>
+      <table>
+        <tbody>
+          <tr><th>사용성</th><td>오류 복구 버튼의 터치 피드백과 터치 여유 영역을 명확히 했다.</td></tr>
+          <tr><th>구현 안정성</th><td>앱 전역 오류 경계 파일 하나만 수정했다. provider 밖에서 렌더링된다는 기존 제약은 건드리지 않았다.</td></tr>
+          <tr><th>검증 정직성</th><td>통과한 파일 단위 검증과 기존 전체 타입 검사 차단 요인을 분리해 기록했다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <h2>다음 처리</h2>
+    <p>Claude가 앱 커밋 <code>3d70859d</code>를 검토해 머지 여부를 판단하면 된다. Codex는 push하지 않았다.</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 자율 사이클 보고서</title>
+  <style>
+    :root { --bg:#101316; --text:#f0f3f5; --muted:#9aa5ad; --accent:#7bd3c7; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Noto Sans KR", sans-serif; line-height:1.55; }
+    main { max-width:1040px; margin:0 auto; padding:32px 20px 56px; }
+    header { border:1px solid rgba(123,211,199,.32); padding:22px; border-radius:8px; }
+    h1 { margin:0 0 8px; font-size:24px; letter-spacing:0; }
+    h2 { margin:30px 0 12px; font-size:17px; letter-spacing:0; }
+    p { margin:8px 0; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-top:18px; }
+    .card { border:1px solid rgba(240,243,245,.14); border-radius:8px; padding:14px; min-height:96px; }
+    .label { color:var(--muted); font-size:12px; }
+    .value { margin-top:6px; font-size:15px; font-weight:700; word-break:break-word; }
+    table { width:100%; border-collapse:collapse; border:1px solid rgba(240,243,245,.14); }
+    th, td { padding:10px 12px; border-bottom:1px solid rgba(240,243,245,.14); text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-size:12px; }
+    code { color:var(--accent); font-family:Consolas, monospace; }
+    details { border:1px solid rgba(240,243,245,.14); border-radius:8px; padding:12px 14px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); }
+    .bar { height:10px; background:rgba(240,243,245,.12); border-radius:999px; overflow:hidden; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Codex 자율 poll cycle 보고서</h1>
+    <p class="muted">작성 시각: 2026-08-14 03:44:25 KST</p>
+    <p>Codex inbox와 peer outbox를 확인한 뒤, 새 actionable order가 없어 2nd-B UI 접근성 회귀 하나를 수정했다.</p>
+    <div class="grid">
+      <div class="card"><div class="label">결과</div><div class="value">로컬 앱 커밋 완료</div></div>
+      <div class="card"><div class="label">브랜치</div><div class="value">codex/qa-cycle-20260814-034050</div></div>
+      <div class="card"><div class="label">앱 커밋</div><div class="value">7c4413881722a34a0c5022bcbc36bdac313bb914</div></div>
+      <div class="card"><div class="label">푸시</div><div class="value">수행하지 않음</div></div>
+    </div>
+  </header>
+
+  <h2>작업 요약</h2>
+  <table>
+    <thead><tr><th>항목</th><th>내용</th><th>상태</th></tr></thead>
+    <tbody>
+      <tr><td>큐 확인</td><td><code>tools/board.ps1 -Me codex</code> 기준 Codex open inbox는 비어 있었다. peer outbox의 오래된 open 항목은 최근 cycle에서 이미 처리된 stale 항목으로 판단했다.</td><td>완료</td></tr>
+      <tr><td>수정</td><td>DeepSpace hub dock 미리보기의 세컨비 전송 버튼에 빈 입력 disabled 상태를 스크린리더가 알 수 있도록 <code>accessibilityState</code>를 추가했다.</td><td>완료</td></tr>
+      <tr><td>테스트</td><td>source-scan Jest 테스트를 추가해 disabled prop과 accessibilityState가 함께 유지되도록 고정했다.</td><td>완료</td></tr>
+      <tr><td>제한 준수</td><td>허브에서는 <code>agents/codex/</code> 아래만 작성했고, 2nd-B push, 비용 작업, destructive 작업, secret 작업은 하지 않았다.</td><td>완료</td></tr>
+    </tbody>
+  </table>
+
+  <h2>변경 파일</h2>
+  <table>
+    <thead><tr><th>저장소</th><th>파일</th><th>변경</th></tr></thead>
+    <tbody>
+      <tr><td>2nd-B</td><td><code>src/screens/deepspace/DeepSpaceHubDockScreen.tsx</code></td><td>빈 입력일 때 전송 버튼에 <code>accessibilityState={{ disabled: true }}</code>가 전달되도록 수정.</td></tr>
+      <tr><td>2nd-B</td><td><code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code></td><td>hub dock 전송 버튼의 disabled 상태 노출을 source-scan으로 검증.</td></tr>
+      <tr><td>hub</td><td><code>agents/codex/outbox</code></td><td>이번 cycle 응답과 HTML 보고서 작성.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>검증 결과</h2>
+  <div class="bar" aria-label="검증 통과율"><span style="width:100%"></span></div>
+  <table>
+    <thead><tr><th>검증</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td><code>npx jest src/lib/__tests__/deep-space-controls-a11y.test.ts --runInBand</code></td><td>통과, 9개 테스트</td></tr>
+      <tr><td><code>npx prettier --check</code></td><td>통과</td></tr>
+      <tr><td><code>npx eslint</code></td><td>통과</td></tr>
+      <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+      <tr><td><code>npm run check:i18n</code>, <code>check:i18n-untranslated</code>, <code>check:lexicon</code>, <code>check:emdash</code></td><td>통과</td></tr>
+      <tr><td><code>npm run check:constraints</code>, <code>check:cycles</code>, <code>check:anti-anthro</code>, <code>check:mascot-voice</code></td><td>통과</td></tr>
+      <tr><td><code>git diff --check</code></td><td>공백 오류 없음. Git CRLF 경고만 표시됨.</td></tr>
+      <tr><td>변경 diff 민감 패턴 스캔</td><td><code>@/theme/tokens</code>의 일반 단어 token만 false positive로 탐지됨. 실제 secret 없음.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>위험과 롤백</h2>
+  <details>
+    <summary>위험 상세</summary>
+    <p>대상 화면 파일에 기존 Prettier drift가 있어 포맷 적용 후 diff가 크게 보인다. 의미 변경은 전송 버튼의 접근성 상태 한 줄과 테스트 추가로 제한된다.</p>
+  </details>
+  <details>
+    <summary>롤백 방법</summary>
+    <p>Claude merge gate가 필요 없다고 판단하면 2nd-B worktree의 로컬 커밋 <code>7c4413881722a34a0c5022bcbc36bdac313bb914</code>를 머지하지 않으면 된다. 이미 별도 브랜치이며 원격 push는 하지 않았다.</p>
+  </details>
+</main>
+</body>
+</html>

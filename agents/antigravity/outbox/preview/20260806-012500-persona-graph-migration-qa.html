@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>마이그레이션 검증 보고서</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: sans-serif;
+            margin: 40px auto;
+            max-width: 800px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #ffffff;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+        .status-pass {
+            color: #b0bec5;
+            font-weight: bold;
+        }
+        .section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>마이그레이션 검증 보고서</h1>
+    
+    <div class="section">
+        <h2>검증 대상</h2>
+        <p>프로젝트: 2nd-B</p>
+        <p>브랜치: origin/fix/persona-graph-migration-capture (866718b0)</p>
+        <p>파일: db/migrations/0103_persona_graph_capture.sql</p>
+    </div>
+
+    <div class="section">
+        <h2>검증 결과</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>항목</th>
+                    <th>상태</th>
+                    <th>비고</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>멱등성 (Idempotency)</td>
+                    <td class="status-pass">통과</td>
+                    <td>모든 생성문에 IF NOT EXISTS 적용 및 트랜잭션 내 정책 재생성 확인</td>
+                </tr>
+                <tr>
+                    <td>RLS 정책 안전성</td>
+                    <td class="status-pass">통과</td>
+                    <td>user_id 기반 권한 제어 일치 및 예외 사항 명시 확인</td>
+                </tr>
+                <tr>
+                    <td>외래키 및 인덱스</td>
+                    <td class="status-pass">통과</td>
+                    <td>정상적인 CASCADE 설정 및 라이브 DB 설정과 인덱스 일치</td>
+                </tr>
+                <tr>
+                    <td>사후 조건 (Post-condition)</td>
+                    <td class="status-pass">통과</td>
+                    <td>테이블, RLS, 정책 각각 3개 정상 카운트 확인</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>최종 판정</h2>
+        <p>결과: <strong>승인 (MERGE-SAFE)</strong></p>
+        <p>라이브 데이터베이스의 스키마와 동일한 상태로 마이그레이션 스크립트가 안전하게 작성되었음을 확인하였습니다.</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서: 날짜 선택기 액션 버튼</title>
+  <style>
+    :root { color-scheme: dark; --bg:#111318; --text:#e6e1e5; --accent:#8ecaff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section { border: 1px solid var(--accent); border-radius: 8px; padding: 18px; margin-top: 16px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border-top: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .box { border: 1px solid var(--accent); border-radius: 8px; padding: 14px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex 자율 폴 사이클 보고서</h1>
+    <p>작성 시각: 2026-07-30 15:33:20 KST</p>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="box"><strong>작업</strong><br>2nd-B 날짜 선택기 모달 액션 버튼 정리</div>
+        <div class="box"><strong>범위</strong><br><code>src/components/m3/date-picker/DatePicker.tsx</code> 한 파일</div>
+        <div class="box"><strong>브랜치</strong><br><code>codex/pressable-sweep-ab-20260730-1528</code></div>
+        <div class="box"><strong>앱 커밋</strong><br><code>b434d34a</code></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>액션 버튼</td><td>취소와 확인 버튼을 <code>DialogTextButton</code>으로 통합했다.</td></tr>
+          <tr><td>터치 표면</td><td>시각 스타일은 내부 <code>View</code>가 맡고, <code>Pressable</code>은 터치, 접근성, 안드로이드 리플을 맡도록 분리했다.</td></tr>
+          <tr><td>정리</td><td>기존 unused import 두 개를 제거해 파일 단위 lint 경고를 없앴다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr><th>검사</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npx eslint src/components/m3/date-picker/DatePicker.tsx</code></td><td>통과</td></tr>
+          <tr><td><code>npm test -- --runTestsByPath src/lib/__tests__/no-function-form-pressable-style.test.ts --runInBand</code></td><td>통과, 10개 테스트</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>실패. 기존 누락 타입 의존성 때문에 중단: <code>madge</code>, <code>react-native-google-mobile-ads</code>, Firebase analytics.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>위험과 다음 단계</h2>
+      <p>변경은 모달 하단 텍스트 액션 버튼에 한정되어 있으며 라우팅, 결제, 스키마, 시크릿, 외부 API 호출을 건드리지 않았다. 병합은 Claude 게이트에서 앱 커밋 <code>b434d34a</code>를 검토해 진행하면 된다.</p>
+    </section>
+  </main>
+</body>
+</html>

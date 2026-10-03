@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OPENAI_API_KEY Phase 2 보류 브랜치 QA 보고서</title>
+  <style>
+    :root { --bg:#0f1115; --text:#e8e8e8; --accent:#7aa2ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:1040px; margin:0 auto; padding:32px 18px 48px; }
+    h1, h2, h3 { margin:0 0 12px; line-height:1.2; }
+    h1 { font-size:28px; }
+    h2 { font-size:20px; margin-top:28px; color:var(--accent); }
+    p { margin:0 0 12px; }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:18px 0 24px; }
+    .card { border:1px solid var(--accent); border-radius:6px; padding:14px; min-height:104px; }
+    .label { font-size:12px; color:var(--accent); margin-bottom:8px; }
+    .value { font-size:18px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin:12px 0 20px; }
+    th, td { border:1px solid rgba(122,162,255,.42); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border:1px solid rgba(122,162,255,.42); border-radius:6px; padding:12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:10px; background:rgba(122,162,255,.25); border-radius:999px; overflow:hidden; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+    a { color:var(--accent); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr; } h1 { font-size:24px; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>OPENAI_API_KEY Phase 2 보류 브랜치 QA 보고서</h1>
+  <p>작성 시각: 2026-08-07 12:11:31 KST</p>
+  <p>대상: 2nd-B <code>origin/docs/openai-key-phase2-pin</code></p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="label">판정</div><div class="value">닫기/무작업</div></div>
+    <div class="card"><div class="label">핵심 변경</div><div class="value">이미 main 반영</div></div>
+    <div class="card"><div class="label">위험</div><div class="value">전체 브랜치 회귀</div></div>
+    <div class="card"><div class="label">검증 요청</div><div class="value">Antigravity</div></div>
+  </section>
+
+  <h2>결론</h2>
+  <p>후보 브랜치의 의도인 <code>docs/LLM-ROUTING.md</code> 1줄 추가는 이미 <code>origin/main</code>의 <code>61249799</code> 커밋으로 반영되어 있습니다. 따라서 최신 커밋만 다시 적용하면 변경 사항이 없고, 브랜치 전체를 병합하면 최신 main의 migration과 Paddle webhook 방어가 후퇴합니다.</p>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>main 기준</td><td>확인</td><td><code>origin/main cae2b7ca</code></td></tr>
+      <tr><td>후보 기준</td><td>확인</td><td><code>origin/docs/openai-key-phase2-pin b363b820</code></td></tr>
+      <tr><td>문서 diff</td><td>동일</td><td><code>docs/LLM-ROUTING.md</code>는 main과 후보가 동일</td></tr>
+      <tr><td>단독 cherry-pick</td><td>빈 변경</td><td><code>b363b820</code> 적용 결과 작업트리 변경 0개</td></tr>
+      <tr><td>시크릿 패턴</td><td>발견 0건</td><td>실제 API key 형태는 발견되지 않음</td></tr>
+    </tbody>
+  </table>
+
+  <h2>회귀 위험</h2>
+  <p>브랜치 전체 diff는 12개 파일에 대해 562줄 삭제를 포함합니다. 삭제 대상에는 최신 schema와 webhook 방어가 포함되어 있어 병합하면 보안·데이터 계층이 후퇴할 수 있습니다.</p>
+  <div class="bar" aria-label="삭제 비중"><span style="width:85%"></span></div>
+
+  <details>
+    <summary>삭제 또는 후퇴 후보 파일 자세히</summary>
+    <ul>
+      <li><code>db/migrations/0102_rls_wrap_auth_uid.sql</code></li>
+      <li><code>db/migrations/0103_persona_graph_capture.sql</code></li>
+      <li><code>src/components/deepspace/__tests__/loader-hydration.test.ts</code></li>
+      <li><code>supabase/functions/paddle-webhook/index.ts</code></li>
+      <li><code>src/components/deepspace/DeepSpaceLoader.tsx</code></li>
+    </ul>
+  </details>
+
+  <h2>섹션 35 자기 패널</h2>
+  <table>
+    <thead><tr><th>관점</th><th>판단</th></tr></thead>
+    <tbody>
+      <tr><td>찬성</td><td>문서 목적은 타당하지만 핵심 변경은 이미 main에 있습니다.</td></tr>
+      <tr><td>반대</td><td>문서 단독 변경은 안전하지만 다시 적용해도 빈 diff입니다.</td></tr>
+      <tr><td>대안</td><td>whole-branch 병합 대신 main의 <code>61249799</code>를 정본 근거로 삼습니다.</td></tr>
+      <tr><td>심판</td><td>닫기/무작업이 가장 낮은 위험입니다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>제약 준수</h2>
+  <p>2nd-B push, hub branch 변경, 배포, 비용 작업, 파괴 작업, 시크릿 작업은 하지 않았습니다. 허브에서는 <code>agents/codex/</code> 아래에만 작성했습니다.</p>
+
+  <h2>링크</h2>
+  <p><a href="../20260807-121131-codex-re-openai-key-phase2-pin-qa.md">Claude용 결과</a> · <a href="../20260807-121131-codex-to-antigravity-verify-openai-key-phase2-pin.md">Antigravity 검증 요청</a></p>
+</main>
+</body>
+</html>

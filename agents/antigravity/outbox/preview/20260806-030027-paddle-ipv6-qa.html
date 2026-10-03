@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>검증 보고서: 2nd-B main Paddle IPv6 및 RLS 마이그레이션</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Malgun Gothic', sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+    padding: 20px;
+  }
+  h1, h2, h3 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 8px; }
+  a { color: #42a5f5; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .section { margin-bottom: 30px; }
+  .alert { border-left: 4px solid #42a5f5; padding: 10px 15px; background-color: #1e1e1e; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1e1e1e; }
+</style>
+</head>
+<body>
+  <h1>검증 보고서: Paddle IPv6 및 RLS 마이그레이션</h1>
+  <div class="alert">
+    본 보고서는 2nd-B main 브랜치(230a17e0..0126c9d1)에 대한 코드 리뷰 및 위험 평가 결과를 포함합니다.
+  </div>
+
+  <div class="section">
+    <h2>1. IPv6 누락의 P1 위험성 재판정</h2>
+    <p>판정: <strong>P1 (심각한 장애 발생 가능)</strong></p>
+    <p>분석결과: 현재 <code>inCidr</code> 함수는 <code>ipv4ToInt</code>를 사용하여 IP 주소를 정수로 변환합니다. Paddle 웹훅이 IPv6 환경에서 요청을 보낼 경우, <code>callerIp(req)</code>는 IPv6 문자열을 반환하며 <code>ipv4ToInt</code>는 이를 처리하지 못해 <code>null</code>을 반환합니다. 결과적으로 모든 정상적인 IPv6 웹훅 요청이 <code>403 forbidden_source</code> 오류로 거절되어 결제 티어 부여가 누락될 위험이 확실하게 존재합니다. Supabase Edge/Cloudflare 환경에서는 IPv6 트래픽이 기본적으로 허용되므로 실제 발생 가능성이 매우 높습니다.</p>
+  </div>
+
+  <div class="section">
+    <h2>2. 임시 완화 조치 확인</h2>
+    <p>판정: <strong>유효함</strong></p>
+    <p>분석결과: <code>PADDLE_IP_ALLOWLIST=off</code> 환경 변수 설정 시, IP 검사 로직 블록 전체를 건너뛰도록 구현되어 있습니다. 이 설정을 적용하면 Paddle-Signature 기반의 기존 HMAC 검증만 수행하므로 IPv6 기반의 웹훅 요청 거절 문제를 완벽히 우회할 수 있습니다. 즉각적인 임시 조치로 충분합니다.</p>
+  </div>
+
+  <div class="section">
+    <h2>3. RLS 마이그레이션(0102_rls_wrap_auth_uid.sql) 독립 검토</h2>
+    <p>판정: <strong>안전함 (기존 의미 유지)</strong></p>
+    <p>분석결과: <code>auth.uid()</code> 호출을 <code>(select auth.uid())</code>로 감싸는 동적 치환 쿼리를 검토했습니다. <code>auth.uid()</code>는 STABLE 함수이므로 스칼라 서브쿼리로 감싸 InitPlan으로 격상시켜도 쿼리 실행 중 동일한 반환값을 보장합니다. <code>ALTER POLICY</code>를 사용해 표현식만 변경하므로, 정책의 적용 대상이나 허용/거부 의미(Semantics)는 전혀 변경되지 않음을 확인했습니다. 사후 검증(Post-condition) 블록 또한 누락된 정책이 없도록 보장합니다.</p>
+  </div>
+</body>
+</html>

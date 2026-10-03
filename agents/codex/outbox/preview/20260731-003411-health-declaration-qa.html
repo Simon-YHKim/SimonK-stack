@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>건강 선언 브랜치 병합 준비 검토</title>
+  <style>
+    :root { --bg:#101216; --panel:#191d24; --text:#e8edf4; --muted:#9aa4b2; --accent:#7fb3ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial,"Malgun Gothic",sans-serif; line-height:1.58; }
+    main { max-width:980px; margin:0 auto; padding:28px 18px 52px; }
+    header, section { background:var(--panel); border:1px solid #2a303a; border-radius:8px; padding:18px; margin:0 0 14px; }
+    h1 { margin:0 0 8px; font-size:24px; }
+    h2 { margin:0 0 12px; font-size:17px; }
+    p { margin:8px 0; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:10px; }
+    .card { border:1px solid #2a303a; border-radius:8px; padding:12px; background:#12151b; }
+    .label { color:var(--muted); font-size:12px; }
+    .value { color:var(--accent); font-weight:700; font-size:18px; margin-top:4px; }
+    table { width:100%; border-collapse:collapse; margin-top:8px; font-size:14px; }
+    th, td { border-bottom:1px solid #2a303a; text-align:left; vertical-align:top; padding:8px; }
+    th { color:var(--muted); font-weight:700; }
+    code { color:var(--accent); font-family:Consolas,monospace; font-size:13px; }
+    details { border-top:1px solid #2a303a; padding-top:10px; margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { display:flex; height:18px; border:1px solid #2a303a; border-radius:6px; overflow:hidden; margin:8px 0 4px; }
+    .bar span { display:block; background:var(--accent); }
+    .small { font-size:12px; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>건강 선언 브랜치 병합 준비 검토</h1>
+    <p class="muted">작성 시각: 2026-07-31 00:34:11 KST · 대상: <code>origin/claude/s3-health-declaration-facts</code></p>
+    <div class="grid">
+      <div class="card"><div class="label">최종 판정</div><div class="value">보류</div><p>문서의 건강 사실 정정은 소스와 대체로 맞지만, 브랜치 전체가 기존 R1 문서 3개를 삭제합니다.</p></div>
+      <div class="card"><div class="label">검증 범위</div><div class="value">문서 병합 검토</div><p><code>origin/main</code> 대비 diff, health 소스 경로, 집중 테스트를 확인했습니다.</p></div>
+      <div class="card"><div class="label">테스트</div><div class="value">4개 통과</div><p>Health ingest, native sources, Apple Health export, domain level 테스트가 통과했습니다.</p></div>
+      <div class="card"><div class="label">교차검증</div><div class="value">요청됨</div><p>merge diff 위험이 있어 Antigravity에 별도 확인 요청을 남겼습니다.</p></div>
+    </div>
+  </header>
+
+  <section>
+    <h2>핵심 결론</h2>
+    <table>
+      <thead><tr><th>항목</th><th>판정</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>심박수 표시 주장</td><td>맞음</td><td><code>DomainStarLens.tsx</code>가 <code>heart_rate</code> 라벨과 <code>bpm</code> 값을 건강 렌즈에 표시합니다.</td></tr>
+        <tr><td>건강 권한 4종</td><td>맞음</td><td><code>app.json</code>에 <code>READ_STEPS</code>, <code>READ_EXERCISE</code>, <code>READ_SLEEP</code>, <code>READ_HEART_RATE</code>가 있습니다.</td></tr>
+        <tr><td>미성년자 ingest 차단</td><td>맞음</td><td><code>healthImportAllowed</code>와 ingest gate 테스트가 미성년자 및 opt-in 미충족 쓰기를 막습니다.</td></tr>
+        <tr><td>측정값 LLM 미전송</td><td>대체로 맞음</td><td>확인된 직접 소비자는 화면 표시, 루틴 자동완료, 도메인 레벨의 source 1비트 조회입니다. 전체 호출 그래프 완전 증명은 하지 않았습니다.</td></tr>
+        <tr><td>병합 준비 상태</td><td>보류</td><td>브랜치가 <code>T-R1-S7-S4-07.md</code>, <code>T-R1-S7-S6-08.md</code>, <code>ticket-T-R1-S7-S4-07.html</code> 삭제를 포함합니다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>diff 위험</h2>
+    <div class="bar" aria-label="추가와 삭제 비율"><span style="width:10%"></span><span style="width:90%;background:#2a303a"></span></div>
+    <p class="small muted">브랜치 전체 diff: 53줄 추가, 485줄 삭제. 삭제가 대부분입니다.</p>
+    <details open>
+      <summary>삭제되는 파일</summary>
+      <table>
+        <thead><tr><th>파일</th><th>현재 main 상태</th><th>위험</th></tr></thead>
+        <tbody>
+          <tr><td><code>docs/sessions/R1/T-R1-S7-S4-07.md</code></td><td>존재</td><td>vc20 검증 및 production OTA 게시 기록 삭제</td></tr>
+          <tr><td><code>docs/sessions/R1/T-R1-S7-S6-08.md</code></td><td>존재</td><td>PROTOCOL 정본 결손 이슈 기록 삭제</td></tr>
+          <tr><td><code>docs/sessions/R1/ticket-T-R1-S7-S4-07.html</code></td><td>존재</td><td>사람이 읽는 정본 HTML 삭제</td></tr>
+        </tbody>
+      </table>
+      <p>원인으로 보이는 점: merge-base 이후 <code>origin/main</code>에 <code>7fcb1cd4</code>가 R1 문서를 추가했는데, 대상 브랜치가 그 변경을 포함하지 않은 상태입니다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>실행한 검증</h2>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>git diff --check origin/main..origin/claude/s3-health-declaration-facts</code></td><td>통과</td></tr>
+        <tr><td><code>git merge-tree</code> 충돌 마커 검사</td><td>충돌 마커 없음</td></tr>
+        <tr><td>집중 Jest 4개 파일</td><td>4 suites, 32 tests 통과</td></tr>
+        <tr><td>health 소스 정적 대조</td><td>권한, gate, RLS 주석, 루틴 규칙, 화면 표시 근거 확인</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>권고</h2>
+    <p>이 브랜치는 그대로 병합하지 말고, <code>origin/main</code> 최신 상태 위에서 <code>docs/sessions/R1/T-R1-S3-S1-02.md</code> 추가만 남기도록 재기반 또는 cherry-pick 방식으로 다시 제출하는 편이 안전합니다.</p>
+    <p>건강 선언 문서 자체의 핵심 정정은 유효하므로, 삭제 diff만 제거되면 문서 추가는 병합 가능성이 높습니다.</p>
+  </section>
+</main>
+</body>
+</html>

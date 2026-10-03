@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>사이클 보고서: 관찰 차이 합성 버튼 접근성</title>
+  <style>
+    :root { --bg:#101214; --text:#e8edf2; --muted:#9aa6b2; --accent:#69d2c0; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 44px; }
+    h1, h2 { margin: 0 0 12px; }
+    h1 { font-size: 26px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 18px 0; }
+    .card, details { border:1px solid var(--muted); border-radius:8px; padding:14px; background:rgba(255,255,255,0.03); }
+    .label { color:var(--muted); font-size:12px; margin-bottom:4px; }
+    .value { font-size:15px; word-break:break-word; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border-bottom:1px solid var(--muted); text-align:left; padding:9px 6px; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); word-break:break-word; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .muted { color:var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>관찰 차이 합성 버튼 접근성 사이클 보고서</h1>
+    <p class="muted">작성 시각: 2026-08-14 06:55:13 KST</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">2nd-B 로컬 worktree에 접근성 수정 커밋 생성</div></div>
+      <div class="card"><div class="label">앱 브랜치</div><div class="value"><code>codex/qa-cycle-20260814-065147</code></div></div>
+      <div class="card"><div class="label">앱 커밋</div><div class="value"><code>c419a24eac26b3219bccc9125afb3d62bde1af4f</code></div></div>
+      <div class="card"><div class="label">푸시 여부</div><div class="value">푸시하지 않음. 병합 게이트는 Claude 담당.</div></div>
+    </section>
+
+    <section>
+      <h2>수행 내용</h2>
+      <p><code>SeenLensView</code>의 관찰 차이 합성 버튼은 처리 중일 때 비활성화되지만, 보조기술에는 비활성 및 진행 중 상태가 전달되지 않았다. 버튼에 <code>accessibilityState</code>를 추가해 같은 상태를 화면과 보조기술이 함께 인식하게 했다.</p>
+      <table>
+        <thead><tr><th>파일</th><th>변경</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/components/deep-space/DeepSpaceViews.tsx</code></td><td>합성 버튼에 <code>disabled</code>와 <code>busy</code> 접근성 상태 추가</td></tr>
+          <tr><td><code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code></td><td>상태 노출을 고정하는 source-scan 회귀 테스트 추가</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>검증 항목</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>대상 Jest</td><td>통과, 1개 스위트 9개 테스트</td></tr>
+          <tr><td>대상 ESLint</td><td>통과</td></tr>
+          <tr><td>TypeScript</td><td>통과</td></tr>
+          <tr><td>i18n, 미번역, lexicon, constraints</td><td>통과. constraints의 C11 PART는 기존 부분 상태</td></tr>
+          <tr><td>emdash, anti-anthro, mascot-voice, require cycles</td><td>통과</td></tr>
+          <tr><td>diff 검사 및 민감 패턴 스캔</td><td>통과. 민감값 없음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>자체 패널</summary>
+      <p>찬성 관점: 이미 존재하는 비활성 조건을 보조기술 상태로만 노출하므로 동작 위험이 낮고, UI 레인에서 반복적으로 줄여온 접근성 debt와 일치한다.</p>
+      <p>반대 관점: 같은 파일의 전체 포맷 드리프트가 있어 자동 포맷은 diff를 과도하게 만들 수 있다.</p>
+      <p>판정: 화면 파일은 기존 포맷을 유지하고 한 줄만 변경했다. 테스트 파일만 대상 포맷을 통과시켰다.</p>
+    </details>
+
+    <details>
+      <summary>남은 위험</summary>
+      <p>실기기 스크린리더 검증은 이번 헤드리스 사이클 범위 밖이다. 코드 상태와 source-scan 테스트로 회귀 가능성을 낮췄다.</p>
+    </details>
+  </main>
+</body>
+</html>

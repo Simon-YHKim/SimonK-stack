@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 자율 QA 보고서: Drill Down 한국어 카피</title>
+  <style>
+    :root { --bg: #101214; --text: #eef2f5; --accent: #7cc7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Noto Sans KR", sans-serif; line-height: 1.62; }
+    main { max-width: 980px; margin: 0 auto; padding: 40px 20px 64px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 10px; }
+    h2 { font-size: 18px; margin: 28px 0 10px; color: var(--accent); }
+    h3 { font-size: 15px; margin: 18px 0 8px; }
+    .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 22px 0 26px; }
+    .card, details, table { border: 1px solid rgba(238,242,245,.18); background: rgba(238,242,245,.04); border-radius: 8px; }
+    .card { padding: 14px; min-height: 92px; }
+    .label { font-size: 12px; color: var(--accent); margin-bottom: 6px; }
+    .value { font-size: 15px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; overflow: hidden; }
+    th, td { padding: 12px; border-bottom: 1px solid rgba(238,242,245,.12); text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-size: 13px; }
+    code { color: var(--accent); }
+    details { padding: 12px 14px; margin: 10px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .muted { opacity: .72; }
+    .bar { height: 8px; border-radius: 999px; background: rgba(238,242,245,.12); overflow: hidden; }
+    .bar span { display: block; height: 100%; width: 70%; background: var(--accent); }
+    @media (max-width: 760px) { .summary { grid-template-columns: 1fr 1fr; } table { font-size: 13px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Codex 자율 QA 보고서: Drill Down 한국어 카피</h1>
+    <p class="muted">작성 시각: 2026-08-12 01:07:16 KST. 대상: 2nd-B 최신 origin/main 215f5cdd123d94a27adf7165234807eec301f7da.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">KO 카피 잔여 1개 클러스터 발견</div></div>
+      <div class="card"><div class="label">영향</div><div class="value">커리어 렌즈와 저장 버튼의 언어 톤 불일치</div></div>
+      <div class="card"><div class="label">위험도</div><div class="value">낮음, 사용자 신뢰와 완성도 문제</div></div>
+      <div class="card"><div class="label">작업 범위</div><div class="value">정적 QA만 수행, 앱 코드 수정 없음</div></div>
+    </section>
+
+    <h2>발견 사항</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>위치</th><th>문제</th><th>권장 정리</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/app/star/[domain].tsx</code></td>
+          <td>59</td>
+          <td>career 도메인 별의 KO 보조 CTA가 <code>Drill Down</code>으로 표시된다.</td>
+          <td>커리어 3C4P 문맥이면 <code>경험 분해</code> 같은 한국어 액션명으로 통일한다.</td>
+        </tr>
+        <tr>
+          <td><code>locales/ko/deepspace.json</code></td>
+          <td>594</td>
+          <td>저장 CTA가 <code>세컨비와 Drill Down</code>으로 남아 있다.</td>
+          <td><code>세컨비와 경험 분해</code>처럼 같은 용어를 쓴다.</td>
+        </tr>
+        <tr>
+          <td><code>src/app/career.tsx</code></td>
+          <td>133</td>
+          <td>상단 버튼 label이 i18n 없이 하드코딩되어 KO에서도 영어 노출 가능성이 높다.</td>
+          <td>deepspace 네임스페이스 키로 이동하거나 기존 커리어 카피 맵에 연결한다.</td>
+        </tr>
+        <tr>
+          <td><code>src/app/career-drilldown.tsx</code></td>
+          <td>145-146</td>
+          <td>KO copy map의 title과 seedPrefix가 영어로 남아 있다.</td>
+          <td>화면 제목도 같은 한국어 표시명으로 맞춘다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <details open>
+      <summary>실행한 확인</summary>
+      <p><code>tools/board.ps1 -Me codex</code>에서 Codex 직접 inbox가 비어 있음을 확인했다.</p>
+      <p><code>git fetch origin --prune</code> 후 <code>origin/main</code>의 최신 커밋을 기준으로 검색했다.</p>
+      <p><code>git grep -n 'Drill Down' origin/main -- 'locales/ko/**/*.json' 'src/**/*.tsx'</code>로 사용자 표면 후보를 확인했다.</p>
+      <p><code>Pressable</code> 함수형 style 잔여와 <code>Alert.alert</code> 잔여는 이번 스캔에서 0건이었다.</p>
+    </details>
+
+    <h2>35 self-panel</h2>
+    <details>
+      <summary>판단 과정</summary>
+      <h3>찬성 관점</h3>
+      <p>한국어 화면 안에 영어 CTA가 섞이면 완성도가 낮아 보이고, 특히 커리어 렌즈처럼 첫 행동을 유도하는 화면에서는 사용자가 버튼 의미를 한 번 더 해석해야 한다.</p>
+      <h3>반대 관점</h3>
+      <p><code>Drill Down</code>이 제품 내부 용어로 의도됐을 가능성은 있다. 다만 같은 화면의 다른 액션은 한국어로 번역되어 있어 현재 상태는 의도된 브랜드 용어라기보다 잔여 카피에 가깝다.</p>
+      <h3>판정</h3>
+      <p>코드 변경 없이 QA 보고만 남긴다. Claude가 후속 패치로 처리할 때는 표시명 하나를 먼저 정하고 네 표면을 한 번에 바꾸는 것이 가장 작고 안전하다.</p>
+      <div class="bar" aria-label="신뢰도"><span></span></div>
+      <p class="muted">신뢰도: 7/10. 정적 근거는 충분하지만 실제 런타임 캡처는 이번 헤드리스 사이클 범위 밖이다.</p>
+    </details>
+  </main>
+</body>
+</html>

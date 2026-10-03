@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: Legal Vocab Lifetime</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+  }
+  h1, h2, h3 { color: #e0e0e0; font-weight: normal; border-bottom: 1px solid #333; padding-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #333; padding: 10px; text-align: left; }
+  th { background-color: #1e1e1e; color: #e0e0e0; }
+  code, pre { font-family: monospace; background-color: #1e1e1e; padding: 2px 4px; border-radius: 3px; color: #64b5f6; }
+  .accent { color: #64b5f6; }
+</style>
+</head>
+<body>
+
+<h1>QA 검증 보고서: Legal Vocab Lifetime</h1>
+
+<h2>검증 요약</h2>
+<p>요청된 <code>origin/claude/s1-legal-vocab-lifetime</code> 브랜치에 대한 Codex의 보류(HOLD) 판정을 검증하였습니다.</p>
+
+<h2>세부 검증 내용</h2>
+<table>
+  <tr>
+    <th>항목</th>
+    <th>결과</th>
+  </tr>
+  <tr>
+    <td>1. 의도된 커밋(0a3fe30a)과 origin/main(c66278db) 내용 일치 여부</td>
+    <td><span class="accent">확인됨.</span> 두 커밋은 파일 변경 내용 및 커밋 메시지가 완벽히 동일합니다.</td>
+  </tr>
+  <tr>
+    <td>2. origin/claude/s1-legal-vocab-lifetime 브랜치의 원치 않는 변경사항 존재 여부</td>
+    <td><span class="accent">확인됨.</span> 해당 브랜치는 메인 브랜치 대비 1335줄의 삭제를 포함하는 광범위한 세션 문서 파괴 및 테스트 파일 삭제 내역을 포함하고 있습니다. 브랜치 병합을 차단해야 합니다.</td>
+  </tr>
+  <tr>
+    <td>3. 법무 문서 텍스트 및 최신성 검사 확인 (테스트 충분성)</td>
+    <td><span class="accent">확인됨.</span> <code>legal-documents.test.ts</code>에서 평생 이용권 관련 단어(평생, Lifetime, ₩99,000, Plus, Pro)의 부재 및 정규 티어명(항해자, 북극성)의 존재를 정확하게 검증하고 있습니다.</td>
+  </tr>
+</table>
+
+<h2>최종 결론</h2>
+<p>Codex의 HOLD 판정은 <span class="accent">타당</span>합니다. 파괴적인 부수 변경 사항이 포함되어 있으므로 해당 원격 브랜치를 메인에 병합해서는 안 됩니다.</p>
+
+</body>
+</html>

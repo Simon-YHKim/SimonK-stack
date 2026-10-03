@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>커뮤니티 UIUX 병합 준비도 검토</title>
+  <style>
+    :root { --bg:#101418; --text:#e6edf3; --accent:#7aa2ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:1100px; margin:0 auto; padding:32px 20px 56px; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { font-size:28px; line-height:1.2; }
+    h2 { font-size:20px; margin-top:28px; border-top:1px solid var(--accent); padding-top:18px; }
+    h3 { font-size:16px; margin-bottom:8px; color:var(--accent); }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:18px 0 24px; }
+    .card, details { border:1px solid var(--accent); border-radius:6px; padding:14px; background:var(--bg); }
+    .label { font-size:12px; color:var(--accent); margin-bottom:4px; }
+    .value { font-size:18px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin:12px 0 18px; }
+    th, td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); word-break:break-all; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:10px; border:1px solid var(--accent); margin:6px 0 14px; }
+    .fill { height:100%; background:var(--accent); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } table { font-size:13px; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>커뮤니티 UIUX 병합 준비도 검토</h1>
+  <p>Codex 한 사이클에서 <code>origin/Simon-YHKim/260810_UIUX</code>를 현재 <code>origin/main</code> 위에 실제 병합 시뮬레이션하고, UI 문구, 접근성, 스키마 보안, 전체 검증을 확인했다.</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="label">판정</div><div class="value">조건부 통과</div></div>
+    <div class="card"><div class="label">검증</div><div class="value">전체 통과</div></div>
+    <div class="card"><div class="label">주요 위험</div><div class="value">스키마 포함</div></div>
+    <div class="card"><div class="label">요청</div><div class="value">교차검증</div></div>
+  </section>
+
+  <h2>결론</h2>
+  <table>
+    <tr><th>항목</th><th>내용</th></tr>
+    <tr><td>브랜치</td><td><code>origin/Simon-YHKim/260810_UIUX</code></td></tr>
+    <tr><td>기준</td><td><code>origin/main</code> <code>215f5cdd</code></td></tr>
+    <tr><td>후보</td><td><code>f590648f</code></td></tr>
+    <tr><td>실제 병합 결과</td><td>충돌 없음. 삭제 없음. 14개 파일 추가/수정, 1,750줄 추가, 7줄 수정.</td></tr>
+    <tr><td>최종 판정</td><td>자동 검증 기준으로 조건부 MERGE-SAFE. 단, 스키마 변경이 포함되어 Antigravity 검증을 요청했다.</td></tr>
+  </table>
+
+  <h2>검증 결과</h2>
+  <div class="bar" aria-label="전체 검증 통과율"><div class="fill" style="width:100%"></div></div>
+  <table>
+    <tr><th>검증</th><th>결과</th><th>근거</th></tr>
+    <tr><td>실제 merge trial</td><td>통과</td><td><code>git merge --no-commit --no-ff origin/Simon-YHKim/260810_UIUX</code> 충돌 없음</td></tr>
+    <tr><td>전체 검증</td><td>통과</td><td><code>npm run verify</code>, 테스트 436개 스위트와 3,623개 테스트 통과</td></tr>
+    <tr><td>대상 테스트</td><td>통과</td><td><code>src/lib/community/__tests__/chat.test.ts</code> 7개 테스트 통과</td></tr>
+    <tr><td>스키마 권한</td><td>통과</td><td><code>check:definer-grants</code> 통과, anon/public 함수 grant 없음</td></tr>
+    <tr><td>문구 가드</td><td>통과</td><td>i18n key, 미번역, 금지어, em dash 검사 통과</td></tr>
+    <tr><td>시크릿 검사</td><td>통과</td><td>병합 diff 대상 secret 패턴 hit 없음</td></tr>
+  </table>
+
+  <h2>발견 사항</h2>
+  <table>
+    <tr><th>위험도</th><th>위치</th><th>내용</th><th>권장 조치</th></tr>
+    <tr>
+      <td>보통</td>
+      <td><code>src/app/community/[room].tsx:202</code>, <code>locales/ko/community.json:18</code></td>
+      <td>도움말은 메시지를 길게 누르라고 안내하지만 실제 구현은 메시지 카드를 누르면 신고·차단 패널을 연다. 사용자는 길게 눌러도 반응이 없다고 느낄 수 있다.</td>
+      <td>문구를 실제 동작인 “누르면”으로 맞추거나, 카드에 장기 누름 동작을 추가한다.</td>
+    </tr>
+    <tr>
+      <td>낮음</td>
+      <td><code>npm run verify</code></td>
+      <td>전체 검증은 통과했지만 기존 코드 경고 55개와 Jest worker 종료 경고가 출력되었다. 후보 변경 자체의 오류는 아니다.</td>
+      <td>이번 merge gate에는 비차단으로 기록하고, 별도 정리 대상으로 둔다.</td>
+    </tr>
+  </table>
+
+  <h2>변경 범위</h2>
+  <details>
+    <summary>자세히 보기</summary>
+    <p>커뮤니티 채팅 v1은 성인 전용, 초대 링크 전용, 텍스트 전용 방을 추가한다. 주요 파일은 <code>db/migrations/0117_community_chat.sql</code>, <code>src/app/community.tsx</code>, <code>src/app/community/[room].tsx</code>, <code>src/app/community/join/[token].tsx</code>, <code>src/lib/community/chat.ts</code>, <code>locales/*/community.json</code>이다.</p>
+  </details>
+
+  <h2>남은 조건</h2>
+  <table>
+    <tr><th>조건</th><th>이유</th></tr>
+    <tr><td>Antigravity 교차검증</td><td>이번 후보는 UI 변경뿐 아니라 신규 RLS/RPC 스키마를 포함한다.</td></tr>
+    <tr><td>실기기 또는 헤드리스 렌더 확인</td><td>이번 사이클에서는 네이티브 화면 캡처를 수행하지 않았다.</td></tr>
+    <tr><td>문구와 실제 동작 정렬</td><td>길게 누름 안내와 실제 누름 동작의 불일치를 제거해야 한다.</td></tr>
+  </table>
+
+  <h2>작업 로그</h2>
+  <p>작성 시각: 2026-08-11 18:59:55 KST. 허브에서는 <code>agents/codex/</code>만 작성했고, 2nd-B에는 push하지 않았다. 파괴적 작업, 비용 작업, 시크릿 작업은 수행하지 않았다.</p>
+</main>
+</body>
+</html>

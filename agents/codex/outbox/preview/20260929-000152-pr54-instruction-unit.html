@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PR #54 지침 단위 적용 보고</title>
+<style>
+:root{color-scheme:light dark;--accent:#3d6fc4;--text:#17212f;--muted:#647187;background:#f6f8fb;color:var(--text);font:16px/1.6 system-ui,sans-serif}
+@media(prefers-color-scheme:dark){:root{--accent:#92b8ff;--text:#e7edf7;--muted:#a3afc0;background:#111722}}
+body{max-width:850px;margin:auto;padding:32px 20px}a{color:var(--accent)}h1,h2{line-height:1.25}small,.muted{color:var(--muted)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}.card{border:1px solid var(--muted);border-radius:10px;padding:14px}.card strong{display:block;font-size:1.35rem}details{margin-top:18px;border-top:1px solid var(--muted);padding-top:12px}summary{cursor:pointer;font-weight:700}code{overflow-wrap:anywhere}a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+</style>
+</head>
+<body>
+<header><small>작성 2026-09-29 00:01 KST · 발행 Codex · S 등급</small><h1>PR #54 지침 단위 적용</h1><p>SimonK-stack 기능 브랜치에 지침 원본과 생성본을 반영했습니다. 나머지 스킬·템플릿 변경은 아직 적용하지 않았습니다.</p></header>
+<main>
+<section class="cards" aria-label="핵심 결과"><div class="card">변경 파일<strong>4개</strong><span class="muted">지침 원본 1 · 생성본 3</span></div><div class="card">생성본 검증<strong>통과</strong><span class="muted">SHA 불일치 0</span></div><div class="card">추가 과금<strong>$0</strong><span class="muted">모델·봇·API 실호출 없음</span></div></section>
+<h2>현재 상태</h2><p><code>feat/skill-context-budget-260925</code>에 <code>002508e</code>를 푸시했습니다. 사용자 설치본과 <code>main</code>은 변경하지 않았습니다.</p>
+<details><summary>검증과 기준선</summary><p><code>python -B instructions/split.py --verify</code> 통과: 세 생성본의 SHA 일치, 절 구성 정상. 끊긴 상호참조 3건은 기존 기준선이며 증가 0건입니다. <code>git diff --check</code>도 통과했습니다.</p></details>
+<details><summary>남은 일과 위험</summary><p>PR #54의 두 번째 커밋 <code>709c1ed</code>는 미적용입니다. 읽기 전용 병합 예비 검사에서 CHANGELOG 한 곳만 충돌했습니다. 다음 작업 단위에서 양쪽 변경 이력을 보존해 해결하고 스킬·템플릿을 검증해야 합니다. Codex overlay 기본 catalog 오류와 설치 준비 게이트도 별개로 남아 있습니다.</p></details>
+</main>
+</body>
+</html>

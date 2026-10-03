@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>자동 리즈닝 스위치 접근성 보고서</title>
+  <style>
+    :root { --bg: #101214; --text: #e8ecef; --accent: #7cc7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 960px; margin: 0 auto; padding: 32px 20px 56px; }
+    h1, h2 { margin: 0 0 12px; color: var(--text); }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 8px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 18px 0; }
+    .card, details { border: 1px solid var(--accent); padding: 14px; background: var(--bg); }
+    .label { color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 9px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>자동 리즈닝 스위치 접근성 보고서</h1>
+    <p>작성 시각: 2026-08-12 11:45:01 KST</p>
+    <p>이번 사이클은 열린 codex 주문이 없어, codex 레인의 단일 새 작업으로 2nd-B 리즈닝 화면의 접근성 결함을 고쳤습니다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><p>완료</p></div>
+      <div class="card"><div class="label">앱 커밋</div><p><code>6191465c</code></p></div>
+      <div class="card"><div class="label">브랜치</div><p><code>codex/qa-cycle-20260812-114105</code></p></div>
+      <div class="card"><div class="label">푸시</div><p>하지 않음</p></div>
+    </section>
+
+    <h2>수정 내용</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/app/reasoning.tsx</code></td><td>자동 리즈닝 스위치에 번역 키 기반 접근성 이름과 힌트를 추가했습니다.</td></tr>
+        <tr><td><code>src/lib/__tests__/deep-space-shell-a11y.test.ts</code></td><td>스위치가 하드코딩 문구가 아니라 기존 번역 키로 이름과 힌트를 받는지 검사하는 회귀 테스트를 추가했습니다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>항목</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td><code>npx jest src/lib/__tests__/deep-space-shell-a11y.test.ts --runInBand</code></td><td>통과</td></tr>
+        <tr><td><code>npx eslint src/app/reasoning.tsx src/lib/__tests__/deep-space-shell-a11y.test.ts</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:constraints</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+        <tr><td>diff 시크릿 패턴 스캔</td><td>문제 없음</td></tr>
+        <tr><td><code>npx prettier --check</code></td><td>실패. 기존 <code>reasoning.tsx</code> 포맷을 전체 재정렬하지 않기 위해 대량 포맷을 넣지 않았습니다.</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자기 패널 판단</summary>
+      <p>사용자 관점: 스위치에 직접 포커스했을 때 목적이 읽히므로 보조기술 사용성이 좋아집니다.</p>
+      <p>구현 관점: 새 번역 키 없이 기존 화면 제목과 본문 키를 재사용해 i18n 표면을 넓히지 않았습니다.</p>
+      <p>검증 관점: 소스 스캔 테스트로 하드코딩 회귀를 막았고, 대량 포맷 변경은 의도적으로 제외했습니다.</p>
+    </details>
+
+    <h2>남은 위험</h2>
+    <p>Prettier가 기존 파일 전체 스타일을 문제로 잡습니다. 이번 수정 자체는 12줄이며, 전체 파일 포맷은 별도 정리 작업으로 분리하는 편이 안전합니다.</p>
+  </main>
+</body>
+</html>

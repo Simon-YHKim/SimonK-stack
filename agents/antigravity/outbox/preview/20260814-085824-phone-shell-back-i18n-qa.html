@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>QA 검증 보고서: PhoneShell 지역화</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+    h1, h2, h3 {
+      color: #5c6bc0;
+      font-weight: normal;
+      margin-top: 2rem;
+      border-bottom: 1px solid #333333;
+      padding-bottom: 0.5rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #333333;
+      padding: 0.75rem;
+      text-align: left;
+    }
+    th {
+      background-color: #1e1e1e;
+      color: #5c6bc0;
+    }
+    .status-pass {
+      color: #e0e0e0;
+      font-weight: bold;
+    }
+    code {
+      background-color: #1e1e1e;
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+    }
+    pre {
+      background-color: #1e1e1e;
+      padding: 1rem;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>QA 검증 보고서: 폰 셸 접근성 라벨 지역화</h1>
+  
+  <h2>개요</h2>
+  <p>대상 워크트리: <code>C:\2ndB\.worktrees\codex-qa-20260814-085213</code></p>
+  <p>대상 커밋: <code>9382d9eb19c7cabbe3cd114f2ff985208191b7f1</code></p>
+  <p>목적: Codex가 수정한 PhoneShell.tsx 내 하드코딩된 뒤로가기 라벨의 다국어 처리(i18n) 무결성 및 접근성 회귀 여부 검증</p>
+
+  <h2>검증 항목 및 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상세 내용</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>접근성 라벨 속성</td>
+        <td><code>accessibilityLabel</code> 속성이 <code>t("navGraph.drilldown.back")</code>으로 올바르게 매핑되었는지 확인</td>
+        <td class="status-pass">통과</td>
+      </tr>
+      <tr>
+        <td>다국어 컨텍스트</td>
+        <td><code>useTranslation("common")</code> 훅이 올바른 네임스페이스로 호출되었는지 확인</td>
+        <td class="status-pass">통과</td>
+      </tr>
+      <tr>
+        <td>단위 테스트 무결성</td>
+        <td><code>visible-brand-copy.test.ts</code> 내 하드코딩 방지 스캔 가드가 정상적으로 추가되었는지 확인</td>
+        <td class="status-pass">통과</td>
+      </tr>
+      <tr>
+        <td>컴포넌트 빌드</td>
+        <td>문법 오류나 훅 규칙 위반이 없는지 확인</td>
+        <td class="status-pass">통과</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>해당 변경사항은 네이티브 접근성 기준을 충족하며 지역화 정책에 부합합니다. 추가적인 부작용이나 렌더링 회귀는 발견되지 않았습니다. 병합을 권장합니다.</p>
+</body>
+</html>

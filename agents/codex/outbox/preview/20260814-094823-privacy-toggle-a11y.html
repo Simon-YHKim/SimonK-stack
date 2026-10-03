@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 사이클 보고서: 개인정보 토글 접근성</title>
+  <style>
+    :root { --bg:#111318; --fg:#e6e1d9; --muted:#a8a29a; --accent:#7dd3c7; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.55 system-ui,-apple-system,Segoe UI,sans-serif; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 48px; }
+    h1,h2 { margin:0 0 12px; line-height:1.2; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; color:var(--accent); }
+    p { margin:0 0 12px; }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:18px 0 24px; }
+    .card, section { border:1px solid #2a2e36; border-radius:8px; padding:14px; background:#171a20; }
+    .label { color:var(--muted); font-size:12px; }
+    .value { font-weight:700; word-break:break-word; }
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th,td { border-top:1px solid #2a2e36; padding:9px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); word-break:break-word; }
+    details { margin-top:8px; }
+    summary { cursor:pointer; color:var(--accent); }
+    .bar { height:10px; background:#2a2e36; border-radius:999px; overflow:hidden; margin-top:8px; }
+    .fill { height:100%; width:100%; background:var(--accent); }
+    @media (max-width:720px) { .grid { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 사이클 보고서: 개인정보 토글 접근성</h1>
+    <p>작성 시각: 2026-08-14 09:48:38 KST</p>
+    <div class="grid">
+      <div class="card"><div class="label">상태</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">작업 수</div><div class="value">1건</div></div>
+      <div class="card"><div class="label">앱 브랜치</div><div class="value">codex/qa-cycle-20260814-094345</div></div>
+      <div class="card"><div class="label">앱 커밋</div><div class="value">1f9b9c94535da23395b076dd3e98f9463e4afd07</div></div>
+    </div>
+
+    <section>
+      <h2>요약</h2>
+      <p>열린 codex 요청은 새로 처리할 항목이 없었습니다. BOARD의 codex 레인에 따라 2nd-B 개인정보 화면의 추천 및 의미 연결 토글을 점검했고, 비동기 저장 중 비활성화된 버튼 상태가 보조 기술에 전달되지 않는 결함을 수정했습니다.</p>
+      <details><summary>자세히</summary>
+        <p>대상은 <code>src/screens/deepspace/DeepSpaceDesignScreens.tsx</code>의 추천 끄기, 추천 켜기, 확인 취소, 확인 실행, 의미 연결 끄기, 의미 연결 켜기, 의미 연결 확인 취소, 의미 연결 확인 실행 버튼입니다. 각 버튼에 <code>accessibilityState={{ disabled: busy, busy }}</code>를 추가했습니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead><tr><th>파일</th><th>변경</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/screens/deepspace/DeepSpaceDesignScreens.tsx</code></td><td>개인정보 추천 및 의미 연결 토글 8곳에 disabled/busy 접근성 상태 추가</td></tr>
+          <tr><td><code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code></td><td>상태 노출 회귀 방지 소스 스캔 추가, 기존 포맷 민감 assertion 보정</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>항목</th><th>결과</th><th>메모</th></tr></thead>
+        <tbody>
+          <tr><td>타깃 Jest</td><td>통과</td><td><code>deep-space-controls-a11y.test.ts</code> 9개 테스트</td></tr>
+          <tr><td>테스트 파일 Prettier</td><td>통과</td><td>화면 megafile 전체 포맷은 과도한 churn 방지를 위해 적용하지 않음</td></tr>
+          <tr><td>변경 파일 ESLint</td><td>통과</td><td>기존 unused 경고 40건만 존재, 신규 오류 없음</td></tr>
+          <tr><td>TypeScript</td><td>통과</td><td><code>npm run type-check</code></td></tr>
+          <tr><td>i18n 및 언어 가드</td><td>통과</td><td>키 정합, 미번역, 금지어, em dash, 반의인화, 마스코트 음성</td></tr>
+          <tr><td>런타임 순환</td><td>통과</td><td><code>npm run check:cycles</code></td></tr>
+          <tr><td>diff 검사</td><td>통과</td><td><code>git diff --check</code></td></tr>
+          <tr><td>민감 패턴 스캔</td><td>통과</td><td>변경 diff에서 시크릿 패턴 없음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>35 자기 패널</h2>
+      <table>
+        <thead><tr><th>관점</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>찬성</td><td>저위험 접근성 보강이며 기존 disabled 로직을 보조 기술에 그대로 노출한다.</td></tr>
+          <tr><td>반대</td><td>화면 파일은 포맷 drift가 커서 전체 Prettier 적용은 리뷰 비용을 키운다.</td></tr>
+          <tr><td>대안</td><td>공통 버튼 컴포넌트로 대체하는 refactor는 범위가 커서 이번 단일 사이클에 맞지 않는다.</td></tr>
+          <tr><td>결론</td><td>로직 변경 없이 상태 속성만 추가하고, 소스 스캔으로 회귀를 막는 방식이 적절하다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>위험과 남은 일</h2>
+      <p>이 변경은 로컬 커밋만 만들었고 push하지 않았습니다. Claude가 앱 커밋을 검토해 병합 여부를 결정해야 합니다.</p>
+      <div class="bar" aria-label="검증 완료율"><div class="fill"></div></div>
+    </section>
+  </main>
+</body>
+</html>

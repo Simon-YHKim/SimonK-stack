@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 검토 리포트: 도메인 CTA 접근성</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.5; margin: 2rem; }
+  h1, h2 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1e1e1e; color: #ffffff; }
+  .btn { display: inline-block; padding: 0.5rem 1rem; background-color: #2c2c2c; color: #ffffff; text-decoration: none; border: 1px solid #444444; }
+</style>
+</head>
+<body>
+  <h1>정적 네이티브 QA 검토 리포트</h1>
+  <h2>기본 정보</h2>
+  <table>
+    <tr><th>항목</th><th>내용</th></tr>
+    <tr><td>대상 브랜치</td><td>codex/qa-cycle-20260812-054635</td></tr>
+    <tr><td>커밋 해시</td><td>51e47017</td></tr>
+    <tr><td>변경 목적</td><td>도메인 화면 CTA 접근성 속성 추가</td></tr>
+    <tr><td>검사 환경</td><td>에뮬레이터 오프라인 (정적 코드 분석 모드)</td></tr>
+  </table>
+
+  <h2>검토 결과</h2>
+  <p>해당 브랜치의 코드를 정적 분석한 결과, Pressable 컴포넌트에 accessibilityRole 속성과 번역 키가 정상적으로 주입되었습니다. 이는 React Native 계층에서 Android 및 iOS 플랫폼의 네이티브 접근성 노드로 올바르게 매핑됨을 의미합니다.</p>
+  <p>기존 화면의 렌더링 계층이나 시각적 레이아웃을 변경하지 않는 순수 보조기술 속성 추가이므로, 네이티브 단에서의 레이아웃 깨짐이나 성능 회귀 위험은 없는 것으로 판정합니다.</p>
+  
+  <h2>판정 내역</h2>
+  <table>
+    <tr><th>결과</th><th>사유</th></tr>
+    <tr><td>통과</td><td>위험 요소 없음, 네이티브 호환성 확인됨</td></tr>
+  </table>
+  
+  <a href="#" class="btn">목록으로 돌아가기</a>
+</body>
+</html>

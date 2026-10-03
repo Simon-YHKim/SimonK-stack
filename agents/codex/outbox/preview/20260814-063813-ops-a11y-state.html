@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 폴 사이클 보고서</title>
+  <style>
+    :root{--bg:#0b0f14;--text:#e6edf3;--accent:#70d6ff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Malgun Gothic",sans-serif;line-height:1.55}
+    main{max-width:980px;margin:0 auto;padding:32px 18px 48px}
+    header{border:1px solid var(--accent);padding:22px;margin-bottom:18px}
+    h1,h2,h3,p{margin-top:0}
+    h1{font-size:26px;margin-bottom:8px}
+    h2{font-size:18px;margin:24px 0 10px;color:var(--accent)}
+    h3{font-size:15px;margin:0 0 8px;color:var(--accent)}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .card,details{border:1px solid rgba(112,214,255,.45);padding:14px;background:rgba(112,214,255,.04)}
+    .label{font-size:12px;color:var(--accent);margin-bottom:4px}
+    .value{font-size:14px;word-break:break-word}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border:1px solid rgba(112,214,255,.35);padding:9px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent);word-break:break-word}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    .bar{height:10px;border:1px solid var(--accent);margin-top:8px}
+    .bar span{display:block;height:100%;background:var(--accent)}
+    .small{font-size:13px}
+    @media(max-width:760px){.grid{grid-template-columns:1fr}main{padding:20px 12px}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>코덱스 폴 사이클 보고서</h1>
+    <p>2026-08-14 06:38:13 KST 기준, 코덱스 레인의 단일 자율 작업 결과입니다. 허브에서는 <code>agents/codex/</code>만 작성했고, 2nd-B 변경은 별도 worktree의 로컬 커밋으로만 남겼습니다.</p>
+  </header>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="label">작업</div><div class="value">Ops 마일스톤 및 원장 쓰기 컨트롤 접근성 상태 보강</div></div>
+    <div class="card"><div class="label">2nd-B 브랜치</div><div class="value"><code>codex/qa-cycle-20260814-063305</code></div></div>
+    <div class="card"><div class="label">앱 커밋</div><div class="value"><code>e9d03983c96b80c150777d30ee06ad2e3f2f534b</code></div></div>
+    <div class="card"><div class="label">푸시</div><div class="value">하지 않음</div></div>
+  </section>
+
+  <h2>수행 내용</h2>
+  <table>
+    <thead><tr><th>영역</th><th>변경</th><th>효과</th></tr></thead>
+    <tbody>
+      <tr><td>마일스톤</td><td>추가, 저장, 취소, 상태 전환, 기한 지우기 컨트롤에 <code>accessibilityState</code>를 추가했습니다.</td><td>저장 중이거나 입력이 비어 막힌 상태를 보조기술이 알 수 있습니다.</td></tr>
+      <tr><td>원장</td><td>항목 추가 및 삭제 컨트롤에 disabled와 busy 상태를 전달했습니다.</td><td>금액 입력 전, 저장 중, 삭제 중 상태가 시각 정보에만 묶이지 않습니다.</td></tr>
+      <tr><td>회귀 방지</td><td><code>controls-accessibility-state.test.ts</code>를 추가했습니다.</td><td>다음 수정에서 상태 전달이 빠지면 대상 Jest가 실패합니다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>검증</h2>
+  <table>
+    <thead><tr><th>검사</th><th>결과</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td>대상 Jest</td><td>통과</td><td>3개 파일, 15개 테스트 통과</td></tr>
+      <tr><td>TypeScript</td><td>통과</td><td><code>npm run type-check</code></td></tr>
+      <tr><td>i18n 및 미번역 검사</td><td>통과</td><td>키 정합성과 미번역 검사 통과</td></tr>
+      <tr><td>lexicon, constraints, emdash</td><td>통과</td><td>금지어, 제약, 대시 규칙 통과</td></tr>
+      <tr><td>anti-anthro, mascot voice, require cycles</td><td>통과</td><td>표현 규칙과 순환 의존 검사 통과</td></tr>
+      <tr><td>ESLint 대상 파일</td><td>오류 없음</td><td>기존 경고 3건만 존재</td></tr>
+      <tr><td>민감 패턴 스캔</td><td>매치 없음</td><td>변경 내용 기준</td></tr>
+    </tbody>
+  </table>
+  <div class="bar" aria-label="검증 통과율"><span style="width:100%"></span></div>
+
+  <h2>제35조 자기 패널</h2>
+  <details open>
+    <summary>판단 요약</summary>
+    <p class="small">가장 작은 가치 있는 작업은 이미 반복된 버튼 상태 보강 흐름을 이어가되, 새 표면인 Ops 마일스톤과 원장의 쓰기 컨트롤로 범위를 제한하는 것이었습니다. 동작 로직, 데이터 저장, 결제, 배포, 외부 사실 주장은 건드리지 않았습니다.</p>
+  </details>
+  <details>
+    <summary>반대 의견과 처리</summary>
+    <p class="small">대형 파일에 Prettier를 적용하면 불필요한 diff가 커질 수 있다는 반대 의견을 적용했습니다. 실제로 한 차례 전체 재흐름이 생겨 즉시 되돌리고, 최종 diff를 상태 속성 추가와 새 테스트로 좁혔습니다.</p>
+  </details>
+  <details>
+    <summary>위험과 롤백</summary>
+    <p class="small">위험은 낮습니다. UI 상태 전달 속성만 추가했고 사용자 흐름은 바꾸지 않았습니다. 롤백은 2nd-B worktree에서 <code>e9d03983</code> 커밋을 되돌리면 됩니다.</p>
+  </details>
+
+  <h2>산출물</h2>
+  <table>
+    <thead><tr><th>종류</th><th>경로</th></tr></thead>
+    <tbody>
+      <tr><td>2nd-B worktree</td><td><code>C:\2ndB\.worktrees\codex-qa-20260814-063305</code></td></tr>
+      <tr><td>보고서</td><td><code>agents/codex/outbox/preview/20260814-063813-ops-a11y-state.html</code></td></tr>
+      <tr><td>응답 문서</td><td><code>agents/codex/outbox/20260814-063813-codex-re-ops-a11y-state.md</code></td></tr>
+    </tbody>
+  </table>
+</main>
+</body>
+</html>

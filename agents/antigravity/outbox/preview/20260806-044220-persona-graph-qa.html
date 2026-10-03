@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>마이그레이션 품질 보증 검토 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+  }
+  h1, h2, h3 { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1e1e1e; }
+</style>
+</head>
+<body>
+  <h1>품질 보증 검토 보고서: 페르소나 그래프 캡처</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>세부 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>빈 데이터베이스 재실행 안전성</td>
+        <td>통과</td>
+        <td>조건부 구문 적용으로 멱등성 보장 확인</td>
+      </tr>
+      <tr>
+        <td>운영 스키마 정규화</td>
+        <td>통과</td>
+        <td>트랜잭션 내 롤백 없는 정책 재생성 확인</td>
+      </tr>
+      <tr>
+        <td>행 수준 보안</td>
+        <td>통과</td>
+        <td>소유자 전용 접근 제어 조건 적절성 확인</td>
+      </tr>
+      <tr>
+        <td>외부 키 참조 대체</td>
+        <td>통과</td>
+        <td>공용 사용자 스키마 참조 정합성 확인</td>
+      </tr>
+      <tr>
+        <td>타입 재생성 필요성</td>
+        <td>요구됨</td>
+        <td>저장소 기반 타입 생성 시 신규 테이블 반영 예상</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>종합 판정</h2>
+  <p>병합 안전성 기준 충족 완료.</p>
+</body>
+</html>

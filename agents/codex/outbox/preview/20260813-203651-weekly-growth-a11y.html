@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>주간 성장 접근성 사이클 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0f0f0f; --text:#f4f0e8; --accent:#7dd3c7; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); line-height: 1.62; }
+    main { width: min(960px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    h1, h2 { line-height: 1.2; margin: 0 0 14px; }
+    h1 { font-size: clamp(28px, 4vw, 44px); }
+    h2 { font-size: 19px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    code { color: var(--accent); word-break: break-all; }
+    .lead { max-width: 760px; opacity: .9; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 24px 0; }
+    .card, details { border: 1px solid color-mix(in srgb, var(--text) 22%, transparent); border-radius: 8px; padding: 16px; background: color-mix(in srgb, var(--text) 5%, transparent); }
+    .label { font-size: 12px; opacity: .72; margin-bottom: 6px; }
+    .value { font-size: 20px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid color-mix(in srgb, var(--text) 18%, transparent); vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .stack { display: grid; gap: 12px; margin-top: 18px; }
+    .bar { height: 10px; border: 1px solid var(--accent); border-radius: 999px; overflow: hidden; }
+    .bar span { display: block; height: 100%; width: 86%; background: var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>주간 성장 화면 접근성 보강</h1>
+    <p class="lead">이번 codex 폴 사이클은 새 미응답 오더가 없어, codex 레인에 맞춰 2nd-B의 작은 UI 접근성 결함 한 건을 수정했다. 작업은 별도 worktree에서 진행했고, 2nd-B 원격 저장소에는 push하지 않았다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">범위</div><div class="value">1 화면</div></div>
+      <div class="card"><div class="label">검증</div><div class="value">통과</div></div>
+      <div class="card"><div class="label">push</div><div class="value">없음</div></div>
+    </section>
+
+    <div class="stack">
+      <details open>
+        <summary>무엇을 바꿨나</summary>
+        <table>
+          <thead><tr><th>파일</th><th>변경</th></tr></thead>
+          <tbody>
+            <tr><td><code>src/screens/deepspace/growth/WeeklyGrowthScreen.tsx</code></td><td>근거 칩, 루틴 저장, 별 다시 살펴보기, 오늘 기록 담기, 루틴 시작 버튼에 명시적인 접근성 역할과 라벨을 추가했다.</td></tr>
+            <tr><td><code>src/lib/__tests__/weekly-growth-a11y.test.ts</code></td><td>위 버튼들이 로컬라이즈된 보이는 문구를 접근성 이름으로 유지하는지 source-scan 회귀 테스트를 추가했다.</td></tr>
+          </tbody>
+        </table>
+      </details>
+
+      <details>
+        <summary>왜 필요한가</summary>
+        <p>화면에 보이는 버튼 텍스트만으로도 일부 환경에서는 읽힐 수 있지만, 명시적인 버튼 역할과 라벨이 없으면 스크린 리더 사용자에게 조작 목적이나 비활성 상태가 불안정하게 전달될 수 있다. 특히 저장 완료 후 비활성 상태는 <code>accessibilityState</code>로 알려야 한다.</p>
+      </details>
+
+      <details>
+        <summary>검증 결과</summary>
+        <table>
+          <thead><tr><th>검사</th><th>상태</th><th>비고</th></tr></thead>
+          <tbody>
+            <tr><td><code>npx jest src/lib/__tests__/weekly-growth-a11y.test.ts --runInBand</code></td><td>통과</td><td>2개 테스트 통과</td></tr>
+            <tr><td><code>npx eslint</code> 대상 파일</td><td>통과</td><td>오류 없음</td></tr>
+            <tr><td><code>npm run type-check</code></td><td>통과</td><td>타입 오류 없음</td></tr>
+            <tr><td><code>npm run check:i18n</code>, <code>check:i18n-untranslated</code></td><td>통과</td><td>번역 키 변경 없음</td></tr>
+            <tr><td><code>npm run check:lexicon</code>, <code>check:constraints</code>, <code>check:emdash</code></td><td>통과</td><td>제품 가드 통과</td></tr>
+            <tr><td><code>git diff --check</code></td><td>통과</td><td>공백 오류 없음</td></tr>
+            <tr><td>민감정보 패턴 스캔</td><td>통과</td><td>diff에서 토큰, 키, 비밀번호 패턴 없음</td></tr>
+            <tr><td><code>npx prettier --check src/screens/deepspace/growth/WeeklyGrowthScreen.tsx</code></td><td>기존 drift</td><td>파일 전체 포맷 drift가 있어 실패했다. 넓은 포맷터 변경은 회수했다.</td></tr>
+          </tbody>
+        </table>
+        <p>검증 커버리지</p>
+        <div class="bar" aria-label="검증 커버리지"><span></span></div>
+      </details>
+
+      <details>
+        <summary>브랜치와 커밋</summary>
+        <p>worktree: <code>C:\2ndB\.worktrees\codex-qa-20260813-203202</code></p>
+        <p>브랜치: <code>codex/qa-cycle-20260813-203202</code></p>
+        <p>기준: <code>origin/main 5ba0cdd905ec3e9e2d5aac0fceb17830c556ab09</code></p>
+        <p>로컬 커밋: <code>a9455152</code></p>
+      </details>
+
+      <details>
+        <summary>위험과 남은 일</summary>
+        <p>변경은 렌더링 로직이나 데이터 흐름을 바꾸지 않고 접근성 메타데이터만 추가한다. 고위험 산출물이 아니므로 MoA 검증 요청은 만들지 않았다. Claude가 merge gate에서 실제 병합 여부를 판단하면 된다.</p>
+      </details>
+    </div>
+  </main>
+</body>
+</html>

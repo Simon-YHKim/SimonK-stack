@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pressable 스윕 G 사이클 보고</title>
+<style>
+:root{--bg:#101418;--text:#e8edf2;--accent:#6fb7c8;--muted:#96a0aa}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:980px;margin:0 auto;padding:32px 20px 48px}h1{font-size:26px;margin:0 0 8px}h2{font-size:18px;margin:28px 0 10px;color:var(--accent)}p{margin:0 0 12px}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:20px 0}.card{border:1px solid #2d3a42;border-radius:8px;padding:16px;background:#151b21}.num{font-size:28px;color:var(--accent);font-weight:700}table{width:100%;border-collapse:collapse;margin-top:10px}th,td{border-bottom:1px solid #2d3a42;padding:10px;text-align:left;vertical-align:top}th{color:var(--accent);font-weight:600}code{color:var(--accent)}details{border:1px solid #2d3a42;border-radius:8px;padding:12px;margin:10px 0}summary{cursor:pointer;color:var(--accent)}.bar{height:10px;background:#263038;border-radius:999px;overflow:hidden}.fill{height:100%;background:var(--accent);width:14.3%}@media (max-width:640px){main{padding:24px 14px}h1{font-size:22px}}
+</style>
+</head>
+<body>
+<main>
+<h1>Pressable 스윕 G 사이클 보고</h1>
+<p class="muted">작성 시각: 2026-07-03 13:02:57 KST · 작성자: codex · 브랜치: <code>codex/pressable-sweep-g</code></p>
+<div class="grid">
+  <div class="card"><div class="num">6</div><p>이번 사이클에서 함수형 <code>Pressable</code> style을 제거한 위치</p></div>
+  <div class="card"><div class="num">4</div><p>수정 파일 수</p></div>
+  <div class="card"><div class="num">0</div><p><code>npm run verify</code> 종료 코드</p></div>
+  <div class="card"><div class="num">f8485235</div><p>2nd-B 로컬 커밋</p></div>
+</div>
+<h2>결과</h2>
+<p>deep-space 그룹 일부에서 Fabric Android가 무시할 수 있는 함수형 <code>style={({ pressed }) =&gt; ...}</code> 패턴을 plain style과 <code>android_ripple</code>로 바꿨습니다. 푸시는 하지 않았고 Claude 머지 게이트 대기 상태입니다.</p>
+<div class="bar"><div class="fill"></div></div>
+<p class="muted">큐 기준 42곳 중 6곳 처리. 나머지는 다음 화면 그룹에서 계속 처리해야 합니다.</p>
+<h2>변경 파일</h2>
+<table><thead><tr><th>파일</th><th>변경</th></tr></thead><tbody>
+<tr><td><code>src/components/deep-space/DeepSpaceLinks.tsx</code></td><td>링크 칩 1곳 함수형 style 제거, ripple 추가</td></tr>
+<tr><td><code>src/components/deep-space/DeepSpaceViews.tsx</code></td><td>GradientButton, possible 카드 2곳 함수형 style 제거, ripple 추가</td></tr>
+<tr><td><code>src/components/deepspace/DeepSpaceHubDock.tsx</code></td><td>허브 도크 탭 1곳 함수형 style 제거, ripple 추가</td></tr>
+<tr><td><code>src/screens/deepspace/DeepSpaceFlowMapScreen.tsx</code></td><td>QA flow map 칩 2곳 함수형 style 제거, ripple 추가</td></tr>
+</tbody></table>
+<h2>검증</h2>
+<table><thead><tr><th>명령</th><th>결과</th></tr></thead><tbody>
+<tr><td><code>npm run type-check -- --pretty false</code></td><td>EXIT=0</td></tr>
+<tr><td><code>npm run verify</code></td><td>EXIT=0, 295 suites / 2212 tests passed, lint warnings only</td></tr>
+<tr><td><code>git diff --check</code></td><td>통과</td></tr>
+</tbody></table>
+<h2>보류와 위험</h2>
+<details open><summary>보류 항목</summary><p>초기 스캔상 함수형 style 잔여는 33곳입니다. 색상 변화나 selected 상태와 pressed 상태가 섞인 곳은 화면 그룹별로 별도 커밋에서 확인해야 합니다.</p></details>
+<details><summary>위험</summary><p>이번 변경은 pressed opacity를 Android ripple로 대체합니다. Android Fabric 결함 회피가 목적이며, iOS의 눌림 opacity와는 미세하게 다를 수 있습니다.</p></details>
+<h2>자체 패널</h2>
+<p>섹션 35 self-panel 판단: 설계, 네이밍, 아키텍처 결정이 아니라 확정된 PR 680 패턴의 좁은 구현입니다. 다만 전체 42곳 중 부분 처리이므로 완료가 아니라 다음 그룹 진행 필요로 보고합니다.</p>
+</main>
+</body>
+</html>

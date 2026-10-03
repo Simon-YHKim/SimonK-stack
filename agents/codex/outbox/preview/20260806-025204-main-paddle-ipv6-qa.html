@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2nd-B main 전진분 QA 보고서</title>
+  <style>
+    :root { --bg:#0f1115; --fg:#e8edf2; --muted:#93a1ad; --accent:#6fb7ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:960px; margin:0 auto; padding:32px 20px 48px; }
+    h1, h2 { margin:0 0 12px; letter-spacing:0; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; color:var(--accent); margin-top:28px; }
+    p { margin:8px 0; }
+    code { color:var(--accent); }
+    .summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin:20px 0; }
+    .card { border:1px solid var(--muted); border-radius:8px; padding:14px; min-height:96px; }
+    .label { color:var(--muted); font-size:13px; }
+    .value { display:block; margin-top:8px; font-size:18px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--muted); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    details { border:1px solid var(--muted); border-radius:8px; padding:12px; margin:12px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .risk { color:var(--accent); font-weight:700; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>2nd-B main 전진분 QA 보고서</h1>
+  <p>작성 시각: 2026-08-06 02:52:04 KST</p>
+  <p>대상 범위: <code>230a17e0..0126c9d1</code></p>
+
+  <section class="summary" aria-label="요약">
+    <div class="card"><span class="label">판정</span><span class="value">P1 보류 후보</span></div>
+    <div class="card"><span class="label">주요 위험</span><span class="value">Paddle IPv6 누락</span></div>
+    <div class="card"><span class="label">검증</span><span class="value">정적 검사 통과</span></div>
+    <div class="card"><span class="label">남은 검증</span><span class="value">Deno 및 DB replay</span></div>
+  </section>
+
+  <h2>결론</h2>
+  <p>새 main 전진분은 Paddle webhook 보안 강화와 RLS 정책 성능 migration입니다. 정적 검사는 통과했지만, Paddle IP allowlist가 현재 Paddle API의 IPv6 CIDR을 사용하지 않아 정상 webhook이 차단될 수 있습니다.</p>
+
+  <h2>변경 요약</h2>
+  <table>
+    <thead><tr><th>커밋</th><th>파일</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td><code>3d5fc048</code></td><td><code>supabase/functions/paddle-webhook/index.ts</code></td><td>Paddle 출발지 IP 허용 목록 추가</td></tr>
+      <tr><td><code>0126c9d1</code></td><td><code>db/migrations/0102_rls_wrap_auth_uid.sql</code></td><td>RLS 정책의 <code>auth.uid()</code> 호출을 subquery 형태로 재작성</td></tr>
+    </tbody>
+  </table>
+
+  <h2>발견</h2>
+  <details open>
+    <summary>Paddle IPv6 allowlist 누락</summary>
+    <p>실시간 Paddle IP 응답은 IPv4 CIDR 6개와 IPv6 CIDR 1개를 반환했습니다. 현재 함수는 <code>data.ipv4_cidrs</code>만 읽고 <code>ipv4ToInt</code> 기반 검사만 수행합니다.</p>
+    <p class="risk">위험: Paddle이 IPv6 출발지로 webhook을 보내면 유효한 결제 이벤트가 <code>forbidden_source</code> 403으로 거절될 수 있습니다.</p>
+  </details>
+
+  <details>
+    <summary>RLS migration 확인</summary>
+    <p>migration은 <code>pg_policies</code>를 런타임 열거하고 <code>ALTER POLICY</code>를 사용하며, 트랜잭션과 사후조건을 포함합니다. 로컬 PostgreSQL replay는 실행하지 못했습니다.</p>
+  </details>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead><tr><th>검증</th><th>결과</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td><code>git diff --check</code></td><td>통과</td><td>공백 오류 없음</td></tr>
+      <tr><td><code>check:definer-grants</code></td><td>통과</td><td>102개 migration 검사</td></tr>
+      <tr><td><code>check:emdash</code></td><td>통과</td><td>locale 문자열 기준</td></tr>
+      <tr><td><code>check:lexicon</code></td><td>통과</td><td>955개 파일 검사</td></tr>
+      <tr><td>Paddle checkout Jest</td><td>통과</td><td>1 suite, 5 tests</td></tr>
+      <tr><td>Supabase function Deno check</td><td>미실행</td><td>이 머신에 <code>deno</code> 없음</td></tr>
+      <tr><td>로컬 DB replay</td><td>미실행</td><td>로컬 PostgreSQL 환경 없음</td></tr>
+    </tbody>
+  </table>
+
+  <h2>권장 조치</h2>
+  <p>Paddle webhook 허용 목록이 <code>ipv6_cidrs</code>를 포함하도록 보완하거나, Supabase edge 경로가 Paddle IPv4만 사용한다는 근거가 확인될 때까지 실가동 활성화를 보류하는 것이 안전합니다. 긴급 완화로는 <code>PADDLE_IP_ALLOWLIST=off</code>가 있으나 보안 강화를 우회하므로 임시 조치로만 취급해야 합니다.</p>
+
+  <h2>교차검증</h2>
+  <p>schema/security 범위라 Antigravity에 별도 검증 요청을 발행했습니다.</p>
+</main>
+</body>
+</html>

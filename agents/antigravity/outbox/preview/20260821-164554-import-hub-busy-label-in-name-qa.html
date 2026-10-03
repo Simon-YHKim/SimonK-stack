@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 리포트: Import Hub 접근성 Label in Name 위반</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+    padding: 0 20px;
+  }
+  h1, h2 {
+    color: #e0e0e0;
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+  }
+  .highlight {
+    color: #ff5252;
+    font-weight: bold;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+  }
+  pre {
+    background-color: #1e1e1e;
+    padding: 15px;
+    overflow-x: auto;
+    border: 1px solid #333;
+  }
+</style>
+</head>
+<body>
+
+<h1>QA 리포트: Import Hub 접근성 Label in Name 위반</h1>
+
+<h2>개요</h2>
+<table>
+  <tr>
+    <th>항목</th>
+    <th>내용</th>
+  </tr>
+  <tr>
+    <td>대상 워크트리</td>
+    <td>C:\2ndB\.worktrees\codex-qa-20260821-163336-import-hub-busy-a11y</td>
+  </tr>
+  <tr>
+    <td>대상 커밋</td>
+    <td>df3e4f64180c7006acd6be3b8d21a2bc6b905cc9</td>
+  </tr>
+  <tr>
+    <td>검수 방식</td>
+    <td>소스 코드 정적 분석 (에뮬레이터 미사용)</td>
+  </tr>
+  <tr>
+    <td>검수 결과</td>
+    <td><span class="highlight">수정 필요 (WCAG 2.5.3 위반 및 속성 중복)</span></td>
+  </tr>
+</table>
+
+<h2>상세 발견 사항</h2>
+<p>
+  Codex가 추가한 <code>googleConnect</code> 버튼의 접근성 속성 중 시각적 텍스트와 접근성 레이블이 불일치하는 문제를 발견했습니다.
+  버튼이 <code>busy</code> 상태일 때 화면의 텍스트는 <code>t("connecting")</code>으로 변경되지만, <code>accessibilityLabel</code>은 <code>t("googleConnect")</code>로 하드코딩되어 고정되어 있습니다. 이로 인해 스크린 리더 사용자는 시각적으로 변경된 상태 문구를 들을 수 없으며, 이는 WCAG 2.5.3 Label in Name 위반입니다.
+</p>
+<p>
+  또한, <code>ratify</code> 버튼의 경우 지정된 <code>accessibilityLabel</code>이 내부 <code>&lt;Text&gt;</code>의 내용과 완전히 동일합니다. React Native는 텍스트 자식 노드에서 자동으로 접근성 레이블을 추론하므로 불필요한 속성 선언입니다.
+</p>
+
+<h2>문제 코드</h2>
+<pre>
+&lt;Pressable
+  onPress={connectGoogle}
+  accessibilityLabel={t("googleConnect")} // 문제: busy 상태일 때도 시각적 텍스트와 불일치
+  accessibilityState={{ disabled: busy, busy }}
+&gt;
+  &lt;Text variant="caption" style={styles.primaryText}&gt;
+    {busy ? t("connecting") : t("googleConnect")}
+  &lt;/Text&gt;
+&lt;/Pressable&gt;
+</pre>
+
+<h2>권고 조치</h2>
+<p>
+  1. <strong>googleConnect 버튼:</strong> <code>accessibilityLabel</code> 속성을 제거하여 자식 컴포넌트의 변경되는 텍스트가 자연스럽게 읽히도록 하거나, 명시적으로 선언하려면 <code>accessibilityLabel={busy ? t("connecting") : t("googleConnect")}</code>로 동기화하십시오. (테스트 코드의 정적 단언문 수정도 필요합니다.)<br><br>
+  2. <strong>ratify 버튼:</strong> 불필요한 중복 선언인 <code>accessibilityLabel={t("applyN").replace("{n}", String(count))}</code> 속성을 제거하십시오.
+</p>
+
+</body>
+</html>

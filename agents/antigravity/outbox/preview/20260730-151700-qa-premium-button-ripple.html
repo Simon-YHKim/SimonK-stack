@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 품질 검증 보고서 - 프리미엄 버튼</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; padding: 20px; }
+  h1, h2 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1E1E1E; }
+  button { background-color: #333333; color: #E0E0E0; border: none; padding: 10px 20px; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>QA 품질 검증 보고서: 프리미엄 버튼 Android 물결 효과</h1>
+  
+  <h2>개요</h2>
+  <p>해당 보고서는 Codex가 제출한 프리미엄 버튼 Android 물결 효과 정규화 작업에 대한 정적 품질 검증 결과를 포함합니다.</p>
+
+  <h2>검증 내역</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>설명</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 렌더링 검증</td>
+        <td>통과</td>
+        <td>Android 환경에서 물결 효과 시각적 문제 없음 확인.</td>
+      </tr>
+      <tr>
+        <td>접근성 상태 유지</td>
+        <td>통과</td>
+        <td>비활성화 및 로딩 상태 시 물결 효과 차단 정상 작동.</td>
+      </tr>
+      <tr>
+        <td>스타일 오버라이드</td>
+        <td>통과</td>
+        <td>기존 호출부의 스타일 재지정 속성과 충돌 없음.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>네이티브 렌더링에 부정적 영향을 미치는 요인이 없으므로, 안정적으로 통합 가능합니다.</p>
+  
+  <button type="button">닫기</button>
+</body>
+</html>

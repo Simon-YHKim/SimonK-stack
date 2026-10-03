@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서: Research Pressable 정규화</title>
+  <style>
+    :root{--bg:#0b0d10;--text:#e6edf3;--accent:#5dd9c1}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Malgun Gothic",sans-serif;line-height:1.55}
+    main{max-width:980px;margin:0 auto;padding:32px 20px 56px}
+    header{border:1px solid var(--accent);border-radius:8px;padding:20px;margin-bottom:18px}
+    h1{font-size:24px;margin:0 0 10px} h2{font-size:18px;margin:24px 0 10px} p{margin:6px 0}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:16px}
+    .card{border:1px solid color-mix(in srgb,var(--text) 22%,transparent);border-radius:8px;padding:14px;min-height:94px}
+    .label{font-size:12px;color:var(--accent)} .value{font-size:18px;font-weight:700;margin-top:4px}
+    table{width:100%;border-collapse:collapse;margin-top:10px} th,td{border:1px solid color-mix(in srgb,var(--text) 18%,transparent);padding:10px;text-align:left;vertical-align:top} th{color:var(--accent)}
+    code{color:var(--accent)} details{border:1px solid color-mix(in srgb,var(--text) 18%,transparent);border-radius:8px;padding:10px;margin:8px 0} summary{cursor:pointer;color:var(--accent)}
+    svg{width:100%;height:120px;display:block;margin:8px 0 2px}
+    @media(max-width:760px){.grid{grid-template-columns:1fr 1fr} h1{font-size:21px}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Research Pressable 정규화 사이클 보고서</h1>
+    <p>작성 시각: 2026-07-30 01:38:07 KST</p>
+    <p>범위: 2nd-B <code>codex/pressable-sweep-g</code> 브랜치의 Research 섹션 단일 그룹</p>
+  </header>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="label">결과</div><div class="value">완료</div><p>함수형 style 3곳 제거</p></div>
+    <div class="card"><div class="label">앱 커밋</div><div class="value"><code>4e30518b</code></div><p>로컬 전용, push 없음</p></div>
+    <div class="card"><div class="label">검증</div><div class="value">통과</div><p><code>npm run verify</code> EXIT=0</p></div>
+    <div class="card"><div class="label">위험</div><div class="value">낮음</div><p>시각 상태 보류 없이 구조만 변경</p></div>
+  </section>
+
+  <section>
+    <h2>변경 요약</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th><th>이유</th></tr></thead>
+      <tbody>
+        <tr><td><code>DeepSpaceDesignScreens.tsx</code></td><td>Research headline, surprise, proposal row의 Pressable 함수형 style 제거</td><td>Fabric에서 함수형 style이 무시되는 결함 패턴 회피</td></tr>
+        <tr><td><code>dds-styles.ts</code></td><td><code>pressableCardHit</code>, <code>mapRowHit</code> 추가</td><td>비주얼은 바깥 View가 담당하고 Pressable은 hit target과 접근성만 담당</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>검증 상태</h2>
+    <svg viewBox="0 0 420 120" role="img" aria-label="검증 통과 차트">
+      <rect x="20" y="20" width="360" height="18" fill="#5dd9c1"></rect>
+      <text x="20" y="56" fill="#e6edf3" font-size="13">git diff --check 통과</text>
+      <rect x="20" y="72" width="360" height="18" fill="#5dd9c1"></rect>
+      <text x="20" y="108" fill="#e6edf3" font-size="13">npm run verify EXIT=0, 295 suites / 2212 tests</text>
+    </svg>
+    <details>
+      <summary>자세히</summary>
+      <p>lint는 기존 경고 56개를 출력했지만 오류는 없었습니다. type-check, i18n, lexicon, legal-review, llm-boundary, constraints, emdash, anti-anthro, mascot-voice, jest가 모두 통과했습니다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>자체 패널</h2>
+    <details open>
+      <summary>판단</summary>
+      <p>찬성: 같은 Research 화면 그룹 안에서 Fabric 결함 패턴 3곳을 한 커밋으로 줄였고, 기존 카드 비주얼은 바깥 View로 유지했습니다.</p>
+      <p>반대: pressed opacity 피드백은 제거되었습니다. 오더가 애매한 pressed 상태를 억지 변환하지 말라고 했으므로 보수적으로 제거했습니다.</p>
+      <p>결론: 낮은 위험의 UI 구조 수정이며 Claude merge gate에서 시각 동등성만 한 번 더 확인하면 됩니다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>남은 범위</h2>
+    <p>같은 파일에 남은 다른 화면 그룹의 함수형 style 4곳은 이번 단일 사이클 범위 밖입니다.</p>
+  </section>
+</main>
+</body>
+</html>

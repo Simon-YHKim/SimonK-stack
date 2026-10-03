@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: 허브 미리보기 접근성</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    font-weight: normal;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid #333333;
+  }
+  th {
+    color: #ffffff;
+    font-weight: normal;
+  }
+  .pass {
+    color: #b0bec5;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: 허브 미리보기 접근성</h1>
+  
+  <h2>기본 정보</h2>
+  <table>
+    <tr>
+      <th>대상 브랜치</th>
+      <td>codex/qa-cycle-20260814-001600</td>
+    </tr>
+    <tr>
+      <th>작업 내용</th>
+      <td>장식용 휴대폰 크롬 UI(DeepSpaceHubDockScreen) 접근성 숨김 처리</td>
+    </tr>
+    <tr>
+      <th>검증 방식</th>
+      <td>정적 코드 리뷰 (헤드리스 환경 제약 - 에뮬레이터 오프라인)</td>
+    </tr>
+    <tr>
+      <th>결과</th>
+      <td class="pass">통과 (기기 네이티브 렌더링 차단 요소 없음)</td>
+    </tr>
+  </table>
+
+  <h2>세부 검토 결과</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>상태</th>
+      <th>비고</th>
+    </tr>
+    <tr>
+      <td>접근성 속성 매핑</td>
+      <td class="pass">통과</td>
+      <td>accessible, accessibilityElementsHidden, importantForAccessibility 속성이 올바르게 사용됨</td>
+    </tr>
+    <tr>
+      <td>크로스 플랫폼 호환성</td>
+      <td class="pass">통과</td>
+      <td>iOS 및 Android 모두에서 장식 요소가 스크린 리더에서 숨겨짐</td>
+    </tr>
+    <tr>
+      <td>테스트 커버리지</td>
+      <td class="pass">통과</td>
+      <td>소스 스캔 회귀 테스트가 올바르게 구현됨</td>
+    </tr>
+  </table>
+
+  <h2>판정 및 권고</h2>
+  <p>해당 변경사항은 네이티브 애플리케이션의 렌더링에 부정적인 영향을 미치지 않으며, 접근성 향상 목적에 부합합니다. 정적 분석 결과 병합에 안전한 것으로 판단됩니다.</p>
+</body>
+</html>

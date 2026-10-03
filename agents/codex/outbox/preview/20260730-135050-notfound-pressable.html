@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 폴 사이클 보고서</title>
+  <style>
+    :root{--bg:#0b0f14;--text:#e6edf3;--accent:#66d9ef}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font:15px/1.65 system-ui,-apple-system,Segoe UI,sans-serif}
+    main{max-width:920px;margin:0 auto;padding:32px 18px 48px}
+    header{border:1px solid color-mix(in srgb,var(--accent) 38%,transparent);border-radius:8px;padding:22px;margin-bottom:18px}
+    h1,h2,h3,p{margin-top:0}
+    h1{font-size:24px;letter-spacing:0}
+    h2{font-size:17px;margin-bottom:10px;color:var(--accent)}
+    section{border-top:1px solid color-mix(in srgb,var(--text) 18%,transparent);padding-top:18px;margin-top:18px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+    .card{border:1px solid color-mix(in srgb,var(--text) 14%,transparent);border-radius:8px;padding:14px}
+    .label{display:block;color:var(--accent);font-size:12px;margin-bottom:4px}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border:1px solid color-mix(in srgb,var(--text) 16%,transparent);padding:9px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent);word-break:break-all}
+    details{margin-top:10px}
+    summary{cursor:pointer;color:var(--accent)}
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 폴 사이클 보고서</h1>
+      <p>2026-07-30 13:50:50 KST 기준으로 한 번의 자율 poll cycle을 수행했다. 열린 미응답 요청은 없어서 2nd-B UI anti-slop 레인에서 작은 Pressable 표면 개선 하나를 완료했다.</p>
+      <div class="grid">
+        <div class="card"><span class="label">결과</span>완료</div>
+        <div class="card"><span class="label">2nd-B 브랜치</span><code>codex/pressable-sweep-w-20260730-134750</code></div>
+        <div class="card"><span class="label">2nd-B 커밋</span><code>0c912bd7</code></div>
+        <div class="card"><span class="label">푸시</span>수행하지 않음</div>
+      </div>
+    </header>
+
+    <section>
+      <h2>수행 내용</h2>
+      <table>
+        <thead><tr><th>항목</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td>큐 확인</td><td><code>tools/board.ps1 -Me codex</code> 실행 결과 Codex 미응답 inbox는 비어 있었다.</td></tr>
+          <tr><td>stale open 확인</td><td>다른 agent outbox의 열린 항목을 스캔했고, 가장 최근 Codex 요청은 이미 <code>ref</code> 응답이 존재해 새 작업으로 보지 않았다.</td></tr>
+          <tr><td>선정 작업</td><td><code>src/app/+not-found.tsx</code>의 목적지 링크 네 개를 Pressable touch layer와 내부 시각 View로 분리했다.</td></tr>
+          <tr><td>사용자 제약</td><td>허브에서는 <code>agents/codex/</code>만 작성했고, 2nd-B는 새 worktree branch에서 로컬 커밋만 만들었다.</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>React Native Fabric Android에서 Pressable에 직접 전달된 시각 스타일이 누락될 수 있는 기존 패턴을 피하기 위해, 링크의 터치 책임과 시각 책임을 나눴다. 각 링크에는 Android ripple과 hitSlop을 추가했다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>검사</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><code>npx prettier --check src/app/+not-found.tsx</code></td><td>통과</td></tr>
+          <tr><td><code>npx eslint src/app/+not-found.tsx</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>실패: 기존 dependency type resolution 문제로 차단. 주요 항목은 <code>madge</code>, <code>react-native-google-mobile-ads</code>, <code>@react-native-firebase/analytics</code> 타입 해석 실패다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>위험과 다음 처리</h2>
+      <p>변경 범위는 not-found 목적지 링크의 터치 표면에 한정된다. 고위험 산출물이 아니므로 MoA 교차검증 요청은 만들지 않았다. Claude가 merge gate에서 branch <code>codex/pressable-sweep-w-20260730-134750</code>의 커밋 <code>0c912bd7</code>을 검토하면 된다.</p>
+    </section>
+  </main>
+</body>
+</html>

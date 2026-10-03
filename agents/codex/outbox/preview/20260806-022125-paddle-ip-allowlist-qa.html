@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paddle 웹훅 IP 허용목록 QA</title>
+  <style>
+    :root{--bg:#101214;--text:#e8e6df;--accent:#7cc7ff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Malgun Gothic",sans-serif;line-height:1.55}
+    main{max-width:980px;margin:0 auto;padding:32px 18px 56px}
+    h1{font-size:28px;margin:0 0 8px}
+    h2{font-size:18px;margin:28px 0 10px;color:var(--accent)}
+    p{margin:8px 0}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}
+    .card{border:1px solid var(--accent);padding:14px;min-height:96px}
+    .label{font-size:12px;color:var(--accent)}
+    .value{font-size:20px;font-weight:700;margin-top:8px}
+    table{width:100%;border-collapse:collapse;margin:12px 0}
+    th,td{border:1px solid var(--accent);padding:9px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent)}
+    a{color:var(--accent)}
+    details{border:1px solid var(--accent);padding:10px;margin:10px 0}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    .bar{height:12px;border:1px solid var(--accent);margin-top:8px}
+    .fill{height:100%;background:var(--accent)}
+    @media (max-width:760px){.grid{grid-template-columns:1fr 1fr}main{padding:22px 14px}}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Paddle 웹훅 IP 허용목록 QA</h1>
+  <p>작성 시각: 2026-08-06 02:21:25 KST</p>
+  <p>대상: <code>origin/feat/paddle-webhook-ip-allowlist</code> / 원격 커밋 <code>b638c8de</code> / QA 커밋 <code>3293817e</code></p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="label">판정</div><div class="value">조건부 병합 가능</div></div>
+    <div class="card"><div class="label">변경 범위</div><div class="value">1파일</div></div>
+    <div class="card"><div class="label">테스트</div><div class="value">14개 통과</div></div>
+    <div class="card"><div class="label">검증 요청</div><div class="value">요청함</div></div>
+  </section>
+
+  <h2>결론</h2>
+  <p>후보 변경은 Paddle 웹훅에 서명 검증과 출처 IP 확인을 함께 요구하는 방어층을 추가한다. 로컬 검증에서는 병합을 막을 결함을 찾지 못했다.</p>
+  <p>다만 이 코드는 live <code>api.paddle.com/ips</code>만 조회한다. Paddle 문서는 요청 환경에 따라 IP 목록이 달라진다고 설명하므로, sandbox 웹훅 재생 검증에는 별도 주의가 필요하다.</p>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead><tr><th>항목</th><th>결과</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td>diff 범위</td><td>통과</td><td><code>supabase/functions/paddle-webhook/index.ts</code> 1개 파일</td></tr>
+      <tr><td>공백 검사</td><td>통과</td><td><code>git diff --check origin/main..HEAD</code></td></tr>
+      <tr><td>충돌 마커</td><td>통과</td><td><code>git merge-tree</code> 결과에서 마커 없음</td></tr>
+      <tr><td>Paddle 관련 Jest</td><td>통과</td><td>3개 스위트, 14개 테스트</td></tr>
+      <tr><td>IP 경계값</td><td>통과</td><td><code>/32</code>, <code>/24</code>, <code>/1</code>, <code>/0</code>, 잘못된 IP 확인</td></tr>
+      <tr><td>시크릿 스캔</td><td>통과</td><td>후보 diff 기준 패턴 히트 없음</td></tr>
+      <tr><td>ESLint</td><td>제한</td><td>Supabase 함수 경로가 ignore 대상이라 실제 검사 없음</td></tr>
+      <tr><td>Deno 검사</td><td>제한</td><td>이 머신에 <code>deno</code> 없음</td></tr>
+      <tr><td>Prettier</td><td>기존 상태</td><td>후보와 baseline 모두 같은 파일에서 실패</td></tr>
+    </tbody>
+  </table>
+
+  <h2>위험</h2>
+  <details open>
+    <summary>운영 전제</summary>
+    <p><code>cf-connecting-ip</code>가 실제 호출자 IP라는 전제는 커밋 메시지의 실측 근거와 맞지만, 운영 활성화 전 live Paddle dashboard replay로 반드시 확인해야 한다.</p>
+  </details>
+  <details>
+    <summary>Sandbox 검증</summary>
+    <p>Paddle 공식 문서는 live와 sandbox IP가 다르다고 설명한다. 현재 구현은 live URL만 사용하므로 sandbox replay를 그대로 돌리면 정상 이벤트도 차단될 수 있다.</p>
+  </details>
+  <details>
+    <summary>롤백</summary>
+    <p>문제가 생기면 <code>PADDLE_IP_ALLOWLIST=off</code>로 우회할 수 있다. 코드 롤백 없이 웹훅 수신을 복구하는 운영 스위치다.</p>
+  </details>
+
+  <h2>검증 막대</h2>
+  <p>재현 가능한 로컬 검증</p>
+  <div class="bar" aria-label="재현 가능한 로컬 검증 80퍼센트"><div class="fill" style="width:80%"></div></div>
+  <p>운영 검증</p>
+  <div class="bar" aria-label="운영 검증 40퍼센트"><div class="fill" style="width:40%"></div></div>
+
+  <h2>링크</h2>
+  <p><a href="../20260806-022125-codex-re-paddle-ip-allowlist-qa.md">Codex 보고 문서</a></p>
+  <p><a href="../20260806-022126-codex-re-verify-paddle-ip-allowlist-qa.md">Antigravity 검증 요청</a></p>
+  <p><a href="https://developer.paddle.com/api-reference/ip-addresses/get-ip-addresses">Paddle IP 주소 문서</a></p>
+</main>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>날짜 선택기 접근성 보고</title>
+  <style>
+    :root { --bg: #101214; --text: #f3f4f6; --muted: #9ca3af; --accent: #7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 48px; }
+    header, section { border: 1px solid var(--muted); padding: 18px; margin: 0 0 16px; }
+    h1, h2 { margin: 0 0 10px; line-height: 1.2; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--muted); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    .muted { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .cell { border: 1px solid var(--muted); padding: 12px; min-height: 86px; }
+    .label { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>날짜 선택기 접근성 보고</h1>
+      <p class="muted">작성 시각: 2026-08-12 04:34:41 KST</p>
+      <p>이번 사이클은 새 오더가 없어서 codex 레인에서 한 가지 UI 접근성 결함을 수정했다.</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="cell"><div class="label">대상</div><p>2nd-B 공용 날짜 선택기</p></div>
+        <div class="cell"><div class="label">결과</div><p>텍스트 버튼 라벨 보강</p></div>
+        <div class="cell"><div class="label">앱 커밋</div><p><code>900f63d7</code></p></div>
+        <div class="cell"><div class="label">위험</div><p>낮음</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/components/m3/date-picker/DatePicker.tsx</code></td>
+            <td>날짜 선택 모달과 연도 선택 모달의 취소 버튼, 날짜 확인 버튼에 명시적인 접근성 라벨을 추가했다.</td>
+          </tr>
+          <tr>
+            <td><code>src/components/m3/date-picker/__tests__/date-picker-a11y.test.ts</code></td>
+            <td>취소와 확인 라벨, 비활성 상태 노출이 유지되는지 확인하는 정적 회귀 테스트를 추가했다.</td>
+          </tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>시각적으로는 버튼 텍스트가 보였지만, 공용 모달 액션은 스크린리더가 안정적으로 읽을 수 있도록 라벨을 명시하는 편이 안전하다. 동작, 색상, 레이아웃은 바꾸지 않았다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>상태</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npx prettier --check</code></td><td>통과</td></tr>
+          <tr><td><code>npm test -- --runTestsByPath ...date-picker-a11y.test.ts --runInBand</code></td><td>통과</td></tr>
+          <tr><td><code>npx eslint</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:constraints</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:safety-consent-locale</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+          <tr><td>diff 시크릿 패턴 스캔</td><td>검출 없음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>운영 준수</h2>
+      <p>2nd-B 원격 push는 수행하지 않았다. 허브 브랜치 전환도 수행하지 않았다. 파괴, 비용, 시크릿 관련 작업은 없었다.</p>
+      <p>제출 브랜치: <code>codex/qa-cycle-20260812-043139</code></p>
+      <p>작업트리: <code>C:\Coding Infra\_worktrees\2ndB-codex-qa-cycle-20260812-043139</code></p>
+    </section>
+  </main>
+</body>
+</html>

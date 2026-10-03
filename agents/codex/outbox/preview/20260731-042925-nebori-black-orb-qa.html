@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>네보리 검은 구형 에셋 병합 검수</title>
+  <style>
+    :root { --bg:#0b0d10; --text:#e8edf2; --accent:#7aa2ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: system-ui, "Malgun Gothic", sans-serif; line-height:1.58; }
+    main { max-width: 1080px; margin: 0 auto; padding: 32px 18px 56px; }
+    header { border:1px solid color-mix(in srgb, var(--accent) 42%, transparent); padding:22px; border-radius:8px; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { font-size: clamp(28px, 4vw, 44px); margin-bottom:10px; }
+    h2 { font-size: 21px; margin: 28px 0 12px; color:var(--accent); }
+    h3 { font-size: 16px; margin: 18px 0 8px; }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:12px; margin-top:18px; }
+    .card { border:1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius:8px; padding:14px; min-height:104px; }
+    .label { opacity:.68; font-size:12px; }
+    .value { display:block; margin-top:8px; font-weight:700; font-size:18px; }
+    table { width:100%; border-collapse:collapse; margin:12px 0; }
+    th, td { border:1px solid color-mix(in srgb, var(--text) 18%, transparent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); word-break:break-word; }
+    details { border:1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius:8px; padding:12px 14px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    ul { padding-left:20px; }
+    .bar { height:10px; border:1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius:999px; overflow:hidden; margin-top:8px; }
+    .fill { height:100%; background:var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="label">자율 폴 사이클 보고서</p>
+    <h1>네보리 검은 구형 에셋 병합 검수</h1>
+    <p>이번 사이클은 새로 전진한 <code>origin/codex/nebori-asset-spec</code>의 커밋 <code>3aeb0520</code>을 검토했다. 의도 커밋 단독은 이미지와 문서 추가로 분리 가능하지만, 브랜치 전체 병합은 보류가 맞다.</p>
+    <div class="grid">
+      <div class="card"><span class="label">전체 판정</span><span class="value">보류</span><div class="bar"><div class="fill" style="width:82%"></div></div></div>
+      <div class="card"><span class="label">의도 커밋</span><span class="value">분리 가능</span><div class="bar"><div class="fill" style="width:58%"></div></div></div>
+      <div class="card"><span class="label">충돌 표식</span><span class="value">없음</span><div class="bar"><div class="fill" style="width:100%"></div></div></div>
+      <div class="card"><span class="label">회귀 위험</span><span class="value">높음</span><div class="bar"><div class="fill" style="width:88%"></div></div></div>
+    </div>
+  </header>
+
+  <section>
+    <h2>결론</h2>
+    <table>
+      <thead><tr><th>항목</th><th>판정</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>브랜치 전체</td><td>병합 보류</td><td>문서 삭제, 테스트 삭제, 프록시 토큰 제한 제거, 죽은 locale 키 재추가, 가격 미러 변경이 섞여 있다.</td></tr>
+        <tr><td>커밋 <code>3aeb0520</code></td><td>단독 후보</td><td><code>nebori-illustration-head-black-orb.png</code>와 자체 포함 문서만 추가한다.</td></tr>
+        <tr><td>새 이미지</td><td>시각 품질 양호</td><td>1024 x 1024 크기이며, 검은 중심 구형과 보라색 성운 외곽이 명확하다.</td></tr>
+        <tr><td>새 문서</td><td>수정 필요</td><td>화면에 보이는 제목, 브랜드, 버튼, 영어 설명이 남아 있어 한국어 보고 규칙에 맞지 않는다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>검증 결과</h2>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th><th>메모</th></tr></thead>
+      <tbody>
+        <tr><td><code>git fetch --prune origin</code></td><td>통과</td><td>원격 최신 상태를 반영했다.</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td><td>공백 오류는 없었다.</td></tr>
+        <tr><td><code>git merge-tree</code></td><td>통과</td><td>충돌 표식은 발견되지 않았다.</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td><td>5개 locale 키 정렬은 통과했다.</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td><td>금지어 스캔은 통과했다.</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td><td>locale 문자열의 긴 대시 금지는 통과했다.</td></tr>
+        <tr><td>대상 Jest 경로 실행</td><td>실패 확인</td><td><code>ops-brief-output-budget.test.ts</code> 파일이 브랜치에서 삭제되어 실행할 수 없다.</td></tr>
+        <tr><td>새 이미지 크기 확인</td><td>통과</td><td>검은 구형 머리 PNG는 1024 x 1024, 462451 바이트다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>주요 위험</h2>
+    <details open>
+      <summary>출력 토큰 제한 회귀</summary>
+      <p>브랜치 전체 diff는 <code>ops_daily_brief</code>의 출력 토큰 하한을 세 프록시에서 제거한다. 이 제한은 통합 호출 절삭을 막는 방어막이라 그대로 병합하면 502 계열 실패와 14개 도메인별 호출 회귀가 재발할 수 있다.</p>
+    </details>
+    <details>
+      <summary>유일한 회귀 테스트 삭제</summary>
+      <p><code>src/lib/llm/__tests__/ops-brief-output-budget.test.ts</code>가 삭제된다. 해당 Deno 프록시 경로는 일반 타입 검사에서 빠지므로, 이 테스트 삭제는 자동 방어선을 없애는 변경이다.</p>
+    </details>
+    <details>
+      <summary>불필요한 문서와 데이터 변경</summary>
+      <p>R1 응답 문서 2개 삭제, 가격 미러 변경, <code>ds.home.hint</code> locale 키 재추가가 Nebori 에셋 목적과 무관하게 포함되어 있다.</p>
+    </details>
+    <details>
+      <summary>문서 언어 규칙 위반</summary>
+      <p>새 HTML 문서에는 영어 제목과 영어 버튼 라벨, 영어 설명 블록이 남아 있다. 허브 보고 규칙의 한국어 본문 기준에는 맞지 않는다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>섹션 35 자체 패널</h2>
+    <table>
+      <thead><tr><th>관점</th><th>판단</th></tr></thead>
+      <tbody>
+        <tr><td>찬성</td><td>검은 구형 Nebori 머리는 기존 보라 성운 정체성을 유지하면서 중심 캐릭터 인지를 강화한다.</td></tr>
+        <tr><td>반대</td><td>브랜치 전체는 Nebori 에셋보다 훨씬 넓은 회귀성 차이를 포함한다.</td></tr>
+        <tr><td>대안</td><td>커밋 <code>3aeb0520</code>만 최신 <code>origin/main</code>에 분리 적용하고, 문서는 한국어 전용으로 고친 뒤 다시 검증한다.</td></tr>
+        <tr><td>판정</td><td>전체 브랜치는 보류, 단독 에셋 커밋은 Claude 병합 게이트에서 별도 cherry-pick 후보로 다룬다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>권장 다음 조치</h2>
+    <ul>
+      <li><code>origin/codex/nebori-asset-spec</code>를 그대로 병합하지 않는다.</li>
+      <li><code>3aeb0520</code>만 최신 main 위에 분리 적용할지 Claude가 판단한다.</li>
+      <li>추가 문서는 화면 텍스트를 한국어로 정리한 뒤 다시 제출한다.</li>
+      <li>Antigravity에 독립 검증을 요청했다.</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

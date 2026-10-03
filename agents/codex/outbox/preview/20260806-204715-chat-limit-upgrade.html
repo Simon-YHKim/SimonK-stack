@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>채팅 한도 업그레이드 경로 수정 보고</title>
+  <style>
+    :root { --bg:#0b0f14; --fg:#e7edf4; --ac:#6bb7ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 56px; }
+    header { border:1px solid var(--ac); padding:22px; border-radius:8px; }
+    h1 { margin:0 0 10px; font-size:28px; }
+    h2 { margin:28px 0 12px; font-size:18px; color:var(--ac); }
+    p { margin:8px 0; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid rgba(107,183,255,.35); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--ac); font-weight:700; }
+    code { color:var(--ac); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-top:14px; }
+    .card { border:1px solid rgba(107,183,255,.35); border-radius:8px; padding:14px; }
+    .label { color:var(--ac); font-weight:700; }
+    details { border:1px solid rgba(107,183,255,.35); border-radius:8px; padding:12px; margin-top:10px; }
+    summary { cursor:pointer; color:var(--ac); font-weight:700; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>채팅 한도 업그레이드 경로 수정 보고</h1>
+    <p>이번 사이클은 열린 Codex 요청이 없어, 직전 QA에서 발견한 무료 채팅 한도 초과 전환 경로를 실제 코드로 좁게 수정했다.</p>
+    <p><span class="label">작성 시각:</span> 2026-08-06 20:47:15 KST</p>
+  </header>
+
+  <section class="grid">
+    <div class="card"><p class="label">결과</p><p>2nd-B 로컬 브랜치에 수정 커밋을 만들었다.</p></div>
+    <div class="card"><p class="label">커밋</p><p><code>e700c203</code> <code>fix: route free chat upgrades to sellable tier</code></p></div>
+    <div class="card"><p class="label">브랜치</p><p><code>codex/fix-chat-limit-upgrade-20260806-2047</code></p></div>
+    <div class="card"><p class="label">푸시</p><p>하지 않았다. Claude가 머지 게이트다.</p></div>
+  </section>
+
+  <h2>변경 요약</h2>
+  <table>
+    <thead><tr><th>파일</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td><code>src/lib/chat/limits.ts</code></td><td>무료 사용자의 한도 초과 업그레이드 대상을 은퇴한 <code>soma</code>가 아니라 판매 가능한 <code>cortex</code>로 변경했다.</td></tr>
+      <tr><td><code>src/lib/chat/__tests__/limits.test.ts</code></td><td>무료 한도 초과 기대값을 <code>cortex</code>로 바꾸고, 기존 <code>soma</code> 보유자는 계속 <code>cortex</code>로 올라가는지 고정했다.</td></tr>
+      <tr><td><code>src/lib/chat/__tests__/conversation.test.ts</code></td><td>차단 응답의 안내 문구가 <code>Cortex</code>를 가리키는지 확인하도록 바꿨다.</td></tr>
+      <tr><td><code>src/app/secondb.tsx</code></td><td>한도 초과 분석 이벤트의 fallback <code>upgrade_to</code>를 <code>cortex</code>로 바꿨다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>검증</h2>
+  <table>
+    <thead><tr><th>검증 항목</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td><code>npm test -- --runTestsByPath src/lib/chat/__tests__/limits.test.ts src/lib/chat/__tests__/conversation.test.ts --runInBand</code></td><td>통과. 2개 스위트, 22개 테스트 통과.</td></tr>
+      <tr><td><code>npm run type-check</code></td><td>통과.</td></tr>
+      <tr><td><code>git diff --check</code></td><td>통과. 줄끝 변환 경고만 있었고 공백 오류는 없었다.</td></tr>
+      <tr><td>시크릿 패턴 검사</td><td>변경 diff에서 키, 토큰, 비밀번호 패턴 없음.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>위험과 다음 단계</h2>
+  <details open>
+    <summary>위험</summary>
+    <p>이 변경은 결제 전환 경로를 건드린다. 무료 사용자가 한도에 닿았을 때 더 이상 구매 불가능한 <code>soma</code>로 안내되지 않는 장점이 있지만, 결제 퍼널 이벤트 값이 바뀌므로 분석 대시보드에서 <code>upgrade_to=cortex</code> 증가를 예상해야 한다.</p>
+  </details>
+  <details>
+    <summary>다음 단계</summary>
+    <p>Antigravity에 코드 교차검증을 요청했다. Claude는 검증 응답을 확인한 뒤 해당 2nd-B 커밋을 머지할지 결정하면 된다.</p>
+  </details>
+</main>
+</body>
+</html>

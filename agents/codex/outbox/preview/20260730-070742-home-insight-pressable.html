@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>홈 인사이트 카드 터치 표면 정리</title>
+  <style>
+    :root { --bg:#111318; --text:#e8edf2; --accent:#5fd6c9; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 48px; }
+    h1,h2,p { margin:0; }
+    h1 { font-size:28px; line-height:1.2; }
+    h2 { font-size:17px; margin-bottom:10px; color:var(--accent); }
+    section { border:1px solid var(--accent); padding:18px; margin-top:16px; border-radius:8px; }
+    .summary { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-top:18px; }
+    .card { border:1px solid var(--accent); border-radius:8px; padding:14px; min-height:104px; }
+    .label { color:var(--accent); font-size:12px; margin-bottom:8px; }
+    .value { font-size:15px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th,td { border-top:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); }
+    .bars { display:flex; gap:8px; align-items:end; height:110px; margin-top:14px; }
+    .bar { flex:1; border:1px solid var(--accent); display:flex; align-items:end; }
+    .fill { width:100%; background:var(--accent); }
+    @media (max-width:720px) { .summary { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>홈 인사이트 카드 터치 표면 정리</h1>
+    <p>작성 시각: 2026-07-30 07:07:42 KST</p>
+
+    <div class="summary">
+      <div class="card"><div class="label">결과</div><div class="value">로컬 커밋 완료</div></div>
+      <div class="card"><div class="label">2nd-B 커밋</div><div class="value"><code>2489518a</code></div></div>
+      <div class="card"><div class="label">변경 파일</div><div class="value">1개</div></div>
+      <div class="card"><div class="label">푸시</div><div class="value">하지 않음</div></div>
+    </div>
+
+    <section>
+      <h2>무엇을 바꿨나</h2>
+      <p><code>src/app/index.tsx</code>의 <code>HomePressable</code>에서 카드의 시각 스타일을 <code>Animated.View</code>가 갖도록 하고, <code>AnimatedPressable</code>은 전체 카드 위의 투명 터치 레이어로 분리했습니다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p>기존 구조는 카드 레이아웃, 배경, 테두리, 그림자, 눌림 애니메이션을 모두 <code>AnimatedPressable</code>에 직접 전달했습니다. 이번 변경은 Android Fabric에서 Pressable 표면 스타일이 사라질 수 있는 회귀 범위를 줄입니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><td>파일 ESLint</td><td>통과</td><td><code>npx eslint src/app/index.tsx</code></td></tr>
+          <tr><td>공백 검사</td><td>통과</td><td><code>git diff --check</code></td></tr>
+          <tr><td>전체 type-check</td><td>기존 의존성 문제로 실패</td><td><code>madge</code>, ads/Firebase native 타입 해석 실패</td></tr>
+          <tr><td>전체 verify</td><td>type-check 단계에서 중단</td><td>lint는 경고만 출력 후 통과, 이후 기존 type-check 오류에서 중단</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <table>
+        <thead><tr><th>관점</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>찬성</td><td>홈 인사이트 카드 2곳의 시각 표면과 터치 표면을 분리해 Android Fabric 안전성을 높였습니다.</td></tr>
+          <tr><td>반대</td><td>전체 공통 버튼까지 건드리면 영향 범위가 커져 이번 단일 사이클 원칙에 맞지 않습니다.</td></tr>
+          <tr><td>결론</td><td>한 파일, 한 래퍼, 한 로컬 커밋으로 제한한 현재 변경이 적절합니다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>영향 범위</h2>
+      <div class="bars" aria-label="영향 범위 막대">
+        <div class="bar"><div class="fill" style="height:30%"></div></div>
+        <div class="bar"><div class="fill" style="height:20%"></div></div>
+        <div class="bar"><div class="fill" style="height:70%"></div></div>
+      </div>
+      <p>왼쪽부터 변경 파일 수, 회귀 위험, 검증 신뢰도입니다. 검증 신뢰도는 파일 단위 검증 통과와 전체 검증의 기존 차단을 함께 반영했습니다.</p>
+    </section>
+  </main>
+</body>
+</html>

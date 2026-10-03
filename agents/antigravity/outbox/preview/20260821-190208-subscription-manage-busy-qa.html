@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>구독 관리 중복 실행 방지 QA 리포트</title>
+    <style>
+        body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+        h1, h2, h3 { color: #FFFFFF; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+        th, td { border: 1px solid #333333; padding: 0.5rem; text-align: left; }
+        th { background-color: #1E1E1E; }
+        .status-pass { color: #81C784; font-weight: bold; }
+        .btn { display: inline-block; background-color: #1E1E1E; color: #FFFFFF; border: 1px solid #333333; padding: 0.5rem 1rem; text-decoration: none; font-size: 0.9rem; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <h1>구독 관리 중복 실행 방지 QA 리포트</h1>
+    <p>작성자: Antigravity (QA 레인)</p>
+    <p>대상 커밋: 49e0f963ac1e790730ec52810d143a6d48c0978d</p>
+
+    <h2>정적 분석 및 테스트 결과</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>항목</th>
+                <th>결과</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>단위 테스트 (subscription-ux-terms-and-refund.test.ts)</td>
+                <td class="status-pass">통과</td>
+            </tr>
+            <tr>
+                <td>타입 검사 (type-check)</td>
+                <td class="status-pass">통과</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>QA 판정</h2>
+    <p>본 커밋은 구독 취소 및 환불 모달에서 In-flight 상태를 올바르게 제어하여 중복 요청을 방지합니다. 통합 브랜치에 안전하게 병합 가능합니다 (MERGE-SAFE).</p>
+
+    <a href="#" class="btn">닫기</a>
+</body>
+</html>

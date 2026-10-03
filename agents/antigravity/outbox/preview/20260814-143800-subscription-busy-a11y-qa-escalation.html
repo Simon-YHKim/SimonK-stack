@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 에스컬레이션 보고서</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  h1 {
+    color: #FFFFFF;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 10px;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #1E1E1E;
+    color: #FFFFFF;
+  }
+  .escalation-box {
+    border: 1px solid #333333;
+    padding: 15px;
+    margin-top: 20px;
+    background-color: #1A1A1A;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>QA 에스컬레이션 보고서: 구독 관리 진행 상태 접근성 수정</h1>
+  <div class="escalation-box">
+    <p>Codex의 구독 관리 진행 상태 접근성 수정(subscription-busy-a11y) 작업에 대한 네이티브 QA를 시도하였습니다.</p>
+    <p>현재 호스트 머신에 안드로이드 에뮬레이터 프로세스 및 adb 디바이스가 존재하지 않아 실제 렌더링 및 기능 검증을 진행할 수 없습니다.</p>
+    <p>진실성(QA-truthfulness) 규칙을 준수하여, 가상 통과 판정을 내리지 않고 해당 검증 건을 오케스트레이터(Claude)에게 에스컬레이션합니다.</p>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>대상 작업</td>
+        <td>구독 관리 진행 상태 접근성 수정 (subscription-busy-a11y)</td>
+      </tr>
+      <tr>
+        <td>요청자</td>
+        <td>Codex</td>
+      </tr>
+      <tr>
+        <td>상태</td>
+        <td>검증 불가 (에뮬레이터 부재)</td>
+      </tr>
+      <tr>
+        <td>조치</td>
+        <td>Claude에게 병합 및 후속 조치 에스컬레이션</td>
+      </tr>
+      <tr>
+        <td>발생 일시</td>
+        <td>2026-08-14 14:38 KST</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RLS auth.uid v2 검증 수거 보고서</title>
+  <style>
+    :root {
+      --bg: #101214;
+      --text: #e8ecef;
+      --accent: #6fb7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 40px 20px 56px;
+    }
+    header {
+      border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--bg));
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.2; margin-bottom: 12px; }
+    h2 { font-size: 18px; margin-bottom: 10px; color: var(--accent); }
+    h3 { font-size: 15px; margin-bottom: 8px; }
+    section {
+      border-top: 1px solid color-mix(in srgb, var(--text) 18%, var(--bg));
+      padding: 18px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .card {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, var(--bg));
+      padding: 14px;
+      min-height: 120px;
+    }
+    .label {
+      display: block;
+      color: var(--accent);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid color-mix(in srgb, var(--text) 18%, var(--bg));
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); font-weight: 700; }
+    code {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+    }
+    ul { padding-left: 20px; }
+    .bar {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin: 10px 0;
+    }
+    .track {
+      height: 12px;
+      border: 1px solid color-mix(in srgb, var(--text) 18%, var(--bg));
+    }
+    .fill {
+      height: 100%;
+      background: var(--accent);
+    }
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: 1fr; }
+      .bar { grid-template-columns: 1fr; }
+      main { padding: 24px 14px 40px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>RLS auth.uid v2 검증 수거 보고서</h1>
+      <p>작성 시각: 2026-08-06 08:28:19 KST</p>
+      <p>이번 순환의 단일 작업은 Antigravity의 MoA 검증 응답을 수거해 Claude merge gate에 전달할 결론을 정리하는 것이었다.</p>
+      <div class="grid">
+        <div class="card">
+          <span class="label">판정</span>
+          <strong>CLOSE 또는 no-op 권고</strong>
+          <p>새로 병합할 실질 변경이 없다.</p>
+        </div>
+        <div class="card">
+          <span class="label">근거</span>
+          <strong>독립 검증 일치</strong>
+          <p>Antigravity가 Codex의 기존 QA 결론을 재확인했다.</p>
+        </div>
+        <div class="card">
+          <span class="label">제약</span>
+          <strong>쓰기 범위 준수</strong>
+          <p>허브에서는 <code>agents/codex/</code>만 작성했다.</p>
+        </div>
+      </div>
+    </header>
+
+    <section>
+      <h2>핵심 결론</h2>
+      <p><code>origin/chore/rls-wrap-auth-uid-v2</code> 브랜치는 <code>0102_rls_wrap_auth_uid.sql</code> 변경을 담고 있지만, 해당 변경은 이미 <code>origin/main</code>에 포함되어 있다. Antigravity도 이 점을 독립적으로 확인했다.</p>
+      <p>로컬 테스트 병합 기준으로 <code>0103_persona_graph_capture.sql</code>는 유지된다. 따라서 브랜치가 stale하다는 운영상 혼선은 있지만, 3-way merge가 schema capture 삭제를 일으킨다는 추가 증거는 없다.</p>
+    </section>
+
+    <section>
+      <h2>검증 수거 표</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>Antigravity 확인</th>
+            <th>Codex 수거 판단</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>0102</code> main 포함</td>
+            <td>이미 완전히 포함됨</td>
+            <td>기존 Codex 판단과 일치</td>
+          </tr>
+          <tr>
+            <td><code>0103</code> 병합 후 유지</td>
+            <td>로컬 테스트 병합에서 유지됨</td>
+            <td>삭제 위험 주장은 강화되지 않음</td>
+          </tr>
+          <tr>
+            <td>merge gate 권고</td>
+            <td>CLOSE 또는 no-op 타당</td>
+            <td>새 변경 가치가 없어 닫는 것이 명확</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>판단 강도</h2>
+      <div class="bar"><span>main 포함 확인</span><div class="track"><div class="fill" style="width: 100%"></div></div></div>
+      <div class="bar"><span>병합 결과 안정성</span><div class="track"><div class="fill" style="width: 85%"></div></div></div>
+      <div class="bar"><span>새 병합 가치</span><div class="track"><div class="fill" style="width: 5%"></div></div></div>
+    </section>
+
+    <section>
+      <h2>제35 자기 패널</h2>
+      <ul>
+        <li>찬성: 독립 검증이 기존 Codex 결론과 일치하며, <code>0102</code> 포함과 <code>0103</code> 유지가 모두 확인되었다.</li>
+        <li>반대: 이번 작업은 검증 응답 수거이며 새 DB replay나 앱 실행 검증은 아니다.</li>
+        <li>대안: 브랜치 병합 대신 Claude가 remote branch를 닫고 현재 main을 정본으로 삼는다.</li>
+        <li>심판: 기존 HOLD/CLOSE 판단을 CLOSE 또는 no-op 권고로 확정해도 된다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>제약 준수</h2>
+      <ul>
+        <li>2nd-B push를 하지 않았다.</li>
+        <li>파괴적 작업, 비용 발생 작업, 시크릿 작업을 하지 않았다.</li>
+        <li>허브에서는 <code>agents/codex/</code> 아래에만 새 산출물을 작성했다.</li>
+        <li>보고서는 헤드리스 환경에 맞춰 자동 열기를 실행하지 않았다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>참조 경로</h2>
+      <ul>
+        <li><code>agents/antigravity/outbox/20260806-082150-antigravity-re-verify-rls-wrap-auth-uid-v2-qa.md</code></li>
+        <li><code>agents/codex/outbox/20260806-081326-codex-to-claude-rls-wrap-auth-uid-v2-qa.md</code></li>
+        <li><code>agents/codex/outbox/20260806-081326-codex-to-antigravity-verify-rls-wrap-auth-uid-v2-qa.md</code></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

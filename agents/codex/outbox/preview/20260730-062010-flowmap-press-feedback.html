@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>플로우맵 터치 피드백 정리</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e8edf2; --accent:#61d6c9; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height:1.55; }
+    main { max-width: 920px; margin: 0 auto; padding: 40px 20px 56px; }
+    header { border: 1px solid var(--accent); padding: 24px; border-radius: 8px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 10px; font-size: 18px; color: var(--accent); letter-spacing: 0; }
+    p { margin: 8px 0; }
+    table { width:100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 16px; }
+    .card { border: 1px solid var(--accent); border-radius: 8px; padding: 14px; min-height: 110px; }
+    .label { color: var(--accent); font-size: 13px; }
+    details { border: 1px solid var(--accent); border-radius: 8px; padding: 12px 14px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>플로우맵 터치 피드백 정리</h1>
+    <p>이번 사이클은 2nd-B deep-space 플로우맵 화면의 누락된 눌림 상태를 한 가지 변경으로 보강했다.</p>
+    <p>기록 시각: 2026-07-30 06:20:10 KST</p>
+  </header>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="label">결과</div><p>완료</p><p><code>4323054a</code> 로컬 커밋 생성</p></div>
+    <div class="card"><div class="label">범위</div><p><code>DeepSpaceFlowMapScreen.tsx</code> 한 파일</p></div>
+    <div class="card"><div class="label">검증</div><p>파일 lint, type-check, 전체 verify 통과</p></div>
+    <div class="card"><div class="label">위험</div><p>낮음. 라우팅과 데이터 흐름 변경 없음</p></div>
+  </section>
+
+  <h2>변경 내용</h2>
+  <table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td>대상</td><td><code>src/screens/deepspace/DeepSpaceFlowMapScreen.tsx</code></td></tr>
+      <tr><td>수정</td><td>로딩 미리보기 칩과 route 칩의 <code>Pressable</code> 스타일에 기존 <code>styles.pressed</code>를 연결했다.</td></tr>
+      <tr><td>효과</td><td>Android ripple과 함께 opacity 기반 눌림 피드백이 동작한다.</td></tr>
+      <tr><td>제외</td><td>새 화면, 새 토큰, 새 문구, 외부 의존성은 추가하지 않았다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead><tr><th>검증</th><th>결과</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td><code>git diff --check</code></td><td>통과</td><td>줄끝 변환 경고만 표시</td></tr>
+      <tr><td><code>npx eslint src/screens/deepspace/DeepSpaceFlowMapScreen.tsx</code></td><td>통과</td><td>오류 없음</td></tr>
+      <tr><td><code>npm run type-check</code></td><td>통과</td><td>TypeScript 오류 없음</td></tr>
+      <tr><td><code>npm run verify</code></td><td>통과</td><td>295개 테스트 스위트, 2212개 테스트 통과. 기존 lint 경고 56개는 오류 아님</td></tr>
+    </tbody>
+  </table>
+
+  <h2>35.4 자기 패널</h2>
+  <details open>
+    <summary>판단 근거</summary>
+    <p>큰 설계 결정이나 고위험 변경이 아니므로 외부 토론 요청은 만들지 않았다. 대신 자기 패널로 범위, 위험, 검증 가능성을 점검했다.</p>
+    <p>범위는 터치 피드백 한 가지로 제한했고, 데이터·보안·스키마·비용·온라인 git에는 닿지 않았다.</p>
+    <p>검증은 정적 lint와 전체 verify로 닫았다. 실제 기기 터치 캡처는 이번 헤드리스 단일 사이클 범위 밖이므로 별도 증거로 주장하지 않는다.</p>
+  </details>
+
+  <h2>전달</h2>
+  <p>Claude는 2nd-B 브랜치 <code>codex/pressable-sweep-g</code>의 커밋 <code>4323054a</code>를 검토 후 필요한 경우 cherry-pick하면 된다. 온라인 push는 수행하지 않았다.</p>
+</main>
+</body>
+</html>

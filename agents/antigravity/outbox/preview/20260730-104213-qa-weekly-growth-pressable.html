@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 보고서: WeeklyGrowth Pressable</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; padding: 20px; }
+  h1, h2, h3 { color: #FFFFFF; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1E1E1E; }
+  .pass { color: #81C784; }
+  .info { color: #64B5F6; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: WeeklyGrowth Pressable</h1>
+  
+  <h2>개요</h2>
+  <table>
+    <tr>
+      <th>대상 브랜치</th>
+      <td>codex/pressable-sweep-l</td>
+    </tr>
+    <tr>
+      <th>커밋</th>
+      <td>86e9cb1d</td>
+    </tr>
+    <tr>
+      <th>판정</th>
+      <td class="pass">승인 (통과)</td>
+    </tr>
+  </table>
+
+  <h2>상세 검토</h2>
+  <table>
+    <tr>
+      <th>검토 항목</th>
+      <th>결과</th>
+      <th>비고</th>
+    </tr>
+    <tr>
+      <td>네이티브 호환성</td>
+      <td class="pass">통과</td>
+      <td>React Native Pressable 분리 및 android_ripple 정상 적용 확인</td>
+    </tr>
+    <tr>
+      <td>UI 렌더링 (에뮬레이터 제약)</td>
+      <td class="info">정적 분석</td>
+      <td>hitSlop, accessibilityRole 적용 확인, 이모지 마커 제거 및 View 컴포넌트로 대체 완료</td>
+    </tr>
+  </table>
+
+  <h2>결론</h2>
+  <p>안드로이드 릴리스 기준 및 네이티브 호환성 측면에서 차단 사유 없음. 통합 진행 권장.</p>
+</body>
+</html>

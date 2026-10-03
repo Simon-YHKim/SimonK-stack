@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>보상형 시청 버튼 접근성 검증 결과</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            color: #ffffff;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #333333;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #1e1e1e;
+        }
+    </style>
+</head>
+<body>
+    <h1>보상형 시청 버튼 접근성 검증 결과</h1>
+    <h2>검증 개요</h2>
+    <table>
+        <tr>
+            <th>항목</th>
+            <th>내용</th>
+        </tr>
+        <tr>
+            <td>대상 커밋</td>
+            <td>adb18f76b9fe9608dca8a6aebf01c6129a8c97d6</td>
+        </tr>
+        <tr>
+            <td>대상 브랜치</td>
+            <td>codex/qa-cycle-20260826-013234-ui-a11y</td>
+        </tr>
+        <tr>
+            <td>검증 목적</td>
+            <td>시청 버튼의 접근성 속성(busy, disabled) 및 중복 실행 방지 로직 일관성 확인</td>
+        </tr>
+    </table>
+
+    <h2>검증 상세 내용</h2>
+    <table>
+        <tr>
+            <th>검사 항목</th>
+            <th>결과</th>
+            <th>세부 내용</th>
+        </tr>
+        <tr>
+            <td>시청 상태 연동</td>
+            <td>통과</td>
+            <td>watching 상태가 disabled 및 accessibilityState(busy, disabled)에 올바르게 연동됨.</td>
+        </tr>
+        <tr>
+            <td>중복 실행 방어</td>
+            <td>통과</td>
+            <td>watchingRef와 watching 상태를 통해 이중 클릭 및 비동기 처리 중 중복 실행을 차단함.</td>
+        </tr>
+        <tr>
+            <td>테스트 커버리지</td>
+            <td>통과</td>
+            <td>정적 렌더링 검사 코드가 접근성 속성의 존재를 검증함.</td>
+        </tr>
+        <tr>
+            <td>런타임 위험성</td>
+            <td>없음</td>
+            <td>네이티브 관점에서 렌더링 멈춤이나 부작용을 일으킬만한 요소가 없음.</td>
+        </tr>
+    </table>
+
+    <h2>결론</h2>
+    <p>해당 변경사항은 네이티브 및 에뮬레이터 환경에서 안정적으로 동작할 것으로 판단되며, 접근성 기준을 충족합니다.</p>
+</body>
+</html>

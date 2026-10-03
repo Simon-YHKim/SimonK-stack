@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>프리미엄 버튼 press surface 검증</title>
+  <style>
+    :root { --bg: #0b0f14; --text: #e6edf3; --accent: #6aa7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.6; }
+    main { width: min(1040px, calc(100vw - 32px)); margin: 0 auto; padding: 36px 0 56px; }
+    header, section, details { border: 1px solid color-mix(in srgb, var(--text) 16%, transparent); padding: 18px; margin: 14px 0; }
+    h1, h2, p { margin-top: 0; }
+    h1 { font-size: clamp(28px, 4vw, 42px); line-height: 1.15; margin-bottom: 10px; }
+    h2 { font-size: 20px; margin-bottom: 10px; color: var(--accent); }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+    .tile { border: 1px solid color-mix(in srgb, var(--text) 14%, transparent); padding: 14px; min-height: 92px; }
+    .tile strong { display: block; color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    th, td { border-bottom: 1px solid color-mix(in srgb, var(--text) 14%, transparent); padding: 10px 8px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+    th { color: var(--accent); }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .bar { display: grid; grid-template-columns: 120px 1fr 70px; gap: 10px; align-items: center; margin: 8px 0; }
+    .track { height: 10px; border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); }
+    .fill { height: 100%; background: var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } .bar { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>프리미엄 버튼 press surface 검증</h1>
+      <p>이번 사이클은 새 UI 발견을 추가하지 않고, Codex 미머지 큐의 다음 후보를 <code>origin/main</code> 기준으로 재현 검증했다.</p>
+      <div class="grid" aria-label="핵심 요약">
+        <div class="tile"><strong>원본 후보</strong><code>efbb2d41</code></div>
+        <div class="tile"><strong>검증 커밋</strong><code>556e8886</code></div>
+        <div class="tile"><strong>브랜치</strong><code>codex/qa-premium-button-press-20260730-213755</code></div>
+        <div class="tile"><strong>push</strong>수행하지 않음</div>
+      </div>
+    </header>
+
+    <section>
+      <h2>작업 결과</h2>
+      <table>
+        <thead><tr><th>항목</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td>작업 성격</td><td>미머지 UI 후보의 merge-readiness 검증</td></tr>
+          <tr><td>변경 파일</td><td><code>src/components/premium/surfaces.tsx</code></td></tr>
+          <tr><td>변경 규모</td><td>1파일, 66줄 추가, 52줄 삭제</td></tr>
+          <tr><td>작업 위치</td><td><code>C:\2ndB\.worktrees\codex\qa-premium-button-press-20260730-213755</code></td></tr>
+          <tr><td>생성 시각</td><td>2026-07-30 21:40:16 KST</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 요약</h2>
+      <div class="bar"><span>통과</span><div class="track"><div class="fill" style="width:86%"></div></div><span>6 / 7</span></div>
+      <div class="bar"><span>차단</span><div class="track"><div class="fill" style="width:14%"></div></div><span>1 / 7</span></div>
+      <table>
+        <thead><tr><th>검사</th><th>결과</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><td><code>git diff --check origin/main...HEAD</code></td><td>통과</td><td>공백 오류 없음</td></tr>
+          <tr><td>대상 파일 Prettier</td><td>통과</td><td>cherry-pick 직후 실패를 확인하고 대상 파일만 정규화한 뒤 재검사 통과</td></tr>
+          <tr><td>대상 파일 ESLint</td><td>통과</td><td><code>src/components/premium/surfaces.tsx</code> 단일 파일 검사 통과</td></tr>
+          <tr><td>대상 Jest</td><td>통과</td><td><code>premium-button-a11y.test.ts</code> 4개 테스트 통과</td></tr>
+          <tr><td><code>check:emdash</code></td><td>통과</td><td>locale 문자열 em dash 금지 검사 통과</td></tr>
+          <tr><td><code>check:lexicon</code></td><td>통과</td><td>938개 파일 금칙어 검사 통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>차단</td><td>기존 의존성 타입 해석 문제로 실패</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>type-check 차단 상세</summary>
+      <p>실패 지점은 이번 변경 파일이 아니라 기존 환경 문제로 보인다. 확인된 오류는 <code>madge</code>, <code>react-native-google-mobile-ads</code>, <code>@react-native-firebase/analytics</code> 모듈 타입 해석 실패와 <code>check-require-cycles.ts</code>의 implicit any다.</p>
+    </details>
+
+    <details>
+      <summary>다음 처리</summary>
+      <p>이 후보는 대상 파일 기준으로 merge-readiness가 유지된다. 전체 type-check가 기존 블로커로 닫히지 않으므로, Claude가 통합할 때 동일 블로커인지 확인하거나 별도 환경 정비 후 전체 검증을 재실행하는 것이 맞다.</p>
+    </details>
+  </main>
+</body>
+</html>

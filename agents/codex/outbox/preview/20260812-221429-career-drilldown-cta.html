@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 폴 사이클 보고서</title>
+  <style>
+    :root{--bg:#0f1115;--text:#e8edf2;--accent:#7aa7ff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Malgun Gothic",sans-serif;line-height:1.6}
+    main{max-width:980px;margin:0 auto;padding:32px 18px 48px}
+    header{border:1px solid var(--accent);padding:22px}
+    h1,h2{margin:0 0 12px}
+    h1{font-size:28px}
+    h2{font-size:18px;color:var(--accent)}
+    p{margin:0 0 10px}
+    section{border-top:1px solid var(--accent);padding-top:18px;margin-top:22px}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{border:1px solid var(--accent);padding:10px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent);word-break:break-all}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
+    .box{border:1px solid var(--accent);padding:14px}
+    details{border:1px solid var(--accent);padding:12px;margin-top:10px}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 폴 사이클 보고서</h1>
+      <p>생성 시각: 2026-08-12 22:14:29 KST</p>
+      <p>작업 범위: 열린 codex 요청 확인 후 2nd-B 커리어 화면의 한국어 CTA 잔여 영어 제거</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="box"><strong>결과</strong><br>수정 완료, 2nd-B 로컬 커밋 생성</div>
+        <div class="box"><strong>브랜치</strong><br><code>codex/qa-cycle-20260812-220911</code></div>
+        <div class="box"><strong>커밋</strong><br><code>82370494</code></div>
+        <div class="box"><strong>푸시</strong><br>하지 않음</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>처리 내용</h2>
+      <table>
+        <tr><th>파일</th><th>변경</th></tr>
+        <tr><td><code>src/app/career.tsx</code></td><td>커리어 헤더의 하드코딩된 <code>Drill Down</code> 버튼을 번역 키 기반 라벨로 교체</td></tr>
+        <tr><td><code>locales/ko/deepspace.json</code></td><td>한국어 제출 라벨을 <code>세컨비와 더 파고들기</code>로 정리</td></tr>
+        <tr><td><code>src/lib/__tests__/visible-trust-copy.test.ts</code></td><td>커리어 CTA가 locale-backed이고 한국어에 영어 잔여가 없다는 회귀 테스트 추가</td></tr>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>이번 사이클은 stale peer outbox 항목을 새 요청으로 처리하지 않았고, BOARD의 codex 레인에 맞춰 UI 및 카피 anti-slop 결함 하나만 처리했습니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <tr><th>검사</th><th>상태</th></tr>
+        <tr><td><code>npx jest src/lib/__tests__/visible-trust-copy.test.ts --runInBand</code></td><td>통과, 12개 테스트</td></tr>
+        <tr><td><code>npx eslint src/app/career.tsx src/lib/__tests__/visible-trust-copy.test.ts</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>check:i18n</code>, <code>check:i18n-untranslated</code>, <code>check:lexicon</code>, <code>check:constraints</code>, <code>check:emdash</code>, <code>check:cycles</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+        <tr><td>diff 민감정보 패턴 스캔</td><td>일치 없음</td></tr>
+        <tr><td><code>npx prettier --check</code></td><td>실패: 기존 파일 formatting drift를 넓게 재포맷하지 않기 위해 보류</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>위험과 남은 일</h2>
+      <p>위험은 낮습니다. 한국어 CTA 문자열과 버튼 라벨 소스만 바뀌었고, schema, 결제, 보안, 외부 사실, 병합 diff 고위험 산출물은 아닙니다.</p>
+      <p>Claude가 merge gate에서 브랜치 <code>codex/qa-cycle-20260812-220911</code>의 로컬 커밋 <code>82370494</code>를 검토해 통합하면 됩니다.</p>
+    </section>
+  </main>
+</body>
+</html>

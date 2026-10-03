@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 자율 사이클 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0f14; --panel:#151b23; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: Arial, sans-serif; line-height:1.55; }
+    main { max-width:1040px; margin:0 auto; padding:32px 18px 48px; }
+    header, section { background:var(--panel); border:1px solid #2a3441; border-radius:8px; padding:20px; margin-bottom:16px; }
+    h1, h2 { margin:0 0 12px; line-height:1.25; }
+    h1 { font-size:26px; }
+    h2 { font-size:18px; color:var(--accent); }
+    p { margin:8px 0; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { text-align:left; border-bottom:1px solid #2a3441; padding:10px 8px; vertical-align:top; }
+    th { color:var(--muted); font-weight:600; }
+    code { color:var(--accent); }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+    .card { border:1px solid #2a3441; border-radius:8px; padding:12px; }
+    .label { color:var(--muted); font-size:12px; }
+    .value { font-size:15px; margin-top:4px; word-break:break-word; }
+    details { margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 자율 폴 사이클 보고서</h1>
+      <p>작성 시각: 2026-08-14 13:05:12 KST</p>
+      <p>이번 사이클은 새 오더 없이 Codex 레인에서 2nd-B 요금제 복원 버튼 접근성 상태를 보강한 단일 작업이다.</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+        <div class="card"><div class="label">2nd-B 브랜치</div><div class="value"><code>codex/qa-cycle-20260814-125938</code></div></div>
+        <div class="card"><div class="label">앱 커밋</div><div class="value"><code>dd35cecb8029c24b59959f841f2471641d84665f</code></div></div>
+        <div class="card"><div class="label">푸시</div><div class="value">수행하지 않음</div></div>
+      </div>
+      <details>
+        <summary>자세히</summary>
+        <p>Codex inbox는 비어 있었고, peer outbox의 Codex 또는 all 대상 open 항목은 오래된 FYI, 응답, 이미 처리된 요청 계열이었다. 따라서 BOARD.md의 Codex 레인에 맞춰 2nd-B UI 접근성 결함 하나를 선택했다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead><tr><th>파일</th><th>변경 내용</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/screens/deepspace/dds-plans-screen.tsx</code></td><td>구매 복원 버튼에 <code>accessibilityState</code>를 추가해 disabled 및 복원 진행 중 상태를 보조기술에 전달했다.</td></tr>
+          <tr><td><code>src/lib/__tests__/plans-price-disclosure.test.ts</code></td><td>요금제 화면의 복원 버튼 상태 노출이 빠지지 않도록 소스 스캔 회귀가드를 추가했다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>검사</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td>대상 Jest</td><td>통과, 4개 테스트</td></tr>
+          <tr><td>대상 ESLint</td><td>통과</td></tr>
+          <tr><td>TypeScript</td><td>통과</td></tr>
+          <tr><td>i18n, untranslated, lexicon, constraints, emdash, anti-anthro, mascot-voice, require cycles</td><td>통과</td></tr>
+          <tr><td>diff-check 및 변경 diff 민감패턴 스캔</td><td>통과</td></tr>
+          <tr><td>앱 파일 전체 Prettier</td><td>기존 파일 포맷 드리프트 때문에 실행 결과 경고. 이번 변경 범위 밖이라 전체 포맷 churn은 남기지 않음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <table>
+        <thead><tr><th>관점</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>UI 품질</td><td>시각 변화 없이 보조기술 상태만 보강해 화면 밀도와 디자인 계약을 유지했다.</td></tr>
+          <tr><td>안전</td><td>결제 실행, 외부 API, 시크릿, destructive 작업 없음. 구매 복원 호출 로직도 변경하지 않았다.</td></tr>
+          <tr><td>회귀 위험</td><td>낮음. React Native <code>Pressable</code>의 표준 접근성 상태 prop만 추가했다.</td></tr>
+          <tr><td>검증 필요성</td><td>고위험 산출물이 아니므로 MoA 교차검증 요청은 만들지 않았다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

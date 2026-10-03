@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>프레스어블 주간 성장 화면 스윕 보고서</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e6edf3; --accent:#7dd3fc; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Noto Sans KR", sans-serif; line-height:1.55; }
+    main { max-width:1040px; margin:0 auto; padding:32px 20px 56px; }
+    header, section, details { border:1px solid var(--accent); border-radius:8px; padding:18px; margin:14px 0; }
+    h1 { margin:0 0 8px; font-size:26px; letter-spacing:0; }
+    h2 { margin:0 0 10px; font-size:18px; color:var(--accent); }
+    p { margin:8px 0; }
+    code { color:var(--accent); }
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th, td { border-bottom:1px solid var(--accent); padding:9px 8px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-top:16px; }
+    .card { border:1px solid var(--accent); border-radius:8px; padding:12px; min-height:86px; }
+    .label { font-size:12px; color:var(--accent); }
+    .value { margin-top:8px; font-size:22px; font-weight:700; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    svg { display:block; width:100%; max-width:520px; height:auto; margin-top:8px; }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } h1 { font-size:22px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>프레스어블 주간 성장 화면 스윕 보고서</h1>
+      <p>작업 시각: 2026-07-03 14:26:05 KST</p>
+      <p>대상: 2nd-B 브랜치 <code>codex/pressable-sweep-g</code>, 파일 <code>src/screens/deepspace/growth/WeeklyGrowthScreen.tsx</code></p>
+      <div class="grid">
+        <section class="card"><div class="label">변환</div><div class="value">1곳</div></section>
+        <section class="card"><div class="label">보류</div><div class="value">0곳</div></section>
+        <section class="card"><div class="label">검증</div><div class="value">통과</div></section>
+        <section class="card"><div class="label">푸시</div><div class="value">안 함</div></section>
+      </div>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <p>주간 성장 화면의 근거 칩에서 Fabric에서 무시될 수 있는 함수형 <code>Pressable</code> style을 제거했습니다. 바깥 <code>View</code>가 테두리와 둥근 모서리 같은 시각 요소를 맡고, 내부 <code>Pressable</code>은 터치 영역과 <code>android_ripple</code>만 맡도록 분리했습니다.</p>
+      <svg viewBox="0 0 520 72" role="img" aria-label="이번 사이클 처리 수와 보류 수">
+        <rect x="0" y="18" width="520" height="18" fill="none" stroke="var(--accent)"/>
+        <rect x="0" y="18" width="52" height="18" fill="var(--accent)"/>
+        <text x="0" y="62" fill="var(--text)" font-size="14">이번 사이클 변환 1곳, 보류 0곳</text>
+      </svg>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead><tr><th>항목</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td>앱 커밋</td><td><code>ae1964b3</code></td></tr>
+          <tr><td>변경 위치</td><td><code>WeeklyGrowthScreen</code>의 성장 근거 칩</td></tr>
+          <tr><td>구현 방식</td><td>컨테이너 <code>View</code>와 plain-array <code>Pressable</code> 구조로 분리</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th><th>메모</th></tr></thead>
+        <tbody>
+          <tr><td><code>git diff --check</code></td><td>통과</td><td>공백 오류 없음</td></tr>
+          <tr><td><code>npm run verify</code></td><td>통과</td><td>종료 코드 0, 테스트 295개 묶음과 2212개 테스트 통과</td></tr>
+          <tr><td>잔여 패턴 확인</td><td>통과</td><td>대상 파일 안의 함수형 <code>Pressable</code> style 잔여 없음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>35항 자체 패널</summary>
+      <p>찬성: 기존 스윕 패턴과 일치하고 변경 범위가 한 화면 한 요소라 회귀 면적이 작습니다.</p>
+      <p>반대: pressed opacity는 동일하게 유지하지 않았습니다. Fabric 회피 패턴에서는 ripple로 피드백을 대체하는 쪽이 더 일관적입니다.</p>
+      <p>판정: 보류 없이 변환했습니다. 안전, 비용, 시크릿, 푸시 작업은 수행하지 않았습니다.</p>
+    </details>
+
+    <details>
+      <summary>남은 작업</summary>
+      <p>다음 사이클 후보는 공용 카드, 안전 라우터, 홈 화면, 프리미엄 그래프 조각, 디자인 화면의 잔여 함수형 <code>Pressable</code> style입니다. 안전 라우터는 별도 검증 부담이 있으므로 독립 사이클로 다루는 것이 좋습니다.</p>
+    </details>
+  </main>
+</body>
+</html>

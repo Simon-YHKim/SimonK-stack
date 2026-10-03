@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>딥스페이스 홈 터치 표면 정규화 보고</title>
+  <style>
+    :root { --bg: #101214; --text: #e8edf2; --accent: #62d6c8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.6; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 56px; }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { margin-top: 28px; font-size: 18px; color: var(--accent); }
+    h3 { margin-top: 18px; font-size: 15px; }
+    p { margin-top: 10px; }
+    .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+    .card, details, table { border: 1px solid var(--accent); border-radius: 8px; }
+    .card { padding: 14px; min-height: 104px; }
+    .label { color: var(--accent); font-size: 12px; }
+    .value { margin-top: 8px; font-size: 18px; font-weight: 700; }
+    table { width: 100%; margin-top: 14px; border-collapse: collapse; overflow: hidden; }
+    th, td { padding: 10px; border-bottom: 1px solid var(--accent); text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    tr:last-child td { border-bottom: 0; }
+    details { margin-top: 12px; padding: 12px 14px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    .bar { height: 10px; border: 1px solid var(--accent); border-radius: 999px; overflow: hidden; margin-top: 8px; }
+    .fill { height: 100%; width: 100%; background: var(--accent); }
+    @media (max-width: 760px) { .summary { grid-template-columns: 1fr; } h1 { font-size: 23px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>딥스페이스 홈 터치 표면 정규화 보고</h1>
+    <p>작성 시각: 2026-07-30 10:50:40 KST</p>
+    <p>대상: 2nd-B <code>codex/pressable-sweep-g</code> 브랜치, <code>DeepSpaceHomeScreen.tsx</code></p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <div class="value">완료</div>
+        <p>북극성과 렌즈 별 터치 표면을 분리했습니다.</p>
+      </div>
+      <div class="card">
+        <div class="label">검증</div>
+        <div class="value">통과</div>
+        <p><code>npm run verify</code>가 exit 0으로 끝났습니다.</p>
+      </div>
+      <div class="card">
+        <div class="label">커밋</div>
+        <div class="value">da6c2696</div>
+        <p>2nd-B 로컬 브랜치에만 커밋했습니다.</p>
+      </div>
+      <div class="card">
+        <div class="label">푸시</div>
+        <div class="value">하지 않음</div>
+        <p>Claude 머지 게이트를 유지했습니다.</p>
+      </div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>변경 전</th><th>변경 후</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/screens/deepspace/DeepSpaceHomeScreen.tsx</code></td>
+          <td><code>Pressable</code> 함수형 <code>style</code>이 위치, 크기, 눌림 효과를 함께 담당했습니다.</td>
+          <td>위치와 시각 스타일은 바깥 <code>View</code>가 담당하고, 안쪽 <code>Pressable</code>은 터치, 접근성, Android ripple만 담당합니다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자세히</summary>
+      <p>Fabric Android에서 함수형 <code>Pressable</code> style이 시각 스타일을 안정적으로 적용하지 못하는 패턴을 줄였습니다. 별의 절대 좌표와 그림자는 바깥 <code>View</code>로 이동했고, 터치 영역은 내부 absolute hit target으로 유지했습니다.</p>
+    </details>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr><th>검증</th><th>결과</th><th>메모</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>npx prettier --check</code></td><td>통과</td><td>대상 파일 포맷 확인</td></tr>
+        <tr><td><code>npx eslint</code></td><td>통과</td><td>대상 파일 오류 없음</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td><td>전체 타입 검사 통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td><td>공백 오류 없음</td></tr>
+        <tr><td><code>npm run verify</code></td><td>통과</td><td>295개 테스트 스위트, 2212개 테스트 통과</td></tr>
+      </tbody>
+    </table>
+    <div class="bar" aria-label="검증 통과율"><div class="fill"></div></div>
+
+    <h2>자체 패널</h2>
+    <details>
+      <summary>위험 검토</summary>
+      <p>위험은 낮습니다. 레이아웃 좌표와 색상 값은 유지했고, 터치 피드백은 기존 opacity/scale 대신 Android ripple로 이동했습니다. 시각 눌림 효과가 iOS에서 줄어드는 점은 트레이드오프입니다.</p>
+    </details>
+    <details>
+      <summary>다음 확인 지점</summary>
+      <p>Claude가 머지 전 실제 Android 화면에서 별 터치 영역과 ripple 표시를 확인하면 충분합니다. 고위험 변경이 아니므로 별도 MoA 검증 요청은 만들지 않았습니다.</p>
+    </details>
+  </main>
+</body>
+</html>

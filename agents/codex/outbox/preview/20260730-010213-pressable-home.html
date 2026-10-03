@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서: Pressable 홈 화면 정규화</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:14px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 48px; }
+    header { border:1px solid var(--muted); border-radius:8px; padding:20px; margin-bottom:18px; }
+    h1 { margin:0 0 8px; font-size:24px; line-height:1.25; letter-spacing:0; }
+    h2 { margin:28px 0 10px; font-size:17px; letter-spacing:0; }
+    p { margin:6px 0; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin:14px 0; }
+    .card { border:1px solid var(--muted); border-radius:8px; padding:14px; min-height:94px; }
+    .label { color:var(--muted); font-size:12px; }
+    .value { margin-top:4px; font-size:18px; color:var(--text); }
+    table { width:100%; border-collapse:collapse; margin:12px 0; }
+    th, td { border:1px solid var(--muted); padding:9px 10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); word-break:break-all; }
+    details { border:1px solid var(--muted); border-radius:8px; padding:10px 12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { width:100%; height:12px; border:1px solid var(--muted); border-radius:999px; overflow:hidden; margin-top:8px; }
+    .fill { height:100%; width:100%; background:var(--accent); }
+    .modebar { display:flex; gap:8px; flex-wrap:wrap; margin:16px 0; }
+    button { background:transparent; color:var(--text); border:1px solid var(--muted); border-radius:6px; padding:7px 10px; cursor:pointer; }
+    button[aria-pressed="true"] { border-color:var(--accent); color:var(--accent); }
+    .expert { display:none; }
+    body.mode-expert .easy { display:none; }
+    body.mode-expert .expert { display:block; }
+  </style>
+</head>
+<body class="mode-easy">
+  <main>
+    <header>
+      <h1>Pressable 홈 화면 정규화 사이클 보고서</h1>
+      <p class="muted">작성 시각: 2026-07-30 01:02:13 KST</p>
+      <p>이번 사이클은 `codex/pressable-sweep-g` 브랜치에서 `DeepSpaceHomeScreen.tsx`의 남은 함수형 `Pressable style` 2곳만 처리했다.</p>
+    </header>
+
+    <div class="modebar" aria-label="설명 방식">
+      <button type="button" aria-pressed="true" onclick="document.body.className='mode-easy';this.setAttribute('aria-pressed','true');this.nextElementSibling.setAttribute('aria-pressed','false')">쉬운 설명</button>
+      <button type="button" aria-pressed="false" onclick="document.body.className='mode-expert';this.setAttribute('aria-pressed','true');this.previousElementSibling.setAttribute('aria-pressed','false')">전문가 설명</button>
+    </div>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">작업 범위</div><div class="value">홈 화면 1개</div></div>
+      <div class="card"><div class="label">변환 수</div><div class="value">2곳</div></div>
+      <div class="card"><div class="label">보류 수</div><div class="value">0곳</div></div>
+      <div class="card"><div class="label">검증</div><div class="value">통과</div></div>
+    </section>
+
+    <section class="easy">
+      <h2>무엇을 바꿨나</h2>
+      <p>별을 누르는 영역이 기기마다 흔들리지 않도록, 보이는 별 모양과 누르는 영역을 분리했다. 화면의 별은 그대로 보이고, 누르는 기능은 투명한 버튼이 맡는다.</p>
+      <details><summary>자세히</summary><p>북극성과 7개 렌즈 별에서 `Pressable`이 직접 모양을 그리던 방식을 바꿨다. 이제 `View`가 모양을 그리고 `Pressable`은 누르기, 접근성 이름, 안드로이드 터치 반응만 담당한다.</p></details>
+    </section>
+
+    <section class="expert">
+      <h2>구현 방식</h2>
+      <p>`src/screens/deepspace/DeepSpaceHomeScreen.tsx`에서 함수형 `style={({ pressed }) => ...}`를 제거했다. 컨테이너 시각 스타일은 `View`에 고정 배열로 두고, 내부 `Pressable`은 `StyleSheet.absoluteFill`과 `android_ripple`만 사용한다.</p>
+      <details><summary>자세히</summary><p>Fabric에서 함수형 `Pressable style`이 누락될 수 있는 패턴을 제거하는 기존 PR 680/706/708 계열 규칙에 맞췄다. pressed scale/opacity는 별의 그림자와 위치 품질을 흔들 수 있어 재구현하지 않았다.</p></details>
+    </section>
+
+    <h2>변경 파일</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/screens/deepspace/DeepSpaceHomeScreen.tsx</code></td><td>북극성 1곳, 렌즈 별 반복 1곳의 함수형 Pressable style 제거</td><td>대상 파일 검색 0건</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td>대상 파일 패턴 검색</td><td>통과</td><td><code>NO_MATCH</code></td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td><td>줄끝 경고만 표시</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td><td><code>tsc --noEmit</code></td></tr>
+        <tr><td><code>npm run verify</code></td><td>통과</td><td><code>EXIT=0</code>, 295개 테스트 스위트와 2212개 테스트 통과</td></tr>
+      </tbody>
+    </table>
+    <div class="bar" aria-label="검증 통과율"><div class="fill"></div></div>
+
+    <h2>커밋</h2>
+    <p>2nd-B 로컬 브랜치 커밋: <code>543b54b2 fix(deepspace): normalize home pressable styles</code></p>
+    <p class="muted">푸시는 수행하지 않았다. Claude merge gate가 통합과 push를 판단한다.</p>
+
+    <h2>위험과 남은 일</h2>
+    <p>위험은 낮다. 다만 브랜치가 `origin/main` 대비 뒤처져 있으므로 통합 전 rebase 또는 merge gate 재검증이 필요하다.</p>
+  </main>
+</body>
+</html>

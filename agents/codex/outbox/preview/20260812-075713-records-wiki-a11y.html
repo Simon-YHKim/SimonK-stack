@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기록 위키 접근성 사이클 보고</title>
+  <style>
+    :root { --bg:#101214; --text:#e8eaed; --accent:#8ab4f8; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 44px; }
+    header { border:1px solid var(--accent); padding:18px; margin-bottom:18px; }
+    h1 { margin:0 0 8px; font-size:26px; }
+    h2 { margin:24px 0 10px; font-size:18px; color:var(--accent); }
+    p { margin:8px 0; }
+    table { width:100%; border-collapse:collapse; margin:12px 0; }
+    th, td { border:1px solid var(--accent); padding:9px 10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); word-break:break-all; }
+    details { border:1px solid var(--accent); padding:10px 12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:14px 0; }
+    .card { border:1px solid var(--accent); padding:12px; min-height:98px; }
+    .label { color:var(--accent); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+    .value { margin-top:6px; font-size:20px; font-weight:700; }
+    svg { width:100%; height:72px; display:block; margin:8px 0 2px; }
+    @media (max-width:720px) { .grid { grid-template-columns:1fr 1fr; } h1 { font-size:22px; } }
+    @media (max-width:480px) { .grid { grid-template-columns:1fr; } main { padding:20px 12px 32px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>기록 위키 접근성 사이클 보고</h1>
+      <p>작성 시각: 2026-08-12 07:57:13 KST</p>
+      <p>이번 사이클은 Codex 받은편지함에 처리할 새 요청이 없어, Codex 레인의 2nd-B 화면 접근성 결함 한 건을 별도 작업트리에서 처리했다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">작업</div><div class="value">완료</div><p>기록 및 위키 액션의 명시 접근성 이름 보강</p></div>
+      <div class="card"><div class="label">커밋</div><div class="value"><code>b37b88cc</code></div><p>2nd-B 로컬 브랜치 커밋, 푸시 없음</p></div>
+      <div class="card"><div class="label">검증</div><div class="value">통과</div><p>테스트, lint, type-check, i18n, lexicon, constraints</p></div>
+      <div class="card"><div class="label">위험</div><div class="value">낮음</div><p>시각 레이아웃과 데이터 흐름 변경 없음</p></div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead><tr><th>파일</th><th>변경</th><th>의도</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></td><td>기록 오류 재시도, 별가루 담기, 보관소 이동, 근거 보기, 위키 만들기, 편집, 이동 버튼에 명시 접근성 이름 추가</td><td>화면 읽기 도구가 버튼을 안정적으로 설명하도록 보강</td></tr>
+          <tr><td><code>src/lib/__tests__/records-wiki-actions-a11y.test.ts</code></td><td>소스 스캔 회귀 테스트 2개 추가</td><td>같은 버튼 이름이 다시 빠지는 회귀 방지</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>새 번역 키를 만들지 않고 기존 화면 문구를 그대로 접근성 이름으로 재사용했다. 따라서 i18n 키 수는 늘지 않았고, 현지화 정합성도 유지된다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <svg viewBox="0 0 640 72" role="img" aria-label="검증 항목 7개 모두 통과">
+        <rect x="0" y="10" width="640" height="18" fill="none" stroke="#8ab4f8"/>
+        <rect x="0" y="10" width="640" height="18" fill="#8ab4f8"/>
+        <text x="8" y="54" fill="#e8eaed" font-size="14">7개 검증 항목 통과</text>
+      </svg>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><code>npm test -- --runTestsByPath src/lib/__tests__/records-wiki-actions-a11y.test.ts --runInBand</code></td><td>통과, 2개 테스트</td></tr>
+          <tr><td><code>npx eslint src/screens/deepspace/dds-wiki-records-screens.tsx src/lib/__tests__/records-wiki-actions-a11y.test.ts</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:constraints</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:safety-consent-locale</code> 및 <code>npm run check:emdash</code></td><td>통과</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>검증 메모</summary>
+        <p>Prettier 전체 파일 검사는 실행하지 않았다. 해당 화면 파일은 기존에 압축 스타일로 관리되어 Prettier가 전체 파일을 재포맷하며 큰 diff를 만들었기 때문에, 그 포맷 변경은 제거하고 실제 접근성 변경만 남겼다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>운영 준수</h2>
+      <table>
+        <thead><tr><th>제약</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td>허브 단일 작성자</td><td><code>agents/codex/</code> 아래에만 작성</td></tr>
+          <tr><td>2nd-B 푸시 금지</td><td>로컬 작업트리 커밋만 생성, 푸시 없음</td></tr>
+          <tr><td>파괴, 비용, 시크릿 작업 금지</td><td>해당 작업 없음, diff 시크릿 패턴 스캔 통과</td></tr>
+          <tr><td>한 사이클 한 작업</td><td>기록 위키 접근성 이름 보강 한 건만 수행</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>다음 전달</h2>
+      <p>Claude가 병합 게이트에서 브랜치 <code>codex/qa-cycle-20260812-075252</code>의 커밋 <code>b37b88ccedd4cdd468d8bce1ca016343115c0500</code>를 검토해 통합하면 된다.</p>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>피어 비동기 버튼 접근성 사이클 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0d10; --fg:#e8edf2; --ac:#7bdff2; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.6 system-ui, -apple-system, Segoe UI, sans-serif; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 56px; }
+    header { border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent); padding: 22px; border-radius: 8px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 26px; line-height: 1.25; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin: 28px 0 10px; color: var(--ac); }
+    h3 { font-size: 15px; margin-bottom: 6px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+    .card, details { border: 1px solid color-mix(in srgb, var(--fg) 16%, transparent); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--fg) 4%, transparent); }
+    .label { color: var(--ac); font-size: 12px; }
+    .value { font-weight: 700; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-bottom: 1px solid color-mix(in srgb, var(--fg) 14%, transparent); padding: 9px; text-align: left; vertical-align: top; }
+    th { color: var(--ac); font-weight: 700; }
+    code { color: var(--ac); overflow-wrap: anywhere; }
+    button { background: transparent; color: var(--fg); border: 1px solid var(--ac); border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+    button[aria-pressed="true"] { background: var(--ac); color: var(--bg); }
+    .controls { display: flex; gap: 8px; margin: 20px 0; flex-wrap: wrap; }
+    .expert { display: none; }
+    body.mode-expert .easy { display: none; }
+    body.mode-expert .expert { display: block; }
+    .bar { height: 12px; border: 1px solid var(--ac); border-radius: 999px; overflow: hidden; }
+    .bar span { display: block; height: 100%; width: 100%; background: var(--ac); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body class="mode-easy">
+  <main>
+    <header>
+      <h1>피어 비동기 버튼 접근성 사이클 보고서</h1>
+      <p>Codex 자율 폴 사이클에서 새 open order가 없어 2nd-B 피어 초대와 피어 응답 화면의 비동기 버튼 상태를 보강했습니다.</p>
+      <div class="grid">
+        <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+        <div class="card"><div class="label">앱 브랜치</div><div class="value">codex/qa-cycle-20260814-074212</div></div>
+        <div class="card"><div class="label">앱 커밋</div><div class="value">eb502f9a032d911d2655b79c7c0a3b1d9c532c4e</div></div>
+        <div class="card"><div class="label">작성 시각</div><div class="value">2026-08-14 07:45:44 KST</div></div>
+      </div>
+    </header>
+
+    <div class="controls">
+      <button type="button" data-mode="easy" aria-pressed="true" aria-label="쉬운 설명 보기">쉬운 설명</button>
+      <button type="button" data-mode="expert" aria-pressed="false" aria-label="전문가 설명 보기">전문가 설명</button>
+    </div>
+
+    <section class="easy">
+      <h2>쉬운 설명</h2>
+      <p>초대 만들기, 초대 철회, 응답 제출, 응답 철회 버튼이 일하는 중인지 보조기술이 알 수 있게 했습니다. 화면에 보이는 글자는 바뀌고 있었지만, 화면을 읽어 주는 도구에는 바쁜 상태가 충분히 전달되지 않았습니다.</p>
+    </section>
+    <section class="expert">
+      <h2>전문가 설명</h2>
+      <p><code>MdButton</code>은 <code>loading</code> 값을 <code>accessibilityState.busy</code>로 매핑합니다. 피어 초대와 피어 응답 화면은 <code>busy</code>로 버튼을 막고 라벨만 바꾸고 있었으므로, 네 개의 비동기 CTA에 <code>loading={busy}</code>를 추가했습니다.</p>
+    </section>
+
+    <h2>변경 파일</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th><th>영향</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/app/peer-invites.tsx</code></td><td>초대 생성과 초대 철회 버튼에 <code>loading={busy}</code> 연결</td><td>작업 중 버튼이 바쁜 상태로 읽힘</td></tr>
+        <tr><td><code>src/app/peer/[token].tsx</code></td><td>응답 제출과 철회 버튼에 <code>loading={busy}</code> 연결</td><td>응답자가 제출/철회 진행 상태를 알 수 있음</td></tr>
+        <tr><td><code>src/lib/peer/__tests__/peer-busy-a11y.test.ts</code></td><td>source-scan 회귀 테스트 추가</td><td>같은 누락이 재발하면 테스트 실패</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 상태</h2>
+    <div class="bar" aria-label="검증 통과율 100퍼센트"><span></span></div>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>대상 Jest 2개 파일</td><td>통과, 10개 테스트</td></tr>
+        <tr><td>대상 ESLint</td><td>통과</td></tr>
+        <tr><td>대상 Prettier</td><td>통과</td></tr>
+        <tr><td>TypeScript</td><td>통과</td></tr>
+        <tr><td>i18n, untranslated, lexicon, constraints, emdash, anti-anthro, mascot-voice, cycles</td><td>통과</td></tr>
+        <tr><td>diff check와 민감 패턴 스캔</td><td>통과</td></tr>
+      </tbody>
+    </table>
+
+    <h2>위험과 제한</h2>
+    <details>
+      <summary>자세히</summary>
+      <p>전체 <code>npm run verify</code>는 실행하지 않았습니다. 변경은 피어 화면 버튼의 접근성 상태 전달에 한정되어 관련 테스트와 주요 프로젝트 가드를 실행했습니다. <code>check:constraints</code>의 <code>C11 PART</code>는 기존 SLA 자동응답 Sprint 1 표기이며 이번 변경으로 생긴 실패가 아닙니다.</p>
+    </details>
+
+    <h2>자체 패널</h2>
+    <details>
+      <summary>자세히</summary>
+      <p>제품 관점: 제3자 초대와 응답은 신뢰 흐름이므로 진행 상태가 명확해야 합니다. 접근성 관점: disabled만 있고 busy가 없으면 보조기술 사용자는 제출이 진행 중인지 놓칠 수 있습니다. 엔지니어링 관점: 공유 버튼 계약을 재사용해 로직 변경 없이 표면 상태만 보강했습니다.</p>
+    </details>
+  </main>
+  <script>
+    const buttons = document.querySelectorAll("button[data-mode]");
+    buttons.forEach((button) => button.addEventListener("click", () => {
+      document.body.className = "mode-" + button.dataset.mode;
+      buttons.forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+    }));
+  </script>
+</body>
+</html>

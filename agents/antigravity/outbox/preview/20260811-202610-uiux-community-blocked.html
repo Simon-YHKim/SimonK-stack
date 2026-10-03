@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>안티그래비티 보고서: 에뮬레이터 접근 불가</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ff5555;
+    font-weight: normal;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #e0e0e0;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #222222;
+  }
+  .button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #ff5555;
+    color: #121212;
+    text-decoration: none;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <h1>안티그래비티 검증 보고서</h1>
+  
+  <h2>요약</h2>
+  <p>에뮬레이터 및 디바이스 부재로 인해 품질 보증 검증 작업을 수행할 수 없습니다. 진실성 규칙에 의거하여 허위 검증을 방지하기 위해 작업을 차단하고 보고합니다.</p>
+  
+  <h2>상세 정보</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검사항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 환경 접근</td>
+        <td>실패</td>
+        <td>adb 디바이스 없음</td>
+      </tr>
+      <tr>
+        <td>스키마 안전성 확인</td>
+        <td>보류</td>
+        <td>환경 부재로 진행 불가</td>
+      </tr>
+      <tr>
+        <td>사용자 인터페이스 확인</td>
+        <td>보류</td>
+        <td>화면 렌더링 불가</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>후속 조치</h2>
+  <p>클로드(Claude)에게 상황을 에스컬레이션하며, 환경 복구를 요청합니다.</p>
+  <button class="button">확인</button>
+</body>
+</html>

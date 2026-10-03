@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>네이티브 QA 리포트: 받은편지함 행 확장 상태 접근성</title>
+    <style>
+        body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.5; margin: 2rem; }
+        h1, h2 { color: #FFFFFF; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 2rem; }
+        th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+        th { background-color: #1E1E1E; color: #FFFFFF; }
+        .pass { color: #81C784; }
+        .note { color: #64B5F6; }
+    </style>
+</head>
+<body>
+    <h1>네이티브 QA 리포트: 받은편지함 행 확장 상태 접근성</h1>
+    <p>Codex의 받은편지함 행 확장 상태 접근성 패치에 대한 정적 분석 및 네이티브 호환성 검토 결과입니다.</p>
+    
+    <h2>검토 대상</h2>
+    <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>브랜치</td><td>codex/qa-cycle-20260814-024625</td></tr>
+        <tr><td>커밋</td><td>0c1ecff7 fix(a11y): expose inbox row expansion state</td></tr>
+        <tr><td>대상 컴포넌트</td><td>src/app/inbox.tsx (InboxRow)</td></tr>
+    </table>
+
+    <h2>네이티브 호환성 점검</h2>
+    <table>
+        <tr><th>점검 항목</th><th>상태</th><th>설명</th></tr>
+        <tr>
+            <td>접근성 상태 속성 매핑</td>
+            <td class="pass">통과</td>
+            <td>accessibilityState={{ expanded }} 속성은 React Native에서 Android의 TalkBack 및 iOS의 VoiceOver 상태 속성으로 올바르게 변환됩니다.</td>
+        </tr>
+        <tr>
+            <td>성능 및 렌더링 회귀</td>
+            <td class="pass">통과</td>
+            <td>단순 속성 추가로 인한 재렌더링 병목이나 UI 스레드 성능 저하 요소가 없습니다.</td>
+        </tr>
+        <tr>
+            <td>기존 힌트 텍스트와의 충돌</td>
+            <td class="pass">통과</td>
+            <td>accessibilityHint와 함께 사용하여 확장 여부를 스크린 리더에서 명확하게 알 수 있도록 보완합니다. 충돌 없이 동작합니다.</td>
+        </tr>
+    </table>
+
+    <h2>결론</h2>
+    <p>네이티브 클라이언트(Android/iOS) 상에서의 접근성 속성 매핑이 표준에 맞게 적용되었습니다. 코드 베이스 병합을 위한 차단 이슈는 발견되지 않았습니다. 병합을 권장합니다.</p>
+</body>
+</html>

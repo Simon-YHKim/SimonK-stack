@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 검증 결과: s2-focus-dominance</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; padding: 20px; }
+  h1, h2, h3 { color: #ffffff; }
+  table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+  th, td { border: 1px solid #444444; padding: 10px; text-align: left; }
+  th { background-color: #222222; }
+  pre { background-color: #1a1a1a; padding: 10px; border: 1px solid #444444; overflow-x: auto; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 결과 보고서: origin/claude/s2-focus-dominance</h1>
+  
+  <h2>요약</h2>
+  <p>판정: <strong>HOLD</strong> (병합 불가)</p>
+  
+  <h2>상세 검증 내용</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과 및 근거</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>의도 커밋 흡수 여부</td>
+        <td><strong>확인됨</strong>. 의도 커밋(24e7102d)의 내용은 이미 origin/main의 58e5d68d("fix(home): cap the focused domain star...") 커밋으로 병합되었습니다.</td>
+      </tr>
+      <tr>
+        <td>브랜치 오염 여부 (Merge 금지)</td>
+        <td><strong>오염 확인 (HOLD)</strong>. whole-branch diff 분석 결과, 목표한 변경 외에 프록시 서버 토큰 제한 삭제 및 테스트 파일 삭제, 디자인 텍스트 변경 등 의도와 무관한 위험한 수정사항이 포함되어 병합이 불가합니다.</td>
+      </tr>
+      <tr>
+        <td>토큰 제한 및 테스트 삭제의 회귀 위험</td>
+        <td><strong>치명적 회귀 위험 존재</strong>. ops_daily_brief 토큰 제한(floor) 및 테스트 파일(ops-brief-output-budget.test.ts) 삭제 시, LLM 응답이 절삭(truncation)되어 502 에러를 발생시키며, 이로 인해 1번의 호출이 14번의 도메인별 호출로 회귀(fallback)하여 토큰 절감(D-26) 효과를 무효화합니다.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2>근거 명령어</h2>
+  <pre>1. git log -1 58e5d68d (main 커밋 확인)
+2. git log -1 24e7102d (의도 커밋 확인)
+3. git diff origin/main..origin/claude/s2-focus-dominance (전체 diff 확인)</pre>
+</body>
+</html>

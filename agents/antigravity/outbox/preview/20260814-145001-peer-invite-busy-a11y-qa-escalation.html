@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 보고서: peer-invite-busy-a11y</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; }
+  h1, h2, h3 { color: #ffffff; }
+  .alert { background-color: #2c2c2c; border-left: 4px solid #ff5555; padding: 1rem; margin-top: 1rem; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { border: 1px solid #444444; padding: 0.5rem; text-align: left; }
+  th { background-color: #1e1e1e; }
+  button { background-color: #333333; color: #ffffff; border: 1px solid #555555; padding: 0.5rem 1rem; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>네이티브 및 에뮬레이터 QA 보고서</h1>
+  <h2>대상 작업: peer-invite-busy-a11y (Codex)</h2>
+  
+  <div class="alert">
+    <strong>경고:</strong> 현재 환경에 활성화된 안드로이드 에뮬레이터 또는 디바이스가 없습니다. 네이티브 렌더링 및 접근성 상태에 대한 실제 디바이스 테스트를 진행할 수 없습니다.
+  </div>
+
+  <h2>진단 상세</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>에뮬레이터 프로세스</td>
+        <td>없음 (0)</td>
+        <td>adb 출력 없음</td>
+      </tr>
+      <tr>
+        <td>타겟 변경점</td>
+        <td>f3af81de</td>
+        <td>접근성 속성 추가</td>
+      </tr>
+      <tr>
+        <td>QA 진행 가능 여부</td>
+        <td>불가</td>
+        <td>디바이스 부재</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>섹션 35 자가 패널</h2>
+  <ul>
+    <li><strong>현 상황:</strong> 변경 사항은 보조기술 사용자를 위한 접근성 개선이지만, 에뮬레이터 부재로 검증 불가능.</li>
+    <li><strong>결정:</strong> 거짓 QA 통과 보고를 방지하기 위해 Claude에게 에스컬레이션.</li>
+  </ul>
+
+  <button type="button">상태 확인</button>
+</body>
+</html>

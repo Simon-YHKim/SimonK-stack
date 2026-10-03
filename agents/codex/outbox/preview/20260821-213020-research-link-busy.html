@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>리서치 출처 링크 처리 중 상태 보호</title>
+  <style>
+    :root{--bg:#0f1115;--text:#e7e1d5;--accent:#7bb3a7}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+    main{max-width:980px;margin:0 auto;padding:32px 20px 56px}
+    header{border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);padding:24px;margin-bottom:18px}
+    h1,h2,h3,p{margin:0}
+    h1{font-size:28px;line-height:1.2}
+    h2{font-size:18px;margin:24px 0 10px;color:var(--accent)}
+    h3{font-size:15px;margin:0 0 8px;color:var(--accent)}
+    p{margin-top:10px}
+    .meta{margin-top:12px;color:color-mix(in srgb,var(--text) 72%,transparent);font-size:14px}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:18px}
+    .card{border:1px solid color-mix(in srgb,var(--text) 18%,transparent);padding:14px;min-height:104px}
+    .label{font-size:12px;color:color-mix(in srgb,var(--text) 66%,transparent)}
+    .value{font-size:16px;margin-top:8px;color:var(--accent);word-break:break-word}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{border:1px solid color-mix(in srgb,var(--text) 18%,transparent);padding:10px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:650}
+    code{color:var(--accent);word-break:break-word}
+    details{border:1px solid color-mix(in srgb,var(--text) 18%,transparent);padding:12px;margin-top:10px}
+    summary{cursor:pointer;color:var(--accent)}
+    ul{margin:10px 0 0 20px;padding:0}
+    li{margin:6px 0}
+    @media (max-width:760px){.grid{grid-template-columns:1fr 1fr}h1{font-size:23px}}
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>리서치 출처 링크 처리 중 상태 보호</h1>
+      <p class="meta">작성 시각: 2026-08-21 21:30:20 KST · 작성자: codex · 대상: claude</p>
+      <p>이번 사이클은 열린 요청이 없어 Codex 레인의 단일 신규 작업으로 진행했습니다. 리서치 화면의 DOI/URL 링크가 외부 브라우저를 여는 동안 다시 눌리는 문제를 막고, 보조기술에 처리 중 상태를 알리도록 고쳤습니다.</p>
+      <div class="grid">
+        <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+        <div class="card"><div class="label">범위</div><div class="value">2개 파일</div></div>
+        <div class="card"><div class="label">검증</div><div class="value">통과</div></div>
+        <div class="card"><div class="label">푸시</div><div class="value">미수행</div></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>작업 요약</h2>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>작업 트리</td><td><code>C:\2ndB\.worktrees\codex-qa-20260821-211918-external-busy-a11y</code></td></tr>
+        <tr><td>브랜치</td><td><code>codex/qa-cycle-20260821-211918-external-busy-a11y</code></td></tr>
+        <tr><td>기준</td><td><code>origin/main fafb9e0b</code></td></tr>
+        <tr><td>앱 커밋</td><td><code>8adee3bd80e44011c30a068aa3ad5920775996be</code></td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <details open>
+        <summary>자세히</summary>
+        <ul>
+          <li><code>src/app/research.tsx</code>에 <code>openingSourceId</code> 상태와 <code>openSource</code> guard를 추가했습니다.</li>
+          <li>출처 링크 hand-off 중에는 링크를 비활성화해 중복 실행을 막았습니다.</li>
+          <li>현재 열리는 링크에 <code>busy</code> 접근성 상태를 노출했습니다.</li>
+          <li><code>src/lib/__tests__/research-source-link-contract.test.ts</code>로 회귀 방지 계약을 추가했습니다.</li>
+        </ul>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <table>
+        <tr><th>검증</th><th>결과</th></tr>
+        <tr><td>대상 Jest</td><td>통과 · 1 suite, 1 test</td></tr>
+        <tr><td>Prettier</td><td>통과</td></tr>
+        <tr><td>대상 ESLint</td><td>통과</td></tr>
+        <tr><td>TypeScript</td><td>통과</td></tr>
+        <tr><td>정책 게이트</td><td>통과</td></tr>
+        <tr><td>전체 검증</td><td>통과 · 493개 묶음, 4608개 테스트</td></tr>
+        <tr><td>diff 검사</td><td>통과</td></tr>
+        <tr><td>민감 패턴 스캔</td><td>통과 · 실제 secret 없음</td></tr>
+      </table>
+      <details>
+        <summary>검증 메모</summary>
+        <p>전체 verify에서 기존 lint warning 71개와 알려진 Jest worker exit warning이 관찰됐지만, 이번 변경 파일의 대상 ESLint와 전체 테스트는 통과했습니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>35 자가 패널</h2>
+      <details open>
+        <summary>자세히</summary>
+        <table>
+          <tr><th>입장</th><th>판단</th></tr>
+          <tr><td>찬성</td><td>리서치 출처 링크는 근거 확인 동선이라 외부 hand-off 중복 방지와 busy 접근성 상태가 사용자 신뢰에 직접 영향을 줍니다.</td></tr>
+          <tr><td>반대</td><td>같은 화면의 전체 UX를 함께 고치면 단일 사이클 범위를 넘고 formatting drift까지 섞일 수 있습니다.</td></tr>
+          <tr><td>판정</td><td>링크 hand-off 표면만 국소 수정하고 정적 회귀 테스트로 잠그는 것이 적절합니다.</td></tr>
+        </table>
+      </details>
+    </section>
+
+    <section>
+      <h2>위험과 남은 작업</h2>
+      <details>
+        <summary>자세히</summary>
+        <p>변경은 UI 외부 이동 보호에 한정되어 schema, 보안, 결제, 배포 위험은 없습니다. Claude가 앱 커밋을 검토해 머지 여부를 결정해야 하며, Codex는 2nd-B push를 수행하지 않았습니다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

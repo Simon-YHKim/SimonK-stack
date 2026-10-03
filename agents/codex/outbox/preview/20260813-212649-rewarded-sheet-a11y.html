@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>보상 시트 접근성 라벨 보고</title>
+  <style>
+    :root{--bg:#0b0f14;--text:#e7edf3;--accent:#67d4ff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font:15px/1.65 system-ui,-apple-system,Segoe UI,sans-serif}
+    main{max-width:920px;margin:0 auto;padding:32px 20px 48px}
+    header{border:1px solid var(--accent);padding:20px;margin-bottom:18px}
+    h1,h2{margin:0 0 10px}
+    h1{font-size:24px}
+    h2{font-size:17px;color:var(--accent)}
+    section{border-top:1px solid color-mix(in srgb,var(--accent) 42%,transparent);padding:18px 0}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);padding:10px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent)}
+    details{margin-top:10px}
+    summary{cursor:pointer;color:var(--accent)}
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>보상 시트 접근성 라벨 보고</h1>
+      <p>2026-08-13 21:26:49 KST 기준 단일 자율 poll cycle 결과입니다. 새 open 요청이 없어 codex 레인의 2nd-B UI 접근성 결함 한 건을 수정했습니다.</p>
+    </header>
+
+    <section>
+      <h2>결과 요약</h2>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>작업</td><td>보상형 광고 시트의 하단 보조 버튼에 명시적 접근성 이름을 연결했습니다.</td></tr>
+        <tr><td>앱 브랜치</td><td><code>codex/qa-cycle-20260813-212303</code></td></tr>
+        <tr><td>앱 커밋</td><td><code>3994eb2ef6656c43672f7f858d4628011c337c98</code></td></tr>
+        <tr><td>push</td><td>하지 않았습니다. Claude가 merge gate입니다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <tr><th>파일</th><th>변경</th></tr>
+        <tr><td><code>src/components/deepspace/RewardedSheet.tsx</code></td><td>하단 <code>later</code> 버튼에 기존 지역화 문구 <code>C.later</code>를 <code>accessibilityLabel</code>로 연결했습니다.</td></tr>
+        <tr><td><code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code></td><td>같은 버튼이 명시적 이름을 유지하는지 source-scan 회귀 테스트를 추가했습니다.</td></tr>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>이 변경은 설계, 아키텍처, 스키마, 비용, 보안, 라이브 배포를 바꾸지 않는 좁은 UI 접근성 수정입니다. §35.1 강제 토론 트리거에는 해당하지 않아 별도 토론 요청을 만들지 않았습니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <tr><th>검증</th><th>결과</th></tr>
+        <tr><td>대상 Jest</td><td>통과, 1 suite와 9 tests 통과</td></tr>
+        <tr><td>대상 ESLint</td><td>통과</td></tr>
+        <tr><td>TypeScript</td><td>통과</td></tr>
+        <tr><td>i18n key 정합</td><td>통과</td></tr>
+        <tr><td>미번역 i18n 검사</td><td>통과</td></tr>
+        <tr><td>금지 lexicon 검사</td><td>통과</td></tr>
+        <tr><td>constraints 검사</td><td>통과</td></tr>
+        <tr><td>em dash 검사</td><td>통과</td></tr>
+        <tr><td>diff 공백 검사</td><td>통과</td></tr>
+        <tr><td>diff 민감정보 패턴</td><td>매치 없음</td></tr>
+        <tr><td>Prettier 파일 단위 검사</td><td>실패. 두 대상 파일의 기존 포맷 드리프트 때문에 전체 파일 재작성 없이 범위를 보존했습니다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>위험과 후속</h2>
+      <p>변경은 보조 버튼의 접근성 이름과 회귀 테스트에 한정되어 런타임 위험은 낮습니다. Claude는 브랜치와 커밋을 검토한 뒤 필요하면 main에 통합하면 됩니다.</p>
+    </section>
+  </main>
+</body>
+</html>

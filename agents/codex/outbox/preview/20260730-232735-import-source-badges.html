@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 자율 사이클 보고서</title>
+  <style>
+    :root { --bg: #101214; --text: #e8edf0; --accent: #7dd3c7; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    header, section { border: 1px solid var(--accent); border-radius: 8px; padding: 18px; margin: 0 0 16px; }
+    h1, h2 { margin: 0 0 12px; color: var(--accent); letter-spacing: 0; }
+    h1 { font-size: 24px; }
+    h2 { font-size: 17px; }
+    p { margin: 0 0 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-top: 1px solid var(--accent); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); font-family: Consolas, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .card { border: 1px solid var(--accent); border-radius: 8px; padding: 12px; }
+    .label { color: var(--accent); font-weight: 700; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 자율 사이클 보고서</h1>
+      <p><span class="label">작성 시각:</span> 2026-07-30 23:27:35 KST</p>
+      <p><span class="label">작업:</span> 임포트 허브 소스 장식 기호 제거 및 텍스트 배지 전환</p>
+      <p><span class="label">결과:</span> 2nd-B 브랜치에 앱 커밋을 만들고, 허브에는 보고용 산출물만 남겼습니다.</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="card"><span class="label">앱 브랜치</span><br><code>codex/ui-cycle-20260730-232133</code></div>
+        <div class="card"><span class="label">앱 커밋</span><br><code>272bccfc</code></div>
+        <div class="card"><span class="label">변경 파일</span><br><code>src/screens/deepspace/import/ImportHubScreen.tsx</code></div>
+        <div class="card"><span class="label">푸시</span><br>하지 않음</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>소스 표시</td><td>임포트 소스의 그림문자 기반 <code>icon</code> 필드를 <code>badgeKo</code>, <code>badgeEn</code> 텍스트 배지로 바꿨습니다.</td></tr>
+          <tr><td>카드 화면</td><td>소스 목록 카드에서 장식 기호 대신 짧은 텍스트 배지를 렌더링합니다.</td></tr>
+          <tr><td>동의 화면</td><td>동의 시트 상단에서도 같은 텍스트 배지를 사용해 표시 의미를 일관시켰습니다.</td></tr>
+          <tr><td>정리</td><td>같은 파일의 미사용 import 3개를 제거해 대상 파일 lint 경고를 없앴습니다.</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>이번 사이클은 UI anti-slop 레인에 맞춰 장식성이 큰 소스 기호를 텍스트 기반 정보 배지로 바꾸는 작은 수정만 수행했습니다. 전체 파일 포맷 재작성은 diff가 과도해져 제외했습니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr><th>검증 항목</th><th>상태</th><th>근거</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>대상 파일 ESLint</td><td>통과</td><td><code>npx eslint src/screens/deepspace/import/ImportHubScreen.tsx</code></td></tr>
+          <tr><td>대상 파일 장식 기호 스캔</td><td>통과</td><td>변경 파일에서 지정 장식 기호 패턴 미검출</td></tr>
+          <tr><td>공백 검사</td><td>통과</td><td><code>git diff --check</code></td></tr>
+          <tr><td>금지 어휘 검사</td><td>통과</td><td><code>npm run check:lexicon</code></td></tr>
+          <tr><td>em dash 검사</td><td>통과</td><td><code>npm run check:emdash</code></td></tr>
+          <tr><td>type-check</td><td>전역 기존 문제로 실패</td><td><code>madge</code>, ads native module, Firebase Analytics 타입 해석 오류</td></tr>
+          <tr><td>Prettier check</td><td>기존 파일 상태로 실패</td><td><code>origin/main</code>의 동일 파일도 stdin 비교에서 실패</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>위험 및 남은 일</h2>
+      <p>변경은 표시 텍스트와 스타일에 제한되어 데이터 처리 경로는 건드리지 않았습니다. 전체 type-check와 전체 Prettier 정리는 기존 전역 상태가 먼저 정리되어야 합니다.</p>
+    </section>
+  </main>
+</body>
+</html>

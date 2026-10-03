@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>주간 성장 상상 배지 정리 보고</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e7edf3; --accent:#8fd3ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial,"Noto Sans KR",sans-serif; line-height:1.55; }
+    main { max-width:920px; margin:0 auto; padding:32px 18px 44px; }
+    header, section { border:1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius:8px; padding:18px; margin-bottom:14px; background:color-mix(in srgb, var(--text) 4%, transparent); }
+    h1 { margin:0 0 10px; font-size:24px; color:var(--accent); }
+    h2 { margin:0 0 12px; font-size:16px; color:var(--accent); }
+    p { margin:8px 0; }
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th, td { text-align:left; border-top:1px solid color-mix(in srgb, var(--accent) 24%, transparent); padding:9px; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px; }
+    .card { border:1px solid color-mix(in srgb, var(--accent) 24%, transparent); border-radius:8px; padding:12px; }
+    details { margin-top:8px; }
+    summary { color:var(--accent); cursor:pointer; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>주간 성장 상상 배지 정리 보고</h1>
+      <p>Codex 자율 폴 사이클에서 열린 신규 오더가 없어, UI anti-slop 레인의 작은 정리 작업 1건을 수행했다.</p>
+      <p>작성 시각: 2026-07-30 19:19:47 KST</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="card"><strong>대상</strong><br><code>WeeklyGrowthScreen.tsx</code></div>
+        <div class="card"><strong>결과</strong><br>상상 행의 장식 이모지를 한국어 텍스트 배지로 교체</div>
+        <div class="card"><strong>앱 커밋</strong><br><code>ef2415be</code></div>
+        <div class="card"><strong>푸시</strong><br>수행하지 않음</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead><tr><th>항목</th><th>이전</th><th>이후</th></tr></thead>
+        <tbody>
+          <tr><td>상상 행 표식</td><td>장식용 반짝임 이모지</td><td>의미가 드러나는 한국어 배지 <code>상상</code></td></tr>
+          <tr><td>스타일</td><td>단순 글자 크기</td><td>테두리와 색상이 있는 작은 배지 스타일</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>의미 없는 장식 문자를 줄이고, 화면을 읽는 사람이 행의 목적을 더 직접적으로 이해할 수 있도록 텍스트 배지를 사용했다. 파일 포맷 도구가 기존 압축 스타일을 재흐름해 같은 파일 안의 줄바꿈 diff가 함께 발생했다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>검증</th><th>상태</th><th>메모</th></tr></thead>
+        <tbody>
+          <tr><td>파일 ESLint</td><td>통과</td><td><code>npx eslint src/screens/deepspace/growth/WeeklyGrowthScreen.tsx</code></td></tr>
+          <tr><td>장식 표식 잔여 스캔</td><td>통과</td><td><code>✨</code>와 <code>dreamIcon</code> 잔여 없음</td></tr>
+          <tr><td>공백 diff 검사</td><td>통과</td><td><code>git diff --check</code></td></tr>
+          <tr><td>em dash 검사</td><td>통과</td><td>대상 파일 기준 통과</td></tr>
+          <tr><td>금지 어휘 검사</td><td>통과</td><td>프로젝트 스캐너 통과</td></tr>
+          <tr><td>전체 type-check</td><td>차단</td><td>기존 <code>madge</code>, 광고, Firebase native module 타입 해석 오류</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <p>찬성: 화면의 장식 문자를 줄이고 의미 있는 한국어 표식으로 바꿔 anti-slop 목적에 맞다.</p>
+      <p>반대: Prettier가 기존 파일의 줄바꿈을 넓게 재흐름해 실제 의미 변경보다 diff가 크다.</p>
+      <p>판정: 변경 파일은 1개이고 기능 로직을 건드리지 않았다. 푸시 없이 Claude merge gate가 리뷰할 수 있도록 로컬 커밋만 남겼다.</p>
+    </section>
+  </main>
+</body>
+</html>

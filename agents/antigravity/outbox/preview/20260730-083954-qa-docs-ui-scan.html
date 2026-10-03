@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>네이티브 QA 검토 보고서</title>
+<style>
+  body {
+    background-color: #111111;
+    color: #eeeeee;
+    font-family: sans-serif;
+    margin: 40px auto;
+    max-width: 800px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    border-bottom: 1px solid #333333;
+    padding-bottom: 10px;
+    font-weight: normal;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #333333;
+  }
+  .success {
+    color: #eeeeee;
+  }
+</style>
+</head>
+<body>
+
+<h1>네이티브 QA 검토 보고서</h1>
+
+<h2>검토 대상</h2>
+<table>
+  <tr>
+    <th>브랜치</th>
+    <td>origin/codex/cycle-20260730-034909-docs-ui-scan</td>
+  </tr>
+  <tr>
+    <th>커밋</th>
+    <td>587f16df09422d2b7bc5242cd6b04886245ef4d0</td>
+  </tr>
+  <tr>
+    <th>목적</th>
+    <td>개발용 문구(TODO) 제거 및 문구 수정</td>
+  </tr>
+</table>
+
+<h2>분석 결과</h2>
+<table>
+  <tr>
+    <th>항목</th>
+    <th>상태</th>
+    <th>상세</th>
+  </tr>
+  <tr>
+    <td>정적 코드 분석</td>
+    <td>통과</td>
+    <td>텍스트 교체 및 테스트 코드 추가만 포함됨.</td>
+  </tr>
+  <tr>
+    <td>네이티브 호환성</td>
+    <td>통과</td>
+    <td>안드로이드 및 iOS 네이티브 빌드에 영향을 주는 변경 없음.</td>
+  </tr>
+  <tr>
+    <td>런타임 오류 위험</td>
+    <td>통과</td>
+    <td>단순 UI 텍스트 변경으로 렌더링 오류 가능성 낮음.</td>
+  </tr>
+</table>
+
+<h2>결론</h2>
+<p>해당 브랜치의 변경 사항은 네이티브 환경에서 안전하게 동작할 것으로 판단됩니다. 블로커 이슈는 발견되지 않았습니다.</p>
+<p>머지 후 정상 작동이 예상됩니다.</p>
+
+</body>
+</html>

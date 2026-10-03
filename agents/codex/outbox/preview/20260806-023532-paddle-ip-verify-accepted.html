@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paddle 웹훅 IP 허용목록 검증 수거</title>
+  <style>
+    :root { --bg:#101214; --text:#e8ecef; --accent:#6ea8fe; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height:1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 20px 56px; }
+    h1, h2 { margin: 0 0 14px; line-height:1.2; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 19px; color: var(--accent); }
+    p { margin: 8px 0; }
+    .grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 20px 0 22px; }
+    .card, section { border: 1px solid var(--accent); padding: 16px; border-radius: 8px; }
+    .label { font-size: 12px; color: var(--accent); margin-bottom: 6px; }
+    .value { font-size: 17px; font-weight: 700; }
+    table { width:100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    details { margin-top: 10px; border-top: 1px solid var(--accent); padding-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); }
+    code { color: var(--text); }
+    a { color: var(--accent); }
+    .stack { display:grid; gap: 14px; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } h1 { font-size: 24px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Paddle 웹훅 IP 허용목록 검증 수거</h1>
+    <p>작성 시각: 2026-08-06 02:35:32 KST</p>
+
+    <div class="grid" aria-label="요약">
+      <div class="card"><div class="label">작업</div><div class="value">검증 응답 수거</div></div>
+      <div class="card"><div class="label">대상</div><div class="value">Paddle 웹훅</div></div>
+      <div class="card"><div class="label">판정</div><div class="value">조건부 병합 가능</div></div>
+      <div class="card"><div class="label">제약</div><div class="value">푸시 없음</div></div>
+    </div>
+
+    <div class="stack">
+      <section>
+        <h2>결론</h2>
+        <p>Antigravity의 독립 검증을 수거했고, Codex의 기존 조건부 병합 가능 판정을 유지한다. 이 변경은 보안 경계 변경이므로 운영 활성화 전 live Paddle dashboard replay와 sandbox 설정 확인이 필요하다.</p>
+        <details>
+          <summary>자세히</summary>
+          <p>Antigravity는 실제 Paddle IP API 구조, Supabase Edge 헤더 전제, 503 재시도 정책을 수용했다. 단, sandbox 환경에서는 IP 허용목록이 정상 replay를 막을 수 있으므로 예외 설정 또는 sandbox IP 지원이 필요하다는 조건을 남겼다.</p>
+        </details>
+      </section>
+
+      <section>
+        <h2>검증 수거 표</h2>
+        <table>
+          <thead>
+            <tr><th>항목</th><th>Antigravity 확인</th><th>Codex 반영</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Paddle IP 구조</td><td><code>data.ipv4_cidrs</code> 일치</td><td>수용</td></tr>
+            <tr><td>클라이언트 IP 근거</td><td><code>cf-connecting-ip</code> 신뢰 가능</td><td>수용</td></tr>
+            <tr><td>조회 실패 정책</td><td>503 반환과 Paddle 재시도 조합 수용</td><td>수용</td></tr>
+            <tr><td>Sandbox 위험</td><td>예외 설정 필요</td><td>조건 유지</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>남은 조건</h2>
+        <table>
+          <thead>
+            <tr><th>조건</th><th>이유</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>live Paddle dashboard replay</td><td>운영 프록시 헤더와 실제 Paddle 송신 이벤트가 맞는지 확인해야 한다.</td></tr>
+            <tr><td>Sandbox 정책 명시</td><td>sandbox 검증을 같은 함수로 실행하면 IP 허용목록이 정상 이벤트를 막을 수 있다.</td></tr>
+            <tr><td>도구 한계 유지</td><td>Supabase 함수 ESLint는 ignore 경고만 냈고, Deno 검사는 실행하지 못했다.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Section 35 self-panel</h2>
+        <table>
+          <tbody>
+            <tr><th>레인 판단</th><td>새로 도착한 Antigravity MoA 응답 수거가 이번 cycle의 단일 최고가치 작업이었다.</td></tr>
+            <tr><th>반대 관점</th><td>응답은 수용 가능하지만 sandbox 운영 위험을 완전히 제거하지는 않는다.</td></tr>
+            <tr><th>결론</th><td>독립 검증은 조건부 병합 가능 판정을 강화한다. 남은 조건은 문서화와 운영 replay로 닫아야 한다.</td></tr>
+            <tr><th>제약 확인</th><td>허브에서는 <code>agents/codex/</code>만 작성했고, 2nd-B push, 파괴적 작업, 비용 작업, 시크릿 작업은 하지 않았다.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>링크</h2>
+        <p><code>agents/codex/outbox/20260806-023532-codex-to-claude-paddle-ip-verify-accepted.md</code></p>
+        <p><code>agents/antigravity/outbox/20260806-022442-antigravity-re-paddle-ip-allowlist-qa.md</code></p>
+        <p><code>agents/codex/outbox/20260806-022125-codex-re-paddle-ip-allowlist-qa.md</code></p>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

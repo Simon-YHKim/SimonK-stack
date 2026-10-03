@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>구독 관리 중복 실행 방지 보고</title>
+  <style>
+    :root { --bg:#101214; --text:#f2f4f5; --accent:#67d4b2; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { max-width:980px; margin:0 auto; padding:40px 20px 56px; }
+    h1 { margin:0 0 8px; font-size:28px; line-height:1.25; }
+    h2 { margin:28px 0 10px; font-size:18px; }
+    p { margin:8px 0; }
+    .muted { opacity:.72; }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:24px 0; }
+    .card, details { border:1px solid color-mix(in srgb, var(--text) 14%, transparent); background:color-mix(in srgb, var(--text) 4%, transparent); }
+    .card { padding:16px; }
+    .label { display:block; opacity:.72; font-size:12px; margin-bottom:6px; }
+    .value, a, code, summary { color:var(--accent); }
+    .value { font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid color-mix(in srgb, var(--text) 14%, transparent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; background:color-mix(in srgb, var(--text) 4%, transparent); }
+    code { word-break:break-all; }
+    details { padding:12px 14px; margin:10px 0; }
+    summary { cursor:pointer; font-weight:700; }
+    .bar { height:12px; background:color-mix(in srgb, var(--text) 14%, transparent); margin:8px 0 2px; }
+    .bar span { display:block; height:12px; background:var(--accent); }
+    @media (max-width:760px){ .grid{grid-template-columns:1fr 1fr;} }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>구독 관리 중복 실행 방지</h1>
+    <p class="muted">작성 시각: 2026-08-21 18:50:17 KST · 작성자: codex</p>
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span><span class="value">완료</span></div>
+      <div class="card"><span class="label">범위</span><span class="value">구독 관리</span></div>
+      <div class="card"><span class="label">푸시</span><span class="value">안 함</span></div>
+      <div class="card"><span class="label">위험도</span><span class="value">보통</span></div>
+    </section>
+    <h2>무엇을 고쳤나</h2>
+    <p>구독 관리 화면의 취소 확인과 환불 요청 확인에서 사용자가 빠르게 여러 번 누르면 같은 관리 요청이 중복으로 시작될 수 있는 경로를 막았다. 화면 상태만 기다리지 않고 즉시 동작하는 내부 잠금값을 추가했고, 모달 안의 선택지와 최종 버튼도 처리 중에는 비활성 상태로 보이게 했다.</p>
+    <h2>변경 파일</h2>
+    <table>
+      <thead><tr><th>파일</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/app/subscription.tsx</code></td><td>취소와 환불 실행 경로에 공용 진행 중 잠금값을 추가하고, 관련 모달 버튼과 체크 항목에 비활성 및 진행 중 상태를 연결했다.</td></tr>
+        <tr><td><code>src/lib/billing/__tests__/subscription-ux-terms-and-refund.test.ts</code></td><td>구독 관리 최종 액션이 진행 중 잠금과 버튼 상태를 모두 갖는지 검사하는 회귀 테스트를 추가했다.</td></tr>
+      </tbody>
+    </table>
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>항목</th><th>상태</th><th>메모</th></tr></thead>
+      <tbody>
+        <tr><td>대상 Jest</td><td>통과</td><td><code>subscription-ux-terms-and-refund.test.ts</code></td></tr>
+        <tr><td>Prettier</td><td>통과</td><td>변경 파일 두 개</td></tr>
+        <tr><td>ESLint</td><td>통과</td><td>변경 파일 두 개</td></tr>
+        <tr><td>TypeScript</td><td>통과</td><td><code>npm run type-check</code></td></tr>
+        <tr><td>i18n, 어휘, 제약, 법무, 안전</td><td>통과</td><td>관련 정적 게이트 통과</td></tr>
+        <tr><td>민감 문자열 스캔</td><td>통과</td><td>변경 테스트의 결제 사업자 이름 두 줄만 오탐으로 확인</td></tr>
+      </tbody>
+    </table>
+    <h2>앱 커밋</h2>
+    <p>작업 브랜치: <code>codex/qa-cycle-20260821-184558-action-busy</code></p>
+    <p>로컬 앱 커밋: <code>49e0f963ac1e790730ec52810d143a6d48c0978d</code></p>
+    <p>기준: <code>origin/main fafb9e0b</code></p>
+    <h2>자체 패널</h2>
+    <details open>
+      <summary>판정</summary>
+      <p>한 사이클에서 한 작업만 수행했다. 결제 서버, 가격, 환불 판정, 데이터베이스, 배포, 온라인 저장소 push는 건드리지 않았다. 변경은 사용자가 누르는 구독 관리 표면의 중복 실행 방지에 한정했다.</p>
+      <div class="bar" aria-label="위험도 보통"><span style="width:42%"></span></div>
+      <p class="muted">남은 위험: 파일 전체 포맷 정리로 diff가 실제 의미 변경보다 크게 보인다. Claude 머지 게이트에서 의미 변경과 포맷 변경을 함께 확인해야 한다.</p>
+    </details>
+  </main>
+</body>
+</html>

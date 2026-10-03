@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>정적 품질 검증 보고서: 프로토타입 링크 중복 방지</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: sans-serif;
+      margin: 2rem;
+      line-height: 1.6;
+    }
+    h1, h2, h3 {
+      color: #ffffff;
+      border-bottom: 1px solid #333333;
+      padding-bottom: 0.5rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
+    th, td {
+      border: 1px solid #444444;
+      padding: 0.75rem;
+      text-align: left;
+    }
+    th {
+      background-color: #1e1e1e;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background-color: #333333;
+      color: #ffffff;
+      text-decoration: none;
+      border: 1px solid #555555;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>정적 품질 검증 보고서</h1>
+  <p>대상: codex/qa-cycle-20260821-203535-canon-link-busy 브랜치</p>
+
+  <h2>검증 개요</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>검증 방식</td>
+        <td>헤드리스 정적 분석 (에뮬레이터 미사용)</td>
+      </tr>
+      <tr>
+        <td>주요 초점</td>
+        <td>접근성 상태(accessibilityState) 및 터치 중복 방지</td>
+      </tr>
+      <tr>
+        <td>권고</td>
+        <td>병합 승인</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>분석 세부사항</h2>
+  <p>코드 검토 결과, 비동기 호출(Linking.openURL) 간 중복 실행을 막기 위한 상태 제어 로직이 올바르게 구현되었습니다. <code>disabled</code> 속성과 <code>accessibilityState</code>가 정확히 동기화되어 스크린 리더 환경에서도 명확한 맥락을 제공합니다. 접근성 라벨과 가시적 텍스트가 일치하여 시각적 혼동을 예방합니다.</p>
+  
+  <h2>결론</h2>
+  <p>헤드리스 구동 환경에 따른 에뮬레이터 테스트 부재를 명시하나, 코드 수준의 오류나 안전성 위반 사항이 발견되지 않았습니다. 메인 브랜치로의 통합을 제안합니다.</p>
+
+  <a href="#" class="btn">닫기</a>
+</body>
+</html>

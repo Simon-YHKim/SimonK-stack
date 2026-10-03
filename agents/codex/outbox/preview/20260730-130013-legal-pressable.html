@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>법적 문서 링크 터치 표면 정리 보고서</title>
+  <style>
+    :root{--bg:#0b0f14;--text:#e8eef5;--accent:#5fc7ff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Noto Sans KR",sans-serif;line-height:1.6}
+    main{max-width:980px;margin:0 auto;padding:32px 18px 48px}
+    header{border:1px solid var(--accent);padding:20px;margin-bottom:18px}
+    h1,h2{margin:0 0 10px;color:var(--text)}
+    h1{font-size:24px} h2{font-size:17px}
+    p{margin:6px 0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:18px 0}
+    .card,details{border:1px solid var(--accent);padding:14px;background:transparent}
+    .label{color:var(--accent);font-size:12px}
+    table{width:100%;border-collapse:collapse;margin:12px 0}
+    th,td{border:1px solid var(--accent);padding:10px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent)}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    .bar{height:10px;border:1px solid var(--accent);margin-top:8px}
+    .fill{height:100%;background:var(--accent)}
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="label">Codex 자율 폴 사이클 보고서</p>
+      <h1>법적 문서 링크 터치 표면 정리</h1>
+      <p>기록 시각: 2026-07-30 13:00:13 KST</p>
+      <p>대상: 2nd-B 브랜치 <code>codex/pressable-sweep-t-20260730-125741</code>, 커밋 <code>399a5412</code></p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <p class="label">결과</p>
+        <p>완료. 법적 문서 화면의 교차 링크 터치 표면을 정리했다.</p>
+      </div>
+      <div class="card">
+        <p class="label">변경 파일</p>
+        <p><code>src/screens/deepspace/dds-legal-doc-screen.tsx</code></p>
+      </div>
+      <div class="card">
+        <p class="label">푸시 상태</p>
+        <p>푸시하지 않음. Claude 병합 게이트 대기.</p>
+      </div>
+      <div class="card">
+        <p class="label">검증</p>
+        <p>파일 단위 포맷, ESLint, diff 검사, 금지어 검사, em dash 검사를 통과했다.</p>
+      </div>
+    </section>
+
+    <details open>
+      <summary>변경 내용</summary>
+      <table>
+        <thead><tr><th>항목</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td>전</td><td><code>Pressable</code>이 <code>styles.authLinkRow</code> 비주얼과 터치 책임을 함께 가졌다.</td></tr>
+          <tr><td>후</td><td>내부 <code>View</code>가 비주얼을 맡고, <code>Pressable</code>은 터치, 링크 역할, 접근성 라벨, Android ripple만 맡는다.</td></tr>
+          <tr><td>범위</td><td>교차 링크 목록만 수정했다. 법적 문서 본문, 라우팅, 문구, 데이터 파싱은 바꾸지 않았다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>검증 결과</summary>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><code>npx prettier --check src/screens/deepspace/dds-legal-doc-screen.tsx</code></td><td>통과</td></tr>
+          <tr><td><code>npx eslint src/screens/deepspace/dds-legal-doc-screen.tsx</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>실패. 기존 의존성 타입 해석 문제: <code>madge</code>, <code>react-native-google-mobile-ads</code>, <code>@react-native-firebase/analytics</code>.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>자체 패널 판단</summary>
+      <table>
+        <thead><tr><th>관점</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>시각 품질</td><td>기존 레이아웃 스타일을 그대로 내부 <code>View</code>에 유지해 화면 밀도와 색상 체계를 바꾸지 않았다.</td></tr>
+          <tr><td>Android 안전성</td><td>터치 표면에 <code>android_ripple</code>과 <code>hitSlop</code>을 추가했다. 그림자, 스크롤, 키보드, 저장소 로직은 건드리지 않았다.</td></tr>
+          <tr><td>범위 통제</td><td>한 파일, 한 UI 표면만 수정했다. 허브에는 <code>agents/codex/</code> 외 파일을 쓰지 않는다.</td></tr>
+          <tr><td>병합 경로</td><td>2nd-B 앱 커밋은 로컬 브랜치에만 남겼고 푸시하지 않았다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <section class="grid" aria-label="위험과 롤백">
+      <div class="card">
+        <p class="label">위험</p>
+        <p>낮음. 법적 문서 링크의 래퍼 구조만 바뀌며 문서 내용이나 라우트는 그대로다.</p>
+        <div class="bar" aria-label="위험도 낮음"><div class="fill" style="width:20%"></div></div>
+      </div>
+      <div class="card">
+        <p class="label">롤백</p>
+        <p>필요하면 2nd-B 브랜치에서 <code>git revert 399a5412</code>를 적용하면 된다.</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

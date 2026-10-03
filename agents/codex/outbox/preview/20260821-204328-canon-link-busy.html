@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>캐논 프로토타입 링크 busy 상태 보강 보고</title>
+  <style>
+    :root { --bg: #0b0d10; --text: #e7edf2; --accent: #64d2ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.58; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 20px 52px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin: 0 0 12px; color: var(--accent); }
+    h3 { font-size: 15px; margin-bottom: 8px; }
+    .muted { opacity: .72; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 24px 0; }
+    .card, details { border: 1px solid var(--accent); border-radius: 8px; padding: 16px; background: var(--bg); }
+    .card strong { display: block; color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    .stack { display: grid; gap: 14px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    svg { display: block; width: 100%; max-width: 520px; height: auto; margin-top: 10px; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } main { padding: 24px 14px 40px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>캐논 프로토타입 링크 busy 상태 보강 보고</h1>
+    <p class="muted">작성 시각: 2026-08-21 20:43:28 KST. 한 사이클에서 수행한 Codex 레인 단일 작업 결과입니다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><strong>결과</strong>완료</div>
+      <div class="card"><strong>앱 커밋</strong><code>0a6d31ba</code></div>
+      <div class="card"><strong>검증</strong>전체 verify 통과</div>
+      <div class="card"><strong>푸시</strong>하지 않음</div>
+    </section>
+
+    <section class="stack">
+      <details open>
+        <summary>무엇을 바꿨는가</summary>
+        <p><code>src/app/canon.tsx</code>의 “라이브 프로토타입 열기” 링크에 열림 진행 상태를 추가했습니다. 사용자가 링크를 누른 뒤 외부 브라우저 호출이 끝나기 전까지 같은 링크를 다시 누를 수 없고, 스크린 리더에도 busy와 disabled 상태가 전달됩니다.</p>
+        <p>회귀 방지를 위해 <code>src/lib/__tests__/canon-proto-link-busy.test.ts</code>를 추가했습니다.</p>
+      </details>
+
+      <details>
+        <summary>왜 필요한가</summary>
+        <p>기존 링크는 <code>Linking.openURL</code>을 직접 실행했습니다. 외부 앱 또는 브라우저를 여는 동안 반복 탭이 들어오면 같은 요청이 중복 실행될 수 있고, 보조기술 사용자는 링크가 처리 중인지 알기 어렵습니다.</p>
+      </details>
+
+      <details>
+        <summary>변경 파일</summary>
+        <table>
+          <thead><tr><th>파일</th><th>변경 내용</th></tr></thead>
+          <tbody>
+            <tr><td><code>src/app/canon.tsx</code></td><td><code>openingProto</code> 상태, 재진입 가드, visible label과 accessibility label 공유, busy/disabled 접근성 상태 추가</td></tr>
+            <tr><td><code>src/lib/__tests__/canon-proto-link-busy.test.ts</code></td><td>외부 링크 busy 가드와 라벨 일치 여부를 소스 스캔으로 고정</td></tr>
+          </tbody>
+        </table>
+      </details>
+
+      <details>
+        <summary>검증 결과</summary>
+        <table>
+          <thead><tr><th>검증</th><th>결과</th></tr></thead>
+          <tbody>
+            <tr><td>Targeted Jest</td><td>통과: 1 suite, 2 tests</td></tr>
+            <tr><td>Prettier check</td><td>통과</td></tr>
+            <tr><td>Targeted ESLint</td><td>통과</td></tr>
+            <tr><td>TypeScript</td><td>통과</td></tr>
+            <tr><td>정책 게이트</td><td>i18n, lexicon, emdash, LLM boundary, anti-anthro, mascot voice 통과</td></tr>
+            <tr><td>전체 verify</td><td>통과: 493 suites, 4609 tests. 기존 lint warning과 Jest worker 종료 warning만 관찰</td></tr>
+            <tr><td>diff check</td><td>통과</td></tr>
+            <tr><td>민감값 스캔</td><td>실제 민감값 없음. <code>tokens</code> import명만 false positive</td></tr>
+          </tbody>
+        </table>
+        <svg viewBox="0 0 520 130" role="img" aria-label="검증 통과 비율">
+          <text x="0" y="24" fill="#e7edf2">검증 통과</text>
+          <rect x="0" y="44" width="480" height="28" fill="#64d2ff"></rect>
+          <text x="0" y="104" fill="#e7edf2">실패 0건</text>
+          <rect x="0" y="112" width="0" height="12" fill="#64d2ff"></rect>
+        </svg>
+      </details>
+
+      <details>
+        <summary>35 self-panel</summary>
+        <table>
+          <thead><tr><th>관점</th><th>판단</th></tr></thead>
+          <tbody>
+            <tr><td>찬성</td><td>작고 고립된 개발자 보조 화면의 외부 링크지만, 반복 탭과 접근성 상태 누락을 제거해 native-safety 품질을 올린다.</td></tr>
+            <tr><td>반대</td><td>화면은 DevOnlyRoute 뒤에 있어 사용자 영향은 작고, 전체 파일 Prettier로 diff가 실제 의미 변경보다 커진다.</td></tr>
+            <tr><td>대안</td><td>전역 LinkButton 컴포넌트를 만들 수 있으나 이번 사이클의 단일 작업 범위를 넘는다.</td></tr>
+            <tr><td>판정</td><td>좁은 로컬 가드와 회귀 테스트로 처리한다. 설계 결정, 결제, 인증, PII, 스키마, live merge가 아니므로 별도 MoA verify 요청은 생략한다.</td></tr>
+          </tbody>
+        </table>
+      </details>
+
+      <details>
+        <summary>제약 준수</summary>
+        <p>허브에서는 <code>agents/codex/</code>만 작성했습니다. 2nd-B 작업은 <code>C:\2ndB\.worktrees\codex-qa-20260821-203535-canon-link-busy</code>의 별도 브랜치에서 수행했습니다. 2nd-B push, hub branch 전환, 파괴적 작업, 비용 발생 작업, secret 작업은 하지 않았습니다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

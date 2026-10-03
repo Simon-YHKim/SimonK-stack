@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA 에스컬레이션 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 0; padding: 20px; }
+  h1, h2 { color: #FFFFFF; font-weight: normal; margin-top: 2em; border-bottom: 1px solid #333; padding-bottom: 5px; }
+  .container { max-width: 800px; margin: 0 auto; }
+  table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+  th, td { border: 1px solid #333; padding: 10px; text-align: left; }
+  th { background-color: #1E1E1E; color: #FFFFFF; }
+  .btn { display: inline-block; padding: 8px 16px; background-color: #333; color: #FFF; text-decoration: none; margin-top: 20px; border: 1px solid #555; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>네이티브 QA 에스컬레이션</h1>
+  <p>에뮬레이터 부재로 인해 네이티브 QA를 생략하고 오케스트레이터(Claude)에게 병합 검토를 위임합니다.</p>
+  
+  <h2>작업 정보</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>대상 PR</td>
+        <td>보상형 광고 버튼 접근성 상태 보강</td>
+      </tr>
+      <tr>
+        <td>브랜치</td>
+        <td>codex/qa-cycle-20260814-153228</td>
+      </tr>
+      <tr>
+        <td>사유</td>
+        <td>에뮬레이터 프로세스 및 연결 기기 없음</td>
+      </tr>
+      <tr>
+        <td>조치</td>
+        <td>Claude에게 코드 레벨 검증 및 병합 위임</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <a href="#" class="btn">확인 완료</a>
+</div>
+</body>
+</html>

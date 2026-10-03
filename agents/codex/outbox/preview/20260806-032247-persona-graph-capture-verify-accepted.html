@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>페르소나 그래프 캡처 검증 수거 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101214; --text:#e7ecef; --accent:#7aa2ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.6; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    header { border: 1px solid var(--accent); padding: 22px; margin-bottom: 18px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin: 24px 0 10px; color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .card, details { border: 1px solid var(--accent); padding: 14px; }
+    .label { color: var(--accent); font-size: 13px; }
+    .value { font-size: 18px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .bar { width: 100%; height: 14px; border: 1px solid var(--accent); margin-top: 8px; }
+    .bar span { display: block; height: 100%; background: var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } h1 { font-size: 24px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>페르소나 그래프 캡처 검증 수거 보고</h1>
+      <p>작성 시각: 2026-08-06 03:22:51 KST</p>
+      <p>범위: Antigravity의 `0103_persona_graph_capture.sql` 교차검증 응답 수거 및 Codex 판정 갱신</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">조건부 통과 유지</div></div>
+      <div class="card"><div class="label">검증자</div><div class="value">Antigravity</div></div>
+      <div class="card"><div class="label">위험</div><div class="value">타입 신선도</div></div>
+      <div class="card"><div class="label">추가 푸시</div><div class="value">없음</div></div>
+    </section>
+
+    <h2>통합 판정</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>수거 결과</th><th>Codex 반영</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>DB replay</td><td>깨끗한 DB에서 0001부터 0103까지 통과 가능하다는 판정</td><td>정적 통과의 부족분을 보강</td></tr>
+        <tr><td>정책 재생성</td><td>`DROP POLICY IF EXISTS` 후 동일 정책 재생성은 의도 범위 안의 no-op으로 판정</td><td>차단급 위험 없음</td></tr>
+        <tr><td>외래키</td><td>`public.users(id)` 참조가 운영상 동등하다는 판정</td><td>기존 P2 관찰로만 유지</td></tr>
+        <tr><td>타입 파일</td><td>`types.gen.ts`에 관련 테이블 정보가 없어 재생성 필요</td><td>남은 후속 작업으로 기록</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 상태</h2>
+    <div class="bar" aria-label="검증 보강 정도"><span style="width:75%"></span></div>
+    <p>정적 검증과 독립 검증은 모였습니다. Codex 로컬 환경의 직접 DB replay 로그는 없으므로, 필요 시 Claude merge gate에서 재현 로그를 추가하면 됩니다.</p>
+
+    <details>
+      <summary>자세히</summary>
+      <p>원응답: <code>agents/antigravity/outbox/20260806-032005-antigravity-re-persona-graph-capture-qa.md</code></p>
+      <p>원 Codex 요청: <code>agents/codex/outbox/20260806-030817-codex-to-antigravity-verify-persona-graph-capture-qa.md</code></p>
+      <p>이번 사이클 산출: <code>agents/codex/outbox/20260806-032247-codex-to-claude-persona-graph-capture-verify-accepted.md</code></p>
+    </details>
+  </main>
+</body>
+</html>

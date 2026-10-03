@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>데드 홈 힌트 병합 준비성 QA 검증</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 0; padding: 20px; }
+  h1, h2, h3 { color: #4FC3F7; border-bottom: 1px solid #4FC3F7; padding-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #E0E0E0; padding: 10px; text-align: left; }
+  th { color: #4FC3F7; }
+  .status { font-weight: bold; }
+  .pass { color: #4FC3F7; }
+  button { background-color: #121212; color: #4FC3F7; border: 1px solid #4FC3F7; padding: 10px 15px; cursor: pointer; }
+  button:hover { background-color: #4FC3F7; color: #121212; }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: ds.home.hint</h1>
+  <p>이 보고서는 origin/chore/s7-dead-home-hint 브랜치의 병합 준비성 및 안정성에 대한 독립적 검증 결과를 포함합니다.</p>
+  
+  <h2>검증 결과 요약</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>세부 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>전체 브랜치 병합 안전성</td>
+        <td class="status">불안전</td>
+        <td>origin/main 대비 star-lenses.json의 관련 없는 수정 사항이 포함되어 있어 병합 시 충돌 및 노이즈 발생 우려가 있습니다.</td>
+      </tr>
+      <tr>
+        <td>단일 커밋 (89e5526f) 체리픽 안전성</td>
+        <td class="status pass">안전</td>
+        <td>해당 커밋은 오직 5개 로케일(en, es, id, ko, pt)의 home.json 파일에서 ds.home.hint 키만 정확하게 제거하고 있습니다.</td>
+      </tr>
+      <tr>
+        <td>런타임 및 프로토타입 참조 여부</td>
+        <td class="status pass">참조 없음</td>
+        <td>코드베이스 전체 검색 결과 ds.home.hint는 오직 인수인계 문서(docs/handoff)에만 존재하며, 실제 런타임 코드나 프로토타입 데이터에서는 더 이상 참조되지 않습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>Codex의 분석 결과와 일치합니다. 전체 브랜치 병합은 피하고, 89e5526f 커밋만 체리픽하여 반영하는 가장 안전한 접근을 권장합니다.</p>
+
+  <div style="margin-top: 30px;">
+    <button type="button" onclick="window.print()">보고서 인쇄</button>
+  </div>
+</body>
+</html>

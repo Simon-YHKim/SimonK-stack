@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>가져오기 허브 라벨 정합성 후속 보고</title>
+  <style>
+    :root { --bg:#0f1115; --text:#e8eaed; --accent:#7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 48px; }
+    h1,h2,h3,p { margin-top:0; }
+    h1 { font-size:28px; letter-spacing:0; }
+    h2 { font-size:18px; margin-top:28px; border-bottom:1px solid var(--accent); padding-bottom:8px; }
+    p,li,td,th { font-size:15px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:20px 0; }
+    .box { border:1px solid var(--accent); border-radius:6px; padding:14px; }
+    .label { color:var(--accent); font-size:12px; margin-bottom:6px; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th,td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:650; }
+    code { color:var(--accent); overflow-wrap:anywhere; }
+    details { border:1px solid var(--accent); border-radius:6px; padding:10px 12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); }
+    .bar { height:10px; border:1px solid var(--accent); border-radius:999px; overflow:hidden; margin-top:8px; }
+    .fill { height:100%; width:100%; background:var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>가져오기 허브 라벨 정합성 후속 보고</h1>
+    <p>Antigravity가 지적한 구글 연결 버튼의 보이는 문구와 접근성 라벨 불일치, 기록 반영 버튼의 중복 라벨을 후속 수정했습니다. 앱 변경은 기존 2nd-B 격리 worktree에서 로컬 커밋으로만 남겼고 push는 하지 않았습니다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="box"><div class="label">결과</div><strong>수정 완료</strong><br>라벨 정합성과 중복 제거 반영</div>
+      <div class="box"><div class="label">앱 커밋</div><code>3d8360047468cd0b5e1c21d9c66370ac0e4e077e</code></div>
+      <div class="box"><div class="label">브랜치</div><code>codex/qa-cycle-20260821-163336-import-hub-busy-a11y</code></div>
+      <div class="box"><div class="label">검증</div><strong>통과</strong><div class="bar" aria-label="검증 통과율"><div class="fill"></div></div></div>
+    </section>
+
+    <h2>변경 내용</h2>
+    <table>
+      <thead><tr><th>대상</th><th>이전 상태</th><th>수정 상태</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>구글 연결 버튼</td>
+          <td>바쁨 상태에서도 접근성 라벨이 기본 문구로 고정됨</td>
+          <td>바쁨 상태에서는 접근성 라벨도 연결 중 문구를 사용</td>
+        </tr>
+        <tr>
+          <td>기록 반영 버튼</td>
+          <td>보이는 문구와 같은 접근성 라벨을 별도로 반복</td>
+          <td>중복 라벨을 제거하고 기본 텍스트 이름 계산에 맡김</td>
+        </tr>
+        <tr>
+          <td>정적 회귀 테스트</td>
+          <td>이전 라벨 고정 상태를 기대</td>
+          <td>바쁨 라벨 분기와 중복 라벨 부재를 기대</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <details open>
+      <summary>실행한 검증 보기</summary>
+      <ul>
+        <li><code>npx prettier --check src/screens/deepspace/import/ImportHubScreen.tsx src/lib/__tests__/import-hub-busy-a11y.test.ts</code></li>
+        <li><code>npx jest src/lib/__tests__/import-hub-busy-a11y.test.ts --runInBand</code></li>
+        <li><code>npx eslint src/screens/deepspace/import/ImportHubScreen.tsx src/lib/__tests__/import-hub-busy-a11y.test.ts</code></li>
+        <li><code>npm run type-check</code></li>
+        <li><code>npm run check:i18n</code></li>
+        <li><code>npm run check:i18n-untranslated</code></li>
+        <li><code>npm run check:lexicon</code></li>
+        <li><code>npm run check:constraints</code></li>
+        <li><code>npm run check:emdash</code></li>
+        <li><code>npm run check:llm-boundary</code></li>
+        <li><code>npm run check:pixel-rules</code></li>
+        <li><code>npm run check:anti-anthro</code></li>
+        <li><code>npm run check:mascot-voice</code></li>
+        <li><code>npm run check:asset-exts</code></li>
+        <li><code>npm run check:cycles</code></li>
+        <li><code>git diff --check</code></li>
+        <li>변경 diff 민감값 패턴 스캔</li>
+      </ul>
+    </details>
+
+    <h2>위험과 제한</h2>
+    <p>변경 범위는 접근성 라벨과 정적 테스트에 한정됩니다. 에뮬레이터나 실제 기기 검증은 이번 Codex 사이클 범위에서 수행하지 않았습니다. 변경 diff의 민감값 패턴 스캔에서는 새 탐지가 없었습니다.</p>
+
+    <h2>파일</h2>
+    <table>
+      <thead><tr><th>구분</th><th>경로</th></tr></thead>
+      <tbody>
+        <tr><td>앱 화면</td><td><code>C:\2ndB\.worktrees\codex-qa-20260821-163336-import-hub-busy-a11y\src\screens\deepspace\import\ImportHubScreen.tsx</code></td></tr>
+        <tr><td>회귀 테스트</td><td><code>C:\2ndB\.worktrees\codex-qa-20260821-163336-import-hub-busy-a11y\src\lib\__tests__\import-hub-busy-a11y.test.ts</code></td></tr>
+      </tbody>
+    </table>
+
+    <p>작성 시각: 2026-08-21 16:51:44 KST</p>
+  </main>
+</body>
+</html>

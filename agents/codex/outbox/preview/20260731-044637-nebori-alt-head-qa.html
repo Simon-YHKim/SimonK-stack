@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nebori 대안 머리 에셋 QA 보고서</title>
+  <style>
+    :root{--bg:#101214;--text:#e8ecef;--muted:#9aa4ad;--accent:#7cc7ff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Noto Sans KR",sans-serif;line-height:1.58}
+    main{max-width:1120px;margin:0 auto;padding:32px 18px 48px}
+    h1,h2,h3{margin:0 0 12px;line-height:1.25}
+    h1{font-size:28px}
+    h2{font-size:20px;margin-top:28px;border-top:1px solid #2a3137;padding-top:22px}
+    p{margin:8px 0;color:var(--text)}
+    .muted{color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}
+    .card{border:1px solid #2a3137;border-radius:6px;padding:14px;background:#15191d}
+    .card strong{display:block;color:var(--accent);font-size:13px;margin-bottom:6px}
+    table{width:100%;border-collapse:collapse;margin:12px 0 18px}
+    th,td{border:1px solid #2a3137;padding:10px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700;background:#15191d}
+    code{color:var(--accent)}
+    details{border:1px solid #2a3137;border-radius:6px;padding:10px 12px;margin:10px 0;background:#15191d}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    .verdict{font-size:18px;font-weight:700;color:var(--accent)}
+    .bar{height:10px;background:#2a3137;border-radius:999px;overflow:hidden;margin-top:8px}
+    .bar span{display:block;height:100%;background:var(--accent)}
+    @media (max-width:800px){.grid{grid-template-columns:1fr 1fr}}
+    @media (max-width:520px){.grid{grid-template-columns:1fr}main{padding:24px 14px}}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Nebori 대안 머리 에셋 QA 보고서</h1>
+    <p class="muted">작성 시각: 2026-07-31 04:46:37 KST · 대상: <code>origin/codex/nebori-asset-spec</code> · 최신 커밋: <code>8ca498a6</code></p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><strong>판정</strong><p class="verdict">전체 브랜치 보류</p></div>
+      <div class="card"><strong>단독 커밋</strong><p><code>8ca498a6</code>는 PNG 3개와 HTML 1개만 추가한다.</p></div>
+      <div class="card"><strong>주요 위험</strong><p>브랜치 전체 diff가 토큰 하한 테스트와 R1 문서를 삭제한다.</p></div>
+      <div class="card"><strong>검증 상태</strong><p>정적 검사 5개 통과, 삭제된 Jest 가드는 실패 확인.</p></div>
+    </section>
+
+    <h2>결론</h2>
+    <p><code>8ca498a6</code> 자체는 최신 main 위에 분리 적용 후보로 볼 수 있다. 추가된 대안 머리 이미지 3개는 모두 1024 x 1024 PNG이며, 새 HTML 문서는 외부 네트워크 의존을 포함하지 않는다.</p>
+    <p>하지만 브랜치 전체를 병합하면 <code>ops_daily_brief</code> 출력 토큰 하한과 그 회귀 테스트가 삭제되고, R1 문서 삭제와 가격 미러 변경, 죽은 home hint locale 키 재추가가 함께 들어온다. 따라서 Claude 병합 게이트에는 전체 브랜치가 아니라 단독 에셋 커밋 분리 적용만 검토하라고 전달한다.</p>
+
+    <h2>변경 범위</h2>
+    <table>
+      <thead><tr><th>구분</th><th>내용</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>단독 커밋</td><td><code>nebori-illustration-head-aurora-veil.png</code>, <code>nebori-illustration-head-eclipse-halo.png</code>, <code>nebori-illustration-head-stellar-nursery.png</code>, <code>docs/nebori-alternative-head-variants-completion_260731.html</code></td><td>분리 적용 후보</td></tr>
+        <tr><td>전체 브랜치</td><td>27개 파일 변경, 1157줄 추가, 266줄 삭제</td><td>보류</td></tr>
+        <tr><td>회귀 위험</td><td><code>ops-brief-output-budget.test.ts</code> 삭제 및 세 proxy의 <code>ops_daily_brief</code> 출력 하한 제거</td><td>병합 불가</td></tr>
+        <tr><td>무관 변경</td><td>R1 문서 삭제, 가격 미러 변경, home hint locale 키 재추가</td><td>분리 필요</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead><tr><th>검사</th><th>결과</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td><code>git fetch --all --prune</code></td><td>통과</td><td>원격 최신 상태 수거</td></tr>
+        <tr><td><code>git diff --check origin/main..origin/codex/nebori-asset-spec</code></td><td>통과</td><td>공백 오류 없음</td></tr>
+        <tr><td><code>git merge-tree</code> 충돌 표식 스캔</td><td>통과</td><td>충돌 표식 없음</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td><td>3225개 키, 44개 namespace, 5개 locale 정렬</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td><td>금지 어휘 없음</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td><td>locale 문자열에 em dash 없음</td></tr>
+        <tr><td>삭제된 Jest 가드 실행</td><td>실패 확인</td><td><code>ops-brief-output-budget.test.ts</code> 파일 없음</td></tr>
+        <tr><td>새 HTML 외부 의존 스캔</td><td>통과</td><td>외부 URL, 외부 script, 외부 link 없음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>이미지 확인</h2>
+    <table>
+      <thead><tr><th>파일</th><th>크기</th><th>용량</th></tr></thead>
+      <tbody>
+        <tr><td><code>nebori-illustration-head-aurora-veil.png</code></td><td>1024 x 1024</td><td>406652 바이트</td></tr>
+        <tr><td><code>nebori-illustration-head-eclipse-halo.png</code></td><td>1024 x 1024</td><td>272254 바이트</td></tr>
+        <tr><td><code>nebori-illustration-head-stellar-nursery.png</code></td><td>1024 x 1024</td><td>838617 바이트</td></tr>
+        <tr><td><code>nebori-illustration-head-black-orb.png</code></td><td>1024 x 1024</td><td>462451 바이트</td></tr>
+      </tbody>
+    </table>
+
+    <h2>위험도</h2>
+    <div class="card">
+      <strong>전체 브랜치 병합 위험</strong>
+      <div class="bar" aria-label="위험도 높음"><span style="width:85%"></span></div>
+      <p>토큰 하한 삭제는 daily brief 품질과 비용 구조에 직접 영향을 줄 수 있고, 회귀 테스트 삭제는 같은 문제가 다시 들어와도 잡지 못하게 만든다.</p>
+    </div>
+    <div class="card">
+      <strong>단독 에셋 커밋 위험</strong>
+      <div class="bar" aria-label="위험도 낮음"><span style="width:20%"></span></div>
+      <p>단독 커밋은 새 PNG와 자체완결 문서만 추가하므로 앱 런타임 회귀 가능성이 낮다.</p>
+    </div>
+
+    <h2>섹션 35 자체 패널</h2>
+    <details open><summary>요약 보기</summary>
+      <table>
+        <thead><tr><th>관점</th><th>판단</th></tr></thead>
+        <tbody>
+          <tr><td>찬성</td><td>대안 머리 콘셉트 3개는 Nebori 선택지를 넓히고 단독 커밋 범위가 작다.</td></tr>
+          <tr><td>반대</td><td>전체 브랜치는 앱 로직과 문서 상태를 되돌리는 무관 변경을 포함한다.</td></tr>
+          <tr><td>대안</td><td><code>8ca498a6</code>만 최신 main 위로 분리 적용하고, 나머지 diff는 폐기 또는 별도 리뷰로 보낸다.</td></tr>
+          <tr><td>판정</td><td>전체 브랜치 보류, 단독 에셋 커밋만 후보.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <h2>다음 조치</h2>
+    <p>Claude에는 전체 브랜치 HOLD와 단독 커밋 분리 적용 후보를 전달했다. 머지 diff 성격의 고위험 산출물이므로 Antigravity에 독립 검증 요청을 함께 보낸다.</p>
+  </main>
+</body>
+</html>

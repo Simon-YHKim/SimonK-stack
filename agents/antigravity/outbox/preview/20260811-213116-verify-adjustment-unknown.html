@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>결제 조정 상태 안전성 검증</title>
+  <style>
+    body { background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, sans-serif; line-height: 1.5; padding: 20px; }
+    h1, h2 { color: #58a6ff; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #30363d; padding: 10px; text-align: left; }
+    th { background-color: #161b22; }
+  </style>
+</head>
+<body>
+  <h1>결제 조정 상태 안전성 검증</h1>
+  <p>작성 시각: 2026-08-11 21:31:16 KST</p>
+  <h2>요약</h2>
+  <p>후보 브랜치의 스키마 및 웹훅 안전성을 성공적으로 검증했습니다. 지정된 요구사항들이 코드에 올바르게 반영되었습니다.</p>
+  <h2>검증 상세</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>확인 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>권한 제어</td>
+        <td>통과</td>
+        <td>anon, authenticated 실행 권한이 회수되었으며 service_role 에게만 부여되었습니다.</td>
+      </tr>
+      <tr>
+        <td>알 수 없는 상태 처리</td>
+        <td>통과</td>
+        <td>200을 반환하며 진단 데이터를 기록합니다. 권한 및 수익 데이터에 접근하지 않습니다.</td>
+      </tr>
+      <tr>
+        <td>누락된 ID 예외 처리</td>
+        <td>통과</td>
+        <td>조정 ID 또는 트랜잭션 ID 누락 시 400 반환 정책이 정상적으로 유지됩니다.</td>
+      </tr>
+      <tr>
+        <td>페이로드 보존</td>
+        <td>통과</td>
+        <td>진단 목적의 버퍼로서 90일 후 삭제되도록 cron 작업이 스케줄링 되었습니다.</td>
+      </tr>
+      <tr>
+        <td>충돌 및 병합</td>
+        <td>보류</td>
+        <td>main 브랜치와의 충돌을 해결할 때까지 병합 보류 상태를 유지합니다.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>조치 권고</h2>
+  <p>병합 충돌 해결을 위해 리베이스가 필요합니다. 리베이스 후 재검증을 진행하십시오.</p>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 검토 보고서: 백그라운드 작업 독 접근성</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 800px; }
+  h1, h2 { color: #4CAF50; border-bottom: 1px solid #333; padding-bottom: 0.5rem; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { border: 1px solid #333; padding: 0.5rem; text-align: left; }
+  th { color: #4CAF50; }
+  .box { border: 1px solid #333; padding: 1rem; margin-top: 1rem; }
+</style>
+</head>
+<body>
+  <h1>QA 검토 보고서: 백그라운드 작업 독 접근성</h1>
+  
+  <div class="box">
+    <h2>개요</h2>
+    <table>
+      <tr><th>대상 커밋</th><td>ee2d6672191e8cc3d7f31800a8476b4522fc9236 (Codex 워크트리)</td></tr>
+      <tr><th>작업 내용</th><td>BackgroundTaskDock 토글 상태에 따른 접근성 라벨(펼치기/접기) 동적 적용 및 다국어 지원</td></tr>
+    </table>
+  </div>
+
+  <div class="box">
+    <h2>네이티브 환경 검증 결과</h2>
+    <table>
+      <tr><th>검증 항목</th><th>결과</th><th>세부 내용</th></tr>
+      <tr><td>접근성 구조</td><td>통과</td><td>기존 버튼 역할 구조를 유지하며 상태 라벨만 동적으로 전환됨</td></tr>
+      <tr><td>렌더링 차단</td><td>통과</td><td>애니메이션 및 레이아웃 구조에 파괴적인 변경 사항이 존재하지 않음</td></tr>
+      <tr><td>실행 안정성</td><td>통과</td><td>자바스크립트 계층의 문자열 대입 로직으로 구성되어 네이티브 충돌 위험이 없음</td></tr>
+    </table>
+  </div>
+
+  <div class="box">
+    <h2>결론</h2>
+    <p>본 변경사항은 네이티브 애플리케이션 환경에서 부작용을 유발하지 않으며 올바른 접근성 트리를 제공하므로 머지를 권장합니다.</p>
+  </div>
+</body>
+</html>

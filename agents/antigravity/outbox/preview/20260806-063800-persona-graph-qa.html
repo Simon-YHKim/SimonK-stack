@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 검증 보고서: Persona Graph Capture</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+  .status-pass {
+    color: #4CAF50;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: Persona Graph Capture</h1>
+  <p>대상 커밋: cae2b7cad132670ddf8a3e2162097f50524ea2d6</p>
+  <p>대상 파일: db/migrations/0103_persona_graph_capture.sql</p>
+  
+  <h2>검증 항목 및 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>빈 상태 재실행 안전성</td>
+        <td class="status-pass">통과</td>
+        <td>모든 테이블과 인덱스 생성에 IF NOT EXISTS 구문이 사용되었으며, 검증 블록으로 안전성이 보장됨.</td>
+      </tr>
+      <tr>
+        <td>운영 스키마 정규화</td>
+        <td class="status-pass">통과</td>
+        <td>생성은 건너뛰며, 정책(Policy) 부분만 명시적으로 재생성(Drop 후 Create)하여 단일 트랜잭션 내에서 안전하게 정규화함.</td>
+      </tr>
+      <tr>
+        <td>소유자 전용 RLS 정책</td>
+        <td class="status-pass">통과</td>
+        <td>3개의 테이블 모두 auth.uid() 조건으로만 접근 및 수정이 가능하도록 올바르게 설정됨.</td>
+      </tr>
+      <tr>
+        <td>외래키 대체 적합성</td>
+        <td class="status-pass">통과</td>
+        <td>auth.users 대신 public.users를 참조하는 것은 CI 환경의 제약을 고려한 저장소 내 표준 패턴과 일치함.</td>
+      </tr>
+      <tr>
+        <td>타입 재생성 요구사항</td>
+        <td class="status-pass">확인됨</td>
+        <td>외래키가 public.users를 가리키게 됨에 따라, 클라이언트 측 관계성을 반영하기 위해 types.gen.ts의 재생성이 필요함.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>종합 판정</h2>
+  <p>해당 마이그레이션 스크립트는 운영 환경 및 CI 환경 모두에서 안전하게 작동하며, 의도된 스키마 구조와 보안 정책을 정확하게 반영하고 있습니다. 병합하기에 안전(MERGE-SAFE)하다고 판단됩니다.</p>
+</body>
+</html>

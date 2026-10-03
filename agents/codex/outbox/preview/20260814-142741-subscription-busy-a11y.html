@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>구독 관리 진행 상태 접근성 보고</title>
+  <style>
+    :root { --bg: #0b0f14; --text: #e6edf3; --accent: #58c7d8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.6; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 48px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; line-height: 1.25; }
+    h2 { font-size: 18px; margin-bottom: 10px; color: var(--accent); }
+    section { border: 1px solid var(--accent); border-radius: 8px; padding: 16px; margin-top: 16px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; border-top: 1px solid var(--accent); padding: 9px; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .card { border: 1px solid var(--accent); border-radius: 8px; padding: 14px; }
+    .label { color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: 0; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } main { padding: 24px 14px 40px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>구독 관리 진행 상태 접근성 보고</h1>
+    <p>이번 폴 사이클에서는 열린 Codex 오더가 없어 2nd-B UI 접근성 레인에서 한 건을 처리했다. 구독 취소와 환불 요청 진입 버튼이 작업 중 비활성화될 때 스크린 리더가 진행 중 상태를 함께 알 수 있도록 수정했다.</p>
+
+    <div class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><p>로컬 2nd-B 커밋 생성 완료</p></div>
+      <div class="card"><div class="label">범위</div><p><code>/subscription</code> 구독 관리 화면</p></div>
+      <div class="card"><div class="label">위험</div><p>낮음. 표시 상태 전달만 변경</p></div>
+    </div>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead><tr><th>파일</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/app/subscription.tsx</code></td><td>취소와 환불 진입 버튼에 <code>loading={busy}</code>를 추가해 기존 비활성 상태와 함께 진행 중 상태가 노출되게 했다.</td></tr>
+          <tr><td><code>src/lib/__tests__/subscription-self-service-a11y.test.ts</code></td><td>두 버튼이 <code>disabled={busy}</code>와 <code>loading={busy}</code>를 같이 유지하는지 소스 스캔 회귀 테스트를 추가했다.</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>공유 <code>MdButton</code>은 <code>loading</code> 값을 받을 때 <code>accessibilityState.busy</code>를 자동으로 설정한다. 기존 화면은 <code>disabled</code>만 넘겨 실제 작업 중인지 단순 비활성인지 구분이 약했다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>항목</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>대상 Jest</td><td>통과: <code>subscription-self-service-a11y.test.ts</code></td></tr>
+          <tr><td>대상 ESLint</td><td>통과</td></tr>
+          <tr><td>TypeScript</td><td>통과: <code>npm run type-check</code></td></tr>
+          <tr><td>i18n, 번역 누락, lexicon</td><td>통과</td></tr>
+          <tr><td>constraints, emdash, anti-anthro, mascot-voice, cycles</td><td>통과</td></tr>
+          <tr><td>민감패턴 스캔</td><td>변경 diff 매칭 없음</td></tr>
+          <tr><td>Prettier</td><td>새 테스트 파일 통과. <code>subscription.tsx</code> 전체 검사는 기존 원본도 실패하는 파일 단위 포맷 drift가 있어 별도 기록.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>산출물</h2>
+      <p>작업 위치: <code>C:\2ndB\.worktrees\codex-qa-20260814-142437</code></p>
+      <p>브랜치: <code>codex/qa-cycle-20260814-142437</code></p>
+      <p>로컬 커밋: <code>9815ab99 fix: expose subscription self-service busy state</code></p>
+      <p>허브 작성 범위: <code>agents/codex/</code>만 사용했다. 2nd-B push, hub branch 전환, 파괴적 작업, 비용 작업, secret 작업은 하지 않았다.</p>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <table>
+        <thead><tr><th>관점</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>사용자</td><td>결제 관련 버튼은 작업 중 상태를 명확히 알려야 불안과 중복 탭을 줄인다.</td></tr>
+          <tr><td>접근성</td><td>비활성 상태와 진행 중 상태를 함께 전달하는 방식이 기존 <code>MdButton</code> 계약과 맞다.</td></tr>
+          <tr><td>엔지니어링</td><td>공유 컴포넌트 변경 없이 화면 호출부만 고쳐 영향 범위를 작게 유지했다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

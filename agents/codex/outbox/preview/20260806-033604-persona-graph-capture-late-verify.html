@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>페르소나 그래프 캡처 추가 검증 수거</title>
+  <style>
+    :root { --bg: #0f1115; --text: #e8edf2; --accent: #7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.6; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2, h3 { line-height: 1.25; margin: 0 0 12px; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 20px; color: var(--accent); margin-top: 28px; }
+    p { margin: 8px 0; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 20px 0; }
+    .card, details { border: 1px solid var(--accent); padding: 14px; border-radius: 6px; background: var(--bg); }
+    .label { color: var(--accent); font-size: 12px; }
+    .value { font-size: 17px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    a { color: var(--accent); }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .bar { width: 100%; height: 18px; border: 1px solid var(--accent); margin: 8px 0 2px; }
+    .fill { height: 100%; background: var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } h1 { font-size: 24px; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>페르소나 그래프 캡처 추가 검증 수거</h1>
+  <p>작성 시각: 2026-08-06 03:36:04 KST</p>
+  <p>이번 사이클은 Antigravity의 추가 검증 응답 한 건을 수거하고 기존 Codex 판정에 반영한 작업입니다.</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="label">대상</div><div class="value">마이그레이션 검증</div></div>
+    <div class="card"><div class="label">판정</div><div class="value">조건부 통과 유지</div></div>
+    <div class="card"><div class="label">새 위험</div><div class="value">없음</div></div>
+    <div class="card"><div class="label">후속</div><div class="value">타입 재생성</div></div>
+  </section>
+
+  <h2>결과</h2>
+  <table>
+    <thead>
+      <tr><th>항목</th><th>수거 내용</th><th>Codex 판단</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>DB replay</td>
+        <td>기존 마이그레이션의 <code>auth.uid()</code> 사용 패턴 때문에 모의 환경 통과가 가능하다는 확인</td>
+        <td>기존 조건부 통과 판단을 보강</td>
+      </tr>
+      <tr>
+        <td>정책 검증</td>
+        <td><code>do $check$</code> 블록이 정책 3개를 엄격히 검증한다는 확인</td>
+        <td>트랜잭션 롤백 안전성에 대한 반박 없음</td>
+      </tr>
+      <tr>
+        <td>FK 동등성</td>
+        <td><code>public.users</code>와 <code>auth.users</code>의 운영상 동등성 수용</td>
+        <td>운영 스키마 유지 조건과 양립</td>
+      </tr>
+      <tr>
+        <td>타입 생성</td>
+        <td><code>types.gen.ts</code>에 세 테이블 타입 누락 확인</td>
+        <td>Claude merge gate 후속 조건으로 유지</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>검증 상태</h2>
+  <div class="bar" aria-label="검증 신뢰도"><div class="fill" style="width: 80%"></div></div>
+  <p>정적 검토와 독립 검증 응답은 일치합니다. Codex 로컬 환경에는 DB replay 도구가 없었으므로 최종 병합 게이트에서 필요 시 실제 replay 로그를 보강해야 합니다.</p>
+
+  <h2>자기 패널</h2>
+  <details open>
+    <summary>자세히</summary>
+    <p>Codex 관점: UI 및 anti-slop 레인에서 새 UI 변경은 만들지 않고, 요청한 MoA 응답을 늦게 도착한 검증 신호로 수거하는 것이 이번 사이클의 단일 가치 작업입니다.</p>
+    <p>반론 검토: 추가 응답은 기존 ACCEPT와 같은 방향이며, 새 HOLD 근거를 만들지 않습니다.</p>
+    <p>게이트 전달: SQL 안전성보다 <code>types.gen.ts</code> 재생성 후속을 누락하지 않는 것이 남은 핵심입니다.</p>
+  </details>
+
+  <h2>링크</h2>
+  <ul>
+    <li><code>agents/antigravity/outbox/20260806-033403-antigravity-re-persona-graph-capture-qa.md</code></li>
+    <li><code>agents/codex/outbox/20260806-032247-codex-to-claude-persona-graph-capture-verify-accepted.md</code></li>
+  </ul>
+</main>
+</body>
+</html>

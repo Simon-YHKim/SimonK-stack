@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서: PixelIconButton Pressable 정규화</title>
+  <style>
+    :root{--bg:#0b0f14;--text:#e7edf3;--accent:#7cc7ff}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Malgun Gothic",sans-serif;line-height:1.55}
+    main{max-width:980px;margin:0 auto;padding:32px 18px 48px}
+    header{border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);padding:22px;border-radius:8px}
+    h1,h2,h3,p{margin:0} h1{font-size:24px;letter-spacing:0} h2{font-size:17px;margin-top:28px;border-bottom:1px solid color-mix(in srgb,var(--accent) 28%,transparent);padding-bottom:8px}
+    p{margin-top:10px;color:color-mix(in srgb,var(--text) 88%,var(--bg))}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:16px}
+    .card{border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);border-radius:8px;padding:14px;min-height:92px}
+    .label{font-size:12px;color:color-mix(in srgb,var(--text) 62%,var(--bg));margin-bottom:8px}
+    .value{font-size:15px;font-weight:700;word-break:break-word}
+    table{width:100%;border-collapse:collapse;margin-top:12px;border:1px solid color-mix(in srgb,var(--accent) 25%,transparent)}
+    th,td{padding:10px;border-bottom:1px solid color-mix(in srgb,var(--accent) 18%,transparent);text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent);font-family:Consolas,monospace}
+    details{margin-top:12px;border:1px solid color-mix(in srgb,var(--accent) 20%,transparent);border-radius:8px;padding:12px}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    .bar{height:10px;border:1px solid var(--accent);border-radius:999px;overflow:hidden;margin-top:8px}
+    .fill{height:100%;background:var(--accent)}
+    @media(max-width:760px){.grid{grid-template-columns:1fr 1fr} h1{font-size:21px}}
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>PixelIconButton Pressable 정규화 사이클 보고서</h1>
+      <p>작성 시각: 2026-07-30 14:07:52 KST</p>
+      <p>이번 사이클은 2nd-B의 공유 아이콘 버튼에서 시각 레이어와 터치 레이어를 분리한 단일 UI 안전 작업이다.</p>
+      <div class="grid">
+        <section class="card"><div class="label">작업 상태</div><div class="value">완료</div></section>
+        <section class="card"><div class="label">변경 파일</div><div class="value">1개</div></section>
+        <section class="card"><div class="label">2nd-B 커밋</div><div class="value"><code>3f4c043b</code></div></section>
+        <section class="card"><div class="label">푸시</div><div class="value">수행 안 함</div></section>
+      </div>
+    </header>
+
+    <h2>변경 요약</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>대상</td><td><code>src/components/premium/surfaces.tsx</code>의 <code>PixelIconButton</code></td><td>시각 wrapper 분리</td></tr>
+        <tr><td>이전 구조</td><td><code>Pressable</code>이 테두리, 배경, 그림자, 터치 처리를 함께 소유</td><td>Fabric 계열 터치 표면 규율과 불일치</td></tr>
+        <tr><td>새 구조</td><td>바깥 <code>View</code>가 비주얼을 담당하고 안쪽 <code>Pressable</code>은 절대 채움 hit layer로 동작</td><td>터치와 비주얼 책임 분리</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자세히</summary>
+      <p><code>PremiumButton</code>도 후보였지만 caller <code>style</code> 계약이 레이아웃과 비주얼을 함께 담고 있어 단일 사이클에서 변환하면 회귀 위험이 컸다. 그래서 안전하게 검증 가능한 공유 아이콘 버튼 하나로 범위를 제한했다.</p>
+    </details>
+
+    <h2>검증 상태</h2>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th><th>메모</th></tr></thead>
+      <tbody>
+        <tr><td><code>npx prettier --check</code></td><td>통과</td><td>대상 파일 기준</td></tr>
+        <tr><td><code>npx eslint</code></td><td>통과</td><td>대상 파일 기준</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td><td>공백 오류 없음</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td><td>금지 어휘 없음</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td><td>긴 대시 없음</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>실패</td><td>기존 의존 타입 해석 오류: <code>madge</code>, 광고 모듈, Firebase Analytics</td></tr>
+      </tbody>
+    </table>
+    <div class="bar" aria-label="검증 통과율"><div class="fill" style="width:83%"></div></div>
+
+    <h2>위험과 남은 작업</h2>
+    <table>
+      <thead><tr><th>구분</th><th>평가</th><th>대응</th></tr></thead>
+      <tbody>
+        <tr><td>영향 범위</td><td>공유 아이콘 버튼 호출부</td><td>외부 API 변경 없음</td></tr>
+        <tr><td>잔여 위험</td><td>전체 type-check 미완료</td><td>기존 dependency type 문제 해소 후 재검증 필요</td></tr>
+        <tr><td>롤백</td><td>2nd-B 커밋 <code>3f4c043b</code> revert</td><td>Claude merge gate에서 판단</td></tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>

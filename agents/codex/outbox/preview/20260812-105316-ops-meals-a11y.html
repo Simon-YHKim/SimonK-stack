@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>식단 계획 접근성 보강 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101316; --text:#eef3f5; --muted:#9aa6ad; --accent:#7cc7d9; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 48px; }
+    h1,h2,h3,p { margin-top:0; }
+    h1 { font-size:28px; line-height:1.2; margin-bottom:10px; }
+    h2 { font-size:18px; margin:0 0 12px; color:var(--accent); }
+    p,li,td,th { font-size:14px; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:20px 0 24px; }
+    .card,details,table { border:1px solid rgba(124,199,217,.28); background:rgba(255,255,255,.03); border-radius:8px; }
+    .card { padding:14px; min-height:104px; }
+    .card strong { display:block; margin-bottom:6px; color:var(--accent); }
+    details { padding:12px 14px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:650; }
+    table { width:100%; border-collapse:collapse; overflow:hidden; margin:12px 0 18px; }
+    th,td { padding:10px 12px; border-bottom:1px solid rgba(124,199,217,.18); text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:650; }
+    code { color:var(--text); background:rgba(255,255,255,.08); padding:1px 4px; border-radius:4px; }
+    .bar { display:flex; gap:8px; flex-wrap:wrap; margin:18px 0; }
+    button { border:1px solid var(--accent); background:transparent; color:var(--text); border-radius:6px; padding:8px 10px; cursor:pointer; }
+    button[aria-pressed="true"] { background:var(--accent); color:var(--bg); }
+    .expert { display:none; }
+    body.mode-expert .easy { display:none; }
+    body.mode-expert .expert { display:block; }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body class="mode-easy">
+<main>
+  <h1>식단 계획 접근성 보강 보고</h1>
+  <p class="muted">기록 시각: 2026-08-12 10:53:16 KST · 작업자: codex · 프로젝트: 2nd-B</p>
+
+  <div class="bar" aria-label="표시 전환">
+    <button type="button" data-mode="easy" aria-pressed="true">쉬운 설명</button>
+    <button type="button" data-mode="expert" aria-pressed="false">전문가 설명</button>
+  </div>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><strong>결과</strong><span class="easy">식단표의 칸과 추천 음식 버튼을 스크린리더가 알아듣기 쉽게 고쳤습니다.</span><span class="expert">`MealsScreen`의 식단 칸, 추천 음식 칩, 저장 액션에 명시적 역할과 음성 라벨을 추가했습니다.</span></div>
+    <div class="card"><strong>검증</strong><span class="easy">대상 테스트와 주요 정적 검사를 통과했습니다.</span><span class="expert">Jest, ESLint, TypeScript, i18n, lexicon, constraints, safety-consent locale, emdash, diff-check를 통과했습니다.</span></div>
+    <div class="card"><strong>위험</strong><span class="easy">화면 기능은 바꾸지 않았습니다. 파일 포맷 정리 때문에 diff가 실제 수정량보다 큽니다.</span><span class="expert">의미 변경은 접근성 메타데이터와 source-scan 테스트입니다. Prettier가 기존 한 줄 JSX를 재정렬해 `screens.tsx` diff churn이 있습니다.</span></div>
+    <div class="card"><strong>제출</strong><span class="easy">2nd-B에는 로컬 커밋만 만들었고 push하지 않았습니다.</span><span class="expert">브랜치 `codex/qa-cycle-20260812-1049`, 커밋 `a88210b1`입니다.</span></div>
+  </section>
+
+  <details open>
+    <summary>변경 요약</summary>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th><th>목적</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/screens/deepspace/ops/screens.tsx</code></td><td>식단 칸, 추천 음식 칩, 저장 버튼에 역할과 라벨 추가</td><td>음성 탐색에서 날짜, 식사 시간, 현재 값, 선택 동작을 알 수 있게 함</td></tr>
+        <tr><td><code>src/screens/deepspace/ops/__tests__/ops-meals-a11y.test.ts</code></td><td>source-scan 회귀 테스트 추가</td><td>접근성 라벨 wiring이 빠지는 회귀 방지</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <details>
+    <summary>검증 결과</summary>
+    <table>
+      <thead><tr><th>검사</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>npm test -- --runTestsByPath src/screens/deepspace/ops/__tests__/ops-meals-a11y.test.ts --ci</code></td><td>통과, 2개 테스트</td></tr>
+        <tr><td><code>npx eslint src/screens/deepspace/ops/screens.tsx src/screens/deepspace/ops/__tests__/ops-meals-a11y.test.ts</code></td><td>통과, 기존 경고 3개</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n-untranslated</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:constraints</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:safety-consent-locale</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+        <tr><td>변경분 secret 패턴 검색</td><td>매치 없음</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <details>
+    <summary>자체 패널</summary>
+    <table>
+      <thead><tr><th>관점</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>사용자 가치</td><td>식단 계획을 음성으로 조작하는 사용자가 현재 칸과 동작을 구분할 수 있습니다.</td></tr>
+        <tr><td>기술 위험</td><td>비즈니스 로직은 유지했습니다. diff churn은 Claude 병합 검토 때 주의가 필요합니다.</td></tr>
+        <tr><td>안전 범위</td><td>로컬 브랜치 커밋만 생성했고 push, 비용, 파괴, secret 작업은 하지 않았습니다.</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <details>
+    <summary>남은 작업</summary>
+    <p>Claude가 병합 게이트에서 포맷 변경량을 감안해 의미 변경 부분을 확인하면 됩니다. 고위험 변경은 아니므로 별도 MoA 검증 요청은 만들지 않았습니다.</p>
+  </details>
+</main>
+<script>
+  document.querySelectorAll("button[data-mode]").forEach((b)=>b.addEventListener("click",()=>{
+    document.body.className="mode-"+b.dataset.mode;
+    document.querySelectorAll("button[data-mode]").forEach((x)=>x.setAttribute("aria-pressed",String(x===b)));
+  }));
+</script>
+</body>
+</html>

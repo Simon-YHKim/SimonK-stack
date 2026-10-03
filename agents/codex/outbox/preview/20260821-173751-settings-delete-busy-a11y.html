@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>설정 데이터 삭제 진행 상태 접근성 보고</title>
+  <style>
+    :root { --bg:#101214; --text:#e8edf0; --accent:#77d4c8; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Malgun Gothic", sans-serif; line-height:1.55; }
+    main { max-width:960px; margin:0 auto; padding:32px 20px 48px; }
+    h1, h2, h3 { margin:0 0 12px; line-height:1.2; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; margin-top:28px; color:var(--accent); }
+    h3 { font-size:15px; margin-top:16px; }
+    p { margin:0 0 12px; }
+    code { color:var(--accent); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:18px 0; }
+    .card { border:1px solid var(--accent); padding:14px; }
+    .label { color:var(--accent); font-size:12px; margin-bottom:6px; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { border:1px solid var(--accent); padding:9px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    details { border:1px solid var(--accent); padding:12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    ul { margin:8px 0 0 18px; padding:0; }
+    .bar { display:flex; height:20px; border:1px solid var(--accent); margin-top:8px; }
+    .bar span { background:var(--accent); display:block; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>설정 데이터 삭제 진행 상태 접근성 보고</h1>
+  <p>작성 시각: 2026-08-21 17:37:51 KST</p>
+  <p>이번 사이클은 codex 레인의 단일 신규 작업으로, 설정 화면의 데이터 삭제 버튼들이 실행 중인 항목을 보조기술에 더 정확히 알리도록 고쳤다.</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="label">결과</div><strong>완료</strong><p>2nd-B 로컬 커밋 생성, push 없음</p></div>
+    <div class="card"><div class="label">범위</div><strong>작음</strong><p>앱 파일 1개와 정적 테스트 1개</p></div>
+    <div class="card"><div class="label">위험</div><strong>낮음</strong><p>삭제 로직은 바꾸지 않고 진행 표시만 연결</p></div>
+    <div class="card"><div class="label">검증</div><strong>통과</strong><p>대상 테스트와 핵심 정적 게이트 통과</p></div>
+  </section>
+
+  <h2>변경 내용</h2>
+  <table>
+    <thead><tr><th>파일</th><th>내용</th><th>이유</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>src/app/settings.tsx</code></td>
+        <td>데이터 삭제 위저드의 각 실행 버튼에 자기 항목별 <code>loading</code> 상태를 연결했다.</td>
+        <td>실행 중인 버튼이 시각적으로도, 접근성 상태로도 바쁨을 드러내게 하기 위해서다.</td>
+      </tr>
+      <tr>
+        <td><code>src/app/__tests__/settings-data-delete-busy-a11y.test.ts</code></td>
+        <td><code>setBusy</code> 키와 버튼 <code>loading</code> 키가 맞는지 고정했다.</td>
+        <td>다음 수정에서 같은 연결이 빠지는 회귀를 막기 위해서다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>진행 상태 연결</h2>
+  <p>기존에는 전체 비활성화만 보였고, 개별 실행 버튼의 바쁨 상태는 일부 항목에서 전달되지 않았다. 이제 아래 항목들이 자기 실행 키와 연결된다.</p>
+  <div class="bar" aria-label="연결 완료 비율"><span style="width:100%"></span></div>
+  <p>연결 완료: 9개 중 9개</p>
+  <details>
+    <summary>대상 항목 자세히</summary>
+    <ul>
+      <li>저널 삭제: <code>journal</code></li>
+      <li>노트 삭제: <code>note</code></li>
+      <li>감사 응답 삭제: <code>audit</code></li>
+      <li>Big Five 삭제: <code>bfi</code></li>
+      <li>ECR 삭제: <code>ecr</code></li>
+      <li>MBTI 삭제: <code>mbti</code></li>
+      <li>위키 페이지 삭제: <code>wikiPages</code></li>
+      <li>미반영 소스 삭제: <code>sources</code></li>
+      <li>일일 사용량 초기화: <code>chat</code></li>
+    </ul>
+  </details>
+
+  <h2>검증</h2>
+  <table>
+    <thead><tr><th>검증</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td>대상 Jest</td><td>통과, 2개 테스트</td></tr>
+      <tr><td>새 테스트 Prettier</td><td>통과</td></tr>
+      <tr><td>대상 ESLint</td><td>통과</td></tr>
+      <tr><td>TypeScript</td><td>통과</td></tr>
+      <tr><td>i18n, 미번역, 금지어, 제약, 대시, LLM 경계</td><td>통과</td></tr>
+      <tr><td>픽셀 규칙, 반의인화, 마스코트 보이스, 자산 확장자, require cycle</td><td>통과</td></tr>
+      <tr><td>diff whitespace</td><td>통과</td></tr>
+      <tr><td>변경 diff 민감값 패턴 스캔</td><td>새 탐지 없음</td></tr>
+    </tbody>
+  </table>
+  <details>
+    <summary>검증 제한 자세히</summary>
+    <p><code>src/app/settings.tsx</code> 전체 Prettier 검사는 기존 파일 단위 형식 drift 때문에 실패한다. 이번 사이클에서는 관련 없는 대량 포맷 변경을 피했고, 새 테스트 파일만 Prettier로 정리했다.</p>
+  </details>
+
+  <h2>자기 패널 점검</h2>
+  <table>
+    <thead><tr><th>관점</th><th>판정</th></tr></thead>
+    <tbody>
+      <tr><td>가치</td><td>사용자가 위험한 데이터 삭제 작업을 실행할 때 현재 진행 중인 항목을 더 명확히 알 수 있다.</td></tr>
+      <tr><td>반론</td><td>전체 비활성화 배너가 이미 있어서 체감 차이는 작을 수 있다.</td></tr>
+      <tr><td>대안</td><td>런타임 UI 테스트를 붙일 수 있지만 이번 변경은 정적 계약으로 충분히 고정된다.</td></tr>
+      <tr><td>결론</td><td>작은 접근성 보강으로 유지 비용 대비 이득이 크다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>제출 정보</h2>
+  <table>
+    <tbody>
+      <tr><th>worktree</th><td><code>C:\2ndB\.worktrees\codex-qa-20260821-173349-busy-a11y</code></td></tr>
+      <tr><th>브랜치</th><td><code>codex/qa-cycle-20260821-173349-busy-a11y</code></td></tr>
+      <tr><th>로컬 커밋</th><td><code>5f70c93cbc10c2ef60a107e41ca42af581d5e3d0</code></td></tr>
+      <tr><th>push</th><td>하지 않음</td></tr>
+      <tr><th>롤백</th><td>Claude가 머지하지 않거나 해당 커밋을 제외하면 된다.</td></tr>
+    </tbody>
+  </table>
+</main>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>컨텍스트 필 접근성 라벨 보고서</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e8eef2; --accent:#7aa2ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    header, section { border: 1px solid var(--accent); padding: 20px; margin: 0 0 18px; }
+    h1, h2 { margin: 0 0 12px; color: var(--text); }
+    h1 { font-size: 26px; }
+    h2 { font-size: 18px; }
+    p { margin: 0 0 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    .muted { opacity: .72; }
+    .ok { color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>컨텍스트 필 접근성 라벨 보고서</h1>
+      <p>작성 시각: 2026-08-13 19:22:43 KST</p>
+      <p>이번 사이클은 열린 codex 주문이 없어, 2nd-B UI 접근성 레인에서 새 결함 하나를 처리했다.</p>
+    </header>
+
+    <section>
+      <h2>결과</h2>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>작업 브랜치</td><td><code>codex/qa-cycle-20260813-191504</code></td></tr>
+        <tr><td>작업 위치</td><td><code>C:\2ndB\.worktrees\codex-qa-20260813-191504</code></td></tr>
+        <tr><td>기준</td><td><code>origin/main 5ba0cdd905ec3e9e2d5aac0fceb17830c556ab09</code></td></tr>
+        <tr><td>앱 커밋</td><td><code>12b80762</code></td></tr>
+        <tr><td>푸시</td><td>하지 않음. Claude가 merge gate다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>수정 내용</h2>
+      <p><code>ContextPill</code> 본문을 명시적인 접근성 노드로 만들고, 닫기 버튼의 스크린리더 라벨에 대상 맥락 이름을 포함했다.</p>
+      <p>기존 하드코딩 한국어 접근성 문구는 <code>common</code> locale key로 옮겼고, 5개 locale에 같은 key를 추가했다.</p>
+      <p>소스 스캔 회귀 테스트를 추가해 본문 라벨, 닫기 라벨, locale key 보존을 확인한다.</p>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <tr><th>검증</th><th>상태</th></tr>
+        <tr><td><code>npx jest src/lib/__tests__/context-pill-a11y.test.ts --runInBand</code></td><td class="ok">통과</td></tr>
+        <tr><td><code>npx prettier --check</code> 변경 파일</td><td class="ok">통과</td></tr>
+        <tr><td><code>npx eslint</code> 변경 파일</td><td class="ok">통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td class="ok">통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td class="ok">통과</td></tr>
+        <tr><td><code>npm run check:i18n-untranslated</code></td><td class="ok">통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td class="ok">통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td class="ok">통과</td></tr>
+        <tr><td><code>npm run check:constraints</code></td><td><code>PremiumA11yLocaleCopy</code>는 통과. 별도 기존 항목 <code>ArtA11ySemantics</code>는 실패 상태로 남음.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>위험과 다음 처리</h2>
+      <p>변경 범위는 공유 premium graph 컴포넌트의 접근성 라벨과 locale key에 한정된다.</p>
+      <p class="muted">남은 기존 실패 <code>ArtA11ySemantics</code>는 이번 단일 작업 범위 밖이므로 별도 사이클에서 다루는 것이 맞다.</p>
+    </section>
+  </main>
+</body>
+</html>

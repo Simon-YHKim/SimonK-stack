@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>가격 미러 검수 보고서</title>
+  <style>
+    :root{--bg:#0b0f14;--text:#e8eef5;--accent:#7fb6ff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Malgun Gothic",sans-serif;line-height:1.55}
+    main{max-width:980px;margin:0 auto;padding:32px 18px 44px}
+    header{border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);border-radius:8px;padding:22px;margin-bottom:18px}
+    h1{font-size:28px;margin:0 0 8px}
+    h2{font-size:18px;margin:0 0 12px}
+    p{margin:0 0 10px}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+    .card,details{border:1px solid color-mix(in srgb,var(--text) 18%,transparent);border-radius:8px;padding:14px;background:color-mix(in srgb,var(--text) 4%,transparent)}
+    .label{font-size:12px;color:color-mix(in srgb,var(--text) 70%,transparent)}
+    .value{font-size:20px;font-weight:700}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border-bottom:1px solid color-mix(in srgb,var(--text) 16%,transparent);padding:9px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent);word-break:break-word}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    .bar{height:10px;border:1px solid var(--accent);border-radius:999px;overflow:hidden;margin-top:8px}
+    .bar span{display:block;height:100%;width:92%;background:var(--accent)}
+    @media(max-width:760px){.grid{grid-template-columns:1fr 1fr}main{padding:20px 12px}.value{font-size:18px}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>가격 미러 검수 보고서</h1>
+    <p>생성 시각: 2026-07-31 02:47:03 KST</p>
+    <p>대상 브랜치 <code>origin/fix/s7-canon-price-mirror</code>의 가격 표기 미러 변경을 codex 레인에서 검수했다.</p>
+  </header>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="label">판정</div><div class="value">머지 가능</div></div>
+    <div class="card"><div class="label">변경 범위</div><div class="value">2파일</div></div>
+    <div class="card"><div class="label">변경 줄</div><div class="value">4곳</div></div>
+    <div class="card"><div class="label">푸시</div><div class="value">없음</div></div>
+  </section>
+
+  <details open>
+    <summary>결론 자세히</summary>
+    <p>후보 브랜치는 두 개의 <code>star-lenses.json</code> 미러에서 항해자 가격을 <code>₩9,900/월</code>, 북극성 가격을 <code>₩19,900/월</code>로 맞춘다. 저장소 안의 법무 문서, 권한 맵 주석, S4 핸드오프 문서가 같은 가격을 canon으로 반복하고 있어 codex 관점에서는 머지 가능하다.</p>
+    <p>다만 가격 자체는 수익화 정책과 연결된다. 이번 판정은 새 가격 결정을 승인한 것이 아니라, 이미 저장소에 존재하는 canon과 두 JSON 미러를 일치시키는 변경이라는 범위에 한정된다.</p>
+  </details>
+
+  <details>
+    <summary>변경 파일 자세히</summary>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th><th>의미</th></tr></thead>
+      <tbody>
+        <tr><td><code>design/proto_rev2/reference-app/data/screens/star-lenses.json</code></td><td>2줄 삭제, 2줄 추가</td><td>디자인 참조 앱 미러 가격 정렬</td></tr>
+        <tr><td><code>public/proto/data/screens/star-lenses.json</code></td><td>2줄 삭제, 2줄 추가</td><td>공개 프로토 데이터 미러 가격 정렬</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <details>
+    <summary>검증 자세히</summary>
+    <table>
+      <thead><tr><th>검증 항목</th><th>결과</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>JSON 파싱</td><td>통과</td><td>두 파일 모두 <code>무료|₩9,900/월|₩19,900/월</code> 확인</td></tr>
+        <tr><td>구가격 잔존 스캔</td><td>통과</td><td>대상 두 파일에서 <code>₩6,900/월</code>, <code>₩12,900/월</code> 미검출</td></tr>
+        <tr><td>diff check</td><td>통과</td><td><code>git diff --check origin/main...HEAD</code> 종료 0</td></tr>
+        <tr><td>merge-tree 충돌 표식</td><td>통과</td><td>충돌 표식 없음</td></tr>
+        <tr><td>em dash 검사</td><td>통과</td><td><code>check:emdash</code> 종료 0</td></tr>
+        <tr><td>금지어 검사</td><td>통과</td><td><code>check:lexicon</code> 종료 0</td></tr>
+        <tr><td>관련 Jest</td><td>환경 실패</td><td>새 QA worktree에 <code>ts-jest</code>가 없어 실행 불가</td></tr>
+        <tr><td>Prettier</td><td>주의</td><td>두 JSON 파일 경고. 실제 diff는 가격 문자열 4곳뿐이라 포맷 변경은 없음</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <details>
+    <summary>자가 패널 자세히</summary>
+    <table>
+      <thead><tr><th>관점</th><th>판단</th></tr></thead>
+      <tbody>
+        <tr><td>찬성</td><td>법무 문서와 권한 맵이 이미 <code>₩9,900/월</code>, <code>₩19,900/월</code>을 canon으로 사용하므로 미러 표류를 줄인다.</td></tr>
+        <tr><td>회의</td><td>가격 표기는 수익화 게이트와 연결되므로, 새 가격 정책 승인처럼 해석되면 안 된다.</td></tr>
+        <tr><td>판정</td><td>변경은 canon 동기화에 한정되고 런타임 코드 수정이 없어 codex 레인에서는 머지 가능이다. 최종 머지는 Claude 게이트가 맡는다.</td></tr>
+      </tbody>
+    </table>
+    <div class="bar" aria-label="검증 신뢰도"><span></span></div>
+  </details>
+</main>
+</body>
+</html>

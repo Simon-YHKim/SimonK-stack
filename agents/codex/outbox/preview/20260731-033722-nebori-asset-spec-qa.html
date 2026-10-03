@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>네보리 에셋 명세 병합 준비 검토</title>
+  <style>
+    :root { --bg:#070a18; --text:#e8f7ff; --accent:#46b6ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Malgun Gothic", sans-serif; line-height:1.62; }
+    main { width:min(1040px, calc(100% - 32px)); margin:0 auto; padding:42px 0 56px; }
+    header { border:1px solid var(--accent); padding:24px; margin-bottom:18px; }
+    h1 { margin:0 0 12px; font-size:clamp(1.8rem, 4vw, 3.1rem); line-height:1.12; }
+    h2 { margin:0 0 10px; font-size:1.25rem; }
+    p { margin:0 0 10px; }
+    code { color:var(--accent); }
+    .grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin:16px 0 20px; }
+    .card, section { border:1px solid var(--accent); padding:16px; }
+    .label { display:block; color:var(--accent); font-weight:700; margin-bottom:6px; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); }
+    details { border:1px solid var(--accent); padding:12px; margin-top:12px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    ul { margin:8px 0 0; padding-left:20px; }
+    li { margin:4px 0; }
+    svg { width:100%; height:auto; margin-top:12px; border:1px solid var(--accent); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } }
+    @media (max-width:520px) { .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>네보리 에셋 명세 병합 준비 검토</h1>
+      <p>기준 시각: 2026-07-31 03:37:22 KST</p>
+      <p>검토 대상: <code>origin/codex/nebori-asset-spec</code>의 새 문서, 샘플 이미지, Pixy 명세 파일</p>
+    </header>
+
+    <div class="grid">
+      <div class="card"><span class="label">결론</span>조건부 보류</div>
+      <div class="card"><span class="label">변경 범위</span>파일 5개 추가</div>
+      <div class="card"><span class="label">앱 코드 변경</span>없음</div>
+      <div class="card"><span class="label">원격 반영</span>하지 않음</div>
+    </div>
+
+    <section>
+      <h2>요약</h2>
+      <p>후보 브랜치는 네보리 픽셀 캐릭터 명세, 자체완결 문서, 두 개의 작은 샘플 이미지를 추가한다. 병합 충돌, 줄끝 공백, 외부 네트워크 의존은 발견하지 못했다.</p>
+      <p>다만 Pixy 명세의 색상 키에 대소문자만 다른 <code>V</code>와 <code>v</code>가 함께 있어 PowerShell 기본 JSON 파서가 같은 키로 취급하며 실패했다. 일반 JSON 파서와 <code>-AsHashtable</code> 검증은 통과하지만, 자동화 소비자가 Windows PowerShell 기본 파서를 쓰면 깨질 수 있어 병합 전 확인이 필요하다.</p>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><td>변경 파일</td><td>통과</td><td>문서 2개, Pixy JSON 1개, PNG 샘플 2개 추가</td></tr>
+          <tr><td>병합 충돌 표식</td><td>통과</td><td><code>git merge-tree</code> 표식 스캔에서 충돌 표식 없음</td></tr>
+          <tr><td>diff 위생</td><td>통과</td><td><code>git diff --check</code> 통과</td></tr>
+          <tr><td>문구 가드</td><td>통과</td><td><code>npm run check:emdash</code>, <code>npm run check:lexicon</code> 통과</td></tr>
+          <tr><td>JSON 구조</td><td>주의</td><td><code>ConvertFrom-Json -AsHashtable</code> 통과, 기본 <code>ConvertFrom-Json</code>은 <code>V</code>/<code>v</code> 키 충돌로 실패</td></tr>
+          <tr><td>PNG 기본 구조</td><td>통과</td><td>두 샘플 모두 PNG 서명 정상, 192 x 192</td></tr>
+          <tr><td>외부 의존</td><td>통과</td><td>HTML에서 실행형 외부 링크, 스크립트 원격 호출, 원격 스타일시트 없음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>변경량</h2>
+      <svg viewBox="0 0 640 150" role="img" aria-label="변경 파일별 추가 줄 수와 바이너리 파일 수">
+        <rect x="0" y="0" width="640" height="150" fill="#070a18"></rect>
+        <text x="18" y="28" fill="#e8f7ff" font-size="16">문서 명세 643줄</text>
+        <rect x="18" y="40" width="386" height="18" fill="#46b6ff"></rect>
+        <text x="18" y="82" fill="#e8f7ff" font-size="16">완료 보고 194줄</text>
+        <rect x="18" y="94" width="116" height="18" fill="#46b6ff"></rect>
+        <text x="18" y="136" fill="#e8f7ff" font-size="16">Pixy JSON 98줄, PNG 2개</text>
+      </svg>
+    </section>
+
+    <section>
+      <h2>세부 판단</h2>
+      <details>
+        <summary>보류 사유</summary>
+        <p>명세 파일이 사람이 읽기에는 명확하지만, 색상 팔레트 키가 대소문자 차이에 의미를 둔다. 일부 도구는 이를 별도 키로 처리하지만 PowerShell 기본 파서는 같은 키로 취급한다. 이후 생성 파이프라인이나 검증 스크립트가 같은 파서를 쓰면 실패할 수 있다.</p>
+      </details>
+      <details>
+        <summary>권장 조치</summary>
+        <ul>
+          <li>Claude가 Pixy 소비 경로가 대소문자 구분 키를 지원하는지 확인한다.</li>
+          <li>자동화 소비자가 불명확하면 키를 <code>V_dark</code>, <code>v_mid</code>처럼 충돌 없는 이름으로 바꾸는 편이 안전하다.</li>
+          <li>이 브랜치를 병합한다면 앱 코드 변경은 없으므로 일반 런타임 회귀 위험은 낮다.</li>
+        </ul>
+      </details>
+    </section>
+
+    <section>
+      <h2>산출물</h2>
+      <p>허브 응답 파일: <code>agents/codex/outbox/20260731-033722-codex-to-claude-nebori-asset-spec-qa.md</code></p>
+      <p>교차검증 요청: <code>agents/codex/outbox/20260731-033723-codex-to-claude-verify-nebori-asset-spec-qa.md</code></p>
+      <p>이 보고서: <code>agents/codex/outbox/preview/20260731-033722-nebori-asset-spec-qa.html</code></p>
+    </section>
+  </main>
+</body>
+</html>

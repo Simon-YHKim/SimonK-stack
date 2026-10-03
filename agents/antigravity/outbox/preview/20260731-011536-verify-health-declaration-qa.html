@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>건강 선언 QA 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 20px; line-height: 1.6; }
+  h1, h2 { color: #bb86fc; }
+  table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+  th, td { border: 1px solid #e0e0e0; padding: 8px; text-align: left; }
+  th { background-color: #333333; }
+  .btn { display: inline-block; padding: 10px 15px; background-color: #bb86fc; color: #121212; text-decoration: none; border-radius: 4px; font-weight: bold; }
+</style>
+</head>
+<body>
+  <h1>건강 선언 QA 검증 보고서</h1>
+  <p>대상 브랜치: origin/claude/s3-health-declaration-facts</p>
+  
+  <h2>검증 결과</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>결과 및 상세</th>
+    </tr>
+    <tr>
+      <td>1. R1 문서 삭제 수</td>
+      <td>거짓 (Codex의 3개 삭제 판정 오류). 실제로는 4개의 Markdown 파일(T-R1-S1-S7-05.md, T-R1-S1-S7-06.md, T-R1-S7-S4-07.md, T-R1-S7-S6-08.md)과 1개의 HTML 파일이 삭제되었습니다.</td>
+    </tr>
+    <tr>
+      <td>2. 핵심 건강 사실 일치 여부</td>
+      <td>확인됨. T-R1-S3-S1-02.md 문서의 심박수 표시(DomainStarLens) 및 Health Connect 4종 권한(걸음, 운동, 수면, 심박수) 설명은 소스의 설계와 일치합니다.</td>
+    </tr>
+    <tr>
+      <td>3. HOLD 결론 타당성</td>
+      <td>타당함. 해당 브랜치에는 본 목적과 무관한 다수의 R1 티켓/문서 삭제가 포함되어 있어, 불필요한 삭제 내역(diff)을 제거하기 전까지 병합을 보류(HOLD)하는 것이 안전합니다.</td>
+    </tr>
+  </table>
+
+  <h2>액션</h2>
+  <p><a href="#" class="btn">상세 로그 확인</a></p>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>결제 조정 상태 검증 보고</title>
+  <style>
+    :root { --bg:#101214; --text:#e7e9ec; --muted:#9aa3ad; --accent:#7cc7ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.6 system-ui, -apple-system, Segoe UI, sans-serif; }
+    main { max-width:1040px; margin:0 auto; padding:32px 20px 48px; }
+    h1, h2 { margin:0 0 12px; line-height:1.25; letter-spacing:0; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; color:var(--accent); margin-top:28px; }
+    p { margin:0 0 12px; }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px; margin:22px 0; }
+    .card, details { border:1px solid #2c333a; background:#171a1d; border-radius:6px; padding:14px; }
+    .label { display:block; color:var(--muted); font-size:12px; margin-bottom:6px; }
+    .value { font-size:18px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin:14px 0; }
+    th, td { border-bottom:1px solid #2c333a; text-align:left; padding:10px 8px; vertical-align:top; }
+    th { color:var(--muted); font-weight:600; }
+    code { color:var(--accent); word-break:break-all; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .status { color:var(--accent); font-weight:700; }
+    .muted { color:var(--muted); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>결제 조정 상태 검증 보고</h1>
+  <p class="muted">작성 시각: 2026-08-11 21:25:59 KST</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><span class="label">대상</span><div class="value">0123 결제 조정</div></div>
+    <div class="card"><span class="label">판정</span><div class="value status">보류</div></div>
+    <div class="card"><span class="label">주요 사유</span><div class="value">최신 main 충돌</div></div>
+    <div class="card"><span class="label">추가 검증</span><div class="value">요청 완료</div></div>
+  </section>
+
+  <h2>결론</h2>
+  <p>후보 브랜치 <code>origin/Simon-YHKim/260811_adjustment-미지의-상태</code>는 자체 테스트와 정적 가드는 통과했지만, 최신 <code>origin/main</code> 위로 병합할 때 <code>billing-self-service-migration.test.ts</code>에서 충돌합니다. 따라서 지금 상태로는 머지 가능 판정이 아니라 <span class="status">HOLD, rebase 필요</span>입니다.</p>
+
+  <h2>검증 표</h2>
+  <table>
+    <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>단일 커밋 cherry-pick</td><td>실패</td><td><code>src/lib/billing/__tests__/billing-self-service-migration.test.ts</code> 충돌</td></tr>
+      <tr><td>전체 브랜치 merge</td><td>실패</td><td>같은 테스트 파일에서 0124 결정기록 블록과 충돌</td></tr>
+      <tr><td>후보 브랜치 표적 테스트</td><td>통과</td><td>2개 suite, 80개 test 통과</td></tr>
+      <tr><td>definer grants</td><td>통과</td><td>125개 migration 검사 통과</td></tr>
+      <tr><td>constraints</td><td>통과</td><td>프로젝트 제약 검사 통과</td></tr>
+      <tr><td>type-check</td><td>통과</td><td><code>tsc --noEmit</code> 통과</td></tr>
+      <tr><td>lexicon, em dash</td><td>통과</td><td>금지어와 locale em dash 검사 통과</td></tr>
+      <tr><td>시크릿 패턴</td><td>주의 없음</td><td>실제 비밀값 없이 환경변수명과 테스트 placeholder만 확인</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>충돌 내용 자세히</summary>
+    <p>충돌 지점은 migration 테스트 파일의 끝부분입니다. 최신 <code>origin/main</code>에는 0124 환불 규칙 결정기록 테스트가 추가되어 있고, 후보 브랜치에는 0123 미처리 결제 이벤트 기록 테스트가 같은 위치에 붙습니다. 의미상 둘 다 보존해야 하는 충돌로 보입니다.</p>
+  </details>
+
+  <details>
+    <summary>기능 위험 자세히</summary>
+    <p>후보의 방향은 타당합니다. 알 수 없는 Paddle adjustment 상태를 400으로 버리면 Paddle 재시도 후 실패 처리되고, 앱 내부에는 이벤트와 ledger 흔적이 남지 않습니다. 후보는 이를 200으로 기록하되 entitlement와 revenue는 건드리지 않도록 분리합니다. 단, raw payload 저장과 DB function 추가가 있으므로 독립 교차검증이 필요합니다.</p>
+  </details>
+
+  <details>
+    <summary>권고 자세히</summary>
+    <p>Claude가 최신 <code>origin/main</code> 기준으로 후보를 rebase하거나 테스트 블록을 병합한 뒤 다시 검증하는 것이 필요합니다. rebase 후에는 표적 테스트, <code>check:definer-grants</code>, <code>check:constraints</code>, <code>type-check</code>, 시크릿 스캔을 재실행해야 합니다.</p>
+  </details>
+</main>
+</body>
+</html>

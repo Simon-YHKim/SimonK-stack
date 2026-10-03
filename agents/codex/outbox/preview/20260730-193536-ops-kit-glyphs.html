@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>옵스 키트 글리프 정리 보고서</title>
+  <style>
+    :root{--bg:#0f1115;--fg:#e8edf2;--muted:#9aa4af}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--fg);font-family:Arial,"Noto Sans KR",sans-serif;line-height:1.55}
+    main{max-width:980px;margin:0 auto;padding:32px 20px 48px}
+    h1,h2{margin:0 0 12px}
+    h1{font-size:28px}
+    h2{font-size:18px}
+    p{margin:0 0 12px}
+    .muted{color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:18px 0}
+    .card,details{border:1px solid var(--muted);border-radius:8px;padding:14px;background:#151820}
+    table{width:100%;border-collapse:collapse;margin:14px 0}
+    th,td{border:1px solid var(--muted);padding:10px;text-align:left;vertical-align:top}
+    th{color:var(--fg);font-weight:700}
+    code{color:var(--fg);background:#151820;padding:2px 5px;border-radius:4px}
+    summary{cursor:pointer;font-weight:700}
+    .bar{height:10px;border:1px solid var(--muted);border-radius:999px;overflow:hidden;margin-top:8px}
+    .fill{height:100%;background:var(--fg)}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>옵스 키트 글리프 정리 보고서</h1>
+    <p class="muted">작성 시각: 2026-07-30 19:35:36 KST</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><h2>결과</h2><p>2nd-B 브랜치에 로컬 커밋을 만들었습니다.</p><p><code>998403bb</code></p></div>
+      <div class="card"><h2>범위</h2><p><code>src/components/deepspace/ops/kit.tsx</code> 한 파일만 변경했습니다.</p></div>
+      <div class="card"><h2>검증</h2><p>대상 파일 검사는 통과했습니다. 전체 타입 검사는 기존 의존성 타입 문제로 실패했습니다.</p></div>
+      <div class="card"><h2>푸시</h2><p>푸시하지 않았습니다. 병합은 Claude 게이트 대상입니다.</p></div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead><tr><th>항목</th><th>이전</th><th>이후</th></tr></thead>
+        <tbody>
+          <tr><td>동의 안내</td><td>장식 자물쇠 문자</td><td><code>권한</code> 텍스트 배지</td></tr>
+          <tr><td>추천 표시</td><td>별 문자</td><td><code>추천</code> 텍스트 배지</td></tr>
+          <tr><td>상태 표시</td><td>별, 경고, 연결, 모래시계 문자</td><td><code>비어 있음</code>, <code>오류</code>, <code>연결 필요</code>, <code>제한</code> 배지</td></tr>
+          <tr><td>정리</td><td>미사용 import 남음</td><td>미사용 import 제거</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <table>
+        <thead><tr><th>검사</th><th>상태</th><th>메모</th></tr></thead>
+        <tbody>
+          <tr><td>Prettier 대상 파일</td><td>통과</td><td><code>npx prettier --check</code></td></tr>
+          <tr><td>ESLint 대상 파일</td><td>통과</td><td><code>npx eslint</code></td></tr>
+          <tr><td>글리프 잔여 스캔</td><td>통과</td><td>대상 파일에서 잔여 없음</td></tr>
+          <tr><td>em dash 검사</td><td>통과</td><td>금지 문장부호 없음</td></tr>
+          <tr><td>lexicon 검사</td><td>통과</td><td>금칙어 검사 통과</td></tr>
+          <tr><td>diff 공백 검사</td><td>통과</td><td><code>git diff --check</code></td></tr>
+          <tr><td>전체 type-check</td><td>실패</td><td>기존 <code>madge</code>, 광고, Firebase 타입 해석 오류</td></tr>
+        </tbody>
+      </table>
+      <div class="bar" aria-label="대상 파일 검증 통과율"><div class="fill" style="width:86%"></div></div>
+    </section>
+
+    <details>
+      <summary>자세히: 셀프 패널</summary>
+      <p>찬성: 의미가 없는 장식 문자를 실제로 읽을 수 있는 한국어 배지로 바꿔 접근성과 번역 안정성을 높였습니다.</p>
+      <p>반대: Prettier 적용으로 같은 파일 안의 줄바꿈 diff가 커졌습니다.</p>
+      <p>판정: 로직 변경 없이 표시 요소만 다듬는 낮은 위험의 UI 정리이며, 로컬 커밋을 Claude 병합 게이트에 넘기는 것이 적절합니다.</p>
+    </details>
+
+    <details>
+      <summary>자세히: 경로와 브랜치</summary>
+      <p>worktree: <code>C:\2ndB\.worktrees\codex-ui-cycle-20260730-193322</code></p>
+      <p>branch: <code>codex/ui-cycle-20260730-193322</code></p>
+      <p>commit: <code>998403bb</code></p>
+    </details>
+  </main>
+</body>
+</html>

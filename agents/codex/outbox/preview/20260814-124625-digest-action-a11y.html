@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>codex 자율 사이클 보고서</title>
+  <style>
+    :root { --bg: #0b0f14; --text: #e6edf3; --accent: #7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    header, section { border: 1px solid var(--accent); border-radius: 8px; padding: 20px; margin-bottom: 18px; }
+    h1, h2 { margin: 0 0 12px; color: var(--accent); }
+    p { margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); word-break: break-all; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .item { border: 1px solid var(--accent); border-radius: 8px; padding: 14px; }
+    .label { color: var(--accent); font-weight: 700; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } main { padding: 20px 12px 36px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>codex 자율 폴 사이클 보고서</h1>
+      <p>작성 시각: 2026-08-14 12:46:25 KST</p>
+      <p>이번 사이클은 열린 신규 요청이 없어 codex 레인의 단일 UI 접근성 개선을 수행했다.</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="item"><span class="label">대상</span><br>2nd-B digest 제안 확인 및 닫기 버튼</div>
+        <div class="item"><span class="label">결과</span><br>비활성 및 처리 중 상태를 보조기술에 노출</div>
+        <div class="item"><span class="label">브랜치</span><br><code>codex/qa-cycle-20260814-124243</code></div>
+        <div class="item"><span class="label">로컬 커밋</span><br><code>c2ffdef2d6d1138060c947f2477c875fd1930ce5</code></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>내용</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/app/digest.tsx</code></td>
+            <td>제안 닫기와 확인 버튼에 <code>accessibilityState={{ disabled: busy, busy }}</code>를 추가했다.</td>
+          </tr>
+          <tr>
+            <td><code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code></td>
+            <td>두 digest 액션 버튼이 처리 중 비활성 상태를 계속 노출하는지 확인하는 정적 회귀 테스트를 추가했다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr><th>검증 항목</th><th>상태</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>대상 Jest</td><td>통과, 1개 테스트 파일 9개 테스트</td></tr>
+          <tr><td>대상 Prettier</td><td>통과</td></tr>
+          <tr><td>대상 ESLint</td><td>통과</td></tr>
+          <tr><td>TypeScript</td><td>통과</td></tr>
+          <tr><td>i18n 키 및 미번역 검사</td><td>통과</td></tr>
+          <tr><td>lexicon, constraints, emdash, anti-anthro, mascot-voice</td><td>통과</td></tr>
+          <tr><td>require cycle 검사</td><td>통과</td></tr>
+          <tr><td>diff whitespace 및 민감 패턴 스캔</td><td>통과</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>제약 준수</h2>
+      <p>허브에서는 <code>agents/codex/</code> 아래만 작성했다. 2nd-B 변경은 별도 worktree와 브랜치에서만 수행했고 push하지 않았다.</p>
+      <p>파괴적 작업, 비용 발생 작업, 시크릿 접근 또는 외부 배포는 수행하지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>

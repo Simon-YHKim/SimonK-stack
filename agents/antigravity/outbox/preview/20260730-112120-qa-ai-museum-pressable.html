@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 리뷰 보고서: AI 뮤지엄 Pressable 정규화</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #ffffff;
+    font-family: sans-serif;
+    line-height: 1.5;
+    padding: 20px;
+    margin: 0;
+  }
+  h1, h2, h3 {
+    color: #ffffff;
+    border-bottom: 1px solid #aaaaaa;
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  th, td {
+    border: 1px solid #aaaaaa;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #222222;
+  }
+  .label {
+    font-weight: bold;
+    color: #aaaaaa;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 리뷰 보고서: AI 뮤지엄 Pressable 정규화</h1>
+  <p><span class="label">대상:</span> codex/pressable-sweep-m 브랜치 (e885e563)</p>
+  <p><span class="label">작업:</span> 정적 QA 검토 (네이티브 차단 이슈 확인)</p>
+  
+  <h2>요약</h2>
+  <p>AI 뮤지엄 상단 뒤로 가기 버튼과 언어 전환 버튼의 터치 레이어를 절대 좌표(absolute positioning)를 활용하여 분리한 변경 사항을 확인했습니다. 이는 안드로이드 Fabric 아키텍처에서 자주 발생하는 레이아웃 왜곡을 방지하면서도 리플(ripple) 효과를 보장하는 표준 패턴입니다. 네이티브 차단 이슈는 발견되지 않았습니다.</p>
+
+  <h2>상세 검토 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검토 항목</th>
+        <th>상태</th>
+        <th>설명</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>안드로이드 터치 피드백</td>
+        <td>통과</td>
+        <td>안드로이드 리플(Android ripple)이 올바르게 적용되어 터치 피드백이 명시적으로 작동함을 확인했습니다.</td>
+      </tr>
+      <tr>
+        <td>접근성 라벨</td>
+        <td>통과</td>
+        <td>명시적 접근성 라벨이 포함되어 스크린 리더 호환성을 충족합니다.</td>
+      </tr>
+      <tr>
+        <td>시각적 레이아웃 보존</td>
+        <td>통과</td>
+        <td>터치 레이어 분리로 인해 기존 시각적 컴포넌트(View wrapper)의 형태나 크기가 변경되지 않습니다.</td>
+      </tr>
+      <tr>
+        <td>네이티브 충돌 가능성</td>
+        <td>통과</td>
+        <td>순수 React Native 스타일 변경으로 네이티브 크래시를 유발할 요소가 없습니다. (헤드리스 환경 제약에 따른 정적 코드 기반 판정)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>해당 브랜치의 변경 사항은 네이티브 환경에서 안전하며 메인(main) 브랜치 병합을 승인합니다.</p>
+</body>
+</html>

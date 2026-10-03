@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>보안 검증 보고서</title>
+<style>
+  body { background-color: #000000; color: #ffffff; font-family: sans-serif; line-height: 1.5; padding: 2rem; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+  th, td { border: 1px solid #888888; padding: 0.5rem; text-align: left; }
+  th { background-color: #000000; color: #ffffff; }
+  button { background-color: #000000; color: #ffffff; border: 1px solid #ffffff; padding: 0.5rem 1rem; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>보안 검증 보고서</h1>
+  <p>보안 정의자(SECURITY DEFINER) 함수 권한 검증 결과입니다.</p>
+  <table>
+    <tr><th>커밋 해시</th><td>4cc9afbb</td></tr>
+    <tr><th>문제 파일</th><td>0106_award_xp_once_only_race.sql</td></tr>
+    <tr><th>판정</th><td>병합 차단 (Merge Blocker)</td></tr>
+    <tr><th>조치 방안</th><td>REVOKE EXECUTE 구문 명시적 추가 필요</td></tr>
+  </table>
+  <button>확인 완료</button>
+</body>
+</html>

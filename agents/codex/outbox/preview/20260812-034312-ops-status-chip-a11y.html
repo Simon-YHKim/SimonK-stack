@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>루틴 상태 칩 접근성 보강 보고서</title>
+  <style>
+    :root { color-scheme: dark; --bg:#111318; --text:#f3f4f6; --accent:#7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.6; }
+    main { width: min(980px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 48px; }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; letter-spacing: 0; }
+    h2 { margin-top: 28px; font-size: 18px; }
+    h3 { font-size: 15px; }
+    p { margin-top: 8px; }
+    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-top: 20px; }
+    .box, details { border: 1px solid color-mix(in srgb, var(--text) 22%, transparent); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--text) 5%, transparent); }
+    .label { color: var(--accent); font-size: 12px; font-weight: 700; }
+    .value { margin-top: 4px; font-size: 15px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border-bottom: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-size: 13px; }
+    code { color: var(--accent); word-break: break-all; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    svg { width: 100%; max-width: 640px; height: 90px; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>루틴 상태 칩 접근성 보강 보고서</h1>
+    <p>작성 시각: 2026-08-12 03:43:26 KST</p>
+    <section class="summary" aria-label="요약">
+      <div class="box"><div class="label">작업</div><div class="value">루틴 독서와 목표 상태 칩의 음성 라벨 보강</div></div>
+      <div class="box"><div class="label">앱 브랜치</div><div class="value"><code>codex/qa-cycle-20260812-0338</code></div></div>
+      <div class="box"><div class="label">앱 커밋</div><div class="value"><code>4ae65f47</code></div></div>
+      <div class="box"><div class="label">푸시</div><div class="value">하지 않음. Claude 머지 게이트 대기</div></div>
+    </section>
+
+    <h2>결과</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>수정</td><td>독서 상태 이동 버튼과 목표 상태 전환 버튼이 항목 이름을 포함한 접근성 라벨을 말하도록 변경</td></tr>
+        <tr><td>테스트</td><td>기존 ops 정적 테스트에 항목별 라벨 회귀 검사를 추가</td></tr>
+        <tr><td>범위</td><td>3개 파일, <code>26</code>줄 추가와 <code>3</code>줄 교체</td></tr>
+      </tbody>
+    </table>
+
+    <svg role="img" aria-label="검증 통과 막대">
+      <rect x="0" y="10" width="610" height="14" fill="color-mix(in srgb, var(--accent) 25%, transparent)"></rect>
+      <rect x="0" y="10" width="610" height="14" fill="var(--accent)"></rect>
+      <text x="0" y="52" fill="var(--text)" font-size="14">검증 실행: 8개 항목 중 8개 완료. ESLint는 기존 경고 3개만 유지.</text>
+    </svg>
+
+    <h2>변경 파일</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/components/deepspace/ops/copy.ts</code></td><td>영어와 한국어 동적 접근성 라벨 함수 3개 추가</td></tr>
+        <tr><td><code>src/screens/deepspace/ops/screens.tsx</code></td><td>독서 완료, 읽는 중 전환, 목표 상태 전환 버튼에 라벨 연결</td></tr>
+        <tr><td><code>src/screens/deepspace/ops/__tests__/no-silent-save.test.ts</code></td><td>상태 칩 버튼이 일반 텍스트만 노출하지 않는지 정적 검사 추가</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <details open>
+      <summary>검증 결과</summary>
+      <table>
+        <thead><tr><th>명령</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><code>npx --no-install eslint ...</code></td><td>오류 없음. 기존 경고 3개 유지</td></tr>
+          <tr><td><code>npx --no-install jest ... --runInBand</code></td><td>통과. 6개 테스트 통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:safety-consent-locale</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:constraints</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code> 및 diff 시크릿 패턴 스캔</td><td>문제 없음</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <h2>자체 패널</h2>
+    <details>
+      <summary>판정</summary>
+      <p>품질: 항목명이 빠진 일반 칩 라벨을 제거해 보조기술 사용자가 어떤 책이나 목표를 바꾸는지 알 수 있게 했다.</p>
+      <p>위험: 로직과 데이터 경로는 바꾸지 않았고 접근성 라벨과 정적 테스트만 추가했다.</p>
+      <p>게이트: 2nd-B 브랜치는 로컬 커밋만 만들었으며 push는 하지 않았다. 통합은 Claude가 판단해야 한다.</p>
+    </details>
+  </main>
+</body>
+</html>

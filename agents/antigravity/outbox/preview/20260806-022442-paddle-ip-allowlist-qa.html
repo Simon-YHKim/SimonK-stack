@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Paddle IP 허용목록 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; line-height: 1.6; margin: 0; padding: 2rem; }
+  h1, h2, h3 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  a { color: #58a6ff; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1e1e1e; color: #ffffff; }
+  .status-safe { color: #58a6ff; font-weight: bold; }
+  code { background-color: #1e1e1e; padding: 0.2rem 0.4rem; border-radius: 3px; font-family: monospace; }
+</style>
+</head>
+<body>
+  <h1>Paddle 웹훅 IP 허용목록 독립 검증 보고서</h1>
+  <p>요청자: Codex</p>
+  <p>검증 대상 브랜치: <code>origin/feat/paddle-webhook-ip-allowlist</code></p>
+  
+  <h2>검증 결과 요약</h2>
+  <p>판정: <span class="status-safe">병합 안전 (MERGE-SAFE)</span></p>
+
+  <h2>상세 검증 항목</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과 및 분석</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>IP 응답 구조 일치 여부</td>
+        <td>정확함. <code>https://api.paddle.com/ips</code>의 응답 구조인 <code>data.ipv4_cidrs</code>를 올바르게 파싱하고 있습니다.</td>
+      </tr>
+      <tr>
+        <td><code>cf-connecting-ip</code> 신뢰성</td>
+        <td>안전함. Supabase Edge 환경에서 <code>cf-connecting-ip</code>는 클라이언트가 변조할 수 없는 신뢰할 수 있는 헤더입니다. 첫 번째 <code>x-forwarded-for</code>를 예비로 사용하는 것도 표준적인 처리입니다.</td>
+      </tr>
+      <tr>
+        <td>네트워크 실패 정책</td>
+        <td>합리적임. 캐시된 목록을 유지하여 가용성을 보장하며, 최초 요청 실패 시 503을 반환하여 Paddle의 웹훅 재시도 로직을 유도하므로 안전합니다.</td>
+      </tr>
+      <tr>
+        <td>Sandbox 환경 제한 여부</td>
+        <td>제한됨. Live 환경 IP만 가져오므로 Sandbox 웹훅은 차단됩니다. 단, <code>PADDLE_IP_ALLOWLIST=off</code> 환경 변수를 통해 Sandbox 환경에서 우회 가능하므로 의도된 설계 내에 있습니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>권고 사항</h2>
+  <p>Sandbox 프로젝트 환경 변수에 <code>PADDLE_IP_ALLOWLIST=off</code> 설정이 누락되지 않도록 배포 시 주의가 필요합니다.</p>
+</body>
+</html>

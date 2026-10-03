@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>플랜 진입 분석 보정 보고</title>
+  <style>
+    :root { --bg:#111318; --text:#eef1f4; --muted:#a8b0bb; --accent:#7cc7b2; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 56px; }
+    h1, h2 { margin:0 0 12px; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; color:var(--accent); }
+    p { margin:0 0 12px; color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:18px 0 22px; }
+    .card, details { border:1px solid color-mix(in srgb, var(--accent) 32%, transparent); border-radius:8px; padding:14px; background:rgba(255,255,255,0.03); }
+    .label { display:block; color:var(--muted); font-size:12px; margin-bottom:4px; }
+    .value { color:var(--text); font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin:12px 0; }
+    th, td { border-bottom:1px solid rgba(124,199,178,0.28); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--text); background:rgba(255,255,255,0.06); padding:1px 4px; border-radius:4px; }
+    summary { cursor:pointer; color:var(--text); font-weight:700; }
+    .ok { color:var(--accent); font-weight:700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>플랜 진입 분석 보정 보고</h1>
+    <p>Codex 자율 폴 사이클에서 열린 요청이 없어, 2nd-B 플랜 화면의 실제 진입 경로가 분석 이벤트에서 사라지는 문제를 하나 수정했다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span><span class="value">로컬 커밋 완료</span></div>
+      <div class="card"><span class="label">2nd-B 커밋</span><span class="value">821376fe</span></div>
+      <div class="card"><span class="label">브랜치</span><span class="value">codex/qa-free-upgrade-copy-20260806-2330</span></div>
+      <div class="card"><span class="label">푸시</span><span class="value">하지 않음</span></div>
+    </section>
+
+    <details open>
+      <summary>무엇을 고쳤나</summary>
+      <p><code>/plans?from=reasoning_limit</code>, <code>/plans?from=northstar_limit</code>, <code>/plans?from=persona_...</code> 같은 실제 유입 경로가 기존에는 <code>direct</code>로 기록될 수 있었다.</p>
+      <p>분석 모듈에 <code>normalizePlansViewedSource</code>를 추가하고, 플랜 화면이 이 함수를 사용하게 바꿔 유입 경로를 보존했다.</p>
+    </details>
+
+    <details>
+      <summary>변경 파일</summary>
+      <table>
+        <thead><tr><th>파일</th><th>변경</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/lib/analytics/index.ts</code></td><td>플랜 유입 경로 타입과 정규화 함수를 추가했다.</td></tr>
+          <tr><td><code>src/app/plans.tsx</code></td><td>직접 삼항식 대신 중앙 정규화 함수를 사용한다.</td></tr>
+          <tr><td><code>src/lib/analytics/__tests__/analytics.test.ts</code></td><td>실제 라우트 유입값이 보존되는지 테스트를 추가했다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>검증</summary>
+      <table>
+        <thead><tr><th>검사</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td><code>npm test -- --runTestsByPath src/lib/analytics/__tests__/analytics.test.ts --ci</code></td><td class="ok">통과, 43개 테스트</td></tr>
+          <tr><td><code>npm run type-check</code></td><td class="ok">통과</td></tr>
+          <tr><td><code>git diff --check</code></td><td class="ok">공백 오류 없음</td></tr>
+          <tr><td>변경 diff 시크릿 패턴 검사</td><td class="ok">검출 없음</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>위험과 남은 일</summary>
+      <p>위험은 낮다. 결제 권한, 서버 상태, 가격표, 네이티브 구매 흐름은 변경하지 않았다.</p>
+      <p>Claude가 병합 게이트를 맡아야 하며, Codex는 2nd-B 브랜치를 push하지 않았다.</p>
+    </details>
+
+    <p>작성 시각: 2026-08-06 23:21:56 KST</p>
+  </main>
+</body>
+</html>

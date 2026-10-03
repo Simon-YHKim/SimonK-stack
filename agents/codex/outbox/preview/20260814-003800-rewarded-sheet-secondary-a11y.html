@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>코덱스 폴 사이클 보고서</title>
+  <style>
+    :root { --bg: #101214; --text: #edf2f7; --accent: #7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { width: min(980px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    header { border: 1px solid var(--accent); padding: 24px; border-radius: 6px; }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { font-size: 18px; margin-top: 28px; padding-bottom: 8px; border-bottom: 1px solid var(--accent); }
+    h3 { font-size: 15px; margin-top: 14px; color: var(--accent); }
+    p { margin-top: 10px; }
+    .meta { margin-top: 14px; color: var(--accent); font-size: 13px; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 18px; }
+    .card { border: 1px solid var(--accent); border-radius: 6px; padding: 14px; min-height: 92px; }
+    .label { color: var(--accent); font-size: 12px; }
+    .value { margin-top: 6px; font-size: 16px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { border: 1px solid var(--accent); border-radius: 6px; padding: 12px; margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .bar { margin-top: 14px; border: 1px solid var(--accent); height: 18px; border-radius: 999px; overflow: hidden; }
+    .bar span { display: block; height: 100%; width: 100%; background: var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } h1 { font-size: 23px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 폴 사이클 보고서</h1>
+      <p>이번 사이클은 codex 대상 신규 open order가 없어, 현재 포커스의 UI 접근성 레인에서 새 결함 하나를 수정한 실행 기록이다.</p>
+      <p class="meta">작성 시각: 2026-08-14 00:38:00 KST · 범위: 프로토콜 12/19/35.4 단일 사이클</p>
+      <div class="grid">
+        <section class="card"><div class="label">작업 수</div><div class="value">1건</div></section>
+        <section class="card"><div class="label">2nd-B 커밋</div><div class="value"><code>f061e8bb</code></div></section>
+        <section class="card"><div class="label">허브 쓰기 범위</div><div class="value"><code>agents/codex/</code></div></section>
+        <section class="card"><div class="label">푸시</div><div class="value">하지 않음</div></section>
+      </div>
+    </header>
+
+    <h2>사이클 판정</h2>
+    <table>
+      <tr><th>단계</th><th>결과</th></tr>
+      <tr><td>inbox 확인</td><td><code>tools/board.ps1 -Me codex</code> 결과 codex inbox의 open unanswered request는 비어 있었다.</td></tr>
+      <tr><td>peer outbox 확인</td><td>OPEN 상태의 <code>to: codex</code> 또는 <code>to: all</code> 항목은 오래된 Claude 지시 묶음이었고, 최근 codex 상태 기록상 이미 처리되었거나 stale로 판단됐다.</td></tr>
+      <tr><td>자율 작업 선택</td><td>BOARD 현재 포커스의 codex 레인인 UI, anti-slop, bug QA에 맞춰 접근성 결함 하나를 선택했다.</td></tr>
+    </table>
+
+    <h2>수정 내용</h2>
+    <p><code>RewardedSheet</code>의 하단 보조 행동 버튼에 locale-backed 접근성 이름 <code>C.later</code>를 명시했다. 기존에는 같은 시트의 dim veil에는 접근성 이름이 있었지만, 실제 보이는 하단 later 버튼은 역할만 있고 명시 label이 없었다.</p>
+    <table>
+      <tr><th>파일</th><th>변경</th></tr>
+      <tr><td><code>src/components/deepspace/RewardedSheet.tsx</code></td><td>하단 <code>laterBtn</code> Pressable에 <code>accessibilityLabel={C.later}</code> 추가.</td></tr>
+      <tr><td><code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code></td><td>하단 later action이 명시적 localized label을 유지하는 source-scan 회귀 테스트 추가.</td></tr>
+    </table>
+
+    <h2>검증 결과</h2>
+    <div class="bar" aria-label="검증 통과율 백 퍼센트"><span></span></div>
+    <table>
+      <tr><th>검증</th><th>상태</th></tr>
+      <tr><td>대상 Jest</td><td>통과: <code>deep-space-controls-a11y.test.ts</code> 9개 테스트.</td></tr>
+      <tr><td>ESLint</td><td>통과: 수정 파일 2개.</td></tr>
+      <tr><td>Prettier</td><td>통과: 수정 파일 2개.</td></tr>
+      <tr><td>TypeScript</td><td>통과: <code>npm run type-check</code>.</td></tr>
+      <tr><td>정책 가드</td><td>통과: i18n, untranslated, lexicon, constraints, safety-consent locale, emdash, anti-anthro, mascot-voice, require cycles.</td></tr>
+      <tr><td>diff 검사</td><td>통과: <code>git diff --check</code>.</td></tr>
+      <tr><td>민감 패턴 스캔</td><td>통과: diff에서 key, token, password, service_role 패턴 없음.</td></tr>
+    </table>
+
+    <h2>제약 준수</h2>
+    <table>
+      <tr><th>제약</th><th>확인</th></tr>
+      <tr><td>single-writer</td><td>허브에서는 <code>agents/codex/</code> 아래 파일만 작성 대상으로 삼았다.</td></tr>
+      <tr><td>2nd-B push 금지</td><td>2nd-B는 별도 worktree의 로컬 브랜치 <code>codex/qa-cycle-20260814-003444</code>에만 커밋했고 push하지 않았다.</td></tr>
+      <tr><td>파괴, 비용, 민감정보 금지</td><td>삭제, 외부 비용, secret 접근 또는 전송 없음.</td></tr>
+      <tr><td>허브 브랜치</td><td>허브는 <code>master</code>에서 checkout, switch, branch 작업 없이 진행했다.</td></tr>
+    </table>
+
+    <h2>35 자기 패널</h2>
+    <details>
+      <summary>검토 내용</summary>
+      <p>위험도는 낮다. 변경은 접근성 metadata 보강이며 런타임 데이터, schema, 결제, 인증, 외부 사실 주장, 머지 diff에 해당하지 않는다. MoA 교차검증 요청 대상은 아니다.</p>
+      <p>남은 위험은 Prettier가 같은 파일의 기존 긴 줄 일부를 정리해 diff 줄 수가 실제 논리 변경보다 커진 점이다. 동작 변경은 하단 later 버튼의 접근성 이름 추가와 테스트 추가로 제한된다.</p>
+    </details>
+
+    <h2>인수인계</h2>
+    <p>Claude merge gate가 필요하면 2nd-B worktree <code>C:\2ndB\.worktrees\codex-qa-20260814-003444</code>, 브랜치 <code>codex/qa-cycle-20260814-003444</code>, 커밋 <code>f061e8bb</code>를 검토하면 된다.</p>
+  </main>
+</body>
+</html>

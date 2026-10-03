@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 옵스 배지 현지화 보고서</title>
+  <style>
+    :root { --bg:#101214; --text:#e8ecef; --accent:#64d2c8; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.55 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 48px; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { font-size:28px; line-height:1.2; margin-bottom:10px; }
+    h2 { font-size:18px; margin:28px 0 12px; color:var(--accent); }
+    h3 { font-size:15px; margin:0 0 6px; }
+    p, li { color:var(--text); opacity:.72; }
+    strong, code { color:var(--text); }
+    code { font-family:Consolas, "SFMono-Regular", monospace; font-size:0.92em; }
+    .summary { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; margin:22px 0; }
+    .card { border:1px solid color-mix(in srgb, var(--accent) 28%, transparent); border-radius:8px; padding:14px; background:var(--bg); }
+    .label { display:block; color:var(--text); opacity:.68; font-size:12px; margin-bottom:4px; }
+    .value { color:var(--text); font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th, td { border:1px solid color-mix(in srgb, var(--accent) 28%, transparent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    td { color:var(--text); opacity:.72; }
+    details { border:1px solid color-mix(in srgb, var(--accent) 28%, transparent); border-radius:8px; padding:12px 14px; margin:10px 0; background:var(--bg); }
+    summary { cursor:pointer; color:var(--text); font-weight:700; }
+    .bar { display:grid; grid-template-columns:140px 1fr 72px; gap:10px; align-items:center; margin:8px 0; }
+    .track { height:10px; border:1px solid color-mix(in srgb, var(--accent) 28%, transparent); border-radius:999px; overflow:hidden; }
+    .fill { height:100%; background:var(--accent); }
+    .ok { color:var(--accent); }
+    @media (max-width:720px) { .summary { grid-template-columns:1fr 1fr; } .bar { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>코덱스 옵스 배지 현지화 보고서</h1>
+    <p>기록 시각: 2026-08-12 01:39:41 KST. 이번 사이클은 2nd-B ops 공용 UI에서 한국어 화면에 남던 영어 축약 배지를 locale copy로 옮긴 작업이다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><span class="label">상태</span><span class="value">완료</span></div>
+      <div class="card"><span class="label">앱 커밋</span><span class="value">b93c6c5a</span></div>
+      <div class="card"><span class="label">변경 파일</span><span class="value">2개</span></div>
+      <div class="card"><span class="label">푸시</span><span class="value">없음</span></div>
+    </section>
+
+    <h2>결과</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>기준</td><td><code>origin/main 215f5cdd123d94a27adf7165234807eec301f7da</code></td></tr>
+        <tr><td>브랜치</td><td><code>codex/qa-cycle-20260812-013525</code></td></tr>
+        <tr><td>작업 위치</td><td><code>C:\Coding Infra\_worktrees\2ndB-codex-qa-cycle-20260812-013525</code></td></tr>
+        <tr><td>핵심 변경</td><td>한국어 화면의 <code>LOCK</code>, <code>REC</code>, <code>NEW</code>, <code>ERR</code>, <code>LINK</code>, <code>WAIT</code> 표시를 각각 <code>잠금</code>, <code>추천</code>, <code>새로</code>, <code>오류</code>, <code>연결</code>, <code>대기</code>로 렌더링.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>변경 파일</h2>
+    <details open>
+      <summary>자세히</summary>
+      <table>
+        <thead><tr><th>파일</th><th>변경</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/components/deepspace/ops/copy.ts</code></td><td><code>OpsCopy</code>에 배지용 짧은 문구를 추가하고 영어·한국어 값을 채웠다.</td></tr>
+          <tr><td><code>src/components/deepspace/ops/kit.tsx</code></td><td><code>OpsPushSheet</code>와 <code>OpsState</code>가 고정 문자열 대신 현재 locale copy를 사용하게 했다.</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <h2>검증</h2>
+    <div class="bar"><strong>Prettier</strong><div class="track"><div class="fill" style="width:100%"></div></div><span class="ok">통과</span></div>
+    <div class="bar"><strong>ESLint</strong><div class="track"><div class="fill" style="width:100%"></div></div><span class="ok">통과</span></div>
+    <div class="bar"><strong>TypeScript</strong><div class="track"><div class="fill" style="width:100%"></div></div><span class="ok">통과</span></div>
+    <div class="bar"><strong>i18n</strong><div class="track"><div class="fill" style="width:100%"></div></div><span class="ok">통과</span></div>
+    <div class="bar"><strong>lexicon/emdash</strong><div class="track"><div class="fill" style="width:100%"></div></div><span class="ok">통과</span></div>
+
+    <h2>위험</h2>
+    <details>
+      <summary>자세히</summary>
+      <p>기능 로직, 데이터 스키마, 결제, 인증, 네이티브 권한은 건드리지 않았다. 다만 Prettier가 기존 JSX 줄바꿈을 정리해 <code>kit.tsx</code> diff가 실제 의미 변경보다 크게 보인다.</p>
+    </details>
+
+    <h2>섹션 35 자기 패널</h2>
+    <details>
+      <summary>자세히</summary>
+      <p><strong>찬성:</strong> 공용 ops kit의 배지라 여러 화면에 같은 언어 불일치가 반복된다.</p>
+      <p><strong>반대:</strong> 영어 locale은 기존 축약 배지를 유지하고, diff에는 포맷 정리가 섞여 있다.</p>
+      <p><strong>판정:</strong> typed copy map에 추가하는 방식이 좁고 검증이 통과했으므로 로컬 앱 커밋으로 제출한다.</p>
+    </details>
+  </main>
+</body>
+</html>

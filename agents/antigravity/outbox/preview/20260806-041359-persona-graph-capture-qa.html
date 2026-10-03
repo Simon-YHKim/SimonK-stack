@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>스키마 안전성 검증 보고서</title>
+<style>
+  body {
+    background-color: #000000;
+    color: #cccccc;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px auto;
+    max-width: 800px;
+    padding: 20px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #444444;
+    padding: 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #444444;
+  }
+</style>
+</head>
+<body>
+
+<h1>스키마 안전성 검증 보고서</h1>
+<p>대상 파일: db/migrations/0103_persona_graph_capture.sql</p>
+
+<h2>검증 항목 상세</h2>
+<table>
+  <thead>
+    <tr>
+      <th>검증 항목</th>
+      <th>상태</th>
+      <th>상세 내용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>빈 데이터베이스 재실행 안전성</td>
+      <td>통과</td>
+      <td>모든 테이블과 인덱스 생성에 존재 여부 확인 구문이 사용되었으며, 트랜잭션 내에서 정책 교체가 안전하게 처리됩니다.</td>
+    </tr>
+    <tr>
+      <td>운영 환경 정규화 여부</td>
+      <td>통과</td>
+      <td>운영 환경의 기존 데이터를 변경하지 않으며, 보안 정책만을 일관된 형태로 정규화합니다.</td>
+    </tr>
+    <tr>
+      <td>소유자 전용 보안 정책 유지</td>
+      <td>통과</td>
+      <td>조건문을 통해 테이블들의 소유자 권한을 정확히 통제합니다.</td>
+    </tr>
+    <tr>
+      <td>외래키 대체 적합성</td>
+      <td>통과</td>
+      <td>테스트 환경 지원 및 저장소 일관성을 위해 외래키를 대체하는 것은 논리적으로 동일하고 적합합니다.</td>
+    </tr>
+    <tr>
+      <td>타입 재생성 필요 여부</td>
+      <td>확인됨</td>
+      <td>새로운 외래키 관계가 정의되었으므로, 제네레이션 파일의 재생성이 필요합니다.</td>
+    </tr>
+  </tbody>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>검증 보고서: 프로필 상세 저장 상태</title>
+  <style>
+    body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 2rem; line-height: 1.6; }
+    h1, h2, h3 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+    th { background-color: #1e1e1e; color: #ffffff; }
+    .highlight { color: #4fc3f7; }
+  </style>
+</head>
+<body>
+  <h1>검증 보고서: 프로필 상세 저장 상태 접근성</h1>
+  <h2>개요</h2>
+  <p>Codex가 작성한 프로필 상세 저장 버튼의 접근성 수정 사항에 대한 정적 분석 및 품질 보증(QA) 결과를 보고합니다.</p>
+  <h2>작업 내역</h2>
+  <table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td>대상 브랜치</td><td>codex/qa-cycle-20260821-154255-busy-a11y</td></tr>
+      <tr><td>대상 커밋</td><td>df96dd5b80fa2a9b92252eb1d556f56b3a145594</td></tr>
+      <tr><td>검증 방식</td><td>소스코드 정적 분석 (에뮬레이터 미사용)</td></tr>
+    </tbody>
+  </table>
+  <h2>검증 결과</h2>
+  <p>소스 코드 분석 결과, 저장 버튼 구성요소에 <span class="highlight">loading={saving}</span> 속성이 올바르게 추가된 것을 확인했습니다. 이를 통해 저장 진행 중 상태가 접근성 트리에 정확히 노출됨을 검증했습니다.</p>
+  <h2>특이 사항</h2>
+  <p>현재 검증 환경에는 안드로이드 에뮬레이터 프로세스 및 연결된 디바이스가 없습니다. 따라서 본 검증은 규정(truthfulness)에 따라 소스코드 정적 분석 및 정규식 테스트 코드 일치 여부만을 근거로 판정하였습니다.</p>
+  <h2>결론</h2>
+  <p>정적 분석 기준 통과. 코드 무결성이 확보되었으며 다음 단계 병합을 권장합니다.</p>
+</body>
+</html>

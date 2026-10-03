@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>지원 메일 버튼 진행 상태 보강 보고서</title>
+  <style>
+    :root { --bg:#0b0f14; --fg:#e8edf2; --accent:#5fc7d9; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font-family:Arial, sans-serif; line-height:1.6; }
+    main { max-width:960px; margin:0 auto; padding:32px 18px 48px; }
+    header, section { border:1px solid var(--accent); padding:18px; margin:0 0 16px; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { font-size:28px; line-height:1.25; }
+    h2 { font-size:20px; color:var(--accent); }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; }
+    .card { border:1px solid var(--accent); padding:14px; }
+    details { border-top:1px solid var(--accent); margin-top:12px; padding-top:12px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>지원 메일 버튼 진행 상태 보강 보고서</h1>
+    <p>작성 시각: 2026-08-21 20:21:36 KST</p>
+    <p>이번 사이클은 열린 Codex 요청이 없어, Codex 레인의 UI 접근성 결함 하나를 새로 처리했다.</p>
+  </header>
+
+  <section>
+    <h2>요약</h2>
+    <div class="grid">
+      <div class="card"><strong>결과</strong><br>2nd-B 로컬 커밋 생성 완료</div>
+      <div class="card"><strong>브랜치</strong><br><code>codex/qa-cycle-20260821-201359-support-mail-busy</code></div>
+      <div class="card"><strong>커밋</strong><br><code>0d19ce90360bd34bd838693eab4bcc94d4f126e4</code></div>
+      <div class="card"><strong>푸시</strong><br>하지 않음</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>변경 내용</h2>
+    <table>
+      <thead><tr><th>파일</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>src/app/support.tsx</code></td>
+          <td>지원 메일 앱을 여는 동안 <code>contacting</code> 상태를 유지하고, 버튼의 <code>disabled</code>와 <code>loading</code>에 연결했다.</td>
+        </tr>
+        <tr>
+          <td><code>src/lib/__tests__/support-mail-busy-a11y.test.ts</code></td>
+          <td>메일 실행 중 중복 탭 차단과 공유 버튼 접근성 계약을 정적으로 고정했다.</td>
+        </tr>
+      </tbody>
+    </table>
+    <details>
+      <summary>자세히</summary>
+      <p>기존 지원 화면은 <code>Linking.openURL</code>을 즉시 호출했지만 외부 메일 앱이 열리는 동안 버튼 상태가 바뀌지 않았다. 이제 같은 버튼을 반복해서 누르는 입력을 막고, 공용 버튼 컴포넌트가 스크린 리더에 바쁨 상태를 전달한다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>대상 Jest</td><td>통과, 1개 파일 2개 테스트</td></tr>
+        <tr><td>Prettier</td><td>통과</td></tr>
+        <tr><td>대상 ESLint</td><td>통과</td></tr>
+        <tr><td>TypeScript</td><td>통과</td></tr>
+        <tr><td>정책 게이트</td><td>국제화, 금지 어휘, 제약, 긴 대시, 모델 경계, 픽셀 규칙, 비의인화, 마스코트 문체, 자산 확장자, 순환 의존성 통과</td></tr>
+        <tr><td>전체 검증</td><td><code>npm run verify</code> 통과, 493개 테스트 묶음과 4609개 테스트 통과</td></tr>
+        <tr><td>민감 문자열 검사</td><td>변경 diff에서 실제 시크릿 탐지 없음</td></tr>
+      </tbody>
+    </table>
+    <details>
+      <summary>주의 사항</summary>
+      <p>전체 lint의 기존 경고 71건과 Jest worker 종료 경고는 유지되었으며, 이번 변경으로 생긴 실패는 없었다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>35 자기 패널</h2>
+    <table>
+      <thead><tr><th>관점</th><th>판단</th></tr></thead>
+      <tbody>
+        <tr><td>사용자 경험</td><td>사용자가 메일 앱 호출 중 버튼을 반복 탭해 중복 실행을 만드는 문제를 줄인다.</td></tr>
+        <tr><td>접근성</td><td>공용 버튼의 바쁨 상태 전달 경로를 사용해 보조 기술이 진행 상태를 알 수 있다.</td></tr>
+        <tr><td>위험</td><td>메일 앱 호출 래핑만 변경했으므로 영향 범위는 지원 화면의 한 버튼으로 제한된다.</td></tr>
+        <tr><td>대안</td><td>새 문구를 추가하는 방식은 국제화 변경을 키우므로 이번 결함에는 과하다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>남은 작업</h2>
+    <p>Claude가 merge gate에서 로컬 커밋을 검토한 뒤 필요하면 병합한다. Codex는 2nd-B 브랜치를 push하지 않았다.</p>
+  </section>
+</main>
+</body>
+</html>

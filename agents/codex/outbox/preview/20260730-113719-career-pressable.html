@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>커리어 프레스 처리 보고서</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e6edf3; --accent:#7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 960px; margin: 0 auto; padding: 32px 18px 56px; }
+    header { border: 1px solid var(--accent); border-radius: 8px; padding: 20px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin: 28px 0 12px; color: var(--accent); }
+    h3 { font-size: 15px; margin-bottom: 8px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+    .card { border: 1px solid rgba(125,211,252,.55); border-radius: 8px; padding: 12px; min-height: 96px; }
+    .label { color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; border: 1px solid rgba(125,211,252,.55); }
+    th, td { border-bottom: 1px solid rgba(125,211,252,.35); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { border: 1px solid rgba(125,211,252,.45); border-radius: 8px; padding: 10px 12px; margin: 10px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .bar { display: grid; grid-template-columns: 140px 1fr; gap: 10px; align-items: center; margin: 8px 0; }
+    .track { height: 10px; border: 1px solid var(--accent); border-radius: 999px; overflow: hidden; }
+    .fill { height: 100%; background: var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } .bar { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>커리어 프레스 처리 보고서</h1>
+      <p>codex 자율 폴 사이클에서 2nd-B 커리어 화면의 터치 표면을 한 단계 정리했다.</p>
+      <div class="grid" aria-label="요약">
+        <section class="card"><div class="label">결과</div><strong>완료</strong><br>로컬 브랜치 커밋 생성</section>
+        <section class="card"><div class="label">범위</div><strong>1개 파일</strong><br><code>src/app/career.tsx</code></section>
+        <section class="card"><div class="label">커밋</div><strong><code>be4eada6</code></strong><br>push 없음</section>
+        <section class="card"><div class="label">작성 시각</div><strong>2026-07-30 11:37:25 KST</strong></section>
+      </div>
+    </header>
+
+    <h2>작업 요약</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td>요청 확인</td><td><code>tools/board.ps1 -Me codex</code> 기준 codex 열린 요청 없음</td><td>확인</td></tr>
+        <tr><td>대상 선택</td><td>codex 레인에서 이어지는 UI anti-slop Pressable 정규화</td><td>완료</td></tr>
+        <tr><td>코드 변경</td><td>커리어 트랙 탭의 시각 스타일과 터치 표면을 분리</td><td>완료</td></tr>
+        <tr><td>피드백</td><td>트랙 탭과 타임라인 항목에 Android ripple 추가</td><td>완료</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 상태</h2>
+    <div class="bar"><span>파일 포맷</span><div class="track"><div class="fill" style="width:100%"></div></div></div>
+    <div class="bar"><span>파일 린트</span><div class="track"><div class="fill" style="width:100%"></div></div></div>
+    <div class="bar"><span>Pressable guard</span><div class="track"><div class="fill" style="width:100%"></div></div></div>
+    <div class="bar"><span>전체 타입 검사</span><div class="track"><div class="fill" style="width:35%"></div></div></div>
+
+    <details>
+      <summary>검증 명령 자세히</summary>
+      <p><code>npx prettier --check src/app/career.tsx</code> 통과.</p>
+      <p><code>npx eslint src/app/career.tsx</code> 통과.</p>
+      <p><code>npm test -- --runTestsByPath src/lib/__tests__/no-function-form-pressable-style.test.ts --runInBand</code> 통과.</p>
+      <p><code>git diff --check</code> 통과.</p>
+      <p><code>npm run type-check</code>는 기존 의존성 타입 해석 문제로 실패했다. 실패 모듈은 <code>madge</code>, <code>react-native-google-mobile-ads</code>, <code>@react-native-firebase/analytics</code>다.</p>
+    </details>
+
+    <h2>기술 내용</h2>
+    <details open>
+      <summary>구현 방식</summary>
+      <p>기존 트랙 탭은 <code>Pressable</code> 자체에 pill 모양의 border, radius, selected 배경을 직접 갖고 있었다. 이번 변경은 해당 시각 스타일을 바깥 <code>View</code>로 옮기고, 안쪽 <code>Pressable</code>은 탭, 접근성 라벨, selected 상태, Android ripple만 맡게 했다.</p>
+      <p>타임라인 성과 항목은 기존 라우팅과 카드 구조를 유지하면서 <code>android_ripple</code>만 추가했다.</p>
+    </details>
+
+    <h2>위험 및 롤백</h2>
+    <table>
+      <thead><tr><th>구분</th><th>평가</th></tr></thead>
+      <tbody>
+        <tr><td>동작 위험</td><td>낮음. onPress 라우팅과 상태 전환 로직은 변경하지 않았다.</td></tr>
+        <tr><td>시각 위험</td><td>낮음. wrapper가 기존 pill 스타일을 유지한다.</td></tr>
+        <tr><td>롤백</td><td>2nd-B 브랜치에서 <code>git revert be4eada6</code>로 되돌릴 수 있다.</td></tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>
+

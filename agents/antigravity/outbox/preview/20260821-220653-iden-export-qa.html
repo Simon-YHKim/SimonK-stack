@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>IDEN 내보내기 상태 보호 QA 보고서</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: sans-serif;
+      margin: 2rem;
+      line-height: 1.6;
+    }
+    h1, h2, h3 {
+      color: #ffffff;
+      border-bottom: 1px solid #333333;
+      padding-bottom: 0.5rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #333333;
+      padding: 0.75rem;
+      text-align: left;
+    }
+    th {
+      background-color: #1e1e1e;
+    }
+    .status-pass {
+      color: #81c784;
+    }
+    button {
+      background-color: #333333;
+      color: #ffffff;
+      border: 1px solid #555555;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    button:hover {
+      background-color: #444444;
+    }
+  </style>
+</head>
+<body>
+  <h1>IDEN 내보내기 상태 보호 QA 보고서</h1>
+  <p>생성일시: 2026-08-21 22:06:53 KST</p>
+  <p>검증 대상: IDEN 내보내기, 복사, 미리보기 중복 실행 방지 및 접근성 상태</p>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>결과</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브/웹 잠금 상태</td>
+        <td class="status-pass">통과</td>
+        <td>모든 비동기 로직이 try-catch-finally 블록으로 감싸져 있으며, finally에서 상태 해제가 보장됩니다. 공유 시트 완료/취소 시 정상적으로 상태를 해제하여 잠금 상태가 발생하지 않습니다.</td>
+      </tr>
+      <tr>
+        <td>버튼 접근성 상태 노출</td>
+        <td class="status-pass">통과</td>
+        <td>MdButton 내부에 접근성 상태가 정확히 구현되어 있습니다. 로딩 및 비활성화 상태가 TalkBack 및 VoiceOver를 통해 사용자에게 올바르게 전달됩니다.</td>
+      </tr>
+      <tr>
+        <td>웹 환경 미지원 방어</td>
+        <td class="status-pass">통과</td>
+        <td>PDF 미리보기 시 플랫폼 분기를 통해 네이티브 환경에서는 경고를 노출하고 상태를 즉시 해제하여 오작동을 방지합니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>수정된 IDEN 내보내기 작업 보호 로직과 MdButton의 접근성 속성 연결은 기술적으로 견고합니다. 네이티브 및 웹 모두에서 정상 동작하며 재작업이 필요하지 않습니다.</p>
+
+  <button onclick="window.close()">닫기</button>
+</body>
+</html>

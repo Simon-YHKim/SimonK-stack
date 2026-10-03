@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>피어 초대 처리 상태 접근성 보고</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e6edf3; --accent:#7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { width: min(1040px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0; }
+    header { border: 1px solid var(--accent); padding: 24px; border-radius: 8px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin: 28px 0 12px; color: var(--accent); }
+    h3 { font-size: 15px; margin-bottom: 8px; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 18px; }
+    .card { border: 1px solid var(--accent); border-radius: 8px; padding: 14px; min-height: 112px; }
+    .label { display: block; color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    code { color: var(--accent); word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; border: 1px solid var(--accent); }
+    th, td { border-bottom: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    details { border: 1px solid var(--accent); border-radius: 8px; padding: 12px; margin: 10px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .bars { display: grid; gap: 10px; margin-top: 12px; }
+    .bar { display: grid; grid-template-columns: 160px 1fr 42px; gap: 10px; align-items: center; }
+    .track { height: 10px; border: 1px solid var(--accent); border-radius: 999px; overflow: hidden; }
+    .fill { height: 100%; background: var(--accent); }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .bar { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>피어 초대 처리 상태 접근성 보고</h1>
+      <p>Codex 자율 폴 사이클에서 열린 주문이 없어 2nd-B UI 접근성 레인의 단일 새 작업으로 처리했습니다.</p>
+      <div class="grid" aria-label="요약">
+        <section class="card">
+          <span class="label">결과</span>
+          <strong>완료</strong>
+          <p>피어 초대와 응답 화면의 처리 중 상태를 보조기술에 노출했습니다.</p>
+        </section>
+        <section class="card">
+          <span class="label">앱 커밋</span>
+          <code>f3af81de</code>
+          <p>로컬 브랜치에만 커밋했고 push는 하지 않았습니다.</p>
+        </section>
+        <section class="card">
+          <span class="label">검증</span>
+          <strong>통과</strong>
+          <p>대상 테스트, 린트, 타입 검사, 프로젝트 가드를 실행했습니다.</p>
+        </section>
+        <section class="card">
+          <span class="label">위험</span>
+          <strong>낮음</strong>
+          <p>로직 변경 없이 공용 버튼의 처리 중 상태 전달만 보강했습니다.</p>
+        </section>
+      </div>
+    </header>
+
+    <section>
+      <h2>변경 요약</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>변경</th><th>영향</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/app/peer-invites.tsx</code></td>
+            <td>초대 생성과 철회 버튼에 <code>loading={busy}</code> 연결</td>
+            <td>공용 버튼이 비활성 상태와 처리 중 상태를 함께 전달</td>
+          </tr>
+          <tr>
+            <td><code>src/app/peer/[token].tsx</code></td>
+            <td>응답 제출과 철회 버튼에 <code>loading={busy}</code> 연결</td>
+            <td>informant 흐름에서도 처리 중 상태가 누락되지 않음</td>
+          </tr>
+          <tr>
+            <td><code>src/lib/__tests__/peer-invite-busy-a11y.test.ts</code></td>
+            <td>정적 회귀 테스트 추가</td>
+            <td>향후 같은 누락이 재발하면 대상 테스트가 실패</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <div class="bars" aria-label="검증 막대">
+        <div class="bar"><span>대상 테스트</span><div class="track"><div class="fill" style="width:100%"></div></div><span>통과</span></div>
+        <div class="bar"><span>린트와 타입</span><div class="track"><div class="fill" style="width:100%"></div></div><span>통과</span></div>
+        <div class="bar"><span>프로젝트 가드</span><div class="track"><div class="fill" style="width:100%"></div></div><span>통과</span></div>
+        <div class="bar"><span>시크릿 점검</span><div class="track"><div class="fill" style="width:100%"></div></div><span>통과</span></div>
+      </div>
+      <details>
+        <summary>검증 명령 자세히</summary>
+        <p><code>npm test -- --runTestsByPath src/lib/__tests__/peer-invite-busy-a11y.test.ts --runInBand</code></p>
+        <p><code>npx prettier --check src/lib/__tests__/peer-invite-busy-a11y.test.ts</code></p>
+        <p><code>npx eslint src/lib/__tests__/peer-invite-busy-a11y.test.ts src/app/peer-invites.tsx 'src/app/peer/[token].tsx'</code></p>
+        <p><code>npm run type-check</code>, <code>check:i18n</code>, <code>check:i18n-untranslated</code>, <code>check:lexicon</code>, <code>check:constraints</code>, <code>check:emdash</code>, <code>check:anti-anthro</code>, <code>check:mascot-voice</code>, <code>check:cycles</code></p>
+      </details>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <details open>
+        <summary>판정 근거</summary>
+        <p>찬성 관점: 피어 초대는 민감한 자기 모델 공유 흐름이므로 처리 중 상태가 보조기술에 빠지면 사용자의 통제감이 약해집니다.</p>
+        <p>반대 관점: 시각 사용자는 버튼 문구 변화로 처리 중임을 알 수 있고 기능 로직은 바뀌지 않습니다.</p>
+        <p>검증 관점: 공용 버튼은 <code>loading</code>이 있어야 <code>accessibilityState.busy</code>를 내보내므로 문구 변화만으로는 충분하지 않습니다.</p>
+        <p>최종 판정: 작은 변경으로 민감 흐름의 접근성 의미를 맞추고 회귀 테스트로 고정했으므로 이번 사이클의 단일 작업으로 적합합니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>작업 위치</h2>
+      <p>worktree: <code>C:\2ndB\.worktrees\codex-qa-20260814-144145</code></p>
+      <p>branch: <code>codex/qa-cycle-20260814-144145</code></p>
+      <p>작성 시각: 2026-08-14 14:44:33 KST</p>
+    </section>
+  </main>
+</body>
+</html>

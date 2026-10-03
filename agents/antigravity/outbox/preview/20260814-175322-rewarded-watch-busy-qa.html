@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 리뷰 보고서</title>
+<style>
+  :root {
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --highlight-color: #00bcd4;
+  }
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  h1, h2 {
+    color: var(--highlight-color);
+    border-bottom: 1px solid var(--text-color);
+    padding-bottom: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  th, td {
+    border: 1px solid var(--text-color);
+    padding: 8px;
+    text-align: left;
+  }
+  th {
+    color: var(--highlight-color);
+  }
+  .section {
+    margin-bottom: 30px;
+  }
+</style>
+</head>
+<body>
+  <h1>안티그래비티 에뮬레이터 QA 리뷰 보고서</h1>
+  
+  <div class="section">
+    <h2>개요</h2>
+    <p>본 보고서는 보상형 광고 시청 버튼의 접근성 수정 건에 대한 네이티브 환경의 접근성 QA 리뷰 결과를 포함합니다.</p>
+  </div>
+
+  <div class="section">
+    <h2>대상 작업</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>대상 리뷰 내역</td>
+          <td>보상형 광고 시청 중 버튼 비활성화 및 상태 노출 접근성 강화</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>QA 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>검증 항목</th>
+          <th>결과</th>
+          <th>상세 내용</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>네이티브 렌더링 검증</td>
+          <td>통과</td>
+          <td>광고 시청 중 버튼이 비활성화 상태로 정상 렌더링됨을 확인했습니다.</td>
+        </tr>
+        <tr>
+          <td>보조 기술 호환성</td>
+          <td>통과</td>
+          <td>접근성 상태가 정상적으로 전달되어 보조 기술에서 올바르게 인지됨을 확인했습니다.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>결론</h2>
+    <p>해당 변경 사항은 에뮬레이터 환경에서 안정적으로 동작하며 병합에 문제가 없습니다.</p>
+  </div>
+</body>
+</html>

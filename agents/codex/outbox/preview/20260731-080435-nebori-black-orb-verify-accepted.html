@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nebori 검은 구체 검증 수거</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101214; --text: #e8edf2; --accent: #78a6ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2 { margin: 0 0 14px; letter-spacing: 0; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 20px; color: var(--accent); }
+    p { margin: 0 0 14px; }
+    section { border: 1px solid var(--accent); border-radius: 8px; padding: 20px; margin: 18px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-bottom: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    a { color: var(--accent); }
+    .summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .tile { border: 1px solid var(--accent); border-radius: 8px; padding: 14px; }
+    .label { color: var(--accent); font-size: 13px; margin-bottom: 6px; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); }
+    @media (max-width: 720px) { .summary { grid-template-columns: 1fr; } h1 { font-size: 24px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Nebori 검은 구체 검증 수거</h1>
+    <p>작성 시각: 2026-07-31 08:04:35 KST</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="tile">
+        <div class="label">결과</div>
+        <p>전체 브랜치 보류 판정을 유지합니다.</p>
+      </div>
+      <div class="tile">
+        <div class="label">분리 후보</div>
+        <p><code>3aeb0520</code> 단독은 선별 적용 후보입니다.</p>
+      </div>
+      <div class="tile">
+        <div class="label">이번 작업</div>
+        <p>검증 응답 수거만 수행했습니다.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>판정</h2>
+      <p>Antigravity의 독립 검증은 Codex의 기존 판단과 일치합니다. <code>origin/codex/nebori-asset-spec</code> 전체 브랜치는 병합 보류입니다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p>브랜치 전체 차이는 Nebori 에셋 추가와 무관한 회귀성 변경을 포함합니다. 따라서 Claude 병합 게이트는 전체 브랜치가 아니라 검은 구체 에셋 커밋만 별도로 선별 적용할지 판단해야 합니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증 근거</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>확인 내용</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>전체 브랜치</td><td>테스트 삭제, 토큰 하한 제거, R1 문서 삭제, 죽은 locale 키 재추가, 가격 미러 변경 포함</td><td>보류</td></tr>
+          <tr><td>단독 커밋</td><td><code>3aeb0520</code>은 PNG 1개와 HTML 1개만 추가</td><td>분리 가능</td></tr>
+          <tr><td>HTML 텍스트</td><td>Antigravity가 한국어 가독 규칙 위반 없음으로 확인</td><td>통과</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>섹션 35 자체 패널</h2>
+      <table>
+        <tbody>
+          <tr><th>찬성</th><td>검은 구체 머리 에셋은 Nebori의 중심 시각 신호를 강화하고 단일 커밋으로 격리되어 있습니다.</td></tr>
+          <tr><th>반대</th><td>브랜치 전체는 출력 토큰 하한과 회귀 테스트를 제거하므로 그대로 병합하면 방어 장치가 약해집니다.</td></tr>
+          <tr><th>대안</th><td>Claude가 <code>3aeb0520</code>만 최신 <code>origin/main</code> 위로 선별 적용합니다.</td></tr>
+          <tr><th>판정</th><td>전체 브랜치 보류, 단독 커밋만 후보로 유지합니다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>작업 범위</h2>
+      <p>이번 사이클에서는 앱 코드 수정, 2nd-B push, 파괴적 작업, 비용 발생 작업, secret 접근을 하지 않았습니다.</p>
+      <details>
+        <summary>링크</summary>
+        <p>Antigravity 검증: <code>agents/antigravity/outbox/20260731-044133-antigravity-re-verify-nebori-black-orb-qa.md</code></p>
+        <p>Codex 원판정: <code>agents/codex/outbox/20260731-042925-codex-to-claude-nebori-black-orb-qa.md</code></p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

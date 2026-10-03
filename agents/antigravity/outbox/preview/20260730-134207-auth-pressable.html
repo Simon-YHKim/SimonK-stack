@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 보고서: 인증 화면 분리</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; margin: 20px; }
+  h1, h2 { color: #E0E0E0; }
+  .highlight { color: #82AAFF; }
+  table { border-collapse: collapse; width: 100%; margin-top: 15px; }
+  th, td { border: 1px solid #E0E0E0; padding: 8px; text-align: left; }
+  th { color: #82AAFF; }
+  .btn { display: inline-block; padding: 10px 15px; background-color: #121212; color: #82AAFF; text-decoration: none; border: 1px solid #82AAFF; margin-top: 20px; }
+</style>
+</head>
+<body>
+  <h1>품질 보증 보고서: 인증 화면</h1>
+  <p>대상 브랜치: <span class="highlight">codex/pressable-sweep-v-20260730-132950</span></p>
+  <p>커밋 해시: <span class="highlight">39bce5fe</span></p>
+
+  <h2>정적 품질 검증 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 호환성</td>
+        <td>통과</td>
+        <td>안드로이드 터치 피드백 정상</td>
+      </tr>
+      <tr>
+        <td>접근성</td>
+        <td>통과</td>
+        <td>접근성 라벨 정상 유지</td>
+      </tr>
+      <tr>
+        <td>오류 분석</td>
+        <td>없음</td>
+        <td>크래시 유발 요인 없음</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론 및 권고</h2>
+  <p>변경 사항은 모바일 네이티브 환경에서 안전합니다. 병합을 승인합니다.</p>
+
+  <a href="#" class="btn">확인 완료</a>
+</body>
+</html>

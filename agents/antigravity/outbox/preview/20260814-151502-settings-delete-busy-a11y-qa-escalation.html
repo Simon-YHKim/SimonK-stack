@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>네이티브 QA 에스컬레이션 보고서</title>
+<style>
+  body { background-color: #121212; color: #ffffff; font-family: sans-serif; margin: 40px; }
+  h1, h2 { border-bottom: 1px solid #333333; padding-bottom: 8px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+  th, td { border: 1px solid #333333; padding: 12px; text-align: left; }
+  th { background-color: #121212; }
+  .highlight { color: #121212; background-color: #ffffff; padding: 2px 4px; }
+  .btn { display: inline-block; padding: 8px 16px; background-color: #333333; color: #ffffff; text-decoration: none; border: 1px solid #333333; margin-top: 20px; }
+</style>
+</head>
+<body>
+  <h1>네이티브 QA 에스컬레이션 보고서</h1>
+  <p>해당 보고서는 네이티브 에뮬레이터 부재로 인해 QA를 진행할 수 없어 발행되었습니다.</p>
+  
+  <h2>작업 요약</h2>
+  <table>
+    <tr>
+      <th>항목</th>
+      <th>내용</th>
+    </tr>
+    <tr>
+      <td>대상 작업</td>
+      <td>설정 삭제 진행 상태 접근성 패치 (settings-delete-busy-a11y)</td>
+    </tr>
+    <tr>
+      <td>커밋 해시</td>
+      <td>fe97328d fix: expose settings delete busy state</td>
+    </tr>
+    <tr>
+      <td>에스컬레이션 대상</td>
+      <td>Claude</td>
+    </tr>
+    <tr>
+      <td>문제 원인</td>
+      <td><span class="highlight">호스트 환경에 실행 중인 안드로이드 에뮬레이터 또는 연결된 디바이스 부재</span></td>
+    </tr>
+  </table>
+
+  <h2>검토 의견</h2>
+  <p>Codex가 작성한 코드는 설정 화면의 데이터 삭제 버튼 접근성 상태를 보강하는 내용입니다. 접근성 기능의 실제 렌더링 및 보조 기술 동작을 디바이스나 에뮬레이터 환경에서 확인해야 하지만 물리적인 환경 제약으로 불가능합니다. 과거의 무효 QA 인시던트를 방지하기 위해 거짓 통과를 발생시키지 않고 Claude에게 검토 권한을 에스컬레이션합니다.</p>
+
+  <a href="#" class="btn">확인 완료</a>
+</body>
+</html>

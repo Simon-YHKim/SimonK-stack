@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>백그라운드 도크 터치 표면 정규화 보고</title>
+  <style>
+    :root { --bg: #101214; --text: #e6edf0; --accent: #75d0c2; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 44px; }
+    header { border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); padding: 22px; border-radius: 8px; }
+    h1, h2 { margin: 0 0 10px; line-height: 1.25; }
+    h1 { font-size: 26px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 8px 0; }
+    section { margin-top: 22px; padding-top: 18px; border-top: 1px solid color-mix(in srgb, var(--text) 18%, transparent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: left; vertical-align: top; padding: 10px; border: 1px solid color-mix(in srgb, var(--text) 16%, transparent); }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 14px; }
+    .box { border: 1px solid color-mix(in srgb, var(--text) 16%, transparent); border-radius: 8px; padding: 14px; }
+    .ok { color: var(--accent); font-weight: 700; }
+    .muted { opacity: .78; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>백그라운드 도크 터치 표면 정규화</h1>
+      <p>이번 사이클은 2nd-B의 백그라운드 작업 도크에서 터치 레이어와 시각 레이어가 섞인 구조를 분리했다.</p>
+      <p class="muted">기록 시각: 2026-07-30 14:41:31 KST</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="box"><strong>결과</strong><p class="ok">완료</p></div>
+        <div class="box"><strong>브랜치</strong><p><code>codex/pressable-sweep-y-20260730-143909</code></p></div>
+        <div class="box"><strong>커밋</strong><p><code>22d7eb40</code></p></div>
+        <div class="box"><strong>푸시</strong><p>하지 않음</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead>
+          <tr><th>파일</th><th>변경</th><th>효과</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/components/deepspace/BackgroundTaskDock.tsx</code></td>
+            <td><code>Pressable</code>은 접근성, 터치 영역, Android ripple만 담당하고, 안쪽 <code>View</code>가 도크의 배경, 테두리, 간격을 담당하도록 분리했다.</td>
+            <td>터치 피드백과 시각 스타일의 책임이 분리되어 Android에서 눌림 반응이 더 일관된다.</td>
+          </tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>기존 구조는 <code>Pressable</code> 자체가 배경색, 테두리, 패딩을 직접 소유했다. 이번 변경은 <code>dockHit</code>와 <code>dockVisual</code>을 나누어 터치 표면과 보이는 표면을 독립시켰다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead>
+          <tr><th>명령</th><th>결과</th><th>메모</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npm exec -- prettier --check src/components/deepspace/BackgroundTaskDock.tsx</code></td><td class="ok">통과</td><td>변경 파일 포맷 확인</td></tr>
+          <tr><td><code>npm exec -- eslint src/components/deepspace/BackgroundTaskDock.tsx</code></td><td class="ok">통과</td><td>변경 파일 lint 확인</td></tr>
+          <tr><td><code>git diff --check</code></td><td class="ok">통과</td><td>공백 오류 없음</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td class="ok">통과</td><td>금지 어휘 없음</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td class="ok">통과</td><td>locale 문자열 em dash 없음</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>실패</td><td>기존 <code>madge</code>, ads, Firebase 타입 해석 오류에서 중단</td></tr>
+          <tr><td><code>npm run verify</code></td><td>실패</td><td>전체 lint는 warning만 있었고, 이후 동일 type-check 오류에서 중단</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자기 패널</h2>
+      <table>
+        <thead>
+          <tr><th>관점</th><th>검토</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>가치</td><td>전역 배경 작업 도크는 사용 중 계속 떠 있는 표면이라 터치 피드백 품질 영향이 작지 않다.</td></tr>
+          <tr><td>반론</td><td>기능 변화가 작아 전체 verify 실패를 새 결함으로 오해할 수 있다.</td></tr>
+          <tr><td>판정</td><td>변경 파일 검증은 통과했고 전체 실패는 기존 dependency type resolution 문제로 한정되어 제출 가능하다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>남은 위험</h2>
+      <p>실기기 렌더링은 이번 헤드리스 사이클에서 확인하지 않았다. Android ripple의 실제 시각은 Antigravity 또는 Claude의 통합 검증에서 확인하면 된다.</p>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>온보딩 버튼 터치 상태 정규화 보고서</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e6edf3; --accent:#58c7b7; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,sans-serif; line-height:1.55; }
+    main { width:min(980px, calc(100% - 32px)); margin:0 auto; padding:40px 0; }
+    header, section { border:1px solid color-mix(in srgb, var(--accent) 34%, transparent); border-radius:8px; padding:20px; margin:0 0 16px; background:color-mix(in srgb, var(--text) 5%, transparent); }
+    h1, h2 { margin:0 0 12px; line-height:1.2; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; color:var(--accent); }
+    p { margin:0 0 10px; }
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th, td { text-align:left; padding:10px; border-bottom:1px solid color-mix(in srgb, var(--accent) 22%, transparent); vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
+    .card { border:1px solid color-mix(in srgb, var(--accent) 22%, transparent); border-radius:8px; padding:14px; }
+    .label { color:var(--accent); font-weight:700; display:block; margin-bottom:4px; }
+    details { margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { width:100%; height:12px; border:1px solid var(--accent); border-radius:8px; overflow:hidden; }
+    .fill { height:100%; background:var(--accent); width:100%; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>온보딩 버튼 터치 상태 정규화 보고서</h1>
+      <p>기록 시작 화면의 기본 버튼과 보조 버튼에서 함수형 스타일 생성을 제거하고, 명시적인 눌림 상태로 같은 시각 효과를 유지했습니다.</p>
+      <div class="grid">
+        <div class="card"><span class="label">결과</span>완료</div>
+        <div class="card"><span class="label">앱 커밋</span><code>9e93e349</code></div>
+        <div class="card"><span class="label">검증</span><code>npm run verify</code> 통과</div>
+        <div class="card"><span class="label">위험도</span>낮음</div>
+      </div>
+    </header>
+
+    <section>
+      <h2>변경 요약</h2>
+      <table>
+        <thead><tr><th>파일</th><th>내용</th><th>영향</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>src/app/onboarding.tsx</code></td>
+            <td>두 개의 <code>Pressable</code> 버튼을 <code>useState</code>, <code>onPressIn</code>, <code>onPressOut</code> 기반 눌림 상태로 변경</td>
+            <td>문구, 이동 경로, 접근성 라벨은 유지</td>
+          </tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>기존에는 버튼 렌더링 때마다 <code>style</code> 함수가 눌림 상태 배열을 만들었습니다. 이번 변경은 같은 눌림 효과를 상태값으로 관리해 Pressable 정리 레인의 패턴과 맞췄습니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <div class="bar" aria-label="검증 통과율"><div class="fill"></div></div>
+      <table>
+        <thead><tr><th>항목</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+          <tr><td>시크릿 패턴 점검</td><td>민감값 없음</td></tr>
+          <tr><td><code>npm run verify</code></td><td>통과, 295개 테스트 묶음과 2212개 테스트 통과</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <table>
+        <thead><tr><th>관점</th><th>판단</th></tr></thead>
+        <tbody>
+          <tr><td>찬성</td><td>첫 진입 화면의 버튼 눌림 처리를 명시화하면 Pressable 정리 레인의 일관성이 올라갑니다.</td></tr>
+          <tr><td>반대</td><td>온보딩은 첫 사용자 경험이므로 문구, 이동 경로, 완료 처리까지 같이 건드리면 회귀 위험이 커집니다.</td></tr>
+          <tr><td>판정</td><td>버튼 스타일 상태만 바꾸고 동작과 문구는 유지했습니다. 고위험 산출물이 아니므로 추가 교차검증 요청은 만들지 않았습니다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>제한 준수</h2>
+      <p>2nd-B에는 로컬 브랜치 커밋만 만들었고 push하지 않았습니다. 허브에서는 <code>agents/codex/</code> 아래 보고 파일과 상태 파일만 작성했습니다. 파괴, 비용, 민감값 작업은 수행하지 않았습니다.</p>
+      <p>작성 시각: 2026-07-30 02:46:32 KST</p>
+    </section>
+  </main>
+</body>
+</html>

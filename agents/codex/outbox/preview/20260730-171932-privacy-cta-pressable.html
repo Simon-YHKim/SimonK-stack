@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>개인정보 버튼 표면 정규화 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b1020; --text:#e6edf3; --muted:#8ea0b8; --accent:#5eead4; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 48px; }
+    header, section { border: 1px solid var(--muted); border-radius: 8px; padding: 18px; margin-bottom: 16px; }
+    h1, h2 { margin: 0 0 12px; color: var(--text); }
+    h1 { font-size: 24px; }
+    h2 { font-size: 18px; }
+    p { margin: 6px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-top: 1px solid var(--muted); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { margin-top: 10px; }
+    summary { color: var(--accent); cursor: pointer; }
+    .muted { color: var(--muted); }
+    .ok { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>개인정보 설정 버튼 표면 정규화</h1>
+      <p>이번 사이클은 2nd-B 개인정보 설정 화면의 추천 및 의미 연결 버튼 6개를 정규화했다.</p>
+      <p class="muted">기록 시각: 2026-07-30 17:19:32 KST</p>
+    </header>
+
+    <section>
+      <h2>한눈에 보기</h2>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>브랜치</td><td><code>codex/pressable-sweep-ah-20260730-171521</code></td></tr>
+        <tr><td>커밋</td><td><code>74a90be7</code></td></tr>
+        <tr><td>변경 파일</td><td><code>src/screens/deepspace/DeepSpaceDesignScreens.tsx</code></td></tr>
+        <tr><td>변환 수</td><td>6개 버튼</td></tr>
+        <tr><td>보류 수</td><td>0개</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <p>공통 <code>CtaSurface</code>를 추가해 버튼의 보이는 모양은 <code>View</code>가 맡고, 터치와 접근성은 전체 면적 <code>Pressable</code>이 맡도록 분리했다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p>추천 끄기, 추천 켜기, 추천 취소, 추천 동의, 의미 연결 끄기, 의미 연결 켜기, 의미 연결 취소 및 동의 흐름에 같은 표면 패턴을 적용했다. 같은 helper를 공유하므로 이후 같은 화면에서 버튼 표면 규칙을 유지하기 쉽다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <tr><th>검사</th><th>결과</th></tr>
+        <tr><td><code>npx eslint src/screens/deepspace/DeepSpaceDesignScreens.tsx</code></td><td class="ok">통과, 기존 미사용 import 경고만 있음</td></tr>
+        <tr><td><code>npx jest src/lib/__tests__/no-function-form-pressable-style.test.ts --runInBand</code></td><td class="ok">통과, 10개 테스트</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td class="ok">통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td class="ok">통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td class="ok">통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>기존 의존성 타입 해석 문제로 실패</td></tr>
+      </table>
+      <details>
+        <summary>타입 검사 실패 근거</summary>
+        <p>실패 위치는 <code>scripts/check-require-cycles.ts</code>, <code>src/lib/ads/consent.native.ts</code>, <code>src/lib/ads/rewarded.native.ts</code>, <code>src/lib/analytics/index.ts</code>의 기존 모듈 타입 해석 문제다. 이번 변경 파일 자체의 신규 타입 오류는 보고되지 않았다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <table>
+        <tr><th>관점</th><th>판정</th></tr>
+        <tr><td>찬성</td><td>기존 스타일과 문구를 유지하면서 Android 터치 피드백과 표면 소유권을 개선했다.</td></tr>
+        <tr><td>반대</td><td>공통 helper가 한 파일 안에 추가되어, 장기적으로는 공유 버튼 원시 컴포넌트로 옮길 여지가 있다.</td></tr>
+        <tr><td>대안</td><td>전역 버튼 컴포넌트로 바로 통합하는 방법은 이번 한 사이클 범위를 넘어서 보류했다.</td></tr>
+        <tr><td>판정</td><td>단일 화면 그룹의 반복 결함 제거로 적절하며, Claude 머지 게이트 검토에 넘길 수 있다.</td></tr>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

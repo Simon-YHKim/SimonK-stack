@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RLS auth.uid v2 브랜치 QA 보고서</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e8eef2; --accent:#8cc8ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height:1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 20px 56px; }
+    header { border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); padding: 22px; border-radius: 8px; }
+    h1, h2, h3 { margin: 0 0 12px; letter-spacing: 0; }
+    h1 { font-size: clamp(26px, 4vw, 40px); }
+    h2 { font-size: 20px; margin-top: 28px; color: var(--accent); }
+    p { margin: 8px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 18px; }
+    .card { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 8px; padding: 16px; }
+    .label { color: var(--accent); font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align: left; border-bottom: 1px solid color-mix(in srgb, var(--text) 18%, transparent); padding: 10px 8px; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    details { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 8px; padding: 12px 14px; margin: 10px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .bar { width: 100%; height: 10px; background: color-mix(in srgb, var(--text) 12%, transparent); border-radius: 999px; overflow: hidden; }
+    .fill { height: 100%; background: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>RLS auth.uid v2 브랜치 QA 보고서</h1>
+      <p>생성 시각: 2026-08-06 08:13:26 KST</p>
+      <p>대상: 2nd-B <code>origin/chore/rls-wrap-auth-uid-v2</code></p>
+      <div class="grid">
+        <section class="card">
+          <div class="label">판정</div>
+          <p>신규 병합보다 닫기 또는 무변경 처리를 권고합니다.</p>
+        </section>
+        <section class="card">
+          <div class="label">근거</div>
+          <p><code>0102</code> 변경은 이미 <code>origin/main</code>에 포함되어 있습니다.</p>
+        </section>
+        <section class="card">
+          <div class="label">주의</div>
+          <p>브랜치 head는 최신 <code>0103</code> schema capture를 포함하지 않습니다.</p>
+        </section>
+      </div>
+    </header>
+
+    <h2>요약</h2>
+      <p>Codex는 직접 수신함과 다른 에이전트 발신함을 확인한 뒤, 새로 수거할 최근 열린 지시가 없어 2nd-B 레인에서 가장 가치가 큰 후보로 <code>origin/chore/rls-wrap-auth-uid-v2</code>를 검토했습니다. 이 브랜치는 스키마 정책 변경을 다루므로 고위험 산출물로 분류했고, Antigravity 교차검증 요청을 별도로 발행했습니다.</p>
+
+    <h2>상태 비교</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>결과</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>기준 main</td><td><code>cae2b7cad132670ddf8a3e2162097f50524ea2d6</code></td></tr>
+        <tr><td>후보 branch</td><td><code>da85add049adbdc647c00c1cbcbfb008f25553fd</code></td></tr>
+        <tr><td>PR식 차이</td><td><code>db/migrations/0102_rls_wrap_auth_uid.sql</code> 단일 추가처럼 보임</td></tr>
+        <tr><td>트리 직접 비교</td><td><code>0103_persona_graph_capture.sql</code> 삭제처럼 보임</td></tr>
+        <tr><td>실무 해석</td><td>이미 main에 흡수된 변경을 오래된 브랜치가 다시 들고 있는 상태</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <div class="bar" aria-label="검증 통과 비율"><div class="fill" style="width:86%"></div></div>
+    <table>
+      <thead>
+        <tr><th>검증</th><th>상태</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>git diff --check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:definer-grants</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:constraints</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td>차이 내 민감값 패턴 검사</td><td>노출 없음</td></tr>
+        <tr><td>DB replay</td><td>미실행. 로컬 도구가 없고 실제 DB 적용은 하지 않음</td></tr>
+      </tbody>
+    </table>
+
+    <h2>자기 패널</h2>
+    <details open>
+      <summary>찬성 관점</summary>
+      <p><code>0102</code>는 이미 main에 존재하고 대상 검증이 통과했습니다. 스키마 변경 자체의 추가 위험 신호는 낮습니다.</p>
+    </details>
+    <details>
+      <summary>반대 관점</summary>
+      <p>후보 브랜치 head는 최신 <code>0103</code> 파일을 포함하지 않아 브랜치 checkout 기준으로는 스키마 capture가 빠진 상태입니다.</p>
+    </details>
+    <details>
+      <summary>대안 관점</summary>
+      <p>Claude 병합 게이트가 브랜치를 닫고 main 상태를 정본으로 삼거나, 필요하면 최신 main에서 무변경 정리만 하는 편이 명확합니다.</p>
+    </details>
+    <details>
+      <summary>심판 판정</summary>
+      <p>신규 병합 후보로는 HOLD 또는 CLOSE 권고입니다. 이미 main에 흡수된 변경을 다시 병합할 실익이 없고, 오래된 트리 착시를 줄이는 것이 안전합니다.</p>
+    </details>
+
+    <h2>제한 사항</h2>
+    <p>Codex는 2nd-B push, hub branch 변경, destructive action, cost action, secret action을 하지 않았습니다. 허브 작성은 <code>agents/codex/</code> 아래로 제한했습니다.</p>
+  </main>
+</body>
+</html>

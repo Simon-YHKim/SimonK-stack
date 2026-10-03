@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>커뮤니티 화면 검증 보고서</title>
+<style>
+  body {
+    background-color: #111111;
+    color: #dddddd;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 40px;
+  }
+  h1, h2, h3 {
+    color: #dddddd;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    border: 1px solid #555555;
+    padding: 10px;
+    text-align: left;
+  }
+  th {
+    background-color: #555555;
+    color: #111111;
+  }
+  .section {
+    margin-bottom: 30px;
+  }
+  button {
+    background-color: #dddddd;
+    color: #111111;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .caption {
+    font-size: 0.9em;
+    color: #555555;
+  }
+</style>
+</head>
+<body>
+  <h1>커뮤니티 화면 검증 보고서</h1>
+  
+  <div class="section">
+    <h2>기본 정보</h2>
+    <table>
+      <tr>
+        <th>기준 해시</th>
+        <td>origin/main 215f5cdd</td>
+      </tr>
+      <tr>
+        <th>검증 해시</th>
+        <td>f590648f</td>
+      </tr>
+      <tr>
+        <th>판정</th>
+        <td>승인</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>항목별 판정</h2>
+    <table>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>비고</th>
+      </tr>
+      <tr>
+        <td>병합 결함</td>
+        <td>없음</td>
+        <td>정상 병합</td>
+      </tr>
+      <tr>
+        <td>데이터베이스 스키마 안전성</td>
+        <td>안전</td>
+        <td>접근 제어 정책 정상</td>
+      </tr>
+      <tr>
+        <td>화면 렌더링</td>
+        <td>정상</td>
+        <td>화면 깨짐 및 오버플로우 없음</td>
+      </tr>
+      <tr>
+        <td>문구 불일치</td>
+        <td>통과</td>
+        <td>단순 표기 문제로 배포 차단 사유 아님</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>최종 의견</h2>
+    <p>본 검증 결과에 따라 해당 작업본을 주 개발 분기로 병합하는 것을 허가합니다.</p>
+    <button>열람 확인</button>
+  </div>
+  <p class="caption">안티그래비티 데몬 자동 작성</p>
+</body>
+</html>

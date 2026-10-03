@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>분석 로더 접근성 보고서</title>
+  <style>
+    :root { --bg: #111318; --text: #e7eaf0; --accent: #7ac7d8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height: 1.6; }
+    main { max-width: 980px; margin: 0 auto; padding: 40px 20px 56px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); margin-top: 28px; }
+    p { margin: 0 0 14px; }
+    .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 24px 0; }
+    .card, table, details { border: 1px solid var(--accent); border-radius: 6px; background: rgba(122, 199, 216, 0.06); }
+    .card { padding: 14px; min-height: 92px; }
+    .label { display: block; font-size: 12px; color: var(--accent); margin-bottom: 8px; }
+    .value { font-size: 15px; font-weight: 700; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; overflow: hidden; margin-top: 10px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid rgba(122, 199, 216, 0.35); text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    tr:last-child td { border-bottom: 0; }
+    code { color: var(--accent); word-break: break-word; }
+    details { padding: 12px 14px; margin: 12px 0; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .bar { width: 100%; height: 10px; border: 1px solid var(--accent); border-radius: 999px; overflow: hidden; margin: 8px 0 4px; }
+    .bar span { display: block; width: 100%; height: 100%; background: var(--accent); }
+    @media (max-width: 760px) { .summary { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 520px) { .summary { grid-template-columns: 1fr; } main { padding-top: 28px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>분석 로더 접근성 보고서</h1>
+    <p>이번 단일 사이클에서는 2nd-B의 긴 분석 로더에서 사용자가 작업을 백그라운드로 보낼 수 있는 버튼에 명시적인 접근성 이름을 추가했다.</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="card"><span class="label">결과</span><div class="value">로컬 커밋 완료</div></div>
+      <div class="card"><span class="label">브랜치</span><div class="value"><code>codex/qa-cycle-20260812-050840</code></div></div>
+      <div class="card"><span class="label">앱 커밋</span><div class="value"><code>293afc7a</code></div></div>
+      <div class="card"><span class="label">위험</span><div class="value">낮음</div></div>
+    </section>
+
+    <h2>무엇을 바꿨나</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th><th>이유</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>src/components/deepspace/DeepSpaceLoader.tsx</code></td>
+          <td>분석 로더의 백그라운드 전환 버튼에 <code>accessibilityLabel={bg}</code>를 추가했다.</td>
+          <td>화면 읽기 도구가 장기 분석 탈출 버튼을 안정적으로 읽을 수 있게 하기 위해서다.</td>
+        </tr>
+        <tr>
+          <td><code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code></td>
+          <td>소스 스캔 회귀 테스트를 추가했다.</td>
+          <td>같은 버튼에서 접근성 이름이 다시 빠지는 것을 막기 위해서다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자세히</summary>
+      <p>버튼의 보이는 문구는 이미 지역화된 <code>bg</code> 값을 사용하고 있었다. 같은 값을 접근성 이름으로 연결했기 때문에 새 번역 키나 별도 문구를 만들지 않았다.</p>
+      <p>Prettier가 기존 파일의 일부 줄바꿈을 정리해 커밋 통계는 실제 기능 변경보다 크게 보인다. 동작 변경은 접근성 라벨 추가와 회귀 테스트 추가에 한정된다.</p>
+    </details>
+
+    <h2>검증</h2>
+    <div class="bar" aria-label="검증 통과율"><span></span></div>
+    <table>
+      <thead><tr><th>검증 항목</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td><code>npx prettier --check</code></td><td>통과</td></tr>
+        <tr><td><code>npx jest src/lib/__tests__/deep-space-controls-a11y.test.ts --runInBand</code></td><td>통과, 테스트 9개</td></tr>
+        <tr><td><code>npx eslint</code> 대상 파일</td><td>통과</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:constraints</code></td><td>통과, 기존 C11 부분 상태 유지</td></tr>
+        <tr><td><code>npm run check:safety-consent-locale</code></td><td>통과</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+        <tr><td><code>git diff --check</code></td><td>줄끝 경고만 확인</td></tr>
+        <tr><td>diff 민감값 패턴 스캔</td><td>통과</td></tr>
+      </tbody>
+    </table>
+
+    <h2>가드레일</h2>
+    <table>
+      <thead><tr><th>항목</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td>2nd-B push</td><td>수행하지 않음</td></tr>
+        <tr><td>허브 브랜치 변경</td><td>수행하지 않음</td></tr>
+        <tr><td>파괴, 비용, 시크릿 작업</td><td>수행하지 않음</td></tr>
+        <tr><td>허브 쓰기 범위</td><td><code>agents/codex/</code> 안으로 제한</td></tr>
+      </tbody>
+    </table>
+
+    <h2>남은 일</h2>
+    <p>Claude가 병합 게이트에서 로컬 커밋 <code>293afc7a</code>를 검토하고 필요하면 본류에 통합하면 된다.</p>
+    <p>보고 시각: 2026-08-12 05:12:22 KST</p>
+  </main>
+</body>
+</html>

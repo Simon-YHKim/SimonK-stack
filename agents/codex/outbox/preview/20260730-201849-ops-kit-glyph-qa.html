@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>옵스 키트 기호 정리 검토</title>
+  <style>
+    :root { --bg: #101214; --text: #e8edf2; --accent: #76d1c5; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { width: min(980px, calc(100% - 32px)); margin: 0 auto; padding: 36px 0 48px; }
+    h1, h2 { margin: 0 0 12px; }
+    h1 { font-size: 30px; }
+    h2 { font-size: 19px; color: var(--accent); margin-top: 28px; }
+    p { margin: 8px 0; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 18px 0 24px; }
+    .card, details { border: 1px solid var(--accent); padding: 14px; border-radius: 6px; }
+    .label { display: block; color: var(--accent); font-size: 12px; margin-bottom: 4px; }
+    .value { font-size: 16px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid var(--accent); padding: 9px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .bar { height: 10px; border: 1px solid var(--accent); margin: 8px 0 2px; }
+    .fill { height: 100%; background: var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>옵스 키트 기호 정리 검토</h1>
+    <p>이번 사이클은 새 UI 변경을 늘리지 않고, 최신 미머지 패치 한 건을 원격 기준 QA 브랜치에 적용해 merge gate 판단 자료를 만들었다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">대상 패치</span><span class="value">998403bb</span></div>
+      <div class="card"><span class="label">검토 브랜치</span><span class="value">codex/qa-ops-kit-glyphs-20260730-201656</span></div>
+      <div class="card"><span class="label">판정</span><span class="value">조건부 통과</span></div>
+      <div class="card"><span class="label">푸시</span><span class="value">하지 않음</span></div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td>적용 기준</td><td><code>origin/main</code></td><td>새 QA worktree를 만들고 대상 커밋만 cherry-pick했다.</td></tr>
+        <tr><td>변경 파일</td><td><code>src/components/deepspace/ops/kit.tsx</code></td><td>장식 기호를 한국어 텍스트 배지와 상태 라벨로 대체한 단일 파일 변경이다.</td></tr>
+        <tr><td>최종 커밋</td><td><code>c86c6275</code></td><td>QA 브랜치의 cherry-pick 결과 커밋이다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <table>
+      <thead><tr><th>검사</th><th>상태</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td><code>git diff --check</code></td><td>통과</td><td>공백 오류 없음.</td></tr>
+        <tr><td><code>npx prettier --check src/components/deepspace/ops/kit.tsx</code></td><td>통과</td><td>최종 확인 기준 포맷 정상.</td></tr>
+        <tr><td><code>npx eslint src/components/deepspace/ops/kit.tsx</code></td><td>통과</td><td>변경 파일 단위 lint 정상.</td></tr>
+        <tr><td>장식 기호 스캔</td><td>통과</td><td>변경 파일에서 지정한 장식 기호 패턴 미검출.</td></tr>
+        <tr><td><code>npm run check:emdash</code></td><td>통과</td><td>locale 문자열의 긴 대시 금지 규칙 통과.</td></tr>
+        <tr><td><code>npm run check:lexicon</code></td><td>통과</td><td>금지 어휘 검사 통과.</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>기존 블로커</td><td><code>madge</code>, 광고 모듈, Firebase analytics 타입 해석 실패로 중단. 변경 파일 밖의 기존 문제다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 분포</h2>
+    <div class="bar" aria-label="통과 검사 여섯 개 중 여섯 개"><div class="fill" style="width: 86%"></div></div>
+    <p>직접 관련 검사 6개는 통과했고, 전체 type-check 1개는 저장소 기존 의존성 문제로 막혔다.</p>
+
+    <details>
+      <summary>자세히</summary>
+      <p>초기 Prettier 확인은 경고를 냈지만, 포맷 명령 후 Git은 실질 내용 변경 없음으로 판단했고 최종 Prettier 확인은 통과했다. 따라서 이 사이클은 새 앱 기능을 추가하지 않고, 최신 glyph 정리 패치의 적용 가능성과 검증 상태를 정리하는 QA 산출물로 마감한다.</p>
+    </details>
+
+    <h2>다음 조치</h2>
+    <p>Claude가 이 패치를 선별 적용할 때는 <code>c86c6275</code> 또는 원 커밋 <code>998403bb</code>를 기준으로 보되, 전체 type-check 블로커는 별도 의존성 정비 이슈로 분리하는 것이 맞다.</p>
+    <p>작성 시각: 2026-07-30 20:18:49 KST</p>
+  </main>
+</body>
+</html>

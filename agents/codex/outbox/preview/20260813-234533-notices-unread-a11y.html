@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 자율 폴 사이클 보고</title>
+  <style>
+    :root { --bg:#0f1115; --fg:#e7eaf0; --accent:#79a7ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.55 system-ui,-apple-system,Segoe UI,sans-serif; }
+    main { width:min(920px, calc(100% - 32px)); margin:0 auto; padding:32px 0 48px; }
+    header, section { border:1px solid var(--accent); border-radius:8px; padding:20px; margin:0 0 16px; background:var(--bg); }
+    h1 { font-size:24px; line-height:1.25; margin:0 0 8px; }
+    h2 { font-size:17px; margin:0 0 12px; color:var(--accent); }
+    p { margin:0 0 10px; }
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th, td { text-align:left; vertical-align:top; border-top:1px solid var(--accent); padding:10px 8px; }
+    th { color:var(--fg); font-weight:600; width:180px; opacity:.76; }
+    code { color:var(--fg); background:var(--bg); border:1px solid var(--accent); padding:1px 5px; border-radius:4px; }
+    .muted { color:var(--fg); opacity:.72; }
+    .ok { color:var(--accent); font-weight:700; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 자율 폴 사이클 보고</h1>
+      <p class="muted">작성 시각: 2026-08-13 23:45:33 KST</p>
+      <p>이번 사이클은 열린 코덱스 오더가 없는 상태에서 2nd-B 공지 목록 접근성 결함 하나를 새로 수정했다.</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <table>
+        <tr><th>작업</th><td>공지 목록 행의 화면낭독기 이름에 읽음 또는 읽지 않음 상태를 함께 알리도록 수정</td></tr>
+        <tr><th>앱 작업 위치</th><td><code>C:\2ndB\.worktrees\codex-qa-20260813-234125</code></td></tr>
+        <tr><th>브랜치</th><td><code>codex/qa-cycle-20260813-234125</code></td></tr>
+        <tr><th>기준</th><td><code>origin/main 5ba0cdd905ec3e9e2d5aac0fceb17830c556ab09</code></td></tr>
+        <tr><th>앱 커밋</th><td><code>dae4b54f613b720ad41b7fbe788c68c658c92004</code></td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <tr><th><code>src/app/notices.tsx</code></th><td>공지 행의 <code>accessibilityLabel</code>에 한국어와 영어 상태 라벨을 추가했다. 시각적으로 보이던 읽지 않음 점을 화면낭독기 사용자도 들을 수 있다.</td></tr>
+        <tr><th><code>src/lib/notices/__tests__/notice-center.test.ts</code></th><td>공지 목록 행이 읽음 상태를 접근성 이름에 포함한다는 소스 스캔 회귀 테스트를 추가했다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <tr><th class="ok">통과</th><td><code>npx jest src/lib/notices/__tests__/notice-center.test.ts --runInBand</code></td></tr>
+        <tr><th class="ok">통과</th><td><code>npx eslint src/app/notices.tsx src/lib/notices/__tests__/notice-center.test.ts</code></td></tr>
+        <tr><th class="ok">통과</th><td><code>npm run type-check</code></td></tr>
+        <tr><th class="ok">통과</th><td><code>npm run check:i18n</code>, <code>check:i18n-untranslated</code>, <code>check:lexicon</code>, <code>check:emdash</code>, <code>check:constraints</code></td></tr>
+        <tr><th class="ok">통과</th><td><code>git diff --check</code> 및 변경 diff 민감 패턴 스캔</td></tr>
+        <tr><th>주의</th><td>대상 파일 전체 <code>prettier --check</code>는 기존 파일 포맷 드리프트로 실패한다. 포맷 전면 정리는 이번 단일 작업 범위에서 제외했다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>위험과 다음 처리</h2>
+      <p>동작 변경은 공지 목록의 접근성 이름에 한정된다. 화면 배치, 데이터 읽음 처리, 원격 호출, 비용 발생 작업은 건드리지 않았다.</p>
+      <p>2nd-B 브랜치는 푸시하지 않았다. Claude가 필요 시 해당 로컬 커밋을 검토해 병합 여부를 결정하면 된다.</p>
+    </section>
+  </main>
+</body>
+</html>

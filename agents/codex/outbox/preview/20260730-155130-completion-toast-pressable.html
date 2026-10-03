@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서: 완료 토스트 터치면 정리</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --text: #e8edf2; --muted: #9aa6b2; --accent: #5ee0b5; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 48px; }
+    h1, h2 { margin: 0 0 12px; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    p { margin: 0 0 12px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 20px 0; }
+    .card, details { border: 1px solid var(--muted); border-radius: 6px; padding: 14px; background: transparent; }
+    .label { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+    .value { font-size: 15px; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; }
+    th, td { border: 1px solid var(--muted); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .bar { width: 100%; height: 10px; border: 1px solid var(--muted); margin-top: 8px; }
+    .bar span { display: block; height: 100%; background: var(--accent); }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>완료 토스트 터치면 정리 사이클</h1>
+    <p>Codex 단일 자율 폴 사이클에서 열린 신규 요청은 없었고, 현재 Codex 레인에 맞춰 2nd-B 완료 토스트의 버튼 터치면을 정리했습니다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">앱 수정 1건 완료</div></div>
+      <div class="card"><div class="label">범위</div><div class="value">파일 1개</div></div>
+      <div class="card"><div class="label">브랜치</div><div class="value"><code>codex/pressable-sweep-ac-20260730-1548</code></div></div>
+      <div class="card"><div class="label">커밋</div><div class="value"><code>e0f99247</code></div></div>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead><tr><th>파일</th><th>변경 내용</th><th>효과</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>src/components/deepspace/CompletionToast.tsx</code></td>
+            <td>결과 보기와 나중에 버튼의 시각 래퍼를 <code>View</code>로 두고, <code>Pressable</code>은 전체 버튼 터치 레이어와 안드로이드 ripple만 담당하도록 분리했습니다.</td>
+            <td>Fabric Android에서 버튼 배경과 테두리 스타일이 사라지는 회귀 패턴을 줄이고, 눌림 피드백을 명확히 했습니다.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th><th>비고</th></tr></thead>
+        <tbody>
+          <tr><td>파일 Prettier</td><td>통과</td><td><code>npx prettier --write src/components/deepspace/CompletionToast.tsx</code></td></tr>
+          <tr><td>파일 ESLint</td><td>통과</td><td><code>npx eslint src/components/deepspace/CompletionToast.tsx</code></td></tr>
+          <tr><td>금지어 검사</td><td>통과</td><td><code>npm run check:lexicon</code></td></tr>
+          <tr><td>em dash 검사</td><td>통과</td><td><code>npm run check:emdash</code></td></tr>
+          <tr><td>공백 오류 검사</td><td>통과</td><td><code>git diff --check</code></td></tr>
+          <tr><td>전체 type-check</td><td>기존 차단</td><td>이번 파일 오류는 없고, 기존 의존성 타입 누락과 스크립트 타입 오류에서 중단되었습니다.</td></tr>
+        </tbody>
+      </table>
+      <div class="bar" aria-label="검증 통과 비율"><span style="width:83%"></span></div>
+    </section>
+
+    <details>
+      <summary>35 자기 패널</summary>
+      <p>찬성 관점: 완료 토스트는 작업 종료 직후 사용자가 가장 먼저 누르는 표면이므로 버튼 피드백 누락은 체감 품질에 직접 영향을 줍니다.</p>
+      <p>반대 관점: 작은 토스트 버튼이라 전체 기능 위험은 낮고, 큰 구조 변경은 불필요합니다.</p>
+      <p>판정: 작은 범위에서 시각 래퍼와 터치 레이어만 분리하는 것이 가치 대비 위험이 가장 낮습니다.</p>
+    </details>
+
+    <details>
+      <summary>위험과 롤백</summary>
+      <p>위험은 낮습니다. 레이아웃 크기는 기존 버튼 래퍼에 유지했고, <code>Pressable</code>만 절대 배치했습니다. 문제가 있으면 앱 커밋 <code>e0f99247</code>을 되돌리면 됩니다.</p>
+    </details>
+
+    <p>보고 시각: 2026-07-30 15:51:30 KST</p>
+  </main>
+</body>
+</html>

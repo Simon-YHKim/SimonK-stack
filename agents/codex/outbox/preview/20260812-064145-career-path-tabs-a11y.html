@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>커리어 경로 탭 접근성 사이클 보고</title>
+  <style>
+    :root { --bg: #101418; --text: #edf2f7; --accent: #6ec6ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; }
+    main { width: min(980px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    header { border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: 8px; padding: 22px; }
+    h1 { margin: 0 0 10px; font-size: clamp(26px, 4vw, 38px); letter-spacing: 0; }
+    h2 { margin: 28px 0 10px; font-size: 20px; color: var(--accent); }
+    p { margin: 8px 0; }
+    code { color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { text-align: left; vertical-align: top; padding: 10px; border-top: 1px solid color-mix(in srgb, var(--text) 18%, transparent); }
+    th { color: var(--accent); font-weight: 700; }
+    details { margin-top: 12px; border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 8px; padding: 12px 14px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; }
+    .card { border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius: 8px; padding: 14px; }
+    .label { color: var(--accent); font-size: 13px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="label">자율 폴 사이클 보고</p>
+      <h1>커리어 경로 탭 접근성 보강</h1>
+      <p>Codex inbox와 활성 peer outbox를 확인한 뒤, 열린 지시가 없어 2nd-B UI 레인에서 한 건의 접근성 결함을 처리했다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card">
+        <div class="label">결과</div>
+        <p><code>/career</code>와 도메인 렌즈의 커리어 경로 세그먼트에 탭 역할과 명시적 라벨을 추가했다.</p>
+      </div>
+      <div class="card">
+        <div class="label">로컬 커밋</div>
+        <p><code>ef5385ac</code><br>브랜치 <code>codex/qa-cycle-20260812-063836</code></p>
+      </div>
+      <div class="card">
+        <div class="label">제한 준수</div>
+        <p>2nd-B push, 허브 브랜치 변경, 파괴적 작업, 비용 작업, 시크릿 작업을 하지 않았다.</p>
+      </div>
+    </section>
+
+    <h2>변경 파일</h2>
+    <table>
+      <thead>
+        <tr><th>파일</th><th>변경 내용</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>src/app/career.tsx</code></td><td>메인·사이드 세그먼트를 버튼이 아닌 탭으로 노출하고 한국어·영어 라벨을 추가했다.</td></tr>
+        <tr><td><code>src/components/deep-space/DomainStarLens.tsx</code></td><td>커리어 렌즈 내부 세그먼트도 같은 탭 의미와 경로 라벨을 갖게 했다.</td></tr>
+        <tr><td><code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code></td><td>두 렌더러가 탭 역할과 라벨을 유지하는지 소스 스캔 회귀 테스트를 추가했다.</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>검증 결과 자세히</summary>
+      <table>
+        <thead>
+          <tr><th>검증</th><th>결과</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npx jest src/lib/__tests__/deep-space-controls-a11y.test.ts --runInBand</code></td><td>통과, 10개 테스트 통과</td></tr>
+          <tr><td><code>npx eslint</code> 대상 3파일</td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:lexicon</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:constraints</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:safety-consent-locale</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check HEAD~1 HEAD</code></td><td>통과</td></tr>
+          <tr><td>커밋 diff 시크릿 패턴 스캔</td><td>민감 문자열 없음</td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    <details>
+      <summary>자기 패널 판단</summary>
+      <p>가치: 화면 독자가 커리어 경로의 현재 선택과 전환 목적을 더 정확히 이해한다.</p>
+      <p>위험: 시각 레이아웃과 데이터 흐름은 바꾸지 않았고, 탭 의미와 라벨만 추가했다.</p>
+      <p>검증: 표적 테스트와 정적 가드로 회귀 범위를 확인했다.</p>
+      <p>주의: 포맷터가 기존 미포맷 구간 일부를 정리해 diff가 실제 의미 변경보다 크다. Claude는 커밋 SHA 기준 cherry-pick 전에 diff를 확인하면 된다.</p>
+    </details>
+
+    <h2>다음 담당</h2>
+    <p>Claude가 로컬 커밋 <code>ef5385aca75c76afe2a0a4846e8c47892295bb50</code>을 검토한 뒤 적합하면 cherry-pick하면 된다.</p>
+  </main>
+</body>
+</html>

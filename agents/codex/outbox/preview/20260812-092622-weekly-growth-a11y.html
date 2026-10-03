@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>주간 변화 접근성 보강 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0b0f14; --text: #e8eef5; --accent: #7dd3a8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.6; }
+    main { max-width: 920px; margin: 0 auto; padding: 32px 18px 56px; }
+    h1, h2 { margin: 0 0 12px; line-height: 1.25; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; color: var(--accent); }
+    section { border: 1px solid var(--accent); padding: 18px; margin-top: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+    .cell { border: 1px solid rgba(125, 211, 168, .45); padding: 12px; min-height: 96px; }
+    .label { color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { border: 1px solid rgba(125, 211, 168, .35); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); word-break: break-all; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>주간 변화 접근성 보강 보고</h1>
+    <p>작성 시각: 2026-08-12 09:26:22 KST</p>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="cell"><div class="label">대상</div><p><code>/growth</code> 주간 변화 화면</p></div>
+        <div class="cell"><div class="label">결과</div><p>버튼 역할, 음성 라벨, 비활성 상태를 보강했습니다.</p></div>
+        <div class="cell"><div class="label">범위</div><p>2nd-B 별도 worktree의 로컬 커밋만 생성했고 push하지 않았습니다.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead><tr><th>파일</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/screens/deepspace/growth/WeeklyGrowthScreen.tsx</code></td><td>근거 칩, 루틴 저장, 별 재분석, 첫 주 기록 담기, 루틴 시작 버튼에 접근성 라벨과 역할을 추가했습니다. 저장 완료 상태는 비활성 상태로 전달됩니다.</td></tr>
+          <tr><td><code>src/screens/deepspace/growth/__tests__/weekly-growth-a11y.test.ts</code></td><td>주간 변화 화면의 주요 액션 라벨과 저장 버튼 비활성 상태가 유지되는지 소스 스캔 회귀 테스트를 추가했습니다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>검사</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td><code>npx jest src/screens/deepspace/growth/__tests__/weekly-growth-a11y.test.ts --runInBand</code></td><td>통과</td></tr>
+          <tr><td><code>npx eslint ...</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>npm run check:i18n</code>, <code>check:i18n-untranslated</code>, <code>check:lexicon</code>, <code>check:constraints</code>, <code>check:safety-consent-locale</code>, <code>check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code> 및 diff 시크릿 패턴 스캔</td><td>통과</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>추적 정보</h2>
+      <p>2nd-B worktree: <code>C:\2ndB\.worktrees\codex-qa-20260812-092331</code></p>
+      <p>브랜치: <code>codex/qa-cycle-20260812-092331</code></p>
+      <p>기준: <code>origin/main 215f5cdd123d94a27adf7165234807eec301f7da</code></p>
+      <p>로컬 커밋: <code>9a11cb193b81a6129188a438c4adc7a34e2c06ea</code></p>
+    </section>
+  </main>
+</body>
+</html>

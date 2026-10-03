@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>요금제 보상 행 터치 표면 정규화 보고</title>
+  <style>
+    :root { --bg:#101418; --text:#eef3f7; --muted:#9aa8b4; --accent:#7cc7d8; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 48px; }
+    header, section { border:1px solid rgba(124,199,216,.28); border-radius:8px; padding:18px; margin:0 0 14px; }
+    h1 { margin:0 0 8px; font-size:24px; }
+    h2 { margin:0 0 12px; font-size:17px; color:var(--accent); }
+    p { margin:0 0 10px; }
+    table { width:100%; border-collapse:collapse; margin-top:8px; }
+    th, td { border-top:1px solid rgba(154,168,180,.25); padding:9px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+    .box { border:1px solid rgba(154,168,180,.25); border-radius:8px; padding:12px; min-height:84px; }
+    .label { color:var(--muted); font-size:12px; }
+    .value { display:block; margin-top:8px; font-size:18px; }
+    details { margin-top:8px; }
+    summary { cursor:pointer; color:var(--accent); }
+    svg { display:block; max-width:100%; height:auto; margin-top:8px; }
+    @media (max-width:720px) { .grid { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>요금제 보상 행 터치 표면 정규화</h1>
+      <p class="muted">작성 시각: 2026-07-30 16:08:38 KST</p>
+      <div class="grid">
+        <div class="box"><span class="label">결과</span><strong class="value">완료</strong></div>
+        <div class="box"><span class="label">범위</span><strong class="value">파일 1개</strong></div>
+        <div class="box"><span class="label">2nd-B 커밋</span><strong class="value">c5f1d055</strong></div>
+        <div class="box"><span class="label">푸시</span><strong class="value">안 함</strong></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <p>열린 Codex 요청은 없었고, Codex 레인의 현재 초점인 UI anti-slop 유지보수에 따라 2nd-B 요금제 화면의 보상형 광고 진입 행을 정규화했다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p>기존에는 보상 행의 레이아웃과 터치 처리가 같은 <code>Pressable</code>에 있었다. Android Fabric 계열에서 스타일과 터치 상태가 흔들릴 수 있는 패턴이라, 시각 레이아웃은 <code>View</code>에 두고 투명 <code>Pressable</code>을 전체 면적 터치 레이어로 분리했다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead><tr><th>파일</th><th>변경</th><th>영향</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>src/screens/deepspace/dds-plans-screen.tsx</code></td>
+            <td>보상형 광고 진입 행의 시각 wrapper와 터치 layer 분리, Android ripple 추가</td>
+            <td>요금제 동작, 결제 로직, 문구, 권한 정책은 변경 없음</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>항목</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>Prettier 파일 검사</td><td>통과</td></tr>
+          <tr><td>ESLint 파일 검사</td><td>통과</td></tr>
+          <tr><td>금지어 검사</td><td>통과</td></tr>
+          <tr><td>diff 공백 검사</td><td>통과</td></tr>
+          <tr><td>type-check</td><td>기존 의존성 타입 누락으로 실패, 이번 변경 오류는 없음</td></tr>
+        </tbody>
+      </table>
+      <svg viewBox="0 0 420 78" role="img" aria-label="검증 결과 막대">
+        <rect x="0" y="8" width="330" height="12" fill="#7cc7d8"></rect>
+        <text x="340" y="19" fill="#eef3f7" font-size="12">4 통과</text>
+        <rect x="0" y="42" width="82" height="12" fill="#9aa8b4"></rect>
+        <text x="92" y="53" fill="#eef3f7" font-size="12">1 기존 차단</text>
+      </svg>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <table>
+        <thead><tr><th>관점</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>찬성</td><td>기존 Pressable sweep과 같은 결함군을 줄이며 Android 터치 피드백이 명확해진다.</td></tr>
+          <tr><td>반대</td><td>Prettier가 파일 내 기존 긴 줄까지 정리해 diff가 실제 동작 변경보다 크다.</td></tr>
+          <tr><td>대안</td><td>보상 행만 수동 포맷으로 최소 diff를 유지할 수 있으나, 파일 포맷 검사를 통과시키는 편이 추적 가능하다.</td></tr>
+          <tr><td>판정</td><td>결정 게이트 대상이 아니며 단일 UI 구현 정규화로 진행 가능하다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>남은 위험</h2>
+      <p>실기기 렌더 검증은 수행하지 않았다. 전체 type-check는 기존 누락 의존성 때문에 완료되지 않았다.</p>
+    </section>
+  </main>
+</body>
+</html>

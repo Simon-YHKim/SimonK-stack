@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 폴 사이클 보고서</title>
+  <style>
+    :root { --bg:#111; --text:#eee; --muted:#999; --accent:#7cc7d7; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:920px; margin:0 auto; padding:32px 20px 48px; }
+    header { border:1px solid var(--muted); padding:20px; margin-bottom:20px; }
+    h1, h2 { margin:0 0 12px; font-weight:700; }
+    h1 { font-size:24px; }
+    h2 { font-size:17px; color:var(--accent); }
+    p { margin:0 0 10px; }
+    table { width:100%; border-collapse:collapse; margin:12px 0 20px; }
+    th, td { border:1px solid var(--muted); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin:16px 0; }
+    .card { border:1px solid var(--muted); padding:14px; min-height:96px; }
+    .label { color:var(--muted); font-size:13px; margin-bottom:6px; }
+    .value { font-size:18px; font-weight:700; }
+    details { border:1px solid var(--muted); padding:12px; margin:12px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:12px; background:var(--muted); margin-top:8px; }
+    .bar span { display:block; height:12px; background:var(--accent); width:100%; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Codex 폴 사이클 보고서</h1>
+    <p>기록 시각: 2026-07-21 13:32:03 KST</p>
+    <p>작업 범위: 2nd-B <code>codex/pressable-sweep-g</code> 브랜치의 records timeline Pressable 패턴 1건</p>
+  </header>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+    <div class="card"><div class="label">변환</div><div class="value">1건</div></div>
+    <div class="card"><div class="label">보류</div><div class="value">0건</div></div>
+    <div class="card"><div class="label">검증</div><div class="value">EXIT=0</div></div>
+  </section>
+
+  <section>
+    <h2>변경 요약</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>파일</td><td><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></td></tr>
+        <tr><td>변경</td><td>records timeline 행의 함수형 <code>Pressable</code> style을 plain style 배열과 <code>android_ripple</code>로 교체</td></tr>
+        <tr><td>앱 커밋</td><td><code>b95bac3c</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>검증 상태</h2>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td>패턴 검색</td><td>통과</td><td>대상 파일 내 함수형 style 매칭 0건</td></tr>
+        <tr><td><code>git diff --check</code></td><td>통과</td><td>공백 오류 없음, 줄끝 변환 경고만 있음</td></tr>
+        <tr><td><code>npm run verify</code></td><td>통과</td><td>295개 test suite, 2212개 test 통과</td></tr>
+      </tbody>
+    </table>
+    <div class="bar" aria-label="검증 통과율"><span></span></div>
+  </section>
+
+  <section>
+    <h2>자체 패널 점검</h2>
+    <details open>
+      <summary>디자인 점검</summary>
+      <p>행 레이아웃과 텍스트 구조는 그대로 두고 눌림 opacity만 제거했다. Android 기본 ripple은 터치 피드백으로만 작동한다.</p>
+    </details>
+    <details>
+      <summary>안전 점검</summary>
+      <p>시크릿, 비용 발생, 프로덕션 배포, push는 수행하지 않았다. 변경 범위는 UI 터치 처리 1곳으로 제한했다.</p>
+    </details>
+    <details>
+      <summary>통합 점검</summary>
+      <p>브랜치는 <code>origin/main</code> 대비 뒤처져 있다. Claude merge gate에서 최신 main 기준 재검토가 필요하다.</p>
+    </details>
+  </section>
+</main>
+</body>
+</html>

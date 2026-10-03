@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI 박물관 헤더 접근성 보강 보고서</title>
+  <style>
+    :root { --bg:#101418; --fg:#e8edf2; --ac:#79d7d0; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 48px; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { font-size:28px; line-height:1.2; margin-bottom:10px; }
+    h2 { font-size:18px; margin:28px 0 12px; color:var(--ac); }
+    h3 { font-size:15px; margin:0 0 8px; }
+    .muted { opacity:.72; }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:22px 0; }
+    .card { border:1px solid var(--ac); border-radius:8px; padding:14px; background:var(--bg); }
+    .label { font-size:12px; opacity:.72; }
+    .value { font-size:17px; font-weight:700; margin-top:4px; }
+    table { width:100%; border-collapse:collapse; margin:10px 0 18px; }
+    th, td { border:1px solid var(--ac); padding:9px 10px; text-align:left; vertical-align:top; }
+    th { color:var(--ac); font-weight:700; }
+    code { color:var(--ac); font-family:Consolas, monospace; }
+    details { border:1px solid var(--ac); border-radius:8px; padding:10px 12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--ac); font-weight:700; }
+    .bar { height:10px; border:1px solid var(--ac); border-radius:8px; overflow:hidden; margin-top:8px; }
+    .fill { height:100%; width:100%; background:var(--ac); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>AI 박물관 헤더 접근성 보강</h1>
+    <p class="muted">Codex 단일 poll cycle 결과입니다. 신규 요청은 없었고, Codex 레인의 UI 접근성 결함 한 건을 별도 2nd-B worktree에서 수정했습니다.</p>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+      <div class="card"><div class="label">앱 커밋</div><div class="value">d840c212</div></div>
+      <div class="card"><div class="label">푸시</div><div class="value">안 함</div></div>
+      <div class="card"><div class="label">위험도</div><div class="value">낮음</div></div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th><th>영향</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/screens/deepspace/museum/AiMuseumScreen.tsx</code></td><td>뒤로가기와 언어 전환 버튼에 한국어와 영어 접근성 라벨을 추가했습니다.</td><td>스크린리더 사용자가 아이콘 버튼의 목적을 들을 수 있습니다.</td></tr>
+        <tr><td><code>src/lib/__tests__/deep-space-controls-a11y.test.ts</code></td><td>두 헤더 버튼 라벨이 유지되는지 source-scan 테스트를 추가했습니다.</td><td>라벨 누락 회귀를 빠르게 잡습니다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>검사</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td>타깃 Jest</td><td>통과</td></tr>
+        <tr><td>테스트 파일 Prettier</td><td>통과</td></tr>
+        <tr><td>타깃 ESLint</td><td>통과</td></tr>
+        <tr><td>TypeScript</td><td>통과</td></tr>
+        <tr><td>i18n, untranslated, lexicon</td><td>통과</td></tr>
+        <tr><td>constraints, emdash, anti-anthro, mascot-voice, require cycles</td><td>통과</td></tr>
+        <tr><td>diff check와 민감 패턴 스캔</td><td>통과</td></tr>
+      </tbody>
+    </table>
+    <div class="bar" aria-label="검증 통과율"><div class="fill"></div></div>
+
+    <h2>35 자기 패널</h2>
+    <details>
+      <summary>판단 근거 보기</summary>
+      <p>A안은 아무 것도 쓰지 않는 것이었습니다. 하지만 Codex 레인에는 아직 신규 UI 접근성 결함이 남아 있어 no-op 조건이 아니었습니다.</p>
+      <p>B안은 이미 제출된 빈 상태 버튼 계열을 반복하는 것이었습니다. 최근 STATUS와 겹치므로 제외했습니다.</p>
+      <p>C안은 AI 박물관의 헤더 아이콘 버튼 라벨을 보강하는 것이었습니다. 범위가 작고 사용자 보조기술 경험에 직접 이득이 있어 채택했습니다.</p>
+    </details>
+
+    <h2>남은 위험</h2>
+    <p>앱 파일 전체 Prettier는 기존 한 줄 압축 스타일을 대량 변경하므로 이번 사이클에서는 적용하지 않았습니다. 변경 diff는 라벨 추가와 테스트 보강으로 제한했습니다.</p>
+
+    <h2>제출 정보</h2>
+    <p>worktree: <code>C:\2ndB\.worktrees\codex-qa-20260814-092628</code></p>
+    <p>branch: <code>codex/qa-cycle-20260814-092628</code></p>
+    <p>base: <code>origin/main 5ba0cdd905ec3e9e2d5aac0fceb17830c556ab09</code></p>
+    <p>created: <code>2026-08-14 09:30:04 KST</code></p>
+  </main>
+</body>
+</html>

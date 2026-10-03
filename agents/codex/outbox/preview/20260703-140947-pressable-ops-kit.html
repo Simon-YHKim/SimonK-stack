@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>프레스어블 옵스 키트 스윕 보고서</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e6edf3; --accent:#7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, "Noto Sans KR", sans-serif; line-height:1.55; }
+    main { max-width:1040px; margin:0 auto; padding:32px 20px 56px; }
+    header { border:1px solid var(--accent); padding:22px; border-radius:8px; }
+    h1 { margin:0 0 8px; font-size:26px; letter-spacing:0; }
+    h2 { margin:28px 0 12px; font-size:18px; color:var(--accent); }
+    p { margin:8px 0; }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-top:18px; }
+    .card { border:1px solid color-mix(in srgb, var(--text) 24%, transparent); border-radius:8px; padding:14px; min-height:92px; }
+    .label { font-size:12px; color:var(--accent); }
+    .value { margin-top:8px; font-size:22px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border-bottom:1px solid color-mix(in srgb, var(--text) 18%, transparent); padding:10px 8px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border:1px solid color-mix(in srgb, var(--text) 24%, transparent); border-radius:8px; padding:12px 14px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:14px; border:1px solid var(--accent); border-radius:6px; overflow:hidden; margin-top:8px; }
+    .fill { height:100%; width:30%; background:var(--accent); }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } h1 { font-size:22px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>프레스어블 옵스 키트 스윕 보고서</h1>
+      <p>작업 시각: 2026-07-03 14:09:47 KST</p>
+      <p>대상: 2nd-B 브랜치 <code>codex/pressable-sweep-g</code>, 파일 <code>src/components/deepspace/ops/kit.tsx</code></p>
+      <div class="grid">
+        <section class="card"><div class="label">처리 범위</div><div class="value">6곳</div></section>
+        <section class="card"><div class="label">보류</div><div class="value">0곳</div></section>
+        <section class="card"><div class="label">검증</div><div class="value">통과</div></section>
+        <section class="card"><div class="label">푸시</div><div class="value">안 함</div></section>
+      </div>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <p>옵스 공용 컴포넌트 키트에서 Fabric에서 무시될 수 있는 함수형 <code>Pressable</code> style 6곳을 제거했습니다. 시각 스타일은 바깥 <code>View</code>가 담당하고, <code>Pressable</code>은 터치 영역과 <code>android_ripple</code>만 담당하도록 바꿨습니다.</p>
+      <div class="bar" aria-label="전체 잔여 20곳 중 6곳 처리"><div class="fill"></div></div>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead><tr><th>파일</th><th>변환</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>src/components/deepspace/ops/kit.tsx</code></td>
+            <td>6곳</td>
+            <td>기본 버튼, 보조 버튼, 경고 버튼, 푸시 옵션, 확인 버튼, 상태 콜투액션을 동일 패턴으로 정리</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th><th>메모</th></tr></thead>
+        <tbody>
+          <tr><td><code>git diff --check</code></td><td>통과</td><td>공백 오류 없음</td></tr>
+          <tr><td><code>npm run verify</code></td><td>EXIT=0</td><td>295개 테스트 묶음, 2212개 테스트 통과</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>상세</h2>
+      <details>
+        <summary>구현 방식</summary>
+        <p>기존 함수형 style의 pressed opacity는 Fabric 회피 패턴에 맞춰 Android ripple 피드백으로 대체했습니다. 컨테이너의 배경, 테두리, 둥근 모서리, overflow는 <code>View</code>에 두고, 내부 <code>Pressable</code>은 고정 style 배열 없이 content layout만 갖습니다.</p>
+      </details>
+      <details>
+        <summary>남은 작업</summary>
+        <p>이번 사이클 후 잔여 함수형 <code>Pressable</code> style은 14곳입니다. 다음 후보는 온보딩, 로더, 프리미엄 그래프 조각, 안전 라우터, 위키 레코드, 디자인 화면, 홈 화면입니다.</p>
+      </details>
+      <details>
+        <summary>위험과 롤백</summary>
+        <p>위험은 낮습니다. 시각 값과 동작 콜백은 유지했고 구조만 분리했습니다. 문제가 있으면 2nd-B 브랜치에서 커밋 <code>d7e5e26d</code>를 되돌리면 됩니다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

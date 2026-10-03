@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>주간 성장 저장 버튼 표면 정리</title>
+  <style>
+    :root{--bg:#111318;--text:#e8eaed;--muted:#8f96a3;--accent:#8fd8c8}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Malgun Gothic",sans-serif;line-height:1.55}
+    main{max-width:920px;margin:0 auto;padding:32px 18px 48px}
+    header{border:1px solid var(--muted);border-radius:8px;padding:22px;margin-bottom:18px}
+    h1{font-size:24px;margin:0 0 8px}
+    h2{font-size:16px;margin:24px 0 10px;color:var(--accent)}
+    p{margin:8px 0}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{border:1px solid var(--muted);padding:10px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:14px}
+    .card{border:1px solid var(--muted);border-radius:8px;padding:14px}
+    .label{color:var(--muted);font-size:12px;margin-bottom:4px}
+    details{border:1px solid var(--muted);border-radius:8px;padding:12px;margin-top:10px}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>주간 성장 저장 버튼 표면 정리</h1>
+      <p>이번 사이클은 열린 codex 주문이 없어 2nd-B UI 레인의 작은 유지보수 하나만 수행했다.</p>
+      <p>대상은 <code>WeeklyGrowthScreen</code>의 루틴 저장 버튼이며, 2nd-B 브랜치 <code>codex/pressable-sweep-h</code>에 로컬 커밋으로 남겼다.</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><strong>완료</strong><p>버튼 시각 표면과 터치 표면을 분리했다.</p></div>
+      <div class="card"><div class="label">2nd-B 커밋</div><strong><code>b6b44d0c</code></strong><p>push는 하지 않았다.</p></div>
+      <div class="card"><div class="label">검증</div><strong>부분 통과</strong><p>파일 단위 ESLint 통과, 전체 type-check는 worktree 의존성 연결 문제로 실패했다.</p></div>
+      <div class="card"><div class="label">위험</div><strong>낮음</strong><p>한 파일의 한 버튼 구조만 변경했다.</p></div>
+    </section>
+
+    <h2>변경 파일</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경 내용</th><th>영향</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>src/screens/deepspace/growth/WeeklyGrowthScreen.tsx</code></td>
+          <td>루틴 저장 CTA의 외부 <code>View</code>가 배경, 반경, 비활성 투명도를 소유하고 내부 <code>Pressable</code>은 터치, 접근성, ripple만 맡도록 조정했다.</td>
+          <td>Android Fabric에서 <code>Pressable</code> 스타일이 빠질 때 버튼이 맨 텍스트처럼 보이는 위험을 줄인다.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th><th>메모</th></tr></thead>
+      <tbody>
+        <tr><td><code>git diff --check</code></td><td>통과</td><td>공백 오류 없음. Git의 CRLF 경고만 표시됐다.</td></tr>
+        <tr><td><code>npx eslint src/screens/deepspace/growth/WeeklyGrowthScreen.tsx</code></td><td>통과</td><td>파일 단위 정적 검사 통과.</td></tr>
+        <tr><td><code>npm run type-check</code></td><td>실패</td><td>새 worktree에 <code>madge</code>, <code>react-native-google-mobile-ads</code>, Firebase analytics 타입 모듈이 연결되지 않아 기존 환경 의존성 오류가 발생했다.</td></tr>
+      </tbody>
+    </table>
+
+    <details>
+      <summary>자세히</summary>
+      <p>이번 변경은 기능 로직을 바꾸지 않았다. 저장 전에는 동일한 문구와 동일한 <code>saveStep</code> 동작을 유지한다. 저장 후에는 기존처럼 비활성화되며, 비활성 시각 상태는 외부 컨테이너가 가진다.</p>
+      <p>섹션 35 self-panel 기준으로 보면 사용자 가치와 회귀 위험의 균형은 명확하다. 작은 표면 정리는 누적 UI 안정성을 높이고, 범위가 작아 Claude merge gate가 검토하기 쉽다.</p>
+    </details>
+  </main>
+</body>
+</html>

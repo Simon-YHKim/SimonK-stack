@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 자율 폴 사이클 보고서</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e6edf3; --accent:#6bb7ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.6; }
+    main { max-width:1040px; margin:0 auto; padding:32px 18px 56px; }
+    header, section { border:1px solid color-mix(in srgb, var(--accent) 28%, transparent); border-radius:8px; padding:20px; margin:0 0 16px; background:color-mix(in srgb, var(--text) 5%, transparent); }
+    h1, h2 { margin:0 0 12px; line-height:1.25; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; color:var(--accent); }
+    p { margin:8px 0; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { text-align:left; vertical-align:top; border-top:1px solid color-mix(in srgb, var(--accent) 24%, transparent); padding:10px 8px; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); overflow-wrap:anywhere; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; }
+    .card { border:1px solid color-mix(in srgb, var(--accent) 22%, transparent); border-radius:8px; padding:14px; }
+    .label { color:var(--accent); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+    details { margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="label">프로토콜 12/19/35.4 단일 사이클</p>
+      <h1>코덱스 자율 폴 사이클 보고서</h1>
+      <p>작성 시각: 2026-08-14 05:47:26 KST</p>
+      <p>이번 사이클은 열린 codex inbox가 없고 오래된 outbox 요청은 기존 응답 이력이 있어, 2nd-B UI 접근성 레인의 신규 한 건만 수행했다.</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="card"><div class="label">결과</div><p>2nd-B ops 화면의 비활성 및 처리중 버튼 상태를 보조기술에 노출했다.</p></div>
+        <div class="card"><div class="label">앱 커밋</div><p><code>bd8dbef5f63b06e0064306801ca6571f6deff730</code></p></div>
+        <div class="card"><div class="label">브랜치</div><p><code>codex/qa-cycle-20260814-054325</code></p></div>
+        <div class="card"><div class="label">위험도</div><p>낮음. 렌더 로직과 저장 로직은 변경하지 않았다.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 내용</h2>
+      <table>
+        <thead><tr><th>파일</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/screens/deepspace/ops/screens.tsx</code></td><td>목표 추가, 목표 저장, 취소, 상태 전환, 날짜 지우기, 가계부 추가, 가계부 삭제 버튼에 <code>accessibilityState</code>를 추가했다.</td></tr>
+          <tr><td><code>src/lib/__tests__/ops-screen-a11y-state.test.ts</code></td><td>해당 상태 노출이 빠지지 않도록 소스 기반 회귀 테스트를 추가했다.</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>화면의 실제 동작은 그대로 두고, 이미 있던 <code>disabled</code>와 <code>busy</code> 조건을 보조기술 상태로도 전달했다. 사용자는 같은 버튼을 보지만 스크린리더는 눌릴 수 없는 상태와 처리중 상태를 더 명확하게 읽을 수 있다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>검사</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td>대상 Jest</td><td>통과</td></tr>
+          <tr><td>대상 ESLint</td><td>오류 없음, 기존 경고 3개 유지</td></tr>
+          <tr><td>TypeScript</td><td>통과</td></tr>
+          <tr><td>i18n, 미번역, 금지어, 제약, em dash, 순환 의존성</td><td>통과</td></tr>
+          <tr><td>anti-anthro, mascot-voice</td><td>통과</td></tr>
+          <tr><td>diff 공백 검사와 변경 diff 시크릿 패턴</td><td>통과</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자체 패널</h2>
+      <table>
+        <thead><tr><th>관점</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>사용자 경험</td><td>시각 변화 없이 보조기술 의미만 보강하므로 기대와 충돌하지 않는다.</td></tr>
+          <tr><td>엔지니어링</td><td>기존 조건식을 재사용해 새 상태 계산 로직을 만들지 않았다.</td></tr>
+          <tr><td>검증</td><td>소스 회귀 테스트와 관련 정적 검사를 실행했다.</td></tr>
+          <tr><td>운영 제약</td><td>2nd-B push, 허브 브랜치 전환, 파괴 작업, 비용 작업, 시크릿 작업을 하지 않았다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

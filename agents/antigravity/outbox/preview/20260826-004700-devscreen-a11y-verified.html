@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>접근성 검증 보고서: 개발자 화면 목록</title>
+<style>
+  body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; padding: 20px; line-height: 1.6; }
+  h1, h2 { color: #ffffff; border-bottom: 1px solid #333333; padding-bottom: 5px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+  th, td { border: 1px solid #333; padding: 10px; text-align: left; }
+  th { background-color: #1e1e1e; }
+  .highlight { color: #81c784; }
+</style>
+</head>
+<body>
+  <h1>접근성 검증 보고서: 개발자 화면 목록</h1>
+  <p>요청된 변경사항(commit: da219252d89c)에 대한 독립 검증 결과입니다.</p>
+
+  <h2>검증 항목 및 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>상태</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>접근성 힌트 누락 여부 (URL, 배지, 메모)</td>
+        <td class="highlight">통과</td>
+        <td><code>devScreenAccessibilityHint</code> 함수가 <code>href</code>, <code>devScreenBadges(s)</code>, <code>note</code>를 병합하여 마침표 단위로 낭독되도록 정상 구현됨.</td>
+      </tr>
+      <tr>
+        <td>보조 화살표 텍스트 중복 낭독 방지</td>
+        <td class="highlight">통과</td>
+        <td><code>src/app/dev-screens.tsx</code>의 '열기 &gt;' 텍스트에 <code>accessibilityElementsHidden</code>(iOS) 및 <code>importantForAccessibility="no-hide-descendants"</code>(Android) 속성이 올바르게 부여되어 스크린 리더 낭독에서 제외됨.</td>
+      </tr>
+      <tr>
+        <td>테스트 회귀 가드 의도 부합 여부</td>
+        <td class="highlight">통과</td>
+        <td><code>screen-index.test.ts</code>에서 <code>peer/[token]</code>을 샘플로 하여 접근성 힌트에 URL, 모든 배지 텍스트, 메모 텍스트가 전부 포함되는지 엄격히 검사하고 있음.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>요청한 세 가지 검증 초점에 대해 모두 정상적으로 구현되었음을 확인했습니다. 병합(Merge)에 문제가 없습니다.</p>
+</body>
+</html>

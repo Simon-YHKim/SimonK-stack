@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>별 도메인 카피 수정 보고서</title>
+  <style>
+    :root { --bg: #101214; --text: #e8ecef; --accent: #6fb7ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { width: min(980px, calc(100% - 32px)); margin: 0 auto; padding: 36px 0 48px; }
+    header { border: 1px solid var(--accent); padding: 22px; margin-bottom: 18px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    h2 { font-size: 18px; margin-bottom: 10px; color: var(--accent); }
+    section { border: 1px solid color-mix(in srgb, var(--text) 28%, transparent); padding: 18px; margin-top: 14px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; vertical-align: top; border-top: 1px solid color-mix(in srgb, var(--text) 22%, transparent); padding: 9px; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .box { border: 1px solid color-mix(in srgb, var(--text) 22%, transparent); padding: 12px; min-height: 92px; }
+    .label { color: var(--accent); font-weight: 700; margin-bottom: 6px; }
+    details { margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>별 도메인 한국어 보조 버튼 카피 수정</h1>
+      <p>실행 시각: 2026-08-12 11:10:57 KST</p>
+      <p>이번 사이클은 열린 codex 주문이 없어, Codex 레인의 UI 및 anti-slop 기준에 따라 별 도메인 화면의 남은 영어 카피를 한 건 수정했습니다.</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="box"><div class="label">결과</div><p>한국어 화면의 career 보조 버튼이 <code>Drill Down</code> 대신 <code>더 파고들기</code>로 표시됩니다.</p></div>
+        <div class="box"><div class="label">범위</div><p>2nd-B 별도 worktree의 화면 파일 1개와 회귀 테스트 1개입니다.</p></div>
+        <div class="box"><div class="label">검증</div><p>대상 테스트, ESLint, TypeScript, i18n, lexicon, constraints, emdash, diff 점검을 수행했습니다.</p></div>
+        <div class="box"><div class="label">제한</div><p>2nd-B push, 허브 branch 변경, 브라우저 자동 열기, 비용 작업은 수행하지 않았습니다.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead><tr><th>파일</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/app/star/[domain].tsx</code></td><td>career 도메인의 한국어 보조 CTA를 <code>더 파고들기</code>로 수정했습니다. Prettier가 같은 파일의 기존 줄바꿈도 정리했습니다.</td></tr>
+          <tr><td><code>src/app/__tests__/star-domain-copy.test.ts</code></td><td>career 별 도메인 CTA가 한국어에서 다시 <code>Drill Down</code>으로 회귀하지 않도록 정적 테스트를 추가했습니다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증 결과</h2>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><code>npx prettier --check</code></td><td>통과</td></tr>
+          <tr><td><code>npm test -- --runTestsByPath src/app/__tests__/star-domain-copy.test.ts --ci</code></td><td>통과</td></tr>
+          <tr><td><code>npx eslint</code></td><td>통과</td></tr>
+          <tr><td><code>npm run type-check</code></td><td>통과</td></tr>
+          <tr><td><code>check:i18n</code>, <code>check:i18n-untranslated</code>, <code>check:lexicon</code>, <code>check:constraints</code>, <code>check:safety-consent-locale</code>, <code>check:emdash</code></td><td>통과</td></tr>
+          <tr><td><code>git diff --check</code> 및 diff secret 패턴 스캔</td><td>통과</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p><code>check:constraints</code> 출력에는 기존 정책 항목 <code>C11 PART</code>가 포함되지만 명령 종료 코드는 성공이었습니다. 이번 변경과 직접 관련된 실패는 없습니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>제출 정보</h2>
+      <table>
+        <tbody>
+          <tr><th>작업 트리</th><td><code>C:\2ndB\.worktrees\codex-qa-20260812-110725</code></td></tr>
+          <tr><th>브랜치</th><td><code>codex/qa-cycle-20260812-110725</code></td></tr>
+          <tr><th>기준</th><td><code>origin/main 215f5cdd123d94a27adf7165234807eec301f7da</code></td></tr>
+          <tr><th>로컬 커밋</th><td><code>81943e0b9509586db1cb5b8cd74d8a66794eecdc</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>자가 패널</h2>
+      <table>
+        <thead><tr><th>관점</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>찬성</td><td>한국어 화면에 영어 CTA가 남으면 완성도와 신뢰감이 떨어지므로 Codex lane에 맞는 작은 고가치 수정입니다.</td></tr>
+          <tr><td>반대</td><td>Prettier가 기존 파일 줄바꿈을 함께 정리해 diff가 실제 의미 변경보다 커졌습니다.</td></tr>
+          <tr><td>대안</td><td>포맷 검증을 생략하면 diff는 작아지지만 저장소 기준 검증을 약화합니다.</td></tr>
+          <tr><td>결론</td><td>포맷과 테스트를 통과한 로컬 커밋으로 제출하고, merge 여부는 Claude가 판단합니다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

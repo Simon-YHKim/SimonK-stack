@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>통화 회고 녹음 시작 진행 상태 접근성 보강</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e7edf3; --accent:#7aa2ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: Arial, "Malgun Gothic", sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 56px; }
+    header { border:1px solid color-mix(in srgb, var(--text) 18%, transparent); padding:24px; border-radius:8px; }
+    h1 { margin:0 0 10px; font-size:26px; letter-spacing:0; }
+    h2 { margin:28px 0 12px; font-size:18px; color:var(--accent); letter-spacing:0; }
+    p { margin:8px 0; }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-top:18px; }
+    .card { border:1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius:8px; padding:14px; min-height:90px; }
+    .label { display:block; color:var(--accent); font-size:12px; margin-bottom:6px; }
+    table { width:100%; border-collapse:collapse; overflow:hidden; border:1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius:8px; }
+    th, td { padding:10px 12px; border-bottom:1px solid color-mix(in srgb, var(--text) 14%, transparent); text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--text); background:color-mix(in srgb, var(--text) 8%, transparent); padding:2px 5px; border-radius:4px; }
+    details { border:1px solid color-mix(in srgb, var(--text) 18%, transparent); border-radius:8px; padding:12px 14px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+    .bar { height:10px; background:color-mix(in srgb, var(--text) 12%, transparent); border-radius:999px; overflow:hidden; margin-top:8px; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+    @media (max-width:720px) { .grid { grid-template-columns:1fr 1fr; } h1 { font-size:22px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>통화 회고 녹음 시작 진행 상태 접근성 보강</h1>
+      <p>이번 사이클은 codex inbox에 신규 실행 오더가 없어, 2nd-B UI/anti-slop 레인에서 통화 회고 화면의 녹음 시작 버튼을 한 건 보강했다.</p>
+      <div class="grid" aria-label="요약">
+        <div class="card"><span class="label">결과</span>로컬 앱 커밋 생성</div>
+        <div class="card"><span class="label">범위</span>통화 회고 화면 1곳</div>
+        <div class="card"><span class="label">위험도</span>낮음</div>
+        <div class="card"><span class="label">푸시</span>수행하지 않음</div>
+      </div>
+    </header>
+
+    <section>
+      <h2>변경 요약</h2>
+      <table>
+        <thead><tr><th>항목</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td>작업 위치</td><td><code>C:\2ndB\.worktrees\codex-qa-20260821-175137-busy-a11y</code></td></tr>
+          <tr><td>브랜치</td><td><code>codex/qa-cycle-20260821-175137-busy-a11y</code></td></tr>
+          <tr><td>기준</td><td><code>origin/main fafb9e0b</code></td></tr>
+          <tr><td>앱 커밋</td><td><code>7bb6d67c4d99fde7d40f26d1c5dd6609b41916bc</code></td></tr>
+          <tr><td>수정 파일</td><td><code>src/app/call-reflection.tsx</code>, <code>src/app/__tests__/call-reflection-start-busy-a11y.test.ts</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>무엇을 고쳤나</h2>
+      <p>녹음 시작 버튼은 권한 요청과 녹음기 준비를 기다리는 동안에도 다시 누를 수 있었다. 이제 <code>starting</code> 상태를 두어 중복 시작을 막고, 같은 상태를 <code>MdButton loading</code>에 연결해 보조기술이 진행 중 상태를 알 수 있게 했다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p>녹음 시작 중에는 시작 버튼이 busy/disabled 상태가 되고, “나중에” 보조 버튼도 잠긴다. 비동기 경로가 끝나면 <code>finally</code>에서 상태를 해제한다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <div class="bar" aria-label="검증 통과율"><span style="width:100%"></span></div>
+      <table>
+        <thead><tr><th>검증 항목</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td>타깃 Jest 테스트</td><td>통과</td></tr>
+          <tr><td>Prettier 대상 파일 검사</td><td>통과</td></tr>
+          <tr><td>대상 ESLint</td><td>통과</td></tr>
+          <tr><td>TypeScript 검사</td><td>통과</td></tr>
+          <tr><td>i18n, 미번역, lexicon 검사</td><td>통과</td></tr>
+          <tr><td>constraints, emdash, LLM boundary, pixel rules</td><td>통과</td></tr>
+          <tr><td>anti-anthro, mascot voice, asset extensions, require cycles</td><td>통과</td></tr>
+          <tr><td>diff 공백 검사와 변경 diff 민감값 패턴 스캔</td><td>통과</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>주의와 남은 일</h2>
+      <details>
+        <summary>자세히</summary>
+        <p><code>call-reflection.tsx</code>는 기존에 Prettier 형식과 맞지 않는 긴 줄이 있어 대상 파일 포맷 과정에서 줄바꿈 정리가 함께 포함됐다. 의미 변경은 녹음 시작 진행 상태와 회귀 테스트에 한정된다.</p>
+        <p>2nd-B 브랜치는 push하지 않았다. Claude가 merge gate를 맡는다.</p>
+        <p>이 산출물은 merge diff, schema, 보안 민감 코드, 수학 결과, 실시간 외부 사실 주장에 해당하지 않아 별도 MoA 검증 요청은 만들지 않았다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

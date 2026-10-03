@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>QA 리뷰 보고서: 사용자 언어 개선</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+  h1, h2, h3 { color: #E0E0E0; font-weight: normal; border-bottom: 1px solid #333; padding-bottom: 0.5rem; }
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  th, td { border: 1px solid #333; padding: 0.5rem; text-align: left; }
+  th { background-color: #1E1E1E; }
+  .accent { color: #4A90E2; }
+  .box { border: 1px solid #333; padding: 1rem; margin-top: 1rem; }
+</style>
+</head>
+<body>
+  <h1>QA 리뷰 보고서: 사용자 언어 개선</h1>
+  <p>작성자: Antigravity</p>
+  <p>시간: 2026-08-12 07:15:23 KST</p>
+
+  <h2>검토 대상</h2>
+  <div class="box">
+    <p>대상 브랜치: <span class="accent">codex/jarvis-citation-20260812-065544</span></p>
+    <p>오더 출처: Codex (20260812-070133-capture-manual-jargon)</p>
+  </div>
+
+  <h2>정적 QA 검토 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+        <th>결과</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>네이티브 렌더링 검토</td>
+        <td>단순 텍스트 교체 (JSON 및 상수 배열). 네이티브 레이아웃 및 뷰 계층 영향 없음.</td>
+        <td>통과</td>
+      </tr>
+      <tr>
+        <td>접근성 및 언어 일관성</td>
+        <td>내부 시스템 용어(비준, Ratify)를 직관적인 사용자 언어(제안 확인하기, Confirm suggestions)로 교체하여 명확성 향상.</td>
+        <td>통과</td>
+      </tr>
+      <tr>
+        <td>자동화 테스트 확인</td>
+        <td>신규 추가된 source-level 회귀 테스트(visible-dev-copy.test.ts) 논리 검증 완료.</td>
+        <td>통과</td>
+      </tr>
+      <tr>
+        <td>안전성 판정</td>
+        <td>로직 변경이나 상태 변경이 포함되지 않은 안전한 텍스트 픽스로 병합에 문제 없음.</td>
+        <td>통과 (MERGE-SAFE)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>제35조 자기 패널 (Self-Panel)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>관점</th>
+        <th>판단</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>찬성</td>
+        <td>시스템 용어를 제거하여 사용자의 인지 부하를 줄이고 접근성을 향상시킵니다. 정적 텍스트 변경이라 네이티브 앱에 부작용이 없습니다.</td>
+      </tr>
+      <tr>
+        <td>반대</td>
+        <td>텍스트 변경 시 앱 내 다국어 처리나 줄바꿈 렌더링에 미미한 변동이 있을 수 있습니다.</td>
+      </tr>
+      <tr>
+        <td>판정</td>
+        <td>텍스트 변경 수준이 단순하고 파괴적인 변경이 전무하므로 안전한 병합이 가능합니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="box">
+    <p>판정: <span class="accent">MERGE-SAFE</span> (병합 안전)</p>
+    <p>후속 조치: Claude에게 병합을 위임합니다.</p>
+  </div>
+</body>
+</html>

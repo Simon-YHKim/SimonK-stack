@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>QA 보고서: DatePicker 액션 정규화</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #E0E0E0;
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem;
+  }
+  h1, h2 {
+    color: #E0E0E0;
+    border-bottom: 1px solid #333333;
+    padding-bottom: 0.5rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  th, td {
+    border: 1px solid #333333;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background-color: #1a1a1a;
+  }
+  .success {
+    color: #E0E0E0;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+  <h1>QA 검증 보고서: DatePicker 액션</h1>
+  <p>해당 문서는 DatePicker 모달의 취소 및 확인 버튼 컴포넌트 정규화 브랜치에 대한 정적 QA 검증 결과를 포함합니다.</p>
+  
+  <h2>검증 개요</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>브랜치</td>
+        <td>codex/pressable-sweep-ab-20260730-1528</td>
+      </tr>
+      <tr>
+        <td>커밋</td>
+        <td>b434d34a fix(ui): normalize date picker dialog actions</td>
+      </tr>
+      <tr>
+        <td>대상 파일</td>
+        <td>src/components/m3/date-picker/DatePicker.tsx</td>
+      </tr>
+      <tr>
+        <td>판정</td>
+        <td class="success">통과</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>상세 검토 결과</h2>
+  <p>정적 코드 분석 결과, 안드로이드 네이티브 환경에서 크래시를 유발하거나 렌더링을 방해하는 요소가 발견되지 않았습니다. Pressable 컴포넌트가 View를 감싸는 구조로 수정되어 터치 영역 및 물결 효과가 정상적으로 동작할 것으로 판단됩니다. 메모리 누수 및 화면 잘림 현상의 위험도 없습니다.</p>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>브랜치 검증 보고서: RLS auth.uid v2</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; padding: 20px; }
+  h1, h2 { color: #4CAF50; border-bottom: 1px solid #333333; padding-bottom: 5px; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+  th, td { border: 1px solid #333333; padding: 10px; text-align: left; }
+  th { background-color: #1E1E1E; }
+  button { background-color: #4CAF50; color: #121212; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+  .section { margin-bottom: 30px; }
+</style>
+</head>
+<body>
+  <h1>브랜치 검증 보고서: RLS auth.uid v2</h1>
+  
+  <div class="section">
+    <h2>1. 검증 개요</h2>
+    <table>
+      <tr>
+        <th>대상 브랜치</th>
+        <td>origin/chore/rls-wrap-auth-uid-v2</td>
+      </tr>
+      <tr>
+        <th>비교 기준 (Base)</th>
+        <td>origin/main</td>
+      </tr>
+      <tr>
+        <th>주요 파일</th>
+        <td>db/migrations/0102_rls_wrap_auth_uid.sql</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>2. 확인 사항 및 결과</h2>
+    <table>
+      <tr>
+        <th>항목</th>
+        <th>확인 결과</th>
+      </tr>
+      <tr>
+        <td>0102 마이그레이션의 main 포함 여부</td>
+        <td>확인됨. 현재 origin/main 브랜치에 0102_rls_wrap_auth_uid.sql 파일이 안전하게 포함되어 있습니다.</td>
+      </tr>
+      <tr>
+        <td>병합 시 0103 스키마 유지 여부</td>
+        <td>유지됨. 대상 브랜치에는 0103_persona_graph_capture.sql이 존재하지 않으므로 Git 병합 시 삭제되지 않고 정상적으로 유지됩니다. 그러나 이미 0102가 main에 존재하므로 병합 자체가 불필요합니다.</td>
+      </tr>
+      <tr>
+        <td>머지 게이트 권고안</td>
+        <td>CLOSE 및 병합 취소 (No-op) 처리가 타당합니다.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>3. 결론</h2>
+    <p>Codex의 예비 판정과 일치합니다. 대상 브랜치는 이미 main에 반영된 변경사항을 포함하고 있는 지연된 브랜치(stale branch)이므로 병합하지 않고 폐기하는 것이 가장 안전합니다.</p>
+    <button>보고서 닫기</button>
+  </div>
+</body>
+</html>

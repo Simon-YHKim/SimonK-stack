@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>페르소나 그래프 캡처 QA 보고서</title>
+  <style>
+    :root { --bg:#0f1115; --text:#e7e9ee; --accent:#7aa2ff; --muted:#9aa3b2; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 48px; }
+    h1, h2 { margin:0 0 12px; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; color:var(--accent); margin-top:28px; }
+    p { margin:8px 0; }
+    .summary { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:10px; margin:18px 0 22px; }
+    .box { border:1px solid var(--muted); padding:14px; min-height:112px; }
+    .label { color:var(--muted); font-size:12px; }
+    .value { display:block; margin-top:8px; font-size:20px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--muted); padding:9px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    details { border:1px solid var(--muted); padding:10px 12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); }
+    .bar { width:100%; height:12px; border:1px solid var(--muted); margin-top:8px; }
+    .fill { height:100%; background:var(--accent); }
+    @media (max-width:720px) { .summary { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>페르소나 그래프 캡처 QA 보고서</h1>
+  <p>작성 시각: 2026-08-06 03:08:17 KST</p>
+  <p>대상: 2nd-B <code>origin/main</code> 전진분 <code>0126c9d1..cae2b7ca</code></p>
+
+  <section class="summary" aria-label="요약">
+    <div class="box"><span class="label">판정</span><span class="value">조건부 통과</span><p>정적 가드는 통과했지만 실제 DB replay는 미실행입니다.</p></div>
+    <div class="box"><span class="label">변경 범위</span><span class="value">1개 migration</span><p><code>0103_persona_graph_capture.sql</code></p></div>
+    <div class="box"><span class="label">주요 위험</span><span class="value">P2</span><p>generated type 관계 정보가 새 FK와 맞지 않습니다.</p></div>
+    <div class="box"><span class="label">교차검증</span><span class="value">요청됨</span><p>schema 변경이므로 Antigravity에 확인 요청을 보냈습니다.</p></div>
+  </section>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead><tr><th>항목</th><th>결과</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>공백 검사</td><td>통과</td><td><code>git diff --check 0126c9d1..HEAD</code></td></tr>
+      <tr><td>보안 함수 grant 가드</td><td>통과</td><td><code>npm run check:definer-grants</code>: 103개 migration 검사 통과</td></tr>
+      <tr><td>금지 어휘 가드</td><td>통과</td><td><code>npm run check:lexicon</code>: 956개 파일 검사 통과</td></tr>
+      <tr><td>문장부호 가드</td><td>통과</td><td><code>npm run check:emdash</code>: locale 문자열 통과</td></tr>
+      <tr><td>제약 조건 가드</td><td>통과</td><td><code>npm run check:constraints</code>: 주요 제품 제약 통과, C11은 기존 부분 상태</td></tr>
+      <tr><td>DB replay</td><td>미실행</td><td><code>psql</code>, <code>supabase</code>, <code>docker</code>가 이 머신에 없음</td></tr>
+    </tbody>
+  </table>
+
+  <h2>정적 구조 확인</h2>
+  <p>migration 파일 안에서 확인한 핵심 구조입니다.</p>
+  <div class="bar" aria-label="테이블 생성 확인 3개 중 3개"><div class="fill" style="width:100%"></div></div>
+  <table>
+    <thead><tr><th>검사</th><th>값</th></tr></thead>
+    <tbody>
+      <tr><td>테이블 생성문</td><td>3개</td></tr>
+      <tr><td>RLS 활성화</td><td>3개</td></tr>
+      <tr><td>owner 정책 생성</td><td>3개</td></tr>
+      <tr><td><code>(select auth.uid()) = user_id</code> 참조</td><td>6개</td></tr>
+      <tr><td><code>public.users(id)</code> FK</td><td>3개</td></tr>
+      <tr><td>entity trace SET NULL FK</td><td>1개</td></tr>
+      <tr><td>relation endpoint CASCADE FK</td><td>2개</td></tr>
+    </tbody>
+  </table>
+
+  <h2>발견 사항</h2>
+  <details open>
+    <summary>주요 P2 위험</summary>
+    <p><code>src/lib/supabase/types.gen.ts</code>에는 <code>persona_entity.user_id</code>, <code>persona_reasoning_trace.user_id</code>, <code>persona_relation.user_id</code>의 <code>public.users</code> 관계가 아직 반영되어 있지 않습니다. migration은 새 환경에서 세 FK를 <code>public.users(id)</code>로 만들기 때문에, 다음 type generation 때 관계 정보가 바뀔 가능성이 있습니다.</p>
+  </details>
+  <details>
+    <summary>차단 아님</summary>
+    <p>현재 migration 자체는 세 테이블, 세 RLS 정책, 인덱스, 사후조건을 포함합니다. 정적 범위에서는 정상 결제, 인증, 클라이언트 UI를 직접 건드리지 않습니다.</p>
+  </details>
+  <details>
+    <summary>남은 검증</summary>
+    <p>가장 중요한 미실행 검증은 깨끗한 Postgres 또는 Supabase 로컬 환경에서 0001부터 0103까지 migration을 순서대로 replay하는 것입니다. 이 머신에는 필요한 실행 도구가 없어 수행하지 못했습니다.</p>
+  </details>
+
+  <h2>35 자기 패널</h2>
+  <table>
+    <thead><tr><th>관점</th><th>판단</th></tr></thead>
+    <tbody>
+      <tr><td>스키마 안전</td><td>캡처 migration의 의도는 타당하지만 replay 증거가 없으므로 완전 승인 대신 조건부 통과입니다.</td></tr>
+      <tr><td>보안</td><td>RLS owner 정책과 definer grant 가드는 통과했습니다. 정책 대상 <code>public</code>은 기존 live 캡처로 유지된 선택입니다.</td></tr>
+      <tr><td>제품 위험</td><td>사용자 화면 변경은 없고, 위험은 새 환경 재현성과 타입 신선도에 집중됩니다.</td></tr>
+      <tr><td>운영</td><td>Claude 머지 게이트 전 Antigravity 교차검증과 DB replay가 필요합니다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>결론</h2>
+  <p>이번 main 전진분은 정적 검사 기준 조건부 통과입니다. 차단급 결함은 확인하지 못했지만, schema 변경이므로 실제 replay와 generated type 갱신 여부 확인 전에는 완전한 merge-safe로 부르지 않습니다.</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서</title>
+  <style>
+    :root{--bg:#0b0f14;--text:#d8e0ea;--accent:#4fb8ff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif;line-height:1.55}
+    main{max-width:980px;margin:0 auto;padding:32px 18px 56px}
+    header{border:1px solid var(--accent);border-radius:8px;padding:20px;margin-bottom:18px}
+    h1,h2{margin:0 0 10px}
+    h1{font-size:24px}
+    h2{font-size:16px;color:var(--accent)}
+    p{margin:6px 0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:18px 0}
+    .card,details{border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);border-radius:8px;padding:14px;background:color-mix(in srgb,var(--bg) 88%,var(--accent))}
+    .label{font-size:12px;color:var(--accent)}
+    .value{font-size:17px;font-weight:700}
+    table{width:100%;border-collapse:collapse;margin:12px 0}
+    th,td{border-bottom:1px solid color-mix(in srgb,var(--accent) 35%,transparent);padding:10px;text-align:left;vertical-align:top}
+    th{color:var(--accent);font-weight:700}
+    code{color:var(--accent)}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    svg{width:100%;height:auto;display:block;margin:12px 0}
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 단일 사이클 완료 보고</h1>
+      <p>작성 시각: 2026-07-30 13:16:28 KST</p>
+      <p>작업 범위: 2nd-B import inbox 모드 전환 버튼 Pressable 정규화</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><div class="label">결과</div><div class="value">완료</div><p>앱 커밋을 만들고 허브 보고서를 작성했습니다.</p></div>
+      <div class="card"><div class="label">앱 브랜치</div><div class="value">codex/pressable-sweep-u-20260730-131344</div><p>푸시는 하지 않았습니다.</p></div>
+      <div class="card"><div class="label">앱 커밋</div><div class="value">1deb3a96</div><p>Claude merge gate가 수거할 수 있는 상태입니다.</p></div>
+      <div class="card"><div class="label">위험도</div><div class="value">낮음</div><p>정책, 데이터, 결제, 시크릿, 스키마 변경 없음.</p></div>
+    </section>
+
+    <section class="card">
+      <h2>검증 상태</h2>
+      <svg viewBox="0 0 640 92" role="img" aria-label="검증 결과 막대">
+        <rect x="0" y="8" width="640" height="76" rx="8" fill="none" stroke="#4fb8ff"/>
+        <rect x="20" y="28" width="112" height="24" fill="#4fb8ff"/>
+        <rect x="142" y="28" width="112" height="24" fill="#4fb8ff"/>
+        <rect x="264" y="28" width="112" height="24" fill="#4fb8ff"/>
+        <rect x="386" y="28" width="112" height="24" fill="#4fb8ff"/>
+        <rect x="508" y="28" width="74" height="24" fill="#4fb8ff"/>
+        <text x="20" y="70" fill="#d8e0ea" font-size="13">Prettier</text>
+        <text x="142" y="70" fill="#d8e0ea" font-size="13">ESLint</text>
+        <text x="264" y="70" fill="#d8e0ea" font-size="13">diff check</text>
+        <text x="386" y="70" fill="#d8e0ea" font-size="13">lexicon</text>
+        <text x="508" y="70" fill="#d8e0ea" font-size="13">em-dash</text>
+      </svg>
+      <table>
+        <thead><tr><th>항목</th><th>결과</th><th>메모</th></tr></thead>
+        <tbody>
+          <tr><td>파일 Prettier</td><td>통과</td><td><code>src/screens/deepspace/dds-import-inbox-screens.tsx</code></td></tr>
+          <tr><td>파일 ESLint</td><td>통과</td><td>변경 파일 단위 검사</td></tr>
+          <tr><td>diff check</td><td>통과</td><td>공백 오류 없음</td></tr>
+          <tr><td>lexicon</td><td>통과</td><td>금지 어휘 없음</td></tr>
+          <tr><td>em-dash</td><td>통과</td><td>로케일 문자열 기준</td></tr>
+          <tr><td>전체 type-check</td><td>차단</td><td>기존 의존성 타입 해석 문제: <code>madge</code>, <code>react-native-google-mobile-ads</code>, <code>@react-native-firebase/analytics</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <details>
+      <summary>변경 내용 자세히</summary>
+      <p>파일/계정 모드 전환 버튼에서 시각 스타일을 내부 <code>View</code>로 옮겼습니다. 바깥 <code>Pressable</code>은 터치, 접근성 상태, Android ripple, hitSlop만 담당합니다.</p>
+      <p>이 패턴은 Android Fabric에서 Pressable 시각 스타일이 흔들리는 문제를 줄이고, 터치 피드백을 일관되게 만듭니다.</p>
+    </details>
+
+    <details>
+      <summary>자체 점검 자세히</summary>
+      <p>중복 후보였던 consent detail back 버튼은 과거 사이클에서 이미 처리된 기록이 있어 제외했습니다.</p>
+      <p>이번 변경은 새 제품 결정이 아니라 기존 UI 안전 패턴 적용입니다. 따라서 구조적 토론 및 MoA 교차검증 대상이 아니라고 판단했습니다.</p>
+      <p>Prettier가 파일의 기존 긴 줄을 함께 정규화해 diff가 넓어졌습니다. 기능상 의도한 변경은 mode toggle 표면 분리에 한정됩니다.</p>
+    </details>
+  </main>
+</body>
+</html>

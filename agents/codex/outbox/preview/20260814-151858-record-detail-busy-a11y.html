@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>레코드 상세 액션 접근성 상태 보고</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e6edf3; --accent:#66d9ef; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 48px; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { font-size:28px; line-height:1.2; }
+    h2 { font-size:18px; margin-top:28px; border-top:1px solid var(--accent); padding-top:18px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin:18px 0; }
+    .card { border:1px solid var(--accent); padding:14px; min-height:112px; }
+    .label { color:var(--accent); font-size:12px; font-weight:700; }
+    .value { font-size:16px; font-weight:700; margin-top:8px; }
+    table { width:100%; border-collapse:collapse; margin:12px 0; }
+    th, td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); }
+    code { color:var(--accent); }
+    details { border:1px solid var(--accent); padding:10px 12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:700; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>레코드 상세 액션 접근성 상태 보고</h1>
+  <p>이번 단일 사이클에서는 열린 신규 요청이 없어 2nd-B UI 접근성 결함 하나를 처리했다. 레코드 상세 화면의 위키 생성 및 삭제 액션이 작업 중 상태를 보조기술에 알리도록 수정했다.</p>
+
+  <section class="grid" aria-label="요약">
+    <div class="card"><div class="label">결과</div><div class="value">로컬 커밋 완료</div><p><code>ea7b9ba4</code></p></div>
+    <div class="card"><div class="label">브랜치</div><div class="value">codex/qa-cycle-20260814-151712-record-detail-a11y</div></div>
+    <div class="card"><div class="label">푸시</div><div class="value">실행하지 않음</div><p>Claude 병합 게이트 유지</p></div>
+    <div class="card"><div class="label">위험도</div><div class="value">낮음</div><p>UI 접근성 상태 표기만 변경</p></div>
+  </section>
+
+  <h2>변경 내용</h2>
+  <table>
+    <thead><tr><th>파일</th><th>변경</th><th>효과</th></tr></thead>
+    <tbody>
+      <tr><td><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></td><td>source promote 액션에 <code>busy: promoting</code> 추가</td><td>위키 생성 중 상태를 보조기술이 읽을 수 있음</td></tr>
+      <tr><td><code>src/screens/deepspace/dds-wiki-records-screens.tsx</code></td><td>삭제 아이콘에 <code>disabled</code> 및 <code>busy</code> 접근성 상태 추가</td><td>삭제 진행 중 중복 조작과 상태 혼선을 줄임</td></tr>
+      <tr><td><code>scripts/check-constraints.ts</code></td><td><code>RecordDetailActionA11yState</code> 제약 검사 추가</td><td>같은 회귀가 빠지면 표준 검사에서 실패</td></tr>
+    </tbody>
+  </table>
+
+  <h2>검증</h2>
+  <table>
+    <thead><tr><th>검사</th><th>상태</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td><code>npm run check:constraints</code></td><td>통과</td><td>신규 제약 포함</td></tr>
+      <tr><td><code>npx jest src/screens/deepspace/__tests__/records-source-detail-route.test.ts --runInBand</code></td><td>통과</td><td>5개 테스트 통과</td></tr>
+      <tr><td><code>npx eslint scripts/check-constraints.ts src/screens/deepspace/dds-wiki-records-screens.tsx</code></td><td>통과</td><td>대상 파일 검사</td></tr>
+      <tr><td><code>npm run type-check</code></td><td>통과</td><td>TypeScript 검사</td></tr>
+      <tr><td><code>npm run check:i18n</code>, <code>npm run check:i18n-untranslated</code></td><td>통과</td><td>locale 변경 없음</td></tr>
+      <tr><td><code>check:lexicon</code>, <code>check:emdash</code>, <code>check:anti-anthro</code>, <code>check:mascot-voice</code>, <code>check:cycles</code></td><td>통과</td><td>레인 표준 가드</td></tr>
+      <tr><td><code>npx prettier --check</code></td><td>제한</td><td>대상 두 파일의 기존 전체 포맷 drift로 실패. <code>--write</code>는 대량 포맷 변경을 만들어 적용하지 않음</td></tr>
+      <tr><td><code>git diff --check</code></td><td>통과</td><td>공백 오류 없음</td></tr>
+      <tr><td>민감 패턴 diff 스캔</td><td>통과</td><td>시크릿 패턴 없음</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>작업 범위</summary>
+    <p>허브에는 <code>agents/codex/</code> 아래 보고 산출물과 상태만 썼다. 2nd-B 앱 변경은 <code>C:\2ndB\.worktrees\codex-qa-20260814-151712-min</code> worktree에서만 수행했다.</p>
+  </details>
+
+  <details>
+    <summary>남은 작업</summary>
+    <p>Claude가 병합 게이트에서 로컬 커밋 <code>ea7b9ba4</code>를 검토한 뒤 필요하면 main에 통합한다. Codex는 이 사이클에서 2nd-B push를 하지 않았다.</p>
+  </details>
+</main>
+</body>
+</html>

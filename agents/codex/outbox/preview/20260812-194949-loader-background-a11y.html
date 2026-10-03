@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>딥스페이스 로더 접근성 보강 보고</title>
+  <style>
+    :root { --bg: #101418; --text: #e7edf2; --accent: #7cc7d8; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.6 system-ui, -apple-system, Segoe UI, sans-serif; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 48px; }
+    header { border: 1px solid var(--muted); padding: 22px; border-radius: 8px; }
+    h1, h2 { margin: 0 0 10px; line-height: 1.25; }
+    h1 { font-size: 26px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    p { margin: 8px 0; }
+    .muted { color: var(--text); opacity: 0.68; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-top: 18px; }
+    .card { border: 1px solid var(--accent); border-radius: 8px; padding: 14px; }
+    .label { color: var(--text); opacity: 0.68; font-size: 12px; }
+    .value { color: var(--text); font-weight: 700; overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--accent); padding: 9px 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); overflow-wrap: anywhere; }
+    details { border: 1px solid var(--accent); border-radius: 8px; padding: 10px 12px; margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    .bar { display: flex; height: 10px; border: 1px solid var(--accent); border-radius: 999px; overflow: hidden; margin-top: 8px; }
+    .bar span { display: block; background: var(--accent); width: 100%; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="muted">작성 시각: 2026-08-12 19:49:49 KST</p>
+      <h1>딥스페이스 로더 접근성 보강 보고</h1>
+      <p>이번 단일 폴 사이클에서는 열려 있는 새 Codex 요청이 없어, 2nd-B UI 접근성 레인에서 하나의 좁은 결함을 수정했다. 분석 로더의 “백그라운드에서 계속” 버튼에 명시적 접근성 이름을 붙이고, 같은 회귀를 막는 소스 스캔 테스트를 추가했다.</p>
+      <div class="grid">
+        <div class="card"><div class="label">결과</div><div class="value">완료</div></div>
+        <div class="card"><div class="label">앱 브랜치</div><div class="value">codex/qa-cycle-20260812-194600</div></div>
+        <div class="card"><div class="label">앱 커밋</div><div class="value">0ccbb728</div></div>
+        <div class="card"><div class="label">푸시</div><div class="value">하지 않음</div></div>
+      </div>
+    </header>
+
+    <h2>변경 요약</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th><th>이유</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>src/components/deepspace/DeepSpaceLoader.tsx</code></td>
+          <td>분석 로더의 백그라운드 전송 버튼에 <code>accessibilityLabel={bg}</code> 추가</td>
+          <td>아이콘이나 짧은 버튼 문구에 의존하지 않고 스크린 리더가 버튼 이름을 안정적으로 읽도록 보강</td>
+        </tr>
+        <tr>
+          <td><code>src/components/deepspace/__tests__/loader-hydration.test.ts</code></td>
+          <td>배경 전송 버튼의 접근성 이름 연결을 고정하는 테스트 추가</td>
+          <td>향후 로더 리팩터링에서 접근성 이름이 빠지는 회귀를 방지</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>검증 상태</h2>
+    <div class="bar" aria-label="검증 통과율"><span></span></div>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>대상 Jest</td><td>통과: <code>loader-hydration.test.ts</code> 5개 테스트</td></tr>
+        <tr><td>Prettier</td><td>통과: 변경 파일 2개</td></tr>
+        <tr><td>ESLint</td><td>통과: 변경 파일 2개</td></tr>
+        <tr><td>TypeScript</td><td>통과: <code>tsc --noEmit</code></td></tr>
+        <tr><td>i18n 및 정책 가드</td><td>통과: i18n, untranslated, lexicon, constraints, safety-consent-locale, emdash, anti-anthro, mascot-voice, require cycles</td></tr>
+        <tr><td>diff 검사</td><td>통과: 공백 오류 없음. 줄끝 변환 경고만 있음</td></tr>
+        <tr><td>시크릿 패턴 검사</td><td>통과: diff에서 민감 패턴 미검출</td></tr>
+      </tbody>
+    </table>
+
+    <h2>세부 내용</h2>
+    <details>
+      <summary>작업 범위</summary>
+      <p>허브에는 <code>agents/codex/</code> 아래 보고서, FYI, STATUS만 작성했다. 2nd-B 앱 변경은 별도 worktree <code>C:\2ndB\.worktrees\codex-qa-20260812-194600</code>의 로컬 브랜치에서 수행했고, 원격 push는 하지 않았다.</p>
+    </details>
+    <details>
+      <summary>위험 및 롤백</summary>
+      <p>위험은 낮다. 접근성 속성 추가와 테스트 보강뿐이라 런타임 로직, 비용, 데이터, 인증 흐름을 바꾸지 않는다. 롤백은 앱 브랜치에서 커밋 <code>0ccbb728</code>을 되돌리면 된다.</p>
+    </details>
+  </main>
+</body>
+</html>

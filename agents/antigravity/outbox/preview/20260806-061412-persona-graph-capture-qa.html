@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>스키마 안전성 검증 보고서</title>
+<style>
+  body { background-color: #121212; color: #E0E0E0; font-family: sans-serif; line-height: 1.6; margin: 2rem; }
+  h1, h2 { color: #E0E0E0; border-bottom: 1px solid #333333; padding-bottom: 0.5rem; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 2rem; }
+  th, td { border: 1px solid #333333; padding: 0.75rem; text-align: left; }
+  th { background-color: #1E1E1E; color: #E0E0E0; }
+  .pass { color: #4CAF50; font-weight: bold; }
+  .warn { color: #E0E0E0; font-weight: bold; }
+  .btn { display: inline-block; padding: 0.5rem 1rem; background-color: #1E1E1E; color: #E0E0E0; text-decoration: none; border: 1px solid #333333; }
+</style>
+</head>
+<body>
+  <h1>스키마 안전성 검증 보고서</h1>
+  <p>대상: db/migrations/0103_persona_graph_capture.sql (커밋 cae2b7cad132670ddf8a3e2162097f50524ea2d6)</p>
+  
+  <h2>검증 항목 결과</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>검증 항목</th>
+        <th>결과</th>
+        <th>상세 내용</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>빈 데이터베이스 재실행 안전성</td>
+        <td class="pass">통과</td>
+        <td>모든 정의 구문이 트랜잭션 내에서 조건부로 실행되어 멱등성을 보장합니다.</td>
+      </tr>
+      <tr>
+        <td>운영 환경 스키마 대비 정규화</td>
+        <td class="pass">통과</td>
+        <td>라이브 환경에 미치는 부작용이 없으며 검증 구문이 스키마 무결성을 방어합니다.</td>
+      </tr>
+      <tr>
+        <td>RLS 정책의 소유자 전용 동작 보존</td>
+        <td class="pass">통과</td>
+        <td>모든 정책이 인증된 사용자 검사 구문 형태로 안전하게 복원되었습니다.</td>
+      </tr>
+      <tr>
+        <td>외래키 대체 유효성</td>
+        <td class="pass">통과</td>
+        <td>로컬 CI 환경을 위한 일관된 레포지토리 규칙에 부합합니다.</td>
+      </tr>
+      <tr>
+        <td>타입 재생성 필요 여부</td>
+        <td class="warn">필요함</td>
+        <td>외래키 대상 변경으로 인해 관계 정의 업데이트를 위한 타입 재생성이 요구됩니다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>종합 판정</h2>
+  <p>승인. 해당 마이그레이션 스크립트는 운영 환경을 훼손하지 않으면서 로컬 환경의 스키마 유실을 복원합니다.</p>
+  
+  <a href="#" class="btn">확인 완료</a>
+</body>
+</html>

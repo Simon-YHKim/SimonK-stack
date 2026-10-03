@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 에이전트 카드 생성 보고</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0f1115; --text:#e6e8ee; --muted:#9aa3b2; --accent:#5cc8ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { width:min(960px, calc(100% - 32px)); margin:0 auto; padding:40px 0; }
+    header { border-bottom:1px solid color-mix(in srgb, var(--muted) 35%, transparent); padding-bottom:22px; margin-bottom:24px; }
+    h1 { margin:0 0 8px; font-size:28px; line-height:1.2; letter-spacing:0; }
+    h2 { margin:28px 0 12px; font-size:18px; letter-spacing:0; }
+    p { margin:8px 0; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; margin:18px 0 8px; }
+    .card { border:1px solid color-mix(in srgb, var(--muted) 32%, transparent); border-radius:8px; padding:14px; background:color-mix(in srgb, var(--text) 5%, transparent); min-height:96px; }
+    .label { color:var(--muted); font-size:12px; }
+    .value { display:block; margin-top:6px; font-size:17px; color:var(--text); overflow-wrap:anywhere; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border-bottom:1px solid color-mix(in srgb, var(--muted) 28%, transparent); padding:10px 8px; text-align:left; vertical-align:top; }
+    th { color:var(--muted); font-weight:600; }
+    code { color:var(--accent); }
+    details { border:1px solid color-mix(in srgb, var(--muted) 28%, transparent); border-radius:8px; padding:12px 14px; margin-top:12px; }
+    summary { cursor:pointer; color:var(--accent); }
+    .bar { width:100%; height:10px; background:color-mix(in srgb, var(--muted) 22%, transparent); border-radius:999px; overflow:hidden; margin-top:8px; }
+    .fill { display:block; width:100%; height:100%; background:var(--accent); }
+    @media (max-width: 760px) { .grid { grid-template-columns:1fr 1fr; } main { width:min(100% - 24px, 960px); padding:28px 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Codex 에이전트 카드 생성 보고</h1>
+      <p class="muted">작성 시각: 2026-07-30 03:34:55 KST</p>
+    </header>
+
+    <section class="grid" aria-label="요약">
+      <div class="card"><span class="label">결과</span><strong class="value">완료</strong></div>
+      <div class="card"><span class="label">요청</span><strong class="value">A2A 능력 매니페스트</strong></div>
+      <div class="card"><span class="label">소유 범위</span><strong class="value">agents/codex</strong></div>
+      <div class="card"><span class="label">검증</span><strong class="value">생성 확인</strong></div>
+    </section>
+
+    <section>
+      <h2>작업 내용</h2>
+      <table>
+        <thead><tr><th>항목</th><th>내용</th></tr></thead>
+        <tbody>
+          <tr><td>실행 명령</td><td><code>tools/gen-agent-card.ps1 -As codex</code></td></tr>
+          <tr><td>생성 파일</td><td><code>agents/codex/agent-card.json</code></td></tr>
+          <tr><td>응답 파일</td><td><code>agents/codex/outbox/20260730-033455-codex-re-agent-card.md</code></td></tr>
+          <tr><td>보고 파일</td><td><code>agents/codex/outbox/preview/20260730-033455-agent-card.html</code></td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>카드는 Codex의 역할, 기술 범위, 상태, 모델, effort, 재라우팅 대상을 기계가 읽을 수 있는 JSON으로 기록한다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>자가 패널</h2>
+      <table>
+        <thead><tr><th>관점</th><th>판정</th></tr></thead>
+        <tbody>
+          <tr><td>정합성</td><td>오더가 요구한 생성 스크립트를 그대로 사용했고 단일 작성자 범위를 지켰다.</td></tr>
+          <tr><td>위험</td><td>코드, 스키마, 시크릿, 비용, 외부 사실 주장이 없어 고위험 검증 요청 대상이 아니다.</td></tr>
+          <tr><td>남은 일</td><td>Claude가 라우팅 매니페스트 소비 로직에 연결하면 된다.</td></tr>
+        </tbody>
+      </table>
+      <div class="bar" aria-label="완료율"><span class="fill"></span></div>
+    </section>
+  </main>
+</body>
+</html>

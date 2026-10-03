@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pressable 허브 도크 실제 브랜치 변환 보고</title>
+  <style>
+    :root{--bg:#0f1419;--text:#e7edf3;--accent:#72c7d9}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}
+    main{max-width:980px;margin:0 auto;padding:32px 18px 48px}
+    header,section,details{border:1px solid var(--accent);border-radius:8px}
+    header{padding:22px}
+    section{padding:16px;margin-top:14px}
+    h1{font-size:24px;line-height:1.25;margin:0 0 10px}
+    h2{font-size:17px;margin:0 0 10px;color:var(--accent)}
+    p{margin:0 0 10px}
+    code{color:var(--accent)}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:16px}
+    .card{border:1px solid var(--accent);border-radius:8px;padding:14px;min-height:86px}
+    .label{display:block;color:var(--accent);font-size:12px;margin-bottom:6px}
+    .value{font-size:18px;font-weight:700}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border-top:1px solid var(--accent);padding:9px 8px;text-align:left;vertical-align:top}
+    th{color:var(--accent)}
+    details{padding:12px 14px;margin-top:10px}
+    summary{cursor:pointer;color:var(--accent);font-weight:700}
+    .bar{height:12px;border:1px solid var(--accent);border-radius:8px;overflow:hidden}
+    .fill{height:100%;width:100%;background:var(--accent)}
+    @media(max-width:720px){.grid{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Pressable 허브 도크 실제 브랜치 변환 보고</h1>
+    <p>이번 사이클은 실제 <code>codex/pressable-sweep-g</code> 브랜치에 남아 있던 <code>DeepSpaceHubDockScreen.tsx</code> 함수형 <code>Pressable</code> 스타일을 처리했다. 푸시는 하지 않았다.</p>
+    <div class="grid">
+      <div class="card"><span class="label">결과</span><div class="value">완료</div></div>
+      <div class="card"><span class="label">변환 수</span><div class="value">5곳</div></div>
+      <div class="card"><span class="label">검증</span><div class="value">EXIT=0</div></div>
+      <div class="card"><span class="label">커밋</span><div class="value">af6c724e</div></div>
+    </div>
+  </header>
+
+  <section>
+    <h2>변경 요약</h2>
+    <table>
+      <thead><tr><th>항목</th><th>내용</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td>대상 파일</td><td><code>src/screens/deepspace/DeepSpaceHubDockScreen.tsx</code></td><td>수정</td></tr>
+        <tr><td>변환 방식</td><td>시각 스타일은 바깥 <code>View</code>가 유지하고, 안쪽 <code>Pressable</code>은 터치 표면과 <code>android_ripple</code>만 담당하도록 분리</td><td>완료</td></tr>
+        <tr><td>변환 위치</td><td>담기 버튼, 전송 버튼, 보류 버튼, 승인 버튼, 트렌드 카드</td><td>완료</td></tr>
+        <tr><td>보류</td><td>이번 파일 기준 보류 없음</td><td>없음</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>검증 상태</h2>
+    <div class="bar" aria-label="검증 통과율"><div class="fill"></div></div>
+    <table>
+      <thead><tr><th>검증</th><th>결과</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td><code>git diff --check</code></td><td>통과</td><td>줄끝 변환 경고만 있음</td></tr>
+        <tr><td><code>npm run verify</code></td><td>통과</td><td>295개 테스트 스위트, 2212개 테스트 통과</td></tr>
+        <tr><td>잔여 패턴 검사</td><td>통과</td><td>대상 파일 내 함수형 <code>Pressable</code> 스타일 0개</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>상태 설명</h2>
+    <details open>
+      <summary>쉬운 설명</summary>
+      <p>버튼의 겉모습과 누르는 기능을 분리했다. 이렇게 하면 Android Fabric에서 눌림 스타일이 사라지는 문제를 피하면서 버튼 모양은 그대로 유지할 수 있다.</p>
+    </details>
+    <details>
+      <summary>전문가 설명</summary>
+      <p><code>style={({ pressed }) =&gt; ...}</code> 패턴을 제거하고, 컨테이너 <code>View</code>에 배경·테두리·반경을 둔 뒤 내부 <code>Pressable</code>에 고정 스타일과 <code>android_ripple</code>만 적용했다. disabled opacity는 바깥 컨테이너에 유지했다.</p>
+    </details>
+    <details>
+      <summary>위험과 롤백</summary>
+      <p>위험은 낮다. 눌림 opacity 피드백은 Android ripple로 바뀐다. 문제가 있으면 2nd-B 브랜치에서 커밋 <code>af6c724e</code>만 되돌리면 된다.</p>
+    </details>
+  </section>
+
+  <section>
+    <h2>기록</h2>
+    <table>
+      <tbody>
+        <tr><th>보고 시각</th><td>2026-07-03 13:52:30 KST</td></tr>
+        <tr><th>브랜치</th><td><code>codex/pressable-sweep-g</code></td></tr>
+        <tr><th>로컬 커밋</th><td><code>af6c724e fix: remove function pressable styles in hub dock screen</code></td></tr>
+        <tr><th>특이사항</th><td>이전 보고의 <code>19470aa0</code> 객체가 현재 worktree에 없어 실제 잔여 코드 기준으로 다시 처리했다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>

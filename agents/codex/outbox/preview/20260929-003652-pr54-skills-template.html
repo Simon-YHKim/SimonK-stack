@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PR #54 스킬·템플릿 통합</title>
+<style>
+:root{color-scheme:light dark;--accent:#3d6fc4;--text:#17212f;--muted:#647187;background:#f6f8fb;color:var(--text);font:16px/1.6 system-ui,sans-serif}
+@media(prefers-color-scheme:dark){:root{--accent:#92b8ff;--text:#e7edf7;--muted:#a3afc0;background:#111722}}
+body{max-width:850px;margin:auto;padding:32px 20px;word-break:keep-all;overflow-wrap:anywhere}a{color:var(--accent)}h1,h2{line-height:1.25}small,.muted{color:var(--muted)}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}.card{border:1px solid var(--muted);border-radius:8px;padding:14px}.card strong{display:block;font-size:1.35rem}details{margin-top:18px;border-top:1px solid var(--muted);padding-top:12px}summary{cursor:pointer;font-weight:700;min-height:44px}code{overflow-wrap:anywhere}a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+</style>
+</head>
+<body>
+<header><small>작성 2026-09-29 00:36 KST · 발행 Codex · 단위 진행 보고</small><h1>PR #54 스킬·템플릿 통합</h1><p>지침 변경에 이어 두 스킬과 보고서 템플릿을 기능 브랜치에 반영했습니다. 정식 배포는 아직 아닙니다.</p></header>
+<main>
+<section class="cards" aria-label="핵심 결과"><div class="card">기능 브랜치<strong>977e3cf</strong><span class="muted">푸시·원격 일치</span></div><div class="card">저장소 테스트<strong>325 통과</strong><span class="muted">3건은 후보 게이트로 건너뜀</span></div><div class="card">추가 과금<strong>$0</strong><span class="muted">모델·봇·API 실호출 없음</span></div></section>
+<h2>변경과 이유</h2><p><code>html-default-output</code>과 <code>simonk-report</code>를 지침 §6의 HTML 기준에 맞추고, 탭·메모·상세 펼침의 터치 영역을 최소 44px로 보정했습니다. CHANGELOG의 두 변경 이력도 모두 보존했습니다.</p>
+<details><summary>검증 근거</summary><p>수정한 두 스킬의 validator는 오류·경고 0건, Skill-Gen 검사는 24/24, 새 템플릿 검사는 5/5 통과했습니다. 전체 저장소 테스트는 328건 실행 중 325건 통과·3건 건너뜀입니다. 141개 스킬의 형식 검사는 실패 0건, strict YAML 파싱은 141/141 통과했습니다. 브라우저에서는 JavaScript 초기화 상태를 확인했습니다. JavaScript 비활성화 브라우저 검증은 사용한 플래그가 실제로 비활성화하지 않아 미완료입니다.</p></details>
+<details><summary>남은 게이트</summary><p>PR #54는 여전히 열려 있고 <code>main</code>은 변경하지 않았습니다. v21 격리 후보는 이번 소스 변경 전 버전입니다. 새 후보 재빌드, Codex overlay 기본 catalog 실패 해결, 런타임·설치 준비 검증과 머지 결정이 남았습니다.</p></details>
+</main>
+</body>
+</html>

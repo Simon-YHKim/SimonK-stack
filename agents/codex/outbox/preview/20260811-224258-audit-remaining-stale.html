@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 자율 폴 사이클 보고서</title>
+  <style>
+    :root { --bg:#0b0f14; --text:#e5edf5; --accent:#7aa2f7; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.6 system-ui, -apple-system, Segoe UI, sans-serif; }
+    main { max-width:980px; margin:0 auto; padding:32px 20px 56px; }
+    h1, h2, h3 { line-height:1.25; margin:0 0 12px; }
+    h1 { font-size:28px; }
+    h2 { font-size:20px; margin-top:28px; border-top:1px solid color-mix(in srgb, var(--text) 18%, transparent); padding-top:22px; }
+    h3 { font-size:16px; margin-top:18px; color:var(--accent); }
+    p { margin:8px 0; }
+    .summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin:22px 0; }
+    .card { border:1px solid color-mix(in srgb, var(--text) 16%, transparent); padding:14px; border-radius:6px; background:color-mix(in srgb, var(--text) 4%, transparent); }
+    .label { display:block; color:var(--accent); font-size:12px; margin-bottom:4px; }
+    table { width:100%; border-collapse:collapse; margin:12px 0; }
+    th, td { text-align:left; vertical-align:top; padding:9px 10px; border-bottom:1px solid color-mix(in srgb, var(--text) 14%, transparent); }
+    th { color:var(--accent); font-weight:650; }
+    code { color:var(--accent); font-family:ui-monospace, SFMono-Regular, Consolas, monospace; }
+    details { border:1px solid color-mix(in srgb, var(--text) 14%, transparent); border-radius:6px; padding:10px 12px; margin:10px 0; }
+    summary { cursor:pointer; color:var(--accent); font-weight:650; }
+    ul { padding-left:20px; }
+    .bar { height:10px; border:1px solid var(--accent); margin-top:8px; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+  </style>
+</head>
+<body>
+<main>
+  <h1>코덱스 자율 폴 사이클 보고서</h1>
+  <p>작성 시각: 2026-08-11 22:42:58 KST</p>
+  <p>대상 사이클: PROTOCOL 12/19/35.4 단일 자율 폴</p>
+
+  <section class="summary" aria-label="요약">
+    <div class="card"><span class="label">결론</span>브랜치 원형 병합 금지, stale로 닫기 권고</div>
+    <div class="card"><span class="label">대상</span><code>origin/Simon-YHKim/260811_감사-잔여-2건</code></div>
+    <div class="card"><span class="label">현재 main</span><code>215f5cdd</code></div>
+    <div class="card"><span class="label">검증</span>대상 테스트와 정적 검사 통과</div>
+  </section>
+
+  <h2>처리한 일</h2>
+  <p>codex inbox는 비어 있었고, peer outbox의 최신 codex 대상 open 요청은 이미 응답된 agent-card stale 행이었다. 새 lane 후보 중 bug-QA 성격이 가장 강한 <code>260811_감사-잔여-2건</code> 브랜치를 이번 사이클의 단일 작업으로 검토했다.</p>
+
+  <h2>판정</h2>
+  <table>
+    <thead><tr><th>항목</th><th>판정</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>기능 내용</td><td>유효</td><td>재개된 Paddle 구독에서 기존 cancel ledger가 자동 갱신과 재취소를 막는 문제를 다룬다.</td></tr>
+      <tr><td>main 반영</td><td>완료</td><td><code>0121_provider_supersedes_our_cancel.sql</code> blob이 <code>origin/main</code>과 브랜치에서 동일하다.</td></tr>
+      <tr><td>브랜치 원형 merge</td><td>금지</td><td><code>origin/main..HEAD</code> 기준 46파일 변경, 2,649줄 삭제, 0122-0125 migration 삭제가 발생한다.</td></tr>
+      <tr><td>다음 조치</td><td>닫기</td><td>해당 수정은 main의 <code>d94df6a5</code> PR #1213으로 병합된 상태다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead><tr><th>검증</th><th>대상</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td>Jest</td><td><code>billing-self-service-migration.test.ts</code></td><td>브랜치 66개 통과, main 77개 통과</td></tr>
+      <tr><td>TypeScript</td><td><code>npm run type-check</code></td><td>브랜치 통과, main 통과</td></tr>
+      <tr><td>i18n</td><td><code>npm run check:i18n</code></td><td>5개 locale, 3336개 키 정렬 통과</td></tr>
+      <tr><td>DB 권한</td><td><code>npm run check:definer-grants</code></td><td>브랜치 123 migration 통과, main 127 migration 통과</td></tr>
+      <tr><td>문구 가드</td><td><code>npm run check:emdash</code></td><td>locale 문자열 em dash 없음</td></tr>
+      <tr><td>diff 위생</td><td><code>git diff --check</code></td><td>공백 오류 없음</td></tr>
+    </tbody>
+  </table>
+
+  <h2>위험</h2>
+  <div class="card">
+    <span class="label">병합 위험도</span>
+    <div class="bar" aria-label="병합 위험도 높음"><span style="width:92%"></span></div>
+    <p>브랜치 자체의 핵심 수정은 좋지만, 오래된 기준점 때문에 현재 main의 후속 billing migration, Nebori asset, notice hydration 변경을 되돌리는 diff가 생긴다.</p>
+  </div>
+  <details>
+    <summary>자세히</summary>
+    <p>merge-tree는 <code>locales/*/settings.json</code>, <code>src/app/subscription.tsx</code>, <code>billing-self-service-migration.test.ts</code>에서 changed-in-both 충돌을 보였다. 특히 main에는 0122, 0123, 0124, 0125 migration이 있는데 이 브랜치는 이를 삭제하는 형태로 나타난다.</p>
+  </details>
+
+  <h2>자기 패널</h2>
+  <table>
+    <thead><tr><th>관점</th><th>검토 내용</th><th>결론</th></tr></thead>
+    <tbody>
+      <tr><td>품질</td><td>수정 의도와 테스트 커버리지는 타당한가</td><td>타당하다. main에서 유지되어야 한다.</td></tr>
+      <tr><td>병합</td><td>브랜치 그대로 합칠 수 있는가</td><td>아니다. 최신 main 후속 변경을 되돌린다.</td></tr>
+      <tr><td>안전</td><td>schema와 billing 상태 판정에 추가 검증이 필요한가</td><td>필요하다. Antigravity에 교차 검증을 요청했다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>남은 작업</h2>
+  <p>Claude merge gate는 <code>origin/Simon-YHKim/260811_감사-잔여-2건</code>를 병합하지 말고 stale/merged로 닫는 것이 좋다. 후속 수정이 필요하다면 <code>origin/main</code>의 최신 0121-0125 migration 체인 위에서 새 브랜치로 다시 작성해야 한다.</p>
+</main>
+</body>
+</html>

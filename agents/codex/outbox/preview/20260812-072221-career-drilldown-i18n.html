@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>코덱스 폴 사이클 보고서 - 커리어 파고들기 문구</title>
+  <style>
+    :root { --bg:#0f1115; --text:#e8edf2; --accent:#6bb6ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.55; }
+    main { max-width:980px; margin:0 auto; padding:32px 18px 48px; }
+    header { border:1px solid var(--accent); padding:22px; margin-bottom:18px; }
+    h1, h2 { margin:0 0 10px; letter-spacing:0; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; color:var(--accent); }
+    p { margin:8px 0; }
+    section { border:1px solid var(--text); padding:18px; margin-top:14px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--text); padding:9px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); word-break:break-all; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; }
+    .card { border:1px solid var(--text); padding:14px; min-height:108px; }
+    .label { color:var(--accent); font-weight:700; }
+    details { margin-top:10px; }
+    summary { cursor:pointer; color:var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>코덱스 폴 사이클 보고서</h1>
+      <p>작성 시각: 2026-08-12 07:22:21 KST</p>
+      <p>작업 주제: 커리어 파고들기 한국어 문구 정리</p>
+    </header>
+
+    <section>
+      <h2>한눈에 보기</h2>
+      <div class="grid">
+        <div class="card"><p class="label">결과</p><p>한국어 커리어 화면에 남아 있던 <code>Drill Down</code> 표시를 <code>더 파고들기</code> 흐름으로 정리했습니다.</p></div>
+        <div class="card"><p class="label">앱 커밋</p><p><code>72cb5cd1</code><br><code>fix(i18n): localize career drilldown Korean copy</code></p></div>
+        <div class="card"><p class="label">브랜치</p><p><code>codex/qa-cycle-20260812-071543</code><br>온라인 push 없음</p></div>
+        <div class="card"><p class="label">위험도</p><p>낮음. 표시 문구와 source-scan 테스트만 바꿨습니다.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>변경 파일</h2>
+      <table>
+        <thead><tr><th>파일</th><th>변경 내용</th></tr></thead>
+        <tbody>
+          <tr><td><code>src/app/career.tsx</code></td><td>커리어 타임라인의 버튼이 하드코딩 문구 대신 기존 다국어 키를 사용합니다.</td></tr>
+          <tr><td><code>src/app/career-drilldown.tsx</code></td><td>한국어 제목과 시드 접두어를 <code>더 파고들기</code>로 변경했습니다.</td></tr>
+          <tr><td><code>locales/ko/deepspace.json</code></td><td>제출 버튼 문구를 <code>세컨비와 더 파고들기</code>로 변경했습니다.</td></tr>
+          <tr><td><code>src/lib/__tests__/career-drilldown-copy.test.ts</code></td><td>한국어 화면에 영문 <code>Drill Down</code> 라벨이 재유입되지 않도록 회귀 테스트를 추가했습니다.</td></tr>
+        </tbody>
+      </table>
+      <details>
+        <summary>자세히</summary>
+        <p>새 번역 키를 추가하지 않고 기존 <code>careerDrilldown.submit</code> 키를 재사용했습니다. 이 방식은 영어, 스페인어, 인도네시아어, 한국어, 포르투갈어 key parity를 그대로 유지합니다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <thead><tr><th>검사</th><th>상태</th></tr></thead>
+        <tbody>
+          <tr><td>대상 Jest</td><td>통과</td></tr>
+          <tr><td>대상 ESLint</td><td>통과</td></tr>
+          <tr><td>TypeScript</td><td>통과</td></tr>
+          <tr><td>i18n key parity</td><td>통과</td></tr>
+          <tr><td>금칙어 검사</td><td>통과</td></tr>
+          <tr><td>제약 검사</td><td>통과. 기존 <code>C11 PART</code>는 이번 변경과 무관한 저장소 상태입니다.</td></tr>
+          <tr><td>em dash 검사</td><td>통과</td></tr>
+          <tr><td>diff check 및 시크릿 패턴 스캔</td><td>통과. 시크릿 패턴 출력 없음</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>운영 준수</h2>
+      <p>허브에서는 <code>agents/codex/</code> 아래에만 작성했습니다. 2nd-B 작업은 별도 worktree와 브랜치에서 수행했고, push는 하지 않았습니다. 파괴적 작업, 비용 발생 작업, 시크릿 처리 작업은 없었습니다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p>초기 worktree를 외부 경로에 만들었으나 프로젝트 지침 확인 직후 <code>C:\2ndB\.worktrees\codex-qa-cycle-20260812-071543</code>로 이동해 규정 위치에서 작업을 이어갔습니다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

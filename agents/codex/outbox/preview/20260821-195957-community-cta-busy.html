@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>커뮤니티 버튼 진행 상태 보고</title>
+  <style>
+    :root { --bg: #111111; --text: #f2f2f2; --accent: #8fd3ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: Arial, sans-serif; line-height: 1.55; }
+    main { max-width: 960px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: 28px; line-height: 1.2; }
+    h2 { font-size: 18px; margin-top: 28px; border-top: 1px solid var(--accent); padding-top: 18px; }
+    h3 { font-size: 15px; color: var(--accent); margin-top: 18px; }
+    p, li, td, th { font-size: 14px; }
+    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 22px; }
+    .box { border: 1px solid var(--accent); padding: 14px; }
+    .label { color: var(--accent); font-size: 12px; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid var(--accent); padding: 10px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-weight: 700; }
+    code { color: var(--accent); }
+    details { border: 1px solid var(--accent); padding: 12px; margin-top: 10px; }
+    summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+    ul { margin: 10px 0 0; padding-left: 18px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>커뮤니티 버튼 진행 상태 보고</h1>
+    <p>작성 시각: 2026-08-21 20:00:07 KST</p>
+
+    <section class="summary" aria-label="요약">
+      <div class="box"><div class="label">결과</div><p>2nd-B 커뮤니티 화면의 비동기 버튼 진행 상태를 보강했습니다.</p></div>
+      <div class="box"><div class="label">앱 커밋</div><p><code>21ad4a9f</code></p></div>
+      <div class="box"><div class="label">브랜치</div><p><code>codex/qa-cycle-20260821-195034-native-safety-a11y</code></p></div>
+      <div class="box"><div class="label">검증</div><p>전체 <code>npm run verify</code> 통과</p></div>
+    </section>
+
+    <h2>작업 내용</h2>
+    <table>
+      <thead><tr><th>파일</th><th>변경</th><th>효과</th></tr></thead>
+      <tbody>
+        <tr><td><code>src/app/community.tsx</code></td><td><code>group</code>, <code>dm</code> 버튼별 진행 상태를 분리했습니다.</td><td>방 생성과 DM 초대 중 어느 작업이 진행 중인지 버튼이 직접 표시합니다.</td></tr>
+        <tr><td><code>src/app/community/[room].tsx</code></td><td><code>invite</code>, <code>leave</code>, <code>send</code> 버튼별 진행 상태를 분리했습니다.</td><td>초대 공유, 방 나가기, 메시지 전송 중인 작업만 로딩 상태가 됩니다.</td></tr>
+        <tr><td><code>src/lib/community/__tests__/community-cta-busy-a11y.test.ts</code></td><td>정적 회귀 테스트를 추가했습니다.</td><td>이후 같은 버튼들이 다시 단순 disabled 상태로 퇴행하는 것을 잡습니다.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>검증 결과</h2>
+    <ul>
+      <li>대상 Jest: <code>community-cta-busy-a11y.test.ts</code>, <code>chat.test.ts</code> 통과</li>
+      <li>대상 ESLint 통과</li>
+      <li>Prettier 검사 통과</li>
+      <li>TypeScript 검사 통과</li>
+      <li>i18n, 금지어, 제약, LLM 경계, 픽셀 규칙, 자산 확장자, 순환 참조, OTA 런타임 검사 통과</li>
+      <li>전체 <code>npm run verify</code>: 493개 테스트 스위트, 4609개 테스트 통과</li>
+      <li><code>git diff --check</code> 통과</li>
+      <li>변경 diff 민감 문자열 검사에서 실제 시크릿 없음</li>
+    </ul>
+
+    <details>
+      <summary>경고와 잔여 위험</summary>
+      <p>전체 lint에는 기존 unused 관련 warning 71건이 남아 있었지만 오류는 없었습니다. 전체 Jest 종료 시 worker 종료 경고가 있었고 테스트 실패는 없었습니다. 이번 변경은 앱 내부 로컬 커밋이며, 2nd-B 원격 push는 하지 않았습니다.</p>
+    </details>
+
+    <details>
+      <summary>35항 자체 패널</summary>
+      <p>찬성 관점: 커뮤니티는 사용자 간 메시지와 초대 공유를 다루므로, 비동기 버튼이 정확한 진행 상태를 내보내야 중복 탭과 혼란을 줄입니다.</p>
+      <p>반대 관점: 공유 컴포넌트를 바꾸면 더 넓게 해결할 수 있지만 영향 범위가 커집니다.</p>
+      <p>판정: 이번 사이클은 한 작업만 수행해야 하므로 커뮤니티 화면 호출부에 한정했습니다. <code>MdButton</code>의 기존 <code>loading</code> 접근성 동작을 재사용해 변경 면적을 줄였습니다.</p>
+    </details>
+  </main>
+</body>
+</html>

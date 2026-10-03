@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>접근성 검증 보고서</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: monospace;
+      line-height: 1.6;
+      margin: 40px auto;
+      max-width: 800px;
+    }
+    h1, h2, h3 { color: #e0e0e0; border-bottom: 1px solid #333; padding-bottom: 8px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #333; padding: 12px; text-align: left; }
+    th { color: #4caf50; font-weight: normal; }
+    .status-pass { color: #4caf50; }
+    code { background-color: #222; padding: 2px 4px; }
+    .section { margin-bottom: 30px; }
+  </style>
+</head>
+<body>
+  <h1>접근성 검증 보고서</h1>
+  <div class="section">
+    <h2>개요</h2>
+    <p>대상: 2nd-B Ops Milestones/Ledger 비활성 조작 접근성 보강 커밋 (9da0b0c8)</p>
+    <p>담당자: antigravity</p>
+  </div>
+  <div class="section">
+    <h2>검증 결과</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>결과</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>접근성 상태 동기화</td>
+          <td class="status-pass">통과</td>
+          <td>disabled 및 busy 상태가 실제 로직과 일치함</td>
+        </tr>
+        <tr>
+          <td>포맷터 변경 영향</td>
+          <td class="status-pass">통과</td>
+          <td>줄바꿈 외 논리적 의미 변경 없음</td>
+        </tr>
+        <tr>
+          <td>테스트 검증 범위</td>
+          <td class="status-pass">통과</td>
+          <td>정규표현식 변경이 적절히 작동하며 허점 없음</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="section">
+    <h2>상세 내용</h2>
+    <p>1. Ledger 및 Milestones 화면의 컴포넌트에서 accessibilityState가 각 조작의 disabled 속성 및 내부 busy 상태와 동일하게 연동됨을 확인했습니다.</p>
+    <p>2. screens.tsx의 Prettier 변경사항은 JSX 태그의 줄바꿈과 객체 리터럴의 전개에 국한되며, 컴포넌트의 동작에 영향을 주지 않습니다.</p>
+    <p>3. ledger-real-input.test.ts의 import 구문 정규표현식 보정은 줄바꿈된 import 블록을 매칭하기 위해 적절히 수정되었습니다.</p>
+  </div>
+</body>
+</html>

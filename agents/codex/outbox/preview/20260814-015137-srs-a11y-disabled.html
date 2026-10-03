@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex 사이클 보고서: SRS 접근성 상태</title>
+  <style>
+    :root { --bg:#0b0f14; --fg:#e5eef7; --ac:#76d1c8; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font-family: Arial, sans-serif; line-height:1.55; }
+    main { max-width: 980px; margin: 0 auto; padding: 32px 18px 48px; }
+    header, section { border:1px solid var(--ac); padding:18px; margin:14px 0; }
+    h1, h2 { margin:0 0 10px; color:var(--fg); }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; }
+    p { margin: 6px 0; }
+    table { width:100%; border-collapse: collapse; margin-top:10px; }
+    th, td { border:1px solid var(--ac); padding:9px; text-align:left; vertical-align:top; }
+    th { color:var(--ac); font-weight:700; }
+    code { color:var(--ac); }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px; }
+    .card { border:1px solid var(--ac); padding:14px; min-height:100px; }
+    .label { color:var(--ac); font-weight:700; }
+    button { background:transparent; color:var(--fg); border:1px solid var(--ac); padding:8px 12px; cursor:pointer; }
+    button[aria-pressed="true"] { background:var(--ac); color:var(--bg); }
+    .mode { display:none; }
+    body.easy .easy, body.expert .expert { display:block; }
+  </style>
+</head>
+<body class="easy">
+  <main>
+    <header>
+      <h1>Codex 자율 폴 사이클 보고서</h1>
+      <p><span class="label">작성 시각:</span> 2026-08-14 01:51:37 KST</p>
+      <p><span class="label">작업:</span> 2nd-B SRS 카드 화면의 비활성 버튼 접근성 상태 보강</p>
+      <p><span class="label">결론:</span> 새 로컬 브랜치와 커밋을 만들었고, 2nd-B에는 푸시하지 않았습니다.</p>
+      <p><button id="easy" aria-pressed="true" aria-label="쉬운 설명 보기">쉬운 설명</button> <button id="expert" aria-pressed="false" aria-label="전문가 설명 보기">전문가 설명</button></p>
+    </header>
+
+    <section class="mode easy">
+      <h2>한눈에 보기</h2>
+      <div class="grid">
+        <div class="card"><p class="label">무엇을 고쳤나</p><p>카드 앞면과 뒷면이 비어 있으면 저장 버튼이 실제로 비활성으로 보이게 했습니다.</p></div>
+        <div class="card"><p class="label">왜 필요한가</p><p>화면 읽기 사용자가 “지금 누를 수 없는 버튼”을 알 수 있어야 합니다.</p></div>
+        <div class="card"><p class="label">범위</p><p>SRS 카드 추가와 복습 채점 버튼 한 곳만 고쳤습니다.</p></div>
+        <div class="card"><p class="label">상태</p><p>테스트와 정적 점검을 통과했습니다.</p></div>
+      </div>
+    </section>
+
+    <section class="mode expert">
+      <h2>구현 요약</h2>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>앱 브랜치</td><td><code>codex/qa-cycle-20260814-014700</code></td></tr>
+        <tr><td>기준</td><td><code>origin/main 5ba0cdd905ec3e9e2d5aac0fceb17830c556ab09</code></td></tr>
+        <tr><td>앱 커밋</td><td><code>218103f1</code></td></tr>
+        <tr><td>변경 파일</td><td><code>DeepSpaceDesignScreens.tsx</code>, <code>srs-a11y.test.ts</code></td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <tr><th>검증</th><th>결과</th></tr>
+        <tr><td>타깃 Jest</td><td>통과: SRS 접근성 상태 회귀 테스트 2건</td></tr>
+        <tr><td>ESLint</td><td>오류 없음, 기존 대형 파일 unused 경고만 유지</td></tr>
+        <tr><td>TypeScript</td><td>통과</td></tr>
+        <tr><td>i18n 키 정합</td><td>통과</td></tr>
+        <tr><td>제약 검사</td><td>통과</td></tr>
+        <tr><td>금지어, 의인화, 마스코트 말투, 대시, 순환 의존</td><td>통과</td></tr>
+        <tr><td>diff 공백 검사</td><td>통과</td></tr>
+        <tr><td>민감패턴 스캔</td><td>매칭 없음</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>위험과 남은 일</h2>
+      <p>위험은 낮습니다. 화면 동작은 기존 저장 함수와 채점 함수를 그대로 쓰고, 비활성 상태와 보조기술 상태만 연결했습니다.</p>
+      <p>Claude가 merge gate에서 해당 로컬 브랜치를 검토한 뒤 통합 여부를 결정하면 됩니다.</p>
+    </section>
+  </main>
+  <script>
+    const b=document.body,e=document.getElementById("easy"),x=document.getElementById("expert");
+    e.onclick=()=>{b.className="easy";e.setAttribute("aria-pressed","true");x.setAttribute("aria-pressed","false")};
+    x.onclick=()=>{b.className="expert";x.setAttribute("aria-pressed","true");e.setAttribute("aria-pressed","false")};
+  </script>
+</body>
+</html>

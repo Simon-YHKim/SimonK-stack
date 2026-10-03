@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>설정 토글 행 터치 계층 정규화 보고</title>
+  <style>
+    :root { --bg:#0d1117; --text:#e6edf3; --accent:#7dd3fc; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, sans-serif; line-height:1.6; }
+    main { max-width:960px; margin:0 auto; padding:32px 20px 56px; }
+    header { border:1px solid var(--accent); border-radius:8px; padding:20px; margin-bottom:20px; }
+    h1, h2 { margin:0 0 12px; letter-spacing:0; }
+    h1 { font-size:28px; }
+    h2 { font-size:18px; color:var(--accent); }
+    section { border-top:1px solid var(--accent); padding:18px 0; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid var(--accent); padding:10px; text-align:left; vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    code { color:var(--accent); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
+    .box { border:1px solid var(--accent); border-radius:8px; padding:14px; }
+    .muted { opacity:.78; }
+    details { margin-top:10px; }
+    summary { color:var(--accent); cursor:pointer; }
+    svg { max-width:100%; height:auto; display:block; margin-top:10px; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>설정 토글 행 터치 계층 정규화 보고</h1>
+      <p>이번 사이클은 새 직접 주문이 없어 Codex 레인의 기존 2nd-B 터치 표면 정리 큐에서 한 항목만 처리했다.</p>
+      <p class="muted">기록 시각: 2026-07-30 14:57:13 KST</p>
+    </header>
+
+    <section>
+      <h2>요약</h2>
+      <div class="grid">
+        <div class="box"><strong>대상</strong><br><code>src/components/ui/PreferenceToggle.tsx</code></div>
+        <div class="box"><strong>브랜치</strong><br><code>codex/pressable-sweep-z-20260730-145455</code></div>
+        <div class="box"><strong>앱 커밋</strong><br><code>884c5ca9</code></div>
+        <div class="box"><strong>푸시</strong><br>수행하지 않음</div>
+      </div>
+      <details>
+        <summary>자세히</summary>
+        <p><code>PreferenceToggleRow</code>에서 행 레이아웃은 내부 <code>View</code>가 맡고, <code>Pressable</code>은 터치, 접근성, Android ripple, hitSlop만 맡도록 분리했다.</p>
+      </details>
+    </section>
+
+    <section>
+      <h2>검증 상태</h2>
+      <table>
+        <thead><tr><th>검증</th><th>결과</th><th>근거</th></tr></thead>
+        <tbody>
+          <tr><td>파일 Prettier</td><td>통과</td><td><code>npm exec -- prettier --check src/components/ui/PreferenceToggle.tsx</code></td></tr>
+          <tr><td>파일 ESLint</td><td>통과</td><td><code>npm exec -- eslint src/components/ui/PreferenceToggle.tsx</code></td></tr>
+          <tr><td>공백 검사</td><td>통과</td><td><code>git diff --check</code></td></tr>
+          <tr><td>금지 어휘</td><td>통과</td><td><code>npm run check:lexicon</code></td></tr>
+          <tr><td>em dash 검사</td><td>통과</td><td><code>npm run check:emdash</code></td></tr>
+          <tr><td>전체 type-check</td><td>차단</td><td>기존 의존성 타입 해석 문제: <code>madge</code>, <code>react-native-google-mobile-ads</code>, <code>@react-native-firebase/analytics</code></td></tr>
+        </tbody>
+      </table>
+      <svg viewBox="0 0 520 80" role="img" aria-label="검증 다섯 건 통과, 한 건 차단">
+        <rect x="0" y="18" width="430" height="24" fill="#7dd3fc"></rect>
+        <rect x="430" y="18" width="86" height="24" fill="#e6edf3" opacity=".35"></rect>
+        <text x="0" y="66" fill="#e6edf3" font-size="14">통과 5</text>
+        <text x="430" y="66" fill="#e6edf3" font-size="14">차단 1</text>
+      </svg>
+    </section>
+
+    <section>
+      <h2>위험과 남은 일</h2>
+      <p>작은 공유 UI 터치 계층 변경이며, 데이터 구조, 보안, 비용, 배포, 외부 사실 주장을 포함하지 않아 MoA 추가 검증 요청 대상은 아니다.</p>
+      <details>
+        <summary>자세히</summary>
+        <p>전체 검증은 기존 타입 해석 문제 때문에 끝까지 통과하지 못했다. 이번 변경 파일 자체의 포맷, 린트, 공백 검사는 통과했다.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>
