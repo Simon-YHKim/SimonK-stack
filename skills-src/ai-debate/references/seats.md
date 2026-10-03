@@ -118,10 +118,13 @@ replaces the model-name suffix (`--effort low` → `gemini-3.1-pro-low`) and no 
 ## Grok (xai)
 
 - Invocation: `grok --no-auto-update --cwd <work> --prompt-file <prompt.txt> --verbatim --output-format plain --session-id <uuid4> --model M --reasoning-effort E --max-turns 1 --no-subagents --disable-web-search --tools "" --disallowed-tools Agent --deny MCPTool --sandbox read-only`. Never pass `-p` together with `--single`.
-- Readiness evidence: last `billing: fetched credits config` line in `~/.grok/logs/unified.jsonl` (last 4 MB): `ctx.config.creditUsagePercent`, `currentPeriod.end`, `onDemandCap`, `prepaidBalance`.
+- Readiness evidence, live first: `grok agent --no-leader stdio` (ACP, JSON-RPC lines) → `initialize` (protocolVersion 1, fs and terminal off) → `_x.ai/billing` (`x.ai/billing` on -32601). No prompt, no model turn; server notifications and requests are ignored, never answered; the process tree is killed afterwards (25 s cap). Reply: `config.creditUsagePercent`, `config.currentPeriod.end`, `onDemandCap`, `prepaidBalance`, `subscription_tier`.
+  - Fallback only when the probe fails or `--no-probe`: last `billing: fetched credits config` line in `~/.grok/logs/unified.jsonl` (last 4 MB, same `ctx.config` fields). Grok writes that line only when one of its own sessions starts, so usage from elsewhere is invisible to it — 2026-10-03 the newest line said 78% while the account was at 100% and the call hit 402.
   - period end passed → READY.
-  - percent ≥ threshold → ABSENT "HTTP 402 expected until <end KST>"; a non-zero on-demand cap or prepaid balance adds a billing warning.
+  - percent ≥ threshold → ABSENT "HTTP 402 expected until <end KST>"; a non-zero on-demand cap or prepaid balance adds a billing warning. This holds for a stale line too.
+  - a logged line older than 10 minutes below the threshold → UNKNOWN ("usage may have grown since"), never READY.
   - no line → UNKNOWN.
+  - `evidence.live_probe` is `ok`, `failed: …` or `skipped (--no-probe)`; `evidence.stale` marks an old logged line.
 - Failure: `API error (status 402 Payment Required): Grok Build usage balance exhausted` or a 429 / rate-limit line → absent.
 
 ## Gemini (google, Antigravity CLI `agy`)

@@ -21,12 +21,14 @@ import json
 import math
 import os
 from pathlib import Path
+import queue
 import re
 import shutil
 import signal
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import uuid
 
@@ -55,6 +57,9 @@ QUESTION_CAP, ITEM_CAP, ITEM_COUNT = 2000, 300, 10
 BRIDGE_FRESH = timedelta(hours=6)
 CODEX_TAIL = 4 * 1024 * 1024
 GROK_TAIL = 4 * 1024 * 1024
+GROK_FRESH = timedelta(minutes=10)  # a logged billing line older than this no longer proves headroom
+GROK_PROBE_SECONDS = 25
+GROK_PROBE_LINE = 1024 * 1024
 FOOTER = "도구를 쓰지 말고 파일을 수정하지 말 것. 자기 벤더·모델 정체를 밝히지 말 것. 텍스트로만 답할 것."
 QUOTA_RE = re.compile(r"(?:status|HTTP)\s*(?:402|429)|402 Payment Required|\b429\b|rate[ _-]?limit"
                       r"|usage balance exhausted|usage limit|add credits|RESOURCE_EXHAUSTED|quota", re.I)
@@ -724,43 +729,158 @@ def _val(node):
         return 0.0
 
 
-def seat_xai(cmd):
+def grok_live_billing(cmd):
+    """Grok billing over ACP with no model turn: `grok agent --no-leader stdio`, `initialize`, then
+    `_x.ai/billing` (older CLIs: `x.ai/billing`). No prompt is sent and server requests are never
+    answered. Returns the result object ({"config": {...}, "subscription_tier": ...}); ValueError on
+    any failure. The whole tree is killed afterwards (the agent may start MCP servers)."""
+    base = state_root() / "probe"
+    base.mkdir(parents=True, exist_ok=True)
+    work = Path(tempfile.mkdtemp(prefix="grok-billing-", dir=str(base)))
+    if os.name == "nt":
+        kwargs = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP | getattr(subprocess, "CREATE_NO_WINDOW", 0)}
+    else:
+        kwargs = {"start_new_session": True}
+    job, proc, lines = new_job(), None, queue.Queue()
+    try:
+        proc = subprocess.Popen(cmd + ["agent", "--no-leader", "stdio"], stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, cwd=str(work),
+                                env=child_env("xai"), shell=False, **kwargs)
+        join_job(job, proc)
+
+        def pump():
+            try:
+                for raw in iter(lambda: proc.stdout.readline(GROK_PROBE_LINE), b""):
+                    lines.put(raw)
+            except (OSError, ValueError):
+                pass
+            lines.put(b"")
+
+        threading.Thread(target=pump, daemon=True).start()
+        deadline = time.monotonic() + GROK_PROBE_SECONDS
+
+        def request(rid, method, params):
+            try:
+                proc.stdin.write((json.dumps({"jsonrpc": "2.0", "id": rid, "method": method,
+                                              "params": params}) + "\n").encode("utf-8"))
+                proc.stdin.flush()
+            except (OSError, ValueError):
+                raise ValueError("agent closed its input before %s" % method) from None
+            while True:
+                left = deadline - time.monotonic()
+                try:
+                    raw = lines.get(timeout=left) if left > 0 else None
+                except queue.Empty:
+                    raw = None
+                if raw is None:
+                    raise ValueError("timed out waiting for %s" % method)
+                if not raw:
+                    raise ValueError("agent exited before answering %s" % method)
+                try:
+                    msg = json.loads(raw)
+                except ValueError:
+                    continue
+                if not isinstance(msg, dict) or "method" in msg or msg.get("id") != rid:
+                    continue  # notifications and server requests are ignored, never executed
+                if "error" in msg:
+                    error = msg["error"] if isinstance(msg["error"], dict) else {}
+                    raise ValueError("%s failed (code %s)" % (method, error.get("code")))
+                return msg.get("result")
+
+        init = request(1, "initialize", {"protocolVersion": 1, "clientCapabilities": {
+            "fs": {"readTextFile": False, "writeTextFile": False}, "terminal": False},
+            "clientInfo": {"name": "ai-debate-seats", "version": "1"}})
+        if not isinstance(init, dict) or init.get("protocolVersion") != 1:
+            raise ValueError("unsupported ACP protocol version")
+        try:
+            result = request(2, "_x.ai/billing", {})
+        except ValueError as exc:
+            if "code -32601" not in str(exc):
+                raise
+            result = request(3, "x.ai/billing", {})
+        if not isinstance(result, dict) or not isinstance(result.get("config"), dict) \
+                or "creditUsagePercent" not in result["config"]:
+            raise ValueError("billing reply has no config.creditUsagePercent")
+        return result
+    except OSError as exc:
+        raise ValueError("could not start grok agent (%s)" % type(exc).__name__) from None
+    finally:
+        if proc is not None:
+            kill_tree(proc)
+            for stream in (proc.stdin, proc.stdout):
+                try:
+                    stream.close()
+                except (OSError, ValueError):
+                    pass
+            try:
+                proc.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                pass
+        if job:
+            kernel32().CloseHandle(job)
+        shutil.rmtree(work, ignore_errors=True)
+
+
+def grok_logged_billing(log):
+    """The newest 'billing: fetched credits config' line Grok wrote (only at its own session starts)."""
+    if not log.is_file():
+        return None
+    try:
+        lines = tail_lines(log, GROK_TAIL)
+    except OSError:
+        return None
+    for line in reversed(lines):
+        if b"billing: fetched credits config" not in line:
+            continue
+        try:
+            return json.loads(line)
+        except ValueError:
+            continue
+    return None
+
+
+def seat_xai(cmd, probe=True):
+    """Live ACP billing first. The log line is only a fallback, and a stale one never proves headroom:
+    Grok logs billing at its own session starts, so usage from elsewhere (other sessions, the web, Grok
+    Bot) can spend the week while the newest line still shows room (10-03: log 78%, live 100%, then 402)."""
     if not cmd:
         return seat_row("xai", "ABSENT", "grok CLI not found", "CLI 없음")
     home = Path(os.environ.get("GROK_HOME") or Path.home() / ".grok")
     log = Path(os.environ.get("AI_DEBATE_GROK_LOG") or home / "logs" / "unified.jsonl")
-    record = None
-    if log.is_file():
+    current, threshold = now(), max_used()
+    live_error = None if probe else "skipped (--no-probe)"
+    if probe:
         try:
-            lines = tail_lines(log, GROK_TAIL)
-        except OSError:
-            lines = []
-        for line in reversed(lines):
-            if b"billing: fetched credits config" not in line:
-                continue
-            try:
-                record = json.loads(line)
-                break
-            except ValueError:
-                continue
-    if not record:
-        return seat_row("xai", "UNKNOWN", "no 'billing: fetched credits config' line in %s"
-                        % log.as_posix(), "쿼터 근거 없음", cli=cmd)
+            result = grok_live_billing(cmd)
+            cfg, tier, on_demand = result["config"], result.get("subscription_tier"), result.get("onDemandEnabled")
+            source, observed = "grok agent stdio _x.ai/billing (live, no model turn)", current
+        except ValueError as exc:
+            live_error = "failed: %s" % str(exc)[:160]
+    if live_error:
+        record = grok_logged_billing(log)
+        if not record:
+            return seat_row("xai", "UNKNOWN", "live billing probe %s; no 'billing: fetched credits config' "
+                            "line in %s" % (live_error, log.as_posix()), "쿼터 근거 없음", cli=cmd)
+        ctx = record.get("ctx") if isinstance(record.get("ctx"), dict) else {}
+        cfg = ctx.get("config") if isinstance(ctx.get("config"), dict) else {}
+        tier, on_demand, source = ctx.get("subscriptionTier"), ctx.get("onDemandEnabled"), log.as_posix()
+        try:
+            observed = parse_iso(record.get("ts"))
+        except (TypeError, ValueError):
+            observed = None
     try:
-        ctx = record.get("ctx") or {}
-        cfg = ctx.get("config") or {}
         pct = float(cfg.get("creditUsagePercent"))
         end_raw = (cfg.get("currentPeriod") or {}).get("end") or cfg.get("billingPeriodEnd")
         end = parse_iso(end_raw) if end_raw else None
     except (TypeError, ValueError, AttributeError):
-        return seat_row("xai", "UNKNOWN", "unreadable Grok billing line", "쿼터 근거 없음", cli=cmd)
-    paid = _val(cfg.get("onDemandCap")) > 0 or _val(cfg.get("prepaidBalance")) > 0 \
-        or ctx.get("onDemandEnabled") is True
-    evidence = {"source": log.as_posix(), "observed_at": record.get("ts"),
+        return seat_row("xai", "UNKNOWN", "unreadable Grok billing (%s)" % source, "쿼터 근거 없음", cli=cmd)
+    paid = _val(cfg.get("onDemandCap")) > 0 or _val(cfg.get("prepaidBalance")) > 0 or on_demand is True
+    stale = bool(live_error) and (observed is None or current - observed > GROK_FRESH)
+    evidence = {"source": source, "observed_at": stamp(observed) if observed else None,
+                "live_probe": live_error or "ok", "stale": stale,
                 "credit_usage_percent": pct, "period_end_kst": kst(end) if end else None,
-                "tier": ctx.get("subscriptionTier"), "on_demand_cap": _val(cfg.get("onDemandCap")),
+                "tier": tier, "on_demand_cap": _val(cfg.get("onDemandCap")),
                 "prepaid_balance": _val(cfg.get("prepaidBalance"))}
-    current, threshold = now(), max_used()
     if end is not None and end <= current:
         return seat_row("xai", "READY", "period reset since snapshot", "리셋됨",
                         evidence=evidence, cli=cmd)
@@ -771,6 +891,11 @@ def seat_xai(cmd):
             reason += "; on-demand or prepaid balance present, further calls could bill it"
         return seat_row("xai", "ABSENT", reason, "402" + (" ~" + kst(end) if end else ""),
                         end, evidence, cmd, spent=True)
+    if stale:
+        age = "%d min" % ((current - observed).total_seconds() // 60) if observed else "an unknown time"
+        return seat_row("xai", "UNKNOWN", "logged billing (%g%%) is %s old and the live probe %s; usage may "
+                        "have grown since" % (pct, age, live_error), "쿼터 근거 오래됨",
+                        evidence=evidence, cli=cmd)
     note = "; on-demand or prepaid balance present" if paid else ""
     return seat_row("xai", "READY", "credit usage %g%%%s" % (pct, note), "쿼터 %g%%" % pct,
                     evidence=evidence, cli=cmd)
@@ -941,7 +1066,7 @@ def quota_seat(vendor, probe=True):
     if vendor == "openai":
         return seat_openai(stand_in)
     if vendor == "xai":
-        return seat_xai(stand_in)
+        return seat_xai(stand_in, probe and bool(cmd))
     if vendor == "google":
         return seat_google(stand_in, probe and bool(cmd))
     return seat_anthropic(stand_in)
@@ -971,7 +1096,7 @@ def seat_for(vendor, orchestrator, probe=True):
     if vendor == "openai":
         return seat_openai(cmd)
     if vendor == "xai":
-        return seat_xai(cmd)
+        return seat_xai(cmd, probe)
     if vendor == "google":
         return seat_google(cmd, probe)
     return seat_anthropic(cmd)
