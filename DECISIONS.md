@@ -460,3 +460,19 @@ last-sync: 2026-07-05
   - **소수의견**: **P1의 별도 이름 어댑터는 유효한 구현 후보다.** 입력 정규화·전달·결과 보존만으로 해결되고 공용 작성기와 호환된다면, 업스트림 수정과 설치 충돌을 줄일 수 있다. **B를 늦추는 비용도 남는다.** 측정하는 동안 PowerShell 공백은 지속된다. 따라서 D는 별도 장기 조사로 넘기지 말고 이번 구현의 필수 검증으로 묶어야 한다.
   - **후속**: **A1:** careful HIGH의 명확한 Windows 루트·홈 표현을 보강하고 정상 삭제 대조군으로 회귀를 확인한다. **D:** 무해한 명령으로 PowerShell 발화, bypass의 deny 차단·ask 처리, 훅 적용 수명과 실제 Edit/Write payload를 측정한다. **A2:** 설치 소유권과 writer·reader 상태 루트 일치를 확인한다. 경계·cwd 안팎, 대소문자, 확장 접두, 새 파일 경로를 시험한 뒤 관련 스킬을 검증된 묶음으로 전환한다. 변환 실패를 cwd로 대체하지 않는다. **최소 B:… · Grok 복귀 시 catchup 라운드 의무 (`debate.py catchup`)
   - **원문**: C:/Users/202502/AppData/Local/SimonKStack/ai-debate/debates/dbt-261003-232053
+
+- 2026-10-04 00:18:52 KST | AMEND | **D-61 D-54 재토론: 이미 설치된 AI Usage Widget 갱신의 처리** — 이행: 데이터 3폴더 7,683파일·210.6MB+statusLine+Run값+setup 2개 백업(`~/.claude/flat-link-archive/aiuw-backup-261003`, ACL 상속 차단·CodexSandboxUsers 제거), 사본 복원 리허설 해시 전부 일치, 경고 구분 게이트 d767272 일반·모션감소 FAIL·고대비 PASS → 2c21eec만 PR #102 머지(fb5c9cf), d767272 경고 변경은 후속 판단(설치본은 아직 d767272) | claude
+
+- 2026-10-04 00:33:09 KST | DECIDE | **D-63 설치된 AI Usage Widget d767272 후속 처리** (§35 4벤더 토론 · PROVISIONAL 3/4) | claude
+  - **안건**: D-61 게이트에서 설치본 d767272의 빠른 소모 경고가 일반·모션 감소 모드에서 값 변경 표시와 구분되지 않았다(FAIL). d767272의 경고 교체는 Simon 요청이었고, main(fb5c9cf)은 2c21eec만 담고 있다. 설치본을 어떻게 할 것인가? — 선택지: 1) REINSTALL_MAIN: 지금 main(fb5c9cf)으로 소스·커밋을 고정해 재설치(경고는 노란 상자로 복귀), 경고 재설계는 나중 / 2) FIX_FORWARD: d767272의 경고 디자인을 세 모드 모두 구분되게 고친 브랜치를 만들고 게이트·pnpm verify 통과 후 main 반영·재설치, 그때까지 설치본 유지 / 3) REINSTALL_THEN_FIX: 지금 main으로 재설치해 구분 불가 상태를 끝내고, 고친 경고를 FIX_FORWARD 절차로 다시 낸다 / 4) KEEP: 실제 피해가 없으니 설치본을 유지하고 기록만 남긴다
+  - **참석**: Claude ✓(claude-opus-5-5, 세션 내) · Codex ✓(gpt-6.1-sol) · Grok ✗(402 ~2026-10-08 16:51 KST) · Gemini ✓(gemini-3.1-pro-high)
+  - **입장**: Claude[대안]: 대안 선택지 5 SPLIT_FIX: main(fb5c9cf) 위에서 경고만 상자 없는 경고 전용 색 디밍으로 고쳐 1회 재설치하고, 그때까지 설치본을 유지한다(선택지 2의 범위를 줄인 변형) — 확신도 65. 5를 받아들일 수 없으면 선택지 2. · Codex[사용자 이익]: 선택지 3 REINSTALL_THEN_FIX — 확신도 76 · Gemini[회의]: 선택지 1 — 확신도 85
+  - **교차검증**: Claude REVISED: 선택지 5 SPLIT_FIX(main 위에서 경고만 고쳐 재설치 1회)는 유지한다. 바꾸는 것은 두 가지다. 게이트는 "ΔE00 ≥ 2.3"이 아니라 "세 모드 모두 색이 아닌 모양 단서"로 올린다… · Codex UNCHANGED · Gemini UNCHANGED
+  - **심판**: Codex (블라인드·새 세션·자기 벤더 입장 포함) — VERDICT: 선택지 3 REINSTALL_THEN_FIX 채택 — 검증된 main으로 임시 복귀하고, main 기반 경고 수정으로 Simon의 교체 요청을 완성한다. · CONFIDENCE 76 · 추인: Claude ACCEPT · Codex ACCEPT · Gemini ACCEPT
+  - **소수의견**: **수정본을 신속하게 검증해 한 번만 재설치하면 로그인 중단 가능성, 사용자 부담, 화면 변경 횟수를 줄일 수 있다**는 P3의 반론이 가장 강하다. main 재설치 전에 이미 세 모드 게이트와 `pnpm verify`를 통과한 수정본이 확보된다면 선택지 2로 전환할 근거가 된다. 현재 자료에는 그 준비 상태가 확인되지 않는다.
+  - **후속**: **보존 상태 확인:** 기존 백업 이후 변경분과 실제 데이터·인증 보존 경로를 확인한다. 바이트 복원 성공을 로그인 유지로 간주하지 않는다. **main 임시 재설치:** 설치 규칙에 따라 명시적 `-Source` 경로와 소스 커밋 `fb5c9cf`를 고정한다. 해당 소스의 `pnpm verify` 종료 코드 0을 확인한 뒤 빌드·설치하고, 설치 결과와 데이터·로그인을 실제 점검한다. **경고 수정:** main 기반 브랜치에서 경고만 수정한다. 요청 원문을 확인해 특정 팔레트나 상자 제거가 필수였다고 임의로 단정하지 않는다.… · Grok 복귀 시 catchup 라운드 의무 (`debate.py catchup`)
+  - **원문**: C:/Users/202502/AppData/Local/SimonKStack/ai-debate/debates/dbt-261004-001924
+
+- 2026-10-04 01:05:02 KST | AMEND | **D-62 안전 스킬 D-56 2단계: guard·freeze·Windows·PowerShell** — 이행: 실측 D(PowerShell 매처 발화·deny 차단·bypass에서 ask 확인창·Edit 경로 C:\\ 형식), PR #103(freeze·guard·unfreeze 0.2.0)·#104(careful 0.2.2: Windows 루트·홈 HIGH 52건, PowerShell deny 전용) 머지 edd9864, 후보 20261004-vibe-21310b 설치(정션 8 + 실폴더 4, 이전본 flat-link-archive/*-261004), 새 대화형 세션 종단 6/6 PASS(Bash·PowerShell force-push deny, PS 정상 명령 통과, freeze 경계 밖 Write deny·안 허용, unfreeze 후 허용, 원격 ref 불변) | claude
+
+- 2026-10-04 01:17:20 KST | AMEND | **D-63 설치된 AI Usage Widget d767272 후속 처리** — 이행: (1) main fb5c9cf 고정 소스로 임시 재설치(증분 백업 incr-261004-003827, 데이터 해시 불변) (2) 경고 수정 PR #105(빠른 소모=배경 디밍+삼각형, 값 변경=밑줄; 일반 144/144·모션감소 6/6·고대비 3/3 PASS, pnpm verify 675) 머지 094da97 (3) 094da97 고정 소스로 최종 재설치, app.asar 01115E890CEA 일치, 계정·설정·인증 6파일 해시 불변, 5개 계정 표시 | claude
