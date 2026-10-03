@@ -1,6 +1,35 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-03 / 4벤더 토론 실전 테스트 · ai-debate 0.2.3
+## Latest — 2026-10-03 / 남은 일 전부 처리: vibe 2.13.1 · ai-debate 0.2.4 · careful 0.2.0 · Grok Bot 증거 레인
+
+갱신 시각: 2026-10-03 22:53 KST · 갱신자: Claude Code(Opus 5.5). Simon 요청: "남은 일 모두 진행해줘. 토론에 그록 봇도 포함시키자. 그록은 2시간 뒤 리셋될꺼야. 그록은 한번 테스트 하지 않았나? 꼭 필요한가?"
+
+### 어디까지 왔나
+- **main `baafc70`**: PR #96(vibe 2.13.0·qa 2.1.0 — 야간 QA 브랜치를 main에 합침), #98(vibe 2.13.1, 레지스트리 37건 재확인·변경 0, 만료 **2026-10-10 21:42 KST**), #97(ai-debate 0.2.4, Codex 좌석 실시간 `account/rateLimits/read`), #99(careful 0.2.0, gstack 1.91.9 위 재구성·내부 실패 deny). 머지 커밋 넷 모두 CI 성공.
+- **홈 설치(D-59 조건부 ALL)**: 후보 `20261003-vibe-21310-candidate` 영수증 4/4, 정션 8개 + Codex config 한 줄 전환, 설치본 selftest 180/0. ai-debate 0.2.4 사본 교체(110/110). careful 0.2.0 교체 후 **새 대화형 Claude Code 세션에서 실측**: force-push가 `[careful][HIGH] … blocked` deny, 원격 ref 불변, echo 통과. agy는 qa 정션을 못 봐서 심링크 추가 → 4개 CLI 182/182.
+- **실측(2026-10-03)**: 스킬 frontmatter 훅에서 `${CLAUDE_SKILL_DIR}`는 비어 있고 그 경로 훅은 실행되지 않음(시작 실패 훅은 fail-open). 훅 deny는 bypassPermissions에서도 막음. ask는 미측정.
+- **결정**: D-56(안전 스킬 REBASE), D-57(0.2.3), D-58(Grok Bot = 좌석 아님, 비투표·비차단 증거 레인), D-59(머지·설치) — 모두 PROVISIONAL 3/4(Grok 결석). D-53·D-55 FINAL via catch-up. **D-54는 Codex OBJECT로 차단**(Orca 대화형 Codex가 `--host-session`으로 직접 제출 — Codex 호스트 E2E 실증).
+
+### 다음 작업 큐
+| # | 작업 | 크기 | 권장 |
+|---|---|---|---|
+| A | Grok catch-up D-56·D-57·D-58·D-59. 실시간 billing은 주간 리셋 **2026-10-08 16:51 KST**(Simon은 10-03 23시대 리셋이라 함). 감시 스크립트가 READY 되면 자동 실행 — 이 세션이 끝나면 `debate.py catchup --orchestrator <호스트>` | 작음 | |
+| B | D-54 타이브레이크: 호스트(Codex)가 결정. 그 전엔 AI Usage Widget 갱신 금지 | 작음 | Codex 세션에서 |
+| C | D-56 다음 단계: guard·freeze·unfreeze 훅도 `${CLAUDE_SKILL_DIR}` → `$HOME` 고정 + freeze 공용 작성기 보존. careful HIGH에 `/c/`·`C:/`·`$HOME/*` 추가 여부. PowerShell 도구 감시 공백. 플러그인 `safety_runtime.py`가 deny를 ask로 바꾸는 문제 | 중간 | §35 토론 |
+| D | Grok Bot 증거 레인 실사용: Cursor 계정 초과 과금 꺼짐 화면 증거 + Simon `approval_ref` 확보. 소수의견("xAI 관점 자문")은 Simon 결정 | 작음 | |
+| E | 레지스트리 재갱신 2026-10-10 21:42 KST 전(알림 10-10 09:00) | 중간 | |
+| F | Orca 레인 현행 세대 이전(§35) · claude.ai/Cowork 지시사항 400KB 반영 · `docs/INSTALL.md` 400KB 근접 시 기간 분할 | 중간 | |
+
+### 다음 세션 시작하는 법
+```powershell
+git fetch origin main
+git show origin/main:docs/HANDOFF.md
+python -B "$env:USERPROFILE\.claude\skills\ai-debate\scripts\debate.py" catchup --orchestrator anthropic
+```
+
+---
+
+## 2026-10-03 21:10 / 4벤더 토론 실전 테스트 · ai-debate 0.2.3
 
 갱신 시각: 2026-10-03 21:10 KST · 갱신자: Claude Code(Opus 5.5). Simon 요청: "코덱스, 그록, 제미나이 사용량 차있어. 한번 테스트 해볼래?"
 

@@ -2,6 +2,26 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
+## 2026-10-03 22:4x `/vibe` 2.13.1 · `ai-debate` 0.2.4 · `careful` 0.2.0 — D-59 설치
+
+D-59(4벤더 토론 `dbt-261003-221019`, full, 블라인드 심판 Gemini 조건부 ALL · 확신도 85, 비준 3/3 ACCEPT, Grok 결석)에 따라
+main `baafc70`(PR #96·#98·#97·#99)에서 조립한 후보를 설치했다.
+
+| 패키지 | SHA-256 영수증 |
+| --- | --- |
+| `source` | `fc5ed5ab35c2078314d39a4b6891280b124f7ff096fa3026a9ad1e3e34e694a4` (137스킬·435파일) |
+| `candidate-safety` | `29eadd68c83af12b56074c5350a4696a1f499f221284880084fad2b138650edd` (5플러그인·182스킬·764파일) |
+| `codex-overlay-safety` | `00dc17fb68e13fc94e3db70addd6948f83fe64cad9f706024229cbcd65102a84` |
+| `codex-subset-safety` | `f9e24858af76be1d7589f7a24163178173d6850c7b8d822eaeadf41f07ba6acd` (177스킬, 안전 계열 5개 제외) |
+
+- 후보: `E:/Coding Infra/Releases/SimonK-stack/20261003-vibe-21310-candidate/`(빌드 소스 = 깨끗한 detached 워크트리 `20261003-vibe-21310-src`, 플러그인 입력 `20261001-vibe-21241-candidate/plugin-pins-lf`).
+- 정션 8개: Claude `vibe`·`vibe-bot`·`model-router`·`simonk`·`multi-terminal-dispatcher`·`qa`, Codex `vibe`·`vibe-bot`. 전환 전 토폴로지·트리 digest 확인, 이동 보관 후 정션 생성, 새 digest 재확인, 실패 시 자동 롤백. `~/.codex/config.toml`의 `.agents` /vibe 비활성 줄을 새 후보 경로로 교체(야간 QA 설치 뒤 옛 2.12.43 경로에 남아 있었음).
+- 되돌리기: `~/.claude/flat-link-archive/vibe-21310-261003/`(manifest.json, 이전 정션 8개, `codex-config.toml.before`, `gemini-skills.json.before`).
+- agy: `~/.claude/skills/qa`가 정션이 된 뒤 agy가 qa를 못 봤다 → `~/.gemini/antigravity-cli/skills/qa` 심볼릭 링크 + `skills.json` 제외 목록에 `qa`. 4개 CLI 182/182 동일.
+- 검증: 설치본 selftest 180/0, 레지스트리 `checked_at` 2026-10-03T21:42:01+09:00(만료 10-10 21:42 KST).
+- `ai-debate` 0.2.4: 물리 사본 교체(main blob 7/7 일치, 설치본 테스트 110/110). 이전 0.2.3 → `~/.claude/flat-link-archive/ai-debate-0.2.3-261003/`.
+- `careful` 0.2.0: gstack 1.91.9 사본 → `~/.claude/flat-link-archive/careful-gstack-1.91.9-261003/`, main 6파일 복사(일치). 설치 직후 새 대화형 Claude Code 세션(bypassPermissions)에서 로컬 bare 원격으로 `git push --force origin main` → `[careful][HIGH] Force-push to the default branch (main) is blocked while /careful is active.` deny, 원격 ref 불변, `echo` 통과. guard·freeze·unfreeze·investigate는 아직 gstack 사본.
+
 ## 2026-10-03 `ai-debate` 0.2.3 — Grok 좌석 실시간 billing 조회
 
 D-57(4벤더 토론 `dbt-261003-210004`, quick, 블라인드 심판 Gemini 조건부 MERGE_INSTALL · 확신도 92)에 따라
