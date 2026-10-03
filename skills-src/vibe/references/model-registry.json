@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "version": "2026-10-02.1",
-  "checked_at": "2026-10-02T00:39:26+09:00",
-  "data_as_of": "2026-10-02",
+  "version": "2026-10-03.1",
+  "checked_at": "2026-10-03T21:42:01+09:00",
+  "data_as_of": "2026-10-03",
   "notes": [
     "Public provider facts are not account, transport, billing or successful-execution evidence.",
     "API Standard USD / million tokens only. Tool, storage, transport, regional and priority charges are separate.",
     "ultra and ultracode are harness delegation modes, not ordinary provider reasoning effort.",
     "Grok Bot has no verified model/effort control here and has a distinct account/quota/billing path.",
     "checked_at is a conservative catalog-wide inspection floor; data_as_of is this snapshot date, not a release date.",
-    "2026-10-02 refresh: every source below was re-read over HTTPS and IDs/efforts were compared with the local Codex, Grok, agy and Claude CLI catalogs, without a model call. CLI-only names, agy effort-suffixed names and effort-less Haiku 4.5 are mapped in references/model-catalog-map.md, not registered."
+    "2026-10-03 refresh: every source below was re-read over HTTPS (HTTP 200) and IDs, efforts, prices, tiers and lifecycle dates were compared with the JSON and with the local Codex, Grok, agy and Claude CLI catalogs, without a model call; no provider fact changed. CLI-only names, agy effort-suffixed names and effort-less Haiku 4.5 are mapped in references/model-catalog-map.md, not registered."
   ],
   "sources": {
     "oa_sol61": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",

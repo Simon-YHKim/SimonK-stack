@@ -1,11 +1,11 @@
-# Model catalog map — CLI names, registry IDs and the 2026-10-02 refresh
+# Model catalog map — CLI names, registry IDs and the 2026-10-03 refresh
 
 ## Contents
 
 - CLI name map
 - Registered legacy entries
 - Lane migration pending
-- Refresh record (2026-10-02)
+- Refresh record (2026-10-03)
 - Repeating the refresh
 
 `references/model-registry.json` stores provider API IDs only. CLI catalogs can
@@ -33,12 +33,16 @@ no guarded agy execution adapter exists, so this map grants no route.
 | `antigravity` | `gemini-3.6-flash-high` | `unregistered` | `-` | older Flash |
 | `antigravity` | `gemini-3.6-flash-medium` | `unregistered` | `-` | older Flash |
 | `antigravity` | `gemini-3.6-flash-low` | `unregistered` | `-` | older Flash |
-| `antigravity` | `claude-sonnet-4-6` | `unregistered` | `-` | Anthropic model on the Google surface; the schema binds antigravity to Google |
-| `antigravity` | `claude-opus-4-6-thinking` | `unregistered` | `-` | same |
+| `antigravity` | `claude-opus-5-5-low` | `unregistered` | `-` | Anthropic model on the Google surface; the schema binds antigravity to Google |
+| `antigravity` | `claude-opus-5-5-medium` | `unregistered` | `-` | same |
+| `antigravity` | `claude-opus-5-5-high` | `unregistered` | `-` | same |
+| `antigravity` | `claude-sonnet-5-5-low` | `unregistered` | `-` | same |
+| `antigravity` | `claude-sonnet-5-5-medium` | `unregistered` | `-` | same |
+| `antigravity` | `claude-sonnet-5-5-high` | `unregistered` | `-` | same |
 | `antigravity` | `gpt-oss-120b-medium` | `unregistered` | `-` | not a Google model |
 | `grok` | `grok-4.7-build-fast` | `unregistered` | `-` | Grok 4.7 on faster serving at 2x standard token rates (1.5x long context), Cursor and Grok Build only, not on the public xAI API. Not for default routing |
 | `claude` | `claude-haiku-4-5-20251001` | `unregistered` | `-` | Claude docs: default effort "Not supported", so it cannot satisfy the registry's explicit effort list; retirement not sooner than 2026-10-15 |
-| `codex` | `gpt-5.5` | `unregistered` | `-` | listed by Codex 0.159.2 with efforts up to xhigh; previous generation |
+| `codex` | `gpt-5.5` | `unregistered` | `-` | listed in the Codex models cache with efforts up to xhigh; previous generation |
 | `codex` | `gpt-reserve` | `unregistered` | `-` | hidden in the Codex catalog |
 | `codex` | `codex-auto-review` | `unregistered` | `-` | hidden in the Codex catalog |
 
@@ -62,7 +66,7 @@ no guarded agy execution adapter exists, so this map grants no route.
 ## Lane migration pending
 
 Orca lanes (`routing.LANES`, `PROCESS_LANES`, `CLASS_LANES`, `COORDINATOR`) are
-unchanged in 2.12.43. Six `legacy_lane_migration` entries are `pending-*`; the
+unchanged through 2.13.1. Six `legacy_lane_migration` entries are `pending-*`; the
 other four are `keep-*` and stay on their own model: `claude-fable-5-1`,
 `gpt-6-astra`, `gpt-daybreak-blue-latest` and `gemini-3.8-flash`.
 Changing a lane needs a separate decision with an Orca canary and `/ai-debate`.
@@ -71,25 +75,28 @@ Until then the planner rejects Orca dispatch to `claude-opus-5-5`,
 `grok-4.5` with `ORCA_UNREGISTERED_PROCESS_OR_MODEL`. Non-Orca guarded adapters
 still apply their own account, billing and effort gates.
 
-## Refresh record (2026-10-02)
+## Refresh record (2026-10-03)
 
-All times are KST. No model, Bot or paid API call was made.
+All times are KST. No model, Bot or paid API call was made. The 2026-10-02
+record is in the 2.12.43 changelog entry.
 
 | Evidence | Observed | Result |
 | --- | --- | --- |
-| Codex `~/.codex/models_cache.json` | read 00:40; `fetched_at` 2026-10-01T15:39:26Z, client 0.159.2 | 11 slugs; priority 1 `gpt-6.1-sol`. Every registered slug lists low to max, plus harness-only `ultra` on 6.1-sol, 6-astra, 6-sol, 5.6-sol, 5.6-terra and Daybreak; none lists `none` |
-| `grok --no-auto-update models` | 00:41, grok 1.0.46 | `grok-4.7` (default), `grok-4.7-build-fast`, `grok-4.6`, `grok-4.5` |
-| `~/.grok/models_cache.json` | `fetched_at` 2026-10-01T15:40:44Z | 4.7, 4.7-build-fast and 4.6: low to xhigh, default high; 4.5: low to high; 256K and 500K windows |
-| `agy models`, `AGY_CLI_DISABLE_AUTO_UPDATE=1` | 00:41 | the 14 names above; agy version not re-observed |
-| `claude --version`, `claude --help` | 00:41 | 2.1.286; `--effort` low, medium, high, xhigh, max; no local model list |
-| Registry sources, plus `cl_old_sonnet` and `x_grok45` | 00:42 to 00:46, HTTP 200 | IDs, API efforts, context, prices and long-context tiers, retirement dates and the Claude Code notes match. Updated: Gemini latest-model page date 2026-09-23 and the Sonnet 5 Legacy label |
-| Task-fit policy sources (9) | 00:42 to 00:48 | cited claims unchanged; the openai.com Astra page refused a scripted user agent (403) and loaded with browser request headers |
+| `codex --version`, `grok --version`, `agy --version`, `claude --version` | 21:46 | Codex 0.160.0 (was 0.159.2), grok 1.0.46, agy 1.2.16, Claude Code 2.1.288 (was 2.1.286) |
+| Codex `~/.codex/models_cache.json` | read 21:46; `fetched_at` 2026-10-03T12:43:40Z, cache client 0.159.0 | unchanged: 11 slugs, priority 1 `gpt-6.1-sol`, every registered slug lists low to max (`ultra` on the same six), none lists `none` |
+| `grok --no-auto-update models` | 21:46, grok 1.0.46 | unchanged: `grok-4.7` (default), `grok-4.7-build-fast`, `grok-4.6`, `grok-4.5` |
+| `~/.grok/models_cache.json` | `fetched_at` 2026-10-03T12:42:01Z | unchanged: 4.7, 4.7-build-fast and 4.6 low to xhigh, 4.5 low to high, default high, 256K and 500K windows |
+| `agy models`, `AGY_CLI_DISABLE_AUTO_UPDATE=1` | 21:46, agy 1.2.16 | 18 names. Removed: `claude-sonnet-4-6`, `claude-opus-4-6-thinking`. Added: `claude-opus-5-5-*` and `claude-sonnet-5-5-*` (low, medium, high), mapped above as unregistered. Gemini rows unchanged |
+| `claude --help` | 21:46 | `--effort` still low, medium, high, xhigh, max; no local model list |
+| 28 registry sources | 21:47, HTTP 200 (Google docs need a cookie-keeping client) | IDs, API efforts, context, prices, long-context tiers, retirement dates, the Daybreak target and the Claude Code notes match. No registry value changed |
+| OpenAI and Google deprecation pages | 21:48 to 21:49 | `gpt-6-sol` is a recommended replacement in the 2026-10-01 OpenAI notice, not deprecated; `gemini-3.1-pro-preview` has no shutdown date |
+| Task-fit policy sources (9) | 21:47, HTTP 200 | cited claims unchanged; the openai.com Astra page loaded with browser request headers |
 
-The Daybreak alias page still lists `gpt-5.6-sol` as its target. Artificial
-Analysis says GPT-6.1 Sol replaces GPT-6 Sol, but OpenAI shows no deprecation,
-so `gpt-6-sol` stays active. Registry `checked_at` is the earliest observation
-(2026-10-02 00:39:26), so its facts expire 2026-10-09 00:39:26; the task-fit
-policy is valid until 2026-10-09 00:42:30.
+Artificial Analysis's article list mentions a "Gemini 4 Argon" (2026-09-30).
+No Google docs page, pricing row or agy catalog name for it was found, so it is
+not registered. Registry `checked_at` is the earliest evidence timestamp, the
+Grok models cache fetch at 2026-10-03 21:42:01, so its facts expire
+2026-10-10 21:42:01; the task-fit policy is valid until 2026-10-10 21:47:06.
 
 ## Repeating the refresh
 
