@@ -1,6 +1,43 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-04 / 권장안 기본 실행(D-73) · 배포 경로 결정(D-76) · 1~3단계 이행 · main 396aeae 설치
+## Latest — 2026-10-05 / GitHub 마켓플레이스가 다섯 dist 플러그인을 제공(D-76·D-82 완료)
+
+갱신 시각: 2026-10-05 04:5x KST · 갱신자: Claude Code(Opus 5.5). Simon: "남은 작업 모두 완료하고 머지 한뒤 깃허브 머지까지 완료해" → /goal "남은일이 없을때 까지 작업을 계속 진행해."
+
+### 어디까지 왔나
+- **GitHub 배포 완료**: `.claude-plugin/marketplace.json`이 `git-subdir`·ref `dist` 다섯 항목을 가리킨다(PR #135). `/plugin marketplace add Simon-YHKim/SimonK-stack` 후 다섯 개를 설치하면 1.768.0이 된다(실측).
+- **게시 게이트**(#129): `SIMONK_DIST_PUBLISH`(설정됨)와 커밋된 `distribution/dist-publish.allow`(D-코드·source·content digest). 새 내용은 승인 파일을 고치는 PR로만 나간다. D-33 hold는 release.yml과 SessionStart만 막는다.
+- **실측 증거**(허브 D-76·D-82·D-84):
+  - 4단계: 격리 설치·업데이트·롤백·줄끝 확인
+  - 차단 해소: #127(비Windows 인터프리터 가드, 레거시 이전 문서), #128(시간 초과 시 Job Object로 트리 종료)
+  - 세션 실측: `--plugin-dir`로 띄워 careful·freeze·unfreeze 확인
+  - HTTPS 4A: 깨끗한 설치, 레거시 이전, 원격 세션 스모크
+  - HTTPS B: 내용 변경 업데이트, 고버전 롤백, 다시 적용, 늦은 옛 빌드 거부
+- **같이 고친 것**:
+  - #129~#131 dist CI(숨김 폴더 artifact)
+  - #132·#134 플러그인 `/unfreeze`의 `FREEZE_CLEARED` 출력(freeze 0.2.6)
+  - #125 핀 태그
+  - #126 레지스트리 2차 갱신(만료 2026-10-11 21:46 KST)
+  - #136 테스트 timeout flaky
+  - SimonKCore main fast-forward(D-80)
+- **이 PC 설치**(D-85): 후보 `20261005-vibe-2152-286494e`, vibe 2.15.2, freeze 0.2.6, `status: current`.
+
+### 운영 규칙(새로 생긴 것)
+- main의 카탈로그 커밋은 되돌리지 않는다(설치된 플러그인이 not found가 됨).
+- 롤백은 main에서 원인 커밋을 revert하는 것이다. 이전 내용이 더 높은 버전으로 재출하되고, 승인 파일도 함께 되돌아간다.
+- 호스트는 버전이 다르면 낮아도 받는다. 늦은 옛 빌드를 막는 것은 게시 쪽 `decide`(not-newer-than-dist)다.
+- PR 빌드의 버전은 병합 커밋 때문에 main보다 1 높게 보인다.
+
+### 다음 작업 큐(지금 할 일 없음, 날짜·결정 대기)
+| # | 작업 | 시점 | 단 |
+|---|---|---|---|
+| A | 레지스트리 재갱신(알림 10-10 09:00) | 2026-10-11 21:46 KST 전 | 1단 |
+| B | Codex 배포(D-76이 2단계로 미룸) | 별도 결정 | 2·3단 |
+| C | D-33 hold와 레거시 경로 정리 | 별도 안건 | 3단 |
+
+---
+
+## 2026-10-04 19:4x / 2026-10-04 / 권장안 기본 실행(D-73) · 배포 경로 결정(D-76) · 1~3단계 이행 · main 396aeae 설치
 
 갱신 시각: 2026-10-04 19:4x KST · 갱신자: Claude Code(Opus 5.5). Simon: "권장하는 안건을 모두 반영해. 앞으로 변동사항이 있으면 권장하는 바가 항상 실행되게 하고, 바로 사용할수 있는 상태로 업데이트 하게 하자."
 
