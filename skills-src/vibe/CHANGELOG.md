@@ -1,5 +1,29 @@
 # Changelog
 
+## 2.14.1 - 2026-10-04
+
+- 7일 창이 닫히기 전에 모델 레지스트리를 다시 갱신했다(허브 PROTOCOL §35.8 1단, 승인된 절차 반복).
+  레지스트리 출처 28개와 task-fit 출처 9개를 모델 호출 없이 HTTPS 로 다시 읽었고(전부 HTTP 200,
+  openai.com Astra 페이지는 브라우저 요청 헤더로 재시도), 로컬 Codex·Grok·agy·Claude CLI 카탈로그와
+  메타데이터 전용 `runtime_collect.py`(Codex app-server `model/list`, Grok ACP 과금) 결과와 대조했다.
+  프롬프트·Orca 워커는 0회다. 모델 ID·API effort·컨텍스트·가격·장문 구간·은퇴 일자·Daybreak 대상·
+  Claude Code 주석이 모두 그대로라 제공사 사실은 바뀌지 않았고, 제거·개명된 모델도 없다.
+- `checked_at` 은 실제로 쓴 근거 중 가장 이른 시각인 Grok 모델 캐시 수신 2026-10-04 13:05:20 KST 다.
+  그래서 사실은 2026-10-10 21:42:01 KST 대신 2026-10-11 13:05:20 KST 에 `REGISTRY_STALE` 이 된다.
+  shadow task-fit 정책은 2026-10-04 13:13:08 ~ 2026-10-11 13:13:08 KST 에 유효하고, 인용 주장과
+  순위는 그대로다. 레지스트리 version 은 2026-10-04.2, 정책은 2026-10-04-shadow.1 이다.
+- 관측만 기록했다: Claude Code 2.1.289(전 2.1.288). Google "Gemini 4 Argon"(2026-09-30 공지)은
+  Fairwind Program 신뢰 사용자 대상 단계 배포라 API ID·문서·가격·agy 이름이 없어 등록하지 않았다.
+  레인 라우팅·우선순위·D-67 `legacy_lane_migration` 상태는 바꾸지 않았다(Orca canary 결과는 따로 반영한다).
+- `scripts/adversarial_eval.py` 의 `VENDOR_OF` 가 D-67 새 레인 `claude-opus-5-5`(claude)·`gpt-6.1-sol`(codex)을
+  옛 이름 옆에 갖는다. 같은 김에 빠져 있던 `routing.LANES` 키 `claude-fable-5-1`·`claude-sonnet-5`(claude)도
+  넣었다. 옛 키는 그대로라 기존 평가 원장 행과 동작은 같다. `eval/probes.json` 은 registry 이전 후보가
+  레인인 경우 옛 레인 옆에 새 레인을 둔다(`claude-opus-5` 옆 `claude-opus-5-5` 18곳, `gpt-5.6-terra` 옆
+  `gpt-6.1-sol` 11곳). 실호출은 여전히 격리돼 있고 dry 경로만 확인했다.
+- `test_model_registry.py` 에 두 테스트를 더했다. `routing.LANES` 키가 `VENDOR_OF` 에 없거나 벤더가 다르면,
+  그리고 probe 가 레인이 아닌 이름을 쓰거나 이전 후보 레인을 빠뜨리면 실패한다. main 의 옛 파일로 되돌리면
+  두 테스트 모두 실패하는 것을 확인했다. 기간 테스트는 2026-10-04 재확인 창을 본다.
+
 ## 2.14.0 - 2026-10-04
 
 - 허브 결정 D-67(토론 `dbt-261004-033902`, ADD_ALONGSIDE_KEEP_LEGACY, 4/4,
