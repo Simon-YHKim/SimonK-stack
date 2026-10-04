@@ -337,11 +337,11 @@ class ModelRegistryTests(unittest.TestCase):
             wrong["access_proof"].update(change)
             self.assertFalse(self.bind(wrong, data)["candidates"][0]["available"])
 
-    def test_registry_and_task_fit_windows_cover_the_2026_10_04_recheck(self):
-        # The 2026-10-03 facts expired REGISTRY_STALE on 2026-10-10 21:42 KST.
+    def test_registry_and_task_fit_windows_cover_the_second_2026_10_04_recheck(self):
+        # The first 2026-10-04 facts (13:05 KST) would expire REGISTRY_STALE on 2026-10-11 13:05 KST.
         data = self.m.load_registry()
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
-        floor = datetime.fromisoformat("2026-10-04T13:00:00+09:00")
+        floor = datetime.fromisoformat("2026-10-04T21:00:00+09:00")
         checked = datetime.fromisoformat(data["checked_at"])
         self.assertGreaterEqual(checked, floor)
         self.assertGreaterEqual(datetime.fromisoformat(policy["checked_at"]), floor)
@@ -349,7 +349,7 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertLessEqual(checked, datetime.fromisoformat(policy["checked_at"]))
         earliest = min(checked + timedelta(seconds=self.m.MAX_FACT_AGE_SECONDS),
                        datetime.fromisoformat(policy["valid_until"]))
-        self.assertGreaterEqual(earliest, datetime.fromisoformat("2026-10-11T13:00:00+09:00"))
+        self.assertGreaterEqual(earliest, datetime.fromisoformat("2026-10-11T21:00:00+09:00"))
 
     def test_grok_45_is_registered_without_its_unverified_xhigh(self):
         data = self.m.load_registry()

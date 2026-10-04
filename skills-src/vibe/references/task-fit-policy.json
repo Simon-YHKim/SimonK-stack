@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "version": "2026-10-04-shadow.1",
+  "version": "2026-10-04-shadow.2",
   "status": "shadow-only",
-  "checked_at": "2026-10-04T13:13:08+09:00",
-  "valid_until": "2026-10-11T13:13:08+09:00",
+  "checked_at": "2026-10-04T21:52:28+09:00",
+  "valid_until": "2026-10-11T21:52:28+09:00",
   "notes": [
     "Public task fit is a hypothesis, not proof of host behavior or subscription inclusion.",
     "No entry changes dispatch; paired same-task Claude/Codex evaluation gates activation.",
     "Image generation is excluded: VISION means image understanding, not creation.",
     "For complex coding, Opus 5.5 medium is an evidence-backed shadow hypothesis: Anthropic reports a FrontierCode result at default medium, and Artificial Analysis places medium on its effort/cost frontier. This is not host-specific proof.",
-    "2026-10-04 재확인: 출처 9개를 모델 호출 없이 다시 읽었다(전부 HTTP 200, openai.com Astra 페이지는 브라우저 요청 헤더로). 인용한 주장은 그대로이고 순위·effort 도 그대로다."
+    "2026-10-04 2차 재확인(21:52 KST): 출처 9개를 모델 호출 없이 다시 읽었다(전부 HTTP 200, openai.com Astra 페이지는 이번에도 첫 요청 403 뒤 브라우저 요청 헤더로). 인용한 주장은 그대로이고 순위·effort 도 그대로다."
   ],
   "sources": {
     "anthropic_opus": "https://www.anthropic.com/claude-opus-5-5",
