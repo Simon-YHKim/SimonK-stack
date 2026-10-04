@@ -322,9 +322,14 @@ class PublishWorkflowTests(unittest.TestCase):
     def test_hold_no_longer_gates_publish(self):
         self.assertNotIn("main-source-only.hold", self.publish)
 
-    def test_no_approval_is_committed_yet(self):
-        # D-82 step 3 (session evidence first) adds it in its own reviewed change.
-        self.assertFalse((ROOT / dist.ALLOW).exists())
+    def test_committed_approval_is_the_d82_session_checked_candidate(self):
+        # D-82 step 3: the approval names the candidate the live session checked
+        # (source f015e18, content digest 59eaff15...). A new approval is its own reviewed change.
+        allow = dist.validate_allow(json.loads((ROOT / dist.ALLOW).read_text(encoding="utf-8")))
+        self.assertEqual(allow["decision"], "D-82")
+        self.assertEqual(allow["source_commit"], "f015e18c166030afee5d1d2b2d2a1279410deba0")
+        self.assertEqual(allow["content_digest"],
+                         "59eaff15af5554e622ad94e6dec22ba39b8c3c288192932e36b7028dd60c7d3f")
 
 
 class StageTests(unittest.TestCase):
