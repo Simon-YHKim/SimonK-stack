@@ -332,14 +332,14 @@ class PublishWorkflowTests(unittest.TestCase):
         for step in uploads:
             self.assertIn("include-hidden-files: true", step)
 
-    def test_committed_approval_is_the_d82_session_checked_candidate(self):
-        # D-82 step 3: the approval names the candidate the live session checked
-        # (source f015e18, content digest 59eaff15...). A new approval is its own reviewed change.
+    def test_committed_approval_names_the_current_approved_content(self):
+        # Each approval is its own reviewed change recorded in the hub: D-82 first publish
+        # (59eaff15...), D-83 freeze 0.2.6 content for the HTTPS update check (ba8e9216...).
         allow = dist.validate_allow(json.loads((ROOT / dist.ALLOW).read_text(encoding="utf-8")))
-        self.assertEqual(allow["decision"], "D-82")
-        self.assertEqual(allow["source_commit"], "f015e18c166030afee5d1d2b2d2a1279410deba0")
+        self.assertEqual(allow["decision"], "D-83")
+        self.assertEqual(allow["source_commit"], "2ae590eba8c159dbe301c8bd20713a09a36d76cb")
         self.assertEqual(allow["content_digest"],
-                         "59eaff15af5554e622ad94e6dec22ba39b8c3c288192932e36b7028dd60c7d3f")
+                         "ba8e92168ec4877bea5d6316fe954ac1a9cdfd7dcbfe82ababef0dc2982a6565")
 
 
 class StageTests(unittest.TestCase):
