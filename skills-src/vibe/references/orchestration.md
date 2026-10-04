@@ -345,52 +345,46 @@ These are observed/configured facts, not inferred from a model name. Candidate
 observations and quota have a conservative 15-minute validity window.
 
 Billing fields are `mode` (subscription/api/metered/unknown), `verified`,
-`account_ref`, `extra_usage_enabled`, `model_included`, `included_model`, `bot_usage_included`,
-`api_fallback_disabled`, and `paid_credit_fallback_disabled`. Included subscription routing requires all of
-`verified=true`, `extra_usage_enabled=false`, `api_fallback_disabled=true` for
-the account/transport, plus `model_included=true` and `included_model` equal to
-the resolved exact LLM model (or requested exact ID without an alias), or
-`bot_usage_included=true` for the provider-managed Grok Bot. Missing or uncertain
-values block that route. Codex, Antigravity, Grok CLI and Grok Bot additionally require
-`paid_credit_fallback_disabled=true` for their **exact account and transport**.
-This field needs current evidence that existing purchased credits cannot be
-drawn when included usage is exhausted; automatic reload OFF and a nonzero
-quota snapshot are insufficient. Missing or contradictory credit evidence is
-`PAID_CREDIT_FALLBACK_UNVERIFIED`, not a zero-cost route. A paid candidate supplies
-upper_usd_per_attempt including reasoning, tool use and transport charges.
-For Claude Fable, a subscription login and the model picker are not inclusion
-proof: Anthropic documents that non-interactive `-p`/SDK requests can bill
-usage credits without a consent prompt. Never dispatch that route until the
-exact model's included-usage and disabled-overage evidence is positive.
-Do not set `extra_usage_enabled=false` merely because **automatic top-up/reload**
-is off. Existing purchased credits can still be spent after included usage:
-OpenAI documents this for Codex and xAI for Grok. Claude's *usage credits*
-toggle must be off separately from auto-reload, and an `ANTHROPIC_API_KEY`
-can make Claude Code use metered API authentication instead of the subscription.
-Antigravity's applicable **AI Credit Overages = Never** / CLI
-`useG1Credits=false` must be observed for the actual account and transport;
-an absent setting is unknown, not false. For Codex, a positive credit balance
-or an unverified account-level credit fallback blocks the zero-extra-spend
-route even when auto-reload is off. The top-level Codex credit record and every
-named limit bucket must each report `has_credits=false`, `unlimited=false`
-and a zero balance. Missing, null, malformed or contradictory records hold both
-planning and the final CLI gate. A zero-valued named bucket cannot stand in
-for missing top-level credit evidence.
-The Codex metadata collector also rejects unrepresentable named billing bucket
-IDs, non-object buckets, and non-object bucket collections. It must never drop
-an unknown bucket: doing so can conceal spendable purchased credits from both
-the planner and the final CLI re-observation guard.
-Conflicting numeric aliases (`val` and `value`) resolve to unknown, never a
-preferred zero. Conflicting Grok outer or legacy nested overage booleans
-likewise stay unknown.
-For Grok/Grok Bot, check purchased
-Extra Usage Credits/on-demand fallback separately from Auto Top Up and keep
-the CLI and Bot account/quota evidence distinct. Grok ACP billing places
-`onDemandEnabled` beside `config`; the collector prefers that outer boolean,
-falling back to a legacy nested value only when the outer field is absent.
-Missing/nonboolean values remain unknown, and even `false` does not prove
-account identity, model inclusion or purchased-credit fallback safety. None of
-these settings is changed by the planner or collector. Sources:
+`account_ref`, `model_included`, `included_model`, `bot_usage_included` and
+`api_fallback_disabled`. Included subscription routing requires
+`verified=true`, `api_fallback_disabled=true` for the account/transport, plus
+`model_included=true` and `included_model` equal to the resolved exact LLM
+model (or requested exact ID without an alias), or `bot_usage_included=true`
+for the provider-managed Grok Bot. Missing or uncertain values block that
+route. A paid candidate supplies upper_usd_per_attempt including reasoning,
+tool use and transport charges.
+
+**Usage, not credits (D-74, Simon 2026-10-04, every vendor).** A subscription
+route is judged by its included usage alone. It is blocked when the bound quota
+is unknown, stale, or at least `INCLUDED_USAGE_CEILING_PCT` (85) percent used
+(`INCLUDED_USAGE_CEILING`), or when the provider reports a reached rate limit or
+spend control (`rate_limit_reached_type`, `spend_control_reached`, at the top
+level or in any named bucket: `USAGE_LIMIT_REACHED`). A purchased-credit
+balance, `has_credits`/`unlimited`, `extra_usage_enabled`, Grok
+`on_demand_cap`/`prepaid_balance`, Antigravity credit overages and a missing
+`paid_credit_fallback_disabled` proof never block a route and are never a
+reason to ask the user while included usage remains. They stay in the plan as
+information only. Providers can draw existing purchased credits once included
+usage runs out (OpenAI documents this for Codex and xAI for Grok), so the
+15-point margin below 100 percent is the guard, not a credit audit. The ceiling
+applies to subscription routes; metered routes keep their USD grant rules.
+
+What still blocks on the account side: an `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`
+that would switch a CLI to metered API authentication (`api_fallback_disabled`),
+and a model whose inclusion is not positively observed. For Claude Fable, a
+subscription login and the model picker are not inclusion proof: Anthropic
+documents that non-interactive `-p`/SDK requests can bill usage credits without
+a consent prompt, so that route needs the exact model's positive inclusion
+evidence (`model_included`).
+The Codex metadata collector still rejects unrepresentable named billing bucket
+IDs, non-object buckets, and non-object bucket collections, because a dropped
+bucket could also hide a reached rate limit. Conflicting numeric aliases (`val`
+and `value`) resolve to unknown, never a preferred zero; that value is
+information only. Grok ACP billing places `onDemandEnabled` beside `config`;
+the collector prefers that outer boolean, falling back to a legacy nested value
+only when the outer field is absent, and keeps the CLI and Bot account/quota
+evidence distinct. None of these settings is changed by the planner or
+collector. Sources:
 https://help.openai.com/en/articles/12642688-using-credits-for-flexible-usage-in-chatgpt-personal-plans ;
 https://support.claude.com/en/articles/11145838-use-claude-code-with-your-pro-or-max-plan ;
 https://support.claude.com/en/articles/12429409-manage-usage-credits-for-paid-claude-plans ;
@@ -759,9 +753,10 @@ Each observed tool needs a unique `id`, `surface=codex|claude`,
 `runtime.interaction_ref` must match. The tool must expose
 `adapter_contract=image-host-atomic-subscription-v1`, `idempotent_request=true`
 and `lookup_by_request=true`. Its billing object must prove `mode=subscription`,
-the exact account, `image_included=true`, extra usage off, API and purchased-credit
-fallback disabled, and a **provider-enforced** hard cap of USD 0 for the image
-request. The billing proof itself needs a fresh `observed_at` and evidence;
+the exact account, `image_included=true`, API fallback disabled, and a
+**provider-enforced** hard cap of USD 0 for the image request; the atomic image
+adapter passes that cap to the host, so it stays a contract field. Extra-usage
+and purchased-credit fallback values are information only (D-74). The billing proof itself needs a fresh `observed_at` and evidence;
 route expiry uses the oldest tool, billing or quota observation. A fresh
 nonexhausted image quota bucket must carry evidence and the same account,
 surface and `host-image` transport as the billing/tool observation.
@@ -927,12 +922,13 @@ The node's `cli` manifest pins absolute `codex.exe` bytes, private canonical
 and separate private `result_path` (`.jsonl`) and `content_path` (`.txt`). Both
 artifacts must be directly inside the verified private `cwd`; nested or external
 directories, including a watched Bot bus or public repository, are rejected.
-Use the same certificate shape as the Claude adapter, but Codex additionally
-requires `billing.paid_credit_fallback_disabled=true` for this exact account,
-profile, model and CLI transport. `codex login status` or auto-reload OFF is not
-that proof. A fresh model/list and ChatGPT account observation must agree with
-the pinned profile and route; their metadata does not establish model inclusion,
-credit fallback or a USD 0 invoice.
+Use the same certificate shape as the Claude adapter. Codex is judged by
+included usage like every other vendor (D-74): the route quota must be fresh and
+under the 85 percent ceiling, and the fresh account observation must not report
+a reached rate limit or spend control (`CODEX_USAGE_LIMIT_REACHED`). A credit
+balance never blocks. A fresh model/list and ChatGPT account observation must
+agree with the pinned profile and route; their metadata does not establish
+model inclusion or a USD 0 invoice.
 
 After a Store claim, the adapter repeats the account/model and certificate
 checks, persists the original predecessor-input digest, then runs the pinned

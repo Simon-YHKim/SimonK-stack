@@ -116,9 +116,8 @@ class CodexCliAdapterTests(unittest.TestCase):
         self.assertEqual(self.adapter.dispatch(self.plan, "opening", None)["state"], "succeeded")
         self.assertEqual(len(self.cli.sends), 1)
 
-    def test_missing_credit_proof_or_changed_auth_blocks_before_claim(self):
-        for change in ({"paid_credit_fallback_disabled": None},
-                       {"model_included": False}):
+    def test_missing_inclusion_or_changed_auth_blocks_before_claim(self):
+        for change in ({"model_included": False}, {"api_fallback_disabled": None}):
             with self.subTest(change=change):
                 bad = copy.deepcopy(self.certificate)
                 bad["billing"].update(change)
@@ -130,25 +129,38 @@ class CodexCliAdapterTests(unittest.TestCase):
         self.assertEqual(self.store.snapshot()["attempts"], [])
         self.assertEqual(self.cli.sends, [])
 
-    def test_fresh_account_purchased_credits_block_even_with_zero_spend_certificate(self):
-        for billing_change in ({}, {"credits": None},
-                               {"credits": {"has_credits": False, "unlimited": False,
-                                            "balance": "0"}, "buckets": {"codex": {}}},
-                               {"buckets": {"codex": {"credits": {
-                                   "has_credits": False, "unlimited": False,
-                                   "balance": "0"}}}},
-                               {"credits": {"has_credits": True, "unlimited": False,
-                                            "balance": "3.25"}},
-                               {"buckets": {"codex": {"credits": {
-                                   "has_credits": True, "unlimited": False,
-                                   "balance": "3.25"}}}}):
+    def test_fresh_purchased_credits_do_not_block_while_usage_remains(self):
+        # D-74: a credit balance is information only; included usage decides.
+        self.cli.observed["billing"] = {"mode": "subscription", "credits": {
+            "has_credits": True, "unlimited": False, "balance": "50727.59"},
+            "buckets": {"codex": {"credits": {"has_credits": True, "unlimited": False,
+                                              "balance": "3.25"}}}}
+        self.assertEqual(self.adapter.dispatch(self.plan, "opening", self.certificate)["state"],
+                         "succeeded")
+        self.assertEqual(len(self.cli.sends), 1)
+
+    def test_fresh_reached_rate_limit_or_spend_control_blocks_before_send(self):
+        for billing_change in ({"rate_limit_reached_type": "primary"},
+                               {"spend_control_reached": True},
+                               {"buckets": {"codex": {"spend_control_reached": True}}}):
             with self.subTest(billing_change=billing_change):
                 self.cli.observed["billing"] = {"mode": "subscription", **billing_change}
-                with self.assertRaisesRegex(run_state.StateError,
-                                            "CODEX_PAID_CREDIT_EXPOSURE"):
+                with self.assertRaisesRegex(run_state.StateError, "CODEX_USAGE_LIMIT_REACHED"):
                     self.adapter.dispatch(self.plan, "opening", self.certificate)
         self.assertEqual(self.store.snapshot()["attempts"], [])
         self.assertEqual(self.cli.sends, [])
+
+    def test_included_usage_gate_used_by_the_adapter(self):
+        # The plan route is digest-bound, so the shared gate is checked directly.
+        now = "2026-09-23T10:00:00+00:00"
+        for quota, expected in (({"used_pct": 84, "observed_at": now}, True),
+                                ({"used_pct": 85, "observed_at": now}, False),
+                                ({"used_pct": None, "observed_at": now}, False),
+                                ({"used_pct": True, "observed_at": now}, False),
+                                ({"used_pct": 10, "observed_at": "2026-09-01T00:00:00+00:00"}, False),
+                                (None, False)):
+            with self.subTest(quota=quota):
+                self.assertIs(orchestrate.included_usage_open(quota, now), expected)
 
     def test_unrepresentable_fresh_billing_buckets_block_before_send(self):
         for buckets in ({"premium/credits": {"credits": {"hasCredits": True,
@@ -166,7 +178,7 @@ class CodexCliAdapterTests(unittest.TestCase):
         self.assertEqual(self.store.snapshot()["attempts"], [])
         self.assertEqual(self.cli.sends, [])
 
-    def test_conflicting_fresh_credit_balance_aliases_block_before_send(self):
+    def test_conflicting_fresh_credit_balance_aliases_do_not_block(self):
         raw = {"account": {"account": {"type": "chatgpt", "planType": "plus",
                                     "email": "fixture@example.test"}},
                "models": {"data": [{"model": "fixture-gpt",
@@ -176,10 +188,10 @@ class CodexCliAdapterTests(unittest.TestCase):
                    "balance": {"val": "0", "value": "3.25"}}}}}
         self.cli.auth = lambda binding, env, now: runtime_collect.normalize(
             "codex", raw, now, binding["profile_path"])
-        with self.assertRaisesRegex(run_state.StateError, "CODEX_PAID_CREDIT_EXPOSURE"):
-            self.adapter.dispatch(self.plan, "opening", self.certificate)
-        self.assertEqual(self.store.snapshot()["attempts"], [])
-        self.assertEqual(self.cli.sends, [])
+        # The collector still resolves the conflict to unknown; D-74 makes it information only.
+        self.assertEqual(self.adapter.dispatch(self.plan, "opening", self.certificate)["state"],
+                         "succeeded")
+        self.assertEqual(len(self.cli.sends), 1)
 
     def test_api_key_environment_is_never_forwarded(self):
         with patch.dict(os.environ, {"OPENAI_API_KEY": "fixture-only",

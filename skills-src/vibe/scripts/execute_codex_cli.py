@@ -201,18 +201,14 @@ class Adapter:
         validate_plan(plan, now)
         billing, quota = route["billing"], route["quota"]
         model, effort = route.get("resolved_model") or route["model"], route["requested_effort"]
-        require(not orchestrate.codex_paid_credit_risk(billing),
-                "CODEX_PAID_CREDIT_EXPOSURE")
+        # D-74: included usage decides; credit balances and overage settings never block.
         require(billing["mode"] == "subscription" and billing["verified"] is True
-                and billing.get("extra_usage_enabled") is False
                 and billing.get("api_fallback_disabled") is True
-                and billing.get("paid_credit_fallback_disabled") is True
                 and billing.get("model_included") is True
                 and billing.get("included_model") == model
-                and type(quota.get("used_pct")) in (int, float)
-                and 0 <= quota["used_pct"] < 100
-                and orchestrate.fresh(quota.get("observed_at"), now),
+                and orchestrate.included_usage_open(quota, now),
                 "CODEX_SUBSCRIPTION_ROUTE_UNVERIFIED")
+        require(not orchestrate.usage_limit_reached(billing), "CODEX_USAGE_LIMIT_REACHED")
         require(isinstance(certificate, dict) and certificate.get("verified") is True
                 and certificate.get("subscription_only") is True,
                 "CODEX_CERTIFICATE_REQUIRED")
@@ -244,8 +240,8 @@ class Adapter:
                 and observed.get("auth", {}).get("method") == "chatgpt"
                 and any(item.get("model") == model and effort in item.get("transport_efforts", [])
                         for item in observed.get("models", [])), "CODEX_AUTH_OR_MODEL_CHANGED")
-        require(not orchestrate.codex_paid_credit_risk(observed.get("billing")),
-                "CODEX_PAID_CREDIT_EXPOSURE")
+        require(not orchestrate.usage_limit_reached(observed.get("billing")),
+                "CODEX_USAGE_LIMIT_REACHED")
         return binding, env, inputs, inputs_sha256
 
     def _unknown(self, attempt, reason):

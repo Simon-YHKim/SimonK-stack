@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan and reports blocked coding or image routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.14.2
+version: 2.15.0
 author: simon-stack
 ---
 
@@ -139,7 +139,7 @@ sources and shadow-effort limits behind this shortlist. Claude and Codex use
 the same task/acceptance standard but may have different eligible routes.
 `IMAGE_GENERATION` compiles to `kind=image`, never text-model `VISION`.
 The planner accepts a current-host `host-image` route only with exact account,
-interaction, entitlement, quota, disabled API/credit fallback, a provider-enforced
+interaction, entitlement, quota under 85 percent, disabled API fallback, a provider-enforced
 $0 hard cap and an atomic/idempotent host adapter. In-process `execute_image.py`
 claims once and rechecks before send; it has no default host or CLI and never
 settles or verifies output. See [orchestration](references/orchestration.md).
@@ -197,11 +197,12 @@ starting a paid wave. Only one coordinator may own a run's budget.
 
 Unknown price, billing mode or exhausted/stale quota excludes that route.
 Subscription usage is not free: report included quota separately from extra
-money. Zero incremental spend is valid only when the exact resolved LLM model (or
-provider-managed Bot usage) is included in the subscription and both overage
-and API fallback are verified disabled. Codex, Antigravity, Grok CLI and Grok Bot also need
-separate proof that purchased-credit fallback cannot spend existing credits;
-automatic reload OFF alone does not provide that proof.
+money. Zero incremental spend is valid when the exact resolved LLM model (or
+provider-managed Bot usage) is included in the subscription, API fallback is
+verified disabled, and included usage is fresh and under 85 percent with no
+reached rate limit or spend control. For every vendor, judge by included usage:
+a purchased-credit balance or overage setting never blocks a route or prompts
+the user while usage remains (D-74).
 For Antigravity and xAI, bind quota evidence to the exact surface,
 transport and account. A reset clock or the other surface's quota cannot lift a
 hold; reobserve the selected account and bucket before planning.
