@@ -671,3 +671,5 @@ last-sync: 2026-07-05
 
 - 2026-10-05 04:48:02 KST | DECIDE | **D-85 main 286494e 이 PC 설치(freeze 0.2.6)** (오케스트레이터 단독 · 35.8 1단) | claude
   - **근거**: §35.9에 따른 승인된 설치 절차 반복이다. 새로 들어간 것은 #132·#134(freeze 0.2.6, 플러그인 clear 출력), #135(카탈로그 전환), #136(테스트 timeout과 README)다. 미리보기 계획은 후보 20261005-vibe-2152-286494e, 정션 8개, 실폴더 freeze 0.2.5 → 0.2.6이다.
+
+- 2026-10-05 04:50:50 KST | AMEND | **D-85 main 286494e 이 PC 설치(freeze 0.2.6)** — 이행: 후보 20261005-vibe-2152-286494e로 정션 8개를 전환하고 실폴더 freeze를 0.2.6으로 바꿨다. update-local -Selftest는 status current, problems 0 | claude
