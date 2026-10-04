@@ -930,6 +930,36 @@ version 칸을 비운 값으로 셉니다. version만 다른 두 빌드는 같�
 빌드·게시합니다. 호스트가 낮아진 version을 받는지는 확인되지 않았기 때문입니다.
 설치된 호스트가 이 재출하를 실제로 받는지는 4단계에서 확인합니다.
 
+**pin 커밋은 태그로 보존합니다.** CI는 pin을 sha로 `fetch --depth 1` 합니다. 다섯 pin
+커밋은 원본 저장소 main에 머지되지 않은 기능 브랜치에만 있었으므로, 그 브랜치가 지워지면
+커밋이 사라져 빌드와 위의 롤백이 깨질 수 있습니다. 그래서 pin 커밋마다 annotated 태그
+`simonk-pin-<YYYYMMDD>-<sha7>`를 달았습니다(태그만 push, 브랜치 push·이력 변경 없음).
+`plugin-inputs.v1.json`은 `name`·`commit` 두 키만 허용하므로(`plugin_bundle.validate_inputs`)
+태그는 이 표에 적습니다. **권위는 sha입니다.** 태그는 옮겨질 수 있고 sha는 바뀌지 않으므로
+빌드는 계속 sha로 받고, 태그는 커밋을 붙잡아 두는 보존 앵커일 뿐입니다.
+
+| 저장소 | 태그 | 가리키는 커밋 | 태그 시점 브랜치 |
+| --- | --- | --- | --- |
+| SimonKAIHub | `simonk-pin-20261004-d523b3e` | `d523b3e1cfa800ef60c690d40b7256abf5bcba1e` | `feat/model-selector-current-260929` |
+| SimonKCore | `simonk-pin-20261004-24a17a1` | `24a17a1d59d03e75d3ac57643e91789cd640350e` | `fix/core-helper-closure-260927` (현재 pin) |
+| SimonKCore | `simonk-pin-20261004-a07a1e9` | `a07a1e9090edfa7e0a7db57bf02de2127f8e2ccc` | 같은 브랜치 (이전 pin, 롤백용) |
+| SimonKDesign | `simonk-pin-20261004-e045400` | `e045400de6fed810f38323ba6ab755e2572e64a3` | `fix/skill-validation-260927` |
+| SimonKMarket | `simonk-pin-20261004-54f757f` | `54f757f8f8f6cd73b2a470c4a13417c2e268b304` | `fix/market-missing-assets-260927` |
+| SimonKStack | `simonk-pin-20261004-7f866e7` | `7f866e71e3e37e147410cdc55a5a786cf19fd2b6` | `fix/skill-validation-260927` |
+
+pin을 올릴 때는 새 커밋에 같은 형식의 태그를 먼저 push한 뒤 `plugin-inputs.v1.json`과
+이 표를 고칩니다. 이전 pin의 태그는 지우지 않습니다(롤백 PR이 그 sha를 다시 받습니다).
+원본 저장소의 워크플로는 태그 push에 반응하지 않습니다(`release.yml`은 main push,
+나머지는 main push·PR).
+
+2026-10-04 SimonKCore pin을 `a07a1e9`에서 `24a17a1`(SimonKCore PR #5를 같은 기능 브랜치에
+squash)로 올렸습니다. 두 트리의 차이는 `skills/semantic-recall/semantic_index.py` 한
+파일입니다. 기본 루트를 `SIMON_WIKI_DIR`·`SIMONK_PROJECT_DIR`(없으면 홈 폴더)에서 계산하게
+바꿔 `scripts/shipped_path_exceptions.json`의 official 예외 3건을 지웠고, 남은 예외는
+`vibe-bot/bots.json`의 2nd-B 클론 위치 1건입니다. 로컬 `update-local.ps1`은 새 후보를 빌드할
+때 SimonKCore가 `24a17a1`인 pins 폴더가 `ReleasesDir`에 생기거나 `-PluginPins`로 지정될
+때까지 `PLUGIN_PINS_REQUIRED`로 멈춥니다.
+
 Windows 고정 로컬 드라이브만 지원하며 기존 출력은 덮어쓰지 않습니다. Git 실행 전에
 working tree를 bounded/no-follow 검사하고 파일·디렉터리 및 index를 핀합니다.
 실제 파일집합·Git index·pinned tree를 대조하고 `status -uno`만 사용하므로 untracked
