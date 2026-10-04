@@ -193,8 +193,16 @@ jobs:
           python -B scripts/candidate_path_audit.py --package (Join-Path $env:RUNNER_TEMP 'candidate/candidate-safety') `
             --expected-digest $env:BUNDLE_DIGEST > $report
           $code = $LASTEXITCODE
-          if (Test-Path $report) { (Get-Content -Raw $report | ConvertFrom-Json).status }
-          if ($code -ne 0) { throw "Claude candidate path audit exit $code (1 = unresolved findings, 2 = blocked)" }
+          # Exit 1 covers two statuses. 'incomplete' is a real defect (unresolved reference,
+          # non-portable command or machine path) and fails. 'external_runtime_pending' only
+          # means skills point at the separately installed Gstack runtime, which a static
+          # audit cannot verify (D-76: host evidence covers it). Exit 2 = blocked.
+          if ($code -eq 2 -or -not (Test-Path $report)) { throw "Claude candidate path audit blocked (exit $code)" }
+          $r = Get-Content -Raw $report | ConvertFrom-Json
+          "status=$($r.status) unresolved=$(@($r.unresolved).Count) unportable=$(@($r.unportable_commands).Count) machine=$(@($r.machine_paths).Count)"
+          if ($r.status -notin @('static_paths_present', 'external_runtime_pending') -or @($r.unresolved).Count -or @($r.unportable_commands).Count -or @($r.machine_paths).Count) {
+            throw "Claude candidate path audit failed: status $($r.status)"
+          }
 
       - name: Path audit (Codex subset)
         if: ${{ !cancelled() && steps.record.outcome == 'success' }}
@@ -210,8 +218,13 @@ jobs:
             --package (Join-Path $candidate 'codex-subset-safety') --expected-digest $env:SUBSET_DIGEST `
             --source-overlay (Join-Path $candidate 'codex-overlay-safety') --overlay-digest $env:OVERLAY_DIGEST > $report
           $code = $LASTEXITCODE
-          if (Test-Path $report) { (Get-Content -Raw $report | ConvertFrom-Json).status }
-          if ($code -ne 0) { throw "Codex subset path audit exit $code (1 = unresolved findings, 2 = blocked)" }
+          # Same status rule as the Claude candidate step above.
+          if ($code -eq 2 -or -not (Test-Path $report)) { throw "Codex subset path audit blocked (exit $code)" }
+          $r = Get-Content -Raw $report | ConvertFrom-Json
+          "status=$($r.status) unresolved=$(@($r.unresolved).Count) unportable=$(@($r.unportable_commands).Count) machine=$(@($r.machine_paths).Count)"
+          if ($r.status -notin @('static_paths_present', 'external_runtime_pending') -or @($r.unresolved).Count -or @($r.unportable_commands).Count -or @($r.machine_paths).Count) {
+            throw "Codex subset path audit failed: status $($r.status)"
+          }
 
       - name: Safety runtime suite against the built runtime (SimonKStack; SimonKCore byte-identical)
         if: ${{ !cancelled() && steps.record.outcome == 'success' }}
