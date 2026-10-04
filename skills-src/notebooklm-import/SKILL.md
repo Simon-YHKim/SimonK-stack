@@ -5,7 +5,7 @@ description: >
   "유튜브 자막 위키에". Produces new raw/ files and a wiki-ingest handoff
   (headless: needs-reflection); not NotebookLM cloud API, wiki compilation or
   read-only extraction.
-version: 0.1.1
+version: 0.1.2
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch
 compatibility:
   - claude-code
@@ -33,8 +33,10 @@ compatibility:
 ## Vault 경로 (정본)
 
 ```
-VAULT="E:/Coding Infra/obsidian/SimonKWiki"
+VAULT="${SIMON_WIKI_DIR:-$HOME/.claude/wiki/SimonKWiki}"
 ```
+
+볼트 루트는 `SIMON_WIKI_DIR` 환경변수로 정한다. 없으면 `~/.claude/wiki/SimonKWiki` 를 쓴다.
 
 | 소스 타입 | raw/ 착지 폴더 | 파일명 규칙 |
 |---|---|---|
@@ -47,7 +49,7 @@ VAULT="E:/Coding Infra/obsidian/SimonKWiki"
 ## 선행 체크 (precheck)
 
 ```bash
-VAULT="E:/Coding Infra/obsidian/SimonKWiki"
+VAULT="${SIMON_WIKI_DIR:-$HOME/.claude/wiki/SimonKWiki}"
 test -d "$VAULT/raw" && echo "VAULT_OK" || { echo "VAULT 없음 — 경로 확인"; exit 1; }
 
 # 도구 가용성 (없으면 설치 안내, 막지 않음)
@@ -134,9 +136,11 @@ pdftotext -layout "paper.pdf" "$VAULT/raw/documents/_tmp.txt"
 
 # 깨지면 2순위: pypdf (텍스트 레이어)
 python - <<'PY'
+import os
 from pypdf import PdfReader
+vault = os.environ.get("SIMON_WIKI_DIR") or os.path.expanduser("~/.claude/wiki/SimonKWiki")
 t = "\n".join((p.extract_text() or "") for p in PdfReader("paper.pdf").pages)
-open(r"E:/Coding Infra/obsidian/SimonKWiki/raw/documents/_tmp.txt","w",encoding="utf-8").write(t)
+open(os.path.join(vault, "raw", "documents", "_tmp.txt"), "w", encoding="utf-8").write(t)
 PY
 
 # 표·다단 정밀 추출이 필요하면 3순위: pdfplumber
@@ -187,7 +191,7 @@ needs-reflection 큐 확인:
 ## 검증 (verification)
 
 ```bash
-VAULT="E:/Coding Infra/obsidian/SimonKWiki"
+VAULT="${SIMON_WIKI_DIR:-$HOME/.claude/wiki/SimonKWiki}"
 
 # 1) raw 파일이 생겼고 비어있지 않은가
 NEW=$(ls -t "$VAULT/raw/transcripts"/*.md 2>/dev/null | head -1)

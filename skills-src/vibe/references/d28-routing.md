@@ -1,6 +1,6 @@
 # D-28 — 라우팅 개정 1단계 (2026-09-16)
 
-> Simon 확정 2026-09-16 (16건 전부 심판안). 토론 원문: `E:\Coding Infra\reports\vibe-d28-debate-260913\judge-verdict.md`
+> Simon 확정 2026-09-16 (16건 전부 심판안). 토론 원문: `$SIMONK_PROJECT_DIR\reports\vibe-d28-debate-260913\judge-verdict.md`(Simon PC 로컬 보관, 배포본에 없음)
 > · 허브 `DECISIONS.md` 2026-09-13 23:19 D-28 · 2026-09-16 00:55 RATIFY.
 
 ## Contents

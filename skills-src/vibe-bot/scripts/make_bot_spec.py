@@ -39,7 +39,9 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 KST = timezone(timedelta(hours=9))
-DEFAULT_OUT = Path(os.environ.get("VIBE_BOT_OUT", r"E:\Coding Infra\reports"))
+# Workspace root (SIMONK_PROJECT_DIR, set by the SimonK profile); home folder if unset.
+WORKSPACE = Path(os.environ.get("SIMONK_PROJECT_DIR") or Path.home())
+DEFAULT_OUT = Path(os.environ.get("VIBE_BOT_OUT") or WORKSPACE / "reports")
 WEBHOOK_URL_ENV = "GROK_BOT_WEBHOOK_URL"
 WEBHOOK_KEY_ENV = "GROK_BOT_WEBHOOK_KEY"
 # Flipped to True only after one measured end-to-end webhook run (see SKILL.md).
@@ -49,7 +51,7 @@ ROSTER_PATH = SKILL_DIR / "bots.json"
 # 0.7.0 - a keyword hit in --target/--url counts this many times a hit in the task prose.
 #   Ownership follows the console the work is on, not the tool the sentence happens to name.
 WEIGHT_TARGET = 3
-HUB_DIR = Path(os.environ.get("VIBE_BOT_HUB", r"E:\Coding Infra\AI Infra\Communication"))
+HUB_DIR = Path(os.environ.get("VIBE_BOT_HUB") or WORKSPACE / "AI Infra" / "Communication")
 
 SECRET_PATTERNS = [
     ("openai/anthropic style key", re.compile(r"\b(?:sk|pk)-[A-Za-z0-9_-]{16,}")),
@@ -112,7 +114,7 @@ MENU_PATH_RE = re.compile(r"[A-Za-z가-힣][\w ()-]* > [A-Za-z가-힣]")
 SOURCE_RE = re.compile(
     r"(?i)(?:https?://\S+|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\."
     r"(?:com|ai|dev|io|org|net|co|app|gov|edu|kr)\b)")
-# A local path is a source too (0.7.0). This bus is files, not URLs: "E:\2ndB\.bots\relay\inbox\
+# A local path is a source too (0.7.0). This bus is files, not URLs: "D:\proj\.bots\relay\inbox\
 # - 읽힘 ... 직전에는 폴더 없음이었다" names exactly where it looked, and the URL-only rule
 # still failed it. Measured on vb-78dadec4, 2026-09-20.
 PATH_RE = re.compile(
@@ -400,7 +402,7 @@ def resolve_project(projects: dict, target: str = "", task: str = "",
 def bus_root(hub: Path = HUB_DIR, projects: dict | None = None,
              project_id: str | None = None) -> Path:
     """Where the sheet and the result land: that project's own bus when the task belongs
-    to a project (2nd-B -> E:/2ndB/.bots, so the work accumulates with the project),
+    to a project (2nd-B -> <its bots.json root>/.bots, so the work accumulates with the project),
     otherwise the shared hub."""
     proj = (projects or {}).get(project_id or "")
     if proj and proj.get("root"):

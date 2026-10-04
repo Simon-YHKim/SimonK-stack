@@ -1,7 +1,7 @@
 ---
 name: ai-debate
 description: Use when "/ai-debate", "토론 붙여" or "겐세이" — Claude·Codex·Grok·Gemini debate a decision that is important, contested or irreversible, or challenge an agent stuck on one task too long. Also triggers "다관점으로 결정", "이거 합의 보자", "찬반 검토", "AI들끼리 토론", "중간 점검", "너무 오래 걸려", "debate this", "interject". MANDATORY for PROTOCOL §35.1 triggers. Always seats all four vendors — Claude, Codex (OpenAI), Grok (xAI) and Gemini (Google, via the Antigravity agy CLI) — through scripts/debate.py at $0 extra cost, hosted identically from Claude Code, Codex, Grok CLI or agy; an unreachable seat is recorded as absent with evidence and must catch up later, never simulated by another vendor. Runs positions, cross-examination, a blind separate judge and ratification, then Produces a D-code entry in the hub DECISIONS.md; interject mode Produces a 겐세이 card.md for the running agent.
-version: 0.2.5
+version: 0.2.6
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Agent
 compatibility:
   - claude-code
@@ -98,7 +98,7 @@ compatibility:
    - **OBJECT 1건**: 호스트가 근거를 적어 타이브레이크한다. `debate.py record --id <id> --tiebreak "<근거>"`. 근거는 `tiebreak.json`과 기록에 남는다. 이미 7단계로 기록했다면 `debate.py record --id <id> --amend`로 덧붙인다.
    - **OBJECT 2건 이상**: 새 토론으로 다시 연다. `debate.py new --reopen-of <id> --orchestrator <호스트 값> --evidence-file <새 증거.md>`(증거 파일은 선택)는 안건을 복사하고 이전 기록을 증거에 붙인다. 16KB를 넘으면 이전 증거부터 줄인다. 새 토론에서 3단계부터 다시 한다.
    - 안전 레일 사안은 Simon이 정한다.
-7. **기록.** `debate.py status --id <id>`로 FINAL/PROVISIONAL/INVALID와 `blocked`·`unresolved`를 확인한다. 그다음 `debate.py record --id <id> --decisions "E:/Coding Infra/AI Infra/Communication/DECISIONS.md" --append`.
+7. **기록.** `debate.py status --id <id>`로 FINAL/PROVISIONAL/INVALID와 `blocked`·`unresolved`를 확인한다. 그다음 `debate.py record --id <id> --decisions "<허브>/DECISIONS.md" --append`. `<허브>` 는 통신 허브 폴더다(기본 `$SIMONK_PROJECT_DIR/AI Infra/Communication`).
    - D-code는 `| DECIDE | **D-n` 또는 `### D-n` 머리 줄만 세어 정한다. 지정된 D-code와 경로는 `record.json`에 남는다.
    - 같은 토론의 두 번째 `--append`는 거부된다.
    - INVALID이거나 유효한 심판 판정이 없는 토론은 거부된다. 정말 남겨야 하면 `--force`를 주며, 기록에 `⚠ 강제 기록`이 붙는다.

@@ -19,7 +19,7 @@
         "6792266942",
         "2nd brain"
       ],
-      "note": "Task/result bus: E:/2ndB/.bots/relay/inbox|outbox. Bots may propose code only in docs/drafts; do not edit app source."
+      "note": "Task/result bus: <root>/.bots/relay/inbox|outbox. Bots may propose code only in docs/drafts; do not edit app source."
     }
   },
   "boundary": "Prefer an authorized local CLI/API/MCP and keep the /vibe coordinator. Use the Bot adapter for necessary cloud screens. Explicitly authorized reversible free preparation is permitted; current task scope, credential security and spend holds still apply. Login/2FA goes to Simon. Payment, ad activation, store submission, deletion, publication, external sending and subscription changes require approval.",
@@ -133,7 +133,7 @@
         "웹 qa"
       ],
       "status": "active",
-      "status_evidence": "Observed live 2026-10-03: hub bots/STATUS.md refreshed 23:06 KST (inbox scan, machine connected) and E:/2ndB/.bots/relay/outbox results 21:34-22:30 KST. Activated by hub D-60 (conditional staged opening: first task only the Cursor overage/auto top-up screen check; no other tasks until it passes). Specialists keep their reported status.",
+      "status_evidence": "Observed live 2026-10-03: hub bots/STATUS.md refreshed 23:06 KST (inbox scan, machine connected) and 2nd-B <root>/.bots/relay/outbox results 21:34-22:30 KST. Activated by hub D-60 (conditional staged opening: first task only the Cursor overage/auto top-up screen check; no other tasks until it passes). Specialists keep their reported status.",
       "default": true
     },
     {

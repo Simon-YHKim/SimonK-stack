@@ -7,7 +7,9 @@ Gstack bin references are reported as external-runtime hints, not proof of
 availability. Optional pinned-source evidence checks direct helper files only.
 Literal backtick paths and simple Markdown link destinations are inspected in
 SKILL.md and reachable Markdown references; dynamic commands, imports and
-services remain out of scope.
+services remain out of scope. Every verified member is also scanned for
+machine-specific absolute paths (shipped_path_check); documented exceptions
+come from this repository, never from the candidate.
 """
 from __future__ import annotations
 
@@ -21,6 +23,7 @@ import sys
 import codex_safe_subset
 import gstack_source_inventory as gstack_inventory
 import plugin_bundle
+import shipped_path_check
 import skill_release as release
 
 INLINE = re.compile(r"`([^`\r\n]+)`")
@@ -162,6 +165,41 @@ def inspect_skill_references(skill_path: str, text: str,
     return inspect_document_references(skill_path, text, available)
 
 
+def _plugin_relative(member: str) -> str:
+    """plugins/<Owner>/<rest> -> <rest>, the key shipped_path_exceptions.json uses."""
+    parts = member.split("/", 2)
+    return parts[2] if len(parts) == 3 and parts[0] == "plugins" else member
+
+
+def inspect_machine_paths(root: Path, records: dict[str, dict],
+                          already_read: dict[str, bytes] | None = None) -> dict:
+    """Scan every verified text member once; report path, line and kind only."""
+    already_read = already_read or {}
+
+    def verified_texts():
+        for path in sorted(records):
+            data = already_read.get(path)
+            if data is None:
+                data = release.read_file(release.safe_member(root, path))
+            if (len(data) != records[path]["size"]
+                    or release.digest(data) != records[path]["sha256"]):
+                raise ValueError("Candidate member changed after candidate verification")
+            text = shipped_path_check.decode_text(data)
+            if text is not None:
+                yield path, text
+
+    # A candidate or Codex subset may omit excepted files, so counts are upper bounds.
+    result = shipped_path_check.check_files(
+        verified_texts(), shipped_path_check.load_exceptions(),
+        require_exact=False, key_of=_plugin_relative)
+    findings = result["findings"]
+    return {"findings": findings, "counts": {
+        "members_checked": result["files_checked"],
+        "files": len({row["path"] for row in findings}),
+        "occurrences": len(findings),
+        "excepted_occurrences": result["excepted_occurrences"]}}
+
+
 def _audit_verified_paths(root: Path, expected_digest: str, members: list[dict],
                           digest_key: str, gstack_source: Path | None,
                           gstack_commit: str | None) -> dict:
@@ -177,6 +215,7 @@ def _audit_verified_paths(root: Path, expected_digest: str, members: list[dict],
         r"plugins/[^/]+/skills/[^/]+/SKILL\.md", path)}
     pending = sorted(skill_paths)
     visited: set[str] = set()
+    verified_bytes: dict[str, bytes] = {}
     while pending:
         path = pending.pop(0)
         if path in visited:
@@ -185,6 +224,7 @@ def _audit_verified_paths(root: Path, expected_digest: str, members: list[dict],
         data = release.read_file(release.safe_member(root, path))
         if len(data) != records[path]["size"] or release.digest(data) != records[path]["sha256"]:
             raise ValueError("Skill document changed after candidate verification")
+        verified_bytes[path] = data
         text = data.decode("utf-8")
         for row in inspect_document_references(path, text, available):
             rows.append({"skill": path, **row})
@@ -201,13 +241,17 @@ def _audit_verified_paths(root: Path, expected_digest: str, members: list[dict],
             # Keep names internal: an untrusted filename must not enter JSON.
             external_runtime_targets.add(match.group(0).rsplit("/", 1)[-1])
     unresolved = [row for row in rows if row["status"] != "present"]
-    status = ("incomplete" if unresolved or unportable_commands else
-              "external_runtime_pending" if external_runtime_hints else "static_paths_present")
+    machine_paths = inspect_machine_paths(root, records, verified_bytes)
+    status = ("incomplete" if unresolved or unportable_commands or machine_paths["findings"]
+              else "external_runtime_pending" if external_runtime_hints
+              else "static_paths_present")
     report = {"status": status,
             digest_key: expected_digest, "skills_checked": len(skill_paths),
             "markdown_documents_checked": len(visited),
             "static_refs_checked": len(rows), "unresolved": unresolved,
             "unportable_commands": unportable_commands,
+            "machine_paths": machine_paths["findings"],
+            "machine_path_counts": machine_paths["counts"],
             "external_runtime_hints": external_runtime_hints,
             "external_runtime_counts": {
                 "skill_documents": len(external_runtime_hints),
@@ -216,7 +260,8 @@ def _audit_verified_paths(root: Path, expected_digest: str, members: list[dict],
             "runtime_closure_verified": False,
             "scope": "literal ASCII backtick paths and simple Markdown link destinations "
                      "in skill entrypoints and reachable Markdown references, "
-                     "plus source/project-relative skill command locations; "
+                     "plus source/project-relative skill command locations "
+                     "and machine-specific absolute paths in every verified member; "
                      "literal Gstack bin counts are lexical external-runtime hints, not calls; "
                      "findings need manual review; no execution, imports or services"}
     if gstack_source is not None:

@@ -755,14 +755,14 @@ class InterjectScanTests(unittest.TestCase):
         return self.agy_session("a-1", [
             a_user(70, "번역 파일 정리해줘"), a_tool(69), a_result(68), a_tool(8, "판정 HOLD 유지"), a_result(7),
             a_tool(6, "다시 보류"), a_result(5), a_tool(4, "여전히 HOLD"), a_result(3, "RUNNING")],
-            workspace="E:\\2ndB")
+            workspace="D:\\proj")
 
     def test_agy_open_turn_fires_triggers(self):
         self.stuck_agy()
         _rc, result = self.scan()
         self.assertIn("agy", result["roots"])
         row = self.only(result, "agy")
-        self.assertEqual((row["agent"], row["session_id"], row["cwd"], row["status"]), ("agy", "a-1", "E:\\2ndB", "ok"))
+        self.assertEqual((row["agent"], row["session_id"], row["cwd"], row["status"]), ("agy", "a-1", "D:\\proj", "ok"))
         self.assertTrue(row["turn_open"])
         self.assertAlmostEqual(row["elapsed_min"], 70, delta=0.5)
         self.assertEqual(row["triggers"], ["T1_LONG_TURN", "T2_LOOP"])
@@ -800,7 +800,7 @@ class InterjectScanTests(unittest.TestCase):
             self.assertIn(item, text)
         self.assertEqual(meta["status"], "ok")
         text, meta = self.snapshot(agy)
-        for item in ("에이전트: agy", "세션: a-1", "E:\\2ndB", "번역 파일 정리해줘", "T2_LOOP"):
+        for item in ("에이전트: agy", "세션: a-1", "D:\\proj", "번역 파일 정리해줘", "T2_LOOP"):
             self.assertIn(item, text)
         self.assertNotIn("USER_REQUEST", text)
 

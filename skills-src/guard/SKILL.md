@@ -1,6 +1,6 @@
 ---
 name: guard
-version: 0.2.1
+version: 0.2.2
 description: "Use when asked for \"guard mode\", \"full safety\", \"lock it down\", \"maximum safety\", \"가드 모드\", \"풀 세이프티\", or before touching prod or debugging live systems. Combines /careful and /freeze: a PreToolUse Bash hook produces deny for HIGH destructive commands and ask for MEDIUM ones, and an Edit/Write hook produces deny outside the chosen directory, including Windows drive paths."
 allowed-tools:
   - Bash
@@ -124,8 +124,10 @@ alone. Do not add the marker.
 ## Verify
 
 ```bash
-python -B skills-src/freeze/bin/test_check_freeze.py     # freeze + guard wiring
-python -B skills-src/careful/bin/test_check_careful.py   # careful hook
+# <freeze-dir>, <careful-dir> = 각 스킬 폴더. guard 자체 테스트는 없다.
+# 플러그인 빌드에서는 careful 이 다른 플러그인(SimonKCore)에 있으니 형제 경로로 짐작하지 않는다.
+python -B <freeze-dir>/bin/test_check_freeze.py     # freeze + guard wiring
+python -B <careful-dir>/bin/test_check_careful.py   # careful hook
 ```
 
 ## 완료 보고 (HTML) — 표준

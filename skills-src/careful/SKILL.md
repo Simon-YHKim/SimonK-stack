@@ -1,6 +1,6 @@
 ---
 name: careful
-version: 0.2.3
+version: 0.2.4
 description: "Use when touching prod, live systems or a shared machine, or asked to \"be careful\", \"safety mode\", \"careful mode\", \"조심해\", \"신중 모드\", \"위험한 명령 경고\". Installs session PreToolUse Bash and PowerShell hooks; the check produces deny for HIGH commands (recursive delete of /, a drive root or ~, force-push to the default branch), ask for MEDIUM Bash ones (rm -r, DROP, git reset --hard), and always deny when the hook itself fails."
 allowed-tools:
   - Bash
@@ -225,7 +225,8 @@ never suppress a baseline warning or a HIGH deny. Invalid regex lines are skippe
 ## Verify
 
 ```bash
-python -B skills-src/careful/bin/test_check_careful.py   # needs Git Bash on Windows
+# <skill-dir> = 이 스킬 폴더 (소스 체크아웃에서는 skills-src/careful)
+python -B <skill-dir>/bin/test_check_careful.py   # needs Git Bash on Windows
 ```
 
 Commands are only fed as stdin JSON; the tests never execute them.

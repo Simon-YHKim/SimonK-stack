@@ -2,7 +2,7 @@
 name: session-context-export
 description: "Use when the user invokes \"세션 종료\", \"hand-off\", \"context export\", \"다음 세션 준비\", \"세션 저장\", \"/session-context-export\", or 컨텍스트 80%+ 도달 시. Produces (1) sprint state snapshot (.simonk/session-<timestamp>.md), (2) recent commits 양쪽 repo (git log --oneline -10), (3) pending tasks list (사용자 본인 영역 + 자율 가능), (4) re-entry prompt (다음 세션 첫 메시지 template). Context-guardian와 짝. simonK 자율 하네스 완료 후 자동 권장 가능."
 allowed-tools: Read, Bash, Write
-version: 0.1.0
+version: 0.1.1
 author: simon-stack
 ---
 
@@ -59,10 +59,10 @@ phases-progress:
 ### 2. 양쪽 repo 최근 commits
 
 ```bash
-cd "C:/Coding/Harrness Eng/SimonK-stack"
+cd "$SIMON_STACK_DIR"    # SimonK-stack 체크아웃
 git log --oneline -10
 
-cd "C:/Coding/obsidian/SimonKWiki"
+cd "$SIMON_WIKI_DIR"     # SimonKWiki 볼트
 git log --oneline -10
 ```
 

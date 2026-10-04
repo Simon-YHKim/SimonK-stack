@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """정답 생성기 — path-kind-mix: 경로 7개 중 origin/main 트리에 '일반 파일'로 있는 것의 수.
 
-이 문항이 노리는 함정 네 가지 (2026-09-13 실측 · E:/2ndB · Windows · Git Bash):
+이 문항이 노리는 함정 네 가지 (2026-09-13 실측 · 2nd-B 저장소 · Windows · Git Bash):
   1) MSYS 경로 변환. Git Bash 에서 `git cat-file -e origin/main:.env.test` 는 콜론 뒤가
      점으로 시작해서 인자가 `origin\\main;.env.test` 로 바뀌고 128 을 낸다. 파일은 있다.
      종료코드만 믿으면 '없음'이 된다 — 부재와 오류가 같은 종료코드를 낸다.

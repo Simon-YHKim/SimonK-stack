@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import make_bot_spec as m  # noqa: E402
@@ -88,7 +88,7 @@ def main() -> int:
           any("G6" in f for f in m.verify_result(mixed, nonce)))
     # 0.7.0 - measured on vb-78dadec4: this bus is files, so a local path scopes a line
     # exactly the way a URL does.
-    path_scoped = (f"{nonce}\n- E:\\2ndB\\.bots\\relay\\inbox\\ - 읽힘 "
+    path_scoped = (f"{nonce}\n- D:\\proj\\.bots\\relay\\inbox\\ - 읽힘 "
                    "(직전 실행에서 폴더 없음이었던 경로가 이번 턴에 존재)")
     check("a local path scopes an absence line",
           m.verify_result(path_scoped, nonce) == [], str(m.verify_result(path_scoped, nonce)))
@@ -252,7 +252,10 @@ def main() -> int:
 
     # shared bots + per-task project bus (0.6.0)
     projects = m.load_projects()
-    check("2nd-b project root is E:/2ndB", projects.get("2nd-b", {}).get("root", "") == "E:/2ndB",
+    # The clone path itself is machine data (bots.json only); check its shape, not its value.
+    root_2b = str(projects.get("2nd-b", {}).get("root", ""))
+    check("2nd-b project root is an absolute local path",
+          PureWindowsPath(root_2b).is_absolute() or PurePosixPath(root_2b).is_absolute(),
           str(projects))
     pc = next(b for b in roster if b["id"] == "play-console")
     check("bots carry no project tag - they are shared",

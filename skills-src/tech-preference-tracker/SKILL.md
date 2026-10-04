@@ -1,8 +1,8 @@
 ---
 name: tech-preference-tracker
-description: "Use when the user is choosing a programming language, framework, or platform AND wants the decision to be consistent with prior projects—triggers \"이 프로젝트 뭐로 할까\", \"언어 뭐 쓰지\", \"플랫폼 정해줘\", \"이전 프로젝트랑 일관성 있게\", \"성능 좋고 업데이트 쉬운\", \"choose stack\", \"consistent tech stack\", \"language for performance and updates\", \"what should I use\". Different from app-platform-selector (hybrid vs native) and db-selector (which DB): this tracks the USER'S CUMULATIVE PREFERENCES across all their projects (lang/runtime/framework/deploy target/state lib/test lib/lint) and recommends choices that maximize update-ease and cross-project transfer. Reads E:/Coding Infra/obsidian/SimonKWiki/wiki/protocols/llm-wiki/entities/simon-yhkim.md tech matrix, lints new project for drift, and updates the matrix when the user deliberately changes preference."
+description: "Use when the user is choosing a programming language, framework, or platform AND wants the decision to be consistent with prior projects—triggers \"이 프로젝트 뭐로 할까\", \"언어 뭐 쓰지\", \"플랫폼 정해줘\", \"이전 프로젝트랑 일관성 있게\", \"성능 좋고 업데이트 쉬운\", \"choose stack\", \"consistent tech stack\", \"language for performance and updates\", \"what should I use\". Different from app-platform-selector (hybrid vs native) and db-selector (which DB): this tracks the USER'S CUMULATIVE PREFERENCES across all their projects (lang/runtime/framework/deploy target/state lib/test lib/lint) and recommends choices that maximize update-ease and cross-project transfer. Reads $SIMON_WIKI_DIR/wiki/protocols/llm-wiki/entities/simon-yhkim.md tech matrix, lints new project for drift, and updates the matrix when the user deliberately changes preference."
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, WebFetch
-version: 1.0.0
+version: 1.0.1
 author: simon-stack
 ---
 
@@ -36,7 +36,8 @@ author: simon-stack
 
 ## Preference Matrix
 
-`E:/Coding Infra/obsidian/SimonKWiki/wiki/protocols/llm-wiki/entities/simon-yhkim.md` 의 `## Tech Preferences` 섹션에서 읽어오기.
+`$SIMON_WIKI_DIR/wiki/protocols/llm-wiki/entities/simon-yhkim.md` 의 `## Tech Preferences` 섹션에서 읽어오기.
+`SIMON_WIKI_DIR` 는 SimonKWiki 볼트 루트다(없으면 `~/.claude/wiki/SimonKWiki`).
 없으면 빈 매트릭스로 시작.
 
 ```yaml
