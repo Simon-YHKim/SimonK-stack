@@ -203,6 +203,7 @@ jobs:
           if ($r.status -notin @('static_paths_present', 'external_runtime_pending') -or @($r.unresolved).Count -or @($r.unportable_commands).Count -or @($r.machine_paths).Count) {
             throw "Claude candidate path audit failed: status $($r.status)"
           }
+          exit 0  # python's exit 1 for external_runtime_pending must not leak into the step result
 
       - name: Path audit (Codex subset)
         if: ${{ !cancelled() && steps.record.outcome == 'success' }}
@@ -225,6 +226,7 @@ jobs:
           if ($r.status -notin @('static_paths_present', 'external_runtime_pending') -or @($r.unresolved).Count -or @($r.unportable_commands).Count -or @($r.machine_paths).Count) {
             throw "Codex subset path audit failed: status $($r.status)"
           }
+          exit 0  # python's exit 1 for external_runtime_pending must not leak into the step result
 
       - name: Safety runtime suite against the built runtime (SimonKStack; SimonKCore byte-identical)
         if: ${{ !cancelled() && steps.record.outcome == 'success' }}
