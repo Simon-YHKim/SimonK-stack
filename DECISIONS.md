@@ -638,3 +638,8 @@ last-sync: 2026-07-05
   - ② 세션 실측: 실제 대화형 Claude Code 2.1.289 세션에 --plugin-dir로 5개 플러그인을 올렸다. 훅 로딩, careful(allow·HIGH deny·MEDIUM ask), freeze(경계 안 허용·밖 deny·unfreeze 해제), 5개 로딩(63/60/8/23/33)은 PASS다. 이전 후 상태는 HTTPS 단계에서 잰다. 쿼터는 5시간 38→40%, 주간 71%였다. 실제 설정 해시는 바뀌지 않았다.
   - ③ 게시 승인 대상: source f015e18c166030afee5d1d2b2d2a1279410deba0, content digest 59eaff15af5554e622ad94e6dec22ba39b8c3c288192932e36b7028dd60c7d3f(세션 실측 빌드, CI f015e18, main 2b9db18 v1.763.0이 모두 같은 값). 카탈로그는 레거시를 유지한다.
   - 다음 단계: allow 파일 PR → 변수 켜기 → 머지 → 첫 dist 게시 → HTTPS 검증 → 원격 세션 스모크 → 카탈로그 전환 | claude
+
+- 2026-10-05 03:07:15 KST | DECIDE | **D-83 dist 2차 게시 승인: freeze 0.2.6 해제 출력(내용 변경 업데이트 실측용)** (오케스트레이터 단독 · 35.8 1단, D-82 이행) | claude
+  - **근거**: D-82 후속 4는 '출하 내용이 바뀐 업데이트'를 HTTPS로 실측하라고 했다. 내용 변경으로는 세션 실측에서 찾은 실제 결함(플러그인 /unfreeze가 FREEZE_CLEARED를 출력하지 않음)의 수정을 쓴다. 변경은 safety_runtime.py에서 clear 성공 시 한 줄을 출력하는 것이다. PR #132 CI 빌드에서 content digest가 ba8e92168ec4877bea5d6316fe954ac1a9cdfd7dcbfe82ababef0dc2982a6565로 나왔다(v1.767.0 시험 빌드).
+  - 승인 파일은 decision D-83, source 2ae590eba8c159dbe301c8bd20713a09a36d76cb(main), 이 digest로 갱신한다.
+  - 첫 게시(D-82, 59eaff15) 뒤 롤백 실측(이전 내용을 더 높은 버전으로 재출하)을 할 때는 다시 59eaff15를 승인한다.
