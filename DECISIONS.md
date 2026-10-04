@@ -551,3 +551,5 @@ last-sync: 2026-07-05
 
 - 2026-10-04 14:25:17 KST | DECIDE | **D-71 후보 20261004-vibe-2142 설치: vibe 2.14.2·freeze 0.2.2** (오케스트레이터 단독 · 35.8 1단) | claude
   - **근거**: 승인된 설치 절차 반복(D-70과 같은 스크립트). main f6ec9c5(PR #114 레지스트리 갱신 만료 10-11 13:05·#115 D-67 canary 반영·#116 안전 런타임 20초 예산·Codex deny 통과, 각 CI 4/4). 정션 8개를 2140에서 2142로, 실폴더 freeze를 main blob으로 교체하고 이전본은 flat-link-archive로 옮긴다(되돌릴 수 있음). 훅 명령은 바뀌지 않았다(freeze 0.2.2는 플러그인 런타임과 문서만 바뀜). 이의가 있으면 2단 이상으로 올린다.
+
+- 2026-10-04 14:33:23 KST | AMEND | **D-71 후보 20261004-vibe-2142 설치: vibe 2.14.2·freeze 0.2.2** — 이행: 후보 빌드 검증 통과(source 137·claude 182·codex 177, 영수증 source 01882554… claude 0ca1b08b… overlay 2b61437b… codex 3a90ae70…). 정션 8개 2140에서 2142로 교체(Codex config 줄이 Claude vibe 정션 실경로와 일치, 이전본 flat-link-archive/vibe-20261004-vibe-2142). freeze 실폴더 main blob 일치(mismatch 0, 이전본 freeze-261004-d71). 설치본 selftest vibe 188/0·vibe-bot 97/0. 레지스트리 checked_at 2026-10-04 13:05:20, 만료 2026-10-11 13:05 KST. D-67 레인 상태 pending-transport-and-certificate. PR #116 CI 대기·머지가 메모리 부족(여유 4.4GB)으로 중단됐다가 Simon 지시('다시 진행해봐')로 재개 | claude
