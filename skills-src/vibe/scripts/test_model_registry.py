@@ -27,11 +27,23 @@ def catalog_map_rows():
     return rows
 
 
+def module_literal(filename, name):
+    """A top-level literal read without importing the module (no import side effects)."""
+    tree = ast.parse(SCRIPT.with_name(filename).read_text(encoding="utf-8"))
+    return next(node.value for node in tree.body if isinstance(node, ast.Assign)
+                and any(isinstance(target, ast.Name) and target.id == name for target in node.targets))
+
+
 def routing_lanes():
-    tree = ast.parse(SCRIPT.with_name("routing.py").read_text(encoding="utf-8"))
-    lanes = next(node.value for node in tree.body if isinstance(node, ast.Assign)
-                 and any(isinstance(target, ast.Name) and target.id == "LANES" for target in node.targets))
-    return {key.value for key in lanes.keys}
+    return {key.value for key in module_literal("routing.py", "LANES").keys}
+
+
+def routing_lane_vendors():
+    return {lane: spec["vendor"] for lane, spec in ast.literal_eval(module_literal("routing.py", "LANES")).items()}
+
+
+def evaluator_vendors():
+    return ast.literal_eval(module_literal("adversarial_eval.py", "VENDOR_OF"))
 
 
 def registry():
@@ -276,6 +288,32 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertEqual(set(data["legacy_lane_migration"]), expected)
         self.assertTrue(expected <= {m["id"] for m in data["models"]})
 
+    def test_every_routing_lane_has_the_same_vendor_in_the_adversarial_evaluator(self):
+        # A lane missing from VENDOR_OF silently drops out of G10 matchups (load_probes skips it).
+        lanes, vendors = routing_lane_vendors(), evaluator_vendors()
+        self.assertEqual(set(lanes) - set(vendors), set(), "routing.LANES key without a VENDOR_OF entry")
+        self.assertEqual(set(vendors) - set(lanes), set(), "VENDOR_OF key that is not a routing lane")
+        for lane, vendor in lanes.items():
+            with self.subTest(lane=lane):
+                self.assertEqual(vendors[lane], vendor)
+
+    def test_eval_probes_carry_each_lane_successor_beside_the_legacy_lane(self):
+        # D-67 adds lanes alongside legacy ones; old names stay because the eval ledger uses them.
+        probes = json.loads((SCRIPT.parent.parent / "eval" / "probes.json").read_text(encoding="utf-8"))["probes"]
+        lanes, vendors = routing_lanes(), evaluator_vendors()
+        migration = self.m.load_registry()["legacy_lane_migration"]
+        seen = set()
+        for probe in probes:
+            with self.subTest(probe=probe["id"]):
+                self.assertTrue(set(probe["lanes"]) <= lanes, sorted(set(probe["lanes"]) - lanes))
+                self.assertGreaterEqual(len({vendors[lane] for lane in probe["lanes"]}), 3)
+                for lane in probe["lanes"]:
+                    successor = migration[lane]["candidate"]
+                    if successor != lane and successor in lanes:
+                        self.assertIn(successor, probe["lanes"])
+                seen.update(probe["lanes"])
+        self.assertTrue({"claude-opus-5", "claude-opus-5-5", "gpt-5.6-terra", "gpt-6.1-sol"} <= seen)
+
     def test_migration_cannot_reference_an_unknown_model(self):
         data = registry()
         data["legacy_lane_migration"] = {"gpt-6-sol": {"candidate": "invented", "status": "pending"}}
@@ -299,11 +337,11 @@ class ModelRegistryTests(unittest.TestCase):
             wrong["access_proof"].update(change)
             self.assertFalse(self.bind(wrong, data)["candidates"][0]["available"])
 
-    def test_registry_and_task_fit_windows_cover_the_2026_10_03_recheck(self):
-        # The 2026-10-02 facts expired REGISTRY_STALE on 2026-10-09 00:39 KST.
+    def test_registry_and_task_fit_windows_cover_the_2026_10_04_recheck(self):
+        # The 2026-10-03 facts expired REGISTRY_STALE on 2026-10-10 21:42 KST.
         data = self.m.load_registry()
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
-        floor = datetime.fromisoformat("2026-10-03T21:00:00+09:00")
+        floor = datetime.fromisoformat("2026-10-04T13:00:00+09:00")
         checked = datetime.fromisoformat(data["checked_at"])
         self.assertGreaterEqual(checked, floor)
         self.assertGreaterEqual(datetime.fromisoformat(policy["checked_at"]), floor)
@@ -311,7 +349,7 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertLessEqual(checked, datetime.fromisoformat(policy["checked_at"]))
         earliest = min(checked + timedelta(seconds=self.m.MAX_FACT_AGE_SECONDS),
                        datetime.fromisoformat(policy["valid_until"]))
-        self.assertGreaterEqual(earliest, datetime.fromisoformat("2026-10-10T21:00:00+09:00"))
+        self.assertGreaterEqual(earliest, datetime.fromisoformat("2026-10-11T13:00:00+09:00"))
 
     def test_grok_45_is_registered_without_its_unverified_xhigh(self):
         data = self.m.load_registry()

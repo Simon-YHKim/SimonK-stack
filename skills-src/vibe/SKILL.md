@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan and reports blocked coding or image routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.14.0
+version: 2.14.1
 author: simon-stack
 ---
 
@@ -398,7 +398,7 @@ legacy CLI entrypoints now blocks bytecode before their first local import;
 module imports by other callers still need the caller's own no-bytecode policy.
 
 - [Orchestration schema and cost policy](references/orchestration.md)
-- [Model catalog map, 2026-10-03 refresh and D-67 Orca 레인(등록 · canary 대기)](references/model-catalog-map.md)
+- [Model catalog map, 2026-10-04 refresh and D-67 Orca 레인(등록 · canary 대기)](references/model-catalog-map.md)
 - [Guarded Orca workflow and preparation limits](references/orca-workflow.md)
 - [D-28 route decisions](references/d28-routing.md)
 - [Astra effort transport cap](references/v2.2-astra-effort-cap.md)

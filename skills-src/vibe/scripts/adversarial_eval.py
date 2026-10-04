@@ -83,9 +83,16 @@ DUE_DAYS = 14
 VENDOR_CACHE_HOURS = 6
 
 # 레인 -> 벤더. G10(채점자 벤더 분리) 판정에 쓴다.
+# routing.LANES 의 키를 빠짐없이 같은 벤더로 적는다(test_model_registry.py 가 대조한다).
+# D-67 새 레인(claude-opus-5-5·gpt-6.1-sol)을 옛 레인 옆에 두고, 옛 키는 지우지 않는다 -
+# 평가 원장의 과거 행이 옛 레인명을 쓴다.
 VENDOR_OF = {
+    "claude-opus-5-5": "claude",
     "claude-opus-5": "claude",
+    "claude-fable-5-1": "claude",
+    "claude-sonnet-5": "claude",
     "gpt-6-astra": "codex",
+    "gpt-6.1-sol": "codex",
     "gpt-5.6-sol": "codex",
     "gpt-5.6-terra": "codex",
     "gpt-5.6-luna": "codex",

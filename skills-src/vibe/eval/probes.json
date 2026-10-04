@@ -7,6 +7,7 @@
   "2) 답이 한 줄로 떨어져야 한다(숫자·경로·yes/no). 서술형은 채점이 주관이 되어 쓸모없다.",
   "3) 영역(domain)은 라우팅 표의 클래스와 이어져야 한다. 그래야 결과를 표에 되먹일 수 있다.",
   "4) lanes 에는 그 문제를 물릴 만한 후보를 벤더가 3개 이상 되게 넣는다(G10).",
+  "   D-67(2026-10-04): registry legacy_lane_migration 의 후보가 레인이면 옛 레인 옆에 같이 넣는다 - claude-opus-5 옆에 claude-opus-5-5, gpt-5.6-terra 옆에 gpt-6.1-sol. 옛 레인은 원장 호환 때문에 남긴다.",
   "truth_post 는 truth_cmd 의 출력을 '질문이 물은 단위'로 바꾼다. 이게 없으면",
   "세는 문제에 파일 목록이 정답으로 들어간다(2026-09-13 에 실제로 그 상태였다)."
  ],
@@ -31,7 +32,9 @@
     "gpt-5.6-luna",
     "gemini-3.8-flash",
     "claude-opus-5",
-    "gpt-5.6-terra"
+    "claude-opus-5-5",
+    "gpt-5.6-terra",
+    "gpt-6.1-sol"
    ]
   },
   {
@@ -52,6 +55,7 @@
     "gpt-5.6-luna",
     "gemini-3.8-flash",
     "claude-opus-5",
+    "claude-opus-5-5",
     "gpt-6-astra"
    ]
   },
@@ -73,7 +77,9 @@
     "gpt-5.6-luna",
     "gemini-3.8-flash",
     "claude-opus-5",
-    "gpt-5.6-terra"
+    "claude-opus-5-5",
+    "gpt-5.6-terra",
+    "gpt-6.1-sol"
    ]
   },
   {
@@ -89,9 +95,11 @@
    "truth_post": "raw",
    "lanes": [
     "claude-opus-5",
+    "claude-opus-5-5",
     "gpt-6-astra",
     "gemini-3.8-flash",
-    "gpt-5.6-terra"
+    "gpt-5.6-terra",
+    "gpt-6.1-sol"
    ]
   },
   {
@@ -107,8 +115,10 @@
    "truth_post": "raw",
    "lanes": [
     "claude-opus-5",
+    "claude-opus-5-5",
     "gpt-6-astra",
     "gpt-5.6-terra",
+    "gpt-6.1-sol",
     "gemini-3.8-flash"
    ]
   },
@@ -131,6 +141,7 @@
     "gpt-5.6-luna",
     "gemini-3.8-flash",
     "claude-opus-5",
+    "claude-opus-5-5",
     "gpt-6-astra"
    ]
   },
@@ -151,6 +162,7 @@
     "gpt-5.6-luna",
     "gemini-3.8-flash",
     "claude-opus-5",
+    "claude-opus-5-5",
     "grok-4.6"
    ]
   },
@@ -171,6 +183,7 @@
    "truth_post": "grep_yesno:oauth-kakao",
    "lanes": [
     "claude-opus-5",
+    "claude-opus-5-5",
     "gpt-6-astra",
     "gemini-3.8-flash",
     "grok-4.6"
@@ -191,6 +204,7 @@
     "gpt-5.6-luna",
     "gemini-3.8-flash",
     "claude-opus-5",
+    "claude-opus-5-5",
     "gpt-6-astra",
     "grok-4.6"
    ]
@@ -210,7 +224,9 @@
     "gpt-5.6-luna",
     "gemini-3.8-flash",
     "claude-opus-5",
-    "gpt-5.6-terra"
+    "claude-opus-5-5",
+    "gpt-5.6-terra",
+    "gpt-6.1-sol"
    ]
   },
   {
@@ -228,7 +244,9 @@
     "gpt-5.6-luna",
     "gemini-3.8-flash",
     "claude-opus-5",
+    "claude-opus-5-5",
     "gpt-5.6-terra",
+    "gpt-6.1-sol",
     "grok-4.6"
    ]
   },
@@ -247,7 +265,9 @@
     "gpt-5.6-luna",
     "gemini-3.8-flash",
     "claude-opus-5",
-    "gpt-5.6-terra"
+    "claude-opus-5-5",
+    "gpt-5.6-terra",
+    "gpt-6.1-sol"
    ]
   },
   {
@@ -265,7 +285,9 @@
     "gpt-5.6-luna",
     "gemini-3.8-flash",
     "claude-opus-5",
+    "claude-opus-5-5",
     "gpt-5.6-terra",
+    "gpt-6.1-sol",
     "grok-4.6"
    ]
   },
@@ -289,6 +311,7 @@
     "gpt-5.6-luna",
     "gemini-3.8-flash",
     "claude-opus-5",
+    "claude-opus-5-5",
     "gpt-6-astra"
    ]
   },
@@ -305,9 +328,11 @@
    "truth_post": "raw",
    "lanes": [
     "claude-opus-5",
+    "claude-opus-5-5",
     "gpt-6-astra",
     "gemini-3.8-flash",
     "gpt-5.6-terra",
+    "gpt-6.1-sol",
     "grok-4.6"
    ]
   },
@@ -324,9 +349,11 @@
    "truth_post": "raw",
    "lanes": [
     "claude-opus-5",
+    "claude-opus-5-5",
     "gpt-6-astra",
     "gemini-3.8-flash",
     "gpt-5.6-terra",
+    "gpt-6.1-sol",
     "grok-4.6"
    ]
   },
@@ -343,6 +370,7 @@
    "truth_post": "raw",
    "lanes": [
     "claude-opus-5",
+    "claude-opus-5-5",
     "gpt-6-astra",
     "gemini-3.8-flash",
     "gpt-5.6-luna"
@@ -361,9 +389,11 @@
    "truth_post": "raw",
    "lanes": [
     "claude-opus-5",
+    "claude-opus-5-5",
     "gpt-6-astra",
     "gemini-3.8-flash",
     "gpt-5.6-terra",
+    "gpt-6.1-sol",
     "grok-4.6"
    ]
   }
