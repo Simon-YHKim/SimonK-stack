@@ -183,6 +183,150 @@ class DecideTests(unittest.TestCase):
                 self.assertEqual(dist.main(["decide", "--current", str(current)]), 0)
 
 
+class PublishGateTests(unittest.TestCase):
+    """D-82 follow-up 1: publish approval is its own committed record, not the D-33 hold."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="dist-gate-test-")
+        self.addCleanup(self.temp.cleanup)
+        self.repo = Path(self.temp.name) / "repo"
+        (self.repo / "distribution").mkdir(parents=True)
+        git(self.repo, "init", "-q")
+        (self.repo / "skills.txt").write_text("candidate", encoding="utf-8")
+        self.commit("candidate")
+        self.candidate = self.head()
+
+    def head(self):
+        return git(self.repo, "rev-parse", "HEAD").strip()
+
+    def commit(self, message):
+        git(self.repo, "add", "-A")
+        git(self.repo, "commit", "-qm", message)
+
+    def approve(self, **changes):
+        value = {"schema_version": 1, "scope": dist.DIST_SCOPE, "decision": "D-82",
+                 "source_commit": self.candidate, "content_digest": "a" * 64}
+        value.update(changes)
+        (self.repo / dist.ALLOW).write_bytes(dist.encoded(value))
+
+    def built(self, **changes):
+        return record(source_commit=self.head(), **changes)
+
+    def test_no_committed_approval_refuses(self):
+        self.assertEqual(dist.gate(self.repo, self.built())["reason"], "no-approval")
+        self.approve()  # in the working tree only: must not count
+        self.assertEqual(dist.gate(self.repo, self.built())["reason"], "no-approval")
+
+    def test_approval_publishes_with_or_without_the_hold(self):
+        (self.repo / "distribution/main-source-only.hold").write_text("hold\n", encoding="utf-8")
+        self.approve()
+        self.commit("approve the session-tested candidate")
+        decision = dist.gate(self.repo, self.built())
+        self.assertEqual((decision["action"], decision["reason"], decision["decision"]),
+                         ("publish", "approved", "D-82"))
+        (self.repo / "distribution/main-source-only.hold").unlink()
+        self.commit("hold removed later")
+        self.assertEqual(dist.gate(self.repo, self.built())["action"], "publish")
+
+    def test_other_content_is_refused(self):
+        self.approve()
+        self.commit("approve")
+        decision = dist.gate(self.repo, self.built(content_digest="1" * 64))
+        self.assertEqual((decision["action"], decision["reason"]), ("refuse", "content-not-approved"))
+
+    def test_approved_commit_must_be_an_ancestor_of_the_build(self):
+        git(self.repo, "checkout", "-qb", "side")
+        (self.repo / "side.txt").write_text("side", encoding="utf-8")
+        self.commit("side")
+        side = self.head()
+        git(self.repo, "checkout", "-q", "-")
+        self.approve(source_commit=side)
+        self.commit("approve a commit that is not in this lineage")
+        decision = dist.gate(self.repo, self.built())
+        self.assertEqual((decision["action"], decision["reason"]), ("refuse", "source-outside-approval"))
+        self.approve(source_commit="9" * 40)
+        self.commit("approve an unknown commit")
+        with self.assertRaisesRegex(ValueError, "not in this repository"):
+            dist.gate(self.repo, self.built())
+
+    def test_record_must_be_the_checked_out_commit(self):
+        with self.assertRaisesRegex(ValueError, "built commit"):
+            dist.gate(self.repo, record(source_commit="c" * 40))
+
+    def test_shallow_clone_cannot_prove_the_ancestor(self):
+        self.approve()
+        self.commit("approve")
+        clone = Path(self.temp.name) / "shallow"
+        git(self.temp.name, "clone", "-q", "--depth", "1", self.repo.as_uri(), str(clone))
+        with self.assertRaisesRegex(ValueError, "Shallow"):
+            dist.gate(clone, record(source_commit=git(clone, "rev-parse", "HEAD").strip()))
+
+    def test_approval_fields_are_exact(self):
+        for change in ({"decision": "D-0"}, {"decision": "d-82"}, {"decision": "D-82 "}, {"decision": 82},
+                       {"source_commit": "C" * 40}, {"content_digest": "a" * 63}, {"schema_version": True},
+                       {"scope": "other"}, {"extra": 1}):
+            with self.subTest(change=change):
+                self.approve(**change)
+                self.commit(f"bad approval {change}")
+                with self.assertRaises(ValueError):
+                    dist.gate(self.repo, self.built())
+
+    def test_cli_exit_codes(self):
+        import io
+        from unittest.mock import patch
+        current = Path(self.temp.name) / "RELEASE.json"
+        current.write_bytes(dist.encoded(self.built()))
+        argv = ["gate", "--repo", str(self.repo), "--current", str(current)]
+        with patch.object(sys, "stdout", io.StringIO()):
+            self.assertEqual(dist.main(argv), 1)  # no approval
+        self.approve()
+        self.commit("approve")
+        current.write_bytes(dist.encoded(self.built()))
+        with patch.object(sys, "stdout", io.StringIO()) as stdout:
+            self.assertEqual(dist.main(argv), 0)
+        self.assertEqual(json.loads(stdout.getvalue())["action"], "publish")
+        self.approve(decision="approved")
+        self.commit("malformed approval")
+        current.write_bytes(dist.encoded(self.built()))
+        with patch.object(sys, "stdout", io.StringIO()), patch.object(sys, "stderr", io.StringIO()):
+            self.assertEqual(dist.main(argv), 2)
+
+
+class PublishWorkflowTests(unittest.TestCase):
+    """The publish job needs the variable AND the approval gate; the hold is not read there."""
+
+    @classmethod
+    def setUpClass(cls):
+        workflow = (ROOT / ".github/workflows/five-plugin-dist.yml").read_text(encoding="utf-8")
+        cls.publish = workflow.split("\n  publish:\n", 1)[1]
+        cls.steps = cls.publish.split("\n      - ")[1:]
+
+    def step_index(self, needle):
+        found = [i for i, step in enumerate(self.steps) if needle in step]
+        self.assertEqual(len(found), 1, needle)
+        return found[0]
+
+    def test_job_still_needs_the_variable_on_main_push(self):
+        condition = next(line for line in self.publish.splitlines() if line.startswith("    if: "))
+        self.assertEqual(condition, "    if: ${{ vars.SIMONK_DIST_PUBLISH == 'true' && github.event_name "
+                                    "!= 'pull_request' && github.ref == 'refs/heads/main' }}")
+
+    def test_gate_runs_before_anything_reaches_dist(self):
+        gate = self.step_index("scripts/dist_release.py gate")
+        self.assertIn('throw "dist publish not approved', self.steps[gate])
+        self.assertLess(self.step_index("name: five-plugin-receipts-"), gate)
+        for later in ("name: five-plugin-tree-", "plugin_bundle.py verify", "git -C $wt push"):
+            self.assertGreater(self.step_index(later), gate, later)
+        self.assertIn("fetch-depth: 0", self.steps[self.step_index("uses: actions/checkout@v4")])
+
+    def test_hold_no_longer_gates_publish(self):
+        self.assertNotIn("main-source-only.hold", self.publish)
+
+    def test_no_approval_is_committed_yet(self):
+        # D-82 step 3 (session evidence first) adds it in its own reviewed change.
+        self.assertFalse((ROOT / dist.ALLOW).exists())
+
+
 class StageTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="dist-stage-test-")

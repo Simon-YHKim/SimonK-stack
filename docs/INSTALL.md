@@ -920,13 +920,75 @@ version 칸을 비운 값으로 셉니다. version만 다른 두 빌드는 같�
 5. 영수증(bundle.json, source·overlay·subset 영수증, pins.json, 감사 보고서,
    RELEASE.json)을 artifact로 90일 보관합니다. PR 실행은 여기까지(검증 전용)입니다.
 
-**publish job은 꺼져 있습니다.** 저장소 변수 `SIMONK_DIST_PUBLISH`가 `true`이고
-`distribution/main-source-only.hold`가 없을 때만 돕니다. 켜지면 `dist` 브랜치에
+**publish job은 꺼져 있습니다.** 게시 열쇠는 두 개이고 둘 다 있어야 합니다(D-82 후속 1).
+
+1. **저장소 변수 `SIMONK_DIST_PUBLISH`가 `true`.** 지금은 설정하지 않았으므로 job 자체가
+   SKIPPED입니다. PR 실행은 변수와 관계없이 게시 job에 닿지 않습니다.
+2. **빌드한 커밋에 커밋된 승인 기록 `distribution/dist-publish.allow`.** publish job이
+   artifact의 `RELEASE.json`을 받아 `dist_release.py gate`로 대조하고, 통과하지 못하면
+   트리를 받기 전에 실패합니다. 지금은 이 파일이 없습니다(`test_dist_release`가 확인).
+
+**D-33 hold는 더 이상 게시를 막지 않습니다.** `distribution/main-source-only.hold`는 그대로
+남아 아래 둘을 계속 막고, 카탈로그는 레거시 그대로입니다. 그래서 dist를 게시해도 카탈로그를
+바꾸기 전에는 일반 설치 경로가 바뀌지 않습니다.
+
+| hold를 읽는 곳 | 막는 것 |
+| --- | --- |
+| `.claude/hooks/session-start.sh` | SessionStart 부트스트랩 전체(Gstack 설치, 레포 스킬의 `~/.claude` 복사, instincts 시드, CLAUDE.md 생성)와 업데이트 확인 |
+| `.github/workflows/release.yml` | main push마다 만들던 태그와 GitHub Release |
+
+카탈로그 고정(`.claude-plugin/marketplace.json`의 `simonk-stack` 한 항목, `313c04b` pin)은
+hold 파일이 아니라 `test_main_release_fence`가 지킵니다. 이 테스트는 hold를 읽는 곳이 위 두
+파일뿐인지도 확인합니다.
+
+승인 기록 형식(JSON, 다섯 키만 허용):
+
+```json
+{
+  "schema_version": 1,
+  "scope": "five-plugin-dist-v1",
+  "decision": "D-<번호>",
+  "source_commit": "<세션 실측한 후보의 main 커밋, 40자>",
+  "content_digest": "<그 후보 bundle.json의 release.content_digest, 64자>"
+}
+```
+
+- **승인 범위**: `source_commit`이 빌드 커밋 자신이거나 그 조상이고, 빌드 콘텐츠의
+  content_digest가 기록과 같을 때만 게시합니다. 승인 기록을 넣는 커밋은 후보보다 늦으므로
+  빌드 커밋 하나를 적을 수 없습니다. version(`1.<N>.0`)도 커밋마다 바뀌어 승인 키로 쓰지
+  않습니다. content_digest는 version 칸을 비운 값이고 빌더 넷은 승인 파일을 읽지 않으므로,
+  그 사이에 빌드 입력(`skills-src/`·LICENSE·NOTICE·다섯 pin·빌더 코드)이 바뀌지 않았다면
+  승인 기록 커밋을 빌드해도 후보와 같은 값이 나옵니다.
+- **승인 뒤 다른 콘텐츠**: main에 빌드 입력이 바뀐 커밋이 머지되면 publish job은
+  `content-not-approved`로 실패하고 dist는 그대로입니다. 그 콘텐츠를 내려면 새 결정 코드로
+  기록을 고치는 PR을 머지하고, 아니면 변수를 끕니다. 내용이 다른 게시(아래 3단계의 업데이트·
+  재출하 시험 포함)마다 기록이 하나씩 남습니다.
+- **거부 사유**(exit 1): `no-approval`(빌드 커밋에 기록 없음. 작업 트리에만 있는 파일은 세지
+  않음), `content-not-approved`, `source-outside-approval`(기록의 커밋이 빌드 커밋의 조상이
+  아님). 형식 오류·없는 커밋·얕은 clone·빌드 커밋과 다른 체크아웃은 exit 2로 막힙니다.
+
+**D-82가 정한 순서**(앞 단계가 통과해야 다음으로 갑니다):
+
+1. **세션 확인** — 기존 로컬 dist로 최종 후보를 격리된 로그인 Windows 호스트에 설치하고,
+   careful/freeze의 허용·차단·해제, 훅 로딩, 안내된 수동 이전 후 5플러그인 가용성을
+   확인합니다. 기존 update가 dependencies를 채워 준다고 가정하지 않고, 모델 턴 추가 과금
+   0을 먼저 확인합니다.
+2. **dist만 게시, 카탈로그는 그대로** — 증거를 확인한 뒤 그 후보의 소스 SHA·digest로 승인
+   기록을 PR로 머지하고 변수를 켭니다. `marketplace.json`은 바꾸지 않습니다.
+3. **HTTPS 검증** — 최종 카탈로그와 바이트가 같은 임시 카탈로그로 깨끗한 설치, 레거시 이전,
+   출하 내용이 바뀐 업데이트, 고버전 재출하 롤백을 실제 게시 경로에서 확인하고, 늦은 옛
+   빌드 거부도 기록합니다. 로컬 `decide` 시험만으로 CI 검증 완료라고 하지 않습니다.
+4. **카탈로그 전환** — 원격 설치본의 세션 스모크까지 통과한 후보로 `marketplace.json`을
+   바꿉니다. 실패하면 전환하지 않고 변수를 끕니다. 이미 설치한 사용자는 검증된 고버전
+   재출하와 업데이트 안내로 복구합니다.
+
+hold 제거, SessionStart 홈 복사와 `release.yml` 재개는 이 순서에 없는 별도 결정입니다.
+
+두 열쇠가 다 맞으면 `dist` 브랜치에
 `plugins/`·`RELEASE.json`·`.gitattributes`(`* -text`, 호스트의 autocrlf가 셸 훅을 CRLF로
 바꾸지 않게)를 추가 커밋합니다. 강제 push는 하지 않습니다. content_digest가 dist와
 같으면 건너뛰고, dist보다 낮거나 같은 version이면 거부합니다. 게시는 동시성 그룹으로
-한 번에 하나씩 하고, 진행 중인 게시는 취소하지 않습니다. 첫 실제 게시는 별도 릴리스
-승인과 호스트 증거가 필요합니다(D-76 4·5단계).
+한 번에 하나씩 하고, 진행 중인 게시는 취소하지 않습니다.
 
 **롤백은 dist를 되감지 않습니다.** main에서 문제 커밋을 revert하거나 pin을 이전 값으로
 돌리는 PR을 머지하면, CI가 이전 정상 콘텐츠를 **더 높은** version(새 N)으로 다시

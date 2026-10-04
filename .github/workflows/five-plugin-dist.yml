@@ -3,8 +3,9 @@ name: five-plugin dist (D-76)
 # D-76 step 3: build the five-plugin release from public inputs only, verify the
 # exact built tree, keep the receipts. Publishing to the `dist` branch is OFF:
 # the publish job runs only when the repository variable SIMONK_DIST_PUBLISH is
-# 'true' AND the D-33 hold file is gone. The first real publish needs a separate
-# release approval and host evidence (D-76 steps 4 and 5).
+# 'true' AND the built commit carries distribution/dist-publish.allow naming this
+# exact content (D-82 follow-up 1). The D-33 hold no longer gates publishing; it
+# still blocks SessionStart and release.yml, and the catalog stays legacy.
 on:
   push:
     branches: [main]
@@ -263,7 +264,7 @@ jobs:
             "| content digest | ``${{ steps.bundle.outputs.content_digest }}`` |",
             "| bundle digest | ``${{ steps.bundle.outputs.bundle_digest }}`` |",
             "| codex overlay / subset | ``${{ steps.overlay.outputs.overlay_digest }}`` / ``${{ steps.subset.outputs.subset_digest }}`` |",
-            '', 'Publishing is off (D-76 steps 4 and 5 pending).')
+            '', 'Publishing needs SIMONK_DIST_PUBLISH and a committed distribution/dist-publish.allow for this content (D-82).')
           $lines -join "`n" >> $env:GITHUB_STEP_SUMMARY
           Get-ChildItem $receipts | Format-Table Name, Length
 
@@ -335,7 +336,8 @@ jobs:
   publish:
     name: publish dist branch (disabled)
     needs: [build, suites]
-    # Disabled: SIMONK_DIST_PUBLISH stays unset until D-76 steps 4 and 5.
+    # Disabled: SIMONK_DIST_PUBLISH stays unset until D-82 step 3 approves a
+    # session-tested candidate. The variable is one key; the approval file is the other.
     if: ${{ vars.SIMONK_DIST_PUBLISH == 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
     runs-on: windows-latest
     timeout-minutes: 20
@@ -356,26 +358,35 @@ jobs:
           git config --global core.longpaths true
 
       - uses: actions/checkout@v4
+        with:
+          # Full history: the gate proves the approved commit is an ancestor of this build.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Refuse while the D-33 source-only hold is in force
+      - uses: actions/download-artifact@v4
+        with:
+          name: five-plugin-receipts-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/receipts
+
+      # D-82: publishing has its own gate. The D-33 hold is not read here; it keeps
+      # blocking SessionStart and release.yml, and the catalog stays legacy.
+      - name: Refuse unless the committed approval names this content (dist-publish.allow)
+        timeout-minutes: 3
         run: |
-          if (Test-Path -LiteralPath distribution/main-source-only.hold) {
-            throw 'distribution/main-source-only.hold is present: replace the fence (D-76 step 5) before publishing'
-          }
+          $PSNativeCommandUseErrorActionPreference = $false
+          $json = (python -B scripts/dist_release.py gate --repo . --current (Join-Path $env:RUNNER_TEMP 'receipts/RELEASE.json')) -join "`n"
+          $code = $LASTEXITCODE
+          $PSNativeCommandUseErrorActionPreference = $true
+          $json
+          if ($code -ne 0) { throw "dist publish not approved (exit $code)" }
 
       - uses: actions/download-artifact@v4
         with:
           name: five-plugin-tree-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/dist-tree
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: five-plugin-receipts-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/receipts
 
       - name: Re-verify the transferred tree against the build's bundle digest
         timeout-minutes: 8
