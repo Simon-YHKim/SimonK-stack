@@ -1,11 +1,11 @@
-# Model catalog map — CLI names, registry IDs and the 2026-10-03 refresh
+# Model catalog map — CLI names, registry IDs and the 2026-10-04 refresh
 
 ## Contents
 
 - CLI name map
 - Registered legacy entries
 - Lane migration pending
-- Refresh record (2026-10-03)
+- Refresh record (2026-10-04)
 - Repeating the refresh
 
 `references/model-registry.json` stores provider API IDs only. CLI catalogs can
@@ -70,8 +70,8 @@ D-67(2026-10-04, 허브 토론 `dbt-261004-033902`, ADD_ALONGSIDE_KEEP_LEGACY)�
 
 | 새 레인 | 전달 | Orca 1.4.218 이 받는 effort | 정책 std / top | registry 상태 |
 | --- | --- | --- | --- | --- |
-| `claude-opus-5-5` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | high / max | `pending-transport-and-canary` |
-| `gpt-6.1-sol` | `--effort` 플래그 | minimal~xhigh (codex 미등록 모델 폴백, max·ultra 거부) | high / xhigh | `pending-transport-and-canary` |
+| `claude-opus-5-5` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | high / max | `pending-transport-and-certificate` |
+| `gpt-6.1-sol` | `--effort` 플래그 | minimal~xhigh (codex 미등록 모델 폴백, max·ultra 거부) | high / xhigh | `pending-transport-and-certificate` |
 
 - 우선순위 목록·`PROCESS_LANES.coding`·종합 고정·코디네이터를 새 키로 옮겼다.
   종합은 `claude-opus-5-5` @max 다. ultracode 는 프롬프트 키워드라 flag 레인이 받지 못한다.
@@ -80,11 +80,19 @@ D-67(2026-10-04, 허브 토론 `dbt-261004-033902`, ADD_ALONGSIDE_KEEP_LEGACY)�
   `claude-opus-5`·`gpt-5.6-sol` 등은 원장 호환용으로 남는다. `claude-opus-5` 는 우선순위 밖이고,
   `gpt-5.6-sol` 은 C 클래스 목록 끝의 폴백이다. sol 의 후속은 `gpt-6.1-sol` 로 통일했다
   (`gpt-5.6-terra` 의 평가 후보도 같다).
-- **등록이지 동작이 아니다.** native send 보류, 준비 브리지 미구현, 계정/과금 인증서 부재는
-  그대로다. 읽기 전용 canary 1회(`launch.requested` 와 `launch.effective` 대조)와 Orca 런치
-  계정/과금 인증서가 생기기 전까지 두 레인은 `pending-transport-and-canary` 이고 준비된 경로로
-  보지 않는다. 모델 포함·초과과금 OFF·API 폴백 OFF·G5·런치 인증서 게이트는 기존 flag 레인과
-  똑같이 걸린다(`test_orchestrate.py`·`test_execute_orca.py` 의 D-67 테스트).
+- **canary 는 통과했지만 아직 동작 레인이 아니다(2.14.2).** 2026-10-04 13:19~13:27 KST 의 읽기 전용
+  canary(Orca 1.4.218, run `run_92ff481d8b2f`, 레인마다 워커 1개)에서 두 레인 모두
+  `launch.requested` 와 `launch.effective` 가 같았다. `claude-opus-5-5`@high 는 argv
+  `--model claude-opus-5-5 --effort high` 이고 세션 기록의 model 도 `claude-opus-5-5` 였다.
+  `gpt-6.1-sol`@xhigh 는 argv `-m gpt-6.1-sol -c model_reasoning_effort=xhigh` 이고 세션 기록은
+  `gpt-6.1-sol`/xhigh 였다. 단, 응답의 자기보고는 계열명 `gpt-6` 이고 서버측 모델은 따로 확인하지
+  못했다. 두 워커는 정지했고 PID 가 사라진 것을 확인했다.
+- 그래서 후보가 두 레인인 registry 항목 4개(`claude-opus-5-5`·`claude-opus-5`·`gpt-6.1-sol`·`gpt-5.6-sol`)를
+  `pending-transport-and-certificate` 로 바꿨다. native send 보류, 준비 브리지 미구현, Orca 런치
+  계정/과금 인증서 부재(모델 포함, 초과과금 OFF, API 폴백 OFF, Codex 크레딧 폴백 OFF,
+  `request_identity`, plan binding)는 그대로라 준비된 경로로 보지 않는다. 모델 포함·초과과금 OFF·
+  API 폴백 OFF·G5·런치 인증서 게이트는 기존 flag 레인과 똑같이 걸린다(`test_orchestrate.py`·
+  `test_execute_orca.py` 의 D-67 테스트). 운영 주의 3건은 `orca-workflow.md` 에 적었다.
 - `legacy_lane_migration` 12건 중 8건이 `pending-*` 다. 남은 이전 대상은
   `claude-sonnet-5` → `claude-sonnet-5-5`(effort 재보정 필요), `gpt-5.6-luna` → `gpt-6-luna`
   (A 클래스 1순위 변경이라 별도 결정), `grok-4.6` → `grok-4.7`(Orca 가 grok 모델을 고정하지 못한다)이다.
@@ -95,34 +103,42 @@ D-67(2026-10-04, 허브 토론 `dbt-261004-033902`, ADD_ALONGSIDE_KEEP_LEGACY)�
   바꾸려면 Orca canary 와 `/ai-debate` 를 거친 별도 결정이 필요하다. Orca 밖 guarded adapter 는
   자기 계정·과금·effort 게이트를 그대로 적용한다.
 
-## Refresh record (2026-10-03)
+## Refresh record (2026-10-04)
 
-All times are KST. No model, Bot or paid API call was made. The 2026-10-02
-record is in the 2.12.43 changelog entry.
+시각은 모두 KST 다. 모델·Bot·유료 API 호출은 0회다(프롬프트를 보내지 않았고 Orca 워커도
+띄우지 않았다). 2026-10-03 기록은 2.13.1 changelog 항목에, 2026-10-02 기록은 2.12.43 항목에 있다.
 
-| Evidence | Observed | Result |
+| 근거 | 관측 | 결과 |
 | --- | --- | --- |
-| `codex --version`, `grok --version`, `agy --version`, `claude --version` | 21:46 | Codex 0.160.0 (was 0.159.2), grok 1.0.46, agy 1.2.16, Claude Code 2.1.288 (was 2.1.286) |
-| Codex `~/.codex/models_cache.json` | read 21:46; `fetched_at` 2026-10-03T12:43:40Z, cache client 0.159.0 | unchanged: 11 slugs, priority 1 `gpt-6.1-sol`, every registered slug lists low to max (`ultra` on the same six), none lists `none` |
-| `grok --no-auto-update models` | 21:46, grok 1.0.46 | unchanged: `grok-4.7` (default), `grok-4.7-build-fast`, `grok-4.6`, `grok-4.5` |
-| `~/.grok/models_cache.json` | `fetched_at` 2026-10-03T12:42:01Z | unchanged: 4.7, 4.7-build-fast and 4.6 low to xhigh, 4.5 low to high, default high, 256K and 500K windows |
-| `agy models`, `AGY_CLI_DISABLE_AUTO_UPDATE=1` | 21:46, agy 1.2.16 | 18 names. Removed: `claude-sonnet-4-6`, `claude-opus-4-6-thinking`. Added: `claude-opus-5-5-*` and `claude-sonnet-5-5-*` (low, medium, high), mapped above as unregistered. Gemini rows unchanged |
-| `claude --help` | 21:46 | `--effort` still low, medium, high, xhigh, max; no local model list |
-| 28 registry sources | 21:47, HTTP 200 (Google docs need a cookie-keeping client) | IDs, API efforts, context, prices, long-context tiers, retirement dates, the Daybreak target and the Claude Code notes match. No registry value changed |
-| OpenAI and Google deprecation pages | 21:48 to 21:49 | `gpt-6-sol` is a recommended replacement in the 2026-10-01 OpenAI notice, not deprecated; `gemini-3.1-pro-preview` has no shutdown date |
-| Task-fit policy sources (9) | 21:47, HTTP 200 | cited claims unchanged; the openai.com Astra page loaded with browser request headers |
+| `~/.grok/models_cache.json` | `fetched_at` 2026-10-04T04:05:20Z(13:05:20), `renewed_at` 13:11:33, grok 1.0.46 | 그대로: 4.7·4.7-build-fast·4.6 은 low~xhigh, 4.5 는 low~high, 기본 high, 256K·500K 창 |
+| Codex `~/.codex/models_cache.json` | `fetched_at` 2026-10-04T04:11:39Z(13:11:39), 캐시 클라이언트 0.159.0 | 그대로: 11개 slug, 우선순위 1 `gpt-6.1-sol`, 등록된 slug 는 모두 low~max(`ultra` 는 같은 여섯 개), `none` 은 어디에도 없다 |
+| `codex --version`, `grok --version`, `agy --version`, `claude --version` | 13:11:41~42 | Codex 0.160.0, grok 1.0.46, agy 1.2.16, Claude Code 2.1.289(전 2.1.288) |
+| `grok --no-auto-update models` | 13:12:11 | 그대로: `grok-4.7`(기본), `grok-4.7-build-fast`, `grok-4.6`, `grok-4.5` |
+| `agy models`, `AGY_CLI_DISABLE_AUTO_UPDATE=1` | 13:12:12 | 그대로: 18개 이름(위 대응표와 같다) |
+| `claude --help` | 13:12:15 | `--effort` 는 여전히 low, medium, high, xhigh, max. 로컬 모델 목록은 없다 |
+| `runtime_collect.py --surface codex --surface grok` (메타데이터 전용) | Codex app-server `model/list` 13:12:25, Grok ACP 과금+모델 13:12:26 | Codex 공개 목록 9개(숨김 `gpt-reserve`·`codex-auto-review` 제외)와 effort 가 캐시와 같다. Grok 4개. 둘 다 구독 모드. 턴 0회 |
+| 레지스트리 출처 28개 | 13:12:45~13:13:08, 전부 HTTP 200(Google 문서는 쿠키 유지 클라이언트) | ID·API effort·컨텍스트·가격·장문 구간·은퇴 일자·Daybreak 대상(`gpt-5.6-sol`)·Claude Code 주석이 모두 맞다. 레지스트리 값 변경 0 |
+| task-fit 출처 9개 | 13:13:08~13:13:25, 전부 HTTP 200(openai.com Astra 는 첫 시도 403 → 브라우저 요청 헤더로 13:13:25 재시도) | 인용 주장 그대로(Opus 5.5 기본 effort FrontierCode, AA 의 medium 프런티어 등). 순위·effort 그대로 |
+| OpenAI·Google 폐기 페이지, Google·xAI 모델 목록 | 13:15:33~13:15:38 | 등록 모델 중 폐기 대상 0. OpenAI 최신 공지(2026-10-01)는 `gpt-6-sol`·`gpt-6-luna` 를 대체 모델로 적는다. `gemini-3.8-flash`·`gemini-3.1-pro-preview` 는 종료 일자 없음 |
+| `model_watch.py status` (읽기 전용) | 13:16:17 | 대기 후보: Google "Gemini 4 Argon"(2026-09-30 블로그) · OpenAI GPT-6 가이드. 최근 스캔(09:00)은 anthropic 출처 TimeoutError |
+| Gemini 4 Argon 공지 | 13:16:27 | Fairwind Program 의 신뢰 사용자에게만 단계 배포 중이고 일반 공개 전이다. API 모델 ID·Google 문서·가격 행·agy 이름이 없어 등록하지 않는다 |
 
-Artificial Analysis's article list mentions a "Gemini 4 Argon" (2026-09-30).
-No Google docs page, pricing row or agy catalog name for it was found, so it is
-not registered. Registry `checked_at` is the earliest evidence timestamp, the
-Grok models cache fetch at 2026-10-03 21:42:01, so its facts expire
-2026-10-10 21:42:01; the task-fit policy is valid until 2026-10-10 21:47:06.
+제거·개명된 모델은 없다. xAI 가격표의 `grok-build-0.1`(2026-05-19 early access)은 grok CLI
+카탈로그에 없어 이번에도 등록하지 않았다. Claude Haiku 4.5 의 은퇴 하한(2026-10-15)이 다가오지만
+미등록 이름이라 레지스트리 값은 그대로다.
+
+레지스트리 `checked_at` 은 실제로 쓴 근거 중 가장 이른 시각인 Grok 모델 캐시 수신
+2026-10-04 13:05:20(초 미만 버림)이라 사실은 2026-10-11 13:05:20 KST 에 만료된다. task-fit 정책은
+자기 출처를 처음 읽은 13:13:08 부터 2026-10-11 13:13:08 KST 까지 유효하다.
 
 ## Repeating the refresh
 
-1. Read the Codex models cache, run `grok --no-auto-update models` and
-   `agy models` with auto-update off, and read `claude --help`. Do not send a prompt.
-2. Re-read every registry and task-fit source over HTTPS; check IDs, efforts,
-   prices, tiers and retirement dates against the JSON.
-3. Set `checked_at` to the earliest observation actually made, never a later
-   time, then run `test_model_registry.py`, `test_runtime_collect.py` and `test_orchestrate.py`.
+1. Codex 모델 캐시와 Grok 모델 캐시의 `fetched_at` 을 읽고, `grok --no-auto-update models` 와
+   자동 업데이트를 끈 `agy models` 를 실행하고, `claude --help` 를 읽는다. 원하면
+   `runtime_collect.py --surface codex --surface grok` 로 app-server `model/list` 와 Grok ACP
+   과금을 메타데이터만 읽는다. 프롬프트는 보내지 않는다.
+2. 레지스트리·task-fit 출처를 모두 HTTPS 로 다시 읽고 ID·effort·가격·구간·은퇴 일자를 JSON 과
+   대조한다. 폐기 페이지와 `model_watch.py status` 의 대기 후보도 본다.
+3. `checked_at` 은 실제로 쓴 관측 중 가장 이른 시각으로 둔다(캐시라면 그 `fetched_at`). 더 늦은
+   시각은 쓰지 않는다. 그다음 `test_model_registry.py`, `test_runtime_collect.py`,
+   `test_orchestrate.py` 를 돌린다.

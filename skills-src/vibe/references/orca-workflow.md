@@ -31,12 +31,23 @@ D-67 이전의 종합 고정 `claude-opus-5` @ultracode 는 prompt-keyword 라 �
 여전히 실행 경로가 아니다. 다른 레인을 끼워 넣어 계획 전체가 실행 가능하다고 주장하지 말고
 정책·어댑터 불일치를 보고한다.
 D-67(2026-10-04)로 현행 세대 레인 `claude-opus-5-5`(low~max)와 `gpt-6.1-sol`
-(minimal~xhigh)이 옛 레인 옆에 **등록**됐다. 상태는 `pending-transport-and-canary` 다.
-읽기 전용 canary 1회(`launch.requested` 와 `launch.effective` 대조)와 Orca 런치
-계정/과금 인증서가 생기기 전까지 이 두 레인을 동작하는 경로로 쓰거나 보고하지 않는다.
+(minimal~xhigh)이 옛 레인 옆에 **등록**됐다. 읽기 전용 canary 는 2026-10-04 에 **통과**했다
+(두 레인 모두 `launch.requested` == `launch.effective`, 세부는 `references/model-catalog-map.md`).
+그래서 상태는 `pending-transport-and-certificate` 다. native send 보류와 Orca 런치
+계정/과금 인증서 부재가 그대로이므로 이 두 레인을 동작하는 경로로 쓰거나 보고하지 않는다.
 $0 게이트(모델 포함·초과과금 OFF·API 폴백 OFF), G5, 런치 인증서는 기존 flag 레인과 똑같이 걸린다.
 claude-sonnet-5-5, gpt-6-sol, gpt-6-luna, grok-4.7, grok-4.5 로의 Orca 발주는 여전히
 ORCA_UNREGISTERED_PROCESS_OR_MODEL 이다(`references/model-catalog-map.md`).
+
+운영 주의(D-67 canary 2026-10-04 관측, 판정 아님):
+- Orca 워커는 전권 모드로 뜬다. Claude 는 `--dangerously-skip-permissions`, Codex 는
+  `--dangerously-bypass-approvals-and-sandbox`(sandbox `danger-full-access`)다. "읽기 전용"은
+  과제문으로만 지켜진다. A-verify 같은 읽기 전용 레인의 전제를 Orca 가 강제한다고 보지 않는다.
+- Codex 워커는 Orca runtime home 설정의 `service_tier="priority"` 를 물려받는다(상태줄 `fast`).
+  이 tier 의 사용량 배수는 확인하지 못했다. 쿼터·비용 판단에서 standard 와 같다고 가정하지 않는다.
+- 실제 /vibe 과제문은 워커가 `worker_done` CLI 호출을 하도록 허용해야 한다. canary 처럼
+  "도구 금지"이면 워커가 `worker_done` 을 보내지 않아 Task 가 `blocked` 로 남고
+  Dispatch 는 정상 정산되지 않고 `failed` 로 세어진다.
 
 Legacy live functions `run_dispatch`, `run_codex_exec`,
 `validate_and_dispatch`, `probe_orca_efforts` and adversarial live

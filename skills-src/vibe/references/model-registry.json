@@ -1,16 +1,17 @@
 {
   "schema_version": 1,
-  "version": "2026-10-04.1",
-  "checked_at": "2026-10-03T21:42:01+09:00",
-  "data_as_of": "2026-10-03",
+  "version": "2026-10-04.3",
+  "checked_at": "2026-10-04T13:05:20+09:00",
+  "data_as_of": "2026-10-04",
   "notes": [
     "Public provider facts are not account, transport, billing or successful-execution evidence.",
     "API Standard USD / million tokens only. Tool, storage, transport, regional and priority charges are separate.",
     "ultra and ultracode are harness delegation modes, not ordinary provider reasoning effort.",
     "Grok Bot has no verified model/effort control here and has a distinct account/quota/billing path.",
     "checked_at is a conservative catalog-wide inspection floor; data_as_of is this snapshot date, not a release date.",
-    "2026-10-03 refresh: every source below was re-read over HTTPS (HTTP 200) and IDs, efforts, prices, tiers and lifecycle dates were compared with the JSON and with the local Codex, Grok, agy and Claude CLI catalogs, without a model call; no provider fact changed. CLI-only names, agy effort-suffixed names and effort-less Haiku 4.5 are mapped in references/model-catalog-map.md, not registered.",
-    "2026-10-04 D-67: legacy_lane_migration 만 바꿨다 — 새 Orca 레인 claude-opus-5-5·gpt-6.1-sol 항목을 추가하고 sol 후속을 gpt-6.1-sol 로 통일했다. 제공사 사실·checked_at 은 그대로이고, 새 레인은 canary·계정/과금 인증서 전까지 pending-transport-and-canary 다."
+    "2026-10-04 갱신(2.14.1): 아래 출처 28개를 모델 호출 없이 HTTPS 로 다시 읽고(전부 HTTP 200) ID·effort·가격·장문 구간·수명 일자를 JSON 과, 그리고 로컬 Codex·Grok·agy·Claude CLI 카탈로그와 대조했다. 바뀐 제공사 사실은 없다. checked_at 은 실제로 쓴 근거 중 가장 이른 시각(Grok 모델 캐시 수신)이다. CLI 전용 이름·agy effort 접미 이름·effort 가 없는 Haiku 4.5 는 references/model-catalog-map.md 에 대응만 적고 등록하지 않는다.",
+    "2026-10-04 D-67(2.14.0): legacy_lane_migration 만 바꿨다 — 새 Orca 레인 claude-opus-5-5·gpt-6.1-sol 항목을 추가하고 sol 후속을 gpt-6.1-sol 로 통일했다. 그때 제공사 사실은 바꾸지 않았고, 새 레인은 canary·계정/과금 인증서 전까지 pending-transport-and-canary 다.",
+    "2026-10-04 D-67 canary(2.14.2): 읽기 전용 Orca canary(2026-10-04 13:19~13:27 KST, run_92ff481d8b2f)가 claude-opus-5-5@high 와 gpt-6.1-sol@xhigh 둘 다 launch.requested == launch.effective 로 통과했다. 그래서 후보가 이 두 레인인 항목 4개(claude-opus-5-5·claude-opus-5·gpt-6.1-sol·gpt-5.6-sol)만 pending-transport-and-certificate 로 바꿨다. native send 보류와 계정/과금 인증서 부재가 그대로라 여전히 동작 레인이 아니다. gpt-5.6-terra(평가 보류)와 다른 항목, 제공사 사실, checked_at 은 그대로다."
   ],
   "sources": {
     "oa_sol61": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
@@ -43,13 +44,13 @@
     "x_pricing": "https://docs.x.ai/developers/pricing"
   },
   "legacy_lane_migration": {
-    "claude-opus-5-5": {"candidate": "claude-opus-5-5", "status": "pending-transport-and-canary"},
-    "claude-opus-5": {"candidate": "claude-opus-5-5", "status": "pending-transport-and-canary"},
+    "claude-opus-5-5": {"candidate": "claude-opus-5-5", "status": "pending-transport-and-certificate"},
+    "claude-opus-5": {"candidate": "claude-opus-5-5", "status": "pending-transport-and-certificate"},
     "claude-fable-5-1": {"candidate": "claude-fable-5-1", "status": "keep-model-check-billing"},
     "claude-sonnet-5": {"candidate": "claude-sonnet-5-5", "status": "pending-transport-and-canary"},
     "gpt-6-astra": {"candidate": "gpt-6-astra", "status": "keep-model-check-transport"},
-    "gpt-6.1-sol": {"candidate": "gpt-6.1-sol", "status": "pending-transport-and-canary"},
-    "gpt-5.6-sol": {"candidate": "gpt-6.1-sol", "status": "pending-transport-and-canary"},
+    "gpt-6.1-sol": {"candidate": "gpt-6.1-sol", "status": "pending-transport-and-certificate"},
+    "gpt-5.6-sol": {"candidate": "gpt-6.1-sol", "status": "pending-transport-and-certificate"},
     "gpt-5.6-terra": {"candidate": "gpt-6.1-sol", "status": "pending-evaluation-not-equivalent-tier"},
     "gpt-5.6-luna": {"candidate": "gpt-6-luna", "status": "pending-transport-and-canary"},
     "gpt-daybreak-blue-latest": {"candidate": "gpt-daybreak-blue-latest", "status": "keep-security-pin-resolve-per-run"},

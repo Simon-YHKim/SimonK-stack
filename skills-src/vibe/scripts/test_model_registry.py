@@ -27,11 +27,23 @@ def catalog_map_rows():
     return rows
 
 
+def module_literal(filename, name):
+    """A top-level literal read without importing the module (no import side effects)."""
+    tree = ast.parse(SCRIPT.with_name(filename).read_text(encoding="utf-8"))
+    return next(node.value for node in tree.body if isinstance(node, ast.Assign)
+                and any(isinstance(target, ast.Name) and target.id == name for target in node.targets))
+
+
 def routing_lanes():
-    tree = ast.parse(SCRIPT.with_name("routing.py").read_text(encoding="utf-8"))
-    lanes = next(node.value for node in tree.body if isinstance(node, ast.Assign)
-                 and any(isinstance(target, ast.Name) and target.id == "LANES" for target in node.targets))
-    return {key.value for key in lanes.keys}
+    return {key.value for key in module_literal("routing.py", "LANES").keys}
+
+
+def routing_lane_vendors():
+    return {lane: spec["vendor"] for lane, spec in ast.literal_eval(module_literal("routing.py", "LANES")).items()}
+
+
+def evaluator_vendors():
+    return ast.literal_eval(module_literal("adversarial_eval.py", "VENDOR_OF"))
 
 
 def registry():
@@ -276,6 +288,32 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertEqual(set(data["legacy_lane_migration"]), expected)
         self.assertTrue(expected <= {m["id"] for m in data["models"]})
 
+    def test_every_routing_lane_has_the_same_vendor_in_the_adversarial_evaluator(self):
+        # A lane missing from VENDOR_OF silently drops out of G10 matchups (load_probes skips it).
+        lanes, vendors = routing_lane_vendors(), evaluator_vendors()
+        self.assertEqual(set(lanes) - set(vendors), set(), "routing.LANES key without a VENDOR_OF entry")
+        self.assertEqual(set(vendors) - set(lanes), set(), "VENDOR_OF key that is not a routing lane")
+        for lane, vendor in lanes.items():
+            with self.subTest(lane=lane):
+                self.assertEqual(vendors[lane], vendor)
+
+    def test_eval_probes_carry_each_lane_successor_beside_the_legacy_lane(self):
+        # D-67 adds lanes alongside legacy ones; old names stay because the eval ledger uses them.
+        probes = json.loads((SCRIPT.parent.parent / "eval" / "probes.json").read_text(encoding="utf-8"))["probes"]
+        lanes, vendors = routing_lanes(), evaluator_vendors()
+        migration = self.m.load_registry()["legacy_lane_migration"]
+        seen = set()
+        for probe in probes:
+            with self.subTest(probe=probe["id"]):
+                self.assertTrue(set(probe["lanes"]) <= lanes, sorted(set(probe["lanes"]) - lanes))
+                self.assertGreaterEqual(len({vendors[lane] for lane in probe["lanes"]}), 3)
+                for lane in probe["lanes"]:
+                    successor = migration[lane]["candidate"]
+                    if successor != lane and successor in lanes:
+                        self.assertIn(successor, probe["lanes"])
+                seen.update(probe["lanes"])
+        self.assertTrue({"claude-opus-5", "claude-opus-5-5", "gpt-5.6-terra", "gpt-6.1-sol"} <= seen)
+
     def test_migration_cannot_reference_an_unknown_model(self):
         data = registry()
         data["legacy_lane_migration"] = {"gpt-6-sol": {"candidate": "invented", "status": "pending"}}
@@ -299,11 +337,11 @@ class ModelRegistryTests(unittest.TestCase):
             wrong["access_proof"].update(change)
             self.assertFalse(self.bind(wrong, data)["candidates"][0]["available"])
 
-    def test_registry_and_task_fit_windows_cover_the_2026_10_03_recheck(self):
-        # The 2026-10-02 facts expired REGISTRY_STALE on 2026-10-09 00:39 KST.
+    def test_registry_and_task_fit_windows_cover_the_2026_10_04_recheck(self):
+        # The 2026-10-03 facts expired REGISTRY_STALE on 2026-10-10 21:42 KST.
         data = self.m.load_registry()
         policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
-        floor = datetime.fromisoformat("2026-10-03T21:00:00+09:00")
+        floor = datetime.fromisoformat("2026-10-04T13:00:00+09:00")
         checked = datetime.fromisoformat(data["checked_at"])
         self.assertGreaterEqual(checked, floor)
         self.assertGreaterEqual(datetime.fromisoformat(policy["checked_at"]), floor)
@@ -311,7 +349,7 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertLessEqual(checked, datetime.fromisoformat(policy["checked_at"]))
         earliest = min(checked + timedelta(seconds=self.m.MAX_FACT_AGE_SECONDS),
                        datetime.fromisoformat(policy["valid_until"]))
-        self.assertGreaterEqual(earliest, datetime.fromisoformat("2026-10-10T21:00:00+09:00"))
+        self.assertGreaterEqual(earliest, datetime.fromisoformat("2026-10-11T13:00:00+09:00"))
 
     def test_grok_45_is_registered_without_its_unverified_xhigh(self):
         data = self.m.load_registry()
@@ -397,25 +435,41 @@ class ModelRegistryTests(unittest.TestCase):
             with self.subTest(model=model_id):
                 self.assertIn("`" + model_id + "`", pending)
 
-    def test_d67_lanes_are_registered_but_still_pending_canary(self):
+    def test_d67_lanes_passed_canary_but_still_pending_certificate(self):
         # D-67 adds lanes alongside the legacy keys; registration is not a working route.
+        # 2.14.2: the read-only canary (2026-10-04) passed for both lanes, but native send and the
+        # account/billing certificate are still missing, so they stay pending (not keep-*).
         data = self.m.load_registry()
         migration = data["legacy_lane_migration"]
         for lane in ("claude-opus-5-5", "gpt-6.1-sol"):
             with self.subTest(lane=lane):
                 self.assertIn(lane, routing_lanes())
-                self.assertEqual(migration[lane], {"candidate": lane, "status": "pending-transport-and-canary"})
+                self.assertEqual(migration[lane], {"candidate": lane, "status": "pending-transport-and-certificate"})
         for legacy in ("claude-opus-5", "gpt-5.6-sol", "gpt-5.6-terra", "grok-4.6"):
             self.assertIn(legacy, routing_lanes())  # ledger.py rejects rows whose lane is not in LANES.
-        self.assertEqual(migration["claude-opus-5"]["candidate"], "claude-opus-5-5")
-        self.assertEqual(migration["gpt-5.6-sol"]["candidate"], "gpt-6.1-sol")
+        self.assertEqual(migration["claude-opus-5"],
+                         {"candidate": "claude-opus-5-5", "status": "pending-transport-and-certificate"})
+        self.assertEqual(migration["gpt-5.6-sol"],
+                         {"candidate": "gpt-6.1-sol", "status": "pending-transport-and-certificate"})
+        # The canary covered only these two lanes: terra's tier evaluation and the uncanaried
+        # successors keep their own pending status.
+        self.assertEqual(migration["gpt-5.6-terra"],
+                         {"candidate": "gpt-6.1-sol", "status": "pending-evaluation-not-equivalent-tier"})
+        self.assertEqual(migration["gpt-5.6-luna"], {"candidate": "gpt-6-luna", "status": "pending-transport-and-canary"})
         self.assertNotIn("gpt-6-sol", {v["candidate"] for v in migration.values()})
         self.assertEqual(migration["grok-4.6"], {"candidate": "grok-4.7", "status": "pending-quota-and-canary"})
-        pending = " ".join(catalog_map_section("Lane migration pending").split())
-        self.assertIn("pending-transport-and-canary", pending)
+        certificate = {k for k, v in migration.items() if v["status"] == "pending-transport-and-certificate"}
+        self.assertEqual(certificate, {"claude-opus-5-5", "claude-opus-5", "gpt-6.1-sol", "gpt-5.6-sol"})
+        section = catalog_map_section("Lane migration pending")
+        rows = {line.split("|")[1].strip(): line for line in section.splitlines() if line.startswith("| `")}
+        pending = " ".join(section.split())
         self.assertIn("launch.requested", pending)
+        self.assertIn("2026-10-04", pending)
         for lane in ("claude-opus-5-5", "gpt-6.1-sol"):
-            self.assertIn("`" + lane + "`", pending)
+            with self.subTest(row=lane):
+                self.assertIn("`" + lane + "`", pending)
+                self.assertIn("`pending-transport-and-certificate`", rows["`" + lane + "`"])
+                self.assertNotIn("pending-transport-and-canary", rows["`" + lane + "`"])
 
     def test_catalog_map_states_lane_dispositions_and_legacy_routing_as_built(self):
         migration = self.m.load_registry()["legacy_lane_migration"]
