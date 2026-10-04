@@ -91,7 +91,9 @@ class SafetyRuntimeTests(unittest.TestCase):
         )
         self.env = kept
 
-    def run_cli(self, *args: str, payload=None, env=None, timeout: int = 12):
+    # Above the runtime's own budget (CHECK_TIMEOUT 20 s plus up to 5 s to reap the leaf
+    # tree): at 12 s a slow CI runner killed legitimate checks before the runtime answered.
+    def run_cli(self, *args: str, payload=None, env=None, timeout: int = 45):
         stdin = None
         if payload is not None:
             stdin = payload if isinstance(payload, str) else json.dumps(payload)

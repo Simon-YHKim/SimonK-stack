@@ -72,6 +72,8 @@ claude plugin install simonk-aihub@simonk-stack
 
 POSIX 셸에서는 `claude plugin list --json | grep -o 'simonk-[a-z]*@simonk-stack'`입니다.
 
+> **flat 설치와 함께 쓰지 마세요.** `~/.claude/skills`에 같은 스킬을 flat으로 이미 설치했다면, 다섯 플러그인을 함께 켰을 때 스킬이 두 벌로 보입니다. 2026-10-05 세션 실측에서는 563개, 설명 3만 자를 넘겨 목록이 잘렸고, 이러면 모델이 스킬을 자동으로 고를 때 정확도가 떨어집니다. 플러그인과 flat 중 한 쪽만 쓰세요. 이 레포의 Windows 사용자 홈은 `scripts/windows/update-local.ps1`(flat)로 관리합니다.
+
 > **안전 훅은 Windows 전용입니다.** `careful`(SimonKCore)과 `freeze`·`guard`·`investigate`(SimonKStack)의 훅은 Windows에서만 판정합니다. 다른 OS에서는 스킬이 호출되는 순간부터 Bash·PowerShell 명령이나 Edit·Write를 **일부러 모두 막습니다**(fail-closed). Python이 없어도 마찬가지입니다. 빠져나오려면 그 스킬 없이 새 세션을 시작하거나, `/plugin disable simonk-core@simonk-stack`(careful) 또는 `/plugin disable simonk-stack@simonk-stack`(freeze·guard·investigate)을 실행한 뒤 새 세션을 시작합니다. 비Windows에서는 `/unfreeze`로 풀리지 않습니다. 자세한 근거와 실측은 [INSTALL.md 비Windows 안전 훅](docs/INSTALL.md#비windows-안전-훅--인터프리터-가드-d-76-4단계)에 있습니다.
 
 ### Codex 스킬 설명 예산
