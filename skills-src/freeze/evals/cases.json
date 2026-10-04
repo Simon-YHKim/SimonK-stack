@@ -1,6 +1,6 @@
 {
   "skill": "freeze",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "cases": [
     {
       "id": "lock-edits-en",

@@ -15,6 +15,8 @@ denies outside the boundary and whatever it cannot judge). Anything the bridge
 itself cannot do or read (no Git Bash, bad state, bad or oversized leaf output,
 timeout) is a fail-closed `deny`; it is never downgraded to `ask`. A timeout
 deny says so and that retrying is safe: it is not a verdict on the command.
+On any OS other than Windows every check is a deliberate `deny` whose reason
+says the runtime is Windows-only and how to get out (D-76 step 4).
 """
 
 from __future__ import annotations
@@ -59,6 +61,29 @@ LEAF_DECISIONS = {
 }
 
 
+# Non-Windows hosts (D-76 step 4): the runtime supports Windows only, so every
+# check is denied on purpose. The reason says so and names the way out; Python,
+# Git Bash or Node repairs would not help there. The plugin's shell-form guard
+# hook (scripts/plugin_bundle.py NON_WINDOWS_REASONS) gives the same reasons
+# byte for byte when no Python is on PATH at all.
+NON_WINDOWS_REASONS = {
+    "careful": (
+        "[careful][WINDOWS ONLY] The SimonK safety runtime supports Windows only, "
+        "so on this OS every Bash and PowerShell command is blocked on purpose "
+        "(fail closed). This is not a verdict on the command. Way out: start a "
+        "new session without /careful and /guard, or run /plugin disable "
+        "simonk-core@simonk-stack (for /careful) or /plugin disable "
+        "simonk-stack@simonk-stack (for /guard) and then start a new session."),
+    "freeze": (
+        "[freeze][WINDOWS ONLY] The SimonK safety runtime supports Windows only, "
+        "so on this OS every Edit and Write is blocked on purpose (fail closed). "
+        "This is not a verdict on the edit. /unfreeze cannot lift it here: the "
+        "boundary state it clears exists only on Windows. Way out: start a new "
+        "session without /freeze, /guard and /investigate, or run /plugin disable "
+        "simonk-stack@simonk-stack and then start a new session."),
+}
+
+
 class SafetyRuntimeError(Exception):
     """Expected validation/runtime failure whose details must not escape."""
 
@@ -86,6 +111,15 @@ def _decision(policy: str, *, timed_out: bool = False) -> dict[str, Any]:
                        "checked, so it is blocked (fail closed). Way out: repair the "
                        "plugin safety runtime (Python, Git Bash and Node on PATH), or "
                        "start a new session without /careful.")
+    return _deny(reason)
+
+
+def _non_windows_decision(policy: str) -> dict[str, Any]:
+    """Deliberate deny on a host the runtime does not support."""
+    return _deny(NON_WINDOWS_REASONS["freeze" if policy == "freeze" else "careful"])
+
+
+def _deny(reason: str) -> dict[str, Any]:
     return {
         "hookSpecificOutput": {
             "hookEventName": "PreToolUse",
@@ -609,7 +643,7 @@ def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     if os.name != "nt":
         if args.command == "check":
-            _emit(_decision(args.policy))
+            _emit(_non_windows_decision(args.policy))
             return 0
         sys.stderr.write("safety runtime state update failed\n")
         return 2

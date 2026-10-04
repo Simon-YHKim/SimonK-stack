@@ -1,6 +1,6 @@
 ---
 name: careful
-version: 0.2.4
+version: 0.2.5
 description: "Use when touching prod, live systems or a shared machine, or asked to \"be careful\", \"safety mode\", \"careful mode\", \"조심해\", \"신중 모드\", \"위험한 명령 경고\". Installs session PreToolUse Bash and PowerShell hooks; the check produces deny for HIGH commands (recursive delete of /, a drive root or ~, force-push to the default branch), ask for MEDIUM Bash ones (rm -r, DROP, git reset --hard), and always deny when the hook itself fails."
 allowed-tools:
   - Bash
