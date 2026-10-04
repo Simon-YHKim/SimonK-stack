@@ -38,12 +38,18 @@
 
 2026-09-29 운영 프로필 조회에서는 Claude·Codex의 SimonK 플러그인 등록이 각각 0개이고, 세 flat 스킬 경로에 v30 고유 182스킬 중 138개 이름만 존재합니다. 나머지 44개가 다른 호스트 자원에 없다는 뜻은 아니지만, **현재 프로필에서 다섯 플러그인 전체가 설치·호출 가능하다는 증거는 아닙니다.** 별도 무인증 프로필의 v31b 설치 캐시는 Claude 741/741파일·Codex 724/724파일 해시가 일치했고, 격리 Claude 초기화에서 플러그인 스킬 182개가 로드됐습니다. 이 결과는 실제 사용자 프로필 설치나 자동 스킬 선택의 증거가 아닙니다. 범위는 [v31b 격리 캐시 기록](docs/install/INSTALL-2026H2.md#v31b-claudecodex-격리-캐시-2026-09-29)에 있습니다.
 
-Claude Code 마켓플레이스에서 **고정된 기존 루트 플러그인** 설치 (새 다섯 플러그인 후보 설치 명령이 아님):
+Claude Code 마켓플레이스에서 **다섯 플러그인** 설치. 카탈로그는 CI가 검증해 게시한 `dist` 브랜치를 가리킵니다(허브 D-82·D-84). 안전 훅(`careful`·`freeze`·`guard`)은 Windows 전용이고, 다른 OS에서는 켜면 모든 대상 명령을 막습니다.
 
 ```
 /plugin marketplace add Simon-YHKim/SimonK-stack
+/plugin install simonk-core@simonk-stack
 /plugin install simonk-stack@simonk-stack
+/plugin install simonk-aihub@simonk-stack
+/plugin install simonk-design@simonk-stack
+/plugin install simonk-market@simonk-stack
 ```
+
+새 버전은 `/plugin marketplace update simonk-stack` 뒤 플러그인 업데이트로 받습니다(서드파티 마켓플레이스는 자동 업데이트가 기본으로 꺼져 있습니다).
 
 > git clone 기반 3-모드 설치(Direct / Vendor / Bootstrap)는 아래 [빠른 시작](#-빠른-시작--3-가지-설치-모드) 참고.
 
