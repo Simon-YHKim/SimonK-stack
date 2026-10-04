@@ -853,6 +853,74 @@ package-only verifier는 Git tree Merkle root와 commit SHA를 다시 계산해 
 `<base-version>-vibe.<source-digest 앞 12자>`는 후보 표시일 뿐 고유 검증키나 설치
 방지 장치가 아닙니다. 원본 JSON과 변환 후 JSON을 모두 검증 기록으로 보존합니다.
 이 candidate envelope를 marketplace에 등록하거나 `install.sh` 입력으로 넘기지 마세요.
+배포용 빌드는 `--release-version`으로 아래 릴리스 버전을 씁니다.
+
+### 릴리스 버전과 콘텐츠 식별 (D-76 2단계)
+
+`--release-version`을 주면 다섯 plugin.json과 self-marketplace의 version이 모두 그
+값이 됩니다. 값은 `python -B scripts/dist_release.py version --repo .`이 계산하는
+`1.<N>.0`이고, N은 빌드한 커밋의 `git rev-list --count HEAD`(전체 이력)입니다.
+
+- **단조 증가**: main에 커밋이 더해지면 N은 반드시 커집니다. 조상 전체를 세므로
+  merge·squash·fast-forward 어느 쪽이든 줄지 않습니다(first-parent 수는 줄 수 있음).
+- **재현성**: 같은 커밋은 언제 다시 빌드해도 같은 version, 같은 바이트입니다.
+  `run_number`는 같은 커밋에도 다른 version을 주고 워크플로 이름을 바꾸면 1부터
+  다시 셉니다. 날짜 기반은 하루 안의 순번을 따로 저장해야 해서 택하지 않았습니다.
+- **pin만 바꿔도 새 version**: pin 변경은 `distribution/plugin-inputs.v1.json`을 바꾸는
+  main 커밋이므로 N이 올라갑니다.
+- **레거시보다 위**: 첫 값부터 레거시 루트 플러그인 `0.1.0`과 pin 원본 version(0.x)보다
+  큽니다. 빌더는 pin 원본 version 이하를, `version` 명령은 레거시
+  `.claude-plugin/plugin.json` 이하를 거부합니다.
+- **SemVer 본체만**: `-`·`+` 꼬리를 쓰지 않습니다. 기존 `-vibe.018825543742`는 0으로
+  시작하는 숫자 식별자라 SemVer가 아니고 `0.1.0`보다 낮게 정렬됩니다. 호스트가
+  `+digest`를 어떻게 다루는지는 확인되지 않았습니다.
+- **얕은 clone 거부**: 얕은 clone은 N을 적게 셉니다. 이 PC의 공유 clone은 561,
+  GitHub main은 754였습니다(2026-10-04). `version` 명령은 얕은 clone이면 멈춥니다.
+- **이력을 다시 쓰면**(force push) N이 줄 수 있습니다. 그때는 `dist_release.py`의
+  `EPOCH`(첫 자리)를 올립니다. publish 단계도 dist보다 낮은 version을 거부합니다.
+
+콘텐츠 식별은 `bundle.json`의 `release.content_digest`입니다. source digest, 다섯 pin
+커밋, safety projection, 출력 파일 전체(경로·SHA-256·mode)를 묶고, 메타데이터 10개는
+version 칸을 비운 값으로 셉니다. version만 다른 두 빌드는 같은 값이고, pin만 바뀌면
+트리가 같아도 다른 값입니다. 빌더 변환 코드가 바뀌어 출력이 달라져도 다른 값입니다.
+`verify`가 다시 계산해 대조합니다.
+
+`--release-version`을 빼면 기존 로컬 후보 표시 `<base>-vibe.<digest>`를 그대로
+만듭니다. `update-local.ps1` 파이프라인과 기존 영수증 검증이 그대로 동작하며, 이
+표시는 배포에 쓰지 않습니다.
+
+### dist CI·게시·롤백 (D-76 3단계)
+
+`.github/workflows/five-plugin-dist.yml`(windows-latest; main push, workflow_dispatch,
+빌드 입력 경로를 건드린 PR)이 하는 일:
+
+1. clone 전에 `core.autocrlf=false`를 걸고 전체 이력을 받습니다.
+2. 다섯 pin을 공개 저장소 `github.com/Simon-YHKim/<Owner>`에서 고정 커밋으로
+   `fetch --depth 1` 후 detached checkout합니다. 로컬 `plugin-pins-lf`(로컬 clone을 그
+   커밋으로 checkout한 LF 작업 트리)와 같은 모양입니다. 2026-10-04 이 PC에서 같은
+   절차로 받은 다섯 개는 `plugin-pins-lf`와 트리 해시·파일 바이트가 모두 같았습니다
+   (diff 0, CRLF 0).
+3. 빌더 4개: skill_release → plugin_bundle `--safety-adapter --release-version` →
+   codex_overlay → codex_safe_subset.
+4. 그 트리 그대로 경로 감사 2종(Claude 후보·Codex subset)과, 패키지된 SimonKCore·
+   SimonKStack 안전 런타임으로 `test_safety_runtime`을 돌립니다. 병렬 job은
+   `test_dist_release`·`test_plugin_bundle`·`test_codex_overlay`·`test_codex_safe_subset`·
+   `test_safety_hooks`·`test_safety_runtime`을 같은 커밋에서 돌립니다.
+5. 영수증(bundle.json, source·overlay·subset 영수증, pins.json, 감사 보고서,
+   RELEASE.json)을 artifact로 90일 보관합니다. PR 실행은 여기까지(검증 전용)입니다.
+
+**publish job은 꺼져 있습니다.** 저장소 변수 `SIMONK_DIST_PUBLISH`가 `true`이고
+`distribution/main-source-only.hold`가 없을 때만 돕니다. 켜지면 `dist` 브랜치에
+`plugins/`·`RELEASE.json`·`.gitattributes`(`* -text`, 호스트의 autocrlf가 셸 훅을 CRLF로
+바꾸지 않게)를 추가 커밋합니다. 강제 push는 하지 않습니다. content_digest가 dist와
+같으면 건너뛰고, dist보다 낮거나 같은 version이면 거부합니다. 게시는 동시성 그룹으로
+한 번에 하나씩 하고, 진행 중인 게시는 취소하지 않습니다. 첫 실제 게시는 별도 릴리스
+승인과 호스트 증거가 필요합니다(D-76 4·5단계).
+
+**롤백은 dist를 되감지 않습니다.** main에서 문제 커밋을 revert하거나 pin을 이전 값으로
+돌리는 PR을 머지하면, CI가 이전 정상 콘텐츠를 **더 높은** version(새 N)으로 다시
+빌드·게시합니다. 호스트가 낮아진 version을 받는지는 확인되지 않았기 때문입니다.
+설치된 호스트가 이 재출하를 실제로 받는지는 4단계에서 확인합니다.
 
 Windows 고정 로컬 드라이브만 지원하며 기존 출력은 덮어쓰지 않습니다. Git 실행 전에
 working tree를 bounded/no-follow 검사하고 파일·디렉터리 및 index를 핀합니다.

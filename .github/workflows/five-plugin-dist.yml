@@ -1,0 +1,428 @@
+name: five-plugin dist (D-76)
+
+# D-76 step 3: build the five-plugin release from public inputs only, verify the
+# exact built tree, keep the receipts. Publishing to the `dist` branch is OFF:
+# the publish job runs only when the repository variable SIMONK_DIST_PUBLISH is
+# 'true' AND the D-33 hold file is gone. The first real publish needs a separate
+# release approval and host evidence (D-76 steps 4 and 5).
+on:
+  push:
+    branches: [main]
+  pull_request:
+    # Verify only: a PR run never uploads the tree or reaches the publish job.
+    branches: [main]
+    paths:
+      - 'skills-src/**'
+      - '.claude/skills/**'
+      - 'scripts/**'
+      - 'distribution/**'
+      - 'LICENSE'
+      - 'NOTICE'
+      - '.gitattributes'
+      - '.github/workflows/five-plugin-dist.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# main: never cancel a running build (a push stream must not starve releases);
+# GitHub keeps one pending run and replaces it with the newest. PRs: newest wins.
+concurrency:
+  group: five-plugin-dist-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  PYTHONUTF8: '1'
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  build:
+    name: build + verify exact tree (Windows)
+    # Builders use Windows-only pinned I/O (kernel32), so the runner must be Windows.
+    runs-on: windows-latest
+    # Sized for a ~25 min build (D-76 local reference: ~22 min for clone, four
+    # builders and two audits) plus gates; the first hosted run took ~5 min.
+    timeout-minutes: 60
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      commit: ${{ steps.version.outputs.commit }}
+      bundle_digest: ${{ steps.bundle.outputs.bundle_digest }}
+      content_digest: ${{ steps.bundle.outputs.content_digest }}
+    steps:
+      - name: Disable EOL conversion before any clone
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+          git config --global core.longpaths true
+
+      - uses: actions/checkout@v4
+        with:
+          # Full history: the release version counts every commit (shallow undercounts).
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Release version (1.<commit count>.0)
+        id: version
+        timeout-minutes: 3
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          $receipts = New-Item -ItemType Directory -Path (Join-Path $env:RUNNER_TEMP 'receipts')
+          $json = (python -B scripts/dist_release.py version --repo .) -join "`n"
+          Set-Content -LiteralPath (Join-Path $receipts 'version.json') -Value $json -Encoding utf8NoBOM
+          $v = $json | ConvertFrom-Json
+          "version=$($v.version)" >> $env:GITHUB_OUTPUT
+          "commit=$($v.commit)" >> $env:GITHUB_OUTPUT
+          $json
+          $eol = @(git ls-files --eol -- skills-src/ LICENSE NOTICE | Where-Object { $_ -match '^i/lf\s+w/crlf' })
+          if ($eol.Count) { throw "Source checkout has $($eol.Count) CRLF working-tree files" }
+
+      - name: Fetch the five plugin pins at their pinned commits (public GitHub)
+        timeout-minutes: 10
+        run: |
+          # Same shape as the local plugin-pins-lf folder: one clone per owner,
+          # detached at the plugin-inputs.v1.json commit, LF working tree, no extras.
+          $PSNativeCommandUseErrorActionPreference = $true
+          $inputs = Get-Content -Raw distribution/plugin-inputs.v1.json | ConvertFrom-Json
+          $pins = New-Item -ItemType Directory -Path (Join-Path $env:RUNNER_TEMP 'plugin-pins')
+          $record = [ordered]@{}
+          foreach ($p in $inputs.plugins.PSObject.Properties) {
+            $owner = $p.Name
+            $sha = [string] $p.Value.commit
+            if ($owner -cnotmatch '^SimonK[A-Za-z]+$' -or $sha -cnotmatch '^[0-9a-f]{40}$') { throw "Unexpected pin: $owner" }
+            $dir = Join-Path $pins $owner
+            git init -q $dir
+            git -C $dir config core.autocrlf false
+            git -C $dir config core.longpaths true
+            git -C $dir remote add origin "https://github.com/Simon-YHKim/$owner.git"
+            git -C $dir fetch -q --no-tags --depth 1 origin $sha
+            git -C $dir checkout -q --detach $sha
+            if ((git -C $dir rev-parse HEAD) -ne $sha) { throw "$owner is not at its pin" }
+            if (git -C $dir status --porcelain=v1 --untracked-files=all) { throw "$owner working tree is not clean" }
+            $crlf = @(git -C $dir ls-files --eol | Where-Object { $_ -match '\bw/crlf\b' })
+            if ($crlf.Count) { throw "$owner has $($crlf.Count) CRLF working-tree files" }
+            $record[$owner] = [ordered]@{ commit = $sha; tree = (git -C $dir rev-parse 'HEAD^{tree}'); files = @(git -C $dir ls-files).Count }
+            "$owner $sha $($record[$owner].files) files"
+          }
+          $record | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $env:RUNNER_TEMP 'receipts/pins.json') -Encoding utf8NoBOM
+
+      - name: Build source package (skill_release)
+        id: source
+        timeout-minutes: 8
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          $candidate = New-Item -ItemType Directory -Path (Join-Path $env:RUNNER_TEMP 'candidate')
+          $json = (python -B scripts/skill_release.py build --repo . --ownership distribution/skills-release.v1.json --output (Join-Path $candidate 'source')) -join "`n"
+          $json
+          "source_digest=$(($json | ConvertFrom-Json).release_digest)" >> $env:GITHUB_OUTPUT
+
+      - name: Build five-plugin candidate (plugin_bundle --safety-adapter --release-version)
+        id: bundle
+        timeout-minutes: 20
+        env:
+          SOURCE_DIGEST: ${{ steps.source.outputs.source_digest }}
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          $candidate = Join-Path $env:RUNNER_TEMP 'candidate'
+          $json = (python -B scripts/plugin_bundle.py build --source-package (Join-Path $candidate 'source') `
+            --source-digest $env:SOURCE_DIGEST --plugin-parent (Join-Path $env:RUNNER_TEMP 'plugin-pins') `
+            --inputs distribution/plugin-inputs.v1.json --output (Join-Path $candidate 'candidate-safety') `
+            --safety-adapter --release-version $env:RELEASE_VERSION) -join "`n"
+          $json
+          $o = $json | ConvertFrom-Json
+          if ($o.release_version -ne $env:RELEASE_VERSION) { throw 'Built release version differs' }
+          "bundle_digest=$($o.bundle_digest)" >> $env:GITHUB_OUTPUT
+          "content_digest=$($o.content_digest)" >> $env:GITHUB_OUTPUT
+
+      - name: Build Codex overlay (codex_overlay)
+        id: overlay
+        timeout-minutes: 9
+        env:
+          BUNDLE_DIGEST: ${{ steps.bundle.outputs.bundle_digest }}
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          $candidate = Join-Path $env:RUNNER_TEMP 'candidate'
+          $json = (python -B scripts/codex_overlay.py build --candidate (Join-Path $candidate 'candidate-safety') `
+            --candidate-digest $env:BUNDLE_DIGEST --output (Join-Path $candidate 'codex-overlay-safety')) -join "`n"
+          $json
+          "overlay_digest=$(($json | ConvertFrom-Json).overlay_digest)" >> $env:GITHUB_OUTPUT
+
+      - name: Build Codex safe subset (codex_safe_subset)
+        id: subset
+        timeout-minutes: 13
+        env:
+          OVERLAY_DIGEST: ${{ steps.overlay.outputs.overlay_digest }}
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          $candidate = Join-Path $env:RUNNER_TEMP 'candidate'
+          $json = (python -B scripts/codex_safe_subset.py build --source-overlay (Join-Path $candidate 'codex-overlay-safety') `
+            --overlay-digest $env:OVERLAY_DIGEST --output (Join-Path $candidate 'codex-subset-safety')) -join "`n"
+          $json
+          "subset_digest=$(($json | ConvertFrom-Json).subset_digest)" >> $env:GITHUB_OUTPUT
+
+      - name: Release record (RELEASE.json)
+        id: record
+        timeout-minutes: 3
+        env:
+          BUNDLE_DIGEST: ${{ steps.bundle.outputs.bundle_digest }}
+          OVERLAY_DIGEST: ${{ steps.overlay.outputs.overlay_digest }}
+          SUBSET_DIGEST: ${{ steps.subset.outputs.subset_digest }}
+          SOURCE_COMMIT: ${{ steps.version.outputs.commit }}
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          python -B scripts/dist_release.py record --candidate (Join-Path $env:RUNNER_TEMP 'candidate/candidate-safety') `
+            --bundle-digest $env:BUNDLE_DIGEST --source-commit $env:SOURCE_COMMIT `
+            --overlay-digest $env:OVERLAY_DIGEST --subset-digest $env:SUBSET_DIGEST `
+            --run "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID" `
+            --output (Join-Path $env:RUNNER_TEMP 'receipts/RELEASE.json')
+
+      # Gates on the exact built tree. Each runs whenever the build finished, so one
+      # run reports every gate; any failure fails the job and blocks publish.
+      - name: Path audit (Claude candidate)
+        if: ${{ !cancelled() && steps.record.outcome == 'success' }}
+        timeout-minutes: 8
+        env:
+          BUNDLE_DIGEST: ${{ steps.bundle.outputs.bundle_digest }}
+        run: |
+          [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)  # keep non-ASCII report text intact
+          $report = Join-Path $env:RUNNER_TEMP 'receipts/path-audit-claude.json'
+          python -B scripts/candidate_path_audit.py --package (Join-Path $env:RUNNER_TEMP 'candidate/candidate-safety') `
+            --expected-digest $env:BUNDLE_DIGEST > $report
+          $code = $LASTEXITCODE
+          # Exit 1 covers two statuses. 'incomplete' is a real defect (unresolved reference,
+          # non-portable command or machine path) and fails. 'external_runtime_pending' only
+          # means skills point at the separately installed Gstack runtime, which a static
+          # audit cannot verify (D-76: host evidence covers it). Exit 2 = blocked.
+          if ($code -eq 2 -or -not (Test-Path $report)) { throw "Claude candidate path audit blocked (exit $code)" }
+          $r = Get-Content -Raw $report | ConvertFrom-Json
+          "status=$($r.status) unresolved=$(@($r.unresolved).Count) unportable=$(@($r.unportable_commands).Count) machine=$(@($r.machine_paths).Count)"
+          if ($r.status -notin @('static_paths_present', 'external_runtime_pending') -or @($r.unresolved).Count -or @($r.unportable_commands).Count -or @($r.machine_paths).Count) {
+            throw "Claude candidate path audit failed: status $($r.status)"
+          }
+          exit 0  # python's exit 1 for external_runtime_pending must not leak into the step result
+
+      - name: Path audit (Codex subset)
+        if: ${{ !cancelled() && steps.record.outcome == 'success' }}
+        timeout-minutes: 8
+        env:
+          OVERLAY_DIGEST: ${{ steps.overlay.outputs.overlay_digest }}
+          SUBSET_DIGEST: ${{ steps.subset.outputs.subset_digest }}
+        run: |
+          $candidate = Join-Path $env:RUNNER_TEMP 'candidate'
+          [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)  # keep non-ASCII report text intact
+          $report = Join-Path $env:RUNNER_TEMP 'receipts/path-audit-codex.json'
+          python -B scripts/candidate_path_audit.py --package-kind codex-subset `
+            --package (Join-Path $candidate 'codex-subset-safety') --expected-digest $env:SUBSET_DIGEST `
+            --source-overlay (Join-Path $candidate 'codex-overlay-safety') --overlay-digest $env:OVERLAY_DIGEST > $report
+          $code = $LASTEXITCODE
+          # Same status rule as the Claude candidate step above.
+          if ($code -eq 2 -or -not (Test-Path $report)) { throw "Codex subset path audit blocked (exit $code)" }
+          $r = Get-Content -Raw $report | ConvertFrom-Json
+          "status=$($r.status) unresolved=$(@($r.unresolved).Count) unportable=$(@($r.unportable_commands).Count) machine=$(@($r.machine_paths).Count)"
+          if ($r.status -notin @('static_paths_present', 'external_runtime_pending') -or @($r.unresolved).Count -or @($r.unportable_commands).Count -or @($r.machine_paths).Count) {
+            throw "Codex subset path audit failed: status $($r.status)"
+          }
+          exit 0  # python's exit 1 for external_runtime_pending must not leak into the step result
+
+      - name: Safety runtime suite against the built runtime (SimonKStack; SimonKCore byte-identical)
+        if: ${{ !cancelled() && steps.record.outcome == 'success' }}
+        timeout-minutes: 10
+        run: |
+          # plugin_bundle copies the same reviewed runtime bytes into both plugins;
+          # prove that on the built tree, then run the suite on one copy.
+          $plugins = Join-Path $env:RUNNER_TEMP 'candidate/candidate-safety/plugins'
+          $listing = foreach ($owner in 'SimonKCore', 'SimonKStack') {
+            $root = Join-Path $plugins "$owner/.simonk-runtime"
+            ,@(Get-ChildItem -LiteralPath $root -Recurse -File | Sort-Object FullName | ForEach-Object {
+              '{0} {1}' -f [IO.Path]::GetRelativePath($root, $_.FullName).Replace('\', '/'), (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash })
+          }
+          if (-not $listing[0].Count -or (Compare-Object $listing[0] $listing[1])) { throw 'SimonKCore and SimonKStack runtimes differ' }
+          $listing[0]
+          $env:SIMONK_SAFETY_CANDIDATE_PLUGIN_ROOT = Join-Path $plugins 'SimonKStack'
+          python -B -m unittest discover -s scripts/tests -p test_safety_runtime.py
+
+      - name: Collect receipts
+        if: ${{ always() }}
+        run: |
+          $candidate = Join-Path $env:RUNNER_TEMP 'candidate'
+          $receipts = Join-Path $env:RUNNER_TEMP 'receipts'
+          New-Item -ItemType Directory -Force -Path $receipts | Out-Null
+          $map = [ordered]@{ 'source/release.json' = 'source-release.json'; 'candidate-safety/bundle.json' = 'bundle.json'
+            'codex-overlay-safety/overlay.json' = 'codex-overlay.json'; 'codex-subset-safety/subset.json' = 'codex-subset.json' }
+          foreach ($item in $map.GetEnumerator()) {
+            $from = Join-Path $candidate $item.Key
+            if (Test-Path -LiteralPath $from) { Copy-Item -LiteralPath $from -Destination (Join-Path $receipts $item.Value) }
+          }
+          $lines = @('### five-plugin dist build', '', '| item | value |', '|---|---|',
+            "| release version | ``${{ steps.version.outputs.version }}`` |",
+            "| commit | ``${{ steps.version.outputs.commit }}`` |",
+            "| content digest | ``${{ steps.bundle.outputs.content_digest }}`` |",
+            "| bundle digest | ``${{ steps.bundle.outputs.bundle_digest }}`` |",
+            "| codex overlay / subset | ``${{ steps.overlay.outputs.overlay_digest }}`` / ``${{ steps.subset.outputs.subset_digest }}`` |",
+            '', 'Publishing is off (D-76 steps 4 and 5 pending).')
+          $lines -join "`n" >> $env:GITHUB_STEP_SUMMARY
+          Get-ChildItem $receipts | Format-Table Name, Length
+
+      - name: Upload receipts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: five-plugin-receipts-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/receipts
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Upload built Claude plugin tree (main only, for the publish job)
+        if: ${{ success() && github.event_name != 'pull_request' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: five-plugin-tree-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/candidate/candidate-safety
+          if-no-files-found: error
+          retention-days: 7
+
+  suites:
+    name: bundle, Codex and safety suites (Windows)
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - name: Disable EOL conversion before any clone
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Release version and dist staging (test_dist_release)
+        timeout-minutes: 5
+        run: python -B -m unittest discover -s scripts/tests -p test_dist_release.py
+
+      - name: Five-plugin bundle (test_plugin_bundle)
+        if: ${{ !cancelled() }}
+        timeout-minutes: 20
+        run: python -B -m unittest discover -s scripts/tests -p test_plugin_bundle.py
+
+      - name: Codex overlay (test_codex_overlay)
+        if: ${{ !cancelled() }}
+        timeout-minutes: 10
+        run: python -B -m unittest discover -s scripts/tests -p test_codex_overlay.py
+
+      - name: Codex safe subset (test_codex_safe_subset)
+        if: ${{ !cancelled() }}
+        timeout-minutes: 10
+        run: python -B -m unittest discover -s scripts/tests -p test_codex_safe_subset.py
+
+      - name: Safety hooks (test_safety_hooks)
+        if: ${{ !cancelled() }}
+        timeout-minutes: 15
+        run: python -B -m unittest discover -s scripts/tests -p test_safety_hooks.py
+
+      - name: Safety runtime from source (test_safety_runtime)
+        if: ${{ !cancelled() }}
+        timeout-minutes: 15
+        run: python -B -m unittest discover -s scripts/tests -p test_safety_runtime.py
+
+  publish:
+    name: publish dist branch (disabled)
+    needs: [build, suites]
+    # Disabled: SIMONK_DIST_PUBLISH stays unset until D-76 steps 4 and 5.
+    if: ${{ vars.SIMONK_DIST_PUBLISH == 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+    runs-on: windows-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    # One publisher at a time; a running publish is never cancelled.
+    concurrency:
+      group: five-plugin-dist-publish
+      cancel-in-progress: false
+    env:
+      BUNDLE_DIGEST: ${{ needs.build.outputs.bundle_digest }}
+      RELEASE_VERSION: ${{ needs.build.outputs.version }}
+    steps:
+      - name: Disable EOL conversion before any clone
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+          git config --global core.longpaths true
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Refuse while the D-33 source-only hold is in force
+        run: |
+          if (Test-Path -LiteralPath distribution/main-source-only.hold) {
+            throw 'distribution/main-source-only.hold is present: replace the fence (D-76 step 5) before publishing'
+          }
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: five-plugin-tree-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/dist-tree
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: five-plugin-receipts-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/receipts
+
+      - name: Re-verify the transferred tree against the build's bundle digest
+        timeout-minutes: 8
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          python -B scripts/plugin_bundle.py verify --package (Join-Path $env:RUNNER_TEMP 'dist-tree') --expected-digest $env:BUNDLE_DIGEST
+
+      - name: Commit to dist when the content is new (never force-pushed)
+        timeout-minutes: 8
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          $tree = Join-Path $env:RUNNER_TEMP 'dist-tree'
+          $record = Join-Path $env:RUNNER_TEMP 'receipts/RELEASE.json'
+          $wt = Join-Path $env:RUNNER_TEMP 'dist-worktree'
+          $PSNativeCommandUseErrorActionPreference = $false
+          git ls-remote --exit-code --heads origin dist | Out-Null
+          $remote = $LASTEXITCODE
+          $PSNativeCommandUseErrorActionPreference = $true
+          if ($remote -eq 0) {
+            git fetch -q --no-tags --depth 1 origin refs/heads/dist:refs/remotes/origin/dist
+            git worktree add -q --detach $wt refs/remotes/origin/dist
+            $previous = @('--previous', (Join-Path $wt 'RELEASE.json'))
+          } elseif ($remote -eq 2) {
+            git worktree add -q --orphan -b dist-first-publish $wt
+            $previous = @()
+          } else { throw "git ls-remote failed ($remote)" }
+          $PSNativeCommandUseErrorActionPreference = $false
+          $json = (python -B scripts/dist_release.py decide --current $record @previous) -join "`n"
+          $code = $LASTEXITCODE
+          $PSNativeCommandUseErrorActionPreference = $true
+          $json
+          if ($code -ne 0) { throw "dist publish refused (exit $code)" }
+          $decision = $json | ConvertFrom-Json
+          if ($decision.version -ne $env:RELEASE_VERSION -and $decision.action -eq 'publish') { throw 'Record version differs from the build' }
+          if ($decision.action -eq 'skip') { "dist already ships this content as $($decision.version)"; exit 0 }
+          $executables = Join-Path $env:RUNNER_TEMP 'dist-executables.txt'
+          python -B scripts/dist_release.py stage --candidate $tree --record $record --dist $wt --executables $executables
+          git -C $wt add -A
+          if ((Get-Item -LiteralPath $executables).Length -gt 0) {
+            git -C $wt add --chmod=+x "--pathspec-from-file=$executables"
+          }
+          $message = Join-Path $env:RUNNER_TEMP 'dist-commit.txt'
+          $content = (Get-Content -Raw $record | ConvertFrom-Json).content_digest
+          @("chore(release): five-plugin dist $env:RELEASE_VERSION", '',
+            "content $content", "source $env:GITHUB_SHA",
+            "run $env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID") |
+            Set-Content -LiteralPath $message -Encoding utf8NoBOM
+          git -C $wt -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -q -F $message
+          # Plain push: if dist moved, the push is rejected instead of overwritten.
+          git -C $wt push origin HEAD:refs/heads/dist

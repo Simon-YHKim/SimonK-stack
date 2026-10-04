@@ -22,10 +22,12 @@ import subprocess
 import sys
 import tempfile
 
+import dist_release as dist
 import skill_release as r
 
 SCOPE = "five-plugin-candidate-v1"
 SAFETY_SCOPE = "five-plugin-candidate-safety-v2"
+CONTENT_SCOPE = "five-plugin-content-v1"
 OID = re.compile(r"[a-f0-9]{40}\Z")
 VERSION = re.compile(r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\Z")
 PLUGIN = ".claude-plugin/plugin.json"
@@ -579,8 +581,14 @@ def metadata_bytes(base, path, record):
     return result
 
 
-def derive(source, source_digest, inputs, bases, safety_projection=None):
-    """Recompute exact candidate ownership/files from authenticated receipt inputs."""
+def derive(source, source_digest, inputs, bases, safety_projection=None, release_version=None):
+    """Recompute exact candidate ownership/files from authenticated receipt inputs.
+
+    Without RELEASE_VERSION the five versions stay the local candidate marker
+    ``<base>-vibe.<source digest[:12]>``. With it (D-76) all five carry that
+    strict MAJOR.MINOR.PATCH, which must sort above every pinned base version.
+    """
+    release = None if release_version is None else dist.parse_version(release_version)
     r.validate_manifest(source)
     if not isinstance(source_digest, str) or r.digest(r.encoded(source)) != source_digest:
         raise ValueError("Embedded source manifest digest mismatch")
@@ -665,7 +673,12 @@ def derive(source, source_digest, inputs, bases, safety_projection=None):
     if set(owners) - set(source["owners"]) != set(source["plugin_only_out_of_scope"]):
         raise ValueError("Plugin-only inventory is not exact")
     for owner, (manifest, market, records) in metadata.items():
-        version = manifest["version"] + "-vibe." + source_digest[:12]
+        if release is None:
+            version = manifest["version"] + "-vibe." + source_digest[:12]
+        elif release <= dist.parse_version(manifest["version"]):
+            raise ValueError("Release version must sort above every pinned base version")
+        else:
+            version = release_version
         manifest["version"] = version
         manifest["skills"] = [f"./skills/{n}/" for n, home in sorted(owners.items()) if home == owner]
         market["version"] = market["plugins"][0]["version"] = version
@@ -685,6 +698,32 @@ def derive(source, source_digest, inputs, bases, safety_projection=None):
     if len(files) > r.MAX_FILES or sum(f["size"] for f in files.values()) > r.MAX_TOTAL:
         raise ValueError("Candidate exceeds file/byte limits")
     return owners, sorted(files.values(), key=lambda f: f["path"]), generated
+
+
+def content_digest(source_digest, inputs, safety_projection, files, generated):
+    """Release-version-independent identity of what a dist release ships (D-76).
+
+    Covers the source digest, the five pinned commits (so a pin-only change is
+    always new content), the safety projection and every output path/hash/mode.
+    The ten generated metadata files count with their version fields blanked,
+    so two releases of the same content share one identity.
+    """
+    metadata = {f"plugins/{owner}/{path}" for owner in r.OWNERS for path in (PLUGIN, MARKET)}
+    rows = []
+    for f in files:
+        sha256 = f["sha256"]
+        if f["path"] in metadata:
+            document = r.decoded(generated[f["path"]])
+            document["version"] = ""
+            if f["path"].endswith(MARKET):
+                document["plugins"][0]["version"] = ""
+            sha256 = r.digest(r.encoded(document))
+        rows.append({"path": f["path"], "sha256": sha256, "mode": f["mode"]})
+    return r.digest(r.encoded({
+        "scope": CONTENT_SCOPE, "source_digest": source_digest,
+        "pins": {owner: info["commit"] for owner, info in inputs["plugins"].items()},
+        "safety_projection": None if safety_projection is None else r.digest(r.encoded(safety_projection)),
+        "files": rows}))
 
 
 def check_content(path, data, owners, origin):
@@ -726,18 +765,26 @@ def verify_bundle(root, expected_digest, *, allowed_extra=(), base_overrides=Non
         if not isinstance(m, dict):
             raise ValueError("Invalid candidate receipt")
         safety = m.get("scope") == SAFETY_SCOPE
+        release = m.get("release")
         keys = {"schema_version", "scope", "source_digest", "source_manifest", "inputs", "bases", "owners", "files",
                 "runtime_closure_verified", "host_compatibility_verified", "installation_ready", "limitations"}
-        exact(m, keys | ({"safety_projection"} if safety else set()), "candidate receipt")
+        exact(m, keys | ({"safety_projection"} if safety else set()) | ({"release"} if "release" in m else set()),
+              "candidate receipt")
+        if "release" in m:
+            exact(release, {"version", "content_digest"}, "release identity")
         if (type(m["schema_version"]) is not int or m["schema_version"] != (2 if safety else 1)
                 or m["scope"] != (SAFETY_SCOPE if safety else SCOPE)
                 or any(m[k] is not False for k in ("runtime_closure_verified", "host_compatibility_verified", "installation_ready"))
                 or m["limitations"] != (SAFETY_LIMITATIONS if safety else LIMITATIONS) or data != r.encoded(m)):
             raise ValueError("Invalid candidate-only contract")
-        owners, files, _ = derive(m["source_manifest"], m["source_digest"], m["inputs"], m["bases"],
-                                 m["safety_projection"] if safety else None)
+        projection = m["safety_projection"] if safety else None
+        owners, files, generated = derive(m["source_manifest"], m["source_digest"], m["inputs"], m["bases"],
+                                          projection, None if release is None else release["version"])
         if r.encoded(m["owners"]) != r.encoded(owners) or r.encoded(m["files"]) != r.encoded(files):
             raise ValueError("Candidate does not match its source/base closure")
+        if release is not None and release["content_digest"] != content_digest(
+                m["source_digest"], m["inputs"], projection, files, generated):
+            raise ValueError("Release content identity does not match the candidate")
         base_paths = {f["path"] for f in files} | {"bundle.json"}
         if (set(extra) & base_paths or not set(overrides) <= base_paths - {"bundle.json"}
                 or r.files_under(root) != base_paths | set(extra)):
@@ -751,9 +798,12 @@ def verify_bundle(root, expected_digest, *, allowed_extra=(), base_overrides=Non
         return m
 
 
-def build_bundle(source_package, source_digest, plugin_parent, inputs, output, *, safety_adapter=False):
+def build_bundle(source_package, source_digest, plugin_parent, inputs, output, *, safety_adapter=False,
+                 release_version=None):
     if type(safety_adapter) is not bool:
         raise ValueError("Safety adapter option must be boolean")
+    if release_version is not None:
+        dist.parse_version(release_version)
     validate_inputs(inputs)
     source_package, plugin_parent = r.no_links(source_package), r.no_links(plugin_parent)
     target = r.destination(output, source_package, plugin_parent)
@@ -776,7 +826,7 @@ def build_bundle(source_package, source_digest, plugin_parent, inputs, output, *
             root = r.safe_member(plugin_parent, owner)
             stack.enter_context(r.pinned(root, directory=True))
             bases[owner], snapshots[owner] = collect_base(root, info, owner, source, actual_files[owner])
-        owners, files, generated = derive(source, source_digest, inputs, bases, projection)
+        owners, files, generated = derive(source, source_digest, inputs, bases, projection, release_version)
         blobs = {}
         for f in files:
             if f["origin"] == "source":
@@ -796,6 +846,9 @@ def build_bundle(source_package, source_digest, plugin_parent, inputs, output, *
                 "installation_ready": False, "limitations": SAFETY_LIMITATIONS if safety_adapter else LIMITATIONS}
     if safety_adapter:
         manifest["safety_projection"] = projection
+    if release_version is not None:
+        manifest["release"] = {"version": release_version, "content_digest": content_digest(
+            source_digest, inputs, projection, files, generated)}
     data = r.encoded(manifest)
     if len(data) > r.MAX_FILE:
         raise ValueError("Candidate receipt exceeds byte limit")
@@ -809,9 +862,12 @@ def build_bundle(source_package, source_digest, plugin_parent, inputs, output, *
             verify_bundle(stage, bundle_digest)
             r.publish_new(stage, target)
         verify_bundle(target, bundle_digest)
-    return {"status": "candidate_bytes_verified", "bundle_digest": bundle_digest,
-            "plugins": len(bases), "skills": len(owners), "files": len(files), "path": str(target),
-            "runtime_closure_verified": False, "host_compatibility_verified": False, "installation_ready": False}
+    result = {"status": "candidate_bytes_verified", "bundle_digest": bundle_digest,
+              "plugins": len(bases), "skills": len(owners), "files": len(files), "path": str(target),
+              "runtime_closure_verified": False, "host_compatibility_verified": False, "installation_ready": False}
+    if release_version is not None:
+        result.update(release_version=release_version, content_digest=manifest["release"]["content_digest"])
+    return result
 
 
 def main(argv=None):
@@ -825,6 +881,9 @@ def main(argv=None):
     build.add_argument("--output", type=Path, required=True)
     build.add_argument("--safety-adapter", action="store_true",
                        help="Opt in to reviewed v2 safety command/resource projection; not installation")
+    build.add_argument("--release-version",
+                       help="Monotonic MAJOR.MINOR.PATCH from dist_release.py version (D-76); "
+                            "omitted keeps the local <base>-vibe.<digest> candidate marker")
     verify = commands.add_parser("verify")
     verify.add_argument("--package", type=Path, required=True)
     verify.add_argument("--expected-digest", required=True)
@@ -832,11 +891,15 @@ def main(argv=None):
     try:
         if args.command == "build":
             result = build_bundle(args.source_package, args.source_digest, args.plugin_parent,
-                                  r.load_json(args.inputs), args.output, safety_adapter=args.safety_adapter)
+                                  r.load_json(args.inputs), args.output, safety_adapter=args.safety_adapter,
+                                  release_version=args.release_version)
         else:
             receipt = verify_bundle(args.package, args.expected_digest)
             result = {"status": "candidate_bytes_verified", "bundle_digest": args.expected_digest,
                       "plugins": len(receipt["bases"]), "skills": len(receipt["owners"]), "installation_ready": False}
+            if "release" in receipt:
+                result.update(release_version=receipt["release"]["version"],
+                              content_digest=receipt["release"]["content_digest"])
         print(r.encoded(result).decode("utf-8"), end="")
         return 0
     except (ValueError, OSError, subprocess.SubprocessError, UnicodeError, TypeError, KeyError, IndexError):
