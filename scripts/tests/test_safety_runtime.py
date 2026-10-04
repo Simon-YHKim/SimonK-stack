@@ -260,10 +260,42 @@ class SafetyRuntimeTests(unittest.TestCase):
         self.assertEqual(count, 1, "CHECK_TIMEOUT constant not found")
         path.write_text(text, encoding="utf-8")
 
+    def marker_processes(self, kill: bool = False) -> int:
+        """Count, or stop, live processes whose command line names this test's folder.
+
+        The folder name is random per test, so only processes started from this
+        test's own copies match (the runtime's Python process too, but none runs
+        between checks). Nothing else on the machine is counted or stopped.
+        """
+        script = ("$m = $env:SIMONK_TEST_MARKER; "
+                  "$p = @(Get-CimInstance Win32_Process | Where-Object "
+                  "{ $_.CommandLine -and $_.CommandLine.Contains($m) }); "
+                  "if ($env:SIMONK_TEST_KILL -eq '1') { foreach ($x in $p) "
+                  "{ Stop-Process -Id $x.ProcessId -Force -ErrorAction SilentlyContinue } }; "
+                  "$p.Count")
+        result = subprocess.run(
+            ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", script],
+            capture_output=True, text=True, timeout=60,
+            env={**os.environ, "SIMONK_TEST_MARKER": self.base.name,
+                 "SIMONK_TEST_KILL": "1" if kill else "0"})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return int(result.stdout.strip())
+
+    def surviving_marker_processes(self, seconds: float = 5) -> int:
+        """Marker process count once it reaches 0, or the last count after `seconds`."""
+        deadline = time.monotonic() + seconds
+        count = self.marker_processes()
+        while count and time.monotonic() < deadline:
+            time.sleep(0.5)
+            count = self.marker_processes()
+        return count
+
     def test_leaf_timeout_denies_with_timeout_reason_within_budget(self):
-        # A leaf that never finishes (a busy loop inside Git Bash itself, so
-        # the kill leaves no descendant) is a timeout deny that says so and
-        # that retrying is safe; the check returns soon after the budget.
+        # A leaf that never finishes is a timeout deny that says so and that
+        # retrying is safe; the check returns soon after the budget and leaves
+        # no leaf process behind (2026-10-05: six leaf shells were still
+        # busy-looping 8 hours after this test, see the process-tree test).
+        self.addCleanup(self.marker_processes, True)
         self.shrink_budget(1)
         self.set_boundary()
         for relative, policy, prefix in (
@@ -284,6 +316,48 @@ class SafetyRuntimeTests(unittest.TestCase):
                                 self.reason(result))
                 self.assertIn("retrying is safe", self.reason(result))
                 self.assertLess(elapsed, 10)
+        self.assertEqual(self.surviving_marker_processes(), 0, "a leaf outlived its timeout")
+
+    def test_timeout_kills_the_whole_leaf_process_tree(self):
+        # Git for Windows' bin/bash.exe is a launcher that runs usr/bin/bash.exe
+        # as its child, so killing only the started process left the real
+        # shell running. This leaf also starts a grandchild shell (it marks
+        # the start in this test's folder) before looping: after the timeout
+        # deny no process naming this test's folder may remain.
+        self.addCleanup(self.marker_processes, True)
+        self.shrink_budget(2)
+        started = self.base / "grandchild-started"
+        (self.runtime / "careful/bin/check-careful.sh").write_text(
+            "#!/usr/bin/env bash\n"
+            "\"$BASH\" --noprofile --norc -c ': > \"$1\"; while :; do :; done' grandchild "
+            "\"${0%/.simonk-runtime/*}/grandchild-started\" &\n"
+            "while :; do :; done\n", encoding="utf-8")
+        self.assertEqual(self.marker_processes(), 0)
+        decision, result = self.check("careful", payload=self.payload(command="git status"))
+        self.assertEqual(decision, "deny")
+        self.assertTrue(self.reason(result).startswith(CAREFUL_TIMEOUT + "2 s"),
+                        self.reason(result))
+        self.assertTrue(started.is_file(), "the grandchild never started; the test proves nothing")
+        self.assertEqual(self.surviving_marker_processes(), 0,
+                         "a leaf or its descendant outlived the timeout")
+
+    def test_leaf_that_decides_still_leaves_no_process_behind(self):
+        # A leaf that answers and exits while a background child it started
+        # keeps running: the decision passes through and the child dies too.
+        self.addCleanup(self.marker_processes, True)
+        started = self.base / "grandchild-started"
+        (self.runtime / "careful/bin/check-careful.sh").write_text(
+            "#!/usr/bin/env bash\n"
+            "started=\"${0%/.simonk-runtime/*}/grandchild-started\"\n"
+            "\"$BASH\" --noprofile --norc -c ': > \"$1\"; while :; do :; done' grandchild "
+            "\"$started\" &\n"
+            "until [ -e \"$started\" ]; do :; done\n"
+            "printf '{}\\n'\n", encoding="utf-8")
+        decision, _ = self.check("careful", payload=self.payload(command="git status"))
+        self.assertEqual(decision, "allow")
+        self.assertTrue(started.is_file())
+        self.assertEqual(self.surviving_marker_processes(), 0,
+                         "a background child outlived its leaf")
 
     def test_spent_budget_times_out_before_starting_a_process(self):
         from unittest.mock import patch

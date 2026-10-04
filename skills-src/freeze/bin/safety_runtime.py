@@ -2,11 +2,13 @@
 """Windows-only bridge for SimonK's unchanged Bash safety leaves.
 
 The bridge owns only a local project/session state namespace and a bounded
-direct-child process boundary.  It does not authenticate the caller, activate
-host hooks, execute tool commands, or make a candidate install-ready.  Timeout
-kills Git Bash itself, not an independently escaped descendant tree.  Atomic
-replacement assumes one same-user writer for a project/session key; concurrent
-writers are outside this deliberately small v1 contract.
+leaf process tree.  It does not authenticate the caller, activate host hooks,
+execute tool commands, or make a candidate install-ready.  The leaf starts
+suspended inside its own Windows Job Object, so a timeout, any other exit path
+or the bridge's own death kills the whole tree: Git for Windows' bin/bash.exe
+launcher, the real usr/bin/bash.exe it starts, and every descendant (freeze
+0.2.5).  Atomic replacement assumes one same-user writer for a project/session
+key; concurrent writers are outside this deliberately small v1 contract.
 
 Decisions (hub decision D-62 follow-up 5): a leaf's own decision passes
 through unchanged with its reason -- `{}` allow, careful `ask`, careful or
@@ -48,6 +50,10 @@ MAX_OUTPUT = 64 * 1024
 # that with margin and stays far below the host's 600 s hook limit, past which
 # a timed-out PreToolUse hook would not block the tool call at all.
 CHECK_TIMEOUT = 20
+# After the leaf tree is killed, wait at most this long (seconds, outside the
+# check budget) for its processes to be gone before the check returns.
+REAP_TIMEOUT = 5
+CREATE_SUSPENDED = 0x00000004  # Windows process creation flag.
 SESSION_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}\Z", re.ASCII)
 REPARSE_POINT = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
 # careful-powershell runs the careful leaf in its deny-only PowerShell-tool
@@ -527,6 +533,143 @@ def _tool_path(cwd: str, raw: Any) -> Path:
     return candidate
 
 
+class _LeafJob:
+    """Unnamed Windows Job Object that owns one leaf's whole process tree.
+
+    Git for Windows' bin/bash.exe is a launcher that runs usr/bin/bash.exe as
+    its child, so killing only the started process left the real shell running
+    (2026-10-05: six leaf shells were still busy-looping 8 hours after timeout
+    tests).  The leaf starts suspended and joins this job before its first
+    instruction, so every descendant is born inside it; no breakaway is
+    allowed.  KILL_ON_JOB_CLOSE also kills the tree if the bridge itself dies.
+    Documented APIs only:
+    https://learn.microsoft.com/windows/win32/procthread/job-objects
+    """
+
+    def __init__(self) -> None:
+        self._handle = None
+        try:
+            from ctypes import wintypes
+            kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        except (AttributeError, ImportError, OSError, ValueError) as exc:
+            raise SafetyRuntimeError from exc
+        handle, dword, bool_ = wintypes.HANDLE, wintypes.DWORD, wintypes.BOOL
+        for name, argtypes, restype in (
+            ("CreateJobObjectW", (ctypes.c_void_p, wintypes.LPCWSTR), handle),
+            ("SetInformationJobObject",
+             (handle, ctypes.c_int, ctypes.c_void_p, dword), bool_),
+            ("QueryInformationJobObject",
+             (handle, ctypes.c_int, ctypes.c_void_p, dword, ctypes.c_void_p), bool_),
+            ("AssignProcessToJobObject", (handle, handle), bool_),
+            ("TerminateJobObject", (handle, wintypes.UINT), bool_),
+            ("OpenProcess", (dword, bool_, dword), handle),
+            ("CreateToolhelp32Snapshot", (dword, dword), handle),
+            ("Thread32First", (handle, ctypes.c_void_p), bool_),
+            ("Thread32Next", (handle, ctypes.c_void_p), bool_),
+            ("OpenThread", (dword, bool_, dword), handle),
+            ("ResumeThread", (handle,), dword),
+            ("CloseHandle", (handle,), bool_),
+        ):
+            function = getattr(kernel32, name)
+            function.argtypes, function.restype = argtypes, restype
+        self._kernel32 = kernel32
+
+        class BasicLimits(ctypes.Structure):  # JOBOBJECT_BASIC_LIMIT_INFORMATION
+            _fields_ = [("per_process_user_time", ctypes.c_int64),
+                        ("per_job_user_time", ctypes.c_int64),
+                        ("limit_flags", dword),
+                        ("minimum_working_set", ctypes.c_size_t),
+                        ("maximum_working_set", ctypes.c_size_t),
+                        ("active_process_limit", dword),
+                        ("affinity", ctypes.c_size_t),
+                        ("priority_class", dword),
+                        ("scheduling_class", dword)]
+
+        class ExtendedLimits(ctypes.Structure):  # JOBOBJECT_EXTENDED_LIMIT_INFORMATION
+            _fields_ = [("basic", BasicLimits), ("io", ctypes.c_uint64 * 6),
+                        ("memory", ctypes.c_size_t * 4)]
+
+        class Accounting(ctypes.Structure):  # JOBOBJECT_BASIC_ACCOUNTING_INFORMATION
+            _fields_ = [("times", ctypes.c_int64 * 4), ("page_faults", dword),
+                        ("total_processes", dword), ("active_processes", dword),
+                        ("terminated_processes", dword)]
+
+        class ThreadEntry(ctypes.Structure):  # THREADENTRY32
+            _fields_ = [("size", dword), ("usage", dword), ("thread_id", dword),
+                        ("owner_pid", dword), ("base_priority", wintypes.LONG),
+                        ("delta_priority", wintypes.LONG), ("flags", dword)]
+
+        self._accounting, self._thread_entry = Accounting, ThreadEntry
+        job = kernel32.CreateJobObjectW(None, None)
+        if not job:
+            raise SafetyRuntimeError
+        self._handle = job
+        limits = ExtendedLimits()
+        limits.basic.limit_flags = 0x2000  # JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+        if not kernel32.SetInformationJobObject(  # JobObjectExtendedLimitInformation
+                job, 9, ctypes.byref(limits), ctypes.sizeof(limits)):
+            self.close()
+            raise SafetyRuntimeError
+
+    def adopt(self, process: subprocess.Popen) -> None:
+        """Put a CREATE_SUSPENDED leaf into the job, then let it run."""
+        kernel32 = self._kernel32
+        # PROCESS_SET_QUOTA | PROCESS_TERMINATE, as AssignProcessToJobObject needs.
+        target = kernel32.OpenProcess(0x0100 | 0x0001, False, process.pid)
+        if not target:
+            raise SafetyRuntimeError
+        try:
+            if not kernel32.AssignProcessToJobObject(self._handle, target):
+                raise SafetyRuntimeError
+        finally:
+            kernel32.CloseHandle(target)
+        snapshot = kernel32.CreateToolhelp32Snapshot(0x4, 0)  # TH32CS_SNAPTHREAD
+        if not snapshot or snapshot == ctypes.c_void_p(-1).value:
+            raise SafetyRuntimeError
+        resumed = False
+        try:
+            entry = self._thread_entry()
+            entry.size = ctypes.sizeof(entry)
+            found = kernel32.Thread32First(snapshot, ctypes.byref(entry))
+            while found:
+                if entry.owner_pid == process.pid:
+                    thread = kernel32.OpenThread(0x0002, False, entry.thread_id)  # THREAD_SUSPEND_RESUME
+                    if thread:
+                        try:
+                            # CREATE_SUSPENDED left the initial thread at count 1.
+                            resumed = kernel32.ResumeThread(thread) == 1 or resumed
+                        finally:
+                            kernel32.CloseHandle(thread)
+                entry.size = ctypes.sizeof(entry)
+                found = kernel32.Thread32Next(snapshot, ctypes.byref(entry))
+        finally:
+            kernel32.CloseHandle(snapshot)
+        if not resumed:
+            raise SafetyRuntimeError
+
+    def kill(self) -> None:
+        """Kill every process in the tree; wait, bounded, until none is left."""
+        if not self._handle:
+            return
+        kernel32 = self._kernel32
+        kernel32.TerminateJobObject(self._handle, 1)
+        deadline = time.monotonic() + REAP_TIMEOUT
+        info = self._accounting()
+        while (kernel32.QueryInformationJobObject(  # JobObjectBasicAccountingInformation
+                   self._handle, 1, ctypes.byref(info), ctypes.sizeof(info), None)
+               and info.active_processes and time.monotonic() < deadline):
+            time.sleep(0.01)
+
+    def close(self) -> None:
+        """Kill whatever is still in the tree, then release the job."""
+        if self._handle:
+            try:
+                self.kill()
+            finally:
+                self._kernel32.CloseHandle(self._handle)
+                self._handle = None
+
+
 def _run_leaf(policy: str, payload: dict[str, Any], boundary: str | None,
               deadline: float) -> dict[str, Any]:
     runtime = Path(__file__).resolve(strict=True).parent
@@ -563,6 +706,8 @@ def _run_leaf(policy: str, payload: dict[str, Any], boundary: str | None,
             (plugin_data / "freeze-dir.txt").write_text(posix_boundary + "\n", encoding="utf-8")
         env = _hook_environment(bash, cygpath, private, plugin_data, deadline)
         posix_helper = _cygpath(cygpath, str(helper), deadline)
+        # No job, no leaf: an uncontained leaf could outlive its timeout.
+        job = _LeafJob()
         try:
             with tempfile.TemporaryFile() as output:
                 # Take the budget before starting the leaf, so a spent budget
@@ -575,11 +720,18 @@ def _run_leaf(policy: str, payload: dict[str, Any], boundary: str | None,
                     stderr=subprocess.DEVNULL,
                     cwd=translated["cwd"],
                     env=env,
+                    creationflags=CREATE_SUSPENDED,
                 )
+                try:
+                    job.adopt(process)
+                except SafetyRuntimeError:
+                    process.kill()  # Still suspended, so it has started nothing.
+                    process.communicate()
+                    raise
                 try:
                     process.communicate(encoded, timeout=timeout)
                 except subprocess.TimeoutExpired:
-                    process.kill()
+                    job.kill()  # The launcher, the real bash and all descendants.
                     process.communicate()
                     raise SafetyRuntimeTimeout from None
                 if process.returncode != 0 or output.tell() > MAX_OUTPUT:
@@ -588,6 +740,8 @@ def _run_leaf(policy: str, payload: dict[str, Any], boundary: str | None,
                 raw_output = output.read(MAX_OUTPUT + 1)
         except (OSError, subprocess.SubprocessError) as exc:
             raise SafetyRuntimeError from exc
+        finally:
+            job.close()  # Also kills anything the leaf left running on exit.
     try:
         result = _strict_json(raw_output.decode("utf-8"))
     except (UnicodeError, json.JSONDecodeError, ValueError, TypeError,

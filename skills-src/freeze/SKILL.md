@@ -1,6 +1,6 @@
 ---
 name: freeze
-version: 0.2.4
+version: 0.2.5
 description: "Use when debugging to keep edits inside one module, or asked to \"freeze\", \"restrict edits\", \"only edit this folder\", \"lock down edits\", \"이 폴더만 수정\", \"편집 잠금\". Sets a session edit boundary: a PreToolUse Edit/Write hook produces deny for paths outside the chosen directory and for paths it cannot judge (relative, UNC, '..', failed conversion), handling Windows drive paths and /c/ paths."
 allowed-tools:
   - Bash
