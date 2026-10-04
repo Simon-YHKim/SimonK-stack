@@ -169,6 +169,8 @@ class SafetyRuntimeTests(unittest.TestCase):
         self.set_boundary()
         result = self.run_cli("clear", "--project", self.project, "--session", "session-A")
         self.assertEqual(result.returncode, 0, result.stderr)
+        # /unfreeze documents this line; the plugin path must print it like freeze-state.sh does.
+        self.assertIn("FREEZE_CLEARED", result.stdout)
         state = json.loads(self.state_file().read_text(encoding="utf-8"))
         self.assertEqual(set(state), {"project", "schema_version", "session", "status"})
         self.assertEqual(state["status"], "inactive")
