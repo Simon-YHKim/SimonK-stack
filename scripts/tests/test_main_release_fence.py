@@ -2,7 +2,8 @@
 
 D-82 follow-up 1 moved only dist publishing to its own gate
 (distribution/dist-publish.allow, tested in test_dist_release.py); the hold
-below still fences SessionStart and release.yml, and the catalog stays legacy.
+below still fences SessionStart and release.yml. Since D-82's last step the
+catalog serves the five dist plugins instead of the legacy pinned root plugin.
 """
 
 import json
@@ -69,18 +70,28 @@ class MainReleaseFenceTests(unittest.TestCase):
                     self.assertIn("source-only release hold", result.stdout)
                     self.assertEqual(list(home.iterdir()), [])
 
-    def test_marketplace_legacy_plugin_is_pinned_to_previous_main(self):
+    def test_marketplace_serves_the_five_dist_plugins(self):
+        # D-82 last step: the catalog switched from the legacy root plugin (pinned at
+        # 313c04b8) to the five dist plugins, after the HTTPS install, migration, update,
+        # rollback and late-build checks (hub D-84). No sha and no version: each dist
+        # publish reaches users through the plugin's own release version.
         data = json.loads(MARKETPLACE.read_text(encoding="utf-8"))
-        # Legacy only: the five-plugin catalog switch is D-82's last step.
-        self.assertEqual([item["name"] for item in data["plugins"]], ["simonk-stack"])
-        entry = next(item for item in data["plugins"]
-                     if item["name"] == "simonk-stack")
-        self.assertEqual(entry["source"], {
-            "source": "github",
-            "repo": "Simon-YHKim/SimonK-stack",
-            "ref": "main",
-            "sha": STABLE_SHA,
-        })
+        self.assertEqual(data["name"], "simonk-stack")
+        self.assertNotIn("version", data)
+        expected = {"simonk-core": "SimonKCore", "simonk-stack": "SimonKStack",
+                    "simonk-aihub": "SimonKAIHub", "simonk-design": "SimonKDesign",
+                    "simonk-market": "SimonKMarket"}
+        self.assertEqual([item["name"] for item in data["plugins"]], list(expected))
+        for item in data["plugins"]:
+            with self.subTest(plugin=item["name"]):
+                self.assertNotIn("version", item)
+                self.assertEqual(item["source"], {
+                    "source": "git-subdir",
+                    "url": "https://github.com/Simon-YHKim/SimonK-stack.git",
+                    "path": f"plugins/{expected[item['name']]}",
+                    "ref": "dist",
+                })
+        self.assertNotIn(STABLE_SHA, MARKETPLACE.read_text(encoding="utf-8"))
 
     def test_hold_fences_session_start_and_release_but_not_dist_publish(self):
         self.assertTrue(HOLD.is_file(), "Candidate must carry an explicit release hold")

@@ -929,17 +929,30 @@ version 칸을 비운 값으로 셉니다. version만 다른 두 빌드는 같�
    트리를 받기 전에 실패합니다. 지금은 이 파일이 없습니다(`test_dist_release`가 확인).
 
 **D-33 hold는 더 이상 게시를 막지 않습니다.** `distribution/main-source-only.hold`는 그대로
-남아 아래 둘을 계속 막고, 카탈로그는 레거시 그대로입니다. 그래서 dist를 게시해도 카탈로그를
-바꾸기 전에는 일반 설치 경로가 바뀌지 않습니다.
+남아 아래 둘을 계속 막습니다. 카탈로그는 2026-10-05 D-82 마지막 단계에서 다섯 `dist` 플러그인으로
+전환했습니다(아래 "카탈로그 전환" 참고).
 
 | hold를 읽는 곳 | 막는 것 |
 | --- | --- |
 | `.claude/hooks/session-start.sh` | SessionStart 부트스트랩 전체(Gstack 설치, 레포 스킬의 `~/.claude` 복사, instincts 시드, CLAUDE.md 생성)와 업데이트 확인 |
 | `.github/workflows/release.yml` | main push마다 만들던 태그와 GitHub Release |
 
-카탈로그 고정(`.claude-plugin/marketplace.json`의 `simonk-stack` 한 항목, `313c04b` pin)은
-hold 파일이 아니라 `test_main_release_fence`가 지킵니다. 이 테스트는 hold를 읽는 곳이 위 두
-파일뿐인지도 확인합니다.
+**카탈로그 전환(2026-10-05, D-82 마지막 단계).** `.claude-plugin/marketplace.json`은 이제 레거시
+`simonk-stack` 한 항목(`313c04b` pin)이 아니라 다섯 항목입니다. 각 항목은 `git-subdir`, url
+`https://github.com/Simon-YHKim/SimonK-stack.git`, path `plugins/<Owner>`, ref `dist`이고, sha와
+version은 넣지 않습니다. 이 파일은 HTTPS 검증에 쓴 임시 카탈로그와 바이트가 같습니다(sha256
+`24d58b0f3347…`). 전환 전에 실제 GitHub `dist`로 다음을 확인했습니다(허브 D-82·D-84).
+
+- 깨끗한 설치: 1.765.0, 767/767 바이트 일치
+- 레거시 0.1.0 이전: 사라진 스킬 0
+- 원격 설치본 세션 스모크
+- 내용 변경 업데이트: 1.765.0 → 1.766.0
+- 고버전 재출하 롤백: 1.766.0 → 1.767.0, 내용이 1.765.0과 같음
+- 다시 적용: 1.768.0
+- 실제 게시 경로의 늦은 옛 빌드: 내용이 다르면 `not-newer-than-dist`로 거부, 같으면 skip
+
+`test_main_release_fence`가 이 다섯 항목 형태를 지키고, hold를 읽는 곳이 위 두 파일뿐인지도
+확인합니다. 운영 규칙은 그대로입니다. **main의 카탈로그 커밋은 되돌리지 않습니다.**
 
 승인 기록 형식(JSON, 다섯 키만 허용):
 
