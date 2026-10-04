@@ -225,18 +225,15 @@ class Adapter:
         validate_plan(plan, now)
         billing, quota = route["billing"], route["quota"]
         model, effort = route.get("resolved_model") or route["model"], route["requested_effort"]
+        # D-74: included usage decides; on-demand, prepaid and overage settings never block.
         require(billing.get("mode") == "subscription" and billing.get("verified") is True
-                and billing.get("extra_usage_enabled") is False
                 and billing.get("api_fallback_disabled") is True
-                and billing.get("paid_credit_fallback_disabled") is True
                 and billing.get("model_included") is True
                 and billing.get("included_model") == model
                 and quota.get("surface") == "grok" and quota.get("transport") == "cli"
                 and quota.get("account_ref") == binding["account_ref"]
                 and quota.get("state") == "observed"
-                and type(quota.get("used_pct")) in (int, float)
-                and 0 <= quota["used_pct"] < 100
-                and orchestrate.fresh(quota.get("observed_at"), now),
+                and orchestrate.included_usage_open(quota, now),
                 "GROK_SUBSCRIPTION_ROUTE_UNVERIFIED")
         require(isinstance(certificate, dict) and certificate.get("verified") is True
                 and certificate.get("subscription_only") is True, "GROK_CERTIFICATE_REQUIRED")
@@ -267,9 +264,6 @@ class Adapter:
                 and observed.get("account_ref") == binding["account_ref"]
                 and observed.get("profile_ref") == binding["profile_ref"]
                 and fresh_billing.get("mode") == "subscription"
-                and fresh_billing.get("extra_usage_enabled") is False
-                and fresh_billing.get("on_demand_cap") in ("0", "0.0")
-                and fresh_billing.get("prepaid_balance") in ("0", "0.0")
                 and any(item.get("model") == model for item in observed.get("models", [])),
                 "GROK_AUTH_OR_COST_CHANGED")
         return binding, env, inputs, inputs_sha256

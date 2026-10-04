@@ -304,10 +304,35 @@ class OrchestrationTests(unittest.TestCase):
             p = self.plan(candidates=[candidate(**changes)])
             self.assertEqual(p["status"], "blocked")
 
-    def test_quota_exhaustion_and_unverified_overage_are_blocked(self):
+    def test_quota_exhaustion_and_unverified_inclusion_are_blocked(self):
         for changes in ({"quota": {"used_pct": 100, "observed_at": NOW}},
                         {"billing": {"mode": "subscription", "verified": True}}):
             self.assertEqual(self.plan(candidates=[candidate(**changes)])["status"], "blocked")
+
+    def test_included_usage_ceiling_blocks_subscription_routes(self):
+        # D-74: usage at or above the ceiling stops the route before purchased credits could be drawn.
+        for surface in ("codex", "claude"):
+            for used, status in ((84, "ready"), (85, "blocked"), (99, "blocked")):
+                with self.subTest(surface=surface, used=used):
+                    c = candidate(surface=surface)
+                    c["quota"]["used_pct"] = used
+                    plan = self.plan(candidates=[c])
+                    self.assertEqual(plan["status"], status)
+                    if status == "blocked":
+                        self.assertIn("INCLUDED_USAGE_CEILING", str(plan))
+
+    def test_reached_rate_limit_or_spend_control_blocks_even_with_low_usage(self):
+        for change in ({"rate_limit_reached_type": "primary"},
+                       {"spend_control_reached": True},
+                       {"buckets": {"codex": {"rate_limit_reached_type": "secondary"}}},
+                       {"buckets": {"codex": {"spend_control_reached": True}}}):
+            with self.subTest(change=change):
+                billing = dict(candidate()["billing"], **change)
+                plan = self.plan(candidates=[candidate(billing=billing)])
+                self.assertEqual(plan["status"], "blocked")
+                self.assertIn("USAGE_LIMIT_REACHED", str(plan))
+        billing = dict(candidate()["billing"], spend_control_reached=False, rate_limit_reached_type=None)
+        self.assertEqual(self.plan(candidates=[candidate(billing=billing)])["status"], "ready")
 
     def test_subscription_needs_model_inclusion_and_no_api_fallback(self):
         for billing_change, reason in (({"model_included": None}, "MODEL_INCLUSION_UNVERIFIED"),
@@ -320,53 +345,46 @@ class OrchestrationTests(unittest.TestCase):
                 self.assertEqual(plan["status"], "blocked")
                 self.assertIn(reason, str(plan))
 
-    def test_codex_and_grok_subscription_must_exclude_purchased_credit_fallback(self):
-        for surface in ("codex", "grok"):
-            for value in (None, False):
-                with self.subTest(surface=surface, value=value):
-                    billing = dict(candidate(surface=surface)["billing"])
-                    if value is None:
+    def test_credit_fallback_and_overage_settings_never_block_while_usage_remains(self):
+        # D-74: Simon 2026-10-04, every vendor. Credit/overage fields are information only.
+        for surface in ("codex", "claude"):
+            for change in ({"paid_credit_fallback_disabled": None},
+                           {"paid_credit_fallback_disabled": False},
+                           {"extra_usage_enabled": None},
+                           {"extra_usage_enabled": True}):
+                with self.subTest(surface=surface, change=change):
+                    billing = dict(candidate(surface=surface)["billing"], **change)
+                    if change.get("paid_credit_fallback_disabled", 0) is None:
                         billing.pop("paid_credit_fallback_disabled")
-                    else:
-                        billing["paid_credit_fallback_disabled"] = value
                     plan = self.plan(candidates=[candidate(surface=surface, billing=billing)])
-                    self.assertEqual(plan["status"], "blocked")
-                    self.assertIn("PAID_CREDIT_FALLBACK_UNVERIFIED", str(plan))
+                    self.assertEqual(plan["status"], "ready", plan["errors"])
+                    self.assertNotIn("PAID_CREDIT", str(plan))
+                    self.assertNotIn("OVERAGE_UNVERIFIED", str(plan))
 
-    def test_codex_positive_or_unknown_purchased_credits_block_claimed_zero_spend(self):
+    def test_codex_purchased_credit_balance_never_blocks_while_usage_remains(self):
         missing = dict(candidate()["billing"])
         missing.pop("credits")
-        for buckets in ({}, {"codex": {}}, {"codex": {"credits": {
-                "has_credits": False, "unlimited": False, "balance": "0"}}}):
-            with self.subTest(buckets=buckets):
-                billing = dict(missing, buckets=buckets)
-                plan = self.plan(candidates=[candidate(billing=billing)])
-                self.assertEqual(plan["status"], "blocked")
-                self.assertIn("PAID_CREDIT_EXPOSURE", str(plan))
-        billing = dict(candidate()["billing"], buckets={"codex": {}})
-        plan = self.plan(candidates=[candidate(billing=billing)])
-        self.assertEqual(plan["status"], "blocked")
-        self.assertIn("PAID_CREDIT_EXPOSURE", str(plan))
+        variants = [dict(missing), dict(missing, buckets={}), dict(missing, buckets={"codex": {}})]
         for credits in (None,
-                        {"has_credits": True, "balance": "3.25"},
+                        {"has_credits": True, "balance": "50727.59"},
                         {"has_credits": True, "balance": None},
-                        {"has_credits": True, "unlimited": False, "balance": "0"},
-                        {"has_credits": False, "unlimited": False, "balance": None},
-                        {"has_credits": None, "unlimited": False, "balance": "0"},
-                        {"has_credits": False, "balance": "3.25"}):
-            with self.subTest(credits=credits):
-                billing = dict(candidate()["billing"], credits=credits)
+                        {"has_credits": True, "unlimited": True, "balance": "0"},
+                        {"has_credits": None, "unlimited": False, "balance": "0"}):
+            variants.append(dict(candidate()["billing"], credits=credits))
+        variants.append(dict(candidate()["billing"], buckets={"codex": {
+            "credits": {"has_credits": True, "balance": "3.25"}}}))
+        for billing in variants:
+            with self.subTest(billing=billing):
                 plan = self.plan(candidates=[candidate(billing=billing)])
-                self.assertEqual(plan["status"], "blocked")
-                self.assertIn("PAID_CREDIT_EXPOSURE", str(plan))
-        billing = dict(candidate()["billing"], buckets={"codex": {
-            "credits": {"has_credits": True, "balance": "3.25"}}})
-        plan = self.plan(candidates=[candidate(billing=billing)])
+                self.assertEqual(plan["status"], "ready", plan["errors"])
+                self.assertEqual(plan["steps"][0]["route"]["reserved_upper_usd"], 0.0)
+        # The same balance with included usage at the ceiling is blocked by usage, not by credits.
+        c = candidate(billing=dict(candidate()["billing"], credits={"has_credits": True, "balance": "3.25"}))
+        c["quota"]["used_pct"] = 90
+        plan = self.plan(candidates=[c])
         self.assertEqual(plan["status"], "blocked")
-        self.assertIn("PAID_CREDIT_EXPOSURE", str(plan))
-        billing = dict(candidate()["billing"], credits={
-            "has_credits": False, "unlimited": False, "balance": "0"})
-        self.assertEqual(self.plan(candidates=[candidate(billing=billing)])["status"], "ready")
+        self.assertIn("INCLUDED_USAGE_CEILING", str(plan))
+        self.assertNotIn("PAID_CREDIT", str(plan))
 
     def test_claude_uses_separate_usage_credits_toggle(self):
         billing = dict(candidate(surface="claude")["billing"])
@@ -947,12 +965,17 @@ class OrchestrationTests(unittest.TestCase):
         billing = dict(self.bot()["billing"], model_included=None)
         self.assertEqual(self.plan([self.gui()], [self.bot(billing=billing)])["status"], "ready")
 
-    def test_bot_purchased_credit_fallback_must_be_excluded(self):
+    def test_bot_credit_fallback_proof_is_not_required_while_usage_remains(self):
         billing = dict(self.bot()["billing"])
         billing.pop("paid_credit_fallback_disabled")
+        billing["extra_usage_enabled"] = None
         p = self.plan([self.gui()], [self.bot(billing=billing)])
+        self.assertEqual(p["status"], "ready", p["errors"])
+        self.assertNotIn("PAID_CREDIT", str(p))
+        quota = dict(self.bot()["quota"], used_pct=85)
+        p = self.plan([self.gui()], [self.bot(billing=billing, quota=quota)])
         self.assertEqual(p["status"], "blocked")
-        self.assertIn("PAID_CREDIT_FALLBACK_UNVERIFIED", str(p))
+        self.assertIn("INCLUDED_USAGE_CEILING", str(p))
 
     def test_xai_quota_must_match_exact_surface_transport_and_account(self):
         # A synthetic host route isolates quota binding from the unavailable CLI adapter.
@@ -1306,13 +1329,13 @@ class OrchestrationTests(unittest.TestCase):
         self.assertEqual(p["status"], "blocked")
         self.assertIn("EXECUTION_ADAPTER_UNAVAILABLE", str(p))
 
-    def test_antigravity_host_requires_credit_and_exact_quota_evidence(self):
+    def test_antigravity_host_requires_exact_quota_evidence_not_credit_proof(self):
         good = candidate(surface="antigravity", transport="host", effective_effort="low")
         good["quota"]["transport"] = "host"
         billing = dict(good["billing"])
         billing.pop("paid_credit_fallback_disabled")
         p = self.plan([step(surface="antigravity")], [dict(good, billing=billing)])
-        self.assertIn("PAID_CREDIT_FALLBACK_UNVERIFIED", str(p))
+        self.assertNotIn("PAID_CREDIT", str(p))
         wrong_quota = dict(good["quota"], account_ref="other-account")
         p = self.plan([step(surface="antigravity")], [dict(good, quota=wrong_quota)])
         self.assertIn("QUOTA_BINDING_UNVERIFIED", str(p))
@@ -1377,17 +1400,18 @@ class OrchestrationTests(unittest.TestCase):
 
         for legacy, new in pairs:
             with self.subTest(legacy=legacy[1], new=new[1]):
-                # No model-inclusion or extra-usage-off evidence: rejected before any route exists.
+                # No model-inclusion evidence: rejected before any route exists. An unknown
+                # overage setting is information only (D-74) and adds no reason.
                 drop = ("model_included", "included_model", "extra_usage_enabled")
                 got = reasons(orca_plan(*new, drop=drop, quota_checked_vendors=all_vendors))
                 self.assertIn("MODEL_INCLUSION_UNVERIFIED", got)
-                self.assertIn("OVERAGE_UNVERIFIED", got)
+                self.assertNotIn("OVERAGE_UNVERIFIED", got)
                 self.assertEqual(got, reasons(orca_plan(*legacy, drop=drop, quota_checked_vendors=all_vendors)))
                 # Inclusion recorded for a different model (e.g. the predecessor) does not carry over.
                 other = {"included_model": legacy[1]}
                 self.assertIn("MODEL_INCLUSION_UNVERIFIED",
                               reasons(orca_plan(*new, other, quota_checked_vendors=all_vendors)))
-                for changes in ({"extra_usage_enabled": True}, {"api_fallback_disabled": None}):
+                for changes in ({"api_fallback_disabled": None}, {"spend_control_reached": True}):
                     self.assertEqual(reasons(orca_plan(*new, changes, quota_checked_vendors=all_vendors)),
                                      reasons(orca_plan(*legacy, changes, quota_checked_vendors=all_vendors)))
                 # Complete fixture billing but no quota evidence: still blocked by the Orca G5 gate.
@@ -1720,7 +1744,7 @@ class OrchestrationTests(unittest.TestCase):
                          effective_effort="high")
         policy = self.task_fit_fixture()
         quota_heavy = copy.deepcopy(opus)
-        quota_heavy["quota"]["used_pct"] = 90
+        quota_heavy["quota"]["used_pct"] = 84  # High pressure (>80) but under the D-74 ceiling.
         p = self.plan([self.typed("PLAN_ARCHITECTURE")], [generic, quota_heavy],
                       task_fit_policy=policy)
         self.assertEqual(p["steps"][0]["shadow_task_fit"]["status"], "unranked-wins")
@@ -1776,7 +1800,17 @@ class OrchestrationTests(unittest.TestCase):
         self.assertEqual(older_plan["steps"][0]["route"]["valid_until"],
                          (datetime.fromisoformat(NOW) + timedelta(minutes=5)).isoformat())
         for billing_change in ({"paid_credit_fallback_disabled": False},
-                               {"provider_hard_cap_enforced": False},
+                               {"extra_usage_enabled": True}):
+            with self.subTest(informational=billing_change):  # D-74: not a gate.
+                info = copy.deepcopy(tool)
+                info["billing"].update(billing_change)
+                self.assertEqual(self.plan([image], image_tools=[info], host_ref="fixture-host",
+                                           interaction_ref="fixture-interaction")["status"], "ready")
+        ceiling = copy.deepcopy(tool)
+        ceiling["quota"]["used_pct"] = 85
+        self.assertEqual(self.plan([image], image_tools=[ceiling], host_ref="fixture-host",
+                                   interaction_ref="fixture-interaction")["status"], "blocked")
+        for billing_change in ({"provider_hard_cap_enforced": False},
                                {"provider_hard_cap_usd": 1},
                                {"observed_at": None},
                                {"observed_at": "2026-09-01T00:00:00+00:00"},

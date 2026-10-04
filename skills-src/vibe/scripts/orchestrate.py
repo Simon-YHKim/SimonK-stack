@@ -83,32 +83,30 @@ def money(value):
     return amount
 
 
-def codex_paid_credit_risk(billing):
-    """Reject observed spendable or unresolved credits, including named buckets."""
-    if not isinstance(billing, dict) or "credits" not in billing:
-        return True
-    buckets = billing.get("buckets", {})
-    if not isinstance(buckets, dict):
-        return True
-    if any(not isinstance(item, dict) or "credits" not in item
-           for item in buckets.values()):
-        return True
-    for item in (billing, *buckets.values()):
-        credits = item["credits"]
-        if (not isinstance(credits, dict)
-                or type(credits.get("has_credits")) is not bool
-                or type(credits.get("unlimited")) is not bool
-                or credits["has_credits"] or credits["unlimited"]):
-            return True
-        balance = credits.get("balance")
-        if balance is None:
-            return True
-        try:
-            if money(balance) != 0:
-                return True
-        except ValueError:
-            return True
-    return False
+# D-74 (Simon, 2026-10-04), every vendor: a subscription route is judged by its
+# included usage. Purchased-credit balances, overage/on-demand settings and the
+# lack of a "credit fallback off" proof never block a route or prompt the user
+# while included usage remains. The route stops at this ceiling instead, before
+# included usage runs out and a provider could draw existing purchased credits.
+INCLUDED_USAGE_CEILING_PCT = 85
+
+
+def usage_limit_reached(billing):
+    """True when the provider reports a reached rate limit or spend control."""
+    if not isinstance(billing, dict):
+        return False
+    buckets = billing.get("buckets")
+    items = (billing, *(buckets.values() if isinstance(buckets, dict) else ()))
+    return any(isinstance(item, dict) and (item.get("spend_control_reached") is True
+                                           or bool(item.get("rate_limit_reached_type")))
+               for item in items)
+
+
+def included_usage_open(quota, now):
+    """Fresh numeric usage below the ceiling; unknown or stale usage is not open."""
+    used = quota.get("used_pct") if isinstance(quota, dict) else None
+    return (type(used) in (int, float) and 0 <= used < INCLUDED_USAGE_CEILING_PCT
+            and fresh(quota.get("observed_at"), now))
 
 
 def instant(value):
@@ -900,9 +898,8 @@ def assess_candidate(c, step, policy, now, producer_vendor=None, debate=None):
     if billing.get("verified") is not True:
         errors.append("BILLING_UNVERIFIED")
     elif billing.get("mode") == "subscription":
+        # Credit and overage fields are informational here (D-74); usage gates below.
         included_key = "bot_usage_included" if surface == "grok-bot" else "model_included"
-        if billing.get("extra_usage_enabled") is not False:
-            errors.append("OVERAGE_UNVERIFIED")
         included = billing.get(included_key) is True
         if surface != "grok-bot":
             included = included and billing.get("included_model") == (c.get("resolved_model") or c.get("model"))
@@ -911,19 +908,10 @@ def assess_candidate(c, step, policy, now, producer_vendor=None, debate=None):
                           else "MODEL_INCLUSION_UNVERIFIED")
         if billing.get("api_fallback_disabled") is not True:
             errors.append("API_FALLBACK_UNVERIFIED")
-        paid_credit_risk = surface == "codex" and codex_paid_credit_risk(billing)
-        if paid_credit_risk:
-            errors.append("PAID_CREDIT_EXPOSURE")
-        credit_fallback_safe = (surface not in {"codex", "antigravity", "grok", "grok-bot"}
-                                or (billing.get("paid_credit_fallback_disabled") is True
-                                    and not paid_credit_risk))
-        if not credit_fallback_safe:
-            errors.append("PAID_CREDIT_FALLBACK_UNVERIFIED")
-        if (billing.get("extra_usage_enabled") is False
-                and included
-                and billing.get("api_fallback_disabled") is True
-                and credit_fallback_safe):
-            upper = Decimal(0)  # Incremental bill only; subscription usage is separate.
+        if usage_limit_reached(billing):
+            errors.append("USAGE_LIMIT_REACHED")
+        if included and billing.get("api_fallback_disabled") is True:
+            upper = Decimal(0)  # Incremental bill only; included usage is checked below.
     elif billing.get("mode") in ("api", "metered"):
         if money(policy["approved_usd"]) == 0:
             errors.append("SUBSCRIPTION_ONLY")
@@ -947,6 +935,8 @@ def assess_candidate(c, step, policy, now, producer_vendor=None, debate=None):
         errors.append("QUOTA_UNKNOWN")
     elif used >= 100:
         errors.append("QUOTA_EXHAUSTED")
+    elif billing.get("mode") == "subscription" and used >= INCLUDED_USAGE_CEILING_PCT:
+        errors.append("INCLUDED_USAGE_CEILING")
     if not fresh(quota.get("observed_at"), now):
         errors.append("QUOTA_STALE")
     reserved = upper * policy["max_attempts"] if upper is not None else None
@@ -986,9 +976,7 @@ def assess_image_tool(tool, runtime, step, now):
             or not isinstance(billing.get("account_ref"), str)
             or not billing["account_ref"].strip()
             or billing.get("image_included") is not True
-            or billing.get("extra_usage_enabled") is not False
             or billing.get("api_fallback_disabled") is not True
-            or billing.get("paid_credit_fallback_disabled") is not True
             or billing.get("provider_hard_cap_enforced") is not True
             or type(billing.get("provider_hard_cap_usd")) not in (int, float)
             or billing["provider_hard_cap_usd"] != 0
@@ -998,7 +986,8 @@ def assess_image_tool(tool, runtime, step, now):
     quota = tool.get("quota", {})
     used = quota.get("used_pct") if isinstance(quota, dict) else None
     if (isinstance(used, bool) or not isinstance(used, (int, float))
-            or not 0 <= used < 100 or not isinstance(billing, dict) or not quota.get("bucket")
+            or not 0 <= used < INCLUDED_USAGE_CEILING_PCT
+            or not isinstance(billing, dict) or not quota.get("bucket")
             or not fresh(quota.get("observed_at"), now)
             or quota.get("account_ref") != billing.get("account_ref")
             or quota.get("surface") != tool.get("surface")

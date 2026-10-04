@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.15.0 - 2026-10-04
+
+- D-74(Simon 결정): 모든 벤더(Claude·Codex·Grok·Antigravity·Grok Bot)를 포함 사용량으로만 판단한다.
+  막는 조건은 사용량 근거 없음·오래됨·85% 이상(`INCLUDED_USAGE_CEILING`), rate limit·spend control
+  도달(`USAGE_LIMIT_REACHED`, 최상위·이름 붙은 버킷 모두), API 폴백 미차단, 모델 미포함이다.
+- 크레딧 잔액·`has_credits`/`unlimited`·초과 사용(`extra_usage_enabled`)·Grok `on_demand_cap`/`prepaid_balance`·
+  `paid_credit_fallback_disabled` 증거 부재는 더 이상 경로를 막거나 사용자에게 되묻는 사유가 아니다.
+  계획에는 정보로만 남는다. `PAID_CREDIT_EXPOSURE`·`PAID_CREDIT_FALLBACK_UNVERIFIED`·`OVERAGE_UNVERIFIED`·
+  `CODEX_PAID_CREDIT_EXPOSURE` 판정을 없앴다.
+- Codex·Grok·일반 CLI 실행 어댑터도 같은 기준이다. Codex 어댑터는 실행 직전 계정 재관측에서
+  rate limit·spend control 도달을 확인한다(`CODEX_USAGE_LIMIT_REACHED`).
+- 포함 사용량을 다 쓰면 기존 구매 크레딧이 빠질 수 있으므로 85% 상한이 그 보호다. 이미지 경로의
+  제공자 USD 0 하드캡은 원자적 어댑터 계약이라 유지했다.
+- ai-debate는 이미 같은 규칙이라 바꾸지 않았다(좌석 크레딧은 사유 문구에만, 기준 95%).
+
 ## 2.14.2 - 2026-10-04
 
 - D-67 읽기 전용 Orca canary 결과를 반영했다. 2026-10-04 13:19~13:27 KST 에 Orca 1.4.218 로

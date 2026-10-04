@@ -365,14 +365,13 @@ class Adapter:
         validate_plan(plan, now)
         billing, quota = route["billing"], route["quota"]
         model = route.get("resolved_model") or route["model"]
+        # D-74: included usage decides; overage settings never block.
         require(billing["mode"] == "subscription" and billing["verified"] is True
-                and billing.get("extra_usage_enabled") is False
                 and billing.get("api_fallback_disabled") is True
                 and billing.get("model_included") is True
                 and billing.get("included_model") == model
-                and type(quota.get("used_pct")) in (int, float)
-                and 0 <= quota["used_pct"] < 100
-                and orchestrate.fresh(quota.get("observed_at"), now),
+                and orchestrate.included_usage_open(quota, now)
+                and not orchestrate.usage_limit_reached(billing),
                 "SUBSCRIPTION_ROUTE_UNVERIFIED")
         require(isinstance(certificate, dict) and certificate.get("verified") is True
                 and certificate.get("subscription_only") is True, "CLI_CERTIFICATE_REQUIRED")
