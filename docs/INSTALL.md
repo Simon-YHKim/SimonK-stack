@@ -47,6 +47,14 @@ pwsh -NoProfile -NonInteractive -File scripts/windows/update-local.ps1 -Apply
 - 새 PC 첫 설치: 정션 자리가 비어 있으면 정션을 만들고, 실폴더가 있으면 보관한 뒤 정션을 만든다. Codex config에 `/vibe` 줄이 없으면 블록을 덧붙인다. 플러그인 핀 폴더는 레포에 없으니 `-PluginPins`로 넘긴다. 이 경로는 임시 홈 테스트로만 확인했다.
 - 테스트: `python -B -m unittest discover -s scripts/tests -p test_windows_update_local.py`. 임시 홈만 쓴다.
 
+## 2026-10-04 19:3x 후보 `20261004-vibe-2151-396aeae` — D-77·D-78 설치
+
+- **D-77**(18:0x): 레포 `update-local.ps1`을 처음 실사용했다. main 77a28c2(vibe 2.15.0)로 후보 `20261004-vibe-2150-77a28c2`를 만들고 정션 8개를 전환했다. 사후 검증 단계가 하네스 메모리 회수로 끊겨, selftest(188/0·97/0)를 수동으로 돌렸고 다른 세션도 따로 확인했다.
+- **D-78**(19:3x): main 396aeae(#120~#122)로 설치했다. 단계별로 포그라운드에서 실행했다.
+  - 순서: `build-candidate.ps1 -Apply` → `install-junctions.ps1 -OldTag 20261004-vibe-2150-77a28c2 -Apply` → `install-physical.ps1 -Skills ai-debate,careful,freeze,guard -Apply`
+  - 이전본: `~/.claude/flat-link-archive/vibe-20261004-vibe-2151-396aeae/`, `*-261004-d78/`
+  - 결과: `update-local.ps1 -Selftest` 미리보기에서 `status: current`, problems 0.
+
 ## 2026-10-04 14:3x `/vibe` 2.14.2 · `freeze` 0.2.2 — D-71 설치
 
 main `f6ec9c5`에서 조립한 후보를 설치했다. 반영된 PR은 셋이다.

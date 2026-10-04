@@ -1,6 +1,32 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-04 / 지침 v8.1.2: claude.ai 일반 대화·Cowork 통합
+## Latest — 2026-10-04 / 권장안 기본 실행(D-73) · 배포 경로 결정(D-76) · 1~3단계 이행 · main 396aeae 설치
+
+갱신 시각: 2026-10-04 19:4x KST · 갱신자: Claude Code(Opus 5.5). Simon: "권장하는 안건을 모두 반영해. 앞으로 변동사항이 있으면 권장하는 바가 항상 실행되게 하고, 바로 사용할수 있는 상태로 업데이트 하게 하자."
+
+### 어디까지 왔나
+- **규칙(D-73, 허브 PROTOCOL §35.9)**: 권장안은 되묻지 않고 실행한다. 완료는 PR → CI 녹색 → 머지 → 이 PC 설치 → GitHub 배포 경로 갱신 → 기록까지다. 루트 CLAUDE/AGENTS/GEMINI §10을 같은 뜻으로 맞췄다.
+- **설치 파이프라인 레포화**(PR #120): `pwsh -NoProfile -NonInteractive -File scripts/windows/update-local.ps1 [-Apply] [-Selftest]`. 기본은 미리보기다. 후보 입력과 설치 바이트로 최신 여부를 판정하고, 실패하면 되돌린다. 메모리가 부족하면(<3GB) 시작하지 않는다.
+  - 메모리 회수 대응: 전체 실행이 10분을 넘으면 백그라운드에서 끊길 수 있다. 그럴 때는 `build-candidate.ps1` → `install-junctions.ps1` → `install-physical.ps1`을 단계별로 포그라운드에서 돌리고, 끝에 미리보기로 `status: current`를 확인한다.
+- **오래된 PR #57·#54·#49**: 모두 대체됐다. 근거를 달아 닫았다(D-75). 열린 PR은 0이다.
+- **vibe 2.15.0**(다른 세션 D-74): 포함 사용량으로만 판정하고 85%에서 막는다. 크레딧 잔액은 판정에 쓰지 않는다. 설치는 D-77, 두 세션이 함께 확인했다.
+- **GitHub 배포 경로(D-76, full 4/4, 심판 Codex 85)**: 검증된 5플러그인 빌드를 `dist`로 배포한다. 실제 설치·업데이트·롤백을 증명하기 전까지는 D-33 펜스를 유지한다.
+  - 1단계(PR #122): 경로 감사 5건을 소스에서 고치고, 절대경로 게이트를 넣었다. 예외 4곳은 `scripts/shipped_path_exceptions.json`에 문서화했다.
+  - 2·3단계(PR #121): 릴리스 버전을 `1.<main 커밋 수>.0`으로 정했다. 콘텐츠 digest는 `bundle.json`에 따로 남긴다. `five-plugin-dist.yml`이 main에 push될 때마다 Windows에서 재빌드·검증한다(약 2.5분). 게시 job은 `vars.SIMONK_DIST_PUBLISH`가 없어서 꺼져 있다. 경로 감사는 상태로 판정하고, external_runtime_pending은 통과시킨다.
+- **이 PC 설치(D-78)**: 후보 `20261004-vibe-2151-396aeae`. 설치된 버전은 vibe 2.15.1, vibe-bot 0.9.7, ai-debate 0.2.6, careful 0.2.4, freeze 0.2.3, guard 0.2.2다. update-local 미리보기 결과는 `current`, problems 0이다.
+
+### 다음 작업 큐
+| # | 작업 | 크기 | 단 |
+|---|---|---|---|
+| A | D-76 4단계 호스트 증거. 깨끗한 설치, 레거시 68→Stack 60 이전, 5플러그인 설치·충돌, 업데이트 감지, 이전 콘텐츠를 더 높은 버전으로 재출하해 롤백, 비Windows 안내·복구, dist `.gitattributes` 준수를 확인한다. 격리된 Claude Code 호스트(별도 설정 디렉터리)가 필요하다 | 큼 | 2단 |
+| B | D-76 5단계: 별도 릴리스 승인 → `marketplace.json` 전환, D-33 펜스·hold 교체, `SIMONK_DIST_PUBLISH` 설정, 첫 dist 게시 | 중간 | 3단 |
+| C | 플러그인 pin을 기능 브랜치에서 태그로 고정. SimonKCore `semantic_index.py` 절대경로를 고치고 pin을 상향 | 작음 | 1단 |
+| D | `docs/INSTALL.md` 기간 분할(약 395KB, 400KB 직전) | 작음 | 1단 |
+| E | 레지스트리 재갱신, 2026-10-11 13:05 KST 전 | 중간 | 1단 |
+
+---
+
+## 2026-10-04 14:5x / 지침 v8.1.2: claude.ai 일반 대화·Cowork 통합
 
 갱신 시각: 2026-10-04 14:5x KST · 갱신자: Claude Code(Opus 5.5). Simon: "클로드 일반 대화와 코워크는 통합됐어. 지침을 통합/수정 진행해."
 
