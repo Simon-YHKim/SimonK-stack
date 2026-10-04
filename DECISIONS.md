@@ -587,3 +587,11 @@ last-sync: 2026-07-05
   - **근거**: D-73 §35.9 완료 정의(머지 뒤 이 PC 설치)를 승인된 설치 절차로 반복한다. PR #120(설치 파이프라인 레포화, CI 4/4)·#119(vibe 2.15.0, D-74, coding-infra-4b 세션이 정션을 이쪽에 맡김)가 main에 있다. 미리보기 판정은 vibe 아래 입력 9개 변경·정션 바이트 6/8 일치로 후보 20261004-vibe-2150-7bc8031 빌드 계획이었다. 이전본은 flat-link-archive로 보관하고, 실패하면 자동으로 되돌린다.
 
 - 2026-10-04 18:04:38 KST | AMEND | **D-77 main 77a28c2 이 PC 설치(vibe 2.15.0 포함) — 레포 update-local.ps1 첫 실사용** — 이행: 후보 20261004-vibe-2150-77a28c2(src 17:53, candidate 18:00)를 빌드했다. 정션 8개와 Codex config 줄이 새 후보를 가리킨다. 설치본 vibe 2.15.0, INCLUDED_USAGE_CEILING_PCT 있음, selftest vibe 188/0·vibe-bot 97/0. 단, update-local의 사후 검증·보고 단계는 하네스의 메모리 부족 회수(여유 약 3GB)로 중간에 끊겨 위 확인은 수동으로 했다. 스크립트는 재실행하지 않았다(재개는 Simon 지시가 있을 때만). coding-infra-4b 세션에 결과를 알렸다 | claude
+
+- 2026-10-04 19:35:16 KST | DECIDE | **D-78 D-76 1~3단계 이행과 main 396aeae 설치** (오케스트레이터 단독 · 35.8 1단) | claude
+  - **근거**: D-76(full, FINAL 4/4) 이행 세부와 승인된 설치 절차 반복.
+    - PR #122(1단계: 경로 감사 5건 소스 수정, 절대경로 게이트, 예외 4곳 문서화, CI 4/4).
+    - PR #121(2·3단계: 릴리스 버전 1.<커밋 수>.0, Windows 빌드·검증 워크플로, 게시 job은 꺼 둠). 경로 감사 게이트는 종료 코드가 아니라 상태로 판정하도록 고침. external_runtime_pending은 Gstack 외부 런타임 참조만 있다는 뜻이라 통과, incomplete·exit 2는 실패. 최종 CI build 2m34s를 포함해 모두 녹색.
+    - main 396aeae.
+    - 설치 미리보기: 후보 20261004-vibe-2151-396aeae, 정션 8개, 실폴더 ai-debate·careful·freeze·guard. 메모리 회수를 피하려고 단계별로 포그라운드에서 실행한다.
+  - **남은 D-76**: 4단계 호스트 증거, 5단계 별도 릴리스 승인과 첫 dist 게시.
