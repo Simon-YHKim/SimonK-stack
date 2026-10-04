@@ -3,6 +3,12 @@
 This uses Codex's supported PreToolUse deny result, not Claude's unsupported
 ask result. It is an accident-prevention aid, not a complete security boundary:
 the host can skip untrusted hooks and some tool paths do not emit this event.
+
+Careful leaf decisions (hub decision D-62 follow-up 5): `{}` allows; a leaf
+`deny` (careful 0.2.2 HIGH commands and its own hook failures) passes through
+with the leaf's reason; a leaf `ask` becomes a deny with a fixed Codex reason
+because Codex has no ask. Anything else, and every failure of this policy
+itself, is a deny with the policy's own reason.
 """
 
 from __future__ import annotations
@@ -66,7 +72,8 @@ def _strict_object(pairs):
     return result
 
 
-def _careful_asks(raw: bytes, event: HookInput, bash: Path, script: Path) -> bool:
+def _careful_leaf(raw: bytes, event: HookInput, bash: Path, script: Path) -> dict | None:
+    """Run the careful leaf; None for allow, else its validated hook output."""
     bash = Path(bash).resolve(strict=True)
     script = Path(script).resolve(strict=True)
     if not bash.is_file() or not script.is_file() or not Path(event.cwd).is_dir():
@@ -102,18 +109,20 @@ def _careful_asks(raw: bytes, event: HookInput, bash: Path, script: Path) -> boo
             encoded = output.read(64 * 1024 + 1)
     result = json.loads(encoded.decode("utf-8"), object_pairs_hook=_strict_object)
     if result == {}:
-        return False
+        return None
     if not isinstance(result, dict) or set(result) != {"hookSpecificOutput"}:
         raise ValueError("invalid safety leaf output")
     hook = result["hookSpecificOutput"]
+    # The careful leaf emits only ask or deny besides `{}`. Tuple membership
+    # compares with ==, so a non-string value is invalid output, not a TypeError.
     if (not isinstance(hook, dict)
             or set(hook) != {"hookEventName", "permissionDecision", "permissionDecisionReason"}
             or hook.get("hookEventName") != "PreToolUse"
-            or hook.get("permissionDecision") != "ask"
+            or hook.get("permissionDecision") not in ("ask", "deny")
             or not isinstance(hook.get("permissionDecisionReason"), str)
             or not hook["permissionDecisionReason"]):
         raise ValueError("invalid safety leaf decision")
-    return True
+    return hook
 
 
 def judge_pre_tool_use(raw: bytes, *, boundary: Path | None = None,
@@ -128,10 +137,15 @@ def judge_pre_tool_use(raw: bytes, *, boundary: Path | None = None,
             return _deny("[SimonK] Patch is outside the guarded edit boundary.")
         if bash is None or careful_script is None:
             return _deny("[SimonK] Command safety runtime is unavailable.")
-        if _careful_asks(raw, event, bash, careful_script):
-            return _deny("[SimonK] Destructive command blocked. Review and run outside "
-                         "this guarded session only if authorized.")
-        return {}
+        leaf = _careful_leaf(raw, event, bash, careful_script)
+        if leaf is None:
+            return {}
+        if leaf["permissionDecision"] == "deny":
+            # The leaf already blocked it; keep its reason (HIGH tier or its
+            # own hook failure) instead of reporting a failed safety check.
+            return _deny(leaf["permissionDecisionReason"])
+        return _deny("[SimonK] Destructive command blocked. Review and run outside "
+                     "this guarded session only if authorized.")
     except Exception:
         # A hook exception would otherwise be reported by Codex and the tool
         # could continue. A live host timeout/termination remains unproven.

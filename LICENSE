@@ -127,7 +127,12 @@ The plugin candidate's freeze/bin/safety_runtime.py (hub decision D-62
 follow-up 5) passes a leaf decision through unchanged with its reason: allow,
 careful ask, careful or freeze deny. Its own failures (no Git Bash, bad state,
 bad, oversized or out-of-contract leaf output, timeout) deny for both careful
-and freeze; it never downgrades a deny to ask.
+and freeze; it never downgrades a deny to ask. Every cygpath call and the leaf
+of one check share a single 20-second budget (freeze 0.2.2, chosen from
+2026-10-04 load measurements); running out of it is a deny whose reason names
+the timeout and says that retrying is safe. The offline Codex candidate
+scripts/codex_guarded_policy.py likewise passes a careful leaf deny through
+with its reason and turns a leaf ask into its own deny, since Codex has no ask.
 
 NOT a completed activation or installation: separated Core/Stack plugin sibling
 dependencies, plugin-specific state sharing with unfreeze, session ownership and

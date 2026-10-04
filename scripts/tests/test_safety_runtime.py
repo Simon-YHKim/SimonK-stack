@@ -11,10 +11,12 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 
 
@@ -31,6 +33,9 @@ BASH = Path(os.environ.get("ProgramFiles", "C:/Program Files")) / "Git/bin/bash.
 # falls back to ask).
 CAREFUL_RUNTIME_FAILURE = "[careful][RUNTIME FAILURE] Safety runtime failed, command not checked"
 FREEZE_RUNTIME_FAILURE = "[freeze] Safety runtime unavailable; blocked, fail closed."
+# A spent whole-check budget is its own deny reason: a timeout, safe to retry.
+CAREFUL_TIMEOUT = "[careful][RUNTIME TIMEOUT] Safety check did not finish within "
+FREEZE_TIMEOUT = "[freeze] Safety check timed out after "
 
 
 @unittest.skipUnless(os.name == "nt" and BASH.is_file(), "Windows Git Bash is required")
@@ -246,6 +251,56 @@ class SafetyRuntimeTests(unittest.TestCase):
                 got, result = self.check(policy, payload=payload)
                 self.assertEqual(got, "deny")
                 self.assertTrue(self.reason(result).startswith(expected), self.reason(result))
+
+    def shrink_budget(self, seconds: int) -> None:
+        """Lower the copied runtime's whole-check budget for a timeout test."""
+        path = self.runtime / "safety_runtime.py"
+        text, count = re.subn(r"(?m)^CHECK_TIMEOUT = \d+$", f"CHECK_TIMEOUT = {seconds}",
+                              path.read_text(encoding="utf-8"))
+        self.assertEqual(count, 1, "CHECK_TIMEOUT constant not found")
+        path.write_text(text, encoding="utf-8")
+
+    def test_leaf_timeout_denies_with_timeout_reason_within_budget(self):
+        # A leaf that never finishes (a busy loop inside Git Bash itself, so
+        # the kill leaves no descendant) is a timeout deny that says so and
+        # that retrying is safe; the check returns soon after the budget.
+        self.shrink_budget(1)
+        self.set_boundary()
+        for relative, policy, prefix in (
+            ("careful/bin/check-careful.sh", "careful", CAREFUL_TIMEOUT),
+            ("careful/bin/check-careful.sh", "careful-powershell", CAREFUL_TIMEOUT),
+            ("freeze/bin/check-freeze.sh", "freeze", FREEZE_TIMEOUT),
+        ):
+            with self.subTest(policy=policy):
+                (self.runtime / relative).write_text(
+                    "#!/usr/bin/env bash\nwhile :; do :; done\n", encoding="utf-8")
+                payload = (self.payload(file_path="src/new.py") if policy == "freeze"
+                           else self.payload(command="git status"))
+                started = time.monotonic()
+                decision, result = self.check(policy, payload=payload)
+                elapsed = time.monotonic() - started
+                self.assertEqual(decision, "deny")
+                self.assertTrue(self.reason(result).startswith(prefix + "1 s"),
+                                self.reason(result))
+                self.assertIn("retrying is safe", self.reason(result))
+                self.assertLess(elapsed, 10)
+
+    def test_spent_budget_times_out_before_starting_a_process(self):
+        from unittest.mock import patch
+        module = self.load_runtime_module()
+        with patch.object(module.subprocess, "run") as run:
+            with self.assertRaises(module.SafetyRuntimeTimeout):
+                module._cygpath(BASH.parent.parent / "usr/bin/cygpath.exe", "C:\\",
+                                time.monotonic() - 1)
+        run.assert_not_called()
+
+    def test_check_budget_stays_bounded(self):
+        # 2026-10-04 measurement: the slowest whole check took 14.7 s under six
+        # concurrent test suites. Far above 60 s a stuck check would stall every
+        # command, and past the host's hook limit the hook would fail open.
+        module = self.load_runtime_module()
+        self.assertGreaterEqual(module.CHECK_TIMEOUT, 15)
+        self.assertLessEqual(module.CHECK_TIMEOUT, 60)
 
     def test_careful_powershell_policy_runs_deny_only_powershell_leaf(self):
         # The payload carries no tool_name, so only the runtime's leaf argument
