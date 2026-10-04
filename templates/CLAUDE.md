@@ -119,7 +119,7 @@
 - 시크릿·API 키 하드코딩 **절대 금지**
 - 파괴적 명령 (`rm -rf`, `git reset --hard`, `git push --force`, `DROP TABLE`, `--no-verify`) 사용자 confirm 필수
 - `.env` 생성 시 `.gitignore` 에 포함 확인
-- PR 자동 생성·자동 머지 금지
+- PR은 CI 전부 통과를 확인한 뒤 머지하고, 머지 뒤 바로 쓸 수 있는 상태(설치·배포)까지 갱신한다(Simon 2026-10-04). 파괴적·과금·보안 작업은 위 확인 규칙을 따른다
 - 기존 skill 파일 덮어쓰기 전 확인
 - 이 파일(`~/.claude/CLAUDE.md`) 은 append 원칙 (기존 내용 보존)
 
