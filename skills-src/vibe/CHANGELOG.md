@@ -1,5 +1,28 @@
 # Changelog
 
+## 2.15.2 - 2026-10-04
+
+- 모델 레지스트리 사실을 같은 날 두 번째로 갱신했다(허브 PROTOCOL §35.8 1단, 승인된 절차 반복).
+  2.14.1 과 같은 절차로 레지스트리 출처 28개와 task-fit 출처 9개를 모델 호출 없이 HTTPS 로 다시
+  읽었고(전부 HTTP 200, openai.com Astra 페이지는 첫 요청 403 뒤 브라우저 요청 헤더로 재시도),
+  로컬 Codex·Grok·agy·Claude CLI 카탈로그, 메타데이터 전용 `runtime_collect.py`(Codex app-server
+  `model/list`, Grok ACP 과금), OpenAI·Google 폐기 페이지, `model_watch.py status` 와 대조했다.
+  프롬프트·Orca 워커·설치는 0회다. 모델 ID·API effort·컨텍스트·가격·장문 구간·은퇴 일자·Daybreak 대상·
+  Claude Code 주석이 모두 그대로라 제공사 사실은 바뀌지 않았고, 제거·개명된 모델도 없다.
+- `checked_at` 은 실제로 쓴 근거 중 가장 이른 시각인 Codex 모델 캐시 수신 2026-10-04 21:46:09 KST 다.
+  그래서 사실은 2026-10-11 13:05:20 KST 대신 2026-10-11 21:46:09 KST 에 `REGISTRY_STALE` 이 된다.
+  shadow task-fit 정책은 2026-10-04 21:52:28 ~ 2026-10-11 21:52:28 KST 에 유효하고, 인용 주장과
+  순위는 그대로다. 레지스트리 version 은 2026-10-04.4, 정책은 2026-10-04-shadow.2 다.
+- Grok 모델 캐시는 처음 볼 때 `fetched_at` 이 20:31:49 KST 였지만 메타데이터만 읽었고,
+  `grok --no-auto-update models` 가 같은 etag 로 다시 받아 21:49:58 이 된 사본으로 내용을 대조했다.
+  `references/model-catalog-map.md` 의 반복 절차에 이 순서를 적었다.
+- 관측만 기록했다: CLI 버전은 1차와 같다(Codex 0.160.0, grok 1.0.46, agy 1.2.16, Claude Code 2.1.289).
+  Gemini 4 Argon 은 여전히 신뢰 사용자 대상 단계 배포라 등록하지 않았다. xAI `grok-4.5` 페이지의 API
+  별칭 `grok-4.5-latest`·`grok-build-latest` 는 레지스트리가 제공사 별칭을 모으지 않으므로 넣지 않았다.
+  레인 라우팅·우선순위·D-67 `legacy_lane_migration` 상태는 바꾸지 않았다.
+- `test_model_registry.py` 의 기간 테스트는 2차 재확인 창(하한 2026-10-04 21:00, 만료 2026-10-11 21:00
+  이후)을 본다. 오프라인 테스트만 실행했다.
+
 ## 2.15.1 - 2026-10-04
 
 - 허브 D-76 1단계: 배포 트리에서 이 PC 절대경로를 뺐다. `scripts/ledger.py` 허브,

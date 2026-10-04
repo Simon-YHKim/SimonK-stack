@@ -5,7 +5,7 @@
 - CLI name map
 - Registered legacy entries
 - Lane migration pending
-- Refresh record (2026-10-04)
+- Refresh record (2026-10-04, 2차)
 - Repeating the refresh
 
 `references/model-registry.json` stores provider API IDs only. CLI catalogs can
@@ -103,38 +103,45 @@ D-67(2026-10-04, 허브 토론 `dbt-261004-033902`, ADD_ALONGSIDE_KEEP_LEGACY)�
   바꾸려면 Orca canary 와 `/ai-debate` 를 거친 별도 결정이 필요하다. Orca 밖 guarded adapter 는
   자기 계정·과금·effort 게이트를 그대로 적용한다.
 
-## Refresh record (2026-10-04)
+## Refresh record (2026-10-04, 2차)
 
 시각은 모두 KST 다. 모델·Bot·유료 API 호출은 0회다(프롬프트를 보내지 않았고 Orca 워커도
-띄우지 않았다). 2026-10-03 기록은 2.13.1 changelog 항목에, 2026-10-02 기록은 2.12.43 항목에 있다.
+띄우지 않았다). 같은 날 1차(2.14.1, 13:05~13:16) 표는 PR #114 커밋 `e407918` 의 이 파일에,
+요약은 2.14.1 changelog 항목에 있다. 2026-10-03 기록은 2.13.1 항목에, 2026-10-02 기록은 2.12.43
+항목에 있다.
 
 | 근거 | 관측 | 결과 |
 | --- | --- | --- |
-| `~/.grok/models_cache.json` | `fetched_at` 2026-10-04T04:05:20Z(13:05:20), `renewed_at` 13:11:33, grok 1.0.46 | 그대로: 4.7·4.7-build-fast·4.6 은 low~xhigh, 4.5 는 low~high, 기본 high, 256K·500K 창 |
-| Codex `~/.codex/models_cache.json` | `fetched_at` 2026-10-04T04:11:39Z(13:11:39), 캐시 클라이언트 0.159.0 | 그대로: 11개 slug, 우선순위 1 `gpt-6.1-sol`, 등록된 slug 는 모두 low~max(`ultra` 는 같은 여섯 개), `none` 은 어디에도 없다 |
-| `codex --version`, `grok --version`, `agy --version`, `claude --version` | 13:11:41~42 | Codex 0.160.0, grok 1.0.46, agy 1.2.16, Claude Code 2.1.289(전 2.1.288) |
-| `grok --no-auto-update models` | 13:12:11 | 그대로: `grok-4.7`(기본), `grok-4.7-build-fast`, `grok-4.6`, `grok-4.5` |
-| `agy models`, `AGY_CLI_DISABLE_AUTO_UPDATE=1` | 13:12:12 | 그대로: 18개 이름(위 대응표와 같다) |
-| `claude --help` | 13:12:15 | `--effort` 는 여전히 low, medium, high, xhigh, max. 로컬 모델 목록은 없다 |
-| `runtime_collect.py --surface codex --surface grok` (메타데이터 전용) | Codex app-server `model/list` 13:12:25, Grok ACP 과금+모델 13:12:26 | Codex 공개 목록 9개(숨김 `gpt-reserve`·`codex-auto-review` 제외)와 effort 가 캐시와 같다. Grok 4개. 둘 다 구독 모드. 턴 0회 |
-| 레지스트리 출처 28개 | 13:12:45~13:13:08, 전부 HTTP 200(Google 문서는 쿠키 유지 클라이언트) | ID·API effort·컨텍스트·가격·장문 구간·은퇴 일자·Daybreak 대상(`gpt-5.6-sol`)·Claude Code 주석이 모두 맞다. 레지스트리 값 변경 0 |
-| task-fit 출처 9개 | 13:13:08~13:13:25, 전부 HTTP 200(openai.com Astra 는 첫 시도 403 → 브라우저 요청 헤더로 13:13:25 재시도) | 인용 주장 그대로(Opus 5.5 기본 effort FrontierCode, AA 의 medium 프런티어 등). 순위·effort 그대로 |
-| OpenAI·Google 폐기 페이지, Google·xAI 모델 목록 | 13:15:33~13:15:38 | 등록 모델 중 폐기 대상 0. OpenAI 최신 공지(2026-10-01)는 `gpt-6-sol`·`gpt-6-luna` 를 대체 모델로 적는다. `gemini-3.8-flash`·`gemini-3.1-pro-preview` 는 종료 일자 없음 |
-| `model_watch.py status` (읽기 전용) | 13:16:17 | 대기 후보: Google "Gemini 4 Argon"(2026-09-30 블로그) · OpenAI GPT-6 가이드. 최근 스캔(09:00)은 anthropic 출처 TimeoutError |
-| Gemini 4 Argon 공지 | 13:16:27 | Fairwind Program 의 신뢰 사용자에게만 단계 배포 중이고 일반 공개 전이다. API 모델 ID·Google 문서·가격 행·agy 이름이 없어 등록하지 않는다 |
+| Codex `~/.codex/models_cache.json` | `fetched_at` 2026-10-04T12:46:09Z(21:46:09), 캐시 클라이언트 0.159.0. 21:59:41 에 다시 받았지만 etag 가 같다 | 그대로: 11개 slug, 우선순위 1 `gpt-6.1-sol`, 등록된 slug 는 모두 low~max(`ultra` 는 같은 여섯 개), `none` 은 어디에도 없다 |
+| `~/.grok/models_cache.json` | 21:49:20 에 처음 본 사본은 `fetched_at` 11:31:49Z(20:31:49)였고 메타데이터만 읽었다. 아래 `grok models` 가 캐시를 다시 받아 `fetched_at` 12:49:58Z(21:49:58)가 됐고 etag 는 같다. 내용 대조는 이 사본으로 했다 | 그대로: 4.7·4.7-build-fast·4.6 은 low~xhigh, 4.5 는 low~high, 기본 high, 256K·500K 창 |
+| `codex --version`, `grok --version`, `agy --version`, `claude --version` | 21:49:47~49 | Codex 0.160.0, grok 1.0.46, agy 1.2.16, Claude Code 2.1.289 — 1차와 같다 |
+| `grok --no-auto-update models` | 21:49:57 | 그대로: `grok-4.7`(기본), `grok-4.7-build-fast`, `grok-4.6`, `grok-4.5` |
+| `agy models`, `AGY_CLI_DISABLE_AUTO_UPDATE=1` | 21:49:59 | 그대로: 18개 이름(위 대응표와 같다) |
+| `claude --help` | 21:50:03 | `--effort` 는 여전히 low, medium, high, xhigh, max. 로컬 모델 목록은 없다 |
+| `runtime_collect.py --surface codex --surface grok` (메타데이터 전용) | Codex app-server `model/list` 21:50:42, Grok ACP 과금+모델 21:50:44 | Codex 공개 목록 9개(숨김 `gpt-reserve`·`codex-auto-review` 제외)와 effort 가 캐시와 같다. Grok 4개. 둘 다 구독 모드. 턴 0회 |
+| 레지스트리 출처 28개 | 21:52:09~21:52:27, 전부 첫 요청에 HTTP 200(쿠키 유지 클라이언트) | ID·API effort·컨텍스트·가격·장문 구간·은퇴 일자·Daybreak 대상(`gpt-5.6-sol`)·Claude Code 주석이 모두 맞다. 레지스트리 값 변경 0 |
+| task-fit 출처 9개 | 21:52:28~21:52:31, 전부 HTTP 200(openai.com Astra 는 첫 시도 403 → 브라우저 요청 헤더로 21:52:29 재시도) | 인용 주장 그대로(Opus 5.5 기본 effort medium 의 FrontierCode 최고점, AA 의 medium 프런티어, AA 지수에서 GPT-6.1 Sol 이 Astra 보다 1점 아래 등). 순위·effort 그대로 |
+| OpenAI·Google 폐기 페이지, Google·xAI 모델 목록 | 21:52:31~21:52:33 | 등록 모델 중 폐기 대상 0. OpenAI 최신 공지는 그대로 2026-10-01(`gpt-6-sol`·`gpt-6-luna` 가 대체 모델). `gemini-3.8-flash`·`gemini-3.1-pro-preview` 는 종료 일자 없음. xAI 최신 릴리스 노트(10-02)는 미등록 `grok-voice-transcribe-1.0` 종료다 |
+| `model_watch.py status` (읽기 전용) | 21:59:13 | 대기 후보 그대로: Google "Gemini 4 Argon"(2026-09-30 블로그) · OpenAI GPT-6 가이드. 최근 스캔(09:00)은 anthropic 출처 TimeoutError |
+| Gemini 4 Argon 공지 | 21:59:27 | 여전히 Fairwind Program 의 신뢰 사용자 대상 단계 배포다. API 모델 ID·Google 문서·가격 행·agy 이름이 없어 등록하지 않는다 |
 
-제거·개명된 모델은 없다. xAI 가격표의 `grok-build-0.1`(2026-05-19 early access)은 grok CLI
-카탈로그에 없어 이번에도 등록하지 않았다. Claude Haiku 4.5 의 은퇴 하한(2026-10-15)이 다가오지만
-미등록 이름이라 레지스트리 값은 그대로다.
+제거·개명된 모델은 없다. xAI 가격표의 `grok-build-0.1` 은 grok CLI 카탈로그에 없어 이번에도
+등록하지 않았다. Claude Haiku 4.5 의 은퇴 하한(2026-10-15)이 다가오지만 미등록 이름이라
+레지스트리 값은 그대로다. 관측만 적는다: xAI `grok-4.5` 모델 페이지는 API 별칭
+`grok-4.5-latest`·`grok-build-latest` 를 적는다. 레지스트리 `aliases` 는 제공사 API 별칭을 모으지
+않으므로(`gpt-5.6-sol` 의 `gpt-5.6` 별칭도 없다) 그대로 두었고, 런타임이 이 이름을 쓰면
+`MODEL_NOT_REGISTERED` 로 막힌다.
 
-레지스트리 `checked_at` 은 실제로 쓴 근거 중 가장 이른 시각인 Grok 모델 캐시 수신
-2026-10-04 13:05:20(초 미만 버림)이라 사실은 2026-10-11 13:05:20 KST 에 만료된다. task-fit 정책은
-자기 출처를 처음 읽은 13:13:08 부터 2026-10-11 13:13:08 KST 까지 유효하다.
+레지스트리 `checked_at` 은 실제로 쓴 근거 중 가장 이른 시각인 Codex 모델 캐시 수신
+2026-10-04 21:46:09(초 미만 버림)이라 사실은 2026-10-11 21:46:09 KST 에 만료된다. task-fit 정책은
+자기 출처를 처음 읽은 21:52:28 부터 2026-10-11 21:52:28 KST 까지 유효하다.
 
 ## Repeating the refresh
 
 1. Codex 모델 캐시와 Grok 모델 캐시의 `fetched_at` 을 읽고, `grok --no-auto-update models` 와
-   자동 업데이트를 끈 `agy models` 를 실행하고, `claude --help` 를 읽는다. 원하면
+   자동 업데이트를 끈 `agy models` 를 실행하고, `claude --help` 를 읽는다. `grok models` 가 Grok
+   캐시를 다시 받아 `fetched_at` 을 바꿀 수 있으니 캐시 내용 대조는 그 뒤 사본으로 하고, 쓴
+   사본의 `fetched_at` 을 적는다. 원하면
    `runtime_collect.py --surface codex --surface grok` 로 app-server `model/list` 와 Grok ACP
    과금을 메타데이터만 읽는다. 프롬프트는 보내지 않는다.
 2. 레지스트리·task-fit 출처를 모두 HTTPS 로 다시 읽고 ID·effort·가격·구간·은퇴 일자를 JSON 과
