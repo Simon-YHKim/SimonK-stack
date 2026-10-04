@@ -651,3 +651,13 @@ last-sync: 2026-07-05
     - 내용 변경 업데이트 PASS: d09448c, 1.765.0 → 1.766.0, 설치본에 FREEZE_CLEARED 출력과 freeze 0.2.6 포함.
   - 롤백 절차는 문서에 적힌 대로 main에서 문제 커밋을 revert하는 것이다. git revert d489ce0을 하면 내용이 59eaff15로, 승인 파일이 D-82 값으로 함께 되돌아간다. 게시 버전은 더 높은 1.768.0이 된다. 호스트가 이 버전을 받는지 잰다.
   - 다음으로 revert의 revert로 freeze 0.2.6을 다시 적용한다(ba8e9216, D-83 승인 복원). 마지막으로 옛 실행을 다시 돌려 게시 쪽 decide가 낮은 버전을 거부하는지 기록한다.
+
+- 2026-10-05 04:19:27 KST | AMEND | **D-84 dist 롤백 실측: #132 revert로 이전 내용(59eaff15)을 더 높은 버전으로 재출하한 뒤 다시 적용** — HTTPS B 결과(격리 CLAUDE_CONFIG_DIR, 실제 GitHub dist):
+  - ① 내용 변경 업데이트 PASS: 1.765.0 → 1.766.0(d09448c, freeze 0.2.6, FREEZE_CLEARED 출력 포함).
+  - ② 고버전 재출하 롤백 PASS: #133 revert(a8dea71)로 dist 3920c59가 1.767.0. 호스트가 1.766.0 → 1.767.0으로 받았고, 5개 플러그인 모두 1.765.0과 비교해 버전 메타데이터(plugin.json·marketplace.json·.orphaned_at)를 빼면 파일이 같음.
+  - ③ 다시 적용 PASS: #134(9bd09e2)로 dist 8740310이 1.768.0. 호스트 1.767.0 → 1.768.0, FREEZE_CLEARED 출력 다시 포함.
+  - ④ 실제 게시 경로의 늦은 옛 빌드 PASS:
+    - 같은 내용(d489ce0, 1.766.0) 재실행은 decide skip.
+    - 다른 내용(a8dea71, 1.767.0) 재실행은 gate 승인 뒤 decide가 refuse(not-newer-than-dist)했다. publish job은 설계대로 실패했고 dist는 8740310 그대로.
+  - 참고: PR 빌드의 버전은 병합 커밋 하나가 더해져 main보다 1 높게 보인다.
+  - 함께 측정: HTTPS 4A PASS(깨끗한 설치, 레거시 이전, 원격 세션 스모크, scratchpad https4-evidence.md). 남은 것은 카탈로그 전환뿐 | claude
