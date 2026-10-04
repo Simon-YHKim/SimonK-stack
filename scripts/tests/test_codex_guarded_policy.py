@@ -17,6 +17,11 @@ from codex_guarded_policy import judge_pre_tool_use  # noqa: E402
 ROOT = Path(__file__).resolve().parents[2]
 CAREFUL = ROOT / "skills-src/careful/bin/check-careful.sh"
 GIT_BASH = Path(os.environ.get("ProgramFiles", "C:/Program Files")) / "Git/bin/bash.exe"
+# Codex has no ask, so a careful ask becomes this fixed deny (deliberate Codex
+# contract); a careful deny keeps the leaf's own reason (D-62 follow-up 5).
+ASK_AS_DENY = ("[SimonK] Destructive command blocked. Review and run outside "
+               "this guarded session only if authorized.")
+POLICY_FAILURE = "[SimonK] Safety check could not finish; tool blocked."
 
 
 def event(cwd, tool, command):
@@ -34,6 +39,10 @@ def decision(result):
     assert output["hookEventName"] == "PreToolUse"
     assert output["permissionDecisionReason"]
     return output["permissionDecision"]
+
+
+def reason(result):
+    return result["hookSpecificOutput"]["permissionDecisionReason"]
 
 
 class CodexGuardedPolicyTests(unittest.TestCase):
@@ -125,7 +134,55 @@ class CodexGuardedPolicyTests(unittest.TestCase):
         danger = event(self.project, "Bash", "git reset --hard HEAD~1")
         kwargs = {"bash": GIT_BASH, "careful_script": CAREFUL}
         self.assertEqual(decision(judge_pre_tool_use(safe, **kwargs)), "allow")
-        self.assertEqual(decision(judge_pre_tool_use(danger, **kwargs)), "deny")
+        result = judge_pre_tool_use(danger, **kwargs)
+        self.assertEqual(decision(result), "deny")
+        self.assertEqual(reason(result), ASK_AS_DENY)
+
+    @unittest.skipUnless(GIT_BASH.is_file() and CAREFUL.is_file(), "Git Bash safety leaf required")
+    def test_real_leaf_high_deny_passes_through_with_leaf_reason(self):
+        # careful 0.2.2 denies HIGH commands itself. The policy keeps that deny
+        # and the leaf's reason instead of reporting a failed safety check.
+        for command in ("rm -rf /", "rm -rf ~"):
+            with self.subTest(command=command):
+                result = judge_pre_tool_use(event(self.project, "Bash", command),
+                                            bash=GIT_BASH, careful_script=CAREFUL)
+                self.assertEqual(decision(result), "deny")
+                self.assertTrue(reason(result).startswith("[careful][HIGH] "), reason(result))
+
+    def fixture_leaf(self, leaf_decision, leaf_reason):
+        fake = self.root / "fixture leaf.sh"
+        fake.write_text("#!/usr/bin/env bash\nprintf '%s\\n' '" + json.dumps({
+            "hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": leaf_decision,
+                "permissionDecisionReason": leaf_reason,
+            }
+        }, separators=(",", ":")) + "'\n", encoding="utf-8")
+        return fake
+
+    @unittest.skipUnless(GIT_BASH.is_file(), "Git Bash required")
+    def test_fixture_leaf_deny_keeps_reason_and_ask_keeps_codex_reason(self):
+        request = event(self.project, "Bash", "git status")
+        for leaf_decision, expected in (("deny", "fixture leaf reason"),
+                                        ("ask", ASK_AS_DENY)):
+            with self.subTest(leaf_decision=leaf_decision):
+                result = judge_pre_tool_use(
+                    request, bash=GIT_BASH,
+                    careful_script=self.fixture_leaf(leaf_decision, "fixture leaf reason"))
+                self.assertEqual(decision(result), "deny")
+                self.assertEqual(reason(result), expected)
+
+    @unittest.skipUnless(GIT_BASH.is_file(), "Git Bash required")
+    def test_out_of_contract_leaf_decision_denies_with_policy_reason(self):
+        request = event(self.project, "Bash", "git status")
+        for leaf_decision, leaf_reason in (("allow", "fixture"), ("block", "fixture"),
+                                           ("deny", ""), ("ask", "")):
+            with self.subTest(leaf_decision=leaf_decision, leaf_reason=leaf_reason):
+                result = judge_pre_tool_use(
+                    request, bash=GIT_BASH,
+                    careful_script=self.fixture_leaf(leaf_decision, leaf_reason))
+                self.assertEqual(decision(result), "deny")
+                self.assertEqual(reason(result), POLICY_FAILURE)
 
     @unittest.skipUnless(GIT_BASH.is_file() and CAREFUL.is_file(), "Git Bash safety leaf required")
     def test_bash_input_is_never_executed_and_missing_leaf_denies(self):

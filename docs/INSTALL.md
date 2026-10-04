@@ -1199,6 +1199,28 @@ unfreeze가 기록한 inactive tombstone만 허용합니다. 이는 원본 leaf�
 absent-file 허용 동작을 바꾼 것이 아니라 새 adapter의 전처리 계약입니다.
 단독 작성·동일 사용자 환경 전제이며 OS 보안 경계나 Bash 파일쓰기 차단이 아닙니다.
 
+**검사 시간 예산(2026-10-04, `freeze` 0.2.2, 허브 D-62 후속 5)**: 한 번의
+검사(cygpath 호출 전부와 leaf)가 `CHECK_TIMEOUT` 20초 하나를 나눠 쓴다. 이전에는
+프로세스마다 5초였고(freeze 최악 프로세스 6개 × 5초 = 30초), PR #112 이후 시간
+초과가 `deny`가 되면서 무거운 테스트를 동시에 돌릴 때 정상 명령이 막혔다. 이 PC
+(Ryzen 5 7500F, 12스레드)에서 careful Bash·careful PowerShell·freeze 검사를 조건마다
+각 30회 쟀다(측정용 복사본은 제한을 120초로 올려 분포가 잘리지 않게 했다).
+
+| 조건 | leaf p50 | leaf p95 | leaf 최대 | 훅 명령 전체 최대(Python 기동 포함) | leaf 5초 초과 |
+|---|---|---|---|---|---|
+| 평상시(다른 세션 작업 중) | 0.74~1.56초 | 1.40~1.98초 | 4.42초 | 7.22초 | 0/90 |
+| 테스트 2개 동시(`test_plugin_bundle`·`test_check_careful`) | 0.85~1.78초 | 1.71~2.86초 | 2.87초 | 4.65초 | 0/90 |
+| 테스트 3개 동시(+`test_safety_runtime` 반복) | 0.81~2.05초 | 1.79~2.49초 | 2.50초 | 2.79초 | 0/90 |
+| 테스트 6개 동시(위 3개 × 2) | 2.78~3.60초 | 4.94~10.25초 | 11.30초 | 14.70초 | 14/90 |
+
+6개 동시 조건에서 함께 돌린 `test_safety_runtime`은 20회 중 12회 실패해 #112 때의
+거짓 차단을 재현했다. 20초는 이 최댓값(14.70초)을 덮으면서 이전 최악(30초)보다
+짧다. Claude Code 문서상 `PreToolUse` 명령 훅의 기본 제한은 600초이고 시간 초과된
+훅은 도구 호출을 막지 않으므로(fail-open), 예산은 그보다 훨씬 짧아야 한다.
+예산을 다 쓰면 `deny`이며 사유가 시간 초과임과 다시 시도해도 안전함을 밝힌다
+(careful `[careful][RUNTIME TIMEOUT] …`, freeze `[freeze] Safety check timed out …`).
+측정은 이 PC 한 대의 값이며 실제 호스트 훅 경유 지연은 재지 않았다.
+
 Setup의 host 치환값은 shell 코드로 재해석하지 않고 quoted heredoc의 raw data로
 전달합니다. 이 후보는 실제 존재하는 **한 줄 Windows 절대 경로**와 host session
 ID만 허용합니다. 임의 여러 줄 텍스트나 heredoc 종료 구문을 붙여넣지 마세요.
@@ -1714,6 +1736,17 @@ test_codex_guarded_policy.py -v`의 11개 사례와 전체 Codex 관련 26개
 사례가 통과했다. 이 후보는 **고정 경계의 로컬 시험용**이며 세션별
 활성화·신뢰 영수증·프로필 등록·실제 호스트 집행 및 Shell을 통한
 파일 쓰기 차단은 제공하지 않는다. D-29·D-30의 미지원/보류 판정은 유지한다.
+
+2026-10-04 **careful leaf deny 통과**(허브 D-62 후속 5): careful 0.2.2부터 leaf가
+HIGH 명령과 자기 훅 실패를 직접 `deny`로 낸다. 이 정책은 leaf 결정으로 `ask`만
+받아서 leaf `deny`를 잘못된 출력으로 보고 `[SimonK] Safety check could not finish;
+tool blocked.` 사유로 막았다. 차단은 같았지만 leaf 사유(예: `[careful][HIGH] …`)가
+사라졌다. 이제 leaf `deny`는 그 사유 그대로 차단한다. `ask`는 Codex에 `ask`가
+없으므로 기존 고정 문구의 차단을 유지한다(의도된 Codex 계약). 그 밖의 결정, 빈
+사유, 정책 자체의 실패는 정책 사유로 차단한다. 같은 명령으로 14개 사례(실제 leaf
+HIGH 차단, 고정 leaf deny/ask, 계약 밖 결정 추가)와 Codex 관련 29개 사례가
+통과했다. leaf 시간 제한 8초는 바꾸지 않았다. 오프라인 후보·미설치 상태와 세
+readiness 플래그 `false`는 그대로다.
 
 2026-09-28 **격리 호스트 실측**: Windows Sandbox의 Codex CLI 0.155.0에
 일회용 `simonk-guarded.config.toml`을 만들고 `SessionStart` 마커 훅만

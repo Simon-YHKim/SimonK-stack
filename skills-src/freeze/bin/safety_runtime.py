@@ -13,7 +13,8 @@ through unchanged with its reason -- `{}` allow, careful `ask`, careful or
 freeze `deny` (careful 0.2.2 denies HIGH commands and its own failures; freeze
 denies outside the boundary and whatever it cannot judge). Anything the bridge
 itself cannot do or read (no Git Bash, bad state, bad or oversized leaf output,
-timeout) is a fail-closed `deny`; it is never downgraded to `ask`.
+timeout) is a fail-closed `deny`; it is never downgraded to `ask`. A timeout
+deny says so and that retrying is safe: it is not a verdict on the command.
 """
 
 from __future__ import annotations
@@ -30,13 +31,21 @@ import stat
 import subprocess
 import sys
 import tempfile
+import time
 from typing import Any
 
 
 SCHEMA_VERSION = 1
 MAX_INPUT = 1024 * 1024
 MAX_OUTPUT = 64 * 1024
-PROCESS_TIMEOUT = 5
+# One wall-clock budget, in seconds, for a whole check: every cygpath call and
+# the leaf share it, so a check never waits longer than this before it denies.
+# Measured 2026-10-04 on the reference Windows PC (12 threads): the slowest
+# whole check took 2.8 s with three test suites running and 14.7 s with six,
+# where 14 of 90 leaf runs exceeded the old 5 s per-process limit. 20 s covers
+# that with margin and stays far below the host's 600 s hook limit, past which
+# a timed-out PreToolUse hook would not block the tool call at all.
+CHECK_TIMEOUT = 20
 SESSION_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}\Z", re.ASCII)
 REPARSE_POINT = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
 # careful-powershell runs the careful leaf in its deny-only PowerShell-tool
@@ -54,14 +63,29 @@ class SafetyRuntimeError(Exception):
     """Expected validation/runtime failure whose details must not escape."""
 
 
-def _decision(policy: str) -> dict[str, Any]:
+class SafetyRuntimeTimeout(SafetyRuntimeError):
+    """The check ran out of its CHECK_TIMEOUT budget before the leaf decided."""
+
+
+def _decision(policy: str, *, timed_out: bool = False) -> dict[str, Any]:
     """Fail-closed decision for a check the runtime itself could not complete."""
-    reason = ("[freeze] Safety runtime unavailable; blocked, fail closed."
-              if policy == "freeze"
-              else "[careful][RUNTIME FAILURE] Safety runtime failed, command not "
-                   "checked, so it is blocked (fail closed). Way out: repair the "
-                   "plugin safety runtime (Python, Git Bash and Node on PATH), or "
-                   "start a new session without /careful.")
+    if timed_out:
+        reason = (f"[freeze] Safety check timed out after {CHECK_TIMEOUT} s; edit "
+                  "blocked, fail closed. Nothing was written and this is not a "
+                  "verdict on the edit, so retrying is safe."
+                  if policy == "freeze"
+                  else f"[careful][RUNTIME TIMEOUT] Safety check did not finish within "
+                       f"{CHECK_TIMEOUT} s, so the command was blocked (fail closed) "
+                       "and not run. This is not a verdict on the command; retrying "
+                       "is safe. If it keeps timing out, the machine is overloaded "
+                       "or the plugin safety runtime is stuck.")
+    else:
+        reason = ("[freeze] Safety runtime unavailable; blocked, fail closed."
+                  if policy == "freeze"
+                  else "[careful][RUNTIME FAILURE] Safety runtime failed, command not "
+                       "checked, so it is blocked (fail closed). Way out: repair the "
+                       "plugin safety runtime (Python, Git Bash and Node on PATH), or "
+                       "start a new session without /careful.")
     return {
         "hookSpecificOutput": {
             "hookEventName": "PreToolUse",
@@ -372,15 +396,25 @@ def _find_node() -> Path | None:
     return None
 
 
-def _cygpath(cygpath: Path, native: str) -> str:
+def _remaining(deadline: float) -> float:
+    """Seconds left in this check's budget; a spent budget is a timeout."""
+    left = deadline - time.monotonic()
+    if left <= 0:
+        raise SafetyRuntimeTimeout
+    return left
+
+
+def _cygpath(cygpath: Path, native: str, deadline: float) -> str:
     try:
         result = subprocess.run(
             [str(cygpath), "-u", native],
             stdin=subprocess.DEVNULL,
             capture_output=True,
-            timeout=PROCESS_TIMEOUT,
+            timeout=_remaining(deadline),
             check=False,
         )
+    except subprocess.TimeoutExpired:
+        raise SafetyRuntimeTimeout from None
     except (OSError, subprocess.SubprocessError) as exc:
         raise SafetyRuntimeError from exc
     if result.returncode or len(result.stdout) > 4096:
@@ -403,14 +437,14 @@ def _safe_resource(path: Path) -> Path:
 
 
 def _hook_environment(bash: Path, cygpath: Path, private_root: Path,
-                      plugin_data: Path | None) -> dict[str, str]:
+                      plugin_data: Path | None, deadline: float) -> dict[str, str]:
     env = {key: value for key, value in os.environ.items()
            if key.upper() in {"SYSTEMROOT", "WINDIR", "TEMP", "TMP"}}
     paths = [bash.parent.parent / "usr/bin", bash.parent.parent / "mingw64/bin"]
     node = _find_node()
     if node is not None:
         paths.append(node.parent)
-    posix_private = _cygpath(cygpath, str(private_root))
+    posix_private = _cygpath(cygpath, str(private_root), deadline)
     env.update(
         PATH=os.pathsep.join(map(str, paths)),
         HOME=posix_private,
@@ -425,7 +459,7 @@ def _hook_environment(bash: Path, cygpath: Path, private_root: Path,
         LC_ALL="C",
     )
     if plugin_data is not None:
-        env["CLAUDE_PLUGIN_DATA"] = _cygpath(cygpath, str(plugin_data))
+        env["CLAUDE_PLUGIN_DATA"] = _cygpath(cygpath, str(plugin_data), deadline)
     return env
 
 
@@ -459,7 +493,8 @@ def _tool_path(cwd: str, raw: Any) -> Path:
     return candidate
 
 
-def _run_leaf(policy: str, payload: dict[str, Any], boundary: str | None) -> dict[str, Any]:
+def _run_leaf(policy: str, payload: dict[str, Any], boundary: str | None,
+              deadline: float) -> dict[str, Any]:
     runtime = Path(__file__).resolve(strict=True).parent
     bash, cygpath = _locate_bash()
     helper = (runtime / "freeze/bin/check-freeze.sh" if policy == "freeze"
@@ -472,7 +507,7 @@ def _run_leaf(policy: str, payload: dict[str, Any], boundary: str | None) -> dic
     translated["tool_input"] = dict(payload["tool_input"])
     if policy == "freeze":
         native = _tool_path(translated["cwd"], translated["tool_input"].get("file_path"))
-        translated["tool_input"]["file_path"] = _cygpath(cygpath, str(native))
+        translated["tool_input"]["file_path"] = _cygpath(cygpath, str(native), deadline)
 
     try:
         encoded = json.dumps(translated, ensure_ascii=False, allow_nan=False,
@@ -490,12 +525,15 @@ def _run_leaf(policy: str, payload: dict[str, Any], boundary: str | None) -> dic
                 raise SafetyRuntimeError
             plugin_data = private / "plugin-data"
             plugin_data.mkdir()
-            posix_boundary = _cygpath(cygpath, boundary).rstrip("/") + "/"
+            posix_boundary = _cygpath(cygpath, boundary, deadline).rstrip("/") + "/"
             (plugin_data / "freeze-dir.txt").write_text(posix_boundary + "\n", encoding="utf-8")
-        env = _hook_environment(bash, cygpath, private, plugin_data)
-        posix_helper = _cygpath(cygpath, str(helper))
+        env = _hook_environment(bash, cygpath, private, plugin_data, deadline)
+        posix_helper = _cygpath(cygpath, str(helper), deadline)
         try:
             with tempfile.TemporaryFile() as output:
+                # Take the budget before starting the leaf, so a spent budget
+                # never leaves a started process behind.
+                timeout = _remaining(deadline)
                 process = subprocess.Popen(
                     [str(bash), "--noprofile", "--norc", posix_helper, *leaf_args],
                     stdin=subprocess.PIPE,
@@ -505,11 +543,11 @@ def _run_leaf(policy: str, payload: dict[str, Any], boundary: str | None) -> dic
                     env=env,
                 )
                 try:
-                    process.communicate(encoded, timeout=PROCESS_TIMEOUT)
+                    process.communicate(encoded, timeout=timeout)
                 except subprocess.TimeoutExpired:
                     process.kill()
                     process.communicate()
-                    raise SafetyRuntimeError
+                    raise SafetyRuntimeTimeout from None
                 if process.returncode != 0 or output.tell() > MAX_OUTPUT:
                     raise SafetyRuntimeError
                 output.seek(0)
@@ -541,15 +579,16 @@ def _run_leaf(policy: str, payload: dict[str, Any], boundary: str | None) -> dic
 
 
 def _check(policy: str, project_raw: str) -> dict[str, Any]:
+    deadline = time.monotonic() + CHECK_TIMEOUT
     project = _canonical_directory(project_raw)
     payload = _read_hook_input()
     session = payload["session_id"]
     if policy != "freeze":
-        return _run_leaf(policy, payload, None)
+        return _run_leaf(policy, payload, None, deadline)
     state = _load_state(project, session)
     if state["status"] == "inactive":
         return {}
-    return _run_leaf(policy, payload, state["boundary"])
+    return _run_leaf(policy, payload, state["boundary"], deadline)
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -589,6 +628,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     try:
         result = _check(args.policy, args.project)
+    except SafetyRuntimeTimeout:
+        result = _decision(args.policy, timed_out=True)
     except (OSError, ValueError, TypeError, UnicodeError, RecursionError,
             SafetyRuntimeError):
         result = _decision(args.policy)
