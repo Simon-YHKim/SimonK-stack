@@ -607,3 +607,13 @@ last-sync: 2026-07-05
 
 - 2026-10-04 22:37:07 KST | DECIDE | **D-80 SimonKCore main을 핀 커밋 24a17a1로 fast-forward** (오케스트레이터 단독 · 35.8 1단) | claude
   - **근거**: D-76 핀 입력(승인됨)을 원본 저장소 main에 반영해 보존한다. 핀 브랜치 fix/core-helper-closure-260927은 main보다 8커밋 앞서 있었고 뒤처진 커밋은 없었다. PR #6 CI 2/2 통과 뒤 fast-forward push(c080bda..24a17a1, force 아님, SHA 그대로)했고 PR #6은 자동으로 MERGED 처리됐다. main push 워크플로 validate-plugin·skills-ci·release 모두 success. plugin.json이 0.3.0이고 v0.3.0 릴리스가 이미 있어 새 릴리스는 생기지 않았다(외부 영향 없음).
+
+- 2026-10-04 23:22:40 KST | AMEND | **D-76 SimonK-stack GitHub 마켓플레이스 배포 경로** — 4단계 호스트 증거(격리 CLAUDE_CONFIG_DIR, 로컬 dist 저장소, 실제 ~/.claude 변경 0, 모델 턴 0):
+  - ① 깨끗한 설치 PASS(5개 1.800.0, 767파일 바이트 일치)
+  - ② 레거시 이전: 같은 ID 0.1.0→1.803.0 교체는 PASS, 그러나 나머지 4개가 설치되지 않아 스킬 10개가 사라짐(차단)
+  - ③ 업데이트 감지 PASS(version이 같으면 내용이 달라도 건너뜀)
+  - ④ 롤백 PASS(이전 내용을 더 높은 version으로 재출하해 반영됨). 더 낮은 version도 받아들여 게시 쪽 decide만이 방어선
+  - ⑤ 줄끝 PASS(.gitattributes 효과 대조 확인, HIGH deny)
+  - ⑥ 비Windows FAIL: python이 없으면 rc127로 fail-open, 안내 문구 오류, freeze에 빠져나갈 방법 없음(차단)
+  - ⑦ 경고: 이전 캐시 잔존, 카탈로그 되돌리기 시 not found, 커맨드·스킬 이름 쌍 5개
+  - 증거: scratchpad host4-evidence.md. 차단 2건 수정 에이전트 진행 중 | claude
