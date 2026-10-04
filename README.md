@@ -47,6 +47,27 @@ Claude Code 마켓플레이스에서 **고정된 기존 루트 플러그인** �
 
 > git clone 기반 3-모드 설치(Direct / Vendor / Bootstrap)는 아래 [빠른 시작](#-빠른-시작--3-가지-설치-모드) 참고.
 
+### 레거시 `simonk-stack` 0.1.0에서 다섯 플러그인으로 옮기기
+
+카탈로그가 다섯 플러그인으로 바뀐 뒤(첫 `dist` 게시 이후)에 해당합니다. 기존 0.1.0 사용자가 `/plugin update`(또는 `claude plugin update simonk-stack@simonk-stack`)를 하면 같은 ID가 새 SimonKStack으로 제자리 교체될 뿐, 나머지 넷은 설치되지 않습니다. 그러면 레거시 스킬 10개(SimonKMarket으로 옮긴 9개, SimonKDesign으로 옮긴 `consistency-guard`)가 사라집니다. plugin.json의 `dependencies`는 새로 설치할 때만 따라오고 업데이트에서는 동작하지 않습니다(D-76 4단계 실측). 업데이트한 뒤 아래 네 줄을 실행하세요.
+
+```
+claude plugin install simonk-core@simonk-stack
+claude plugin install simonk-market@simonk-stack
+claude plugin install simonk-design@simonk-stack
+claude plugin install simonk-aihub@simonk-stack
+```
+
+세션 안에서는 같은 ID로 `/plugin install <id>`를 쓰고 `/reload-plugins`로 적용합니다. 다섯 개가 다 있는지 한 줄로 확인합니다(5줄이 나오면 정상).
+
+```powershell
+(claude plugin list --json | Out-String | ConvertFrom-Json) | Where-Object id -like 'simonk-*@simonk-stack' | Select-Object id, version, enabled
+```
+
+POSIX 셸에서는 `claude plugin list --json | grep -o 'simonk-[a-z]*@simonk-stack'`입니다.
+
+> **안전 훅은 Windows 전용입니다.** `careful`(SimonKCore)과 `freeze`·`guard`·`investigate`(SimonKStack)의 훅은 Windows에서만 판정합니다. 다른 OS에서는 스킬이 호출되는 순간부터 Bash·PowerShell 명령이나 Edit·Write를 **일부러 모두 막습니다**(fail-closed). Python이 없어도 마찬가지입니다. 빠져나오려면 그 스킬 없이 새 세션을 시작하거나, `/plugin disable simonk-core@simonk-stack`(careful) 또는 `/plugin disable simonk-stack@simonk-stack`(freeze·guard·investigate)을 실행한 뒤 새 세션을 시작합니다. 비Windows에서는 `/unfreeze`로 풀리지 않습니다. 자세한 근거와 실측은 [INSTALL.md 비Windows 안전 훅](docs/INSTALL.md#비windows-안전-훅--인터프리터-가드-d-76-4단계)에 있습니다.
+
 ### Codex 스킬 설명 예산
 
 `Skill descriptions were shortened ...`는 초기 선택 목록의 설명이 줄었다는 경고이며, 선택한 `SKILL.md` 본문을 삭제하지 않습니다. 설명은 고유 목적·호출 조건·산출물 위주로 짧게 유지합니다. `/vibe` 진입을 확실히 지정하려면 Codex의 스킬 목록에서 실제 등록 이름을 선택하세요. 플러그인이 namespace를 붙였다면 `$simonk-core:vibe`, 독립 스킬로 등록됐다면 `$vibe`처럼 이름이 다를 수 있습니다.

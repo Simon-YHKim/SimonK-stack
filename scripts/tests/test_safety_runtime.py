@@ -564,19 +564,6 @@ class SafetyRuntimeTests(unittest.TestCase):
             sys.dont_write_bytecode = previous_no_bytecode
         return module
 
-    def test_non_windows_host_denies_every_check_policy(self):
-        import io
-        from unittest.mock import patch
-        module = self.load_runtime_module()
-        for policy in module.POLICIES:
-            with self.subTest(policy=policy):
-                with patch.object(module.os, "name", "posix"), \
-                        patch.object(module.sys, "stdout", io.StringIO()) as stdout:
-                    code = module.main(["check", policy, "--project", str(self.project)])
-                self.assertEqual(code, 0)
-                hook = json.loads(stdout.getvalue())["hookSpecificOutput"]
-                self.assertEqual(hook["permissionDecision"], "deny")
-
     def test_atomic_collision_does_not_delete_preexisting_file(self):
         module = self.load_runtime_module()
         parent = self.base / "collision state"
@@ -606,6 +593,85 @@ class SafetyRuntimeTests(unittest.TestCase):
         ).hexdigest() + ".json"
         self.assertEqual(self.state_file().name, expected)
         self.assertEqual(list((self.state_root / "states").glob(".*.tmp")), [])
+
+
+class NonWindowsBranchTests(unittest.TestCase):
+    """D-76 step 4: off Windows every check is a deliberate, explained deny.
+
+    Runs on every OS (no Git Bash needed): os.name is patched on Windows, and a
+    real POSIX host also runs the runtime as a subprocess.
+    """
+
+    def setUp(self) -> None:
+        self.runtime_path = (Path(PACKAGED_PLUGIN) / ".simonk-runtime/safety_runtime.py"
+                             if PACKAGED_PLUGIN else SOURCE_RUNTIME)
+        spec = importlib.util.spec_from_file_location("candidate_safety_runtime_posix", self.runtime_path)
+        self.module = importlib.util.module_from_spec(spec)
+        previous = sys.dont_write_bytecode
+        sys.dont_write_bytecode = True
+        try:
+            spec.loader.exec_module(self.module)
+        finally:
+            sys.dont_write_bytecode = previous
+
+    def reason(self, policy):
+        return self.module.NON_WINDOWS_REASONS["freeze" if policy == "freeze" else "careful"]
+
+    def test_every_check_policy_denies_with_the_windows_only_reason(self):
+        import io
+        from unittest.mock import patch
+        for policy in self.module.POLICIES:
+            with self.subTest(policy=policy):
+                with patch.object(self.module.os, "name", "posix"), \
+                        patch.object(self.module.sys, "stdin", io.StringIO("not json")), \
+                        patch.object(self.module.sys, "stdout", io.StringIO()) as stdout:
+                    # Never reads stdin, state or the project: nothing there can change the answer.
+                    code = self.module.main(["check", policy, "--project", "relative/never-read"])
+                self.assertEqual(code, 0)
+                self.assertEqual(json.loads(stdout.getvalue()), {"hookSpecificOutput": {
+                    "hookEventName": "PreToolUse", "permissionDecision": "deny",
+                    "permissionDecisionReason": self.reason(policy)}})
+
+    def test_reasons_say_windows_only_fail_closed_and_the_way_out(self):
+        careful, freeze = self.module.NON_WINDOWS_REASONS["careful"], self.module.NON_WINDOWS_REASONS["freeze"]
+        for reason in (careful, freeze):
+            self.assertIn("The SimonK safety runtime supports Windows only", reason)
+            self.assertIn("blocked on purpose (fail closed)", reason)
+            self.assertIn("start a new session", reason)
+            self.assertNotIn("repair", reason)  # no repair makes it pass off Windows
+        self.assertIn("without /careful and /guard", careful)
+        self.assertIn("/plugin disable simonk-core@simonk-stack (for /careful)", careful)
+        self.assertIn("/plugin disable simonk-stack@simonk-stack (for /guard)", careful)
+        self.assertIn("without /freeze, /guard and /investigate", freeze)
+        self.assertIn("/unfreeze cannot lift it here", freeze)
+        self.assertIn("/plugin disable simonk-stack@simonk-stack", freeze)
+        # The Windows runtime-failure reasons are unchanged.
+        self.assertTrue(self.module._decision("careful")["hookSpecificOutput"]["permissionDecisionReason"]
+                        .startswith(CAREFUL_RUNTIME_FAILURE))
+        self.assertEqual(self.module._decision("freeze")["hookSpecificOutput"]["permissionDecisionReason"],
+                         FREEZE_RUNTIME_FAILURE)
+
+    def test_state_updates_still_fail_off_windows(self):
+        import io
+        from unittest.mock import patch
+        for argv in (["set", "--project", "p", "--session", "s", "--boundary", "b"],
+                     ["clear", "--project", "p", "--session", "s"]):
+            with self.subTest(command=argv[0]):
+                with patch.object(self.module.os, "name", "posix"), \
+                        patch.object(self.module.sys, "stderr", io.StringIO()) as stderr:
+                    self.assertEqual(self.module.main(argv), 2)
+                self.assertEqual(stderr.getvalue(), "safety runtime state update failed\n")
+
+    @unittest.skipIf(os.name == "nt", "Real POSIX subprocess")
+    def test_real_posix_subprocess_denies(self):
+        for policy in self.module.POLICIES:
+            with self.subTest(policy=policy):
+                result = subprocess.run([sys.executable, "-B", str(self.runtime_path), "check", policy,
+                                         "--project", "/"], input="{}", text=True, capture_output=True,
+                                        timeout=20)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(json.loads(result.stdout)["hookSpecificOutput"]["permissionDecisionReason"],
+                                 self.reason(policy))
 
 
 if __name__ == "__main__":

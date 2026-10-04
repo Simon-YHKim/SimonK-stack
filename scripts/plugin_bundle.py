@@ -67,6 +67,23 @@ SAFETY_RESOURCES = {
     "safety_runtime.py": "plugins/SimonKStack/skills/freeze/bin/safety_runtime.py",
 }
 SAFETY_INPUTS = set(SAFETY_DOCS.values()) | set(SAFETY_RESOURCES.values())
+# D-76 step 4: appended to the pinned plugin.json description (the text
+# `claude plugin details` shows). `plugin update` of the legacy 0.1.0 root plugin
+# replaces it in place with the new SimonKStack and installs none of the other
+# four, so ten skills (nine now in Market, one in Design) disappear; manifest
+# `dependencies` resolve on install only. The safety hooks are Windows-only.
+DESCRIPTION_NOTICES = {
+    "SimonKCore": "careful 안전 훅은 Windows 전용이라 다른 OS에서는 Bash·PowerShell 명령을 "
+                  "일부러 모두 막는다.",
+    "SimonKStack": "레거시 simonk-stack 0.1.0에서 업데이트했다면 나머지 넷을 따로 설치해야 "
+                   "market·design으로 옮긴 스킬 10개가 돌아온다: "
+                   "claude plugin install simonk-core@simonk-stack · "
+                   "claude plugin install simonk-market@simonk-stack · "
+                   "claude plugin install simonk-design@simonk-stack · "
+                   "claude plugin install simonk-aihub@simonk-stack. "
+                   "freeze·guard·investigate 안전 훅은 Windows 전용이라 다른 OS에서는 "
+                   "Edit·Write·Bash를 일부러 모두 막는다.",
+}
 
 
 def replace_exact(text, old, new, count=1):
@@ -109,11 +126,84 @@ CAREFUL_POWERSHELL_HOOK = (
 )
 
 
+# D-76 step 4 host evidence: the exec-form runtime hook below spawns `python`
+# with no shell. Where no `python` is on PATH (stock Ubuntu ships only python3,
+# and Windows may resolve the Microsoft Store stub), the hook cannot start, and
+# Claude Code treats a hook that cannot start as a non-blocking error: the tool
+# call goes through (fail open). Only exit 2 or a JSON deny blocks.
+#
+# So every projected runtime hook gets a sibling shell-form guard on the same
+# matcher. Shell form runs under `sh -c` on macOS/Linux and Git Bash on Windows;
+# the guard uses only sh builtins and no path placeholder, so nothing it needs
+# can be missing. Matching hooks run in parallel and deny wins, so:
+#   * not Windows: the guard always denies with exit 2 (the runtime is
+#     Windows-only and would deny anyway when an interpreter exists);
+#   * Windows: the guard exits 0 when `python` runs and is 3.7+, leaving the
+#     decision to the unchanged exec-form runtime hook; otherwise it denies
+#     with the runtime's own fail-closed reason.
+# Windows without Git Bash runs shell form in PowerShell, where the guard does
+# not parse: a non-blocking error, and the runtime still denies (no Git Bash).
+# The reasons must stay byte-identical to safety_runtime.py (tested).
+NON_WINDOWS_REASONS = {
+    "careful": (
+        "[careful][WINDOWS ONLY] The SimonK safety runtime supports Windows only, "
+        "so on this OS every Bash and PowerShell command is blocked on purpose "
+        "(fail closed). This is not a verdict on the command. Way out: start a "
+        "new session without /careful and /guard, or run /plugin disable "
+        "simonk-core@simonk-stack (for /careful) or /plugin disable "
+        "simonk-stack@simonk-stack (for /guard) and then start a new session."),
+    "freeze": (
+        "[freeze][WINDOWS ONLY] The SimonK safety runtime supports Windows only, "
+        "so on this OS every Edit and Write is blocked on purpose (fail closed). "
+        "This is not a verdict on the edit. /unfreeze cannot lift it here: the "
+        "boundary state it clears exists only on Windows. Way out: start a new "
+        "session without /freeze, /guard and /investigate, or run /plugin disable "
+        "simonk-stack@simonk-stack and then start a new session."),
+}
+WINDOWS_FAILURE_REASONS = {
+    "careful": (
+        "[careful][RUNTIME FAILURE] Safety runtime failed, command not checked, so "
+        "it is blocked (fail closed). Way out: repair the plugin safety runtime "
+        "(Python, Git Bash and Node on PATH), or start a new session without /careful."),
+    "freeze": "[freeze] Safety runtime unavailable; blocked, fail closed.",
+}
+GUARD_SAFE_REASON = re.compile(r"[A-Za-z0-9 ()\[\]/@.,:;-]+\Z")
+
+
+def guard_family(kind):
+    if kind not in {"careful", "careful-powershell", "freeze"}:
+        raise ValueError("Unknown safety hook kind")
+    return "freeze" if kind == "freeze" else "careful"
+
+
+def interpreter_guard(kind):
+    """POSIX sh program of the shell-form guard hook for KIND (see above)."""
+    family = guard_family(kind)
+    windows, other = WINDOWS_FAILURE_REASONS[family], NON_WINDOWS_REASONS[family]
+    # Reasons are embedded in single quotes and printed into JSON unescaped.
+    if not (GUARD_SAFE_REASON.fullmatch(windows) and GUARD_SAFE_REASON.fullmatch(other)):
+        raise ValueError("Guard reason needs quoting")
+    deny = ('{"hookSpecificOutput":{"hookEventName":"PreToolUse",'
+            '"permissionDecision":"deny","permissionDecisionReason":"%s"}}\\n')
+    return ('case "$OS:$OSTYPE" in Windows_NT:*|*:msys*|*:cygwin*) '
+            "python -c 'import sys; sys.exit(sys.version_info < (3, 7))' "
+            ">/dev/null 2>&1 && exit 0; r='" + windows + "';; "
+            "*) r='" + other + "';; esac; "
+            "printf '" + deny + "' \"$r\"; printf '%s\\n' \"$r\" >&2; exit 2")
+
+
 def runtime_hook_command(kind):
-    """Exec-form hook command running the candidate safety runtime for KIND."""
+    """Shell-form interpreter guard, then the exec-form runtime hook for KIND.
+
+    Replaces one `command:` line of a reviewed hook entry: the guard takes that
+    entry's place and the runtime becomes a new entry that keeps the original
+    statusMessage line. The exec-form lines are unchanged from before D-76 step 4.
+    """
     args = ["-B", "${CLAUDE_PLUGIN_ROOT}/.simonk-runtime/safety_runtime.py",
             "check", kind, "--project", "${CLAUDE_PROJECT_DIR}"]
-    return '          command: "python"\n          args: ' + json.dumps(args)
+    return ('          command: ' + json.dumps(interpreter_guard(kind)) + '\n'
+            '        - type: command\n'
+            '          command: "python"\n          args: ' + json.dumps(args))
 
 
 # Reviewed setup/clear spellings. Legacy: the pre-D-62 SKILL.md writers. D-62:
@@ -681,6 +771,11 @@ def derive(source, source_digest, inputs, bases, safety_projection=None, release
             version = release_version
         manifest["version"] = version
         manifest["skills"] = [f"./skills/{n}/" for n, home in sorted(owners.items()) if home == owner]
+        if owner in DESCRIPTION_NOTICES:
+            if not isinstance(manifest.get("description"), str) or not manifest["description"]:
+                raise ValueError("Base plugin description is missing")
+            manifest["description"] = (manifest["description"].rstrip(". ") + ". "
+                                       + DESCRIPTION_NOTICES[owner])
         market["version"] = market["plugins"][0]["version"] = version
         for path, document in ((PLUGIN, manifest), (MARKET, market)):
             key = f"plugins/{owner}/{path}"

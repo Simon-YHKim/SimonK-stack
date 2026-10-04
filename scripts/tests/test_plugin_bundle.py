@@ -284,6 +284,29 @@ class PluginBundleTests(unittest.TestCase):
         self.assertNotIn("release", self.m.verify_bundle(legacy_output, legacy["bundle_digest"]))
         self.assertNotIn("release_version", legacy)
 
+    def test_stack_and_core_descriptions_carry_the_migration_and_windows_notices(self):
+        # D-76 step 4: `plugin update` of the legacy root plugin installs none of the
+        # other four, so the SimonKStack description names all four install commands.
+        result = self.build_release("2.7.0")
+        receipt = self.m.verify_bundle(self.output, result["bundle_digest"])
+        plain = self.build(self.base / "plain-candidate")
+        self.assertEqual(result["skills"], plain["skills"])
+        for owner in self.inputs["plugins"]:
+            manifest = json.loads((self.output / "plugins" / owner / ".claude-plugin/plugin.json")
+                                  .read_text(encoding="utf-8"))
+            notice = self.m.DESCRIPTION_NOTICES.get(owner)
+            expected = "fixture plugin" if notice is None else "fixture plugin. " + notice
+            self.assertEqual(manifest["description"], expected)
+            self.assertEqual(manifest["skills"], [f"./skills/{n}/" for n, home in sorted(receipt["owners"].items())
+                                                  if home == owner])
+        stack = self.m.DESCRIPTION_NOTICES["SimonKStack"]
+        for plugin in ("simonk-core", "simonk-market", "simonk-design", "simonk-aihub"):
+            self.assertEqual(stack.count(f"claude plugin install {plugin}@simonk-stack"), 1)
+        self.assertNotIn("simonk-stack@simonk-stack", stack)
+        self.assertIn("Windows", stack)
+        self.assertIn("Windows", self.m.DESCRIPTION_NOTICES["SimonKCore"])
+        self.assertEqual(set(self.m.DESCRIPTION_NOTICES), {"SimonKCore", "SimonKStack"})
+
     def test_content_identity_ignores_the_version_but_not_pins(self):
         a = self.build_release("2.7.0", self.base / "a")
         b = self.build_release("2.8.0", self.base / "b")
@@ -387,6 +410,11 @@ class PluginBundleTests(unittest.TestCase):
                 args = json.dumps(["-B", runtime, "check", kind, "--project",
                                    "${CLAUDE_PROJECT_DIR}"])
                 self.assertEqual(text.count('command: "python"\n          args: ' + args), count)
+                # D-76 step 4: every runtime entry has its interpreter guard sibling.
+                guard = ('          command: ' + json.dumps(self.m.interpreter_guard(kind)) + '\n'
+                         '        - type: command\n          command: "python"\n          args: ' + args)
+                self.assertEqual(text.count(guard), count)
+            self.assertEqual(text.split("---", 2)[1].count("- type: command"), 2 * sum(kinds.values()))
             self.assertNotIn("command: \"bash ${CLAUDE_SKILL_DIR}/", text)
             self.assertNotIn("command: 'bash \"$HOME/.claude/skills/", text)
 
@@ -498,12 +526,16 @@ class PluginBundleTests(unittest.TestCase):
         args = json.dumps(["-B", runtime, "check", "careful", "--project", "${CLAUDE_PROJECT_DIR}"])
         ps_args = json.dumps(["-B", runtime, "check", "careful-powershell", "--project",
                               "${CLAUDE_PROJECT_DIR}"])
+        guard = json.dumps(self.m.interpreter_guard("careful"))
+        ps_guard = json.dumps(self.m.interpreter_guard("careful-powershell"))
         self.assertEqual(front[front.index("hooks:\n"):],
                          'hooks:\n  PreToolUse:\n    - matcher: "Bash"\n      hooks:\n'
+                         '        - type: command\n          command: ' + guard + '\n'
                          '        - type: command\n          command: "python"\n'
                          '          args: ' + args + '\n'
                          '          statusMessage: "Checking for destructive commands..."\n'
                          '    - matcher: "PowerShell"\n      hooks:\n'
+                         '        - type: command\n          command: ' + ps_guard + '\n'
                          '        - type: command\n          command: "python"\n'
                          '          args: ' + ps_args + '\n'
                          '          statusMessage: "Checking PowerShell for catastrophic commands..."\n')
@@ -988,6 +1020,10 @@ class PluginBundleTests(unittest.TestCase):
             new["version"] = old["version"]
             if path == self.m.PLUGIN:
                 new["skills"] = old["skills"]
+                # D-76 step 4: the one other declared field, a fixed appended notice.
+                self.assertEqual(new["description"],
+                                 old["description"] + ". " + self.m.DESCRIPTION_NOTICES["SimonKCore"])
+                new["description"] = old["description"]
             else:
                 new["plugins"][0]["version"] = old["plugins"][0]["version"]
             self.assertEqual(new, old)
@@ -1054,6 +1090,146 @@ class PluginBundleTests(unittest.TestCase):
                     patch.object(self.m, "git", side_effect=AssertionError("Unsafe local config reached Git")):
                 with self.assertRaises(ValueError): self.build()
         config.write_bytes(original)
+
+
+class InterpreterGuardTests(unittest.TestCase):
+    """D-76 step 4: the projected hook fails closed when no usable Python exists.
+
+    Runs on every OS. Shell form is `sh -c` on macOS/Linux and Git Bash on
+    Windows (code.claude.com/docs/en/hooks, "Exec form and shell form").
+    """
+    KINDS = ("careful", "careful-powershell", "freeze")
+
+    def setUp(self):
+        spec = importlib.util.spec_from_file_location("plugin_bundle_guard", ROOT / "scripts/plugin_bundle.py")
+        self.m = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.m)
+        spec = importlib.util.spec_from_file_location("safety_runtime_guard",
+                                                      ROOT / "skills-src/freeze/bin/safety_runtime.py")
+        self.runtime = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.runtime)
+        self.temp = tempfile.TemporaryDirectory(prefix="simonk-guard-")
+        self.addCleanup(self.temp.cleanup)
+
+    def family(self, kind):
+        return "freeze" if kind == "freeze" else "careful"
+
+    def test_projected_entry_is_guard_then_unchanged_exec_form_runtime(self):
+        for kind in self.KINDS:
+            with self.subTest(kind=kind):
+                lines = self.m.runtime_hook_command(kind).split("\n")
+                self.assertEqual(len(lines), 4)
+                prefix = "          command: "
+                self.assertTrue(lines[0].startswith(prefix + '"'))
+                # A JSON string is a YAML double-quoted scalar with the same value.
+                self.assertEqual(json.loads(lines[0][len(prefix):]), self.m.interpreter_guard(kind))
+                self.assertEqual(lines[1:], [
+                    "        - type: command", '          command: "python"',
+                    "          args: " + json.dumps(["-B", "${CLAUDE_PLUGIN_ROOT}/.simonk-runtime/safety_runtime.py",
+                                                     "check", kind, "--project", "${CLAUDE_PROJECT_DIR}"])])
+                guard = self.m.interpreter_guard(kind)
+                self.assertNotIn("${", guard)  # no host placeholder, so nothing to quote or miss
+                self.assertNotIn("args", guard)
+
+    def test_projected_frontmatter_parses_to_guard_and_runtime_hooks(self):
+        try:
+            import yaml
+        except ImportError:
+            self.skipTest("PyYAML is not installed")
+        source = (ROOT / "skills-src/careful/SKILL.md").read_bytes().replace(b"\r\n", b"\n")
+        front = yaml.safe_load(self.m.safety_document("careful", source).decode("utf-8").split("---", 2)[1])
+        for group, kind in zip(front["hooks"]["PreToolUse"], ("careful", "careful-powershell")):
+            guard, runtime = group["hooks"]
+            self.assertEqual(guard, {"type": "command", "command": self.m.interpreter_guard(kind)})
+            self.assertEqual((runtime["command"], runtime["args"][3]), ("python", kind))
+            self.assertIn("statusMessage", runtime)
+
+    def test_guard_reasons_are_the_runtime_reasons(self):
+        self.assertEqual(self.m.NON_WINDOWS_REASONS, self.runtime.NON_WINDOWS_REASONS)
+        for kind in self.KINDS:
+            with self.subTest(kind=kind):
+                windows = self.runtime._decision(kind)["hookSpecificOutput"]["permissionDecisionReason"]
+                self.assertEqual(self.m.WINDOWS_FAILURE_REASONS[self.family(kind)], windows)
+                other = self.runtime._non_windows_decision(kind)["hookSpecificOutput"]
+                self.assertEqual(other["permissionDecisionReason"],
+                                 self.m.NON_WINDOWS_REASONS[self.family(kind)])
+        with self.assertRaises(ValueError):
+            self.m.interpreter_guard("bash")
+
+    def test_non_windows_reasons_say_windows_only_fail_closed_and_way_out(self):
+        careful, freeze = self.m.NON_WINDOWS_REASONS["careful"], self.m.NON_WINDOWS_REASONS["freeze"]
+        for reason in (careful, freeze):
+            self.assertIn("supports Windows only", reason)
+            self.assertIn("blocked on purpose (fail closed)", reason)
+            self.assertIn("start a new session", reason)
+        self.assertIn("/plugin disable simonk-core@simonk-stack (for /careful)", careful)
+        self.assertIn("/plugin disable simonk-stack@simonk-stack (for /guard)", careful)
+        self.assertIn("/unfreeze cannot lift it here", freeze)
+        self.assertIn("/plugin disable simonk-stack@simonk-stack", freeze)
+
+    def shell(self):
+        if os.name != "nt":
+            return ["/bin/sh", "-c"]
+        bash = Path(os.environ.get("ProgramFiles", "C:/Program Files")) / "Git/bin/bash.exe"
+        if not bash.is_file():
+            self.skipTest("Git Bash is required to run shell-form hooks on Windows")
+        return [str(bash), "--noprofile", "--norc", "-c"]
+
+    def run_guard(self, script, path, extra=None):
+        env = {k: v for k, v in os.environ.items()
+               if k.upper() in {"SYSTEMROOT", "WINDIR", "TEMP", "TMP", "OS"}}
+        env.update(PATH=path, **(extra or {}))
+        payload = json.dumps({"session_id": "s", "hook_event_name": "PreToolUse",
+                              "tool_input": {"command": "git status"}})
+        return subprocess.run([*self.shell(), script], input=payload, env=env, text=True,
+                              encoding="utf-8", capture_output=True, timeout=30)
+
+    def assert_deny(self, result, reason):
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertEqual(json.loads(result.stdout), {"hookSpecificOutput": {
+            "hookEventName": "PreToolUse", "permissionDecision": "deny",
+            "permissionDecisionReason": reason}})
+        self.assertEqual(result.stderr.strip(), reason)
+
+    def test_guard_denies_with_exit_2_when_no_python_is_on_path(self):
+        empty = Path(self.temp.name) / "empty bin"
+        empty.mkdir()
+        for kind in self.KINDS:
+            with self.subTest(kind=kind):
+                result = self.run_guard(self.m.interpreter_guard(kind), str(empty))
+                reasons = self.m.WINDOWS_FAILURE_REASONS if os.name == "nt" else self.m.NON_WINDOWS_REASONS
+                self.assert_deny(result, reasons[self.family(kind)])
+
+    def test_guard_on_a_non_windows_shell_denies_even_with_python(self):
+        python_dir = str(Path(sys.executable).parent)
+        for kind in self.KINDS:
+            with self.subTest(kind=kind):
+                script = self.m.interpreter_guard(kind)
+                if os.name == "nt":  # Git Bash: drive the non-Windows branch explicitly.
+                    script = "unset OS; OSTYPE=linux-gnu; " + script
+                result = self.run_guard(script, python_dir + os.pathsep + os.defpath)
+                self.assert_deny(result, self.m.NON_WINDOWS_REASONS[self.family(kind)])
+
+    @unittest.skipUnless(os.name == "nt", "Windows branch of the guard")
+    def test_guard_on_windows_with_working_python_is_silent(self):
+        python_dir = str(Path(sys.executable).parent)
+        for kind in self.KINDS:
+            with self.subTest(kind=kind):
+                result = self.run_guard(self.m.interpreter_guard(kind), python_dir,
+                                        {"OS": "Windows_NT"})
+                self.assertEqual((result.returncode, result.stdout, result.stderr), (0, "", ""))
+
+    @unittest.skipUnless(os.name == "nt", "Windows branch of the guard")
+    def test_guard_on_windows_with_a_broken_python_denies(self):
+        # Stands in for the Microsoft Store `python.exe` stub, which exits 9009.
+        fake = Path(self.temp.name) / "fake python"
+        fake.mkdir()
+        shutil.copyfile(Path(os.environ.get("SystemRoot", "C:/Windows")) / "System32/whoami.exe",
+                        fake / "python.exe")
+        for kind in self.KINDS:
+            with self.subTest(kind=kind):
+                result = self.run_guard(self.m.interpreter_guard(kind), str(fake), {"OS": "Windows_NT"})
+                self.assert_deny(result, self.m.WINDOWS_FAILURE_REASONS[self.family(kind)])
 
 
 if __name__ == "__main__":

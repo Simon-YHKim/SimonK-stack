@@ -858,6 +858,9 @@ package-only verifier는 Git tree Merkle root와 commit SHA를 다시 계산해 
 아닙니다. 검토한 전체 `bundle_digest`를 별도로 고정해야 하며 서명 체계는 아닙니다.
 
 후보는 원본 plugin.json의 version/skills와 self-marketplace의 두 version만 변환합니다.
+D-76 4단계부터는 SimonKCore·SimonKStack plugin.json의 description 끝에 고정 안내문
+(`plugin_bundle.DESCRIPTION_NOTICES`: 레거시 이전 명령 4줄, 안전 훅 Windows 전용)을
+덧붙입니다. 스킬 목록·개수는 바뀌지 않습니다.
 `<base-version>-vibe.<source-digest 앞 12자>`는 후보 표시일 뿐 고유 검증키나 설치
 방지 장치가 아닙니다. 원본 JSON과 변환 후 JSON을 모두 검증 기록으로 보존합니다.
 이 candidate envelope를 marketplace에 등록하거나 `install.sh` 입력으로 넘기지 마세요.
@@ -927,8 +930,23 @@ version 칸을 비운 값으로 셉니다. version만 다른 두 빌드는 같�
 
 **롤백은 dist를 되감지 않습니다.** main에서 문제 커밋을 revert하거나 pin을 이전 값으로
 돌리는 PR을 머지하면, CI가 이전 정상 콘텐츠를 **더 높은** version(새 N)으로 다시
-빌드·게시합니다. 호스트가 낮아진 version을 받는지는 확인되지 않았기 때문입니다.
-설치된 호스트가 이 재출하를 실제로 받는지는 4단계에서 확인합니다.
+빌드·게시합니다. 4단계 호스트 실측(2026-10-04, Claude Code 2.1.289, 격리 설정 폴더)에서
+설치된 호스트는 이 재출하를 받았습니다(`plugin update`로 1.802.0 → 1.803.0, 불량 표식이
+사라지고 빌더 출력과 273/273 바이트 일치).
+
+같은 실측에서 호스트는 **version 문자열이 다르기만 하면 낮은 값도 받았습니다.** 1.790.0을
+게시하자 `1.803.0 to 1.790.0`으로 내려갔습니다. 반대로 version이 같으면 내용이 달라도
+`already at the latest version`이라며 받지 않았습니다. 그래서 늦게 끝난 옛 실행이나 오래된
+빌드가 사용자에게 내려가는 것을 막는 장치는 게시 쪽 `dist_release.py decide`의 거부
+(dist보다 낮거나 같은 version이면 refuse) **하나뿐**입니다. 호스트는 이를 막아 주지 않으니
+`decide`를 건너뛰는 수동 dist 커밋은 하지 마세요.
+
+**카탈로그 커밋은 되돌리지 않습니다(운영 규칙).** main의 `.claude-plugin/marketplace.json`을
+다섯 `git-subdir` 항목으로 바꾸는 커밋(첫 게시 때 별도 승인으로 머지)은 revert하지 않습니다.
+`plugin update`와 `marketplace update`는 먼저 main에서 카탈로그를 새로 받습니다. 카탈로그가
+레거시로 돌아가면 이미 설치된 SimonKCore·SimonKMarket·SimonKDesign·SimonKAIHub는 그
+카탈로그에 없어 `plugin details`에서 `not found`가 되고 갱신 경로를 잃습니다(4단계 실측).
+문제가 생기면 카탈로그는 그대로 두고, 위처럼 이전 콘텐츠를 더 높은 version으로 재출하합니다.
 
 **pin 커밋은 태그로 보존합니다.** CI는 pin을 sha로 `fetch --depth 1` 합니다. 다섯 pin
 커밋은 원본 저장소 main에 머지되지 않은 기능 브랜치에만 있었으므로, 그 브랜치가 지워지면
@@ -1051,6 +1069,129 @@ receipt 재검증은 동일 digest로 통과했지만 `installation_ready=false`
 이 실측으로 확인한 범위는 Codex의 로컬 등록·복사·목록 조회뿐입니다. 자동 스킬
 선택, 명시 명령 호출, hook 집행·차단, 모델 행동, 외부 의존 폐쇄성은 여전히 미검증이며
 세 readiness flag를 올리지 않습니다.
+
+### 레거시 `simonk-stack` 0.1.0 사용자 이전 (D-76 4단계)
+
+카탈로그가 다섯 플러그인으로 바뀐 뒤(첫 `dist` 게시 이후)에 해당합니다. 4단계 호스트
+실측(격리 설정 폴더, 레거시 0.1.0 설치 → 새 카탈로그 → `plugin update`)에서 확인한 사실:
+
+- `plugin update simonk-stack@simonk-stack`은 같은 ID를 새 SimonKStack으로 **제자리
+  교체**합니다(`updated from 0.1.0 to …`, 설치 항목은 1개라 중복이 생기지 않음).
+- 나머지 넷은 설치되지 않습니다. 카탈로그만 갱신된 상태에서도 available 목록에만 뜹니다.
+- 레거시 스킬 68개 중 58개는 새 SimonKStack에 있고, **10개는 사라집니다**: SimonKMarket으로
+  옮긴 9개(`ad-monetization`·`analytics-integrator`·`global-payment-planner`·`growth-engine`·
+  `payment-integrator`·`revenue-scenario-tester`·`store-launcher`·
+  `subscription-manager-selector`·`tag-manager-integrator`)와 SimonKDesign으로 옮긴
+  `consistency-guard` 1개입니다.
+- plugin.json의 `dependencies`는 새로 `plugin install`할 때만 따라 설치되고 `plugin update`
+  에서는 동작하지 않았습니다. 세션 시작 때 처리되는지는 확인하지 않았습니다.
+
+그래서 업데이트한 사용자는 네 개를 직접 설치합니다(세션 안에서는 같은 ID로
+`/plugin install <id>` 후 `/reload-plugins`):
+
+```text
+claude plugin install simonk-core@simonk-stack
+claude plugin install simonk-market@simonk-stack
+claude plugin install simonk-design@simonk-stack
+claude plugin install simonk-aihub@simonk-stack
+```
+
+다섯 개 확인(5줄이 나오면 정상). PowerShell 5.1·7에서 4단계 `plugin list --json` 기록으로
+동작을 확인했습니다:
+
+```powershell
+(claude plugin list --json | Out-String | ConvertFrom-Json) | Where-Object id -like 'simonk-*@simonk-stack' | Select-Object id, version, enabled
+```
+
+POSIX 셸: `claude plugin list --json | grep -o 'simonk-[a-z]*@simonk-stack'`
+
+같은 안내를 빌드가 SimonKStack plugin.json description(`claude plugin details`에 보이는 줄)
+끝에 덧붙입니다. README의 이전 절도 같은 명령을 씁니다.
+
+### 비Windows 안전 훅 — 인터프리터 가드 (D-76 4단계)
+
+**결함.** v2 safety projection은 careful·freeze·guard·investigate 훅을 exec form
+`command: "python"` + `args: ["-B", "${CLAUDE_PLUGIN_ROOT}/.simonk-runtime/safety_runtime.py",
+"check", <kind>, "--project", "${CLAUDE_PROJECT_DIR}"]`로 바꿉니다. `python`이 없는 호스트
+(Ubuntu 26.04 기본은 `python3`만 있음)에서는 이 훅이 시작조차 못 합니다. Claude Code는
+시작하지 못한 훅을 비차단 오류로 처리하므로 도구 호출이 그대로 실행됐습니다(fail-open).
+`python3`로 돌리면 런타임이 비Windows에서 deny하지만 사유가 "Python·Git Bash를 고쳐라"였고,
+freeze deny에는 빠져나갈 길이 없었습니다.
+
+**공식 문서 근거** ([Hooks reference](https://code.claude.com/docs/en/hooks), 2026-10-04 열람):
+
+- Exec form: "Claude Code resolves `command` as an executable on `PATH` and spawns it
+  directly with `args` as the argument vector. There is no shell".
+- Shell form: "The `command` string is passed to a shell: `sh -c` on macOS and Linux,
+  Git Bash on Windows, or PowerShell when Git Bash isn't installed."
+- 시작 실패: "A hook that can't start lands in the same non-blocking bucket. … For most
+  hook events, the action proceeds."
+- 차단: "Exit 2 means a blocking error" · 다른 종료 코드는 "doesn't block on its own" ·
+  여러 훅은 "All matching hooks run in parallel" · "precedence is `deny` > `defer` > `ask` > `allow`".
+- 세션 안 `/plugin disable <plugin>`은 Claude Code 2.1.289 도움말에, 셸의
+  `claude plugin disable <id>`는 [Discover plugins](https://code.claude.com/docs/en/discover-plugins)에 있습니다.
+
+**수정(방식 선택).** exec form 훅은 그대로 두고(Windows의 판정 경로 불변), 같은 matcher에
+shell form **인터프리터 가드** 훅을 하나 더 붙입니다(`plugin_bundle.interpreter_guard`).
+가드는 sh 내장 명령만 쓰고 경로 자리표시자가 없어서, 가드 자신이 필요로 하는 것이 빠질 수
+없습니다.
+
+- Windows 아닌 곳(`sh -c`): 항상 JSON deny + exit 2. 런타임이 Windows 전용이라 인터프리터가
+  있어도 결과가 같고, 런타임도 같은 사유로 deny합니다.
+- Windows(Git Bash): `python -c 'import sys; sys.exit(sys.version_info < (3, 7))'`가 성공하면
+  exit 0으로 아무 판정도 내지 않습니다. 실패하면(없음·Store 가짜 `python.exe`·3.7 미만)
+  런타임의 기존 fail-closed 사유로 deny + exit 2.
+
+검토한 다른 길: (1) 전부 shell form으로 바꾸고 `python3`→`python` 순서로 찾기 — Windows가
+Git Bash 경유로 바뀌고 Windows의 `python3`는 Store 별칭일 수 있어 Windows 동작이 달라집니다.
+(2) 플러그인에 POSIX 런처 파일을 넣기 — exec form은 Windows에서 진짜 `.exe`만 실행하므로
+Windows와 함께 쓸 단일 명령이 없고, 런처 파일이 빠지면 다시 시작 실패(fail-open)가 됩니다.
+(3) 맨이름 `bash` 실행 — PowerShell에서 WSL `bash.exe`로 갈 수 있어 쓰지 않습니다.
+
+**실측**(2026-10-04 23:2x~23:39 KST). 투영된 SKILL.md 프런트매터를 YAML로 읽어 각 훅을
+문서 규칙대로 실행했습니다. exec form은 자식 PATH로 실행 파일을 찾아 셸 없이 띄웠고
+(Windows는 node `child_process.spawn`, WSL은 PATH 검색), shell form은 Windows Git Bash
+`bash.exe -c`, WSL `/bin/sh -c`입니다. 판정은 위 문서 규칙(exit 2·JSON deny 차단, 시작 실패·
+기타 종료는 비차단, deny 우선)으로 합쳤습니다. 하네스: 세션 스크래치패드 `d76fix/measure.py`.
+비교 대상 `main`은 origin/main의 투영 훅(같은 새 런타임 파일)입니다.
+
+| 호스트·경우 | 페이로드 | main 훅 | 이 수정 |
+| --- | --- | --- | --- |
+| Windows, Python 3.12 | careful `git status` / `rm -rf /` | 통과 / deny(HIGH) | 통과 / deny(HIGH), 가드 exit 0 |
+| Windows, Python 3.12 | freeze 경계 안 / 밖 Edit | 통과 / deny | 통과 / deny, 가드 exit 0 |
+| Windows, PATH에 python 없음 | 네 페이로드 모두 | **통과(시작 실패 ENOENT)** | deny(RUNTIME FAILURE·freeze unavailable), 가드 exit 2 |
+| Windows, 작동하는 Store 별칭 `python.exe` | 네 페이로드 | 위 Python 3.12와 같음 | 같음(가드 exit 0) |
+| Windows, 작동 안 하는 `python.exe`(Store 가짜 대용) | 네 페이로드 | **통과(exit 1 비차단)** | deny, 가드 exit 2 |
+| WSL Ubuntu 26.04, python·python3 모두 없음 | 네 페이로드 | **통과(ENOENT)** | deny(WINDOWS ONLY), 가드 exit 2 |
+| WSL, python3만 | 네 페이로드 | **통과(ENOENT)** | deny(WINDOWS ONLY), 가드 exit 2 |
+| WSL, python·python3 둘 다 | 네 페이로드 | deny(런타임) | deny(가드 exit 2 + 런타임 JSON deny, 같은 사유) |
+
+WSL에서 런타임을 `python3`로 직접 돌리면 세 정책 모두 새 사유로 deny(exit 0), `clear`는
+exit 2(`safety runtime state update failed`)입니다. 즉 비Windows에서 `/unfreeze`는 상태를 지울
+수 없고, 사유가 이를 밝힙니다.
+
+**비Windows deny 사유**(런타임 `NON_WINDOWS_REASONS`와 가드가 바이트 단위로 같음, 테스트로 고정):
+
+- careful·careful-powershell: `[careful][WINDOWS ONLY] The SimonK safety runtime supports
+  Windows only, so on this OS every Bash and PowerShell command is blocked on purpose (fail
+  closed). This is not a verdict on the command. Way out: start a new session without /careful
+  and /guard, or run /plugin disable simonk-core@simonk-stack (for /careful) or /plugin disable
+  simonk-stack@simonk-stack (for /guard) and then start a new session.`
+- freeze: `[freeze][WINDOWS ONLY] The SimonK safety runtime supports Windows only, so on this OS
+  every Edit and Write is blocked on purpose (fail closed). This is not a verdict on the edit.
+  /unfreeze cannot lift it here: the boundary state it clears exists only on Windows. Way out:
+  start a new session without /freeze, /guard and /investigate, or run /plugin disable
+  simonk-stack@simonk-stack and then start a new session.`
+
+Windows의 deny·ask 사유는 바꾸지 않았습니다. Windows에서 python이 없을 때 가드가 내는
+사유도 런타임의 기존 RUNTIME FAILURE·`Safety runtime unavailable` 문구 그대로입니다.
+
+**남은 한계.** Git Bash가 없는 Windows는 shell form을 PowerShell로 돌리므로 가드가 구문
+오류(비차단)로 끝납니다. 이때 python이 있으면 런타임이 Git Bash를 못 찾아 deny하지만,
+python도 없으면 막지 못합니다. 런타임 파일 자체가 빠진 손상 설치도 막지 못합니다. 실제
+Claude Code 세션 안 훅 실행(모델 턴)은 측정하지 않았고, 위 실측은 문서에 적힌 실행 방식을
+재현한 것입니다. `/plugin disable` 직후 이미 등록된 스킬 훅이 같은 세션에서 바로 빠지는지도
+확인하지 않아 사유는 "새 세션 시작"까지 안내합니다.
 
 ### 후보 경로 경고 분류 (2026-09-27)
 
