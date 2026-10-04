@@ -2,6 +2,51 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
+## 표준 갱신 경로 — `update-local.ps1` (Windows, 머지 직후마다)
+
+main에 머지가 끝날 때마다 이 명령 하나로 이 PC의 사용자 홈 설치를 main에 맞춘다. 기본은 미리보기라서 `git fetch` 말고는 아무것도 쓰지 않는다. `-Apply`를 붙여야 설치한다. PowerShell 7(`pwsh`)이 필요하다.
+
+```powershell
+# 미리보기: 할 일을 JSON 보고서 하나로 보여 준다
+pwsh -NoProfile -NonInteractive -File scripts/windows/update-local.ps1
+# 설치
+pwsh -NoProfile -NonInteractive -File scripts/windows/update-local.ps1 -Apply
+```
+
+순서:
+1. `git fetch origin` 후 main sha를 정한다.
+2. `~/.claude/skills/vibe` 정션 대상에서 설치된 후보를 찾고, 그 영수증의 `main`을 읽는다.
+3. 이미 최신이면 `"status": "current"`로 끝낸다(종료코드 0). sha만 비교하지 않는다. 다음 중 하나면 최신이다.
+   - 같은 커밋이다.
+   - 후보 입력에 변경이 없다. 입력은 `skills-src`·`.claude/skills`·`distribution`·`LICENSE`·`NOTICE`와 빌드 스크립트 4개다.
+   - 정션이 가리키지 않는 스킬만 바뀌었고, 정션 8개의 설치 바이트가 main blob과 같다.
+4. 빌드가 필요하면 여유 메모리부터 본다. 기본 3 GB보다 적으면 `LOW_MEMORY`로 멈춘다.
+5. 같은 main으로 만든 후보(영수증 `main` 일치)가 있으면 영수증 4개를 다시 검증해 재사용한다. 없으면 `yyyyMMdd-vibe-<버전숫자>-<sha7>` 태그로 새로 빌드한다.
+6. 정션 8개와 Codex `/vibe` config 줄을 바꾼다. 이전 태그는 정션에서 자동으로 읽는다. 열린 run, 진행 중 시도, halted 예산이 있으면 거부한다.
+7. 실폴더 스킬(ai-debate·careful·freeze·guard·unfreeze)은 설치 바이트가 main과 다를 때만 바꾼다.
+8. 검증한다: 설치본 vibe·vibe-bot `selftest.py`, Codex config 줄이 Claude vibe 정션 대상과 같은지, 버전. 하나라도 실패하면 이번 실행에서 바꾼 것을 모두 되돌린다.
+9. JSON 보고서 하나를 출력한다. 종료코드 0은 preview·current·installed, 2는 차단 또는 되돌림, 3은 되돌림이 덜 된 상태다(보고서의 보관 경로를 확인한다).
+
+| 매개변수 | 기본값 | 뜻 |
+| --- | --- | --- |
+| `-Apply` | 꺼짐 | 실제로 설치한다. 없으면 미리보기 |
+| `-Ref` | `origin/main` | 설치할 커밋 |
+| `-NoFetch` | 꺼짐 | `git fetch`를 건너뛴다 |
+| `-RepoRoot` | 스크립트가 들어 있는 체크아웃 | 빌드용 워크트리를 만들 레포 |
+| `-ReleasesDir` | 설치된 정션의 상위 폴더, 없으면 `E:\Coding Infra\Releases\SimonK-stack`, 그것도 없으면 필수 | 후보와 영수증이 있는 폴더 |
+| `-PluginPins` | `ReleasesDir`에서 가장 최근의 유효한 폴더를 찾는다 | 플러그인 클론 5개(plugin-inputs.v1.json 커밋, 깨끗한 LF 작업 트리) |
+| `-UserHome` / `-CodexHome` | 현재 사용자 홈 / `<홈>\.codex` | 설치 대상 |
+| `-Tag` | `yyyyMMdd-vibe-<버전숫자>-<sha7>` | 새 후보 이름 |
+| `-PhysicalSkills` | `ai-debate,careful,freeze,guard,unfreeze` | 실폴더로 관리하는 스킬 |
+| `-MinFreeMemoryGB` | `3` | 빌드 전 최소 여유 메모리. 0이면 검사하지 않는다 |
+| `-Selftest` | 꺼짐 | 바뀐 것이 없어도 selftest를 돌린다. 설치 뒤에는 항상 돈다 |
+
+- 바꾸는 것은 전부 `~/.claude/flat-link-archive/` 아래로 옮겨 두고 지우지 않는다. 정션은 `vibe-<태그>/`(manifest, config 이전본), 실폴더는 `<스킬>-<yyMMdd-HHmm>-<sha7>/`에 남는다.
+- 단계별 스크립트도 같은 폴더에 있고 기본은 모두 미리보기다: `build-candidate.ps1`, `install-junctions.ps1 -Tag <새 태그>`(`-OldTag`는 생략하면 자동), `install-physical.ps1`.
+- agy는 정션을 따라가지 않아서 `~/.gemini/antigravity-cli/skills/<이름>` → `~/.claude/skills/<이름>` 심링크를 쓴다. 정션 대상만 바뀌므로 손댈 필요가 없고, 보고서의 `agy` 항목으로 상태만 확인한다. 정션을 새로 추가할 때만 같은 이름의 심링크를 만든다.
+- 새 PC 첫 설치: 정션 자리가 비어 있으면 정션을 만들고, 실폴더가 있으면 보관한 뒤 정션을 만든다. Codex config에 `/vibe` 줄이 없으면 블록을 덧붙인다. 플러그인 핀 폴더는 레포에 없으니 `-PluginPins`로 넘긴다. 이 경로는 임시 홈 테스트로만 확인했다.
+- 테스트: `python -B -m unittest discover -s scripts/tests -p test_windows_update_local.py`. 임시 홈만 쓴다.
+
 ## 2026-10-04 14:3x `/vibe` 2.14.2 · `freeze` 0.2.2 — D-71 설치
 
 main `f6ec9c5`에서 조립한 후보를 설치했다. 반영된 PR은 셋이다.

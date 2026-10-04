@@ -50,3 +50,5 @@ jobs:
         run: python -B -m unittest discover -s scripts/tests -p test_vibe_host_preflight.py -q
       - name: Vibe flat-link rehearsal and rollback (isolated temp profile only)
         run: python -B -m unittest discover -s scripts/tests -p test_vibe_flat_transition.py -q
+      - name: Windows update-local installer (temp homes only; no build or model calls)
+        run: python -B -m unittest discover -s scripts/tests -p test_windows_update_local.py -q
