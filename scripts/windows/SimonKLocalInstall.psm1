@@ -16,8 +16,8 @@ $script:DefaultReleasesDir = 'E:\Coding Infra\Releases\SimonK-stack'
 # Everything the four package builders read from the repository. A change
 # outside these paths cannot change the candidate bytes.
 $script:CandidateInputs = @('skills-src', '.claude/skills', 'distribution', 'LICENSE', 'NOTICE',
-    'scripts/skill_release.py', 'scripts/plugin_bundle.py', 'scripts/codex_overlay.py',
-    'scripts/codex_safe_subset.py')
+    'scripts/skill_release.py', 'scripts/plugin_bundle.py', 'scripts/dist_release.py',
+    'scripts/codex_overlay.py', 'scripts/codex_safe_subset.py')
 $script:ActiveAttemptStates = @('intent', 'running', 'uncertain')
 $script:CodexLinePattern = '(?m)^path = "(?<p>[^"\r\n]*/candidate-safety/plugins/SimonKCore/skills/vibe/SKILL\.md)"[ \t]*\r?$'
 $script:GitExe = $null

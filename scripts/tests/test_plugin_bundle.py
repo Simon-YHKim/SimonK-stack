@@ -257,6 +257,82 @@ class PluginBundleTests(unittest.TestCase):
             self.assertEqual(self.m.main(argv), 0)
         self.assertEqual(json.loads(stdout.getvalue()), expected)
         self.assertTrue(build.call_args.kwargs["safety_adapter"])
+        self.assertIsNone(build.call_args.kwargs["release_version"])
+        with patch.object(self.m, "build_bundle", return_value=expected) as build, \
+                patch.object(sys, "stdout", io.StringIO()):
+            self.assertEqual(self.m.main(argv + ["--release-version", "2.7.0"]), 0)
+        self.assertEqual(build.call_args.kwargs["release_version"], "2.7.0")
+
+    def build_release(self, version, output=None, safety=False):
+        return self.m.build_bundle(self.source, self.source_digest, self.plugins, self.inputs,
+                                   output or self.output, safety_adapter=safety, release_version=version)
+
+    def test_release_version_replaces_the_candidate_marker_in_all_five(self):
+        result = self.build_release("2.7.0")
+        receipt = self.m.verify_bundle(self.output, result["bundle_digest"])
+        self.assertEqual(result["release_version"], "2.7.0")
+        self.assertEqual(receipt["release"], {"version": "2.7.0", "content_digest": result["content_digest"]})
+        self.assertFalse(receipt["installation_ready"])
+        for owner in self.inputs["plugins"]:
+            metadata = self.output / "plugins" / owner / ".claude-plugin"
+            manifest = json.loads((metadata / "plugin.json").read_text(encoding="utf-8"))
+            market = json.loads((metadata / "marketplace.json").read_text(encoding="utf-8"))
+            self.assertEqual(manifest["version"], "2.7.0")
+            self.assertEqual((market["version"], market["plugins"][0]["version"]), ("2.7.0", "2.7.0"))
+        legacy_output = self.base / "legacy-candidate"
+        legacy = self.build(legacy_output)
+        self.assertNotIn("release", self.m.verify_bundle(legacy_output, legacy["bundle_digest"]))
+        self.assertNotIn("release_version", legacy)
+
+    def test_content_identity_ignores_the_version_but_not_pins(self):
+        a = self.build_release("2.7.0", self.base / "a")
+        b = self.build_release("2.8.0", self.base / "b")
+        self.assertEqual(a["content_digest"], b["content_digest"])
+        self.assertNotEqual(a["bundle_digest"], b["bundle_digest"])
+        again = self.build_release("2.7.0", self.base / "a-again")
+        self.assertEqual(again["bundle_digest"], a["bundle_digest"])  # one version, one byte set
+        root = self.plugins / "SimonKDesign"
+        self.git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+                 "commit", "-q", "--allow-empty", "-m", "test: same tree, new pin")
+        self.inputs["plugins"]["SimonKDesign"]["commit"] = self.git(root, "rev-parse", "HEAD").strip()
+        c = self.build_release("2.9.0", self.base / "c")  # pin-only change, identical tree
+        self.assertNotEqual(c["content_digest"], a["content_digest"])
+        self.put(root, "commands/inspect.md", "Changed command\n")
+        self.repin("SimonKDesign")
+        d = self.build_release("2.10.0", self.base / "d")
+        self.assertNotIn(d["content_digest"], {a["content_digest"], c["content_digest"]})
+
+    def test_release_version_must_be_plain_semver_above_every_base(self):
+        rejected = self.base / "rejected"
+        for bad in ("1.2.3", "1.2.2", "0.9.0", "2.0.0-rc.1", "2.0.0+build", "02.0.0", "2.0", 2):
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                self.build_release(bad, rejected)
+            self.assertFalse(rejected.exists())
+
+    def test_forged_release_identity_cannot_verify(self):
+        result = self.build_release("2.7.0")
+        original = (self.output / "bundle.json").read_bytes()
+        changes = (lambda m: m["release"].update(content_digest="0" * 64),
+                   lambda m: m["release"].update(version="2.8.0"),
+                   lambda m: m["release"].update(extra=True),
+                   lambda m: m.pop("release"),
+                   lambda m: m.update(release=None))
+        for index, change in enumerate(changes):
+            receipt = json.loads(original)
+            change(receipt)
+            digest = self.repin_bundle(receipt)
+            with self.subTest(change=index), self.assertRaises(ValueError):
+                self.m.verify_bundle(self.output, digest)
+        (self.output / "bundle.json").write_bytes(original)
+        self.m.verify_bundle(self.output, result["bundle_digest"])
+
+    def test_safety_release_build_keeps_the_projection_in_its_identity(self):
+        self.enable_safety_fixture()
+        result = self.build_release("2.7.0", safety=True)
+        receipt = self.m.verify_bundle(self.output, result["bundle_digest"])
+        self.assertEqual((receipt["schema_version"], receipt["release"]["version"]), (2, "2.7.0"))
+        plain = self.build_release("2.7.0", self.base / "plain-release")
+        self.assertNotEqual(plain["content_digest"], result["content_digest"])
 
     def test_safety_projection_is_exact_and_changes_only_reviewed_members(self):
         self.enable_safety_fixture()
