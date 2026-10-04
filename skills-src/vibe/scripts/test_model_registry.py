@@ -435,25 +435,41 @@ class ModelRegistryTests(unittest.TestCase):
             with self.subTest(model=model_id):
                 self.assertIn("`" + model_id + "`", pending)
 
-    def test_d67_lanes_are_registered_but_still_pending_canary(self):
+    def test_d67_lanes_passed_canary_but_still_pending_certificate(self):
         # D-67 adds lanes alongside the legacy keys; registration is not a working route.
+        # 2.14.2: the read-only canary (2026-10-04) passed for both lanes, but native send and the
+        # account/billing certificate are still missing, so they stay pending (not keep-*).
         data = self.m.load_registry()
         migration = data["legacy_lane_migration"]
         for lane in ("claude-opus-5-5", "gpt-6.1-sol"):
             with self.subTest(lane=lane):
                 self.assertIn(lane, routing_lanes())
-                self.assertEqual(migration[lane], {"candidate": lane, "status": "pending-transport-and-canary"})
+                self.assertEqual(migration[lane], {"candidate": lane, "status": "pending-transport-and-certificate"})
         for legacy in ("claude-opus-5", "gpt-5.6-sol", "gpt-5.6-terra", "grok-4.6"):
             self.assertIn(legacy, routing_lanes())  # ledger.py rejects rows whose lane is not in LANES.
-        self.assertEqual(migration["claude-opus-5"]["candidate"], "claude-opus-5-5")
-        self.assertEqual(migration["gpt-5.6-sol"]["candidate"], "gpt-6.1-sol")
+        self.assertEqual(migration["claude-opus-5"],
+                         {"candidate": "claude-opus-5-5", "status": "pending-transport-and-certificate"})
+        self.assertEqual(migration["gpt-5.6-sol"],
+                         {"candidate": "gpt-6.1-sol", "status": "pending-transport-and-certificate"})
+        # The canary covered only these two lanes: terra's tier evaluation and the uncanaried
+        # successors keep their own pending status.
+        self.assertEqual(migration["gpt-5.6-terra"],
+                         {"candidate": "gpt-6.1-sol", "status": "pending-evaluation-not-equivalent-tier"})
+        self.assertEqual(migration["gpt-5.6-luna"], {"candidate": "gpt-6-luna", "status": "pending-transport-and-canary"})
         self.assertNotIn("gpt-6-sol", {v["candidate"] for v in migration.values()})
         self.assertEqual(migration["grok-4.6"], {"candidate": "grok-4.7", "status": "pending-quota-and-canary"})
-        pending = " ".join(catalog_map_section("Lane migration pending").split())
-        self.assertIn("pending-transport-and-canary", pending)
+        certificate = {k for k, v in migration.items() if v["status"] == "pending-transport-and-certificate"}
+        self.assertEqual(certificate, {"claude-opus-5-5", "claude-opus-5", "gpt-6.1-sol", "gpt-5.6-sol"})
+        section = catalog_map_section("Lane migration pending")
+        rows = {line.split("|")[1].strip(): line for line in section.splitlines() if line.startswith("| `")}
+        pending = " ".join(section.split())
         self.assertIn("launch.requested", pending)
+        self.assertIn("2026-10-04", pending)
         for lane in ("claude-opus-5-5", "gpt-6.1-sol"):
-            self.assertIn("`" + lane + "`", pending)
+            with self.subTest(row=lane):
+                self.assertIn("`" + lane + "`", pending)
+                self.assertIn("`pending-transport-and-certificate`", rows["`" + lane + "`"])
+                self.assertNotIn("pending-transport-and-canary", rows["`" + lane + "`"])
 
     def test_catalog_map_states_lane_dispositions_and_legacy_routing_as_built(self):
         migration = self.m.load_registry()["legacy_lane_migration"]

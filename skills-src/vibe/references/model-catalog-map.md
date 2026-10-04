@@ -70,8 +70,8 @@ D-67(2026-10-04, 허브 토론 `dbt-261004-033902`, ADD_ALONGSIDE_KEEP_LEGACY)�
 
 | 새 레인 | 전달 | Orca 1.4.218 이 받는 effort | 정책 std / top | registry 상태 |
 | --- | --- | --- | --- | --- |
-| `claude-opus-5-5` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | high / max | `pending-transport-and-canary` |
-| `gpt-6.1-sol` | `--effort` 플래그 | minimal~xhigh (codex 미등록 모델 폴백, max·ultra 거부) | high / xhigh | `pending-transport-and-canary` |
+| `claude-opus-5-5` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | high / max | `pending-transport-and-certificate` |
+| `gpt-6.1-sol` | `--effort` 플래그 | minimal~xhigh (codex 미등록 모델 폴백, max·ultra 거부) | high / xhigh | `pending-transport-and-certificate` |
 
 - 우선순위 목록·`PROCESS_LANES.coding`·종합 고정·코디네이터를 새 키로 옮겼다.
   종합은 `claude-opus-5-5` @max 다. ultracode 는 프롬프트 키워드라 flag 레인이 받지 못한다.
@@ -80,11 +80,19 @@ D-67(2026-10-04, 허브 토론 `dbt-261004-033902`, ADD_ALONGSIDE_KEEP_LEGACY)�
   `claude-opus-5`·`gpt-5.6-sol` 등은 원장 호환용으로 남는다. `claude-opus-5` 는 우선순위 밖이고,
   `gpt-5.6-sol` 은 C 클래스 목록 끝의 폴백이다. sol 의 후속은 `gpt-6.1-sol` 로 통일했다
   (`gpt-5.6-terra` 의 평가 후보도 같다).
-- **등록이지 동작이 아니다.** native send 보류, 준비 브리지 미구현, 계정/과금 인증서 부재는
-  그대로다. 읽기 전용 canary 1회(`launch.requested` 와 `launch.effective` 대조)와 Orca 런치
-  계정/과금 인증서가 생기기 전까지 두 레인은 `pending-transport-and-canary` 이고 준비된 경로로
-  보지 않는다. 모델 포함·초과과금 OFF·API 폴백 OFF·G5·런치 인증서 게이트는 기존 flag 레인과
-  똑같이 걸린다(`test_orchestrate.py`·`test_execute_orca.py` 의 D-67 테스트).
+- **canary 는 통과했지만 아직 동작 레인이 아니다(2.14.2).** 2026-10-04 13:19~13:27 KST 의 읽기 전용
+  canary(Orca 1.4.218, run `run_92ff481d8b2f`, 레인마다 워커 1개)에서 두 레인 모두
+  `launch.requested` 와 `launch.effective` 가 같았다. `claude-opus-5-5`@high 는 argv
+  `--model claude-opus-5-5 --effort high` 이고 세션 기록의 model 도 `claude-opus-5-5` 였다.
+  `gpt-6.1-sol`@xhigh 는 argv `-m gpt-6.1-sol -c model_reasoning_effort=xhigh` 이고 세션 기록은
+  `gpt-6.1-sol`/xhigh 였다. 단, 응답의 자기보고는 계열명 `gpt-6` 이고 서버측 모델은 따로 확인하지
+  못했다. 두 워커는 정지했고 PID 가 사라진 것을 확인했다.
+- 그래서 후보가 두 레인인 registry 항목 4개(`claude-opus-5-5`·`claude-opus-5`·`gpt-6.1-sol`·`gpt-5.6-sol`)를
+  `pending-transport-and-certificate` 로 바꿨다. native send 보류, 준비 브리지 미구현, Orca 런치
+  계정/과금 인증서 부재(모델 포함, 초과과금 OFF, API 폴백 OFF, Codex 크레딧 폴백 OFF,
+  `request_identity`, plan binding)는 그대로라 준비된 경로로 보지 않는다. 모델 포함·초과과금 OFF·
+  API 폴백 OFF·G5·런치 인증서 게이트는 기존 flag 레인과 똑같이 걸린다(`test_orchestrate.py`·
+  `test_execute_orca.py` 의 D-67 테스트). 운영 주의 3건은 `orca-workflow.md` 에 적었다.
 - `legacy_lane_migration` 12건 중 8건이 `pending-*` 다. 남은 이전 대상은
   `claude-sonnet-5` → `claude-sonnet-5-5`(effort 재보정 필요), `gpt-5.6-luna` → `gpt-6-luna`
   (A 클래스 1순위 변경이라 별도 결정), `grok-4.6` → `grok-4.7`(Orca 가 grok 모델을 고정하지 못한다)이다.
