@@ -1,6 +1,6 @@
 ---
 name: freeze
-version: 0.2.2
+version: 0.2.3
 description: "Use when debugging to keep edits inside one module, or asked to \"freeze\", \"restrict edits\", \"only edit this folder\", \"lock down edits\", \"이 폴더만 수정\", \"편집 잠금\". Sets a session edit boundary: a PreToolUse Edit/Write hook produces deny for paths outside the chosen directory and for paths it cannot judge (relative, UNC, '..', failed conversion), handling Windows drive paths and /c/ paths."
 allowed-tools:
   - Bash
@@ -146,7 +146,8 @@ Without `cygpath` the `/tmp` alias cannot be folded, so such a mismatch denies.
 ## Verify
 
 ```bash
-python -B skills-src/freeze/bin/test_check_freeze.py   # needs Git Bash on Windows
+# <skill-dir> = 이 스킬 폴더 (소스 체크아웃에서는 skills-src/freeze)
+python -B <skill-dir>/bin/test_check_freeze.py   # needs Git Bash on Windows
 ```
 
 ## Notes

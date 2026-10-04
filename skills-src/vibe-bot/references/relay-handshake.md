@@ -24,7 +24,8 @@ does not authorize delivery, schedulers, production writes or spending.
 | coding → Bot | `<bus>/relay/inbox/<nonce>.md` + `.meta.json` | `<bus>/relay/outbox/<nonce>.result.md`, or the specialist's `<bus>/<bot>/outbox/<nonce>*.result.md` |
 | Bot → coding | `<bus>/relay/inbox/<nonce>.md` whose owner line names the Coding LLM; the long brief lives in the project's drafts folder | `<bus>/relay/outbox/<nonce>.result.md`, written by the coding session |
 
-For 2ndB the bus is `E:/2ndB/.bots` and drafts live in `E:/2ndB/docs/drafts/`
+For 2ndB the bus is `<2nd-B root>/.bots` and drafts live in `<2nd-B root>/docs/drafts/`
+(`<2nd-B root>` = `bots.json` `projects.2nd-b.root`)
 (outside Git). Relay claims its own pointer tasks, so a Relay `.claim` on a
 coding task does not mean the coding session has answered.
 

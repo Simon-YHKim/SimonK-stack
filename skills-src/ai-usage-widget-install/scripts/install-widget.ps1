@@ -72,9 +72,9 @@ function Resolve-Source {
   $candidates = @()
   # 1) running from a SimonK-stack checkout: <repo>\skills-src\ai-usage-widget-install\scripts
   $candidates += (Join-Path $PSScriptRoot ('..\..\..\' + $RepoSubdir))
-  # 2) an explicit stack root, 3) the usual local clone
+  # 2) an explicit stack root, 3) the usual local clone (SIMON_STACK_DIR, set by the profile)
   if ($env:SIMONK_STACK_ROOT) { $candidates += (Join-Path $env:SIMONK_STACK_ROOT $RepoSubdir) }
-  $candidates += ('E:\Coding Infra\Harrness Eng\SimonK-stack\' + $RepoSubdir)
+  if ($env:SIMON_STACK_DIR) { $candidates += (Join-Path $env:SIMON_STACK_DIR $RepoSubdir) }
   foreach ($c in $candidates) {
     if (Test-Path -LiteralPath (Join-Path $c 'package.json')) { return (Resolve-Path -LiteralPath $c).Path }
   }

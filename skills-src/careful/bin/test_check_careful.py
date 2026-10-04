@@ -6,7 +6,7 @@ through Git Bash, feeding a PreToolUse JSON payload on stdin. Commands are only
 DATA: the hook inspects them and never executes them. No network, no model
 calls, no writes outside the temporary directory.
 
-Run:  python -B skills-src/careful/bin/test_check_careful.py
+Run:  python -B <skill-dir>/bin/test_check_careful.py  (skills-src/careful in a checkout)
 Windows needs Git for Windows at C:/Program Files/Git (the `bash` that
 PowerShell finds first is usually WSL, which breaks Windows paths).
 """
@@ -77,8 +77,8 @@ NEAR_MISS = (
     ("rm -rf C:/project/dist", "allow"), ("rm -rf ~/*/build", "allow"),
     ("rm -rf node_modules", "allow"), ("rm -rf build dist", "allow"),
     ("rm -rf ./C", "ask"), ('rm -rf "$HOME/project/tmp"', "ask"),
-    ('rm -rf "$HOME"/project', "ask"), ("rm -rf /c/Users/202502", "ask"),
-    ("rm -rf /c/Windows", "ask"), ('rm -rf "E:/Coding Infra"', "ask"),
+    ('rm -rf "$HOME"/project', "ask"), ("rm -rf /c/Users/someone", "ask"),
+    ("rm -rf /c/Windows", "ask"), ('rm -rf "E:/Work Space"', "ask"),
     ("rm -rf ~/.claude", "ask"), ("rm -rf $USERPROFILE", "ask"),
     ("rm -rf ${USERPROFILE}", "ask"), ("rm -rf $TMPDIR", "ask"),
     ("rm -rf .", "ask"), ("rm -rf ..", "ask"), ("rm -rf *", "ask"),
@@ -133,7 +133,7 @@ PS_HIGH_DENY = (
 PS_ALLOW = (
     "Remove-Item -Recurse .\\build", "Remove-Item -Recurse -Force .\\build",
     "Remove-Item C:\\Users\\me\\project\\tmp -Recurse",
-    'Remove-Item -Recurse -Force "E:\\Coding Infra\\x\\node_modules"',
+    'Remove-Item -Recurse -Force "E:\\Work Space\\x\\node_modules"',
     "Remove-Item C:\\", "Remove-Item -Force C:\\", "Remove-Item -Recurse -Force C:\\ -WhatIf",
     "Format-Volume -DriveLetter D -WhatIf", "Get-Help Format-Volume", "Get-ChildItem C:\\",
     "Remove-Item -Recurse /c", "Remove-Item -Recurse C:\\Users",
@@ -272,7 +272,7 @@ class CarefulHookTests(unittest.TestCase):
         text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
         self.assertNotIn("CLAUDE_SKILL_DIR}/bin", text.split("---", 2)[1])
         self.assertNotIn("/gstack/careful", self.hook_command)
-        self.assertRegex(text.split("---", 2)[1], r"(?m)^version: 0\.2\.3$")
+        self.assertRegex(text.split("---", 2)[1], r"(?m)^version: 0\.2\.4$")
         head = text.encode("utf-8")[:8192].decode("utf-8", "ignore")
         self.assertFalse(BANNER_A in head and BANNER_B in head,
                          "gstack banner would make setup treat this folder as gstack-owned")

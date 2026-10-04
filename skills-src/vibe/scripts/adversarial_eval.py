@@ -663,7 +663,8 @@ def main():
     ap.add_argument("--force", action="store_true", help="가용성 캐시 무시")
     ap.add_argument("--only", nargs="*", help="probe id 만 골라 실행")
     ap.add_argument("--timeout", type=int, default=900)
-    ap.add_argument("--repo", default="E:/2ndB")
+    ap.add_argument("--repo", default=os.getcwd(),
+                    help="probe 를 돌릴 git 저장소 (기본: 현재 폴더)")
     ap.add_argument("--seed", type=int, default=None)
     args = ap.parse_args()
     if args.due:

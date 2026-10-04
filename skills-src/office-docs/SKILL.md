@@ -2,7 +2,7 @@
 name: office-docs
 description: >
   Use when the user wants native Office files generated programmatically — triggers "워드 문서 만들어", "엑셀 만들어", "PPT 만들어", "PDF 만들어", "보고서 docx로", "표 엑셀로 뽑아", "create docx", "create xlsx", "build a pptx", "generate office document", "export to PDF", or /office-docs. Produces real .docx / .xlsx / .pptx / .pdf files via python-docx (1.2.0), openpyxl (3.1.5), python-pptx (1.0.0), and weasyprint (69.0) — picking the format from the request, installing the prerequisite libs, running minimal working code, and verifying the output file exists and opens. Different from /design-html and /slides (web HTML), and /make-pdf gstack (markdown→PDF only). This emits binary Office formats Word/Excel/PowerPoint can open directly.
-version: 1.0.0
+version: 1.0.1
 allowed-tools:
   - Bash
   - Read
@@ -85,6 +85,7 @@ python -c "from weasyprint import HTML; print('weasyprint OK')"
 1. 요청에서 **형식 결정** (위 표). 명시 없으면: 표·숫자 위주→xlsx, 서술형 보고서→docx, 발표→pptx, 인쇄/배포→pdf.
 2. 0절 설치 + 확인. weasyprint 가 필요한데 GTK 미설치면 사용자에게 고지하고 대안 제시.
 3. 출력 경로를 **절대경로**로 정하고 생성 스크립트를 `Write` 로 떨군 뒤 `python` 실행. (인라인 `-c` 보다 재실행·디버깅 쉬움)
+   아래 예제의 `out/` 은 자리표시자다. 실제로는 정한 출력 폴더로 바꾸고 먼저 만들어 둔다(`os.makedirs(..., exist_ok=True)`).
 4. **검증**(7절): 파일 존재 + 크기 > 0 + 가능하면 다시 열어 내용 확인.
 5. 한국어 문서면 폰트 처리(6절).
 
@@ -124,7 +125,7 @@ for line, tact, uph in [("A", "2.9", "1240"), ("B", "3.4", "1058")]:
     c[0].text, c[1].text, c[2].text = line, tact, uph
 
 doc.add_page_break()
-doc.save(r"E:\Coding Infra\out\report.docx")
+doc.save("out/report.docx")
 print("saved report.docx")
 ```
 
@@ -167,7 +168,7 @@ ws2 = wb.create_sheet("요약")
 ws2["A1"] = "평균 UPH"
 ws2["B1"] = "=AVERAGE(UPH!D2:D4)"  # 시트 간 참조
 
-wb.save(r"E:\Coding Infra\out\analysis.xlsx")
+wb.save("out/analysis.xlsx")
 print("saved analysis.xlsx")
 ```
 
@@ -207,7 +208,7 @@ tbl.cell(0, 0).text, tbl.cell(0, 1).text = "라인", "UPH"
 tbl.cell(1, 0).text, tbl.cell(1, 1).text = "A", "1240"
 tbl.cell(2, 0).text, tbl.cell(2, 1).text = "B", "1058"
 
-prs.save(r"E:\Coding Infra\out\deck.pptx")
+prs.save("out/deck.pptx")
 print("saved deck.pptx")
 ```
 
@@ -234,7 +235,7 @@ html = """
     <tr><td>B</td><td>3.4</td><td>1058</td></tr></table>
 </body></html>
 """
-HTML(string=html).write_pdf(r"E:\Coding Infra\out\report.pdf")
+HTML(string=html).write_pdf("out/report.pdf")
 print("saved report.pdf")
 ```
 
@@ -259,9 +260,9 @@ print("saved report.pdf")
 # 존재 + 크기(0 이면 실패)
 python - <<'PY'
 import os
-for f in [r"E:\Coding Infra\out\report.docx",
-          r"E:\Coding Infra\out\analysis.xlsx",
-          r"E:\Coding Infra\out\deck.pptx"]:
+for f in ["out/report.docx",
+          "out/analysis.xlsx",
+          "out/deck.pptx"]:
     print(f, os.path.getsize(f), "bytes" if os.path.exists(f) else "MISSING")
 PY
 ```
@@ -272,13 +273,13 @@ python - <<'PY'
 from docx import Document
 from openpyxl import load_workbook
 from pptx import Presentation
-print("docx paras:", len(Document(r"E:\Coding Infra\out\report.docx").paragraphs))
-print("xlsx sheets:", load_workbook(r"E:\Coding Infra\out\analysis.xlsx").sheetnames)
-print("pptx slides:", len(Presentation(r"E:\Coding Infra\out\deck.pptx").slides))
+print("docx paras:", len(Document("out/report.docx").paragraphs))
+print("xlsx sheets:", load_workbook("out/analysis.xlsx").sheetnames)
+print("pptx slides:", len(Presentation("out/deck.pptx").slides))
 PY
 ```
 
-사용자 눈으로 확인: `start "" "E:\Coding Infra\out\report.docx"` (Windows, 기본 앱으로 열기). 산출물 **절대경로**를 사용자에게 전달한다.
+사용자 눈으로 확인: `Invoke-Item "out/report.docx"` (Windows PowerShell, 기본 앱으로 열기). 산출물 **절대경로**를 사용자에게 전달한다.
 
 ## 8. docx/pptx → PDF (weasyprint 가 막힐 때 대안)
 
@@ -286,7 +287,7 @@ GTK 설치가 안 되거나 docx 의 레이아웃 그대로 PDF 가 필요하면
 
 ```bash
 # soffice 가 PATH 에 있어야 함 (LibreOffice 설치)
-soffice --headless --convert-to pdf --outdir "E:\Coding Infra\out" "E:\Coding Infra\out\report.docx"
+soffice --headless --convert-to pdf --outdir out out/report.docx
 ```
 
 ## 안티패턴 (하지 말 것)

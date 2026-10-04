@@ -5,7 +5,7 @@ description: >-
   "4 파일 만들어". Produces me.md, vision.md, design.md and workingstyle.md at the
   project root via interviews; supports one-file updates, confirms overwrites.
   Not CLAUDE.md or a glossary.
-version: 1.0.1
+version: 1.0.2
 allowed-tools:
   - Bash
   - Read
@@ -56,8 +56,9 @@ Triggered by `/founder-context` with no argument, "4 파일 만들어",
 1. **Inventory existing files at the project root.** For each of the
    four, record present / missing.
 2. **Inventory available SimonK Stack assets** for seeding:
-   - `E:/Coding Infra/obsidian/SimonKWiki/wiki/protocols/llm-wiki/entities/simon-yhkim.md`
-   - `E:/Coding Infra/obsidian/SimonKWiki/wiki/protocols/llm-wiki/LESSONS_LEARNED.md`
+   - `$SIMON_WIKI_DIR/wiki/protocols/llm-wiki/entities/simon-yhkim.md`
+   - `$SIMON_WIKI_DIR/wiki/protocols/llm-wiki/LESSONS_LEARNED.md`
+     (`SIMON_WIKI_DIR` = SimonKWiki 볼트 루트. 없으면 `~/.claude/wiki/SimonKWiki`)
    - `~/.claude/instincts/project-patterns.md`
 3. **For each of the four (in order: me → vision → design → workingstyle):**
    - If the file already exists at the project root, ASK whether to skip / update / overwrite. Default: skip.

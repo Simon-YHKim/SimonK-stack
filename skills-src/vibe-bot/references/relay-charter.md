@@ -15,8 +15,11 @@ cloud post office, not a second model/budget coordinator.
 
 Relay alone reads new coordinator tasks in:
 
-- shared hub: `E:/Coding Infra/AI Infra/Communication/bots/relay/inbox/`;
-- 2ndB: `E:/2ndB/.bots/relay/inbox/`.
+- shared hub: `<hub>/bots/relay/inbox/`;
+- 2ndB: `<2nd-B root>/.bots/relay/inbox/`.
+
+`<hub>` 는 `VIBE_BOT_HUB`, 없으면 `$SIMONK_PROJECT_DIR/AI Infra/Communication` 이다.
+`<2nd-B root>` 는 `bots.json` 의 `projects.2nd-b.root` 이고, 이 PC 경로는 그 한 곳에만 둔다.
 
 Results return to the corresponding `relay/outbox/<nonce>.result.md` with the
 exact nonce on the first line. Preserve specialist identity in the task and
@@ -58,7 +61,7 @@ Within the user's actual task authority, prepare free reversible drafts and
 scoped handoffs without asking repeatedly. A reported standing preference for
 free accounts/profiles is not credential, signup, billing or data-sharing consent.
 CLI/API/MCP-capable work stays in /vibe. App code belongs to the coding LLM:
-Bots propose only; for 2ndB use `E:/2ndB/docs/drafts/`, for another project use its
+Bots propose only; for 2ndB use `<2nd-B root>/docs/drafts/`, for another project use its
 approved draft location. Never commit, merge or edit app source through a Bot.
 
 Stop for payment, advertising ON, store submission/release, deletion, public

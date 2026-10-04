@@ -3,6 +3,7 @@
 import importlib.util
 from contextlib import redirect_stderr
 import io
+import json
 from pathlib import Path
 import sys
 import tempfile
@@ -109,19 +110,22 @@ class CandidatePathAuditTests(unittest.TestCase):
     def test_plugin_readme_link_is_resolved_without_expanding_skill_document_walk(self):
         skill = "plugins/SimonKCore/skills/example/SKILL.md"
         readme = "plugins/SimonKCore/README.md"
-        body = b"Read [plugin overview](../../README.md).\n"
-        receipt = {"files": [{"path": skill, "size": len(body),
-                              "sha256": audit.release.digest(body)},
-                             {"path": readme, "size": 7,
-                              "sha256": audit.release.digest(b"ignored")}]}
+        bodies = {skill: b"Read [plugin overview](../../README.md).\n", readme: b"ignored"}
+        receipt = {"files": [{"path": path, "size": len(body),
+                              "sha256": audit.release.digest(body)}
+                             for path, body in bodies.items()]}
         with patch.object(audit.release, "no_links", side_effect=lambda path: path), \
              patch.object(audit.plugin_bundle, "verify_bundle", return_value=receipt), \
              patch.object(audit.release, "safe_member", side_effect=lambda root, path: root / path), \
-             patch.object(audit.release, "read_file", return_value=body) as read_file:
+             patch.object(audit.release, "read_file",
+                          side_effect=lambda path: bodies[path.as_posix().removeprefix("fixture/")]) as read_file:
             report = audit.audit_candidate(Path("fixture"), "0" * 64)
         self.assertEqual(report["status"], "static_paths_present")
         self.assertEqual(report["markdown_documents_checked"], 1)
-        self.assertEqual(read_file.call_count, 1)
+        # The Markdown walk stops at the skill; only the machine-path scan reads README,
+        # and every member is read exactly once.
+        self.assertEqual([call.args[0].as_posix() for call in read_file.call_args_list],
+                         ["fixture/" + skill, "fixture/" + readme])
 
     def test_codex_subset_audit_detects_reference_to_excluded_skill(self):
         skill = "plugins/SimonKCore/skills/example/SKILL.md"
@@ -442,6 +446,128 @@ class CandidatePathAuditTests(unittest.TestCase):
             code = audit.main(["--package", "fixture", "--expected-digest", "0" * 64])
         self.assertEqual(code, 2)
         self.assertNotIn("secret", output.getvalue())
+
+    def test_machine_path_in_any_member_blocks_candidate_without_echoing_it(self):
+        skill = "plugins/SimonKCore/skills/example/SKILL.md"
+        script = "plugins/SimonKCore/skills/example/scripts/run.py"
+        official = "plugins/SimonKCore/skills/legacy/index.py"
+        bodies = {skill: b"Run the helper.\n",
+                  script: b'OUT = r"E:\\Coding Infra\\reports"\n',
+                  official: b'ROOTS = [r"C:\\Users\\kim\\notes"]\n'}
+        receipt = {"files": [{"path": path, "size": len(body),
+                              "sha256": audit.release.digest(body)}
+                             for path, body in bodies.items()]}
+        allowed = [{"path": "skills/legacy/index.py", "literal": "C:\\Users\\kim",
+                    "count": 1, "origin": "official", "reason": "x" * 20}]
+        with patch.object(audit.release, "no_links", side_effect=lambda path: path), \
+             patch.object(audit.plugin_bundle, "verify_bundle", return_value=receipt), \
+             patch.object(audit.release, "safe_member", side_effect=lambda root, path: root / path), \
+             patch.object(audit.release, "read_file",
+                          side_effect=lambda path: bodies[path.as_posix().removeprefix("fixture/")]), \
+             patch.object(audit.shipped_path_check, "load_exceptions", return_value=allowed):
+            report = audit.audit_candidate(Path("fixture"), "0" * 64)
+        self.assertEqual(report["status"], "incomplete")
+        self.assertEqual(report["machine_paths"], [
+            {"path": script, "line": 1, "kind": "machine_root"}])
+        self.assertEqual(report["machine_path_counts"], {
+            "members_checked": 3, "files": 1, "occurrences": 1, "excepted_occurrences": 1})
+        self.assertNotIn("Coding Infra", repr(report))
+
+    def test_changed_non_skill_member_fails_closed_before_path_scan(self):
+        skill = "plugins/SimonKCore/skills/example/SKILL.md"
+        script = "plugins/SimonKCore/skills/example/scripts/run.py"
+        receipt = {"files": [{"path": skill, "size": 3, "sha256": audit.release.digest(b"ok\n")},
+                             {"path": script, "size": 3, "sha256": "0" * 64}]}
+        with patch.object(audit.release, "no_links", side_effect=lambda path: path), \
+             patch.object(audit.plugin_bundle, "verify_bundle", return_value=receipt), \
+             patch.object(audit.release, "safe_member", side_effect=lambda root, path: root / path), \
+             patch.object(audit.release, "read_file", return_value=b"ok\n"):
+            with self.assertRaisesRegex(ValueError, "changed after candidate verification"):
+                audit.audit_candidate(Path("fixture"), "0" * 64)
+
+
+class ShippedPathCheckTests(unittest.TestCase):
+    """D-76 step 1: a new machine-specific absolute path in shipped files fails."""
+
+    check = audit.shipped_path_check
+
+    def kinds(self, text):
+        return [(row["kind"], row["literal"]) for row in self.check.find_machine_paths(text)]
+
+    def test_concrete_user_homes_are_found_in_every_spelling(self):
+        text = "\n".join([
+            r"C:\Users\kim\x", "C:/Users/kim/x", r'"C:\\Users\\kim\\x"', "/c/Users/kim/x",
+            "/mnt/c/Users/kim/x", "cd /home/kim/src", "open /Users/kim/Desktop"])
+        self.assertEqual([kind for kind, _ in self.kinds(text)], ["user_home"] * 7)
+
+    def test_workstation_roots_and_project_slugs_are_found(self):
+        text = "\n".join([
+            r"E:\Coding Infra\reports", "E:/Coding Infra", r'r"E:\\Coding Infra\\x"',
+            "/e/Coding Infra/x", r"D:\2ndB\.bots", "C:/Coding/Harrness Eng",
+            "projects/E--Coding-Infra/memory", "projects/C--Users-kim/memory"])
+        self.assertEqual([kind for kind, _ in self.kinds(text)],
+                         ["machine_root"] * 6 + ["claude_project_slug"] * 2)
+
+    def test_placeholders_home_variables_and_system_folders_pass(self):
+        text = "\n".join([
+            r"C:\Users\<name>\x", "/c/Users/me/project/build", "$HOME/.claude/skills",
+            "~/.claude/skills/INDEX.md", "%USERPROFILE%\\x", "C:/Program Files/Git",
+            "/Users/j/foo", "/home/runner/work", "$SIMONK_PROJECT_DIR/AI Infra",
+            "https://github.com/users/kim", "rm -rf \"E:/Work Space\"", r"D:\proj\.bots",
+            r"C:\Users\...\Temp", "/c/Users/someone"])
+        self.assertEqual(self.kinds(text), [])
+
+    def test_exception_covers_exact_count_and_one_more_reports_all(self):
+        allowed = [{"path": "skills/a/x.py", "literal": "E:/2ndB", "count": 1,
+                    "origin": "source", "reason": "x" * 20}]
+        ok = self.check.check_files([("skills/a/x.py", "R = 'E:/2ndB'\n")], allowed,
+                                    require_exact=True)
+        self.assertEqual((ok["status"], ok["excepted_occurrences"]), ("no_machine_paths", 1))
+        more = self.check.check_files([("skills/a/x.py", "R = 'E:/2ndB'\nS = 'E:/2ndB'\n")],
+                                      allowed, require_exact=True)
+        self.assertEqual(more["findings"], [
+            {"path": "skills/a/x.py", "line": 1, "kind": "machine_root"},
+            {"path": "skills/a/x.py", "line": 2, "kind": "machine_root"}])
+        other = self.check.check_files([("skills/b/y.py", "R = 'E:/2ndB'\n")], allowed,
+                                       require_exact=False)
+        self.assertEqual(other["status"], "machine_paths_found")
+
+    def test_stale_source_exception_fails_but_candidate_subset_may_omit_it(self):
+        allowed = [{"path": "skills/a/x.py", "literal": "E:/2ndB", "count": 1,
+                    "origin": "source", "reason": "x" * 20}]
+        fixed = self.check.check_files([("skills/a/x.py", "R = '<root>'\n")], allowed,
+                                       require_exact=True)
+        self.assertEqual(fixed["stale_exceptions"], [
+            {"path": "skills/a/x.py", "reason": "exception_count_mismatch"}])
+        gone = self.check.check_files([], allowed, require_exact=True)
+        self.assertEqual(gone["stale_exceptions"], [
+            {"path": "skills/a/x.py", "reason": "exception_file_not_shipped"}])
+        subset = self.check.check_files([], allowed, require_exact=False)
+        self.assertEqual(subset["status"], "no_machine_paths")
+
+    def test_exception_file_entries_need_scope_count_and_reason(self):
+        good = {"path": "skills/a/x.py", "literal": "E:/2ndB", "count": 1,
+                "origin": "source", "reason": "documented local-only value"}
+        bad_entries = [{**good, "reason": "short"}, {**good, "count": 0},
+                       {**good, "path": "plugins/SimonKCore/skills/a/x.py"},
+                       {**good, "origin": "unknown"}, {k: v for k, v in good.items() if k != "count"}]
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "exceptions.json"
+            for entries in [[entry] for entry in bad_entries] + [[good, dict(good)]]:
+                path.write_text(json.dumps({"schema_version": 1, "exceptions": entries}),
+                                encoding="utf-8")
+                with self.assertRaises(ValueError):
+                    self.check.load_exceptions(path)
+            path.write_text(json.dumps({"schema_version": 1, "exceptions": [good]}),
+                            encoding="utf-8")
+            self.assertEqual(self.check.load_exceptions(path), [good])
+
+    def test_tracked_shipped_sources_have_no_unexcepted_machine_paths(self):
+        # The real gate: every tracked skills-src file ships in the candidate.
+        report = self.check.check_source(ROOT)
+        self.assertGreater(report["files_checked"], 100)
+        self.assertEqual((report["findings"], report["stale_exceptions"]), ([], []))
+        self.assertEqual(report["status"], "no_machine_paths")
 
 
 if __name__ == "__main__":

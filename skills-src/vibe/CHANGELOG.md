@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.15.1 - 2026-10-04
+
+- 허브 D-76 1단계: 배포 트리에서 이 PC 절대경로를 뺐다. `scripts/ledger.py` 허브,
+  `make_intake.py`·`make_decision_sheet.py` 기본 출력은 `$SIMONK_PROJECT_DIR`(없으면 홈 폴더)
+  기준이다. 이 PC는 사용자 환경변수가 이미 같은 값이라 동작이 그대로다. Orca 저장소 목록이 없을 때
+  `make_intake.py`는 고정 2nd-B 클론 대신 현재 폴더를 보여 준다. `adversarial_eval.py --repo` 기본값은
+  현재 폴더다.
+- `references/orchestration.md`의 `/qa` 계약 참조를 `<qa-skill-dir>/references/detail.md`로 바꿨다.
+  플러그인 경로 감사가 이것을 vibe 자신의 `references/detail.md`로 읽어 미해결로 냈다.
+
 ## 2.15.0 - 2026-10-04
 
 - D-74(Simon 결정): 모든 벤더(Claude·Codex·Grok·Antigravity·Grok Bot)를 포함 사용량으로만 판단한다.

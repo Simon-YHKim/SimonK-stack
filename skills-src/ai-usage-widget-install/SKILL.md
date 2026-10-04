@@ -2,7 +2,7 @@
 name: ai-usage-widget-install
 description: "Use when the user wants the AI Usage Widget (the Windows taskbar widget in apps/ai-usage-widget that shows Claude, Codex, Grok and Antigravity subscription usage) installed, updated, checked or removed - triggers \"AI 사용량 위젯 설치\", \"사용량 위젯 깔아줘\", \"위젯 업데이트\", \"위젯 재설치\", \"위젯 상태 확인\", \"위젯 제거\", \"install the usage widget\", \"update the usage widget\", \"/ai-usage-widget-install\". Produces a verified per-user install built from source (pnpm install, verify gate, silent NSIS install, launch check), a status report (installed exe, processes, autostart target, Claude bridge, provider CLIs), and a guarded uninstall that refuses while the Claude statusline bridge is still installed. NOT for changing the widget's code (work in apps/ai-usage-widget and read its CLAUDE.md first) and NOT for signing in - browser sign-in and device codes stay with the user."
 allowed-tools: Read, Bash, PowerShell
-version: 1.0.0
+version: 1.0.1
 author: simon-stack
 ---
 
@@ -26,7 +26,8 @@ Windows 작업 표시줄 옆에 Claude·Codex·Grok·Antigravity 구독 사용�
 스크립트 하나가 전부 한다. Windows PowerShell 5.1에서도 돈다(ASCII 전용).
 
 ```powershell
-$s = "E:\Coding Infra\Harrness Eng\SimonK-stack\skills-src\ai-usage-widget-install\scripts\install-widget.ps1"
+# <skill-dir> = 이 스킬 폴더 (소스 체크아웃에서는 skills-src\ai-usage-widget-install)
+$s = "<skill-dir>\scripts\install-widget.ps1"
 
 & $s -Status      # 아무것도 바꾸지 않고 현재 상태만
 & $s -DryRun      # 무엇을 할지와 사전 점검만
@@ -36,7 +37,7 @@ $s = "E:\Coding Infra\Harrness Eng\SimonK-stack\skills-src\ai-usage-widget-insta
 
 | 옵션 | 뜻 |
 |---|---|
-| `-Source <폴더>` | 위젯 소스 폴더를 직접 지정. 생략하면 ① 이 스크립트가 든 SimonK-stack 체크아웃 ② `$env:SIMONK_STACK_ROOT` ③ `E:\Coding Infra\Harrness Eng\SimonK-stack` ④ 공개 리포를 `%LOCALAPPDATA%\AIUsageWidget\src`에 얕게 클론 |
+| `-Source <폴더>` | 위젯 소스 폴더를 직접 지정. 생략하면 ① 이 스크립트가 든 SimonK-stack 체크아웃 ② `$env:SIMONK_STACK_ROOT` ③ `$env:SIMON_STACK_DIR`(SimonK-stack 로컬 클론) ④ 공개 리포를 `%LOCALAPPDATA%\AIUsageWidget\src`에 얕게 클론 |
 | `-SkipVerify` | `pnpm verify` 생략. **사용자가 명시적으로 요청했을 때만.** 기본은 검증 통과가 설치 조건 |
 | `-NoLaunch` | 설치 후 실행하지 않음 |
 | `-Force` | `-Uninstall`의 브리지 안전장치를 넘김. 사용자 확인 없이 쓰지 않는다 |
