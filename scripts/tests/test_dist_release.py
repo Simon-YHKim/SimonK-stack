@@ -322,6 +322,16 @@ class PublishWorkflowTests(unittest.TestCase):
     def test_hold_no_longer_gates_publish(self):
         self.assertNotIn("main-source-only.hold", self.publish)
 
+    def test_tree_artifact_keeps_dot_directories(self):
+        # upload-artifact@v4 drops hidden files unless asked; without .claude-plugin/ and
+        # .simonk-runtime/ the publish job's re-verify refused the first real publish (2026-10-05).
+        workflow = (ROOT / ".github/workflows/five-plugin-dist.yml").read_text(encoding="utf-8")
+        build = workflow.split("\n  publish:\n", 1)[0]
+        uploads = [s for s in build.split("\n      - ") if "actions/upload-artifact@" in s]
+        self.assertEqual(len(uploads), 2)
+        for step in uploads:
+            self.assertIn("include-hidden-files: true", step)
+
     def test_committed_approval_is_the_d82_session_checked_candidate(self):
         # D-82 step 3: the approval names the candidate the live session checked
         # (source f015e18, content digest 59eaff15...). A new approval is its own reviewed change.
