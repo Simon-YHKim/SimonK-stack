@@ -585,3 +585,5 @@ last-sync: 2026-07-05
 
 - 2026-10-04 17:51:47 KST | DECIDE | **D-77 main 77a28c2 이 PC 설치(vibe 2.15.0 포함) — 레포 update-local.ps1 첫 실사용** (오케스트레이터 단독 · 35.8 1단) | claude
   - **근거**: D-73 §35.9 완료 정의(머지 뒤 이 PC 설치)를 승인된 설치 절차로 반복한다. PR #120(설치 파이프라인 레포화, CI 4/4)·#119(vibe 2.15.0, D-74, coding-infra-4b 세션이 정션을 이쪽에 맡김)가 main에 있다. 미리보기 판정은 vibe 아래 입력 9개 변경·정션 바이트 6/8 일치로 후보 20261004-vibe-2150-7bc8031 빌드 계획이었다. 이전본은 flat-link-archive로 보관하고, 실패하면 자동으로 되돌린다.
+
+- 2026-10-04 18:04:38 KST | AMEND | **D-77 main 77a28c2 이 PC 설치(vibe 2.15.0 포함) — 레포 update-local.ps1 첫 실사용** — 이행: 후보 20261004-vibe-2150-77a28c2(src 17:53, candidate 18:00)를 빌드했다. 정션 8개와 Codex config 줄이 새 후보를 가리킨다. 설치본 vibe 2.15.0, INCLUDED_USAGE_CEILING_PCT 있음, selftest vibe 188/0·vibe-bot 97/0. 단, update-local의 사후 검증·보고 단계는 하네스의 메모리 부족 회수(여유 약 3GB)로 중간에 끊겨 위 확인은 수동으로 했다. 스크립트는 재실행하지 않았다(재개는 Simon 지시가 있을 때만). coding-infra-4b 세션에 결과를 알렸다 | claude
