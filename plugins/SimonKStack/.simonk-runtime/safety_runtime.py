@@ -813,6 +813,9 @@ def main(argv: list[str] | None = None) -> int:
                 SafetyRuntimeError):
             sys.stderr.write("safety runtime state update failed\n")
             return 2
+        if args.command == "clear":
+            # Same line as the flat writer (freeze-state.sh clear), which /unfreeze documents.
+            print("FREEZE_CLEARED: user-requested edit boundary removal completed.")
         return 0
     try:
         result = _check(args.policy, args.project)
