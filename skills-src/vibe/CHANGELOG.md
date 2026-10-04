@@ -1,5 +1,32 @@
 # Changelog
 
+## 2.14.2 - 2026-10-04
+
+- D-67 읽기 전용 Orca canary 결과를 반영했다. 2026-10-04 13:19~13:27 KST 에 Orca 1.4.218 로
+  레인마다 워커 1개를 띄웠다(run `run_92ff481d8b2f`). 두 레인 모두 `launch.requested` 와
+  `launch.effective` 가 같았다. `claude-opus-5-5`@high 는 argv `--model claude-opus-5-5 --effort high`,
+  세션 기록 model `claude-opus-5-5`, 응답 `claude-opus-5-5 CANARY-OK` 였다. `gpt-6.1-sol`@xhigh 는 argv
+  `-m gpt-6.1-sol -c model_reasoning_effort=xhigh`, 세션 기록 `gpt-6.1-sol`/xhigh, 상태줄
+  "GPT-6.1-Sol xhigh fast", 응답 `gpt-6 CANARY-OK` 였다(자기보고는 계열명뿐이고 서버측 모델은 따로
+  확인하지 못했다). 두 워커는 정지했고 PID 가 사라진 것을 확인했다. 쿼터는 전후 모두 한도 안이었다.
+- registry `legacy_lane_migration` 에서 후보가 두 레인인 항목 4개(`claude-opus-5-5`·`claude-opus-5`·
+  `gpt-6.1-sol`·`gpt-5.6-sol`)를 `pending-transport-and-canary` 에서 `pending-transport-and-certificate`
+  로 바꿨다. `gpt-5.6-terra` 는 후보가 `gpt-6.1-sol` 이지만 상태가 평가 보류
+  (`pending-evaluation-not-equivalent-tier`)라 그대로 두었다. `claude-sonnet-5`·`gpt-5.6-luna` 는
+  canary 를 하지 않은 후보라 그대로다. 제공사 사실과 `checked_at` 은 바꾸지 않았고
+  레지스트리 version 만 2026-10-04.3 이 됐다.
+- **여전히 동작 레인이 아니다.** Orca native send 보류, 준비 브리지 미구현, Orca 런치 계정/과금
+  인증서 부재(모델 포함, 초과과금 OFF, API 폴백 OFF, Codex 크레딧 폴백 OFF, `request_identity`,
+  plan binding)가 그대로다. 라우팅·우선순위·게이트 동작은 바뀌지 않았다.
+- `references/orca-workflow.md` 에 canary 에서 관측한 운영 주의 3건을 적었다. Orca 워커는 전권
+  모드(Claude `--dangerously-skip-permissions`, Codex 승인·샌드박스 우회)로 떠서 읽기 전용은
+  과제문으로만 지켜진다. Codex 워커는 `service_tier="priority"` 를 물려받는다(사용량 배수 미확인).
+  실제 과제문은 `worker_done` CLI 호출을 허용해야 한다(금지하면 Task 가 `blocked` 로 남는다).
+- `routing.py` 의 두 레인 주석·`ctx` 와 `legacy-routing.md`(`sync_skill_table.py` 로 재생성),
+  `model-catalog-map.md`, SKILL.md 의 상태 문구를 고쳤다. `test_model_registry.py` 의 D-67 테스트는
+  새 상태, 상태를 바꾼 항목이 정확히 4개라는 것, terra·luna 상태 유지, 대응표 행의 새 상태를 본다.
+  오프라인 테스트만 실행했다.
+
 ## 2.14.1 - 2026-10-04
 
 - 7일 창이 닫히기 전에 모델 레지스트리를 다시 갱신했다(허브 PROTOCOL §35.8 1단, 승인된 절차 반복).

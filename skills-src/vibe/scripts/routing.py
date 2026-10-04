@@ -72,8 +72,9 @@
 #   우선순위 목록·고정 공정·코디네이터를 새 키로 옮긴다. 옛 키는 지우지 않는다 —
 #   ledger.py 가 LANES 에 없는 레인의 원장 행을 거부하므로 지우면 과거 원장·스왑 분석이 깨진다.
 #   ⚠ '등록'이지 '동작'이 아니다. native send 보류 · 준비 브리지 미구현 · 계정/과금 인증서 부재가
-#     그대로다. 읽기 전용 canary(launch.requested ↔ launch.effective 대조)와 인증서 전까지
-#     registry 의 legacy_lane_migration 상태는 pending-transport-and-canary 다.
+#     그대로다. 읽기 전용 canary(launch.requested ↔ launch.effective 대조)는 2026-10-04 에
+#     두 레인 모두 통과했다(2.14.2, run_92ff481d8b2f). 인증서 전까지
+#     registry 의 legacy_lane_migration 상태는 pending-transport-and-certificate 다.
 #     $0 게이트(모델 포함·초과과금 OFF·API 폴백 OFF)와 G5·Orca 인증서는 새 레인에도 똑같이 걸린다.
 #   넣지 않은 것: claude-sonnet-5-5 는 이 근거가 opus-5-5 만 직접 확인했고 registry 가
 #     effort 재보정(Claude Code 기본 medium ↔ API 기본 high)을 요구해 sonnet-5 사다리를 물려받을 수 없다.
@@ -123,10 +124,11 @@ LANES = {
         # D-67 (2026-10-04) — claude-opus-5 의 후속. prompt-keyword(ultracode)가 아니라
         #   --effort 플래그로 전달한다: Orca claude 카탈로그는 이 id 를 모르는 모델로 보고 low~max 를 받는다.
         #   허브 핀 claude-opus-5-5@max 와 같은 상한이다.
-        # ⚠ 등록만 됐다. 읽기 전용 canary · 계정/과금 인증서 전까지 동작 레인이 아니다
-        #   (registry legacy_lane_migration = pending-transport-and-canary).
+        # ⚠ 읽기 전용 canary 는 통과했다(2026-10-04 · @high · requested == effective).
+        #   native send · 계정/과금 인증서 전까지 동작 레인이 아니다
+        #   (registry legacy_lane_migration = pending-transport-and-certificate).
         "cli": "claude", "vendor": "claude", "effort_style": "flag", "dispatch": "orca",
-        "top": "max", "std": "high", "ctx": "canary 전 · Orca 미등록 id → low~max",
+        "top": "max", "std": "high", "ctx": "canary 통과 · 인증서 전 · Orca 미등록 id → low~max",
         "orca_efforts": ("low", "medium", "high", "xhigh", "max"),
     },
     "claude-opus-5": {
@@ -185,9 +187,10 @@ LANES = {
         # D-67 (2026-10-04) — sol 의 후속(registry 의 gpt-6-sol ↔ gpt-6.1-sol 불일치는 6.1-sol 로 통일).
         #   Codex 카탈로그 priority 1. Orca codex 카탈로그에 없는 모델이라 astra 와 같은
         #   폴백(codexEffort('xhigh'))을 받는다 → minimal~xhigh 만, max·ultra 는 거부. 허브 핀 @xhigh.
-        # ⚠ 등록만 됐다. 읽기 전용 canary · 계정/과금 인증서 전까지 동작 레인이 아니다.
+        # ⚠ 읽기 전용 canary 는 통과했다(2026-10-04 · @xhigh · requested == effective, 서버측 모델 미확인).
+        #   native send · 계정/과금 인증서 전까지 동작 레인이 아니다.
         "cli": "codex", "vendor": "codex", "effort_style": "flag", "dispatch": "orca",
-        "top": "xhigh", "std": "high", "ctx": "canary 전 · Orca 상한 xhigh",
+        "top": "xhigh", "std": "high", "ctx": "canary 통과 · 인증서 전 · Orca 상한 xhigh",
         "orca_efforts": ("minimal", "low", "medium", "high", "xhigh"),
     },
     "gpt-5.6-sol": {
@@ -1197,7 +1200,8 @@ def emit_md():
     L.append("")
     L.append("**D-67 (2026-10-04)**: `claude-opus-5-5`(flag · low~max)·`gpt-6.1-sol`(flag · minimal~xhigh)을 "
              "옛 레인 옆에 **등록만** 했다 — 우선순위·코딩·종합 고정·코디네이터가 새 키로 옮겨졌다. "
-             "읽기 전용 canary(`launch.requested` ↔ `launch.effective` 대조)와 계정/과금 인증서 전까지는 "
+             "읽기 전용 canary(`launch.requested` ↔ `launch.effective` 대조)는 2026-10-04 에 두 레인 모두 "
+             "통과했지만, native send 와 계정/과금 인증서 전까지는 "
              "동작 레인이 아니며 $0 게이트·G5·Orca 인증서가 똑같이 걸린다. 옛 키(`claude-opus-5` 등)는 "
              "원장 호환용으로 남고 `gpt-5.6-sol` 은 C 클래스 끝 폴백이다. grok 은 Orca 가 모델을 고정하지 못해 그대로다.")
     L.append("")
