@@ -2,6 +2,28 @@
 
 이 레포는 Claude Code 를 위한 통합 skill 스택(Gstack + simon-stack + Superpowers 철학)이다.
 
+## 2026-10-04 14:3x `/vibe` 2.14.2 · `freeze` 0.2.2 — D-71 설치
+
+main `f6ec9c5`에서 조립한 후보를 설치했다. 반영된 PR은 셋이다.
+- #114: 레지스트리 갱신(만료 2026-10-11 13:05 KST)
+- #115: D-67 canary 반영(`pending-transport-and-certificate`)
+- #116: 안전 런타임 20초 예산, Codex leaf deny 통과
+
+| 패키지 | SHA-256 영수증 |
+| --- | --- |
+| `source` | `0188255437422ff2b80014266311ac424d706f3a7e3bbcc016e2c7d095d0637f` (137스킬) |
+| `candidate-safety` | `0ca1b08b231c801fffc3b4463d0e253827e3f1910d2427d9157990b7e10634f4` (182스킬) |
+| `codex-overlay-safety` | `2b61437b2b05ef685add3727f3d2e8d1abb90e54ae755148ecd40f3acaf15f8c` |
+| `codex-subset-safety` | `3a90ae709e077792d6e53f8fe0a942b34203ffc0ea5f2cb8ce05a23343c731a1` (177스킬) |
+
+- 후보는 `E:/Coding Infra/Releases/SimonK-stack/20261004-vibe-2142-candidate/`이고 영수증 파일은 `20261004-vibe-2142-receipts.json`이다.
+- 정션 8개와 Codex config 줄을 바꿨다. 되돌리려면 `~/.claude/flat-link-archive/vibe-20261004-vibe-2142/`를 쓴다.
+- 실폴더 `freeze` 0.2.2를 main blob에서 복사했다(mismatch 0). 이전본은 `~/.claude/flat-link-archive/freeze-261004-d71/`에 있다. careful·guard·unfreeze는 바뀌지 않았다.
+- 검증 결과:
+  - 설치본 selftest: vibe 188/0, vibe-bot 97/0
+  - 레지스트리 `checked_at` 2026-10-04T13:05:20+09:00
+  - 설치 전에 열린 run은 없었다.
+
 ## 2026-10-04 04:2x `/vibe` 2.14.0 · `vibe-bot` 0.9.6 · `careful` 0.2.3 · `freeze`·`guard` 0.2.1 — D-70 설치
 
 main `4c7a152`에서 조립한 후보를 설치했다. 반영된 PR: #109 vibe-bot G6 메뉴 범위, #110 Orca 현행 레인(D-67), #111 investigate 비설치(D-68), #112 안전 런타임 deny 통과(D-62 후속 5).

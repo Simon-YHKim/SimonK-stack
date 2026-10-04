@@ -1,6 +1,30 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-04 / D-60 PASS · quick 토론 2건(D-67·D-68) · 후보 2140 설치(D-70)
+## Latest — 2026-10-04 / 레지스트리 갱신 · Orca canary PASS · 안전 런타임 20초 예산 · 후보 2142 설치(D-71)
+
+갱신 시각: 2026-10-04 14:33 KST · 갱신자: Claude Code(Opus 5.5). Simon: "남은일 마저 진행해줘" → (메모리 부족 중단 뒤) "다시 진행해봐".
+
+### 어디까지 왔나
+- **레지스트리 갱신**(PR #114, vibe 2.14.1): 모델 턴 없이 갱신했다. 출처 28개와 task-fit 9개, CLI 카탈로그를 다시 읽었고 제거·개명된 모델은 없다. 새 만료는 **2026-10-11 13:05 KST**다. 같은 PR에서 적대 평가 `VENDOR_OF`와 `probes.json`에 D-67 새 레인을 추가했다.
+- **D-67 Orca canary PASS**(PR #115, vibe 2.14.2): `claude-opus-5-5`@high와 `gpt-6.1-sol`@xhigh 모두 requested와 effective가 같았다. 워커는 레인마다 1개였고, 정지 뒤 PID가 사라진 것을 확인했다. 상태는 `pending-transport-and-certificate`다. native send 보류와 인증서 부재가 그대로라 아직 **동작하지 않는다**.
+  - 관찰 1: Orca 워커는 전권 모드로 뜬다. 그래서 읽기 전용은 과제문으로만 지켜진다.
+  - 관찰 2: Codex 워커는 priority tier를 물려받는다. 사용량 배수는 확인하지 못했다.
+- **안전 런타임**(PR #116, freeze 0.2.2): 프로세스마다 5초이던 제한을 검사 한 번 전체 20초 예산으로 바꿨다. 실측 최대는 평상시 leaf 4.42초, 무거운 테스트 6개를 동시에 돌렸을 때 14.70초였다. 시간 초과 deny 사유에 "다시 시도해도 안전"을 적는다. `codex_guarded_policy.py`는 leaf deny를 그 사유 그대로 넘긴다.
+- **후보 `20261004-vibe-2142` 설치**(D-71): 정션 8개와 freeze 실폴더를 바꿨다. 설치본 selftest는 vibe 188/0, vibe-bot 97/0이다.
+- **claude.ai·Cowork 지침 붙여넣기 카드**: https://claude.ai/artifact/YKXcXAEnu1rXTet14cpLB2 — Simon 작업이다. 화면과 링크는 ⚠ 미확인이다.
+
+### 다음 작업 큐
+| # | 작업 | 크기 | 단 |
+|---|---|---|---|
+| A | 레지스트리 재갱신, 2026-10-11 13:05 KST 전(알림 작업은 10-10 09:00 그대로) | 중간 | 1단 |
+| B | D-67 레인 인증서: 모델 포함·extra usage OFF·폴백 OFF 증거. Codex는 크레딧 사용 허용 상태라 조건을 채울 수 없다(묻지 않는다) | - | Simon |
+| C | sonnet-5-5·6-luna 레인 여부, `exec_plan`이 opus-5-5 effort를 싣지 않음(격리 경로) | 작음 | 2단 |
+| D | Codex 쪽 leaf 시간 제한 8초 재측정 | 작음 | 1단 |
+| E | Cursor Share Data(Simon 판단) · 지침 카드 붙여넣기(Simon) · `docs/INSTALL.md` 기간 분할(400KB 도달 시, 지금 약 383KB) | - | - |
+
+---
+
+## 2026-10-04 04:35 / D-60 PASS · quick 토론 2건(D-67·D-68) · 후보 2140 설치(D-70)
 
 갱신 시각: 2026-10-04 04:35 KST · 갱신자: Claude Code(Opus 5.5). Simon: "debate.py 실행중이고, heavy 로그인 했고, 그록봇은 시간이 됐으니 다음 작업 진행해줘" → "작업 완료 하면 머지 하자".
 
