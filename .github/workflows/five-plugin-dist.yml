@@ -40,8 +40,9 @@ jobs:
     name: build + verify exact tree (Windows)
     # Builders use Windows-only pinned I/O (kernel32), so the runner must be Windows.
     runs-on: windows-latest
-    # Local reference (D-76 evidence): ~22 min for clone + four builders + two audits.
-    timeout-minutes: 75
+    # Sized for a ~25 min build (D-76 local reference: ~22 min for clone, four
+    # builders and two audits) plus gates; the first hosted run took ~5 min.
+    timeout-minutes: 60
     outputs:
       version: ${{ steps.version.outputs.version }}
       commit: ${{ steps.version.outputs.commit }}
@@ -212,17 +213,22 @@ jobs:
           if (Test-Path $report) { (Get-Content -Raw $report | ConvertFrom-Json).status }
           if ($code -ne 0) { throw "Codex subset path audit exit $code (1 = unresolved findings, 2 = blocked)" }
 
-      - name: Safety runtime suite against the built SimonKCore and SimonKStack runtimes
+      - name: Safety runtime suite against the built runtime (SimonKStack; SimonKCore byte-identical)
         if: ${{ !cancelled() && steps.record.outcome == 'success' }}
-        timeout-minutes: 15
+        timeout-minutes: 10
         run: |
-          $failed = @()
-          foreach ($owner in 'SimonKCore', 'SimonKStack') {
-            $env:SIMONK_SAFETY_CANDIDATE_PLUGIN_ROOT = Join-Path $env:RUNNER_TEMP "candidate/candidate-safety/plugins/$owner"
-            python -B -m unittest discover -s scripts/tests -p test_safety_runtime.py
-            if ($LASTEXITCODE -ne 0) { $failed += $owner }
+          # plugin_bundle copies the same reviewed runtime bytes into both plugins;
+          # prove that on the built tree, then run the suite on one copy.
+          $plugins = Join-Path $env:RUNNER_TEMP 'candidate/candidate-safety/plugins'
+          $listing = foreach ($owner in 'SimonKCore', 'SimonKStack') {
+            $root = Join-Path $plugins "$owner/.simonk-runtime"
+            ,@(Get-ChildItem -LiteralPath $root -Recurse -File | Sort-Object FullName | ForEach-Object {
+              '{0} {1}' -f [IO.Path]::GetRelativePath($root, $_.FullName).Replace('\', '/'), (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash })
           }
-          if ($failed) { throw "Safety runtime suite failed for: $($failed -join ', ')" }
+          if (-not $listing[0].Count -or (Compare-Object $listing[0] $listing[1])) { throw 'SimonKCore and SimonKStack runtimes differ' }
+          $listing[0]
+          $env:SIMONK_SAFETY_CANDIDATE_PLUGIN_ROOT = Join-Path $plugins 'SimonKStack'
+          python -B -m unittest discover -s scripts/tests -p test_safety_runtime.py
 
       - name: Collect receipts
         if: ${{ always() }}
