@@ -1,4 +1,9 @@
-"""Source-only main safety: no home updates, plugin switch, or GitHub release."""
+"""Source-only main safety: no home updates, plugin switch, or GitHub release.
+
+D-82 follow-up 1 moved only dist publishing to its own gate
+(distribution/dist-publish.allow, tested in test_dist_release.py); the hold
+below still fences SessionStart and release.yml, and the catalog stays legacy.
+"""
 
 import json
 import os
@@ -66,6 +71,8 @@ class MainReleaseFenceTests(unittest.TestCase):
 
     def test_marketplace_legacy_plugin_is_pinned_to_previous_main(self):
         data = json.loads(MARKETPLACE.read_text(encoding="utf-8"))
+        # Legacy only: the five-plugin catalog switch is D-82's last step.
+        self.assertEqual([item["name"] for item in data["plugins"]], ["simonk-stack"])
         entry = next(item for item in data["plugins"]
                      if item["name"] == "simonk-stack")
         self.assertEqual(entry["source"], {
@@ -74,6 +81,16 @@ class MainReleaseFenceTests(unittest.TestCase):
             "ref": "main",
             "sha": STABLE_SHA,
         })
+
+    def test_hold_fences_session_start_and_release_but_not_dist_publish(self):
+        self.assertTrue(HOLD.is_file(), "Candidate must carry an explicit release hold")
+        readers = sorted(
+            path.relative_to(ROOT).as_posix()
+            for path in [*(ROOT / ".github" / "workflows").glob("*.yml"),
+                         *(ROOT / ".claude" / "hooks").iterdir()]
+            if path.is_file() and HOLD.name in path.read_text(encoding="utf-8"))
+        self.assertEqual(readers, [".claude/hooks/session-start.sh",
+                                   ".github/workflows/release.yml"])
 
     @unittest.skipUnless(BASH.is_file(), "Git Bash/POSIX Bash is required")
     def test_main_push_release_script_exits_before_gh_when_held(self):

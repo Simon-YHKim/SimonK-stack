@@ -10,8 +10,14 @@ Content identity is ``release.content_digest`` in bundle.json (plugin_bundle.py)
 source + five pins + safety projection + version-normalized output files.
 
 Rollback re-ships older content under a HIGHER version: revert on main, rebuild.
-Nothing here pushes. ``decide`` and ``stage`` only prepare the commit that the
-workflow's opt-in publish job pushes without force.
+Nothing here pushes. ``gate``, ``decide`` and ``stage`` only prepare the commit
+that the workflow's opt-in publish job pushes without force.
+
+Publish approval (D-82) is its own gate, not the D-33 hold: the built commit
+must carry ``distribution/dist-publish.allow`` naming a hub decision, the
+session-tested candidate commit (an ancestor of the build) and that candidate's
+content digest. The hold keeps blocking SessionStart and release.yml; the
+repository variable SIMONK_DIST_PUBLISH stays the workflow's other key.
 """
 from __future__ import annotations
 
@@ -39,6 +45,11 @@ DIST_TOP_LEVEL = {"plugins", RECORD, ".gitattributes"}
 RECORD_KEYS = {"schema_version", "scope", "version", "content_digest", "bundle_digest",
                "source_commit", "source_digest", "pins", "codex_overlay_digest",
                "codex_subset_digest", "run"}
+# Read from the built commit (git object, not the working tree). Not a build
+# input, so committing it leaves the approved content digest unchanged.
+ALLOW = "distribution/dist-publish.allow"
+ALLOW_KEYS = {"schema_version", "scope", "decision", "source_commit", "content_digest"}
+DECISION = re.compile(r"D-[1-9][0-9]*\Z")
 
 
 def parse_version(value):
@@ -152,6 +163,50 @@ def decide(previous, current):
             "dist_version": previous["version"]}
 
 
+def validate_allow(allow):
+    if not isinstance(allow, dict) or set(allow) != ALLOW_KEYS:
+        raise ValueError("Invalid dist publish approval fields")
+    if (type(allow["schema_version"]) is not int or allow["schema_version"] != 1
+            or allow["scope"] != DIST_SCOPE):
+        raise ValueError("Unknown dist publish approval schema")
+    if not isinstance(allow["decision"], str) or not DECISION.fullmatch(allow["decision"]):
+        raise ValueError("Approval must name a hub decision code (D-<n>)")
+    if not isinstance(allow["source_commit"], str) or not HEX40.fullmatch(allow["source_commit"]):
+        raise ValueError("Invalid approved source commit")
+    _digest(allow["content_digest"], "approved content digest")
+    return allow
+
+
+def _is_ancestor(repo, ancestor, commit):
+    if git(repo, "rev-parse", "--is-shallow-repository") != "false":
+        raise ValueError("Shallow clone cannot place the approved commit; fetch the full history")
+    result = subprocess.run(["git", "-C", str(repo), "merge-base", "--is-ancestor", ancestor, commit],
+                            capture_output=True, timeout=120)
+    if result.returncode not in (0, 1):
+        raise ValueError("Approved source commit is not in this repository")
+    return result.returncode == 0
+
+
+def gate(repo, current):
+    """publish | refuse: only content a committed approval names may reach dist (D-82)."""
+    current = validate_record(current)
+    if git(repo, "rev-parse", "HEAD") != current["source_commit"]:
+        raise ValueError("Approval must be read from the built commit")
+    shown = subprocess.run(["git", "-C", str(repo), "cat-file", "blob", "HEAD:" + ALLOW],
+                           capture_output=True, timeout=120)
+    if shown.returncode != 0:
+        # Absent from the built commit; an uncommitted local file does not count.
+        return {"action": "refuse", "reason": "no-approval", "version": current["version"]}
+    allow = validate_allow(json.loads(shown.stdout))
+    result = {"decision": allow["decision"], "version": current["version"],
+              "approved_source": allow["source_commit"]}
+    if allow["content_digest"] != current["content_digest"]:
+        return {"action": "refuse", "reason": "content-not-approved", **result}
+    if not _is_ancestor(repo, allow["source_commit"], current["source_commit"]):
+        return {"action": "refuse", "reason": "source-outside-approval", **result}
+    return {"action": "publish", "reason": "approved", **result}
+
+
 def _member(value):
     path = PurePosixPath(value) if isinstance(value, str) else None
     if (path is None or not value or "\\" in value or ":" in value or path.is_absolute()
@@ -212,6 +267,9 @@ def main(argv=None):
     record.add_argument("--subset-digest", required=True)
     record.add_argument("--run")
     record.add_argument("--output", type=Path, required=True)
+    approve = commands.add_parser("gate", help="Check the committed dist publish approval (D-82)")
+    approve.add_argument("--repo", type=Path, default=Path("."))
+    approve.add_argument("--current", type=Path, required=True)
     choose = commands.add_parser("decide", help="Compare with the current dist RELEASE.json")
     choose.add_argument("--current", type=Path, required=True)
     choose.add_argument("--previous", type=Path, help="Omit when the dist branch does not exist")
@@ -229,6 +287,8 @@ def main(argv=None):
                                     args.overlay_digest, args.subset_digest, args.run)
             with args.output.open("xb") as handle:
                 handle.write(encoded(result))
+        elif args.command == "gate":
+            result = gate(args.repo, _load(args.current))
         elif args.command == "decide":
             previous = _load(args.previous) if args.previous else None
             result = decide(previous, _load(args.current))
@@ -237,7 +297,7 @@ def main(argv=None):
             with args.executables.open("x", encoding="utf-8", newline="\n") as handle:
                 handle.writelines(path + "\n" for path in result["executables"])
         print(encoded(result).decode("utf-8"), end="")
-        return 1 if args.command == "decide" and result["action"] == "refuse" else 0
+        return 1 if args.command in {"gate", "decide"} and result["action"] == "refuse" else 0
     except ValueError as error:
         print(json.dumps({"status": "blocked", "message": str(error)}), file=sys.stderr)
         return 2
