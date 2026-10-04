@@ -10,7 +10,13 @@ Priorities (Simon handshake request 2026-09-26 14:29):
   NOISE   hr-* / _tmp-* / _relay-* org HR drafts and scratch copies
 
 Outbound rule (vibe-bot charter): before saying "no reply", check
-  E:/2ndB/.bots/*/outbox/<nonce>*.result.md  and the top of Relay STATUS.
+  <bus>/*/outbox/<nonce>*.result.md  and the top of Relay STATUS.
+
+Paths: <bus> is VIBE_BOT_BUS, else bots.json projects.2nd-b root + bus (the one
+place the 2nd-B clone path lives); drafts are VIBE_BOT_DRAFTS, else
+<root>/docs/drafts; the hub board is VIBE_BOT_HUB_STATUS, else
+<hub>/bots/STATUS.md with <hub> = VIBE_BOT_HUB or
+$SIMONK_PROJECT_DIR/AI Infra/Communication (home folder if unset).
 A claim older than PING_AFTER_MIN with no result marks PING-DUE once;
 at most one reminder per nonce (charter: one authorized reminder).
 
@@ -37,9 +43,27 @@ import time
 KST = dt.timezone(dt.timedelta(hours=9))
 # State lives OUTSIDE the skill folder: the SimonK-stack sync replaces skill folders.
 DEFAULT_STATE = os.path.join(os.path.expanduser("~"), ".claude", "state", "vibe-bot", "bus_watch.json")
-BUS = os.environ.get("VIBE_BOT_BUS", "E:/2ndB/.bots")
-DRAFTS = os.environ.get("VIBE_BOT_DRAFTS", "E:/2ndB/docs/drafts")
-HUB_STATUS = os.environ.get("VIBE_BOT_HUB_STATUS", "E:/Coding Infra/AI Infra/Communication/bots/STATUS.md")
+SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def _roster_project(project_id="2nd-b"):
+    """(root, bus) of a bots.json project; no machine path is repeated here."""
+    try:
+        with open(os.path.join(SKILL_DIR, "bots.json"), encoding="utf-8") as fh:
+            proj = json.load(fh).get("projects", {}).get(project_id) or {}
+        return str(proj.get("root") or "."), str(proj.get("bus") or ".bots")
+    except (OSError, ValueError, AttributeError):
+        return ".", ".bots"
+
+
+_ROOT, _BUS_NAME = _roster_project()
+_HUB = (os.environ.get("VIBE_BOT_HUB")
+        or os.path.join(os.environ.get("SIMONK_PROJECT_DIR") or os.path.expanduser("~"),
+                        "AI Infra", "Communication"))
+BUS = os.environ.get("VIBE_BOT_BUS") or f"{_ROOT}/{_BUS_NAME}"
+DRAFTS = os.environ.get("VIBE_BOT_DRAFTS") or f"{_ROOT}/docs/drafts"
+HUB_STATUS = (os.environ.get("VIBE_BOT_HUB_STATUS")
+              or os.path.join(_HUB, "bots", "STATUS.md").replace("\\", "/"))
 STATE = DEFAULT_STATE
 RELAY_STATUS = BUS + "/relay/STATUS.md"
 PING_AFTER_MIN = 20

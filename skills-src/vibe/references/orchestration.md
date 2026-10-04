@@ -649,7 +649,8 @@ reservation/recovery semantics and already-closed history are unchanged.
 
 1. Independently extract requirements from user/spec/issue/policy sources,
    including negative, authorization, recovery and boundary behavior. Read the
-   discovered `/qa` skill's `references/detail.md` acceptance contract. Inspect
+   acceptance contract in the discovered `/qa` skill's own folder
+   (`<qa-skill-dir>/references/detail.md`; it may ship in another plugin). Inspect
    requirement completeness separately: no validator can infer an omitted spec.
 2. The trusted coordinator identifies the exact immutable build and environment,
    approves the contract digest and keeps both outside worker-controlled results.

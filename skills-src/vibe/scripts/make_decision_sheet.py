@@ -296,7 +296,7 @@ USAGE = """사용: python make_decision_sheet.py <입력.json> [출력.html]
     시트는 반드시 이 스크립트로 만든다.
 
   입력 JSON: {"run": "run_xxx", "items": [{"id","lane","title",...}, ...]}
-  기본 출력: E:/Coding Infra/reports/vibe-decisions-<run>.html
+  기본 출력: $SIMONK_PROJECT_DIR/reports/vibe-decisions-<run>.html (변수가 없으면 홈 폴더)
   회수 확인: python scripts/aggregate_ledger.py  (상태가 셋으로 갈려 나온다)
 """
 
@@ -321,7 +321,8 @@ def main():
                           ValueError("NaN/Infinity 거부")))
     run = str(data.get("run", "run_unknown"))
     out = argv[1] if len(argv) > 1 else \
-        os.path.join(r"E:\Coding Infra\reports", f"vibe-decisions-{run}.html")
+        os.path.join(os.environ.get("SIMONK_PROJECT_DIR") or os.path.expanduser("~"),
+                     "reports", f"vibe-decisions-{run}.html")
     doc, n, lanes = build(data, out)
     print(out)
     # 감사 LOW: 비신뢰 문자열을 로그에 반사하지 않는다. 개수만 보고한다.

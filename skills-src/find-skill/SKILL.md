@@ -1,8 +1,8 @@
 ---
 name: find-skill
 description: >
-  Use when the user wants to find an existing skill for a task instead of writing one — triggers "스킬 찾아", "스킬 검색", "이런 거 하는 스킬 있어?", "X 하는 스킬", "find a skill", "search skills", "is there a skill for", or /find-skill. Searches two catalogs in parallel — the local simon-stack INDEX.md (hardcoded at C:/Users/202502/.claude/skills/INDEX.md) and the external ComposioHQ/awesome-claude-skills GitHub README (64k★, 1000+ skills) — ranks hits by trigger-phrase overlap, and produces a ranked recommendation list (skill name, why it matched, how to invoke). Prefers an already-installed local skill; only surfaces external skills when no local equivalent exists. Different from manual INDEX.md browsing (this is keyword-ranked) and from /skill-gen-agent (which creates new skills — this finds existing ones).
-version: 1.1.0
+  Use when the user wants to find an existing skill for a task instead of writing one — triggers "스킬 찾아", "스킬 검색", "이런 거 하는 스킬 있어?", "X 하는 스킬", "find a skill", "search skills", "is there a skill for", or /find-skill. Searches two catalogs in parallel — the local simon-stack INDEX.md (~/.claude/skills/INDEX.md) and the external ComposioHQ/awesome-claude-skills GitHub README (64k★, 1000+ skills) — ranks hits by trigger-phrase overlap, and produces a ranked recommendation list (skill name, why it matched, how to invoke). Prefers an already-installed local skill; only surfaces external skills when no local equivalent exists. Different from manual INDEX.md browsing (this is keyword-ranked) and from /skill-gen-agent (which creates new skills — this finds existing ones).
+version: 1.1.1
 allowed-tools:
   - Read
   - Grep
@@ -32,7 +32,7 @@ compatibility: [claude-code]
 
 | 카탈로그 | 위치 | 검색 도구 |
 |---|---|---|
-| **로컬 simon-stack** | `C:/Users/202502/.claude/skills/INDEX.md` | Grep (오프라인, 즉시) |
+| **로컬 simon-stack** | `~/.claude/skills/INDEX.md` | Grep (오프라인, 즉시) |
 | **외부 awesome-claude-skills** | `https://raw.githubusercontent.com/ComposioHQ/awesome-claude-skills/master/README.md` | WebFetch (64k★, 1000+ skills) |
 
 외부 README 포맷은 bullet list — 각 줄이 `- 대괄호name소괄호link 대시 description` 꼴 (예: ``- docx - Create, edit Word docs``) — 이며 `## Document Processing`, `## Development & Code Tools`, `## Business & Marketing` 등 카테고리 H2 로 묶임.
@@ -54,7 +54,7 @@ compatibility: [claude-code]
 
 ```bash
 grep -niE "email|이메일|mail|smtp|notification|알림|push" \
-  "C:/Users/202502/.claude/skills/INDEX.md"
+  "$HOME/.claude/skills/INDEX.md"
 ```
 
 매칭 라인이 나오면 해당 skill 폴더의 SKILL.md frontmatter `description` 으로 트리거 문구를 확인한다.
@@ -62,13 +62,13 @@ grep -niE "email|이메일|mail|smtp|notification|알림|push" \
 ```bash
 # 후보 skill 의 실제 트리거/설명 확인
 grep -A2 -m1 "^description:" \
-  "C:/Users/202502/.claude/skills/growth-engine/SKILL.md"
+  "$HOME/.claude/skills/growth-engine/SKILL.md"
 ```
 
 설치 여부는 폴더 존재로 검증한다.
 
 ```bash
-ls -d "C:/Users/202502/.claude/skills/growth-engine" 2>/dev/null \
+ls -d "$HOME/.claude/skills/growth-engine" 2>/dev/null \
   && echo "INSTALLED" || echo "NOT_INSTALLED"
 ```
 
@@ -144,12 +144,12 @@ gh api repos/ComposioHQ/awesome-claude-skills/contents --jq '.[].name' \
 ```bash
 # 1. 추천한 로컬 skill 이 실제 존재하는가
 for s in growth-engine analytics-integrator; do
-  ls -d "C:/Users/202502/.claude/skills/$s" >/dev/null 2>&1 \
+  ls -d "$HOME/.claude/skills/$s" >/dev/null 2>&1 \
     && echo "OK  $s" || echo "MISSING  $s (추천에서 제거)"
 done
 
 # 2. INDEX.md 에 카탈로그돼 있는가
-grep -c "growth-engine" "C:/Users/202502/.claude/skills/INDEX.md"
+grep -c "growth-engine" "$HOME/.claude/skills/INDEX.md"
 
 # 3. 외부 링크가 살아있는가 (HTTP 200)
 gh api repos/ComposioHQ/awesome-claude-skills >/dev/null 2>&1 \

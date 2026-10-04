@@ -432,7 +432,7 @@ if [ "$_IS_SIMPLE" -eq 1 ]; then
     for _TOK in $CMD; do
       # SimonK: remove EVERY quote character (shell quote removal), not just
       # one surrounding layer: rm -rf "/" is rm -rf /, "$HOME"/* is $HOME/*.
-      # Word splitting still ignores quotes, so "E:/Coding Infra" stays two
+      # Word splitting still ignores quotes, so "E:/Work Space" stays two
       # non-root tokens (string matching, not a shell parser).
       _TOK="${_TOK//\"/}"; _TOK="${_TOK//\'/}"
       case "$_TOK" in

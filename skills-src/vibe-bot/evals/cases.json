@@ -1,6 +1,6 @@
 {
   "skill": "vibe-bot",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "evaluation_scope": "Grade observable outcomes in authorized fixtures. Schema validation, offline helper behavior and current-host responses are distinct from real Relay/provider behavior. Missing observations remain unmeasured. Never dispatch merely to complete an eval.",
   "cases": [
     {

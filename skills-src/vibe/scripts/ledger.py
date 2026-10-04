@@ -34,7 +34,10 @@ try:
 except Exception:
     pass
 
-HUB = r"E:\Coding Infra\AI Infra\Communication"
+# Hub = $SIMONK_PROJECT_DIR/AI Infra/Communication (set by the SimonK profile);
+# home folder if unset. No machine path is hard-coded in the shipped skill.
+HUB = os.path.join(os.environ.get("SIMONK_PROJECT_DIR") or os.path.expanduser("~"),
+                   "AI Infra", "Communication")
 LEDGER = os.path.join(HUB, "routing_ledger.jsonl")
 DOWNLOADS = os.path.join(os.path.expanduser("~"), "Downloads")
 

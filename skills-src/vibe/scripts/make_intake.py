@@ -35,7 +35,9 @@ except Exception:
     pass
 
 
-DEFAULT_OUT = r"E:\Coding Infra\reports\vibe-intake.html"
+# $SIMONK_PROJECT_DIR/reports (set by the SimonK profile); home folder if unset.
+DEFAULT_OUT = os.path.join(os.environ.get("SIMONK_PROJECT_DIR") or os.path.expanduser("~"),
+                           "reports", "vibe-intake.html")
 esc = ui.esc
 
 
@@ -225,7 +227,9 @@ def main(out_path=None, argv=None):
         repos = [x for x in seen if x[0] in prefer] + [x for x in seen if x[0] not in prefer]
         repos = repos[:12]
     if not repos:
-        repos = [("2ndB", "E:/2ndB")]
+        # No Orca list: offer the current folder instead of a machine-specific clone.
+        here = os.getcwd()
+        repos = [(os.path.basename(here) or here, here)]
 
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 

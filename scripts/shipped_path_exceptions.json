@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "exceptions": [
+    {
+      "path": "skills/vibe-bot/bots.json",
+      "literal": "E:/2ndB",
+      "count": 1,
+      "origin": "source",
+      "reason": "Simon 의 Grok Bot 조직 스냅샷(사용자 제공 데이터)에 든 2nd-B 클론 위치다. 이 PC 고유 값이라 남기되 projects.2nd-b.root 한 곳에만 둔다. bus_watch.py·make_bot_spec.py·relay 문서는 이 값을 읽거나 <2nd-B root> 로 가리킨다. 다른 설치는 이 값을 자기 경로로 바꾼다."
+    },
+    {
+      "path": "skills/semantic-recall/semantic_index.py",
+      "literal": "C:\\Coding Infra",
+      "count": 1,
+      "origin": "official",
+      "reason": "SimonKCore 핀(a07a1e9, distribution/plugin-inputs.v1.json)에서 오는 official 파일의 DEFAULT_ROOTS 다. 이 레포에서 고칠 수 없다. SimonKCore 원본을 고치고 핀을 올리는 별도 작업에서 지운다."
+    },
+    {
+      "path": "skills/semantic-recall/semantic_index.py",
+      "literal": "C:\\Users\\Soha.Bae",
+      "count": 1,
+      "origin": "official",
+      "reason": "SimonKCore 핀(a07a1e9)에서 오는 official 파일의 DEFAULT_ROOTS 다(다른 사용자의 홈). 이 레포에서 고칠 수 없다. SimonKCore 원본을 고치고 핀을 올리는 별도 작업에서 지운다."
+    },
+    {
+      "path": "skills/semantic-recall/semantic_index.py",
+      "literal": "C--Coding-Infra",
+      "count": 1,
+      "origin": "official",
+      "reason": "같은 DEFAULT_ROOTS 줄의 Claude 프로젝트 폴더 이름이다. SimonKCore 핀(a07a1e9) official 파일이라 이 레포에서 고칠 수 없고, 핀을 올리는 별도 작업에서 지운다."
+    }
+  ]
+}
