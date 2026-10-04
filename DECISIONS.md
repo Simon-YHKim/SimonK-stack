@@ -602,3 +602,8 @@ last-sync: 2026-07-05
 
 - 2026-10-04 22:28:04 KST | DECIDE | **D-79 main 7efb290 이 PC 설치(vibe 2.15.2, Core 핀 24a17a1)** (오케스트레이터 단독 · 35.8 1단) | claude
   - **근거**: §35.9 완료 정의(머지 뒤 설치)에 따라 승인된 설치 절차를 반복한다. #125(Core 핀 상향)와 #126(레지스트리 2차 갱신, 만료 10-11 21:46)이 main에 들어갔다. 새 pins 폴더는 CI와 같은 절차(autocrlf false, 고정 sha만 depth 1로 가져옴)로 만들었다: E:/Coding Infra/Releases/SimonK-stack/20261004-pins-7efb290/plugin-pins-lf, 5/5 고정 커밋, CRLF 0. 미리보기 계획은 후보 20261004-vibe-2152-7efb290과 정션 8개, 실폴더 변경 없음.
+
+- 2026-10-04 22:37:07 KST | AMEND | **D-79 main 7efb290 이 PC 설치(vibe 2.15.2, Core 핀 24a17a1)** — 이행: 후보 20261004-vibe-2152-7efb290을 포그라운드로 빌드(source 137·claude 182·codex 177)하고 정션 8개를 전환. update-local -Selftest 결과 status current, problems 0, vibe 2.15.2, selftest 188/0 | claude
+
+- 2026-10-04 22:37:07 KST | DECIDE | **D-80 SimonKCore main을 핀 커밋 24a17a1로 fast-forward** (오케스트레이터 단독 · 35.8 1단) | claude
+  - **근거**: D-76 핀 입력(승인됨)을 원본 저장소 main에 반영해 보존한다. 핀 브랜치 fix/core-helper-closure-260927은 main보다 8커밋 앞서 있었고 뒤처진 커밋은 없었다. PR #6 CI 2/2 통과 뒤 fast-forward push(c080bda..24a17a1, force 아님, SHA 그대로)했고 PR #6은 자동으로 MERGED 처리됐다. main push 워크플로 validate-plugin·skills-ci·release 모두 success. plugin.json이 0.3.0이고 v0.3.0 릴리스가 이미 있어 새 릴리스는 생기지 않았다(외부 영향 없음).
