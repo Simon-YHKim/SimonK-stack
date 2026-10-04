@@ -632,3 +632,9 @@ last-sync: 2026-07-05
   - **소수의견**: P2의 개정 B는 가장 강한 대안이다. 카탈로그를 유지한 dist 게시가 실제 HTTPS 검증 환경을 만들고, 세션까지 카탈로그 전환 전에 확인한다면 일반 설치 경로의 위험을 크게 줄인다. **첫 게시 전 세션 확인에 추가 과금이나 상당한 지연이 필요하다면 이 대안의 상대적 이점은 커진다.** 다만 현재 자료에는 그 비용·지연이 입증되어 있지 않다.
   - **후속**: **게이트를 분리한다.** hold 참조를 확인하고 publish만 독립 조건으로 옮긴다. 카탈로그의 레거시 고정과 기존 release·홈 복사 차단은 유지한다. **최종 후보를 최소 세션 실측한다.** 격리된 로그인 Windows 호스트에서 careful/freeze의 허용·차단·해제, 훅 로딩, 안내된 수동 이전 후 5개 플러그인의 가용성을 확인한다. 기존 update가 dependencies를 자동 보충한다고 가정하지 않는다. 모델 턴의 추가 과금 0은 먼저 확인해야 한다. **증거 확인 후 dist 게시만 승인한다.** 후…
   - **원문**: C:/Users/202502/AppData/Local/SimonKStack/ai-debate/debates/dbt-261005-014138
+
+- 2026-10-05 02:20:27 KST | AMEND | **D-82 D-76 5단계 첫 공개 dist 게시 승인** — 후속 이행 기록:
+  - ① 게이트 분리: PR #129(2b9db18). 게시 조건은 SIMONK_DIST_PUBLISH와 커밋된 distribution/dist-publish.allow 두 가지다. hold는 release.yml과 SessionStart만 막는다.
+  - ② 세션 실측: 실제 대화형 Claude Code 2.1.289 세션에 --plugin-dir로 5개 플러그인을 올렸다. 훅 로딩, careful(allow·HIGH deny·MEDIUM ask), freeze(경계 안 허용·밖 deny·unfreeze 해제), 5개 로딩(63/60/8/23/33)은 PASS다. 이전 후 상태는 HTTPS 단계에서 잰다. 쿼터는 5시간 38→40%, 주간 71%였다. 실제 설정 해시는 바뀌지 않았다.
+  - ③ 게시 승인 대상: source f015e18c166030afee5d1d2b2d2a1279410deba0, content digest 59eaff15af5554e622ad94e6dec22ba39b8c3c288192932e36b7028dd60c7d3f(세션 실측 빌드, CI f015e18, main 2b9db18 v1.763.0이 모두 같은 값). 카탈로그는 레거시를 유지한다.
+  - 다음 단계: allow 파일 PR → 변수 켜기 → 머지 → 첫 dist 게시 → HTTPS 검증 → 원격 세션 스모크 → 카탈로그 전환 | claude
