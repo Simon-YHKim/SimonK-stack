@@ -595,3 +595,5 @@ last-sync: 2026-07-05
     - main 396aeae.
     - 설치 미리보기: 후보 20261004-vibe-2151-396aeae, 정션 8개, 실폴더 ai-debate·careful·freeze·guard. 메모리 회수를 피하려고 단계별로 포그라운드에서 실행한다.
   - **남은 D-76**: 4단계 호스트 증거, 5단계 별도 릴리스 승인과 첫 dist 게시.
+
+- 2026-10-04 19:44:57 KST | AMEND | **D-78 D-76 1~3단계 이행과 main 396aeae 설치** — 이행: 후보 20261004-vibe-2151-396aeae를 단계별 포그라운드로 설치했다(build → junctions → physical: ai-debate 0.2.6·careful 0.2.4·freeze 0.2.3·guard 0.2.2). update-local -Selftest 미리보기는 status current·problems 0이고 vibe는 2.15.1·vibe-bot은 0.9.7이다. 문서 PR #123(main f2434f1)에서 HANDOFF·INSTALL을 기록하고 templates/CLAUDE.md 머지 규칙을 D-73에 맞췄다. 남은 일: D-76 4단계(호스트 증거)·5단계(릴리스 승인), pin 태그 고정, INSTALL.md 기간 분할(약 389KB) | claude
