@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "scope": "five-plugin-dist-v1",
+  "decision": "D-82",
+  "source_commit": "f015e18c166030afee5d1d2b2d2a1279410deba0",
+  "content_digest": "59eaff15af5554e622ad94e6dec22ba39b8c3c288192932e36b7028dd60c7d3f"
+}
