@@ -668,3 +668,6 @@ last-sync: 2026-07-05
   - 실제 사용자 경로: 새 격리 설정에서 claude plugin marketplace add Simon-YHKim/SimonK-stack로 5개를 설치하니 모두 1.768.0, enabled였다.
   - GitHub 배포 경로가 최신 빌드를 제공한다(D-73 완료 정의 충족). D-33 hold는 release.yml과 SessionStart만 계속 막는다(레거시 경로 폐기는 별도 안건).
   - 남은 정리: careful 플러그인 본문의 옛 스크립트 경로 표기, test_safety_runtime 12초 timeout flaky, flat과 플러그인 동시 설치 시 스킬 목록 초과 안내 | claude
+
+- 2026-10-05 04:48:02 KST | DECIDE | **D-85 main 286494e 이 PC 설치(freeze 0.2.6)** (오케스트레이터 단독 · 35.8 1단) | claude
+  - **근거**: §35.9에 따른 승인된 설치 절차 반복이다. 새로 들어간 것은 #132·#134(freeze 0.2.6, 플러그인 clear 출력), #135(카탈로그 전환), #136(테스트 timeout과 README)다. 미리보기 계획은 후보 20261005-vibe-2152-286494e, 정션 8개, 실폴더 freeze 0.2.5 → 0.2.6이다.
