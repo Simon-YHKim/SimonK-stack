@@ -597,3 +597,5 @@ last-sync: 2026-07-05
   - **남은 D-76**: 4단계 호스트 증거, 5단계 별도 릴리스 승인과 첫 dist 게시.
 
 - 2026-10-04 19:44:57 KST | AMEND | **D-78 D-76 1~3단계 이행과 main 396aeae 설치** — 이행: 후보 20261004-vibe-2151-396aeae를 단계별 포그라운드로 설치했다(build → junctions → physical: ai-debate 0.2.6·careful 0.2.4·freeze 0.2.3·guard 0.2.2). update-local -Selftest 미리보기는 status current·problems 0이고 vibe는 2.15.1·vibe-bot은 0.9.7이다. 문서 PR #123(main f2434f1)에서 HANDOFF·INSTALL을 기록하고 templates/CLAUDE.md 머지 규칙을 D-73에 맞췄다. 남은 일: D-76 4단계(호스트 증거)·5단계(릴리스 승인), pin 태그 고정, INSTALL.md 기간 분할(약 389KB) | claude
+
+- 2026-10-04 22:23:02 KST | AMEND | **D-78 D-76 1~3단계 이행과 main 396aeae 설치** — 후속: ① INSTALL.md 기간 분할(PR #124 cece3d5, 389KB → 144KB + docs/install/INSTALL-2026H2.md 246KB, 옮긴 내용이 원본과 바이트 일치). ② 핀 6개에 simonk-pin-20261004-<sha7> 태그 부여. SimonKCore PR #5(24a17a1, semantic_index.py 머신 경로 제거)를 핀 브랜치에 머지하고 SimonK-stack PR #125(92e9da0)로 Core 핀을 상향. 남은 예외는 bots.json E:/2ndB 1건이며 CI·dist 빌드 녹색. 미결: SimonKCore 핀 브랜치를 main에 합칠지(7커밋, release.yml 실행)는 Simon 판단. 로컬 update-local은 새 Core 핀 pins 폴더가 필요(PLUGIN_PINS_REQUIRED). D-76 4단계 호스트 증거는 사용량 한도로 중단, 5단계는 미착수 | claude
