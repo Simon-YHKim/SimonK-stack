@@ -39,7 +39,7 @@ BANNER_A = "<!-- AUTO-GENERATED from "
 BANNER_B = "<!-- Regenerate: bun run gen:skill-docs -->"
 # D-68 fixed warning: investigate stays the gstack copy, whose Windows scope lock is broken.
 INVESTIGATE_WARNING = "Windows에서 investigate 잠금 금지. 편집이 전부 막히면 /unfreeze."
-SKILL_VERSIONS = {"freeze": "0.2.5", "unfreeze": "0.2.0", "guard": "0.2.3"}
+SKILL_VERSIONS = {"freeze": "0.2.6", "unfreeze": "0.2.0", "guard": "0.2.3"}
 HIDE_CYGPATH = ('command() { if [ "${1-}" = -v ] && [ "${2-}" = cygpath ]; then return 1; fi; '
                 'builtin command "$@"; }\n')
 
