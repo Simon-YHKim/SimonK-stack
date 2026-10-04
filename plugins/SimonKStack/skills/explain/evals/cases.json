@@ -1,0 +1,23 @@
+{
+  "skill": "explain",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "explain-code-en",
+      "prompt": "Walk me through how this authentication module works.",
+      "assertions": [
+        { "id": "traces-from-entry", "text": "Traces the code from entry point to behavior" },
+        { "id": "structured-walkthrough", "text": "Produces a structured walkthrough covering entry points, data flow, key invariants, and where to make changes" },
+        { "id": "cites-line-numbers", "text": "Cites file and line numbers so the user can follow along" }
+      ]
+    },
+    {
+      "id": "explain-code-ko",
+      "prompt": "이 코드 설명해줘. 이게 뭐하는거야?",
+      "assertions": [
+        { "id": "mental-model", "text": "Builds a mental model of purpose, inputs/outputs, control flow, and side effects" },
+        { "id": "layered-explanation", "text": "Explains in layers, starting high level then drilling into the non-obvious parts" }
+      ]
+    }
+  ]
+}

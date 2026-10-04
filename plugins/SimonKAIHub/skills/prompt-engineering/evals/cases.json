@@ -1,0 +1,38 @@
+{
+  "skill": "prompt-engineering",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-json-injection",
+      "prompt": "JSON으로만 출력하는 시스템 프롬프트 짜주고 인젝션도 막아줘",
+      "assertions": [
+        {
+          "id": "task-definition",
+          "text": "Defines the task (input/output/success criteria)."
+        },
+        {
+          "id": "structured-output",
+          "text": "Selects a structured/JSON-schema output pattern."
+        },
+        {
+          "id": "injection-defense",
+          "text": "Adds an injection/jailbreak defense layer (delimiters / privilege separation / output validation)."
+        }
+      ]
+    },
+    {
+      "id": "en-fewshot-improve",
+      "prompt": "Improve my few-shot prompt, answers are inconsistent",
+      "assertions": [
+        {
+          "id": "pattern-selection",
+          "text": "Selects a pattern (zero/few-shot, CoT, role)."
+        },
+        {
+          "id": "iteration-loop",
+          "text": "Sets up an eval set and a bad-example→fix iteration loop."
+        }
+      ]
+    }
+  ]
+}

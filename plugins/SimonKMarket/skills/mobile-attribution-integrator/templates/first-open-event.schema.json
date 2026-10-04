@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "first_open",
+  "title": "channel-attributable first_open event",
+  "description": "One event per first launch. Join only per-install MMP, Install Referrer, or AdServices evidence. Unknown installs use channel=null and matched_by=none. SKAN/AAK postbacks are aggregate-only; the legacy skan_aggregate enum is retained for compatibility, not for new per-device events.",
+  "type": "object",
+  "required": ["event", "platform", "channel", "matched_by", "att_status", "ts"],
+  "additionalProperties": false,
+  "properties": {
+    "event": { "const": "first_open" },
+    "platform": { "enum": ["ios", "android"] },
+    "channel": {
+      "type": ["string", "null"],
+      "description": "정규화된 채널. 개별 설치 귀속 근거가 없으면 null; organic으로 추정하지 않는다.",
+      "examples": ["meta", "google", "tiktok", "apple_search_ads", "organic", null]
+    },
+    "campaign": { "type": ["string", "null"], "description": "utm_campaign 정규화 (소문자)" },
+    "matched_by": {
+      "enum": ["mmp", "install_referrer", "adservices", "skan_aggregate", "none"],
+      "description": "개별 설치 조인 출처. skan_aggregate는 과거 호환값이며 새 first_open에 사용하지 않는다."
+    },
+    "deferred_deeplink": {
+      "type": ["string", "null"],
+      "description": "설치 후 라우팅할 의도된 URL. 라우팅 자체는 deeplink-integrator 가 처리."
+    },
+    "att_status": { "enum": ["authorized", "denied", "not_determined", "unavailable"] },
+    "skan_cv": { "type": ["integer", "null"], "minimum": 0, "maximum": 63, "description": "iOS fine conversion value (있으면)" },
+    "ts": { "type": "string", "format": "date-time" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "matched_by": { "const": "none" } } },
+      "then": { "properties": { "channel": { "type": "null" } } }
+    }
+  ]
+}

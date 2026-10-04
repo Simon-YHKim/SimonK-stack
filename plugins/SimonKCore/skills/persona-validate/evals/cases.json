@@ -1,0 +1,32 @@
+{
+  "skill": "persona-validate",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "ko-pre-launch-check",
+      "prompt": "출시 전 점검 해줘 — 이 온보딩 플로우 페르소나 검증해줘",
+      "assertions": [
+        { "id": "runs-both-panels", "text": "The response evaluates the onboarding flow against both general-user personas and domain-expert personas." },
+        { "id": "scores-dimensions", "text": "It scores accessibility and coverage for general-user personas and accuracy, risk, and best-practices for expert personas." },
+        { "id": "prioritized-backlog", "text": "It produces a prioritized improvement backlog ordered by severity." }
+      ]
+    },
+    {
+      "id": "en-expert-review",
+      "prompt": "Run an expert review panel on this deliverable before we ship it",
+      "assertions": [
+        { "id": "expert-personas", "text": "The response assembles domain-expert personas and reviews the deliverable through them." },
+        { "id": "accuracy-risk", "text": "It flags accuracy, risk, and best-practices issues raised by the expert personas." },
+        { "id": "improvement-items", "text": "It returns concrete, prioritized improvement items rather than a pass/fail verdict." }
+      ]
+    },
+    {
+      "id": "slash-validate",
+      "prompt": "/persona-validate",
+      "assertions": [
+        { "id": "diverse-personas", "text": "The skill validates the target artifact against a diverse set of user and expert personas." },
+        { "id": "backlog-output", "text": "It outputs a prioritized improvement backlog covering accessibility, coverage, accuracy, and risk." }
+      ]
+    }
+  ]
+}

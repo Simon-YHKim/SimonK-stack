@@ -1,0 +1,23 @@
+{
+  "skill": "devex-review",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "dx-audit-en",
+      "prompt": "Run a DX audit and try the getting-started onboarding flow.",
+      "assertions": [
+        { "id": "live-test", "text": "Uses the browse tool to actually test the developer experience by navigating docs and trying the getting-started flow" },
+        { "id": "times-tthw", "text": "Times TTHW (time-to-hello-world) and screenshots error messages along the way" },
+        { "id": "dx-scorecard", "text": "Produces a DX scorecard backed by evidence" }
+      ]
+    },
+    {
+      "id": "test-dev-experience-ko",
+      "prompt": "개발자 경험 좀 테스트해줘. 온보딩이 실제로 얼마나 걸리는지 보고.",
+      "assertions": [
+        { "id": "evaluates-cli-help", "text": "Evaluates CLI help text and the documented onboarding path" },
+        { "id": "compares-plan", "text": "Compares the measured reality against /plan-devex-review scores if they exist" }
+      ]
+    }
+  ]
+}

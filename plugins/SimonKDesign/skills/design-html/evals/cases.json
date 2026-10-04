@@ -1,0 +1,23 @@
+{
+  "skill": "design-html",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "turn-into-html-en",
+      "prompt": "Take this approved mockup and turn it into production HTML.",
+      "assertions": [
+        { "id": "pretext-native", "text": "Generates production-quality Pretext-native HTML/CSS" },
+        { "id": "dynamic-layout", "text": "Output reflows text, computes heights, and uses dynamic layouts rather than fixed mockups" },
+        { "id": "zero-deps", "text": "Produces self-contained output with low overhead (~30KB) and zero dependencies" }
+      ]
+    },
+    {
+      "id": "build-the-page-ko",
+      "prompt": "이 디자인 확정됐어. 이제 실제 페이지로 만들어줘.",
+      "assertions": [
+        { "id": "finalizes-design", "text": "Finalizes an approved design into real, working HTML/CSS" },
+        { "id": "smart-routing", "text": "Picks the right Pretext patterns for the given design type via smart API routing" }
+      ]
+    }
+  ]
+}

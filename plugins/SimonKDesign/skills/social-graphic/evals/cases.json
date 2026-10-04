@@ -1,0 +1,34 @@
+{
+  "skill": "social-graphic",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-cardnews",
+      "prompt": "인스타용 카드뉴스 시리즈 만들어줘",
+      "assertions": [
+        {
+          "id": "supports-formats",
+          "text": "Produces Instagram 1:1 (1080x1080) / 4:5 (1080x1350) / story 9:16, card-news series, or posters as requested."
+        },
+        {
+          "id": "anti-slop-prompt",
+          "text": "Enforces AI-slop prevention (max 3 monotone colors, no Inter, no over-decoration) in the prompt."
+        }
+      ]
+    },
+    {
+      "id": "en-poster-with-brand",
+      "prompt": "Make a marketing poster using our brand colors and logo",
+      "assertions": [
+        {
+          "id": "injects-brand-tokens",
+          "text": "Injects brand tokens (color/font/logo) to keep consistency when they are available."
+        },
+        {
+          "id": "suggests-consultation-if-missing",
+          "text": "If no brand tokens exist, recommends running /design-consultation first."
+        }
+      ]
+    }
+  ]
+}

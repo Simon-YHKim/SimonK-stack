@@ -1,0 +1,24 @@
+{
+  "skill": "simon-research",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "stack-comparison",
+      "prompt": "Supabase vs Firebase 리서치 해줘. 한국 스타트업 MVP 기준",
+      "assertions": [
+        {
+          "id": "three-competitors",
+          "text": "The agent compares at least 3 products (including both named ones plus at least one more like PocketBase or Appwrite)."
+        },
+        {
+          "id": "cites-sources",
+          "text": "Every claim has a citation with URL and date. No unsourced claims."
+        },
+        {
+          "id": "saves-research-doc",
+          "text": "The agent saves results to docs/research/<date>-<topic>.md."
+        }
+      ]
+    }
+  ]
+}

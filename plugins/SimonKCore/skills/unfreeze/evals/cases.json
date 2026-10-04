@@ -1,0 +1,48 @@
+{
+  "skill": "unfreeze",
+  "version": "0.2.0",
+  "cases": [
+    {
+      "id": "ko-unfreeze",
+      "prompt": "unfreeze 해줘, 전체 디렉토리 다시 수정 가능하게",
+      "assertions": [
+        {
+          "id": "clear-boundary",
+          "text": "Clears the freeze boundary set by /freeze or /guard by running bash \"$HOME/.claude/skills/freeze/bin/freeze-state.sh\" clear, allowing edits to all directories again."
+        },
+        {
+          "id": "logs-usage",
+          "text": "Records skill usage to ~/.gstack/analytics/skill-usage.jsonl."
+        }
+      ]
+    },
+    {
+      "id": "en-unlock-edits",
+      "prompt": "Unlock edits and remove the freeze.",
+      "assertions": [
+        {
+          "id": "remove-restriction",
+          "text": "Removes the edit restriction so edits to all directories are allowed without ending the session."
+        },
+        {
+          "id": "no-session-end",
+          "text": "Widens the edit scope in place rather than requiring the user to start a new session."
+        }
+      ]
+    },
+    {
+      "id": "busy-lock",
+      "prompt": "Unfreeze printed FREEZE_BUSY. Are edits unlocked now?",
+      "assertions": [
+        {
+          "id": "still-frozen",
+          "text": "States that FREEZE_BUSY means another writer holds the state lock and the boundary is still active; nothing was cleared."
+        },
+        {
+          "id": "user-decides-lock",
+          "text": "Retries once and otherwise lets the user decide about the .freeze-mutation.lock directory rather than removing it."
+        }
+      ]
+    }
+  ]
+}

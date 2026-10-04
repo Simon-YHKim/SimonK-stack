@@ -1,0 +1,24 @@
+{
+  "skill": "stitch-design-flow",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "korean-saas-prompts",
+      "prompt": "우리 SaaS 대시보드 디자인 시안 Stitch 용 프롬프트 3개 만들어줘",
+      "assertions": [
+        {
+          "id": "three-variants",
+          "text": "The agent produces Safe, Bold, Wild variants — 3 distinct prompts with different aesthetic directions."
+        },
+        {
+          "id": "korean-bilingual-constraint",
+          "text": "The prompts include the Korean+English bilingual constraint (한/영 병기)."
+        },
+        {
+          "id": "no-api-references",
+          "text": "The agent makes zero references to Stitch API, MCP, or API keys — only manual paste-in workflow."
+        }
+      ]
+    }
+  ]
+}

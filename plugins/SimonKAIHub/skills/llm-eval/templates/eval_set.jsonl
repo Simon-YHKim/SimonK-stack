@@ -1,0 +1,7 @@
+{"id": "g-001", "set": "golden", "tags": ["classify", "core"], "input": "오늘 회의에서 결정된 액션 아이템 3개를 정리해줘", "expected": "task_extraction"}
+{"id": "g-002", "set": "golden", "tags": ["classify", "core"], "input": "이 PDF 핵심만 요약해줘", "expected": "summarize"}
+{"id": "g-003", "set": "golden", "tags": ["classify", "core"], "input": "내 일정에 내일 3시 치과 추가", "expected": "calendar_add"}
+{"id": "e-001", "set": "edge", "tags": ["empty"], "input": "", "expected": "clarify"}
+{"id": "e-002", "set": "edge", "tags": ["multilingual"], "input": "summarize this in 한국어 please", "expected": "summarize"}
+{"id": "e-003", "set": "edge", "tags": ["ambiguous"], "input": "그거 해줘", "expected": "clarify"}
+{"id": "e-004", "set": "edge", "tags": ["very_long"], "input": "<5000자 입력 — 토큰 한계·잘림 동작 확인용. 실제 케이스에서는 긴 본문을 붙인다>", "expected": "summarize"}

@@ -1,0 +1,38 @@
+{
+  "skill": "churn-recovery-planner",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-dunning",
+      "prompt": "결제 실패 회복이랑 dunning 좀 설계해줘. 카드 만료 대응도.",
+      "assertions": [
+        {
+          "id": "dunning-schedule",
+          "text": "Designs a smart dunning retry schedule."
+        },
+        {
+          "id": "card-expiry",
+          "text": "Addresses card-expiry pre-dunning."
+        },
+        {
+          "id": "involuntary-focus",
+          "text": "Focuses on involuntary churn / payment retention recovery."
+        }
+      ]
+    },
+    {
+      "id": "en-cancel-save-offer",
+      "prompt": "Build a cancel flow with a save-offer and a win-back sequence to reduce churn.",
+      "assertions": [
+        {
+          "id": "save-offer-branch",
+          "text": "Adds a cancel-flow save-offer branch."
+        },
+        {
+          "id": "winback-sequence",
+          "text": "Designs a win-back sequence and recovery-rate KPI."
+        }
+      ]
+    }
+  ]
+}

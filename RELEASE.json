@@ -1,0 +1,19 @@
+{
+  "bundle_digest": "fc9c0793abd289ef24630685c47a48de906f3ed6e0734a2340d2c3d2adce43b1",
+  "codex_overlay_digest": "2c2ba8557e942e7774a6c98fd5ab87ea2156c4193fda8fa74a2cd2540b168155",
+  "codex_subset_digest": "f43d6473042bef53d40a03063c7ed2b9fd0e23a95a398277fb5ccfd0bfa5d8f1",
+  "content_digest": "59eaff15af5554e622ad94e6dec22ba39b8c3c288192932e36b7028dd60c7d3f",
+  "pins": {
+    "SimonKAIHub": "d523b3e1cfa800ef60c690d40b7256abf5bcba1e",
+    "SimonKCore": "24a17a1d59d03e75d3ac57643e91789cd640350e",
+    "SimonKDesign": "e045400de6fed810f38323ba6ab755e2572e64a3",
+    "SimonKMarket": "54f757f8f8f6cd73b2a470c4a13417c2e268b304",
+    "SimonKStack": "7f866e71e3e37e147410cdc55a5a786cf19fd2b6"
+  },
+  "run": "https://github.com/Simon-YHKim/SimonK-stack/actions/runs/37221696476",
+  "schema_version": 1,
+  "scope": "five-plugin-dist-v1",
+  "source_commit": "2ae590eba8c159dbe301c8bd20713a09a36d76cb",
+  "source_digest": "1a93ae4234ab39dd9b694c9469a93abbc344029e707fb984733b8c4d8382d42b",
+  "version": "1.765.0"
+}

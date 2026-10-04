@@ -1,0 +1,33 @@
+{
+  "skill": "grill-me",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "vague-feature-request",
+      "prompt": "/grill-me 사용자가 글 작성하면 알림 보내주는 기능 만들고 싶어",
+      "assertions": [
+        { "id": "asks-one-question-at-a-time", "text": "The agent asks exactly one question per turn and waits for the user's answer." },
+        { "id": "provides-recommended-answer", "text": "Each question includes 'My recommendation: X, because Y.'" },
+        { "id": "explores-scope-first", "text": "Early questions clarify scope (which users get notified, in-app vs email vs push, sync vs async)." },
+        { "id": "covers-edge-cases", "text": "Later questions surface edge cases: what if user has 10k followers, what if the post is deleted, what if notification fails to deliver." }
+      ]
+    },
+    {
+      "id": "respects-codebase-context",
+      "prompt": "/grill-me Stripe 결제 추가하려는데 grill해줘 (repo has existing payment-service module)",
+      "assertions": [
+        { "id": "reads-codebase-first", "text": "The agent reads the existing payment-service module before asking questions about integration shape." },
+        { "id": "avoids-asking-answerable-questions", "text": "The agent does not ask questions that can be answered by reading the codebase (e.g., does not ask 'do you already have a payment module' when grep would reveal it)." },
+        { "id": "checks-context-md-if-present", "text": "If CONTEXT.md exists, the agent uses its glossary terms when phrasing questions." }
+      ]
+    },
+    {
+      "id": "produces-final-summary",
+      "prompt": "[after 8 turns of grilling] 충분해, 정리해줘",
+      "assertions": [
+        { "id": "summarizes-decisions", "text": "The agent produces a final summary listing decisions resolved, decisions deferred, and open risks." },
+        { "id": "names-next-step", "text": "The summary points to the next skill (simon-tdd, autoplan, or implementation) based on what was resolved." }
+      ]
+    }
+  ]
+}

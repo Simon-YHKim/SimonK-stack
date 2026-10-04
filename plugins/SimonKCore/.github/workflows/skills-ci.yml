@@ -1,0 +1,15 @@
+name: skills-ci
+on:
+  push: { branches: [ main ] }
+  pull_request:
+jobs:
+  skills-quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Skill gate encoding regressions
+        run: python3 -B -m unittest discover -s .github/skill-ci -p test_run_ci_encoding.py
+      - name: Skills quality gate (lint + evals + description score)
+        run: python3 .github/skill-ci/run_ci.py

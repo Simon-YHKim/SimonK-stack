@@ -1,0 +1,34 @@
+{
+  "skill": "domain-glossary",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "create-from-scratch",
+      "prompt": "/domain-glossary 우리 코스 비디오 매니저 프로젝트에 CONTEXT.md 만들어줘. 주요 개념은 Course, Section, Lesson, Materialization.",
+      "assertions": [
+        { "id": "creates-context-md-at-root", "text": "The agent creates CONTEXT.md at the project root." },
+        { "id": "uses-correct-format", "text": "The file follows the format: project name + one-line, Language section with one-paragraph definitions, Relationships section, Flagged ambiguities section." },
+        { "id": "no-implementation-details", "text": "Definitions describe what terms mean in the domain, not how they are stored or coded (no SQL, no file paths, no function signatures)." },
+        { "id": "includes-avoid-synonyms", "text": "Each term has an '_Avoid_' line listing synonyms or older names." }
+      ]
+    },
+    {
+      "id": "lazy-update-during-grilling",
+      "prompt": "/grill-me 도중에 '취소'가 부분 환불인지 전체 취소인지 애매하다는 게 드러났어. CONTEXT.md 업데이트해줘.",
+      "assertions": [
+        { "id": "updates-inline", "text": "The agent updates CONTEXT.md in the same turn, not batched." },
+        { "id": "splits-ambiguous-term", "text": "If '취소' was ambiguous, the agent splits it into two precise terms (e.g., Refund vs Cancellation) and adds both to the Language section." },
+        { "id": "flags-history", "text": "The Flagged ambiguities section gets an entry showing '취소' was resolved into the two new terms." }
+      ]
+    },
+    {
+      "id": "rejects-spec-content",
+      "prompt": "/domain-glossary CONTEXT.md 에 Stripe API 엔드포인트랑 결제 플로우 다이어그램도 넣어줘",
+      "assertions": [
+        { "id": "refuses-spec-dump", "text": "The agent refuses to add API endpoints or flow diagrams to CONTEXT.md." },
+        { "id": "redirects-to-correct-file", "text": "The agent suggests the right destination: API endpoints to code/docs, flow diagrams to docs/adr/ or a separate design doc." },
+        { "id": "explains-why", "text": "The agent explains that CONTEXT.md is a pure glossary and mixing in specs defeats its purpose (reducing verbosity)." }
+      ]
+    }
+  ]
+}

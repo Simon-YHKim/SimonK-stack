@@ -1,0 +1,34 @@
+{
+  "skill": "completion-report",
+  "version": "0.3.0",
+  "cases": [
+    {
+      "id": "completion-report-korean",
+      "prompt": "작업 다 끝났어. 완료 리포트 HTML 보고서 하나 만들어줘",
+      "assertions": [
+        { "id": "self-contained-html", "text": "It produces a self-contained HTML report with inline CSS and inline SVG charts that needs no external dependencies or build step." },
+        { "id": "users-language", "text": "It writes the report in the user's language, which is Korean in this case." },
+        { "id": "locale-completion-time", "text": "It reads the actual system time and stamps the completion moment in the locale format (KST) rather than guessing." },
+        { "id": "what-result-sections", "text": "It includes the what-was-done table and a results/metrics section using charts when numbers exist." }
+      ]
+    },
+    {
+      "id": "completion-report-english",
+      "prompt": "/completion-report - generate a completion report for the UI work I just finished",
+      "assertions": [
+        { "id": "visual-first", "text": "It favors visuals such as tables, inline SVG bar/line/donut charts, and embedded screenshots or images over long text." },
+        { "id": "visual-evidence-for-ui", "text": "It includes visual evidence (screenshots or generated images) since this is design/UI work." },
+        { "id": "saves-and-points-to-file", "text": "It saves the report to a reports/completion-<timestamp>.html path and tells the user where it is instead of only dumping the path." }
+      ]
+    },
+    {
+      "id": "completion-report-toggles",
+      "prompt": "이번 작업 완료 보고서 만들어줘. 코딩 모르는 사람도 보고 영어로도 볼 수 있게",
+      "assertions": [
+        { "id": "language-toggle", "text": "The report includes button toggles to switch between Korean and English, with both languages in one self-contained file." },
+        { "id": "depth-toggle", "text": "The report includes button toggles for Simple vs Expert explanation depth, where the Simple version is plain language understandable without coding knowledge." },
+        { "id": "purpose-and-reason", "text": "Both the Simple and Expert explanations state the purpose (why it was done) and the reason." }
+      ]
+    }
+  ]
+}

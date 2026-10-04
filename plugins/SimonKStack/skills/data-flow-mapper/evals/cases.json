@@ -1,0 +1,21 @@
+{
+  "skill": "data-flow-mapper",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "code-backed-inventory",
+      "prompt": "앱 코드에서 개인정보 수집·전송 흐름을 정리하고 스토어 라벨용 인벤토리를 만들어줘.",
+      "assertions": [
+        {"id": "evidence-labels", "text": "Separates code-observed data flows from inferred purpose, legal basis and retention claims."},
+        {"id": "coverage", "text": "Records data type, processor, destination, storage region and retention or marks unknown fields explicitly."}
+      ]
+    },
+    {
+      "id": "unknown-cross-border",
+      "prompt": "SDK 전송 지역을 알 수 없는데 국외이전 없다고 적어도 돼?",
+      "assertions": [
+        {"id": "no-fabrication", "text": "Does not assert that cross-border transfer is absent without evidence and flags the gap for verification."}
+      ]
+    }
+  ]
+}

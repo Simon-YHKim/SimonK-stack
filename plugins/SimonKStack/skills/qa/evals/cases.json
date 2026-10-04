@@ -1,0 +1,42 @@
+{
+  "skill": "qa",
+  "version": "2.0.0",
+  "cases": [
+    {
+      "id": "ko-test-and-fix",
+      "prompt": "이 사이트 QA 돌려서 버그 찾고 고쳐줘",
+      "assertions": [
+        {
+          "id": "runs-tiered-qa",
+          "text": "Runs the QA workflow in one of the three tiers (Quick/Standard/Exhaustive), reporting critical/high bugs at minimum."
+        },
+        {
+          "id": "fixes-and-commits",
+          "text": "Iteratively fixes bugs in source code and commits each fix atomically, then re-verifies."
+        },
+        {
+          "id": "before-after-score",
+          "text": "Reports before/after health scores and a ship-readiness summary."
+        }
+      ]
+    },
+    {
+      "id": "en-does-this-work",
+      "prompt": "The checkout flow is ready, does this work? Test it and fix what's broken.",
+      "assertions": [
+        {
+          "id": "systematic-test",
+          "text": "Systematically QA-tests the web application and surfaces bugs found with evidence."
+        },
+        {
+          "id": "fix-loop",
+          "text": "Enters the test-fix-verify loop, fixing bugs in source rather than only reporting them."
+        },
+        {
+          "id": "ship-summary",
+          "text": "Ends with a ship-readiness summary and fix evidence."
+        }
+      ]
+    }
+  ]
+}

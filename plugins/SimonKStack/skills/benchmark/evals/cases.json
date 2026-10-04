@@ -1,0 +1,24 @@
+{
+  "skill": "benchmark",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "en-baseline",
+      "prompt": "Run a benchmark on the site and establish a performance baseline for page load and web vitals.",
+      "assertions": [
+        { "id": "browse-daemon", "text": "Uses the browse daemon to measure page load times, Core Web Vitals, and resource sizes." },
+        { "id": "baseline-capture", "text": "Captures a reusable performance baseline (--baseline mode) for later comparison." },
+        { "id": "report", "text": "Produces a performance baseline and report rather than ad-hoc numbers." }
+      ]
+    },
+    {
+      "id": "ko-speed-test",
+      "prompt": "이 PR 전후로 페이지 속도 비교해줘. 성능 회귀 있는지 벤치마크 돌려.",
+      "assertions": [
+        { "id": "before-after", "text": "Compares before/after performance on the PR to detect regressions." },
+        { "id": "vitals-tracked", "text": "Tracks load time, Core Web Vitals, and bundle/resource size trends over time." },
+        { "id": "comparison-report", "text": "Outputs a before/after comparison report highlighting any regression." }
+      ]
+    }
+  ]
+}

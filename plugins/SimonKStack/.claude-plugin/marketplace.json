@@ -1,0 +1,20 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "description": "제품/서비스 빌드 오케스트레이션 플러그인",
+  "name": "simonk-stack",
+  "owner": {
+    "name": "Simon Kim",
+    "url": "https://github.com/Simon-YHKim"
+  },
+  "plugins": [
+    {
+      "category": "productivity",
+      "description": "제품/서비스 빌드 오케스트레이션 플러그인",
+      "homepage": "https://github.com/Simon-YHKim/SimonK-stack",
+      "name": "simonk-stack",
+      "source": "./",
+      "version": "1.765.0"
+    }
+  ],
+  "version": "1.765.0"
+}

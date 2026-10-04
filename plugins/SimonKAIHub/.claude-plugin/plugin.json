@@ -1,0 +1,27 @@
+{
+  "author": {
+    "name": "Simon Kim",
+    "url": "https://github.com/Simon-YHKim"
+  },
+  "description": "AI 제품/기능 빌드 오케스트레이션 플러그인 (LLM·에이전트·RAG·평가·AI인프라)",
+  "keywords": [
+    "claude-code",
+    "plugin",
+    "orchestration",
+    "simonk",
+    "ai"
+  ],
+  "license": "MIT",
+  "name": "simonk-aihub",
+  "repository": "https://github.com/Simon-YHKim/SimonKAIHub",
+  "skills": [
+    "./skills/agent-builder/",
+    "./skills/ai-model-selector/",
+    "./skills/ai-safety-eval/",
+    "./skills/llm-eval/",
+    "./skills/prompt-engineering/",
+    "./skills/rag-builder/",
+    "./skills/skaihub/"
+  ],
+  "version": "1.765.0"
+}

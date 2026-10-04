@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ConsentState",
+  "description": "Single source of truth for a user's consent. Persisted client-side (web: cookie/localStorage, RN: AsyncStorage) and mirrored append-only to the server ledger. Non-necessary categories default to false (fail-closed).",
+  "type": "object",
+  "required": ["policyVersion", "decidedAt", "region", "categories", "source"],
+  "additionalProperties": false,
+  "properties": {
+    "policyVersion": {
+      "type": "string",
+      "description": "Privacy-policy version this decision was made against, e.g. '2026-06-01'. If the live policy version is higher than this, re-prompt.",
+      "examples": ["2026-06-01"]
+    },
+    "decidedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp of the most recent decision."
+    },
+    "region": {
+      "type": "string",
+      "enum": ["EU", "KR", "US", "OTHER", "UNKNOWN"],
+      "description": "Resolved region. UNKNOWN must be treated as EU (strictest)."
+    },
+    "source": {
+      "type": "string",
+      "enum": ["banner", "settings", "gpc", "dnt", "guardian", "default"],
+      "description": "How this state was produced. 'gpc'/'dnt' = seeded from browser signal; 'guardian' = verifiable parental consent (minor)."
+    },
+    "isMinor": {
+      "type": "boolean",
+      "default": false,
+      "description": "True if the user is under the local age threshold (KR <14, US COPPA <13). When true, advertising and personalized analytics are forced OFF."
+    },
+    "categories": {
+      "type": "object",
+      "required": ["necessary", "functional", "analytics", "advertising"],
+      "additionalProperties": false,
+      "properties": {
+        "necessary": {
+          "type": "boolean",
+          "const": true,
+          "description": "Always true. Cannot be withdrawn; only disclosed."
+        },
+        "functional": { "type": "boolean", "default": false },
+        "analytics": { "type": "boolean", "default": false },
+        "advertising": { "type": "boolean", "default": false }
+      }
+    }
+  },
+  "examples": [
+    {
+      "policyVersion": "2026-06-01",
+      "decidedAt": "2026-06-13T09:00:00Z",
+      "region": "EU",
+      "source": "banner",
+      "isMinor": false,
+      "categories": {
+        "necessary": true,
+        "functional": true,
+        "analytics": true,
+        "advertising": false
+      }
+    },
+    {
+      "policyVersion": "2026-06-01",
+      "decidedAt": "2026-06-13T09:00:00Z",
+      "region": "US",
+      "source": "gpc",
+      "isMinor": false,
+      "categories": {
+        "necessary": true,
+        "functional": false,
+        "analytics": false,
+        "advertising": false
+      }
+    }
+  ]
+}

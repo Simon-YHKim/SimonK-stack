@@ -1,0 +1,52 @@
+{
+  "skill": "referral-program-builder",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-referral",
+      "prompt": "추천 프로그램 만들어줘. 초대코드랑 양면 보상, 어뷰징 방어까지.",
+      "assertions": [
+        {
+          "id": "schema-codes",
+          "text": "Produces referrals + reward-ledger schema and invite-code generation."
+        },
+        {
+          "id": "two-sided-reward",
+          "text": "Designs two-sided reward structure."
+        },
+        {
+          "id": "abuse-guards",
+          "text": "Adds abuse guards (self-referral/multi-account/self-click) and K-factor events."
+        }
+      ]
+    },
+    {
+      "id": "en-invite",
+      "prompt": "Build a refer-a-friend program with invite codes and deferred deep-link attribution.",
+      "assertions": [
+        {
+          "id": "deeplink-attribution",
+          "text": "Wires deferred deep-link attribution (deeplink-integrator linkage)."
+        },
+        {
+          "id": "k-factor",
+          "text": "Includes K-factor measurement events."
+        }
+      ]
+    },
+    {
+      "id": "ko-missing-invite-id",
+      "prompt": "추천 링크 공유 횟수와 가입자 수는 있는데 초대별 ID가 없어요. K-factor와 추천 코호트 LTV를 확정해줘.",
+      "assertions": [
+        {
+          "id": "missing-join-unknown",
+          "text": "Marks exact invitation conversion and K-factor unknown without a per-recipient invite ID joined to signup."
+        },
+        {
+          "id": "ltv-revenue-source",
+          "text": "Does not invent cohort LTV from referral events; requests an authoritative revenue and variable-cost source."
+        }
+      ]
+    }
+  ]
+}

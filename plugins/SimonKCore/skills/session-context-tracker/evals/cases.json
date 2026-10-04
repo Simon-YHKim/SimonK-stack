@@ -1,0 +1,32 @@
+{
+  "skill": "session-context-tracker",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "korean-wrong-path-rewind",
+      "prompt": "클로드가 접근법 A로 5개 파일 읽고 시도했는데 실패했어. 어떻게 이어가지?",
+      "assertions": [
+        { "id": "picks-rewind", "text": "The agent recommends /rewind over continuing, because the failed attempt would otherwise stay in context." },
+        { "id": "reinject-learning", "text": "The agent specifies re-injecting only the lesson learned (e.g. 'approach A does not work') after rewinding." },
+        { "id": "explains-context-rot", "text": "The agent explains that failed attempts left in context get re-read every message (exponential cost)." }
+      ]
+    },
+    {
+      "id": "english-proactive-compact",
+      "prompt": "Session is getting heavy but the work is going fine, what should I do?",
+      "assertions": [
+        { "id": "picks-compact", "text": "The agent recommends a proactive /compact rather than waiting for auto-compaction at 95%." },
+        { "id": "includes-hint", "text": "The agent produces a focus/exclude hint for the /compact command instead of a bare /compact." }
+      ]
+    },
+    {
+      "id": "korean-subagent-judgment",
+      "prompt": "다른 레포의 OAuth 흐름을 요약만 받고 싶어. 세션 관리 관점에서 어떻게 해?",
+      "assertions": [
+        { "id": "applies-judgment-question", "text": "The agent applies the question 'will I need the intermediate output again?' and answers no." },
+        { "id": "picks-subagent", "text": "The agent recommends delegating to a subagent so the other repo's files never enter the main context." },
+        { "id": "links-agent-delegate", "text": "The agent connects to the agent-delegate skill for the delegation design." }
+      ]
+    }
+  ]
+}

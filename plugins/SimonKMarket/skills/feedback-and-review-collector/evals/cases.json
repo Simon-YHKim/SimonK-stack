@@ -1,0 +1,38 @@
+{
+  "skill": "feedback-and-review-collector",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-nps",
+      "prompt": "인앱 NPS 설문이랑 앱 평점 유도 넣어줘. 별점 유도는 만족한 사람만.",
+      "assertions": [
+        {
+          "id": "micro-survey",
+          "text": "Produces NPS/CSAT/CES micro-survey widgets."
+        },
+        {
+          "id": "gated-review",
+          "text": "Adds satisfaction-gated StoreKit/Play in-app review prompts fired only after a positive signal."
+        },
+        {
+          "id": "route-detractors",
+          "text": "Routes detractors to a private channel instead of the store, frequency-capped."
+        }
+      ]
+    },
+    {
+      "id": "en-review-prompt",
+      "prompt": "Add a store review prompt and an in-app survey, but don't game ratings.",
+      "assertions": [
+        {
+          "id": "eligibility-engine",
+          "text": "Includes a deterministic review-prompt eligibility engine."
+        },
+        {
+          "id": "no-gaming",
+          "text": "Distinguishes measuring sentiment from begging for 5 stars / never games ratings."
+        }
+      ]
+    }
+  ]
+}

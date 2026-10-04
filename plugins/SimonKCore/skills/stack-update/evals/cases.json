@@ -1,0 +1,29 @@
+{
+  "skill": "stack-update",
+  "version": "2.0.0",
+  "cases": [
+    {
+      "id": "safe-full-refresh",
+      "prompt": "SimonK stack 전체 최신화해줘",
+      "assertions": [
+        {"id": "inventory-first", "text": "Records root, branch, upstream, dirty state and ahead/behind for each selected repository before an update."},
+        {"id": "ff-only", "text": "Uses fast-forward-only updates for clean known branches, skipping dirty or divergent repositories without reset, stash or force."},
+        {"id": "separate-install", "text": "Does not run a force/no-backup global skill installer as part of repository refresh."}
+      ]
+    },
+    {
+      "id": "status-only",
+      "prompt": "스택 업데이트가 필요한지만 확인해줘",
+      "assertions": [
+        {"id": "read-only", "text": "Reports the plan and current state without pulling, installing or changing profiles."}
+      ]
+    },
+    {
+      "id": "gstack-only-routes-away",
+      "prompt": "gstack만 업그레이드해줘",
+      "assertions": [
+        {"id": "scope", "text": "Routes the single-vendor request to gstack-upgrade rather than refreshing the entire ecosystem."}
+      ]
+    }
+  ]
+}

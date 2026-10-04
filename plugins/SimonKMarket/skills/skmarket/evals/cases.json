@@ -1,0 +1,38 @@
+{
+  "skill": "skmarket",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "ko-route-growth",
+      "prompt": "시장조사하고 마케팅 전략 짜줘. 그로스랑 수익화도 같이 봐야 해.",
+      "assertions": [
+        {
+          "id": "diagnoses-intent",
+          "text": "Roughly diagnoses the user's intent before acting."
+        },
+        {
+          "id": "routes-subskills",
+          "text": "Routes to appropriate sub-skills (e.g. research/growth/monetization) as the single entry point."
+        },
+        {
+          "id": "research-first",
+          "text": "Follows research→hypothesis→validate→execute and does not assert without data/evidence."
+        }
+      ]
+    },
+    {
+      "id": "en-orchestrate",
+      "prompt": "/skmarket help me launch and analyze public sentiment for my app",
+      "assertions": [
+        {
+          "id": "entry-point",
+          "text": "Acts as the SimonKMarket orchestrator / single entry point for marketing, market-research, and sentiment work."
+        },
+        {
+          "id": "iterate-with-user",
+          "text": "Interacts with the user per artifact and iterates/develops outputs."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "skill": "llm-eval",
+  "version": "1.1.0",
+  "cases": [
+    {
+      "id": "ko-regression-gate",
+      "prompt": "프롬프트 바꿨는데 회귀 안 났는지 eval셋이랑 CI 게이트 만들어줘",
+      "assertions": [
+        {
+          "id": "designs-eval-set",
+          "text": "Designs an eval set (golden / edge / adversarial)."
+        },
+        {
+          "id": "ci-regression-gate",
+          "text": "Specifies a CI regression gate (threshold + baseline diff)."
+        },
+        {
+          "id": "warns-judge-bias",
+          "text": "Warns about LLM-judge bias and data contamination."
+        }
+      ]
+    },
+    {
+      "id": "en-llm-judge",
+      "prompt": "Build an LLM-as-judge eval harness for my summarizer",
+      "assertions": [
+        {
+          "id": "metric-selection",
+          "text": "Selects metrics by task type (accuracy / semantic-sim / LLM-judge / rule)."
+        },
+        {
+          "id": "tracking-schema",
+          "text": "Defines a result tracking schema and A/B or human eval loop."
+        }
+      ]
+    }
+  ]
+}

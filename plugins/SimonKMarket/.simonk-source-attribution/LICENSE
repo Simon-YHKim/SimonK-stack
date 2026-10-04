@@ -1,0 +1,171 @@
+MIT License
+
+Copyright (c) 2026 simon-stack contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## Third-party components
+
+Third-party code and references retain their upstream licenses:
+
+- **Gstack** — https://github.com/garrytan/gstack. Vendored skill attribution
+  is listed in skills-src/VENDORED.md. The safety runtime restoration below
+  additionally includes adapted executable code under Garry Tan's MIT license.
+- **Superpowers** — https://github.com/obra/superpowers (concepts referenced
+  in simon-tdd / simon-worktree; no code vendored)
+- **everything-claude-code** — https://github.com/affaan-m/everything-claude-code
+  (concepts referenced in simon-instincts / simon-research; no code vendored)
+
+Except for identified third-party components, SimonK contributions are released
+under the MIT license above.
+
+## Gstack safety runtime restoration (2026-09-24)
+
+Upstream: https://github.com/garrytan/gstack/tree/b9706f3635b6a545f46fae607ae9d6bcbfb69b91
+Pinned commit: b9706f3635b6a545f46fae607ae9d6bcbfb69b91
+Original LF-byte SHA-256 (before the explicitly described SimonK adaptations):
+
+- careful/bin/check-careful.sh: 7b04f0b8f409d4ecf166ef45e72eb95ed7c2f37434bd7125e6b403d0f7bf5d42
+- careful/bin/hook-extract.sh: 5be66386d4945f27ba52ac3df720a8f84755634de1713eacbd239376050106c9
+- freeze/bin/check-freeze.sh: 97e6013a990911ef544e4e80fc464560286e298d85ffbdf391b860e9910376f4
+
+Careful rebase (2026-10-03, hub decision D-56): careful was re-based on gstack
+v1.91.9.0, commit 96764e80a641e28141ec8297223768029f5bf483, whose two careful
+files above are byte-identical (same SHA-256) to the pinned commit. Added from
+that commit, unchanged except for a leading attribution comment block:
+
+- bin/gstack-slug: 67bb219bc2e57dedbf33421802607b5e6e639e5905f21caa18af56398058a5c8
+  (vendored as skills-src/careful/bin/gstack-slug.sh)
+
+Freeze/unfreeze/guard rebase (2026-10-03, hub decision D-62 step A2): based on
+the installed gstack v1.91.9 copies (the release D-56 pins to the commit above).
+Upstream LF-byte SHA-256 of the files taken:
+
+- freeze/bin/check-freeze.sh: fa1ee8bf2e7d7d2bb95b3cf81b5bdd65967e9c92c9d9cd2eb90bdd94969c33b4
+  (adapted; SimonK deltas listed in its header and below)
+- freeze/bin/freeze-state.sh: ee14660e8dd6fedb1e6673fccffa9ff1740047955ef5b59d58d246ad1dccebf5
+  (vendored as skills-src/freeze/bin/freeze-state.sh, unchanged except for a
+  leading attribution comment block)
+
+These files reside under skills-src/. They are adapted, not byte-identical
+copies. Local changes preserve the current SimonK skill contracts:
+
+- careful follows upstream tiers: HIGH patterns deny; MEDIUM destructive
+  families and shell obfuscation ask. HIGH (simple commands only) covers
+  recursive delete of the filesystem root, a drive root (also the Windows/MSYS
+  spellings /c, /c/*, /mnt/c, C:, C:\, C:/*) or the home directory or its direct
+  contents (~/*, $HOME/*), including cmd.exe rd|del /s and PowerShell
+  Remove-Item -Recurse launched from Bash against a drive root or home, plus
+  force-push to the default branch (D-62 A1). The PowerShell tool (D-62
+  minimal B) is checked deny-only: recursive delete of a drive root or home
+  (HOME or USERPROFILE spellings), Format-Volume, Clear-Disk, Initialize-Disk,
+  Remove-Partition and a force-push to the default branch deny; everything
+  else is allowed, never asked. Every internal hook failure denies: the
+  EXIT-trap backstop on unexpected runtime errors, a missing/broken/outdated
+  helper, empty or invalid JSON, no JSON parser, a Bash or PowerShell payload
+  without a usable command, an unknown hook mode argument, baseline matcher
+  errors (distinguished from clean non-matches) and an unresolvable
+  per-project slug. Other tools are recognised by tool_name and allowed. Both
+  SKILL hook commands are anchored to $HOME/.claude/skills/careful because
+  ${CLAUDE_SKILL_DIR} was measured unset in frontmatter hooks; the plugin
+  candidate projection runs both entries through the safety runtime (the
+  PowerShell entry as its careful-powershell policy). This is not a security
+  sandbox and never grants permission to execute a destructive action.
+- The shared state reader matches existing writers exactly:
+  ${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}. GSTACK_HOME remains analytics-only for
+  these hooks; it does not override the boundary writer's chosen state root.
+- Missing/empty/wrong-type required input and NUL fail closed (deny for careful,
+  deny for an active freeze). File paths reject control characters before Bash
+  can silently strip trailing newlines. Only an absent state file is an inactive freeze;
+  invalid state, unreadable state, broken links and unresolved paths deny.
+- Freeze path resolution requires an existing parent; newly created nested
+  directories are conservatively denied until their parents exist. The helper
+  does not fall back to lexical prefix matching after a resolution failure.
+  Existing directory/root boundaries resolve directly, with root-aware joining.
+- After physical resolution, Git Bash mount aliases use cygpath for comparison
+  (/tmp and /c can denote the same directory).
+- freeze (D-62) normalizes the boundary and the Edit/Write file_path the same
+  way: Windows drive paths (C:\ and C:/) become /c/ via cygpath -u (pure-bash
+  fallback without cygpath), the parent is resolved physically, mount aliases
+  are folded with cygpath -am, and the comparison is case-insensitive on
+  Windows. Relative, drive-relative, root-relative, UNC/device paths, a ".."
+  segment and any failed conversion deny instead of falling back to the cwd
+  (upstream joined such paths to the cwd and so allowed out-of-boundary edits
+  while the cwd was inside the boundary). An empty boundary denies (upstream
+  allowed it). The freeze, unfreeze and guard SKILL hook/setup commands are
+  anchored to $HOME/.claude/skills/<skill> because ${CLAUDE_SKILL_DIR} was
+  measured unset in frontmatter hooks; boundaries are written and cleared only
+  through the vendored freeze-state.sh. This does not certify host hook dispatch.
+
+Validated scope: scripts/tests/test_safety_hooks.py exercises actual Bash
+subprocesses, isolated home/state and flat source-package materialization.
+It only passes commands as stdin data; it never executes them. Dependencies:
+Bash and POSIX utilities, plus python3 or Node for JSON parsing. Optional
+per-project custom patterns use the vendored careful/bin/gstack-slug.sh;
+skills-src/careful/bin/test_check_careful.py covers the careful contract and
+skills-src/freeze/bin/test_check_freeze.py the freeze, unfreeze and guard
+contract (Windows path forms, freeze-state.sh busy lock and clear).
+The plugin candidate's freeze/bin/safety_runtime.py (hub decision D-62
+follow-up 5) passes a leaf decision through unchanged with its reason: allow,
+careful ask, careful or freeze deny. Its own failures (no Git Bash, bad state,
+bad, oversized or out-of-contract leaf output, timeout) deny for both careful
+and freeze; it never downgrades a deny to ask. Every cygpath call and the leaf
+of one check share a single 20-second budget (freeze 0.2.2, chosen from
+2026-10-04 load measurements); running out of it is a deny whose reason names
+the timeout and says that retrying is safe. The leaf starts suspended inside
+its own Windows Job Object (freeze 0.2.5), so a timeout or any other end of the
+check kills the whole leaf process tree, including the real usr/bin/bash.exe
+that the Git for Windows bin/bash.exe launcher starts; no leaf process
+outlives its check. The offline Codex candidate
+scripts/codex_guarded_policy.py likewise passes a careful leaf deny through
+with its reason and turns a leaf ask into its own deny, since Codex has no ask.
+
+NOT a completed activation or installation: separated Core/Stack plugin sibling
+dependencies, plugin-specific state sharing with unfreeze, session ownership and
+cleanup, SKILL hook command quoting/variable availability, native Windows file
+paths, and Claude/Codex host enforcement remain unverified or known incomplete.
+The candidate runtime/host/installation readiness flags therefore remain false.
+Current SKILL activation claims must not be treated as host-verification evidence.
+
+Upstream license (applies to the three adapted runtime files, gstack-slug.sh
+and freeze-state.sh):
+
+MIT License
+
+Copyright (c) 2026 Garry Tan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

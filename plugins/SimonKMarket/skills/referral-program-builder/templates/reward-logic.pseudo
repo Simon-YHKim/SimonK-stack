@@ -1,0 +1,145 @@
+# referral-program-builder :: reward 적립 의사코드
+# 언어 무관 의사코드. RN/Expo 클라이언트 + 서버(Edge Function/Node) 분담을 가정.
+# 모든 적립·상태 전이는 서버(service role)에서만. 클라이언트는 claim 트리거만.
+
+# 설정값은 전부 config 로 분리 — 하드코딩 금지.
+config = {
+  reward_rule_version:  "v1",
+  referrer_amount:      3000,    # 추천인 보상 (최소단위)
+  referred_amount:      3000,    # 피추천인 보상
+  currency:             "krw",
+  kind:                 "credit",
+  qualifying_event:     "first_activation",  # signup | first_payment | first_activation
+  per_referrer_cap:     50000,   # 추천인 누적 보상 한도
+  per_month_cap_count:  20,      # 월 적립 건수 한도
+  min_seconds_click_to_activation: 30,       # 셀프클릭/봇 가드 임계 (측정 후 튜닝)
+}
+
+# ---------------------------------------------------------------------------
+# A0. 1:1 초대만 정확한 K-factor 의 분모에 포함한다.
+#     불특정 다수 소셜 공유는 수신자 수를 모르므로 invite_shared 로 세지 않는다.
+# ---------------------------------------------------------------------------
+function issueOneToOneInvite(referrer_id, code, recipient_context):
+  assert active_code_owner(code) == referrer_id
+  invite_id = crypto_random_token()
+  # 서버가 invite_id -> code/referrer 결속을 저장하고 중복 발급을 막는다.
+  store_invite_binding(invite_id, code, referrer_id, recipient_context)
+  emit_event("invite_shared", actor=referrer_id, code=code,
+             props={invite_id: invite_id})
+  return build_invite_link(code, invite_id)
+
+# ---------------------------------------------------------------------------
+# A. claim: 피추천인 첫 실행에서 복원된 code 로 referral 생성
+#    (deferred deep-link 복원은 deeplink-integrator 가 처리, 여기엔 code 만 들어온다)
+# ---------------------------------------------------------------------------
+function claimReferral(referred_id, code, ctx):           # ctx: invite_id, device_id, ip_hash, platform
+  rc = lookup_active_code(code)
+  if rc is null: return reject("invalid_code")
+  if rc.owner_id == referred_id: return reject("self_referral")   # 가드 1
+  if referral_exists_for(referred_id):                            # UNIQUE 와 이중 방어
+      return reject("already_referred")
+  if rc.max_uses and rc.used_count >= rc.max_uses:
+      return reject("code_exhausted")
+
+  # 서버가 invite_id -> code/추천인 결속을 검증. 불일치면 측정 ID를 버린다.
+  # 별도 invite 저장소가 없다면 invite_shared 서버 이벤트를 대조한다.
+  verified_invite_id = verify_invite_binding(ctx.invite_id, code, rc.owner_id)
+  r = insert referrals(referrer_id=rc.owner_id, referred_id, code,
+                       status="pending", attributed_via=ctx.attributed_via)
+  increment rc.used_count
+  # 성공한 claim만 세고, 이벤트·관계·사용 횟수는 한 트랜잭션에 기록한다.
+  emit_event("referral_signed_up", actor=referred_id, code=code,
+             referral_id=r.id, props={invite_id: verified_invite_id})
+  return r
+
+# ---------------------------------------------------------------------------
+# B. qualify: 자격 이벤트 발생 시 호출. 가드 통과해야 qualified.
+# ---------------------------------------------------------------------------
+function onQualifyingEvent(referred_id, event_name, ctx):
+  if event_name != config.qualifying_event: return
+  r = find referrals where referred_id == referred_id and status == "pending"
+  if r is null: return
+
+  guard = runAbuseGuards(r, ctx)                # 아래 D
+  if not guard.ok:
+      update r set status="rejected", reject_reason=guard.reason
+      return
+
+  update r set status="qualified", qualified_at=now()
+  emit_event("referral_qualified", actor=referred_id, referral_id=r.id, props=ctx)
+  grantTwoSidedReward(r)                         # 아래 C
+
+# ---------------------------------------------------------------------------
+# C. grant: 양면 보상 — 추천인/피추천인 각각 원장 1행. 멱등 + 한도 검사.
+# ---------------------------------------------------------------------------
+function grantTwoSidedReward(r):
+  for (role, user_id, amount) in [
+        ("referrer", r.referrer_id, config.referrer_amount),
+        ("referred", r.referred_id, config.referred_amount)]:
+
+    idem = r.id + ":" + role + ":" + config.reward_rule_version
+    if exists reward_ledger where idempotency_key == idem: continue   # 멱등: 재진입 무시
+
+    state = "granted"
+    if role == "referrer" and overCap(r.referrer_id, amount):         # 한도 초과분 보류
+        state = "capped"
+
+    insert reward_ledger(user_id, referral_id=r.id, role, kind=config.kind,
+                         amount, currency=config.currency, state,
+                         reward_rule_version=config.reward_rule_version,
+                         idempotency_key=idem)
+    if state == "granted":
+        emit_event("reward_granted", actor=user_id, referral_id=r.id,
+                   props={role, amount})
+
+  update r set status="rewarded", rewarded_at=now()
+
+function overCap(referrer_id, amount):
+  total = sum reward_ledger.amount where user_id==referrer_id
+              and role=="referrer" and state=="granted"
+  month = count reward_ledger where user_id==referrer_id and role=="referrer"
+              and state=="granted" and created_at >= start_of_month()
+  return (total + amount > config.per_referrer_cap)
+      or (month >= config.per_month_cap_count)
+
+# ---------------------------------------------------------------------------
+# D. 어뷰징 가드 — 지급 전 전부 통과해야 ok. 신호 기반, 임계값은 config.
+# ---------------------------------------------------------------------------
+function runAbuseGuards(r, ctx):
+  # self-referral: id + 정규화된 이메일/전화 일치
+  if r.referrer_id == r.referred_id: return fail("self_referral")
+  left_contact = normalizedContact(r.referrer_id)
+  right_contact = normalizedContact(r.referred_id)
+  if left_contact is not null and right_contact is not null
+      and left_contact == right_contact:
+      return fail("self_referral")
+
+  # 다중계정: 동일 device_id / 결제수단 fingerprint / IP 군집
+  if sharesDeviceOrPayment(r.referrer_id, r.referred_id): return fail("multi_account")
+
+  # 셀프클릭/봇: 클릭 -> activation 간격이 비현실적으로 짧음
+  if clickToActivationSeconds(r) < config.min_seconds_click_to_activation:
+      return fail("self_click")
+
+  # 자격 미달: 결제 직후 즉시 환불 등
+  if qualifyingEventReversed(r.referred_id): return fail("not_qualified")
+
+  return ok()
+
+# 이메일 정규화 예: 소문자 + gmail dot/plus 제거
+function normalizedContact(user_id):
+  e = lower(user.email); e = stripGmailDotsAndPlus(e); return e or user.phone_e164
+
+# ---------------------------------------------------------------------------
+# E. claw-back: 보상 후 환불/취소 → reversal 행으로 회수
+# ---------------------------------------------------------------------------
+function clawBack(referral_id, reason):
+  r = find referrals(referral_id)
+  for row in reward_ledger where referral_id==referral_id and state=="granted":
+      reversal_key = row.idempotency_key + ":reversal"
+      if not exists reward_ledger where idempotency_key == reversal_key:
+          insert reward_ledger(user_id=row.user_id, referral_id, role=row.role,
+                               kind=row.kind, amount = -row.amount, currency=row.currency,
+                               state="reversed", reward_rule_version=row.reward_rule_version,
+                               idempotency_key = reversal_key)
+  update r set status="clawed_back"

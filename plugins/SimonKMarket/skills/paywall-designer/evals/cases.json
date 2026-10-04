@@ -1,0 +1,38 @@
+{
+  "skill": "paywall-designer",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-paywall",
+      "prompt": "페이월 설계해줘. 업그레이드 유도랑 트라이얼 붙이고 결제 전환 올리고 싶어.",
+      "assertions": [
+        {
+          "id": "trigger-timing",
+          "text": "Produces paywall trigger rules and timing."
+        },
+        {
+          "id": "value-copy-wall",
+          "text": "Provides value-framing copy and a soft/hard wall choice."
+        },
+        {
+          "id": "conversion-hooks",
+          "text": "Adds trial/anchoring/decoy price layout and conversion measurement hooks."
+        }
+      ]
+    },
+    {
+      "id": "en-price-experiment",
+      "prompt": "Design an upgrade prompt and run a price-point A/B to improve conversion.",
+      "assertions": [
+        {
+          "id": "price-ab-plan",
+          "text": "Includes a price-point A/B and WTP research plan."
+        },
+        {
+          "id": "fills-gap",
+          "text": "Fills the gap between what to charge (monetization-planner) and how to charge (payment-integrator)."
+        }
+      ]
+    }
+  ]
+}

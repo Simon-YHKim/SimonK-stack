@@ -1,0 +1,31 @@
+// Merge these keys into your existing app.json / app.config.ts (expo config).
+// scheme = custom-scheme fallback. associatedDomains = iOS Universal Links.
+// intentFilters with autoVerify = Android App Links (no chooser dialog).
+{
+  "expo": {
+    "scheme": "myapp",
+
+    "ios": {
+      "bundleIdentifier": "com.example.myapp",
+      // applinks: prefix is required; one entry per verified domain.
+      "associatedDomains": ["applinks:app.example.com"]
+    },
+
+    "android": {
+      "package": "com.example.myapp",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          // autoVerify=true triggers Android App Links verification against
+          // https://app.example.com/.well-known/assetlinks.json
+          "autoVerify": true,
+          "data": [
+            { "scheme": "https", "host": "app.example.com", "pathPrefix": "/post" },
+            { "scheme": "https", "host": "app.example.com", "pathPrefix": "/invite" }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
+    }
+  }
+}

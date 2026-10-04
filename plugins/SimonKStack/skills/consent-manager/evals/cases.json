@@ -1,0 +1,48 @@
+{
+  "skill": "consent-manager",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "trigger-korean-cookie-banner",
+      "prompt": "쿠키 배너랑 동의 관리 붙여줘. GDPR 동의도 받아야 해.",
+      "assertions": [
+        {
+          "id": "correct-route",
+          "text": "Routes this request to consent-manager rather than an unrelated skill."
+        },
+        {
+          "id": "behavior",
+          "text": "Creates granular consent categories, gates trackers by category, honors GPC, and records a versioned append-only consent ledger."
+        }
+      ]
+    },
+    {
+      "id": "trigger-english-consent-gate",
+      "prompt": "Add a consent gate so GA4 and AdMob only load after the user agrees, and respect GPC.",
+      "assertions": [
+        {
+          "id": "correct-route",
+          "text": "Routes this request to consent-manager rather than an unrelated skill."
+        },
+        {
+          "id": "behavior",
+          "text": "Uses a fail-closed gate for analytics and advertising trackers, respects GPC, and records changes in an append-only ledger."
+        }
+      ]
+    },
+    {
+      "id": "trigger-minor-consent",
+      "prompt": "추적 동의 받을 때 미성년자면 보호자 동의 경로로 넘겨야 해 (COPPA).",
+      "assertions": [
+        {
+          "id": "correct-route",
+          "text": "Routes this request to consent-manager rather than an unrelated skill."
+        },
+        {
+          "id": "behavior",
+          "text": "Hands minor consent to the guardian/auth-builder path and distinguishes COPPA/PIPA requirements without claiming legal compliance from a prompt alone."
+        }
+      ]
+    }
+  ]
+}

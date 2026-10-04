@@ -1,0 +1,38 @@
+{
+  "skill": "lifecycle-campaign-designer",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-lifecycle",
+      "prompt": "라이프사이클 CRM 캠페인 설계해줘. 윈백이랑 온보딩 시퀀스 포함.",
+      "assertions": [
+        {
+          "id": "segment-matrix",
+          "text": "Builds RFM/behavioral segments and a trigger·audience·message matrix."
+        },
+        {
+          "id": "winback-onboarding",
+          "text": "Designs win-back / re-engagement / onboarding sequences."
+        },
+        {
+          "id": "holdout-measure",
+          "text": "Includes channel mapping and holdout/measurement design."
+        }
+      ]
+    },
+    {
+      "id": "en-crm-sequence",
+      "prompt": "Design a CRM sequence with retention messages on top of our existing email/push plumbing.",
+      "assertions": [
+        {
+          "id": "layer-on-plumbing",
+          "text": "Layers who/when/what on top of growth-engine sending plumbing (delegates infra)."
+        },
+        {
+          "id": "triggers",
+          "text": "Defines triggers (signup, churn-signal, N-days inactive)."
+        }
+      ]
+    }
+  ]
+}

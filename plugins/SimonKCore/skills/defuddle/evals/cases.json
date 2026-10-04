@@ -1,0 +1,24 @@
+{
+  "skill": "defuddle",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-read-url",
+      "prompt": "이 링크 읽어줘: https://example.com/blog/post 정리해서 깔끔하게 보여줘.",
+      "assertions": [
+        { "id": "defuddle-cli", "text": "Extracts clean markdown via the Defuddle CLI using defuddle parse <url> --md." },
+        { "id": "strips-clutter", "text": "Strips navigation, ads, and clutter to save tokens instead of using WebFetch on the raw HTML." },
+        { "id": "markdown-output", "text": "Returns clean readable markdown content from the page." }
+      ]
+    },
+    {
+      "id": "en-analyze-page",
+      "prompt": "Read and analyze this URL and give me the cleaned-up content: https://docs.example.com/guide",
+      "assertions": [
+        { "id": "md-flag", "text": "Always uses the --md flag for markdown output and can save to a file with -o." },
+        { "id": "prefer-over-webfetch", "text": "Prefers Defuddle over WebFetch for standard web pages to reduce token usage." },
+        { "id": "md-url-exception", "text": "Does not use Defuddle for URLs ending in .md (uses WebFetch directly for those)." }
+      ]
+    }
+  ]
+}

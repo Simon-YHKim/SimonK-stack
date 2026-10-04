@@ -1,0 +1,20 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "description": "SimonK 플러그인 공유 인프라 (위임·모델라우팅·메모리·지식도구)",
+  "name": "simonk-core",
+  "owner": {
+    "name": "Simon Kim",
+    "url": "https://github.com/Simon-YHKim"
+  },
+  "plugins": [
+    {
+      "category": "productivity",
+      "description": "SimonK 플러그인 공유 인프라 (위임·모델라우팅·메모리·지식도구)",
+      "homepage": "https://github.com/Simon-YHKim/SimonKCore",
+      "name": "simonk-core",
+      "source": "./",
+      "version": "1.765.0"
+    }
+  ],
+  "version": "1.765.0"
+}

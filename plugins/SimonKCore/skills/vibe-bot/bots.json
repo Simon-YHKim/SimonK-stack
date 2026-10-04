@@ -1,0 +1,474 @@
+{
+  "updated": "2026-10-03",
+  "source": {
+    "file": "grok-bot-org-overview-2026-09-24.md",
+    "sha256": "3dbaba9585ecf01cdef216dae0eb74b367f4ac10e3d0e4bd8b2e83c9c8592dd3",
+    "evidence": "User-supplied organization snapshot. Profile/group observations and Relay-reported claims are distinguished in relay-charter.md. Not live availability, billing or dispatch authorization."
+  },
+  "note": "19 reported bots, six teams. The owning bot stays in task/plan metadata; every new coordinator task and canonical result use relay/inbox and relay/outbox. One shared cloud Linux machine is not 19 isolated security boundaries.",
+  "projects": {
+    "2nd-b": {
+      "root": "E:/2ndB",
+      "bus": ".bots",
+      "keywords": [
+        "2nd-b",
+        "2ndb",
+        "2nd-brain",
+        "secondbrain",
+        "com.simonk.secondbrain",
+        "6792266942",
+        "2nd brain"
+      ],
+      "note": "Task/result bus: <root>/.bots/relay/inbox|outbox. Bots may propose code only in docs/drafts; do not edit app source."
+    }
+  },
+  "boundary": "Prefer an authorized local CLI/API/MCP and keep the /vibe coordinator. Use the Bot adapter for necessary cloud screens. Explicitly authorized reversible free preparation is permitted; current task scope, credential security and spend holds still apply. Login/2FA goes to Simon. Payment, ad activation, store submission, deletion, publication, external sending and subscription changes require approval.",
+  "delivery": {
+    "entrypoint": "relay",
+    "result_owner": "relay",
+    "reminder_limit": 1,
+    "reminder_after_reported_wakes": 2,
+    "reported_wake_minutes": 10,
+    "note": "Timing is Relay-reported, not a verified running scheduler. No automatic resend or routine creation."
+  },
+  "teams": {
+    "release": {
+      "name": "2ndB 앱 관리 팀",
+      "channel": "5d2eee98-ea15-4be2-89f5-43738e8b1a84",
+      "members": [
+        "apple-dev",
+        "keys",
+        "eas",
+        "dev-infra",
+        "play-console",
+        "relay"
+      ]
+    },
+    "customer": {
+      "name": "2ndB 고객관리 팀",
+      "channel": "105a4c2c-dbba-47b8-8a42-35732be576f3",
+      "members": [
+        "public-mail",
+        "store-reviews",
+        "marketing",
+        "research",
+        "relay"
+      ]
+    },
+    "launch-check": {
+      "name": "출시 점검",
+      "channel": "7adda1c9-3c62-49b1-b140-e774e7834b63",
+      "members": [
+        "docs",
+        "apple-dev",
+        "dev-infra",
+        "play-console",
+        "qa",
+        "relay"
+      ]
+    },
+    "game-studio": {
+      "name": "게임 스튜디오",
+      "channel": "8b237b43-af50-4f60-a545-9de719776fc5",
+      "members": [
+        "game",
+        "keys",
+        "eas",
+        "dev-infra",
+        "qa",
+        "relay"
+      ]
+    },
+    "maintenance": {
+      "name": "2ndB 유지보수 팀",
+      "channel": "9912279a-4fdf-442c-b473-3d1d31a183f8",
+      "members": [
+        "admob",
+        "analytics",
+        "keys",
+        "dev-infra",
+        "qa",
+        "relay"
+      ]
+    },
+    "growth": {
+      "name": "그로스",
+      "channel": "9c6f3416-89ed-4505-b483-480658c518df",
+      "members": [
+        "ads",
+        "marketing",
+        "research",
+        "leads",
+        "subs",
+        "relay"
+      ]
+    }
+  },
+  "unresolved_routing_keys": {
+    "web-qa": "No dedicated profile was observed. Cassius is QA, but exact web-qa routing is unverified; send an assignment clarification to Relay, not a fabricated Web QA bot."
+  },
+  "retired_ids": {
+    "compliance-watch": "Previously withdrawn; no current profile in supplied snapshot.",
+    "design-ref": "Previously on hold; no current profile in supplied snapshot."
+  },
+  "bots": [
+    {
+      "id": "relay",
+      "name": "Aurelius Middleman / Relay",
+      "agent_id": "dbf4a626-c912-466c-afc7-c8bf8f508d1d",
+      "purpose": "Relay-only intake, routing, claims, STATUS and result return.",
+      "aliases": [
+        "Relay",
+        "grok-bot",
+        "Web QA",
+        "web-qa"
+      ],
+      "keywords": [
+        "relay",
+        "릴레이",
+        "우체국",
+        "과제함 폴링",
+        "web-qa",
+        "web qa",
+        "웹 qa"
+      ],
+      "status": "active",
+      "status_evidence": "Observed live 2026-10-03: hub bots/STATUS.md refreshed 23:06 KST (inbox scan, machine connected) and 2nd-B <root>/.bots/relay/outbox results 21:34-22:30 KST. Activated by hub D-60 (conditional staged opening: first task only the Cursor overage/auto top-up screen check; no other tasks until it passes). Specialists keep their reported status.",
+      "default": true
+    },
+    {
+      "id": "keys",
+      "name": "Clavius DontPaste / Keys",
+      "agent_id": "7bdc56c1-4064-45e9-bb27-039576fc153d",
+      "purpose": "Secret names, existence and approved rotation preparation; never secret values.",
+      "aliases": [
+        "Keys",
+        "2ndB Keys"
+      ],
+      "keywords": [
+        "secret",
+        "시크릿",
+        "비밀값",
+        "api key",
+        "api 키",
+        "환경변수",
+        "키 회전",
+        "rotation"
+      ],
+      "status": "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+    },
+    {
+      "id": "eas",
+      "name": "Aelius PleaseClap / EAS",
+      "agent_id": "7e960632-d36e-4ecd-abde-1b46e31f212f",
+      "purpose": "Expo/EAS build and credential screens; prefer authorized local CLI. Store submission needs approval.",
+      "aliases": [
+        "EAS",
+        "EAS Bot"
+      ],
+      "keywords": [
+        "eas",
+        "expo",
+        "eas submit",
+        "eas-cli",
+        "빌드 목록",
+        "build list"
+      ],
+      "status": "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+    },
+    {
+      "id": "apple-dev",
+      "name": "Malcolm StillPending / Apple Dev",
+      "agent_id": "6204b05f-d7be-440c-a054-8fd9713c4a4d",
+      "purpose": "Apple Developer, ASC, certificates and iOS release preparation; stop before submission or agreement changes.",
+      "aliases": [
+        "Apple Dev"
+      ],
+      "keywords": [
+        "app store connect",
+        "asc",
+        "testflight",
+        "테스트플라이트",
+        "apple developer",
+        "애플",
+        "app review",
+        "ios 심사",
+        "인증서",
+        "provisioning"
+      ],
+      "status": "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+    },
+    {
+      "id": "play-console",
+      "name": "Ludovic PolicyHell / Play Console",
+      "agent_id": "c28c65b0-5c98-4c17-99c0-a66f21f18763",
+      "purpose": "Google Play Console listing, releases and policy; stop before submission or publication.",
+      "aliases": [
+        "Play Console"
+      ],
+      "keywords": [
+        "play console",
+        "google play",
+        "플레이 콘솔",
+        "플레이콘솔",
+        "aab",
+        "alpha",
+        "알파",
+        "내부 테스트",
+        "스토어 등록정보",
+        "data safety",
+        "데이터 보안",
+        "앱 콘텐츠"
+      ],
+      "status": "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+    },
+    {
+      "id": "dev-infra",
+      "name": "Hadrianus WorksLocal / Dev Infra",
+      "agent_id": "a1fc0987-f700-4ca9-b16d-2994decfea90",
+      "purpose": "GitHub, Supabase and build/deploy infrastructure screens. App code changes are proposals only; Analytics/AdMob have separate owners.",
+      "aliases": [
+        "Dev Infra"
+      ],
+      "keywords": [
+        "github 설정",
+        "github",
+        "supabase",
+        "빌드 인프라",
+        "dev infra"
+      ],
+      "status": "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+    },
+    {
+      "id": "analytics",
+      "name": "Octavius EventsMissing / Analytics",
+      "agent_id": "fc5f78a2-6706-488e-966e-3d474afcc374",
+      "purpose": "Firebase, GA4 and Microsoft Clarity consoles; no app code writes. Deletion, billing and retention reduction need approval.",
+      "aliases": [
+        "Analytics"
+      ],
+      "keywords": [
+        "google analytics",
+        "ga4",
+        "firebase",
+        "clarity",
+        "analytics",
+        "애널리틱스",
+        "분석 콘솔"
+      ],
+      "status": "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+    },
+    {
+      "id": "admob",
+      "name": "Tiberius FillRateZero / AdMob",
+      "agent_id": "14eee024-1142-428f-bb30-c42de83c8914",
+      "purpose": "AdMob apps, ad units, policies and revenue summaries; payout/tax changes and deletion need approval.",
+      "aliases": [
+        "AdMob"
+      ],
+      "keywords": [
+        "admob",
+        "애드몹",
+        "ad unit",
+        "광고 단위",
+        "광고 수익"
+      ],
+      "status": "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+    },
+    {
+      "id": "qa",
+      "name": "Cassius StillBroken / QA",
+      "agent_id": "d031123e-249c-41be-aeea-e0634a3acdf2",
+      "purpose": "Flow reproduction, findings and retest. Android emulator only during QA, then stop; no iOS simulator or store publication.",
+      "aliases": [
+        "QA",
+        "Cassius"
+      ],
+      "keywords": [
+        "qa",
+        "스모크",
+        "smoke",
+        "화면 점검",
+        "회귀",
+        "버그 재현",
+        "android emulator"
+      ],
+      "status": "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+    },
+    {
+      "id": "docs",
+      "name": "Livius Changelog / Docs",
+      "agent_id": "1ff93d5d-ab1d-45fe-a52e-74276734d355",
+      "purpose": "Document changes, open issues and release checks without secrets or unsupported claims.",
+      "aliases": [
+        "Docs"
+      ],
+      "keywords": [
+        "docs",
+        "changelog",
+        "릴리스 문서",
+        "변경 기록"
+      ],
+      "status": "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+    },
+    {
+      "id": "public-mail",
+      "name": "Eleanor DoNotReply / Public Mail",
+      "agent_id": "56eac469-6a43-4a06-b80c-f1952fb46def",
+      "purpose": "Inbox triage and reply drafts. Stop before send, forward, delete or mailbox settings changes.",
+      "aliases": [
+        "Public Mail"
+      ],
+      "keywords": [
+        "메일",
+        "email",
+        "e-mail",
+        "받은편지함",
+        "hayangzip",
+        "문의 메일",
+        "삭제 요청"
+      ],
+      "status": "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+    },
+    {
+      "id": "store-reviews",
+      "name": "Cecilia OneStarCope / Store Reviews",
+      "agent_id": "736ccd0e-24bf-4472-80c2-c9442e789a4e",
+      "purpose": "Play/ASC review classification, reply drafts and summaries; stop before posting.",
+      "aliases": [
+        "Store Reviews"
+      ],
+      "keywords": [
+        "리뷰",
+        "review",
+        "평점",
+        "rating",
+        "별점",
+        "답글"
+      ],
+      "status": "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+    },
+    {
+      "id": "marketing",
+      "name": "Beatrice RatioIncoming / Marketing",
+      "agent_id": "818d8aa7-51a5-4abc-ad59-02b8fb2c9e4e",
+      "purpose": "Content/channel preparation and console work; prefer local reasoning tools for drafts and stop before publishing.",
+      "aliases": [
+        "Marketing"
+      ],
+      "keywords": [
+        "마케팅",
+        "sns",
+        "인스타",
+        "instagram",
+        "x 포스트",
+        "블로그",
+        "콘텐츠",
+        "캘린더"
+      ],
+      "status": "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+    },
+    {
+      "id": "research",
+      "name": "Sebastian CiteNeeded / Research",
+      "agent_id": "aef25cc6-419a-4c40-b587-f0efa1d97f5d",
+      "purpose": "Source-backed investigation; profile description is reported empty, so confirm scope with Relay.",
+      "aliases": [
+        "Research",
+        "Research Bot"
+      ],
+      "keywords": [
+        "조사",
+        "리서치",
+        "research",
+        "경쟁",
+        "가격 비교",
+        "트렌드",
+        "시장"
+      ],
+      "status": "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+    },
+    {
+      "id": "ads",
+      "name": "Mercurius BurnRate / Ads",
+      "agent_id": "701a33d6-858c-4af4-bbf1-b5e0775538dc",
+      "purpose": "Creative and bid proposals within an approved envelope; ad activation, extra budget and billing changes need approval.",
+      "aliases": [
+        "Ads"
+      ],
+      "keywords": [
+        "ads",
+        "광고 캠페인",
+        "cpa",
+        "입찰",
+        "광고 예산"
+      ],
+      "status": "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+    },
+    {
+      "id": "leads",
+      "name": "Cornelius ColdOpen / Leads",
+      "agent_id": "bf5d7de2-0633-405e-b9b1-02ac0d9adf52",
+      "purpose": "Lead research and outreach drafts; no external sending or connection requests without approval.",
+      "aliases": [
+        "Leads"
+      ],
+      "keywords": [
+        "leads",
+        "잠재고객",
+        "리드 발굴",
+        "outreach"
+      ],
+      "status": "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+    },
+    {
+      "id": "subs",
+      "name": "Cassia AutopayPanic / Subs",
+      "agent_id": "e5050042-a3cb-4e0d-921a-d62bd54000b0",
+      "purpose": "Subscription inventory; cancellation, renewal changes, refunds and payment methods need approval.",
+      "aliases": [
+        "Subs"
+      ],
+      "keywords": [
+        "subs",
+        "subscription",
+        "구독",
+        "반복결제"
+      ],
+      "status": "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+    },
+    {
+      "id": "game",
+      "name": "Ludovicus WIPBuild / Game",
+      "agent_id": "b9737629-dc79-411e-9e6a-ec60e73d6e60",
+      "purpose": "Game planning/prototype/build coordination; app code remains with code agents. Submission and payments need approval.",
+      "aliases": [
+        "Game"
+      ],
+      "keywords": [
+        "game",
+        "게임",
+        "게임 빌드"
+      ],
+      "status": "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+    },
+    {
+      "id": "worklog",
+      "name": "Tacitus NobodyReads / Worklog",
+      "agent_id": "c93c5cac-93ae-4353-bfee-92887d041f74",
+      "purpose": "Shared worklog, workbooks and lessons; never relax hard stops or send, pay or delete.",
+      "aliases": [
+        "Worklog",
+        "Tacitus"
+      ],
+      "keywords": [
+        "worklog",
+        "workbook",
+        "작업 로그",
+        "워크북",
+        "교훈"
+      ],
+      "status": "active - reported in user-supplied 2026-09-24 snapshot; live access unverified"
+    }
+  ]
+}

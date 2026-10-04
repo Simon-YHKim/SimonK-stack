@@ -1,0 +1,24 @@
+{
+  "skill": "consistency-guard",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-consistency-check",
+      "prompt": "서비스 어디에 일관성 유지가 필요한지 확인하고 스키마 검증 프레임워크 만들어줘.",
+      "assertions": [
+        { "id": "strict-vs-flexible", "text": "Classifies which parts need strict consistency (API responses, design tokens, error codes, config/ENV, i18n keys) vs flexible parts." },
+        { "id": "rules-file", "text": "Produces consistency-rules.json specifying where consistency is enforced and the method (json-schema, tokens.json, enum, zod)." },
+        { "id": "ci-validation", "text": "Adds an automated CI validation script with clear error messages on violation." }
+      ]
+    },
+    {
+      "id": "en-schema-validation",
+      "prompt": "Help me keep our API contracts and design tokens consistent across the service with schema validation.",
+      "assertions": [
+        { "id": "json-schema-framework", "text": "Builds a JSON-schema-based consistency framework for API contracts and design tokens." },
+        { "id": "enforce-strict-areas", "text": "Marks API response shape and design tokens as strict (enforce: true) with their enforcement method." },
+        { "id": "boot-or-ci-check", "text": "Wires validation into boot or CI so drift is caught automatically." }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "skill": "zoom-out",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "unfamiliar-module",
+      "prompt": "/zoom-out 이 src/billing/charge.ts 파일 처음 보는데 어디에 속해?",
+      "assertions": [
+        { "id": "goes-up-one-layer", "text": "The agent provides a map of surrounding modules (not a deep dive into charge.ts itself)." },
+        { "id": "names-callers", "text": "Output identifies who calls into charge.ts and with what intent." },
+        { "id": "stays-concise", "text": "Output stays one-screen — does not dump full module internals." },
+        { "id": "points-to-drill-down", "text": "Output ends with a pointer to /explain for the next drill-down step." }
+      ]
+    },
+    {
+      "id": "uses-glossary-when-present",
+      "prompt": "/zoom-out OrderMaterializer 클래스 어디에 위치해? (repo has CONTEXT.md defining Materialization Cascade)",
+      "assertions": [
+        { "id": "reads-context-md", "text": "The agent reads CONTEXT.md before mapping surrounding modules." },
+        { "id": "uses-domain-terms", "text": "Output uses domain-glossary terms (e.g., Materialization Cascade) rather than generic words like 'service' or 'handler'." }
+      ]
+    }
+  ]
+}

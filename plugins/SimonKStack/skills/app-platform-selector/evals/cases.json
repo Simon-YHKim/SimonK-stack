@@ -1,0 +1,40 @@
+{
+  "skill": "app-platform-selector",
+  "version": "1.0.1",
+  "cases": [
+    {
+      "id": "ko-hybrid-vs-native",
+      "prompt": "하이브리드 앱 좋을까 아니면 네이티브? 앱 플랫폼 선택 도와줘.",
+      "assertions": [
+        { "id": "decision-matrix", "text": "Walks the decision matrix/tree across PWA, Hybrid, Cross-platform, and Native on dev speed, performance, store approval, and solo-dev fit." },
+        { "id": "platform-decision", "text": "Produces a clear platform decision with pros-cons rather than listing options without a recommendation." },
+        { "id": "tech-recommendation", "text": "Recommends a concrete tech stack (React Native/Expo, Flutter, Capacitor) matched to the situation." }
+      ]
+    },
+    {
+      "id": "en-pwa-store",
+      "prompt": "Can I build a PWA and still get it approved on the App Store, or will it get rejected as a web wrapper?",
+      "assertions": [
+        { "id": "review-risk", "text": "Explains Apple guideline 4.2 Minimum Functionality risk using current official guidance and checks whether the app adds useful features, content, and UI beyond a repackaged website." },
+        { "id": "no-certainty", "text": "Does not guarantee either approval or rejection solely because the app uses a PWA or WKWebView." },
+        { "id": "review-plan", "text": "Provides a review-risk reduction plan for web-wrapped apps without promising approval." }
+      ]
+    },
+    {
+      "id": "web-wrapper-review",
+      "prompt": "기존 웹사이트를 WKWebView로 감싸 앱스토어에 올리고 싶어. 무조건 거절돼?",
+      "assertions": [
+        { "id": "no-certainty", "text": "Does not claim a 100% rejection or guaranteed approval; explains the current Apple guideline 4.2 minimum-functionality risk and cites the official guideline." },
+        { "id": "product-value", "text": "Checks what useful app-specific functionality, content, and UI the product actually provides before suggesting a store submission path." }
+      ]
+    },
+    {
+      "id": "existing-platform",
+      "prompt": "I already have a React web app. Choose a mobile approach, but allow zero additional cost.",
+      "assertions": [
+        { "id": "existing-stack", "text": "Starts from the existing React codebase and required device capabilities rather than guaranteeing that a particular wrapper or framework passes review." },
+        { "id": "cost-gate", "text": "Separates platform comparison from account creation, paid developer enrollment, or store submission; does not spend or enable overage." }
+      ]
+    }
+  ]
+}

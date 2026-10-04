@@ -1,0 +1,23 @@
+{
+  "skill": "plan-design-review",
+  "version": "2.0.0",
+  "cases": [
+    {
+      "id": "review-design-plan-en",
+      "prompt": "review the design plan for this feature before we implement it",
+      "assertions": [
+        { "id": "rates-dimensions", "text": "Rates each design dimension 0-10 with a designer's eye" },
+        { "id": "explains-then-fixes", "text": "Explains what would make each dimension a 10, then edits the plan to get there" },
+        { "id": "plan-mode-not-live", "text": "Operates on the plan (plan mode), not a live site visual audit (that is /design-review)" }
+      ]
+    },
+    {
+      "id": "design-critique-ko",
+      "prompt": "이 계획의 UI/UX 디자인 비평해줘",
+      "assertions": [
+        { "id": "interactive-like-ceo-eng", "text": "Runs interactively like the CEO and Eng plan reviews" },
+        { "id": "scores-before-fixing", "text": "Scores each dimension and shows the path to a 10 before changing the plan" }
+      ]
+    }
+  ]
+}

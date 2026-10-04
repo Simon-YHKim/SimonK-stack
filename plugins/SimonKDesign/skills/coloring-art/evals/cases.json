@@ -1,0 +1,48 @@
+{
+  "skill": "coloring-art",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-dinosaur-coloring",
+      "prompt": "공룡 색칠 그림 만들어줘 — 5살 아이용",
+      "assertions": [
+        {
+          "id": "asks-age-subject-difficulty",
+          "text": "First confirms target age, subject, and difficulty before generating (simple/guardian-friendly mode)."
+        },
+        {
+          "id": "bold-outline-white-bg",
+          "text": "Produces a coloring page with bold black outlines, white background, and simplified shapes."
+        },
+        {
+          "id": "age-safe-prompt",
+          "text": "Uses an age-appropriate, safety-checked image-generation prompt."
+        }
+      ]
+    },
+    {
+      "id": "en-line-art-printbook",
+      "prompt": "Make a set of line art coloring pages I can print as a booklet",
+      "assertions": [
+        {
+          "id": "generates-line-art",
+          "text": "Generates simplified line-art / coloring pages via Gemini image generation."
+        },
+        {
+          "id": "handoff-office-docs",
+          "text": "Hands off the print-ready PDF binding to office-docs(Core) rather than producing the PDF itself."
+        }
+      ]
+    },
+    {
+      "id": "neg-not-full-color-illustration",
+      "prompt": "컬러링 페이지 말고 풀컬러 일러스트로 그려줘",
+      "assertions": [
+        {
+          "id": "recognizes-out-of-scope",
+          "text": "Recognizes a full-color raster illustration is outside this coloring/line-art skill and redirects to the appropriate generation path."
+        }
+      ]
+    }
+  ]
+}

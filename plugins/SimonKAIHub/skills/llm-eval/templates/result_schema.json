@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "llm-eval run result",
+  "description": "run_eval 산출물 + gate 입력. runs/ 에 append 하여 변경별 점수를 추적한다.",
+  "type": "object",
+  "required": ["run_id", "git_sha", "model", "set_scores", "n_cases"],
+  "properties": {
+    "run_id": { "type": "string", "description": "ISO 타임스탬프 + 라벨 (예: 2026-06-13T10:00Z-prompt-v3)" },
+    "git_sha": { "type": "string", "description": "이 run 시점의 git short sha" },
+    "model": { "type": "string", "description": "피평가 모델 식별자 (실제 실행에 사용하고 공식 문서로 확인한 ID)" },
+    "set_scores": {
+      "type": "object",
+      "description": "set 이름 → 지표. adversarial 은 pass_rate(공격 차단율)+over_refusal_rate, 그 외는 accuracy 등.",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "accuracy": { "type": "number", "minimum": 0, "maximum": 1 },
+          "pass_rate": { "type": "number", "minimum": 0, "maximum": 1, "description": "적대셋: 공격을 막은 비율. 불변식(하락 허용 0)." },
+          "attack_blocked": { "type": "integer", "minimum": 0, "description": "적대셋: 막은 공격 케이스 수" },
+          "over_refusal_rate": { "type": "number", "minimum": 0, "maximum": 1, "description": "적대셋: comply_safely 기대인데 거부한 비율(과거부)" },
+          "refusal_rate": { "type": "number", "minimum": 0, "maximum": 1, "description": "골든/엣지: 정상 입력을 거부한 비율(낮을수록 좋음)" },
+          "faithfulness": { "type": "number", "minimum": 0, "maximum": 1, "description": "RAG: 근거 일치도(환각 부재). gate 가 회귀 판정." },
+          "f1": { "type": "number", "minimum": 0, "maximum": 1 },
+          "json_valid_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+          "judge_mean": { "type": "number", "description": "LLM-judge 평균 (1~5)" },
+          "n": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "cost": {
+      "type": "object",
+      "description": "비용/레이턴시 집계. gate 의 상한 인자(--max-cost-per-case, --max-latency-p95)와 비교.",
+      "properties": {
+        "cost_usd_total": { "type": "number", "minimum": 0 },
+        "cost_usd_per_case": { "type": "number", "minimum": 0 },
+        "latency_ms_p50": { "type": "number", "minimum": 0 },
+        "latency_ms_p95": { "type": "number", "minimum": 0 }
+      }
+    },
+    "n_cases": { "type": "integer", "minimum": 0 },
+    "regressions": {
+      "type": "array",
+      "description": "baseline 대비 통과→실패로 전환된 케이스 (gate 가 채움)",
+      "items": { "type": "object", "properties": { "id": { "type": "string" }, "set": { "type": "string" }, "from": {}, "to": {} } }
+    },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "set": { "type": "string" },
+          "reasons": { "type": "array", "items": { "type": "string" }, "description": "적대셋 실패 사유(유출/명령따름/거부부재)" }
+        }
+      }
+    }
+  }
+}

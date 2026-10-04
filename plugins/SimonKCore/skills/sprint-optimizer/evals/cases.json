@@ -1,0 +1,38 @@
+{
+  "skill": "sprint-optimizer",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-sprint-mode",
+      "prompt": "스프린트 모드로 3가지 방안 비교하고 best case 추천해줘",
+      "assertions": [
+        {
+          "id": "three-cases",
+          "text": "Produces a 3-case analysis: Conservative, Balanced, and Aggressive."
+        },
+        {
+          "id": "recommend-best",
+          "text": "Recommends a Best case using weighted criteria (Impact/Feasibility/Speed/Risk)."
+        },
+        {
+          "id": "iteration-agreement",
+          "text": "Offers an iterative refinement loop with a user-agreed iteration depth."
+        }
+      ]
+    },
+    {
+      "id": "en-compare-options",
+      "prompt": "Compare options for this decision and iterate on the best case.",
+      "assertions": [
+        {
+          "id": "case-table",
+          "text": "Generates a sprint report with a 3-case comparison table and a recommendation with rationale."
+        },
+        {
+          "id": "no-infinite-loop",
+          "text": "Confirms iteration depth with the user to avoid an infinite refinement loop."
+        }
+      ]
+    }
+  ]
+}

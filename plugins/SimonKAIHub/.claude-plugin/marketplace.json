@@ -1,0 +1,20 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "description": "AI 제품/기능 빌드 오케스트레이션 플러그인 (LLM·에이전트·RAG·평가·AI인프라)",
+  "name": "simonk-aihub",
+  "owner": {
+    "name": "Simon Kim",
+    "url": "https://github.com/Simon-YHKim"
+  },
+  "plugins": [
+    {
+      "category": "productivity",
+      "description": "AI 제품/기능 빌드 오케스트레이션 플러그인",
+      "homepage": "https://github.com/Simon-YHKim/SimonKAIHub",
+      "name": "simonk-aihub",
+      "source": "./",
+      "version": "1.765.0"
+    }
+  ],
+  "version": "1.765.0"
+}

@@ -1,0 +1,14 @@
+campaign_id,segment,lifecycle_stage,trigger_type,trigger_condition,channel_priority,suppression_event,message_intent,primary_kpi,holdout_pct
+onb-01,new,activation_pending,event_absence,signup +1h AND activation_event NOT fired,push>inapp>email,activation_event,activation event 1-step nudge,activation_rate,10
+onb-02,new,activation_pending,event_absence,signup D1 AND activation_event NOT fired,email,activation_event,single-CTA "start here",d1_activation,10
+onb-03,new,activated,event,activation_event fired,inapp,none,introduce next value action,feature_adoption,10
+reeng-01,active,fading,event,usage -50% vs personal baseline,push>email,usage_resumed,personalized "resume where you left off",reactivation_rate,10
+reeng-02,active,fading,event_absence,no key action in trailing 7d,email,usage_resumed,progress recap + next step,reactivation_rate,10
+winb-01,hibernating,dormant,event_absence,no session D14,email,session_started,value reminder (no incentive),return_rate,10
+winb-02,hibernating,dormant,event_absence,no session D30,email,session_started,what changed / new features,return_rate,10
+winb-03,at_risk,dormant,event_absence,no session D45 AND winb-02 no response,email,session_started,conditional incentive (final),return_rate,10
+sub-01,at_risk,active,schedule,renewal D-3 AND low usage,email+inapp,renewed,value reminder before renewal,renewal_rate,10
+cancel-01,churned,exit,event,subscription_cancelled,inapp_survey>email,resubscribed,reason survey + conditional offer,winback_rate,5
+dunning-01,paying,active,event,payment_failed D1,email+inapp,payment_recovered,update payment method,recovery_rate,0
+dunning-02,paying,active,event,payment_failed D3,email+inapp,payment_recovered,retry reminder,recovery_rate,0
+dunning-03,paying,active,event,payment_failed D7,email,payment_recovered,final notice before downgrade,recovery_rate,0

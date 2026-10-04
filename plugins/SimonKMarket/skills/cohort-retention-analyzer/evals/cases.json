@@ -1,0 +1,38 @@
+{
+  "skill": "cohort-retention-analyzer",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-cohort",
+      "prompt": "리텐션 분석해줘. 가입 코호트 커브랑 어디서 빠져나가는지 보고 싶어.",
+      "assertions": [
+        {
+          "id": "retention-curves",
+          "text": "Produces signup/behavioral cohort retention curves."
+        },
+        {
+          "id": "drop-off",
+          "text": "Identifies funnel drop-off / where users leave."
+        },
+        {
+          "id": "true-vs-vanity",
+          "text": "Distinguishes true retention from vanity (cumulative) retention."
+        }
+      ]
+    },
+    {
+      "id": "en-rfm-churn",
+      "prompt": "Analyze cohorts and churn drivers from our PostHog data with RFM segments.",
+      "assertions": [
+        {
+          "id": "rfm-segments",
+          "text": "Produces RFM segments and leading churn indicators."
+        },
+        {
+          "id": "sql-or-calc",
+          "text": "Provides a SQL cohort template or a stdlib Python calculator."
+        }
+      ]
+    }
+  ]
+}

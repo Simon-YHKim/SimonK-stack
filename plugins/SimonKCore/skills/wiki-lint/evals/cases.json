@@ -1,0 +1,29 @@
+{
+  "skill": "wiki-lint",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "full-lint",
+      "prompt": "wiki 전체 린트해줘.",
+      "assertions": [
+        { "id": "runs-eight-checks", "text": "The agent runs all eight checks grouped into Error, Warning, and Info severities." },
+        { "id": "reports-what-where-how", "text": "Each finding states what it is, where it is, and how to fix it." },
+        { "id": "does-not-auto-fix", "text": "The agent proposes fixes and waits; it does not apply them automatically." }
+      ]
+    },
+    {
+      "id": "broken-link-detection",
+      "prompt": "위키 점검해줘 — 링크 깨진 거 있나 봐줘.",
+      "assertions": [
+        { "id": "flags-broken-wikilinks", "text": "The agent detects [[wikilinks]] pointing to non-existent pages and lists them as an Error severity finding." }
+      ]
+    },
+    {
+      "id": "clean-wiki",
+      "prompt": "방금 정리한 위키 lint 한번 돌려줘.",
+      "assertions": [
+        { "id": "reports-clean-concisely", "text": "If no issues are found, the agent reports the wiki is healthy in one line rather than padding the report." }
+      ]
+    }
+  ]
+}

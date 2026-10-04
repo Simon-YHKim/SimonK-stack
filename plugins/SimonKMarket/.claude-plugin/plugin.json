@@ -1,0 +1,52 @@
+{
+  "author": {
+    "name": "Simon Kim",
+    "url": "https://github.com/Simon-YHKim"
+  },
+  "description": "마케팅·시장조사·여론 분석 오케스트레이션 플러그인",
+  "keywords": [
+    "claude-code",
+    "plugin",
+    "orchestration",
+    "simonk",
+    "marketing"
+  ],
+  "license": "MIT",
+  "name": "simonk-market",
+  "repository": "https://github.com/Simon-YHKim/SimonKMarket",
+  "skills": [
+    "./skills/aarrr-growth-planner/",
+    "./skills/ad-monetization/",
+    "./skills/aha-moment-optimizer/",
+    "./skills/analytics-integrator/",
+    "./skills/churn-recovery-planner/",
+    "./skills/cohort-retention-analyzer/",
+    "./skills/community-marketing/",
+    "./skills/exit-strategy-planner/",
+    "./skills/experiment-analyzer/",
+    "./skills/export-channel/",
+    "./skills/feedback-and-review-collector/",
+    "./skills/global-payment-planner/",
+    "./skills/growth-engine/",
+    "./skills/idea-validation/",
+    "./skills/lifecycle-campaign-designer/",
+    "./skills/mobile-attribution-integrator/",
+    "./skills/monetization-planner/",
+    "./skills/nocode-monetization/",
+    "./skills/onboarding-flow-builder/",
+    "./skills/paid-ads-campaign/",
+    "./skills/payment-integrator/",
+    "./skills/paywall-designer/",
+    "./skills/pink-tax-advisor/",
+    "./skills/pmf-analyzer/",
+    "./skills/referral-program-builder/",
+    "./skills/revenue-scenario-tester/",
+    "./skills/skmarket/",
+    "./skills/store-launcher/",
+    "./skills/subscription-manager-selector/",
+    "./skills/tag-manager-integrator/",
+    "./skills/unit-economics-modeler/",
+    "./skills/viral-launch/"
+  ],
+  "version": "1.765.0"
+}

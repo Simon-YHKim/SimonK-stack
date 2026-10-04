@@ -1,0 +1,44 @@
+{
+  "skill": "llm-wiki-builder",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "first-time-init",
+      "prompt": "처음 사용이야. wiki 시작해줘.",
+      "assertions": [
+        { "id": "clones-wiki-repo", "text": "The agent clones Simon-LLM-Wiki repo to ~/.claude/wiki/ (or pulls if exists)." },
+        { "id": "creates-3-layer-structure", "text": "The agent creates raw/, wiki/, and CLAUDE.md schema file matching the 3-layer architecture." },
+        { "id": "initializes-index-and-log", "text": "The agent creates empty wiki/index.md and wiki/log.md with the documented format." }
+      ]
+    },
+    {
+      "id": "ingest-article",
+      "prompt": "이 기사 wiki에 추가해줘: https://example.com/article",
+      "assertions": [
+        { "id": "downloads-to-raw", "text": "The agent downloads the article to raw/articles/ as markdown." },
+        { "id": "discusses-key-points", "text": "The agent discusses key takeaways with the user before writing wiki pages." },
+        { "id": "creates-source-page", "text": "The agent creates wiki/sources/<slug>.md with summary and citations to raw/." },
+        { "id": "updates-related-pages", "text": "The agent updates relevant entity/concept pages and updates wiki/index.md." },
+        { "id": "appends-log-entry", "text": "The agent appends a parseable log entry: ## [YYYY-MM-DD] ingest | <Title>." }
+      ]
+    },
+    {
+      "id": "query-and-file-back",
+      "prompt": "RAG와 llm-wiki 패턴의 차이가 뭐야?",
+      "assertions": [
+        { "id": "reads-index-first", "text": "The agent reads wiki/index.md first to find relevant pages." },
+        { "id": "cites-pages", "text": "The answer includes citations to specific wiki pages." },
+        { "id": "files-back", "text": "If the answer has standalone value, the agent files it to wiki/queries/<slug>.md and logs the activity." }
+      ]
+    },
+    {
+      "id": "lint-health-check",
+      "prompt": "wiki health check 돌려줘",
+      "assertions": [
+        { "id": "scans-all-categories", "text": "The agent scans for contradictions, stale claims, orphan pages, missing pages, broken cross-refs, and data gaps." },
+        { "id": "produces-report", "text": "The agent produces wiki/lint-report-<date>.md with categorized findings." },
+        { "id": "asks-before-fix", "text": "The agent asks user confirmation before applying suggested fixes." }
+      ]
+    }
+  ]
+}

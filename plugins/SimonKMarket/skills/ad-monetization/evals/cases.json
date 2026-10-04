@@ -1,0 +1,24 @@
+{
+  "skill": "ad-monetization",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-admob",
+      "prompt": "앱에 AdMob 연동해서 광고 붙여줘. 보상형 광고도 추가하고 싶어.",
+      "assertions": [
+        { "id": "sdk-integration", "text": "Integrates the right ad SDK (AdMob for mobile) and sets up rewarded video with a reward callback." },
+        { "id": "frequency-cap", "text": "Applies placement strategy and frequency limits, e.g. interstitials at least 60 seconds apart at natural transition points." },
+        { "id": "policy-checklist", "text": "Includes a verification checklist with test ad IDs and Google Ad Policy / ATT consent compliance." }
+      ]
+    },
+    {
+      "id": "en-web-ads",
+      "prompt": "Implement ads on my website with AdSense and add an AdBlock fallback.",
+      "assertions": [
+        { "id": "adsense-choice", "text": "Selects AdSense for web ads and chooses non-intrusive placements." },
+        { "id": "adblock-fallback", "text": "Adds AdBlock detection with a fallback message or alternate revenue prompt." },
+        { "id": "pro-balance", "text": "Balances ads with paid conversion via a 'remove ads in Pro' CTA." }
+      ]
+    }
+  ]
+}

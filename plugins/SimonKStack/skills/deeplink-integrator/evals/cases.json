@@ -1,0 +1,21 @@
+{
+  "skill": "deeplink-integrator",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ios-android-deep-link",
+      "prompt": "Expo 앱에 유니버설 링크와 Android App Links를 붙여줘.",
+      "assertions": [
+        {"id": "ask-inputs", "text": "Confirms domain, app identifiers and route map before changing configuration."},
+        {"id": "end-to-end", "text": "Covers AASA, assetlinks.json, app routing and domain verification with real-device checks."}
+      ]
+    },
+    {
+      "id": "deferred-link",
+      "prompt": "설치 전 클릭한 초대 링크의 파라미터도 설치 후 복원해줘.",
+      "assertions": [
+        {"id": "honest-support", "text": "Explains platform or provider prerequisites and does not claim deferred recovery works without an implemented, verified mechanism."}
+      ]
+    }
+  ]
+}

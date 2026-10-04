@@ -1,0 +1,38 @@
+{
+  "skill": "paid-ads-campaign",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-meta-ads",
+      "prompt": "메타랑 구글 광고 돌리고 싶어. 퍼포먼스 마케팅 캠페인 짜줘.",
+      "assertions": [
+        {
+          "id": "objective-audience",
+          "text": "Defines campaign objective (인지/전환/리타겟) and audience design."
+        },
+        {
+          "id": "channel-budget",
+          "text": "Splits channel/budget across Meta/Google/Naver/Kakao."
+        },
+        {
+          "id": "measurement-loop",
+          "text": "Adds creative brief, UTM/conversion tracking, and ROAS/CAC measurement loop."
+        }
+      ]
+    },
+    {
+      "id": "en-run-ads",
+      "prompt": "Plan a performance-marketing campaign to improve ROAS with retargeting.",
+      "assertions": [
+        {
+          "id": "campaign-plan",
+          "text": "Produces a campaign plan as the advertiser (knowledge skill, no backend)."
+        },
+        {
+          "id": "not-ad-mon",
+          "text": "Recognizes this is running ads, NOT serving ads in your own app (ad-monetization)."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+# derived, regenerable — never commit
+.semantic-index/
+.model-cache/
+__pycache__/
+*.pyc

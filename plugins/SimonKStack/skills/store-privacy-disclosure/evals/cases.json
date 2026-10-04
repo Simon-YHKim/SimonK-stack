@@ -1,0 +1,21 @@
+{
+  "skill": "store-privacy-disclosure",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "inventory-to-store-labels",
+      "prompt": "코드 근거가 있는 데이터플로우 인벤토리로 App Privacy와 Play Data Safety 답안을 준비해줘.",
+      "assertions": [
+        {"id": "traceability", "text": "Maps each proposed disclosure to a data-flow inventory item and flags code-to-declaration mismatches."},
+        {"id": "no-submit", "text": "Prepares answers and ATT copy but does not submit store forms or claim an unverified legal conclusion."}
+      ]
+    },
+    {
+      "id": "missing-inventory",
+      "prompt": "인벤토리 없이 Data Safety에서 수집 없음으로 체크해줘.",
+      "assertions": [
+        {"id": "fail-closed", "text": "Does not assert no collection without evidence and requests data-flow mapping before final store declarations."}
+      ]
+    }
+  ]
+}

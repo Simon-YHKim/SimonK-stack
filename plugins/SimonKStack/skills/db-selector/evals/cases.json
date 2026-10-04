@@ -1,0 +1,40 @@
+{
+  "skill": "db-selector",
+  "version": "1.0.1",
+  "cases": [
+    {
+      "id": "ko-db-choice",
+      "prompt": "DB 뭐 쓰지? Supabase vs Firebase 중에 골라줘. 우리 데이터 어떻게 저장하지?",
+      "assertions": [
+        { "id": "existing-and-candidates", "text": "Checks the existing data store and migration cost, then compares suitable SQL, document and special-purpose candidates rather than treating a catalog as a guaranteed current offer." },
+        { "id": "decision-tree", "text": "Uses the data-characteristics decision tree to match requirements to a concrete database." },
+        { "id": "traceable-cost", "text": "Estimates monthly cost only from current official pricing and stated workload assumptions, or leaves it unpriced when inputs are missing." }
+      ]
+    },
+    {
+      "id": "en-choose-database",
+      "prompt": "Which database should I choose for a serverless app that needs branching, PostgreSQL vs MongoDB?",
+      "assertions": [
+        { "id": "serverless-branching", "text": "Compares current PostgreSQL branching options against the document-store alternative without assuming a vendor's old feature or free-plan terms." },
+        { "id": "current-terms", "text": "Checks current official free-plan and overage conditions at decision time instead of citing fixed catalog limits." },
+        { "id": "migration-guide", "text": "Produces a database selection plus a migration guide as the output." }
+      ]
+    },
+    {
+      "id": "free-plan-staleness",
+      "prompt": "PlanetScale 무료 5GB로 DB 만들어줘. 추가 과금은 절대 안 돼.",
+      "assertions": [
+        { "id": "official-pricing", "text": "Does not present an old PlanetScale free 5GB tier as current fact; checks current official pricing and documents the observation date." },
+        { "id": "no-paid-create", "text": "Does not create a paid database, enable overage, or change billing settings under the zero-additional-cost constraint." }
+      ]
+    },
+    {
+      "id": "workload-cost",
+      "prompt": "If I have ten thousand users, can we lock in the database cost at $39-79 per month?",
+      "assertions": [
+        { "id": "usage-model", "text": "Does not infer a fixed monthly price or vendor solely from user count; requests or estimates storage, reads/writes, compute, bandwidth, backup, region, and availability requirements." },
+        { "id": "traceable-cost", "text": "Labels any cost as an estimate with assumptions, date, and official pricing source; leaves it unpriced when key inputs are unavailable." }
+      ]
+    }
+  ]
+}

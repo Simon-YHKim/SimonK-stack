@@ -1,0 +1,24 @@
+{
+  "_doc": "SKAdNetwork conversion-value map. Maps a single 0-63 fine value (or coarse low/medium/high) to a post-install business milestone measured inside the SKAN window (0-2d / 3-7d / 8-35d in SKAN 4). Value order = ascending economic value. MMP SDKs consume this to call updatePostbackConversionValue. DO NOT invent SKAdNetworkItems IDs — pull the current network-ID list from each channel/MMP doc and put them in Info.plist.",
+  "scheme": "fine",
+  "default_window_hours": 24,
+  "fine_values": [
+    { "value": 0, "milestone": "install_only", "note": "기본값, 행동 없음" },
+    { "value": 1, "milestone": "first_open", "note": "앱 최초 실행" },
+    { "value": 2, "milestone": "onboarding_complete" },
+    { "value": 5, "milestone": "aha_moment_reached", "note": "핵심 가치 경험 — aha-moment-optimizer 와 정의 정렬" },
+    { "value": 10, "milestone": "signup_completed" },
+    { "value": 20, "milestone": "subscription_trial_started" },
+    { "value": 40, "milestone": "purchase", "note": "매출 발생" }
+  ],
+  "coarse_fallback": {
+    "_doc": "설치량이 SKAN 프라이버시 임계 미만이면 Apple 이 fine 대신 coarse 만 반환. low/medium/high 로 묶어둔다.",
+    "low": ["install_only", "first_open"],
+    "medium": ["onboarding_complete", "aha_moment_reached", "signup_completed"],
+    "high": ["subscription_trial_started", "purchase"]
+  },
+  "info_plist_reminder": {
+    "SKAdNetworkItems": "채널/MMP 문서의 최신 SKAdNetworkIdentifier 목록을 그대로 등록. Expo 는 app.json ios.infoPlist 또는 config plugin 으로 주입.",
+    "NSUserTrackingUsageDescription": "ATT 사유 문구. 정직하게, 과장/clinical 용어 금지."
+  }
+}

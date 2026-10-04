@@ -1,0 +1,38 @@
+{
+  "skill": "ai-safety-eval",
+  "version": "1.1.0",
+  "cases": [
+    {
+      "id": "ko-injection-pii",
+      "prompt": "우리 챗봇 프롬프트 인젝션 방어랑 PII 마스킹 점검해줘",
+      "assertions": [
+        {
+          "id": "io-guardrails",
+          "text": "Designs input/output guardrails."
+        },
+        {
+          "id": "pii-logging-audit",
+          "text": "Covers PII handling, logging, and audit."
+        },
+        {
+          "id": "redteam-suite",
+          "text": "Produces a jailbreak/injection red-team test suite + guardrail config template."
+        }
+      ]
+    },
+    {
+      "id": "en-guardrails-redteam",
+      "prompt": "Add guardrails and red-team my LLM feature before launch",
+      "assertions": [
+        {
+          "id": "seven-layer-table",
+          "text": "Uses a risk-rated table across the safety layers (moderation, injection, bias, etc.)."
+        },
+        {
+          "id": "hallucination-mitigation",
+          "text": "Addresses hallucination mitigation (grounding/uncertainty/human-in-loop)."
+        }
+      ]
+    }
+  ]
+}

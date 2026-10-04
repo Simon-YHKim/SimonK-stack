@@ -1,0 +1,38 @@
+{
+  "skill": "nocode-monetization",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-nocode",
+      "prompt": "코드 없이 온라인 클래스 수익화하고 싶어. 노코드 결제로.",
+      "assertions": [
+        {
+          "id": "revenue-model",
+          "text": "Selects a revenue model (class/subscription/one-off/membership)."
+        },
+        {
+          "id": "platform-match",
+          "text": "Matches operating platforms (클래스101·탈잉·크몽·Stripe Payment Links·Gumroad 등)."
+        },
+        {
+          "id": "no-code",
+          "text": "Does NOT write code — operates via no-code platforms."
+        }
+      ]
+    },
+    {
+      "id": "en-creator-subscription",
+      "prompt": "I'm a creator who wants a subscription model without any backend or repo.",
+      "assertions": [
+        {
+          "id": "pricing-trial",
+          "text": "Covers pricing / free trial / bundle without code."
+        },
+        {
+          "id": "settlement-tax",
+          "text": "Touches settlement and tax basics."
+        }
+      ]
+    }
+  ]
+}

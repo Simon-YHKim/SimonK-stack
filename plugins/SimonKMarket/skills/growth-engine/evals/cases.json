@@ -1,0 +1,23 @@
+{
+  "skill": "growth-engine",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "setup-growth-tools-ko",
+      "prompt": "마케팅 도구 세팅해줘. 푸시 알림이랑 이메일 시스템 붙이고 싶어.",
+      "assertions": [
+        { "id": "growth-stack", "text": "Sets up a growth stack with email (Resend/SendGrid) and push (OneSignal/FCM)" },
+        { "id": "lifecycle-email", "text": "Produces lifecycle email sequences and retention automation" }
+      ]
+    },
+    {
+      "id": "ab-and-attribution-en",
+      "prompt": "Add feature flags, A/B testing, and attribution to my app.",
+      "assertions": [
+        { "id": "ab-tools", "text": "Wires in A/B testing via GrowthBook/PostHog" },
+        { "id": "attribution", "text": "Sets up attribution via Branch" },
+        { "id": "engagement-infra", "text": "Builds growth/engagement infrastructure rather than ad-hoc one-off changes" }
+      ]
+    }
+  ]
+}

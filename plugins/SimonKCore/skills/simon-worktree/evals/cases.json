@@ -1,0 +1,20 @@
+{
+  "skill": "simon-worktree",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "parallel-features",
+      "prompt": "동시에 auth 기능이랑 billing 기능 두 개 작업하고 싶어. 어떻게 세팅해?",
+      "assertions": [
+        {
+          "id": "creates-two-worktrees",
+          "text": "The agent proposes `git worktree add` commands for two directories (e.g., repo-auth and repo-billing) with corresponding feat/auth and feat/billing branches."
+        },
+        {
+          "id": "mentions-env-handling",
+          "text": "The agent mentions .env handling (symlink or per-worktree copy) and gitignore re-check."
+        }
+      ]
+    }
+  ]
+}

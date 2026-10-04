@@ -1,0 +1,22 @@
+{
+  "skill": "analytics-ad-wiring",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "consent-gated-analytics",
+      "prompt": "GA4와 Clarity를 웹앱에 붙여줘. 아직 동의 UI는 없어.",
+      "assertions": [
+        {"id": "consent-block", "text": "Without a real consent state, does not enable SDK loading or event emission and reports the integration incomplete."},
+        {"id": "env-config", "text": "Keeps measurement IDs in configuration or an example environment file, not hardcoded secrets."}
+      ]
+    },
+    {
+      "id": "admob-wiring",
+      "prompt": "확정한 광고 배치 전략대로 AdMob을 앱에 배선하고 검증해줘.",
+      "assertions": [
+        {"id": "upstream-decision", "text": "Checks the approved SDK, placement strategy and event taxonomy before implementing."},
+        {"id": "test-and-report", "text": "Verifies initialization and consent behavior and reports untested platform behavior honestly."}
+      ]
+    }
+  ]
+}

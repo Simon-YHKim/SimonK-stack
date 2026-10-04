@@ -1,0 +1,38 @@
+{
+  "skill": "idea-validation",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-validate",
+      "prompt": "이 아이디어 괜찮아? 만들기 전에 수요 테스트부터 하고 싶어.",
+      "assertions": [
+        {
+          "id": "problem-hypothesis",
+          "text": "Produces a problem-hypothesis statement."
+        },
+        {
+          "id": "demand-test",
+          "text": "Designs a low-cost demand-test plan (landing/waitlist/smoke/pre-sell)."
+        },
+        {
+          "id": "verdict",
+          "text": "Gives a go/pivot/kill verdict before building."
+        }
+      ]
+    },
+    {
+      "id": "en-mom-test",
+      "prompt": "Validate this idea before I build it — give me an interview script and market sizing.",
+      "assertions": [
+        {
+          "id": "mom-test-script",
+          "text": "Produces a Mom-Test interview script."
+        },
+        {
+          "id": "tam-sam-som",
+          "text": "Provides rough TAM/SAM/SOM sizing and competitor map."
+        }
+      ]
+    }
+  ]
+}
