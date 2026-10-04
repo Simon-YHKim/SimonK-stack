@@ -661,3 +661,10 @@ last-sync: 2026-07-05
     - 다른 내용(a8dea71, 1.767.0) 재실행은 gate 승인 뒤 decide가 refuse(not-newer-than-dist)했다. publish job은 설계대로 실패했고 dist는 8740310 그대로.
   - 참고: PR 빌드의 버전은 병합 커밋 하나가 더해져 main보다 1 높게 보인다.
   - 함께 측정: HTTPS 4A PASS(깨끗한 설치, 레거시 이전, 원격 세션 스모크, scratchpad https4-evidence.md). 남은 것은 카탈로그 전환뿐 | claude
+
+- 2026-10-05 04:39:08 KST | AMEND | **D-82 D-76 5단계 첫 공개 dist 게시 승인** — 완료:
+  - 카탈로그 전환 PR #135(f5716b6)를 머지했다. .claude-plugin/marketplace.json은 git-subdir·ref dist 5개 항목이고, HTTPS 임시 카탈로그와 바이트가 같다(sha256 24d58b0f3347). test_main_release_fence가 이 형태를 지킨다.
+  - main 빌드는 같은 내용이라 skip했고, dist는 8740310(1.768.0) 그대로다.
+  - 실제 사용자 경로: 새 격리 설정에서 claude plugin marketplace add Simon-YHKim/SimonK-stack로 5개를 설치하니 모두 1.768.0, enabled였다.
+  - GitHub 배포 경로가 최신 빌드를 제공한다(D-73 완료 정의 충족). D-33 hold는 release.yml과 SessionStart만 계속 막는다(레거시 경로 폐기는 별도 안건).
+  - 남은 정리: careful 플러그인 본문의 옛 스크립트 경로 표기, test_safety_runtime 12초 timeout flaky, flat과 플러그인 동시 설치 시 스킬 목록 초과 안내 | claude
