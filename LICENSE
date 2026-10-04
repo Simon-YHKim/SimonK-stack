@@ -130,7 +130,11 @@ bad, oversized or out-of-contract leaf output, timeout) deny for both careful
 and freeze; it never downgrades a deny to ask. Every cygpath call and the leaf
 of one check share a single 20-second budget (freeze 0.2.2, chosen from
 2026-10-04 load measurements); running out of it is a deny whose reason names
-the timeout and says that retrying is safe. The offline Codex candidate
+the timeout and says that retrying is safe. The leaf starts suspended inside
+its own Windows Job Object (freeze 0.2.5), so a timeout or any other end of the
+check kills the whole leaf process tree, including the real usr/bin/bash.exe
+that the Git for Windows bin/bash.exe launcher starts; no leaf process
+outlives its check. The offline Codex candidate
 scripts/codex_guarded_policy.py likewise passes a careful leaf deny through
 with its reason and turns a leaf ask into its own deny, since Codex has no ask.
 
