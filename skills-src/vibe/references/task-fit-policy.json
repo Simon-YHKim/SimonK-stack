@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "version": "2026-10-04-shadow.2",
+  "version": "2026-10-05-shadow.1",
   "status": "shadow-only",
-  "checked_at": "2026-10-04T21:52:28+09:00",
-  "valid_until": "2026-10-11T21:52:28+09:00",
+  "checked_at": "2026-10-05T14:20:41+09:00",
+  "valid_until": "2026-10-12T14:20:41+09:00",
   "notes": [
     "Public task fit is a hypothesis, not proof of host behavior or subscription inclusion.",
     "No entry changes dispatch; paired same-task Claude/Codex evaluation gates activation.",
     "Image generation is excluded: VISION means image understanding, not creation.",
     "For complex coding, Opus 5.5 medium is an evidence-backed shadow hypothesis: Anthropic reports a FrontierCode result at default medium, and Artificial Analysis places medium on its effort/cost frontier. This is not host-specific proof.",
-    "2026-10-04 2차 재확인(21:52 KST): 출처 9개를 모델 호출 없이 다시 읽었다(전부 HTTP 200, openai.com Astra 페이지는 이번에도 첫 요청 403 뒤 브라우저 요청 헤더로). 인용한 주장은 그대로이고 순위·effort 도 그대로다."
+    "2026-10-05 재확인(14:20 KST): 출처 9개를 모델 호출 없이 다시 읽었다(전부 첫 요청 HTTP 200, openai.com Astra 페이지도 이번에는 첫 요청 200). 인용한 주장 3개는 원문 그대로이고 순위·effort 도 그대로다. 관측만: Artificial Analysis 는 Sonnet 5.5 가 비용 프런티어 밖이고 low·medium 에서 GPT-6 Sol 설정이 더 싸게 같은 성능을 낸다고 적는다. CODE_SIMPLE 순위 근거와 긴장이 있지만 shadow 정책이라 바꾸지 않았다."
   ],
   "sources": {
     "anthropic_opus": "https://www.anthropic.com/claude-opus-5-5",
