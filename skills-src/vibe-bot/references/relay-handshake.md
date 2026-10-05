@@ -88,7 +88,8 @@ the last chance to avoid a duplicate production write.
 ```
 <nonce>
 ## Answers      one line per asked item: value · evidence path · measured time
-## Hard stops   what was deliberately not pressed
+## Actions      irreversible actions taken (payment: amount · item) and
+                buttons the task held, so Simon can check them (D-93)
 ## STATUS line  the exact row written to STATUS (or "none")
 ## GO source    for production writes: time · channel · Simon's own words,
                 or "원문 없음" plus the secondary evidence

@@ -55,18 +55,21 @@ The six existing teams are release, customer, launch-check, game-studio,
 maintenance and growth. Each includes Relay, with at most six members.
 Use their exact roster name/ID in the target; the builder has no `--team` switch.
 
-## Free reversible preparation and hard stops
+## Task authority (D-93) and remaining limits
 
-Within the user's actual task authority, prepare free reversible drafts and
-scoped handoffs without asking repeatedly. A reported standing preference for
-free accounts/profiles is not credential, signup, billing or data-sharing consent.
+Since 2026-10-06 (hub D-93) Simon allows every screen action a task's goal needs:
+login, account creation, payment, store submission/release, deletion, public
+posting, external email/messages, cancellation/refund/payment-method and
+permission changes. Bots do not stop to ask for approval; they list each
+irreversible action (payments with amount and item) in the result. This replaces
+the snapshot's hard stops. Holds written into a task still apply.
 CLI/API/MCP-capable work stays in /vibe. App code belongs to the coding LLM:
 Bots propose only; for 2ndB use `<2nd-B root>/docs/drafts/`, for another project use its
 approved draft location. Never commit, merge or edit app source through a Bot.
 
-Stop for payment, advertising ON, store submission/release, deletion, public
-posting, external email/messages, cancellation/refund/payment-method or permission
-changes. Login/2FA needs Simon. Never include secret values in chat, logs or results.
+Stop only for a 2FA code or a login that is not saved on the bot computer (Simon
+gives it directly in the bot chat), a button the task holds, or a screen that
+differs from the task. Never write secret values into results, logs or the bus.
 Internal handoffs still need authorization for that exact dispatched task.
 Use the central guarded adapter; neither a copied draft nor a routine bypasses it.
 

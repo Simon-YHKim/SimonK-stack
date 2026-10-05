@@ -27,10 +27,14 @@ def main() -> int:
                 "github token ghp_abcdefghijklmnopqrstuvwxyz12 사용"):
         check("B1 blocks secret", any("B1" in b for b in m.check_request(bad)["blocks"]), bad)
 
-    # B2 write verbs
-    for bad in ("PR 만들고 머지해줘", "프로덕션에 올려", "rm -rf build 하고 정리해",
-                "요금제 결제해줘", "레포 권한을 바꾸고 공개로 전환해"):
-        check("B2 blocks write", any("B2" in b for b in m.check_request(bad)["blocks"]), bad)
+    # B2 coding-lane work (repo writes, shell/DB destruction)
+    for bad in ("PR 만들고 머지해줘", "rm -rf build 하고 정리해", "drop table users 실행해"):
+        check("B2 blocks coding-lane work", any("B2" in b for b in m.check_request(bad)["blocks"]), bad)
+    # D-93 (2026-10-06, Simon): screen actions the goal needs are not blocked
+    for allowed in ("프로덕션에 올려", "요금제 결제해줘", "레포 권한을 바꾸고 공개로 전환해",
+                    "계정 만들고 로그인해서 검토 제출까지 해", "오래된 광고 단위를 삭제해줘"):
+        check("D-93 screen action passes B2",
+              not any("B2" in b for b in m.check_request(allowed)["blocks"]), allowed)
 
     # safe request passes
     ok_task = "경쟁 툴 5곳 가격 페이지를 열어 요금제와 최근 변경일을 표로 정리"
@@ -143,19 +147,26 @@ def main() -> int:
     check("key never inlined in argv", all("crsr_" not in x for x in argv)
           and any(m.WEBHOOK_KEY_ENV in x for x in argv), str(argv))
 
-    # console mode (2026-09-19, Simon): explicit sheet + screen evidence + irreversible escalation
+    # console mode (2026-09-19, Simon): explicit sheet + screen evidence; D-93 (2026-10-06):
+    # full screen authority by default, irreversible reports become C2 notices
     cspec = m.build_console_spec("출시 트랙별 최신 버전과 상태를 읽는다", nonce,
                                  target="Google Play Console · com.simonk.secondbrain",
                                  url="https://play.google.com/console")
     for sec in m.CONSOLE_SECTIONS:
         check(f"console spec has {sec}", f"## {sec}" in cspec)
-    check("console spec is read-only by default", "읽기 전용" in cspec)
-    check("console spec forbids Resubmit", "Resubmit" in cspec)
+    check("console spec grants D-93 authority by default",
+          "D-93" in cspec and "결제" in cspec and "읽기 전용" not in cspec)
+    check("console spec forbids nothing by default", "- 없음 (D-93)" in cspec and "Resubmit" not in cspec)
+    check("console spec keeps credentials out of the sheet and result",
+          "결과·버스·로그에 적지 않는다" in cspec)
+    check("console spec asks for the irreversible-action list", "금액·항목" in cspec)
+    held_spec = m.build_console_spec("x", nonce, target="t", read_only=True)
+    check("read-only hold is still available", "읽기 전용. 어떤 값도 바꾸거나 저장하지 않는다." in held_spec)
     check("console spec carries nonce and start URL",
           nonce in cspec and "https://play.google.com/console" in cspec)
     cspec2 = m.build_console_spec("x", nonce, target="t", allow_change="스토어 설명 첫 문단 교체",
                                   extra_forbid=["프로모션 코드 발급"])
-    check("allow-change is spelled out and still stops for approval",
+    check("allow-change is spelled out and an explicit hold still stops for approval",
           "허용 변경: 스토어 설명 첫 문단 교체" in cspec2 and "사람 승인" in cspec2)
     check("extra forbid is listed", "- 프로모션 코드 발급" in cspec2)
     good_c = (f"{nonce}\n| 항목 | 값 | 화면 경로 | 스크린샷 |\n"
@@ -166,16 +177,18 @@ def main() -> int:
     check("console result without screen evidence fails C1",
           any("C1" in f for f in m.verify_result(no_ev, nonce, mode="console")))
     pressed = good_c + "\n요청대로 Resubmit 눌렀습니다"
-    check("reported irreversible press escalates C2",
-          any("C2" in f for f in m.verify_result(pressed, nonce, mode="console")))
-    for said in ("검토 답변도 보냈습니다", "새 AAB 업로드 완료", "회신했습니다"):
-        check(f"Korean irreversible report escalates C2: {said}",
-              any("C2" in f for f in m.verify_result(good_c + "\n" + said, nonce, mode="console")))
+    check("reported irreversible press is a C2 notice, not a failure",
+          any("C2" in f for f in m.notices(pressed, mode="console"))
+          and m.verify_result(pressed, nonce, mode="console") == [],
+          str(m.verify_result(pressed, nonce, mode="console")))
+    for said in ("검토 답변도 보냈습니다", "새 AAB 업로드 완료", "회신했습니다", "프로 요금제 결제했습니다"):
+        check(f"Korean irreversible report is a C2 notice: {said}",
+              any("C2" in f for f in m.notices(good_c + "\n" + said, mode="console")))
     held = good_c + "\nReply 버튼은 누르지 않았고 제출하지 않았다"
-    check("negated press does not trigger C2",
-          not any("C2" in f for f in m.verify_result(held, nonce, mode="console")),
-          str(m.verify_result(held, nonce, mode="console")))
-    check("general mode ignores C1 and C2", m.verify_result(no_ev, nonce) == [],
+    check("negated press does not trigger C2", m.notices(held, mode="console") == [],
+          str(m.notices(held, mode="console")))
+    check("general mode ignores C1 and C2",
+          m.verify_result(no_ev, nonce) == [] and m.notices(pressed) == [],
           str(m.verify_result(no_ev, nonce)))
     check("cli console mode without --target exits 2",
           m.main(["--mode", "console", "--task", "출시 트랙 상태를 읽어 표로 정리"]) == 2)
@@ -246,8 +259,9 @@ def main() -> int:
               len(rows) == 1 and rows[0]["findings"] == [] and rows[0]["mode"] == "console", str(rows))
         (out / f"{n}.result.md").write_text(f"{n}\n검토 답변도 보냈습니다", encoding="utf-8")
         rows = m.collect(Path(hub))
-        check("collect re-checks with console rules (C1 and C2)",
-              bool(rows) and any("C2" in f for f in rows[0]["findings"])
+        check("collect re-checks with console rules (C1 fails, C2 is a notice)",
+              bool(rows) and any("C2" in f for f in rows[0]["notices"])
+              and not any("C2" in f for f in rows[0]["findings"])
               and any("C1" in f for f in rows[0]["findings"]), str(rows))
 
     # shared bots + per-task project bus (0.6.0)
