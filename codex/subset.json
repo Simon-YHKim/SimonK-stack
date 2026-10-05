@@ -1,25 +1,25 @@
 {
-  "content_digest": "2879e3ab402967ea43190aa761d2dbbd36ef229078f38cb3dae1da969f8046c8",
+  "content_digest": "7c03656697e7537742c1853c6d201f5a88bb6c7e316d372ae90c10b409dc5fb7",
   "decision_ref": "D-29",
   "excluded_members": [
     {
       "path": "plugins/SimonKAIHub/.claude-plugin/marketplace.json",
-      "sha256": "ba397ee101ed630974fee2f7e2b93f4eae9ef4544f0856070c9e83dae8a4ca52",
+      "sha256": "6b341c730a153a9c3a02efaa329f1cb993c6ba31a1064656c0be2b34000bf03f",
       "size": 631
     },
     {
       "path": "plugins/SimonKAIHub/.claude-plugin/plugin.json",
-      "sha256": "08c1022ae70b994c559dad2940d5b9322695a64d3c3937e4d4fb23f622dee4d0",
+      "sha256": "63c09f3f98102d6c2aa6ca676999cf550eeb513cf625755cf09bde29b5f1b612",
       "size": 678
     },
     {
       "path": "plugins/SimonKCore/.claude-plugin/marketplace.json",
-      "sha256": "1c54ed568d1acf97e5d30b3f39dccaba94ec4aa912e2def08cce117a4f2596eb",
+      "sha256": "8632a756f9408f3233ef826d226b907d2c191ab9e480703c2999076181f3971c",
       "size": 640
     },
     {
       "path": "plugins/SimonKCore/.claude-plugin/plugin.json",
-      "sha256": "d3213838c11aa23a545cc6cb12a460f75316cd69858cc0d5aae7dd8afb0db6e6",
+      "sha256": "7c16939b41dbd7916f859de453071d61fcbe67bae2ba1488c4aacb535fad4d37",
       "size": 2525
     },
     {
@@ -84,32 +84,32 @@
     },
     {
       "path": "plugins/SimonKDesign/.claude-plugin/marketplace.json",
-      "sha256": "53e649010e77687ceff8db538054439dd72f521a11fff456d14ad527b03d94ec",
+      "sha256": "23dd5c94d06b02f37a061243e3a9135ad7c5a1009bf6a44e4ea53cfd37a26633",
       "size": 584
     },
     {
       "path": "plugins/SimonKDesign/.claude-plugin/plugin.json",
-      "sha256": "660970f87bef56e3fe5f2bee64615f6b613aca96f70cd2593ea1bce45ebeaf5f",
+      "sha256": "8467b0bc15bd7b83edd3245bc156f8199262e22258e72f7224ceb5448f0c8d86",
       "size": 1156
     },
     {
       "path": "plugins/SimonKMarket/.claude-plugin/marketplace.json",
-      "sha256": "4b9bd588ba8981e6a6ae7c9d2f9218083331d0be7e5961bde8e56131d1566439",
+      "sha256": "baf3ed20499d19d63c42fd4b1adce2fbd4d5f69b6d98767243a443d4be09bfd7",
       "size": 615
     },
     {
       "path": "plugins/SimonKMarket/.claude-plugin/plugin.json",
-      "sha256": "e8edc1b54f72bed8cb0e3803f67d7cbf21d908d5cc8588d2e3a52bbbd9b8f8db",
+      "sha256": "ea8359c7712526195d8bd976147c26a7eb2d955a36d6158c29a482878d486b9a",
       "size": 1643
     },
     {
       "path": "plugins/SimonKStack/.claude-plugin/marketplace.json",
-      "sha256": "292d6cb524b1cbe6cb7d1ec3cb11f0e72d044fd7a3079e53b27755b7ede3777e",
+      "sha256": "c477f7cd834f0bc1c02bde3f3db550c92b61386cce81c6516d77a7d543d878cc",
       "size": 586
     },
     {
       "path": "plugins/SimonKStack/.claude-plugin/plugin.json",
-      "sha256": "0bf119d6aaf018d4e08da9cba851d29cb5dc51f02af46d1a0b75634472a46293",
+      "sha256": "b4a1db0c422c0c21fcbeee2a3832643f1afcfaf4d99d64bc4664d131c9a9a01b",
       "size": 2776
     },
     {
@@ -204,17 +204,17 @@
   "included_members": [
     {
       "path": "bundle.json",
-      "sha256": "5e4b6111a40ddaea486b2cf0d61edb0a4bb6e7638a9e8268176eda7346992f61",
+      "sha256": "926919d859aa4979f299a1e72b4a936283fe8e10c085b454a0d0939a7a6f4860",
       "size": 1850438
     },
     {
       "path": "overlay.json",
-      "sha256": "53d8063a2bc83d532705730d61c16c5b348e80174556934ae69e469967663111",
+      "sha256": "1a8a340fe1f44589e7d7a08349673cacc27448db30da25de23d44b56f3e819ca",
       "size": 5853
     },
     {
       "path": "plugins/SimonKAIHub/.codex-plugin/plugin.json",
-      "sha256": "8c8bad2634c6f7cc86cbcdcdd59db0a63bb9e6f09d9079983d803b0bd9a66d7b",
+      "sha256": "b29db13848acbedd16e1b955fe4fffd2421debf38e0cb6ec6590c360a3c09147",
       "size": 943
     },
     {
@@ -519,8 +519,8 @@
     },
     {
       "path": "plugins/SimonKCore/.codex-plugin/plugin.json",
-      "sha256": "aba61946cd566bd93f238a2eaa18d0cac414adce2244b6308bbbf4f6a48d023b",
-      "size": 1228
+      "sha256": "994e270e845c3d666fc8cac33e9a733e9b3b38e8aeb4b98afd077607e8a9a45c",
+      "size": 1222
     },
     {
       "path": "plugins/SimonKCore/.github/skill-ci/README.md",
@@ -1819,7 +1819,7 @@
     },
     {
       "path": "plugins/SimonKDesign/.codex-plugin/plugin.json",
-      "sha256": "5cb6e13b2e260147679dd0882f1079dfbb8a9f5145630226eacc0a0496489ea8",
+      "sha256": "3263ac72c61a3c15e97ce0ae29e793d9914eabdb711f2ca091a403e8bc7aef39",
       "size": 816
     },
     {
@@ -2244,7 +2244,7 @@
     },
     {
       "path": "plugins/SimonKMarket/.codex-plugin/plugin.json",
-      "sha256": "de52cdef339e35e36df843d9b5cb0eea954ff4290790693c7a81614b56f1d00d",
+      "sha256": "e2cced484c2a23b14cfd04bf13f2816f27547616b73b3485fb7b5950aee9b75e",
       "size": 861
     },
     {
@@ -2864,8 +2864,8 @@
     },
     {
       "path": "plugins/SimonKStack/.codex-plugin/plugin.json",
-      "sha256": "8ef5e1ad512475bbe2d172fdb3a8f1223b18c7e09752265e70778075d0845e84",
-      "size": 1079
+      "sha256": "3a7708ce50357f9ce3dcf50492be52f7569171647a06160fc887a3a823b5ba69",
+      "size": 1073
     },
     {
       "path": "plugins/SimonKStack/.github/validate-evals.mjs",
@@ -3899,23 +3899,23 @@
   ],
   "replaced_members": [
     {
-      "original_base64": "ewogICJhdXRob3IiOiB7CiAgICAibmFtZSI6ICJTaW1vbiBLaW0iLAogICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vU2ltb24tWUhLaW0iCiAgfSwKICAiZGVzY3JpcHRpb24iOiAiU2ltb25LIO2UjOufrOq3uOyduCDqs7XsnKAg7J247ZSE6528ICjsnITsnoTCt+uqqOuNuOudvOyasO2MhcK366mU66qo66aswrfsp4Dsi53rj4TqtazCt+2OmOultOyGjOuCmOqygOymncK37JmE66OM67O06rOgKS4gY2FyZWZ1bCDslYjsoIQg7ZuF7J2AIFdpbmRvd3Mg7KCE7Jqp7J206528IOuLpOuluCBPU+yXkOyEnOuKlCBCYXNowrdQb3dlclNoZWxsIOuqheugueydhCDsnbzrtoDrn6wg66qo65GQIOunieuKlOuLpC4iLAogICJpbnRlcmZhY2UiOiB7CiAgICAiY2FwYWJpbGl0aWVzIjogW10sCiAgICAiY2F0ZWdvcnkiOiAiUHJvZHVjdGl2aXR5IiwKICAgICJkZWZhdWx0UHJvbXB0IjogIlVzZSBTaW1vbksgQ29yZSBza2lsbHMgZm9yIHRoaXMgdGFzay4iLAogICAgImRldmVsb3Blck5hbWUiOiAiU2ltb24gS2ltIiwKICAgICJkaXNwbGF5TmFtZSI6ICJTaW1vbksgQ29yZSIsCiAgICAibG9uZ0Rlc2NyaXB0aW9uIjogIlNpbW9uSyDtlIzrn6zqt7jsnbgg6rO17JygIOyduO2UhOudvCAo7JyE7J6EwrfrqqjrjbjrnbzsmrDtjIXCt+uplOuqqOumrMK37KeA7Iud64+E6rWswrftjpjrpbTshozrgpjqsoDspp3Ct+yZhOujjOuztOqzoCkuIGNhcmVmdWwg7JWI7KCEIO2bheydgCBXaW5kb3dzIOyghOyaqeydtOudvCDri6TrpbggT1Psl5DshJzripQgQmFzaMK3UG93ZXJTaGVsbCDrqoXroLnsnYQg7J2867aA65+sIOuqqOuRkCDrp4nripTri6QuIiwKICAgICJzaG9ydERlc2NyaXB0aW9uIjogIlNpbW9uSyDtlIzrn6zqt7jsnbgg6rO17JygIOyduO2UhOudvCAo7JyE7J6EwrfrqqjrjbjrnbzsmrDtjIXCt+uplOuqqOumrMK37KeA7Iud64+E6rWswrftjpjrpbTshozrgpjqsoDspp3Ct+yZhOujjOuztOqzoCkuIGNhcmVmdWwg7JWI7KCEIO2bheydgCBXaW5kb3dzIOyghOyaqeydtOudvCDri6TrpbggT1Psl5DshJzripQgQmFzaMK3UG93ZXJTaGVsbCDrqoXroLnsnYQg7J2867aA65+sIOuqqOuRkCDrp4nripTri6QuIgogIH0sCiAgImtleXdvcmRzIjogWwogICAgImNsYXVkZS1jb2RlIiwKICAgICJwbHVnaW4iLAogICAgInNoYXJlZCIsCiAgICAic2ltb25rIiwKICAgICJjb3JlIgogIF0sCiAgImxpY2Vuc2UiOiAiTUlUIiwKICAibmFtZSI6ICJzaW1vbmstY29yZSIsCiAgInJlcG9zaXRvcnkiOiAiaHR0cHM6Ly9naXRodWIuY29tL1NpbW9uLVlIS2ltL1NpbW9uS0NvcmUiLAogICJza2lsbHMiOiAiLi9za2lsbHMvIiwKICAidmVyc2lvbiI6ICIxLjc5My4wIgp9Cg==",
-      "original_sha256": "d9333858a697d4e98928b985e6a68a9bb8f97a228cf69b6be86c135faa2fadec",
+      "original_base64": "ewogICJhdXRob3IiOiB7CiAgICAibmFtZSI6ICJTaW1vbiBLaW0iLAogICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vU2ltb24tWUhLaW0iCiAgfSwKICAiZGVzY3JpcHRpb24iOiAiU2ltb25LIO2UjOufrOq3uOyduCDqs7XsnKAg7J247ZSE6528ICjsnITsnoTCt+uqqOuNuOudvOyasO2MhcK366mU66qo66aswrfsp4Dsi53rj4TqtazCt+2OmOultOyGjOuCmOqygOymncK37JmE66OM67O06rOgKS4gY2FyZWZ1bCDslYjsoIQg7ZuF7J2AIFdpbmRvd3Mg7KCE7Jqp7J206528IOuLpOuluCBPU+yXkOyEnOuKlCBCYXNowrdQb3dlclNoZWxsIOuqheugueydhCDsnbzrtoDrn6wg66qo65GQIOunieuKlOuLpC4iLAogICJpbnRlcmZhY2UiOiB7CiAgICAiY2FwYWJpbGl0aWVzIjogW10sCiAgICAiY2F0ZWdvcnkiOiAiUHJvZHVjdGl2aXR5IiwKICAgICJkZWZhdWx0UHJvbXB0IjogIlVzZSBTaW1vbksgQ29yZSBza2lsbHMgZm9yIHRoaXMgdGFzay4iLAogICAgImRldmVsb3Blck5hbWUiOiAiU2ltb24gS2ltIiwKICAgICJkaXNwbGF5TmFtZSI6ICJTaW1vbksgQ29yZSIsCiAgICAibG9uZ0Rlc2NyaXB0aW9uIjogIlNpbW9uSyDtlIzrn6zqt7jsnbgg6rO17JygIOyduO2UhOudvCAo7JyE7J6EwrfrqqjrjbjrnbzsmrDtjIXCt+uplOuqqOumrMK37KeA7Iud64+E6rWswrftjpjrpbTshozrgpjqsoDspp3Ct+yZhOujjOuztOqzoCkuIGNhcmVmdWwg7JWI7KCEIO2bheydgCBXaW5kb3dzIOyghOyaqeydtOudvCDri6TrpbggT1Psl5DshJzripQgQmFzaMK3UG93ZXJTaGVsbCDrqoXroLnsnYQg7J2867aA65+sIOuqqOuRkCDrp4nripTri6QuIiwKICAgICJzaG9ydERlc2NyaXB0aW9uIjogIlNpbW9uSyDtlIzrn6zqt7jsnbgg6rO17JygIOyduO2UhOudvCAo7JyE7J6EwrfrqqjrjbjrnbzsmrDtjIXCt+uplOuqqOumrMK37KeA7Iud64+E6rWswrftjpjrpbTshozrgpjqsoDspp3Ct+yZhOujjOuztOqzoCkuIGNhcmVmdWwg7JWI7KCEIO2bheydgCBXaW5kb3dzIOyghOyaqeydtOudvCDri6TrpbggT1Psl5DshJzripQgQmFzaMK3UG93ZXJTaGVsbCDrqoXroLnsnYQg7J2867aA65+sIOuqqOuRkCDrp4nripTri6QuIgogIH0sCiAgImtleXdvcmRzIjogWwogICAgImNsYXVkZS1jb2RlIiwKICAgICJwbHVnaW4iLAogICAgInNoYXJlZCIsCiAgICAic2ltb25rIiwKICAgICJjb3JlIgogIF0sCiAgImxpY2Vuc2UiOiAiTUlUIiwKICAibmFtZSI6ICJzaW1vbmstY29yZSIsCiAgInJlcG9zaXRvcnkiOiAiaHR0cHM6Ly9naXRodWIuY29tL1NpbW9uLVlIS2ltL1NpbW9uS0NvcmUiLAogICJza2lsbHMiOiAiLi9za2lsbHMvIiwKICAidmVyc2lvbiI6ICIxLjc5Ni4wIgp9Cg==",
+      "original_sha256": "2c5291497cdf74fdb1f99ad05cdb1d6e5da79ef6f4dd391fb361c6366488655c",
       "original_size": 1339,
       "path": "plugins/SimonKCore/.codex-plugin/plugin.json",
-      "sha256": "aba61946cd566bd93f238a2eaa18d0cac414adce2244b6308bbbf4f6a48d023b",
-      "size": 1228
+      "sha256": "994e270e845c3d666fc8cac33e9a733e9b3b38e8aeb4b98afd077607e8a9a45c",
+      "size": 1222
     },
     {
-      "original_base64": "ewogICJhdXRob3IiOiB7CiAgICAibmFtZSI6ICJTaW1vbiBLaW0iLAogICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vU2ltb24tWUhLaW0iCiAgfSwKICAiZGVzY3JpcHRpb24iOiAi7KCc7ZKIL+yEnOu5hOyKpCDruYzrk5wg7Jik7LyA7Iqk7Yq466CI7J207IWYIO2UjOufrOq3uOyduC4g66CI6rGw7IucIHNpbW9uay1zdGFjayAwLjEuMOyXkOyEnCDsl4XrjbDsnbTtirjtlojri6TrqbQg64KY66i47KeAIOuEt+ydhCDrlLDroZwg7ISk7LmY7ZW07JW8IG1hcmtldMK3ZGVzaWdu7Jy866GcIOyYruq4tCDsiqTtgqwgMTDqsJzqsIAg64+M7JWE7Jio64ukOiBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLWNvcmVAc2ltb25rLXN0YWNrIMK3IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstbWFya2V0QHNpbW9uay1zdGFjayDCtyBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLWRlc2lnbkBzaW1vbmstc3RhY2sgwrcgY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1haWh1YkBzaW1vbmstc3RhY2suIGZyZWV6ZcK3Z3VhcmTCt2ludmVzdGlnYXRlIOyViOyghCDtm4XsnYAgV2luZG93cyDsoITsmqnsnbTrnbwg64uk66W4IE9T7JeQ7ISc64qUIEVkaXTCt1dyaXRlwrdCYXNo66W8IOydvOu2gOufrCDrqqjrkZAg66eJ64qU64ukLiIsCiAgImludGVyZmFjZSI6IHsKICAgICJjYXBhYmlsaXRpZXMiOiBbXSwKICAgICJjYXRlZ29yeSI6ICJQcm9kdWN0aXZpdHkiLAogICAgImRlZmF1bHRQcm9tcHQiOiAiVXNlIFNpbW9uSyBTdGFjayBza2lsbHMgZm9yIHRoaXMgdGFzay4iLAogICAgImRldmVsb3Blck5hbWUiOiAiU2ltb24gS2ltIiwKICAgICJkaXNwbGF5TmFtZSI6ICJTaW1vbksgU3RhY2siLAogICAgImxvbmdEZXNjcmlwdGlvbiI6ICLsoJztkogv7ISc67mE7IqkIOu5jOuTnCDsmKTsvIDsiqTtirjroIjsnbTshZgg7ZSM65+s6re47J24LiDroIjqsbDsi5wgc2ltb25rLXN0YWNrIDAuMS4w7JeQ7IScIOyXheuNsOydtO2KuO2WiOuLpOuptCDrgpjrqLjsp4Ag64S37J2EIOuUsOuhnCDshKTsuZjtlbTslbwgbWFya2V0wrdkZXNpZ27snLzroZwg7Jiu6ri0IOyKpO2CrCAxMOqwnOqwgCDrj4zslYTsmKjri6Q6IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstY29yZUBzaW1vbmstc3RhY2sgwrcgY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1tYXJrZXRAc2ltb25rLXN0YWNrIMK3IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstZGVzaWduQHNpbW9uay1zdGFjayDCtyBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLWFpaHViQHNpbW9uay1zdGFjay4gZnJlZXplwrdndWFyZMK3aW52ZXN0aWdhdGUg7JWI7KCEIO2bheydgCBXaW5kb3dzIOyghOyaqeydtOudvCDri6TrpbggT1Psl5DshJzripQgRWRpdMK3V3JpdGXCt0Jhc2jrpbwg7J2867aA65+sIOuqqOuRkCDrp4nripTri6QuIiwKICAgICJzaG9ydERlc2NyaXB0aW9uIjogIuygnO2SiC/shJzruYTsiqQg67mM65OcIOyYpOy8gOyKpO2KuOugiOydtOyFmCDtlIzrn6zqt7jsnbguIOugiOqxsOyLnCBzaW1vbmstc3RhY2sgMC4xLjDsl5DshJwg7JeF642w7J207Yq47ZaI64uk66m0IOuCmOuouOyngCDrhLfsnYQg65Sw66GcIOyEpOy5mO2VtOyVvCBtYXJrZXTCt2Rlc2lnbuycvOuhnCDsmK7quLQg7Iqk7YKsIDEw6rCc6rCAIOuPjOyVhOyYqOuLpDogY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1jb3JlQHNpbW9uay1zdGFjayDCtyBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLW1hcmtldEBzaW1vbmstc3RhY2sgwrcgY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1kZXNpZ25Ac2ltb25rLXN0YWNrIMK3IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstYWlodWJAc2ltb25rLXN0YWNrLiBmcmVlemXCt2d1YXJkwrdpbnZlc3RpZ2F0ZSDslYjsoIQg7ZuF7J2AIFdpbmRvd3Mg7KCE7Jqp7J206528IOuLpOuluCBPU+yXkOyEnOuKlCBFZGl0wrdXcml0ZcK3QmFzaOulvCDsnbzrtoDrn6wg66qo65GQIOunieuKlOuLpC4iCiAgfSwKICAia2V5d29yZHMiOiBbCiAgICAiY2xhdWRlLWNvZGUiLAogICAgInBsdWdpbiIsCiAgICAib3JjaGVzdHJhdGlvbiIsCiAgICAic2ltb25rIiwKICAgICJidWlsZCIKICBdLAogICJsaWNlbnNlIjogIk1JVCIsCiAgIm5hbWUiOiAic2ltb25rLXN0YWNrIiwKICAicmVwb3NpdG9yeSI6ICJodHRwczovL2dpdGh1Yi5jb20vU2ltb24tWUhLaW0vU2ltb25LLXN0YWNrIiwKICAic2tpbGxzIjogIi4vc2tpbGxzLyIsCiAgInZlcnNpb24iOiAiMS43OTMuMCIKfQo=",
-      "original_sha256": "7890b210bb697a3e38a2e37abb11fc62afc1494a31603357dae9f055fd090871",
+      "original_base64": "ewogICJhdXRob3IiOiB7CiAgICAibmFtZSI6ICJTaW1vbiBLaW0iLAogICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vU2ltb24tWUhLaW0iCiAgfSwKICAiZGVzY3JpcHRpb24iOiAi7KCc7ZKIL+yEnOu5hOyKpCDruYzrk5wg7Jik7LyA7Iqk7Yq466CI7J207IWYIO2UjOufrOq3uOyduC4g66CI6rGw7IucIHNpbW9uay1zdGFjayAwLjEuMOyXkOyEnCDsl4XrjbDsnbTtirjtlojri6TrqbQg64KY66i47KeAIOuEt+ydhCDrlLDroZwg7ISk7LmY7ZW07JW8IG1hcmtldMK3ZGVzaWdu7Jy866GcIOyYruq4tCDsiqTtgqwgMTDqsJzqsIAg64+M7JWE7Jio64ukOiBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLWNvcmVAc2ltb25rLXN0YWNrIMK3IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstbWFya2V0QHNpbW9uay1zdGFjayDCtyBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLWRlc2lnbkBzaW1vbmstc3RhY2sgwrcgY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1haWh1YkBzaW1vbmstc3RhY2suIGZyZWV6ZcK3Z3VhcmTCt2ludmVzdGlnYXRlIOyViOyghCDtm4XsnYAgV2luZG93cyDsoITsmqnsnbTrnbwg64uk66W4IE9T7JeQ7ISc64qUIEVkaXTCt1dyaXRlwrdCYXNo66W8IOydvOu2gOufrCDrqqjrkZAg66eJ64qU64ukLiIsCiAgImludGVyZmFjZSI6IHsKICAgICJjYXBhYmlsaXRpZXMiOiBbXSwKICAgICJjYXRlZ29yeSI6ICJQcm9kdWN0aXZpdHkiLAogICAgImRlZmF1bHRQcm9tcHQiOiAiVXNlIFNpbW9uSyBTdGFjayBza2lsbHMgZm9yIHRoaXMgdGFzay4iLAogICAgImRldmVsb3Blck5hbWUiOiAiU2ltb24gS2ltIiwKICAgICJkaXNwbGF5TmFtZSI6ICJTaW1vbksgU3RhY2siLAogICAgImxvbmdEZXNjcmlwdGlvbiI6ICLsoJztkogv7ISc67mE7IqkIOu5jOuTnCDsmKTsvIDsiqTtirjroIjsnbTshZgg7ZSM65+s6re47J24LiDroIjqsbDsi5wgc2ltb25rLXN0YWNrIDAuMS4w7JeQ7IScIOyXheuNsOydtO2KuO2WiOuLpOuptCDrgpjrqLjsp4Ag64S37J2EIOuUsOuhnCDshKTsuZjtlbTslbwgbWFya2V0wrdkZXNpZ27snLzroZwg7Jiu6ri0IOyKpO2CrCAxMOqwnOqwgCDrj4zslYTsmKjri6Q6IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstY29yZUBzaW1vbmstc3RhY2sgwrcgY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1tYXJrZXRAc2ltb25rLXN0YWNrIMK3IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstZGVzaWduQHNpbW9uay1zdGFjayDCtyBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLWFpaHViQHNpbW9uay1zdGFjay4gZnJlZXplwrdndWFyZMK3aW52ZXN0aWdhdGUg7JWI7KCEIO2bheydgCBXaW5kb3dzIOyghOyaqeydtOudvCDri6TrpbggT1Psl5DshJzripQgRWRpdMK3V3JpdGXCt0Jhc2jrpbwg7J2867aA65+sIOuqqOuRkCDrp4nripTri6QuIiwKICAgICJzaG9ydERlc2NyaXB0aW9uIjogIuygnO2SiC/shJzruYTsiqQg67mM65OcIOyYpOy8gOyKpO2KuOugiOydtOyFmCDtlIzrn6zqt7jsnbguIOugiOqxsOyLnCBzaW1vbmstc3RhY2sgMC4xLjDsl5DshJwg7JeF642w7J207Yq47ZaI64uk66m0IOuCmOuouOyngCDrhLfsnYQg65Sw66GcIOyEpOy5mO2VtOyVvCBtYXJrZXTCt2Rlc2lnbuycvOuhnCDsmK7quLQg7Iqk7YKsIDEw6rCc6rCAIOuPjOyVhOyYqOuLpDogY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1jb3JlQHNpbW9uay1zdGFjayDCtyBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLW1hcmtldEBzaW1vbmstc3RhY2sgwrcgY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1kZXNpZ25Ac2ltb25rLXN0YWNrIMK3IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstYWlodWJAc2ltb25rLXN0YWNrLiBmcmVlemXCt2d1YXJkwrdpbnZlc3RpZ2F0ZSDslYjsoIQg7ZuF7J2AIFdpbmRvd3Mg7KCE7Jqp7J206528IOuLpOuluCBPU+yXkOyEnOuKlCBFZGl0wrdXcml0ZcK3QmFzaOulvCDsnbzrtoDrn6wg66qo65GQIOunieuKlOuLpC4iCiAgfSwKICAia2V5d29yZHMiOiBbCiAgICAiY2xhdWRlLWNvZGUiLAogICAgInBsdWdpbiIsCiAgICAib3JjaGVzdHJhdGlvbiIsCiAgICAic2ltb25rIiwKICAgICJidWlsZCIKICBdLAogICJsaWNlbnNlIjogIk1JVCIsCiAgIm5hbWUiOiAic2ltb25rLXN0YWNrIiwKICAicmVwb3NpdG9yeSI6ICJodHRwczovL2dpdGh1Yi5jb20vU2ltb24tWUhLaW0vU2ltb25LLXN0YWNrIiwKICAic2tpbGxzIjogIi4vc2tpbGxzLyIsCiAgInZlcnNpb24iOiAiMS43OTYuMCIKfQo=",
+      "original_sha256": "653ef716307922942a01f6806d343538cdd1b5e01fe03c81e052a256be323e7f",
       "original_size": 2267,
       "path": "plugins/SimonKStack/.codex-plugin/plugin.json",
-      "sha256": "8ef5e1ad512475bbe2d172fdb3a8f1223b18c7e09752265e70778075d0845e84",
-      "size": 1079
+      "sha256": "3a7708ce50357f9ce3dcf50492be52f7569171647a06160fc887a3a823b5ba69",
+      "size": 1073
     }
   ],
   "schema_version": 2,
   "scope": "five-plugin-codex-general-skills-only-v2",
-  "source_overlay_digest": "53d8063a2bc83d532705730d61c16c5b348e80174556934ae69e469967663111"
+  "source_overlay_digest": "1a8a340fe1f44589e7d7a08349673cacc27448db30da25de23d44b56f3e819ca"
 }

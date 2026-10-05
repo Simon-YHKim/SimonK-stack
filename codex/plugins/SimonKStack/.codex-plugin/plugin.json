@@ -3,15 +3,15 @@
     "name": "Simon Kim",
     "url": "https://github.com/Simon-YHKim"
   },
-  "description": "제품/서비스 빌드 오케스트레이션 플러그인. Codex판에는 Claude Code 전용인 freeze·guard·investigate 안전 스킬이 없다.",
+  "description": "제품/서비스 빌드 오케스트레이션 플러그인. Codex판에는 Claude Code 전용 안전 스킬(freeze·guard·investigate)이 없다.",
   "interface": {
     "capabilities": [],
     "category": "Productivity",
     "defaultPrompt": "Use SimonK Stack skills for this task.",
     "developerName": "Simon Kim",
     "displayName": "SimonK Stack",
-    "longDescription": "제품/서비스 빌드 오케스트레이션 플러그인. Codex판에는 Claude Code 전용인 freeze·guard·investigate 안전 스킬이 없다.",
-    "shortDescription": "제품/서비스 빌드 오케스트레이션 플러그인. Codex판에는 Claude Code 전용인 freeze·guard·investigate 안전 스킬이 없다."
+    "longDescription": "제품/서비스 빌드 오케스트레이션 플러그인. Codex판에는 Claude Code 전용 안전 스킬(freeze·guard·investigate)이 없다.",
+    "shortDescription": "제품/서비스 빌드 오케스트레이션 플러그인. Codex판에는 Claude Code 전용 안전 스킬(freeze·guard·investigate)이 없다."
   },
   "keywords": [
     "claude-code",
@@ -24,5 +24,5 @@
   "name": "simonk-stack",
   "repository": "https://github.com/Simon-YHKim/SimonK-stack",
   "skills": "./skills/",
-  "version": "1.793.0"
+  "version": "1.796.0"
 }
