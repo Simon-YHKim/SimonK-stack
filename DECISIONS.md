@@ -750,3 +750,5 @@ last-sync: 2026-07-05
   - **근거(기계적)**: 사용자 보고(급증 말풍선 글 넘침 + 스크롤 막대). 격리 Electron 실측 옛 CSS 문서 75px/창 74px·마지막 줄이 상자 밖 5px, 새 CSS 4가지 모두 글이 상자 안·문서 높이=창 높이. `pnpm verify` exit 0(58파일·677테스트, 설치 스킬 안에서도 동일). PR CI 4개 통과. 설치본 app.asar `01115E890CEA`→`C8C44FC0733E`, 프로세스 5개·renderer ready accounts
   - **1단인 이유**: 사용자가 직접 요청한 표시 버그 수정이고, 위젯 PR→CI→머지→설치 스킬 재설치는 D-63 등에서 이미 승인·반복된 절차다. 이의가 있으면 2단으로 올린다
   - **되돌리는 조건**: 위젯 로그에 `model bubble measure failed`가 반복되거나 말풍선 위치·꼬리가 틀어졌다는 보고가 있으면 #159 revert 후 고정 높이 상향안으로 | claude
+
+- 2026-10-06 01:20:03 KST | AMEND | **D-93 Grok Bot 화면 작업 권한 전부 허용** — 이행: SimonK-stack #158(762cffb) 머지, main run 37337552825가 dist 0dac185 1.825.0 게시(승인 Claude bd428569·Codex 885225d9). 이 PC: update-local로 후보 20261006-vibe-2155-762cffb(vibe-bot 0.10.0, selftest vibe 196/0·vibe_bot 104/0, problems 0). 루트 CLAUDE/AGENTS/GEMINI §21 동기화 완료. 남은 것: 클라우드 봇 워크북에 D-93 반영(Relay 과제) | claude
