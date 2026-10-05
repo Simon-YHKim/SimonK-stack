@@ -13,6 +13,8 @@ pwsh -NoProfile -NonInteractive -File scripts/windows/update-local.ps1
 pwsh -NoProfile -NonInteractive -File scripts/windows/update-local.ps1 -Apply
 ```
 
+> 이 경로는 사용자 홈에 flat으로 설치한다. 같은 PC에서 다섯 플러그인을 함께 켜지 않는다. 2026-10-05 세션 실측에서 스킬이 두 벌(563개)로 보이고 설명이 3만 자를 넘어 목록이 잘렸다. 플러그인으로 쓰는 PC는 README 3절의 마켓플레이스 설치를 따른다.
+
 순서:
 1. `git fetch origin` 후 main sha를 정한다.
 2. `~/.claude/skills/vibe` 정션 대상에서 설치된 후보를 찾고, 그 영수증의 `main`을 읽는다.

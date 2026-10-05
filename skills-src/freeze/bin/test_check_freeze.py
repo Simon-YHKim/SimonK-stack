@@ -39,7 +39,7 @@ BANNER_A = "<!-- AUTO-GENERATED from "
 BANNER_B = "<!-- Regenerate: bun run gen:skill-docs -->"
 # D-68 fixed warning: investigate stays the gstack copy, whose Windows scope lock is broken.
 INVESTIGATE_WARNING = "Windows에서 investigate 잠금 금지. 편집이 전부 막히면 /unfreeze."
-SKILL_VERSIONS = {"freeze": "0.2.6", "unfreeze": "0.2.0", "guard": "0.2.3"}
+SKILL_VERSIONS = {"freeze": "0.2.7", "unfreeze": "0.2.1", "guard": "0.2.3"}
 HIDE_CYGPATH = ('command() { if [ "${1-}" = -v ] && [ "${2-}" = cygpath ]; then return 1; fi; '
                 'builtin command "$@"; }\n')
 
@@ -194,6 +194,19 @@ class FreezeHookTests(unittest.TestCase):
                 self.assertFalse(BANNER_A in head and BANNER_B in head,
                                  "gstack banner would make setup treat this folder as gstack-owned")
                 self.assertFalse((SKILLS_SRC / skill / ".gstack-owned").exists())
+
+    def test_deny_reasons_name_no_install_path(self):
+        # The plugin runtime ships these same leaves, so a flat ~/.claude/skills
+        # path in a deny reason would send plugin users to a folder they lack.
+        for script in (FREEZE / "bin" / "check-freeze.sh",
+                       SKILLS_SRC / "careful" / "bin" / "hook-extract.sh"):
+            with self.subTest(script=script.name):
+                reasons = re.findall(r'permissionDecisionReason":"([^"]*)"',
+                                     script.read_text(encoding="utf-8"))
+                if script.name == "check-freeze.sh":
+                    self.assertTrue(reasons)
+                for reason in reasons:
+                    self.assertNotIn(".claude/skills", reason)
 
     def test_investigate_warning_is_the_first_setup_line(self):
         for skill in ("freeze", "guard"):

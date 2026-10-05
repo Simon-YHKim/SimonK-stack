@@ -1,6 +1,6 @@
 ---
 name: unfreeze
-version: 0.2.0
+version: 0.2.1
 description: "Use when widening edit scope without ending the session, or asked to \"unfreeze\", \"unlock edits\", \"remove freeze\", \"allow all edits\", \"잠금 해제\", \"편집 제한 풀어\". Clears the boundary set by /freeze or /guard through the shared freeze-state.sh writer, which produces FREEZE_CLEARED, or FREEZE_BUSY with nothing changed while another writer holds the lock."
 allowed-tools:
   - Bash
@@ -13,8 +13,9 @@ Remove the edit restriction set by `/freeze` or `/guard`, allowing edits to all
 directories.
 
 Based on gstack 1.91.9 `/unfreeze` (MIT, Garry Tan). It uses the state writer of
-the SimonK `/freeze` skill, `~/.claude/skills/freeze/bin/freeze-state.sh`
-(hub decision D-62, 2026-10-03), so `freeze` must be installed there.
+the SimonK `/freeze` skill (hub decision D-62, 2026-10-03): in a flat install
+`~/.claude/skills/freeze/bin/freeze-state.sh`, so `freeze` must be installed
+there; in the plugin build, the safety runtime that ships with the plugin.
 
 ```bash
 mkdir -p ~/.gstack/analytics
