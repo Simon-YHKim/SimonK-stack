@@ -1,7 +1,28 @@
 {
   "name": "simonk-stack",
   "interface": {
-    "displayName": "SimonK-stack (Claude Code only for now; no Codex plugins yet)"
+    "displayName": "SimonK-stack (Codex edition, without the Claude Code-only safety skills)"
   },
-  "plugins": []
+  "plugins": [
+    {
+      "name": "simonk-core",
+      "source": {"source": "git-subdir", "url": "https://github.com/Simon-YHKim/SimonK-stack.git", "path": "codex/plugins/SimonKCore", "ref": "dist"}
+    },
+    {
+      "name": "simonk-stack",
+      "source": {"source": "git-subdir", "url": "https://github.com/Simon-YHKim/SimonK-stack.git", "path": "codex/plugins/SimonKStack", "ref": "dist"}
+    },
+    {
+      "name": "simonk-aihub",
+      "source": {"source": "git-subdir", "url": "https://github.com/Simon-YHKim/SimonK-stack.git", "path": "codex/plugins/SimonKAIHub", "ref": "dist"}
+    },
+    {
+      "name": "simonk-design",
+      "source": {"source": "git-subdir", "url": "https://github.com/Simon-YHKim/SimonK-stack.git", "path": "codex/plugins/SimonKDesign", "ref": "dist"}
+    },
+    {
+      "name": "simonk-market",
+      "source": {"source": "git-subdir", "url": "https://github.com/Simon-YHKim/SimonK-stack.git", "path": "codex/plugins/SimonKMarket", "ref": "dist"}
+    }
+  ]
 }

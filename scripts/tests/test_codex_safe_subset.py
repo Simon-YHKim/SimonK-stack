@@ -287,19 +287,32 @@ class CodexSafeSubsetTests(unittest.TestCase):
 
 
 
-class CodexCatalogBlockTests(unittest.TestCase):
+class CodexCatalogTests(unittest.TestCase):
     """Hub D-88: Codex reads .agents/plugins/marketplace.json before the Claude
-    catalog. Until the Codex subset passes its own gate and host checks (D-88
-    stage 2), that file must list no plugins, so a Codex user who adds this
-    repository cannot install the Claude build with its five safety skills."""
+    catalog. Stage 1 kept it empty so Codex never installed the Claude build with
+    its five safety skills; stage 2 points it at the verified Codex subset that
+    dist carries under codex/plugins/ (never at plugins/, the Claude build)."""
 
-    def test_codex_catalog_lists_no_plugins_until_the_subset_is_verified(self):
+    def test_codex_catalog_serves_only_the_dist_codex_subset(self):
         import json
         path = ROOT / ".agents" / "plugins" / "marketplace.json"
         data = json.loads(path.read_text(encoding="utf-8"))
         self.assertEqual(data["name"], "simonk-stack")
-        self.assertEqual(data["plugins"], [])
-        self.assertIn("no Codex plugins yet", data["interface"]["displayName"])
+        self.assertNotIn("version", data)
+        self.assertIn("Codex edition", data["interface"]["displayName"])
+        expected = {"simonk-core": "SimonKCore", "simonk-stack": "SimonKStack",
+                    "simonk-aihub": "SimonKAIHub", "simonk-design": "SimonKDesign",
+                    "simonk-market": "SimonKMarket"}
+        self.assertEqual([item["name"] for item in data["plugins"]], list(expected))
+        for item in data["plugins"]:
+            with self.subTest(plugin=item["name"]):
+                self.assertEqual(set(item), {"name", "source"})
+                self.assertEqual(item["source"], {
+                    "source": "git-subdir",
+                    "url": "https://github.com/Simon-YHKim/SimonK-stack.git",
+                    "path": f"codex/plugins/{expected[item['name']]}",
+                    "ref": "dist",
+                })
         # Codex picks the first catalog that exists, in this order.
         self.assertFalse((ROOT / ".agents" / "plugins" / "api_marketplace.json").exists())
 
