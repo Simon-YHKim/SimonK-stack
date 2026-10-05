@@ -1,6 +1,31 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-05 / Sonnet 5.5를 vibe task-fit 정책에서 제외(D-90) · dist 1.806.0
+## Latest — 2026-10-05 / A 클래스 최신 모델 전환(D-91) · CI 밖 테스트 수리(D-92) · dist 1.817.0
+
+갱신 시각: 2026-10-05 23:5x KST · 갱신자: Claude Code(Opus 5.5). Simon: "5.5로 전환해. 최신모델을써야지 왜 구모델을씀?"
+
+### 어디까지 왔나
+- **D-91**(Simon 지시, #155, vibe 2.15.5):
+  - A 클래스를 `gpt-6-luna` → `claude-sonnet-5-5` → `claude-opus-5-5`로 바꿨다. 옛 `gpt-5.6-luna`·`claude-sonnet-5`는 원장 호환용으로만 남는다.
+  - 사다리: Sonnet 5.5는 medium/high(xhigh·max는 정책 밖), 6-Luna는 low/medium.
+  - 읽기 전용 Orca canary(run `run_0a369252175f`) 통과. 실행 인자와 세션 기록 모델이 일치했고, 워커의 자기보고는 둘 다 틀렸다.
+  - 상태는 `pending-transport-and-certificate`다(Orca 런치 인증서 전이라 아직 동작 레인 아님).
+  - D-90의 레인 보류는 이 지시로 대체됐다. Sonnet 5.5 task-fit 제외는 유지된다.
+- **D-92**(#156): CI 밖에서 10-02 이전부터 깨져 있던 테스트 3묶음을 고쳤다. 대상은 entrypoint 9, model-router 통합 18 subtest, dispatcher 2다.
+  - 원인은 planner 규칙이 바뀔 때 함께 갱신하지 않은 fixture였다. 제품 코드는 바꾸지 않았다.
+  - skills-ci Windows job에 세 단계를 넣었다. 러너 TEMP 8.3 짧은 경로 문제는 `resolve()` 비교로 해결했다.
+- **dist 1.817.0**. 이 PC 후보는 `20261005-vibe-2155-9ed5687`(problems 0)이다.
+
+### 다음 작업 큐
+| # | 작업 | 시점 | 단 |
+|---|---|---|---|
+| A | 레지스트리 재확인 | 2026-10-12 14:17 KST 전 | 1단 |
+| B | grok-4.6 → 4.7 레인 canary(CLI 기본이 이미 4.7) | Grok 사용량 85% 미만이 될 때 | 1단 |
+| C | AA의 Sonnet 5.5 공개판 재측정 → D-90 task-fit 재진입 판단 | AA 발표 시 | 2단 |
+
+---
+
+## 2026-10-05 20:3x / Sonnet 5.5를 vibe task-fit 정책에서 제외(D-90) · dist 1.806.0
 
 갱신 시각: 2026-10-05 20:3x KST · 갱신자: Claude Code(Opus 5.5). Simon: "소넷 제외 했어? 그것도 같이 봤어야지... 하자" (레지스트리 재확인 때 AA 평가를 관측만 하고 넘긴 것에 대한 지적).
 
