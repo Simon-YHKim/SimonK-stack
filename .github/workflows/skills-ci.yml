@@ -52,3 +52,12 @@ jobs:
         run: python -B -m unittest discover -s scripts/tests -p test_vibe_flat_transition.py -q
       - name: Windows update-local installer (temp homes only; no build or model calls)
         run: python -B -m unittest discover -s scripts/tests -p test_windows_update_local.py -q
+      # These three suites went stale outside CI (2026-10-05): the planner's host-effort and
+      # audited local-cost rules changed while their fixtures did not. Run them on every PR.
+      - name: simonK PowerShell entrypoint regressions (fixtures; no provider calls)
+        run: python -B -m unittest discover -s scripts/tests -p test_simonk_entrypoint.py -q
+      - name: model-router integration regressions (offline planner; no model calls)
+        run: python -B scripts/test_model_router_integration.py
+      - name: multi-terminal-dispatcher wave regressions (offline; shell integration stays opt-in)
+        working-directory: skills-src/multi-terminal-dispatcher/scripts
+        run: python -B -m unittest discover -s tests -p 'test_*.py' -q

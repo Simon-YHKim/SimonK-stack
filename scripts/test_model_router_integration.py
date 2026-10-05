@@ -13,9 +13,23 @@ ROOT = Path(__file__).resolve().parents[1]
 VIBE = ROOT / "skills-src" / "vibe" / "scripts"
 sys.path.insert(0, str(VIBE))
 import orchestrate
-from test_orchestrate import NOW, candidate, fixture_registry
+from test_orchestrate import NOW, candidate as fixture_candidate, fixture_registry
 
 SKILL = ROOT / "skills-src" / "model-router" / "SKILL.md"
+
+
+def candidate(*args, task_type="CODE_FIX", **changes):
+    """Host fixture whose effective effort matches what the planner picks for task_type.
+
+    The planner rejects a host candidate whose effective_effort differs from the chosen
+    effort (HOST_EFFORT_MISMATCH, 2700f5f). The shared fixture became a low-effort host
+    candidate in b9f5f7b, so derive the effort from the task type's demand floor.
+    """
+    item = fixture_candidate(*args, **changes)
+    if "effective_effort" not in changes and item.get("transport") == "host":
+        demand = orchestrate.TASK_TYPE_MAP[task_type]["demand"]
+        item["effective_effort"] = item["effort_by_demand"].get(demand, item["effective_effort"])
+    return item
 
 
 class ModelRouterIntegrationTests(unittest.TestCase):
@@ -60,7 +74,8 @@ class ModelRouterIntegrationTests(unittest.TestCase):
         for task_type, fields in mapping.items():
             with self.subTest(task_type=task_type):
                 node = self.node(task_type)
-                c = candidate(quality_tier=3, capabilities=["code", "reasoning", "research", "vision", "writing"])
+                c = candidate(quality_tier=3, task_type=task_type,
+                              capabilities=["code", "reasoning", "research", "vision", "writing"])
                 if fields["kind"] == "gui":
                     node.update(skills=["vibe-bot"], target="Offline Console", tool_route_available=False,
                                 gui_reason="No authorized tool route in fixture")
@@ -76,7 +91,8 @@ class ModelRouterIntegrationTests(unittest.TestCase):
                 if task_type == "WRITING":
                     nodes.append(self.node("CODE_REVIEW", id="review", verify_of="task",
                                            depends_on=["task"]))
-                    candidates.append(candidate("reviewer", surface="claude", quality_tier=3))
+                    candidates.append(candidate("reviewer", surface="claude", quality_tier=3,
+                                                task_type="CODE_REVIEW"))
                 rc, p = self.run_plan(nodes, candidates)
                 if task_type == "IMAGE_GENERATION":
                     self.assertEqual(rc, 2, p)
@@ -90,7 +106,8 @@ class ModelRouterIntegrationTests(unittest.TestCase):
                 self.assertEqual(p["ancestor_skills"], ["vibe", "model-router"])
                 self.assertEqual(p["budget"]["approved_usd"], "0")
                 self.assertIsNone(p["steps"][0]["route"]["actual_usd"])
-                self.assertIsNone(p["steps"][0]["route"]["effective_effort"])
+                expected_effort = c["effective_effort"] if c.get("transport") == "host" else None
+                self.assertEqual(p["steps"][0]["route"]["effective_effort"], expected_effort)
 
     def test_coding_task_quality_floor_is_independent_of_effort(self):
         for task_type, low_tier, passing_tier, demand in (
@@ -99,12 +116,12 @@ class ModelRouterIntegrationTests(unittest.TestCase):
         ):
             with self.subTest(task_type=task_type):
                 rc, plan = self.run_plan([self.node(task_type)],
-                                         [candidate(quality_tier=low_tier)])
+                                         [candidate(quality_tier=low_tier, task_type=task_type)])
                 self.assertEqual(rc, 2, plan)
                 self.assertIn("QUALITY_FLOOR", str(plan))
                 self.assertIsNone(plan["steps"][0]["route"])
                 rc, plan = self.run_plan([self.node(task_type)],
-                                         [candidate(quality_tier=passing_tier)])
+                                         [candidate(quality_tier=passing_tier, task_type=task_type)])
                 self.assertEqual(rc, 0, plan)
                 self.assertEqual(plan["steps"][0]["demand"], demand)
 
@@ -179,7 +196,8 @@ class ModelRouterIntegrationTests(unittest.TestCase):
         self.assertEqual(rc, 2)
         self.assertIn("MISSING_REVIEW", str(p))
         reviewer = self.node("CODE_REVIEW", id="review", verify_of="task", depends_on=["task"])
-        rc, p = self.run_plan([writer, reviewer], [candidate(), candidate("reviewer", surface="claude")])
+        rc, p = self.run_plan([writer, reviewer],
+                              [candidate(), candidate("reviewer", surface="claude", task_type="CODE_REVIEW")])
         self.assertEqual(rc, 0, p)
         self.assertEqual(p["steps"][1]["depends_on"], ["task"])
         self.assertEqual(p["steps"][1]["verify_of"], "task")
@@ -195,7 +213,8 @@ class ModelRouterIntegrationTests(unittest.TestCase):
     def test_read_only_review_rejection_reaches_cli(self):
         nodes = [self.node("CODE_REVIEW", writes=True),
                  self.node("CODE_REVIEW", id="check", verify_of="task", depends_on=["task"])]
-        rc, p = self.run_plan(nodes, [candidate(), candidate("reviewer", surface="claude")])
+        rc, p = self.run_plan(nodes, [candidate(task_type="CODE_REVIEW"),
+                                      candidate("reviewer", surface="claude", task_type="CODE_REVIEW")])
         self.assertEqual(rc, 2)
         self.assertIn("read-only", p["message"])
 
