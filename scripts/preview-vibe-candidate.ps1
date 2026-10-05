@@ -4,7 +4,7 @@
 param(
     [Parameter(Mandatory = $true)] [string] $CandidateRoot,
     [Parameter(Mandatory = $true)] [string] $ExpectedDigest,
-    [string] $Model = 'claude-sonnet-5',
+    [string] $Model = 'claude-sonnet-5-5',
     [switch] $Run,
     [switch] $AllPlugins,
     [switch] $SubscriptionOnlyConfirmed

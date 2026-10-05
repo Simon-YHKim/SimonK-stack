@@ -448,14 +448,15 @@ class PublishWorkflowTests(unittest.TestCase):
         # D-88 rollback rehearsal: step 2 reverts it (2879e3ab... again, higher version).
         # D-88 rollback rehearsal: step 1 reworded Codex notice (7c036566...).
         # D-90 Sonnet 5.5 out of the task-fit policy (1c4e534f... / Codex 9b9b0ded...).
+        # D-91 class A to Sonnet 5.5 / GPT-6 Luna lanes (430c7ecc... / Codex 2cc4a6ac...).
         allow = dist.validate_allow(json.loads((ROOT / dist.ALLOW).read_text(encoding="utf-8")))
         self.assertEqual(allow["schema_version"], 2)
-        self.assertEqual(allow["decision"], "D-90")
-        self.assertEqual(allow["source_commit"], "2d86989ddb39414b2c49bc9e2bcfb2b5080f155b")
+        self.assertEqual(allow["decision"], "D-91")
+        self.assertEqual(allow["source_commit"], "adffd50d26f51729b029bb48ebe0d86e7585f3c7")
         self.assertEqual(allow["content_digest"],
-                         "1c4e534f118e83a815ba86627a1fd3dc8a1589d9ea6e40ce8cfe24e71c923d72")
+                         "430c7ecc7c0751313c74fa665ad2cd381c2b689598734850cf5335cfa5d17711")
         self.assertEqual(allow["codex_content_digest"],
-                         "9b9b0ded0ff34355e5b5c02aa1fbd79db3a83c9b89c512b39e7bd8a7a9a40f10")
+                         "2cc4a6ac93bb18c0708907e381d773516ec634a2a0f57fbf14f45fe3e56cb498")
 
 
 class StageTests(unittest.TestCase):
