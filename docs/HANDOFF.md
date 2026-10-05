@@ -1,6 +1,37 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-05 / README 사용설명서 재작성 · 안전 훅 안내문 정리(D-86) · 1.777.0 게시
+## Latest — 2026-10-05 / 남은 일 일괄 처리: 레지스트리 재확인(D-89) · 레거시 폐기(D-87) · Codex 배포(D-88) · dist 1.799.0
+
+갱신 시각: 2026-10-05 17:2x KST · 갱신자: Claude Code(Opus 5.5). Simon: "지금 모두 진행." (남은 일 네 가지를 즉시 처리)
+
+### 어디까지 왔나
+- **레지스트리 재확인(D-89)**: #142 vibe 2.15.3. 출처 37개·폐기 페이지 6개를 다시 읽고 CLI 카탈로그와 대조했다. 162필드 중 일치 160, 불일치 0, 확인불가 2(gpt-5.6-terra·luna의 장문 cached_input). 새 만료는 **2026-10-12 14:17 KST**다. 승인 파일 #146 → dist 1.789.0.
+  - 함정: #142가 배포 콘텐츠를 바꿨는데 승인 PR이 빠져 14:43~15:42에 main 게시가 거부됐다(공개 dist는 그동안 1.777.0 유지).
+- **레거시 경로 폐기(D-87, full 4/4, 심판 Gemini 92)**:
+  - PR-A #143: SessionStart 훅 읽기 전용, release.yml·D-33 hold 삭제, fence 테스트 교체.
+  - PR-B #145: root skills/·root plugin.json·옛 install.sh·setup-repo·bootstrap 템플릿을 `_archive/`로 git mv. install.sh는 `--offline-package`만 남기고, validate.mjs는 카탈로그를 검사한다.
+- **Codex 배포(D-88, full 4/4, 심판 Codex 87)**:
+  - 1단계 #144: 빈 `.agents/plugins/marketplace.json`으로 Codex가 Claude 빌드(안전 스킬 포함)를 설치하던 경로를 막았다.
+  - 2단계: #147 게이트 schema 2(Claude·Codex 콘텐츠 결속) → #148 승인 → 호스트 실측(설치 177·안전 0, 이전, 롤백 리허설 #149·#150) → #151 카탈로그 전환.
+  - Codex 사용자: `codex plugin marketplace add Simon-YHKim/SimonK-stack` 후 `codex plugin add <id>@simonk-stack` × 5로 **Codex판 1.799.0**(177스킬)이 설치된다.
+- **브랜치 정리**: 원격은 `main`·`dist`만 남았다. 머지 기록과 맞지 않던 6개는 `archive/branch/*` 태그로 보존했다.
+- **이 PC**: 후보 `20261005-vibe-2153-b237fd5`, vibe 2.15.3, update-local current.
+
+### 알게 된 것
+- **배포 콘텐츠 판정**: `skills-src/` 변경(레지스트리 갱신 포함)은 항상 배포 콘텐츠다. 머지 뒤 main 빌드의 RELEASE.json digest로 승인 파일 PR을 바로 연다. 승인 파일은 이제 schema 2이고 `content_digest`와 `codex_content_digest`를 둘 다 적는다.
+- **Codex 카탈로그 순서**: Codex는 `.agents/plugins/marketplace.json`을 `.claude-plugin/marketplace.json`보다 먼저 읽는다.
+- **Codex 갱신 동작**: `marketplace upgrade`만으로는 설치본이 바뀌지 않는다. `codex plugin add`를 다시 실행해야 새 버전 캐시로 교체된다.
+- **턴 없는 스킬 확인**: `codex app-server --stdio`의 `skills/list`로 모델 호출 없이 로드된 스킬을 셀 수 있다(스크래치 `codex_skills_probe.py` 방식).
+
+### 다음 작업 큐
+| # | 작업 | 시점 | 단 |
+|---|---|---|---|
+| A | 레지스트리 재확인 | 2026-10-12 14:17 KST 전 | 1단 |
+| B | AA의 Sonnet 5.5 비용 프런티어 평가와 CODE_SIMPLE 순위 근거 검토(shadow 정책) | 다음 정책 검토 | 2단 |
+
+---
+
+## 2026-10-05 12:3x / README 사용설명서 재작성 · 안전 훅 안내문 정리(D-86) · 1.777.0 게시
 
 갱신 시각: 2026-10-05 12:3x KST · 갱신자: Claude Code(Opus 5.5). Simon: "깃허브 read me 다시 작성해줘. 소개/사용설명서 느낌으로." + /goal "남은일이 없을때 까지 작업을 계속 진행해."
 
