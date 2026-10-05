@@ -273,7 +273,7 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertEqual(new["pricing"]["scope"], "direct-api-standard-usd-per-million-tokens")
         self.assertIsNone(new["pricing"]["cache_write"])
         self.assertEqual(data["legacy_lane_migration"]["claude-sonnet-5"],
-                         {"candidate": "claude-sonnet-5-5", "status": "pending-transport-and-canary"})
+                         {"candidate": "claude-sonnet-5-5", "status": "held-until-remeasure"})
         observed_at = data["checked_at"]
         trial = candidate(surface="claude", model="sonnet", resolved_model=None, observed_at=observed_at,
                           quota={"used_pct": None, "observed_at": observed_at})
@@ -471,17 +471,40 @@ class ModelRegistryTests(unittest.TestCase):
                 self.assertIn("`pending-transport-and-certificate`", rows["`" + lane + "`"])
                 self.assertNotIn("pending-transport-and-canary", rows["`" + lane + "`"])
 
+    def test_task_fit_policy_keeps_sonnet_55_out_until_its_reentry_conditions(self):
+        # D-90: Artificial Analysis puts Sonnet 5.5 off the intelligence/cost-per-task frontier at
+        # every effort, so the shadow policy names other models; re-entry needs a re-measurement.
+        policy = json.loads((REFERENCES / "task-fit-policy.json").read_text(encoding="utf-8"))
+        named = {entry["model"] for entries in policy["profiles"].values() for entry in entries}
+        self.assertNotIn("claude-sonnet-5-5", named)
+        def rank0(profile):
+            return {e["model"] for e in policy["profiles"][profile] if e["rank"] == 0}
+        self.assertEqual(rank0("CODE_SIMPLE"), {"gpt-6.1-sol", "gpt-6-sol"})
+        self.assertIn({"model": "claude-opus-5-5", "efforts": ["medium"], "rank": 2,
+                       "sources": ["anthropic_opus", "aa_opus"]}, policy["profiles"]["CODE_SIMPLE"])
+        self.assertEqual(rank0("WRITING"), {"claude-opus-5-5"})
+        self.assertTrue(any("D-90" in note and "재진입 조건" in note for note in policy["notes"]))
+
     def test_catalog_map_states_lane_dispositions_and_legacy_routing_as_built(self):
         migration = self.m.load_registry()["legacy_lane_migration"]
         keep = sorted(k for k, v in migration.items() if v["status"].startswith("keep-"))
-        self.assertEqual(len(keep) + sum(v["status"].startswith("pending-") for v in migration.values()),
+        # D-90: a held migration is stopped with written resume conditions.
+        held = sorted(k for k, v in migration.items() if v["status"].startswith("held-"))
+        self.assertEqual(len(keep) + len(held)
+                         + sum(v["status"].startswith("pending-") for v in migration.values()),
                          len(migration))
         self.assertTrue(keep)
+        self.assertEqual(held, ["claude-sonnet-5"])
         pending = " ".join(catalog_map_section("Lane migration pending").split())
         self.assertNotIn("every `legacy_lane_migration` entry is still pending", pending)
         for model_id in keep:
             with self.subTest(keep=model_id):
                 self.assertIn("`" + model_id + "`", pending)
+        for model_id in held:
+            with self.subTest(held=model_id):
+                self.assertIn("`" + model_id + "`", pending)
+                self.assertIn("`" + migration[model_id]["status"] + "`", pending)
+                self.assertIn("재개 조건", pending)
         # Host routes can pick a legacy model; the map must not say registration never routes.
         text = (REFERENCES / "model-catalog-map.md").read_text(encoding="utf-8")
         self.assertNotIn("Registration is not routing", text)
