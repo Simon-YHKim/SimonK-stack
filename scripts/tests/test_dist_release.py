@@ -447,14 +447,15 @@ class PublishWorkflowTests(unittest.TestCase):
         # D-88 stage 2: the same Claude content plus the Codex subset (2879e3ab...).
         # D-88 rollback rehearsal: step 2 reverts it (2879e3ab... again, higher version).
         # D-88 rollback rehearsal: step 1 reworded Codex notice (7c036566...).
+        # D-90 Sonnet 5.5 out of the task-fit policy (1c4e534f... / Codex 9b9b0ded...).
         allow = dist.validate_allow(json.loads((ROOT / dist.ALLOW).read_text(encoding="utf-8")))
         self.assertEqual(allow["schema_version"], 2)
-        self.assertEqual(allow["decision"], "D-88")
-        self.assertEqual(allow["source_commit"], "e553cdf7974268d778a882eca638c277289dd376")
+        self.assertEqual(allow["decision"], "D-90")
+        self.assertEqual(allow["source_commit"], "2d86989ddb39414b2c49bc9e2bcfb2b5080f155b")
         self.assertEqual(allow["content_digest"],
-                         "a09f620f331a1cd782aae202cd659a8ea376d605872632c2edab5bb813642c4d")
+                         "1c4e534f118e83a815ba86627a1fd3dc8a1589d9ea6e40ce8cfe24e71c923d72")
         self.assertEqual(allow["codex_content_digest"],
-                         "2879e3ab402967ea43190aa761d2dbbd36ef229078f38cb3dae1da969f8046c8")
+                         "9b9b0ded0ff34355e5b5c02aa1fbd79db3a83c9b89c512b39e7bd8a7a9a40f10")
 
 
 class StageTests(unittest.TestCase):

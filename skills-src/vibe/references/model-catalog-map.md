@@ -93,9 +93,15 @@ D-67(2026-10-04, 허브 토론 `dbt-261004-033902`, ADD_ALONGSIDE_KEEP_LEGACY)�
   `request_identity`, plan binding)는 그대로라 준비된 경로로 보지 않는다. 모델 포함·초과과금 OFF·
   API 폴백 OFF·G5·런치 인증서 게이트는 기존 flag 레인과 똑같이 걸린다(`test_orchestrate.py`·
   `test_execute_orca.py` 의 D-67 테스트). 운영 주의 3건은 `orca-workflow.md` 에 적었다.
-- `legacy_lane_migration` 12건 중 8건이 `pending-*` 다. 남은 이전 대상은
-  `claude-sonnet-5` → `claude-sonnet-5-5`(effort 재보정 필요), `gpt-5.6-luna` → `gpt-6-luna`
-  (A 클래스 1순위 변경이라 별도 결정), `grok-4.6` → `grok-4.7`(Orca 가 grok 모델을 고정하지 못한다)이다.
+- `legacy_lane_migration` 12건 중 7건이 `pending-*` 이고 1건이 `held-*` 다. 남은 이전 대상은
+  `gpt-5.6-luna` → `gpt-6-luna`(A 클래스 1순위 변경이라 별도 결정), `grok-4.6` → `grok-4.7`
+  (Orca 가 grok 모델을 고정하지 못한다)이다.
+- `claude-sonnet-5` → `claude-sonnet-5-5` 는 D-90(2026-10-05)으로 `held-until-remeasure` 다.
+  Artificial Analysis 는 Sonnet 5.5 의 작업당 비용을 Sonnet 5 보다 약 50% 높게 보고, 모든 effort 가
+  지능 대비 작업당 비용 프런티어 밖이라고 적는다. 재개 조건은 AA 공개판 재측정에서 해당 effort 의
+  작업당 토큰이 Sonnet 5 이하이거나, A 클래스 canary 가 그때의 Opus 폴백보다 쿼터를 덜 쓰는 것이다.
+  옛 `claude-sonnet-5` 레인(D-28 A 클래스 2순위 폴백)은 그대로다. shadow task-fit 정책에서도
+  `claude-sonnet-5-5` 를 뺐다(재진입 조건은 그 정책 노트).
   `keep-*` 4건은 자기 모델 그대로다: `claude-fable-5-1`, `gpt-6-astra`,
   `gpt-daybreak-blue-latest`, `gemini-3.8-flash`.
 - 그래서 planner 는 여전히 `claude-sonnet-5-5`, `gpt-6-sol`, `gpt-6-luna`, `grok-4.7`,

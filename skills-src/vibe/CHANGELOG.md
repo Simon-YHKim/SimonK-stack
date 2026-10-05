@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.15.4 - 2026-10-05
+
+- 허브 D-90(4벤더 quick 토론 FINAL 4/4, 심판 확신도 76): `claude-sonnet-5-5` 를 shadow task-fit 정책의
+  네 프로필(CODE_SIMPLE·WRITING·CODE_COMPLEX·PLAN_ARCHITECTURE)에서 모두 뺐다. Artificial Analysis(독립 측정)는
+  Sonnet 5.5 가 모든 effort 에서 지능 대비 작업당 비용 Pareto 프런티어 밖이고, low·medium·high 가 GPT-6 Sol
+  high·xhigh·max 보다 적은 토큰으로 낮은 성능이라고 적는다. 구독 환경에서는 작업당 토큰이 실제 비용(쿼터)이다.
+- 새 순위: CODE_SIMPLE 0순위 `gpt-6.1-sol`·`gpt-6-sol`(low·medium), 2순위 `gpt-6-luna` 와 `claude-opus-5-5` medium.
+  WRITING 0순위 `claude-opus-5-5`. 나머지 상대 순서는 그대로다. 정책 version 2026-10-05-shadow.2.
+- registry `legacy_lane_migration` 의 `claude-sonnet-5` → `claude-sonnet-5-5` 는 `held-until-remeasure` 로
+  멈췄다(registry version 2026-10-05.2). 재개 조건은 AA 재측정에서 작업당 토큰이 Sonnet 5 이하이거나 A 클래스
+  canary 가 Opus 폴백보다 쿼터를 덜 쓰는 것이다. 옛 `claude-sonnet-5` A 클래스 폴백 레인(D-28)은 그대로다.
+- 재진입은 AA 공개판 재측정 뒤, 같은 작업 짝 평가에서 품질을 충족하고 대체 모델보다 쿼터 효율이 좋을 때만
+  그 프로필에 한해 허용한다(정책 노트). 먼저 볼 자리는 CODE_COMPLEX high 다.
+
 ## 2.15.3 - 2026-10-05
 
 - 모델 레지스트리 사실을 다시 확인했다(허브 PROTOCOL §35.8 1단, 승인된 절차 반복). 2.15.2 의 사실은
