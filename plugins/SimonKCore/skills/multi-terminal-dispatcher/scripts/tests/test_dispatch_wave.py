@@ -317,10 +317,13 @@ class WaveTests(unittest.TestCase):
         nodes[0] = {"id": "one", "kind": "local", "task": "Read local version", "skills": ["explain"],
                     "needs": [], "writes": False, "depends_on": [], "argv": argv, "software": ["python"]}
         nodes[1]["depends_on"] = ["one"]
+        # A zero quote alone is not a free-tool certificate: the planner also
+        # requires an audited effects + nonmetered billing classification.
         runtime = {"candidates": [c], "quota_checked_vendors": ["claude", "codex", "grok", "gemini"],
                    "observed_at": self.now, "tools": ["python"], "tool_costs": [{
                        "argv_sha256": orchestrate.digest(argv), "verified": True, "evidence": ["local fixture"],
-                       "observed_at": self.now, "upper_usd_per_attempt": 0}]}
+                       "observed_at": self.now, "upper_usd_per_attempt": 0,
+                       "transitive_effects_audited": True, "billing_mode": "nonmetered"}]}
         self.plan = orchestrate.make_plan({"run_id": "mixed-run", "steps": nodes},
             {"explain": {"path": "/fixture/SKILL.md"}}, runtime, self.now, registry)
         self.store = run_state.Store(self.root / "mixed.sqlite3")
