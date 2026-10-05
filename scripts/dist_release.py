@@ -18,6 +18,15 @@ must carry ``distribution/dist-publish.allow`` naming a hub decision, the
 session-tested candidate commit (an ancestor of the build) and that candidate's
 content digest. The repository variable SIMONK_DIST_PUBLISH stays the
 workflow's other key. (D-87 retired the hold together with what it fenced.)
+
+D-88 stage 2 adds the verified Codex subset beside the Claude plugins:
+RELEASE.json schema 2 carries ``codex_content_digest`` (the subset receipt's
+release-version-independent content identity), ``decide`` skips only when the
+Claude and Codex content digests both match, the approval must name both
+digests (allow schema 2) before a schema-2 record may publish, and ``stage``
+writes the subset to ``codex/plugins/<Owner>/...`` plus ``codex/subset.json``.
+Schema-1 records stay readable so the record dist already carries can be
+``decide``'s previous; a schema-1 approval approves only a schema-1 record.
 """
 from __future__ import annotations
 
@@ -44,15 +53,27 @@ OWNERS = {"SimonKAIHub", "SimonKCore", "SimonKDesign", "SimonKMarket", "SimonKSt
 # Hosts must receive the exact built bytes whatever their core.autocrlf is; Git
 # for Windows defaults to autocrlf=true, which would rewrite shell hooks to CRLF.
 DIST_ATTRIBUTES = b"* -text\n"
-DIST_TOP_LEVEL = {"plugins", RECORD, ".gitattributes"}
-RECORD_KEYS = {"schema_version", "scope", "version", "content_digest", "bundle_digest",
-               "source_commit", "source_digest", "pins", "codex_overlay_digest",
-               "codex_subset_digest", "run"}
+CODEX = "codex"  # dist top-level folder for the Codex subset (D-88 stage 2)
+DIST_TOP_LEVEL = {"plugins", CODEX, RECORD, ".gitattributes"}
+RECORD_KEYS_V1 = {"schema_version", "scope", "version", "content_digest", "bundle_digest",
+                  "source_commit", "source_digest", "pins", "codex_overlay_digest",
+                  "codex_subset_digest", "run"}
+RECORD_KEYS = RECORD_KEYS_V1 | {"codex_content_digest"}
+RECORD_SCHEMAS = {1: RECORD_KEYS_V1, 2: RECORD_KEYS}
 # Read from the built commit (git object, not the working tree). Not a build
 # input, so committing it leaves the approved content digest unchanged.
 ALLOW = "distribution/dist-publish.allow"
-ALLOW_KEYS = {"schema_version", "scope", "decision", "source_commit", "content_digest"}
+ALLOW_KEYS_V1 = {"schema_version", "scope", "decision", "source_commit", "content_digest"}
+ALLOW_KEYS = ALLOW_KEYS_V1 | {"codex_content_digest"}
+ALLOW_SCHEMAS = {1: ALLOW_KEYS_V1, 2: ALLOW_KEYS}
 DECISION = re.compile(r"D-[1-9][0-9]*\Z")
+# The Codex subset receipt (codex_safe_subset.py, schema 2) and the copies of
+# the overlay/bundle receipts it carries; none of them is staged as content.
+SUBSET_RECEIPT = "subset.json"
+SUBSET_SCHEMA = 2
+SUBSET_PROVENANCE = {"overlay.json", "bundle.json"}
+# Never staged under codex/, whatever a receipt lists (codex_safe_subset excludes them).
+CODEX_FORBIDDEN_DIRS = {".claude-plugin", ".simonk-runtime"}
 
 
 def parse_version(value):
@@ -101,16 +122,24 @@ def _digest(value, label):
         raise ValueError("Invalid " + label)
 
 
+def _schema(document, schemas, label):
+    """Exact key set for a known integer schema_version (True is not 1)."""
+    version = document.get("schema_version") if isinstance(document, dict) else None
+    if type(version) is not int or version not in schemas or set(document) != schemas[version]:
+        raise ValueError("Invalid " + label + " fields")
+    return version
+
+
 def validate_record(record):
-    if not isinstance(record, dict) or set(record) != RECORD_KEYS:
-        raise ValueError("Invalid dist release record fields")
-    if (type(record["schema_version"]) is not int or record["schema_version"] != 1
-            or record["scope"] != DIST_SCOPE):
+    schema = _schema(record, RECORD_SCHEMAS, "dist release record")
+    if record["scope"] != DIST_SCOPE:
         raise ValueError("Unknown dist release record schema")
     parse_version(record["version"])
     for key in ("content_digest", "bundle_digest", "source_digest",
                 "codex_overlay_digest", "codex_subset_digest"):
         _digest(record[key], key)
+    if schema == 2:
+        _digest(record["codex_content_digest"], "codex_content_digest")
     pins = record["pins"]
     if (not isinstance(record["source_commit"], str) or not HEX40.fullmatch(record["source_commit"])
             or not isinstance(pins, dict) or set(pins) != OWNERS
@@ -130,30 +159,64 @@ def _receipt(candidate, bundle_digest):
     return json.loads(data)
 
 
-def release_record(candidate, bundle_digest, source_commit, overlay_digest, subset_digest, run=None):
-    """RELEASE.json for the dist branch, read from an already verified candidate."""
+def _codex_receipt(subset, subset_digest, overlay_digest, bundle_digest):
+    """The verified Codex subset receipt, bound to this build's overlay and bundle.
+
+    Full member/safety verification is codex_safe_subset.py's job (the build and
+    the publish job run it); this pins the receipt and its provenance chain:
+    subset.json -> source overlay digest -> the overlay's candidate (bundle) digest.
+    """
+    for value, label in ((subset_digest, "subset digest"), (overlay_digest, "overlay digest"),
+                         (bundle_digest, "bundle digest")):
+        _digest(value, label)
+    subset = Path(subset)
+    data = (subset / SUBSET_RECEIPT).read_bytes()
+    if hashlib.sha256(data).hexdigest() != subset_digest:
+        raise ValueError("subset.json does not match the verified subset digest")
+    receipt = json.loads(data)
+    if (not isinstance(receipt, dict) or type(receipt.get("schema_version")) is not int
+            or receipt["schema_version"] != SUBSET_SCHEMA
+            or not isinstance(receipt.get("included_members"), list)):
+        raise ValueError("Codex subset was not built with a content digest (schema 2)")
+    _digest(receipt.get("content_digest"), "Codex content digest")
+    if receipt.get("source_overlay_digest") != overlay_digest:
+        raise ValueError("Codex subset is not derived from the recorded overlay")
+    overlay = (subset / "overlay.json").read_bytes()
+    overlay_receipt = json.loads(overlay) if hashlib.sha256(overlay).hexdigest() == overlay_digest else None
+    if not isinstance(overlay_receipt, dict) or overlay_receipt.get("candidate_digest") != bundle_digest:
+        raise ValueError("Codex overlay is not derived from the recorded bundle")
+    return receipt
+
+
+def release_record(candidate, bundle_digest, source_commit, overlay_digest, subset, subset_digest,
+                   run=None):
+    """RELEASE.json (schema 2) for the dist branch, read from the verified candidate and subset."""
     receipt = _receipt(candidate, bundle_digest)
     release = receipt.get("release")
     if not isinstance(release, dict) or set(release) != {"version", "content_digest"}:
         raise ValueError("Candidate was not built with a release version")
+    codex = _codex_receipt(subset, subset_digest, overlay_digest, bundle_digest)
     return validate_record({
-        "schema_version": 1, "scope": DIST_SCOPE,
+        "schema_version": 2, "scope": DIST_SCOPE,
         "version": release["version"], "content_digest": release["content_digest"],
         "bundle_digest": bundle_digest, "source_commit": source_commit,
         "source_digest": receipt["source_digest"],
         "pins": {owner: info["commit"] for owner, info in receipt["inputs"]["plugins"].items()},
         "codex_overlay_digest": overlay_digest, "codex_subset_digest": subset_digest,
+        "codex_content_digest": codex["content_digest"],
         "run": run,
     })
 
 
 def decide(previous, current):
-    """publish | skip (same content) | refuse (would not raise the dist version)."""
+    """publish | skip (same Claude and Codex content) | refuse (would not raise the dist version)."""
     current = validate_record(current)
     if previous is None:
         return {"action": "publish", "reason": "first-dist-release", "version": current["version"]}
     previous = validate_record(previous)
-    if previous["content_digest"] == current["content_digest"]:
+    # A schema-1 record has no Codex content, so it never equals a schema-2 one.
+    if (previous["content_digest"] == current["content_digest"]
+            and previous.get("codex_content_digest") == current.get("codex_content_digest")):
         return {"action": "skip", "reason": "identical-content", "version": previous["version"]}
     if parse_version(current["version"]) <= parse_version(previous["version"]):
         # A late or re-run older build. Hosts may ignore a lower version (D-76).
@@ -164,16 +227,16 @@ def decide(previous, current):
 
 
 def validate_allow(allow):
-    if not isinstance(allow, dict) or set(allow) != ALLOW_KEYS:
-        raise ValueError("Invalid dist publish approval fields")
-    if (type(allow["schema_version"]) is not int or allow["schema_version"] != 1
-            or allow["scope"] != DIST_SCOPE):
+    schema = _schema(allow, ALLOW_SCHEMAS, "dist publish approval")
+    if allow["scope"] != DIST_SCOPE:
         raise ValueError("Unknown dist publish approval schema")
     if not isinstance(allow["decision"], str) or not DECISION.fullmatch(allow["decision"]):
         raise ValueError("Approval must name a hub decision code (D-<n>)")
     if not isinstance(allow["source_commit"], str) or not HEX40.fullmatch(allow["source_commit"]):
         raise ValueError("Invalid approved source commit")
     _digest(allow["content_digest"], "approved content digest")
+    if schema == 2:
+        _digest(allow["codex_content_digest"], "approved Codex content digest")
     return allow
 
 
@@ -202,6 +265,12 @@ def gate(repo, current):
               "approved_source": allow["source_commit"]}
     if allow["content_digest"] != current["content_digest"]:
         return {"action": "refuse", "reason": "content-not-approved", **result}
+    # D-88: Codex content publishes only with an approval that names it. A schema-1
+    # approval (Claude content only) approves only a schema-1 record, and a schema-2
+    # approval only the Codex content it names.
+    if (allow["schema_version"] != current["schema_version"]
+            or allow.get("codex_content_digest") != current.get("codex_content_digest")):
+        return {"action": "refuse", "reason": "codex-content-not-approved", **result}
     if not _is_ancestor(repo, allow["source_commit"], current["source_commit"]):
         return {"action": "refuse", "reason": "source-outside-approval", **result}
     return {"action": "publish", "reason": "approved", **result}
@@ -216,11 +285,51 @@ def _member(value):
     return path.parts
 
 
-def stage(candidate, dist, record):
-    """Replace a dist worktree's content with the built plugins; return exec paths."""
+def _codex_members(subset, codex, modes):
+    """Read and check every Codex member the subset receipt lists, before dist is touched.
+
+    Mode comes from the Claude bundle receipt when the same ``plugins/...`` path
+    ships there (the subset builder writes plain files), else 100644.
+    """
+    excluded = codex.get("excluded_skills")
+    if (not isinstance(excluded, list) or not excluded
+            or any(not isinstance(name, str) for name in excluded)):
+        raise ValueError("Codex subset receipt names no excluded skills")
+    members = []
+    for item in codex["included_members"]:
+        if not isinstance(item, dict) or set(item) != {"path", "sha256", "size"}:
+            raise ValueError("Invalid Codex subset member")
+        if item["path"] in SUBSET_PROVENANCE:
+            continue  # receipts stay in the artifact, like bundle.json for the Claude tree
+        parts = _member(item["path"])
+        if (parts[1] not in OWNERS or parts[2] in CODEX_FORBIDDEN_DIRS
+                or parts[2] == "skills" and len(parts) >= 4
+                and f"simonk-{parts[1].removeprefix('SimonK').lower()}:{parts[3]}" in excluded):
+            raise ValueError("Codex subset member is outside the general-skill subset")
+        data = Path(subset).joinpath(*parts).read_bytes()
+        if len(data) != item["size"] or hashlib.sha256(data).hexdigest() != item["sha256"]:
+            raise ValueError("Codex subset member differs from its receipt")
+        members.append((item["path"], parts, data, modes.get(item["path"], "100644")))
+    if not members:
+        raise ValueError("Codex subset ships no plugin files")
+    return members
+
+
+def stage(candidate, dist, record, subset):
+    """Replace a dist worktree's content with the built plugins and Codex subset; return exec paths."""
     candidate, dist = Path(candidate), Path(dist)
     record = validate_record(record)
+    if record["schema_version"] != 2:
+        raise ValueError("Staging needs a schema-2 record that names the Codex content")
     receipt = _receipt(candidate, record["bundle_digest"])
+    codex = _codex_receipt(subset, record["codex_subset_digest"], record["codex_overlay_digest"],
+                           record["bundle_digest"])
+    if codex["content_digest"] != record["codex_content_digest"]:
+        raise ValueError("Codex subset content differs from the release record")
+    codex_members = _codex_members(subset, codex, {item["path"]: item["mode"] for item in receipt["files"]})
+    codex_receipt_data = (Path(subset) / SUBSET_RECEIPT).read_bytes()
+    if hashlib.sha256(codex_receipt_data).hexdigest() != record["codex_subset_digest"]:
+        raise ValueError("subset.json changed while staging")
     if not (dist / ".git").is_file():
         # Only a linked worktree (gitfile) is accepted: never wipe a main checkout.
         raise ValueError("Dist target must be a linked Git worktree")
@@ -245,9 +354,17 @@ def stage(candidate, dist, record):
         target.write_bytes(data)
         if item["mode"] == "100755":
             executables.append(item["path"])
+    for path, parts, data, mode in codex_members:
+        target = dist.joinpath(CODEX, *parts)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+        if mode == "100755":
+            executables.append(f"{CODEX}/{path}")
+    (dist / CODEX / SUBSET_RECEIPT).write_bytes(codex_receipt_data)
     (dist / ".gitattributes").write_bytes(DIST_ATTRIBUTES)
     (dist / RECORD).write_bytes(encoded(record))
-    return {"files": len(receipt["files"]), "executables": sorted(executables)}
+    return {"files": len(receipt["files"]), "codex_files": len(codex_members),
+            "executables": sorted(executables)}
 
 
 def _load(path):
@@ -264,6 +381,8 @@ def main(argv=None):
     record.add_argument("--bundle-digest", required=True)
     record.add_argument("--source-commit", required=True)
     record.add_argument("--overlay-digest", required=True)
+    record.add_argument("--subset-package", type=Path, required=True,
+                        help="Verified Codex subset folder (its subset.json must match --subset-digest)")
     record.add_argument("--subset-digest", required=True)
     record.add_argument("--run")
     record.add_argument("--output", type=Path, required=True)
@@ -273,8 +392,9 @@ def main(argv=None):
     choose = commands.add_parser("decide", help="Compare with the current dist RELEASE.json")
     choose.add_argument("--current", type=Path, required=True)
     choose.add_argument("--previous", type=Path, help="Omit when the dist branch does not exist")
-    place = commands.add_parser("stage", help="Fill a dist worktree from a verified candidate")
+    place = commands.add_parser("stage", help="Fill a dist worktree from a verified candidate and Codex subset")
     place.add_argument("--candidate", type=Path, required=True)
+    place.add_argument("--subset", type=Path, required=True, help="Verified Codex subset folder")
     place.add_argument("--record", type=Path, required=True)
     place.add_argument("--dist", type=Path, required=True)
     place.add_argument("--executables", type=Path, required=True)
@@ -284,7 +404,8 @@ def main(argv=None):
             result = compute(args.repo)
         elif args.command == "record":
             result = release_record(args.candidate, args.bundle_digest, args.source_commit,
-                                    args.overlay_digest, args.subset_digest, args.run)
+                                    args.overlay_digest, args.subset_package, args.subset_digest,
+                                    args.run)
             with args.output.open("xb") as handle:
                 handle.write(encoded(result))
         elif args.command == "gate":
@@ -293,7 +414,7 @@ def main(argv=None):
             previous = _load(args.previous) if args.previous else None
             result = decide(previous, _load(args.current))
         else:
-            result = stage(args.candidate, args.dist, _load(args.record))
+            result = stage(args.candidate, args.dist, _load(args.record), args.subset)
             with args.executables.open("x", encoding="utf-8", newline="\n") as handle:
                 handle.writelines(path + "\n" for path in result["executables"])
         print(encoded(result).decode("utf-8"), end="")

@@ -5,7 +5,9 @@ name: five-plugin dist (D-76)
 # branch only when the repository variable SIMONK_DIST_PUBLISH is 'true' AND the
 # built commit carries distribution/dist-publish.allow naming this exact content
 # (D-82). The marketplace catalog serves the five dist plugins; the D-33 hold and
-# release.yml were retired by D-87.
+# release.yml were retired by D-87. D-88 stage 2: the verified Codex safe subset
+# is published beside them under dist's codex/ folder, and the approval must name
+# its content digest too (allow schema 2). The Codex catalog is switched separately.
 on:
   push:
     branches: [main]
@@ -49,6 +51,7 @@ jobs:
       commit: ${{ steps.version.outputs.commit }}
       bundle_digest: ${{ steps.bundle.outputs.bundle_digest }}
       content_digest: ${{ steps.bundle.outputs.content_digest }}
+      subset_digest: ${{ steps.subset.outputs.subset_digest }}
     steps:
       - name: Disable EOL conversion before any clone
         run: |
@@ -163,7 +166,9 @@ jobs:
           $json = (python -B scripts/codex_safe_subset.py build --source-overlay (Join-Path $candidate 'codex-overlay-safety') `
             --overlay-digest $env:OVERLAY_DIGEST --output (Join-Path $candidate 'codex-subset-safety')) -join "`n"
           $json
-          "subset_digest=$(($json | ConvertFrom-Json).subset_digest)" >> $env:GITHUB_OUTPUT
+          $o = $json | ConvertFrom-Json
+          "subset_digest=$($o.subset_digest)" >> $env:GITHUB_OUTPUT
+          "codex_content_digest=$($o.content_digest)" >> $env:GITHUB_OUTPUT
 
       - name: Release record (RELEASE.json)
         id: record
@@ -177,7 +182,8 @@ jobs:
           $PSNativeCommandUseErrorActionPreference = $true
           python -B scripts/dist_release.py record --candidate (Join-Path $env:RUNNER_TEMP 'candidate/candidate-safety') `
             --bundle-digest $env:BUNDLE_DIGEST --source-commit $env:SOURCE_COMMIT `
-            --overlay-digest $env:OVERLAY_DIGEST --subset-digest $env:SUBSET_DIGEST `
+            --overlay-digest $env:OVERLAY_DIGEST --subset-package (Join-Path $env:RUNNER_TEMP 'candidate/codex-subset-safety') `
+            --subset-digest $env:SUBSET_DIGEST `
             --run "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID" `
             --output (Join-Path $env:RUNNER_TEMP 'receipts/RELEASE.json')
 
@@ -264,7 +270,8 @@ jobs:
             "| content digest | ``${{ steps.bundle.outputs.content_digest }}`` |",
             "| bundle digest | ``${{ steps.bundle.outputs.bundle_digest }}`` |",
             "| codex overlay / subset | ``${{ steps.overlay.outputs.overlay_digest }}`` / ``${{ steps.subset.outputs.subset_digest }}`` |",
-            '', 'Publishing needs SIMONK_DIST_PUBLISH and a committed distribution/dist-publish.allow for this content (D-82).')
+            "| codex content digest | ``${{ steps.subset.outputs.codex_content_digest }}`` |",
+            '', 'Publishing needs SIMONK_DIST_PUBLISH and a committed distribution/dist-publish.allow naming both content digests (D-82, D-88).')
           $lines -join "`n" >> $env:GITHUB_STEP_SUMMARY
           Get-ChildItem $receipts | Format-Table Name, Length
 
@@ -285,6 +292,17 @@ jobs:
           name: five-plugin-tree-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/candidate/candidate-safety
           # upload-artifact@v4 drops dot-directories by default; the plugin tree needs .claude-plugin/ and .simonk-runtime/.
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload built Codex subset tree (main only, for the publish job)
+        if: ${{ success() && github.event_name != 'pull_request' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: codex-subset-tree-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/candidate/codex-subset-safety
+          # Without hidden files the .codex-plugin/ manifests would be dropped and the re-verify would refuse.
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
@@ -352,6 +370,7 @@ jobs:
       cancel-in-progress: false
     env:
       BUNDLE_DIGEST: ${{ needs.build.outputs.bundle_digest }}
+      SUBSET_DIGEST: ${{ needs.build.outputs.subset_digest }}
       RELEASE_VERSION: ${{ needs.build.outputs.version }}
     steps:
       - name: Disable EOL conversion before any clone
@@ -396,11 +415,23 @@ jobs:
           $PSNativeCommandUseErrorActionPreference = $true
           python -B scripts/plugin_bundle.py verify --package (Join-Path $env:RUNNER_TEMP 'dist-tree') --expected-digest $env:BUNDLE_DIGEST
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: codex-subset-tree-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/codex-tree
+
+      - name: Re-verify the transferred Codex subset against the build's subset digest
+        timeout-minutes: 8
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $true
+          python -B scripts/codex_safe_subset.py verify --package (Join-Path $env:RUNNER_TEMP 'codex-tree') --expected-digest $env:SUBSET_DIGEST
+
       - name: Commit to dist when the content is new (never force-pushed)
         timeout-minutes: 8
         run: |
           $PSNativeCommandUseErrorActionPreference = $true
           $tree = Join-Path $env:RUNNER_TEMP 'dist-tree'
+          $codexTree = Join-Path $env:RUNNER_TEMP 'codex-tree'
           $record = Join-Path $env:RUNNER_TEMP 'receipts/RELEASE.json'
           $wt = Join-Path $env:RUNNER_TEMP 'dist-worktree'
           $PSNativeCommandUseErrorActionPreference = $false
@@ -425,15 +456,18 @@ jobs:
           if ($decision.version -ne $env:RELEASE_VERSION -and $decision.action -eq 'publish') { throw 'Record version differs from the build' }
           if ($decision.action -eq 'skip') { "dist already ships this content as $($decision.version)"; exit 0 }
           $executables = Join-Path $env:RUNNER_TEMP 'dist-executables.txt'
-          python -B scripts/dist_release.py stage --candidate $tree --record $record --dist $wt --executables $executables
+          python -B scripts/dist_release.py stage --candidate $tree --subset $codexTree --record $record --dist $wt --executables $executables
           git -C $wt add -A
           if ((Get-Item -LiteralPath $executables).Length -gt 0) {
             git -C $wt add --chmod=+x "--pathspec-from-file=$executables"
           }
           $message = Join-Path $env:RUNNER_TEMP 'dist-commit.txt'
-          $content = (Get-Content -Raw $record | ConvertFrom-Json).content_digest
+          $released = Get-Content -Raw $record | ConvertFrom-Json
+          $content = $released.content_digest
+          $codex = $released.codex_content_digest
+          if ($codex -cnotmatch '^[0-9a-f]{64}$') { throw 'Record has no Codex content digest' }
           @("chore(release): five-plugin dist $env:RELEASE_VERSION", '',
-            "content $content", "source $env:GITHUB_SHA",
+            "content $content", "codex $codex", "source $env:GITHUB_SHA",
             "run $env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID") |
             Set-Content -LiteralPath $message -Encoding utf8NoBOM
           git -C $wt -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -q -F $message

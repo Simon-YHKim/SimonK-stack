@@ -25,10 +25,20 @@ def git(root, *args):
 
 
 def record(**changes):
-    value = {"schema_version": 1, "scope": dist.DIST_SCOPE, "version": "1.10.0",
+    """A schema-2 record (D-88 stage 2): Claude and Codex content digests."""
+    value = {"schema_version": 2, "scope": dist.DIST_SCOPE, "version": "1.10.0",
              "content_digest": "a" * 64, "bundle_digest": "b" * 64, "source_commit": "c" * 40,
              "source_digest": "d" * 64, "pins": {owner: "e" * 40 for owner in OWNERS},
-             "codex_overlay_digest": "f" * 64, "codex_subset_digest": "0" * 64, "run": None}
+             "codex_overlay_digest": "f" * 64, "codex_subset_digest": "0" * 64,
+             "codex_content_digest": "7" * 64, "run": None}
+    value.update(changes)
+    return value
+
+
+def record_v1(**changes):
+    """The schema-1 shape dist already carries (1.777.0): no Codex content."""
+    value = record(schema_version=1)
+    del value["codex_content_digest"]
     value.update(changes)
     return value
 
@@ -166,11 +176,39 @@ class DecideTests(unittest.TestCase):
     def test_records_are_exact(self):
         for change in ({"version": "1.10.0-rc.1"}, {"content_digest": "A" * 64}, {"source_commit": "c" * 39},
                        {"pins": {"SimonKCore": "e" * 40}}, {"run": "http://insecure"}, {"schema_version": True},
-                       {"scope": "other"}, {"extra": 1}):
+                       {"scope": "other"}, {"extra": 1}, {"schema_version": 3}, {"schema_version": 1},
+                       {"codex_content_digest": "A" * 64}, {"codex_content_digest": None}):
             with self.subTest(change=change), self.assertRaises(ValueError):
                 dist.decide(None, record(**change))
+        without_codex = record()
+        del without_codex["codex_content_digest"]  # schema 2 must name the Codex content
+        for bad in (without_codex, record_v1(schema_version=2), record_v1(schema_version=True)):
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                dist.decide(None, bad)
         with self.assertRaises(ValueError):
             dist.decide({"version": "1.1.0"}, record())
+
+    def test_codex_content_counts_for_skip_and_publish(self):
+        # Same Claude content, new Codex content: a new release, which must still be newer.
+        newer = dist.decide(record(), record(version="1.11.0", codex_content_digest="8" * 64))
+        self.assertEqual((newer["action"], newer["reason"]), ("publish", "new-content"))
+        for version in ("1.10.0", "1.9.0"):
+            with self.subTest(version=version):
+                decision = dist.decide(record(), record(version=version, codex_content_digest="8" * 64))
+                self.assertEqual((decision["action"], decision["reason"]), ("refuse", "not-newer-than-dist"))
+        same = dist.decide(record(), record(version="1.12.0", bundle_digest="9" * 64, codex_subset_digest="1" * 64))
+        self.assertEqual((same["action"], same["reason"]), ("skip", "identical-content"))
+
+    def test_schema_1_record_on_dist_is_a_valid_previous_without_codex_content(self):
+        on_dist = record_v1(version="1.777.0")
+        self.assertEqual(dist.validate_record(on_dist), on_dist)
+        first_codex = dist.decide(on_dist, record(version="1.778.0"))
+        self.assertEqual((first_codex["action"], first_codex["reason"]), ("publish", "new-content"))
+        # Same Claude content is not identical any more: the Codex content is new...
+        late = dist.decide(on_dist, record(version="1.777.0"))
+        self.assertEqual((late["action"], late["reason"]), ("refuse", "not-newer-than-dist"))
+        # ...while two schema-1 records still compare as before.
+        self.assertEqual(dist.decide(on_dist, record_v1(version="1.800.0"))["action"], "skip")
 
     def test_cli_refuse_exits_nonzero(self):
         with tempfile.TemporaryDirectory() as raw:
@@ -204,14 +242,24 @@ class PublishGateTests(unittest.TestCase):
         git(self.repo, "add", "-A")
         git(self.repo, "commit", "-qm", message)
 
-    def approve(self, **changes):
-        value = {"schema_version": 1, "scope": dist.DIST_SCOPE, "decision": "D-82",
-                 "source_commit": self.candidate, "content_digest": "a" * 64}
+    def approve(self, drop=(), **changes):
+        """A schema-2 approval naming both content digests unless told otherwise."""
+        value = {"schema_version": 2, "scope": dist.DIST_SCOPE, "decision": "D-82",
+                 "source_commit": self.candidate, "content_digest": "a" * 64,
+                 "codex_content_digest": "7" * 64}
         value.update(changes)
+        for key in drop:
+            del value[key]
         (self.repo / dist.ALLOW).write_bytes(dist.encoded(value))
+
+    def approve_v1(self, **changes):
+        self.approve(drop=("codex_content_digest",), schema_version=1, **changes)
 
     def built(self, **changes):
         return record(source_commit=self.head(), **changes)
+
+    def built_v1(self, **changes):
+        return record_v1(source_commit=self.head(), **changes)
 
     def test_no_committed_approval_refuses(self):
         self.assertEqual(dist.gate(self.repo, self.built())["reason"], "no-approval")
@@ -234,6 +282,27 @@ class PublishGateTests(unittest.TestCase):
         self.commit("approve")
         decision = dist.gate(self.repo, self.built(content_digest="1" * 64))
         self.assertEqual((decision["action"], decision["reason"]), ("refuse", "content-not-approved"))
+        decision = dist.gate(self.repo, self.built(codex_content_digest="8" * 64))
+        self.assertEqual((decision["action"], decision["reason"]), ("refuse", "codex-content-not-approved"))
+
+    def test_codex_content_needs_a_schema_2_approval_naming_it(self):
+        # D-88 stage 2: a schema-1 approval (Claude content only) never lets Codex content
+        # reach dist, and a schema-2 approval does not approve a record without Codex content.
+        cases = ((1, 1, "publish", "approved"),
+                 (1, 2, "refuse", "codex-content-not-approved"),
+                 (2, 1, "refuse", "codex-content-not-approved"),
+                 (2, 2, "publish", "approved"))
+        for record_schema, allow_schema, action, reason in cases:
+            with self.subTest(record=record_schema, allow=allow_schema):
+                self.approve() if allow_schema == 2 else self.approve_v1()
+                self.commit(f"approval schema {allow_schema} for record schema {record_schema}")
+                current = self.built() if record_schema == 2 else self.built_v1()
+                decision = dist.gate(self.repo, current)
+                self.assertEqual((decision["action"], decision["reason"]), (action, reason))
+        self.approve(codex_content_digest="8" * 64)
+        self.commit("approval names other Codex content")
+        decision = dist.gate(self.repo, self.built())
+        self.assertEqual((decision["action"], decision["reason"]), ("refuse", "codex-content-not-approved"))
 
     def test_approved_commit_must_be_an_ancestor_of_the_build(self):
         git(self.repo, "checkout", "-qb", "side")
@@ -265,12 +334,18 @@ class PublishGateTests(unittest.TestCase):
     def test_approval_fields_are_exact(self):
         for change in ({"decision": "D-0"}, {"decision": "d-82"}, {"decision": "D-82 "}, {"decision": 82},
                        {"source_commit": "C" * 40}, {"content_digest": "a" * 63}, {"schema_version": True},
-                       {"scope": "other"}, {"extra": 1}):
+                       {"scope": "other"}, {"extra": 1}, {"schema_version": 3},
+                       {"schema_version": 1},  # a schema-1 approval cannot carry a Codex digest
+                       {"codex_content_digest": "A" * 64}, {"codex_content_digest": None}):
             with self.subTest(change=change):
                 self.approve(**change)
                 self.commit(f"bad approval {change}")
                 with self.assertRaises(ValueError):
                     dist.gate(self.repo, self.built())
+        self.approve(drop=("codex_content_digest",))  # schema 2 must name the Codex content
+        self.commit("schema-2 approval without a Codex digest")
+        with self.assertRaises(ValueError):
+            dist.gate(self.repo, self.built())
 
     def test_cli_exit_codes(self):
         import io
@@ -316,9 +391,32 @@ class PublishWorkflowTests(unittest.TestCase):
         gate = self.step_index("scripts/dist_release.py gate")
         self.assertIn('throw "dist publish not approved', self.steps[gate])
         self.assertLess(self.step_index("name: five-plugin-receipts-"), gate)
-        for later in ("name: five-plugin-tree-", "plugin_bundle.py verify", "git -C $wt push"):
+        for later in ("name: five-plugin-tree-", "plugin_bundle.py verify", "name: codex-subset-tree-",
+                      "codex_safe_subset.py verify", "git -C $wt push"):
             self.assertGreater(self.step_index(later), gate, later)
         self.assertIn("fetch-depth: 0", self.steps[self.step_index("uses: actions/checkout@v4")])
+
+    def test_codex_subset_is_reverified_then_staged_beside_the_plugins(self):
+        # D-88 stage 2: the transferred subset is checked against the build's pin before
+        # stage copies it, and the dist commit names the Codex content it ships.
+        verify = self.step_index("codex_safe_subset.py verify")
+        self.assertIn("--package (Join-Path $env:RUNNER_TEMP 'codex-tree') --expected-digest $env:SUBSET_DIGEST",
+                      self.steps[verify])
+        self.assertIn("path: ${{ runner.temp }}/codex-tree", self.steps[self.step_index("name: codex-subset-tree-")])
+        commit = self.step_index("git -C $wt push")
+        self.assertLess(verify, commit)
+        self.assertIn("SUBSET_DIGEST: ${{ needs.build.outputs.subset_digest }}", self.publish)
+        self.assertIn("dist_release.py stage --candidate $tree --subset $codexTree --record $record", self.steps[commit])
+        self.assertIn('"codex $codex"', self.steps[commit])
+        # The publish safety properties stay: plain push, one publisher, never force.
+        self.assertIn("git -C $wt push origin HEAD:refs/heads/dist\n", self.steps[commit] + "\n")
+        self.assertIn("group: five-plugin-dist-publish\n      cancel-in-progress: false", self.publish)
+        for forced in ("--force", "push -f", "+HEAD:", "--force-with-lease"):
+            self.assertNotIn(forced, self.publish)
+        workflow = (ROOT / ".github/workflows/five-plugin-dist.yml").read_text(encoding="utf-8")
+        build = workflow.split("\n  publish:\n", 1)[0]
+        self.assertIn("      subset_digest: ${{ steps.subset.outputs.subset_digest }}\n", build)
+        self.assertIn("--subset-package (Join-Path $env:RUNNER_TEMP 'candidate/codex-subset-safety')", build)
 
     def test_hold_no_longer_gates_publish(self):
         self.assertNotIn("main-source-only.hold", self.publish)
@@ -329,9 +427,17 @@ class PublishWorkflowTests(unittest.TestCase):
         workflow = (ROOT / ".github/workflows/five-plugin-dist.yml").read_text(encoding="utf-8")
         build = workflow.split("\n  publish:\n", 1)[0]
         uploads = [s for s in build.split("\n      - ") if "actions/upload-artifact@" in s]
-        self.assertEqual(len(uploads), 2)
+        self.assertEqual(len(uploads), 3)  # receipts, Claude tree, Codex subset tree (D-88 stage 2)
         for step in uploads:
             self.assertIn("include-hidden-files: true", step)
+        trees = [s for s in uploads if "five-plugin-receipts-" not in s]
+        self.assertEqual(len(trees), 2)
+        for step in trees:  # main only, and an empty tree is an error
+            self.assertIn("if: ${{ success() && github.event_name != 'pull_request' }}", step)
+            self.assertIn("if-no-files-found: error", step)
+        codex = [s for s in trees if "name: codex-subset-tree-" in s]
+        self.assertEqual(len(codex), 1)
+        self.assertIn("path: ${{ runner.temp }}/candidate/codex-subset-safety\n", codex[0])
 
     def test_committed_approval_names_the_current_approved_content(self):
         # Each approval is its own reviewed change recorded in the hub: D-82 first publish
@@ -350,19 +456,19 @@ class StageTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory(prefix="dist-stage-test-")
         self.addCleanup(self.temp.cleanup)
         base = Path(self.temp.name)
-        self.candidate, self.dist = base / "candidate", base / "dist"
+        self.candidate, self.dist, self.subset = base / "candidate", base / "dist", base / "codex-subset"
         self.dist.mkdir()
         (self.dist / ".git").write_text("gitdir: elsewhere\n", encoding="utf-8")
         self.members = {
             "plugins/SimonKCore/.claude-plugin/plugin.json": (b'{"version":"1.10.0"}\n', "100644"),
             "plugins/SimonKCore/skills/careful/bin/check-careful.sh": (b"#!/bin/bash\necho ok\n", "100755"),
+            "plugins/SimonKCore/skills/vibe/SKILL.md": (b"---\nname: vibe\n---\n", "100644"),
             "plugins/SimonKStack/skills/freeze/SKILL.md": (b"---\nname: freeze\n---\n", "100644"),
+            "plugins/SimonKStack/skills/ship/bin/run.sh": (b"#!/bin/bash\necho ship\n", "100755"),
         }
         files = []
         for path, (data, mode) in sorted(self.members.items()):
-            target = self.candidate / path
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes(data)
+            self.write(self.candidate, path, data)
             files.append({"path": path, "sha256": hashlib.sha256(data).hexdigest(), "size": len(data),
                           "mode": mode, "origin": "source", "input_path": path})
         receipt = {"files": files, "source_digest": "d" * 64,
@@ -371,50 +477,168 @@ class StageTests(unittest.TestCase):
         data = dist.encoded(receipt)
         (self.candidate / "bundle.json").write_bytes(data)
         self.bundle_digest = hashlib.sha256(data).hexdigest()
-        self.record = dist.release_record(self.candidate, self.bundle_digest, "c" * 40, "f" * 64, "0" * 64,
-                                          "https://github.com/example/run/1")
+        # The verified Codex subset: general skills and a Codex manifest, no .claude-plugin/,
+        # plus the overlay/bundle receipt copies that name this build (provenance only).
+        self.codex = {
+            "plugins/SimonKCore/.codex-plugin/plugin.json": b'{"name":"simonk-core","version":"1.10.0"}\n',
+            "plugins/SimonKCore/skills/vibe/SKILL.md": b"---\nname: vibe\n---\n",
+            "plugins/SimonKStack/skills/ship/bin/run.sh": b"#!/bin/bash\necho ship\n",
+        }
+        overlay = dist.encoded({"schema_version": 2, "candidate_digest": self.bundle_digest})
+        self.overlay_digest = hashlib.sha256(overlay).hexdigest()
+        self.provenance = {"overlay.json": overlay, "bundle.json": data}
+        self.subset_digest = self.write_subset()
+        self.record = dist.release_record(self.candidate, self.bundle_digest, "c" * 40, self.overlay_digest,
+                                          self.subset, self.subset_digest, "https://github.com/example/run/1")
 
-    def test_record_reads_the_verified_candidate(self):
+    @staticmethod
+    def write(root, path, data):
+        target = root / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+
+    def write_subset(self, extra=None, **changes):
+        """(Re)write the subset folder and its schema-2 receipt; return the receipt digest."""
+        members = {**self.codex, **self.provenance, **(extra or {})}
+        for path, data in members.items():
+            self.write(self.subset, path, data)
+        receipt = {"schema_version": 2, "scope": "five-plugin-codex-general-skills-only-v2",
+                   "source_overlay_digest": self.overlay_digest, "content_digest": "7" * 64,
+                   "excluded_skills": ["simonk-core:careful", "simonk-stack:freeze", "simonk-stack:guard",
+                                       "simonk-stack:investigate", "simonk-core:unfreeze"],
+                   "included_members": [{"path": path, "sha256": hashlib.sha256(data).hexdigest(),
+                                         "size": len(data)} for path, data in sorted(members.items())]}
+        receipt.update(changes)
+        data = dist.encoded(receipt)
+        (self.subset / dist.SUBSET_RECEIPT).write_bytes(data)
+        return hashlib.sha256(data).hexdigest()
+
+    def test_record_reads_the_verified_candidate_and_subset(self):
+        self.assertEqual(self.record["schema_version"], 2)
         self.assertEqual(self.record["version"], "1.10.0")
         self.assertEqual(self.record["content_digest"], "a" * 64)
+        self.assertEqual(self.record["codex_content_digest"], "7" * 64)
+        self.assertEqual((self.record["codex_overlay_digest"], self.record["codex_subset_digest"]),
+                         (self.overlay_digest, self.subset_digest))
         self.assertEqual(self.record["pins"], {o: "e" * 40 for o in OWNERS})
+        head = (self.candidate, self.bundle_digest, "c" * 40)
         with self.assertRaisesRegex(ValueError, "bundle digest"):
-            dist.release_record(self.candidate, "1" * 64, "c" * 40, "f" * 64, "0" * 64)
+            dist.release_record(self.candidate, "1" * 64, "c" * 40, self.overlay_digest, self.subset,
+                                self.subset_digest)
+        with self.assertRaisesRegex(ValueError, "subset digest"):
+            dist.release_record(*head, self.overlay_digest, self.subset, "1" * 64)
+        with self.assertRaisesRegex(ValueError, "recorded overlay"):
+            dist.release_record(*head, "1" * 64, self.subset, self.subset_digest)
+        with self.assertRaisesRegex(ValueError, "schema 2"):  # a pre-D-88 subset has no content digest
+            dist.release_record(*head, self.overlay_digest, self.subset, self.write_subset(schema_version=1))
+        with self.assertRaisesRegex(ValueError, "Codex content digest"):
+            dist.release_record(*head, self.overlay_digest, self.subset, self.write_subset(content_digest="A" * 64))
+        other = dist.encoded({"schema_version": 2, "candidate_digest": "1" * 64})
+        self.provenance["overlay.json"] = other  # an overlay of another build
+        self.overlay_digest = hashlib.sha256(other).hexdigest()
+        with self.assertRaisesRegex(ValueError, "recorded bundle"):
+            dist.release_record(*head, self.overlay_digest, self.subset, self.write_subset())
 
-    def test_stage_replaces_content_and_lists_executables(self):
-        (self.dist / "plugins/SimonKOld").mkdir(parents=True)
-        (self.dist / "plugins/SimonKOld/stale.md").write_text("old", encoding="utf-8")
+    def test_stage_writes_the_plugins_and_the_codex_subset(self):
+        for stale in ("plugins/SimonKOld/stale.md", "codex/plugins/SimonKOld/stale.md", "codex/subset.json"):
+            self.write(self.dist, stale, b"old")
         (self.dist / dist.RECORD).write_text("{}", encoding="utf-8")
-        result = dist.stage(self.candidate, self.dist, self.record)
-        self.assertEqual(result, {"files": 3, "executables": [
-            "plugins/SimonKCore/skills/careful/bin/check-careful.sh"]})
+        result = dist.stage(self.candidate, self.dist, self.record, self.subset)
+        self.assertEqual(result, {"files": 5, "codex_files": 3, "executables": [
+            "codex/plugins/SimonKStack/skills/ship/bin/run.sh",  # mode from the Claude bundle receipt
+            "plugins/SimonKCore/skills/careful/bin/check-careful.sh",
+            "plugins/SimonKStack/skills/ship/bin/run.sh"]})
         self.assertFalse((self.dist / "plugins/SimonKOld").exists())
+        self.assertFalse((self.dist / "codex/plugins/SimonKOld").exists())
         for path, (data, _) in self.members.items():
             self.assertEqual((self.dist / path).read_bytes(), data)
+        for path, data in self.codex.items():
+            self.assertEqual((self.dist / "codex" / path).read_bytes(), data)
+        self.assertEqual((self.dist / "codex/subset.json").read_bytes(),
+                         (self.subset / "subset.json").read_bytes())
+        shipped = sorted(p.relative_to(self.dist / "codex").as_posix()
+                         for p in (self.dist / "codex").rglob("*") if p.is_file())
+        self.assertEqual(shipped, sorted([*self.codex, "subset.json"]))  # no overlay.json / bundle.json
+        self.assertEqual(sorted(p.name for p in self.dist.iterdir()),
+                         [".git", ".gitattributes", "RELEASE.json", "codex", "plugins"])
         self.assertEqual((self.dist / ".gitattributes").read_bytes(), b"* -text\n")
         self.assertEqual(json.loads((self.dist / dist.RECORD).read_bytes()), self.record)
         self.assertEqual((self.dist / ".git").read_text(encoding="utf-8"), "gitdir: elsewhere\n")
         self.assertFalse((self.dist / "bundle.json").exists())  # receipts stay in the artifact
 
+    def test_stage_refuses_tampered_or_unexpected_codex_members_before_touching_dist(self):
+        stale = self.dist / "plugins/SimonKOld/stale.md"
+        self.write(self.dist, "plugins/SimonKOld/stale.md", b"old")
+        vibe = self.subset / "plugins/SimonKCore/skills/vibe/SKILL.md"
+        vibe.write_bytes(b"tampered")
+        with self.assertRaisesRegex(ValueError, "differs"):
+            dist.stage(self.candidate, self.dist, self.record, self.subset)
+        self.assertTrue(stale.exists())  # checked before the dist worktree is wiped
+        vibe.write_bytes(self.codex["plugins/SimonKCore/skills/vibe/SKILL.md"])
+        for extra in ("plugins/SimonKCore/.claude-plugin/plugin.json",
+                      "plugins/SimonKStack/.simonk-runtime/safety_runtime.py",
+                      "plugins/SimonKStack/skills/guard/SKILL.md", "plugins/SimonKOther/skills/x/SKILL.md",
+                      "README.md"):
+            with self.subTest(extra=extra):
+                digest = self.write_subset({extra: b"x\n"})
+                with self.assertRaises(ValueError):
+                    dist.stage(self.candidate, self.dist, dict(self.record, codex_subset_digest=digest),
+                               self.subset)
+                self.assertTrue(stale.exists())
+                (self.subset / extra).unlink()
+
+    def test_stage_needs_the_recorded_codex_content(self):
+        v1 = dict(self.record, schema_version=1)
+        del v1["codex_content_digest"]
+        with self.assertRaisesRegex(ValueError, "schema-2"):
+            dist.stage(self.candidate, self.dist, v1, self.subset)
+        for change, message in (({"codex_content_digest": "8" * 64}, "content differs"),
+                                ({"codex_subset_digest": "1" * 64}, "subset digest"),
+                                ({"codex_overlay_digest": "1" * 64}, "recorded overlay")):
+            with self.subTest(change=change), self.assertRaisesRegex(ValueError, message):
+                dist.stage(self.candidate, self.dist, dict(self.record, **change), self.subset)
+
     def test_stage_never_wipes_a_main_checkout_or_unknown_tree(self):
         (self.dist / ".git").unlink()
         (self.dist / ".git").mkdir()
         with self.assertRaisesRegex(ValueError, "linked Git worktree"):
-            dist.stage(self.candidate, self.dist, self.record)
+            dist.stage(self.candidate, self.dist, self.record, self.subset)
         (self.dist / ".git").rmdir()
         (self.dist / ".git").write_text("gitdir: elsewhere\n", encoding="utf-8")
         (self.dist / "README.md").write_text("not dist", encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "unexpected top-level"):
-            dist.stage(self.candidate, self.dist, self.record)
+            dist.stage(self.candidate, self.dist, self.record, self.subset)
         self.assertTrue((self.dist / "README.md").exists())
 
     def test_stage_rejects_changed_bytes_and_escaping_paths(self):
         (self.candidate / "plugins/SimonKStack/skills/freeze/SKILL.md").write_bytes(b"tampered")
         with self.assertRaisesRegex(ValueError, "differs"):
-            dist.stage(self.candidate, self.dist, self.record)
+            dist.stage(self.candidate, self.dist, self.record, self.subset)
         for bad in ("../x", "plugins/../x", "/plugins/a/b", "plugins\\a\\b", "skills/a/b", "plugins/a", "C:/x"):
             with self.subTest(bad=bad), self.assertRaises(ValueError):
                 dist._member(bad)
+
+    def test_cli_record_and_stage(self):
+        import io
+        from unittest.mock import patch
+        out = Path(self.temp.name) / "RELEASE.json"
+        with patch.object(sys, "stdout", io.StringIO()):
+            self.assertEqual(dist.main([
+                "record", "--candidate", str(self.candidate), "--bundle-digest", self.bundle_digest,
+                "--source-commit", "c" * 40, "--overlay-digest", self.overlay_digest,
+                "--subset-package", str(self.subset), "--subset-digest", self.subset_digest,
+                "--run", "https://github.com/example/run/1", "--output", str(out)]), 0)
+        self.assertEqual(json.loads(out.read_bytes()), self.record)
+        executables = Path(self.temp.name) / "executables.txt"
+        with patch.object(sys, "stdout", io.StringIO()) as stdout:
+            self.assertEqual(dist.main([
+                "stage", "--candidate", str(self.candidate), "--subset", str(self.subset), "--record", str(out),
+                "--dist", str(self.dist), "--executables", str(executables)]), 0)
+        self.assertEqual(json.loads(stdout.getvalue())["codex_files"], 3)
+        self.assertEqual(executables.read_text(encoding="utf-8").splitlines(), [
+            "codex/plugins/SimonKStack/skills/ship/bin/run.sh",
+            "plugins/SimonKCore/skills/careful/bin/check-careful.sh",
+            "plugins/SimonKStack/skills/ship/bin/run.sh"])
 
 
 if __name__ == "__main__":

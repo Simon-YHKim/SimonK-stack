@@ -972,6 +972,14 @@ version은 넣지 않습니다. 이 파일은 HTTPS 검증에 쓴 임시 카탈�
 }
 ```
 
+**Codex 부분집합 승인(D-88 2단계).** 빌드 기록 `RELEASE.json`은 schema 2로 바뀌어 Codex 안전
+부분집합의 `codex_content_digest`(subset.json의 version 무관 content digest)를 함께 싣습니다.
+schema 2 기록은 승인 기록도 schema 2(위 다섯 키 + `"codex_content_digest": "<64자>"`)이고 두
+digest가 모두 같을 때만 게시합니다. schema 1 승인은 schema 1 기록만 승인하므로, 승인 없이 Codex
+콘텐츠가 dist에 오르지 않습니다. 이 코드가 main에 들어간 뒤의 빌드는 승인 기록을 schema 2로 고치는
+PR이 머지될 때까지 `codex-content-not-approved`로 실패하고 dist는 그대로입니다. Codex 카탈로그
+(`.agents/plugins/marketplace.json`)는 게시된 부분집합을 호스트에서 확인한 뒤 별도 PR로 바꿉니다.
+
 - **승인 범위**: `source_commit`이 빌드 커밋 자신이거나 그 조상이고, 빌드 콘텐츠의
   content_digest가 기록과 같을 때만 게시합니다. 승인 기록을 넣는 커밋은 후보보다 늦으므로
   빌드 커밋 하나를 적을 수 없습니다. version(`1.<N>.0`)도 커밋마다 바뀌어 승인 키로 쓰지
@@ -983,7 +991,8 @@ version은 넣지 않습니다. 이 파일은 HTTPS 검증에 쓴 임시 카탈�
   기록을 고치는 PR을 머지하고, 아니면 변수를 끕니다. 내용이 다른 게시(아래 3단계의 업데이트·
   재출하 시험 포함)마다 기록이 하나씩 남습니다.
 - **거부 사유**(exit 1): `no-approval`(빌드 커밋에 기록 없음. 작업 트리에만 있는 파일은 세지
-  않음), `content-not-approved`, `source-outside-approval`(기록의 커밋이 빌드 커밋의 조상이
+  않음), `content-not-approved`, `codex-content-not-approved`(승인과 기록의 schema 또는 Codex
+  content digest가 다름), `source-outside-approval`(기록의 커밋이 빌드 커밋의 조상이
   아님). 형식 오류·없는 커밋·얕은 clone·빌드 커밋과 다른 체크아웃은 exit 2로 막힙니다.
 
 **D-82가 정한 순서**(앞 단계가 통과해야 다음으로 갑니다):
@@ -1005,9 +1014,11 @@ hold 제거, SessionStart 홈 복사와 `release.yml` 재개는 이 순서에 �
 (그 결정이 D-87(2026-10-05)입니다. 재개하지 않고 hold·`release.yml`을 지우고 SessionStart를 읽기 전용으로 줄였습니다.)
 
 두 열쇠가 다 맞으면 `dist` 브랜치에
-`plugins/`·`RELEASE.json`·`.gitattributes`(`* -text`, 호스트의 autocrlf가 셸 훅을 CRLF로
-바꾸지 않게)를 추가 커밋합니다. 강제 push는 하지 않습니다. content_digest가 dist와
-같으면 건너뛰고, dist보다 낮거나 같은 version이면 거부합니다. 게시는 동시성 그룹으로
+`plugins/`·`codex/`(Codex 안전 부분집합 `codex/plugins/<Owner>/…`와 `codex/subset.json`, 게시 job이
+`codex_safe_subset.py verify`로 다시 확인한 바이트)·`RELEASE.json`·`.gitattributes`(`* -text`,
+호스트의 autocrlf가 셸 훅을 CRLF로 바꾸지 않게)를 추가 커밋합니다. 강제 push는 하지 않습니다.
+Claude·Codex content digest가 둘 다 dist와 같으면 건너뛰고(dist의 schema 1 기록은 Codex
+콘텐츠가 없으므로 같지 않음), dist보다 낮거나 같은 version이면 거부합니다. 게시는 동시성 그룹으로
 한 번에 하나씩 하고, 진행 중인 게시는 취소하지 않습니다.
 
 **롤백은 dist를 되감지 않습니다.** main에서 문제 커밋을 revert하거나 pin을 이전 값으로
