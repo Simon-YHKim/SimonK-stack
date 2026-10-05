@@ -116,5 +116,23 @@ class CodexSafeSubsetTests(unittest.TestCase):
             self.module.verify_subset(self.output, result["subset_digest"])
 
 
+
+class CodexCatalogBlockTests(unittest.TestCase):
+    """Hub D-88: Codex reads .agents/plugins/marketplace.json before the Claude
+    catalog. Until the Codex subset passes its own gate and host checks (D-88
+    stage 2), that file must list no plugins, so a Codex user who adds this
+    repository cannot install the Claude build with its five safety skills."""
+
+    def test_codex_catalog_lists_no_plugins_until_the_subset_is_verified(self):
+        import json
+        path = ROOT / ".agents" / "plugins" / "marketplace.json"
+        data = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(data["name"], "simonk-stack")
+        self.assertEqual(data["plugins"], [])
+        self.assertIn("no Codex plugins yet", data["interface"]["displayName"])
+        # Codex picks the first catalog that exists, in this order.
+        self.assertFalse((ROOT / ".agents" / "plugins" / "api_marketplace.json").exists())
+
+
 if __name__ == "__main__":
     unittest.main()

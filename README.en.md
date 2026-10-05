@@ -88,6 +88,8 @@ In a POSIX shell: `claude plugin list --json | grep -o 'simonk-[a-z]*@simonk-sta
 
 > **Don't combine with a flat install.** If you already copied the same skills into `~/.claude/skills`, enabling the plugins shows every skill twice. A 2026-10-05 measurement saw 563 skills and over 30,000 characters of descriptions, so the list was truncated, which lowers the accuracy of automatic skill selection. Use either the plugins or the flat install, not both.
 
+> **Codex CLI is not supported yet.** Running `codex plugin marketplace add Simon-YHKim/SimonK-stack` in Codex finds no plugins to install (hub D-88). A Codex build (177 skills, without the safety skills) will be published after its own verification. If you installed through Codex before 2026-10-05, check with `codex plugin list` and remove each one, for example `codex plugin remove simonk-core@simonk-stack`. That build carries Claude Code-only safety skills, so their protection is not guaranteed in Codex.
+
 ## 4. First steps
 
 Ask in plain words. The skill in parentheses is the one usually picked.
@@ -236,6 +238,7 @@ Then use the [install check in section 3](#check-the-install) to confirm all fiv
 | On Windows, the safety hooks block every command | Check that Git for Windows and Python 3.7+ are on PATH. If the checker can't run, it blocks on purpose. |
 | `/vibe` says "blocked" instead of running | Included subscription usage couldn't be confirmed, or is near its limit. This prevents extra billing; the report says what blocked it. |
 | Old skills disappeared | Run the four lines in section 8. |
+| Codex says "No marketplace plugins found" | Expected. The Codex build is not published yet (see the Codex note in section 3). |
 
 ## 10. Bundled app: AI Usage Widget
 

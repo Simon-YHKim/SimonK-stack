@@ -88,6 +88,8 @@ POSIX 셸에서는 `claude plugin list --json | grep -o 'simonk-[a-z]*@simonk-st
 
 > **flat 설치와 함께 쓰지 마세요.** `~/.claude/skills`에 같은 스킬을 이미 복사해 두었다면, 플러그인을 켰을 때 스킬이 두 벌로 보입니다. 2026-10-05 실측에서는 563개, 설명 3만 자를 넘겨 목록이 잘렸고, 이러면 모델이 스킬을 자동으로 고를 때 정확도가 떨어집니다. 플러그인과 flat 중 한 쪽만 쓰세요.
 
+> **Codex CLI는 아직 지원하지 않습니다.** Codex에서 `codex plugin marketplace add Simon-YHKim/SimonK-stack`을 해도 설치할 플러그인이 없습니다(허브 D-88). Codex용 빌드(안전 스킬을 뺀 177개)는 별도 검증을 거친 뒤 공개합니다. 2026-10-05 이전에 Codex로 설치했다면 `codex plugin list`로 확인하고 `codex plugin remove simonk-core@simonk-stack`처럼 하나씩 제거하세요. 그 빌드에는 Claude Code 전용 안전 스킬이 들어 있어 Codex에서는 보호가 동작한다고 보장할 수 없습니다.
+
 ## 4. 처음 써 보기
 
 아래처럼 평소 말로 요청하면 됩니다. 괄호 안은 주로 이어지는 스킬입니다.
@@ -236,6 +238,7 @@ claude plugin install simonk-aihub@simonk-stack
 | Windows에서 안전 훅이 모든 명령을 막음 | Git for Windows와 Python 3.7 이상이 PATH에 있는지 확인합니다. 검사기를 실행할 수 없으면 일부러 막습니다. |
 | `/vibe`가 실행하지 않고 "blocked"라고 함 | 구독 포함 사용량이 확인되지 않았거나 상한에 가까운 경우입니다. 추가 과금을 막기 위한 동작이며, 보고에 막힌 이유가 적혀 있습니다. |
 | 예전 스킬이 사라짐 | 8절의 네 줄을 실행합니다. |
+| Codex에서 "No marketplace plugins found" | 정상입니다. Codex용 빌드는 아직 공개 전입니다(3절 Codex 안내). |
 
 ## 10. 함께 들어 있는 앱 — AI 사용량 위젯
 

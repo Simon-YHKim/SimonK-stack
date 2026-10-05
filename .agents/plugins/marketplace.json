@@ -1,0 +1,7 @@
+{
+  "name": "simonk-stack",
+  "interface": {
+    "displayName": "SimonK-stack (Claude Code only for now; no Codex plugins yet)"
+  },
+  "plugins": []
+}
