@@ -15,6 +15,18 @@ sys.path.insert(0, str(VIBE))
 import orchestrate
 from test_orchestrate import candidate, fixture_registry
 
+# The steps below are typed CODE_FIX / CODE_REVIEW, whose demand floor is
+# "reasoning". The shared fixture is a host candidate, and a host cannot switch
+# effort mid-session (HOST_EFFORT_MISMATCH), so it must already run at the
+# effort the planner picks for that demand.
+REASONING_EFFORT = candidate()["effort_by_demand"][orchestrate.TASK_TYPE_MAP["CODE_FIX"]["demand"]]
+
+
+def host_candidate(*args, **changes):
+    changes.setdefault("effective_effort", REASONING_EFFORT)
+    return candidate(*args, **changes)
+
+
 PWSH = shutil.which("pwsh")
 WRAPPER = ROOT / "scripts/simonk.ps1"
 # The legacy implementation is tested safely: provider/cloud functions are
@@ -78,7 +90,8 @@ class SimonkEntrypointTests(unittest.TestCase):
             "        raise RuntimeError('OFFLINE_TEST_EFFECT_BLOCKED')\n"
             "sys.addaudithook(deny)\n", encoding="utf-8")
         self.now = datetime.now(timezone.utc).isoformat()
-        self.candidates = [self.observed(candidate()), self.observed(candidate("review", surface="claude"))]
+        self.candidates = [self.observed(host_candidate()),
+                           self.observed(host_candidate("review", surface="claude"))]
         self.request = {
             "run_id": "same-parent-run", "ancestor_skills": ["vibe", "simonk"],
             "budget": {"mode": "economy", "approved_usd": "0", "spent_usd": "0",
@@ -158,7 +171,9 @@ class SimonkEntrypointTests(unittest.TestCase):
         self.assertEqual(plan["ancestor_skills"], ["vibe", "simonk"])
         self.assertEqual(plan["budget"]["approved_usd"], "0")
         self.assertIsNone(plan["steps"][0]["route"]["actual_usd"])
-        self.assertIsNone(plan["steps"][0]["route"]["effective_effort"])
+        # A host route echoes the host's own declared effort; nothing is dispatched.
+        self.assertEqual(plan["steps"][0]["route"]["requested_effort"], REASONING_EFFORT)
+        self.assertEqual(plan["steps"][0]["route"]["effective_effort"], REASONING_EFFORT)
 
     def test_whole_dag_reviewer_dependency_survives(self):
         self.request["steps"] = [self.node(writes=True), self.node(
@@ -180,11 +195,12 @@ class SimonkEntrypointTests(unittest.TestCase):
                 self.assertIn(reason, str(plan))
 
     def test_paid_unknown_exhausted_and_unsupported_effort_fail_closed(self):
-        cases = [(candidate(upper_usd_per_attempt="0.01", billing={"mode": "api", "verified": True,
-                                                                  "account_ref": "fixture"}), "PAID_BUDGET_EXCEEDED"),
-                 (candidate(billing={"mode": "unknown", "verified": False}), "BILLING_UNVERIFIED"),
-                 (candidate("grok", surface="grok", quota={"used_pct": 100}), "QUOTA_EXHAUSTED"),
-                 (candidate(transport_efforts=["low"]), "EFFORT_UNSUPPORTED")]
+        cases = [(host_candidate(upper_usd_per_attempt="0.01", billing={"mode": "api", "verified": True,
+                                                                       "account_ref": "fixture"}),
+                  "PAID_BUDGET_EXCEEDED"),
+                 (host_candidate(billing={"mode": "unknown", "verified": False}), "BILLING_UNVERIFIED"),
+                 (host_candidate("grok", surface="grok", quota={"used_pct": 100}), "QUOTA_EXHAUSTED"),
+                 (host_candidate(transport_efforts=["low"]), "EFFORT_UNSUPPORTED")]
         for c, reason in cases:
             with self.subTest(reason=reason):
                 self.candidates = [self.observed(c)]

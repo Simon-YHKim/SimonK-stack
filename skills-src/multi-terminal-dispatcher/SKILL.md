@@ -4,7 +4,7 @@ description: >-
   Use when dispatching parallel ready tasks: "parallel terminals", "team mode",
   "병렬로 진행". Returns /vibe wave handles, evidence and unresolved costs under
   shared account/budget gates; never opens terminal windows or replays uncertain attempts.
-version: 1.1.1
+version: 1.1.2
 ---
 
 # Multi-terminal dispatcher — bounded /vibe ready wave
