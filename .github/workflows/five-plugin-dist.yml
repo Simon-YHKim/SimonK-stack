@@ -1,11 +1,11 @@
 name: five-plugin dist (D-76)
 
 # D-76 step 3: build the five-plugin release from public inputs only, verify the
-# exact built tree, keep the receipts. Publishing to the `dist` branch is OFF:
-# the publish job runs only when the repository variable SIMONK_DIST_PUBLISH is
-# 'true' AND the built commit carries distribution/dist-publish.allow naming this
-# exact content (D-82 follow-up 1). The D-33 hold no longer gates publishing; it
-# still blocks SessionStart and release.yml, and the catalog stays legacy.
+# exact built tree, keep the receipts. The publish job pushes to the `dist`
+# branch only when the repository variable SIMONK_DIST_PUBLISH is 'true' AND the
+# built commit carries distribution/dist-publish.allow naming this exact content
+# (D-82). The marketplace catalog serves the five dist plugins; the D-33 hold and
+# release.yml were retired by D-87.
 on:
   push:
     branches: [main]
@@ -374,8 +374,7 @@ jobs:
           name: five-plugin-receipts-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/receipts
 
-      # D-82: publishing has its own gate. The D-33 hold is not read here; it keeps
-      # blocking SessionStart and release.yml, and the catalog stays legacy.
+      # D-82: publishing has its own gate (the D-33 hold it replaced was retired by D-87).
       - name: Refuse unless the committed approval names this content (dist-publish.allow)
         timeout-minutes: 3
         run: |

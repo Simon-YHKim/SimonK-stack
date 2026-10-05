@@ -1,7 +1,0 @@
-Source-only main release hold (D-33, 2026-09-30).
-While this tracked file exists, the repository SessionStart hook must not
-bootstrap, update the user home, or start its update checks. The Claude
-marketplace entry is separately pinned to the pre-integration main commit.
-The main-push GitHub Actions release workflow must not create a tag or release.
-Removing this file and advancing that pin/version require a distinct reviewed
-release decision, host verification, rollback proof, and exact-HEAD CI.

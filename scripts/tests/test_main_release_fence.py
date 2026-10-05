@@ -1,14 +1,16 @@
-"""Source-only main safety: no home updates, plugin switch, or GitHub release.
+"""Main stays safe without a hold: no home writes, no GitHub release, dist catalog.
 
-D-82 follow-up 1 moved only dist publishing to its own gate
-(distribution/dist-publish.allow, tested in test_dist_release.py); the hold
-below still fences SessionStart and release.yml. Since D-82's last step the
-catalog serves the five dist plugins instead of the legacy pinned root plugin.
+Hub decision D-87 (2026-10-05) retired the D-33 source-only hold together with
+what it fenced: the SessionStart bootstrap is now a read-only notice and the
+main-push release workflow is gone. These tests pin that state so neither can
+come back unnoticed. Publishing to the dist branch keeps its own gate
+(distribution/dist-publish.allow, tested in test_dist_release.py).
 """
 
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tempfile
@@ -20,10 +22,17 @@ HOLD = ROOT / "distribution" / "main-source-only.hold"
 HOOK = ROOT / ".claude" / "hooks" / "session-start.sh"
 ATTRIBUTES = ROOT / ".gitattributes"
 MARKETPLACE = ROOT / ".claude-plugin" / "marketplace.json"
-RELEASE_WORKFLOW = ROOT / ".github" / "workflows" / "release.yml"
+WORKFLOWS = ROOT / ".github" / "workflows"
 STABLE_SHA = "313c04b8a1d9c9a623ae5571d70b5d10ef873ced"
 BASH = (Path(os.environ.get("ProgramFiles", "C:/Program Files")) / "Git/bin/bash.exe"
         if os.name == "nt" else Path(shutil.which("bash") or "/missing/bash"))
+# Commands a SessionStart hook must not run: anything that writes, deletes,
+# fetches or installs. Matched on non-comment lines only.
+FORBIDDEN_HOOK_COMMANDS = re.compile(
+    r"(^|[\s;|&(])(git|rm|cp|mv|mkdir|ln|curl|wget|tee|touch|bun|npm|pip|chmod|sed\s+-i)\b"
+    r"|>>?\s*[~$\"/]")
+RELEASE_MAKERS = re.compile(
+    r"gh\s+release\s+create|actions/create-release|softprops/action-gh-release|ncipollo/release-action")
 
 
 def posix(path: Path) -> str:
@@ -33,21 +42,28 @@ def posix(path: Path) -> str:
     return str(path)
 
 
+def code_lines(text: str):
+    return [line for line in text.splitlines() if line.strip() and not line.lstrip().startswith("#")]
+
+
 class MainReleaseFenceTests(unittest.TestCase):
-    @unittest.skipUnless(BASH.is_file(), "Git Bash/POSIX Bash is required")
-    def test_held_session_start_does_not_touch_home_or_launch_tools(self):
-        self.assertTrue(HOLD.is_file(), "Candidate must carry an explicit release hold")
+    def test_session_start_hook_has_no_writing_or_fetching_command(self):
         self.assertNotIn(b"\r", HOOK.read_bytes(), "Bash hook must be LF on this checkout")
         self.assertIn("/.claude/hooks/session-start.sh text eol=lf",
                       ATTRIBUTES.read_text(encoding="utf-8"))
+        for line in code_lines(HOOK.read_text(encoding="utf-8")):
+            with self.subTest(line=line):
+                self.assertIsNone(FORBIDDEN_HOOK_COMMANDS.search(line))
+
+    @unittest.skipUnless(BASH.is_file(), "Git Bash/POSIX Bash is required")
+    def test_session_start_leaves_home_untouched_with_or_without_a_stray_hold(self):
         with tempfile.TemporaryDirectory(prefix="simonk main fence ") as raw:
             base = Path(raw)
             repo = base / "source with spaces"
-            (repo / "distribution").mkdir(parents=True)
-            shutil.copyfile(HOLD, repo / "distribution" / HOLD.name)
             fixture_hook = repo / ".claude" / "hooks" / "session-start.sh"
             fixture_hook.parent.mkdir(parents=True)
             shutil.copyfile(HOOK, fixture_hook)
+            (repo / "perspectives.md").write_text("notes\n", encoding="utf-8")
             other_project = base / "other project"
             other_project.mkdir()
             home = base / "home"
@@ -58,17 +74,23 @@ class MainReleaseFenceTests(unittest.TestCase):
                    if k.upper() in {"SYSTEMROOT", "WINDIR", "TEMP", "TMP"}}
             env.update(HOME=posix(home), USERPROFILE=str(home), PATH=str(empty_path),
                        BASH_ENV="", ENV="")
-            for project_dir in (repo, other_project):
-                with self.subTest(project=project_dir.name):
-                    env["CLAUDE_PROJECT_DIR"] = posix(project_dir)
-                    result = subprocess.run(
-                        [str(BASH), "--noprofile", "--norc", posix(fixture_hook)],
-                        cwd=base, env=env, text=True, encoding="utf-8",
-                        capture_output=True, timeout=10,
-                    )
-                    self.assertEqual(result.returncode, 0, result.stderr)
-                    self.assertIn("source-only release hold", result.stdout)
-                    self.assertEqual(list(home.iterdir()), [])
+            for stray_hold in (False, True):
+                if stray_hold:
+                    (repo / "distribution").mkdir(exist_ok=True)
+                    (repo / "distribution" / "main-source-only.hold").write_text("x\n", encoding="utf-8")
+                for project_dir in (repo, other_project):
+                    with self.subTest(project=project_dir.name, stray_hold=stray_hold):
+                        env["CLAUDE_PROJECT_DIR"] = posix(project_dir)
+                        result = subprocess.run(
+                            [str(BASH), "--noprofile", "--norc", posix(fixture_hook)],
+                            cwd=base, env=env, text=True, encoding="utf-8",
+                            capture_output=True, timeout=10,
+                        )
+                        self.assertEqual(result.returncode, 0, result.stderr)
+                        self.assertIn("SessionStart is read-only (D-87)", result.stdout)
+                        self.assertIn("Nothing was written.", result.stdout)
+                        self.assertEqual(project_dir == repo, "[perspectives]" in result.stdout)
+                        self.assertEqual(list(home.iterdir()), [])
 
     def test_marketplace_serves_the_five_dist_plugins(self):
         # D-82 last step: the catalog switched from the legacy root plugin (pinned at
@@ -93,43 +115,23 @@ class MainReleaseFenceTests(unittest.TestCase):
                 })
         self.assertNotIn(STABLE_SHA, MARKETPLACE.read_text(encoding="utf-8"))
 
-    def test_hold_fences_session_start_and_release_but_not_dist_publish(self):
-        self.assertTrue(HOLD.is_file(), "Candidate must carry an explicit release hold")
+    def test_hold_and_release_workflow_are_retired(self):
+        # D-87: removing the hold and the code it fenced in one commit means a revert
+        # brings both back together; a stray hold file or reader must not reappear.
+        self.assertFalse(HOLD.exists())
+        self.assertFalse((WORKFLOWS / "release.yml").exists())
         readers = sorted(
             path.relative_to(ROOT).as_posix()
-            for path in [*(ROOT / ".github" / "workflows").glob("*.yml"),
-                         *(ROOT / ".claude" / "hooks").iterdir()]
+            for path in [*WORKFLOWS.glob("*.yml"), *(ROOT / ".claude" / "hooks").iterdir()]
             if path.is_file() and HOLD.name in path.read_text(encoding="utf-8"))
-        self.assertEqual(readers, [".claude/hooks/session-start.sh",
-                                   ".github/workflows/release.yml"])
+        self.assertEqual(readers, [])
 
-    @unittest.skipUnless(BASH.is_file(), "Git Bash/POSIX Bash is required")
-    def test_main_push_release_script_exits_before_gh_when_held(self):
-        workflow = RELEASE_WORKFLOW.read_text(encoding="utf-8")
-        self.assertIn("branches: [main]", workflow)
-        release_step = workflow.split("- name: Create tag + release if new", 1)[1]
-        script = "\n".join(
-            line[10:] for line in release_step.split("run: |", 1)[1].splitlines()[1:]
-            if line.startswith("          ")
-        )
-        self.assertIn("gh release create", script)
-        self.assertIn("distribution/main-source-only.hold", script)
-        script = script.replace("${{ steps.ver.outputs.version }}", "9.9.9")
-        script = script.replace("${{ github.sha }}", "0123456789abcdef")
-        with tempfile.TemporaryDirectory(prefix="simonk release fence ") as raw:
-            repo = Path(raw)
-            (repo / "distribution").mkdir()
-            shutil.copyfile(HOLD, repo / "distribution" / HOLD.name)
-            empty_path = repo / "empty-bin"
-            empty_path.mkdir()
-            result = subprocess.run(
-                [str(BASH), "--noprofile", "--norc", "-c", script],
-                cwd=repo, env={"PATH": str(empty_path), "BASH_ENV": "", "ENV": ""},
-                text=True, encoding="utf-8", capture_output=True, timeout=10,
-            )
-            self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertIn("source-only release hold", result.stdout)
-            self.assertNotIn("release 9.9.9", result.stdout)
+    def test_no_workflow_creates_a_github_release(self):
+        # Releases reach users as dist commits (1.<N>.0); a GitHub Release from main
+        # would collide with that numbering.
+        makers = sorted(path.name for path in WORKFLOWS.glob("*.yml")
+                        if RELEASE_MAKERS.search(path.read_text(encoding="utf-8")))
+        self.assertEqual(makers, [])
 
 
 if __name__ == "__main__":
