@@ -80,6 +80,27 @@
 #     effort 재보정(Claude Code 기본 medium ↔ API 기본 high)을 요구해 sonnet-5 사다리를 물려받을 수 없다.
 #     gpt-6-luna 는 Orca 가 6.1-sol 과 같은 폴백으로 받지만 D-67 판정의 후속 조치에 없고,
 #     A 클래스 1순위를 바꾸는 별도 결정이다. gpt-6-sol 은 sol 후속을 6.1-sol 로 통일해서 뺐다.
+#     → sonnet-5-5·gpt-6-luna 두 건은 2026-10-05 Simon 지시로 넣었다(바로 아래 절).
+#
+# ── 2026-10-05 Simon 지시 — A 클래스를 현행 세대 레인으로 옮긴다 (2.15.5) ──
+#   지시 원문: "5.5로 전환해. 최신모델을써야지 왜 구모델을씀?"
+#   D-67 과 같은 ADD_ALONGSIDE_KEEP_LEGACY 다: claude-sonnet-5-5 · gpt-6-luna 를 옛 키 옆에 새 키로 넣고
+#   A 클래스 목록을 gpt-6-luna → claude-sonnet-5-5 → claude-opus-5-5 로 바꾼다. 옛 키 claude-sonnet-5 ·
+#   gpt-5.6-luna 는 원장 호환용으로만 남긴다(우선순위 밖). 근거는 D-67 의 Orca 1.4.218 읽기다
+#   (이번 변경에서 모델 호출·worker-start 0회):
+#   · claude 카탈로그는 별칭만 안다 → claude-sonnet-5-5 는 '모르는 모델'이라 low~max 를 받고
+#     --model·--effort 를 그대로 넘긴다.
+#   · codex 카탈로그 다섯 줄에 gpt-6-luna 가 없다 → 폴백 minimal~xhigh(max·ultra 거부), 6.1-sol 과 같다.
+#   · Sonnet 5.5 사다리는 sonnet-5 것을 물려받지 않고 다시 잡았다: std medium(Claude Code·앱 기본값) ·
+#     top high(Artificial Analysis 가 Sonnet 5.5 의 가장 경쟁력 있는 설정으로 보는 값). xhigh·max 는
+#     토큰 폭증(max 에서 작업당 출력 약 193k 토큰) 때문에 정책 사다리 밖이다 — off-ladder 로만 열린다.
+#   · D-90 의 registry 보류(held-until-remeasure)는 이 레인에 한해 Simon 지시가 앞선다(D-90 소수의견:
+#     레인에 대한 Simon 의 명시 지시가 우선). shadow task-fit 정책의 Sonnet 5.5 제외(D-90)는 별개의
+#     비용 프런티어 결정이라 그대로다(references/task-fit-policy.json 무변경).
+#   ⚠ '등록'이지 '동작'이 아니다. 읽기 전용 canary(launch.requested ↔ launch.effective)는 2026-10-05
+#     두 레인 모두 통과했다(2.15.5, run_0a369252175f). Orca 런치 계정/과금 인증서 전까지
+#     registry legacy_lane_migration = pending-transport-and-certificate 다.
+#     $0 게이트(모델 포함·초과과금 OFF·API 폴백 OFF)와 G5·Orca 인증서는 다른 flag 레인과 똑같이 걸린다.
 import hashlib
 import json
 import os
@@ -161,14 +182,31 @@ LANES = {
         "quota_bucket": "fableWeekly",
         "orca_efforts": ("low", "medium", "high", "xhigh", "max"),
     },
+    "claude-sonnet-5-5": {
+        # 2026-10-05 Simon 지시("5.5로 전환해. 최신모델을써야지 왜 구모델을씀?") — claude-sonnet-5 의 후속.
+        #   A 클래스 2순위 — codex(gpt-6-luna)가 강등·금지일 때 받는다. --effort 플래그로 전달한다:
+        #   Orca claude 카탈로그는 이 정식 id 를 모르는 모델로 보고 low~max 를 받는다(D-67 의 1.4.218 읽기).
+        # effort 사다리는 다시 잡았다(sonnet-5 의 medium/xhigh 를 물려받지 않는다):
+        #   std medium = Claude Code·앱 기본값 · top high = Artificial Analysis 가 Sonnet 5.5 의 가장 경쟁력 있는
+        #   설정으로 보는 값. xhigh·max 는 토큰 폭증(max 에서 작업당 출력 약 193k 토큰)이라 정책 사다리에서 뺐다 —
+        #   Orca 는 받으므로 allow_off_ladder 로만 열린다.
+        # 쿼터는 claude 일반 weekly 다(fable 처럼 별도 버킷이 아니다).
+        # ⚠ 읽기 전용 canary 는 통과했다(2026-10-05 · requested == effective · 세션 기록 모델 일치).
+        #   계정/과금 인증서 전까지 동작 레인이 아니다
+        #   (registry legacy_lane_migration = pending-transport-and-certificate · 게이트는 다른 flag 레인과 같다).
+        "cli": "claude", "vendor": "claude", "effort_style": "flag", "dispatch": "orca",
+        "top": "high", "std": "medium", "ctx": "canary 통과 · 인증서 전 · Orca 미등록 id → low~max · xhigh·max 정책 밖",
+        "orca_efforts": ("low", "medium", "high", "xhigh", "max"),
+    },
     "claude-sonnet-5": {
         # D-28 #2 (Simon 확정 2026-09-16) · 2단계 M1 통과 — run_c0c4a6905e26 · claude.exe --model claude-sonnet-5
         #   --effort medium 으로 기동 · 읽기 전용 과제 정답 3/3 · worker_done · filesModified [].
         # Orca 1.4.200 claude 카탈로그: 별칭 sonnet("Efficient for routine tasks", isDefault) ·
         #   effort low·medium·high·xhigh·max (2026-09-13 22:33 실측: ultra 만 거부).
         # 쿼터는 claude 일반 weekly 를 쓴다. A 클래스 2순위 — codex(luna)가 강등·금지일 때 받는다.
+        # 2026-10-05 Simon 지시: 원장 호환용(우선순위 밖). A 클래스 2순위는 claude-sonnet-5-5 가 받는다.
         "cli": "claude", "vendor": "claude", "effort_style": "flag", "dispatch": "orca",
-        "top": "xhigh", "std": "medium", "ctx": "1M · API 단가 Opus 5의 0.4배",
+        "top": "xhigh", "std": "medium", "ctx": "1M · API 단가 Opus 5의 0.4배 · 원장 호환용(우선순위 밖)",
         "orca_efforts": ("low", "medium", "high", "xhigh", "max"),
     },
     "gpt-6-astra": {
@@ -204,9 +242,22 @@ LANES = {
         "top": "max", "std": "medium", "ctx": "272K(최대 872K)",   # D-28 #9 최상위 high→max(Simon 확정 09-16) · #16 ctx
         "orca_efforts": ("minimal", "low", "medium", "high", "xhigh", "max", "ultra"),
     },
-    "gpt-5.6-luna": {
+    "gpt-6-luna": {
+        # 2026-10-05 Simon 지시 — gpt-5.6-luna 의 후속. A 클래스 1순위.
+        #   Orca codex 카탈로그 다섯 줄에 없는 모델이라 6.1-sol·astra 와 같은 폴백(codexEffort('xhigh'))을
+        #   받는다 → minimal~xhigh 만, max·ultra 는 거부(5.6-luna 는 seed 에 있어 max 까지 받았다).
+        # 정책 사다리는 gpt-5.6-luna 와 같은 low/medium 이다 — 싼 레인에 판단을 맡기지 않는다(D-28 #10 보류 유지).
+        # ⚠ 읽기 전용 canary 는 통과했다(2026-10-05 · requested == effective · 세션 기록 모델 일치).
+        #   계정/과금 인증서 전까지 동작 레인이 아니다
+        #   (registry legacy_lane_migration = pending-transport-and-certificate · 게이트는 다른 flag 레인과 같다).
         "cli": "codex", "vendor": "codex", "effort_style": "flag", "dispatch": "orca",
-        "top": "medium", "std": "low", "ctx": "272K(최대 872K) · 최저가",   # D-28 #10 보류(사다리 유지) · #16 ctx
+        "top": "medium", "std": "low", "ctx": "canary 통과 · 인증서 전 · 최저가 · Orca 상한 xhigh",
+        "orca_efforts": ("minimal", "low", "medium", "high", "xhigh"),
+    },
+    "gpt-5.6-luna": {
+        # 2026-10-05 Simon 지시: 원장 호환용(우선순위 밖). A 클래스 1순위는 gpt-6-luna 가 받는다.
+        "cli": "codex", "vendor": "codex", "effort_style": "flag", "dispatch": "orca",
+        "top": "medium", "std": "low", "ctx": "272K(최대 872K) · 최저가 · 원장 호환용(우선순위 밖)",   # D-28 #10 보류(사다리 유지) · #16 ctx
         # max 까지 받지만 ultra 는 거부된다. 정책상 medium 을 넘기지 않는다.
         "orca_efforts": ("minimal", "low", "medium", "high", "xhigh", "max"),
     },
@@ -298,7 +349,10 @@ CLASS_LANES = {
     #   claude-opus-5-5 로 바꿨다. sol 은 gpt-6.1-sol 을 같은 자리에 두고 gpt-5.6-sol 은 목록 끝 폴백으로 남긴다 —
     #   끝에 두는 이유: 같은 codex 벤더라 쿼터 강등(pick_default)에서는 둘이 함께 건너뛰어지고,
     #   2·3순위의 벤더 교차(탐색 슬롯 · 스왑 비교 · 표의 3후보)를 바꾸지 않기 위해서다.
-    "A":          ["gpt-5.6-luna", "claude-sonnet-5", "claude-opus-5-5"],
+    # 2026-10-05 Simon 지시("5.5로 전환해. 최신모델을써야지 왜 구모델을씀?"): 1순위 gpt-5.6-luna → gpt-6-luna,
+    #   2순위 claude-sonnet-5 → claude-sonnet-5-5 를 같은 자리에 둔다. 옛 두 키는 목록 끝 폴백으로도 두지 않는다
+    #   (원장 호환용 · 우선순위 밖). 벤더 순서 codex → claude → claude 는 그대로다.
+    "A":          ["gpt-6-luna", "claude-sonnet-5-5", "claude-opus-5-5"],
     # 2026-09-06: 2순위를 sol → gpt-6-astra 로 올린다.
     #   · astra 가 codex 계열 최상위 모델이다(models_cache priority 1).
     #   · sol 을 목록에서 빼면 코디네이터 좌석과 B 워커가 **구조적으로** 겹칠 수
@@ -438,7 +492,7 @@ OUTPUT_RULES = {
         "deny":  "범위 없는 '0건' 반환 · 무인 장기 루프 단독 배치",
         "why":   "부재 보고 오류가 직전 라운드 오류 5건 중 3건의 원인",
     },
-    "gpt-5.6-luna": {
+    "gpt-6-luna": {   # 2026-10-05: A 클래스 1순위 레인 규칙이라 1순위와 함께 옮겼다 (옛 키 gpt-5.6-luna)
         "allow": "정형 변환 · 카운트 · 분류 · **부재 보고에는 탐색 범위 명시**",
         "deny":  "우열 판단 (필요하면 terra 이상으로 올린다) · 범위 없는 '0건'",
         "why":   "최저가 레인 — 판단을 맡기면 싼 값에 틀린다. "
@@ -1204,6 +1258,12 @@ def emit_md():
              "통과했지만, native send 와 계정/과금 인증서 전까지는 "
              "동작 레인이 아니며 $0 게이트·G5·Orca 인증서가 똑같이 걸린다. 옛 키(`claude-opus-5` 등)는 "
              "원장 호환용으로 남고 `gpt-5.6-sol` 은 C 클래스 끝 폴백이다. grok 은 Orca 가 모델을 고정하지 못해 그대로다.")
+    L.append("")
+    L.append("**2026-10-05 Simon 지시 (2.15.5)**: A 클래스를 현행 세대로 옮겼다 — `gpt-6-luna`(flag · minimal~xhigh · "
+             "사다리 low/medium) → `claude-sonnet-5-5`(flag · low~max · 사다리 medium/high, xhigh·max 는 토큰 폭증이라 "
+             "정책 밖) → `claude-opus-5-5`. 옛 `gpt-5.6-luna`·`claude-sonnet-5` 는 원장 호환용(우선순위 밖)이다. "
+             "두 새 레인은 **등록만** 됐다 — 읽기 전용 canary 와 계정/과금 인증서 전까지 동작 레인이 아니며 "
+             "$0 게이트·G5·Orca 인증서가 똑같이 걸린다.")
     L.append("")
     L.append("### 공정 → 클래스 → 레인")
     L.append("")

@@ -36,7 +36,11 @@ D-67(2026-10-04)로 현행 세대 레인 `claude-opus-5-5`(low~max)와 `gpt-6.1-
 그래서 상태는 `pending-transport-and-certificate` 다. native send 보류와 Orca 런치
 계정/과금 인증서 부재가 그대로이므로 이 두 레인을 동작하는 경로로 쓰거나 보고하지 않는다.
 $0 게이트(모델 포함·초과과금 OFF·API 폴백 OFF), G5, 런치 인증서는 기존 flag 레인과 똑같이 걸린다.
-claude-sonnet-5-5, gpt-6-sol, gpt-6-luna, grok-4.7, grok-4.5 로의 Orca 발주는 여전히
+2026-10-05 Simon 지시(2.15.5)로 A 클래스 레인 `gpt-6-luna`(minimal~xhigh)와 `claude-sonnet-5-5`
+(low~max, 정책 사다리 medium/high)도 옛 레인 옆에 **등록**됐고, 읽기 전용 canary 를 2026-10-05 에
+통과했다(D-91, run `run_0a369252175f`). 상태는 `pending-transport-and-certificate` 다. Orca 런치
+계정/과금 인증서 전에는 동작하는 경로로 쓰거나 보고하지 않고, 같은 $0 게이트·G5·런치 인증서가 걸린다.
+gpt-6-sol, grok-4.7, grok-4.5 로의 Orca 발주는 여전히
 ORCA_UNREGISTERED_PROCESS_OR_MODEL 이다(`references/model-catalog-map.md`).
 
 운영 주의(D-67 canary 2026-10-04 관측, 판정 아님):

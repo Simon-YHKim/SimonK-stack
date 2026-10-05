@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan and reports blocked coding or image routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.15.4
+version: 2.15.5
 author: simon-stack
 ---
 
@@ -252,7 +252,7 @@ Ask only for missing intent or actions beyond existing authority.
 - Orca: read [Orca workflow](references/orca-workflow.md). Validate the entire
   assignment plan, then use `scripts/execute_orca.py` with the guarded adapter
   contract in [orchestration](references/orchestration.md). Its first version
-  covers local Claude/Codex flag-effort lanes only (D-67 의 `claude-opus-5-5`·`gpt-6.1-sol` 은 읽기 전용 canary 를 2026-10-04 에 통과했지만 native send·계정/과금 인증서 전이라 동작 레인이 아니다). It calls claim internally;
+  covers local Claude/Codex flag-effort lanes only (D-67 의 `claude-opus-5-5`·`gpt-6.1-sol` 은 읽기 전용 canary 를 2026-10-04 에 통과했지만 native send·계정/과금 인증서 전이라 동작 레인이 아니다. 2026-10-05 Simon 지시로 A 클래스가 된 `gpt-6-luna`·`claude-sonnet-5-5` 도 canary 를 통과했지만 인증서 전이다). It calls claim internally;
   never hand it a saved dispatch_allowed flag. Native Task/spec, workspace,
   executable and fresh account/billing evidence must match before a start.
   Reentry is lookup-only. Unsupported lanes remain blocked;
@@ -399,7 +399,7 @@ legacy CLI entrypoints now blocks bytecode before their first local import;
 module imports by other callers still need the caller's own no-bytecode policy.
 
 - [Orchestration schema and cost policy](references/orchestration.md)
-- [Model catalog map, 2026-10-04 refresh and D-67 Orca 레인(canary 통과 · 인증서 대기)](references/model-catalog-map.md)
+- [Model catalog map, 2026-10-05 refresh, D-67 Orca 레인(canary 통과 · 인증서 대기)과 A 클래스 현행 레인(canary 통과 · 인증서 대기)](references/model-catalog-map.md)
 - [Guarded Orca workflow and preparation limits](references/orca-workflow.md)
 - [D-28 route decisions](references/d28-routing.md)
 - [Astra effort transport cap](references/v2.2-astra-effort-cap.md)

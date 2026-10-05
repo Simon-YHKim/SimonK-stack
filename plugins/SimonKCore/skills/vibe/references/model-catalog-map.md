@@ -55,7 +55,7 @@ no guarded agy execution adapter exists, so this map grants no route.
 - `claude-opus-5` and `claude-sonnet-5` are labelled Legacy on their Claude
   overview pages and Active in the deprecation table, so they keep
   `lifecycle: active` and carry `generation: legacy`, like `gpt-5.6-*` and `grok-4.6`.
-- registry 에 등록됐다고 Orca 레인이 생기지는 않는다(D-67 로 추가된 두 레인은 아래 절).
+- registry 에 등록됐다고 Orca 레인이 생기지는 않는다(D-67 과 2026-10-05 Simon 지시로 추가된 네 레인은 아래 절).
   shadow task-fit 정책은 현행 Claude/Codex 모델만 든다. 자기 게이트를 통과한
   Orca 밖 경로는 legacy 모델을 고를 수 있다. `constrain_runtime` 이
   `generation: legacy` 를 후보에 복사하고, planner 는 그 값을 resource rank 와
@@ -66,12 +66,15 @@ no guarded agy execution adapter exists, so this map grants no route.
 
 D-67(2026-10-04, 허브 토론 `dbt-261004-033902`, ADD_ALONGSIDE_KEEP_LEGACY)에 따라
 2.14.0 은 Orca 레인 두 개를 옛 레인 **옆에** 추가했다. 근거는 Orca 1.4.218 번들의
-검증 코드를 읽은 것이며 모델 호출·worker-start 는 0회다.
+검증 코드를 읽은 것이며 모델 호출·worker-start 는 0회다. 2.15.5 는 2026-10-05 Simon 지시로
+A 클래스 레인 두 개를 같은 방식으로 더했다(표의 아래 두 줄, 이 변경에서도 모델 호출·worker-start 0회).
 
 | 새 레인 | 전달 | Orca 1.4.218 이 받는 effort | 정책 std / top | registry 상태 |
 | --- | --- | --- | --- | --- |
 | `claude-opus-5-5` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | high / max | `pending-transport-and-certificate` |
 | `gpt-6.1-sol` | `--effort` 플래그 | minimal~xhigh (codex 미등록 모델 폴백, max·ultra 거부) | high / xhigh | `pending-transport-and-certificate` |
+| `claude-sonnet-5-5` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | medium / high (xhigh·max 는 정책 밖) | `pending-transport-and-certificate` |
+| `gpt-6-luna` | `--effort` 플래그 | minimal~xhigh (codex 미등록 모델 폴백, max·ultra 거부) | low / medium | `pending-transport-and-certificate` |
 
 - 우선순위 목록·`PROCESS_LANES.coding`·종합 고정·코디네이터를 새 키로 옮겼다.
   종합은 `claude-opus-5-5` @max 다. ultracode 는 프롬프트 키워드라 flag 레인이 받지 못한다.
@@ -93,21 +96,39 @@ D-67(2026-10-04, 허브 토론 `dbt-261004-033902`, ADD_ALONGSIDE_KEEP_LEGACY)�
   `request_identity`, plan binding)는 그대로라 준비된 경로로 보지 않는다. 모델 포함·초과과금 OFF·
   API 폴백 OFF·G5·런치 인증서 게이트는 기존 flag 레인과 똑같이 걸린다(`test_orchestrate.py`·
   `test_execute_orca.py` 의 D-67 테스트). 운영 주의 3건은 `orca-workflow.md` 에 적었다.
-- `legacy_lane_migration` 12건 중 7건이 `pending-*` 이고 1건이 `held-*` 다. 남은 이전 대상은
-  `gpt-5.6-luna` → `gpt-6-luna`(A 클래스 1순위 변경이라 별도 결정), `grok-4.6` → `grok-4.7`
-  (Orca 가 grok 모델을 고정하지 못한다)이다.
-- `claude-sonnet-5` → `claude-sonnet-5-5` 는 D-90(2026-10-05)으로 `held-until-remeasure` 다.
-  Artificial Analysis 는 Sonnet 5.5 의 작업당 비용을 Sonnet 5 보다 약 50% 높게 보고, 모든 effort 가
-  지능 대비 작업당 비용 프런티어 밖이라고 적는다. 재개 조건은 AA 공개판 재측정에서 해당 effort 의
-  작업당 토큰이 Sonnet 5 이하이거나, A 클래스 canary 가 그때의 Opus 폴백보다 쿼터를 덜 쓰는 것이다.
-  옛 `claude-sonnet-5` 레인(D-28 A 클래스 2순위 폴백)은 그대로다. shadow task-fit 정책에서도
-  `claude-sonnet-5-5` 를 뺐다(재진입 조건은 그 정책 노트).
-  `keep-*` 4건은 자기 모델 그대로다: `claude-fable-5-1`, `gpt-6-astra`,
+- **2026-10-05 Simon 지시(2.15.5): A 클래스를 현행 세대로 옮겼다** — "5.5로 전환해. 최신모델을써야지
+  왜 구모델을씀?". A 클래스는 `gpt-6-luna` → `claude-sonnet-5-5` → `claude-opus-5-5` 이고, 옛
+  `gpt-5.6-luna`·`claude-sonnet-5` 는 원장 호환용(우선순위 밖)이다. A 1순위의 산출물 제약(정형 변환·카운트·
+  분류, 부재 보고에는 탐색 범위)도 `gpt-6-luna` 로 옮겼다. `claude-sonnet-5-5` 사다리는 Sonnet 5 의
+  medium/xhigh 를 물려받지 않고 다시 잡았다: std medium(Claude Code·앱 기본값), top high(Artificial
+  Analysis 가 Sonnet 5.5 의 가장 경쟁력 있는 설정으로 보는 값). xhigh·max 는 토큰 폭증(max 에서 작업당
+  출력 약 193k 토큰) 때문에 정책 사다리 밖이고 off-ladder 로만 열린다. 쿼터는 claude 일반 weekly 다.
+  `gpt-6-luna` 는 `gpt-5.6-luna` 와 같은 low/medium 이고, Orca 상한은 seed 밖 폴백이라 xhigh 다(5.6-luna 는 max).
+- **canary 는 통과했지만 아직 동작 레인이 아니다(D-91, 2.15.5).** 2026-10-05 20:47~20:53 KST 의 읽기 전용
+  canary(Orca run `run_0a369252175f`, 레인마다 워커 1개, 도구 금지 한 줄 응답, D-67 과 같은 folder worktree)에서
+  두 레인 모두 `launch.requested` 와 `launch.effective` 가 같았다. `claude-sonnet-5-5`@medium 은 argv
+  `--model claude-sonnet-5-5 --effort medium` 이고 세션 기록의 model 도 `claude-sonnet-5-5` 였다(자기보고는
+  `claude-fable-5-1 CANARY-OK` 로 틀렸다). `gpt-6-luna`@low 는 argv `-m gpt-6-luna -c model_reasoning_effort=low`
+  이고 rollout `turn_context` 는 `gpt-6-luna`/low 였다(자기보고 `gpt-6.1-sol CANARY-OK`, 서버측 모델은 따로
+  확인하지 못했다). 두 워커는 정지했고 PID 가 사라진 것을 확인했다. 그래서 상태는
+  `pending-transport-and-certificate` 이고, Orca 런치 계정/과금 인증서가 생기기 전까지 준비된 경로로 보지 않는다.
+  모델 포함·초과과금 OFF·API 폴백 OFF·G5·런치 인증서 게이트는 기존 flag 레인과 똑같이 걸린다
+  (`test_orchestrate.py`·`test_execute_orca.py` 의 A 클래스 레인 테스트).
+- `claude-sonnet-5` → `claude-sonnet-5-5` 는 D-90(2026-10-05)으로 `held-until-remeasure` 였다가, 같은 날
+  Simon 지시(D-91)로 전환했고 canary 를 통과해 지금은 `pending-transport-and-certificate` 다. D-90 소수의견대로 이 레인에 대한
+  Simon 의 명시 지시가 보류보다 앞선다. D-90 이 든 비용 근거(Artificial Analysis 는 Sonnet 5.5 의 작업당
+  비용을 Sonnet 5 보다 약 50% 높게 보고, 모든 effort 가 지능 대비 작업당 비용 프런티어 밖이라고 적는다)는
+  별개의 비용 프런티어 판단이라 shadow task-fit 정책의 `claude-sonnet-5-5` 제외(재진입 조건은 그 정책 노트)는
+  그대로 두었다.
+- `legacy_lane_migration` 14건 중 10건이 `pending-*` 이고 `held-*` 는 없다. 아직 레인을 옮기지 않은 이전
+  대상은 `grok-4.6` → `grok-4.7`(Orca 가 grok 모델을 고정하지 못한다)이고, `gpt-5.6-terra` → `gpt-6.1-sol` 은
+  같은 등급이 아니라 평가 보류다. `keep-*` 4건은 자기 모델 그대로다: `claude-fable-5-1`, `gpt-6-astra`,
   `gpt-daybreak-blue-latest`, `gemini-3.8-flash`.
-- 그래서 planner 는 여전히 `claude-sonnet-5-5`, `gpt-6-sol`, `gpt-6-luna`, `grok-4.7`,
-  `grok-4.5` 로의 Orca 발주를 `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막는다. 레인을 더
-  바꾸려면 Orca canary 와 `/ai-debate` 를 거친 별도 결정이 필요하다. Orca 밖 guarded adapter 는
-  자기 계정·과금·effort 게이트를 그대로 적용한다.
+- 그래서 planner 는 여전히 `gpt-6-sol`, `grok-4.7`, `grok-4.5` 로의 Orca 발주를
+  `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막는다. `claude-sonnet-5-5`·`gpt-6-luna` 는 이제 등록된 레인이라
+  그 코드가 아니라 다음 게이트(G5·$0·런치 인증서)에서 멈춘다. 레인을 더 바꾸려면 Orca canary 와
+  `/ai-debate` 를 거친 별도 결정이나 Simon 의 명시 지시가 필요하다. Orca 밖 guarded adapter 는 자기
+  계정·과금·effort 게이트를 그대로 적용한다.
 
 ## Refresh record (2026-10-05)
 
