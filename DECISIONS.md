@@ -738,3 +738,10 @@ last-sync: 2026-07-05
   - **조치**: SimonK-stack #156 — fixture만 규칙에 맞춤(planner·run_state·dispatcher 코드 무변경), multi-terminal-dispatcher 1.1.2, skills-ci Windows job에 세 단계 추가. 러너 TEMP 8.3 짧은 경로(RUNNER~1)로 생긴 2건은 resolve() 비교로 수정. CI 7/7(새 세 단계 포함) 통과. 결과: entrypoint 26·router 9·dispatcher 22(+3 skip). 콘텐츠 Claude 09d71048·Codex d2862e04를 같은 PR 승인 파일로 게시 | claude
 
 - 2026-10-05 23:46:45 KST | AMEND | **D-92 CI 밖에서 깨져 있던 테스트 3묶음 수리와 CI 편입** — 이행: #156(9ed5687) 머지, main run 37325754627이 dist 4856b90 1.817.0 게시. 이 PC: update-local로 후보 20261005-vibe-2155-9ed5687(multi-terminal-dispatcher 1.1.2, selftest 196/0, problems 0) | claude
+
+- 2026-10-06 00:42:12 KST | DECIDE | **D-93 Grok Bot 화면 작업 권한 전부 허용** (Simon 결정 · §11-5 안전 레일 · 토론 없음) | claude
+  - **안건**: vibe-bot 과제서가 로그인·2FA·자격증명·계정 생성·공개 게시·결제·권한 변경을 허용하지 않고 제출·삭제 등은 누르기 직전 멈추던 규칙(SKILL.md 51~53행, make_bot_spec.py 기본 금지 버튼·멈춤 지점)을 바꿀지. 선택지: 단계적 허용(권장: 허용 범위 사전 명시·로그인은 저장 세션·결제 금액 상한) / 전부 허용 / 현행 유지
+  - **결정**: Simon이 위험 설명(비밀번호의 외부 채팅 잔존, 결제 취소 어려움, 봇 가입 금지 약관)을 본 뒤 "전부 허용"을 골랐다. 과제 목표에 필요하면 봇이 로그인·계정 생성·결제·제출·게시·삭제·권한 변경까지 승인 없이 진행한다
+  - **그대로 둔 것(권한이 아닌 유출·레인 규칙)**: 비밀번호·토큰은 과제서·버스·git·결과에 쓰지 않는다(B1, 루트 지침 §5) — 봇 컴퓨터 저장 세션 또는 Simon이 봇 채팅에 직접 전달, 2FA 코드는 Simon. 회사 기밀 B3. 코드·레포·DB는 /vibe(B2·B8). 전송 승인(approval_ref)과 봇 자체 사용량의 초과 과금·자동 충전 금지. 과제별 보류(--read-only 신설·--forbid·--allow-change)
+  - **소수의견(Claude 권고)**: 결제 금액 상한·건별 승인을 두는 단계적 허용. 되돌리는 조건: 봇의 의도하지 않은 결제·제출·계정 생성이 1건이라도 확인될 때
+  - **후속**: SimonK-stack vibe-bot 0.10.0 PR, 루트 CLAUDE/AGENTS/GEMINI §21 동기화(완료), 클라우드 봇 워크북(_common.md) 반영은 Relay 과제로 별도 | claude
