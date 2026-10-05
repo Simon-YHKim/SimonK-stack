@@ -706,3 +706,7 @@ last-sync: 2026-07-05
 
 - 2026-10-05 15:32:29 KST | DECIDE | **D-89 vibe 2.15.3 레지스트리 재확인 콘텐츠 dist 게시·설치** (오케스트레이터 단독 · 35.8 1단) | claude
   - **근거**: §35.9에 따른 승인된 게시 절차(승인 파일 PR) 반복. SimonK-stack #142(c9da2c8, vibe 2.15.3: 레지스트리 사실 변경 0, checked_at 2026-10-05 14:17:43, 만료 10-12 14:17)가 배포 콘텐츠를 바꿨는데 승인 파일 갱신이 빠져, main run 37269006370·37270119698·37270140150의 게시 job이 content-not-approved로 거부됐다(설계대로, 공개 dist는 1.777.0 유지). 콘텐츠 digest a09f620f331a1cd782aae202cd659a8ea376d605872632c2edab5bb813642c4d는 c9da2c8부터 #143·#144·#145(5435a4f)까지 같다(#145 PR 빌드 1.787.0도 같은 값). 승인 파일을 D-89·source c9da2c8·이 digest로 바꾸고, 게시 뒤 이 PC update-local로 설치한다.
+
+- 2026-10-05 15:53:59 KST | AMEND | **D-89 vibe 2.15.3 레지스트리 재확인 콘텐츠 dist 게시·설치** — 이행: 승인 파일 PR #146(1921a55) 머지 뒤 main run 37273740604가 dist 7a14075 = 1.789.0을 게시했다. 이 PC: update-local -Apply -Selftest로 후보 20261005-vibe-2153-1921a55 설치(정션 8개, vibe 2.15.3, selftest vibe 188/0·vibe-bot 97/0, problems 0, 238초) | claude
+
+- 2026-10-05 15:53:59 KST | AMEND | **D-87 D-33 hold와 레거시 배포·설치 경로 폐기** — 이행 완료: PR-A #143(b068f59: session-start.sh 읽기 전용, release.yml·hold 삭제, fence 테스트 교체 — 옛 훅 77줄·release 단계를 새 검사가 잡는 것 확인), PR-B #145(5435a4f: root skills/ 68·root plugin.json·옛 install.sh·setup-repo·bootstrap 템플릿·test_no_install_marker를 _archive/로 git mv, install.sh는 --offline-package만, dist_release 하한 상수 0.1.0, validate.mjs 카탈로그 검사, 문서 정리). 사전 확인: main 브랜치 보호 없음(404), integration 브랜치 0. 콘텐츠 digest는 두 PR 모두 불변. 보존 브랜치 정리: 16개 삭제(11개는 main 포함, 5개는 archive/branch/* 태그로 보존). plugin/simonk-stack은 아래 정리 대상 | claude
