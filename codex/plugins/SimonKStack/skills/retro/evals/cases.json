@@ -1,0 +1,34 @@
+{
+  "skill": "retro",
+  "version": "2.0.0",
+  "cases": [
+    {
+      "id": "ko-weekly-retro",
+      "prompt": "이번 주 회고 돌려줘, 뭐 출시했는지 정리해줘",
+      "assertions": [
+        {
+          "id": "analyzes-commits",
+          "text": "Analyzes commit history and work patterns to produce a weekly engineering retrospective."
+        },
+        {
+          "id": "trend-tracking",
+          "text": "Tracks trends across persistent retro history rather than a one-off snapshot."
+        }
+      ]
+    },
+    {
+      "id": "en-eng-retrospective",
+      "prompt": "Run an engineering retrospective and show what we shipped this sprint.",
+      "assertions": [
+        {
+          "id": "what-shipped",
+          "text": "Summarizes what shipped over the period from commit history and code quality metrics."
+        },
+        {
+          "id": "per-person",
+          "text": "Is team-aware: breaks down per-person contributions with praise and growth areas when multiple committers exist."
+        }
+      ]
+    }
+  ]
+}

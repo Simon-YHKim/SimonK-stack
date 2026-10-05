@@ -1,0 +1,13 @@
+name: validate-plugin
+on:
+  push: { branches: [ main ] }
+  pull_request:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '24' }
+      - run: node .github/validate.mjs
+      - run: node --test skills/mobile-attribution-integrator/tests/parse-install-referrer.test.mjs skills/referral-program-builder/tests/check-referral-integrity.test.mjs

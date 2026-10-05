@@ -1,0 +1,38 @@
+{
+  "skill": "dashboard-review",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "ko-data-dashboard-audit",
+      "prompt": "우리 관리자 대시보드 검수해줘. 주문 상태, 매출 추이, 지연 주문 테이블이 한 화면에 있어.",
+      "assertions": [
+        {
+          "id": "data-drives-form",
+          "text": "Reviews whether categorical status, time-series trends, and tabular detail each use an appropriate visual form rather than defaulting everything to a table."
+        },
+        {
+          "id": "prioritized-fixes",
+          "text": "Returns prioritized file or element specific before-to-after fixes, including number alignment and a clear primary action."
+        },
+        {
+          "id": "invisible-states",
+          "text": "Checks tooltips, hover affordances, and empty, loading, and error states."
+        }
+      ]
+    },
+    {
+      "id": "en-empty-dashboard",
+      "prompt": "Review this data dashboard: the API is often slow and a new account starts with no data. The screen currently shows a blank chart and an empty table.",
+      "assertions": [
+        {
+          "id": "state-coverage",
+          "text": "Identifies and differentiates empty, loading, and error states for both the chart and table."
+        },
+        {
+          "id": "progressive-disclosure",
+          "text": "Evaluates the primary action and progressive disclosure instead of recommending that every action remain visible."
+        }
+      ]
+    }
+  ]
+}

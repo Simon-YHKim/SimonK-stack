@@ -1,0 +1,48 @@
+{
+  "skill": "skaihub",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "ko-where-to-start",
+      "prompt": "AI 기능 붙이고 싶은데 뭐부터 해야 할지 모르겠어",
+      "assertions": [
+        {
+          "id": "single-askuserquestion",
+          "text": "Uses AskUserQuestion once with plain-language aliases to diagnose intent and user level."
+        },
+        {
+          "id": "routes-pipeline",
+          "text": "Routes the diagnosed intent to a concrete sub-skill pipeline."
+        },
+        {
+          "id": "never-skip-gates",
+          "text": "Does not skip the eval and safety gates before production."
+        }
+      ]
+    },
+    {
+      "id": "en-add-chatbot",
+      "prompt": "I want to add a chatbot to my app",
+      "assertions": [
+        {
+          "id": "routes-llm-pipeline",
+          "text": "Routes to the LLM-feature pipeline (ai-model-selector → prompt-engineering → llm-eval → ai-safety-eval)."
+        },
+        {
+          "id": "core-graceful-degrade",
+          "text": "Detects SimonKCore and degrades gracefully if it is absent."
+        }
+      ]
+    },
+    {
+      "id": "compound-rag-plus-eval",
+      "prompt": "RAG 챗봇 만들고 평가랑 안전 점검까지 다 해줘",
+      "assertions": [
+        {
+          "id": "sequential-not-cut",
+          "text": "Treats the compound goal as sequential execution (RAG → eval → safety), not a single forced choice."
+        }
+      ]
+    }
+  ]
+}

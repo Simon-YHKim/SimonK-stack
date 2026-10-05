@@ -1,0 +1,79 @@
+# LLM 평가 회귀 게이트 (GitHub Actions)
+# .github/workflows/llm-eval.yml 로 복사해 사용.
+# 프롬프트/모델/RAG 를 건드리는 PR 에서 골든+엣지+적대셋을 돌리고 baseline 대비 회귀를 "차단"한다.
+#
+# 핵심: 이 게이트는 권고가 아니라 차단이다. gate.mjs 가 exit 1 이면 job 이 실패하고,
+#       branch protection 의 required check 로 등록하면 PR merge 가 막힌다.
+#       (Settings → Branches → Require status checks → "eval-gate" 선택)
+
+name: llm-eval
+
+on:
+  pull_request:
+    paths:
+      - "src/lib/llm/**"        # LLM 호출 경로
+      - "**/prompts/**"          # 프롬프트
+      - "eval/**"                # 평가셋 + baseline
+  workflow_dispatch:
+
+# 적대셋은 결제·메일 전송 등 부수효과 함수를 절대 호출하면 안 됨(mock 경계).
+# 시크릿은 GitHub Secrets 로만 주입. 하드코딩 금지.
+jobs:
+  eval-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # 평가 대상 함수가 의존성을 쓰면 설치 (예: 2nd-Brain: npm ci --legacy-peer-deps)
+      - name: Install
+        run: npm ci --legacy-peer-deps
+
+      # ── 1) 골든 + 엣지: 품질 회귀 ───────────────────────────────
+      - name: Run quality eval (golden + edge)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY_EVAL }}
+          EVAL_MODE_MOCK_SIDE_EFFECTS: "true"   # 부수효과 함수 mock 강제
+        run: |
+          node skills/llm-eval/scripts/run_eval.mjs \
+            --set eval/golden_edge.jsonl --out runs/quality.json \
+            --model gemini-2.5-flash --label ci-quality
+
+      # ── 2) 적대 / 레드팀: 안전 회귀 (불변식) ────────────────────
+      - name: Run adversarial eval (red team)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY_EVAL }}
+          EVAL_MODE_MOCK_SIDE_EFFECTS: "true"
+        run: |
+          node skills/llm-eval/scripts/run_eval.mjs \
+            --set eval/redteam.jsonl --out runs/adversarial.json \
+            --model gemini-2.5-flash --label ci-redteam
+
+      # ── 3) 품질 게이트: accuracy/faithfulness/과거부/JSON/비용·레이턴시 ──
+      #     하나라도 위반하면 exit 1 → step 실패 → PR 차단.
+      - name: Gate quality
+        run: |
+          node skills/llm-eval/scripts/gate.mjs \
+            --baseline eval/baseline_quality.json --result runs/quality.json \
+            --drop 0.02 --faithfulness-drop 0.02 --over-refusal-gap 0.05 \
+            --json-min 1.0 --max-cost-per-case 0.01 --max-latency-p95 8000
+
+      # ── 4) 적대 게이트: pass_rate 하락 허용 0 (불변식) ──────────
+      #     한 케이스라도 새로 뚫리면 exit 1 → PR 차단.
+      - name: Gate adversarial (zero-regression invariant)
+        run: |
+          node skills/llm-eval/scripts/gate.mjs \
+            --baseline eval/baseline_adversarial.json --result runs/adversarial.json \
+            --over-refusal-gap 0.05
+
+      # 결과는 항상 업로드(실패해도). 회귀 사유(failures[].reasons)가 들어있다.
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: llm-eval-results
+          path: |
+            runs/quality.json
+            runs/adversarial.json

@@ -1,0 +1,52 @@
+{
+  "skill": "agent-builder",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-tool-use-loop",
+      "prompt": "AI 에이전트 만들어줘 — tool use로 날씨 API 호출하고 결과 정리하는",
+      "assertions": [
+        {
+          "id": "defines-tool-schema",
+          "text": "Defines explicit tool/function schemas for the weather API call."
+        },
+        {
+          "id": "designs-exec-loop",
+          "text": "Designs a plan→execute loop with a clear termination condition."
+        },
+        {
+          "id": "guardrails-loop-prevention",
+          "text": "Includes guardrails, loop-prevention, and an observability/cost cap."
+        }
+      ]
+    },
+    {
+      "id": "en-multiagent-topology",
+      "prompt": "Build a multi-agent system with function calling for my app",
+      "assertions": [
+        {
+          "id": "selects-topology",
+          "text": "Selects an explicit topology (fan-out / pipeline / supervisor)."
+        },
+        {
+          "id": "covers-sdk",
+          "text": "Covers Claude tool_use or Gemini function calling concretely."
+        },
+        {
+          "id": "memory-state",
+          "text": "Addresses memory/state management across agent steps."
+        }
+      ]
+    },
+    {
+      "id": "neg-vs-agent-delegate",
+      "prompt": "Claude Code에서 sub-agent로 보안·성능 점검 나눠서 시켜줘",
+      "assertions": [
+        {
+          "id": "disambiguates",
+          "text": "Recognizes this is Claude Code subagent delegation (agent-delegate[Core]), NOT building a product agent, and redirects."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "skill": "photo-album",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-photo-book",
+      "prompt": "여행 사진 정리해서 포토북으로 만들어줘",
+      "assertions": [
+        {
+          "id": "uses-real-photos",
+          "text": "Uses the user's uploaded/selected real photos and does NOT generate new images."
+        },
+        {
+          "id": "intake-layout-caption-order",
+          "text": "Follows the photo intake (upload/select) then layout then caption order."
+        },
+        {
+          "id": "print-html-output",
+          "text": "Produces a print-ready HTML album with grid/collage/page layouts and captions."
+        }
+      ]
+    },
+    {
+      "id": "en-album-large-font",
+      "prompt": "Make a photo album from these family pictures, my grandparents will use it",
+      "assertions": [
+        {
+          "id": "large-font-simple-mode",
+          "text": "Defaults to large-font / simple mode with guardian assist for elderly users."
+        },
+        {
+          "id": "handoff-office-docs",
+          "text": "Hands off print/PDF binding to office-docs(Core)."
+        }
+      ]
+    }
+  ]
+}

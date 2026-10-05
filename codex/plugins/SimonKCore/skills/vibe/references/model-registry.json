@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "version": "2026-10-05.1",
+  "checked_at": "2026-10-05T14:17:43+09:00",
+  "data_as_of": "2026-10-05",
+  "notes": [
+    "Public provider facts are not account, transport, billing or successful-execution evidence.",
+    "API Standard USD / million tokens only. Tool, storage, transport, regional and priority charges are separate.",
+    "ultra and ultracode are harness delegation modes, not ordinary provider reasoning effort.",
+    "Grok Bot has no verified model/effort control here and has a distinct account/quota/billing path.",
+    "checked_at is a conservative catalog-wide inspection floor; data_as_of is this snapshot date, not a release date.",
+    "2026-10-05 갱신(2.15.3, 14:17~14:20 KST): 아래 출처 28개를 모델 호출 없이 HTTPS 로 다시 읽고(전부 첫 요청 HTTP 200) 등록 모델 18개의 162개 필드(ID·effort·컨텍스트·가격·장문 구간·수명 일자 등)를 JSON 과 대조했다(일치 160, 불일치 0, 확인불가 2 — gpt-5.6-terra·gpt-5.6-luna 의 장문 cached_input 은 제공사 페이지에 값이 없어 같은 문구의 gpt-5.6-sol 로 유추해 유지). 로컬 Codex·Grok·agy·Claude CLI 카탈로그와 메타데이터 전용 runtime_collect.py 결과도 대조했다. 바뀐 제공사 사실은 없고 제거·개명된 모델도 없다. checked_at 은 실제로 쓴 근거 중 가장 이른 시각(Codex 모델 캐시 수신)이다. 2026-10-04 1·2차 갱신(2.14.1·2.15.2)도 바뀐 사실이 없었다. CLI 전용 이름·agy effort 접미 이름·effort 가 없는 Haiku 4.5 는 references/model-catalog-map.md 에 대응만 적고 등록하지 않는다.",
+    "2026-10-04 D-67(2.14.0): legacy_lane_migration 만 바꿨다 — 새 Orca 레인 claude-opus-5-5·gpt-6.1-sol 항목을 추가하고 sol 후속을 gpt-6.1-sol 로 통일했다. 그때 제공사 사실은 바꾸지 않았고, 새 레인은 canary·계정/과금 인증서 전까지 pending-transport-and-canary 다.",
+    "2026-10-04 D-67 canary(2.14.2): 읽기 전용 Orca canary(2026-10-04 13:19~13:27 KST, run_92ff481d8b2f)가 claude-opus-5-5@high 와 gpt-6.1-sol@xhigh 둘 다 launch.requested == launch.effective 로 통과했다. 그래서 후보가 이 두 레인인 항목 4개(claude-opus-5-5·claude-opus-5·gpt-6.1-sol·gpt-5.6-sol)만 pending-transport-and-certificate 로 바꿨다. native send 보류와 계정/과금 인증서 부재가 그대로라 여전히 동작 레인이 아니다. gpt-5.6-terra(평가 보류)와 다른 항목, 제공사 사실, checked_at 은 그대로다."
+  ],
+  "sources": {
+    "oa_sol61": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+    "oa_astra": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+    "oa_sol": "https://developers.openai.com/api/docs/models/gpt-6-sol",
+    "oa_luna": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+    "oa_changelog": "https://developers.openai.com/api/docs/changelog",
+    "oa_old_sol": "https://developers.openai.com/api/docs/models/gpt-5.6-sol",
+    "oa_terra": "https://developers.openai.com/api/docs/models/gpt-5.6-terra",
+    "oa_old_luna": "https://developers.openai.com/api/docs/models/gpt-5.6-luna",
+    "oa_daybreak": "https://developers.openai.com/api/docs/models/gpt-daybreak-blue-latest",
+    "oa_pricing": "https://developers.openai.com/api/docs/pricing",
+    "cl_models": "https://platform.claude.com/docs/en/models/overview",
+    "cl_sonnet55": "https://platform.claude.com/docs/en/models/sonnet-5-5/overview",
+    "cl_effort": "https://platform.claude.com/docs/en/build-with-claude/effort",
+    "cl_pricing": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "cl_lifecycle": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+    "cl_billing": "https://code.claude.com/docs/en/model-config",
+    "cl_old_opus": "https://platform.claude.com/docs/en/models/opus-5/overview",
+    "cl_old_sonnet": "https://platform.claude.com/docs/en/models/sonnet-5/overview",
+    "gg_latest": "https://ai.google.dev/gemini-api/docs/latest-model",
+    "gg_pricing": "https://ai.google.dev/gemini-api/docs/pricing",
+    "gg_pro": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-pro-preview",
+    "gg_thinking": "https://ai.google.dev/gemini-api/docs/thinking",
+    "x_model": "https://docs.x.ai/developers/models/grok-4.7",
+    "x_release": "https://docs.x.ai/developers/release-notes",
+    "x_reasoning": "https://docs.x.ai/developers/model-capabilities/text/reasoning",
+    "x_old_model": "https://docs.x.ai/developers/models/grok-4.6",
+    "x_grok45": "https://docs.x.ai/developers/models/grok-4.5",
+    "x_pricing": "https://docs.x.ai/developers/pricing"
+  },
+  "legacy_lane_migration": {
+    "claude-opus-5-5": {"candidate": "claude-opus-5-5", "status": "pending-transport-and-certificate"},
+    "claude-opus-5": {"candidate": "claude-opus-5-5", "status": "pending-transport-and-certificate"},
+    "claude-fable-5-1": {"candidate": "claude-fable-5-1", "status": "keep-model-check-billing"},
+    "claude-sonnet-5": {"candidate": "claude-sonnet-5-5", "status": "pending-transport-and-canary"},
+    "gpt-6-astra": {"candidate": "gpt-6-astra", "status": "keep-model-check-transport"},
+    "gpt-6.1-sol": {"candidate": "gpt-6.1-sol", "status": "pending-transport-and-certificate"},
+    "gpt-5.6-sol": {"candidate": "gpt-6.1-sol", "status": "pending-transport-and-certificate"},
+    "gpt-5.6-terra": {"candidate": "gpt-6.1-sol", "status": "pending-evaluation-not-equivalent-tier"},
+    "gpt-5.6-luna": {"candidate": "gpt-6-luna", "status": "pending-transport-and-canary"},
+    "gpt-daybreak-blue-latest": {"candidate": "gpt-daybreak-blue-latest", "status": "keep-security-pin-resolve-per-run"},
+    "gemini-3.8-flash": {"candidate": "gemini-3.8-flash", "status": "keep-model-orca-unverified"},
+    "grok-4.6": {"candidate": "grok-4.7", "status": "pending-quota-and-canary"}
+  },
+  "models": [
+    {
+      "id": "gpt-6.1-sol", "surface": "codex", "vendor": "openai", "lifecycle": "active",
+      "id_namespace": "provider-api",
+      "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": [],
+      "context_tokens": 1050000, "max_output_tokens": 128000,
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "2", "cached_input": "0.1", "output": "10", "cache_write": "2.5", "tiers": [{"above_input_tokens": 272000, "input": "4", "cached_input": "0.2", "output": "15", "cache_write": null}]},
+      "sources": ["oa_sol61"]
+    },
+    {
+      "id": "gpt-6-astra", "surface": "codex", "vendor": "openai", "lifecycle": "active",
+      "id_namespace": "provider-api",
+      "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": [],
+      "context_tokens": 1050000, "max_output_tokens": 128000,
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "10", "cached_input": "1", "output": "50", "cache_write": "12.5", "tiers": [{"above_input_tokens": 272000, "input": "20", "cached_input": "2", "output": "75", "cache_write": null}]},
+      "sources": ["oa_astra"]
+    },
+    {
+      "id": "gpt-6-sol", "surface": "codex", "vendor": "openai", "lifecycle": "active",
+      "id_namespace": "provider-api",
+      "released_at": "2026-09-22", "api_efforts": ["none", "low", "medium", "high", "xhigh", "max"], "aliases": [],
+      "context_tokens": 1050000, "max_output_tokens": 128000,
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "2", "cached_input": "0.2", "output": "10", "cache_write": "2.5", "tiers": [{"above_input_tokens": 272000, "input": "4", "cached_input": "0.4", "output": "15", "cache_write": null}]},
+      "sources": ["oa_sol", "oa_changelog"]
+    },
+    {
+      "id": "gpt-6-luna", "surface": "codex", "vendor": "openai", "lifecycle": "active",
+      "id_namespace": "provider-api",
+      "released_at": "2026-09-22", "api_efforts": ["none", "low", "medium", "high", "xhigh", "max"], "aliases": [],
+      "context_tokens": 1050000, "max_output_tokens": 128000,
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "0.1", "cached_input": "0.01", "output": "0.5", "cache_write": "0.125", "tiers": [{"above_input_tokens": 272000, "input": "0.2", "cached_input": "0.02", "output": "0.75", "cache_write": null}]},
+      "sources": ["oa_luna", "oa_changelog"]
+    },
+    {
+      "id": "claude-opus-5-5", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
+      "id_namespace": "provider-api",
+      "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": ["opus"],
+      "retirement_not_before": "2027-09-22", "thinking": "adaptive_always_on",
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "4", "cached_input": "0.2", "output": "20", "cache_write": null},
+      "sources": ["cl_models", "cl_effort", "cl_pricing", "cl_lifecycle"]
+    },
+    {
+      "id": "claude-fable-5-1", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
+      "id_namespace": "provider-api",
+      "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": ["fable"],
+      "retirement_not_before": "2027-09-01", "thinking": "adaptive_always_on",
+      "billing_note": "Claude Code subscription login does not establish included Fable usage. Non-interactive Fable requests can bill usage credits without a consent prompt; require positive exact-model subscription inclusion and disabled overage evidence before dispatch.",
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "10", "cached_input": "0.25", "output": "50", "cache_write": null},
+      "sources": ["cl_models", "cl_effort", "cl_pricing", "cl_lifecycle", "cl_billing"]
+    },
+    {
+      "id": "claude-sonnet-5-5", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
+      "id_namespace": "provider-api",
+      "released_at": "2026-09-28", "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": ["sonnet"],
+      "context_tokens": 1000000, "max_output_tokens": 128000,
+      "retirement_not_before": "2027-09-28", "thinking": "adaptive",
+      "transport_note": "Claude Code 2.1.284+ is required; its default effort is medium while the API default is high. The sonnet alias varies by provider. Recalibrate against Sonnet 5 instead of inheriting its effort; public facts do not prove this account's included usage or model access.",
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "2", "cached_input": "0.2", "output": "10", "cache_write": null, "note": "5-minute cache write is $2.50/MTok and 1-hour cache write is $4/MTok; the single cache_write field cannot safely represent both."},
+      "sources": ["cl_sonnet55", "cl_models", "cl_effort", "cl_pricing", "cl_billing"]
+    },
+    {
+      "id": "claude-sonnet-5", "surface": "claude", "vendor": "anthropic", "lifecycle": "active",
+      "id_namespace": "provider-api",
+      "generation": "legacy", "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": [],
+      "retirement_not_before": "2027-06-30",
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "2", "cached_input": "0.2", "output": "10", "cache_write": null},
+      "sources": ["cl_old_sonnet", "cl_models", "cl_effort", "cl_pricing", "cl_lifecycle"]
+    },
+    {
+      "id": "gemini-3.8-flash", "surface": "antigravity", "vendor": "google", "lifecycle": "active",
+      "id_namespace": "provider-api",
+      "api_efforts": ["low", "medium", "high"], "aliases": [], "source_updated_at": "2026-09-23",
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "0.75", "cached_input": "0.075", "output": "3.75", "cache_write": null, "valid_through": "2026-12-31", "note": "Context cache storage and tools are separate charges; rates change 2027-01-01."},
+      "sources": ["gg_latest", "gg_pricing"]
+    },
+    {
+      "id": "gemini-3.1-pro-preview", "surface": "antigravity", "vendor": "google", "lifecycle": "preview",
+      "id_namespace": "provider-api",
+      "api_efforts": ["low", "medium", "high"], "aliases": [],
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "2", "cached_input": "0.2", "output": "12", "cache_write": null, "tiers": [{"above_input_tokens": 200000, "input": "4", "cached_input": "0.4", "output": "18"}]},
+      "sources": ["gg_pro", "gg_thinking", "gg_pricing"]
+    },
+    {
+      "id": "grok-4.7", "surface": "grok", "vendor": "xai", "lifecycle": "active",
+      "id_namespace": "provider-api",
+      "api_efforts": ["low", "medium", "high", "xhigh"], "aliases": [], "released_at": "2026-09-21", "context_tokens": 500000,
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "2", "cached_input": "0.5", "output": "6", "cache_write": null, "tiers": [{"above_input_tokens": 200000, "input": "4", "cached_input": "1", "output": "12"}]},
+      "sources": ["x_model", "x_release", "x_reasoning"]
+    },
+    {
+      "id": "claude-opus-5", "surface": "claude", "vendor": "anthropic", "lifecycle": "active", "id_namespace": "provider-api",
+      "generation": "legacy", "api_efforts": ["low", "medium", "high", "xhigh", "max"], "aliases": [],
+      "retirement_not_before": "2027-07-24",
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "5", "cached_input": "0.5", "output": "25", "cache_write": null},
+      "sources": ["cl_old_opus", "cl_lifecycle"]
+    },
+    {
+      "id": "gpt-5.6-sol", "surface": "codex", "vendor": "openai", "lifecycle": "active", "id_namespace": "provider-api",
+      "generation": "legacy", "api_efforts": ["none", "low", "medium", "high", "xhigh", "max"], "aliases": [],
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "4", "cached_input": "0.4", "output": "20", "cache_write": "5", "tiers": [{"above_input_tokens": 272000, "input": "8", "cached_input": "0.8", "output": "30", "cache_write": null}]},
+      "sources": ["oa_old_sol"]
+    },
+    {
+      "id": "gpt-5.6-terra", "surface": "codex", "vendor": "openai", "lifecycle": "active", "id_namespace": "provider-api",
+      "generation": "legacy", "api_efforts": ["none", "low", "medium", "high", "xhigh", "max"], "aliases": [],
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "2", "cached_input": "0.2", "output": "12", "cache_write": "2.5", "tiers": [{"above_input_tokens": 272000, "input": "4", "cached_input": "0.4", "output": "18", "cache_write": null}]},
+      "sources": ["oa_terra"]
+    },
+    {
+      "id": "gpt-5.6-luna", "surface": "codex", "vendor": "openai", "lifecycle": "active", "id_namespace": "provider-api",
+      "generation": "legacy", "api_efforts": ["none", "low", "medium", "high", "xhigh", "max"], "aliases": [],
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "0.2", "cached_input": "0.02", "output": "1.2", "cache_write": "0.25", "tiers": [{"above_input_tokens": 272000, "input": "0.4", "cached_input": "0.04", "output": "1.8", "cache_write": null}]},
+      "sources": ["oa_old_luna"]
+    },
+    {
+      "id": "gpt-daybreak-blue-latest", "surface": "codex", "vendor": "openai", "lifecycle": "active", "id_namespace": "provider-api-alias",
+      "documented_target": "gpt-5.6-sol", "requires_access_program": "daybreak_blue",
+      "api_efforts": null, "aliases": [], "pricing": null,
+      "sources": ["oa_daybreak", "oa_pricing"]
+    },
+    {
+      "id": "grok-4.6", "surface": "grok", "vendor": "xai", "lifecycle": "active", "id_namespace": "provider-api",
+      "generation": "legacy", "api_efforts": ["low", "medium", "high", "xhigh"], "aliases": [],
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "2", "cached_input": "0.5", "output": "6", "cache_write": null, "tiers": [{"above_input_tokens": 200000, "input": "4", "cached_input": "1", "output": "12"}]},
+      "sources": ["x_old_model", "x_pricing"]
+    },
+    {
+      "id": "grok-4.5", "surface": "grok", "vendor": "xai", "lifecycle": "active", "id_namespace": "provider-api",
+      "generation": "legacy", "api_efforts": ["low", "medium", "high"], "aliases": [], "context_tokens": 500000,
+      "effort_note": "The model page lists xhigh, but the reasoning guide says grok-4.5 treats xhigh as high, and its release note and grok CLI 1.0.46 list low/medium/high only; xhigh stays excluded.",
+      "pricing": {"scope": "direct-api-standard-usd-per-million-tokens", "input": "2", "cached_input": "0.3", "output": "6", "cache_write": null, "tiers": [{"above_input_tokens": 200000, "input": "4", "cached_input": "0.6", "output": "12"}]},
+      "sources": ["x_grok45", "x_reasoning", "x_release", "x_pricing"]
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "skill": "plan-ceo-review",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "think-bigger-en",
+      "prompt": "review this plan in CEO mode, is it ambitious enough or should we think bigger?",
+      "assertions": [
+        { "id": "rethink-and-10-star", "text": "Rethinks the problem and looks for the 10-star product, challenging the plan's premises" },
+        { "id": "four-modes", "text": "Frames the review across its modes: scope expansion, selective expansion, hold scope, or scope reduction" },
+        { "id": "interactive-recommendations", "text": "Walks through it interactively with opinionated recommendations the user decides on" }
+      ]
+    },
+    {
+      "id": "expand-scope-ko",
+      "prompt": "이 계획 전략 리뷰해줘, 스코프 더 키울지 다시 생각해보자",
+      "assertions": [
+        { "id": "scope-expansion-when-better", "text": "Expands scope only when it creates a better product, not for its own sake" },
+        { "id": "user-sovereignty", "text": "Presents an outside-voice recommendation as a choice rather than acting on it unilaterally" }
+      ]
+    },
+    {
+      "id": "rethink-this-plan",
+      "prompt": "rethink this plan, I want a strategy review before we commit",
+      "assertions": [
+        { "id": "premise-challenge", "text": "Challenges the underlying premises before scoring or locking the plan" },
+        { "id": "scope-reduction-option", "text": "Considers scope reduction (strip to essentials) as a valid mode, not only expansion" }
+      ]
+    }
+  ]
+}

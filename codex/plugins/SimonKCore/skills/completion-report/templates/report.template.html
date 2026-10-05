@@ -1,0 +1,94 @@
+<!-- completion-report 템플릿 v0.3 — 자체완결(인라인 CSS/SVG + ~10줄 토글 JS). {{...}} 를 채우고, 데이터 없는 섹션은 삭제.
+     표준: 심플 요약 + [자세히] progressive disclosure + 언어(한/영) 토글 + 설명수준(쉬운/전문가) 토글.
+     항목 상세는 4 변형으로 작성: easy·ko / easy·en / expert·ko / expert·en. 쉬운/전문가 둘 다 목적·이유를 함께 기술. -->
+<!doctype html><html lang="{{LANG}}"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{TITLE}} — 완료 보고 / Completion Report</title>
+<style>
+  :root{--bg:#0f1117;--card:#171a23;--text:#e7e9ee;--muted:#9aa3b2;--accent:#5b8cff;--ok:#3ecf8e;--warn:#e0a23c;--line:#262a36}
+  @media(prefers-color-scheme:light){:root{--bg:#f7f8fb;--card:#fff;--text:#1b1f2a;--muted:#5b6470;--line:#e6e9f0}}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 Pretendard,system-ui,-apple-system,"Segoe UI",sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:20px}
+  h1{font-size:22px;margin:0 0 4px}h2{font-size:14px;margin:26px 0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .meta{color:var(--muted);font-size:14px}.time{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:600}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin:12px 0}
+  /* 토글 바 */
+  .bar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 0;margin-bottom:8px;display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+  .grp{display:flex;gap:6px;align-items:center}.grp>.lbl{font-size:12px;color:var(--muted)}
+  .bar button{cursor:pointer;padding:5px 12px;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:999px;font:600 13px/1 inherit}
+  .bar button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+  .item{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.item .name{font-weight:600}.item .art{color:var(--muted);font-size:13px;margin-left:auto}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600}
+  .b-ok{background:rgba(62,207,142,.15);color:var(--ok)}.b-part{background:rgba(224,162,60,.15);color:var(--warn)}.b-wait{background:rgba(154,163,178,.15);color:var(--muted)}
+  details{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
+  details>summary{cursor:pointer;list-style:none;display:inline-block;padding:4px 12px;border:1px solid var(--line);border-radius:999px;font-size:13px;font-weight:600;color:var(--accent);user-select:none}
+  details>summary::-webkit-details-marker{display:none}
+  body.lang-ko details>summary::before{content:"자세히 ▸ "}body.lang-ko details[open]>summary::before{content:"닫기 ▾ "}
+  body.lang-en details>summary::before{content:"Details ▸ "}body.lang-en details[open]>summary::before{content:"Close ▾ "}
+  details>summary:hover{border-color:var(--accent)}
+  .detail{margin-top:10px;font-size:14px}.detail b.why{color:var(--accent)}
+  table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:600}
+  ul{margin:6px 0;padding-left:18px}figure{margin:10px 0}img{max-width:100%;border-radius:8px;border:1px solid var(--line)}
+  .foot{color:var(--muted);font-size:12px;margin-top:28px;border-top:1px solid var(--line);padding-top:12px}
+  /* 가시성: 언어 + 설명수준. easy/expert 는 mode, ko/en 은 language. */
+  body:not(.lang-en) .en{display:none}body.lang-en .ko{display:none}
+  body:not(.mode-expert) .expert{display:none}body.mode-expert .easy{display:none}
+</style></head>
+<!-- 기본: 사용자 언어 + 쉬운 설명. 사용자 언어가 영어면 class="lang-en mode-easy". -->
+<body class="lang-{{LANG}} mode-easy"><div class="wrap">
+
+  <div class="bar">
+    <div class="grp"><span class="lbl ko">언어</span><span class="lbl en">Language</span>
+      <button data-lang="ko" aria-pressed="true" onclick="setLang('ko')">한국어</button>
+      <button data-lang="en" aria-pressed="false" onclick="setLang('en')">English</button></div>
+    <div class="grp"><span class="lbl ko">설명</span><span class="lbl en">Mode</span>
+      <button data-mode="easy" aria-pressed="true" onclick="setMode('easy')"><span class="ko">쉬운 설명</span><span class="en">Simple</span></button>
+      <button data-mode="expert" aria-pressed="false" onclick="setMode('expert')"><span class="ko">전문가</span><span class="en">Expert</span></button></div>
+  </div>
+
+  <h1><span class="ko">{{TITLE_KO}}</span><span class="en">{{TITLE_EN}}</span></h1>
+  <div class="meta">{{PLUGIN}} · <span class="ko">완료</span><span class="en">Completed</span> <span class="time">{{COMPLETED_AT}}</span></div>
+  <div class="card"><span class="ko">{{SUMMARY_KO}}</span><span class="en">{{SUMMARY_EN}}</span></div>
+
+  <h2><span class="ko">무엇을 했나</span><span class="en">What I did</span></h2>
+  <!-- 항목마다: 심플 한 줄(이름·상태·산출물) + [자세히] → 4 변형(쉬운/전문가 × 한/영), 각 변형에 목적·이유 포함. 항목 수만큼 .card 복제. -->
+  <div class="card">
+    <div class="item"><span class="name"><span class="ko">{{ITEM_KO}}</span><span class="en">{{ITEM_EN}}</span></span><span class="badge b-ok"><span class="ko">완료</span><span class="en">Done</span></span><span class="art">{{ARTIFACT}}</span></div>
+    <details><summary></summary><div class="detail">
+      <div class="easy ko"><b class="why">목적·이유:</b> {{ITEM_EASY_KO}}</div>
+      <div class="easy en"><b class="why">Purpose &amp; reason:</b> {{ITEM_EASY_EN}}</div>
+      <div class="expert ko"><b class="why">목적:</b> {{ITEM_PURPOSE_KO}} <b class="why">이유:</b> {{ITEM_REASON_KO}} {{ITEM_DETAIL_KO}}</div>
+      <div class="expert en"><b class="why">Purpose:</b> {{ITEM_PURPOSE_EN}} <b class="why">Reason:</b> {{ITEM_REASON_EN}} {{ITEM_DETAIL_EN}}</div>
+    </div></details>
+  </div>
+
+  <h2><span class="ko">결과 · 지표</span><span class="en">Results · Metrics</span></h2>
+  <div class="card">
+    <!-- 인라인 SVG 차트: 데이터 있을 때만(빈 차트 금지). 축·값 라벨 포함. -->
+    <svg viewBox="0 0 360 160" width="100%" role="img" aria-label="{{CHART_LABEL}}">
+      <line x1="40" y1="130" x2="340" y2="130" stroke="var(--line)"/>
+      <rect x="80" y="{{Y_BEFORE}}" width="48" height="{{H_BEFORE}}" fill="var(--muted)"/><text x="104" y="148" fill="var(--muted)" font-size="11" text-anchor="middle">{{LABEL_A}}</text>
+      <rect x="200" y="{{Y_AFTER}}" width="48" height="{{H_AFTER}}" fill="var(--accent)"/><text x="224" y="148" fill="var(--muted)" font-size="11" text-anchor="middle">{{LABEL_B}}</text>
+      <text x="104" y="{{T_BEFORE}}" fill="var(--text)" font-size="12" text-anchor="middle">{{VAL_A}}</text>
+      <text x="224" y="{{T_AFTER}}" fill="var(--text)" font-size="12" text-anchor="middle">{{VAL_B}}</text>
+    </svg>
+    <details><summary></summary><div class="detail">
+      <div class="easy ko">{{METRICS_EASY_KO}}</div><div class="easy en">{{METRICS_EASY_EN}}</div>
+      <div class="expert ko">{{METRICS_EXPERT_KO}}</div><div class="expert en">{{METRICS_EXPERT_EN}}</div>
+    </div></details>
+  </div>
+
+  <h2><span class="ko">시각 증거</span><span class="en">Visual evidence</span></h2>
+  <figure><img src="{{IMG_PATH_OR_BASE64}}" alt="{{IMG_ALT}}"><figcaption class="meta">{{IMG_CAPTION}}</figcaption></figure>
+
+  <h2><span class="ko">다음 단계</span><span class="en">Next</span></h2>
+  <div class="card"><div class="detail"><div class="ko"><ul><li>{{NEXT_KO_1}}</li><li>{{NEXT_KO_2}}</li></ul></div><div class="en"><ul><li>{{NEXT_EN_1}}</li><li>{{NEXT_EN_2}}</li></ul></div></div></div>
+
+  <div class="foot"><span class="ko">생성 {{COMPLETED_AT}} · SimonK completion-report</span><span class="en">Generated {{COMPLETED_AT}} · SimonK completion-report</span></div>
+</div>
+<script>
+  function mark(g,v){document.querySelectorAll('[data-'+g+']').forEach(function(x){x.setAttribute('aria-pressed',String(x.getAttribute('data-'+g)===v));});}
+  function setLang(l){var b=document.body;b.classList.toggle('lang-en',l==='en');b.classList.toggle('lang-ko',l==='ko');mark('lang',l);}
+  function setMode(m){var b=document.body;b.classList.toggle('mode-expert',m==='expert');b.classList.toggle('mode-easy',m==='easy');mark('mode',m);}
+</script>
+</body></html>

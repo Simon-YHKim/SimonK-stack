@@ -1,0 +1,38 @@
+{
+  "$schema_note": "사용자 제품(앱)의 기능별 모델 라우팅 맵. 공식 확인 전 모델 ID/가격은 null로 둔다. 대화형 구독 사용량과 제품 API 비용은 별개다.",
+  "product": "<제품명>",
+  "axis": "<VISION.md 기준 어느 축인지(해당 시)>",
+  "governance": {
+    "handles_pii": false,
+    "region_constraint": null,
+    "on_prem_required": false,
+    "no_train_required": true,
+    "audit_logging": "<ai_audit_log 같은 호출 로깅 패턴 적용 여부>"
+  },
+  "budget": {
+    "monthly_cap_usd": null,
+    "incremental_spend_cap_usd": null,
+    "expected_calls_per_month": null,
+    "guard": "paid-api-guard"
+  },
+  "features": [
+    {
+      "id": "<기능 id>",
+      "task_type": "reasoning|coding|chat|bulk_classify|long_context|vision|image_gen|speech|embedding",
+      "latency": "sync|batch",
+      "primary":   { "name": null, "id": null, "hosting": null, "price_in": null, "price_out": null, "source_url": null },
+      "secondary": { "name": null, "id": null, "hosting": null, "price_in": null, "price_out": null, "source_url": null },
+      "fallback":  { "name": null, "id": null, "hosting": null, "price_in": null, "price_out": null, "source_url": null },
+      "rationale": "<이 제품 작업에서의 eval 결과 기반 사유>"
+    }
+  ],
+  "robustness": {
+    "routing": "쉬운 요청은 검증된 경량 모델 → 어려운 요청만 고성능 모델로 escalate",
+    "fallback_chain": ["primary", "secondary", "fallback"],
+    "caching": {
+      "prompt_cache": "시스템/few-shot 프롬프트 캐싱으로 입력 토큰비 절감",
+      "response_cache": "동일 입력 응답 캐시로 중복 호출 제거"
+    },
+    "rate_limit": "지수 백오프 + 큐잉 + 일/월 예산 상한 가드"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "skill": "experiment-analyzer",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-significance",
+      "prompt": "A/B 실험 결과 봐줘. 유의성 있는지, ship 해도 될지 판정해줘.",
+      "assertions": [
+        {
+          "id": "significance-readout",
+          "text": "Produces a post-experiment readout with significance and confidence interval."
+        },
+        {
+          "id": "verdict",
+          "text": "Gives a ship/kill/iterate verdict."
+        },
+        {
+          "id": "traps",
+          "text": "Flags traps like peeking, underpowered samples, or multiple comparisons."
+        }
+      ]
+    },
+    {
+      "id": "en-sample-size",
+      "prompt": "Calculate the sample size, MDE and power for a new A/B test before we run it.",
+      "assertions": [
+        {
+          "id": "pre-design",
+          "text": "Produces pre-experiment design with sample size / MDE / power."
+        },
+        {
+          "id": "power-calc",
+          "text": "Uses a power/significance calculation approach."
+        }
+      ]
+    }
+  ]
+}

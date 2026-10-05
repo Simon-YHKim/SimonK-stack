@@ -1,0 +1,62 @@
+{
+  "skill": "data-retention-planner",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "trigger-korean-retention-policy",
+      "prompt": "데이터 보존정책이랑 삭제 주기 좀 짜줘. 탈퇴하면 언제 지우는지도.",
+      "assertions": [
+        {
+          "id": "correct-route",
+          "text": "Routes this request to data-retention-planner rather than an unrelated skill."
+        },
+        {
+          "id": "behavior",
+          "text": "Defines retention classes with soft-delete grace, hard purge and a documented deletion trigger."
+        }
+      ]
+    },
+    {
+      "id": "trigger-english-ttl-purge",
+      "prompt": "Set up a TTL purge job for expired sessions and analytics events, with an audit log.",
+      "assertions": [
+        {
+          "id": "correct-route",
+          "text": "Routes this request to data-retention-planner rather than an unrelated skill."
+        },
+        {
+          "id": "behavior",
+          "text": "Plans a cron or TTL purge with failure handling and an append-only purge_audit_log."
+        }
+      ]
+    },
+    {
+      "id": "trigger-legal-retention",
+      "prompt": "결제 거래기록은 법정 보존기간이 있어서 함부로 지우면 안 되는데 파기 정책 어떻게 분리해?",
+      "assertions": [
+        {
+          "id": "correct-route",
+          "text": "Routes this request to data-retention-planner rather than an unrelated skill."
+        },
+        {
+          "id": "behavior",
+          "text": "Separates legal_txn retention and legalHold from ordinary deletion, and verifies current Korean PIPA/e-commerce requirements before declaring compliance."
+        }
+      ]
+    },
+    {
+      "id": "trigger-backup-expiry",
+      "prompt": "운영 DB 에서 지운 데이터가 백업에 그대로 남아있는데 백업 만료를 보존정책에 맞춰야 해.",
+      "assertions": [
+        {
+          "id": "correct-route",
+          "text": "Routes this request to data-retention-planner rather than an unrelated skill."
+        },
+        {
+          "id": "behavior",
+          "text": "Aligns backup expiry with retention and grace periods and identifies data that cannot be immediately purged from backups."
+        }
+      ]
+    }
+  ]
+}

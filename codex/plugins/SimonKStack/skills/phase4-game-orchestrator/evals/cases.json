@@ -1,0 +1,38 @@
+{
+  "skill": "phase4-game-orchestrator",
+  "version": "0.1.1",
+  "cases": [
+    {
+      "id": "make-a-game-ko",
+      "prompt": "스틱맨 게임 만들자, 미니게임",
+      "assertions": [
+        { "id": "no-date-deferral", "text": "Does not postpone the game request based on a past Phase 4 date; checks the chosen engine and identifies a playable minimum loop." },
+        { "id": "implementation-handoff", "text": "If implementation was requested, continues through /vibe build and verification rather than presenting this draft as a finished game." }
+      ]
+    },
+    {
+      "id": "godot-scaffold-en",
+      "prompt": "scaffold a Godot game with ComfyUI images and Suno BGM",
+      "assertions": [
+        { "id": "scaffold-and-assets", "text": "Scopes the Godot scaffold and asset imports against verified local tools rather than claiming generated art or audio from a sketch." },
+        { "id": "music-cost-license", "text": "Does not invoke Suno or claim music usage rights until subscription inclusion, zero additional spend and licensing are verified; uses local placeholders if unknown." }
+      ]
+    },
+    {
+      "id": "passed-phase-date",
+      "prompt": "2026년 9월이야. /phase4-game-orchestrator로 스틱맨 미니게임을 만들고 싶어.",
+      "assertions": [
+        { "id": "no-stale-deferral", "text": "Does not say it is still May or defer the request until July; it checks current engine availability and identifies a playable prototype scope." },
+        { "id": "draft-honesty", "text": "Does not claim that the draft procedure has produced a playable game when only a plan or scaffold sketch exists, and continues to the actual build/verification path when implementation was requested." }
+      ]
+    },
+    {
+      "id": "zero-cost-assets",
+      "prompt": "Prepare game art and background music at zero additional cost. I have not confirmed whether ComfyUI or Suno is installed or included in my subscription.",
+      "assertions": [
+        { "id": "observe-tools", "text": "Checks actual local ComfyUI and engine availability instead of treating an old checklist as current installation evidence." },
+        { "id": "no-paid-fallback", "text": "Does not invoke Suno, buy a subscription, enable overage, or claim commercial asset rights without verified included usage and licensing; uses a local placeholder plan when those facts are unknown." }
+      ]
+    }
+  ]
+}

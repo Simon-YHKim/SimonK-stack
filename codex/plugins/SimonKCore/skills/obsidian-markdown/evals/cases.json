@@ -1,0 +1,31 @@
+{
+  "skill": "obsidian-markdown",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "note-with-wikilinks-callouts-en",
+      "prompt": "Create an Obsidian note for Project Alpha with frontmatter, a warning callout, and links to related notes",
+      "assertions": [
+        { "id": "frontmatter-properties", "text": "Adds YAML frontmatter with properties like title, date, and tags at the top" },
+        { "id": "wikilinks-for-internal", "text": "Uses [[wikilinks]] for internal vault links rather than Markdown links" },
+        { "id": "callout-syntax", "text": "Adds a callout using > [!warning] syntax" }
+      ]
+    },
+    {
+      "id": "embed-and-block-id-ko",
+      "prompt": "위키링크로 다른 노트 임베드하고 블록 ID 다는 법 보여줘",
+      "assertions": [
+        { "id": "embed-syntax", "text": "Shows embedding with ![[Note Name]] (! prefix on a wikilink)" },
+        { "id": "block-id", "text": "Demonstrates defining a block ID by appending ^block-id to a paragraph" }
+      ]
+    },
+    {
+      "id": "foldable-callout-and-highlight",
+      "prompt": "make a collapsed FAQ callout and highlight some text in my Obsidian note",
+      "assertions": [
+        { "id": "foldable-callout", "text": "Uses the foldable callout form (e.g. > [!faq]- for collapsed)" },
+        { "id": "highlight-syntax", "text": "Uses ==highlighted text== for Obsidian highlight syntax" }
+      ]
+    }
+  ]
+}

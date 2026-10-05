@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.1.0",
+  "description": "가드레일 정책 단일 소스. 런타임 분류와 CI 스캔이 이 파일 하나를 본다. 임계값을 코드 상수로 흩뿌리지 말 것. block/crisis 의 deterministic_classifier 는 모델 없이도 동작하는 최종 게이트다(정규식/lexicon). model_classifier 는 보조 신호일 뿐 최종 차단권을 가지지 않는다. 사용자 환경에 맞게 수정하되 임계값을 임의로 낮추지 말 것.",
+  "matching_conventions": {
+    "regex_flags": "iu",
+    "regex_engine": "ECMAScript (RE2 호환 부분집합 권장; catastrophic backtracking 금지)",
+    "evaluation_order": ["normalize", "deterministic_classifier", "model_classifier", "merge_max_severity"],
+    "merge_rule": "deterministic 와 model 결과 중 더 높은 위험도를 채택(fail-closed). 둘이 충돌하면 block>crisis>warn>soften>allow 우선순위.",
+    "score_range": "0.0~1.0. deterministic 매칭은 confidence 1.0 으로 본다(룰이 잡으면 확정).",
+    "notes": "정규식은 토큰화 후가 아니라 NFKC 정규화·디코드 후 원문에 적용. 한국어는 자모 분리/합성 변형(예: ㅈㅏㅎㅐ)도 normalize 단계에서 합성."
+  },
+  "input_guardrail": {
+    "deterministic_first": true,
+    "normalize": ["nfkc", "strip_zero_width", "homoglyph_fold", "korean_jamo_compose", "decode_then_reclassify"],
+    "decode_then_reclassify": {
+      "decoders": ["base64", "url_percent", "leetspeak_fold", "rot13"],
+      "rule": "디코드 산출물을 다시 deterministic_classifier 에 통과시킨다. 디코드로 새로 잡히면 인코딩 우회로 간주하고 위험도 한 단계 상향."
+    },
+    "rate_limit": { "max_tokens_per_request": 8000, "max_requests_per_min": 30 },
+    "classify_before_llm": true,
+    "short_circuit_on": ["crisis", "block"]
+  },
+  "risk_tiers": {
+    "block": {
+      "categories": ["csae", "weapons_synthesis", "credential_theft", "explosives"],
+      "input_action": "reject_with_safe_message",
+      "output_action": "discard_and_safe_message",
+      "audit": true,
+      "deterministic_classifier": {
+        "is_final_gate": true,
+        "trigger": "any_category_match",
+        "threshold_severity": "block",
+        "categories_detail": {
+          "csae": {
+            "detect_via": "lexicon+regex (전용 분류기 우선)",
+            "match_rule": "미성년 지시어 + 성적 맥락의 공기(共起). 단독 단어 1개로는 차단하지 않고, (minor_term) AND (sexual_term) 동시 출현 또는 명시적 결합어 매칭 시 차단.",
+            "minor_terms_regex": "(?:child|minor|under-?age|preteen|아동|미성년|어린이|청소년)",
+            "sexual_context_regex": "(?:explicit|nude|sexual(?:ize)?|성적|음란|노출)",
+            "combined_regex": "(?:csam|child\\s*porn|아동\\s*음란|아동\\s*성착취)",
+            "external_classifier": "PhotoDNA / Thorn 류 전용 탐지기로 보강(이미지·해시). 텍스트 단독 판정 금지.",
+            "action_on_match": "차단 + 즉시 감사 로그 + 법적 신고 의무 경로(NCMEC/관할) 검토. 절대 모델로만 판정하지 않는다."
+          },
+          "weapons_synthesis": {
+            "match_rule": "(weapon/agent term) AND (synthesis/howto verb) 공기 시 차단.",
+            "term_regex": "(?:nerve\\s*agent|sarin|vx|ricin|화학\\s*무기|생물\\s*무기|신경작용제)",
+            "howto_regex": "(?:synthesize|manufacture|제조|합성|만드는\\s*법|제조법)"
+          },
+          "explosives": {
+            "term_regex": "(?:tatp|rdx|petn|nitroglycerin|폭탄|기폭|사제\\s*폭발)",
+            "howto_regex": "(?:recipe|build|assemble|제조|만드는\\s*법|조립)",
+            "match_rule": "(explosive term) AND (build/recipe verb) 공기 시 차단."
+          },
+          "credential_theft": {
+            "regex": "(?:steal|phish|exfiltrat|크리덴셜\\s*탈취|계정\\s*탈취|피싱)\\W{0,12}(?:password|credential|otp|2fa|세션|쿠키|토큰)",
+            "match_rule": "탈취 동사 + 자격증명 객체 공기 시 차단."
+          }
+        },
+        "model_classifier": {
+          "role": "advisory_only",
+          "model": "공식 문서로 확인한 제품용 경량 분류 모델 ID",
+          "block_threshold": 0.85,
+          "note": "모델이 0.85 이상이면 block 으로 상향 제안하나, 최종 차단은 deterministic 와 merge_max_severity 로 결정. 모델 단독 통과(allow)는 deterministic 가 막지 않은 경우에만 유효."
+        }
+      }
+    },
+    "crisis": {
+      "categories": ["self_harm", "suicide_signal"],
+      "input_action": "route_to_crisis_resources",
+      "output_action": "replace_with_crisis_resources",
+      "expose_model_text": false,
+      "audit": true,
+      "deterministic_classifier": {
+        "is_final_gate": true,
+        "trigger": "any_signal_match",
+        "threshold_severity": "crisis",
+        "false_negative_priority": "재현율(recall) 우선. 모호하면 crisis 로 라우팅(fail-safe). 위양성(과다 라우팅)은 허용, 위음성(놓침)은 불허.",
+        "signals": {
+          "ko": {
+            "high_confidence_regex": "(?:죽고\\s*싶|죽어\\s*버리|자살(?:하|할|하고|충동)?|자해|목(?:을|)\\s*매|뛰어내리|손목(?:을)?\\s*(?:긋|그어)|번개탄|극단적\\s*선택|살기\\s*싫|사라지고\\s*싶|없어지고\\s*싶|없어져도|안\\s*깨어났으면|그만\\s*살|이\\s*세상에\\s*없)",
+            "method_regex": "(?:번개탄|수면제\\s*과다|투신|목\\s*맴|동맥|손목(?:을)?\\s*(?:긋|그어))",
+            "ideation_regex": "(?:다\\s*포기|더\\s*이상\\s*못\\s*버티|혼자\\s*감당|아무도\\s*날?\\s*(?:몰라|신경)|살\\s*이유(?:가)?\\s*없|의미(?:가)?\\s*없|그만하고\\s*싶)",
+            "match_rule": "high_confidence 1개라도 매칭 또는 method 단독 또는 ideation 단독 시 crisis(재현율 우선). 자모 분리(ㅈㅏㅎㅐ)·완곡 표현도 normalize 후 포함."
+          },
+          "en": {
+            "high_confidence_regex": "(?:kill\\s*myself|end\\s*my\\s*life|end(?:ing)?\\s*it\\s*all|want\\s*to\\s*die|wanna\\s*die|suicid|don'?t\\s*want\\s*to\\s*(?:live|be\\s*here)|better\\s*off\\s*(?:dead|without\\s*me)|wasn'?t\\s*here|not\\s*be\\s*here|no\\s*reason\\s*to\\s*live)",
+            "method_regex": "(?:overdose|hang\\s*myself|jump\\s*off|slit\\s*my\\s*wrist|cut\\s*my\\s*wrist|charcoal)",
+            "ideation_regex": "(?:can'?t\\s*go\\s*on|can'?t\\s*do\\s*this\\s*anymore|give\\s*up\\s*on\\s*everything|nobody\\s*would\\s*miss\\s*me|no\\s*point\\s*in\\s*living)",
+            "match_rule": "high_confidence 1개라도 매칭 또는 method 단독 또는 ideation 단독 시 crisis(재현율 우선)."
+          }
+        },
+        "negation_guard": {
+          "note": "단순 부정/3인칭/뉴스 인용 등 위양성을 줄이되, 재현율을 깎지 않는다. 모호하면 crisis 유지.",
+          "soft_exclude_regex": "(?:기사|뉴스|영화|소설|예방\\s*캠페인|hotline|예방의\\s*날|article|movie|novel)",
+          "rule": "soft_exclude 가 같은 문장에 있고 1인칭 위기 신호가 없을 때만 soften 으로 다운그레이드. 1인칭(나/내/I/my) + high_confidence 면 다운그레이드 금지."
+        },
+        "model_classifier": {
+          "role": "recall_booster",
+          "model": "공식 문서로 확인한 제품용 경량 분류 모델 ID",
+          "crisis_threshold": 0.4,
+          "note": "위기는 임계를 낮게(0.4) 잡아 놓침을 줄인다. 모델이 crisis 신호를 잡으면 deterministic 가 못 잡았어도 crisis 로 상향(OR 결합)."
+        },
+        "crisis_response": {
+          "expose_model_text": false,
+          "route": "사전 검수된 위기 대응 메시지 + 지역별 전문 자원 안내(KO: 자살예방상담 109 / 정신건강 1577-0199, EN: 988 등). 자원 목록은 별도 검증 파일에서 로드.",
+          "never": "모델 원문을 그대로 보여주지 않는다. 방법·수단을 묻는 어떤 응답도 생성하지 않는다."
+        }
+      }
+    },
+    "soften": {
+      "categories": ["mild_profanity", "sensitive_topic"],
+      "input_action": "allow",
+      "output_action": "rewrite_to_policy_tone",
+      "audit": false,
+      "deterministic_classifier": {
+        "is_final_gate": false,
+        "profanity_regex_example": "(?:damn|crap|씨발|존나|병신)",
+        "note": "soften 은 차단이 아니라 톤 리라이트 트리거. 최종 게이트 아님."
+      }
+    },
+    "warn": {
+      "categories": ["medical_advice", "financial_advice", "legal_advice"],
+      "input_action": "allow",
+      "output_action": "attach_disclaimer_and_cite",
+      "audit": false,
+      "deterministic_classifier": {
+        "is_final_gate": false,
+        "domain_regex": "(?:diagnos|prescri|dosage|진단|처방|복용량|투자\\s*추천|매수|매도|소송|고소|법적\\s*책임)",
+        "note": "도메인 신호 매칭 시 면책·출처 부착 트리거."
+      }
+    },
+    "allow": {
+      "categories": ["general"],
+      "input_action": "allow",
+      "output_action": "allow",
+      "audit": false
+    }
+  },
+  "output_guardrail": {
+    "deterministic_final_gate": true,
+    "dual_layer": "출력도 입력과 동일하게 deterministic(정규식/lexicon) 가 최종 게이트, 모델 분류는 보조. 모델이 안전하다고 해도 deterministic 가 잡으면 차단.",
+    "pii_scan": {
+      "email": "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}",
+      "phone_kr": "01[0-9][-\\s]?\\d{3,4}[-\\s]?\\d{4}",
+      "rrn_kr": "\\d{6}[-\\s]?[1-4]\\d{6}",
+      "card_number": "(?:\\d[ -]?){13,16}",
+      "address_kr_hint": "(?:[가-힣]+(?:시|도)\\s*[가-힣]+(?:시|군|구))"
+    },
+    "on_pii_detected": "mask",
+    "prompt_leak_filter": {
+      "enabled": true,
+      "marker_regex": "(?:system\\s*prompt|너의\\s*지침|위\\s*지시(?:사항)?|you\\s*are\\s*an?\\s*ai\\s*assistant)",
+      "rule": "시스템 프롬프트 마커가 응답에 섞이면 차단·재생성."
+    },
+    "crisis_recheck": true
+  },
+  "pii_logging": {
+    "minimize_collection": true,
+    "mask_before_log": true,
+    "audit_log_fields": ["ts", "route", "model", "input_class", "output_action", "deterministic_hit", "model_score", "pii_masked", "latency_ms"],
+    "audit_log_mode": "append_only",
+    "retention_days": 30,
+    "delete_on_consent_withdrawal": true,
+    "never_log_plaintext": ["api_key", "secret", "raw_pii"]
+  },
+  "agent_tools": {
+    "allowlist_only": true,
+    "human_approval_required": ["delete", "transfer_funds", "send_email", "external_post"],
+    "treat_external_content_as_data_only": true
+  },
+  "regulation": {
+    "age_gating": true,
+    "under_14_requires_verifiable_guardian_consent": true,
+    "ai_disclosure": true,
+    "high_risk_auto_decision_human_in_loop": true,
+    "vendor_training_opt_out_verified": false,
+    "vendor_data_region": "TODO",
+    "last_vendor_policy_checked": "TODO-YYYY-MM-DD"
+  }
+}

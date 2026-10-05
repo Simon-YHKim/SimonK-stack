@@ -1,0 +1,38 @@
+{
+  "skill": "export-channel",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-export",
+      "prompt": "우리 제품 해외에 팔고 싶어. 수출하려면 바이어 어떻게 찾고 인코텀즈는?",
+      "assertions": [
+        {
+          "id": "market-buyers",
+          "text": "Guides market selection and buyer discovery (KOTRA/전시회/Alibaba/tradeKorea)."
+        },
+        {
+          "id": "incoterms-payment",
+          "text": "Covers pricing/Incoterms 2020 and payment terms (T/T·L/C·D/P)."
+        },
+        {
+          "id": "export-docs",
+          "text": "Covers export documents (C/I·P/L·B/L·C/O) and logistics/customs."
+        }
+      ]
+    },
+    {
+      "id": "en-find-buyers",
+      "prompt": "How do I export my product and find overseas buyers as a Korean SMB?",
+      "assertions": [
+        {
+          "id": "step-guide",
+          "text": "Provides a step-by-step export guide, decision-focused (no backend)."
+        },
+        {
+          "id": "gov-support",
+          "text": "Mentions government support (KOTRA / 무역보험)."
+        }
+      ]
+    }
+  ]
+}

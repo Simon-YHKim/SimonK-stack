@@ -1,0 +1,21 @@
+{
+  "skill": "skstack",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "vibe-owned-product-build",
+      "prompt": "/vibe로 앱 기능을 구현해줘. 필요하면 /skstack 절차를 사용해.",
+      "assertions": [
+        {"id": "single-owner", "text": "Runs skstack as a procedure under the existing /vibe run, without creating a second coordinator, budget or model/Bot route."},
+        {"id": "scoped-plan", "text": "Produces a scoped build plan, checkpoints and verification appropriate to the task."}
+      ]
+    },
+    {
+      "id": "missing-vibe",
+      "prompt": "/skstack 앱 만들어줘. /vibe는 설치되지 않았어.",
+      "assertions": [
+        {"id": "no-legacy-autonomy", "text": "Offers only a limited manual plan and does not launch an independent autonomous orchestration run."}
+      ]
+    }
+  ]
+}

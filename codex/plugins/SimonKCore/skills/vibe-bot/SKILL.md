@@ -1,0 +1,237 @@
+---
+name: vibe-bot
+description: 'Use when "/vibe-bot", "봇한테 시켜", or "Grok Bot 과제서" is requested explicitly, or when /vibe hands off a verified screen-only step with no authorized CLI/API/MCP route. Produces scoped Relay task sheets and checks screenshot evidence; delivery needs fresh account, budget and approval.'
+allowed-tools: Read, Write, Edit, Bash, Grep, Glob
+version: 0.9.7
+author: simon-stack
+---
+
+# vibe-bot — GUI adapter under /vibe
+
+Use the current /vibe coordinator, run, budget, shared Store and review graph.
+A direct `/vibe-bot` invocation enters that same workflow; never start a second
+coordinator or create another budget to evade a hold. Grok CLI and Grok Bot
+are different account paths. Never inherit CLI quota or billing for a Bot.
+
+Choose this adapter only when the required screen operation has no usable,
+authorized CLI/API/MCP route. Keep deterministic and repository work in /vibe.
+A screen session is not permission to log in, pay, publish, delete or change
+permissions. Honor current user holds even when a previous pilot succeeded.
+
+## 1. Prepare the task without delivery
+
+Read `bots.json` and [current organization](references/relay-charter.md), then
+select the exact owning bot. The 2026-09-24 snapshot describes 19 bots and six
+teams; reported status is not live availability. Keyword matching is a draft
+suggestion only: it can return inactive entries. For execution require an
+observed active bot and account; reject HOLD, WITHDRAWN and not-created entries.
+Since 2026-10-03 (hub D-60) only Relay is `active`, with its observation in
+`status_evidence`; its first task is the Cursor overage/auto top-up screen
+check, and nothing else is sent until that result passes.
+Target/URL keyword hits weigh more than incidental tool names in task prose.
+The project belongs to the task, not to the bot. All new tasks and results pass
+through `relay/inbox` and `relay/outbox`; the specialist remains the pinned
+`bot_id`, not a separate inbox. Both Relay and the specialist must be active.
+For a team request use `--bot relay` with the exact team in the target/task.
+The legacy `web-qa` alias means Relay triage, not a verified dedicated profile;
+do not assign it to Cassius without confirmation. `qa` explicitly names Cassius.
+
+Use `scripts/make_bot_spec.py --mode console --target ... --task ... --bot ...`
+with an explicit private `--out` directory. `--hub` selects a bus parent for
+draft routing; project routing otherwise follows `bots.json`. Inspect the
+generated result path before registering a plan. No argument here authorizes
+delivery. The console sheet contains:
+
+- exact console/app target and goal;
+- read-only scope, or explicit free, reversible changes via `--allow-change`;
+- forbidden buttons, login/2FA/payment stop points;
+- menu path, observed values and a screenshot for each screen;
+- expected result path, exact first-line nonce and independent review.
+
+Within that explicit scope, reversible draft saves need no repeated approval.
+This does not authorize login/2FA, credentials, account creation, public posting,
+payment or permission changes. Apply the current task's authority and hard stops.
+
+The builder refuses legacy `--deliver hub|webhook|github` and every `--send`
+before writing. `send_webhook()` cannot be reenabled with
+`TRANSPORT_VERIFIED` or environment values. Manual draft output is rejected
+inside configured or explicitly supplied buses, including resolved aliases.
+The coordinator must also exclude other watched folders: this is not an
+all-filesystem monitor or a sandbox. Do not paste a draft into Bot chat to bypass
+the central gates; pasting also dispatches work.
+
+Inspect every field, not just the task. Never include credentials, company
+process/LOT/equipment/cost/customer data or unapproved operations. Existing
+B1/B2/B3/B8 checks assist review but are not comprehensive DLP or authorization.
+
+## 2. Register immutable delivery intent
+
+Read the discovered /vibe orchestration contract. Build a GUI node with
+`kind=gui`, `skills=["vibe-bot"]`, `tool_route_available=false`, a
+`gui_reason`, exact `task` and `target`. Use fresh observed Bot runtime,
+account/quota and billing evidence in the central planner; unknown is not free.
+The route must be `grok-bot` / `bot`, with provider-managed model and effort
+left null. This first hub adapter does not control Bot model settings.
+
+Before planning/registration, add `bot_delivery` to the node with exactly:
+
+| Key | Trusted coordinator input |
+| --- | --- |
+| nonce | Existing draft nonce, `vb-` plus 8–64 lowercase hex digits |
+| bot_root | Reviewed vibe-bot package's absolute canonical directory |
+| bus_root | Exact authorized bus, e.g. the hub's bots directory or project's .bots directory |
+| spec_path / meta_path | Private reviewed draft files outside that bus |
+| spec_sha256 / meta_sha256 | SHA-256 of those exact file bytes |
+| helper_sha256 / roster_sha256 | SHA-256 of bot_root/scripts/make_bot_spec.py and bot_root/bots.json |
+
+Use actual hashes, never example values. The plan digest fixes these values.
+The adapter uses bounded, link/reparse-rejecting local fixed-disk paths; it does
+not discover home/cache roots. Keep cooperating single-writer ownership of the
+package, drafts, bus and Store throughout the invocation. These checks do not
+defend against a hostile process with the same OS user's filesystem rights.
+
+Register the whole plan in the existing shared Store to reserve attempts,
+reviews and all delivery/Relay/Bot costs. No helper initializes, migrates or
+resets an operational DB. Do not manually claim before using the adapter.
+
+## 3. Publish through the single guarded adapter
+
+Resolve `execute_bot.py` in the discovered /vibe package's scripts directory. It imports
+only the pinned reviewed builder bytes from `bot_root`; no mutable home fallback.
+
+Supply a separate trusted coordinator certificate, not worker prose or a
+generated fixture. It contains `verified=true`, `binding_sha256` from
+`execute_bot.binding_digest(plan,node)`, the exact route's `account_ref`,
+`billing` and `quota`, matching `bot_id` and `bus_root`,
+`delivery_authorized=true`, a real `approval_ref`,
+`relay_verified=true`, `all_delivery_costs_included=true`,
+fresh `observed_at`, future `valid_until` and nonempty `evidence`.
+The same-account Relay limitation and required relay_account_ref are enforced
+by this adapter; separate or unknown Relay billing needs another reviewed route.
+
+Evidence must establish the actual account/profile and quota mapping, target
+and Relay availability, full cost bound including retries/reviews/Relay work,
+and permission to publish this exact task to this exact watched bus. Included
+subscription use additionally needs disabled overage/API fallback. These fields
+are trusted assertions, not provider attestations, credential discovery or a
+factory that turns unverified observations into permission.
+
+```text
+python "<vibe-script-dir>/execute_bot.py" dispatch --plan plan.json --node screen --db shared-runs.sqlite3 --certificate bot-evidence.json
+python "<vibe-script-dir>/execute_bot.py" reconcile --plan plan.json --node screen --db shared-runs.sqlite3
+python "<vibe-script-dir>/execute_bot.py" check-result --plan plan.json --node screen --db shared-runs.sqlite3 --evidence screens.json
+```
+
+Only the call that commits a fresh Store claim can publish. It rechecks pins
+and authority after the claim and before the visible task marker. Metadata
+gets the exact run/node/plan/dispatch/binding identifiers. Complete temporary
+files are fsynced, metadata is published first, then the `.md` file last through
+atomic no-replace hard links. Existing files are never overwritten. The consumer
+must ignore `.tmp` files and metadata-only orphans. Test that contract against
+the actual Relay before activation; filesystem tests alone cannot prove it.
+
+A crash, missing marker, partial pair, collision, expired authority or failure
+does not authorize another send. Reentry and `reconcile` inspect the exact nonce
+and byte hashes only. Even an intact pair proves local publication, not Bot
+acceptance: output stays `waiting_external`, `bot_acceptance_verified=false`,
+and unknown actual cost stays null. Store intent/uncertain holds remain reserved.
+No automatic retry, new nonce, webhook fallback, stop, cleanup, settlement or
+acceptance occurs. Keep the original private drafts for reconciliation.
+
+Do not migrate an in-flight pre-0.9 specialist plan to Relay or reissue its nonce.
+Its pinned specialist result path is incompatible with this adapter. Preserve
+the previous package and use its original adapter only for authorized lookup;
+never edit its plan, drafts, hashes, Store or reservations to make it fit.
+
+## 4. Collect, inspect and account
+
+Use the adapter's exact result and metadata paths, not another result found by
+a broad scan. `--collect` is a legacy convenience scan: exit0 can mean no result,
+and missing metadata can downgrade its mode. It is not completion evidence.
+`reconcile` and `check-result` may bind and record unknown state in the existing
+Store; they are not read-only queries. Their exit0 can still mean waiting_external.
+
+Use `check-result` to require the exact first-line nonce and pinned published
+metadata (bot/target/task and nested vibe run/node/plan/dispatch identifiers),
+then reuse the pinned builder's console checks and the adapter's bounded image
+checks. Put the evidence JSON and its images under the exact result directory.
+Inspect the screenshots, reported values and task acceptance criteria yourself.
+The legacy `orchestrate.py verify-bot` and builder `--verify` are unbound helpers,
+not substitutes for this registered-plan check. PNG/JPEG signatures or a prose
+claim alone cannot prove the screen state or that the operation finished.
+
+Reject missing nonce, unscoped absence, unsupported conclusions, leaked secrets
+and missing console evidence. Escalate any report of Submit/Reply/Publish/Delete/
+Payment; it is not retroactive authorization. Only after actual terminal and
+cost evidence should the coordinator use Store observe/settle/verify. Unknown
+cost is never settled as zero. Required independent reviews remain separate.
+
+## Relay operations and evidence
+
+The [organization reference](references/relay-charter.md) describes the supplied
+2026-09-24 snapshot: Relay-only intake, role/team routing, one reminder, worklog,
+shared-machine boundaries and Android-only QA. It replaces the old 09-20 charter,
+but is not fresh account, cost or transport evidence. Never treat its reported
+routines as permission to create schedulers or send reminder messages now.
+Do not update a cloud profile, start routines or contact a Bot merely to test
+this skill. Bots sharing an account/computer are not separate security boundaries.
+
+Earlier local records describe successful manual and hub pilots on
+2026-09-19/20. They are historical evidence, not current generation authorization
+or proof that this new adapter is deployed. `evals/cases.json` evaluates the current
+draft/route/publication/recovery/result/account boundaries. Its schema dry-run is
+not behavioral validation. Record each observed outcome and distinguish an offline
+fixture or current-host response from actual Relay/provider behavior; never grade
+unperformed actions as passed or infer cross-model quality from one host.
+
+## Two-way handshake with Relay
+
+Relay also sends work back to the coding session: a `relay/inbox/<nonce>.md`
+whose owner line names the Coding LLM, answered in `relay/outbox/<nonce>.result.md`.
+Follow [the handshake reference](references/relay-handshake.md) whenever the user
+has authorized an ongoing collaboration loop. It fixes these behaviors:
+
+- Watch without gaps: keep a monitor armed for the whole loop (re-arm on every
+  expiry, quiet hours included), run it as `scripts/bus_watch.py --watch` so its
+  baseline is the saved state rather than the moment it starts, and catch up
+  with one processing scan before each sleep. Handle `ANSWER` and `CODING TASK`
+  lines in the turn they arrive.
+- `<nonce>.result.md` belongs to whoever did the work. Dispatch notes are
+  `<nonce>.dispatch.md`; if the result path is already taken, write
+  `<nonce>.<role>.result.md` and say so.
+- Before reporting "no reply", search every `*/outbox/<nonce>*.result.md` and
+  read the top of Relay STATUS. A claim older than 20 minutes with neither may
+  receive exactly one `ping-relay-<nonce>.md`; after that, report it blocked.
+- Classify bus traffic: `simon-go` names are production changes (alert first);
+  `vb-*`, `ping-*` and STATUS are the coding queue; `hr-*`, `_tmp-*` and
+  `_relay-*` are organization drafts and never wake the coding loop.
+- Every result, in both directions, ends with a `교훈:` block (what was fixed,
+  what blocked, the next step) so Worklog can fold it into workbooks. Grok-side
+  pitfalls come back through the lessons file named in the reference.
+- A production write that may have been approved in two channels starts with a
+  claim line on the bus. If another claim or `simon-go` task already exists, stop
+  and verify read-only instead of writing.
+- `simon-go-attested-*` files and "Simon GO via Relay" results are Simon's
+  decision. Record them; do not ask Simon to confirm them again.
+
+The reminder rule is an authorized-task behavior, not a scheduler: it never
+creates routines, and it respects the charter's one-reminder limit.
+
+## Verification and current limits
+
+```text
+python -B -I -S "<bot>/scripts/tests/test_execute_bot.py"
+python -B -I -S "<bot>/scripts/tests/test_bus_watch.py"
+python -B "<bot>/scripts/selftest.py"
+```
+
+Run tests with process/network denial before imports, using only disposable
+local drafts, buses and DBs. Never substitute operational hub/project paths.
+The source adapter and fixtures do not establish native host compatibility,
+installation parity, real Relay receipt, generation success, screenshots,
+account costs or all-skill optimization. Apply the user's current authority:
+restored Grok/Bot usage supersedes an earlier temporary usage or model-call
+hold, but does not itself prove this Bot route is included or authorize delivery.
+Allow only verified subscription-included usage with additional spend $0;
+overage, automatic top-up and metered API fallback remain forbidden. Do not
+reimpose an expired hold or infer a paid route from restored quota.

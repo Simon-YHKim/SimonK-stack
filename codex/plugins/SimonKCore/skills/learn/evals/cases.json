@@ -1,0 +1,30 @@
+{
+  "skill": "learn",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "show-learnings-en",
+      "prompt": "what have we learned on this project?",
+      "assertions": [
+        { "id": "reads-learnings-file", "text": "Reads the project learnings store (learnings.jsonl under the project slug) and surfaces recent entries" },
+        { "id": "review-default", "text": "Defaults to reviewing/showing recent learnings rather than mutating them" }
+      ]
+    },
+    {
+      "id": "didnt-we-fix-this-before",
+      "prompt": "didn't we already fix this same bug before? search the learnings",
+      "assertions": [
+        { "id": "searches-learnings", "text": "Searches past learnings (e.g. via gstack-learnings-search) for the matching prior pattern" },
+        { "id": "cites-prior-entry", "text": "Reports whether a matching prior learning exists instead of answering from scratch" }
+      ]
+    },
+    {
+      "id": "prune-stale-learnings-ko",
+      "prompt": "오래된 learnings 정리하고 export 해줘",
+      "assertions": [
+        { "id": "prune-and-export", "text": "Offers to prune stale learnings and export the remaining set" },
+        { "id": "confirms-before-pruning", "text": "Confirms before destructively removing learnings (review/prune are distinct operations)" }
+      ]
+    }
+  ]
+}

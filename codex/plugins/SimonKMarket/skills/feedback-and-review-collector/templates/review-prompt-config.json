@@ -1,0 +1,21 @@
+{
+  "_comment": "Review-prompt gating config consumed by scripts/review_gate.py. Tune the thresholds per product. All four gates are AND-combined; only a satisfied, mature, within-cap, non-negative user reaches REQUEST_REVIEW. Dissatisfied users are routed to feedback_form_destination instead of the store.",
+
+  "min_days_since_install": 3,
+  "min_session_count": 5,
+  "min_days_between_prompts": 90,
+  "max_prompts_per_version": 1,
+  "max_prompts_per_year": 3,
+  "block_on_recent_negative": true,
+  "feedback_form_destination": "in_app_feedback_form",
+
+  "_satisfaction_signal_definition": {
+    "_comment": "What counts as a positive signal upstream (set user_state.satisfaction_signal=true when ANY of these is true). The gate does not compute this — your app does — but document it here so it is auditable.",
+    "csat_top_box": "CSAT >= 4 on a 1-5 scale (or >= 6 on 1-7)",
+    "nps_promoter": "NPS answer in 9-10",
+    "value_action": "user completed a core value/aha action (define per product)"
+  },
+
+  "_recent_negative_window_days": 7,
+  "_recent_negative_examples": ["crash", "unhandled_error", "payment_failure", "refund_request", "support_ticket_open"]
+}

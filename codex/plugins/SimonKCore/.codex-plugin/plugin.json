@@ -1,0 +1,28 @@
+{
+  "author": {
+    "name": "Simon Kim",
+    "url": "https://github.com/Simon-YHKim"
+  },
+  "description": "SimonK 플러그인 공유 인프라 (위임·모델라우팅·메모리·지식도구·페르소나검증·완료보고). Codex판에는 Claude Code 전용인 careful·unfreeze 안전 스킬이 없다.",
+  "interface": {
+    "capabilities": [],
+    "category": "Productivity",
+    "defaultPrompt": "Use SimonK Core skills for this task.",
+    "developerName": "Simon Kim",
+    "displayName": "SimonK Core",
+    "longDescription": "SimonK 플러그인 공유 인프라 (위임·모델라우팅·메모리·지식도구·페르소나검증·완료보고). Codex판에는 Claude Code 전용인 careful·unfreeze 안전 스킬이 없다.",
+    "shortDescription": "SimonK 플러그인 공유 인프라 (위임·모델라우팅·메모리·지식도구·페르소나검증·완료보고). Codex판에는 Claude Code 전용인 careful·unfreeze 안전 스킬이 없다."
+  },
+  "keywords": [
+    "claude-code",
+    "plugin",
+    "shared",
+    "simonk",
+    "core"
+  ],
+  "license": "MIT",
+  "name": "simonk-core",
+  "repository": "https://github.com/Simon-YHKim/SimonKCore",
+  "skills": "./skills/",
+  "version": "1.793.0"
+}

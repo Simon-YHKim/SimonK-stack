@@ -1,0 +1,38 @@
+{
+  "skill": "logo-generator",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-make-logo",
+      "prompt": "우리 브랜드 로고 만들어줘 — 깔끔한 워드마크 느낌으로",
+      "assertions": [
+        {
+          "id": "diagnoses-brand-first",
+          "text": "Diagnoses brand values and personality before generating."
+        },
+        {
+          "id": "3-to-5-variants",
+          "text": "Produces 3-5 mark/wordmark/symbol/monogram concept variants, then refines the chosen one."
+        },
+        {
+          "id": "anti-slop-prompt",
+          "text": "Enforces AI-slop prevention (max 3 monotone colors, no gradient/emoji/3D, small-size legibility) at the prompt stage."
+        }
+      ]
+    },
+    {
+      "id": "en-symbol-design",
+      "prompt": "Design a symbol mark for my startup and give me export paths",
+      "assertions": [
+        {
+          "id": "generates-png",
+          "text": "Generates actual PNG concepts via scripts/gen_logo.mjs (Gemini, requires GEMINI_API_KEY)."
+        },
+        {
+          "id": "vectorize-export-guidance",
+          "text": "Guides vectorization (SVG), background removal, and export paths."
+        }
+      ]
+    }
+  ]
+}

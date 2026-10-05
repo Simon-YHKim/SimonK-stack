@@ -1,0 +1,21 @@
+{
+  "skill": "incident-runbook",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "production-outage",
+      "prompt": "프로덕션이 내려갔어. 지금 장애 대응 순서를 잡아줘.",
+      "assertions": [
+        {"id": "observed-impact", "text": "Distinguishes observed outage evidence from assumptions and records a timestamp, impact and provisional severity."},
+        {"id": "safe-mitigation", "text": "Presents reversible mitigation and verification steps without performing deployment, rollback or public communication unapproved."}
+      ]
+    },
+    {
+      "id": "rollback-decision",
+      "prompt": "마지막 배포를 롤백할까?",
+      "assertions": [
+        {"id": "decision-tree", "text": "Compares incident impact and rollback risk, identifies the exact target and asks for authorization before production rollback."}
+      ]
+    }
+  ]
+}

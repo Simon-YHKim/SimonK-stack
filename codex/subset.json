@@ -1,0 +1,3921 @@
+{
+  "content_digest": "2879e3ab402967ea43190aa761d2dbbd36ef229078f38cb3dae1da969f8046c8",
+  "decision_ref": "D-29",
+  "excluded_members": [
+    {
+      "path": "plugins/SimonKAIHub/.claude-plugin/marketplace.json",
+      "sha256": "ba397ee101ed630974fee2f7e2b93f4eae9ef4544f0856070c9e83dae8a4ca52",
+      "size": 631
+    },
+    {
+      "path": "plugins/SimonKAIHub/.claude-plugin/plugin.json",
+      "sha256": "08c1022ae70b994c559dad2940d5b9322695a64d3c3937e4d4fb23f622dee4d0",
+      "size": 678
+    },
+    {
+      "path": "plugins/SimonKCore/.claude-plugin/marketplace.json",
+      "sha256": "1c54ed568d1acf97e5d30b3f39dccaba94ec4aa912e2def08cce117a4f2596eb",
+      "size": 640
+    },
+    {
+      "path": "plugins/SimonKCore/.claude-plugin/plugin.json",
+      "sha256": "d3213838c11aa23a545cc6cb12a460f75316cd69858cc0d5aae7dd8afb0db6e6",
+      "size": 2525
+    },
+    {
+      "path": "plugins/SimonKCore/.simonk-runtime/careful/bin/check-careful.sh",
+      "sha256": "c01b0ece0ade1c9fb083db2ceac5abd266bf8be52f5b4fcf65281760e4a54216",
+      "size": 30118
+    },
+    {
+      "path": "plugins/SimonKCore/.simonk-runtime/careful/bin/hook-extract.sh",
+      "sha256": "e8ffb531dd694784077fdb1e716b3872c33e8195333da27255d278ac7ba9575e",
+      "size": 7491
+    },
+    {
+      "path": "plugins/SimonKCore/.simonk-runtime/freeze/bin/check-freeze.sh",
+      "sha256": "3d0b9f5c5ff948633c40db158083bf6d00e8b9b5d09f5f83d87946063d7e6246",
+      "size": 12421
+    },
+    {
+      "path": "plugins/SimonKCore/.simonk-runtime/safety_runtime.py",
+      "sha256": "1938410a0e61bb124bfcf15ca17eaf430e20eedd27adf0a42fb05a265f6ca7a1",
+      "size": 34251
+    },
+    {
+      "path": "plugins/SimonKCore/skills/careful/SKILL.md",
+      "sha256": "9cc45dadc7d6d9ccdf7cfff78b237f13830112c6d14b06f98ea245765ed9a0cf",
+      "size": 16665
+    },
+    {
+      "path": "plugins/SimonKCore/skills/careful/bin/check-careful.sh",
+      "sha256": "c01b0ece0ade1c9fb083db2ceac5abd266bf8be52f5b4fcf65281760e4a54216",
+      "size": 30118
+    },
+    {
+      "path": "plugins/SimonKCore/skills/careful/bin/gstack-slug.sh",
+      "sha256": "9209ac9b20d17ffc4421f069e52e4bd731a7f077c5394cdc4a3038c06fb2520b",
+      "size": 14610
+    },
+    {
+      "path": "plugins/SimonKCore/skills/careful/bin/hook-extract.sh",
+      "sha256": "e8ffb531dd694784077fdb1e716b3872c33e8195333da27255d278ac7ba9575e",
+      "size": 7491
+    },
+    {
+      "path": "plugins/SimonKCore/skills/careful/bin/test_check_careful.py",
+      "sha256": "e9c0019a0e46cea5927eea64ace459e81028d52827e995763c7e97285de4a911",
+      "size": 34439
+    },
+    {
+      "path": "plugins/SimonKCore/skills/careful/evals/cases.json",
+      "sha256": "463f1fedc32d7df39ba3282189e77ef4beadc9592fdcc169588e1748b38fe0ce",
+      "size": 5469
+    },
+    {
+      "path": "plugins/SimonKCore/skills/unfreeze/SKILL.md",
+      "sha256": "c3b8a6da49fe59d66885601478b48e28d52068c30ceeb1381813fcda9fce902a",
+      "size": 3456
+    },
+    {
+      "path": "plugins/SimonKCore/skills/unfreeze/evals/cases.json",
+      "sha256": "6b30b3249eb7029fe9cf07484985861c15d241361c9c52a4d08f222ade1f64cd",
+      "size": 1585
+    },
+    {
+      "path": "plugins/SimonKDesign/.claude-plugin/marketplace.json",
+      "sha256": "53e649010e77687ceff8db538054439dd72f521a11fff456d14ad527b03d94ec",
+      "size": 584
+    },
+    {
+      "path": "plugins/SimonKDesign/.claude-plugin/plugin.json",
+      "sha256": "660970f87bef56e3fe5f2bee64615f6b613aca96f70cd2593ea1bce45ebeaf5f",
+      "size": 1156
+    },
+    {
+      "path": "plugins/SimonKMarket/.claude-plugin/marketplace.json",
+      "sha256": "4b9bd588ba8981e6a6ae7c9d2f9218083331d0be7e5961bde8e56131d1566439",
+      "size": 615
+    },
+    {
+      "path": "plugins/SimonKMarket/.claude-plugin/plugin.json",
+      "sha256": "e8edc1b54f72bed8cb0e3803f67d7cbf21d908d5cc8588d2e3a52bbbd9b8f8db",
+      "size": 1643
+    },
+    {
+      "path": "plugins/SimonKStack/.claude-plugin/marketplace.json",
+      "sha256": "292d6cb524b1cbe6cb7d1ec3cb11f0e72d044fd7a3079e53b27755b7ede3777e",
+      "size": 586
+    },
+    {
+      "path": "plugins/SimonKStack/.claude-plugin/plugin.json",
+      "sha256": "0bf119d6aaf018d4e08da9cba851d29cb5dc51f02af46d1a0b75634472a46293",
+      "size": 2776
+    },
+    {
+      "path": "plugins/SimonKStack/.simonk-runtime/careful/bin/check-careful.sh",
+      "sha256": "c01b0ece0ade1c9fb083db2ceac5abd266bf8be52f5b4fcf65281760e4a54216",
+      "size": 30118
+    },
+    {
+      "path": "plugins/SimonKStack/.simonk-runtime/careful/bin/hook-extract.sh",
+      "sha256": "e8ffb531dd694784077fdb1e716b3872c33e8195333da27255d278ac7ba9575e",
+      "size": 7491
+    },
+    {
+      "path": "plugins/SimonKStack/.simonk-runtime/freeze/bin/check-freeze.sh",
+      "sha256": "3d0b9f5c5ff948633c40db158083bf6d00e8b9b5d09f5f83d87946063d7e6246",
+      "size": 12421
+    },
+    {
+      "path": "plugins/SimonKStack/.simonk-runtime/safety_runtime.py",
+      "sha256": "1938410a0e61bb124bfcf15ca17eaf430e20eedd27adf0a42fb05a265f6ca7a1",
+      "size": 34251
+    },
+    {
+      "path": "plugins/SimonKStack/skills/freeze/SKILL.md",
+      "sha256": "c45619064cc00d6acc6d9c3041154ef3053d958e5c5aac18325274b699501387",
+      "size": 10138
+    },
+    {
+      "path": "plugins/SimonKStack/skills/freeze/bin/check-freeze.sh",
+      "sha256": "3d0b9f5c5ff948633c40db158083bf6d00e8b9b5d09f5f83d87946063d7e6246",
+      "size": 12421
+    },
+    {
+      "path": "plugins/SimonKStack/skills/freeze/bin/freeze-state.sh",
+      "sha256": "47bc6b4090e032b1ce8ba71b2456ea17185e635f0299f5d0f9fabe17676b288f",
+      "size": 3402
+    },
+    {
+      "path": "plugins/SimonKStack/skills/freeze/bin/safety_runtime.py",
+      "sha256": "1938410a0e61bb124bfcf15ca17eaf430e20eedd27adf0a42fb05a265f6ca7a1",
+      "size": 34251
+    },
+    {
+      "path": "plugins/SimonKStack/skills/freeze/bin/test_check_freeze.py",
+      "sha256": "410eb1644cee5e2c6f5ecd4ef79b1833f2512a928653392bac475035bafc6937",
+      "size": 26351
+    },
+    {
+      "path": "plugins/SimonKStack/skills/freeze/evals/cases.json",
+      "sha256": "0a8174885ac45859802150b0185795b1407c59e69b3b7f588210d5b4eb46d40f",
+      "size": 2464
+    },
+    {
+      "path": "plugins/SimonKStack/skills/guard/SKILL.md",
+      "sha256": "8654e8ff9bdc51a8389047fa11879019703b9e06e5ecf36430ea79f4114f855a",
+      "size": 9278
+    },
+    {
+      "path": "plugins/SimonKStack/skills/guard/evals/cases.json",
+      "sha256": "0b0b56f08f1934faad138abad962224fc4c243925b519a46590ccef0b847b2cc",
+      "size": 2077
+    },
+    {
+      "path": "plugins/SimonKStack/skills/investigate/.simonk-no-install",
+      "sha256": "daffadfe92006ac0917d797332c72946fda50ac7517e891eb6abc110fe69ab49",
+      "size": 565
+    },
+    {
+      "path": "plugins/SimonKStack/skills/investigate/SKILL.md",
+      "sha256": "4b536bb64e8e6d5fc8b39bccca400d63deb5731964128e73e06253f69e989389",
+      "size": 26822
+    },
+    {
+      "path": "plugins/SimonKStack/skills/investigate/evals/cases.json",
+      "sha256": "f0e2238a70df84ac5ce2d6eb73b394713568b2de40471a870f4c7fcb19ee64f0",
+      "size": 939
+    },
+    {
+      "path": "plugins/SimonKStack/skills/investigate/references/detail.md",
+      "sha256": "cc2f6ec3dac43d9bbf71b5b1cd39bea03617bd3027459b6de423a715fd73e74c",
+      "size": 17237
+    }
+  ],
+  "excluded_skills": [
+    "simonk-core:careful",
+    "simonk-stack:freeze",
+    "simonk-stack:guard",
+    "simonk-stack:investigate",
+    "simonk-core:unfreeze"
+  ],
+  "host_compatibility_verified": false,
+  "included_members": [
+    {
+      "path": "bundle.json",
+      "sha256": "5e4b6111a40ddaea486b2cf0d61edb0a4bb6e7638a9e8268176eda7346992f61",
+      "size": 1850438
+    },
+    {
+      "path": "overlay.json",
+      "sha256": "53d8063a2bc83d532705730d61c16c5b348e80174556934ae69e469967663111",
+      "size": 5853
+    },
+    {
+      "path": "plugins/SimonKAIHub/.codex-plugin/plugin.json",
+      "sha256": "8c8bad2634c6f7cc86cbcdcdd59db0a63bb9e6f09d9079983d803b0bd9a66d7b",
+      "size": 943
+    },
+    {
+      "path": "plugins/SimonKAIHub/.github/skill-ci/README.md",
+      "sha256": "283627af8b2d979bf1fc09e3f89c6b5d84d1707f483c28c4403bac94043b40a7",
+      "size": 1467
+    },
+    {
+      "path": "plugins/SimonKAIHub/.github/skill-ci/run_ci.py",
+      "sha256": "c51660606c126af53c73156499ee8d98228e43e469b1264d7314c9279d971c39",
+      "size": 3398
+    },
+    {
+      "path": "plugins/SimonKAIHub/.github/skill-ci/test_run_ci_encoding.py",
+      "sha256": "5ff6c19bf48f0cdbe3a031206afa1d4fabc29e52838b70fd3c22a69f277767f3",
+      "size": 2718
+    },
+    {
+      "path": "plugins/SimonKAIHub/.github/skill-ci/test_skill.py",
+      "sha256": "d46b14fe8378676b0f7763a05dbf7cb7d43d8c9fe8b1d28a055f943048bc0ec9",
+      "size": 4800
+    },
+    {
+      "path": "plugins/SimonKAIHub/.github/skill-ci/validate_skill.py",
+      "sha256": "70c621a9dc45559246549b699ea328fc47e2279facb35f24cf2f043ca1fcfaf1",
+      "size": 21538
+    },
+    {
+      "path": "plugins/SimonKAIHub/.github/validate.mjs",
+      "sha256": "553c46eea582cccbc17dbb0a0f70cf1a2942cd1613035a8fd758c5916376d30a",
+      "size": 1191
+    },
+    {
+      "path": "plugins/SimonKAIHub/.github/workflows/release.yml",
+      "sha256": "c57b57909e9ee9439cd99ba491b9a23ef1e1ca86b552d4b38d23d818675b1563",
+      "size": 860
+    },
+    {
+      "path": "plugins/SimonKAIHub/.github/workflows/skills-ci.yml",
+      "sha256": "d43c6bc256f7b8d03dec43c115ce5b4283f01916d443508b0ca8ab2ab4cb9dbf",
+      "size": 502
+    },
+    {
+      "path": "plugins/SimonKAIHub/.github/workflows/validate-plugin.yml",
+      "sha256": "2bf8aec3fd636e5b011d65d2627283b5e5bb14effd053f71b27b55f2e79ab813",
+      "size": 275
+    },
+    {
+      "path": "plugins/SimonKAIHub/.simonk-source-attribution/LICENSE",
+      "sha256": "830b2f935bda17d68dbdec837e4c70b46b72180e2e99327baa0f5ed17bc11b9c",
+      "size": 10307
+    },
+    {
+      "path": "plugins/SimonKAIHub/.simonk-source-attribution/NOTICE",
+      "sha256": "ed7b706ece9f64fa81175dfc7e96e11530ecce33b78b44af8685e050928cc5b5",
+      "size": 883
+    },
+    {
+      "path": "plugins/SimonKAIHub/.simonk-source-attribution/VENDORED.md",
+      "sha256": "1302d0fab1878cfdc24877287f4c8bd5ea25803f0f06ee53016e204a9ebcee14",
+      "size": 2788
+    },
+    {
+      "path": "plugins/SimonKAIHub/CHANGELOG.md",
+      "sha256": "037272f11e1c42dd7fef358237bd32fe3c9cbcb358239965c38f6b5fe7a68b26",
+      "size": 1345
+    },
+    {
+      "path": "plugins/SimonKAIHub/CONTRIBUTING.md",
+      "sha256": "0777e33bd3418d4b4386d20f310a6b7d415bb93130e20f8eef77d717a84f3568",
+      "size": 3549
+    },
+    {
+      "path": "plugins/SimonKAIHub/LICENSE",
+      "sha256": "fe3867cb8f2d971c1d7d565eb7c0ec603c67b23ac8bf49eee25ed5e8f7da0466",
+      "size": 1811
+    },
+    {
+      "path": "plugins/SimonKAIHub/NOTICE",
+      "sha256": "f4226bcb79fdfb5da94a9ef591c0a98a5101cb31578e95446188dd8945f04620",
+      "size": 254
+    },
+    {
+      "path": "plugins/SimonKAIHub/README.md",
+      "sha256": "4c08af86e71507d4a8d3f24b62e2831f8ffdf0a78236d754077aae893ba1f2b2",
+      "size": 4117
+    },
+    {
+      "path": "plugins/SimonKAIHub/RELEASING.md",
+      "sha256": "2b5df480da54ddd79d424d02d28e7d67c46a90eba74e8ea550b462ea11e8c749",
+      "size": 1204
+    },
+    {
+      "path": "plugins/SimonKAIHub/agents/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "plugins/SimonKAIHub/commands/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "plugins/SimonKAIHub/commands/skaihub.md",
+      "sha256": "322b1281c978aa9d29fdab1d638183e6f39eac4d77c9da37b95e3cf6418d541e",
+      "size": 1267
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/agent-builder/SKILL.md",
+      "sha256": "dbddae0625e99c3253a80ed368b4c6383c9c7775f571852bb3d522c704270d4f",
+      "size": 15487
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/agent-builder/evals/cases.json",
+      "sha256": "0ccc917e00365d5d515dc7ccaa60befa500c9b24352fe31318a595f87a62b882",
+      "size": 1621
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/agent-builder/scripts/guardrails.ts",
+      "sha256": "dc0ad9c6fc6671a0f9148d0299176a492f148a3e3e37a35a3e717ca9709016d0",
+      "size": 9273
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/agent-builder/templates/agent-loop.ts",
+      "sha256": "87326eaaee9298e9d53d9bec23301c044064a91fb86546b0961849ae86379a98",
+      "size": 10171
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/agent-builder/templates/tool-schema.json",
+      "sha256": "64fe852341d272f7c11c8d8754594cdd45bbfdc3699bca8f1abc5e8d430b799a",
+      "size": 4431
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/ai-model-selector/SKILL.md",
+      "sha256": "2599a7e8c557567b801d7ced13677596fd3721ef0d73d637e0ab901bbd82558d",
+      "size": 13559
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/ai-model-selector/evals/cases.json",
+      "sha256": "67a5917605c581f26c9b216a0d971bd5be3ed67043b4a68533935269b85aa09d",
+      "size": 2163
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/ai-model-selector/templates/model-decision.json",
+      "sha256": "762dcfe37736941de27c5cee52263344038803a9c01b512de757bf15cd52e251",
+      "size": 1772
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/ai-safety-eval/SKILL.md",
+      "sha256": "24daea151548487436445b258ab6f7036f38a29362847c99649283430034c0d5",
+      "size": 14063
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/ai-safety-eval/evals/cases.json",
+      "sha256": "7fe7c87a34c03c35a47731bda30600aa64e68fd05d819df23decd0523c342629",
+      "size": 1095
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/ai-safety-eval/scripts/classify.mjs",
+      "sha256": "ed54785f42c1c1f5a3125f30dda7ccb2bda047d8b0c15f0311134aacd613167f",
+      "size": 11810
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/ai-safety-eval/scripts/crisis_fn_gate.mjs",
+      "sha256": "16f937a338b276e1a73a0289a8665fb4fcf43557313d386e6d4ccd157503cca6",
+      "size": 3994
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/ai-safety-eval/templates/crisis-fn-eval.jsonl",
+      "sha256": "991a1cf26357d259b948874aba2e26094d9288b3c7e35a02dd2a45d31bb4bf26",
+      "size": 3062
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/ai-safety-eval/templates/guardrail-config.json",
+      "sha256": "110ba9fc2e105d3b80406d972f56e350b16189b8d590540cf51448f394a007d1",
+      "size": 11111
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/ai-safety-eval/templates/redteam-suite.md",
+      "sha256": "5cb850edbe04b1623688000a6bc98f56498cfaa0171b85d05eb2241717bbcad9",
+      "size": 10236
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/llm-eval/SKILL.md",
+      "sha256": "c4f1d35e0def80546d49c5c5ee9f3fdecb53ca6680235b6645d452e40d305c25",
+      "size": 16143
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/llm-eval/evals/cases.json",
+      "sha256": "7f7e3f02a1255370870fd46597ad32c82169a53a346ee124fb8c17ddd445faa7",
+      "size": 1072
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/llm-eval/scripts/gate.mjs",
+      "sha256": "5907ebb152c4e194c638c3d8a67b0b76e154ac7b3ca9abe7fc9dd1aa9281997a",
+      "size": 6739
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/llm-eval/scripts/run_eval.mjs",
+      "sha256": "0fbaec4a5a45d55c01171cbd8a25481df0a1d611ca3f2328b06cffdeff33005b",
+      "size": 14133
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/llm-eval/scripts/run_eval.py",
+      "sha256": "a27fc2e92a8a2809ff9fd0cd77b79f95aaa2c282dbab52e854bc8314128bb315",
+      "size": 11533
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/llm-eval/templates/eval-ci.yml",
+      "sha256": "ac54ac6de262e8a49c799513894e66949fa7d3a45aeaf4d95450e20636ea5763",
+      "size": 3514
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/llm-eval/templates/eval_set.jsonl",
+      "sha256": "2a97f40b3598f6a70e839a85a07627db23ad9d185fab457ba0544424a7bc377a",
+      "size": 968
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/llm-eval/templates/judge_rubric.md",
+      "sha256": "77d9834951fafcb6201a41401147846803398a9bff153e6a6c2ab5d4381691a1",
+      "size": 2017
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/llm-eval/templates/redteam_set.jsonl",
+      "sha256": "c44fc6bdf7fe9990a9e91ad2ca455a02c3b410331b3b0c343c0105b81cb82abe",
+      "size": 2936
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/llm-eval/templates/result_schema.json",
+      "sha256": "97696eb40010a89b7b8d07edb4ed2f8df5d9410496d7f4308b7e8e29584786d7",
+      "size": 3210
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/prompt-engineering/SKILL.md",
+      "sha256": "ec9aae115ca4ef941b2f9e62e46e98f9367973bb314b8ecdfe003cfa3411342f",
+      "size": 11617
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/prompt-engineering/evals/cases.json",
+      "sha256": "218382bea40f91b6d5be109abbe823e588e037bf95d2fc93da5cbcf31ff85113",
+      "size": 1088
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/prompt-engineering/scripts/run-eval.mjs",
+      "sha256": "4bcac7e47a57462931935b50c514810c9ebe06e452ad40af5cbac008d5af868b",
+      "size": 3295
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/prompt-engineering/templates/eval-set.jsonl",
+      "sha256": "33a2425cdd84d397e61084f5f656adca3fe5b394cecf4d042d4537e8a9684217",
+      "size": 2018
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/prompt-engineering/templates/system-prompt.md",
+      "sha256": "a74001f39bda7979aaa8f368bf7ceddce9fc080fdbcc6c088e8ff93dc095c122",
+      "size": 1951
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/rag-builder/SKILL.md",
+      "sha256": "48a0a622ca392d8d4a366f245eb00a57b5ee63211218fd0b5647d08a90409c9c",
+      "size": 18589
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/rag-builder/evals/cases.json",
+      "sha256": "16d9019884b14bd6700b1a24b5bae4414a5596af3bfc3ac5d5d058f0124774fd",
+      "size": 1017
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/rag-builder/scripts/eval_rag.py",
+      "sha256": "86e02022586083403603f4a71da9863b466e2a6ccad3f20705448e93d0bae3cd",
+      "size": 14175
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/rag-builder/templates/answer_prompt.md",
+      "sha256": "8dd387be5d3cf932f3917c1f484d32ab11df2e49d82b4ecda5b42b670f050126",
+      "size": 5717
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/rag-builder/templates/eval_set.jsonl",
+      "sha256": "1cc4e9af85912058ec6545bd851c4d6cb40cce0dcceea274e5343240a2a5d296",
+      "size": 1752
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/rag-builder/templates/ingest.py",
+      "sha256": "a4f71d3440b0dc93baeaf30c022003d81b0e64eb8fb4b1ba228bb48aa94f95e9",
+      "size": 3552
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/rag-builder/templates/pgvector_schema.sql",
+      "sha256": "48dd39f90513e0d16a16a36f5180ae04c7ad0f7fafadb1f68d31363d2f5aa65b",
+      "size": 2807
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/skaihub/SKILL.md",
+      "sha256": "fcc4692005db1dd73f395d4d2578daf225427f5a1bcaf75270e37f886a547428",
+      "size": 5962
+    },
+    {
+      "path": "plugins/SimonKAIHub/skills/skaihub/evals/cases.json",
+      "sha256": "612e78be518f01b08ccee282a504997d051fdb772bf0a66a5407ee6db46fbb4d",
+      "size": 1472
+    },
+    {
+      "path": "plugins/SimonKCore/.codex-plugin/plugin.json",
+      "sha256": "aba61946cd566bd93f238a2eaa18d0cac414adce2244b6308bbbf4f6a48d023b",
+      "size": 1228
+    },
+    {
+      "path": "plugins/SimonKCore/.github/skill-ci/README.md",
+      "sha256": "283627af8b2d979bf1fc09e3f89c6b5d84d1707f483c28c4403bac94043b40a7",
+      "size": 1467
+    },
+    {
+      "path": "plugins/SimonKCore/.github/skill-ci/run_ci.py",
+      "sha256": "c51660606c126af53c73156499ee8d98228e43e469b1264d7314c9279d971c39",
+      "size": 3398
+    },
+    {
+      "path": "plugins/SimonKCore/.github/skill-ci/test_run_ci_encoding.py",
+      "sha256": "5ff6c19bf48f0cdbe3a031206afa1d4fabc29e52838b70fd3c22a69f277767f3",
+      "size": 2718
+    },
+    {
+      "path": "plugins/SimonKCore/.github/skill-ci/test_skill.py",
+      "sha256": "d46b14fe8378676b0f7763a05dbf7cb7d43d8c9fe8b1d28a055f943048bc0ec9",
+      "size": 4800
+    },
+    {
+      "path": "plugins/SimonKCore/.github/skill-ci/validate_skill.py",
+      "sha256": "70c621a9dc45559246549b699ea328fc47e2279facb35f24cf2f043ca1fcfaf1",
+      "size": 21538
+    },
+    {
+      "path": "plugins/SimonKCore/.github/validate.mjs",
+      "sha256": "553c46eea582cccbc17dbb0a0f70cf1a2942cd1613035a8fd758c5916376d30a",
+      "size": 1191
+    },
+    {
+      "path": "plugins/SimonKCore/.github/workflows/release.yml",
+      "sha256": "c57b57909e9ee9439cd99ba491b9a23ef1e1ca86b552d4b38d23d818675b1563",
+      "size": 860
+    },
+    {
+      "path": "plugins/SimonKCore/.github/workflows/skills-ci.yml",
+      "sha256": "d43c6bc256f7b8d03dec43c115ce5b4283f01916d443508b0ca8ab2ab4cb9dbf",
+      "size": 502
+    },
+    {
+      "path": "plugins/SimonKCore/.github/workflows/validate-plugin.yml",
+      "sha256": "2bf8aec3fd636e5b011d65d2627283b5e5bb14effd053f71b27b55f2e79ab813",
+      "size": 275
+    },
+    {
+      "path": "plugins/SimonKCore/.simonk-source-attribution/LICENSE",
+      "sha256": "830b2f935bda17d68dbdec837e4c70b46b72180e2e99327baa0f5ed17bc11b9c",
+      "size": 10307
+    },
+    {
+      "path": "plugins/SimonKCore/.simonk-source-attribution/NOTICE",
+      "sha256": "ed7b706ece9f64fa81175dfc7e96e11530ecce33b78b44af8685e050928cc5b5",
+      "size": 883
+    },
+    {
+      "path": "plugins/SimonKCore/.simonk-source-attribution/VENDORED.md",
+      "sha256": "1302d0fab1878cfdc24877287f4c8bd5ea25803f0f06ee53016e204a9ebcee14",
+      "size": 2788
+    },
+    {
+      "path": "plugins/SimonKCore/CHANGELOG.md",
+      "sha256": "660b19b788a0ddb9495321c90634d76f9557fcc5115500336ec0615c7857eb4b",
+      "size": 3153
+    },
+    {
+      "path": "plugins/SimonKCore/CONTRIBUTING.md",
+      "sha256": "bf639aaf104e0245edac9e42f1d7d39b652f90a5d6200738c6c32df839f03747",
+      "size": 4735
+    },
+    {
+      "path": "plugins/SimonKCore/LICENSE",
+      "sha256": "fe3867cb8f2d971c1d7d565eb7c0ec603c67b23ac8bf49eee25ed5e8f7da0466",
+      "size": 1811
+    },
+    {
+      "path": "plugins/SimonKCore/NOTICE",
+      "sha256": "77d44e9db30f18d969c592fb0265140cde285a2d9d9915deec754354b3ae5011",
+      "size": 301
+    },
+    {
+      "path": "plugins/SimonKCore/README.md",
+      "sha256": "82b6eed890b414befa944bda3f5f6709f349cd2af51b01082dfe78c0e100bb63",
+      "size": 4714
+    },
+    {
+      "path": "plugins/SimonKCore/RELEASING.md",
+      "sha256": "2b5df480da54ddd79d424d02d28e7d67c46a90eba74e8ea550b462ea11e8c749",
+      "size": 1204
+    },
+    {
+      "path": "plugins/SimonKCore/agents/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "plugins/SimonKCore/commands/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "plugins/SimonKCore/commands/find-skill.md",
+      "sha256": "f868f2c00f5647ebcdc884717f3ffe547ea28429eec8420af1772fadee6c0dbb",
+      "size": 1134
+    },
+    {
+      "path": "plugins/SimonKCore/commands/simonk.md",
+      "sha256": "28b1be326329f52851edb44bc0b83ba1dc07b95fdaa1369bfbc4f868f2d92382",
+      "size": 1697
+    },
+    {
+      "path": "plugins/SimonKCore/skills/agent-delegate/SKILL.md",
+      "sha256": "b60d41c08fa25afb26726a661e9d7f126b7297da7c87dac71241a0f048ad8fa2",
+      "size": 6758
+    },
+    {
+      "path": "plugins/SimonKCore/skills/agent-delegate/evals/cases.json",
+      "sha256": "bcda0833068644af8cf2a3f4fc3db98d2a223eac9a3cb77f495e506f8d8be5b6",
+      "size": 1885
+    },
+    {
+      "path": "plugins/SimonKCore/skills/ai-debate/SKILL.md",
+      "sha256": "70c797adfb29cb0bde6f989d82be373627e1ec50be9204b865417d74bff7410d",
+      "size": 25900
+    },
+    {
+      "path": "plugins/SimonKCore/skills/ai-debate/evals/cases.json",
+      "sha256": "d57ff9e0a8607906b719d1c6b6ad7e9f66a1e3e4ff4cf9617e538d5ada979288",
+      "size": 5704
+    },
+    {
+      "path": "plugins/SimonKCore/skills/ai-debate/references/seats.md",
+      "sha256": "b3d809c8f626ec6cb42c9ca2136c76caa490fdb7cf2fd5d9c31491a3daec832d",
+      "size": 21232
+    },
+    {
+      "path": "plugins/SimonKCore/skills/ai-debate/scripts/debate.py",
+      "sha256": "a231df912a2901bc4feece5ab21ecf26918bb9de6de23b05b1b213662d7c0e04",
+      "size": 146336
+    },
+    {
+      "path": "plugins/SimonKCore/skills/ai-debate/scripts/interject_scan.py",
+      "sha256": "2b486febe0f30f6a7e802efeddc2756fc9e4e85324a56dc1d2a3a9f0fde46719",
+      "size": 44277
+    },
+    {
+      "path": "plugins/SimonKCore/skills/ai-debate/scripts/test_debate.py",
+      "sha256": "499c15921f5fd2e3adf52a0150753a770f0d3637382ef109a64fedf4cdab6a3f",
+      "size": 110972
+    },
+    {
+      "path": "plugins/SimonKCore/skills/ai-debate/scripts/test_interject_scan.py",
+      "sha256": "ccb36b08230ba036bbc4e7295f9130ba76bbd99aaa98593348bf47496e84ca08",
+      "size": 46987
+    },
+    {
+      "path": "plugins/SimonKCore/skills/ai-usage-widget-install/SKILL.md",
+      "sha256": "cfbf90ae1f30405291ac322657455669b5e3dae64a3e6275e21ee48bea9bfd12",
+      "size": 6441
+    },
+    {
+      "path": "plugins/SimonKCore/skills/ai-usage-widget-install/evals/cases.json",
+      "sha256": "e13353986aa8797c35c7d0165b680fccb05386b352de80b0e1e983727f656140",
+      "size": 2334
+    },
+    {
+      "path": "plugins/SimonKCore/skills/ai-usage-widget-install/scripts/install-widget.ps1",
+      "sha256": "77ee90f5f31e53753395f2d37623e75dace364d2f9afc6f2374c93a1e4caf35f",
+      "size": 8649
+    },
+    {
+      "path": "plugins/SimonKCore/skills/caveman/SKILL.md",
+      "sha256": "c8c405683ef868852c2fe9a3de701eb6230f1fd9407d35a0a6de3739185705a7",
+      "size": 4468
+    },
+    {
+      "path": "plugins/SimonKCore/skills/caveman/evals/cases.json",
+      "sha256": "aed6c090cf9665d682a03ded7b3c178fe35c8843bb8bed0db493855db2799efd",
+      "size": 1823
+    },
+    {
+      "path": "plugins/SimonKCore/skills/checkpoint/SKILL.md",
+      "sha256": "2e76f266ff015febf9c1045b593484d73c394129e60a56501d220915c49ef658",
+      "size": 22413
+    },
+    {
+      "path": "plugins/SimonKCore/skills/checkpoint/evals/cases.json",
+      "sha256": "dbaeb289a0e52d728a9ef9fd48a9f26fa0333231226c4d31f2760f5e23e87767",
+      "size": 1214
+    },
+    {
+      "path": "plugins/SimonKCore/skills/checkpoint/references/detail.md",
+      "sha256": "539da310caae882071a87982e6fb9c12b4370ce59a08d1f734e18bafe883d415",
+      "size": 16634
+    },
+    {
+      "path": "plugins/SimonKCore/skills/completion-report/SKILL.md",
+      "sha256": "345597ca8b23c791592f9a3add71f9c3efbfcd3668c8478ad40339786711b068",
+      "size": 5518
+    },
+    {
+      "path": "plugins/SimonKCore/skills/completion-report/evals/cases.json",
+      "sha256": "8e4728f54aa12bfc7d363788bcf0aaff07a7f6bb8bc7126971b3108c0d4bec20",
+      "size": 2282
+    },
+    {
+      "path": "plugins/SimonKCore/skills/completion-report/scripts/localtime.mjs",
+      "sha256": "e18bcec8bedb4a16abfaa72ff6742b2ced529460068a2c4930deb505af706f92",
+      "size": 2740
+    },
+    {
+      "path": "plugins/SimonKCore/skills/completion-report/templates/report.template.html",
+      "sha256": "e7c76c5acb5b1d3cf382dbf89e1ce8730e5b9ce34072b0e0ee372cf256d58f37",
+      "size": 8564
+    },
+    {
+      "path": "plugins/SimonKCore/skills/defuddle/SKILL.md",
+      "sha256": "9f53a6df4e0a5d3a508382a82ccea817333f150d5feefdb5f5bae60a294e48e9",
+      "size": 1938
+    },
+    {
+      "path": "plugins/SimonKCore/skills/defuddle/evals/cases.json",
+      "sha256": "9eefb2470a8e6786aaa574d50ce01255babad2089de68a01767eb2c46bc86fb3",
+      "size": 1172
+    },
+    {
+      "path": "plugins/SimonKCore/skills/designmd-upgrade/SKILL.md",
+      "sha256": "449f7e5f5d3bf08472daa778c10bfd2ec73a6ebac9f5ca54497e7e4345c28181",
+      "size": 3666
+    },
+    {
+      "path": "plugins/SimonKCore/skills/designmd-upgrade/evals/cases.json",
+      "sha256": "5a0fbd4b9350f295f26ad907201c4f69851162e47bf4b342dc3b59561956f084",
+      "size": 1015
+    },
+    {
+      "path": "plugins/SimonKCore/skills/domain-glossary/SKILL.md",
+      "sha256": "922be2ecfa5647eb1baccd1e5ee8b1925b90ec5ecc86d0bf525bb6ad231c2373",
+      "size": 6195
+    },
+    {
+      "path": "plugins/SimonKCore/skills/domain-glossary/evals/cases.json",
+      "sha256": "24bd76de0c16a073cc5bf4c5901e19ddaf05cbed581f3c189bbf9f992429df25",
+      "size": 2304
+    },
+    {
+      "path": "plugins/SimonKCore/skills/domain-glossary/references/CONTEXT-FORMAT.md",
+      "sha256": "e3cce54a9800fbbbb6059c8e66b16ca60476b282c45d27739a9d1673593046b3",
+      "size": 4531
+    },
+    {
+      "path": "plugins/SimonKCore/skills/find-skill/SKILL.md",
+      "sha256": "57d04c7f51925c808f6f11dea225bab0dfe6a035c5348f02063944c20d0d8eca",
+      "size": 8054
+    },
+    {
+      "path": "plugins/SimonKCore/skills/find-skill/evals/cases.json",
+      "sha256": "a0c72c9e3c6b9c1c42c9c75dd0348ac156832dcc9c2b3a5474cf07c3e3f6a48b",
+      "size": 1268
+    },
+    {
+      "path": "plugins/SimonKCore/skills/founder-context/SKILL.md",
+      "sha256": "0a38c4e53457ecada047fe7a623f80f9b06a960d932dcf479324ab361c152ecf",
+      "size": 11468
+    },
+    {
+      "path": "plugins/SimonKCore/skills/founder-context/evals/cases.json",
+      "sha256": "167757394b0b7c3cb5bc98e4f91341a371db2f0d967ac6672385a8fb0a71d6de",
+      "size": 1271
+    },
+    {
+      "path": "plugins/SimonKCore/skills/founder-context/templates/design.md",
+      "sha256": "d9937202f1e1c1b41f842ad19b9739e5e120fc471b60feb120ba26d0896c76d1",
+      "size": 1355
+    },
+    {
+      "path": "plugins/SimonKCore/skills/founder-context/templates/me.md",
+      "sha256": "3e554a75b972f043f72c337224b9afe956c699901bbb3dbaa6c50bdc7cbbc3b7",
+      "size": 811
+    },
+    {
+      "path": "plugins/SimonKCore/skills/founder-context/templates/vision.md",
+      "sha256": "4aaa8104cbff3d4276bc02023b7d0a4514f70590d38c3bfeaf55263c8c21bd77",
+      "size": 803
+    },
+    {
+      "path": "plugins/SimonKCore/skills/founder-context/templates/workingstyle.md",
+      "sha256": "17847078295a729a50982f9bc22d562689b34a1ded05a4cbda5536123082dadc",
+      "size": 1170
+    },
+    {
+      "path": "plugins/SimonKCore/skills/gcloud-helper/SKILL.md",
+      "sha256": "821da776769462d5f7f3a8fc169079aca9b888551e998a64392d8aa597b75126",
+      "size": 3164
+    },
+    {
+      "path": "plugins/SimonKCore/skills/gcloud-helper/evals/cases.json",
+      "sha256": "dc51fa222ac4572047961e25fa124549439a1d9101001fd5daea3b7db31e9637",
+      "size": 1318
+    },
+    {
+      "path": "plugins/SimonKCore/skills/grill-me/SKILL.md",
+      "sha256": "457c2bc71fd6b6ec63f6d0a1e9047c7f831721287b4685b2689fc5963d02c028",
+      "size": 5267
+    },
+    {
+      "path": "plugins/SimonKCore/skills/grill-me/evals/cases.json",
+      "sha256": "82f0ac046849cb741406cba45f4f1bd78d4f4cf514ae83d083d4ba93cb3f898a",
+      "size": 2025
+    },
+    {
+      "path": "plugins/SimonKCore/skills/gstack-upgrade/SKILL.md",
+      "sha256": "ed1efe827fc91b272828ba15a54fcc651089c78955b8c4c3d7aba52b0cca5679",
+      "size": 11356
+    },
+    {
+      "path": "plugins/SimonKCore/skills/gstack-upgrade/evals/cases.json",
+      "sha256": "06a1fc222ad0c33c56744c44fee25cef2e1a1acd14afd07bdd7418eca5274162",
+      "size": 1240
+    },
+    {
+      "path": "plugins/SimonKCore/skills/html-default-output/SKILL.md",
+      "sha256": "b09e4fc2cf8759d01f259cd779adcc70081ac765539faf6c7c57cfac5b8fbc2b",
+      "size": 8003
+    },
+    {
+      "path": "plugins/SimonKCore/skills/html-default-output/evals/cases.json",
+      "sha256": "6c347b888f078f44ed4148ae13581522402a89e7eccd9c9b38b58171bb5b42bf",
+      "size": 1643
+    },
+    {
+      "path": "plugins/SimonKCore/skills/human-voice-guard/SKILL.md",
+      "sha256": "f076028ee2ea8698789e591f19f9a5a9599f79ac1d3187dad2279236aa8392bb",
+      "size": 5792
+    },
+    {
+      "path": "plugins/SimonKCore/skills/human-voice-guard/evals/cases.json",
+      "sha256": "391947bccf4b9cad3297dd4fac060439c672eee2cd55574eb959290d834f87ce",
+      "size": 1315
+    },
+    {
+      "path": "plugins/SimonKCore/skills/human-voice-guard/scripts/voice-lint.sh",
+      "sha256": "5136c0a71d9d12be9a66c52616bc898455d75b10758c77f0b8be7494ec9d1be2",
+      "size": 2208
+    },
+    {
+      "path": "plugins/SimonKCore/skills/json-canvas/SKILL.md",
+      "sha256": "47da115ae49a1f259b1f0c1d1a7f67cf417fd0d15f763ba93cdba4b2ca12f92b",
+      "size": 8389
+    },
+    {
+      "path": "plugins/SimonKCore/skills/json-canvas/evals/cases.json",
+      "sha256": "7e016cbc59467c6a3e96128ce71aee63bda2b7faafd25488db9f861c63a8628a",
+      "size": 1012
+    },
+    {
+      "path": "plugins/SimonKCore/skills/json-canvas/references/EXAMPLES.md",
+      "sha256": "bcfe9f1a39f183d3f7dfe459b002eb9bcf60975a53c3fe783720d15433b92082",
+      "size": 6740
+    },
+    {
+      "path": "plugins/SimonKCore/skills/keepass-helper/SKILL.md",
+      "sha256": "801bcfc722bf720fb00bb9253399b33589c094ecaf1da856fdd6aa15837b004a",
+      "size": 2678
+    },
+    {
+      "path": "plugins/SimonKCore/skills/keepass-helper/evals/cases.json",
+      "sha256": "044bb14ca85c1f74dd383cb75a992783df420321fd9f590332b16649fdb05a9f",
+      "size": 1355
+    },
+    {
+      "path": "plugins/SimonKCore/skills/learn/SKILL.md",
+      "sha256": "4749496ed0cbab919d31584471942f2e3426ceb0c2259169ee0a74b84cf57fd9",
+      "size": 22278
+    },
+    {
+      "path": "plugins/SimonKCore/skills/learn/evals/cases.json",
+      "sha256": "dd327b4a6409c99e65fdab1d1b15f8498bf4b8dcba070d39cd848a6bc4647f83",
+      "size": 1312
+    },
+    {
+      "path": "plugins/SimonKCore/skills/learn/references/detail.md",
+      "sha256": "3c39d1ca26ad66e400f2ec7a8e6b57a21245ba945ab01f3f6704886b9aa532ff",
+      "size": 12524
+    },
+    {
+      "path": "plugins/SimonKCore/skills/llm-wiki-builder/SKILL.md",
+      "sha256": "c8a4452f36288bcb456bfc05cfba32c5c8b3111678abc1549b170db5c7d2a367",
+      "size": 8455
+    },
+    {
+      "path": "plugins/SimonKCore/skills/llm-wiki-builder/evals/cases.json",
+      "sha256": "272f8184376a80f6d17ecbe8b7400c3db389c0ca059796230c86eda79f27bab3",
+      "size": 2414
+    },
+    {
+      "path": "plugins/SimonKCore/skills/llm-wiki-builder/scripts/ingest.sh",
+      "sha256": "0b89ef41ce9c29049ae68d4272188aed74c64c8bd67d9cb16a6824429d444948",
+      "size": 3207
+    },
+    {
+      "path": "plugins/SimonKCore/skills/llm-wiki-builder/scripts/lint.sh",
+      "sha256": "069d6db9c523e9fd8bb91394958f8caff7040089eb5a764f4566689a0bab9a21",
+      "size": 6812
+    },
+    {
+      "path": "plugins/SimonKCore/skills/llm-wiki-builder/scripts/log-append.sh",
+      "sha256": "809a05ce4f17900430f5429a5e74ff23208445a6b381d4b49c3fc4fc1e0318d5",
+      "size": 1220
+    },
+    {
+      "path": "plugins/SimonKCore/skills/llm-wiki-builder/scripts/query.sh",
+      "sha256": "27b9a40f0f860ae2b05809dad3abf6a0ec7ad237cf2f7686de78f40272d51ae2",
+      "size": 2354
+    },
+    {
+      "path": "plugins/SimonKCore/skills/llm-wiki-builder/scripts/wiki-init.sh",
+      "sha256": "d81b486f87256ae3aa393c783fda0c12e2bfa4171d33a2cf125f8c2b99fa5bc3",
+      "size": 3518
+    },
+    {
+      "path": "plugins/SimonKCore/skills/model-router/SKILL.md",
+      "sha256": "7408924dc2d720f831426814daa397aee26056165ba84bbce0d4db3e39d811e6",
+      "size": 13332
+    },
+    {
+      "path": "plugins/SimonKCore/skills/model-router/evals/cases.json",
+      "sha256": "7f9d2b0332cfcf94795059ea72bd14d677ffea8df64f3ff435be5991f0b51920",
+      "size": 6684
+    },
+    {
+      "path": "plugins/SimonKCore/skills/model-router/references/routing-evidence-20260929.md",
+      "sha256": "467a4e9ce24ff79b381f04fb8e845e5125be9e82afab5d41ea40b75686dba483",
+      "size": 3204
+    },
+    {
+      "path": "plugins/SimonKCore/skills/multi-terminal-dispatcher/SKILL.md",
+      "sha256": "f305af8cbc607cea6ca788da8e240e0809290a835339b04ff971724e4fa1719e",
+      "size": 9602
+    },
+    {
+      "path": "plugins/SimonKCore/skills/multi-terminal-dispatcher/evals/cases.json",
+      "sha256": "0ae576f26b254987f6f6aade60c43b01a7723ace678baf1d5aeb1049ac3572f9",
+      "size": 4460
+    },
+    {
+      "path": "plugins/SimonKCore/skills/multi-terminal-dispatcher/scripts/dispatch_wave.py",
+      "sha256": "84edfb81ccb3b415f784275e5af983e3a18e4e56d7bff61e08e4dd4d3a9bde67",
+      "size": 10121
+    },
+    {
+      "path": "plugins/SimonKCore/skills/multi-terminal-dispatcher/scripts/multi-terminal-launch.ps1",
+      "sha256": "eb8f73cc15c02d110d2b671ecc3703a5dce387800f61bb4756e4cae62bf1baaf",
+      "size": 2080
+    },
+    {
+      "path": "plugins/SimonKCore/skills/multi-terminal-dispatcher/scripts/tests/test_dispatch_wave.py",
+      "sha256": "9470439ab27ac162c3db7af7bcedcbacc3d707586c2e1ba585915f5eaab525d2",
+      "size": 23179
+    },
+    {
+      "path": "plugins/SimonKCore/skills/notebooklm-import/SKILL.md",
+      "sha256": "102cd09809dc78ac8a687b8b1a1180017af65dd1f57bd847fc8161060daab1d2",
+      "size": 12517
+    },
+    {
+      "path": "plugins/SimonKCore/skills/notebooklm-import/evals/cases.json",
+      "sha256": "a89b51c999fccc89c658ee02b7227e8afabc6864bc290ba243014e8caafa5b90",
+      "size": 1319
+    },
+    {
+      "path": "plugins/SimonKCore/skills/obsidian-bases/SKILL.md",
+      "sha256": "ec42b67082c6cd53ace92b507cf128d8fc66710a2bcf29fb19dba52947f2b50f",
+      "size": 11549
+    },
+    {
+      "path": "plugins/SimonKCore/skills/obsidian-bases/evals/cases.json",
+      "sha256": "50f8c610e891d372d9aef2ae8f14dc40f763f33ae90f6291701d9800f6047fed",
+      "size": 1443
+    },
+    {
+      "path": "plugins/SimonKCore/skills/obsidian-bases/references/EXAMPLES.md",
+      "sha256": "3e6ee4b9e68a74662e630084eaa44ce9265649dd8885485d440f135af693d784",
+      "size": 2509
+    },
+    {
+      "path": "plugins/SimonKCore/skills/obsidian-bases/references/FUNCTIONS_REFERENCE.md",
+      "sha256": "eafcc673800514134973f5e8e0aaac6e39350d22cfb246fab36f369a58259e65",
+      "size": 8060
+    },
+    {
+      "path": "plugins/SimonKCore/skills/obsidian-cli/SKILL.md",
+      "sha256": "5607d9519a86978fbd7738f11a0870da68cc9ea026ffa6ce2bfe16dc6ea9b153",
+      "size": 3882
+    },
+    {
+      "path": "plugins/SimonKCore/skills/obsidian-cli/evals/cases.json",
+      "sha256": "aa0d7fb03b7aa2a37536835edc91e064bc229bf7896edbf69149f595a9879696",
+      "size": 1252
+    },
+    {
+      "path": "plugins/SimonKCore/skills/obsidian-markdown/SKILL.md",
+      "sha256": "de4bd6aef848750ec6ef4624034a0ca2609cf70e83e523a7c3be67aec27e67bc",
+      "size": 6272
+    },
+    {
+      "path": "plugins/SimonKCore/skills/obsidian-markdown/evals/cases.json",
+      "sha256": "c58f1b067230e00752cfda09d38323279a23cfe8257865cec897b0590a1fde82",
+      "size": 1422
+    },
+    {
+      "path": "plugins/SimonKCore/skills/obsidian-markdown/references/CALLOUTS.md",
+      "sha256": "9912ec2e3f8711f65b8ceb82cc19cbffc5e6f8ccf2ab627e18926c522c383d8b",
+      "size": 1238
+    },
+    {
+      "path": "plugins/SimonKCore/skills/obsidian-markdown/references/EMBEDS.md",
+      "sha256": "cd7e3a7d27e9d8315870182f73e8fc8735143a16cefb6902d3f456624e93c3ee",
+      "size": 780
+    },
+    {
+      "path": "plugins/SimonKCore/skills/obsidian-markdown/references/PROPERTIES.md",
+      "sha256": "392953b5838c3ab3df135b5a914f100ae7b95e4501b6a2e5c8dc63da3ac7558b",
+      "size": 1149
+    },
+    {
+      "path": "plugins/SimonKCore/skills/office-docs/SKILL.md",
+      "sha256": "374e96751846c8d60aa765f1a7f8d0112a0255bad807fbd5d78f84481832271f",
+      "size": 14722
+    },
+    {
+      "path": "plugins/SimonKCore/skills/office-docs/evals/cases.json",
+      "sha256": "f7443bd43d754c82b4a99da7bd131e44ca0fd5676310f99ce70f12068a3fd426",
+      "size": 1295
+    },
+    {
+      "path": "plugins/SimonKCore/skills/office-hours/SKILL.md",
+      "sha256": "fc59e245220394866f098e14b4175fb15e22e8904d253ad3cd7679490e163246",
+      "size": 23510
+    },
+    {
+      "path": "plugins/SimonKCore/skills/office-hours/evals/cases.json",
+      "sha256": "aea79f223faf0efeca4e2cfc0a0f02f61217af35809a1eadf1d6a2ab90a6ffa2",
+      "size": 1449
+    },
+    {
+      "path": "plugins/SimonKCore/skills/office-hours/references/detail.md",
+      "sha256": "1e348ce42c87b6b65ad2703a5f5c1c1600e7ee2298e68b76b7f4ee6c5b7a8d0c",
+      "size": 78349
+    },
+    {
+      "path": "plugins/SimonKCore/skills/omc-upgrade/SKILL.md",
+      "sha256": "1808af2023d64c9d860ee79543b4cbd52c2d9ee411d8c045cf098f2d3bd037d6",
+      "size": 3746
+    },
+    {
+      "path": "plugins/SimonKCore/skills/omc-upgrade/evals/cases.json",
+      "sha256": "04011aef9009883f69dd5ebc94beff86a437aeb000d42bdd1286cb875417d68b",
+      "size": 1019
+    },
+    {
+      "path": "plugins/SimonKCore/skills/omo-upgrade/SKILL.md",
+      "sha256": "b9464385d0c6bf2f75d27f1857aad13c5c631aaf45b834077543ef7e996be46f",
+      "size": 3751
+    },
+    {
+      "path": "plugins/SimonKCore/skills/omo-upgrade/evals/cases.json",
+      "sha256": "7df52d1432c558874aff184f25e0ffb08ae31b1f671e35e437333e3360a8ab25",
+      "size": 1019
+    },
+    {
+      "path": "plugins/SimonKCore/skills/open-gstack-browser/SKILL.md",
+      "sha256": "2610c29926877e0a6c039265450a53d3afdf9d1589e4003496951ec05f2e92d1",
+      "size": 23578
+    },
+    {
+      "path": "plugins/SimonKCore/skills/open-gstack-browser/evals/cases.json",
+      "sha256": "49a37bd0c659cf285b98b9ec9449cb70eefc195015e44f9102caa8c909ca5410",
+      "size": 1287
+    },
+    {
+      "path": "plugins/SimonKCore/skills/open-gstack-browser/references/detail.md",
+      "sha256": "099cfaf07d9417f250b7013a6f0c650cbce27c59dfd98782617cf17ad8af1041",
+      "size": 15754
+    },
+    {
+      "path": "plugins/SimonKCore/skills/opencowork-upgrade/SKILL.md",
+      "sha256": "95c60cd80ebdd1d03528249cbba3563f99996d26d10a5424fa3f25ebc31021b1",
+      "size": 3701
+    },
+    {
+      "path": "plugins/SimonKCore/skills/opencowork-upgrade/evals/cases.json",
+      "sha256": "a1abf14911644898ba6fcfd05ae4dbabb6f5d950e2aae67e412d449d09c86a94",
+      "size": 1029
+    },
+    {
+      "path": "plugins/SimonKCore/skills/openharness-upgrade/SKILL.md",
+      "sha256": "d255a0a8dc17dd19da363f1addab5f4f5156d82a066732e0caff8f7ee7e47ec6",
+      "size": 3717
+    },
+    {
+      "path": "plugins/SimonKCore/skills/openharness-upgrade/evals/cases.json",
+      "sha256": "455c364e6e666614c4f1a56f244357100171cfd13df202b37f5f9354701b6c9f",
+      "size": 1017
+    },
+    {
+      "path": "plugins/SimonKCore/skills/pair-agent/SKILL.md",
+      "sha256": "c50756c6eb0507367af9b4548d330a1bdc9a9792a8d6b8cfec5f5043b548acb9",
+      "size": 23677
+    },
+    {
+      "path": "plugins/SimonKCore/skills/pair-agent/evals/cases.json",
+      "sha256": "d96e7cd98414c4cce9de85351a47e64ea53ad1697b9ab8c36708303f9b1c8ae1",
+      "size": 1313
+    },
+    {
+      "path": "plugins/SimonKCore/skills/pair-agent/references/detail.md",
+      "sha256": "5d5bad4ab1c400ddb95597b62549e120f8365d509171cb4d7fa9cb3e43b6988c",
+      "size": 16466
+    },
+    {
+      "path": "plugins/SimonKCore/skills/persona-validate/SKILL.md",
+      "sha256": "6cf97a0c6ebc874490e880bf94f3dbadc54a49472e757cc4138c12787558d4bb",
+      "size": 4764
+    },
+    {
+      "path": "plugins/SimonKCore/skills/persona-validate/evals/cases.json",
+      "sha256": "38bfee9918fdebad7fa9105cd9dd3d6d69130a7f212a4dc89cba41971a58834a",
+      "size": 1646
+    },
+    {
+      "path": "plugins/SimonKCore/skills/persona-validate/experts.md",
+      "sha256": "31f1145cebfccda19babc0138001ec365c00f449d0d0a31049f8a675fac29674",
+      "size": 2964
+    },
+    {
+      "path": "plugins/SimonKCore/skills/persona-validate/personas.md",
+      "sha256": "38bea718799e3d88823b107051e2282277cc50b3fa38314692483fa890d0434c",
+      "size": 2115
+    },
+    {
+      "path": "plugins/SimonKCore/skills/perspectives/SKILL.md",
+      "sha256": "b58232eb9786c279c4cce336e10eb81b8693a696f89ed8b24a480c6697fe4c28",
+      "size": 11185
+    },
+    {
+      "path": "plugins/SimonKCore/skills/perspectives/evals/cases.json",
+      "sha256": "1715f375af192111121243be0ddb8ca77485fe65e4208e1fa387f0b9b23ce24f",
+      "size": 1477
+    },
+    {
+      "path": "plugins/SimonKCore/skills/perspectives/templates/perspectives.md",
+      "sha256": "5631f84a006b727ce375a72400be80b5e8b60d2192ce5a62beeebeb626d99807",
+      "size": 1789
+    },
+    {
+      "path": "plugins/SimonKCore/skills/plan-ceo-review/SKILL.md",
+      "sha256": "aa5627ea8464eabe82f7b3b34baa2f4d729eee572d7d2606f31b36ba93e822a3",
+      "size": 23651
+    },
+    {
+      "path": "plugins/SimonKCore/skills/plan-ceo-review/evals/cases.json",
+      "sha256": "4e845bb388e6abda55195a90f0d1cd7602d33462cb71fc5c942e7b92fce3a47c",
+      "size": 1535
+    },
+    {
+      "path": "plugins/SimonKCore/skills/plan-ceo-review/references/detail.md",
+      "sha256": "c2ea99cd473030b8f41e3011e7d68a547fef5c1c65068f30fc634d85dabba0da",
+      "size": 89398
+    },
+    {
+      "path": "plugins/SimonKCore/skills/project-context-md/SKILL.md",
+      "sha256": "a74aa353fafb17b8fe20d144b2143f44c81d8cf475ca56bf82359d36f62c65da",
+      "size": 5867
+    },
+    {
+      "path": "plugins/SimonKCore/skills/project-context-md/evals/cases.json",
+      "sha256": "18d2bda964bf6b5c906ff4a6fe54bf419f406bc18428f8c04aa0e25f8df6dfbb",
+      "size": 741
+    },
+    {
+      "path": "plugins/SimonKCore/skills/semantic-recall/.gitignore",
+      "sha256": "7de3923ea52d86b6456e525226cb794ceba65e2399da570a699b8fade83da703",
+      "size": 90
+    },
+    {
+      "path": "plugins/SimonKCore/skills/semantic-recall/SKILL.md",
+      "sha256": "c9a0da838a4626f5bb6785bdd40680017185f39d79b420d0beba8a568768f8ba",
+      "size": 6071
+    },
+    {
+      "path": "plugins/SimonKCore/skills/semantic-recall/evals/cases.json",
+      "sha256": "b0bc8234942d7ec2c7d188b6132497eb87f2c09c92cb5c49907cb2deccb456aa",
+      "size": 5100
+    },
+    {
+      "path": "plugins/SimonKCore/skills/semantic-recall/semantic_index.py",
+      "sha256": "d81346d69b8aa169e0f05ad8bafbf7377c368d5a05b2c4f62e2aae1e063e6137",
+      "size": 8169
+    },
+    {
+      "path": "plugins/SimonKCore/skills/session-context-export/SKILL.md",
+      "sha256": "922574cdec7b0d106693d7ef6d447262c6fac7133b6b58bcf6e9b4ec702fc831",
+      "size": 4048
+    },
+    {
+      "path": "plugins/SimonKCore/skills/session-context-export/evals/cases.json",
+      "sha256": "f32d55873d640d31beed356285fbd7d49e429fc870bfbee9d9f2b87baed3e7d5",
+      "size": 1157
+    },
+    {
+      "path": "plugins/SimonKCore/skills/session-context-tracker/SKILL.md",
+      "sha256": "300cda1e1556346e3f8aa2e7fe1915031d83fa9a81f5402d64f5c43a85de2735",
+      "size": 6367
+    },
+    {
+      "path": "plugins/SimonKCore/skills/session-context-tracker/evals/cases.json",
+      "sha256": "cbe254f406af194f7fdfb9d1eb9452de66821ceb890ac133575d3c5d5d3b6948",
+      "size": 1821
+    },
+    {
+      "path": "plugins/SimonKCore/skills/session-start-hook/SKILL.md",
+      "sha256": "b9091001a1f4217011bb0995f46add9d5e44c36bda32a2d4d7d29e792efbe6c8",
+      "size": 5896
+    },
+    {
+      "path": "plugins/SimonKCore/skills/session-start-hook/evals/cases.json",
+      "sha256": "c5d8b3ca7ca62e4ca2ca01718733dbc25f70c4e503f0ce637757de550ef2172b",
+      "size": 1180
+    },
+    {
+      "path": "plugins/SimonKCore/skills/setup-browser-cookies/SKILL.md",
+      "sha256": "fb61bebc45bd77109db708d054abc8a05d9286bf377f7ced063707194daf3958",
+      "size": 19093
+    },
+    {
+      "path": "plugins/SimonKCore/skills/setup-browser-cookies/evals/cases.json",
+      "sha256": "cb0b2fee182d34a7f38f07d367f15cf7ba572aea78e69dc029d425f73baac6d1",
+      "size": 992
+    },
+    {
+      "path": "plugins/SimonKCore/skills/setup-browser-cookies/references/detail.md",
+      "sha256": "3c5d2cd801ca8be774d6db747a90cf7604d336346fd55504361d3aa4e8c0ff65",
+      "size": 4937
+    },
+    {
+      "path": "plugins/SimonKCore/skills/simon-handoff/SKILL.md",
+      "sha256": "ab6f626350b1ca39b3efead3dc3be629c5eae4ff19d3d839fa50c028fa300f9b",
+      "size": 17934
+    },
+    {
+      "path": "plugins/SimonKCore/skills/simon-handoff/evals/cases.json",
+      "sha256": "20db987b345963b60f86db19b2018581fcc0802038f684b4a187d49e8776081a",
+      "size": 1121
+    },
+    {
+      "path": "plugins/SimonKCore/skills/simon-instincts/SKILL.md",
+      "sha256": "9df25cdd7fbf89d34442ee3d8e2179216bdee319c9f3d15cd955d667614bbd00",
+      "size": 5491
+    },
+    {
+      "path": "plugins/SimonKCore/skills/simon-instincts/evals/cases.json",
+      "sha256": "a63c1b057de174c0c4639836fd4b4287f05e4b2dfa6bf815b7e870aae2ea861d",
+      "size": 614
+    },
+    {
+      "path": "plugins/SimonKCore/skills/simon-instincts/scripts/append.sh",
+      "sha256": "4ff630bf91c0a0d251cd27f0d7e524a9ea2060a9466decd0b3f5ed0007c8281e",
+      "size": 2277
+    },
+    {
+      "path": "plugins/SimonKCore/skills/simon-ohmo/SKILL.md",
+      "sha256": "693eef1b86c22994ae4908608fe3607461457b9b9bd49b0de06221fa160cc503",
+      "size": 4899
+    },
+    {
+      "path": "plugins/SimonKCore/skills/simon-ohmo/evals/cases.json",
+      "sha256": "2e5539b742cfdba4b475b4ad82de3abf02e68c4d0976679d1bd7b0262c493e6a",
+      "size": 1087
+    },
+    {
+      "path": "plugins/SimonKCore/skills/simon-research/SKILL.md",
+      "sha256": "4d18bafd03097ddce3926258c83c38b91414dc4add0da418f2ef64e6dcae94af",
+      "size": 7640
+    },
+    {
+      "path": "plugins/SimonKCore/skills/simon-research/evals/cases.json",
+      "sha256": "3d1c54bde558cbfc46ad05649093e4f61f3d2b13b942ced9eaaabcec78d61b95",
+      "size": 710
+    },
+    {
+      "path": "plugins/SimonKCore/skills/simon-worktree/SKILL.md",
+      "sha256": "1f5ac863828004fe95ca2df1b26731ab432444dca48118240f836c6a49fdfa95",
+      "size": 5339
+    },
+    {
+      "path": "plugins/SimonKCore/skills/simon-worktree/evals/cases.json",
+      "sha256": "a70ef22efa34a72c463af683cd2bd5acba2dacdde445e22c2516298a6a5b278b",
+      "size": 667
+    },
+    {
+      "path": "plugins/SimonKCore/skills/simonk-report/SKILL.md",
+      "sha256": "1fefdf819b10617afbbea82765770cb8cf8496e36e935529770f448088b13d5a",
+      "size": 13025
+    },
+    {
+      "path": "plugins/SimonKCore/skills/simonk-report/evals/cases.json",
+      "sha256": "2fd20e80cb723a8610213ff0c6e863b0184d81b0d111f9a76ae840a4a494c17b",
+      "size": 1163
+    },
+    {
+      "path": "plugins/SimonKCore/skills/simonk-report/templates/report.html",
+      "sha256": "c5e0b01d528fa1519041a0780d781835ed5d6b2220524fbabd27b8d00f53ac67",
+      "size": 19871
+    },
+    {
+      "path": "plugins/SimonKCore/skills/simonk/SKILL.md",
+      "sha256": "191adc1598fd137fbb69e65072f76ae760b471f969e755a76d36805ff6f30f27",
+      "size": 10312
+    },
+    {
+      "path": "plugins/SimonKCore/skills/simonk/evals/cases.json",
+      "sha256": "84b0046e9bb789186728a43bbaf081f5b7c357d5ee16fd55f4e10dc1cff78723",
+      "size": 4330
+    },
+    {
+      "path": "plugins/SimonKCore/skills/simonk/references/orchestration-protocol.md",
+      "sha256": "28988e1ebe7ad36915bdc192c7a0925930715fee61017d6af434573098ed4c92",
+      "size": 8335
+    },
+    {
+      "path": "plugins/SimonKCore/skills/simonk/scripts/simonk.ps1",
+      "sha256": "217be99d6eb74dc754d1147d1332add7a367b1da38371ba4f033e36024106fcf",
+      "size": 2705
+    },
+    {
+      "path": "plugins/SimonKCore/skills/sprint-optimizer/SKILL.md",
+      "sha256": "a63d1a12a9c3b9136dda549b43a7612cf7f237c20c1c71a9be763da3469c016a",
+      "size": 3207
+    },
+    {
+      "path": "plugins/SimonKCore/skills/sprint-optimizer/evals/cases.json",
+      "sha256": "01911753e92eeb1ecdfe83f26fc129c873f36eb30c01885a1e9b69add79d3434",
+      "size": 1163
+    },
+    {
+      "path": "plugins/SimonKCore/skills/stack-update/SKILL.md",
+      "sha256": "d860c42f1baae73532d2994ddca9b4072f936941e40f91979ccb5b99f885ff9b",
+      "size": 3017
+    },
+    {
+      "path": "plugins/SimonKCore/skills/stack-update/evals/cases.json",
+      "sha256": "7e48afe749fb64b37af31dde0e82e92622b5195afbf81da0a05a458441eb05b8",
+      "size": 1181
+    },
+    {
+      "path": "plugins/SimonKCore/skills/tech-preference-tracker/SKILL.md",
+      "sha256": "8098b22a620b80ee3fbfcde46c05c2aa295765006bee64d2823706916c05ffa1",
+      "size": 6327
+    },
+    {
+      "path": "plugins/SimonKCore/skills/tech-preference-tracker/evals/cases.json",
+      "sha256": "16205d7240db295baeedf4f970658c4f1584d3d1a64a4937918383f13f9d3d25",
+      "size": 1090
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe-bot/SKILL.md",
+      "sha256": "3f010b119f435ed2b842d54ea295c0b74eb8e08ebbab8b8613923fc7c505676e",
+      "size": 14324
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe-bot/bots.json",
+      "sha256": "fcdf690d7a667b73a9215d7de317cfc43975c762aa3fa57b7e9eadc2c0dbfb18",
+      "size": 14922
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe-bot/evals/cases.json",
+      "sha256": "c530d0a737a498c253f9e181b38f87742dc2c4582d7d2c08470629957eee7cbb",
+      "size": 18027
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe-bot/references/relay-charter.md",
+      "sha256": "3f5a5d3534cab50eae6d8659eb2a03ebb3b77be2c566e58315faf68e958a8974",
+      "size": 5376
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe-bot/references/relay-handshake.md",
+      "sha256": "bbd709b574f0059c588c6127209a54fc78177fffe5193e2fdc5c4e5b84e0f94b",
+      "size": 7321
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe-bot/scripts/bus_watch.py",
+      "sha256": "696e53964e8853daa6f80518d71ce67010c5762eb5b34014732191cef5143106",
+      "size": 11788
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe-bot/scripts/make_bot_spec.py",
+      "sha256": "da3bf757f667214bc86cebcdfb0eb3a036043e88ab2626e5d2b594598b07c5ad",
+      "size": 31180
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe-bot/scripts/selftest.py",
+      "sha256": "63006a67f7494fb209538f9deaa83e835d539e1f3afc4723d8477e77937e81bc",
+      "size": 18576
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe-bot/scripts/tests/test_bus_watch.py",
+      "sha256": "c68b84e5fef26439ef6d08ac92bd9bd05aec83f28c86139c15a3a65b15546390",
+      "size": 8861
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe-bot/scripts/tests/test_execute_bot.py",
+      "sha256": "a2d5103d54ce4cc7e4424dc2dca12e0f41240b1853949b23fbdecf27f5956e0e",
+      "size": 24222
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/CHANGELOG.md",
+      "sha256": "93eb8a842a48723d7fb07fefadac8e022faf0d771c8b3971f344b9495f78d814",
+      "size": 26653
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/SKILL.md",
+      "sha256": "ac6f2672007bf14a449c42645cff52c9494493f728682053d416bc42b8533940",
+      "size": 27885
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/eval/probes.json",
+      "sha256": "169079c7b9169a77789be840173448b2f4cbee8c150bb7cb660cdc2f9aa014fc",
+      "size": 13468
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/eval/truth/app-screen-files.py",
+      "sha256": "854817cb39048937a1212c2fc3f1e7580662248ce659787c2e24b8c9989828dc",
+      "size": 1766
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/eval/truth/boundary-origin-pr.py",
+      "sha256": "349a3e1f12770c6ef9b4f90c7e2f6b9d72a73a537631cb8ae4e87afd659089f5",
+      "size": 2225
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/eval/truth/lens-remap-collision.py",
+      "sha256": "9023565869e1bc52b10e0916f963ec32481a85827a1e286b2cf0e9cb41176084",
+      "size": 3440
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/eval/truth/locale-leaf-keys.py",
+      "sha256": "cd4da8d95ccdc68a3e3f6f296415e093b727d4438361cab6e67725747b53f9fc",
+      "size": 2037
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/eval/truth/migration-number-gaps.py",
+      "sha256": "b3960ea66cd18d6d7d2d769a719bb450eaca7411a2ea5d64c8244ba59b79c20d",
+      "size": 1546
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/eval/truth/migration_tail.py",
+      "sha256": "480ed2da58770293fb364cab3d32c8fb198eb28bfde1da2511ba73e7506ba613",
+      "size": 1516
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/eval/truth/path-kind-mix.py",
+      "sha256": "a7d857f8082ba97191a97f61d13268acff2c11a74316d1c43f4f3eac765477e7",
+      "size": 2689
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/eval/truth/privacy_trust_rendered.py",
+      "sha256": "a9800fc2f91e1809aeef22eb315905e9398bdbd1a3f0a9bdee92e8010e97a875",
+      "size": 1845
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/eval/truth/reward-exec-roles.py",
+      "sha256": "b32615aaa4bab00844527c7d0c1c66b76efc772fc5c17444bc11b9b31b174350",
+      "size": 10996
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/eval/truth/spend-rpc-callers.py",
+      "sha256": "be2a8b785bd5fa0e5ab9bf5ff55f4b891d95448a459f83ac954cc8313706a63d",
+      "size": 6698
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/eval/truth/vendor-branch-pair.py",
+      "sha256": "489b1432dbc66739134b43366539b9ea77c86dea3dab3d01d1543e5605c33145",
+      "size": 4106
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/evals/cases.json",
+      "sha256": "ed57c31ee60c3e777c7c0efd634b346b6ee35b9ad0afc2d1aaaaf905c93c1ec9",
+      "size": 22883
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/references/adversarial-eval.md",
+      "sha256": "2cab33de720490fec52c477de185c1616bc5ff785d75242ef8334e243e772973",
+      "size": 5463
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/references/d28-routing.md",
+      "sha256": "3f2b1f6ff9b5c1c456a769da6bc4e08d3943b1648d9e9d38229723aab6f2de9e",
+      "size": 11916
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/references/legacy-routing.md",
+      "sha256": "95599fae24225a69179dac01d83057bd4ef44327c8fbe5619e4e1113e52d7f1e",
+      "size": 13774
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/references/model-catalog-map.md",
+      "sha256": "e20c2f21e868a8bb1ac315154a2893bb6f8490691f94ab74d0c26e4969ad0111",
+      "size": 13205
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/references/model-registry.json",
+      "sha256": "567d27392cc4b154a1ee2784f44940be71dc6673582a7f7bb835190b04169578",
+      "size": 16704
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/references/model-release-watch.md",
+      "sha256": "2486038bf8d6787701700296c3d6ae66a3055ff824ad1b2164839d5f31e1bafd",
+      "size": 9874
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/references/orca-workflow.md",
+      "sha256": "625560fc4fb14bf3a12029139854f116a8dffacc9f859b23894e1a3c02a229fd",
+      "size": 12582
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/references/orchestration.md",
+      "sha256": "bda45fdff91b1707810ae8d8c87f56b9be70c913dc8562656c1f4a1d39e0f15b",
+      "size": 97480
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/references/pitfalls.md",
+      "sha256": "767f748de0db08ce9d1a44d6bf8e226ee5ff374717c0d8f946daa970754a9f40",
+      "size": 15521
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/references/task-fit-policy.json",
+      "sha256": "5cee53c35f82cd3192b54f9ae3be8f293f058c00392085c7937468a3b21ee528",
+      "size": 4025
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/references/v2.2-astra-effort-cap.md",
+      "sha256": "06c9c5f7c0859506a1225f440cf4c022ad0c085de97b656a343321b1922f0660",
+      "size": 4609
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/adversarial_eval.py",
+      "sha256": "1db87b43afd310336da8e7b1c04c757b2dc44687e6bac4d647bbbb0dc2d240cb",
+      "size": 30838
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/aggregate_ledger.py",
+      "sha256": "69b9bb26d078a86404e62660017c8c72d04f78f558be9105ddf15fbba05d4b87",
+      "size": 9354
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/check_tooling.py",
+      "sha256": "1bda08247be93b47225e9151534d53dc3e027a40213adde8fcd7a3754437a59d",
+      "size": 21984
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/execute_bot.py",
+      "sha256": "b48b2362b00cd56e03c02934d4d92863d01e1c6b5141fa35f67fdf9fef39dd13",
+      "size": 17368
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/execute_cli.py",
+      "sha256": "c261b90a1167c5a6b2fc718df55d26129dd73b9e2da1c0875399d8c43af2dd58",
+      "size": 29217
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/execute_codex_cli.py",
+      "sha256": "ebf506e2a83eddb13715c3bd1dbe88bdd7efecce9ee57b99f098437a16a6ae6a",
+      "size": 21381
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/execute_grok_cli.py",
+      "sha256": "2d8564a25b6594429c2932824a91bfc5165bcf40bfeb89bf6a7a7cb86a393ca5",
+      "size": 23720
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/execute_image.py",
+      "sha256": "1b579ea12fd4335afd739f078e04b0edb4df2478788513ad70a50c3028a23c3b",
+      "size": 9051
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/execute_orca.py",
+      "sha256": "255f088ac1f8cc2c9367f8933f9b3ac506d4e7122f6338b3e71ad62f88112b4f",
+      "size": 21691
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/kill_worker.py",
+      "sha256": "1e676116e623bff3182e98bb3bdabec002247ca5b7348204b3180f57143fe613",
+      "size": 1572
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/ledger.py",
+      "sha256": "c4642bde4f59e09484b34664c269002228531ba130bb58627df1eb464f4aec35",
+      "size": 62599
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/make_decision_sheet.py",
+      "sha256": "3cf3e0ec9724e3957ca21213204bf9731e4101f247f8aac14779d7c523b7b8b7",
+      "size": 15118
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/make_intake.py",
+      "sha256": "182d6a0548dd7ec0fe551cff57593eaa8ddc4fe0c38a3af47511b792468a2049",
+      "size": 29672
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/model_registry.py",
+      "sha256": "cb4298ba1fb378a914d234ad683ba2961fe37e740a2bf73d5d7936d22b01f194",
+      "size": 12698
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/model_watch.py",
+      "sha256": "1bc237eb270cc1ce185ae7104ea08f22ddc94ae70c1434d17c843a4694cbb9a9",
+      "size": 27605
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/orchestrate.py",
+      "sha256": "e2f48e93eedc8c812e89af1d5d825e854ca201749e1c099879e713a4743c3e62",
+      "size": 81077
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/prepare_orca.py",
+      "sha256": "e6b4d60cf9825e133e210d3836c446d1aa30ebbbfc11227f333d564c6ece2cdc",
+      "size": 24542
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/qa_acceptance.py",
+      "sha256": "064440382256dd6e7bbd7c4efe8f8da633729a62a005d714c07526722c7339ed",
+      "size": 3064
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/routing.py",
+      "sha256": "06c6bc522bb68781daa8c0f2a6121f241ec588c69fd3241067c82f74b5fd2bbd",
+      "size": 80263
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/run_state.py",
+      "sha256": "65f7f4ab6037d5bf1940f44c2ec42128d045cad9f2e876b2f9c4e70c66860b95",
+      "size": 68512
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/runtime_collect.py",
+      "sha256": "0b7c31c05543e20e590124c5a2ddbcdf480375a7d655f4de200b3b80ae70cf95",
+      "size": 31307
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/selftest.py",
+      "sha256": "0d7a12acf9d2758128967ed4f501cc8bc5403e74901875706a94c3f435111c99",
+      "size": 57776
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/sync_skill_table.py",
+      "sha256": "7d14ccb57403941d205992e06aea996992fdbae4b86973566b0b8fed4383c937",
+      "size": 2569
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/test_check_tooling.py",
+      "sha256": "9861ef56c205bb2cf4f0432131a595d731ac3c297a107800c8ac9e00e952bed4",
+      "size": 26192
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/test_execute_cli.py",
+      "sha256": "31c9ea5e5a488ec5ba1ec9f0fb520d15e26938cb6882c235c2ad3f59455e2ef7",
+      "size": 27595
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/test_execute_codex_cli.py",
+      "sha256": "8cb345a3afa3573fe211b67d47c9dd067a79620abc55845bafb6cdb5e979c48c",
+      "size": 19322
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/test_execute_orca.py",
+      "sha256": "a78541feff264e896e6a1ee639465829d3b43f1d41e91cffc85fb54e153246d4",
+      "size": 24309
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/test_model_registry.py",
+      "sha256": "c837c7f67456513641d7970a10f97796a0f5f93b2d091a609a904218ac6e6607",
+      "size": 27775
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/test_model_watch.py",
+      "sha256": "856de57d673551859eabd7591ed80d1e54b1dd622774f63674e1959f777341a5",
+      "size": 34465
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/test_orchestrate.py",
+      "sha256": "39f02bf93c71a134cc9a0d944e9530a714b230a466739bbcae48fd9d1f1c1ffd",
+      "size": 144012
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/test_run_state.py",
+      "sha256": "70ae2df26d2af79baee908b7dfd99466c3e7bcc1ebd4723f8f1f058abe1c87b2",
+      "size": 50503
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/test_runtime_collect.py",
+      "sha256": "b32d86243303c9529c40e15f057d82bd4166237c4d7a56697b4b424dcbec6c3c",
+      "size": 26289
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/test_sync_skill_table.py",
+      "sha256": "825a0cd3125e5874f6b9432bfc9aed63d3061ba9a6706af2fcb9b0505e4182f2",
+      "size": 3257
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/tests/test_kill_worker.py",
+      "sha256": "714f34fff16fcb3b96d407232b7e733cfbe1642fbb0b0f09122692f5e8be2b73",
+      "size": 6749
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/tests/test_ledger_scan.py",
+      "sha256": "c0d4f59cabbf86b6d3b2dcab44a06ee11cdac30f16fbcf9a0eefa34a98d5f75f",
+      "size": 5963
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/tests/test_legacy_execution.py",
+      "sha256": "8a3eaa05a05002fbbe26ffb3703509e4787c4da91f9f8751d65dbd72e5cd7132",
+      "size": 14968
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/tests/test_prepare_observable.py",
+      "sha256": "3fbeaced5390ab87985d877195b64c2e88416772aec1465198827cc7f39a407f",
+      "size": 19972
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/tests/test_prepare_orca.py",
+      "sha256": "7b62af5dad960974ebee951635c23f0648f233939a89658cd0bde36f5d2d095e",
+      "size": 18834
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/tests/test_prepare_refresh.py",
+      "sha256": "7b85e5122f7f269a506b9d86ca0fb480b9e19b8c42d3436dc830c1f80c63c31c",
+      "size": 19450
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/tests/test_prepare_state.py",
+      "sha256": "0e72c85b0ec863a6f32b1ca26176444343cff5ec4b8ba121f9932f51e86e2b8c",
+      "size": 23597
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/tests/test_suite_discovery.py",
+      "sha256": "cc1536a99bc91effa88b700f546c1ea87b6fb351a663215bb7263d26f73120c1",
+      "size": 14392
+    },
+    {
+      "path": "plugins/SimonKCore/skills/vibe/scripts/ui.py",
+      "sha256": "e46f69d31d80d083055dc8c9d1e06508597c539b94a079be2f772e6390335d31",
+      "size": 7701
+    },
+    {
+      "path": "plugins/SimonKCore/skills/web-publisher/SKILL.md",
+      "sha256": "cfe4a0dcf8f73387fd42efb79a2a363f6d50abebe134ecc210939444b3208ea6",
+      "size": 12665
+    },
+    {
+      "path": "plugins/SimonKCore/skills/web-publisher/evals/cases.json",
+      "sha256": "b4330bfe4f123b1a07a8eef78f8371d4b0da9ad80057791391909825aa361b11",
+      "size": 1375
+    },
+    {
+      "path": "plugins/SimonKCore/skills/wiki-ingest/SKILL.md",
+      "sha256": "492eac3994c592dd27af257a9add76a9465206eea661f34d2af5ddde155e80cf",
+      "size": 4959
+    },
+    {
+      "path": "plugins/SimonKCore/skills/wiki-ingest/evals/cases.json",
+      "sha256": "ecbcbf5bc93de3f9da3a7f66a058e25c566fb52f8378254d1187532e8d370835",
+      "size": 1610
+    },
+    {
+      "path": "plugins/SimonKCore/skills/wiki-lint/SKILL.md",
+      "sha256": "c36d6f71310185b35c9d382bc60038922ef4aa20bc7393e0e64f3b7d032d7ea0",
+      "size": 3841
+    },
+    {
+      "path": "plugins/SimonKCore/skills/wiki-lint/evals/cases.json",
+      "sha256": "8391a0f03ca62a2d5c5643bfc01f2346f76b37208a37f5f334d9a50fcbc27ba9",
+      "size": 1167
+    },
+    {
+      "path": "plugins/SimonKCore/skills/wiki-query/SKILL.md",
+      "sha256": "6c198a4f9fcfc521acd122619c5b56d45c27f8b8352e80035de12cae06cbd4c6",
+      "size": 3571
+    },
+    {
+      "path": "plugins/SimonKCore/skills/wiki-query/evals/cases.json",
+      "sha256": "cb52afcfc9b76df1aebf41f3023c057a883e76ee08215d7ac48483db94fa9359",
+      "size": 1151
+    },
+    {
+      "path": "plugins/SimonKDesign/.codex-plugin/plugin.json",
+      "sha256": "5cb6e13b2e260147679dd0882f1079dfbb8a9f5145630226eacc0a0496489ea8",
+      "size": 816
+    },
+    {
+      "path": "plugins/SimonKDesign/.github/skill-ci/README.md",
+      "sha256": "283627af8b2d979bf1fc09e3f89c6b5d84d1707f483c28c4403bac94043b40a7",
+      "size": 1467
+    },
+    {
+      "path": "plugins/SimonKDesign/.github/skill-ci/run_ci.py",
+      "sha256": "c51660606c126af53c73156499ee8d98228e43e469b1264d7314c9279d971c39",
+      "size": 3398
+    },
+    {
+      "path": "plugins/SimonKDesign/.github/skill-ci/test_run_ci_encoding.py",
+      "sha256": "5ff6c19bf48f0cdbe3a031206afa1d4fabc29e52838b70fd3c22a69f277767f3",
+      "size": 2718
+    },
+    {
+      "path": "plugins/SimonKDesign/.github/skill-ci/test_skill.py",
+      "sha256": "d46b14fe8378676b0f7763a05dbf7cb7d43d8c9fe8b1d28a055f943048bc0ec9",
+      "size": 4800
+    },
+    {
+      "path": "plugins/SimonKDesign/.github/skill-ci/validate_skill.py",
+      "sha256": "70c621a9dc45559246549b699ea328fc47e2279facb35f24cf2f043ca1fcfaf1",
+      "size": 21538
+    },
+    {
+      "path": "plugins/SimonKDesign/.github/validate.mjs",
+      "sha256": "553c46eea582cccbc17dbb0a0f70cf1a2942cd1613035a8fd758c5916376d30a",
+      "size": 1191
+    },
+    {
+      "path": "plugins/SimonKDesign/.github/workflows/release.yml",
+      "sha256": "c57b57909e9ee9439cd99ba491b9a23ef1e1ca86b552d4b38d23d818675b1563",
+      "size": 860
+    },
+    {
+      "path": "plugins/SimonKDesign/.github/workflows/skills-ci.yml",
+      "sha256": "d43c6bc256f7b8d03dec43c115ce5b4283f01916d443508b0ca8ab2ab4cb9dbf",
+      "size": 502
+    },
+    {
+      "path": "plugins/SimonKDesign/.github/workflows/validate-plugin.yml",
+      "sha256": "2bf8aec3fd636e5b011d65d2627283b5e5bb14effd053f71b27b55f2e79ab813",
+      "size": 275
+    },
+    {
+      "path": "plugins/SimonKDesign/.simonk-source-attribution/LICENSE",
+      "sha256": "830b2f935bda17d68dbdec837e4c70b46b72180e2e99327baa0f5ed17bc11b9c",
+      "size": 10307
+    },
+    {
+      "path": "plugins/SimonKDesign/.simonk-source-attribution/NOTICE",
+      "sha256": "ed7b706ece9f64fa81175dfc7e96e11530ecce33b78b44af8685e050928cc5b5",
+      "size": 883
+    },
+    {
+      "path": "plugins/SimonKDesign/.simonk-source-attribution/VENDORED.md",
+      "sha256": "1302d0fab1878cfdc24877287f4c8bd5ea25803f0f06ee53016e204a9ebcee14",
+      "size": 2788
+    },
+    {
+      "path": "plugins/SimonKDesign/CHANGELOG.md",
+      "sha256": "68cc57fa95b2d2ae72d5f1823ec2589734102040a5b9ff504c6d438e042b421c",
+      "size": 1364
+    },
+    {
+      "path": "plugins/SimonKDesign/CONTRIBUTING.md",
+      "sha256": "b3ace86d4303e6a57e4eeadc2984084ec7e435be22389a13ce55912dc9152c81",
+      "size": 4158
+    },
+    {
+      "path": "plugins/SimonKDesign/LICENSE",
+      "sha256": "fe3867cb8f2d971c1d7d565eb7c0ec603c67b23ac8bf49eee25ed5e8f7da0466",
+      "size": 1811
+    },
+    {
+      "path": "plugins/SimonKDesign/NOTICE",
+      "sha256": "a1e5c39182da2e4ec8f5b4af590bbc37eb341750dbfea0dcfb2cd5464595d0ff",
+      "size": 303
+    },
+    {
+      "path": "plugins/SimonKDesign/README.md",
+      "sha256": "3e6b4e5e90d1845b4a1cd5147f1210365de3008c6a61da1f08030e56b110d38f",
+      "size": 2212
+    },
+    {
+      "path": "plugins/SimonKDesign/RELEASING.md",
+      "sha256": "2b5df480da54ddd79d424d02d28e7d67c46a90eba74e8ea550b462ea11e8c749",
+      "size": 1204
+    },
+    {
+      "path": "plugins/SimonKDesign/agents/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "plugins/SimonKDesign/commands/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "plugins/SimonKDesign/commands/skdesign.md",
+      "sha256": "4a1fa45288c730aa580e27fb16b901baf03042ffac0d864556f22fe90aea4cc0",
+      "size": 1914
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/accessibility-audit/SKILL.md",
+      "sha256": "362fb3f752a4306f39b2631ba3ed48acd86fc16ffc3a2dff60cc458fc8f34b69",
+      "size": 13022
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/accessibility-audit/evals/cases.json",
+      "sha256": "cf2649da68683886ccda06aeb89c5a4889aa602b9618a89475a31837bd0ce388",
+      "size": 1381
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/coloring-art/SKILL.md",
+      "sha256": "977f7bf43aef1a47fa2fa302100ecbe230e81231b3e1128e83ed8fc352e24c3a",
+      "size": 5490
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/coloring-art/evals/cases.json",
+      "sha256": "6ff0f67dcec69c3951c0d16e87247ce815958ae8cceb18716afb696349275126",
+      "size": 1606
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/coloring-art/scripts/gen_lineart.mjs",
+      "sha256": "c565d216810137c22c56eaf6871e53e83b0dc94fe597b5fce8e7974debaecfed",
+      "size": 6061
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/consistency-guard/SKILL.md",
+      "sha256": "083a2526189a8a99e30b6cd718c65bd10788cffc25958338918c946b0cd6a7a8",
+      "size": 3183
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/consistency-guard/evals/cases.json",
+      "sha256": "dd401c5b55111b7b15fd178f8871b3e236c17df54fdd576c9c3b8087bf50bb60",
+      "size": 1372
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/dashboard-review/SKILL.md",
+      "sha256": "b285f5be86f909a604587584547634677a7db93c0fea198883b6f070548b1c88",
+      "size": 4852
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/dashboard-review/evals/cases.json",
+      "sha256": "bab7e282842a144a78ed1b4680a1885a66c4ad59f393884317a253f0cf02e47e",
+      "size": 1492
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/design-consultation/SKILL.md",
+      "sha256": "35ecc5221f1118f4bcf317167285bff71e05c1bc5401dfd85d4f6054b93730b9",
+      "size": 23617
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/design-consultation/evals/cases.json",
+      "sha256": "1a49e41ae61c222b48326a0ec8262b07367237b98ef4e56c64afd60f8cf57d53",
+      "size": 1387
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/design-consultation/references/detail.md",
+      "sha256": "2ee7c8d9528e76015a4c48c099d4f65b2dae9ede950ee102ad3da155095fb71b",
+      "size": 43209
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/design-html/SKILL.md",
+      "sha256": "4986e7afcd8e71cedbd7c61238f88810cd74a2412f878aec3b3c6ad1e8041850",
+      "size": 22789
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/design-html/evals/cases.json",
+      "sha256": "2acfc6c3b79a522a31e5675f25c87e16ad19a63db7a5118146707944ee4343b5",
+      "size": 976
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/design-html/references/detail.md",
+      "sha256": "4ad089824e97deb7856935505c821457e48ca21e0f5a0fa7de7b4294e83fbdfb",
+      "size": 36913
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/design-review/SKILL.md",
+      "sha256": "6bfc23a6faaf2d42a9224a4136ed201711623c3d3aa77222e33f357a2b573544",
+      "size": 23623
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/design-review/evals/cases.json",
+      "sha256": "602651c147a2556e5c006680e5a099418ac938092400bc4daa4d8c4c5df3be7c",
+      "size": 1295
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/design-review/references/detail.md",
+      "sha256": "f93a82b1a5ee0ccf9c182eb9eab6f72f01413c743391f66512994068bbcf60b2",
+      "size": 64848
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/design-shotgun/SKILL.md",
+      "sha256": "4d6a2642050ddfd469d0ab61ccccf3f725c6a6ae01ae02b2a5db1870c4fad9c3",
+      "size": 22456
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/design-shotgun/evals/cases.json",
+      "sha256": "a78feb70ad41225c24885d1540bf32fc2399c262c26e7a2e66b3e05620ec2faf",
+      "size": 922
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/design-shotgun/references/detail.md",
+      "sha256": "8e3fb1f7797b20dceb7caeab1f0ce520c650775235c59a026f10be3870e076d3",
+      "size": 29231
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/design-system-keeper/SKILL.md",
+      "sha256": "a813bd982c70b35bac7c48b1a5a0b6c07eee738c8f1f6f52352fee333bfc89f3",
+      "size": 9284
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/design-system-keeper/evals/cases.json",
+      "sha256": "da3936bda944d5d340cbc2b05f71401d835bdd0777ca501e2f88f15773d5a673",
+      "size": 2213
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/design-system-keeper/references/direction-and-aesthetics.md",
+      "sha256": "87eeacea146caa0fc30001ace8fea0bd9609d940a412a66160cc4ea14b6cf3ac",
+      "size": 3942
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/design-system-page/SKILL.md",
+      "sha256": "2e2a777c5a728bc295be47c5267d7b85cac9f94a85b71cff464cc47b1e7bc882",
+      "size": 12871
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/design-system-page/evals/cases.json",
+      "sha256": "022b02c9f0666c32480eb98a30f5db9f244642700e68c820375254ea794093bc",
+      "size": 1340
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/inclusive-ux/SKILL.md",
+      "sha256": "1e09ed324fd57637c860d264c001abf2a0f8682538f453b75039193c221bf390",
+      "size": 13073
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/inclusive-ux/evals/cases.json",
+      "sha256": "c1ba95371b5087fb6c2eb494e312ff710ef72aa6368722f4b1b62c284b4bab66",
+      "size": 1176
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/logo-generator/SKILL.md",
+      "sha256": "4b947e5977f9134b5928651e6320ee61254dcb1e6916e4fb0c0b4f555417b34b",
+      "size": 9570
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/logo-generator/evals/cases.json",
+      "sha256": "9ee64aabdbe76fc3a8f9d63d35e052f6ba610c0b7e77b872e53d3d7dc830684d",
+      "size": 1208
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/logo-generator/scripts/gen_logo.mjs",
+      "sha256": "56c3a838acb4058d94b30b5efecf0f7f8c8a850e0cbb504342fa6b2227a1dddc",
+      "size": 8547
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/logo-generator/templates/brand-brief.md",
+      "sha256": "38ba451ffcd86f1da5cf20f1c1cddaa9d6af267986edfe4e8a94a1f7b28bb9fd",
+      "size": 1754
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/persona-simulation/CHANGELOG.md",
+      "sha256": "92f22e0710e8cb542103298362252f2037158744b10a6e71f17a8585da158598",
+      "size": 116
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/persona-simulation/SKILL.md",
+      "sha256": "92ecd26f27425f9623f5e43fe30840a7e12bba44cd34988385c7cf1cdfb8c069",
+      "size": 13327
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/persona-simulation/evals/cases.json",
+      "sha256": "20f132dd49c98bc00385e484ca45c8c7570b218f26e2e9aa6f8666278eaab30e",
+      "size": 2298
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/persona-simulation/scripts/check_findings.py",
+      "sha256": "b1637051374cb8a0773ba4bbdcd743eb5b1a13f648f8262735f2d54ff751c0aa",
+      "size": 3256
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/photo-album/SKILL.md",
+      "sha256": "825b127d8887a6c4fec73a5861cd78e3a1970b0d146cd66611f1c64cdae4569f",
+      "size": 9659
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/photo-album/evals/cases.json",
+      "sha256": "cd428c471015fb9b18c2a624cbe17daed3a7d7edc4a92341c0e9a8481a632253",
+      "size": 1150
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/photo-album/scripts/build_album.mjs",
+      "sha256": "95765ee4d64fef9580ead6f812f792027350082ccf8c4304e9527935b6611872",
+      "size": 11580
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/photo-album/templates/album.spec.example.json",
+      "sha256": "2db722ee6ee4755fa7afe6e75eabad9f362a466bab143fd6f73a9807b012bc20",
+      "size": 1216
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/plan-design-review/SKILL.md",
+      "sha256": "a090f1afeb77822dde5b04afc7d2532039def976aa26a9247fc323e3dd96a722",
+      "size": 23483
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/plan-design-review/evals/cases.json",
+      "sha256": "093a23e65486905c75594fff224f26a5c8817a4d0886c5e71ae1cd21b4c50b14",
+      "size": 985
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/plan-design-review/references/detail.md",
+      "sha256": "da1a2974dca63a219da597ed44752ac9ba9dc9407c255fa7871f94a6da6301fc",
+      "size": 70416
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/remotion-best-practices/SKILL.md",
+      "sha256": "001b17c88d4aae0555cab968222e3065aca998341f2f22e51f497075ea5b2a9c",
+      "size": 14413
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/remotion-best-practices/evals/cases.json",
+      "sha256": "2b32b0f1ece574825050859f8d441134fcf96d3296253da72696f3cc02e24abc",
+      "size": 1258
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/scientific-paper/SKILL.md",
+      "sha256": "feeb2182b88133b0af0c79cce01ccc27104ddea34c234b5121834642063dcc9f",
+      "size": 13056
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/scientific-paper/evals/cases.json",
+      "sha256": "401d86d731d08e3368c3671105bfd7ab021f831bfc16185d3f688c86cfae0a7b",
+      "size": 1039
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/simon-design-first/SKILL.md",
+      "sha256": "07ceabb592de71e420e9be1bef522ed7796bb2d5a7b960a13af9b3de7f365235",
+      "size": 10200
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/simon-design-first/evals/cases.json",
+      "sha256": "64e107ad1e7d915e803a2ac805512454f0c429e51f6ba652e820816174fd3c9f",
+      "size": 1603
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/simon-design-first/references/design-chapters.md",
+      "sha256": "b44bf3e24eab9f8422f2356bc5c5bc8bdf6eb69edba0d45434af52f310517db8",
+      "size": 8524
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/simon-design-first/references/design-md-workflow.md",
+      "sha256": "e4221174308dbd1710e7ddf8a0f595670229ecdf46c51faa24e3e37b1e2b04dd",
+      "size": 5896
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/skdesign/SKILL.md",
+      "sha256": "a315ce2df29282a2a18c574947dadccadbd6182e6c00c8dc61c943b84acb2ac2",
+      "size": 7284
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/skdesign/evals/cases.json",
+      "sha256": "c379ade8e5983a9390efaa356718c966869679397341366ed76fa0ab6cc9a4b1",
+      "size": 1168
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/slides/SKILL.md",
+      "sha256": "29ce5698c7bae2fbbd90a34a2f4a4d68866d8e8fa274516ddde9049ed822ea59",
+      "size": 14643
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/slides/evals/cases.json",
+      "sha256": "a425e8a2c8f57594825c3592631b8bc5b1d915a17b46de9d54ce25672504394b",
+      "size": 1101
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/social-graphic/SKILL.md",
+      "sha256": "ed0cdc9ec66189cd81ba31467c9a7db024e729f3c1f0b24c2cf6b36304a2bc98",
+      "size": 7092
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/social-graphic/evals/cases.json",
+      "sha256": "4717f292450336b156b56af99c2e270ac2f704039cbe0e6818d93d6ab997f24f",
+      "size": 1053
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/social-graphic/scripts/gen_graphic.mjs",
+      "sha256": "3ce1218dcb8736890a0353e39843e18825f57054bd180b209552b174864661f6",
+      "size": 6372
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/stitch-design-flow/SKILL.md",
+      "sha256": "3e841e48c5b0c0f32520eb364d3233d69d7fa7ff581e8c10c5ce7f73fd6cc06c",
+      "size": 7381
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/stitch-design-flow/evals/cases.json",
+      "sha256": "1cd7b9a3238cd0f109def5402654acfcf70d87ee09027af0c23f133a116b3f39",
+      "size": 777
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/stitch-design-flow/references/prompt-recipes.md",
+      "sha256": "6e462b19c565014ac14887ea6dcc59b28d358807bbf5ec1c5d2906d57969f2fb",
+      "size": 4636
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/stitch-design-flow/references/prompt-template.md",
+      "sha256": "64fd0f2a091f396521ab9db365637241b6d01e122466db5d5899bf558d8f1f3a",
+      "size": 4230
+    },
+    {
+      "path": "plugins/SimonKDesign/skills/stitch-design-flow/scripts/generate-prompts.sh",
+      "sha256": "3ea926a022524cde96a8b46fe1650237d7f137c09530092eef19ad029200f650",
+      "size": 3820
+    },
+    {
+      "path": "plugins/SimonKMarket/.codex-plugin/plugin.json",
+      "sha256": "de52cdef339e35e36df843d9b5cb0eea954ff4290790693c7a81614b56f1d00d",
+      "size": 861
+    },
+    {
+      "path": "plugins/SimonKMarket/.github/skill-ci/README.md",
+      "sha256": "283627af8b2d979bf1fc09e3f89c6b5d84d1707f483c28c4403bac94043b40a7",
+      "size": 1467
+    },
+    {
+      "path": "plugins/SimonKMarket/.github/skill-ci/run_ci.py",
+      "sha256": "c51660606c126af53c73156499ee8d98228e43e469b1264d7314c9279d971c39",
+      "size": 3398
+    },
+    {
+      "path": "plugins/SimonKMarket/.github/skill-ci/test_run_ci_encoding.py",
+      "sha256": "5ff6c19bf48f0cdbe3a031206afa1d4fabc29e52838b70fd3c22a69f277767f3",
+      "size": 2718
+    },
+    {
+      "path": "plugins/SimonKMarket/.github/skill-ci/test_skill.py",
+      "sha256": "d46b14fe8378676b0f7763a05dbf7cb7d43d8c9fe8b1d28a055f943048bc0ec9",
+      "size": 4800
+    },
+    {
+      "path": "plugins/SimonKMarket/.github/skill-ci/validate_skill.py",
+      "sha256": "70c621a9dc45559246549b699ea328fc47e2279facb35f24cf2f043ca1fcfaf1",
+      "size": 21538
+    },
+    {
+      "path": "plugins/SimonKMarket/.github/validate.mjs",
+      "sha256": "553c46eea582cccbc17dbb0a0f70cf1a2942cd1613035a8fd758c5916376d30a",
+      "size": 1191
+    },
+    {
+      "path": "plugins/SimonKMarket/.github/workflows/release.yml",
+      "sha256": "c57b57909e9ee9439cd99ba491b9a23ef1e1ca86b552d4b38d23d818675b1563",
+      "size": 860
+    },
+    {
+      "path": "plugins/SimonKMarket/.github/workflows/skills-ci.yml",
+      "sha256": "d43c6bc256f7b8d03dec43c115ce5b4283f01916d443508b0ca8ab2ab4cb9dbf",
+      "size": 502
+    },
+    {
+      "path": "plugins/SimonKMarket/.github/workflows/validate-plugin.yml",
+      "sha256": "66d413c001d295d77f3a50f37389fbd4f7b423ac1c7446dfb847e0834d664381",
+      "size": 447
+    },
+    {
+      "path": "plugins/SimonKMarket/.simonk-source-attribution/LICENSE",
+      "sha256": "830b2f935bda17d68dbdec837e4c70b46b72180e2e99327baa0f5ed17bc11b9c",
+      "size": 10307
+    },
+    {
+      "path": "plugins/SimonKMarket/.simonk-source-attribution/NOTICE",
+      "sha256": "ed7b706ece9f64fa81175dfc7e96e11530ecce33b78b44af8685e050928cc5b5",
+      "size": 883
+    },
+    {
+      "path": "plugins/SimonKMarket/.simonk-source-attribution/VENDORED.md",
+      "sha256": "1302d0fab1878cfdc24877287f4c8bd5ea25803f0f06ee53016e204a9ebcee14",
+      "size": 2788
+    },
+    {
+      "path": "plugins/SimonKMarket/CHANGELOG.md",
+      "sha256": "1b41e13f77202948089ec225aef9d85b80cca106f09821d251cb05848a8a9978",
+      "size": 1364
+    },
+    {
+      "path": "plugins/SimonKMarket/CONTRIBUTING.md",
+      "sha256": "303e117b0e52db990f344b744cefd369e48a63b2a1ef7296825cd5122d582dd8",
+      "size": 4501
+    },
+    {
+      "path": "plugins/SimonKMarket/LICENSE",
+      "sha256": "fe3867cb8f2d971c1d7d565eb7c0ec603c67b23ac8bf49eee25ed5e8f7da0466",
+      "size": 1811
+    },
+    {
+      "path": "plugins/SimonKMarket/NOTICE",
+      "sha256": "ab61d7ad24f9f64615ccd9bd1f58c3f6ddc265542b59bda5e54a681f5782876e",
+      "size": 303
+    },
+    {
+      "path": "plugins/SimonKMarket/README.md",
+      "sha256": "13016a649b31c1bf7946ec104d606d77c1348a64c87b394cd54d3da7e88755ec",
+      "size": 3663
+    },
+    {
+      "path": "plugins/SimonKMarket/RELEASING.md",
+      "sha256": "2b5df480da54ddd79d424d02d28e7d67c46a90eba74e8ea550b462ea11e8c749",
+      "size": 1204
+    },
+    {
+      "path": "plugins/SimonKMarket/agents/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "plugins/SimonKMarket/commands/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "plugins/SimonKMarket/commands/skmarket.md",
+      "sha256": "98f8d605bbf126a58cfcfd02af069cb2c4325352e0342ecaddcc3fc154c0095b",
+      "size": 2086
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/aarrr-growth-planner/SKILL.md",
+      "sha256": "d877a7fa829ef1c9b27b410818041823f2d34e99327a9c11785306e09a0f2d05",
+      "size": 3474
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/aarrr-growth-planner/evals/cases.json",
+      "sha256": "6ded6408f2e6fffbceb26c1db4395f7de180622a8d600975c29e6fab8e83114d",
+      "size": 1240
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/ad-monetization/SKILL.md",
+      "sha256": "94083b62e1ca3b59e79e53cbc6a42dd8d25a15f01f9ced86177bca7a7a8f2e36",
+      "size": 3098
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/ad-monetization/evals/cases.json",
+      "sha256": "36be6dd7c1cf2f12070d0a1f05248058e93b4d8d90e883750944aecb96b3d369",
+      "size": 1209
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/aha-moment-optimizer/SKILL.md",
+      "sha256": "52af97b21316c0bb264f14a09d8c0a20dad0d9bcd47ea6c81186bb50c92960c9",
+      "size": 3757
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/aha-moment-optimizer/evals/cases.json",
+      "sha256": "48694aec46f31f2ca155a98330f0f4672bb343823a2119ad14f79e331f368a60",
+      "size": 1398
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/analytics-integrator/SKILL.md",
+      "sha256": "6379cbbc4ee18ee0702cb9e0c4dec815075b25fe94bf2cf2a340914d27d8c248",
+      "size": 5531
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/analytics-integrator/evals/cases.json",
+      "sha256": "b9d1ab1e1edf6cea45df31854f914c6eb93bd95b6881e8aa8b83aa646333e2b9",
+      "size": 1214
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/churn-recovery-planner/SKILL.md",
+      "sha256": "703bdb15d409b02ae544036d2450bc1b15bb5ed37b301022767860a69373815e",
+      "size": 14195
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/churn-recovery-planner/evals/cases.json",
+      "sha256": "8ce4605a82ed341c7c9d3e32a46aa3860cf04b22789015b2d2e3e71569980023",
+      "size": 1025
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/churn-recovery-planner/scripts/dunning-schedule.ts",
+      "sha256": "2850a0365bba2b30cf31adb5be7b2cb218f54a18f5f8a37e8641378a8e3de548",
+      "size": 7388
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/churn-recovery-planner/scripts/recovery-kpi.ts",
+      "sha256": "69833961db7ac4fa82192ca5db8cac1adc06c1be311864c20be15b372e5905b4",
+      "size": 5613
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/churn-recovery-planner/templates/recovery-sequences.md",
+      "sha256": "bfb3bfb3f416fb2d64dedc5ccf3322abe1f610c5b5b2430241724c82c88c335c",
+      "size": 3412
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/churn-recovery-planner/templates/save-offer-matrix.csv",
+      "sha256": "007c90fc01fee57a9312aed15ac0102adae69c006bb11deaaaeabbf7998141ec",
+      "size": 1344
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/cohort-retention-analyzer/SKILL.md",
+      "sha256": "d3000c8695d8d6b5f37d17294271c301560000c2875b6d52cc9c3a34086ccb29",
+      "size": 11092
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/cohort-retention-analyzer/evals/cases.json",
+      "sha256": "6ecf36ddbd07b89ccc6bce93f3db883003ffb62d4798715d81580e4d79474d63",
+      "size": 1072
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/cohort-retention-analyzer/scripts/cohort_retention.sql",
+      "sha256": "fe79db82ec30d79eb0707d75687434504cd16c5481f1c84db7eb4951b2b14f6a",
+      "size": 4888
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/cohort-retention-analyzer/scripts/retention_calc.py",
+      "sha256": "41fab76391ec3c7e649eeaade11c04c91cefd1ac931cd734c79dc7052212ef4e",
+      "size": 14369
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/cohort-retention-analyzer/templates/retention-report.md",
+      "sha256": "03b6b96c77354f7dc579454e904f90f9087208606f2877ba2e2fa30087984c34",
+      "size": 2732
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/community-marketing/SKILL.md",
+      "sha256": "41b93e4cd77e3f8b6138d0c291a4ad76f4e8454d9967c4ae30444e1477352138",
+      "size": 5073
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/community-marketing/evals/cases.json",
+      "sha256": "4f2dcc7e21c727a399da6f17b6c185fca94678f0de646060e26056e7bf98b4f9",
+      "size": 1151
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/exit-strategy-planner/SKILL.md",
+      "sha256": "8f48066771123a4fc6de1de48dbd5d982282a37582b54ac088efcdf2cdd09aee",
+      "size": 4035
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/exit-strategy-planner/evals/cases.json",
+      "sha256": "684b0e9603a9b0da371b317eda2e2d129231ec3657633cc2b04c64b6999cb78f",
+      "size": 1030
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/experiment-analyzer/SKILL.md",
+      "sha256": "2fa1797160d048382b9ccca77325680b56164696debc99c04dab70cb4a63f033",
+      "size": 7592
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/experiment-analyzer/evals/cases.json",
+      "sha256": "41dde3ce78831cba89398ab261290ea934413489f0bbcce7491172a0536affaf",
+      "size": 1071
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/experiment-analyzer/scripts/power.py",
+      "sha256": "7b115c13f4f6f4edb2b813b0305320291f2318d3777fef58bdabc92b8ea14e75",
+      "size": 4946
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/experiment-analyzer/scripts/significance.py",
+      "sha256": "a271a5681ab0689489637fac45cc14199e0d4fac7864a05782676e38d5a848e4",
+      "size": 6504
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/experiment-analyzer/templates/experiment-readout.md",
+      "sha256": "f0b6ca8c3e4206047d6546bb16596847707342062ac2c076694c5b6119f59245",
+      "size": 2019
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/export-channel/SKILL.md",
+      "sha256": "e91a5a54df8d08608ff1a9f9fb40e5ee88efd253df22d95dd763f9cb1df07cc5",
+      "size": 8920
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/export-channel/evals/cases.json",
+      "sha256": "151018e615e7da68936519ba8450d849d28abb9940a0e01db0d9cec418323df6",
+      "size": 1119
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/feedback-and-review-collector/SKILL.md",
+      "sha256": "049e63467be0a4fe194adea9e1a5405658feee7327ffb7b5ab65073f57332294",
+      "size": 12758
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/feedback-and-review-collector/evals/cases.json",
+      "sha256": "db9acefbc81eb5288f333148d7eb5d3bda4b3a0d464670e515a00ee33c6a375c",
+      "size": 1157
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/feedback-and-review-collector/scripts/feedback_calc.py",
+      "sha256": "b1fdb6983024c4ee96c99bb3380f5e27df688475fb957155e87555af19c9e9c6",
+      "size": 12823
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/feedback-and-review-collector/scripts/review_gate.py",
+      "sha256": "a8cb2c61d844fb4375eeca13918000d285ef6967b6f36b192583449074a4e217",
+      "size": 8351
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/feedback-and-review-collector/templates/microsurvey-copy.md",
+      "sha256": "45e2fabb065c88a28e719ed3b0a26f2299f65b03e6de62be8a31d6e700b5ba6e",
+      "size": 3511
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/feedback-and-review-collector/templates/review-prompt-config.json",
+      "sha256": "764f9867ce9e4c9ff117df1753ff2d7fdea1a8439f6a25375036215afb34fc1e",
+      "size": 1172
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/global-payment-planner/SKILL.md",
+      "sha256": "b0805b0edd29967d1c98e5c9d6e4450aaab192d7518d58d6f550a8a7ec2ca060",
+      "size": 3100
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/global-payment-planner/evals/cases.json",
+      "sha256": "b97872da0947d601ab3ea6289525d95d3779bcb4d3df3f03629f33b9d25f13cd",
+      "size": 934
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/growth-engine/SKILL.md",
+      "sha256": "0d93497eeb14ae1a5dc810e61d19c1b04bdc63d2d66925c5da0ba8b2e8eb293b",
+      "size": 3513
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/growth-engine/evals/cases.json",
+      "sha256": "3232ec677a1af3715b19c2fb60763b7fa9172637f79e6544d1a05c587f11ff71",
+      "size": 928
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/idea-validation/SKILL.md",
+      "sha256": "1768047c40bb026d0ae4c56b05a1007cecdc2ffe3252eae9fc5f5f4873e04c0e",
+      "size": 10374
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/idea-validation/evals/cases.json",
+      "sha256": "9ff527f2f7214524b6214ec89095c327b4d8113892b852334860ba4cb21cb596",
+      "size": 1037
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/lifecycle-campaign-designer/SKILL.md",
+      "sha256": "98b01374b6caa48014722b97dc1c38e4d98e6b0fe5d1e49976f526b961f9c318",
+      "size": 10574
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/lifecycle-campaign-designer/evals/cases.json",
+      "sha256": "99b5353c4bbbe29c8ee1a21513ffb1b9fac4dbae88e6fc6f82d07f6bd0a1ed7f",
+      "size": 1145
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/lifecycle-campaign-designer/scripts/holdout-lift.ts",
+      "sha256": "728e9d7c894d9f10c7ae073be222c3dcde7ce8ecd2f8958d519dc9845f42f58b",
+      "size": 3110
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/lifecycle-campaign-designer/templates/campaign-matrix.csv",
+      "sha256": "456293934709defb0376609100673cd49327dd4b41f3adf960565fe4858e11fc",
+      "size": 1842
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/lifecycle-campaign-designer/templates/sequence-templates.md",
+      "sha256": "3e7ba85a721bf26768f86bbf8ebdb4befc8f2f804908ca6a0d4e0dbc20626f28",
+      "size": 2660
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/mobile-attribution-integrator/SKILL.md",
+      "sha256": "78aacb679c60a754e5e9eef97ca1c28d01fa4d25b2461f9c621f11b605353559",
+      "size": 13008
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/mobile-attribution-integrator/evals/cases.json",
+      "sha256": "9980a470116a122726ef32c8c13ce85f4171d066a1551c6219cdbc72ec013193",
+      "size": 1769
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/mobile-attribution-integrator/scripts/parse-install-referrer.ts",
+      "sha256": "58940f5be5bf88e5d2c6037463df3419c82121426f54be7be362aa7934a3a9bd",
+      "size": 2954
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/mobile-attribution-integrator/templates/att-pre-prompt.tsx",
+      "sha256": "59e07eafb4db356bbac388ab7c71dc5e5f74965612aef1315c056ec40fa75da8",
+      "size": 2370
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/mobile-attribution-integrator/templates/first-open-event.schema.json",
+      "sha256": "73550b167d01f3236948a1b34e93fb71b25114b11f13f22ef657364ddead3f68",
+      "size": 1930
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/mobile-attribution-integrator/templates/skan-conversion-map.json",
+      "sha256": "33f3d3bd121ef554ce2f861fee9eff61b58f3935307df5883d9fcdc27bc97e06",
+      "size": 1706
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/mobile-attribution-integrator/tests/parse-install-referrer.test.mjs",
+      "sha256": "679c5d6c79922c23184b0c7326d0f7a44cca6b22571737cdbe9eea759f76af26",
+      "size": 1995
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/monetization-planner/SKILL.md",
+      "sha256": "f381dd06e8b31c337635a37b6a3fb9696c403271909c934060cec92b66514543",
+      "size": 4093
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/monetization-planner/evals/cases.json",
+      "sha256": "1f95c4deadb6912c21a22a6cc515b5c5945c0087bb57e275947eb080c85d27c7",
+      "size": 1651
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/nocode-monetization/SKILL.md",
+      "sha256": "b367c778665e3131ce681a9f90c9f34d7a8ed8c9cc1ce8c3f63269e25e84c8dd",
+      "size": 10043
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/nocode-monetization/evals/cases.json",
+      "sha256": "03044a6e03d311d2d680850c3ab4c5c7c0bfebaba206a867ae03170a8e9bdbda",
+      "size": 1083
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/nocode-monetization/scripts/ltv_napkin.py",
+      "sha256": "0061e120653d5105c3485c5fbce04c80d7b388e260f9e08bc4a616d09a54b579",
+      "size": 3516
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/onboarding-flow-builder/SKILL.md",
+      "sha256": "26cb8da87a61b85b9f574a359a33050febf8523a7054e4743eb85a8e9ab7bb3f",
+      "size": 8950
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/onboarding-flow-builder/evals/cases.json",
+      "sha256": "669019ab66a95b7b08446ccccf51293bc21aabfdefaa07826ae601ff2662c7cc",
+      "size": 1121
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/onboarding-flow-builder/scripts/funnel_dropoff.py",
+      "sha256": "281af9179adf9a6a9bd53a9d57b1fd840a1b257122ee800500f3a0f41bdda0ff",
+      "size": 6738
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/onboarding-flow-builder/templates/empty-state-copy.md",
+      "sha256": "101b291bd2d3709961b450344bf7301380a229f216e47139c581157e6699d330",
+      "size": 1384
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/onboarding-flow-builder/templates/first-run-sequence.md",
+      "sha256": "763add0f2965ed93b62052bab30e9af869826c62283b51e6f4914e8850918e24",
+      "size": 1747
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/paid-ads-campaign/SKILL.md",
+      "sha256": "adcdb734f53ec687f82acb85f64726970ee485ea8fb61a4e1d9d522d79ceae56",
+      "size": 10127
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/paid-ads-campaign/evals/cases.json",
+      "sha256": "a54a81eeefd61bba11d87b05bd3ccf01104ba1a6adae79c5a47ffe14b083d7e8",
+      "size": 1142
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/payment-integrator/SKILL.md",
+      "sha256": "9cf1a85403300bef9e660426f7fe37a8b65162692e82cf3724abee6dc76f983e",
+      "size": 6128
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/payment-integrator/evals/cases.json",
+      "sha256": "118508743cf5a2bd5f467f627d29ba2e444ccf61c3b322f32309dfb3d52aaae4",
+      "size": 1533
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/paywall-designer/SKILL.md",
+      "sha256": "fee8974c69a1c6b1e90df95959e9ac2792e010178cb95d1f0ee59e4f1a71ba44",
+      "size": 10198
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/paywall-designer/evals/cases.json",
+      "sha256": "7ea2108f0830dac963de14188204f9fb9c56639481072882584e8388ff054838",
+      "size": 1131
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/paywall-designer/scripts/gen-paywall-events.mjs",
+      "sha256": "77635caf61b1c538a224e6d3d81a68d05cb865a81ad63728261b793d8f894d69",
+      "size": 2491
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/paywall-designer/templates/PAYWALL.template.md",
+      "sha256": "d72d973271ba62295d1b2950cbccea8b7e1f69dc3d266e402fd03bd15fe5dfc0",
+      "size": 2942
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/paywall-designer/templates/paywall-copy-variants.md",
+      "sha256": "ee54a166c733b623aaadb2d6d8fe5d7851e59b32f055ae7bd5bde7118bf0e5cd",
+      "size": 1668
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/pink-tax-advisor/SKILL.md",
+      "sha256": "849b8fc26b15e6f862f0722217c17a7ca18844bb6614abe051aac14dd7467cec",
+      "size": 3295
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/pink-tax-advisor/evals/cases.json",
+      "sha256": "676a3aa54abc9ce6071e83907375cbb0a38bd320c0febf5e811b4e974eea15b2",
+      "size": 1197
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/pmf-analyzer/SKILL.md",
+      "sha256": "53a0e4f6c098730209127f19ab54d3243d62538ed1ee2c4cd7492612b24ba1ac",
+      "size": 3585
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/pmf-analyzer/evals/cases.json",
+      "sha256": "fef9f3658bb49d45d4443ff0f9a8d8c74929b214208cd97a1e4ed3255e2afc02",
+      "size": 1206
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/referral-program-builder/.gitattributes",
+      "sha256": "3320605e308645bc54293edba030ac9527e19b651a914fa0286744ad87aa9cbd",
+      "size": 48
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/referral-program-builder/SKILL.md",
+      "sha256": "c26a416a3c7961c709b1bb3befc8fd4cf26f105e8da103474d5422620ae310c3",
+      "size": 9629
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/referral-program-builder/evals/cases.json",
+      "sha256": "a02245f3bedef12df8c7637be943733ced469d0a87b56c0855b0085e163b0d31",
+      "size": 1702
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/referral-program-builder/scripts/check-referral-integrity.sh",
+      "sha256": "232d9a8f9374d2c51e475313308412b808ebae0f87024e105d01aa4ccc8d4e60",
+      "size": 2906
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/referral-program-builder/templates/k-factor-queries.sql",
+      "sha256": "a4124a57ee9932e73f52f71e4b0a5107cc008d914b88032cb3aa69d1bdd0939d",
+      "size": 7446
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/referral-program-builder/templates/referral-schema.sql",
+      "sha256": "b47956429447b8b942a9ffce01d0ed53f0a7c435324dfa2f217f3e77d54f8f24",
+      "size": 5572
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/referral-program-builder/templates/reward-logic.pseudo",
+      "sha256": "736c4501ef8aa6be2f027df1a1f96bbcd426515b68b0bc13d11c92b7ef856761",
+      "size": 7773
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/referral-program-builder/tests/check-referral-integrity.test.mjs",
+      "sha256": "807e71833b8adb6a638e0432913a0c609d696c8f1f1beb4187e2e13938e595dd",
+      "size": 3119
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/revenue-scenario-tester/SKILL.md",
+      "sha256": "5c040a538d509771adfaa99f430d06c6905ba140b7a05877a0e5931bf00decf6",
+      "size": 10375
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/revenue-scenario-tester/evals/cases.json",
+      "sha256": "d4b34d43c983d63ce531fad4364076d9327558ac060f47886c68e266f468f80d",
+      "size": 1219
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/skmarket/SKILL.md",
+      "sha256": "88d2411b531840b2641527d75a0849e66605086df64bb87d0f93832f46b21b73",
+      "size": 7571
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/skmarket/evals/cases.json",
+      "sha256": "8f1e8c1d1c4f0c23a20d521b5f52e55157ee3646ac659f2945061aca5b22fa7f",
+      "size": 1201
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/store-launcher/SKILL.md",
+      "sha256": "b8064d806c74bffaa61d959cec808ed1d1a68add83f2b114bc4ea40e6a6e10cb",
+      "size": 3884
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/store-launcher/evals/cases.json",
+      "sha256": "bffe8f77ce4f85c11c3d567392622e0cf76052f020556713cbf93421f1b0e85a",
+      "size": 1231
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/subscription-manager-selector/SKILL.md",
+      "sha256": "ea34800692dfc08cbf4b3df3794f15363a18d393b60e0cd6f34630e197afafc3",
+      "size": 3337
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/subscription-manager-selector/evals/cases.json",
+      "sha256": "59c0239eb631ba93617a3145667cc0904f8fc31ffbf96793665f47d784372272",
+      "size": 1102
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/tag-manager-integrator/SKILL.md",
+      "sha256": "9e1b3e986970a4dcc88aacc615c1d0cfeefd1f61c3f7ff766607732aad26cc79",
+      "size": 3302
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/tag-manager-integrator/evals/cases.json",
+      "sha256": "923611e1c67cf02f43c8493c65a79672abd5fdf76d87e941251e4d15f5aba252",
+      "size": 999
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/unit-economics-modeler/SKILL.md",
+      "sha256": "f238e3b76d91a5cf19c1e789040d137b11555d07957455c63a7c37dfb06a8c53",
+      "size": 10237
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/unit-economics-modeler/evals/cases.json",
+      "sha256": "3dca9e0b0d4eafb5d38aa3952c9d53efdc387c7a47ad6222beb03ab887958d77",
+      "size": 1523
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/unit-economics-modeler/scripts/unit_economics_napkin.mjs",
+      "sha256": "7b23895d495ed2392b3b20f05e242c8aa7c8b52cf1eb4724eb0c1934444dba1e",
+      "size": 5130
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/unit-economics-modeler/scripts/unit_economics_napkin.py",
+      "sha256": "e7745fd2515a0340be13e10cf53a4cbe229966ebe31cf8b5aad3f8e1112f9571",
+      "size": 6379
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/unit-economics-modeler/templates/UNIT_ECONOMICS.template.md",
+      "sha256": "8448d53b724d1a5edf8fa0558a1704d4b4dc4fa8c940a1e7908813b1644f5031",
+      "size": 4598
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/viral-launch/SKILL.md",
+      "sha256": "d969d088b7ef8931c53f8b9201488cd4f996dd92de18ad444113f65609107d88",
+      "size": 5857
+    },
+    {
+      "path": "plugins/SimonKMarket/skills/viral-launch/evals/cases.json",
+      "sha256": "8156a3c972350a95b5185f7085acc5f71b599783d842b8ea1ee67fc7ee203883",
+      "size": 1284
+    },
+    {
+      "path": "plugins/SimonKStack/.codex-plugin/plugin.json",
+      "sha256": "8ef5e1ad512475bbe2d172fdb3a8f1223b18c7e09752265e70778075d0845e84",
+      "size": 1079
+    },
+    {
+      "path": "plugins/SimonKStack/.github/validate-evals.mjs",
+      "sha256": "3be01ba9be8928838d0e88da42ce1751cfa3557193e9386596c4ff061b610757",
+      "size": 3626
+    },
+    {
+      "path": "plugins/SimonKStack/.github/validate-evals.test.mjs",
+      "sha256": "bbdfb5be0c1cfc27f8206ad8841581f252b49abe0a9a9a29b09dbbde5bc531cb",
+      "size": 1480
+    },
+    {
+      "path": "plugins/SimonKStack/.github/validate.mjs",
+      "sha256": "553c46eea582cccbc17dbb0a0f70cf1a2942cd1613035a8fd758c5916376d30a",
+      "size": 1191
+    },
+    {
+      "path": "plugins/SimonKStack/.github/workflows/validate-plugin.yml",
+      "sha256": "1c7c7260c351bb59db9b55b85a9b98e9ba4040a5f734fef420ceb7d4cb4298e8",
+      "size": 487
+    },
+    {
+      "path": "plugins/SimonKStack/.gitignore",
+      "sha256": "bfc70df0a5a52d08512cb68fedf1fbe721908981af7e965f13f9000b8465c576",
+      "size": 26
+    },
+    {
+      "path": "plugins/SimonKStack/.simonk-source-attribution/LICENSE",
+      "sha256": "830b2f935bda17d68dbdec837e4c70b46b72180e2e99327baa0f5ed17bc11b9c",
+      "size": 10307
+    },
+    {
+      "path": "plugins/SimonKStack/.simonk-source-attribution/NOTICE",
+      "sha256": "ed7b706ece9f64fa81175dfc7e96e11530ecce33b78b44af8685e050928cc5b5",
+      "size": 883
+    },
+    {
+      "path": "plugins/SimonKStack/.simonk-source-attribution/VENDORED.md",
+      "sha256": "1302d0fab1878cfdc24877287f4c8bd5ea25803f0f06ee53016e204a9ebcee14",
+      "size": 2788
+    },
+    {
+      "path": "plugins/SimonKStack/LICENSE",
+      "sha256": "fe3867cb8f2d971c1d7d565eb7c0ec603c67b23ac8bf49eee25ed5e8f7da0466",
+      "size": 1811
+    },
+    {
+      "path": "plugins/SimonKStack/NOTICE",
+      "sha256": "56d6ec811685e74a93c38045d5448891340da889bfbc7a31dbe7a6404793ad2b",
+      "size": 207
+    },
+    {
+      "path": "plugins/SimonKStack/README.md",
+      "sha256": "fb9a3581976257e49760e20ee402b76d15a2ae94c497c1dc368f1e1d2beb4783",
+      "size": 1168
+    },
+    {
+      "path": "plugins/SimonKStack/agents/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "plugins/SimonKStack/commands/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "plugins/SimonKStack/skills/analytics-ad-wiring/SKILL.md",
+      "sha256": "39828c3e2db4b471da7e668da56523ae2c07d6aef89fc916a4e03e82cccfe385",
+      "size": 8668
+    },
+    {
+      "path": "plugins/SimonKStack/skills/analytics-ad-wiring/evals/cases.json",
+      "sha256": "3afd58d766ca79243f02df18d86635d97b4344d437d5b1d86c0ea19867099841",
+      "size": 979
+    },
+    {
+      "path": "plugins/SimonKStack/skills/analytics-ad-wiring/scripts/verify-wiring.sh",
+      "sha256": "1cd663d74de56c5fc0acf63d2690d9fa8c379f9608a1a8d3301651c88bc02aca",
+      "size": 4795
+    },
+    {
+      "path": "plugins/SimonKStack/skills/analytics-ad-wiring/templates/consent-gated-wrapper.ts",
+      "sha256": "57ac71b04b4049a1197aa7949012d99531c5ff6638d07f937daba7ab0a4183fc",
+      "size": 2752
+    },
+    {
+      "path": "plugins/SimonKStack/skills/analytics-ad-wiring/templates/env.example",
+      "sha256": "7a752f780cc3a6a13122c45cc12c8c4f2658c8f3bf421a7e5436a839032d6351",
+      "size": 2245
+    },
+    {
+      "path": "plugins/SimonKStack/skills/analytics-ad-wiring/templates/failopen-init.ts",
+      "sha256": "2961cba55fb788ce5c9e76ee198481338ee28e156fa3951e4f7d57da6fd3718f",
+      "size": 2832
+    },
+    {
+      "path": "plugins/SimonKStack/skills/analytics-ad-wiring/templates/rn-init.ts",
+      "sha256": "9984a03533bab358d30e895c97df12f98e43e39b1f937d14c8de8a9297b51402",
+      "size": 3405
+    },
+    {
+      "path": "plugins/SimonKStack/skills/analytics-ad-wiring/templates/web-snippet.html",
+      "sha256": "273fefe831a0e25fc8f67e993b33545692373922cdaa6fd6ba8766030b129060",
+      "size": 3424
+    },
+    {
+      "path": "plugins/SimonKStack/skills/analytics-ad-wiring/tests/consent-gated-wrapper.test.mjs",
+      "sha256": "e56a806334400a2b45f854bd842a778ce83caf57e1b3ff390d2552be8c3123e9",
+      "size": 2721
+    },
+    {
+      "path": "plugins/SimonKStack/skills/app-dev-orchestrator/SKILL.md",
+      "sha256": "e40b7658282649a77ade9fb593f4a4f608b6e911889c428d8ae8164434791b1a",
+      "size": 14288
+    },
+    {
+      "path": "plugins/SimonKStack/skills/app-dev-orchestrator/evals/cases.json",
+      "sha256": "732e84107d8c4329065516b58ae3fe97ab4fc950853ca303c3fcec68c6dd71fe",
+      "size": 3124
+    },
+    {
+      "path": "plugins/SimonKStack/skills/app-platform-selector/SKILL.md",
+      "sha256": "7d971c4f19e155c2749d11cf3569e9cc239a179315b0812e81148f0909416fbf",
+      "size": 4355
+    },
+    {
+      "path": "plugins/SimonKStack/skills/app-platform-selector/evals/cases.json",
+      "sha256": "ecd1a639d3317488161a135e45006c971ba7698cb0d3c73ac11385656dc3739f",
+      "size": 2581
+    },
+    {
+      "path": "plugins/SimonKStack/skills/auth-builder/SKILL.md",
+      "sha256": "e71732d1c59222ad75587072207bfca8c0feaabf6494c2496e2d666d846e46df",
+      "size": 4922
+    },
+    {
+      "path": "plugins/SimonKStack/skills/auth-builder/evals/cases.json",
+      "sha256": "6a504fbed4404dfe7cea7bf10c534fd46cd28745f76626a3a3241333e2b1efb6",
+      "size": 1648
+    },
+    {
+      "path": "plugins/SimonKStack/skills/authz-designer/SKILL.md",
+      "sha256": "999e666d2c14edf7bfe65a73f59f2d5c1ad7b1402b17ec799fbf99f93ffd9384",
+      "size": 10597
+    },
+    {
+      "path": "plugins/SimonKStack/skills/authz-designer/evals/cases.json",
+      "sha256": "944bd1135a94464ad9772a4c7e5884e57f23cec12c94aafcd1814f1124c0d535",
+      "size": 2444
+    },
+    {
+      "path": "plugins/SimonKStack/skills/autoplan/SKILL.md",
+      "sha256": "a7b062b9f0ebcf6f56bda9bba991355b5810e62f588763caa49dab9e5589b1ee",
+      "size": 23540
+    },
+    {
+      "path": "plugins/SimonKStack/skills/autoplan/evals/cases.json",
+      "sha256": "71c2b0172fa134afb8c301c03e3ea8061f098cdfb9354a67cd758c3a7fd830a4",
+      "size": 1272
+    },
+    {
+      "path": "plugins/SimonKStack/skills/autoplan/references/detail.md",
+      "sha256": "ac82a11adaf07bb1dbead4b726352d0354feacc136131775a84d80fb3f85eeb5",
+      "size": 52714
+    },
+    {
+      "path": "plugins/SimonKStack/skills/benchmark/SKILL.md",
+      "sha256": "5712b6df51fecfae813654715baca2f88755d20d044440eac2db32a0b8ed5196",
+      "size": 19225
+    },
+    {
+      "path": "plugins/SimonKStack/skills/benchmark/evals/cases.json",
+      "sha256": "65d7401c8fb6d6723533d472498f20d488eed5a30383ece687df540686d704e1",
+      "size": 1163
+    },
+    {
+      "path": "plugins/SimonKStack/skills/benchmark/references/detail.md",
+      "sha256": "bb4b4e77cf0df33eba30029cda6b6420b138f624219afd4c53bcef3b1f2947bb",
+      "size": 11488
+    },
+    {
+      "path": "plugins/SimonKStack/skills/browse/SKILL.md",
+      "sha256": "201c4bf12f1455f2ee01d2f7b476270d9c9fe176c56a5791f7e021725f6b3094",
+      "size": 19334
+    },
+    {
+      "path": "plugins/SimonKStack/skills/browse/evals/cases.json",
+      "sha256": "d7982e9cdfafc64d43404449001ddf14437bb053afb5a2629b409b57e288a060",
+      "size": 1177
+    },
+    {
+      "path": "plugins/SimonKStack/skills/browse/references/detail.md",
+      "sha256": "d1acb246289f30d28466540a3bb1c5331bad89ef3d46a176139483c0f2a3b2f9",
+      "size": 16267
+    },
+    {
+      "path": "plugins/SimonKStack/skills/building-native-ui/SKILL.md",
+      "sha256": "6aa832f3d49331dea2787fef3d958a34259eee77f2ced6b2992bbe8d0f5248e2",
+      "size": 16394
+    },
+    {
+      "path": "plugins/SimonKStack/skills/building-native-ui/evals/cases.json",
+      "sha256": "e4007f09ae8b7d7772d8679813b90a5128fe8bca9eb7e650985d1ef6821b0f2b",
+      "size": 4714
+    },
+    {
+      "path": "plugins/SimonKStack/skills/canary/SKILL.md",
+      "sha256": "9368f0958fee801bd34389b45f96905901e14bae5293e79fa78c1e194435b90e",
+      "size": 22401
+    },
+    {
+      "path": "plugins/SimonKStack/skills/canary/evals/cases.json",
+      "sha256": "64df66f78bb9d5a102df2c701880b684f4b46c0c1df7adc6b280be5968a3b94d",
+      "size": 1186
+    },
+    {
+      "path": "plugins/SimonKStack/skills/canary/references/detail.md",
+      "sha256": "f54f008b25f055fa7c4dca38dd4e8ec7f34843374dccfc0e613dc2f514c1fcf1",
+      "size": 17898
+    },
+    {
+      "path": "plugins/SimonKStack/skills/code-health-guard/SKILL.md",
+      "sha256": "0c039a5e5f182e9f5f7d6443b1fb2499f6dc7b5d5ba7e3a93124b827f2ce2ee3",
+      "size": 5632
+    },
+    {
+      "path": "plugins/SimonKStack/skills/code-health-guard/evals/cases.json",
+      "sha256": "02ec9294100fe84295d4fef5f070767c0249f05d4ce8bbb8c6ff48e1588ace06",
+      "size": 1894
+    },
+    {
+      "path": "plugins/SimonKStack/skills/code-health-guard/references/architecture-patterns.md",
+      "sha256": "bca629d081be9c485506919585947b0b5e46e769faa58420df6f3e3707b37d7f",
+      "size": 6503
+    },
+    {
+      "path": "plugins/SimonKStack/skills/code-health-guard/scripts/check-circular-deps.sh",
+      "sha256": "1f5db7f9617db0bf21a85016b1dc2e6f5debfb1cb040aeb5d3062202345a71df",
+      "size": 2041
+    },
+    {
+      "path": "plugins/SimonKStack/skills/codex/SKILL.md",
+      "sha256": "cd8d023931d1ebea5cdb0d62aed8efe2eb28c08e513b3bd1dcc90ffd5b7739b7",
+      "size": 23621
+    },
+    {
+      "path": "plugins/SimonKStack/skills/codex/evals/cases.json",
+      "sha256": "37c45bc33856f1b3f4e530402df53cfdc05c3a69e8b25e38c80ab84d20508301",
+      "size": 2544
+    },
+    {
+      "path": "plugins/SimonKStack/skills/codex/references/detail.md",
+      "sha256": "395661278511663da2c7bf3f5b7cffecab9470bfd373fa288cff98492f5efc05",
+      "size": 34365
+    },
+    {
+      "path": "plugins/SimonKStack/skills/consent-manager/SKILL.md",
+      "sha256": "b271b9670eb56b6825f05709d250bb9293d65d4e83896f3016045564dbfcb6b2",
+      "size": 6461
+    },
+    {
+      "path": "plugins/SimonKStack/skills/consent-manager/evals/cases.json",
+      "sha256": "ef8e0ee1ae95aedf32973e25aac54570efa0f11c532d050ab215630bbb19ec21",
+      "size": 1675
+    },
+    {
+      "path": "plugins/SimonKStack/skills/consent-manager/templates/consent-gate.ts",
+      "sha256": "3cd883ea2492a261f17aadc92d1c2b6b9d82a088bebf909b559c85b1f52e5d1a",
+      "size": 6827
+    },
+    {
+      "path": "plugins/SimonKStack/skills/consent-manager/templates/consent-ledger.sql",
+      "sha256": "b033d4df0cdee0c0f2a112785409acd85eb31a4bfed284524f2e0528a9eaa4d8",
+      "size": 4453
+    },
+    {
+      "path": "plugins/SimonKStack/skills/consent-manager/templates/consent-state.json",
+      "sha256": "740f087eefa257cee1be7124cba1a047b7b9ac2a02a1c906d1b007f096894714",
+      "size": 2734
+    },
+    {
+      "path": "plugins/SimonKStack/skills/cso/SKILL.md",
+      "sha256": "dd8d2f996af17c1f4652c8cbd07bdfb73e654b480a24f8ecebcc65c037e09593",
+      "size": 22664
+    },
+    {
+      "path": "plugins/SimonKStack/skills/cso/evals/cases.json",
+      "sha256": "72fafc594e02c9318c3b3220b2ab803ef9175b9cb085a9d27b7b5deb992015a5",
+      "size": 1214
+    },
+    {
+      "path": "plugins/SimonKStack/skills/cso/references/detail.md",
+      "sha256": "39a1912478c6e396fc2c54ec45a854d4eb6cbe8a7c1502e265d2b1e0ce9adc46",
+      "size": 45403
+    },
+    {
+      "path": "plugins/SimonKStack/skills/data-flow-mapper/SKILL.md",
+      "sha256": "108bb874fb4a5e8722f09bcc630fab7b0d60d80cafa1ce039442cc5943bb53ff",
+      "size": 8881
+    },
+    {
+      "path": "plugins/SimonKStack/skills/data-flow-mapper/evals/cases.json",
+      "sha256": "c70fab529b126603bc5309408d62283ac1080aa9184413169aff3919acb3512d",
+      "size": 899
+    },
+    {
+      "path": "plugins/SimonKStack/skills/data-flow-mapper/scripts/scan-pii.sh",
+      "sha256": "7213bdfd6c9ba43980996853d884d4777b0b0ffaea93c5f7648e7cb2be408a61",
+      "size": 4147
+    },
+    {
+      "path": "plugins/SimonKStack/skills/data-flow-mapper/templates/data-flow.template.md",
+      "sha256": "332d6fa8c95943e436caf11403265ad29e1351e3b8f94d958670a2968994ad85",
+      "size": 3024
+    },
+    {
+      "path": "plugins/SimonKStack/skills/data-flow-mapper/templates/dsar-checklist.md",
+      "sha256": "d9d3ca5f1561e96d9132d0a7c6d153b7423c5127c75d67b690678de936bd8002",
+      "size": 1572
+    },
+    {
+      "path": "plugins/SimonKStack/skills/data-flow-mapper/templates/privacy-label-map.md",
+      "sha256": "100814a89d20cead2163bff8725e51a0a64c08e768199865473a43aea81804b9",
+      "size": 2302
+    },
+    {
+      "path": "plugins/SimonKStack/skills/data-retention-planner/SKILL.md",
+      "sha256": "54499cf5154cab5ad0bfc469740b34c85b23f328f86742dda08c93bffa577ea5",
+      "size": 8745
+    },
+    {
+      "path": "plugins/SimonKStack/skills/data-retention-planner/evals/cases.json",
+      "sha256": "6adafaceb1ca822e978e801c1e7a2436dff2bbdba29bb70d7c2daf042bec475c",
+      "size": 2250
+    },
+    {
+      "path": "plugins/SimonKStack/skills/data-retention-planner/scripts/gen-purge-plan.mjs",
+      "sha256": "9236fcbbe48dc81ae13b93f0d52a459a10c7f0d17b385382fc39e77d3b49002b",
+      "size": 10196
+    },
+    {
+      "path": "plugins/SimonKStack/skills/data-retention-planner/scripts/scan-retention.sh",
+      "sha256": "953fb17c3b19cd5d8d0d22ffc7f8594b95830b23de97c168a6ac85abd2a1fae7",
+      "size": 4537
+    },
+    {
+      "path": "plugins/SimonKStack/skills/data-retention-planner/templates/purge-audit-log.sql",
+      "sha256": "a4f902b6b977cdd5a8f61a94a996c2792d955fd5c11f4b066d00b9560e262084",
+      "size": 3441
+    },
+    {
+      "path": "plugins/SimonKStack/skills/data-retention-planner/templates/purge-job.ts",
+      "sha256": "7fc43fb1fcabe32332154b20965dfd3dac0fac08c3c044ea744365dd30574a9b",
+      "size": 5895
+    },
+    {
+      "path": "plugins/SimonKStack/skills/data-retention-planner/templates/retention-classes.json",
+      "sha256": "1f5e952ee18a97c28bb8a42066b29eb90970d258fa800fdacbdf0e3c9104f37d",
+      "size": 3307
+    },
+    {
+      "path": "plugins/SimonKStack/skills/db-selector/SKILL.md",
+      "sha256": "d8d11d9f047c677e99a6089f4f8999e666cdfabbe872323dba92b3c8304aed29",
+      "size": 4845
+    },
+    {
+      "path": "plugins/SimonKStack/skills/db-selector/evals/cases.json",
+      "sha256": "3b289cd0add45fc01dc2aeafba86fd51ec0b243dd58931d2924d9120d44a3ec6",
+      "size": 2582
+    },
+    {
+      "path": "plugins/SimonKStack/skills/debug/SKILL.md",
+      "sha256": "6a10b376e535743c0dcfa369ff818fc408518caf6be6591d7ec9fe2711d6c452",
+      "size": 2924
+    },
+    {
+      "path": "plugins/SimonKStack/skills/debug/evals/cases.json",
+      "sha256": "12d4a0a8fd98a98b90d81988bd270e5ff20f077dddea0d953aa3f0fbc12aeaa8",
+      "size": 1348
+    },
+    {
+      "path": "plugins/SimonKStack/skills/deeplink-integrator/SKILL.md",
+      "sha256": "bc76c26f5f5441cb053ca22fbf647a57be6cb447d48f55d856e8d74e0ec1d544",
+      "size": 8753
+    },
+    {
+      "path": "plugins/SimonKStack/skills/deeplink-integrator/evals/cases.json",
+      "sha256": "b49111d9ba6d1b311e8637d56a13a78ce51e3040b6421768e5d164ce9634efd7",
+      "size": 837
+    },
+    {
+      "path": "plugins/SimonKStack/skills/deeplink-integrator/scripts/verify-aasa.sh",
+      "sha256": "c14a9d1939ab12e6b74dc12f669510efe51b0e9bab8d56a796e381b26dfaa3c1",
+      "size": 1750
+    },
+    {
+      "path": "plugins/SimonKStack/skills/deeplink-integrator/scripts/verify-assetlinks.sh",
+      "sha256": "a797e98455ef513d2eef3671eae429e217aa98e2e7aedf1d6a64dbf47b27c7e3",
+      "size": 2023
+    },
+    {
+      "path": "plugins/SimonKStack/skills/deeplink-integrator/templates/app.json.deeplink.jsonc",
+      "sha256": "6e740b0763a8e77962afec752e29e47166138c4486cb6ddd5ccc7c910f766da3",
+      "size": 1033
+    },
+    {
+      "path": "plugins/SimonKStack/skills/deeplink-integrator/templates/apple-app-site-association.json",
+      "sha256": "89be535ee86849926e4e00335a69fbba23925da49d1da35c50990d3fb4d5e25c",
+      "size": 642
+    },
+    {
+      "path": "plugins/SimonKStack/skills/deeplink-integrator/templates/assetlinks.json",
+      "sha256": "7a591bcd6e3b5daa47ddb97c931a02ad4d090309869d77216301a01435f7e43b",
+      "size": 327
+    },
+    {
+      "path": "plugins/SimonKStack/skills/deeplink-integrator/templates/deferred-deeplink.ts",
+      "sha256": "e2514a8f009f8772fa33cd6cf9f56300659e22edda0dd050344886e75ca84390",
+      "size": 2651
+    },
+    {
+      "path": "plugins/SimonKStack/skills/deeplink-integrator/templates/linking.config.ts",
+      "sha256": "c711b8a52c1f8271b52c5c3ec3697bf72a157dbb16f3c3704851d425e52eae52",
+      "size": 1781
+    },
+    {
+      "path": "plugins/SimonKStack/skills/deploy-configurator/SKILL.md",
+      "sha256": "1e90bc08aafd68342cecb1b69ede59e1b9682dcb1f30363b650f7dc82178228e",
+      "size": 3878
+    },
+    {
+      "path": "plugins/SimonKStack/skills/deploy-configurator/evals/cases.json",
+      "sha256": "8f625815ef506613be9d9e1e8298717ac2ec4f3e23507b617299c8d2dacecb5f",
+      "size": 1409
+    },
+    {
+      "path": "plugins/SimonKStack/skills/dev-orchestrator/SKILL.md",
+      "sha256": "c0a2cc2b639f4c50fe4e7e3f67fd7826f0bed11471cb175b95ff78f573a1fbf3",
+      "size": 6995
+    },
+    {
+      "path": "plugins/SimonKStack/skills/dev-orchestrator/evals/cases.json",
+      "sha256": "778e26421f586d90836f53d0b2cd9066447860b7b787cd6e8b8257be45f012af",
+      "size": 1909
+    },
+    {
+      "path": "plugins/SimonKStack/skills/devex-review/SKILL.md",
+      "sha256": "e4951434eefb50fc72d9e5ddd93797129ef1157f24466ed570a5992796515c64",
+      "size": 23761
+    },
+    {
+      "path": "plugins/SimonKStack/skills/devex-review/evals/cases.json",
+      "sha256": "5d4e5668654751b85f8f8ff91320e47b3de651989ff321830d90b11db3228b8c",
+      "size": 1011
+    },
+    {
+      "path": "plugins/SimonKStack/skills/devex-review/references/detail.md",
+      "sha256": "21382e3e091c54ff13f9231778886ddb03876a050dcd007cf7288aaa8eec2fdb",
+      "size": 33065
+    },
+    {
+      "path": "plugins/SimonKStack/skills/document-release/SKILL.md",
+      "sha256": "f1e0c8a9f216d95090d595a0d2fa3af42dca0d81fa7071e0969b06360d95f283",
+      "size": 22417
+    },
+    {
+      "path": "plugins/SimonKStack/skills/document-release/evals/cases.json",
+      "sha256": "7484249d6b5796d7095d1291259f6c784b268d9b4cc7fd37d08c2068383a6c77",
+      "size": 949
+    },
+    {
+      "path": "plugins/SimonKStack/skills/document-release/references/detail.md",
+      "sha256": "1cb630339ce78ce61dc0d83cd0533d7ca72791dfb78342b0cc5f43e4779bbb52",
+      "size": 22714
+    },
+    {
+      "path": "plugins/SimonKStack/skills/explain/SKILL.md",
+      "sha256": "dea3ab6ab3b703a0af2e7444b6276613d29aed50bbb0f5d115ff5362208051d5",
+      "size": 3179
+    },
+    {
+      "path": "plugins/SimonKStack/skills/explain/evals/cases.json",
+      "sha256": "7d76318266df3ed421594b48d21cf3b04583a1868606befc542f5c4bd0927366",
+      "size": 978
+    },
+    {
+      "path": "plugins/SimonKStack/skills/health/SKILL.md",
+      "sha256": "0c6afffdeb811dbc992cb60ed22e2a6a9d1388f15b37b5d2ce10b3e263781a23",
+      "size": 22357
+    },
+    {
+      "path": "plugins/SimonKStack/skills/health/evals/cases.json",
+      "sha256": "140323dc8fff7622ac3dde77cebbb4285108d1bdab3290a5b7fc28083edb5094",
+      "size": 931
+    },
+    {
+      "path": "plugins/SimonKStack/skills/health/references/detail.md",
+      "sha256": "1c35eee295f193a34b86888d1a766ca34ce0f41f25b43851d20e898eacd5c5b1",
+      "size": 16928
+    },
+    {
+      "path": "plugins/SimonKStack/skills/i18n-localizer/SKILL.md",
+      "sha256": "8267ad6379a00b201b6aa1be22f2d1ecc863e4ab5793b38b05e86fb177ec4982",
+      "size": 15755
+    },
+    {
+      "path": "plugins/SimonKStack/skills/i18n-localizer/evals/cases.json",
+      "sha256": "c5743b8e665ff93a520b165bbe6cee29d5f2d478f5c87aeb74b969174208995a",
+      "size": 1142
+    },
+    {
+      "path": "plugins/SimonKStack/skills/iap-product-configurator/SKILL.md",
+      "sha256": "f38acd14be6f0dd4de041a1945a00eb6be4edeff73eb2c5ea673dc1b85463e95",
+      "size": 8786
+    },
+    {
+      "path": "plugins/SimonKStack/skills/iap-product-configurator/evals/cases.json",
+      "sha256": "4ad5ea96b1f54a86fdf9bb30d01b2311aa0e3f1908bd5a94fb4b3dac93b49645",
+      "size": 1013
+    },
+    {
+      "path": "plugins/SimonKStack/skills/iap-product-configurator/scripts/iap-build.mjs",
+      "sha256": "c0277638a3378f22afae7fc01e5b0648d630436ce2971d348ca275c9d26f1e12",
+      "size": 10686
+    },
+    {
+      "path": "plugins/SimonKStack/skills/iap-product-configurator/scripts/iap-configure.sh",
+      "sha256": "56ed5ddf00e754a1ba32300037bc43f5a7c3614c4e2430aa5c1973772cd56ed7",
+      "size": 1447
+    },
+    {
+      "path": "plugins/SimonKStack/skills/iap-product-configurator/templates/products.example.json",
+      "sha256": "a88f04ab23245fc12c3291d5ea63f666fd6d01cda968046425900dcaf65e17af",
+      "size": 892
+    },
+    {
+      "path": "plugins/SimonKStack/skills/iap-product-configurator/templates/products.schema.json",
+      "sha256": "8dea64380704c77825f6b82da3758cc12954a01616c27fec5ef2ab6bf8c5ddb6",
+      "size": 3131
+    },
+    {
+      "path": "plugins/SimonKStack/skills/iap-product-configurator/templates/sandbox-checklist.md",
+      "sha256": "f17eed760e67409f448ee520f806df1a835a076b30a2af158c96afe27d287353",
+      "size": 2556
+    },
+    {
+      "path": "plugins/SimonKStack/skills/incident-runbook/SKILL.md",
+      "sha256": "40dabd06ad9f0795921fb67ea15a6a25b8afc3737933322919f530be7fa7ff69",
+      "size": 8767
+    },
+    {
+      "path": "plugins/SimonKStack/skills/incident-runbook/evals/cases.json",
+      "sha256": "d89d14e25f55b29ee0928abe9a7e5c2362642719818d15c3d73ec4c3d278aab7",
+      "size": 874
+    },
+    {
+      "path": "plugins/SimonKStack/skills/incident-runbook/scripts/incident-log.sh",
+      "sha256": "3abe1ec3c2877703a44c1cd6d629243d1d9ba3bdad14a56780503dafb247c451",
+      "size": 4678
+    },
+    {
+      "path": "plugins/SimonKStack/skills/incident-runbook/templates/comms-internal.md",
+      "sha256": "c82a0145c2a7d9e3de52df3c493bffd659f8be2852be3c388c4632451ef74e00",
+      "size": 1141
+    },
+    {
+      "path": "plugins/SimonKStack/skills/incident-runbook/templates/postmortem.md",
+      "sha256": "904663633ff3bebcf1e0fad632b9d18ec1a2cc2b804f1e3fcf045f27c81cb27c",
+      "size": 2008
+    },
+    {
+      "path": "plugins/SimonKStack/skills/incident-runbook/templates/status-update.md",
+      "sha256": "ccd5e942c6ff9c7ab0be6a91dd7017a8602202c4c1f4f4a5885be05f2698ee21",
+      "size": 1379
+    },
+    {
+      "path": "plugins/SimonKStack/skills/karpathy-guidelines/SKILL.md",
+      "sha256": "132301bdc79ce82416591db4393b4fa3ce78f7f976515254367de93e1025705e",
+      "size": 5769
+    },
+    {
+      "path": "plugins/SimonKStack/skills/karpathy-guidelines/evals/cases.json",
+      "sha256": "8e80ef2b8ad750534afa792ee335c74c74a2f33d37c45d237d1c60d4c12357d2",
+      "size": 2532
+    },
+    {
+      "path": "plugins/SimonKStack/skills/land-and-deploy/SKILL.md",
+      "sha256": "65f2b7f353441afe73c5dbc4d3a160f17d9aa6b01f27f030c092b2caa75a775d",
+      "size": 23330
+    },
+    {
+      "path": "plugins/SimonKStack/skills/land-and-deploy/evals/cases.json",
+      "sha256": "84d813200749c20a452f44c7d47321725c4fefdacf3da943c482fcb8addd57ff",
+      "size": 1402
+    },
+    {
+      "path": "plugins/SimonKStack/skills/land-and-deploy/references/detail.md",
+      "sha256": "fd8f03523fd443742473d81d99a5522a87d3c66c739d1c798ad25ca348756dd0",
+      "size": 57252
+    },
+    {
+      "path": "plugins/SimonKStack/skills/minor-consent-compliance/SKILL.md",
+      "sha256": "97aebf4fc30bc342ffb1a7a54240842984010bdf9aa44dc088727538c8324042",
+      "size": 10155
+    },
+    {
+      "path": "plugins/SimonKStack/skills/minor-consent-compliance/evals/cases.json",
+      "sha256": "db6d31f846afa67a388af91872c8c80c0cd0f87db55130b82be971dbf34e7c3a",
+      "size": 2262
+    },
+    {
+      "path": "plugins/SimonKStack/skills/minor-consent-compliance/scripts/export-consent-audit.mjs",
+      "sha256": "0ea8b0b9ac4fd1ee6748783766d546344fbd5863f7f2ba567e51b438c4747ceb",
+      "size": 9413
+    },
+    {
+      "path": "plugins/SimonKStack/skills/minor-consent-compliance/templates/age-tier-policy.json",
+      "sha256": "9a25477f3053762df4aa95c783e3a7939fb0b462275239c37916da658b1ac4ea",
+      "size": 2569
+    },
+    {
+      "path": "plugins/SimonKStack/skills/minor-consent-compliance/templates/guardian-consent-flow.ts",
+      "sha256": "82bfa438b194223b841a45aa223393fd58b5ffe138bfff69c58b0289eb0489c6",
+      "size": 8740
+    },
+    {
+      "path": "plugins/SimonKStack/skills/minor-consent-compliance/templates/minor-consent-ledger.sql",
+      "sha256": "2ce84a2dfd7dc952db7d44ce56d2791235f1a2d81f02ba28195490e00819f2ce",
+      "size": 5136
+    },
+    {
+      "path": "plugins/SimonKStack/skills/nextjs-optimizer/SKILL.md",
+      "sha256": "3cd6bf56d759a50712c134b03344d9c675e0346f54b6332c2ca4fefe220cdb78",
+      "size": 6267
+    },
+    {
+      "path": "plugins/SimonKStack/skills/nextjs-optimizer/evals/cases.json",
+      "sha256": "1f8c3996de89c8e7a9bdd8421e3c12d725592ddb1b79de403bc91d1ce2670a54",
+      "size": 730
+    },
+    {
+      "path": "plugins/SimonKStack/skills/nextjs-optimizer/scripts/audit-img-tags.sh",
+      "sha256": "f691b255fa3a92ba7a42c527aa02d7e59f6cb6cfa223690b534f313762abb584",
+      "size": 2624
+    },
+    {
+      "path": "plugins/SimonKStack/skills/offline-first/SKILL.md",
+      "sha256": "efe26dc280a3f2f6ec2768b778982d5dce4db21317d22e7ebc98a5039a862acc",
+      "size": 15433
+    },
+    {
+      "path": "plugins/SimonKStack/skills/offline-first/evals/cases.json",
+      "sha256": "48cf933dd56350575956afc3d16741da3cc12c265fb9471b186dcbe9187ff7a4",
+      "size": 1764
+    },
+    {
+      "path": "plugins/SimonKStack/skills/paid-api-guard/SKILL.md",
+      "sha256": "c74c26c9146af6d31b3b34b1766e31dd33fe3a1b614aa480f49840b5929f366d",
+      "size": 7848
+    },
+    {
+      "path": "plugins/SimonKStack/skills/paid-api-guard/evals/cases.json",
+      "sha256": "00aac30386bd644ba9d6cd910167364033f3cd54c5299de6ffa1c8fc32dd71a0",
+      "size": 3805
+    },
+    {
+      "path": "plugins/SimonKStack/skills/phase4-game-orchestrator/SKILL.md",
+      "sha256": "3c92aaa1fdc775ee4075b7b7806db2680ca113e3db2636b619fff651f8ba2083",
+      "size": 5207
+    },
+    {
+      "path": "plugins/SimonKStack/skills/phase4-game-orchestrator/evals/cases.json",
+      "sha256": "a90ae7d0c3ae8f09f15f44bdfea2dd49292b59952fff0b9b979448ed4750d326",
+      "size": 2418
+    },
+    {
+      "path": "plugins/SimonKStack/skills/plan-devex-review/SKILL.md",
+      "sha256": "b617779eb0565793477a1d8de3889fece2ab90f8d816b6e5f0a2e3613e6efa4f",
+      "size": 23804
+    },
+    {
+      "path": "plugins/SimonKStack/skills/plan-devex-review/evals/cases.json",
+      "sha256": "50e279342ed6192606f678ac04a050077fa6a2998a68618a006f3165c438f9f9",
+      "size": 1382
+    },
+    {
+      "path": "plugins/SimonKStack/skills/plan-devex-review/references/detail.md",
+      "sha256": "22b95f5dba1dbec43afab0a3b72696be4760f8d00fbcae849b4ef416156764af",
+      "size": 70118
+    },
+    {
+      "path": "plugins/SimonKStack/skills/plan-eng-review/SKILL.md",
+      "sha256": "5d2d069252857d188e96f75ce1ad794a5d41cce9f0ff1689325f376afe23bff7",
+      "size": 23680
+    },
+    {
+      "path": "plugins/SimonKStack/skills/plan-eng-review/evals/cases.json",
+      "sha256": "c2335405994cd0e36b6d767e8fefd882340fce14853c1d8086e42d1ece853c2b",
+      "size": 1460
+    },
+    {
+      "path": "plugins/SimonKStack/skills/plan-eng-review/references/detail.md",
+      "sha256": "bf6cbc2d1ff49a4bbc863af9e46b6d64c9ee5798c45e770f0e84c4018a379eb7",
+      "size": 61247
+    },
+    {
+      "path": "plugins/SimonKStack/skills/qa-only/SKILL.md",
+      "sha256": "7450c93b74fc8a778010cc4174f76c7cbc1260953e1ace567654b623133f31f8",
+      "size": 23494
+    },
+    {
+      "path": "plugins/SimonKStack/skills/qa-only/evals/cases.json",
+      "sha256": "8cf402e4c87a82b7f31b4f461dccdb81b7da38062efce7fa50f561f17ea6df32",
+      "size": 1081
+    },
+    {
+      "path": "plugins/SimonKStack/skills/qa-only/references/detail.md",
+      "sha256": "f9548bf78cdd84bf77482d0f0826f2e82b0f61a3fbfc51d5ba6450e2f7f2b951",
+      "size": 25789
+    },
+    {
+      "path": "plugins/SimonKStack/skills/qa/SKILL.md",
+      "sha256": "4b8763ad5480d8e86c60961cef38f4fe904ae531880e2b3ac581a9304fbdc99a",
+      "size": 24179
+    },
+    {
+      "path": "plugins/SimonKStack/skills/qa/evals/cases.json",
+      "sha256": "9ea48a2e71941ab46fd811ff56df2437ef030534b90162ff83f2ce1efaff8e0c",
+      "size": 1316
+    },
+    {
+      "path": "plugins/SimonKStack/skills/qa/references/detail.md",
+      "sha256": "073128521132e7b89850a265eee3658f3c5dc1b038238450457f9b1441aae433",
+      "size": 53534
+    },
+    {
+      "path": "plugins/SimonKStack/skills/qa/scripts/qa_gate.py",
+      "sha256": "cb97e0680d9ad11b316da734697e670e82bc3ec86e102f91b8bd398238d946eb",
+      "size": 15085
+    },
+    {
+      "path": "plugins/SimonKStack/skills/qa/scripts/test_qa_gate.py",
+      "sha256": "595058ad80b84ffcd125e278dc1a47fb7bf3e6d446f3d81e269a0bd1fbaedca4",
+      "size": 17299
+    },
+    {
+      "path": "plugins/SimonKStack/skills/refactor/SKILL.md",
+      "sha256": "9b247df239adaf9ab187275aaff0b7d3b3d4ad5169e80611a8abb88ec62ee26b",
+      "size": 3055
+    },
+    {
+      "path": "plugins/SimonKStack/skills/refactor/evals/cases.json",
+      "sha256": "2e5783e85d6c68824b204b0c08ef522e6d42c6fbca560fd61e4e9d0ce2ced133",
+      "size": 1207
+    },
+    {
+      "path": "plugins/SimonKStack/skills/release-health-guard/SKILL.md",
+      "sha256": "e8cf3712450c6e4069040e36e5d900ec6f24cb305f885f807a8cd5945ec6224b",
+      "size": 9314
+    },
+    {
+      "path": "plugins/SimonKStack/skills/release-health-guard/evals/cases.json",
+      "sha256": "186c300d12293ca83199072ef43fef950ad6a967f87f5df50049a1c228ff29b6",
+      "size": 873
+    },
+    {
+      "path": "plugins/SimonKStack/skills/release-health-guard/scripts/eval-release-health.sh",
+      "sha256": "b2e7ef5077ca1bd6c191f2f76c33842353be74d8a6c3372a754c61945b5cf2a4",
+      "size": 7592
+    },
+    {
+      "path": "plugins/SimonKStack/skills/release-health-guard/templates/release-health.template.md",
+      "sha256": "c4b01ee85feaaa93d9d209e21a8b1907f0747e1efbe99f013c6b25605f727c1b",
+      "size": 1645
+    },
+    {
+      "path": "plugins/SimonKStack/skills/release-notes/SKILL.md",
+      "sha256": "3e7bcbbfc271aaaf03cf1d32944858e4a69e836f93d41e00d29bb62b1e4342fd",
+      "size": 5802
+    },
+    {
+      "path": "plugins/SimonKStack/skills/release-notes/evals/cases.json",
+      "sha256": "77d7acb8c00b56b157c433de88d9e264d094bab7aded413ae634da075a3e04e1",
+      "size": 1215
+    },
+    {
+      "path": "plugins/SimonKStack/skills/retro/SKILL.md",
+      "sha256": "95ed2b43e65d7fe8d1b37a296ac4b335052d663e19382bda8e99a66149a5b169",
+      "size": 22340
+    },
+    {
+      "path": "plugins/SimonKStack/skills/retro/evals/cases.json",
+      "sha256": "f571c33bab5d37080b6e51edd4b71ab7f571d36b03bfcd456c2a2bb06c7c1e0c",
+      "size": 1046
+    },
+    {
+      "path": "plugins/SimonKStack/skills/retro/references/detail.md",
+      "sha256": "0186d15508dcf1880796784fec099cc186b7e49764b418ca48e9ae4a03212941",
+      "size": 48441
+    },
+    {
+      "path": "plugins/SimonKStack/skills/security-checklist/SKILL.md",
+      "sha256": "5b07e51aea4da855b2c1d22d1a0e335147a1b864d11b2f8f2a74e757bf651419",
+      "size": 12324
+    },
+    {
+      "path": "plugins/SimonKStack/skills/security-checklist/evals/cases.json",
+      "sha256": "2b3b93e7b2f3a8a8c75f8e4d2a9147baf881525d72625ea6f03d2dd50f0002c3",
+      "size": 2934
+    },
+    {
+      "path": "plugins/SimonKStack/skills/security-checklist/scripts/rls-adversarial-tests.sql",
+      "sha256": "0234f7acb25352655ee02374e6b17a8961801d563965edfa8f3365a382d1cabb",
+      "size": 3958
+    },
+    {
+      "path": "plugins/SimonKStack/skills/security-orchestrator/SKILL.md",
+      "sha256": "d7317fffdf90ab62bcc350c2246860a38c0c4dd87c18ffc3017bb66d304c4de4",
+      "size": 4860
+    },
+    {
+      "path": "plugins/SimonKStack/skills/security-orchestrator/evals/cases.json",
+      "sha256": "6b89a659250809ef101f91e315dac4312c2320ff1e4d5098b888a6cbe10150dd",
+      "size": 915
+    },
+    {
+      "path": "plugins/SimonKStack/skills/setup-deploy/SKILL.md",
+      "sha256": "3d0abd8070a1bd20a66516eb20c96cc028b83434e7cfbedc9a67e75c21958ab0",
+      "size": 22400
+    },
+    {
+      "path": "plugins/SimonKStack/skills/setup-deploy/evals/cases.json",
+      "sha256": "994f9c8233ad332833e538257d3130778163483f92086263ae400ac305db8517",
+      "size": 2686
+    },
+    {
+      "path": "plugins/SimonKStack/skills/setup-deploy/references/detail.md",
+      "sha256": "ac829afcc65f0c41be0973508e680b97a1ecc77e73635fdd19dd68b8d6d2fab1",
+      "size": 14837
+    },
+    {
+      "path": "plugins/SimonKStack/skills/ship/SKILL.md",
+      "sha256": "f8e925f670841f58ed8e9b5f76860b5b4758cf64222d8bdfa25b9d8eced86753",
+      "size": 23715
+    },
+    {
+      "path": "plugins/SimonKStack/skills/ship/evals/cases.json",
+      "sha256": "3f75f0e5ee9c95072839380a05fc629eb493ac78cd3207b9e65c944297a548dd",
+      "size": 3543
+    },
+    {
+      "path": "plugins/SimonKStack/skills/ship/references/detail.md",
+      "sha256": "8772ec3368088cd98b75edd9fad138585750a830854fbcbec8a308f31fc2d4ba",
+      "size": 111305
+    },
+    {
+      "path": "plugins/SimonKStack/skills/simon-tdd/SKILL.md",
+      "sha256": "85556fb5fecf65f5cbddbc80e6dc782e5d533c1713fdb78b3200f8e4a86ffa22",
+      "size": 6875
+    },
+    {
+      "path": "plugins/SimonKStack/skills/simon-tdd/evals/cases.json",
+      "sha256": "8e04b5e1655d43cb25efc47053ef14b21fec138b781959e0133127303b46c253",
+      "size": 1367
+    },
+    {
+      "path": "plugins/SimonKStack/skills/simon-tdd/scripts/tdd-guard-check.sh",
+      "sha256": "ddae699be76136908f7392b33d29aa09a278b944109e31206c087dbca9f22eec",
+      "size": 2681
+    },
+    {
+      "path": "plugins/SimonKStack/skills/simple-static-site/SKILL.md",
+      "sha256": "0cb677f8eacd92d89fa73888a15a0c816d2b6656da42c266690c47d0bb856b47",
+      "size": 8133
+    },
+    {
+      "path": "plugins/SimonKStack/skills/simple-static-site/evals/cases.json",
+      "sha256": "20127c2ff171053d84b2a764efca3eb2f67bb466839a6c104ffb8112a180c6d4",
+      "size": 2693
+    },
+    {
+      "path": "plugins/SimonKStack/skills/simple-static-site/scripts/check.mjs",
+      "sha256": "0754c2dea561fc5a3134eddc06621f93026a742ce2863ee51fa1175a3c272aea",
+      "size": 4377
+    },
+    {
+      "path": "plugins/SimonKStack/skills/simple-static-site/scripts/generate.mjs",
+      "sha256": "5e5c50760191cf7ec42e2c8ee719981df5b40e357c9aae30cc5d3abc390c72f7",
+      "size": 10942
+    },
+    {
+      "path": "plugins/SimonKStack/skills/simple-static-site/scripts/preview.mjs",
+      "sha256": "e3f7695f830f8b2680f784ee549343c26159e1361677a5bfb4d2d8139dba9685",
+      "size": 1955
+    },
+    {
+      "path": "plugins/SimonKStack/skills/simple-static-site/templates/content.example.json",
+      "sha256": "b5a6eb3c63954054d165cb7b6b6d243cc1e07f1358aa0a5be0464fb755b80ed4",
+      "size": 591
+    },
+    {
+      "path": "plugins/SimonKStack/skills/skstack/SKILL.md",
+      "sha256": "179d98ff485515f70d017360d0a891434964be29ae7c0c9d3f8edbc5a747bc41",
+      "size": 7555
+    },
+    {
+      "path": "plugins/SimonKStack/skills/skstack/evals/cases.json",
+      "sha256": "53d0fbe163c4bc695be1de6e2fc871c11e895e6a5bbf6ce8e5f74f58b0b1b9a0",
+      "size": 835
+    },
+    {
+      "path": "plugins/SimonKStack/skills/spec/SKILL.md",
+      "sha256": "c7ee173ff7c991c4bbf6ee9314062d8e1efe15b706fa40332fdf4f74b0a6f1c6",
+      "size": 7510
+    },
+    {
+      "path": "plugins/SimonKStack/skills/spec/evals/cases.json",
+      "sha256": "a9b35f0d6ffbf16619341fd5a0f16897c1c88fad9de9f44dd2fddbd137b45913",
+      "size": 805
+    },
+    {
+      "path": "plugins/SimonKStack/skills/spec/scripts/check-spec.sh",
+      "sha256": "e97f0d72300a04e5fcf8ae13f6af0f06d1c26c78dbd221da6016ebb9afb67c50",
+      "size": 5909
+    },
+    {
+      "path": "plugins/SimonKStack/skills/spec/templates/spec-template.md",
+      "sha256": "da13a75ba943f7f0a78896af95ced5d249119c0f0f1368b1f0de13135f80ec90",
+      "size": 2533
+    },
+    {
+      "path": "plugins/SimonKStack/skills/stack-architect/SKILL.md",
+      "sha256": "e39f3d0df26822bf431777aafadd05b539f6d0f614b5af4a5fc105748a4cabc0",
+      "size": 4817
+    },
+    {
+      "path": "plugins/SimonKStack/skills/stack-architect/evals/cases.json",
+      "sha256": "b3e3383d525bdc5177b812c636fb9f956a060f5197a5e495a724008d8b067361",
+      "size": 2555
+    },
+    {
+      "path": "plugins/SimonKStack/skills/store-privacy-disclosure/SKILL.md",
+      "sha256": "caeb348a9945872a016e39b188c5c34eed66630b5e867b44c605982374939683",
+      "size": 9198
+    },
+    {
+      "path": "plugins/SimonKStack/skills/store-privacy-disclosure/evals/cases.json",
+      "sha256": "7686d6b062edd3b88260c562ae4f9163b8cd16b094697c145cee8e3de32feadf",
+      "size": 905
+    },
+    {
+      "path": "plugins/SimonKStack/skills/store-privacy-disclosure/scripts/fill-disclosure.mjs",
+      "sha256": "e3bd641a69d7e43a6c773d2ba8cbfa11724b5de76a43bc90c1c0d1bc1cca2f68",
+      "size": 15117
+    },
+    {
+      "path": "plugins/SimonKStack/skills/store-privacy-disclosure/templates/apple-google-mapping.md",
+      "sha256": "dd985ecbb1a049e9cb306bacd2a79a65ed78371ba0eb35e2f974a5f5a2f67f0d",
+      "size": 3551
+    },
+    {
+      "path": "plugins/SimonKStack/skills/store-privacy-disclosure/templates/att-copy.md",
+      "sha256": "1b12f451d1ca06217b0cfbf15cd3e3893a4400a28352cd2028a32bafc0b3193d",
+      "size": 2979
+    },
+    {
+      "path": "plugins/SimonKStack/skills/store-privacy-disclosure/templates/disclosure.template.md",
+      "sha256": "168456df4f62051d7763a16fcf6dc289885ecfee73b4fd41a9021418f8c7bbb5",
+      "size": 3091
+    },
+    {
+      "path": "plugins/SimonKStack/skills/test-gen/SKILL.md",
+      "sha256": "d20f593feb1970d562ccb89abf9334d182af5fb41dfbba1d1abb3c6572077928",
+      "size": 5512
+    },
+    {
+      "path": "plugins/SimonKStack/skills/test-gen/evals/cases.json",
+      "sha256": "9e09fe19efe10b1df93f28952624c6354bdeea414e0f4645d9a5f7ac7d5f63ae",
+      "size": 2089
+    },
+    {
+      "path": "plugins/SimonKStack/skills/test-gen/references/scenario-matrix.md",
+      "sha256": "aabf7af7eda91b94f140035b6ee9bc5deb2a497e2377d949fcc446e2cf40298b",
+      "size": 7180
+    },
+    {
+      "path": "plugins/SimonKStack/skills/vercel-react/SKILL.md",
+      "sha256": "75be26ac982e8d1f5ea027c253fcf6cf2cda7bf7b6dc1bb9f0f2cb7297be139c",
+      "size": 17914
+    },
+    {
+      "path": "plugins/SimonKStack/skills/vercel-react/evals/cases.json",
+      "sha256": "45a880fc9d20779a8c90f81715ef36e3937784c85a8112401b87af09cb228a83",
+      "size": 4534
+    },
+    {
+      "path": "plugins/SimonKStack/skills/vue-best-practices/SKILL.md",
+      "sha256": "9124c337698b9dd3cb231f912b9d81303d5ac60cd7c9226f2da72f0f08a8d2d6",
+      "size": 7961
+    },
+    {
+      "path": "plugins/SimonKStack/skills/vue-best-practices/evals/cases.json",
+      "sha256": "f65ead67d3fee95e31bc24d98b7bebb563177504d780c998d3c1415904ca559e",
+      "size": 3759
+    },
+    {
+      "path": "plugins/SimonKStack/skills/zoom-out/SKILL.md",
+      "sha256": "96ce94593f8332f948e7e55dfaa0fb68ef334cd230ad1ee08893a9657264605d",
+      "size": 2932
+    },
+    {
+      "path": "plugins/SimonKStack/skills/zoom-out/agents/openai.yaml",
+      "sha256": "c9a7914d2bc740b00768b3dbe18b433fa04a1f602b16b7ed4a10038a4a5f9c57",
+      "size": 143
+    },
+    {
+      "path": "plugins/SimonKStack/skills/zoom-out/evals/cases.json",
+      "sha256": "a6c34d2d3727f0d16dc1b11f740a1f67a25392084eeff18ec08c7dabfa58f3a5",
+      "size": 1220
+    }
+  ],
+  "installation_ready": false,
+  "limitations": [
+    "D-29: careful, guard, freeze and investigate are excluded because their Codex policy hooks are not verified.",
+    "The dependent Claude-only unfreeze skill and Core/Stack safety runtimes are also excluded; source files remain unchanged.",
+    "D-88: Claude manifests (.claude-plugin/) are excluded and the Core/Stack Codex manifests describe the Codex edition.",
+    "The subset contains general skills only; it is not a user installation or host behavior test.",
+    "The original overlay and all excluded source directories are preserved.",
+    "Host skill selection, dependency closure, costs, plugin rollback and safety parity remain unverified."
+  ],
+  "replaced_members": [
+    {
+      "original_base64": "ewogICJhdXRob3IiOiB7CiAgICAibmFtZSI6ICJTaW1vbiBLaW0iLAogICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vU2ltb24tWUhLaW0iCiAgfSwKICAiZGVzY3JpcHRpb24iOiAiU2ltb25LIO2UjOufrOq3uOyduCDqs7XsnKAg7J247ZSE6528ICjsnITsnoTCt+uqqOuNuOudvOyasO2MhcK366mU66qo66aswrfsp4Dsi53rj4TqtazCt+2OmOultOyGjOuCmOqygOymncK37JmE66OM67O06rOgKS4gY2FyZWZ1bCDslYjsoIQg7ZuF7J2AIFdpbmRvd3Mg7KCE7Jqp7J206528IOuLpOuluCBPU+yXkOyEnOuKlCBCYXNowrdQb3dlclNoZWxsIOuqheugueydhCDsnbzrtoDrn6wg66qo65GQIOunieuKlOuLpC4iLAogICJpbnRlcmZhY2UiOiB7CiAgICAiY2FwYWJpbGl0aWVzIjogW10sCiAgICAiY2F0ZWdvcnkiOiAiUHJvZHVjdGl2aXR5IiwKICAgICJkZWZhdWx0UHJvbXB0IjogIlVzZSBTaW1vbksgQ29yZSBza2lsbHMgZm9yIHRoaXMgdGFzay4iLAogICAgImRldmVsb3Blck5hbWUiOiAiU2ltb24gS2ltIiwKICAgICJkaXNwbGF5TmFtZSI6ICJTaW1vbksgQ29yZSIsCiAgICAibG9uZ0Rlc2NyaXB0aW9uIjogIlNpbW9uSyDtlIzrn6zqt7jsnbgg6rO17JygIOyduO2UhOudvCAo7JyE7J6EwrfrqqjrjbjrnbzsmrDtjIXCt+uplOuqqOumrMK37KeA7Iud64+E6rWswrftjpjrpbTshozrgpjqsoDspp3Ct+yZhOujjOuztOqzoCkuIGNhcmVmdWwg7JWI7KCEIO2bheydgCBXaW5kb3dzIOyghOyaqeydtOudvCDri6TrpbggT1Psl5DshJzripQgQmFzaMK3UG93ZXJTaGVsbCDrqoXroLnsnYQg7J2867aA65+sIOuqqOuRkCDrp4nripTri6QuIiwKICAgICJzaG9ydERlc2NyaXB0aW9uIjogIlNpbW9uSyDtlIzrn6zqt7jsnbgg6rO17JygIOyduO2UhOudvCAo7JyE7J6EwrfrqqjrjbjrnbzsmrDtjIXCt+uplOuqqOumrMK37KeA7Iud64+E6rWswrftjpjrpbTshozrgpjqsoDspp3Ct+yZhOujjOuztOqzoCkuIGNhcmVmdWwg7JWI7KCEIO2bheydgCBXaW5kb3dzIOyghOyaqeydtOudvCDri6TrpbggT1Psl5DshJzripQgQmFzaMK3UG93ZXJTaGVsbCDrqoXroLnsnYQg7J2867aA65+sIOuqqOuRkCDrp4nripTri6QuIgogIH0sCiAgImtleXdvcmRzIjogWwogICAgImNsYXVkZS1jb2RlIiwKICAgICJwbHVnaW4iLAogICAgInNoYXJlZCIsCiAgICAic2ltb25rIiwKICAgICJjb3JlIgogIF0sCiAgImxpY2Vuc2UiOiAiTUlUIiwKICAibmFtZSI6ICJzaW1vbmstY29yZSIsCiAgInJlcG9zaXRvcnkiOiAiaHR0cHM6Ly9naXRodWIuY29tL1NpbW9uLVlIS2ltL1NpbW9uS0NvcmUiLAogICJza2lsbHMiOiAiLi9za2lsbHMvIiwKICAidmVyc2lvbiI6ICIxLjc5My4wIgp9Cg==",
+      "original_sha256": "d9333858a697d4e98928b985e6a68a9bb8f97a228cf69b6be86c135faa2fadec",
+      "original_size": 1339,
+      "path": "plugins/SimonKCore/.codex-plugin/plugin.json",
+      "sha256": "aba61946cd566bd93f238a2eaa18d0cac414adce2244b6308bbbf4f6a48d023b",
+      "size": 1228
+    },
+    {
+      "original_base64": "ewogICJhdXRob3IiOiB7CiAgICAibmFtZSI6ICJTaW1vbiBLaW0iLAogICAgInVybCI6ICJodHRwczovL2dpdGh1Yi5jb20vU2ltb24tWUhLaW0iCiAgfSwKICAiZGVzY3JpcHRpb24iOiAi7KCc7ZKIL+yEnOu5hOyKpCDruYzrk5wg7Jik7LyA7Iqk7Yq466CI7J207IWYIO2UjOufrOq3uOyduC4g66CI6rGw7IucIHNpbW9uay1zdGFjayAwLjEuMOyXkOyEnCDsl4XrjbDsnbTtirjtlojri6TrqbQg64KY66i47KeAIOuEt+ydhCDrlLDroZwg7ISk7LmY7ZW07JW8IG1hcmtldMK3ZGVzaWdu7Jy866GcIOyYruq4tCDsiqTtgqwgMTDqsJzqsIAg64+M7JWE7Jio64ukOiBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLWNvcmVAc2ltb25rLXN0YWNrIMK3IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstbWFya2V0QHNpbW9uay1zdGFjayDCtyBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLWRlc2lnbkBzaW1vbmstc3RhY2sgwrcgY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1haWh1YkBzaW1vbmstc3RhY2suIGZyZWV6ZcK3Z3VhcmTCt2ludmVzdGlnYXRlIOyViOyghCDtm4XsnYAgV2luZG93cyDsoITsmqnsnbTrnbwg64uk66W4IE9T7JeQ7ISc64qUIEVkaXTCt1dyaXRlwrdCYXNo66W8IOydvOu2gOufrCDrqqjrkZAg66eJ64qU64ukLiIsCiAgImludGVyZmFjZSI6IHsKICAgICJjYXBhYmlsaXRpZXMiOiBbXSwKICAgICJjYXRlZ29yeSI6ICJQcm9kdWN0aXZpdHkiLAogICAgImRlZmF1bHRQcm9tcHQiOiAiVXNlIFNpbW9uSyBTdGFjayBza2lsbHMgZm9yIHRoaXMgdGFzay4iLAogICAgImRldmVsb3Blck5hbWUiOiAiU2ltb24gS2ltIiwKICAgICJkaXNwbGF5TmFtZSI6ICJTaW1vbksgU3RhY2siLAogICAgImxvbmdEZXNjcmlwdGlvbiI6ICLsoJztkogv7ISc67mE7IqkIOu5jOuTnCDsmKTsvIDsiqTtirjroIjsnbTshZgg7ZSM65+s6re47J24LiDroIjqsbDsi5wgc2ltb25rLXN0YWNrIDAuMS4w7JeQ7IScIOyXheuNsOydtO2KuO2WiOuLpOuptCDrgpjrqLjsp4Ag64S37J2EIOuUsOuhnCDshKTsuZjtlbTslbwgbWFya2V0wrdkZXNpZ27snLzroZwg7Jiu6ri0IOyKpO2CrCAxMOqwnOqwgCDrj4zslYTsmKjri6Q6IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstY29yZUBzaW1vbmstc3RhY2sgwrcgY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1tYXJrZXRAc2ltb25rLXN0YWNrIMK3IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstZGVzaWduQHNpbW9uay1zdGFjayDCtyBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLWFpaHViQHNpbW9uay1zdGFjay4gZnJlZXplwrdndWFyZMK3aW52ZXN0aWdhdGUg7JWI7KCEIO2bheydgCBXaW5kb3dzIOyghOyaqeydtOudvCDri6TrpbggT1Psl5DshJzripQgRWRpdMK3V3JpdGXCt0Jhc2jrpbwg7J2867aA65+sIOuqqOuRkCDrp4nripTri6QuIiwKICAgICJzaG9ydERlc2NyaXB0aW9uIjogIuygnO2SiC/shJzruYTsiqQg67mM65OcIOyYpOy8gOyKpO2KuOugiOydtOyFmCDtlIzrn6zqt7jsnbguIOugiOqxsOyLnCBzaW1vbmstc3RhY2sgMC4xLjDsl5DshJwg7JeF642w7J207Yq47ZaI64uk66m0IOuCmOuouOyngCDrhLfsnYQg65Sw66GcIOyEpOy5mO2VtOyVvCBtYXJrZXTCt2Rlc2lnbuycvOuhnCDsmK7quLQg7Iqk7YKsIDEw6rCc6rCAIOuPjOyVhOyYqOuLpDogY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1jb3JlQHNpbW9uay1zdGFjayDCtyBjbGF1ZGUgcGx1Z2luIGluc3RhbGwgc2ltb25rLW1hcmtldEBzaW1vbmstc3RhY2sgwrcgY2xhdWRlIHBsdWdpbiBpbnN0YWxsIHNpbW9uay1kZXNpZ25Ac2ltb25rLXN0YWNrIMK3IGNsYXVkZSBwbHVnaW4gaW5zdGFsbCBzaW1vbmstYWlodWJAc2ltb25rLXN0YWNrLiBmcmVlemXCt2d1YXJkwrdpbnZlc3RpZ2F0ZSDslYjsoIQg7ZuF7J2AIFdpbmRvd3Mg7KCE7Jqp7J206528IOuLpOuluCBPU+yXkOyEnOuKlCBFZGl0wrdXcml0ZcK3QmFzaOulvCDsnbzrtoDrn6wg66qo65GQIOunieuKlOuLpC4iCiAgfSwKICAia2V5d29yZHMiOiBbCiAgICAiY2xhdWRlLWNvZGUiLAogICAgInBsdWdpbiIsCiAgICAib3JjaGVzdHJhdGlvbiIsCiAgICAic2ltb25rIiwKICAgICJidWlsZCIKICBdLAogICJsaWNlbnNlIjogIk1JVCIsCiAgIm5hbWUiOiAic2ltb25rLXN0YWNrIiwKICAicmVwb3NpdG9yeSI6ICJodHRwczovL2dpdGh1Yi5jb20vU2ltb24tWUhLaW0vU2ltb25LLXN0YWNrIiwKICAic2tpbGxzIjogIi4vc2tpbGxzLyIsCiAgInZlcnNpb24iOiAiMS43OTMuMCIKfQo=",
+      "original_sha256": "7890b210bb697a3e38a2e37abb11fc62afc1494a31603357dae9f055fd090871",
+      "original_size": 2267,
+      "path": "plugins/SimonKStack/.codex-plugin/plugin.json",
+      "sha256": "8ef5e1ad512475bbe2d172fdb3a8f1223b18c7e09752265e70778075d0845e84",
+      "size": 1079
+    }
+  ],
+  "schema_version": 2,
+  "scope": "five-plugin-codex-general-skills-only-v2",
+  "source_overlay_digest": "53d8063a2bc83d532705730d61c16c5b348e80174556934ae69e469967663111"
+}

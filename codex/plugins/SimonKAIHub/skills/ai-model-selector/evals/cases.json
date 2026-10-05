@@ -1,0 +1,62 @@
+{
+  "skill": "ai-model-selector",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-claude-vs-gemini",
+      "prompt": "내 앱에 Claude vs Gemini 중에 뭐 쓰는 게 나아?",
+      "assertions": [
+        {
+          "id": "assesses-task-fit",
+          "text": "Assesses task fit (reasoning/coding/vision/voice) before recommending."
+        },
+        {
+          "id": "weighs-cost-latency",
+          "text": "Weighs cost, latency, context window, and modality."
+        },
+        {
+          "id": "recommends-with-ids",
+          "text": "Recommends primary/secondary/low-cost candidates using currently verified official API model IDs, or marks IDs unverified instead of inventing them."
+        }
+      ]
+    },
+    {
+      "id": "ko-zero-extra-spend",
+      "prompt": "Claude와 Codex 구독은 있지만 추가 과금은 $0이야. 내 앱에 쓸 모델을 골라줘. 유료 API 테스트는 하지 마.",
+      "assertions": [
+        {
+          "id": "separates-subscription-api",
+          "text": "Distinguishes interactive subscription usage from product API billing; does not assume a subscription covers product API calls."
+        },
+        {
+          "id": "no-paid-eval",
+          "text": "Produces a recommendation or evaluation plan without making paid API calls under the zero-incremental-spend constraint."
+        }
+      ]
+    },
+    {
+      "id": "en-ondevice-vs-api",
+      "prompt": "Should my mobile app run the model on-device or via API?",
+      "assertions": [
+        {
+          "id": "ondevice-tradeoff",
+          "text": "Explicitly covers the on-device vs API tradeoff (privacy/cost/latency)."
+        },
+        {
+          "id": "routing-fallback",
+          "text": "Proposes a routing / fallback / caching strategy."
+        }
+      ]
+    },
+    {
+      "id": "neg-vs-model-router",
+      "prompt": "이 스택 내부 작업을 어떤 모델로 라우팅할지 정해줘",
+      "assertions": [
+        {
+          "id": "disambiguates",
+          "text": "Distinguishes itself from model-router (internal stack routing); this skill is for the user's PRODUCT model choice."
+        }
+      ]
+    }
+  ]
+}

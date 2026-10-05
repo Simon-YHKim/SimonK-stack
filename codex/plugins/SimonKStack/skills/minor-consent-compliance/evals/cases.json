@@ -1,0 +1,62 @@
+{
+  "skill": "minor-consent-compliance",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "trigger-korean-guardian-consent",
+      "prompt": "만 14세 미만 가입 시 보호자 동의 받는 경로 만들어줘. PIPA 22조의2 맞춰서.",
+      "assertions": [
+        {
+          "id": "correct-route",
+          "text": "Routes this request to minor-consent-compliance rather than an unrelated skill."
+        },
+        {
+          "id": "behavior",
+          "text": "Designs a verifiable parental consent and guardian path with fail-closed behavior and current PIPA requirements checked."
+        }
+      ]
+    },
+    {
+      "id": "trigger-english-under14-coppa",
+      "prompt": "We need verifiable parental consent for under-14 users with a COPPA audit trail.",
+      "assertions": [
+        {
+          "id": "correct-route",
+          "text": "Routes this request to minor-consent-compliance rather than an unrelated skill."
+        },
+        {
+          "id": "behavior",
+          "text": "Provides a COPPA-aware guardian consent audit trail and append-only ledger without claiming automatic legal compliance."
+        }
+      ]
+    },
+    {
+      "id": "trigger-age-gate-consent-handoff",
+      "prompt": "연령 게이트에서 미성년 판별되면 보호자 동의 경로로 넘겨. 차단은 auth-builder가 하고.",
+      "assertions": [
+        {
+          "id": "correct-route",
+          "text": "Routes this request to minor-consent-compliance rather than an unrelated skill."
+        },
+        {
+          "id": "behavior",
+          "text": "Keeps age-gate blocking in auth-builder, hands consent state to consent-manager, and implements the guardian handoff."
+        }
+      ]
+    },
+    {
+      "id": "boundary-does-not-own-blocking",
+      "prompt": "미성년 동의 경로랑 감사 export 만들어줘. 차단 로직은 여기서 또 만들지 말고.",
+      "assertions": [
+        {
+          "id": "correct-route",
+          "text": "Routes this request to minor-consent-compliance rather than an unrelated skill."
+        },
+        {
+          "id": "behavior",
+          "text": "Does not duplicate blocking logic; produces guardian double opt-in evidence and an auditable export."
+        }
+      ]
+    }
+  ]
+}

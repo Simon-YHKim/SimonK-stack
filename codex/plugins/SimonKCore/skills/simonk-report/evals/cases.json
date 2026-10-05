@@ -1,0 +1,38 @@
+{
+  "skill": "simonk-report",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-html-report",
+      "prompt": "이번 작업 보고서 작성해줘. html 보고서로.",
+      "assertions": [
+        {
+          "id": "self-contained-html",
+          "text": "Produces a single self-contained HTML at .simonk/reports/YYYY-MM-DD-HHMM.html with inline CSS and no external deps"
+        },
+        {
+          "id": "report-sections",
+          "text": "Covers executive summary, decisions log, phase trace, diff summary, verification, and next-up backlog"
+        },
+        {
+          "id": "send-proactive",
+          "text": "Sends the file proactively via SendUserFile so the user receives it on mobile"
+        }
+      ]
+    },
+    {
+      "id": "en-session-report",
+      "prompt": "generate session report",
+      "assertions": [
+        {
+          "id": "fixed-schema",
+          "text": "Renders the simonk-session-specific fixed schema (phase-by-phase trace, diffs, verifications)"
+        },
+        {
+          "id": "accumulates",
+          "text": "Accumulates the report under .simonk/reports/ as a sprint log"
+        }
+      ]
+    }
+  ]
+}

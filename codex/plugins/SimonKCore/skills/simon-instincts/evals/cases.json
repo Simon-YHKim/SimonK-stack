@@ -1,0 +1,20 @@
+{
+  "skill": "simon-instincts",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "repeated-mistake",
+      "prompt": "너 이거 저번에도 그랬잖아. grep -c 쓰면 매치 0건일 때 0 출력하고 exit 1 된다고.",
+      "assertions": [
+        {
+          "id": "appends-to-mistakes",
+          "text": "The agent appends a new entry to ~/.claude/instincts/tool-quirks.md with date, symptom, cause, and prevention."
+        },
+        {
+          "id": "includes-all-fields",
+          "text": "The entry has all 4 fields populated (증상, 원인, 예방책, 출처)."
+        }
+      ]
+    }
+  ]
+}

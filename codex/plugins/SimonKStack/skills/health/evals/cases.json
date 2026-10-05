@@ -1,0 +1,23 @@
+{
+  "skill": "health",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "health-check-en",
+      "prompt": "Run a health check on the codebase and give me a quality score.",
+      "assertions": [
+        { "id": "wraps-tools", "text": "Wraps existing project tools: type checker, linter, test runner, dead code detector, and shell linter" },
+        { "id": "weighted-score", "text": "Computes a weighted composite 0-10 code quality score" },
+        { "id": "trend-tracking", "text": "Tracks the quality score trend over time" }
+      ]
+    },
+    {
+      "id": "how-healthy-ko",
+      "prompt": "코드베이스 얼마나 건강한지 검사해줘. 전체 체크 돌려봐.",
+      "assertions": [
+        { "id": "dashboard", "text": "Produces a code quality dashboard from all the wrapped checks" },
+        { "id": "composite-score", "text": "Returns a single weighted 0-10 score summarizing health" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "skill": "json-canvas",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "make-canvas-en",
+      "prompt": "Make a mind map as a .canvas file for my Obsidian vault.",
+      "assertions": [
+        { "id": "spec-compliant", "text": "Creates a valid .canvas file following the JSON Canvas Spec 1.0" },
+        { "id": "nodes-and-edges", "text": "Produces top-level nodes and edges arrays with nodes carrying id, type, x, y, width, height" },
+        { "id": "validates-references", "text": "Validates that every edge's fromNode and toNode reference existing node IDs" }
+      ]
+    },
+    {
+      "id": "flowchart-ko",
+      "prompt": "캔버스 만들어줘. .canvas 파일로 플로우차트 그려서 노드 연결해줘.",
+      "assertions": [
+        { "id": "unique-hex-ids", "text": "Generates unique 16-character hex IDs for nodes and edges" },
+        { "id": "connect-nodes", "text": "Connects nodes via edges with fromNode/toNode (and optional fromSide/toSide and label)" }
+      ]
+    }
+  ]
+}

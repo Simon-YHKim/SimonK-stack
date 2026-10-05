@@ -1,0 +1,35 @@
+{
+  "skill": "dev-orchestrator",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "korean-feature-add",
+      "prompt": "유저 프로필에 아바타 업로드 기능 추가해줘",
+      "assertions": [
+        { "id": "diagnoses-first", "text": "The agent reads related code and summarizes the change before writing any code." },
+        { "id": "checks-structure", "text": "The agent checks file placement and import direction before creating new files." },
+        { "id": "writes-test-first", "text": "The agent writes a failing test before implementation (RED step)." },
+        { "id": "runs-pre-merge", "text": "The agent runs pre-merge cleanup scan before committing." }
+      ]
+    },
+    {
+      "id": "english-bug-fix",
+      "prompt": "Fix the login timeout bug — users get kicked out after 5 minutes",
+      "assertions": [
+        { "id": "reproduces-first", "text": "The agent writes a reproduction test that fails (proving the bug exists)." },
+        { "id": "fixes-then-passes", "text": "The agent fixes the code and the reproduction test now passes." },
+        { "id": "checks-no-regression", "text": "The agent runs the full test suite to ensure no regressions." },
+        { "id": "conventional-commit", "text": "The agent commits with fix(auth): prefix." }
+      ]
+    },
+    {
+      "id": "complex-feature-scenarios",
+      "prompt": "결제 모듈에 환불 기능 추가해줘. 부분 환불도 가능해야 해.",
+      "assertions": [
+        { "id": "triggers-scenario-planning", "text": "The agent triggers Scenario Planning Mode (multi-state, external API) for the refund feature." },
+        { "id": "covers-7-categories", "text": "The agent produces scenarios across Happy/Sad/Bad/Boundary/State categories at minimum." },
+        { "id": "uses-code-health-guard", "text": "The agent runs code-health-guard reactive checks after implementation." }
+      ]
+    }
+  ]
+}

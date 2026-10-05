@@ -1,0 +1,38 @@
+{
+  "skill": "onboarding-flow-builder",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-onboarding",
+      "prompt": "온보딩 만들어줘. 첫 화면 플로우랑 빈 상태 카피, 권한 사전설득까지.",
+      "assertions": [
+        {
+          "id": "first-run-sequence",
+          "text": "Defines a first-run sequence and N-step setup checklist."
+        },
+        {
+          "id": "empty-state-priming",
+          "text": "Produces empty-state copy and notification/permission priming."
+        },
+        {
+          "id": "activation-events",
+          "text": "Plants activation events per step and drop-off measurement."
+        }
+      ]
+    },
+    {
+      "id": "en-build-onboarding",
+      "prompt": "Build the onboarding flow from the aha moment we found, on top of our RN/Expo UI.",
+      "assertions": [
+        {
+          "id": "from-aha",
+          "text": "Takes a found aha moment and builds it into an actual first-run flow."
+        },
+        {
+          "id": "ttfv-intent",
+          "text": "Layers activation/TTFV intent on top of native UI."
+        }
+      ]
+    }
+  ]
+}

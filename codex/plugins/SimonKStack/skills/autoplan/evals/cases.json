@@ -1,0 +1,24 @@
+{
+  "skill": "autoplan",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "en-auto-review",
+      "prompt": "autoplan — run all the reviews on this plan automatically and make the decisions for me.",
+      "assertions": [
+        { "id": "full-gauntlet", "text": "Reads the full CEO, design, eng, and DX review skills from disk and runs them sequentially." },
+        { "id": "auto-decisions", "text": "Auto-decides intermediate questions using the 6 decision principles instead of asking 15-30 questions." },
+        { "id": "review-report", "text": "Produces a consolidated GSTACK REVIEW REPORT of the review outcomes." }
+      ]
+    },
+    {
+      "id": "ko-plan-review",
+      "prompt": "이 플랜 자동으로 전체 리뷰 돌려줘. 중간 질문 없이 알아서 결정해.",
+      "assertions": [
+        { "id": "no-intermediate-q", "text": "Runs the review pipeline without stopping for 15-30 intermediate questions, preferring complete options per the Completeness Principle." },
+        { "id": "sequential-skills", "text": "Invokes the CEO/design/eng/DX review skills sequentially as an auto-review pipeline." },
+        { "id": "decision-principles", "text": "Applies the 6 decision principles to resolve each review decision." }
+      ]
+    }
+  ]
+}

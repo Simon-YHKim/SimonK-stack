@@ -1,0 +1,76 @@
+{
+  "skill": "vue-best-practices",
+  "version": "2.0.1",
+  "cases": [
+    {
+      "id": "ko-reactivity-pinia",
+      "prompt": "Vue 반응성 깨졌어. Pinia 상태관리도 정리하고 컴포넌트 최적화해줘.",
+      "assertions": [
+        { "id": "diagnose-first", "text": "Checks installed Vue/compiler version and reproduces the specific reactivity symptom before proposing a fix" },
+        { "id": "store-refs", "text": "Uses storeToRefs when destructuring Pinia state or getters, while preserving the existing store style" },
+        { "id": "measured-perf", "text": "Applies performance changes only to measured or reproducible bottlenecks" }
+      ]
+    },
+    {
+      "id": "en-vue-best-practices",
+      "prompt": "vue composition api best practices — clean up my components",
+      "assertions": [
+        { "id": "project-conventions", "text": "Scopes edits to project conventions; does not force setup stores, TypeScript, or new dependencies" },
+        { "id": "existing-verification", "text": "Runs only existing relevant tests, lint, typecheck, and build scripts and reports skipped checks honestly" }
+      ]
+    },
+    {
+      "id": "trigger-ko-vue",
+      "prompt": "Vue 최적화",
+      "assertions": [
+        { "id": "vue-routing", "text": "Recognizes Vue performance work and asks for or inspects project evidence before recommending optimizations" }
+      ]
+    },
+    {
+      "id": "trigger-slash",
+      "prompt": "/vue-best-practices",
+      "assertions": [
+        { "id": "skill-routing", "text": "Routes to this Vue skill and identifies the repository-specific task before changing code" }
+      ]
+    },
+    {
+      "id": "trigger-en-vue",
+      "prompt": "vue best practices",
+      "assertions": [
+        { "id": "vue-routing", "text": "Recognizes Vue component and state-management review rather than React or native-app guidance" }
+      ]
+    },
+    {
+      "id": "preserve-options-api",
+      "prompt": "기존 Vue Options API 컴포넌트의 느린 목록만 개선해줘. 전체 Composition API 전환은 원하지 않아.",
+      "assertions": [
+        { "id": "keep-options", "text": "Preserves Options API and does not perform a blanket Composition API migration" },
+        { "id": "measure-list", "text": "Measures or reproduces the slow list before choosing a scoped performance fix" }
+      ]
+    },
+    {
+      "id": "pinia-reactive-state",
+      "prompt": "Our Pinia store values stopped updating after destructuring. Find the Vue reactivity issue and verify the fix.",
+      "assertions": [
+        { "id": "store-to-refs", "text": "Checks whether state or getters were destructured and uses storeToRefs where needed" },
+        { "id": "regression", "text": "Tests that a source-state change updates dependent state or DOM" }
+      ]
+    },
+    {
+      "id": "pinia-direct-mutation",
+      "prompt": "Pinia store.items.push() works in my component. Is it a bug because I did not use an action?",
+      "assertions": [
+        { "id": "direct-mutation-valid", "text": "Does not incorrectly claim Pinia direct state mutation is forbidden or untraceable" },
+        { "id": "conditional-actions", "text": "Suggests actions only for invariants, transactions, or project conventions" }
+      ]
+    },
+    {
+      "id": "reactive-props-version",
+      "prompt": "In a Vue 3.5 script setup component, is const { count } = defineProps<{ count: number }>() always a reactivity bug?",
+      "assertions": [
+        { "id": "version-sensitive", "text": "Explains Vue 3.5+ reactive props destructuring and verifies installed compiler version" },
+        { "id": "watch-getter", "text": "Notes that watching a destructured prop value requires a getter such as watch(() => count, ...)" }
+      ]
+    }
+  ]
+}

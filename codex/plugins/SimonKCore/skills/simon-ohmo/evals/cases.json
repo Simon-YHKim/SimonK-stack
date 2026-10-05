@@ -1,0 +1,34 @@
+{
+  "skill": "simon-ohmo",
+  "version": "0.1.1",
+  "cases": [
+    {
+      "id": "ko-closed-network-agent",
+      "prompt": "폐쇄망 운영 personal agent 활성해줘",
+      "assertions": [
+        {
+          "id": "status-check-5-conditions",
+          "text": "Runs a status check against the 5 Phase 6 entry conditions (OpenHarness / local LLM model / self.md / v0 prototype / on-prem GPU)."
+        },
+        {
+          "id": "deferral-notice",
+          "text": "Outputs a deferral notice because Phase 6 (27Y Q1+) is not yet reached, recommending simonK for current autonomous work."
+        }
+      ]
+    },
+    {
+      "id": "en-personal-agent",
+      "prompt": "Activate the self.md personal agent in closed-network mode.",
+      "assertions": [
+        {
+          "id": "prerequisite-verification",
+          "text": "Verifies prerequisites and reports which of the 5 entry conditions are unmet."
+        },
+        {
+          "id": "not-production",
+          "text": "Does not run as a production agent yet and defers with a checklist."
+        }
+      ]
+    }
+  ]
+}

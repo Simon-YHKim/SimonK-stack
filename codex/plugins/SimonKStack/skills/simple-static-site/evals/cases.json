@@ -1,0 +1,90 @@
+{
+  "skill": "simple-static-site",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "trigger-ko-1",
+      "prompt": "한 파일 사이트 만들어줘",
+      "assertions": [
+        {
+          "id": "correct-route",
+          "text": "Routes this request to simple-static-site rather than an unrelated skill."
+        },
+        {
+          "id": "behavior",
+          "text": "Selects the one-file static site path and produces one self-contained responsive, keyboard-accessible HTML file without a build or account requirement."
+        }
+      ]
+    },
+    {
+      "id": "trigger-ko-2",
+      "prompt": "동아리 페이지 한 장 만들어",
+      "assertions": [
+        {
+          "id": "correct-route",
+          "text": "Routes this request to simple-static-site rather than an unrelated skill."
+        },
+        {
+          "id": "behavior",
+          "text": "Produces a single self-contained club page with inline CSS and a local-preview step."
+        }
+      ]
+    },
+    {
+      "id": "trigger-ko-3",
+      "prompt": "정적 페이지 만들어 줘",
+      "assertions": [
+        {
+          "id": "correct-route",
+          "text": "Routes this request to simple-static-site rather than an unrelated skill."
+        },
+        {
+          "id": "behavior",
+          "text": "Produces a standalone static page with accessible contrast and no external runtime dependency."
+        }
+      ]
+    },
+    {
+      "id": "trigger-slash",
+      "prompt": "/simple-static-site",
+      "assertions": [
+        {
+          "id": "correct-route",
+          "text": "Routes this request to simple-static-site rather than an unrelated skill."
+        },
+        {
+          "id": "behavior",
+          "text": "Invokes the same one-file static page workflow without starting a full app pipeline."
+        }
+      ]
+    },
+    {
+      "id": "trigger-en-1",
+      "prompt": "make me a one file site",
+      "assertions": [
+        {
+          "id": "correct-route",
+          "text": "Routes this request to simple-static-site rather than an unrelated skill."
+        },
+        {
+          "id": "behavior",
+          "text": "Creates a one-file site that can be opened locally without build tools."
+        }
+      ]
+    },
+    {
+      "id": "trigger-en-2",
+      "prompt": "single page static landing for my club",
+      "assertions": [
+        {
+          "id": "correct-route",
+          "text": "Routes this request to simple-static-site rather than an unrelated skill."
+        },
+        {
+          "id": "behavior",
+          "text": "Creates a single-page static landing page and explains optional sharing without publishing it unapproved."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "skill": "cso",
+  "version": "2.0.0",
+  "cases": [
+    {
+      "id": "en-security-audit",
+      "prompt": "Run a CSO security audit on this repo — OWASP and a threat model.",
+      "assertions": [
+        { "id": "infra-first", "text": "Does an infrastructure-first audit: secrets archaeology, dependency supply chain, CI/CD pipeline, and LLM/AI security, plus OWASP Top 10 and STRIDE threat modeling." },
+        { "id": "confidence-sorted", "text": "Produces a security audit report with findings sorted by confidence." },
+        { "id": "two-modes", "text": "Operates in daily (zero-noise, 8/10 confidence gate) or comprehensive (deep, 2/10 bar) mode." }
+      ]
+    },
+    {
+      "id": "ko-vuln-scan",
+      "prompt": "보안 점검해줘. 시크릿 노출이랑 의존성 취약점 스캔 돌려.",
+      "assertions": [
+        { "id": "secrets-and-deps", "text": "Scans for leaked secrets and dependency supply-chain vulnerabilities as part of the audit." },
+        { "id": "active-verification", "text": "Uses active verification to confirm findings rather than reporting raw matches." },
+        { "id": "trend-tracking", "text": "Tracks security trends across audit runs." }
+      ]
+    }
+  ]
+}

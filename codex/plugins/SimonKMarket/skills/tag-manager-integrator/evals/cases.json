@@ -1,0 +1,34 @@
+{
+  "skill": "tag-manager-integrator",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-gtm-setup",
+      "prompt": "GTM 세팅하고 전환 추적 붙여줘",
+      "assertions": [
+        {
+          "id": "gtm-config",
+          "text": "Produces GTM/gtag configuration with an event taxonomy aligned with analytics-integrator."
+        },
+        {
+          "id": "conversion-tracking",
+          "text": "Sets up conversion tracking for ad platforms (Google Ads, Meta, Kakao, Naver)."
+        }
+      ]
+    },
+    {
+      "id": "en-event-tracking",
+      "prompt": "Set up event tracking via Google Tag Manager and track conversions.",
+      "assertions": [
+        {
+          "id": "event-layers",
+          "text": "Designs the layered event hierarchy (page-level, interaction, business, custom)."
+        },
+        {
+          "id": "analysis-reports",
+          "text": "Produces periodic analysis reports with funnel and optimization suggestions."
+        }
+      ]
+    }
+  ]
+}

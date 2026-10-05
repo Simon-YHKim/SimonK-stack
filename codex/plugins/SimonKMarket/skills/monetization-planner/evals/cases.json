@@ -1,0 +1,31 @@
+{
+  "skill": "monetization-planner",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "design-revenue-model-ko",
+      "prompt": "이 서비스 수익 모델 설계하고 가격 정하자",
+      "assertions": [
+        { "id": "service-diagnosis", "text": "Runs the service diagnosis interview (target B2C/B2B, market, user volume, core value, competition, resources)" },
+        { "id": "model-decision-tree", "text": "Selects a model (freemium / subscription / usage / hybrid) via the repeat-use decision tree" },
+        { "id": "produces-monetization-md", "text": "Produces MONETIZATION.md with the chosen model, tier structure, and free-vs-paid boundary" }
+      ]
+    },
+    {
+      "id": "freemium-vs-subscription-en",
+      "prompt": "help me figure out freemium vs subscription pricing strategy for my app",
+      "assertions": [
+        { "id": "four-tier-template", "text": "Designs a 4-tier structure (Free / Pro / Team / Enterprise) with acquisition-to-harvest purpose per tier" },
+        { "id": "free-paid-axes", "text": "Decides the free-to-paid boundary along axes like capacity, count, features, seats, support, or speed" }
+      ]
+    },
+    {
+      "id": "korea-monetization-adjustments",
+      "prompt": "무료 유료 어떻게 나눌지랑 한국 시장 보정까지 같이 봐줘",
+      "assertions": [
+        { "id": "korea-payment-prefs", "text": "Includes Korea-specific adjustments such as Kakao Pay / Naver Pay support and charm pricing (e.g. 9,900)" },
+        { "id": "korea-legal", "text": "Flags Korean legal requirements like 전자상거래법 7-day refund and auto-renewal pre-notice" }
+      ]
+    }
+  ]
+}

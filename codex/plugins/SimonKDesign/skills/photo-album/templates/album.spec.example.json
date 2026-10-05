@@ -1,0 +1,44 @@
+{
+  "_comment": "build_album.mjs --spec 입력 예시. 사진 경로는 결과 HTML 파일 위치를 기준으로 상대경로화됩니다. captions 는 선택이며 해당 페이지 photos 와 같은 순서로 1:1 매핑됩니다(없으면 비워도 됨). layout 은 grid | collage | page 중 하나.",
+  "title": "제주 가족 여행 2026",
+  "pages": [
+    {
+      "title": "표지",
+      "layout": "collage",
+      "photos": [
+        "photos/cover.jpg",
+        "photos/beach-1.jpg",
+        "photos/cafe.jpg",
+        "photos/sunset.jpg",
+        "photos/family.jpg"
+      ]
+    },
+    {
+      "title": "첫째 날",
+      "layout": "grid",
+      "columns": 3,
+      "photos": [
+        "photos/day1-1.jpg",
+        "photos/day1-2.jpg",
+        "photos/day1-3.jpg",
+        "photos/day1-4.jpg",
+        "photos/day1-5.jpg",
+        "photos/day1-6.jpg"
+      ],
+      "captions": [
+        "공항 도착",
+        "첫 끼니",
+        "바다 산책",
+        "",
+        "노을",
+        "숙소"
+      ]
+    },
+    {
+      "title": "가장 좋았던 순간",
+      "layout": "page",
+      "photos": ["photos/highlight.jpg"],
+      "captions": ["온 가족이 함께한 저녁, 2026년 6월"]
+    }
+  ]
+}

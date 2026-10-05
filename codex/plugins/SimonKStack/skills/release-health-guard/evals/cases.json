@@ -1,0 +1,21 @@
+{
+  "skill": "release-health-guard",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "sample-aware-release",
+      "prompt": "이번 앱 버전 crash-free 수치가 지난 버전보다 떨어졌어. 롤아웃을 멈춰야 해?",
+      "assertions": [
+        {"id": "sample-check", "text": "Compares current and previous samples, crash and ANR signals, and returns HOLD when the sample is insufficient."},
+        {"id": "recommendation-only", "text": "Returns a PASS/WARN/BLOCK/HOLD recommendation without controlling rollout or sending alerts."}
+      ]
+    },
+    {
+      "id": "missing-metrics",
+      "prompt": "Crashlytics 접근이 안 되는데 릴리즈 헬스 PASS로 처리해줘.",
+      "assertions": [
+        {"id": "no-false-pass", "text": "Does not manufacture metrics or mark PASS without evidence; reports access or data gaps."}
+      ]
+    }
+  ]
+}

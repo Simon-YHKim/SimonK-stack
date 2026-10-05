@@ -1,0 +1,52 @@
+{
+  "skill": "mobile-attribution-integrator",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-skadnetwork",
+      "prompt": "앱 설치 어트리뷰션 연동해줘. SKAdNetwork랑 ATT 프롬프트도.",
+      "assertions": [
+        {
+          "id": "mmp-pick",
+          "text": "Picks an MMP SDK (Branch/AppsFlyer free tier)."
+        },
+        {
+          "id": "skan-att",
+          "text": "Maps SKAdNetwork conversion values and an iOS ATT pre-prompt."
+        },
+        {
+          "id": "deferred-deeplink",
+          "text": "Wires Install Referrer / AdServices and deferred deep-link install→first-open join."
+        }
+      ]
+    },
+    {
+      "id": "en-install-attribution",
+      "prompt": "Set up mobile install attribution with deferred deep links and an attributable first_open event.",
+      "assertions": [
+        {
+          "id": "first-open-event",
+          "text": "Produces a channel-attributable first_open event."
+        },
+        {
+          "id": "not-web-tracking",
+          "text": "Recognizes this is mobile install attribution, NOT web/page tracking (tag-manager-integrator)."
+        }
+      ]
+    },
+    {
+      "id": "ko-unknown-referrer",
+      "prompt": "Play Install Referrer가 utm_campaign만 있고 source는 없어요. 이 설치를 organic으로 넣고 SKAN postback으로 기기별 채널을 채워도 되나요?",
+      "assertions": [
+        {
+          "id": "no-fabricated-channel",
+          "text": "Leaves the device event channel null with matched_by=none rather than inventing organic attribution."
+        },
+        {
+          "id": "skan-aggregate-only",
+          "text": "Keeps SKAN/AAK postbacks as aggregate measurement, not a per-device first_open join."
+        }
+      ]
+    }
+  ]
+}

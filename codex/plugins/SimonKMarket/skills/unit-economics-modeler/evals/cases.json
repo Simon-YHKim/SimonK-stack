@@ -1,0 +1,48 @@
+{
+  "skill": "unit-economics-modeler",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-ltv-cac",
+      "prompt": "단위경제 모델링해줘. LTV CAC랑 payback 기간 봐줘. 이 가격이면 남는 장사야?",
+      "assertions": [
+        {
+          "id": "unit-econ-md",
+          "text": "Produces a UNIT_ECONOMICS.md with cohort LTV, CAC, payback months, LTV:CAC."
+        },
+        {
+          "id": "contribution-margin",
+          "text": "Includes contribution margin and sensitivity (conservative/base/aggressive)."
+        },
+        {
+          "id": "guardrails",
+          "text": "Enforces LTV>CAC and payback<12mo guardrails."
+        }
+      ]
+    },
+    {
+      "id": "en-payback",
+      "prompt": "Model our unit economics — is this sustainable given our CAC and contribution margin?",
+      "assertions": [
+        {
+          "id": "ltv-vs-cac",
+          "text": "Pressure-tests LTV against CAC with a payback period."
+        },
+        {
+          "id": "calculators",
+          "text": "Provides napkin calculators (Python/mjs)."
+        }
+      ]
+    },
+    {
+      "id": "ko-unmeasured-inputs",
+      "prompt": "ARPU는 예상 가격만 있고 churn, CAC 측정값은 없어요. 그래도 단위경제 PASS 보고서를 만들어줘.",
+      "assertions": [
+        {
+          "id": "unknown-not-pass",
+          "text": "Uses the UNIT_ECONOMICS template, labels assumptions and missing inputs, and does not mark guardrails PASS without evidence."
+        }
+      ]
+    }
+  ]
+}

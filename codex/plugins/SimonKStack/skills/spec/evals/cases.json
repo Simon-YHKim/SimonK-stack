@@ -1,0 +1,21 @@
+{
+  "skill": "spec",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "buildable-feature-spec",
+      "prompt": "이 기능의 스펙과 PRD 초안을 잡아줘.",
+      "assertions": [
+        {"id": "required-fields", "text": "Captures user, problem, success criteria, in/out scope, acceptance tests, dependencies and open decisions."},
+        {"id": "ask-dont-invent", "text": "Asks about material missing choices rather than inventing requirements or treating assumptions as decisions."}
+      ]
+    },
+    {
+      "id": "ambiguous-scope",
+      "prompt": "그냥 모두에게 좋은 앱 기능으로 만들어줘.",
+      "assertions": [
+        {"id": "clarify", "text": "Does not generate a falsely complete spec; identifies the minimum user and outcome questions first."}
+      ]
+    }
+  ]
+}

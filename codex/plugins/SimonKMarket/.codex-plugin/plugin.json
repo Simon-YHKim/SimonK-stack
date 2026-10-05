@@ -1,0 +1,28 @@
+{
+  "author": {
+    "name": "Simon Kim",
+    "url": "https://github.com/Simon-YHKim"
+  },
+  "description": "마케팅·시장조사·여론 분석 오케스트레이션 플러그인",
+  "interface": {
+    "capabilities": [],
+    "category": "Productivity",
+    "defaultPrompt": "Use SimonK Market skills for this task.",
+    "developerName": "Simon Kim",
+    "displayName": "SimonK Market",
+    "longDescription": "마케팅·시장조사·여론 분석 오케스트레이션 플러그인",
+    "shortDescription": "마케팅·시장조사·여론 분석 오케스트레이션 플러그인"
+  },
+  "keywords": [
+    "claude-code",
+    "plugin",
+    "orchestration",
+    "simonk",
+    "marketing"
+  ],
+  "license": "MIT",
+  "name": "simonk-market",
+  "repository": "https://github.com/Simon-YHKim/SimonKMarket",
+  "skills": "./skills/",
+  "version": "1.793.0"
+}

@@ -1,0 +1,5 @@
+interface:
+  display_name: Zoom Out
+  short_description: One-layer-up code map on explicit request.
+policy:
+  allow_implicit_invocation: false

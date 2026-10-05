@@ -1,0 +1,10 @@
+cancel_reason,probe_question,primary_offer,fallback_offer,do_not,frequency_cap,primary_kpi
+too_expensive,"가격이 부담되셨나요?",downsell_to_lower_plan,annual_switch_discount,blanket_percent_discount,6mo_once,cancel_save_rate
+too_expensive_2,"잠시 쉬어가는 건 어떠세요?",pause_subscription,downsell_to_lower_plan,strong_retention_guilt,6mo_once,pause_rate
+not_using,"요즘 잘 안 쓰셨군요",pause_subscription,core_value_reminder,price_discount,6mo_once,pause_rate
+no_value,"기대만큼 도움이 안 됐나요?",core_value_walkthrough,pause_subscription,price_discount,6mo_once,reactivation_rate
+missing_feature,"어떤 기능이 필요하셨나요?",roadmap_eta_plus_workaround,higher_plan_trial,immediate_discount,6mo_once,cancel_save_rate
+bug_or_support,"불편을 겪으셨나요?",route_to_support_first,goodwill_credit_after_fix,discount_to_paper_over,none,support_resolution_rate
+temporary_need_ended,"잠깐만 멈추고 싶으신가요?",pause_subscription,seasonal_winback_optin,hard_retention_block,3mo_once,pause_rate
+switching_competitor,"다른 서비스로 옮기시나요?",differentiator_reminder,annual_switch_discount,desperate_discount_spiral,6mo_once,cancel_save_rate
+other_or_silent,"피드백 한 줄 부탁드려요",light_value_reminder_once,none,repeated_re_prompts,6mo_once,cancel_save_rate

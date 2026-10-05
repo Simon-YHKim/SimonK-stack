@@ -1,0 +1,38 @@
+{
+  "skill": "qa-only",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-report-only",
+      "prompt": "코드는 건드리지 말고 버그 리포트만 만들어줘",
+      "assertions": [
+        {
+          "id": "report-only",
+          "text": "Produces a report-only QA result and never modifies any code."
+        },
+        {
+          "id": "health-and-repro",
+          "text": "Includes a health score, screenshots, and repro steps for each bug."
+        }
+      ]
+    },
+    {
+      "id": "en-just-report",
+      "prompt": "Just report bugs on the site, don't fix anything.",
+      "assertions": [
+        {
+          "id": "no-fix",
+          "text": "Tests the application and reports bugs without applying any fixes."
+        },
+        {
+          "id": "structured-report",
+          "text": "Produces a structured report with health score and reproduction steps."
+        },
+        {
+          "id": "suggests-qa-for-fixes",
+          "text": "Points the user to /qa for the full test-fix-verify loop if fixes are wanted."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "skill": "security-orchestrator",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "comprehensive-audit",
+      "prompt": "배포 전에 전체 보안 감사 해줘",
+      "assertions": [
+        {
+          "id": "runs-5-stages",
+          "text": "The agent runs all 5 stages: security-checklist, authz-designer, paid-api-guard, /cso comprehensive, /codex challenge."
+        },
+        {
+          "id": "produces-summary",
+          "text": "The agent produces a consolidated SUMMARY with issues sorted by severity (Critical/High/Medium/Low)."
+        }
+      ]
+    },
+    {
+      "id": "negative-narrow-rls",
+      "prompt": "RLS 정책만 봐줘",
+      "assertions": [
+        {
+          "id": "delegates-to-security-checklist",
+          "text": "The agent recognizes this is a narrow scope and delegates to security-checklist, not running the full 5-stage pipeline."
+        }
+      ]
+    }
+  ]
+}

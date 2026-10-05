@@ -1,0 +1,215 @@
+---
+name: app-dev-orchestrator
+description: Use when the user asks to build a new app from scratch—"새 앱 만들자", "MVP 기획", "scaffold a new project", "처음부터 만들어줘", "let's build X"—and delegate the 21-stage pipeline (office-hours → research → plan → design → TDD → security → ship → deploy → retro → instincts) to Gstack and simon-stack skills. Produces a populated repo with CLAUDE.md, tests, security audit, and an authorization-gated deployment plan. Do NOT use for bug fixes, refactors, or improving existing code—delegate to simon-tdd, investigate, or refactor instead.
+allowed-tools: Read, Write, Edit, Bash, Grep, Glob
+version: 1.1.1
+author: simon
+---
+
+# App Dev Orchestrator
+
+새 앱을 처음부터 만들 때 발동하는 21단계 마스터 파이프라인. 각 단계는 Gstack 또는 simon-stack 스킬을 호출하고, 단계 간 산출물을 다음 단계에 전달한다.
+
+## When to use
+
+- 사용자가 "새 앱 만들고 싶어", "프로젝트 시작", "MVP 기획", "신규 서비스", "앱 만들자" 등의 요청을 한 경우
+- 기존 코드 수정이 아닌 **zero-to-one** 상황
+- 플랫폼이 명확히 지정되지 않았거나, 지정돼도 전체 라이프사이클 지원이 필요한 경우
+
+**발동 안 되는 경우**: 버그 수정, 기존 기능 개선, 리팩토링, 단일 파일 작업 → 해당 전용 스킬 사용
+
+## Host parity and routing authority
+
+- 이 스킬은 `/vibe`의 단일 실행 계획에 21단계 절차를 제공한다. 별도 코디네이터·예산·모델 표를 만들지 않는다. 모델·effort 배정은 `/vibe` 중앙 planner의 현재 호스트 관측, 작업별 품질 하한, 구독 쿼터와 비용 게이트에 따른다. 특정 Claude·Codex 모델을 버전명만으로 자동 선택하지 않는다.
+- 호출 전 현재 호스트의 스킬 목록과 각 단계의 필수 의존성을 확인한다. 스킬이 없거나 다른 호스트의 기능이면 그 단계는 명시적으로 대기시키고, 이름이 비슷한 스킬로 조용히 대체하지 않는다.
+- Codex D-29 일반 스킬 후보에는 `careful`, `guard`, `freeze`, `investigate`, `unfreeze`가 없다. 이 스킬들을 Codex에서 호출하거나 호스트 정책 집행과 동등하다고 주장하지 않는다. Claude에서도 실제 설치·hook 신뢰가 확인된 경우에만 사용한다. 필요한 안전 제어가 없으면 해당 위험 단계는 진행하지 않는다.
+- 단계 목록은 권한 목록이 아니다. 저장소 생성·push·PR·merge·배포·결제·시크릿 변경은 현재 사용자 승인과 프로젝트 게이트를 각각 따른다. 호스트별 누락 기능을 이유로 검증이나 안전 게이트를 생략하지 않는다.
+
+## Workflow — 21 단계 파이프라인
+
+### 단계 0. 인터뷰 (사용자 질문)
+
+진행 전에 아래 6가지를 먼저 명확하게 잡아둔다. 이 중 하나라도 불분명하면 뒤의 플래닝이 공중에 뜬다:
+1. **플랫폼**: 웹 / React Native / CLI / 하이브리드 / 데스크탑?
+2. **타깃 사용자**: 누구? 얼마나 많나?
+3. **GitHub 레포**: 기존 재사용 / 신규 생성? 비공개/공개?
+4. **예산·스케일**: 개인·사이드 / MVP / 실사용자 100+ / 엔터프라이즈?
+5. **필수 외부 API**: 결제, LLM, 지도, 이메일 등
+6. **마감**: 급함 / 여유 / TBD?
+
+답변을 `docs/kickoff-<YYYY-MM-DD>.md` 에 저장.
+
+### 단계 1. `/office-hours` — YC 6문 forcing questions
+
+> Gstack `/office-hours` 스킬 호출. 6가지 forcing question 으로 demand·상태quo·구체성·wedge·관찰·future-fit 검증.
+
+### 단계 2. `simon-research` — 외부 리서치 선행
+
+> `simon-research` 호출. 공식 문서·경쟁 제품 3개·레퍼런스 구현·기술 비교 → `docs/research/<date>-<topic>.md`.
+
+### 단계 3. `/plan-ceo-review` — 10-star 스코프
+
+> Gstack `/plan-ceo-review` (SCOPE EXPANSION / SELECTIVE / HOLD 모드 중 선택). 문제 재정의·야망 확장.
+
+### 단계 3.5. `simon-design-first` — 디자인 프록시 (필수)
+
+> simon-stack `simon-design-first` 호출. 진단 (audience / purpose / tone) → 3-5 reference URL → 폰트 선택권 → 방향 확정 → AI Trope detection. **이 단계 없이 디자인 단계 (4-6, 14) 진입 금지** — simon-design-first 의 description 이 명시한 "mandatory proxy" 계약.
+>
+> simon-design-first Step 5 의 위임 chain 이 곧 단계 4-6 + 단계 14 의 디자인 sub-skill 호출 시퀀스 (design-consultation → plan-design-review → design-shotgun → stitch-design-flow → design-html → design-review). 아래 단계 4-6, 14 는 그 분기를 명시적으로 풀어 쓴 것.
+
+### 단계 4. `/design-consultation` — DESIGN.md 생성
+
+> Gstack `/design-consultation`. 제품 톤·타이포·컬러·레이아웃·스페이싱·모션 시스템. `DESIGN.md` 산출.
+
+### 단계 5. `stitch-design-flow` — 시안 프롬프트 3종
+
+> simon-stack `stitch-design-flow` 호출. DESIGN.md 를 읽어 Stitch 웹 UI 에 붙여넣을 프롬프트 3개 생성 → 사용자가 Stitch(stitch.withgoogle.com)에서 수동 생성 → 결과 이미지 저장.
+
+### 단계 6. `/design-shotgun` — 변형 탐색
+
+> Gstack `/design-shotgun`. 여러 디자인 변형을 생성하고 비교 보드에서 피드백 수렴.
+
+### 단계 7. 대형 플래닝
+
+> 스코프가 큰 경우 Claude Code 의 UltraPlan 기능(code.claude.com/docs/en/ultraplan — CLI/웹의 내장 기능, skill 아님) 활용. 소·중 규모는 Gstack `/autoplan` 로 충분. 둘 중 선택.
+
+### 단계 8. `authz-designer` — 인가 모델 선택
+
+> simon-stack `authz-designer`. RBAC/ABAC/ReBAC 중 프로젝트 맞는 것 선택, DDL 스키마 생성. `docs/authz.md` 산출.
+
+### 단계 9. API 설계 리뷰
+
+> `paid-api-guard` SKILL 의 "API 설계 리뷰" 섹션 호출. REST/GraphQL/tRPC 선택, N+1 탐지, cursor 페이지네이션, ETag, OpenAPI 생성 전략.
+
+### 단계 10. `/plan-eng-review` → `/autoplan`
+
+> Gstack `/plan-eng-review` 로 엔지니어링 플랜 잠그고 `/autoplan` 으로 자동 리뷰 파이프라인 실행.
+
+### 단계 11. 레포·환경 준비
+
+체크리스트:
+- [ ] GitHub 레포 생성 또는 기존 브랜치 확인
+- [ ] `.gitignore` 에 `.env`, `node_modules/`, `dist/`, `.DS_Store`, `*.log` 포함 확인
+- [ ] gitleaks pre-commit hook 설치: `pre-commit install` + `.pre-commit-config.yaml`
+- [ ] README 초안·LICENSE 선택
+- [ ] CI 워크플로 템플릿 (lint + test + build)
+- [ ] `CLAUDE.md` 초안 작성 (프로젝트 컨텍스트)
+
+### 단계 12. `simon-worktree` — 병렬 작업 격리
+
+> simon-stack `simon-worktree` 호출. 병렬 Claude 세션 필요 시 `git worktree add` 로 분리.
+
+### 단계 13. `simon-tdd` — RED-GREEN-REFACTOR 구현
+
+> simon-stack `simon-tdd` 호출. 실패 테스트 먼저 → 최소 구현 → 리팩토링. Next.js 프로젝트일 경우 `nextjs-optimizer` 동시 호출 (있을 때만).
+> **Guard Mode 활성화**: `tdd-guard-check.sh` pre-commit hook으로 source-without-test 차단.
+
+### 단계 13.5. `code-health-guard` — 구조 점검 (병렬)
+
+> simon-stack `code-health-guard` 호출. 각 기능 구현 후 file placement, naming, import direction, 함수 size 검사. 복잡 기능은 `test-gen` Scenario Planning Mode로 시나리오 매트릭스 먼저 생성.
+
+### 단계 14. `/design-review` → `/design-html`
+
+> Gstack `/design-review` 로 시각적 QA (spacing / hierarchy / AI slop 탐지) → `/design-html` 로 production HTML/CSS 생성.
+
+### 단계 15. `/qa` — QA 및 버그 수정
+
+> Gstack `/qa` 표준 모드. 자동 테스트 + 버그 발견 시 원자적 커밋으로 수정.
+
+### 단계 15.5. diversity-gate — 다양성 커버리지 게이트 (D-16, PROTOCOL §35)
+> 실행은 **무조건**, 어떤 스킬이 fire 되는지는 단계 0 kickoff 프로필로 **결정론적 선택**. 감사 발견("다양성은 reachable하나 guaranteed 아님")을 구조적으로 닫는다.
+- **매핑**(프로필 → 스킬): 글로벌·멀티로케일·스토어배포 → `i18n-localizer` · 소비자 UI(비-CLI·비-내부툴) → `accessibility-audit` + `persona-simulation` · 고령·저문해·저시력 타깃 → `inclusive-ux` · 저소득·SEA·저사양·메터드 → `offline-first`.
+- **fail-loud**: 모호하면 기본 **INCLUDE**. public·store-bound 태그면 consumer-UI 서브셋(a11y + persona-sim) **강제**.
+- **게이트**: `persona-simulation` P0 블로커(실 코호트) + a11y critical/serious axe 위반만 **ship hard-block**(테스트 실패·RLS 홀과 동급). P2/P3 = ship-with-debt 로그.
+- **기록**: `docs/diversity-gate-<date>.md`에 INCLUDED/EXCLUDED + 각 결정의 프로필 근거값(silent skip → 기록된 결정으로 전환).
+- 비싼 precheck(`offline-first`=build+Lighthouse, `accessibility-audit`=라이브서버+headless)는 비-consumer·고대역폭 프로필서 **기본 EXCLUDE**(미발화). 선택된 스킬들은 `agent-delegate` Fan-out 병렬. 소수의견 에스컬레이션: 실 miss 1건 관측 시 a11y+persona-sim 무조건화(D-16).
+
+### 단계 16. 보안 4단 감사
+
+순차 실행:
+1. simon-stack `security-checklist` (RLS / 구독 / RateLimit / 예산)
+2. simon-stack `authz-designer` 감사 섹션
+3. simon-stack `paid-api-guard` 6층 방어 점검
+4. Gstack `/cso comprehensive` — 인프라·시크릿·공급망·LLM·CI/CD
+5. Gstack `/codex challenge` — 적대적 리뷰
+
+각 단계 발견 이슈는 원자 커밋으로 수정 후 재검증.
+
+### 단계 17. `/benchmark` — 성능 측정
+
+> Gstack `/benchmark`. Core Web Vitals · 페이지 로드 · 리소스 사이즈 baseline. 트렌드 추적.
+
+### 단계 18. `/review` → `/ship`
+
+> Gstack `/review` 로 PR 사전 리뷰 → `/ship` 으로 VERSION·CHANGELOG·커밋·푸시·PR 생성.
+
+### 단계 19. `/land-and-deploy` → `/canary`
+
+> Gstack `/land-and-deploy` 로 머지·CI·배포·health 검증 → `/canary` 로 라이브 모니터링.
+
+### 단계 20. `/document-release` → `/retro`
+
+> Gstack `/document-release` 로 README·ARCHITECTURE·CONTRIBUTING·CLAUDE.md 갱신 → `/retro` 로 주간 회고.
+
+### 단계 21. `simon-instincts` 업데이트 → `/checkpoint`
+
+> 이번 사이클에서 배운 것을 `simon-instincts` 로 `~/.claude/instincts/` 에 기록 → Gstack `/checkpoint` 로 상태 스냅샷.
+> **신규 skill 발견 시**: 반드시 `skill-gen-agent` Create 모드 경유. 직접 SKILL.md 작성 금지.
+
+### 병렬 실행 — `agent-delegate` 활용
+
+위 21단계 중 독립적 작업 (예: 단계 16의 5개 보안 감사, 단계 13 + 13.5의 TDD + 코드 구조 점검)은 `agent-delegate`의 Fan-out 패턴으로 병렬화 가능. 토큰 절약 + 시간 단축.
+
+---
+
+## Principles — Boris Cherny 내장
+
+모든 단계에서 다음 원칙을 준수한다:
+
+1. **Plan 모드 기본**: 세션 시작은 Plan 모드. 실행 전 사용자 승인.
+2. **병렬은 worktree**: 병렬 Claude 실행은 `simon-worktree` 로 격리해야 브랜치 충돌 없이 작업 병렬화가 가능하다.
+3. **CLAUDE.md 팀 체크인**: 프로젝트 `CLAUDE.md` 는 git 에 포함, PR 마다 갱신.
+4. **검증 루프 = 도구 제공**: Claude 에게 서버 시작 방법·브라우저 URL·테스트 실행 명령을 명시적으로 알려줄 것.
+5. **Permission allowlist 우선**: `--dangerously-skip-permissions` 는 쓰지 말고 `/permissions` 로 allowlist 를 관리 — 한 번의 사고가 전체 세션을 돌릴 가치보다 크다.
+6. **모델·effort**: `/vibe`의 최신 검증된 중앙 라우팅과 현재 호스트·구독 경계를 따른다. 고정 모델명이나 최고 effort를 이 파이프라인이 강제하지 않는다.
+7. **슬래시 명령어 = 스킬**: Gstack `/ship` 도 `ship` 스킬과 동일 개념으로 취급.
+
+---
+
+## Checklist
+
+파이프라인 실행 시 단계마다 확인:
+
+- [ ] 이전 단계 산출물을 읽고 시작했는가
+- [ ] 사용자 confirm 받아야 할 파괴적 작업은 없는가
+- [ ] 시크릿이 커밋에 들어가지 않는가
+- [ ] 각 단계의 산출물이 `docs/` 에 저장됐는가
+- [ ] 실패 시 롤백 경로가 있는가
+- [ ] 다음 단계 진입 전 현재 단계 완료 기준을 만족하는가
+
+---
+
+## Anti-patterns
+
+- ❌ **Plan 없이 코딩 시작** — 단계 1-10 건너뛰고 바로 구현
+- ❌ **레포 확인 없이 커밋** — 단계 11 skip
+- ❌ **민감 필드(subscription_tier, role, credits, is_admin)를 클라이언트에서 수정 가능하게 둠** — 단계 16 RLS 감사 필수
+- ❌ **`simon-research` 건너뛰고 플래닝 진입** — 출처 없는 추측 플랜
+- ❌ **한 번에 20단계 실행** — 단계별 사용자 검증 없이 무한 자동화
+- ❌ **Gstack 스킬 존재 여부 확인 없이 호출** — 없으면 degrade 안내 텍스트로 대체
+
+---
+
+## Related skills
+
+- **Gstack 파이프라인**: `/office-hours`, `/plan-ceo-review`, `/plan-eng-review`, `/autoplan`, `/design-consultation`, `/design-shotgun`, `/design-review`, `/design-html`, `/qa`, `/cso`, `/benchmark`, `/review`, `/ship`, `/land-and-deploy`, `/canary`, `/document-release`, `/retro`, `/checkpoint`, `/codex`
+- **simon-stack**: `simon-research`, `simon-tdd`, `simon-worktree`, `simon-instincts`, `simon-design-first`, `security-checklist`, `authz-designer`, `paid-api-guard`, `stitch-design-flow`, `code-health-guard`, `agent-delegate`, `ai-debate`
+- **diversity-gate (단계 15.5)**: `i18n-localizer`, `accessibility-audit`, `persona-simulation`, `inclusive-ux`, `offline-first`
+- **호스트별 안전 유틸리티**: `/careful`, `/guard`, `/freeze`, `/unfreeze` — 위 Host parity 절의 가용성·hook 신뢰 게이트를 통과한 경우에만 사용한다.
+
+## 완료 보고 (HTML) — 표준
+작업을 끝내면 **HTML 완료 보고서**를 생성한다 (SimonKCore `completion-report` 표준).
+- 첫 화면은 **심플 요약**(한눈 카드 한 줄) + 직관 그래픽/차트(인라인 SVG)·이미지.
+- 각 항목 옆 **[자세히] 버튼**(`<details>`)을 펼치면 상세 — 처음부터 쏟지 않는다(progressive disclosure).
+- 자체완결 1파일(인라인 CSS/SVG, 무JS) · 사용자 언어 · 현지시간 스탬프.
+- Core 있으면 `completion-report` 호출, 없으면 동일 형식으로 인라인 생성.

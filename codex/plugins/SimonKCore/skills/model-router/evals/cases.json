@@ -1,0 +1,148 @@
+{
+  "skill": "model-router",
+  "version": "0.2.5",
+  "cases": [
+    {
+      "id": "code-fix-recommendation",
+      "prompt": "이 Python race condition을 고칠 모델을 추천해줘. 지금은 코드 수정 없이 추천만 해줘.",
+      "assertions": [
+        {
+          "id": "typed-contract",
+          "text": "Classifies CODE_FIX and uses the central planner's reasoning/code floor rather than a static model winner"
+        },
+        {
+          "id": "read-only",
+          "text": "Sets writes false because this request is advice only and does not launch a worker"
+        },
+        {
+          "id": "evidence",
+          "text": "Reports an evidence-bound route with registry fingerprint and requested effort, or explicit missing-runtime reasons; never fabricates a benchmark score"
+        }
+      ]
+    },
+    {
+      "id": "research-long-context",
+      "prompt": "이 1000페이지 문서의 X 주제를 조사 요약할 모델을 골라줘.",
+      "assertions": [
+        {
+          "id": "research-contract",
+          "text": "Classifies RESEARCH with research and reasoning requirements and checks usable document/context/tool support from evidence"
+        },
+        {
+          "id": "no-wiki-authority",
+          "text": "Does not treat a Wiki last-updated timestamp or a claimed context size as sufficient current routing evidence"
+        }
+      ]
+    },
+    {
+      "id": "browser-tool-first",
+      "prompt": "Best model to scrape a site? An authorized read-only API is already available.",
+      "assertions": [
+        {
+          "id": "tool-first",
+          "text": "Prefers the authorized API; does not dispatch COMPUTER_USE or a Bot solely because the task mentions a site"
+        },
+        {
+          "id": "local-cost",
+          "text": "If using a local step, keeps exact argv cost verification instead of assuming that a wrapper is free"
+        }
+      ]
+    },
+    {
+      "id": "zero-budget-grok-hold",
+      "prompt": "추가 과금 $0. Grok 주간 100%, 추가 한도와 잔액 0이야. 다음 모델로 알아서 진행해.",
+      "assertions": [
+        {
+          "id": "hold",
+          "text": "Keeps Grok CLI generation on hold until fresh quota recovery evidence, without top-up or overage changes"
+        },
+        {
+          "id": "no-hidden-fallback",
+          "text": "Only returns another route when registry/runtime/effort/account/cost gates pass; unknown billing is not zero and the host model is not an automatic fallback"
+        }
+      ]
+    },
+    {
+      "id": "parent-dag-review",
+      "prompt": "/vibe의 기존 run에서 simonk가 구현 2개와 코드 리뷰를 배치하려고 해. 부모 예산은 $0이야.",
+      "assertions": [
+        {
+          "id": "single-owner",
+          "text": "Reuses the parent run_id, budget and ancestor_skills, and does not create a second coordinator or independent per-task budgets"
+        },
+        {
+          "id": "review-dag",
+          "text": "Keeps writes true, verify_of and depends_on in one DAG with different-vendor review; returns the unchanged canonical plan instead of a legacy launcher config"
+        }
+      ]
+    },
+    {
+      "id": "screen-only-bot",
+      "prompt": "승인된 API나 CLI가 없는 관리 화면에서 표시된 값을 읽어줘. 화면만 확인하고 변경은 하지 마.",
+      "assertions": [
+        {
+          "id": "gui-contract",
+          "text": "Uses COMPUTER_USE only with explicit target, gui_reason, tool_route_available false and vibe-bot skill; keeps writes false"
+        },
+        {
+          "id": "bot-boundary",
+          "text": "Requires Bot-specific availability/billing/quota evidence and does not invent model or reasoning-effort controls"
+        }
+      ]
+    },
+    {
+      "id": "simple-and-complex-code-separate-effort-and-quality",
+      "prompt": "두 작업을 배정해줘: 작은 테스트 수정과 여러 파일에 걸친 원인 분석. 둘 다 추가 과금 $0이고 품질을 희생하면 안 돼. 실제 워커는 띄우지 마.",
+      "assertions": [
+        {
+          "id": "typed-profiles",
+          "text": "Uses CODE_SIMPLE for the focused change and CODE_COMPLEX for the multi-file root cause, not one generic coding profile."
+        },
+        {
+          "id": "independent-quality-floors",
+          "text": "CODE_SIMPLE starts at routine effort with quality tier at least 2; CODE_COMPLEX starts at reasoning effort with quality tier at least 3. A $0 budget cannot lower either floor."
+        },
+        {
+          "id": "preflight-only",
+          "text": "Returns a central plan or explicit missing-runtime reasons without dispatching a worker or treating benchmark scores as subscription evidence."
+        }
+      ]
+    },
+    {
+      "id": "planning-writing-and-image-creation",
+      "prompt": "기획서 작성, 완성도 높은 글쓰기, 썸네일 이미지 생성에 맞는 모델과 effort를 추천해줘. 지금은 실행하지 마.",
+      "assertions": [
+        {
+          "id": "distinct-work",
+          "text": "Separates PLAN_ARCHITECTURE from WRITING and treats actual image generation as a tool-managed unresolved step unless a verified included image tool exists."
+        },
+        {
+          "id": "dated-shortlist",
+          "text": "Uses dated manufacturer and independent evaluations only as a candidate shortlist, not a fixed winner, effective effort or active route."
+        },
+        {
+          "id": "no-fake-image-route",
+          "text": "Does not claim a text model or Grok Bot created the image, and does not use a paid API fallback."
+        }
+      ]
+    },
+    {
+      "id": "host-parity-requires-outcome-evidence",
+      "prompt": "동일한 /vibe 코딩 요청을 Claude와 Codex에서 실행하면 성능 저하 없이 같게 나오니? Grok 사용량은 복구됐어. 결과 비교는 아직 안 했고, 현재 모델·계정 메타데이터만 있어.",
+      "assertions": [
+        {
+          "id": "same-standard-not-same-route",
+          "text": "Applies the same task and acceptance standard in both hosts while allowing different eligible model and skill bindings."
+        },
+        {
+          "id": "unmeasured-parity",
+          "text": "Does not claim functional parity or no performance loss from metadata alone; requires paired skill loading, effective effort, output, tests and review observations."
+        },
+        {
+          "id": "restored-quota-needs-preflight",
+          "text": "Treats restored Grok usage as a reason to refresh exact-account quota and billing evidence, not as a continuing blanket hold or automatic dispatch authorization."
+        }
+      ]
+    }
+  ]
+}

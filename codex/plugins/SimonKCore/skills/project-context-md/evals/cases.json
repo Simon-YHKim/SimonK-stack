@@ -1,0 +1,24 @@
+{
+  "skill": "project-context-md",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "bootstrap-claude-md",
+      "prompt": "이 프로젝트에 CLAUDE.md 만들어줘. Claude Code 가 읽을 수 있게",
+      "assertions": [
+        {
+          "id": "reads-package-json",
+          "text": "The agent reads package.json (or equivalent) to infer the stack."
+        },
+        {
+          "id": "lists-verification-tools",
+          "text": "The CLAUDE.md lists dev server command, test command, lint command, and main browser URL."
+        },
+        {
+          "id": "mentions-taboo-paths",
+          "text": "The CLAUDE.md lists 'taboo' paths that should not be modified (e.g., migrations, lockfiles)."
+        }
+      ]
+    }
+  ]
+}

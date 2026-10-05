@@ -1,0 +1,24 @@
+{
+  "skill": "debug",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ko-fix-bug",
+      "prompt": "이게 왜 안 되지? 이 에러 디버깅해서 버그 고쳐줘.",
+      "assertions": [
+        { "id": "reproduce-first", "text": "Reproduces the error first, capturing the exact message/stack trace and the minimal triggering input before changing anything." },
+        { "id": "root-cause", "text": "Works from symptom to root cause by asking 'why' repeatedly, not patching the symptom." },
+        { "id": "verify-and-regress", "text": "Applies the fix at the right level then verifies the original repro passes and related tests still pass, adding a regression test if feasible." }
+      ]
+    },
+    {
+      "id": "en-failing-test",
+      "prompt": "My tests are failing and I don't know why — debug this.",
+      "assertions": [
+        { "id": "isolate", "text": "Isolates the failure with targeted logging or bisecting (e.g. git bisect for regressions) rather than spraying prints." },
+        { "id": "no-antipatterns", "text": "Avoids anti-patterns like swallowing exceptions, retrying flaky tests, or disabling tests/linters to bypass the failure." },
+        { "id": "root-cause-diagnosis", "text": "Produces a root-cause diagnosis with the specific fix and confirmation the bug no longer reproduces." }
+      ]
+    }
+  ]
+}

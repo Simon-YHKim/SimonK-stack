@@ -1,0 +1,42 @@
+{
+  "skill": "karpathy-guidelines",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "ambiguous-feature-request",
+      "prompt": "유저 데이터 export 기능 추가해줘",
+      "assertions": [
+        { "id": "asks-clarification", "text": "The agent applies Principle 1 and asks clarifying questions (format CSV/JSON, which fields, permission scope) before writing code." },
+        { "id": "no-silent-assumption", "text": "The agent does NOT silently pick one interpretation and run with it." },
+        { "id": "states-tradeoffs", "text": "If multiple interpretations are valid, the agent presents them rather than choosing." }
+      ]
+    },
+    {
+      "id": "overcomplication-trap",
+      "prompt": "할인 계산 함수 만들어줘. 정가에서 N% 할인.",
+      "assertions": [
+        { "id": "minimal-function", "text": "The agent applies Principle 2 and produces a single small function — no Strategy pattern, no abstract base class, no config file." },
+        { "id": "no-speculative-features", "text": "The agent does NOT add tiered discounts, locale handling, or rounding strategies that were not requested." },
+        { "id": "senior-test", "text": "The output passes the test 'would a senior engineer call this overcomplicated?'." }
+      ]
+    },
+    {
+      "id": "surgical-bug-fix",
+      "prompt": "이메일 검증 함수에서 빈 문자열을 null로 처리하는 버그 고쳐줘",
+      "assertions": [
+        { "id": "only-touches-bug", "text": "The agent applies Principle 3 and only modifies the empty-string handling logic." },
+        { "id": "no-drive-by-refactor", "text": "The agent does NOT also refactor adjacent validation functions, rename variables, or 'improve' formatting." },
+        { "id": "matches-existing-style", "text": "The fix matches the file's existing style even if the agent would prefer a different approach." }
+      ]
+    },
+    {
+      "id": "imperative-to-declarative",
+      "prompt": "API에 rate limiting 추가해줘",
+      "assertions": [
+        { "id": "transforms-to-test-first", "text": "The agent applies Principle 4 and transforms the request into a verifiable goal: 'Write tests for over-limit requests, then make them pass'." },
+        { "id": "produces-step-plan", "text": "For multi-step work, the agent produces a numbered plan with explicit verify checks for each step." },
+        { "id": "no-vague-success", "text": "The agent does NOT define success as 'make it work' — every step has a concrete verification." }
+      ]
+    }
+  ]
+}

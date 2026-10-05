@@ -1,0 +1,90 @@
+{
+  "_comment": "Single source of truth for data retention. Edit to match your project, then run gen-purge-plan.mjs against this file. Each class: id (unique), table, timestampColumn (column the sweep filters on), retentionDays (UPPER bound, not default keep), graceDays (soft->hard window), softDelete (false for transient), softDeleteColumn (default deleted_at), basis (retention basis), trigger, legalHold (true = statutory floor, never early-delete). retentionDays/graceDays are integers (days).",
+  "_policyVersion": "2026-06-01",
+  "classes": [
+    {
+      "id": "account_core",
+      "table": "users",
+      "timestampColumn": "deleted_at",
+      "retentionDays": 0,
+      "graceDays": 30,
+      "softDelete": true,
+      "softDeleteColumn": "deleted_at",
+      "basis": "service contract",
+      "trigger": "account deletion",
+      "legalHold": false,
+      "_note": "retentionDays=0: purge starts the moment the account is soft-deleted; grace 30d allows recovery/dispute."
+    },
+    {
+      "id": "user_content",
+      "table": "content_items",
+      "timestampColumn": "deleted_at",
+      "retentionDays": 0,
+      "graceDays": 30,
+      "softDelete": true,
+      "softDeleteColumn": "deleted_at",
+      "basis": "service provision",
+      "trigger": "account deletion / content deletion",
+      "legalHold": false
+    },
+    {
+      "id": "ai_audit_log",
+      "table": "ai_audit_log",
+      "timestampColumn": "created_at",
+      "retentionDays": 365,
+      "graceDays": 0,
+      "softDelete": false,
+      "basis": "safety & accountability tracing",
+      "trigger": "time-based expiry",
+      "legalHold": false
+    },
+    {
+      "id": "analytics_event",
+      "table": "analytics_events",
+      "timestampColumn": "created_at",
+      "retentionDays": 425,
+      "graceDays": 0,
+      "softDelete": false,
+      "basis": "consent (analytics category)",
+      "trigger": "time-based / consent withdrawal",
+      "legalHold": false,
+      "_note": "425d ~= GA4 default 14 months. On consent withdrawal, delete immediately via consent-manager handoff, not this batch."
+    },
+    {
+      "id": "support_ticket",
+      "table": "support_tickets",
+      "timestampColumn": "closed_at",
+      "retentionDays": 1095,
+      "graceDays": 0,
+      "softDelete": true,
+      "softDeleteColumn": "deleted_at",
+      "basis": "complaint / dispute handling",
+      "trigger": "3 years after resolution",
+      "legalHold": false
+    },
+    {
+      "id": "legal_txn",
+      "table": "transactions",
+      "timestampColumn": "created_at",
+      "retentionDays": 1825,
+      "graceDays": 0,
+      "softDelete": false,
+      "basis": "statutory: e-commerce act (payment/contract records)",
+      "trigger": "5 years (statutory floor)",
+      "legalHold": true,
+      "_note": "legalHold=true forces a retention-window WHERE clause; never deleted early. Keep in a separate table with purpose-limited access logging."
+    },
+    {
+      "id": "transient_session",
+      "table": "sessions",
+      "timestampColumn": "expires_at",
+      "retentionDays": 1,
+      "graceDays": 0,
+      "softDelete": false,
+      "basis": "functional (auth session)",
+      "trigger": "TTL expiry",
+      "legalHold": false,
+      "_note": "retentionDays<=1 sweeps every 15 minutes. OTP/temp tokens belong here too."
+    }
+  ]
+}

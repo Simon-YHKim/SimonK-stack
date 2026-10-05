@@ -1,0 +1,56 @@
+{
+  "skill": "security-checklist",
+  "version": "1.0.1",
+  "cases": [
+    {
+      "id": "rls-supabase",
+      "prompt": "Supabase 프로젝트에 RLS 정책 제대로 걸려있는지 확인해줘",
+      "assertions": [
+        {
+          "id": "covers-4-pillars",
+          "text": "The agent examines RLS activation, grants, policies, and role-specific behavior; it briefly identifies whether subscription state, rate limiting, and budget caps are in scope instead of claiming all four were tested."
+        },
+        {
+          "id": "runs-adversarial-tests",
+          "text": "The agent uses scripts/rls-adversarial-tests.sql as an adaptable fixture, does not run mutation queries on production, and distinguishes RLS-disabled tables from enabled tables with zero policies."
+        }
+      ]
+    },
+    {
+      "id": "rate-limit-and-budget-gaps",
+      "prompt": "Audit our paid AI endpoint before launch. We only have an IP limit at the edge, and I cannot access the provider billing dashboard. Tell me whether rate limits and spending caps are complete without making paid API calls.",
+      "assertions": [
+        {
+          "id": "dual-limit-evidence",
+          "text": "Checks both edge IP and application user_id limits, including quota behavior for authenticated users, and flags the missing user layer rather than calling the IP-only limit complete."
+        },
+        {
+          "id": "three-budget-layers",
+          "text": "Separately assesses provider hard or soft limits, application pre-call spend gate, and per-user quota; marks provider settings unverified when dashboard access is unavailable."
+        },
+        {
+          "id": "no-fabricated-validation",
+          "text": "Uses read-only or free evidence where available, makes no paid API calls, and does not claim adversarial tests passed or production spending is capped without actual verification."
+        }
+      ]
+    },
+    {
+      "id": "privileged-column-and-webhook-contract",
+      "prompt": "Supabase profiles RLS WITH CHECK is based on auth.uid() = user_id. Can users still set is_admin? We also receive Stripe and TossPayments payment webhooks. Audit safely with no live charge.",
+      "assertions": [
+        {
+          "id": "row-vs-column",
+          "text": "Explains that a row ownership RLS predicate does not restrict sensitive columns; checks column UPDATE grants or a separate privileged table and tests stored values with a sandbox fixture."
+        },
+        {
+          "id": "provider-specific-webhooks",
+          "text": "Checks Stripe raw-body signature and event-ID deduplication, and does not assume every TossPayments event has a signature or every provider uses one five-minute replay window."
+        },
+        {
+          "id": "no-live-mutation",
+          "text": "Does not run a production database mutation or live payment and reports unverified conditions explicitly."
+        }
+      ]
+    }
+  ]
+}

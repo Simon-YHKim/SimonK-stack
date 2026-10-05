@@ -1,0 +1,23 @@
+{
+  "skill": "design-shotgun",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "explore-designs-en",
+      "prompt": "Show me a few design options for this screen, I don't like how it looks.",
+      "assertions": [
+        { "id": "multiple-variants", "text": "Generates multiple AI design variants to explore" },
+        { "id": "comparison-board", "text": "Opens a comparison board to view the variants side by side" },
+        { "id": "structured-feedback", "text": "Collects structured feedback and iterates on the chosen direction" }
+      ]
+    },
+    {
+      "id": "design-variants-ko",
+      "prompt": "이 UI 디자인 변형 여러 개 만들어서 비교해줘.",
+      "assertions": [
+        { "id": "visual-brainstorm", "text": "Runs a standalone visual brainstorm producing several design variants" },
+        { "id": "iterate", "text": "Iterates based on the feedback collected" }
+      ]
+    }
+  ]
+}

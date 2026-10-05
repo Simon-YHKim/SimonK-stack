@@ -1,0 +1,19 @@
+{
+  "_comment": "Host WITHOUT extension at https://<domain>/.well-known/apple-app-site-association — serve as Content-Type: application/json, no redirects. appID = <TeamID>.<BundleID>.",
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "TEAMID.com.example.myapp",
+        "components": [
+          { "/": "/post/*", "comment": "deep link into a post" },
+          { "/": "/invite/*", "comment": "referral / invite links" },
+          { "/": "/", "exclude": true, "comment": "do not capture the root marketing page" }
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["TEAMID.com.example.myapp"]
+  }
+}

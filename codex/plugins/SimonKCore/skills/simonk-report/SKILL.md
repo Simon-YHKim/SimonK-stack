@@ -1,0 +1,279 @@
+---
+name: simonk-report
+description: >
+  Use when the user wants a rich HTML report of what simonK or the
+  current session accomplished — triggers "/simonk-report", "리포트
+  만들어줘", "보고서 작성", "html 보고서", "executive briefing",
+  "session report". Auto-invoked by simonK Phase 6 as the standard
+  final deliverable (unless SIMONK_REPORT=off). Produces a single
+  self-contained HTML at .simonk/reports/YYYY-MM-DD-HHMM.html (inline
+  CSS, no external deps — opens anywhere) covering executive summary,
+  decisions log, phase trace, diff summary, verification, perspectives
+  audit if ran, next-up backlog. Sends proactively via SendUserFile
+  so user receives it on mobile. Different from /landing-report
+  (product landing), /document-release (README sync), /release-notes
+  (announcement copy), and /html-default-output (generic — this is
+  simonk-session-specific with a fixed schema).
+version: 1.1.0
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - SendUserFile
+---
+
+# /simonk-report
+
+Generate a rich HTML report of the current session (or just-completed
+simonK sprint) and send it proactively to the user as a file.
+
+## Why this skill exists
+
+simonK's Phase 6 final report has historically been text-only —
+useful in the session but lost the moment the conversation scrolls.
+A self-contained HTML report:
+
+- **Lives outside the session** — can be sent, shared, archived
+- **Renders the structure** — phase-by-phase trace, diffs, verifications
+- **Reaches the user on mobile** — via `SendUserFile` proactive status
+- **Accumulates as a sprint log** — `.simonk/reports/` becomes a
+  diary of what each sprint shipped, scannable later
+
+## When to invoke
+
+| Trigger | Source |
+|---|---|
+| `/simonk-report` | Manual user request, any time |
+| simonK Phase 6 | Auto (unless `SIMONK_REPORT=off` env or user opted out) |
+| "리포트 만들어줘", "보고서 작성" | Korean trigger |
+| "html 보고서", "executive briefing" | Variant triggers |
+
+## Execution sequence
+
+### Step 1 — Gather session state
+
+Run the same inventory as `/perspectives` (the two skills are
+complementary — perspectives audits blind spots, this skill
+documents the work):
+
+```bash
+# Project + session identity
+PROJECT_NAME=$(basename "${CLAUDE_PROJECT_DIR:-$PWD}")
+TIMESTAMP=$(date +%Y-%m-%d-%H%M)
+TITLE_TIMESTAMP=$(date +"%Y-%m-%d %H:%M")
+
+# Git diff context (since simonK started — fall back to today's commits)
+COMMITS=$(git log --oneline --since="6 hours ago" 2>/dev/null)
+FILES_CHANGED=$(git log --since="6 hours ago" --name-only --pretty=format: 2>/dev/null | sort -u | grep -v '^$')
+STAT=$(git diff --stat HEAD~$(git log --oneline --since="6 hours ago" | wc -l) 2>/dev/null || git diff --stat HEAD)
+BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo HEAD)
+```
+
+Pull from the conversation context (not raw transcripts):
+
+- **Task**: what the user asked simonK to do (Phase 1 input)
+- **Plan**: the sprint plan if Phase 2 produced one (`.simonk/plan.md`)
+- **Phase outcomes**: what each Phase 1-6 produced
+- **Decisions**: explicit user choices via AskUserQuestion
+- **Skips**: anything explicitly deferred
+- **Verification**: which tests / validators ran and their results
+- **Perspectives findings**: top 3 from `/perspectives` if it ran
+
+### Step 2 — Render the HTML
+
+Read the template at `templates/report.html`, fill placeholders, and
+write to `.simonk/reports/<TIMESTAMP>.html`. Template is fully
+self-contained (CSS and JS inline, zero external requests). JS only
+drives the 요약/상세 tabs, the memo sidebar and the copy fallbacks;
+with JS off every section still renders top to bottom.
+
+The format floor is global instruction §6 (S grade). The template
+already meets it — header with `작성 … KST · 발행 <세션> · 등급`,
+summary/detail tabs, memo sidebar, download banner, light/dark
+automatic, three colors. Do not strip any of these to simplify.
+HTML-escape every value (commit messages go inside `<pre>`), and
+report the §6 pre-delivery self-audit as numbers.
+
+If `.simonk/reports/` does not exist, create it. If the file already
+exists for this timestamp (multiple invocations in the same minute),
+append `-2`, `-3`, etc.
+
+### Step 3 — Send to the user
+
+```
+SendUserFile(
+  files=[".simonk/reports/<TIMESTAMP>.html"],
+  status="proactive",  # ensures mobile / desktop notification
+  caption="simonK 스프린트 보고서 — <한 줄 요약> · 다운로드해서 브라우저로 열어야 메모·복사가 동작"
+)
+```
+
+Proactive status because by Phase 6 the user may have stepped away
+from the terminal — they should get the report on whatever device
+they're on.
+
+### Step 4 — Brief text follow-up
+
+After the file send, post a single short message:
+
+```
+✓ 보고서 발송: .simonk/reports/<TIMESTAMP>.html
+  - 5 작업 완료 / 2 deferred / 0 failed
+  - 다음 권장: <next-up 첫 항목>
+```
+
+Do NOT repeat the full content of the HTML in the chat. The chat is
+ephemeral; the HTML is the durable artifact.
+
+## HTML report structure (template sections)
+
+The template has these sections in order. Omit any section that has
+no content for this session — empty placeholders are not rendered.
+Every label is Korean (§6 한국어 단일).
+
+| Section (template label) | Tab | Purpose | Length |
+|---|---|---|---|
+| **헤더** | 공통 | Title · `작성 YYYY-MM-DD HH:MM KST` (갱신본은 `/ 갱신 …`) · `발행 <세션>` · `등급` · repo · branch · duration | 2 lines |
+| **무엇을 / 왜 / 지금 어디까지** | 요약 | Three cards for a reader with zero coding knowledge: what shipped, why, what's left. Status card carries the 3-5 summary bullets | 3 cards |
+| **용어** | 요약 | One-line gloss for each technical term used in the cards | Conditional |
+| **결정 기록** | 상세 | Key choices made (Phase 1 ambiguity Q&A, Phase 2 scope cuts, user-explicit choices) | 3-10 items |
+| **단계 추적** | 상세 | simonK Phase 1-6 each with input / output / duration | 6 steps |
+| **변경 요약** | 상세 | Files changed (grouped by area), +/- LOC, key commits with SHAs | Table |
+| **검증** | 상세 | What ran (validators, tests, lints, smoke tests), pass / fail counts | Table |
+| **관점 점검** | 상세 | If `/perspectives` ran — Core 5 + session-specific findings | Conditional |
+| **다음 할 일** | 상세 | Deferred items, follow-up PRs, manual to-do tasks | Bulleted |
+| **부록** | 상세 | Raw commit log, full file list | Collapsible |
+
+Each detail section is a closed `<details>` so the first screen is the
+summary cards. An important fact that appears only under 상세 means the
+summary failed — move it up. This template is §6 grade S; a sprint that
+needs M (history · to-do · decision tabs, question carry-over) adds
+those tabs per §6 instead of stretching 상세.
+
+## Visual design
+
+Global instruction §6 sets the floor (three colors at most, light/dark
+automatic, zero network, aria · contrast · focus, memo sidebar). The
+template implements it with these defaults:
+- Theme: light tokens on `:root`, dark tokens under
+  `@media (prefers-color-scheme: dark)`. Never a fixed dark page.
+- Colors: accent (slate violet `#5B48D9` light / `#9D8FF5` dark), ok
+  (green), err (red). Tinted neutrals don't count. A warning badge is
+  neutral with a text label — there is no fourth color.
+- Font: system stack with `Pretendard` first by name only — used when
+  installed, never downloaded. No `@font-face`, no webfont. NEVER Inter.
+- No emojis in body text. Section markers use simple Unicode geometric shapes (▸ ◆ ●)
+- 100% width on mobile, max 720px on desktop
+- JS: tabs, memo sidebar (`localStorage` keyed by file name, memory
+  fallback, [메모 → 프롬프트 복사]) and copy fallbacks only. Content
+  never depends on it; banner, tabs and sidebar are hidden in print.
+
+## Optional — VLM quality self-check (SenseNova pattern)
+
+`SIMONK_REPORT_VLM=on` 환경 변수가 켜져 있으면, HTML 생성 직후 자체 평가 단계 1회 추가:
+
+1. headless browser (chromium) 로 HTML 렌더 → 스크린샷 PNG
+2. vision model 에게 5 항목 평가: readability / hierarchy clarity / color usage / overflow issues / mobile layout
+3. 평균 점수 < 7/10 이면 LLM 이 자동 1회 수정 시도 후 재평가
+4. 결과를 report 의 footer 에 `<!-- VLM score: X.Y/10 -->` 주석으로 기록
+
+**비용**: vision 모델 호출 1-2회 ($0.01-0.05). default OFF — 사용자 opt-in.
+**활용 시점**: 중요한 보고서 (외부 공유용) 일 때만 권장. 일상 sprint 는 OFF.
+
+차용 출처: OpenSenseNova/SenseNova-Skills (VLM quality scoring 87+ layouts).
+
+## Anti-patterns (do NOT do)
+
+- ❌ External CSS / fonts / images. The HTML must open offline.
+- ❌ Emojis throughout (one in the title is the limit).
+- ❌ Removing the tabs, memo sidebar or download banner to "simplify" —
+  they are the §6 grade-S floor, not decoration.
+- ❌ Dumping the chat transcript. The report is a DIGEST.
+- ❌ Generating before Phase 6 fires (mid-sprint reports lie because
+  later phases may change the conclusion).
+- ❌ Skipping `SendUserFile`. If the user only sees a path, they may
+  not see the file at all — they're often on mobile by Phase 6.
+- ❌ Auto-committing the report. The user decides whether
+  `.simonk/reports/` is tracked or `.gitignore`'d (it's their call).
+
+## Success criteria
+
+The skill is complete when:
+
+1. `.simonk/reports/<TIMESTAMP>.html` exists and is non-empty.
+2. The file is fully self-contained (no `<link rel="stylesheet">`,
+   no `<script src=>`, no external `<img>`).
+3. `SendUserFile` succeeded — the user has a notification with the
+   attachment.
+4. A brief text follow-up has been posted in the chat (3-4 lines).
+5. The HTML opens cleanly in any modern browser (Chrome, Safari,
+   Firefox, mobile Safari, mobile Chrome).
+
+## simonK Phase 6 integration
+
+When invoked by simonK Phase 6, the flow is:
+
+```
+Phase 5 finishes (commit + push complete)
+   │
+   └─ Phase 6 invokes /simonk-report
+         │
+         ├─ inherits session inventory (no re-scan)
+         ├─ writes .simonk/reports/<ts>.html
+         ├─ SendUserFile(proactive)
+         └─ posts 3-line chat summary
+```
+
+To opt out for one session: prefix the simonK invocation with
+`SIMONK_REPORT=off simonK "..."` (the harness respects the env).
+
+To opt out permanently: add `SIMONK_REPORT=off` to project `.envrc`
+or shell profile.
+
+## Related skills (explicit boundaries)
+
+- `/landing-report` (gstack) — product landing page report, different
+  audience (external prospects) and format (marketing landing).
+- `/document-release` (gstack) — post-ship sync of
+  README/CHANGELOG/ARCHITECTURE. Different concern (docs upkeep).
+- `/release-notes` (gstack) — release-day announcement copy
+  (developer vs user voice split). Different output (copy, not
+  internal report).
+- `/html-default-output` — generic "make this HTML" trigger for
+  arbitrary artifacts. This skill is **simonk-session-specific** with
+  a fixed schema.
+- `/perspectives` — blind-spot audit. Reports if it ran; doesn't
+  replace it.
+- `/retro` (gstack) — weekly engineering retro. Different cadence
+  (weekly, not per-sprint) and analysis target (commit history).
+- `/simon-handoff` — cross-session handoff (docs/HANDOFF.md). This
+  skill is the **current session's deliverable**; handoff is the
+  pointer to the **next session**.
+
+## Trigger phrases (matched by description block above)
+
+- `/simonk-report`
+- "리포트 만들어줘", "보고서 작성", "html 보고서"
+- "executive briefing", "session report"
+- simonK Phase 6 auto-invocation
+
+## Operational notes
+
+- For sprints under 30 minutes with only 1-2 files touched, the
+  report skeleton is overkill. The skill detects this and produces a
+  collapsed single-card report instead of the full 9-section layout.
+- For sprints over 4 hours, the appendix (commit log + file list)
+  grows. Use `<details>` HTML tags so it's collapsed by default.
+- The skill never includes secret strings (tokens, passwords) even
+  if they appear in commit messages. Pattern-mask `[A-Z0-9_]{32,}`
+  and known prefixes (`sk-`, `pk_`, `xoxb-`) before rendering.
+- Timestamps are local time, not UTC, because the user reads them.
+- The file path returned uses `.simonk/reports/` relative to the
+  project root — never absolute paths in the chat reply (privacy).
+
+## 완료 보고 (HTML) — 표준
+작업을 끝내면 **HTML 완료 보고서**를 생성한다 (SimonKCore `completion-report` 표준).
+- 첫 화면은 **심플 요약**(한눈 카드 한 줄) + 직관 그래픽/차트(인라인 SVG)·이미지.
+- 각 항목 옆 **[자세히] 버튼**(`<details>`)을 펼치면 상세 — 처음부터 쏟지 않는다(progressive disclosure).
+- 자체완결 1파일(인라인 CSS/SVG/JS, 외부 요청 0 — JS 가 꺼져도 본문은 전부 읽힌다) · 사용자 언어 · 현지시간 스탬프. 형식 바닥선은 전역 지침 §6.
+- Core 있으면 `completion-report` 호출, 없으면 동일 형식으로 인라인 생성.

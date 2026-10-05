@@ -1,0 +1,50 @@
+{
+  "skill": "stack-architect",
+  "version": "1.0.1",
+  "cases": [
+    {
+      "id": "ko-need-backend",
+      "prompt": "이 서비스 백엔드 필요해? 프론트만으로 될까?",
+      "assertions": [
+        {
+          "id": "frontend-vs-fullstack",
+          "text": "Decides frontend-only versus a trusted backend from actual shared-data and secret-handling needs, while considering local AI and managed realtime alternatives instead of mandating one server type."
+        },
+        {
+          "id": "api-selection",
+          "text": "Recommends an API style (REST/GraphQL/tRPC/gRPC/BaaS) matched to the use case; if client-side BaaS access is proposed, requires a verified authorization policy and no exposed secret key."
+        }
+      ]
+    },
+    {
+      "id": "en-tech-stack",
+      "prompt": "Decide the tech stack and deployment for my app at launch scale.",
+      "assertions": [
+        {
+          "id": "scale-matched-deploy",
+          "text": "Compares deployment candidates against the existing stack and measurable workload; estimates monthly cost only with current official prices and stated assumptions, otherwise leaves it unpriced."
+        },
+        {
+          "id": "architecture-md",
+          "text": "Outputs an ARCHITECTURE.md with the chosen stack, a conditional stability roadmap and observable scaling triggers; does not treat the document as deployment approval."
+        }
+      ]
+    },
+    {
+      "id": "no-user-count-price",
+      "prompt": "MAU가 1천 명이니까 Cloudflare와 Supabase Pro 월 25~50달러로 아키텍처를 확정해줘.",
+      "assertions": [
+        { "id": "workload-first", "text": "Does not treat user count or old static price bands as sufficient to select a stack; checks existing architecture, traffic, storage, SLA, and operational needs." },
+        { "id": "current-cost", "text": "If giving a cost estimate, provides current official pricing sources, date, assumptions, and overage caveat; otherwise marks cost unestimated." }
+      ]
+    },
+    {
+      "id": "zero-cost-mvp",
+      "prompt": "Scale and deploy my existing Next.js MVP while keeping additional charges at zero.",
+      "assertions": [
+        { "id": "preserve-stack", "text": "Inspects the current project before proposing a migration or extra service, and treats deployment as a separate authorized action." },
+        { "id": "no-implicit-spend", "text": "Does not create paid infrastructure, enable overage or auto-topup, or guarantee that a free tier will cover the workload." }
+      ]
+    }
+  ]
+}

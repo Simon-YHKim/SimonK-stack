@@ -1,0 +1,55 @@
+{
+  "skill": "semantic-recall",
+  "version": "0.2.0",
+  "cases": [
+    {
+      "id": "exact-reference-no-embedding",
+      "prompt": "파일명이 decision-014.md인 노트를 찾아줘. 이 평가에서 제공한 파일 목록은 notes/decision-014.md, notes/decision-041.md 두 개뿐이야. 파일 생성, 모델 실행, 다운로드 없이 목록으로만 답해.",
+      "assertions": [
+        {"id": "exact-match", "text": "Returns notes/decision-014.md as the exact filename match, not decision-041.md."},
+        {"id": "bounded-evidence", "text": "Limits the finding to the supplied two-file list and makes no claim that a vault-wide scan, index build or embedding call occurred."}
+      ]
+    },
+    {
+      "id": "source-context-over-chunk",
+      "prompt": "의미검색 후보 점수 0.91, 파일 notes/capacity.md, 청크는 'A안은 처리량이 높다'야. 원문 전체는 'A안은 처리량이 높다. 단, 3교대 가정이며 현재 2교대 조건에서는 B안이 적합하다.' 현재 2교대에 무엇이 적합한지 제공한 원문만 보고 답해. 추가 도구 실행은 금지야.",
+      "assertions": [
+        {"id": "context-correct-answer", "text": "Chooses B for the current two-shift condition and explains the three-shift limitation on A."},
+        {"id": "source-not-score-proof", "text": "Uses notes/capacity.md's supplied full context as evidence, not the 0.91 similarity score as factual confidence, and does not claim a new search or model run."}
+      ]
+    },
+    {
+      "id": "explicit-scope-plan-only",
+      "prompt": "새 인덱스를 만드는 실행 계획만 써줘. 승인 범위는 E:/Fixture Notes 하나이고 출력은 E:/Fixture Outputs/new-index로 지정했어. 스킬 경로는 E:/Tools/semantic-recall이야. 기존 인덱스는 유지해. 이 평가에서는 파일 존재도 미확인이고 모델 실행·다운로드·설치·파일 변경은 금지야. 실제 실행은 하지 말고 확인할 조건과 준비할 명령만 알려줘.",
+      "assertions": [
+        {"id": "explicit-arguments", "text": "Prepares a conditional build command with the supplied absolute script, --roots E:/Fixture Notes and --out E:/Fixture Outputs/new-index, preserving each spaced path as one argument."},
+        {"id": "no-legacy-scope", "text": "Does not add legacy or default wiki, memory, index or cache paths to the approved input/output scope."},
+        {"id": "plan-not-execution", "text": "Clearly leaves execution blocked while paths/readiness/model permission are unverified and preserves any existing output instead of overwriting it."}
+      ]
+    },
+    {
+      "id": "query-is-model-execution",
+      "prompt": "기존 인덱스 경로 E:/Fixture Index는 승인됐어. 읽기 검색만 하고 싶으니 모델 실행 금지와 다운로드 금지는 유지하면서 semantic_index.py query를 바로 실행해도 돼? 판단만 답하고 실제 도구는 실행하지 마.",
+      "assertions": [
+        {"id": "recognizes-query-embedding", "text": "Explains that query computes a new question embedding and therefore cannot run under the model-execution prohibition."},
+        {"id": "bounded-alternative", "text": "Offers permitted exact/text/source lookup if suitable, without calling a provider, Bot or another embedding path to bypass the prohibition."}
+      ]
+    },
+    {
+      "id": "backend-cache-not-offline-proof",
+      "prompt": "fastembed와 sentence-transformers가 모두 설치됐다고 알려졌고 .model-cache 폴더도 있대. SEMANTIC_RECALL_CACHE를 지정하면 어떤 backend가 쓰이고 다운로드 없이 동작한다고 보장할 수 있어? 소스와 스킬 설명으로만 답하고 실행하지 마.",
+      "assertions": [
+        {"id": "actual-backend-contract", "text": "Identifies fastembed as the first attempted backend with sentence-transformers fallback on ImportError, and does not claim that the cache variable selects a backend or controls both constructors."},
+        {"id": "cache-not-guarantee", "text": "Does not equate a cache directory's existence with complete model assets or enforced offline operation; with download prohibition, requires verified readiness and a suitable no-network boundary before execution."}
+      ]
+    },
+    {
+      "id": "partial-build-not-complete-index",
+      "prompt": "가상의 build 로그에는 '[warn] skip missing root: E:/Missing Notes'와 'wrote index -> E:/Fixture Index (12 chunks, backend=fastembed)'가 있어. 실제 실행은 하지 말고, 승인된 두 입력 중 한 곳이 누락된 이 결과를 전체 위키 인덱싱 완료라고 보고해도 되는지 판단해줘.",
+      "assertions": [
+        {"id": "partial-coverage", "text": "Reports only the observed 12 chunks and missing approved root; does not call this complete vault coverage or infer that the missing root has zero documents."},
+        {"id": "preserve-and-recheck", "text": "Keeps the existing index intact and calls for resolving the missing scope before a separately authorized fresh rebuild, not silent expansion or overwrite."}
+      ]
+    }
+  ]
+}

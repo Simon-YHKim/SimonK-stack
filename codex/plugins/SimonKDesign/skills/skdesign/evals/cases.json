@@ -1,0 +1,38 @@
+{
+  "skill": "skdesign",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "ko-ambiguous-design-entry",
+      "prompt": "디자인 해줘 — 뭔가 멋진 거",
+      "assertions": [
+        {
+          "id": "diagnoses-intent",
+          "text": "Roughly diagnoses the user's intent before acting (does not jump straight to code/pixels)."
+        },
+        {
+          "id": "routes-to-subskill",
+          "text": "Routes to the appropriate sub-design skill based on the diagnosed intent."
+        },
+        {
+          "id": "follows-ordered-flow",
+          "text": "Follows the diagnose to reference to direction to output to review order, iterating with the user."
+        }
+      ]
+    },
+    {
+      "id": "en-logo-route",
+      "prompt": "I need a logo and a brand identity for my product",
+      "assertions": [
+        {
+          "id": "routes-to-logo-generator",
+          "text": "Diagnoses this as a logo/brand task and routes to the logo-generator path."
+        },
+        {
+          "id": "iterative-develop",
+          "text": "Plans to iteratively develop the output with the user rather than one-shotting it."
+        }
+      ]
+    }
+  ]
+}

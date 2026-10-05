@@ -1,0 +1,38 @@
+{
+  "skill": "rag-builder",
+  "version": "1.1.0",
+  "cases": [
+    {
+      "id": "ko-pdf-chatbot",
+      "prompt": "내 PDF 문서들로 답하는 챗봇 RAG 만들어줘",
+      "assertions": [
+        {
+          "id": "ingestion-chunking",
+          "text": "Designs ingestion and chunking."
+        },
+        {
+          "id": "vectorstore-table",
+          "text": "Selects an embedding model and vector store (pgvector/Pinecone/Chroma/Qdrant tradeoff)."
+        },
+        {
+          "id": "citation-eval",
+          "text": "Enforces grounded citations and an eval (faithfulness/relevance/recall)."
+        }
+      ]
+    },
+    {
+      "id": "en-hybrid-search",
+      "prompt": "Knowledge-base QA with vector search for my product",
+      "assertions": [
+        {
+          "id": "hybrid-rerank",
+          "text": "Designs retrieval with hybrid search + rerank."
+        },
+        {
+          "id": "failure-modes",
+          "text": "Covers failure modes plus cost/latency."
+        }
+      ]
+    }
+  ]
+}
