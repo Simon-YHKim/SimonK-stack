@@ -21,9 +21,9 @@ BASES = {"SimonKAIHub": "AI 제품/기능 빌드 오케스트레이션 플러그
          "SimonKDesign": "디자인 fixture 플러그인",
          "SimonKMarket": "마켓 fixture 플러그인",
          "SimonKStack": "제품/서비스 빌드 오케스트레이션 플러그인"}
-CORE_TEXT = BASES["SimonKCore"] + ". Codex판에는 Claude Code 전용 안전 스킬(careful·unfreeze)이 없다."
+CORE_TEXT = BASES["SimonKCore"] + ". Codex판에는 Claude Code 전용인 careful·unfreeze 안전 스킬이 없다."
 STACK_TEXT = (BASES["SimonKStack"]
-              + ". Codex판에는 Claude Code 전용 안전 스킬(freeze·guard·investigate)이 없다.")
+              + ". Codex판에는 Claude Code 전용인 freeze·guard·investigate 안전 스킬이 없다.")
 
 
 def _sha(data):
@@ -163,8 +163,8 @@ class CodexSafeSubsetTests(unittest.TestCase):
             shipped = (self.output / row["path"]).read_bytes()
             self.assertEqual((row["sha256"], row["size"]), (_sha(shipped), len(shipped)))
         self.assertEqual(self.module.CODEX_NOTICES, {
-            "SimonKCore": "Codex판에는 Claude Code 전용 안전 스킬(careful·unfreeze)이 없다.",
-            "SimonKStack": "Codex판에는 Claude Code 전용 안전 스킬(freeze·guard·investigate)이 없다."})
+            "SimonKCore": "Codex판에는 Claude Code 전용인 careful·unfreeze 안전 스킬이 없다.",
+            "SimonKStack": "Codex판에는 Claude Code 전용인 freeze·guard·investigate 안전 스킬이 없다."})
         self.assertEqual(set(self.module.CODEX_NOTICES), set(self.module.bundle.DESCRIPTION_NOTICES))
 
     def test_rewrite_is_rederived_and_drift_fails_closed(self):
