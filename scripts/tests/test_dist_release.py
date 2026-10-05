@@ -336,12 +336,13 @@ class PublishWorkflowTests(unittest.TestCase):
     def test_committed_approval_names_the_current_approved_content(self):
         # Each approval is its own reviewed change recorded in the hub: D-82 first publish
         # (59eaff15...), D-83 freeze 0.2.6 content for the HTTPS update check (ba8e9216...),
-        # D-86 safety hook way-out wording without flat paths (85ccf593...).
+        # D-86 safety hook way-out wording without flat paths (85ccf593...),
+        # D-89 vibe 2.15.3 registry refresh (a09f620f...).
         allow = dist.validate_allow(json.loads((ROOT / dist.ALLOW).read_text(encoding="utf-8")))
-        self.assertEqual(allow["decision"], "D-86")
-        self.assertEqual(allow["source_commit"], "04c06c8decbf3d45e01c27986ac1cbb108d716a4")
+        self.assertEqual(allow["decision"], "D-89")
+        self.assertEqual(allow["source_commit"], "c9da2c8b7e53823f2c11043efe4a36833a41fed1")
         self.assertEqual(allow["content_digest"],
-                         "85ccf5938fd7d0a040461289bdc2770743a965436e0ce50114893d91b72e117e")
+                         "a09f620f331a1cd782aae202cd659a8ea376d605872632c2edab5bb813642c4d")
 
 
 class StageTests(unittest.TestCase):
