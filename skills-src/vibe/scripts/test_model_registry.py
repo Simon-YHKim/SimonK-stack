@@ -274,7 +274,7 @@ class ModelRegistryTests(unittest.TestCase):
         self.assertIsNone(new["pricing"]["cache_write"])
         # D-90 held this migration; Simon's 2026-10-05 instruction resumed it, pending a canary.
         self.assertEqual(data["legacy_lane_migration"]["claude-sonnet-5"],
-                         {"candidate": "claude-sonnet-5-5", "status": "pending-transport-and-canary"})
+                         {"candidate": "claude-sonnet-5-5", "status": "pending-transport-and-certificate"})
         observed_at = data["checked_at"]
         trial = candidate(surface="claude", model="sonnet", resolved_model=None, observed_at=observed_at,
                           quota={"used_pct": None, "observed_at": observed_at})
@@ -454,15 +454,17 @@ class ModelRegistryTests(unittest.TestCase):
                          {"candidate": "claude-opus-5-5", "status": "pending-transport-and-certificate"})
         self.assertEqual(migration["gpt-5.6-sol"],
                          {"candidate": "gpt-6.1-sol", "status": "pending-transport-and-certificate"})
-        # The canary covered only these two lanes: terra's tier evaluation and the uncanaried
-        # successors keep their own pending status.
+        # The D-67 canary covered only these two lanes; terra's tier evaluation keeps its own status.
+        # The class A lanes passed their own canary on 2026-10-05 (D-91).
         self.assertEqual(migration["gpt-5.6-terra"],
                          {"candidate": "gpt-6.1-sol", "status": "pending-evaluation-not-equivalent-tier"})
-        self.assertEqual(migration["gpt-5.6-luna"], {"candidate": "gpt-6-luna", "status": "pending-transport-and-canary"})
+        self.assertEqual(migration["gpt-5.6-luna"],
+                         {"candidate": "gpt-6-luna", "status": "pending-transport-and-certificate"})
         self.assertNotIn("gpt-6-sol", {v["candidate"] for v in migration.values()})
         self.assertEqual(migration["grok-4.6"], {"candidate": "grok-4.7", "status": "pending-quota-and-canary"})
         certificate = {k for k, v in migration.items() if v["status"] == "pending-transport-and-certificate"}
-        self.assertEqual(certificate, {"claude-opus-5-5", "claude-opus-5", "gpt-6.1-sol", "gpt-5.6-sol"})
+        self.assertEqual(certificate, {"claude-opus-5-5", "claude-opus-5", "gpt-6.1-sol", "gpt-5.6-sol",
+                                       "claude-sonnet-5", "claude-sonnet-5-5", "gpt-5.6-luna", "gpt-6-luna"})
         section = catalog_map_section("Lane migration pending")
         rows = {line.split("|")[1].strip(): line for line in section.splitlines() if line.startswith("| `")}
         pending = " ".join(section.split())
@@ -474,9 +476,10 @@ class ModelRegistryTests(unittest.TestCase):
                 self.assertIn("`pending-transport-and-certificate`", rows["`" + lane + "`"])
                 self.assertNotIn("pending-transport-and-canary", rows["`" + lane + "`"])
 
-    def test_simon_261005_class_a_uses_current_lanes_registered_pending_canary(self):
+    def test_simon_261005_class_a_uses_current_lanes_canary_passed_pending_certificate(self):
         # Simon 2026-10-05 ("5.5로 전환해"): class A moves to the current-generation lanes, added
-        # beside the legacy keys like D-67. Registered is not running: both wait for a canary.
+        # beside the legacy keys like D-67. Both passed the read-only canary (D-91, run_0a369252175f)
+        # but are not running lanes until the launch certificate exists.
         lanes = ast.literal_eval(module_literal("routing.py", "LANES"))
         classes = ast.literal_eval(module_literal("routing.py", "CLASS_LANES"))
         self.assertEqual(classes["A"], ["gpt-6-luna", "claude-sonnet-5-5", "claude-opus-5-5"])
@@ -500,20 +503,21 @@ class ModelRegistryTests(unittest.TestCase):
                                  (vendor, vendor, "flag", "orca"))
                 self.assertEqual((spec["std"], spec["top"], spec["orca_efforts"]), (std, top, orca))
                 self.assertNotIn("quota_bucket", spec)  # Sonnet 5.5 uses the general claude weekly quota.
-                self.assertEqual(migration[lane], {"candidate": lane, "status": "pending-transport-and-canary"})
+                self.assertEqual(migration[lane], {"candidate": lane, "status": "pending-transport-and-certificate"})
         self.assertEqual(migration["claude-sonnet-5"],
-                         {"candidate": "claude-sonnet-5-5", "status": "pending-transport-and-canary"})
+                         {"candidate": "claude-sonnet-5-5", "status": "pending-transport-and-certificate"})
         self.assertEqual(migration["gpt-5.6-luna"],
-                         {"candidate": "gpt-6-luna", "status": "pending-transport-and-canary"})
+                         {"candidate": "gpt-6-luna", "status": "pending-transport-and-certificate"})
         section = catalog_map_section("Lane migration pending")
         rows = {line.split("|")[1].strip(): line for line in section.splitlines() if line.startswith("| `")}
         blocked = next(b for b in section.split("\n- ") if "ORCA_UNREGISTERED_PROCESS_OR_MODEL" in b)
         blocked = blocked.split("ORCA_UNREGISTERED_PROCESS_OR_MODEL")[0]
         for lane in expected:
             with self.subTest(row=lane):
-                self.assertIn("`pending-transport-and-canary`", rows["`" + lane + "`"])
-                self.assertNotIn("pending-transport-and-certificate", rows["`" + lane + "`"])
+                self.assertIn("`pending-transport-and-certificate`", rows["`" + lane + "`"])
+                self.assertNotIn("pending-transport-and-canary", rows["`" + lane + "`"])
                 self.assertNotIn("`" + lane + "`", blocked)
+        self.assertIn("run_0a369252175f", " ".join(section.split()))
 
     def test_task_fit_policy_keeps_sonnet_55_out_until_its_reentry_conditions(self):
         # D-90: Artificial Analysis puts Sonnet 5.5 off the intelligence/cost-per-task frontier at

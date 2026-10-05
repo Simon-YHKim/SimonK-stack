@@ -24,13 +24,13 @@ are relative to the `/vibe` skill root.
 | `claude-opus-5-5` | claude | `max` | `high` | `low` · `medium` · `high` · `xhigh` · `max` | `--effort` | ✅ `--model`·`--effort` 가능 | canary 통과 · 인증서 전 · Orca 미등록 id → low~max |
 | `claude-opus-5` | claude | `ultracode` | `standard` | `standard` · `ultracode` (와이어는 항상 `--effort max`) | 프롬프트 키워드 | ✅ `--model`·`--effort` 가능 | 1M · D-67 원장 호환용(우선순위 밖) |
 | `claude-fable-5-1` | claude | `max` | `high` | `low` · `medium` · `high` · `xhigh` · `max` | `--effort` | ✅ `--model`·`--effort` 가능 | 1M · 쿼터 fableWeekly 별도 · API 단가 Opus 5의 2배 |
-| `claude-sonnet-5-5` | claude | `high` | `medium` | `low` · `medium` · `high` · `xhigh` · `max` | `--effort` | ✅ `--model`·`--effort` 가능 | canary 전 · 인증서 전 · Orca 미등록 id → low~max · xhigh·max 정책 밖 |
+| `claude-sonnet-5-5` | claude | `high` | `medium` | `low` · `medium` · `high` · `xhigh` · `max` | `--effort` | ✅ `--model`·`--effort` 가능 | canary 통과 · 인증서 전 · Orca 미등록 id → low~max · xhigh·max 정책 밖 |
 | `claude-sonnet-5` | claude | `xhigh` | `medium` | `low` · `medium` · `high` · `xhigh` · `max` | `--effort` | ✅ `--model`·`--effort` 가능 | 1M · API 단가 Opus 5의 0.4배 · 원장 호환용(우선순위 밖) |
 | `gpt-6-astra` | codex | `xhigh` | `high` | `minimal` · `low` · `medium` · `high` · `xhigh` | `--effort` | ✅ `--model`·`--effort` 가능 | 272K(최대 872K) · Orca 상한 xhigh |
 | `gpt-6.1-sol` | codex | `xhigh` | `high` | `minimal` · `low` · `medium` · `high` · `xhigh` | `--effort` | ✅ `--model`·`--effort` 가능 | canary 통과 · 인증서 전 · Orca 상한 xhigh |
 | `gpt-5.6-sol` | codex | `ultra` | `high` | `minimal` · `low` · `medium` · `high` · `xhigh` · `max` · `ultra` | `--effort` | ✅ `--model`·`--effort` 가능 | 272K(최대 872K) · D-67 6.1-sol 뒤 폴백 |
 | `gpt-5.6-terra` | codex | `max` | `medium` | `minimal` · `low` · `medium` · `high` · `xhigh` · `max` · `ultra` | `--effort` | ✅ `--model`·`--effort` 가능 | 272K(최대 872K) |
-| `gpt-6-luna` | codex | `medium` | `low` | `minimal` · `low` · `medium` · `high` · `xhigh` | `--effort` | ✅ `--model`·`--effort` 가능 | canary 전 · 인증서 전 · 최저가 · Orca 상한 xhigh |
+| `gpt-6-luna` | codex | `medium` | `low` | `minimal` · `low` · `medium` · `high` · `xhigh` | `--effort` | ✅ `--model`·`--effort` 가능 | canary 통과 · 인증서 전 · 최저가 · Orca 상한 xhigh |
 | `gpt-5.6-luna` | codex | `medium` | `low` | `minimal` · `low` · `medium` · `high` · `xhigh` · `max` | `--effort` | ✅ `--model`·`--effort` 가능 | 272K(최대 872K) · 최저가 · 원장 호환용(우선순위 밖) |
 | `gpt-daybreak-blue-latest` | codex | `xhigh` | `high` | `minimal` · `low` · `medium` · `high` · `xhigh` | `--effort` | ✅ `--model`·`--effort` 가능 | 보안 전용 · 기본 low · Orca 상한 xhigh |
 | `gemini-3.8-flash` | antigravity | `high` | `medium` | — **지정 불가** (그 CLI 기본값) | **슬러그 내장** | ❌ **Orca 워커 불가** (agent 미등록·과제 전달 실패 — CLI 직행만) | Gemini Flash 계열 |

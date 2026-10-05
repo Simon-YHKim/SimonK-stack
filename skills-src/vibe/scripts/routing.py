@@ -97,8 +97,9 @@
 #   · D-90 의 registry 보류(held-until-remeasure)는 이 레인에 한해 Simon 지시가 앞선다(D-90 소수의견:
 #     레인에 대한 Simon 의 명시 지시가 우선). shadow task-fit 정책의 Sonnet 5.5 제외(D-90)는 별개의
 #     비용 프런티어 결정이라 그대로다(references/task-fit-policy.json 무변경).
-#   ⚠ '등록'이지 '동작'이 아니다. 두 레인은 읽기 전용 canary(launch.requested ↔ launch.effective)와
-#     Orca 런치 계정/과금 인증서 전까지 registry legacy_lane_migration = pending-transport-and-canary 다.
+#   ⚠ '등록'이지 '동작'이 아니다. 읽기 전용 canary(launch.requested ↔ launch.effective)는 2026-10-05
+#     두 레인 모두 통과했다(2.15.5, run_0a369252175f). Orca 런치 계정/과금 인증서 전까지
+#     registry legacy_lane_migration = pending-transport-and-certificate 다.
 #     $0 게이트(모델 포함·초과과금 OFF·API 폴백 OFF)와 G5·Orca 인증서는 다른 flag 레인과 똑같이 걸린다.
 import hashlib
 import json
@@ -190,10 +191,11 @@ LANES = {
         #   설정으로 보는 값. xhigh·max 는 토큰 폭증(max 에서 작업당 출력 약 193k 토큰)이라 정책 사다리에서 뺐다 —
         #   Orca 는 받으므로 allow_off_ladder 로만 열린다.
         # 쿼터는 claude 일반 weekly 다(fable 처럼 별도 버킷이 아니다).
-        # ⚠ 등록만 됐다. 읽기 전용 canary · 계정/과금 인증서 전까지 동작 레인이 아니다
-        #   (registry legacy_lane_migration = pending-transport-and-canary · 게이트는 다른 flag 레인과 같다).
+        # ⚠ 읽기 전용 canary 는 통과했다(2026-10-05 · requested == effective · 세션 기록 모델 일치).
+        #   계정/과금 인증서 전까지 동작 레인이 아니다
+        #   (registry legacy_lane_migration = pending-transport-and-certificate · 게이트는 다른 flag 레인과 같다).
         "cli": "claude", "vendor": "claude", "effort_style": "flag", "dispatch": "orca",
-        "top": "high", "std": "medium", "ctx": "canary 전 · 인증서 전 · Orca 미등록 id → low~max · xhigh·max 정책 밖",
+        "top": "high", "std": "medium", "ctx": "canary 통과 · 인증서 전 · Orca 미등록 id → low~max · xhigh·max 정책 밖",
         "orca_efforts": ("low", "medium", "high", "xhigh", "max"),
     },
     "claude-sonnet-5": {
@@ -245,10 +247,11 @@ LANES = {
         #   Orca codex 카탈로그 다섯 줄에 없는 모델이라 6.1-sol·astra 와 같은 폴백(codexEffort('xhigh'))을
         #   받는다 → minimal~xhigh 만, max·ultra 는 거부(5.6-luna 는 seed 에 있어 max 까지 받았다).
         # 정책 사다리는 gpt-5.6-luna 와 같은 low/medium 이다 — 싼 레인에 판단을 맡기지 않는다(D-28 #10 보류 유지).
-        # ⚠ 등록만 됐다. 읽기 전용 canary · 계정/과금 인증서 전까지 동작 레인이 아니다
-        #   (registry legacy_lane_migration = pending-transport-and-canary · 게이트는 다른 flag 레인과 같다).
+        # ⚠ 읽기 전용 canary 는 통과했다(2026-10-05 · requested == effective · 세션 기록 모델 일치).
+        #   계정/과금 인증서 전까지 동작 레인이 아니다
+        #   (registry legacy_lane_migration = pending-transport-and-certificate · 게이트는 다른 flag 레인과 같다).
         "cli": "codex", "vendor": "codex", "effort_style": "flag", "dispatch": "orca",
-        "top": "medium", "std": "low", "ctx": "canary 전 · 인증서 전 · 최저가 · Orca 상한 xhigh",
+        "top": "medium", "std": "low", "ctx": "canary 통과 · 인증서 전 · 최저가 · Orca 상한 xhigh",
         "orca_efforts": ("minimal", "low", "medium", "high", "xhigh"),
     },
     "gpt-5.6-luna": {

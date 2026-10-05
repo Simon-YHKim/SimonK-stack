@@ -24,6 +24,12 @@
   검증: scripts 단위 테스트 425 OK(421→425), `tests/` 157 OK, selftest PASS 196 · FAIL 0(188→196).
 - `adversarial_eval.VENDOR_OF` 와 `eval/probes.json` 에 새 레인을 옛 레인 옆에 더했다(12개 문제에 `gpt-6-luna`).
   `references/legacy-routing.md` 는 `sync_skill_table.py` 로 다시 만들었다. 모델 호출·Orca 명령·worker-start 는 0회다.
+- D-91 읽기 전용 Orca canary 를 통과했다(2026-10-05 20:47~20:53 KST, run `run_0a369252175f`, 레인마다 워커 1개).
+  `claude-sonnet-5-5`@medium: requested == effective, argv `--model claude-sonnet-5-5 --effort medium`, 세션 기록 model
+  `claude-sonnet-5-5`(자기보고 `claude-fable-5-1` 은 틀림). `gpt-6-luna`@low: requested == effective, argv
+  `-m gpt-6-luna -c model_reasoning_effort=low`, rollout `turn_context` `gpt-6-luna`/low(자기보고 `gpt-6.1-sol` 은 틀림).
+  워커 정지·PID 소멸 확인. 그래서 A 클래스 이전 4건을 `pending-transport-and-certificate` 로 바꿨다(registry 2026-10-05.4).
+  여전히 Orca 런치 계정/과금 인증서 전이라 동작 레인이 아니다. `scripts/preview-vibe-candidate.ps1` 기본 모델도 `claude-sonnet-5-5` 다.
 
 ## 2.15.4 - 2026-10-05
 

@@ -73,8 +73,8 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 아래 두 �
 | --- | --- | --- | --- | --- |
 | `claude-opus-5-5` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | high / max | `pending-transport-and-certificate` |
 | `gpt-6.1-sol` | `--effort` 플래그 | minimal~xhigh (codex 미등록 모델 폴백, max·ultra 거부) | high / xhigh | `pending-transport-and-certificate` |
-| `claude-sonnet-5-5` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | medium / high (xhigh·max 는 정책 밖) | `pending-transport-and-canary` |
-| `gpt-6-luna` | `--effort` 플래그 | minimal~xhigh (codex 미등록 모델 폴백, max·ultra 거부) | low / medium | `pending-transport-and-canary` |
+| `claude-sonnet-5-5` | `--effort` 플래그 | low~max (claude 카탈로그에 없는 정식 id) | medium / high (xhigh·max 는 정책 밖) | `pending-transport-and-certificate` |
+| `gpt-6-luna` | `--effort` 플래그 | minimal~xhigh (codex 미등록 모델 폴백, max·ultra 거부) | low / medium | `pending-transport-and-certificate` |
 
 - 우선순위 목록·`PROCESS_LANES.coding`·종합 고정·코디네이터를 새 키로 옮겼다.
   종합은 `claude-opus-5-5` @max 다. ultracode 는 프롬프트 키워드라 flag 레인이 받지 못한다.
@@ -104,12 +104,18 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 아래 두 �
   Analysis 가 Sonnet 5.5 의 가장 경쟁력 있는 설정으로 보는 값). xhigh·max 는 토큰 폭증(max 에서 작업당
   출력 약 193k 토큰) 때문에 정책 사다리 밖이고 off-ladder 로만 열린다. 쿼터는 claude 일반 weekly 다.
   `gpt-6-luna` 는 `gpt-5.6-luna` 와 같은 low/medium 이고, Orca 상한은 seed 밖 폴백이라 xhigh 다(5.6-luna 는 max).
-- **이 두 레인은 등록만 됐고 canary 전이다.** 읽기 전용 canary(`launch.requested` 와 `launch.effective` 대조)와
-  Orca 런치 계정/과금 인증서가 생기기 전까지 `pending-transport-and-canary` 이고 준비된 경로로 보지 않는다.
+- **canary 는 통과했지만 아직 동작 레인이 아니다(D-91, 2.15.5).** 2026-10-05 20:47~20:53 KST 의 읽기 전용
+  canary(Orca run `run_0a369252175f`, 레인마다 워커 1개, 도구 금지 한 줄 응답, D-67 과 같은 folder worktree)에서
+  두 레인 모두 `launch.requested` 와 `launch.effective` 가 같았다. `claude-sonnet-5-5`@medium 은 argv
+  `--model claude-sonnet-5-5 --effort medium` 이고 세션 기록의 model 도 `claude-sonnet-5-5` 였다(자기보고는
+  `claude-fable-5-1 CANARY-OK` 로 틀렸다). `gpt-6-luna`@low 는 argv `-m gpt-6-luna -c model_reasoning_effort=low`
+  이고 rollout `turn_context` 는 `gpt-6-luna`/low 였다(자기보고 `gpt-6.1-sol CANARY-OK`, 서버측 모델은 따로
+  확인하지 못했다). 두 워커는 정지했고 PID 가 사라진 것을 확인했다. 그래서 상태는
+  `pending-transport-and-certificate` 이고, Orca 런치 계정/과금 인증서가 생기기 전까지 준비된 경로로 보지 않는다.
   모델 포함·초과과금 OFF·API 폴백 OFF·G5·런치 인증서 게이트는 기존 flag 레인과 똑같이 걸린다
   (`test_orchestrate.py`·`test_execute_orca.py` 의 A 클래스 레인 테스트).
 - `claude-sonnet-5` → `claude-sonnet-5-5` 는 D-90(2026-10-05)으로 `held-until-remeasure` 였다가, 같은 날
-  Simon 지시로 전환해 지금은 canary 대기(`pending-transport-and-canary`)다. D-90 소수의견대로 이 레인에 대한
+  Simon 지시(D-91)로 전환했고 canary 를 통과해 지금은 `pending-transport-and-certificate` 다. D-90 소수의견대로 이 레인에 대한
   Simon 의 명시 지시가 보류보다 앞선다. D-90 이 든 비용 근거(Artificial Analysis 는 Sonnet 5.5 의 작업당
   비용을 Sonnet 5 보다 약 50% 높게 보고, 모든 effort 가 지능 대비 작업당 비용 프런티어 밖이라고 적는다)는
   별개의 비용 프런티어 판단이라 shadow task-fit 정책의 `claude-sonnet-5-5` 제외(재진입 조건은 그 정책 노트)는
