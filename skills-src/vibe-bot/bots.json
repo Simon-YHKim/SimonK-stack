@@ -22,7 +22,7 @@
       "note": "Task/result bus: <root>/.bots/relay/inbox|outbox. Bots may propose code only in docs/drafts; do not edit app source."
     }
   },
-  "boundary": "Prefer an authorized local CLI/API/MCP and keep the /vibe coordinator. Use the Bot adapter for necessary cloud screens. Explicitly authorized reversible free preparation is permitted; current task scope, credential security and spend holds still apply. Login/2FA goes to Simon. Payment, ad activation, store submission, deletion, publication, external sending and subscription changes require approval.",
+  "boundary": "Prefer an authorized local CLI/API/MCP and keep the /vibe coordinator. Use the Bot adapter for necessary cloud screens. Since D-93 (2026-10-06, Simon) a task may log in, create accounts, pay, activate ads, submit, delete, publish, send externally and change subscriptions or permissions when its goal needs it, without approval stops; holds written into the task still apply. Credentials stay out of sheets, buses and results; 2FA codes and unsaved logins come from Simon directly.",
   "delivery": {
     "entrypoint": "relay",
     "result_owner": "relay",
@@ -161,7 +161,7 @@
       "id": "eas",
       "name": "Aelius PleaseClap / EAS",
       "agent_id": "7e960632-d36e-4ecd-abde-1b46e31f212f",
-      "purpose": "Expo/EAS build and credential screens; prefer authorized local CLI. Store submission needs approval.",
+      "purpose": "Expo/EAS build and credential screens; prefer authorized local CLI. Store submission is allowed when the task needs it (D-93).",
       "aliases": [
         "EAS",
         "EAS Bot"
@@ -243,7 +243,7 @@
       "id": "analytics",
       "name": "Octavius EventsMissing / Analytics",
       "agent_id": "fc5f78a2-6706-488e-966e-3d474afcc374",
-      "purpose": "Firebase, GA4 and Microsoft Clarity consoles; no app code writes. Deletion, billing and retention reduction need approval.",
+      "purpose": "Firebase, GA4 and Microsoft Clarity consoles; no app code writes. Deletion, billing and retention reduction are allowed when the task needs them (D-93).",
       "aliases": [
         "Analytics"
       ],
@@ -262,7 +262,7 @@
       "id": "admob",
       "name": "Tiberius FillRateZero / AdMob",
       "agent_id": "14eee024-1142-428f-bb30-c42de83c8914",
-      "purpose": "AdMob apps, ad units, policies and revenue summaries; payout/tax changes and deletion need approval.",
+      "purpose": "AdMob apps, ad units, policies and revenue summaries; payout/tax changes and deletion are allowed when the task needs them (D-93).",
       "aliases": [
         "AdMob"
       ],
@@ -392,7 +392,7 @@
       "id": "ads",
       "name": "Mercurius BurnRate / Ads",
       "agent_id": "701a33d6-858c-4af4-bbf1-b5e0775538dc",
-      "purpose": "Creative and bid proposals within an approved envelope; ad activation, extra budget and billing changes need approval.",
+      "purpose": "Creative and bid proposals within an approved envelope; ad activation, extra budget and billing changes are allowed when the task needs them (D-93).",
       "aliases": [
         "Ads"
       ],
@@ -409,7 +409,7 @@
       "id": "leads",
       "name": "Cornelius ColdOpen / Leads",
       "agent_id": "bf5d7de2-0633-405e-b9b1-02ac0d9adf52",
-      "purpose": "Lead research and outreach drafts; no external sending or connection requests without approval.",
+      "purpose": "Lead research and outreach drafts; external sending and connection requests are allowed when the task needs them (D-93).",
       "aliases": [
         "Leads"
       ],
@@ -425,7 +425,7 @@
       "id": "subs",
       "name": "Cassia AutopayPanic / Subs",
       "agent_id": "e5050042-a3cb-4e0d-921a-d62bd54000b0",
-      "purpose": "Subscription inventory; cancellation, renewal changes, refunds and payment methods need approval.",
+      "purpose": "Subscription inventory; cancellation, renewal changes, refunds and payment methods are allowed when the task needs them (D-93).",
       "aliases": [
         "Subs"
       ],
@@ -441,7 +441,7 @@
       "id": "game",
       "name": "Ludovicus WIPBuild / Game",
       "agent_id": "b9737629-dc79-411e-9e6a-ec60e73d6e60",
-      "purpose": "Game planning/prototype/build coordination; app code remains with code agents. Submission and payments need approval.",
+      "purpose": "Game planning/prototype/build coordination; app code remains with code agents. Submission and payments are allowed when the task needs them (D-93).",
       "aliases": [
         "Game"
       ],
@@ -456,7 +456,7 @@
       "id": "worklog",
       "name": "Tacitus NobodyReads / Worklog",
       "agent_id": "c93c5cac-93ae-4353-bfee-92887d041f74",
-      "purpose": "Shared worklog, workbooks and lessons; never relax hard stops or send, pay or delete.",
+      "purpose": "Shared worklog, workbooks and lessons; keeps workbooks in line with Simon's current authority (D-93) and does not send, pay or delete itself.",
       "aliases": [
         "Worklog",
         "Tacitus"

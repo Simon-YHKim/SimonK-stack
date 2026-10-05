@@ -13,7 +13,11 @@ third-party write-ups.
 Console mode (2026-09-19, Simon): console and GUI work goes to Grok Bot with an
 explicit sheet - target, goal, scope, buttons it must not press, stop points,
 screen evidence and result format. The result check then also demands screen
-evidence (C1) and escalates any report of an irreversible action (C2).
+evidence (C1) and lists any reported irreversible action as an audit notice (C2).
+
+Full screen authority (2026-10-06, Simon, hub D-93): a task may log in, create accounts,
+pay, submit, publish, delete and change permissions when its goal needs it. Credentials
+still never enter a sheet, bus or result (B1); code, repo and DB work stays in /vibe (B2).
 
 Roster and hub bus (2026-09-24): bots.json names the specialist owner, but
 all new coordinator tasks use relay/inbox and relay/outbox. The guarded
@@ -65,18 +69,14 @@ SECRET_PATTERNS = [
         r"(?i)\b(?:api[_-]?key|token|secret|자격증명)\s*[:=]\s*\S+")),
 ]
 
+# B2 is a lane rule, not a permission rule (D-93, 2026-10-06, Simon). Screen actions - login,
+# account creation, payment, release, deletion, permission changes - are allowed when the goal
+# needs them. Repository writes and shell/DB destruction still belong to the coding lane.
 WRITE_PATTERNS = [
     ("repo write / merge", re.compile(
         r"(?i)(?:\bgit\s+(?:push|merge|reset|rebase)\b|force[- ]push|"
         r"머지(?:해|하고|해줘|할)|병합해|pull request.*머지|auto[- ]?merge)")),
-    ("deploy / release", re.compile(
-        r"(?i)(?:\bdeploy\b|배포(?:해|하고|해줘)|릴리스해|프로덕션에 올려|production 반영)")),
-    ("delete / drop", re.compile(
-        r"(?i)(?:\brm\s+-rf\b|drop\s+table|삭제(?:해|하고|해줘)|지워(?:줘|버려)|계정을 정리해)")),
-    ("payment", re.compile(
-        r"(?i)(?:결제(?:해|하고|해줘)|구매해|송금|환불 처리|카드로 지불|subscribe and pay)")),
-    ("permission change", re.compile(
-        r"(?i)(?:권한을 (?:바꾸|부여|변경)|access.*grant|IAM 정책 변경|공개로 전환)")),
+    ("shell / DB destruction", re.compile(r"(?i)(?:\brm\s+-rf\b|drop\s+table)")),
 ]
 
 # B8 (0.7.0) - the boundary Simon drew: /vibe stays the core, and only work that needs a
@@ -146,17 +146,20 @@ SPEC_SECTIONS = ("Outcome", "Sources", "Constraints", "Deliverable", "Review poi
 # --- console mode ---------------------------------------------------------------
 CONSOLE_SECTIONS = ("대상", "목표", "범위", "누르지 말 것", "멈춤 지점", "증거", "결과 형식",
                     "Review point")
-CONSOLE_FORBID_DEFAULT = (
-    "제출 · Submit", "게시 · Publish", "출시 · Release · Rollout", "검토 요청 · Send for review",
-    "Reply · 답변 보내기", "Resubmit", "삭제 · Delete · Archive", "결제 · 구매 · 구독 · Purchase",
-    "권한 변경 · 사용자 초대 · Invite", "허용 변경 밖의 저장 · Save",
-)
+# D-93 (2026-10-06, Simon): nothing is forbidden by default; --forbid adds a task's own holds.
+CONSOLE_FORBID_DEFAULT = ()
 CONSOLE_STOPS = (
-    "로그인 · 2단계 인증 · 비밀번호 입력 화면",
-    "결제 · 카드 · 구독 화면",
-    "'누르지 말 것' 버튼이 필요한 순간 - 누르기 직전에 멈추고 사람 승인을 받는다",
+    "2단계 인증 코드가 필요할 때 - Simon에게 코드를 요청하고 기다린다",
+    "로그인 정보가 봇 컴퓨터에 없을 때 - Simon에게 봇 채팅으로 직접 받는다",
+    "'누르지 말 것'에 적힌 버튼이 필요한 순간 - 누르기 직전에 멈추고 사람 승인을 받는다",
     "지시와 다른 화면이나 경고가 나올 때",
 )
+AUTHORITY_D93 = ("목표에 필요하면 로그인·계정 생성·결제·제출·게시·삭제·권한 변경까지 승인 없이 한다 "
+                 "(D-93, Simon 2026-10-06 승인). 목표에 없는 변경은 하지 않는다.")
+CREDENTIAL_RULE = ("비밀번호·토큰·인증 코드는 결과·버스·로그에 적지 않는다. 로그인은 봇 컴퓨터에 "
+                   "저장된 세션을 쓰고, 없으면 Simon에게 봇 채팅으로 직접 받는다.")
+IRREVERSIBLE_REPORT_RULE = ("되돌릴 수 없는 동작(결제·제출·게시·삭제·계정 생성·권한 변경)을 했으면 "
+                            "버튼 이름과, 결제면 금액·항목을 그대로 적는다.")
 # Screen evidence: a menu path ("출시 > 프로덕션", "→"), or a screenshot mention.
 SCREEN_EVIDENCE_RE = re.compile(
     r"(?i)(?:\S\s>\s\S|→|메뉴 경로|화면 경로|스크린샷|screenshot|\.png\b|\.jpe?g\b)")
@@ -185,7 +188,7 @@ def check_request(task: str) -> dict:
             blocks.append(f"B1 자격증명 추정 문자열({label})이 요청에 있다")
     for label, rx in WRITE_PATTERNS:
         if rx.search(task):
-            blocks.append(f"B2 봇에게 위임하지 않는 작업({label})이다")
+            blocks.append(f"B2 코딩 레인 작업({label})이다 - 코드·레포·DB는 /vibe가 맡는다")
     for label, rx in CONFIDENTIAL_PATTERNS:
         if rx.search(task):
             warns.append(f"B3 회사 기밀일 수 있는 표현({label}) - 보내기 전에 지운다")
@@ -200,9 +203,8 @@ def check_request(task: str) -> dict:
 
 def build_spec(task: str, nonce: str, *, sources: str = "", constraints: str = "",
                deliverable: str = "", review: str = "", return_to: str = "") -> str:
-    sources = sources or "봇이 접근 가능한 공개 웹. 로그인이 필요한 곳은 들어가지 않는다."
-    constraints = constraints or (
-        "파일을 고치거나 배포·결제·삭제하지 않는다. 승인 요청이 뜨면 멈추고 사람을 기다린다.")
+    sources = sources or "봇이 접근 가능한 웹. 로그인이 필요하면 봇 컴퓨터에 저장된 세션으로 들어간다."
+    constraints = constraints or (AUTHORITY_D93 + " 앱 소스·레포는 고치지 않는다.")
     deliverable = deliverable or "표 1개(행별 출처 링크 포함)와 한 줄 요약."
     review = review or "표의 행 수와 출처 링크가 맞는지 사람이 확인한 뒤 사용한다."
     return_to = return_to or "이 대화창"
@@ -220,7 +222,8 @@ def build_spec(task: str, nonce: str, *, sources: str = "", constraints: str = "
         constraints,
         "- 부재 보고에는 찾은 범위를 쓴다. 범위 없는 '0건'은 결과로 인정하지 않는다.",
         "- 판단에는 근거(URL·파일·명령 출력)를 붙인다.",
-        "- 자격증명을 묻거나 되돌려 보내지 않는다. 로그인 화면이 나오면 사람에게 넘긴다.",
+        f"- {CREDENTIAL_RULE} 2단계 인증 코드도 Simon에게 요청한다.",
+        f"- {IRREVERSIBLE_REPORT_RULE}",
         "",
         "## Deliverable",
         deliverable,
@@ -234,16 +237,19 @@ def build_spec(task: str, nonce: str, *, sources: str = "", constraints: str = "
 
 
 def build_console_spec(task: str, nonce: str, *, target: str, url: str = "",
-                       allow_change: str = "", extra_forbid=(), return_to: str = "") -> str:
+                       allow_change: str = "", extra_forbid=(), return_to: str = "",
+                       read_only: bool = False) -> str:
     """Console / GUI task sheet. Every slot is filled - an empty slot is where a bot guesses."""
     return_to = return_to or "이 대화창"
     forbid = list(CONSOLE_FORBID_DEFAULT) + [x.strip() for x in extra_forbid if x and x.strip()]
-    if allow_change.strip():
-        scope = (f"허용 변경: {allow_change.strip()} - 이것 말고는 아무것도 바꾸지 않는다. "
-                 "변경 전후 화면을 증거로 남긴다. 명시한 범위의 무료·가역적인 저장만 허용하며, "
-                 "제출·공개·삭제·결제·권한 변경은 별도 승인 전 멈춘다.")
-    else:
+    if read_only:  # A hold Simon puts on this task ("바꾸지 마").
         scope = "읽기 전용. 어떤 값도 바꾸거나 저장하지 않는다."
+    elif allow_change.strip():
+        scope = (f"허용 변경: {allow_change.strip()} - 이것 말고는 아무것도 바꾸지 않는다. "
+                 "변경 전후 화면을 증거로 남긴다. 이 변경에 필요하면 로그인·결제·제출도 "
+                 "승인 없이 한다(D-93).")
+    else:
+        scope = AUTHORITY_D93 + " 바꾼 화면은 전후 증거를 남긴다."
     target_line = target.strip() + (f" · 시작 URL {url.strip()}" if url.strip() else "")
     return "\n".join([
         f"# Grok Bot 콘솔 과제서 · {nonce}",
@@ -259,7 +265,7 @@ def build_console_spec(task: str, nonce: str, *, target: str, url: str = "",
         scope,
         "",
         "## 누르지 말 것",
-        *[f"- {x}" for x in forbid],
+        *([f"- {x}" for x in forbid] or ["- 없음 (D-93). 목표에 필요한 버튼은 눌러도 된다."]),
         "",
         "## 멈춤 지점 - 여기서는 멈추고 사람에게 넘긴다",
         *[f"- {x}" for x in CONSOLE_STOPS],
@@ -269,17 +275,19 @@ def build_console_spec(task: str, nonce: str, *, target: str, url: str = "",
         "- 그 화면에서 읽은 값 그대로",
         "- 스크린샷 1장",
         "- 찾지 못한 항목은 어느 메뉴까지 봤는지 적는다. 범위 없는 '없음'은 결과로 인정하지 않는다.",
-        "- 자격증명을 묻거나 되돌려 보내지 않는다.",
+        f"- {CREDENTIAL_RULE}",
         "",
         "## 결과 형식 (Deliverable)",
         f"- 첫 줄에 이 표식을 그대로 적는다: {nonce}",
         "- 표 하나: 항목 | 값 | 화면 경로 | 스크린샷",
         "- 한 일과 하지 않은 일을 나눠 적는다. 누른 버튼이 있으면 이름을 그대로 적는다.",
-        "- 다음 행동은 누르지 말고 제안만 한다.",
+        f"- {IRREVERSIBLE_REPORT_RULE}",
+        "- 목표 밖의 다음 행동은 누르지 말고 제안만 한다.",
         f"- 결과는 {return_to}에 남긴다.",
         "",
         "## Review point",
-        "사람이 표의 값과 스크린샷을 대조한 뒤 쓴다. 되돌릴 수 없는 버튼은 사람이 승인한다.",
+        "사람이 표의 값과 스크린샷을 대조한 뒤 쓴다. 되돌릴 수 없는 동작은 결과에 적힌 대로 "
+        "사람이 사후 확인한다.",
         "",
     ])
 
@@ -300,11 +308,17 @@ def verify_result(text: str, nonce: str, mode: str = "general") -> list[str]:
     if mode == "console":
         if not SCREEN_EVIDENCE_RE.search(text):
             findings.append("C1 화면 근거 없음 - 메뉴 경로나 스크린샷이 없다")
-        hit = IRREVERSIBLE_DONE_RE.search(text)
-        if hit:
-            findings.append(f"C2 되돌릴 수 없는 동작 보고('{hit.group(0)[:30]}') - "
-                            "사람이 콘솔에서 바로 확인한다")
     return findings
+
+
+def notices(text: str, mode: str = "general") -> list[str]:
+    """Audit notices that never fail a result. Since D-93 an irreversible action inside the
+    task's goal is allowed, so C2 lists it for Simon instead of rejecting the result."""
+    if mode != "console":
+        return []
+    hit = IRREVERSIBLE_DONE_RE.search(text)
+    return [f"C2 되돌릴 수 없는 동작 보고('{hit.group(0)[:30]}') - "
+            "결과 보고에 그대로 옮겨 Simon이 확인한다"] if hit else []
 
 
 def _absence_unscoped(text: str) -> bool:
@@ -461,7 +475,8 @@ def collect(hub: Path = HUB_DIR, nonce: str = "", projects: dict | None = None) 
                     pass
             text = res.read_text(encoding="utf-8", errors="replace")
             rows.append({"bot": res.parent.parent.name, "nonce": n, "mode": mode,
-                         "path": str(res), "findings": verify_result(text, n, mode=mode)})
+                         "path": str(res), "findings": verify_result(text, n, mode=mode),
+                         "notices": notices(text, mode=mode)})
     return rows
 
 
@@ -498,7 +513,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--target", default="", help="console mode: console or app name and app/package id")
     ap.add_argument("--url", default="", help="console mode: start URL")
     ap.add_argument("--allow-change", dest="allow_change", default="",
-                    help="console mode: the exact change allowed (default read-only)")
+                    help="console mode: the exact change allowed (default: what the goal needs, D-93)")
+    ap.add_argument("--read-only", dest="read_only", action="store_true",
+                    help="console mode: a hold on this task - read only, change nothing")
     ap.add_argument("--forbid", action="append", default=[],
                     help="console mode: extra button the bot must not press (repeatable)")
     ap.add_argument("--bot", default="", help="owning bot id or name (default: routed from bots.json)")
@@ -539,6 +556,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"[{mark}] {r['bot']} · {r['nonce']} · {r['mode']} · {r['path']}")
             for f in r["findings"]:
                 print(f"    - {f}")
+            for f in r["notices"]:
+                print(f"    · 알림 {f}")
             bad += bool(r["findings"])
         return 1 if bad else 0
 
@@ -550,8 +569,10 @@ def main(argv: list[str] | None = None) -> int:
             for f in findings:
                 print(f"  - {f}")
             return 1
-        extra = ", 화면 근거 있음, 되돌릴 수 없는 동작 보고 없음" if a.mode == "console" else ""
+        extra = ", 화면 근거 있음" if a.mode == "console" else ""
         print("결과 합격 - nonce 확인, 범위 있는 보고, 근거 있음" + extra)
+        for f in notices(text, mode=a.mode):
+            print(f"  · 알림 {f}")
         return 0
 
     if not a.task:
@@ -590,7 +611,7 @@ def main(argv: list[str] | None = None) -> int:
     if a.mode == "console":
         spec = build_console_spec(a.task, nonce, target=a.target, url=a.url,
                                   allow_change=a.allow_change, extra_forbid=a.forbid,
-                                  return_to=a.return_to)
+                                  return_to=a.return_to, read_only=a.read_only)
     else:
         spec = build_spec(a.task, nonce, sources=a.sources or "",
                           constraints=a.constraints or "",
