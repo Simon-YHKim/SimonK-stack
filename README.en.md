@@ -88,7 +88,20 @@ In a POSIX shell: `claude plugin list --json | grep -o 'simonk-[a-z]*@simonk-sta
 
 > **Don't combine with a flat install.** If you already copied the same skills into `~/.claude/skills`, enabling the plugins shows every skill twice. A 2026-10-05 measurement saw 563 skills and over 30,000 characters of descriptions, so the list was truncated, which lowers the accuracy of automatic skill selection. Use either the plugins or the flat install, not both.
 
-> **Codex CLI is not supported yet.** Running `codex plugin marketplace add Simon-YHKim/SimonK-stack` in Codex finds no plugins to install (hub D-88). A Codex build (177 skills, without the safety skills) will be published after its own verification. If you installed through Codex before 2026-10-05, check with `codex plugin list` and remove each one, for example `codex plugin remove simonk-core@simonk-stack`. That build carries Claude Code-only safety skills, so their protection is not guaranteed in Codex.
+### Using it from Codex CLI
+
+Codex gets the **Codex edition** (177 skills) from the same repository. The five Claude Code-only safety skills (`careful`, `freeze`, `guard`, `investigate`, `unfreeze`) are left out because Codex cannot guarantee their blocking (hub D-29, D-88).
+
+```
+codex plugin marketplace add Simon-YHKim/SimonK-stack
+codex plugin add simonk-core@simonk-stack
+codex plugin add simonk-stack@simonk-stack
+codex plugin add simonk-aihub@simonk-stack
+codex plugin add simonk-design@simonk-stack
+codex plugin add simonk-market@simonk-stack
+```
+
+To get a new version, run `codex plugin marketplace upgrade`, then run `codex plugin add <id>@simonk-stack` again for each plugin you use. Refreshing the catalog alone leaves the installed copy as it is (measured 2026-10-05). If you installed through Codex before 2026-10-05, you may have the Claude build with the safety skills; the same two commands switch it to the Codex edition. To remove one, run `codex plugin remove simonk-core@simonk-stack`, and so on.
 
 ## 4. First steps
 
@@ -238,7 +251,7 @@ Then use the [install check in section 3](#check-the-install) to confirm all fiv
 | On Windows, the safety hooks block every command | Check that Git for Windows and Python 3.7+ are on PATH. If the checker can't run, it blocks on purpose. |
 | `/vibe` says "blocked" instead of running | Included subscription usage couldn't be confirmed, or is near its limit. This prevents extra billing; the report says what blocked it. |
 | Old skills disappeared | Run the four lines in section 8. |
-| Codex says "No marketplace plugins found" | Expected. The Codex build is not published yet (see the Codex note in section 3). |
+| A new version doesn't reach Codex | Run `codex plugin marketplace upgrade`, then `codex plugin add <id>@simonk-stack` again (section 3, Codex). |
 
 ## 10. Bundled app: AI Usage Widget
 
@@ -292,7 +305,7 @@ python3 -B -m unittest discover -s scripts/tests -p 'test_*.py'
 
 1. On every push to main, `five-plugin-dist.yml` rebuilds the five plugins on a Windows runner from public inputs only. The path audit and the safety runtime tests run against the built tree; the bundle, Codex and safety hook unit tests run in a separate job.
 2. The publish job adds a new commit to the `dist` branch only when both of these exist: the repository variable `SIMONK_DIST_PUBLISH`, and a committed `distribution/dist-publish.allow` (decision code, source commit, content digest). Identical content is skipped, a version not newer than what is already published is refused, and nothing is force-pushed.
-3. The marketplace catalog (`.claude-plugin/marketplace.json`) points to the five folders on the `dist` branch.
+3. The Claude catalog (`.claude-plugin/marketplace.json`) points to the five `plugins/` folders on `dist`; the Codex catalog (`.agents/plugins/marketplace.json`) points to the five `codex/plugins/` folders. The approval file must name both the Claude and the Codex content digest (schema 2).
 
 To ship new content, merge the feature, then merge a PR that sets the approval file's digest to that build's value. To roll back, revert the offending commit on main; the previous content then ships again under a higher version. **Never revert the catalog commit.** Users who already installed would get "not found" for their plugins. Full procedure and evidence: [docs/INSTALL.md](docs/INSTALL.md) (Korean).
 

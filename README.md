@@ -88,7 +88,20 @@ POSIX 셸에서는 `claude plugin list --json | grep -o 'simonk-[a-z]*@simonk-st
 
 > **flat 설치와 함께 쓰지 마세요.** `~/.claude/skills`에 같은 스킬을 이미 복사해 두었다면, 플러그인을 켰을 때 스킬이 두 벌로 보입니다. 2026-10-05 실측에서는 563개, 설명 3만 자를 넘겨 목록이 잘렸고, 이러면 모델이 스킬을 자동으로 고를 때 정확도가 떨어집니다. 플러그인과 flat 중 한 쪽만 쓰세요.
 
-> **Codex CLI는 아직 지원하지 않습니다.** Codex에서 `codex plugin marketplace add Simon-YHKim/SimonK-stack`을 해도 설치할 플러그인이 없습니다(허브 D-88). Codex용 빌드(안전 스킬을 뺀 177개)는 별도 검증을 거친 뒤 공개합니다. 2026-10-05 이전에 Codex로 설치했다면 `codex plugin list`로 확인하고 `codex plugin remove simonk-core@simonk-stack`처럼 하나씩 제거하세요. 그 빌드에는 Claude Code 전용 안전 스킬이 들어 있어 Codex에서는 보호가 동작한다고 보장할 수 없습니다.
+### Codex CLI에서 쓰기
+
+Codex는 같은 저장소에서 **Codex판**(177개)을 받습니다. Claude Code 전용 안전 스킬 5개(`careful`·`freeze`·`guard`·`investigate`·`unfreeze`)는 Codex에서 차단을 보장할 수 없어 빠져 있습니다(허브 D-29·D-88).
+
+```
+codex plugin marketplace add Simon-YHKim/SimonK-stack
+codex plugin add simonk-core@simonk-stack
+codex plugin add simonk-stack@simonk-stack
+codex plugin add simonk-aihub@simonk-stack
+codex plugin add simonk-design@simonk-stack
+codex plugin add simonk-market@simonk-stack
+```
+
+새 버전은 `codex plugin marketplace upgrade` 뒤 쓰는 플러그인마다 `codex plugin add <id>@simonk-stack`를 다시 실행해 받습니다. 카탈로그만 갱신하면 설치본은 그대로입니다(2026-10-05 실측). 2026-10-05 이전에 Codex로 설치했다면 Claude용 빌드(안전 스킬 포함)일 수 있습니다. 같은 두 명령으로 Codex판으로 바뀝니다. 지우려면 `codex plugin remove simonk-core@simonk-stack`처럼 하나씩 제거하세요.
 
 ## 4. 처음 써 보기
 
@@ -238,7 +251,7 @@ claude plugin install simonk-aihub@simonk-stack
 | Windows에서 안전 훅이 모든 명령을 막음 | Git for Windows와 Python 3.7 이상이 PATH에 있는지 확인합니다. 검사기를 실행할 수 없으면 일부러 막습니다. |
 | `/vibe`가 실행하지 않고 "blocked"라고 함 | 구독 포함 사용량이 확인되지 않았거나 상한에 가까운 경우입니다. 추가 과금을 막기 위한 동작이며, 보고에 막힌 이유가 적혀 있습니다. |
 | 예전 스킬이 사라짐 | 8절의 네 줄을 실행합니다. |
-| Codex에서 "No marketplace plugins found" | 정상입니다. Codex용 빌드는 아직 공개 전입니다(3절 Codex 안내). |
+| Codex에 새 버전이 안 들어옴 | `codex plugin marketplace upgrade` 뒤 `codex plugin add <id>@simonk-stack`를 다시 실행합니다(3절 Codex). |
 
 ## 10. 함께 들어 있는 앱 — AI 사용량 위젯
 
@@ -292,7 +305,7 @@ python3 -B -m unittest discover -s scripts/tests -p 'test_*.py'
 
 1. main에 push되면 `five-plugin-dist.yml`이 Windows 러너에서 공개 입력만으로 다섯 플러그인을 다시 빌드합니다. 빌드한 트리에는 경로 감사와 안전 런타임 테스트를 돌리고, 별도 job에서 bundle·Codex·안전 훅 단위 테스트를 돌립니다.
 2. 게시 job은 두 가지가 모두 있을 때만 `dist` 브랜치에 새 커밋을 올립니다. 하나는 저장소 변수 `SIMONK_DIST_PUBLISH`, 다른 하나는 커밋된 `distribution/dist-publish.allow`(결정 코드, 기준 커밋, 콘텐츠 digest)입니다. 내용이 같으면 건너뛰고, 이미 게시된 것보다 낮은 버전은 거부하며, force push는 하지 않습니다.
-3. 마켓플레이스 카탈로그(`.claude-plugin/marketplace.json`)는 `dist` 브랜치의 다섯 폴더를 가리킵니다.
+3. Claude 카탈로그(`.claude-plugin/marketplace.json`)는 `dist`의 `plugins/` 다섯 폴더를, Codex 카탈로그(`.agents/plugins/marketplace.json`)는 `dist`의 `codex/plugins/` 다섯 폴더를 가리킵니다. 승인 파일은 Claude와 Codex 콘텐츠 digest를 모두 적어야 합니다(schema 2).
 
 새 내용을 내보내려면 기능을 머지한 뒤 승인 파일의 digest를 그 빌드 값으로 바꾸는 PR을 머지합니다. 되돌릴 때는 main에서 원인 커밋을 revert합니다. 그러면 이전 내용이 더 높은 버전으로 다시 나갑니다. **카탈로그 커밋은 되돌리지 마세요.** 되돌리면 이미 설치한 사용자의 플러그인이 "not found"가 됩니다. 자세한 절차와 근거는 [docs/INSTALL.md](docs/INSTALL.md)에 있습니다.
 
