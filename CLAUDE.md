@@ -40,8 +40,8 @@ python3 .claude/skills/skill-gen-agent/scripts/test_skill.py \
 # Skill-Agent 통합 테스트 (24 checks)
 python3 .claude/skills/skill-gen-agent/scripts/tests/run_all.py
 
-# SessionStart hook 수동 실행 (idempotent)
-CLAUDE_PROJECT_DIR=$PWD CLAUDE_CODE_REMOTE=true bash .claude/hooks/session-start.sh
+# SessionStart hook 수동 실행 (D-87 이후 읽기 전용: 안내 한 줄만 출력, 쓰기·git·네트워크 없음)
+CLAUDE_PROJECT_DIR=$PWD bash .claude/hooks/session-start.sh
 
 # Bash 스크립트 문법 체크
 for f in scripts/*.sh .claude/hooks/*.sh .claude/skills/*/scripts/*.sh skills-src/*/scripts/*.sh; do
@@ -69,7 +69,7 @@ skills-src/                    ← 배포용 skill 소스 (128개, Claude Code �
 ├── ... (배포 대상 skill)
 
 .claude/
-├── hooks/session-start.sh   ← 매 세션 bootstrap (self-healing)
+├── hooks/session-start.sh   ← 읽기 전용 안내 (D-87, 아무것도 쓰지 않음)
 ├── settings.json             ← Hook + Skill permission
 ├── instincts/                ← 4 seed md (학습 누적)
 └── skills/                   ← 개발용 skill (4개만, Claude Code 로딩)
@@ -78,9 +78,10 @@ skills-src/                    ← 배포용 skill 소스 (128개, Claude Code �
     ├── skill-gen-agent/      ← validator + test harness (vendored)
     └── context-guardian/     ← 세션 보호
 
-docs/                          ← INSTALL / MORNING-START / USING-IN-OTHER-REPOS
-scripts/                       ← install.sh, setup-repo.sh
-templates/                     ← CLAUDE.md (global), bootstrap-*.sh
+docs/                          ← INSTALL(설치·배포 기록) / HANDOFF / 은퇴 안내(MORNING-START, USING-IN-OTHER-REPOS)
+scripts/                       ← 빌드·검증 도구, windows/update-local.ps1, install.sh(--offline-package 전용)
+templates/                     ← CLAUDE.md (global 템플릿)
+_archive/                      ← 은퇴 경로 보관 (D-87): 레거시 루트 플러그인 0.1.0, 옛 git clone 설치 스크립트
 README.md
 CHANGELOG.md                   ← Keep a Changelog
 LICENSE                        ← MIT + upstream credits
@@ -88,7 +89,8 @@ LICENSE                        ← MIT + upstream credits
 
 > **왜 분리?** `.claude/skills/` 에 skill 이 많으면 매 tool call 마다 모든 description 이
 > system-reminder 로 주입되어 토큰이 폭발한다. `skills-src/` 는 Claude Code 가 무시하므로
-> 개발 중 토큰 사용량이 극적으로 줄어든다. 설치 시 hook 이 양쪽 모두 복사.
+> 개발 중 토큰 사용량이 극적으로 줄어든다. 배포는 `skills-src/` 를 입력으로 한 다섯 플러그인 빌드가,
+> 이 PC flat 설치는 `scripts/windows/update-local.ps1` 이 맡는다 (D-87 이후 hook 은 아무것도 복사하지 않음).
 
 ## 🚫 금기 (건드리면 안 되는 곳)
 
@@ -116,7 +118,7 @@ LICENSE                        ← MIT + upstream credits
 <!-- context-guardian-rules:v1 -->
 ## Context Guardian Rules (auto-maintained)
 
-SessionStart hook 이 매 세션 시작 시 이 블록 존재를 확인하고, 없으면 자동 재삽입합니다 (self-healing).
+SessionStart hook 은 D-87(2026-10-05)부터 이 블록을 확인하거나 재삽입하지 않습니다. 블록을 고치거나 되살릴 때는 이 파일을 직접 편집합니다.
 
 ### 작업 범위 제한
 - 한 세션에서 수정 파일 **최대 5 개**
@@ -149,7 +151,7 @@ SessionStart hook 이 매 세션 시작 시 이 블록 존재를 확인하고, �
 ## 📚 이 레포에서 특히 자주 쓰는 skill
 
 - **`skill-gen-agent`** — 모든 skill 수정의 검증 표준
-- **`context-guardian`** — 이 파일이 관리하는 규칙의 source. 세션 시작 시 auto-heal
+- **`context-guardian`** — 이 파일의 Context Guardian 블록 규칙의 source (D-87 이후 세션 시작 자동 복구 없음)
 - **`commit`** — Conventional Commits 준수
 - **`review`** — PR 사전 리뷰
 - **`simon-tdd`** — 새 script/feature 추가 시 RED-GREEN-REFACTOR
@@ -212,35 +214,19 @@ git add . && git commit -m "session: <요약>" && git push
 
 자세한 절차: wiki 의 `concepts/session-meta-analysis.md`.
 
-## 🔄 Stack 자체 업데이트 체크 (사용 전)
+## 🔄 Stack 자체 업데이트
 
-SimonK Stack 사용 _전_ 에 origin 에 새 커밋이 있는지 확인:
-
-```bash
-# Wiki (SimonKWiki canonical, Simon-LLM-Wiki legacy) — auto-detect
-for d in ~/.claude/wiki/SimonKWiki ~/.claude/wiki/Simon-LLM-Wiki; do
-  [ -d "$d/.git" ] || continue
-  ( cd "$d" && git fetch --quiet origin && \
-    [ "$(git rev-list HEAD..origin/main --count 2>/dev/null)" -gt 0 ] && \
-    echo "[wiki:$(basename "$d")] origin has new commits — git pull 권장" )
-  break
-done
-
-cd "C:/Coding/Harrness Eng/SimonK-stack" || exit
-[ -d .git ] && git fetch --quiet origin && \
-  [ "$(git rev-list HEAD..origin/main --count 2>/dev/null)" -gt 0 ] && \
-  echo "[simonk-stack] origin has new commits — /gstack-upgrade 권장"
-```
-
-`session-start.sh` 가 이 체크를 매 세션 시작에 1회 실행 권장 (옵션 — 후속 작업).
+SessionStart hook 은 D-87(2026-10-05)부터 읽기 전용입니다. 업데이트 감지·auto-pull 을 하지 않습니다.
+- **사용자**: 마켓플레이스 다섯 플러그인 — `claude plugin marketplace update simonk-stack` 뒤 `claude plugin update <id>@simonk-stack` (README 7절)
+- **이 PC (flat 설치)**: `pwsh -File scripts/windows/update-local.ps1` (미리보기, `-Apply` 로 설치)
 
 ## 🔁 Hook 자동화 매트릭스
 
-세 종류의 hook 이 사용자 명시 없이 wiki 누적·반영을 _자동_ 으로 처리합니다.
+UserPromptSubmit·Stop hook 이 사용자 명시 없이 wiki 누적·반영을 _자동_ 으로 처리합니다. SessionStart 는 D-87 이후 읽기 전용 안내만 합니다.
 
 | Hook | 시점 | 동작 |
 |---|---|---|
-| **SessionStart** | 세션 시작 | bootstrap (skills 설치, instincts seed) + update 감지 (SimonK / gstack / wiki) + auto-pull (clean+main+ff) + `~/.claude/.update-pending` fallback |
+| **SessionStart** | 세션 시작 | 읽기 전용 안내 (D-87): `perspectives.md` 가 있으면 알림 + 설치·업데이트 경로 한 줄. git·네트워크·파일 쓰기 없음 |
 | **UserPromptSubmit** | 매 사용자 발화 전 | wiki 의 5초 인덱스 + 최근 3 log + M/T totals 를 _system context_ 에 inject. LLM 자발성 보강 — _사용자가 언급 안 해도_ wiki 인지 상태 |
 | **Stop** | LLM 응답 종료 시 | wiki/instincts repo 가 dirty 면 자동 commit + push (branch=main + md/json 변경 위주 필터). LLM 이 _수정만 하면 영속화_ 자동 |
 
@@ -252,29 +238,11 @@ cd "C:/Coding/Harrness Eng/SimonK-stack" || exit
 
 **Opt-out**: `.claude/settings.json` 에서 해당 hook 블록 제거.
 
-## 🚀 세션 시작 정책 (필수)
+## 🚀 세션 시작 정책
 
-**SimonK Stack 을 사용하는 모든 세션의 첫 동작은 업데이트 확인.**
+**SessionStart hook 은 D-87(2026-10-05)부터 읽기 전용입니다.** `.claude/hooks/session-start.sh` 는 git·네트워크 명령을 실행하지 않고 아무것도 쓰지 않습니다. `perspectives.md` 가 있으면 알리고, 설치 경로를 한 줄로 안내할 뿐입니다. 예전의 bootstrap(스킬 복사·instincts seed·CLAUDE.md 생성), SimonK-stack·wiki auto-pull, `[UPGRADE_AVAILABLE]` 박스, `~/.claude/.update-pending` fallback 은 모두 없어졌으므로 세션 첫 동작으로 업데이트 확인을 실행하지 않습니다. 업데이트 경로는 위 "Stack 자체 업데이트" 절(사용자: 마켓플레이스, 이 PC: `update-local.ps1`)입니다.
 
-`.claude/hooks/session-start.sh` 가 세션 시작 직후 SimonK-stack / gstack 업스트림 / Simon-LLM-Wiki 의 origin 에 새 커밋이 있는지 fetch + ahead-count 체크합니다.
-
-### 세션 시작 시 — LLM 의 **첫 번째 동작** (예외 없음)
-
-세션 시작 시 SessionStart hook 출력이 LLM 컨텍스트에 안 들어오는 환경 (Claude Code 의 일부 모드, 또는 hook stdout 이 system message 로 안 가는 경우) 도 대비해 **file-based fallback** 을 운영합니다.
-
-**LLM 은 첫 응답 _전_ 다음 한 줄을 실행해야 합니다**:
-
-```bash
-[ -f ~/.claude/.update-pending ] && cat ~/.claude/.update-pending && rm ~/.claude/.update-pending
-```
-
-파일이 비어 있으면 silent — 정상. 파일이 있으면 그 내용을 보고 아래 정책대로 처리.
-
-### 자동 처리 vs 수동 처리
-
-`session-start.sh` 가 다음을 _자동_ 으로 합니다 (안전 조건 = clean tree + on main):
-- **SimonK-stack auto-pull** — origin/main ahead 이고 안전하면 `git pull --ff-only` 즉시 실행
-- **Simon-LLM-Wiki auto-pull** — 같음
+### 사용자가 업데이트를 요청하면
 
 LLM 이 직접 처리할 것:
 - **사용자가 "최신화" / "stack update" 같은 holistic 요청** → `/stack-update` 호출
@@ -283,33 +251,13 @@ LLM 이 직접 처리할 것:
 - **gstack 만** 업데이트 명시 요청 → `/gstack-upgrade` (gstack 단독)
   - install type 자동 감지 (global-git / local-git / vendored)
   - gstack 본체 + 로컬 vendored gstack 카피 sync
-  - ⚠️ **이 스킬은 SimonK-stack 자체는 pull 안 함** (gstack 의 책임 도메인이 아님). SimonK-stack pull 은 위의 session-start.sh auto-pull 이 담당.
+  - ⚠️ **이 스킬은 SimonK-stack 자체는 pull 안 함** (gstack 의 책임 도메인이 아님). D-87 이후 SessionStart auto-pull 도 없다.
   - `GSTACK_AUTO_UPGRADE=1` 또는 `gstack-config set auto_upgrade true` 면 사용자 확인 없이 진행
 - **특정 외부 stack** 만 업데이트 요청 → 해당 sibling skill 호출
   - `/omc-upgrade` (oh-my-claudecode), `/omo-upgrade` (oh-my-openagent)
   - `/openharness-upgrade`, `/opencowork-upgrade`, `/designmd-upgrade`
 
-### `[UPGRADE_AVAILABLE]` 가 출력되면 — LLM 의 첫 동작
-
-박스 내용을 _읽고_ 다음을 수행:
-1. **`auto-pulled ✓` 표시가 있는 항목** — 이미 처리됨. 단, Simon-LLM-Wiki auto-pull 시 LESSONS_LEARNED.md 재독.
-2. **gstack 항목이 있으면** → `/gstack-upgrade` 호출.
-3. **`auto-pull skipped` / `failed` 항목이 있으면** → 사용자에게 1줄 보고 (dirty / 다른 브랜치 / ff 불가 사유 안내).
-4. **사용자가 명시적으로 "전체 최신화" / "stack update" 류 요청을 추가로 한 경우** → `/stack-update` 호출 (auto-pull 결과는 step 1 에서 이미 흡수됨).
-
-이후 원래 사용자 요청 처리.
-
-### `[UPGRADE_AVAILABLE]` 가 없으면
-
-별다른 보고 없이 사용자 요청 즉시 처리. 매번 "최신입니다" 같은 narration 금지 (T-003 — 토큰 효율).
-
-### 정책 예외
-
-- 사용자가 _명시적으로_ "업데이트 하지 마", "그대로 가자" 라고 한 세션: skip
-- working tree dirty / non-main branch: `git pull --ff-only` 가 자동 실패 → 사용자에게 한 줄 보고 후 수동 처리 요청
-- `/gstack-upgrade` "Never ask again" 상태: 스킬 자체가 update check 비활성화
-
-**이 정책의 의도**: vendoring 이 안정성을 위한 _명시적 sync 게이트_ 라는 설계를 살리되, 게이트가 자동으로 _트리거_ 되도록 해서 stale 상태를 방지.
+업데이트 요청이 없으면 별다른 보고 없이 사용자 요청을 바로 처리한다. 매번 "최신입니다" 같은 narration 금지 (T-003 — 토큰 효율).
 
 ---
 

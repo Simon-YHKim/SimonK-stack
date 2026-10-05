@@ -36,7 +36,10 @@ HEX40 = re.compile(r"[a-f0-9]{40}\Z")
 HEX64 = re.compile(r"[a-f0-9]{64}\Z")
 DIST_SCOPE = "five-plugin-dist-v1"
 RECORD = "RELEASE.json"
-LEGACY_MANIFEST = ".claude-plugin/plugin.json"
+# Version of the retired root plugin (.claude-plugin/plugin.json, simonk-stack
+# 0.1.0) that hosts may still have installed. D-87 PR-B archived that manifest,
+# so the floor is a constant instead of a file read; releases must sort above it.
+LEGACY_FLOOR = "0.1.0"
 OWNERS = {"SimonKAIHub", "SimonKCore", "SimonKDesign", "SimonKMarket", "SimonKStack"}
 # Hosts must receive the exact built bytes whatever their core.autocrlf is; Git
 # for Windows defaults to autocrlf=true, which would rewrite shell hooks to CRLF.
@@ -86,12 +89,9 @@ def compute(repo):
     if not HEX40.fullmatch(commit) or not count.isdigit():
         raise ValueError("Unexpected Git commit or count")
     version = release_version(int(count))
-    floor = None
-    legacy = repo / LEGACY_MANIFEST
-    if legacy.is_file():
-        floor = json.loads(legacy.read_text(encoding="utf-8")).get("version")
-        if parse_version(version) <= parse_version(floor):
-            raise ValueError("Release version must sort above the legacy root plugin version")
+    floor = LEGACY_FLOOR
+    if parse_version(version) <= parse_version(floor):
+        raise ValueError("Release version must sort above the legacy root plugin version")
     return {"version": version, "commit": commit, "commit_count": int(count),
             "epoch": EPOCH, "legacy_floor": floor}
 

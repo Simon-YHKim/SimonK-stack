@@ -1,14 +1,14 @@
 # Coding-root migration (moving C:\Coding -> "C:\Coding Infra" or a new laptop)
 
 Most of the environment travels with git. Three classes of **machine-specific**
-references do **not**, so a drive/folder move silently breaks the session
-bootstrap until they are repointed:
+references do **not**, so a drive/folder move silently breaks whatever still
+reads them until they are repointed:
 
 | What | Why it breaks | Fixed by |
 |---|---|---|
-| User env vars `SIMON_STACK_DIR`, `SIMONK_PROJECT_DIR`, `SIMON_WIKI_DIR` | stored in the Windows registry, not git; the SessionStart bootstrap reads `SIMON_STACK_DIR` to find this repo | `heal-coding-paths.ps1` |
+| User env vars `SIMON_STACK_DIR`, `SIMONK_PROJECT_DIR`, `SIMON_WIKI_DIR` | stored in the Windows registry, not git; skills such as `ai-usage-widget-install` and `session-context-export` read `SIMON_STACK_DIR` to find this repo | `heal-coding-paths.ps1` |
 | `SimonK-*` Scheduled Tasks (e.g. `SimonK-MemoryGuard` every 5 min) | the task's `-File` path is absolute; after a move it points at a deleted file and the launcher flashes/fails | `heal-coding-paths.ps1` |
-| `~/.claude/**` (global CLAUDE.md, instincts, memory) | lives in the user home, not on the moved drive | copy by hand / `install.sh` reseeds |
+| `~/.claude/**` (global CLAUDE.md, instincts, memory) | lives in the user home, not on the moved drive | copy by hand (the retired `install.sh` used to reseed it) |
 
 ## One-shot fix
 
@@ -24,14 +24,12 @@ everything already matches — and needs no admin (only the current user's env a
 tasks). Scheduled tasks are rewired through `<root>\tools\run-hidden.vbs` so
 their periodic runs never flash a console window.
 
-## Automatic detection
+## No automatic detection (since hub D-87, 2026-10-05)
 
-- **On install:** `scripts/install.sh` runs the healer automatically on Windows
-  (best-effort, non-fatal). So `git pull && ./scripts/install.sh --force` after a
-  move is enough.
-- **Every session:** the SessionStart hook compares the three env vars against
-  where this repo actually lives and prints a `[PATHS_STALE]` banner (with the
-  one-shot command) if any still point at an old root.
+The git-clone `install.sh` used to run the healer on Windows, and the SessionStart
+hook used to print a `[PATHS_STALE]` banner. D-87 retired both: the installer is
+archived in `_archive/legacy-install/` and the hook only prints a read-only notice.
+After a move, run the one-shot fix above by hand.
 
 ## Full move checklist
 

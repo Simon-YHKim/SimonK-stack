@@ -54,8 +54,8 @@ class VersionSchemeTests(unittest.TestCase):
 
     def test_first_release_sorts_above_legacy_and_every_old_base(self):
         first = dist.parse_version(dist.release_version(1))
-        legacy = json.loads((ROOT / dist.LEGACY_MANIFEST).read_text(encoding="utf-8"))["version"]
-        for old in (legacy, "0.1.0", "0.3.0", "0.99.99"):
+        self.assertEqual(dist.LEGACY_FLOOR, "0.1.0")  # the archived root plugin's version
+        for old in (dist.LEGACY_FLOOR, "0.1.0", "0.3.0", "0.99.99"):
             self.assertGreater(first, dist.parse_version(old))
 
 
@@ -116,15 +116,16 @@ class ComputeTests(unittest.TestCase):
             self.commit(f"more {n}")
 
     def test_legacy_root_plugin_version_is_a_floor(self):
-        manifest = self.repo / dist.LEGACY_MANIFEST
+        # D-87 PR-B: the floor is the constant 0.1.0; no root manifest is read.
+        self.assertEqual(dist.compute(self.repo)["legacy_floor"], "0.1.0")
+        manifest = self.repo / ".claude-plugin/plugin.json"
         manifest.parent.mkdir()
-        manifest.write_text(json.dumps({"name": "simonk-stack", "version": "0.1.0"}), encoding="utf-8")
-        self.commit("legacy root plugin")
-        result = dist.compute(self.repo)
-        self.assertEqual(result["legacy_floor"], "0.1.0")
         manifest.write_text(json.dumps({"name": "simonk-stack", "version": "1.5.0"}), encoding="utf-8")
-        self.commit("legacy root plugin above the scheme")
-        with self.assertRaisesRegex(ValueError, "legacy"):
+        self.commit("stray root manifest above the scheme")
+        result = dist.compute(self.repo)
+        self.assertEqual((result["version"], result["legacy_floor"]), ("1.2.0", "0.1.0"))
+        from unittest.mock import patch
+        with patch.object(dist, "LEGACY_FLOOR", "1.5.0"), self.assertRaisesRegex(ValueError, "legacy"):
             dist.compute(self.repo)
 
     def test_cli_prints_the_version_json(self):

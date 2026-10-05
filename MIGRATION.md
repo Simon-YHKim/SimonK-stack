@@ -1,14 +1,12 @@
-# SimonK-stack — 모놀리식 → 플러그인 전환 (완료)
+# SimonK-stack — 모놀리식 → 플러그인 전환
 
-부트스트랩 설치가 **5-플러그인 suite 기반**으로 전환되었습니다.
+> **은퇴 (허브 D-87, 2026-10-05).** 이 문서가 설명하던 `scripts/install.sh` 기반 5플러그인 부트스트랩(플러그인 저장소 clone·pull 뒤 `~/.claude/skills`로 복사, `skills-src/` 오프라인 폴백, `SIMONK_SKILLS_TARGET` 테스트 모드)은 은퇴했다. 예전 본문은 git 이력에 있다.
 
-## 설치 소스 (scripts/install.sh)
-- **주 소스**: 5-플러그인 — 이 레포 `skills/`(SimonKStack) + `SimonKCore`/`SimonKDesign`/`SimonKMarket`/`SimonKAIHub`(install.sh가 `~/.simon-stack/plugins/`로 클론·풀 후 각 `skills/` 수집). 약 171 스킬.
-- **폴백**: 플러그인 클론이 모두 실패(오프라인 등)할 때만 레거시 `skills-src/` 사용 → 사용자가 스킬 없이 남지 않음.
-- **안전장치**: `~/.claude` 백업(`~/.claude.bak-*`), idempotent, 그리고 `SIMONK_SKILLS_TARGET=<temp>`로 ~/.claude 무접촉 로컬 테스트(TEST_MODE).
+- 루트 `skills/`(스킬 68개)와 루트 `.claude-plugin/plugin.json`(레거시 `simonk-stack` 0.1.0)은 [`_archive/legacy-root-plugin-0.1.0/`](_archive/legacy-root-plugin-0.1.0/README.md)에 보관했다.
+- 옛 `install.sh`는 [`_archive/legacy-install/`](_archive/legacy-install/README.md)에 보관했다. `scripts/install.sh`에는 `--offline-package` 진입점만 남았다.
 
-## 레거시 (폴백 전용)
-`skills-src/`(129) + 모놀리식 구조는 더 이상 주 설치 소스가 아니라 **오프라인 폴백 + 이력 보존용**으로만 유지. 플러그인 경로가 충분히 안정화되면 제거 가능.
+## 지금
 
-## 검증
-`SIMONK_SKILLS_TARGET=/tmp/t SIMONK_PLUGIN_CACHE=/tmp/c bash scripts/install.sh --force --no-backup` → 5 소스에서 171 스킬 수집, ~/.claude 무변경 확인됨.
+- 사용자 설치: [README 3절](README.md#3-설치) — 마켓플레이스 다섯 플러그인(`dist` 브랜치).
+- 레거시 0.1.0 사용자: [README 8절](README.md#8-예전-simonk-stack-010에서-옮기기)의 네 줄.
+- 이 PC(flat 설치)와 개발: [README 11절](README.md#11-개발자-안내) — `pwsh -File scripts/windows/update-local.ps1`(미리보기, `-Apply`로 설치).

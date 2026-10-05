@@ -11,8 +11,8 @@
   The "current root" is derived from THIS script's own location:
     <root>\Harrness Eng\SimonK-stack\scripts\heal-coding-paths.ps1
   so it always heals toward wherever the repo now lives. Idempotent: a no-op
-  once everything already points at the current root. install.sh calls it
-  automatically on Windows; you can also run it by hand after a move.
+  once everything already points at the current root. Run it by hand after a
+  move (the git-clone install.sh that used to call it was retired by hub D-87).
 
   ASCII-only output. No admin required (only the current user's env + tasks).
 

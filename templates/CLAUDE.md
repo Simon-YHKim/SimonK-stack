@@ -127,6 +127,6 @@
 
 ## 재설치
 
-이 환경은 `github.com/Simon-YHKim/SimonK-stack` 의
-`.claude/hooks/session-start.sh` 에 의해 매 세션 자동 bootstrap 된다.
-수동 재설치: `cd <repo> && ./scripts/install.sh`
+SessionStart 자동 bootstrap 과 `scripts/install.sh` git clone 설치는 허브 D-87(2026-10-05)로 은퇴했다.
+- 사용자: `/plugin marketplace add Simon-YHKim/SimonK-stack` 뒤 다섯 플러그인 설치 (SimonK-stack README 3절)
+- flat 설치 PC: SimonK-stack 체크아웃에서 `pwsh -File scripts/windows/update-local.ps1` (미리보기, `-Apply` 로 설치)
