@@ -736,3 +736,5 @@ last-sync: 2026-07-05
 - 2026-10-05 23:25:35 KST | DECIDE | **D-92 CI 밖에서 깨져 있던 테스트 3묶음 수리와 CI 편입** (오케스트레이터 단독 · 35.8 1단) | claude
   - **근거(기계적)**: scripts/tests/test_simonk_entrypoint(9 FAIL), scripts/test_model_router_integration(18 subtest FAIL), multi-terminal-dispatcher wave 테스트(2 ERROR)가 10-02 9e88140 이전부터 실패했다(커밋별 실측). 원인은 planner 규칙 변경(HOST_EFFORT_MISMATCH 2700f5f + fixture host 전환 b9f5f7b, 감사된 local 비용 7543901) 때 함께 고치지 않은 fixture이고 제품 결함은 없다. 세 묶음 모두 어느 워크플로에서도 돌지 않았다.
   - **조치**: SimonK-stack #156 — fixture만 규칙에 맞춤(planner·run_state·dispatcher 코드 무변경), multi-terminal-dispatcher 1.1.2, skills-ci Windows job에 세 단계 추가. 러너 TEMP 8.3 짧은 경로(RUNNER~1)로 생긴 2건은 resolve() 비교로 수정. CI 7/7(새 세 단계 포함) 통과. 결과: entrypoint 26·router 9·dispatcher 22(+3 skip). 콘텐츠 Claude 09d71048·Codex d2862e04를 같은 PR 승인 파일로 게시 | claude
+
+- 2026-10-05 23:46:45 KST | AMEND | **D-92 CI 밖에서 깨져 있던 테스트 3묶음 수리와 CI 편입** — 이행: #156(9ed5687) 머지, main run 37325754627이 dist 4856b90 1.817.0 게시. 이 PC: update-local로 후보 20261005-vibe-2155-9ed5687(multi-terminal-dispatcher 1.1.2, selftest 196/0, problems 0) | claude
