@@ -1,6 +1,6 @@
 ---
 name: freeze
-version: 0.2.6
+version: 0.2.7
 description: "Use when debugging to keep edits inside one module, or asked to \"freeze\", \"restrict edits\", \"only edit this folder\", \"lock down edits\", \"이 폴더만 수정\", \"편집 잠금\". Sets a session edit boundary: a PreToolUse Edit/Write hook produces deny for paths outside the chosen directory and for paths it cannot judge (relative, UNC, '..', failed conversion), handling Windows drive paths and /c/ paths."
 allowed-tools:
   - Bash
@@ -112,8 +112,10 @@ Without `cygpath` the `/tmp` alias cannot be folded, so such a mismatch denies.
 
 1. In a skill frontmatter hook `${CLAUDE_SKILL_DIR}` is unset: the gstack form
    `bash ${CLAUDE_SKILL_DIR}/bin/check-freeze.sh` never ran, and a hook that
-   fails to start is non-blocking (fail-open). Hence the commands above run
-   this skill's own installed copy at `~/.claude/skills/freeze`.
+   fails to start is non-blocking (fail-open). Hence the flat-install commands
+   run this skill's own installed copy at `~/.claude/skills/freeze`; the plugin
+   build replaces them with its `${CLAUDE_PLUGIN_ROOT}/.simonk-runtime` safety
+   runtime.
 2. A hook `deny` blocks the call in bypassPermissions mode.
 3. Edit/Write send `file_path` as a Windows absolute path (`C:\Users\...`).
    The installed gstack hook saw no leading `/`, joined it to the cwd and
@@ -123,9 +125,10 @@ Without `cygpath` the `/tmp` alias cannot be folded, so such a mismatch denies.
 
 - `bin/` holds `check-freeze.sh` (hook), `freeze-state.sh` (gstack state
   writer, vendored unchanged except an attribution header), `safety_runtime.py`
-  (plugin candidate only) and the offline test `test_check_freeze.py`. The hook
-  and the writer source `~/.claude/skills/careful/bin/hook-extract.sh`, so
-  `careful` must be installed next to `freeze`.
+  (plugin candidate only) and the offline test `test_check_freeze.py`. In a
+  flat install the hook and the writer source
+  `~/.claude/skills/careful/bin/hook-extract.sh`, so `careful` must be
+  installed next to `freeze`; the plugin runtime carries its own copy.
 - This SKILL.md carries **no** gstack gen-skill-docs banner and the folder has
   no `.gstack-owned` marker. gstack `./setup` treats an existing folder as its
   own only with that marker, a SKILL.md symlinked into gstack, a SKILL.md

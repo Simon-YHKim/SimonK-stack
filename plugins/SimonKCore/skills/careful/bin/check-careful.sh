@@ -42,7 +42,7 @@ set -euo pipefail
 # message): the failure path must not depend on the JSON encoder or parser
 # that may be the very thing that failed.
 _careful_fail() {
-  printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"[careful][HOOK FAILURE] The careful hook itself failed: %s This command was NOT safety-checked, so it is blocked. Way out: fix the hook in ~/.claude/skills/careful/bin, or start a new session without /careful."}}\n' "$1"
+  printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"[careful][HOOK FAILURE] The careful hook itself failed: %s This command was NOT safety-checked, so it is blocked. Way out: repair or reinstall the careful skill, or start a new session without /careful."}}\n' "$1"
   exit 0
 }
 # Unexpected runtime failure (set -e/-u/pipefail) must not exit without a

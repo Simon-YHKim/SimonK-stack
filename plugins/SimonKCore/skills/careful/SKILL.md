@@ -1,6 +1,6 @@
 ---
 name: careful
-version: 0.2.5
+version: 0.2.6
 description: "Use when touching prod, live systems or a shared machine, or asked to \"be careful\", \"safety mode\", \"careful mode\", \"조심해\", \"신중 모드\", \"위험한 명령 경고\". Installs session PreToolUse Bash and PowerShell hooks; the check produces deny for HIGH commands (recursive delete of /, a drive root or ~, force-push to the default branch), ask for MEDIUM Bash ones (rm -r, DROP, git reset --hard), and always deny when the hook itself fails."
 allowed-tools:
   - Bash
@@ -179,8 +179,9 @@ returns `deny`, because only `deny` is measured to hold under bypassPermissions:
 
 The reason always reads `[careful][HOOK FAILURE] The careful hook itself
 failed: ... This command was NOT safety-checked, so it is blocked.` and names
-the way out: fix the hook in `~/.claude/skills/careful/bin`, or start a new
-session without /careful.
+the way out: repair or reinstall the careful skill (flat install:
+`~/.claude/skills/careful/bin`; plugin: update or reinstall `simonk-core`), or
+start a new session without /careful.
 
 Other tools stay allowed. Upstream told them apart by "no command field",
 which also let a Bash call with an unreadable command through; this version
@@ -191,11 +192,13 @@ reads `tool_name` instead (case-insensitive `bash` or `powershell`).
 1. In a skill frontmatter `hooks:` command, `${CLAUDE_SKILL_DIR}` is **not**
    available: the variable is unset and `bash ${CLAUDE_SKILL_DIR}/bin/x.sh`
    never ran (2 runs). A hook that fails to start (exit 127) is non-blocking, so
-   the tool call proceeds (fail-open). Hence the hook command above is anchored
-   to this skill's own installed copy:
+   the tool call proceeds (fail-open). Hence the flat-install hook command is
+   anchored to this skill's own installed copy:
    `bash "$HOME/.claude/skills/careful/bin/check-careful.sh"` (not the gstack
    folder, not `CLAUDE_SKILL_DIR`). If this folder is missing, the hook cannot
-   start and nothing is checked.
+   start and nothing is checked. The plugin build replaces the command with
+   its own `${CLAUDE_PLUGIN_ROOT}/.simonk-runtime` safety runtime, which denies
+   when it cannot start.
 2. A PreToolUse hook returning `hookSpecificOutput.permissionDecision: "deny"`
    **does** block the Bash call in bypassPermissions mode (measured).
 3. `ask` **does** show a confirmation prompt under bypassPermissions (measured
@@ -220,7 +223,8 @@ never suppress a baseline warning or a HIGH deny. Invalid regex lines are skippe
 
 - `bin/` is self-contained: `check-careful.sh`, `hook-extract.sh` (shared with
   SimonK freeze), `gstack-slug.sh`, plus the offline test `test_check_careful.py`.
-- This SKILL.md deliberately carries **no** gstack gen-skill-docs banner. gstack
+- Flat install only: this SKILL.md deliberately carries **no** gstack
+  gen-skill-docs banner. gstack
   `./setup` (no-prefix mode, target `~/.claude/skills/careful`) only treats an
   existing real folder as its own when it has a `.gstack-owned` marker, a
   SKILL.md symlinked into gstack, a SKILL.md byte-identical to gstack's, or that
