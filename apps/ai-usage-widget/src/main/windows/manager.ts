@@ -437,7 +437,28 @@ export class WindowManager implements WindowsPort {
     bubble.setAlwaysOnTop(true, 'screen-saver');
     try { await bubble.loadURL(url.toString()); }
     catch (error) { this.options.logger.warn('model bubble load failed', { error }); this.hideModelBubble(); return; }
+    if (this.modelBubble !== bubble || bubble.isDestroyed()) return;
     if (this.closing || this.userHidden || this.fullscreenHidden) { this.hideModelBubble(); return; }
+    // Text wraps inside the fixed width, so fit the window to the laid-out page; a fixed
+    // height clipped the last line and showed a scrollbar.
+    let measured: Rect | null = null;
+    try {
+      measured = await bubble.webContents.executeJavaScript(
+        `document.fonts.ready.then(() => { const r = document.documentElement.getBoundingClientRect(); return {x:0,y:0,width:r.width,height:r.height}; })`,
+      ) as Rect | null;
+    } catch (error) { this.options.logger.warn('model bubble measure failed', { error }); }
+    let fitted: Rect | null = null;
+    if (measured !== null && Number.isFinite(measured.height) && measured.height > 0 && !widget.isDestroyed()) {
+      fitted = computeModelBubbleBounds(widget.getBounds(), icon, screen.getDisplayMatching(widget.getBounds()).bounds, measured.height);
+      const fittedBelow = fitted.y > widget.getBounds().y;
+      if (fittedBelow !== below) {
+        try { await bubble.webContents.executeJavaScript(`document.body.dataset.below = '${String(fittedBelow)}'`); }
+        catch (error) { this.options.logger.warn('model bubble flip failed', { error }); }
+      }
+    }
+    if (this.modelBubble !== bubble || bubble.isDestroyed()) return;
+    if (this.closing || this.userHidden || this.fullscreenHidden) { this.hideModelBubble(); return; }
+    if (fitted !== null) bubble.setBounds(fitted);
     bubble.showInactive();
     this.modelBubbleTimer = setTimeout(() => this.hideModelBubble(), 8_000);
   }
