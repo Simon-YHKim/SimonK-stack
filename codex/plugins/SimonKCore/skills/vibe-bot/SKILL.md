@@ -2,7 +2,7 @@
 name: vibe-bot
 description: 'Use when "/vibe-bot", "봇한테 시켜", or "Grok Bot 과제서" is requested explicitly, or when /vibe hands off a verified screen-only step with no authorized CLI/API/MCP route. Produces scoped Relay task sheets and checks screenshot evidence; delivery needs fresh account, budget and approval.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 0.9.7
+version: 0.10.0
 author: simon-stack
 ---
 
@@ -15,8 +15,10 @@ are different account paths. Never inherit CLI quota or billing for a Bot.
 
 Choose this adapter only when the required screen operation has no usable,
 authorized CLI/API/MCP route. Keep deterministic and repository work in /vibe.
-A screen session is not permission to log in, pay, publish, delete or change
-permissions. Honor current user holds even when a previous pilot succeeded.
+Since 2026-10-06 (hub D-93, Simon) a dispatched task may log in, create accounts,
+pay, submit, publish, delete and change permissions when its goal needs it,
+without stopping for approval. Honor holds Simon puts on a task (`--read-only`,
+`--forbid`, `--allow-change`) even when a previous pilot succeeded.
 
 ## 1. Prepare the task without delivery
 
@@ -43,14 +45,18 @@ generated result path before registering a plan. No argument here authorizes
 delivery. The console sheet contains:
 
 - exact console/app target and goal;
-- read-only scope, or explicit free, reversible changes via `--allow-change`;
-- forbidden buttons, login/2FA/payment stop points;
+- scope: what the goal needs under D-93, or narrowed by `--allow-change`,
+  `--forbid` or `--read-only`;
+- stop points: a 2FA code or an unsaved login from Simon, a held button, a
+  screen or warning that differs from the task;
 - menu path, observed values and a screenshot for each screen;
 - expected result path, exact first-line nonce and independent review.
 
-Within that explicit scope, reversible draft saves need no repeated approval.
-This does not authorize login/2FA, credentials, account creation, public posting,
-payment or permission changes. Apply the current task's authority and hard stops.
+Within that scope the Bot may log in, create accounts, pay, submit, publish,
+delete and change permissions without asking again (D-93). Changes outside the
+goal stay out. Credentials never enter the sheet, bus, git or results: the Bot
+uses sessions saved on its computer or what Simon gives it directly in the Bot
+chat, and asks Simon for 2FA codes. Code, repository and DB work stays in /vibe.
 
 The builder refuses legacy `--deliver hub|webhook|github` and every `--send`
 before writing. `send_webhook()` cannot be reenabled with
@@ -61,7 +67,7 @@ all-filesystem monitor or a sandbox. Do not paste a draft into Bot chat to bypas
 the central gates; pasting also dispatches work.
 
 Inspect every field, not just the task. Never include credentials, company
-process/LOT/equipment/cost/customer data or unapproved operations. Existing
+process/LOT/equipment/cost/customer data or operations outside the goal. Existing
 B1/B2/B3/B8 checks assist review but are not comprehensive DLP or authorization.
 
 ## 2. Register immutable delivery intent
@@ -161,8 +167,9 @@ not substitutes for this registered-plan check. PNG/JPEG signatures or a prose
 claim alone cannot prove the screen state or that the operation finished.
 
 Reject missing nonce, unscoped absence, unsupported conclusions, leaked secrets
-and missing console evidence. Escalate any report of Submit/Reply/Publish/Delete/
-Payment; it is not retroactive authorization. Only after actual terminal and
+and missing console evidence. Copy every reported Submit/Reply/Publish/Delete/
+Payment (C2 notice) into the report to Simon; since D-93 it does not fail the
+result. Only after actual terminal and
 cost evidence should the coordinator use Store observe/settle/verify. Unknown
 cost is never settled as zero. Required independent reviews remain separate.
 
@@ -232,6 +239,7 @@ installation parity, real Relay receipt, generation success, screenshots,
 account costs or all-skill optimization. Apply the user's current authority:
 restored Grok/Bot usage supersedes an earlier temporary usage or model-call
 hold, but does not itself prove this Bot route is included or authorize delivery.
-Allow only verified subscription-included usage with additional spend $0;
-overage, automatic top-up and metered API fallback remain forbidden. Do not
+Allow only verified subscription-included Bot usage with additional spend $0;
+the Bot's own overage, automatic top-up and metered API fallback remain
+forbidden (payments a task makes under D-93 are separate). Do not
 reimpose an expired hold or infer a paid route from restored quota.

@@ -43,14 +43,22 @@ builder = module("bot_fixture_builder", BOT_ROOT / "scripts/make_bot_spec.py")
 
 
 class BotOrganizationTests(unittest.TestCase):
-    def test_explicit_reversible_save_keeps_hard_stops(self):
-        sheet = builder.build_console_spec("Prepare the approved private draft", "vb-01234567",
-            target="Fixture Console", allow_change="Save this private draft only")
-        self.assertIn("무료·가역적인 저장", sheet)
-        self.assertNotIn("저장·제출 버튼은 누르기 직전에", sheet)
-        for forbidden in ("Publish", "Release", "Delete", "Purchase", "Invite"):
-            self.assertIn(forbidden, sheet)
-        readonly = builder.build_console_spec("Inspect the screen", "vb-01234567", target="Fixture")
+    def test_d93_sheet_allows_goal_actions_and_keeps_explicit_holds(self):
+        # D-93 (2026-10-06, Simon): login, account creation, payment and submission are allowed
+        # when the goal needs them; a task's own holds (--allow-change/--forbid/--read-only) stay.
+        sheet = builder.build_console_spec("Submit the store listing", "vb-01234567", target="Fixture")
+        self.assertIn("D-93", sheet)
+        self.assertIn("- 없음 (D-93)", sheet)
+        for gone in ("Purchase", "Resubmit", "결제 · 카드 · 구독 화면", "로그인 · 2단계 인증 · 비밀번호 입력 화면"):
+            self.assertNotIn(gone, sheet)
+        self.assertIn("결과·버스·로그에 적지 않는다", sheet)
+        narrowed = builder.build_console_spec("Prepare the approved private draft", "vb-01234567",
+            target="Fixture Console", allow_change="Save this private draft only",
+            extra_forbid=["Publish"])
+        self.assertIn("허용 변경: Save this private draft only - 이것 말고는 아무것도 바꾸지 않는다.", narrowed)
+        self.assertIn("- Publish", narrowed)
+        readonly = builder.build_console_spec("Inspect the screen", "vb-01234567", target="Fixture",
+                                              read_only=True)
         self.assertIn("읽기 전용. 어떤 값도 바꾸거나 저장하지 않는다.", readonly)
 
     def test_current_roster_and_six_teams(self):
