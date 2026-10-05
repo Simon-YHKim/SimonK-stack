@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "2026-10-05.2",
+  "version": "2026-10-05.3",
   "checked_at": "2026-10-05T14:17:43+09:00",
   "data_as_of": "2026-10-05",
   "notes": [
@@ -12,7 +12,8 @@
     "2026-10-05 갱신(2.15.3, 14:17~14:20 KST): 아래 출처 28개를 모델 호출 없이 HTTPS 로 다시 읽고(전부 첫 요청 HTTP 200) 등록 모델 18개의 162개 필드(ID·effort·컨텍스트·가격·장문 구간·수명 일자 등)를 JSON 과 대조했다(일치 160, 불일치 0, 확인불가 2 — gpt-5.6-terra·gpt-5.6-luna 의 장문 cached_input 은 제공사 페이지에 값이 없어 같은 문구의 gpt-5.6-sol 로 유추해 유지). 로컬 Codex·Grok·agy·Claude CLI 카탈로그와 메타데이터 전용 runtime_collect.py 결과도 대조했다. 바뀐 제공사 사실은 없고 제거·개명된 모델도 없다. checked_at 은 실제로 쓴 근거 중 가장 이른 시각(Codex 모델 캐시 수신)이다. 2026-10-04 1·2차 갱신(2.14.1·2.15.2)도 바뀐 사실이 없었다. CLI 전용 이름·agy effort 접미 이름·effort 가 없는 Haiku 4.5 는 references/model-catalog-map.md 에 대응만 적고 등록하지 않는다.",
     "2026-10-04 D-67(2.14.0): legacy_lane_migration 만 바꿨다 — 새 Orca 레인 claude-opus-5-5·gpt-6.1-sol 항목을 추가하고 sol 후속을 gpt-6.1-sol 로 통일했다. 그때 제공사 사실은 바꾸지 않았고, 새 레인은 canary·계정/과금 인증서 전까지 pending-transport-and-canary 다.",
     "2026-10-04 D-67 canary(2.14.2): 읽기 전용 Orca canary(2026-10-04 13:19~13:27 KST, run_92ff481d8b2f)가 claude-opus-5-5@high 와 gpt-6.1-sol@xhigh 둘 다 launch.requested == launch.effective 로 통과했다. 그래서 후보가 이 두 레인인 항목 4개(claude-opus-5-5·claude-opus-5·gpt-6.1-sol·gpt-5.6-sol)만 pending-transport-and-certificate 로 바꿨다. native send 보류와 계정/과금 인증서 부재가 그대로라 여전히 동작 레인이 아니다. gpt-5.6-terra(평가 보류)와 다른 항목, 제공사 사실, checked_at 은 그대로다.",
-    "D-90(2026-10-05): legacy_lane_migration 의 claude-sonnet-5 → claude-sonnet-5-5 를 held-until-remeasure 로 멈췄다. Artificial Analysis 는 Sonnet 5.5 의 작업당 비용을 Sonnet 5 보다 약 50% 높게 본다. 재개 조건: AA 재측정에서 해당 effort 의 작업당 토큰이 Sonnet 5 이하이거나, A 클래스 canary 가 그때의 Opus 폴백보다 쿼터를 덜 쓰는 것. 옛 claude-sonnet-5 레인(D-28 A 클래스 폴백)과 제공사 사실, checked_at 은 그대로다."
+    "D-90(2026-10-05): legacy_lane_migration 의 claude-sonnet-5 → claude-sonnet-5-5 를 held-until-remeasure 로 멈췄다. Artificial Analysis 는 Sonnet 5.5 의 작업당 비용을 Sonnet 5 보다 약 50% 높게 본다. 재개 조건: AA 재측정에서 해당 effort 의 작업당 토큰이 Sonnet 5 이하이거나, A 클래스 canary 가 그때의 Opus 폴백보다 쿼터를 덜 쓰는 것. 옛 claude-sonnet-5 레인(D-28 A 클래스 폴백)과 제공사 사실, checked_at 은 그대로다.",
+    "2026-10-05 Simon 지시(2.15.5, \"5.5로 전환해. 최신모델을써야지 왜 구모델을씀?\" — 최신 모델을 쓰라는 지시): A 클래스를 현행 세대 Orca 레인 gpt-6-luna → claude-sonnet-5-5 → claude-opus-5-5 로 옮겼다. 이 지시가 이 레인에 대해 D-90 보류보다 앞서므로(D-90 소수의견: 레인에 대한 Simon 의 명시 지시가 우선) claude-sonnet-5 → claude-sonnet-5-5 를 held-until-remeasure 에서 pending-transport-and-canary 로 되돌렸다. 새 레인 claude-sonnet-5-5·gpt-6-luna 항목을 자기 후보로 추가했고 gpt-5.6-luna 는 pending-transport-and-canary 그대로다. 두 레인은 읽기 전용 canary·계정/과금 인증서 전이라 동작 레인이 아니다. shadow task-fit 정책의 Sonnet 5.5 제외(D-90)는 별개 결정이라 바꾸지 않았다. 제공사 사실과 checked_at 은 그대로다."
   ],
   "sources": {
     "oa_sol61": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
@@ -48,11 +49,13 @@
     "claude-opus-5-5": {"candidate": "claude-opus-5-5", "status": "pending-transport-and-certificate"},
     "claude-opus-5": {"candidate": "claude-opus-5-5", "status": "pending-transport-and-certificate"},
     "claude-fable-5-1": {"candidate": "claude-fable-5-1", "status": "keep-model-check-billing"},
-    "claude-sonnet-5": {"candidate": "claude-sonnet-5-5", "status": "held-until-remeasure"},
+    "claude-sonnet-5-5": {"candidate": "claude-sonnet-5-5", "status": "pending-transport-and-canary"},
+    "claude-sonnet-5": {"candidate": "claude-sonnet-5-5", "status": "pending-transport-and-canary"},
     "gpt-6-astra": {"candidate": "gpt-6-astra", "status": "keep-model-check-transport"},
     "gpt-6.1-sol": {"candidate": "gpt-6.1-sol", "status": "pending-transport-and-certificate"},
     "gpt-5.6-sol": {"candidate": "gpt-6.1-sol", "status": "pending-transport-and-certificate"},
     "gpt-5.6-terra": {"candidate": "gpt-6.1-sol", "status": "pending-evaluation-not-equivalent-tier"},
+    "gpt-6-luna": {"candidate": "gpt-6-luna", "status": "pending-transport-and-canary"},
     "gpt-5.6-luna": {"candidate": "gpt-6-luna", "status": "pending-transport-and-canary"},
     "gpt-daybreak-blue-latest": {"candidate": "gpt-daybreak-blue-latest", "status": "keep-security-pin-resolve-per-run"},
     "gemini-3.8-flash": {"candidate": "gemini-3.8-flash", "status": "keep-model-orca-unverified"},

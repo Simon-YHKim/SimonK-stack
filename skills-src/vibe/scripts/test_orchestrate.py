@@ -1352,8 +1352,9 @@ class OrchestrationTests(unittest.TestCase):
 
     def test_current_generation_models_stay_off_orca_until_lane_migration(self):
         # Lane migration is a separate decision; registering a model must not open an Orca lane.
-        # D-67 added only claude-opus-5-5 and gpt-6.1-sol; these remain without a lane.
-        for model in ("claude-sonnet-5-5", "gpt-6-sol", "gpt-6-luna", "grok-4.7", "grok-4.5"):
+        # D-67 added claude-opus-5-5 and gpt-6.1-sol; Simon's 2026-10-05 instruction added the class A
+        # lanes claude-sonnet-5-5 and gpt-6-luna. These remain without a lane.
+        for model in ("gpt-6-sol", "grok-4.7", "grok-4.5"):
             with self.subTest(model=model):
                 node = {"id": "n", "proc": "research-deep", "class": "B",
                         "route": {"transport": "orca", "model": model, "requested_effort": "high"}}
@@ -1425,6 +1426,84 @@ class OrchestrationTests(unittest.TestCase):
                     p = orca_plan(surface, model, quota_checked_vendors=all_vendors)
                     self.assertEqual(p["status"], "ready", p["errors"])
                     self.assertEqual(p["steps"][0]["route"]["model"], model)
+                    self.assertEqual(p["steps"][0]["route"]["reserved_upper_usd"], 0.0)
+
+    def test_current_class_a_lanes_pass_registration_and_stop_at_the_quota_gate(self):
+        # Simon 2026-10-05 ("5.5로 전환해"): class A moves to gpt-6-luna and claude-sonnet-5-5.
+        # Registered is not runnable: with no quota evidence the next gate (G5) still fails closed.
+        all_vendors = {"quota_checked_vendors": ["claude", "codex", "gemini", "grok"]}
+
+        def node(model, effort, **extra):
+            return {"id": "n", "proc": "bulk-transform", "class": "A", **extra,
+                    "route": {"transport": "orca", "model": model, "requested_effort": effort}}
+
+        for model, effort in (("gpt-6-luna", "low"), ("gpt-6-luna", "medium"),
+                              ("claude-sonnet-5-5", "medium"), ("claude-sonnet-5-5", "high")):
+            with self.subTest(model=model, effort=effort):
+                self.assertEqual(self.m._legacy_validation([node(model, effort)], {}), ["ORCA_G5"])
+                self.assertEqual(self.m._legacy_validation([node(model, effort)], all_vendors), [])
+        # Sonnet 5.5 xhigh/max are off the policy ladder (token blow-up). Orca accepts them for an
+        # unknown claude id, so only an explicit off_ladder opens them.
+        for effort in ("xhigh", "max"):
+            with self.subTest(model="claude-sonnet-5-5", effort=effort):
+                self.assertEqual(self.m._legacy_validation([node("claude-sonnet-5-5", effort)], all_vendors),
+                                 ["ORCA_DISPATCH_UNSUPPORTED"])
+                self.assertEqual(self.m._legacy_validation(
+                    [node("claude-sonnet-5-5", effort, off_ladder=True)], all_vendors), [])
+        # Orca caps the unknown codex model gpt-6-luna at xhigh; ultra/ultracode never reach a flag lane.
+        for model, effort in (("gpt-6-luna", "max"), ("gpt-6-luna", "ultra"),
+                              ("claude-sonnet-5-5", "ultra"), ("claude-sonnet-5-5", "ultracode")):
+            for off_ladder in (False, True):
+                with self.subTest(model=model, effort=effort, off_ladder=off_ladder):
+                    self.assertEqual(self.m._legacy_validation(
+                        [node(model, effort, off_ladder=off_ladder)], all_vendors), ["ORCA_DISPATCH_UNSUPPORTED"])
+
+    def test_current_class_a_lanes_keep_every_zero_spend_gate_of_their_legacy_lanes(self):
+        # Same minority guard as D-67: each new class A lane fails closed exactly like its predecessor
+        # on the same class A step and effort.
+        pairs = ((("codex", "gpt-5.6-luna"), ("codex", "gpt-6-luna"), "low"),
+                 (("claude", "claude-sonnet-5"), ("claude", "claude-sonnet-5-5"), "medium"))
+        all_vendors = ["claude", "codex", "gemini", "grok"]
+
+        def orca_plan(surface, model, effort, billing_changes=None, drop=(), **runtime):
+            c = candidate(model=model, surface=surface, transport="orca",
+                          provider_efforts=["low", "medium", "high"], transport_efforts=["low", "medium", "high"],
+                          effort_by_demand={"routine": effort})
+            c["billing"].update(billing_changes or {})
+            for key in drop:
+                c["billing"].pop(key)
+            return self.plan([step(proc="bulk-transform", **{"class": "A"})], [c], **runtime)
+
+        def reasons(plan):
+            self.assertEqual(plan["status"], "blocked")
+            return sorted({r for c in plan["steps"][0]["rejected_candidates"] for r in c["reasons"]})
+
+        for legacy, new, effort in pairs:
+            with self.subTest(legacy=legacy[1], new=new[1]):
+                drop = ("model_included", "included_model", "extra_usage_enabled")
+                got = reasons(orca_plan(*new, effort, drop=drop, quota_checked_vendors=all_vendors))
+                self.assertIn("MODEL_INCLUSION_UNVERIFIED", got)
+                self.assertNotIn("OVERAGE_UNVERIFIED", got)
+                self.assertEqual(got, reasons(orca_plan(*legacy, effort, drop=drop,
+                                                        quota_checked_vendors=all_vendors)))
+                # Inclusion recorded for the predecessor does not carry over to the successor.
+                self.assertIn("MODEL_INCLUSION_UNVERIFIED",
+                              reasons(orca_plan(*new, effort, {"included_model": legacy[1]},
+                                                quota_checked_vendors=all_vendors)))
+                for changes in ({"api_fallback_disabled": None}, {"spend_control_reached": True}):
+                    self.assertEqual(reasons(orca_plan(*new, effort, changes, quota_checked_vendors=all_vendors)),
+                                     reasons(orca_plan(*legacy, effort, changes, quota_checked_vendors=all_vendors)))
+                for surface, model in (legacy, new):
+                    p = orca_plan(surface, model, effort)
+                    self.assertEqual(p["status"], "blocked")
+                    self.assertEqual(p["errors"], ["ORCA_G5"])
+                # Planner parity only; dispatch still needs the Orca launch certificate
+                # (test_execute_orca covers its absence for these lanes).
+                for surface, model in (legacy, new):
+                    p = orca_plan(surface, model, effort, quota_checked_vendors=all_vendors)
+                    self.assertEqual(p["status"], "ready", p["errors"])
+                    self.assertEqual(p["steps"][0]["route"]["model"], model)
+                    self.assertEqual(p["steps"][0]["route"]["requested_effort"], effort)
                     self.assertEqual(p["steps"][0]["route"]["reserved_upper_usd"], 0.0)
 
     def test_cli_plan_round_trip_is_read_only(self):

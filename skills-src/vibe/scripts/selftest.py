@@ -522,7 +522,7 @@ def run():
         check("전 레인 한도 100% 도달 → lane 없음 (Q-05)", lane_b is None, f"lane={lane_b}")
         lane_99, note_99 = MI.pick_default("A", {v: {"pct": 99, "reset": "", "state": "ok", "key": "weekly"}
                                                 for v in routing.VENDORS})
-        check("99% 는 금지가 아니라 강등 — 첫 강등 레인 (Q-05)", lane_99 == "gpt-5.6-luna", f"{lane_99} {note_99}")
+        check("99% 는 금지가 아니라 강등 — 첫 강등 레인 (Q-05)", lane_99 == "gpt-6-luna", f"{lane_99} {note_99}")
         check("사유에 축소안 안내", "축소안" in note_b, note_b)
 
         # D-28 #13 — 강등을 모든 순위에 · 첫 강등 레인 폴백 · fable 버킷 · 실호출 · unavailable
@@ -530,12 +530,12 @@ def run():
             return {"pct": pct, "reset": "", "state": "ok", "key": "weekly"}
         q6190 = {"claude": _q(100), "codex": _q(81), "gemini": _q(0), "grok": _q(0)}   # Q-05: 금지 100 · 강등 >80
         lane_n6, note_n6 = MI.pick_default("A", q6190)
-        check("ok 레인이 없으면 첫 강등 레인 (D-28 N6)", lane_n6 == "gpt-5.6-luna", f"{lane_n6} {note_n6}")
+        check("ok 레인이 없으면 첫 강등 레인 (D-28 N6)", lane_n6 == "gpt-6-luna", f"{lane_n6} {note_n6}")
         q_c61 = dict(q6190, claude=_q(30))
         lane_d2, _nd2 = MI.pick_default("A", q_c61)
-        check("1순위 81% 면 ok 인 2순위로 강등 (Q-05 강등선 80)", lane_d2 == "claude-sonnet-5", str(lane_d2))
+        check("1순위 81% 면 ok 인 2순위로 강등 (Q-05 강등선 80)", lane_d2 == "claude-sonnet-5-5", str(lane_d2))
         lane_80, _n80 = MI.pick_default("A", dict(q_c61, codex=_q(80)))
-        check("정확히 80% 는 강등이 아니다 (초과만)", lane_80 == "gpt-5.6-luna", str(lane_80))
+        check("정확히 80% 는 강등이 아니다 (초과만)", lane_80 == "gpt-6-luna", str(lane_80))
         # Q-09 — writes:true 공정은 코딩 규칙
         lane_wr, _nwr = MI.pick_default("B", _q and {v: _q(10) for v in routing.VENDORS}, proc="terminal-ci-git", writes=True)
         check("writes 공정의 기본 채움은 코딩 레인 (Q-09)", lane_wr == routing.PROCESS_LANES["coding"][0], str(lane_wr))
@@ -620,9 +620,10 @@ def run():
 
         print()
         print("=== 출력 규칙 ===")
-        check("luna 는 우열 판단 금지 명시",
-              "우열 판단" in routing.OUTPUT_RULES["gpt-5.6-luna"]["deny"])
-        check("B 클래스 1순위에 luna 없음", "gpt-5.6-luna" not in routing.lanes_for("B"))
+        check("luna 는 우열 판단 금지 명시 (2026-10-05: A 1순위 규칙은 gpt-6-luna 로 옮겼다)",
+              "우열 판단" in routing.OUTPUT_RULES["gpt-6-luna"]["deny"])
+        check("B 클래스 1순위에 luna 없음",
+              "gpt-6-luna" not in routing.lanes_for("B") and "gpt-5.6-luna" not in routing.lanes_for("B"))
         check("코디네이터가 B 워커 겸임 → 경고",
               routing.coordinator_conflict(
                   [{"proc": "coding", "lane": routing.COORDINATOR[0], "class": "B"}]))
@@ -633,8 +634,9 @@ def run():
               routing.COORDINATOR == ("gpt-6.1-sol", "xhigh"), str(routing.COORDINATOR))
         check("terra 사다리 medium/max (D-28 #9)",
               routing.ladder_for("gpt-5.6-terra") == ("medium", "max"), str(routing.ladder_for("gpt-5.6-terra")))
-        check("luna 사다리는 low/medium 유지 (D-28 #10 보류)",
-              routing.ladder_for("gpt-5.6-luna") == ("low", "medium"))
+        check("luna 사다리는 low/medium 유지 (D-28 #10 보류 · gpt-6-luna 도 같다)",
+              routing.ladder_for("gpt-5.6-luna") == ("low", "medium")
+              and routing.ladder_for("gpt-6-luna") == ("low", "medium"))
 
         print()
         print("=== 2026-09-06 · gpt-6-astra 편입 · effort 사다리 ===")
@@ -643,10 +645,12 @@ def run():
         check("astra 의 Orca 상한은 xhigh", routing.ceiling_for("gpt-6-astra") == "xhigh")
         check("B(비코딩) 1순위가 astra (D-28 #5)", routing.lanes_for("B")[0] == "gpt-6-astra",
               str(routing.lanes_for("B")))
-        check("sonnet 은 A 2순위 · 사다리 medium/xhigh (D-28 #2·#3 · M1 통과)",
-              routing.lanes_for("A")[1] == "claude-sonnet-5"
+        check("sonnet 은 A 2순위 — 2026-10-05 부터 claude-sonnet-5-5 · 사다리 medium/high "
+              "(옛 claude-sonnet-5 사다리 medium/xhigh 는 원장 호환용으로 그대로)",
+              routing.lanes_for("A")[1] == "claude-sonnet-5-5"
+              and routing.ladder_for("claude-sonnet-5-5") == ("medium", "high")
               and routing.ladder_for("claude-sonnet-5") == ("medium", "xhigh"),
-              f"A={routing.lanes_for('A')} ladder={routing.ladder_for('claude-sonnet-5')}")
+              f"A={routing.lanes_for('A')} ladder={routing.ladder_for('claude-sonnet-5-5')}")
         check("코딩 목록에는 codex 가 끝까지 없다 (D-28 #5)",
               all(routing.LANES[l]["vendor"] == "claude" for l in routing.PROCESS_LANES["coding"]))
         check("코디네이터(sol)가 B 목록에 없다 — 겸임이 구조적으로 불가",
@@ -699,6 +703,38 @@ def run():
         check("opus-5-5 는 --model·--effort max 로 나가고 ultracode 키워드를 붙이지 않는다",
               "claude-opus-5-5" in argv_o and argv_o[argv_o.index("--effort") + 1] == "max"
               and routing.prompt_prefix("claude-opus-5-5", "max") == "", str(argv_o))
+
+        # 2026-10-05 Simon 지시 (2.15.5) — A 클래스를 현행 세대 레인으로 (같은 ADD_ALONGSIDE_KEEP_LEGACY)
+        check("2.15.5 A 클래스 = gpt-6-luna → claude-sonnet-5-5 → claude-opus-5-5",
+              routing.lanes_for("A") == ["gpt-6-luna", "claude-sonnet-5-5", "claude-opus-5-5"],
+              str(routing.lanes_for("A")))
+        check("2.15.5 새 레인은 flag · orca · 상한 sonnet-5-5=max / 6-luna=xhigh",
+              all(routing.LANES[l]["effort_style"] == "flag" and routing.LANES[l]["dispatch"] == "orca"
+                  for l in ("claude-sonnet-5-5", "gpt-6-luna"))
+              and routing.ceiling_for("claude-sonnet-5-5") == "max"
+              and routing.ceiling_for("gpt-6-luna") == "xhigh")
+        check("2.15.5 옛 gpt-5.6-luna·claude-sonnet-5 는 어떤 우선순위 목록·고정 공정에도 없다",
+              not ({"gpt-5.6-luna", "claude-sonnet-5"} & listed)
+              and all(f[0] not in ("gpt-5.6-luna", "claude-sonnet-5")
+                      for f in (routing.fixed_for(p[0]) for p in routing.PROCESSES) if f))
+        for lane, bad in (("gpt-6-luna", "max"), ("gpt-6-luna", "ultra"), ("claude-sonnet-5-5", "ultra")):
+            try:
+                routing.dispatch_argv(lane, bad, "t", "n", "current", allow_off_ladder=True)
+                check(f"{lane}@{bad} → 차단 (Orca 허용목록 밖)", False, "통과되어 버렸다")
+            except ValueError:
+                check(f"{lane}@{bad} → 차단 (Orca 허용목록 밖)", True)
+        sonnet_off = []
+        for eff in ("xhigh", "max"):
+            try:
+                routing.dispatch_argv("claude-sonnet-5-5", eff, "t", "n", "current")
+                sonnet_off.append(f"{eff}=열림")
+            except ValueError:
+                pass
+        check("2.15.5 sonnet-5-5 xhigh·max 는 정책 사다리 밖 (토큰 폭증) — 기본 경로로 안 열린다",
+              not sonnet_off, str(sonnet_off))
+        argv_s = routing.dispatch_argv("claude-sonnet-5-5", "max", "t", "n", "current", allow_off_ladder=True)
+        check("2.15.5 sonnet-5-5 max 는 off-ladder 로만 · --model·--effort 그대로",
+              "claude-sonnet-5-5" in argv_s and argv_s[argv_s.index("--effort") + 1] == "max", str(argv_s))
 
         # Orca 가 거부하는 값은 allow_off_ladder 로도 열리지 않는다.
         for bad in ("ultra", "max"):

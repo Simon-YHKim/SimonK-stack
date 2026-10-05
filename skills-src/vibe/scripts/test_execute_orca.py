@@ -412,6 +412,32 @@ class OrcaAdapterTests(unittest.TestCase):
                 self.assertEqual(store.snapshot()["attempts"], [])
         self.assertEqual(self.starts(), 0)
 
+    def test_current_class_a_lanes_still_need_the_launch_certificate(self):
+        # Simon 2026-10-05 class A lanes (gpt-6-luna, claude-sonnet-5-5): same guard as D-67.
+        # A ready plan is not a launch; without the certificate nothing reaches the transport.
+        for surface, model, effort in (("codex", "gpt-6-luna", "low"), ("claude", "claude-sonnet-5-5", "medium")):
+            with self.subTest(model=model):
+                store = run_state.Store(Path(self.tmp.name) / f"{model}.sqlite3")
+                store.initialize()
+                adapter = self.m.Adapter(store, self.transport, clock=lambda: self.clock)
+                c = candidate(model=model, surface=surface, transport="orca",
+                              provider_efforts=["low", "medium", "high"], transport_efforts=["low", "medium", "high"],
+                              effort_by_demand={"routine": effort})
+                s = step(proc="inventory-schema", **{"class": "A"}, orca=self.binding)
+                plan = orchestrate.make_plan({"run_id": "vibe-class-a-261005", "steps": [s]},
+                    {"explain": {"path": "/fixture/SKILL.md"}},
+                    {"candidates": [c], "tools": [], **self.binding["guards"]}, NOW, fixture_registry([c]))
+                self.assertEqual(plan["status"], "ready", plan["errors"])
+                self.assertEqual(plan["steps"][0]["route"]["requested_effort"], effort)
+                store.register(plan, now=NOW)
+                before = len(self.transport.calls)
+                for certificate in (None, {**self.certificate, "verified": False}):
+                    with self.assertRaisesRegex(run_state.StateError, "TRANSPORT_ACCOUNT_UNVERIFIED"):
+                        adapter.dispatch(plan, "read", certificate)
+                self.assertEqual(len(self.transport.calls), before)
+                self.assertEqual(store.snapshot()["attempts"], [])
+        self.assertEqual(self.starts(), 0)
+
     def test_native_client_bounds_output_without_temporary_disk_spool(self):
         started = time.monotonic()
         with self.assertRaisesRegex(run_state.StateError, "TOO_LARGE"):

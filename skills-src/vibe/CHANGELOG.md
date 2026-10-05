@@ -1,5 +1,30 @@
 # Changelog
 
+## 2.15.5 - 2026-10-05
+
+- Simon 지시("5.5로 전환해. 최신모델을써야지 왜 구모델을씀?"): A 클래스(bulk-transform·inventory-schema·
+  disk-grep·log-history-triage)를 현행 세대 레인으로 옮겼다. 순서는 `gpt-6-luna` → `claude-sonnet-5-5` →
+  `claude-opus-5-5` 다. 이전 1·2순위였던 `gpt-5.6-luna`·`claude-sonnet-5` 는 같은 세대가 아니었다.
+- D-67 과 같은 ADD_ALONGSIDE_KEEP_LEGACY 패턴이다. 옛 키 옆에 새 Orca 레인 두 개를 넣었다.
+  - `claude-sonnet-5-5`: flag, Orca low~max(claude 카탈로그에 없는 정식 id), 정책 std medium(Claude Code·앱 기본값) /
+    top high(Artificial Analysis 가 Sonnet 5.5 의 가장 경쟁력 있는 설정으로 보는 값). xhigh·max 는 토큰 폭증
+    (max 에서 작업당 출력 약 193k 토큰) 때문에 정책 사다리 밖이라 off-ladder 로만 열린다. 쿼터는 claude 일반 weekly.
+  - `gpt-6-luna`: flag, Orca minimal~xhigh(codex 미등록 모델 폴백, max·ultra 거부), 정책 low/medium(5.6-luna 와 같음).
+  - 옛 `gpt-5.6-luna`·`claude-sonnet-5` 는 원장 호환용(우선순위 밖)으로만 남긴다. `ledger.py` 가 `LANES` 에 없는
+    레인의 원장 행을 거부하기 때문이다. A 1순위 산출물 제약(`OUTPUT_RULES`)도 `gpt-6-luna` 로 옮겼다.
+- registry(2026-10-05.3): `claude-sonnet-5` → `claude-sonnet-5-5` 를 `held-until-remeasure` 에서
+  `pending-transport-and-canary` 로 되돌렸다. D-90 소수의견대로 이 레인에 대한 Simon 의 명시 지시가 보류보다 앞선다.
+  새 레인 `claude-sonnet-5-5`·`gpt-6-luna` 를 자기 후보 항목으로 추가했다. `gpt-5.6-luna` 는 `pending-transport-and-canary`
+  그대로다. 제공사 사실·`checked_at` 은 바꾸지 않았다. `references/task-fit-policy.json`(D-90 의 Sonnet 5.5
+  shadow 제외)은 별개의 비용 프런티어 결정이라 바꾸지 않았다.
+- **등록이지 동작이 아니다.** 두 레인은 읽기 전용 canary(`launch.requested` ↔ `launch.effective`)와 Orca 런치
+  계정/과금 인증서 전이다. planner 는 이제 두 모델을 `ORCA_UNREGISTERED_PROCESS_OR_MODEL` 로 막지 않고 G5 에서 멈춘다.
+  모델 포함·API 폴백 OFF·G5·런치 인증서 게이트가 옛 레인과 똑같이 걸린다는 테스트를 붙였다
+  (`test_orchestrate.py` 2건, `test_execute_orca.py` 1건, `test_model_registry.py` 1건, selftest 8건).
+  검증: scripts 단위 테스트 425 OK(421→425), `tests/` 157 OK, selftest PASS 196 · FAIL 0(188→196).
+- `adversarial_eval.VENDOR_OF` 와 `eval/probes.json` 에 새 레인을 옛 레인 옆에 더했다(12개 문제에 `gpt-6-luna`).
+  `references/legacy-routing.md` 는 `sync_skill_table.py` 로 다시 만들었다. 모델 호출·Orca 명령·worker-start 는 0회다.
+
 ## 2.15.4 - 2026-10-05
 
 - 허브 D-90(4벤더 quick 토론 FINAL 4/4, 심판 확신도 76): `claude-sonnet-5-5` 를 shadow task-fit 정책의
