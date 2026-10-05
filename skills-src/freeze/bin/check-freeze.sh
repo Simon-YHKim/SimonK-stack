@@ -39,7 +39,7 @@ _freeze_backstop() {
   local rc=$?
   if [ "$rc" -ne 0 ] && [ -z "$_FREEZE_DECIDED" ]; then
     _FREEZE_DECIDED=1
-    printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"[freeze] Hook failed unexpectedly (exit %s) - blocked, fail closed. Way out: /unfreeze, or reinstall ~/.claude/skills/freeze."}}\n' "$rc"
+    printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"[freeze] Hook failed unexpectedly (exit %s) - blocked, fail closed. Way out: /unfreeze, or reinstall the freeze skill."}}\n' "$rc"
     exit 0
   fi
 }
@@ -49,7 +49,7 @@ trap _freeze_backstop EXIT
 # used before the JSON encoder in hook-extract.sh is known to be loadable.
 _freeze_fail() {
   _FREEZE_DECIDED=1
-  printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"[freeze] %s - blocked, fail closed. Way out: /unfreeze, or reinstall ~/.claude/skills/careful and ~/.claude/skills/freeze."}}\n' "$1"
+  printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"[freeze] %s - blocked, fail closed. Way out: /unfreeze, or reinstall the careful and freeze skills."}}\n' "$1"
   exit 0
 }
 

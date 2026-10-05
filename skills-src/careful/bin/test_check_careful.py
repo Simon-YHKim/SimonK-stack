@@ -243,7 +243,7 @@ class CarefulHookTests(unittest.TestCase):
         self.assertIn("[careful][HOOK FAILURE]", reason)
         self.assertIn("careful hook itself failed", reason)
         self.assertIn("NOT safety-checked", reason)
-        self.assertIn("fix the hook", reason)
+        self.assertIn("repair or reinstall the careful skill", reason)
         self.assertIn("without /careful", reason)
         if detail:
             self.assertIn(detail, reason)
@@ -272,10 +272,19 @@ class CarefulHookTests(unittest.TestCase):
         text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
         self.assertNotIn("CLAUDE_SKILL_DIR}/bin", text.split("---", 2)[1])
         self.assertNotIn("/gstack/careful", self.hook_command)
-        self.assertRegex(text.split("---", 2)[1], r"(?m)^version: 0\.2\.5$")
+        self.assertRegex(text.split("---", 2)[1], r"(?m)^version: 0\.2\.6$")
         head = text.encode("utf-8")[:8192].decode("utf-8", "ignore")
         self.assertFalse(BANNER_A in head and BANNER_B in head,
                          "gstack banner would make setup treat this folder as gstack-owned")
+
+    def test_deny_reasons_name_no_install_path(self):
+        # The plugin runtime ships this same leaf, so a flat ~/.claude/skills
+        # path in a deny reason would send plugin users to a folder they lack.
+        script = (SKILL / "bin" / "check-careful.sh").read_text(encoding="utf-8")
+        reasons = re.findall(r'permissionDecisionReason":"([^"]*)"', script)
+        self.assertTrue(reasons)
+        for reason in reasons:
+            self.assertNotIn(".claude/skills", reason)
 
     # --- allow -----------------------------------------------------------
     def test_safe_commands_allow(self):
