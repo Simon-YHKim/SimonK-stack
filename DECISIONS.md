@@ -673,3 +673,9 @@ last-sync: 2026-07-05
   - **근거**: §35.9에 따른 승인된 설치 절차 반복이다. 새로 들어간 것은 #132·#134(freeze 0.2.6, 플러그인 clear 출력), #135(카탈로그 전환), #136(테스트 timeout과 README)다. 미리보기 계획은 후보 20261005-vibe-2152-286494e, 정션 8개, 실폴더 freeze 0.2.5 → 0.2.6이다.
 
 - 2026-10-05 04:50:50 KST | AMEND | **D-85 main 286494e 이 PC 설치(freeze 0.2.6)** — 이행: 후보 20261005-vibe-2152-286494e로 정션 8개를 전환하고 실폴더 freeze를 0.2.6으로 바꿨다. update-local -Selftest는 status current, problems 0 | claude
+
+- 2026-10-05 12:14:44 KST | DECIDE | **D-86 안전 훅 안내문 flat 경로 정리(careful 0.2.6·freeze 0.2.7·unfreeze 0.2.1) 게시·설치** (오케스트레이터 단독 · 35.8 1단) | claude
+  - **근거**: D-82 AMEND "남은 정리" 1(coding-infra-4b 점검으로 재확인). 안내 문구와 문서만 바뀌고 차단 판정 로직은 그대로다. §35.9에 따라 승인된 게시 절차(승인 파일 PR)와 설치 절차(update-local)를 반복한다.
+  - SimonK-stack #139(04c06c8): 플러그인 `.simonk-runtime`에 그대로 실리는 check-careful.sh·check-freeze.sh의 차단 안내문 3곳이 `~/.claude/skills/...`를 고치라고 안내했다. 경로 없는 문장으로 바꾸고, SKILL.md 본문은 flat과 플러그인 경로를 나눠 적었다. 재발 방지 테스트 2개(origin/main 안내문에서 3건 검출). leaf 테스트 careful 36·freeze 28 OK, PR CI 6/6.
+  - main 빌드 37258040573: 1.775.0, content digest 85ccf5938fd7…(게이트는 content-not-approved로 거부, 설계대로). 승인 파일을 D-86·source 04c06c8·이 digest로 바꾸는 PR로 게시한다.
+  - 함께 처리: README 소개·사용설명서 재작성(#138, 308afad), 머지된 원격 브랜치 82개를 이름 지정으로 삭제(PR head 일치 확인, 불일치 17개 보존).
