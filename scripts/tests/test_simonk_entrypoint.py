@@ -265,8 +265,11 @@ class SimonkEntrypointTests(unittest.TestCase):
         rc, plan = self.run_wrapper(params)
         self.assertEqual(rc, 0, plan)
         self.assertEqual([row["path"] for row in plan["discovery"]["roots"]], list(map(str, roots)))
+        # Bindings carry the resolved file; on GitHub's Windows runner TEMP is an 8.3 short
+        # path (RUNNER~1) that resolves to the long one (runneradmin).
         self.assertEqual([b["path"] for b in plan["steps"][0]["skill_bindings"]],
-                         [str(roots[2] / "design-leaf/SKILL.md"), str(roots[4] / "stack-leaf/SKILL.md")])
+                         [str((roots[2] / "design-leaf/SKILL.md").resolve()),
+                          str((roots[4] / "stack-leaf/SKILL.md").resolve())])
         self.assertNotIn("bundle", plan["discovery"])
 
     def test_documented_batch_recipe_rejects_pre_body_binding_errors(self):
