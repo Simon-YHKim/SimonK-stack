@@ -16,8 +16,8 @@ that the workflow's opt-in publish job pushes without force.
 Publish approval (D-82) is its own gate, not the D-33 hold: the built commit
 must carry ``distribution/dist-publish.allow`` naming a hub decision, the
 session-tested candidate commit (an ancestor of the build) and that candidate's
-content digest. The hold keeps blocking SessionStart and release.yml; the
-repository variable SIMONK_DIST_PUBLISH stays the workflow's other key.
+content digest. The repository variable SIMONK_DIST_PUBLISH stays the
+workflow's other key. (D-87 retired the hold together with what it fenced.)
 """
 from __future__ import annotations
 
