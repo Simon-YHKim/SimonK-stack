@@ -259,9 +259,10 @@ skills-src/        배포할 스킬 소스 137개 (SKILL.md, evals/, scripts/, r
 .claude/skills/    이 저장소에서 쓰는 개발용 스킬 4개
 scripts/           빌드·검증 도구 (skill_release, plugin_bundle, codex_overlay, codex_safe_subset, dist_release)
 scripts/windows/   Windows 사용자 홈 설치 도구 (update-local.ps1)
-distribution/      배포 입력과 게이트 (plugin-inputs, dist-publish.allow, 보류 파일)
+distribution/      배포 입력과 게시 게이트 (plugin-inputs, dist-publish.allow, skills-release)
 apps/              AI 사용량 위젯
 docs/              설치 기록(INSTALL.md), 인수인계(HANDOFF.md) 등
+_archive/          은퇴한 경로 보관 (D-87): 레거시 루트 플러그인 0.1.0, 옛 git clone 설치 스크립트
 ```
 
 다섯 플러그인은 `skills-src/`와 플러그인별 원본 저장소(`distribution/plugin-inputs.v1.json`에 커밋으로 고정)를 합쳐 빌드합니다.
@@ -304,7 +305,7 @@ pwsh -NoProfile -NonInteractive -File scripts/windows/update-local.ps1          
 pwsh -NoProfile -NonInteractive -File scripts/windows/update-local.ps1 -Apply -Selftest
 ```
 
-후보를 빌드하고, 링크를 교체하고, 바뀐 스킬만 바꾼 뒤 스스로 검증합니다. 실패하면 되돌립니다. 이 방식을 쓰는 PC에서는 플러그인을 함께 켜지 마세요(3절 참고). 예전 git clone 설치 스크립트(`scripts/install.sh`, `scripts/setup-repo.sh`)는 지금 권장하지 않습니다.
+후보를 빌드하고, 링크를 교체하고, 바뀐 스킬만 바꾼 뒤 스스로 검증합니다. 실패하면 되돌립니다. 이 방식을 쓰는 PC에서는 플러그인을 함께 켜지 마세요(3절 참고). 예전 git clone 설치 스크립트(`install.sh` 설치 모드, `setup-repo.sh`)는 허브 D-87로 은퇴해 `_archive/legacy-install/`에 보관했습니다. `scripts/install.sh`에는 `--offline-package` 진입점만 남았습니다.
 
 ### 더 보기
 

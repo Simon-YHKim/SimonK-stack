@@ -882,8 +882,10 @@ D-76 4단계부터는 SimonKCore·SimonKStack plugin.json의 description 끝에 
 - **pin만 바꿔도 새 version**: pin 변경은 `distribution/plugin-inputs.v1.json`을 바꾸는
   main 커밋이므로 N이 올라갑니다.
 - **레거시보다 위**: 첫 값부터 레거시 루트 플러그인 `0.1.0`과 pin 원본 version(0.x)보다
-  큽니다. 빌더는 pin 원본 version 이하를, `version` 명령은 레거시
-  `.claude-plugin/plugin.json` 이하를 거부합니다.
+  큽니다. 빌더는 pin 원본 version 이하를, `version` 명령은 레거시 루트 플러그인
+  version 이하를 거부합니다. D-87 PR-B부터 그 하한은 파일을 읽지 않는 상수
+  `LEGACY_FLOOR = "0.1.0"`이고, 루트 `plugin.json`은 `_archive/legacy-root-plugin-0.1.0/`에
+  보관했습니다.
 - **SemVer 본체만**: `-`·`+` 꼬리를 쓰지 않습니다. 기존 `-vibe.018825543742`는 0으로
   시작하는 숫자 식별자라 SemVer가 아니고 `0.1.0`보다 낮게 정렬됩니다. 호스트가
   `+digest`를 어떻게 다루는지는 확인되지 않았습니다.
@@ -922,22 +924,23 @@ version 칸을 비운 값으로 셉니다. version만 다른 두 빌드는 같�
 5. 영수증(bundle.json, source·overlay·subset 영수증, pins.json, 감사 보고서,
    RELEASE.json)을 artifact로 90일 보관합니다. PR 실행은 여기까지(검증 전용)입니다.
 
-**publish job은 꺼져 있습니다.** 게시 열쇠는 두 개이고 둘 다 있어야 합니다(D-82 후속 1).
+**publish job은 켜져 있습니다.** 게시 열쇠는 두 개이고 둘 다 있어야 합니다(D-82 후속 1).
 
-1. **저장소 변수 `SIMONK_DIST_PUBLISH`가 `true`.** 지금은 설정하지 않았으므로 job 자체가
-   SKIPPED입니다. PR 실행은 변수와 관계없이 게시 job에 닿지 않습니다.
+1. **저장소 변수 `SIMONK_DIST_PUBLISH`가 `true`.** 2026-10-04 17:29 UTC(10-05 02:29 KST)에
+   설정했습니다. 변수가 없으면 job 자체가 SKIPPED입니다. PR 실행은 변수와 관계없이 게시
+   job에 닿지 않습니다.
 2. **빌드한 커밋에 커밋된 승인 기록 `distribution/dist-publish.allow`.** publish job이
    artifact의 `RELEASE.json`을 받아 `dist_release.py gate`로 대조하고, 통과하지 못하면
-   트리를 받기 전에 실패합니다. 지금은 이 파일이 없습니다(`test_dist_release`가 확인).
+   트리를 받기 전에 실패합니다. 지금 기록은 D-86 승인(source `04c06c8`, content digest
+   `85ccf593…`)입니다.
 
-**D-33 hold는 더 이상 게시를 막지 않습니다.** `distribution/main-source-only.hold`는 그대로
-남아 아래 둘을 계속 막습니다. 카탈로그는 2026-10-05 D-82 마지막 단계에서 다섯 `dist` 플러그인으로
-전환했습니다(아래 "카탈로그 전환" 참고).
+dist 브랜치에는 이 경로로 게시한 릴리스가 쌓입니다(2026-10-05 12:32 KST 기준 최신 1.777.0).
 
-| hold를 읽는 곳 | 막는 것 |
-| --- | --- |
-| `.claude/hooks/session-start.sh` | SessionStart 부트스트랩 전체(Gstack 설치, 레포 스킬의 `~/.claude` 복사, instincts 시드, CLAUDE.md 생성)와 업데이트 확인 |
-| `.github/workflows/release.yml` | main push마다 만들던 태그와 GitHub Release |
+**D-33 hold는 D-87(2026-10-05)로 은퇴했습니다.** PR-A(#143)가 `distribution/main-source-only.hold`와
+그 hold가 막던 `.github/workflows/release.yml`(main push마다 만들던 태그·GitHub Release)을 지우고,
+SessionStart 훅을 아무것도 쓰지 않는 읽기 전용 안내로 줄였습니다. PR-B는 레거시 루트 플러그인과 옛
+git clone 설치 스크립트를 `_archive/`로 옮겼습니다. 카탈로그는 2026-10-05 D-82 마지막 단계에서 다섯
+`dist` 플러그인으로 전환했습니다(아래 "카탈로그 전환" 참고).
 
 **카탈로그 전환(2026-10-05, D-82 마지막 단계).** `.claude-plugin/marketplace.json`은 이제 레거시
 `simonk-stack` 한 항목(`313c04b` pin)이 아니라 다섯 항목입니다. 각 항목은 `git-subdir`, url
@@ -953,8 +956,9 @@ version은 넣지 않습니다. 이 파일은 HTTPS 검증에 쓴 임시 카탈�
 - 다시 적용: 1.768.0
 - 실제 게시 경로의 늦은 옛 빌드: 내용이 다르면 `not-newer-than-dist`로 거부, 같으면 skip
 
-`test_main_release_fence`가 이 다섯 항목 형태를 지키고, hold를 읽는 곳이 위 두 파일뿐인지도
-확인합니다. 운영 규칙은 그대로입니다. **main의 카탈로그 커밋은 되돌리지 않습니다.**
+`test_main_release_fence`와 `.github/validate.mjs`(CI `validate-plugin`)가 이 다섯 항목 형태를
+지킵니다. `test_main_release_fence`는 hold 파일과 `release.yml`이 없고 hold를 읽는 워크플로·훅이
+없는지도 확인합니다. 운영 규칙은 그대로입니다. **main의 카탈로그 커밋은 되돌리지 않습니다.**
 
 승인 기록 형식(JSON, 다섯 키만 허용):
 
@@ -998,6 +1002,7 @@ version은 넣지 않습니다. 이 파일은 HTTPS 검증에 쓴 임시 카탈�
    재출하와 업데이트 안내로 복구합니다.
 
 hold 제거, SessionStart 홈 복사와 `release.yml` 재개는 이 순서에 없는 별도 결정입니다.
+(그 결정이 D-87(2026-10-05)입니다. 재개하지 않고 hold·`release.yml`을 지우고 SessionStart를 읽기 전용으로 줄였습니다.)
 
 두 열쇠가 다 맞으면 `dist` 브랜치에
 `plugins/`·`RELEASE.json`·`.gitattributes`(`* -text`, 호스트의 autocrlf가 셸 훅을 CRLF로
@@ -2020,6 +2025,11 @@ Codex `4bf3bba4269f734cf4879722ed6bedde57bb0a4f9bc08d748a5a2271697997c1`.
 §35 별도 심판 D-code 없이 `main` 머지하지 않는다.
 
 ## One-shot 설치
+
+> **은퇴 (허브 D-87, 2026-10-05).** 아래 git clone 설치는 더 이상 동작하지 않습니다. `scripts/install.sh`는
+> `--offline-package`만 받고 다른 인자는 exit 2로 끝나며, 옛 스크립트는 `_archive/legacy-install/install.sh`에
+> 있습니다. 지금 설치는 [README 3절](../README.md#3-설치), 이 PC는 맨 위 "표준 갱신 경로"(`update-local.ps1`)입니다.
+> 아래 본문은 기록으로 남깁니다.
 
 아래는 기존 경로입니다. 소스 오버레이의 parity 증거를 대신하지 않으며,
 네트워크·환경변경을 포함합니다. `--dry`만으로 모든 legacy 부작용의 안전성이

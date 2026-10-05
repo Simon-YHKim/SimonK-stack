@@ -259,9 +259,10 @@ skills-src/        137 shipped skill sources (SKILL.md, evals/, scripts/, refere
 .claude/skills/    4 development skills used in this repo
 scripts/           build and verification tools (skill_release, plugin_bundle, codex_overlay, codex_safe_subset, dist_release)
 scripts/windows/   Windows user-home installer (update-local.ps1)
-distribution/      release inputs and gates (plugin-inputs, dist-publish.allow, hold files)
+distribution/      release inputs and the publish gate (plugin-inputs, dist-publish.allow, skills-release)
 apps/              AI Usage Widget
 docs/              install records (INSTALL.md), handoff (HANDOFF.md) and more
+_archive/          retired paths kept for reference (D-87): legacy root plugin 0.1.0, old git-clone installers
 ```
 
 The five plugins are built by combining `skills-src/` with each plugin's source repository, pinned by commit in `distribution/plugin-inputs.v1.json`.
@@ -304,7 +305,7 @@ pwsh -NoProfile -NonInteractive -File scripts/windows/update-local.ps1          
 pwsh -NoProfile -NonInteractive -File scripts/windows/update-local.ps1 -Apply -Selftest
 ```
 
-It builds a candidate, swaps the links, replaces only the changed skills, then verifies itself, and rolls everything back if verification fails. Don't enable the plugins on a machine that uses this (see section 3). The older git-clone install scripts (`scripts/install.sh`, `scripts/setup-repo.sh`) are no longer recommended.
+It builds a candidate, swaps the links, replaces only the changed skills, then verifies itself, and rolls everything back if verification fails. Don't enable the plugins on a machine that uses this (see section 3). The older git-clone install scripts (the `install.sh` install mode and `setup-repo.sh`) were retired by hub D-87 and are kept in `_archive/legacy-install/`. `scripts/install.sh` now keeps only the `--offline-package` entry.
 
 ### More
 

@@ -1,54 +1,26 @@
 # Morning Start — 4시간 뒤 출근해서 읽을 것
 
-이 환경은 **자동 설치** 되도록 세팅돼 있다. 따라가야 할 단계는 3개뿐.
+> **은퇴한 설치 안내 (허브 D-87, 2026-10-05).** 이 문서가 설명하던 자동 설치는 더 이상 동작하지 않는다. SessionStart 훅의 bootstrap(Gstack clone·`bun install`·스킬 복사·instincts seed·`~/.claude/CLAUDE.md` 설치), 마커 파일(`~/.claude/.simon-stack-installed`)을 지워 다시 설치하는 방법, `scripts/install.sh` git clone 설치가 모두 은퇴했다. SessionStart 훅은 이제 읽기 전용 안내만 출력하고 아무것도 쓰지 않는다. 예전 설치·확인·문제 해결 본문은 git 이력에 있다.
+
+## 지금 설치하는 법
+
+- 사용자: [README 3절 설치](../README.md#3-설치) — 마켓플레이스 다섯 플러그인(`dist` 브랜치).
+- 이 PC(flat 설치)와 개발: [README 11절 개발자 안내](../README.md#11-개발자-안내) — `pwsh -File scripts/windows/update-local.ps1`(미리보기, `-Apply`로 설치).
+- 옛 설치 스크립트: [`_archive/legacy-install/`](../_archive/legacy-install/README.md).
 
 ---
 
-## 🚀 Quick Start (3단계)
-
-### 1. Claude Code 웹 접속
-https://claude.ai/code 로 이동
-
-### 2. 이 레포 열기
-- `Simon-YHKim/SimonK-stack` (또는 URL 로 직접)
-- **default branch 는 `main`** — 이게 최신 상태
-
-### 3. 첫 메시지 보내기
-세션 시작 시 `.claude/hooks/session-start.sh` 가 자동 실행돼서:
-- Gstack 레포 clone (`~/.claude/skills/gstack/`)
-- `bun install` 실행 (Gstack 의존성)
-- 36 Gstack skill 을 `~/.claude/skills/` 에 노출
-- 13 simon-stack skill 을 `~/.claude/skills/` 에 복사
-- 4 instincts seed 파일 설치
-- 글로벌 `~/.claude/CLAUDE.md` 설치 (template 기반)
-
-첫 세션 한정 약 30초~1분 소요. 이후 세션은 marker 파일로 즉시 skip.
-
-세션 준비 완료 후 아무 메시지나 보내면 됩니다. 예시:
-- `새 앱 만들고 싶어` → `app-dev-orchestrator` 발동 → 21단계 파이프라인 시작
-- `보안 감사 해줘` → `security-orchestrator` → 5단계 순차 실행
-- `TDD 시작` → `simon-tdd` → RED-GREEN-REFACTOR
-
----
-
-## ⚠️ 출근 전 한 번만 할 일 (2분)
-
-### (a) GitHub default branch 를 `main` 으로 전환
-현재 원격 default 는 `claude/create-claude-skill-Jt63X` 또는 다른 옛 브랜치일 수 있음.
-
-1. https://github.com/Simon-YHKim/SimonK-stack/settings/branches 열기
-2. **Default branch** 섹션에서 드롭다운 → `main` 선택 → `Update`
-3. 경고 창 확인 → 진행
-
-왜 필요한가: Claude Code 웹이 default branch 기준으로 레포를 체크아웃하기 때문. `main` 이 default 가 아니면 새 simon-stack skill 과 hook 이 로드되지 않습니다.
+## ⚠️ 출근 전 한 번만 할 일 (당시 기록)
 
 ### (b) 스테일 브랜치 삭제 (옵션, 청소용)
-동일 페이지에서:
+https://github.com/Simon-YHKim/SimonK-stack/settings/branches 에서:
 - `claude/create-skill-set-BZBaN` — 쓰레기통 아이콘 클릭 (로컬은 이미 삭제됨. 원격은 프록시 403 때문에 CLI 로 못 지웠음)
 - `claude/create-claude-skill-Jt63X` — 이미 CLI 로 삭제됨 (로컬/원격 둘 다)
 
 ### (c) 노출된 Stitch API 키 로테이션
 이전 세션 transcript 에 키가 평문으로 남아있음. Google Stitch 대시보드에서 해당 키 revoke + 신규 발급.
+
+((a) default branch 전환은 SessionStart hook 로딩을 위한 설치 단계였으므로 위 은퇴 안내로 대체했다.)
 
 ---
 
@@ -90,79 +62,23 @@ Claude: [simon-instincts 발동]
 
 ---
 
-## 🧪 동작 확인 (선택)
-
-세션 시작 후 다음으로 설치 성공 여부를 빠르게 확인:
-
-```bash
-# Hook 로그
-cat /tmp/simon-stack-session-start-*.log
-
-# 설치된 skill 수 (56+ 개여야 함)
-ls ~/.claude/skills/ | wc -l
-
-# Gstack 런타임 확인
-~/.claude/skills/gstack/bin/gstack-config get telemetry
-~/.claude/skills/gstack/bin/gstack-repo-mode
-
-# Instincts 확인
-ls ~/.claude/instincts/
-
-# Marker 파일
-cat ~/.claude/.simon-stack-installed
-```
-
-`simon-` 또는 `app-dev-orchestrator` 같은 키워드를 시스템 reminder 에 포함시키면 발동 준비 완료.
-
----
-
 ## 🔧 문제 해결
 
-### 문제: "skill 이 발동 안 해요"
-1. `~/.claude/skills/<skill-name>/SKILL.md` 존재 확인
-2. Claude Code 세션 재시작 (hook 재실행)
-3. description 에 트리거 키워드가 사용자 메시지와 매칭되는지 확인
-4. `permissions.allow` 에 `Skill` 포함됐는지 확인
-
-### 문제: "Gstack 명령어 (`/ship`, `/cso`) 가 작동 안 해요"
-1. `~/.claude/skills/gstack/` 디렉토리 존재 확인
-2. `~/.claude/skills/gstack/node_modules/` 존재 확인 (bun install 성공)
-3. `bun --version` 으로 bun 설치 여부 확인
-4. Hook 로그 (`/tmp/simon-stack-session-start-*.log`) 에서 에러 확인
-
-### 문제: "Hook 이 실행 안 해요"
-1. `.claude/settings.json` 의 `hooks.SessionStart` 존재 확인
-2. `.claude/hooks/session-start.sh` 실행 권한 (`chmod +x`)
-3. `.claude/hooks/session-start.sh` 를 수동 실행: `CLAUDE_CODE_REMOTE=true CLAUDE_PROJECT_DIR=$PWD bash .claude/hooks/session-start.sh`
-4. Default branch 가 main 인지 확인 (상단 (a) 참조)
-
-### 문제: "강제 재설치 하고 싶어요"
-```bash
-rm ~/.claude/.simon-stack-installed
-bash .claude/hooks/session-start.sh
-```
-
-### 문제: "설치 전 상태로 되돌리고 싶어요"
-```bash
-ls ~/.claude.bak-*    # 백업 디렉토리 목록
-rm -rf ~/.claude
-mv ~/.claude.bak-<timestamp> ~/.claude
-```
+설치·업데이트·스킬 미발동 문제는 [README 9절 문제 해결](../README.md#9-문제-해결)을 본다. 위 은퇴 안내 이전의 확인 명령(훅 로그, 마커 파일, 강제 재설치, `~/.claude.bak-*` 복원)은 git 이력에 있다.
 
 ---
 
 ## 📚 추가 자료
 
-- `README.md` — 레포 overview
-- `docs/INSTALL.md` — 수동 설치 가이드 (non-web 환경)
-- `.claude/skills/INDEX.md` — 51개 skill 카테고리 맵
+- `README.md` — 레포 overview, 설치(3절), 개발자 안내(11절)
+- `docs/INSTALL.md` — 설치·배포 절차와 검증 기록
+- `.claude/skills/INDEX.md` — skill 카테고리 맵
 - `.claude/instincts/` — 4개 누적 학습 파일
 - `templates/CLAUDE.md` — 글로벌 CLAUDE.md 템플릿
-- `~/.claude.bak-*` — 설치 전 백업
 
 ---
 
-## 🎁 4시간 동안 Claude 가 한 일 요약
+## 🎁 4시간 동안 Claude 가 한 일 요약 (당시 기록 — 설치 관련 항목은 D-87로 은퇴)
 
 - ✅ Gstack 36 skill 런타임 설치 + `bun install`
 - ✅ simon-stack 13 skill 생성 (orchestrator · security · method · tools)
