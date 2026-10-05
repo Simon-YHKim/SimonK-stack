@@ -26,9 +26,10 @@ const fakes = vi.hoisted(() => {
     setAlwaysOnTop(): void;
     moveTop(): void;
     destroy(): void;
-    webContents: { on(): void; send(): void; isDestroyed(): boolean; executeJavaScript(): Promise<Rect> };
+    webContents: { on(): void; send(): void; isDestroyed(): boolean; executeJavaScript(script: string): Promise<unknown> };
   }
   const made: FakeWindow[] = [];
+  const scripts = { result: (_script: string): unknown => ({ x: 20, y: 10, width: 18, height: 18 }) };
   const make = (initial: Rect): FakeWindow => {
     const win: FakeWindow = {
       bounds: { ...initial },
@@ -60,7 +61,7 @@ const fakes = vi.hoisted(() => {
       moveTop: () => undefined,
       destroy: () => { win.destroyed = true; win.visible = false; },
       webContents: { on: () => undefined, send: () => undefined, isDestroyed: () => false,
-        executeJavaScript: () => Promise.resolve({ x: 20, y: 10, width: 18, height: 18 }) },
+        executeJavaScript: (script: string) => Promise.resolve(scripts.result(script)) },
     };
     made.push(win);
     return win;
@@ -69,7 +70,7 @@ const fakes = vi.hoisted(() => {
     bounds: { x: 0, y: 0, width: 3440, height: 1440 },
     workArea: { x: 0, y: 0, width: 3440, height: 1392 },
   };
-  return { made, make, display };
+  return { made, make, display, scripts };
 });
 
 vi.mock('electron', () => ({
@@ -112,6 +113,25 @@ describe('WindowManager model bubble', () => {
       manager.showPaceBubble({ accountId: 'g1', label: 'Grok work', recent: 200, usual: null, locale: 'ko' });
       expect(fakes.made).toHaveLength(3);
     } finally { vi.useRealTimers(); }
+  });
+  it('fits the bubble window to its measured text before showing it', async () => {
+    vi.useFakeTimers();
+    const icon = { x: 20, y: 10, width: 18, height: 18 };
+    fakes.scripts.result = (script) => script.includes('documentElement') ? { x: 0, y: 0, width: 264, height: 97.4 } : icon;
+    try {
+      const { manager } = await openWithPopup();
+      manager.showWidget();
+      manager.showPaceBubble({ accountId: 'g1', label: 'Grok work', recent: 12.3, usual: 4.5, locale: 'ko' });
+      await vi.advanceTimersByTimeAsync(200);
+      const bubble = fakes.made[2];
+      const widget = fakes.made[0]?.getBounds();
+      expect(bubble?.isVisible()).toBe(true);
+      expect(bubble?.getBounds().height).toBe(98);
+      expect(bubble?.getBounds().y).toBe((widget?.y ?? 0) - 98 - 6);
+    } finally {
+      fakes.scripts.result = () => ({ x: 20, y: 10, width: 18, height: 18 });
+      vi.useRealTimers();
+    }
   });
 });
 

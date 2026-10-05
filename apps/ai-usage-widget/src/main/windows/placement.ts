@@ -43,10 +43,13 @@ export const POPUP_EDGE_MARGIN = 12;
 export const ASSUMED_TASKBAR_THICKNESS = 48;
 export const MODEL_BUBBLE_SIZE = { width: 264, height: 74 } as const;
 
-/** Place a transient callout over its vendor icon and keep it on-screen. */
-export function computeModelBubbleBounds(widget: Rect, icon: Rect, display: Rect): Rect {
+/**
+ * Place a transient callout over its vendor icon and keep it on-screen. `contentHeight` is the
+ * bubble page's measured height; the default is only the first guess used before it loads.
+ */
+export function computeModelBubbleBounds(widget: Rect, icon: Rect, display: Rect, contentHeight: number = MODEL_BUBBLE_SIZE.height): Rect {
   const width = Math.min(MODEL_BUBBLE_SIZE.width, display.width);
-  const height = MODEL_BUBBLE_SIZE.height;
+  const height = Math.min(Math.max(1, Math.ceil(contentHeight)), display.height);
   const center = widget.x + icon.x + icon.width / 2;
   const x = Math.round(Math.max(display.x, Math.min(center - width / 2, display.x + display.width - width)));
   const above = widget.y - height - 6;

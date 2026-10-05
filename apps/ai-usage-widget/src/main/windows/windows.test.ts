@@ -31,6 +31,14 @@ describe('computeModelBubbleBounds', () => {
     expect(top.x).toBe(0);
     expect(top.y).toBe(46);
   });
+  it('grows to the measured text height and still clears the widget', () => {
+    expect(computeModelBubbleBounds({ x: 300, y: 1395, width: 240, height: 40 }, { x: 20, y: 10, width: 18, height: 18 }, PRIMARY.bounds, 97.4))
+      .toEqual({ x: 197, y: 1291, width: 264, height: 98 });
+    const nearTop = { x: 300, y: 100, width: 240, height: 40 };
+    const icon = { x: 20, y: 10, width: 18, height: 18 };
+    expect(computeModelBubbleBounds(nearTop, icon, PRIMARY.bounds).y).toBe(20);
+    expect(computeModelBubbleBounds(nearTop, icon, PRIMARY.bounds, 98).y).toBe(146);
+  });
 });
 
 describe('detectTaskbar', () => {
