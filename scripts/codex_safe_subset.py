@@ -53,9 +53,9 @@ EXCLUDED_NAMES = tuple(f"simonk-{owner.removeprefix('SimonK').lower()}:{skill}"
                        for owner, skill in EXCLUDED_SKILLS)
 # One sentence per owner that loses safety skills, derived from EXCLUDED_SKILLS.
 CODEX_NOTICES = {
-    owner: ("Codex판에는 Claude Code 전용인 "
+    owner: ("Codex판에는 Claude Code 전용 안전 스킬("
             + "·".join(skill for home, skill in EXCLUDED_SKILLS if home == owner)
-            + " 안전 스킬이 없다.")
+            + ")이 없다.")
     for owner in sorted({home for home, _ in EXCLUDED_SKILLS})
 }
 # Provenance copied from the source overlay. Not shipped, and both change with
