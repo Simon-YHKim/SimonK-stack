@@ -459,7 +459,7 @@ class PublishWorkflowTests(unittest.TestCase):
         self.assertEqual(allow["content_digest"],
                          "fc0899b733d1dd29c53caf81231a20e215562de1a76ad35b8ed3d19046511b52")
         self.assertEqual(allow["codex_content_digest"],
-                         "2ab5e639421c0b7826c5cb9eeb20052a3688f4db7eadd52676d22fded52d919f")
+                         "2ab5e639421c0b7826c5cb9eeb20052a3688f4db7eadd52676d22fded52d919f")
 
 
 class StageTests(unittest.TestCase):
