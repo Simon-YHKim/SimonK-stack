@@ -752,3 +752,7 @@ last-sync: 2026-07-05
   - **되돌리는 조건**: 위젯 로그에 `model bubble measure failed`가 반복되거나 말풍선 위치·꼬리가 틀어졌다는 보고가 있으면 #159 revert 후 고정 높이 상향안으로 | claude
 
 - 2026-10-06 01:20:03 KST | AMEND | **D-93 Grok Bot 화면 작업 권한 전부 허용** — 이행: SimonK-stack #158(762cffb) 머지, main run 37337552825가 dist 0dac185 1.825.0 게시(승인 Claude bd428569·Codex 885225d9). 이 PC: update-local로 후보 20261006-vibe-2155-762cffb(vibe-bot 0.10.0, selftest vibe 196/0·vibe_bot 104/0, problems 0). 루트 CLAUDE/AGENTS/GEMINI §21 동기화 완료. 남은 것: 클라우드 봇 워크북에 D-93 반영(Relay 과제) | claude
+
+- 2026-10-06 09:06:10 KST | DECIDE | **D-94 남은 3건의 조건 점검과 예약** (오케스트레이터 단독 · 35.8 1단) | claude
+  - **근거(기계적)**: Simon "남은것까지 진행". ① debate.py seats(03:34): Grok credit 100%·402 ~2026-10-10 23:12 KST → grok-4.7 canary 불가, 같은 계정이라 봇 사용량 포함 증거도 만들 수 없어 D-93 워크북 Relay 전송 불가(execute_bot 증거 TTL 900초). ② AA 원문 articles/claude-sonnet-5-5: 9-28 출시 전 측정(지수 56, max ~193k 토큰)만, 공개판 재측정 미발표 → D-90 재진입 조건 미충족. ③ model_watch scan --force: 새 후보 0·오류 0(openai·google·xai 페이지 변경, 모델 언급 없음), 웹 검색으로도 10-05 이후 새 GA 모델 없음. 레지스트리 갱신을 지금 하면 만료가 13시간만 늘어나 10-11에 하기로 함
+  - **조치**: 이 세션 예약 cb2ca084(10-11 09:17, 레지스트리 갱신·Grok 확인 후 4.7 canary·봇 증거 확인 후 D-93 워크북 전송, approval_ref simon-261006-남은것까지진행), ae1cc529(매일 09:13, AA 재측정 감시, 7일 만료). 세션 전용이라 세션 종료 시 사라짐 — HANDOFF 큐가 같은 항목을 보존 | claude
