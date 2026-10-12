@@ -761,3 +761,5 @@ last-sync: 2026-07-05
   - **근거(기계적)**: Simon "남은것까지 진행". 출처 43곳(레지스트리 28·task-fit 9·수명/모델목록 6) 모델 호출 없이 재조회, 전부 첫 요청 HTTP 200. 등록 필드 232개: 일치 230·불일치 0·확인불가 2(gpt-5.6-terra·luna 장문 cached_input, 10-05와 동일). 새 GA 모델·제거·개명 0, model_watch 후보 0. models·legacy_lane_migration·sources·task-fit profiles는 main과 동일
   - **이행**: SimonK-stack #161(7e61904, vibe 2.15.6) — registry 2026-10-06.1 checked_at 10-06 12:45:26(만료 10-13 12:45:26 KST), task-fit 2026-10-06-shadow.1(~10-13 12:50:44). 같은 PR 승인(Claude fc0899b7·Codex 2ab5e639; 첫 승인 커밋의 CR 혼입은 cd5aa92로 복구). main run 37413636136이 dist 2a36f20 1.831.0 게시. 이 PC: 후보 20261006-vibe-2156-7e61904(selftest vibe 196/0·vibe_bot 104/0, problems 0)
   - **남은 것**: Grok 4.7 canary·D-93 봇 워크북은 Grok 리셋(10-10 23:12) 뒤 10-11 09:17 예약, AA 재측정 매일 09:13 감시 | claude
+
+- 2026-10-12 11:44:32 KST | AMEND | **D-94 남은 3건의 조건 점검과 예약** — 번호 정정: D-94는 같은 날 01:05:21의 "AI 사용량 위젯 알림 말풍선" 결정(다른 세션)이 먼저 썼다. 2026-10-06 09:06:10의 이 항목은 번호를 확인하지 않고 덧붙인 것이라 앞으로 **D-94b**로 부른다(내용 변경 없음, D-95의 "D-94" 언급도 D-94b를 뜻한다). 재발 방지: D-code는 덧붙이기 직전에 파일의 마지막 번호를 grep해서 정한다 | claude
