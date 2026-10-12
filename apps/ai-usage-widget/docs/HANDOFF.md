@@ -2,6 +2,19 @@
 > prepend 전용 로그. 새 블록을 맨 위에 얹고 직전 `## Latest`는 날짜 헤더로 강등한다. 덮어쓰지 않는다.
 
 ## Latest
+- **목적**: 26.10.12 "터미널이 주기적으로 순간 켜졌다 꺼진다" 수정의 반영 결과를 남긴다
+- **최종 갱신**: 26.10.12 12:14 KST · Claude Code(워크트리 `SimonK-stack-aiuw-agyflash-261012`, 설치 소스는 detached `8f273f3`)
+- **지금까지**:
+  - PR #163 머지(`8f273f3`, CI 4/4). 설치 스킬로 재설치: 스킬 안 `pnpm verify` exit 0(58파일·677테스트), 설치본 app.asar sha256 앞 12자 `6bd70828edb0`, 번들 안 값 `AGY_CLI_DISABLE_AUTO_UPDATE: "true"`, 프로세스 5개, 자동 시작은 설치본을 가리킨다
+  - 설치본 검증(11:53:10~12:14:04, 창 감시기): 콘솔 창 0건. 위젯이 돌린 agy 9회(11:55:21~12:12:11, 약 2분 7초 간격) 모두 `auto_updater.go:247 Auto-update disabled`
+  - 위젯 밖 사실: Orca 앱도 `agy -p /usage --output-format json --print-timeout 20s`를 직접 돌린다(11:50:26 창 감시 로그, 부모 Orca.exe). Orca는 시작할 때 받은 환경값을 쓰므로 User 환경변수를 `true`로 바꿔도 다시 켜기 전에는 `1`이다. 그래서 PC에 예약 작업 `AgyUpdateCheckGuard`를 두었다(5분마다 `~/.gemini/antigravity-cli/last_check.timestamp`의 수정 시각만 갱신 → 값이 틀린 호출자도 `auto_updater.go:281 fast path`). 결정은 허브 DECISIONS D-96
+- **다음 1개**: 없음(관찰만). agy가 올라가면 위젯 agy 실행의 로그에 `:247`이 계속 찍히는지 본다
+- **막힌 것**: 없음
+- **작업 규칙 변화**:
+  - 위젯이 `true`를 넘기면 agy는 `last_check.timestamp`를 갱신하지 않는다. 그 파일이 낡으면 값이 틀린 다른 호출자(Orca 등)의 다음 agy 실행이 곧바로 업데이터를 띄운다. 위젯만 고쳐서는 창이 사라지지 않는다
+  - 설치 뒤 확인은 위젯 로그가 아니라 agy 로그(`~/.gemini/antigravity-cli/log/cli-*.log`)의 `auto_updater.go` 줄로 한다
+
+## 26.10.12 11:45 KST
 - **목적**: 사용자 보고(26.10.12) "터미널이 주기적으로 순간 켜졌다 꺼진다" 해결. 원인은 위젯이 돌리는 agy의 백그라운드 업데이터였다
 - **최종 갱신**: 26.10.12 11:44 KST · Claude Code(워크트리 `SimonK-stack-aiuw-agyflash-261012`, 브랜치 `fix/aiuw-agy-updater-flash-261012`)
 - **지금까지**:
