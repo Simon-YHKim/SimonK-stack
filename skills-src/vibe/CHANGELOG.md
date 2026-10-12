@@ -1,5 +1,71 @@
 # Changelog
 
+## 2.16.0 - 2026-10-12
+
+- **D-98: 보안 생성물 게이트 레인을 `gpt-6.1-sol` @xhigh 로 옮겼다**(허브 토론 `dbt-261012-124530`, quick,
+  PROVISIONAL 3/4, 심판 확신도 91). OpenAI API 문서가 별칭 `gpt-daybreak-blue-latest` 를 deprecated 로 표시했다
+  (종료일·대체 ID 미공지). 이 계정 Codex 카탈로그는 아직 그 별칭을 list·cyber 로 싣고 은퇴 표시가 없지만 다른
+  cyber 모델도 없다. 레지스트리는 2.15.7 부터 `lifecycle: deprecated` 이고 중앙 계획기는 그 후보를
+  `MODEL_NOT_ACTIVE` 로 막는데, 레거시 레인 표만 폐기된 별칭을 가리키고 있었다.
+  - `routing.py`: `security-artifact-gate` 고정 레인 `("gpt-6.1-sol", "xhigh")`. 지킨 것은 G1(코딩은 claude 전용,
+    게이트는 codex)과 G1_SEC_SAME_MODEL(생성물 게이트 `gpt-6.1-sol` 과 인가 게이트 `gpt-6-astra` 는 다른 모델)이다.
+    잃은 것은 cyber 전용성이고, 방어 루브릭으로 보완하지만 동등하다고 증명된 것은 아니다.
+  - 옛 키 `gpt-daybreak-blue-latest` 는 원장 호환용으로 `LANES` 에 남는다(`ledger.py` 가 `LANES` 에 없는 레인의
+    원장 행을 거부한다). 어떤 우선순위 목록·고정 공정에도 없고, 새 `DEPRECATED_LANES` 로 계획에 넣으면
+    `validate_plan` 이 `LANE_DEPRECATED`(계획기에서는 `ORCA_LANE_DEPRECATED`)로 막는다. 레지스트리의 deprecated 와
+    `MODEL_NOT_ACTIVE` 는 그대로다. 게이트 산출물 제약(`OUTPUT_RULES`)은 게이트와 함께 `gpt-6.1-sol` 로 옮겼다.
+  - 새 참고 문서 `references/security-artifact-gate.md`: 목적, 고정 레인과 이유, 루브릭(CWE-89·78·22·502·798·327·918,
+    인증·인가 우회, 안전하지 않은 파일·권한 처리), 출력 형식(첫 줄 `GATE: BLOCK` 또는 `GATE: PASS`, 이어서 발견마다
+    한 줄 `CWE-<n> | <location> | <reason>`), fail-closed 규칙(빈 출력, 제공사 차단·거절, 첫 줄 누락, 모호한 판정은
+    PASS 가 아니라 FAIL), G1(게이트는 자기 벤더의 산출물을 채점하지 않는다), 재승격 규칙(폐기된 별칭이 아닌 cyber
+    모델이 `~/.codex/models_cache.json` 에 나타나면 같은 canary 를 돌리고, 통과하면 1단 DECISIONS 기록과 함께 옮긴다.
+    자동 승격 없음), canary 기록.
+  - canary(오케스트레이터가 구현 전에 실행, 2026-10-12 12:53~12:55 KST, Orca run `run_8f7a27febc38`, dispatch
+    `ctx_ff39c4a979ba`, 읽기 전용 워커 1개, 도구 금지): `launch.requested` == `launch.effective`(`gpt-6.1-sol`, xhigh),
+    Codex rollout `turn_context` 가 `gpt-6.1-sol`/xhigh. 결함 4개와 안전한 함수 2개를 심은 Python 생성물에
+    `GATE: BLOCK` + CWE-89·78·22·502 를 정확히 보고했고 안전한 함수에는 발견을 내지 않았다. 출력은 비거나 차단되지
+    않았다. 자기보고 모델명 `gpt-6` 은 틀렸다(자기보고는 근거가 아니다). 워커 정지·터미널 종료 확인.
+  - 한계와 부작용. 심은 샘플 1건이며 루브릭 9개 항목 중 4개만 봤다. fail-closed 규칙은 게이트 출력을 읽는 쪽
+    (호스트·코디네이터)이 적용하는 문서 규칙이고 테스트는 문서와 레인을 고정한다. 게이트 출력을 파싱하는 코드는
+    없다. 생성물 게이트와 코디네이터가 같은 `gpt-6.1-sol` 이 되어 코딩 라운드마다 `coordinator_conflict()` 가
+    참이다(경고이며 디스패치를 막지 않는다). 코디네이터는 바꾸지 않았다.
+- **D-99: `claude-haiku-5-5` 를 등록하고 A 클래스의 Claude 쪽 첫 폴백으로 넣었다**(허브 토론 `dbt-261012-124540`,
+  quick, PROVISIONAL 3/4, 심판 확신도 82, 조건부 채택의 조건 통과). A 클래스는 `gpt-6-luna` → `claude-haiku-5-5` →
+  `claude-sonnet-5-5` → `claude-opus-5-5` 다. 1순위는 그대로이고 Sonnet 5.5 도 남는다. B·A-verify·D·코딩 목록과
+  `task-fit-policy.json` 은 바꾸지 않았다.
+  - 등록 사실은 2026-10-12 13:01:22~13:01:28 KST 에 공식 페이지 7개(Haiku 5.5 개요·발표문, 가격표, 폐기 페이지,
+    모델 개요, effort, Claude Code model-config)를 모델 호출 없이 HTTPS 로 읽어 확인했다(전부 첫 요청 HTTP 200):
+    2026-10-07 출시, Active, 은퇴 2027-10-07 이후, 1M 컨텍스트, 128K 출력, effort low~max(API·Claude Code 기본
+    medium), adaptive thinking, Claude Code 2.1.293 이상. `haiku` 별칭은 Anthropic API 에서만 Haiku 5.5 라서
+    별칭으로 등록하되 레인은 정식 ID 를 보낸다(해석 근거 없는 별칭 요청은 `ALIAS_RESOLUTION_UNVERIFIED`).
+  - 가격은 프롬프트 길이로 갈린다. 10만 토큰 이하: 입력 $0.10, 캐시 읽기 $0.01, 출력 $0.50. 10만 토큰 초과: 입력
+    $0.50, 캐시 읽기 $0.05, 출력 $2.50. `pricing.tiers` 의 `above_input_tokens: 100000` 으로 담았다. 스키마가 담지
+    못한 것 둘은 `pricing.note` 에 적었다: 캐시 쓰기가 구간마다 둘(5분 $0.125/$0.625, 1시간 $0.20/$1)이라
+    `cache_write` 는 null 이고, 프롬프트 길이가 캐시 읽기·쓰기를 포함한 모든 입력 토큰이며 요청마다 따로 판정된다.
+  - 새 Orca 레인 `claude-haiku-5-5`(flag, Orca low~max, 사다리 std low / top medium, high·xhigh·max 는 off-ladder
+    로만, claude 일반 weekly 쿼터). 산출물 제약은 luna 와 같은 싼 레인 규율이다(정형 변환·카운트·분류, 우열 판단
+    금지). 2순위가 바뀌어 A 공정의 탐색 슬롯과 표의 2순위 칸은 이제 Haiku 를 본다.
+  - canary(같은 Orca run `run_8f7a27febc38`, dispatch `ctx_cd78cf210447`, 12:53~12:54 KST, 읽기 전용 워커 1개, 도구
+    금지): `launch.requested` == `launch.effective`(`claude-haiku-5-5`, low), 세션 기록의 두 assistant 메시지 모두
+    `message.model` `claude-haiku-5-5`(entrypoint `cli`). 정답이 스크립트로 정해진 A 클래스 과제 3개가 전부 맞았다:
+    CSV→JSON 변환 완전 일치, 스키마 위반 id `2,3,5,6,7`, 로그 24줄 레벨 집계 `ERROR=5 WARN=7 INFO=9 DEBUG=3`.
+    워커 정지·터미널 종료 확인.
+  - 한계. 선두 레인이 아니다. 작은 과제 3개·effort 1개라 큰 입력과 10만 토큰 초과 입력의 근거가 아니다. 쿼터
+    절감은 측정하지 않았다(같은 구독에서 Haiku 실패 뒤 Sonnet 을 부르면 총 쿼터가 늘 수 있다). 선두 승격이나
+    Sonnet 5.5 제외는 별도 비교 근거가 필요하다.
+- registry `2026-10-12.2`: `legacy_lane_migration` 의 `gpt-daybreak-blue-latest` 를
+  `keep-security-pin-resolve-per-run` 에서 후보 `gpt-6.1-sol`, `pending-transport-and-certificate` 로 바꾸고,
+  `claude-haiku-5-5` 를 자기 후보 `pending-transport-and-certificate` 로 더했다(15건: `pending-*` 12, `keep-*` 3).
+  모델 19개(Haiku 5.5 추가), 출처 2개 추가. `checked_at`·`data_as_of` 는 그대로다. Haiku 5.5 를 읽은 시각은
+  `checked_at`(가장 이른 근거 11:43:08)보다 늦다. 두 레인 모두 **등록만 됐다**: Orca 런치 계정/과금 인증서
+  전까지 동작 레인이 아니며 $0 게이트·G5·런치 인증서가 똑같이 걸린다.
+- `adversarial_eval.VENDOR_OF` 에 `claude-haiku-5-5` 를 더했고 `eval/probes.json` 의 A 클래스 문제 11개에 넣었다
+  (B 문제 7개에는 넣지 않았다). `references/legacy-routing.md` 는 `sync_skill_table.py` 로 다시 만들었다.
+  `model-catalog-map.md` 의 CLI 이름표에서 `claude-haiku-5-5` 행을 뺐다(등록된 ID 는 CLI 전용 이름이 아니다).
+- 검증: scripts 단위 테스트 434 OK(426→434), `tests/` 157 OK, selftest PASS 215 · FAIL 0(196→215),
+  `validate_skill.py` 0 errors / 0 warnings, `sync_skill_table.py --check` 동기 OK. 이 변경에서 모델 호출·Orca
+  명령·worker-start·설치는 0회다(위 canary 두 건은 오케스트레이터가 구현 전에 돌린 것).
+
 ## 2.15.7 - 2026-10-12
 
 - 모델 레지스트리 사실을 다시 확인했다(허브 PROTOCOL §35.8 1단, 승인된 절차 반복). 2.15.6 의 사실은

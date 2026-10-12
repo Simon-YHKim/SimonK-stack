@@ -9,6 +9,7 @@
   "4) lanes 에는 그 문제를 물릴 만한 후보를 벤더가 3개 이상 되게 넣는다(G10).",
   "   D-67(2026-10-04): registry legacy_lane_migration 의 후보가 레인이면 옛 레인 옆에 같이 넣는다 - claude-opus-5 옆에 claude-opus-5-5, gpt-5.6-terra 옆에 gpt-6.1-sol. 옛 레인은 원장 호환 때문에 남긴다.",
   "   2026-10-05(2.15.5, Simon 지시): A 클래스 새 레인도 같다 - gpt-5.6-luna 옆에 gpt-6-luna, claude-sonnet-5 옆에 claude-sonnet-5-5.",
+  "   D-99(2026-10-12, 2.16.0): 옛 레인이 없는 새 레인 claude-haiku-5-5 는 자기 클래스(A) 문제에만 넣는다 - A 클래스의 Claude 쪽 첫 폴백이라 claude-opus-5-5 뒤에 둔다. B 문제에는 넣지 않는다(판단을 맡기지 않는 레인).",
   "truth_post 는 truth_cmd 의 출력을 '질문이 물은 단위'로 바꾼다. 이게 없으면",
   "세는 문제에 파일 목록이 정답으로 들어간다(2026-09-13 에 실제로 그 상태였다)."
  ],
@@ -35,6 +36,7 @@
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
+    "claude-haiku-5-5",
     "gpt-5.6-terra",
     "gpt-6.1-sol"
    ]
@@ -59,6 +61,7 @@
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
+    "claude-haiku-5-5",
     "gpt-6-astra"
    ]
   },
@@ -82,6 +85,7 @@
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
+    "claude-haiku-5-5",
     "gpt-5.6-terra",
     "gpt-6.1-sol"
    ]
@@ -147,6 +151,7 @@
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
+    "claude-haiku-5-5",
     "gpt-6-astra"
    ]
   },
@@ -169,6 +174,7 @@
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
+    "claude-haiku-5-5",
     "grok-4.6"
    ]
   },
@@ -212,6 +218,7 @@
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
+    "claude-haiku-5-5",
     "gpt-6-astra",
     "grok-4.6"
    ]
@@ -233,6 +240,7 @@
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
+    "claude-haiku-5-5",
     "gpt-5.6-terra",
     "gpt-6.1-sol"
    ]
@@ -254,6 +262,7 @@
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
+    "claude-haiku-5-5",
     "gpt-5.6-terra",
     "gpt-6.1-sol",
     "grok-4.6"
@@ -276,6 +285,7 @@
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
+    "claude-haiku-5-5",
     "gpt-5.6-terra",
     "gpt-6.1-sol"
    ]
@@ -297,6 +307,7 @@
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
+    "claude-haiku-5-5",
     "gpt-5.6-terra",
     "gpt-6.1-sol",
     "grok-4.6"
@@ -324,6 +335,7 @@
     "gemini-3.8-flash",
     "claude-opus-5",
     "claude-opus-5-5",
+    "claude-haiku-5-5",
     "gpt-6-astra"
    ]
   },
