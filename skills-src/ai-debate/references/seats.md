@@ -19,7 +19,7 @@ re-checks right before spawning and never spawns a seat that is not READY (UNKNO
 | Seat | Display | Default model · effort | Prompt channel |
 |---|---|---|---|
 | anthropic | Claude | claude-opus-5-5 · max | stdin to `claude -p` (UNKNOWN by default) |
-| openai | Codex | gpt-6.1-sol · xhigh | stdin (`-`); answer read from the `-o` file |
+| openai | Codex | gpt-6-astra · xhigh | stdin (`-`); answer read from the `-o` file |
 | xai | Grok | grok-4.7 · xhigh | `--prompt-file` (UTF-8 `.txt`) |
 | google | Gemini via `agy` | gemini-3.1-pro-high (effort = model-name suffix) | argv after `--print`; the command line is kept at or under 32000 UTF-16 units |
 
