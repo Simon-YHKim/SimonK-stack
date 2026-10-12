@@ -1,6 +1,40 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-06 / 레지스트리 재확인(D-95) · 남은 일 조건 점검(D-94) · dist 1.831.0
+## Latest — 2026-10-12 / 레지스트리 재확인(D-97) · 보안 게이트 이전(D-98) · Haiku 5.5(D-99) · dist 1.843.0
+
+갱신 시각: 2026-10-12 14:0x KST · 갱신자: Claude Code(Opus 5.5). Simon: "재확인해봐".
+
+### 어디까지 왔나
+- **D-97**(#165, vibe 2.15.7): 레지스트리 재확인에서 제공사 사실 3건이 바뀌었다.
+  - `claude-sonnet-5-5` 캐시 읽기 0.2 → 0.1(10-07 인하).
+  - `gpt-daybreak-blue-latest` active → deprecated(OpenAI 폐기 표시, 종료일·대체 ID 없음).
+  - `gemini-3.8-flash` 문서 갱신일.
+  - 만료 **2026-10-19 11:43 KST**.
+- **D-98**(#166, quick 토론 PROVISIONAL 3/4): 보안 생성물 게이트 레인을 `gpt-6.1-sol@xhigh`로 옮겼다.
+  - Daybreak 키는 원장 호환용이고 새 계획은 `LANE_DEPRECATED`로 막힌다.
+  - 루브릭·출력 형식·"빈 출력은 실패"·재승격 규칙은 `skills-src/vibe/references/security-artifact-gate.md`.
+  - canary: 결함 4개를 심은 샘플에서 4개 모두 보고, 오탐 0.
+  - 부작용: 게이트와 코디네이터가 같은 모델이라 코딩 라운드마다 `coordinator_conflict()` 경고가 난다. 토론 증거에 빠졌던 사실이라 허브 D-98 AMEND에 밝혔다.
+- **D-99**(#166, quick 토론 PROVISIONAL 3/4): `claude-haiku-5-5` 등록, A 클래스 `gpt-6-luna → claude-haiku-5-5 → claude-sonnet-5-5 → claude-opus-5-5`.
+  - canary: 정답이 정해진 A 클래스 과제 3개 전부 일치. 쿼터 절감과 10만 토큰 초과 입력은 미측정.
+- **dist 1.843.0**, vibe 2.16.0, registry 2026-10-12.2. 이 PC 후보 `20261012-vibe-2160-4cd044b`(selftest 215/0·104/0, problems 0).
+- 10-11 09:17 세션 예약은 실행되지 않고 사라졌다(세션 전용 예약의 한계). 10-06의 중복 번호 D-94는 D-94b로 정정했다.
+
+### 다음 작업 큐
+| # | 작업 | 시점 | 단 |
+|---|---|---|---|
+| A | Grok catch-up: 토론 `dbt-261012-124530`(D-98)·`dbt-261012-124540`(D-99) | Grok 리셋(10-17 23:12) 직후 — 10-10 리셋 때는 이틀 안에 다시 100%가 됐다 | 의무 |
+| B | grok-4.6 → 4.7 레인 canary | A와 같은 때, Grok 85% 미만 | 1단 |
+| C | 클라우드 봇 워크북에 D-93 반영(Relay 과제, approval_ref=simon-261006-남은것까지진행) | 봇 사용량 포함 증거를 15분 안에 확보할 수 있을 때 | 1단 |
+| D | 레지스트리 재확인 | 2026-10-19 11:43 KST 전 | 1단 |
+| E | AA Sonnet 5.5 공개판 재측정 → D-90 재진입 판단 | AA 발표 시(10-12 11:48 기준 미발표) | 2단 |
+| F | cyber 모델이 `~/.codex/models_cache.json`에 나타나면 같은 canary 후 게이트 이전 | 카탈로그 변화 시 | 1단 |
+
+Simon 몫: Codex가 띄운 "Daybreak 모드 보안 설정(하드웨어 보안 키)" 안내, Codex `service_tier = "priority"` 유지 여부.
+
+---
+
+## 2026-10-06 13:4x / 레지스트리 재확인(D-95) · 남은 일 조건 점검(D-94b) · dist 1.831.0
 
 갱신 시각: 2026-10-06 13:4x KST · 갱신자: Claude Code(Opus 5.5). Simon: "남은것까지 진행".
 
