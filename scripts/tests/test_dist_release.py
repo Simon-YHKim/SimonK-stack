@@ -452,14 +452,15 @@ class PublishWorkflowTests(unittest.TestCase):
         # D-92 stale out-of-CI fixtures fixed, multi-terminal-dispatcher 1.1.2 (09d71048... / Codex d2862e04...).
         # D-93 Grok Bot full screen authority, vibe-bot 0.10.0 (bd428569... / Codex 885225d9...).
         # D-95 vibe registry facts rechecked 2026-10-06, vibe 2.15.6 (fc0899b7... / Codex 2ab5e639...).
+        # D-97 vibe registry facts rechecked 2026-10-12, vibe 2.15.7 (4c3b3885... / Codex b2a5930a...).
         allow = dist.validate_allow(json.loads((ROOT / dist.ALLOW).read_text(encoding="utf-8")))
         self.assertEqual(allow["schema_version"], 2)
-        self.assertEqual(allow["decision"], "D-95")
-        self.assertEqual(allow["source_commit"], "28fe12a5469ffe24b838cf24f236c7cff8858aae")
+        self.assertEqual(allow["decision"], "D-97")
+        self.assertEqual(allow["source_commit"], "742d455cf77226306b190ef140d3c94e647970a0")
         self.assertEqual(allow["content_digest"],
-                         "fc0899b733d1dd29c53caf81231a20e215562de1a76ad35b8ed3d19046511b52")
+                         "4c3b38850ca817020160432110259ac41e3bdf22bb084482c820a45e950b7d5a")
         self.assertEqual(allow["codex_content_digest"],
-                         "2ab5e639421c0b7826c5cb9eeb20052a3688f4db7eadd52676d22fded52d919f")
+                         "b2a5930a391ec9d33ee16a69989d9018adfb923f9df87e31cee631e5e703d7fa")
 
 
 class StageTests(unittest.TestCase):
