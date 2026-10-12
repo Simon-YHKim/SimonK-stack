@@ -87,12 +87,15 @@ VENDOR_CACHE_HOURS = 6
 # D-67 새 레인(claude-opus-5-5·gpt-6.1-sol)을 옛 레인 옆에 두고, 옛 키는 지우지 않는다 -
 # 평가 원장의 과거 행이 옛 레인명을 쓴다.
 # 2026-10-05 Simon 지시(2.15.5): A 클래스 새 레인 claude-sonnet-5-5·gpt-6-luna 도 같은 방식으로 더했다.
+# D-99(2026-10-12, 2.16.0): A 클래스 Claude 쪽 첫 폴백 claude-haiku-5-5 를 더했다.
+# D-98: gpt-daybreak-blue-latest 는 원장 호환용 키로 남는다(생성물 게이트는 gpt-6.1-sol).
 VENDOR_OF = {
     "claude-opus-5-5": "claude",
     "claude-opus-5": "claude",
     "claude-fable-5-1": "claude",
     "claude-sonnet-5-5": "claude",
     "claude-sonnet-5": "claude",
+    "claude-haiku-5-5": "claude",
     "gpt-6-astra": "codex",
     "gpt-6.1-sol": "codex",
     "gpt-5.6-sol": "codex",

@@ -40,6 +40,15 @@ $0 게이트(모델 포함·초과과금 OFF·API 폴백 OFF), G5, 런치 인증
 (low~max, 정책 사다리 medium/high)도 옛 레인 옆에 **등록**됐고, 읽기 전용 canary 를 2026-10-05 에
 통과했다(D-91, run `run_0a369252175f`). 상태는 `pending-transport-and-certificate` 다. Orca 런치
 계정/과금 인증서 전에는 동작하는 경로로 쓰거나 보고하지 않고, 같은 $0 게이트·G5·런치 인증서가 걸린다.
+D-99(2026-10-12, 2.16.0)로 A 클래스에 `claude-haiku-5-5`(low~max, 정책 사다리 low/medium)가 Claude 쪽 첫
+폴백으로 **등록**됐다: `gpt-6-luna` → `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5`. 읽기 전용
+canary 는 통과했다(run `run_8f7a27febc38`, @low, 정답이 정해진 A 과제 3/3). 상태는
+`pending-transport-and-certificate` 이고 같은 게이트가 걸린다. 큰 입력·10만 토큰 초과 입력은 미측정이다.
+D-98(2026-10-12, 2.16.0)로 보안 생성물 게이트의 고정 레인은 `gpt-6.1-sol` @xhigh 다(옛
+`gpt-daybreak-blue-latest` 는 제공사가 폐기 표시해 원장 호환용 키로만 남고, 계획에 넣으면
+ORCA_LANE_DEPRECATED 다). 게이트 워커의 과제문에는 `references/security-artifact-gate.md` 의 루브릭과 출력
+형식을 넣고, 빈 출력·차단·첫 줄 누락·모호한 판정은 통과가 아니라 실패로 읽는다. 게이트는 자기 벤더(codex)가
+만든 산출물을 채점하지 않는다(G1).
 gpt-6-sol, grok-4.7, grok-4.5 로의 Orca 발주는 여전히
 ORCA_UNREGISTERED_PROCESS_OR_MODEL 이다(`references/model-catalog-map.md`).
 

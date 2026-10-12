@@ -414,8 +414,10 @@ class OrcaAdapterTests(unittest.TestCase):
 
     def test_current_class_a_lanes_still_need_the_launch_certificate(self):
         # Simon 2026-10-05 class A lanes (gpt-6-luna, claude-sonnet-5-5): same guard as D-67.
+        # D-99 (2026-10-12) adds claude-haiku-5-5 at the effort its canary used.
         # A ready plan is not a launch; without the certificate nothing reaches the transport.
-        for surface, model, effort in (("codex", "gpt-6-luna", "low"), ("claude", "claude-sonnet-5-5", "medium")):
+        for surface, model, effort in (("codex", "gpt-6-luna", "low"), ("claude", "claude-sonnet-5-5", "medium"),
+                                       ("claude", "claude-haiku-5-5", "low")):
             with self.subTest(model=model):
                 store = run_state.Store(Path(self.tmp.name) / f"{model}.sqlite3")
                 store.initialize()
@@ -436,6 +438,29 @@ class OrcaAdapterTests(unittest.TestCase):
                         adapter.dispatch(plan, "read", certificate)
                 self.assertEqual(len(self.transport.calls), before)
                 self.assertEqual(store.snapshot()["attempts"], [])
+        self.assertEqual(self.starts(), 0)
+
+    def test_d98_artifact_gate_lane_still_needs_the_launch_certificate(self):
+        # D-98 (2026-10-12): the security artifact gate is pinned to gpt-6.1-sol @ xhigh. The lane is
+        # registered, not running: without the account/billing certificate nothing reaches the transport.
+        store = run_state.Store(Path(self.tmp.name) / "d98-gate.sqlite3")
+        store.initialize()
+        adapter = self.m.Adapter(store, self.transport, clock=lambda: self.clock)
+        c = candidate(model="gpt-6.1-sol", surface="codex", transport="orca", quality_tier=3)  # critical needs tier 3.
+        s = step(proc="security-artifact-gate", demand="critical", **{"class": "B"}, orca=self.binding)
+        plan = orchestrate.make_plan({"run_id": "vibe-d98-gate", "steps": [s]},
+            {"explain": {"path": "/fixture/SKILL.md"}},
+            {"candidates": [c], "tools": [], **self.binding["guards"]}, NOW, fixture_registry([c]))
+        self.assertEqual(plan["status"], "ready", plan["errors"])
+        self.assertEqual((plan["steps"][0]["route"]["model"], plan["steps"][0]["route"]["requested_effort"]),
+                         ("gpt-6.1-sol", "xhigh"))
+        store.register(plan, now=NOW)
+        before = len(self.transport.calls)
+        for certificate in (None, {**self.certificate, "verified": False}):
+            with self.assertRaisesRegex(run_state.StateError, "TRANSPORT_ACCOUNT_UNVERIFIED"):
+                adapter.dispatch(plan, "read", certificate)
+        self.assertEqual(len(self.transport.calls), before)
+        self.assertEqual(store.snapshot()["attempts"], [])
         self.assertEqual(self.starts(), 0)
 
     def test_native_client_bounds_output_without_temporary_disk_spool(self):

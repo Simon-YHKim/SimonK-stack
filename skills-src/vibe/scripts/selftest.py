@@ -533,7 +533,8 @@ def run():
         check("ok 레인이 없으면 첫 강등 레인 (D-28 N6)", lane_n6 == "gpt-6-luna", f"{lane_n6} {note_n6}")
         q_c61 = dict(q6190, claude=_q(30))
         lane_d2, _nd2 = MI.pick_default("A", q_c61)
-        check("1순위 81% 면 ok 인 2순위로 강등 (Q-05 강등선 80)", lane_d2 == "claude-sonnet-5-5", str(lane_d2))
+        check("1순위 81% 면 ok 인 2순위로 강등 (Q-05 강등선 80 · D-99 부터 2순위는 claude-haiku-5-5)",
+              lane_d2 == "claude-haiku-5-5", str(lane_d2))
         lane_80, _n80 = MI.pick_default("A", dict(q_c61, codex=_q(80)))
         check("정확히 80% 는 강등이 아니다 (초과만)", lane_80 == "gpt-6-luna", str(lane_80))
         # Q-09 — writes:true 공정은 코딩 규칙
@@ -645,15 +646,16 @@ def run():
         check("astra 의 Orca 상한은 xhigh", routing.ceiling_for("gpt-6-astra") == "xhigh")
         check("B(비코딩) 1순위가 astra (D-28 #5)", routing.lanes_for("B")[0] == "gpt-6-astra",
               str(routing.lanes_for("B")))
-        check("sonnet 은 A 2순위 — 2026-10-05 부터 claude-sonnet-5-5 · 사다리 medium/high "
+        check("sonnet 은 A 의 claude-sonnet-5-5 · 사다리 medium/high — D-99 부터 3순위(2순위는 claude-haiku-5-5) "
               "(옛 claude-sonnet-5 사다리 medium/xhigh 는 원장 호환용으로 그대로)",
-              routing.lanes_for("A")[1] == "claude-sonnet-5-5"
+              routing.lanes_for("A")[1] == "claude-haiku-5-5"
+              and routing.lanes_for("A")[2] == "claude-sonnet-5-5"
               and routing.ladder_for("claude-sonnet-5-5") == ("medium", "high")
               and routing.ladder_for("claude-sonnet-5") == ("medium", "xhigh"),
               f"A={routing.lanes_for('A')} ladder={routing.ladder_for('claude-sonnet-5-5')}")
         check("코딩 목록에는 codex 가 끝까지 없다 (D-28 #5)",
               all(routing.LANES[l]["vendor"] == "claude" for l in routing.PROCESS_LANES["coding"]))
-        check("코디네이터(sol)가 B 목록에 없다 — 겸임이 구조적으로 불가",
+        check("코디네이터(sol)가 B 우선순위 목록에 없다 (D-98 뒤로 고정 게이트가 같은 모델이라 겸임 경고는 따로 뜬다)",
               routing.COORDINATOR[0] not in routing.lanes_for("B")
               and "gpt-5.6-sol" not in routing.lanes_for("B"))
         check("인가 게이트가 astra @xhigh 로 올라갔다 (Simon 결정 2026-09-06)",
@@ -705,8 +707,9 @@ def run():
               and routing.prompt_prefix("claude-opus-5-5", "max") == "", str(argv_o))
 
         # 2026-10-05 Simon 지시 (2.15.5) — A 클래스를 현행 세대 레인으로 (같은 ADD_ALONGSIDE_KEEP_LEGACY)
-        check("2.15.5 A 클래스 = gpt-6-luna → claude-sonnet-5-5 → claude-opus-5-5",
-              routing.lanes_for("A") == ["gpt-6-luna", "claude-sonnet-5-5", "claude-opus-5-5"],
+        check("2.15.5 A 클래스 = gpt-6-luna → … → claude-sonnet-5-5 → claude-opus-5-5 "
+              "(D-99 가 2순위에 claude-haiku-5-5 를 넣었다 · 1순위와 Sonnet 은 그대로)",
+              routing.lanes_for("A") == ["gpt-6-luna", "claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"],
               str(routing.lanes_for("A")))
         check("2.15.5 새 레인은 flag · orca · 상한 sonnet-5-5=max / 6-luna=xhigh",
               all(routing.LANES[l]["effort_style"] == "flag" and routing.LANES[l]["dispatch"] == "orca"
@@ -736,6 +739,102 @@ def run():
         check("2.15.5 sonnet-5-5 max 는 off-ladder 로만 · --model·--effort 그대로",
               "claude-sonnet-5-5" in argv_s and argv_s[argv_s.index("--effort") + 1] == "max", str(argv_s))
 
+        # D-99 (2026-10-12 · 2.16.0) — claude-haiku-5-5 를 A 클래스의 Claude 쪽 첫 폴백으로 (선두 승격 아님)
+        haiku = routing.LANES["claude-haiku-5-5"]
+        check("D-99 haiku-5-5 는 flag · orca · claude · 상한 max · 사다리 low/medium · 일반 claude 쿼터",
+              haiku["effort_style"] == "flag" and haiku["dispatch"] == "orca" and haiku["vendor"] == "claude"
+              and routing.ceiling_for("claude-haiku-5-5") == "max"
+              and routing.ladder_for("claude-haiku-5-5") == ("low", "medium")
+              and "quota_bucket" not in haiku, str(haiku))
+        check("D-99 haiku-5-5 는 A 2순위에만 있다 — 선두가 아니고 다른 클래스·코딩·고정 공정에 없다",
+              routing.lanes_for("A").index("claude-haiku-5-5") == 1
+              and routing.lanes_for("A")[0] == "gpt-6-luna"
+              and all("claude-haiku-5-5" not in routing.lanes_for(c) for c in routing.CLASS_LANES if c != "A")
+              and "claude-haiku-5-5" not in routing.PROCESS_LANES["coding"]
+              and all(f[0] != "claude-haiku-5-5"
+                      for f in (routing.fixed_for(p[0]) for p in routing.PROCESSES) if f),
+              str(routing.CLASS_LANES))
+        haiku_off = []
+        for eff in ("high", "xhigh", "max"):
+            try:
+                routing.dispatch_argv("claude-haiku-5-5", eff, "t", "n", "current")
+                haiku_off.append(f"{eff}=열림")
+            except ValueError:
+                pass
+        check("D-99 haiku-5-5 high·xhigh·max 는 정책 사다리 밖 — 기본 경로로 안 열린다",
+              not haiku_off, str(haiku_off))
+        argv_h = routing.dispatch_argv("claude-haiku-5-5", "low", "t", "n", "current")
+        check("D-99 haiku-5-5 는 --model·--effort low 로 나가고 프롬프트 키워드를 붙이지 않는다",
+              argv_h[argv_h.index("--model") + 1] == "claude-haiku-5-5"
+              and argv_h[argv_h.index("--effort") + 1] == "low"
+              and routing.prompt_prefix("claude-haiku-5-5", "medium") == "", str(argv_h))
+        try:
+            routing.dispatch_argv("claude-haiku-5-5", "ultra", "t", "n", "current", allow_off_ladder=True)
+            check("haiku-5-5@ultra → 차단 (Orca 허용목록 밖)", False, "통과되어 버렸다")
+        except ValueError:
+            check("haiku-5-5@ultra → 차단 (Orca 허용목록 밖)", True)
+        check("D-99 haiku-5-5 는 우열 판단 금지 명시 (싼 레인 규율은 luna 와 같다)",
+              "우열 판단" in routing.OUTPUT_RULES["claude-haiku-5-5"]["deny"])
+
+        # D-98 (2026-10-12 · 2.16.0) — 생성물 게이트를 gpt-6.1-sol @xhigh 로 · Daybreak 키는 원장 호환용
+        gate98 = routing.fixed_for("security-artifact-gate")
+        daybreak = "gpt-daybreak-blue-latest"
+        check("D-98 생성물 게이트 = gpt-6.1-sol @xhigh (폐기 표시된 Daybreak 별칭이 아니다)",
+              gate98 == ("gpt-6.1-sol", "xhigh"), str(gate98))
+        check("D-98 Daybreak 키는 LANES 에 남지만 어떤 우선순위 목록·고정 공정·코디네이터에도 없다",
+              daybreak in routing.LANES and routing.ledger_efforts(daybreak)
+              and daybreak in routing.DEPRECATED_LANES
+              and daybreak not in listed and routing.COORDINATOR[0] != daybreak
+              and all(f[0] != daybreak for f in (routing.fixed_for(p[0]) for p in routing.PROCESSES) if f))
+        check("D-98 게이트 벤더는 codex 뿐 — 코딩(claude)과 겹치지 않는다 (G1 불변식)",
+              routing.gate_vendors() == {"codex"}, str(sorted(routing.gate_vendors())))
+        for coder in ("gpt-6.1-sol", "gpt-6-astra", "gpt-6-luna"):
+            ok_c98, v_c98, _n98 = routing.validate_plan(
+                [{"proc": "coding", "lane": coder, "class": "B"}] + gate_a,
+                quota_checked_vendors=routing.VENDORS)
+            check(f"D-98 코딩이 codex({coder})면 게이트가 gpt-6.1-sol 이어도 G1",
+                  not ok_c98 and "G1" in v_c98, str(v_c98))
+        for same in ("gpt-6-astra", "gpt-6.1-sol"):
+            ok_s98, v_s98, _ns98 = routing.validate_plan(
+                [{"proc": "coding", "lane": default_coding, "class": "B"},
+                 {"proc": "security-artifact-gate", "lane": same, "class": "B"},
+                 {"proc": "security-bizlogic-2nd", "lane": same, "class": "B"}],
+                quota_checked_vendors=routing.VENDORS)
+            check(f"D-98 두 게이트가 같은 모델({same})이면 G1_SEC_SAME_MODEL",
+                  not ok_s98 and "G1_SEC_SAME_MODEL" in v_s98, str(v_s98))
+        ok_d98, v_d98, _nd98 = routing.validate_plan(
+            [{"proc": "coding", "lane": default_coding, "class": "B"},
+             {"proc": "security-artifact-gate", "lane": daybreak, "class": "B"},
+             {"proc": "security-bizlogic-2nd", "lane": "gpt-6-astra", "class": "B"}],
+            quota_checked_vendors=routing.VENDORS)
+        check("D-98 Daybreak 를 게이트에 다시 넣으면 LANE_DEPRECATED + FIXED_LANE_OVERRIDDEN",
+              not ok_d98 and {"LANE_DEPRECATED", "FIXED_LANE_OVERRIDDEN"} <= set(v_d98), str(v_d98))
+        ok_d2, v_d2, _nd2b = routing.validate_plan(
+            [{"proc": "research-deep", "lane": daybreak, "class": "B"}],
+            quota_checked_vendors=routing.VENDORS)
+        check("D-98 Daybreak 는 게이트 밖 공정에도 새로 배정되지 않는다 (LANE_DEPRECATED)",
+              not ok_d2 and v_d2 == ["LANE_DEPRECATED"], str(v_d2))
+        check("D-98 부작용 — 게이트와 코디네이터가 같은 모델이라 기본 코딩 라운드에 겸임 경고가 뜬다 (가드 위반은 아니다)",
+              routing.coordinator_conflict(a_ok)
+              and not routing.check_guards(a_ok, quota_checked_vendors=routing.VENDORS))
+        check("D-98 게이트 출력 규칙이 gpt-6.1-sol 로 옮겨졌다 (빈 출력·차단을 PASS 로 읽지 않는다)",
+              "GATE: BLOCK" in routing.OUTPUT_RULES["gpt-6.1-sol"]["allow"]
+              and "FAIL" in routing.OUTPUT_RULES["gpt-6.1-sol"]["deny"]
+              and daybreak not in routing.OUTPUT_RULES)
+        gate_doc = os.path.join(os.path.dirname(_HERE), "references", "security-artifact-gate.md")
+        try:
+            with open(gate_doc, "r", encoding="utf-8") as f:
+                gate_text = " ".join(f.read().split())   # 줄바꿈 위치에 묶이지 않게 공백을 접는다
+        except OSError:
+            gate_text = ""
+        missing_rules = [s for s in ("FAIL, never PASS", "Empty output", "Refusal or blocked output",
+                                     "Missing first line", "Ambiguous verdict", "GATE: BLOCK", "GATE: PASS",
+                                     "The gate never grades work made by its own vendor",
+                                     "No automatic promotion")
+                         if s not in gate_text]
+        check("D-98 게이트 규칙 문서가 fail-closed·G1·재승격 규칙을 적는다 (references/security-artifact-gate.md)",
+              not missing_rules, str(missing_rules))
+
         # Orca 가 거부하는 값은 allow_off_ladder 로도 열리지 않는다.
         for bad in ("ultra", "max"):
             try:
@@ -760,9 +859,10 @@ def run():
         check("off_ladder 사실이 meta 에 남는다", m_off["off_ladder"] is True, str(m_off))
 
         # 계획 검증이 잘못된 명시 effort 에서 아무것도 실행하지 않는다.
+        # D-98: 게이트 레인은 gpt-6.1-sol 이다(옛 gpt-daybreak-blue-latest). 상한은 둘 다 xhigh 라 ultra 는 거부된다.
         plan_bad = [{"proc": "coding", "lane": "claude-opus-5", "class": "B"},
                     {"proc": "security-artifact-gate",
-                     "lane": "gpt-daybreak-blue-latest", "class": "B", "effort": "ultra"},
+                     "lane": routing.fixed_for("security-artifact-gate")[0], "class": "B", "effort": "ultra"},
                     {"proc": "security-bizlogic-2nd", "lane": "gpt-6-astra", "class": "B"}]
         okb, vb, _nb = routing.validate_plan(plan_bad,
                                              quota_checked_vendors=routing.VENDORS)
