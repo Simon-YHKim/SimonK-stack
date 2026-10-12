@@ -830,3 +830,12 @@ last-sync: 2026-07-05
   - **남은 것 1 (게이트는 고정이지 자동 경로 동작이 아니다)**: 중앙 계획기는 Daybreak 게이트 후보를 계속 거부한다. 사유 셋 — MODEL_NOT_ACTIVE(레지스트리 lifecycle deprecated, D-97부터) · 별칭 해석 증거(resolved_model == gpt-5.6-sol, 실행마다 관측) · 접근 프로그램 증거(daybreak_blue). 뒤의 둘은 오늘 이전부터 있던 요건이고, 로컬 rollout에는 별칭 이름만 남아 해석 증거를 만들 방법이 아직 없다. 모델 자체는 Orca 수동 디스패치로 동작한다(canary run_b08adccb4ec8). D-98 상태(gpt-6.1-sol)에서는 게이트 계획이 ready였으므로 계획 단계 기준으로는 후퇴다. 어느 Orca 레인도 런치 인증서 전에는 자동 실행되지 않으므로 실제 실행에 생긴 차이는 없다
   - **남은 것 2 (대체안, Simon 판단)**: Opus 5.5 대체는 미구현. 직전 기록의 선택지 (나) gpt-6-sol은 "astra 말고는 쓰지마" 지시로 없어졌다. 지금 선택지: (가) claude-opus-5-5 + 그 경우만 G1 완화(같은 모델이 자기 코드를 검사) (나) gpt-6-astra가 두 보안 게이트를 겸함 + 그 경우만 G1_SEC_SAME_MODEL 완화(다른 벤더 검사는 유지). 오케스트레이터 권고는 (나)
   - **남은 것 3**: 중앙 계획기의 host·direct CLI 후보에는 "GPT는 astra만" 제한이 없다(Orca 레인 표·codex 직행 argv·shadow task-fit에만 걸림). Codex 호스트 세션의 자기 모델까지 막을지 정해야 해서 구현하지 않았다 · A 클래스는 전부 claude라 한도에 닿으면 멈춘다 · canary 미실행: 코디네이터로서의 astra, A 순서 변경, ai-debate 좌석
+
+- 2026-10-12 23:25:16 KST | DECIDE | **D-102 보안 생성물 게이트 폴백: Daybreak가 설 수 없을 때만 gpt-6-astra@xhigh** (Simon 지시 · 토론 없음) | claude
+  - **안건**: D-101에서 남긴 판정. Daybreak가 안 될 때 보안 생성물 게이트를 누가 맡나. (가) claude-opus-5-5 + G1 완화 · (나) gpt-6-astra가 두 보안 게이트를 겸임 + G1_SEC_SAME_MODEL 완화.
+  - **결정**: (나). Simon 2026-10-12 23:1x "권장안대로 진행해" — 오케스트레이터가 17:07 보고에서 (나)를 권했다. 앞선 발언 "그게 안돼면 opus 5.5로 하자"는 이 결정이 대체한다.
+  - **이유**: 코딩이 claude-opus-5-5라 (가)는 같은 모델이 자기 산출물을 검사한다(G1이 막으려는 것). (나)는 다른 회사 모델이 검사한다는 점을 지키고 "GPT 쪽은 astra만" 지시 안에 있다. 비용: 한 모델이 두 보안 질문에 모두 답하므로 두 게이트가 서로 독립된 검사가 아니게 된다.
+  - **범위(구현 조건)**: 폴백은 Daybreak가 '설 수 없을 때'만 열린다 — 계획기가 그 후보를 가용성 사유로 거부했을 때, 또는 실행 전 Codex 카탈로그 확인이 실패했을 때. Daybreak가 실제로 돌아서 BLOCK · 빈 출력 · 차단 · 모호한 판정을 낸 뒤에는 폴백하지 않는다(FAIL 그대로). Daybreak가 설 수 있으면 Daybreak가 먼저다. G1(코딩 벤더 ≠ 게이트 벤더)은 그대로다. G1_SEC_SAME_MODEL은 이 폴백 상태 하나에서만 면제하고 계획에 사유를 남긴다.
+  - **같이 정한 것(오케스트레이터 단독 · 35.8 1단 · D-101의 이행 세부 — 이의가 있으면 승격)**: ① 계획기의 Daybreak 차단(MODEL_NOT_ACTIVE · 별칭 해석 증거 · 접근 증거)은 풀지 않는다. 자동 경로의 게이트는 이 폴백이 채운다. ② "astra 말고는 쓰지마"의 예외는 지금처럼 Daybreak 게이트 한 자리다. ③ 철회한 GPT 5개는 계획기의 직접 CLI 경로로도 서지 못하게 막고, 그 경로의 astra는 xhigh로만 선다. 호스트 세션 자신의 모델은 제한하지 않는다(막으면 그 세션의 /vibe가 멈춘다. 이 PC의 Codex 기본값은 이미 gpt-6-astra · xhigh다).
+  - **뒤집는 조건**: Simon이 Daybreak도 빼거나 Opus 폴백을 다시 지정할 때 · astra 게이트 시험이 심은 결함을 놓칠 때 · 새 cyber 모델이 Codex 카탈로그에 나타나 교체 규칙(vibe references/security-artifact-gate.md)을 통과할 때.
+  - **후속**: SimonK-stack PR(vibe 2.18.0) → CI → 머지 → dist → 이 PC 설치. 결과는 이 D-102에 AMEND로 붙인다.
