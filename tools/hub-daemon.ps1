@@ -281,7 +281,10 @@ function Invoke-AI([string]$ai,[string]$tier='primary'){
         # binary-swap), popping a User Account Control prompt in this headless daemon where
         # nobody can approve it. Disabling auto-update removes that elevation path entirely.
         # Also persisted as a User env var. To update agy: clear both, run agy once, re-set.
-        $env:AGY_CLI_DISABLE_AUTO_UPDATE = '1'
+        # The value must be the literal 'true' (measured 2026-10-12, agy 1.3.3): with '1' agy still
+        # spawns a detached `agy --bg-updater` every 15 min whose `agy --version` child opens a
+        # visible console window that takes the foreground. 'true' logs "Auto-update disabled".
+        $env:AGY_CLI_DISABLE_AUTO_UPDATE = 'true'
         # Note (2026-07-11 research wf): the headless lane does NOT trigger agy's sandbox-setup UAC --
         # `agy -p ... --dangerously-skip-permissions` skips the OS sandbox (Go pkg exebox) entirely, so
         # exebox.escalatePrivilegeGrants (AppContainer provisioning: NetworkIsolationSetAppContainerConfig
