@@ -207,9 +207,13 @@ A 클래스 레인 두 개를 같은 방식으로 더했다(표의 셋째·넷�
     종료를 확인했다. 심은 샘플 1건이다. 별칭은 예고 없이 사라질 수 있다.
   - canary 를 돌리지 않은 것: 코디네이터로서의 `gpt-6-astra`, A 클래스 순서 변경. Haiku 5.5 의 근거는 D-99 의 정답이
     정해진 A 과제 3개, Sonnet 5.5 의 근거는 D-91 canary 가 전부다.
-  - 미결: Simon 이 말한 게이트 폴백 `claude-opus-5-5` 는 구현하지 않았다. 코딩이 `claude-opus-5-5` 라 같은 모델이
-    자기 산출물을 검사하게 되어 G1 과 충돌한다. 선택지와 실행 전 규칙(Codex 카탈로그 확인, 없거나 출력이 비거나
-    차단되면 게이트 실패)은 `references/security-artifact-gate.md` 에 있다.
+  - (그 시점의 미결) Simon 이 말한 게이트 폴백 `claude-opus-5-5` 는 구현하지 않았다. 코딩이 `claude-opus-5-5` 라 같은 모델이
+    자기 산출물을 검사하게 되어 G1 과 충돌한다.
+  - **D-102(2026-10-12, 2.18.0, Simon 판정)가 그 미결을 정했다**: 고정 레인이 설 수 없을 때만 `gpt-6-astra` @xhigh 가
+    생성물 게이트를 맡는다(`routing.FIXED_FALLBACKS`). 그 상태 하나에서만 `G1_SEC_SAME_MODEL` 을 면제하고 G1 은 그대로다.
+    레지스트리 값은 바꾸지 않았다(`gpt-daybreak-blue-latest` 는 `deprecated`, 계획기는 계속 `MODEL_NOT_ACTIVE`). 그 거부가
+    곧 폴백 사유가 되어, packaged registry 경로에서는 지금 `gpt-6-astra` 가 게이트를 맡는다. 조건·실행 전 규칙·canary
+    (run `run_3607f8833d7e`)는 `references/security-artifact-gate.md` 에 있다.
   - shadow task-fit 정책(`2026-10-12-shadow.2`)도 같은 지시로 바꿨다: GPT 행은 `gpt-6-astra` 의 xhigh 뿐이고,
     CODE_SIMPLE 은 `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5` 다. Sonnet 5.5 가 돌아온 것은 지시
     때문이지 D-90 재진입 조건(Artificial Analysis 재측정)이 충족돼서가 아니다.

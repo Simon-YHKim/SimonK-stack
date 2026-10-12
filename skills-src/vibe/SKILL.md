@@ -2,7 +2,7 @@
 name: vibe
 description: 'Use when "/vibe" routes SimonKStack work across skills and models, when asked "바이브로 알아서", or for Play Console GUI work. Produces a verified routing plan and reports blocked coding or image routes; executes only with verified $0 subscription coverage and checks CLI/API/MCP before vibe-bot (Grok Bot) handoff.'
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob
-version: 2.17.0
+version: 2.18.0
 author: simon-stack
 ---
 
@@ -252,7 +252,7 @@ Ask only for missing intent or actions beyond existing authority.
 - Orca: read [Orca workflow](references/orca-workflow.md). Validate the entire
   assignment plan, then use `scripts/execute_orca.py` with the guarded adapter
   contract in [orchestration](references/orchestration.md). Its first version
-  covers local Claude/Codex flag-effort lanes only (D-101, 2026-10-12, Simon 지시: GPT 쪽 레인은 `gpt-6-astra` @xhigh 하나다. `gpt-6.1-sol`·`gpt-6-luna`·`gpt-5.6-*` 는 철회돼 계획에 넣으면 ORCA_LANE_WITHDRAWN 이다(결함이 아니라 소유자 지시). A 클래스는 `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5` 다. 등록된 레인은 canary 를 통과했어도 계정/과금 인증서 전이라 동작 레인이 아니다. 보안 생성물 게이트는 폐기 표시된 `gpt-daybreak-blue-latest` @xhigh 고정이고 중앙 계획기의 MODEL_NOT_ACTIVE 는 그대로다. 별칭이 카탈로그에 없거나 출력이 비거나 차단되거나 판정이 모호하면 실패이고, Opus 폴백은 미결이다). It calls claim internally;
+  covers local Claude/Codex flag-effort lanes only (D-101, 2026-10-12, Simon 지시: GPT 쪽 레인은 `gpt-6-astra` @xhigh 하나다. `gpt-6.1-sol`·`gpt-6-luna`·`gpt-5.6-*` 는 철회돼 계획에 넣으면 ORCA_LANE_WITHDRAWN 이다(결함이 아니라 소유자 지시). A 클래스는 `claude-haiku-5-5` → `claude-sonnet-5-5` → `claude-opus-5-5` 다. 등록된 레인은 canary 를 통과했어도 계정/과금 인증서 전이라 동작 레인이 아니다. 보안 생성물 게이트는 폐기 표시된 `gpt-daybreak-blue-latest` @xhigh 고정이고 중앙 계획기의 MODEL_NOT_ACTIVE 는 그대로다. D-102: 그 별칭이 설 수 없을 때만 `gpt-6-astra` @xhigh 가 게이트를 맡는다 — 계획기가 Daybreak 후보를 가용성 사유로 거부했을 때 단계에 `gate_fallback` 을 남기며, 그 상태에서만 두 보안 게이트가 같은 모델이다. 게이트 후보에는 Daybreak 를 항상 넣는다(없어졌으면 `available: false`). 출력이 비거나 차단되거나 판정이 모호하면 실패이고 같은 실행을 폴백에 넘기지 않는다). It calls claim internally;
   never hand it a saved dispatch_allowed flag. Native Task/spec, workspace,
   executable and fresh account/billing evidence must match before a start.
   Reentry is lookup-only. Unsupported lanes remain blocked;
@@ -401,7 +401,7 @@ module imports by other callers still need the caller's own no-bytecode policy.
 - [Orchestration schema and cost policy](references/orchestration.md)
 - [Model catalog map, 2026-10-12 refresh, D-101 레인 상태(GPT 는 `gpt-6-astra` @xhigh 만 · 철회 레인 5개 · A 클래스 `claude-haiku-5-5` 선두 · 인증서 대기)](references/model-catalog-map.md)
 - [Guarded Orca workflow and preparation limits](references/orca-workflow.md)
-- [D-28 route decisions](references/d28-routing.md) · [Security artifact gate: D-101 Daybreak lane, rubric, fail-closed rules and the open fallback](references/security-artifact-gate.md)
+- [D-28 route decisions](references/d28-routing.md) · [Security artifact gate: D-101 Daybreak lane, D-102 gpt-6-astra fallback, rubric and fail-closed rules](references/security-artifact-gate.md)
 - [Astra effort transport cap](references/v2.2-astra-effort-cap.md)
 - [Adversarial evaluations](references/adversarial-eval.md)
 - [Operational pitfalls](references/pitfalls.md)

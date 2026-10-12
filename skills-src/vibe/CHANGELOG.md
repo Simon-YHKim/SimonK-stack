@@ -1,5 +1,60 @@
 # Changelog
 
+## 2.18.0 - 2026-10-12
+
+- **D-102: 보안 생성물 게이트의 폴백을 `gpt-6-astra` @xhigh 로 정했다**(Simon 판정, 토론 없음, 허브 DECISIONS D-102).
+  2.17.0 이 남긴 미결이다. 선택지는 (가) `claude-opus-5-5` + G1 완화, (나) `gpt-6-astra` 가 두 보안 게이트를 겸임 +
+  G1_SEC_SAME_MODEL 완화였고 (나)로 정했다. Simon 이 먼저 말한 "그게 안돼면 opus 5.5로 하자"는 이 판정이 대체한다.
+  코딩이 `claude-opus-5-5` 라 (가)는 같은 모델이 자기 산출물을 검사하게 된다.
+- **고정 배정은 그대로다.** `security-artifact-gate` 는 여전히 `gpt-daybreak-blue-latest` @xhigh 고정이고, 설 수 있으면
+  Daybreak 가 먼저다. 새 `FIXED_FALLBACKS = {security-artifact-gate: (gpt-6-astra, xhigh)}` 는 고정 레인이 설 수 없을
+  때만 열린다.
+- **레인 표(`routing.py`)**: `validate_plan`·`check_guards`·`validate_and_dispatch` 에 `fixed_unavailable={공정: [사유]}`
+  인자가 생겼다(`revalidate_for_retry` 도 그대로 넘긴다).
+  - 사유가 있고 게이트가 폴백 레인·폴백 effort 에 있으면 `FIXED_LANE_OVERRIDDEN` 을 내지 않는다.
+  - 같은 조건에서 인가 게이트가 자기 고정 레인에 있을 때만 `G1_SEC_SAME_MODEL` 을 면제한다. 면제는 notes 에 남는다.
+  - 사유가 없거나 비었으면 예전과 똑같이 `FIXED_LANE_OVERRIDDEN` + `G1_SEC_SAME_MODEL` 이다.
+  - 설 수 없다고 해 놓고 고정 레인에 배정하면 새 위반 `FIXED_LANE_UNAVAILABLE` 이다.
+  - `G1`(코딩 벤더 ≠ 게이트 벤더)은 면제하지 않는다. Opus 는 사유가 있어도 게이트 레인이 아니다.
+- **중앙 계획기(`orchestrate.py`)**: 사유를 호스트의 요청이 아니라 제시받은 후보를 거부한 자기 기록으로 만든다. 게이트 단계에 제시된
+  Daybreak Orca 후보가 전부 거부됐고, 거부마다 `GATE_UNAVAILABLE_REASONS`(`MODEL_NOT_ACTIVE`·`MODEL_NOT_REGISTERED`·
+  `MODEL_UNAVAILABLE`·`MODEL_ACCESS_UNVERIFIED`·`ALIAS_RESOLUTION_UNVERIFIED`·`ALIAS_RESOLUTION_STALE`·
+  `MODEL_RESOLUTION_MISMATCH`) 중 하나가 있으며, 단계의 경로가 폴백 레인일 때만 단계에 `gate_fallback` 을 남긴다.
+  - packaged registry 는 Daybreak 를 `deprecated` 로 둔다(그대로다). 그래서 지금 이 경로에서는 `gpt-6-astra` 가
+    게이트를 맡는다. 2.17.0 에서는 이 경로의 게이트가 막혀 있었다.
+  - Daybreak 후보를 아예 내지 않으면 폴백은 열리지 않는다(`ORCA_FIXED_LANE_OVERRIDDEN` + `ORCA_G1_SEC_SAME_MODEL`).
+    게이트 후보에는 Daybreak 를 항상 넣고, 카탈로그에서 사라졌으면 `available: false` 로 넣는다.
+  - 요청 단계에 실려 온 `gate_fallback` 은 버린다. 쿼터 상태·오래된 registry·게이트 판정은 사유가 아니다.
+    Daybreak 후보가 하나라도 통과하면 폴백은 닫힌다(계획기는 둘 사이에서 고르지 않는다. 다른 모델로 가면 막힌다).
+  - `_legacy_validation` 이 기록을 다시 검사한다: 고정 레인·폴백 레인이 레인 표와 같고, 사유가 목록 안이며,
+    사유가 그 단계의 거부 목록에 있어야 한다. 어긋나면 `ORCA_GATE_FALLBACK_INVALID` 이고 `prepare_orca`·
+    `execute_orca` 는 `ORCA_PLAN_GUARD` 로 멈춘다.
+  - `run_state.py`: `gate_fallback` 은 경로를 따르는 값이라 task 의도 digest 와 Task 과제문에서 뺐다.
+    `plan_digest` 에는 들어가므로 저장된 계획을 고쳐 폴백으로 만들 수 없다.
+- **직접 Codex CLI 경로에도 D-101 을 건다**(오케스트레이터 판단, D-101 의 이행 세부): 계획기가 `codex`·`cli` 후보에서
+  철회된 GPT 다섯 모델을 `MODEL_WITHDRAWN_BY_OWNER` 로, `gpt-6-astra` 의 xhigh 밖 effort 를 `EFFORT_PINNED_BY_OWNER`
+  로 거부한다. 호스트 세션 자신의 모델은 제한하지 않는다(막으면 그 세션의 `/vibe` 가 멈춘다).
+- **지킨 것**: G1, 계획기의 Daybreak 차단(`MODEL_NOT_ACTIVE`·별칭 해석 증거·접근 증거), `LANE_DEPRECATED` 의 한 자리
+  예외, $0·G5·런치 인증서. registry(`2026-10-12.3`)와 task-fit 정책은 바꾸지 않았다. registry 의 D-101 note 는 그
+  시점 기록으로 남는다.
+- **잃은 것과 한계**
+  - 폴백 상태에서는 한 모델이 두 보안 질문에 모두 답한다. 두 게이트가 서로 독립된 검사가 아니다.
+  - `gpt-6-astra` 는 cyber 전용 모델이 아니다.
+  - 실행 전 Codex 카탈로그 확인은 여전히 코디네이터의 서면 규칙이다. 스크립트가 하지 않는다.
+  - 가드는 Orca 경로만 본다. host·직접 CLI 로 간 게이트 단계는 고정·폴백 검사를 받지 않는다.
+  - Orca 레인은 여전히 계정/과금 인증서 전이라 자동 실행되지 않는다. 바뀐 것은 계획 단계다.
+- **canary**(오케스트레이터 실행, 2026-10-12 23:26 KST, Orca run `run_3607f8833d7e`, dispatch `ctx_56f442610119`,
+  워커 1개, 도구를 쓰지 말라는 지시): `launch.requested == launch.effective`(`gpt-6-astra`, xhigh), Codex rollout
+  `turn_context` 같은 값. D-98·D-101 과 같은 결함 4개 샘플에 `GATE: BLOCK` 으로 답하고 CWE-89·78·22·502 를 정확히
+  보고했으며 안전한 함수 2개에는 발견을 내지 않았다. 52초, 자기보고 "unknown". 심은 샘플 1건이고 루브릭 9개 검사 중
+  4개만 본다.
+- **문서**: `references/security-artifact-gate.md` 의 "Open item" 절을 "Fallback" 절로 바꿨다(언제 열리는지, 가드가
+  하는 일, 한계, canary). `legacy-routing.md`(생성 표)·`orca-workflow.md`·`orchestration.md`·`d28-routing.md`·
+  `model-catalog-map.md`·SKILL.md 를 맞췄다.
+- 검증: 단위 테스트 439개(새 3개)·`tests/` 157개 통과, `selftest.py` 282/0(새 17개). 새 테스트는 폴백 로직을 일부러
+  망가뜨린 변형 10개를 모두 잡았다(면제 상시 허용, 사유 없는 폴백, 요청이 실어 온 기록, 통과한 Daybreak 무시,
+  가용성 밖 사유, 거부 목록과 무관한 기록, 목록 밖 사유, CLI 규칙 해제, 설 수 없는 고정 레인 배정, digest 포함).
+
 ## 2.17.0 - 2026-10-12
 
 - **D-101: GPT 쪽은 `gpt-6-astra` @xhigh 만 쓰고, 보안 생성물 게이트는 Daybreak 로 되돌렸다**(Simon 지시, 토론 없음,
