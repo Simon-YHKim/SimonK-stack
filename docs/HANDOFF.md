@@ -1,6 +1,49 @@
 # SimonK-stack 세션 인수인계
 
-## Latest — 2026-10-12 / 레지스트리 재확인(D-97) · 보안 게이트 이전(D-98) · Haiku 5.5(D-99) · dist 1.843.0
+## Latest — 2026-10-12 16:55 / D-101: GPT 쪽은 gpt-6-astra@xhigh만 · 보안 게이트 Daybreak 복귀 · dist 1.849.0
+
+갱신 시각: 2026-10-12 16:55 KST · 갱신자: Claude Code(Opus 5.5). Simon: "gpt 6.1 sol은 너무 느려서 빼기로 결정. 기획단계 gpt astra xhigh와 opus 5.5. 단순작업 sonet 5.5", "보안게이트는 데이브레이크로 할려했는데 그게 안돼면 opus 5.5로 하자.", "gpt 쪽은 astra 말고는 쓰지마. gpt 를 넣어야한다면 astra xhigh."
+
+### 어디까지 왔나
+- **D-101**(#168, Simon 지시, 토론 없음): vibe 2.17.0 · registry 2026-10-12.3 · task-fit 2026-10-12-shadow.2 · ai-debate 0.2.7.
+  - GPT 쪽에서 일을 받는 레인은 `gpt-6-astra` 하나이고 effort는 `xhigh` 고정이다(`EFFORT_PINNED`, off-ladder와 codex 직행 argv 포함).
+  - 철회(`WITHDRAWN_LANES`, 키는 원장 호환용, 새 계획은 `LANE_WITHDRAWN`): `gpt-6.1-sol` · `gpt-6-luna` · `gpt-5.6-sol` · `gpt-5.6-terra` · `gpt-5.6-luna`. 결함이 아니라 소유자 지시다.
+  - 코디네이터와 인가 게이트: `gpt-6-astra@xhigh`. 생성물 게이트: `gpt-daybreak-blue-latest@xhigh`(`DEPRECATED_LANE_PINS`의 한 자리만 통과).
+  - A = `claude-haiku-5-5 → claude-sonnet-5-5 → claude-opus-5-5` · B/A-verify = `gpt-6-astra → claude-fable-5-1 → claude-opus-5-5` · C-realtime = `grok-4.6 → claude-opus-5-5 → gpt-6-astra` · C-platform = `gemini-3.8-flash → claude-opus-5-5 → gpt-6-astra` · 코딩과 D = `claude-opus-5-5`.
+  - ai-debate OpenAI 좌석 기본값: `gpt-6.1-sol@xhigh` → `gpt-6-astra@xhigh`.
+  - Daybreak canary(변경 전): Orca `run_b08adccb4ec8` · `ctx_41243c1a0d26` · 15:19~15:20 KST. 요청 모델과 실제 모델 일치, 결함 4개를 심은 샘플에 `GATE: BLOCK`과 CWE-89·78·22·502, 오탐 0.
+- **dist 1.849.0**(c846fdd). 이 PC 후보 `20261012-vibe-2170-d3047e1`(selftest 265/0 · 104/0, problems 0).
+- 오전의 D-98(게이트 `gpt-6.1-sol`)과 D-99(Haiku 2순위) 배치는 같은 날 D-101이 대체했다. 아래 블록은 그 시점 기록이다.
+
+### 알고 넘어갈 한계
+- **게이트는 자리만 고정됐고 자동 경로에서는 아직 동작하지 않는다.** 중앙 계획기가 Daybreak 후보를 세 가지 사유로 거부한다.
+  - `MODEL_NOT_ACTIVE`: 레지스트리 lifecycle이 deprecated다(D-97부터).
+  - 별칭 해석 증거: `resolved_model == gpt-5.6-sol`을 실행마다 관측해야 한다. 로컬 rollout에는 별칭 이름만 남아 아직 만들 방법이 없다.
+  - 접근 프로그램 증거: `daybreak_blue`.
+  - 뒤의 둘은 오늘 이전부터 있던 요건이다. 모델 자체는 Orca 수동 디스패치로 동작한다. 어느 Orca 레인도 런치 인증서 전에는 자동 실행되지 않는다.
+- 중앙 계획기의 host·direct CLI 후보에는 "GPT는 astra만" 제한이 없다. Orca 레인 표, codex 직행 argv, shadow task-fit에만 걸려 있다.
+- A 클래스는 전부 claude라 Claude가 한도에 닿으면 멈춘다(codex 폴백 없음).
+- canary를 돌리지 않은 것: 코디네이터로서의 astra, A 클래스 순서 변경, ai-debate Codex 좌석.
+
+### 다음 작업 큐
+| # | 작업 | 시점 | 단 |
+|---|---|---|---|
+| A | Daybreak가 안 될 때의 대체 판정: (가) Opus 5.5 + 그 경우만 G1 완화 (나) astra가 두 보안 게이트 겸임 + 그 경우만 G1_SEC_SAME_MODEL 완화. 권고는 (나) | Simon 답 | Simon |
+| B | 게이트를 자동 경로에서 동작시키기: 계획기 `MODEL_NOT_ACTIVE`의 한 자리 예외, 별칭 해석 증거를 얻는 방법, 접근 증거 | A와 함께 | 2단 |
+| C | 중앙 계획기 host·direct CLI 후보에도 "GPT는 astra만"을 걸지(Codex 호스트 세션의 자기 모델 포함 여부) | Simon 답 | 2단 |
+| D | Grok catch-up: 토론 `dbt-261012-124530`(D-98) · `dbt-261012-124540`(D-99) | Grok 리셋(10-17 23:12) 직후 | 의무 |
+| E | grok-4.6 → 4.7 레인 canary | D와 같은 때, Grok 85% 미만 | 1단 |
+| F | 클라우드 봇 워크북에 D-93 반영(Relay 과제, approval_ref=simon-261006-남은것까지진행) | 봇 사용량 포함 증거를 15분 안에 확보할 수 있을 때 | 1단 |
+| G | 레지스트리 재확인 | 2026-10-19 11:43 KST 전 | 1단 |
+| H | canary 3건: 코디네이터 astra, A 순서, ai-debate Codex 좌석(다음 토론의 `meta.json` 모델 값) | 다음 사용 때 | 1단 |
+| I | AA Sonnet 5.5 공개판 재측정 확인. Sonnet 5.5는 D-101로 이미 CODE_SIMPLE에 돌아왔다(Simon 지시) | AA 발표 시 | 1단 |
+| J | 폐기 별칭이 아닌 cyber 모델이 `~/.codex/models_cache.json`에 나타나면 같은 canary 후 게이트 이전 | 카탈로그 변화 시 | 1단 |
+
+Simon 몫: 위 A·C, "astra 말고는 쓰지마"에 Daybreak도 포함되는지, Codex가 띄운 "Daybreak 모드 보안 설정(하드웨어 보안 키)" 안내, Codex `service_tier = "priority"` 유지 여부.
+
+---
+
+## 2026-10-12 14:0x / 레지스트리 재확인(D-97) · 보안 게이트 이전(D-98) · Haiku 5.5(D-99) · dist 1.843.0
 
 갱신 시각: 2026-10-12 14:0x KST · 갱신자: Claude Code(Opus 5.5). Simon: "재확인해봐".
 
